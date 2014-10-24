@@ -5,7 +5,7 @@ This code explains how to use the xpp library to create a CoG trajectory for
 variable footsteps. 
 
 An implementation example can be found in example.cc, which is compiled
-when building the library. To run the binary the global variable `ALEX_LIB_ROOT`
+when building the library. To run the binary the global variable `XPP_ROOT`
 must be set. Navigate to the top level directory `xpp` and run: 
     
     source test/set_env_variables.sh
