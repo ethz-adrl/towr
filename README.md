@@ -11,17 +11,19 @@ An example of what to do with this code can be found [here](md_how_to_run_exampl
 
 For further questions contact <winklera@ethz.ch>. 
 
-### Dependencies ###
+### Dependencies 
 - Apache logging library log4cxx
 
+    ```
       sudo apt-get install liblog4cxx10 && sudo apt-get install liblog4cxx10-dev
+    ```
     
 - (Optional) Google unit test framework
 
       sudo apt-get install libgtest-dev 
           
           
-### Install ###        
+### Install 
 - Once dependencies are installed, go to the top-level directory of DWL and type the
 following commands:
 
@@ -35,7 +37,7 @@ following commands:
       sudo make install    
 
 
-### Documentation ###
+### Documentation
 - Generate Doxygen documentation from this code
 
       cd ./doc
