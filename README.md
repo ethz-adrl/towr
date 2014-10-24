@@ -14,23 +14,23 @@ For further questions contact <winklera@ethz.ch>.
 ### Dependencies 
 - Apache logging library log4cxx
 
-    ```
-      sudo apt-get install liblog4cxx10 && sudo apt-get install liblog4cxx10-dev
-    ```
+         sudo apt-get install liblog4cxx10 && sudo apt-get install liblog4cxx10-dev
     
 - (Optional) Google unit test framework
 
-      sudo apt-get install libgtest-dev 
+    sudo apt-get install libgtest-dev 
           
           
 ### Install 
 - Once dependencies are installed, go to the top-level directory of DWL and type the
 following commands:
 
+    ```
     mkdir build
     cd build
     cmake ..    
     make
+    ```
     
 - To install the library and header files globally (`/usr/local`) run
 
