@@ -1,4 +1,4 @@
-#(X++) - Dynamic Motion Planner Documentation
+#(X++) - Dynamic Motion Planner
 
 With this library one can specify a set of steps for a quadruped robot to 
 execute and a trajectory for the Center of Gravity (CoG) will be generated. 
@@ -6,10 +6,12 @@ This trajectory enusures, that the Zero Moment Point(ZMP) is always inside the
 current support triangle, defined by the given footholds. This keeps the robot
 _dynamically_ stable during the walking gait.
 
-An example of what to do with this code can be found [here](md_how_to_run_example.html).
+**Tip**: After cloning the repository, generate [Doxygen](http://www.stack.nl/~dimitri/doxygen/) 
+documentation for an example and step-by-step instructions how to use the code.
 
 For further questions contact <winklera@ethz.ch>. 
 
+------------------------------------------------------------------------------------
 ### Dependencies 
 - Apache logging library log4cxx
 
@@ -29,7 +31,7 @@ following commands:
         cmake ..    
         make
     
-- To install the library and header files globally (`/usr/local`) run
+- To install the library `xpp` and header files globally in `/usr/local` run
 
         sudo make install    
 
@@ -37,7 +39,8 @@ following commands:
 ### Documentation
 - Generate Doxygen documentation from this code
 
-        cd ./doc
+        cd doc
         doxygen Doxyfile
+        firefox html/index.html
+
     
-- For an example of how to use this code, start [here](./test/md_how_to_run_example.html)
