@@ -1,0 +1,131 @@
+/**
+@file    hyq_state.cc
+@author  Alexander Winkler (winklera@ethz.ch)
+@date    Oct 21, 2014
+@brief   Captures the full state of the robot (body, feet)
+ */
+
+#include <xpp/hyq/hyq_state.h>
+
+#include <xpp/utils/logger_helpers-inl.h>
+#include <xpp/utils/orientation.h>
+
+namespace xpp {
+namespace hyq {
+
+using ::xpp::utils::Z;
+using ::xpp::utils::Vec3d;
+
+log4cxx::LoggerPtr HyqState::log_(log4cxx::Logger::getLogger("xpp.hyq.hyqstate"));
+
+HyqState::HyqState()
+{
+  // feet and base initialized to zero by default by struct Pos and Ori
+  swingleg_ = false;
+}
+
+
+HyqState::~HyqState()
+{
+  // TODO Auto-generated destructor stub
+}
+
+
+void HyqState::ZeroVelAcc()
+{
+  base_.pos.v.setZero();
+  base_.pos.a.setZero();
+  base_.ori.v.setZero();
+  base_.ori.a.setZero();
+  for (hyq::LegID l : hyq::LegIDArray) {
+   feet_[l].v.setZero();
+   feet_[l].a.setZero();
+  }
+}
+
+
+const LegDataMap<Eigen::Vector3d>& HyqState::GetFeetPosOnly()
+{
+  static LegDataMap<Eigen::Vector3d> feet_pos;
+  for (LegID leg : LegIDArray)
+    feet_pos[leg] = feet_[leg].p;
+  return feet_pos;
+}
+
+
+std::array<Vec3d, kNumSides> HyqState::GetAvgSides() const
+{
+  typedef std::pair <Side,Side> LegSide;
+  static LegDataMap<LegSide> leg_sides;
+
+  leg_sides[LF] = LegSide( LEFT_SIDE, FRONT_SIDE);
+  leg_sides[RF] = LegSide(RIGHT_SIDE, FRONT_SIDE);
+  leg_sides[LH] = LegSide( LEFT_SIDE,  HIND_SIDE);
+  leg_sides[RH] = LegSide(RIGHT_SIDE,  HIND_SIDE);
+
+  std::array<Vec3d, kNumSides> pos_avg;
+  for (Side s : SideArray) pos_avg[s] = Vec3d::Zero(); // zero values
+
+  for (LegID leg : LegIDArray)
+  {
+    pos_avg[leg_sides[leg].first]  += feet_[leg].p;
+    pos_avg[leg_sides[leg].second] += feet_[leg].p;
+  }
+
+  for (Side s : SideArray)
+    pos_avg[s] /= std::tuple_size<LegSide>::value; // 2 feet per side
+  return pos_avg;
+}
+
+
+double HyqState::GetZAvg() const
+{
+  std::array<Vec3d, kNumSides> avg = GetAvgSides();
+  return (avg[FRONT_SIDE](Z) + avg[HIND_SIDE](Z)) / 2;
+}
+
+
+LegDataMap<Foothold> HyqState::FeetToFootholds() const
+{
+  LegDataMap<Foothold> footholds;
+  for (LegID leg : LegIDArray)
+    footholds[leg] = FootToFoothold(leg);
+  return footholds;
+}
+
+
+Foothold HyqState::FootToFoothold(LegID leg) const
+{
+  Foothold foothold;
+  foothold.p = feet_[leg].p;
+  foothold.leg = leg;
+
+  return foothold;
+}
+
+
+void HyqState::SwitchSwingleg()
+{
+  switch (SwinglegID()) {
+    case NO_SWING_LEG:
+      SetSwingleg(LH);
+      break;
+    case LH:
+      SetSwingleg(LF);
+      break;
+    case LF:
+      SetSwingleg(RH);
+      break;
+    case RH:
+      SetSwingleg(RF);
+      break;
+    case RF:
+      SetSwingleg(LH);
+      break;
+    default:
+      break;
+  };
+}
+
+} // namespace hyq
+} // namespace xpp
