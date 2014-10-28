@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(libAlex)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules") # to find Eigen
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules") # to find Eigen
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/lib)
@@ -27,7 +27,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
 
 
 # Include directories
-find_package(Eigen3 3.1.2)
+find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(./include/)
 
@@ -62,7 +62,7 @@ add_executable(example
     )
 target_link_libraries(example ${MY_LIBS})
 
-
+enable_testing()
 find_package(GTest)  
 if(GTEST_FOUND)
   set(MY_GTEST_UNITS  test/google/gtest_main.cc 

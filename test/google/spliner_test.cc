@@ -99,8 +99,6 @@ TEST_F(SplineTest, FifthOrderSpliner)
 TEST_F(SplineTest, FifthOrderSplinerSameStartGoal)
 {
   QuinticSpliner s;
-  double t = 0.001;
-
 
   Point p;
   p.x   = 2.0;
@@ -108,30 +106,27 @@ TEST_F(SplineTest, FifthOrderSplinerSameStartGoal)
   p.xdd = 2.0;
 
   Point pg;
-  p.x   = 2.1;
-  p.xd  = 2.0;
-  p.xdd = 2.0;
+  pg.x   = 2.0;
+  pg.xd  = 2.0;
+  pg.xdd = 2.0;
 
+  double t = 0.001;
   s.SetBoundary(t, p, pg);
 
   for (double c : s.c) prt(c);
 
-  Spliner::Point p0, p1, p2;
-  s.GetPoint(0.0, p0);
-  s.GetPoint(t/2.0, p1);
-  s.GetPoint(t,   p2);
+  Spliner::Point p0,p2;
+  s.GetPoint(0.0,   p0);
+  s.GetPoint(t,     p2);
 
   // pos
   EXPECT_FLOAT_EQ(2.0, p0.x);
-  EXPECT_FLOAT_EQ(2.0, p1.x);
   EXPECT_FLOAT_EQ(2.0, p2.x);
   // vel
   EXPECT_FLOAT_EQ(2.0, p0.xd);
-  EXPECT_FLOAT_EQ(2.0, p1.xd);
   EXPECT_FLOAT_EQ(2.0, p2.xd);
   // acc
   EXPECT_FLOAT_EQ(2.0, p0.xdd);
-  EXPECT_FLOAT_EQ(2.0, p1.xdd);
   EXPECT_FLOAT_EQ(2.0, p2.xdd);
 }
 

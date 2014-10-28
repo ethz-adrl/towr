@@ -38,11 +38,11 @@
 GTEST_API_ int main(int argc, char **argv) {
   printf("Running main() from gtest_main.cc\n");
 
-  // environmental variable set in sl_env.h script
-  std::string cfile(getenv("ALEX_LIB_ROOT"));
-  cfile.append("/test/log4cxx.properties");
-
-  log4cxx::PropertyConfigurator::configure(cfile.c_str());
+//  // environmental variable set in sl_env.h script
+//  std::string cfile(getenv("XPP_ROOT"));
+//  cfile.append("/test/log4cxx.properties");
+//
+//  log4cxx::PropertyConfigurator::configure(cfile.c_str());
 
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

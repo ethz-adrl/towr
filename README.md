@@ -13,13 +13,27 @@ For further questions contact <winklera@ethz.ch>.
 
 ------------------------------------------------------------------------------------
 ### Dependencies 
+
+- Eigen
+
+        sudo apt-get install libeigen3-dev
+
 - Apache logging library log4cxx
 
         sudo apt-get install liblog4cxx10 && sudo apt-get install liblog4cxx10-dev
     
 - (Optional) Google unit test framework
 
+        # download headers and sources
         sudo apt-get install libgtest-dev 
+              
+        # build library     
+        cd /usr/src/gtest             
+        sudo cmake CMakeLists.txt
+        sudo make
+        
+        # copy libgtest.a and libgtest_main.a to your /usr/lib folder
+        sudo cp *.a /usr/lib
           
           
 ### Install 
