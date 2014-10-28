@@ -16,45 +16,39 @@ For further questions contact <winklera@ethz.ch>.
 
 - Eigen
 
-        sudo apt-get install libeigen3-dev
+        $ sudo apt-get install libeigen3-dev
 
 - Apache logging library log4cxx
 
-        sudo apt-get install liblog4cxx10 && sudo apt-get install liblog4cxx10-dev
+        $ sudo apt-get install liblog4cxx10       # libs
+        $ sudo apt-get install liblog4cxx10-dev   # headers
     
 - (Optional) Google unit test framework
 
-        # download headers and sources
-        sudo apt-get install libgtest-dev 
-              
-        # build library     
-        cd /usr/src/gtest             
-        sudo cmake CMakeLists.txt
-        sudo make
-        
-        # copy libgtest.a and libgtest_main.a to your /usr/lib folder
-        sudo cp *.a /usr/lib
+        $ sudo apt-get install libgtest-dev       # download headers and sources                  
+        $ cd /usr/src/gtest             
+        $ sudo cmake CMakeLists.txt
+        $ sudo make                               # build library        
+        $ sudo cp *.a /usr/lib                    # copy libgtest.a and libgtest_main.a to your /usr/lib folder
           
           
 ### Install 
 - Once dependencies are installed, go to the top-level directory of xpp and type the
 following commands:
 
-        mkdir build
-        cd build
-        cmake ..    
-        make
+        $ mkdir build
+        $ cd build
+        $ cmake ..    
+        $ make
     
-- To install the library `xpp` and header files globally in `/usr/local` run
+- If you want to install the library `xpp` and header files globally in `/usr/local` run
 
-        sudo make install    
+        $ sudo make install    
 
 
 ### Documentation
 - Generate Doxygen documentation from this code
 
-        cd doc
-        doxygen Doxyfile
-        firefox html/index.html
-
-    
+        $ cd doc
+        $ doxygen Doxyfile
+        $ google-chrome  html/index.html
