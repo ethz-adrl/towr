@@ -5,8 +5,8 @@
  * \brief  Structures to hold the pose (position + orientation) of an object
  */
 
-#ifndef GEOMETRIC_STRUCTS_H_
-#define GEOMETRIC_STRUCTS_H_
+#ifndef _XPP_UTILS_GEOMETRICSTRUCTS_H_
+#define _XPP_UTILS_GEOMETRICSTRUCTS_H_
 
 #include "orientation.h" /// Orientations::QuaternionToRPY()
 #include <Eigen/Dense>
@@ -22,10 +22,14 @@ located in this namespace
  */
 namespace utils {
 
+// for easily import X,Y,Z,AX,... into other namespaces
+namespace coords_wrapper {
 /// To be used with 6D vectors. 'A' stands for angular, 'L' for linear.
 enum Coords3D { X=0, Y, Z};
 enum Coords6D { AX=0, AY, AZ, LX, LY, LZ };
 static const Coords3D Coords3DArray[] = { X, Y, Z };
+}
+using namespace coords_wrapper;
 
 typedef Eigen::Vector2d Vec2d; /// X,Y
 typedef Eigen::Vector3d Vec3d; /// X,Y,Z
@@ -146,4 +150,5 @@ inline Point2d operator*(double mult, const Point2d& rhs)
 
 } // namespace utils
 } // namespace xpp
-#endif // GEOMETRIC_STRUCTS_H_
+
+#endif // _XPP_UTILS_GEOMETRICSTRUCTS_H_
