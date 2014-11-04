@@ -23,17 +23,7 @@ int main()
   using namespace xpp::zmp;
   using namespace xpp::utils;
 
-  try {
-    // environmental variable from set_env_variables.sh script
-    std::string cfile(getenv("XPP_ROOT"));
-    // location of logging file
-    cfile.append("/test/log4cxx.properties");
-    log4cxx::PropertyConfigurator::configure(cfile.c_str());
-  } catch (std::exception e) {
-    std::cout << "\nDid you run \"source ../test/set_env_variables\" to define "
-              << "$XPP_ROOT?\n\n";
-  }
-
+  log4cxx::PropertyConfigurator::configure("../test/log4cxx.properties");
   log4cxx::LoggerPtr main_logger = log4cxx::Logger::getLogger("main");
 
   int splines_per_step = 1;
