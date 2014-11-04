@@ -5,8 +5,8 @@
 @brief   Captures the full state of the robot (body, feet)
  */
 
-#ifndef HYQ_STATE_H_
-#define HYQ_STATE_H_
+#ifndef _XPP_HYQ_STATE_H_
+#define _XPP_HYQ_STATE_H_
 
 #include "foothold.h"
 #include "leg_data_map.h"
@@ -86,4 +86,4 @@ private:
 } // namespace hyq
 } // namespace xpp
 
-#endif /* HYQ_STATE_H_ */
+#endif // _XPP_HYQ_STATE_H_

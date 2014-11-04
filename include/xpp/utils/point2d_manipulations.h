@@ -5,8 +5,8 @@
 @brief   Utilites for creating lines with points, calculating distances,...
  */
 
-#ifndef POINT2D_MANIPULATOR_H_
-#define POINT2D_MANIPULATOR_H_
+#ifndef _XPP_UTILS_POINT2D_MANIPULATOR_H_
+#define _XPP_UTILS_POINT2D_MANIPULATOR_H_
 
 #include "geometric_structs.h"
 
@@ -96,4 +96,4 @@ struct Point2dManip {
 } // namespace utils
 } // namespace xpp
 
-#endif /* POINT2D_MANIPULATOR_H_ */
+#endif // _XPP_UTILS_POINT2D_MANIPULATOR_H_

@@ -11,8 +11,8 @@
 @brief   Holds coefficients of multiple fifth-order splines and returns state
          (pos,vel,acc) of appropriate spline for a specific time.
  */
-#ifndef SPLINECONTAINER_H_
-#define SPLINECONTAINER_H_
+#ifndef _XPP_ZMP_SPLINECONTAINER_H_
+#define _XPP_ZMP_SPLINECONTAINER_H_
 
 #include "zmp_spline.h"
 #include <xpp/utils/geometric_structs.h>
@@ -54,4 +54,5 @@ private:
 
 } // namespace zmp
 } // namespace xpp
-#endif /* SPLINECONTAINER_H_ */
+
+#endif // _XPP_ZMP_SPLINECONTAINER_H_

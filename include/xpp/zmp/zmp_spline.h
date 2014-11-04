@@ -5,8 +5,8 @@
 @brief  Spline created by the zmp optimizaton and added to SplineContainer.
  */
 
-#ifndef ZMP_SPLINE_H_
-#define ZMP_SPLINE_H_
+#ifndef _XPP_ZMP_SPLINE_H_
+#define _XPP_ZMP_SPLINE_H_
 
 #include <xpp/utils/geometric_structs.h>
 
@@ -83,4 +83,5 @@ private:
 
 } // namespace zmp
 } // namespace xpp
-#endif /* ZMP_SPLINE_H_ */
+
+#endif // _XPP_ZMP_SPLINE_H_

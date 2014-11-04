@@ -10,8 +10,8 @@ Spliners ready to use:
         - Cubic Spliner
         - Quintic Spliner
 */
-#ifndef _IIT_COMMONS_SPLINER_H_
-#define _IIT_COMMONS_SPLINER_H_
+#ifndef _XPP_UTILS_SPLINER_H_
+#define _XPP_UTILS_SPLINER_H_
 
 #include <stdexcept>
 #include <iostream>
@@ -151,4 +151,4 @@ private:
 } // namespace utils
 } // namespace xpp
 
-#endif
+#endif // XPP_UTILS_SPLINER_H_

@@ -5,8 +5,8 @@
 @brief   Creates 3 dimensional spline from start to end with duration T
  */
 
-#ifndef SPLINER_3DH_
-#define SPLINER_3DH_
+#ifndef _XPP_UTILS_SPLINER_3D_H_
+#define _XPP_UTILS_SPLINER_3D_H_
 
 #include "geometric_structs.h"
 #include "spliner.h"
@@ -39,4 +39,5 @@ public:
 
 } // namespace utils
 } // namespace xpp
-#endif /*SPLINER_3DH_*/
+
+#endif // _XPP_UTILS_SPLINER_3D_H_

@@ -5,8 +5,8 @@
 @brief   Splines body position, orientation and swing leg
  */
 
-#ifndef HYQ_SPLINER_H_
-#define HYQ_SPLINER_H_
+#ifndef _XPP_HYQ_SPLINER_H_
+#define _XPP_HYQ_SPLINER_H_
 
 #include "hyq_state.h"
 #include <xpp/utils/orientation.h>
@@ -91,4 +91,4 @@ private:
 
 } // namespace hyq
 } // namespace xpp
-#endif /* HYQ_SPLINER_H_ */
+#endif // _XPP_HYQ_SPLINER_H_

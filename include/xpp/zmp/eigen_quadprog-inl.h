@@ -1,6 +1,3 @@
-#ifndef _EIGEN_QUADSOLVE_CPP_
-#define _EIGEN_QUADSOLVE_CPP_
-
 /*
  FILE eiquadprog-inl.h
 
@@ -79,6 +76,9 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
  */
+
+#ifndef _EIGEN_QUADSOLVE_CPP_
+#define _EIGEN_QUADSOLVE_CPP_
 
 #include <Eigen/Dense>
 #include <stdio.h>

@@ -5,8 +5,8 @@
 @brief  Dynamic Walking using Zero-Moment-Point (ZMP) Criteria
  */
 
-#ifndef ZMP_OPTIMIZER_H_
-#define ZMP_OPTIMIZER_H_
+#ifndef _XPP_ZMP_OPTIMIZER_H_
+#define _XPP_ZMP_OPTIMIZER_H_
 
 #include "spline_container.h"
 #include <xpp/hyq/supp_triangle.h>
@@ -159,4 +159,4 @@ std::array<double,N> ZmpOptimizer::cache_exponents(double t) const
 } // namespace zmp
 } // namespace xpp
 
-#endif /* ZMP_OPTIMIZER_H_ */
+#endif // _XPP_ZMP_OPTIMIZER_H_

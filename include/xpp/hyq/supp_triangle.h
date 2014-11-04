@@ -5,8 +5,8 @@
 @brief   Defines a triangle created by footholds that affects stability.
  */
 
-#ifndef SUPPTRIANGLECREATOR_H_
-#define SUPPTRIANGLECREATOR_H_
+#ifndef _XPP_HYQ_SUPPTRIANGLE_H_
+#define _XPP_HYQ_SUPPTRIANGLE_H_
 
 #include "foothold.h"
 #include "leg_data_map.h" // LegID, LegIDArray
@@ -89,4 +89,4 @@ inline std::ostream& operator<<(std::ostream& out, const SuppTriangle& tr)
 } // namespace hyq
 } // namespace xpp
 
-#endif /* SUPPTRIANGLECREATOR_H_ */
+#endif // _XPP_HYQ_SUPPTRIANGLE_H_

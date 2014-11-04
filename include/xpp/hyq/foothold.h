@@ -5,8 +5,8 @@
 @brief   A foot position (x,y,z) and an associated leg.
  */
 
-#ifndef FOOTHOLD_H_
-#define FOOTHOLD_H_
+#ifndef _XPP_HYQ_FOOTHOLD_H_
+#define _XPP_HYQ_FOOTHOLD_H_
 
 #include "leg_data_map.h" // LegID, LegIDArray
 #include <xpp/utils/geometric_structs.h>
@@ -107,4 +107,4 @@ inline std::ostream& operator<<(std::ostream& out, const Foothold& f)
 } // namespace hyq
 } // namespace xpp
 
-#endif /* FOOTHOLD_H_ */
+#endif // _XPP_HYQ_FOOTHOLD_H_

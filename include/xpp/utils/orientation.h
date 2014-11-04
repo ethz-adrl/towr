@@ -5,8 +5,8 @@
 @brief   Utilities for degree/radians to quaternion conversions
  */
 
-#ifndef XPPORIENTATION_H
-#define XPPORIENTATION_H
+#ifndef _XPP_UTILS_ORIENTATION_H_
+#define _XPP_UTILS_ORIENTATION_H_
 
 #include <Eigen/Dense>
 
@@ -44,4 +44,4 @@ class Orientation
 } // namespace utils
 } // namespace xpp
 
-#endif
+#endif // _XPP_UTILS_ORIENTATION_H_

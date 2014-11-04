@@ -8,8 +8,8 @@ This file was originally written by marco frigerio in the hyq_commons library.
 It was extended by a few arrays for easier range-based looping.
 */
 
-#ifndef _IIT_HYQ_COMMONS_LEGDATAMAP_H_
-#define _IIT_HYQ_COMMONS_LEGDATAMAP_H_
+#ifndef _XPP_HYQ_LEGDATAMAP_H_
+#define _XPP_HYQ_LEGDATAMAP_H_
 
 #include <stdexcept>
 #include <iostream>
@@ -127,4 +127,4 @@ std::ostream& operator<<(std::ostream& out, const LegDataMap<T>& map) {
 } // namespace hyq
 } // namespace xpp
 
-#endif // _IIT_HYQ_COMMONS_LEGDATAMAP_H_
+#endif // _XPP_HYQ_LEGDATAMAP_H_

@@ -5,8 +5,8 @@
 @brief   Specific helper functions for the  logging facility "Apache log4cxx".
  */
 
-#ifndef LOGGER_HELPERS_INL_H_
-#define LOGGER_HELPERS_INL_H_
+#ifndef _XPP_UTILS_LOGGER_HELPERS_INL_H_
+#define _XPP_UTILS_LOGGER_HELPERS_INL_H_
 
 #include "geometric_structs.h"
 #include <xpp/zmp/zmp_spline.h>
@@ -161,4 +161,4 @@ Ugly macro for logging at a specific frequency and level
 } // namespace utils
 } // namespace xpp
 
-#endif /* LOGGER_HELPERS_INL_H_ */
+#endif // _XPP_UTILS_LOGGER_HELPERS_INL_H_
