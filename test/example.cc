@@ -18,7 +18,6 @@
 
 int main() 
 {
-  // for simplicity import namespaces
   using namespace xpp::hyq;
   using namespace xpp::zmp;
   using namespace xpp::utils;
@@ -33,15 +32,15 @@ int main()
   double penalty_movement_y = 1.5;
   ZmpOptimizer::WeightsXYArray weight = {{penalty_movement_x, penalty_movement_y}};
 
-  MarginValues margins; // m
+  MarginValues margins;
   margins[FRONT] = 0.1;
   margins[HIND]  = 0.1;
   margins[SIDE]  = 0.1;
-  margins[DIAG]  = 0.05;
+  margins[DIAG]  = 0.05; // controls sidesway motion
 
-  double discretization_time = 0.1; // s
-  double swing_time = 0.6;          // s
-  double stance_time = 0.2;         // s
+  double discretization_time = 0.1; 
+  double swing_time = 0.6;         
+  double stance_time = 0.2;         
 
   double e_and_f_cost = 1e-12;
 

@@ -10,20 +10,19 @@
  *  \skip xpp::hyq
  *  \until xpp::utils
  *
- *  Then we load the environmental variable neccessary for finding the
- *  logging file and for the matlab script later
- *  \skipline cfile
- *
  *  Our logging preferences are located in log4cxx.properties
- *  \skipline append
+ *  Here the print statements and locations (console, file) can be controlled.
+ *  \skipline log4cxx::PropertyConfigurator
  *  \until getLogger("main")
  *
+ *  ### Setting optimization preferences
  *  Defining various parameters. For less sideways movement reduce the
  *  diagonal support triangle margin.
  *  \skipline splines_per_step
  *  \until stance_time
  *
- *  This parameter is very important if the optimization fails.
+ *  \attention
+ *  This parameter is very important if the **optimization fails**.
  *  \skipline e_and_f
  *  - If the cost = infinity, increase exponent by one, e.g. 1e-12 to 1e-13.
  *  - If cost close to zero, do the opposite
@@ -32,29 +31,36 @@
  *  \line ZmpOptimizer
  *  \until e_and_f
  *
- *  The position of the robots feed and the body at the start of the optimization
+ *  ### Setting the problem specific parameters
+ *  \attention
+ *  The position of the robot's feet and the body at the start of the optimization
  *  are specified. It is important to be in a feasible position at start, otherwise
- *  the optimization will fail. Always move the CoG at least twice the \c margins[DIAG]
- *  in the opposite direction of first step/swing-leg.
+ *  the **optimization will fail**. This means \c cog_start must be at least \c margins[DIAG] inside the triangle 
+ *  defined by the non-swinglegs in \c start_stance.
  *  \skipline cog_start
  *  \until start_stance[RH]
  *
- *  The steps can be in random order and positions. They are set in a
+ *  The steps can be in random order and positions. They are defined as (x,y,z- 
+ *  position, swingleg). They are set in a
  *  global reference frame, coinciding with the center of all feet in
- *  \c start_stance.
+ *  \c start_stance. 
  *  \skipline std::vector<Foothold> steps
- *  \until robot_height
- *
+ *  \skipline steps
+ *  \skipline steps
+ *  etc.
+ *  
+ *  ### Solving the QP problem
  *  The optimization uses eigen_quadprog-inl.h to find the coefficients that
  *  comprise the quintic polynoms (at^5 + bt^4 + ct^3 + dt^2 + et + f).
  *  \skipline std::vector<ZmpSpline> spline_coefficients
  *  \skipline opt.OptimizeSplineCoeff
  *  \until spline_coefficients);
  *
- *  For easy handling of these coefficients a \c SplineContainer holds all the
- *  coefficients of the different splines and returns the state of the current
- *  spline at a specific time instance \c t.
- *  \skipline zmp_splines
- *  \skipline zmp_splines.AddSplines(spline_coefficients);
+ *  For easy handling of these coefficients a spline_container.h holds all the
+ *  coefficients of the different splines.
+ *  \skipline zmp_splines.AddSplines
+ *
+ *  ### Using the optimized CoG trajectory
+ *  The state of the optimized trajectory at a specific time instance \c t can be queried through
  *  \skipline zmp_splines.GetCOGxy(t, cog_state);
  */
