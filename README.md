@@ -52,3 +52,5 @@ following commands:
         $ cd doc
         $ doxygen Doxyfile
         $ google-chrome  html/index.html
+
+- A powerpoint presentation if available in the "Downloads" section of this repository.
