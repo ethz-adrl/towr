@@ -47,6 +47,7 @@ following commands:
 
 
 ### Documentation
+- Doxygen version >1.8.6 required
 - Generate Doxygen documentation from this code
 
         $ cd doc
