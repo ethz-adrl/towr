@@ -1,6 +1,8 @@
 # Project configuration
 cmake_minimum_required(VERSION 2.8)
-project(libAlex)
+project(xpp_opt)
+
+find_package(Eigen3 REQUIRED)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules") # to find Eigen
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
@@ -27,9 +29,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
 
 
 # Include directories
-find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
-include_directories(./include/)
+include_directories(${EIGEN_INCLUDE_DIRS})
+include_directories(include)
 
 
 set(SOURCES  src/zmp_optimizer.cc
@@ -45,7 +46,7 @@ set(SOURCES  src/zmp_optimizer.cc
 
 
 # Add the shared library
-set(LIB_NAME xpp)
+set(LIB_NAME xpp_opt)
 add_library(${LIB_NAME} 
             ${SOURCES})
             
