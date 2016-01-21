@@ -48,13 +48,16 @@ void HyqSpliner::getPoint(double t_global, HyqState& curr)
 {
   // sanity check so robot doesn't blow up
   for (LegID leg : LegIDArray)
-    if (curr.feet_[leg].p(Z) == 0.0)
-      throw std::logic_error("HyqSpliner::getPoint(): initial foothold not defined");
+    if (std::abs(curr.feet_[leg].p(Z)) < 1e-5)
+      throw std::logic_error("HyqSpliner::getPoint(): Desired foothold is too close to z=0. "
+                             "This is the initial body height.");
 
   /** Transform global time to local spline time dt */
   double dt = t_global;
-  for (uint n = 1; n < curr_goal_; n++)
+  for (uint n = 1; n < curr_goal_; n++) {
     dt -= nodes_[n].T;
+  }
+  if (dt < 0.0) dt = 0.0; // negative numbers are not splined properly
 
   /** Positions */
   pos_spliner_.GetPoint(dt, curr.base_.pos);
