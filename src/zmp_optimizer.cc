@@ -52,7 +52,7 @@ ZmpOptimizer::~ZmpOptimizer() {}
 
 
 void ZmpOptimizer::OptimizeSplineCoeff(
-    Position &start_cog,
+    const Position &start_cog,
     const hyq::LegDataMap<Foothold>& start_stance, Footholds& steps,
     const WeightsXYArray& weight, hyq::MarginValues margins, double height_robot,
     Splines& splines)

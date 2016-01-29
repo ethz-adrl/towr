@@ -112,7 +112,7 @@ public:
  @param[out] splines optimized cog trajectory
  @throws std::runtime_error Throws if no solution to the QP problem was found.
  */
-  void OptimizeSplineCoeff(Position& start_cog,
+  void OptimizeSplineCoeff(const Position& start_cog,
                            const hyq::LegDataMap<Foothold>& start_stance, Footholds &steps,
                            const WeightsXYArray& weight, hyq::MarginValues margins,
                            double height_robot,
