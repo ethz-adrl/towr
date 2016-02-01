@@ -45,7 +45,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${LIB_NAME}
   #CATKIN_DEPENDS roscpp
-  #DEPENDS system_lib boost
+  DEPENDS log4cxx
 )
 
 
@@ -72,10 +72,9 @@ set(SOURCES  src/zmp_optimizer.cc
 set(LIB_NAME xpp_opt)
 add_library(${LIB_NAME} 
             ${SOURCES})
-            
-set(MY_LIBS ${LIB_NAME}
-            log4cxx)
-           
+target_link_libraries(${LIB_NAME} 
+  log4cxx
+)                        
                                       
 # Some example executables if turned "ON"
 option(BUILD_TESTS "Build some testing executables" ON) 
@@ -83,8 +82,10 @@ if(BUILD_TESTS)
 
 add_executable(example 
     test/example.cc
-    )
-target_link_libraries(example ${MY_LIBS})
+)
+target_link_libraries(example 
+  ${LIB_NAME}
+)
 
 enable_testing()
 find_package(GTest)  
@@ -95,7 +96,7 @@ if(GTEST_FOUND)
   add_executable(googleTest ${MY_GTEST_UNITS})
   
   target_link_libraries(googleTest 
-                        ${MY_LIBS} 
+                        ${LIB_NAME} 
                         ${GTEST_LIBRARIES} pthread) 
 endif(GTEST_FOUND)
 endif()
