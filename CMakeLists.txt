@@ -5,14 +5,7 @@ project(xpp_opt)
 find_package(catkin)
 find_package(Eigen3 REQUIRED)
 
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules") # to find Eigen
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/lib)
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/lib)
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
-
-set(HEADER_INSTALL_ROOT /usr/local/include/ CACHE PATH "Where to install the headers")
-set(LIB_INSTALL_ROOT /usr/local/lib/ CACHE PATH "Where to install the shared library")
 
 # specify compiler flags. Default: Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -21,11 +14,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 
-# The flags specified in this variable are added to every build.
-#    -Wall" (show all warnings)
-#    -std=c++0x  (add c++11 support for compilers gcc 4.3 or later)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x")
- # If Release, preprocessor macro "EIGEN_NO_DEBUG" for speedup
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
 
 
@@ -103,7 +93,9 @@ endif()
 
 # To install and link to the library globally
 # Install (ie copy) the header files
+set(HEADER_INSTALL_ROOT /usr/local/include/ CACHE PATH "Where to install the headers")
+set(LIB_INSTALL_ROOT /usr/local/lib/ CACHE PATH "Where to install the shared library")
+
 install(DIRECTORY include/ DESTINATION ${HEADER_INSTALL_ROOT} PATTERN *~ EXCLUDE)
-# Install the shared library
 install(TARGETS ${LIB_NAME} LIBRARY DESTINATION ${LIB_INSTALL_ROOT})
 
