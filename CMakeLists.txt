@@ -2,7 +2,13 @@
 cmake_minimum_required(VERSION 2.8)
 project(xpp_opt)
 
-find_package(catkin)
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  std_msgs
+  geometry_msgs
+  message_generation
+)
+
 find_package(Eigen3 REQUIRED)
 
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
@@ -22,6 +28,17 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
 set(LIB_NAME xpp_opt)
 
 
+# Generate added messages with any dependencies listed here
+add_message_files(
+  FILES
+  FootholdSequence.msg
+)
+generate_messages(
+  DEPENDENCIES
+  geometry_msgs
+)
+
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -34,9 +51,10 @@ set(LIB_NAME xpp_opt)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${LIB_NAME}
-  #CATKIN_DEPENDS roscpp
+  CATKIN_DEPENDS message_runtime
   DEPENDS log4cxx
 )
+
 
 
 
