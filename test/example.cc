@@ -51,7 +51,8 @@ int main()
                    e_and_f_cost);
 
   // start position (x,y,z) of robot
-  Eigen::Vector3d cog_start(0.1, 0.0, 0.0);
+  Eigen::Vector2d cog_start_p(0.1, 0.0);
+  Eigen::Vector2d cog_start_v(0.1, 0.0);
   LegDataMap<Foothold> start_stance;
   start_stance[LF] = Foothold( 0.35,  0.3, 0.0, LF);
   start_stance[RF] = Foothold( 0.35, -0.3, 0.0, RF);
@@ -73,7 +74,7 @@ int main()
 
   std::vector<ZmpSpline> spline_coefficients;
   ////////////////// QP optimization using eigen_quadprog /////////////////////
-  opt.OptimizeSplineCoeff(cog_start, start_stance,
+  opt.OptimizeSplineCoeff(cog_start_p, cog_start_v, start_stance,
                           steps, weight, margins, robot_height,
                           spline_coefficients);
   /////////////////////////////////////////////////////////////////////////////

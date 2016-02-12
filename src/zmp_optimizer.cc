@@ -52,7 +52,8 @@ ZmpOptimizer::~ZmpOptimizer() {}
 
 
 void ZmpOptimizer::OptimizeSplineCoeff(
-    const Position &start_cog,
+    const Position &start_cog_p,
+    const Velocity &start_cog_v,
     const hyq::LegDataMap<Foothold>& start_stance, Footholds& steps,
     const WeightsXYArray& weight, hyq::MarginValues margins, double height_robot,
     Splines& splines)
@@ -65,32 +66,32 @@ void ZmpOptimizer::OptimizeSplineCoeff(
 
   MatVecPtr cf = CreateMinAccCostFunction(spline_infos, weight);
 
-  hyq::LegDataMap<Foothold> last_stance;
-  SuppTriangles tr = SuppTriangle::FromFootholds(start_stance, steps, margins, last_stance);
+  hyq::LegDataMap<Foothold> final_stance;
+  SuppTriangles tr = SuppTriangle::FromFootholds(start_stance, steps, margins, final_stance);
 
-  // calculate average(x,y) of last stance
+  // calculate average(x,y) of last stance to move robot in the end
   Position end_cog = Position::Zero();
-  for (LegID leg : hyq::LegIDArray) end_cog += last_stance[leg].p;
+  for (LegID leg : hyq::LegIDArray) end_cog += final_stance[leg].p.segment<kDim2d>(X);
   end_cog /= 4; // number of legs
 
-  MatVecPtr eq = CreateEqualityContraints(spline_infos, start_cog, end_cog);
+  MatVecPtr eq = CreateEqualityContraints(spline_infos, start_cog_p, end_cog);
 
 
   MatVecPtr ineq = CreateInequalityContraints(spline_infos, tr, height_robot);
 
-  Eigen::VectorXd spline_coeff_xy(spline_infos.size() * kCoeffCount * kDim2d);
+  Eigen::VectorXd opt_spline_coeff_xy(spline_infos.size() * kCoeffCount * kDim2d);
 
   /////////////////////////////////////////////////////////////////////////////
   clock_t start = std::clock();
 
   double cost = Eigen::solve_quadprog(cf->M, cf->v, eq->M, eq->v, ineq->M, ineq->v,
-                                      spline_coeff_xy);
+                                      opt_spline_coeff_xy);
   clock_t end = std::clock();
   /////////////////////////////////////////////////////////////////////////////
 
   LOG4CXX_INFO(log_, "Calc. time QP solver:\t\t" << static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0 << "\tms");
   LOG4CXX_INFO(log_, "Cost:\t\t" << cost);
-  LOG4CXX_INFO(log_matlab_, spline_coeff_xy.transpose());
+  LOG4CXX_INFO(log_matlab_, opt_spline_coeff_xy.transpose());
 
 
   if (cost == std::numeric_limits<double>::infinity() || cost < 0.002)
@@ -99,8 +100,8 @@ void ZmpOptimizer::OptimizeSplineCoeff(
                              "if cost = inf   --> increase by one\n"
                              "if cost < 0.002 --> decrease by one");
 
-  LOG4CXX_TRACE(log_, "x = " << spline_coeff_xy.transpose()); //ax1, bx1, cx1, dx1, ex1, fx1 -- ay1, by1, cy1, dy1, ey1, fy1 -- ax2, bx2, cx2, dx2, ex2, fx2 -- ay2, by2, cy2, dy2, ey2, fy2 ...
-  splines = CreateSplines(spline_coeff_xy, spline_infos);
+  LOG4CXX_TRACE(log_, "x = " << opt_spline_coeff_xy.transpose()); //ax1, bx1, cx1, dx1, ex1, fx1 -- ay1, by1, cy1, dy1, ey1, fy1 -- ax2, bx2, cx2, dx2, ex2, fx2 -- ay2, by2, cy2, dy2, ey2, fy2 ...
+  splines = CreateSplines(start_cog_p, start_cog_v, opt_spline_coeff_xy, spline_infos);
 }
 
 // Creates a sequence of Splines without the optimized coefficients
@@ -146,14 +147,16 @@ ZmpOptimizer::CreateMinAccCostFunction(const SplineInfoVec& splines,
 {
   std::clock_t start = std::clock();
 
-  int n_coeff = splines.size() * kCoeffCount * kDim2d; // total number of coefficients to be optimized
-  MatVecPtr cf(new MatVec(n_coeff, n_coeff, n_coeff));
+  // total number of coefficients to be optimized
+  // -2 since the e and f spline coefficients do not influence the acceleration
+  int n_coeff = splines.size() * kOptCoeff * kDim2d;
+  MatVecPtr cf(new MatVec(n_coeff, n_coeff));
 
   // solver needs positive definite matrix, so init with small number.
   // FIXME: This number strongly affects the produces trajectory.
   // typical values: 1e-12 < x < 1e-8, find out how to choose.
-  LOG4CXX_INFO(log_, "EandFCost = " << EandFCost);
-  cf->M = EandFCost * Eigen::MatrixXd::Identity(cf->M.rows(), cf->M.cols());
+//  LOG4CXX_INFO(log_, "EandFCost = " << EandFCost);
+//  cf->M = EandFCost * Eigen::MatrixXd::Identity(cf->M.rows(), cf->M.cols());
 
   for (const SplineInfo& s : splines) {
     std::array<double,10> t_span = cache_exponents<10>(s.duration_);
@@ -192,17 +195,17 @@ ZmpOptimizer::CreateMinAccCostFunction(const SplineInfoVec& splines,
 
 ZmpOptimizer::MatVecPtr
 ZmpOptimizer::CreateEqualityContraints(const SplineInfoVec& splines,
-                                       const Position &start_cog,
+                                       const Position &start_cog_p,
                                        const Position &end_cog) const
 {
   std::clock_t start = std::clock();
 
-  int coeff = splines.size() * kCoeffCount * kDim2d; // total number of all spline coefficients
+  int coeff = splines.size() * kOptCoeff * kDim2d; // total number of all spline coefficients
   int constraints = 0;
   constraints += 2*4;                                // init {x,y} * {pos, vel, acc, jerk}
   constraints += 2*3;                                // end  {x,y} * {pos, vel, acc}
   constraints += (splines.size() - 1) * kDim2d * 4;  // junctions {pos,vel,acc,jerk}
-  MatVecPtr ec(new MatVec(coeff, constraints, constraints));
+  MatVecPtr ec(new MatVec(coeff, constraints));
 
   const Eigen::Vector3d kVelStart = Eigen::Vector3d(0.0, 0.0, 0.0);
   const Eigen::Vector3d kVelEnd   = Eigen::Vector3d(0.0, 0.0, 0.0);
@@ -217,7 +220,7 @@ ZmpOptimizer::CreateEqualityContraints(const SplineInfoVec& splines,
     // positions at t=0
     int f = var_index(0, dim, F);
     ec->M(f, i) = 1.0;
-    ec->v(i++) = -start_cog(dim);
+    ec->v(i++) = -start_cog_p(dim);
     // velocity set to zero
     int e = var_index(0, dim, E);
     ec->M(e, i) = 1.0;
@@ -333,7 +336,7 @@ ZmpOptimizer::CreateInequalityContraints(const SplineInfoVec& splines,
   int points = ceil(t_total / kDt);
   int contraints= points * 3; // 3 triangle side constraints per point
 
-  MatVecPtr ineq(new MatVec(coeff, contraints, contraints));
+  MatVecPtr ineq(new MatVec(coeff, contraints));
 
   const double g = 9.81; // gravity acceleration
   int c = 0; // inequality constraint counter
@@ -392,11 +395,13 @@ ZmpOptimizer::CreateInequalityContraints(const SplineInfoVec& splines,
 
 
 int ZmpOptimizer::var_index(int spline, int dim, int coeff) const {
-  return kCoeffCount * kDim2d * spline + kCoeffCount * dim + coeff;
+  return kOptCoeff * kDim2d * spline + kOptCoeff * dim + coeff;
 }
 
 ZmpOptimizer::Splines
-ZmpOptimizer::CreateSplines(Eigen::VectorXd& coeff,
+ZmpOptimizer::CreateSplines(const Position& start_cog_p,
+                            const Velocity& start_cog_v,
+                            const Eigen::VectorXd& optimized_coeff,
                             const SplineInfoVec& spline_infos) const
 {
   CoeffValues cv;
@@ -407,8 +412,8 @@ ZmpOptimizer::CreateSplines(Eigen::VectorXd& coeff,
   for (SplineInfo si : spline_infos) {
 
     for (int i = 0; i < kCoeffCount; ++i) {
-      cv.x[i] = coeff[c + i];
-      cv.y[i] = coeff[c + i + kCoeffCount];
+      cv.x[i] = optimized_coeff[c + i];
+      cv.y[i] = optimized_coeff[c + i + kCoeffCount];
     }
     c += kCoeffCount * kDim2d;
 

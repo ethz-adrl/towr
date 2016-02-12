@@ -44,8 +44,9 @@ public:
 
   /**
   @brief Creates the support triangles from footholds and steps.
-  @param start_stance position of feet before walking
-  @param steps position and leg of each new step
+
+  @param start_stance Position of feet before walking
+  @param steps Position and leg of each new step
   @param stability_margin margin for created support triangles
   @attention modifies start stance
   */

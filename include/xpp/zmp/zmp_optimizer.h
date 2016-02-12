@@ -53,9 +53,9 @@ struct SplineInfo {
 struct MatVec {
   Eigen::MatrixXd M;
   Eigen::VectorXd v;
-  MatVec(int rows_m, int cols_m, int cols_v) {
-    M = Eigen::MatrixXd::Zero(rows_m, cols_m);
-    v = Eigen::VectorXd::Zero(cols_v);
+  MatVec(int rows, int cols) {
+    M = Eigen::MatrixXd::Zero(rows, cols);
+    v = Eigen::VectorXd::Zero(cols);
   }
 };
 
@@ -77,7 +77,8 @@ public:
   typedef ::xpp::hyq::SuppTriangle SuppTriangle;
   typedef ::xpp::hyq::Foothold Foothold;
   typedef ::xpp::hyq::LegID LegID;
-  typedef ::xpp::utils::Vec3d Position;
+  typedef ::xpp::utils::Vec2d Position;
+  typedef ::xpp::utils::Vec2d Velocity;
   typedef std::vector<Foothold> Footholds;
   typedef std::vector<SuppTriangle> SuppTriangles;
   typedef std::array<double,2> WeightsXYArray;
@@ -112,7 +113,8 @@ public:
  @param[out] splines optimized cog trajectory
  @throws std::runtime_error Throws if no solution to the QP problem was found.
  */
-  void OptimizeSplineCoeff(const Position& start_cog,
+  void OptimizeSplineCoeff(const Position& start_cog_p,
+                           const Velocity& start_cog_v,
                            const hyq::LegDataMap<Foothold>& start_stance, Footholds &steps,
                            const WeightsXYArray& weight, hyq::MarginValues margins,
                            double height_robot,
@@ -125,6 +127,7 @@ private:
   const int kSplinesPer4ls;
   const double kTimeSwing_;
   const double kTime4ls; ///< time four legged support phase
+  static const int kOptCoeff = kCoeffCount-2; ///< not optimizing e and f coefficients
   double EandFCost;
 
 
@@ -134,7 +137,9 @@ private:
   MatVecPtr CreateInequalityContraints(const SplineInfoVec& s, const hyq::SuppTriangles &tr,
                                        double height_robot) const;
 
-  Splines CreateSplines(Eigen::VectorXd& coeff,
+  Splines CreateSplines(const Position& start_cog_p,
+                        const Velocity& start_cog_v,
+                        const Eigen::VectorXd& opt_spline_coeff,
                         const SplineInfoVec& spline_infos) const;
 
   int var_index(int splines, int dim, int spline_coeff) const;
