@@ -401,9 +401,6 @@ int ZmpOptimizer::var_index(int spline, int dim, int coeff) const {
   return kCoeffCount * kDim2d * spline + kCoeffCount * dim + coeff;
 }
 
-int ZmpOptimizer::var_index1(int spline, int dim, int coeff) const {
-  return kOptCoeff * kDim2d * spline + kOptCoeff * dim + coeff;
-}
 
 ZmpOptimizer::Splines
 ZmpOptimizer::CreateSplines(const Position& start_cog_p,
@@ -412,7 +409,6 @@ ZmpOptimizer::CreateSplines(const Position& start_cog_p,
                             const SplineInfoVec& spline_infos) const
 {
   CoeffValues cv;
-  int total_coeff_index = 0;
 
   Splines splines;
 
