@@ -42,7 +42,7 @@ int main()
   double swing_time = 0.6;         
   double stance_time = 0.2;         
 
-  double e_and_f_cost = 1e-12;
+  double e_and_f_cost = 1e-14;
 
   // set up the general attributes of the optimizer
   ZmpOptimizer opt(discretization_time,
@@ -52,7 +52,7 @@ int main()
 
   // start position (x,y,z) of robot
   Eigen::Vector2d cog_start_p(0.1, 0.0);
-  Eigen::Vector2d cog_start_v(0.1, 0.0);
+  Eigen::Vector2d cog_start_v(0.0, 0.0);
   LegDataMap<Foothold> start_stance;
   start_stance[LF] = Foothold( 0.35,  0.3, 0.0, LF);
   start_stance[RF] = Foothold( 0.35, -0.3, 0.0, RF);
