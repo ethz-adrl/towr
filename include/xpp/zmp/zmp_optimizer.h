@@ -149,6 +149,16 @@ private:
 
   int var_index(int splines, int dim, int spline_coeff) const;
 
+  void DescribeEByPrev(
+      const SplineInfoVec& spline_info,
+      double k, int dim, Eigen::VectorXd& Ek,
+      double start_v, double& non_dependent) const;
+
+  void DescribeFByPrev(
+      const SplineInfoVec& spline_info,
+      double k, int dim, Eigen::VectorXd& Ek,
+      double start_v, double start_p, double& non_dependent) const;
+
   template<std::size_t N>
   std::array<double,N> cache_exponents(double t) const;
 

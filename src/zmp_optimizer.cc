@@ -376,57 +376,23 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
         for (int dim=X; dim<=Y; dim++) {
 
           double lc = (dim==X) ? l.coeff.p : l.coeff.q;
-          double e0 =  start_cog_v(dim);
-          double f0 =  start_cog_p(dim);
-
 
           ineq->M(var_index(k,dim,A), c) = lc * (t[5] - h/(g+z_acc) * 20.0 * t[3]);
           ineq->M(var_index(k,dim,B), c) = lc * (t[4] - h/(g+z_acc) * 12.0 * t[2]);
           ineq->M(var_index(k,dim,C), c) = lc * (t[3] - h/(g+z_acc) *  6.0 * t[1]);
           ineq->M(var_index(k,dim,D), c) = lc * (t[2] - h/(g+z_acc) *  2.0);
-          //        ineq->M(x + E, c) = l.coeff.p *  t[1];
-          //        ineq->M(x + F, c) = l.coeff.p *  1;
 
+          // calculate e and f coefficients from previous values
+          Eigen::VectorXd Ek(coeff); Ek.setZero();
+          Eigen::VectorXd Fk(coeff); Fk.setZero();
+          double non_dependent_e, non_dependent_f;
+          DescribeEByPrev(splines,k,dim,Ek,start_cog_v(dim),non_dependent_e);
+          DescribeFByPrev(splines,k,dim,Fk,start_cog_v(dim),start_cog_p(dim),non_dependent_f);
 
-
-          // estimating e and f incluence from prev. a,b,c,d coefficients
-          Eigen::VectorXd T0tok(k); T0tok.setZero();
-
-          for (int i=0; i<k; ++i) {
-
-            double Ti = splines.at(i).duration_;
-
-            // e*t coefficient from previous
-            ineq->M(var_index(i,dim,A),c) += lc * 5*std::pow(Ti,4) * t[1];
-            ineq->M(var_index(i,dim,B),c) += lc * 4*std::pow(Ti,3) * t[1];
-            ineq->M(var_index(i,dim,C),c) += lc * 3*std::pow(Ti,2) * t[1];
-            ineq->M(var_index(i,dim,D),c) += lc * 2*std::pow(Ti,1) * t[1];
-
-
-            // f coefficient calculated from previous
-            T0tok(i) = Ti; // initial velocity acts over the entire time T of EVERY spline
-
-            ineq->M(var_index(i,dim,A),c) += lc * std::pow(Ti,5);
-            ineq->M(var_index(i,dim,B),c) += lc * std::pow(Ti,4);
-            ineq->M(var_index(i,dim,C),c) += lc * std::pow(Ti,3);
-            ineq->M(var_index(i,dim,D),c) += lc * std::pow(Ti,2);
-
-            for (int j = 0; j<i; ++j) {
-              double Tj = splines.at(j).duration_;
-              ineq->M(var_index(j,dim,A),c) += lc * 5*std::pow(Tj,4) * Ti;
-              ineq->M(var_index(j,dim,B),c) += lc * 4*std::pow(Tj,3) * Ti;
-              ineq->M(var_index(j,dim,C),c) += lc * 3*std::pow(Tj,2) * Ti;
-              ineq->M(var_index(j,dim,D),c) += lc * 2*std::pow(Tj,1) * Ti;
-            }
-
-          } // i=0..k
-
-
-          double e_times_t = e0*t[1];
-          double f         = e0*T0tok.sum() + f0;
-
-          ineq->v[c] += lc*(e_times_t + f);
-        } // dim X..Y
+          ineq->M.col(c) += lc * Ek*t[1];
+          ineq->M.col(c) += lc * Fk;
+          ineq->v[c]     += lc *(non_dependent_e*t[0] + non_dependent_f);
+        }
 
         ineq->v[c] += l.coeff.r - l.s_margin;
         ++c;
@@ -468,45 +434,15 @@ ZmpOptimizer::CreateSplines(const Position& start_cog_p,
       }
 
       // calculate e and f coefficients from previous values
-      double e0 =  start_cog_v(dim);
-      double f0 =  start_cog_p(dim);
-
       Eigen::VectorXd Me(optimized_coeff.size()); Me.setZero();
       Eigen::VectorXd Mf(optimized_coeff.size()); Mf.setZero();
-      Eigen::VectorXd T0tok(k); T0tok.setZero();
-
-      for (int i=0; i<k; ++i) {
-
-        double Ti = spline_infos.at(i).duration_;
-
-        // e coefficient from previous
-        Me[var_index(i,dim,A)] += 5*std::pow(Ti,4);
-        Me[var_index(i,dim,B)] += 4*std::pow(Ti,3);
-        Me[var_index(i,dim,C)] += 3*std::pow(Ti,2);
-        Me[var_index(i,dim,D)] += 2*std::pow(Ti,1);
-
-
-        // f coefficient calculated from previous
-        T0tok(i) = Ti; // initial velocity acts over the entire time T of EVERY spline
-
-        Mf[var_index(i,dim,A)] += std::pow(Ti,5);
-        Mf[var_index(i,dim,B)] += std::pow(Ti,4);
-        Mf[var_index(i,dim,C)] += std::pow(Ti,3);
-        Mf[var_index(i,dim,D)] += std::pow(Ti,2);
-
-        for (int j = 0; j<i; ++j) {
-          double Tj = spline_infos.at(j).duration_;
-          Mf[var_index(j,dim,A)] += 5*std::pow(Tj,4) * Ti;
-          Mf[var_index(j,dim,B)] += 4*std::pow(Tj,3) * Ti;
-          Mf[var_index(j,dim,C)] += 3*std::pow(Tj,2) * Ti;
-          Mf[var_index(j,dim,D)] += 2*std::pow(Tj,1) * Ti;
-        }
-
-      } // i=0..k
+      double non_dependent_e, non_dependent_f;
+      DescribeEByPrev(spline_infos,k,dim,Me,start_cog_v(dim),non_dependent_e);
+      DescribeFByPrev(spline_infos,k,dim,Mf,start_cog_v(dim),start_cog_p(dim),non_dependent_f);
 
       // FIXME overwrites just for test
-      cv[E] = Me.transpose()*optimized_coeff + e0;
-      cv[F] = Mf.transpose()*optimized_coeff + e0*T0tok.sum() + f0;
+      cv[E] = Me.transpose()*optimized_coeff + non_dependent_e;
+      cv[F] = Mf.transpose()*optimized_coeff + non_dependent_f;
 
     } // dim:X..Y
 
@@ -514,6 +450,55 @@ ZmpOptimizer::CreateSplines(const Position& start_cog_p,
   } // k=0..n_splines
   return splines;
 }
+
+void ZmpOptimizer::DescribeEByPrev(
+    const SplineInfoVec& spline_info,
+    double k, int dim, Eigen::VectorXd& Ek,
+    double start_v, double& non_dependent) const
+{
+  for (int i=0; i<k; ++i) {
+    double Ti = spline_info.at(i).duration_;
+
+    Ek(var_index(i,dim,A)) += 5*std::pow(Ti,4);
+    Ek(var_index(i,dim,B)) += 4*std::pow(Ti,3);
+    Ek(var_index(i,dim,C)) += 3*std::pow(Ti,2);
+    Ek(var_index(i,dim,D)) += 2*std::pow(Ti,1);
+  }
+
+  non_dependent = start_v;
+}
+
+
+void ZmpOptimizer::DescribeFByPrev(
+    const SplineInfoVec& spline_info,
+    double k, int dim, Eigen::VectorXd& Fk,
+    double start_v, double start_p, double& non_dependent) const
+{
+
+  Eigen::VectorXd T0tok(k); T0tok.setZero();
+  for (int i=0; i<k; ++i) {
+
+    double Ti = spline_info.at(i).duration_;
+
+    T0tok(i) = Ti; // initial velocity acts over the entire time T of EVERY spline
+
+    Fk[var_index(i,dim,A)] += std::pow(Ti,5);
+    Fk[var_index(i,dim,B)] += std::pow(Ti,4);
+    Fk[var_index(i,dim,C)] += std::pow(Ti,3);
+    Fk[var_index(i,dim,D)] += std::pow(Ti,2);
+
+    for (int j = 0; j<i; ++j) {
+      double Tj = spline_info.at(j).duration_;
+      Fk[var_index(j,dim,A)] += 5*std::pow(Tj,4) * Ti;
+      Fk[var_index(j,dim,B)] += 4*std::pow(Tj,3) * Ti;
+      Fk[var_index(j,dim,C)] += 3*std::pow(Tj,2) * Ti;
+      Fk[var_index(j,dim,D)] += 2*std::pow(Tj,1) * Ti;
+    }
+  }
+
+  non_dependent = start_v*T0tok.sum() + start_p;
+}
+
 
 } // namespace zmp
 } // namespace xpp
