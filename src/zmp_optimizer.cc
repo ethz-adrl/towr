@@ -424,49 +424,46 @@ ZmpOptimizer::CreateSplines(const Position& start_cog_p,
         cv[coeff] = optimized_coeff[var_index(k,dim,coeff)];
       }
 
-
       // calculate e and f coefficients from previous values
       double e0 =  start_cog_v(dim);
       double f0 =  start_cog_p(dim);
-      cv[E] += e0; //starting velocity;
-      cv[F] += f0; // starting position
 
+      Eigen::VectorXd Me(optimized_coeff.size()); Me.setZero();
+      Eigen::VectorXd Mf(optimized_coeff.size()); Mf.setZero();
+      Eigen::VectorXd T0tok(k); T0tok.setZero();
 
       for (int i=0; i<k; ++i) {
 
         double Ti = spline_infos.at(i).duration_;
-        double ai = optimized_coeff[var_index(i,dim,A)];
-        double bi = optimized_coeff[var_index(i,dim,B)];
-        double ci = optimized_coeff[var_index(i,dim,C)];
-        double di = optimized_coeff[var_index(i,dim,D)];
 
-        cv[E] +=  5*std::pow(Ti,4) * ai
-                + 4*std::pow(Ti,3) * bi
-                + 3*std::pow(Ti,2) * ci
-                + 2*std::pow(Ti,1) * di;
+        // e coefficient from previous
+        Me[var_index(i,dim,A)] += 5*std::pow(Ti,4);
+        Me[var_index(i,dim,B)] += 4*std::pow(Ti,3);
+        Me[var_index(i,dim,C)] += 3*std::pow(Ti,2);
+        Me[var_index(i,dim,D)] += 2*std::pow(Ti,1);
 
-        // influece without the e terms
-        // Kj terms on paper
-        cv[F] +=  std::pow(Ti,5) * ai
-                + std::pow(Ti,4) * bi
-                + std::pow(Ti,3) * ci
-                + std::pow(Ti,2) * di;
-        // Vj on paper
+
+        // f coefficient calculated from previous
+        T0tok(i) = Ti; // initial velocity acts over the entire time T of EVERY spline
+
+        Mf[var_index(i,dim,A)] += std::pow(Ti,5);
+        Mf[var_index(i,dim,B)] += std::pow(Ti,4);
+        Mf[var_index(i,dim,C)] += std::pow(Ti,3);
+        Mf[var_index(i,dim,D)] += std::pow(Ti,2);
+
         for (int j = 0; j<i; ++j) {
           double Tj = spline_infos.at(j).duration_;
-          double aj = optimized_coeff[var_index(j,dim,A)];
-          double bj = optimized_coeff[var_index(j,dim,B)];
-          double cj = optimized_coeff[var_index(j,dim,C)];
-          double dj = optimized_coeff[var_index(j,dim,D)];
-
-          cv[F] +=  5*std::pow(Tj,4) * Ti * aj
-                  + 4*std::pow(Tj,3) * Ti * bj
-                  + 3*std::pow(Tj,2) * Ti * cj
-                  + 2*std::pow(Tj,1) * Ti * dj;
+          Mf[var_index(j,dim,A)] += 5*std::pow(Tj,4) * Ti;
+          Mf[var_index(j,dim,B)] += 4*std::pow(Tj,3) * Ti;
+          Mf[var_index(j,dim,C)] += 3*std::pow(Tj,2) * Ti;
+          Mf[var_index(j,dim,D)] += 2*std::pow(Tj,1) * Ti;
         }
 
-        cv[F] += e0*Ti; // initial velocity acts over the entire time T of EVERY spline
       } // i=0..k
+
+      // FIXME overwrites just for test
+      cv[E] = Me.transpose()*optimized_coeff + e0;
+      cv[F] = Mf.transpose()*optimized_coeff + e0*T0tok.sum() + f0;
 
     } // dim:X..Y
 
