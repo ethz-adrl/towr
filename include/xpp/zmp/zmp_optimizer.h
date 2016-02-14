@@ -133,7 +133,7 @@ private:
 
   const SplineInfoVec ConstructSplineSequence(const std::vector<LegID>& step_sequence);
   MatVecPtr CreateMinAccCostFunction(const SplineInfoVec& s, const WeightsXYArray& weight);
-  MatVecPtr CreateEqualityContraints(const SplineInfoVec& s, const Position &start_cog, const Position &end_cog) const;
+  MatVecPtr CreateEqualityContraints(const SplineInfoVec& s, const Position &start_cog_p, const Position &start_cog_v, const Position &end_cog) const;
   MatVecPtr CreateInequalityContraints(const SplineInfoVec& s, const hyq::SuppTriangles &tr,
                                        double height_robot) const;
 

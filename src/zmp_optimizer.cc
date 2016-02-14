@@ -77,7 +77,7 @@ void ZmpOptimizer::OptimizeSplineCoeff(
   std::cout << "start_cog_p: " << start_cog_p << std::endl;
   std::cout << "end_cog: " << end_cog << std::endl;
 
-  MatVecPtr eq = CreateEqualityContraints(spline_infos, start_cog_p, end_cog);
+  MatVecPtr eq = CreateEqualityContraints(spline_infos, start_cog_p, start_cog_v, end_cog);
 
 
   MatVecPtr ineq = CreateInequalityContraints(spline_infos, tr, height_robot);
@@ -199,6 +199,7 @@ ZmpOptimizer::CreateMinAccCostFunction(const SplineInfoVec& splines,
 ZmpOptimizer::MatVecPtr
 ZmpOptimizer::CreateEqualityContraints(const SplineInfoVec& splines,
                                        const Position &start_cog_p,
+                                       const Velocity &start_cog_v,
                                        const Position &end_cog) const
 {
   std::clock_t start = std::clock();
@@ -210,11 +211,11 @@ ZmpOptimizer::CreateEqualityContraints(const SplineInfoVec& splines,
   constraints += (splines.size() - 1) * kDim2d * 4;  // junctions {pos,vel,acc,jerk}
   MatVecPtr ec(new MatVec(coeff, constraints));
 
-  const Eigen::Vector3d kVelStart = Eigen::Vector3d(0.0, 0.0, 0.0);
-  const Eigen::Vector3d kVelEnd   = Eigen::Vector3d(0.0, 0.0, 0.0);
-  const Eigen::Vector3d kAccStart = Eigen::Vector3d(0.0, 0.0, 0.0);
-  const Eigen::Vector3d kAccEnd   = Eigen::Vector3d(0.0, 0.0, 0.0);
-  const Eigen::Vector3d kJerkStart= Eigen::Vector3d(0.0, 0.0, 0.0);
+  const Eigen::Vector2d kVelStart = start_cog_v;
+  const Eigen::Vector2d kVelEnd   = Eigen::Vector2d(0.0, 0.0);
+  const Eigen::Vector2d kAccStart = Eigen::Vector2d(0.0, 0.0);
+  const Eigen::Vector2d kAccEnd   = Eigen::Vector2d(0.0, 0.0);
+  const Eigen::Vector2d kJerkStart= Eigen::Vector2d(0.0, 0.0);
 
   int i = 0; // counter of equality constraints
   for (int dim = X; dim <= Y; ++dim)
@@ -408,113 +409,69 @@ ZmpOptimizer::CreateSplines(const Position& start_cog_p,
                             const Eigen::VectorXd& optimized_coeff,
                             const SplineInfoVec& spline_infos) const
 {
-  CoeffValues cv;
-
   Splines splines;
 
-  double e0x =  optimized_coeff[var_index(0,X,E)];
-  double f0x =  optimized_coeff[var_index(0,X,F)];
-
   for (int k=0; k<spline_infos.size(); ++k) {
-
+    CoeffValues coeff_values;
     std::cout << "spline k: " << k << std::endl;
 
-    if (k == 0) {
-      // fill in optimized coefficients
-      for (int coeff = 0; coeff < kCoeffCount; ++coeff) {
-        cv.x[coeff] = optimized_coeff[var_index(k,X,coeff)];
-        cv.y[coeff] = optimized_coeff[var_index(k,Y,coeff)];
-      }
-    } else {
+    for (int dim=X; dim<=Y; dim++) {
+
+      double* cv = (dim == X) ? coeff_values.x : coeff_values.y;
+
       // fill in only first 4 optimized coefficients
-      // calculate initial position and velocity of spline from prev. values
-      // derivation of formula in my notebook
       for (int coeff = 0; coeff < kOptCoeff; ++coeff) {
-        cv.x[coeff] = optimized_coeff[var_index(k,X,coeff)];
-        cv.y[coeff] = optimized_coeff[var_index(k,Y,coeff)];
+        cv[coeff] = optimized_coeff[var_index(k,dim,coeff)];
       }
 
-      // different times are activ
 
-      cv.x[E] = 0.0;
-      cv.x[F] = 0.0;
-//      cv.y[E] = 0.0;
-//      cv.y[F] = 0.0;
+      // calculate e and f coefficients from previous values
+      double e0 =  start_cog_v(dim);
+      double f0 =  start_cog_p(dim);
+      cv[E] += e0; //starting velocity;
+      cv[F] += f0; // starting position
+
 
       for (int i=0; i<k; ++i) {
 
         double Ti = spline_infos.at(i).duration_;
-        std::cout <<std::setprecision(5) << "T: " << Ti << std::endl;
+        double ai = optimized_coeff[var_index(i,dim,A)];
+        double bi = optimized_coeff[var_index(i,dim,B)];
+        double ci = optimized_coeff[var_index(i,dim,C)];
+        double di = optimized_coeff[var_index(i,dim,D)];
 
-
-        double ax = optimized_coeff[var_index(i,X,A)];
-        double bx = optimized_coeff[var_index(i,X,B)];
-        double cx = optimized_coeff[var_index(i,X,C)];
-        double dx = optimized_coeff[var_index(i,X,D)];
-
-        cv.x[E] +=  5*std::pow(Ti,4) * ax
-                  + 4*std::pow(Ti,3) * bx
-                  + 3*std::pow(Ti,2) * cx
-                  + 2*std::pow(Ti,1) * dx;
-
-//        cv.x[F] +=  (1+5*(k-1-i))*std::pow(T,5) * ax
-//                  + (1+4*(k-1-i))*std::pow(T,4) * bx
-//                  + (1+3*(k-1-i))*std::pow(T,3) * cx
-//                  + (1+2*(k-1-i))*std::pow(T,2) * dx;
+        cv[E] +=  5*std::pow(Ti,4) * ai
+                + 4*std::pow(Ti,3) * bi
+                + 3*std::pow(Ti,2) * ci
+                + 2*std::pow(Ti,1) * di;
 
         // influece without the e terms
         // Kj terms on paper
-        cv.x[F] +=  std::pow(Ti,5) * ax
-                  + std::pow(Ti,4) * bx
-                  + std::pow(Ti,3) * cx
-                  + std::pow(Ti,2) * dx;
-
-
+        cv[F] +=  std::pow(Ti,5) * ai
+                + std::pow(Ti,4) * bi
+                + std::pow(Ti,3) * ci
+                + std::pow(Ti,2) * di;
         // Vj on paper
         for (int j = 0; j<i; ++j) {
-          double axj = optimized_coeff[var_index(j,X,A)];
-          double bxj = optimized_coeff[var_index(j,X,B)];
-          double cxj = optimized_coeff[var_index(j,X,C)];
-          double dxj = optimized_coeff[var_index(j,X,D)];
           double Tj = spline_infos.at(j).duration_;
+          double aj = optimized_coeff[var_index(j,dim,A)];
+          double bj = optimized_coeff[var_index(j,dim,B)];
+          double cj = optimized_coeff[var_index(j,dim,C)];
+          double dj = optimized_coeff[var_index(j,dim,D)];
 
-          cv.x[F] +=  5*std::pow(Tj,4) * Ti * axj
-                    + 4*std::pow(Tj,3) * Ti * bxj
-                    + 3*std::pow(Tj,2) * Ti * cxj
-                    + 2*std::pow(Tj,1) * Ti * dxj;
+          cv[F] +=  5*std::pow(Tj,4) * Ti * aj
+                  + 4*std::pow(Tj,3) * Ti * bj
+                  + 3*std::pow(Tj,2) * Ti * cj
+                  + 2*std::pow(Tj,1) * Ti * dj;
         }
 
+        cv[F] += e0*Ti; // initial velocity acts over the entire time T of EVERY spline
+      } // i=0..k
 
-        cv.x[F] += e0x*Ti; // initial velocity acts over the entire time T of EVERY spline
+    } // dim:X..Y
 
-//        cv.y[E] += 5*std::pow(T,4) * optimized_coeff[var_index(i,Y,A)];
-//        cv.y[E] += 4*std::pow(T,3) * optimized_coeff[var_index(i,Y,B)];
-//        cv.y[E] += 3*std::pow(T,2) * optimized_coeff[var_index(i,Y,C)];
-//        cv.y[E] += 2*std::pow(T,1) * optimized_coeff[var_index(i,Y,D)];
-
-//        cv.y[F] += (1+5*(k-1-i))*std::pow(T,5) * optimized_coeff[var_index(i,Y,A)];
-//        cv.y[F] += (1+4*(k-1-i))*std::pow(T,4) * optimized_coeff[var_index(i,Y,B)];
-//        cv.y[F] += (1+3*(k-1-i))*std::pow(T,3) * optimized_coeff[var_index(i,Y,C)];
-//        cv.y[F] += (1+2*(k-1-i))*std::pow(T,2) * optimized_coeff[var_index(i,Y,D)];
-      }
-
-
-
-      cv.x[E] += e0x; //start_cog_v(X);
-      cv.x[F] += f0x;
-
-//      cv.y[E] += var_index(0,Y,E);
-//      cv.y[F] += k*var_index(0,Y,E)*T + var_index(0,Y,F);
-    }
-
-//    total_coeff_index += kCoeffCount * kDim2d;
-    std::cout << "cv.x[E]" << cv.x[E] << std::endl;
-    std::cout << "cv.x[F]" << cv.x[F] << std::endl;
-    splines.push_back(ZmpSpline(cv, spline_infos.at(k).duration_));
-
-    std::cout <<std::endl;
-  }
-
+    splines.push_back(ZmpSpline(coeff_values, spline_infos.at(k).duration_));
+  } // k=0..n_splines
   return splines;
 }
 
