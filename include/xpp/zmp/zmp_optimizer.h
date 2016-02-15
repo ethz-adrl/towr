@@ -98,7 +98,7 @@ public:
          between disjoint support triangles
   */
   ZmpOptimizer(double dt, int n_splines_per_step, int n_splines_per_4ls,
-               double t_swing, double t_four_leg_support, double e_and_f_cost);
+               double t_swing, double t_four_leg_support);
   virtual ~ZmpOptimizer();
 
 /*!
@@ -128,7 +128,6 @@ private:
   const double kTimeSwing_;
   const double kTime4ls; ///< time four legged support phase
   static const int kOptCoeff = kCoeffCount-2; ///< not optimizing e and f coefficients
-  double EandFCost;
 
 
   const SplineInfoVec ConstructSplineSequence(const std::vector<LegID>& step_sequence);
@@ -149,15 +148,36 @@ private:
 
   int var_index(int splines, int dim, int spline_coeff) const;
 
-  void DescribeEByPrev(
-      const SplineInfoVec& spline_info,
-      double k, int dim, Eigen::VectorXd& Ek,
-      double start_v, double& non_dependent) const;
+  /**
+   * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
+   * has the same effect as the original e coefficient in the spline equation
+   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
+   *
+   * @param spline_info
+   * @param k the number of spline for which the e coefficient should be represented
+   * @param dim X=0, Y=1
+   * @param start_v the initial velocity of the first spline
+   * @param[out] Ek the vector to represent e through a,b,c,d
+   * @param[out] non_dependent the influence of e that are not dependent on a,b,c,d
+   */
+  void DescribeEByPrev(const SplineInfoVec& spline_info, double k, int dim,
+      double start_v, Eigen::VectorXd& Ek, double& non_dependent) const;
 
-  void DescribeFByPrev(
-      const SplineInfoVec& spline_info,
-      double k, int dim, Eigen::VectorXd& Ek,
-      double start_v, double start_p, double& non_dependent) const;
+  /**
+   * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
+   * has the same effect as the original f coefficient in the spline equation
+   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
+   *
+   * @param spline_info
+   * @param k the number of spline for which the e coefficient should be represented
+   * @param dim X=0, Y=1
+   * @param start_p the initial position of the first spline
+   * @param start_v the initial velocity of the first spline
+   * @param[out] Ek the vector to represent e through a,b,c,d
+   * @param[out] non_dependent the influence of f that are not dependent on a,b,c,d
+   */
+  void DescribeFByPrev(const SplineInfoVec& spline_info, double k, int dim,
+      double start_v, double start_p, Eigen::VectorXd& Ek, double& non_dependent) const;
 
   template<std::size_t N>
   std::array<double,N> cache_exponents(double t) const;

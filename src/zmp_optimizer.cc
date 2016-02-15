@@ -28,21 +28,18 @@ ZmpOptimizer::ZmpOptimizer() :
     kSplinesPerStep(1),
     kSplinesPer4ls(1),
     kTimeSwing_(0.8),
-    kTime4ls(0.05),
-    EandFCost(1e-11)
+    kTime4ls(0.05)
 {
   LOG4CXX_WARN(log_, "default params are set!");
 }
 
 ZmpOptimizer::ZmpOptimizer(double dt, int n_splines_per_step, int n_splins_per_4ls,
-                           double t_swing, double t_four_leg_support, double e_and_f_cost)
-    :
+                           double t_swing, double t_four_leg_support) :
     kDt(dt),
     kSplinesPerStep(n_splines_per_step),
     kSplinesPer4ls(n_splins_per_4ls),
     kTimeSwing_(t_swing),
-    kTime4ls(t_four_leg_support),
-    EandFCost(e_and_f_cost)
+    kTime4ls(t_four_leg_support)
 {
   if (dt > t_four_leg_support)
     LOG4CXX_WARN(log_, "discretization time > four leg support time in C'tor");
@@ -74,12 +71,7 @@ void ZmpOptimizer::OptimizeSplineCoeff(
   for (LegID leg : hyq::LegIDArray) end_cog += final_stance[leg].p.segment<kDim2d>(X);
   end_cog /= 4; // number of legs
 
-  std::cout << "start_cog_p: " << start_cog_p << std::endl;
-  std::cout << "end_cog: " << end_cog << std::endl;
-
   MatVecPtr eq = CreateEqualityContraints(spline_infos, start_cog_p, start_cog_v, end_cog);
-
-
   MatVecPtr ineq = CreateInequalityContraints(start_cog_p, start_cog_v, spline_infos, tr, height_robot);
 
   Eigen::VectorXd opt_spline_coeff_xy(spline_infos.size() * kOptCoeff * kDim2d);
@@ -148,15 +140,8 @@ ZmpOptimizer::CreateMinAccCostFunction(const SplineInfoVec& splines,
   std::clock_t start = std::clock();
 
   // total number of coefficients to be optimized
-  // -2 since the e and f spline coefficients do not influence the acceleration
   int n_coeff = splines.size() * kOptCoeff * kDim2d;
   MatVecPtr cf(new MatVec(n_coeff, n_coeff));
-
-  // solver needs positive definite matrix, so init with small number.
-  // FIXME: This number strongly affects the produces trajectory.
-  // typical values: 1e-12 < x < 1e-8, find out how to choose.
-//  LOG4CXX_INFO(log_, "EandFCost = " << EandFCost);
-//  cf->M = EandFCost * Eigen::MatrixXd::Identity(cf->M.rows(), cf->M.cols());
 
   for (const SplineInfo& s : splines) {
     std::array<double,10> t_span = cache_exponents<10>(s.duration_);
@@ -203,30 +188,20 @@ ZmpOptimizer::CreateEqualityContraints(const SplineInfoVec& splines,
 
   int coeff = splines.size() * kOptCoeff * kDim2d; // total number of all spline coefficients
   int constraints = 0;
-  constraints += kDim2d*2;                                // init {x,y} * {pos, vel, acc, jerk} pos,vel implied
-  constraints += kDim2d*3;                                    // end  {x,y} * {pos, vel, acc}
-  constraints += (splines.size()-1) * kDim2d * 2;  // junctions {acc,jerk} // since pos,vel already implied
+  constraints += kDim2d*2;                         // init {x,y} * {acc, jerk} pos, vel implied
+  constraints += kDim2d*3;                         // end  {x,y} * {pos, vel, acc}
+  constraints += (splines.size()-1) * kDim2d * 2;  // junctions {acc,jerk} since pos, vel  implied
   MatVecPtr ec(new MatVec(coeff, constraints));
 
-  const Eigen::Vector2d kVelStart = start_cog_v;
-  const Eigen::Vector2d kVelEnd   = Eigen::Vector2d(0.0, 0.0);
   const Eigen::Vector2d kAccStart = Eigen::Vector2d(0.0, 0.0);
-  const Eigen::Vector2d kAccEnd   = Eigen::Vector2d(0.0, 0.0);
   const Eigen::Vector2d kJerkStart= Eigen::Vector2d(0.0, 0.0);
+  const Eigen::Vector2d kVelEnd   = Eigen::Vector2d(0.0, 0.0);
+  const Eigen::Vector2d kAccEnd   = Eigen::Vector2d(0.0, 0.0);
 
 
   int i = 0; // counter of equality constraints
   for (int dim = X; dim <= Y; ++dim)
   {
-    // 1. Initial conditions of first spline at t = 0
-    // positions at t=0
-//    int f = var_index(0, dim, F);
-//    ec->M(f, i) = 1.0;
-//    ec->v(i++) = -start_cog_p(dim);
-//    // velocity set to zero
-//    int e = var_index(0, dim, E);
-//    ec->M(e, i) = 1.0;
-//    ec->v(i++) = -kVelStart(dim);
     // acceleration set to zero
     int d = var_index(0, dim, D);
     ec->M(d, i) = 2.0;
@@ -238,15 +213,16 @@ ZmpOptimizer::CreateEqualityContraints(const SplineInfoVec& splines,
 
 
     // 2. Final conditions
-    int last_spline = var_index(splines.back().id_, dim, A);
+    int K = splines.back().id_; // id of last spline
+    int last_spline = var_index(K, dim, A);
     std::array<double,6> t_duration = cache_exponents<6>(splines.back().duration_);
 
     // calculate e and f coefficients from previous values
     Eigen::VectorXd Ek(coeff); Ek.setZero();
     Eigen::VectorXd Fk(coeff); Fk.setZero();
     double non_dependent_e, non_dependent_f;
-    DescribeEByPrev(splines,splines.back().id_,dim,Ek,start_cog_v(dim),non_dependent_e);
-    DescribeFByPrev(splines,splines.back().id_,dim,Fk,start_cog_v(dim),start_cog_p(dim),non_dependent_f);
+    DescribeEByPrev(splines, K, dim, start_cog_v(dim), Ek, non_dependent_e);
+    DescribeFByPrev(splines, K, dim, start_cog_v(dim), start_cog_p(dim), Fk, non_dependent_f);
 
     // position
     ec->M(last_spline + A, i) = t_duration[5];
@@ -363,17 +339,17 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
 
           double lc = (dim==X) ? l.coeff.p : l.coeff.q;
 
-          ineq->M(var_index(k,dim,A), c) = lc * (t[5] - h/(g+z_acc) * 20.0 * t[3]);
-          ineq->M(var_index(k,dim,B), c) = lc * (t[4] - h/(g+z_acc) * 12.0 * t[2]);
-          ineq->M(var_index(k,dim,C), c) = lc * (t[3] - h/(g+z_acc) *  6.0 * t[1]);
-          ineq->M(var_index(k,dim,D), c) = lc * (t[2] - h/(g+z_acc) *  2.0);
-
           // calculate e and f coefficients from previous values
           Eigen::VectorXd Ek(coeff); Ek.setZero();
           Eigen::VectorXd Fk(coeff); Fk.setZero();
           double non_dependent_e, non_dependent_f;
-          DescribeEByPrev(splines,k,dim,Ek,start_cog_v(dim),non_dependent_e);
-          DescribeFByPrev(splines,k,dim,Fk,start_cog_v(dim),start_cog_p(dim),non_dependent_f);
+          DescribeEByPrev(splines, k, dim, start_cog_v(dim), Ek, non_dependent_e);
+          DescribeFByPrev(splines, k, dim, start_cog_v(dim), start_cog_p(dim), Fk, non_dependent_f);
+
+          ineq->M(var_index(k,dim,A), c) = lc * (t[5] - h/(g+z_acc) * 20.0 * t[3]);
+          ineq->M(var_index(k,dim,B), c) = lc * (t[4] - h/(g+z_acc) * 12.0 * t[2]);
+          ineq->M(var_index(k,dim,C), c) = lc * (t[3] - h/(g+z_acc) *  6.0 * t[1]);
+          ineq->M(var_index(k,dim,D), c) = lc * (t[2] - h/(g+z_acc) *  2.0);
 
           ineq->M.col(c) += lc * Ek*t[1];
           ineq->M.col(c) += lc * Fk;
@@ -405,6 +381,9 @@ ZmpOptimizer::CreateSplines(const Position& start_cog_p,
                             const SplineInfoVec& spline_infos) const
 {
   Splines splines;
+  Eigen::VectorXd Ek(optimized_coeff.size());
+  Eigen::VectorXd Fk(optimized_coeff.size());
+  double non_dependent_e, non_dependent_f;
 
   for (int k=0; k<spline_infos.size(); ++k) {
     CoeffValues coeff_values;
@@ -419,15 +398,13 @@ ZmpOptimizer::CreateSplines(const Position& start_cog_p,
       }
 
       // calculate e and f coefficients from previous values
-      Eigen::VectorXd Me(optimized_coeff.size()); Me.setZero();
-      Eigen::VectorXd Mf(optimized_coeff.size()); Mf.setZero();
-      double non_dependent_e, non_dependent_f;
-      DescribeEByPrev(spline_infos,k,dim,Me,start_cog_v(dim),non_dependent_e);
-      DescribeFByPrev(spline_infos,k,dim,Mf,start_cog_v(dim),start_cog_p(dim),non_dependent_f);
+      Ek.setZero();
+      Fk.setZero();
+      DescribeEByPrev(spline_infos, k, dim, start_cog_v(dim), Ek, non_dependent_e);
+      DescribeFByPrev(spline_infos, k, dim, start_cog_v(dim), start_cog_p(dim), Fk,non_dependent_f);
 
-      // FIXME overwrites just for test
-      cv[E] = Me.transpose()*optimized_coeff + non_dependent_e;
-      cv[F] = Mf.transpose()*optimized_coeff + non_dependent_f;
+      cv[E] = Ek.transpose()*optimized_coeff + non_dependent_e;
+      cv[F] = Fk.transpose()*optimized_coeff + non_dependent_f;
 
     } // dim:X..Y
 
@@ -436,12 +413,11 @@ ZmpOptimizer::CreateSplines(const Position& start_cog_p,
   return splines;
 }
 
-void ZmpOptimizer::DescribeEByPrev(
-    const SplineInfoVec& spline_info,
-    double k, int dim, Eigen::VectorXd& Ek,
-    double start_v, double& non_dependent) const
-{
 
+void ZmpOptimizer::DescribeEByPrev(const SplineInfoVec& spline_info, double k,
+                                   int dim, double start_v, Eigen::VectorXd& Ek,
+                                   double& non_dependent) const
+{
   Ek.setZero();
   for (int i=0; i<k; ++i) {
     double Ti = spline_info.at(i).duration_;
@@ -456,12 +432,10 @@ void ZmpOptimizer::DescribeEByPrev(
 }
 
 
-void ZmpOptimizer::DescribeFByPrev(
-    const SplineInfoVec& spline_info,
-    double k, int dim, Eigen::VectorXd& Fk,
-    double start_v, double start_p, double& non_dependent) const
+void ZmpOptimizer::DescribeFByPrev(const SplineInfoVec& spline_info, double k,
+                                   int dim, double start_v, double start_p,
+                                   Eigen::VectorXd& Fk, double& non_dependent) const
 {
-
   Eigen::VectorXd T0tok(k); T0tok.setZero();
   Fk.setZero();
   for (int i=0; i<k; ++i) {

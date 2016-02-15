@@ -42,13 +42,10 @@ int main()
   double swing_time = 0.6;         
   double stance_time = 0.2;         
 
-  double e_and_f_cost = 1e-14;
-
   // set up the general attributes of the optimizer
   ZmpOptimizer opt(discretization_time,
                    splines_per_step, splines_per_4ls,
-                   swing_time, stance_time,
-                   e_and_f_cost);
+                   swing_time, stance_time);
 
   // start position (x,y,z) of robot
   Eigen::Vector2d cog_start_p(0.1, 0.0);
