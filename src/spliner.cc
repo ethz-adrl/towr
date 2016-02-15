@@ -28,10 +28,10 @@ bool Spliner::GetPoint(const double dt, Point& out) const
     return false;
 
   double dt1 = (dt > duration) ? duration : dt;
-  double dt2 = dt * dt1;
-  double dt3 = dt * dt2;
-  double dt4 = dt * dt3;
-  double dt5 = dt * dt4;
+  double dt2 = dt1 * dt1;
+  double dt3 = dt1 * dt2;
+  double dt4 = dt1 * dt3;
+  double dt5 = dt1 * dt4;
 
   /** Different spline type are generated, by setting the coefficients > order of spline to zero  */
   out.x   = c[0] + c[1]*dt1 +   c[2]*dt2 +   c[3]*dt3 +    c[4]*dt4 +    c[5]*dt5;
@@ -54,8 +54,8 @@ void LinearSpliner::CalcSplineCoeff(double T, const Point& start, const Point& e
 void CubicSpliner::CalcSplineCoeff(double T, const Point& start, const Point& end)
 {
   double T1 = T;
-  double T2 = T * T1;
-  double T3 = T * T2;
+  double T2 = T1 * T1;
+  double T3 = T1 * T2;
 
   c[0] = start.x;
   c[1] = start.xd;
@@ -69,10 +69,10 @@ void CubicSpliner::CalcSplineCoeff(double T, const Point& start, const Point& en
 void QuinticSpliner::CalcSplineCoeff(double T, const Point& start, const Point& end)
 {
   double T1 = T;
-  double T2 = T * T1;
-  double T3 = T * T2;
-  double T4 = T * T3;
-  double T5 = T * T4;
+  double T2 = T1 * T1;
+  double T3 = T1 * T2;
+  double T4 = T1 * T3;
+  double T5 = T1 * T4;
 
   c[0] = start.x;
   c[1] = start.xd;
