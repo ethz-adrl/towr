@@ -51,7 +51,7 @@ ZmpOptimizer::~ZmpOptimizer() {}
 void ZmpOptimizer::OptimizeSplineCoeff(
     const Position &start_cog_p,
     const Velocity &start_cog_v,
-    const hyq::LegDataMap<Foothold>& start_stance, Footholds& steps,
+    const hyq::LegDataMap<Foothold>& start_stance, double t_stance_initial, Footholds& steps,
     const WeightsXYArray& weight, hyq::MarginValues margins, double height_robot,
     Splines& splines)
 {
@@ -59,7 +59,7 @@ void ZmpOptimizer::OptimizeSplineCoeff(
   for (Foothold f : steps)
     step_sequence.push_back(f.leg);
 
-  SplineInfoVec spline_infos = ConstructSplineSequence(step_sequence);
+  SplineInfoVec spline_infos = ConstructSplineSequence(step_sequence, t_stance_initial);
 
   MatVecPtr cf = CreateMinAccCostFunction(spline_infos, weight);
 
@@ -98,7 +98,7 @@ void ZmpOptimizer::OptimizeSplineCoeff(
 
 // Creates a sequence of Splines without the optimized coefficients
 const ZmpOptimizer::SplineInfoVec
-ZmpOptimizer::ConstructSplineSequence(const std::vector<LegID>& step_sequence)
+ZmpOptimizer::ConstructSplineSequence(const std::vector<LegID>& step_sequence, double t_stance_initial)
 {
   SplineInfoVec ret;
   int step = 0;
@@ -106,16 +106,19 @@ ZmpOptimizer::ConstructSplineSequence(const std::vector<LegID>& step_sequence)
 
   for (size_t i = 0; i < step_sequence.size(); ++i)
   {
-    LegID swing_leg = step_sequence[i];
-
     // 1. insert 4ls-phase when switching between disjoint support triangles
     // Attention: these 4ls-phases much coincide with the ones in the zmp optimizer
-    if (i != 0 ) { // never insert 4ls-phase before first step
+    if (i==0) {
+      ret.push_back(SplineInfo(id++, t_stance_initial/kSplinesPer4ls, true, step));
+    } else {
+      LegID swing_leg = step_sequence[i];
       LegID swing_leg_prev = step_sequence[i-1];
       if (SuppTriangle::Insert4LSPhase(swing_leg_prev, swing_leg))
         for (int s = 0; s < kSplinesPer4ls; s++)
           ret.push_back(SplineInfo(id++, kTime4ls/kSplinesPer4ls, true, step));
     }
+
+
     // insert swing phase splines
     for (int s = 0; s < kSplinesPerStep; s++)
       ret.push_back(SplineInfo(id++, kTimeSwing_/kSplinesPerStep, false, step));

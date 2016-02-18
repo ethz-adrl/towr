@@ -109,13 +109,15 @@ public:
  @param start_cog Current position of the robots center of gravity
  @param goal_cog Cog of robot after executing the steps
  @param start_stance Position of the four feet before walking
+ @param t_stance_initial The time permitted for the first 4-leg-support cog shift
  @param steps Footholds the robot must execute
  @param[out] splines optimized cog trajectory
  @throws std::runtime_error Throws if no solution to the QP problem was found.
  */
   void OptimizeSplineCoeff(const Position& start_cog_p,
                            const Velocity& start_cog_v,
-                           const hyq::LegDataMap<Foothold>& start_stance, Footholds &steps,
+                           const hyq::LegDataMap<Foothold>& start_stance, double t_stance_initial,
+                           Footholds &steps,
                            const WeightsXYArray& weight, hyq::MarginValues margins,
                            double height_robot,
                            Splines& splines);
@@ -130,7 +132,8 @@ private:
   static const int kOptCoeff = kCoeffCount-2; ///< not optimizing e and f coefficients
 
 
-  const SplineInfoVec ConstructSplineSequence(const std::vector<LegID>& step_sequence);
+  const SplineInfoVec ConstructSplineSequence(const std::vector<LegID>& step_sequence,
+                                              double t_stance_initial);
   MatVecPtr CreateMinAccCostFunction(const SplineInfoVec& s, const WeightsXYArray& weight);
   MatVecPtr CreateEqualityContraints(const SplineInfoVec& s,
                                      const Position &start_cog_p,
