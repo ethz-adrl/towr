@@ -8,6 +8,8 @@
 #include <xpp/hyq/hyq_spliner.h>
 #include <xpp/utils/logger_helpers-inl.h>
 
+#include <kindr/rotations/RotationEigen.hpp>
+
 namespace xpp {
 namespace hyq {
 
@@ -35,10 +37,13 @@ void HyqSpliner::SetParams(double upswing,
 
 void HyqSpliner::AddNode(const HyqState& state, double t_max)
 {
+
   // Orientation converted to 3D-Point (rpy, 0, 0)
+  // FIXME this causes jump when e.g. pitch goes over 180 degrees
   Eigen::Vector3d rpy;
   xpp::utils::Orientation::QuaternionToRPY(state.base_.ori.q, rpy);
-  Point ori = Point(rpy); // Fixme: this sets zero angular velocity and acceleration
+  kindr::rotations::eigen_impl::EulerAnglesXyzPD rpy_euler(rpy);
+  Point ori = Point(rpy_euler.getUnique().toImplementation());
 
   nodes_.push_back(SplineNode(state.base_.pos, ori, state.feet_, state.SwinglegID(), t_max));
 }
