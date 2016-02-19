@@ -45,10 +45,9 @@ public:
   /**
   @brief function to access the current state AFTER states have been set.
   @param[in]  t_global global time.
-  @param[out] curr position, orientation and current foothold of hyq.
-  @return     true if end of current spline has been reached.
+  @return     curr position, orientation and current foothold of hyq.
    */
-  void getPoint(const double t_global, HyqState& curr);
+  HyqState getPoint(const double t_global);
 
   void SetParams(double upswing,
                  double lift_height,

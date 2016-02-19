@@ -44,13 +44,10 @@ void HyqSpliner::AddNode(const HyqState& state, double t_max)
 }
 
 
-void HyqSpliner::getPoint(double t_global, HyqState& curr)
+HyqState HyqSpliner::getPoint(double t_global)
 {
-  // sanity check so robot doesn't blow up
-  for (LegID leg : LegIDArray)
-    if (std::abs(curr.feet_[leg].p(Z)) < 1e-5)
-      throw std::logic_error("HyqSpliner::getPoint(): Desired foothold is too close to z=0. "
-                             "This is the initial body height.");
+
+  HyqState curr;
 
   /** Transform global time to local spline time dt */
   double dt = t_global;
@@ -71,6 +68,8 @@ void HyqSpliner::getPoint(double t_global, HyqState& curr)
 
   /** 3. Feet Position */
   curr.swingleg_ = false;
+  curr.feet_ = nodes_[curr_goal_].feet;
+
   int sl = nodes_[curr_goal_].swingleg;
   if (sl != NO_SWING_LEG) // only spline foot of swingleg
   {
@@ -90,6 +89,14 @@ void HyqSpliner::getPoint(double t_global, HyqState& curr)
   static constexpr double kTaskLoopDuration = 0.005 - 0.0001; // because of rounding errors
   if (dt >= nodes_[curr_goal_].T - kTaskLoopDuration)
     SetCurrGoal(++curr_goal_);
+
+  // sanity check so robot doesn't blow up
+  for (LegID leg : LegIDArray)
+    if (std::abs(curr.feet_[leg].p(Z)) < 1e-5)
+      throw std::logic_error("HyqSpliner::getPoint(): Desired foothold is too close to z=0. "
+                             "This is the initial body height.");
+
+  return curr;
 }
 
 

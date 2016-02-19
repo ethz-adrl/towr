@@ -25,7 +25,7 @@ int main()
   log4cxx::PropertyConfigurator::configure("../test/log4cxx.properties");
   log4cxx::LoggerPtr main_logger = log4cxx::Logger::getLogger("main");
 
-  int splines_per_step = 1;
+  int splines_per_step = 2;
   int splines_per_4ls = 1;
 
   double penalty_movement_x = 1.0;

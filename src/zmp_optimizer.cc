@@ -109,7 +109,7 @@ ZmpOptimizer::ConstructSplineSequence(const std::vector<LegID>& step_sequence, d
     // 1. insert 4ls-phase when switching between disjoint support triangles
     // Attention: these 4ls-phases much coincide with the ones in the zmp optimizer
     if (i==0) {
-      ret.push_back(SplineInfo(id++, t_stance_initial/kSplinesPer4ls, true, step));
+      ret.push_back(SplineInfo(id++, t_stance_initial, true, step));
     } else {
       LegID swing_leg = step_sequence[i];
       LegID swing_leg_prev = step_sequence[i-1];
@@ -127,7 +127,7 @@ ZmpOptimizer::ConstructSplineSequence(const std::vector<LegID>& step_sequence, d
   }
 
   // always have last 4ls spline for robot to move into center of feet
-  ret.push_back(SplineInfo(id++, kTime4ls/kSplinesPer4ls, true, step));
+  ret.push_back(SplineInfo(id++, t_stance_initial/2, true, step));
 
   ::xpp::utils::logger_helpers::print_spline_info(ret, log_);
   LOG4CXX_INFO(log_matlab_, step);
