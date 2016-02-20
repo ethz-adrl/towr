@@ -59,7 +59,6 @@ HyqState HyqSpliner::getPoint(double t_global)
   for (uint n = 1; n < curr_goal_; n++) {
     dt -= nodes_[n].T;
   }
-  if (dt < 0.0) dt = 0.0; // negative numbers are not splined properly
 
   /** Positions */
   pos_spliner_.GetPoint(dt, curr.base_.pos);
@@ -90,9 +89,8 @@ HyqState HyqSpliner::getPoint(double t_global)
 
   LOG4CXX_TRACE(log_, "dt = " << dt << ", curr_goal.T = " << nodes_[curr_goal_].T);
 
-  // to reduce front leg shaking, switch splines one task loop before reaching the end.
-  static constexpr double kTaskLoopDuration = 0.005 - 0.0001; // because of rounding errors
-  if (dt >= nodes_[curr_goal_].T - kTaskLoopDuration)
+
+  if (dt >= nodes_[curr_goal_].T)
     SetCurrGoal(++curr_goal_);
 
   // sanity check so robot doesn't blow up
