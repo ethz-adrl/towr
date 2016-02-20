@@ -51,8 +51,7 @@ public:
 
   void SetParams(double upswing,
                  double lift_height,
-                 double outward_swing_distance,
-                 double t_4ls);
+                 double outward_swing_distance);
 
   void ClearNodes() { nodes_.clear(); }
 
@@ -78,8 +77,7 @@ private:
 
   double kUpswingPercent;       // how long to swing up during swing
   double kLiftHeight;           // how high to lift the leg
-  double kOutwardSwingDistance; // how far to swing leg outward (y-dir).
-  double kTimeFourLeggSupp;
+  double kOutwardSwingDistance; // how far to swing leg outward (y-dir)
 
   Spliner3d pos_spliner_, ori_spliner_;
   LegDataMap< Spliner3d > feet_spliner_up_, feet_spliner_down_;

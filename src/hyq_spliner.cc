@@ -25,13 +25,11 @@ HyqSpliner::HyqSpliner()
 
 void HyqSpliner::SetParams(double upswing,
                double lift_height,
-               double outward_swing_distance,
-               double t_4ls)
+               double outward_swing_distance)
 {
   kUpswingPercent = upswing;
   kLiftHeight = lift_height;
   kOutwardSwingDistance = outward_swing_distance;
-  kTimeFourLeggSupp = t_4ls;
 }
 
 
