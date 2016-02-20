@@ -43,9 +43,7 @@ int main()
   double stance_time = 0.2;         
 
   // set up the general attributes of the optimizer
-  ZmpOptimizer opt(discretization_time,
-                   splines_per_step, splines_per_4ls,
-                   swing_time, stance_time);
+  ZmpOptimizer opt(discretization_time);
 
   // start position (x,y,z) of robot
   Eigen::Vector2d cog_start_p(0.0, 0.0);
@@ -72,7 +70,11 @@ int main()
 
   std::vector<ZmpSpline> spline_coefficients;
   ////////////////// QP optimization using eigen_quadprog /////////////////////
-  opt.OptimizeSplineCoeff(cog_start_p, cog_start_v, start_stance, t_stance_initial,
+  std::vector<LegID> leg_ids;
+  for (Foothold f : steps)
+    leg_ids.push_back(f.leg);
+  opt.ConstructSplineSequence(leg_ids, stance_time, swing_time, t_stance_initial,t_stance_initial),
+  opt.OptimizeSplineCoeff(cog_start_p, cog_start_v, start_stance,
                           steps, weight, margins, robot_height,
                           spline_coefficients);
   /////////////////////////////////////////////////////////////////////////////

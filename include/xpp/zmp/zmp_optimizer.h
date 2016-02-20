@@ -97,8 +97,7 @@ public:
   @param t_four_leg_support time [s] of four leg support phase when switching
          between disjoint support triangles
   */
-  ZmpOptimizer(double dt, int n_splines_per_step, int n_splines_per_4ls,
-               double t_swing, double t_four_leg_support);
+  ZmpOptimizer(double dt);
   virtual ~ZmpOptimizer();
 
 /*!
@@ -116,38 +115,36 @@ public:
  */
   void OptimizeSplineCoeff(const Position& start_cog_p,
                            const Velocity& start_cog_v,
-                           const hyq::LegDataMap<Foothold>& start_stance, double t_stance_initial,
+                           const hyq::LegDataMap<Foothold>& start_stance,
                            Footholds &steps,
                            const WeightsXYArray& weight, hyq::MarginValues margins,
                            double height_robot,
                            Splines& splines);
 
+  const SplineInfoVec ConstructSplineSequence(const std::vector<LegID>& step_sequence,
+                                              double t_stance,
+                                              double t_swing,
+                                              double t_stance_initial,
+                                              double t_stance_final);
 
 private:
   const double kDt; ///< discretization interval
-  const int kSplinesPerStep;
-  const int kSplinesPer4ls;
-  const double kTimeSwing_;
-  const double kTime4ls; ///< time four legged support phase
   static const int kOptCoeff = kCoeffCount-2; ///< not optimizing e and f coefficients
+  SplineInfoVec spline_infos_;
 
 
-  const SplineInfoVec ConstructSplineSequence(const std::vector<LegID>& step_sequence,
-                                              double t_stance_initial);
-  MatVecPtr CreateMinAccCostFunction(const SplineInfoVec& s, const WeightsXYArray& weight);
-  MatVecPtr CreateEqualityContraints(const SplineInfoVec& s,
-                                     const Position &start_cog_p,
+  MatVecPtr CreateMinAccCostFunction(const WeightsXYArray& weight);
+  MatVecPtr CreateEqualityContraints(const Position &start_cog_p,
                                      const Velocity &start_cog_v,
                                      const Position &end_cog) const;
   MatVecPtr CreateInequalityContraints(const Position& start_cog_p,
                                        const Velocity& start_cog_v,
-                                       const SplineInfoVec& s, const hyq::SuppTriangles &tr,
+                                       const hyq::SuppTriangles &tr,
                                        double height_robot) const;
 
   Splines CreateSplines(const Position& start_cog_p,
                         const Velocity& start_cog_v,
-                        const Eigen::VectorXd& opt_spline_coeff,
-                        const SplineInfoVec& spline_infos) const;
+                        const Eigen::VectorXd& opt_spline_coeff) const;
 
   int var_index(int splines, int dim, int spline_coeff) const;
 
@@ -163,7 +160,7 @@ private:
    * @param[out] Ek the vector to represent e through a,b,c,d
    * @param[out] non_dependent the influence of e that are not dependent on a,b,c,d
    */
-  void DescribeEByPrev(const SplineInfoVec& spline_info, double k, int dim,
+  void DescribeEByPrev(double k, int dim,
       double start_v, Eigen::VectorXd& Ek, double& non_dependent) const;
 
   /**
@@ -179,7 +176,7 @@ private:
    * @param[out] Ek the vector to represent e through a,b,c,d
    * @param[out] non_dependent the influence of f that are not dependent on a,b,c,d
    */
-  void DescribeFByPrev(const SplineInfoVec& spline_info, double k, int dim,
+  void DescribeFByPrev(double k, int dim,
       double start_v, double start_p, Eigen::VectorXd& Ek, double& non_dependent) const;
 
   template<std::size_t N>

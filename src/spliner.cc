@@ -25,7 +25,7 @@ bool Spliner::GetPoint(const double dt, Point& out) const
 {
   // sanity checks
   if (dt < 0)
-    return false;
+    throw std::runtime_error("spliner.cc called with dt<0");
 
   double dt1 = (dt > duration) ? duration : dt;
   double dt2 = dt1 * dt1;
