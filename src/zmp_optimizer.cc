@@ -411,7 +411,7 @@ ZmpOptimizer::CreateSplines(const Position& start_cog_p,
 }
 
 
-void ZmpOptimizer::DescribeEByPrev(double k,
+void ZmpOptimizer::DescribeEByPrev(int k,
                                    int dim, double start_v, Eigen::VectorXd& Ek,
                                    double& non_dependent) const
 {
@@ -429,7 +429,7 @@ void ZmpOptimizer::DescribeEByPrev(double k,
 }
 
 
-void ZmpOptimizer::DescribeFByPrev(double k,
+void ZmpOptimizer::DescribeFByPrev(int k,
                                    int dim, double start_v, double start_p,
                                    Eigen::VectorXd& Fk, double& non_dependent) const
 {
