@@ -116,7 +116,7 @@ inline std::ostream& operator<<(std::ostream& out, const Ori& ori)
   Eigen::Vector3d rpy_rad, rpy_deg;
   Orientation::QuaternionToRPY(ori.q, rpy_rad);
   rpy_deg = rpy_rad * (180.0 / 3.14);
-  out << "rpy=" << rpy_deg.transpose() << "  "
+  out << "rpy=" << rpy_rad.transpose() << "  "
       << "v=" << ori.v.transpose() << "  "
       << "a=" << ori.a.transpose();
   return out;
