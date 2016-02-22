@@ -30,18 +30,34 @@ void HyqSpliner::SetParams(double upswing,
   kUpswingPercent = upswing;
   kLiftHeight = lift_height;
   kOutwardSwingDistance = outward_swing_distance;
+
 }
 
 
 void HyqSpliner::AddNode(const HyqState& state, double t_max)
 {
+  kindr::rotations::eigen_impl::RotationQuaternionPD qIB(state.base_.ori.q);
 
-  // Orientation converted to 3D-Point (rpy, 0, 0)
-  // FIXME this causes jump when e.g. pitch goes over 180 degrees
-  Eigen::Vector3d rpy;
-  xpp::utils::Orientation::QuaternionToRPY(state.base_.ori.q, rpy);
-  kindr::rotations::eigen_impl::EulerAnglesXyzPD rpy_euler(rpy);
-  Point ori = Point(rpy_euler.getUnique().toImplementation());
+  kindr::rotations::eigen_impl::EulerAnglesXyzPD rpyIB(qIB);
+  rpyIB.setUnique(); // wrap euler angles yaw from -pi..pi
+
+  // if yaw jumped over range from -pi..pi
+  static double yaw_prev = 0.0;
+  static int counter360 = 0;
+  if (rpyIB.yaw()-yaw_prev < -M_PI_2) {
+    std::cout << "passed yaw=0.9pi->-0.9pi, increasing counter...\n";
+    counter360 += 1;
+  }
+  if (rpyIB.yaw()-yaw_prev > M_PI_2) {
+    std::cout << "passed yaw=-0.9pi->0.9pi, decreasing counter...\n";
+    counter360 -= 1;
+  }
+  yaw_prev = rpyIB.yaw();
+
+  // contains information that orientation went 360deg around
+  kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB_full = rpyIB;
+  yprIB_full.setYaw(rpyIB.yaw() + counter360*2*M_PI);
+  Point ori = Point(yprIB_full.toImplementation());
 
   nodes_.push_back(SplineNode(state.base_.pos, ori, state.feet_, state.SwinglegID(), t_max));
 }
@@ -64,9 +80,12 @@ HyqState HyqSpliner::getPoint(double t_global)
   /** Orientations */
   Point curr_ori, curr_foot;
   ori_spliner_.GetPoint(dt, curr_ori);
-  curr.base_.ori.q = xpp::utils::Orientation::RPYRadToQuaternion(curr_ori.p);
-  curr.base_.ori.v = curr_ori.v;  //FIXME: these are rpy-vel/acc. transfer to
-  curr.base_.ori.a = curr_ori.a;  //       omega vector (world co) -> rpyToEar
+
+  kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB(curr_ori.p);
+  kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
+  curr.base_.ori.q = qIB.toImplementation();
+  curr.base_.ori.v = curr_ori.v;
+  curr.base_.ori.a = curr_ori.a;
 
   /** 3. Feet Position */
   curr.swingleg_ = false;
