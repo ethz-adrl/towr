@@ -121,11 +121,15 @@ ZmpOptimizer::ConstructSplineSequence(const std::vector<LegID>& step_sequence,
     for (int s = 0; s < kSplinesPerStep; s++)
       spline_infos_.push_back(SplineInfo(id++, t_swing/kSplinesPerStep, false, step));
 
+
+
+    // always have last 4ls spline for robot to move into center of feet
+    if (i==step_sequence.size()-1)
+      spline_infos_.push_back(SplineInfo(id++, t_stance_final, true, step));
+
     step++;
   }
 
-  // always have last 4ls spline for robot to move into center of feet
-  spline_infos_.push_back(SplineInfo(id++, t_stance_final, true, step));
 
   ::xpp::utils::logger_helpers::print_spline_info(spline_infos_, log_);
   LOG4CXX_INFO(log_matlab_, step);
