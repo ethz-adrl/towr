@@ -112,9 +112,9 @@ HyqState HyqSpliner::getPoint(double t_global)
 
   // sanity check so robot doesn't blow up
   for (LegID leg : LegIDArray)
-    if (std::abs(curr.feet_[leg].p(Z)) < 1e-5)
-      throw std::logic_error("HyqSpliner::getPoint(): Desired foothold is too close to z=0. "
-                             "This is the initial body height.");
+    if (std::abs(curr.feet_[leg].p(Z)) > 0.5)
+      throw std::logic_error("HyqSpliner::getPoint(): Desired foothold is too high. "
+                             "Ground plane is at zero.");
 
   return curr;
 }
