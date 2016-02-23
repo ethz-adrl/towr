@@ -91,7 +91,7 @@ SuppTriangle::TrLines3 SuppTriangle::CalcLines() const
     lines[i].s_margin = UseMargin(from.leg, to.leg);
   }
 
-  LOG4CXX_DEBUG(log_, "Calclines():\n\tline 0: " << std::setprecision(3) << lines[0].coeff << ", m=" << lines[0].s_margin << "\n\tline 1: " <<  lines[1].coeff << ", m=" << lines[1].s_margin << "\n\tline 2: " <<  lines[2].coeff << ", m=" << lines[2].s_margin);
+  LOG4CXX_TRACE(log_, "Calclines():\n\tline 0: " << std::setprecision(3) << lines[0].coeff << ", m=" << lines[0].s_margin << "\n\tline 1: " <<  lines[1].coeff << ", m=" << lines[1].s_margin << "\n\tline 2: " <<  lines[2].coeff << ", m=" << lines[2].s_margin);
   return lines;
 }
 

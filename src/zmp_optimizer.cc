@@ -44,6 +44,9 @@ void ZmpOptimizer::OptimizeSplineCoeff(
     const WeightsXYArray& weight, hyq::MarginValues margins, double height_robot,
     Splines& splines)
 {
+  clock_t start_all = std::clock();
+
+
   std::vector<LegID> step_sequence;
   for (Foothold f : steps)
     step_sequence.push_back(f.leg);
@@ -75,7 +78,7 @@ void ZmpOptimizer::OptimizeSplineCoeff(
   clock_t end = std::clock();
   /////////////////////////////////////////////////////////////////////////////
 
-  LOG4CXX_INFO(log_, "Calc. time QP solver:\t\t" << static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0 << "\tms");
+  LOG4CXX_INFO(log_, "Time QP solver:\t\t" << static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0 << "\tms");
   LOG4CXX_INFO(log_, "Cost:\t\t" << cost);
   LOG4CXX_INFO(log_matlab_, opt_spline_coeff_xy.transpose());
 
@@ -85,6 +88,10 @@ void ZmpOptimizer::OptimizeSplineCoeff(
 
   LOG4CXX_TRACE(log_, "x = " << opt_spline_coeff_xy.transpose()); //ax1, bx1, cx1, dx1, ex1, fx1 -- ay1, by1, cy1, dy1, ey1, fy1 -- ax2, bx2, cx2, dx2, ex2, fx2 -- ay2, by2, cy2, dy2, ey2, fy2 ...
   splines = CreateSplines(start_cog_p, start_cog_v, opt_spline_coeff_xy);
+
+  clock_t end_all = std::clock();
+  LOG4CXX_INFO(log_, "Time zmp optimizer:\t\t" << static_cast<double>(end_all - start_all) / CLOCKS_PER_SEC * 1000.0 << "\tms");
+
 }
 
 // Creates a sequence of Splines without the optimized coefficients
@@ -313,7 +320,7 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
   int c = 0; // inequality constraint counter
 
   for (const SplineInfo& s : spline_infos_) {
-    LOG4CXX_DEBUG(log_, "Calc inequality constaints of spline " << s.id_ << " of " << spline_infos_.size() << ", duration=" << std::setprecision(3) << s.duration_ << ", step=" << s.step_);
+    LOG4CXX_TRACE(log_, "Calc inequality constaints of spline " << s.id_ << " of " << spline_infos_.size() << ", duration=" << std::setprecision(3) << s.duration_ << ", step=" << s.step_);
 
     // no constraints in 4ls phase
     if (s.four_leg_supp_) continue;

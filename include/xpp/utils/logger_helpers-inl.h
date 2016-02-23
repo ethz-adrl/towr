@@ -87,7 +87,7 @@ void print_triangles(const hyq::SuppTriangles& tr, log4cxx::LoggerPtr log)
     int tc = 0;
     for (const hyq::SuppTriangle& t : tr)
       ss << "Triangle " << tc++ << ":\n" << t << "\n";
-    LOG4CXX_DEBUG(log, ss.str());
+    LOG4CXX_TRACE(log, ss.str());
   }
 }
 
