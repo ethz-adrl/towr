@@ -84,7 +84,7 @@ void ZmpOptimizer::OptimizeSplineCoeff(
 
 
   if (cost == std::numeric_limits<double>::infinity() || cost < 0.002)
-    throw std::runtime_error("Eigen::quadprog did not find a solution");
+    throw std::length_error("Eigen::quadprog did not find a solution");
 
   LOG4CXX_TRACE(log_, "x = " << opt_spline_coeff_xy.transpose()); //ax1, bx1, cx1, dx1, ex1, fx1 -- ay1, by1, cy1, dy1, ey1, fy1 -- ax2, bx2, cx2, dx2, ex2, fx2 -- ay2, by2, cy2, dy2, ey2, fy2 ...
   splines = CreateSplines(start_cog_p, start_cog_v, opt_spline_coeff_xy);
