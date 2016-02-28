@@ -309,9 +309,8 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
   int coeff = spline_infos_.size() * kOptCoeff * kDim2d;
 
   // calculate number of inequality contraints
-  double t_total = 0.0;
-  for (const SplineInfo& s : spline_infos_) t_total += s.duration_;
-  int points = ceil(t_total / kDt);
+  int points = 0;
+  for (const SplineInfo& s : spline_infos_) points += std::floor(s.duration_/kDt);
   int contraints= points * 3; // 3 triangle side constraints per point
 
   MatVecPtr ineq(new MatVec(coeff, contraints));
@@ -328,10 +327,13 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
     // the ZMP to be anywhere.
 
     // cache lines of support triangle of current spline for efficiency
-    SuppTriangle::TrLines3 lines = supp_triangles[s.step_].CalcLines();
+    SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
     const int k = s.id_;
 
-    for (double time(0.0); time < s.duration_; time += kDt) {
+    for (double i=0; i < std::floor(s.duration_/kDt); ++i) {
+
+      double time = i*kDt;
+
       std::array<double,6> t = cache_exponents<6>(time);
 
       // one constraint per line of support triangle
