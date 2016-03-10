@@ -60,9 +60,27 @@ catkin_package(
 
 
 # Include directories
-include_directories(${EIGEN3_INCLUDE_DIR})
-include_directories(include)
+SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4")
 
+link_directories(${IPOPT_SOURCE_DIR}/build/lib)
+set(IPOPT_LIBS
+    ipopt
+    lapack
+    dl
+    blas
+    gfortran
+    coinmumps
+    m
+    quadmath
+    coinmetis
+)
+
+include_directories(
+  include
+  ${EIGEN3_INCLUDE_DIR}
+  ${catkin_INCLUDE_DIRS}
+ "${IPOPT_SOURCE_DIR}/build/include/coin"
+)
 
 set(SOURCES  src/zmp_optimizer.cc
              src/zmp_spline.cc
@@ -73,16 +91,16 @@ set(SOURCES  src/zmp_optimizer.cc
              src/orientation.cc
              src/supp_triangle.cc
              src/hyq_spliner.cc
+             src/nlp_ipopt_zmp.cc
              )
-
-
+             
 # Add the shared library
 set(LIB_NAME xpp_opt)
 add_library(${LIB_NAME} 
             ${SOURCES})
 target_link_libraries(${LIB_NAME} 
   log4cxx
-  
+  ${IPOPT_LIBS}
 )                        
                                       
 # Some example executables if turned "ON"
