@@ -57,6 +57,7 @@ struct MatVec {
     M = Eigen::MatrixXd::Zero(rows, cols);
     v = Eigen::VectorXd::Zero(cols);
   }
+  MatVec() {}
 };
 
 
@@ -100,6 +101,11 @@ public:
   ZmpOptimizer(double dt);
   virtual ~ZmpOptimizer();
 
+  const SplineInfoVec ConstructSplineSequence(const std::vector<LegID>& step_sequence,
+                                              double t_stance,
+                                              double t_swing,
+                                              double t_stance_initial,
+                                              double t_stance_final);
 /*!
  @brief Optimizes the trajectory of the CoM according to a quadratic
         cost function while keeping the ZMP in the current support
@@ -113,19 +119,27 @@ public:
  @param[out] splines optimized cog trajectory
  @throws std::runtime_error Throws if no solution to the QP problem was found.
  */
-  void OptimizeSplineCoeff(const Position& start_cog_p,
+  void SetupQpMatrices(const Position& start_cog_p,
                            const Velocity& start_cog_v,
                            const hyq::LegDataMap<Foothold>& start_stance,
                            Footholds &steps,
                            const WeightsXYArray& weight, hyq::MarginValues margins,
-                           double height_robot,
-                           Splines& splines);
+                           double height_robot);
 
-  const SplineInfoVec ConstructSplineSequence(const std::vector<LegID>& step_sequence,
-                                              double t_stance,
-                                              double t_swing,
-                                              double t_stance_initial,
-                                              double t_stance_final);
+  Eigen::VectorXd SolveQp();
+  Splines CreateSplines(const Position& start_cog_p,
+                        const Velocity& start_cog_v,
+                        const Eigen::VectorXd& opt_spline_coeff) const;
+
+
+  MatVecPtr cf_;
+  MatVecPtr eq_;
+  MatVecPtr ineq_;
+
+  MatVec cf_no_ptr_;
+  MatVec eq_no_ptr_;
+  MatVec ineq_no_ptr_;
+
 
 private:
   const double kDt; ///< discretization interval
@@ -133,7 +147,7 @@ private:
   SplineInfoVec spline_infos_;
 
 
-  MatVecPtr CreateMinAccCostFunction(const WeightsXYArray& weight);
+  MatVecPtr CreateMinAccCostFunction(const WeightsXYArray& weight) const;
   MatVecPtr CreateEqualityContraints(const Position &start_cog_p,
                                      const Velocity &start_cog_v,
                                      const Position &end_cog) const;
@@ -142,9 +156,6 @@ private:
                                        const hyq::SuppTriangles &tr,
                                        double height_robot) const;
 
-  Splines CreateSplines(const Position& start_cog_p,
-                        const Velocity& start_cog_v,
-                        const Eigen::VectorXd& opt_spline_coeff) const;
 
   int var_index(int splines, int dim, int spline_coeff) const;
 

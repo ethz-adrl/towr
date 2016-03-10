@@ -1,0 +1,43 @@
+# The config file for ipopt. The program must be started from within the folder
+# where this file is located. These parameters can also be set in the cpp-code
+# itself:
+# app.Options()->SetStringValue("linear_solver", "ma86");
+# app.Options()->SetNumericValue("tol", 1e-2);
+
+
+#linear_solver ma27
+#linear_solver ma57
+#linear_solver ma77
+linear_solver ma86
+#linear_solver ma97
+
+jacobian_approximation finite-difference-values
+hessian_approximation limited-memory
+
+#derivative_test first-order
+#derivative_test second-order
+
+tol 1e-3
+#dual_inf_tol 1e-1
+#constr_viol_tol 1e-4
+#compl_inf_tol 1e-4
+#max_cpu_time 60
+max_iter 100
+
+#acceptable_iter 10
+#acceptable_tol 1e-3
+
+
+
+# Some scaling stuff so the obj + contraint are normalized
+#obj_scaling_factor 0.0000000000005
+#obj_scaling_factor  1
+
+#nlp_scaling_method none
+#nlp_scaling_method equilibration-based
+#nlp_scaling_method gradient-based
+
+
+
+print_level 5
+print_user_options yes

@@ -6,6 +6,10 @@
  */
 
 #include <xpp/zmp/zmp_optimizer.h>
+#include <xpp/zmp/nlp_ipopt_zmp.h>
+
+#include "IpIpoptApplication.hpp"
+#include "IpSolveStatistics.hpp"
 
 #include <log4cxx/logger.h>
 #include <log4cxx/propertyconfigurator.h>
@@ -17,7 +21,6 @@
 #include <Eigen/Dense>
 #include <iostream> //std::cout, std::fixed
 #include <iomanip>  //std::setprecision
-
 
 
 
@@ -139,12 +142,9 @@ int main(int argc, char **argv)
   margins[SIDE]  = 0.1;
   margins[DIAG]  = 0.05; // controls sidesway motion
 
-  double discretization_time = 0.1; 
   double swing_time = 0.6;         
   double stance_time = 0.2;         
 
-  // set up the general attributes of the optimizer
-  ZmpOptimizer opt(discretization_time);
 
   // start position (x,y,z) of robot
   Eigen::Vector2d cog_start_p(0.0, 0.0);
@@ -173,20 +173,55 @@ int main(int argc, char **argv)
 
   double robot_height = 0.58;
 
-  std::vector<ZmpSpline> spline_coefficients;
+
   ////////////////// QP optimization using eigen_quadprog /////////////////////
   std::vector<LegID> leg_ids;
   for (Foothold f : steps)
     leg_ids.push_back(f.leg);
-  opt.ConstructSplineSequence(leg_ids, stance_time, swing_time, t_stance_initial,t_stance_initial),
-  opt.OptimizeSplineCoeff(cog_start_p, cog_start_v, start_stance,
-                          steps, weight, margins, robot_height,
-                          spline_coefficients);
+
+  // set up the general attributes of the optimizer
+  Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> my_nlp = new Ipopt::NlpIpoptZmp();
+  my_nlp->zmp_optimizer_.ConstructSplineSequence(leg_ids, stance_time, swing_time, t_stance_initial,t_stance_initial),
+  my_nlp->zmp_optimizer_.SetupQpMatrices(cog_start_p, cog_start_v, start_stance,
+                          steps, weight, margins, robot_height);
+
+  Eigen::VectorXd opt_coefficients = my_nlp->zmp_optimizer_.SolveQp();
+
+
+
+
+
+  // solve the qp with ipopt instead of eigen_quadprog:
+
+  Ipopt::IpoptApplication app;
+  Ipopt::ApplicationReturnStatus status = app.Initialize();
+  if (status != Ipopt::Solve_Succeeded) {
+    std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
+    return (int) status;
+  }
+  status = app.OptimizeTNLP(my_nlp);
+  if (status == Ipopt::Solve_Succeeded) {
+    // Retrieve some statistics about the solve
+    Ipopt::Index iter_count = app.Statistics()->IterationCount();
+    std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
+
+    Ipopt::Number final_obj = app.Statistics()->FinalObjective();
+    std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
+
+    // override optimized coefficients of eigen quadprog
+    opt_coefficients = my_nlp->x_final_;
+    std::cout << "the final coefficients are: " << opt_coefficients.transpose() << "\n";
+  }
+
+
+
+
+  std::vector<ZmpSpline> splines = my_nlp->zmp_optimizer_.CreateSplines(cog_start_p, cog_start_v, opt_coefficients);
   /////////////////////////////////////////////////////////////////////////////
 
 
   SplineContainer zmp_splines;
-  zmp_splines.AddSplines(spline_coefficients);
+  zmp_splines.AddSplines(splines);
   LOG4CXX_INFO(main_logger, "\nZMP-optimized CoG Trajectory:\n"
                << "position(p), velocity(v), acclerations(a) [x,y]");
 

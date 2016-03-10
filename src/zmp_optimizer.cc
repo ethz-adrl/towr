@@ -36,17 +36,13 @@ ZmpOptimizer::ZmpOptimizer(double dt) :
 ZmpOptimizer::~ZmpOptimizer() {}
 
 
-void ZmpOptimizer::OptimizeSplineCoeff(
+void ZmpOptimizer::SetupQpMatrices(
     const Position &start_cog_p,
     const Velocity &start_cog_v,
     const hyq::LegDataMap<Foothold>& start_stance,
     Footholds& steps,
-    const WeightsXYArray& weight, hyq::MarginValues margins, double height_robot,
-    Splines& splines)
+    const WeightsXYArray& weight, hyq::MarginValues margins, double height_robot)
 {
-  clock_t start_all = std::clock();
-
-
   std::vector<LegID> step_sequence;
   for (Foothold f : steps)
     step_sequence.push_back(f.leg);
@@ -55,7 +51,8 @@ void ZmpOptimizer::OptimizeSplineCoeff(
     throw std::runtime_error("zmp.optimizer.cc: spline_info vector empty. First call ConstructSplineSequence()");
   }
 
-  MatVecPtr cf = CreateMinAccCostFunction(weight);
+  cf_ = CreateMinAccCostFunction(weight);
+  cf_no_ptr_ = *cf_;
 
   hyq::LegDataMap<Foothold> final_stance;
   SuppTriangles tr = SuppTriangle::FromFootholds(start_stance, steps, margins, final_stance);
@@ -65,18 +62,23 @@ void ZmpOptimizer::OptimizeSplineCoeff(
   for (LegID leg : hyq::LegIDArray) end_cog += final_stance[leg].p.segment<kDim2d>(X);
   end_cog /= 4; // number of legs
 
-  MatVecPtr eq = CreateEqualityContraints(start_cog_p, start_cog_v, end_cog);
-  MatVecPtr ineq = CreateInequalityContraints(start_cog_p, start_cog_v, tr, height_robot);
+  eq_ = CreateEqualityContraints(start_cog_p, start_cog_v, end_cog);
+  eq_no_ptr_ = *eq_;
+  ineq_ = CreateInequalityContraints(start_cog_p, start_cog_v, tr, height_robot);
+  ineq_no_ptr_ = *ineq_;
+
+}
+
+
+Eigen::VectorXd ZmpOptimizer::SolveQp() {
 
   Eigen::VectorXd opt_spline_coeff_xy(spline_infos_.size() * kOptCoeff * kDim2d);
 
-  /////////////////////////////////////////////////////////////////////////////
   clock_t start = std::clock();
 
-  double cost = Eigen::solve_quadprog(cf->M, cf->v, eq->M, eq->v, ineq->M, ineq->v,
+  double cost = Eigen::solve_quadprog(cf_->M, cf_->v, eq_->M, eq_->v, ineq_->M, ineq_->v,
                                       opt_spline_coeff_xy);
   clock_t end = std::clock();
-  /////////////////////////////////////////////////////////////////////////////
 
   LOG4CXX_INFO(log_, "Time QP solver:\t\t" << static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0 << "\tms");
   LOG4CXX_INFO(log_, "Cost:\t\t" << cost);
@@ -87,12 +89,9 @@ void ZmpOptimizer::OptimizeSplineCoeff(
     throw std::length_error("Eigen::quadprog did not find a solution");
 
   LOG4CXX_TRACE(log_, "x = " << opt_spline_coeff_xy.transpose()); //ax1, bx1, cx1, dx1, ex1, fx1 -- ay1, by1, cy1, dy1, ey1, fy1 -- ax2, bx2, cx2, dx2, ex2, fx2 -- ay2, by2, cy2, dy2, ey2, fy2 ...
-  splines = CreateSplines(start_cog_p, start_cog_v, opt_spline_coeff_xy);
-
-  clock_t end_all = std::clock();
-  LOG4CXX_INFO(log_, "Time zmp optimizer:\t\t" << static_cast<double>(end_all - start_all) / CLOCKS_PER_SEC * 1000.0 << "\tms");
-
+  return opt_spline_coeff_xy;
 }
+
 
 // Creates a sequence of Splines without the optimized coefficients
 const ZmpOptimizer::SplineInfoVec
@@ -146,7 +145,7 @@ ZmpOptimizer::ConstructSplineSequence(const std::vector<LegID>& step_sequence,
 
 
 ZmpOptimizer::MatVecPtr
-ZmpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight)
+ZmpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
 {
   std::clock_t start = std::clock();
 

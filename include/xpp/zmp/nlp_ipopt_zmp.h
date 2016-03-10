@@ -9,7 +9,9 @@
 #ifndef __MYNLP_HPP__
 #define __MYNLP_HPP__
 
-#include "IpTNLP.hpp"
+#include <IpTNLP.hpp>
+
+#include <xpp/zmp/zmp_optimizer.h>
 
 namespace Ipopt {
 
@@ -18,41 +20,8 @@ class NlpIpoptZmp : public Ipopt::TNLP
 {
 
 public:
-//	typedef Eigen::Matrix< double , 2*(iit::HyQ::jointsCount + 6), 1 > ODEState;
-//	typedef Eigen::Matrix< double ,   iit::HyQ::jointsCount , 1 > ODEInput;
-//	typedef std::vector<ODEInput> ODEInputVec;
-
-//	typedef boost::numeric::odeint::euler
-//	  <
-//		  ODEState,
-//	    double,
-//			ODEState,
-//	    double,
-//	    boost::numeric::odeint::vector_space_algebra
-//	  > EulerStepper;
-//
-//
-//	typedef boost::numeric::odeint::runge_kutta4
-//	  <
-//		  ODEState,
-//		  double,
-//			ODEState,
-//			double,
-//		  boost::numeric::odeint::vector_space_algebra
-//	  > RungeKuttaStepper;
-
-	static constexpr int kInputNodesCount = 10;
-	static constexpr double kTmaxStart = 0.4; //s
-	static constexpr double kTIntegrationStep = 0.01; //s
-	static const int kNumEE = 4;
-
-
-	int count_;
-	int count_prev_;
-
-public:
   /** default constructor */
-	NlpIpoptZmp(bool init_from_file);
+	NlpIpoptZmp();
 
   /** default destructor */
   virtual ~NlpIpoptZmp();
@@ -102,15 +71,15 @@ public:
   //@}
 
 
-  virtual bool intermediate_callback(AlgorithmMode mode,
-                                     Index iter, Number obj_value,
-                                     Number inf_pr, Number inf_du,
-                                     Number mu, Number d_norm,
-                                     Number regularization_size,
-                                     Number alpha_du, Number alpha_pr,
-                                     Index ls_trials,
-                                     const IpoptData* ip_data,
-                                     IpoptCalculatedQuantities* ip_cq);
+//  virtual bool intermediate_callback(AlgorithmMode mode,
+//                                     Index iter, Number obj_value,
+//                                     Number inf_pr, Number inf_du,
+//                                     Number mu, Number d_norm,
+//                                     Number regularization_size,
+//                                     Number alpha_du, Number alpha_pr,
+//                                     Index ls_trials,
+//                                     const IpoptData* ip_data,
+//                                     IpoptCalculatedQuantities* ip_cq);
 
 
   /** @name Solution Methods */
@@ -123,6 +92,14 @@ public:
 				 const IpoptData* ip_data,
 				 IpoptCalculatedQuantities* ip_cq);
   //@}
+
+
+
+
+  xpp::zmp::ZmpOptimizer zmp_optimizer_;
+  Eigen::VectorXd x_final_;
+
+
 
 
 private:
@@ -141,6 +118,8 @@ private:
   NlpIpoptZmp(const NlpIpoptZmp&);
   NlpIpoptZmp& operator=(const NlpIpoptZmp&);
   //@}
+
+
 
 
 //  // some stuff used for integration
