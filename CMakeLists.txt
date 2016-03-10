@@ -82,6 +82,7 @@ add_library(${LIB_NAME}
             ${SOURCES})
 target_link_libraries(${LIB_NAME} 
   log4cxx
+  
 )                        
                                       
 # Some example executables if turned "ON"
@@ -93,6 +94,7 @@ add_executable(example
 )
 target_link_libraries(example 
   ${LIB_NAME}
+  ${catkin_LIBRARIES}
 )
 
 enable_testing()

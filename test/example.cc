@@ -11,13 +11,114 @@
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/basicconfigurator.h>
 
+#include <ros/ros.h>
+#include <visualization_msgs/MarkerArray.h>
+
 #include <Eigen/Dense>
 #include <iostream> //std::cout, std::fixed
 #include <iomanip>  //std::setprecision
 
 
-int main() 
+
+
+
+
+
+
+visualization_msgs::MarkerArray BuildRvizMessage(const std::vector<xpp::hyq::Foothold>& H_footholds,
+                                                 std::string frame_id)
 {
+  visualization_msgs::MarkerArray footsteps_rviz_msg;
+
+  int i = 0;
+  for (const xpp::hyq::Foothold& f : H_footholds) {
+
+    ::geometry_msgs::Point point;
+    point.x = f.p.x();
+    point.y = f.p.y();
+    point.z = f.p.z();
+
+    // publish to rviz
+    visualization_msgs::Marker marker_msg;
+
+    // this is the name of the tf message that defines the location of the body
+    // with respect to the april tag
+    marker_msg.header.frame_id = frame_id;
+    marker_msg.header.stamp = ros::Time();
+    marker_msg.ns = "my_namespace";
+    marker_msg.id = i;
+    marker_msg.type = visualization_msgs::Marker::LINE_STRIP;
+    marker_msg.action = visualization_msgs::Marker::ADD;
+    marker_msg.lifetime = ros::Duration(10);
+//    marker_msg.pose.position.x = point.x;
+//    marker_msg.pose.position.y = point.y;
+//    marker_msg.pose.position.z = point.z;
+    marker_msg.points.push_back(point);
+    ::geometry_msgs::Point point2 = point; point2.x += 0.03;
+    marker_msg.points.push_back(point2);
+//    marker_msg.pose.orientation.x = 0.0;
+//    marker_msg.pose.orientation.y = 0.0;
+//    marker_msg.pose.orientation.z = 0.0;
+//    marker_msg.pose.orientation.w = 1.0;
+    marker_msg.scale.x = 0.005;
+//    marker_msg.scale.y = 0.02;
+//    marker_msg.scale.z = 0.02;
+
+
+    if (i<4 || i>=H_footholds.size()-4) {
+      marker_msg.color.a = 1.0; // Don't forget to set the alpha!
+      marker_msg.color.r = 1.0;
+      marker_msg.color.g = 1.0;
+      marker_msg.color.b = 0.0;
+    } else {
+
+      marker_msg.color.a = 1.0; // Don't forget to set the alpha!
+      marker_msg.color.r = 0.0;
+      marker_msg.color.g = 0.0;
+      marker_msg.color.b = 0.0;
+      switch (f.leg) {
+        case xpp::hyq::LF:
+          marker_msg.color.r = 1.0;
+          break;
+        case xpp::hyq::RF:
+          marker_msg.color.g = 1.0;
+          break;
+        case xpp::hyq::LH:
+          marker_msg.color.b = 1.0;
+          break;
+        case xpp::hyq::RH:
+          marker_msg.color.r = 1.0;
+          marker_msg.color.g = 1.0;
+          marker_msg.color.b = 1.0;
+          break;
+        default:
+          break;
+      }
+    }
+
+    i++;
+    footsteps_rviz_msg.markers.push_back(marker_msg);
+  }
+  return footsteps_rviz_msg;
+}
+
+
+
+
+
+
+
+
+
+
+int main(int argc, char **argv)
+{
+
+  std::string frame_id = "world";
+  ros::init(argc, argv, "zmp_publisher");
+  ros::NodeHandle n;
+  ros::Publisher publisher = n.advertise<visualization_msgs::MarkerArray>("footsteps", 10);
+
   using namespace xpp::hyq;
   using namespace xpp::zmp;
   using namespace xpp::utils;
@@ -66,6 +167,10 @@ int main()
   steps.push_back(Foothold( 0.14, -0.3, 0.0, RH));
   steps.push_back(Foothold( 0.88, -0.3, 0.0, RF));
 
+
+  visualization_msgs::MarkerArray footsteps_msg = BuildRvizMessage(steps,frame_id);
+
+
   double robot_height = 0.58;
 
   std::vector<ZmpSpline> spline_coefficients;
@@ -85,13 +190,58 @@ int main()
   LOG4CXX_INFO(main_logger, "\nZMP-optimized CoG Trajectory:\n"
                << "position(p), velocity(v), acclerations(a) [x,y]");
 
-  for (double t(0.0); t < swing_time*steps.size(); t+= 0.2)
+  int i=100;
+  for (double t(0.0); t < swing_time*steps.size(); t+= 0.02)
   {
     Point2d cog_state;
     zmp_splines.GetCOGxy(t, cog_state);
+
+
+    visualization_msgs::Marker marker_msg;
+
+    geometry_msgs::Point cog;
+    cog.x = cog_state.p.x();
+    cog.y = cog_state.p.y();
+    cog.z = 0.0;
+
+    marker_msg.pose.position = cog;
+    marker_msg.header.frame_id = frame_id;
+    marker_msg.header.stamp = ros::Time();
+    marker_msg.ns = "my_namespace";
+    marker_msg.id = i++;
+    marker_msg.type = visualization_msgs::Marker::SPHERE;
+    marker_msg.action = visualization_msgs::Marker::ADD;
+    marker_msg.lifetime = ros::Duration(10);
+    marker_msg.pose.orientation.x = 0.0;
+    marker_msg.pose.orientation.y = 0.0;
+    marker_msg.pose.orientation.z = 0.0;
+    marker_msg.pose.orientation.w = 1.0;
+    marker_msg.scale.x = 0.003;
+    marker_msg.scale.y = 0.003;
+    marker_msg.scale.z = 0.003;
+    marker_msg.color.a = 1.0; // Don't forget to set the alpha!
+    marker_msg.color.r = 1.0;
+    marker_msg.color.g = 1.0;
+    marker_msg.color.b = 1.0;
+
+    footsteps_msg.markers.push_back(marker_msg);
+
+
+
     LOG4CXX_INFO(main_logger, "t = " << t << "s:\t"
                              << std::setprecision(2) << std::fixed
                              << cog_state );
+  }
+
+
+
+
+
+
+
+  ros::Rate loop_rate(100);
+  while (ros::ok()) {
+    publisher.publish(footsteps_msg);
   }
 }
 
