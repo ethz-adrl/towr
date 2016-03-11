@@ -46,6 +46,7 @@ public:
   void GetCOGxy(double t_global, Lin2d& cog_xy);
   void AddSplines(const Splines &splines);
 
+  double T;
 private:
   Splines splines_;
   uint curr_spline_;

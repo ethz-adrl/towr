@@ -20,6 +20,8 @@ log4cxx::LoggerPtr SplineContainer::log_(log4cxx::Logger::getLogger("xpp.zmp.spl
 
 SplineContainer::SplineContainer()
 {
+  T = 0.0;
+  curr_spline_ = 0;
 }
 
 
@@ -33,6 +35,9 @@ void SplineContainer::AddSplines(const Splines &splines)
 {
   curr_spline_ = 0;
   splines_ = splines;
+  for (ZmpSpline s: splines) {
+    T += s.Duration();
+  }
 }
 
 
