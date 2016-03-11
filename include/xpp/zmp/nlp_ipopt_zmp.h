@@ -94,9 +94,19 @@ public:
   //@}
 
 
+  xpp::zmp::ZmpOptimizer::MatVecPtr cf_;
+  xpp::zmp::ZmpOptimizer::MatVecPtr eq_;
+  xpp::zmp::ZmpOptimizer::MatVecPtr ineq_;
 
+  void SetEigenMatrices(xpp::zmp::ZmpOptimizer::MatVecPtr cf,
+                        xpp::zmp::ZmpOptimizer::MatVecPtr eq,
+                        xpp::zmp::ZmpOptimizer::MatVecPtr ineq)
+  {
+    cf_   =  cf;
+    eq_   =  eq;
+    ineq_ =  ineq;
+  }
 
-  xpp::zmp::ZmpOptimizer zmp_optimizer_;
   Eigen::VectorXd x_final_;
 
 

@@ -10,6 +10,10 @@
 #include <xpp/hyq/supp_triangle.h>
 #include <xpp/utils/logger_helpers-inl.h>
 
+#include <IpIpoptApplication.hpp>
+#include <IpSolveStatistics.hpp>
+#include <xpp/zmp/nlp_ipopt_zmp.h>
+
 #include <ctime>      // std::clock_t
 #include <cmath>      // std::numeric_limits
 #include <algorithm>  // std::count
@@ -52,7 +56,6 @@ void ZmpOptimizer::SetupQpMatrices(
   }
 
   cf_ = CreateMinAccCostFunction(weight);
-  cf_no_ptr_ = *cf_;
 
   hyq::LegDataMap<Foothold> final_stance;
   SuppTriangles tr = SuppTriangle::FromFootholds(start_stance, steps, margins, final_stance);
@@ -63,10 +66,7 @@ void ZmpOptimizer::SetupQpMatrices(
   end_cog /= 4; // number of legs
 
   eq_ = CreateEqualityContraints(start_cog_p, start_cog_v, end_cog);
-  eq_no_ptr_ = *eq_;
   ineq_ = CreateInequalityContraints(start_cog_p, start_cog_v, tr, height_robot);
-  ineq_no_ptr_ = *ineq_;
-
 }
 
 
@@ -90,6 +90,36 @@ Eigen::VectorXd ZmpOptimizer::SolveQp() {
 
   LOG4CXX_TRACE(log_, "x = " << opt_spline_coeff_xy.transpose()); //ax1, bx1, cx1, dx1, ex1, fx1 -- ay1, by1, cy1, dy1, ey1, fy1 -- ax2, bx2, cx2, dx2, ex2, fx2 -- ay2, by2, cy2, dy2, ey2, fy2 ...
   return opt_spline_coeff_xy;
+}
+
+
+Eigen::VectorXd ZmpOptimizer::SolveIpopt()
+{
+  Ipopt::IpoptApplication app;
+  Ipopt::ApplicationReturnStatus status = app.Initialize();
+  if (status != Ipopt::Solve_Succeeded) {
+    std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
+    throw std::length_error("Ipopt could not initialize correctly");
+  }
+
+
+  Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp();
+  nlp_ipopt_zmp->SetEigenMatrices(cf_,eq_,ineq_);
+
+
+  // FIXME make sure the zmp_optimizer member variables is already properly filled!!!
+  status = app.OptimizeTNLP(nlp_ipopt_zmp);
+  if (status == Ipopt::Solve_Succeeded) {
+    // Retrieve some statistics about the solve
+    Ipopt::Index iter_count = app.Statistics()->IterationCount();
+    std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
+
+    Ipopt::Number final_obj = app.Statistics()->FinalObjective();
+    std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
+
+  }
+
+  return nlp_ipopt_zmp->x_final_;
 }
 
 

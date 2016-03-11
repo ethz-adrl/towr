@@ -28,22 +28,43 @@ NlpIpoptZmp::~NlpIpoptZmp()
 bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
+  //  min 0.5 * x G x + g0 x
+  //  s.t.
+  //  CE^T x + ce0 = 0
+  //  CI^T x + ci0 >= 0
+  //
+  //  The matrix and vectors dimensions are as follows:
+  //  G: n * n
+  //  g0: n
+  //
+  //  CE: n * p
+  //  ce0: p
+  //
+  //  CI: n * m
+  //  ci0: m
+  //
+  //  x: n
+
   // How many variables to optimize over
-  std::cout << "optimizing n= " << n << " variables\n";
 
-  n = zmp_optimizer_.cf_no_ptr_.M.rows();
+  n = cf_->M.rows();
+  std::cout << "optimizing n= " << n << " variables ";
 
 
-  // equality constraints
-  m = 0;
+  // constraints
+  int n_eq = eq_->v.rows();
+  int n_ineq = ineq_->v.rows();
+  std::cout << "with " << n_eq << " equality and " << n_ineq << " inequality constraints\n";
 
-  // nonzeros in the jacobian of the constraint g(x) (one for x1, and one for x2),
-  nnz_jac_g = 0; //m * n; // all constraints depend on all inputs
+  m = n_eq + n_ineq;
+
+  // nonzeros in the jacobian of the constraint g(x)
+  nnz_jac_g = m * n; // all constraints depend on all inputs
 
   // nonzeros in the hessian of the lagrangian
   // (one in the hessian of the objective for x2,
   //  and one in the hessian of the constraints for x1)
-  nnz_h_lag = 0; //n*n;
+  nnz_h_lag = n*n;
 
   // start index at 0 for row/col entries
   index_style = C_STYLE;
@@ -55,16 +76,30 @@ bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
                             Index m, Number* g_l, Number* g_u)
 {
 
+  std::cout << "in_getBoundsInfo";
+
   for (int i=0; i<n; ++i) {
-    x_lower[i] = 1e-9;
-    x_upper[i] = 1e+9;
+    x_lower[i] = -1e+6;
+    x_upper[i] =  1e+6;
   }
 
   // bounds on equality contraint always be equal (and zero).
-  for (int i=0; i<m; ++i)
+  int n_eq = eq_->v.rows();
+  int n_ineq = ineq_->v.rows();
+
+  for (int i=0; i<n_eq; ++i)
   {
-		g_l[i] =  0.0;
-		g_u[i] =  0.0;
+    // allow tiny deviation from equality constraint to avoid
+    // "TOO_FEW_DOF" error message from ipopt
+		g_l[i] =  -1e-9;
+		g_u[i] =   1e-9;
+  }
+
+  // inequality on inside of support polygon
+  for (int i=n_eq; i<n_ineq; ++i)
+  {
+    g_l[i] = 0.0;
+    g_u[i] = 1e+9;
   }
 
   return true;
@@ -83,7 +118,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	assert(init_lambda == false);
 
 	for (int i=0; i<n; ++i) {
-	  x[i] = 1; // spline of the form x = t^5+t^4+t^3+t^2+t
+	  x[i] = 0; // splines of the form x = t^5+t^4+t^3+t^2+t
 	}
 
 	return true;
@@ -91,6 +126,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
+//  std::cout << "in eval_f";
 
 //  min 0.5 * x G x + g0 x
 //  s.t.
@@ -110,14 +146,16 @@ bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value
 //  x: n
 
   // make an eigen vector out of the optimization variables
-  Eigen::VectorXd x_vec(zmp_optimizer_.cf_->M.rows());
+//  Eigen::Map<const Eigen::VectorXd> x_vec(x,n,1); // FIXME, this doesn't work, as Michael
+  Eigen::VectorXd x_vec(n);
   for (int r=0; r<x_vec.rows(); ++r) {
     x_vec[r] = x[r];
   }
 
 //  Eigen::MatrixXd M = zmp_optimizer_.cf_->M;
-  obj_value = x_vec.transpose() * zmp_optimizer_.cf_->M * x_vec;
-  obj_value += zmp_optimizer_.cf_->v.transpose() * x_vec;
+  obj_value = 0.0;
+  obj_value = x_vec.transpose() * cf_->M * x_vec;
+  obj_value += cf_->v.transpose() * x_vec;
 
   return true;
 }
@@ -131,8 +169,61 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
 }
 
 
-bool NlpIpoptZmp::eval_g(Index n, const Number* u, bool new_x, Index m, Number* g)
+bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
+  //  min 0.5 * x G x + g0 x
+  //  s.t.
+  //  CE^T x + ce0 = 0
+  //  CI^T x + ci0 >= 0
+  //
+  //  The matrix and vectors dimensions are as follows:
+  //  G: n * n
+  //  g0: n
+  //
+  //  CE: n * p
+  //  ce0: p
+  //
+  //  CI: n * m
+  //  ci0: m
+  //
+  //  x:
+
+  Eigen::VectorXd x_vec(n);
+  for (int r=0; r<x_vec.rows(); ++r) {
+    x_vec[r] = x[r];
+  }
+//  Eigen::Map<const Eigen::VectorXd> x_vec_eq(x,n);
+
+
+  // equality constraints
+  Eigen::MatrixXd A_eq = eq_->M.transpose();
+  Eigen::VectorXd b_eq = eq_->v;
+  Eigen::VectorXd g_vec_eq = A_eq*x_vec + b_eq;
+
+
+  // inequality constraints
+  Eigen::MatrixXd A_in = ineq_->M.transpose();
+  Eigen::VectorXd b_in = ineq_->v;
+  Eigen::VectorXd g_vec_in = A_in*x_vec + b_in;
+
+
+  // combine the two g vectors
+  Eigen::VectorXd g_vec(g_vec_eq.rows()+g_vec_in.rows());
+  g_vec << g_vec_eq, g_vec_in;
+
+
+  // fill these values into g
+//  Eigen::Map<Eigen::VectorXd>(g,m,1) = g_vec; // don't know which to use
+//  g = g_vec.data();
+  for (int r=0; r<m; ++r) {
+    g[r] = g_vec[r];
+  }
+
+
+
+
+
+
 //	double T = kTmaxStart; // x[n-1];
 //	ODEState y_final;
 //
@@ -198,25 +289,24 @@ bool NlpIpoptZmp::eval_jac_g(Index n, const Number* x, bool new_x,
                        Index m, Index nele_jac, Index* iRow, Index *jCol,
                        Number* values)
 {
-//
-//	// say at which positions the nonzero elements of the jacobian are
-//  if (values == NULL) {
-//    // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
-//
-//  	int c_nonzero = 0;
-//  	for (int row=0; row<m; ++row) {
-//  		for (int col=0; col<n; ++col)
-//  		{
-//  			iRow[c_nonzero] = row;
-//  			jCol[c_nonzero] = col;
-//  			c_nonzero++;
-//  		}
-//  	}
-//  }
-//  else {
-//  // approximated by ipopt through finite differences
-//  }
-//
+
+	// say at which positions the nonzero elements of the jacobian are
+  if (values == NULL) {
+    // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
+  	int c_nonzero = 0;
+  	for (int row=0; row<m; ++row) {
+  		for (int col=0; col<n; ++col)
+  		{
+  			iRow[c_nonzero] = row;
+  			jCol[c_nonzero] = col;
+  			c_nonzero++;
+  		}
+  	}
+  }
+  else {
+  // approximated by ipopt through finite differences
+  }
+
   return true;
 }
 

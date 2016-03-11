@@ -127,6 +127,9 @@ public:
                            double height_robot);
 
   Eigen::VectorXd SolveQp();
+
+  Eigen::VectorXd SolveIpopt();
+
   Splines CreateSplines(const Position& start_cog_p,
                         const Velocity& start_cog_v,
                         const Eigen::VectorXd& opt_spline_coeff) const;
@@ -135,10 +138,6 @@ public:
   MatVecPtr cf_;
   MatVecPtr eq_;
   MatVecPtr ineq_;
-
-  MatVec cf_no_ptr_;
-  MatVec eq_no_ptr_;
-  MatVec ineq_no_ptr_;
 
 
 private:

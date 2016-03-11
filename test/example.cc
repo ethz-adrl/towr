@@ -129,8 +129,6 @@ int main(int argc, char **argv)
   log4cxx::PropertyConfigurator::configure("../test/log4cxx.properties");
   log4cxx::LoggerPtr main_logger = log4cxx::Logger::getLogger("main");
 
-  int splines_per_step = 2;
-  int splines_per_4ls = 1;
 
   double penalty_movement_x = 1.0;
   double penalty_movement_y = 1.5;
@@ -180,43 +178,15 @@ int main(int argc, char **argv)
     leg_ids.push_back(f.leg);
 
   // set up the general attributes of the optimizer
-  Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> my_nlp = new Ipopt::NlpIpoptZmp();
-  my_nlp->zmp_optimizer_.ConstructSplineSequence(leg_ids, stance_time, swing_time, t_stance_initial,t_stance_initial),
-  my_nlp->zmp_optimizer_.SetupQpMatrices(cog_start_p, cog_start_v, start_stance,
+  xpp::zmp::ZmpOptimizer zmp_optimizer;
+  zmp_optimizer.ConstructSplineSequence(leg_ids, stance_time, swing_time, t_stance_initial,t_stance_initial),
+  zmp_optimizer.SetupQpMatrices(cog_start_p, cog_start_v, start_stance,
                           steps, weight, margins, robot_height);
 
-  Eigen::VectorXd opt_coefficients = my_nlp->zmp_optimizer_.SolveQp();
+//  Eigen::VectorXd opt_coefficients = my_nlp->zmp_optimizer_.SolveQp();
+  Eigen::VectorXd opt_coefficients = zmp_optimizer.SolveIpopt();
 
-
-
-
-
-  // solve the qp with ipopt instead of eigen_quadprog:
-
-  Ipopt::IpoptApplication app;
-  Ipopt::ApplicationReturnStatus status = app.Initialize();
-  if (status != Ipopt::Solve_Succeeded) {
-    std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
-    return (int) status;
-  }
-  status = app.OptimizeTNLP(my_nlp);
-  if (status == Ipopt::Solve_Succeeded) {
-    // Retrieve some statistics about the solve
-    Ipopt::Index iter_count = app.Statistics()->IterationCount();
-    std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
-
-    Ipopt::Number final_obj = app.Statistics()->FinalObjective();
-    std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
-
-    // override optimized coefficients of eigen quadprog
-    opt_coefficients = my_nlp->x_final_;
-    std::cout << "the final coefficients are: " << opt_coefficients.transpose() << "\n";
-  }
-
-
-
-
-  std::vector<ZmpSpline> splines = my_nlp->zmp_optimizer_.CreateSplines(cog_start_p, cog_start_v, opt_coefficients);
+  std::vector<ZmpSpline> splines = zmp_optimizer.CreateSplines(cog_start_p, cog_start_v, opt_coefficients);
   /////////////////////////////////////////////////////////////////////////////
 
 
@@ -226,7 +196,8 @@ int main(int argc, char **argv)
                << "position(p), velocity(v), acclerations(a) [x,y]");
 
   int i=100;
-  for (double t(0.0); t < swing_time*steps.size(); t+= 0.02)
+
+  for (double t(0.0); t < zmp_splines.T; t+= 0.02)
   {
     Point2d cog_state;
     zmp_splines.GetCOGxy(t, cog_state);
