@@ -5,26 +5,32 @@
  * \brief  An example implementation of how to generate a trajectory.
  */
 
+
+#include <xpp_opt/FootholdSequence.h>
 #include <xpp/zmp/zmp_optimizer.h>
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
 #include "IpIpoptApplication.hpp"
 #include "IpSolveStatistics.hpp"
 
-#include <log4cxx/logger.h>
-#include <log4cxx/propertyconfigurator.h>
-#include <log4cxx/basicconfigurator.h>
+//#include <log4cxx/logger.h>
+//#include <log4cxx/propertyconfigurator.h>
+//#include <log4cxx/basicconfigurator.h>
 
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
+
+
+#include <xpp_opt/FootholdSequence.h>
+
 
 #include <Eigen/Dense>
 #include <iostream> //std::cout, std::fixed
 #include <iomanip>  //std::setprecision
 
 
-
-
+std::string frame_id = "world";
+visualization_msgs::MarkerArray footsteps_msg_;
 
 
 
@@ -108,30 +114,28 @@ visualization_msgs::MarkerArray BuildRvizMessage(const std::vector<xpp::hyq::Foo
 
 
 
-
-
-
-
-
-
-int main(int argc, char **argv)
+std::vector<xpp::hyq::Foothold> steps_;
+void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 {
+  steps_.clear();
+  int num_footholds = H_msg.foothold.size();
+  std::cout << "Read " << num_footholds << " new footholds: (in Horizontal frame) \n";
 
-  std::string frame_id = "world";
-  ros::init(argc, argv, "zmp_publisher");
-  ros::NodeHandle n;
-  ros::Publisher publisher = n.advertise<visualization_msgs::MarkerArray>("footsteps", 10);
+  for (int i=0; i<num_footholds; ++i) {
+
+    Eigen::Vector3d f_eig;
+    f_eig <<  H_msg.foothold[i].x, H_msg.foothold[i].y, H_msg.foothold[i].z;
+    xpp::hyq::Foothold f(f_eig, static_cast<xpp::hyq::LegID>(H_msg.leg[i]));
+    steps_.push_back(f);
+  }
+
 
   using namespace xpp::hyq;
   using namespace xpp::zmp;
   using namespace xpp::utils;
 
-  log4cxx::PropertyConfigurator::configure("../test/log4cxx.properties");
-  log4cxx::LoggerPtr main_logger = log4cxx::Logger::getLogger("main");
-
-
   double penalty_movement_x = 1.0;
-  double penalty_movement_y = 1.5;
+  double penalty_movement_y = 5.0;
   ZmpOptimizer::WeightsXYArray weight = {{penalty_movement_x, penalty_movement_y}};
 
   MarginValues margins;
@@ -141,7 +145,7 @@ int main(int argc, char **argv)
   margins[DIAG]  = 0.05; // controls sidesway motion
 
   double swing_time = 0.6;         
-  double stance_time = 0.2;         
+  double stance_time = 0.2;
 
 
   // start position (x,y,z) of robot
@@ -155,18 +159,26 @@ int main(int argc, char **argv)
   double t_stance_initial = 1.0; //s
 
   // steps in global reference frame
-  std::vector<Foothold> steps;
-  steps.push_back(Foothold(-0.25,  0.3, 0.0, LH));
-  steps.push_back(Foothold( 0.50,  0.3, 0.0, LF));
-  steps.push_back(Foothold(-0.12, -0.3, 0.0, RH));
-  steps.push_back(Foothold( 0.62, -0.3, 0.0, RF));
-  steps.push_back(Foothold( 0.01,  0.3, 0.0, LH));
-  steps.push_back(Foothold( 0.75,  0.3, 0.0, LF));
-  steps.push_back(Foothold( 0.14, -0.3, 0.0, RH));
-  steps.push_back(Foothold( 0.88, -0.3, 0.0, RF));
+
+  // fill in only if no ros message arrived
+  if (steps_.empty()) {
+
+    std::vector<Foothold> steps;
+    steps.push_back(Foothold(-0.25,  0.3, 0.0, LH));
+    steps.push_back(Foothold( 0.50,  0.3, 0.0, LF));
+    steps.push_back(Foothold(-0.12, -0.3, 0.0, RH));
+    steps.push_back(Foothold( 0.62, -0.3, 0.0, RF));
+    steps.push_back(Foothold( 0.01,  0.3, 0.0, LH));
+    steps.push_back(Foothold( 0.75,  0.3, 0.0, LF));
+    steps.push_back(Foothold( 0.14, -0.3, 0.0, RH));
+    steps.push_back(Foothold( 0.88, -0.3, 0.0, RF));
+
+    steps_ = steps;
+  }
 
 
-  visualization_msgs::MarkerArray footsteps_msg = BuildRvizMessage(steps,frame_id);
+  footsteps_msg_.markers.clear();
+  footsteps_msg_ = BuildRvizMessage(steps_,frame_id);
 
 
   double robot_height = 0.58;
@@ -174,29 +186,38 @@ int main(int argc, char **argv)
 
   ////////////////// QP optimization using eigen_quadprog /////////////////////
   std::vector<LegID> leg_ids;
-  for (Foothold f : steps)
+  leg_ids.clear();
+  for (Foothold f : steps_) {
     leg_ids.push_back(f.leg);
+    std::cout << "f: " << f << std::endl;
+  }
 
   // set up the general attributes of the optimizer
   xpp::zmp::ZmpOptimizer zmp_optimizer;
   zmp_optimizer.ConstructSplineSequence(leg_ids, stance_time, swing_time, t_stance_initial,t_stance_initial),
-  zmp_optimizer.SetupQpMatrices(cog_start_p, cog_start_v, start_stance,
-                          steps, weight, margins, robot_height);
+  zmp_optimizer.SetupQpMatrices(cog_start_p, cog_start_v, start_stance, steps_, weight, margins, robot_height);
 
-//  Eigen::VectorXd opt_coefficients = my_nlp->zmp_optimizer_.SolveQp();
-  Eigen::VectorXd opt_coefficients = zmp_optimizer.SolveIpopt();
+  Eigen::VectorXd opt_coefficients_eig = zmp_optimizer.SolveQp();
+  Eigen::VectorXd opt_coefficients = zmp_optimizer.SolveIpopt(/*opt_coefficients_eig*/);
 
   std::vector<ZmpSpline> splines = zmp_optimizer.CreateSplines(cog_start_p, cog_start_v, opt_coefficients);
+  std::vector<ZmpSpline> splines_eig = zmp_optimizer.CreateSplines(cog_start_p, cog_start_v, opt_coefficients_eig);
   /////////////////////////////////////////////////////////////////////////////
 
 
   SplineContainer zmp_splines;
+  SplineContainer zmp_splines_eig;
   zmp_splines.AddSplines(splines);
-  LOG4CXX_INFO(main_logger, "\nZMP-optimized CoG Trajectory:\n"
-               << "position(p), velocity(v), acclerations(a) [x,y]");
+  zmp_splines_eig.AddSplines(splines_eig);
+//  LOG4CXX_INFO(main_logger, "\nZMP-optimized CoG Trajectory:\n"
+//               << "position(p), velocity(v), acclerations(a) [x,y]");
 
+
+
+
+
+  // visualize the optimized ZMP trajectory
   int i=100;
-
   for (double t(0.0); t < zmp_splines.T; t+= 0.02)
   {
     Point2d cog_state;
@@ -230,13 +251,53 @@ int main(int argc, char **argv)
     marker_msg.color.g = 1.0;
     marker_msg.color.b = 1.0;
 
-    footsteps_msg.markers.push_back(marker_msg);
+    footsteps_msg_.markers.push_back(marker_msg);
+
+//    LOG4CXX_INFO(main_logger, "t = " << t << "s:\t"
+//                             << std::setprecision(2) << std::fixed
+//                             << cog_state );
+  }
 
 
+  // visualize the eigen quadprog optimized ZMP trajectory
+  for (double t(0.0); t < zmp_splines.T; t+= 0.02)
+  {
+    Point2d cog_state;
+    zmp_splines_eig.GetCOGxy(t, cog_state);
 
-    LOG4CXX_INFO(main_logger, "t = " << t << "s:\t"
-                             << std::setprecision(2) << std::fixed
-                             << cog_state );
+
+    visualization_msgs::Marker marker_msg;
+
+    geometry_msgs::Point cog;
+    cog.x = cog_state.p.x();
+    cog.y = cog_state.p.y();
+    cog.z = 0.0;
+
+    marker_msg.pose.position = cog;
+    marker_msg.header.frame_id = frame_id;
+    marker_msg.header.stamp = ros::Time();
+    marker_msg.ns = "my_namespace";
+    marker_msg.id = i++;
+    marker_msg.type = visualization_msgs::Marker::SPHERE;
+    marker_msg.action = visualization_msgs::Marker::ADD;
+    marker_msg.lifetime = ros::Duration(10);
+    marker_msg.pose.orientation.x = 0.0;
+    marker_msg.pose.orientation.y = 0.0;
+    marker_msg.pose.orientation.z = 0.0;
+    marker_msg.pose.orientation.w = 1.0;
+    marker_msg.scale.x = 0.003;
+    marker_msg.scale.y = 0.003;
+    marker_msg.scale.z = 0.003;
+    marker_msg.color.a = 1.0; // Don't forget to set the alpha!
+    marker_msg.color.r = 0.0;
+    marker_msg.color.g = 0.0;
+    marker_msg.color.b = 1.0;
+
+    footsteps_msg_.markers.push_back(marker_msg);
+
+//    LOG4CXX_INFO(main_logger, "t = " << t << "s:\t"
+//                             << std::setprecision(2) << std::fixed
+//                             << cog_state );
   }
 
 
@@ -244,10 +305,33 @@ int main(int argc, char **argv)
 
 
 
+}
+
+
+
+
+int main(int argc, char **argv)
+{
+
+
+  ros::init(argc, argv, "example_node");
+  ros::NodeHandle n;
+  ros::Publisher publisher = n.advertise<visualization_msgs::MarkerArray>("zmp_trajectory", 10);
+  ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
+
+
+  using namespace xpp::hyq;
+  using namespace xpp::zmp;
+  using namespace xpp::utils;
+
+//  log4cxx::PropertyConfigurator::configure("../test/log4cxx.properties");
+//  log4cxx::LoggerPtr main_logger = log4cxx::Logger::getLogger("main");
+
 
   ros::Rate loop_rate(100);
   while (ros::ok()) {
-    publisher.publish(footsteps_msg);
+    ros::spinOnce();
+    publisher.publish(footsteps_msg_);
   }
 }
 

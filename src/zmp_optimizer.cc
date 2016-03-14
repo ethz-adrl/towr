@@ -76,7 +76,7 @@ Eigen::VectorXd ZmpOptimizer::SolveQp() {
 
   clock_t start = std::clock();
 
-  double cost = Eigen::solve_quadprog(cf_->M, cf_->v, eq_->M, eq_->v, ineq_->M, ineq_->v,
+  double cost = Eigen::solve_quadprog(cf_.M, cf_.v, eq_.M, eq_.v, ineq_.M, ineq_.v,
                                       opt_spline_coeff_xy);
   clock_t end = std::clock();
 
@@ -93,8 +93,11 @@ Eigen::VectorXd ZmpOptimizer::SolveQp() {
 }
 
 
-Eigen::VectorXd ZmpOptimizer::SolveIpopt()
+Eigen::VectorXd ZmpOptimizer::SolveIpopt(const Eigen::VectorXd& opt_coefficients_eig)
 {
+
+
+
   Ipopt::IpoptApplication app;
   Ipopt::ApplicationReturnStatus status = app.Initialize();
   if (status != Ipopt::Solve_Succeeded) {
@@ -104,7 +107,7 @@ Eigen::VectorXd ZmpOptimizer::SolveIpopt()
 
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp();
-  nlp_ipopt_zmp->SetEigenMatrices(cf_,eq_,ineq_);
+  nlp_ipopt_zmp->SetupNlp(cf_,eq_,ineq_,opt_coefficients_eig);
 
 
   // FIXME make sure the zmp_optimizer member variables is already properly filled!!!
@@ -167,9 +170,9 @@ ZmpOptimizer::ConstructSplineSequence(const std::vector<LegID>& step_sequence,
   }
 
 
-  ::xpp::utils::logger_helpers::print_spline_info(spline_infos_, log_);
-  LOG4CXX_INFO(log_matlab_, step);
-  LOG4CXX_INFO(log_matlab_, (t_swing/kSplinesPerStep) << " " << t_stance);
+//  ::xpp::utils::logger_helpers::print_spline_info(spline_infos_, log_);
+//  LOG4CXX_INFO(log_matlab_, step);
+//  LOG4CXX_INFO(log_matlab_, (t_swing/kSplinesPerStep) << " " << t_stance);
   return spline_infos_;
 }
 
@@ -181,7 +184,7 @@ ZmpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
 
   // total number of coefficients to be optimized
   int n_coeff = spline_infos_.size() * kOptCoeff * kDim2d;
-  MatVecPtr cf(new MatVec(n_coeff, n_coeff));
+  MatVecPtr cf(n_coeff, n_coeff);
 
   for (const SplineInfo& s : spline_infos_) {
     std::array<double,10> t_span = cache_exponents<10>(s.duration_);
@@ -195,26 +198,26 @@ ZmpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
       // for explanation of values see M.Kalakrishnan et al., page 248
       // "Learning, Planning and Control for Quadruped Robots over challenging
       // Terrain", IJRR, 2010
-      cf->M(a, a) = 400.0 / 7.0      * t_span[7] * weight[dim];
-      cf->M(a, b) = 40.0             * t_span[6] * weight[dim];
-      cf->M(a, c) = 120.0 / 5.0      * t_span[5] * weight[dim];
-      cf->M(a, d) = 10.0             * t_span[4] * weight[dim];
-      cf->M(b, b) = 144.0 / 5.0      * t_span[5] * weight[dim];
-      cf->M(b, c) = 18.0             * t_span[4] * weight[dim];
-      cf->M(b, d) = 8.0              * t_span[3] * weight[dim];
-      cf->M(c, c) = 12.0             * t_span[3] * weight[dim];
-      cf->M(c, d) = 6.0              * t_span[2] * weight[dim];
-      cf->M(d, d) = 4.0              * t_span[1] * weight[dim];
+      cf.M(a, a) = 400.0 / 7.0      * t_span[7] * weight[dim];
+      cf.M(a, b) = 40.0             * t_span[6] * weight[dim];
+      cf.M(a, c) = 120.0 / 5.0      * t_span[5] * weight[dim];
+      cf.M(a, d) = 10.0             * t_span[4] * weight[dim];
+      cf.M(b, b) = 144.0 / 5.0      * t_span[5] * weight[dim];
+      cf.M(b, c) = 18.0             * t_span[4] * weight[dim];
+      cf.M(b, d) = 8.0              * t_span[3] * weight[dim];
+      cf.M(c, c) = 12.0             * t_span[3] * weight[dim];
+      cf.M(c, d) = 6.0              * t_span[2] * weight[dim];
+      cf.M(d, d) = 4.0              * t_span[1] * weight[dim];
 
       // mirrow values over diagonal to fill bottom left triangle
-      for (int c = 0; c < cf->M.cols(); ++c)
-        for (int r = c + 1; r < cf->M.rows(); ++r)
-          cf->M(r, c) = cf->M(c, r);
+      for (int c = 0; c < cf.M.cols(); ++c)
+        for (int r = c + 1; r < cf.M.rows(); ++r)
+          cf.M(r, c) = cf.M(c, r);
     }
   }
 
   LOG4CXX_INFO(log_, "Calc. time cost function:\t\t" << static_cast<double>(std::clock() - start) / CLOCKS_PER_SEC * 1000.0  << "\tms");
-  LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << cf->M << "\nVector:\n" << cf->v.transpose());
+  LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << cf.M << "\nVector:\n" << cf.v.transpose());
   return cf;
 }
 
@@ -230,7 +233,7 @@ ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
   constraints += kDim2d*2;                         // init {x,y} * {acc, jerk} pos, vel implied
   constraints += kDim2d*3;                         // end  {x,y} * {pos, vel, acc}
   constraints += (spline_infos_.size()-1) * kDim2d * 2;  // junctions {acc,jerk} since pos, vel  implied
-  MatVecPtr ec(new MatVec(coeff, constraints));
+  MatVecPtr ec(coeff, constraints);
 
   const Eigen::Vector2d kAccStart = Eigen::Vector2d(0.0, 0.0);
   const Eigen::Vector2d kJerkStart= Eigen::Vector2d(0.0, 0.0);
@@ -243,12 +246,12 @@ ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
   {
     // acceleration set to zero
     int d = var_index(0, dim, D);
-    ec->M(d, i) = 2.0;
-    ec->v(i++) = -kAccStart(dim);
+    ec.M(d, i) = 2.0;
+    ec.v(i++) = -kAccStart(dim);
     // jerk set to zero
     int c = var_index(0, dim, C);
-    ec->M(c, i) = 6.0;
-    ec->v(i++) = -kJerkStart(dim);
+    ec.M(c, i) = 6.0;
+    ec.v(i++) = -kJerkStart(dim);
 
 
     // 2. Final conditions
@@ -264,33 +267,33 @@ ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
     DescribeFByPrev(K, dim, start_cog_v(dim), start_cog_p(dim), Fk, non_dependent_f);
 
     // position
-    ec->M(last_spline + A, i) = t_duration[5];
-    ec->M(last_spline + B, i) = t_duration[4];
-    ec->M(last_spline + C, i) = t_duration[3];
-    ec->M(last_spline + D, i) = t_duration[2];
-    ec->M.col(i) += Ek*t_duration[1];
-    ec->M.col(i) += Fk;
+    ec.M(last_spline + A, i) = t_duration[5];
+    ec.M(last_spline + B, i) = t_duration[4];
+    ec.M(last_spline + C, i) = t_duration[3];
+    ec.M(last_spline + D, i) = t_duration[2];
+    ec.M.col(i) += Ek*t_duration[1];
+    ec.M.col(i) += Fk;
 
-    ec->v(i)     += non_dependent_e*t_duration[1] + non_dependent_f;
-    ec->v(i++)   += -end_cog(dim);
+    ec.v(i)     += non_dependent_e*t_duration[1] + non_dependent_f;
+    ec.v(i++)   += -end_cog(dim);
 
     // velocities
-    ec->M(last_spline + A, i) = 5 * t_duration[4];
-    ec->M(last_spline + B, i) = 4 * t_duration[3];
-    ec->M(last_spline + C, i) = 3 * t_duration[2];
-    ec->M(last_spline + D, i) = 2 * t_duration[1];
-    ec->M.col(i) += Ek;
+    ec.M(last_spline + A, i) = 5 * t_duration[4];
+    ec.M(last_spline + B, i) = 4 * t_duration[3];
+    ec.M(last_spline + C, i) = 3 * t_duration[2];
+    ec.M(last_spline + D, i) = 2 * t_duration[1];
+    ec.M.col(i) += Ek;
 
-    ec->v(i)     += non_dependent_e;
-    ec->v(i++)   += -kVelEnd(dim);
+    ec.v(i)     += non_dependent_e;
+    ec.v(i++)   += -kVelEnd(dim);
 
     // accelerations
-    ec->M(last_spline + A, i) = 20 * t_duration[3];
-    ec->M(last_spline + B, i) = 12 * t_duration[2];
-    ec->M(last_spline + C, i) = 6  * t_duration[1];
-    ec->M(last_spline + D, i) = 2;
+    ec.M(last_spline + A, i) = 20 * t_duration[3];
+    ec.M(last_spline + B, i) = 12 * t_duration[2];
+    ec.M(last_spline + C, i) = 6  * t_duration[1];
+    ec.M(last_spline + D, i) = 2;
 
-    ec->v(i++) = -kAccEnd(dim);
+    ec.v(i++) = -kAccEnd(dim);
   }
 
   // 3. Equal conditions at spline junctions
@@ -303,25 +306,25 @@ ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
       int next_spline = var_index(s + 1, dim, A);
 
       // acceleration
-      ec->M(curr_spline + A, i) = 20 * t_duration[3];
-      ec->M(curr_spline + B, i) = 12 * t_duration[2];
-      ec->M(curr_spline + C, i) = 6  * t_duration[1];
-      ec->M(curr_spline + D, i) = 2;
-      ec->M(next_spline + D, i) = -2.0;
-      ec->v(i++) = 0.0;
+      ec.M(curr_spline + A, i) = 20 * t_duration[3];
+      ec.M(curr_spline + B, i) = 12 * t_duration[2];
+      ec.M(curr_spline + C, i) = 6  * t_duration[1];
+      ec.M(curr_spline + D, i) = 2;
+      ec.M(next_spline + D, i) = -2.0;
+      ec.v(i++) = 0.0;
 
       // jerk (derivative of acceleration)
-      ec->M(curr_spline + A, i) = 60 * t_duration[2];
-      ec->M(curr_spline + B, i) = 24 * t_duration[1];
-      ec->M(curr_spline + C, i) = 6;
-      ec->M(next_spline + C, i) = -6.0;
-      ec->v(i++) = 0.0;
+      ec.M(curr_spline + A, i) = 60 * t_duration[2];
+      ec.M(curr_spline + B, i) = 24 * t_duration[1];
+      ec.M(curr_spline + C, i) = 6;
+      ec.M(next_spline + C, i) = -6.0;
+      ec.v(i++) = 0.0;
     }
   }
 
   LOG4CXX_INFO(log_, "Calc. time equality constraints:\t" << static_cast<double>(std::clock() - start) / CLOCKS_PER_SEC * 1000.0  << "\tms");
-  LOG4CXX_DEBUG(log_, "Dim: " << ec->M.rows() << " x " << ec->M.cols());
-  LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ec->M << "\nVector:\n" << ec->v.transpose());
+  LOG4CXX_DEBUG(log_, "Dim: " << ec.M.rows() << " x " << ec.M.cols());
+  LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ec.M << "\nVector:\n" << ec.v.transpose());
   return ec;
 }
 
@@ -342,7 +345,7 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
   for (const SplineInfo& s : spline_infos_) points += std::floor(s.duration_/kDt);
   int contraints= points * 3; // 3 triangle side constraints per point
 
-  MatVecPtr ineq(new MatVec(coeff, contraints));
+  MatVecPtr ineq(coeff, contraints);
 
   const double g = 9.81; // gravity acceleration
   int c = 0; // inequality constraint counter
@@ -386,25 +389,25 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
           DescribeEByPrev(k, dim, start_cog_v(dim), Ek, non_dependent_e);
           DescribeFByPrev(k, dim, start_cog_v(dim), start_cog_p(dim), Fk, non_dependent_f);
 
-          ineq->M(var_index(k,dim,A), c) = lc * (t[5] - h/(g+z_acc) * 20.0 * t[3]);
-          ineq->M(var_index(k,dim,B), c) = lc * (t[4] - h/(g+z_acc) * 12.0 * t[2]);
-          ineq->M(var_index(k,dim,C), c) = lc * (t[3] - h/(g+z_acc) *  6.0 * t[1]);
-          ineq->M(var_index(k,dim,D), c) = lc * (t[2] - h/(g+z_acc) *  2.0);
+          ineq.M(var_index(k,dim,A), c) = lc * (t[5] - h/(g+z_acc) * 20.0 * t[3]);
+          ineq.M(var_index(k,dim,B), c) = lc * (t[4] - h/(g+z_acc) * 12.0 * t[2]);
+          ineq.M(var_index(k,dim,C), c) = lc * (t[3] - h/(g+z_acc) *  6.0 * t[1]);
+          ineq.M(var_index(k,dim,D), c) = lc * (t[2] - h/(g+z_acc) *  2.0);
 
-          ineq->M.col(c) += lc * Ek*t[1];
-          ineq->M.col(c) += lc * Fk;
-          ineq->v[c]     += lc *(non_dependent_e*t[0] + non_dependent_f);
+          ineq.M.col(c) += lc * Ek*t[1];
+          ineq.M.col(c) += lc * Fk;
+          ineq.v[c]     += lc *(non_dependent_e*t[0] + non_dependent_f);
         }
 
-        ineq->v[c] += l.coeff.r - l.s_margin;
+        ineq.v[c] += l.coeff.r - l.s_margin;
         ++c;
       }
     }
   }
 
   LOG4CXX_INFO(log_, "Calc. time inequality constraints:\t" << static_cast<double>(std::clock() - start) / CLOCKS_PER_SEC * 1000.0  << "\tms");
-  LOG4CXX_DEBUG(log_, "Dim: " << ineq->M.rows() << " x " << ineq->M.cols());
-  LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ineq->M << "\nVector:\n" << ineq->v.transpose());
+  LOG4CXX_DEBUG(log_, "Dim: " << ineq.M.rows() << " x " << ineq.M.cols());
+  LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ineq.M << "\nVector:\n" << ineq.v.transpose());
   return ineq;
 }
 

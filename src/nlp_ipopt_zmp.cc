@@ -47,13 +47,13 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 
   // How many variables to optimize over
 
-  n = cf_->M.rows();
+  n = cf_.M.rows();
   std::cout << "optimizing n= " << n << " variables ";
 
 
   // constraints
-  int n_eq = eq_->v.rows();
-  int n_ineq = ineq_->v.rows();
+  int n_eq = eq_.v.rows();
+  int n_ineq = ineq_.v.rows();
   std::cout << "with " << n_eq << " equality and " << n_ineq << " inequality constraints\n";
 
   m = n_eq + n_ineq;
@@ -75,31 +75,38 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
                             Index m, Number* g_l, Number* g_u)
 {
-
-  std::cout << "in_getBoundsInfo";
-
+  // no bounds on the spline coefficients
   for (int i=0; i<n; ++i) {
-    x_lower[i] = -1e+6;
-    x_upper[i] =  1e+6;
+    x_lower[i] = -1.0e19;
+    x_upper[i] = +1.0e19;
   }
 
   // bounds on equality contraint always be equal (and zero).
-  int n_eq = eq_->v.rows();
-  int n_ineq = ineq_->v.rows();
+  int n_eq = eq_.v.rows();
+  int n_ineq = ineq_.v.rows();
+
+  std::cout << "n_eq: " << n_eq;
+  std::cout << "n_ineq: " << n_ineq;
+
+
 
   for (int i=0; i<n_eq; ++i)
   {
-    // allow tiny deviation from equality constraint to avoid
-    // "TOO_FEW_DOF" error message from ipopt
-		g_l[i] =  -1e-9;
-		g_u[i] =   1e-9;
+//    // allow tiny deviation from equality constraint to avoid
+//    // "TOO_FEW_DOF" error message from ipopt
+//		g_l[i] =  -0.001;
+//		g_u[i] =  +0.001;
+
+		g_l[i] = g_u[i] = 0.0; // Throws: Too few DoF errors
+
   }
 
   // inequality on inside of support polygon
-  for (int i=n_eq; i<n_ineq; ++i)
+  // allow also numbers slightly smaller than zero for if points start at the border
+  for (int i=n_eq; i<m; ++i)
   {
-    g_l[i] = 0.0;
-    g_u[i] = 1e+9;
+    g_l[i] = 0.0;//0.0;
+    g_u[i] = +1.0e19;
   }
 
   return true;
@@ -117,8 +124,9 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	assert(init_z == false);
 	assert(init_lambda == false);
 
+
 	for (int i=0; i<n; ++i) {
-	  x[i] = 0; // splines of the form x = t^5+t^4+t^3+t^2+t
+	  x[i] = initial_values_[i]; // splines of the form x = t^5+t^4+t^3+t^2+t
 	}
 
 	return true;
@@ -146,16 +154,17 @@ bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value
 //  x: n
 
   // make an eigen vector out of the optimization variables
-//  Eigen::Map<const Eigen::VectorXd> x_vec(x,n,1); // FIXME, this doesn't work, as Michael
-  Eigen::VectorXd x_vec(n);
-  for (int r=0; r<x_vec.rows(); ++r) {
-    x_vec[r] = x[r];
-  }
+  Eigen::Map<const Eigen::VectorXd> x_vec(x,n); // FIXME, this doesn't work, ask Michael
+//  Eigen::VectorXd x_vec(n);
+//  for (int i=0; i<x_vec.rows(); ++i) {
+//    x_vec[i] = x[i];
+//  }
 
-//  Eigen::MatrixXd M = zmp_optimizer_.cf_->M;
+
+//  Eigen::MatrixXd M = zmp_optimizer_.cf_.M;
   obj_value = 0.0;
-  obj_value = x_vec.transpose() * cf_->M * x_vec;
-  obj_value += cf_->v.transpose() * x_vec;
+  obj_value = x_vec.transpose() * cf_.M * x_vec;
+  obj_value += cf_.v.transpose() * x_vec;
 
   return true;
 }
@@ -165,6 +174,23 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
 {
   // if nothing set, then this is automatically done by ipopt through finite
 	// differences
+
+  Eigen::Map<const Eigen::VectorXd> x_vec(x,n); // FIXME, this doesn't work, ask Michael
+//  Eigen::VectorXd x_vec(n);
+//  for (int i=0; i<x_vec.rows(); ++i) {
+//    x_vec[i] = x[i];
+//  }
+
+  Eigen::VectorXd grad_f_vec = cf_.M*x_vec;
+
+
+  Eigen::Map<Eigen::VectorXd>(grad_f,n) = grad_f_vec; // don't know which to use
+//  for (int i=0; i<n; ++i) {
+//    grad_f[i] = grad_f_vec[i];
+//  }
+
+
+
 	return true;
 }
 
@@ -188,23 +214,23 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
   //
   //  x:
 
-  Eigen::VectorXd x_vec(n);
-  for (int r=0; r<x_vec.rows(); ++r) {
-    x_vec[r] = x[r];
-  }
-//  Eigen::Map<const Eigen::VectorXd> x_vec_eq(x,n);
+//  Eigen::VectorXd x_vec(n);
+//  for (int r=0; r<x_vec.rows(); ++r) {
+//    x_vec[r] = x[r];
+//  }
+  Eigen::Map<const Eigen::VectorXd> x_vec(x,n);
 
 
   // equality constraints
-  Eigen::MatrixXd A_eq = eq_->M.transpose();
-  Eigen::VectorXd b_eq = eq_->v;
-  Eigen::VectorXd g_vec_eq = A_eq*x_vec + b_eq;
+//  Eigen::MatrixXd A_eq = eq_.M.transpose();
+//  Eigen::VectorXd b_eq = eq_.v;
+  Eigen::VectorXd g_vec_eq = eq_.M.transpose()*x_vec + eq_.v;
 
 
   // inequality constraints
-  Eigen::MatrixXd A_in = ineq_->M.transpose();
-  Eigen::VectorXd b_in = ineq_->v;
-  Eigen::VectorXd g_vec_in = A_in*x_vec + b_in;
+//  Eigen::MatrixXd A_in = ineq_.M.transpose();
+//  Eigen::VectorXd b_in = ineq_.v;
+  Eigen::VectorXd g_vec_in = ineq_.M.transpose()*x_vec + ineq_.v;
 
 
   // combine the two g vectors
@@ -213,11 +239,11 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
 
   // fill these values into g
-//  Eigen::Map<Eigen::VectorXd>(g,m,1) = g_vec; // don't know which to use
+  Eigen::Map<Eigen::VectorXd>(g,m) = g_vec; // don't know which to use
 //  g = g_vec.data();
-  for (int r=0; r<m; ++r) {
-    g[r] = g_vec[r];
-  }
+//  for (int r=0; r<m; ++r) {
+//    g[r] = g_vec[r];
+//  }
 
 
 

@@ -9,6 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
+SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4")
+
 find_package(Eigen3 REQUIRED)
 
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
@@ -38,7 +40,6 @@ generate_messages(
   geometry_msgs
 )
 
-
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -52,27 +53,16 @@ catkin_package(
   INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}
   LIBRARIES ${LIB_NAME}
   CATKIN_DEPENDS message_runtime
-  DEPENDS log4cxx
+  DEPENDS log4cxx ${IPOPT_LIBS} 
 )
 
 
 
-
-
 # Include directories
-SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4")
-
+SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4") # these two lines must be included everywhere where this project is needed
 link_directories(${IPOPT_SOURCE_DIR}/build/lib)
 set(IPOPT_LIBS
     ipopt
-    lapack
-    dl
-    blas
-    gfortran
-    coinmumps
-    m
-    quadmath
-    coinmetis
 )
 
 include_directories(
@@ -82,24 +72,26 @@ include_directories(
  "${IPOPT_SOURCE_DIR}/build/include/coin"
 )
 
-set(SOURCES  src/zmp_optimizer.cc
-             src/zmp_spline.cc
-             src/spline_container.cc    
-             src/spliner.cc
-             src/spliner_3d.cc
-             src/hyq_state.cc
-             src/orientation.cc
-             src/supp_triangle.cc
-             src/hyq_spliner.cc
-             src/nlp_ipopt_zmp.cc
-             )
+set(SOURCES  
+  src/zmp_optimizer.cc
+  src/zmp_spline.cc
+  src/spline_container.cc    
+  src/spliner.cc
+  src/spliner_3d.cc
+  src/hyq_state.cc
+  src/orientation.cc
+  src/supp_triangle.cc
+  src/hyq_spliner.cc
+  src/nlp_ipopt_zmp.cc
+)
              
 # Add the shared library
-set(LIB_NAME xpp_opt)
-add_library(${LIB_NAME} 
-            ${SOURCES})
+add_library(${LIB_NAME}
+   ${SOURCES}
+)
 target_link_libraries(${LIB_NAME} 
   log4cxx
+  ${catkin_LIBRARIES}
   ${IPOPT_LIBS}
 )                        
                                       
@@ -131,9 +123,20 @@ endif()
 
 # To install and link to the library globally
 # Install (ie copy) the header files
-set(HEADER_INSTALL_ROOT /usr/local/include/ CACHE PATH "Where to install the headers")
-set(LIB_INSTALL_ROOT /usr/local/lib/ CACHE PATH "Where to install the shared library")
+#set(HEADER_INSTALL_ROOT /usr/local/include/ CACHE PATH "Where to install the headers")
+#set(LIB_INSTALL_ROOT /usr/local/lib/ CACHE PATH "Where to install the shared library")
+#
+#install(
+#  DIRECTORY include/ 
+#  DESTINATION ${HEADER_INSTALL_ROOT} 
+#  PATTERN *~ EXCLUDE
+#  )
+#install(
+#  TARGETS ${LIB_NAME}
+#  ARCHIVE DESTINATION ${LIB_INSTALL_ROOT}
+#  LIBRARY DESTINATION ${LIB_INSTALL_ROOT}
+#)
 
-install(DIRECTORY include/ DESTINATION ${HEADER_INSTALL_ROOT} PATTERN *~ EXCLUDE)
-install(TARGETS ${LIB_NAME} LIBRARY DESTINATION ${LIB_INSTALL_ROOT})
+
+
 

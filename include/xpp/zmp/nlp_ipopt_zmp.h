@@ -98,15 +98,26 @@ public:
   xpp::zmp::ZmpOptimizer::MatVecPtr eq_;
   xpp::zmp::ZmpOptimizer::MatVecPtr ineq_;
 
-  void SetEigenMatrices(xpp::zmp::ZmpOptimizer::MatVecPtr cf,
-                        xpp::zmp::ZmpOptimizer::MatVecPtr eq,
-                        xpp::zmp::ZmpOptimizer::MatVecPtr ineq)
+  void SetupNlp(const xpp::zmp::ZmpOptimizer::MatVecPtr& cf,
+                        const xpp::zmp::ZmpOptimizer::MatVecPtr& eq,
+                        const xpp::zmp::ZmpOptimizer::MatVecPtr& ineq,
+                        const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero())
   {
     cf_   =  cf;
     eq_   =  eq;
     ineq_ =  ineq;
+
+
+    initial_values_ = initial_values;
+    int n = cf_.v.rows();
+    if (initial_values_.rows() != n ) {
+      initial_values_.resize(n,1);
+      initial_values_.setZero();
+    }
+
   }
 
+  Eigen::VectorXd initial_values_;
   Eigen::VectorXd x_final_;
 
 
@@ -128,35 +139,6 @@ private:
   NlpIpoptZmp(const NlpIpoptZmp&);
   NlpIpoptZmp& operator=(const NlpIpoptZmp&);
   //@}
-
-
-
-
-//  // some stuff used for integration
-//  iit::HyQ::dyn::InertiaProperties ip_;
-//  iit::HyQ::MotionTransforms mt_;
-//  iit::HyQ::dyn::InverseDynamics id_;
-//
-//  std::array<ODEInput, kInputNodesCount> ode_inputs_;
-//
-////  EulerStepper stepper_;
-//
-//  ODEState y_start_;
-//  ODEState y_final_des_;
-//  ODEState y_inter_des_;
-//
-//  bool init_from_file_;
-//
-//
-//
-//
-//  void integrateODE(const Number* x, double T, ODEState& y_final);
-//
-//
-////  ff::HyQKinematics hyq_kinematics_;
-////  shot::HyQSystemDynamics hyq_system_dyn_;
-
-
 
 };
 

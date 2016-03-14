@@ -83,7 +83,7 @@ public:
   typedef std::vector<Foothold> Footholds;
   typedef std::vector<SuppTriangle> SuppTriangles;
   typedef std::array<double,2> WeightsXYArray;
-  typedef std::shared_ptr<MatVec> MatVecPtr;
+  typedef MatVec MatVecPtr;
   typedef std::vector<SplineInfo> SplineInfoVec;
   typedef std::vector<ZmpSpline> Splines;
 
@@ -128,7 +128,7 @@ public:
 
   Eigen::VectorXd SolveQp();
 
-  Eigen::VectorXd SolveIpopt();
+  Eigen::VectorXd SolveIpopt(const Eigen::VectorXd& opt_coefficients_eig = Eigen::Vector2d::Zero());
 
   Splines CreateSplines(const Position& start_cog_p,
                         const Velocity& start_cog_v,
@@ -139,9 +139,9 @@ public:
   MatVecPtr eq_;
   MatVecPtr ineq_;
 
+  double kDt; ///< discretization interval
 
 private:
-  const double kDt; ///< discretization interval
   static const int kOptCoeff = kCoeffCount-2; ///< not optimizing e and f coefficients
   SplineInfoVec spline_infos_;
 
