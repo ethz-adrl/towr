@@ -63,7 +63,7 @@ public:
    *   1) The structure of the hessian of the lagrangian (if "values" is NULL)
    *   2) The values of the hessian of the lagrangian (if "values" is not NULL)
    */
-//  virtual bool eval_h1(Index n, const Number* x, bool new_x,
+//  virtual bool eval_h(Index n, const Number* x, bool new_x,
 //                      Number obj_factor, Index m, const Number* lambda,
 //                      bool new_lambda, Index nele_hess, Index* iRow,
 //                      Index* jCol, Number* values);
@@ -71,15 +71,15 @@ public:
   //@}
 
 
-//  virtual bool intermediate_callback(AlgorithmMode mode,
-//                                     Index iter, Number obj_value,
-//                                     Number inf_pr, Number inf_du,
-//                                     Number mu, Number d_norm,
-//                                     Number regularization_size,
-//                                     Number alpha_du, Number alpha_pr,
-//                                     Index ls_trials,
-//                                     const IpoptData* ip_data,
-//                                     IpoptCalculatedQuantities* ip_cq);
+  virtual bool intermediate_callback(AlgorithmMode mode,
+                                     Index iter, Number obj_value,
+                                     Number inf_pr, Number inf_du,
+                                     Number mu, Number d_norm,
+                                     Number regularization_size,
+                                     Number alpha_du, Number alpha_pr,
+                                     Index ls_trials,
+                                     const IpoptData* ip_data,
+                                     IpoptCalculatedQuantities* ip_cq);
 
 
   /** @name Solution Methods */
@@ -94,30 +94,16 @@ public:
   //@}
 
 
-  xpp::zmp::ZmpOptimizer::MatVecPtr cf_;
-  xpp::zmp::ZmpOptimizer::MatVecPtr eq_;
-  xpp::zmp::ZmpOptimizer::MatVecPtr ineq_;
-
-  void SetupNlp(const xpp::zmp::ZmpOptimizer::MatVecPtr& cf,
-                        const xpp::zmp::ZmpOptimizer::MatVecPtr& eq,
-                        const xpp::zmp::ZmpOptimizer::MatVecPtr& ineq,
-                        const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero())
-  {
-    cf_   =  cf;
-    eq_   =  eq;
-    ineq_ =  ineq;
-
-
-    initial_values_ = initial_values;
-    int n = cf_.v.rows();
-    if (initial_values_.rows() != n ) {
-      initial_values_.resize(n,1);
-      initial_values_.setZero();
-    }
-
-  }
-
+  xpp::zmp::MatVec cf_;
+  xpp::zmp::MatVec eq_;
+  xpp::zmp::MatVec ineq_;
   Eigen::VectorXd initial_values_;
+
+  void SetupNlp(const xpp::zmp::MatVec& cf,
+                const xpp::zmp::MatVec& eq,
+                const xpp::zmp::MatVec& ineq,
+                const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero());
+
   Eigen::VectorXd x_final_;
 
 

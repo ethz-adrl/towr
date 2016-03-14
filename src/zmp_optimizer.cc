@@ -177,14 +177,14 @@ ZmpOptimizer::ConstructSplineSequence(const std::vector<LegID>& step_sequence,
 }
 
 
-ZmpOptimizer::MatVecPtr
+xpp::zmp::MatVec
 ZmpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
 {
   std::clock_t start = std::clock();
 
   // total number of coefficients to be optimized
   int n_coeff = spline_infos_.size() * kOptCoeff * kDim2d;
-  MatVecPtr cf(n_coeff, n_coeff);
+  MatVec cf(n_coeff, n_coeff);
 
   for (const SplineInfo& s : spline_infos_) {
     std::array<double,10> t_span = cache_exponents<10>(s.duration_);
@@ -221,7 +221,7 @@ ZmpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
   return cf;
 }
 
-ZmpOptimizer::MatVecPtr
+xpp::zmp::MatVec
 ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
                                        const Velocity &start_cog_v,
                                        const Position &end_cog) const
@@ -233,7 +233,7 @@ ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
   constraints += kDim2d*2;                         // init {x,y} * {acc, jerk} pos, vel implied
   constraints += kDim2d*3;                         // end  {x,y} * {pos, vel, acc}
   constraints += (spline_infos_.size()-1) * kDim2d * 2;  // junctions {acc,jerk} since pos, vel  implied
-  MatVecPtr ec(coeff, constraints);
+  MatVec ec(coeff, constraints);
 
   const Eigen::Vector2d kAccStart = Eigen::Vector2d(0.0, 0.0);
   const Eigen::Vector2d kJerkStart= Eigen::Vector2d(0.0, 0.0);
@@ -330,7 +330,7 @@ ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
 
 
 
-ZmpOptimizer::MatVecPtr
+xpp::zmp::MatVec
 ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
                                          const Velocity& start_cog_v,
                                          const SuppTriangles &supp_triangles,
@@ -345,7 +345,7 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
   for (const SplineInfo& s : spline_infos_) points += std::floor(s.duration_/kDt);
   int contraints= points * 3; // 3 triangle side constraints per point
 
-  MatVecPtr ineq(coeff, contraints);
+  MatVec ineq(coeff, contraints);
 
   const double g = 9.81; // gravity acceleration
   int c = 0; // inequality constraint counter

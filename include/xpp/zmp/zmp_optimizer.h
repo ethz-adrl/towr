@@ -83,7 +83,6 @@ public:
   typedef std::vector<Foothold> Footholds;
   typedef std::vector<SuppTriangle> SuppTriangles;
   typedef std::array<double,2> WeightsXYArray;
-  typedef MatVec MatVecPtr;
   typedef std::vector<SplineInfo> SplineInfoVec;
   typedef std::vector<ZmpSpline> Splines;
 
@@ -135,9 +134,9 @@ public:
                         const Eigen::VectorXd& opt_spline_coeff) const;
 
 
-  MatVecPtr cf_;
-  MatVecPtr eq_;
-  MatVecPtr ineq_;
+  MatVec cf_;
+  MatVec eq_;
+  MatVec ineq_;
 
   double kDt; ///< discretization interval
 
@@ -146,11 +145,11 @@ private:
   SplineInfoVec spline_infos_;
 
 
-  MatVecPtr CreateMinAccCostFunction(const WeightsXYArray& weight) const;
-  MatVecPtr CreateEqualityContraints(const Position &start_cog_p,
+  MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;
+  MatVec CreateEqualityContraints(const Position &start_cog_p,
                                      const Velocity &start_cog_v,
                                      const Position &end_cog) const;
-  MatVecPtr CreateInequalityContraints(const Position& start_cog_p,
+  MatVec CreateInequalityContraints(const Position& start_cog_p,
                                        const Velocity& start_cog_v,
                                        const hyq::SuppTriangles &tr,
                                        double height_robot) const;
