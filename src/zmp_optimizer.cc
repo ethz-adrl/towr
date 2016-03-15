@@ -67,8 +67,8 @@ void ZmpOptimizer::SetupQpMatrices(
 
   eq_ = CreateEqualityContraints(start_cog_p, start_cog_v, end_cog);
 
-  std::vector<SuppTriangle::TrLine> line_for_constraint = LineForConstraint(tr);
-  ineq_ = CreateInequalityContraints(start_cog_p, start_cog_v, line_for_constraint, height_robot);
+  lines_for_constraint_ = LineForConstraint(tr);
+  ineq_ = CreateInequalityContraints(start_cog_p, start_cog_v, lines_for_constraint_, height_robot);
 //  AddLineDependencies(ineq_, start_cog_p, start_cog_v, tr);
 }
 
@@ -110,7 +110,9 @@ Eigen::VectorXd ZmpOptimizer::SolveIpopt(const Eigen::VectorXd& opt_coefficients
 
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp();
-  nlp_ipopt_zmp->SetupNlp(cf_,eq_,ineq_,opt_coefficients_eig);
+  nlp_ipopt_zmp->SetupNlp(cf_,eq_,
+                          ineq_ipopt_, ineq_ipopt_vx_, ineq_ipopt_vy_, lines_for_constraint_,
+                          opt_coefficients_eig);
 
 
   // FIXME make sure the zmp_optimizer member variables is already properly filled!!!
@@ -337,15 +339,16 @@ xpp::zmp::MatVec
 ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
                                          const Velocity& start_cog_v,
                                          const std::vector<SuppTriangle::TrLine> &line_for_constraint,
-                                         double h) const
+                                         double h)
 {
   std::clock_t start = std::clock();
 
   int coeff = spline_infos_.size() * kOptCoeff * kDim2d;
 
   MatVec ineq(coeff, line_for_constraint.size());
-  Eigen::VectorXd ineq_vx = ineq.v;
-  Eigen::VectorXd ineq_vy = ineq.v;
+  ineq_ipopt_ = ineq.M;
+  ineq_ipopt_vx_ = ineq.v;
+  ineq_ipopt_vy_ = ineq.v;
 
   const double g = 9.81; // gravity acceleration
   int c = 0; // inequality constraint counter
@@ -394,24 +397,24 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
           Eigen::VectorXd Fk = (dim==X) ? Fkx : Fky;
 
 
-          ineq.M(var_index(k,dim,A), c) = /* lc * */(t[5]    - h/(g+z_acc) * 20.0 * t[3]);
-          ineq.M(var_index(k,dim,B), c) = /* lc * */(t[4]    - h/(g+z_acc) * 12.0 * t[2]);
-          ineq.M(var_index(k,dim,C), c) = /* lc * */(t[3]    - h/(g+z_acc) *  6.0 * t[1]);
-          ineq.M(var_index(k,dim,D), c) = /* lc * */(t[2]    - h/(g+z_acc) *  2.0);
-          ineq.M.col(c)                += /* lc * */ t[1]*Ek;
-          ineq.M.col(c)                += /* lc * */ t[0]*Fk;
+          ineq_ipopt_(var_index(k,dim,A), c) = /* lc * */(t[5]    - h/(g+z_acc) * 20.0 * t[3]);
+          ineq_ipopt_(var_index(k,dim,B), c) = /* lc * */(t[4]    - h/(g+z_acc) * 12.0 * t[2]);
+          ineq_ipopt_(var_index(k,dim,C), c) = /* lc * */(t[3]    - h/(g+z_acc) *  6.0 * t[1]);
+          ineq_ipopt_(var_index(k,dim,D), c) = /* lc * */(t[2]    - h/(g+z_acc) *  2.0);
+          ineq_ipopt_.col(c)                += /* lc * */ t[1]*Ek;
+          ineq_ipopt_.col(c)                += /* lc * */ t[0]*Fk;
 
         }
 
         // add the line coefficients
         Eigen::VectorXd line_coefficients_xy = GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
-        ineq.M.col(c) = ineq.M.col(c).cwiseProduct(line_coefficients_xy);
+        ineq.M.col(c) = ineq_ipopt_.col(c).cwiseProduct(line_coefficients_xy);
 
-        ineq_vx[c] = non_dependent_ex*t[0] + non_dependent_fx;
-        ineq_vy[c] = non_dependent_ey*t[0] + non_dependent_fy;
+        ineq_ipopt_vx_[c] = non_dependent_ex*t[0] + non_dependent_fx;
+        ineq_ipopt_vy_[c] = non_dependent_ey*t[0] + non_dependent_fy;
 
-        ineq.v[c] += l.coeff.p * ineq_vx[c];
-        ineq.v[c] += l.coeff.q * ineq_vy[c];
+        ineq.v[c] += l.coeff.p * ineq_ipopt_vx_[c];
+        ineq.v[c] += l.coeff.q * ineq_ipopt_vy_[c];
         ineq.v[c] += l.coeff.r - l.s_margin;
         ++c;
       }

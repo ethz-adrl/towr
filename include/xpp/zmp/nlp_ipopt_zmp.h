@@ -96,12 +96,23 @@ public:
 
   xpp::zmp::MatVec cf_;
   xpp::zmp::MatVec eq_;
-  xpp::zmp::MatVec ineq_;
+//  xpp::zmp::MatVec ineq_;
+
+
+  Eigen::MatrixXd ineq_M_;
+  Eigen::VectorXd ineq_vx_;
+  Eigen::VectorXd ineq_vy_;
+  std::vector<xpp::hyq::SuppTriangle::TrLine> lines_for_constraint_;
+
+
   Eigen::VectorXd initial_values_;
 
   void SetupNlp(const xpp::zmp::MatVec& cf,
                 const xpp::zmp::MatVec& eq,
-                const xpp::zmp::MatVec& ineq,
+                const Eigen::MatrixXd& ineq_M,
+                const Eigen::VectorXd& ineq_vx,
+                const Eigen::VectorXd& ineq_vy,
+                const std::vector<xpp::hyq::SuppTriangle::TrLine>& lines_for_constraint,
                 const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero());
 
   Eigen::VectorXd x_final_;

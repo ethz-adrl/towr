@@ -138,6 +138,12 @@ public:
   MatVec eq_;
   MatVec ineq_;
 
+  Eigen::MatrixXd ineq_ipopt_;
+  Eigen::VectorXd ineq_ipopt_vx_;
+  Eigen::VectorXd ineq_ipopt_vy_;
+
+  std::vector<SuppTriangle::TrLine> lines_for_constraint_;
+
 
   double kDt; ///< discretization interval
 
@@ -153,7 +159,7 @@ private:
   MatVec CreateInequalityContraints(const Position& start_cog_p,
                                        const Velocity& start_cog_v,
                                        const std::vector<SuppTriangle::TrLine> &line_for_constraint,
-                                       double height_robot) const;
+                                       double height_robot);
   MatVec CreateInequalityContraintsNoLines(const Position& start_cog_p,
                                        const Velocity& start_cog_v,
                                        const hyq::SuppTriangles &tr,

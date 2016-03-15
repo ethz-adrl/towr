@@ -23,12 +23,20 @@ NlpIpoptZmp::~NlpIpoptZmp()
 void NlpIpoptZmp::SetupNlp(
     const xpp::zmp::MatVec& cf,
     const xpp::zmp::MatVec& eq,
-    const xpp::zmp::MatVec& ineq,
+    const Eigen::MatrixXd& ineq_M,
+    const Eigen::VectorXd& ineq_vx,
+    const Eigen::VectorXd& ineq_vy,
+    const std::vector<xpp::hyq::SuppTriangle::TrLine>& lines_for_constraint,
     const Eigen::VectorXd& initial_values)
 {
   cf_   =  cf;
   eq_   =  eq;
-  ineq_ =  ineq;
+//  ineq_ =  ineq;
+
+  ineq_M_ =  ineq_M;
+  ineq_vx_ = ineq_vx;
+  ineq_vy_ = ineq_vy;
+  lines_for_constraint_ = lines_for_constraint;
 
   // set initial values to zero if wrong size was input
   initial_values_ = initial_values;
@@ -68,7 +76,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 
   // constraints
   int n_eq = eq_.v.rows();
-  int n_ineq = ineq_.v.rows();
+  int n_ineq = ineq_vx_.rows();
   std::cout << "with " << n_eq << " equality and " << n_ineq << " inequality constraints\n";
 
   m = n_eq + n_ineq;
@@ -98,7 +106,7 @@ bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
 
   // bounds on equality contraint always be equal (and zero).
   int n_eq = eq_.v.rows();
-  int n_ineq = ineq_.v.rows();
+  int n_ineq = ineq_vx_.rows();
 
   for (int i=0; i<n_eq; ++i)
   {
@@ -219,8 +227,50 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
   // equality constraints
   Eigen::VectorXd g_vec_eq = eq_.M.transpose()*x_vec + eq_.v;
 
+
+
+
   // inequality constraints
-  Eigen::VectorXd g_vec_in = ineq_.M.transpose()*x_vec + ineq_.v;
+  // add the line coefficients separately
+  int n_ineq = ineq_vx_.rows();
+  Eigen::MatrixXd ineq_M = ineq_M_;
+  Eigen::VectorXd ineq_v(n_ineq);
+  ineq_v.setZero();
+  for (int c=0; c<n_ineq; ++c) {
+    xpp::hyq::SuppTriangle::TrLine l = lines_for_constraint_.at(c);
+
+    // build vector from xy line coeff
+//    Eigen::VectorXd line_coefficients_xy = GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
+    int kOptCoeff = 4;
+    Eigen::VectorXd line_coefficients_xy(n);
+    line_coefficients_xy.setZero();
+    Eigen::VectorXd x_abcd(kOptCoeff);
+    x_abcd.fill(l.coeff.p);
+
+    Eigen::VectorXd y_abcd(kOptCoeff);
+    y_abcd.fill(l.coeff.q);
+
+    int idx=0;
+    while (idx<n) {
+
+      line_coefficients_xy.middleRows(idx,           kOptCoeff) = x_abcd;
+      line_coefficients_xy.middleRows(idx+kOptCoeff, kOptCoeff) = y_abcd;
+
+      idx += 2*kOptCoeff;
+    }
+
+    ineq_M.col(c) = ineq_M_.col(c).cwiseProduct(line_coefficients_xy);
+
+
+    ineq_v[c] += l.coeff.p * ineq_vx_[c];
+    ineq_v[c] += l.coeff.q * ineq_vy_[c];
+    ineq_v[c] += l.coeff.r - l.s_margin;
+
+  }
+
+
+
+  Eigen::VectorXd g_vec_in = ineq_M.transpose()*x_vec + ineq_v;
 
   // combine the two g vectors
   Eigen::VectorXd g_vec(g_vec_eq.rows()+g_vec_in.rows());
@@ -306,7 +356,6 @@ void NlpIpoptZmp::finalize_solution(SolverReturn status,
 //  cereal::XMLOutputArchive xmlarchive(os);
 //  xmlarchive(cereal::make_nvp("U", opt_u), cereal::make_nvp("X", opt_x));
 }
-
 
 } // namespace Ipopt
 
