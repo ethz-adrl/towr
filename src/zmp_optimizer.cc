@@ -344,6 +344,8 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
   int coeff = spline_infos_.size() * kOptCoeff * kDim2d;
 
   MatVec ineq(coeff, line_for_constraint.size());
+  Eigen::VectorXd ineq_vx = ineq.v;
+  Eigen::VectorXd ineq_vy = ineq.v;
 
   const double g = 9.81; // gravity acceleration
   int c = 0; // inequality constraint counter
@@ -398,13 +400,18 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
           ineq.M(var_index(k,dim,D), c) = /* lc * */(t[2]    - h/(g+z_acc) *  2.0);
           ineq.M.col(c)                += /* lc * */ t[1]*Ek;
           ineq.M.col(c)                += /* lc * */ t[0]*Fk;
+
         }
 
+        // add the line coefficients
         Eigen::VectorXd line_coefficients_xy = GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
         ineq.M.col(c) = ineq.M.col(c).cwiseProduct(line_coefficients_xy);
 
-        ineq.v[c] += l.coeff.p *(non_dependent_ex*t[0] + non_dependent_fx);
-        ineq.v[c] += l.coeff.q *(non_dependent_ey*t[0] + non_dependent_fy);
+        ineq_vx[c] = non_dependent_ex*t[0] + non_dependent_fx;
+        ineq_vy[c] = non_dependent_ey*t[0] + non_dependent_fy;
+
+        ineq.v[c] += l.coeff.p * ineq_vx[c];
+        ineq.v[c] += l.coeff.q * ineq_vy[c];
         ineq.v[c] += l.coeff.r - l.s_margin;
         ++c;
       }
