@@ -66,7 +66,10 @@ void ZmpOptimizer::SetupQpMatrices(
   end_cog /= 4; // number of legs
 
   eq_ = CreateEqualityContraints(start_cog_p, start_cog_v, end_cog);
-  ineq_ = CreateInequalityContraints(start_cog_p, start_cog_v, tr, height_robot);
+
+  std::vector<SuppTriangle::TrLine> line_for_constraint = LineForConstraint(tr);
+  ineq_ = CreateInequalityContraints(start_cog_p, start_cog_v, line_for_constraint, height_robot);
+//  AddLineDependencies(ineq_, start_cog_p, start_cog_v, tr);
 }
 
 
@@ -333,6 +336,136 @@ ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
 xpp::zmp::MatVec
 ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
                                          const Velocity& start_cog_v,
+                                         const std::vector<SuppTriangle::TrLine> &line_for_constraint,
+                                         double h) const
+{
+  std::clock_t start = std::clock();
+
+  int coeff = spline_infos_.size() * kOptCoeff * kDim2d;
+
+  MatVec ineq(coeff, line_for_constraint.size());
+
+  const double g = 9.81; // gravity acceleration
+  int c = 0; // inequality constraint counter
+
+  for (const SplineInfo& s : spline_infos_) {
+    LOG4CXX_TRACE(log_, "Calc inequality constaints of spline " << s.id_ << " of " << spline_infos_.size() << ", duration=" << std::setprecision(3) << s.duration_ << ", step=" << s.step_);
+
+    // no constraints in 4ls phase
+    if (s.four_leg_supp_) continue;
+    // TODO: insert support polygon constraints here instead of just allowing
+    // the ZMP to be anywhere.
+
+    // calculate e and f coefficients from previous values
+    const int k = s.id_;
+    Eigen::VectorXd Ekx(coeff); Ekx.setZero();
+    Eigen::VectorXd Fkx(coeff); Fkx.setZero();
+    Eigen::VectorXd Eky(coeff); Eky.setZero();
+    Eigen::VectorXd Fky(coeff); Fky.setZero();
+    double non_dependent_ex, non_dependent_fx, non_dependent_ey, non_dependent_fy;
+    DescribeEByPrev(k, X, start_cog_v(X), Ekx, non_dependent_ex);
+    DescribeFByPrev(k, X, start_cog_v(X), start_cog_p(X), Fkx, non_dependent_fx);
+    DescribeEByPrev(k, Y, start_cog_v(Y), Eky, non_dependent_ey);
+    DescribeFByPrev(k, Y, start_cog_v(Y), start_cog_p(Y), Fky, non_dependent_fy);
+
+    for (double i=0; i < std::floor(s.duration_/kDt); ++i) {
+
+      double time = i*kDt;
+
+      std::array<double,6> t = cache_exponents<6>(time);
+
+      // one constraint per line of support triangle
+      for (int j=0; j<3; ++j) {
+        // the zero moment point must always lay on one side of triangle side:
+        // p*x_zmp + q*y_zmp + r > stability_margin
+        // with: x_zmp = x_pos - height/(g+z_acc) * x_acc
+        //       x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
+        //       x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
+        SuppTriangle::TrLine l = line_for_constraint.at(c);
+        double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
+
+
+        for (int dim=X; dim<=Y; dim++) {
+
+          double lc = (dim==X) ? l.coeff.p : l.coeff.q;
+          Eigen::VectorXd Ek = (dim==X) ? Ekx : Eky;
+          Eigen::VectorXd Fk = (dim==X) ? Fkx : Fky;
+
+
+          ineq.M(var_index(k,dim,A), c) = /* lc * */(t[5]    - h/(g+z_acc) * 20.0 * t[3]);
+          ineq.M(var_index(k,dim,B), c) = /* lc * */(t[4]    - h/(g+z_acc) * 12.0 * t[2]);
+          ineq.M(var_index(k,dim,C), c) = /* lc * */(t[3]    - h/(g+z_acc) *  6.0 * t[1]);
+          ineq.M(var_index(k,dim,D), c) = /* lc * */(t[2]    - h/(g+z_acc) *  2.0);
+          ineq.M.col(c)                += /* lc * */ t[1]*Ek;
+          ineq.M.col(c)                += /* lc * */ t[0]*Fk;
+        }
+
+        Eigen::VectorXd line_coefficients_xy = GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
+        ineq.M.col(c) = ineq.M.col(c).cwiseProduct(line_coefficients_xy);
+
+        ineq.v[c] += l.coeff.p *(non_dependent_ex*t[0] + non_dependent_fx);
+        ineq.v[c] += l.coeff.q *(non_dependent_ey*t[0] + non_dependent_fy);
+        ineq.v[c] += l.coeff.r - l.s_margin;
+        ++c;
+      }
+    }
+  }
+
+  LOG4CXX_INFO(log_, "Calc. time inequality constraints:\t" << static_cast<double>(std::clock() - start) / CLOCKS_PER_SEC * 1000.0  << "\tms");
+  LOG4CXX_DEBUG(log_, "Dim: " << ineq.M.rows() << " x " << ineq.M.cols());
+  LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ineq.M << "\nVector:\n" << ineq.v.transpose());
+  return ineq;
+}
+
+
+
+std::vector<xpp::hyq::SuppTriangle::TrLine>
+ZmpOptimizer::LineForConstraint(const SuppTriangles &supp_triangles) {
+
+  // calculate number of inequality contraints
+  std::vector<SuppTriangle::TrLine> line_for_constraint;
+
+  for (const SplineInfo& s : spline_infos_)
+  {
+    if (s.four_leg_supp_) continue; // no constraints in 4ls phase
+    int n_nodes =  std::floor(s.duration_/kDt);
+
+    SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
+
+    for (int i=0; i<n_nodes; ++i) {
+      line_for_constraint.push_back(lines.at(0));
+      line_for_constraint.push_back(lines.at(1));
+      line_for_constraint.push_back(lines.at(2));
+    }
+  }
+  return line_for_constraint;
+}
+
+
+Eigen::VectorXd ZmpOptimizer::GetXyDimAlternatingVector(double x, double y) const
+{
+  Eigen::VectorXd x_abcd(kOptCoeff);
+  x_abcd.fill(x);
+
+  Eigen::VectorXd y_abcd(kOptCoeff);
+  y_abcd.fill(y);
+
+  int coeff = spline_infos_.size() * kOptCoeff * kDim2d;
+  Eigen::VectorXd vec(coeff);
+  vec.setZero();
+
+  for (const SplineInfo& s : spline_infos_) {
+    vec.middleRows(var_index(s.id_,X,A), kOptCoeff) = x_abcd;
+    vec.middleRows(var_index(s.id_,Y,A), kOptCoeff) = y_abcd;
+  }
+
+  return vec;
+}
+
+
+xpp::zmp::MatVec
+ZmpOptimizer::CreateInequalityContraintsNoLines(const Position& start_cog_p,
+                                         const Velocity& start_cog_v,
                                          const SuppTriangles &supp_triangles,
                                          double h) const
 {
@@ -358,18 +491,15 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
     // TODO: insert support polygon constraints here instead of just allowing
     // the ZMP to be anywhere.
 
-    // cache lines of support triangle of current spline for efficiency
-    SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
     const int k = s.id_;
 
     for (double i=0; i < std::floor(s.duration_/kDt); ++i) {
 
       double time = i*kDt;
-
       std::array<double,6> t = cache_exponents<6>(time);
 
       // one constraint per line of support triangle
-      for (SuppTriangle::TrLine l: lines) {
+      for (int l=0; l<3; ++l) {
         // the zero moment point must always lay on one side of triangle side:
         // p*x_zmp + q*y_zmp + r > stability_margin
         // with: x_zmp = x_pos - height/(g+z_acc) * x_acc
@@ -380,8 +510,6 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
 
         for (int dim=X; dim<=Y; dim++) {
 
-          double lc = (dim==X) ? l.coeff.p : l.coeff.q;
-
           // calculate e and f coefficients from previous values
           Eigen::VectorXd Ek(coeff); Ek.setZero();
           Eigen::VectorXd Fk(coeff); Fk.setZero();
@@ -389,17 +517,15 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
           DescribeEByPrev(k, dim, start_cog_v(dim), Ek, non_dependent_e);
           DescribeFByPrev(k, dim, start_cog_v(dim), start_cog_p(dim), Fk, non_dependent_f);
 
-          ineq.M(var_index(k,dim,A), c) = lc * (t[5] - h/(g+z_acc) * 20.0 * t[3]);
-          ineq.M(var_index(k,dim,B), c) = lc * (t[4] - h/(g+z_acc) * 12.0 * t[2]);
-          ineq.M(var_index(k,dim,C), c) = lc * (t[3] - h/(g+z_acc) *  6.0 * t[1]);
-          ineq.M(var_index(k,dim,D), c) = lc * (t[2] - h/(g+z_acc) *  2.0);
+          ineq.M(var_index(k,dim,A), c) = (t[5]     - h/(g+z_acc) * 20.0 * t[3]);
+          ineq.M(var_index(k,dim,B), c) = (t[4]     - h/(g+z_acc) * 12.0 * t[2]);
+          ineq.M(var_index(k,dim,C), c) = (t[3]     - h/(g+z_acc) *  6.0 * t[1]);
+          ineq.M(var_index(k,dim,D), c) = (t[2]     - h/(g+z_acc) *  2.0);
+          ineq.M.col(c)                +=  t[1]*Ek;
+          ineq.M.col(c)                +=  t[0]*Fk;
 
-          ineq.M.col(c) += lc * Ek*t[1];
-          ineq.M.col(c) += lc * Fk;
-          ineq.v[c]     += lc *(non_dependent_e*t[0] + non_dependent_f);
+//          ineq.v[c]     += (non_dependent_e*t[0] + non_dependent_f);
         }
-
-        ineq.v[c] += l.coeff.r - l.s_margin;
         ++c;
       }
     }
@@ -410,6 +536,65 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
   LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ineq.M << "\nVector:\n" << ineq.v.transpose());
   return ineq;
 }
+
+
+void
+ZmpOptimizer::AddLineDependencies(xpp::zmp::MatVec& ineq,
+                                  const Position& start_cog_p,
+                                  const Velocity& start_cog_v,
+                                  const SuppTriangles &supp_triangles) const
+{
+  int c = 0; // inequality constraint counter
+
+  for (const SplineInfo& s : spline_infos_) {
+
+    // no constraints in 4ls phase
+    if (s.four_leg_supp_) continue;
+    // TODO: insert support polygon constraints here instead of just allowing
+    // the ZMP to be anywhere.
+
+    // cache lines of support triangle of current spline for efficiency
+    SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
+
+
+    // every discrete time step has three constraints
+    int nodes_in_spline = std::floor(s.duration_/kDt);
+    for (double i=0; i < nodes_in_spline; ++i) {
+
+      double time = i*kDt;
+      std::array<double,6> t = cache_exponents<6>(time);
+
+      // one constraint per line of support triangle
+      for (SuppTriangle::TrLine l: lines) {
+
+        for (int dim=X; dim<=Y; dim++) {
+
+          double lc = (dim==X) ? l.coeff.p : l.coeff.q;
+
+          // calculate e and f coefficients from previous values
+          Eigen::VectorXd Ek(ineq.M.rows()); Ek.setZero();
+          Eigen::VectorXd Fk(ineq.M.rows()); Fk.setZero();
+          double non_dependent_e, non_dependent_f;
+          const int k = s.id_;
+          DescribeEByPrev(k, dim, start_cog_v(dim), Ek, non_dependent_e);
+          DescribeFByPrev(k, dim, start_cog_v(dim), start_cog_p(dim), Fk, non_dependent_f);
+
+//          ineq.M(var_index(k,dim,A), c) = lc * (t[5]    - h/(g+z_acc) * 20.0 * t[3]);
+//          ineq.M(var_index(k,dim,B), c) = lc * (t[4]    - h/(g+z_acc) * 12.0 * t[2]);
+//          ineq.M(var_index(k,dim,C), c) = lc * (t[3]    - h/(g+z_acc) *  6.0 * t[1]);
+//          ineq.M(var_index(k,dim,D), c) = lc * (t[2]    - h/(g+z_acc) *  2.0);
+          ineq.M.col(c)                *= lc *  t[1]*Ek;
+          ineq.M.col(c)                *= lc *  t[0]*Fk;
+
+          ineq.v[c]     += lc *(non_dependent_e*t[0] + non_dependent_f);
+        }
+        ++c;
+      }
+    }
+  }
+}
+
+
 
 
 int ZmpOptimizer::var_index(int spline, int dim, int coeff) const {

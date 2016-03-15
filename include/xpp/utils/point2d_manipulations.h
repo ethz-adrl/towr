@@ -24,12 +24,13 @@ namespace utils {
  */
 struct Point2dManip {
 
+  // from http://math.stackexchange.com/questions/1076292/obtain-coefficients-of-a-line-from-2-points
   static LineCoeff2d LineCoeff(const Vec2d& pt0, const Vec2d& pt1, bool normalize = true) {
 
     LineCoeff2d ret;
-    ret.p = pt0(Y) - pt1(Y);
-    ret.q = pt1(X) - pt0(X);
-    ret.r = -ret.p * pt0(X) - ret.q * pt0(Y);
+    ret.p = pt0.y() - pt1.y();
+    ret.q = pt1.x() - pt0.x();
+    ret.r = pt0.x()*pt1.y() - pt1.x()*pt0.y();  //-ret.p * pt0(X) - ret.q * pt0(Y);
 
     // normalize the equation in order to intuitively use stability margins
     if (normalize) {

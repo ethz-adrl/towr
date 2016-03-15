@@ -138,6 +138,7 @@ public:
   MatVec eq_;
   MatVec ineq_;
 
+
   double kDt; ///< discretization interval
 
 private:
@@ -151,8 +152,20 @@ private:
                                      const Position &end_cog) const;
   MatVec CreateInequalityContraints(const Position& start_cog_p,
                                        const Velocity& start_cog_v,
+                                       const std::vector<SuppTriangle::TrLine> &line_for_constraint,
+                                       double height_robot) const;
+  MatVec CreateInequalityContraintsNoLines(const Position& start_cog_p,
+                                       const Velocity& start_cog_v,
                                        const hyq::SuppTriangles &tr,
                                        double height_robot) const;
+  void AddLineDependencies(xpp::zmp::MatVec& ineq,
+                           const Position& start_cog_p,
+                           const Velocity& start_cog_v,
+                           const SuppTriangles &supp_triangles) const;
+
+  std::vector<SuppTriangle::TrLine>
+  LineForConstraint(const SuppTriangles &supp_triangles);
+  Eigen::VectorXd GetXyDimAlternatingVector(double x, double y) const;
 
 
   int var_index(int splines, int dim, int spline_coeff) const;

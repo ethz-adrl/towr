@@ -179,7 +179,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   margins[DIAG]  = 0.05; // controls sidesway motion
 
   double swing_time = 0.6;         
-  double stance_time = 0.2;
+  double stance_time = 0.1;
 
 
   // start position (x,y,z) of robot
@@ -212,14 +212,14 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   Eigen::VectorXd opt_coefficients_eig = zmp_optimizer.SolveQp();
   Eigen::VectorXd opt_coefficients = zmp_optimizer.SolveIpopt(/*opt_coefficients_eig*/);
 
-  std::vector<ZmpSpline> splines = zmp_optimizer.CreateSplines(cog_start_p, cog_start_v, opt_coefficients);
   std::vector<ZmpSpline> splines_eig = zmp_optimizer.CreateSplines(cog_start_p, cog_start_v, opt_coefficients_eig);
+  std::vector<ZmpSpline> splines = zmp_optimizer.CreateSplines(cog_start_p, cog_start_v, opt_coefficients);
 
-  SplineContainer zmp_splines;
   SplineContainer zmp_splines_eig;
+  SplineContainer zmp_splines;
 
-  zmp_splines.AddSplines(splines);
   zmp_splines_eig.AddSplines(splines_eig);
+  zmp_splines.AddSplines(splines);
 
 
   std_msgs::ColorRGBA red, blue;
@@ -227,8 +227,8 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   blue.a = blue.b = 1.0;
   footsteps_msg_.markers.clear();
   AddFootholds(footsteps_msg_, steps_,frame_id);
-  AddTrajectory(footsteps_msg_, zmp_splines, red, frame_id);
   AddTrajectory(footsteps_msg_, zmp_splines_eig, blue, frame_id);
+  AddTrajectory(footsteps_msg_, zmp_splines, red, frame_id);
 }
 
 
