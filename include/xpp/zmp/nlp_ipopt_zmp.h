@@ -115,8 +115,8 @@ public:
 
   Eigen::VectorXd initial_values_;
 
-
   xpp::zmp::ZmpOptimizer zmp_optimizer_;
+
 
   void SetupNlp(const xpp::zmp::MatVec& cf,
                 const xpp::zmp::MatVec& eq,
@@ -124,9 +124,12 @@ public:
                 const Eigen::VectorXd& ineq_vx,
                 const Eigen::VectorXd& ineq_vy,
                 const std::vector<xpp::hyq::SuppTriangle::TrLine>& lines_for_constraint,
-                const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero());
+                const xpp::zmp::ZmpOptimizer& zmp_optimizer,
+                const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero()
+                );
 
-  Eigen::VectorXd x_final_;
+  Eigen::VectorXd x_final_spline_coeff_;
+  Eigen::VectorXd x_final_footholds_;
 
 
 

@@ -121,13 +121,14 @@ public:
   void SetupQpMatrices(const Position& start_cog_p,
                            const Velocity& start_cog_v,
                            const hyq::LegDataMap<Foothold>& start_stance,
-                           Footholds &steps,
+                           const Footholds &steps,
                            const WeightsXYArray& weight, hyq::MarginValues margins,
                            double height_robot);
 
   Eigen::VectorXd SolveQp();
 
-  Eigen::VectorXd SolveIpopt(const Eigen::VectorXd& opt_coefficients_eig = Eigen::Vector2d::Zero());
+  Eigen::VectorXd SolveIpopt(Eigen::VectorXd& final_footholds,
+                             const Eigen::VectorXd& opt_coefficients_eig = Eigen::Vector2d::Zero());
 
   Splines CreateSplines(const Position& start_cog_p,
                         const Velocity& start_cog_v,
@@ -143,6 +144,8 @@ public:
   Eigen::VectorXd ineq_ipopt_vy_;
 
   std::vector<SuppTriangle::TrLine> lines_for_constraint_;
+  Footholds footholds_;
+  std::vector<LegID> leg_ids_;
 
 
   double kDt; ///< discretization interval
@@ -163,14 +166,6 @@ private:
                                        const Velocity& start_cog_v,
                                        const std::vector<SuppTriangle::TrLine> &line_for_constraint,
                                        double height_robot);
-  MatVec CreateInequalityContraintsNoLines(const Position& start_cog_p,
-                                       const Velocity& start_cog_v,
-                                       const hyq::SuppTriangles &tr,
-                                       double height_robot) const;
-  void AddLineDependencies(xpp::zmp::MatVec& ineq,
-                           const Position& start_cog_p,
-                           const Velocity& start_cog_v,
-                           const SuppTriangles &supp_triangles) const;
 
 
 

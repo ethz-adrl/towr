@@ -27,6 +27,7 @@ void NlpIpoptZmp::SetupNlp(
     const Eigen::VectorXd& ineq_vx,
     const Eigen::VectorXd& ineq_vy,
     const std::vector<xpp::hyq::SuppTriangle::TrLine>& lines_for_constraint,
+    const xpp::zmp::ZmpOptimizer& zmp_optimizer,
     const Eigen::VectorXd& initial_values)
 {
   cf_   =  cf;
@@ -54,10 +55,14 @@ void NlpIpoptZmp::SetupNlp(
   margins_[xpp::hyq::SIDE]  = 0.1;
   margins_[xpp::hyq::DIAG]  = 0.05; // controls sidesway motion
 
-  n_steps_ = 0;
+
   n_spline_coeff_ = cf.M.rows();
   n_eq_constr_ = eq.v.rows();
   n_ineq_constr_ = ineq_vx.rows();
+
+
+  zmp_optimizer_ = zmp_optimizer;
+  n_steps_ = zmp_optimizer.leg_ids_.size();
 }
 
 
@@ -90,7 +95,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   std::cout << "with " << n_eq_constr_ << " equality and "
                        << n_ineq_constr_ << " inequality constraints\n";
 
-  m = n_eq_constr_ + n_ineq_constr_;
+  m = n_eq_constr_ + n_ineq_constr_ + 2*n_steps_;
 
   // nonzeros in the jacobian of the constraint g(x)
   nnz_jac_g = m * n; // all constraints depend on all inputs
@@ -116,17 +121,29 @@ bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
   }
 
   // bounds on equality contraint always be equal (and zero).
+  int c=0;
   for (int i=0; i<n_eq_constr_; ++i)
   {
-		g_l[i] = g_u[i] = 0.0;
+		g_l[c] = g_u[c] = 0.0;
+		c++;
   }
 
   // inequality on inside of support polygon
-  for (int i=n_eq_constr_; i<m; ++i)
+  for (int i=0; i<n_ineq_constr_; ++i)
   {
-    g_l[i] = 0.0;
-    g_u[i] = +1.0e19;
+    g_l[c] = 0.0;
+    g_u[c] = +1.0e19;
+    c++;
   }
+
+  // inequality on inside of support polygon
+  for (int i=0; i<2*n_steps_; ++i)
+  {
+    g_l[c] = g_u[c] = 0.0;
+    c++;
+  }
+
+  assert(c == m);
 
   return true;
 }
@@ -155,22 +172,16 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	  x[i] = initial_values_[i]; // splines of the form x = t^5+t^4+t^3+t^2+t
 	}
 
-//	// initialize the footsteps
-//	// LH
-//	x[n-2*n_steps_+0] = 0.0;
-//	x[n-2*n_steps_+1] = 0.3;
-//
-//	// LF
-//  x[n-2*n_steps_+2] = 0.5;
-//  x[n-2*n_steps_+3] = 0.3;
-//
-//  // RH
-//  x[n-2*n_steps_+4] = 0.0;
-//  x[n-2*n_steps_+5] = -0.3;
-//
-//  // RF
-//  x[n-2*n_steps_+6] = 0.5;
-//  x[n-2*n_steps_+7] = -0.3;
+
+
+	// initialize with steps from footstep planner
+	for (int i=0; i<zmp_optimizer_.footholds_.size(); ++i) {
+
+	  xpp::hyq::Foothold f = zmp_optimizer_.footholds_.at(i);
+
+	  x[n_spline_coeff_+2*i+0] = f.p.x();
+	  x[n_spline_coeff_+2*i+1] = f.p.y();
+	}
 
   return true;
 }
@@ -256,23 +267,22 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
   Eigen::VectorXd g_vec_eq = eq_.M.transpose()*x_vec + eq_.v;
 
 
-//  // inequality constraints
-//  std::vector<xpp::hyq::Foothold> steps;
-//  std::vector<xpp::hyq::LegID> legs = {xpp::hyq::LH,xpp::hyq::LF,xpp::hyq::RH,xpp::hyq::RF};
-//  for (int i=0; i<n_steps_; ++i) {
-//    steps.push_back(xpp::hyq::Foothold(x_vec[n_spline_coeff_+(i++)],
-//                                       x_vec[n_spline_coeff_+(i++)],
-//                                       0.0,
-//                                       legs.at(i)));
-//
-//    std::cout << "foothold=" << steps.at(i);
-//  }
-//
-//
-//
-//  xpp::hyq::LegDataMap<xpp::hyq::Foothold> final_stance;
-//  xpp::hyq::SuppTriangles tr = xpp::hyq::SuppTriangle::FromFootholds(start_stance_, steps, margins_, final_stance);
-//  std::vector<xpp::hyq::SuppTriangle::TrLine> lines = zmp_optimizer_.LineForConstraint(tr);
+  // inequality constraints
+  std::vector<xpp::hyq::Foothold> steps;
+  for (int i=0; i<n_steps_; ++i) {
+    steps.push_back(xpp::hyq::Foothold(x[n_spline_coeff_+2*i],
+                                       x[n_spline_coeff_+2*i+1],
+                                       0.0,
+                                       zmp_optimizer_.leg_ids_.at(i)));
+
+//    std::cout << "foothold=" << steps.at(i) << "\n";
+  }
+
+
+
+  xpp::hyq::LegDataMap<xpp::hyq::Foothold> final_stance;
+  xpp::hyq::SuppTriangles tr = xpp::hyq::SuppTriangle::FromFootholds(start_stance_, steps, margins_, final_stance);
+  lines_for_constraint_ = zmp_optimizer_.LineForConstraint(tr); //here i am adapting the constraints depending on the footholds
 
 
   // add the line coefficients separately
@@ -292,13 +302,34 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
     ineq_v[c] += l.coeff.r - l.s_margin;
   }
 
-
-
   Eigen::VectorXd g_vec_in = ineq_M.transpose()*x_vec + ineq_v;
 
-  // combine the two g vectors
-  Eigen::VectorXd g_vec(g_vec_eq.rows()+g_vec_in.rows());
-  g_vec << g_vec_eq, g_vec_in;
+
+
+
+
+  // constraints on the footsteps
+  Eigen::VectorXd g_vec_footsteps(2*n_steps_);
+  // initialize with steps from footstep planner
+  int c=0;
+  for (int i=0; i<zmp_optimizer_.footholds_.size(); ++i) {
+
+    xpp::hyq::Foothold f = zmp_optimizer_.footholds_.at(i);
+
+    int idx = n_spline_coeff_+2*i;
+
+    g_vec_footsteps(c++) = x[idx+0] - f.p.x();
+    g_vec_footsteps(c++) = x[idx+1] - f.p.y();
+  }
+
+
+
+
+
+
+  // combine all the g vectors
+  Eigen::VectorXd g_vec(m);
+  g_vec << g_vec_eq, g_vec_in, g_vec_footsteps;
 
   // fill these values into g
   Eigen::Map<Eigen::VectorXd>(g,m) = g_vec; // don't know which to use
@@ -358,9 +389,15 @@ void NlpIpoptZmp::finalize_solution(SolverReturn status,
 			                        IpoptCalculatedQuantities* ip_cq)
 {
   // make an eigen vector out of the optimization variables
-  x_final_.resize(n);
-  for (int r=0; r<x_final_.rows(); ++r) {
-    x_final_[r] = x[r];
+  x_final_spline_coeff_.resize(n_spline_coeff_);
+  for (int r=0; r<x_final_spline_coeff_.rows(); ++r) {
+    x_final_spline_coeff_[r] = x[r];
+  }
+
+  // make an eigen vector out of the optimization variables
+  x_final_footholds_.resize(2*n_steps_);
+  for (int r=0; r<x_final_footholds_.rows(); ++r) {
+    x_final_footholds_[r] = x[n_spline_coeff_+r];
   }
 
 //  // write data to xml file
