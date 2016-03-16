@@ -146,6 +146,9 @@ public:
 
 
   double kDt; ///< discretization interval
+  std::vector<SuppTriangle::TrLine>
+  LineForConstraint(const SuppTriangles &supp_triangles);
+  Eigen::VectorXd GetXyDimAlternatingVector(double x, double y) const;
 
 private:
   static const int kOptCoeff = kCoeffCount-2; ///< not optimizing e and f coefficients
@@ -169,9 +172,6 @@ private:
                            const Velocity& start_cog_v,
                            const SuppTriangles &supp_triangles) const;
 
-  std::vector<SuppTriangle::TrLine>
-  LineForConstraint(const SuppTriangles &supp_triangles);
-  Eigen::VectorXd GetXyDimAlternatingVector(double x, double y) const;
 
 
   int var_index(int splines, int dim, int spline_coeff) const;

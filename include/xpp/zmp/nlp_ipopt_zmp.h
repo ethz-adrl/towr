@@ -98,6 +98,14 @@ public:
   xpp::zmp::MatVec eq_;
 //  xpp::zmp::MatVec ineq_;
 
+  int n_spline_coeff_;
+  int n_eq_constr_;
+  int n_ineq_constr_;
+
+  int n_steps_;
+  xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance_;
+  xpp::hyq::MarginValues margins_;
+
 
   Eigen::MatrixXd ineq_M_;
   Eigen::VectorXd ineq_vx_;
@@ -106,6 +114,9 @@ public:
 
 
   Eigen::VectorXd initial_values_;
+
+
+  xpp::zmp::ZmpOptimizer zmp_optimizer_;
 
   void SetupNlp(const xpp::zmp::MatVec& cf,
                 const xpp::zmp::MatVec& eq,

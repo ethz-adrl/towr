@@ -33,6 +33,7 @@ void NlpIpoptZmp::SetupNlp(
   eq_   =  eq;
 //  ineq_ =  ineq;
 
+
   ineq_M_ =  ineq_M;
   ineq_vx_ = ineq_vx;
   ineq_vy_ = ineq_vy;
@@ -40,11 +41,23 @@ void NlpIpoptZmp::SetupNlp(
 
   // set initial values to zero if wrong size was input
   initial_values_ = initial_values;
-  int n = cf_.v.rows();
-  if (initial_values_.rows() != n ) {
-    initial_values_.resize(n,1);
-    initial_values_.setZero();
-  }
+
+
+  start_stance_[xpp::hyq::LF] = xpp::hyq::Foothold( 0.35,  0.3, 0.0, xpp::hyq::LF);
+  start_stance_[xpp::hyq::RF] = xpp::hyq::Foothold( 0.35, -0.3, 0.0, xpp::hyq::RF);
+  start_stance_[xpp::hyq::LH] = xpp::hyq::Foothold(-0.35,  0.3, 0.0, xpp::hyq::LH);
+  start_stance_[xpp::hyq::RH] = xpp::hyq::Foothold(-0.35, -0.3, 0.0, xpp::hyq::RH);
+
+
+  margins_[xpp::hyq::FRONT] = 0.1;
+  margins_[xpp::hyq::HIND]  = 0.1;
+  margins_[xpp::hyq::SIDE]  = 0.1;
+  margins_[xpp::hyq::DIAG]  = 0.05; // controls sidesway motion
+
+  n_steps_ = 0;
+  n_spline_coeff_ = cf.M.rows();
+  n_eq_constr_ = eq.v.rows();
+  n_ineq_constr_ = ineq_vx.rows();
 }
 
 
@@ -69,17 +82,15 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   //  x: n
 
   // How many variables to optimize over
-
-  n = cf_.M.rows();
+  n = n_spline_coeff_ + 2*n_steps_; // because x,y coordinates
   std::cout << "optimizing n= " << n << " variables ";
 
 
   // constraints
-  int n_eq = eq_.v.rows();
-  int n_ineq = ineq_vx_.rows();
-  std::cout << "with " << n_eq << " equality and " << n_ineq << " inequality constraints\n";
+  std::cout << "with " << n_eq_constr_ << " equality and "
+                       << n_ineq_constr_ << " inequality constraints\n";
 
-  m = n_eq + n_ineq;
+  m = n_eq_constr_ + n_ineq_constr_;
 
   // nonzeros in the jacobian of the constraint g(x)
   nnz_jac_g = m * n; // all constraints depend on all inputs
@@ -98,23 +109,20 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
                             Index m, Number* g_l, Number* g_u)
 {
-  // no bounds on the spline coefficients
+  // no bounds on the spline coefficients of footholds
   for (int i=0; i<n; ++i) {
     x_lower[i] = -1.0e19;
     x_upper[i] = +1.0e19;
   }
 
   // bounds on equality contraint always be equal (and zero).
-  int n_eq = eq_.v.rows();
-  int n_ineq = ineq_vx_.rows();
-
-  for (int i=0; i<n_eq; ++i)
+  for (int i=0; i<n_eq_constr_; ++i)
   {
 		g_l[i] = g_u[i] = 0.0;
   }
 
   // inequality on inside of support polygon
-  for (int i=n_eq; i<m; ++i)
+  for (int i=n_eq_constr_; i<m; ++i)
   {
     g_l[i] = 0.0;
     g_u[i] = +1.0e19;
@@ -136,11 +144,35 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	assert(init_lambda == false);
 
 
+	// set initial value to zero if wrong size input
+  if (initial_values_.rows() != n ) {
+    initial_values_.resize(n,1);
+    initial_values_.setZero();
+  }
+
+
 	for (int i=0; i<n; ++i) {
 	  x[i] = initial_values_[i]; // splines of the form x = t^5+t^4+t^3+t^2+t
 	}
 
-	return true;
+//	// initialize the footsteps
+//	// LH
+//	x[n-2*n_steps_+0] = 0.0;
+//	x[n-2*n_steps_+1] = 0.3;
+//
+//	// LF
+//  x[n-2*n_steps_+2] = 0.5;
+//  x[n-2*n_steps_+3] = 0.3;
+//
+//  // RH
+//  x[n-2*n_steps_+4] = 0.0;
+//  x[n-2*n_steps_+5] = -0.3;
+//
+//  // RF
+//  x[n-2*n_steps_+6] = 0.5;
+//  x[n-2*n_steps_+7] = -0.3;
+
+  return true;
 }
 
 bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
@@ -165,7 +197,7 @@ bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value
 //  x: n
 
   // make an eigen vector out of the optimization variables
-  Eigen::Map<const Eigen::VectorXd> x_vec(x,n); // ATTENTION: still not sure if this is correct
+  Eigen::Map<const Eigen::VectorXd> x_vec(x,n_spline_coeff_); // ATTENTION: still not sure if this is correct
 //  Eigen::VectorXd x_vec(n);
 //  for (int i=0; i<x_vec.rows(); ++i) {
 //    x_vec[i] = x[i];
@@ -181,18 +213,14 @@ bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value
 
 bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
-  Eigen::Map<const Eigen::VectorXd> x_vec(x,n);
-//  Eigen::VectorXd x_vec(n);
-//  for (int i=0; i<x_vec.rows(); ++i) {
-//    x_vec[i] = x[i];
-//  }
+  for (int i=0; i<n; ++i) {
+    grad_f[i] = 0.0;
+  }
 
+  Eigen::Map<const Eigen::VectorXd> x_vec(x,n_spline_coeff_);
   Eigen::VectorXd grad_f_vec = cf_.M*x_vec;
 
-  Eigen::Map<Eigen::VectorXd>(grad_f,n) = grad_f_vec;
-//  for (int i=0; i<n; ++i) {
-//    grad_f[i] = grad_f_vec[i];
-//  }
+  Eigen::Map<Eigen::VectorXd>(grad_f,n_spline_coeff_) = grad_f_vec;
 
 	return true;
 }
@@ -221,51 +249,47 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 //  for (int r=0; r<x_vec.rows(); ++r) {
 //    x_vec[r] = x[r];
 //  }
-  Eigen::Map<const Eigen::VectorXd> x_vec(x,n);
+  Eigen::Map<const Eigen::VectorXd> x_vec(x,n_spline_coeff_);
 
 
   // equality constraints
   Eigen::VectorXd g_vec_eq = eq_.M.transpose()*x_vec + eq_.v;
 
 
+//  // inequality constraints
+//  std::vector<xpp::hyq::Foothold> steps;
+//  std::vector<xpp::hyq::LegID> legs = {xpp::hyq::LH,xpp::hyq::LF,xpp::hyq::RH,xpp::hyq::RF};
+//  for (int i=0; i<n_steps_; ++i) {
+//    steps.push_back(xpp::hyq::Foothold(x_vec[n_spline_coeff_+(i++)],
+//                                       x_vec[n_spline_coeff_+(i++)],
+//                                       0.0,
+//                                       legs.at(i)));
+//
+//    std::cout << "foothold=" << steps.at(i);
+//  }
+//
+//
+//
+//  xpp::hyq::LegDataMap<xpp::hyq::Foothold> final_stance;
+//  xpp::hyq::SuppTriangles tr = xpp::hyq::SuppTriangle::FromFootholds(start_stance_, steps, margins_, final_stance);
+//  std::vector<xpp::hyq::SuppTriangle::TrLine> lines = zmp_optimizer_.LineForConstraint(tr);
 
 
-  // inequality constraints
   // add the line coefficients separately
-  int n_ineq = ineq_vx_.rows();
   Eigen::MatrixXd ineq_M = ineq_M_;
-  Eigen::VectorXd ineq_v(n_ineq);
+  Eigen::VectorXd ineq_v(n_ineq_constr_);
   ineq_v.setZero();
-  for (int c=0; c<n_ineq; ++c) {
+  for (int c=0; c<n_ineq_constr_; ++c) {
     xpp::hyq::SuppTriangle::TrLine l = lines_for_constraint_.at(c);
 
-    // build vector from xy line coeff
-//    Eigen::VectorXd line_coefficients_xy = GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
-    int kOptCoeff = 4;
-    Eigen::VectorXd line_coefficients_xy(n);
-    line_coefficients_xy.setZero();
-    Eigen::VectorXd x_abcd(kOptCoeff);
-    x_abcd.fill(l.coeff.p);
-
-    Eigen::VectorXd y_abcd(kOptCoeff);
-    y_abcd.fill(l.coeff.q);
-
-    int idx=0;
-    while (idx<n) {
-
-      line_coefficients_xy.middleRows(idx,           kOptCoeff) = x_abcd;
-      line_coefficients_xy.middleRows(idx+kOptCoeff, kOptCoeff) = y_abcd;
-
-      idx += 2*kOptCoeff;
-    }
-
+    // build vector from xy line coeffients
+    Eigen::VectorXd line_coefficients_xy = zmp_optimizer_.GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
     ineq_M.col(c) = ineq_M_.col(c).cwiseProduct(line_coefficients_xy);
 
 
     ineq_v[c] += l.coeff.p * ineq_vx_[c];
     ineq_v[c] += l.coeff.q * ineq_vy_[c];
     ineq_v[c] += l.coeff.r - l.s_margin;
-
   }
 
 
@@ -278,10 +302,6 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   // fill these values into g
   Eigen::Map<Eigen::VectorXd>(g,m) = g_vec; // don't know which to use
-//  g = g_vec.data();
-//  for (int r=0; r<m; ++r) {
-//    g[r] = g_vec[r];
-//  }
 
   return true;
 }

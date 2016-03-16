@@ -210,17 +210,14 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   zmp_optimizer.SetupQpMatrices(cog_start_p, cog_start_v, start_stance, steps_, weight, margins, robot_height);
 
   Eigen::VectorXd opt_coefficients_eig = zmp_optimizer.SolveQp();
-  Eigen::VectorXd opt_coefficients = zmp_optimizer.SolveIpopt(/*opt_coefficients_eig*/);
-
   std::vector<ZmpSpline> splines_eig = zmp_optimizer.CreateSplines(cog_start_p, cog_start_v, opt_coefficients_eig);
-  std::vector<ZmpSpline> splines = zmp_optimizer.CreateSplines(cog_start_p, cog_start_v, opt_coefficients);
-
   SplineContainer zmp_splines_eig;
-  SplineContainer zmp_splines;
-
   zmp_splines_eig.AddSplines(splines_eig);
-  zmp_splines.AddSplines(splines);
 
+  Eigen::VectorXd opt_coefficients = zmp_optimizer.SolveIpopt(/*opt_coefficients_eig*/);
+  std::vector<ZmpSpline> splines = zmp_optimizer.CreateSplines(cog_start_p, cog_start_v, opt_coefficients);
+  SplineContainer zmp_splines;
+  zmp_splines.AddSplines(splines);
 
   std_msgs::ColorRGBA red, blue;
   red.a = red.r = 1.0;

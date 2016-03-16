@@ -110,6 +110,7 @@ Eigen::VectorXd ZmpOptimizer::SolveIpopt(const Eigen::VectorXd& opt_coefficients
 
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp();
+  nlp_ipopt_zmp->zmp_optimizer_ = *this; // FIXME, this is a kind of circular dependecy, nasty
   nlp_ipopt_zmp->SetupNlp(cf_,eq_,
                           ineq_ipopt_, ineq_ipopt_vx_, ineq_ipopt_vy_, lines_for_constraint_,
                           opt_coefficients_eig);
