@@ -289,7 +289,8 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   xpp::hyq::LegDataMap<xpp::hyq::Foothold> final_stance;
   xpp::hyq::SuppTriangles tr = xpp::hyq::SuppTriangle::FromFootholds(start_stance_, steps, margins_, final_stance);
-  lines_for_constraint_ = zmp_optimizer_.LineForConstraint(tr); //here i am adapting the constraints depending on the footholds
+  double dt = 0.1; // FIXME: this must be the same dt as used in the inequality constraints in the quadprog matrix
+  lines_for_constraint_ = zmp_optimizer_.LineForConstraint(tr, dt); //here i am adapting the constraints depending on the footholds
 
 
   // add the line coefficients separately

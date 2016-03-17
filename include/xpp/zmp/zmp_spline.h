@@ -55,7 +55,7 @@ public:
   virtual ~Spline();
 
   Vec2d GetState(const PosVelAcc &whichDeriv, const double &_t) const;
-  void set_spline_coeff(const CoeffValues &coeff_values);
+  void set_spline_coeff(const CoeffValues &coeff_values = CoeffValues());
 
   static log4cxx::LoggerPtr log_;
 private:
@@ -71,13 +71,14 @@ class ZmpSpline : public Spline {
 
 public:
   ZmpSpline();
-  ZmpSpline(const CoeffValues &coeff_values, double duration);
+  ZmpSpline(unsigned int id, double duration, bool four_leg_supp, int step);
   virtual ~ZmpSpline();
 
-  double Duration() const; ///< global time-span in which this spline is active
-
+  unsigned int id_; // to identify the order relative to other zmp splines
+  double duration_; // time during which this spline is active
+  bool four_leg_supp_;
+  int step_;
 private:
-  double duration_;
 };
 
 

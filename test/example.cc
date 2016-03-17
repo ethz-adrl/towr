@@ -225,13 +225,13 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   zmp_optimizer.SetupQpMatrices(cog_start_p, cog_start_v, start_stance, steps_, weight, margins, robot_height);
 
   Eigen::VectorXd opt_coefficients_eig = zmp_optimizer.SolveQp();
-  std::vector<ZmpSpline> splines_eig = zmp_optimizer.CreateSplines(cog_start_p, cog_start_v, opt_coefficients_eig);
+  std::vector<ZmpSpline> splines_eig = zmp_optimizer.AddOptimizedCoefficients(cog_start_p, cog_start_v, opt_coefficients_eig);
   SplineContainer zmp_splines_eig;
   zmp_splines_eig.AddSplines(splines_eig);
 
   Eigen::VectorXd opt_footholds;
   Eigen::VectorXd opt_coefficients = zmp_optimizer.SolveIpopt(opt_footholds/*opt_coefficients_eig*/);
-  std::vector<ZmpSpline> splines = zmp_optimizer.CreateSplines(cog_start_p, cog_start_v, opt_coefficients);
+  std::vector<ZmpSpline> splines = zmp_optimizer.AddOptimizedCoefficients(cog_start_p, cog_start_v, opt_coefficients);
   // get new optimized footholds from these coefficients:
   for (int i=0; i<steps_.size(); ++i) {
     int idx = 2*i;

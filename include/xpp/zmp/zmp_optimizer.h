@@ -38,18 +38,6 @@ current support triangle are located in this namespace
 namespace zmp {
 
 
-struct SplineInfo {
-  unsigned int id_;
-  double duration_; // time during which this spline is active
-  bool four_leg_supp_;
-  int step_;
-
-  SplineInfo(unsigned int id, double duration,
-             bool four_leg_supp, int step)
-      : id_(id), duration_(duration),
-        four_leg_supp_(four_leg_supp), step_(step) {}
-};
-
 struct MatVec {
   Eigen::MatrixXd M;
   Eigen::VectorXd v;
@@ -83,7 +71,6 @@ public:
   typedef std::vector<Foothold> Footholds;
   typedef std::vector<SuppTriangle> SuppTriangles;
   typedef std::array<double,2> WeightsXYArray;
-  typedef std::vector<SplineInfo> SplineInfoVec;
   typedef std::vector<ZmpSpline> Splines;
 
 
@@ -97,10 +84,9 @@ public:
   @param t_four_leg_support time [s] of four leg support phase when switching
          between disjoint support triangles
   */
-  ZmpOptimizer(double dt);
   virtual ~ZmpOptimizer();
 
-  const SplineInfoVec ConstructSplineSequence(const std::vector<LegID>& step_sequence,
+  const Splines ConstructSplineSequence(const std::vector<LegID>& step_sequence,
                                               double t_stance,
                                               double t_swing,
                                               double t_stance_initial,
@@ -130,9 +116,9 @@ public:
   Eigen::VectorXd SolveIpopt(Eigen::VectorXd& final_footholds,
                              const Eigen::VectorXd& opt_coefficients_eig = Eigen::Vector2d::Zero());
 
-  Splines CreateSplines(const Position& start_cog_p,
-                        const Velocity& start_cog_v,
-                        const Eigen::VectorXd& opt_spline_coeff) const;
+  Splines AddOptimizedCoefficients(const Position& start_cog_p,
+                                   const Velocity& start_cog_v,
+                                   const Eigen::VectorXd& opt_spline_coeff);
 
 
   MatVec cf_;
@@ -147,25 +133,24 @@ public:
   Footholds footholds_;
   std::vector<LegID> leg_ids_;
 
-
-  double kDt; ///< discretization interval
   std::vector<SuppTriangle::TrLine>
-  LineForConstraint(const SuppTriangles &supp_triangles);
+  LineForConstraint(const SuppTriangles &supp_triangles, double dt);
   Eigen::VectorXd GetXyDimAlternatingVector(double x, double y) const;
 
+  MatVec CreateInequalityContraints(const Position& start_cog_p,
+                                       const Velocity& start_cog_v,
+                                       const std::vector<SuppTriangle::TrLine> &line_for_constraint,
+                                       double height_robot,
+                                       double dt);
 private:
   static const int kOptCoeff = kCoeffCount-2; ///< not optimizing e and f coefficients
-  SplineInfoVec spline_infos_;
+  Splines zmp_splines_;
 
 
   MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;
   MatVec CreateEqualityContraints(const Position &start_cog_p,
                                      const Velocity &start_cog_v,
                                      const Position &end_cog) const;
-  MatVec CreateInequalityContraints(const Position& start_cog_p,
-                                       const Velocity& start_cog_v,
-                                       const std::vector<SuppTriangle::TrLine> &line_for_constraint,
-                                       double height_robot);
 
 
 

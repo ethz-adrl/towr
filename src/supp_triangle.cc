@@ -27,8 +27,8 @@ SuppTriangle::SuppTriangle()
 }
 
 
-SuppTriangle::SuppTriangle(const ArrayF3& footholds, const MarginValues& margins)
-    :  margins_(margins), footholds_(footholds)
+SuppTriangle::SuppTriangle(const ArrayF3& footholds, const MarginValues& margins, LegID swing_leg)
+    :  margins_(margins), footholds_(footholds), swing_leg_(swing_leg)
 {
   // sort points so inequality constraints are on correct side of line later
   SortFootholdsCounterclockwise();
@@ -57,7 +57,7 @@ SuppTriangles SuppTriangle::FromFootholds(LegDataMap<Foothold> stance,
       if(stance[l].leg != swingleg)
         non_swing[i++] = stance[l];
 
-    tr.push_back(SuppTriangle(non_swing, margins));
+    tr.push_back(SuppTriangle(non_swing, margins, swingleg));
     stance[swingleg] = steps[s]; // update current stance with last step
   }
 

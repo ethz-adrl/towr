@@ -21,7 +21,7 @@ namespace utils {
 namespace logger_helpers {
 
 // make inline to avoid function call overhead when logging level disabled
-inline void print_spline_info(const std::vector<zmp::SplineInfo>& splines, log4cxx::LoggerPtr log);
+inline void print_spline_info(const std::vector<zmp::ZmpSpline>& splines, log4cxx::LoggerPtr log);
 
 inline void print_struct(const zmp::MatVec& s, std::string name, log4cxx::LoggerPtr log);
 
@@ -48,13 +48,13 @@ void print_opt_result(Eigen::VectorXd solution, double cost, clock_t start,
   }
 }
 
-void print_spline_info(const std::vector<zmp::SplineInfo>& splines, log4cxx::LoggerPtr log)
+void print_spline_info(const std::vector<zmp::ZmpSpline>& splines, log4cxx::LoggerPtr log)
 {
   if (log->isDebugEnabled()) {
     int nr = 0;
     std::stringstream ss;
     ss << std::setprecision(2) << std::fixed << '\n';
-    for (zmp::SplineInfo s : splines) {
+    for (zmp::ZmpSpline s : splines) {
       ss << "Spline: id= " << nr++ << ":\t"
          << "duration=" << s.duration_<< "\t"
          << "four_leg_supp=" << s.four_leg_supp_ << "\t"
