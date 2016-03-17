@@ -62,7 +62,7 @@ void NlpIpoptZmp::SetupNlp(
 
 
   zmp_optimizer_ = zmp_optimizer;
-  n_steps_ = zmp_optimizer.leg_ids_.size();
+  n_steps_ = zmp_optimizer.footholds_.size();
 }
 
 
@@ -282,7 +282,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
     steps.push_back(xpp::hyq::Foothold(x[n_spline_coeff_+2*i],
                                        x[n_spline_coeff_+2*i+1],
                                        0.0,
-                                       zmp_optimizer_.leg_ids_.at(i)));
+                                       zmp_optimizer_.footholds_.at(i).leg));
   }
 
 

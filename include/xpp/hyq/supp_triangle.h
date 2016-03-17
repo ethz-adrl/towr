@@ -39,7 +39,7 @@ public:
 
 public:
   SuppTriangle();
-  SuppTriangle(const ArrayF3& footholds, const MarginValues& margins, LegID swing_leg);
+  SuppTriangle(const MarginValues& margins, LegID swing_leg, const ArrayF3& footholds);
   virtual ~SuppTriangle();
 
   /**

@@ -72,25 +72,24 @@ public:
   typedef std::vector<SuppTriangle> SuppTriangles;
   typedef std::array<double,2> WeightsXYArray;
   typedef SplineContainer Splines;
-
+  typedef SplineContainer S;
 
 public:
   ZmpOptimizer();
-  /*!
-  @brief C'tor defining important params for optimization.
-  @param dt discretization interval for inequality constraints
-  @param stability_margin: reduce support triangles by this distance [m]
-  @param n_splines_per_step how many splines one step should be comprised of
-  @param t_four_leg_support time [s] of four leg support phase when switching
-         between disjoint support triangles
-  */
+
+  /**
+   * @param spline_structure the amount and sequence of splines with empty coefficients
+   */
+  ZmpOptimizer(const Splines& spline_structure);
+
   virtual ~ZmpOptimizer();
 
-  const Splines ConstructSplineSequence(const std::vector<LegID>& step_sequence,
-                                              double t_stance,
-                                              double t_swing,
-                                              double t_stance_initial,
-                                              double t_stance_final);
+
+//  const Splines ConstructSplineSequence(const std::vector<LegID>& step_sequence,
+//                                              double t_stance,
+//                                              double t_swing,
+//                                              double t_stance_initial,
+//                                              double t_stance_final);
 /*!
  @brief Optimizes the trajectory of the CoM according to a quadratic
         cost function while keeping the ZMP in the current support
@@ -116,9 +115,9 @@ public:
   Eigen::VectorXd SolveIpopt(Eigen::VectorXd& final_footholds,
                              const Eigen::VectorXd& opt_coefficients_eig = Eigen::Vector2d::Zero());
 
-  Splines AddOptimizedCoefficients(const Position& start_cog_p,
-                                   const Velocity& start_cog_v,
-                                   const Eigen::VectorXd& opt_spline_coeff);
+//  Splines AddOptimizedCoefficients(const Position& start_cog_p,
+//                                   const Velocity& start_cog_v,
+//                                   const Eigen::VectorXd& opt_spline_coeff);
 
 
   MatVec cf_;
@@ -131,7 +130,6 @@ public:
 
   std::vector<SuppTriangle::TrLine> lines_for_constraint_;
   Footholds footholds_;
-  std::vector<LegID> leg_ids_;
 
   std::vector<SuppTriangle::TrLine>
   LineForConstraint(const SuppTriangles &supp_triangles, double dt);
@@ -154,38 +152,38 @@ private:
 
 
 
-  int var_index(int splines, int dim, int spline_coeff) const;
+//  int var_index(int splines, int dim, int spline_coeff) const;
 
-  /**
-   * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
-   * has the same effect as the original e coefficient in the spline equation
-   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
-   *
-   * @param spline_info
-   * @param k the number of spline for which the e coefficient should be represented
-   * @param dim X=0, Y=1
-   * @param start_v the initial velocity of the first spline
-   * @param[out] Ek the vector to represent e through a,b,c,d
-   * @param[out] non_dependent the influence of e that are not dependent on a,b,c,d
-   */
-  void DescribeEByPrev(int k, int dim,
-      double start_v, Eigen::VectorXd& Ek, double& non_dependent) const;
-
-  /**
-   * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
-   * has the same effect as the original f coefficient in the spline equation
-   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
-   *
-   * @param spline_info
-   * @param k the number of spline for which the e coefficient should be represented
-   * @param dim X=0, Y=1
-   * @param start_p the initial position of the first spline
-   * @param start_v the initial velocity of the first spline
-   * @param[out] Ek the vector to represent e through a,b,c,d
-   * @param[out] non_dependent the influence of f that are not dependent on a,b,c,d
-   */
-  void DescribeFByPrev(int k, int dim,
-      double start_v, double start_p, Eigen::VectorXd& Ek, double& non_dependent) const;
+//  /**
+//   * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
+//   * has the same effect as the original e coefficient in the spline equation
+//   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
+//   *
+//   * @param spline_info
+//   * @param k the number of spline for which the e coefficient should be represented
+//   * @param dim X=0, Y=1
+//   * @param start_v the initial velocity of the first spline
+//   * @param[out] Ek the vector to represent e through a,b,c,d
+//   * @param[out] non_dependent the influence of e that are not dependent on a,b,c,d
+//   */
+//  void DescribeEByPrev(int k, int dim,
+//      double start_v, Eigen::VectorXd& Ek, double& non_dependent) const;
+//
+//  /**
+//   * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
+//   * has the same effect as the original f coefficient in the spline equation
+//   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
+//   *
+//   * @param spline_info
+//   * @param k the number of spline for which the e coefficient should be represented
+//   * @param dim X=0, Y=1
+//   * @param start_p the initial position of the first spline
+//   * @param start_v the initial velocity of the first spline
+//   * @param[out] Ek the vector to represent e through a,b,c,d
+//   * @param[out] non_dependent the influence of f that are not dependent on a,b,c,d
+//   */
+//  void DescribeFByPrev(int k, int dim,
+//      double start_v, double start_p, Eigen::VectorXd& Ek, double& non_dependent) const;
 
   template<std::size_t N>
   std::array<double,N> cache_exponents(double t) const;
