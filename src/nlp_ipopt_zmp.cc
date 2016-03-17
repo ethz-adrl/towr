@@ -53,7 +53,7 @@ void NlpIpoptZmp::SetupNlp(
   margins_[xpp::hyq::FRONT] = 0.1;
   margins_[xpp::hyq::HIND]  = 0.1;
   margins_[xpp::hyq::SIDE]  = 0.1;
-  margins_[xpp::hyq::DIAG]  = 0.05; // controls sidesway motion
+  margins_[xpp::hyq::DIAG]  = 0.1; // controls sidesway motion
 
 
   n_spline_coeff_ = cf.M.rows();
@@ -87,7 +87,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   //  x: n
 
   // How many variables to optimize over
-  n = n_spline_coeff_ + 2*n_steps_; // because x,y coordinates
+  n = n_spline_coeff_ + 2*n_steps_; // x,y-coordinate of footholds
   std::cout << "optimizing n= " << n << " variables ";
 
 
@@ -95,7 +95,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   std::cout << "with " << n_eq_constr_ << " equality and "
                        << n_ineq_constr_ << " inequality constraints\n";
 
-  m = n_eq_constr_ + n_ineq_constr_ + 2*n_steps_;
+  m = n_eq_constr_ + n_ineq_constr_ + 2*n_steps_; // fix y-coordinate + distance of each step
 
   // nonzeros in the jacobian of the constraint g(x)
   nnz_jac_g = m * n; // all constraints depend on all inputs
@@ -136,12 +136,21 @@ bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
     c++;
   }
 
-  // inequality on inside of support polygon
+  // fixing the y position of the footholds to the intial values
   for (int i=0; i<2*n_steps_; ++i)
   {
     g_l[c] = g_u[c] = 0.0;
     c++;
   }
+
+
+//  // restricting the length of each step
+//  for (int i=0; i<n_steps_; ++i)
+//  {
+//    g_l[c] = -1.0e19;
+//    g_u[c] = 0.0;
+//    c++;
+//  }
 
   assert(c == m);
 
@@ -274,8 +283,6 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
                                        x[n_spline_coeff_+2*i+1],
                                        0.0,
                                        zmp_optimizer_.leg_ids_.at(i)));
-
-//    std::cout << "foothold=" << steps.at(i) << "\n";
   }
 
 
@@ -310,6 +317,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   // constraints on the footsteps
   Eigen::VectorXd g_vec_footsteps(2*n_steps_);
+  g_vec_footsteps.setZero();
   // initialize with steps from footstep planner
   int c=0;
   for (int i=0; i<zmp_optimizer_.footholds_.size(); ++i) {
@@ -321,6 +329,27 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
     g_vec_footsteps(c++) = x[idx+0] - f.p.x();
     g_vec_footsteps(c++) = x[idx+1] - f.p.y();
   }
+
+
+  // restrict distance to previous foothold small
+  // initialize with steps from footstep planner
+//  for (int i=0; i<zmp_optimizer_.footholds_.size(); ++i) {
+//
+//    int idx = n_spline_coeff_+2*i;
+//    Eigen::Vector2d f;
+//    f << x[idx+0], x[idx+1];
+//
+//    Eigen::Vector2d f_prev = start_stance_[zmp_optimizer_.footholds_.at(i).leg].p.segment<2>(0);
+//    if (i>=4) {
+//      int idx = n_spline_coeff_+2*(i-4);
+//      f_prev << x[idx+0], x[idx+1];
+//    }
+//
+//    double dx = f.x()-f_prev.x();
+//    double dy = f.y()-f_prev.y();
+//
+//    g_vec_footsteps(c++) = hypot(dx,dy) - 0.3;
+//  }
 
 
 

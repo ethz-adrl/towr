@@ -33,7 +33,7 @@ void AddTrajectory(visualization_msgs::MarkerArray& msg,
                    std::string frame_id)
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
-  for (double t(0.0); t < zmp_splines.T; t+= 0.02)
+  for (double t(0.0); t < zmp_splines.T; t+= 0.03)
   {
     xpp::utils::Point2d cog_state;
     zmp_splines.GetCOGxy(t, cog_state);
@@ -50,7 +50,7 @@ void AddTrajectory(visualization_msgs::MarkerArray& msg,
     marker.type = visualization_msgs::Marker::SPHERE;
     marker.action = visualization_msgs::Marker::ADD;
 //    marker.lifetime = ros::Duration(10);
-    marker.scale.x = marker.scale.y = marker.scale.z = 0.003;
+    marker.scale.x = marker.scale.y = marker.scale.z = 0.005;
     marker.color = color;
 
     msg.markers.push_back(marker);
@@ -184,7 +184,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   margins[FRONT] = 0.1;
   margins[HIND]  = 0.1;
   margins[SIDE]  = 0.1;
-  margins[DIAG]  = 0.05; // controls sidesway motion
+  margins[DIAG]  = 0.1; // controls sidesway motion
 
   double swing_time = 0.6;         
   double stance_time = 0.1;
