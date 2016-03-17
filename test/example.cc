@@ -33,7 +33,7 @@ void AddTrajectory(visualization_msgs::MarkerArray& msg,
                    std::string frame_id)
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
-  for (double t(0.0); t < zmp_splines.T; t+= 0.03)
+  for (double t(0.0); t < zmp_splines.GetTotalTime(); t+= 0.03)
   {
     xpp::utils::Point2d cog_state;
     zmp_splines.GetCOGxy(t, cog_state);
@@ -225,13 +225,13 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   zmp_optimizer.SetupQpMatrices(cog_start_p, cog_start_v, start_stance, steps_, weight, margins, robot_height);
 
   Eigen::VectorXd opt_coefficients_eig = zmp_optimizer.SolveQp();
-  std::vector<ZmpSpline> splines_eig = zmp_optimizer.AddOptimizedCoefficients(cog_start_p, cog_start_v, opt_coefficients_eig);
-  SplineContainer zmp_splines_eig;
-  zmp_splines_eig.AddSplines(splines_eig);
+  SplineContainer zmp_splines_eig = zmp_optimizer.AddOptimizedCoefficients(cog_start_p, cog_start_v, opt_coefficients_eig);
+//  SplineContainer zmp_splines_eig;
+//  zmp_splines_eig.AddSplines(splines_eig);
 
   Eigen::VectorXd opt_footholds;
   Eigen::VectorXd opt_coefficients = zmp_optimizer.SolveIpopt(opt_footholds/*opt_coefficients_eig*/);
-  std::vector<ZmpSpline> splines = zmp_optimizer.AddOptimizedCoefficients(cog_start_p, cog_start_v, opt_coefficients);
+  SplineContainer zmp_splines = zmp_optimizer.AddOptimizedCoefficients(cog_start_p, cog_start_v, opt_coefficients);
   // get new optimized footholds from these coefficients:
   for (int i=0; i<steps_.size(); ++i) {
     int idx = 2*i;
@@ -240,8 +240,8 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
 
 
-  SplineContainer zmp_splines;
-  zmp_splines.AddSplines(splines);
+//  SplineContainer zmp_splines;
+//  zmp_splines.AddSplines(splines);
 
   std_msgs::ColorRGBA red, blue;
   red.a = red.r = 1.0;

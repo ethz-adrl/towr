@@ -44,11 +44,14 @@ public:
   @return x and y state of position,velocity OR acceleration
   */
   void GetCOGxy(double t_global, Lin2d& cog_xy);
+  void AddSpline(const ZmpSpline &spline);
   void AddSplines(const Splines &splines);
 
-  double T;
-private:
+  double GetTotalTime() const;
+
+//  double T;
   Splines splines_;
+private:
   uint curr_spline_;
   static log4cxx::LoggerPtr log_;
 };

@@ -71,7 +71,7 @@ public:
   typedef std::vector<Foothold> Footholds;
   typedef std::vector<SuppTriangle> SuppTriangles;
   typedef std::array<double,2> WeightsXYArray;
-  typedef std::vector<ZmpSpline> Splines;
+  typedef SplineContainer Splines;
 
 
 public:

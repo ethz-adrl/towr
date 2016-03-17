@@ -20,8 +20,9 @@ log4cxx::LoggerPtr SplineContainer::log_(log4cxx::Logger::getLogger("xpp.zmp.spl
 
 SplineContainer::SplineContainer()
 {
-  T = 0.0;
+//  T = 0.0;
   curr_spline_ = 0;
+  splines_.clear();
 }
 
 
@@ -30,14 +31,30 @@ SplineContainer::~SplineContainer()
   // TODO Auto-generated destructor stub
 }
 
+double SplineContainer::GetTotalTime() const
+{
+  double T = 0.0;
+  for (ZmpSpline s: splines_) {
+    T += s.duration_;
+  };
+  return T;
+}
+
+void SplineContainer::AddSpline(const ZmpSpline &spline)
+{
+  splines_.push_back(spline);
+//  T += spline.duration_;
+}
+
+
 
 void SplineContainer::AddSplines(const Splines &splines)
 {
   curr_spline_ = 0;
   splines_ = splines;
-  for (ZmpSpline s: splines) {
-    T += s.duration_;
-  }
+//  for (ZmpSpline s: splines) {
+//    T += s.duration_;
+//  }
 }
 
 
