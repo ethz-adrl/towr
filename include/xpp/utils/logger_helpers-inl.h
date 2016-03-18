@@ -10,11 +10,10 @@
 
 #include "geometric_structs.h"
 #include <xpp/zmp/zmp_spline.h>
-#include <xpp/zmp/zmp_optimizer.h>
-
 #include <log4cxx/logger.h>
 
 #include <iomanip> // std::setprecision, std::fixed
+#include "../zmp/qp_optimizer.h"
 
 namespace xpp {
 namespace utils {

@@ -29,7 +29,7 @@ void NlpIpoptZmp::SetupNlp(
     const Eigen::VectorXd& ineq_vy,
     const Splines& spline_container,
     const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-    const xpp::zmp::ZmpOptimizer& zmp_optimizer, // FIXME remove this dependency
+    const xpp::zmp::QpOptimizer& zmp_optimizer, // FIXME remove this dependency
     const Eigen::VectorXd& initial_values)
 {
   cf_   =  cf;

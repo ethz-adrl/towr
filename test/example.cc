@@ -6,14 +6,12 @@
  */
 
 
-#include <xpp_opt/FootholdSequence.h>
-#include <xpp/zmp/zmp_optimizer.h>
+#include <xpp/zmp/qp_optimizer.h>
 #include <xpp/zmp/nlp_optimizer.h>
+
+#include <xpp_opt/FootholdSequence.h>
 #include <xpp_opt/FootholdSequence.h>
 #include <xpp/zmp/nlp_ipopt_zmp.h>
-
-#include "IpIpoptApplication.hpp"
-#include "IpSolveStatistics.hpp"
 
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -179,7 +177,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
   double penalty_movement_x = 1.0;
   double penalty_movement_y = 5.0;
-  ZmpOptimizer::WeightsXYArray weight = {{penalty_movement_x, penalty_movement_y}};
+  QpOptimizer::WeightsXYArray weight = {{penalty_movement_x, penalty_movement_y}};
 
   MarginValues margins;
   margins[FRONT] = 0.1;
@@ -229,7 +227,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   xpp::hyq::SuppTriangleContainer supp_triangle_container;
   supp_triangle_container.Init(start_stance, steps_, margins);
 
-  xpp::zmp::ZmpOptimizer zmp_optimizer(zmp_splines_structure);
+  xpp::zmp::QpOptimizer zmp_optimizer(zmp_splines_structure);
   zmp_optimizer.SetupQpMatrices(weight, supp_triangle_container, robot_height);
 
   // solve using this structure

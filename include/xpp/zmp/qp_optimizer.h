@@ -61,7 +61,7 @@ eigen_quadprog.hpp performs the optimization.
 Some stuff here and there
 \snippet example.cc Adding a resource
  */
-class ZmpOptimizer {
+class QpOptimizer {
 public:
   typedef ::xpp::hyq::SuppTriangle SuppTriangle;
   typedef ::xpp::hyq::Foothold Foothold;
@@ -74,14 +74,14 @@ public:
   typedef ContinuousSplineContainer S;
 
 public:
-  ZmpOptimizer();
+  QpOptimizer();
 
   /**
    * @param spline_structure the amount and sequence of splines with empty coefficients
    */
-  ZmpOptimizer(const S& spline_structure);
+  QpOptimizer(const S& spline_structure);
 
-  virtual ~ZmpOptimizer();
+  virtual ~QpOptimizer();
 
 /*!
  @brief Optimizes the trajectory of the CoM according to a quadratic
@@ -131,7 +131,7 @@ private:
 };
 
 template<std::size_t N>
-std::array<double,N> ZmpOptimizer::cache_exponents(double t) const
+std::array<double,N> QpOptimizer::cache_exponents(double t) const
 {
   std::array<double,N> exp = {{ 1.0, t }};
   for (uint e = 2; e < N; ++e)

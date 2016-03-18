@@ -11,7 +11,7 @@
 
 #include <xpp/hyq/supp_triangle_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/zmp/zmp_optimizer.h>
+#include <xpp/zmp/qp_optimizer.h>
 
 namespace xpp {
 namespace zmp {
@@ -26,7 +26,7 @@ public:
   Eigen::VectorXd SolveNlp(Eigen::VectorXd& final_footholds,
                            const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
                            const xpp::zmp::ContinuousSplineContainer splines_container,
-                           const xpp::zmp::ZmpOptimizer& zmp_optimizer, // TODO, make this more specific
+                           const xpp::zmp::QpOptimizer& zmp_optimizer, // TODO, make this more specific
                            const Eigen::VectorXd& initialization_values = Eigen::Vector2d::Zero());
 
 

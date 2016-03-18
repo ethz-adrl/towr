@@ -11,7 +11,7 @@
 
 #include <IpTNLP.hpp>
 
-#include <xpp/zmp/zmp_optimizer.h>
+#include "qp_optimizer.h"
 
 namespace Ipopt {
 
@@ -20,7 +20,7 @@ class NlpIpoptZmp : public Ipopt::TNLP
 {
 
 public:
-  typedef xpp::zmp::ZmpOptimizer::S Splines;
+  typedef xpp::zmp::QpOptimizer::S Splines;
 
 public:
   /** default constructor */
@@ -116,7 +116,7 @@ public:
   Eigen::VectorXd initial_values_;
 
   Splines spline_container_;
-  xpp::zmp::ZmpOptimizer zmp_optimizer_; // FIXME remove this dependeny
+  xpp::zmp::QpOptimizer zmp_optimizer_; // FIXME remove this dependeny
   xpp::hyq::SuppTriangleContainer supp_triangle_container_;
 
 
@@ -127,7 +127,7 @@ public:
                 const Eigen::VectorXd& ineq_vy,
                 const Splines& spline_container,
                 const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-                const xpp::zmp::ZmpOptimizer& zmp_optimizer, // FIXME remove this dependency
+                const xpp::zmp::QpOptimizer& zmp_optimizer, // FIXME remove this dependency
                 const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero()
                 );
 

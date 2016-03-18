@@ -5,7 +5,8 @@
 @brief  Dynamic Walking using Zero-Moment-Point (ZMP) Criteria
  */
 
-#include <xpp/zmp/zmp_optimizer.h>
+#include <xpp/zmp/qp_optimizer.h>
+
 #include <xpp/zmp/eigen_quadprog-inl.h>
 #include <xpp/hyq/supp_triangle_container.h>
 #include <xpp/utils/logger_helpers-inl.h>
@@ -21,24 +22,24 @@ namespace zmp {
 using hyq::LF; using hyq::RF; using hyq::LH; using hyq::RH;
 using utils::X; using utils::Y; using utils::Z;
 
-log4cxx::LoggerPtr  ZmpOptimizer::log_ = log4cxx::Logger::getLogger("xpp.zmp.zmpoptimizer");
-log4cxx::LoggerPtr  ZmpOptimizer::log_matlab_ = log4cxx::Logger::getLogger("matlab");
+log4cxx::LoggerPtr  QpOptimizer::log_ = log4cxx::Logger::getLogger("xpp.zmp.zmpoptimizer");
+log4cxx::LoggerPtr  QpOptimizer::log_matlab_ = log4cxx::Logger::getLogger("matlab");
 
-ZmpOptimizer::ZmpOptimizer()
+QpOptimizer::QpOptimizer()
 {
   LOG4CXX_WARN(log_, "default params are set!");
 }
 
-ZmpOptimizer::ZmpOptimizer(const S& spline_structure)
+QpOptimizer::QpOptimizer(const S& spline_structure)
 {
   zmp_splines_ = spline_structure;
 }
 
 
-ZmpOptimizer::~ZmpOptimizer() {}
+QpOptimizer::~QpOptimizer() {}
 
 
-void ZmpOptimizer::SetupQpMatrices(
+void QpOptimizer::SetupQpMatrices(
     const WeightsXYArray& weight,
     const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
     double height_robot)
@@ -58,7 +59,7 @@ void ZmpOptimizer::SetupQpMatrices(
 }
 
 
-Eigen::VectorXd ZmpOptimizer::SolveQp() {
+Eigen::VectorXd QpOptimizer::SolveQp() {
 
   Eigen::VectorXd opt_spline_coeff_xy;
 
@@ -82,7 +83,7 @@ Eigen::VectorXd ZmpOptimizer::SolveQp() {
 
 
 xpp::zmp::MatVec
-ZmpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
+QpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
 {
   std::clock_t start = std::clock();
 
@@ -126,7 +127,7 @@ ZmpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
 }
 
 xpp::zmp::MatVec
-ZmpOptimizer::CreateEqualityContraints(const Position &end_cog) const
+QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
 {
   std::clock_t start = std::clock();
 
@@ -234,7 +235,7 @@ ZmpOptimizer::CreateEqualityContraints(const Position &end_cog) const
 
 
 xpp::zmp::MatVec
-ZmpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> &line_for_constraint,
+QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> &line_for_constraint,
                                          double h)
 {
   std::clock_t start = std::clock();
@@ -326,7 +327,7 @@ ZmpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine>
 
 
 std::vector<xpp::hyq::SuppTriangle::TrLine>
-ZmpOptimizer::LineForConstraint(const SuppTriangles &supp_triangles) {
+QpOptimizer::LineForConstraint(const SuppTriangles &supp_triangles) {
 
   // calculate number of inequality contraints
   std::vector<SuppTriangle::TrLine> line_for_constraint;
