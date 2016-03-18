@@ -88,17 +88,13 @@ public:
         cost function while keeping the ZMP in the current support
         triangle formed by the stance feet.
 
- @param start_cog Current position of the robots center of gravity
- @param goal_cog Cog of robot after executing the steps
  @param start_stance Position of the four feet before walking
  @param t_stance_initial The time permitted for the first 4-leg-support cog shift
  @param steps Footholds the robot must execute
  @param[out] splines optimized cog trajectory
  @throws std::runtime_error Throws if no solution to the QP problem was found.
  */
-  void SetupQpMatrices(const Position& start_cog_p,
-                           const Velocity& start_cog_v,
-                           const hyq::LegDataMap<Foothold>& start_stance,
+  void SetupQpMatrices(const hyq::LegDataMap<Foothold>& start_stance,
                            const Footholds &steps,
                            const WeightsXYArray& weight, hyq::MarginValues margins,
                            double height_robot);
@@ -118,25 +114,20 @@ public:
   Eigen::VectorXd ineq_ipopt_vx_;
   Eigen::VectorXd ineq_ipopt_vy_;
 
-  std::vector<SuppTriangle::TrLine> lines_for_constraint_;
   Footholds footholds_;
 
   std::vector<SuppTriangle::TrLine>
   LineForConstraint(const SuppTriangles &supp_triangles);
 
   double dt_ = 0.1; // only needed for inequality constraints
-  MatVec CreateInequalityContraints(const Position& start_cog_p,
-                                       const Velocity& start_cog_v,
-                                       const std::vector<SuppTriangle::TrLine> &line_for_constraint,
-                                       double height_robot);
+  MatVec CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> &line_for_constraint,
+                                    double height_robot);
 private:
   S zmp_splines_;
 
 
   MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;
-  MatVec CreateEqualityContraints(const Position &start_cog_p,
-                                     const Velocity &start_cog_v,
-                                     const Position &end_cog) const;
+  MatVec CreateEqualityContraints(const Position &end_cog) const;
 
   template<std::size_t N>
   std::array<double,N> cache_exponents(double t) const;

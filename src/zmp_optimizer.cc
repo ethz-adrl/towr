@@ -42,8 +42,6 @@ ZmpOptimizer::~ZmpOptimizer() {}
 
 
 void ZmpOptimizer::SetupQpMatrices(
-    const Position &start_cog_p,
-    const Velocity &start_cog_v,
     const hyq::LegDataMap<Foothold>& start_stance,
     const Footholds& steps,
     const WeightsXYArray& weight, hyq::MarginValues margins, double height_robot)
@@ -65,10 +63,9 @@ void ZmpOptimizer::SetupQpMatrices(
   for (LegID leg : hyq::LegIDArray) end_cog += final_stance[leg].p.segment<kDim2d>(X);
   end_cog /= 4; // number of legs
 
-  eq_ = CreateEqualityContraints(start_cog_p, start_cog_v, end_cog);
+  eq_ = CreateEqualityContraints(end_cog);
 
-  lines_for_constraint_ = LineForConstraint(tr);
-  ineq_ = CreateInequalityContraints(start_cog_p, start_cog_v, lines_for_constraint_, height_robot);
+  ineq_ = CreateInequalityContraints(LineForConstraint(tr), height_robot);
 }
 
 
@@ -143,10 +140,10 @@ ZmpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
     std::array<double,10> t_span = cache_exponents<10>(s.duration_);
 
     for (int dim = X; dim <= Y; dim++) {
-      const int a = S::var_index(s.id_, dim, A);
-      const int b = S::var_index(s.id_, dim, B);
-      const int c = S::var_index(s.id_, dim, C);
-      const int d = S::var_index(s.id_, dim, D);
+      const int a = S::Idx(s.id_, dim, A);
+      const int b = S::Idx(s.id_, dim, B);
+      const int c = S::Idx(s.id_, dim, C);
+      const int d = S::Idx(s.id_, dim, D);
 
       // for explanation of values see M.Kalakrishnan et al., page 248
       // "Learning, Planning and Control for Quadruped Robots over challenging
@@ -175,15 +172,13 @@ ZmpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
 }
 
 xpp::zmp::MatVec
-ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
-                                       const Velocity &start_cog_v,
-                                       const Position &end_cog) const
+ZmpOptimizer::CreateEqualityContraints(const Position &end_cog) const
 {
   std::clock_t start = std::clock();
 
   int coeff = zmp_splines_.GetTotalFreeCoeff();; // total number of all spline coefficients
   int constraints = 0;
-  constraints += kDim2d*2;                         // init {x,y} * {acc, jerk} pos, vel implied
+  constraints += kDim2d*2;                         // init {x,y} * {acc, jerk} pos, vel implied set through spline_container.AddOptimizedCoefficients()
   constraints += kDim2d*3;                         // end  {x,y} * {pos, vel, acc}
   constraints += (zmp_splines_.splines_.size()-1) * kDim2d * 2;  // junctions {acc,jerk} since pos, vel  implied
   MatVec ec(coeff, constraints);
@@ -197,27 +192,28 @@ ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
   int i = 0; // counter of equality constraints
   for (int dim = X; dim <= Y; ++dim)
   {
+    // 2. Initial conditions
     // acceleration set to zero
-    int d = S::var_index(0, dim, D);
+    int d = S::Idx(0, dim, D);
     ec.M(d, i) = 2.0;
     ec.v(i++) = -kAccStart(dim);
     // jerk set to zero
-    int c = S::var_index(0, dim, C);
+    int c = S::Idx(0, dim, C);
     ec.M(c, i) = 6.0;
     ec.v(i++) = -kJerkStart(dim);
 
 
     // 2. Final conditions
     int K = zmp_splines_.splines_.back().id_; // id of last spline
-    int last_spline = S::var_index(K, dim, A);
+    int last_spline = S::Idx(K, dim, A);
     std::array<double,6> t_duration = cache_exponents<6>(zmp_splines_.splines_.back().duration_);
 
     // calculate e and f coefficients from previous values
     Eigen::VectorXd Ek(coeff); Ek.setZero();
     Eigen::VectorXd Fk(coeff); Fk.setZero();
     double non_dependent_e, non_dependent_f;
-    zmp_splines_.DescribeEByPrev(K, dim, start_cog_v(dim), Ek, non_dependent_e);
-    zmp_splines_.DescribeFByPrev(K, dim, start_cog_v(dim), start_cog_p(dim), Fk, non_dependent_f);
+    zmp_splines_.DescribeEByPrev(K, dim, Ek, non_dependent_e);
+    zmp_splines_.DescribeFByPrev(K, dim, Fk, non_dependent_f);
 
     // position
     ec.M(last_spline + A, i) = t_duration[5];
@@ -255,8 +251,8 @@ ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
     std::array<double,6> t_duration = cache_exponents<6>(zmp_splines_.splines_.at(s).duration_);
     for (int dim = X; dim <= Y; dim++) {
 
-      int curr_spline = S::var_index(s, dim, A);
-      int next_spline = S::var_index(s + 1, dim, A);
+      int curr_spline = S::Idx(s, dim, A);
+      int next_spline = S::Idx(s + 1, dim, A);
 
       // acceleration
       ec.M(curr_spline + A, i) = 20 * t_duration[3];
@@ -284,9 +280,7 @@ ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
 
 
 xpp::zmp::MatVec
-ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
-                                         const Velocity& start_cog_v,
-                                         const std::vector<SuppTriangle::TrLine> &line_for_constraint,
+ZmpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> &line_for_constraint,
                                          double h)
 {
   std::clock_t start = std::clock();
@@ -316,10 +310,10 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
     Eigen::VectorXd Eky(coeff); Eky.setZero();
     Eigen::VectorXd Fky(coeff); Fky.setZero();
     double non_dependent_ex, non_dependent_fx, non_dependent_ey, non_dependent_fy;
-    zmp_splines_.DescribeEByPrev(k, X, start_cog_v(X), Ekx, non_dependent_ex);
-    zmp_splines_.DescribeFByPrev(k, X, start_cog_v(X), start_cog_p(X), Fkx, non_dependent_fx);
-    zmp_splines_.DescribeEByPrev(k, Y, start_cog_v(Y), Eky, non_dependent_ey);
-    zmp_splines_.DescribeFByPrev(k, Y, start_cog_v(Y), start_cog_p(Y), Fky, non_dependent_fy);
+    zmp_splines_.DescribeEByPrev(k, X, Ekx, non_dependent_ex);
+    zmp_splines_.DescribeFByPrev(k, X, Fkx, non_dependent_fx);
+    zmp_splines_.DescribeEByPrev(k, Y, Eky, non_dependent_ey);
+    zmp_splines_.DescribeFByPrev(k, Y, Fky, non_dependent_fy);
 
     for (double i=0; i < std::floor(s.duration_/dt_); ++i) {
 
@@ -345,10 +339,10 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
           Eigen::VectorXd Fk = (dim==X) ? Fkx : Fky;
 
 
-          ineq_ipopt_(S::var_index(k,dim,A), c) = /* lc * */(t[5]    - h/(g+z_acc) * 20.0 * t[3]);
-          ineq_ipopt_(S::var_index(k,dim,B), c) = /* lc * */(t[4]    - h/(g+z_acc) * 12.0 * t[2]);
-          ineq_ipopt_(S::var_index(k,dim,C), c) = /* lc * */(t[3]    - h/(g+z_acc) *  6.0 * t[1]);
-          ineq_ipopt_(S::var_index(k,dim,D), c) = /* lc * */(t[2]    - h/(g+z_acc) *  2.0);
+          ineq_ipopt_(S::Idx(k,dim,A), c) = /* lc * */(t[5]    - h/(g+z_acc) * 20.0 * t[3]);
+          ineq_ipopt_(S::Idx(k,dim,B), c) = /* lc * */(t[4]    - h/(g+z_acc) * 12.0 * t[2]);
+          ineq_ipopt_(S::Idx(k,dim,C), c) = /* lc * */(t[3]    - h/(g+z_acc) *  6.0 * t[1]);
+          ineq_ipopt_(S::Idx(k,dim,D), c) = /* lc * */(t[2]    - h/(g+z_acc) *  2.0);
           ineq_ipopt_.col(c)                += /* lc * */ t[1]*Ek;
           ineq_ipopt_.col(c)                += /* lc * */ t[0]*Fk;
 
