@@ -69,18 +69,6 @@ SuppTriangles SuppTriangle::FromFootholds(LegDataMap<Foothold> stance,
 }
 
 
-bool SuppTriangle::Insert4LSPhase(LegID prev, LegID next)
-{
-  // check for switching between disjoint support triangles.
-  // the direction the robot is moving between triangles does not matter.
-  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-  std::swap(prev, next);
-  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-
-  return false;
-}
-
-
 SuppTriangle::TrLines3 SuppTriangle::CalcLines() const
 {
   TrLines3 lines;

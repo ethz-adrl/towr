@@ -47,7 +47,7 @@ void SplineContainer::AddSpline(const ZmpSpline &spline)
 
 // Creates a sequence of Splines without the optimized coefficients
 void SplineContainer::ConstructSplineSequence(
-    const std::vector<xpp::hyq::LegID>& step_sequence,
+    const std::vector<LegID>& step_sequence,
                                       double t_stance,
                                       double t_swing,
                                       double t_stance_initial,
@@ -69,7 +69,7 @@ void SplineContainer::ConstructSplineSequence(
     } else {
       xpp::hyq::LegID swing_leg = step_sequence[i];
       xpp::hyq::LegID swing_leg_prev = step_sequence[i-1];
-      if (xpp::hyq::SuppTriangle::Insert4LSPhase(swing_leg_prev, swing_leg))
+      if (Insert4LSPhase(swing_leg_prev, swing_leg))
         for (int s = 0; s < kSplinesPer4ls; s++)
           AddSpline(ZmpSpline(id++, t_stance/kSplinesPer4ls, true, step));
     }
@@ -87,6 +87,19 @@ void SplineContainer::ConstructSplineSequence(
 
     step++;
   }
+}
+
+
+bool SplineContainer::Insert4LSPhase(LegID prev, LegID next) const
+{
+  using namespace xpp::hyq;
+  // check for switching between disjoint support triangles.
+  // the direction the robot is moving between triangles does not matter.
+  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+  std::swap(prev, next);
+  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+
+  return false;
 }
 
 

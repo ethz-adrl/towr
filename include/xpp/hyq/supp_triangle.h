@@ -55,8 +55,6 @@ public:
       const Footholds& steps,
       const MarginValues& margins, LegDataMap<Foothold>& last_stance);
 
-  static bool Insert4LSPhase(LegID prev, LegID next);
-
   TrLines3 CalcLines() const;
   const ArrayF3& GetFootholds() const;
 

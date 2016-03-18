@@ -35,6 +35,7 @@ class SplineContainer {
 public:
 typedef std::vector<ZmpSpline> Splines;
 typedef xpp::utils::Point2d Lin2d;
+typedef xpp::hyq::LegID LegID;
 
 public:
   SplineContainer();
@@ -54,11 +55,13 @@ public:
 
 
   // Creates a sequence of Splines without the optimized coefficients
-  void ConstructSplineSequence(const std::vector<xpp::hyq::LegID>& step_sequence,
+  void ConstructSplineSequence(const std::vector<LegID>& step_sequence,
                                         double t_stance,
                                         double t_swing,
                                         double t_stance_initial,
                                         double t_stance_final);
+
+  bool Insert4LSPhase(LegID prev, LegID next) const;
 
 
 
