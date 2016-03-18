@@ -61,7 +61,7 @@ public:
                                         double t_stance_initial,
                                         double t_stance_final);
 
-  bool Insert4LSPhase(LegID prev, LegID next) const;
+  static bool Insert4LSPhase(LegID prev, LegID next);
 
 
 

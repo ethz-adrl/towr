@@ -90,7 +90,7 @@ void SplineContainer::ConstructSplineSequence(
 }
 
 
-bool SplineContainer::Insert4LSPhase(LegID prev, LegID next) const
+bool SplineContainer::Insert4LSPhase(LegID prev, LegID next)
 {
   using namespace xpp::hyq;
   // check for switching between disjoint support triangles.

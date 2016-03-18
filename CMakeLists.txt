@@ -82,6 +82,7 @@ set(SOURCES
   src/hyq_state.cc
   src/orientation.cc
   src/supp_triangle.cc
+  src/supp_triangle_container.cc
   src/hyq_spliner.cc
   src/nlp_ipopt_zmp.cc
 )

@@ -174,7 +174,6 @@ void
 ContinuousSplineContainer::CheckIfInitialized() const
 {
   if (!initialized_) {
-
     throw std::runtime_error("ContinousSplineContainer not initialized. Call Init() first");
   }
 }

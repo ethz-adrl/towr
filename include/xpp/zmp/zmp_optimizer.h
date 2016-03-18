@@ -9,7 +9,7 @@
 #define _XPP_ZMP_OPTIMIZER_H_
 
 #include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/hyq/supp_triangle.h>
+#include <xpp/hyq/supp_triangle_container.h>
 #include <xpp/hyq/foothold.h>
 #include <xpp/utils/geometric_structs.h>
 
@@ -94,14 +94,14 @@ public:
  @param[out] splines optimized cog trajectory
  @throws std::runtime_error Throws if no solution to the QP problem was found.
  */
-  void SetupQpMatrices(const hyq::LegDataMap<Foothold>& start_stance,
-                           const Footholds &steps,
-                           const WeightsXYArray& weight, hyq::MarginValues margins,
-                           double height_robot);
+  void SetupQpMatrices(const WeightsXYArray& weight,
+                       const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
+                       double height_robot);
 
   Eigen::VectorXd SolveQp();
 
   Eigen::VectorXd SolveIpopt(Eigen::VectorXd& final_footholds,
+                             const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
                              const Eigen::VectorXd& opt_coefficients_eig = Eigen::Vector2d::Zero());
 
 
@@ -114,7 +114,6 @@ public:
   Eigen::VectorXd ineq_ipopt_vx_;
   Eigen::VectorXd ineq_ipopt_vy_;
 
-  Footholds footholds_;
 
   std::vector<SuppTriangle::TrLine>
   LineForConstraint(const SuppTriangles &supp_triangles);

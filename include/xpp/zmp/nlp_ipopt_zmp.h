@@ -106,9 +106,6 @@ public:
   int n_ineq_constr_;
 
   int n_steps_;
-  xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance_;
-  xpp::hyq::MarginValues margins_;
-
 
   Eigen::MatrixXd ineq_M_;
   Eigen::VectorXd ineq_vx_;
@@ -120,6 +117,7 @@ public:
 
   Splines spline_container_;
   xpp::zmp::ZmpOptimizer zmp_optimizer_; // FIXME remove this dependeny
+  xpp::hyq::SuppTriangleContainer supp_triangle_container_;
 
 
   void SetupNlp(const xpp::zmp::MatVec& cf,
@@ -128,6 +126,7 @@ public:
                 const Eigen::VectorXd& ineq_vx,
                 const Eigen::VectorXd& ineq_vy,
                 const Splines& spline_container,
+                const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
                 const xpp::zmp::ZmpOptimizer& zmp_optimizer, // FIXME remove this dependency
                 const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero()
                 );

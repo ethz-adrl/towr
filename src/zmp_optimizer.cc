@@ -7,7 +7,7 @@
 
 #include <xpp/zmp/zmp_optimizer.h>
 #include <xpp/zmp/eigen_quadprog-inl.h>
-#include <xpp/hyq/supp_triangle.h>
+#include <xpp/hyq/supp_triangle_container.h>
 #include <xpp/utils/logger_helpers-inl.h>
 
 #include <IpIpoptApplication.hpp>
@@ -42,9 +42,9 @@ ZmpOptimizer::~ZmpOptimizer() {}
 
 
 void ZmpOptimizer::SetupQpMatrices(
-    const hyq::LegDataMap<Foothold>& start_stance,
-    const Footholds& steps,
-    const WeightsXYArray& weight, hyq::MarginValues margins, double height_robot)
+    const WeightsXYArray& weight,
+    const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
+    double height_robot)
 {
   if (zmp_splines_.splines_.empty()) {
     throw std::runtime_error("zmp.optimizer.cc: spline_info vector empty. First call ConstructSplineSequence()");
@@ -52,19 +52,11 @@ void ZmpOptimizer::SetupQpMatrices(
 
   cf_ = CreateMinAccCostFunction(weight);
 
-  hyq::LegDataMap<Foothold> final_stance;
-  footholds_ = steps;
-  SuppTriangles tr = SuppTriangle::FromFootholds(start_stance, steps, margins, final_stance);
 
-
-
-  // calculate average(x,y) of last stance to move robot in the end
-  Position end_cog = Position::Zero();
-  for (LegID leg : hyq::LegIDArray) end_cog += final_stance[leg].p.segment<kDim2d>(X);
-  end_cog /= 4; // number of legs
+  SuppTriangles tr = supp_triangle_container.GetSupportTriangles();
+  Position end_cog = supp_triangle_container.GetCenterOfFinalStance();
 
   eq_ = CreateEqualityContraints(end_cog);
-
   ineq_ = CreateInequalityContraints(LineForConstraint(tr), height_robot);
 }
 
@@ -93,6 +85,7 @@ Eigen::VectorXd ZmpOptimizer::SolveQp() {
 
 
 Eigen::VectorXd ZmpOptimizer::SolveIpopt(Eigen::VectorXd& final_footholds,
+                                         const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
                                          const Eigen::VectorXd& opt_coefficients_eig)
 {
   Ipopt::IpoptApplication app;
@@ -106,7 +99,7 @@ Eigen::VectorXd ZmpOptimizer::SolveIpopt(Eigen::VectorXd& final_footholds,
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp();
   nlp_ipopt_zmp->SetupNlp(cf_,eq_,
                           ineq_ipopt_, ineq_ipopt_vx_, ineq_ipopt_vy_,
-                          zmp_splines_, *this, opt_coefficients_eig);
+                          zmp_splines_, supp_triangle_container, *this, opt_coefficients_eig);
 
 
   // FIXME make sure the zmp_optimizer member variables is already properly filled!!!

@@ -8,8 +8,8 @@
 #ifndef _XPP_HYQ_SUPPTRIANGLE_H_
 #define _XPP_HYQ_SUPPTRIANGLE_H_
 
-#include "foothold.h"
-#include "leg_data_map.h" // LegID, LegIDArray
+#include <xpp/hyq/foothold.h>
+#include <xpp/hyq/leg_data_map.h> // LegID, LegIDArray
 #include <xpp/utils/geometric_structs.h>
 
 #include <log4cxx/logger.h>
@@ -42,26 +42,13 @@ public:
   SuppTriangle(const MarginValues& margins, LegID swing_leg, const ArrayF3& footholds);
   virtual ~SuppTriangle();
 
-  /**
-  @brief Creates the support triangles from footholds and steps.
-
-  @param start_stance Position of feet before walking
-  @param steps Position and leg of each new step
-  @param stability_margin margin for created support triangles
-  @attention modifies start stance
-  */
-  static std::vector<SuppTriangle> FromFootholds(
-      LegDataMap<Foothold> start_stance,
-      const Footholds& steps,
-      const MarginValues& margins, LegDataMap<Foothold>& last_stance);
-
   TrLines3 CalcLines() const;
   const ArrayF3& GetFootholds() const;
 
   MarginValues margins_;
   LegID swing_leg_;
-private:
   ArrayF3 footholds_;
+private:
 
   double UseMargin(const LegID& f0, const LegID& f1) const;
   void SortFootholdsCounterclockwise();

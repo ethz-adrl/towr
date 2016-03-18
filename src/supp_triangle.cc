@@ -40,34 +40,6 @@ SuppTriangle::~SuppTriangle() {
 }
 
 
-SuppTriangles SuppTriangle::FromFootholds(LegDataMap<Foothold> stance,
-                                          const Footholds& steps,
-                                          const MarginValues& margins,
-                                          LegDataMap<Foothold>& last_stance)
-{
-  SuppTriangles tr;
-  ArrayF3 non_swing;
-
-  for (std::size_t s = 0; s < steps.size(); s++) {
-    LegID swingleg = steps[s].leg;
-
-    // extract the 3 non-swinglegs from stance
-    int i = 0;
-    for (LegID l : LegIDArray)
-      if(stance[l].leg != swingleg)
-        non_swing[i++] = stance[l];
-
-    tr.push_back(SuppTriangle(margins, swingleg, non_swing));
-    stance[swingleg] = steps[s]; // update current stance with last step
-  }
-
-  last_stance = stance;
-
-  ::xpp::utils::logger_helpers::print_triangles(tr, log_);
-  ::xpp::utils::logger_helpers::PrintTriaglesMatlabInfo(tr, log_matlab_);
-  return tr;
-}
-
 
 SuppTriangle::TrLines3 SuppTriangle::CalcLines() const
 {

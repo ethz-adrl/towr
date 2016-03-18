@@ -7,6 +7,7 @@
 // Authors:  Carl Laird, Andreas Waechter     IBM    2004-11-05
 
 #include <xpp/zmp/nlp_ipopt_zmp.h>
+#include <xpp/hyq/supp_triangle_container.h>
 
 
 namespace Ipopt {
@@ -27,6 +28,7 @@ void NlpIpoptZmp::SetupNlp(
     const Eigen::VectorXd& ineq_vx,
     const Eigen::VectorXd& ineq_vy,
     const Splines& spline_container,
+    const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
     const xpp::zmp::ZmpOptimizer& zmp_optimizer, // FIXME remove this dependency
     const Eigen::VectorXd& initial_values)
 {
@@ -43,18 +45,6 @@ void NlpIpoptZmp::SetupNlp(
   initial_values_ = initial_values;
 
 
-  start_stance_[xpp::hyq::LF] = xpp::hyq::Foothold( 0.35,  0.3, 0.0, xpp::hyq::LF);
-  start_stance_[xpp::hyq::RF] = xpp::hyq::Foothold( 0.35, -0.3, 0.0, xpp::hyq::RF);
-  start_stance_[xpp::hyq::LH] = xpp::hyq::Foothold(-0.35,  0.3, 0.0, xpp::hyq::LH);
-  start_stance_[xpp::hyq::RH] = xpp::hyq::Foothold(-0.35, -0.3, 0.0, xpp::hyq::RH);
-
-
-  margins_[xpp::hyq::FRONT] = 0.1;
-  margins_[xpp::hyq::HIND]  = 0.1;
-  margins_[xpp::hyq::SIDE]  = 0.1;
-  margins_[xpp::hyq::DIAG]  = 0.1; // controls sidesway motion
-
-
   n_spline_coeff_ = cf.M.rows();
   n_eq_constr_ = eq.v.rows();
   n_ineq_constr_ = ineq_vx.rows();
@@ -62,6 +52,8 @@ void NlpIpoptZmp::SetupNlp(
 
   spline_container_ = spline_container;
   zmp_optimizer_ = zmp_optimizer; // FIXME remove this dependency
+
+  supp_triangle_container_ = supp_triangle_container;
 
 
   n_steps_ = spline_container.splines_.back().step_+1;
@@ -188,7 +180,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	// initialize with steps from footstep planner
 	for (int i=0; i<n_steps_; ++i) {
 
-	  xpp::hyq::Foothold f = zmp_optimizer_.footholds_.at(i);
+	  xpp::hyq::Foothold f = supp_triangle_container_.footholds_.at(i);
 
 	  x[n_spline_coeff_+2*i+0] = f.p.x();
 	  x[n_spline_coeff_+2*i+1] = f.p.y();
@@ -284,13 +276,11 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
     steps.push_back(xpp::hyq::Foothold(x[n_spline_coeff_+2*i],
                                        x[n_spline_coeff_+2*i+1],
                                        0.0,
-                                       zmp_optimizer_.footholds_.at(i).leg));
+                                       supp_triangle_container_.footholds_.at(i).leg));
   }
 
 
-
-  xpp::hyq::LegDataMap<xpp::hyq::Foothold> final_stance;
-  xpp::hyq::SuppTriangles tr = xpp::hyq::SuppTriangle::FromFootholds(start_stance_, steps, margins_, final_stance);
+  xpp::hyq::SuppTriangles tr = supp_triangle_container_.GetSupportTriangles(steps);
   std::vector<xpp::hyq::SuppTriangle::TrLine> lines_for_constraint = zmp_optimizer_.LineForConstraint(tr); //here i am adapting the constraints depending on the footholds
 
 
@@ -324,7 +314,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
   int c=0;
   for (uint i=0; i<n_steps_; ++i) {
 
-    xpp::hyq::Foothold f = zmp_optimizer_.footholds_.at(i);
+    xpp::hyq::Foothold f = supp_triangle_container_.footholds_.at(i);
 
     int idx = n_spline_coeff_+2*i;
 
