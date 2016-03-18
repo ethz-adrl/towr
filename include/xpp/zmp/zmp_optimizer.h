@@ -100,11 +100,6 @@ public:
 
   Eigen::VectorXd SolveQp();
 
-  Eigen::VectorXd SolveIpopt(Eigen::VectorXd& final_footholds,
-                             const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-                             const Eigen::VectorXd& opt_coefficients_eig = Eigen::Vector2d::Zero());
-
-
 
   MatVec cf_;
   MatVec eq_;

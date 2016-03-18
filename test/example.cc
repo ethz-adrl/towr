@@ -8,6 +8,7 @@
 
 #include <xpp_opt/FootholdSequence.h>
 #include <xpp/zmp/zmp_optimizer.h>
+#include <xpp/zmp/nlp_optimizer.h>
 #include <xpp_opt/FootholdSequence.h>
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
@@ -236,7 +237,8 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   zmp_splines_eig.AddOptimizedCoefficients(opt_coefficients_eig);
 
   Eigen::VectorXd opt_footholds;
-  Eigen::VectorXd opt_coefficients = zmp_optimizer.SolveIpopt(opt_footholds, supp_triangle_container/*opt_coefficients_eig*/);
+  xpp::zmp::NlpOptimizer nlp_optimizer;
+  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds, supp_triangle_container, zmp_splines, zmp_optimizer/*opt_coefficients_eig*/);
   zmp_splines.AddOptimizedCoefficients(opt_coefficients);
   // get new optimized footholds from these coefficients:
   for (uint i=0; i<steps_.size(); ++i) {

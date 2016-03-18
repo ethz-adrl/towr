@@ -74,6 +74,7 @@ include_directories(
 
 set(SOURCES  
   src/zmp_optimizer.cc
+  src/nlp_optimizer.cc
   src/zmp_spline.cc
   src/spline_container.cc    
   src/continuous_spline_container.cc    

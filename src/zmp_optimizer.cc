@@ -10,9 +10,6 @@
 #include <xpp/hyq/supp_triangle_container.h>
 #include <xpp/utils/logger_helpers-inl.h>
 
-#include <IpIpoptApplication.hpp>
-#include <IpSolveStatistics.hpp>
-#include <xpp/zmp/nlp_ipopt_zmp.h>
 
 #include <ctime>      // std::clock_t
 #include <cmath>      // std::numeric_limits
@@ -63,7 +60,7 @@ void ZmpOptimizer::SetupQpMatrices(
 
 Eigen::VectorXd ZmpOptimizer::SolveQp() {
 
-  Eigen::VectorXd opt_spline_coeff_xy(zmp_splines_.GetTotalFreeCoeff());
+  Eigen::VectorXd opt_spline_coeff_xy;
 
   clock_t start = std::clock();
 
@@ -82,42 +79,6 @@ Eigen::VectorXd ZmpOptimizer::SolveQp() {
   LOG4CXX_TRACE(log_, "x = " << opt_spline_coeff_xy.transpose()); //ax1, bx1, cx1, dx1, ex1, fx1 -- ay1, by1, cy1, dy1, ey1, fy1 -- ax2, bx2, cx2, dx2, ex2, fx2 -- ay2, by2, cy2, dy2, ey2, fy2 ...
   return opt_spline_coeff_xy;
 }
-
-
-Eigen::VectorXd ZmpOptimizer::SolveIpopt(Eigen::VectorXd& final_footholds,
-                                         const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-                                         const Eigen::VectorXd& opt_coefficients_eig)
-{
-  Ipopt::IpoptApplication app;
-  Ipopt::ApplicationReturnStatus status = app.Initialize();
-  if (status != Ipopt::Solve_Succeeded) {
-    std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
-    throw std::length_error("Ipopt could not initialize correctly");
-  }
-
-
-  Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp();
-  nlp_ipopt_zmp->SetupNlp(cf_,eq_,
-                          ineq_ipopt_, ineq_ipopt_vx_, ineq_ipopt_vy_,
-                          zmp_splines_, supp_triangle_container, *this, opt_coefficients_eig);
-
-
-  // FIXME make sure the zmp_optimizer member variables is already properly filled!!!
-  status = app.OptimizeTNLP(nlp_ipopt_zmp);
-  if (status == Ipopt::Solve_Succeeded) {
-    // Retrieve some statistics about the solve
-    Ipopt::Index iter_count = app.Statistics()->IterationCount();
-    std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
-
-    Ipopt::Number final_obj = app.Statistics()->FinalObjective();
-    std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
-
-  }
-
-  final_footholds = nlp_ipopt_zmp->x_final_footholds_;
-  return nlp_ipopt_zmp->x_final_spline_coeff_;
-}
-
 
 
 xpp::zmp::MatVec
@@ -336,8 +297,8 @@ ZmpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine>
           ineq_ipopt_(S::Idx(k,dim,B), c) = /* lc * */(t[4]    - h/(g+z_acc) * 12.0 * t[2]);
           ineq_ipopt_(S::Idx(k,dim,C), c) = /* lc * */(t[3]    - h/(g+z_acc) *  6.0 * t[1]);
           ineq_ipopt_(S::Idx(k,dim,D), c) = /* lc * */(t[2]    - h/(g+z_acc) *  2.0);
-          ineq_ipopt_.col(c)                += /* lc * */ t[1]*Ek;
-          ineq_ipopt_.col(c)                += /* lc * */ t[0]*Fk;
+          ineq_ipopt_.col(c)             += /* lc * */ t[1]*Ek;
+          ineq_ipopt_.col(c)             += /* lc * */ t[0]*Fk;
 
         }
 
@@ -373,10 +334,10 @@ ZmpOptimizer::LineForConstraint(const SuppTriangles &supp_triangles) {
   for (const ZmpSpline& s : zmp_splines_.splines_)
   {
     if (s.four_leg_supp_) continue; // no constraints in 4ls phase
-    int n_nodes =  std::floor(s.duration_/dt_);
 
     SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
 
+    int n_nodes =  std::floor(s.duration_/dt_);
     for (int i=0; i<n_nodes; ++i) {
       line_for_constraint.push_back(lines.at(0));
       line_for_constraint.push_back(lines.at(1));
