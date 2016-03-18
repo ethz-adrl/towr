@@ -67,9 +67,8 @@ void ZmpOptimizer::SetupQpMatrices(
 
   eq_ = CreateEqualityContraints(start_cog_p, start_cog_v, end_cog);
 
-  double dt = 0.1;
-  lines_for_constraint_ = LineForConstraint(tr, dt);
-  ineq_ = CreateInequalityContraints(start_cog_p, start_cog_v, lines_for_constraint_, height_robot, dt);
+  lines_for_constraint_ = LineForConstraint(tr);
+  ineq_ = CreateInequalityContraints(start_cog_p, start_cog_v, lines_for_constraint_, height_robot);
 }
 
 
@@ -109,7 +108,7 @@ Eigen::VectorXd ZmpOptimizer::SolveIpopt(Eigen::VectorXd& final_footholds,
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp();
   nlp_ipopt_zmp->SetupNlp(cf_,eq_,
-                          ineq_ipopt_, ineq_ipopt_vx_, ineq_ipopt_vy_, lines_for_constraint_,
+                          ineq_ipopt_, ineq_ipopt_vx_, ineq_ipopt_vy_,
                           zmp_splines_, *this, opt_coefficients_eig);
 
 
@@ -288,8 +287,7 @@ xpp::zmp::MatVec
 ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
                                          const Velocity& start_cog_v,
                                          const std::vector<SuppTriangle::TrLine> &line_for_constraint,
-                                         double h,
-                                         double dt)
+                                         double h)
 {
   std::clock_t start = std::clock();
 
@@ -323,9 +321,9 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
     zmp_splines_.DescribeEByPrev(k, Y, start_cog_v(Y), Eky, non_dependent_ey);
     zmp_splines_.DescribeFByPrev(k, Y, start_cog_v(Y), start_cog_p(Y), Fky, non_dependent_fy);
 
-    for (double i=0; i < std::floor(s.duration_/dt); ++i) {
+    for (double i=0; i < std::floor(s.duration_/dt_); ++i) {
 
-      double time = i*dt;
+      double time = i*dt_;
 
       std::array<double,6> t = cache_exponents<6>(time);
 
@@ -380,7 +378,7 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
 
 
 std::vector<xpp::hyq::SuppTriangle::TrLine>
-ZmpOptimizer::LineForConstraint(const SuppTriangles &supp_triangles, double dt) {
+ZmpOptimizer::LineForConstraint(const SuppTriangles &supp_triangles) {
 
   // calculate number of inequality contraints
   std::vector<SuppTriangle::TrLine> line_for_constraint;
@@ -388,7 +386,7 @@ ZmpOptimizer::LineForConstraint(const SuppTriangles &supp_triangles, double dt) 
   for (const ZmpSpline& s : zmp_splines_.splines_)
   {
     if (s.four_leg_supp_) continue; // no constraints in 4ls phase
-    int n_nodes =  std::floor(s.duration_/dt);
+    int n_nodes =  std::floor(s.duration_/dt_);
 
     SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
 

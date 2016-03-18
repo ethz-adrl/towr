@@ -110,7 +110,7 @@ public:
   Eigen::MatrixXd ineq_M_;
   Eigen::VectorXd ineq_vx_;
   Eigen::VectorXd ineq_vy_;
-  std::vector<xpp::hyq::SuppTriangle::TrLine> lines_for_constraint_;
+
 
 
   Eigen::VectorXd initial_values_;
@@ -124,7 +124,6 @@ public:
                 const Eigen::MatrixXd& ineq_M,
                 const Eigen::VectorXd& ineq_vx,
                 const Eigen::VectorXd& ineq_vy,
-                const std::vector<xpp::hyq::SuppTriangle::TrLine>& lines_for_constraint,
                 const xpp::zmp::SplineContainer& spline_container,
                 const xpp::zmp::ZmpOptimizer& zmp_optimizer, // FIXME remove this dependency
                 const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero()

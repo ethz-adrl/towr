@@ -123,13 +123,13 @@ public:
   Footholds footholds_;
 
   std::vector<SuppTriangle::TrLine>
-  LineForConstraint(const SuppTriangles &supp_triangles, double dt);
+  LineForConstraint(const SuppTriangles &supp_triangles);
 
+  double dt_ = 0.1; // only needed for inequality constraints
   MatVec CreateInequalityContraints(const Position& start_cog_p,
                                        const Velocity& start_cog_v,
                                        const std::vector<SuppTriangle::TrLine> &line_for_constraint,
-                                       double height_robot,
-                                       double dt);
+                                       double height_robot);
 private:
   Splines zmp_splines_;
 

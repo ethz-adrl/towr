@@ -26,7 +26,6 @@ void NlpIpoptZmp::SetupNlp(
     const Eigen::MatrixXd& ineq_M,
     const Eigen::VectorXd& ineq_vx,
     const Eigen::VectorXd& ineq_vy,
-    const std::vector<xpp::hyq::SuppTriangle::TrLine>& lines_for_constraint,
     const xpp::zmp::SplineContainer& spline_container,
     const xpp::zmp::ZmpOptimizer& zmp_optimizer, // FIXME remove this dependency
     const Eigen::VectorXd& initial_values)
@@ -39,7 +38,6 @@ void NlpIpoptZmp::SetupNlp(
   ineq_M_ =  ineq_M;
   ineq_vx_ = ineq_vx;
   ineq_vy_ = ineq_vy;
-  lines_for_constraint_ = lines_for_constraint;
 
   // set initial values to zero if wrong size was input
   initial_values_ = initial_values;
@@ -293,8 +291,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   xpp::hyq::LegDataMap<xpp::hyq::Foothold> final_stance;
   xpp::hyq::SuppTriangles tr = xpp::hyq::SuppTriangle::FromFootholds(start_stance_, steps, margins_, final_stance);
-  double dt = 0.1; // FIXME: this must be the same dt as used in the inequality constraints in the quadprog matrix
-  lines_for_constraint_ = zmp_optimizer_.LineForConstraint(tr, dt); //here i am adapting the constraints depending on the footholds
+  std::vector<xpp::hyq::SuppTriangle::TrLine> lines_for_constraint = zmp_optimizer_.LineForConstraint(tr); //here i am adapting the constraints depending on the footholds
 
 
   // add the line coefficients separately
@@ -302,7 +299,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
   Eigen::VectorXd ineq_v(n_ineq_constr_);
   ineq_v.setZero();
   for (int c=0; c<n_ineq_constr_; ++c) {
-    xpp::hyq::SuppTriangle::TrLine l = lines_for_constraint_.at(c);
+    xpp::hyq::SuppTriangle::TrLine l = lines_for_constraint.at(c);
 
     // build vector from xy line coeffients
     Eigen::VectorXd line_coefficients_xy = spline_container_.GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
