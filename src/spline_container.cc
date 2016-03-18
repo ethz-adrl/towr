@@ -191,6 +191,27 @@ SplineContainer::AddOptimizedCoefficients(
 }
 
 
+Eigen::VectorXd
+SplineContainer::GetXyDimAlternatingVector(double x, double y) const
+{
+  Eigen::VectorXd x_abcd(kOptCoeff);
+  x_abcd.fill(x);
+
+  Eigen::VectorXd y_abcd(kOptCoeff);
+  y_abcd.fill(y);
+
+  int coeff = splines_.size() * kOptCoeff * kDim2d;
+  Eigen::VectorXd vec(coeff);
+  vec.setZero();
+
+  for (const ZmpSpline& s : splines_) {
+    vec.middleRows(var_index(s.id_,xpp::utils::X,A), kOptCoeff) = x_abcd;
+    vec.middleRows(var_index(s.id_,xpp::utils::Y,A), kOptCoeff) = y_abcd;
+  }
+
+  return vec;
+}
+
 void SplineContainer::GetCOGxy(double t_global, Lin2d& cog_xy)
 {
   /** Transform global time to local spline time dt */

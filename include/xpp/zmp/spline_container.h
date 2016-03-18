@@ -97,6 +97,9 @@ public:
       const Eigen::Vector2d& start_cog_v,
       const Eigen::VectorXd& optimized_coeff);
 
+  Eigen::VectorXd
+  GetXyDimAlternatingVector(double x, double y) const;
+
 
   Splines splines_;
 private:

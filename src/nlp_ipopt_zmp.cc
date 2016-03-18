@@ -27,7 +27,8 @@ void NlpIpoptZmp::SetupNlp(
     const Eigen::VectorXd& ineq_vx,
     const Eigen::VectorXd& ineq_vy,
     const std::vector<xpp::hyq::SuppTriangle::TrLine>& lines_for_constraint,
-    const xpp::zmp::ZmpOptimizer& zmp_optimizer,
+    const xpp::zmp::SplineContainer& spline_container,
+    const xpp::zmp::ZmpOptimizer& zmp_optimizer, // FIXME remove this dependency
     const Eigen::VectorXd& initial_values)
 {
   cf_   =  cf;
@@ -61,8 +62,11 @@ void NlpIpoptZmp::SetupNlp(
   n_ineq_constr_ = ineq_vx.rows();
 
 
-  zmp_optimizer_ = zmp_optimizer;
-  n_steps_ = zmp_optimizer.footholds_.size();
+  spline_container_ = spline_container;
+  zmp_optimizer_ = zmp_optimizer; // FIXME remove this dependency
+
+
+  n_steps_ = spline_container.splines_.back().step_+1;
 }
 
 
@@ -184,7 +188,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 
 	// initialize with steps from footstep planner
-	for (int i=0; i<zmp_optimizer_.footholds_.size(); ++i) {
+	for (int i=0; i<n_steps_; ++i) {
 
 	  xpp::hyq::Foothold f = zmp_optimizer_.footholds_.at(i);
 
@@ -301,7 +305,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
     xpp::hyq::SuppTriangle::TrLine l = lines_for_constraint_.at(c);
 
     // build vector from xy line coeffients
-    Eigen::VectorXd line_coefficients_xy = zmp_optimizer_.GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
+    Eigen::VectorXd line_coefficients_xy = spline_container_.GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
     ineq_M.col(c) = ineq_M_.col(c).cwiseProduct(line_coefficients_xy);
 
 
@@ -321,7 +325,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
   g_vec_footsteps.setZero();
   // initialize with steps from footstep planner
   int c=0;
-  for (int i=0; i<zmp_optimizer_.footholds_.size(); ++i) {
+  for (uint i=0; i<n_steps_; ++i) {
 
     xpp::hyq::Foothold f = zmp_optimizer_.footholds_.at(i);
 

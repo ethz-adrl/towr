@@ -115,7 +115,8 @@ public:
 
   Eigen::VectorXd initial_values_;
 
-  xpp::zmp::ZmpOptimizer zmp_optimizer_;
+  xpp::zmp::SplineContainer spline_container_;
+  xpp::zmp::ZmpOptimizer zmp_optimizer_; // FIXME remove this dependeny
 
 
   void SetupNlp(const xpp::zmp::MatVec& cf,
@@ -124,7 +125,8 @@ public:
                 const Eigen::VectorXd& ineq_vx,
                 const Eigen::VectorXd& ineq_vy,
                 const std::vector<xpp::hyq::SuppTriangle::TrLine>& lines_for_constraint,
-                const xpp::zmp::ZmpOptimizer& zmp_optimizer,
+                const xpp::zmp::SplineContainer& spline_container,
+                const xpp::zmp::ZmpOptimizer& zmp_optimizer, // FIXME remove this dependency
                 const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero()
                 );
 

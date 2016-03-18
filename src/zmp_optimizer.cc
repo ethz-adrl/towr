@@ -110,7 +110,7 @@ Eigen::VectorXd ZmpOptimizer::SolveIpopt(Eigen::VectorXd& final_footholds,
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp();
   nlp_ipopt_zmp->SetupNlp(cf_,eq_,
                           ineq_ipopt_, ineq_ipopt_vx_, ineq_ipopt_vy_, lines_for_constraint_,
-                          *this, opt_coefficients_eig);
+                          zmp_splines_, *this, opt_coefficients_eig);
 
 
   // FIXME make sure the zmp_optimizer member variables is already properly filled!!!
@@ -357,7 +357,7 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
         }
 
         // add the line coefficients
-        Eigen::VectorXd line_coefficients_xy = GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
+        Eigen::VectorXd line_coefficients_xy = zmp_splines_.GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
         ineq.M.col(c) = ineq_ipopt_.col(c).cwiseProduct(line_coefficients_xy);
 
         ineq_ipopt_vx_[c] = non_dependent_ex*t[0] + non_dependent_fx;
@@ -401,26 +401,6 @@ ZmpOptimizer::LineForConstraint(const SuppTriangles &supp_triangles, double dt) 
   return line_for_constraint;
 }
 
-
-Eigen::VectorXd ZmpOptimizer::GetXyDimAlternatingVector(double x, double y) const
-{
-  Eigen::VectorXd x_abcd(kOptCoeff);
-  x_abcd.fill(x);
-
-  Eigen::VectorXd y_abcd(kOptCoeff);
-  y_abcd.fill(y);
-
-  int coeff = zmp_splines_.splines_.size() * kOptCoeff * kDim2d;
-  Eigen::VectorXd vec(coeff);
-  vec.setZero();
-
-  for (const ZmpSpline& s : zmp_splines_.splines_) {
-    vec.middleRows(S::var_index(s.id_,X,A), kOptCoeff) = x_abcd;
-    vec.middleRows(S::var_index(s.id_,Y,A), kOptCoeff) = y_abcd;
-  }
-
-  return vec;
-}
 
 
 
