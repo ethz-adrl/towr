@@ -26,7 +26,7 @@ void NlpIpoptZmp::SetupNlp(
     const Eigen::MatrixXd& ineq_M,
     const Eigen::VectorXd& ineq_vx,
     const Eigen::VectorXd& ineq_vy,
-    const xpp::zmp::SplineContainer& spline_container,
+    const Splines& spline_container,
     const xpp::zmp::ZmpOptimizer& zmp_optimizer, // FIXME remove this dependency
     const Eigen::VectorXd& initial_values)
 {

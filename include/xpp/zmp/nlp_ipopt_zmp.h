@@ -20,6 +20,9 @@ class NlpIpoptZmp : public Ipopt::TNLP
 {
 
 public:
+  typedef xpp::zmp::ZmpOptimizer::S Splines;
+
+public:
   /** default constructor */
 	NlpIpoptZmp();
 
@@ -115,7 +118,7 @@ public:
 
   Eigen::VectorXd initial_values_;
 
-  xpp::zmp::SplineContainer spline_container_;
+  Splines spline_container_;
   xpp::zmp::ZmpOptimizer zmp_optimizer_; // FIXME remove this dependeny
 
 
@@ -124,7 +127,7 @@ public:
                 const Eigen::MatrixXd& ineq_M,
                 const Eigen::VectorXd& ineq_vx,
                 const Eigen::VectorXd& ineq_vy,
-                const xpp::zmp::SplineContainer& spline_container,
+                const Splines& spline_container,
                 const xpp::zmp::ZmpOptimizer& zmp_optimizer, // FIXME remove this dependency
                 const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero()
                 );

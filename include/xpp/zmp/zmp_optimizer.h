@@ -8,7 +8,7 @@
 #ifndef _XPP_ZMP_OPTIMIZER_H_
 #define _XPP_ZMP_OPTIMIZER_H_
 
-#include "spline_container.h"
+#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/supp_triangle.h>
 #include <xpp/hyq/foothold.h>
 #include <xpp/utils/geometric_structs.h>
@@ -71,8 +71,7 @@ public:
   typedef std::vector<Foothold> Footholds;
   typedef std::vector<SuppTriangle> SuppTriangles;
   typedef std::array<double,2> WeightsXYArray;
-  typedef SplineContainer Splines;
-  typedef SplineContainer S;
+  typedef ContinuousSplineContainer S;
 
 public:
   ZmpOptimizer();
@@ -80,7 +79,7 @@ public:
   /**
    * @param spline_structure the amount and sequence of splines with empty coefficients
    */
-  ZmpOptimizer(const Splines& spline_structure);
+  ZmpOptimizer(const S& spline_structure);
 
   virtual ~ZmpOptimizer();
 
@@ -131,7 +130,7 @@ public:
                                        const std::vector<SuppTriangle::TrLine> &line_for_constraint,
                                        double height_robot);
 private:
-  Splines zmp_splines_;
+  S zmp_splines_;
 
 
   MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;

@@ -76,6 +76,7 @@ set(SOURCES
   src/zmp_optimizer.cc
   src/zmp_spline.cc
   src/spline_container.cc    
+  src/continuous_spline_container.cc    
   src/spliner.cc
   src/spliner_3d.cc
   src/hyq_state.cc

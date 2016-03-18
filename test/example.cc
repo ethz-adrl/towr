@@ -220,7 +220,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   }
 
   // create the general spline structure
-  SplineContainer zmp_splines_structure, zmp_splines_eig, zmp_splines;
+  ContinuousSplineContainer zmp_splines_structure, zmp_splines_eig, zmp_splines;
   zmp_splines_structure.ConstructSplineSequence(leg_ids, stance_time, swing_time, t_stance_initial,t_stance_initial);
   zmp_splines_eig = zmp_splines_structure;
   zmp_splines     = zmp_splines_structure;

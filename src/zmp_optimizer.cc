@@ -32,7 +32,7 @@ ZmpOptimizer::ZmpOptimizer()
   LOG4CXX_WARN(log_, "default params are set!");
 }
 
-ZmpOptimizer::ZmpOptimizer(const Splines& spline_structure)
+ZmpOptimizer::ZmpOptimizer(const S& spline_structure)
 {
   zmp_splines_ = spline_structure;
 }
@@ -74,7 +74,7 @@ void ZmpOptimizer::SetupQpMatrices(
 
 Eigen::VectorXd ZmpOptimizer::SolveQp() {
 
-  Eigen::VectorXd opt_spline_coeff_xy(zmp_splines_.GetOptCoeffCount());
+  Eigen::VectorXd opt_spline_coeff_xy(zmp_splines_.GetTotalFreeCoeff());
 
   clock_t start = std::clock();
 
@@ -136,7 +136,7 @@ ZmpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
   std::clock_t start = std::clock();
 
   // total number of coefficients to be optimized
-  int n_coeff = zmp_splines_.GetOptCoeffCount();
+  int n_coeff = zmp_splines_.GetTotalFreeCoeff();
   MatVec cf(n_coeff, n_coeff);
 
   for (const ZmpSpline& s : zmp_splines_.splines_) {
@@ -181,7 +181,7 @@ ZmpOptimizer::CreateEqualityContraints(const Position &start_cog_p,
 {
   std::clock_t start = std::clock();
 
-  int coeff = zmp_splines_.GetOptCoeffCount();; // total number of all spline coefficients
+  int coeff = zmp_splines_.GetTotalFreeCoeff();; // total number of all spline coefficients
   int constraints = 0;
   constraints += kDim2d*2;                         // init {x,y} * {acc, jerk} pos, vel implied
   constraints += kDim2d*3;                         // end  {x,y} * {pos, vel, acc}
@@ -291,7 +291,7 @@ ZmpOptimizer::CreateInequalityContraints(const Position& start_cog_p,
 {
   std::clock_t start = std::clock();
 
-  int coeff = zmp_splines_.GetOptCoeffCount();
+  int coeff = zmp_splines_.GetTotalFreeCoeff();
 
   MatVec ineq(coeff, line_for_constraint.size());
   ineq_ipopt_ = ineq.M;
