@@ -39,8 +39,8 @@ void NlpIpoptZmp::SetupNlp(
 
 
   double walking_height = 0.58;
-  x_zmp_ = zmp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X, zmp_optimizer.dt_);
-  y_zmp_ = zmp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y, zmp_optimizer.dt_);
+  x_zmp_ = zmp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
+  y_zmp_ = zmp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
 
 
 

@@ -31,8 +31,8 @@ QpOptimizer::QpOptimizer()
 }
 
 QpOptimizer::QpOptimizer(const S& spline_structure)
+    :zmp_splines_(spline_structure)
 {
-  zmp_splines_ = spline_structure;
 }
 
 
@@ -61,8 +61,8 @@ void QpOptimizer::SetupQpMatrices(
 xpp::zmp::MatVec
 QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle> &supp_triangles, double walking_height)
 {
-  MatVec zmp_x = ExpressZmpThroughCoefficients(walking_height, X, dt_);
-  MatVec zmp_y = ExpressZmpThroughCoefficients(walking_height, Y, dt_);
+  MatVec zmp_x = ExpressZmpThroughCoefficients(walking_height, X);
+  MatVec zmp_y = ExpressZmpThroughCoefficients(walking_height, Y);
 
   return AddLineConstraints(zmp_x, zmp_y, supp_triangles);
 }
@@ -244,12 +244,12 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
 
 
 xpp::zmp::MatVec
-QpOptimizer::ExpressZmpThroughCoefficients(double h, int dim, double dt) const
+QpOptimizer::ExpressZmpThroughCoefficients(double h, int dim) const
 {
   std::clock_t start = std::clock();
 
   int coeff = zmp_splines_.GetTotalFreeCoeff();
-  int num_nodes_with_4ls = zmp_splines_.GetTotalNodes(dt, false);
+  int num_nodes_with_4ls = zmp_splines_.GetTotalNodes();
   int num_nodes = num_nodes_with_4ls;
 
   MatVec ineq(coeff, num_nodes);
@@ -268,12 +268,10 @@ QpOptimizer::ExpressZmpThroughCoefficients(double h, int dim, double dt) const
     zmp_splines_.DescribeEByPrev(k, dim, Ek, non_dependent_e);
     zmp_splines_.DescribeFByPrev(k, dim, Fk, non_dependent_f);
 
-    for (double i=0; i < s.GetNodeCount(dt); ++i) {
+    for (double i=0; i < s.GetNodeCount(zmp_splines_.dt_); ++i) {
 
-      double time = i*dt;
-
+      double time = i*zmp_splines_.dt_;
       std::array<double,6> t = cache_exponents<6>(time);
-
 
       //  x_zmp = x_pos - height/(g+z_acc) * x_acc
       //      with  x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
@@ -305,7 +303,7 @@ MatVec QpOptimizer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                                        const std::vector<SuppTriangle> &supp_triangles) const
 {
   int coeff = zmp_splines_.GetTotalFreeCoeff();
-  int num_nodes_no_4ls = zmp_splines_.GetTotalNodes(dt_, true);
+  int num_nodes_no_4ls = zmp_splines_.GetTotalNodes(true);
 
   int num_ineq_constr = 3*num_nodes_no_4ls;
   MatVec ineq(coeff, num_ineq_constr);
@@ -315,12 +313,12 @@ MatVec QpOptimizer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
   for (const ZmpSpline& s : zmp_splines_.splines_) {
 
     if (s.four_leg_supp_) {
-      n += s.GetNodeCount(dt_);
+      n += s.GetNodeCount(zmp_splines_.dt_);
       continue;
     }
 
     SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
-    for (double i=0; i < s.GetNodeCount(dt_); ++i) {
+    for (double i=0; i < s.GetNodeCount(zmp_splines_.dt_); ++i) {
 
       // add one line constraint for each node
       for (int l=0; l<3; l++)

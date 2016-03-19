@@ -28,10 +28,12 @@ void ContinuousSplineContainer::Init(const Eigen::Vector2d& start_cog_p,
                                      double t_stance,
                                      double t_swing,
                                      double t_stance_initial,
-                                     double t_stance_final)
+                                     double t_stance_final,
+                                     double dt)
 {
   SetInitialPosVel(start_cog_p, start_cog_v);
   ConstructSplineSequence(step_sequence, t_stance, t_swing, t_stance_initial, t_stance_final);
+  dt_ = dt;
   initialized_ = true;
 }
 
@@ -53,6 +55,35 @@ int ContinuousSplineContainer::GetTotalFreeCoeff() const
 int ContinuousSplineContainer::Idx(int spline, int dim, int coeff)
 {
   return kFreeCoeffPerSpline * kDim2d * spline + kFreeCoeffPerSpline * dim + coeff;
+}
+
+
+int ContinuousSplineContainer::GetTotalNodes(bool exclude_4ls_splines) const
+{
+  int node_count = 0;
+
+  for (ZmpSpline s: splines_) {
+
+    if (s.four_leg_supp_ && exclude_4ls_splines)
+      continue;
+
+    node_count += s.GetNodeCount(dt_);
+  };
+  return node_count;
+}
+
+
+// TODO create lookup table for this
+int ContinuousSplineContainer::GetSplineID(int node) const
+{
+  int n = 0;
+  for (ZmpSpline s: splines_) {
+    n += s.GetNodeCount(dt_);
+
+    if (n > node)
+      return s.id_;
+  }
+  return splines_.back().id_;
 }
 
 

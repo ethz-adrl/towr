@@ -58,18 +58,11 @@ for a specific sequence of footsteps. The resulting trajectory will always keep
 the ZMP inside the current support triangle. The QP-solver implemented in
 eigen_quadprog.hpp performs the optimization.
 
-Some stuff here and there
-\snippet example.cc Adding a resource
  */
 class QpOptimizer {
 public:
   typedef ::xpp::hyq::SuppTriangle SuppTriangle;
-  typedef ::xpp::hyq::Foothold Foothold;
-  typedef ::xpp::hyq::LegID LegID;
   typedef ::xpp::utils::Vec2d Position;
-  typedef ::xpp::utils::Vec2d Velocity;
-  typedef std::vector<Foothold> Footholds;
-  typedef std::vector<SuppTriangle> SuppTriangles;
   typedef std::array<double,2> WeightsXYArray;
   typedef ContinuousSplineContainer S;
 
@@ -105,11 +98,10 @@ public:
   MatVec eq_;
   MatVec ineq_;
 
-  double dt_ = 0.1; // only needed for inequality constraints
   // rename to get zmp
   MatVec CreateInequalityContraints(const std::vector<SuppTriangle> &supp_triangles,
                                     double walking_height);
-  MatVec ExpressZmpThroughCoefficients(double walking_height, int dim, double dt) const;
+  MatVec ExpressZmpThroughCoefficients(double walking_height, int dim) const;
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const std::vector<SuppTriangle> &supp_triangles) const;
   void AddLineConstraint(const SuppTriangle::TrLine& l,

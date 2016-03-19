@@ -44,33 +44,6 @@ double SplineContainer::GetTotalTime(bool exclude_4ls_splines) const
 }
 
 
-int SplineContainer::GetTotalNodes(double dt, bool exclude_4ls_splines) const
-{
-  int node_count = 0;
-
-  for (ZmpSpline s: splines_) {
-
-    if (s.four_leg_supp_ && exclude_4ls_splines)
-      continue;
-
-    node_count += s.GetNodeCount(dt);
-  };
-  return node_count;
-}
-
-// TODO create lookup table for this
-int SplineContainer::GetSplineID(int node, double dt) const
-{
-  int n = 0;
-  for (ZmpSpline s: splines_) {
-    n += s.GetNodeCount(dt);
-
-    if (n > node)
-      return s.id_;
-  }
-}
-
-
 void SplineContainer::AddSpline(const ZmpSpline &spline)
 {
   splines_.push_back(spline);

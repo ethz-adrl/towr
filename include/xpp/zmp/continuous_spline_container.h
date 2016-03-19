@@ -35,13 +35,16 @@ public:
             double t_stance,
             double t_swing,
             double t_stance_initial,
-            double t_stance_final);
+            double t_stance_final,
+            double dt = 0.1);
 
 
 
 
   static int Idx(int spline, int dim, int coeff);
   int GetTotalFreeCoeff() const;
+  int GetTotalNodes(bool exclude_4ls_splines = false) const;
+  int GetSplineID(int node) const;
   /**
    * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
    * has the same effect as the original e coefficient in the spline equation
@@ -73,6 +76,7 @@ public:
   void AddOptimizedCoefficients(
       const Eigen::VectorXd& optimized_coeff);
 
+  double dt_; // This is needed for creating support triangle inequality constraints
 private:
   static const int kFreeCoeffPerSpline = kCoeffCount-2;
 
