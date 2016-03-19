@@ -110,8 +110,8 @@ public:
                          double x_zmp_v,
                          double y_zmp_v,
                          int& c, Eigen::MatrixXd& M, Eigen::VectorXd& v) const;
-private:
   S zmp_splines_;
+private:
 
 
   MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;

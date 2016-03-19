@@ -22,44 +22,30 @@ NlpIpoptZmp::~NlpIpoptZmp()
 {}
 
 void NlpIpoptZmp::SetupNlp(
-    const xpp::zmp::MatVec& cf,
-    const xpp::zmp::MatVec& eq,
-    const xpp::zmp::MatVec& ineq,
-    const Splines& spline_container,
     const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-    const xpp::zmp::QpOptimizer& zmp_optimizer, // FIXME remove this dependency
+    const xpp::zmp::QpOptimizer& qp_optimizer,
     const Eigen::VectorXd& initial_coefficients)
 {
-  cf_   =  cf;
-  eq_   =  eq;
-  ineq_ =  ineq;
+  qp_optimizer_ = qp_optimizer; // FIXME remove this dependency
+
+  n_spline_coeff_ = qp_optimizer.zmp_splines_.GetTotalFreeCoeff();
+  n_eq_constr_    = qp_optimizer.eq_.v.rows();                  // spline junctions
 
 
-
-
-
+  // TODO These stay constant throughout the optimization
   double walking_height = 0.58;
-  x_zmp_ = zmp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
-  y_zmp_ = zmp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
+  x_zmp_ = qp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
+  y_zmp_ = qp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
+  cf_   =  qp_optimizer.cf_;
+  eq_   =  qp_optimizer.eq_;
 
 
-
-
-  n_spline_coeff_ = cf.M.rows();
-  n_eq_constr_ = eq.v.rows();
-  n_ineq_constr_ = ineq.v.rows();
-
-
-  spline_container_ = spline_container;
+  n_ineq_constr_  = qp_optimizer.ineq_.v.rows();  // support polygons
   supp_triangle_container_ = supp_triangle_container;
 
   n_steps_ = supp_triangle_container.footholds_.size(); // use intial footholds for this
   initial_coefficients_ = initial_coefficients;
   initial_footholds_ = supp_triangle_container.footholds_;
-
-  zmp_optimizer_ = zmp_optimizer; // FIXME remove this dependency
-
-
 }
 
 
@@ -286,11 +272,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   //here i am adapting the constraints depending on the footholds
   supp_triangle_container_.footholds_ = steps;
-//  std::vector<xpp::hyq::SuppTriangle::TrLine> lines_for_constraint
-//  = supp_triangle_container_.LineForConstraint(spline_container_, zmp_optimizer_.dt_);
-
-  xpp::zmp::MatVec ineq_constr = zmp_optimizer_.AddLineConstraints(x_zmp_, y_zmp_, supp_triangle_container_.GetSupportTriangles());
-
+  xpp::zmp::MatVec ineq_constr = qp_optimizer_.AddLineConstraints(x_zmp_, y_zmp_, supp_triangle_container_.GetSupportTriangles());
   Eigen::VectorXd g_vec_in = ineq_constr.M.transpose()*x_vec + ineq_constr.v;
 
 

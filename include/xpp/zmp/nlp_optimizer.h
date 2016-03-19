@@ -25,10 +25,8 @@ public:
 
   Eigen::VectorXd SolveNlp(Eigen::VectorXd& final_footholds,
                            const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-                           const xpp::zmp::ContinuousSplineContainer splines_container,
                            const xpp::zmp::QpOptimizer& zmp_optimizer, // TODO, make this more specific
                            const Eigen::VectorXd& initialization_values = Eigen::Vector2d::Zero());
-
 
 
 };

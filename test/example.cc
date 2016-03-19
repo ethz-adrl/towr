@@ -236,7 +236,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
   Eigen::VectorXd opt_footholds;
   xpp::zmp::NlpOptimizer nlp_optimizer;
-  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds, supp_triangle_container, zmp_splines, zmp_optimizer/*opt_coefficients_eig*/);
+  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds, supp_triangle_container, zmp_optimizer/*opt_coefficients_eig*/);
   zmp_splines.AddOptimizedCoefficients(opt_coefficients);
   // get new optimized footholds from these coefficients:
   for (uint i=0; i<steps_.size(); ++i) {

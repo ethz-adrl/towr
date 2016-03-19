@@ -99,7 +99,6 @@ public:
 
   xpp::zmp::MatVec cf_;
   xpp::zmp::MatVec eq_;
-  xpp::zmp::MatVec ineq_;
 
   int n_spline_coeff_;
   int n_eq_constr_;
@@ -115,19 +114,14 @@ public:
   Eigen::VectorXd initial_coefficients_;
   std::vector<xpp::hyq::Foothold> initial_footholds_;
 
-  Splines spline_container_;
-  xpp::zmp::QpOptimizer zmp_optimizer_; // FIXME remove this dependeny
+  xpp::zmp::QpOptimizer qp_optimizer_; // FIXME remove this dependeny
   xpp::hyq::SuppTriangleContainer supp_triangle_container_;
 
 
-  void SetupNlp(const xpp::zmp::MatVec& cf,
-                const xpp::zmp::MatVec& eq,
-                const xpp::zmp::MatVec& ineq,
-                const Splines& spline_container,
-                const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-                const xpp::zmp::QpOptimizer& zmp_optimizer, // FIXME remove this dependency
+  void SetupNlp(const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
+                const xpp::zmp::QpOptimizer& zmp_optimizer,
                 const Eigen::VectorXd& initial_coefficients = Eigen::Vector2d::Zero()
-                );
+  );
 
   Eigen::VectorXd x_final_spline_coeff_;
   Eigen::VectorXd x_final_footholds_;
