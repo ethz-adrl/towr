@@ -110,9 +110,6 @@ public:
   Eigen::VectorXd ineq_ipopt_vy_;
 
 
-  std::vector<SuppTriangle::TrLine>
-  LineForConstraint(const SuppTriangles &supp_triangles);
-
   double dt_ = 0.1; // only needed for inequality constraints
   MatVec CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> &line_for_constraint,
                                     double height_robot);

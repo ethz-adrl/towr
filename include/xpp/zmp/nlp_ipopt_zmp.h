@@ -113,7 +113,8 @@ public:
 
 
 
-  Eigen::VectorXd initial_values_;
+  Eigen::VectorXd initial_coefficients_;
+  std::vector<xpp::hyq::Foothold> initial_footholds_;
 
   Splines spline_container_;
   xpp::zmp::QpOptimizer zmp_optimizer_; // FIXME remove this dependeny
@@ -128,7 +129,7 @@ public:
                 const Splines& spline_container,
                 const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
                 const xpp::zmp::QpOptimizer& zmp_optimizer, // FIXME remove this dependency
-                const Eigen::VectorXd& initial_values = Eigen::Vector2d::Zero()
+                const Eigen::VectorXd& initial_coefficients = Eigen::Vector2d::Zero()
                 );
 
   Eigen::VectorXd x_final_spline_coeff_;

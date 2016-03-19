@@ -78,6 +78,33 @@ Eigen::Vector2d SuppTriangleContainer::GetCenterOfFinalStance() const
 }
 
 
+std::vector<SuppTriangle::TrLine>
+SuppTriangleContainer::LineForConstraint(const xpp::zmp::ContinuousSplineContainer& splines,
+                                         double dt) const
+{
+
+
+  SuppTriangles supp_triangles = GetSupportTriangles();
+  // calculate number of inequality contraints
+  std::vector<SuppTriangle::TrLine> line_for_constraint;
+
+  for (const xpp::zmp::ZmpSpline& s : splines.splines_)
+  {
+    if (s.four_leg_supp_) continue; // no constraints in 4ls phase
+
+    SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
+
+    int n_nodes =  std::floor(s.duration_/dt);
+    for (int i=0; i<n_nodes; ++i) {
+      line_for_constraint.push_back(lines.at(0));
+      line_for_constraint.push_back(lines.at(1));
+      line_for_constraint.push_back(lines.at(2));
+    }
+  }
+  return line_for_constraint;
+}
+
+
 void
 SuppTriangleContainer::CheckIfInitialized() const
 {

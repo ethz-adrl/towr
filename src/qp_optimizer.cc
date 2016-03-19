@@ -50,12 +50,10 @@ void QpOptimizer::SetupQpMatrices(
 
   cf_ = CreateMinAccCostFunction(weight);
 
-
-  SuppTriangles tr = supp_triangle_container.GetSupportTriangles();
   Position end_cog = supp_triangle_container.GetCenterOfFinalStance();
 
   eq_ = CreateEqualityContraints(end_cog);
-  ineq_ = CreateInequalityContraints(LineForConstraint(tr), height_robot);
+  ineq_ = CreateInequalityContraints(supp_triangle_container.LineForConstraint(zmp_splines_, dt_), height_robot);
 }
 
 
@@ -323,32 +321,6 @@ QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> 
   LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ineq.M << "\nVector:\n" << ineq.v.transpose());
   return ineq;
 }
-
-
-
-std::vector<xpp::hyq::SuppTriangle::TrLine>
-QpOptimizer::LineForConstraint(const SuppTriangles &supp_triangles) {
-
-  // calculate number of inequality contraints
-  std::vector<SuppTriangle::TrLine> line_for_constraint;
-
-  for (const ZmpSpline& s : zmp_splines_.splines_)
-  {
-    if (s.four_leg_supp_) continue; // no constraints in 4ls phase
-
-    SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
-
-    int n_nodes =  std::floor(s.duration_/dt_);
-    for (int i=0; i<n_nodes; ++i) {
-      line_for_constraint.push_back(lines.at(0));
-      line_for_constraint.push_back(lines.at(1));
-      line_for_constraint.push_back(lines.at(2));
-    }
-  }
-  return line_for_constraint;
-}
-
-
 
 
 } // namespace zmp

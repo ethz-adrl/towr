@@ -30,7 +30,7 @@ void NlpIpoptZmp::SetupNlp(
     const Splines& spline_container,
     const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
     const xpp::zmp::QpOptimizer& zmp_optimizer, // FIXME remove this dependency
-    const Eigen::VectorXd& initial_values)
+    const Eigen::VectorXd& initial_coefficients)
 {
   cf_   =  cf;
   eq_   =  eq;
@@ -41,8 +41,6 @@ void NlpIpoptZmp::SetupNlp(
   ineq_vx_ = ineq_vx;
   ineq_vy_ = ineq_vy;
 
-  // set initial values to zero if wrong size was input
-  initial_values_ = initial_values;
 
 
   n_spline_coeff_ = cf.M.rows();
@@ -51,12 +49,15 @@ void NlpIpoptZmp::SetupNlp(
 
 
   spline_container_ = spline_container;
-  zmp_optimizer_ = zmp_optimizer; // FIXME remove this dependency
-
   supp_triangle_container_ = supp_triangle_container;
 
+  n_steps_ = supp_triangle_container.footholds_.size(); // use intial footholds for this
+  initial_coefficients_ = initial_coefficients;
+  initial_footholds_ = supp_triangle_container.footholds_;
 
-  n_steps_ = spline_container.splines_.back().step_+1;
+  zmp_optimizer_ = zmp_optimizer; // FIXME remove this dependency
+
+
 }
 
 
@@ -165,14 +166,15 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 
 	// set initial value to zero if wrong size input
-  if (initial_values_.rows() != n ) {
-    initial_values_.resize(n,1);
-    initial_values_.setZero();
+  if (initial_coefficients_.rows() != n_spline_coeff_ ) {
+    initial_coefficients_.resize(n_spline_coeff_,1);
+    initial_coefficients_.setZero();
   }
 
 
-	for (int i=0; i<n; ++i) {
-	  x[i] = initial_values_[i]; // splines of the form x = t^5+t^4+t^3+t^2+t
+  int c = 0;
+	for (int i=0; i<initial_coefficients_.rows(); ++i) {
+	  x[c++] = initial_coefficients_[i]; // splines of the form x = t^5+t^4+t^3+t^2+t
 	}
 
 
@@ -180,10 +182,10 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	// initialize with steps from footstep planner
 	for (int i=0; i<n_steps_; ++i) {
 
-	  xpp::hyq::Foothold f = supp_triangle_container_.footholds_.at(i);
+	  xpp::hyq::Foothold f = initial_footholds_.at(i);
 
-	  x[n_spline_coeff_+2*i+0] = f.p.x();
-	  x[n_spline_coeff_+2*i+1] = f.p.y();
+	  x[c++] = f.p.x();
+	  x[c++] = f.p.y();
 	}
 
   return true;
@@ -276,12 +278,13 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
     steps.push_back(xpp::hyq::Foothold(x[n_spline_coeff_+2*i],
                                        x[n_spline_coeff_+2*i+1],
                                        0.0,
-                                       supp_triangle_container_.footholds_.at(i).leg));
+                                       initial_footholds_.at(i).leg));
   }
 
 
-  xpp::hyq::SuppTriangles tr = supp_triangle_container_.GetSupportTriangles(steps);
-  std::vector<xpp::hyq::SuppTriangle::TrLine> lines_for_constraint = zmp_optimizer_.LineForConstraint(tr); //here i am adapting the constraints depending on the footholds
+  //here i am adapting the constraints depending on the footholds
+  supp_triangle_container_.footholds_ = steps;
+  std::vector<xpp::hyq::SuppTriangle::TrLine> lines_for_constraint = supp_triangle_container_.LineForConstraint(spline_container_, zmp_optimizer_.dt_);
 
 
   // add the line coefficients separately
@@ -310,11 +313,11 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
   // constraints on the footsteps
   Eigen::VectorXd g_vec_footsteps(2*n_steps_);
   g_vec_footsteps.setZero();
-  // initialize with steps from footstep planner
+  // fix footholds in x and y direction
   int c=0;
   for (uint i=0; i<n_steps_; ++i) {
 
-    xpp::hyq::Foothold f = supp_triangle_container_.footholds_.at(i);
+    xpp::hyq::Foothold f = initial_footholds_.at(i);
 
     int idx = n_spline_coeff_+2*i;
 
@@ -325,13 +328,13 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   // restrict distance to previous foothold small
   // initialize with steps from footstep planner
-//  for (int i=0; i<zmp_optimizer_.footholds_.size(); ++i) {
+//  for (int i=0; i<supp_triangle_container_.footholds_.size(); ++i) {
 //
 //    int idx = n_spline_coeff_+2*i;
 //    Eigen::Vector2d f;
 //    f << x[idx+0], x[idx+1];
 //
-//    Eigen::Vector2d f_prev = start_stance_[zmp_optimizer_.footholds_.at(i).leg].p.segment<2>(0);
+//    Eigen::Vector2d f_prev = start_stance_[supp_triangle_container_.footholds_.at(i).leg].p.segment<2>(0);
 //    if (i>=4) {
 //      int idx = n_spline_coeff_+2*(i-4);
 //      f_prev << x[idx+0], x[idx+1];
