@@ -49,10 +49,6 @@ public:
 
   Eigen::Vector2d GetCenterOfFinalStance() const;
 
-  // FIXME this might be better of just returning the lines in a vector
-  // and not having a dependency on dt
-  std::vector<SuppTriangle::TrLine> LineForConstraint(
-      const xpp::zmp::ContinuousSplineContainer& splines, double dt) const;
 
 public:
   Footholds footholds_;

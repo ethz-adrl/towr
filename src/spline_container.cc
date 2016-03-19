@@ -58,6 +58,18 @@ int SplineContainer::GetTotalNodes(double dt, bool exclude_4ls_splines) const
   return node_count;
 }
 
+// TODO create lookup table for this
+int SplineContainer::GetSplineID(int node, double dt) const
+{
+  int n = 0;
+  for (ZmpSpline s: splines_) {
+    n += s.GetNodeCount(dt);
+
+    if (n > node)
+      return s.id_;
+  }
+}
+
 
 void SplineContainer::AddSpline(const ZmpSpline &spline)
 {
@@ -121,6 +133,7 @@ bool SplineContainer::Insert4LSPhase(LegID prev, LegID next)
 
   return false;
 }
+
 
 
 void SplineContainer::GetCOGxy(double t_global, Lin2d& cog_xy)

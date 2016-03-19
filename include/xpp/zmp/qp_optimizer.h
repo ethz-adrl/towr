@@ -107,11 +107,17 @@ public:
 
   double dt_ = 0.1; // only needed for inequality constraints
   // rename to get zmp
-  MatVec CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> &line_for_constraint,
+  MatVec CreateInequalityContraints(const std::vector<SuppTriangle> &supp_triangles,
                                     double walking_height);
-  MatVec GetZmpFromCoefficients(double walking_height, int dim, double dt) const;
+  MatVec ExpressZmpThroughCoefficients(double walking_height, int dim, double dt) const;
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-                                       const std::vector<SuppTriangle::TrLine> &lines_for_constraint) const;
+                            const std::vector<SuppTriangle> &supp_triangles) const;
+  void AddLineConstraint(const SuppTriangle::TrLine& l,
+                         const Eigen::VectorXd& x_zmp_M,
+                         const Eigen::VectorXd& y_zmp_M,
+                         double x_zmp_v,
+                         double y_zmp_v,
+                         int& c, Eigen::MatrixXd& M, Eigen::VectorXd& v) const;
 private:
   S zmp_splines_;
 

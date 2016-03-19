@@ -53,6 +53,7 @@ public:
   void AddSpline(const ZmpSpline &spline);
   double GetTotalTime(bool exclude_4ls_splines = false) const;
   int GetTotalNodes(double dt, bool exclude_4ls_splines) const;
+  int GetSplineID(int node, double dt) const;
 
 
   // Creates a sequence of Splines without the optimized coefficients

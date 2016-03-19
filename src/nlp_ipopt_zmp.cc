@@ -39,8 +39,8 @@ void NlpIpoptZmp::SetupNlp(
 
 
   double walking_height = 0.58;
-  x_zmp_ = zmp_optimizer.GetZmpFromCoefficients(walking_height, xpp::utils::X, zmp_optimizer.dt_);
-  y_zmp_ = zmp_optimizer.GetZmpFromCoefficients(walking_height, xpp::utils::Y, zmp_optimizer.dt_);
+  x_zmp_ = zmp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X, zmp_optimizer.dt_);
+  y_zmp_ = zmp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y, zmp_optimizer.dt_);
 
 
 
@@ -286,30 +286,10 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   //here i am adapting the constraints depending on the footholds
   supp_triangle_container_.footholds_ = steps;
-  std::vector<xpp::hyq::SuppTriangle::TrLine> lines_for_constraint
-  = supp_triangle_container_.LineForConstraint(spline_container_, zmp_optimizer_.dt_);
+//  std::vector<xpp::hyq::SuppTriangle::TrLine> lines_for_constraint
+//  = supp_triangle_container_.LineForConstraint(spline_container_, zmp_optimizer_.dt_);
 
-  xpp::zmp::MatVec ineq_constr = zmp_optimizer_.AddLineConstraints(x_zmp_, y_zmp_, lines_for_constraint);
-
-
-//  // add the line coefficients separately
-//  Eigen::MatrixXd ineq_M = ineq_M_;
-//  Eigen::VectorXd ineq_v(n_ineq_constr_);
-//  ineq_v.setZero();
-//  for (int c=0; c<n_ineq_constr_; ++c) {
-//    xpp::hyq::SuppTriangle::TrLine l = lines_for_constraint.at(c);
-//
-//    // build vector from xy line coeffients
-//    Eigen::VectorXd line_coefficients_xy = spline_container_.GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
-//    ineq_M.col(c) = ineq_M_.col(c).cwiseProduct(line_coefficients_xy);
-//
-//
-//    ineq_v[c] += l.coeff.p * ineq_vx_[c];
-//    ineq_v[c] += l.coeff.q * ineq_vy_[c];
-//    ineq_v[c] += l.coeff.r - l.s_margin;
-//  }
-//
-//  Eigen::VectorXd g_vec_in = ineq_M.transpose()*x_vec + ineq_v;
+  xpp::zmp::MatVec ineq_constr = zmp_optimizer_.AddLineConstraints(x_zmp_, y_zmp_, supp_triangle_container_.GetSupportTriangles());
 
   Eigen::VectorXd g_vec_in = ineq_constr.M.transpose()*x_vec + ineq_constr.v;
 
