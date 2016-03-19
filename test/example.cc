@@ -234,15 +234,15 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   Eigen::VectorXd opt_coefficients_eig = zmp_optimizer.SolveQp();
   zmp_splines_eig.AddOptimizedCoefficients(opt_coefficients_eig);
 
-  Eigen::VectorXd opt_footholds;
-  xpp::zmp::NlpOptimizer nlp_optimizer;
-  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds, supp_triangle_container, zmp_splines, zmp_optimizer/*opt_coefficients_eig*/);
-  zmp_splines.AddOptimizedCoefficients(opt_coefficients);
-  // get new optimized footholds from these coefficients:
-  for (uint i=0; i<steps_.size(); ++i) {
-    int idx = 2*i;
-    steps_.at(i).p << opt_footholds[idx], opt_footholds[idx+1], 0.0;
-  }
+//  Eigen::VectorXd opt_footholds;
+//  xpp::zmp::NlpOptimizer nlp_optimizer;
+//  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds, supp_triangle_container, zmp_splines, zmp_optimizer/*opt_coefficients_eig*/);
+//  zmp_splines.AddOptimizedCoefficients(opt_coefficients);
+//  // get new optimized footholds from these coefficients:
+//  for (uint i=0; i<steps_.size(); ++i) {
+//    int idx = 2*i;
+//    steps_.at(i).p << opt_footholds[idx], opt_footholds[idx+1], 0.0;
+//  }
 
 
   std_msgs::ColorRGBA red, blue;
@@ -251,7 +251,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
   AddFootholds(footsteps_msg_, steps_,frame_id, visualization_msgs::Marker::CUBE);
   AddTrajectory(footsteps_msg_, zmp_splines_eig, blue, frame_id);
-  AddTrajectory(footsteps_msg_, zmp_splines, red, frame_id);
+//  AddTrajectory(footsteps_msg_, zmp_splines, red, frame_id);
 }
 
 

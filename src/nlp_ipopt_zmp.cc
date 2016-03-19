@@ -284,7 +284,10 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   //here i am adapting the constraints depending on the footholds
   supp_triangle_container_.footholds_ = steps;
-  std::vector<xpp::hyq::SuppTriangle::TrLine> lines_for_constraint = supp_triangle_container_.LineForConstraint(spline_container_, zmp_optimizer_.dt_);
+  std::vector<xpp::hyq::SuppTriangle::TrLine> lines_for_constraint
+  = supp_triangle_container_.LineForConstraint(spline_container_, zmp_optimizer_.dt_);
+
+//  xpp::zmp::MatVec ineq_constr = zmp_optimizer_.CreateInequalityContraints(lines_for_constraint,0.58);
 
 
   // add the line coefficients separately
@@ -305,6 +308,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
   }
 
   Eigen::VectorXd g_vec_in = ineq_M.transpose()*x_vec + ineq_v;
+//  Eigen::VectorXd g_vec_in = ineq_constr.M.transpose()*x_vec + ineq_constr.v;
 
 
 

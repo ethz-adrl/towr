@@ -111,8 +111,11 @@ public:
 
 
   double dt_ = 0.1; // only needed for inequality constraints
+  // rename to get zmp
   MatVec CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> &line_for_constraint,
-                                    double height_robot);
+                                    double height_robot, int dim);
+  MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+                                       const std::vector<SuppTriangle::TrLine> &lines_for_constraint) const;
 private:
   S zmp_splines_;
 

@@ -53,7 +53,15 @@ void QpOptimizer::SetupQpMatrices(
   Position end_cog = supp_triangle_container.GetCenterOfFinalStance();
 
   eq_ = CreateEqualityContraints(end_cog);
-  ineq_ = CreateInequalityContraints(supp_triangle_container.LineForConstraint(zmp_splines_, dt_), height_robot);
+
+
+
+  MatVec zmp_x, zmp_y;
+
+  zmp_x = CreateInequalityContraints(supp_triangle_container.LineForConstraint(zmp_splines_, dt_), height_robot, X);
+  zmp_y = CreateInequalityContraints(supp_triangle_container.LineForConstraint(zmp_splines_, dt_), height_robot, Y);
+
+  ineq_ = AddLineConstraints(zmp_x, zmp_y, supp_triangle_container.LineForConstraint(zmp_splines_, dt_));
 }
 
 
@@ -234,7 +242,7 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
 
 xpp::zmp::MatVec
 QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> &line_for_constraint,
-                                         double h)
+                                         double h, int dim)
 {
   std::clock_t start = std::clock();
 
@@ -258,15 +266,15 @@ QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> 
 
     // calculate e and f coefficients from previous values
     const int k = s.id_;
-    Eigen::VectorXd Ekx(coeff); Ekx.setZero();
-    Eigen::VectorXd Fkx(coeff); Fkx.setZero();
-    Eigen::VectorXd Eky(coeff); Eky.setZero();
-    Eigen::VectorXd Fky(coeff); Fky.setZero();
-    double non_dependent_ex, non_dependent_fx, non_dependent_ey, non_dependent_fy;
-    zmp_splines_.DescribeEByPrev(k, X, Ekx, non_dependent_ex);
-    zmp_splines_.DescribeFByPrev(k, X, Fkx, non_dependent_fx);
-    zmp_splines_.DescribeEByPrev(k, Y, Eky, non_dependent_ey);
-    zmp_splines_.DescribeFByPrev(k, Y, Fky, non_dependent_fy);
+    Eigen::VectorXd Ek(coeff); Ek.setZero();
+    Eigen::VectorXd Fk(coeff); Fk.setZero();
+//    Eigen::VectorXd Eky(coeff); Eky.setZero();
+//    Eigen::VectorXd Fky(coeff); Fky.setZero();
+    double non_dependent_e, non_dependent_f; // non_dependent_ey, non_dependent_fy;
+    zmp_splines_.DescribeEByPrev(k, dim, Ek, non_dependent_e);
+    zmp_splines_.DescribeFByPrev(k, dim, Fk, non_dependent_f);
+//    zmp_splines_.DescribeEByPrev(k, Y, Eky, non_dependent_ey);
+//    zmp_splines_.DescribeFByPrev(k, Y, Fky, non_dependent_fy);
 
     for (double i=0; i < std::floor(s.duration_/dt_); ++i) {
 
@@ -281,36 +289,38 @@ QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> 
         // with: x_zmp = x_pos - height/(g+z_acc) * x_acc
         //       x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
         //       x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
-        SuppTriangle::TrLine l = line_for_constraint.at(c);
+//        SuppTriangle::TrLine l = line_for_constraint.at(c);
         double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
 
 
-        for (int dim=X; dim<=Y; dim++) {
+//        for (int dim=X; dim<=Y; dim++) {
 
-          double lc = (dim==X) ? l.coeff.p : l.coeff.q;
-          Eigen::VectorXd Ek = (dim==X) ? Ekx : Eky;
-          Eigen::VectorXd Fk = (dim==X) ? Fkx : Fky;
+//          double lc = (dim==X) ? l.coeff.p : l.coeff.q;
+//          Eigen::VectorXd Ek = (dim==X) ? Ek : Ek;
+//          Eigen::VectorXd Fk = (dim==X) ? Fk : Fky;
 
 
-          ineq_ipopt_(S::Idx(k,dim,A), c) = /* lc * */(t[5]    - h/(g+z_acc) * 20.0 * t[3]);
-          ineq_ipopt_(S::Idx(k,dim,B), c) = /* lc * */(t[4]    - h/(g+z_acc) * 12.0 * t[2]);
-          ineq_ipopt_(S::Idx(k,dim,C), c) = /* lc * */(t[3]    - h/(g+z_acc) *  6.0 * t[1]);
-          ineq_ipopt_(S::Idx(k,dim,D), c) = /* lc * */(t[2]    - h/(g+z_acc) *  2.0);
-          ineq_ipopt_.col(c)             += /* lc * */ t[1]*Ek;
-          ineq_ipopt_.col(c)             += /* lc * */ t[0]*Fk;
+          ineq.M(S::Idx(k,dim,A), c) = /* lc * */(t[5]    - h/(g+z_acc) * 20.0 * t[3]);
+          ineq.M(S::Idx(k,dim,B), c) = /* lc * */(t[4]    - h/(g+z_acc) * 12.0 * t[2]);
+          ineq.M(S::Idx(k,dim,C), c) = /* lc * */(t[3]    - h/(g+z_acc) *  6.0 * t[1]);
+          ineq.M(S::Idx(k,dim,D), c) = /* lc * */(t[2]    - h/(g+z_acc) *  2.0);
+          ineq.M.col(c)             += /* lc * */ t[1]*Ek;
+          ineq.M.col(c)             += /* lc * */ t[0]*Fk;
 
-        }
+//        }
 
         // add the line coefficients
-        Eigen::VectorXd line_coefficients_xy = zmp_splines_.GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
-        ineq.M.col(c) = ineq_ipopt_.col(c).cwiseProduct(line_coefficients_xy);
+//        Eigen::VectorXd line_coefficients_xy = zmp_splines_.GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
+//        ineq.M.col(c) = ineq_ipopt_.col(c).cwiseProduct(line_coefficients_xy);
 
-        ineq_ipopt_vx_[c] = non_dependent_ex*t[0] + non_dependent_fx;
-        ineq_ipopt_vy_[c] = non_dependent_ey*t[0] + non_dependent_fy;
+          ineq.v[c] = non_dependent_e*t[0] + non_dependent_f;
+//        ineq_ipopt_vy_[c] = non_dependent_ey*t[0] + non_dependent_fy;
 
-        ineq.v[c] += l.coeff.p * ineq_ipopt_vx_[c];
-        ineq.v[c] += l.coeff.q * ineq_ipopt_vy_[c];
-        ineq.v[c] += l.coeff.r - l.s_margin;
+//        ineq.v[c] += l.coeff.p * ineq_ipopt_vx_[c];
+//        ineq.v[c] += l.coeff.q * ineq_ipopt_vy_[c];
+//        ineq.v[c] += l.coeff.r - l.s_margin;
+
+
         ++c;
       }
     }
@@ -319,6 +329,33 @@ QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> 
   LOG4CXX_INFO(log_, "Calc. time inequality constraints:\t" << static_cast<double>(std::clock() - start) / CLOCKS_PER_SEC * 1000.0  << "\tms");
   LOG4CXX_DEBUG(log_, "Dim: " << ineq.M.rows() << " x " << ineq.M.cols());
   LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ineq.M << "\nVector:\n" << ineq.v.transpose());
+  return ineq;
+}
+
+
+MatVec QpOptimizer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+                                     const std::vector<SuppTriangle::TrLine> &lines_for_constraint) const
+{
+  int num_ineq_constr = lines_for_constraint.size();
+  int coeff = zmp_splines_.GetTotalFreeCoeff();
+
+  MatVec ineq(coeff, num_ineq_constr);
+
+  for (int c=0; c<num_ineq_constr; ++c) {
+    xpp::hyq::SuppTriangle::TrLine l = lines_for_constraint.at(c);
+
+    // build vector from xy line coeffients
+    ineq.M.col(c) = l.coeff.p*x_zmp.M.col(c) + l.coeff.q*y_zmp.M.col(c);
+
+//    Eigen::VectorXd line_coefficients_xy = zmp_splines_.GetXyDimAlternatingVector(l.coeff.p, l.coeff.q);
+//    ineq_.M.col(c) = ineq_.M.col(c).col(c).cwiseProduct(line_coefficients_xy);
+
+
+    ineq.v[c] += l.coeff.p * x_zmp.v[c];
+    ineq.v[c] += l.coeff.q * y_zmp.v[c];
+    ineq.v[c] += l.coeff.r - l.s_margin;
+  }
+
   return ineq;
 }
 
