@@ -45,9 +45,7 @@ NlpOptimizer::SolveNlp(Eigen::VectorXd& final_footholds,
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp();
   nlp_ipopt_zmp->SetupNlp(zmp_optimizer.cf_,
                           zmp_optimizer.eq_,
-                          zmp_optimizer.ineq_ipopt_,
-                          zmp_optimizer.ineq_ipopt_vx_,
-                          zmp_optimizer.ineq_ipopt_vy_,
+                          zmp_optimizer.ineq_,
                           splines_container, // use splines directly
                           supp_triangle_container,
                           zmp_optimizer, // remove this

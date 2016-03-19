@@ -147,29 +147,6 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
 }
 
 
-Eigen::VectorXd
-ContinuousSplineContainer::GetXyDimAlternatingVector(double x, double y) const
-{
-  CheckIfInitialized();
-
-  Eigen::VectorXd x_abcd(kFreeCoeffPerSpline);
-  x_abcd.fill(x);
-
-  Eigen::VectorXd y_abcd(kFreeCoeffPerSpline);
-  y_abcd.fill(y);
-
-  int coeff = splines_.size() * kFreeCoeffPerSpline * kDim2d;
-  Eigen::VectorXd vec(coeff);
-  vec.setZero();
-
-  for (const ZmpSpline& s : splines_) {
-    vec.middleRows(Idx(s.id_,xpp::utils::X,A), kFreeCoeffPerSpline) = x_abcd;
-    vec.middleRows(Idx(s.id_,xpp::utils::Y,A), kFreeCoeffPerSpline) = y_abcd;
-  }
-
-  return vec;
-}
-
 void
 ContinuousSplineContainer::CheckIfInitialized() const
 {

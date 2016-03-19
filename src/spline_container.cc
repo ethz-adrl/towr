@@ -30,14 +30,34 @@ SplineContainer::~SplineContainer()
   // TODO Auto-generated destructor stub
 }
 
-double SplineContainer::GetTotalTime() const
+double SplineContainer::GetTotalTime(bool exclude_4ls_splines) const
 {
   double T = 0.0;
   for (ZmpSpline s: splines_) {
+
+    if (s.four_leg_supp_ && exclude_4ls_splines)
+      continue;
+
     T += s.duration_;
   };
   return T;
 }
+
+
+int SplineContainer::GetTotalNodes(double dt, bool exclude_4ls_splines) const
+{
+  int node_count = 0;
+
+  for (ZmpSpline s: splines_) {
+
+    if (s.four_leg_supp_ && exclude_4ls_splines)
+      continue;
+
+    node_count += s.GetNodeCount(dt);
+  };
+  return node_count;
+}
+
 
 void SplineContainer::AddSpline(const ZmpSpline &spline)
 {

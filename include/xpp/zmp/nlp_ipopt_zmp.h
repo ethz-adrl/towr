@@ -99,7 +99,7 @@ public:
 
   xpp::zmp::MatVec cf_;
   xpp::zmp::MatVec eq_;
-//  xpp::zmp::MatVec ineq_;
+  xpp::zmp::MatVec ineq_;
 
   int n_spline_coeff_;
   int n_eq_constr_;
@@ -107,10 +107,9 @@ public:
 
   int n_steps_;
 
-  Eigen::MatrixXd ineq_M_;
-  Eigen::VectorXd ineq_vx_;
-  Eigen::VectorXd ineq_vy_;
 
+  xpp::zmp::MatVec x_zmp_;
+  xpp::zmp::MatVec y_zmp_;
 
 
   Eigen::VectorXd initial_coefficients_;
@@ -123,9 +122,7 @@ public:
 
   void SetupNlp(const xpp::zmp::MatVec& cf,
                 const xpp::zmp::MatVec& eq,
-                const Eigen::MatrixXd& ineq_M,
-                const Eigen::VectorXd& ineq_vx,
-                const Eigen::VectorXd& ineq_vy,
+                const xpp::zmp::MatVec& ineq,
                 const Splines& spline_container,
                 const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
                 const xpp::zmp::QpOptimizer& zmp_optimizer, // FIXME remove this dependency

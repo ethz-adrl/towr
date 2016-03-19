@@ -42,7 +42,7 @@ QpOptimizer::~QpOptimizer() {}
 void QpOptimizer::SetupQpMatrices(
     const WeightsXYArray& weight,
     const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-    double height_robot)
+    double walking_height)
 {
   if (zmp_splines_.splines_.empty()) {
     throw std::runtime_error("zmp.optimizer.cc: spline_info vector empty. First call ConstructSplineSequence()");
@@ -54,14 +54,17 @@ void QpOptimizer::SetupQpMatrices(
 
   eq_ = CreateEqualityContraints(end_cog);
 
+  ineq_ = CreateInequalityContraints(supp_triangle_container.LineForConstraint(zmp_splines_, dt_), walking_height);
+}
 
 
-  MatVec zmp_x, zmp_y;
+xpp::zmp::MatVec
+QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> &line_for_constraint, double walking_height)
+{
+  MatVec zmp_x = GetZmpFromCoefficients(walking_height, X, dt_);
+  MatVec zmp_y = GetZmpFromCoefficients(walking_height, Y, dt_);
 
-  zmp_x = CreateInequalityContraints(supp_triangle_container.LineForConstraint(zmp_splines_, dt_), height_robot, X);
-  zmp_y = CreateInequalityContraints(supp_triangle_container.LineForConstraint(zmp_splines_, dt_), height_robot, Y);
-
-  ineq_ = AddLineConstraints(zmp_x, zmp_y, supp_triangle_container.LineForConstraint(zmp_splines_, dt_));
+  return AddLineConstraints(zmp_x, zmp_y, line_for_constraint);
 }
 
 
@@ -241,17 +244,14 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
 
 
 xpp::zmp::MatVec
-QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> &line_for_constraint,
-                                         double h, int dim)
+QpOptimizer::GetZmpFromCoefficients(double h, int dim, double dt) const
 {
   std::clock_t start = std::clock();
 
   int coeff = zmp_splines_.GetTotalFreeCoeff();
+  int num_constraints = zmp_splines_.GetTotalNodes(dt, true) * 3;
 
-  MatVec ineq(coeff, line_for_constraint.size());
-  ineq_ipopt_ = ineq.M;
-  ineq_ipopt_vx_ = ineq.v;
-  ineq_ipopt_vy_ = ineq.v;
+  MatVec ineq(coeff, num_constraints);
 
   const double g = 9.81; // gravity acceleration
   int c = 0; // inequality constraint counter
@@ -276,9 +276,9 @@ QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> 
 //    zmp_splines_.DescribeEByPrev(k, Y, Eky, non_dependent_ey);
 //    zmp_splines_.DescribeFByPrev(k, Y, Fky, non_dependent_fy);
 
-    for (double i=0; i < std::floor(s.duration_/dt_); ++i) {
+    for (double i=0; i < s.GetNodeCount(dt); ++i) {
 
-      double time = i*dt_;
+      double time = i*dt;
 
       std::array<double,6> t = cache_exponents<6>(time);
 
@@ -320,11 +320,11 @@ QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> 
 //        ineq.v[c] += l.coeff.q * ineq_ipopt_vy_[c];
 //        ineq.v[c] += l.coeff.r - l.s_margin;
 
-
         ++c;
       }
     }
   }
+
 
   LOG4CXX_INFO(log_, "Calc. time inequality constraints:\t" << static_cast<double>(std::clock() - start) / CLOCKS_PER_SEC * 1000.0  << "\tms");
   LOG4CXX_DEBUG(log_, "Dim: " << ineq.M.rows() << " x " << ineq.M.cols());
@@ -336,9 +336,8 @@ QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> 
 MatVec QpOptimizer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                                      const std::vector<SuppTriangle::TrLine> &lines_for_constraint) const
 {
-  int num_ineq_constr = lines_for_constraint.size();
   int coeff = zmp_splines_.GetTotalFreeCoeff();
-
+  int num_ineq_constr = x_zmp.v.rows();
   MatVec ineq(coeff, num_ineq_constr);
 
   for (int c=0; c<num_ineq_constr; ++c) {

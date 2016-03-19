@@ -94,7 +94,7 @@ SuppTriangleContainer::LineForConstraint(const xpp::zmp::ContinuousSplineContain
 
     SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
 
-    int n_nodes =  std::floor(s.duration_/dt);
+    int n_nodes =  s.GetNodeCount(dt);
     for (int i=0; i<n_nodes; ++i) {
       line_for_constraint.push_back(lines.at(0));
       line_for_constraint.push_back(lines.at(1));

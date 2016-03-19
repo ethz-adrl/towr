@@ -73,9 +73,6 @@ public:
   void AddOptimizedCoefficients(
       const Eigen::VectorXd& optimized_coeff);
 
-  Eigen::VectorXd
-  GetXyDimAlternatingVector(double x, double y) const;
-
 private:
   static const int kFreeCoeffPerSpline = kCoeffCount-2;
 

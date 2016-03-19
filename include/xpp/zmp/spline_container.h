@@ -51,7 +51,8 @@ public:
   */
   void GetCOGxy(double t_global, Lin2d& cog_xy);
   void AddSpline(const ZmpSpline &spline);
-  double GetTotalTime() const;
+  double GetTotalTime(bool exclude_4ls_splines = false) const;
+  int GetTotalNodes(double dt, bool exclude_4ls_splines) const;
 
 
   // Creates a sequence of Splines without the optimized coefficients

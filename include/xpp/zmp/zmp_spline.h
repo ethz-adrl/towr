@@ -74,6 +74,8 @@ public:
   ZmpSpline(unsigned int id, double duration, bool four_leg_supp, int step);
   virtual ~ZmpSpline();
 
+  int GetNodeCount(double dt) const { return std::floor(duration_/dt); }
+
   unsigned int id_; // to identify the order relative to other zmp splines
   double duration_; // time during which this spline is active
   bool four_leg_supp_;

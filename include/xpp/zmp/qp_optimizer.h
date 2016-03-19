@@ -105,15 +105,11 @@ public:
   MatVec eq_;
   MatVec ineq_;
 
-  Eigen::MatrixXd ineq_ipopt_;
-  Eigen::VectorXd ineq_ipopt_vx_;
-  Eigen::VectorXd ineq_ipopt_vy_;
-
-
   double dt_ = 0.1; // only needed for inequality constraints
   // rename to get zmp
   MatVec CreateInequalityContraints(const std::vector<SuppTriangle::TrLine> &line_for_constraint,
-                                    double height_robot, int dim);
+                                    double walking_height);
+  MatVec GetZmpFromCoefficients(double walking_height, int dim, double dt) const;
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                                        const std::vector<SuppTriangle::TrLine> &lines_for_constraint) const;
 private:
