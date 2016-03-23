@@ -38,17 +38,6 @@ current support triangle are located in this namespace
 namespace zmp {
 
 
-struct MatVec {
-  Eigen::MatrixXd M;
-  Eigen::VectorXd v;
-  MatVec(int rows, int cols) {
-    M = Eigen::MatrixXd::Zero(rows, cols);
-    v = Eigen::VectorXd::Zero(cols);
-  }
-  MatVec() {}
-};
-
-
 /**
 \class ZmpOptimizer
 \brief Optimizes spline coefficients w.r.t Zero-Moment-Point criteria.
@@ -65,6 +54,7 @@ public:
   typedef ::xpp::utils::Vec2d Position;
   typedef std::array<double,2> WeightsXYArray;
   typedef ContinuousSplineContainer S;
+  typedef xpp::utils::MatVec MatVec;
 
 public:
   QpOptimizer();
@@ -98,10 +88,8 @@ public:
   MatVec eq_;
   MatVec ineq_;
 
-  // rename to get zmp
   MatVec CreateInequalityContraints(const std::vector<SuppTriangle> &supp_triangles,
                                     double walking_height);
-  MatVec ExpressZmpThroughCoefficients(double walking_height, int dim) const;
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const std::vector<SuppTriangle> &supp_triangles) const;
   void AddLineConstraint(const SuppTriangle::TrLine& l,
@@ -117,21 +105,10 @@ private:
   MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;
   MatVec CreateEqualityContraints(const Position &end_cog) const;
 
-  template<std::size_t N>
-  std::array<double,N> cache_exponents(double t) const;
 
   static log4cxx::LoggerPtr log_;
   static log4cxx::LoggerPtr log_matlab_;
 };
-
-template<std::size_t N>
-std::array<double,N> QpOptimizer::cache_exponents(double t) const
-{
-  std::array<double,N> exp = {{ 1.0, t }};
-  for (uint e = 2; e < N; ++e)
-    exp[e] = exp[e-1] * t;
-  return exp;
-}
 
 
 } // namespace zmp

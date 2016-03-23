@@ -83,6 +83,26 @@ struct LineCoeff2d {
 };
 
 
+// used e.g. as return type for qp zmp optimization
+struct MatVec {
+  Eigen::MatrixXd M;
+  Eigen::VectorXd v;
+  MatVec(int rows, int cols) {
+    M = Eigen::MatrixXd::Zero(rows, cols);
+    v = Eigen::VectorXd::Zero(cols);
+  }
+  MatVec() {}
+};
+
+
+template<std::size_t N>
+std::array<double,N> cache_exponents(double t)
+{
+  std::array<double,N> exp = {{ 1.0, t }};
+  for (uint e = 2; e < N; ++e)
+    exp[e] = exp[e-1] * t;
+  return exp;
+}
 
 
 // overloading operator<< for more elegant priting of above values

@@ -21,6 +21,7 @@ class NlpIpoptZmp : public Ipopt::TNLP
 
 public:
   typedef xpp::zmp::QpOptimizer::S Splines;
+  typedef xpp::utils::MatVec MatVec;
 
 public:
   /** default constructor */
@@ -97,8 +98,8 @@ public:
   //@}
 
 
-  xpp::zmp::MatVec cf_;
-  xpp::zmp::MatVec eq_;
+  MatVec cf_;
+  MatVec eq_;
 
   int n_spline_coeff_;
   int n_eq_constr_;
@@ -107,8 +108,8 @@ public:
   int n_steps_;
 
 
-  xpp::zmp::MatVec x_zmp_;
-  xpp::zmp::MatVec y_zmp_;
+  MatVec x_zmp_;
+  MatVec y_zmp_;
 
 
   Eigen::VectorXd initial_coefficients_;

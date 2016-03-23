@@ -34,13 +34,15 @@ void NlpIpoptZmp::SetupNlp(
 
   // TODO These stay constant throughout the optimization
   double walking_height = 0.58;
-  x_zmp_ = qp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
-  y_zmp_ = qp_optimizer.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
+  x_zmp_ = qp_optimizer.zmp_splines_.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
+  y_zmp_ = qp_optimizer.zmp_splines_.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
   cf_   =  qp_optimizer.cf_;
   eq_   =  qp_optimizer.eq_;
 
 
   n_ineq_constr_  = qp_optimizer.ineq_.v.rows();  // support polygons
+
+
   supp_triangle_container_ = supp_triangle_container;
 
   n_steps_ = supp_triangle_container.footholds_.size(); // use intial footholds for this
@@ -272,7 +274,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   //here i am adapting the constraints depending on the footholds
   supp_triangle_container_.footholds_ = steps;
-  xpp::zmp::MatVec ineq_constr = qp_optimizer_.AddLineConstraints(x_zmp_, y_zmp_, supp_triangle_container_.GetSupportTriangles());
+  MatVec ineq_constr = qp_optimizer_.AddLineConstraints(x_zmp_, y_zmp_, supp_triangle_container_.GetSupportTriangles());
   Eigen::VectorXd g_vec_in = ineq_constr.M.transpose()*x_vec + ineq_constr.v;
 
 

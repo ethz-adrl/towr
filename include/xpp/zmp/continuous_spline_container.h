@@ -20,7 +20,11 @@ namespace zmp {
  * and f coefficients of all splines can be uniquely determined from the other
  * coefficients and the initial position/velocity.
  */
-class ContinuousSplineContainer : public SplineContainer {
+class ContinuousSplineContainer : public SplineContainer
+{
+public:
+  typedef xpp::utils::MatVec MatVec;
+
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW // since member fixed sized eigen matrices (Vector2d)
   ContinuousSplineContainer ();
@@ -73,6 +77,9 @@ public:
    * @param[out] non_dependent the influence of f that are not dependent on a,b,c,d
    */
   void DescribeFByPrev(int k, int dim, Eigen::VectorXd& Ek, double& non_dependent) const;
+
+  MatVec ExpressZmpThroughCoefficients(double h, int dim) const;
+
   void AddOptimizedCoefficients(
       const Eigen::VectorXd& optimized_coeff);
 

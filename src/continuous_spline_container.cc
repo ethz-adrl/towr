@@ -7,6 +7,9 @@
 
 #include <xpp/zmp/continuous_spline_container.h>
 
+#include <ctime>      // std::clock_t
+#include <cmath>      // std::numeric_limits
+
 namespace xpp {
 namespace zmp {
 
@@ -175,6 +178,62 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
     splines_.at(k).set_spline_coeff(coeff_values);
 
   } // k=0..n_spline_infos_
+}
+
+
+xpp::utils::MatVec
+ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) const
+{
+//  std::clock_t start = std::clock();
+
+  int coeff = GetTotalFreeCoeff();
+  int num_nodes_with_4ls = GetTotalNodes();
+  int num_nodes = num_nodes_with_4ls;
+
+  MatVec ineq(coeff, num_nodes);
+
+  const double g = 9.81; // gravity acceleration
+  int n = 0; // node counter
+
+  for (const ZmpSpline& s : splines_) {
+//    LOG4CXX_TRACE(log_, "Calc inequality constaints of spline " << s.id_ << " of " << splines_.size() << ", duration=" << std::setprecision(3) << s.duration_ << ", step=" << s.step_);
+
+    // calculate e and f coefficients from previous values
+    const int k = s.id_;
+    Eigen::VectorXd Ek(coeff); Ek.setZero();
+    Eigen::VectorXd Fk(coeff); Fk.setZero();
+    double non_dependent_e, non_dependent_f;
+    DescribeEByPrev(k, dim, Ek, non_dependent_e);
+    DescribeFByPrev(k, dim, Fk, non_dependent_f);
+
+    for (double i=0; i < s.GetNodeCount(dt_); ++i) {
+
+      double time = i*dt_;
+      std::array<double,6> t = utils::cache_exponents<6>(time);
+
+      //  x_zmp = x_pos - height/(g+z_acc) * x_acc
+      //      with  x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
+      //            x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
+      double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
+
+      ineq.M(Idx(k,dim,A), n) = t[5]     - h/(g+z_acc) * 20.0 * t[3];
+      ineq.M(Idx(k,dim,B), n) = t[4]     - h/(g+z_acc) * 12.0 * t[2];
+      ineq.M(Idx(k,dim,C), n) = t[3]     - h/(g+z_acc) *  6.0 * t[1];
+      ineq.M(Idx(k,dim,D), n) = t[2]     - h/(g+z_acc) *  2.0;
+      ineq.M.col(n)             += t[1]*Ek;
+      ineq.M.col(n)             += t[0]*Fk;
+
+      ineq.v[n] = non_dependent_e*t[0] + non_dependent_f;
+
+      ++n;
+    }
+  }
+
+
+//  LOG4CXX_INFO(log_, "Calc. time inequality constraints:\t" << static_cast<double>(std::clock() - start) / CLOCKS_PER_SEC * 1000.0  << "\tms");
+//  LOG4CXX_DEBUG(log_, "Dim: " << ineq.M.rows() << " x " << ineq.M.cols());
+//  LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ineq.M << "\nVector:\n" << ineq.v.transpose());
+  return ineq;
 }
 
 

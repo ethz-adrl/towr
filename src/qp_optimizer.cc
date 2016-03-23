@@ -58,11 +58,11 @@ void QpOptimizer::SetupQpMatrices(
 }
 
 
-xpp::zmp::MatVec
+QpOptimizer::MatVec
 QpOptimizer::CreateInequalityContraints(const std::vector<SuppTriangle> &supp_triangles, double walking_height)
 {
-  MatVec zmp_x = ExpressZmpThroughCoefficients(walking_height, X);
-  MatVec zmp_y = ExpressZmpThroughCoefficients(walking_height, Y);
+  MatVec zmp_x = zmp_splines_.ExpressZmpThroughCoefficients(walking_height, X);
+  MatVec zmp_y = zmp_splines_.ExpressZmpThroughCoefficients(walking_height, Y);
 
   return AddLineConstraints(zmp_x, zmp_y, supp_triangles);
 }
@@ -91,7 +91,7 @@ Eigen::VectorXd QpOptimizer::SolveQp() {
 }
 
 
-xpp::zmp::MatVec
+QpOptimizer::MatVec
 QpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
 {
   std::clock_t start = std::clock();
@@ -101,7 +101,7 @@ QpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
   MatVec cf(n_coeff, n_coeff);
 
   for (const ZmpSpline& s : zmp_splines_.splines_) {
-    std::array<double,10> t_span = cache_exponents<10>(s.duration_);
+    std::array<double,10> t_span = utils::cache_exponents<10>(s.duration_);
 
     for (int dim = X; dim <= Y; dim++) {
       const int a = S::Idx(s.id_, dim, A);
@@ -135,7 +135,7 @@ QpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
   return cf;
 }
 
-xpp::zmp::MatVec
+QpOptimizer::MatVec
 QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
 {
   std::clock_t start = std::clock();
@@ -170,7 +170,7 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
     // 2. Final conditions
     int K = zmp_splines_.splines_.back().id_; // id of last spline
     int last_spline = S::Idx(K, dim, A);
-    std::array<double,6> t_duration = cache_exponents<6>(zmp_splines_.splines_.back().duration_);
+    std::array<double,6> t_duration = utils::cache_exponents<6>(zmp_splines_.splines_.back().duration_);
 
     // calculate e and f coefficients from previous values
     Eigen::VectorXd Ek(coeff); Ek.setZero();
@@ -212,7 +212,7 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
   // 3. Equal conditions at spline junctions
   for (uint s = 0; s < zmp_splines_.splines_.size() - 1; ++s)
   {
-    std::array<double,6> t_duration = cache_exponents<6>(zmp_splines_.splines_.at(s).duration_);
+    std::array<double,6> t_duration = utils::cache_exponents<6>(zmp_splines_.splines_.at(s).duration_);
     for (int dim = X; dim <= Y; dim++) {
 
       int curr_spline = S::Idx(s, dim, A);
@@ -242,65 +242,9 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
 }
 
 
-
-xpp::zmp::MatVec
-QpOptimizer::ExpressZmpThroughCoefficients(double h, int dim) const
-{
-  std::clock_t start = std::clock();
-
-  int coeff = zmp_splines_.GetTotalFreeCoeff();
-  int num_nodes_with_4ls = zmp_splines_.GetTotalNodes();
-  int num_nodes = num_nodes_with_4ls;
-
-  MatVec ineq(coeff, num_nodes);
-
-  const double g = 9.81; // gravity acceleration
-  int n = 0; // node counter
-
-  for (const ZmpSpline& s : zmp_splines_.splines_) {
-    LOG4CXX_TRACE(log_, "Calc inequality constaints of spline " << s.id_ << " of " << zmp_splines_.splines_.size() << ", duration=" << std::setprecision(3) << s.duration_ << ", step=" << s.step_);
-
-    // calculate e and f coefficients from previous values
-    const int k = s.id_;
-    Eigen::VectorXd Ek(coeff); Ek.setZero();
-    Eigen::VectorXd Fk(coeff); Fk.setZero();
-    double non_dependent_e, non_dependent_f;
-    zmp_splines_.DescribeEByPrev(k, dim, Ek, non_dependent_e);
-    zmp_splines_.DescribeFByPrev(k, dim, Fk, non_dependent_f);
-
-    for (double i=0; i < s.GetNodeCount(zmp_splines_.dt_); ++i) {
-
-      double time = i*zmp_splines_.dt_;
-      std::array<double,6> t = cache_exponents<6>(time);
-
-      //  x_zmp = x_pos - height/(g+z_acc) * x_acc
-      //      with  x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
-      //            x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
-      double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
-
-      ineq.M(S::Idx(k,dim,A), n) = t[5]     - h/(g+z_acc) * 20.0 * t[3];
-      ineq.M(S::Idx(k,dim,B), n) = t[4]     - h/(g+z_acc) * 12.0 * t[2];
-      ineq.M(S::Idx(k,dim,C), n) = t[3]     - h/(g+z_acc) *  6.0 * t[1];
-      ineq.M(S::Idx(k,dim,D), n) = t[2]     - h/(g+z_acc) *  2.0;
-      ineq.M.col(n)             += t[1]*Ek;
-      ineq.M.col(n)             += t[0]*Fk;
-
-      ineq.v[n] = non_dependent_e*t[0] + non_dependent_f;
-
-      ++n;
-    }
-  }
-
-
-  LOG4CXX_INFO(log_, "Calc. time inequality constraints:\t" << static_cast<double>(std::clock() - start) / CLOCKS_PER_SEC * 1000.0  << "\tms");
-  LOG4CXX_DEBUG(log_, "Dim: " << ineq.M.rows() << " x " << ineq.M.cols());
-  LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ineq.M << "\nVector:\n" << ineq.v.transpose());
-  return ineq;
-}
-
-
-MatVec QpOptimizer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-                                       const std::vector<SuppTriangle> &supp_triangles) const
+QpOptimizer::MatVec
+QpOptimizer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+                                const std::vector<SuppTriangle> &supp_triangles) const
 {
   int coeff = zmp_splines_.GetTotalFreeCoeff();
   int num_nodes_no_4ls = zmp_splines_.GetTotalNodes(true);
@@ -312,6 +256,7 @@ MatVec QpOptimizer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
   int c = 0; // inequality constraint counter
   for (const ZmpSpline& s : zmp_splines_.splines_) {
 
+    // skip the nodes that belong to the four-leg support phase
     if (s.four_leg_supp_) {
       n += s.GetNodeCount(zmp_splines_.dt_);
       continue;
@@ -320,14 +265,13 @@ MatVec QpOptimizer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
     SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
     for (double i=0; i < s.GetNodeCount(zmp_splines_.dt_); ++i) {
 
-      // add one line constraint for each node
+      // add three line constraints for each node
       for (int l=0; l<3; l++)
         AddLineConstraint(lines.at(l),x_zmp.M.col(n), y_zmp.M.col(n),x_zmp.v[n], y_zmp.v[n],c, ineq.M, ineq.v);
 
       n++;
     }
   }
-
 
   return ineq;
 }
@@ -341,7 +285,6 @@ void QpOptimizer::AddLineConstraint(const SuppTriangle::TrLine& l,
                                     double y_zmp_v,
                                     int& c, Eigen::MatrixXd& M, Eigen::VectorXd& v) const
 {
-
   // the zero moment point must always lay on one side of triangle side:
   // p*x_zmp + q*y_zmp + r > stability_margin
   M.col(c) = l.coeff.p*x_zmp_M + l.coeff.q*y_zmp_M;

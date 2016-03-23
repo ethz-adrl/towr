@@ -22,7 +22,7 @@ namespace logger_helpers {
 // make inline to avoid function call overhead when logging level disabled
 inline void print_spline_info(const std::vector<zmp::ZmpSpline>& splines, log4cxx::LoggerPtr log);
 
-inline void print_struct(const zmp::MatVec& s, std::string name, log4cxx::LoggerPtr log);
+inline void print_struct(const utils::MatVec& s, std::string name, log4cxx::LoggerPtr log);
 
 inline void print_opt_result(Eigen::VectorXd solution, double cost, clock_t start,
                              clock_t stop, log4cxx::LoggerPtr log);
@@ -63,7 +63,7 @@ void print_spline_info(const std::vector<zmp::ZmpSpline>& splines, log4cxx::Logg
   }
 }
 
-void print_struct(const zmp::MatVec& s, std::string name,
+void print_struct(const utils::MatVec& s, std::string name,
     log4cxx::LoggerPtr log)
 {
   if (log->isTraceEnabled()) {
