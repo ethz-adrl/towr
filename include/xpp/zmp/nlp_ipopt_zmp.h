@@ -11,7 +11,8 @@
 
 #include <IpTNLP.hpp>
 
-#include "qp_optimizer.h"
+#include <xpp/hyq/supp_triangle_container.h>
+#include <xpp/zmp/continuous_spline_container.h>
 
 namespace Ipopt {
 
@@ -20,7 +21,7 @@ class NlpIpoptZmp : public Ipopt::TNLP
 {
 
 public:
-  typedef xpp::zmp::QpOptimizer::S Splines;
+  typedef xpp::zmp::ContinuousSplineContainer Splines;
   typedef xpp::utils::MatVec MatVec;
 
 public:
@@ -98,39 +99,37 @@ public:
   //@}
 
 
-  MatVec cf_;
-  MatVec eq_;
-
-  int n_spline_coeff_;
-  int n_eq_constr_;
-  int n_ineq_constr_;
-
-  int n_steps_;
-
-
-  MatVec x_zmp_;
-  MatVec y_zmp_;
-
-
-  Eigen::VectorXd initial_coefficients_;
-  std::vector<xpp::hyq::Foothold> initial_footholds_;
-
-  xpp::zmp::QpOptimizer qp_optimizer_; // FIXME remove this dependeny
-  xpp::hyq::SuppTriangleContainer supp_triangle_container_;
 
 
   void SetupNlp(const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-                const xpp::zmp::QpOptimizer& zmp_optimizer,
+                const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
+                const MatVec& qp_cost_function,
+                const MatVec& qp_equality_constraints,
                 const Eigen::VectorXd& initial_coefficients = Eigen::Vector2d::Zero()
   );
 
   Eigen::VectorXd x_final_spline_coeff_;
   Eigen::VectorXd x_final_footholds_;
 
-
-
-
 private:
+  xpp::hyq::SuppTriangleContainer supp_triangle_container_;
+  xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
+
+  MatVec cf_;
+  MatVec eq_;
+  MatVec ineq_;
+
+  int n_spline_coeff_;
+  int n_eq_constr_;
+  int n_ineq_constr_;
+  int n_steps_;
+
+  MatVec x_zmp_;
+  MatVec y_zmp_;
+
+  Eigen::VectorXd initial_coefficients_;
+  std::vector<xpp::hyq::Foothold> initial_footholds_;
+
   /**@name Methods to block default compiler methods.
    * The compiler automatically generates the following three methods.
    *  Since the default compiler implementation is generally not what

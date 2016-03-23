@@ -14,7 +14,7 @@
 #ifndef _XPP_ZMP_SPLINECONTAINER_H_
 #define _XPP_ZMP_SPLINECONTAINER_H_
 
-#include "zmp_spline.h"
+#include <xpp/zmp/zmp_spline.h>
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/hyq/supp_triangle.h>

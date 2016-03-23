@@ -14,7 +14,8 @@
 namespace xpp {
 namespace hyq {
 
-class SuppTriangleContainer {
+class SuppTriangleContainer
+{
 public:
   typedef std::vector<Foothold> Footholds;
   typedef std::vector<SuppTriangle> SuppTriangles;
@@ -27,7 +28,6 @@ public:
   ~SuppTriangleContainer ();
 
 public:
-
   void Init(LegDataMap<Foothold> start_stance,
                                    const Footholds& footholds,
                                    const MarginValues& margins);
@@ -49,16 +49,8 @@ public:
   }
 
   Eigen::Vector2d GetCenterOfFinalStance() const;
-
-
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
-  void AddLineConstraint(const SuppTriangle::TrLine& l,
-                         const Eigen::VectorXd& x_zmp_M,
-                         const Eigen::VectorXd& y_zmp_M,
-                         double x_zmp_v,
-                         double y_zmp_v,
-                         int& c, Eigen::MatrixXd& M, Eigen::VectorXd& v) const;
 
 
 public:
@@ -67,6 +59,12 @@ public:
   MarginValues margins_;
 
 private:
+  void AddLineConstraint(const SuppTriangle::TrLine& l,
+                         const Eigen::VectorXd& x_zmp_M,
+                         const Eigen::VectorXd& y_zmp_M,
+                         double x_zmp_v,
+                         double y_zmp_v,
+                         int& c, Eigen::MatrixXd& M, Eigen::VectorXd& v) const;
   void CheckIfInitialized() const;
 };
 

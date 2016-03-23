@@ -7,11 +7,8 @@
 // Authors:  Carl Laird, Andreas Waechter     IBM    2004-11-05
 
 #include <xpp/zmp/nlp_ipopt_zmp.h>
-#include <xpp/hyq/supp_triangle_container.h>
-
 
 namespace Ipopt {
-
 
 #define prt(x) std::cout << #x << " = " << std::endl << x << std::endl << std::endl;
 
@@ -23,29 +20,29 @@ NlpIpoptZmp::~NlpIpoptZmp()
 
 void NlpIpoptZmp::SetupNlp(
     const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-    const xpp::zmp::QpOptimizer& qp_optimizer,
+    const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
+    const MatVec& qp_cost_function,
+    const MatVec& qp_equality_constraints,
     const Eigen::VectorXd& initial_coefficients)
 {
-  qp_optimizer_ = qp_optimizer; // FIXME remove this dependency
-
-  n_spline_coeff_ = qp_optimizer.zmp_splines_.GetTotalFreeCoeff();
-  n_eq_constr_    = qp_optimizer.eq_.v.rows();                  // spline junctions
-
-
-  // TODO These stay constant throughout the optimization
-  double walking_height = 0.58;
-  x_zmp_ = qp_optimizer.zmp_splines_.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
-  y_zmp_ = qp_optimizer.zmp_splines_.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
-  cf_   =  qp_optimizer.cf_;
-  eq_   =  qp_optimizer.eq_;
-
-
-  n_ineq_constr_  = qp_optimizer.ineq_.v.rows();  // support polygons
-
-
   supp_triangle_container_ = supp_triangle_container;
+  zmp_spline_container_ = zmp_spline_container;
 
+  n_spline_coeff_ = zmp_spline_container.GetTotalFreeCoeff();
   n_steps_ = supp_triangle_container.footholds_.size(); // use intial footholds for this
+
+  // cost funciton and equality constriants
+  cf_   =  qp_cost_function;
+  eq_   =  qp_equality_constraints;
+  n_eq_constr_    = qp_equality_constraints.v.rows();     // spline junctions
+
+  // inequality constraints
+  double walking_height = 0.58;
+  x_zmp_ = zmp_spline_container.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
+  y_zmp_ = zmp_spline_container.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
+  ineq_= supp_triangle_container.AddLineConstraints(x_zmp_, y_zmp_, zmp_spline_container);
+  n_ineq_constr_  = ineq_.v.rows();  // support polygons
+
   initial_coefficients_ = initial_coefficients;
   initial_footholds_ = supp_triangle_container.footholds_;
 }
@@ -54,23 +51,6 @@ void NlpIpoptZmp::SetupNlp(
 bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
-  //  min 0.5 * x G x + g0 x
-  //  s.t.
-  //  CE^T x + ce0 = 0
-  //  CI^T x + ci0 >= 0
-  //
-  //  The matrix and vectors dimensions are as follows:
-  //  G: n * n
-  //  g0: n
-  //
-  //  CE: n * p
-  //  ce0: p
-  //
-  //  CI: n * m
-  //  ci0: m
-  //
-  //  x: n
-
   // How many variables to optimize over
   n = n_spline_coeff_ + 2*n_steps_; // x,y-coordinate of footholds
   std::cout << "optimizing n= " << n << " variables ";
@@ -274,8 +254,8 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   //here i am adapting the constraints depending on the footholds
   supp_triangle_container_.footholds_ = steps;
-  MatVec ineq_constr = supp_triangle_container_.AddLineConstraints(x_zmp_, y_zmp_, qp_optimizer_.zmp_splines_);
-  Eigen::VectorXd g_vec_in = ineq_constr.M.transpose()*x_vec + ineq_constr.v;
+  ineq_ = supp_triangle_container_.AddLineConstraints(x_zmp_, y_zmp_, zmp_spline_container_);
+  Eigen::VectorXd g_vec_in = ineq_.M.transpose()*x_vec + ineq_.v;
 
 
 

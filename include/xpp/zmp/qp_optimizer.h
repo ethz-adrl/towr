@@ -53,7 +53,6 @@ public:
   typedef ::xpp::hyq::SuppTriangle SuppTriangle;
   typedef ::xpp::utils::Vec2d Position;
   typedef std::array<double,2> WeightsXYArray;
-  typedef ContinuousSplineContainer S;
   typedef xpp::utils::MatVec MatVec;
 
 public:
@@ -62,7 +61,7 @@ public:
   /**
    * @param spline_structure the amount and sequence of splines with empty coefficients
    */
-  QpOptimizer(const S& spline_structure);
+  QpOptimizer(const ContinuousSplineContainer& spline_structure);
 
   virtual ~QpOptimizer();
 
@@ -86,13 +85,13 @@ public:
 
   MatVec cf_;
   MatVec eq_;
-  MatVec ineq_;
 
-  S zmp_splines_;
+  ContinuousSplineContainer zmp_splines_;
 
 private:
 
 
+  MatVec ineq_;
   MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;
   MatVec CreateEqualityContraints(const Position &end_cog) const;
   MatVec CreateInequalityContraints(const xpp::hyq::SuppTriangleContainer& supp_triangle_container,

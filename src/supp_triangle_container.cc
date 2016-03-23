@@ -66,7 +66,7 @@ Eigen::Vector2d SuppTriangleContainer::GetCenterOfFinalStance() const
   CheckIfInitialized();
 
   // get last support triangle + last step to form last stance
-  ArrayF3 last_tr = GetSupportTriangles().back().footholds_;
+  ArrayF3 last_tr = GetSupportTriangles().back().footholds_; // FIXME violates law of Dementer
   Foothold last_step = footholds_.back();
 
   Eigen::Vector2d end_cog = Eigen::Vector2d::Zero();
