@@ -45,7 +45,11 @@ public:
 
 
 
-  static int Idx(int spline, int dim, int coeff);
+  /**
+   * The index number of the coefficient \c coeff, for dimension \c dim and
+   * spline number \c spline.
+   */
+  static int Index(int spline, int dim, int coeff);
   int GetTotalFreeCoeff() const;
   int GetTotalNodes(bool exclude_4ls_splines = false) const;
   int GetSplineID(int node) const;

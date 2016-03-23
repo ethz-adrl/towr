@@ -104,10 +104,10 @@ QpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
     std::array<double,10> t_span = utils::cache_exponents<10>(s.duration_);
 
     for (int dim = X; dim <= Y; dim++) {
-      const int a = ContinuousSplineContainer::Idx(s.id_, dim, A);
-      const int b = ContinuousSplineContainer::Idx(s.id_, dim, B);
-      const int c = ContinuousSplineContainer::Idx(s.id_, dim, C);
-      const int d = ContinuousSplineContainer::Idx(s.id_, dim, D);
+      const int a = ContinuousSplineContainer::Index(s.id_, dim, A);
+      const int b = ContinuousSplineContainer::Index(s.id_, dim, B);
+      const int c = ContinuousSplineContainer::Index(s.id_, dim, C);
+      const int d = ContinuousSplineContainer::Index(s.id_, dim, D);
 
       // for explanation of values see M.Kalakrishnan et al., page 248
       // "Learning, Planning and Control for Quadruped Robots over challenging
@@ -158,18 +158,18 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
   {
     // 2. Initial conditions
     // acceleration set to zero
-    int d = ContinuousSplineContainer::Idx(0, dim, D);
+    int d = ContinuousSplineContainer::Index(0, dim, D);
     ec.M(d, i) = 2.0;
     ec.v(i++) = -kAccStart(dim);
     // jerk set to zero
-    int c = ContinuousSplineContainer::Idx(0, dim, C);
+    int c = ContinuousSplineContainer::Index(0, dim, C);
     ec.M(c, i) = 6.0;
     ec.v(i++) = -kJerkStart(dim);
 
 
     // 2. Final conditions
     int K = zmp_splines_.splines_.back().id_; // id of last spline
-    int last_spline = ContinuousSplineContainer::Idx(K, dim, A);
+    int last_spline = ContinuousSplineContainer::Index(K, dim, A);
     std::array<double,6> t_duration = utils::cache_exponents<6>(zmp_splines_.splines_.back().duration_);
 
     // calculate e and f coefficients from previous values
@@ -215,8 +215,8 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
     std::array<double,6> t_duration = utils::cache_exponents<6>(zmp_splines_.splines_.at(s).duration_);
     for (int dim = X; dim <= Y; dim++) {
 
-      int curr_spline = ContinuousSplineContainer::Idx(s, dim, A);
-      int next_spline = ContinuousSplineContainer::Idx(s + 1, dim, A);
+      int curr_spline = ContinuousSplineContainer::Index(s, dim, A);
+      int next_spline = ContinuousSplineContainer::Index(s + 1, dim, A);
 
       // acceleration
       ec.M(curr_spline + A, i) = 20 * t_duration[3];

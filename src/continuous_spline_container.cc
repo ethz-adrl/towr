@@ -55,7 +55,7 @@ int ContinuousSplineContainer::GetTotalFreeCoeff() const
 }
 
 
-int ContinuousSplineContainer::Idx(int spline, int dim, int coeff)
+int ContinuousSplineContainer::Index(int spline, int dim, int coeff)
 {
   return kFreeCoeffPerSpline * kDim2d * spline + kFreeCoeffPerSpline * dim + coeff;
 }
@@ -100,10 +100,10 @@ void ContinuousSplineContainer::DescribeEByPrev(int k,
   for (int i=0; i<k; ++i) {
     double Ti = splines_.at(i).duration_;
 
-    Ek(Idx(i,dim,A)) += 5*std::pow(Ti,4);
-    Ek(Idx(i,dim,B)) += 4*std::pow(Ti,3);
-    Ek(Idx(i,dim,C)) += 3*std::pow(Ti,2);
-    Ek(Idx(i,dim,D)) += 2*std::pow(Ti,1);
+    Ek(Index(i,dim,A)) += 5*std::pow(Ti,4);
+    Ek(Index(i,dim,B)) += 4*std::pow(Ti,3);
+    Ek(Index(i,dim,C)) += 3*std::pow(Ti,2);
+    Ek(Index(i,dim,D)) += 2*std::pow(Ti,1);
   }
 
   non_dependent = start_cog_v_(dim);
@@ -123,17 +123,17 @@ void ContinuousSplineContainer::DescribeFByPrev(int k, int dim,
 
     T0tok(i) = Ti; // initial velocity acts over the entire time T of EVERY spline
 
-    Fk[Idx(i,dim,A)] += std::pow(Ti,5);
-    Fk[Idx(i,dim,B)] += std::pow(Ti,4);
-    Fk[Idx(i,dim,C)] += std::pow(Ti,3);
-    Fk[Idx(i,dim,D)] += std::pow(Ti,2);
+    Fk[Index(i,dim,A)] += std::pow(Ti,5);
+    Fk[Index(i,dim,B)] += std::pow(Ti,4);
+    Fk[Index(i,dim,C)] += std::pow(Ti,3);
+    Fk[Index(i,dim,D)] += std::pow(Ti,2);
 
     for (int j = 0; j<i; ++j) {
       double Tj = splines_.at(j).duration_;
-      Fk[Idx(j,dim,A)] += 5*std::pow(Tj,4) * Ti;
-      Fk[Idx(j,dim,B)] += 4*std::pow(Tj,3) * Ti;
-      Fk[Idx(j,dim,C)] += 3*std::pow(Tj,2) * Ti;
-      Fk[Idx(j,dim,D)] += 2*std::pow(Tj,1) * Ti;
+      Fk[Index(j,dim,A)] += 5*std::pow(Tj,4) * Ti;
+      Fk[Index(j,dim,B)] += 4*std::pow(Tj,3) * Ti;
+      Fk[Index(j,dim,C)] += 3*std::pow(Tj,2) * Ti;
+      Fk[Index(j,dim,D)] += 2*std::pow(Tj,1) * Ti;
     }
   }
 
@@ -159,10 +159,10 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
       double* cv = (dim == xpp::utils::X) ? coeff_values.x : coeff_values.y;
 
       // fill in only first 4 optimized coefficients
-      cv[A] = optimized_coeff[Idx(k,dim,A)];
-      cv[B] = optimized_coeff[Idx(k,dim,B)];
-      cv[C] = optimized_coeff[Idx(k,dim,C)];
-      cv[D] = optimized_coeff[Idx(k,dim,D)];
+      cv[A] = optimized_coeff[Index(k,dim,A)];
+      cv[B] = optimized_coeff[Index(k,dim,B)];
+      cv[C] = optimized_coeff[Index(k,dim,C)];
+      cv[D] = optimized_coeff[Index(k,dim,D)];
 
       // calculate e and f coefficients from previous values
       Ek.setZero();
@@ -217,10 +217,10 @@ ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) cons
       //            x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
       double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
 
-      ineq.M(Idx(k,dim,A), n) = t[5]     - h/(g+z_acc) * 20.0 * t[3];
-      ineq.M(Idx(k,dim,B), n) = t[4]     - h/(g+z_acc) * 12.0 * t[2];
-      ineq.M(Idx(k,dim,C), n) = t[3]     - h/(g+z_acc) *  6.0 * t[1];
-      ineq.M(Idx(k,dim,D), n) = t[2]     - h/(g+z_acc) *  2.0;
+      ineq.M(Index(k,dim,A), n) = t[5]     - h/(g+z_acc) * 20.0 * t[3];
+      ineq.M(Index(k,dim,B), n) = t[4]     - h/(g+z_acc) * 12.0 * t[2];
+      ineq.M(Index(k,dim,C), n) = t[3]     - h/(g+z_acc) *  6.0 * t[1];
+      ineq.M(Index(k,dim,D), n) = t[2]     - h/(g+z_acc) *  2.0;
       ineq.M.col(n)             += t[1]*Ek;
       ineq.M.col(n)             += t[0]*Fk;
 
