@@ -88,22 +88,15 @@ public:
   MatVec eq_;
   MatVec ineq_;
 
-  MatVec CreateInequalityContraints(const std::vector<SuppTriangle> &supp_triangles,
-                                    double walking_height);
-  MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-                            const std::vector<SuppTriangle> &supp_triangles) const;
-  void AddLineConstraint(const SuppTriangle::TrLine& l,
-                         const Eigen::VectorXd& x_zmp_M,
-                         const Eigen::VectorXd& y_zmp_M,
-                         double x_zmp_v,
-                         double y_zmp_v,
-                         int& c, Eigen::MatrixXd& M, Eigen::VectorXd& v) const;
   S zmp_splines_;
+
 private:
 
 
   MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;
   MatVec CreateEqualityContraints(const Position &end_cog) const;
+  MatVec CreateInequalityContraints(const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
+                                    double walking_height);
 
 
   static log4cxx::LoggerPtr log_;

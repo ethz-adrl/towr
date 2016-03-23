@@ -60,6 +60,7 @@ SuppTriangleContainer::GetSupportTriangles(const Footholds& footholds) const
   return tr;
 }
 
+
 Eigen::Vector2d SuppTriangleContainer::GetCenterOfFinalStance() const
 {
   CheckIfInitialized();
@@ -75,6 +76,63 @@ Eigen::Vector2d SuppTriangleContainer::GetCenterOfFinalStance() const
   end_cog += last_step.p.segment<2>(xpp::utils::X);
 
   return end_cog/_LEGS_COUNT;
+}
+
+
+SuppTriangleContainer::MatVec
+SuppTriangleContainer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+                                          const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
+{
+  CheckIfInitialized();
+
+  SuppTriangles supp_triangles = GetSupportTriangles();
+
+  int coeff = zmp_splines.GetTotalFreeCoeff();
+  int num_nodes_no_4ls = zmp_splines.GetTotalNodes(true);
+
+  int num_ineq_constr = 3*num_nodes_no_4ls;
+  MatVec ineq(coeff, num_ineq_constr);
+
+  int n = 0; // node counter
+  int c = 0; // inequality constraint counter
+  for (const xpp::zmp::ZmpSpline& s : zmp_splines.splines_) {
+
+    // skip the nodes that belong to the four-leg support phase
+    if (s.four_leg_supp_) {
+      n += s.GetNodeCount(zmp_splines.dt_);
+      continue;
+    }
+
+    SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
+    for (double i=0; i < s.GetNodeCount(zmp_splines.dt_); ++i) {
+
+      // add three line constraints for each node
+      for (int l=0; l<3; l++)
+        AddLineConstraint(lines.at(l),x_zmp.M.col(n), y_zmp.M.col(n),x_zmp.v[n], y_zmp.v[n],c, ineq.M, ineq.v);
+
+      n++;
+    }
+  }
+
+  return ineq;
+}
+
+
+
+void SuppTriangleContainer::AddLineConstraint(const SuppTriangle::TrLine& l,
+                                    const Eigen::VectorXd& x_zmp_M,
+                                    const Eigen::VectorXd& y_zmp_M,
+                                    double x_zmp_v,
+                                    double y_zmp_v,
+                                    int& c, Eigen::MatrixXd& M, Eigen::VectorXd& v) const
+{
+  // the zero moment point must always lay on one side of triangle side:
+  // p*x_zmp + q*y_zmp + r > stability_margin
+  M.col(c) = l.coeff.p*x_zmp_M + l.coeff.q*y_zmp_M;
+  v[c]     = l.coeff.p*x_zmp_v + l.coeff.q*x_zmp_v;
+  v[c]    += l.coeff.r - l.s_margin;
+
+  c++;
 }
 
 

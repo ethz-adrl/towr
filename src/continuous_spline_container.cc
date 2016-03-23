@@ -185,6 +185,7 @@ xpp::utils::MatVec
 ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) const
 {
 //  std::clock_t start = std::clock();
+  CheckIfInitialized();
 
   int coeff = GetTotalFreeCoeff();
   int num_nodes_with_4ls = GetTotalNodes();

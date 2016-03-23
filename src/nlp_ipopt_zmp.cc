@@ -274,7 +274,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   //here i am adapting the constraints depending on the footholds
   supp_triangle_container_.footholds_ = steps;
-  MatVec ineq_constr = qp_optimizer_.AddLineConstraints(x_zmp_, y_zmp_, supp_triangle_container_.GetSupportTriangles());
+  MatVec ineq_constr = supp_triangle_container_.AddLineConstraints(x_zmp_, y_zmp_, qp_optimizer_.zmp_splines_);
   Eigen::VectorXd g_vec_in = ineq_constr.M.transpose()*x_vec + ineq_constr.v;
 
 

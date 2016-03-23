@@ -19,6 +19,7 @@ public:
   typedef std::vector<Foothold> Footholds;
   typedef std::vector<SuppTriangle> SuppTriangles;
   typedef std::array<Foothold,3> ArrayF3;
+  typedef xpp::utils::MatVec MatVec;
 
 public:
   SuppTriangleContainer ();
@@ -48,6 +49,16 @@ public:
   }
 
   Eigen::Vector2d GetCenterOfFinalStance() const;
+
+
+  MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+                            const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
+  void AddLineConstraint(const SuppTriangle::TrLine& l,
+                         const Eigen::VectorXd& x_zmp_M,
+                         const Eigen::VectorXd& y_zmp_M,
+                         double x_zmp_v,
+                         double y_zmp_v,
+                         int& c, Eigen::MatrixXd& M, Eigen::VectorXd& v) const;
 
 
 public:
