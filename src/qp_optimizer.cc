@@ -74,7 +74,9 @@ Eigen::VectorXd QpOptimizer::SolveQp() {
 
   clock_t start = std::clock();
 
-  double cost = Eigen::solve_quadprog(cf_.M, cf_.v, eq_.M, eq_.v, ineq_.M, ineq_.v,
+  double cost = Eigen::solve_quadprog(cf_.M, cf_.v,
+                                      eq_.M.transpose(), eq_.v,
+                                      ineq_.M.transpose(), ineq_.v,
                                       opt_spline_coeff_xy);
   clock_t end = std::clock();
 
@@ -145,7 +147,7 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
   constraints += kDim2d*2;                         // init {x,y} * {acc, jerk} pos, vel implied set through spline_container.AddOptimizedCoefficients()
   constraints += kDim2d*3;                         // end  {x,y} * {pos, vel, acc}
   constraints += (zmp_splines_.splines_.size()-1) * kDim2d * 2;  // junctions {acc,jerk} since pos, vel  implied
-  MatVec ec(coeff, constraints);
+  MatVec ec(constraints, coeff);
 
   const Eigen::Vector2d kAccStart = Eigen::Vector2d(0.0, 0.0);
   const Eigen::Vector2d kJerkStart= Eigen::Vector2d(0.0, 0.0);
@@ -159,11 +161,11 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
     // 2. Initial conditions
     // acceleration set to zero
     int d = ContinuousSplineContainer::Index(0, dim, D);
-    ec.M(d, i) = 2.0;
+    ec.M(i,d) = 2.0;
     ec.v(i++) = -kAccStart(dim);
     // jerk set to zero
     int c = ContinuousSplineContainer::Index(0, dim, C);
-    ec.M(c, i) = 6.0;
+    ec.M(i,c) = 6.0;
     ec.v(i++) = -kJerkStart(dim);
 
 
@@ -173,38 +175,38 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
     std::array<double,6> t_duration = utils::cache_exponents<6>(zmp_splines_.splines_.back().duration_);
 
     // calculate e and f coefficients from previous values
-    Eigen::VectorXd Ek(coeff); Ek.setZero();
-    Eigen::VectorXd Fk(coeff); Fk.setZero();
+    Eigen::RowVectorXd Ek(coeff); Ek.setZero();
+    Eigen::RowVectorXd Fk(coeff); Fk.setZero();
     double non_dependent_e, non_dependent_f;
     zmp_splines_.DescribeEByPrev(K, dim, Ek, non_dependent_e);
     zmp_splines_.DescribeFByPrev(K, dim, Fk, non_dependent_f);
 
     // position
-    ec.M(last_spline + A, i) = t_duration[5];
-    ec.M(last_spline + B, i) = t_duration[4];
-    ec.M(last_spline + C, i) = t_duration[3];
-    ec.M(last_spline + D, i) = t_duration[2];
-    ec.M.col(i) += Ek*t_duration[1];
-    ec.M.col(i) += Fk;
+    ec.M(i, last_spline + A) = t_duration[5];
+    ec.M(i, last_spline + B) = t_duration[4];
+    ec.M(i, last_spline + C) = t_duration[3];
+    ec.M(i, last_spline + D) = t_duration[2];
+    ec.M.row(i) += Ek*t_duration[1];
+    ec.M.row(i) += Fk;
 
     ec.v(i)     += non_dependent_e*t_duration[1] + non_dependent_f;
     ec.v(i++)   += -end_cog(dim);
 
     // velocities
-    ec.M(last_spline + A, i) = 5 * t_duration[4];
-    ec.M(last_spline + B, i) = 4 * t_duration[3];
-    ec.M(last_spline + C, i) = 3 * t_duration[2];
-    ec.M(last_spline + D, i) = 2 * t_duration[1];
-    ec.M.col(i) += Ek;
+    ec.M(i, last_spline + A) = 5 * t_duration[4];
+    ec.M(i, last_spline + B) = 4 * t_duration[3];
+    ec.M(i, last_spline + C) = 3 * t_duration[2];
+    ec.M(i, last_spline + D) = 2 * t_duration[1];
+    ec.M.row(i) += Ek;
 
     ec.v(i)     += non_dependent_e;
     ec.v(i++)   += -kVelEnd(dim);
 
     // accelerations
-    ec.M(last_spline + A, i) = 20 * t_duration[3];
-    ec.M(last_spline + B, i) = 12 * t_duration[2];
-    ec.M(last_spline + C, i) = 6  * t_duration[1];
-    ec.M(last_spline + D, i) = 2;
+    ec.M(i, last_spline + A) = 20 * t_duration[3];
+    ec.M(i, last_spline + B) = 12 * t_duration[2];
+    ec.M(i, last_spline + C) = 6  * t_duration[1];
+    ec.M(i, last_spline + D) = 2;
 
     ec.v(i++) = -kAccEnd(dim);
   }
@@ -219,18 +221,18 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
       int next_spline = ContinuousSplineContainer::Index(s + 1, dim, A);
 
       // acceleration
-      ec.M(curr_spline + A, i) = 20 * t_duration[3];
-      ec.M(curr_spline + B, i) = 12 * t_duration[2];
-      ec.M(curr_spline + C, i) = 6  * t_duration[1];
-      ec.M(curr_spline + D, i) = 2;
-      ec.M(next_spline + D, i) = -2.0;
+      ec.M(i, curr_spline + A) = 20 * t_duration[3];
+      ec.M(i, curr_spline + B) = 12 * t_duration[2];
+      ec.M(i, curr_spline + C) = 6  * t_duration[1];
+      ec.M(i, curr_spline + D) = 2;
+      ec.M(i, next_spline + D) = -2.0;
       ec.v(i++) = 0.0;
 
       // jerk (derivative of acceleration)
-      ec.M(curr_spline + A, i) = 60 * t_duration[2];
-      ec.M(curr_spline + B, i) = 24 * t_duration[1];
-      ec.M(curr_spline + C, i) = 6;
-      ec.M(next_spline + C, i) = -6.0;
+      ec.M(i, curr_spline + A) = 60 * t_duration[2];
+      ec.M(i, curr_spline + B) = 24 * t_duration[1];
+      ec.M(i, curr_spline + C) = 6;
+      ec.M(i, next_spline + C) = -6.0;
       ec.v(i++) = 0.0;
     }
   }

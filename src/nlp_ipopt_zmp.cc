@@ -239,7 +239,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
 
   // equality constraints
-  Eigen::VectorXd g_vec_eq = eq_.M.transpose()*x_vec + eq_.v;
+  Eigen::VectorXd g_vec_eq = eq_.M*x_vec + eq_.v;
 
 
   // inequality constraints
@@ -255,7 +255,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
   //here i am adapting the constraints depending on the footholds
   supp_triangle_container_.footholds_ = steps;
   ineq_ = supp_triangle_container_.AddLineConstraints(x_zmp_, y_zmp_, zmp_spline_container_);
-  Eigen::VectorXd g_vec_in = ineq_.M.transpose()*x_vec + ineq_.v;
+  Eigen::VectorXd g_vec_in = ineq_.M*x_vec + ineq_.v;
 
 
 

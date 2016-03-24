@@ -89,7 +89,7 @@ struct MatVec {
   Eigen::VectorXd v;
   MatVec(int rows, int cols) {
     M = Eigen::MatrixXd::Zero(rows, cols);
-    v = Eigen::VectorXd::Zero(cols);
+    v = Eigen::VectorXd::Zero(rows);
   }
   MatVec() {}
 };

@@ -60,8 +60,8 @@ public:
 
 private:
   void AddLineConstraint(const SuppTriangle::TrLine& l,
-                         const Eigen::VectorXd& x_zmp_M,
-                         const Eigen::VectorXd& y_zmp_M,
+                         const Eigen::RowVectorXd& x_zmp_M,
+                         const Eigen::RowVectorXd& y_zmp_M,
                          double x_zmp_v,
                          double y_zmp_v,
                          int& c, Eigen::MatrixXd& M, Eigen::VectorXd& v) const;

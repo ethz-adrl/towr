@@ -91,7 +91,7 @@ int ContinuousSplineContainer::GetSplineID(int node) const
 
 
 void ContinuousSplineContainer::DescribeEByPrev(int k,
-                                   int dim, Eigen::VectorXd& Ek,
+                                   int dim, Eigen::RowVectorXd& Ek,
                                    double& non_dependent) const
 {
   CheckIfInitialized();
@@ -111,7 +111,7 @@ void ContinuousSplineContainer::DescribeEByPrev(int k,
 
 
 void ContinuousSplineContainer::DescribeFByPrev(int k, int dim,
-                                   Eigen::VectorXd& Fk, double& non_dependent) const
+                                   Eigen::RowVectorXd& Fk, double& non_dependent) const
 {
   CheckIfInitialized();
 
@@ -147,8 +147,8 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
 {
   CheckIfInitialized();
 
-  Eigen::VectorXd Ek(optimized_coeff.size());
-  Eigen::VectorXd Fk(optimized_coeff.size());
+  Eigen::RowVectorXd Ek(optimized_coeff.size());
+  Eigen::RowVectorXd Fk(optimized_coeff.size());
   double non_dependent_e, non_dependent_f;
 
   for (size_t k=0; k<splines_.size(); ++k) {
@@ -170,8 +170,8 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
       DescribeEByPrev(k, dim, Ek, non_dependent_e);
       DescribeFByPrev(k, dim, Fk, non_dependent_f);
 
-      cv[E] = Ek.transpose()*optimized_coeff + non_dependent_e;
-      cv[F] = Fk.transpose()*optimized_coeff + non_dependent_f;
+      cv[E] = Ek*optimized_coeff + non_dependent_e;
+      cv[F] = Fk*optimized_coeff + non_dependent_f;
 
     } // dim:X..Y
 
@@ -191,7 +191,7 @@ ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) cons
   int num_nodes_with_4ls = GetTotalNodes();
   int num_nodes = num_nodes_with_4ls;
 
-  MatVec ineq(coeff, num_nodes);
+  MatVec ineq(num_nodes, coeff);
 
   const double g = 9.81; // gravity acceleration
   int n = 0; // node counter
@@ -201,8 +201,8 @@ ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) cons
 
     // calculate e and f coefficients from previous values
     const int k = s.id_;
-    Eigen::VectorXd Ek(coeff); Ek.setZero();
-    Eigen::VectorXd Fk(coeff); Fk.setZero();
+    Eigen::RowVectorXd Ek(coeff); Ek.setZero();
+    Eigen::RowVectorXd Fk(coeff); Fk.setZero();
     double non_dependent_e, non_dependent_f;
     DescribeEByPrev(k, dim, Ek, non_dependent_e);
     DescribeFByPrev(k, dim, Fk, non_dependent_f);
@@ -217,12 +217,12 @@ ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) cons
       //            x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
       double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
 
-      ineq.M(Index(k,dim,A), n) = t[5]     - h/(g+z_acc) * 20.0 * t[3];
-      ineq.M(Index(k,dim,B), n) = t[4]     - h/(g+z_acc) * 12.0 * t[2];
-      ineq.M(Index(k,dim,C), n) = t[3]     - h/(g+z_acc) *  6.0 * t[1];
-      ineq.M(Index(k,dim,D), n) = t[2]     - h/(g+z_acc) *  2.0;
-      ineq.M.col(n)             += t[1]*Ek;
-      ineq.M.col(n)             += t[0]*Fk;
+      ineq.M(n, Index(k,dim,A)) = t[5]     - h/(g+z_acc) * 20.0 * t[3];
+      ineq.M(n, Index(k,dim,B)) = t[4]     - h/(g+z_acc) * 12.0 * t[2];
+      ineq.M(n, Index(k,dim,C)) = t[3]     - h/(g+z_acc) *  6.0 * t[1];
+      ineq.M(n, Index(k,dim,D)) = t[2]     - h/(g+z_acc) *  2.0;
+      ineq.M.row(n)            += t[1]*Ek;
+      ineq.M.row(n)            += t[0]*Fk;
 
       ineq.v[n] = non_dependent_e*t[0] + non_dependent_f;
 

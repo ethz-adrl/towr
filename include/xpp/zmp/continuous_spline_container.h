@@ -65,7 +65,7 @@ public:
    * @param[out] Ek the vector to represent e through a,b,c,d
    * @param[out] non_dependent the influence of e that are not dependent on a,b,c,d
    */
-  void DescribeEByPrev(int k, int dim, Eigen::VectorXd& Ek, double& non_dependent) const;
+  void DescribeEByPrev(int k, int dim, Eigen::RowVectorXd& Ek, double& non_dependent) const;
 
   /**
    * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
@@ -80,7 +80,7 @@ public:
    * @param[out] Ek the vector to represent e through a,b,c,d
    * @param[out] non_dependent the influence of f that are not dependent on a,b,c,d
    */
-  void DescribeFByPrev(int k, int dim, Eigen::VectorXd& Ek, double& non_dependent) const;
+  void DescribeFByPrev(int k, int dim, Eigen::RowVectorXd& Ek, double& non_dependent) const;
 
   MatVec ExpressZmpThroughCoefficients(double h, int dim) const;
 
