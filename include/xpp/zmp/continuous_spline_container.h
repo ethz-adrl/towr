@@ -52,7 +52,7 @@ public:
   static int Index(int spline, int dim, int coeff);
   int GetTotalFreeCoeff() const;
   int GetTotalNodes(bool exclude_4ls_splines = false) const;
-  int GetSplineID(int node) const;
+//  int GetSplineID(int node) const;
   /**
    * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
    * has the same effect as the original e coefficient in the spline equation
@@ -65,7 +65,8 @@ public:
    * @param[out] Ek the vector to represent e through a,b,c,d
    * @param[out] non_dependent the influence of e that are not dependent on a,b,c,d
    */
-  void DescribeEByPrev(int k, int dim, Eigen::RowVectorXd& Ek, double& non_dependent) const;
+  MatVec DescribeEByPrev(int dim, const Eigen::Vector2d& start_cog_v) const;
+  void DescribeEByPrev(int spline_id_k, int dim, Eigen::RowVectorXd& Ek, double& non_dependent_e) const;
 
   /**
    * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
@@ -80,21 +81,26 @@ public:
    * @param[out] Ek the vector to represent e through a,b,c,d
    * @param[out] non_dependent the influence of f that are not dependent on a,b,c,d
    */
-  void DescribeFByPrev(int k, int dim, Eigen::RowVectorXd& Ek, double& non_dependent) const;
+  MatVec DescribeFByPrev(int dim, const Eigen::Vector2d& start_cog_p,
+                         const Eigen::Vector2d& start_cog_v) const;
+  void DescribeFByPrev(int spline_id_k, int dim,
+                       Eigen::RowVectorXd& Ek, double& non_dependent_e) const;
 
   MatVec ExpressZmpThroughCoefficients(double h, int dim) const;
 
-  void AddOptimizedCoefficients(
-      const Eigen::VectorXd& optimized_coeff);
+  void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff);
 
   double dt_; // This is needed for creating support triangle inequality constraints
 private:
   static const int kFreeCoeffPerSpline = kCoeffCount-2;
 
-  Eigen::Vector2d start_cog_p_;
-  Eigen::Vector2d start_cog_v_;
-  void SetInitialPosVel(const Eigen::Vector2d& start_cog_p,
-                        const Eigen::Vector2d& start_cog_v);
+  std::array<MatVec, 2> e_coefficients_;
+  std::array<MatVec, 2> f_coefficients_;
+
+//  Eigen::Vector2d start_cog_p_;
+//  Eigen::Vector2d start_cog_v_;
+//  void SetInitialPosVel(const Eigen::Vector2d& start_cog_p,
+//                        const Eigen::Vector2d& start_cog_v);
   bool initialized_ = false;
   void CheckIfInitialized() const;
 };

@@ -29,11 +29,23 @@ public:
 
 public:
   void Init(LegDataMap<Foothold> start_stance,
-                                   const Footholds& footholds,
-                                   const MarginValues& margins);
+            const Footholds& footholds,
+            const MarginValues& margins);
 
   bool initialized_ = false;
 
+
+  Eigen::Vector2d GetCenterOfFinalStance() const;
+  MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+                            const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
+
+
+public:
+  Footholds footholds_;
+  LegDataMap<Foothold> start_stance_;
+  MarginValues margins_;
+
+private:
   /**
   @brief Creates the support triangles from footholds and steps.
 
@@ -47,24 +59,12 @@ public:
   {
     return GetSupportTriangles(footholds_);
   }
-
-  Eigen::Vector2d GetCenterOfFinalStance() const;
-  MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-                            const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
-
-
-public:
-  Footholds footholds_;
-  LegDataMap<Foothold> start_stance_;
-  MarginValues margins_;
-
-private:
   void AddLineConstraint(const SuppTriangle::TrLine& l,
                          const Eigen::RowVectorXd& x_zmp_M,
                          const Eigen::RowVectorXd& y_zmp_M,
                          double x_zmp_v,
                          double y_zmp_v,
-                         int& c, Eigen::MatrixXd& M, Eigen::VectorXd& v) const;
+                         int& c, MatVec& ineq) const;
   void CheckIfInitialized() const;
 };
 

@@ -107,10 +107,11 @@ SuppTriangleContainer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_z
     for (double i=0; i < s.GetNodeCount(zmp_splines.dt_); ++i) {
 
       // add three line constraints for each node
-      for (int l=0; l<3; l++)
+      for (int l=0; l<3; l++) {
         AddLineConstraint(lines.at(l), x_zmp.M.row(n), y_zmp.M.row(n),
                                        x_zmp.v[n],     y_zmp.v[n],
-                                       c, ineq.M, ineq.v);
+                                       c, ineq);
+      }
       n++;
     }
   }
@@ -125,13 +126,13 @@ void SuppTriangleContainer::AddLineConstraint(const SuppTriangle::TrLine& l,
                                     const Eigen::RowVectorXd& y_zmp_M,
                                     double x_zmp_v,
                                     double y_zmp_v,
-                                    int& c, Eigen::MatrixXd& M, Eigen::VectorXd& v) const
+                                    int& c, MatVec& ineq) const
 {
   // the zero moment point must always lay on one side of triangle side:
   // p*x_zmp + q*y_zmp + r > stability_margin
-  M.row(c) = l.coeff.p*x_zmp_M + l.coeff.q*y_zmp_M;
-  v[c]     = l.coeff.p*x_zmp_v + l.coeff.q*x_zmp_v;
-  v[c]    += l.coeff.r - l.s_margin;
+  ineq.M.row(c) = l.coeff.p*x_zmp_M + l.coeff.q*y_zmp_M;
+  ineq.v[c]     = l.coeff.p*x_zmp_v + l.coeff.q*x_zmp_v;
+  ineq.v[c]    += l.coeff.r - l.s_margin;
 
   c++;
 }

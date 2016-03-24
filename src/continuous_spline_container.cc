@@ -34,18 +34,24 @@ void ContinuousSplineContainer::Init(const Eigen::Vector2d& start_cog_p,
                                      double t_stance_final,
                                      double dt)
 {
-  SetInitialPosVel(start_cog_p, start_cog_v);
+
+//  SetInitialPosVel(start_cog_p, start_cog_v);
   ConstructSplineSequence(step_sequence, t_stance, t_swing, t_stance_initial, t_stance_final);
   dt_ = dt;
   initialized_ = true;
+
+  e_coefficients_.at(utils::X) = DescribeEByPrev(utils::X, start_cog_v);
+  e_coefficients_.at(utils::Y) = DescribeEByPrev(utils::Y, start_cog_v);
+  f_coefficients_.at(utils::X) = DescribeFByPrev(utils::X, start_cog_p, start_cog_v);
+  f_coefficients_.at(utils::Y) = DescribeFByPrev(utils::Y, start_cog_p, start_cog_v);
 }
 
-void ContinuousSplineContainer::SetInitialPosVel(const Eigen::Vector2d& start_cog_p,
-                                                 const Eigen::Vector2d& start_cog_v)
-{
-  start_cog_p_ = start_cog_p;
-  start_cog_v_ = start_cog_v;
-}
+//void ContinuousSplineContainer::SetInitialPosVel(const Eigen::Vector2d& start_cog_p,
+//                                                 const Eigen::Vector2d& start_cog_v)
+//{
+//  start_cog_p_ = start_cog_p;
+//  start_cog_v_ = start_cog_v;
+//}
 
 
 int ContinuousSplineContainer::GetTotalFreeCoeff() const
@@ -76,68 +82,105 @@ int ContinuousSplineContainer::GetTotalNodes(bool exclude_4ls_splines) const
 }
 
 
-// TODO create lookup table for this
-int ContinuousSplineContainer::GetSplineID(int node) const
+void ContinuousSplineContainer::DescribeEByPrev(int spline_id_k, int dim,
+                                                Eigen::RowVectorXd& Ek, double & non_dependent_e) const
 {
-  int n = 0;
-  for (ZmpSpline s: splines_) {
-    n += s.GetNodeCount(dt_);
-
-    if (n > node)
-      return s.id_;
-  }
-  return splines_.back().id_;
+  Ek = e_coefficients_.at(dim).M.row(spline_id_k);
+  non_dependent_e = e_coefficients_.at(dim).v[spline_id_k];
 }
 
 
-void ContinuousSplineContainer::DescribeEByPrev(int k,
-                                   int dim, Eigen::RowVectorXd& Ek,
-                                   double& non_dependent) const
+void ContinuousSplineContainer::DescribeFByPrev(int spline_id_k, int dim,
+                                                Eigen::RowVectorXd& Fk, double & non_dependent_f) const
+{
+  Fk = f_coefficients_.at(dim).M.row(spline_id_k);
+  non_dependent_f = f_coefficients_.at(dim).v[spline_id_k];
+}
+
+//// TODO create lookup table for this
+//int ContinuousSplineContainer::GetSplineID(int node) const
+//{
+//  int n = 0;
+//  for (ZmpSpline s: splines_) {
+//    n += s.GetNodeCount(dt_);
+//
+//    if (n > node)
+//      return s.id_;
+//  }
+//  return splines_.back().id_;
+//}
+
+
+ContinuousSplineContainer::MatVec
+ContinuousSplineContainer::DescribeEByPrev(int dim, const Eigen::Vector2d& start_cog_v) const
 {
   CheckIfInitialized();
+  MatVec e_coeff(splines_.size(), GetTotalFreeCoeff());
+  e_coeff.v.fill(start_cog_v(dim));
 
-  Ek.setZero();
-  for (int i=0; i<k; ++i) {
-    double Ti = splines_.at(i).duration_;
+//  Ek.setZero();
+  for (int k=1; k<splines_.size(); ++k) {
 
-    Ek(Index(i,dim,A)) += 5*std::pow(Ti,4);
-    Ek(Index(i,dim,B)) += 4*std::pow(Ti,3);
-    Ek(Index(i,dim,C)) += 3*std::pow(Ti,2);
-    Ek(Index(i,dim,D)) += 2*std::pow(Ti,1);
+    // velocity at beginning of previous spline
+    e_coeff.M.row(k) = e_coeff.M.row(k-1);
+
+    // velocity change over previous spline due to a,b,c,d
+    double Tkprev = splines_.at(k-1).duration_;
+    e_coeff.M(k, Index(k-1,dim,A)) += 5*std::pow(Tkprev,4);
+    e_coeff.M(k, Index(k-1,dim,B)) += 4*std::pow(Tkprev,3);
+    e_coeff.M(k, Index(k-1,dim,C)) += 3*std::pow(Tkprev,2);
+    e_coeff.M(k, Index(k-1,dim,D)) += 2*std::pow(Tkprev,1);
   }
 
-  non_dependent = start_cog_v_(dim);
+  return e_coeff;
 }
 
 
-void ContinuousSplineContainer::DescribeFByPrev(int k, int dim,
-                                   Eigen::RowVectorXd& Fk, double& non_dependent) const
+ContinuousSplineContainer::MatVec
+ContinuousSplineContainer::DescribeFByPrev(int dim, const Eigen::Vector2d& start_cog_p,
+                                           const Eigen::Vector2d& start_cog_v) const
 {
   CheckIfInitialized();
+  MatVec e_coeff = DescribeEByPrev(dim, start_cog_v);
 
-  Eigen::VectorXd T0tok(k); T0tok.setZero();
-  Fk.setZero();
-  for (int i=0; i<k; ++i) {
+  MatVec f_coeff(splines_.size(), GetTotalFreeCoeff());
+  f_coeff.v[0] = start_cog_p(dim);
 
-    double Ti = splines_.at(i).duration_;
+//  Eigen::VectorXd T0k(spline_index_k); T0k.setZero();
+//  Fk.setZero();
+  for (int k=1; k<splines_.size(); ++k) {
 
-    T0tok(i) = Ti; // initial velocity acts over the entire time T of EVERY spline
+    // position at start of previous spline
+    f_coeff.M.row(k) = f_coeff.M.row(k-1);
+    f_coeff.v[k]     = f_coeff.v[k-1];
 
-    Fk[Index(i,dim,A)] += std::pow(Ti,5);
-    Fk[Index(i,dim,B)] += std::pow(Ti,4);
-    Fk[Index(i,dim,C)] += std::pow(Ti,3);
-    Fk[Index(i,dim,D)] += std::pow(Ti,2);
+//    double Tk = splines_.at(k).duration_;
+//    T0k(k) = Tk; // initial velocity acts over the entire time T of EVERY spline
+    double Tkprev    = splines_.at(k-1).duration_;
 
-    for (int j = 0; j<i; ++j) {
-      double Tj = splines_.at(j).duration_;
-      Fk[Index(j,dim,A)] += 5*std::pow(Tj,4) * Ti;
-      Fk[Index(j,dim,B)] += 4*std::pow(Tj,3) * Ti;
-      Fk[Index(j,dim,C)] += 3*std::pow(Tj,2) * Ti;
-      Fk[Index(j,dim,D)] += 2*std::pow(Tj,1) * Ti;
-    }
+    // position change over previous spline due to a,b,c,d
+    f_coeff.M(k, Index(k-1,dim,A)) += std::pow(Tkprev,5);
+    f_coeff.M(k, Index(k-1,dim,B)) += std::pow(Tkprev,4);
+    f_coeff.M(k, Index(k-1,dim,C)) += std::pow(Tkprev,3);
+    f_coeff.M(k, Index(k-1,dim,D)) += std::pow(Tkprev,2);
+
+
+    // position change over previous spline due to e
+    // FIXME adapt to dimension x or y
+    f_coeff.M.row(k) += e_coeff.M.row(k-1)*Tkprev;
+    f_coeff.v[k]     += e_coeff.v[k-1]    *Tkprev;
+
+//    for (int j = 0; j<k; ++j) {
+//      double Tj = splines_.at(j).duration_;
+//      Fk[Index(j,dim,A)] += 5*std::pow(Tj,4) * Tkprev;
+//      Fk[Index(j,dim,B)] += 4*std::pow(Tj,3) * Tkprev;
+//      Fk[Index(j,dim,C)] += 3*std::pow(Tj,2) * Tkprev;
+//      Fk[Index(j,dim,D)] += 2*std::pow(Tj,1) * Tkprev;
+//    }
   }
 
-  non_dependent = start_cog_v_(dim)*T0tok.sum() + start_cog_p_(dim);
+//  non_dependent = start_cog_v_(dim)*T0k.sum() + start_cog_p_(dim);
+  return f_coeff;
 }
 
 

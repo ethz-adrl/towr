@@ -10,8 +10,6 @@
 
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/supp_triangle_container.h>
-#include <xpp/hyq/foothold.h>
-#include <xpp/utils/geometric_structs.h>
 
 #include <log4cxx/logger.h>
 #include <Eigen/Dense>
