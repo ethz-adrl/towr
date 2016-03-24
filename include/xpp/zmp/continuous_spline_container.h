@@ -42,9 +42,6 @@ public:
             double t_stance_final,
             double dt = 0.1);
 
-
-
-
   /**
    * The index number of the coefficient \c coeff, for dimension \c dim and
    * spline number \c spline.
@@ -52,39 +49,8 @@ public:
   static int Index(int spline, int dim, int coeff);
   int GetTotalFreeCoeff() const;
   int GetTotalNodes(bool exclude_4ls_splines = false) const;
-//  int GetSplineID(int node) const;
-  /**
-   * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
-   * has the same effect as the original e coefficient in the spline equation
-   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
-   *
-   * @param spline_info
-   * @param k the number of spline for which the e coefficient should be represented
-   * @param dim X=0, Y=1
-   * @param start_v the initial velocity of the first spline
-   * @param[out] Ek the vector to represent e through a,b,c,d
-   * @param[out] non_dependent the influence of e that are not dependent on a,b,c,d
-   */
-  MatVec DescribeEByPrev(int dim, const Eigen::Vector2d& start_cog_v) const;
-  void DescribeEByPrev(int spline_id_k, int dim, Eigen::RowVectorXd& Ek, double& non_dependent_e) const;
-
-  /**
-   * Creates a Vector whose scalar product the optimized coefficients (a,b,c,d)
-   * has the same effect as the original f coefficient in the spline equation
-   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
-   *
-   * @param spline_info
-   * @param k the number of spline for which the e coefficient should be represented
-   * @param dim X=0, Y=1
-   * @param start_p the initial position of the first spline
-   * @param start_v the initial velocity of the first spline
-   * @param[out] Ek the vector to represent e through a,b,c,d
-   * @param[out] non_dependent the influence of f that are not dependent on a,b,c,d
-   */
-  MatVec DescribeFByPrev(int dim, const Eigen::Vector2d& start_cog_p,
-                         const Eigen::Vector2d& start_cog_v) const;
-  void DescribeFByPrev(int spline_id_k, int dim,
-                       Eigen::RowVectorXd& Ek, double& non_dependent_e) const;
+  Eigen::RowVectorXd DescribeEFByPrev(int spline_id_k, int dim, SplineCoeff c,
+                        double& init_depend) const;
 
   MatVec ExpressZmpThroughCoefficients(double h, int dim) const;
 
@@ -96,11 +62,19 @@ private:
 
   std::array<MatVec, 2> e_coefficients_;
   std::array<MatVec, 2> f_coefficients_;
+  /**
+   * Creates a Vector whose scalar product with the optimized coefficients (a,b,c,d)
+   * has the same effect as the original e/f coefficients in the spline equation
+   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
+   *
+   * @param dim X=0, Y=1
+   * @param start_p the initial position of the first spline
+   * @param start_v the initial velocity of the first spline
+   * @returns matrix and vector that describe the coefficient
+   */
+  MatVec DescribeEByPrev(int dim, double start_cog_v) const;
+  MatVec DescribeFByPrev(int dim, double start_cog_p, double start_cog_v) const;
 
-//  Eigen::Vector2d start_cog_p_;
-//  Eigen::Vector2d start_cog_v_;
-//  void SetInitialPosVel(const Eigen::Vector2d& start_cog_p,
-//                        const Eigen::Vector2d& start_cog_v);
   bool initialized_ = false;
   void CheckIfInitialized() const;
 };

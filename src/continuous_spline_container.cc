@@ -40,18 +40,11 @@ void ContinuousSplineContainer::Init(const Eigen::Vector2d& start_cog_p,
   dt_ = dt;
   initialized_ = true;
 
-  e_coefficients_.at(utils::X) = DescribeEByPrev(utils::X, start_cog_v);
-  e_coefficients_.at(utils::Y) = DescribeEByPrev(utils::Y, start_cog_v);
-  f_coefficients_.at(utils::X) = DescribeFByPrev(utils::X, start_cog_p, start_cog_v);
-  f_coefficients_.at(utils::Y) = DescribeFByPrev(utils::Y, start_cog_p, start_cog_v);
+  for (int dim = xpp::utils::X; dim<=xpp::utils::Y; ++dim) {
+    e_coefficients_.at(dim) = DescribeEByPrev(dim, start_cog_v(dim));
+    f_coefficients_.at(dim) = DescribeFByPrev(dim, start_cog_p(dim), start_cog_v(dim));
+  }
 }
-
-//void ContinuousSplineContainer::SetInitialPosVel(const Eigen::Vector2d& start_cog_p,
-//                                                 const Eigen::Vector2d& start_cog_v)
-//{
-//  start_cog_p_ = start_cog_p;
-//  start_cog_v_ = start_cog_v;
-//}
 
 
 int ContinuousSplineContainer::GetTotalFreeCoeff() const
@@ -82,54 +75,40 @@ int ContinuousSplineContainer::GetTotalNodes(bool exclude_4ls_splines) const
 }
 
 
-void ContinuousSplineContainer::DescribeEByPrev(int spline_id_k, int dim,
-                                                Eigen::RowVectorXd& Ek, double & non_dependent_e) const
+Eigen::RowVectorXd ContinuousSplineContainer::DescribeEFByPrev(
+    int spline_id_k, int dim, SplineCoeff c, double& init_depend) const
 {
-  Ek = e_coefficients_.at(dim).M.row(spline_id_k);
-  non_dependent_e = e_coefficients_.at(dim).v[spline_id_k];
+  if (c!= E && c!= F)
+    throw std::runtime_error("DescribeEFByPrev called for incorrect spline coefficient (only E and F)");
+
+  const MatVec& coeff = (c==E)? e_coefficients_.at(dim) : f_coefficients_.at(dim);
+
+  init_depend = coeff.v[spline_id_k];
+  return coeff.M.row(spline_id_k);
 }
-
-
-void ContinuousSplineContainer::DescribeFByPrev(int spline_id_k, int dim,
-                                                Eigen::RowVectorXd& Fk, double & non_dependent_f) const
-{
-  Fk = f_coefficients_.at(dim).M.row(spline_id_k);
-  non_dependent_f = f_coefficients_.at(dim).v[spline_id_k];
-}
-
-//// TODO create lookup table for this
-//int ContinuousSplineContainer::GetSplineID(int node) const
-//{
-//  int n = 0;
-//  for (ZmpSpline s: splines_) {
-//    n += s.GetNodeCount(dt_);
-//
-//    if (n > node)
-//      return s.id_;
-//  }
-//  return splines_.back().id_;
-//}
 
 
 ContinuousSplineContainer::MatVec
-ContinuousSplineContainer::DescribeEByPrev(int dim, const Eigen::Vector2d& start_cog_v) const
+ContinuousSplineContainer::DescribeEByPrev(int dim, double start_cog_v) const
 {
   CheckIfInitialized();
   MatVec e_coeff(splines_.size(), GetTotalFreeCoeff());
-  e_coeff.v.fill(start_cog_v(dim));
+  e_coeff.v[0] = start_cog_v;
 
-//  Ek.setZero();
-  for (int k=1; k<splines_.size(); ++k) {
+  for (int k=1; k<splines_.size(); ++k)
+  {
+    int kprev = k-1;
 
-    // velocity at beginning of previous spline
-    e_coeff.M.row(k) = e_coeff.M.row(k-1);
+    // velocity at beginning of previous spline (e_prev)
+    e_coeff.M.row(k) = e_coeff.M.row(kprev);
+    e_coeff.v[k]     = e_coeff.v[kprev];
 
     // velocity change over previous spline due to a,b,c,d
-    double Tkprev = splines_.at(k-1).duration_;
-    e_coeff.M(k, Index(k-1,dim,A)) += 5*std::pow(Tkprev,4);
-    e_coeff.M(k, Index(k-1,dim,B)) += 4*std::pow(Tkprev,3);
-    e_coeff.M(k, Index(k-1,dim,C)) += 3*std::pow(Tkprev,2);
-    e_coeff.M(k, Index(k-1,dim,D)) += 2*std::pow(Tkprev,1);
+    double Tkprev = splines_.at(kprev).duration_;
+    e_coeff.M(k, Index(kprev,dim,A)) += 5*std::pow(Tkprev,4);
+    e_coeff.M(k, Index(kprev,dim,B)) += 4*std::pow(Tkprev,3);
+    e_coeff.M(k, Index(kprev,dim,C)) += 3*std::pow(Tkprev,2);
+    e_coeff.M(k, Index(kprev,dim,D)) += 2*std::pow(Tkprev,1);
   }
 
   return e_coeff;
@@ -137,49 +116,34 @@ ContinuousSplineContainer::DescribeEByPrev(int dim, const Eigen::Vector2d& start
 
 
 ContinuousSplineContainer::MatVec
-ContinuousSplineContainer::DescribeFByPrev(int dim, const Eigen::Vector2d& start_cog_p,
-                                           const Eigen::Vector2d& start_cog_v) const
+ContinuousSplineContainer::DescribeFByPrev(int dim, double start_cog_p,
+                                           double start_cog_v) const
 {
   CheckIfInitialized();
   MatVec e_coeff = DescribeEByPrev(dim, start_cog_v);
 
   MatVec f_coeff(splines_.size(), GetTotalFreeCoeff());
-  f_coeff.v[0] = start_cog_p(dim);
+  f_coeff.v[0] = start_cog_p;
 
-//  Eigen::VectorXd T0k(spline_index_k); T0k.setZero();
-//  Fk.setZero();
-  for (int k=1; k<splines_.size(); ++k) {
+  for (int k=1; k<splines_.size(); ++k)
+  {
+    int kprev = k-1;
+    // position at start of previous spline (=f_prev)
+    f_coeff.M.row(k) = f_coeff.M.row(kprev);
+    f_coeff.v[k]     = f_coeff.v[kprev];
 
-    // position at start of previous spline
-    f_coeff.M.row(k) = f_coeff.M.row(k-1);
-    f_coeff.v[k]     = f_coeff.v[k-1];
-
-//    double Tk = splines_.at(k).duration_;
-//    T0k(k) = Tk; // initial velocity acts over the entire time T of EVERY spline
-    double Tkprev    = splines_.at(k-1).duration_;
+    double Tkprev    = splines_.at(kprev).duration_;
 
     // position change over previous spline due to a,b,c,d
-    f_coeff.M(k, Index(k-1,dim,A)) += std::pow(Tkprev,5);
-    f_coeff.M(k, Index(k-1,dim,B)) += std::pow(Tkprev,4);
-    f_coeff.M(k, Index(k-1,dim,C)) += std::pow(Tkprev,3);
-    f_coeff.M(k, Index(k-1,dim,D)) += std::pow(Tkprev,2);
-
-
+    f_coeff.M(k, Index(kprev,dim,A))        += std::pow(Tkprev,5);
+    f_coeff.M(k, Index(kprev,dim,B))        += std::pow(Tkprev,4);
+    f_coeff.M(k, Index(kprev,dim,C))        += std::pow(Tkprev,3);
+    f_coeff.M(k, Index(kprev,dim,D))        += std::pow(Tkprev,2);
     // position change over previous spline due to e
-    // FIXME adapt to dimension x or y
-    f_coeff.M.row(k) += e_coeff.M.row(k-1)*Tkprev;
-    f_coeff.v[k]     += e_coeff.v[k-1]    *Tkprev;
-
-//    for (int j = 0; j<k; ++j) {
-//      double Tj = splines_.at(j).duration_;
-//      Fk[Index(j,dim,A)] += 5*std::pow(Tj,4) * Tkprev;
-//      Fk[Index(j,dim,B)] += 4*std::pow(Tj,3) * Tkprev;
-//      Fk[Index(j,dim,C)] += 3*std::pow(Tj,2) * Tkprev;
-//      Fk[Index(j,dim,D)] += 2*std::pow(Tj,1) * Tkprev;
-//    }
+    f_coeff.M.row(k) += e_coeff.M.row(kprev)  *std::pow(Tkprev,1);
+    f_coeff.v[k]     += e_coeff.v[kprev]      *std::pow(Tkprev,1);
   }
 
-//  non_dependent = start_cog_v_(dim)*T0k.sum() + start_cog_p_(dim);
   return f_coeff;
 }
 
@@ -190,8 +154,6 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
 {
   CheckIfInitialized();
 
-  Eigen::RowVectorXd Ek(optimized_coeff.size());
-  Eigen::RowVectorXd Fk(optimized_coeff.size());
   double non_dependent_e, non_dependent_f;
 
   for (size_t k=0; k<splines_.size(); ++k) {
@@ -208,10 +170,8 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
       cv[D] = optimized_coeff[Index(k,dim,D)];
 
       // calculate e and f coefficients from previous values
-      Ek.setZero();
-      Fk.setZero();
-      DescribeEByPrev(k, dim, Ek, non_dependent_e);
-      DescribeFByPrev(k, dim, Fk, non_dependent_f);
+      Eigen::RowVectorXd Ek = DescribeEFByPrev(k, dim, E, non_dependent_e);
+      Eigen::RowVectorXd Fk = DescribeEFByPrev(k, dim, F, non_dependent_f);
 
       cv[E] = Ek*optimized_coeff + non_dependent_e;
       cv[F] = Fk*optimized_coeff + non_dependent_f;
@@ -235,6 +195,7 @@ ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) cons
   int num_nodes = num_nodes_with_4ls;
 
   MatVec ineq(num_nodes, coeff);
+  double non_dependent_e, non_dependent_f;
 
   const double g = 9.81; // gravity acceleration
   int n = 0; // node counter
@@ -244,11 +205,8 @@ ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) cons
 
     // calculate e and f coefficients from previous values
     const int k = s.id_;
-    Eigen::RowVectorXd Ek(coeff); Ek.setZero();
-    Eigen::RowVectorXd Fk(coeff); Fk.setZero();
-    double non_dependent_e, non_dependent_f;
-    DescribeEByPrev(k, dim, Ek, non_dependent_e);
-    DescribeFByPrev(k, dim, Fk, non_dependent_f);
+    Eigen::RowVectorXd Ek = DescribeEFByPrev(k, dim, E, non_dependent_e);
+    Eigen::RowVectorXd Fk = DescribeEFByPrev(k, dim, F, non_dependent_f);
 
     for (double i=0; i < s.GetNodeCount(dt_); ++i) {
 

@@ -154,6 +154,7 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
   const Eigen::Vector2d kVelEnd   = Eigen::Vector2d(0.0, 0.0);
   const Eigen::Vector2d kAccEnd   = Eigen::Vector2d(0.0, 0.0);
 
+  double non_dependent_e, non_dependent_f;
 
   int i = 0; // counter of equality constraints
   for (int dim = X; dim <= Y; ++dim)
@@ -175,11 +176,8 @@ QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
     std::array<double,6> t_duration = utils::cache_exponents<6>(zmp_splines_.splines_.back().duration_);
 
     // calculate e and f coefficients from previous values
-    Eigen::RowVectorXd Ek(coeff); Ek.setZero();
-    Eigen::RowVectorXd Fk(coeff); Fk.setZero();
-    double non_dependent_e, non_dependent_f;
-    zmp_splines_.DescribeEByPrev(K, dim, Ek, non_dependent_e);
-    zmp_splines_.DescribeFByPrev(K, dim, Fk, non_dependent_f);
+    Eigen::RowVectorXd Ek = zmp_splines_.DescribeEFByPrev(K, dim, E, non_dependent_e);
+    Eigen::RowVectorXd Fk = zmp_splines_.DescribeEFByPrev(K, dim, F, non_dependent_f);
 
     // position
     ec.M(i, last_spline + A) = t_duration[5];
