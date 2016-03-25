@@ -63,8 +63,8 @@ NlpOptimizer::SolveNlp(Eigen::VectorXd& final_footholds,
 
   }
 
-  final_footholds = nlp_ipopt_zmp->x_final_footholds_;
-  return nlp_ipopt_zmp->x_final_spline_coeff_;
+  final_footholds = nlp_ipopt_zmp->x_footholds_;
+  return nlp_ipopt_zmp->x_coeff_;
 }
 
 

@@ -15,6 +15,7 @@
 #include <xpp/zmp/continuous_spline_container.h>
 
 #include <xpp/zmp/cost_function.h>
+#include <xpp/zmp/constraints.h>
 
 namespace Ipopt {
 
@@ -110,8 +111,9 @@ public:
                 const Eigen::VectorXd& initial_coefficients = Eigen::Vector2d::Zero()
   );
 
-  Eigen::VectorXd x_final_spline_coeff_;
-  Eigen::VectorXd x_final_footholds_;
+  Eigen::VectorXd x_coeff_;
+  Eigen::VectorXd x_footholds_;
+  void UpdateOptimizationVariables(const Number* x);
 
 private:
   xpp::hyq::SuppTriangleContainer supp_triangle_container_;
@@ -121,6 +123,8 @@ private:
   MatVec ineq_;
 
   xpp::zmp::CostFunction cost_function_quadratic_;
+  xpp::zmp::Constraints constraints_;
+
 
   int n_spline_coeff_;
   int n_eq_constr_;
