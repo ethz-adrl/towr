@@ -34,8 +34,6 @@ void ContinuousSplineContainer::Init(const Eigen::Vector2d& start_cog_p,
                                      double t_stance_final,
                                      double dt)
 {
-
-//  SetInitialPosVel(start_cog_p, start_cog_v);
   ConstructSplineSequence(step_sequence, t_stance, t_swing, t_stance_initial, t_stance_final);
   dt_ = dt;
   initialized_ = true;
@@ -198,8 +196,9 @@ ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) cons
   double non_dependent_e, non_dependent_f;
 
   const double g = 9.81; // gravity acceleration
-  int n = 0; // node counter
+  const double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
 
+  int n = 0; // node counter
   for (const ZmpSpline& s : splines_) {
 //    LOG4CXX_TRACE(log_, "Calc inequality constaints of spline " << s.id_ << " of " << splines_.size() << ", duration=" << std::setprecision(3) << s.duration_ << ", step=" << s.step_);
 
@@ -216,7 +215,6 @@ ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) cons
       //  x_zmp = x_pos - height/(g+z_acc) * x_acc
       //      with  x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
       //            x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
-      double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
 
       ineq.M(n, Index(k,dim,A)) = t[5]     - h/(g+z_acc) * 20.0 * t[3];
       ineq.M(n, Index(k,dim,B)) = t[4]     - h/(g+z_acc) * 12.0 * t[2];

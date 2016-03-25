@@ -12,7 +12,8 @@ namespace Ipopt {
 
 #define prt(x) std::cout << #x << " = " << std::endl << x << std::endl << std::endl;
 
-NlpIpoptZmp::NlpIpoptZmp()
+NlpIpoptZmp::NlpIpoptZmp(const MatVec& cf_quadratic)
+    :cost_function_quadratic_(cf_quadratic)
 {}
 
 NlpIpoptZmp::~NlpIpoptZmp()
@@ -32,7 +33,6 @@ void NlpIpoptZmp::SetupNlp(
   n_steps_ = supp_triangle_container.footholds_.size(); // use intial footholds for this
 
   // cost funciton and equality constriants
-  cf_   =  qp_cost_function;
   eq_   =  qp_equality_constraints;
   n_eq_constr_    = qp_equality_constraints.v.rows();     // spline junctions
 
@@ -189,9 +189,11 @@ bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value
 //    x_vec[i] = x[i];
 //  }
 
-  obj_value = 0.0;
-  obj_value = x_vec.transpose() * cf_.M * x_vec;
-  obj_value += cf_.v.transpose() * x_vec;
+  obj_value = cost_function_quadratic_.EvalObjective(x_vec);
+
+//  obj_value = 0.0;
+//  obj_value = x_vec.transpose() * cf_.M * x_vec;
+//  obj_value += cf_.v.transpose() * x_vec;
 
   return true;
 }
@@ -204,7 +206,8 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
   }
 
   Eigen::Map<const Eigen::VectorXd> x_vec(x,n_spline_coeff_);
-  Eigen::VectorXd grad_f_vec = cf_.M*x_vec;
+
+  Eigen::VectorXd grad_f_vec = cost_function_quadratic_.EvalGradientOfObjective(x_vec);
 
   Eigen::Map<Eigen::VectorXd>(grad_f,n_spline_coeff_) = grad_f_vec;
 
@@ -226,7 +229,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
   //  CE: n * p
   //  ce0: p
   //
-  //  CI: n * m
+  //  CI: n * m 
   //  ci0: m
   //
   //  x:

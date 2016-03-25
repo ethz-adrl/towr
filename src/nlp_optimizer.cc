@@ -43,7 +43,7 @@ NlpOptimizer::SolveNlp(Eigen::VectorXd& final_footholds,
 
 
 
-  Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp();
+  Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp(qp_optimizer.cf_);
   nlp_ipopt_zmp->SetupNlp(supp_triangle_container,
                           qp_optimizer.zmp_splines_,
                           qp_optimizer.cf_,

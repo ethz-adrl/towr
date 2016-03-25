@@ -86,6 +86,8 @@ set(SOURCES
   src/supp_triangle_container.cc
   src/hyq_spliner.cc
   src/nlp_ipopt_zmp.cc
+  src/cost_function.cc
+  src/constraints.cc
 )
              
 # Add the shared library

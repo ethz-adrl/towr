@@ -14,6 +14,8 @@
 #include <xpp/hyq/supp_triangle_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
 
+#include <xpp/zmp/cost_function.h>
+
 namespace Ipopt {
 
 
@@ -26,7 +28,7 @@ public:
 
 public:
   /** default constructor */
-	NlpIpoptZmp();
+	NlpIpoptZmp(const MatVec& cf_quadratic);
 
   /** default destructor */
   virtual ~NlpIpoptZmp();
@@ -115,9 +117,10 @@ private:
   xpp::hyq::SuppTriangleContainer supp_triangle_container_;
   xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
 
-  MatVec cf_;
   MatVec eq_;
   MatVec ineq_;
+
+  xpp::zmp::CostFunction cost_function_quadratic_;
 
   int n_spline_coeff_;
   int n_eq_constr_;

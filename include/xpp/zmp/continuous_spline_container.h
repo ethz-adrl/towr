@@ -26,7 +26,6 @@ public:
   typedef xpp::utils::MatVec MatVec;
 
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW // since member fixed sized eigen matrices (Vector2d)
   ContinuousSplineContainer ();
   virtual
   ~ContinuousSplineContainer ();
