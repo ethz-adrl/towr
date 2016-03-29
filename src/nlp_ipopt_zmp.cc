@@ -48,6 +48,15 @@ void NlpIpoptZmp::SetupNlp(
 
   initial_coefficients_ = initial_coefficients;
   initial_footholds_ = supp_triangle_container.footholds_;
+
+
+
+  // TODO pass spline container and supp_tr in constructor, and fill rest
+  constraints_.zmp_spline_container_ = zmp_spline_container;
+  constraints_.initial_footholds_ = supp_triangle_container.footholds_;
+  constraints_.supp_triangle_container_ = supp_triangle_container;
+  constraints_.x_zmp_ = zmp_spline_container.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
+  constraints_.y_zmp_ = zmp_spline_container.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
 }
 
 
@@ -257,28 +266,29 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   // inequality constraints
   //here i am adapting the constraints depending on the footholds
-  for (int i=0; i<n_steps_; ++i) {
-    supp_triangle_container_.footholds_.at(i).p.segment<2>(xpp::utils::X) = footholds_.at(i);
-  }
-  ineq_ = supp_triangle_container_.AddLineConstraints(x_zmp_, y_zmp_, zmp_spline_container_);
-  Eigen::VectorXd g_vec_in = ineq_.M*x_coeff_ + ineq_.v;
+//  for (int i=0; i<n_steps_; ++i) {
+//    supp_triangle_container_.footholds_.at(i).p.segment<2>(xpp::utils::X) = footholds_.at(i);
+//  }
+//  ineq_ = supp_triangle_container_.AddLineConstraints(x_zmp_, y_zmp_, zmp_spline_container_);
+//  Eigen::VectorXd g_vec_in = ineq_.M*x_coeff_ + ineq_.v;
+
+  Eigen::VectorXd g_vec_in = constraints_.EvalContraints(footholds_, x_coeff_);
 
 
-
-  // constraints on the footsteps
-  Eigen::VectorXd g_vec_footsteps(2*n_steps_);
-  g_vec_footsteps.setZero();
-  // fix footholds in x and y direction
-  int c=0;
-  for (uint i=0; i<n_steps_; ++i) {
-
-    xpp::hyq::Foothold f = initial_footholds_.at(i);
-
-    int idx = 2*i;
-
-    g_vec_footsteps(c++) = footholds_.at(i).x() - f.p.x();
-    g_vec_footsteps(c++) = footholds_.at(i).y() - f.p.y();
-  }
+//  // constraints on the footsteps
+//  Eigen::VectorXd g_vec_footsteps(2*n_steps_);
+//  g_vec_footsteps.setZero();
+//  // fix footholds in x and y direction
+//  int c=0;
+//  for (uint i=0; i<n_steps_; ++i) {
+//
+//    xpp::hyq::Foothold f = initial_footholds_.at(i);
+//
+//    int idx = 2*i;
+//
+//    g_vec_footsteps(c++) = footholds_.at(i).x() - f.p.x();
+//    g_vec_footsteps(c++) = footholds_.at(i).y() - f.p.y();
+//  }
 
 
   // restrict distance to previous foothold small
@@ -308,7 +318,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
   // combine all the g vectors
   Eigen::VectorXd g_vec(m);
-  g_vec << g_vec_eq, g_vec_in, g_vec_footsteps;
+  g_vec << g_vec_eq, g_vec_in;
 
   // fill these values into g
   Eigen::Map<Eigen::VectorXd>(g,m) = g_vec; // don't know which to use

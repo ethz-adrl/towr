@@ -46,6 +46,12 @@ public:
                                  const Eigen::VectorXd& x_coeff);
   std::vector<Bound> GetBounds() const;
 
+  MatVec x_zmp_;
+  MatVec y_zmp_;
+  xpp::hyq::SuppTriangleContainer supp_triangle_container_;
+  std::vector<xpp::hyq::Foothold> initial_footholds_;
+  xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
+
 private:
 
   Eigen::VectorXd EvalSuppPolygonConstraints(const Footholds& footholds,
@@ -56,12 +62,6 @@ private:
   int n_equality_constraints_;
   int n_inequality_constraints_;
 
-  MatVec x_zmp_;
-  MatVec y_zmp_;
-
-  xpp::hyq::SuppTriangleContainer supp_triangle_container_;
-  std::vector<xpp::hyq::Foothold> initial_footholds_;
-  xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
 };
 
 } /* namespace zmp */
