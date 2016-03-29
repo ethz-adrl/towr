@@ -40,19 +40,14 @@ public:
   virtual
   ~Constraints () {};
 
-
-//  void AddConstraint(Bound bound,
-
   Eigen::VectorXd EvalContraints(const Footholds& footholds,
                                  const Eigen::VectorXd& x_coeff);
-  std::vector<Bound> GetBounds() const;
 
   xpp::hyq::SuppTriangleContainer supp_triangle_container_;
   xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
 
   MatVec spline_junction_constraints_;
 
-  bool first_constraint_eval_ = true;
   Eigen::VectorXd g_;
   std::vector<Constraints::Bound> bounds_;
 
@@ -61,6 +56,7 @@ private:
   std::vector<xpp::hyq::Foothold> initial_footholds_;
   MatVec x_zmp_;
   MatVec y_zmp_;
+  bool first_constraint_eval_ = true;
 
   Eigen::VectorXd EvalSuppPolygonConstraints(const Footholds& footholds,
                                              const Eigen::VectorXd& x_coeff,

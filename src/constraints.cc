@@ -29,6 +29,8 @@ Constraints::Constraints (const xpp::hyq::SuppTriangleContainer& supp_triangle_c
 }
 
 
+
+
 Eigen::VectorXd
 Constraints::EvalContraints(const Footholds& footholds, const Eigen::VectorXd& x_coeff)
 {
@@ -37,6 +39,7 @@ Constraints::EvalContraints(const Footholds& footholds, const Eigen::VectorXd& x
   g_vec.push_back(EvalSplineJunctionConstraints(x_coeff, bounds_));
   g_vec.push_back(EvalSuppPolygonConstraints(footholds, x_coeff, bounds_));
   g_vec.push_back(EvalFootholdConstraints(footholds, bounds_));
+//  g_vec.push_back(EvalStepLengthConstraints(footholds, bounds_));
 
 
   // create correct size constraint vector the first time this function is called
@@ -94,14 +97,11 @@ Constraints::EvalFootholdConstraints(const Footholds& footholds,
   // constraints on the footsteps
   Eigen::VectorXd g(2*footholds.size());
   g.setZero();
-  // fix footholds in x and y direction
   int c=0;
   for (uint i=0; i<footholds.size(); ++i) {
-
     xpp::hyq::Foothold f = initial_footholds_.at(i);
 
-    int idx = 2*i;
-
+    // fix footholds in x and y direction
     g(c++) = footholds.at(i).x() - f.p.x();
     g(c++) = footholds.at(i).y() - f.p.y();
   }
@@ -122,37 +122,32 @@ Eigen::VectorXd
 Constraints::EvalStepLengthConstraints(const Footholds& footholds,
                                      std::vector<Constraints::Bound>& bounds) const
 {
+  Eigen::VectorXd g(footholds.size());
 
-  Eigen::VectorXd g(2*footholds.size());
-  // restrict distance to previous foothold small
-  // initialize with steps from footstep planner
-  //  for (int i=0; i<supp_triangle_container_.footholds_.size(); ++i) {
-  //
-  //    int idx = n_spline_coeff_+2*i;
-  //    Eigen::Vector2d f;
-  //    f << x[idx+0], x[idx+1];
-  //
-  //    Eigen::Vector2d f_prev = start_stance_[supp_triangle_container_.footholds_.at(i).leg].p.segment<2>(0);
-  //    if (i>=4) {
-  //      int idx = n_spline_coeff_+2*(i-4);
-  //      f_prev << x[idx+0], x[idx+1];
-  //    }
-  //
-  //    double dx = f.x()-f_prev.x();
-  //    double dy = f.y()-f_prev.y();
-  //
-  //    g_vec_footsteps(c++) = hypot(dx,dy) - 0.3;
-  //  }
+  for (uint i=0; i<footholds.size(); ++i)
+  {
+    xpp::hyq::LegID leg = initial_footholds_.at(i).leg; // leg sequence stays the same as initial
+    Eigen::Vector2d f_prev = supp_triangle_container_.start_stance_[leg].p.segment<2>(0);
+    if (i>=4) {
+      f_prev = footholds.at(i-4); // FIXME: only works for repeating same step sequence
+    }
+
+    double dx = footholds.at(i).x() - f_prev.x();
+    double dy = footholds.at(i).y() - f_prev.y();
+
+    g(i) = hypot(dx,dy);
+  }
 
 
-  // bounds
-  //  // restricting the length of each step
-  //  for (int i=0; i<n_steps_; ++i)
-  //  {
-  //    g_l[c] = -1.0e19;
-  //    g_u[c] = 0.0;
-  //    c++;
-  //  }
+
+  // add bounds that steplength should never exceed max step length
+  double max_step_length = 0.25;
+  if (first_constraint_eval_) {
+    Bound ineq_bound(0.0, max_step_length);
+    for (int c=0; c<g.rows(); ++c) {
+      bounds.push_back(ineq_bound);
+    }
+  }
 
   return g;
 }
