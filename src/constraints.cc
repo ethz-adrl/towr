@@ -50,12 +50,14 @@ Constraints::GetBounds() const
 Eigen::VectorXd
 Constraints::EvalContraints(const Footholds& footholds, const Eigen::VectorXd& x_coeff)
 {
+  Eigen::VectorXd g_spline_junctions = EvalSplineJunctionConstraints(x_coeff);
   Eigen::VectorXd g_supp = EvalSuppPolygonConstraints(footholds, x_coeff);
   Eigen::VectorXd g_footholds = EvalFootholdConstraints(footholds);
 
   // combine all the g vectors
-  Eigen::VectorXd g(g_supp.rows() + g_footholds.rows());
-  g << g_supp, g_footholds;
+  // TODO: DRY, figure out how to remove these two rows
+  Eigen::VectorXd g(g_supp.rows() + g_footholds.rows() + g_spline_junctions.rows());
+  g << g_spline_junctions, g_supp, g_footholds;
 
   return g;
 }
@@ -114,7 +116,13 @@ Constraints::EvalFootholdConstraints(const Footholds& footholds) const
   //  }
 
   return g_vec_footsteps;
+}
 
+
+Eigen::VectorXd
+Constraints::EvalSplineJunctionConstraints(const Eigen::VectorXd& x_coeff) const
+{
+  return spline_function_constraints_.M*x_coeff + spline_function_constraints_.v;
 }
 
 

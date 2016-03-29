@@ -46,11 +46,14 @@ public:
                                  const Eigen::VectorXd& x_coeff);
   std::vector<Bound> GetBounds() const;
 
+  xpp::hyq::SuppTriangleContainer supp_triangle_container_;
+  xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
+  // these i can calculate from previous
+  std::vector<xpp::hyq::Foothold> initial_footholds_;
   MatVec x_zmp_;
   MatVec y_zmp_;
-  xpp::hyq::SuppTriangleContainer supp_triangle_container_;
-  std::vector<xpp::hyq::Foothold> initial_footholds_;
-  xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
+
+  MatVec spline_function_constraints_;
 
 private:
 
@@ -58,6 +61,8 @@ private:
                                              const Eigen::VectorXd& x_coeff);
 
   Eigen::VectorXd EvalFootholdConstraints(const Footholds& footholds) const;
+
+  Eigen::VectorXd EvalSplineJunctionConstraints(const Eigen::VectorXd& x_coeff) const;
 
   int n_equality_constraints_;
   int n_inequality_constraints_;
