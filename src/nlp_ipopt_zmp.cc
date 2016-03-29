@@ -12,8 +12,10 @@ namespace Ipopt {
 
 #define prt(x) std::cout << #x << " = " << std::endl << x << std::endl << std::endl;
 
-NlpIpoptZmp::NlpIpoptZmp(const MatVec& cf_quadratic)
-    :cost_function_quadratic_(cf_quadratic)
+NlpIpoptZmp::NlpIpoptZmp(const MatVec& cf_quadratic,
+                         const xpp::zmp::Constraints& constraints)
+    :cost_function_quadratic_(cf_quadratic),
+     constraints_(constraints)
 {}
 
 NlpIpoptZmp::~NlpIpoptZmp()
@@ -31,6 +33,7 @@ void NlpIpoptZmp::SetupNlp(
 
   n_spline_coeff_ = zmp_spline_container.GetTotalFreeCoeff();
   n_steps_ = supp_triangle_container.footholds_.size(); // use intial footholds for this
+  footholds_.resize(n_steps_);
 
   // cost function and equality constraints
   eq_   =  qp_equality_constraints;
@@ -255,13 +258,10 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
   // inequality constraints
   //here i am adapting the constraints depending on the footholds
   for (int i=0; i<n_steps_; ++i) {
-    supp_triangle_container_.footholds_.at(i).p.x() = x_footholds_[2*i+X];
-    supp_triangle_container_.footholds_.at(i).p.y() = x_footholds_[2*i+Y];
+    supp_triangle_container_.footholds_.at(i).p.segment<2>(xpp::utils::X) = footholds_.at(i);
   }
   ineq_ = supp_triangle_container_.AddLineConstraints(x_zmp_, y_zmp_, zmp_spline_container_);
   Eigen::VectorXd g_vec_in = ineq_.M*x_coeff_ + ineq_.v;
-
-
 
 
 
@@ -276,8 +276,8 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 
     int idx = 2*i;
 
-    g_vec_footsteps(c++) = x_footholds_[idx+X] - f.p.x();
-    g_vec_footsteps(c++) = x_footholds_[idx+Y] - f.p.y();
+    g_vec_footsteps(c++) = footholds_.at(i).x() - f.p.x();
+    g_vec_footsteps(c++) = footholds_.at(i).y() - f.p.y();
   }
 
 
@@ -401,7 +401,12 @@ void
 NlpIpoptZmp::UpdateOptimizationVariables(const Number* x)
 {
   x_coeff_ = Eigen::Map<const Eigen::VectorXd>(x,n_spline_coeff_);
-  x_footholds_    = Eigen::Map<const Eigen::VectorXd>(x+n_spline_coeff_,2*n_steps_);
+  for (int i=0; i<footholds_.size(); ++i) {
+    Eigen::Vector2d& f = footholds_.at(i);
+    f.x() = x[n_spline_coeff_+2*i+xpp::utils::X];
+    f.y() = x[n_spline_coeff_+2*i+xpp::utils::Y];
+  }
+//  x_footholds_    = Eigen::Map<const Eigen::VectorXd>(x+n_spline_coeff_,2*n_steps_);
 }
 
 } // namespace Ipopt

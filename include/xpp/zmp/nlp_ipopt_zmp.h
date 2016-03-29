@@ -29,7 +29,7 @@ public:
 
 public:
   /** default constructor */
-	NlpIpoptZmp(const MatVec& cf_quadratic);
+	NlpIpoptZmp(const MatVec& cf_quadratic, const xpp::zmp::Constraints& constraints);
 
   /** default destructor */
   virtual ~NlpIpoptZmp();
@@ -113,6 +113,7 @@ public:
 
   Eigen::VectorXd x_coeff_;
   Eigen::VectorXd x_footholds_;
+  xpp::zmp::Constraints::Footholds footholds_;
   void UpdateOptimizationVariables(const Number* x);
 
 private:

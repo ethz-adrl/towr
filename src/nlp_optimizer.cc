@@ -28,7 +28,7 @@ NlpOptimizer::~NlpOptimizer ()
 
 
 Eigen::VectorXd
-NlpOptimizer::SolveNlp(Eigen::VectorXd& final_footholds,
+NlpOptimizer::SolveNlp(Constraints::Footholds& final_footholds,
                        const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
                        const xpp::zmp::QpOptimizer& qp_optimizer, // TODO, make this more specific
                        const Eigen::VectorXd& initialization_values)
@@ -41,9 +41,11 @@ NlpOptimizer::SolveNlp(Eigen::VectorXd& final_footholds,
   }
 
 
+  xpp::zmp::Constraints constraints(supp_triangle_container,qp_optimizer.zmp_splines_);
 
 
-  Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp(qp_optimizer.cf_);
+  Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp(qp_optimizer.cf_,
+                                                                             constraints);
   nlp_ipopt_zmp->SetupNlp(supp_triangle_container,
                           qp_optimizer.zmp_splines_,
                           qp_optimizer.cf_,
@@ -63,7 +65,7 @@ NlpOptimizer::SolveNlp(Eigen::VectorXd& final_footholds,
 
   }
 
-  final_footholds = nlp_ipopt_zmp->x_footholds_;
+  final_footholds = nlp_ipopt_zmp->footholds_;
   return nlp_ipopt_zmp->x_coeff_;
 }
 
