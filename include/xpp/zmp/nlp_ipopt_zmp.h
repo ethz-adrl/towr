@@ -29,10 +29,12 @@ public:
 
 public:
   /** default constructor */
-	NlpIpoptZmp(const MatVec& cf_quadratic, const xpp::zmp::Constraints& constraints);
+	NlpIpoptZmp(const xpp::zmp::CostFunction& cost_function,
+	            const xpp::zmp::Constraints& constraints,
+	            const Eigen::VectorXd& initial_spline_coefficients);
 
   /** default destructor */
-  virtual ~NlpIpoptZmp();
+  virtual ~NlpIpoptZmp() {};
 
   /**@name Overloaded from TNLP */
   //@{
@@ -102,40 +104,19 @@ public:
   //@}
 
 
-
-
-  void SetupNlp(const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-                const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
-                const MatVec& qp_cost_function,
-                const MatVec& qp_equality_constraints,
-                const Eigen::VectorXd& initial_coefficients = Eigen::Vector2d::Zero()
-  );
-
   Eigen::VectorXd x_coeff_;
-  Eigen::VectorXd x_footholds_;
   xpp::zmp::Constraints::Footholds footholds_;
   void UpdateOptimizationVariables(const Number* x);
 
 private:
-  xpp::hyq::SuppTriangleContainer supp_triangle_container_;
-  xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
 
-  MatVec eq_;
-  MatVec ineq_;
-
-  xpp::zmp::CostFunction cost_function_quadratic_;
+  xpp::zmp::CostFunction cost_function_;
   xpp::zmp::Constraints constraints_;
 
-
   int n_spline_coeff_;
-  int n_eq_constr_;
-  int n_ineq_constr_;
   int n_steps_;
 
-  MatVec x_zmp_;
-  MatVec y_zmp_;
-
-  Eigen::VectorXd initial_coefficients_;
+  Eigen::VectorXd initial_spline_coeff_;
   std::vector<xpp::hyq::Foothold> initial_footholds_;
 
   /**@name Methods to block default compiler methods.

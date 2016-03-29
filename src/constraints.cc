@@ -11,10 +11,13 @@ namespace xpp {
 namespace zmp {
 
 Constraints::Constraints (const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-                           const xpp::zmp::ContinuousSplineContainer& zmp_spline_container)
+                           const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
+                           const MatVec& qp_equality_constraints)
 {
   supp_triangle_container_ = supp_triangle_container;
   zmp_spline_container_    = zmp_spline_container;
+
+  spline_junction_constraints_ = qp_equality_constraints;
 
   // inequality constraints
   double walking_height = 0.58;
@@ -22,66 +25,75 @@ Constraints::Constraints (const xpp::hyq::SuppTriangleContainer& supp_triangle_c
   y_zmp_ = zmp_spline_container.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
 
   initial_footholds_ = supp_triangle_container.footholds_;
-}
 
-Constraints::~Constraints ()
-{
-  // TODO Auto-generated destructor stub
-}
-
-
-std::vector<Constraints::Bound>
-Constraints::GetBounds() const
-{
-  const Bound ineq_bound(0.0, +1.0e19);
-  const Bound eq_bound(0.0, 0.0);
-  std::vector<Constraints::Bound> bounds;
-
-  for (int i=0; i<n_equality_constraints_; ++i)
-    bounds.push_back(eq_bound);
-
-  for (int i=0; i<n_inequality_constraints_; ++i)
-    bounds.push_back(ineq_bound);
-
-  return bounds;
 }
 
 
 Eigen::VectorXd
 Constraints::EvalContraints(const Footholds& footholds, const Eigen::VectorXd& x_coeff)
 {
-  Eigen::VectorXd g_spline_junctions = EvalSplineJunctionConstraints(x_coeff);
-  Eigen::VectorXd g_supp = EvalSuppPolygonConstraints(footholds, x_coeff);
-  Eigen::VectorXd g_footholds = EvalFootholdConstraints(footholds);
+  std::vector<Eigen::VectorXd> g_vec;
 
-  // combine all the g vectors
-  // TODO: DRY, figure out how to remove these two rows
-  Eigen::VectorXd g(g_supp.rows() + g_footholds.rows() + g_spline_junctions.rows());
-  g << g_spline_junctions, g_supp, g_footholds;
+  g_vec.push_back(EvalSplineJunctionConstraints(x_coeff, bounds_));
+  g_vec.push_back(EvalSuppPolygonConstraints(footholds, x_coeff, bounds_));
+  g_vec.push_back(EvalFootholdConstraints(footholds, bounds_));
 
-  return g;
+
+  // create correct size constraint vector the first time this function is called
+  if (first_constraint_eval_) {
+    int n_constraints = 0;
+    for (Eigen::VectorXd& g : g_vec) {
+      n_constraints += g.rows();
+    }
+    g_.resize(n_constraints);
+  }
+
+
+  //  combine all the g vectors
+  //  g_ << g_vec[0], g_vec[1], g_vec[2];
+  int c = 0;
+  for (Eigen::VectorXd& g : g_vec) {
+    g_.middleRows(c, g.rows()) = g;
+    c += g.rows();
+  }
+
+
+  first_constraint_eval_ = false;
+  return g_;
 }
 
 
 Eigen::VectorXd
-Constraints::EvalSuppPolygonConstraints(const Footholds& footholds, const Eigen::VectorXd& x_coeff)
-{;
+Constraints::EvalSuppPolygonConstraints(const Footholds& footholds, const Eigen::VectorXd& x_coeff,
+                                        std::vector<Constraints::Bound>& bounds)
+{
   for (int i=0; i<footholds.size(); ++i) {
     supp_triangle_container_.footholds_.at(i).p.x() = footholds.at(i).x();
     supp_triangle_container_.footholds_.at(i).p.y() = footholds.at(i).y();
   }
 
+
   MatVec ineq = supp_triangle_container_.AddLineConstraints(x_zmp_, y_zmp_, zmp_spline_container_);
+
+  // add bounds
+  if (first_constraint_eval_) {
+    Bound ineq_bound(0.0, +1.0e19);
+    for (int c=0; c<ineq.v.rows(); ++c) {
+      bounds.push_back(ineq_bound);
+    }
+  }
+
   return ineq.M*x_coeff + ineq.v;
 }
 
 
 Eigen::VectorXd
-Constraints::EvalFootholdConstraints(const Footholds& footholds) const
+Constraints::EvalFootholdConstraints(const Footholds& footholds,
+                                     std::vector<Constraints::Bound>& bounds) const
 {
   // constraints on the footsteps
-  Eigen::VectorXd g_vec_footsteps(2*footholds.size());
-  g_vec_footsteps.setZero();
+  Eigen::VectorXd g(2*footholds.size());
+  g.setZero();
   // fix footholds in x and y direction
   int c=0;
   for (uint i=0; i<footholds.size(); ++i) {
@@ -90,11 +102,28 @@ Constraints::EvalFootholdConstraints(const Footholds& footholds) const
 
     int idx = 2*i;
 
-    g_vec_footsteps(c++) = footholds.at(i).x() - f.p.x();
-    g_vec_footsteps(c++) = footholds.at(i).y() - f.p.y();
+    g(c++) = footholds.at(i).x() - f.p.x();
+    g(c++) = footholds.at(i).y() - f.p.y();
   }
 
 
+  if (first_constraint_eval_) {
+    Bound eq_bound(0.0, 0.0);
+    for (int c=0; c<g.rows(); ++c) {
+      bounds.push_back(eq_bound);
+    }
+  }
+
+  return g;
+}
+
+
+Eigen::VectorXd
+Constraints::EvalStepLengthConstraints(const Footholds& footholds,
+                                     std::vector<Constraints::Bound>& bounds) const
+{
+
+  Eigen::VectorXd g(2*footholds.size());
   // restrict distance to previous foothold small
   // initialize with steps from footstep planner
   //  for (int i=0; i<supp_triangle_container_.footholds_.size(); ++i) {
@@ -115,14 +144,34 @@ Constraints::EvalFootholdConstraints(const Footholds& footholds) const
   //    g_vec_footsteps(c++) = hypot(dx,dy) - 0.3;
   //  }
 
-  return g_vec_footsteps;
+
+  // bounds
+  //  // restricting the length of each step
+  //  for (int i=0; i<n_steps_; ++i)
+  //  {
+  //    g_l[c] = -1.0e19;
+  //    g_u[c] = 0.0;
+  //    c++;
+  //  }
+
+  return g;
 }
 
 
 Eigen::VectorXd
-Constraints::EvalSplineJunctionConstraints(const Eigen::VectorXd& x_coeff) const
+Constraints::EvalSplineJunctionConstraints(const Eigen::VectorXd& x_coeff,
+                                           std::vector<Constraints::Bound>& bounds) const
 {
-  return spline_function_constraints_.M*x_coeff + spline_function_constraints_.v;
+  Eigen::VectorXd g = spline_junction_constraints_.M*x_coeff + spline_junction_constraints_.v;
+
+  if (first_constraint_eval_) {
+    Bound eq_bound(0.0, 0.0);
+    for (int c=0; c<g.rows(); ++c) {
+      bounds.push_back(eq_bound);
+    }
+  }
+
+  return g;
 }
 
 

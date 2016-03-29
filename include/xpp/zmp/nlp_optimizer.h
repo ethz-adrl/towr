@@ -27,7 +27,7 @@ public:
   Eigen::VectorXd SolveNlp(Constraints::Footholds& final_footholds,
                            const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
                            const xpp::zmp::QpOptimizer& zmp_optimizer, // TODO, make this more specific
-                           const Eigen::VectorXd& initialization_values = Eigen::Vector2d::Zero());
+                           const Eigen::VectorXd& initial_spline_coeff = Eigen::Vector2d::Zero());
 
 
 };

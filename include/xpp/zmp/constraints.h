@@ -35,9 +35,10 @@ public:
 
 public:
   Constraints (const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
-               const xpp::zmp::ContinuousSplineContainer& zmp_spline_container);
+               const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
+               const MatVec& qp_equality_constraints);
   virtual
-  ~Constraints ();
+  ~Constraints () {};
 
 
 //  void AddConstraint(Bound bound,
@@ -48,25 +49,31 @@ public:
 
   xpp::hyq::SuppTriangleContainer supp_triangle_container_;
   xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
-  // these i can calculate from previous
+
+  MatVec spline_junction_constraints_;
+
+  bool first_constraint_eval_ = true;
+  Eigen::VectorXd g_;
+  std::vector<Constraints::Bound> bounds_;
+
+private:
+
   std::vector<xpp::hyq::Foothold> initial_footholds_;
   MatVec x_zmp_;
   MatVec y_zmp_;
 
-  MatVec spline_function_constraints_;
-
-private:
-
   Eigen::VectorXd EvalSuppPolygonConstraints(const Footholds& footholds,
-                                             const Eigen::VectorXd& x_coeff);
+                                             const Eigen::VectorXd& x_coeff,
+                                             std::vector<Bound>& bounds);
 
-  Eigen::VectorXd EvalFootholdConstraints(const Footholds& footholds) const;
+  Eigen::VectorXd EvalFootholdConstraints(const Footholds& footholds,
+                                          std::vector<Constraints::Bound>& bounds) const;
 
-  Eigen::VectorXd EvalSplineJunctionConstraints(const Eigen::VectorXd& x_coeff) const;
+  Eigen::VectorXd EvalSplineJunctionConstraints(const Eigen::VectorXd& x_coeff,
+                                                std::vector<Constraints::Bound>& bounds) const;
 
-  int n_equality_constraints_;
-  int n_inequality_constraints_;
-
+  Eigen::VectorXd EvalStepLengthConstraints(const Footholds& footholds,
+                                       std::vector<Constraints::Bound>& bounds) const;
 };
 
 } /* namespace zmp */

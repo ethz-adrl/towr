@@ -31,7 +31,7 @@ Eigen::VectorXd
 NlpOptimizer::SolveNlp(Constraints::Footholds& final_footholds,
                        const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
                        const xpp::zmp::QpOptimizer& qp_optimizer, // TODO, make this more specific
-                       const Eigen::VectorXd& initialization_values)
+                       const Eigen::VectorXd& initial_spline_coeff)
 {
   Ipopt::IpoptApplication app;
   Ipopt::ApplicationReturnStatus status = app.Initialize();
@@ -41,19 +41,19 @@ NlpOptimizer::SolveNlp(Constraints::Footholds& final_footholds,
   }
 
 
-  xpp::zmp::Constraints constraints(supp_triangle_container,qp_optimizer.zmp_splines_);
+  xpp::zmp::Constraints constraints(supp_triangle_container,
+                                    qp_optimizer.zmp_splines_,
+                                    qp_optimizer.eq_);
+
+  xpp::zmp::CostFunction cost_function_quadratic_(qp_optimizer.cf_);
 
 
-  Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp = new Ipopt::NlpIpoptZmp(qp_optimizer.cf_,
-                                                                             constraints);
-  nlp_ipopt_zmp->SetupNlp(supp_triangle_container,
-                          qp_optimizer.zmp_splines_,
-                          qp_optimizer.cf_,
-                          qp_optimizer.eq_,
-                          initialization_values);
+  Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
+      new Ipopt::NlpIpoptZmp(cost_function_quadratic_,
+                             constraints,
+                             initial_spline_coeff);
 
 
-  // FIXME make sure the zmp_optimizer member variables is already properly filled!!!
   status = app.OptimizeTNLP(nlp_ipopt_zmp);
   if (status == Ipopt::Solve_Succeeded) {
     // Retrieve some statistics about the solve
