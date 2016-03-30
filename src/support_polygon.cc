@@ -1,11 +1,11 @@
 /**
-@file    supp_triangle.cc
+@file    supp_polygon.cc
 @author  Alexander Winkler (winklera@ethz.ch)
 @date    Oct 21, 2014
 @brief   Defines a triangle created by footholds that affects stability
  */
 
-#include <xpp/hyq/supp_triangle.h>
+#include <xpp/hyq/support_polygon.h>
 #include <xpp/utils/point2d_manipulations.h>
 
 
@@ -15,7 +15,7 @@ namespace hyq {
 using namespace ::xpp::utils; //X,Y,Z,Poin2dManip
 
 
-SuppTriangle::SuppTriangle(const MarginValues& margins, LegID swing_leg, const ArrayF3& footholds)
+SupportPolygon::SupportPolygon(const MarginValues& margins, LegID swing_leg, const VecFoothold& footholds)
     :  margins_(margins),
        swing_leg_(swing_leg),
        footholds_(footholds)
@@ -34,9 +34,9 @@ SuppTriangle::SuppTriangle(const MarginValues& margins, LegID swing_leg, const A
 }
 
 
-SuppTriangle::TrLines3 SuppTriangle::CalcLines() const
+SupportPolygon::VecTrLine SupportPolygon::CalcLines() const
 {
-  TrLines3 lines(footholds_.size());
+  VecTrLine lines(footholds_.size());
   for (uint i = 0; i<lines.size(); ++i) {
     Foothold from = footholds_[i];
     int last_idx = footholds_.size()-1;
@@ -49,7 +49,7 @@ SuppTriangle::TrLines3 SuppTriangle::CalcLines() const
 }
 
 
-double SuppTriangle::UseMargin(const LegID& f0, const LegID& f1) const
+double SupportPolygon::UseMargin(const LegID& f0, const LegID& f1) const
 {
   LegID foot[] = {f0, f1};
 
@@ -72,7 +72,7 @@ double SuppTriangle::UseMargin(const LegID& f0, const LegID& f1) const
 }
 
 
-const SuppTriangle::ArrayF3& SuppTriangle::GetFootholds() const
+const SupportPolygon::VecFoothold& SupportPolygon::GetFootholds() const
 {
   return footholds_;
 }

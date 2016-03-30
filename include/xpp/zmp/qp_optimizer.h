@@ -9,7 +9,7 @@
 #define _XPP_ZMP_OPTIMIZER_H_
 
 #include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/hyq/supp_triangle_container.h>
+#include <xpp/hyq/support_polygon_container.h>
 
 #include <log4cxx/logger.h>
 #include <Eigen/Dense>
@@ -48,7 +48,7 @@ eigen_quadprog.hpp performs the optimization.
  */
 class QpOptimizer {
 public:
-  typedef ::xpp::hyq::SuppTriangle SuppTriangle;
+  typedef ::xpp::hyq::SupportPolygon SuppTriangle;
   typedef ::xpp::utils::Vec2d Position;
   typedef std::array<double,2> WeightsXYArray;
   typedef xpp::utils::MatVec MatVec;
@@ -75,7 +75,7 @@ public:
  @throws std::runtime_error Throws if no solution to the QP problem was found.
  */
   void SetupQpMatrices(const WeightsXYArray& weight,
-                       const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
+                       const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
                        double height_robot);
 
   Eigen::VectorXd SolveQp();
@@ -92,7 +92,7 @@ private:
   MatVec ineq_;
   MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;
   MatVec CreateEqualityContraints(const Position &end_cog) const;
-  MatVec CreateInequalityContraints(const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
+  MatVec CreateInequalityContraints(const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
                                     double walking_height);
 
 

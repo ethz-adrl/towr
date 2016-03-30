@@ -82,8 +82,8 @@ set(SOURCES
   src/spliner_3d.cc
   src/hyq_state.cc
   src/orientation.cc
-  src/supp_triangle.cc
-  src/supp_triangle_container.cc
+  src/support_polygon.cc
+  src/supp_polygon_container.cc
   src/hyq_spliner.cc
   src/nlp_ipopt_zmp.cc
   src/cost_function.cc

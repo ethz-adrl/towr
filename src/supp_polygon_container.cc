@@ -5,24 +5,24 @@
  *      Author: winklera
  */
 
-#include <xpp/hyq/supp_triangle_container.h>
+#include "../include/xpp/hyq/support_polygon_container.h"
 
 namespace xpp {
 namespace hyq {
 
-SuppTriangleContainer::SuppTriangleContainer ()
+SupportPolygonContainer::SupportPolygonContainer ()
 {
   // TODO Auto-generated constructor stub
 
 }
 
-SuppTriangleContainer::~SuppTriangleContainer ()
+SupportPolygonContainer::~SupportPolygonContainer ()
 {
   // TODO Auto-generated destructor stub
 }
 
 
-void SuppTriangleContainer::Init(LegDataMap<Foothold> start_stance,
+void SupportPolygonContainer::Init(LegDataMap<Foothold> start_stance,
                                  const Footholds& footholds,
                                  const MarginValues& margins)
 {
@@ -35,8 +35,8 @@ void SuppTriangleContainer::Init(LegDataMap<Foothold> start_stance,
 }
 
 
-SuppTriangleContainer::SuppTriangles
-SuppTriangleContainer::GetSupportTriangles(const Footholds& footholds) const
+SupportPolygonContainer::SuppTriangles
+SupportPolygonContainer::GetSupportTriangles(const Footholds& footholds) const
 {
   CheckIfInitialized();
 
@@ -51,7 +51,7 @@ SuppTriangleContainer::GetSupportTriangles(const Footholds& footholds) const
       if(curr_stance[l].leg != swingleg)
         non_swing_legs.push_back(curr_stance[l]);
 
-    tr.push_back(SuppTriangle(margins_, swingleg, non_swing_legs));
+    tr.push_back(SupportPolygon(margins_, swingleg, non_swing_legs));
     curr_stance[swingleg] = footholds.at(s); // update current stance with last step
   }
 
@@ -59,7 +59,7 @@ SuppTriangleContainer::GetSupportTriangles(const Footholds& footholds) const
 }
 
 
-Eigen::Vector2d SuppTriangleContainer::GetCenterOfFinalStance() const
+Eigen::Vector2d SupportPolygonContainer::GetCenterOfFinalStance() const
 {
   CheckIfInitialized();
 
@@ -77,8 +77,8 @@ Eigen::Vector2d SuppTriangleContainer::GetCenterOfFinalStance() const
 }
 
 
-SuppTriangleContainer::MatVec
-SuppTriangleContainer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+SupportPolygonContainer::MatVec
+SupportPolygonContainer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                                           const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
 {
   CheckIfInitialized();
@@ -101,7 +101,7 @@ SuppTriangleContainer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_z
       continue;
     }
 
-    SuppTriangle::TrLines3 lines = supp_triangles.at(s.step_).CalcLines();
+    SupportPolygon::VecTrLine lines = supp_triangles.at(s.step_).CalcLines();
     for (double i=0; i < s.GetNodeCount(zmp_splines.dt_); ++i) {
 
       // add three line constraints for each node
@@ -119,7 +119,7 @@ SuppTriangleContainer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_z
 
 
 
-void SuppTriangleContainer::AddLineConstraint(const SuppTriangle::TrLine& l,
+void SupportPolygonContainer::AddLineConstraint(const SupportPolygon::TrLine& l,
                                     const Eigen::RowVectorXd& x_zmp_M,
                                     const Eigen::RowVectorXd& y_zmp_M,
                                     double x_zmp_v,
@@ -137,7 +137,7 @@ void SuppTriangleContainer::AddLineConstraint(const SuppTriangle::TrLine& l,
 
 
 void
-SuppTriangleContainer::CheckIfInitialized() const
+SupportPolygonContainer::CheckIfInitialized() const
 {
   if (!initialized_) {
     throw std::runtime_error("SuppTriangleContainer not initialized. Call Init() first");

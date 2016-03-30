@@ -8,9 +8,7 @@
 #include <xpp/zmp/qp_optimizer.h>
 
 #include <xpp/zmp/eigen_quadprog-inl.h>
-#include <xpp/hyq/supp_triangle_container.h>
 #include <xpp/utils/logger_helpers-inl.h>
-
 
 #include <ctime>      // std::clock_t
 #include <cmath>      // std::numeric_limits
@@ -41,7 +39,7 @@ QpOptimizer::~QpOptimizer() {}
 
 void QpOptimizer::SetupQpMatrices(
     const WeightsXYArray& weight,
-    const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
+    const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
     double walking_height)
 {
   if (zmp_splines_.splines_.empty()) {
@@ -59,7 +57,7 @@ void QpOptimizer::SetupQpMatrices(
 
 
 QpOptimizer::MatVec
-QpOptimizer::CreateInequalityContraints(const xpp::hyq::SuppTriangleContainer& supp_triangle_container, double walking_height)
+QpOptimizer::CreateInequalityContraints(const xpp::hyq::SupportPolygonContainer& supp_triangle_container, double walking_height)
 {
   MatVec zmp_x = zmp_splines_.ExpressZmpThroughCoefficients(walking_height, X);
   MatVec zmp_y = zmp_splines_.ExpressZmpThroughCoefficients(walking_height, Y);

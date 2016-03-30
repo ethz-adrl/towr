@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_OPTIMIZER_H_
 
 
-#include <xpp/hyq/supp_triangle_container.h>
+#include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/qp_optimizer.h>
 #include <xpp/zmp/constraints.h>
@@ -25,7 +25,7 @@ public:
 
 
   Eigen::VectorXd SolveNlp(Constraints::Footholds& final_footholds,
-                           const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
+                           const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
                            const xpp::zmp::QpOptimizer& zmp_optimizer, // TODO, make this more specific
                            const Eigen::VectorXd& initial_spline_coeff = Eigen::Vector2d::Zero());
 

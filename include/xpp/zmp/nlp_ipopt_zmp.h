@@ -11,9 +11,6 @@
 
 #include <IpTNLP.hpp>
 
-#include <xpp/hyq/supp_triangle_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
-
 #include <xpp/zmp/cost_function.h>
 #include <xpp/zmp/constraints.h>
 

@@ -17,7 +17,6 @@
 #include <xpp/zmp/zmp_spline.h>
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/leg_data_map.h>
-#include <xpp/hyq/supp_triangle.h>
 
 #include <vector>
 

@@ -11,7 +11,7 @@
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 
-#include <xpp/hyq/supp_triangle_container.h>
+#include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
 
 namespace xpp {
@@ -34,7 +34,7 @@ public:
   };
 
 public:
-  Constraints (const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
+  Constraints (const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
                const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
                const MatVec& qp_equality_constraints);
   virtual
@@ -43,7 +43,7 @@ public:
   Eigen::VectorXd EvalContraints(const Footholds& footholds,
                                  const Eigen::VectorXd& x_coeff);
 
-  xpp::hyq::SuppTriangleContainer supp_triangle_container_;
+  xpp::hyq::SupportPolygonContainer supp_triangle_container_;
   xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
 
   MatVec spline_junction_constraints_;

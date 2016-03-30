@@ -29,7 +29,7 @@ NlpOptimizer::~NlpOptimizer ()
 
 Eigen::VectorXd
 NlpOptimizer::SolveNlp(Constraints::Footholds& final_footholds,
-                       const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
+                       const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
                        const xpp::zmp::QpOptimizer& qp_optimizer, // TODO, make this more specific
                        const Eigen::VectorXd& initial_spline_coeff)
 {

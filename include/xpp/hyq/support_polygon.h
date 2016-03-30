@@ -1,12 +1,12 @@
 /**
-@file    supp_triangle.cc
+@file    support_polygon.h
 @author  Alexander Winkler (winklera@ethz.ch)
 @date    Oct 21, 2014
 @brief   Defines a triangle created by footholds that affects stability.
  */
 
-#ifndef _XPP_HYQ_SUPPTRIANGLE_H_
-#define _XPP_HYQ_SUPPTRIANGLE_H_
+#ifndef _XPP_HYQ_SUPPORTPOLYGON_H_
+#define _XPP_HYQ_SUPPORTPOLYGON_H_
 
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/leg_data_map.h> // LegID, LegIDArray
@@ -19,44 +19,38 @@ namespace hyq {
 
 static const int kSideTypeCount = 4;
 enum SideTypes {FRONT = 0, HIND, SIDE, DIAG};
-
 typedef std::array<double, kSideTypeCount> MarginValues;
 
 /**
 @brief Defines a triangle created by footholds that affects stability.
  */
-class SuppTriangle {
+class SupportPolygon {
 public:
   struct TrLine {
     utils::LineCoeff2d coeff;
     double s_margin;
   };
-//  typedef std::array<TrLine,3> TrLines3;
-//  typedef std::array<Foothold,3> ArrayF3;
 
-  typedef std::vector<TrLine> TrLines3;
-  typedef std::vector<Foothold> ArrayF3;
+  typedef std::vector<TrLine> VecTrLine;
+  typedef std::vector<Foothold> VecFoothold;
 
 public:
-  SuppTriangle(const MarginValues& margins, LegID swing_leg, const ArrayF3& footholds);
-  virtual ~SuppTriangle() {};
+  SupportPolygon(const MarginValues& margins, LegID swing_leg, const VecFoothold& footholds);
+  virtual ~SupportPolygon() {};
 
-  TrLines3 CalcLines() const;
-  const ArrayF3& GetFootholds() const;
+  VecTrLine CalcLines() const;
+  const VecFoothold& GetFootholds() const;
 
   MarginValues margins_;
   LegID swing_leg_;
-  ArrayF3 footholds_;
+  VecFoothold footholds_;
 private:
 
   double UseMargin(const LegID& f0, const LegID& f1) const;
 };
 
-typedef std::vector<SuppTriangle> SuppTriangles;
 
-
-
-inline std::ostream& operator<<(std::ostream& out, const SuppTriangle& tr)
+inline std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr)
 {
   out <<"margins[front,hind,side,diag]=" << tr.margins_[0] << ", " << tr.margins_[1] << ", " << tr.margins_[2] << ", " << tr.margins_[3] << "\n";
   for (const Foothold& f : tr.GetFootholds())
@@ -67,4 +61,4 @@ inline std::ostream& operator<<(std::ostream& out, const SuppTriangle& tr)
 } // namespace hyq
 } // namespace xpp
 
-#endif // _XPP_HYQ_SUPPTRIANGLE_H_
+#endif // _XPP_HYQ_SUPPORTPOLYGON_H_

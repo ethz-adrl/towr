@@ -8,16 +8,19 @@
 #ifndef _XPP_UTILS_LOGGER_HELPERS_INL_H_
 #define _XPP_UTILS_LOGGER_HELPERS_INL_H_
 
-#include "geometric_structs.h"
+#include <xpp/utils/geometric_structs.h>
 #include <xpp/zmp/zmp_spline.h>
 #include <log4cxx/logger.h>
 
 #include <iomanip> // std::setprecision, std::fixed
-#include "../zmp/qp_optimizer.h"
+#include "../hyq/support_polygon.h"
 
 namespace xpp {
 namespace utils {
 namespace logger_helpers {
+
+typedef std::vector<xpp::hyq::SupportPolygon> SuppTriangles;
+
 
 // make inline to avoid function call overhead when logging level disabled
 inline void print_spline_info(const std::vector<zmp::ZmpSpline>& splines, log4cxx::LoggerPtr log);
@@ -27,9 +30,9 @@ inline void print_struct(const utils::MatVec& s, std::string name, log4cxx::Logg
 inline void print_opt_result(Eigen::VectorXd solution, double cost, clock_t start,
                              clock_t stop, log4cxx::LoggerPtr log);
 
-inline void print_triangles(const hyq::SuppTriangles& tr, log4cxx::LoggerPtr log);
+inline void print_triangles(const SuppTriangles& tr, log4cxx::LoggerPtr log);
 
-inline void PrintTriaglesMatlabInfo(const hyq::SuppTriangles& tr, log4cxx::LoggerPtr log);
+inline void PrintTriaglesMatlabInfo(const SuppTriangles& tr, log4cxx::LoggerPtr log);
 
 
 /// definitions
@@ -78,25 +81,25 @@ void print_struct(const utils::MatVec& s, std::string name,
   }
 }
 
-void print_triangles(const hyq::SuppTriangles& tr, log4cxx::LoggerPtr log)
+void print_triangles(const SuppTriangles& tr, log4cxx::LoggerPtr log)
 {
   if (log->isDebugEnabled()) {
     std::stringstream ss;
     ss << std::setprecision(2) << std::fixed << '\n';
     int tc = 0;
-    for (const hyq::SuppTriangle& t : tr)
+    for (const hyq::SupportPolygon& t : tr)
       ss << "Triangle " << tc++ << ":\n" << t << "\n";
     LOG4CXX_TRACE(log, ss.str());
   }
 }
 
-void PrintTriaglesMatlabInfo(const hyq::SuppTriangles& tr, log4cxx::LoggerPtr log)
+void PrintTriaglesMatlabInfo(const SuppTriangles& tr, log4cxx::LoggerPtr log)
 {
   if (log->isInfoEnabled()) {
     std::stringstream ss_x_values, ss_y_values;
     ss_x_values << std::setprecision(3) << std::fixed;
     ss_y_values << std::setprecision(3) << std::fixed;
-    for (const hyq::SuppTriangle& t : tr) {
+    for (const hyq::SupportPolygon& t : tr) {
       ss_x_values << t.GetFootholds()[0].p(X) << " "
                   << t.GetFootholds()[1].p(X) << " "
                   << t.GetFootholds()[2].p(X) << " ";

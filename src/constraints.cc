@@ -10,7 +10,7 @@
 namespace xpp {
 namespace zmp {
 
-Constraints::Constraints (const xpp::hyq::SuppTriangleContainer& supp_triangle_container,
+Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
                            const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
                            const MatVec& qp_equality_constraints)
 {

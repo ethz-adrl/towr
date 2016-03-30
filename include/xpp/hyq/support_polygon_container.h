@@ -8,24 +8,24 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 
-#include <xpp/hyq/supp_triangle.h>
 #include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/hyq/support_polygon.h>
 
 namespace xpp {
 namespace hyq {
 
-class SuppTriangleContainer
+class SupportPolygonContainer
 {
 public:
   typedef std::vector<Foothold> Footholds;
-  typedef std::vector<SuppTriangle> SuppTriangles;
-  typedef SuppTriangle::ArrayF3 ArrayF3;
+  typedef std::vector<SupportPolygon> SuppTriangles;
+  typedef SupportPolygon::VecFoothold ArrayF3;
   typedef xpp::utils::MatVec MatVec;
 
 public:
-  SuppTriangleContainer ();
+  SupportPolygonContainer ();
   virtual
-  ~SuppTriangleContainer ();
+  ~SupportPolygonContainer ();
 
 public:
   void Init(LegDataMap<Foothold> start_stance,
@@ -59,7 +59,7 @@ private:
   {
     return GetSupportTriangles(footholds_);
   }
-  void AddLineConstraint(const SuppTriangle::TrLine& l,
+  void AddLineConstraint(const SupportPolygon::TrLine& l,
                          const Eigen::RowVectorXd& x_zmp_M,
                          const Eigen::RowVectorXd& y_zmp_M,
                          double x_zmp_v,

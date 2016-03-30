@@ -224,7 +224,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   zmp_splines_eig = zmp_splines_structure;
   zmp_splines     = zmp_splines_structure;
 
-  xpp::hyq::SuppTriangleContainer supp_triangle_container;
+  xpp::hyq::SupportPolygonContainer supp_triangle_container;
   supp_triangle_container.Init(start_stance, steps_, margins);
 
   xpp::zmp::QpOptimizer zmp_optimizer(zmp_splines_structure);
