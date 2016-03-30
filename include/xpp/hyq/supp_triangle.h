@@ -12,8 +12,6 @@
 #include <xpp/hyq/leg_data_map.h> // LegID, LegIDArray
 #include <xpp/utils/geometric_structs.h>
 
-#include <log4cxx/logger.h>
-#include <array>
 #include <vector>
 
 namespace xpp {
@@ -33,12 +31,13 @@ public:
     utils::LineCoeff2d coeff;
     double s_margin;
   };
-  typedef std::array<TrLine,3> TrLines3;
-  typedef std::array<Foothold,3> ArrayF3;
-  typedef std::vector<Foothold> Footholds;
+//  typedef std::array<TrLine,3> TrLines3;
+//  typedef std::array<Foothold,3> ArrayF3;
+
+  typedef std::vector<TrLine> TrLines3;
+  typedef std::vector<Foothold> ArrayF3;
 
 public:
-  SuppTriangle();
   SuppTriangle(const MarginValues& margins, LegID swing_leg, const ArrayF3& footholds);
   virtual ~SuppTriangle() {};
 
@@ -51,14 +50,6 @@ public:
 private:
 
   double UseMargin(const LegID& f0, const LegID& f1) const;
-  void SortFootholdsCounterclockwise();
-  static bool SortFootholdByXThenY(const Foothold& lhs, const Foothold& rhs);
-  double Foothold2isRightOfLine(const Foothold& f0, const Foothold f1,
-                                const Foothold& f2) const;
-
-  static log4cxx::LoggerPtr log_;
-  static log4cxx::LoggerPtr log_matlab_;
-
 };
 
 typedef std::vector<SuppTriangle> SuppTriangles;

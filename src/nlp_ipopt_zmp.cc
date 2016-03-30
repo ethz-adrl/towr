@@ -70,8 +70,6 @@ bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
     g_u[c] = constraints_.bounds_.at(c).upper_;
   }
 
-  assert(c == m);
-
   return true;
 }
 

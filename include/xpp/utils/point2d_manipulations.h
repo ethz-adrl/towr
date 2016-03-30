@@ -9,9 +9,10 @@
 #define _XPP_UTILS_POINT2D_MANIPULATOR_H_
 
 #include "geometric_structs.h"
+#include <Eigen/StdVector>
 
 #include <array>
-#include <algorithm>
+#include <algorithm> // std::sort
 #include <cmath>
 #include <iostream>
 
@@ -23,6 +24,9 @@ namespace utils {
 @brief Some utilities for manipulating 2 dimensional points, distances, lines.
  */
 struct Point2dManip {
+
+  typedef std::vector<Vec2d, Eigen::aligned_allocator<Vec2d> > StdVectorEig2d;
+
 
   // from http://math.stackexchange.com/questions/1076292/obtain-coefficients-of-a-line-from-2-points
   static LineCoeff2d LineCoeff(const Vec2d& pt0, const Vec2d& pt1, bool normalize = true) {
@@ -73,8 +77,8 @@ struct Point2dManip {
   Uses the slow n^2 sort algorithm, shouldn't matter for sorting 4 points :)
   Fails when 3 points are on same line and one could be removed
    */
-  template<std::size_t N >
-  static void CounterClockwiseSort(std::array<Vec2d,N>& p)
+//  template<std::size_t N >
+  static void CounterClockwiseSort(StdVectorEig2d& p)
   {
     // make sure the first point is the one with lowest (x,y) value
     std::sort(p.begin(), p.end(), SortByXThenY);

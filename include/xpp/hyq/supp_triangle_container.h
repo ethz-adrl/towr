@@ -19,7 +19,7 @@ class SuppTriangleContainer
 public:
   typedef std::vector<Foothold> Footholds;
   typedef std::vector<SuppTriangle> SuppTriangles;
-  typedef std::array<Foothold,3> ArrayF3;
+  typedef SuppTriangle::ArrayF3 ArrayF3;
   typedef xpp::utils::MatVec MatVec;
 
 public:

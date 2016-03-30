@@ -41,20 +41,18 @@ SuppTriangleContainer::GetSupportTriangles(const Footholds& footholds) const
   CheckIfInitialized();
 
   SuppTriangles tr;
-  ArrayF3 non_swing_legs;
   LegDataMap<Foothold> curr_stance = start_stance_;
 
   for (std::size_t s = 0; s < footholds.size(); s++) {
     LegID swingleg = footholds[s].leg;
-
+    ArrayF3 non_swing_legs;
     // extract the 3 non-swinglegs from stance
-    int i = 0;
     for (LegID l : LegIDArray)
       if(curr_stance[l].leg != swingleg)
-        non_swing_legs[i++] = curr_stance[l];
+        non_swing_legs.push_back(curr_stance[l]);
 
     tr.push_back(SuppTriangle(margins_, swingleg, non_swing_legs));
-    curr_stance[swingleg] = footholds[s]; // update current stance with last step
+    curr_stance[swingleg] = footholds.at(s); // update current stance with last step
   }
 
   return tr;
