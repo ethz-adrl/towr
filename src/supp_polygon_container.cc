@@ -31,12 +31,11 @@ void SupportPolygonContainer::Init(LegDataMap<Foothold> start_stance,
   margins_      = margins;
 
   initialized_ = true;
-
 }
 
 
 SupportPolygonContainer::SuppTriangles
-SupportPolygonContainer::GetSupportTriangles(const Footholds& footholds) const
+SupportPolygonContainer::GetSupportPolygons(const Footholds& footholds) const
 {
   CheckIfInitialized();
 
@@ -64,7 +63,7 @@ Eigen::Vector2d SupportPolygonContainer::GetCenterOfFinalStance() const
   CheckIfInitialized();
 
   // get last support triangle + last step to form last stance
-  ArrayF3 last_tr = GetSupportTriangles().back().footholds_; // FIXME violates law of Dementer
+  ArrayF3 last_tr = GetSupportPolygons().back().GetFootholds(); // FIXME violates law of Dementer
   Foothold last_step = footholds_.back();
 
   Eigen::Vector2d end_cog = Eigen::Vector2d::Zero();
@@ -83,7 +82,7 @@ SupportPolygonContainer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y
 {
   CheckIfInitialized();
 
-  SuppTriangles supp_triangles = GetSupportTriangles();
+  SuppTriangles supp_polygons = GetSupportPolygons();
 
   int coeff = zmp_splines.GetTotalFreeCoeff();
   int num_nodes_no_4ls = zmp_splines.GetTotalNodes(true);
@@ -101,11 +100,11 @@ SupportPolygonContainer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y
       continue;
     }
 
-    SupportPolygon::VecTrLine lines = supp_triangles.at(s.step_).CalcLines();
+    SupportPolygon::VecTrLine lines = supp_polygons.at(s.step_).CalcLines();
     for (double i=0; i < s.GetNodeCount(zmp_splines.dt_); ++i) {
 
       // add three line constraints for each node
-      for (int l=0; l<3; l++) {
+      for (int l=0; l<lines.size(); l++) {
         AddLineConstraint(lines.at(l), x_zmp.M.row(n), y_zmp.M.row(n),
                                        x_zmp.v[n],     y_zmp.v[n],
                                        c, ineq);
@@ -133,6 +132,19 @@ void SupportPolygonContainer::AddLineConstraint(const SupportPolygon::TrLine& l,
   ineq.v[c]    += l.coeff.r - l.s_margin;
 
   c++;
+}
+
+
+bool SupportPolygonContainer::Insert4LSPhase(LegID prev, LegID next)
+{
+  using namespace xpp::hyq;
+  // check for switching between disjoint support triangles.
+  // the direction the robot is moving between triangles does not matter.
+  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+  std::swap(prev, next);
+  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+
+  return false;
 }
 
 

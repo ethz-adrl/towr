@@ -42,10 +42,10 @@ public:
   const VecFoothold& GetFootholds() const;
 
   MarginValues margins_;
-  LegID swing_leg_;
-  VecFoothold footholds_;
 private:
 
+  LegID swing_leg_;
+  VecFoothold footholds_;
   double UseMargin(const LegID& f0, const LegID& f1) const;
 };
 

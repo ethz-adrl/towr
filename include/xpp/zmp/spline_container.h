@@ -61,10 +61,6 @@ public:
                                         double t_stance_initial,
                                         double t_stance_final);
 
-  static bool Insert4LSPhase(LegID prev, LegID next);
-
-
-
   Splines splines_;
 protected:
   uint curr_spline_;

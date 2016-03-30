@@ -7,6 +7,7 @@
  */
 
 #include <xpp/zmp/spline_container.h>
+#include <xpp/hyq/support_polygon_container.h>
 
 #include <cmath>
 #include <iostream>
@@ -68,13 +69,12 @@ void SplineContainer::ConstructSplineSequence(
   for (size_t i = 0; i < step_sequence.size(); ++i)
   {
     // 1. insert 4ls-phase when switching between disjoint support triangles
-    // Attention: these 4ls-phases much coincide with the ones in the zmp optimizer
     if (i==0) {
       AddSpline(ZmpSpline(id++, t_stance_initial, true, step));
     } else {
       xpp::hyq::LegID swing_leg = step_sequence[i];
       xpp::hyq::LegID swing_leg_prev = step_sequence[i-1];
-      if (Insert4LSPhase(swing_leg_prev, swing_leg))
+      if (xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg_prev, swing_leg))
         for (int s = 0; s < kSplinesPer4ls; s++)
           AddSpline(ZmpSpline(id++, t_stance/kSplinesPer4ls, true, step));
     }
@@ -92,19 +92,6 @@ void SplineContainer::ConstructSplineSequence(
 
     step++;
   }
-}
-
-
-bool SplineContainer::Insert4LSPhase(LegID prev, LegID next)
-{
-  using namespace xpp::hyq;
-  // check for switching between disjoint support triangles.
-  // the direction the robot is moving between triangles does not matter.
-  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-  std::swap(prev, next);
-  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-
-  return false;
 }
 
 

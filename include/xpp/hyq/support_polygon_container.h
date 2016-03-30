@@ -39,6 +39,7 @@ public:
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
 
+  static bool Insert4LSPhase(LegID prev, LegID next);
 
 public:
   Footholds footholds_;
@@ -47,17 +48,17 @@ public:
 
 private:
   /**
-  @brief Creates the support triangles from footholds and steps.
+  @brief Creates the support polygons from footholds and steps.
 
   @param start_stance Position of feet before walking
   @param steps Position and leg of each new step
   @param stability_margin margin for created support triangles
   @attention modifies start stance
   */
-  SuppTriangles GetSupportTriangles(const Footholds& footholds_) const;
-  SuppTriangles GetSupportTriangles() const
+  SuppTriangles GetSupportPolygons(const Footholds& footholds) const;
+  SuppTriangles GetSupportPolygons() const
   {
-    return GetSupportTriangles(footholds_);
+    return GetSupportPolygons(footholds_);
   }
   void AddLineConstraint(const SupportPolygon::TrLine& l,
                          const Eigen::RowVectorXd& x_zmp_M,
