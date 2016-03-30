@@ -26,25 +26,25 @@ typedef std::array<double, kSideTypeCount> MarginValues;
  */
 class SupportPolygon {
 public:
-  struct TrLine {
+  struct SuppLine {
     utils::LineCoeff2d coeff;
     double s_margin;
   };
 
-  typedef std::vector<TrLine> VecTrLine;
+  typedef std::vector<SuppLine> VecSuppLine;
   typedef std::vector<Foothold> VecFoothold;
 
 public:
-  SupportPolygon(const MarginValues& margins, LegID swing_leg, const VecFoothold& footholds);
+  SupportPolygon() {};
+  SupportPolygon(const MarginValues& margins, const VecFoothold& footholds);
   virtual ~SupportPolygon() {};
 
-  VecTrLine CalcLines() const;
+  VecSuppLine CalcLines() const;
   const VecFoothold& GetFootholds() const;
 
   MarginValues margins_;
 private:
 
-  LegID swing_leg_;
   VecFoothold footholds_;
   double UseMargin(const LegID& f0, const LegID& f1) const;
 };

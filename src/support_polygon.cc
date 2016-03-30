@@ -15,9 +15,8 @@ namespace hyq {
 using namespace ::xpp::utils; //X,Y,Z,Poin2dManip
 
 
-SupportPolygon::SupportPolygon(const MarginValues& margins, LegID swing_leg, const VecFoothold& footholds)
+SupportPolygon::SupportPolygon(const MarginValues& margins, const VecFoothold& footholds)
     :  margins_(margins),
-       swing_leg_(swing_leg),
        footholds_(footholds)
 {
   // sort points so inequality constraints are on correct side of line later
@@ -34,9 +33,9 @@ SupportPolygon::SupportPolygon(const MarginValues& margins, LegID swing_leg, con
 }
 
 
-SupportPolygon::VecTrLine SupportPolygon::CalcLines() const
+SupportPolygon::VecSuppLine SupportPolygon::CalcLines() const
 {
-  VecTrLine lines(footholds_.size());
+  VecSuppLine lines(footholds_.size());
   for (uint i = 0; i<lines.size(); ++i) {
     Foothold from = footholds_[i];
     int last_idx = footholds_.size()-1;

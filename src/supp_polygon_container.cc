@@ -34,43 +34,47 @@ void SupportPolygonContainer::Init(LegDataMap<Foothold> start_stance,
 }
 
 
-SupportPolygonContainer::SuppTriangles
-SupportPolygonContainer::GetSupportPolygons(const Footholds& footholds) const
+std::vector<SupportPolygonContainer::SplineAndSupport>
+SupportPolygonContainer::GetSupportPolygons(const Footholds& footholds,
+                                            const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
 {
   CheckIfInitialized();
 
-  SuppTriangles tr;
+  std::vector<SplineAndSupport> spline_and_support(zmp_splines.splines_.size());
+
   LegDataMap<Foothold> curr_stance = start_stance_;
+  for (const xpp::zmp::ZmpSpline& s : zmp_splines.splines_)
+  {
+    spline_and_support.at(s.id_).spline_ = s;
+    VecFoothold legs_in_contact;
+    const Foothold& f = footholds.at(s.step_);
+    int swingleg = f.leg;
 
-  for (std::size_t s = 0; s < footholds.size(); s++) {
-    LegID swingleg = footholds[s].leg;
-    ArrayF3 non_swing_legs;
-    // extract the 3 non-swinglegs from stance
+    // extract the 3 non-swinglegs from stance or use all four if four-leg-support
     for (LegID l : LegIDArray)
-      if(curr_stance[l].leg != swingleg)
-        non_swing_legs.push_back(curr_stance[l]);
+      if(curr_stance[l].leg != swingleg || s.four_leg_supp_)
+        legs_in_contact.push_back(curr_stance[l]);
 
-    tr.push_back(SupportPolygon(margins_, swingleg, non_swing_legs));
-    curr_stance[swingleg] = footholds.at(s); // update current stance with last step
+    spline_and_support.at(s.id_).support_ = SupportPolygon(margins_, legs_in_contact);
+
+    // update current stance with last step if leg just swung
+    if (!s.four_leg_supp_)
+      curr_stance[swingleg] = f;
   }
-
-  return tr;
+  return spline_and_support;
 }
 
 
-Eigen::Vector2d SupportPolygonContainer::GetCenterOfFinalStance() const
+// FIXME make this independent of zmp_splines
+Eigen::Vector2d
+SupportPolygonContainer::GetCenterOfFinalStance(const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
 {
   CheckIfInitialized();
 
-  // get last support triangle + last step to form last stance
-  ArrayF3 last_tr = GetSupportPolygons().back().GetFootholds(); // FIXME violates law of Dementer
-  Foothold last_step = footholds_.back();
-
+  VecFoothold last_stance = GetSupportPolygons(zmp_splines).back().support_.GetFootholds();
   Eigen::Vector2d end_cog = Eigen::Vector2d::Zero();
-  for (int i=0; i<3; ++i) {
-    end_cog += last_tr[i].p.segment<2>(xpp::utils::X);
-  }
-  end_cog += last_step.p.segment<2>(xpp::utils::X);
+  for (Foothold f : last_stance)
+    end_cog += f.p.segment<2>(xpp::utils::X);
 
   return end_cog/_LEGS_COUNT;
 }
@@ -78,47 +82,41 @@ Eigen::Vector2d SupportPolygonContainer::GetCenterOfFinalStance() const
 
 SupportPolygonContainer::MatVec
 SupportPolygonContainer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-                                          const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
+                                            const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
 {
   CheckIfInitialized();
 
-  SuppTriangles supp_polygons = GetSupportPolygons();
+  std::vector<SplineAndSupport> spline_and_support = GetSupportPolygons(zmp_splines);
 
   int coeff = zmp_splines.GetTotalFreeCoeff();
-  int num_nodes_no_4ls = zmp_splines.GetTotalNodes(true);
 
-  int num_ineq_constr = 3*num_nodes_no_4ls;
+  int num_nodes_no_4ls = zmp_splines.GetTotalNodesNo4ls();
+  int num_nodes_4ls = zmp_splines.GetTotalNodes4ls();
+  int num_ineq_constr = 3*num_nodes_no_4ls + 4*num_nodes_4ls;
+
   MatVec ineq(num_ineq_constr, coeff);
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
-  for (const xpp::zmp::ZmpSpline& s : zmp_splines.splines_) {
+  for (const SplineAndSupport& s : spline_and_support) {
 
-    // skip the nodes that belong to the four-leg support phase
-    if (s.four_leg_supp_) {
-      n += s.GetNodeCount(zmp_splines.dt_);
-      continue;
-    }
-
-    SupportPolygon::VecTrLine lines = supp_polygons.at(s.step_).CalcLines();
-    for (double i=0; i < s.GetNodeCount(zmp_splines.dt_); ++i) {
+    SupportPolygon::VecSuppLine lines = s.support_.CalcLines();
+    for (double i=0; i < s.spline_.GetNodeCount(zmp_splines.dt_); ++i) {
 
       // add three line constraints for each node
-      for (int l=0; l<lines.size(); l++) {
-        AddLineConstraint(lines.at(l), x_zmp.M.row(n), y_zmp.M.row(n),
-                                       x_zmp.v[n],     y_zmp.v[n],
-                                       c, ineq);
+      for (SupportPolygon::SuppLine l : lines) {
+        AddLineConstraint(l, x_zmp.M.row(n), y_zmp.M.row(n),
+                             x_zmp.v[n],     y_zmp.v[n],
+                             c, ineq);
       }
       n++;
     }
   }
-
   return ineq;
 }
 
 
-
-void SupportPolygonContainer::AddLineConstraint(const SupportPolygon::TrLine& l,
+void SupportPolygonContainer::AddLineConstraint(const SupportPolygon::SuppLine& l,
                                     const Eigen::RowVectorXd& x_zmp_M,
                                     const Eigen::RowVectorXd& y_zmp_M,
                                     double x_zmp_v,

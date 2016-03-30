@@ -58,16 +58,27 @@ int ContinuousSplineContainer::Index(int spline, int dim, int coeff)
 }
 
 
-int ContinuousSplineContainer::GetTotalNodes(bool exclude_4ls_splines) const
+int ContinuousSplineContainer::GetTotalNodesNo4ls() const
 {
   int node_count = 0;
 
   for (ZmpSpline s: splines_) {
-
-    if (s.four_leg_supp_ && exclude_4ls_splines)
+    if (s.four_leg_supp_)
       continue;
+    else
+      node_count += s.GetNodeCount(dt_);
+  };
+  return node_count;
+}
 
-    node_count += s.GetNodeCount(dt_);
+
+int ContinuousSplineContainer::GetTotalNodes4ls() const
+{
+  int node_count = 0;
+
+  for (ZmpSpline s: splines_) {
+    if (s.four_leg_supp_)
+      node_count += s.GetNodeCount(dt_);
   };
   return node_count;
 }
@@ -189,8 +200,7 @@ ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) cons
   CheckIfInitialized();
 
   int coeff = GetTotalFreeCoeff();
-  int num_nodes_with_4ls = GetTotalNodes();
-  int num_nodes = num_nodes_with_4ls;
+  int num_nodes = GetTotalNodes4ls() + GetTotalNodesNo4ls();
 
   MatVec ineq(num_nodes, coeff);
   double non_dependent_e, non_dependent_f;

@@ -47,7 +47,8 @@ public:
    */
   static int Index(int spline, int dim, int coeff);
   int GetTotalFreeCoeff() const;
-  int GetTotalNodes(bool exclude_4ls_splines = false) const;
+  int GetTotalNodesNo4ls() const;
+  int GetTotalNodes4ls() const;
   Eigen::RowVectorXd DescribeEFByPrev(int spline_id_k, int dim, SplineCoeff c,
                         double& init_depend) const;
 

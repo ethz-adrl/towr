@@ -18,9 +18,15 @@ class SupportPolygonContainer
 {
 public:
   typedef std::vector<Foothold> Footholds;
-  typedef std::vector<SupportPolygon> SuppTriangles;
-  typedef SupportPolygon::VecFoothold ArrayF3;
+  typedef std::vector<SupportPolygon> VecSupportPolygon;
+  typedef SupportPolygon::VecFoothold VecFoothold;
   typedef xpp::utils::MatVec MatVec;
+
+
+  struct SplineAndSupport {
+    xpp::zmp::ZmpSpline spline_;
+    xpp::hyq::SupportPolygon support_;
+  };
 
 public:
   SupportPolygonContainer ();
@@ -35,7 +41,7 @@ public:
   bool initialized_ = false;
 
 
-  Eigen::Vector2d GetCenterOfFinalStance() const;
+  Eigen::Vector2d GetCenterOfFinalStance(const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
 
@@ -55,12 +61,12 @@ private:
   @param stability_margin margin for created support triangles
   @attention modifies start stance
   */
-  SuppTriangles GetSupportPolygons(const Footholds& footholds) const;
-  SuppTriangles GetSupportPolygons() const
+  std::vector<SplineAndSupport> GetSupportPolygons(const Footholds& footholds, const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
+  std::vector<SplineAndSupport> GetSupportPolygons(const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
   {
-    return GetSupportPolygons(footholds_);
+    return GetSupportPolygons(footholds_, zmp_splines);
   }
-  void AddLineConstraint(const SupportPolygon::TrLine& l,
+  void AddLineConstraint(const SupportPolygon::SuppLine& l,
                          const Eigen::RowVectorXd& x_zmp_M,
                          const Eigen::RowVectorXd& y_zmp_M,
                          double x_zmp_v,

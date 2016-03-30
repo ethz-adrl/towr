@@ -117,7 +117,7 @@ Constraints::EvalFootholdConstraints(const Footholds& footholds,
 
 Eigen::VectorXd
 Constraints::EvalStepLengthConstraints(const Footholds& footholds,
-                                     std::vector<Constraints::Bound>& bounds) const
+                                       std::vector<Constraints::Bound>& bounds) const
 {
   Eigen::VectorXd g(2*footholds.size());
 
@@ -133,7 +133,7 @@ Constraints::EvalStepLengthConstraints(const Footholds& footholds,
     double dx = footholds.at(i).x() - f_prev.x();
     double dy = footholds.at(i).y() - f_prev.y();
 
-//    g(i) = hypot(dx,dy);
+//    g(c++) = hypot(dx,dy);
     // this seems to converge better than the combination of both
     g(c++) = dx*dx;
     g(c++) = dy*dy;
