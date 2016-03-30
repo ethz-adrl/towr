@@ -65,8 +65,8 @@ NlpOptimizer::SolveNlp(Constraints::Footholds& final_footholds,
 
   }
 
-  final_footholds = nlp_ipopt_zmp->footholds_;
-  return nlp_ipopt_zmp->x_coeff_;
+  final_footholds = nlp_ipopt_zmp->opt_footholds_;
+  return nlp_ipopt_zmp->opt_coeff_;
 }
 
 

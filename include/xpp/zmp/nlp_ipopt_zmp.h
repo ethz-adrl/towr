@@ -104,8 +104,8 @@ public:
   //@}
 
 
-  Eigen::VectorXd x_coeff_;
-  xpp::zmp::Constraints::Footholds footholds_;
+  Eigen::VectorXd opt_coeff_;
+  xpp::zmp::Constraints::Footholds opt_footholds_;
   void UpdateOptimizationVariables(const Number* x);
 
 private:
@@ -117,7 +117,6 @@ private:
   int n_steps_;
 
   Eigen::VectorXd initial_spline_coeff_;
-  std::vector<xpp::hyq::Foothold> initial_footholds_;
 
   /**@name Methods to block default compiler methods.
    * The compiler automatically generates the following three methods.

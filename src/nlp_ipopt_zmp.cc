@@ -22,10 +22,9 @@ NlpIpoptZmp::NlpIpoptZmp(const xpp::zmp::CostFunction& cost_function,
   n_steps_ = constraints_.supp_triangle_container_.footholds_.size(); // use intial footholds for this
 
   initial_spline_coeff_ = initial_spline_coefficients;
-  initial_footholds_ = constraints_.supp_triangle_container_.footholds_;
 
-  footholds_.resize(constraints_.supp_triangle_container_.footholds_.size());
-  x_coeff_ = Eigen::VectorXd(n_spline_coeff_);
+  opt_footholds_.resize(constraints_.supp_triangle_container_.footholds_.size());
+  opt_coeff_ = Eigen::VectorXd(n_spline_coeff_);
 }
 
 
@@ -36,7 +35,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   n = n_spline_coeff_ + 2*n_steps_; // x,y-coordinate of footholds
   std::cout << "optimizing n= " << n << " variables\n";
 
-  constraints_.EvalContraints(footholds_, x_coeff_);
+  constraints_.EvalContraints(opt_footholds_, opt_coeff_);
   m = constraints_.bounds_.size();
   std::cout << "with m= " << m << "constraints\n";
 
@@ -104,11 +103,8 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 	// initialize with steps from footstep planner
 	for (int i=0; i<n_steps_; ++i) {
-
-	  xpp::hyq::Foothold f = initial_footholds_.at(i);
-
-	  x[c++] = f.p.x();
-	  x[c++] = f.p.y();
+	  x[c++] = constraints_.initial_footholds_.at(i).p.x();
+	  x[c++] = constraints_.initial_footholds_.at(i).p.y();
 	}
 
   return true;
@@ -119,7 +115,7 @@ bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value
 {
   UpdateOptimizationVariables(x);
 
-  obj_value = cost_function_.EvalObjective(x_coeff_);
+  obj_value = cost_function_.EvalObjective(opt_coeff_);
 
   return true;
 }
@@ -133,7 +129,7 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
     grad_f[i] = 0.0;
   }
 
-  Eigen::VectorXd grad_f_vec = cost_function_.EvalGradientOfObjective(x_coeff_);
+  Eigen::VectorXd grad_f_vec = cost_function_.EvalGradientOfObjective(opt_coeff_);
 
   Eigen::Map<Eigen::VectorXd>(grad_f,n_spline_coeff_) = grad_f_vec;
 
@@ -145,7 +141,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 {
   UpdateOptimizationVariables(x);
 
-  Eigen::VectorXd g_eig = constraints_.EvalContraints(footholds_, x_coeff_);
+  Eigen::VectorXd g_eig = constraints_.EvalContraints(opt_footholds_, opt_coeff_);
 
   Eigen::Map<Eigen::VectorXd>(g,m) = g_eig;
 
@@ -224,9 +220,9 @@ void NlpIpoptZmp::finalize_solution(SolverReturn status,
 void
 NlpIpoptZmp::UpdateOptimizationVariables(const Number* x)
 {
-  x_coeff_ = Eigen::Map<const Eigen::VectorXd>(x,n_spline_coeff_);
-  for (int i=0; i<footholds_.size(); ++i) {
-    Eigen::Vector2d& f = footholds_.at(i);
+  opt_coeff_ = Eigen::Map<const Eigen::VectorXd>(x,n_spline_coeff_);
+  for (int i=0; i<opt_footholds_.size(); ++i) {
+    Eigen::Vector2d& f = opt_footholds_.at(i);
     f.x() = x[n_spline_coeff_+2*i+xpp::utils::X];
     f.y() = x[n_spline_coeff_+2*i+xpp::utils::Y];
   }

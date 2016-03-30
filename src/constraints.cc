@@ -25,10 +25,7 @@ Constraints::Constraints (const xpp::hyq::SuppTriangleContainer& supp_triangle_c
   y_zmp_ = zmp_spline_container.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
 
   initial_footholds_ = supp_triangle_container.footholds_;
-
 }
-
-
 
 
 Eigen::VectorXd
@@ -38,8 +35,8 @@ Constraints::EvalContraints(const Footholds& footholds, const Eigen::VectorXd& x
 
   g_vec.push_back(EvalSplineJunctionConstraints(x_coeff, bounds_));
   g_vec.push_back(EvalSuppPolygonConstraints(footholds, x_coeff, bounds_));
-  g_vec.push_back(EvalFootholdConstraints(footholds, bounds_));
-//  g_vec.push_back(EvalStepLengthConstraints(footholds, bounds_));
+//  g_vec.push_back(EvalFootholdConstraints(footholds, bounds_));
+  g_vec.push_back(EvalStepLengthConstraints(footholds, bounds_));
 
 
   // create correct size constraint vector the first time this function is called
@@ -122,8 +119,9 @@ Eigen::VectorXd
 Constraints::EvalStepLengthConstraints(const Footholds& footholds,
                                      std::vector<Constraints::Bound>& bounds) const
 {
-  Eigen::VectorXd g(footholds.size());
+  Eigen::VectorXd g(2*footholds.size());
 
+  int c=0;
   for (uint i=0; i<footholds.size(); ++i)
   {
     xpp::hyq::LegID leg = initial_footholds_.at(i).leg; // leg sequence stays the same as initial
@@ -135,15 +133,17 @@ Constraints::EvalStepLengthConstraints(const Footholds& footholds,
     double dx = footholds.at(i).x() - f_prev.x();
     double dy = footholds.at(i).y() - f_prev.y();
 
-    g(i) = hypot(dx,dy);
+//    g(i) = hypot(dx,dy);
+    // this seems to converge better than the combination of both
+    g(c++) = dx*dx;
+    g(c++) = dy*dy;
   }
 
 
-
-  // add bounds that steplength should never exceed max step length
+  // add bounds that step length should never exceed max step length
   double max_step_length = 0.25;
   if (first_constraint_eval_) {
-    Bound ineq_bound(0.0, max_step_length);
+    Bound ineq_bound(0.0, std::pow(max_step_length,2));
     for (int c=0; c<g.rows(); ++c) {
       bounds.push_back(ineq_bound);
     }

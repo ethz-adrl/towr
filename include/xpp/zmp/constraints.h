@@ -50,10 +50,10 @@ public:
 
   Eigen::VectorXd g_;
   std::vector<Constraints::Bound> bounds_;
+  std::vector<xpp::hyq::Foothold> initial_footholds_;
 
 private:
 
-  std::vector<xpp::hyq::Foothold> initial_footholds_;
   MatVec x_zmp_;
   MatVec y_zmp_;
   bool first_constraint_eval_ = true;

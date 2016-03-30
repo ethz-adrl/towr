@@ -35,12 +35,6 @@ SuppTriangle::SuppTriangle(const MarginValues& margins, LegID swing_leg, const A
 }
 
 
-SuppTriangle::~SuppTriangle() {
-  // TODO Auto-generated destructor stub
-}
-
-
-
 SuppTriangle::TrLines3 SuppTriangle::CalcLines() const
 {
   TrLines3 lines;
