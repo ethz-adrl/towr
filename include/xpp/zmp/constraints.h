@@ -25,7 +25,7 @@ public:
   typedef xpp::utils::MatVec MatVec;
 
   struct Bound {
-    Bound(double lower, int upper) {
+    Bound(double lower, double upper) {
       lower_ = lower;
       upper_ = upper;
     }
