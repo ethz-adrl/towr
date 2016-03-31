@@ -50,7 +50,7 @@ public:
 
   Eigen::VectorXd g_;
   std::vector<Constraints::Bound> bounds_;
-  std::vector<xpp::hyq::Foothold> initial_footholds_;
+  const std::vector<xpp::hyq::Foothold> planned_footholds_;
 
 private:
 

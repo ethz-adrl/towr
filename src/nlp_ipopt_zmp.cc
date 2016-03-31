@@ -107,8 +107,8 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 	// initialize with steps from footstep planner
 	for (int i=0; i<n_steps_; ++i) {
-	  x[c++] = constraints_.initial_footholds_.at(i).p.x();
-	  x[c++] = constraints_.initial_footholds_.at(i).p.y();
+	  x[c++] = constraints_.planned_footholds_.at(i).p.x();
+	  x[c++] = constraints_.planned_footholds_.at(i).p.y();
 	}
 
   return true;

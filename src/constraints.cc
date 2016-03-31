@@ -13,6 +13,7 @@ namespace zmp {
 Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
                            const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
                            const MatVec& qp_equality_constraints)
+    :planned_footholds_(supp_triangle_container.footholds_)
 {
   supp_polygon_container_ = supp_triangle_container;
   zmp_spline_container_    = zmp_spline_container;
@@ -23,8 +24,6 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_triangle
   double walking_height = 0.58;
   x_zmp_ = zmp_spline_container.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
   y_zmp_ = zmp_spline_container.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
-
-  initial_footholds_ = supp_triangle_container.footholds_;
 }
 
 
@@ -35,7 +34,7 @@ Constraints::EvalContraints(const Footholds& footholds, const Eigen::VectorXd& x
 
   g_vec.push_back(EvalSplineJunctionConstraints(x_coeff, bounds_));
   g_vec.push_back(EvalSuppPolygonConstraints(footholds, x_coeff, bounds_));
-//  g_vec.push_back(EvalFootholdConstraints(footholds, bounds_));
+  g_vec.push_back(EvalFootholdConstraints(footholds, bounds_));
   g_vec.push_back(EvalStepLengthConstraints(footholds, bounds_));
 
 
@@ -96,7 +95,7 @@ Constraints::EvalFootholdConstraints(const Footholds& footholds,
   g.setZero();
   int c=0;
   for (uint i=0; i<footholds.size(); ++i) {
-    xpp::hyq::Foothold f = initial_footholds_.at(i);
+    xpp::hyq::Foothold f = planned_footholds_.at(i);
 
     // fix footholds in x and y direction
     g(c++) = footholds.at(i).x() - f.p.x();
@@ -124,7 +123,7 @@ Constraints::EvalStepLengthConstraints(const Footholds& footholds,
   int c=0;
   for (uint i=0; i<footholds.size(); ++i)
   {
-    xpp::hyq::LegID leg = initial_footholds_.at(i).leg; // leg sequence stays the same as initial
+    xpp::hyq::LegID leg = planned_footholds_.at(i).leg; // leg sequence stays the same as initial
     Eigen::Vector2d f_prev = supp_polygon_container_.start_stance_[leg].p.segment<2>(0);
     if (i>=4) {
       f_prev = footholds.at(i-4); // FIXME: only works for repeating same step sequence
@@ -141,7 +140,7 @@ Constraints::EvalStepLengthConstraints(const Footholds& footholds,
 
 
   // add bounds that step length should never exceed max step length
-  double max_step_length = 0.2;
+  double max_step_length = 0.3;
   if (first_constraint_eval_) {
     Bound ineq_bound(0.0, max_step_length);//std::pow(max_step_length,2));
     for (int c=0; c<g.rows(); ++c) {
