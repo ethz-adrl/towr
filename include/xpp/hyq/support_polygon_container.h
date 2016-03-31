@@ -17,7 +17,6 @@ namespace hyq {
 class SupportPolygonContainer
 {
 public:
-  typedef std::vector<Foothold> Footholds;
   typedef std::vector<SupportPolygon> VecSupportPolygon;
   typedef SupportPolygon::VecFoothold VecFoothold;
   typedef xpp::utils::MatVec MatVec;
@@ -35,7 +34,7 @@ public:
 
 public:
   void Init(LegDataMap<Foothold> start_stance,
-            const Footholds& footholds,
+            const VecFoothold& footholds,
             const MarginValues& margins);
 
   bool initialized_ = false;
@@ -48,7 +47,7 @@ public:
   static bool Insert4LSPhase(LegID prev, LegID next);
 
 public:
-  Footholds footholds_;
+  VecFoothold footholds_;
   LegDataMap<Foothold> start_stance_;
   MarginValues margins_;
 
@@ -61,10 +60,10 @@ private:
   @param stability_margin margin for created support triangles
   @attention modifies start stance
   */
-  std::vector<SplineAndSupport> GetSupportPolygons(const Footholds& footholds, const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
-  std::vector<SplineAndSupport> GetSupportPolygons(const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
+  std::vector<SplineAndSupport> CombineSplineAndSupport(const VecFoothold& footholds, const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
+  std::vector<SplineAndSupport> CombineSplineAndSupport(const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
   {
-    return GetSupportPolygons(footholds_, zmp_splines);
+    return CombineSplineAndSupport(footholds_, zmp_splines);
   }
   void AddLineConstraint(const SupportPolygon::SuppLine& l,
                          const Eigen::RowVectorXd& x_zmp_M,

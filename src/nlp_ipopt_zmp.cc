@@ -19,11 +19,11 @@ NlpIpoptZmp::NlpIpoptZmp(const xpp::zmp::CostFunction& cost_function,
      constraints_(constraints)
 {
   n_spline_coeff_ = constraints_.zmp_spline_container_.GetTotalFreeCoeff();
-  n_steps_ = constraints_.supp_triangle_container_.footholds_.size(); // use intial footholds for this
+  n_steps_ = constraints_.supp_polygon_container_.footholds_.size(); // use intial footholds for this
 
   initial_spline_coeff_ = initial_spline_coefficients;
 
-  opt_footholds_.resize(constraints_.supp_triangle_container_.footholds_.size());
+  opt_footholds_.resize(constraints_.supp_polygon_container_.footholds_.size());
   opt_coeff_ = Eigen::VectorXd(n_spline_coeff_);
 }
 
@@ -68,7 +68,13 @@ bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
   for (int c=0; c<constraints_.bounds_.size(); ++c) {
     g_l[c] = constraints_.bounds_.at(c).lower_;
     g_u[c] = constraints_.bounds_.at(c).upper_;
+
+    std::cout << ",  bounds.lower: " << constraints_.bounds_.at(c).lower_;
+    std::cout << "bounds.upper: " << constraints_.bounds_.at(c).upper_;
+    std::cout << std::endl;
   }
+
+  std::cout << "bounds.size()" << constraints_.bounds_.size();
 
   return true;
 }

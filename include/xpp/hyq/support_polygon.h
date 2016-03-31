@@ -46,6 +46,7 @@ public:
 private:
 
   VecFoothold footholds_;
+  void SortFootholdsCounterClockwise(const VecFoothold& footholds);
   double UseMargin(const LegID& f0, const LegID& f1) const;
 };
 

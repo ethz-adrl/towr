@@ -113,8 +113,6 @@ TEST_F(SplineTest, FifthOrderSplinerSameStartGoal)
   double t = 0.001;
   s.SetBoundary(t, p, pg);
 
-  for (double c : s.c) prt(c);
-
   Spliner::Point p0,p2;
   s.GetPoint(0.0,   p0);
   s.GetPoint(t,     p2);

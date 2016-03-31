@@ -103,27 +103,28 @@ target_link_libraries(${LIB_NAME}
 # Some example executables if turned "ON"
 option(BUILD_TESTS "Build some testing executables" ON) 
 if(BUILD_TESTS)
-
-add_executable(example 
-    test/example.cc
-)
-target_link_libraries(example 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
-)
-
-enable_testing()
-find_package(GTest)  
-if(GTEST_FOUND)
-  set(MY_GTEST_UNITS  test/google/gtest_main.cc 
-                      test/google/spliner_test.cc)
-             
-  add_executable(googleTest ${MY_GTEST_UNITS})
+  add_executable(example 
+      test/example.cc
+  )
+  target_link_libraries(example 
+    ${LIB_NAME}
+    ${catkin_LIBRARIES}
+  )
   
-  target_link_libraries(googleTest 
-                        ${LIB_NAME} 
-                        ${GTEST_LIBRARIES} pthread) 
-endif(GTEST_FOUND)
+  # enable_testing()
+  find_package(GTest)  
+  message(STATUS "GTEST_FOUND " ${GTEST_FOUND})
+  if(GTEST_FOUND)
+    set(MY_GTEST_UNITS  test/google/gtest_main.cc 
+                        test/google/spliner_test.cc
+                        test/google/point_sorting_test.cc)
+               
+    add_executable(googleTest ${MY_GTEST_UNITS})
+    
+    target_link_libraries(googleTest 
+                          ${LIB_NAME} 
+                          ${GTEST_LIBRARIES}) 
+  endif(GTEST_FOUND)
 endif()
 
 # To install and link to the library globally

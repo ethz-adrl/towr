@@ -43,7 +43,7 @@ public:
   Eigen::VectorXd EvalContraints(const Footholds& footholds,
                                  const Eigen::VectorXd& x_coeff);
 
-  xpp::hyq::SupportPolygonContainer supp_triangle_container_;
+  xpp::hyq::SupportPolygonContainer supp_polygon_container_;
   xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
 
   MatVec spline_junction_constraints_;

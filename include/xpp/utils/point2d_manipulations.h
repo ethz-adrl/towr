@@ -54,20 +54,21 @@ struct Point2dManip {
   /// \return >0 for P2 right of the line from P0 to P1
   ///         =0 for P2 on the line
   ///         <0 for P2 left of the line
-  static double Point2isRightOfLine(const Vec2d& p0, const Vec2d p1, const Vec2d& p2)
+  static bool Point2isRightOfLine(const Vec2d& p0, const Vec2d p1, const Vec2d& p2)
   {
-    return (p2(X) - p0(X)) * (p1(Y) - p0(Y))
-         - (p1(X) - p0(X)) * (p2(Y) - p0(Y));
+    double distance = (p2(X) - p0(X)) * (p1(Y) - p0(Y))
+                    - (p1(X) - p0(X)) * (p2(Y) - p0(Y));
+
+    return (distance > 0.0);
   }
 
 
-
-  static bool SortByXThenY(const Vec2d& lhs, const Vec2d& rhs)
+  static bool P1LeftofP2(const Vec2d& p1, const Vec2d& p2)
   {
-    if (lhs(X) != rhs(X))
-      return lhs(X) < rhs(X);
+    if (p1(X) != p2(X))
+      return p1(X) < p2(X);
     else
-      return lhs(Y) < rhs(Y);
+      return p1(Y) < p2(Y);
   }
 
   /**
@@ -77,22 +78,28 @@ struct Point2dManip {
   Uses the slow n^2 sort algorithm, shouldn't matter for sorting 4 points :)
   Fails when 3 points are on same line and one could be removed
    */
-//  template<std::size_t N >
-  static void CounterClockwiseSort(StdVectorEig2d& p)
+  static std::vector<size_t>
+  CounterClockwiseSort(const StdVectorEig2d& p)
   {
+    // initialize original index locations
+    std::vector<size_t> idx(p.size());
+    std::iota( idx.begin(), idx.end(), 0 ); // fills vector with sequentially increasing values starting at 0
+
     // make sure the first point is the one with lowest (x,y) value
-    std::sort(p.begin(), p.end(), SortByXThenY);
+    std::sort(idx.begin(), idx.end(),
+              [&p](size_t i1, size_t i2) {return P1LeftofP2(p[i1], p[i2]);});
 
     // sort counterclockwise
-    for (size_t i = 1; i < p.size() - 1; i++) {
-      for (size_t j = i + 1; j < p.size(); j++) {
-        if (Point2isRightOfLine(p[0], p[i], p[j])  > 0.0) {
-          Vec2d tmp = p[i];
-          p[i] = p[j];
-          p[j] = tmp;
-        }
+    Vec2d line_start = p[idx[0]];
+    for (size_t i=1; i<idx.size()-1; i++)
+      for (size_t j=i+1; j<idx.size(); j++) {
+        Vec2d line_end   = p[idx[i]];
+        Vec2d point      = p[idx[j]];
+        if (Point2isRightOfLine(line_start, line_end, point))
+          std::swap(idx[i], idx[j]);
       }
-    }
+
+    return idx;
   }
 
 };

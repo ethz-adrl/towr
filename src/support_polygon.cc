@@ -19,16 +19,22 @@ SupportPolygon::SupportPolygon(const MarginValues& margins, const VecFoothold& f
     :  margins_(margins),
        footholds_(footholds)
 {
-  // sort points so inequality constraints are on correct side of line later
+  SortFootholdsCounterClockwise(footholds);
+}
+
+
+/** sort points so inequality constraints are on correct side of line later **/
+void SupportPolygon::SortFootholdsCounterClockwise(const VecFoothold& footholds)
+{
   Point2dManip::StdVectorEig2d f_xy;
-  for (int i=0; i<footholds_.size(); ++i) {
-    f_xy.push_back(footholds_.at(i).p.segment<2>(0)); // extract x-y position of footholds
-  }
 
-  Point2dManip::CounterClockwiseSort(f_xy);
+  for (const Foothold& f : footholds)
+    f_xy.push_back(f.p.segment<2>(0)); // extract x-y position of footholds
 
-  for (int i=0; i<f_xy.size(); ++i) {
-    footholds_.at(i).p.segment<2>(0) = f_xy.at(i);
+  std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(f_xy);
+
+  for (int i=0; i<idx.size(); ++i) {
+    footholds_.at(i) = footholds.at(idx[i]);
   }
 }
 

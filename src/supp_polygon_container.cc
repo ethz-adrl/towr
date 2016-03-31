@@ -23,7 +23,7 @@ SupportPolygonContainer::~SupportPolygonContainer ()
 
 
 void SupportPolygonContainer::Init(LegDataMap<Foothold> start_stance,
-                                 const Footholds& footholds,
+                                 const VecFoothold& footholds,
                                  const MarginValues& margins)
 {
   start_stance_ = start_stance;
@@ -35,7 +35,7 @@ void SupportPolygonContainer::Init(LegDataMap<Foothold> start_stance,
 
 
 std::vector<SupportPolygonContainer::SplineAndSupport>
-SupportPolygonContainer::GetSupportPolygons(const Footholds& footholds,
+SupportPolygonContainer::CombineSplineAndSupport(const VecFoothold& footholds,
                                             const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
 {
   CheckIfInitialized();
@@ -71,7 +71,7 @@ SupportPolygonContainer::GetCenterOfFinalStance(const xpp::zmp::ContinuousSpline
 {
   CheckIfInitialized();
 
-  VecFoothold last_stance = GetSupportPolygons(zmp_splines).back().support_.GetFootholds();
+  VecFoothold last_stance = CombineSplineAndSupport(zmp_splines).back().support_.GetFootholds();
   Eigen::Vector2d end_cog = Eigen::Vector2d::Zero();
   for (Foothold f : last_stance)
     end_cog += f.p.segment<2>(xpp::utils::X);
@@ -86,8 +86,6 @@ SupportPolygonContainer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y
 {
   CheckIfInitialized();
 
-  std::vector<SplineAndSupport> spline_and_support = GetSupportPolygons(zmp_splines);
-
   int coeff = zmp_splines.GetTotalFreeCoeff();
 
   int num_nodes_no_4ls = zmp_splines.GetTotalNodesNo4ls();
@@ -98,7 +96,7 @@ SupportPolygonContainer::AddLineConstraints(const MatVec& x_zmp, const MatVec& y
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
-  for (const SplineAndSupport& s : spline_and_support) {
+  for (const SplineAndSupport& s : CombineSplineAndSupport(zmp_splines)) {
 
     SupportPolygon::VecSuppLine lines = s.support_.CalcLines();
     for (double i=0; i < s.spline_.GetNodeCount(zmp_splines.dt_); ++i) {
