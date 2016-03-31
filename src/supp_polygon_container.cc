@@ -5,7 +5,7 @@
  *      Author: winklera
  */
 
-#include "../include/xpp/hyq/support_polygon_container.h"
+#include <xpp/hyq/support_polygon_container.h>
 
 namespace xpp {
 namespace hyq {
@@ -65,16 +65,23 @@ SupportPolygonContainer::CombineSplineAndSupport(const VecFoothold& footholds,
 }
 
 
-// FIXME make this independent of zmp_splines
 Eigen::Vector2d
-SupportPolygonContainer::GetCenterOfFinalStance(const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
+SupportPolygonContainer::GetCenterOfFinalStance() const
 {
   CheckIfInitialized();
 
-  VecFoothold last_stance = CombineSplineAndSupport(zmp_splines).back().support_.GetFootholds();
+  LegDataMap<Foothold> last_stance = start_stance_;
+
+  // get the last step of each foot
+  Foothold f;
+  for (LegID l : LegIDArray)
+    if(Foothold::GetLastFoothold(l,footholds_, f))
+      last_stance[f.leg] = f;
+
+  // calculate average x-y-postion of last stance
   Eigen::Vector2d end_cog = Eigen::Vector2d::Zero();
-  for (Foothold f : last_stance)
-    end_cog += f.p.segment<2>(xpp::utils::X);
+  for (LegID l : LegIDArray)
+    end_cog += last_stance[l].p.segment<2>(xpp::utils::X);
 
   return end_cog/_LEGS_COUNT;
 }

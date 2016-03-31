@@ -27,6 +27,8 @@ namespace hyq {
 */
 class Foothold
 {
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 public:
   Eigen::Vector3d p;
@@ -62,7 +64,28 @@ public:
   bool operator==(const Foothold& rhs) const {
     return (p==rhs.p) && (leg==rhs.leg);
   }
+
+  bool operator!=(const Foothold& rhs) const {
+    return !(*this==rhs);
+  }
+
+
+  // search through previous footholds starting from most current ones
+  static bool GetLastFoothold(LegID leg, const std::vector<Foothold>& footholds,
+                             Foothold& foothold)
+  {
+    auto it = std::find_if( footholds.rbegin(),
+                            footholds.rend(),
+                            [leg](const Foothold& f) { return f.leg == leg; });
+
+    foothold = *it;
+    bool foothold_found = (it != footholds.rend());
+    return foothold_found;
+  }
 };
+
+
+
 
 
 inline std::vector<Foothold> Foothold::ReadFromFile(

@@ -17,36 +17,37 @@ using namespace ::xpp::utils; //X,Y,Z,Poin2dManip
 
 SupportPolygon::SupportPolygon(const MarginValues& margins, const VecFoothold& footholds)
     :  margins_(margins),
-       footholds_(footholds)
-{
-  SortFootholdsCounterClockwise(footholds);
-}
+       footholds_conv_(BuildSortedConvexHull(footholds))
+{}
 
 
 /** sort points so inequality constraints are on correct side of line later **/
-void SupportPolygon::SortFootholdsCounterClockwise(const VecFoothold& footholds)
+SupportPolygon::VecFoothold
+SupportPolygon::BuildSortedConvexHull(const VecFoothold& footholds) const
 {
   Point2dManip::StdVectorEig2d f_xy;
 
   for (const Foothold& f : footholds)
     f_xy.push_back(f.p.segment<2>(0)); // extract x-y position of footholds
 
-  std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(f_xy);
+  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(f_xy);
 
-  footholds_.resize(idx.size());
-  for (int i=0; i<idx.size(); ++i) {
-    footholds_.at(i) = footholds.at(idx[i]);
+  VecFoothold footholds_sorted(idx.size());
+  for (uint i=0; i<idx.size(); ++i) {
+    footholds_sorted.at(i) = footholds.at(idx[i]);
   }
+
+  return footholds_sorted;
 }
 
 
 SupportPolygon::VecSuppLine SupportPolygon::CalcLines() const
 {
-  VecSuppLine lines(footholds_.size());
+  VecSuppLine lines(footholds_conv_.size());
   for (uint i = 0; i<lines.size(); ++i) {
-    Foothold from = footholds_[i];
-    int last_idx = footholds_.size()-1;
-    Foothold to = (i == last_idx) ? footholds_[0] : footholds_[i+1];
+    Foothold from = footholds_conv_[i];
+    int last_idx = footholds_conv_.size()-1;
+    Foothold to = (i == last_idx) ? footholds_conv_[0] : footholds_conv_[i+1];
     lines[i].coeff = Point2dManip::LineCoeff(from.p.segment(0,2), to.p.segment(0,2));
     lines[i].s_margin = UseMargin(from.leg, to.leg);
   }
@@ -75,12 +76,6 @@ double SupportPolygon::UseMargin(const LegID& f0, const LegID& f1) const
     return margins_[SIDE];
   else
     return margins_[DIAG];
-}
-
-
-const SupportPolygon::VecFoothold& SupportPolygon::GetFootholds() const
-{
-  return footholds_;
 }
 
 

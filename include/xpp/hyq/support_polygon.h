@@ -40,21 +40,22 @@ public:
   virtual ~SupportPolygon() {};
 
   VecSuppLine CalcLines() const;
-  const VecFoothold& GetFootholds() const;
+
 
   MarginValues margins_;
 private:
 
-  VecFoothold footholds_;
-  void SortFootholdsCounterClockwise(const VecFoothold& footholds);
+  VecFoothold footholds_conv_; // only the convex footholds if some are not relevant for support polygon
+  VecFoothold BuildSortedConvexHull(const VecFoothold& footholds) const;
   double UseMargin(const LegID& f0, const LegID& f1) const;
+  friend std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr);
 };
 
 
 inline std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr)
 {
   out <<"margins[front,hind,side,diag]=" << tr.margins_[0] << ", " << tr.margins_[1] << ", " << tr.margins_[2] << ", " << tr.margins_[3] << "\n";
-  for (const Foothold& f : tr.GetFootholds())
+  for (const Foothold& f : tr.footholds_conv_)
     out  << f << "\n";
   return out;
 }

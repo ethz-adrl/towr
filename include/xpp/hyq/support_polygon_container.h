@@ -40,7 +40,7 @@ public:
   bool initialized_ = false;
 
 
-  Eigen::Vector2d GetCenterOfFinalStance(const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
+  Eigen::Vector2d GetCenterOfFinalStance() const;
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
 

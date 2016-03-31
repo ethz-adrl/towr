@@ -13,7 +13,7 @@
 #include <log4cxx/logger.h>
 
 #include <iomanip> // std::setprecision, std::fixed
-#include "../hyq/support_polygon.h"
+#include <xpp/hyq/support_polygon.h>
 
 namespace xpp {
 namespace utils {
@@ -32,7 +32,7 @@ inline void print_opt_result(Eigen::VectorXd solution, double cost, clock_t star
 
 inline void print_triangles(const SuppTriangles& tr, log4cxx::LoggerPtr log);
 
-inline void PrintTriaglesMatlabInfo(const SuppTriangles& tr, log4cxx::LoggerPtr log);
+//inline void PrintTriaglesMatlabInfo(const SuppTriangles& tr, log4cxx::LoggerPtr log);
 
 
 /// definitions
@@ -93,24 +93,24 @@ void print_triangles(const SuppTriangles& tr, log4cxx::LoggerPtr log)
   }
 }
 
-void PrintTriaglesMatlabInfo(const SuppTriangles& tr, log4cxx::LoggerPtr log)
-{
-  if (log->isInfoEnabled()) {
-    std::stringstream ss_x_values, ss_y_values;
-    ss_x_values << std::setprecision(3) << std::fixed;
-    ss_y_values << std::setprecision(3) << std::fixed;
-    for (const hyq::SupportPolygon& t : tr) {
-      ss_x_values << t.GetFootholds()[0].p(X) << " "
-                  << t.GetFootholds()[1].p(X) << " "
-                  << t.GetFootholds()[2].p(X) << " ";
-
-      ss_y_values << t.GetFootholds()[0].p(Y) << " "
-                  << t.GetFootholds()[1].p(Y) << " "
-                  << t.GetFootholds()[2].p(Y) << " ";
-    }
-    LOG4CXX_INFO(log, ss_x_values.str() << "\n" << ss_y_values.str());
-  }
-}
+//void PrintTriaglesMatlabInfo(const SuppTriangles& tr, log4cxx::LoggerPtr log)
+//{
+//  if (log->isInfoEnabled()) {
+//    std::stringstream ss_x_values, ss_y_values;
+//    ss_x_values << std::setprecision(3) << std::fixed;
+//    ss_y_values << std::setprecision(3) << std::fixed;
+//    for (const hyq::SupportPolygon& t : tr) {
+//      ss_x_values << t.GetFootholds()[0].p(X) << " "
+//                  << t.GetFootholds()[1].p(X) << " "
+//                  << t.GetFootholds()[2].p(X) << " ";
+//
+//      ss_y_values << t.GetFootholds()[0].p(Y) << " "
+//                  << t.GetFootholds()[1].p(Y) << " "
+//                  << t.GetFootholds()[2].p(Y) << " ";
+//    }
+//    LOG4CXX_INFO(log, ss_x_values.str() << "\n" << ss_y_values.str());
+//  }
+//}
 
 /**
 Ugly macro for logging at a specific frequency and level

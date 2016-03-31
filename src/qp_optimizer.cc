@@ -48,7 +48,7 @@ void QpOptimizer::SetupQpMatrices(
 
   cf_ = CreateMinAccCostFunction(weight);
 
-  Position end_cog = supp_triangle_container.GetCenterOfFinalStance(zmp_splines_);
+  Position end_cog = supp_triangle_container.GetCenterOfFinalStance();
 
   eq_ = CreateEqualityContraints(end_cog);
 

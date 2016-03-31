@@ -81,7 +81,7 @@ TEST_F(PointSortingTest, 3PointsSorted)
   points.at(1) = p1;
   points.at(2) = p2;
 
-  std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(points);
+  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
 
   EXPECT_EQ(idx.at(0), 0);
   EXPECT_EQ(idx.at(1), 1);
@@ -95,7 +95,7 @@ TEST_F(PointSortingTest, 3PointsUnsorted1)
   points.at(1) = p2;
   points.at(2) = p0;
 
-  std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(points);
+  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
   EXPECT_EQ(idx.size(), 3);
 
   // original index of the point, so {2,0,1}
@@ -111,7 +111,7 @@ TEST_F(PointSortingTest, 3PointsUnsorted2)
   points.at(1) = p0;
   points.at(2) = p1;
 
-  std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(points);
+  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
   EXPECT_EQ(idx.size(), 3);
 
   EXPECT_EQ(idx.at(0), 1);
@@ -128,7 +128,7 @@ TEST_F(PointSortingTest, 4PointsConvexSorted)
   points.at(2) = p2;
   points.at(3) = p3;
 
-  std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(points);
+  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
   EXPECT_EQ(idx.size(), 4);
 
   EXPECT_EQ(idx.at(0), 0);
@@ -145,7 +145,7 @@ TEST_F(PointSortingTest, 4PointsConvexUnsorted)
   points.at(2) = p2;
   points.at(3) = p0;
 
-  std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(points);
+  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
   EXPECT_EQ(idx.size(), 4);
 
   EXPECT_EQ(idx.at(0), 3);
@@ -162,7 +162,7 @@ TEST_F(PointSortingTest, 4PointsNonConvex)
   points.at(2) = q2;
   points.at(3) = q3;
 
-  std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(points);
+  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
   EXPECT_EQ(idx.size(), 3);
 
   EXPECT_EQ(idx.at(0), 0);
