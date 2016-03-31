@@ -33,6 +33,7 @@ void SupportPolygon::SortFootholdsCounterClockwise(const VecFoothold& footholds)
 
   std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(f_xy);
 
+  footholds_.resize(idx.size());
   for (int i=0; i<idx.size(); ++i) {
     footholds_.at(i) = footholds.at(idx[i]);
   }

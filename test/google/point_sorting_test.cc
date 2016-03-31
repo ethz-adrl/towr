@@ -43,8 +43,9 @@ protected:
     q2.x() = -0.1;
     q2.y() =  0.1;
 
+    // this point lies inside the convec hull of the others
     q3.x() = 0;
-    q3.y() = 1;
+    q3.y() = -0.5;
   }
 
   // points arranged in positive square starting at origin
@@ -95,6 +96,7 @@ TEST_F(PointSortingTest, 3PointsUnsorted1)
   points.at(2) = p0;
 
   std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(points);
+  EXPECT_EQ(idx.size(), 3);
 
   // original index of the point, so {2,0,1}
   EXPECT_EQ(idx.at(0), 2);
@@ -110,6 +112,7 @@ TEST_F(PointSortingTest, 3PointsUnsorted2)
   points.at(2) = p1;
 
   std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(points);
+  EXPECT_EQ(idx.size(), 3);
 
   EXPECT_EQ(idx.at(0), 1);
   EXPECT_EQ(idx.at(1), 2);
@@ -117,7 +120,7 @@ TEST_F(PointSortingTest, 3PointsUnsorted2)
 }
 
 // Testing with four points as used in four leg support polygons
-TEST_F(PointSortingTest, 4PointsSorted)
+TEST_F(PointSortingTest, 4PointsConvexSorted)
 {
   Point2dManip::StdVectorEig2d points(4);
   points.at(0) = p0;
@@ -126,6 +129,7 @@ TEST_F(PointSortingTest, 4PointsSorted)
   points.at(3) = p3;
 
   std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(points);
+  EXPECT_EQ(idx.size(), 4);
 
   EXPECT_EQ(idx.at(0), 0);
   EXPECT_EQ(idx.at(1), 1);
@@ -133,7 +137,7 @@ TEST_F(PointSortingTest, 4PointsSorted)
   EXPECT_EQ(idx.at(3), 3);
 }
 
-TEST_F(PointSortingTest, 4PointsUnsorted)
+TEST_F(PointSortingTest, 4PointsConvexUnsorted)
 {
   Point2dManip::StdVectorEig2d points(4);
   points.at(0) = p1;
@@ -142,11 +146,28 @@ TEST_F(PointSortingTest, 4PointsUnsorted)
   points.at(3) = p0;
 
   std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(points);
+  EXPECT_EQ(idx.size(), 4);
 
   EXPECT_EQ(idx.at(0), 3);
   EXPECT_EQ(idx.at(1), 0);
   EXPECT_EQ(idx.at(2), 2);
   EXPECT_EQ(idx.at(3), 1);
+}
+
+TEST_F(PointSortingTest, 4PointsNonConvex)
+{
+  Point2dManip::StdVectorEig2d points(4);
+  points.at(0) = q0;
+  points.at(1) = q1;
+  points.at(2) = q2;
+  points.at(3) = q3;
+
+  std::vector<size_t> idx = Point2dManip::CounterClockwiseSort(points);
+  EXPECT_EQ(idx.size(), 3);
+
+  EXPECT_EQ(idx.at(0), 0);
+  EXPECT_EQ(idx.at(1), 1);
+  EXPECT_EQ(idx.at(2), 2);
 }
 
 

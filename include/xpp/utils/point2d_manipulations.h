@@ -50,16 +50,19 @@ struct Point2dManip {
 
   static double Distance(Vec2d pt1, Vec2d pt2);
 
-  /// \brief  Checks if p2 is on the right side of line from p0 to p1
-  /// \return >0 for P2 right of the line from P0 to P1
-  ///         =0 for P2 on the line
-  ///         <0 for P2 left of the line
-  static bool Point2isRightOfLine(const Vec2d& p0, const Vec2d p1, const Vec2d& p2)
+  //  Checks if B is on the right side of line OA
+  static bool BisRightOfOA(const Vec2d& O, const Vec2d A, const Vec2d& B)
   {
-    double distance = (p2(X) - p0(X)) * (p1(Y) - p0(Y))
-                    - (p1(X) - p0(X)) * (p2(Y) - p0(Y));
+    return (Cross(O, A, B) <= 0.0);
+  }
 
-    return (distance > 0.0);
+  // 2D cross product of OA and OB vectors, i.e. z-component of their 3D cross product.
+  // Returns a positive value, if OAB makes a counter-clockwise turn,
+  // negative for clockwise turn, and zero if the points are collinear.
+  static double Cross(const Vec2d &O, const Vec2d &A, const Vec2d &B)
+  {
+    return (A.x() - O.x()) * (B.y() - O.y())
+         - (A.y() - O.y()) * (B.x() - O.x());
   }
 
 
@@ -85,21 +88,55 @@ struct Point2dManip {
     std::vector<size_t> idx(p.size());
     std::iota( idx.begin(), idx.end(), 0 ); // fills vector with sequentially increasing values starting at 0
 
+
+
+
+    // Sort points lexicographically
     // make sure the first point is the one with lowest (x,y) value
     std::sort(idx.begin(), idx.end(),
               [&p](size_t i1, size_t i2) {return P1LeftofP2(p[i1], p[i2]);});
 
-    // sort counterclockwise
-    Vec2d line_start = p[idx[0]];
-    for (size_t i=1; i<idx.size()-1; i++)
-      for (size_t j=i+1; j<idx.size(); j++) {
-        Vec2d line_end   = p[idx[i]];
-        Vec2d point      = p[idx[j]];
-        if (Point2isRightOfLine(line_start, line_end, point))
-          std::swap(idx[i], idx[j]);
-      }
 
-    return idx;
+
+    // Returns a list of points on the convex hull in counter-clockwise order.
+    // Note: the last point in the returned list is the same as the first one.
+    int n = p.size(), k = 0;
+    std::vector<size_t> H(2*n);
+
+
+    // Build lower hull
+    for (int i = 0; i < n; ++i) {
+      while (k >= 2 && BisRightOfOA(p[H[k-2]], p[H[k-1]], p[idx[i]])) k--;
+      H[k++] = idx[i];
+    }
+
+    // Build upper hull
+    for (int i = n-2, t = k+1; i >= 0; i--) {
+      while (k >= t && BisRightOfOA(p[H[k-2]], p[H[k-1]], p[idx[i]])) k--;
+      H[k++] = idx[i];
+    }
+
+    H.resize(k-1); // remove double start and end point
+
+    return H;
+
+
+
+
+//    // sort counterclockwise
+//    Vec2d line_start = p[idx[0]];
+//    for (size_t i=1; i<idx.size()-1; i++)
+//      for (size_t j=i+1; j<idx.size(); j++) {
+//        Vec2d line_end   = p[idx[i]];
+//        Vec2d point      = p[idx[j]];
+//        if (BisRightOfOA(line_start, line_end, point))
+//          std::swap(idx[i], idx[j]);
+//      }
+//    return idx;
+
+
+
+
   }
 
 };
