@@ -21,15 +21,9 @@ log4cxx::LoggerPtr SplineContainer::log_(log4cxx::Logger::getLogger("xpp.zmp.spl
 
 SplineContainer::SplineContainer()
 {
-  curr_spline_ = 0;
   splines_.clear();
 }
 
-
-SplineContainer::~SplineContainer()
-{
-  // TODO Auto-generated destructor stub
-}
 
 double SplineContainer::GetTotalTime(bool exclude_4ls_splines) const
 {
@@ -96,22 +90,21 @@ void SplineContainer::ConstructSplineSequence(
 
 
 
-void SplineContainer::GetCOGxy(double t_global, Lin2d& cog_xy)
+void SplineContainer::GetCOGxy(double t_global, Lin2d& cog_xy) const
 {
+  uint curr_spline = 0;
+
   /** Transform global time to local spline time dt */
   double t_local = t_global;
-  for (uint s = 0; s < curr_spline_; s++)
-    t_local -= splines_[s].duration_;
-
-  cog_xy.p = splines_[curr_spline_].GetState(kPos, t_local);
-  cog_xy.v = splines_[curr_spline_].GetState(kVel, t_local);
-  cog_xy.a = splines_[curr_spline_].GetState(kAcc, t_local);
-
-  if (t_local > splines_[curr_spline_].duration_) {
-    ++curr_spline_;
-    assert(curr_spline_ < splines_.size()); // make sure the current spline is in the buffer
-    LOG4CXX_TRACE(log_, std::setprecision(1) << std::fixed << " switched to zmp-spline " << curr_spline_);
+  while (t_local > splines_[curr_spline].duration_) {
+    t_local -= splines_[curr_spline++].duration_;
   }
+
+  cog_xy.p = splines_[curr_spline].GetState(kPos, t_local);
+  cog_xy.v = splines_[curr_spline].GetState(kVel, t_local);
+  cog_xy.a = splines_[curr_spline].GetState(kAcc, t_local);
+
+  assert(curr_spline < splines_.size()); // make sure the current spline is in the buffer
 }
 
 } // namespace zmp

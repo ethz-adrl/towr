@@ -39,7 +39,7 @@ typedef xpp::hyq::LegID LegID;
 public:
   SplineContainer();
   SplineContainer(const Splines& splines);
-  virtual ~SplineContainer();
+  virtual ~SplineContainer() {};
 
   /**
   @brief Calculates the state of a spline at a specific point in time.
@@ -48,7 +48,7 @@ public:
   @param Derivative which value (pos,vel,acc) at this time we are interested in
   @return x and y state of position,velocity OR acceleration
   */
-  void GetCOGxy(double t_global, Lin2d& cog_xy);
+  void GetCOGxy(double t_global, Lin2d& cog_xy) const;
   void AddSpline(const ZmpSpline &spline);
   double GetTotalTime(bool exclude_4ls_splines = false) const;
 
@@ -63,7 +63,6 @@ public:
 
   Splines splines_;
 protected:
-  uint curr_spline_;
   static log4cxx::LoggerPtr log_;
 };
 
