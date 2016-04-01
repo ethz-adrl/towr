@@ -17,7 +17,7 @@ namespace utils {
 //typedef Spliner::Point Point;
 //
 // A start and an end position for the splines. checking only boundary conditions
-class PointSortingTest : public ::testing::Test {
+class Point2dManipulationsTest : public ::testing::Test {
 protected:
   virtual void SetUp()
   {
@@ -61,8 +61,35 @@ protected:
   Eigen::Vector2d q3;
 };
 
+TEST_F(Point2dManipulationsTest, LineCoefficients)
+{
+  LineCoeff2d line;
+  // x-axis line (y=0)
+  line = Point2dManip::LineCoeff(p0,p1);
+  EXPECT_DOUBLE_EQ(0, line.p);
+  EXPECT_DOUBLE_EQ(1, line.q);
+  EXPECT_DOUBLE_EQ(0, line.r);
 
-TEST_F(PointSortingTest, SortByXThenY)
+  // shifted y-axis line (x=1)
+  line = Point2dManip::LineCoeff(p1,p2);
+  EXPECT_DOUBLE_EQ(-1, line.p);
+  EXPECT_DOUBLE_EQ( 0, line.q);
+  EXPECT_DOUBLE_EQ( 1, line.r);
+
+  // diagonal line to top right not normalized
+  line = Point2dManip::LineCoeff(p0,p2,false);
+  EXPECT_DOUBLE_EQ(-1, line.p);
+  EXPECT_DOUBLE_EQ( 1, line.q);
+  EXPECT_DOUBLE_EQ( 0, line.r);
+
+  // diagonal line to top left not normalized
+  line = Point2dManip::LineCoeff(p1,p3,false);
+  EXPECT_DOUBLE_EQ(-1, line.p);
+  EXPECT_DOUBLE_EQ(-1, line.q);
+  EXPECT_DOUBLE_EQ( 1, line.r);
+}
+
+TEST_F(Point2dManipulationsTest, SortByXThenY)
 {
   EXPECT_TRUE(Point2dManip::P1LeftofP2(p0,p1));
   EXPECT_FALSE(Point2dManip::P1LeftofP2(p1,p0));
@@ -74,7 +101,7 @@ TEST_F(PointSortingTest, SortByXThenY)
   EXPECT_FALSE(Point2dManip::P1LeftofP2(p2,p0));
 }
 
-TEST_F(PointSortingTest, 3PointsSorted)
+TEST_F(Point2dManipulationsTest, 3PointsSorted)
 {
   Point2dManip::StdVectorEig2d points(3);
   points.at(0) = p0;
@@ -83,12 +110,12 @@ TEST_F(PointSortingTest, 3PointsSorted)
 
   std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
 
-  EXPECT_EQ(idx.at(0), 0);
-  EXPECT_EQ(idx.at(1), 1);
-  EXPECT_EQ(idx.at(2), 2);
+  EXPECT_EQ(0, idx.at(0));
+  EXPECT_EQ(1, idx.at(1));
+  EXPECT_EQ(2, idx.at(2));
 }
 
-TEST_F(PointSortingTest, 3PointsUnsorted1)
+TEST_F(Point2dManipulationsTest, 3PointsUnsorted1)
 {
   Point2dManip::StdVectorEig2d points(3);
   points.at(0) = p1;
@@ -96,15 +123,15 @@ TEST_F(PointSortingTest, 3PointsUnsorted1)
   points.at(2) = p0;
 
   std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
-  EXPECT_EQ(idx.size(), 3);
+  EXPECT_EQ(3, idx.size());
 
   // original index of the point, so {2,0,1}
-  EXPECT_EQ(idx.at(0), 2);
-  EXPECT_EQ(idx.at(1), 0);
-  EXPECT_EQ(idx.at(2), 1);
+  EXPECT_EQ(2, idx.at(0));
+  EXPECT_EQ(0, idx.at(1));
+  EXPECT_EQ(1, idx.at(2));
 }
 
-TEST_F(PointSortingTest, 3PointsUnsorted2)
+TEST_F(Point2dManipulationsTest, 3PointsUnsorted2)
 {
   Point2dManip::StdVectorEig2d points(3);
   points.at(0) = p2;
@@ -112,15 +139,15 @@ TEST_F(PointSortingTest, 3PointsUnsorted2)
   points.at(2) = p1;
 
   std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
-  EXPECT_EQ(idx.size(), 3);
+  EXPECT_EQ(3, idx.size());
 
-  EXPECT_EQ(idx.at(0), 1);
-  EXPECT_EQ(idx.at(1), 2);
-  EXPECT_EQ(idx.at(2), 0);
+  EXPECT_EQ(1, idx.at(0));
+  EXPECT_EQ(2, idx.at(1));
+  EXPECT_EQ(0, idx.at(2));
 }
 
 // Testing with four points as used in four leg support polygons
-TEST_F(PointSortingTest, 4PointsConvexSorted)
+TEST_F(Point2dManipulationsTest, 4PointsConvexSorted)
 {
   Point2dManip::StdVectorEig2d points(4);
   points.at(0) = p0;
@@ -129,15 +156,15 @@ TEST_F(PointSortingTest, 4PointsConvexSorted)
   points.at(3) = p3;
 
   std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
-  EXPECT_EQ(idx.size(), 4);
+  EXPECT_EQ(4, idx.size());
 
-  EXPECT_EQ(idx.at(0), 0);
-  EXPECT_EQ(idx.at(1), 1);
-  EXPECT_EQ(idx.at(2), 2);
-  EXPECT_EQ(idx.at(3), 3);
+  EXPECT_EQ(0, idx.at(0));
+  EXPECT_EQ(1, idx.at(1));
+  EXPECT_EQ(2, idx.at(2));
+  EXPECT_EQ(3, idx.at(3));
 }
 
-TEST_F(PointSortingTest, 4PointsConvexUnsorted)
+TEST_F(Point2dManipulationsTest, 4PointsConvexUnsorted)
 {
   Point2dManip::StdVectorEig2d points(4);
   points.at(0) = p1;
@@ -146,15 +173,15 @@ TEST_F(PointSortingTest, 4PointsConvexUnsorted)
   points.at(3) = p0;
 
   std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
-  EXPECT_EQ(idx.size(), 4);
+  EXPECT_EQ(4, idx.size());
 
-  EXPECT_EQ(idx.at(0), 3);
-  EXPECT_EQ(idx.at(1), 0);
-  EXPECT_EQ(idx.at(2), 2);
-  EXPECT_EQ(idx.at(3), 1);
+  EXPECT_EQ(3, idx.at(0));
+  EXPECT_EQ(0, idx.at(1));
+  EXPECT_EQ(2, idx.at(2));
+  EXPECT_EQ(1, idx.at(3));
 }
 
-TEST_F(PointSortingTest, 4PointsNonConvex)
+TEST_F(Point2dManipulationsTest, 4PointsNonConvex)
 {
   Point2dManip::StdVectorEig2d points(4);
   points.at(0) = q0;
@@ -163,11 +190,25 @@ TEST_F(PointSortingTest, 4PointsNonConvex)
   points.at(3) = q3;
 
   std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
-  EXPECT_EQ(idx.size(), 3);
+  EXPECT_EQ(3, idx.size());
 
-  EXPECT_EQ(idx.at(0), 0);
-  EXPECT_EQ(idx.at(1), 1);
-  EXPECT_EQ(idx.at(2), 2);
+  EXPECT_EQ(0, idx.at(0));
+  EXPECT_EQ(1, idx.at(1));
+  EXPECT_EQ(2, idx.at(2));
+}
+
+TEST_F(Point2dManipulationsTest, 4PointsEqual)
+{
+  Point2dManip::StdVectorEig2d points(4);
+  points.at(0) = q0;
+  points.at(1) = q0;
+  points.at(2) = q0;
+  points.at(3) = q0;
+
+  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
+  EXPECT_EQ(1, idx.size());
+
+  EXPECT_EQ(0, idx.at(0));
 }
 
 

@@ -101,10 +101,17 @@ public:
   static std::vector<size_t>
   BuildConvexHullCounterClockwise(const StdVectorEig2d& p)
   {
-    std::vector<size_t> idx = SortIndexesLeftToRight(p);
+    std::vector<size_t> idx;
+
+    // If all points are equal convex hull is just one of the points
+    if (std::equal(p.begin()+1, p.end(), p.begin())) {
+      idx.push_back(0);
+      return idx;
+    }
+
+    idx = SortIndexesLeftToRight(p);
 
     // Returns a list of points on the convex hull in counter-clockwise order.
-    // Note: the last point in the returned list is the same as the first one.
     int n = p.size(), k = 0;
     std::vector<size_t> idx_hull(2*n);
 
@@ -121,6 +128,8 @@ public:
     }
 
     idx_hull.resize(k-1); // remove double start and end point
+//    if (p[idx_hull[0]] == p[idx_hull[1]])
+//      idx_hull.resize(1);
 
     return idx_hull;
 

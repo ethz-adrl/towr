@@ -35,7 +35,7 @@ Constraints::EvalContraints(const Footholds& footholds, const Eigen::VectorXd& x
   g_vec.push_back(EvalSplineJunctionConstraints(x_coeff, bounds_));
   g_vec.push_back(EvalSuppPolygonConstraints(footholds, x_coeff, bounds_));
   g_vec.push_back(EvalFootholdConstraints(footholds, bounds_));
-  g_vec.push_back(EvalStepLengthConstraints(footholds, bounds_));
+//  g_vec.push_back(EvalStepLengthConstraints(footholds, bounds_));
 
 
   // create correct size constraint vector the first time this function is called
