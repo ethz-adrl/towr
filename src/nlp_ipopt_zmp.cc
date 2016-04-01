@@ -35,7 +35,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   n = n_spline_coeff_ + 2*n_steps_; // x,y-coordinate of footholds
   std::cout << "optimizing n= " << n << " variables\n";
 
-  constraints_.EvalContraints(opt_footholds_, opt_coeff_);
+  constraints_.EvalContraints(opt_coeff_, opt_footholds_);
   m = constraints_.bounds_.size();
   std::cout << "with m= " << m << "constraints\n";
 
@@ -101,14 +101,21 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
   int c = 0;
 	for (int i=0; i<initial_spline_coeff_.rows(); ++i) {
-	  x[c++] = initial_spline_coeff_[i]; // splines of the form x = t^5+t^4+t^3+t^2+t
+	  x[c++] = 0.0; //initial_spline_coeff_[i]; // splines of the form x = t^5+t^4+t^3+t^2+t
 	}
 
 
-	// initialize with steps from footstep planner
+	// initialize footstep locations
 	for (int i=0; i<n_steps_; ++i) {
-	  x[c++] = constraints_.planned_footholds_.at(i).p.x();
-	  x[c++] = constraints_.planned_footholds_.at(i).p.y();
+	  xpp::hyq::LegID leg = constraints_.planned_footholds_.at(i).leg;
+
+	  // initialize with start stance
+	  x[c++] = constraints_.supp_polygon_container_.start_stance_[leg].p.x();
+	  x[c++] = constraints_.supp_polygon_container_.start_stance_[leg].p.y();
+
+	  // // intialize with planned footholds
+    // x[c++] = constraints_.planned_footholds_.at(i).p.y();
+    // x[c++] = constraints_.planned_footholds_.at(i).p.y();
 	}
 
   return true;
@@ -145,7 +152,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 {
   UpdateOptimizationVariables(x);
 
-  Eigen::VectorXd g_eig = constraints_.EvalContraints(opt_footholds_, opt_coeff_);
+  Eigen::VectorXd g_eig = constraints_.EvalContraints(opt_coeff_, opt_footholds_);
 
   Eigen::Map<Eigen::VectorXd>(g,m) = g_eig;
 
@@ -225,7 +232,7 @@ void
 NlpIpoptZmp::UpdateOptimizationVariables(const Number* x)
 {
   opt_coeff_ = Eigen::Map<const Eigen::VectorXd>(x,n_spline_coeff_);
-  for (int i=0; i<opt_footholds_.size(); ++i) {
+  for (uint i=0; i<opt_footholds_.size(); ++i) {
     Eigen::Vector2d& f = opt_footholds_.at(i);
     f.x() = x[n_spline_coeff_+2*i+xpp::utils::X];
     f.y() = x[n_spline_coeff_+2*i+xpp::utils::Y];

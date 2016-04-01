@@ -40,8 +40,8 @@ public:
   virtual
   ~Constraints () {};
 
-  Eigen::VectorXd EvalContraints(const Footholds& footholds,
-                                 const Eigen::VectorXd& x_coeff);
+  Eigen::VectorXd EvalContraints(const Eigen::VectorXd& x_coeff,
+                                 const Footholds& footholds);
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container_;
   xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
@@ -58,26 +58,27 @@ private:
   MatVec y_zmp_;
   bool first_constraint_eval_ = true;
 
-  Eigen::VectorXd EvalSuppPolygonConstraints(const Footholds& footholds,
-                                             const Eigen::VectorXd& x_coeff);
+  // Add constraints here
+  Eigen::VectorXd KeepZmpInSuppPolygon(const Eigen::VectorXd& x_coeff,
+                                             const Footholds& footholds);
 
-  Eigen::VectorXd EvalFootholdConstraints(const Footholds& footholds);
+  Eigen::VectorXd FixFootholdPosition(const Footholds& footholds);
 
-  Eigen::VectorXd EvalSplineJunctionConstraints(const Eigen::VectorXd& x_coeff);
-
-  Eigen::VectorXd EvalStepLengthConstraints(const Footholds& footholds);
-
-
-  void AddBounds(int m_constraints, double lower, double upper);
   /**
-   * Changes zmp_spline_container
+   * This also includes the constraint on initial and final state!
+   * FIXME move to separate function.
    * @param x_coeff
-   * @param footholds
-   * @param bounds
    * @return
    */
-  Eigen::VectorXd EvalWorkspaceConstraints(const Eigen::VectorXd& x_coeff,
+  Eigen::VectorXd SmoothAccJerkAtSplineJunctions(const Eigen::VectorXd& x_coeff);
+
+  Eigen::VectorXd RestrictMaxStepLength(const Footholds& footholds);
+
+  Eigen::VectorXd RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff,
                                            const Footholds& footholds);
+
+  void AddBounds(int m_constraints, double lower, double upper);
+  void CombineToEigenVector(const std::vector<Eigen::VectorXd>& g_std, Eigen::VectorXd& g_eig) const;
 };
 
 } /* namespace zmp */
