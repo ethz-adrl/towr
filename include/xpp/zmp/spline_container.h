@@ -33,7 +33,7 @@ of splines, where the actual coefficients must be filled through an optimization
 class SplineContainer {
 public:
 typedef std::vector<ZmpSpline> Splines;
-typedef xpp::utils::Point2d Lin2d;
+typedef xpp::utils::Point2d Point2d;
 typedef xpp::hyq::LegID LegID;
 
 public:
@@ -48,7 +48,7 @@ public:
   @param Derivative which value (pos,vel,acc) at this time we are interested in
   @return x and y state of position,velocity OR acceleration
   */
-  void GetCOGxy(double t_global, Lin2d& cog_xy) const;
+  void GetCOGxy(double t_global, Point2d& cog_xy) const;
   void AddSpline(const ZmpSpline &spline);
   double GetTotalTime(bool exclude_4ls_splines = false) const;
 

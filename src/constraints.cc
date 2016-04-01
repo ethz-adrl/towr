@@ -32,9 +32,9 @@ Constraints::EvalContraints(const Footholds& footholds, const Eigen::VectorXd& x
 {
   std::vector<Eigen::VectorXd> g_vec;
 
-  g_vec.push_back(EvalSplineJunctionConstraints(x_coeff, bounds_));
-  g_vec.push_back(EvalSuppPolygonConstraints(footholds, x_coeff, bounds_));
-  g_vec.push_back(EvalFootholdConstraints(footholds, bounds_));
+  g_vec.push_back(EvalSplineJunctionConstraints(x_coeff));
+  g_vec.push_back(EvalSuppPolygonConstraints(footholds, x_coeff));
+  g_vec.push_back(EvalFootholdConstraints(footholds));
 //  g_vec.push_back(EvalStepLengthConstraints(footholds, bounds_));
 
 
@@ -63,10 +63,9 @@ Constraints::EvalContraints(const Footholds& footholds, const Eigen::VectorXd& x
 
 
 Eigen::VectorXd
-Constraints::EvalSuppPolygonConstraints(const Footholds& footholds, const Eigen::VectorXd& x_coeff,
-                                        std::vector<Constraints::Bound>& bounds)
+Constraints::EvalSuppPolygonConstraints(const Footholds& footholds, const Eigen::VectorXd& x_coeff)
 {
-  for (int i=0; i<footholds.size(); ++i) {
+  for (uint i=0; i<footholds.size(); ++i) {
     supp_polygon_container_.footholds_.at(i).p.x() = footholds.at(i).x();
     supp_polygon_container_.footholds_.at(i).p.y() = footholds.at(i).y();
   }
@@ -74,21 +73,15 @@ Constraints::EvalSuppPolygonConstraints(const Footholds& footholds, const Eigen:
 
   MatVec ineq = supp_polygon_container_.AddLineConstraints(x_zmp_, y_zmp_, zmp_spline_container_);
 
-  // add bounds
-  if (first_constraint_eval_) {
-    Bound ineq_bound(0.0, +1.0e19);
-    for (int c=0; c<ineq.v.rows(); ++c) {
-      bounds.push_back(ineq_bound);
-    }
-  }
+
+  AddBounds(ineq.v.rows(), 0.0, +1.0e19);
 
   return ineq.M*x_coeff + ineq.v;
 }
 
 
 Eigen::VectorXd
-Constraints::EvalFootholdConstraints(const Footholds& footholds,
-                                     std::vector<Constraints::Bound>& bounds) const
+Constraints::EvalFootholdConstraints(const Footholds& footholds)
 {
   // constraints on the footsteps
   Eigen::VectorXd g(2*footholds.size());
@@ -103,20 +96,14 @@ Constraints::EvalFootholdConstraints(const Footholds& footholds,
   }
 
 
-  if (first_constraint_eval_) {
-    Bound eq_bound(0.0, 0.0);
-    for (int c=0; c<g.rows(); ++c) {
-      bounds.push_back(eq_bound);
-    }
-  }
+  AddBounds(g.rows(), 0.0, 0.0);
 
   return g;
 }
 
 
 Eigen::VectorXd
-Constraints::EvalStepLengthConstraints(const Footholds& footholds,
-                                       std::vector<Constraints::Bound>& bounds) const
+Constraints::EvalStepLengthConstraints(const Footholds& footholds)
 {
   Eigen::VectorXd g(footholds.size());
 
@@ -141,31 +128,49 @@ Constraints::EvalStepLengthConstraints(const Footholds& footholds,
 
   // add bounds that step length should never exceed max step length
   double max_step_length = 0.3;
-  if (first_constraint_eval_) {
-    Bound ineq_bound(0.0, max_step_length);//std::pow(max_step_length,2));
-    for (int c=0; c<g.rows(); ++c) {
-      bounds.push_back(ineq_bound);
-    }
-  }
+  AddBounds(g.rows(), 0.0, max_step_length);
 
   return g;
 }
 
 
 Eigen::VectorXd
-Constraints::EvalSplineJunctionConstraints(const Eigen::VectorXd& x_coeff,
-                                           std::vector<Constraints::Bound>& bounds) const
+Constraints::EvalWorkspaceConstraints(const Eigen::VectorXd& x_coeff,
+                                         const Footholds& footholds)
+{
+  Eigen::VectorXd g(10);
+
+//   get position of cog through xpline coefficients
+  zmp_spline_container_.AddOptimizedCoefficients(x_coeff);
+  xpp::utils::Point2d cog_xy;
+  double t_global = 0.2; //s
+  zmp_spline_container_.GetCOGxy(t_global, cog_xy);
+
+
+  // calculate distance cog to foothold for each leg
+  return g;
+}
+
+
+Eigen::VectorXd
+Constraints::EvalSplineJunctionConstraints(const Eigen::VectorXd& x_coeff)
 {
   Eigen::VectorXd g = spline_junction_constraints_.M*x_coeff + spline_junction_constraints_.v;
 
+
+  AddBounds(g.rows(), 0.0, 0.0);
+  return g;
+}
+
+
+void Constraints::AddBounds(int m_constraints, double lower, double upper)
+{
   if (first_constraint_eval_) {
-    Bound eq_bound(0.0, 0.0);
-    for (int c=0; c<g.rows(); ++c) {
-      bounds.push_back(eq_bound);
+    Bound eq_bound(lower, upper);
+    for (int c=0; c<m_constraints; ++c) {
+      bounds_.push_back(eq_bound);
     }
   }
-
-  return g;
 }
 
 

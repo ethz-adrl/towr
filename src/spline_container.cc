@@ -90,7 +90,7 @@ void SplineContainer::ConstructSplineSequence(
 
 
 
-void SplineContainer::GetCOGxy(double t_global, Lin2d& cog_xy) const
+void SplineContainer::GetCOGxy(double t_global, Point2d& cog_xy) const
 {
   uint curr_spline = 0;
 

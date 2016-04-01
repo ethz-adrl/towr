@@ -59,17 +59,25 @@ private:
   bool first_constraint_eval_ = true;
 
   Eigen::VectorXd EvalSuppPolygonConstraints(const Footholds& footholds,
-                                             const Eigen::VectorXd& x_coeff,
-                                             std::vector<Bound>& bounds);
+                                             const Eigen::VectorXd& x_coeff);
 
-  Eigen::VectorXd EvalFootholdConstraints(const Footholds& footholds,
-                                          std::vector<Constraints::Bound>& bounds) const;
+  Eigen::VectorXd EvalFootholdConstraints(const Footholds& footholds);
 
-  Eigen::VectorXd EvalSplineJunctionConstraints(const Eigen::VectorXd& x_coeff,
-                                                std::vector<Constraints::Bound>& bounds) const;
+  Eigen::VectorXd EvalSplineJunctionConstraints(const Eigen::VectorXd& x_coeff);
 
-  Eigen::VectorXd EvalStepLengthConstraints(const Footholds& footholds,
-                                       std::vector<Constraints::Bound>& bounds) const;
+  Eigen::VectorXd EvalStepLengthConstraints(const Footholds& footholds);
+
+
+  void AddBounds(int m_constraints, double lower, double upper);
+  /**
+   * Changes zmp_spline_container
+   * @param x_coeff
+   * @param footholds
+   * @param bounds
+   * @return
+   */
+  Eigen::VectorXd EvalWorkspaceConstraints(const Eigen::VectorXd& x_coeff,
+                                           const Footholds& footholds);
 };
 
 } /* namespace zmp */

@@ -53,7 +53,7 @@ TEST_F(SuppPolygonTest, LineConstraint)
   EXPECT_TRUE(distance_to_D > 0.0); // because D left  of AC
 
   EXPECT_NEAR(hypot(0.5, 0.5), std::fabs(distance_to_B), 0.001);
-  EXPECT_DOUBLE_EQ(std::fabs(distance_to_B), std::fabs(distance_to_D));
+  EXPECT_DOUBLE_EQ(std::fabs(distance_to_B), std::fabs(distance_to_D)); // both on opposite sides of line
 }
 
 
