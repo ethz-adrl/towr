@@ -34,6 +34,7 @@ NlpOptimizer::SolveNlp(Constraints::Footholds& final_footholds,
                        const Eigen::VectorXd& initial_spline_coeff)
 {
   Ipopt::IpoptApplication app;
+  app.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
   Ipopt::ApplicationReturnStatus status = app.Initialize();
   if (status != Ipopt::Solve_Succeeded) {
     std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
