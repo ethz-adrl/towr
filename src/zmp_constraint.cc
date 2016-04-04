@@ -20,7 +20,7 @@ std::vector<hyq::SupportPolygon>
 ZmpConstraint::CreateSupportPolygonsWith4LS(const xpp::hyq::SupportPolygonContainer& supp_polygon_container) const
 {
   std::vector<SupportPolygon> supp;
-  std::vector<SupportPolygon> supp_no_4l = supp_polygon_container.CreateSupportPolygons();
+  std::vector<SupportPolygon> supp_no_4l = supp_polygon_container.GetSupportPolygons();
 
   for (const xpp::zmp::ZmpSpline& s : spline_container_.splines_)
   {

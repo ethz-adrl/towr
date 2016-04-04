@@ -25,6 +25,8 @@ class Constraints {
 public:
   typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > StdVecEigen2d;
   typedef xpp::utils::MatVec MatVec;
+  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  typedef SupportPolygonContainer::VecFoothold VecFoothold;
 
   struct Bound {
     Bound(double lower, double upper) {
@@ -52,7 +54,7 @@ public:
 
   Eigen::VectorXd g_;
   std::vector<Constraints::Bound> bounds_;
-  const std::vector<xpp::hyq::Foothold> planned_footholds_;
+  const VecFoothold planned_footholds_;
 
   ZmpConstraint zmp_constraint_;
 private:
@@ -63,8 +65,7 @@ private:
 
 
   // Add constraints here
-  Eigen::VectorXd KeepZmpInSuppPolygon(const Eigen::VectorXd& x_coeff,
-                                             const StdVecEigen2d& footholds);
+  Eigen::VectorXd KeepZmpInSuppPolygon(const Eigen::VectorXd& x_coeff);
 
   Eigen::VectorXd FixFootholdPosition(const StdVecEigen2d& footholds);
 
@@ -78,8 +79,7 @@ private:
 
   Eigen::VectorXd RestrictMaxStepLength(const StdVecEigen2d& footholds);
 
-  Eigen::VectorXd RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff,
-                                           const StdVecEigen2d& footholds);
+  Eigen::VectorXd RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff);
 
   void AddBounds(int m_constraints, double lower, double upper);
   void CombineToEigenVector(const std::vector<Eigen::VectorXd>& g_std, Eigen::VectorXd& g_eig) const;

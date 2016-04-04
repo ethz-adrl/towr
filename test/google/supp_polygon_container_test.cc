@@ -93,7 +93,7 @@ protected:
 
 TEST_F(SuppPolygonContainerTest, CreateSupportPolygons)
 {
-  std::vector<SupportPolygon> supp = cont_.CreateSupportPolygons();
+  std::vector<SupportPolygon> supp = cont_.GetSupportPolygons();
   EXPECT_EQ(4, supp.size());
 
   std::vector<SupportPolygon> supp_4ls;
@@ -136,7 +136,7 @@ TEST_F(SuppPolygonContainerTest, GetFirstAndLastPolygon)
 
 TEST_F(SuppPolygonContainerTest, SameFoothold)
 {
-  std::vector<SupportPolygon> supp = cont0_.CreateSupportPolygons();
+  std::vector<SupportPolygon> supp = cont0_.GetSupportPolygons();
   EXPECT_EQ(4, supp.size()); // only one four leg support phase LF->RH
 
   EXPECT_EQ(3, supp.at(0).footholds_conv_.size()); // lh swings

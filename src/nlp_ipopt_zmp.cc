@@ -113,8 +113,8 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	  xpp::hyq::LegID leg = constraints_.planned_footholds_.at(i).leg;
 
 	  // initialize with start stance
-	  x[c++] = constraints_.supp_polygon_container_.start_stance_[leg].p.x();
-	  x[c++] = constraints_.supp_polygon_container_.start_stance_[leg].p.y();
+	  x[c++] = constraints_.supp_polygon_container_.GetStartStance()[leg].p.x();
+	  x[c++] = constraints_.supp_polygon_container_.GetStartStance()[leg].p.y();
 
 	  // // intialize with planned footholds
     // x[c++] = constraints_.planned_footholds_.at(i).p.y();
@@ -235,6 +235,7 @@ void
 NlpIpoptZmp::UpdateOptimizationVariables(const Number* x)
 {
   opt_coeff_ = Eigen::Map<const Eigen::VectorXd>(x,n_spline_coeff_);
+
   for (uint i=0; i<opt_footholds_.size(); ++i) {
     Eigen::Vector2d& f = opt_footholds_.at(i);
     f.x() = x[n_spline_coeff_+2*i+xpp::utils::X];

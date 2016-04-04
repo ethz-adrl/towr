@@ -32,26 +32,32 @@ public:
             const MarginValues& margins);
 
 
-  VecSupportPolygon CreateSupportPolygons() const;
   Eigen::Vector2d GetCenterOfFinalStance() const;
   static bool Insert4LSPhase(LegID prev, LegID next);
+
+  VecFoothold GetStanceLegs(int step) const;
 
   SupportPolygon GetStartPolygon() const;
   SupportPolygon GetFinalPolygon() const;
 
   VecFoothold GetFootholds() const { return footholds_; };
-  void SetFootholdsXY(size_t idx, double x, double y)
-  {
-    footholds_.at(idx).p.x() = x;
-    footholds_.at(idx).p.y() = y;
-  };
+  void SetFootholdsXY(size_t idx, double x, double y);
 
-  LegDataMap<Foothold> start_stance_;
-  MarginValues margins_;
+  LegDataMap<Foothold> GetStartStance() const {return start_stance_;};
+
+
+  VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
+
+
 
 private:
+  MarginValues margins_;
+  LegDataMap<Foothold> start_stance_;
   VecFoothold footholds_;
+  VecSupportPolygon support_polygons_;
+
   void CheckIfInitialized() const;
+  VecSupportPolygon CreateSupportPolygons(const VecFoothold& footholds) const;
 
   SupportPolygon GetStancePolygon(const LegDataMap<Foothold>& stance) const;
   LegDataMap<Foothold> GetLastStance() const;

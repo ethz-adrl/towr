@@ -18,9 +18,19 @@ void SupportPolygonContainer::Init(LegDataMap<Foothold> start_stance,
   start_stance_ = start_stance;
   footholds_    = footholds;
   margins_      = margins;
+  support_polygons_ = CreateSupportPolygons(footholds);
 
   initialized_ = true;
 }
+
+
+void SupportPolygonContainer::SetFootholdsXY(size_t idx, double x, double y)
+{
+  footholds_.at(idx).p.x() = x;
+  footholds_.at(idx).p.y() = y;
+
+  support_polygons_ = CreateSupportPolygons(footholds_); //update support polygons as well
+};
 
 
 SupportPolygon SupportPolygonContainer::GetStancePolygon(const LegDataMap<Foothold>& stance) const
@@ -31,6 +41,13 @@ SupportPolygon SupportPolygonContainer::GetStancePolygon(const LegDataMap<Footho
     legs_in_contact.push_back(stance[l]);
 
   return SupportPolygon(margins_, legs_in_contact);
+}
+
+
+SupportPolygonContainer::VecFoothold
+SupportPolygonContainer::GetStanceLegs(int step) const
+{
+  return support_polygons_.at(step).footholds_;
 }
 
 
@@ -62,13 +79,12 @@ SupportPolygon SupportPolygonContainer::GetFinalPolygon() const
 
 
 SupportPolygonContainer::VecSupportPolygon
-SupportPolygonContainer::CreateSupportPolygons() const
+SupportPolygonContainer::CreateSupportPolygons(const VecFoothold& footholds) const
 {
-  CheckIfInitialized();
   std::vector<SupportPolygon> supp;
   LegDataMap<Foothold> curr_stance = start_stance_;
 
-  for (const Foothold& f : footholds_) {
+  for (const Foothold& f : footholds) {
 
     // extract the 3 non-swinglegs from stance
     VecFoothold legs_in_contact;

@@ -51,6 +51,13 @@ int SplineContainer::GetSplineID(double t_global) const
 }
 
 
+int SplineContainer::GetStep(double t_global) const
+{
+  assert(t_global<=GetTotalTime());
+  return splines_.at(GetSplineID(t_global)).step_;
+}
+
+
 void SplineContainer::AddSpline(const ZmpSpline &spline)
 {
   splines_.push_back(spline);

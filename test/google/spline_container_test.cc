@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 #include <xpp/zmp/spline_container.h>
+#include <xpp/zmp/continuous_spline_container.h>
 #include <iostream>
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
@@ -26,9 +27,20 @@ protected:
                                               t_swing,
                                               t_stance_initial,
                                               t_stance_final);
+
+    double dt = 0.1;
+    cont_spline_container_.Init(Eigen::Vector2d::Zero(),
+                                Eigen::Vector2d::Zero(),
+                                step_sequence_,
+                                t_stance,
+                                t_swing,
+                                t_stance_initial,
+                                t_stance_final,
+                                dt);
   }
 
   SplineContainer spline_container_;
+  ContinuousSplineContainer cont_spline_container_;
   double t_stance_initial = 2.0;
   double t_stance = 0.1;
   double t_swing = 0.5;
@@ -48,6 +60,14 @@ TEST_F(SplineContainerTest, GetSplineID)
 
   int n_splines = 1+step_sequence_.size()+2+1;
   EXPECT_EQ(n_splines-1, spline_container_.GetSplineID(T));
+}
+
+
+TEST_F(SplineContainerTest, GetTotalFreeCoeff)
+{
+  int n = cont_spline_container_.GetTotalFreeCoeff();
+  int n_splines = 1+step_sequence_.size()+2+1;
+  EXPECT_EQ(n_splines*4*2, n);
 }
 
 
