@@ -160,6 +160,7 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff,
     // know legs in contact at each step
 
 
+//    zmp_constraint_.supp_polygon_container_.CreateSupportPolygons()
 
     xpp::utils::Point2d cog_xy;
 

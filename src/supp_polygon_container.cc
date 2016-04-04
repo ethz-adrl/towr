@@ -102,7 +102,6 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
 }
 
 
-
 bool SupportPolygonContainer::Insert4LSPhase(LegID prev, LegID next)
 {
   using namespace xpp::hyq;

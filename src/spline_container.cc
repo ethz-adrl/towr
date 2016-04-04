@@ -17,8 +17,6 @@
 namespace xpp {
 namespace zmp {
 
-log4cxx::LoggerPtr SplineContainer::log_(log4cxx::Logger::getLogger("xpp.zmp.splinecontainer"));
-
 SplineContainer::SplineContainer()
 {
   splines_.clear();
@@ -97,9 +95,9 @@ void SplineContainer::ConstructSplineSequence(
 
 void SplineContainer::GetCOGxy(double t_global, Point2d& cog_xy) const
 {
+  assert(t_global<=GetTotalTime());
+
   uint curr_spline = 0;
-  if (t_global > GetTotalTime())
-    throw std::runtime_error("SplineContainer::GetCOGxy: t_global > spline time");
 
   /** Transform global time to local spline time dt */
   double t_local = t_global;

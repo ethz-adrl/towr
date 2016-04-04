@@ -63,8 +63,6 @@ public:
                                         double t_stance_final);
 
   Splines splines_;
-protected:
-  static log4cxx::LoggerPtr log_;
 };
 
 } // namespace zmp
