@@ -14,9 +14,10 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_con
                            const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
                            const MatVec& qp_equality_constraints)
     :planned_footholds_(supp_poly_container.GetFootholds()),
-     zmp_constraint_(zmp_spline_container,supp_poly_container)
+     zmp_constraint_(zmp_spline_container)
 {
   zmp_spline_container_    = zmp_spline_container;
+  supp_polygon_container_  = supp_poly_container;
 
   spline_junction_constraints_ = qp_equality_constraints;
 
@@ -34,6 +35,12 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
 {
   std::vector<Eigen::VectorXd> g_std;
 
+  // update the member variables
+  zmp_spline_container_.AddOptimizedCoefficients(x_coeff);
+  for (uint i=0; i<footholds.size(); ++i)
+    supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
+
+  // generate constraint violation values
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff, footholds));
   g_std.push_back(FixFootholdPosition(footholds));
@@ -52,12 +59,7 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
 Eigen::VectorXd
 Constraints::KeepZmpInSuppPolygon(const Eigen::VectorXd& x_coeff, const StdVecEigen2d& footholds)
 {
-  for (uint i=0; i<footholds.size(); ++i)
-    zmp_constraint_.supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
-
-
-  MatVec ineq = zmp_constraint_.AddLineConstraints(x_zmp_, y_zmp_);
-
+  MatVec ineq = zmp_constraint_.AddLineConstraints(x_zmp_, y_zmp_, supp_polygon_container_);
 
   AddBounds(ineq.v.rows(), 0.0, +1.0e19);
 
@@ -97,7 +99,7 @@ Constraints::RestrictMaxStepLength(const StdVecEigen2d& footholds)
   for (uint i=0; i<footholds.size(); ++i)
   {
     xpp::hyq::LegID leg = planned_footholds_.at(i).leg; // leg sequence stays the same as initial
-    Eigen::Vector2d f_prev = zmp_constraint_.supp_polygon_container_.start_stance_[leg].p.segment<2>(0);
+    Eigen::Vector2d f_prev = supp_polygon_container_.start_stance_[leg].p.segment<2>(0);
     if (i>=4) {
       f_prev = footholds.at(i-4); // FIXME: only works for repeating same step sequence
     }
@@ -127,11 +129,6 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff,
   int n_footholds = footholds.size();
   Eigen::VectorXd g(n_footholds);
   int c=0;
-
-//   get position of cog through xpline coefficients
-  zmp_spline_container_.AddOptimizedCoefficients(x_coeff);
-
-
 
 
 

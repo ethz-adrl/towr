@@ -23,21 +23,18 @@ public:
 
 public:
   ZmpConstraint() {}; // FIXME remove this
-  ZmpConstraint (xpp::zmp::ContinuousSplineContainer spline_container,
-                 xpp::hyq::SupportPolygonContainer supp_polygon_container);
+  ZmpConstraint (xpp::zmp::ContinuousSplineContainer spline_container);
   virtual
-  ~ZmpConstraint ();
+  ~ZmpConstraint () {};
 
-  MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp) const;
-
-  xpp::hyq::SupportPolygonContainer supp_polygon_container_;
-
-  std::vector<Foothold> GetFootholds() const { return supp_polygon_container_.GetFootholds(); };
-  Foothold GetStartStance(hyq::LegID leg) const { return supp_polygon_container_.start_stance_[leg]; };
+  MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+                            const xpp::hyq::SupportPolygonContainer& supp_polygon_container) const;
 
 private:
   xpp::zmp::ContinuousSplineContainer spline_container_;
-  std::vector<hyq::SupportPolygon> CreateSupportPolygonsWith4LS() const;
+  std::vector<hyq::SupportPolygon> CreateSupportPolygonsWith4LS(
+      const xpp::hyq::SupportPolygonContainer& supp_polygon_container) const;
+
   static void AddLineConstraint(const SupportPolygon::SuppLine& l,
                                 const Eigen::RowVectorXd& x_zmp_M,
                                 const Eigen::RowVectorXd& y_zmp_M,

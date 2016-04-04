@@ -46,6 +46,7 @@ public:
                                  const StdVecEigen2d& footholds);
 
   xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
+  xpp::hyq::SupportPolygonContainer supp_polygon_container_;
 
   MatVec spline_junction_constraints_;
 

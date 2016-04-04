@@ -29,13 +29,14 @@ QpOptimizer::QpOptimizer()
 }
 
 QpOptimizer::QpOptimizer(const ContinuousSplineContainer& spline_structure,
-                         const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
+                         const xpp::hyq::SupportPolygonContainer& supp_poly_container,
                          const WeightsXYArray& weight,
                          double walking_height)
     :zmp_splines_(spline_structure),
-     zmp_constraint_(spline_structure, supp_triangle_container)
+     zmp_constraint_(spline_structure)
 {
-  SetupQpMatrices(weight, supp_triangle_container.GetCenterOfFinalStance(), walking_height);
+  SetupQpMatrices(weight, supp_poly_container,
+                  supp_poly_container.GetCenterOfFinalStance(), walking_height);
 }
 
 
@@ -44,6 +45,7 @@ QpOptimizer::~QpOptimizer() {}
 
 void QpOptimizer::SetupQpMatrices(
     const WeightsXYArray& weight,
+    const xpp::hyq::SupportPolygonContainer& supp_poly_container,
     const Position& end_cog,
     double walking_height)
 {
@@ -53,17 +55,18 @@ void QpOptimizer::SetupQpMatrices(
 
   cf_ = CreateMinAccCostFunction(weight);
   eq_ = CreateEqualityContraints(end_cog);
-  ineq_ = CreateInequalityContraints(walking_height);
+  ineq_ = CreateInequalityContraints(walking_height, supp_poly_container);
 }
 
 
 QpOptimizer::MatVec
-QpOptimizer::CreateInequalityContraints(double walking_height) const
+QpOptimizer::CreateInequalityContraints(double walking_height,
+                                        const xpp::hyq::SupportPolygonContainer& supp_poly_container) const
 {
   MatVec zmp_x = zmp_splines_.ExpressZmpThroughCoefficients(walking_height, X);
   MatVec zmp_y = zmp_splines_.ExpressZmpThroughCoefficients(walking_height, Y);
 
-  return zmp_constraint_.AddLineConstraints(zmp_x, zmp_y);
+  return zmp_constraint_.AddLineConstraints(zmp_x, zmp_y, supp_poly_container);
 }
 
 

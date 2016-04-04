@@ -19,7 +19,7 @@ NlpIpoptZmp::NlpIpoptZmp(const xpp::zmp::CostFunction& cost_function,
      constraints_(constraints)
 {
   n_spline_coeff_ = constraints_.zmp_spline_container_.GetTotalFreeCoeff();
-  n_steps_ = constraints_.zmp_constraint_.GetFootholds().size();
+  n_steps_ = constraints_.supp_polygon_container_.GetFootholds().size();
 
   initial_spline_coeff_ = initial_spline_coefficients;
 
@@ -113,8 +113,8 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	  xpp::hyq::LegID leg = constraints_.planned_footholds_.at(i).leg;
 
 	  // initialize with start stance
-	  x[c++] = constraints_.zmp_constraint_.GetStartStance(leg).p.x();
-	  x[c++] = constraints_.zmp_constraint_.GetStartStance(leg).p.y();
+	  x[c++] = constraints_.supp_polygon_container_.start_stance_[leg].p.x();
+	  x[c++] = constraints_.supp_polygon_container_.start_stance_[leg].p.y();
 
 	  // // intialize with planned footholds
     // x[c++] = constraints_.planned_footholds_.at(i).p.y();

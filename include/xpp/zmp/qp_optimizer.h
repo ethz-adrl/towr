@@ -90,13 +90,15 @@ public:
 
 private:
   void SetupQpMatrices(const WeightsXYArray& weight,
+                       const xpp::hyq::SupportPolygonContainer& supp_poly_container,
                        const Position& end_cog,
                        double height_robot);
 
   MatVec ineq_;
   MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;
   MatVec CreateEqualityContraints(const Position &end_cog) const;
-  MatVec CreateInequalityContraints(double walking_height) const;
+  MatVec CreateInequalityContraints(double walking_height,
+                                    const xpp::hyq::SupportPolygonContainer& supp_poly_container) const;
 
 
   static log4cxx::LoggerPtr log_;

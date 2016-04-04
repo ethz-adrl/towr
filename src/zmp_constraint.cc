@@ -10,25 +10,17 @@
 namespace xpp {
 namespace zmp {
 
-ZmpConstraint::ZmpConstraint (xpp::zmp::ContinuousSplineContainer spline_container,
-                              xpp::hyq::SupportPolygonContainer supp_polygon_container)
+ZmpConstraint::ZmpConstraint (xpp::zmp::ContinuousSplineContainer spline_container)
 {
   spline_container_ = spline_container;
-  supp_polygon_container_ = supp_polygon_container;
 }
-
-ZmpConstraint::~ZmpConstraint ()
-{
-  // TODO Auto-generated destructor stub
-}
-
 
 
 std::vector<hyq::SupportPolygon>
-ZmpConstraint::CreateSupportPolygonsWith4LS() const
+ZmpConstraint::CreateSupportPolygonsWith4LS(const xpp::hyq::SupportPolygonContainer& supp_polygon_container) const
 {
   std::vector<SupportPolygon> supp;
-  std::vector<SupportPolygon> supp_no_4l = supp_polygon_container_.CreateSupportPolygons();
+  std::vector<SupportPolygon> supp_no_4l = supp_polygon_container.CreateSupportPolygons();
 
   for (const xpp::zmp::ZmpSpline& s : spline_container_.splines_)
   {
@@ -37,9 +29,9 @@ ZmpConstraint::CreateSupportPolygonsWith4LS() const
 
     // TODO make get first and last stance a function
     if (first_spline)
-      supp.push_back(supp_polygon_container_.GetStartPolygon());
+      supp.push_back(supp_polygon_container.GetStartPolygon());
     else if (last_spline)
-      supp.push_back(supp_polygon_container_.GetFinalPolygon());
+      supp.push_back(supp_polygon_container.GetFinalPolygon());
     else if (s.four_leg_supp_)
       supp.push_back((SupportPolygon::CombineSupportPolygons(supp_no_4l.at(s.step_), supp_no_4l.at(s.step_-1))));
     else
@@ -52,7 +44,8 @@ ZmpConstraint::CreateSupportPolygonsWith4LS() const
 
 
 ZmpConstraint::MatVec
-ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp) const
+ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+                                  const xpp::hyq::SupportPolygonContainer& supp_polygon_container) const
 {
   int coeff = spline_container_.GetTotalFreeCoeff();
 
@@ -65,7 +58,7 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp) cons
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
 
-  std::vector<SupportPolygon> supp = CreateSupportPolygonsWith4LS();
+  std::vector<SupportPolygon> supp = CreateSupportPolygonsWith4LS(supp_polygon_container);
 
   for (const zmp::ZmpSpline& s : spline_container_.splines_)
   {
