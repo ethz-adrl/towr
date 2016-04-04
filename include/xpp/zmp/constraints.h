@@ -14,6 +14,8 @@
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
 
+#include <xpp/zmp/zmp_constraint.h>
+
 namespace xpp {
 namespace zmp {
 
@@ -21,7 +23,7 @@ namespace zmp {
 class Constraints {
 
 public:
-  typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > Footholds;
+  typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > StdVecEigen2d;
   typedef xpp::utils::MatVec MatVec;
 
   struct Bound {
@@ -41,9 +43,8 @@ public:
   ~Constraints () {};
 
   Eigen::VectorXd EvalContraints(const Eigen::VectorXd& x_coeff,
-                                 const Footholds& footholds);
+                                 const StdVecEigen2d& footholds);
 
-  xpp::hyq::SupportPolygonContainer supp_polygon_container_;
   xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
 
   MatVec spline_junction_constraints_;
@@ -52,17 +53,19 @@ public:
   std::vector<Constraints::Bound> bounds_;
   const std::vector<xpp::hyq::Foothold> planned_footholds_;
 
+  ZmpConstraint zmp_constraint_;
 private:
 
   MatVec x_zmp_;
   MatVec y_zmp_;
   bool first_constraint_eval_ = true;
 
+
   // Add constraints here
   Eigen::VectorXd KeepZmpInSuppPolygon(const Eigen::VectorXd& x_coeff,
-                                             const Footholds& footholds);
+                                             const StdVecEigen2d& footholds);
 
-  Eigen::VectorXd FixFootholdPosition(const Footholds& footholds);
+  Eigen::VectorXd FixFootholdPosition(const StdVecEigen2d& footholds);
 
   /**
    * This also includes the constraint on initial and final state!
@@ -72,10 +75,10 @@ private:
    */
   Eigen::VectorXd SmoothAccJerkAtSplineJunctions(const Eigen::VectorXd& x_coeff);
 
-  Eigen::VectorXd RestrictMaxStepLength(const Footholds& footholds);
+  Eigen::VectorXd RestrictMaxStepLength(const StdVecEigen2d& footholds);
 
   Eigen::VectorXd RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff,
-                                           const Footholds& footholds);
+                                           const StdVecEigen2d& footholds);
 
   void AddBounds(int m_constraints, double lower, double upper);
   void CombineToEigenVector(const std::vector<Eigen::VectorXd>& g_std, Eigen::VectorXd& g_eig) const;

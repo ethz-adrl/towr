@@ -8,7 +8,6 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 
-#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/support_polygon.h>
 
 namespace xpp {
@@ -22,56 +21,41 @@ public:
   typedef xpp::utils::MatVec MatVec;
 
 
-  struct SplineAndSupport {
-    xpp::zmp::ZmpSpline spline_;
-    xpp::hyq::SupportPolygon support_;
-  };
-
 public:
-  SupportPolygonContainer ();
+  SupportPolygonContainer () {};
   virtual
-  ~SupportPolygonContainer ();
+  ~SupportPolygonContainer () {};
 
 public:
   void Init(LegDataMap<Foothold> start_stance,
             const VecFoothold& footholds,
             const MarginValues& margins);
 
-  bool initialized_ = false;
 
-
+  VecSupportPolygon CreateSupportPolygons() const;
   Eigen::Vector2d GetCenterOfFinalStance() const;
-  MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-                            const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
-
   static bool Insert4LSPhase(LegID prev, LegID next);
 
-public:
-  VecFoothold footholds_;
+  SupportPolygon GetStartPolygon() const;
+  SupportPolygon GetFinalPolygon() const;
+
+  VecFoothold GetFootholds() const { return footholds_; };
+  void SetFootholdsXY(size_t idx, double x, double y)
+  {
+    footholds_.at(idx).p.x() = x;
+    footholds_.at(idx).p.y() = y;
+  };
+
   LegDataMap<Foothold> start_stance_;
   MarginValues margins_;
 
 private:
-  /**
-  @brief Creates the support polygons from footholds and steps.
-
-  @param start_stance Position of feet before walking
-  @param steps Position and leg of each new step
-  @param stability_margin margin for created support triangles
-  @attention modifies start stance
-  */
-  std::vector<SplineAndSupport> CombineSplineAndSupport(const VecFoothold& footholds, const xpp::zmp::ContinuousSplineContainer& zmp_splines) const;
-  std::vector<SplineAndSupport> CombineSplineAndSupport(const xpp::zmp::ContinuousSplineContainer& zmp_splines) const
-  {
-    return CombineSplineAndSupport(footholds_, zmp_splines);
-  }
-  void AddLineConstraint(const SupportPolygon::SuppLine& l,
-                         const Eigen::RowVectorXd& x_zmp_M,
-                         const Eigen::RowVectorXd& y_zmp_M,
-                         double x_zmp_v,
-                         double y_zmp_v,
-                         int& c, MatVec& ineq) const;
+  VecFoothold footholds_;
   void CheckIfInitialized() const;
+
+  SupportPolygon GetStancePolygon(const LegDataMap<Foothold>& stance) const;
+  LegDataMap<Foothold> GetLastStance() const;
+  bool initialized_ = false;
 };
 
 } /* namespace hyq */

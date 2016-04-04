@@ -17,8 +17,10 @@ using namespace ::xpp::utils; //X,Y,Z,Poin2dManip
 
 SupportPolygon::SupportPolygon(const MarginValues& margins, const VecFoothold& footholds)
     :  margins_(margins),
+       footholds_(footholds),
        footholds_conv_(BuildSortedConvexHull(footholds))
-{}
+{
+}
 
 
 /** sort points so inequality constraints are on correct side of line later **/
@@ -76,6 +78,21 @@ double SupportPolygon::UseMargin(const LegID& f0, const LegID& f1) const
     return margins_[SIDE];
   else
     return margins_[DIAG];
+}
+
+
+SupportPolygon SupportPolygon::CombineSupportPolygons(const SupportPolygon& p1,
+                                                      const SupportPolygon& p2)
+{
+  VecFoothold contacts;
+  contacts.insert(contacts.end(), p1.footholds_.begin(), p1.footholds_.end());
+  contacts.insert(contacts.end(), p2.footholds_.begin(), p2.footholds_.end());
+
+  // compare leg ids and make sure the same footholds in not inserted twice
+  std::sort(contacts.begin(), contacts.end(), [](Foothold f1, Foothold f2) {return f1.leg < f2.leg;});
+  contacts.erase(std::unique(contacts.begin(), contacts.end()), contacts.end()); // removes adjacent duplicate and resizes vector
+
+  return SupportPolygon(p1.margins_, contacts);
 }
 
 

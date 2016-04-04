@@ -227,14 +227,15 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   xpp::hyq::SupportPolygonContainer supp_triangle_container;
   supp_triangle_container.Init(start_stance, steps_, margins);
 
-  xpp::zmp::QpOptimizer zmp_optimizer(zmp_splines_structure);
-  zmp_optimizer.SetupQpMatrices(weight, supp_triangle_container, robot_height);
+  xpp::zmp::QpOptimizer zmp_optimizer(zmp_splines_structure,
+                                      supp_triangle_container,
+                                      weight, robot_height);
 
   // solve using this structure
   Eigen::VectorXd opt_coefficients_eig = zmp_optimizer.SolveQp();
   zmp_splines_eig.AddOptimizedCoefficients(opt_coefficients_eig);
 
-  Constraints::Footholds opt_footholds;
+  Constraints::StdVecEigen2d opt_footholds;
   xpp::zmp::NlpOptimizer nlp_optimizer;
   Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds, supp_triangle_container, zmp_optimizer , opt_coefficients_eig);
   zmp_splines.AddOptimizedCoefficients(opt_coefficients);

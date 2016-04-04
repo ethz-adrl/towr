@@ -49,6 +49,7 @@ public:
   @return x and y state of position,velocity OR acceleration
   */
   void GetCOGxy(double t_global, Point2d& cog_xy) const;
+  int GetSplineID(double t_global) const;
   void AddSpline(const ZmpSpline &spline);
   double GetTotalTime(bool exclude_4ls_splines = false) const;
 

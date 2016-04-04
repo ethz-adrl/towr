@@ -102,7 +102,7 @@ public:
 
 
   Eigen::VectorXd opt_coeff_;
-  xpp::zmp::Constraints::Footholds opt_footholds_;
+  xpp::zmp::Constraints::StdVecEigen2d opt_footholds_;
   void UpdateOptimizationVariables(const Number* x);
 
 private:

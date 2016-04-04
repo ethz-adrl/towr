@@ -10,12 +10,12 @@
 namespace xpp {
 namespace zmp {
 
-Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
+Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_container,
                            const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
                            const MatVec& qp_equality_constraints)
-    :planned_footholds_(supp_triangle_container.footholds_)
+    :planned_footholds_(supp_poly_container.GetFootholds()),
+     zmp_constraint_(zmp_spline_container,supp_poly_container)
 {
-  supp_polygon_container_ = supp_triangle_container;
   zmp_spline_container_    = zmp_spline_container;
 
   spline_junction_constraints_ = qp_equality_constraints;
@@ -29,18 +29,15 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_triangle
 }
 
 
-
-
-
 Eigen::VectorXd
-Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const Footholds& footholds)
+Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d& footholds)
 {
   std::vector<Eigen::VectorXd> g_std;
 
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff, footholds));
-//  g_std.push_back(FixFootholdPosition(footholds));
-  g_std.push_back(RestrictMaxStepLength(footholds));
+  g_std.push_back(FixFootholdPosition(footholds));
+//  g_std.push_back(RestrictMaxStepLength(footholds));
 //  g_vec.push_back(RestrictFootholdToCogPos(x_coeff, footholds));
 
 
@@ -53,15 +50,13 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const Footholds& foo
 
 
 Eigen::VectorXd
-Constraints::KeepZmpInSuppPolygon(const Eigen::VectorXd& x_coeff, const Footholds& footholds)
+Constraints::KeepZmpInSuppPolygon(const Eigen::VectorXd& x_coeff, const StdVecEigen2d& footholds)
 {
-  for (uint i=0; i<footholds.size(); ++i) {
-    supp_polygon_container_.footholds_.at(i).p.x() = footholds.at(i).x();
-    supp_polygon_container_.footholds_.at(i).p.y() = footholds.at(i).y();
-  }
+  for (uint i=0; i<footholds.size(); ++i)
+    zmp_constraint_.supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
 
 
-  MatVec ineq = supp_polygon_container_.AddLineConstraints(x_zmp_, y_zmp_, zmp_spline_container_);
+  MatVec ineq = zmp_constraint_.AddLineConstraints(x_zmp_, y_zmp_);
 
 
   AddBounds(ineq.v.rows(), 0.0, +1.0e19);
@@ -71,7 +66,7 @@ Constraints::KeepZmpInSuppPolygon(const Eigen::VectorXd& x_coeff, const Foothold
 
 
 Eigen::VectorXd
-Constraints::FixFootholdPosition(const Footholds& footholds)
+Constraints::FixFootholdPosition(const StdVecEigen2d& footholds)
 {
   // constraints on the footsteps
   std::vector<int> fixed_dim = {xpp::utils::X, xpp::utils::Y};
@@ -94,7 +89,7 @@ Constraints::FixFootholdPosition(const Footholds& footholds)
 
 
 Eigen::VectorXd
-Constraints::RestrictMaxStepLength(const Footholds& footholds)
+Constraints::RestrictMaxStepLength(const StdVecEigen2d& footholds)
 {
   Eigen::VectorXd g(footholds.size());
   int c=0;
@@ -102,7 +97,7 @@ Constraints::RestrictMaxStepLength(const Footholds& footholds)
   for (uint i=0; i<footholds.size(); ++i)
   {
     xpp::hyq::LegID leg = planned_footholds_.at(i).leg; // leg sequence stays the same as initial
-    Eigen::Vector2d f_prev = supp_polygon_container_.start_stance_[leg].p.segment<2>(0);
+    Eigen::Vector2d f_prev = zmp_constraint_.supp_polygon_container_.start_stance_[leg].p.segment<2>(0);
     if (i>=4) {
       f_prev = footholds.at(i-4); // FIXME: only works for repeating same step sequence
     }
@@ -127,7 +122,7 @@ Constraints::RestrictMaxStepLength(const Footholds& footholds)
 
 Eigen::VectorXd
 Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff,
-                                         const Footholds& footholds)
+                                         const StdVecEigen2d& footholds)
 {
   int n_footholds = footholds.size();
   Eigen::VectorXd g(n_footholds);
@@ -137,6 +132,19 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff,
   zmp_spline_container_.AddOptimizedCoefficients(x_coeff);
 
 
+
+
+
+//  for (auto s : supp_polygon_container_.CombineSplineAndSupport(footholds,zmp_spline_container_)) {
+//
+//
+//  }
+
+
+
+
+
+
   const double dt = zmp_spline_container_.GetTotalTime()/n_footholds;
   double t_global = 0.0;
   for (int i=0; i<g.rows(); ++i) {
@@ -144,6 +152,14 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff,
     // time during which this foothold is in contact
     // equivalent to global start and end time of the corresponding spline
 //    if (zmp_spline_container_.splines_.at(i).four_leg_supp_
+
+
+    int id = zmp_spline_container_.GetSplineID(t_global);
+    int step = zmp_spline_container_.splines_.at(id).step_;
+
+    // know legs in contact at each step
+
+
 
     xpp::utils::Point2d cog_xy;
 

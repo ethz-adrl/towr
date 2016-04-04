@@ -24,7 +24,7 @@ public:
   ~NlpOptimizer ();
 
 
-  Eigen::VectorXd SolveNlp(Constraints::Footholds& final_footholds,
+  Eigen::VectorXd SolveNlp(Constraints::StdVecEigen2d& final_footholds,
                            const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
                            const xpp::zmp::QpOptimizer& zmp_optimizer, // TODO, make this more specific
                            const Eigen::VectorXd& initial_spline_coeff = Eigen::Vector2d::Zero());

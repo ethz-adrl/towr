@@ -19,12 +19,15 @@ NlpIpoptZmp::NlpIpoptZmp(const xpp::zmp::CostFunction& cost_function,
      constraints_(constraints)
 {
   n_spline_coeff_ = constraints_.zmp_spline_container_.GetTotalFreeCoeff();
-  n_steps_ = constraints_.supp_polygon_container_.footholds_.size(); // use intial footholds for this
+  n_steps_ = constraints_.zmp_constraint_.GetFootholds().size();
 
   initial_spline_coeff_ = initial_spline_coefficients;
 
-  opt_footholds_.resize(constraints_.supp_polygon_container_.footholds_.size());
+  opt_footholds_.resize(n_steps_);
+  std::fill(opt_footholds_.begin(), opt_footholds_.end(), Eigen::Vector2d::Ones());
+
   opt_coeff_ = Eigen::VectorXd(n_spline_coeff_);
+  opt_coeff_.setZero();
 }
 
 
@@ -65,7 +68,7 @@ bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
   }
 
   // specific bounds depending on equality and inequality constraints
-  for (int c=0; c<constraints_.bounds_.size(); ++c) {
+  for (uint c=0; c<constraints_.bounds_.size(); ++c) {
     g_l[c] = constraints_.bounds_.at(c).lower_;
     g_u[c] = constraints_.bounds_.at(c).upper_;
 
@@ -110,8 +113,8 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	  xpp::hyq::LegID leg = constraints_.planned_footholds_.at(i).leg;
 
 	  // initialize with start stance
-	  x[c++] = constraints_.supp_polygon_container_.start_stance_[leg].p.x();
-	  x[c++] = constraints_.supp_polygon_container_.start_stance_[leg].p.y();
+	  x[c++] = constraints_.zmp_constraint_.GetStartStance(leg).p.x();
+	  x[c++] = constraints_.zmp_constraint_.GetStartStance(leg).p.y();
 
 	  // // intialize with planned footholds
     // x[c++] = constraints_.planned_footholds_.at(i).p.y();

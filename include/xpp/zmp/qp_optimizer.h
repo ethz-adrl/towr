@@ -10,6 +10,7 @@
 
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/support_polygon_container.h>
+#include <xpp/zmp/zmp_constraint.h>
 
 #include <log4cxx/logger.h>
 #include <Eigen/Dense>
@@ -59,7 +60,10 @@ public:
   /**
    * @param spline_structure the amount and sequence of splines with empty coefficients
    */
-  QpOptimizer(const ContinuousSplineContainer& spline_structure);
+  QpOptimizer(const ContinuousSplineContainer& spline_structure,
+              const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
+              const WeightsXYArray& weight,
+              double walking_height);
 
   virtual ~QpOptimizer();
 
@@ -74,9 +78,6 @@ public:
  @param[out] splines optimized cog trajectory
  @throws std::runtime_error Throws if no solution to the QP problem was found.
  */
-  void SetupQpMatrices(const WeightsXYArray& weight,
-                       const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
-                       double height_robot);
 
   Eigen::VectorXd SolveQp();
 
@@ -85,15 +86,17 @@ public:
   MatVec eq_;
 
   ContinuousSplineContainer zmp_splines_;
+  ZmpConstraint zmp_constraint_;
 
 private:
-
+  void SetupQpMatrices(const WeightsXYArray& weight,
+                       const Position& end_cog,
+                       double height_robot);
 
   MatVec ineq_;
   MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;
   MatVec CreateEqualityContraints(const Position &end_cog) const;
-  MatVec CreateInequalityContraints(const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
-                                    double walking_height);
+  MatVec CreateInequalityContraints(double walking_height) const;
 
 
   static log4cxx::LoggerPtr log_;

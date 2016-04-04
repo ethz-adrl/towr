@@ -88,6 +88,7 @@ set(SOURCES
   src/nlp_ipopt_zmp.cc
   src/cost_function.cc
   src/constraints.cc
+  src/zmp_constraint.cc
 )
              
 # Add the shared library
@@ -118,7 +119,9 @@ if(BUILD_TESTS)
     set(MY_GTEST_UNITS  test/google/gtest_main.cc 
                         test/google/spliner_test.cc
                         test/google/point2d_manipulations_test.cc
-                        test/google/supp_polygon_test.cc)
+                        test/google/supp_polygon_test.cc
+                        test/google/supp_polygon_container_test.cc
+                        test/google/spline_container_test.cc)
                
     add_executable(googleTest ${MY_GTEST_UNITS})
     

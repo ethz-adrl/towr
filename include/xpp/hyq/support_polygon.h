@@ -43,9 +43,14 @@ public:
 
 
   MarginValues margins_;
+  VecFoothold footholds_; // all the contact points for this support polygon
+  VecFoothold footholds_conv_; // only the convex footholds if some are not relevant for support polygon
+
+
+  static SupportPolygon CombineSupportPolygons(const SupportPolygon& p1,
+                                               const SupportPolygon& p2);
 private:
 
-  VecFoothold footholds_conv_; // only the convex footholds if some are not relevant for support polygon
   VecFoothold BuildSortedConvexHull(const VecFoothold& footholds) const;
   double UseMargin(const LegID& f0, const LegID& f1) const;
   friend std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr);
