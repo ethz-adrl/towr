@@ -54,7 +54,6 @@ ZmpConstraint::CreateSupportPolygonsWith4LS() const
 ZmpConstraint::MatVec
 ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp) const
 {
-
   int coeff = spline_container_.GetTotalFreeCoeff();
 
   int num_nodes_no_4ls = spline_container_.GetTotalNodesNo4ls();
