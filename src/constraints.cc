@@ -169,6 +169,7 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
 //      g(c++) = std::fabs(dy);
 
       if (first_constraint_eval_) {
+        // kinematic constraints (slightly ugly)
         double max_range = 0.4;
         double min_range = 0.2;
         Bound bound_pos(min_range, max_range);
