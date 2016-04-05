@@ -27,7 +27,6 @@ ZmpConstraint::CreateSupportPolygonsWith4LS(const xpp::hyq::SupportPolygonContai
     bool first_spline = (s.id_ == spline_container_.splines_.front().id_);
     bool last_spline  = (s.id_ == spline_container_.splines_.back().id_);
 
-    // TODO make get first and last stance a function
     if (first_spline)
       supp.push_back(supp_polygon_container.GetStartPolygon());
     else if (last_spline)

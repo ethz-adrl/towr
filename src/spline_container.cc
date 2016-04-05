@@ -67,10 +67,10 @@ void SplineContainer::AddSpline(const ZmpSpline &spline)
 // Creates a sequence of Splines without the optimized coefficients
 void SplineContainer::ConstructSplineSequence(
     const std::vector<LegID>& step_sequence,
-                                      double t_stance,
-                                      double t_swing,
-                                      double t_stance_initial,
-                                      double t_stance_final)
+    double t_stance,
+    double t_swing,
+    double t_stance_initial,
+    double t_stance_final)
 {
   splines_.clear();
   int step = 0;

@@ -41,11 +41,11 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
     supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
 
   // generate constraint violation values
-  g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
+  g_std.push_back(FixFootholdPosition(footholds));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff));
-//  g_std.push_back(FixFootholdPosition(footholds));
+//  g_std.push_back(RestrictFootholdToCogPos(x_coeff));
+  g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff)); // FIXME extract intial and final constraints
 //  g_std.push_back(RestrictMaxStepLength(footholds));
-  g_std.push_back(RestrictFootholdToCogPos(x_coeff));
 
 
   CombineToEigenVector(g_std, g_);
@@ -127,9 +127,10 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
 {
   double dt = 0.2; //zmp_spline_container_.dt_;
   double T  = zmp_spline_container_.GetTotalTime();
-  int N     = std::ceil(T/dt)+1;
+  int N     = std::ceil(T/dt);
 
-  Eigen::VectorXd g(3*N); // 3 legs in contact at every discrete time
+  int n_constraints = 3*N*2;
+  Eigen::VectorXd g(n_constraints); // 3 legs in contact at every discrete time, 2 b/c x-y
   int c=0;
 
   double t=0.0;
@@ -142,21 +143,54 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
     zmp_spline_container_.GetCOGxy(t, cog_xy);
 
     // calculate distance to base for every stance leg
-    for (hyq::Foothold f : stance_legs) {
+    // restrict to quadrants
+    for (const hyq::Foothold& f : stance_legs) {
       double dx = f.p.x() - cog_xy.p.x();
       double dy = f.p.y() - cog_xy.p.y();
 
-      g(c++) = hypot(dx,dy);
+//      g(c++) = hypot(dx,dy);
+      // restrict to quadrandts
+      g(c++) = dx;
+      g(c++) = dy;
 //      g(c++) = std::fabs(dx);
 //      g(c++) = std::fabs(dy);
+
+      if (first_constraint_eval_) {
+        double max_range = 0.4;
+        Bound bound_pos(0.0, max_range);
+        Bound bound_neg(-max_range, 0.0);
+        switch (f.leg) {
+          case hyq::LF:
+            bounds_.push_back(bound_pos); // x
+            bounds_.push_back(bound_pos); // y
+            break;
+          case hyq::RF:
+            bounds_.push_back(bound_pos); // x
+            bounds_.push_back(bound_neg); // y
+            break;
+          case hyq::LH:
+            bounds_.push_back(bound_neg); // x
+            bounds_.push_back(bound_pos); // y
+            break;
+          case hyq::RH:
+            bounds_.push_back(bound_neg); // x
+            bounds_.push_back(bound_neg); // y
+            break;
+          default:
+            break;
+        }
+      }
+
     }
     t += dt;
 
   } while(t < T);
 
+
+  assert(n_constraints == c);
   // add bounds that foot position should never be to far away from body
-  double max_range = 0.4;
-  AddBounds(g.rows(), 0.0, max_range);
+//  double max_range = 0.4;
+//  AddBounds(g.rows(), 0.0, max_range);
 
   return g;
 }

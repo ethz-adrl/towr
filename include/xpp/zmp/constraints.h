@@ -29,7 +29,7 @@ public:
   typedef SupportPolygonContainer::VecFoothold VecFoothold;
 
   struct Bound {
-    Bound(double lower, double upper) {
+    Bound(double lower = 0.0, double upper = 0.0) {
       lower_ = lower;
       upper_ = upper;
     }

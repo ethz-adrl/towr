@@ -60,7 +60,7 @@ private:
   VecSupportPolygon CreateSupportPolygons(const VecFoothold& footholds) const;
 
   SupportPolygon GetStancePolygon(const LegDataMap<Foothold>& stance) const;
-  LegDataMap<Foothold> GetLastStance() const;
+  LegDataMap<Foothold> GetStanceAfter(int n_steps) const;
   bool initialized_ = false;
 };
 

@@ -51,15 +51,18 @@ SupportPolygonContainer::GetStanceLegs(int step) const
 }
 
 
-LegDataMap<Foothold> SupportPolygonContainer::GetLastStance() const
+LegDataMap<Foothold> SupportPolygonContainer::GetStanceAfter(int n_steps) const
 {
   CheckIfInitialized();
   LegDataMap<Foothold> last_stance = start_stance_;
 
+  const VecFoothold& used_footholds = VecFoothold(footholds_.begin(),
+                                                  footholds_.begin()+n_steps);
+
   // get the last step of each foot
   Foothold f;
   for (LegID l : LegIDArray)
-    if(Foothold::GetLastFoothold(l,footholds_, f))
+    if(Foothold::GetLastFoothold(l,used_footholds, f))
       last_stance[f.leg] = f;
 
   return last_stance;
@@ -74,7 +77,7 @@ SupportPolygon SupportPolygonContainer::GetStartPolygon() const
 
 SupportPolygon SupportPolygonContainer::GetFinalPolygon() const
 {
-  return GetStancePolygon(GetLastStance());
+  return GetStancePolygon(GetStanceAfter(footholds_.size()));
 }
 
 
@@ -107,7 +110,7 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
 {
   CheckIfInitialized();
 
-  LegDataMap<Foothold> last_stance = GetLastStance();
+  LegDataMap<Foothold> last_stance = GetStanceAfter(footholds_.size());
 
   // calculate average x-y-postion of last stance
   Eigen::Vector2d end_cog = Eigen::Vector2d::Zero();
