@@ -35,7 +35,8 @@ public:
   Eigen::Vector2d GetCenterOfFinalStance() const;
   static bool Insert4LSPhase(LegID prev, LegID next);
 
-  VecFoothold GetStanceLegs(int step) const;
+  VecFoothold GetStanceDuring(int step) const;
+  VecFoothold GetStanceAfter(int n_steps) const;
 
   SupportPolygon GetStartPolygon() const;
   SupportPolygon GetFinalPolygon() const;
@@ -59,8 +60,7 @@ private:
   void CheckIfInitialized() const;
   VecSupportPolygon CreateSupportPolygons(const VecFoothold& footholds) const;
 
-  SupportPolygon GetStancePolygon(const LegDataMap<Foothold>& stance) const;
-  LegDataMap<Foothold> GetStanceAfter(int n_steps) const;
+  SupportPolygon GetStancePolygon(const VecFoothold& footholds) const;
   bool initialized_ = false;
 };
 

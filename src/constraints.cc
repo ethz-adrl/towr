@@ -137,7 +137,7 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
   do {
     // know legs in contact at each step
     int step = zmp_spline_container_.GetStep(t);
-    VecFoothold stance_legs = supp_polygon_container_.GetStanceLegs(step);
+    VecFoothold stance_legs = supp_polygon_container_.GetStanceDuring(step);
 
     xpp::utils::Point2d cog_xy;
     zmp_spline_container_.GetCOGxy(t, cog_xy);

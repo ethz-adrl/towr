@@ -121,7 +121,8 @@ if(BUILD_TESTS)
                         test/google/point2d_manipulations_test.cc
                         test/google/supp_polygon_test.cc
                         test/google/supp_polygon_container_test.cc
-                        test/google/spline_container_test.cc)
+                        test/google/spline_container_test.cc
+                        test/google/helpers.cc)
                
     add_executable(googleTest ${MY_GTEST_UNITS})
     

@@ -33,25 +33,22 @@ void SupportPolygonContainer::SetFootholdsXY(size_t idx, double x, double y)
 };
 
 
-SupportPolygon SupportPolygonContainer::GetStancePolygon(const LegDataMap<Foothold>& stance) const
+SupportPolygon SupportPolygonContainer::GetStancePolygon(const VecFoothold& footholds) const
 {
   CheckIfInitialized();
-  VecFoothold legs_in_contact;
-  for (LegID l : LegIDArray)
-    legs_in_contact.push_back(stance[l]);
-
-  return SupportPolygon(margins_, legs_in_contact);
+  return SupportPolygon(margins_, footholds);
 }
 
 
 SupportPolygonContainer::VecFoothold
-SupportPolygonContainer::GetStanceLegs(int step) const
+SupportPolygonContainer::GetStanceDuring(int step) const
 {
   return support_polygons_.at(step).footholds_;
 }
 
 
-LegDataMap<Foothold> SupportPolygonContainer::GetStanceAfter(int n_steps) const
+SupportPolygonContainer::VecFoothold
+SupportPolygonContainer::GetStanceAfter(int n_steps) const
 {
   CheckIfInitialized();
   LegDataMap<Foothold> last_stance = start_stance_;
@@ -65,13 +62,13 @@ LegDataMap<Foothold> SupportPolygonContainer::GetStanceAfter(int n_steps) const
     if(Foothold::GetLastFoothold(l,used_footholds, f))
       last_stance[f.leg] = f;
 
-  return last_stance;
+  return last_stance.ToVector();
 }
 
 
 SupportPolygon SupportPolygonContainer::GetStartPolygon() const
 {
-  return GetStancePolygon(start_stance_);
+  return GetStancePolygon(start_stance_.ToVector());
 }
 
 
@@ -110,12 +107,13 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
 {
   CheckIfInitialized();
 
-  LegDataMap<Foothold> last_stance = GetStanceAfter(footholds_.size());
+  VecFoothold last_stance = GetStanceAfter(footholds_.size());
 
   // calculate average x-y-postion of last stance
   Eigen::Vector2d end_cog = Eigen::Vector2d::Zero();
-  for (LegID l : LegIDArray)
-    end_cog += last_stance[l].p.segment<2>(xpp::utils::X);
+
+  for (const Foothold& f : last_stance)
+    end_cog += f.p.segment<2>(xpp::utils::X);
 
   return end_cog/_LEGS_COUNT;
 }
