@@ -72,10 +72,18 @@ SupportPolygon SupportPolygonContainer::GetStartPolygon() const
 }
 
 
+
 SupportPolygon SupportPolygonContainer::GetFinalPolygon() const
 {
-  return GetStancePolygon(GetStanceAfter(footholds_.size()));
+  return GetStancePolygon(GetFinalFootholds());
 }
+
+SupportPolygonContainer::VecFoothold
+SupportPolygonContainer::GetFinalFootholds() const
+{
+  return GetStanceAfter(footholds_.size());
+}
+
 
 
 SupportPolygonContainer::VecSupportPolygon
@@ -107,7 +115,7 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
 {
   CheckIfInitialized();
 
-  VecFoothold last_stance = GetStanceAfter(footholds_.size());
+  VecFoothold last_stance = GetFinalFootholds();
 
   // calculate average x-y-postion of last stance
   Eigen::Vector2d end_cog = Eigen::Vector2d::Zero();

@@ -40,8 +40,10 @@ public:
 
   SupportPolygon GetStartPolygon() const;
   SupportPolygon GetFinalPolygon() const;
+  VecFoothold GetFinalFootholds() const ;
 
   VecFoothold GetFootholds() const { return footholds_; };
+  int GetNumberOfSteps() const { return footholds_.size(); };
   void SetFootholdsXY(size_t idx, double x, double y);
 
   LegDataMap<Foothold> GetStartStance() const {return start_stance_;};

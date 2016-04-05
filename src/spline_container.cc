@@ -95,7 +95,7 @@ void SplineContainer::ConstructSplineSequence(
   }
 
   // always have last 4ls spline for robot to move into center of feet
-  AddSpline(ZmpSpline(id++, t_stance_final, true, step));
+  AddSpline(ZmpSpline(id++, t_stance_final, true, step+1));
 }
 
 

@@ -7,6 +7,9 @@
 
 #include <xpp/zmp/constraints.h>
 
+#define prt(x) std::cout << #x << " = " << x << std::endl;
+//#define prt(x)
+
 namespace xpp {
 namespace zmp {
 
@@ -41,9 +44,9 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
     supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
 
   // generate constraint violation values
-  g_std.push_back(FixFootholdPosition(footholds));
+//  g_std.push_back(FixFootholdPosition(footholds));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff));
-//  g_std.push_back(RestrictFootholdToCogPos(x_coeff));
+  g_std.push_back(RestrictFootholdToCogPos(x_coeff));
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff)); // FIXME extract intial and final constraints
 //  g_std.push_back(RestrictMaxStepLength(footholds));
 
@@ -125,19 +128,29 @@ Constraints::RestrictMaxStepLength(const StdVecEigen2d& footholds)
 Eigen::VectorXd
 Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
 {
-  double dt = 0.2; //zmp_spline_container_.dt_;
+  double dt = 0.3; //zmp_spline_container_.dt_;
   double T  = zmp_spline_container_.GetTotalTime();
   int N     = std::ceil(T/dt);
 
-  int n_constraints = 3*N*2;
-  Eigen::VectorXd g(n_constraints); // 3 legs in contact at every discrete time, 2 b/c x-y
-  int c=0;
+  int approx_n_constraints = 4*N*2; // 3 or 4 legs in contact at every discrete time, 2 b/c x-y
+  std::vector<double> g_vec;
+  g_vec.reserve(approx_n_constraints);
+
+//  Eigen::VectorXd g(approx_n_constraints);
+//  int c=0;
 
   double t=0.0;
   do {
     // know legs in contact at each step
+    VecFoothold stance_legs;
     int step = zmp_spline_container_.GetStep(t);
-    VecFoothold stance_legs = supp_polygon_container_.GetStanceDuring(step);
+
+    if (step < supp_polygon_container_.GetNumberOfSteps())
+      stance_legs = supp_polygon_container_.GetStanceDuring(step);
+    else
+      stance_legs = supp_polygon_container_.GetFinalFootholds();
+
+
 
     xpp::utils::Point2d cog_xy;
     zmp_spline_container_.GetCOGxy(t, cog_xy);
@@ -148,17 +161,18 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
       double dx = f.p.x() - cog_xy.p.x();
       double dy = f.p.y() - cog_xy.p.y();
 
-//      g(c++) = hypot(dx,dy);
+//      g_vec.push_back(hypot(dx,dy));
       // restrict to quadrandts
-      g(c++) = dx;
-      g(c++) = dy;
+      g_vec.push_back(dx);
+      g_vec.push_back(dy);
 //      g(c++) = std::fabs(dx);
 //      g(c++) = std::fabs(dy);
 
       if (first_constraint_eval_) {
         double max_range = 0.4;
-        Bound bound_pos(0.0, max_range);
-        Bound bound_neg(-max_range, 0.0);
+        double min_range = 0.2;
+        Bound bound_pos(min_range, max_range);
+        Bound bound_neg(-max_range, -min_range);
         switch (f.leg) {
           case hyq::LF:
             bounds_.push_back(bound_pos); // x
@@ -187,12 +201,17 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
   } while(t < T);
 
 
-  assert(n_constraints == c);
+
+//  g.resize(c);
+//  assert(n_constraints == c); // FIXME, put this back in
   // add bounds that foot position should never be to far away from body
 //  double max_range = 0.4;
 //  AddBounds(g.rows(), 0.0, max_range);
 
-  return g;
+//  Eigen::Map<const Eigen::VectorXd>(&g_vec.front(),g_vec.size());
+
+
+  return Eigen::Map<const Eigen::VectorXd>(&g_vec.front(),g_vec.size());
 }
 
 

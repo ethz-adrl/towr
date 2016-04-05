@@ -106,7 +106,7 @@ TEST_F(SplineContainerTest, ConstructSplineSequence)
   EXPECT_EQ(4,SPLINE_ID(7).step_);
   EXPECT_EQ(5,SPLINE_ID(8).step_);
 
-  EXPECT_EQ(5,SPLINE_ID(9).step_);
+  EXPECT_EQ(6,SPLINE_ID(9).step_);
 
 }
 
