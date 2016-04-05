@@ -89,6 +89,7 @@ set(SOURCES
   src/cost_function.cc
   src/constraints.cc
   src/zmp_constraint.cc
+  src/zmp_publisher.cc
 )
              
 # Add the shared library

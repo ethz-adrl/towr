@@ -8,6 +8,8 @@
 
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
+#include <ros/ros.h>
+
 namespace Ipopt {
 
 #define prt(x) std::cout << #x << " = " << std::endl << x << std::endl << std::endl;
@@ -16,10 +18,11 @@ NlpIpoptZmp::NlpIpoptZmp(const xpp::zmp::CostFunction& cost_function,
                          const xpp::zmp::Constraints& constraints,
                          const Eigen::VectorXd& initial_spline_coefficients)
     :cost_function_(cost_function),
-     constraints_(constraints)
+     constraints_(constraints),
+     zmp_publisher_(constraints.zmp_spline_container_)
 {
   n_spline_coeff_ = constraints_.zmp_spline_container_.GetTotalFreeCoeff();
-  n_steps_ = constraints_.supp_polygon_container_.GetFootholds().size();
+  n_steps_ = constraints_.supp_polygon_container_.GetNumberOfSteps();
 
   initial_spline_coeff_ = initial_spline_coefficients;
 
@@ -201,7 +204,23 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
                                    const IpoptData* ip_data,
                                    IpoptCalculatedQuantities* ip_cq)
 {
-	// print something useful here
+//  ros::NodeHandle n;
+//  ros::Publisher publisher = n.advertise<visualization_msgs::MarkerArray>("zmp_trajectory", 1);
+
+
+//   std::cin.get();
+
+
+  xpp::zmp::ZmpPublisher::VecFoothold footholds = constraints_.supp_polygon_container_.GetFootholds();
+  for (uint i=0; i<footholds.size(); ++i) {
+    footholds.at(i).p << opt_footholds_.at(i).x(), opt_footholds_.at(i).y(), 0.0;
+  }
+
+  zmp_publisher_.zmp_msg_.markers.clear();
+  zmp_publisher_.AddRvizMessage(opt_coeff_, footholds, "nlp");
+  zmp_publisher_.publish();
+//  publisher.publish(zmp_publisher_.zmp_msg_);
+
 	return true;
 }
 

@@ -14,6 +14,8 @@
 #include <xpp/zmp/cost_function.h>
 #include <xpp/zmp/constraints.h>
 
+#include <xpp/zmp/zmp_publisher.h>
+
 namespace Ipopt {
 
 
@@ -109,6 +111,8 @@ private:
 
   xpp::zmp::CostFunction cost_function_;
   xpp::zmp::Constraints constraints_;
+
+  xpp::zmp::ZmpPublisher zmp_publisher_;
 
   int n_spline_coeff_;
   int n_steps_;
