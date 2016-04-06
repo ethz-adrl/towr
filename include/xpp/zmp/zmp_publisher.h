@@ -45,6 +45,7 @@ public:
 private:
   void AddTrajectory(visualization_msgs::MarkerArray& msg,
                      xpp::zmp::SplineContainer zmp_splines,
+                     const std::vector<xpp::hyq::Foothold>& H_footholds,
                      const std::string& rviz_namespace,
                      double alpha = 1.0);
 
@@ -56,6 +57,8 @@ private:
       double alpha = 1.0);
 
   void AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x, double width_x) const;
+
+  std_msgs::ColorRGBA GetLegColor(xpp::hyq::LegID leg) const;
 
   const std::string frame_id_ = "world";
   xpp::zmp::ContinuousSplineContainer trajectory_;

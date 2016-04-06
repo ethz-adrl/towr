@@ -43,7 +43,11 @@ SupportPolygon SupportPolygonContainer::GetStancePolygon(const VecFoothold& foot
 SupportPolygonContainer::VecFoothold
 SupportPolygonContainer::GetStanceDuring(int step) const
 {
-  return support_polygons_.at(step).footholds_;
+  // last four leg support phase has all legs on ground
+  if (step == GetNumberOfSteps())
+    return GetFinalFootholds();
+  else
+    return support_polygons_.at(step).footholds_;
 }
 
 
@@ -72,7 +76,6 @@ SupportPolygon SupportPolygonContainer::GetStartPolygon() const
 }
 
 
-
 SupportPolygon SupportPolygonContainer::GetFinalPolygon() const
 {
   return GetStancePolygon(GetFinalFootholds());
@@ -83,7 +86,6 @@ SupportPolygonContainer::GetFinalFootholds() const
 {
   return GetStanceAfter(footholds_.size());
 }
-
 
 
 SupportPolygonContainer::VecSupportPolygon

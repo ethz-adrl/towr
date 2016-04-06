@@ -49,7 +49,7 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff));
   g_std.push_back(RestrictFootholdToCogPos(x_coeff));
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff)); // FIXME extract intial and final constraints
-  g_std.push_back(AddObstacle());
+//  g_std.push_back(AddObstacle());
 
 
   CombineToEigenVector(g_std, g_);
@@ -102,7 +102,7 @@ Constraints::AddObstacle()
   double x_center = 0.4;
 //  double y_center = 0.0;
 
-  double gap_depth = 0.2;
+  double gap_depth = 0.1;
 //  double gap_width = 1.0;
 
 //  xpp::utils::Ellipse ellipse(gap_depth, gap_width, x_center, y_center);
@@ -151,11 +151,7 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
     // know legs in contact at each step
     VecFoothold stance_legs;
     int step = zmp_spline_container_.GetStep(t);
-
-    if (step < supp_polygon_container_.GetNumberOfSteps())
-      stance_legs = supp_polygon_container_.GetStanceDuring(step);
-    else
-      stance_legs = supp_polygon_container_.GetFinalFootholds();
+    stance_legs = supp_polygon_container_.GetStanceDuring(step);
 
 
 

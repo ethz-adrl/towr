@@ -37,8 +37,12 @@ void ZmpPublisher::AddRvizMessage(
 
   visualization_msgs::MarkerArray msg;
   AddFootholds(msg, opt_footholds, rviz_namespace, visualization_msgs::Marker::CUBE, alpha);
-  AddTrajectory(msg, trajectory_, rviz_namespace, alpha);
-  AddLineStrip(msg, 0.4, 0.2);
+  AddTrajectory(msg, trajectory_, opt_footholds, rviz_namespace, alpha);
+
+  //FIXME move this somehwere else
+  double strip_center = 0.4;
+  double strip_depth  = 0.1;
+  AddLineStrip(msg, strip_center, strip_depth);
 
 
 
@@ -79,15 +83,16 @@ ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x
 void
 ZmpPublisher::AddTrajectory(visualization_msgs::MarkerArray& msg,
                    xpp::zmp::SplineContainer zmp_splines,
+                   const std::vector<xpp::hyq::Foothold>& H_footholds,
                    const std::string& rviz_namespace,
                    double alpha)
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
-  for (double t(0.0); t < zmp_splines.GetTotalTime(); t+= 0.03)
+  for (double t(0.0); t < zmp_splines.GetTotalTime(); t+= 0.02)
   {
+
     xpp::utils::Point2d cog_state;
     zmp_splines.GetCOGxy(t, cog_state);
-
 
     visualization_msgs::Marker marker;
     marker.id = i++;
@@ -102,11 +107,17 @@ ZmpPublisher::AddTrajectory(visualization_msgs::MarkerArray& msg,
 //    marker.lifetime = ros::Duration(10);
     marker.scale.x = marker.scale.y = marker.scale.z = 0.005;
 
-    std_msgs::ColorRGBA red;
-    red.a = alpha;
-    red.r = 1.0;
-    marker.color = red;
 
+    bool four_legg_support = zmp_splines.GetFourLegSupport(t);
+    if ( four_legg_support ) {
+      marker.color.r = marker.color.g = marker.color.g = 0.1;
+    } else {
+      int step = zmp_splines.GetStep(t);
+      xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
+      marker.color = GetLegColor(swing_leg);
+    }
+
+    marker.color.a = alpha;
     msg.markers.push_back(marker);
   }
 }
@@ -169,37 +180,48 @@ void ZmpPublisher::AddFootholds(
     marker_msg.scale.z = 0.05;
 
 
-    std_msgs::ColorRGBA red, green, blue, yellow, white;
-    red.a = green.a = blue.a = yellow.a = white.a = alpha;
-
-    red.r = 1.0;
-    green.g = 1.0;
-    blue.b = 1.0;
-    yellow.r = yellow.g = 1.0;
-    white.b = white.g = white.r = 1.0;
-
-
-    switch (H_footholds.at(j).leg) {
-      case xpp::hyq::LF:
-        marker_msg.color = red;
-        break;
-      case xpp::hyq::RF:
-        marker_msg.color = green;
-        break;
-      case xpp::hyq::LH:
-        marker_msg.color = blue;
-        break;
-      case xpp::hyq::RH:
-        marker_msg.color = yellow;
-        break;
-      default:
-        break;
-
-    }
+    marker_msg.color = GetLegColor(H_footholds.at(j).leg);
+    marker_msg.color.a = alpha;
 
     msg.markers.push_back(marker_msg);
   }
 }
+
+
+std_msgs::ColorRGBA ZmpPublisher::GetLegColor(xpp::hyq::LegID leg) const
+{
+  // define a few colors
+  std_msgs::ColorRGBA red, green, blue, yellow, white;
+  red.a = green.a = blue.a = yellow.a = white.a = 1.0;
+
+  red.r = 1.0;
+  green.g = 1.0;
+  blue.b = 1.0;
+  yellow.r = yellow.g = 1.0;
+  white.b = white.g = white.r = 1.0;
+
+
+  std_msgs::ColorRGBA color_leg;
+  switch (leg) {
+    case xpp::hyq::LF:
+      color_leg = red;
+      break;
+    case xpp::hyq::RF:
+      color_leg = green;
+      break;
+    case xpp::hyq::LH:
+      color_leg = blue;
+      break;
+    case xpp::hyq::RH:
+      color_leg = yellow;
+      break;
+    default:
+      break;
+  }
+
+  return color_leg;
+}
+
 
 
 

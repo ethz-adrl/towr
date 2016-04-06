@@ -104,8 +104,8 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   }
 
 
-  zmp_publisher.AddRvizMessage(opt_coefficients, footholds, "nlp");
-  zmp_publisher.AddRvizMessage(opt_coefficients_eig, steps_, "qp", 0.2);
+//  zmp_publisher.AddRvizMessage(opt_coefficients, footholds, "nlp");
+  zmp_publisher.AddRvizMessage(opt_coefficients_eig, steps_, "qp", 0.1);
 
   // combine the two messages
   footsteps_msg_ = zmp_publisher.zmp_msg_;

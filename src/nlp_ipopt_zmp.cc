@@ -212,7 +212,7 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
   }
 
   zmp_publisher_.zmp_msg_.markers.clear();
-  zmp_publisher_.AddRvizMessage(opt_coeff_, footholds, "nlp");
+  zmp_publisher_.AddRvizMessage(opt_coeff_, footholds, "nlp", 1.0);
   zmp_publisher_.publish();
 
 	return true;
