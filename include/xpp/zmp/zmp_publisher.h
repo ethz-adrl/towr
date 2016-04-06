@@ -55,6 +55,8 @@ private:
       int32_t type = visualization_msgs::Marker::SPHERE,
       double alpha = 1.0);
 
+  void AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x, double width_x) const;
+
   const std::string frame_id_ = "world";
   xpp::zmp::ContinuousSplineContainer trajectory_;
   ros::Publisher ros_publisher_;

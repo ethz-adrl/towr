@@ -38,10 +38,41 @@ void ZmpPublisher::AddRvizMessage(
   visualization_msgs::MarkerArray msg;
   AddFootholds(msg, opt_footholds, rviz_namespace, visualization_msgs::Marker::CUBE, alpha);
   AddTrajectory(msg, trajectory_, rviz_namespace, alpha);
+  AddLineStrip(msg, 0.4, 0.2);
+
+
 
 
   zmp_msg_.markers.insert(zmp_msg_.markers.end(),
                           msg.markers.begin(),msg.markers.end());
+}
+
+void
+ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x, double depth_x) const
+{
+  visualization_msgs::Marker line_strip;
+  line_strip.header.frame_id = frame_id_;
+  line_strip.header.stamp = ros::Time::now();
+  line_strip.id = 1;
+  line_strip.type = visualization_msgs::Marker::LINE_STRIP;
+  line_strip.ns = "gap";
+  line_strip.action = visualization_msgs::Marker::ADD;
+  line_strip.pose.orientation.x = line_strip.pose.orientation.y = line_strip.pose.orientation.z = 0.0;
+  line_strip.pose.orientation.w = 1.0;
+  line_strip.color.b = 1.0;
+  line_strip.color.a = 0.2;
+  line_strip.scale.x = depth_x;
+  geometry_msgs::Point p1, p2;
+  p1.x = center_x;
+  p1.y = -0.5;
+  p1.z = 0;
+
+  p2 = p1;
+  p2.y = -p1.y;
+
+  line_strip.points.push_back(p1);
+  line_strip.points.push_back(p2);
+  msg.markers.push_back(line_strip);
 }
 
 

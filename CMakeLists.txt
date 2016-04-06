@@ -90,6 +90,7 @@ set(SOURCES
   src/constraints.cc
   src/zmp_constraint.cc
   src/zmp_publisher.cc
+  src/ellipse.cc
 )
              
 # Add the shared library

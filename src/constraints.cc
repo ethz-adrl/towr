@@ -6,6 +6,7 @@
  */
 
 #include <xpp/zmp/constraints.h>
+#include <xpp/utils/ellipse.h>
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 //#define prt(x)
@@ -48,7 +49,7 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff));
   g_std.push_back(RestrictFootholdToCogPos(x_coeff));
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff)); // FIXME extract intial and final constraints
-//  g_std.push_back(RestrictMaxStepLength(footholds));
+  g_std.push_back(AddObstacle());
 
 
   CombineToEigenVector(g_std, g_);
@@ -94,44 +95,50 @@ Constraints::FixFootholdPosition(const StdVecEigen2d& footholds)
 
 
 Eigen::VectorXd
-Constraints::RestrictMaxStepLength(const StdVecEigen2d& footholds)
+Constraints::AddObstacle()
 {
-  Eigen::VectorXd g(footholds.size());
-  int c=0;
+  std::vector<double> g_vec;
 
-  for (uint i=0; i<footholds.size(); ++i)
+  double x_center = 0.4;
+//  double y_center = 0.0;
+
+  double gap_depth = 0.2;
+//  double gap_width = 1.0;
+
+//  xpp::utils::Ellipse ellipse(gap_depth, gap_width, x_center, y_center);
+
+  for (const hyq::Foothold& f : supp_polygon_container_.GetFootholds())
   {
-    xpp::hyq::LegID leg = planned_footholds_.at(i).leg; // leg sequence stays the same as initial
-    Eigen::Vector2d f_prev = supp_polygon_container_.GetStartStance()[leg].p.segment<2>(0);
-    if (i>=4) {
-      f_prev = footholds.at(i-4); // FIXME: only works for repeating same step sequence
+//    g_vec.push_back(ellipse.DistanceToEdge(f.p.x(), f.p.y()));
+    g_vec.push_back(std::pow(f.p.x()-x_center,2));
+
+    if (first_constraint_eval_) {
+      bounds_.push_back(Bound(std::pow(gap_depth/2.0,2), 1.0e19)); // be outside of this ellipse
     }
-
-    double dx = footholds.at(i).x() - f_prev.x();
-    double dy = footholds.at(i).y() - f_prev.y();
-
-    g(c++) = hypot(dx,dy);
-    // this seems to converge better than the combination of both
-//    g(c++) = dx*dx;
-//    g(c++) = dy*dy;
   }
-
-
-  // add bounds that step length should never exceed max step length
-  double max_step_length = 0.3;
-  AddBounds(g.rows(), 0.0, max_step_length);
-
-  return g;
+  return Eigen::Map<const Eigen::VectorXd>(&g_vec.front(),g_vec.size());
 }
+
 
 
 Eigen::VectorXd
 Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
 {
+  double x_nominal_b = 0.3; // 0.4
+  double y_nominal_b = 0.3; // 0.4
+  double x_radius = 0.10;
+  double y_radius = 0.10;
+
+  Bound bound_pos_x( x_nominal_b-x_radius,  x_nominal_b+x_radius);
+  Bound bound_neg_x(-x_nominal_b-x_radius, -x_nominal_b+x_radius);
+
+  Bound bound_pos_y( y_nominal_b-y_radius,  y_nominal_b+y_radius);
+  Bound bound_neg_y(-y_nominal_b-y_radius, -y_nominal_b+y_radius);
+
+//  double min_range = 0.1;
   double dt = 0.3; //zmp_spline_container_.dt_;
   double T  = zmp_spline_container_.GetTotalTime();
   int N     = std::ceil(T/dt);
-
   int approx_n_constraints = 4*N*2; // 3 or 4 legs in contact at every discrete time, 2 b/c x-y
   std::vector<double> g_vec;
   g_vec.reserve(approx_n_constraints);
@@ -170,26 +177,22 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
 
       if (first_constraint_eval_) {
         // kinematic constraints (slightly ugly)
-        double max_range = 0.4;
-        double min_range = 0.2;
-        Bound bound_pos(min_range, max_range);
-        Bound bound_neg(-max_range, -min_range);
         switch (f.leg) {
           case hyq::LF:
-            bounds_.push_back(bound_pos); // x
-            bounds_.push_back(bound_pos); // y
+            bounds_.push_back(bound_pos_x); // x
+            bounds_.push_back(bound_pos_y); // y
             break;
           case hyq::RF:
-            bounds_.push_back(bound_pos); // x
-            bounds_.push_back(bound_neg); // y
+            bounds_.push_back(bound_pos_x); // x
+            bounds_.push_back(bound_neg_y); // y
             break;
           case hyq::LH:
-            bounds_.push_back(bound_neg); // x
-            bounds_.push_back(bound_pos); // y
+            bounds_.push_back(bound_neg_x); // x
+            bounds_.push_back(bound_pos_y); // y
             break;
           case hyq::RH:
-            bounds_.push_back(bound_neg); // x
-            bounds_.push_back(bound_neg); // y
+            bounds_.push_back(bound_neg_x); // x
+            bounds_.push_back(bound_neg_y); // y
             break;
           default:
             break;

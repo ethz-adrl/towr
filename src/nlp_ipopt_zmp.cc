@@ -204,12 +204,7 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
                                    const IpoptData* ip_data,
                                    IpoptCalculatedQuantities* ip_cq)
 {
-//  ros::NodeHandle n;
-//  ros::Publisher publisher = n.advertise<visualization_msgs::MarkerArray>("zmp_trajectory", 1);
-
-
 //   std::cin.get();
-
 
   xpp::zmp::ZmpPublisher::VecFoothold footholds = constraints_.supp_polygon_container_.GetFootholds();
   for (uint i=0; i<footholds.size(); ++i) {
@@ -219,7 +214,6 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
   zmp_publisher_.zmp_msg_.markers.clear();
   zmp_publisher_.AddRvizMessage(opt_coeff_, footholds, "nlp");
   zmp_publisher_.publish();
-//  publisher.publish(zmp_publisher_.zmp_msg_);
 
 	return true;
 }

@@ -77,7 +77,7 @@ private:
    */
   Eigen::VectorXd SmoothAccJerkAtSplineJunctions(const Eigen::VectorXd& x_coeff);
 
-  Eigen::VectorXd RestrictMaxStepLength(const StdVecEigen2d& footholds);
+  Eigen::VectorXd AddObstacle();
 
   Eigen::VectorXd RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff);
 
