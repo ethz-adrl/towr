@@ -14,23 +14,11 @@
 namespace xpp {
 namespace zmp {
 
-NlpOptimizer::NlpOptimizer ()
-{
-  // TODO Auto-generated constructor stub
-
-}
-
-NlpOptimizer::~NlpOptimizer ()
-{
-  // TODO Auto-generated destructor stub
-}
-
-
 
 Eigen::VectorXd
-NlpOptimizer::SolveNlp(Constraints::StdVecEigen2d& final_footholds,
-                       const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
-                       const xpp::zmp::QpOptimizer& qp_optimizer, // TODO, make this more specific
+NlpOptimizer::SolveNlp(StdVecEigen2d& final_footholds,
+                       const ContinuousSplineContainer& spline_structure,
+                       const SupportPolygonContainer& supp_triangle_container,
                        const Eigen::VectorXd& initial_spline_coeff)
 {
   Ipopt::IpoptApplication app;
@@ -42,12 +30,8 @@ NlpOptimizer::SolveNlp(Constraints::StdVecEigen2d& final_footholds,
   }
 
 
-  xpp::zmp::Constraints constraints(supp_triangle_container,
-                                    qp_optimizer.zmp_splines_,
-                                    qp_optimizer.eq_);
-
-  xpp::zmp::CostFunction cost_function_quadratic_(qp_optimizer.cf_);
-
+  Constraints constraints(supp_triangle_container, spline_structure);
+  CostFunction cost_function_quadratic_(spline_structure);
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
       new Ipopt::NlpIpoptZmp(cost_function_quadratic_,

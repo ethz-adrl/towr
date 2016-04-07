@@ -47,10 +47,6 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   using namespace xpp::zmp;
   using namespace xpp::utils;
 
-  double penalty_movement_x = 1.0;
-  double penalty_movement_y = 5.0;
-  QpOptimizer::WeightsXYArray weight = {{penalty_movement_x, penalty_movement_y}};
-
   MarginValues margins;
   margins[FRONT] = 0.1;
   margins[HIND]  = 0.1;
@@ -89,7 +85,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   xpp::hyq::SupportPolygonContainer supp_triangle_container;
   supp_triangle_container.Init(start_stance, steps_, margins);
 
-  xpp::zmp::QpOptimizer zmp_optimizer(trajectory,supp_triangle_container,weight, robot_height);
+  xpp::zmp::QpOptimizer zmp_optimizer(trajectory,supp_triangle_container, robot_height);
   xpp::zmp::NlpOptimizer nlp_optimizer;
 
   // solve QP
@@ -99,7 +95,10 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
 
   // solve NLP
-  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds_2d, supp_triangle_container, zmp_optimizer , opt_coefficients_eig);
+  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds_2d,
+                                                            trajectory,
+                                                            supp_triangle_container,
+                                                            opt_coefficients_eig);
   // build optimized footholds from these coefficients:
   std::vector<xpp::hyq::Foothold> footholds = steps_;
   for (uint i=0; i<footholds.size(); ++i) {

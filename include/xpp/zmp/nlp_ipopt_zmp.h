@@ -25,6 +25,7 @@ class NlpIpoptZmp : public Ipopt::TNLP
 public:
   typedef xpp::zmp::ContinuousSplineContainer Splines;
   typedef xpp::utils::MatVec MatVec;
+  typedef xpp::zmp::Constraints::StdVecEigen2d StdVecEigen2d;
 
 public:
   /** default constructor */
@@ -104,7 +105,7 @@ public:
 
 
   Eigen::VectorXd opt_coeff_;
-  xpp::zmp::Constraints::StdVecEigen2d opt_footholds_;
+  StdVecEigen2d opt_footholds_;
   void UpdateOptimizationVariables(const Number* x);
 
 private:

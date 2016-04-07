@@ -149,7 +149,7 @@ TEST_F(SuppPolygonContainerTest, SameFoothold)
 
   SupportPolygon supp4 = SupportPolygon::CombineSupportPolygons(supp.at(2), supp.at(1));
   prt(supp4);
-  for (Foothold f : supp4.footholds_) {
+  for (const Foothold& f : supp4.footholds_) {
     prt(f);
   }
 

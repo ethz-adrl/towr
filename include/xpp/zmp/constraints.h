@@ -9,11 +9,11 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_CONSTRAINTS_H_
 
 #include <Eigen/Dense>
-#include <Eigen/StdVector>
+
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
-
+#include <xpp/zmp/spline_constraints.h>
 #include <xpp/zmp/zmp_constraint.h>
 
 namespace xpp {
@@ -23,9 +23,10 @@ namespace zmp {
 class Constraints {
 
 public:
-  typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > StdVecEigen2d;
+  typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  typedef xpp::zmp::SplineConstraints::State State;
   typedef SupportPolygonContainer::VecFoothold VecFoothold;
 
   struct Bound {
@@ -39,8 +40,7 @@ public:
 
 public:
   Constraints (const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
-               const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
-               const MatVec& qp_equality_constraints);
+               const xpp::zmp::ContinuousSplineContainer& zmp_spline_container);
   virtual
   ~Constraints () {};
 

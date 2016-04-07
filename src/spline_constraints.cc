@@ -133,5 +133,16 @@ SplineConstraints::CreateJunctionConstraints() const
 }
 
 
+SplineConstraints::MatVec
+SplineConstraints::CreateSplineConstraints(const State &final_state) const
+{
+  MatVec spline_constraints;
+  spline_constraints << CreateInitialAccConstraints();
+  spline_constraints << CreateFinalConstraints(final_state);
+  spline_constraints << CreateJunctionConstraints();
+
+  return spline_constraints;
+}
+
 } /* namespace zmp */
 } /* namespace xpp */

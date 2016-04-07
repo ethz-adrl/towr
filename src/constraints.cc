@@ -6,7 +6,7 @@
  */
 
 #include <xpp/zmp/constraints.h>
-#include <xpp/utils/ellipse.h>
+#include <xpp/zmp/spline_constraints.h>
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 //#define prt(x)
@@ -15,15 +15,18 @@ namespace xpp {
 namespace zmp {
 
 Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_container,
-                           const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
-                           const MatVec& qp_equality_constraints)
+                          const xpp::zmp::ContinuousSplineContainer& zmp_spline_container)
     :planned_footholds_(supp_poly_container.GetFootholds()),
      zmp_constraint_(zmp_spline_container)
 {
   zmp_spline_container_    = zmp_spline_container;
   supp_polygon_container_  = supp_poly_container;
 
-  spline_junction_constraints_ = qp_equality_constraints;
+  State final_state; // zero vel,acc,jerk
+  final_state.p = supp_poly_container.GetCenterOfFinalStance();
+
+  SplineConstraints spline_constraint(zmp_spline_container);
+  spline_junction_constraints_ = spline_constraint.CreateSplineConstraints(final_state);
 
   // inequality constraints
   double walking_height = 0.58;

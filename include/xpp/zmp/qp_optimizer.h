@@ -50,11 +50,8 @@ eigen_quadprog.hpp performs the optimization.
  */
 class QpOptimizer {
 public:
-  typedef ::xpp::hyq::SupportPolygon SuppTriangle;
   typedef ::xpp::utils::Vec2d Position;
-  typedef std::array<double,2> WeightsXYArray;
   typedef xpp::utils::MatVec MatVec;
-  typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::zmp::SplineConstraints::State State;
   static const int kDim2d = xpp::utils::kDim2d;
 
@@ -66,7 +63,6 @@ public:
    */
   QpOptimizer(const ContinuousSplineContainer& spline_structure,
               const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
-              const WeightsXYArray& weight,
               double walking_height);
 
   virtual ~QpOptimizer();
@@ -86,28 +82,25 @@ public:
   Eigen::VectorXd SolveQp();
 
 
-  MatVec cf_;
-  MatVec eq_;
 
-  ContinuousSplineContainer zmp_splines_;
+  ContinuousSplineContainer spline_structure_;
   ZmpConstraint zmp_constraint_;
   SplineConstraints spline_constraint_;
 
 private:
-  void SetupQpMatrices(const WeightsXYArray& weight,
-                       const xpp::hyq::SupportPolygonContainer& supp_poly_container,
+  MatVec cf_;
+  MatVec eq_;
+
+  void SetupQpMatrices(const xpp::hyq::SupportPolygonContainer& supp_poly_container,
                        const State& final_state,
                        double height_robot);
 
   MatVec ineq_;
-  MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;
+  MatVec CreateMinAccCostFunction() const;
   MatVec CreateEqualityContraints(const State &final_state) const;
   MatVec CreateInequalityContraints(double walking_height,
                                     const xpp::hyq::SupportPolygonContainer& supp_poly_container) const;
 
-
-  static log4cxx::LoggerPtr log_;
-  static log4cxx::LoggerPtr log_matlab_;
 };
 
 

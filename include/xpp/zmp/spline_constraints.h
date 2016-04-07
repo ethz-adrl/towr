@@ -29,6 +29,7 @@ public:
   virtual
   ~SplineConstraints () {};
 
+  MatVec CreateSplineConstraints(const State &final_state) const;
 
   /**
    * Creates equality constraints of the form Ax=b.
@@ -36,7 +37,7 @@ public:
    * as those are the e and f coefficients of the initial spline
    */
   MatVec CreateInitialAccConstraints(const Vector2d& intial_acc = Vector2d::Zero()) const;
-  MatVec CreateFinalConstraints(const State& final_cond) const;
+  MatVec CreateFinalConstraints(const State& final_state) const;
   MatVec CreateJunctionConstraints() const;
 
 private:

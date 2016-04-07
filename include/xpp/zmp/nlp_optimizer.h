@@ -11,22 +11,24 @@
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/zmp/qp_optimizer.h>
-#include <xpp/zmp/constraints.h>
 
 namespace xpp {
 namespace zmp {
 
 class NlpOptimizer {
 public:
-  NlpOptimizer ();
+  typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
+  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+
+public:
+  NlpOptimizer () {};
   virtual
-  ~NlpOptimizer ();
+  ~NlpOptimizer () {};
 
 
-  Eigen::VectorXd SolveNlp(Constraints::StdVecEigen2d& final_footholds,
-                           const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
-                           const xpp::zmp::QpOptimizer& zmp_optimizer, // TODO, make this more specific
+  Eigen::VectorXd SolveNlp(StdVecEigen2d& final_footholds,
+                           const ContinuousSplineContainer& spline_structure,
+                           const SupportPolygonContainer& supp_triangle_container,
                            const Eigen::VectorXd& initial_spline_coeff = Eigen::Vector2d::Zero());
 
 
