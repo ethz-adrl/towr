@@ -11,6 +11,7 @@
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/zmp_constraint.h>
+#include <xpp/zmp/spline_constraints.h>
 
 #include <log4cxx/logger.h>
 #include <Eigen/Dense>
@@ -53,6 +54,9 @@ public:
   typedef ::xpp::utils::Vec2d Position;
   typedef std::array<double,2> WeightsXYArray;
   typedef xpp::utils::MatVec MatVec;
+  typedef xpp::utils::VecScalar VecScalar;
+  typedef xpp::zmp::SplineConstraints::State State;
+  static const int kDim2d = xpp::utils::kDim2d;
 
 public:
   QpOptimizer();
@@ -87,16 +91,17 @@ public:
 
   ContinuousSplineContainer zmp_splines_;
   ZmpConstraint zmp_constraint_;
+  SplineConstraints spline_constraint_;
 
 private:
   void SetupQpMatrices(const WeightsXYArray& weight,
                        const xpp::hyq::SupportPolygonContainer& supp_poly_container,
-                       const Position& end_cog,
+                       const State& final_state,
                        double height_robot);
 
   MatVec ineq_;
   MatVec CreateMinAccCostFunction(const WeightsXYArray& weight) const;
-  MatVec CreateEqualityContraints(const Position &end_cog) const;
+  MatVec CreateEqualityContraints(const State &final_state) const;
   MatVec CreateInequalityContraints(double walking_height,
                                     const xpp::hyq::SupportPolygonContainer& supp_poly_container) const;
 

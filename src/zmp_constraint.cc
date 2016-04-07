@@ -63,8 +63,10 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
   {
     SupportPolygon::VecSuppLine lines = supp.at(s.id_).CalcLines();
     for (double i=0; i < s.GetNodeCount(spline_container_.dt_); ++i) {
-      for (SupportPolygon::SuppLine l : lines) // add three line constraints for each node
-        AddLineConstraint(l, x_zmp.M.row(n), y_zmp.M.row(n),x_zmp.v[n], y_zmp.v[n], c, ineq);
+      for (SupportPolygon::SuppLine l : lines) { // add three line constraints for each node
+        VecScalar constr = GenerateLineConstraint(l, x_zmp.ExtractRow(n), y_zmp.ExtractRow(n));
+        ineq.AddVecScalar(constr,c++);
+      }
       n++;
     }
   }
@@ -72,20 +74,20 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
 }
 
 
-void ZmpConstraint::AddLineConstraint(const SupportPolygon::SuppLine& l,
-                                    const Eigen::RowVectorXd& x_zmp_M,
-                                    const Eigen::RowVectorXd& y_zmp_M,
-                                    double x_zmp_v,
-                                    double y_zmp_v,
-                                    int& c, MatVec& ineq)
+ZmpConstraint::VecScalar
+ZmpConstraint::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
+                                    const VecScalar& x_zmp,
+                                    const VecScalar& y_zmp)
 {
   // the zero moment point must always lay on one side of triangle side:
   // p*x_zmp + q*y_zmp + r > stability_margin
-  ineq.M.row(c) = l.coeff.p*x_zmp_M + l.coeff.q*y_zmp_M;
-  ineq.v[c]     = l.coeff.p*x_zmp_v + l.coeff.q*x_zmp_v;
-  ineq.v[c]    += l.coeff.r - l.s_margin;
+  VecScalar line_constr;
 
-  c++;
+  line_constr.v  = l.coeff.p*x_zmp.v + l.coeff.q*y_zmp.v;
+  line_constr.s  = l.coeff.p*x_zmp.s + l.coeff.q*x_zmp.s;
+  line_constr.s += l.coeff.r - l.s_margin;
+
+  return line_constr;
 }
 
 

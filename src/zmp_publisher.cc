@@ -42,10 +42,7 @@ void ZmpPublisher::AddRvizMessage(
   //FIXME move this somehwere else
   double strip_center = 0.4;
   double strip_depth  = 0.1;
-  AddLineStrip(msg, strip_center, strip_depth);
-
-
-
+//  AddLineStrip(msg, strip_center, strip_depth);
 
   zmp_msg_.markers.insert(zmp_msg_.markers.end(),
                           msg.markers.begin(),msg.markers.end());

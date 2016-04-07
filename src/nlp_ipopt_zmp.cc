@@ -74,13 +74,7 @@ bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
   for (uint c=0; c<constraints_.bounds_.size(); ++c) {
     g_l[c] = constraints_.bounds_.at(c).lower_;
     g_u[c] = constraints_.bounds_.at(c).upper_;
-
-    std::cout << ",  bounds.lower: " << constraints_.bounds_.at(c).lower_;
-    std::cout << "bounds.upper: " << constraints_.bounds_.at(c).upper_;
-    std::cout << std::endl;
   }
-
-  std::cout << "bounds.size()" << constraints_.bounds_.size();
 
   return true;
 }

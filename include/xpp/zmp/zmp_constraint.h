@@ -18,6 +18,7 @@ class ZmpConstraint {
 
 public:
   typedef xpp::utils::MatVec MatVec;
+  typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::hyq::SupportPolygon SupportPolygon;
   typedef xpp::hyq::Foothold Foothold;
 
@@ -35,12 +36,9 @@ private:
   std::vector<hyq::SupportPolygon> CreateSupportPolygonsWith4LS(
       const xpp::hyq::SupportPolygonContainer& supp_polygon_container) const;
 
-  static void AddLineConstraint(const SupportPolygon::SuppLine& l,
-                                const Eigen::RowVectorXd& x_zmp_M,
-                                const Eigen::RowVectorXd& y_zmp_M,
-                                double x_zmp_v,
-                                double y_zmp_v,
-                                int& c, MatVec& ineq);
+  static VecScalar GenerateLineConstraint(const SupportPolygon::SuppLine& l,
+                                const VecScalar& x_zmp_M,
+                                const VecScalar& y_zmp_M);
 };
 
 

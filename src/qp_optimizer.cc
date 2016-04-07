@@ -33,10 +33,14 @@ QpOptimizer::QpOptimizer(const ContinuousSplineContainer& spline_structure,
                          const WeightsXYArray& weight,
                          double walking_height)
     :zmp_splines_(spline_structure),
-     zmp_constraint_(spline_structure)
+     zmp_constraint_(spline_structure),
+     spline_constraint_(spline_structure)
+
 {
-  SetupQpMatrices(weight, supp_poly_container,
-                  supp_poly_container.GetCenterOfFinalStance(), walking_height);
+  State final_state; // zero vel,acc,jerk
+  final_state.p = supp_poly_container.GetCenterOfFinalStance();
+
+  SetupQpMatrices(weight, supp_poly_container, final_state, walking_height);
 }
 
 
@@ -46,7 +50,7 @@ QpOptimizer::~QpOptimizer() {}
 void QpOptimizer::SetupQpMatrices(
     const WeightsXYArray& weight,
     const xpp::hyq::SupportPolygonContainer& supp_poly_container,
-    const Position& end_cog,
+    const State& final_state,
     double walking_height)
 {
   if (zmp_splines_.splines_.empty()) {
@@ -54,7 +58,7 @@ void QpOptimizer::SetupQpMatrices(
   }
 
   cf_ = CreateMinAccCostFunction(weight);
-  eq_ = CreateEqualityContraints(end_cog);
+  eq_ = CreateEqualityContraints(final_state);
   ineq_ = CreateInequalityContraints(walking_height, supp_poly_container);
 }
 
@@ -140,106 +144,13 @@ QpOptimizer::CreateMinAccCostFunction(const WeightsXYArray& weight) const
 }
 
 QpOptimizer::MatVec
-QpOptimizer::CreateEqualityContraints(const Position &end_cog) const
+QpOptimizer::CreateEqualityContraints(const State &final_state) const
 {
-  std::clock_t start = std::clock();
+  MatVec ec;
+  ec << spline_constraint_.CreateInitialAccConstraints();
+  ec << spline_constraint_.CreateFinalConstraints(final_state);
+  ec << spline_constraint_.CreateJunctionConstraints();
 
-  int coeff = zmp_splines_.GetTotalFreeCoeff();; // total number of all spline coefficients
-  int constraints = 0;
-  constraints += kDim2d*2;                         // init {x,y} * {acc, jerk} pos, vel implied set through spline_container.AddOptimizedCoefficients()
-  constraints += kDim2d*3;                         // end  {x,y} * {pos, vel, acc}
-  constraints += (zmp_splines_.splines_.size()-1) * kDim2d * 2;  // junctions {acc,jerk} since pos, vel  implied
-  MatVec ec(constraints, coeff);
-
-  const Eigen::Vector2d kAccStart = Eigen::Vector2d(0.0, 0.0);
-  const Eigen::Vector2d kJerkStart= Eigen::Vector2d(0.0, 0.0);
-  const Eigen::Vector2d kVelEnd   = Eigen::Vector2d(0.0, 0.0);
-  const Eigen::Vector2d kAccEnd   = Eigen::Vector2d(0.0, 0.0);
-
-  double non_dependent_e, non_dependent_f;
-
-  int i = 0; // counter of equality constraints
-  for (int dim = X; dim <= Y; ++dim)
-  {
-    // 2. Initial conditions
-    // acceleration set to zero
-    int d = ContinuousSplineContainer::Index(0, dim, D);
-    ec.M(i,d) = 2.0;
-    ec.v(i++) = -kAccStart(dim);
-    // jerk set to zero
-    int c = ContinuousSplineContainer::Index(0, dim, C);
-    ec.M(i,c) = 6.0;
-    ec.v(i++) = -kJerkStart(dim);
-
-
-    // 2. Final conditions
-    int K = zmp_splines_.splines_.back().id_; // id of last spline
-    int last_spline = ContinuousSplineContainer::Index(K, dim, A);
-    std::array<double,6> t_duration = utils::cache_exponents<6>(zmp_splines_.splines_.back().duration_);
-
-    // calculate e and f coefficients from previous values
-    Eigen::RowVectorXd Ek = zmp_splines_.DescribeEFByPrev(K, dim, E, non_dependent_e);
-    Eigen::RowVectorXd Fk = zmp_splines_.DescribeEFByPrev(K, dim, F, non_dependent_f);
-
-    // position
-    ec.M(i, last_spline + A) = t_duration[5];
-    ec.M(i, last_spline + B) = t_duration[4];
-    ec.M(i, last_spline + C) = t_duration[3];
-    ec.M(i, last_spline + D) = t_duration[2];
-    ec.M.row(i) += Ek*t_duration[1];
-    ec.M.row(i) += Fk;
-
-    ec.v(i)     += non_dependent_e*t_duration[1] + non_dependent_f;
-    ec.v(i++)   += -end_cog(dim);
-
-    // velocities
-    ec.M(i, last_spline + A) = 5 * t_duration[4];
-    ec.M(i, last_spline + B) = 4 * t_duration[3];
-    ec.M(i, last_spline + C) = 3 * t_duration[2];
-    ec.M(i, last_spline + D) = 2 * t_duration[1];
-    ec.M.row(i) += Ek;
-
-    ec.v(i)     += non_dependent_e;
-    ec.v(i++)   += -kVelEnd(dim);
-
-    // accelerations
-    ec.M(i, last_spline + A) = 20 * t_duration[3];
-    ec.M(i, last_spline + B) = 12 * t_duration[2];
-    ec.M(i, last_spline + C) = 6  * t_duration[1];
-    ec.M(i, last_spline + D) = 2;
-
-    ec.v(i++) = -kAccEnd(dim);
-  }
-
-  // 3. Equal conditions at spline junctions
-  for (uint s = 0; s < zmp_splines_.splines_.size() - 1; ++s)
-  {
-    std::array<double,6> t_duration = utils::cache_exponents<6>(zmp_splines_.splines_.at(s).duration_);
-    for (int dim = X; dim <= Y; dim++) {
-
-      int curr_spline = ContinuousSplineContainer::Index(s, dim, A);
-      int next_spline = ContinuousSplineContainer::Index(s + 1, dim, A);
-
-      // acceleration
-      ec.M(i, curr_spline + A) = 20 * t_duration[3];
-      ec.M(i, curr_spline + B) = 12 * t_duration[2];
-      ec.M(i, curr_spline + C) = 6  * t_duration[1];
-      ec.M(i, curr_spline + D) = 2;
-      ec.M(i, next_spline + D) = -2.0;
-      ec.v(i++) = 0.0;
-
-      // jerk (derivative of acceleration)
-      ec.M(i, curr_spline + A) = 60 * t_duration[2];
-      ec.M(i, curr_spline + B) = 24 * t_duration[1];
-      ec.M(i, curr_spline + C) = 6;
-      ec.M(i, next_spline + C) = -6.0;
-      ec.v(i++) = 0.0;
-    }
-  }
-
-  LOG4CXX_INFO(log_, "Calc. time equality constraints:\t" << static_cast<double>(std::clock() - start) / CLOCKS_PER_SEC * 1000.0  << "\tms");
-  LOG4CXX_DEBUG(log_, "Dim: " << ec.M.rows() << " x " << ec.M.cols());
-  LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ec.M << "\nVector:\n" << ec.v.transpose());
   return ec;
 }
 

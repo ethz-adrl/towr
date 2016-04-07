@@ -35,6 +35,7 @@ public:
 typedef std::vector<ZmpSpline> Splines;
 typedef xpp::utils::Point2d Point2d;
 typedef xpp::hyq::LegID LegID;
+static const int kDim2d = xpp::utils::kDim2d;
 
 public:
   SplineContainer();

@@ -10,6 +10,7 @@
 
 #include "orientation.h" /// Orientations::QuaternionToRPY()
 #include <Eigen/Dense>
+#include <iostream>
 #include <array>
 
 namespace xpp {
@@ -27,10 +28,12 @@ namespace coords_wrapper {
 /// To be used with 6D vectors. 'A' stands for angular, 'L' for linear.
 enum Coords3D { X=0, Y, Z};
 enum Coords6D { AX=0, AY, AZ, LX, LY, LZ };
+
 static const Coords3D Coords3DArray[] = { X, Y, Z };
 }
 using namespace coords_wrapper;
 
+static const int kDim2d = 2; // X,Y
 typedef Eigen::Vector2d Vec2d; /// X,Y
 typedef Eigen::Vector3d Vec3d; /// X,Y,Z
 
@@ -83,15 +86,49 @@ struct LineCoeff2d {
 };
 
 
-// used e.g. as return type for qp zmp optimization
+// FIXME move to some constraint class, since that is all they are used for
+struct VecScalar {
+  Eigen::RowVectorXd v;
+  double s;
+  VecScalar(int cols)
+      :v(Eigen::RowVectorXd::Zero(cols)),
+       s(0.0)
+  {}
+  VecScalar(Eigen::RowVectorXd _v, double _s)
+      :v(_v),
+       s(_s)
+  {}
+  VecScalar() {}
+};
+
+
 struct MatVec {
   Eigen::MatrixXd M;
   Eigen::VectorXd v;
-  MatVec(int rows, int cols) {
-    M = Eigen::MatrixXd::Zero(rows, cols);
-    v = Eigen::VectorXd::Zero(rows);
+  MatVec(int rows, int cols)
+      :M(Eigen::MatrixXd::Zero(rows, cols)),
+       v(Eigen::VectorXd::Zero(rows))
+  {}
+  VecScalar ExtractRow(int r) const
+  {
+    return VecScalar(M.row(r), v[r]);
   }
   MatVec() {}
+  void operator<<(const MatVec& rhs)
+  {
+    assert((M.cols()==0 && M.rows()==0) || (M.cols() == rhs.M.cols()));
+
+    M.conservativeResize(M.rows() + rhs.M.rows(), rhs.M.cols());
+    M.bottomRows(rhs.M.rows()) = rhs.M;
+
+    v.conservativeResize(v.rows() + rhs.v.rows());
+    v.tail(rhs.v.rows()) = rhs.v;
+  }
+
+  void AddVecScalar(const VecScalar& val, size_t row) {
+    M.row(row) = val.v;
+    v[row]     = val.s;
+  }
 };
 
 

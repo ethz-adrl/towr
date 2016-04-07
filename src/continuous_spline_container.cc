@@ -84,16 +84,12 @@ int ContinuousSplineContainer::GetTotalNodes4ls() const
 }
 
 
-Eigen::RowVectorXd ContinuousSplineContainer::DescribeEFByPrev(
-    int spline_id_k, int dim, SplineCoeff c, double& init_depend) const
+ContinuousSplineContainer::VecScalar
+ContinuousSplineContainer::GetCalculatedCoeff(int spline_id_k, int dim, SplineCoeff c) const
 {
-  if (c!= E && c!= F)
-    throw std::runtime_error("DescribeEFByPrev called for incorrect spline coefficient (only E and F)");
-
+  assert(c== E || c== F);
   const MatVec& coeff = (c==E)? e_coefficients_.at(dim) : f_coefficients_.at(dim);
-
-  init_depend = coeff.v[spline_id_k];
-  return coeff.M.row(spline_id_k);
+  return coeff.ExtractRow(spline_id_k);
 }
 
 
@@ -163,8 +159,6 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
 {
   CheckIfInitialized();
 
-  double non_dependent_e, non_dependent_f;
-
   for (size_t k=0; k<splines_.size(); ++k) {
     CoeffValues coeff_values;
 
@@ -179,11 +173,11 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
       cv[D] = optimized_coeff[Index(k,dim,D)];
 
       // calculate e and f coefficients from previous values
-      Eigen::RowVectorXd Ek = DescribeEFByPrev(k, dim, E, non_dependent_e);
-      Eigen::RowVectorXd Fk = DescribeEFByPrev(k, dim, F, non_dependent_f);
+      VecScalar Ek = GetCalculatedCoeff(k, dim, E);
+      VecScalar Fk = GetCalculatedCoeff(k, dim, F);
 
-      cv[E] = Ek*optimized_coeff + non_dependent_e;
-      cv[F] = Fk*optimized_coeff + non_dependent_f;
+      cv[E] = Ek.v*optimized_coeff + Ek.s;
+      cv[F] = Fk.v*optimized_coeff + Fk.s;
 
     } // dim:X..Y
 
@@ -196,26 +190,23 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
 xpp::utils::MatVec
 ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) const
 {
-//  std::clock_t start = std::clock();
   CheckIfInitialized();
 
   int coeff = GetTotalFreeCoeff();
   int num_nodes = GetTotalNodes4ls() + GetTotalNodesNo4ls();
 
-  MatVec ineq(num_nodes, coeff);
-  double non_dependent_e, non_dependent_f;
+  MatVec zmp(num_nodes, coeff);
 
   const double g = 9.81; // gravity acceleration
   const double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
 
   int n = 0; // node counter
   for (const ZmpSpline& s : splines_) {
-//    LOG4CXX_TRACE(log_, "Calc inequality constaints of spline " << s.id_ << " of " << splines_.size() << ", duration=" << std::setprecision(3) << s.duration_ << ", step=" << s.step_);
 
     // calculate e and f coefficients from previous values
     const int k = s.id_;
-    Eigen::RowVectorXd Ek = DescribeEFByPrev(k, dim, E, non_dependent_e);
-    Eigen::RowVectorXd Fk = DescribeEFByPrev(k, dim, F, non_dependent_f);
+    VecScalar Ek = GetCalculatedCoeff(k, dim, E);
+    VecScalar Fk = GetCalculatedCoeff(k, dim, F);
 
     for (double i=0; i < s.GetNodeCount(dt_); ++i) {
 
@@ -225,26 +216,22 @@ ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) cons
       //  x_zmp = x_pos - height/(g+z_acc) * x_acc
       //      with  x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
       //            x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
+      zmp.M(n, Index(k,dim,A)) = t[5]     - h/(g+z_acc) * 20.0 * t[3];
+      zmp.M(n, Index(k,dim,B)) = t[4]     - h/(g+z_acc) * 12.0 * t[2];
+      zmp.M(n, Index(k,dim,C)) = t[3]     - h/(g+z_acc) *  6.0 * t[1];
+      zmp.M(n, Index(k,dim,D)) = t[2]     - h/(g+z_acc) *  2.0;
+      zmp.M.row(n)            += t[1]*Ek.v;
+      zmp.M.row(n)            += t[0]*Fk.v;
 
-      ineq.M(n, Index(k,dim,A)) = t[5]     - h/(g+z_acc) * 20.0 * t[3];
-      ineq.M(n, Index(k,dim,B)) = t[4]     - h/(g+z_acc) * 12.0 * t[2];
-      ineq.M(n, Index(k,dim,C)) = t[3]     - h/(g+z_acc) *  6.0 * t[1];
-      ineq.M(n, Index(k,dim,D)) = t[2]     - h/(g+z_acc) *  2.0;
-      ineq.M.row(n)            += t[1]*Ek;
-      ineq.M.row(n)            += t[0]*Fk;
-
-      ineq.v[n] = non_dependent_e*t[0] + non_dependent_f;
+      zmp.v[n] = Ek.s*t[0] + Fk.s;
 
       ++n;
     }
   }
 
-
-//  LOG4CXX_INFO(log_, "Calc. time inequality constraints:\t" << static_cast<double>(std::clock() - start) / CLOCKS_PER_SEC * 1000.0  << "\tms");
-//  LOG4CXX_DEBUG(log_, "Dim: " << ineq.M.rows() << " x " << ineq.M.cols());
-//  LOG4CXX_TRACE(log_, "Matrix:\n" << std::setprecision(2) << ineq.M << "\nVector:\n" << ineq.v.transpose());
-  return ineq;
+  return zmp;
 }
+
 
 
 void

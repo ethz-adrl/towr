@@ -21,7 +21,6 @@ enum SplineCoeff { A=0, B, C, D, E, F };
 static const int kDerivCount = 3;
 enum PosVelAcc { kPos=0, kVel, kAcc };
 
-static const int kDim2d = 2; // X,Y
 
 struct CoeffValues {
   double x[kCoeffCount];
@@ -48,7 +47,9 @@ struct CoeffValues {
 class Spline {
 
 public:
-  typedef utils::Vec2d Vec2d;
+  typedef xpp::utils::Vec2d Vec2d;
+  static const int kDim2d = xpp::utils::kDim2d;
+
 public:
   Spline();
   Spline(const CoeffValues &coeff_values);

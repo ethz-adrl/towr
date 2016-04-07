@@ -24,6 +24,7 @@ class ContinuousSplineContainer : public SplineContainer
 {
 public:
   typedef xpp::utils::MatVec MatVec;
+  typedef xpp::utils::VecScalar VecScalar;
 
 public:
   ContinuousSplineContainer ();
@@ -49,8 +50,7 @@ public:
   int GetTotalFreeCoeff() const;
   int GetTotalNodesNo4ls() const;
   int GetTotalNodes4ls() const;
-  Eigen::RowVectorXd DescribeEFByPrev(int spline_id_k, int dim, SplineCoeff c,
-                        double& init_depend) const;
+  VecScalar GetCalculatedCoeff(int spline_id_k, int dim, SplineCoeff c) const;
 
   MatVec ExpressZmpThroughCoefficients(double h, int dim) const;
 

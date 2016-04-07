@@ -92,20 +92,21 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   xpp::zmp::QpOptimizer zmp_optimizer(trajectory,supp_triangle_container,weight, robot_height);
   xpp::zmp::NlpOptimizer nlp_optimizer;
 
-  // solve
+  // solve QP
   Constraints::StdVecEigen2d opt_footholds_2d;
   Eigen::VectorXd opt_coefficients_eig = zmp_optimizer.SolveQp();
-  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds_2d, supp_triangle_container, zmp_optimizer , opt_coefficients_eig);
+  zmp_publisher.AddRvizMessage(opt_coefficients_eig, steps_, "qp", 0.1);
 
+
+  // solve NLP
+  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds_2d, supp_triangle_container, zmp_optimizer , opt_coefficients_eig);
   // build optimized footholds from these coefficients:
   std::vector<xpp::hyq::Foothold> footholds = steps_;
   for (uint i=0; i<footholds.size(); ++i) {
     footholds.at(i).p << opt_footholds_2d.at(i).x(), opt_footholds_2d.at(i).y(), 0.0;
   }
+  zmp_publisher.AddRvizMessage(opt_coefficients, footholds, "nlp", 1.0);
 
-
-//  zmp_publisher.AddRvizMessage(opt_coefficients, footholds, "nlp");
-  zmp_publisher.AddRvizMessage(opt_coefficients_eig, steps_, "qp", 0.1);
 
   // combine the two messages
   footsteps_msg_ = zmp_publisher.zmp_msg_;
