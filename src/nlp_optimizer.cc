@@ -19,6 +19,7 @@ Eigen::VectorXd
 NlpOptimizer::SolveNlp(StdVecEigen2d& final_footholds,
                        const ContinuousSplineContainer& spline_structure,
                        const SupportPolygonContainer& supp_triangle_container,
+                       double walking_height,
                        const Eigen::VectorXd& initial_spline_coeff)
 {
   Ipopt::IpoptApplication app;
@@ -30,7 +31,7 @@ NlpOptimizer::SolveNlp(StdVecEigen2d& final_footholds,
   }
 
 
-  Constraints constraints(supp_triangle_container, spline_structure);
+  Constraints constraints(supp_triangle_container, spline_structure, walking_height);
   CostFunction cost_function_quadratic_(spline_structure);
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =

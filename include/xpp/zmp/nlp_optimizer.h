@@ -29,6 +29,7 @@ public:
   Eigen::VectorXd SolveNlp(StdVecEigen2d& final_footholds,
                            const ContinuousSplineContainer& spline_structure,
                            const SupportPolygonContainer& supp_triangle_container,
+                           double walking_height,
                            const Eigen::VectorXd& initial_spline_coeff = Eigen::Vector2d::Zero());
 
 

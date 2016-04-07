@@ -19,7 +19,6 @@ public:
   typedef xpp::utils::MatVec MatVec;
 
 public:
-  CostFunction() {};
   CostFunction (const ContinuousSplineContainer& spline_structure);
   virtual
   ~CostFunction () {};

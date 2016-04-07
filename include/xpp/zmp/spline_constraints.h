@@ -24,7 +24,6 @@ public:
   static const int kDim2d = xpp::utils::kDim2d;
 
 public:
-  SplineConstraints (){};
   SplineConstraints (const ContinuousSplineContainer& spline_structure);
   virtual
   ~SplineConstraints () {};

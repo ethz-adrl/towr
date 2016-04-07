@@ -10,14 +10,74 @@
 namespace xpp {
 namespace zmp {
 
-ZmpConstraint::ZmpConstraint (xpp::zmp::ContinuousSplineContainer spline_container)
+ZmpConstraint::ZmpConstraint (ContinuousSplineContainer spline_container, double walking_height)
 {
   spline_container_ = spline_container;
+  walking_height_ = walking_height;
 }
 
 
+ZmpConstraint::MatVec
+ZmpConstraint::CreateLineConstraints(const SupportPolygonContainer& supp_polygon_container) const
+{
+  MatVec zmp_x = ExpressZmpThroughCoefficients(xpp::utils::X);
+  MatVec zmp_y = ExpressZmpThroughCoefficients(xpp::utils::Y);
+
+  return AddLineConstraints(zmp_x, zmp_y, supp_polygon_container);
+}
+
+
+ZmpConstraint::MatVec
+ZmpConstraint::ExpressZmpThroughCoefficients(int dim) const
+{
+  int coeff = spline_container_.GetTotalFreeCoeff();
+  int num_nodes = spline_container_.GetTotalNodes4ls() + spline_container_.GetTotalNodesNo4ls();
+
+  double h = walking_height_;
+
+  MatVec zmp(num_nodes, coeff);
+
+  const double g = 9.81; // gravity acceleration
+  const double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
+
+  int n = 0; // node counter
+  for (const ZmpSpline& s : spline_container_.splines_) {
+
+    // calculate e and f coefficients from previous values
+    const int k = s.id_;
+    VecScalar Ek = spline_container_.GetCalculatedCoeff(k, dim, E);
+    VecScalar Fk = spline_container_.GetCalculatedCoeff(k, dim, F);
+    int a = ContinuousSplineContainer::Index(k,dim,A);
+    int b = ContinuousSplineContainer::Index(k,dim,B);
+    int c = ContinuousSplineContainer::Index(k,dim,C);
+    int d = ContinuousSplineContainer::Index(k,dim,D);
+
+    for (double i=0; i < s.GetNodeCount(spline_container_.dt_); ++i) {
+
+      double time = i*spline_container_.dt_;
+      std::array<double,6> t = utils::cache_exponents<6>(time);
+
+      //  x_zmp = x_pos - height/(g+z_acc) * x_acc
+      //      with  x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
+      //            x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
+      zmp.M(n, a)   = t[5]        - h/(g+z_acc) * 20.0 * t[3];
+      zmp.M(n, b)   = t[4]        - h/(g+z_acc) * 12.0 * t[2];
+      zmp.M(n, c)   = t[3]        - h/(g+z_acc) *  6.0 * t[1];
+      zmp.M(n, d)   = t[2]        - h/(g+z_acc) *  2.0;
+      zmp.M.row(n) += t[1]*Ek.v;
+      zmp.M.row(n) += t[0]*Fk.v;
+
+      zmp.v[n] = Ek.s*t[0] + Fk.s;
+
+      ++n;
+    }
+  }
+
+  return zmp;
+}
+
 std::vector<hyq::SupportPolygon>
-ZmpConstraint::CreateSupportPolygonsWith4LS(const xpp::hyq::SupportPolygonContainer& supp_polygon_container) const
+ZmpConstraint::CreateSupportPolygonsWith4LS(const SupportPolygonContainer& supp_polygon_container) const
 {
   std::vector<SupportPolygon> supp;
   std::vector<SupportPolygon> supp_no_4l = supp_polygon_container.GetSupportPolygons();
@@ -44,7 +104,7 @@ ZmpConstraint::CreateSupportPolygonsWith4LS(const xpp::hyq::SupportPolygonContai
 
 ZmpConstraint::MatVec
 ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-                                  const xpp::hyq::SupportPolygonContainer& supp_polygon_container) const
+                                  const SupportPolygonContainer& supp_polygon_container) const
 {
   int coeff = spline_container_.GetTotalFreeCoeff();
 

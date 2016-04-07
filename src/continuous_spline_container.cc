@@ -13,17 +13,6 @@
 namespace xpp {
 namespace zmp {
 
-ContinuousSplineContainer::ContinuousSplineContainer ()
-{
-  // TODO Auto-generated constructor stub
-
-}
-
-ContinuousSplineContainer::~ContinuousSplineContainer ()
-{
-  // TODO Auto-generated destructor stub
-}
-
 
 void ContinuousSplineContainer::Init(const Eigen::Vector2d& start_cog_p,
                                      const Eigen::Vector2d& start_cog_v,
@@ -100,7 +89,7 @@ ContinuousSplineContainer::DescribeEByPrev(int dim, double start_cog_v) const
   MatVec e_coeff(splines_.size(), GetTotalFreeCoeff());
   e_coeff.v[0] = start_cog_v;
 
-  for (int k=1; k<splines_.size(); ++k)
+  for (uint k=1; k<splines_.size(); ++k)
   {
     int kprev = k-1;
 
@@ -130,7 +119,7 @@ ContinuousSplineContainer::DescribeFByPrev(int dim, double start_cog_p,
   MatVec f_coeff(splines_.size(), GetTotalFreeCoeff());
   f_coeff.v[0] = start_cog_p;
 
-  for (int k=1; k<splines_.size(); ++k)
+  for (uint k=1; k<splines_.size(); ++k)
   {
     int kprev = k-1;
     // position at start of previous spline (=f_prev)
@@ -185,53 +174,6 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
 
   } // k=0..n_spline_infos_
 }
-
-
-xpp::utils::MatVec
-ContinuousSplineContainer::ExpressZmpThroughCoefficients(double h, int dim) const
-{
-  CheckIfInitialized();
-
-  int coeff = GetTotalFreeCoeff();
-  int num_nodes = GetTotalNodes4ls() + GetTotalNodesNo4ls();
-
-  MatVec zmp(num_nodes, coeff);
-
-  const double g = 9.81; // gravity acceleration
-  const double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
-
-  int n = 0; // node counter
-  for (const ZmpSpline& s : splines_) {
-
-    // calculate e and f coefficients from previous values
-    const int k = s.id_;
-    VecScalar Ek = GetCalculatedCoeff(k, dim, E);
-    VecScalar Fk = GetCalculatedCoeff(k, dim, F);
-
-    for (double i=0; i < s.GetNodeCount(dt_); ++i) {
-
-      double time = i*dt_;
-      std::array<double,6> t = utils::cache_exponents<6>(time);
-
-      //  x_zmp = x_pos - height/(g+z_acc) * x_acc
-      //      with  x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
-      //            x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
-      zmp.M(n, Index(k,dim,A)) = t[5]     - h/(g+z_acc) * 20.0 * t[3];
-      zmp.M(n, Index(k,dim,B)) = t[4]     - h/(g+z_acc) * 12.0 * t[2];
-      zmp.M(n, Index(k,dim,C)) = t[3]     - h/(g+z_acc) *  6.0 * t[1];
-      zmp.M(n, Index(k,dim,D)) = t[2]     - h/(g+z_acc) *  2.0;
-      zmp.M.row(n)            += t[1]*Ek.v;
-      zmp.M.row(n)            += t[0]*Fk.v;
-
-      zmp.v[n] = Ek.s*t[0] + Fk.s;
-
-      ++n;
-    }
-  }
-
-  return zmp;
-}
-
 
 
 void

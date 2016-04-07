@@ -27,9 +27,9 @@ public:
   typedef xpp::utils::VecScalar VecScalar;
 
 public:
-  ContinuousSplineContainer ();
+  ContinuousSplineContainer () {};
   virtual
-  ~ContinuousSplineContainer ();
+  ~ContinuousSplineContainer () {};
 
 public:
 
@@ -51,8 +51,6 @@ public:
   int GetTotalNodesNo4ls() const;
   int GetTotalNodes4ls() const;
   VecScalar GetCalculatedCoeff(int spline_id_k, int dim, SplineCoeff c) const;
-
-  MatVec ExpressZmpThroughCoefficients(double h, int dim) const;
 
   void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff);
 

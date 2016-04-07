@@ -15,9 +15,10 @@ namespace xpp {
 namespace zmp {
 
 Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_container,
-                          const xpp::zmp::ContinuousSplineContainer& zmp_spline_container)
+                          const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
+                          double walking_height)
     :planned_footholds_(supp_poly_container.GetFootholds()),
-     zmp_constraint_(zmp_spline_container)
+     zmp_constraint_(zmp_spline_container, walking_height)
 {
   zmp_spline_container_    = zmp_spline_container;
   supp_polygon_container_  = supp_poly_container;
@@ -27,11 +28,6 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_con
 
   SplineConstraints spline_constraint(zmp_spline_container);
   spline_junction_constraints_ = spline_constraint.CreateSplineConstraints(final_state);
-
-  // inequality constraints
-  double walking_height = 0.58;
-  x_zmp_ = zmp_spline_container.ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
-  y_zmp_ = zmp_spline_container.ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
 
   first_constraint_eval_ = true;
 }
@@ -66,7 +62,7 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
 Eigen::VectorXd
 Constraints::KeepZmpInSuppPolygon(const Eigen::VectorXd& x_coeff)
 {
-  MatVec ineq = zmp_constraint_.AddLineConstraints(x_zmp_, y_zmp_, supp_polygon_container_);
+  MatVec ineq = zmp_constraint_.CreateLineConstraints(supp_polygon_container_);
 
   AddBounds(ineq.v.rows(), 0.0, +1.0e19);
 

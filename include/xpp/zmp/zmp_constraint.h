@@ -20,25 +20,29 @@ public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::hyq::SupportPolygon SupportPolygon;
-  typedef xpp::hyq::Foothold Foothold;
+  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
 
 public:
-  ZmpConstraint() {}; // FIXME remove this
-  ZmpConstraint (xpp::zmp::ContinuousSplineContainer spline_container);
+  ZmpConstraint (ContinuousSplineContainer spline_container, double walking_height);
   virtual
   ~ZmpConstraint () {};
 
-  MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-                            const xpp::hyq::SupportPolygonContainer& supp_polygon_container) const;
+
+  MatVec CreateLineConstraints(const SupportPolygonContainer& supp_polygon_container) const;
 
 private:
   xpp::zmp::ContinuousSplineContainer spline_container_;
-  std::vector<hyq::SupportPolygon> CreateSupportPolygonsWith4LS(
-      const xpp::hyq::SupportPolygonContainer& supp_polygon_container) const;
+  double walking_height_;
+  MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+                            const SupportPolygonContainer& supp_polygon_container) const;
+  std::vector<SupportPolygon> CreateSupportPolygonsWith4LS(
+      const SupportPolygonContainer& supp_polygon_container) const;
 
   static VecScalar GenerateLineConstraint(const SupportPolygon::SuppLine& l,
                                 const VecScalar& x_zmp_M,
                                 const VecScalar& y_zmp_M);
+
+  MatVec ExpressZmpThroughCoefficients(int dim) const;
 };
 
 

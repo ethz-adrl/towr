@@ -40,7 +40,8 @@ public:
 
 public:
   Constraints (const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
-               const xpp::zmp::ContinuousSplineContainer& zmp_spline_container);
+               const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
+               double walking_height);
   virtual
   ~Constraints () {};
 
@@ -59,8 +60,6 @@ public:
   ZmpConstraint zmp_constraint_;
 private:
 
-  MatVec x_zmp_;
-  MatVec y_zmp_;
   bool first_constraint_eval_ = true;
 
 

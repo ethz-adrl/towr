@@ -13,12 +13,6 @@
 #include <xpp/zmp/zmp_constraint.h>
 #include <xpp/zmp/spline_constraints.h>
 
-#include <log4cxx/logger.h>
-#include <Eigen/Dense>
-
-#include <memory> //std::shared_ptr
-#include <array>
-#include <vector>
 
 
 /**
@@ -57,50 +51,18 @@ public:
 
 public:
   QpOptimizer();
-
-  /**
-   * @param spline_structure the amount and sequence of splines with empty coefficients
-   */
   QpOptimizer(const ContinuousSplineContainer& spline_structure,
               const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
               double walking_height);
 
-  virtual ~QpOptimizer();
-
-/*!
- @brief Optimizes the trajectory of the CoM according to a quadratic
-        cost function while keeping the ZMP in the current support
-        triangle formed by the stance feet.
-
- @param start_stance Position of the four feet before walking
- @param t_stance_initial The time permitted for the first 4-leg-support cog shift
- @param steps Footholds the robot must execute
- @param[out] splines optimized cog trajectory
- @throws std::runtime_error Throws if no solution to the QP problem was found.
- */
+  virtual ~QpOptimizer() {};
 
   Eigen::VectorXd SolveQp();
 
-
-
-  ContinuousSplineContainer spline_structure_;
-  ZmpConstraint zmp_constraint_;
-  SplineConstraints spline_constraint_;
-
 private:
-  MatVec cf_;
-  MatVec eq_;
-
-  void SetupQpMatrices(const xpp::hyq::SupportPolygonContainer& supp_poly_container,
-                       const State& final_state,
-                       double height_robot);
-
-  MatVec ineq_;
-  MatVec CreateMinAccCostFunction() const;
-  MatVec CreateEqualityContraints(const State &final_state) const;
-  MatVec CreateInequalityContraints(double walking_height,
-                                    const xpp::hyq::SupportPolygonContainer& supp_poly_container) const;
-
+  MatVec cost_function_;
+  MatVec equality_constraints_;
+  MatVec inequality_constraints_;
 };
 
 

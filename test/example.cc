@@ -98,6 +98,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds_2d,
                                                             trajectory,
                                                             supp_triangle_container,
+                                                            robot_height,
                                                             opt_coefficients_eig);
   // build optimized footholds from these coefficients:
   std::vector<xpp::hyq::Foothold> footholds = steps_;
