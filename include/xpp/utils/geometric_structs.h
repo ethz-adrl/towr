@@ -94,11 +94,11 @@ struct LineCoeff2d {
 struct VecScalar {
   Eigen::RowVectorXd v;
   double s;
-  VecScalar(int cols)
-      :v(Eigen::RowVectorXd::Zero(cols)),
+  VecScalar(int rows)
+      :v(Eigen::RowVectorXd::Zero(rows)),
        s(0.0)
   {}
-  VecScalar(Eigen::RowVectorXd _v, double _s)
+  VecScalar(const Eigen::RowVectorXd& _v, double _s)
       :v(_v),
        s(_s)
   {}

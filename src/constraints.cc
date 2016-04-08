@@ -44,9 +44,9 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
     supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
 
   // generate constraint violation values
-  g_std.push_back(FixFootholdPosition(footholds));
+//  g_std.push_back(FixFootholdPosition(footholds));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff));
-//  g_std.push_back(RestrictFootholdToCogPos(x_coeff));
+  g_std.push_back(RestrictFootholdToCogPos(x_coeff));
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff)); // FIXME extract intial and final constraints
 //  g_std.push_back(AddObstacle());
 

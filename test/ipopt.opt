@@ -6,9 +6,9 @@
 
 
 #linear_solver ma27
-#linear_solver ma57
+linear_solver ma57
 #linear_solver ma77
-linear_solver ma86
+#linear_solver ma86
 #linear_solver ma97
 
 jacobian_approximation finite-difference-values
@@ -17,12 +17,12 @@ hessian_approximation limited-memory
 #derivative_test first-order
 #derivative_test second-order
 
-tol 1e-3
+tol 1e-2
 #dual_inf_tol 1e-1
 #constr_viol_tol 1e-4
 #compl_inf_tol 1e-4
-#max_cpu_time 60
-max_iter 2000
+max_cpu_time 30
+#max_iter 2000
 #bound_frac 0.5
 
 #acceptable_iter 10

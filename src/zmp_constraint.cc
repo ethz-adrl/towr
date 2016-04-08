@@ -124,6 +124,7 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
   {
     SupportPolygon::VecSuppLine lines = supp.at(s.id_).CalcLines();
     for (double i=0; i < s.GetNodeCount(spline_container_.dt_); ++i) {
+      // FIXME: Optimize by performing one matrix*vector multiplication
       for (SupportPolygon::SuppLine l : lines) { // add three line constraints for each node
         VecScalar constr = GenerateLineConstraint(l, x_zmp.ExtractRow(n), y_zmp.ExtractRow(n));
         ineq.AddVecScalar(constr,c++);

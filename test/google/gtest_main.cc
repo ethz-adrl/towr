@@ -44,6 +44,7 @@ GTEST_API_ int main(int argc, char **argv) {
 //
 //  log4cxx::PropertyConfigurator::configure(cfile.c_str());
 
+  testing::GTEST_FLAG(print_time) = true;
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
