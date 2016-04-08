@@ -28,15 +28,13 @@ protected:
                                               t_stance_initial,
                                               t_stance_final);
 
-    double dt = 0.1;
     cont_spline_container_.Init(Eigen::Vector2d::Zero(),
                                 Eigen::Vector2d::Zero(),
                                 step_sequence_,
                                 t_stance,
                                 t_swing,
                                 t_stance_initial,
-                                t_stance_final,
-                                dt);
+                                t_stance_final);
   }
 
   SplineContainer spline_container_;

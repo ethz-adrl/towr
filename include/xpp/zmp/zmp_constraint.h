@@ -32,7 +32,8 @@ public:
 
 private:
   xpp::zmp::ContinuousSplineContainer spline_container_;
-  double walking_height_;
+  MatVec x_zmp_;
+  MatVec y_zmp_;
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const SupportPolygonContainer& supp_polygon_container) const;
   std::vector<SupportPolygon> CreateSupportPolygonsWith4LS(
@@ -42,7 +43,7 @@ private:
                                 const VecScalar& x_zmp_M,
                                 const VecScalar& y_zmp_M);
 
-  MatVec ExpressZmpThroughCoefficients(int dim) const;
+  MatVec ExpressZmpThroughCoefficients(double walking_height, int dim) const;
 };
 
 

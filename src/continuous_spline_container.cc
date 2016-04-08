@@ -20,11 +20,9 @@ void ContinuousSplineContainer::Init(const Eigen::Vector2d& start_cog_p,
                                      double t_stance,
                                      double t_swing,
                                      double t_stance_initial,
-                                     double t_stance_final,
-                                     double dt)
+                                     double t_stance_final)
 {
   ConstructSplineSequence(step_sequence, t_stance, t_swing, t_stance_initial, t_stance_final);
-  dt_ = dt;
   initialized_ = true;
 
   for (int dim = xpp::utils::X; dim<=xpp::utils::Y; ++dim) {

@@ -31,6 +31,7 @@ public:
   virtual
   ~ContinuousSplineContainer () {};
 
+  static constexpr double dt_ = 0.1; // This is needed for creating support triangle inequality constraints
 public:
 
   void Init(const Eigen::Vector2d& start_cog_p,
@@ -39,8 +40,7 @@ public:
             double t_stance,
             double t_swing,
             double t_stance_initial,
-            double t_stance_final,
-            double dt = 0.1);
+            double t_stance_final);
 
   /**
    * The index number of the coefficient \c coeff, for dimension \c dim and
@@ -54,7 +54,6 @@ public:
 
   void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff);
 
-  double dt_; // This is needed for creating support triangle inequality constraints
 private:
   static const int kFreeCoeffPerSpline = kCoeffCount-2;
 

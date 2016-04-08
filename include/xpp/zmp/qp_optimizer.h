@@ -10,9 +10,6 @@
 
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/zmp_constraint.h>
-#include <xpp/zmp/spline_constraints.h>
-
 
 
 /**
@@ -44,10 +41,7 @@ eigen_quadprog.hpp performs the optimization.
  */
 class QpOptimizer {
 public:
-  typedef ::xpp::utils::Vec2d Position;
   typedef xpp::utils::MatVec MatVec;
-  typedef xpp::zmp::SplineConstraints::State State;
-  static const int kDim2d = xpp::utils::kDim2d;
 
 public:
   QpOptimizer();

@@ -13,27 +13,27 @@ namespace zmp {
 ZmpConstraint::ZmpConstraint (ContinuousSplineContainer spline_container, double walking_height)
 {
   spline_container_ = spline_container;
-  walking_height_ = walking_height;
+
+  // these discretized zmp positions do not depend on current footholds
+  x_zmp_ = ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
+  y_zmp_ = ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
 }
 
 
 ZmpConstraint::MatVec
 ZmpConstraint::CreateLineConstraints(const SupportPolygonContainer& supp_polygon_container) const
 {
-  MatVec zmp_x = ExpressZmpThroughCoefficients(xpp::utils::X);
-  MatVec zmp_y = ExpressZmpThroughCoefficients(xpp::utils::Y);
-
-  return AddLineConstraints(zmp_x, zmp_y, supp_polygon_container);
+  return AddLineConstraints(x_zmp_, y_zmp_, supp_polygon_container);
 }
 
 
 ZmpConstraint::MatVec
-ZmpConstraint::ExpressZmpThroughCoefficients(int dim) const
+ZmpConstraint::ExpressZmpThroughCoefficients(double walking_height, int dim) const
 {
   int coeff = spline_container_.GetTotalFreeCoeff();
   int num_nodes = spline_container_.GetTotalNodes4ls() + spline_container_.GetTotalNodesNo4ls();
 
-  double h = walking_height_;
+  double h = walking_height;
 
   MatVec zmp(num_nodes, coeff);
 
@@ -75,6 +75,7 @@ ZmpConstraint::ExpressZmpThroughCoefficients(int dim) const
 
   return zmp;
 }
+
 
 std::vector<hyq::SupportPolygon>
 ZmpConstraint::CreateSupportPolygonsWith4LS(const SupportPolygonContainer& supp_polygon_container) const
@@ -136,8 +137,8 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
 
 ZmpConstraint::VecScalar
 ZmpConstraint::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
-                                    const VecScalar& x_zmp,
-                                    const VecScalar& y_zmp)
+                                      const VecScalar& x_zmp,
+                                      const VecScalar& y_zmp)
 {
   // the zero moment point must always lay on one side of triangle side:
   // p*x_zmp + q*y_zmp + r > stability_margin
