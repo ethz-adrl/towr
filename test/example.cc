@@ -13,7 +13,8 @@
 #include <xpp_opt/FootholdSequence.h>
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
-#include <xpp/zmp/zmp_publisher.h>
+#include <xpp/ros/zmp_publisher.h>
+#include <xpp/ros/ros_helpers.h>
 
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -23,7 +24,7 @@
 #include <iomanip>  //std::setprecision
 
 
-std::string frame_id = "world";
+
 visualization_msgs::MarkerArray footsteps_msg_;
 
 
@@ -47,15 +48,6 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   using namespace xpp::zmp;
   using namespace xpp::utils;
 
-  MarginValues margins;
-  margins[FRONT] = 0.1;
-  margins[HIND]  = 0.1;
-  margins[SIDE]  = 0.1;
-  margins[DIAG]  = 0.1; // controls sidesway motion
-
-  double swing_time = 0.6;         
-  double stance_time = 0.1;
-
 
   // start position (x,y,z) of robot
   Eigen::Vector2d cog_start_p(0.0, 0.0);
@@ -66,8 +58,6 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   start_stance[LH] = Foothold(-0.35,  0.3, 0.0, LH);
   start_stance[RH] = Foothold(-0.35, -0.3, 0.0, RH);
 
-  double t_stance_initial = 1.0; //s
-  double robot_height = 0.58;
 
   std::vector<LegID> leg_ids;
   leg_ids.clear();
@@ -76,14 +66,19 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
     std::cout << "f: " << f << std::endl;
   }
 
-
   // create the general spline structure
   ContinuousSplineContainer trajectory;
-  trajectory.Init(cog_start_p, cog_start_v,leg_ids, stance_time, swing_time, t_stance_initial,t_stance_initial);
-  xpp::zmp::ZmpPublisher zmp_publisher(trajectory);
+  double swing_time          = xpp::ros::GetDoubleFromServer("/xpp/swing_time");
+  double stance_time         = xpp::ros::GetDoubleFromServer("/xpp/stance_time");
+  double robot_height        = xpp::ros::GetDoubleFromServer("/xpp/robot_height");
+  double stance_time_initial = xpp::ros::GetDoubleFromServer("/xpp/stance_time_initial");
+  double stance_time_final   = xpp::ros::GetDoubleFromServer("/xpp/stance_time_final");
+
+  trajectory.Init(cog_start_p, cog_start_v,leg_ids, stance_time, swing_time, stance_time_initial,stance_time_final);
+  xpp::ros::ZmpPublisher zmp_publisher(trajectory);
 
   xpp::hyq::SupportPolygonContainer supp_triangle_container;
-  supp_triangle_container.Init(start_stance, steps_, margins);
+  supp_triangle_container.Init(start_stance, steps_, SupportPolygon::GetDefaultMargins());
 
   xpp::zmp::QpOptimizer zmp_optimizer(trajectory,supp_triangle_container, robot_height);
   xpp::zmp::NlpOptimizer nlp_optimizer;
@@ -114,16 +109,22 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
 
 
-
 int main(int argc, char **argv)
 {
 
 
-  ros::init(argc, argv, "example_node");
+  ros::init(argc, argv, "xpp_example_executable");
   ros::NodeHandle n;
   ros::Publisher publisher = n.advertise<visualization_msgs::MarkerArray>("zmp_trajectory", 10);
   ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
 
+  double swing_time;
+  ros::param::get("~swing_time",swing_time);
+
+//  n.getParam("~swing_time", swing_time);
+  std::cout << "swing_time: " << swing_time;
+
+//  return 0;
 
   using namespace xpp::hyq;
   using namespace xpp::zmp;

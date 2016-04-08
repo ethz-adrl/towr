@@ -5,17 +5,17 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/zmp_publisher.h>
+#include <xpp/ros/zmp_publisher.h>
 
 namespace xpp {
-namespace zmp {
+namespace ros {
 
 ZmpPublisher::ZmpPublisher (const xpp::zmp::ContinuousSplineContainer& trajectory)
 {
   trajectory_ = trajectory;
   zmp_msg_.markers.clear();
 
-  ros::NodeHandle n;
+  ::ros::NodeHandle n;
   ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("zmp_trajectory", 1);
 }
 
@@ -40,9 +40,9 @@ void ZmpPublisher::AddRvizMessage(
   AddTrajectory(msg, trajectory_, opt_footholds, rviz_namespace, alpha);
 
   //FIXME move this somehwere else
-  double strip_center = 0.4;
+  double strip_center = 0.3;
   double strip_depth  = 0.1;
-//  AddLineStrip(msg, strip_center, strip_depth);
+  AddLineStrip(msg, strip_center, strip_depth);
 
   zmp_msg_.markers.insert(zmp_msg_.markers.end(),
                           msg.markers.begin(),msg.markers.end());
@@ -53,7 +53,7 @@ ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x
 {
   visualization_msgs::Marker line_strip;
   line_strip.header.frame_id = frame_id_;
-  line_strip.header.stamp = ros::Time::now();
+  line_strip.header.stamp = ::ros::Time::now();
   line_strip.id = 1;
   line_strip.type = visualization_msgs::Marker::LINE_STRIP;
   line_strip.ns = "gap";
@@ -97,7 +97,7 @@ ZmpPublisher::AddTrajectory(visualization_msgs::MarkerArray& msg,
     marker.pose.position.y = cog_state.p.y();
     marker.pose.position.z = 0.0;
     marker.header.frame_id = frame_id_;
-    marker.header.stamp = ros::Time();
+    marker.header.stamp = ::ros::Time();
     marker.ns = rviz_namespace;
     marker.type = visualization_msgs::Marker::SPHERE;
     marker.action = visualization_msgs::Marker::ADD;
@@ -168,7 +168,7 @@ void ZmpPublisher::AddFootholds(
 
 
     marker_msg.header.frame_id = frame_id_;  // name of the tf message that defines the location of the body with respect to the april tag
-    marker_msg.header.stamp = ros::Time();
+    marker_msg.header.stamp = ::ros::Time();
     marker_msg.ns = rviz_namespace;
     marker_msg.id = i++;
 //    marker_msg.lifetime = ros::Duration(10);
@@ -220,7 +220,5 @@ std_msgs::ColorRGBA ZmpPublisher::GetLegColor(xpp::hyq::LegID leg) const
 }
 
 
-
-
-} /* namespace zmp */
+} /* namespace ros */
 } /* namespace xpp */

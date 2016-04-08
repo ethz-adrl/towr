@@ -200,7 +200,7 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
 {
 //   std::cin.get();
 
-  xpp::zmp::ZmpPublisher::VecFoothold footholds = constraints_.supp_polygon_container_.GetFootholds();
+  ZmpPublisher::VecFoothold footholds = constraints_.supp_polygon_container_.GetFootholds();
   for (uint i=0; i<footholds.size(); ++i) {
     footholds.at(i).p << opt_footholds_.at(i).x(), opt_footholds_.at(i).y(), 0.0;
   }

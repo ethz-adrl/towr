@@ -29,7 +29,7 @@ public:
 public:
   void Init(LegDataMap<Foothold> start_stance,
             const VecFoothold& footholds,
-            const MarginValues& margins);
+            const MarginValues& margins = SupportPolygon::GetZeroMargins());
 
 
   Eigen::Vector2d GetCenterOfFinalStance() const;

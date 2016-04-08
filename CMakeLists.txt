@@ -131,7 +131,7 @@ if(BUILD_TESTS)
     
     target_link_libraries(googleTest 
                           ${LIB_NAME} 
-                          ${GTEST_LIBRARIES}) 
+                          ${GTEST_LIBRARIES})
   endif(GTEST_FOUND)
 endif()
 

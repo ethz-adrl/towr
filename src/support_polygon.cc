@@ -96,5 +96,28 @@ SupportPolygon SupportPolygon::CombineSupportPolygons(const SupportPolygon& p1,
 }
 
 
+MarginValues SupportPolygon::GetDefaultMargins()
+{
+  MarginValues default_margins;
+  default_margins[FRONT] = 0.10;
+  default_margins[HIND]  = 0.10;
+  default_margins[SIDE]  = 0.10;
+  default_margins[DIAG]  = 0.08; // controls sidesway motion
+
+  return default_margins;
+}
+
+
+MarginValues SupportPolygon::GetZeroMargins()
+{
+  MarginValues zero_margins;
+  zero_margins[FRONT] = 0.0;
+  zero_margins[HIND]  = 0.0;
+  zero_margins[SIDE]  = 0.0;
+  zero_margins[DIAG]  = 0.0; // controls sidesway motion
+
+  return zero_margins;
+}
+
 } // namespace hyq
 } // namespace xpp

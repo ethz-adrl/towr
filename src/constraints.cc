@@ -48,7 +48,7 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff));
   g_std.push_back(RestrictFootholdToCogPos(x_coeff));
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff)); // FIXME extract intial and final constraints
-//  g_std.push_back(AddObstacle());
+  g_std.push_back(AddObstacle());
 
 
   CombineToEigenVector(g_std, g_);
@@ -98,7 +98,7 @@ Constraints::AddObstacle()
 {
   std::vector<double> g_vec;
 
-  double x_center = 0.4;
+  double x_center = 0.3;
 //  double y_center = 0.0;
 
   double gap_depth = 0.1;

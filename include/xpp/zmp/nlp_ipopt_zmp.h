@@ -14,7 +14,7 @@
 #include <xpp/zmp/cost_function.h>
 #include <xpp/zmp/constraints.h>
 
-#include <xpp/zmp/zmp_publisher.h>
+#include <xpp/ros/zmp_publisher.h>
 
 namespace Ipopt {
 
@@ -26,6 +26,10 @@ public:
   typedef xpp::zmp::ContinuousSplineContainer Splines;
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::zmp::Constraints::StdVecEigen2d StdVecEigen2d;
+  typedef xpp::ros::ZmpPublisher ZmpPublisher;
+  typedef xpp::zmp::CostFunction CostFunction;
+  typedef xpp::zmp::Constraints Constraints;
+
 
 public:
   /** default constructor */
@@ -110,10 +114,10 @@ public:
 
 private:
 
-  xpp::zmp::CostFunction cost_function_;
-  xpp::zmp::Constraints constraints_;
+  CostFunction cost_function_;
+  Constraints constraints_;
 
-  xpp::zmp::ZmpPublisher zmp_publisher_;
+  ZmpPublisher zmp_publisher_;
 
   int n_spline_coeff_;
   int n_steps_;

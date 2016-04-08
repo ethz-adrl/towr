@@ -40,6 +40,8 @@ public:
   virtual ~SupportPolygon() {};
 
   VecSuppLine CalcLines() const;
+  static MarginValues GetDefaultMargins();
+  static MarginValues GetZeroMargins();
 
 
   MarginValues margins_;

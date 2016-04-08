@@ -18,7 +18,7 @@
 #include <Eigen/StdVector>
 
 namespace xpp {
-namespace zmp {
+namespace ros {
 
 class ZmpPublisher {
 
@@ -62,10 +62,10 @@ private:
 
   const std::string frame_id_ = "world";
   xpp::zmp::ContinuousSplineContainer trajectory_;
-  ros::Publisher ros_publisher_;
+  ::ros::Publisher ros_publisher_;
 };
 
-} /* namespace zmp */
+} /* namespace ros */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_PUBLISHER_H_ */
