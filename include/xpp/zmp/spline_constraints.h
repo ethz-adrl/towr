@@ -33,13 +33,13 @@ public:
    * Note: The initial position and velocity is defined in ContinousSplineContainer,
    * as those are the e and f coefficients of the initial spline
    */
-  MatVec CreateSplineConstraints(const State &final_state) const;
+  MatVec CreateAllSplineConstraints(const State &final_state) const;
 
-
-private:
+  MatVec CreateJunctionConstraints() const;
   MatVec CreateInitialAccConstraints(const Vector2d& intial_acc = Vector2d::Zero()) const;
   MatVec CreateFinalConstraints(const State& final_state) const;
-  MatVec CreateJunctionConstraints() const;
+
+private:
   ContinuousSplineContainer spline_structure_;
   int n_opt_coefficients_;
 };

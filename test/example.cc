@@ -29,6 +29,7 @@ visualization_msgs::MarkerArray footsteps_msg_;
 
 
 std::vector<xpp::hyq::Foothold> steps_;
+
 void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 {
   footsteps_msg_.markers.clear();
@@ -86,7 +87,8 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   // solve QP
   Constraints::StdVecEigen2d opt_footholds_2d;
   Eigen::VectorXd opt_coefficients_eig = zmp_optimizer.SolveQp();
-  zmp_publisher.AddRvizMessage(opt_coefficients_eig, steps_, "qp", 0.1);
+  zmp_publisher.AddRvizMessage(opt_coefficients_eig, steps_, 0.0, 0.0, "qp", 0.1);
+  zmp_publisher.publish();
 
 
   // solve NLP
@@ -100,7 +102,6 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   for (uint i=0; i<footholds.size(); ++i) {
     footholds.at(i).p << opt_footholds_2d.at(i).x(), opt_footholds_2d.at(i).y(), 0.0;
   }
-  zmp_publisher.AddRvizMessage(opt_coefficients, footholds, "nlp", 1.0);
 
 
   // combine the two messages
@@ -137,7 +138,7 @@ int main(int argc, char **argv)
   ros::Rate loop_rate(100);
   while (ros::ok()) {
     ros::spinOnce();
-    publisher.publish(footsteps_msg_);
+//    zmp_publisher_.publish();
   }
 }
 

@@ -206,7 +206,8 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
   }
 
   zmp_publisher_.zmp_msg_.markers.clear();
-  zmp_publisher_.AddRvizMessage(opt_coeff_, footholds, "nlp", 1.0);
+  zmp_publisher_.AddRvizMessage(opt_coeff_, footholds, constraints_.gap_center_x_,
+                                constraints_.gap_width_x_, "nlp", 1.0);
   zmp_publisher_.publish();
 
 	return true;

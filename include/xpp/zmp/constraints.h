@@ -52,12 +52,17 @@ public:
   xpp::hyq::SupportPolygonContainer supp_polygon_container_;
 
   MatVec spline_junction_constraints_;
+  MatVec spline_initial_acc_constraints_;
+  MatVec spline_final_constraints_;
 
-  Eigen::VectorXd g_;
+  Eigen::VectorXd constraints_;
   std::vector<Constraints::Bound> bounds_;
   const VecFoothold planned_footholds_;
 
   ZmpConstraint zmp_constraint_;
+
+  const double gap_center_x_ = 0.25;
+  const double gap_width_x_  = 0.3;
 private:
 
   bool first_constraint_eval_ = true;
@@ -75,6 +80,8 @@ private:
    * @return
    */
   Eigen::VectorXd SmoothAccJerkAtSplineJunctions(const Eigen::VectorXd& x_coeff);
+  Eigen::VectorXd InitialAcceleration(const Eigen::VectorXd& x_coeff);
+  Eigen::VectorXd FinalState(const Eigen::VectorXd& x_coeff);
 
   Eigen::VectorXd AddObstacle();
 

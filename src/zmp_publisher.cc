@@ -28,6 +28,8 @@ ZmpPublisher::~ZmpPublisher ()
 void ZmpPublisher::AddRvizMessage(
     const Eigen::VectorXd& opt_spline_coeff,
     const VecFoothold& opt_footholds,
+    double gap_center_x,
+    double gap_width_x,
     const std::string& rviz_namespace,
     double alpha)
 {
@@ -39,10 +41,7 @@ void ZmpPublisher::AddRvizMessage(
   AddFootholds(msg, opt_footholds, rviz_namespace, visualization_msgs::Marker::CUBE, alpha);
   AddTrajectory(msg, trajectory_, opt_footholds, rviz_namespace, alpha);
 
-  //FIXME move this somehwere else
-  double strip_center = 0.3;
-  double strip_depth  = 0.1;
-  AddLineStrip(msg, strip_center, strip_depth);
+  AddLineStrip(msg, gap_center_x, gap_width_x);
 
   zmp_msg_.markers.insert(zmp_msg_.markers.end(),
                           msg.markers.begin(),msg.markers.end());

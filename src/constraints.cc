@@ -23,13 +23,16 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_con
   zmp_spline_container_    = zmp_spline_container;
   supp_polygon_container_  = supp_poly_container;
 
+
   State final_state; // zero vel,acc,jerk
   final_state.p = supp_poly_container.GetCenterOfFinalStance();
-
   SplineConstraints spline_constraint(zmp_spline_container);
-  spline_junction_constraints_ = spline_constraint.CreateSplineConstraints(final_state);
+  spline_junction_constraints_    = spline_constraint.CreateJunctionConstraints();
+  spline_initial_acc_constraints_ = spline_constraint.CreateInitialAccConstraints();
+  spline_final_constraints_       = spline_constraint.CreateFinalConstraints(final_state);
 
   first_constraint_eval_ = true;
+  bounds_.clear();
 }
 
 
@@ -44,18 +47,23 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
     supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
 
   // generate constraint violation values
-//  g_std.push_back(FixFootholdPosition(footholds));
+  // ATTENTION: order seems to play a role
+  g_std.push_back(FinalState(x_coeff));
+//  g_std.push_back(InitialAcceleration(x_coeff));
+  g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff));
+//  g_std.push_back(FixFootholdPosition(footholds));
   g_std.push_back(RestrictFootholdToCogPos(x_coeff));
-  g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff)); // FIXME extract intial and final constraints
   g_std.push_back(AddObstacle());
 
 
-  CombineToEigenVector(g_std, g_);
 
 
+  CombineToEigenVector(g_std, constraints_);
+
+  assert(constraints_.rows() == bounds_.size());
   first_constraint_eval_ = false;
-  return g_;
+  return constraints_;
 }
 
 
@@ -98,21 +106,15 @@ Constraints::AddObstacle()
 {
   std::vector<double> g_vec;
 
-  double x_center = 0.3;
-//  double y_center = 0.0;
-
-  double gap_depth = 0.1;
-//  double gap_width = 1.0;
-
 //  xpp::utils::Ellipse ellipse(gap_depth, gap_width, x_center, y_center);
 
   for (const hyq::Foothold& f : supp_polygon_container_.GetFootholds())
   {
 //    g_vec.push_back(ellipse.DistanceToEdge(f.p.x(), f.p.y()));
-    g_vec.push_back(std::pow(f.p.x()-x_center,2));
+    g_vec.push_back(std::pow(f.p.x()-gap_center_x_,2));
 
     if (first_constraint_eval_) {
-      bounds_.push_back(Bound(std::pow(gap_depth/2.0,2), 1.0e19)); // be outside of this ellipse
+      bounds_.push_back(Bound(std::pow(gap_width_x_/2.0,2), 1.0e19)); // be outside of this ellipse
     }
   }
   return Eigen::Map<const Eigen::VectorXd>(&g_vec.front(),g_vec.size());
@@ -125,7 +127,7 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
 {
   double x_nominal_b = 0.3; // 0.4
   double y_nominal_b = 0.3; // 0.4
-  double x_radius = 0.10;
+  double x_radius = 0.15;
   double y_radius = 0.10;
 
   Bound bound_pos_x( x_nominal_b-x_radius,  x_nominal_b+x_radius);
@@ -190,6 +192,7 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
             bounds_.push_back(bound_neg_y); // y
             break;
           default:
+            throw std::runtime_error("RestrictFootholdToCogPos(): leg does not exist");
             break;
         }
       }
@@ -218,6 +221,24 @@ Eigen::VectorXd
 Constraints::SmoothAccJerkAtSplineJunctions(const Eigen::VectorXd& x_coeff)
 {
   Eigen::VectorXd g = spline_junction_constraints_.M*x_coeff + spline_junction_constraints_.v;
+  AddBounds(g.rows(), 0.0, 0.0);
+  return g;
+}
+
+
+Eigen::VectorXd
+Constraints::InitialAcceleration(const Eigen::VectorXd& x_coeff)
+{
+  Eigen::VectorXd g = spline_initial_acc_constraints_.M*x_coeff + spline_initial_acc_constraints_.v;
+  AddBounds(g.rows(), 0.0, 0.0);
+  return g;
+}
+
+
+Eigen::VectorXd
+Constraints::FinalState(const Eigen::VectorXd& x_coeff)
+{
+  Eigen::VectorXd g = spline_final_constraints_.M*x_coeff + spline_final_constraints_.v;
   AddBounds(g.rows(), 0.0, 0.0);
   return g;
 }

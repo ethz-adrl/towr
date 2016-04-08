@@ -34,7 +34,7 @@ QpOptimizer::QpOptimizer(const ContinuousSplineContainer& spline_structure,
   SplineConstraints::State final_state; // zero vel,acc,jerk
   final_state.p = supp_poly_container.GetCenterOfFinalStance();
   SplineConstraints spline_constraint(spline_structure);
-  equality_constraints_ = spline_constraint.CreateSplineConstraints(final_state);
+  equality_constraints_ = spline_constraint.CreateAllSplineConstraints(final_state);
 
   ZmpConstraint zmp_constraint(spline_structure, walking_height);
   inequality_constraints_ = zmp_constraint.CreateLineConstraints(supp_poly_container);

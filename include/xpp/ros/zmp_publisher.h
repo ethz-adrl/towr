@@ -36,6 +36,8 @@ public:
   void AddRvizMessage(
       const Eigen::VectorXd& opt_spline_coeff,
       const VecFoothold& opt_footholds,
+      double gap_center_x,
+      double gap_width_x,
       const std::string& rviz_namespace,
       double alpha = 1.0);
 
