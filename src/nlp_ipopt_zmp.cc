@@ -14,7 +14,7 @@ namespace Ipopt {
 
 #define prt(x) std::cout << #x << " = " << std::endl << x << std::endl << std::endl;
 
-NlpIpoptZmp::NlpIpoptZmp(const xpp::zmp::CostFunction& cost_function,
+NlpIpoptZmp::NlpIpoptZmp(const xpp::zmp::Objective& cost_function,
                          const xpp::zmp::Constraints& constraints,
                          const Eigen::VectorXd& initial_spline_coefficients)
     :cost_function_(cost_function),
@@ -140,7 +140,7 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
     grad_f[i] = 0.0;
   }
 
-  Eigen::VectorXd grad_f_vec = cost_function_.EvalGradientOfObjective(opt_coeff_);
+  Eigen::VectorXd grad_f_vec = cost_function_.EvalGradientOfObjectiveNumeric(opt_coeff_);
 
   Eigen::Map<Eigen::VectorXd>(grad_f,n_spline_coeff_) = grad_f_vec;
 

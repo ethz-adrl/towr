@@ -11,10 +11,10 @@
 
 #include <IpTNLP.hpp>
 
-#include <xpp/zmp/cost_function.h>
 #include <xpp/zmp/constraints.h>
 
 #include <xpp/ros/zmp_publisher.h>
+#include "objective.h"
 
 namespace Ipopt {
 
@@ -27,13 +27,13 @@ public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::zmp::Constraints::StdVecEigen2d StdVecEigen2d;
   typedef xpp::ros::ZmpPublisher ZmpPublisher;
-  typedef xpp::zmp::CostFunction CostFunction;
+  typedef xpp::zmp::Objective CostFunction;
   typedef xpp::zmp::Constraints Constraints;
 
 
 public:
   /** default constructor */
-	NlpIpoptZmp(const xpp::zmp::CostFunction& cost_function,
+	NlpIpoptZmp(const xpp::zmp::Objective& cost_function,
 	            const xpp::zmp::Constraints& constraints,
 	            const Eigen::VectorXd& initial_spline_coefficients);
 

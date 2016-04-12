@@ -86,6 +86,7 @@ set(SOURCES
   src/supp_polygon_container.cc
   src/hyq_spliner.cc
   src/nlp_ipopt_zmp.cc
+  src/objective.cc
   src/cost_function.cc
   src/constraints.cc
   src/zmp_constraint.cc
@@ -125,7 +126,9 @@ if(BUILD_TESTS)
                         test/google/supp_polygon_test.cc
                         test/google/supp_polygon_container_test.cc
                         test/google/spline_container_test.cc
-                        test/google/helpers.cc)
+                        test/google/helpers.cc
+                        ##test/google/eigen_num_diff_test.cc
+                        )
                
     add_executable(googleTest ${MY_GTEST_UNITS})
     

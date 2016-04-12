@@ -1,60 +1,52 @@
 /*
- * cost_funtion.cpp
+ * cost_function1.cc
  *
- *  Created on: Mar 25, 2016
+ *  Created on: Apr 12, 2016
  *      Author: winklera
  */
 
 #include <xpp/zmp/cost_function.h>
-#include <array>
 
 namespace xpp {
 namespace zmp {
 
-using utils::X; using utils::Y; using utils::Z;
 
-CostFunction::CostFunction (const ContinuousSplineContainer& spline_structure)
+CostFunction::CostFunction(const ContinuousSplineContainer& spline_structure)
+    : Base(spline_structure.GetTotalFreeCoeff(),1),
+      cf_(CreateMinAccCostFunction(spline_structure))
+{};
+
+
+int
+CostFunction::operator() (const InputType& x_coeff, ValueType& obj_value) const
 {
-  spline_structure_ = spline_structure;
-  n_variables_ = spline_structure_.GetTotalFreeCoeff();
-  cf_quadratic_ = CreateMinAccCostFunction();
+  obj_value(0) = EvalObjective(x_coeff);
+  return 1;
 }
 
 
 double
-CostFunction::EvalObjective(const Eigen::VectorXd& x) const
+CostFunction::EvalObjective(const Eigen::VectorXd& x_coeff) const
 {
-  // some aliases
-  const Eigen::MatrixXd& M = cf_quadratic_.M;
-  const Eigen::VectorXd& q = cf_quadratic_.v;
-
-  assert(x.rows() == n_variables_);
-  double obj_value = 0.0;
-  obj_value = x.transpose() * M * x;
-  obj_value += q.transpose() * x;
+  double obj_value;
+  obj_value  = x_coeff.transpose() * cf_.M * x_coeff;
+  obj_value += cf_.v.transpose() * x_coeff;
 
   return obj_value;
 }
 
 
-Eigen::VectorXd
-CostFunction::EvalGradientOfObjective(const Eigen::VectorXd& x) const
-{
-  assert(x.rows() == n_variables_);
-  return cf_quadratic_.M*x;
-}
-
-
 CostFunction::MatVec
-CostFunction::CreateMinAccCostFunction() const
+CostFunction::CreateMinAccCostFunction(const ContinuousSplineContainer& spline_structure)
 {
-  std::array<double,2> weight = {1.0, 5.0}; // weight in x and y direction
+  using utils::X; using utils::Y;
+  std::array<double,2> weight = {1.0, 3.0}; // weight in x and y direction
 
   // total number of coefficients to be optimized
-  int n_coeff = spline_structure_.GetTotalFreeCoeff();
+  int n_coeff = spline_structure.GetTotalFreeCoeff();
   MatVec cf(n_coeff, n_coeff);
 
-  for (const ZmpSpline& s : spline_structure_.splines_) {
+  for (const ZmpSpline& s : spline_structure.splines_) {
     std::array<double,10> t_span = utils::cache_exponents<10>(s.duration_);
 
     for (int dim = X; dim <= Y; dim++) {

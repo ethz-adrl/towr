@@ -7,8 +7,8 @@
 
 #include <xpp/zmp/qp_optimizer.h>
 
-#include <xpp/zmp/cost_function.h>
 #include <xpp/zmp/zmp_constraint.h>
+#include <xpp/zmp/cost_function.h>
 #include <xpp/zmp/spline_constraints.h>
 #include <xpp/zmp/eigen_quadprog-inl.h>
 
@@ -27,9 +27,7 @@ QpOptimizer::QpOptimizer(const ContinuousSplineContainer& spline_structure,
                          const xpp::hyq::SupportPolygonContainer& supp_poly_container,
                          double walking_height)
 {
-
-  CostFunction cost_function(spline_structure);
-  cost_function_ = cost_function.CreateMinAccCostFunction();
+  cost_function_ = CostFunction::CreateMinAccCostFunction(spline_structure);
 
   SplineConstraints::State final_state; // zero vel,acc,jerk
   final_state.p = supp_poly_container.GetCenterOfFinalStance();

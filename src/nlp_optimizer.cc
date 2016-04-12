@@ -32,10 +32,11 @@ NlpOptimizer::SolveNlp(StdVecEigen2d& final_footholds,
 
 
   Constraints constraints(supp_triangle_container, spline_structure, walking_height);
-  CostFunction cost_function_quadratic_(spline_structure);
+  CostFunction cost_function(spline_structure);
+  Objective objective(cost_function);
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
-      new Ipopt::NlpIpoptZmp(cost_function_quadratic_,
+      new Ipopt::NlpIpoptZmp(objective,
                              constraints,
                              initial_spline_coeff);
 
