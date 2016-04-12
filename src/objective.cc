@@ -30,7 +30,6 @@ Objective::EvalObjective(const Eigen::VectorXd& x_coeff) const
 Eigen::VectorXd
 Objective::EvalGradientOfObjectiveNumeric(const Eigen::VectorXd& x_coeff) const
 {
-
   typedef Eigen::MatrixXd JacobianType;
   JacobianType jac = JacobianType(jac_cost_function_.values(), jac_cost_function_.inputs());
   jac_cost_function_.df(x_coeff,jac);

@@ -21,16 +21,13 @@ NlpIpoptZmp::NlpIpoptZmp(const xpp::zmp::Objective& cost_function,
      constraints_(constraints),
      zmp_publisher_(constraints.zmp_spline_container_)
 {
-  n_spline_coeff_ = constraints_.zmp_spline_container_.GetTotalFreeCoeff();
-  n_steps_ = constraints_.supp_polygon_container_.GetNumberOfSteps();
 
+
+  int n_spline_coeff = constraints_.zmp_spline_container_.GetTotalFreeCoeff();
+  int n_steps = constraints_.supp_polygon_container_.GetNumberOfSteps();
+
+  nlp_structure_ = NlpStructure(n_spline_coeff,n_steps);
   initial_spline_coeff_ = initial_spline_coefficients;
-
-  opt_footholds_.resize(n_steps_);
-  std::fill(opt_footholds_.begin(), opt_footholds_.end(), Eigen::Vector2d::Ones());
-
-  opt_coeff_ = Eigen::VectorXd(n_spline_coeff_);
-  opt_coeff_.setZero();
 }
 
 
@@ -38,10 +35,10 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
   // How many variables to optimize over
-  n = n_spline_coeff_ + 2*n_steps_; // x,y-coordinate of footholds
+  n = nlp_structure_.GetOptimizationVariableCount(); // x,y-coordinate of footholds
   std::cout << "optimizing n= " << n << " variables\n";
 
-  constraints_.EvalContraints(opt_coeff_, opt_footholds_);
+  constraints_.EvalContraints(nlp_structure_.opt_coeff_, nlp_structure_.opt_footholds_);
   m = constraints_.bounds_.size();
   std::cout << "with m= " << m << "constraints\n";
 
@@ -93,8 +90,8 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 
 	// set initial value to zero if wrong size input
-  if (initial_spline_coeff_.rows() != n_spline_coeff_ ) {
-    initial_spline_coeff_.resize(n_spline_coeff_,1);
+  if (initial_spline_coeff_.rows() != nlp_structure_.n_spline_coeff_ ) {
+    initial_spline_coeff_.resize(nlp_structure_.n_spline_coeff_,1);
     initial_spline_coeff_.setZero();
   }
 
@@ -106,7 +103,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 
 	// initialize footstep locations
-	for (int i=0; i<n_steps_; ++i) {
+	for (int i=0; i<nlp_structure_.n_steps_; ++i) {
 	  xpp::hyq::LegID leg = constraints_.planned_footholds_.at(i).leg;
 
 	  // initialize with start stance
@@ -124,38 +121,31 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
-  UpdateOptimizationVariables(x);
-
-  obj_value = cost_function_.EvalObjective(opt_coeff_);
-
+  nlp_structure_.UpdateOptimizationVariables(x);
+  obj_value = cost_function_.EvalObjective(nlp_structure_.opt_coeff_);
   return true;
 }
 
 
 bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
-  UpdateOptimizationVariables(x);
+  nlp_structure_.UpdateOptimizationVariables(x);
 
   for (int i=0; i<n; ++i) {
     grad_f[i] = 0.0;
   }
 
-  Eigen::VectorXd grad_f_vec = cost_function_.EvalGradientOfObjectiveNumeric(opt_coeff_);
-
-  Eigen::Map<Eigen::VectorXd>(grad_f,n_spline_coeff_) = grad_f_vec;
-
+  Eigen::VectorXd grad_f_vec = cost_function_.EvalGradientOfObjectiveNumeric(nlp_structure_.opt_coeff_);
+  Eigen::Map<Eigen::VectorXd>(grad_f,nlp_structure_.n_spline_coeff_) = grad_f_vec;
 	return true;
 }
 
 
 bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
-  UpdateOptimizationVariables(x);
-
-  Eigen::VectorXd g_eig = constraints_.EvalContraints(opt_coeff_, opt_footholds_);
-
+  nlp_structure_.UpdateOptimizationVariables(x);
+  Eigen::VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.opt_coeff_, nlp_structure_.opt_footholds_);
   Eigen::Map<Eigen::VectorXd>(g,m) = g_eig;
-
   return true;
 }
 
@@ -202,11 +192,13 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
 
   ZmpPublisher::VecFoothold footholds = constraints_.supp_polygon_container_.GetFootholds();
   for (uint i=0; i<footholds.size(); ++i) {
-    footholds.at(i).p << opt_footholds_.at(i).x(), opt_footholds_.at(i).y(), 0.0;
+    footholds.at(i).p << nlp_structure_.opt_footholds_.at(i).x(),
+                         nlp_structure_.opt_footholds_.at(i).y(),
+                         0.0;
   }
 
   zmp_publisher_.zmp_msg_.markers.clear();
-  zmp_publisher_.AddRvizMessage(opt_coeff_, footholds, constraints_.gap_center_x_,
+  zmp_publisher_.AddRvizMessage(nlp_structure_.opt_coeff_, footholds, constraints_.gap_center_x_,
                                 constraints_.gap_width_x_, "nlp", 1.0);
   zmp_publisher_.publish();
 
@@ -222,7 +214,7 @@ void NlpIpoptZmp::finalize_solution(SolverReturn status,
 			                        const IpoptData* ip_data,
 			                        IpoptCalculatedQuantities* ip_cq)
 {
-  UpdateOptimizationVariables(x);
+  nlp_structure_.UpdateOptimizationVariables(x);
 
   //  // write data to xml file
   //	Eigen::MatrixXd opt_u(1,n);
@@ -239,17 +231,6 @@ void NlpIpoptZmp::finalize_solution(SolverReturn status,
 }
 
 
-void
-NlpIpoptZmp::UpdateOptimizationVariables(const Number* x)
-{
-  opt_coeff_ = Eigen::Map<const Eigen::VectorXd>(x,n_spline_coeff_);
-
-  for (uint i=0; i<opt_footholds_.size(); ++i) {
-    Eigen::Vector2d& f = opt_footholds_.at(i);
-    f.x() = x[n_spline_coeff_+2*i+xpp::utils::X];
-    f.y() = x[n_spline_coeff_+2*i+xpp::utils::Y];
-  }
-}
 
 } // namespace Ipopt
 

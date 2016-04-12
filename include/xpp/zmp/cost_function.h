@@ -33,10 +33,12 @@ public:
    * @param obj_value the one-dimensional output (obj_value(0)) of the cost function
    */
   int operator() (const InputType& x_coeff, ValueType& obj_value) const;
-
   double EvalObjective(const Eigen::VectorXd& x_coeff) const;
+
   MatVec cf_;
   static MatVec CreateMinAccCostFunction(const ContinuousSplineContainer& spline_structure);
+private:
+  double MinimizeAcceleration(const Eigen::VectorXd& x_coeff) const;
 };
 
 

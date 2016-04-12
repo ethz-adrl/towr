@@ -12,9 +12,10 @@
 #include <IpTNLP.hpp>
 
 #include <xpp/zmp/constraints.h>
+#include <xpp/zmp/nlp_structure.h>
+#include <xpp/zmp/objective.h>
 
 #include <xpp/ros/zmp_publisher.h>
-#include "objective.h"
 
 namespace Ipopt {
 
@@ -108,19 +109,16 @@ public:
   //@}
 
 
-  Eigen::VectorXd opt_coeff_;
-  StdVecEigen2d opt_footholds_;
-  void UpdateOptimizationVariables(const Number* x);
-
+  NlpStructure GetNlpStructure() const {return nlp_structure_; };
 private:
 
+  NlpStructure nlp_structure_;
   CostFunction cost_function_;
   Constraints constraints_;
 
   ZmpPublisher zmp_publisher_;
 
-  int n_spline_coeff_;
-  int n_steps_;
+
 
   Eigen::VectorXd initial_spline_coeff_;
 

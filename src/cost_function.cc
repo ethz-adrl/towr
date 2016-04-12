@@ -29,9 +29,18 @@ double
 CostFunction::EvalObjective(const Eigen::VectorXd& x_coeff) const
 {
   double obj_value;
+  obj_value += MinimizeAcceleration(x_coeff);
+
+  return obj_value;
+}
+
+
+double
+CostFunction::MinimizeAcceleration(const Eigen::VectorXd& x_coeff) const
+{
+  double obj_value;
   obj_value  = x_coeff.transpose() * cf_.M * x_coeff;
   obj_value += cf_.v.transpose() * x_coeff;
-
   return obj_value;
 }
 
