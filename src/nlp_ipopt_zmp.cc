@@ -14,19 +14,15 @@ namespace Ipopt {
 
 #define prt(x) std::cout << #x << " = " << std::endl << x << std::endl << std::endl;
 
-NlpIpoptZmp::NlpIpoptZmp(const xpp::zmp::Objective& cost_function,
-                         const xpp::zmp::Constraints& constraints,
+NlpIpoptZmp::NlpIpoptZmp(const Objective& cost_function,
+                         const Constraints& constraints,
+                         const NlpStructure& nlp_structure,
                          const Eigen::VectorXd& initial_spline_coefficients)
     :cost_function_(cost_function),
      constraints_(constraints),
+     nlp_structure_(nlp_structure),
      zmp_publisher_(constraints.zmp_spline_container_)
 {
-
-
-  int n_spline_coeff = constraints_.zmp_spline_container_.GetTotalFreeCoeff();
-  int n_steps = constraints_.supp_polygon_container_.GetNumberOfSteps();
-
-  nlp_structure_ = NlpStructure(n_spline_coeff,n_steps);
   initial_spline_coeff_ = initial_spline_coefficients;
 }
 
@@ -122,7 +118,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
   nlp_structure_.UpdateOptimizationVariables(x);
-  obj_value = cost_function_.EvalObjective(nlp_structure_.opt_coeff_);
+  obj_value = cost_function_.EvalObjective(nlp_structure_.opt_all_);
   return true;
 }
 
@@ -135,8 +131,8 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
     grad_f[i] = 0.0;
   }
 
-  Eigen::VectorXd grad_f_vec = cost_function_.EvalGradientOfObjectiveNumeric(nlp_structure_.opt_coeff_);
-  Eigen::Map<Eigen::VectorXd>(grad_f,nlp_structure_.n_spline_coeff_) = grad_f_vec;
+  Eigen::VectorXd grad_f_eig = cost_function_.EvalGradientOfObjectiveNumeric(nlp_structure_.opt_all_);
+  Eigen::Map<Eigen::VectorXd>(grad_f, grad_f_eig.rows()) = grad_f_eig;
 	return true;
 }
 
@@ -144,6 +140,7 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
 bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
   nlp_structure_.UpdateOptimizationVariables(x);
+  //FIXME pass nlp structure directly
   Eigen::VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.opt_coeff_, nlp_structure_.opt_footholds_);
   Eigen::Map<Eigen::VectorXd>(g,m) = g_eig;
   return true;

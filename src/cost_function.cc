@@ -11,25 +11,27 @@ namespace xpp {
 namespace zmp {
 
 
-CostFunction::CostFunction(const ContinuousSplineContainer& spline_structure)
-    : Base(spline_structure.GetTotalFreeCoeff(),1),
-      cf_(CreateMinAccCostFunction(spline_structure))
+CostFunction::CostFunction(const ContinuousSplineContainer& spline_structure,
+                           const NlpStructure& nlp_structure)
+    : Base(nlp_structure.GetOptimizationVariableCount(),1),
+      cf_(CreateMinAccCostFunction(spline_structure)),
+      nlp_structure_(nlp_structure)
 {};
 
 
 int
-CostFunction::operator() (const InputType& x_coeff, ValueType& obj_value) const
+CostFunction::operator() (const InputType& x, ValueType& obj_value) const
 {
-  obj_value(0) = EvalObjective(x_coeff);
+  obj_value(0) = EvalCostFunction(x);
   return 1;
 }
 
 
 double
-CostFunction::EvalObjective(const Eigen::VectorXd& x_coeff) const
+CostFunction::EvalCostFunction(const InputType& x) const
 {
   double obj_value;
-  obj_value += MinimizeAcceleration(x_coeff);
+  obj_value += MinimizeAcceleration(nlp_structure_.ExtractSplineCoefficients(x));
 
   return obj_value;
 }

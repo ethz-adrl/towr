@@ -28,14 +28,16 @@ public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::zmp::Constraints::StdVecEigen2d StdVecEigen2d;
   typedef xpp::ros::ZmpPublisher ZmpPublisher;
-  typedef xpp::zmp::Objective CostFunction;
+  typedef xpp::zmp::Objective Objective;
   typedef xpp::zmp::Constraints Constraints;
+  typedef xpp::zmp::NlpStructure NlpStructure;
 
 
 public:
   /** default constructor */
-	NlpIpoptZmp(const xpp::zmp::Objective& cost_function,
-	            const xpp::zmp::Constraints& constraints,
+	NlpIpoptZmp(const Objective& cost_function,
+	            const Constraints& constraints,
+	            const NlpStructure& nlp_structure,
 	            const Eigen::VectorXd& initial_spline_coefficients);
 
   /** default destructor */
@@ -113,7 +115,7 @@ public:
 private:
 
   NlpStructure nlp_structure_;
-  CostFunction cost_function_;
+  Objective cost_function_;
   Constraints constraints_;
 
   ZmpPublisher zmp_publisher_;

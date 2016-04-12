@@ -11,6 +11,7 @@
 #include <xpp/utils/eigen_num_diff_functor.h>
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/zmp/nlp_structure.h>
 
 namespace xpp {
 namespace zmp {
@@ -22,8 +23,10 @@ class CostFunction : public xpp::utils::EigenNumDiffFunctor<double> {
 public:
   typedef EigenNumDiffFunctor<double> Base;
   typedef xpp::utils::MatVec MatVec;
+  typedef Eigen::VectorXd VectorXd;
 
-  explicit CostFunction(const ContinuousSplineContainer& spline_structure);
+  explicit CostFunction(const ContinuousSplineContainer& spline_structure,
+                        const NlpStructure& nlp_structure);
 
 public:
   /**
@@ -32,13 +35,14 @@ public:
    * @param x_coeff the inputs to the function
    * @param obj_value the one-dimensional output (obj_value(0)) of the cost function
    */
-  int operator() (const InputType& x_coeff, ValueType& obj_value) const;
-  double EvalObjective(const Eigen::VectorXd& x_coeff) const;
+  int operator() (const InputType& x, ValueType& obj_value) const;
+  double EvalCostFunction(const InputType& x) const;
 
   MatVec cf_;
+  NlpStructure nlp_structure_;
   static MatVec CreateMinAccCostFunction(const ContinuousSplineContainer& spline_structure);
 private:
-  double MinimizeAcceleration(const Eigen::VectorXd& x_coeff) const;
+  double MinimizeAcceleration(const VectorXd& x_coeff) const;
 };
 
 

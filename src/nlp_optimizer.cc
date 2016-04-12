@@ -30,14 +30,17 @@ NlpOptimizer::SolveNlp(StdVecEigen2d& final_footholds,
     throw std::length_error("Ipopt could not initialize correctly");
   }
 
+  NlpStructure nlp_structure(spline_structure.GetTotalFreeCoeff(),
+                             supp_triangle_container.GetNumberOfSteps());
 
   Constraints constraints(supp_triangle_container, spline_structure, walking_height);
-  CostFunction cost_function(spline_structure);
+  CostFunction cost_function(spline_structure, nlp_structure);
   Objective objective(cost_function);
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
       new Ipopt::NlpIpoptZmp(objective,
                              constraints,
+                             nlp_structure,
                              initial_spline_coeff);
 
 
