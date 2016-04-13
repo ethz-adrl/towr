@@ -22,11 +22,6 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef double Number;
 
-  enum {
-    X = 0,
-    Y = 1
-  };
-
 
 public:
   NlpStructure(int n_spline_coeff = 0, int n_steps = 0)
@@ -48,25 +43,34 @@ public:
   {
     opt_all_   = Eigen::Map<const VectorXd>(x,GetOptimizationVariableCount());
     opt_coeff_ = ExtractSplineCoefficients(opt_all_);
-
-    for (uint i=0; i<opt_footholds_.size(); ++i) {
-      Eigen::Vector2d& f = opt_footholds_.at(i);
-      f.x() = x[n_spline_coeff_+2*i+X];
-      f.y() = x[n_spline_coeff_+2*i+Y];
-    }
+    opt_footholds_ = ExtractFootholds(opt_all_);
   };
+
 
   Eigen::VectorXd ExtractSplineCoefficients(const Eigen::VectorXd& x) const
   {
     return x.head(n_spline_coeff_);
   }
 
+
+  StdVecEigen2d ExtractFootholds(const Eigen::VectorXd& x) const
+  {
+    Eigen::VectorXd footholds_xy = x.tail(2*n_steps_);
+    StdVecEigen2d fooothold_vec(n_steps_);
+    for (uint i=0; i<n_steps_; ++i) {
+      fooothold_vec.at(i) = footholds_xy.segment<2>(2*i);
+    }
+
+    return fooothold_vec;
+  }
+
+
   int n_spline_coeff_;
   int n_steps_;
 
+  Eigen::VectorXd opt_all_; /// combines the two below
   Eigen::VectorXd opt_coeff_;
   StdVecEigen2d opt_footholds_;
-  Eigen::VectorXd opt_all_; /// combines the two above
 
   int GetOptimizationVariableCount() const { return n_spline_coeff_ + 2*n_steps_; };
 

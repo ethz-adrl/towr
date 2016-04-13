@@ -24,6 +24,8 @@ public:
   typedef EigenNumDiffFunctor<double> Base;
   typedef xpp::utils::MatVec MatVec;
   typedef Eigen::VectorXd VectorXd;
+  typedef Eigen::Vector2d Vector2d;
+  typedef NlpStructure::StdVecEigen2d StdVecEigen2d;
 
   explicit CostFunction(const ContinuousSplineContainer& spline_structure,
                         const NlpStructure& nlp_structure);
@@ -43,6 +45,7 @@ public:
   static MatVec CreateMinAccCostFunction(const ContinuousSplineContainer& spline_structure);
 private:
   double MinimizeAcceleration(const VectorXd& x_coeff) const;
+  double MinimizeYFoothold(const StdVecEigen2d& footholds) const;
 };
 
 

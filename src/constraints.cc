@@ -52,8 +52,8 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
 //  g_std.push_back(InitialAcceleration(x_coeff));
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff));
-  g_std.push_back(FixFootholdPosition(footholds));
-//  g_std.push_back(RestrictFootholdToCogPos(x_coeff));
+//  g_std.push_back(FixFootholdPosition(footholds));
+  g_std.push_back(RestrictFootholdToCogPos(x_coeff));
 //  g_std.push_back(AddObstacle());
 
 

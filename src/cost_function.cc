@@ -19,31 +19,43 @@ CostFunction::CostFunction(const ContinuousSplineContainer& spline_structure,
 {};
 
 
+double
+CostFunction::EvalCostFunction(const InputType& x) const
+{
+  double obj_value = 0.0;
+  obj_value += MinimizeAcceleration(nlp_structure_.ExtractSplineCoefficients(x));
+  obj_value += MinimizeYFoothold(nlp_structure_.ExtractFootholds(x));
+
+  return obj_value;
+}
+
+
+double
+CostFunction::MinimizeAcceleration(const VectorXd& x_coeff) const
+{
+  double obj_value = 0.0;
+  obj_value += x_coeff.transpose() * cf_.M * x_coeff;
+  obj_value += cf_.v.transpose() * x_coeff;
+  return obj_value;
+}
+
+
+double
+CostFunction::MinimizeYFoothold(const StdVecEigen2d& footholds) const
+{
+  double obj_value = 0.0;
+  for (const Vector2d& f : footholds) {
+    obj_value -= f.y();
+  }
+  return obj_value;
+}
+
+
 int
 CostFunction::operator() (const InputType& x, ValueType& obj_value) const
 {
   obj_value(0) = EvalCostFunction(x);
   return 1;
-}
-
-
-double
-CostFunction::EvalCostFunction(const InputType& x) const
-{
-  double obj_value;
-  obj_value += MinimizeAcceleration(nlp_structure_.ExtractSplineCoefficients(x));
-
-  return obj_value;
-}
-
-
-double
-CostFunction::MinimizeAcceleration(const Eigen::VectorXd& x_coeff) const
-{
-  double obj_value;
-  obj_value  = x_coeff.transpose() * cf_.M * x_coeff;
-  obj_value += cf_.v.transpose() * x_coeff;
-  return obj_value;
 }
 
 
