@@ -12,8 +12,10 @@ namespace zmp {
 
 
 CostFunction::CostFunction(const ContinuousSplineContainer& spline_structure,
+                           const SupportPolygonContainer& supp_polygon_container,
                            const NlpStructure& nlp_structure)
-    : Base(nlp_structure.GetOptimizationVariableCount(),1),
+    : EigenNumDiffFunctord(nlp_structure.GetOptimizationVariableCount(),1),
+      ProblemSpecification(supp_polygon_container,spline_structure),
       cf_(CreateMinAccCostFunction(spline_structure)),
       nlp_structure_(nlp_structure)
 {};
@@ -24,7 +26,7 @@ CostFunction::EvalCostFunction(const InputType& x) const
 {
   double obj_value = 0.0;
   obj_value += MinimizeAcceleration(nlp_structure_.ExtractSplineCoefficients(x));
-  obj_value += MinimizeYFoothold(nlp_structure_.ExtractFootholds(x));
+//  obj_value += MinimizeYFoothold(nlp_structure_.ExtractFootholds(x));
 
   return obj_value;
 }
@@ -45,17 +47,9 @@ CostFunction::MinimizeYFoothold(const StdVecEigen2d& footholds) const
 {
   double obj_value = 0.0;
   for (const Vector2d& f : footholds) {
-    obj_value -= f.y();
+    obj_value += f.x();
   }
   return obj_value;
-}
-
-
-int
-CostFunction::operator() (const InputType& x, ValueType& obj_value) const
-{
-  obj_value(0) = EvalCostFunction(x);
-  return 1;
 }
 
 

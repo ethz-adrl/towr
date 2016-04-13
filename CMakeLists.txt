@@ -93,6 +93,7 @@ set(SOURCES
   src/zmp_publisher.cc
   src/ellipse.cc
   src/spline_constraints.cc
+  src/problem_specification.cc
 )
              
 # Add the shared library

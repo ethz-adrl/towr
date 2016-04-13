@@ -17,13 +17,9 @@ namespace zmp {
 Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_container,
                           const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
                           double walking_height)
-    :planned_footholds_(supp_poly_container.GetFootholds()),
+    :ProblemSpecification(supp_poly_container, zmp_spline_container),
      zmp_constraint_(zmp_spline_container, walking_height)
 {
-  zmp_spline_container_    = zmp_spline_container;
-  supp_polygon_container_  = supp_poly_container;
-
-
   State final_state; // zero vel,acc,jerk
   final_state.p = supp_poly_container.GetCenterOfFinalStance();
   SplineConstraints spline_constraint(zmp_spline_container);

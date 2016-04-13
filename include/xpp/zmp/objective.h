@@ -19,9 +19,8 @@ namespace zmp {
  */
 class Objective {
 public:
-  typedef Eigen::VectorXd VectorXd;
-  typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::zmp::CostFunction CostFunction;
+  typedef Eigen::VectorXd VectorXd;
   typedef Eigen::NumericalDiff<CostFunction> JacCostFunction;
 
 public:
@@ -36,7 +35,6 @@ public:
 private:
   CostFunction cost_function_;
   JacCostFunction jac_cost_function_;
-
 };
 
 

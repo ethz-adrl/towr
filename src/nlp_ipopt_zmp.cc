@@ -168,6 +168,7 @@ bool NlpIpoptZmp::eval_jac_g(Index n, const Number* x, bool new_x,
   }
   else {
   // approximated by ipopt through finite differences
+  // FIXME use eigen numdiff to calculate these derivatives as in cost function
   }
 
   return true;

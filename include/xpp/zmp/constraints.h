@@ -11,8 +11,7 @@
 #include <Eigen/Dense>
 
 
-#include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/zmp/problem_specification.h>
 #include <xpp/zmp/spline_constraints.h>
 #include <xpp/zmp/zmp_constraint.h>
 
@@ -20,14 +19,13 @@ namespace xpp {
 namespace zmp {
 
 
-class Constraints {
+class Constraints : public ProblemSpecification {
 
 public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef xpp::zmp::SplineConstraints::State State;
-  typedef SupportPolygonContainer::VecFoothold VecFoothold;
 
   struct Bound {
     Bound(double lower = 0.0, double upper = 0.0) {
@@ -48,8 +46,6 @@ public:
   Eigen::VectorXd EvalContraints(const Eigen::VectorXd& x_coeff,
                                  const StdVecEigen2d& footholds);
 
-  xpp::zmp::ContinuousSplineContainer zmp_spline_container_;
-  xpp::hyq::SupportPolygonContainer supp_polygon_container_;
 
   MatVec spline_junction_constraints_;
   MatVec spline_initial_acc_constraints_;
@@ -57,7 +53,6 @@ public:
 
   Eigen::VectorXd constraints_;
   std::vector<Constraints::Bound> bounds_;
-  const VecFoothold planned_footholds_;
 
   ZmpConstraint zmp_constraint_;
 
