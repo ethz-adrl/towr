@@ -50,7 +50,7 @@ public:
   int GetTotalFreeCoeff() const;
   int GetTotalNodesNo4ls() const;
   int GetTotalNodes4ls() const;
-  VecScalar GetCalculatedCoeff(int spline_id_k, int dim, SplineCoeff c) const;
+  VecScalar RelationshipToABCD(int spline_id_k, int dim, SplineCoeff c) const;
 
   // make static to show it doesn't depend on member variables
   void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff,
@@ -59,8 +59,8 @@ public:
 private:
   static const int kFreeCoeffPerSpline = kCoeffCount-2;
 
-  std::array<MatVec, 2> e_coefficients_;
-  std::array<MatVec, 2> f_coefficients_;
+  std::array<MatVec, 2> relationship_e_to_abcd_;
+  std::array<MatVec, 2> relationship_f_to_abdc_;
   /**
    * Creates a Vector whose scalar product with the optimized coefficients (a,b,c,d)
    * has the same effect as the original e/f coefficients in the spline equation

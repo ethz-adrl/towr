@@ -45,8 +45,8 @@ ZmpConstraint::ExpressZmpThroughCoefficients(double walking_height, int dim) con
 
     // calculate e and f coefficients from previous values
     const int k = s.id_;
-    VecScalar Ek = spline_container_.GetCalculatedCoeff(k, dim, E);
-    VecScalar Fk = spline_container_.GetCalculatedCoeff(k, dim, F);
+    VecScalar Ek = spline_container_.RelationshipToABCD(k, dim, E);
+    VecScalar Fk = spline_container_.RelationshipToABCD(k, dim, F);
     int a = ContinuousSplineContainer::Index(k,dim,A);
     int b = ContinuousSplineContainer::Index(k,dim,B);
     int c = ContinuousSplineContainer::Index(k,dim,C);
