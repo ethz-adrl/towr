@@ -45,7 +45,7 @@ CostFunction::MinimizeAcceleration(const VectorXd& x_coeff) const
 double
 CostFunction::PenalizeFootholdFromPlanned(const StdVecEigen2d& footholds) const
 {
-  Eigen::VectorXd g = FixFootholdPosition(footholds);
+  Eigen::VectorXd g = DistanceFootFromPlanned(footholds);
 
 
 //  double obj_value = 0.0;

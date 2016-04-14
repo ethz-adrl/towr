@@ -23,10 +23,10 @@ SplineContainer::SplineContainer()
 }
 
 
-double SplineContainer::GetTotalTime(bool exclude_4ls_splines) const
+double SplineContainer::GetTotalTime(const Splines& splines, bool exclude_4ls_splines) const
 {
   double T = 0.0;
-  for (ZmpSpline s: splines_) {
+  for (ZmpSpline s: splines) {
 
     if (s.four_leg_supp_ && exclude_4ls_splines)
       continue;
@@ -107,23 +107,24 @@ void SplineContainer::ConstructSplineSequence(
 
 
 
-void SplineContainer::GetCOGxy(double t_global, Point2d& cog_xy) const
+void SplineContainer::GetCOGxy(double t_global, Point2d& cog_xy,
+                               const Splines& splines) const
 {
-  assert(t_global<=GetTotalTime());
+  assert(t_global<=GetTotalTime(splines));
 
   uint curr_spline = 0;
 
   /** Transform global time to local spline time dt */
   double t_local = t_global;
-  while (t_local > splines_[curr_spline].duration_) {
-    t_local -= splines_[curr_spline++].duration_;
+  while (t_local > splines[curr_spline].duration_) {
+    t_local -= splines[curr_spline++].duration_;
   }
 
-  cog_xy.p = splines_[curr_spline].GetState(kPos, t_local);
-  cog_xy.v = splines_[curr_spline].GetState(kVel, t_local);
-  cog_xy.a = splines_[curr_spline].GetState(kAcc, t_local);
+  cog_xy.p = splines[curr_spline].GetState(kPos, t_local);
+  cog_xy.v = splines[curr_spline].GetState(kVel, t_local);
+  cog_xy.a = splines[curr_spline].GetState(kAcc, t_local);
 
-  assert(curr_spline < splines_.size()); // make sure the current spline is in the buffer
+  assert(curr_spline < splines.size()); // make sure the current spline is in the buffer
 }
 
 } // namespace zmp

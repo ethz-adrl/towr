@@ -80,7 +80,7 @@ Constraints::GetConstraintsOnly(const VectorXd& x_coeff,
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff));
 //  g_std.push_back(FixFootholdPosition(footholds));
-  g_std.push_back(RestrictFootholdToCogPos(x_coeff));
+  g_std.push_back(RestrictFootholdToCogPos(x_coeff, footholds));
 //  g_std.push_back(AddObstacle());
 
 
@@ -94,7 +94,7 @@ Constraints::EvalContraints(const VectorXd& x_coeff, const StdVecEigen2d& footho
 {
 
   // update the member variables
-  zmp_spline_container_.AddOptimizedCoefficients(x_coeff);
+  zmp_spline_container_.AddOptimizedCoefficients(x_coeff, zmp_spline_container_.splines_);
   for (uint i=0; i<footholds.size(); ++i)
     supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
 
@@ -125,22 +125,8 @@ Constraints::KeepZmpInSuppPolygon(const VectorXd& x_coeff) const
 Constraints::Constraint
 Constraints::FixFootholdPosition(const StdVecEigen2d& footholds) const
 {
-  // constraints on the footsteps
-  std::vector<int> fixed_dim = {xpp::utils::X, xpp::utils::Y};
-  VectorXd g(fixed_dim.size()*footholds.size());
-  int c=0;
-
-  for (uint i=0; i<footholds.size(); ++i) {
-    xpp::hyq::Foothold f = planned_footholds_.at(i);
-
-    // fix footholds in x and y direction
-    for (int dim : fixed_dim)
-      g(c++) = footholds.at(i)(dim) - f.p(dim);
-  }
-
-
   Constraint constraints;
-  constraints.values_ = g;
+  constraints.values_ = DistanceFootFromPlanned(footholds);;
   constraints.type_ = EQUALITY;
 
   return constraints;
@@ -172,94 +158,11 @@ Constraints::AddObstacle() const
 
 
 Constraints::Constraint
-Constraints::RestrictFootholdToCogPos(const VectorXd& x_coeff) const
+Constraints::RestrictFootholdToCogPos(const VectorXd& x_coeff,
+                                      const StdVecEigen2d& footholds) const
 {
-  double x_nominal_b = 0.3; // 0.4
-  double y_nominal_b = 0.3; // 0.4
-  double x_radius = 0.15;
-  double y_radius = 0.10;
-
-  Eigen::Vector2d r_BLF; r_BLF << x_nominal_b, y_nominal_b;
-  Eigen::Vector2d r_BRF; r_BRF << x_nominal_b, -y_nominal_b;
-  Eigen::Vector2d r_BLH; r_BLH << -x_nominal_b, y_nominal_b;
-  Eigen::Vector2d r_BRH; r_BRH << -x_nominal_b, -y_nominal_b;
-
-//
-//
-//  Bound bound_pos_x( x_nominal_b-x_radius,  x_nominal_b+x_radius);
-//  Bound bound_neg_x(-x_nominal_b-x_radius, -x_nominal_b+x_radius);
-//
-//  Bound bound_pos_y( y_nominal_b-y_radius,  y_nominal_b+y_radius);
-//  Bound bound_neg_y(-y_nominal_b-y_radius, -y_nominal_b+y_radius);
-
-  //  double min_range = 0.1;
-  double dt = 0.3; //zmp_spline_container_.dt_;
-  double T  = zmp_spline_container_.GetTotalTime();
-  int N     = std::ceil(T/dt);
-  int approx_n_constraints = 4*N*2; // 3 or 4 legs in contact at every discrete time, 2 b/c x-y
-  std::vector<double> g_vec;
-  g_vec.reserve(approx_n_constraints);
-
-  //  Eigen::VectorXd g(approx_n_constraints);
-  //  int c=0;
-
-  double t=0.0;
-  do {
-    // know legs in contact at each step
-    VecFoothold stance_legs;
-    int step = zmp_spline_container_.GetStep(t);
-    stance_legs = supp_polygon_container_.GetStanceDuring(step);
-
-
-
-    xpp::utils::Point2d cog_xy;
-    zmp_spline_container_.GetCOGxy(t, cog_xy);
-
-    // calculate distance to base for every stance leg
-    // restrict to quadrants
-    for (const hyq::Foothold& f : stance_legs) {
-
-      // vector base to foot
-      Eigen::Vector2d r_BF = f.p.segment<2>(0) - cog_xy.p;
-
-      //      double dx = f.p.x() - cog_xy.p.x();
-      //      double dy = f.p.y() - cog_xy.p.y();
-
-
-      Eigen::Vector2d r_FC;
-      // kinematic constraints (slightly ugly)
-      switch (f.leg) {
-        case hyq::LF:
-          r_FC = -r_BF + r_BLF;
-
-          break;
-        case hyq::RF:
-          r_FC = -r_BF + r_BRF;
-
-          break;
-        case hyq::LH:
-          r_FC = -r_BF + r_BLH;
-
-          break;
-        case hyq::RH:
-          r_FC = -r_BF + r_BRH;
-
-          break;
-        default:
-          throw std::runtime_error("RestrictFootholdToCogPos(): leg does not exist");
-          break;
-      }
-
-
-      g_vec.push_back(r_FC.x());
-      g_vec.push_back(r_FC.y());
-    }
-    t += dt;
-
-  } while(t < T);
-
   Constraint c;
-  c.values_ = Eigen::Map<const VectorXd>(&g_vec.front(),g_vec.size());
+  c.values_ = DistanceFootToNominal(x_coeff, footholds);
   c.type_ = COGTOFOOTHOLD;
   return c;
 }

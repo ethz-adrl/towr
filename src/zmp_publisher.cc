@@ -34,7 +34,7 @@ void ZmpPublisher::AddRvizMessage(
     double alpha)
 {
   // update trajectory
-  trajectory_.AddOptimizedCoefficients(opt_spline_coeff);
+  trajectory_.AddOptimizedCoefficients(opt_spline_coeff, trajectory_.splines_);
 
 
   visualization_msgs::MarkerArray msg;

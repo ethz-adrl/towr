@@ -142,11 +142,13 @@ ContinuousSplineContainer::DescribeFByPrev(int dim, double start_cog_p,
 
 void
 ContinuousSplineContainer::AddOptimizedCoefficients(
-    const Eigen::VectorXd& optimized_coeff)
+    const Eigen::VectorXd& optimized_coeff,
+    Splines& splines) const
 {
   CheckIfInitialized();
+  assert(splines.size() == optimized_coeff.rows() / kFreeCoeffPerSpline);
 
-  for (size_t k=0; k<splines_.size(); ++k) {
+  for (size_t k=0; k<splines.size(); ++k) {
     CoeffValues coeff_values;
 
     for (int dim=xpp::utils::X; dim<=xpp::utils::Y; dim++) {
@@ -168,11 +170,18 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
 
     } // dim:X..Y
 
-    splines_.at(k).set_spline_coeff(coeff_values);
+    splines.at(k).set_spline_coeff(coeff_values);
 
   } // k=0..n_spline_infos_
 }
 
+void ContinuousSplineContainer::GetCOGxyForCoeff(double t_global, Point2d& cog_xy,
+                                         const Eigen::VectorXd& optimized_coeff) const
+{
+  Splines splines = splines_;
+  AddOptimizedCoefficients(optimized_coeff, splines);
+  GetCOGxy(t_global, cog_xy, splines);
+}
 
 void
 ContinuousSplineContainer::CheckIfInitialized() const

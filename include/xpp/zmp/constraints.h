@@ -27,6 +27,7 @@ public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::utils::MatVec MatVec;
   typedef Eigen::VectorXd VectorXd;
+  typedef Eigen::Vector2d Vector2d;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef xpp::zmp::SplineConstraints::State State;
 
@@ -84,7 +85,8 @@ private:
   Constraint InitialAcceleration(const VectorXd& x_coeff) const;
   Constraint FinalState(const VectorXd& x_coeff) const;
   Constraint AddObstacle() const;
-  Constraint RestrictFootholdToCogPos(const VectorXd& x_coeff) const;
+  Constraint RestrictFootholdToCogPos(const VectorXd& x_coeff,
+                                      const StdVecEigen2d& footholds) const;
 
   void AddBounds(int m_constraints, ConstraintType type,
                  std::vector<Bound>& bounds) const;

@@ -49,12 +49,20 @@ public:
   @param Derivative which value (pos,vel,acc) at this time we are interested in
   @return x and y state of position,velocity OR acceleration
   */
-  void GetCOGxy(double t_global, Point2d& cog_xy) const;
+  void GetCOGxy(double t_global, Point2d& cog_xy, const Splines& splines) const;
+  void GetCOGxy(double t_global, Point2d& cog_xy) const
+  {
+    GetCOGxy(t_global, cog_xy, splines_);
+  }
   int GetSplineID(double t_global) const;
   int GetFourLegSupport(double t_global) const;
   int GetStep(double t_global) const;
   void AddSpline(const ZmpSpline &spline);
-  double GetTotalTime(bool exclude_4ls_splines = false) const;
+  double GetTotalTime(const Splines& splines, bool exclude_4ls_splines) const;
+  double GetTotalTime(bool exclude_4ls_splines = false) const
+  {
+    return GetTotalTime(splines_, exclude_4ls_splines);
+  }
 
 
 

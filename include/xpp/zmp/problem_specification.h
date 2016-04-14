@@ -24,6 +24,8 @@ class ProblemSpecification {
 public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef SupportPolygonContainer::VecFoothold VecFoothold;
+  typedef Eigen::VectorXd VectorXd;
+  typedef Eigen::Vector2d Vector2d;
   typedef xpp::hyq::Foothold Foothold;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::hyq::LegID LegID;
@@ -45,7 +47,9 @@ protected:
   const VecFoothold planned_footholds_;
 
 protected:
-  Eigen::VectorXd FixFootholdPosition(const StdVecEigen2d& footholds) const;
+  Eigen::VectorXd DistanceFootFromPlanned(const StdVecEigen2d& footholds) const;
+  Eigen::VectorXd DistanceFootToNominal(const VectorXd& x_coeff,
+                                        const StdVecEigen2d& footholds) const;
 };
 
 } /* namespace zmp */
