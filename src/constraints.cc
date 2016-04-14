@@ -58,7 +58,7 @@ Constraints::AddBounds(int m_constraints, ConstraintType type,
   static const std::map<ConstraintType, Bound> bound_types {
     {EQUALITY, Bound(0.0, 0.0)},
     {INEQUALITY, Bound(0.0, 1.0e19)},
-    {COGTOFOOTHOLD, Bound(-0.15, 0.15)}
+    {COGTOFOOTHOLD, Bound(-0.20, 0.20)}
   };
 
   for (int c=0; c<m_constraints; ++c) {
@@ -79,7 +79,7 @@ Constraints::GetConstraintsOnly(const VectorXd& x_coeff,
 //  g_std.push_back(InitialAcceleration(x_coeff));
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff));
-//  g_std.push_back(FixFootholdPosition(footholds));
+  g_std.push_back(FixFootholdPosition(footholds));
   g_std.push_back(RestrictFootholdToCogPos(x_coeff, footholds));
 //  g_std.push_back(AddObstacle());
 
@@ -126,7 +126,7 @@ Constraints::Constraint
 Constraints::FixFootholdPosition(const StdVecEigen2d& footholds) const
 {
   Constraint constraints;
-  constraints.values_ = DistanceFootFromPlanned(footholds);;
+  constraints.values_ = DistanceFootFromPlanned(footholds);
   constraints.type_ = EQUALITY;
 
   return constraints;

@@ -145,7 +145,6 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
     const Eigen::VectorXd& optimized_coeff,
     Splines& splines) const
 {
-  CheckIfInitialized();
   assert(splines.size() == optimized_coeff.rows() / kFreeCoeffPerSpline);
 
   for (size_t k=0; k<splines.size(); ++k) {
@@ -175,13 +174,6 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
   } // k=0..n_spline_infos_
 }
 
-void ContinuousSplineContainer::GetCOGxyForCoeff(double t_global, Point2d& cog_xy,
-                                         const Eigen::VectorXd& optimized_coeff) const
-{
-  Splines splines = splines_;
-  AddOptimizedCoefficients(optimized_coeff, splines);
-  GetCOGxy(t_global, cog_xy, splines);
-}
 
 void
 ContinuousSplineContainer::CheckIfInitialized() const

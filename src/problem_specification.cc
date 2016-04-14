@@ -70,8 +70,8 @@ ProblemSpecification::DistanceFootToNominal(const VectorXd& x_coeff,
   // to save computation time
   // maybe call "UpdateOpt.." instead of "Add.."
 //  zmp_spline_container_.AddOptimizedCoefficients(x_coeff);
-  ContinuousSplineContainer::Splines splines = zmp_spline_container_.splines_;
-  zmp_spline_container_.AddOptimizedCoefficients(x_coeff, splines);
+  ContinuousSplineContainer::Splines updated_splines = zmp_spline_container_.splines_;
+  zmp_spline_container_.AddOptimizedCoefficients(x_coeff, updated_splines);
   double t=0.0;
   do {
     // know legs in contact at each step
@@ -80,7 +80,7 @@ ProblemSpecification::DistanceFootToNominal(const VectorXd& x_coeff,
     stance_legs = supp_polygon_container_.GetStanceDuring(step);
 
     xpp::utils::Point2d cog_xy;
-    zmp_spline_container_.GetCOGxyForCoeff(t, cog_xy, x_coeff);
+    SplineContainer::GetCOGxy(t, cog_xy, updated_splines);
 
     // calculate distance to base for every stance leg
     // restrict to quadrants

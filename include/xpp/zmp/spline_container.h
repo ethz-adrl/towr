@@ -49,7 +49,7 @@ public:
   @param Derivative which value (pos,vel,acc) at this time we are interested in
   @return x and y state of position,velocity OR acceleration
   */
-  void GetCOGxy(double t_global, Point2d& cog_xy, const Splines& splines) const;
+  static void GetCOGxy(double t_global, Point2d& cog_xy, const Splines& splines);
   void GetCOGxy(double t_global, Point2d& cog_xy) const
   {
     GetCOGxy(t_global, cog_xy, splines_);

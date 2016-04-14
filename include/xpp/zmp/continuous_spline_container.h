@@ -55,8 +55,6 @@ public:
   // make static to show it doesn't depend on member variables
   void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff,
                                 Splines& splines) const;
-  void GetCOGxyForCoeff(double t_global, Point2d& cog_xy,
-                const Eigen::VectorXd& optimized_coeff) const;
 
 private:
   static const int kFreeCoeffPerSpline = kCoeffCount-2;

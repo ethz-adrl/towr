@@ -108,7 +108,7 @@ void SplineContainer::ConstructSplineSequence(
 
 
 void SplineContainer::GetCOGxy(double t_global, Point2d& cog_xy,
-                               const Splines& splines) const
+                               const Splines& splines)
 {
   assert(t_global<=GetTotalTime(splines));
 
