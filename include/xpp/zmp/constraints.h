@@ -15,6 +15,8 @@
 #include <xpp/zmp/spline_constraints.h>
 #include <xpp/zmp/zmp_constraint.h>
 
+#include <functional>
+
 namespace xpp {
 namespace zmp {
 
@@ -24,6 +26,7 @@ class Constraints : public ProblemSpecification {
 public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::utils::MatVec MatVec;
+  typedef Eigen::VectorXd VectorXd;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef xpp::zmp::SplineConstraints::State State;
 
@@ -36,6 +39,18 @@ public:
     double upper_;
   };
 
+  enum ConstraintType {
+    EQUALITY=0,  //0.0 -> 0.0
+    INEQUALITY=1, //0.0 -> inf
+    COGTOFOOTHOLD=2,
+  };
+
+  struct Constraint {
+    VectorXd values_;
+    ConstraintType type_;
+  };
+
+
 public:
   Constraints (const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
                const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
@@ -43,16 +58,17 @@ public:
   virtual
   ~Constraints () {};
 
-  Eigen::VectorXd EvalContraints(const Eigen::VectorXd& x_coeff,
-                                 const StdVecEigen2d& footholds);
 
+  std::vector<Bound> GetBounds();
+
+  Eigen::VectorXd EvalContraints(const VectorXd& x_coeff,
+                                 const StdVecEigen2d& footholds);
 
   MatVec spline_junction_constraints_;
   MatVec spline_initial_acc_constraints_;
   MatVec spline_final_constraints_;
 
   Eigen::VectorXd constraints_;
-  std::vector<Constraints::Bound> bounds_;
 
   ZmpConstraint zmp_constraint_;
 
@@ -60,30 +76,21 @@ public:
   const double gap_width_x_  = 0.3;
 private:
 
-  bool first_constraint_eval_ = true;
-
 
   // Add constraints here
-  Eigen::VectorXd KeepZmpInSuppPolygon(const Eigen::VectorXd& x_coeff);
+  Constraint KeepZmpInSuppPolygon(const VectorXd& x_coeff) const;
+  Constraint FixFootholdPosition(const StdVecEigen2d& footholds) const;
+  Constraint SmoothAccJerkAtSplineJunctions(const VectorXd& x_coeff) const;
+  Constraint InitialAcceleration(const VectorXd& x_coeff) const;
+  Constraint FinalState(const VectorXd& x_coeff) const;
+  Constraint AddObstacle() const;
+  Constraint RestrictFootholdToCogPos(const VectorXd& x_coeff) const;
 
-  Eigen::VectorXd FixFootholdPosition(const StdVecEigen2d& footholds);
-
-  /**
-   * This also includes the constraint on initial and final state!
-   * FIXME move to separate function.
-   * @param x_coeff
-   * @return
-   */
-  Eigen::VectorXd SmoothAccJerkAtSplineJunctions(const Eigen::VectorXd& x_coeff);
-  Eigen::VectorXd InitialAcceleration(const Eigen::VectorXd& x_coeff);
-  Eigen::VectorXd FinalState(const Eigen::VectorXd& x_coeff);
-
-  Eigen::VectorXd AddObstacle();
-
-  Eigen::VectorXd RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff);
-
-  void AddBounds(int m_constraints, double lower, double upper);
-  void CombineToEigenVector(const std::vector<Eigen::VectorXd>& g_std, Eigen::VectorXd& g_eig) const;
+  void AddBounds(int m_constraints, ConstraintType type,
+                 std::vector<Bound>& bounds) const;
+  std::vector<Constraint> GetConstraintsOnly(const VectorXd& x_coeff,
+                                             const StdVecEigen2d& footholds) const;
+  void CombineToEigenVector(const std::vector<Constraint>& g_std, VectorXd& g_eig) const;
 };
 
 } /* namespace zmp */

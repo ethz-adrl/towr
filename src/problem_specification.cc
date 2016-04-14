@@ -23,5 +23,25 @@ ProblemSpecification::~ProblemSpecification ()
   // TODO Auto-generated destructor stub
 }
 
+
+Eigen::VectorXd
+ProblemSpecification::FixFootholdPosition(const StdVecEigen2d& footholds) const
+{
+  // constraints on the footsteps
+  std::vector<int> fixed_dim = {xpp::utils::X, xpp::utils::Y};
+  Eigen::VectorXd g(fixed_dim.size()*footholds.size());
+  int c=0;
+
+  for (uint i=0; i<footholds.size(); ++i) {
+    xpp::hyq::Foothold f = planned_footholds_.at(i);
+
+    // fix footholds in x and y direction
+    for (int dim : fixed_dim)
+      g(c++) = footholds.at(i)(dim) - f.p(dim);
+  }
+
+  return g;
+}
+
 } /* namespace zmp */
 } /* namespace xpp */

@@ -21,7 +21,7 @@ NlpIpoptZmp::NlpIpoptZmp(const Objective& cost_function,
     :cost_function_(cost_function),
      constraints_(constraints),
      nlp_structure_(nlp_structure),
-     zmp_publisher_(constraints.zmp_spline_container_)
+     zmp_publisher_(constraints.GetSplineContainer())
 {
   initial_spline_coeff_ = initial_spline_coefficients;
 }
@@ -34,8 +34,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   n = nlp_structure_.GetOptimizationVariableCount(); // x,y-coordinate of footholds
   std::cout << "optimizing n= " << n << " variables\n";
 
-  constraints_.EvalContraints(nlp_structure_.opt_coeff_, nlp_structure_.opt_footholds_);
-  m = constraints_.bounds_.size();
+  m = constraints_.GetBounds().size();
   std::cout << "with m= " << m << "constraints\n";
 
 
@@ -64,9 +63,10 @@ bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
   }
 
   // specific bounds depending on equality and inequality constraints
-  for (uint c=0; c<constraints_.bounds_.size(); ++c) {
-    g_l[c] = constraints_.bounds_.at(c).lower_;
-    g_u[c] = constraints_.bounds_.at(c).upper_;
+  std::vector<Constraints::Bound> bounds = constraints_.GetBounds();
+  for (uint c=0; c<bounds.size(); ++c) {
+    g_l[c] = bounds.at(c).lower_;
+    g_u[c] = bounds.at(c).upper_;
   }
 
   return true;
@@ -100,11 +100,11 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 	// initialize footstep locations
 	for (int i=0; i<nlp_structure_.n_steps_; ++i) {
-	  xpp::hyq::LegID leg = constraints_.planned_footholds_.at(i).leg;
+	  xpp::hyq::LegID leg = constraints_.GetPlannedFoothold(i).leg;
 
 	  // initialize with start stance
-	  x[c++] = constraints_.supp_polygon_container_.GetStartStance()[leg].p.x();
-	  x[c++] = constraints_.supp_polygon_container_.GetStartStance()[leg].p.y();
+	  x[c++] = constraints_.GetStartStance(leg).p.x();
+	  x[c++] = constraints_.GetStartStance(leg).p.y();
 
 	  // // intialize with planned footholds
     // x[c++] = constraints_.planned_footholds_.at(i).p.y();
@@ -188,7 +188,7 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
 {
 //   std::cin.get();
 
-  ZmpPublisher::VecFoothold footholds = constraints_.supp_polygon_container_.GetFootholds();
+  ZmpPublisher::VecFoothold footholds = constraints_.GetPlannedFootholds();
   for (uint i=0; i<footholds.size(); ++i) {
     footholds.at(i).p << nlp_structure_.opt_footholds_.at(i).x(),
                          nlp_structure_.opt_footholds_.at(i).y(),

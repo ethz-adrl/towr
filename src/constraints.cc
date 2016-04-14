@@ -27,20 +27,51 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_con
   spline_initial_acc_constraints_ = spline_constraint.CreateInitialAccConstraints();
   spline_final_constraints_       = spline_constraint.CreateFinalConstraints(final_state);
 
-  first_constraint_eval_ = true;
-  bounds_.clear();
 }
 
 
-Eigen::VectorXd
-Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d& footholds)
+std::vector<Constraints::Bound>
+Constraints::GetBounds()
 {
-  std::vector<Eigen::VectorXd> g_std;
+  std::vector<Constraints::Bound> bounds;
 
-  // update the member variables
-  zmp_spline_container_.AddOptimizedCoefficients(x_coeff);
-  for (uint i=0; i<footholds.size(); ++i)
-    supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
+  // non initialized values just to compute the bounds
+  Eigen::VectorXd x_coeff(zmp_spline_container_.GetTotalFreeCoeff());
+  StdVecEigen2d x_footholds(supp_polygon_container_.GetNumberOfSteps());
+
+  std::vector<Constraint> g_std = GetConstraintsOnly(x_coeff, x_footholds);
+
+  for (const Constraint& g : g_std) {
+    AddBounds(g.values_.rows(), g.type_, bounds);
+  }
+
+  constraints_.resize(bounds.size());
+  return bounds;
+}
+
+
+
+void
+Constraints::AddBounds(int m_constraints, ConstraintType type,
+                       std::vector<Constraints::Bound>& bounds) const
+{
+  static const std::map<ConstraintType, Bound> bound_types {
+    {EQUALITY, Bound(0.0, 0.0)},
+    {INEQUALITY, Bound(0.0, 1.0e19)},
+    {COGTOFOOTHOLD, Bound(-0.15, 0.15)}
+  };
+
+  for (int c=0; c<m_constraints; ++c) {
+    bounds.push_back(bound_types.at(type));
+  }
+}
+
+
+std::vector<Constraints::Constraint>
+Constraints::GetConstraintsOnly(const VectorXd& x_coeff,
+                                const StdVecEigen2d& footholds) const
+{
+  std::vector<Constraint> g_std;
 
   // generate constraint violation values
   // ATTENTION: order seems to play a role
@@ -53,33 +84,50 @@ Constraints::EvalContraints(const Eigen::VectorXd& x_coeff, const StdVecEigen2d&
 //  g_std.push_back(AddObstacle());
 
 
+  return g_std;
+}
+
+
+
+Constraints::VectorXd
+Constraints::EvalContraints(const VectorXd& x_coeff, const StdVecEigen2d& footholds)
+{
+
+  // update the member variables
+  zmp_spline_container_.AddOptimizedCoefficients(x_coeff);
+  for (uint i=0; i<footholds.size(); ++i)
+    supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
+
+
+  std::vector<Constraint> g_std = GetConstraintsOnly(x_coeff, footholds);
 
 
   CombineToEigenVector(g_std, constraints_);
 
-  assert(constraints_.rows() == bounds_.size());
-  first_constraint_eval_ = false;
   return constraints_;
 }
 
 
-Eigen::VectorXd
-Constraints::KeepZmpInSuppPolygon(const Eigen::VectorXd& x_coeff)
+Constraints::Constraint
+Constraints::KeepZmpInSuppPolygon(const VectorXd& x_coeff) const
 {
+
   MatVec ineq = zmp_constraint_.CreateLineConstraints(supp_polygon_container_);
 
-  AddBounds(ineq.v.rows(), 0.0, +1.0e19);
+  Constraint constraints;
+  constraints.values_ = ineq.M*x_coeff + ineq.v;
+  constraints.type_ = INEQUALITY;
 
-  return ineq.M*x_coeff + ineq.v;
+  return constraints;
 }
 
 
-Eigen::VectorXd
-Constraints::FixFootholdPosition(const StdVecEigen2d& footholds)
+Constraints::Constraint
+Constraints::FixFootholdPosition(const StdVecEigen2d& footholds) const
 {
   // constraints on the footsteps
   std::vector<int> fixed_dim = {xpp::utils::X, xpp::utils::Y};
-  Eigen::VectorXd g(fixed_dim.size()*footholds.size());
+  VectorXd g(fixed_dim.size()*footholds.size());
   int c=0;
 
   for (uint i=0; i<footholds.size(); ++i) {
@@ -91,14 +139,16 @@ Constraints::FixFootholdPosition(const StdVecEigen2d& footholds)
   }
 
 
-  AddBounds(g.rows(), 0.0, 0.0);
+  Constraint constraints;
+  constraints.values_ = g;
+  constraints.type_ = EQUALITY;
 
-  return g;
+  return constraints;
 }
 
 
-Eigen::VectorXd
-Constraints::AddObstacle()
+Constraints::Constraint
+Constraints::AddObstacle() const
 {
   std::vector<double> g_vec;
 
@@ -107,32 +157,42 @@ Constraints::AddObstacle()
   for (const hyq::Foothold& f : supp_polygon_container_.GetFootholds())
   {
 //    g_vec.push_back(ellipse.DistanceToEdge(f.p.x(), f.p.y()));
-    g_vec.push_back(std::pow(f.p.x()-gap_center_x_,2));
-
-    if (first_constraint_eval_) {
-      bounds_.push_back(Bound(std::pow(gap_width_x_/2.0,2), 1.0e19)); // be outside of this ellipse
-    }
+    double foot_to_center = f.p.x()-gap_center_x_;
+    double minimum_to_center = gap_width_x_/2.0;
+    double cost = std::pow(foot_to_center,2) - std::pow(minimum_to_center,2);
+    g_vec.push_back(cost);
   }
-  return Eigen::Map<const Eigen::VectorXd>(&g_vec.front(),g_vec.size());
+
+  Constraint constraints;
+  constraints.values_ = Eigen::Map<const VectorXd>(&g_vec.front(),g_vec.size());
+  constraints.type_ = INEQUALITY;
+  return constraints;
 }
 
 
 
-Eigen::VectorXd
-Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
+Constraints::Constraint
+Constraints::RestrictFootholdToCogPos(const VectorXd& x_coeff) const
 {
   double x_nominal_b = 0.3; // 0.4
   double y_nominal_b = 0.3; // 0.4
   double x_radius = 0.15;
   double y_radius = 0.10;
 
-  Bound bound_pos_x( x_nominal_b-x_radius,  x_nominal_b+x_radius);
-  Bound bound_neg_x(-x_nominal_b-x_radius, -x_nominal_b+x_radius);
+  Eigen::Vector2d r_BLF; r_BLF << x_nominal_b, y_nominal_b;
+  Eigen::Vector2d r_BRF; r_BRF << x_nominal_b, -y_nominal_b;
+  Eigen::Vector2d r_BLH; r_BLH << -x_nominal_b, y_nominal_b;
+  Eigen::Vector2d r_BRH; r_BRH << -x_nominal_b, -y_nominal_b;
 
-  Bound bound_pos_y( y_nominal_b-y_radius,  y_nominal_b+y_radius);
-  Bound bound_neg_y(-y_nominal_b-y_radius, -y_nominal_b+y_radius);
+//
+//
+//  Bound bound_pos_x( x_nominal_b-x_radius,  x_nominal_b+x_radius);
+//  Bound bound_neg_x(-x_nominal_b-x_radius, -x_nominal_b+x_radius);
+//
+//  Bound bound_pos_y( y_nominal_b-y_radius,  y_nominal_b+y_radius);
+//  Bound bound_neg_y(-y_nominal_b-y_radius, -y_nominal_b+y_radius);
 
-//  double min_range = 0.1;
+  //  double min_range = 0.1;
   double dt = 0.3; //zmp_spline_container_.dt_;
   double T  = zmp_spline_container_.GetTotalTime();
   int N     = std::ceil(T/dt);
@@ -140,8 +200,8 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
   std::vector<double> g_vec;
   g_vec.reserve(approx_n_constraints);
 
-//  Eigen::VectorXd g(approx_n_constraints);
-//  int c=0;
+  //  Eigen::VectorXd g(approx_n_constraints);
+  //  int c=0;
 
   double t=0.0;
   do {
@@ -158,117 +218,92 @@ Constraints::RestrictFootholdToCogPos(const Eigen::VectorXd& x_coeff)
     // calculate distance to base for every stance leg
     // restrict to quadrants
     for (const hyq::Foothold& f : stance_legs) {
-      double dx = f.p.x() - cog_xy.p.x();
-      double dy = f.p.y() - cog_xy.p.y();
 
-//      g_vec.push_back(hypot(dx,dy));
-      // restrict to quadrandts
-      g_vec.push_back(dx);
-      g_vec.push_back(dy);
-//      g(c++) = std::fabs(dx);
-//      g(c++) = std::fabs(dy);
+      // vector base to foot
+      Eigen::Vector2d r_BF = f.p.segment<2>(0) - cog_xy.p;
 
-      if (first_constraint_eval_) {
-        // kinematic constraints (slightly ugly)
-        switch (f.leg) {
-          case hyq::LF:
-            bounds_.push_back(bound_pos_x); // x
-            bounds_.push_back(bound_pos_y); // y
-            break;
-          case hyq::RF:
-            bounds_.push_back(bound_pos_x); // x
-            bounds_.push_back(bound_neg_y); // y
-            break;
-          case hyq::LH:
-            bounds_.push_back(bound_neg_x); // x
-            bounds_.push_back(bound_pos_y); // y
-            break;
-          case hyq::RH:
-            bounds_.push_back(bound_neg_x); // x
-            bounds_.push_back(bound_neg_y); // y
-            break;
-          default:
-            throw std::runtime_error("RestrictFootholdToCogPos(): leg does not exist");
-            break;
-        }
+      //      double dx = f.p.x() - cog_xy.p.x();
+      //      double dy = f.p.y() - cog_xy.p.y();
+
+
+      Eigen::Vector2d r_FC;
+      // kinematic constraints (slightly ugly)
+      switch (f.leg) {
+        case hyq::LF:
+          r_FC = -r_BF + r_BLF;
+
+          break;
+        case hyq::RF:
+          r_FC = -r_BF + r_BRF;
+
+          break;
+        case hyq::LH:
+          r_FC = -r_BF + r_BLH;
+
+          break;
+        case hyq::RH:
+          r_FC = -r_BF + r_BRH;
+
+          break;
+        default:
+          throw std::runtime_error("RestrictFootholdToCogPos(): leg does not exist");
+          break;
       }
 
+
+      g_vec.push_back(r_FC.x());
+      g_vec.push_back(r_FC.y());
     }
     t += dt;
 
   } while(t < T);
 
-
-
-//  g.resize(c);
-//  assert(n_constraints == c); // FIXME, put this back in
-  // add bounds that foot position should never be to far away from body
-//  double max_range = 0.4;
-//  AddBounds(g.rows(), 0.0, max_range);
-
-//  Eigen::Map<const Eigen::VectorXd>(&g_vec.front(),g_vec.size());
-
-
-  return Eigen::Map<const Eigen::VectorXd>(&g_vec.front(),g_vec.size());
+  Constraint c;
+  c.values_ = Eigen::Map<const VectorXd>(&g_vec.front(),g_vec.size());
+  c.type_ = COGTOFOOTHOLD;
+  return c;
 }
 
 
-Eigen::VectorXd
-Constraints::SmoothAccJerkAtSplineJunctions(const Eigen::VectorXd& x_coeff)
+Constraints::Constraint
+Constraints::SmoothAccJerkAtSplineJunctions(const VectorXd& x_coeff) const
 {
-  Eigen::VectorXd g = spline_junction_constraints_.M*x_coeff + spline_junction_constraints_.v;
-  AddBounds(g.rows(), 0.0, 0.0);
-  return g;
+  Constraint c;
+  c.values_ = spline_junction_constraints_.M*x_coeff + spline_junction_constraints_.v;
+  c.type_ = EQUALITY;
+  return c;
 }
 
 
-Eigen::VectorXd
-Constraints::InitialAcceleration(const Eigen::VectorXd& x_coeff)
+Constraints::Constraint
+Constraints::InitialAcceleration(const VectorXd& x_coeff) const
 {
-  Eigen::VectorXd g = spline_initial_acc_constraints_.M*x_coeff + spline_initial_acc_constraints_.v;
-  AddBounds(g.rows(), 0.0, 0.0);
-  return g;
+  Constraint c;
+  c.values_ = spline_initial_acc_constraints_.M*x_coeff + spline_initial_acc_constraints_.v;
+  c.type_ = EQUALITY;
+  return c;
 }
 
 
-Eigen::VectorXd
-Constraints::FinalState(const Eigen::VectorXd& x_coeff)
+Constraints::Constraint
+Constraints::FinalState(const VectorXd& x_coeff) const
 {
-  Eigen::VectorXd g = spline_final_constraints_.M*x_coeff + spline_final_constraints_.v;
-  AddBounds(g.rows(), 0.0, 0.0);
-  return g;
-}
-
-
-void Constraints::AddBounds(int m_constraints, double lower, double upper)
-{
-  if (first_constraint_eval_) {
-    Bound eq_bound(lower, upper);
-    for (int c=0; c<m_constraints; ++c) {
-      bounds_.push_back(eq_bound);
-    }
-  }
+  Constraint c;
+  c.values_ = spline_final_constraints_.M*x_coeff + spline_final_constraints_.v;
+  c.type_ = EQUALITY;
+  return c;
 }
 
 
 void
-Constraints::CombineToEigenVector(const std::vector<Eigen::VectorXd>& g_std, Eigen::VectorXd& g_eig) const
+Constraints::CombineToEigenVector(const std::vector<Constraint>& g_std, VectorXd& g_eig) const
 {
-  // create correct size constraint vector the first time this function is called
-  if (first_constraint_eval_) {
-    int n_constraints = 0;
-    for (const Eigen::VectorXd& g : g_std) {
-      n_constraints += g.rows();
-    }
-    g_eig.resize(n_constraints);
-  }
-
   //  combine all the g vectors
   //  g_ << g_vec[0], g_vec[1], g_vec[2];
   int c = 0;
-  for (const Eigen::VectorXd& g : g_std) {
-    g_eig.middleRows(c, g.rows()) = g; //g.normalized()
-    c += g.rows();
+  for (const Constraint& g : g_std) {
+    g_eig.middleRows(c, g.values_.rows()) = g.values_; //g.normalized()
+    c += g.values_.rows();
   }
 }
 

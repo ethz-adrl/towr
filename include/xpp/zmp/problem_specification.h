@@ -24,17 +24,28 @@ class ProblemSpecification {
 public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef SupportPolygonContainer::VecFoothold VecFoothold;
+  typedef xpp::hyq::Foothold Foothold;
+  typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
+  typedef xpp::hyq::LegID LegID;
 
 public:
-  ProblemSpecification (const SupportPolygonContainer& supp_poly_container,
-                        const ContinuousSplineContainer& cog_spline_container);
-  virtual
-  ~ProblemSpecification ();
+  explicit ProblemSpecification (const SupportPolygonContainer& supp_poly_container,
+                                 const ContinuousSplineContainer& cog_spline_container);
+  virtual ~ProblemSpecification ();
+
+  ContinuousSplineContainer GetSplineContainer() const { return zmp_spline_container_; };
+  Foothold GetPlannedFoothold(size_t i) const { return planned_footholds_.at(i); };
+  VecFoothold GetPlannedFootholds() const { return planned_footholds_; };
+  Foothold GetStartStance(LegID leg) const { return supp_polygon_container_.GetStartStance()[leg]; };
 
 
-  ContinuousSplineContainer zmp_spline_container_;
+protected:
   SupportPolygonContainer supp_polygon_container_;
+  ContinuousSplineContainer zmp_spline_container_;
   const VecFoothold planned_footholds_;
+
+protected:
+  Eigen::VectorXd FixFootholdPosition(const StdVecEigen2d& footholds) const;
 };
 
 } /* namespace zmp */

@@ -26,7 +26,7 @@ CostFunction::EvalCostFunction(const InputType& x) const
 {
   double obj_value = 0.0;
   obj_value += MinimizeAcceleration(nlp_structure_.ExtractSplineCoefficients(x));
-//  obj_value += MinimizeYFoothold(nlp_structure_.ExtractFootholds(x));
+//  obj_value += PenalizeFootholdFromPlanned(nlp_structure_.ExtractFootholds(x));
 
   return obj_value;
 }
@@ -43,13 +43,16 @@ CostFunction::MinimizeAcceleration(const VectorXd& x_coeff) const
 
 
 double
-CostFunction::MinimizeYFoothold(const StdVecEigen2d& footholds) const
+CostFunction::PenalizeFootholdFromPlanned(const StdVecEigen2d& footholds) const
 {
-  double obj_value = 0.0;
-  for (const Vector2d& f : footholds) {
-    obj_value += f.x();
-  }
-  return obj_value;
+  Eigen::VectorXd g = FixFootholdPosition(footholds);
+
+
+//  double obj_value = 0.0;
+//  for (const Vector2d& f : footholds) {
+//    obj_value += f.x();
+//  }
+  return g.norm();
 }
 
 
