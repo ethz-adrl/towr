@@ -42,6 +42,7 @@ public:
   VecFoothold GetPlannedFootholds() const { return planned_footholds_; };
   Foothold GetStartStance(LegID leg) const { return supp_polygon_container_.GetStartStance()[leg]; };
 
+private:
 
 protected:
   SupportPolygonContainer supp_polygon_container_;
@@ -49,8 +50,12 @@ protected:
   const VecFoothold planned_footholds_;
 
 protected:
+  void UpdateCurrentState(const VectorXd& x_coeff, const StdVecEigen2d& footholds);
   Eigen::VectorXd DistanceFootFromPlanned(const StdVecEigen2d& footholds) const;
-  Eigen::VectorXd DistanceFootToNominal() const;
+  Eigen::VectorXd DistanceFootToNominalStance() const;
+  Eigen::VectorXd DistanceSquareFootToGapboarder(const StdVecEigen2d& footholds,
+                                           double gap_center_x,
+                                           double gap_width_x) const;
 };
 
 } /* namespace zmp */

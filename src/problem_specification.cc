@@ -24,6 +24,15 @@ ProblemSpecification::~ProblemSpecification ()
 }
 
 
+void
+ProblemSpecification::UpdateCurrentState(const VectorXd& x_coeff, const StdVecEigen2d& footholds)
+{
+  zmp_spline_container_.AddOptimizedCoefficients(x_coeff,zmp_spline_container_.splines_);
+  for (uint i=0; i<footholds.size(); ++i)
+    supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
+}
+
+
 Eigen::VectorXd
 ProblemSpecification::DistanceFootFromPlanned(const StdVecEigen2d& footholds) const
 {
@@ -45,7 +54,29 @@ ProblemSpecification::DistanceFootFromPlanned(const StdVecEigen2d& footholds) co
 
 
 Eigen::VectorXd
-ProblemSpecification::DistanceFootToNominal() const
+ProblemSpecification::DistanceSquareFootToGapboarder(const StdVecEigen2d& footholds,
+                                               double gap_center_x,
+                                               double gap_width_x) const
+{
+  std::vector<double> g_vec;
+//  xpp::utils::Ellipse ellipse(gap_depth, gap_width, x_center, y_center);
+
+  for (const Vector2d& f : footholds)
+  {
+//    g_vec.push_back(ellipse.DistanceToEdge(f.p.x(), f.p.y()));
+    double foot_to_center = f.x()-gap_center_x;
+    double minimum_to_center = gap_width_x/2.0;
+    double foot_to_boarder_square = std::pow(foot_to_center,2) - std::pow(minimum_to_center,2);
+    g_vec.push_back(foot_to_boarder_square);
+  }
+
+  return Eigen::Map<const VectorXd>(&g_vec.front(),g_vec.size());
+}
+
+
+
+Eigen::VectorXd
+ProblemSpecification::DistanceFootToNominalStance() const
 {
   const double x_nominal_b = 0.3; // 0.4
   const double y_nominal_b = 0.3; // 0.4
@@ -57,20 +88,12 @@ ProblemSpecification::DistanceFootToNominal() const
   B_r_BaseToNominal[hyq::LH] << -x_nominal_b,  y_nominal_b;
   B_r_BaseToNominal[hyq::RH] << -x_nominal_b, -y_nominal_b;
 
-
   double T  = zmp_spline_container_.GetTotalTime();
   int N     = std::ceil(T/dt);
   int approx_n_constraints = 4*N*2; // 3 or 4 legs in contact at every discrete time, 2 b/c x-y
   std::vector<double> g_vec;
   g_vec.reserve(approx_n_constraints);
 
-
-  // TODO check if coefficients are already updated with optimized ones
-  // to save computation time
-  // maybe call "UpdateOpt.." instead of "Add.."
-//  zmp_spline_container_.AddOptimizedCoefficients(x_coeff);
-//  ContinuousSplineContainer::Splines updated_splines = zmp_spline_container_.splines_;
-//  zmp_spline_container_.AddOptimizedCoefficients(x_coeff, updated_splines);
   double t=0.0;
   do {
     // know legs in contact at each step

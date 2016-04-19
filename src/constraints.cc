@@ -26,7 +26,113 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_con
   spline_junction_constraints_    = spline_constraint.CreateJunctionConstraints();
   spline_initial_acc_constraints_ = spline_constraint.CreateInitialAccConstraints();
   spline_final_constraints_       = spline_constraint.CreateFinalConstraints(final_state);
+}
 
+
+Constraints::VectorXd
+Constraints::EvalContraints(const VectorXd& x_coeff, const StdVecEigen2d& footholds)
+{
+  UpdateCurrentState(x_coeff, footholds);
+  std::vector<Constraint> g_std = GetConstraintsOnly(x_coeff, footholds);
+  CombineToEigenVector(g_std, constraints_);
+
+  return constraints_;
+}
+
+
+std::vector<Constraints::Constraint>
+Constraints::GetConstraintsOnly(const VectorXd& x_coeff,
+                                const StdVecEigen2d& footholds) const
+{
+  std::vector<Constraint> g_std;
+
+  // generate constraint violation values
+  // ATTENTION: order seems to play a role
+  g_std.push_back(FinalState(x_coeff));
+//  g_std.push_back(InitialAcceleration(x_coeff));
+  g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
+  g_std.push_back(KeepZmpInSuppPolygon(x_coeff, supp_polygon_container_));
+  g_std.push_back(FixFootholdPosition(footholds));
+//  g_std.push_back(RestrictFootholdToCogPos());
+//  g_std.push_back(AddObstacle(footholds));
+
+
+  return g_std;
+}
+
+
+Constraints::Constraint
+Constraints::KeepZmpInSuppPolygon(const VectorXd& x_coeff,
+                                  const SupportPolygonContainer& support_polygon_container) const
+{
+  MatVec ineq = zmp_constraint_.CreateLineConstraints(support_polygon_container);
+
+  Constraint constraints;
+  constraints.values_ = ineq.M*x_coeff + ineq.v;
+  constraints.type_ = INEQUALITY;
+
+  return constraints;
+}
+
+
+Constraints::Constraint
+Constraints::FixFootholdPosition(const StdVecEigen2d& footholds) const
+{
+  Constraint constraints;
+  constraints.values_ = DistanceFootFromPlanned(footholds);
+  constraints.type_ = EQUALITY;
+
+  return constraints;
+}
+
+
+Constraints::Constraint
+Constraints::AddObstacle(const StdVecEigen2d& footholds) const
+{
+  Constraint constraints;
+  constraints.values_ = DistanceSquareFootToGapboarder(footholds, gap_center_x_, gap_width_x_);
+  constraints.type_ = INEQUALITY;
+  return constraints;
+}
+
+
+Constraints::Constraint
+Constraints::RestrictFootholdToCogPos() const
+{
+  Constraint c;
+  c.values_ = DistanceFootToNominalStance();
+  c.type_ = COGTOFOOTHOLD;
+  return c;
+}
+
+
+Constraints::Constraint
+Constraints::SmoothAccJerkAtSplineJunctions(const VectorXd& x_coeff) const
+{
+  Constraint c;
+  c.values_ = spline_junction_constraints_.M*x_coeff + spline_junction_constraints_.v;
+  c.type_ = EQUALITY;
+  return c;
+}
+
+
+Constraints::Constraint
+Constraints::InitialAcceleration(const VectorXd& x_coeff) const
+{
+  Constraint c;
+  c.values_ = spline_initial_acc_constraints_.M*x_coeff + spline_initial_acc_constraints_.v;
+  c.type_ = EQUALITY;
+  return c;
+}
+
+
+Constraints::Constraint
+Constraints::FinalState(const VectorXd& x_coeff) const
+{
+  Constraint c;
+  c.values_ = spline_final_constraints_.M*x_coeff + spline_final_constraints_.v;
+  c.type_ = EQUALITY;
+  return c;
 }
 
 
@@ -65,138 +171,6 @@ Constraints::AddBounds(int m_constraints, ConstraintType type,
     bounds.push_back(bound_types.at(type));
   }
 }
-
-
-std::vector<Constraints::Constraint>
-Constraints::GetConstraintsOnly(const VectorXd& x_coeff,
-                                const StdVecEigen2d& footholds) const
-{
-  std::vector<Constraint> g_std;
-
-  // generate constraint violation values
-  // ATTENTION: order seems to play a role
-  g_std.push_back(FinalState(x_coeff));
-//  g_std.push_back(InitialAcceleration(x_coeff));
-  g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
-  g_std.push_back(KeepZmpInSuppPolygon(x_coeff, supp_polygon_container_));
-//  g_std.push_back(FixFootholdPosition(footholds));
-  g_std.push_back(RestrictFootholdToCogPos());
-//  g_std.push_back(AddObstacle(supp_polygon_container_.GetFootholds()));
-
-
-  return g_std;
-}
-
-
-
-Constraints::VectorXd
-Constraints::EvalContraints(const VectorXd& x_coeff, const StdVecEigen2d& footholds)
-{
-
-  // FIXME move this to different function
-  // update the member variables
-  zmp_spline_container_.AddOptimizedCoefficients(x_coeff,zmp_spline_container_.splines_);
-  for (uint i=0; i<footholds.size(); ++i)
-    supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
-
-
-  std::vector<Constraint> g_std = GetConstraintsOnly(x_coeff, footholds);
-
-
-  CombineToEigenVector(g_std, constraints_);
-
-  return constraints_;
-}
-
-
-Constraints::Constraint
-Constraints::KeepZmpInSuppPolygon(const VectorXd& x_coeff,
-                                  const SupportPolygonContainer& support_polygon_container) const
-{
-  MatVec ineq = zmp_constraint_.CreateLineConstraints(support_polygon_container);
-
-  Constraint constraints;
-  constraints.values_ = ineq.M*x_coeff + ineq.v;
-  constraints.type_ = INEQUALITY;
-
-  return constraints;
-}
-
-
-Constraints::Constraint
-Constraints::FixFootholdPosition(const StdVecEigen2d& footholds) const
-{
-  Constraint constraints;
-  constraints.values_ = DistanceFootFromPlanned(footholds);
-  constraints.type_ = EQUALITY;
-
-  return constraints;
-}
-
-
-Constraints::Constraint
-Constraints::AddObstacle(const StdVecEigen2d& footholds) const
-{
-  std::vector<double> g_vec;
-
-//  xpp::utils::Ellipse ellipse(gap_depth, gap_width, x_center, y_center);
-
-  for (const Vector2d& f : footholds)
-  {
-//    g_vec.push_back(ellipse.DistanceToEdge(f.p.x(), f.p.y()));
-    double foot_to_center = f.x()-gap_center_x_;
-    double minimum_to_center = gap_width_x_/2.0;
-    double cost = std::pow(foot_to_center,2) - std::pow(minimum_to_center,2);
-    g_vec.push_back(cost);
-  }
-
-  Constraint constraints;
-  constraints.values_ = Eigen::Map<const VectorXd>(&g_vec.front(),g_vec.size());
-  constraints.type_ = INEQUALITY;
-  return constraints;
-}
-
-
-
-Constraints::Constraint
-Constraints::RestrictFootholdToCogPos() const
-{
-  Constraint c;
-  c.values_ = DistanceFootToNominal();
-  c.type_ = COGTOFOOTHOLD;
-  return c;
-}
-
-
-Constraints::Constraint
-Constraints::SmoothAccJerkAtSplineJunctions(const VectorXd& x_coeff) const
-{
-  Constraint c;
-  c.values_ = spline_junction_constraints_.M*x_coeff + spline_junction_constraints_.v;
-  c.type_ = EQUALITY;
-  return c;
-}
-
-
-Constraints::Constraint
-Constraints::InitialAcceleration(const VectorXd& x_coeff) const
-{
-  Constraint c;
-  c.values_ = spline_initial_acc_constraints_.M*x_coeff + spline_initial_acc_constraints_.v;
-  c.type_ = EQUALITY;
-  return c;
-}
-
-
-Constraints::Constraint
-Constraints::FinalState(const VectorXd& x_coeff) const
-{
-  Constraint c;
-  c.values_ = spline_final_constraints_.M*x_coeff + spline_final_constraints_.v;
-  c.type_ = EQUALITY;
-  return c;
-}
-
 
 void
 Constraints::CombineToEigenVector(const std::vector<Constraint>& g_std, VectorXd& g_eig) const
