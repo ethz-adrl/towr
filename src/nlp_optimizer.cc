@@ -33,12 +33,11 @@ NlpOptimizer::SolveNlp(StdVecEigen2d& final_footholds,
   NlpStructure nlp_structure(spline_structure.GetTotalFreeCoeff(),
                              supp_polygon_container.GetNumberOfSteps());
 
-  Constraints constraints(supp_polygon_container, spline_structure, walking_height);
+  Constraints constraints(supp_polygon_container, spline_structure, nlp_structure, walking_height);
   CostFunction cost_function(spline_structure, supp_polygon_container, nlp_structure);
-  Objective objective(cost_function);
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
-      new Ipopt::NlpIpoptZmp(objective,
+      new Ipopt::NlpIpoptZmp(cost_function,
                              constraints,
                              nlp_structure,
                              initial_spline_coeff);

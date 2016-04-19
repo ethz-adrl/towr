@@ -10,18 +10,20 @@
 
 #include <Eigen/Dense>
 
+#include <xpp/utils/eigen_num_diff_functor.h>
+#include <xpp/zmp/nlp_structure.h>
 
 #include <xpp/zmp/problem_specification.h>
 #include <xpp/zmp/spline_constraints.h>
 #include <xpp/zmp/zmp_constraint.h>
 
-#include <functional>
 
 namespace xpp {
 namespace zmp {
 
 
-class Constraints : public ProblemSpecification {
+class Constraints : public ProblemSpecification,
+                    public xpp::utils::EigenNumDiffFunctor<double>{
 
 public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
@@ -55,6 +57,7 @@ public:
 public:
   Constraints (const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
                const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
+               const NlpStructure& nlp_structure,
                double walking_height);
   virtual
   ~Constraints () {};
@@ -62,9 +65,18 @@ public:
 
   std::vector<Bound> GetBounds();
 
-  Eigen::VectorXd EvalContraints(const VectorXd& x_coeff,
-                                 const StdVecEigen2d& footholds) const;
-
+  /**
+   * This implements the value of the constraints later used by Eigen::NumDiff
+   *
+   * @param x_coeff the inputs to the function
+   * @param obj_value the one-dimensional output (obj_value(0)) of the cost function
+   */
+  int operator() (const InputType& x, ValueType& obj_value) const
+  {
+    obj_value = EvalContraints(x);
+    return 1;
+  }
+  Eigen::VectorXd EvalContraints(const InputType& x) const;
   MatVec spline_junction_constraints_;
   MatVec spline_initial_acc_constraints_;
   MatVec spline_final_constraints_;
@@ -75,7 +87,7 @@ public:
   const double gap_width_x_  = 0.3;
 private:
 
-  int n_constraints_;
+  NlpStructure nlp_structure_;
 
   // Add constraints here
   Constraint KeepZmpInSuppPolygon(const VectorXd& x_coeff,
@@ -88,7 +100,7 @@ private:
   Constraint RestrictFootholdToCogPos(const VectorXd& x_coeff,
                                       const StdVecEigen2d& footholds) const;
 
-  void AddBounds(int m_constraints, ConstraintType type,
+  void AppendBounds(int m_constraints, ConstraintType type,
                  std::vector<Bound>& bounds) const;
   std::vector<Constraint> GetConstraintsOnly(const VectorXd& x_coeff,
                                              const StdVecEigen2d& footholds) const;

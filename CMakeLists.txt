@@ -86,7 +86,6 @@ set(SOURCES
   src/supp_polygon_container.cc
   src/hyq_spliner.cc
   src/nlp_ipopt_zmp.cc
-  src/objective.cc
   src/cost_function.cc
   src/constraints.cc
   src/zmp_constraint.cc

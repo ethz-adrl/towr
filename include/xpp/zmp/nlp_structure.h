@@ -8,6 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_STRUCTURE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_STRUCTURE_H_
 
+#include <xpp/utils/geometric_structs.h>
 #include <Eigen/Dense>
 
 namespace xpp {

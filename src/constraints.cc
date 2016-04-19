@@ -16,10 +16,15 @@ namespace zmp {
 
 Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_container,
                           const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
+                          const NlpStructure& nlp_structure,
                           double walking_height)
     :ProblemSpecification(supp_poly_container, zmp_spline_container),
+     xpp::utils::EigenNumDiffFunctor<double>(nlp_structure.GetOptimizationVariableCount(),1),
      zmp_constraint_(zmp_spline_container, walking_height)
 {
+
+  nlp_structure_ = nlp_structure;
+
   State final_state; // zero vel,acc,jerk
   final_state.p = supp_poly_container.GetCenterOfFinalStance();
   SplineConstraints spline_constraint(zmp_spline_container);
@@ -27,15 +32,17 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_con
   spline_initial_acc_constraints_ = spline_constraint.CreateInitialAccConstraints();
   spline_final_constraints_       = spline_constraint.CreateFinalConstraints(final_state);
 
-  n_constraints_ = 0;
+  // initializes number of constraints
+  Constraints::GetBounds();
 }
 
 
 Constraints::VectorXd
-Constraints::EvalContraints(const VectorXd& x_coeff, const StdVecEigen2d& footholds) const
+Constraints::EvalContraints(const InputType& x) const
 {
 //  UpdateCurrentState(x_coeff, footholds);
-  std::vector<Constraint> g_std = GetConstraintsOnly(x_coeff, footholds);
+  std::vector<Constraint> g_std = GetConstraintsOnly(nlp_structure_.ExtractSplineCoefficients(x),
+                                                     nlp_structure_.ExtractFootholds(x));
 
   return CombineToEigenVector(g_std);
 }
@@ -150,16 +157,16 @@ Constraints::GetBounds()
   std::vector<Constraint> g_std = GetConstraintsOnly(x_coeff, x_footholds);
 
   for (const Constraint& g : g_std) {
-    AddBounds(g.values_.rows(), g.type_, bounds);
+    AppendBounds(g.values_.rows(), g.type_, bounds);
   }
 
-  n_constraints_ = bounds.size();
+  m_values = bounds.size();
   return bounds;
 }
 
 
 void
-Constraints::AddBounds(int m_constraints, ConstraintType type,
+Constraints::AppendBounds(int m_constraints, ConstraintType type,
                        std::vector<Constraints::Bound>& bounds) const
 {
   static const std::map<ConstraintType, Bound> bound_types {
@@ -177,7 +184,7 @@ Constraints::AddBounds(int m_constraints, ConstraintType type,
 Constraints::VectorXd
 Constraints::CombineToEigenVector(const std::vector<Constraint>& g_std) const
 {
-  VectorXd g_eig(n_constraints_);
+  VectorXd g_eig(m_values);
   //  combine all the g vectors
   //  g_ << g_vec[0], g_vec[1], g_vec[2];
   int c = 0;

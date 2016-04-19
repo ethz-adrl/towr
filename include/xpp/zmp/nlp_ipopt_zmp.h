@@ -11,9 +11,9 @@
 
 #include <IpTNLP.hpp>
 
-#include <xpp/zmp/constraints.h>
 #include <xpp/zmp/nlp_structure.h>
-#include <xpp/zmp/objective.h>
+#include <xpp/zmp/cost_function.h>
+#include <xpp/zmp/constraints.h>
 
 #include <xpp/ros/zmp_publisher.h>
 
@@ -28,17 +28,18 @@ public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::zmp::Constraints::StdVecEigen2d StdVecEigen2d;
   typedef xpp::ros::ZmpPublisher ZmpPublisher;
-  typedef xpp::zmp::Objective Objective;
+  typedef xpp::zmp::CostFunction CostFunction;
   typedef xpp::zmp::Constraints Constraints;
   typedef xpp::zmp::NlpStructure NlpStructure;
+  typedef Eigen::VectorXd VectorXd;
 
 
 public:
   /** default constructor */
-	NlpIpoptZmp(const Objective& cost_function,
+	NlpIpoptZmp(const CostFunction& cost_function,
 	            const Constraints& constraints,
 	            const NlpStructure& nlp_structure,
-	            const Eigen::VectorXd& initial_spline_coefficients);
+	            const VectorXd& initial_spline_coefficients);
 
   /** default destructor */
   virtual ~NlpIpoptZmp() {};
@@ -115,14 +116,16 @@ public:
 private:
 
   NlpStructure nlp_structure_;
-  Objective cost_function_;
+  CostFunction cost_function_;
   Constraints constraints_;
+  Eigen::NumericalDiff<CostFunction> num_diff_cost_function_;
+  Eigen::NumericalDiff<Constraints> num_diff_constraints_;
 
   ZmpPublisher zmp_publisher_;
 
 
 
-  Eigen::VectorXd initial_spline_coeff_;
+  VectorXd initial_spline_coeff_;
 
   /**@name Methods to block default compiler methods.
    * The compiler automatically generates the following three methods.

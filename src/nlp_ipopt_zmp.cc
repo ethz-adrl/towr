@@ -14,12 +14,14 @@ namespace Ipopt {
 
 #define prt(x) std::cout << #x << " = " << std::endl << x << std::endl << std::endl;
 
-NlpIpoptZmp::NlpIpoptZmp(const Objective& cost_function,
+NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
                          const Constraints& constraints,
                          const NlpStructure& nlp_structure,
-                         const Eigen::VectorXd& initial_spline_coefficients)
+                         const VectorXd& initial_spline_coefficients)
     :cost_function_(cost_function),
+     num_diff_cost_function_(cost_function),
      constraints_(constraints),
+     num_diff_constraints_(constraints),
      nlp_structure_(nlp_structure),
      zmp_publisher_(constraints.GetSplineContainer())
 {
@@ -118,7 +120,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
   nlp_structure_.UpdateOptimizationVariables(x);
-  obj_value = cost_function_.EvalObjective(nlp_structure_.opt_all_);
+  obj_value = cost_function_.EvalCostFunction(nlp_structure_.opt_all_);
   return true;
 }
 
@@ -127,12 +129,10 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
 {
   nlp_structure_.UpdateOptimizationVariables(x);
 
-  for (int i=0; i<n; ++i) {
-    grad_f[i] = 0.0;
-  }
+  Eigen::MatrixXd jac(1,n);
+  num_diff_cost_function_.df(nlp_structure_.opt_all_, jac);
 
-  Eigen::VectorXd grad_f_eig = cost_function_.EvalGradientOfObjectiveNumeric(nlp_structure_.opt_all_);
-  Eigen::Map<Eigen::VectorXd>(grad_f, grad_f_eig.rows()) = grad_f_eig;
+  Eigen::Map<Eigen::MatrixXd>(grad_f,1,n) = jac;
 	return true;
 }
 
@@ -141,8 +141,8 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 {
   nlp_structure_.UpdateOptimizationVariables(x);
   //FIXME pass nlp structure directly
-  Eigen::VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.opt_coeff_, nlp_structure_.opt_footholds_);
-  Eigen::Map<Eigen::VectorXd>(g,m) = g_eig;
+  VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.opt_all_);
+  Eigen::Map<VectorXd>(g,m) = g_eig;
   return true;
 }
 
@@ -157,9 +157,9 @@ bool NlpIpoptZmp::eval_jac_g(Index n, const Number* x, bool new_x,
   if (values == NULL) {
     // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
   	int c_nonzero = 0;
-  	for (int row=0; row<m; ++row) {
-  		for (int col=0; col<n; ++col)
-  		{
+  	// colum major so eigen matrices can be mapped directly as default
+    for (int col=0; col<n; ++col) {
+  	  for (int row=0; row<m; ++row) {
   			iRow[c_nonzero] = row;
   			jCol[c_nonzero] = col;
   			c_nonzero++;
@@ -167,8 +167,10 @@ bool NlpIpoptZmp::eval_jac_g(Index n, const Number* x, bool new_x,
   	}
   }
   else {
-  // approximated by ipopt through finite differences
-  // FIXME use eigen numdiff to calculate these derivatives as in cost function
+    nlp_structure_.UpdateOptimizationVariables(x);
+    Eigen::MatrixXd jac(m,n);
+    num_diff_constraints_.df(nlp_structure_.opt_all_,jac);
+    Eigen::Map<Eigen::MatrixXd>(values,jac.rows(),jac.cols()) = jac;
   }
 
   return true;
