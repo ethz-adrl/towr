@@ -23,7 +23,7 @@ SplineContainer::SplineContainer()
 }
 
 
-double SplineContainer::GetTotalTime(const Splines& splines, bool exclude_4ls_splines) const
+double SplineContainer::GetTotalTime(const Splines& splines, bool exclude_4ls_splines)
 {
   double T = 0.0;
   for (ZmpSpline s: splines) {

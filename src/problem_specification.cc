@@ -76,11 +76,12 @@ ProblemSpecification::DistanceSquareFootToGapboarder(const StdVecEigen2d& footho
 
 
 Eigen::VectorXd
-ProblemSpecification::DistanceFootToNominalStance() const
+ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,
+                                                  const ContinuousSplineContainer& zmp_spline_container) const
 {
   const double x_nominal_b = 0.3; // 0.4
   const double y_nominal_b = 0.3; // 0.4
-  const double dt = 0.3; //zmp_spline_container_.dt_;
+  const double dt = 0.1; //zmp_spline_container_.dt_;
 
   xpp::hyq::LegDataMap<Vector2d> B_r_BaseToNominal;
   B_r_BaseToNominal[hyq::LF] <<  x_nominal_b,  y_nominal_b;
@@ -88,7 +89,7 @@ ProblemSpecification::DistanceFootToNominalStance() const
   B_r_BaseToNominal[hyq::LH] << -x_nominal_b,  y_nominal_b;
   B_r_BaseToNominal[hyq::RH] << -x_nominal_b, -y_nominal_b;
 
-  double T  = zmp_spline_container_.GetTotalTime();
+  double T  = zmp_spline_container.GetTotalTime();
   int N     = std::ceil(T/dt);
   int approx_n_constraints = 4*N*2; // 3 or 4 legs in contact at every discrete time, 2 b/c x-y
   std::vector<double> g_vec;
@@ -98,11 +99,11 @@ ProblemSpecification::DistanceFootToNominalStance() const
   do {
     // know legs in contact at each step
     VecFoothold stance_legs;
-    int step = zmp_spline_container_.GetStep(t);
-    stance_legs = supp_polygon_container_.GetStanceDuring(step);
+    int step = zmp_spline_container.GetStep(t);
+    stance_legs = supp_polygon_container.GetStanceDuring(step);
 
     xpp::utils::Point2d cog_xy;
-    zmp_spline_container_.GetCOGxy(t, cog_xy);
+    zmp_spline_container.GetCOGxy(t, cog_xy);
 
     // calculate distance to base for every stance leg
     // restrict to quadrants

@@ -52,6 +52,8 @@ public:
 private:
   double MinimizeAcceleration(const VectorXd& x_coeff) const;
   double PenalizeFootholdFromPlanned(const StdVecEigen2d& footholds) const;
+  double PenalizeFootholdFromNominal(const VectorXd& x_coeff,
+                                     const StdVecEigen2d& footholds) const;
 };
 
 

@@ -27,9 +27,10 @@ public:
   explicit Objective (const CostFunction& cost_function_functor);
   virtual ~Objective () {};
 
+
   double EvalObjective(const VectorXd& x) const;
   Eigen::VectorXd EvalGradientOfObjectiveNumeric(const VectorXd& x) const;
-  Eigen::VectorXd EvalGradientOfObjectiveAnalytic(const VectorXd& x) const;
+//  Eigen::VectorXd EvalGradientOfObjectiveAnalytic(const VectorXd& x) const;
 
 
 private:

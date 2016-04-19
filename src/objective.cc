@@ -37,12 +37,12 @@ Objective::EvalGradientOfObjectiveNumeric(const Eigen::VectorXd& x) const
 }
 
 
-Eigen::VectorXd
-Objective::EvalGradientOfObjectiveAnalytic(const Eigen::VectorXd& x) const
-{
-  // only correct if using only minimum acceleration spline, no footholds
-  return cost_function_.cf_.M*x;
-}
+//Eigen::VectorXd
+//Objective::EvalGradientOfObjectiveAnalytic(const Eigen::VectorXd& x) const
+//{
+//  // only correct if using only minimum acceleration spline, no footholds
+//  return cost_function_.cf_.M*x;
+//}
 
 
 

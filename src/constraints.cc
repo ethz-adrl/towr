@@ -49,12 +49,12 @@ Constraints::GetConstraintsOnly(const VectorXd& x_coeff,
   // generate constraint violation values
   // ATTENTION: order seems to play a role
   g_std.push_back(FinalState(x_coeff));
-//  g_std.push_back(InitialAcceleration(x_coeff));
-  g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
+  g_std.push_back(InitialAcceleration(x_coeff));
+//  g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff, supp_polygon_container_));
-  g_std.push_back(FixFootholdPosition(footholds));
-//  g_std.push_back(RestrictFootholdToCogPos());
-//  g_std.push_back(AddObstacle(footholds));
+//  g_std.push_back(FixFootholdPosition(footholds));
+  g_std.push_back(RestrictFootholdToCogPos());
+  g_std.push_back(AddObstacle(footholds));
 
 
   return g_std;
@@ -156,7 +156,6 @@ Constraints::GetBounds()
 }
 
 
-
 void
 Constraints::AddBounds(int m_constraints, ConstraintType type,
                        std::vector<Constraints::Bound>& bounds) const
@@ -171,6 +170,7 @@ Constraints::AddBounds(int m_constraints, ConstraintType type,
     bounds.push_back(bound_types.at(type));
   }
 }
+
 
 void
 Constraints::CombineToEigenVector(const std::vector<Constraint>& g_std, VectorXd& g_eig) const

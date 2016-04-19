@@ -52,7 +52,23 @@ protected:
 protected:
   void UpdateCurrentState(const VectorXd& x_coeff, const StdVecEigen2d& footholds);
   Eigen::VectorXd DistanceFootFromPlanned(const StdVecEigen2d& footholds) const;
-  Eigen::VectorXd DistanceFootToNominalStance() const;
+  Eigen::VectorXd DistanceFootToNominalStance() const {
+    return DistanceFootToNominalStance(supp_polygon_container_, zmp_spline_container_);
+  }
+  Eigen::VectorXd DistanceFootToNominalStance(const VectorXd& x_coeff, const StdVecEigen2d& footholds) const
+  {
+    ContinuousSplineContainer spline_container = zmp_spline_container_;
+    spline_container.AddOptimizedCoefficients(x_coeff, spline_container.splines_);
+
+    SupportPolygonContainer supp_polygon_container = supp_polygon_container_;
+    for (uint i=0; i<footholds.size(); ++i)
+      supp_polygon_container.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
+
+    return DistanceFootToNominalStance(supp_polygon_container, spline_container);
+  }
+
+  Eigen::VectorXd DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,
+                                              const ContinuousSplineContainer& zmp_spline_container) const;
   Eigen::VectorXd DistanceSquareFootToGapboarder(const StdVecEigen2d& footholds,
                                            double gap_center_x,
                                            double gap_width_x) const;

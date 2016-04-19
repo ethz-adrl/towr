@@ -145,7 +145,7 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
     const Eigen::VectorXd& optimized_coeff,
     Splines& splines) const
 {
-  assert(splines.size() == optimized_coeff.rows() / kFreeCoeffPerSpline);
+  assert(splines.size() == (optimized_coeff.rows()/kDim2d/kFreeCoeffPerSpline));
 
   for (size_t k=0; k<splines.size(); ++k) {
     CoeffValues coeff_values;

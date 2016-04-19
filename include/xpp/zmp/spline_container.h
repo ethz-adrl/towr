@@ -58,7 +58,7 @@ public:
   int GetFourLegSupport(double t_global) const;
   int GetStep(double t_global) const;
   void AddSpline(const ZmpSpline &spline);
-  double GetTotalTime(const Splines& splines, bool exclude_4ls_splines) const;
+  static double GetTotalTime(const Splines& splines, bool exclude_4ls_splines = false);
   double GetTotalTime(bool exclude_4ls_splines = false) const
   {
     return GetTotalTime(splines_, exclude_4ls_splines);
