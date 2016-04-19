@@ -17,6 +17,8 @@ namespace zmp {
 /**
  * Serves as a base class for all modules that give higher level input to the
  * optimizer (cost function, constraints) and bundles all this information.
+ * All methods that could be used as cost functions AND constraints should be
+ * defined in this class.
  * This class does NOT include any NLP/Ipopt specific information.
  */
 class ProblemSpecification {
@@ -48,8 +50,7 @@ protected:
 
 protected:
   Eigen::VectorXd DistanceFootFromPlanned(const StdVecEigen2d& footholds) const;
-  Eigen::VectorXd DistanceFootToNominal(const VectorXd& x_coeff,
-                                        const StdVecEigen2d& footholds) const;
+  Eigen::VectorXd DistanceFootToNominal() const;
 };
 
 } /* namespace zmp */

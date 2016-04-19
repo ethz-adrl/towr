@@ -45,11 +45,11 @@ ProblemSpecification::DistanceFootFromPlanned(const StdVecEigen2d& footholds) co
 
 
 Eigen::VectorXd
-ProblemSpecification::DistanceFootToNominal(const VectorXd& x_coeff,
-                                            const StdVecEigen2d& footholds) const
+ProblemSpecification::DistanceFootToNominal() const
 {
-  double x_nominal_b = 0.3; // 0.4
-  double y_nominal_b = 0.3; // 0.4
+  const double x_nominal_b = 0.3; // 0.4
+  const double y_nominal_b = 0.3; // 0.4
+  const double dt = 0.3; //zmp_spline_container_.dt_;
 
   xpp::hyq::LegDataMap<Vector2d> B_r_BaseToNominal;
   B_r_BaseToNominal[hyq::LF] <<  x_nominal_b,  y_nominal_b;
@@ -58,7 +58,6 @@ ProblemSpecification::DistanceFootToNominal(const VectorXd& x_coeff,
   B_r_BaseToNominal[hyq::RH] << -x_nominal_b, -y_nominal_b;
 
 
-  double dt = 0.3; //zmp_spline_container_.dt_;
   double T  = zmp_spline_container_.GetTotalTime();
   int N     = std::ceil(T/dt);
   int approx_n_constraints = 4*N*2; // 3 or 4 legs in contact at every discrete time, 2 b/c x-y
@@ -70,8 +69,8 @@ ProblemSpecification::DistanceFootToNominal(const VectorXd& x_coeff,
   // to save computation time
   // maybe call "UpdateOpt.." instead of "Add.."
 //  zmp_spline_container_.AddOptimizedCoefficients(x_coeff);
-  ContinuousSplineContainer::Splines updated_splines = zmp_spline_container_.splines_;
-  zmp_spline_container_.AddOptimizedCoefficients(x_coeff, updated_splines);
+//  ContinuousSplineContainer::Splines updated_splines = zmp_spline_container_.splines_;
+//  zmp_spline_container_.AddOptimizedCoefficients(x_coeff, updated_splines);
   double t=0.0;
   do {
     // know legs in contact at each step
@@ -80,7 +79,7 @@ ProblemSpecification::DistanceFootToNominal(const VectorXd& x_coeff,
     stance_legs = supp_polygon_container_.GetStanceDuring(step);
 
     xpp::utils::Point2d cog_xy;
-    SplineContainer::GetCOGxy(t, cog_xy, updated_splines);
+    zmp_spline_container_.GetCOGxy(t, cog_xy);
 
     // calculate distance to base for every stance leg
     // restrict to quadrants

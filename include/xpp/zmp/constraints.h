@@ -79,14 +79,14 @@ private:
 
 
   // Add constraints here
-  Constraint KeepZmpInSuppPolygon(const VectorXd& x_coeff) const;
+  Constraint KeepZmpInSuppPolygon(const VectorXd& x_coeff,
+                                  const SupportPolygonContainer& support_polygon_container) const;
   Constraint FixFootholdPosition(const StdVecEigen2d& footholds) const;
   Constraint SmoothAccJerkAtSplineJunctions(const VectorXd& x_coeff) const;
   Constraint InitialAcceleration(const VectorXd& x_coeff) const;
   Constraint FinalState(const VectorXd& x_coeff) const;
-  Constraint AddObstacle() const;
-  Constraint RestrictFootholdToCogPos(const VectorXd& x_coeff,
-                                      const StdVecEigen2d& footholds) const;
+  Constraint AddObstacle(const StdVecEigen2d& footholds) const;
+  Constraint RestrictFootholdToCogPos() const;
 
   void AddBounds(int m_constraints, ConstraintType type,
                  std::vector<Bound>& bounds) const;

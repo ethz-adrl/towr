@@ -58,7 +58,7 @@ Constraints::AddBounds(int m_constraints, ConstraintType type,
   static const std::map<ConstraintType, Bound> bound_types {
     {EQUALITY, Bound(0.0, 0.0)},
     {INEQUALITY, Bound(0.0, 1.0e19)},
-    {COGTOFOOTHOLD, Bound(-0.20, 0.20)}
+    {COGTOFOOTHOLD, Bound(-0.15, 0.15)}
   };
 
   for (int c=0; c<m_constraints; ++c) {
@@ -78,10 +78,10 @@ Constraints::GetConstraintsOnly(const VectorXd& x_coeff,
   g_std.push_back(FinalState(x_coeff));
 //  g_std.push_back(InitialAcceleration(x_coeff));
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
-  g_std.push_back(KeepZmpInSuppPolygon(x_coeff));
-  g_std.push_back(FixFootholdPosition(footholds));
-  g_std.push_back(RestrictFootholdToCogPos(x_coeff, footholds));
-//  g_std.push_back(AddObstacle());
+  g_std.push_back(KeepZmpInSuppPolygon(x_coeff, supp_polygon_container_));
+//  g_std.push_back(FixFootholdPosition(footholds));
+  g_std.push_back(RestrictFootholdToCogPos());
+//  g_std.push_back(AddObstacle(supp_polygon_container_.GetFootholds()));
 
 
   return g_std;
@@ -93,8 +93,9 @@ Constraints::VectorXd
 Constraints::EvalContraints(const VectorXd& x_coeff, const StdVecEigen2d& footholds)
 {
 
+  // FIXME move this to different function
   // update the member variables
-  zmp_spline_container_.AddOptimizedCoefficients(x_coeff, zmp_spline_container_.splines_);
+  zmp_spline_container_.AddOptimizedCoefficients(x_coeff,zmp_spline_container_.splines_);
   for (uint i=0; i<footholds.size(); ++i)
     supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
 
@@ -109,10 +110,10 @@ Constraints::EvalContraints(const VectorXd& x_coeff, const StdVecEigen2d& footho
 
 
 Constraints::Constraint
-Constraints::KeepZmpInSuppPolygon(const VectorXd& x_coeff) const
+Constraints::KeepZmpInSuppPolygon(const VectorXd& x_coeff,
+                                  const SupportPolygonContainer& support_polygon_container) const
 {
-
-  MatVec ineq = zmp_constraint_.CreateLineConstraints(supp_polygon_container_);
+  MatVec ineq = zmp_constraint_.CreateLineConstraints(support_polygon_container);
 
   Constraint constraints;
   constraints.values_ = ineq.M*x_coeff + ineq.v;
@@ -134,16 +135,16 @@ Constraints::FixFootholdPosition(const StdVecEigen2d& footholds) const
 
 
 Constraints::Constraint
-Constraints::AddObstacle() const
+Constraints::AddObstacle(const StdVecEigen2d& footholds) const
 {
   std::vector<double> g_vec;
 
 //  xpp::utils::Ellipse ellipse(gap_depth, gap_width, x_center, y_center);
 
-  for (const hyq::Foothold& f : supp_polygon_container_.GetFootholds())
+  for (const Vector2d& f : footholds)
   {
 //    g_vec.push_back(ellipse.DistanceToEdge(f.p.x(), f.p.y()));
-    double foot_to_center = f.p.x()-gap_center_x_;
+    double foot_to_center = f.x()-gap_center_x_;
     double minimum_to_center = gap_width_x_/2.0;
     double cost = std::pow(foot_to_center,2) - std::pow(minimum_to_center,2);
     g_vec.push_back(cost);
@@ -158,11 +159,10 @@ Constraints::AddObstacle() const
 
 
 Constraints::Constraint
-Constraints::RestrictFootholdToCogPos(const VectorXd& x_coeff,
-                                      const StdVecEigen2d& footholds) const
+Constraints::RestrictFootholdToCogPos() const
 {
   Constraint c;
-  c.values_ = DistanceFootToNominal(x_coeff, footholds);
+  c.values_ = DistanceFootToNominal();
   c.type_ = COGTOFOOTHOLD;
   return c;
 }
