@@ -26,17 +26,18 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_con
   spline_junction_constraints_    = spline_constraint.CreateJunctionConstraints();
   spline_initial_acc_constraints_ = spline_constraint.CreateInitialAccConstraints();
   spline_final_constraints_       = spline_constraint.CreateFinalConstraints(final_state);
+
+  n_constraints_ = 0;
 }
 
 
 Constraints::VectorXd
-Constraints::EvalContraints(const VectorXd& x_coeff, const StdVecEigen2d& footholds)
+Constraints::EvalContraints(const VectorXd& x_coeff, const StdVecEigen2d& footholds) const
 {
-  UpdateCurrentState(x_coeff, footholds);
+//  UpdateCurrentState(x_coeff, footholds);
   std::vector<Constraint> g_std = GetConstraintsOnly(x_coeff, footholds);
-  CombineToEigenVector(g_std, constraints_);
 
-  return constraints_;
+  return CombineToEigenVector(g_std);
 }
 
 
@@ -53,7 +54,7 @@ Constraints::GetConstraintsOnly(const VectorXd& x_coeff,
 //  g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff, supp_polygon_container_));
 //  g_std.push_back(FixFootholdPosition(footholds));
-  g_std.push_back(RestrictFootholdToCogPos());
+  g_std.push_back(RestrictFootholdToCogPos(x_coeff, footholds));
   g_std.push_back(AddObstacle(footholds));
 
 
@@ -97,10 +98,11 @@ Constraints::AddObstacle(const StdVecEigen2d& footholds) const
 
 
 Constraints::Constraint
-Constraints::RestrictFootholdToCogPos() const
+Constraints::RestrictFootholdToCogPos(const VectorXd& x_coeff,
+                                      const StdVecEigen2d& footholds) const
 {
   Constraint c;
-  c.values_ = DistanceFootToNominalStance();
+  c.values_ = DistanceFootToNominalStance(x_coeff, footholds);
   c.type_ = COGTOFOOTHOLD;
   return c;
 }
@@ -151,7 +153,7 @@ Constraints::GetBounds()
     AddBounds(g.values_.rows(), g.type_, bounds);
   }
 
-  constraints_.resize(bounds.size());
+  n_constraints_ = bounds.size();
   return bounds;
 }
 
@@ -172,9 +174,10 @@ Constraints::AddBounds(int m_constraints, ConstraintType type,
 }
 
 
-void
-Constraints::CombineToEigenVector(const std::vector<Constraint>& g_std, VectorXd& g_eig) const
+Constraints::VectorXd
+Constraints::CombineToEigenVector(const std::vector<Constraint>& g_std) const
 {
+  VectorXd g_eig(n_constraints_);
   //  combine all the g vectors
   //  g_ << g_vec[0], g_vec[1], g_vec[2];
   int c = 0;
@@ -182,6 +185,7 @@ Constraints::CombineToEigenVector(const std::vector<Constraint>& g_std, VectorXd
     g_eig.middleRows(c, g.values_.rows()) = g.values_; //g.normalized()
     c += g.values_.rows();
   }
+  return g_eig;
 }
 
 

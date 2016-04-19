@@ -63,13 +63,11 @@ public:
   std::vector<Bound> GetBounds();
 
   Eigen::VectorXd EvalContraints(const VectorXd& x_coeff,
-                                 const StdVecEigen2d& footholds);
+                                 const StdVecEigen2d& footholds) const;
 
   MatVec spline_junction_constraints_;
   MatVec spline_initial_acc_constraints_;
   MatVec spline_final_constraints_;
-
-  Eigen::VectorXd constraints_;
 
   ZmpConstraint zmp_constraint_;
 
@@ -77,6 +75,7 @@ public:
   const double gap_width_x_  = 0.3;
 private:
 
+  int n_constraints_;
 
   // Add constraints here
   Constraint KeepZmpInSuppPolygon(const VectorXd& x_coeff,
@@ -86,13 +85,14 @@ private:
   Constraint InitialAcceleration(const VectorXd& x_coeff) const;
   Constraint FinalState(const VectorXd& x_coeff) const;
   Constraint AddObstacle(const StdVecEigen2d& footholds) const;
-  Constraint RestrictFootholdToCogPos() const;
+  Constraint RestrictFootholdToCogPos(const VectorXd& x_coeff,
+                                      const StdVecEigen2d& footholds) const;
 
   void AddBounds(int m_constraints, ConstraintType type,
                  std::vector<Bound>& bounds) const;
   std::vector<Constraint> GetConstraintsOnly(const VectorXd& x_coeff,
                                              const StdVecEigen2d& footholds) const;
-  void CombineToEigenVector(const std::vector<Constraint>& g_std, VectorXd& g_eig) const;
+  VectorXd CombineToEigenVector(const std::vector<Constraint>& g_std) const;
 };
 
 } /* namespace zmp */
