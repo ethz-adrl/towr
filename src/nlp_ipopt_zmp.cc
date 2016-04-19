@@ -1,12 +1,16 @@
-// Copyright (C) 2004, 2006 International Business Machines and others.
-// All Rights Reserved.
-// This code is published under the Eclipse Public License.
-//
-// $Id: MyNLPHyQ.cpp 2005 2011-06-06 12:55:16Z stefan $
-//
-// Authors:  Carl Laird, Andreas Waechter     IBM    2004-11-05
-
+/*
+ * nlp_ipopt.h
+ *
+ *  Created on: Apr 12, 2016
+ *      Author: winklera
+ */
 #include <xpp/zmp/nlp_ipopt_zmp.h>
+
+// only to get the optimization variables in the intermediate callback
+#include "IpIpoptCalculatedQuantities.hpp"
+#include "IpIpoptData.hpp"
+#include "IpTNLPAdapter.hpp"
+#include "IpOrigIpoptNLP.hpp"
 
 #include <ros/ros.h>
 
@@ -119,18 +123,15 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
-  nlp_structure_.UpdateOptimizationVariables(x);
-  obj_value = cost_function_.EvalCostFunction(nlp_structure_.opt_all_);
+  obj_value = cost_function_.EvalCostFunction(nlp_structure_.ConvertToEigen(x));
   return true;
 }
 
 
 bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
-  nlp_structure_.UpdateOptimizationVariables(x);
-
   Eigen::MatrixXd jac(1,n);
-  num_diff_cost_function_.df(nlp_structure_.opt_all_, jac);
+  num_diff_cost_function_.df(nlp_structure_.ConvertToEigen(x), jac);
 
   Eigen::Map<Eigen::MatrixXd>(grad_f,1,n) = jac;
 	return true;
@@ -139,9 +140,7 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
 
 bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
-  nlp_structure_.UpdateOptimizationVariables(x);
-  //FIXME pass nlp structure directly
-  VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.opt_all_);
+  VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.ConvertToEigen(x));
   Eigen::Map<VectorXd>(g,m) = g_eig;
   return true;
 }
@@ -151,7 +150,6 @@ bool NlpIpoptZmp::eval_jac_g(Index n, const Number* x, bool new_x,
                        Index m, Index nele_jac, Index* iRow, Index *jCol,
                        Number* values)
 {
-
   // FIXME exploit sparsity structure more.
 	// say at which positions the nonzero elements of the jacobian are
   if (values == NULL) {
@@ -167,9 +165,8 @@ bool NlpIpoptZmp::eval_jac_g(Index n, const Number* x, bool new_x,
   	}
   }
   else {
-    nlp_structure_.UpdateOptimizationVariables(x);
     Eigen::MatrixXd jac(m,n);
-    num_diff_constraints_.df(nlp_structure_.opt_all_,jac);
+    num_diff_constraints_.df(nlp_structure_.ConvertToEigen(x),jac);
     Eigen::Map<Eigen::MatrixXd>(values,jac.rows(),jac.cols()) = jac;
   }
 
@@ -190,15 +187,32 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
 {
 //   std::cin.get();
 
+  // Get the current value of the optimization variable:
+  Ipopt::TNLPAdapter* tnlp_adapter = NULL;
+  if( ip_cq != NULL )
+  {
+    Ipopt::OrigIpoptNLP* orignlp;
+    orignlp = dynamic_cast<OrigIpoptNLP*>(GetRawPtr(ip_cq->GetIpoptNLP()));
+    if( orignlp != NULL )
+      tnlp_adapter = dynamic_cast<TNLPAdapter*>(GetRawPtr(orignlp->nlp()));
+  }
+  double* x = new double[nlp_structure_.GetOptimizationVariableCount()];
+  tnlp_adapter->ResortX(*ip_data->curr()->x(), x);
+
+
+  // visualize the current state with rviz
+  StdVecEigen2d curr_footholds = nlp_structure_.ExtractFootholds(x);
+  VectorXd curr_coeff = nlp_structure_.ExtractSplineCoefficients(x);
+
   ZmpPublisher::VecFoothold footholds = constraints_.GetPlannedFootholds();
   for (uint i=0; i<footholds.size(); ++i) {
-    footholds.at(i).p << nlp_structure_.opt_footholds_.at(i).x(),
-                         nlp_structure_.opt_footholds_.at(i).y(),
+    footholds.at(i).p << curr_footholds.at(i).x(),
+                         curr_footholds.at(i).y(),
                          0.0;
   }
 
   zmp_publisher_.zmp_msg_.markers.clear();
-  zmp_publisher_.AddRvizMessage(nlp_structure_.opt_coeff_, footholds, constraints_.gap_center_x_,
+  zmp_publisher_.AddRvizMessage(curr_coeff, footholds, constraints_.gap_center_x_,
                                 constraints_.gap_width_x_, "nlp", 1.0);
   zmp_publisher_.publish();
 
@@ -214,7 +228,8 @@ void NlpIpoptZmp::finalize_solution(SolverReturn status,
 			                        const IpoptData* ip_data,
 			                        IpoptCalculatedQuantities* ip_cq)
 {
-  nlp_structure_.UpdateOptimizationVariables(x);
+  opt_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);
+  opt_footholds_ = nlp_structure_.ExtractFootholds(x);
 
   //  // write data to xml file
   //	Eigen::MatrixXd opt_u(1,n);

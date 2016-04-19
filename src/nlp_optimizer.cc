@@ -54,8 +54,8 @@ NlpOptimizer::SolveNlp(StdVecEigen2d& final_footholds,
 
   }
 
-  final_footholds = nlp_ipopt_zmp->GetNlpStructure().opt_footholds_;
-  return nlp_ipopt_zmp->GetNlpStructure().opt_coeff_;
+  final_footholds = nlp_ipopt_zmp->opt_footholds_;
+  return nlp_ipopt_zmp->opt_coeff_;
 }
 
 

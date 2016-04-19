@@ -29,49 +29,43 @@ public:
     :n_spline_coeff_(n_spline_coeff),
      n_steps_(n_steps)
   {
-    opt_all_.resize(GetOptimizationVariableCount());
-    opt_all_.setZero();
-
-    opt_footholds_.resize(n_steps);
-    std::fill(opt_footholds_.begin(), opt_footholds_.end(), Eigen::Vector2d::Zero());
-
-    opt_coeff_ = Eigen::VectorXd(n_spline_coeff_);
-    opt_coeff_.setZero();
   }
 
 
-  void UpdateOptimizationVariables(const Number* x)
+  VectorXd ConvertToEigen(const Number* x) const
   {
-    opt_all_   = Eigen::Map<const VectorXd>(x,GetOptimizationVariableCount());
-    opt_coeff_ = ExtractSplineCoefficients(opt_all_);
-    opt_footholds_ = ExtractFootholds(opt_all_);
-  };
-
-
-  Eigen::VectorXd ExtractSplineCoefficients(const Eigen::VectorXd& x) const
-  {
-    return x.head(n_spline_coeff_);
+    return Eigen::Map<const VectorXd>(x,GetOptimizationVariableCount());
   }
 
 
-  StdVecEigen2d ExtractFootholds(const Eigen::VectorXd& x) const
+  VectorXd ExtractSplineCoefficients(const VectorXd& x_eig) const
   {
-    Eigen::VectorXd footholds_xy = x.tail(2*n_steps_);
+    return x_eig.head(n_spline_coeff_);
+  }
+  VectorXd ExtractSplineCoefficients(const Number* x) const
+  {
+    return ExtractSplineCoefficients(ConvertToEigen(x));
+  }
+
+
+  StdVecEigen2d ExtractFootholds(const VectorXd& x_eig) const
+  {
+    Eigen::VectorXd footholds_xy = x_eig.tail(2*n_steps_);
     StdVecEigen2d fooothold_vec(n_steps_);
-    for (uint i=0; i<n_steps_; ++i) {
+    for (int i=0; i<n_steps_; ++i) {
       fooothold_vec.at(i) = footholds_xy.segment<2>(2*i);
     }
 
     return fooothold_vec;
   }
+  StdVecEigen2d ExtractFootholds(const Number* x) const
+  {
+    return ExtractFootholds(ConvertToEigen(x));
+  }
 
 
   int n_spline_coeff_;
   int n_steps_;
-
-  Eigen::VectorXd opt_all_; /// combines the two below
-  Eigen::VectorXd opt_coeff_;
-  StdVecEigen2d opt_footholds_;
 
   int GetOptimizationVariableCount() const { return n_spline_coeff_ + 2*n_steps_; };
 

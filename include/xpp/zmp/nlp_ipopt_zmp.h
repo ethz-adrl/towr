@@ -112,7 +112,8 @@ public:
   //@}
 
 
-  NlpStructure GetNlpStructure() const {return nlp_structure_; };
+  Eigen::VectorXd opt_coeff_;
+  StdVecEigen2d opt_footholds_;
 private:
 
   NlpStructure nlp_structure_;
@@ -122,6 +123,7 @@ private:
   Eigen::NumericalDiff<Constraints> num_diff_constraints_;
 
   ZmpPublisher zmp_publisher_;
+
 
 
 
