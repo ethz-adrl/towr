@@ -31,6 +31,7 @@ QpOptimizer::QpOptimizer(const ContinuousSplineContainer& spline_structure,
 
   SplineConstraints::State final_state; // zero vel,acc,jerk
   final_state.p = supp_poly_container.GetCenterOfFinalStance();
+  std::cout << "final_state.p: " << final_state.p;
   SplineConstraints spline_constraint(spline_structure);
   equality_constraints_ = spline_constraint.CreateAllSplineConstraints(final_state);
 
@@ -49,7 +50,7 @@ Eigen::VectorXd QpOptimizer::SolveQp()
       inequality_constraints_.M.transpose(), inequality_constraints_.v,
       opt_spline_coeff_xy);
 
-  if (cost == std::numeric_limits<double>::infinity() || cost < 0.002)
+  if (cost == std::numeric_limits<double>::infinity())
     throw std::length_error("Eigen::quadprog did not find a solution");
 
   return opt_spline_coeff_xy;

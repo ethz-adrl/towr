@@ -47,6 +47,16 @@ void ZmpPublisher::AddRvizMessage(
                           msg.markers.begin(),msg.markers.end());
 }
 
+
+void ZmpPublisher::AddStartStance(
+    visualization_msgs::MarkerArray& msg,
+    const std::vector<xpp::hyq::Foothold>& start_stance,
+    const std::string& rviz_namespace)
+{
+  AddFootholds(msg, start_stance, rviz_namespace, visualization_msgs::Marker::SPHERE, 1.0);
+}
+
+
 void
 ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x, double depth_x) const
 {

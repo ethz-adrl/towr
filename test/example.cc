@@ -32,6 +32,9 @@ std::vector<xpp::hyq::Foothold> steps_;
 
 void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 {
+  // offset for starting point
+  double x_offset = 0.15;
+
   footsteps_msg_.markers.clear();
   steps_.clear();
   int num_footholds = H_msg.foothold.size();
@@ -40,7 +43,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   for (int i=0; i<num_footholds; ++i) {
 
     Eigen::Vector3d f_eig;
-    f_eig <<  H_msg.foothold[i].x, H_msg.foothold[i].y, H_msg.foothold[i].z;
+    f_eig <<  (H_msg.foothold[i].x+x_offset), H_msg.foothold[i].y, H_msg.foothold[i].z;
     xpp::hyq::Foothold f(f_eig, static_cast<xpp::hyq::LegID>(H_msg.leg[i]));
     steps_.push_back(f);
   }
@@ -51,13 +54,13 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
 
   // start position (x,y,z) of robot
-  Eigen::Vector2d cog_start_p(0.0, 0.0);
+  Eigen::Vector2d cog_start_p(0.0 + x_offset, 0.0);
   Eigen::Vector2d cog_start_v(0.0, 0.0);
   LegDataMap<Foothold> start_stance;
-  start_stance[LF] = Foothold( 0.35,  0.3, 0.0, LF);
-  start_stance[RF] = Foothold( 0.35, -0.3, 0.0, RF);
-  start_stance[LH] = Foothold(-0.35,  0.3, 0.0, LH);
-  start_stance[RH] = Foothold(-0.35, -0.3, 0.0, RH);
+  start_stance[LF] = Foothold( 0.35 + x_offset,  0.3, 0.0, LF);
+  start_stance[RF] = Foothold( 0.35 + x_offset, -0.3, 0.0, RF);
+  start_stance[LH] = Foothold(-0.35 + x_offset,  0.3, 0.0, LH);
+  start_stance[RH] = Foothold(-0.35 + x_offset, -0.3, 0.0, RH);
 
 
   std::vector<LegID> leg_ids;
@@ -77,6 +80,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
   trajectory.Init(cog_start_p, cog_start_v,leg_ids, stance_time, swing_time, stance_time_initial,stance_time_final);
   xpp::ros::ZmpPublisher zmp_publisher(trajectory);
+  zmp_publisher.AddStartStance(zmp_publisher.zmp_msg_,start_stance.ToVector(), "start_stance");
 
   xpp::hyq::SupportPolygonContainer supp_triangle_container;
   supp_triangle_container.Init(start_stance, steps_, SupportPolygon::GetDefaultMargins());
@@ -91,17 +95,17 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   zmp_publisher.publish();
 
 
-  // solve NLP
-  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds_2d,
-                                                            trajectory,
-                                                            supp_triangle_container,
-                                                            robot_height,
-                                                            opt_coefficients_eig);
-  // build optimized footholds from these coefficients:
-  std::vector<xpp::hyq::Foothold> footholds = steps_;
-  for (uint i=0; i<footholds.size(); ++i) {
-    footholds.at(i).p << opt_footholds_2d.at(i).x(), opt_footholds_2d.at(i).y(), 0.0;
-  }
+//  // solve NLP
+//  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds_2d,
+//                                                            trajectory,
+//                                                            supp_triangle_container,
+//                                                            robot_height,
+//                                                            opt_coefficients_eig);
+//  // build optimized footholds from these coefficients:
+//  std::vector<xpp::hyq::Foothold> footholds = steps_;
+//  for (uint i=0; i<footholds.size(); ++i) {
+//    footholds.at(i).p << opt_footholds_2d.at(i).x(), opt_footholds_2d.at(i).y(), 0.0;
+//  }
 
 
   // combine the two messages

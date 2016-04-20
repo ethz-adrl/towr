@@ -44,6 +44,10 @@ public:
   void publish() const { ros_publisher_.publish(zmp_msg_); };
 
   visualization_msgs::MarkerArray zmp_msg_;
+  void AddStartStance(
+      visualization_msgs::MarkerArray& msg,
+      const std::vector<xpp::hyq::Foothold>& start_stance,
+      const std::string& rviz_namespace);
 private:
   void AddTrajectory(visualization_msgs::MarkerArray& msg,
                      xpp::zmp::SplineContainer zmp_splines,
