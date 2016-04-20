@@ -84,6 +84,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
   xpp::hyq::SupportPolygonContainer supp_triangle_container;
   supp_triangle_container.Init(start_stance, steps_, SupportPolygon::GetDefaultMargins());
+  zmp_publisher.AddGoal(zmp_publisher.zmp_msg_, supp_triangle_container.GetCenterOfFinalStance());
 
   xpp::zmp::QpOptimizer zmp_optimizer(trajectory,supp_triangle_container, robot_height);
   xpp::zmp::NlpOptimizer nlp_optimizer;

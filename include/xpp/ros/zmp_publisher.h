@@ -25,6 +25,9 @@ class ZmpPublisher {
 public:
   typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > StdVecEigen2d;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
+  typedef visualization_msgs::Marker Marker;
+  typedef visualization_msgs::MarkerArray MarkerArray;
+  typedef Eigen::Vector2d Vector2d;
 
 public:
   ZmpPublisher (const xpp::zmp::ContinuousSplineContainer& trajectory);
@@ -44,10 +47,10 @@ public:
   void publish() const { ros_publisher_.publish(zmp_msg_); };
 
   visualization_msgs::MarkerArray zmp_msg_;
-  void AddStartStance(
-      visualization_msgs::MarkerArray& msg,
+  void AddStartStance(MarkerArray& msg,
       const std::vector<xpp::hyq::Foothold>& start_stance,
       const std::string& rviz_namespace);
+  void AddGoal(MarkerArray& msg,const Vector2d& goal);
 private:
   void AddTrajectory(visualization_msgs::MarkerArray& msg,
                      xpp::zmp::SplineContainer zmp_splines,
@@ -63,6 +66,7 @@ private:
       double alpha = 1.0);
 
   void AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x, double width_x) const;
+  Marker GenerateMarker(Vector2d pos, int32_t type, double size) const;
 
   std_msgs::ColorRGBA GetLegColor(xpp::hyq::LegID leg) const;
 

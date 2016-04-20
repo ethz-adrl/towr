@@ -57,6 +57,37 @@ void ZmpPublisher::AddStartStance(
 }
 
 
+void ZmpPublisher::AddGoal(
+    visualization_msgs::MarkerArray& msg,
+    const Eigen::Vector2d& goal)
+{
+  Marker marker;
+  marker = GenerateMarker(goal, visualization_msgs::Marker::CYLINDER, 0.03);
+  marker.ns = "goal";
+  marker.scale.z = 0.1;
+  marker.color.a = 0.5;
+  msg.markers.push_back(marker);
+}
+
+
+visualization_msgs::Marker
+ZmpPublisher::GenerateMarker(Eigen::Vector2d pos, int32_t type, double size) const
+{
+  visualization_msgs::Marker marker;
+  marker.pose.position.x = pos.x();
+  marker.pose.position.y = pos.y();
+  marker.pose.position.z = 0.0;
+  marker.header.frame_id = frame_id_;
+  marker.header.stamp = ::ros::Time();
+  marker.type = type;
+  marker.action = visualization_msgs::Marker::ADD;
+//    marker.lifetime = ros::Duration(10);
+  marker.scale.x = marker.scale.y = marker.scale.z = size;
+  marker.color.a = 1.0;
+
+  return marker;
+}
+
 void
 ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x, double depth_x) const
 {
@@ -86,6 +117,8 @@ ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x
 }
 
 
+
+
 void
 ZmpPublisher::AddTrajectory(visualization_msgs::MarkerArray& msg,
                    xpp::zmp::SplineContainer zmp_splines,
@@ -101,18 +134,11 @@ ZmpPublisher::AddTrajectory(visualization_msgs::MarkerArray& msg,
     zmp_splines.GetCOGxy(t, cog_state);
 
     visualization_msgs::Marker marker;
+    marker = GenerateMarker(cog_state.p.segment<2>(0),
+                            visualization_msgs::Marker::SPHERE,
+                            0.005);
     marker.id = i++;
-    marker.pose.position.x = cog_state.p.x();
-    marker.pose.position.y = cog_state.p.y();
-    marker.pose.position.z = 0.0;
-    marker.header.frame_id = frame_id_;
-    marker.header.stamp = ::ros::Time();
     marker.ns = rviz_namespace;
-    marker.type = visualization_msgs::Marker::SPHERE;
-    marker.action = visualization_msgs::Marker::ADD;
-//    marker.lifetime = ros::Duration(10);
-    marker.scale.x = marker.scale.y = marker.scale.z = 0.005;
-
 
     bool four_legg_support = zmp_splines.GetFourLegSupport(t);
     if ( four_legg_support ) {
