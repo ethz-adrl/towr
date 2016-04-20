@@ -146,7 +146,7 @@ ZmpConstraint::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
   VecScalar line_constr;
 
   line_constr.v  = l.coeff.p*x_zmp.v + l.coeff.q*y_zmp.v;
-  line_constr.s  = l.coeff.p*x_zmp.s + l.coeff.q*x_zmp.s;
+  line_constr.s  = l.coeff.p*x_zmp.s + l.coeff.q*y_zmp.s;
   line_constr.s += l.coeff.r - l.s_margin;
 
   return line_constr;
