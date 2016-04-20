@@ -57,6 +57,49 @@ void ZmpPublisher::AddStartStance(
 }
 
 
+void ZmpPublisher::AddPolygon(const std::vector<xpp::hyq::Foothold>& footholds,
+                              xpp::hyq::LegID leg_id)
+{
+//  static int i=0;
+//  geometry_msgs::PolygonStamped polygon_msg;
+//  polygon_msg.header.frame_id = "world";
+//  polygon_msg.header.seq = i++;
+
+
+  visualization_msgs::Marker marker;
+  marker.id = (zmp_msg_.markers.size() == 0)? 0 : zmp_msg_.markers.back().id + 1;
+  marker.header.frame_id = frame_id_;
+  marker.header.stamp = ::ros::Time();
+  marker.ns = "support triangles for leg " + std::to_string(leg_id);
+  marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
+  marker.action = visualization_msgs::Marker::ADD;
+ //    marker.lifetime = ros::Duration(10);
+  marker.scale.x = marker.scale.y = marker.scale.z = 1.0;
+  marker.color = GetLegColor(leg_id); // fixme, use correct leg
+  marker.color.a = 0.2;
+
+  geometry_msgs::Point p1;
+  for (size_t i=0; i<footholds.size(); ++i) {
+    p1.x = footholds.at(i).p.x();
+    p1.y = footholds.at(i).p.y();
+    p1.z = footholds.at(i).p.z();
+    marker.points.push_back(p1);
+  }
+
+  zmp_msg_.markers.push_back(marker);
+
+
+//  geometry_msgs::Point32 p1;
+//  for (size_t i=0; i<footholds.size(); ++i) {
+//    p1.x = footholds.at(i).p.x();
+//    p1.y = footholds.at(i).p.y();
+//    p1.z = footholds.at(i).p.z();
+//    polygon_msg.polygon.points.push_back(p1);
+//  }
+//  ros__publisher_.publish(polygon_msg);
+}
+
+
 void ZmpPublisher::AddGoal(
     visualization_msgs::MarkerArray& msg,
     const Eigen::Vector2d& goal)

@@ -33,7 +33,7 @@ std::vector<xpp::hyq::Foothold> steps_;
 void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 {
   // offset for starting point
-  double x_offset = 0.15;
+  double x_offset = 0.5;
 
   footsteps_msg_.markers.clear();
   steps_.clear();
@@ -80,34 +80,41 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
   trajectory.Init(cog_start_p, cog_start_v,leg_ids, stance_time, swing_time, stance_time_initial,stance_time_final);
   xpp::ros::ZmpPublisher zmp_publisher(trajectory);
-  zmp_publisher.AddStartStance(zmp_publisher.zmp_msg_,start_stance.ToVector(), "start_stance");
 
   xpp::hyq::SupportPolygonContainer supp_triangle_container;
   supp_triangle_container.Init(start_stance, steps_, SupportPolygon::GetDefaultMargins());
   zmp_publisher.AddGoal(zmp_publisher.zmp_msg_, supp_triangle_container.GetCenterOfFinalStance());
+  zmp_publisher.AddStartStance(zmp_publisher.zmp_msg_,
+                               supp_triangle_container.GetStartStance().ToVector(),
+                               "start_stance");
 
-  xpp::zmp::QpOptimizer zmp_optimizer(trajectory,supp_triangle_container, robot_height);
-  xpp::zmp::NlpOptimizer nlp_optimizer;
+  // visualize the support polygons
+//  std::vector<SupportPolygon> supp_no_4l = supp_triangle_container.GetSupportPolygons();
+//  for (int i=0; i<supp_no_4l.size(); ++i) {
+//    zmp_publisher.AddPolygon(supp_no_4l.at(i).footholds_conv_, supp_triangle_container.GetFootholds().at(i).leg);
+//  }
+
 
   // solve QP
-  Constraints::StdVecEigen2d opt_footholds_2d;
-  Eigen::VectorXd opt_coefficients_eig = zmp_optimizer.SolveQp();
+  xpp::zmp::QpOptimizer qp_optimizer(trajectory,supp_triangle_container, robot_height);
+  Eigen::VectorXd opt_coefficients_eig = qp_optimizer.SolveQp();
   zmp_publisher.AddRvizMessage(opt_coefficients_eig, steps_, 0.0, 0.0, "qp", 0.1);
   zmp_publisher.publish();
 
 
-//  // solve NLP
-//  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds_2d,
-//                                                            trajectory,
-//                                                            supp_triangle_container,
-//                                                            robot_height,
-//                                                            opt_coefficients_eig);
-//  // build optimized footholds from these coefficients:
-//  std::vector<xpp::hyq::Foothold> footholds = steps_;
-//  for (uint i=0; i<footholds.size(); ++i) {
-//    footholds.at(i).p << opt_footholds_2d.at(i).x(), opt_footholds_2d.at(i).y(), 0.0;
-//  }
-
+  // solve NLP
+  xpp::zmp::NlpOptimizer nlp_optimizer;
+  Constraints::StdVecEigen2d opt_footholds_2d;
+  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds_2d,
+                                                            trajectory,
+                                                            supp_triangle_container,
+                                                            robot_height,
+                                                            opt_coefficients_eig);
+  // build optimized footholds from these coefficients:
+  std::vector<xpp::hyq::Foothold> footholds = steps_;
+  for (uint i=0; i<footholds.size(); ++i) {
+    footholds.at(i).p << opt_footholds_2d.at(i).x(), opt_footholds_2d.at(i).y(), 0.0;
+  }
 
   // combine the two messages
   footsteps_msg_ = zmp_publisher.zmp_msg_;
@@ -143,7 +150,7 @@ int main(int argc, char **argv)
   ros::Rate loop_rate(100);
   while (ros::ok()) {
     ros::spinOnce();
-//    zmp_publisher_.publish();
+    publisher.publish(footsteps_msg_);
   }
 }
 

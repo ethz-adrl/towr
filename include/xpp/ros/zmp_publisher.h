@@ -51,6 +51,8 @@ public:
       const std::vector<xpp::hyq::Foothold>& start_stance,
       const std::string& rviz_namespace);
   void AddGoal(MarkerArray& msg,const Vector2d& goal);
+  void AddPolygon(const std::vector<xpp::hyq::Foothold>& footholds,
+                  xpp::hyq::LegID leg_id);
 private:
   void AddTrajectory(visualization_msgs::MarkerArray& msg,
                      xpp::zmp::SplineContainer zmp_splines,

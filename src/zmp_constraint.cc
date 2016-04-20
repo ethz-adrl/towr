@@ -83,24 +83,25 @@ ZmpConstraint::CreateSupportPolygonsWith4LS(const SupportPolygonContainer& supp_
   std::vector<SupportPolygon> supp;
   std::vector<SupportPolygon> supp_no_4l = supp_polygon_container.GetSupportPolygons();
 
+
   for (const xpp::zmp::ZmpSpline& s : spline_container_.splines_)
   {
     bool first_spline = (s.id_ == spline_container_.splines_.front().id_);
     bool last_spline  = (s.id_ == spline_container_.splines_.back().id_);
 
-    if (first_spline)
-      supp.push_back(supp_polygon_container.GetStartPolygon());
-    else if (last_spline)
-      supp.push_back(supp_polygon_container.GetFinalPolygon());
-    else if (s.four_leg_supp_)
-      supp.push_back((SupportPolygon::CombineSupportPolygons(supp_no_4l.at(s.step_), supp_no_4l.at(s.step_-1))));
+    if (s.four_leg_supp_)
+      if (first_spline)
+        supp.push_back(supp_polygon_container.GetStartPolygon());
+      else if (last_spline)
+        supp.push_back(supp_polygon_container.GetFinalPolygon());
+      else
+        supp.push_back((SupportPolygon::CombineSupportPolygons(supp_no_4l.at(s.step_), supp_no_4l.at(s.step_-1))));
     else
       supp.push_back(supp_no_4l.at(s.step_));
-
   }
+
   return supp;
 }
-
 
 
 ZmpConstraint::MatVec
@@ -125,7 +126,7 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
     SupportPolygon::VecSuppLine lines = supp.at(s.id_).CalcLines();
     for (double i=0; i < s.GetNodeCount(spline_container_.dt_); ++i) {
       // FIXME: Optimize by performing one matrix*vector multiplication
-      for (SupportPolygon::SuppLine l : lines) { // add three line constraints for each node
+      for (SupportPolygon::SuppLine l : lines) { // add three/four line constraints for each node
         VecScalar constr = GenerateLineConstraint(l, x_zmp.ExtractRow(n), y_zmp.ExtractRow(n));
         ineq.AddVecScalar(constr,c++);
       }

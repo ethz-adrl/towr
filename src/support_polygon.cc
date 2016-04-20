@@ -12,13 +12,13 @@
 namespace xpp {
 namespace hyq {
 
+
 using namespace ::xpp::utils; //X,Y,Z,Poin2dManip
 
-
 SupportPolygon::SupportPolygon(const MarginValues& margins, const VecFoothold& footholds)
-    :  margins_(margins),
-       footholds_(footholds),
-       footholds_conv_(BuildSortedConvexHull(footholds))
+    :margins_(margins),
+     footholds_(footholds),
+     footholds_conv_(BuildSortedConvexHull(footholds))
 {
 }
 
