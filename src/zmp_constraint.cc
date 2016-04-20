@@ -124,12 +124,37 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
   for (const zmp::ZmpSpline& s : spline_container_.splines_)
   {
     SupportPolygon::VecSuppLine lines = supp.at(s.id_).CalcLines();
+
+
+//    Eigen::VectorXd lp(lines.size());
+//    Eigen::VectorXd lq(lines.size());
+//    Eigen::VectorXd lr(lines.size());
+//    Eigen::VectorXd ls(lines.size());
+//
+//    for (int i=0; i<lines.size(); ++i){
+//      lp[i] = lines.at(i).coeff.p;
+//      lq[i] = lines.at(i).coeff.q;
+//      lr[i] = lines.at(i).coeff.r;
+//      ls[i] = lines.at(i).s_margin;
+//    }
+
     for (double i=0; i < s.GetNodeCount(spline_container_.dt_); ++i) {
       // FIXME: Optimize by performing one matrix*vector multiplication
+
+
+//      const VecScalar& x_ = x_zmp.ExtractRow(n);
+//      const VecScalar& y_ = y_zmp.ExtractRow(n);
+//
+//      ineq.M.middleRows(c,lines.size()) = lp*x_.v + lq*y_.v;
+//      ineq.v.segment(c,lines.size())    = lp*x_.s - lq*y_.s + lr - ls;
+//      c += lines.size();
+
       for (SupportPolygon::SuppLine l : lines) { // add three/four line constraints for each node
         VecScalar constr = GenerateLineConstraint(l, x_zmp.ExtractRow(n), y_zmp.ExtractRow(n));
         ineq.AddVecScalar(constr,c++);
       }
+
+
       n++;
     }
   }
