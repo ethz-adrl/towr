@@ -81,7 +81,7 @@ ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer&
 {
   const double x_nominal_b = 0.3; // 0.4
   const double y_nominal_b = 0.3; // 0.4
-  const double dt = 0.1; //zmp_spline_container_.dt_;
+  const double dt = zmp_spline_container_.dt_;
 
   xpp::hyq::LegDataMap<Vector2d> B_r_BaseToNominal;
   B_r_BaseToNominal[hyq::LF] <<  x_nominal_b,  y_nominal_b;

@@ -25,7 +25,7 @@ NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
     :cost_function_(cost_function),
      constraints_(constraints),
      // These epsilons play a big role in convergence
-     num_diff_cost_function_(cost_function, std::numeric_limits<double>::epsilon()),
+     num_diff_cost_function_(cost_function, 10*std::numeric_limits<double>::epsilon()),
      num_diff_constraints_(constraints, std::sqrt(std::numeric_limits<double>::epsilon())),
      nlp_structure_(nlp_structure),
      zmp_publisher_(constraints.GetSplineContainer())
@@ -194,28 +194,30 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
   {
     Ipopt::OrigIpoptNLP* orignlp;
     orignlp = dynamic_cast<OrigIpoptNLP*>(GetRawPtr(ip_cq->GetIpoptNLP()));
-    if( orignlp != NULL )
+    if( orignlp != NULL ) {
       tnlp_adapter = dynamic_cast<TNLPAdapter*>(GetRawPtr(orignlp->nlp()));
+      double* x = new double[nlp_structure_.GetOptimizationVariableCount()];
+      tnlp_adapter->ResortX(*ip_data->curr()->x(), x);
+
+      // visualize the current state with rviz
+      StdVecEigen2d curr_footholds = nlp_structure_.ExtractFootholds(x);
+      VectorXd curr_coeff = nlp_structure_.ExtractSplineCoefficients(x);
+
+      ZmpPublisher::VecFoothold footholds = constraints_.GetPlannedFootholds();
+      for (uint i=0; i<footholds.size(); ++i) {
+        footholds.at(i).p << curr_footholds.at(i).x(),
+            curr_footholds.at(i).y(),
+            0.0;
+      }
+
+      zmp_publisher_.zmp_msg_.markers.clear();
+      zmp_publisher_.AddRvizMessage(curr_coeff, footholds, constraints_.gap_center_x_,
+                                    constraints_.gap_width_x_, "nlp", 1.0);
+      zmp_publisher_.publish();
+    }
   }
-  double* x = new double[nlp_structure_.GetOptimizationVariableCount()];
-  tnlp_adapter->ResortX(*ip_data->curr()->x(), x);
 
 
-  // visualize the current state with rviz
-  StdVecEigen2d curr_footholds = nlp_structure_.ExtractFootholds(x);
-  VectorXd curr_coeff = nlp_structure_.ExtractSplineCoefficients(x);
-
-  ZmpPublisher::VecFoothold footholds = constraints_.GetPlannedFootholds();
-  for (uint i=0; i<footholds.size(); ++i) {
-    footholds.at(i).p << curr_footholds.at(i).x(),
-                         curr_footholds.at(i).y(),
-                         0.0;
-  }
-
-  zmp_publisher_.zmp_msg_.markers.clear();
-  zmp_publisher_.AddRvizMessage(curr_coeff, footholds, constraints_.gap_center_x_,
-                                constraints_.gap_width_x_, "nlp", 1.0);
-  zmp_publisher_.publish();
 
 	return true;
 }

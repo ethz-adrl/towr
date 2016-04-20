@@ -58,11 +58,11 @@ Constraints::GetConstraintsOnly(const VectorXd& x_coeff,
   // ATTENTION: order seems to play a role
   g_std.push_back(FinalState(x_coeff));
   g_std.push_back(InitialAcceleration(x_coeff));
-//  g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
+  g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
   g_std.push_back(KeepZmpInSuppPolygon(x_coeff, supp_polygon_container_));
 //  g_std.push_back(FixFootholdPosition(footholds));
   g_std.push_back(RestrictFootholdToCogPos(x_coeff, footholds));
-//  g_std.push_back(AddObstacle(footholds));
+  g_std.push_back(AddObstacle(footholds));
 
 
   return g_std;

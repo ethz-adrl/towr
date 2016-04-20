@@ -33,7 +33,7 @@ std::vector<xpp::hyq::Foothold> steps_;
 void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 {
   // offset for starting point
-  double x_offset = 0.5;
+  double x_offset = 0.0;
 
   footsteps_msg_.markers.clear();
   steps_.clear();
