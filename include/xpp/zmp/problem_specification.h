@@ -44,6 +44,8 @@ public:
   Foothold GetStartStance(LegID leg) const { return supp_polygon_container_.GetStartStance()[leg]; };
 
 private:
+  Eigen::VectorXd DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,
+                                              const ContinuousSplineContainer& zmp_spline_container) const;
 
 protected:
   SupportPolygonContainer supp_polygon_container_;
@@ -58,6 +60,7 @@ protected:
 //  }
   Eigen::VectorXd DistanceFootToNominalStance(const VectorXd& x_coeff, const StdVecEigen2d& footholds) const
   {
+    // update current state of support polygon and zmp spline
     ContinuousSplineContainer spline_container = zmp_spline_container_;
     spline_container.AddOptimizedCoefficients(x_coeff, spline_container.splines_);
 
@@ -68,8 +71,6 @@ protected:
     return DistanceFootToNominalStance(supp_polygon_container, spline_container);
   }
 
-  Eigen::VectorXd DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,
-                                              const ContinuousSplineContainer& zmp_spline_container) const;
   Eigen::VectorXd DistanceSquareFootToGapboarder(const StdVecEigen2d& footholds,
                                            double gap_center_x,
                                            double gap_width_x) const;

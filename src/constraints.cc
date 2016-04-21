@@ -38,11 +38,15 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_con
 
 
 Constraints::VectorXd
-Constraints::EvalContraints(const InputType& x) const
+Constraints::EvalContraints(const InputType& x)
 {
-//  UpdateCurrentState(x_coeff, footholds);
-  std::vector<Constraint> g_std = GetConstraintsOnly(nlp_structure_.ExtractSplineCoefficients(x),
-                                                     nlp_structure_.ExtractFootholds(x));
+  VectorXd x_coeff = nlp_structure_.ExtractSplineCoefficients(x);
+  StdVecEigen2d footholds = nlp_structure_.ExtractFootholds(x);
+
+  // IMPORTANT: update trajectory and footholds first
+  UpdateCurrentState(x_coeff, footholds);
+
+  std::vector<Constraint> g_std = GetConstraintsOnly(x_coeff, footholds);
 
   return CombineToEigenVector(g_std);
 }
@@ -73,10 +77,10 @@ Constraints::Constraint
 Constraints::KeepZmpInSuppPolygon(const VectorXd& x_coeff,
                                   const StdVecEigen2d& footholds) const
 {
-  SupportPolygonContainer supp_polygon_container = supp_polygon_container_;
-
-  for (uint i=0; i<footholds.size(); ++i)
-    supp_polygon_container.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
+//  SupportPolygonContainer supp_polygon_container = supp_polygon_container_;
+//
+//  for (uint i=0; i<footholds.size(); ++i)
+//    supp_polygon_container.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
 
 //  prt(supp_polygon_container.GetNumberOfSteps());
 //  prt(supp_polygon_container.GetSupportPolygons().size());
@@ -94,7 +98,7 @@ Constraints::KeepZmpInSuppPolygon(const VectorXd& x_coeff,
 //    prt(f);
 //  }
 
-  MatVec ineq = zmp_constraint_.CreateLineConstraints(supp_polygon_container);
+  MatVec ineq = zmp_constraint_.CreateLineConstraints(supp_polygon_container_);
 
   Constraint constraints;
   constraints.values_ = ineq.M*x_coeff + ineq.v;

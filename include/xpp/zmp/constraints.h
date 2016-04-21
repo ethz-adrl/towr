@@ -75,10 +75,11 @@ public:
    */
   int operator() (const InputType& x, ValueType& obj_value) const
   {
-    obj_value = EvalContraints(x);
+    throw std::runtime_error("Can't differentiate contraints because EvalContaints() not constant");
+//    obj_value = EvalContraints(x);
     return 1;
   }
-  Eigen::VectorXd EvalContraints(const InputType& x) const;
+  Eigen::VectorXd EvalContraints(const InputType& x);
   MatVec spline_junction_constraints_;
   MatVec spline_initial_acc_constraints_;
   MatVec spline_final_constraints_;
