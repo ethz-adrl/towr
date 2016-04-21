@@ -11,6 +11,8 @@
 #include <xpp/utils/geometric_structs.h>
 #include <xpp_opt/StateLin3d.h>
 
+#include <xpp/zmp/nlp_optimizer.h>
+
 #include <ros/ros.h>
 
 namespace xpp {
@@ -21,6 +23,7 @@ public:
   typedef ::ros::Publisher Publisher;
   typedef ::ros::Subscriber Subscriber;
   typedef xpp::utils::Point3d Point3d;
+  typedef xpp::zmp::NlpOptimizer NlpOptimizer;
 
 public:
   XppOptimizerNode ();
@@ -42,6 +45,8 @@ private:
 
   Point3d goal_;
   Point3d curr_;
+  NlpOptimizer nlp_optimizer_;
+
 };
 
 } /* namespace ros */

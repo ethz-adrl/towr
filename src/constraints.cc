@@ -17,7 +17,9 @@ namespace zmp {
 Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_container,
                           const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
                           const NlpStructure& nlp_structure,
-                          double walking_height)
+                          double walking_height,
+                          Vector2d initial_acc,
+                          State final_state)
     :ProblemSpecification(supp_poly_container, zmp_spline_container),
      xpp::utils::EigenNumDiffFunctor<double>(nlp_structure.GetOptimizationVariableCount(),1),
      zmp_constraint_(zmp_spline_container, walking_height)
@@ -25,11 +27,9 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_con
 
   nlp_structure_ = nlp_structure;
 
-  State final_state; // zero vel,acc,jerk
-  final_state.p = supp_poly_container.GetCenterOfFinalStance();
   SplineConstraints spline_constraint(zmp_spline_container);
   spline_junction_constraints_    = spline_constraint.CreateJunctionConstraints();
-  spline_initial_acc_constraints_ = spline_constraint.CreateInitialAccConstraints();
+  spline_initial_acc_constraints_ = spline_constraint.CreateInitialAccConstraints(initial_acc);
   spline_final_constraints_       = spline_constraint.CreateFinalConstraints(final_state);
 
   // initializes number of constraints

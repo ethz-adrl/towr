@@ -104,9 +104,16 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
 
   // solve NLP
+  Eigen::Vector2d initial_acc = Eigen::Vector2d::Zero();
+  xpp::zmp::SplineConstraints::State final_state; // zero vel,acc,jerk
+  final_state.p = supp_triangle_container.GetCenterOfFinalStance();
+
+
   xpp::zmp::NlpOptimizer nlp_optimizer;
   Constraints::StdVecEigen2d opt_footholds_2d;
-  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(opt_footholds_2d,
+  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(initial_acc,
+                                                            final_state,
+                                                            opt_footholds_2d,
                                                             trajectory,
                                                             supp_triangle_container,
                                                             robot_height,

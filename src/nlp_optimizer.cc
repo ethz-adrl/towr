@@ -16,7 +16,9 @@ namespace zmp {
 
 
 Eigen::VectorXd
-NlpOptimizer::SolveNlp(StdVecEigen2d& final_footholds,
+NlpOptimizer::SolveNlp(const Vector2d& initial_acc,
+                       const State& final_state,
+                       StdVecEigen2d& final_footholds,
                        const ContinuousSplineContainer& spline_structure,
                        const SupportPolygonContainer& supp_polygon_container,
                        double walking_height,
@@ -33,7 +35,12 @@ NlpOptimizer::SolveNlp(StdVecEigen2d& final_footholds,
   NlpStructure nlp_structure(spline_structure.GetTotalFreeCoeff(),
                              supp_polygon_container.GetNumberOfSteps());
 
-  Constraints constraints(supp_polygon_container, spline_structure, nlp_structure, walking_height);
+  Constraints constraints(supp_polygon_container,
+                          spline_structure,
+                          nlp_structure,
+                          walking_height,
+                          initial_acc,
+                          final_state);
   CostFunction cost_function(spline_structure, supp_polygon_container, nlp_structure);
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =

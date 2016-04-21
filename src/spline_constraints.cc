@@ -135,10 +135,11 @@ SplineConstraints::CreateJunctionConstraints() const
 
 
 SplineConstraints::MatVec
-SplineConstraints::CreateAllSplineConstraints(const State &final_state) const
+SplineConstraints::CreateAllSplineConstraints(const Vector2d& initial_acc,
+                                              const State& final_state) const
 {
   MatVec spline_constraints;
-  spline_constraints << CreateInitialAccConstraints();
+  spline_constraints << CreateInitialAccConstraints(initial_acc);
   spline_constraints << CreateFinalConstraints(final_state);
   spline_constraints << CreateJunctionConstraints();
 

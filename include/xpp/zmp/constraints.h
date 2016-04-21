@@ -58,7 +58,9 @@ public:
   Constraints (const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
                const xpp::zmp::ContinuousSplineContainer& zmp_spline_container,
                const NlpStructure& nlp_structure,
-               double walking_height);
+               double walking_height,
+               Vector2d initial_acc,
+               State final_state);
   virtual
   ~Constraints () {};
 
