@@ -34,6 +34,8 @@ set(LIB_NAME xpp_opt)
 add_message_files(
   FILES
   FootholdSequence.msg
+  StateLin3d.msg
+  OptimizedVariables.msg
 )
 generate_messages(
   DEPENDENCIES
@@ -93,6 +95,7 @@ set(SOURCES
   src/ellipse.cc
   src/spline_constraints.cc
   src/problem_specification.cc
+  src/xpp_optimizer_node.cc
 )
              
 # Add the shared library

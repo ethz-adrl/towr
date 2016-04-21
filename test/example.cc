@@ -70,6 +70,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
     std::cout << "f: " << f << std::endl;
   }
 
+
   // create the general spline structure
   ContinuousSplineContainer trajectory;
   double swing_time          = xpp::ros::GetDoubleFromServer("/xpp/swing_time");
@@ -130,21 +131,6 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   ros::Publisher publisher = n.advertise<visualization_msgs::MarkerArray>("zmp_trajectory", 10);
   ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
-
-  double swing_time;
-  ros::param::get("~swing_time",swing_time);
-
-//  n.getParam("~swing_time", swing_time);
-  std::cout << "swing_time: " << swing_time;
-
-//  return 0;
-
-  using namespace xpp::hyq;
-  using namespace xpp::zmp;
-  using namespace xpp::utils;
-
-//  log4cxx::PropertyConfigurator::configure("../test/log4cxx.properties");
-//  log4cxx::LoggerPtr main_logger = log4cxx::Logger::getLogger("main");
 
 
   ros::Rate loop_rate(100);

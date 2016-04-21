@@ -73,7 +73,7 @@ CostFunction::CreateMinAccCostFunction(const ContinuousSplineContainer& spline_s
   MatVec cf(n_coeff, n_coeff);
 
   for (const ZmpSpline& s : spline_structure.splines_) {
-    std::array<double,10> t_span = utils::cache_exponents<10>(s.duration_);
+    std::array<double,8> t_span = utils::cache_exponents<8>(s.duration_);
 
     for (int dim = X; dim <= Y; dim++) {
       const int a = ContinuousSplineContainer::Index(s.id_, dim, A);
