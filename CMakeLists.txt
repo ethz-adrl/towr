@@ -127,7 +127,7 @@ if(BUILD_TESTS)
                         test/google/spliner_test.cc
                         test/google/point2d_manipulations_test.cc
                         test/google/supp_polygon_test.cc
-                        test/google/supp_polygon_container_test.cc
+                        #test/google/supp_polygon_container_test.cc
                         test/google/spline_container_test.cc
                         test/google/helpers.cc
                         ##test/google/eigen_num_diff_test.cc

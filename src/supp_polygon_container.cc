@@ -13,18 +13,20 @@ namespace hyq {
 
 void SupportPolygonContainer::Init(LegDataMap<Foothold> start_stance,
                                  const VecFoothold& footholds,
+                                 const std::vector<LegID>& step_sequence,
                                  const MarginValues& margins)
 {
-  start_stance_ = start_stance;
-  footholds_    = footholds;
-  margins_      = margins;
+  start_stance_  = start_stance;
+  footholds_     = footholds;
+  step_sequence_ = step_sequence;
+  margins_       = margins;
   support_polygons_ = CreateSupportPolygons(footholds);
 
   initialized_ = true;
 }
 
 
-void SupportPolygonContainer::SetFootholdsXY(size_t idx, double x, double y)
+void SupportPolygonContainer::SetFootholdsXY(int idx, double x, double y)
 {
   footholds_.at(idx).p.x() = x;
   footholds_.at(idx).p.y() = y;

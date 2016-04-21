@@ -54,8 +54,8 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
 
   // start position (x,y,z) of robot
-  Eigen::Vector2d cog_start_p(0.0 + x_offset, 0.0);
-  Eigen::Vector2d cog_start_v(0.0, 0.0);
+  xpp::zmp::SplineConstraints::State initial_state;
+  initial_state.p.x() = 0.0 + x_offset;
   LegDataMap<Foothold> start_stance;
   start_stance[LF] = Foothold( 0.35 + x_offset,  0.3, 0.0, LF);
   start_stance[RF] = Foothold( 0.35 + x_offset, -0.3, 0.0, RF);
@@ -79,11 +79,11 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
   double stance_time_initial = xpp::ros::GetDoubleFromServer("/xpp/stance_time_initial");
   double stance_time_final   = xpp::ros::GetDoubleFromServer("/xpp/stance_time_final");
 
-  trajectory.Init(cog_start_p, cog_start_v,leg_ids, stance_time, swing_time, stance_time_initial,stance_time_final);
+  trajectory.Init(initial_state.p, initial_state.v, leg_ids, stance_time, swing_time, stance_time_initial,stance_time_final);
   xpp::ros::ZmpPublisher zmp_publisher(trajectory);
 
   xpp::hyq::SupportPolygonContainer supp_triangle_container;
-  supp_triangle_container.Init(start_stance, steps_, SupportPolygon::GetDefaultMargins());
+  supp_triangle_container.Init(start_stance, steps_, leg_ids, SupportPolygon::GetDefaultMargins());
   zmp_publisher.AddGoal(zmp_publisher.zmp_msg_, supp_triangle_container.GetCenterOfFinalStance());
   zmp_publisher.AddStartStance(zmp_publisher.zmp_msg_,
                                supp_triangle_container.GetStartStance().ToVector(),
@@ -104,19 +104,17 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
 
   // solve NLP
-  Eigen::Vector2d initial_acc = Eigen::Vector2d::Zero();
   xpp::zmp::SplineConstraints::State final_state; // zero vel,acc,jerk
   final_state.p = supp_triangle_container.GetCenterOfFinalStance();
 
 
   xpp::zmp::NlpOptimizer nlp_optimizer;
   Constraints::StdVecEigen2d opt_footholds_2d;
-  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(initial_acc,
+  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(initial_state,
                                                             final_state,
+                                                            leg_ids,
+                                                            start_stance,
                                                             opt_footholds_2d,
-                                                            trajectory,
-                                                            supp_triangle_container,
-                                                            robot_height,
                                                             opt_coefficients_eig);
   // build optimized footholds from these coefficients:
   std::vector<xpp::hyq::Foothold> footholds = steps_;

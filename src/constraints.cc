@@ -59,7 +59,7 @@ Constraints::GetConstraintsOnly(const VectorXd& x_coeff,
   g_std.push_back(FinalState(x_coeff));
   g_std.push_back(InitialAcceleration(x_coeff));
   g_std.push_back(SmoothAccJerkAtSplineJunctions(x_coeff));
-  g_std.push_back(KeepZmpInSuppPolygon(x_coeff, supp_polygon_container_));
+  g_std.push_back(KeepZmpInSuppPolygon(x_coeff, footholds));
   g_std.push_back(RestrictFootholdToCogPos(x_coeff, footholds));
 //  g_std.push_back(AddObstacle(footholds));
 //  g_std.push_back(FixFootholdPosition(footholds));
@@ -71,9 +71,30 @@ Constraints::GetConstraintsOnly(const VectorXd& x_coeff,
 
 Constraints::Constraint
 Constraints::KeepZmpInSuppPolygon(const VectorXd& x_coeff,
-                                  const SupportPolygonContainer& support_polygon_container) const
+                                  const StdVecEigen2d& footholds) const
 {
-  MatVec ineq = zmp_constraint_.CreateLineConstraints(support_polygon_container);
+  SupportPolygonContainer supp_polygon_container = supp_polygon_container_;
+
+  for (uint i=0; i<footholds.size(); ++i)
+    supp_polygon_container.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
+
+//  prt(supp_polygon_container.GetNumberOfSteps());
+//  prt(supp_polygon_container.GetSupportPolygons().size());
+//
+//  prt(supp_polygon_container_.GetNumberOfSteps());
+//  prt(supp_polygon_container_.GetSupportPolygons().size());
+//
+//  std::cout << "changed\n:";
+//  for (Foothold f : supp_polygon_container.footholds_) {
+//    prt(f);
+//  }
+//
+//  std::cout << "original\n:";
+//  for (Foothold f : supp_polygon_container_.footholds_) {
+//    prt(f);
+//  }
+
+  MatVec ineq = zmp_constraint_.CreateLineConstraints(supp_polygon_container);
 
   Constraint constraints;
   constraints.values_ = ineq.M*x_coeff + ineq.v;
@@ -83,15 +104,15 @@ Constraints::KeepZmpInSuppPolygon(const VectorXd& x_coeff,
 }
 
 
-Constraints::Constraint
-Constraints::FixFootholdPosition(const StdVecEigen2d& footholds) const
-{
-  Constraint constraints;
-  constraints.values_ = DistanceFootFromPlanned(footholds);
-  constraints.type_ = EQUALITY;
-
-  return constraints;
-}
+//Constraints::Constraint
+//Constraints::FixFootholdPosition(const StdVecEigen2d& footholds) const
+//{
+//  Constraint constraints;
+//  constraints.values_ = DistanceFootFromPlanned(footholds);
+//  constraints.type_ = EQUALITY;
+//
+//  return constraints;
+//}
 
 
 Constraints::Constraint
@@ -153,6 +174,10 @@ Constraints::GetBounds()
   // non initialized values just to compute the bounds
   Eigen::VectorXd x_coeff(zmp_spline_container_.GetTotalFreeCoeff());
   StdVecEigen2d x_footholds(supp_polygon_container_.GetNumberOfSteps());
+  x_coeff.setZero();
+  for (Vector2d f : x_footholds)
+    f.setZero();
+
 
   std::vector<Constraint> g_std = GetConstraintsOnly(x_coeff, x_footholds);
 

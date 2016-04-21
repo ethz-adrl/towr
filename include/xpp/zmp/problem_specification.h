@@ -38,8 +38,9 @@ public:
   virtual ~ProblemSpecification ();
 
   ContinuousSplineContainer GetSplineContainer() const { return zmp_spline_container_; };
-  Foothold GetPlannedFoothold(size_t i) const { return planned_footholds_.at(i); };
-  VecFoothold GetPlannedFootholds() const { return planned_footholds_; };
+  LegID GetLegID(int step) const { return supp_polygon_container_.GetLegID(step); };
+//  Foothold GetPlannedFoothold(size_t i) const { return planned_footholds_.at(i); };
+//  VecFoothold GetPlannedFootholds() const { return planned_footholds_; };
   Foothold GetStartStance(LegID leg) const { return supp_polygon_container_.GetStartStance()[leg]; };
 
 private:
@@ -47,14 +48,14 @@ private:
 protected:
   SupportPolygonContainer supp_polygon_container_;
   ContinuousSplineContainer zmp_spline_container_;
-  const VecFoothold planned_footholds_;
+//  const VecFoothold planned_footholds_;
 
 protected:
   void UpdateCurrentState(const VectorXd& x_coeff, const StdVecEigen2d& footholds);
-  Eigen::VectorXd DistanceFootFromPlanned(const StdVecEigen2d& footholds) const;
-  Eigen::VectorXd DistanceFootToNominalStance() const {
-    return DistanceFootToNominalStance(supp_polygon_container_, zmp_spline_container_);
-  }
+//  Eigen::VectorXd DistanceFootFromPlanned(const StdVecEigen2d& footholds) const;
+//  Eigen::VectorXd DistanceFootToNominalStance() const {
+//    return DistanceFootToNominalStance(supp_polygon_container_, zmp_spline_container_);
+//  }
   Eigen::VectorXd DistanceFootToNominalStance(const VectorXd& x_coeff, const StdVecEigen2d& footholds) const
   {
     ContinuousSplineContainer spline_container = zmp_spline_container_;

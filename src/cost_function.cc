@@ -45,12 +45,12 @@ CostFunction::MinimizeAcceleration(const VectorXd& x_coeff) const
 }
 
 
-double
-CostFunction::PenalizeFootholdFromPlanned(const StdVecEigen2d& footholds) const
-{
-  Eigen::VectorXd g = DistanceFootFromPlanned(footholds);
-  return g.norm();
-}
+//double
+//CostFunction::PenalizeFootholdFromPlanned(const StdVecEigen2d& footholds) const
+//{
+//  Eigen::VectorXd g = DistanceFootFromPlanned(footholds);
+//  return g.norm();
+//}
 
 
 double

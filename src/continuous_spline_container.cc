@@ -14,8 +14,8 @@ namespace xpp {
 namespace zmp {
 
 
-void ContinuousSplineContainer::Init(const Eigen::Vector2d& start_cog_p,
-                                     const Eigen::Vector2d& start_cog_v,
+void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
+                                     const Vector2d& start_cog_v,
                                      const std::vector<xpp::hyq::LegID>& step_sequence,
                                      double t_stance,
                                      double t_swing,
@@ -25,6 +25,13 @@ void ContinuousSplineContainer::Init(const Eigen::Vector2d& start_cog_p,
   ConstructSplineSequence(step_sequence, t_stance, t_swing, t_stance_initial, t_stance_final);
   initialized_ = true;
 
+  UpdateInitialPosVel(start_cog_p, start_cog_v);
+}
+
+
+void ContinuousSplineContainer::UpdateInitialPosVel(const Vector2d& start_cog_p,
+                                                    const Vector2d& start_cog_v)
+{
   for (int dim = xpp::utils::X; dim<=xpp::utils::Y; ++dim) {
     relationship_e_to_abcd_.at(dim) = DescribeEByPrev(dim, start_cog_v(dim));
     relationship_f_to_abdc_.at(dim) = DescribeFByPrev(dim, start_cog_p(dim), start_cog_v(dim));

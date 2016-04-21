@@ -93,7 +93,7 @@ private:
 
   // Add constraints here
   Constraint KeepZmpInSuppPolygon(const VectorXd& x_coeff,
-                                  const SupportPolygonContainer& support_polygon_container) const;
+                                  const StdVecEigen2d& footholds) const;
   Constraint FixFootholdPosition(const StdVecEigen2d& footholds) const;
   Constraint SmoothAccJerkAtSplineJunctions(const VectorXd& x_coeff) const;
   Constraint InitialAcceleration(const VectorXd& x_coeff) const;

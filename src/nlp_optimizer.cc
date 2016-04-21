@@ -9,19 +9,20 @@
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
+
 #include <xpp/zmp/nlp_ipopt_zmp.h>
+#include <xpp/ros/ros_helpers.h>
 
 namespace xpp {
 namespace zmp {
 
 
 Eigen::VectorXd
-NlpOptimizer::SolveNlp(const Vector2d& initial_acc,
+NlpOptimizer::SolveNlp(const State& initial_state,
                        const State& final_state,
+                       const std::vector<xpp::hyq::LegID>& step_sequence,
+                       xpp::hyq::LegDataMap<Foothold> start_stance,
                        StdVecEigen2d& final_footholds,
-                       const ContinuousSplineContainer& spline_structure,
-                       const SupportPolygonContainer& supp_polygon_container,
-                       double walking_height,
                        const Eigen::VectorXd& initial_spline_coeff)
 {
   Ipopt::IpoptApplication app;
@@ -32,14 +33,44 @@ NlpOptimizer::SolveNlp(const Vector2d& initial_acc,
     throw std::length_error("Ipopt could not initialize correctly");
   }
 
+
+
+  // create the general spline structure
+  ContinuousSplineContainer spline_structure;
+  double swing_time          = xpp::ros::GetDoubleFromServer("/xpp/swing_time");
+  double stance_time         = xpp::ros::GetDoubleFromServer("/xpp/stance_time");
+  double stance_time_initial = xpp::ros::GetDoubleFromServer("/xpp/stance_time_initial");
+  double stance_time_final   = xpp::ros::GetDoubleFromServer("/xpp/stance_time_final");
+  spline_structure.Init(initial_state.p, initial_state.v ,step_sequence, stance_time, swing_time, stance_time_initial,stance_time_final);
+
+
+  // initial footholds all at zero, overwritten anyway
+  std::vector<xpp::hyq::Foothold> zero_footholds;
+  for (int i=0; i<step_sequence.size(); ++i) {
+    xpp::hyq::Foothold f;
+    f.leg   = step_sequence.at(i);
+    zero_footholds.push_back(f);
+  }
+
+  xpp::hyq::SupportPolygonContainer supp_polygon_container;
+  // FIXME, maybe initialise support polygon container only with step sequence,
+  // not actual steps
+  supp_polygon_container.Init(start_stance,
+                              zero_footholds,
+                              step_sequence,
+                              SupportPolygon::GetDefaultMargins());
+
+
+
   NlpStructure nlp_structure(spline_structure.GetTotalFreeCoeff(),
                              supp_polygon_container.GetNumberOfSteps());
 
+  double robot_height = xpp::ros::GetDoubleFromServer("/xpp/robot_height");
   Constraints constraints(supp_polygon_container,
                           spline_structure,
                           nlp_structure,
-                          walking_height,
-                          initial_acc,
+                          robot_height,
+                          initial_state.a,
                           final_state);
   CostFunction cost_function(spline_structure, supp_polygon_container, nlp_structure);
 

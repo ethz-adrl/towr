@@ -25,6 +25,7 @@ class ContinuousSplineContainer : public SplineContainer
 public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::VecScalar VecScalar;
+  typedef Eigen::Vector2d Vector2d;
 
 public:
   ContinuousSplineContainer () {};
@@ -50,11 +51,12 @@ public:
   int GetTotalFreeCoeff() const;
   int GetTotalNodesNo4ls() const;
   int GetTotalNodes4ls() const;
-  VecScalar RelationshipToABCD(int spline_id_k, int dim, SplineCoeff c) const;
 
   // make static to show it doesn't depend on member variables
   void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff,
                                 Splines& splines) const;
+  void UpdateInitialPosVel(const Vector2d& start_cog_p, const Vector2d& start_cog_v);
+  VecScalar RelationshipToABCD(int spline_id_k, int dim, SplineCoeff c) const;
 
 private:
   static const int kFreeCoeffPerSpline = kCoeffCount-2;
@@ -73,6 +75,7 @@ private:
    */
   MatVec DescribeEByPrev(int dim, double start_cog_v) const;
   MatVec DescribeFByPrev(int dim, double start_cog_p, double start_cog_v) const;
+
 
   bool initialized_ = false;
   void CheckIfInitialized() const;

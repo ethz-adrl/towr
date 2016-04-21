@@ -106,10 +106,10 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 
 	// initialize footstep locations
+	// must be different from all zeros to create proper support polygons
 	for (int i=0; i<nlp_structure_.n_steps_; ++i) {
-	  xpp::hyq::LegID leg = constraints_.GetPlannedFoothold(i).leg;
-
 	  // initialize with start stance
+	  xpp::hyq::LegID leg = constraints_.GetLegID(i);
 	  x[c++] = constraints_.GetStartStance(leg).p.x();
 	  x[c++] = constraints_.GetStartStance(leg).p.y();
 
@@ -203,11 +203,12 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
       StdVecEigen2d curr_footholds = nlp_structure_.ExtractFootholds(x);
       VectorXd curr_coeff = nlp_structure_.ExtractSplineCoefficients(x);
 
-      ZmpPublisher::VecFoothold footholds = constraints_.GetPlannedFootholds();
+      ZmpPublisher::VecFoothold footholds(nlp_structure_.n_steps_);
       for (uint i=0; i<footholds.size(); ++i) {
-        footholds.at(i).p << curr_footholds.at(i).x(),
-            curr_footholds.at(i).y(),
-            0.0;
+        footholds.at(i).leg = constraints_.GetLegID(i);
+        footholds.at(i).p.x() = curr_footholds.at(i).x(),
+        footholds.at(i).p.y() = curr_footholds.at(i).y(),
+        footholds.at(i).p.z() = 0.0;
       }
 
       zmp_publisher_.zmp_msg_.markers.clear();

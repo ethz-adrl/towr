@@ -19,6 +19,7 @@ public:
   typedef std::vector<SupportPolygon> VecSupportPolygon;
   typedef SupportPolygon::VecFoothold VecFoothold;
   typedef xpp::utils::MatVec MatVec;
+  typedef xpp::hyq::LegID LegID;
 
 
 public:
@@ -28,39 +29,45 @@ public:
 
 public:
   void Init(LegDataMap<Foothold> start_stance,
-            const VecFoothold& footholds,
+            const VecFoothold& footholds, // remove this, not really neccessary
+            const std::vector<LegID>& step_sequence,
             const MarginValues& margins = SupportPolygon::GetZeroMargins());
 
 
   Eigen::Vector2d GetCenterOfFinalStance() const;
   static bool Insert4LSPhase(LegID prev, LegID next);
-
   VecFoothold GetStanceDuring(int step) const;
   VecFoothold GetStanceAfter(int n_steps) const;
+
 
   SupportPolygon GetStartPolygon() const;
   SupportPolygon GetFinalPolygon() const;
   VecFoothold GetFinalFootholds() const ;
 
-  VecFoothold GetFootholds() const { return footholds_; };
+//  VecFoothold GetFootholds() const { return footholds_; };
   int GetNumberOfSteps() const { return footholds_.size(); };
-  void SetFootholdsXY(size_t idx, double x, double y);
+  void SetFootholdsXY(int idx, double x, double y);
 
   LegDataMap<Foothold> GetStartStance() const {return start_stance_;};
+  /**
+   * First step is considered step=0.
+   */
+  LegID GetLegID(int step) const { return step_sequence_.at(step); };
 
 
   VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
 
 
-
 private:
+
+  VecFoothold footholds_; // fixme remove this
+  std::vector<LegID> step_sequence_;
+  VecSupportPolygon support_polygons_; // fixme remove this
   MarginValues margins_;
   LegDataMap<Foothold> start_stance_;
-  VecFoothold footholds_;
-  VecSupportPolygon support_polygons_;
 
-  void CheckIfInitialized() const;
   VecSupportPolygon CreateSupportPolygons(const VecFoothold& footholds) const;
+  void CheckIfInitialized() const;
 
   SupportPolygon GetStancePolygon(const VecFoothold& footholds) const;
   bool initialized_ = false;
