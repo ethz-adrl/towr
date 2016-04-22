@@ -38,10 +38,10 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
   // create the general spline structure
   ContinuousSplineContainer spline_structure;
-  double swing_time          = xpp::ros::GetDoubleFromServer("/xpp/swing_time");
-  double stance_time         = xpp::ros::GetDoubleFromServer("/xpp/stance_time");
-  double stance_time_initial = xpp::ros::GetDoubleFromServer("/xpp/stance_time_initial");
-  double stance_time_final   = xpp::ros::GetDoubleFromServer("/xpp/stance_time_final");
+  double swing_time          = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/swing_time");
+  double stance_time         = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time");
+  double stance_time_initial = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
+  double stance_time_final   = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
   spline_structure.Init(initial_state.p, initial_state.v ,step_sequence, stance_time, swing_time, stance_time_initial,stance_time_final);
 
 
@@ -66,7 +66,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   NlpStructure nlp_structure(spline_structure.GetTotalFreeCoeff(),
                              supp_polygon_container.GetNumberOfSteps());
 
-  double robot_height = xpp::ros::GetDoubleFromServer("/xpp/robot_height");
+  double robot_height = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/robot_height");
   Constraints constraints(supp_polygon_container,
                           spline_structure,
                           nlp_structure,

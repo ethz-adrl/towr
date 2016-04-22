@@ -6,6 +6,8 @@
  */
 
 #include <xpp/ros/xpp_optimizer_node.h>
+#include <xpp/ros/ros_helpers.h>
+
 #include <xpp_opt/OptimizedVariables.h>
 
 namespace xpp {
@@ -18,7 +20,10 @@ XppOptimizerNode::XppOptimizerNode ()
   opt_var_pub_ = n.advertise<xpp_opt::OptimizedVariables>("opt_variables",10);
   curr_state_sub_ = n.subscribe("curr_state", 10, &XppOptimizerNode::CurrentStateCallback, this);
   goal_state_sub_ = n.subscribe("goal_state", 10, &XppOptimizerNode::GoalStateCallback, this);
-  service_ = n.advertiseService("optimize_trajectory", &XppOptimizerNode::OptimizeTrajectoryService, this);
+  service_ = n.advertiseService("optimize_trajectory",
+                                &XppOptimizerNode::OptimizeTrajectoryService, this);
+  return_trajectory_service_ = n.advertiseService("return_optimized_trajectory",
+                                &XppOptimizerNode::ReturnOptimizedTrajectory, this);
 
   //fixme get this from robot
   using namespace xpp::hyq;
@@ -37,29 +42,21 @@ XppOptimizerNode::~XppOptimizerNode ()
 
 
 bool
+XppOptimizerNode::ReturnOptimizedTrajectory(xpp_opt::ReturnOptimizedTrajectory::Request& req,
+                               xpp_opt::ReturnOptimizedTrajectory::Response& res)
+{
+  res.x = xpp::ros::RosHelpers::XppToRos(opt_coefficients_, opt_footholds_);
+  return true;
+}
+
+
+
+bool
 XppOptimizerNode::OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request& req,
                                             xpp_opt::OptimizeTrajectory::Response& res)
 {
   goal_cog_ = StateLinMsgTo2DState(req.goal_state);
-
-  Eigen::VectorXd opt_coefficients;
-  StdVecEigen2d opt_footholds;
-
-  OptimizeTrajectory(opt_coefficients, opt_footholds);
-
-
-  //FIXME don't use for loop, copy data directly
-  for (int i=0; i<opt_coefficients.rows(); ++i)
-    res.x.spline_coeff.push_back(opt_coefficients[i]);
-  for (int i=0; i<opt_footholds.size(); ++i) {
-    geometry_msgs::Point p;
-    p.x = opt_footholds.at(i).x();
-    p.y = opt_footholds.at(i).y();
-    res.x.footholds.push_back(p);
-    std::cout << "p:" << p;
-  }
-
-  std::cout << "\n\n " << res.x.footholds.size() << "\n";
+  OptimizeTrajectory(opt_coefficients_, opt_footholds_);
   return true;
 }
 

@@ -11,6 +11,7 @@
 #include <xpp/utils/geometric_structs.h>
 #include <xpp_opt/StateLin3d.h>
 #include <xpp_opt/OptimizeTrajectory.h>
+#include <xpp_opt/ReturnOptimizedTrajectory.h>
 
 #include <xpp/zmp/nlp_optimizer.h>
 
@@ -45,11 +46,15 @@ private:
   bool OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request& req,
                                  xpp_opt::OptimizeTrajectory::Response& res);
 
+  bool ReturnOptimizedTrajectory(xpp_opt::ReturnOptimizedTrajectory::Request& req,
+                                 xpp_opt::ReturnOptimizedTrajectory::Response& res);
+
 
   ::ros::Publisher opt_var_pub_;
   ::ros::Subscriber curr_state_sub_;
   ::ros::Subscriber goal_state_sub_;
   ::ros::ServiceServer service_;
+  ::ros::ServiceServer return_trajectory_service_;
 
 
   State goal_cog_;
@@ -57,7 +62,11 @@ private:
   xpp::hyq::LegDataMap<Foothold> curr_stance_;
   double curr_execution_time_;
 
+
+
   NlpOptimizer nlp_optimizer_;
+  StdVecEigen2d opt_footholds_;
+  VectorXd opt_coefficients_;
 
 };
 

@@ -16,6 +16,7 @@
 #include <xpp/ros/zmp_publisher.h>
 #include <xpp_opt/StateLin3d.h>
 #include <xpp_opt/OptimizeTrajectory.h>
+#include <xpp_opt/ReturnOptimizedTrajectory.h>
 #include <xpp/ros/ros_helpers.h>
 
 #include <ros/ros.h>
@@ -75,11 +76,11 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
   // create the general spline structure
   ContinuousSplineContainer trajectory;
-  double swing_time          = xpp::ros::GetDoubleFromServer("/xpp/swing_time");
-  double stance_time         = xpp::ros::GetDoubleFromServer("/xpp/stance_time");
-  double robot_height        = xpp::ros::GetDoubleFromServer("/xpp/robot_height");
-  double stance_time_initial = xpp::ros::GetDoubleFromServer("/xpp/stance_time_initial");
-  double stance_time_final   = xpp::ros::GetDoubleFromServer("/xpp/stance_time_final");
+  double swing_time          = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/swing_time");
+  double stance_time         = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time");
+  double robot_height        = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/robot_height");
+  double stance_time_initial = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
+  double stance_time_final   = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
 
   trajectory.Init(initial_state.p, initial_state.v, leg_ids, stance_time, swing_time, stance_time_initial,stance_time_final);
   xpp::ros::ZmpPublisher zmp_publisher(trajectory);
@@ -142,13 +143,15 @@ int main(int argc, char **argv)
   ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
 
 
-  ros::ServiceClient client = n.serviceClient<xpp_opt::OptimizeTrajectory>("optimize_trajectory");
+  ros::ServiceClient optimizer_client = n.serviceClient<xpp_opt::OptimizeTrajectory>("optimize_trajectory");
+  ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptimizedTrajectory>("return_optimized_trajectory");
   xpp_opt::OptimizeTrajectory srv;
   srv.request.goal_state.pos.x = atof(argv[1]);
+  optimizer_client.call(srv);
 
-  client.call(srv);
-
-  std::cout << srv.response.x.spline_coeff.size();
+  xpp_opt::ReturnOptimizedTrajectory srv2;
+  getter_client.call(srv2);
+  std::cout << srv2.response.x.spline_coeff.size();
 
 //  ros::Publisher goal_state_publisher = n.advertise<xpp_opt::StateLin3d>("goal_state", 10);
 //  xpp_opt::StateLin3d goal_state;
