@@ -37,6 +37,10 @@ add_message_files(
   StateLin3d.msg
   OptimizedVariables.msg
 )
+add_service_files(
+  FILES
+  OptimizeTrajectory.srv
+)
 generate_messages(
   DEPENDENCIES
   geometry_msgs

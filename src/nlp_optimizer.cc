@@ -17,11 +17,12 @@ namespace xpp {
 namespace zmp {
 
 
-Eigen::VectorXd
+void
 NlpOptimizer::SolveNlp(const State& initial_state,
                        const State& final_state,
                        const std::vector<xpp::hyq::LegID>& step_sequence,
                        xpp::hyq::LegDataMap<Foothold> start_stance,
+                       VectorXd& opt_coefficients,
                        StdVecEigen2d& final_footholds,
                        const Eigen::VectorXd& initial_spline_coeff) const
 {
@@ -93,7 +94,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   }
 
   final_footholds = nlp_ipopt_zmp->opt_footholds_;
-  return nlp_ipopt_zmp->opt_coeff_;
+  opt_coefficients = nlp_ipopt_zmp->opt_coeff_;
 }
 
 

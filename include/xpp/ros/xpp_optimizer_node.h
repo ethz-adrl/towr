@@ -10,6 +10,7 @@
 
 #include <xpp/utils/geometric_structs.h>
 #include <xpp_opt/StateLin3d.h>
+#include <xpp_opt/OptimizeTrajectory.h>
 
 #include <xpp/zmp/nlp_optimizer.h>
 
@@ -20,10 +21,9 @@ namespace ros {
 
 class XppOptimizerNode {
 public:
-  typedef ::ros::Publisher Publisher;
-  typedef ::ros::Subscriber Subscriber;
   typedef xpp::zmp::SplineConstraints::State State;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
+  typedef Eigen::VectorXd VectorXd;
   typedef xpp::zmp::NlpOptimizer NlpOptimizer;
   typedef xpp::hyq::Foothold Foothold;
 
@@ -38,12 +38,18 @@ private:
   void GoalStateCallback(const xpp_opt::StateLin3d& msg);
 
   State StateLinMsgTo2DState(const xpp_opt::StateLin3d& msg) const;
-  void OptimizeTrajectory() const;
+  void OptimizeTrajectory(VectorXd& opt_coefficients,
+                          StdVecEigen2d& opt_footholds) const;
   std::vector<xpp::hyq::LegID> DetermineStepSequence() const;
 
-  Publisher opt_var_pub_;
-  Subscriber curr_state_sub_;
-  Subscriber goal_state_sub_;
+  bool OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request& req,
+                                 xpp_opt::OptimizeTrajectory::Response& res);
+
+
+  ::ros::Publisher opt_var_pub_;
+  ::ros::Subscriber curr_state_sub_;
+  ::ros::Subscriber goal_state_sub_;
+  ::ros::ServiceServer service_;
 
 
   State goal_cog_;

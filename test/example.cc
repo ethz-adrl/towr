@@ -15,6 +15,7 @@
 
 #include <xpp/ros/zmp_publisher.h>
 #include <xpp_opt/StateLin3d.h>
+#include <xpp_opt/OptimizeTrajectory.h>
 #include <xpp/ros/ros_helpers.h>
 
 #include <ros/ros.h>
@@ -111,12 +112,14 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
   xpp::zmp::NlpOptimizer nlp_optimizer;
   Constraints::StdVecEigen2d opt_footholds_2d;
-  Eigen::VectorXd opt_coefficients = nlp_optimizer.SolveNlp(initial_state,
-                                                            final_state,
-                                                            leg_ids,
-                                                            start_stance,
-                                                            opt_footholds_2d,
-                                                            opt_coefficients_eig);
+  Eigen::VectorXd opt_coefficients;
+  nlp_optimizer.SolveNlp(initial_state,
+                         final_state,
+                         leg_ids,
+                         start_stance,
+                         opt_coefficients,
+                         opt_footholds_2d,
+                         opt_coefficients_eig);
   // build optimized footholds from these coefficients:
   std::vector<xpp::hyq::Foothold> footholds = steps_;
   for (uint i=0; i<footholds.size(); ++i) {
@@ -138,16 +141,25 @@ int main(int argc, char **argv)
   ros::Publisher publisher = n.advertise<visualization_msgs::MarkerArray>("zmp_trajectory", 10);
   ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
 
-  ros::Publisher goal_state_publisher = n.advertise<xpp_opt::StateLin3d>("goal_state", 10);
-  xpp_opt::StateLin3d goal_state;
-  goal_state.pos.x = 0.5;
+
+  ros::ServiceClient client = n.serviceClient<xpp_opt::OptimizeTrajectory>("optimize_trajectory");
+  xpp_opt::OptimizeTrajectory srv;
+  srv.request.goal_state.pos.x = atof(argv[1]);
+
+  client.call(srv);
+
+  std::cout << srv.response.x.spline_coeff.size();
+
+//  ros::Publisher goal_state_publisher = n.advertise<xpp_opt::StateLin3d>("goal_state", 10);
+//  xpp_opt::StateLin3d goal_state;
+//  goal_state.pos.x = 0.5;
 
 //  ros::Rate loop_rate(100);
-  while (ros::ok()) {
-    goal_state_publisher.publish(goal_state);
-    ros::spinOnce();
+//  while (ros::ok()) {
+//    goal_state_publisher.publish(goal_state);
+//    ros::spinOnce();
     //    publisher.publish(footsteps_msg_);
-  }
+//  }
 }
 
 
