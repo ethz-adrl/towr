@@ -22,8 +22,10 @@ class XppOptimizerNode {
 public:
   typedef ::ros::Publisher Publisher;
   typedef ::ros::Subscriber Subscriber;
-  typedef xpp::utils::Point3d Point3d;
+  typedef xpp::zmp::SplineConstraints::State State;
+  typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::zmp::NlpOptimizer NlpOptimizer;
+  typedef xpp::hyq::Foothold Foothold;
 
 public:
   XppOptimizerNode ();
@@ -35,16 +37,20 @@ private:
   void CurrentStateCallback(const xpp_opt::StateLin3d& msg);
   void GoalStateCallback(const xpp_opt::StateLin3d& msg);
 
-  Point3d StateLinMsgToPoint(const xpp_opt::StateLin3d& msg) const;
+  State StateLinMsgTo2DState(const xpp_opt::StateLin3d& msg) const;
   void OptimizeTrajectory() const;
+  std::vector<xpp::hyq::LegID> DetermineStepSequence() const;
 
   Publisher opt_var_pub_;
   Subscriber curr_state_sub_;
   Subscriber goal_state_sub_;
 
 
-  Point3d goal_;
-  Point3d curr_;
+  State goal_cog_;
+  State curr_cog_;
+  xpp::hyq::LegDataMap<Foothold> curr_stance_;
+  double curr_execution_time_;
+
   NlpOptimizer nlp_optimizer_;
 
 };

@@ -106,7 +106,15 @@ target_link_libraries(${LIB_NAME}
   log4cxx
   ${catkin_LIBRARIES}
   ${IPOPT_LIBS}
-)                        
+)  
+
+add_executable(xpp_optimizer_node 
+  src/executable/xpp_optimizer_node_exe.cc
+)
+target_link_libraries(xpp_optimizer_node 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)                      
                                       
 # Some example executables if turned "ON"
 option(BUILD_TESTS "Build some testing executables" ON) 

@@ -14,6 +14,7 @@
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
 #include <xpp/ros/zmp_publisher.h>
+#include <xpp_opt/StateLin3d.h>
 #include <xpp/ros/ros_helpers.h>
 
 #include <ros/ros.h>
@@ -137,11 +138,15 @@ int main(int argc, char **argv)
   ros::Publisher publisher = n.advertise<visualization_msgs::MarkerArray>("zmp_trajectory", 10);
   ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
 
+  ros::Publisher goal_state_publisher = n.advertise<xpp_opt::StateLin3d>("goal_state", 10);
+  xpp_opt::StateLin3d goal_state;
+  goal_state.pos.x = 0.5;
 
-  ros::Rate loop_rate(100);
+//  ros::Rate loop_rate(100);
   while (ros::ok()) {
+    goal_state_publisher.publish(goal_state);
     ros::spinOnce();
-    publisher.publish(footsteps_msg_);
+    //    publisher.publish(footsteps_msg_);
   }
 }
 

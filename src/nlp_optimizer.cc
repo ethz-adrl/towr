@@ -23,7 +23,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                        const std::vector<xpp::hyq::LegID>& step_sequence,
                        xpp::hyq::LegDataMap<Foothold> start_stance,
                        StdVecEigen2d& final_footholds,
-                       const Eigen::VectorXd& initial_spline_coeff)
+                       const Eigen::VectorXd& initial_spline_coeff) const
 {
   Ipopt::IpoptApplication app;
   app.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
@@ -56,7 +56,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   // FIXME, maybe initialise support polygon container only with step sequence,
   // not actual steps
   supp_polygon_container.Init(start_stance,
-                              zero_footholds,
+                              zero_footholds, // remove this
                               step_sequence,
                               SupportPolygon::GetDefaultMargins());
 
