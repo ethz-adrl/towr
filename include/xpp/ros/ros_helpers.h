@@ -17,6 +17,7 @@
 
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/foothold.h>
+#include <xpp/hyq/leg_data_map.h>
 
 namespace xpp {
 namespace ros {
@@ -27,9 +28,9 @@ namespace ros {
  */
 struct RosHelpers {
 
+typedef Eigen::Vector3d Vector3d;
 typedef xpp::utils::Point2d State;
 typedef xpp::hyq::Foothold Foothold;
-typedef Eigen::Vector3d Vector3d;
 
 static double GetDoubleFromServer(const std::string& ros_param_name) {
   double val;
@@ -112,6 +113,20 @@ XppToRos(const xpp::hyq::Foothold& xpp)
 
   return ros;
 }
+
+
+static xpp::hyq::LegDataMap<Foothold>
+RosToXpp(const boost::array<xpp_opt::Foothold,4>& ros)
+{
+  xpp::hyq::LegDataMap<Foothold> xpp;
+  for (uint i=0; i<ros.size(); ++i) {
+    int leg = ros.at(i).leg;
+    xpp[leg] = RosToXpp(ros.at(i));
+  }
+
+  return xpp;
+}
+
 
 }; // RosHelpers
 

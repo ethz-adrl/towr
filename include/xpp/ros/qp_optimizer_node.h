@@ -29,23 +29,14 @@ public:
 
 
 private:
-  void OptimizeTrajectory(VectorXd& opt_coefficients) const;
-
-//  bool OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request& req,
-//                                 xpp_opt::OptimizeTrajectory::Response& res);
-//
-//  bool ReturnOptimizedTrajectory(xpp_opt::ReturnOptimizedTrajectory::Request& req,
-//                                 xpp_opt::ReturnOptimizedTrajectory::Response& res);
-//
-//
-//  ::ros::ServiceServer service_;
-//  ::ros::ServiceServer return_trajectory_service_;
+  void OptimizeTrajectory();
+  bool OptimizeTrajectoryService(xpp_opt::SolveQp::Request& req,
+                                 xpp_opt::SolveQp::Response& res);
 
   QpOptimizer qp_optimizer_;
   VecFoothold footholds_;
 
-
-
+  ::ros::ServiceServer opt_srv_;
 };
 
 } /* namespace ros */

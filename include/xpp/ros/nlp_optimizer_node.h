@@ -31,8 +31,10 @@ public:
 
 private:
 
-  void OptimizeTrajectory(VectorXd& opt_coefficients,
-                          StdVecEigen2d& opt_footholds) const;
+  /**
+   * Fills the member variables opt_footholds and opt_coefficients
+   */
+  void OptimizeTrajectory();
   std::vector<xpp::hyq::LegID> DetermineStepSequence() const;
 
   bool OptimizeTrajectoryService(xpp_opt::SolveNlp::Request& req,
@@ -40,7 +42,6 @@ private:
 
 
   ::ros::ServiceServer optimize_trajectory_srv_;
-  ::ros::ServiceServer return_trajectory_srv_;
 
   NlpOptimizer nlp_optimizer_;
   StdVecEigen2d opt_footholds_;

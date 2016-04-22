@@ -38,13 +38,13 @@ protected:
   State goal_cog_;
   State curr_cog_;
   xpp::hyq::LegDataMap<Foothold> curr_stance_;
-  double curr_execution_time_;
+//  double curr_execution_time_;
 
   VectorXd opt_coefficients_;
 
 private:
 //  ::ros::Publisher opt_var_pub_;
-  ::ros::Subscriber curr_state_sub_;
+//  ::ros::Subscriber curr_state_sub_;
   ::ros::Subscriber goal_state_sub_;
   ::ros::ServiceServer return_coeff_srv_;
 

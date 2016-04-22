@@ -6,6 +6,7 @@
  */
 
 #include <xpp/ros/qp_optimizer_node.h>
+#include <xpp/ros/ros_helpers.h>
 
 
 namespace xpp {
@@ -13,44 +14,35 @@ namespace ros {
 
 QpOptimizerNode::QpOptimizerNode ()
 {
-//  service_ = n.advertiseService("optimize_trajectory",
-//                                &QpOptimizerNode::OptimizeTrajectoryService, this);
-//  return_trajectory_service_ = n.advertiseService("return_optimized_trajectory",
-//                                &QpOptimizerNode::ReturnOptimizedTrajectory, this);
+  opt_srv_ = n_.advertiseService("solve_qp",
+                                &QpOptimizerNode::OptimizeTrajectoryService, this);
+}
 
+bool
+QpOptimizerNode::OptimizeTrajectoryService(xpp_opt::SolveQp::Request& req,
+                                           xpp_opt::SolveQp::Response& res)
+{
+  curr_cog_ = RosHelpers::RosToXpp(req.curr_state);
+  curr_stance_ = RosHelpers::RosToXpp(req.curr_stance);
+
+  int n_steps = req.steps.size();
+  footholds_.resize(n_steps);
+  for (int i=0; i<n_steps; i++) {
+    footholds_.at(i) = RosHelpers::RosToXpp(req.steps.at(i));
+  }
+
+  OptimizeTrajectory();
+  return true;
 }
 
 
-
-
-
-//bool
-//QpOptimizerNode::ReturnOptimizedTrajectory(xpp_opt::ReturnOptimizedTrajectory::Request& req,
-//                               xpp_opt::ReturnOptimizedTrajectory::Response& res)
-//{
-//  res.x = xpp::ros::RosHelpers::XppToRos(opt_coefficients_, opt_footholds_);
-//  return true;
-//}
-//
-//
-//
-//bool
-//QpOptimizerNode::OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request& req,
-//                                            xpp_opt::OptimizeTrajectory::Response& res)
-//{
-//  goal_cog_ = StateLinMsgTo2DState(req.goal_state);
-//  OptimizeTrajectory(opt_coefficients_, opt_footholds_);
-//  return true;
-//}
-
-
 void
-QpOptimizerNode::OptimizeTrajectory(VectorXd& opt_coefficients) const
+QpOptimizerNode::OptimizeTrajectory()
 {
-//  qp_optimizer_.SolveQp(curr_cog_,
-//                        goal_cog_,
-//                        curr_stance_,
-//                        opt_coefficients);
+  opt_coefficients_ = qp_optimizer_.SolveQp(curr_cog_,
+                                            goal_cog_,
+                                            curr_stance_,
+                                            footholds_);
 }
 
 

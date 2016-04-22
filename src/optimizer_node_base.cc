@@ -16,22 +16,16 @@ OptimizerNodeBase::OptimizerNodeBase ()
 {
   ::ros::NodeHandle n_;
 //  opt_var_pub_ = n_.advertise<xpp_opt::OptimizedVariables>("opt_variables",10);
-  curr_state_sub_ = n_.subscribe("curr_state", 10,
-                                &OptimizerNodeBase::CurrentStateCallback, this);
+//  curr_state_sub_ = n_.subscribe("curr_state", 10,
+//                                &OptimizerNodeBase::CurrentStateCallback, this);
   goal_state_sub_ = n_.subscribe("goal_state", 10,
                                 &OptimizerNodeBase::GoalStateCallback, this);
 
   return_coeff_srv_ = n_.advertiseService("return_optimized_coeff",
                                 &OptimizerNodeBase::ReturnOptimizedCoeff, this);
 
-  //FIXME get this from robot
-  using namespace xpp::hyq;
-  curr_stance_[LF] = Foothold( 0.35,  0.3, 0.0, LF);
-  curr_stance_[RF] = Foothold( 0.35, -0.3, 0.0, RF);
-  curr_stance_[LH] = Foothold(-0.35,  0.3, 0.0, LH);
-  curr_stance_[RH] = Foothold(-0.35, -0.3, 0.0, RH);
-
-  goal_cog_.p.x() = 0.5; // fixme, this should come from joystick
+  // FIXME, this should come from joystick
+  goal_cog_.p.x() = 0.25;
 }
 
 OptimizerNodeBase::~OptimizerNodeBase ()

@@ -150,9 +150,8 @@ int main(int argc, char **argv)
   ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
 
 
-  ros::ServiceClient optimizer_client = n.serviceClient<xpp_opt::SolveNlp>("solve_nlp");
-  ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptimizedCoeff>("return_optimized_coeff");
-  xpp_opt::SolveNlp srv;
+  ros::ServiceClient optimizer_client = n.serviceClient<xpp_opt::SolveQp>("solve_qp");
+  xpp_opt::SolveQp srv;
   srv.request.curr_state.pos.x = atof(argv[1]);
   using namespace xpp::hyq;
   xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
@@ -161,18 +160,38 @@ int main(int argc, char **argv)
   start_stance[LH] = Foothold(-0.35,  0.3, 0.0, LH);
   start_stance[RH] = Foothold(-0.35, -0.3, 0.0, RH);
 
-  srv.request.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(start_stance[LF]));
-  srv.request.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(start_stance[RF]));
-  srv.request.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(start_stance[LH]));
-  srv.request.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(start_stance[RH]));
+  srv.request.curr_stance.at(0) = xpp::ros::RosHelpers::XppToRos(start_stance[LF]);
+  srv.request.curr_stance.at(1) = xpp::ros::RosHelpers::XppToRos(start_stance[RF]);
+  srv.request.curr_stance.at(2) = xpp::ros::RosHelpers::XppToRos(start_stance[LH]);
+  srv.request.curr_stance.at(3) = xpp::ros::RosHelpers::XppToRos(start_stance[RH]);
+
+
+  // this is only neccessary for qp solver
+  Foothold step1(-0.35+0.25,  0.3, 0.0, LH);
+  Foothold step2( 0.35+0.25,  0.3, 0.0, LF);
+  Foothold step3(-0.35+0.25, -0.3, 0.0, RH);
+  Foothold step4( 0.35+0.25, -0.3, 0.0, RF);
+
+  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step1));
+  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step2));
+  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step3));
+  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step4));
 
 
 
   optimizer_client.call(srv);
 
+
+
+  // get back the optimal values
   xpp_opt::ReturnOptimizedCoeff srv2;
+  ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptimizedCoeff>("return_optimized_coeff");
   getter_client.call(srv2);
   std::cout << srv2.response.coeff.data.size();
+
+
+
+
 
 //  ros::Publisher goal_state_publisher = n.advertise<xpp_opt::StateLin3d>("goal_state", 10);
 //  xpp_opt::StateLin3d goal_state;

@@ -26,22 +26,15 @@ NlpOptimizerNode::OptimizeTrajectoryService(xpp_opt::SolveNlp::Request& req,
                                             xpp_opt::SolveNlp::Response& res)
 {
   curr_cog_ = RosHelpers::RosToXpp(req.curr_state);
+  curr_stance_ = RosHelpers::RosToXpp(req.curr_stance);
 
-  // FIXME move to ros helpers
-  std::cout << "size: " << req.curr_stance.size();
-  for (int i=0; i<req.curr_stance.size(); ++i) {
-    int leg = req.curr_stance.at(i).leg;
-    curr_stance_[leg].p = RosHelpers::RosToXpp(req.curr_stance.at(i).p);
-  }
-
-  OptimizeTrajectory(opt_coefficients_, opt_footholds_);
+  OptimizeTrajectory();
   return true;
 }
 
 
 void
-NlpOptimizerNode::OptimizeTrajectory(VectorXd& opt_coefficients,
-                                     StdVecEigen2d& opt_footholds) const
+NlpOptimizerNode::OptimizeTrajectory()
 {
   std::vector<xpp::hyq::LegID> step_sequence = DetermineStepSequence();
 
@@ -49,8 +42,8 @@ NlpOptimizerNode::OptimizeTrajectory(VectorXd& opt_coefficients,
                           goal_cog_,
                           step_sequence,
                           curr_stance_,
-                          opt_coefficients,
-                          opt_footholds);
+                          opt_coefficients_,
+                          opt_footholds_);
 }
 
 
