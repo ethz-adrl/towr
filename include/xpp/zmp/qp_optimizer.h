@@ -8,8 +8,8 @@
 #ifndef _XPP_ZMP_OPTIMIZER_H_
 #define _XPP_ZMP_OPTIMIZER_H_
 
-#include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/hyq/support_polygon_container.h>
+#include <xpp/zmp/spline_constraints.h>
+#include <xpp/hyq/foothold.h>
 
 
 /**
@@ -42,18 +42,23 @@ eigen_quadprog.hpp performs the optimization.
 class QpOptimizer {
 public:
   typedef xpp::utils::MatVec MatVec;
+  typedef xpp::zmp::SplineConstraints::State State;
+  typedef xpp::hyq::Foothold Foothold;
+  typedef std::vector<Foothold> VecFoothold;
 
 public:
-  QpOptimizer();
-  QpOptimizer(const ContinuousSplineContainer& spline_structure,
-              const xpp::hyq::SupportPolygonContainer& supp_triangle_container,
-              double walking_height);
-
+  QpOptimizer() {};
   virtual ~QpOptimizer() {};
 
-  Eigen::VectorXd SolveQp();
+  Eigen::VectorXd SolveQp(const State& initial_state,
+                          const State& final_state,
+                          const xpp::hyq::LegDataMap<Foothold>& start_stance,
+                          const VecFoothold& steps);
+
 
 private:
+  Eigen::VectorXd EigenSolveQuadprog();
+
   MatVec cost_function_;
   MatVec equality_constraints_;
   MatVec inequality_constraints_;

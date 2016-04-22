@@ -35,12 +35,15 @@ add_message_files(
   FILES
   FootholdSequence.msg
   StateLin3d.msg
-  OptimizedVariables.msg
+  SplineCoefficients.msg
+  Footholds2d.msg
+  VariablesNlp.msg
 )
 add_service_files(
   FILES
   OptimizeTrajectory.srv
-  ReturnOptimizedTrajectory.srv
+  ReturnOptimizedCoeff.srv
+  ReturnOptimizedFootholds.srv
 )
 generate_messages(
   DEPENDENCIES
@@ -102,7 +105,7 @@ set(SOURCES
   src/problem_specification.cc
   src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
-  #src/qp_optimizer_node.cc
+  src/qp_optimizer_node.cc
 )
              
 # Add the shared library
@@ -121,7 +124,15 @@ add_executable(nlp_optimizer_node
 target_link_libraries(nlp_optimizer_node 
   ${LIB_NAME}
   ${catkin_LIBRARIES}
-)                      
+)   
+
+add_executable(qp_optimizer_node 
+  src/executable/qp_optimizer_node_exe.cc
+)
+target_link_libraries(qp_optimizer_node 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)                   
                                       
 # Some example executables if turned "ON"
 option(BUILD_TESTS "Build some testing executables" ON) 

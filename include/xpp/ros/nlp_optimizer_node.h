@@ -13,7 +13,7 @@
 
 // ros services (.srv)
 #include <xpp_opt/OptimizeTrajectory.h>
-#include <xpp_opt/ReturnOptimizedTrajectory.h>
+
 
 
 namespace xpp {
@@ -37,9 +37,6 @@ private:
 
   bool OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request& req,
                                  xpp_opt::OptimizeTrajectory::Response& res);
-
-  bool ReturnOptimizedTrajectory(xpp_opt::ReturnOptimizedTrajectory::Request& req,
-                                 xpp_opt::ReturnOptimizedTrajectory::Response& res);
 
 
   ::ros::ServiceServer optimize_trajectory_srv_;

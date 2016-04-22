@@ -14,10 +14,11 @@
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
 #include <xpp/ros/zmp_publisher.h>
+#include <xpp/ros/ros_helpers.h>
+
 #include <xpp_opt/StateLin3d.h>
 #include <xpp_opt/OptimizeTrajectory.h>
-#include <xpp_opt/ReturnOptimizedTrajectory.h>
-#include <xpp/ros/ros_helpers.h>
+#include <xpp_opt/ReturnOptimizedCoeff.h>
 
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -92,6 +93,11 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
                                supp_triangle_container.GetStartStance().ToVector(),
                                "start_stance");
 
+  // solve NLP
+  xpp::zmp::SplineConstraints::State final_state; // zero vel,acc,jerk
+  final_state.p = supp_triangle_container.GetCenterOfFinalStance();
+
+
   // visualize the support polygons
 //  std::vector<SupportPolygon> supp_no_4l = supp_triangle_container.GetSupportPolygons();
 //  for (int i=0; i<supp_no_4l.size(); ++i) {
@@ -100,15 +106,15 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
 
   // solve QP
-  xpp::zmp::QpOptimizer qp_optimizer(trajectory,supp_triangle_container, robot_height);
-  Eigen::VectorXd opt_coefficients_eig = qp_optimizer.SolveQp();
+  xpp::zmp::QpOptimizer qp_optimizer;
+  Eigen::VectorXd opt_coefficients_eig = qp_optimizer.SolveQp(initial_state,
+                                                              final_state,
+                                                              start_stance,
+                                                              steps_);
   zmp_publisher.AddRvizMessage(opt_coefficients_eig, steps_, 0.0, 0.0, "qp", 0.1);
   zmp_publisher.publish();
 
 
-  // solve NLP
-  xpp::zmp::SplineConstraints::State final_state; // zero vel,acc,jerk
-  final_state.p = supp_triangle_container.GetCenterOfFinalStance();
 
 
   xpp::zmp::NlpOptimizer nlp_optimizer;
@@ -144,14 +150,14 @@ int main(int argc, char **argv)
 
 
   ros::ServiceClient optimizer_client = n.serviceClient<xpp_opt::OptimizeTrajectory>("optimize_trajectory");
-  ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptimizedTrajectory>("return_optimized_trajectory");
+  ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptimizedCoeff>("return_optimized_coeff");
   xpp_opt::OptimizeTrajectory srv;
   srv.request.goal_state.pos.x = atof(argv[1]);
   optimizer_client.call(srv);
 
-  xpp_opt::ReturnOptimizedTrajectory srv2;
+  xpp_opt::ReturnOptimizedCoeff srv2;
   getter_client.call(srv2);
-  std::cout << srv2.response.x.spline_coeff.size();
+  std::cout << srv2.response.coeff.data.size();
 
 //  ros::Publisher goal_state_publisher = n.advertise<xpp_opt::StateLin3d>("goal_state", 10);
 //  xpp_opt::StateLin3d goal_state;

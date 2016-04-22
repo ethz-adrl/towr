@@ -21,6 +21,9 @@ OptimizerNodeBase::OptimizerNodeBase ()
   goal_state_sub_ = n_.subscribe("goal_state", 10,
                                 &OptimizerNodeBase::GoalStateCallback, this);
 
+  return_coeff_srv_ = n_.advertiseService("return_optimized_coeff",
+                                &OptimizerNodeBase::ReturnOptimizedCoeff, this);
+
   //fixme get this from robot
   using namespace xpp::hyq;
   curr_stance_[LF] = Foothold( 0.35,  0.3, 0.0, LF);
@@ -38,14 +41,23 @@ OptimizerNodeBase::~OptimizerNodeBase ()
 void
 OptimizerNodeBase::CurrentStateCallback(const StateMsg& msg)
 {
-  curr_cog_ = RosHelpers::StateLinMsgTo2DState(msg);
+  curr_cog_ = RosHelpers::RosToXpp(msg);
 }
 
 
 void
 OptimizerNodeBase::GoalStateCallback(const StateMsg& msg)
 {
-  goal_cog_ = RosHelpers::StateLinMsgTo2DState(msg);
+  goal_cog_ = RosHelpers::RosToXpp(msg);
+}
+
+
+bool
+OptimizerNodeBase::ReturnOptimizedCoeff(xpp_opt::ReturnOptimizedCoeff::Request& req,
+                                       xpp_opt::ReturnOptimizedCoeff::Response& res)
+{
+  res.coeff = xpp::ros::RosHelpers::XppToRos(opt_coefficients_);
+  return true;
 }
 
 

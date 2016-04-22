@@ -7,10 +7,14 @@
 
 #include <xpp/zmp/qp_optimizer.h>
 
+#include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/hyq/support_polygon_container.h>
+
 #include <xpp/zmp/zmp_constraint.h>
 #include <xpp/zmp/cost_function.h>
-#include <xpp/zmp/spline_constraints.h>
 #include <xpp/zmp/eigen_quadprog-inl.h>
+
+#include <xpp/ros/ros_helpers.h>
 
 #include <cmath>      // std::numeric_limits
 
@@ -18,30 +22,42 @@ namespace xpp {
 namespace zmp {
 
 
-QpOptimizer::QpOptimizer()
-{
-  std::cerr << "QP optimizer not properly initialized!\n";
-}
 
-QpOptimizer::QpOptimizer(const ContinuousSplineContainer& spline_structure,
-                         const xpp::hyq::SupportPolygonContainer& supp_poly_container,
-                         double walking_height)
+Eigen::VectorXd
+QpOptimizer::SolveQp(const State& initial_state,
+                     const State& final_state,
+                     const xpp::hyq::LegDataMap<Foothold>& start_stance,
+                     const VecFoothold& steps)
 {
+  double swing_time          = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/swing_time");
+  double stance_time         = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time");
+  double stance_time_initial = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
+  double stance_time_final   = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
+  double robot_height = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/robot_height");
+
+  ContinuousSplineContainer spline_structure;
+  std::vector<xpp::hyq::LegID> leg_ids;
+  for (Foothold f : steps)
+    leg_ids.push_back(f.leg);
+  spline_structure.Init(initial_state.p, initial_state.v ,leg_ids, stance_time, swing_time, stance_time_initial,stance_time_final);
   cost_function_ = CostFunction::CreateMinAccCostFunction(spline_structure);
 
-  SplineConstraints::State final_state; // zero vel,acc,jerk
-  final_state.p = supp_poly_container.GetCenterOfFinalStance();
-  Eigen::Vector2d initial_acc = Eigen::Vector2d::Zero();
-
   SplineConstraints spline_constraint(spline_structure);
-  equality_constraints_ = spline_constraint.CreateAllSplineConstraints(initial_acc, final_state);
+  equality_constraints_ = spline_constraint.CreateAllSplineConstraints(initial_state.a, final_state);
 
-  ZmpConstraint zmp_constraint(spline_structure, walking_height);
-  inequality_constraints_ = zmp_constraint.CreateLineConstraints(supp_poly_container);
+
+  xpp::hyq::SupportPolygonContainer supp_polygon_container;
+  supp_polygon_container.Init(start_stance, steps, leg_ids, hyq::SupportPolygon::GetDefaultMargins());
+  ZmpConstraint zmp_constraint(spline_structure, robot_height);
+  inequality_constraints_ = zmp_constraint.CreateLineConstraints(supp_polygon_container);
+
+
+  return EigenSolveQuadprog();
 }
 
 
-Eigen::VectorXd QpOptimizer::SolveQp()
+
+Eigen::VectorXd QpOptimizer::EigenSolveQuadprog()
 {
   Eigen::VectorXd opt_spline_coeff_xy;
 

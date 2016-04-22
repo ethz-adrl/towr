@@ -17,18 +17,6 @@ NlpOptimizerNode::NlpOptimizerNode ()
 {
   optimize_trajectory_srv_ = n_.advertiseService("optimize_trajectory",
                                 &NlpOptimizerNode::OptimizeTrajectoryService, this);
-  return_trajectory_srv_ = n_.advertiseService("return_optimized_trajectory",
-                                &NlpOptimizerNode::ReturnOptimizedTrajectory, this);
-
-}
-
-
-bool
-NlpOptimizerNode::ReturnOptimizedTrajectory(xpp_opt::ReturnOptimizedTrajectory::Request& req,
-                               xpp_opt::ReturnOptimizedTrajectory::Response& res)
-{
-  res.x = xpp::ros::RosHelpers::XppToRos(opt_coefficients_, opt_footholds_);
-  return true;
 }
 
 
@@ -37,7 +25,7 @@ bool
 NlpOptimizerNode::OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request& req,
                                             xpp_opt::OptimizeTrajectory::Response& res)
 {
-  goal_cog_ = RosHelpers::StateLinMsgTo2DState(req.goal_state);
+  goal_cog_ = RosHelpers::RosToXpp(req.goal_state);
   OptimizeTrajectory(opt_coefficients_, opt_footholds_);
   return true;
 }

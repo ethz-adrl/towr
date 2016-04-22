@@ -10,7 +10,8 @@
 
 #include <ros/ros.h>
 
-#include <xpp_opt/OptimizedVariables.h>
+#include <xpp_opt/SplineCoefficients.h>
+#include <xpp_opt/Footholds2d.h>
 #include <xpp_opt/StateLin3d.h>
 
 #include <xpp/utils/geometric_structs.h>
@@ -33,27 +34,35 @@ static double GetDoubleFromServer(const std::string& ros_param_name) {
   return val;
 }
 
-static xpp_opt::OptimizedVariables
-XppToRos(const Eigen::VectorXd& opt_coefficients,
-         const xpp::utils::StdVecEigen2d& opt_footholds)
+
+static xpp_opt::SplineCoefficients
+XppToRos(const Eigen::VectorXd& opt_coefficients)
 {
-  xpp_opt::OptimizedVariables x;
-  //FIXME don't use for loop, copy data directly
+  xpp_opt::SplineCoefficients msg;
   for (int i=0; i<opt_coefficients.rows(); ++i)
-    x.spline_coeff.push_back(opt_coefficients[i]);
+    msg.data.push_back(opt_coefficients[i]);
+
+  return msg;
+}
+
+
+static xpp_opt::Footholds2d
+XppToRos(const xpp::utils::StdVecEigen2d& opt_footholds)
+{
+  xpp_opt::Footholds2d msg;
   for (uint i=0; i<opt_footholds.size(); ++i) {
     geometry_msgs::Point p;
     p.x = opt_footholds.at(i).x();
     p.y = opt_footholds.at(i).y();
-    x.footholds.push_back(p);
+    msg.data.push_back(p);
   }
 
-  return x;
+  return msg;
 }
 
 
 static State
-StateLinMsgTo2DState(const xpp_opt::StateLin3d& msg)
+RosToXpp(const xpp_opt::StateLin3d& msg)
 {
   State point;
   point.p.x() = msg.pos.x;

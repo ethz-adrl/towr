@@ -11,8 +11,10 @@
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/foothold.h>
 
+// custom msg and srv
 #include <xpp_opt/OptimizedVariables.h>
 #include <xpp_opt/StateLin3d.h>
+#include <xpp_opt/ReturnOptimizedCoeff.h>
 
 #include <ros/ros.h>
 
@@ -45,10 +47,13 @@ private:
   ::ros::Publisher opt_var_pub_;
   ::ros::Subscriber curr_state_sub_;
   ::ros::Subscriber goal_state_sub_;
+  ::ros::ServiceServer return_coeff_srv_;
 
 
   void CurrentStateCallback(const StateMsg& msg);
   void GoalStateCallback(const StateMsg& msg);
+  bool ReturnOptimizedCoeff(xpp_opt::ReturnOptimizedCoeff::Request& req,
+                            xpp_opt::ReturnOptimizedCoeff::Response& res);
 
 };
 
