@@ -100,7 +100,9 @@ set(SOURCES
   src/ellipse.cc
   src/spline_constraints.cc
   src/problem_specification.cc
-  src/xpp_optimizer_node.cc
+  src/optimizer_node_base.cc
+  src/nlp_optimizer_node.cc
+  #src/qp_optimizer_node.cc
 )
              
 # Add the shared library
@@ -113,10 +115,10 @@ target_link_libraries(${LIB_NAME}
   ${IPOPT_LIBS}
 )  
 
-add_executable(xpp_optimizer_node 
-  src/executable/xpp_optimizer_node_exe.cc
+add_executable(nlp_optimizer_node 
+  src/executable/nlp_optimizer_node_exe.cc
 )
-target_link_libraries(xpp_optimizer_node 
+target_link_libraries(nlp_optimizer_node 
   ${LIB_NAME}
   ${catkin_LIBRARIES}
 )                      

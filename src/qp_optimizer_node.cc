@@ -5,7 +5,8 @@
  *      Author: winklera
  */
 
-#include <xpp/ros/xpp_optimizer_node.h>
+#include <xpp/ros/qp_optimizer_node.h>
+
 #include <xpp/ros/ros_helpers.h>
 
 #include <xpp_opt/OptimizedVariables.h>
@@ -13,17 +14,17 @@
 namespace xpp {
 namespace ros {
 
-XppOptimizerNode::XppOptimizerNode ()
+QpOptimizerNode::QpOptimizerNode ()
 {
   // TODO Auto-generated constructor stub
   ::ros::NodeHandle n;
   opt_var_pub_ = n.advertise<xpp_opt::OptimizedVariables>("opt_variables",10);
-  curr_state_sub_ = n.subscribe("curr_state", 10, &XppOptimizerNode::CurrentStateCallback, this);
-  goal_state_sub_ = n.subscribe("goal_state", 10, &XppOptimizerNode::GoalStateCallback, this);
+  curr_state_sub_ = n.subscribe("curr_state", 10, &QpOptimizerNode::CurrentStateCallback, this);
+  goal_state_sub_ = n.subscribe("goal_state", 10, &QpOptimizerNode::GoalStateCallback, this);
   service_ = n.advertiseService("optimize_trajectory",
-                                &XppOptimizerNode::OptimizeTrajectoryService, this);
+                                &QpOptimizerNode::OptimizeTrajectoryService, this);
   return_trajectory_service_ = n.advertiseService("return_optimized_trajectory",
-                                &XppOptimizerNode::ReturnOptimizedTrajectory, this);
+                                &QpOptimizerNode::ReturnOptimizedTrajectory, this);
 
   //fixme get this from robot
   using namespace xpp::hyq;
@@ -35,14 +36,14 @@ XppOptimizerNode::XppOptimizerNode ()
 }
 
 
-XppOptimizerNode::~XppOptimizerNode ()
+QpOptimizerNode::~QpOptimizerNode ()
 {
   // TODO Auto-generated destructor stub
 }
 
 
 bool
-XppOptimizerNode::ReturnOptimizedTrajectory(xpp_opt::ReturnOptimizedTrajectory::Request& req,
+QpOptimizerNode::ReturnOptimizedTrajectory(xpp_opt::ReturnOptimizedTrajectory::Request& req,
                                xpp_opt::ReturnOptimizedTrajectory::Response& res)
 {
   res.x = xpp::ros::RosHelpers::XppToRos(opt_coefficients_, opt_footholds_);
@@ -52,7 +53,7 @@ XppOptimizerNode::ReturnOptimizedTrajectory(xpp_opt::ReturnOptimizedTrajectory::
 
 
 bool
-XppOptimizerNode::OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request& req,
+QpOptimizerNode::OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request& req,
                                             xpp_opt::OptimizeTrajectory::Response& res)
 {
   goal_cog_ = StateLinMsgTo2DState(req.goal_state);
@@ -62,7 +63,7 @@ XppOptimizerNode::OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request
 
 
 void
-XppOptimizerNode::OptimizeTrajectory(VectorXd& opt_coefficients,
+QpOptimizerNode::OptimizeTrajectory(VectorXd& opt_coefficients,
                                      StdVecEigen2d& opt_footholds) const
 {
   std::vector<xpp::hyq::LegID> step_sequence = DetermineStepSequence();
@@ -77,7 +78,7 @@ XppOptimizerNode::OptimizeTrajectory(VectorXd& opt_coefficients,
 
 
 std::vector<xpp::hyq::LegID>
-XppOptimizerNode::DetermineStepSequence() const
+QpOptimizerNode::DetermineStepSequence() const
 {
   const double length_per_step = 0.25;
   const double width_per_step = 0.15;
@@ -101,21 +102,21 @@ XppOptimizerNode::DetermineStepSequence() const
 
 
 void
-XppOptimizerNode::CurrentStateCallback(const xpp_opt::StateLin3d& msg)
+QpOptimizerNode::CurrentStateCallback(const xpp_opt::StateLin3d& msg)
 {
   curr_cog_ = StateLinMsgTo2DState(msg);
 }
 
 
 void
-XppOptimizerNode::GoalStateCallback(const xpp_opt::StateLin3d& msg)
+QpOptimizerNode::GoalStateCallback(const xpp_opt::StateLin3d& msg)
 {
   goal_cog_ = StateLinMsgTo2DState(msg);
 }
 
 
-XppOptimizerNode::State
-XppOptimizerNode::StateLinMsgTo2DState(const xpp_opt::StateLin3d& msg) const
+QpOptimizerNode::State
+QpOptimizerNode::StateLinMsgTo2DState(const xpp_opt::StateLin3d& msg) const
 {
   State point;
   point.p.x() = msg.pos.x;

@@ -5,22 +5,22 @@
  *      Author: winklera
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_XPP_OPTIMIZER_NODE_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_XPP_OPTIMIZER_NODE_H_
+#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_OPTIMIZER_NODE_H_
+#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_OPTIMIZER_NODE_H_
 
 #include <xpp/utils/geometric_structs.h>
 #include <xpp_opt/StateLin3d.h>
 #include <xpp_opt/OptimizeTrajectory.h>
 #include <xpp_opt/ReturnOptimizedTrajectory.h>
 
-#include <xpp/zmp/nlp_optimizer.h>
+#include <xpp/zmp/qp_optimizer.h>
 
 #include <ros/ros.h>
 
 namespace xpp {
 namespace ros {
 
-class XppOptimizerNode {
+class QpOptimizerNode {
 public:
   typedef xpp::zmp::SplineConstraints::State State;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
@@ -29,9 +29,9 @@ public:
   typedef xpp::hyq::Foothold Foothold;
 
 public:
-  XppOptimizerNode ();
+  QpOptimizerNode ();
   virtual
-  ~XppOptimizerNode ();
+  ~QpOptimizerNode ();
 
 
 private:
@@ -73,4 +73,4 @@ private:
 } /* namespace ros */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_XPP_OPTIMIZER_NODE_H_ */
+#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_OPTIMIZER_NODE_H_ */
