@@ -17,7 +17,8 @@
 #include <xpp/ros/ros_helpers.h>
 
 #include <xpp_opt/StateLin3d.h>
-#include <xpp_opt/OptimizeTrajectory.h>
+#include <xpp_opt/SolveNlp.h>
+#include <xpp_opt/SolveQp.h>
 #include <xpp_opt/ReturnOptimizedCoeff.h>
 
 #include <ros/ros.h>
@@ -149,10 +150,24 @@ int main(int argc, char **argv)
   ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
 
 
-  ros::ServiceClient optimizer_client = n.serviceClient<xpp_opt::OptimizeTrajectory>("optimize_trajectory");
+  ros::ServiceClient optimizer_client = n.serviceClient<xpp_opt::SolveNlp>("solve_nlp");
   ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptimizedCoeff>("return_optimized_coeff");
-  xpp_opt::OptimizeTrajectory srv;
-  srv.request.goal_state.pos.x = atof(argv[1]);
+  xpp_opt::SolveNlp srv;
+  srv.request.curr_state.pos.x = atof(argv[1]);
+  using namespace xpp::hyq;
+  xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
+  start_stance[LF] = Foothold( 0.35,  0.3, 0.0, LF);
+  start_stance[RF] = Foothold( 0.35, -0.3, 0.0, RF);
+  start_stance[LH] = Foothold(-0.35,  0.3, 0.0, LH);
+  start_stance[RH] = Foothold(-0.35, -0.3, 0.0, RH);
+
+  srv.request.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(start_stance[LF]));
+  srv.request.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(start_stance[RF]));
+  srv.request.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(start_stance[LH]));
+  srv.request.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(start_stance[RH]));
+
+
+
   optimizer_client.call(srv);
 
   xpp_opt::ReturnOptimizedCoeff srv2;

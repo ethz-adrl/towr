@@ -13,8 +13,10 @@
 #include <xpp_opt/SplineCoefficients.h>
 #include <xpp_opt/Footholds2d.h>
 #include <xpp_opt/StateLin3d.h>
+#include <xpp_opt/Foothold.h>
 
 #include <xpp/utils/geometric_structs.h>
+#include <xpp/hyq/foothold.h>
 
 namespace xpp {
 namespace ros {
@@ -26,6 +28,8 @@ namespace ros {
 struct RosHelpers {
 
 typedef xpp::utils::Point2d State;
+typedef xpp::hyq::Foothold Foothold;
+typedef Eigen::Vector3d Vector3d;
 
 static double GetDoubleFromServer(const std::string& ros_param_name) {
   double val;
@@ -49,32 +53,64 @@ XppToRos(const Eigen::VectorXd& opt_coefficients)
 static xpp_opt::Footholds2d
 XppToRos(const xpp::utils::StdVecEigen2d& opt_footholds)
 {
-  xpp_opt::Footholds2d msg;
+  xpp_opt::Footholds2d ros;
   for (uint i=0; i<opt_footholds.size(); ++i) {
     geometry_msgs::Point p;
     p.x = opt_footholds.at(i).x();
     p.y = opt_footholds.at(i).y();
-    msg.data.push_back(p);
+    ros.data.push_back(p);
   }
 
-  return msg;
+  return ros;
 }
 
 
 static State
-RosToXpp(const xpp_opt::StateLin3d& msg)
+RosToXpp(const xpp_opt::StateLin3d& ros)
 {
   State point;
-  point.p.x() = msg.pos.x;
-  point.p.y() = msg.pos.y;
+  point.p.x() = ros.pos.x;
+  point.p.y() = ros.pos.y;
 
-  point.v.x() = msg.vel.x;
-  point.v.y() = msg.vel.y;
+  point.v.x() = ros.vel.x;
+  point.v.y() = ros.vel.y;
 
-  point.a.x() = msg.acc.x;
-  point.a.y() = msg.acc.y;
+  point.a.x() = ros.acc.x;
+  point.a.y() = ros.acc.y;
 
   return point;
+}
+
+
+static Vector3d
+RosToXpp(const geometry_msgs::Point& ros)
+{
+  Vector3d vec;
+  vec << ros.x, ros.y, ros.z;
+  return vec;
+}
+
+
+static Foothold
+RosToXpp(const xpp_opt::Foothold& ros)
+{
+  Foothold f;
+  f.leg = static_cast<xpp::hyq::LegID>(ros.leg);
+  f.p = RosToXpp(ros.p);
+  return f;
+}
+
+
+static xpp_opt::Foothold
+XppToRos(const xpp::hyq::Foothold& xpp)
+{
+  xpp_opt::Foothold ros;
+  ros.p.x = xpp.p.x();
+  ros.p.y = xpp.p.y();
+  ros.p.z = xpp.p.z();
+  ros.leg = xpp.leg;
+
+  return ros;
 }
 
 }; // RosHelpers

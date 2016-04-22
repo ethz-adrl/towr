@@ -11,8 +11,7 @@
 #include <xpp/ros/optimizer_node_base.h>
 #include <xpp/zmp/qp_optimizer.h>
 
-#include <xpp_opt/OptimizeTrajectory.h>
-#include <xpp_opt/ReturnOptimizedTrajectory.h>
+#include <xpp_opt/SolveQp.h>
 
 
 namespace xpp {
@@ -21,6 +20,8 @@ namespace ros {
 class QpOptimizerNode : public OptimizerNodeBase {
 public:
   typedef xpp::zmp::QpOptimizer QpOptimizer;
+  typedef xpp::hyq::Foothold Foothold;
+  typedef std::vector<Foothold> VecFoothold;
 
 public:
   QpOptimizerNode ();
@@ -41,6 +42,10 @@ private:
 //  ::ros::ServiceServer return_trajectory_service_;
 
   QpOptimizer qp_optimizer_;
+  VecFoothold footholds_;
+
+
+
 };
 
 } /* namespace ros */

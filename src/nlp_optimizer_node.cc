@@ -15,17 +15,25 @@ namespace ros {
 
 NlpOptimizerNode::NlpOptimizerNode ()
 {
-  optimize_trajectory_srv_ = n_.advertiseService("optimize_trajectory",
+  optimize_trajectory_srv_ = n_.advertiseService("solve_nlp",
                                 &NlpOptimizerNode::OptimizeTrajectoryService, this);
 }
 
 
 
 bool
-NlpOptimizerNode::OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request& req,
-                                            xpp_opt::OptimizeTrajectory::Response& res)
+NlpOptimizerNode::OptimizeTrajectoryService(xpp_opt::SolveNlp::Request& req,
+                                            xpp_opt::SolveNlp::Response& res)
 {
-  goal_cog_ = RosHelpers::RosToXpp(req.goal_state);
+  curr_cog_ = RosHelpers::RosToXpp(req.curr_state);
+
+  // FIXME move to ros helpers
+  std::cout << "size: " << req.curr_stance.size();
+  for (int i=0; i<req.curr_stance.size(); ++i) {
+    int leg = req.curr_stance.at(i).leg;
+    curr_stance_[leg].p = RosHelpers::RosToXpp(req.curr_stance.at(i).p);
+  }
+
   OptimizeTrajectory(opt_coefficients_, opt_footholds_);
   return true;
 }

@@ -34,6 +34,7 @@ set(LIB_NAME xpp_opt)
 add_message_files(
   FILES
   FootholdSequence.msg
+  Foothold.msg
   StateLin3d.msg
   SplineCoefficients.msg
   Footholds2d.msg
@@ -41,12 +42,14 @@ add_message_files(
 )
 add_service_files(
   FILES
-  OptimizeTrajectory.srv
+  SolveNlp.srv
+  SolveQp.srv
   ReturnOptimizedCoeff.srv
   ReturnOptimizedFootholds.srv
 )
 generate_messages(
   DEPENDENCIES
+  std_msgs
   geometry_msgs
 )
 

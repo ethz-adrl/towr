@@ -48,11 +48,9 @@ void
 QpOptimizerNode::OptimizeTrajectory(VectorXd& opt_coefficients) const
 {
 //  qp_optimizer_.SolveQp(curr_cog_,
-//                          goal_cog_,
-//                          step_sequence,
-//                          curr_stance_,
-//                          opt_coefficients,
-//                          opt_footholds);
+//                        goal_cog_,
+//                        curr_stance_,
+//                        opt_coefficients);
 }
 
 

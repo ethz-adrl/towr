@@ -12,7 +12,7 @@
 #include <xpp/zmp/nlp_optimizer.h>
 
 // ros services (.srv)
-#include <xpp_opt/OptimizeTrajectory.h>
+#include <xpp_opt/SolveNlp.h>
 
 
 
@@ -35,8 +35,8 @@ private:
                           StdVecEigen2d& opt_footholds) const;
   std::vector<xpp::hyq::LegID> DetermineStepSequence() const;
 
-  bool OptimizeTrajectoryService(xpp_opt::OptimizeTrajectory::Request& req,
-                                 xpp_opt::OptimizeTrajectory::Response& res);
+  bool OptimizeTrajectoryService(xpp_opt::SolveNlp::Request& req,
+                                 xpp_opt::SolveNlp::Response& res);
 
 
   ::ros::ServiceServer optimize_trajectory_srv_;

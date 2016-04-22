@@ -12,7 +12,6 @@
 #include <xpp/hyq/foothold.h>
 
 // custom msg and srv
-#include <xpp_opt/OptimizedVariables.h>
 #include <xpp_opt/StateLin3d.h>
 #include <xpp_opt/ReturnOptimizedCoeff.h>
 
@@ -44,7 +43,7 @@ protected:
   VectorXd opt_coefficients_;
 
 private:
-  ::ros::Publisher opt_var_pub_;
+//  ::ros::Publisher opt_var_pub_;
   ::ros::Subscriber curr_state_sub_;
   ::ros::Subscriber goal_state_sub_;
   ::ros::ServiceServer return_coeff_srv_;
