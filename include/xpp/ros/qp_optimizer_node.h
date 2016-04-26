@@ -21,7 +21,7 @@ class QpOptimizerNode : public OptimizerNodeBase {
 public:
   typedef xpp::zmp::QpOptimizer QpOptimizer;
   typedef xpp::hyq::Foothold Foothold;
-  typedef std::vector<Foothold> VecFoothold;
+
 
 public:
   QpOptimizerNode ();
@@ -34,8 +34,6 @@ private:
                                  xpp_opt::SolveQp::Response& res);
 
   QpOptimizer qp_optimizer_;
-  VecFoothold footholds_;
-
   ::ros::ServiceServer opt_srv_;
 };
 

@@ -27,8 +27,7 @@ NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
      // These epsilons play a big role in convergence
      num_diff_cost_function_(cost_function, 10*std::numeric_limits<double>::epsilon()),
      num_diff_constraints_(constraints, std::sqrt(std::numeric_limits<double>::epsilon())),
-     nlp_structure_(nlp_structure),
-     zmp_publisher_(constraints.GetSplineContainer())
+     nlp_structure_(nlp_structure)
 {
   initial_spline_coeff_ = initial_spline_coefficients;
 }
@@ -186,7 +185,7 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
                                    const IpoptData* ip_data,
                                    IpoptCalculatedQuantities* ip_cq)
 {
-//   std::cin.get();
+//   std::cin.get(); // use to pause after every iteration
 
   // Get the current value of the optimization variable:
   Ipopt::TNLPAdapter* tnlp_adapter = NULL;
@@ -212,8 +211,13 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
       }
 
       zmp_publisher_.zmp_msg_.markers.clear();
-      zmp_publisher_.AddRvizMessage(curr_coeff, footholds, constraints_.gap_center_x_,
-                                    constraints_.gap_width_x_, "nlp", 1.0);
+      constraints_.GetSplineContainer().AddOptimizedCoefficients(curr_coeff);
+      zmp_publisher_.AddRvizMessage(constraints_.GetSplineContainer().splines_,
+                                    footholds,
+                                    constraints_.gap_center_x_,
+                                    constraints_.gap_width_x_,
+                                    "nlp",
+                                    1.0);
       zmp_publisher_.publish();
     }
   }

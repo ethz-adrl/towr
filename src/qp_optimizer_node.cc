@@ -14,7 +14,7 @@ namespace ros {
 
 QpOptimizerNode::QpOptimizerNode ()
 {
-  opt_srv_ = n_.advertiseService("solve_qp",
+  opt_srv_ = n_.advertiseService("optimize_trajectory",
                                 &QpOptimizerNode::OptimizeTrajectoryService, this);
 }
 
@@ -40,9 +40,9 @@ void
 QpOptimizerNode::OptimizeTrajectory()
 {
   opt_splines_ = qp_optimizer_.SolveQp(curr_cog_,
-                                            goal_cog_,
-                                            curr_stance_,
-                                            footholds_);
+                                       goal_cog_,
+                                       curr_stance_,
+                                       footholds_);
 }
 
 

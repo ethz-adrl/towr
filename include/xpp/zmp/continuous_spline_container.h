@@ -52,9 +52,12 @@ public:
   int GetTotalNodesNo4ls() const;
   int GetTotalNodes4ls() const;
 
-  // make static to show it doesn't depend on member variables
   void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff,
                                 VecSpline& splines) const;
+  void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff)
+  {
+    AddOptimizedCoefficients(optimized_coeff, splines_);
+  }
   void UpdateInitialPosVel(const Vector2d& start_cog_p, const Vector2d& start_cog_v);
   VecScalar RelationshipToABCD(int spline_id_k, int dim, SplineCoeff c) const;
 

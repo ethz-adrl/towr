@@ -46,7 +46,7 @@ add_service_files(
   SolveNlp.srv
   SolveQp.srv
   ReturnOptSplines.srv
-  ReturnOptimizedFootholds.srv
+  ReturnOptFootholds.srv
 )
 generate_messages(
   DEPENDENCIES
@@ -66,7 +66,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}
   LIBRARIES ${LIB_NAME}
-  CATKIN_DEPENDS message_runtime
+  CATKIN_DEPENDS message_runtime std_msgs geometry_msgs
   DEPENDS log4cxx ${IPOPT_LIBS} 
 )
 
@@ -150,6 +150,9 @@ if(BUILD_TESTS)
   )
   
   # enable_testing()
+  # FIXME use catkins macro to build the unit test
+  # http://wiki.ros.org/catkin/CMakeLists.txt#msgs_srvs_actions
+  # catkin_add_gtest(myUnitTest test/utest.cpp)
   find_package(GTest)  
   message(STATUS "GTEST_FOUND " ${GTEST_FOUND})
   if(GTEST_FOUND)

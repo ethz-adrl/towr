@@ -23,7 +23,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                        const std::vector<xpp::hyq::LegID>& step_sequence,
                        xpp::hyq::LegDataMap<Foothold> start_stance,
                        VecSpline& opt_splines,
-                       StdVecEigen2d& final_footholds,
+                       VecFoothold& final_footholds,
                        const Eigen::VectorXd& initial_spline_coeff) const
 {
   Ipopt::IpoptApplication app;
@@ -94,10 +94,19 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   }
 
 
+  // build the output for the user from the optimized variables
+  int n_steps = nlp_ipopt_zmp->opt_footholds_.size();
+  final_footholds.resize(n_steps);
 
-  final_footholds = nlp_ipopt_zmp->opt_footholds_;
-  // FIXME, remove one parameter from this function and apply directly to opt_splines
-  spline_structure.AddOptimizedCoefficients(nlp_ipopt_zmp->opt_coeff_, spline_structure.splines_);
+  for (int i=0; i<n_steps; ++i) {
+    Vector2d f = nlp_ipopt_zmp->opt_footholds_.at(i);
+    final_footholds.at(i).p.x() = f.x();
+    final_footholds.at(i).p.y() = f.y();
+    final_footholds.at(i).leg = step_sequence.at(i);
+
+  }
+
+  spline_structure.AddOptimizedCoefficients(nlp_ipopt_zmp->opt_coeff_);
   opt_splines = spline_structure.splines_;
 }
 

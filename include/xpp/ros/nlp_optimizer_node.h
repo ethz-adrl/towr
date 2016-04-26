@@ -44,7 +44,6 @@ private:
   ::ros::ServiceServer optimize_trajectory_srv_;
 
   NlpOptimizer nlp_optimizer_;
-  StdVecEigen2d opt_footholds_;
 };
 
 } /* namespace ros */

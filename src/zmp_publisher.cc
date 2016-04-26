@@ -10,36 +10,26 @@
 namespace xpp {
 namespace ros {
 
-ZmpPublisher::ZmpPublisher (const xpp::zmp::ContinuousSplineContainer& trajectory)
+ZmpPublisher::ZmpPublisher ()
 {
-  trajectory_ = trajectory;
   zmp_msg_.markers.clear();
 
   ::ros::NodeHandle n;
-  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("zmp_trajectory", 1);
-}
-
-ZmpPublisher::~ZmpPublisher ()
-{
-  // TODO Auto-generated destructor stub
+  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("zmp_publisher", 1);
 }
 
 
 void ZmpPublisher::AddRvizMessage(
-    const Eigen::VectorXd& opt_spline_coeff,
+    const VecSpline& splines,
     const VecFoothold& opt_footholds,
     double gap_center_x,
     double gap_width_x,
     const std::string& rviz_namespace,
     double alpha)
 {
-  // update trajectory
-  trajectory_.AddOptimizedCoefficients(opt_spline_coeff, trajectory_.splines_);
-
-
   visualization_msgs::MarkerArray msg;
   AddFootholds(msg, opt_footholds, rviz_namespace, visualization_msgs::Marker::CUBE, alpha);
-  AddTrajectory(msg, trajectory_, opt_footholds, rviz_namespace, alpha);
+  AddTrajectory(msg, splines, opt_footholds, rviz_namespace, alpha);
 
   AddLineStrip(msg, gap_center_x, gap_width_x);
 
@@ -164,18 +154,18 @@ ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x
 
 void
 ZmpPublisher::AddTrajectory(visualization_msgs::MarkerArray& msg,
-                            const SplineContainer& zmp_splines,
+                            const VecSpline& splines,
                             const std::vector<xpp::hyq::Foothold>& H_footholds,
                             const std::string& rviz_namespace,
                             double alpha)
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
-  for (double t(0.0); t < zmp_splines.GetTotalTime(); t+= 0.02)
+  for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= 0.02)
   {
 
     xpp::utils::Point2d cog_state;
-    SplineContainer::GetCOGxy(t, cog_state,zmp_splines.splines_);
-    int id = SplineContainer::GetSplineID(t, zmp_splines.splines_);
+    SplineContainer::GetCOGxy(t, cog_state,splines);
+    int id = SplineContainer::GetSplineID(t, splines);
 
 
 
@@ -187,11 +177,11 @@ ZmpPublisher::AddTrajectory(visualization_msgs::MarkerArray& msg,
     marker.ns = rviz_namespace;
 
 
-    bool four_legg_support = zmp_splines.splines_.at(id).four_leg_supp_;
+    bool four_legg_support = splines.at(id).four_leg_supp_;
     if ( four_legg_support ) {
       marker.color.r = marker.color.g = marker.color.g = 0.1;
     } else {
-      int step = zmp_splines.splines_.at(id).step_;
+      int step = splines.at(id).step_;
       xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
       marker.color = GetLegColor(swing_leg);
     }

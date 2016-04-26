@@ -21,8 +21,11 @@ OptimizerNodeBase::OptimizerNodeBase ()
   goal_state_sub_ = n_.subscribe("goal_state", 10,
                                 &OptimizerNodeBase::GoalStateCallback, this);
 
-  return_coeff_srv_ = n_.advertiseService("return_optimized_coeff",
-                                &OptimizerNodeBase::ReturnOptimizedCoeff, this);
+  return_splines_srv_ = n_.advertiseService("return_optimized_splines",
+                                &OptimizerNodeBase::ReturnOptimizedSplines, this);
+
+  return_footholds_srv_ = n_.advertiseService("return_optimized_footholds",
+                                &OptimizerNodeBase::ReturnOptimizedFootholds, this);
 
   // FIXME, this should come from joystick
   goal_cog_.p.x() = 0.25;
@@ -49,12 +52,22 @@ OptimizerNodeBase::GoalStateCallback(const StateMsg& msg)
 
 
 bool
-OptimizerNodeBase::ReturnOptimizedCoeff(ReturnOptSplinesSrv::Request& req,
-                                        ReturnOptSplinesSrv::Response& res)
+OptimizerNodeBase::ReturnOptimizedSplines(ReturnOptSplinesSrv::Request& req,
+                                          ReturnOptSplinesSrv::Response& res)
 {
   res.splines = xpp::ros::RosHelpers::XppToRos(opt_splines_);
   return true;
 }
+
+
+bool
+OptimizerNodeBase::ReturnOptimizedFootholds(ReturnOptFootholds::Request& req,
+                                            ReturnOptFootholds::Response& res)
+{
+  res.footholds = xpp::ros::RosHelpers::XppToRos(footholds_);
+  return true;
+}
+
 
 
 } /* namespace ros */

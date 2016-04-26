@@ -8,8 +8,7 @@
 
 #include <xpp/zmp/qp_optimizer.h>
 #include <xpp/zmp/nlp_optimizer.h>
-
-#include <xpp_opt/FootholdSequence.h>
+//FIXME remove this at some point
 #include <xpp_opt/FootholdSequence.h>
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
@@ -20,6 +19,7 @@
 #include <xpp_opt/SolveNlp.h>
 #include <xpp_opt/SolveQp.h>
 #include <xpp_opt/ReturnOptSplines.h>
+#include <xpp_opt/ReturnOptFootholds.h>
 
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -31,8 +31,6 @@
 
 
 visualization_msgs::MarkerArray footsteps_msg_;
-
-
 std::vector<xpp::hyq::Foothold> steps_;
 
 void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
@@ -52,91 +50,6 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
     xpp::hyq::Foothold f(f_eig, static_cast<xpp::hyq::LegID>(H_msg.leg[i]));
     steps_.push_back(f);
   }
-
-  using namespace xpp::hyq;
-  using namespace xpp::zmp;
-  using namespace xpp::utils;
-
-
-  // start position (x,y,z) of robot
-  xpp::zmp::SplineConstraints::State initial_state;
-  initial_state.p.x() = 0.0 + x_offset;
-  LegDataMap<Foothold> start_stance;
-  start_stance[LF] = Foothold( 0.35 + x_offset,  0.3, 0.0, LF);
-  start_stance[RF] = Foothold( 0.35 + x_offset, -0.3, 0.0, RF);
-  start_stance[LH] = Foothold(-0.35 + x_offset,  0.3, 0.0, LH);
-  start_stance[RH] = Foothold(-0.35 + x_offset, -0.3, 0.0, RH);
-
-
-  std::vector<LegID> leg_ids;
-  leg_ids.clear();
-  for (Foothold f : steps_) {
-    leg_ids.push_back(f.leg);
-    std::cout << "f: " << f << std::endl;
-  }
-
-
-  // create the general spline structure
-  ContinuousSplineContainer trajectory;
-  double swing_time          = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/swing_time");
-  double stance_time         = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time");
-  double robot_height        = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/robot_height");
-  double stance_time_initial = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
-  double stance_time_final   = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
-
-  trajectory.Init(initial_state.p, initial_state.v, leg_ids, stance_time, swing_time, stance_time_initial,stance_time_final);
-  xpp::ros::ZmpPublisher zmp_publisher(trajectory);
-
-  xpp::hyq::SupportPolygonContainer supp_triangle_container;
-  supp_triangle_container.Init(start_stance, steps_, leg_ids, SupportPolygon::GetDefaultMargins());
-  zmp_publisher.AddGoal(zmp_publisher.zmp_msg_, supp_triangle_container.GetCenterOfFinalStance());
-  zmp_publisher.AddStartStance(zmp_publisher.zmp_msg_,
-                               supp_triangle_container.GetStartStance().ToVector(),
-                               "start_stance");
-
-  // solve NLP
-  xpp::zmp::SplineConstraints::State final_state; // zero vel,acc,jerk
-  final_state.p = supp_triangle_container.GetCenterOfFinalStance();
-
-
-  // visualize the support polygons
-//  std::vector<SupportPolygon> supp_no_4l = supp_triangle_container.GetSupportPolygons();
-//  for (int i=0; i<supp_no_4l.size(); ++i) {
-//    zmp_publisher.AddPolygon(supp_no_4l.at(i).footholds_conv_, supp_triangle_container.GetFootholds().at(i).leg);
-//  }
-
-
-  // solve QP
-  xpp::zmp::QpOptimizer qp_optimizer;
-  xpp::zmp::SplineContainer::VecSpline opt_splines_eig = qp_optimizer.SolveQp(initial_state,
-                                                              final_state,
-                                                              start_stance,
-                                                              steps_);
-//  zmp_publisher.AddRvizMessage(opt_coefficients_eig, steps_, 0.0, 0.0, "qp", 0.1);
-//  zmp_publisher.publish();
-
-
-
-
-  xpp::zmp::NlpOptimizer nlp_optimizer;
-  Constraints::StdVecEigen2d opt_footholds_2d;
-  xpp::zmp::SplineContainer::VecSpline opt_splines;
-  nlp_optimizer.SolveNlp(initial_state,
-                         final_state,
-                         leg_ids,
-                         start_stance,
-                         opt_splines,
-                         opt_footholds_2d);
-
-
-  // build optimized footholds from these coefficients:
-  std::vector<xpp::hyq::Foothold> footholds = steps_;
-  for (uint i=0; i<footholds.size(); ++i) {
-    footholds.at(i).p << opt_footholds_2d.at(i).x(), opt_footholds_2d.at(i).y(), 0.0;
-  }
-
-  // combine the two messages
-  footsteps_msg_ = zmp_publisher.zmp_msg_;
 }
 
 
@@ -148,11 +61,11 @@ int main(int argc, char **argv)
 
   ros::init(argc, argv, "xpp_example_executable");
   ros::NodeHandle n;
-  ros::Publisher publisher = n.advertise<visualization_msgs::MarkerArray>("zmp_trajectory", 10);
-  ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
+//  ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
+  xpp::ros::ZmpPublisher zmp_publisher;
 
 
-  ros::ServiceClient optimizer_client = n.serviceClient<OptService>("solve_nlp");
+  ros::ServiceClient optimizer_client = n.serviceClient<OptService>("optimize_trajectory");
   OptService srv;
 
   if (argc==1)
@@ -175,11 +88,11 @@ int main(int argc, char **argv)
 
 
   // this is only neccessary for qp solver
-//  Foothold step1(-0.35+0.25,  0.3, 0.0, LH);
-//  Foothold step2( 0.35+0.25,  0.3, 0.0, LF);
-//  Foothold step3(-0.35+0.25, -0.3, 0.0, RH);
-//  Foothold step4( 0.35+0.25, -0.3, 0.0, RF);
-//
+  Foothold step1(-0.35+0.25,  0.3, 0.0, LH);
+  Foothold step2( 0.35+0.25,  0.3, 0.0, LF);
+  Foothold step3(-0.35+0.25, -0.3, 0.0, RH);
+  Foothold step4( 0.35+0.25, -0.3, 0.0, RF);
+
 //  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step1));
 //  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step2));
 //  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step3));
@@ -192,25 +105,30 @@ int main(int argc, char **argv)
 
 
   // get back the optimal values
-  xpp_opt::ReturnOptSplines srv2;
-  ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptSplines>("return_optimized_coeff");
-  getter_client.call(srv2);
-  std::cout << srv2.response.splines.size();
+  xpp_opt::ReturnOptSplines srv_splines;
+  ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptSplines>("return_optimized_splines");
+  getter_client.call(srv_splines);
+  std::cout << srv_splines.response.splines.size();
 
 
 
+  xpp_opt::ReturnOptFootholds srv_footholds;
+  ros::ServiceClient foothold_client = n.serviceClient<xpp_opt::ReturnOptFootholds>("return_optimized_footholds");
+  foothold_client.call(srv_footholds);
+  std::cout << "foothold size: " << srv_footholds.response.footholds.size();
 
 
-//  ros::Publisher goal_state_publisher = n.advertise<xpp_opt::StateLin3d>("goal_state", 10);
-//  xpp_opt::StateLin3d goal_state;
-//  goal_state.pos.x = 0.5;
 
-//  ros::Rate loop_rate(100);
-//  while (ros::ok()) {
-//    goal_state_publisher.publish(goal_state);
-//    ros::spinOnce();
-    //    publisher.publish(footsteps_msg_);
-//  }
+  zmp_publisher.AddRvizMessage(xpp::ros::RosHelpers::RosToXpp(srv_splines.response.splines),
+                               xpp::ros::RosHelpers::RosToXpp(srv_footholds.response.footholds),
+                               0.0, 0.0, "qp", 1.0);
+
+
+  ros::Rate loop_rate(1000);
+  while (ros::ok()) {
+    ros::spinOnce();
+    zmp_publisher.publish();
+  }
 }
 
 

@@ -53,6 +53,7 @@ XppToRos(const VecSpline& opt_splines)
 
   for (uint i=0; i<opt_splines.size(); ++i) {
 
+    // FIXME copy these directly .data() or smth
     msgs.at(i).coeff_x.at(A) = opt_splines.at(i).spline_coeff_[xpp::utils::X][A];
     msgs.at(i).coeff_x.at(B) = opt_splines.at(i).spline_coeff_[xpp::utils::X][B];
     msgs.at(i).coeff_x.at(C) = opt_splines.at(i).spline_coeff_[xpp::utils::X][C];
@@ -74,6 +75,41 @@ XppToRos(const VecSpline& opt_splines)
   }
 
   return msgs;
+}
+
+
+static VecSpline
+RosToXpp(const std::vector<SplineMsg>& msgs)
+{
+  using namespace xpp::zmp;
+
+  uint n_splines = msgs.size();
+  VecSpline xpp(n_splines);
+
+  for (uint i=0; i<n_splines; ++i) {
+
+    // FIXME copy these directly .data() or smth
+    xpp.at(i).spline_coeff_[xpp::utils::X][A] = msgs.at(i).coeff_x.at(A);
+    xpp.at(i).spline_coeff_[xpp::utils::X][B] = msgs.at(i).coeff_x.at(B);
+    xpp.at(i).spline_coeff_[xpp::utils::X][C] = msgs.at(i).coeff_x.at(C);
+    xpp.at(i).spline_coeff_[xpp::utils::X][D] = msgs.at(i).coeff_x.at(D);
+    xpp.at(i).spline_coeff_[xpp::utils::X][E] = msgs.at(i).coeff_x.at(E);
+    xpp.at(i).spline_coeff_[xpp::utils::X][F] = msgs.at(i).coeff_x.at(F);
+
+    xpp.at(i).spline_coeff_[xpp::utils::Y][A] = msgs.at(i).coeff_y.at(A);
+    xpp.at(i).spline_coeff_[xpp::utils::Y][B] = msgs.at(i).coeff_y.at(B);
+    xpp.at(i).spline_coeff_[xpp::utils::Y][C] = msgs.at(i).coeff_y.at(C);
+    xpp.at(i).spline_coeff_[xpp::utils::Y][D] = msgs.at(i).coeff_y.at(D);
+    xpp.at(i).spline_coeff_[xpp::utils::Y][E] = msgs.at(i).coeff_y.at(E);
+    xpp.at(i).spline_coeff_[xpp::utils::Y][F] = msgs.at(i).coeff_y.at(F);
+
+    xpp.at(i).duration_      = msgs.at(i).duration;
+    xpp.at(i).four_leg_supp_ = msgs.at(i).four_leg_support;
+    xpp.at(i).id_            = msgs.at(i).id;
+    xpp.at(i).step_          = msgs.at(i).step;
+  }
+
+  return xpp;
 }
 
 
@@ -149,6 +185,32 @@ XppToRos(const xpp::hyq::Foothold& xpp)
   ros.leg = xpp.leg;
 
   return ros;
+}
+
+
+static std::vector<xpp_opt::Foothold>
+XppToRos(const std::vector<xpp::hyq::Foothold>& xpp)
+{
+  std::vector<xpp_opt::Foothold> ros_vec(xpp.size());
+
+  for (uint i=0; i<xpp.size(); ++i) {
+    ros_vec.at(i) = XppToRos(xpp.at(i));
+  }
+
+  return ros_vec;
+}
+
+
+static std::vector<xpp::hyq::Foothold>
+RosToXpp(const std::vector<xpp_opt::Foothold>& ros)
+{
+  std::vector<xpp::hyq::Foothold> xpp_vec(ros.size());
+
+  for (uint i=0; i<ros.size(); ++i) {
+    xpp_vec.at(i) = RosToXpp(ros.at(i));
+  }
+
+  return xpp_vec;
 }
 
 

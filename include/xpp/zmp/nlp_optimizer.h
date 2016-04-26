@@ -23,6 +23,7 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::zmp::SplineConstraints::State State;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  typedef SupportPolygonContainer::VecFoothold VecFoothold;
   typedef xpp::hyq::Foothold Foothold;
   typedef xpp::hyq::SupportPolygon SupportPolygon;
   typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
@@ -38,7 +39,7 @@ public:
                 const std::vector<xpp::hyq::LegID>& step_sequence,
                 xpp::hyq::LegDataMap<Foothold> start_stance,
                 VecSpline& opt_splines,
-                StdVecEigen2d& final_footholds,
+                VecFoothold& final_footholds,
                 const Eigen::VectorXd& initial_spline_coeff = Eigen::Vector2d::Zero()) const;
 
 

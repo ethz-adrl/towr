@@ -32,14 +32,14 @@ public:
   typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
 
 public:
-  ZmpPublisher (const xpp::zmp::ContinuousSplineContainer& trajectory);
+  ZmpPublisher ();
   virtual
-  ~ZmpPublisher ();
+  ~ZmpPublisher () {};
 
 public:
 
   void AddRvizMessage(
-      const Eigen::VectorXd& opt_spline_coeff,
+      const VecSpline& splines,
       const VecFoothold& opt_footholds,
       double gap_center_x,
       double gap_width_x,
@@ -57,7 +57,7 @@ public:
                   xpp::hyq::LegID leg_id);
 private:
   void AddTrajectory(visualization_msgs::MarkerArray& msg,
-                     const xpp::zmp::SplineContainer& zmp_splines,
+                     const VecSpline& splines,
                      const std::vector<xpp::hyq::Foothold>& H_footholds,
                      const std::string& rviz_namespace,
                      double alpha = 1.0);
@@ -75,7 +75,6 @@ private:
   std_msgs::ColorRGBA GetLegColor(xpp::hyq::LegID leg) const;
 
   const std::string frame_id_ = "world";
-  xpp::zmp::ContinuousSplineContainer trajectory_;
   ::ros::Publisher ros_publisher_;
 };
 

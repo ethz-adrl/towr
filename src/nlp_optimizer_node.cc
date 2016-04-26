@@ -15,7 +15,7 @@ namespace ros {
 
 NlpOptimizerNode::NlpOptimizerNode ()
 {
-  optimize_trajectory_srv_ = n_.advertiseService("solve_nlp",
+  optimize_trajectory_srv_ = n_.advertiseService("optimize_trajectory",
                                 &NlpOptimizerNode::OptimizeTrajectoryService, this);
 }
 
@@ -43,7 +43,7 @@ NlpOptimizerNode::OptimizeTrajectory()
                           step_sequence,
                           curr_stance_,
                           opt_splines_,
-                          opt_footholds_);
+                          footholds_);
 }
 
 
