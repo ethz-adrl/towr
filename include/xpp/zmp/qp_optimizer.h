@@ -41,6 +41,7 @@ eigen_quadprog.hpp performs the optimization.
  */
 class QpOptimizer {
 public:
+  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::zmp::SplineConstraints::State State;
   typedef xpp::hyq::Foothold Foothold;
@@ -50,7 +51,7 @@ public:
   QpOptimizer() {};
   virtual ~QpOptimizer() {};
 
-  Eigen::VectorXd SolveQp(const State& initial_state,
+  VecSpline SolveQp(const State& initial_state,
                           const State& final_state,
                           const xpp::hyq::LegDataMap<Foothold>& start_stance,
                           const VecFoothold& steps);

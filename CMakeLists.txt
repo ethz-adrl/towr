@@ -35,16 +35,17 @@ add_message_files(
   FILES
   FootholdSequence.msg
   Foothold.msg
+  Spline.msg
   StateLin3d.msg
-  SplineCoefficients.msg
+#  SplineCoefficients.msg
   Footholds2d.msg
-  VariablesNlp.msg
+#  VariablesNlp.msg
 )
 add_service_files(
   FILES
   SolveNlp.srv
   SolveQp.srv
-  ReturnOptimizedCoeff.srv
+  ReturnOptSplines.srv
   ReturnOptimizedFootholds.srv
 )
 generate_messages(

@@ -1,4 +1,4 @@
 # Returns the already optimized spline trajectory and footholds
 
 ---
-SplineCoefficients coeff
+Spline[] splines

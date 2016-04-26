@@ -10,10 +10,11 @@
 
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/foothold.h>
+#include <xpp/zmp/spline_container.h>
 
 // custom msg and srv
 #include <xpp_opt/StateLin3d.h>
-#include <xpp_opt/ReturnOptimizedCoeff.h>
+#include <xpp_opt/ReturnOptSplines.h>
 
 #include <ros/ros.h>
 
@@ -26,6 +27,8 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::hyq::Foothold Foothold;
   typedef xpp_opt::StateLin3d StateMsg;
+  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
+  typedef xpp_opt::ReturnOptSplines ReturnOptSplinesSrv;
 
 public:
   OptimizerNodeBase ();
@@ -40,7 +43,7 @@ protected:
   xpp::hyq::LegDataMap<Foothold> curr_stance_;
 //  double curr_execution_time_;
 
-  VectorXd opt_coefficients_;
+  VecSpline opt_splines_;
 
 private:
 //  ::ros::Publisher opt_var_pub_;
@@ -51,8 +54,8 @@ private:
 
   void CurrentStateCallback(const StateMsg& msg);
   void GoalStateCallback(const StateMsg& msg);
-  bool ReturnOptimizedCoeff(xpp_opt::ReturnOptimizedCoeff::Request& req,
-                            xpp_opt::ReturnOptimizedCoeff::Response& res);
+  bool ReturnOptimizedCoeff(ReturnOptSplinesSrv::Request& req,
+                            ReturnOptSplinesSrv::Response& res);
 
 };
 

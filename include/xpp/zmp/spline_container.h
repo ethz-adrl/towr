@@ -32,14 +32,14 @@ of splines, where the actual coefficients must be filled through an optimization
 */
 class SplineContainer {
 public:
-typedef std::vector<ZmpSpline> Splines;
+typedef std::vector<ZmpSpline> VecSpline;
 typedef xpp::utils::Point2d Point2d;
 typedef xpp::hyq::LegID LegID;
 static const int kDim2d = xpp::utils::kDim2d;
 
 public:
   SplineContainer();
-  SplineContainer(const Splines& splines);
+  SplineContainer(const VecSpline& splines);
   virtual ~SplineContainer() {};
 
   /**
@@ -49,7 +49,7 @@ public:
   @param Derivative which value (pos,vel,acc) at this time we are interested in
   @return x and y state of position,velocity OR acceleration
   */
-  static void GetCOGxy(double t_global, Point2d& cog_xy, const Splines& splines);
+  static void GetCOGxy(double t_global, Point2d& cog_xy, const VecSpline& splines);
   void GetCOGxy(double t_global, Point2d& cog_xy) const
   {
     GetCOGxy(t_global, cog_xy, splines_);
@@ -58,7 +58,7 @@ public:
   int GetFourLegSupport(double t_global) const;
   int GetStep(double t_global) const;
   void AddSpline(const ZmpSpline &spline);
-  static double GetTotalTime(const Splines& splines, bool exclude_4ls_splines = false);
+  static double GetTotalTime(const VecSpline& splines, bool exclude_4ls_splines = false);
   double GetTotalTime(bool exclude_4ls_splines = false) const
   {
     return GetTotalTime(splines_, exclude_4ls_splines);
@@ -73,7 +73,7 @@ public:
                                         double t_stance_initial,
                                         double t_stance_final);
 
-  Splines splines_;
+  VecSpline splines_;
 };
 
 } // namespace zmp

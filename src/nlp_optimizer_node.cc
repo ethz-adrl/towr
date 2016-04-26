@@ -42,7 +42,7 @@ NlpOptimizerNode::OptimizeTrajectory()
                           goal_cog_,
                           step_sequence,
                           curr_stance_,
-                          opt_coefficients_,
+                          opt_splines_,
                           opt_footholds_);
 }
 

@@ -23,7 +23,7 @@ SplineContainer::SplineContainer()
 }
 
 
-double SplineContainer::GetTotalTime(const Splines& splines, bool exclude_4ls_splines)
+double SplineContainer::GetTotalTime(const VecSpline& splines, bool exclude_4ls_splines)
 {
   double T = 0.0;
   for (ZmpSpline s: splines) {
@@ -108,7 +108,7 @@ void SplineContainer::ConstructSplineSequence(
 
 
 void SplineContainer::GetCOGxy(double t_global, Point2d& cog_xy,
-                               const Splines& splines)
+                               const VecSpline& splines)
 {
   assert(t_global<=GetTotalTime(splines));
 

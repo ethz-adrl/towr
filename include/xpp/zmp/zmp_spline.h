@@ -59,8 +59,8 @@ public:
   void set_spline_coeff(const CoeffValues &coeff_values = CoeffValues());
 
   static log4cxx::LoggerPtr log_;
+  double spline_coeff_[kDim2d][kCoeffCount]; // FIXME, make privat
 private:
-  double spline_coeff_[kDim2d][kCoeffCount];
 };
 
 /**

@@ -19,7 +19,7 @@
 #include <xpp_opt/StateLin3d.h>
 #include <xpp_opt/SolveNlp.h>
 #include <xpp_opt/SolveQp.h>
-#include <xpp_opt/ReturnOptimizedCoeff.h>
+#include <xpp_opt/ReturnOptSplines.h>
 
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -108,26 +108,27 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 
   // solve QP
   xpp::zmp::QpOptimizer qp_optimizer;
-  Eigen::VectorXd opt_coefficients_eig = qp_optimizer.SolveQp(initial_state,
+  xpp::zmp::SplineContainer::VecSpline opt_splines_eig = qp_optimizer.SolveQp(initial_state,
                                                               final_state,
                                                               start_stance,
                                                               steps_);
-  zmp_publisher.AddRvizMessage(opt_coefficients_eig, steps_, 0.0, 0.0, "qp", 0.1);
-  zmp_publisher.publish();
+//  zmp_publisher.AddRvizMessage(opt_coefficients_eig, steps_, 0.0, 0.0, "qp", 0.1);
+//  zmp_publisher.publish();
 
 
 
 
   xpp::zmp::NlpOptimizer nlp_optimizer;
   Constraints::StdVecEigen2d opt_footholds_2d;
-  Eigen::VectorXd opt_coefficients;
+  xpp::zmp::SplineContainer::VecSpline opt_splines;
   nlp_optimizer.SolveNlp(initial_state,
                          final_state,
                          leg_ids,
                          start_stance,
-                         opt_coefficients,
-                         opt_footholds_2d,
-                         opt_coefficients_eig);
+                         opt_splines,
+                         opt_footholds_2d);
+
+
   // build optimized footholds from these coefficients:
   std::vector<xpp::hyq::Foothold> footholds = steps_;
   for (uint i=0; i<footholds.size(); ++i) {
@@ -191,10 +192,10 @@ int main(int argc, char **argv)
 
 
   // get back the optimal values
-  xpp_opt::ReturnOptimizedCoeff srv2;
-  ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptimizedCoeff>("return_optimized_coeff");
+  xpp_opt::ReturnOptSplines srv2;
+  ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptSplines>("return_optimized_coeff");
   getter_client.call(srv2);
-  std::cout << srv2.response.coeff.data.size();
+  std::cout << srv2.response.splines.size();
 
 
 

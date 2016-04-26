@@ -54,7 +54,7 @@ public:
 
   // make static to show it doesn't depend on member variables
   void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff,
-                                Splines& splines) const;
+                                VecSpline& splines) const;
   void UpdateInitialPosVel(const Vector2d& start_cog_p, const Vector2d& start_cog_v);
   VecScalar RelationshipToABCD(int spline_id_k, int dim, SplineCoeff c) const;
 

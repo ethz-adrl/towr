@@ -10,7 +10,7 @@
 
 #include <ros/ros.h>
 
-#include <xpp_opt/SplineCoefficients.h>
+#include <xpp_opt/Spline.h>
 #include <xpp_opt/Footholds2d.h>
 #include <xpp_opt/StateLin3d.h>
 #include <xpp_opt/Foothold.h>
@@ -18,6 +18,7 @@
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/leg_data_map.h>
+#include <xpp/zmp/spline_container.h>
 
 namespace xpp {
 namespace ros {
@@ -31,6 +32,8 @@ struct RosHelpers {
 typedef Eigen::Vector3d Vector3d;
 typedef xpp::utils::Point2d State;
 typedef xpp::hyq::Foothold Foothold;
+typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
+typedef xpp_opt::Spline SplineMsg;
 
 static double GetDoubleFromServer(const std::string& ros_param_name) {
   double val;
@@ -40,15 +43,49 @@ static double GetDoubleFromServer(const std::string& ros_param_name) {
 }
 
 
-static xpp_opt::SplineCoefficients
-XppToRos(const Eigen::VectorXd& opt_coefficients)
+static std::vector<SplineMsg>
+XppToRos(const VecSpline& opt_splines)
 {
-  xpp_opt::SplineCoefficients msg;
-  for (int i=0; i<opt_coefficients.rows(); ++i)
-    msg.data.push_back(opt_coefficients[i]);
+  using namespace xpp::zmp;
 
-  return msg;
+  int n_splines = opt_splines.size();
+  std::vector<SplineMsg> msgs(n_splines);
+
+  for (uint i=0; i<opt_splines.size(); ++i) {
+
+    msgs.at(i).coeff_x.at(A) = opt_splines.at(i).spline_coeff_[xpp::utils::X][A];
+    msgs.at(i).coeff_x.at(B) = opt_splines.at(i).spline_coeff_[xpp::utils::X][B];
+    msgs.at(i).coeff_x.at(C) = opt_splines.at(i).spline_coeff_[xpp::utils::X][C];
+    msgs.at(i).coeff_x.at(D) = opt_splines.at(i).spline_coeff_[xpp::utils::X][D];
+    msgs.at(i).coeff_x.at(E) = opt_splines.at(i).spline_coeff_[xpp::utils::X][E];
+    msgs.at(i).coeff_x.at(F) = opt_splines.at(i).spline_coeff_[xpp::utils::X][F];
+
+    msgs.at(i).coeff_y.at(A) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][A];
+    msgs.at(i).coeff_y.at(B) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][B];
+    msgs.at(i).coeff_y.at(C) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][C];
+    msgs.at(i).coeff_y.at(D) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][D];
+    msgs.at(i).coeff_y.at(E) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][E];
+    msgs.at(i).coeff_y.at(F) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][F];
+
+    msgs.at(i).duration = opt_splines.at(i).duration_;
+    msgs.at(i).four_leg_support = opt_splines.at(i).four_leg_supp_;
+    msgs.at(i).id = opt_splines.at(i).id_;
+    msgs.at(i).step = opt_splines.at(i).step_;
+  }
+
+  return msgs;
 }
+
+
+//static xpp_opt::SplineCoefficients
+//XppToRos(const Eigen::VectorXd& opt_coefficients)
+//{
+//  xpp_opt::SplineCoefficients msg;
+//  for (int i=0; i<opt_coefficients.rows(); ++i)
+//    msg.data.push_back(opt_coefficients[i]);
+//
+//  return msg;
+//}
 
 
 static xpp_opt::Footholds2d

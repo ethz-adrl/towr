@@ -23,7 +23,7 @@ namespace zmp {
 
 
 
-Eigen::VectorXd
+QpOptimizer::VecSpline
 QpOptimizer::SolveQp(const State& initial_state,
                      const State& final_state,
                      const xpp::hyq::LegDataMap<Foothold>& start_stance,
@@ -51,8 +51,10 @@ QpOptimizer::SolveQp(const State& initial_state,
   ZmpConstraint zmp_constraint(spline_structure, robot_height);
   inequality_constraints_ = zmp_constraint.CreateLineConstraints(supp_polygon_container);
 
+  Eigen::VectorXd opt_abcd = EigenSolveQuadprog();
+  spline_structure.AddOptimizedCoefficients(opt_abcd, spline_structure.splines_);
 
-  return EigenSolveQuadprog();
+  return spline_structure.splines_;
 }
 
 

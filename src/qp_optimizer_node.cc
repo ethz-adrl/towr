@@ -39,7 +39,7 @@ QpOptimizerNode::OptimizeTrajectoryService(xpp_opt::SolveQp::Request& req,
 void
 QpOptimizerNode::OptimizeTrajectory()
 {
-  opt_coefficients_ = qp_optimizer_.SolveQp(curr_cog_,
+  opt_splines_ = qp_optimizer_.SolveQp(curr_cog_,
                                             goal_cog_,
                                             curr_stance_,
                                             footholds_);

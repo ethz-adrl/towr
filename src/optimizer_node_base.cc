@@ -49,10 +49,10 @@ OptimizerNodeBase::GoalStateCallback(const StateMsg& msg)
 
 
 bool
-OptimizerNodeBase::ReturnOptimizedCoeff(xpp_opt::ReturnOptimizedCoeff::Request& req,
-                                       xpp_opt::ReturnOptimizedCoeff::Response& res)
+OptimizerNodeBase::ReturnOptimizedCoeff(ReturnOptSplinesSrv::Request& req,
+                                        ReturnOptSplinesSrv::Response& res)
 {
-  res.coeff = xpp::ros::RosHelpers::XppToRos(opt_coefficients_);
+  res.splines = xpp::ros::RosHelpers::XppToRos(opt_splines_);
   return true;
 }
 

@@ -150,7 +150,7 @@ ContinuousSplineContainer::DescribeFByPrev(int dim, double start_cog_p,
 void
 ContinuousSplineContainer::AddOptimizedCoefficients(
     const Eigen::VectorXd& optimized_coeff,
-    Splines& splines) const
+    VecSpline& splines) const
 {
   assert(splines.size() == (optimized_coeff.rows()/kDim2d/kFreeCoeffPerSpline));
 
