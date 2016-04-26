@@ -143,6 +143,7 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 int main(int argc, char **argv)
 {
 
+  typedef xpp_opt::SolveNlp OptService;
 
   ros::init(argc, argv, "xpp_example_executable");
   ros::NodeHandle n;
@@ -150,8 +151,14 @@ int main(int argc, char **argv)
   ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
 
 
-  ros::ServiceClient optimizer_client = n.serviceClient<xpp_opt::SolveQp>("solve_qp");
-  xpp_opt::SolveQp srv;
+  ros::ServiceClient optimizer_client = n.serviceClient<OptService>("solve_nlp");
+  OptService srv;
+
+  if (argc==1)
+  {
+    ROS_FATAL("Please specify current x-position as parameter");
+  };
+
   srv.request.curr_state.pos.x = atof(argv[1]);
   using namespace xpp::hyq;
   xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
@@ -167,15 +174,15 @@ int main(int argc, char **argv)
 
 
   // this is only neccessary for qp solver
-  Foothold step1(-0.35+0.25,  0.3, 0.0, LH);
-  Foothold step2( 0.35+0.25,  0.3, 0.0, LF);
-  Foothold step3(-0.35+0.25, -0.3, 0.0, RH);
-  Foothold step4( 0.35+0.25, -0.3, 0.0, RF);
-
-  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step1));
-  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step2));
-  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step3));
-  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step4));
+//  Foothold step1(-0.35+0.25,  0.3, 0.0, LH);
+//  Foothold step2( 0.35+0.25,  0.3, 0.0, LF);
+//  Foothold step3(-0.35+0.25, -0.3, 0.0, RH);
+//  Foothold step4( 0.35+0.25, -0.3, 0.0, RF);
+//
+//  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step1));
+//  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step2));
+//  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step3));
+//  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step4));
 
 
 
