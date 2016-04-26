@@ -37,12 +37,12 @@ double SplineContainer::GetTotalTime(const VecSpline& splines, bool exclude_4ls_
 }
 
 
-int SplineContainer::GetSplineID(double t_global) const
+int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
 {
    assert(t_global<=GetTotalTime());
 
    double t = 0;
-   for (ZmpSpline s: splines_) {
+   for (ZmpSpline s: splines) {
      t += s.duration_;
 
      if (t >= t_global)

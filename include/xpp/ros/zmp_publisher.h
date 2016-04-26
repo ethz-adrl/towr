@@ -28,6 +28,8 @@ public:
   typedef visualization_msgs::Marker Marker;
   typedef visualization_msgs::MarkerArray MarkerArray;
   typedef Eigen::Vector2d Vector2d;
+  typedef xpp::zmp::SplineContainer SplineContainer;
+  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
 
 public:
   ZmpPublisher (const xpp::zmp::ContinuousSplineContainer& trajectory);
@@ -55,7 +57,7 @@ public:
                   xpp::hyq::LegID leg_id);
 private:
   void AddTrajectory(visualization_msgs::MarkerArray& msg,
-                     xpp::zmp::SplineContainer zmp_splines,
+                     const xpp::zmp::SplineContainer& zmp_splines,
                      const std::vector<xpp::hyq::Foothold>& H_footholds,
                      const std::string& rviz_namespace,
                      double alpha = 1.0);

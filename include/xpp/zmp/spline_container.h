@@ -54,7 +54,12 @@ public:
   {
     GetCOGxy(t_global, cog_xy, splines_);
   }
-  int GetSplineID(double t_global) const;
+  static int GetSplineID(double t_global, const VecSpline& splines);
+  int GetSplineID(double t_global) const
+  {
+    return GetSplineID(t_global, splines_);
+  }
+
   int GetFourLegSupport(double t_global) const;
   int GetStep(double t_global) const;
   void AddSpline(const ZmpSpline &spline);

@@ -164,17 +164,20 @@ ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x
 
 void
 ZmpPublisher::AddTrajectory(visualization_msgs::MarkerArray& msg,
-                   xpp::zmp::SplineContainer zmp_splines,
-                   const std::vector<xpp::hyq::Foothold>& H_footholds,
-                   const std::string& rviz_namespace,
-                   double alpha)
+                            const SplineContainer& zmp_splines,
+                            const std::vector<xpp::hyq::Foothold>& H_footholds,
+                            const std::string& rviz_namespace,
+                            double alpha)
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
   for (double t(0.0); t < zmp_splines.GetTotalTime(); t+= 0.02)
   {
 
     xpp::utils::Point2d cog_state;
-    zmp_splines.GetCOGxy(t, cog_state);
+    SplineContainer::GetCOGxy(t, cog_state,zmp_splines.splines_);
+    int id = SplineContainer::GetSplineID(t, zmp_splines.splines_);
+
+
 
     visualization_msgs::Marker marker;
     marker = GenerateMarker(cog_state.p.segment<2>(0),
@@ -183,11 +186,12 @@ ZmpPublisher::AddTrajectory(visualization_msgs::MarkerArray& msg,
     marker.id = i++;
     marker.ns = rviz_namespace;
 
-    bool four_legg_support = zmp_splines.GetFourLegSupport(t);
+
+    bool four_legg_support = zmp_splines.splines_.at(id).four_leg_supp_;
     if ( four_legg_support ) {
       marker.color.r = marker.color.g = marker.color.g = 0.1;
     } else {
-      int step = zmp_splines.GetStep(t);
+      int step = zmp_splines.splines_.at(id).step_;
       xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
       marker.color = GetLegColor(swing_leg);
     }
