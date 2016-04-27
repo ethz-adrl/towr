@@ -12,7 +12,6 @@
 
 int main(int argc, char *argv[])
 {
-
   ros::init(argc, argv, "goal_state_publisher");
   ros::NodeHandle n;
   ros::Publisher goal_state_pub = n.advertise<xpp_opt::StateLin3d>("goal_state", 10);

@@ -18,6 +18,7 @@ namespace Ipopt {
 
 #define prt(x) std::cout << #x << " = " << std::endl << x << std::endl << std::endl;
 
+
 NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
                          const Constraints& constraints,
                          const NlpStructure& nlp_structure,
@@ -25,6 +26,7 @@ NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
     :nlp_structure_(nlp_structure),
      cost_function_(cost_function),
      constraints_(constraints),
+     zmp_publisher_("nlp_zmp_publisher"),
      // These epsilons play a big role in convergence
      num_diff_cost_function_(cost_function, 10*std::numeric_limits<double>::epsilon()),
      num_diff_constraints_(constraints, std::sqrt(std::numeric_limits<double>::epsilon()))

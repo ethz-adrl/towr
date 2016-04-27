@@ -15,21 +15,28 @@ namespace ros {
 
 NlpOptimizerNode::NlpOptimizerNode ()
 {
-  optimize_trajectory_srv_ = n_.advertiseService("optimize_trajectory",
-                                &NlpOptimizerNode::OptimizeTrajectoryService, this);
+  current_info_sub_ = n_.subscribe("current_info",
+                                   1, // take only the most recent information
+                                   &NlpOptimizerNode::CurrentInfoCallback, this);
+
+  opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters", 1);
 }
 
 
 
-bool
-NlpOptimizerNode::OptimizeTrajectoryService(xpp_opt::SolveNlp::Request& req,
-                                            xpp_opt::SolveNlp::Response& res)
+void
+NlpOptimizerNode::CurrentInfoCallback(const xpp_opt::CurrentInfo& msg)
 {
-  curr_cog_ = RosHelpers::RosToXpp(req.curr_state);
-  curr_stance_ = RosHelpers::RosToXpp(req.curr_stance);
+  curr_cog_ = RosHelpers::RosToXpp(msg.curr_state);
+  curr_stance_ = RosHelpers::RosToXpp(msg.curr_stance);
 
   OptimizeTrajectory();
-  return true;
+
+  // send something out everytime something has been optimized
+  OptParamMsg msg_out;
+  msg_out.splines = xpp::ros::RosHelpers::XppToRos(opt_splines_);
+  msg_out.footholds = xpp::ros::RosHelpers::XppToRos(footholds_);
+  opt_params_pub_.publish(msg_out);
 }
 
 

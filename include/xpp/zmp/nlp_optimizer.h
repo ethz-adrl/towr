@@ -13,6 +13,9 @@
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/spline_constraints.h>
 
+#include <IpIpoptApplication.hpp>
+#include <IpSolveStatistics.hpp>
+
 namespace xpp {
 namespace zmp {
 
@@ -29,7 +32,7 @@ public:
   typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
 
 public:
-  NlpOptimizer () {};
+  NlpOptimizer ();
   virtual
   ~NlpOptimizer () {};
 
@@ -40,9 +43,17 @@ public:
                 xpp::hyq::LegDataMap<Foothold> start_stance,
                 VecSpline& opt_splines,
                 VecFoothold& final_footholds,
-                const Eigen::VectorXd& initial_spline_coeff = Eigen::Vector2d::Zero()) const;
+                const Eigen::VectorXd& initial_spline_coeff = Eigen::Vector2d::Zero());
 
 
+
+  Ipopt::IpoptApplication app_;
+  Ipopt::ApplicationReturnStatus status_;
+
+  double swing_time_;
+  double stance_time_;
+  double stance_time_initial_;
+  double stance_time_final_;
 };
 
 } /* namespace zmp */

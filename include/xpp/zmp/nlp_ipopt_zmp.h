@@ -35,7 +35,6 @@ public:
 
 
 public:
-  /** default constructor */
 	NlpIpoptZmp(const CostFunction& cost_function,
 	            const Constraints& constraints,
 	            const NlpStructure& nlp_structure,
@@ -112,13 +111,16 @@ public:
   //@}
 
 
+
+
   Eigen::VectorXd opt_coeff_;
   StdVecEigen2d opt_footholds_;
+
 private:
 
-  NlpStructure nlp_structure_;
   CostFunction cost_function_;
   Constraints constraints_;
+  NlpStructure nlp_structure_;
   Eigen::NumericalDiff<CostFunction> num_diff_cost_function_;
   Eigen::NumericalDiff<Constraints> num_diff_constraints_;
 

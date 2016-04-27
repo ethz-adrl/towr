@@ -12,7 +12,8 @@
 #include <xpp/zmp/nlp_optimizer.h>
 
 // ros services (.srv)
-#include <xpp_opt/SolveNlp.h>
+#include <xpp_opt/CurrentInfo.h>
+#include <xpp_opt/OptimizedParameters.h>
 
 
 
@@ -23,6 +24,7 @@ class NlpOptimizerNode : public OptimizerNodeBase {
 public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::zmp::NlpOptimizer NlpOptimizer;
+  typedef xpp_opt::OptimizedParameters OptParamMsg;
 
 public:
   NlpOptimizerNode ();
@@ -37,11 +39,11 @@ private:
   void OptimizeTrajectory();
   std::vector<xpp::hyq::LegID> DetermineStepSequence() const;
 
-  bool OptimizeTrajectoryService(xpp_opt::SolveNlp::Request& req,
-                                 xpp_opt::SolveNlp::Response& res);
+  void CurrentInfoCallback(const xpp_opt::CurrentInfo& msg);
 
 
-  ::ros::ServiceServer optimize_trajectory_srv_;
+  ::ros::Subscriber current_info_sub_;
+  ::ros::Publisher opt_params_pub_;
 
   NlpOptimizer nlp_optimizer_;
 };

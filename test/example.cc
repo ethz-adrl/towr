@@ -16,7 +16,8 @@
 #include <xpp/ros/ros_helpers.h>
 
 #include <xpp_opt/StateLin3d.h>
-#include <xpp_opt/SolveNlp.h>
+#include <xpp_opt/CurrentInfo.h>
+#include <xpp_opt/OptimizedParameters.h>
 #include <xpp_opt/SolveQp.h>
 #include <xpp_opt/ReturnOptSplines.h>
 #include <xpp_opt/ReturnOptFootholds.h>
@@ -53,27 +54,35 @@ void FootholdCallback(const xpp_opt::FootholdSequence& H_msg)
 }
 
 
+xpp::zmp::SplineContainer::VecSpline splines;
+std::vector<xpp::hyq::Foothold> footholds;
+void OptParamsCallback(const xpp_opt::OptimizedParameters& msg)
+{
+  splines   = xpp::ros::RosHelpers::RosToXpp(msg.splines);
+  footholds = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
+}
+
 
 int main(int argc, char **argv)
 {
 
-  typedef xpp_opt::SolveNlp OptService;
+  typedef xpp_opt::CurrentInfo OptService;
 
   ros::init(argc, argv, "xpp_example_executable");
   ros::NodeHandle n;
-//  ros::Subscriber subscriber = n.subscribe("footsteps", 1000, FootholdCallback);
+  ros::Subscriber opt_params_sub = n.subscribe("optimized_parameters", 1, OptParamsCallback);
   xpp::ros::ZmpPublisher zmp_publisher;
 
 
-  ros::ServiceClient optimizer_client = n.serviceClient<OptService>("optimize_trajectory");
-  OptService srv;
+  ros::Publisher current_info_pub = n.advertise<OptService>("current_info", 1);
+  OptService msg;
 
   if (argc==1)
   {
     ROS_FATAL("Please specify current x-position as parameter");
   };
 
-  srv.request.curr_state.pos.x = atof(argv[1]);
+  msg.curr_state.pos.x = atof(argv[1]);
   using namespace xpp::hyq;
   xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
   start_stance[LF] = Foothold( 0.35,  0.3, 0.0, LF);
@@ -81,7 +90,7 @@ int main(int argc, char **argv)
   start_stance[LH] = Foothold(-0.35,  0.3, 0.0, LH);
   start_stance[RH] = Foothold(-0.35, -0.3, 0.0, RH);
 
-  srv.request.curr_stance = xpp::ros::RosHelpers::XppToRos(start_stance);
+  msg.curr_stance = xpp::ros::RosHelpers::XppToRos(start_stance);
 
 //  srv.request.curr_stance.at(0) = xpp::ros::RosHelpers::XppToRos(start_stance[LF]);
 //  srv.request.curr_stance.at(1) = xpp::ros::RosHelpers::XppToRos(start_stance[RF]);
@@ -101,35 +110,40 @@ int main(int argc, char **argv)
 //  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step4));
 
 
-
-  optimizer_client.call(srv);
-
-
-
-  // get back the optimal values
-  xpp_opt::ReturnOptSplines srv_splines;
-  ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptSplines>("return_optimized_splines");
-  getter_client.call(srv_splines);
-  std::cout << srv_splines.response.splines.size();
+  ros::Rate poll_rate(100);
+  while(current_info_pub.getNumSubscribers() == 0) {
+    poll_rate.sleep(); // so node has time to connect
+  }
+  current_info_pub.publish(msg);
 
 
 
-  xpp_opt::ReturnOptFootholds srv_footholds;
-  ros::ServiceClient foothold_client = n.serviceClient<xpp_opt::ReturnOptFootholds>("return_optimized_footholds");
-  foothold_client.call(srv_footholds);
-  std::cout << "foothold size: " << srv_footholds.response.footholds.size();
+//  // get back the optimal values
+//  xpp_opt::ReturnOptSplines srv_splines;
+//  ros::ServiceClient getter_client = n.serviceClient<xpp_opt::ReturnOptSplines>("return_optimized_splines");
+//  getter_client.call(srv_splines);
+//  std::cout << srv_splines.response.splines.size();
+//
+//
+//
+//  xpp_opt::ReturnOptFootholds srv_footholds;
+//  ros::ServiceClient foothold_client = n.serviceClient<xpp_opt::ReturnOptFootholds>("return_optimized_footholds");
+//  foothold_client.call(srv_footholds);
+//  std::cout << "foothold size: " << srv_footholds.response.footholds.size();
+//
+//  zmp_publisher.AddRvizMessage(xpp::ros::RosHelpers::RosToXpp(srv_splines.response.splines),
+//                               xpp::ros::RosHelpers::RosToXpp(srv_footholds.response.footholds),
+//                               0.0, 0.0, "qp", 1.0);
 
 
-
-  zmp_publisher.AddRvizMessage(xpp::ros::RosHelpers::RosToXpp(srv_splines.response.splines),
-                               xpp::ros::RosHelpers::RosToXpp(srv_footholds.response.footholds),
-                               0.0, 0.0, "qp", 1.0);
-
-
-  ros::Rate loop_rate(1000);
+  ros::Rate loop_rate(10);
   while (ros::ok()) {
     ros::spinOnce();
+    zmp_publisher.AddRvizMessage(splines,
+                               footholds,
+                               0.0, 0.0, "qp", 1.0);
     zmp_publisher.publish();
+    loop_rate.sleep();
   }
 }
 

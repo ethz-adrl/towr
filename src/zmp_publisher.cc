@@ -10,12 +10,12 @@
 namespace xpp {
 namespace ros {
 
-ZmpPublisher::ZmpPublisher ()
+ZmpPublisher::ZmpPublisher(const std::string& topic)
 {
   zmp_msg_.markers.clear();
 
   ::ros::NodeHandle n;
-  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("zmp_publisher", 1);
+  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>(topic, 10);
 }
 
 
@@ -27,6 +27,7 @@ void ZmpPublisher::AddRvizMessage(
     const std::string& rviz_namespace,
     double alpha)
 {
+  zmp_msg_.markers.clear();
   visualization_msgs::MarkerArray msg;
   AddFootholds(msg, opt_footholds, rviz_namespace, visualization_msgs::Marker::CUBE, alpha);
   AddTrajectory(msg, splines, opt_footholds, rviz_namespace, alpha);

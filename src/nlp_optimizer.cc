@@ -7,14 +7,27 @@
 
 #include <xpp/zmp/nlp_optimizer.h>
 
-#include <IpIpoptApplication.hpp>
-#include <IpSolveStatistics.hpp>
-
+#include <xpp/zmp/nlp_ipopt_zmp.h>
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 #include <xpp/ros/ros_helpers.h>
 
 namespace xpp {
 namespace zmp {
+
+
+NlpOptimizer::NlpOptimizer ()
+{
+  app_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
+  status_ = app_.Initialize();
+  if (status_ != Ipopt::Solve_Succeeded) {
+    std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
+    throw std::length_error("Ipopt could not initialize correctly");
+  }
+  swing_time_          = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/swing_time");
+  stance_time_         = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time");
+  stance_time_initial_ = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
+  stance_time_final_   = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
+}
 
 
 void
@@ -24,25 +37,17 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                        xpp::hyq::LegDataMap<Foothold> start_stance,
                        VecSpline& opt_splines,
                        VecFoothold& final_footholds,
-                       const Eigen::VectorXd& initial_spline_coeff) const
+                       const Eigen::VectorXd& initial_spline_coeff)
 {
-  Ipopt::IpoptApplication app;
-  app.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
-  Ipopt::ApplicationReturnStatus status = app.Initialize();
-  if (status != Ipopt::Solve_Succeeded) {
-    std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
-    throw std::length_error("Ipopt could not initialize correctly");
-  }
-
-
-
   // create the general spline structure
   ContinuousSplineContainer spline_structure;
-  double swing_time          = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/swing_time");
-  double stance_time         = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time");
-  double stance_time_initial = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
-  double stance_time_final   = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
-  spline_structure.Init(initial_state.p, initial_state.v ,step_sequence, stance_time, swing_time, stance_time_initial,stance_time_final);
+  spline_structure.Init(initial_state.p,
+                        initial_state.v ,
+                        step_sequence,
+                        stance_time_,
+                        swing_time_,
+                        stance_time_initial_,
+                        stance_time_final_);
 
 
   // initial footholds all at zero, overwritten anyway
@@ -75,20 +80,20 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                           final_state);
   CostFunction cost_function(spline_structure, supp_polygon_container, nlp_structure);
 
+
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
       new Ipopt::NlpIpoptZmp(cost_function,
                              constraints,
                              nlp_structure,
                              initial_spline_coeff);
 
-
-  status = app.OptimizeTNLP(nlp_ipopt_zmp);
-  if (status == Ipopt::Solve_Succeeded) {
+  status_ = app_.OptimizeTNLP(nlp_ipopt_zmp);
+  if (status_ == Ipopt::Solve_Succeeded) {
     // Retrieve some statistics about the solve
-    Ipopt::Index iter_count = app.Statistics()->IterationCount();
+    Ipopt::Index iter_count = app_.Statistics()->IterationCount();
     std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
 
-    Ipopt::Number final_obj = app.Statistics()->FinalObjective();
+    Ipopt::Number final_obj = app_.Statistics()->FinalObjective();
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
 
   }

@@ -32,7 +32,7 @@ public:
   typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
 
 public:
-  ZmpPublisher ();
+  ZmpPublisher(const std::string& topic = "zmp_publisher");
   virtual
   ~ZmpPublisher () {};
 

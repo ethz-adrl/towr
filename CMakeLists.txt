@@ -39,11 +39,13 @@ add_message_files(
   StateLin3d.msg
 #  SplineCoefficients.msg
   Footholds2d.msg
+  CurrentInfo.msg
+  OptimizedParameters.msg
 #  VariablesNlp.msg
 )
 add_service_files(
   FILES
-  SolveNlp.srv
+#  SolveNlp.srv
   SolveQp.srv
   ReturnOptSplines.srv
   ReturnOptFootholds.srv

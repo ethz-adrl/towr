@@ -27,8 +27,8 @@ OptimizerNodeBase::OptimizerNodeBase ()
   return_footholds_srv_ = n_.advertiseService("return_optimized_footholds",
                                 &OptimizerNodeBase::ReturnOptimizedFootholds, this);
 
-  // FIXME, this should come from joystick
-  goal_cog_.p.x() = 0.20;
+  // This should be overwritten by joystick
+  goal_cog_.p.x() = 0.5;
 }
 
 OptimizerNodeBase::~OptimizerNodeBase ()
