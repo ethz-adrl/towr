@@ -59,8 +59,8 @@ NlpOptimizerNode::OptimizeTrajectory()
 std::vector<xpp::hyq::LegID>
 NlpOptimizerNode::DetermineStepSequence() const
 {
-  const double length_per_step = 0.25;
-  const double width_per_step = 0.15;
+  const double length_per_step = 0.35;
+  const double width_per_step = 0.20;
   Eigen::Vector2d start_to_goal = goal_cog_.p.segment<2>(0) - curr_cog_.p.segment<2>(0);
 
   int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/length_per_step);

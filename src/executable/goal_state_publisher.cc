@@ -17,9 +17,10 @@ int main(int argc, char *argv[])
   ros::Publisher goal_state_pub = n.advertise<xpp_opt::StateLin3d>("goal_state", 10);
 
   xpp_opt::StateLin3d msg;
-  if (argc==1)
-    ROS_FATAL("Please specify goal x-position as parameter");
+  if (argc!=3)
+    ROS_FATAL("Please specify goal xy-positions as parameter");
   msg.pos.x = atof(argv[1]);
+  msg.pos.y = atof(argv[2]);
 
   ros::Rate poll_rate(100);
   while(goal_state_pub.getNumSubscribers() == 0) {
