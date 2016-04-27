@@ -61,6 +61,17 @@ struct Point3d {
                    Eigen::Vector3d _v = Eigen::Vector3d::Zero(),
                    Eigen::Vector3d _a = Eigen::Vector3d::Zero())
       : p(_p), v(_v), a(_a) {}
+  /**
+   * Get only the x-y cooridinates of the 3D point
+   */
+  Point2d Get2D() const
+  {
+    Point2d p2d;
+    p2d.p = p.segment<kDim2d>(X);
+    p2d.v = v.segment<kDim2d>(X);
+    p2d.a = a.segment<kDim2d>(X);
+    return p2d;
+  }
 };
 
 

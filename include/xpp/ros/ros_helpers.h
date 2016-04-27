@@ -30,7 +30,7 @@ namespace ros {
 struct RosHelpers {
 
 typedef Eigen::Vector3d Vector3d;
-typedef xpp::utils::Point2d State;
+typedef xpp::utils::Point3d State;
 typedef xpp::hyq::Foothold Foothold;
 typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
 typedef xpp_opt::Spline SplineMsg;
@@ -145,14 +145,37 @@ RosToXpp(const xpp_opt::StateLin3d& ros)
   State point;
   point.p.x() = ros.pos.x;
   point.p.y() = ros.pos.y;
+  point.p.z() = ros.pos.z;
 
   point.v.x() = ros.vel.x;
   point.v.y() = ros.vel.y;
+  point.v.z() = ros.vel.z;
 
   point.a.x() = ros.acc.x;
   point.a.y() = ros.acc.y;
+  point.a.z() = ros.acc.z;
 
   return point;
+}
+
+
+static xpp_opt::StateLin3d
+XppToRos(const State& xpp)
+{
+  xpp_opt::StateLin3d ros;
+  ros.pos.x = xpp.p.x();
+  ros.pos.y = xpp.p.y();
+  ros.pos.z = xpp.p.z();
+
+  ros.vel.x = xpp.v.x();
+  ros.vel.y = xpp.v.y();
+  ros.vel.z = xpp.v.z();
+
+  ros.acc.x = xpp.a.x();
+  ros.acc.y = xpp.a.y();
+  ros.acc.z = xpp.a.z();
+
+  return ros;
 }
 
 
@@ -224,6 +247,19 @@ RosToXpp(const boost::array<xpp_opt::Foothold,4>& ros)
   }
 
   return xpp;
+}
+
+
+static boost::array<xpp_opt::Foothold,4>
+XppToRos(const xpp::hyq::LegDataMap<Foothold>& xpp)
+{
+  boost::array<xpp_opt::Foothold,4> ros;
+  for (uint i=0; i<ros.size(); ++i) {
+    int leg = xpp[i].leg;
+    ros.at(leg) = XppToRos(xpp[i]);
+  }
+
+  return ros;
 }
 
 

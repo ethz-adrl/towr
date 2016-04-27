@@ -21,7 +21,7 @@ public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::VectorXd VectorXd;
-  typedef xpp::zmp::SplineConstraints::State State;
+  typedef xpp::utils::Point2d State;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef SupportPolygonContainer::VecFoothold VecFoothold;
   typedef xpp::hyq::Foothold Foothold;

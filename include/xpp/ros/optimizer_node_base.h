@@ -24,7 +24,7 @@ namespace ros {
 
 class OptimizerNodeBase {
 public:
-  typedef xpp::utils::Point2d State;
+  typedef xpp::utils::Point3d State;
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::hyq::Foothold Foothold;
   typedef std::vector<Foothold> VecFoothold;

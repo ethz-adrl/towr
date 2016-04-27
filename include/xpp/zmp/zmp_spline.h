@@ -77,8 +77,8 @@ public:
 
   int GetNodeCount(double dt) const { return std::floor(duration_/dt); }
 
-  unsigned int id_; // to identify the order relative to other zmp splines
   double duration_; // time during which this spline is active
+  unsigned int id_; // to identify the order relative to other zmp splines
   bool four_leg_supp_;
   int step_;
 private:

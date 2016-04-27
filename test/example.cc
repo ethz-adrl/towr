@@ -81,10 +81,12 @@ int main(int argc, char **argv)
   start_stance[LH] = Foothold(-0.35,  0.3, 0.0, LH);
   start_stance[RH] = Foothold(-0.35, -0.3, 0.0, RH);
 
-  srv.request.curr_stance.at(0) = xpp::ros::RosHelpers::XppToRos(start_stance[LF]);
-  srv.request.curr_stance.at(1) = xpp::ros::RosHelpers::XppToRos(start_stance[RF]);
-  srv.request.curr_stance.at(2) = xpp::ros::RosHelpers::XppToRos(start_stance[LH]);
-  srv.request.curr_stance.at(3) = xpp::ros::RosHelpers::XppToRos(start_stance[RH]);
+  srv.request.curr_stance = xpp::ros::RosHelpers::XppToRos(start_stance);
+
+//  srv.request.curr_stance.at(0) = xpp::ros::RosHelpers::XppToRos(start_stance[LF]);
+//  srv.request.curr_stance.at(1) = xpp::ros::RosHelpers::XppToRos(start_stance[RF]);
+//  srv.request.curr_stance.at(2) = xpp::ros::RosHelpers::XppToRos(start_stance[LH]);
+//  srv.request.curr_stance.at(3) = xpp::ros::RosHelpers::XppToRos(start_stance[RH]);
 
 
   // this is only neccessary for qp solver

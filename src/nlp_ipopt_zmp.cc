@@ -22,12 +22,13 @@ NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
                          const Constraints& constraints,
                          const NlpStructure& nlp_structure,
                          const VectorXd& initial_spline_coefficients)
-    :cost_function_(cost_function),
+    :nlp_structure_(nlp_structure),
+     cost_function_(cost_function),
      constraints_(constraints),
      // These epsilons play a big role in convergence
      num_diff_cost_function_(cost_function, 10*std::numeric_limits<double>::epsilon()),
-     num_diff_constraints_(constraints, std::sqrt(std::numeric_limits<double>::epsilon())),
-     nlp_structure_(nlp_structure)
+     num_diff_constraints_(constraints, std::sqrt(std::numeric_limits<double>::epsilon()))
+
 {
   initial_spline_coeff_ = initial_spline_coefficients;
 }

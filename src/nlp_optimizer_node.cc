@@ -38,8 +38,10 @@ NlpOptimizerNode::OptimizeTrajectory()
 {
   std::vector<xpp::hyq::LegID> step_sequence = DetermineStepSequence();
 
-  nlp_optimizer_.SolveNlp(curr_cog_,
-                          goal_cog_,
+
+
+  nlp_optimizer_.SolveNlp(curr_cog_.Get2D(),
+                          goal_cog_.Get2D(),
                           step_sequence,
                           curr_stance_,
                           opt_splines_,

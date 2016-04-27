@@ -48,6 +48,7 @@ int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
      if (t >= t_global)
        return s.id_;
    }
+   return splines.back().id_;
 }
 
 
