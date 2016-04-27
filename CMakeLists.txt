@@ -23,8 +23,8 @@ endif()
 
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x -fopenmp -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG -fopenmp -O3")
 
 
 set(LIB_NAME xpp_opt)
@@ -121,6 +121,10 @@ target_link_libraries(${LIB_NAME}
   ${catkin_LIBRARIES}
   ${IPOPT_LIBS}
 )  
+# makes sure messages are built before the package
+add_dependencies(${LIB_NAME} 
+  ${LIB_NAME}_generate_messages_cpp
+)
 
 add_executable(nlp_optimizer_node 
   src/executable/nlp_optimizer_node_exe.cc
@@ -130,13 +134,22 @@ target_link_libraries(nlp_optimizer_node
   ${catkin_LIBRARIES}
 )   
 
+
 add_executable(qp_optimizer_node 
   src/executable/qp_optimizer_node_exe.cc
 )
 target_link_libraries(qp_optimizer_node 
   ${LIB_NAME}
   ${catkin_LIBRARIES}
-)                   
+)  
+
+add_executable(goal_state_pub 
+  src/executable/goal_state_publisher.cc
+)
+target_link_libraries(goal_state_pub 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)                 
                                       
 # Some example executables if turned "ON"
 option(BUILD_TESTS "Build some testing executables" ON) 
