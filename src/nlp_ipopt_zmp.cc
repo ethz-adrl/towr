@@ -22,11 +22,12 @@ namespace Ipopt {
 NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
                          const Constraints& constraints,
                          const NlpStructure& nlp_structure,
+                         const ZmpPublisher& zmp_publisher, // just for visualization
                          const VectorXd& initial_spline_coefficients)
     :nlp_structure_(nlp_structure),
      cost_function_(cost_function),
      constraints_(constraints),
-     zmp_publisher_("nlp_zmp_publisher"),
+     zmp_publisher_(zmp_publisher),
      // These epsilons play a big role in convergence
      num_diff_cost_function_(cost_function, 10*std::numeric_limits<double>::epsilon()),
      num_diff_constraints_(constraints, std::sqrt(std::numeric_limits<double>::epsilon()))

@@ -12,6 +12,8 @@
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/spline_constraints.h>
+#include <xpp/ros/zmp_publisher.h>
+
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
@@ -49,6 +51,8 @@ public:
 
   Ipopt::IpoptApplication app_;
   Ipopt::ApplicationReturnStatus status_;
+
+  xpp::ros::ZmpPublisher zmp_publisher_;
 
   double swing_time_;
   double stance_time_;

@@ -38,6 +38,7 @@ public:
 	NlpIpoptZmp(const CostFunction& cost_function,
 	            const Constraints& constraints,
 	            const NlpStructure& nlp_structure,
+	            const ZmpPublisher& zmp_publisher, // just for visualization
 	            const VectorXd& initial_spline_coefficients);
 
   /** default destructor */

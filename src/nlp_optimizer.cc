@@ -16,6 +16,7 @@ namespace zmp {
 
 
 NlpOptimizer::NlpOptimizer ()
+    :zmp_publisher_("nlp_zmp_publisher")
 {
   app_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
   status_ = app_.Initialize();
@@ -27,6 +28,8 @@ NlpOptimizer::NlpOptimizer ()
   stance_time_         = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time");
   stance_time_initial_ = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
   stance_time_final_   = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
+
+
 }
 
 
@@ -85,6 +88,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
       new Ipopt::NlpIpoptZmp(cost_function,
                              constraints,
                              nlp_structure,
+                             zmp_publisher_,
                              initial_spline_coeff);
 
   status_ = app_.OptimizeTNLP(nlp_ipopt_zmp);
