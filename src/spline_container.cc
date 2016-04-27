@@ -39,7 +39,7 @@ double SplineContainer::GetTotalTime(const VecSpline& splines, bool exclude_4ls_
 
 int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
 {
-   assert(t_global<=GetTotalTime());
+   assert(t_global<=GetTotalTime(splines));
 
    double t = 0;
    for (ZmpSpline s: splines) {

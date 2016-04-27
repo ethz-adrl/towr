@@ -21,8 +21,8 @@ tol 1e-1
 #dual_inf_tol 1e-1
 #constr_viol_tol 1e-4
 #compl_inf_tol 1e-4
-max_cpu_time 10
-#max_iter 15
+#max_cpu_time 10
+max_iter 100
 #bound_frac 0.5
 
 #acceptable_iter 10

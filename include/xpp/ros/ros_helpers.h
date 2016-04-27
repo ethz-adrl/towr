@@ -214,9 +214,10 @@ XppToRos(const xpp::hyq::Foothold& xpp)
 static std::vector<xpp_opt::Foothold>
 XppToRos(const std::vector<xpp::hyq::Foothold>& xpp)
 {
-  std::vector<xpp_opt::Foothold> ros_vec(xpp.size());
+  int n_footholds = xpp.size();
+  std::vector<xpp_opt::Foothold> ros_vec(n_footholds);
 
-  for (uint i=0; i<xpp.size(); ++i) {
+  for (uint i=0; i<n_footholds; ++i) {
     ros_vec.at(i) = XppToRos(xpp.at(i));
   }
 
