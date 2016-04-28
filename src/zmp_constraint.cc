@@ -27,6 +27,19 @@ ZmpConstraint::CreateLineConstraints(const SupportPolygonContainer& supp_polygon
 }
 
 
+ZmpConstraint::Vector2d
+ZmpConstraint::CalcZmp(const State3d& cog, double height)
+{
+  const double g = 9.81; // gravity acceleration
+
+  Vector2d zmp;
+  zmp.x() = cog.p.x() - height/(g+cog.a.z()) * cog.a.x();
+  zmp.y() = cog.p.y() - height/(g+cog.a.z()) * cog.a.y();
+
+  return zmp;
+}
+
+
 ZmpConstraint::MatVec
 ZmpConstraint::ExpressZmpThroughCoefficients(double walking_height, int dim) const
 {

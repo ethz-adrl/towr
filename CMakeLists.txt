@@ -89,6 +89,7 @@ include_directories(
 )
 
 set(SOURCES  
+  src/geometric_structs.cc
   src/qp_optimizer.cc
   src/nlp_optimizer.cc
   src/zmp_spline.cc

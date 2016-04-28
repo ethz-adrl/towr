@@ -21,6 +21,9 @@ public:
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::hyq::SupportPolygon SupportPolygon;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  typedef Eigen::Vector2d Vector2d;
+  typedef xpp::utils::Point3d State3d;
+  typedef xpp::utils::Point2d State2d;
 
 public:
   ZmpConstraint (ContinuousSplineContainer spline_container, double walking_height);
@@ -29,6 +32,7 @@ public:
 
 
   MatVec CreateLineConstraints(const SupportPolygonContainer& supp_polygon_container) const;
+  static Vector2d CalcZmp(const State3d& cog, double height);
 
 private:
   xpp::zmp::ContinuousSplineContainer spline_container_;

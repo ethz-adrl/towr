@@ -15,6 +15,7 @@
 #include <iostream>
 #include <array>
 
+
 namespace xpp {
 
 /**
@@ -38,8 +39,16 @@ using namespace coords_wrapper;
 static const int kDim2d = 2; // X,Y
 typedef Eigen::Vector2d Vec2d; /// X,Y
 typedef Eigen::Vector3d Vec3d; /// X,Y,Z
-
 typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > StdVecEigen2d;
+
+// forward declarations
+struct Point2d;
+struct Point3d;
+struct Ori;
+struct Pose;
+struct LineCoeff2d;
+struct VecScalar;
+struct MatVec;
 
 
 struct Point2d {
@@ -50,6 +59,11 @@ struct Point2d {
                    Eigen::Vector2d _v = Eigen::Vector2d::Zero(),
                    Eigen::Vector2d _a = Eigen::Vector2d::Zero())
       : p(_p), v(_v), a(_a) {}
+  /**
+   * Make a 3-dimension point out of the two dimensional, filling all z-
+   * coordinates with zero
+   */
+  Point3d Make3D() const;
 };
 
 
@@ -62,16 +76,9 @@ struct Point3d {
                    Eigen::Vector3d _a = Eigen::Vector3d::Zero())
       : p(_p), v(_v), a(_a) {}
   /**
-   * Get only the x-y cooridinates of the 3D point
+   * Get only the x-y coordinates of the 3D point, stripping the z
    */
-  Point2d Get2D() const
-  {
-    Point2d p2d;
-    p2d.p = p.segment<kDim2d>(X);
-    p2d.v = v.segment<kDim2d>(X);
-    p2d.a = a.segment<kDim2d>(X);
-    return p2d;
-  }
+  Point2d Get2D() const;
 };
 
 
@@ -105,6 +112,7 @@ struct LineCoeff2d {
 struct VecScalar {
   Eigen::RowVectorXd v;
   double s;
+  VecScalar() {}
   VecScalar(int rows)
       :v(Eigen::RowVectorXd::Zero(rows)),
        s(0.0)
@@ -113,37 +121,20 @@ struct VecScalar {
       :v(_v),
        s(_s)
   {}
-  VecScalar() {}
 };
 
 
 struct MatVec {
   Eigen::MatrixXd M;
   Eigen::VectorXd v;
+  MatVec() {}
   MatVec(int rows, int cols)
       :M(Eigen::MatrixXd::Zero(rows, cols)),
        v(Eigen::VectorXd::Zero(rows))
   {}
-  VecScalar ExtractRow(int r) const
-  {
-    return VecScalar(M.row(r), v[r]);
-  }
-  MatVec() {}
-  void operator<<(const MatVec& rhs)
-  {
-    assert((M.cols()==0 && M.rows()==0) || (M.cols() == rhs.M.cols()));
-
-    M.conservativeResize(M.rows() + rhs.M.rows(), rhs.M.cols());
-    M.bottomRows(rhs.M.rows()) = rhs.M;
-
-    v.conservativeResize(v.rows() + rhs.v.rows());
-    v.tail(rhs.v.rows()) = rhs.v;
-  }
-
-  void AddVecScalar(const VecScalar& val, size_t row) {
-    M.row(row) = val.v;
-    v[row]     = val.s;
-  }
+  VecScalar ExtractRow(int r) const;
+  void operator<<(const MatVec& rhs);
+  void AddVecScalar(const VecScalar& val, size_t row) ;
 };
 
 
