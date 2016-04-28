@@ -14,9 +14,32 @@ namespace ros {
 
 QpOptimizerNode::QpOptimizerNode ()
 {
+  current_info_sub_ = n_.subscribe("required_info_qp",
+                                   1, // take only the most recent information
+                                   &QpOptimizerNode::CurrentInfoCallback, this);
+
+  opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_qp", 1);
+
   opt_srv_ = n_.advertiseService("optimize_trajectory",
                                 &QpOptimizerNode::OptimizeTrajectoryService, this);
 }
+
+
+void
+QpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
+{
+  curr_cog_    = RosHelpers::RosToXpp(msg.curr_state);
+  curr_stance_ = RosHelpers::RosToXpp(msg.curr_stance);
+  footholds_   = RosHelpers::RosToXpp(msg.steps);
+
+  OptimizeTrajectory();
+
+  // send something out everytime something has been optimized
+  OptParamMsg msg_out;
+  msg_out.splines = xpp::ros::RosHelpers::XppToRos(opt_splines_);
+  opt_params_pub_.publish(msg_out);
+}
+
 
 bool
 QpOptimizerNode::OptimizeTrajectoryService(xpp_opt::SolveQp::Request& req,

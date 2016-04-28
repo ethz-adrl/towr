@@ -17,7 +17,7 @@ ZmpPublisher::ZmpPublisher(const std::string& topic)
   zmp_msg_.markers.clear();
 
   ::ros::NodeHandle n;
-  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>(topic, 10);
+  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>(topic, 1);
 
   walking_height_ = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 }

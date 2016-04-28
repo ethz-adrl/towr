@@ -45,11 +45,13 @@ QpOptimizer::SolveQp(const State& initial_state,
   SplineConstraints spline_constraint(spline_structure);
   equality_constraints_ = spline_constraint.CreateAllSplineConstraints(initial_state.a, final_state);
 
-
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(start_stance, steps, leg_ids, hyq::SupportPolygon::GetDefaultMargins());
   ZmpConstraint zmp_constraint(spline_structure, robot_height);
   inequality_constraints_ = zmp_constraint.CreateLineConstraints(supp_polygon_container);
+
+  ROS_INFO_STREAM("Initial state: " << initial_state);
+  ROS_INFO_STREAM("Final state: " << final_state);
 
   Eigen::VectorXd opt_abcd = EigenSolveQuadprog();
   spline_structure.AddOptimizedCoefficients(opt_abcd, spline_structure.splines_);
@@ -62,12 +64,15 @@ QpOptimizer::SolveQp(const State& initial_state,
 Eigen::VectorXd QpOptimizer::EigenSolveQuadprog()
 {
   Eigen::VectorXd opt_spline_coeff_xy;
+  ROS_INFO("QP optimizer running...");
 
   double cost = Eigen::solve_quadprog(
       cost_function_.M, cost_function_.v,
       equality_constraints_.M.transpose(), equality_constraints_.v,
       inequality_constraints_.M.transpose(), inequality_constraints_.v,
       opt_spline_coeff_xy);
+
+  ROS_INFO("QP optimizer done.");
 
   if (cost == std::numeric_limits<double>::infinity())
     throw std::length_error("Eigen::quadprog did not find a solution");

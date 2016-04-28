@@ -15,17 +15,17 @@ namespace ros {
 
 NlpOptimizerNode::NlpOptimizerNode ()
 {
-  current_info_sub_ = n_.subscribe("current_info",
+  current_info_sub_ = n_.subscribe("required_info_nlp",
                                    1, // take only the most recent information
                                    &NlpOptimizerNode::CurrentInfoCallback, this);
 
-  opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters", 1);
+  opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
 }
 
 
 
 void
-NlpOptimizerNode::CurrentInfoCallback(const xpp_opt::CurrentInfo& msg)
+NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
 {
   curr_cog_ = RosHelpers::RosToXpp(msg.curr_state);
   curr_stance_ = RosHelpers::RosToXpp(msg.curr_stance);

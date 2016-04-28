@@ -39,8 +39,10 @@ add_message_files(
   StateLin3d.msg
 #  SplineCoefficients.msg
   Footholds2d.msg
-  CurrentInfo.msg
-  OptimizedParameters.msg
+  RequiredInfoNlp.msg
+  OptimizedParametersNlp.msg
+  RequiredInfoQp.msg
+  OptimizedParametersQp.msg
 #  VariablesNlp.msg
 )
 add_service_files(
@@ -154,16 +156,25 @@ target_link_libraries(goal_state_pub
   ${catkin_LIBRARIES}
 )                 
                                       
+add_executable(sample_nlp_caller 
+    src/executable/sample_nlp_caller.cc
+)
+target_link_libraries(sample_nlp_caller 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)
+
+add_executable(sample_qp_caller 
+    src/executable/sample_qp_caller.cc
+)
+target_link_libraries(sample_qp_caller 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)
+  
 # Some example executables if turned "ON"
 option(BUILD_TESTS "Build some testing executables" ON) 
 if(BUILD_TESTS)
-  add_executable(example 
-      test/example.cc
-  )
-  target_link_libraries(example 
-    ${LIB_NAME}
-    ${catkin_LIBRARIES}
-  )
   
   # enable_testing()
   # FIXME use catkins macro to build the unit test

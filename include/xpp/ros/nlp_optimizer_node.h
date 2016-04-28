@@ -11,9 +11,8 @@
 #include <xpp/ros/optimizer_node_base.h>
 #include <xpp/zmp/nlp_optimizer.h>
 
-// ros services (.srv)
-#include <xpp_opt/CurrentInfo.h>
-#include <xpp_opt/OptimizedParameters.h>
+#include <xpp_opt/RequiredInfoNlp.h>        // receive
+#include <xpp_opt/OptimizedParametersNlp.h> // send
 
 
 
@@ -24,28 +23,26 @@ class NlpOptimizerNode : public OptimizerNodeBase {
 public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::zmp::NlpOptimizer NlpOptimizer;
-  typedef xpp_opt::OptimizedParameters OptParamMsg;
+  typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
+  typedef xpp_opt::OptimizedParametersNlp OptParamMsg;
 
 public:
   NlpOptimizerNode ();
   virtual ~NlpOptimizerNode () {};
 
-
 private:
-
   /**
    * Fills the member variables opt_footholds and opt_coefficients
    */
+  NlpOptimizer nlp_optimizer_;
   void OptimizeTrajectory();
+
   std::vector<xpp::hyq::LegID> DetermineStepSequence() const;
-
-  void CurrentInfoCallback(const xpp_opt::CurrentInfo& msg);
-
 
   ::ros::Subscriber current_info_sub_;
   ::ros::Publisher opt_params_pub_;
+  void CurrentInfoCallback(const ReqInfoMsg& msg);
 
-  NlpOptimizer nlp_optimizer_;
 };
 
 } /* namespace ros */
