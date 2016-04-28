@@ -27,6 +27,9 @@ namespace hyq {
 */
 class Foothold
 {
+
+public:
+  typedef std::vector<Foothold> VecFoothold;
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -70,18 +73,39 @@ public:
   }
 
 
-  // search through previous footholds starting from most current ones
-  static bool GetLastFoothold(LegID leg, const std::vector<Foothold>& footholds,
-                             Foothold& foothold)
+  static bool GetLastIndex(LegID leg, const VecFoothold& footholds, int& idx)
   {
     auto it = std::find_if( footholds.rbegin(),
                             footholds.rend(),
                             [leg](const Foothold& f) { return f.leg == leg; });
 
-    foothold = *it;
-    bool foothold_found = (it != footholds.rend());
-    return foothold_found;
+    idx = std::distance(footholds.begin(), it.base()-1);
+    return (it != footholds.rend());
   }
+
+
+  // search through previous footholds starting from most current ones
+  static bool GetLastFoothold(LegID leg, const VecFoothold& footholds,
+                             Foothold& foothold)
+  {
+    int idx;
+    if(GetLastIndex(leg, footholds, idx)) {
+      foothold = footholds.at(idx);
+      return true;
+    } else
+      return false;
+  }
+
+
+  static void UpdateFoohold(const Foothold& f_new, VecFoothold& footholds)
+  {
+    int idx;
+    if ( GetLastIndex(f_new.leg, footholds, idx))
+      footholds.at(idx) = f_new; // replace
+    else
+      footholds.push_back(f_new); //append
+  }
+
 };
 
 

@@ -83,14 +83,17 @@ int main(int argc, char **argv)
   };
 
   msg.curr_state.pos.x = atof(argv[1]);
+  msg.curr_state.vel.x = 0.2; // figure out why this fails
+  msg.curr_state.acc.x = 0.0;
+
   using namespace xpp::hyq;
   xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
-  start_stance[LF] = Foothold( 0.35,  0.3, 0.0, LF);
-  start_stance[RF] = Foothold( 0.35, -0.3, 0.0, RF);
-  start_stance[LH] = Foothold(-0.35,  0.3, 0.0, LH);
-  start_stance[RH] = Foothold(-0.35, -0.3, 0.0, RH);
+  msg.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x,  0.3, 0.0, LF)));
+  msg.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x, -0.3, 0.0, RF)));
+  msg.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x,  0.3, 0.0, LH)));
+  msg.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x, -0.3, 0.0, RH)));
 
-  msg.curr_stance = xpp::ros::RosHelpers::XppToRos(start_stance);
+//  msg.curr_stance = xpp::ros::RosHelpers::XppToRos(start_stance);
 
 //  srv.request.curr_stance.at(0) = xpp::ros::RosHelpers::XppToRos(start_stance[LF]);
 //  srv.request.curr_stance.at(1) = xpp::ros::RosHelpers::XppToRos(start_stance[RF]);
@@ -98,11 +101,11 @@ int main(int argc, char **argv)
 //  srv.request.curr_stance.at(3) = xpp::ros::RosHelpers::XppToRos(start_stance[RH]);
 
 
-  // this is only neccessary for qp solver
-  Foothold step1(-0.35+0.25,  0.3, 0.0, LH);
-  Foothold step2( 0.35+0.25,  0.3, 0.0, LF);
-  Foothold step3(-0.35+0.25, -0.3, 0.0, RH);
-  Foothold step4( 0.35+0.25, -0.3, 0.0, RF);
+//  // this is only neccessary for qp solver
+//  Foothold step1(-0.35+0.25,  0.3, 0.0, LH);
+//  Foothold step2( 0.35+0.25,  0.3, 0.0, LF);
+//  Foothold step3(-0.35+0.25, -0.3, 0.0, RH);
+//  Foothold step4( 0.35+0.25, -0.3, 0.0, RF);
 
 //  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step1));
 //  srv.request.steps.push_back(xpp::ros::RosHelpers::XppToRos(step2));

@@ -44,7 +44,7 @@ protected:
   ::ros::NodeHandle n_;
   State goal_cog_;
   State curr_cog_;
-  xpp::hyq::LegDataMap<Foothold> curr_stance_;
+  VecFoothold curr_stance_;
 //  double curr_execution_time_;
 
   VecSpline opt_splines_;

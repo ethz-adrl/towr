@@ -53,6 +53,8 @@ const LegDataMap<Eigen::Vector3d>& HyqState::GetFeetPosOnly()
 }
 
 
+
+
 std::array<Vec3d, kNumSides> HyqState::GetAvgSides() const
 {
   typedef std::pair <Side,Side> LegSide;
@@ -91,6 +93,18 @@ LegDataMap<Foothold> HyqState::FeetToFootholds() const
   for (LegID leg : LegIDArray)
     footholds[leg] = FootToFoothold(leg);
   return footholds;
+}
+
+
+HyqState::VecFoothold
+HyqState::GetStanceLegs() const
+{
+  VecFoothold stance_legs;
+  for (LegID leg : LegIDArray)
+    if (!swingleg_[leg])
+      stance_legs.push_back(FootToFoothold(leg));
+
+  return stance_legs;
 }
 
 

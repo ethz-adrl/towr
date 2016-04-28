@@ -26,7 +26,7 @@ namespace zmp {
 QpOptimizer::VecSpline
 QpOptimizer::SolveQp(const State& initial_state,
                      const State& final_state,
-                     const xpp::hyq::LegDataMap<Foothold>& start_stance,
+                     const VecFoothold& start_stance,
                      const VecFoothold& steps)
 {
   double swing_time          = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/swing_time");

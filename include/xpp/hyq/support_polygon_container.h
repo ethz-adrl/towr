@@ -28,7 +28,7 @@ public:
   ~SupportPolygonContainer () {};
 
 public:
-  void Init(LegDataMap<Foothold> start_stance,
+  void Init(const VecFoothold& start_stance,
             const VecFoothold& footholds, // remove this, not really neccessary
             const std::vector<LegID>& step_sequence,
             const MarginValues& margins = SupportPolygon::GetZeroMargins());
@@ -48,7 +48,7 @@ public:
   int GetNumberOfSteps() const { return footholds_.size(); };
   void SetFootholdsXY(int idx, double x, double y);
 
-  LegDataMap<Foothold> GetStartStance() const {return start_stance_;};
+  VecFoothold GetStartStance() const {return start_stance_;};
   /**
    * First step is considered step=0.
    */
@@ -64,7 +64,7 @@ private:
   std::vector<LegID> step_sequence_;
   VecSupportPolygon support_polygons_; // fixme remove this
   MarginValues margins_;
-  LegDataMap<Foothold> start_stance_;
+  VecFoothold start_stance_;
 
   VecSupportPolygon CreateSupportPolygons(const VecFoothold& footholds) const;
   void CheckIfInitialized() const;

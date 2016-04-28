@@ -3,4 +3,4 @@
 # service call.
 
 StateLin3d curr_state
-Foothold[4] curr_stance  #for now always start optimization with 4 legs on ground
+Foothold[] curr_stance 

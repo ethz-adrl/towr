@@ -28,6 +28,7 @@ void ZmpPublisher::AddRvizMessage(
     double alpha)
 {
   zmp_msg_.markers.clear();
+
   visualization_msgs::MarkerArray msg;
   AddFootholds(msg, opt_footholds, rviz_namespace, visualization_msgs::Marker::CUBE, alpha);
   AddTrajectory(msg, splines, opt_footholds, rviz_namespace, alpha);
@@ -115,7 +116,7 @@ ZmpPublisher::GenerateMarker(Eigen::Vector2d pos, int32_t type, double size) con
   marker.header.stamp = ::ros::Time();
   marker.type = type;
   marker.action = visualization_msgs::Marker::ADD;
-//    marker.lifetime = ros::Duration(10);
+//  marker.lifetime = ::ros::Duration(0.01);
   marker.scale.x = marker.scale.y = marker.scale.z = size;
   marker.color.a = 1.0;
 

@@ -27,6 +27,7 @@ SupportPolygon::SupportPolygon(const MarginValues& margins, const VecFoothold& f
 SupportPolygon::VecFoothold
 SupportPolygon::BuildSortedConvexHull(const VecFoothold& footholds) const
 {
+  assert(footholds.size() > 2);
   Point2dManip::StdVectorEig2d f_xy;
 
   for (const Foothold& f : footholds)

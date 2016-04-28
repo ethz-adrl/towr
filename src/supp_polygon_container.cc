@@ -11,10 +11,10 @@ namespace xpp {
 namespace hyq {
 
 
-void SupportPolygonContainer::Init(LegDataMap<Foothold> start_stance,
-                                 const VecFoothold& footholds,
-                                 const std::vector<LegID>& step_sequence,
-                                 const MarginValues& margins)
+void SupportPolygonContainer::Init(const VecFoothold& start_stance,
+                                   const VecFoothold& footholds,
+                                   const std::vector<LegID>& step_sequence,
+                                   const MarginValues& margins)
 {
   start_stance_  = start_stance;
   footholds_     = footholds;
@@ -57,24 +57,25 @@ SupportPolygonContainer::VecFoothold
 SupportPolygonContainer::GetStanceAfter(int n_steps) const
 {
   CheckIfInitialized();
-  LegDataMap<Foothold> last_stance = start_stance_;
 
-  const VecFoothold& used_footholds = VecFoothold(footholds_.begin(),
-                                                  footholds_.begin()+n_steps);
+  VecFoothold combined = start_stance_;
+  combined.insert(combined.end(), footholds_.begin(), footholds_.begin()+n_steps);
+
 
   // get the last step of each foot
+  VecFoothold last_stance;
   Foothold f;
   for (LegID l : LegIDArray)
-    if(Foothold::GetLastFoothold(l,used_footholds, f))
-      last_stance[f.leg] = f;
+    if(Foothold::GetLastFoothold(l,combined, f))
+      last_stance.push_back(f);
 
-  return last_stance.ToVector();
+  return last_stance;
 }
 
 
 SupportPolygon SupportPolygonContainer::GetStartPolygon() const
 {
-  return GetStancePolygon(start_stance_.ToVector());
+  return GetStancePolygon(start_stance_);
 }
 
 
@@ -90,24 +91,25 @@ SupportPolygonContainer::GetFinalFootholds() const
 }
 
 
+
 SupportPolygonContainer::VecSupportPolygon
 SupportPolygonContainer::CreateSupportPolygons(const VecFoothold& footholds) const
 {
   std::vector<SupportPolygon> supp;
-  LegDataMap<Foothold> curr_stance = start_stance_;
+  VecFoothold curr_stance = start_stance_;
 
   for (const Foothold& f : footholds) {
 
     // extract the 3 non-swinglegs from stance
     VecFoothold legs_in_contact;
-    for (LegID l : LegIDArray)
-      if(curr_stance[l].leg != f.leg)
-        legs_in_contact.push_back(curr_stance[l]);
+    for (const Foothold& f_curr : curr_stance)
+      if(f_curr.leg != f.leg)
+        legs_in_contact.push_back(f_curr);
 
     supp.push_back(SupportPolygon(margins_, legs_in_contact));
 
     // update current stance after step
-    curr_stance[f.leg] = f;
+    Foothold::UpdateFoohold(f, curr_stance);
   }
 
   return supp;

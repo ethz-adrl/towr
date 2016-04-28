@@ -51,22 +51,13 @@ XppToRos(const VecSpline& opt_splines)
   int n_splines = opt_splines.size();
   std::vector<SplineMsg> msgs(n_splines);
 
-  for (uint i=0; i<opt_splines.size(); ++i) {
+  for (uint i=0; i<opt_splines.size(); ++i)
+  {
+    const double* ax_coeff = opt_splines.at(i).spline_coeff_[xpp::utils::X];
+    std::copy(ax_coeff, ax_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_x.begin());
 
-    // FIXME copy these directly .data() or smth
-    msgs.at(i).coeff_x.at(A) = opt_splines.at(i).spline_coeff_[xpp::utils::X][A];
-    msgs.at(i).coeff_x.at(B) = opt_splines.at(i).spline_coeff_[xpp::utils::X][B];
-    msgs.at(i).coeff_x.at(C) = opt_splines.at(i).spline_coeff_[xpp::utils::X][C];
-    msgs.at(i).coeff_x.at(D) = opt_splines.at(i).spline_coeff_[xpp::utils::X][D];
-    msgs.at(i).coeff_x.at(E) = opt_splines.at(i).spline_coeff_[xpp::utils::X][E];
-    msgs.at(i).coeff_x.at(F) = opt_splines.at(i).spline_coeff_[xpp::utils::X][F];
-
-    msgs.at(i).coeff_y.at(A) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][A];
-    msgs.at(i).coeff_y.at(B) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][B];
-    msgs.at(i).coeff_y.at(C) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][C];
-    msgs.at(i).coeff_y.at(D) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][D];
-    msgs.at(i).coeff_y.at(E) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][E];
-    msgs.at(i).coeff_y.at(F) = opt_splines.at(i).spline_coeff_[xpp::utils::Y][F];
+    const double* ay_coeff = opt_splines.at(i).spline_coeff_[xpp::utils::Y];
+    std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_y.begin());
 
     msgs.at(i).duration = opt_splines.at(i).duration_;
     msgs.at(i).four_leg_support = opt_splines.at(i).four_leg_supp_;
@@ -86,22 +77,13 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
   uint n_splines = msgs.size();
   VecSpline xpp(n_splines);
 
-  for (uint i=0; i<n_splines; ++i) {
+  for (uint i=0; i<n_splines; ++i)
+  {
+    const double* ax_coeff = msgs.at(i).coeff_x.begin();
+    std::copy(ax_coeff, ax_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::X]);
 
-    // FIXME copy these directly .data() or smth
-    xpp.at(i).spline_coeff_[xpp::utils::X][A] = msgs.at(i).coeff_x.at(A);
-    xpp.at(i).spline_coeff_[xpp::utils::X][B] = msgs.at(i).coeff_x.at(B);
-    xpp.at(i).spline_coeff_[xpp::utils::X][C] = msgs.at(i).coeff_x.at(C);
-    xpp.at(i).spline_coeff_[xpp::utils::X][D] = msgs.at(i).coeff_x.at(D);
-    xpp.at(i).spline_coeff_[xpp::utils::X][E] = msgs.at(i).coeff_x.at(E);
-    xpp.at(i).spline_coeff_[xpp::utils::X][F] = msgs.at(i).coeff_x.at(F);
-
-    xpp.at(i).spline_coeff_[xpp::utils::Y][A] = msgs.at(i).coeff_y.at(A);
-    xpp.at(i).spline_coeff_[xpp::utils::Y][B] = msgs.at(i).coeff_y.at(B);
-    xpp.at(i).spline_coeff_[xpp::utils::Y][C] = msgs.at(i).coeff_y.at(C);
-    xpp.at(i).spline_coeff_[xpp::utils::Y][D] = msgs.at(i).coeff_y.at(D);
-    xpp.at(i).spline_coeff_[xpp::utils::Y][E] = msgs.at(i).coeff_y.at(E);
-    xpp.at(i).spline_coeff_[xpp::utils::Y][F] = msgs.at(i).coeff_y.at(F);
+    const double* ay_coeff = msgs.at(i).coeff_y.begin();
+    std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::Y]);
 
     xpp.at(i).duration_      = msgs.at(i).duration;
     xpp.at(i).four_leg_supp_ = msgs.at(i).four_leg_support;
@@ -111,17 +93,6 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
 
   return xpp;
 }
-
-
-//static xpp_opt::SplineCoefficients
-//XppToRos(const Eigen::VectorXd& opt_coefficients)
-//{
-//  xpp_opt::SplineCoefficients msg;
-//  for (int i=0; i<opt_coefficients.rows(); ++i)
-//    msg.data.push_back(opt_coefficients[i]);
-//
-//  return msg;
-//}
 
 
 static xpp_opt::Footholds2d
@@ -217,7 +188,7 @@ XppToRos(const std::vector<xpp::hyq::Foothold>& xpp)
   int n_footholds = xpp.size();
   std::vector<xpp_opt::Foothold> ros_vec(n_footholds);
 
-  for (uint i=0; i<n_footholds; ++i) {
+  for (int i=0; i<n_footholds; ++i) {
     ros_vec.at(i) = XppToRos(xpp.at(i));
   }
 
@@ -235,32 +206,6 @@ RosToXpp(const std::vector<xpp_opt::Foothold>& ros)
   }
 
   return xpp_vec;
-}
-
-
-static xpp::hyq::LegDataMap<Foothold>
-RosToXpp(const boost::array<xpp_opt::Foothold,4>& ros)
-{
-  xpp::hyq::LegDataMap<Foothold> xpp;
-  for (uint i=0; i<ros.size(); ++i) {
-    int leg = ros.at(i).leg;
-    xpp[leg] = RosToXpp(ros.at(i));
-  }
-
-  return xpp;
-}
-
-
-static boost::array<xpp_opt::Foothold,4>
-XppToRos(const xpp::hyq::LegDataMap<Foothold>& xpp)
-{
-  boost::array<xpp_opt::Foothold,4> ros;
-  for (uint i=0; i<ros.size(); ++i) {
-    int leg = xpp[i].leg;
-    ros.at(leg) = XppToRos(xpp[i]);
-  }
-
-  return ros;
 }
 
 

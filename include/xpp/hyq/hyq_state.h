@@ -37,6 +37,7 @@ public:
   typedef utils::Ori Ori;
   typedef utils::Coords3D Coords3D;
   typedef utils::Pose Pose;
+  typedef std::vector<Foothold> VecFoothold;
 
 public:
   bool swing_phase_;
@@ -54,6 +55,8 @@ public:
   Foothold FootToFoothold(LegID leg) const;
 
   const LegDataMap<Eigen::Vector3d>& GetFeetPosOnly();
+  VecFoothold GetStanceLegs() const;
+
 
   /**
    *@brief changes the swingleg to next following McGhee gait: LH, LF, RH, RF

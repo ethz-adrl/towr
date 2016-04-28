@@ -42,7 +42,7 @@ public:
   void SolveNlp(const State& initial_state,
                 const State& final_state,
                 const std::vector<xpp::hyq::LegID>& step_sequence,
-                xpp::hyq::LegDataMap<Foothold> start_stance,
+                const VecFoothold& start_stance,
                 VecSpline& opt_splines,
                 VecFoothold& final_footholds,
                 const Eigen::VectorXd& initial_spline_coeff = Eigen::Vector2d::Zero());

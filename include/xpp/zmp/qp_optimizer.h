@@ -53,7 +53,7 @@ public:
 
   VecSpline SolveQp(const State& initial_state,
                           const State& final_state,
-                          const xpp::hyq::LegDataMap<Foothold>& start_stance,
+                          const VecFoothold& start_stance,
                           const VecFoothold& steps);
 
 

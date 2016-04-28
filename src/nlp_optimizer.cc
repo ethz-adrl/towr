@@ -37,7 +37,7 @@ void
 NlpOptimizer::SolveNlp(const State& initial_state,
                        const State& final_state,
                        const std::vector<xpp::hyq::LegID>& step_sequence,
-                       xpp::hyq::LegDataMap<Foothold> start_stance,
+                       const VecFoothold& start_stance,
                        VecSpline& opt_splines,
                        VecFoothold& final_footholds,
                        const Eigen::VectorXd& initial_spline_coeff)
@@ -55,7 +55,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
   // initial footholds all at zero, overwritten anyway
   std::vector<xpp::hyq::Foothold> zero_footholds;
-  for (int i=0; i<step_sequence.size(); ++i) {
+  for (uint i=0; i<step_sequence.size(); ++i) {
     xpp::hyq::Foothold f;
     f.leg   = step_sequence.at(i);
     zero_footholds.push_back(f);
