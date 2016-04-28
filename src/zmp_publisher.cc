@@ -6,6 +6,8 @@
  */
 
 #include <xpp/ros/zmp_publisher.h>
+#include <xpp/ros/ros_helpers.h>
+#include <xpp/zmp/zmp_constraint.h>
 
 namespace xpp {
 namespace ros {
@@ -16,6 +18,8 @@ ZmpPublisher::ZmpPublisher(const std::string& topic)
 
   ::ros::NodeHandle n;
   ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>(topic, 10);
+
+  walking_height_ = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 }
 
 
@@ -24,16 +28,16 @@ void ZmpPublisher::AddRvizMessage(
     const VecFoothold& opt_footholds,
     double gap_center_x,
     double gap_width_x,
-    const std::string& rviz_namespace,
     double alpha)
 {
   zmp_msg_.markers.clear();
 
   visualization_msgs::MarkerArray msg;
-  AddFootholds(msg, opt_footholds, rviz_namespace, visualization_msgs::Marker::CUBE, alpha);
-  AddTrajectory(msg, splines, opt_footholds, rviz_namespace, alpha);
+  AddFootholds(msg, opt_footholds, "footholds", visualization_msgs::Marker::CUBE, alpha);
+  AddCogTrajectory(msg, splines, opt_footholds, "cog", alpha);
+  AddZmpTrajectory(msg, splines, opt_footholds, "zmp", 0.4);
 
-  AddLineStrip(msg, gap_center_x, gap_width_x);
+//  AddLineStrip(msg, gap_center_x, gap_width_x, "gap");
 
   zmp_msg_.markers.insert(zmp_msg_.markers.end(),
                           msg.markers.begin(),msg.markers.end());
@@ -124,14 +128,16 @@ ZmpPublisher::GenerateMarker(Eigen::Vector2d pos, int32_t type, double size) con
 }
 
 void
-ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x, double depth_x) const
+ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg,
+                           double center_x, double depth_x,
+                           const std::string& rviz_namespace) const
 {
   visualization_msgs::Marker line_strip;
   line_strip.header.frame_id = frame_id_;
   line_strip.header.stamp = ::ros::Time::now();
   line_strip.id = 1;
   line_strip.type = visualization_msgs::Marker::LINE_STRIP;
-  line_strip.ns = "gap";
+  line_strip.ns = rviz_namespace;
   line_strip.action = visualization_msgs::Marker::ADD;
   line_strip.pose.orientation.x = line_strip.pose.orientation.y = line_strip.pose.orientation.z = 0.0;
   line_strip.pose.orientation.w = 1.0;
@@ -155,7 +161,7 @@ ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x
 
 
 void
-ZmpPublisher::AddTrajectory(visualization_msgs::MarkerArray& msg,
+ZmpPublisher::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
                             const VecSpline& splines,
                             const std::vector<xpp::hyq::Foothold>& H_footholds,
                             const std::string& rviz_namespace,
@@ -174,6 +180,49 @@ ZmpPublisher::AddTrajectory(visualization_msgs::MarkerArray& msg,
     visualization_msgs::Marker marker;
     marker = GenerateMarker(cog_state.p.segment<2>(0),
                             visualization_msgs::Marker::SPHERE,
+                            0.005);
+    marker.id = i++;
+    marker.ns = rviz_namespace;
+
+
+    bool four_legg_support = splines.at(id).four_leg_supp_;
+    if ( four_legg_support ) {
+      marker.color.r = marker.color.g = marker.color.g = 0.1;
+    } else {
+      int step = splines.at(id).step_;
+      xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
+      marker.color = GetLegColor(swing_leg);
+    }
+
+    marker.color.a = alpha;
+    msg.markers.push_back(marker);
+  }
+}
+
+
+void
+ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
+                            const VecSpline& splines,
+                            const std::vector<xpp::hyq::Foothold>& H_footholds,
+                            const std::string& rviz_namespace,
+                            double alpha)
+{
+  int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
+  for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= 0.02)
+  {
+
+    xpp::utils::Point2d cog_state;
+    SplineContainer::GetCOGxy(t, cog_state,splines);
+
+    Eigen::Vector2d zmp = xpp::zmp::ZmpConstraint::CalcZmp(cog_state.Make3D(), walking_height_);
+
+    int id = SplineContainer::GetSplineID(t, splines);
+
+
+
+    visualization_msgs::Marker marker;
+    marker = GenerateMarker(zmp,
+                            visualization_msgs::Marker::CUBE,
                             0.005);
     marker.id = i++;
     marker.ns = rviz_namespace;

@@ -43,7 +43,6 @@ public:
       const VecFoothold& opt_footholds,
       double gap_center_x,
       double gap_width_x,
-      const std::string& rviz_namespace,
       double alpha = 1.0);
 
   void publish() const { ros_publisher_.publish(zmp_msg_); };
@@ -56,7 +55,13 @@ public:
   void AddPolygon(const std::vector<xpp::hyq::Foothold>& footholds,
                   xpp::hyq::LegID leg_id);
 private:
-  void AddTrajectory(visualization_msgs::MarkerArray& msg,
+  void AddCogTrajectory(visualization_msgs::MarkerArray& msg,
+                     const VecSpline& splines,
+                     const std::vector<xpp::hyq::Foothold>& H_footholds,
+                     const std::string& rviz_namespace,
+                     double alpha = 1.0);
+
+  void AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
                      const VecSpline& splines,
                      const std::vector<xpp::hyq::Foothold>& H_footholds,
                      const std::string& rviz_namespace,
@@ -69,11 +74,14 @@ private:
       int32_t type = visualization_msgs::Marker::SPHERE,
       double alpha = 1.0);
 
-  void AddLineStrip(visualization_msgs::MarkerArray& msg, double center_x, double width_x) const;
+  void AddLineStrip(visualization_msgs::MarkerArray& msg,
+                    double center_x, double width_x,
+                    const std::string& rviz_namespace) const;
   Marker GenerateMarker(Vector2d pos, int32_t type, double size) const;
 
   std_msgs::ColorRGBA GetLegColor(xpp::hyq::LegID leg) const;
 
+  double walking_height_;
   const std::string frame_id_ = "world";
   ::ros::Publisher ros_publisher_;
 };

@@ -221,7 +221,6 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
                                     footholds,
                                     constraints_.gap_center_x_,
                                     constraints_.gap_width_x_,
-                                    "nlp",
                                     1.0);
       zmp_publisher_.publish();
     }

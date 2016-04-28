@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 
   msg.curr_state.pos.x = atof(argv[1]);
   msg.curr_state.vel.x = 0.2; // figure out why this fails
-  msg.curr_state.acc.x = 0.0;
+  msg.curr_state.acc.x = 2.5;
 
   using namespace xpp::hyq;
   xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
@@ -144,7 +144,8 @@ int main(int argc, char **argv)
     ros::spinOnce();
     zmp_publisher.AddRvizMessage(splines,
                                footholds,
-                               0.0, 0.0, "qp", 1.0);
+                               0.0, 0.0,
+                               1.0);
     zmp_publisher.publish();
     loop_rate.sleep();
   }
