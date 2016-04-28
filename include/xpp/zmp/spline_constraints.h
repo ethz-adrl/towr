@@ -37,7 +37,7 @@ public:
                                     const State& final_state) const;
 
   MatVec CreateJunctionConstraints() const;
-  MatVec CreateInitialAccConstraints(const Vector2d& intial_acc) const;
+  MatVec InitialAccJerkConstraints(const Vector2d& intial_acc) const;
   MatVec CreateFinalConstraints(const State& final_state) const;
 
 private:

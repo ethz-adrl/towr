@@ -7,6 +7,7 @@
 
 #include <xpp/zmp/zmp_constraint.h>
 
+
 namespace xpp {
 namespace zmp {
 
@@ -31,10 +32,11 @@ ZmpConstraint::Vector2d
 ZmpConstraint::CalcZmp(const State3d& cog, double height)
 {
   const double g = 9.81; // gravity acceleration
+  double z_acc = cog.a.z();
 
   Vector2d zmp;
-  zmp.x() = cog.p.x() - height/(g+cog.a.z()) * cog.a.x();
-  zmp.y() = cog.p.y() - height/(g+cog.a.z()) * cog.a.y();
+  zmp.x() = cog.p.x() - height/(g+z_acc) * cog.a.x();
+  zmp.y() = cog.p.y() - height/(g+z_acc) * cog.a.y();
 
   return zmp;
 }
@@ -125,7 +127,7 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
 
   int num_nodes_no_4ls = spline_container_.GetTotalNodesNo4ls();
   int num_nodes_4ls = spline_container_.GetTotalNodes4ls();
-  int num_ineq_constr = 3*num_nodes_no_4ls + 4*num_nodes_4ls;
+  int num_ineq_constr = 3*num_nodes_no_4ls + 4*num_nodes_4ls; // upper limit, not accurate
 
   MatVec ineq(num_ineq_constr, coeff);
 
@@ -171,6 +173,8 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
       n++;
     }
   }
+
+  assert(c <= num_ineq_constr);
   return ineq;
 }
 

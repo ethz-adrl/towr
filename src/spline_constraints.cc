@@ -18,12 +18,17 @@ SplineConstraints::SplineConstraints (const ContinuousSplineContainer& spline_st
 
 
 SplineConstraints::MatVec
-SplineConstraints::CreateInitialAccConstraints(const Vector2d& initial_acc) const
+SplineConstraints::InitialAccJerkConstraints(const Vector2d& initial_acc) const
 {
-  int n_constraints = kDim2d*2; //init {x,y} * {acc, jerk}
+  int n_constraints = kDim2d *2; //init {x,y} * {acc, jerk}
   MatVec init(n_constraints, n_opt_coefficients_);
 
-  const Vector2d& initial_jerk = Vector2d::Zero(); // this should never need to be different
+  std::cout << "inital_acc: " << initial_acc << std::endl;
+
+  const Vector2d initial_jerk = Vector2d::Zero(); // this should never need to be different
+  std::cout << "initial_jerk: " << initial_jerk << std::endl;
+  std::cout << "initial_jerk(X): " << initial_jerk(X) << std::endl;
+  std::cout << "initial_jerk(Y): " << initial_jerk(Y) << std::endl;
 
   int i = 0; // constraint count
   for (int dim = X; dim <= Y; ++dim)
@@ -38,6 +43,10 @@ SplineConstraints::CreateInitialAccConstraints(const Vector2d& initial_acc) cons
     init.v(i++) = -initial_jerk(dim);
   }
 
+  std::cout << "init.M: " << init.M << std::endl;
+  std::cout << "init.v: " << init.v << std::endl;
+
+  assert(i==n_constraints);
   return init;
 }
 
@@ -91,6 +100,7 @@ SplineConstraints::CreateFinalConstraints(const State& final_cond) const
     final.v(i++) = -final_cond.a(dim);
   }
 
+  assert(i==n_constraints);
   return final;
 }
 
@@ -130,6 +140,7 @@ SplineConstraints::CreateJunctionConstraints() const
 //      junction.v(i++) = 0.0;
     }
   }
+  assert(i==n_constraints);
   return junction;
 }
 
@@ -139,7 +150,7 @@ SplineConstraints::CreateAllSplineConstraints(const Vector2d& initial_acc,
                                               const State& final_state) const
 {
   MatVec spline_constraints;
-  spline_constraints << CreateInitialAccConstraints(initial_acc);
+  spline_constraints << InitialAccJerkConstraints(initial_acc);
   spline_constraints << CreateFinalConstraints(final_state);
   spline_constraints << CreateJunctionConstraints();
 

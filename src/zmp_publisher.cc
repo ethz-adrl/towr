@@ -26,6 +26,7 @@ ZmpPublisher::ZmpPublisher(const std::string& topic)
 void ZmpPublisher::AddRvizMessage(
     const VecSpline& splines,
     const VecFoothold& opt_footholds,
+    const VecFoothold& start_stance,
     double gap_center_x,
     double gap_width_x,
     double alpha)
@@ -34,6 +35,7 @@ void ZmpPublisher::AddRvizMessage(
 
   visualization_msgs::MarkerArray msg;
   AddFootholds(msg, opt_footholds, "footholds", visualization_msgs::Marker::CUBE, alpha);
+  AddStartStance(msg, start_stance);
   AddCogTrajectory(msg, splines, opt_footholds, "cog", alpha);
   AddZmpTrajectory(msg, splines, opt_footholds, "zmp", 0.4);
 
@@ -44,17 +46,15 @@ void ZmpPublisher::AddRvizMessage(
 }
 
 
-void ZmpPublisher::AddStartStance(
-    visualization_msgs::MarkerArray& msg,
-    const std::vector<xpp::hyq::Foothold>& start_stance,
-    const std::string& rviz_namespace)
+void ZmpPublisher::AddStartStance(visualization_msgs::MarkerArray& msg,
+                                  const VecFoothold& start_stance)
 {
-  AddFootholds(msg, start_stance, rviz_namespace, visualization_msgs::Marker::SPHERE, 1.0);
+  AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::SPHERE, 1.0);
 }
 
 
-void ZmpPublisher::AddPolygon(const std::vector<xpp::hyq::Foothold>& footholds,
-                              xpp::hyq::LegID leg_id)
+void ZmpPublisher::AddSupportPolygon(const VecFoothold& footholds,
+                                     xpp::hyq::LegID leg_id)
 {
 //  static int i=0;
 //  geometry_msgs::PolygonStamped polygon_msg;

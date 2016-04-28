@@ -42,6 +42,7 @@ public:
 //  Foothold GetPlannedFoothold(size_t i) const { return planned_footholds_.at(i); };
 //  VecFoothold GetPlannedFootholds() const { return planned_footholds_; };
   Foothold GetStartStance(LegID leg) const { return supp_polygon_container_.GetStartStance()[leg]; };
+  VecFoothold GetStartStance() const { return supp_polygon_container_.GetStartStance(); };
 
 private:
   Eigen::VectorXd DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,

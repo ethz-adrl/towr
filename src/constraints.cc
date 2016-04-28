@@ -29,7 +29,7 @@ Constraints::Constraints (const xpp::hyq::SupportPolygonContainer& supp_poly_con
 
   SplineConstraints spline_constraint(zmp_spline_container);
   spline_junction_constraints_    = spline_constraint.CreateJunctionConstraints();
-  spline_initial_acc_constraints_ = spline_constraint.CreateInitialAccConstraints(initial_acc);
+  spline_initial_acc_constraints_ = spline_constraint.InitialAccJerkConstraints(initial_acc);
   spline_final_constraints_       = spline_constraint.CreateFinalConstraints(final_state);
 
   // initializes number of constraints

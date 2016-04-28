@@ -41,6 +41,7 @@ public:
   void AddRvizMessage(
       const VecSpline& splines,
       const VecFoothold& opt_footholds,
+      const VecFoothold& start_stance,
       double gap_center_x,
       double gap_width_x,
       double alpha = 1.0);
@@ -48,13 +49,12 @@ public:
   void publish() const { ros_publisher_.publish(zmp_msg_); };
 
   visualization_msgs::MarkerArray zmp_msg_;
-  void AddStartStance(MarkerArray& msg,
-      const std::vector<xpp::hyq::Foothold>& start_stance,
-      const std::string& rviz_namespace);
   void AddGoal(MarkerArray& msg,const Vector2d& goal);
-  void AddPolygon(const std::vector<xpp::hyq::Foothold>& footholds,
-                  xpp::hyq::LegID leg_id);
+  void AddSupportPolygon(const VecFoothold& footholds, xpp::hyq::LegID leg_id);
 private:
+
+  void AddStartStance(MarkerArray& msg, const VecFoothold& start_stance);
+
   void AddCogTrajectory(visualization_msgs::MarkerArray& msg,
                      const VecSpline& splines,
                      const std::vector<xpp::hyq::Foothold>& H_footholds,

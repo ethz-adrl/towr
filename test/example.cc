@@ -79,12 +79,13 @@ int main(int argc, char **argv)
 
   if (argc==1)
   {
-    ROS_FATAL("Please specify current x-position as parameter");
+    ROS_FATAL("Please specify current x-acceleration as parameter");
   };
 
-  msg.curr_state.pos.x = atof(argv[1]);
-  msg.curr_state.vel.x = 0.2; // figure out why this fails
-  msg.curr_state.acc.x = 2.5;
+  msg.curr_state.pos.x = 0.0;
+  msg.curr_state.vel.x = 0.0; // figure out why this fails
+  msg.curr_state.acc.x = atof(argv[1]); // this is a constraint
+//  msg.curr_state.acc.y = 1.0;
 
   using namespace xpp::hyq;
   xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
@@ -144,6 +145,7 @@ int main(int argc, char **argv)
     ros::spinOnce();
     zmp_publisher.AddRvizMessage(splines,
                                footholds,
+                               xpp::ros::RosHelpers::RosToXpp(msg.curr_stance),
                                0.0, 0.0,
                                1.0);
     zmp_publisher.publish();
