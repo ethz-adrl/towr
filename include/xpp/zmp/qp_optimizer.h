@@ -8,8 +8,9 @@
 #ifndef _XPP_ZMP_OPTIMIZER_H_
 #define _XPP_ZMP_OPTIMIZER_H_
 
-#include <xpp/zmp/spline_constraints.h>
+
 #include <xpp/hyq/foothold.h>
+#include <xpp/zmp/zmp_spline.h>
 
 
 /**
@@ -41,9 +42,9 @@ eigen_quadprog.hpp performs the optimization.
  */
 class QpOptimizer {
 public:
-  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
+  typedef std::vector<ZmpSpline> VecSpline;
   typedef xpp::utils::MatVec MatVec;
-  typedef xpp::zmp::SplineConstraints::State State;
+  typedef xpp::utils::Point2d State;
   typedef xpp::hyq::Foothold Foothold;
   typedef std::vector<Foothold> VecFoothold;
 
@@ -51,10 +52,31 @@ public:
   QpOptimizer() {};
   virtual ~QpOptimizer() {};
 
+  /**
+   * @brief Solves the quadratic program (QP) of moving the CoG from an initial to a
+   * final state while keeping the Zero-Moment-Point (ZMP) inside the support
+   * polygons created by the contact points (e.g. feet).
+   *
+   * @param initial_state position, velocity and acceleration of the CoG
+   * @param final_state desired final position, velocity and acceleration of the CoG
+   * @param start_stance the initial contacts (e.g left front,...) and position
+   * @param steps the sequence of footholds (leg and position) to be optimized for
+   * @param swing_time time for one step
+   * @param stance_time time to transition between disjoint support polygons
+   * @param stance_time_initial time before executing the first step
+   * @param stance_time_final time after executing the last step to still move the CoG
+   * @param robot_height the walking height of the robot (affects ZMP)
+   * @return the optimized CoG trajectory
+   */
   VecSpline SolveQp(const State& initial_state,
-                          const State& final_state,
-                          const VecFoothold& start_stance,
-                          const VecFoothold& steps);
+                    const State& final_state,
+                    const VecFoothold& start_stance,
+                    const VecFoothold& steps,
+                    double swing_time,
+                    double stance_time,
+                    double stance_time_initial,
+                    double stance_time_final,
+                    double robot_height);
 
 
 private:

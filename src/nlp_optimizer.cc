@@ -6,10 +6,11 @@
  */
 
 #include <xpp/zmp/nlp_optimizer.h>
+#include <xpp/zmp/nlp_ipopt_zmp.h>
 
-#include <xpp/zmp/nlp_ipopt_zmp.h>
-#include <xpp/zmp/nlp_ipopt_zmp.h>
-#include <xpp/ros/ros_helpers.h>
+#include <xpp/hyq/support_polygon_container.h>
+#include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/zmp/spline_constraints.h>
 
 namespace xpp {
 namespace zmp {
@@ -24,12 +25,6 @@ NlpOptimizer::NlpOptimizer ()
     std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
     throw std::length_error("Ipopt could not initialize correctly");
   }
-  swing_time_          = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/swing_time");
-  stance_time_         = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time");
-  stance_time_initial_ = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
-  stance_time_final_   = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
-
-
 }
 
 
@@ -38,19 +33,26 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                        const State& final_state,
                        const std::vector<xpp::hyq::LegID>& step_sequence,
                        const VecFoothold& start_stance,
+                       double swing_time,
+                       double stance_time,
+                       double stance_time_initial,
+                       double stance_time_final,
+                       double robot_height,
                        VecSpline& opt_splines,
                        VecFoothold& final_footholds,
                        const Eigen::VectorXd& initial_spline_coeff)
 {
+  typedef xpp::hyq::SupportPolygon SupportPolygon;
+
   // create the general spline structure
   ContinuousSplineContainer spline_structure;
   spline_structure.Init(initial_state.p,
                         initial_state.v ,
                         step_sequence,
-                        stance_time_,
-                        swing_time_,
-                        stance_time_initial_,
-                        stance_time_final_);
+                        stance_time,
+                        swing_time,
+                        stance_time_initial,
+                        stance_time_final);
 
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
@@ -59,11 +61,10 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                               SupportPolygon::GetDefaultMargins());
 
 
-
   NlpStructure nlp_structure(spline_structure.GetTotalFreeCoeff(),
                              supp_polygon_container.GetNumberOfSteps());
 
-  double robot_height = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/robot_height");
+
   Constraints constraints(supp_polygon_container,
                           spline_structure,
                           nlp_structure,
@@ -97,7 +98,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   final_footholds.resize(n_steps);
 
   for (int i=0; i<n_steps; ++i) {
-    Vector2d f = nlp_ipopt_zmp->opt_footholds_.at(i);
+    Eigen::Vector2d f = nlp_ipopt_zmp->opt_footholds_.at(i);
     final_footholds.at(i).p.x() = f.x();
     final_footholds.at(i).p.y() = f.y();
     final_footholds.at(i).leg = step_sequence.at(i);

@@ -11,12 +11,13 @@
 #include <xpp/hyq/support_polygon_container.h>
 
 #include <xpp/zmp/zmp_constraint.h>
+#include <xpp/zmp/spline_constraints.h>
 #include <xpp/zmp/cost_function.h>
 #include <xpp/zmp/eigen_quadprog-inl.h>
 
-#include <xpp/ros/ros_helpers.h>
-
 #include <cmath>      // std::numeric_limits
+
+#include <ros/console.h>
 
 namespace xpp {
 namespace zmp {
@@ -27,14 +28,13 @@ QpOptimizer::VecSpline
 QpOptimizer::SolveQp(const State& initial_state,
                      const State& final_state,
                      const VecFoothold& start_stance,
-                     const VecFoothold& steps)
+                     const VecFoothold& steps,
+                     double swing_time,
+                     double stance_time,
+                     double stance_time_initial,
+                     double stance_time_final,
+                     double robot_height)
 {
-  double swing_time          = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/swing_time");
-  double stance_time         = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time");
-  double stance_time_initial = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
-  double stance_time_final   = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
-  double robot_height = xpp::ros::RosHelpers::GetDoubleFromServer("/xpp/robot_height");
-
   ContinuousSplineContainer spline_structure;
   std::vector<xpp::hyq::LegID> leg_ids;
   for (Foothold f : steps)

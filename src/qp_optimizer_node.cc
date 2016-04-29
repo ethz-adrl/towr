@@ -62,10 +62,21 @@ QpOptimizerNode::OptimizeTrajectoryService(xpp_opt::SolveQp::Request& req,
 void
 QpOptimizerNode::OptimizeTrajectory()
 {
+  double swing_time          = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
+  double stance_time         = RosHelpers::GetDoubleFromServer("/xpp/stance_time");
+  double stance_time_initial = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
+  double stance_time_final   = RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
+  double robot_height        = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
+
   opt_splines_ = qp_optimizer_.SolveQp(curr_cog_.Get2D(),
                                        goal_cog_.Get2D(),
                                        curr_stance_,
-                                       footholds_);
+                                       footholds_,
+                                       swing_time,
+                                       stance_time,
+                                       stance_time_initial,
+                                       stance_time_final,
+                                       robot_height);
 }
 
 

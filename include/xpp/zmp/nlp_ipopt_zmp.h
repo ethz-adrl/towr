@@ -15,7 +15,7 @@
 #include <xpp/zmp/cost_function.h>
 #include <xpp/zmp/constraints.h>
 
-#include <xpp/ros/zmp_publisher.h>
+#include <xpp/ros/zmp_publisher.h> // fixme, this depends on ROS, think of removing
 
 namespace Ipopt {
 
