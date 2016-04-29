@@ -71,9 +71,9 @@ TEST_F(SplineContainerTest, GetTotalFreeCoeff)
 
 TEST_F(SplineContainerTest, ConstructSplineSequence)
 {
-  EXPECT_EQ(1+6+2+1, spline_container_.splines_.size());
+  EXPECT_EQ(1+6+2+1, spline_container_.GetSplineCount());
 
-#define SPLINE_ID(id) spline_container_.splines_.at(id)
+#define SPLINE_ID(id) spline_container_.GetSpline(id)
   EXPECT_TRUE(SPLINE_ID(0).four_leg_supp_);
 
   EXPECT_FALSE(SPLINE_ID(1).four_leg_supp_);

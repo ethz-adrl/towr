@@ -53,10 +53,10 @@ int main(int argc, char **argv)
   msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x, -0.3, 0.0, RH)));
 
   double step_length = 0.25;
-  msg.steps.push_back(RosHelpers::XppToRos(Foothold(-0.35 + step_length,  0.3, 0.0, LH)));
-  msg.steps.push_back(RosHelpers::XppToRos(Foothold( 0.35 + step_length,  0.3, 0.0, LF)));
-  msg.steps.push_back(RosHelpers::XppToRos(Foothold(-0.35 + step_length, -0.3, 0.0, RH)));
-  msg.steps.push_back(RosHelpers::XppToRos(Foothold( 0.35 + step_length, -0.3, 0.0, RF)));
+//  msg.steps.push_back(RosHelpers::XppToRos(Foothold(-0.35 + step_length,  0.3, 0.0, LH)));
+//  msg.steps.push_back(RosHelpers::XppToRos(Foothold( 0.35 + step_length,  0.3, 0.0, LF)));
+//  msg.steps.push_back(RosHelpers::XppToRos(Foothold(-0.35 + step_length, -0.3, 0.0, RH)));
+//  msg.steps.push_back(RosHelpers::XppToRos(Foothold( 0.35 + step_length, -0.3, 0.0, RF)));
 
   current_info_pub.publish(msg);
 

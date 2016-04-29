@@ -217,7 +217,7 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
 
       zmp_publisher_.zmp_msg_.markers.clear();
       constraints_.GetSplineContainer().AddOptimizedCoefficients(curr_coeff);
-      zmp_publisher_.AddRvizMessage(constraints_.GetSplineContainer().splines_,
+      zmp_publisher_.AddRvizMessage(constraints_.GetSplineContainer().GetSplines(),
                                     footholds,
                                     constraints_.GetStartStance(),
                                     constraints_.gap_center_x_,

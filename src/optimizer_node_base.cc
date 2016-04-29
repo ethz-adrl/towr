@@ -28,7 +28,7 @@ OptimizerNodeBase::OptimizerNodeBase ()
                                 &OptimizerNodeBase::ReturnOptimizedFootholds, this);
 
   // This should be overwritten by joystick
-  goal_cog_.p.x() = 0.2;
+  goal_cog_.p.x() = 0.0;
 }
 
 OptimizerNodeBase::~OptimizerNodeBase ()

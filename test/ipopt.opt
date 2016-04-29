@@ -30,7 +30,7 @@ max_cpu_time 2.0
 
 
 
-# Some scaling stuff so the obj + contraint are normalized
+# Some scaling stuff so the obj + constraints are normalized
 #obj_scaling_factor 10
 #obj_scaling_factor  1
 

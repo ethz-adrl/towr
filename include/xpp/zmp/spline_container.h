@@ -42,6 +42,12 @@ public:
   SplineContainer(const VecSpline& splines);
   virtual ~SplineContainer() {};
 
+  VecSpline GetSplines()        const { return splines_; }
+  ZmpSpline GetSpline(size_t i) const { return splines_.at(i); }
+  ZmpSpline GetFirstSpline()    const { return splines_.front(); };
+  ZmpSpline GetLastSpline()     const { return splines_.back(); };
+  int GetSplineCount()          const { return splines_.size(); };
+
   /**
   @brief Calculates the state of a spline at a specific point in time.
 
@@ -62,7 +68,6 @@ public:
 
   int GetFourLegSupport(double t_global) const;
   int GetStep(double t_global) const;
-  void AddSpline(const ZmpSpline &spline);
   static double GetTotalTime(const VecSpline& splines, bool exclude_4ls_splines = false);
   double GetTotalTime(bool exclude_4ls_splines = false) const
   {
@@ -70,15 +75,17 @@ public:
   }
 
 
-
   // Creates a sequence of Splines without the optimized coefficients
-  void ConstructSplineSequence(const std::vector<LegID>& step_sequence,
-                                        double t_stance,
-                                        double t_swing,
-                                        double t_stance_initial,
-                                        double t_stance_final);
+  static VecSpline ConstructSplineSequence(const std::vector<LegID>& step_sequence,
+                                           double t_stance,
+                                           double t_swing,
+                                           double t_stance_initial,
+                                           double t_stance_final);
 
+protected:
   VecSpline splines_;
+  bool splines_initialized_ = false;
+  void CheckIfSplinesInitialized() const;
 };
 
 } // namespace zmp

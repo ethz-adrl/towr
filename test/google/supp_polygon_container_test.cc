@@ -19,6 +19,9 @@ namespace hyq {
 
 class SuppPolygonContainerTest : public ::testing::Test {
 protected:
+
+  typedef xpp::zmp::SplineContainer SplineContainer;
+
   virtual void SetUp()
   {
     s_lh.x() = -0.3;
@@ -69,7 +72,7 @@ protected:
     std::vector<LegID> step_sequence = {f_.at(0).leg, f_.at(1).leg,
                                         f_.at(2).leg, f_.at(3).leg};
 
-    spline_container_.ConstructSplineSequence(step_sequence, t_stance, t_swing, t_stance_initial, t_stance_final);
+    splines_ = SplineContainer::ConstructSplineSequence(step_sequence, t_stance, t_swing, t_stance_initial, t_stance_final);
 
   }
 
@@ -87,7 +90,8 @@ protected:
 
   SupportPolygonContainer cont_;
   SupportPolygonContainer cont0_;
-  xpp::zmp::SplineContainer spline_container_;
+  SplineContainer::VecSpline splines_;
+
 };
 
 
@@ -98,9 +102,9 @@ TEST_F(SuppPolygonContainerTest, CreateSupportPolygons)
 
   std::vector<SupportPolygon> supp_4ls;
 
-  for (const xpp::zmp::ZmpSpline& s : spline_container_.splines_) {
+  for (const xpp::zmp::ZmpSpline& s : splines_) {
     bool first_spline = (s.id_ == 0);
-    bool last_spline  = (s.id_ == spline_container_.splines_.size()-1);
+    bool last_spline  = (s.id_ == splines_.size()-1);
 
     if (s.four_leg_supp_ && !first_spline && !last_spline)
       supp_4ls.push_back(SupportPolygon::CombineSupportPolygons(supp.at(s.step_), supp.at(s.step_-1)));

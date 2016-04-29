@@ -22,26 +22,23 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
                                      double t_stance_initial,
                                      double t_stance_final)
 {
-  ConstructSplineSequence(step_sequence, t_stance, t_swing, t_stance_initial, t_stance_final);
-  initialized_ = true;
+  splines_ = ConstructSplineSequence(step_sequence,
+                                     t_stance,
+                                     t_swing,
+                                     t_stance_initial,
+                                     t_stance_final);
+  splines_initialized_ = true;
 
-  UpdateInitialPosVel(start_cog_p, start_cog_v);
-}
-
-
-void ContinuousSplineContainer::UpdateInitialPosVel(const Vector2d& start_cog_p,
-                                                    const Vector2d& start_cog_v)
-{
   for (int dim = xpp::utils::X; dim<=xpp::utils::Y; ++dim) {
-    relationship_e_to_abcd_.at(dim) = DescribeEByPrev(dim, start_cog_v(dim));
-    relationship_f_to_abdc_.at(dim) = DescribeFByPrev(dim, start_cog_p(dim), start_cog_v(dim));
+    relationship_e_to_abcd_.at(dim) = DescribeEByABCD(dim, start_cog_v(dim));
+    relationship_f_to_abdc_.at(dim) = DescribeFByABCD(dim, start_cog_p(dim), start_cog_v(dim));
   }
 }
 
 
 int ContinuousSplineContainer::GetTotalFreeCoeff() const
 {
-  CheckIfInitialized();
+  CheckIfSplinesInitialized();
   return splines_.size() * kFreeCoeffPerSpline * kDim2d;
 }
 
@@ -79,8 +76,9 @@ int ContinuousSplineContainer::GetTotalNodes4ls() const
 
 
 ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::RelationshipToABCD(int spline_id_k, int dim, SplineCoeff c) const
+ContinuousSplineContainer::GetCoefficient(int spline_id_k, int dim, SplineCoeff c) const
 {
+  CheckIfSplinesInitialized();
   assert(c== E || c== F);
   const MatVec& rel = (c==E)? relationship_e_to_abcd_.at(dim) : relationship_f_to_abdc_.at(dim);
   return rel.ExtractRow(spline_id_k);
@@ -88,9 +86,9 @@ ContinuousSplineContainer::RelationshipToABCD(int spline_id_k, int dim, SplineCo
 
 
 ContinuousSplineContainer::MatVec
-ContinuousSplineContainer::DescribeEByPrev(int dim, double start_cog_v) const
+ContinuousSplineContainer::DescribeEByABCD(int dim, double start_cog_v) const
 {
-  CheckIfInitialized();
+  CheckIfSplinesInitialized();
   MatVec e_coeff(splines_.size(), GetTotalFreeCoeff());
   e_coeff.v[0] = start_cog_v;
 
@@ -115,11 +113,11 @@ ContinuousSplineContainer::DescribeEByPrev(int dim, double start_cog_v) const
 
 
 ContinuousSplineContainer::MatVec
-ContinuousSplineContainer::DescribeFByPrev(int dim, double start_cog_p,
+ContinuousSplineContainer::DescribeFByABCD(int dim, double start_cog_p,
                                            double start_cog_v) const
 {
-  CheckIfInitialized();
-  MatVec e_coeff = DescribeEByPrev(dim, start_cog_v);
+  CheckIfSplinesInitialized();
+  MatVec e_coeff = DescribeEByABCD(dim, start_cog_v);
 
   MatVec f_coeff(splines_.size(), GetTotalFreeCoeff());
   f_coeff.v[0] = start_cog_p;
@@ -168,8 +166,8 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
       cv[D] = optimized_coeff[Index(k,dim,D)];
 
       // calculate e and f coefficients from previous values
-      VecScalar Ek = RelationshipToABCD(k, dim, E);
-      VecScalar Fk = RelationshipToABCD(k, dim, F);
+      VecScalar Ek = GetCoefficient(k, dim, E);
+      VecScalar Fk = GetCoefficient(k, dim, F);
 
       cv[E] = Ek.v*optimized_coeff + Ek.s;
       cv[F] = Fk.v*optimized_coeff + Fk.s;
@@ -181,14 +179,6 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
   } // k=0..n_spline_infos_
 }
 
-
-void
-ContinuousSplineContainer::CheckIfInitialized() const
-{
-  if (!initialized_) {
-    throw std::runtime_error("ContinousSplineContainer not initialized. Call Init() first");
-  }
-}
 
 } /* namespace zmp */
 } /* namespace xpp */

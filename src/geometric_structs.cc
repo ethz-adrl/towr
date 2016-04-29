@@ -52,6 +52,8 @@ void MatVec::operator<<(const MatVec& rhs)
 
 void MatVec::AddVecScalar(const VecScalar& val, size_t row)
 {
+  assert((val.v.cols()==M.cols()) && (row<M.rows()));
+
   M.row(row) = val.v;
   v[row]     = val.s;
 }

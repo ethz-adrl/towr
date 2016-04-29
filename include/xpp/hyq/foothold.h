@@ -100,7 +100,7 @@ public:
   static void UpdateFoohold(const Foothold& f_new, VecFoothold& footholds)
   {
     int idx;
-    if ( GetLastIndex(f_new.leg, footholds, idx))
+    if (GetLastIndex(f_new.leg, footholds, idx))
       footholds.at(idx) = f_new; // replace
     else
       footholds.push_back(f_new); //append

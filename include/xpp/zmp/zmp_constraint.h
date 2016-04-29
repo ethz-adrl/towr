@@ -35,7 +35,7 @@ public:
   static Vector2d CalcZmp(const State3d& cog, double height);
 
 private:
-  xpp::zmp::ContinuousSplineContainer spline_container_;
+  xpp::zmp::ContinuousSplineContainer spline_structure_;
   MatVec x_zmp_;
   MatVec y_zmp_;
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,

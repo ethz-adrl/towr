@@ -60,15 +60,15 @@ SplineConstraints::CreateFinalConstraints(const State& final_cond) const
   int i = 0; // constraint count
   for (int dim = X; dim <= Y; ++dim)
   {
-    ZmpSpline last = spline_structure_.splines_.back();
+    ZmpSpline last = spline_structure_.GetLastSpline();
     int K = last.id_;
     double T = last.duration_;
     int last_spline = ContinuousSplineContainer::Index(K, dim, A);
     std::array<double,6> t_duration = utils::cache_exponents<6>(T);
 
     // calculate e and f coefficients from previous values
-    VecScalar Ek = spline_structure_.RelationshipToABCD(K, dim, E);
-    VecScalar Fk = spline_structure_.RelationshipToABCD(K, dim, F);
+    VecScalar Ek = spline_structure_.GetCoefficient(K, dim, E);
+    VecScalar Fk = spline_structure_.GetCoefficient(K, dim, F);
 
     // position
     final.M(i, last_spline + A) = t_duration[5];
@@ -109,14 +109,14 @@ SplineConstraints::MatVec
 SplineConstraints::CreateJunctionConstraints() const
 {
   // junctions {acc,jerk} since pos, vel  implied
-  int n_constraints = 1 /*{acc,(jerk)}*/ * (spline_structure_.splines_.size()-1) * kDim2d;
+  int n_constraints = 1 /*{acc,(jerk)}*/ * (spline_structure_.GetSplineCount()-1) * kDim2d;
   MatVec junction(n_constraints, n_opt_coefficients_);
 
   // FIXME maybe replace with range based loop
   int i = 0; // constraint count
-  for (uint s = 0; s < spline_structure_.splines_.size() - 1; ++s)
+  for (uint s = 0; s < spline_structure_.GetSplineCount()-1; ++s)
   {
-    double duration = spline_structure_.splines_.at(s).duration_;
+    double duration = spline_structure_.GetSpline(s).duration_;
     std::array<double,6> T_curr = utils::cache_exponents<6>(duration);
     for (int dim = X; dim <= Y; dim++) {
 
@@ -151,8 +151,8 @@ SplineConstraints::CreateAllSplineConstraints(const Vector2d& initial_acc,
 {
   MatVec spline_constraints;
   spline_constraints << InitialAccJerkConstraints(initial_acc);
-  spline_constraints << CreateFinalConstraints(final_state);
-  spline_constraints << CreateJunctionConstraints();
+//  spline_constraints << CreateFinalConstraints(final_state);
+//  spline_constraints << CreateJunctionConstraints();
 
   return spline_constraints;
 }

@@ -27,7 +27,7 @@ ProblemSpecification::~ProblemSpecification ()
 void
 ProblemSpecification::UpdateCurrentState(const VectorXd& x_coeff, const StdVecEigen2d& footholds)
 {
-  zmp_spline_container_.AddOptimizedCoefficients(x_coeff,zmp_spline_container_.splines_);
+  zmp_spline_container_.AddOptimizedCoefficients(x_coeff);
   for (uint i=0; i<footholds.size(); ++i)
     supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
 }

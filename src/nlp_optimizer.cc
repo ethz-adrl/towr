@@ -89,7 +89,6 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
     Ipopt::Number final_obj = app_.Statistics()->FinalObjective();
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
-
   }
 
 
@@ -106,7 +105,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   }
 
   spline_structure.AddOptimizedCoefficients(nlp_ipopt_zmp->opt_coeff_);
-  opt_splines = spline_structure.splines_;
+  opt_splines = spline_structure.GetSplines();
 }
 
 

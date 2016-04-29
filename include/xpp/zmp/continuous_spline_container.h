@@ -58,8 +58,8 @@ public:
   {
     AddOptimizedCoefficients(optimized_coeff, splines_);
   }
-  void UpdateInitialPosVel(const Vector2d& start_cog_p, const Vector2d& start_cog_v);
-  VecScalar RelationshipToABCD(int spline_id_k, int dim, SplineCoeff c) const;
+
+  VecScalar GetCoefficient(int spline_id_k, int dim, SplineCoeff c) const;
 
 private:
   static const int kFreeCoeffPerSpline = kCoeffCount-2;
@@ -76,12 +76,10 @@ private:
    * @param start_v the initial velocity of the first spline
    * @returns matrix and vector that describe the coefficient
    */
-  MatVec DescribeEByPrev(int dim, double start_cog_v) const;
-  MatVec DescribeFByPrev(int dim, double start_cog_p, double start_cog_v) const;
+  MatVec DescribeEByABCD(int dim, double start_cog_v) const;
+  MatVec DescribeFByABCD(int dim, double start_cog_p, double start_cog_v) const;
 
 
-  bool initialized_ = false;
-  void CheckIfInitialized() const;
 };
 
 } /* namespace zmp */

@@ -63,7 +63,7 @@ protected:
   {
     // update current state of support polygon and zmp spline
     ContinuousSplineContainer spline_container = zmp_spline_container_;
-    spline_container.AddOptimizedCoefficients(x_coeff, spline_container.splines_);
+    spline_container.AddOptimizedCoefficients(x_coeff);
 
     SupportPolygonContainer supp_polygon_container = supp_polygon_container_;
     for (uint i=0; i<footholds.size(); ++i)
