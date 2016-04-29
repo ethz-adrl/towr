@@ -18,8 +18,8 @@ namespace utils {
 // A start and an end position for the splines. checking only boundary conditions
 class NumDiffTest : public ::testing::Test {
 public:
-  typedef EigenNumDiffFunctor<double,3,1> NumDiff3d;
-  typedef EigenNumDiffFunctor<double> NumDiffXd;
+  typedef xpp::utils::EigenNumDiffFunctor<double,3,1> NumDiff3d;
+  typedef xpp::utils::EigenNumDiffFunctor<double> NumDiffXd;
 
 protected:
   virtual void SetUp()

@@ -13,14 +13,32 @@ namespace hyq {
 
 void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const VecFoothold& footholds,
-                                   const std::vector<LegID>& step_sequence,
                                    const MarginValues& margins)
 {
   start_stance_  = start_stance;
   footholds_     = footholds;
-  step_sequence_ = step_sequence;
   margins_       = margins;
   support_polygons_ = CreateSupportPolygons(footholds);
+
+  initialized_ = true;
+}
+
+
+void SupportPolygonContainer::Init(const VecFoothold& start_stance,
+                                   const VecLegID& step_sequence,
+                                   const MarginValues& margins)
+{
+  // initial all footholds with the correct leg, but x=y=z=0.0
+  std::vector<xpp::hyq::Foothold> zero_footholds;
+  for (uint i=0; i<step_sequence.size(); ++i) {
+    xpp::hyq::Foothold f; // sets x=y=z=0.0
+    f.leg   = step_sequence.at(i);
+    footholds_.push_back(f);
+  }
+
+  start_stance_  = start_stance;
+  margins_       = margins;
+  support_polygons_ = CreateSupportPolygons(footholds_);
 
   initialized_ = true;
 }

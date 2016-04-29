@@ -109,7 +109,7 @@ SplineConstraints::MatVec
 SplineConstraints::CreateJunctionConstraints() const
 {
   // junctions {acc,jerk} since pos, vel  implied
-  int n_constraints = 2 /*{acc,(jerk)}*/ * (spline_structure_.splines_.size()-1) * kDim2d;
+  int n_constraints = 1 /*{acc,(jerk)}*/ * (spline_structure_.splines_.size()-1) * kDim2d;
   MatVec junction(n_constraints, n_opt_coefficients_);
 
   // FIXME maybe replace with range based loop
@@ -131,13 +131,13 @@ SplineConstraints::CreateJunctionConstraints() const
       junction.M(i, next_spline + D) = -2.0;
       junction.v(i++) = 0.0;
 
-      // FIXME also increase number of constraints at top if commenting this back in
-      // jerk (derivative of acceleration)
-      junction.M(i, curr_spline + A) = 60 * T_curr[2];
-      junction.M(i, curr_spline + B) = 24 * T_curr[1];
-      junction.M(i, curr_spline + C) = 6;
-      junction.M(i, next_spline + C) = -6.0;
-      junction.v(i++) = 0.0;
+//      // FIXME also increase number of constraints at top if commenting this back in
+//      // jerk (derivative of acceleration)
+//      junction.M(i, curr_spline + A) = 60 * T_curr[2];
+//      junction.M(i, curr_spline + B) = 24 * T_curr[1];
+//      junction.M(i, curr_spline + C) = 6;
+//      junction.M(i, next_spline + C) = -6.0;
+//      junction.v(i++) = 0.0;
     }
   }
   assert(i==n_constraints);

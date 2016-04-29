@@ -46,7 +46,7 @@ QpOptimizer::SolveQp(const State& initial_state,
   equality_constraints_ = spline_constraint.CreateAllSplineConstraints(initial_state.a, final_state);
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  supp_polygon_container.Init(start_stance, steps, leg_ids, hyq::SupportPolygon::GetDefaultMargins());
+  supp_polygon_container.Init(start_stance, steps, hyq::SupportPolygon::GetDefaultMargins());
   ZmpConstraint zmp_constraint(spline_structure, robot_height);
   inequality_constraints_ = zmp_constraint.CreateLineConstraints(supp_polygon_container);
 

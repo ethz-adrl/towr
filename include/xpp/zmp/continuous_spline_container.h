@@ -16,7 +16,7 @@ namespace zmp {
 /**
  * This class represents a collection of fifth order polynomials
  * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f, that are
- * continous in position and velocity at their borders. This means that the e
+ * continuous in position and velocity at their borders. This means that the e
  * and f coefficients of all splines can be uniquely determined from the other
  * coefficients and the initial position/velocity.
  */

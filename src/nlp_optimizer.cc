@@ -53,19 +53,8 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                         stance_time_final_);
 
 
-  // initial footholds all at zero, overwritten anyway
-  std::vector<xpp::hyq::Foothold> zero_footholds;
-  for (uint i=0; i<step_sequence.size(); ++i) {
-    xpp::hyq::Foothold f;
-    f.leg   = step_sequence.at(i);
-    zero_footholds.push_back(f);
-  }
-
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  // FIXME, maybe initialise support polygon container only with step sequence,
-  // not actual steps
   supp_polygon_container.Init(start_stance,
-                              zero_footholds, // remove this
                               step_sequence,
                               SupportPolygon::GetDefaultMargins());
 

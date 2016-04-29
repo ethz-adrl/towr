@@ -59,8 +59,8 @@ protected:
     margins_[DIAG]  = 0.0;
 
 
-    cont_.Init(start_stance_, f_, margins_);
-    cont0_.Init(start_stance_, f0_, margins_);
+    cont_.Init(start_stance_.ToVector(), f_, margins_);
+    cont0_.Init(start_stance_.ToVector(), f0_, margins_);
 
     double t_stance = 0.1;
     double t_swing = 0.6;

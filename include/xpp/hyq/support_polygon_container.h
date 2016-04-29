@@ -18,8 +18,9 @@ class SupportPolygonContainer
 public:
   typedef std::vector<SupportPolygon> VecSupportPolygon;
   typedef SupportPolygon::VecFoothold VecFoothold;
+  typedef std::vector<xpp::hyq::LegID> VecLegID;
   typedef xpp::utils::MatVec MatVec;
-  typedef xpp::hyq::LegID LegID;
+//  typedef xpp::hyq::LegID LegID;
 
 
 public:
@@ -28,9 +29,30 @@ public:
   ~SupportPolygonContainer () {};
 
 public:
+
+  /**
+   * Initializes with the info needed for the QP optimizer, which includes
+   * foothold locations.
+   *
+   * @param start_stance the feet that are initial in contact with the environment
+   * @param footholds the steps to take
+   * @param margins how much to shrink the support polygon
+   */
   void Init(const VecFoothold& start_stance,
-            const VecFoothold& footholds, // remove this, not really neccessary
-            const std::vector<LegID>& step_sequence,
+            const VecFoothold& footholds,
+            const MarginValues& margins = SupportPolygon::GetZeroMargins());
+
+  /**
+   * Initializes with the info needed for the NLP optimizer, that only needs to
+   * know the step sequence, and will optimize the foothold locations. Each
+   * foothold is initialized to x=y=z=0.
+   *
+   * @param start_stance the feet that are initial in contact with the environment
+   * @param footholds the order of steps to take
+   * @param margins how much to shrink the support polygon
+   */
+  void Init(const VecFoothold& start_stance,
+            const VecLegID& step_sequence,
             const MarginValues& margins = SupportPolygon::GetZeroMargins());
 
 
@@ -49,10 +71,9 @@ public:
   void SetFootholdsXY(int idx, double x, double y);
 
   VecFoothold GetStartStance() const {return start_stance_;};
-  /**
-   * First step is considered step=0.
-   */
-  LegID GetLegID(int step) const { return step_sequence_.at(step); };
+
+  /** First step is considered step=0. */
+  LegID GetLegID(int step) const { return footholds_.at(step).leg; };
 
 
   VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
@@ -60,9 +81,8 @@ public:
 
 private:
 
-  VecFoothold footholds_; // fixme remove this
-  std::vector<LegID> step_sequence_;
-  VecSupportPolygon support_polygons_; // fixme remove this
+  VecFoothold footholds_;
+  VecSupportPolygon support_polygons_;
   MarginValues margins_;
   VecFoothold start_stance_;
 
