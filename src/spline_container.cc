@@ -17,9 +17,30 @@
 namespace xpp {
 namespace zmp {
 
-SplineContainer::SplineContainer()
+SplineContainer::SplineContainer(const VecSpline& splines)
+    :splines_(splines),
+     splines_initialized_(true)
+{}
+
+
+SplineContainer::SplineContainer(const VecLegID& step_sequence,
+                                 double t_stance,
+                                 double t_swing,
+                                 double t_stance_initial,
+                                 double t_stance_final)
 {
-  splines_.clear();
+  Init(step_sequence,t_stance,t_swing,t_stance_initial,t_stance_final);
+}
+
+
+void SplineContainer::Init(const std::vector<xpp::hyq::LegID>& step_sequence,
+                           double t_stance,
+                           double t_swing,
+                           double t_stance_initial,
+                           double t_stance_final)
+{
+  splines_ = ConstructSplineSequence(step_sequence,t_stance,t_swing,t_stance_initial,t_stance_final);
+  splines_initialized_ = true;
 }
 
 

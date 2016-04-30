@@ -29,8 +29,14 @@ public:
 
 public:
   ContinuousSplineContainer () {};
-  virtual
-  ~ContinuousSplineContainer () {};
+  ContinuousSplineContainer (const Vector2d& start_cog_p,
+                             const Vector2d& start_cog_v,
+                             const std::vector<xpp::hyq::LegID>& step_sequence,
+                             double t_stance,
+                             double t_swing,
+                             double t_stance_initial,
+                             double t_stance_final);
+  virtual ~ContinuousSplineContainer () {};
 
   static constexpr double dt_ = 0.1; // This is needed for creating support triangle inequality constraints
 public:

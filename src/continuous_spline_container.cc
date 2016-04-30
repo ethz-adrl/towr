@@ -14,6 +14,20 @@ namespace xpp {
 namespace zmp {
 
 
+ContinuousSplineContainer::ContinuousSplineContainer (
+    const Vector2d& start_cog_p,
+    const Vector2d& start_cog_v,
+    const std::vector<xpp::hyq::LegID>& step_sequence,
+    double t_stance,
+    double t_swing,
+    double t_stance_initial,
+    double t_stance_final)
+    :SplineContainer(step_sequence, t_stance, t_swing, t_stance_initial, t_stance_final)
+{
+  Init(start_cog_p, start_cog_v, step_sequence, t_stance, t_swing, t_stance_initial, t_stance_final);
+}
+
+
 void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
                                      const Vector2d& start_cog_v,
                                      const std::vector<xpp::hyq::LegID>& step_sequence,
@@ -22,12 +36,7 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
                                      double t_stance_initial,
                                      double t_stance_final)
 {
-  splines_ = ConstructSplineSequence(step_sequence,
-                                     t_stance,
-                                     t_swing,
-                                     t_stance_initial,
-                                     t_stance_final);
-  splines_initialized_ = true;
+  SplineContainer::Init(step_sequence, t_stance, t_swing, t_stance_initial, t_stance_final);
 
   for (int dim = xpp::utils::X; dim<=xpp::utils::Y; ++dim) {
     relationship_e_to_abcd_.at(dim) = DescribeEByABCD(dim, start_cog_v(dim));
@@ -51,6 +60,7 @@ int ContinuousSplineContainer::Index(int spline, int dim, int coeff)
 
 int ContinuousSplineContainer::GetTotalNodesNo4ls() const
 {
+  CheckIfSplinesInitialized();
   int node_count = 0;
 
   for (ZmpSpline s: splines_) {
@@ -65,6 +75,7 @@ int ContinuousSplineContainer::GetTotalNodesNo4ls() const
 
 int ContinuousSplineContainer::GetTotalNodes4ls() const
 {
+  CheckIfSplinesInitialized();
   int node_count = 0;
 
   for (ZmpSpline s: splines_) {
@@ -88,7 +99,6 @@ ContinuousSplineContainer::GetCoefficient(int spline_id_k, int dim, SplineCoeff 
 ContinuousSplineContainer::MatVec
 ContinuousSplineContainer::DescribeEByABCD(int dim, double start_cog_v) const
 {
-  CheckIfSplinesInitialized();
   MatVec e_coeff(splines_.size(), GetTotalFreeCoeff());
   e_coeff.v[0] = start_cog_v;
 
@@ -116,7 +126,6 @@ ContinuousSplineContainer::MatVec
 ContinuousSplineContainer::DescribeFByABCD(int dim, double start_cog_p,
                                            double start_cog_v) const
 {
-  CheckIfSplinesInitialized();
   MatVec e_coeff = DescribeEByABCD(dim, start_cog_v);
 
   MatVec f_coeff(splines_.size(), GetTotalFreeCoeff());
@@ -150,6 +159,7 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
     const Eigen::VectorXd& optimized_coeff,
     VecSpline& splines) const
 {
+  CheckIfSplinesInitialized();
   assert(splines.size() == (optimized_coeff.rows()/kDim2d/kFreeCoeffPerSpline));
 
   for (size_t k=0; k<splines.size(); ++k) {

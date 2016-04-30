@@ -32,15 +32,28 @@ of splines, where the actual coefficients must be filled through an optimization
 */
 class SplineContainer {
 public:
-typedef std::vector<ZmpSpline> VecSpline;
-typedef xpp::utils::Point2d Point2d;
-typedef xpp::hyq::LegID LegID;
-static const int kDim2d = xpp::utils::kDim2d;
+  typedef std::vector<ZmpSpline> VecSpline;
+  typedef xpp::utils::Point2d Point2d;
+  typedef std::vector<xpp::hyq::LegID> VecLegID;
+  typedef xpp::hyq::LegID LegID;
+  static const int kDim2d = xpp::utils::kDim2d;
 
 public:
-  SplineContainer();
+  SplineContainer() {};
   SplineContainer(const VecSpline& splines);
+  SplineContainer(const std::vector<xpp::hyq::LegID>& step_sequence,
+                  double t_stance,
+                  double t_swing,
+                  double t_stance_initial,
+                  double t_stance_final);
   virtual ~SplineContainer() {};
+
+public:
+  static VecSpline ConstructSplineSequence(const VecLegID& step_sequence,
+                                           double t_stance,
+                                           double t_swing,
+                                           double t_stance_initial,
+                                           double t_stance_final);
 
   VecSpline GetSplines()        const { return splines_; }
   ZmpSpline GetSpline(size_t i) const { return splines_.at(i); }
@@ -54,38 +67,33 @@ public:
   @param double specific time of spline
   @param Derivative which value (pos,vel,acc) at this time we are interested in
   @return x and y state of position,velocity OR acceleration
-  */
+   */
   static void GetCOGxy(double t_global, Point2d& cog_xy, const VecSpline& splines);
-  void GetCOGxy(double t_global, Point2d& cog_xy) const
-  {
-    GetCOGxy(t_global, cog_xy, splines_);
-  }
+  void GetCOGxy(double t_global, Point2d& cog_xy) const { GetCOGxy(t_global, cog_xy, splines_); }
+
   static int GetSplineID(double t_global, const VecSpline& splines);
-  int GetSplineID(double t_global) const
-  {
-    return GetSplineID(t_global, splines_);
-  }
+  int GetSplineID(double t_global) const { return GetSplineID(t_global, splines_); }
 
   int GetFourLegSupport(double t_global) const;
   int GetStep(double t_global) const;
+
   static double GetTotalTime(const VecSpline& splines, bool exclude_4ls_splines = false);
-  double GetTotalTime(bool exclude_4ls_splines = false) const
-  {
-    return GetTotalTime(splines_, exclude_4ls_splines);
-  }
+  double GetTotalTime(bool exclude_4ls_splines = false) const { return GetTotalTime(splines_, exclude_4ls_splines); }
 
-
-  // Creates a sequence of Splines without the optimized coefficients
-  static VecSpline ConstructSplineSequence(const std::vector<LegID>& step_sequence,
-                                           double t_stance,
-                                           double t_swing,
-                                           double t_stance_initial,
-                                           double t_stance_final);
 
 protected:
   VecSpline splines_;
-  bool splines_initialized_ = false;
   void CheckIfSplinesInitialized() const;
+  void Init(const std::vector<xpp::hyq::LegID>& step_sequence,
+            double t_stance,
+            double t_swing,
+            double t_stance_initial,
+            double t_stance_final);
+
+private:
+  // Creates a sequence of Splines without the optimized coefficients
+  bool splines_initialized_ = false;
+
 };
 
 } // namespace zmp

@@ -192,6 +192,7 @@ if(BUILD_TESTS)
                         test/google/spline_container_test.cc
                         test/google/helpers.cc
                         test/google/zmp_constraint_test.cc
+                        test/google/zero_moment_point_test.cc
                         #test/google/eigen_num_diff_test.cc
                         )
                
