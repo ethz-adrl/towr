@@ -79,7 +79,7 @@ ZeroMomentPoint::ExpressZmpThroughCoefficients(const ContinuousSplineContainer& 
       zmp.M.row(n) += t[1]*Ek.v;
       zmp.M.row(n) += t[0]*Fk.v;
 
-      zmp.v[n] = Ek.s*t[0] + Fk.s;
+      zmp.v[n] = Ek.s*t[1] + Fk.s;
 
       ++n;
     }
