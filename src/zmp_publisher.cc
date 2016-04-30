@@ -7,7 +7,7 @@
 
 #include <xpp/ros/zmp_publisher.h>
 #include <xpp/ros/ros_helpers.h>
-#include <xpp/zmp/zmp_constraint.h>
+#include <xpp/zmp/zero_moment_point.h>
 
 namespace xpp {
 namespace ros {
@@ -216,7 +216,7 @@ ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     xpp::utils::Point2d cog_state;
     SplineContainer::GetCOGxy(t, cog_state,splines);
 
-    Eigen::Vector2d zmp = xpp::zmp::ZmpConstraint::CalcZmp(cog_state.Make3D(), walking_height_);
+    Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height_);
 
     int id = SplineContainer::GetSplineID(t, splines);
 

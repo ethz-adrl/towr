@@ -151,8 +151,8 @@ SplineConstraints::CreateAllSplineConstraints(const Vector2d& initial_acc,
 {
   MatVec spline_constraints;
   spline_constraints << InitialAccJerkConstraints(initial_acc);
-//  spline_constraints << CreateFinalConstraints(final_state);
-//  spline_constraints << CreateJunctionConstraints();
+  spline_constraints << CreateFinalConstraints(final_state);
+  spline_constraints << CreateJunctionConstraints();
 
   return spline_constraints;
 }

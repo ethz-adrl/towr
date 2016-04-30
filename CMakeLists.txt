@@ -108,6 +108,7 @@ set(SOURCES
   src/cost_function.cc
   src/constraints.cc
   src/zmp_constraint.cc
+  src/zero_moment_point.cc
   src/zmp_publisher.cc
   src/ellipse.cc
   src/spline_constraints.cc
@@ -190,6 +191,7 @@ if(BUILD_TESTS)
                         test/google/supp_polygon_container_test.cc
                         test/google/spline_container_test.cc
                         test/google/helpers.cc
+                        test/google/zmp_constraint_test.cc
                         #test/google/eigen_num_diff_test.cc
                         )
                

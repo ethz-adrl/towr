@@ -10,6 +10,8 @@
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/zmp/zero_moment_point.h>
+
 
 namespace xpp {
 namespace zmp {
@@ -26,18 +28,20 @@ public:
   typedef xpp::utils::Point2d State2d;
 
 public:
-  ZmpConstraint (ContinuousSplineContainer spline_container, double walking_height);
-  virtual
-  ~ZmpConstraint () {};
+  ZmpConstraint();
+  ZmpConstraint(const ContinuousSplineContainer& spline_container, double walking_height);
+  virtual ~ZmpConstraint () {};
 
 
   MatVec CreateLineConstraints(const SupportPolygonContainer& supp_polygon_container) const;
-  static Vector2d CalcZmp(const State3d& cog, double height);
+
+  void Init(const ContinuousSplineContainer& spline_container, double walking_height);
 
 private:
   xpp::zmp::ContinuousSplineContainer spline_structure_;
   MatVec x_zmp_;
   MatVec y_zmp_;
+
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const SupportPolygonContainer& supp_polygon_container) const;
   std::vector<SupportPolygon> CreateSupportPolygonsWith4LS(
@@ -47,7 +51,12 @@ private:
                                 const VecScalar& x_zmp_M,
                                 const VecScalar& y_zmp_M);
 
-  MatVec ExpressZmpThroughCoefficients(double walking_height, int dim) const;
+
+
+
+
+  void CheckIfInitialized() const; // put only in public functions
+  bool initialized_ = false;
 };
 
 

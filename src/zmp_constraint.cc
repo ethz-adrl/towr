@@ -11,85 +11,36 @@
 namespace xpp {
 namespace zmp {
 
-ZmpConstraint::ZmpConstraint (ContinuousSplineContainer spline_container, double walking_height)
+ZmpConstraint::ZmpConstraint()
+{
+}
+
+
+ZmpConstraint::ZmpConstraint(const ContinuousSplineContainer& spline_container, double walking_height)
+{
+  Init(spline_container, walking_height);
+}
+
+
+void
+ZmpConstraint::Init(const ContinuousSplineContainer& spline_container, double walking_height)
 {
   spline_structure_ = spline_container;
 
   // these discretized zmp positions do not depend on current footholds
-  x_zmp_ = ExpressZmpThroughCoefficients(walking_height, xpp::utils::X);
-  y_zmp_ = ExpressZmpThroughCoefficients(walking_height, xpp::utils::Y);
+  using namespace xpp::utils::coords_wrapper;
+  x_zmp_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(spline_structure_, walking_height, X);
+  y_zmp_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(spline_structure_, walking_height, Y);
+
+  initialized_ = true;
 }
 
 
 ZmpConstraint::MatVec
 ZmpConstraint::CreateLineConstraints(const SupportPolygonContainer& supp_polygon_container) const
 {
+  CheckIfInitialized();
   return AddLineConstraints(x_zmp_, y_zmp_, supp_polygon_container);
-}
-
-
-ZmpConstraint::Vector2d
-ZmpConstraint::CalcZmp(const State3d& cog, double height)
-{
-  const double g = 9.81; // gravity acceleration
-  double z_acc = cog.a.z();
-
-  Vector2d zmp;
-  zmp.x() = cog.p.x() - height/(g+z_acc) * cog.a.x();
-  zmp.y() = cog.p.y() - height/(g+z_acc) * cog.a.y();
-
-  return zmp;
-}
-
-
-ZmpConstraint::MatVec
-ZmpConstraint::ExpressZmpThroughCoefficients(double walking_height, int dim) const
-{
-  int coeff = spline_structure_.GetTotalFreeCoeff();
-  int num_nodes = spline_structure_.GetTotalNodes4ls() + spline_structure_.GetTotalNodesNo4ls();
-
-  double h = walking_height;
-
-  MatVec zmp(num_nodes, coeff);
-
-  const double g = 9.81; // gravity acceleration
-  const double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
-
-  int n = 0; // node counter
-  for (const ZmpSpline& s : spline_structure_.GetSplines()) {
-
-    // calculate e and f coefficients from previous values
-    const int k = s.id_;
-    VecScalar Ek = spline_structure_.GetCoefficient(k, dim, E);
-    VecScalar Fk = spline_structure_.GetCoefficient(k, dim, F);
-    int a = ContinuousSplineContainer::Index(k,dim,A);
-    int b = ContinuousSplineContainer::Index(k,dim,B);
-    int c = ContinuousSplineContainer::Index(k,dim,C);
-    int d = ContinuousSplineContainer::Index(k,dim,D);
-
-    for (double i=0; i < s.GetNodeCount(spline_structure_.dt_); ++i) {
-
-      double time = i*spline_structure_.dt_;
-      std::array<double,6> t = utils::cache_exponents<6>(time);
-
-      //  x_zmp = x_pos - height/(g+z_acc) * x_acc
-      //      with  x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
-      //            x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
-      zmp.M(n, a)   = t[5]        - h/(g+z_acc) * 20.0 * t[3];
-      zmp.M(n, b)   = t[4]        - h/(g+z_acc) * 12.0 * t[2];
-      zmp.M(n, c)   = t[3]        - h/(g+z_acc) *  6.0 * t[1];
-      zmp.M(n, d)   = t[2]        - h/(g+z_acc) *  2.0;
-      zmp.M.row(n) += t[1]*Ek.v;
-      zmp.M.row(n) += t[0]*Fk.v;
-
-      zmp.v[n] = Ek.s*t[0] + Fk.s;
-
-      ++n;
-    }
-  }
-
-  assert(n<=num_nodes); // check that Eigen matrix didn't overflow
-  return zmp;
 }
 
 
@@ -194,6 +145,15 @@ ZmpConstraint::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
   line_constr.s += l.coeff.r - l.s_margin;
 
   return line_constr;
+}
+
+
+void
+ZmpConstraint::CheckIfInitialized() const
+{
+  if (!initialized_) {
+    throw std::runtime_error("ZmpConstraint not initialized. Call Init() first");
+  }
 }
 
 

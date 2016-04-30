@@ -46,7 +46,7 @@ QpOptimizer::SolveQp(const State& initial_state,
   equality_constraints_ = spline_constraint.CreateAllSplineConstraints(initial_state.a, final_state);
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  supp_polygon_container.Init(start_stance, steps, hyq::SupportPolygon::GetZeroMargins());
+  supp_polygon_container.Init(start_stance, steps, hyq::SupportPolygon::GetDefaultMargins());
 
 
   std::cout << "n_support_polygons: " << supp_polygon_container.GetSupportPolygons().size() << std::endl;

@@ -22,13 +22,7 @@ class SplineContainerTest : public ::testing::Test {
 protected:
   virtual void SetUp()
   {
-    spline_container_.ConstructSplineSequence(step_sequence_,
-                                              t_stance,
-                                              t_swing,
-                                              t_stance_initial,
-                                              t_stance_final);
-
-    cont_spline_container_.Init(Eigen::Vector2d::Zero(),
+    spline_container_.Init(Eigen::Vector2d::Zero(),
                                 Eigen::Vector2d::Zero(),
                                 step_sequence_,
                                 t_stance,
@@ -37,8 +31,7 @@ protected:
                                 t_stance_final);
   }
 
-  SplineContainer spline_container_;
-  ContinuousSplineContainer cont_spline_container_;
+  ContinuousSplineContainer spline_container_;
   double t_stance_initial = 2.0;
   double t_stance = 0.1;
   double t_swing = 0.5;
@@ -63,7 +56,7 @@ TEST_F(SplineContainerTest, GetSplineID)
 
 TEST_F(SplineContainerTest, GetTotalFreeCoeff)
 {
-  int n = cont_spline_container_.GetTotalFreeCoeff();
+  int n = spline_container_.GetTotalFreeCoeff();
   int n_splines = 1+step_sequence_.size()+2+1;
   EXPECT_EQ(n_splines*4*2, n);
 }
@@ -105,7 +98,6 @@ TEST_F(SplineContainerTest, ConstructSplineSequence)
   EXPECT_EQ(5,SPLINE_ID(8).step_);
 
   EXPECT_EQ(6,SPLINE_ID(9).step_);
-
 }
 
 
