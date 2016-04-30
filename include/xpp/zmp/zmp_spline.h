@@ -10,10 +10,10 @@
 
 #include <xpp/utils/geometric_structs.h>
 
-#include <log4cxx/logger.h>
 
 namespace xpp {
 namespace zmp {
+
 
 static const int kCoeffCount = 6;
 enum SplineCoeff { A=0, B, C, D, E, F };
@@ -58,7 +58,6 @@ public:
   Vec2d GetState(const PosVelAcc &whichDeriv, const double &_t) const;
   void set_spline_coeff(const CoeffValues &coeff_values = CoeffValues());
 
-  static log4cxx::LoggerPtr log_;
   double spline_coeff_[kDim2d][kCoeffCount]; // FIXME, make privat
 private:
 };
@@ -73,12 +72,12 @@ class ZmpSpline : public Spline {
 public:
   ZmpSpline();
   ZmpSpline(unsigned int id, double duration, bool four_leg_supp, int step);
-  virtual ~ZmpSpline();
+  virtual ~ZmpSpline() {};
 
   int GetNodeCount(double dt) const { return std::floor(duration_/dt); }
 
-  double duration_; // time during which this spline is active
   unsigned int id_; // to identify the order relative to other zmp splines
+  double duration_; // time during which this spline is active
   bool four_leg_supp_;
   int step_;
 private:

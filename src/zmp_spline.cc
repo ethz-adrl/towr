@@ -6,12 +6,13 @@
  */
 
 #include <xpp/zmp/zmp_spline.h>
+
+#include <ros/console.h>
 #include <iostream>
 
 namespace xpp {
 namespace zmp {
 
-log4cxx::LoggerPtr Spline::log_(log4cxx::Logger::getLogger("xpp.zmp.zmpspline"));
 
 Spline::Spline()
 {
@@ -62,8 +63,7 @@ Spline::Vec2d Spline::GetState(const PosVelAcc &whichDerivative,
       ret[dim] = 20*a*t[3] + 12*b*t[2] + 6*c*t[1] + 2*d;
       break;
     default:
-      LOG4CXX_ERROR(log_,"Spline.GetState: Do you want pos, vel or acc info?"
-                    "returning 0.0");
+      ROS_ERROR("Spline.GetState: Do you want pos, vel or acc info? returning 0.0");
       ret[dim] = 0.0;
     }
   }
@@ -94,10 +94,6 @@ ZmpSpline::ZmpSpline(unsigned int id, double duration, bool four_leg_supp, int s
     : id_(id), duration_(duration), four_leg_supp_(four_leg_supp), step_(step)
 {
   set_spline_coeff();
-}
-
-ZmpSpline::~ZmpSpline()
-{
 }
 
 

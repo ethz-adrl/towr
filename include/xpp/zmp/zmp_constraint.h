@@ -29,13 +29,13 @@ public:
 
 public:
   ZmpConstraint();
-  ZmpConstraint(const ContinuousSplineContainer& spline_container, double walking_height);
+  ZmpConstraint(const ContinuousSplineContainer&, double walking_height);
   virtual ~ZmpConstraint () {};
 
 
-  MatVec CreateLineConstraints(const SupportPolygonContainer& supp_polygon_container) const;
+  MatVec CreateLineConstraints(const SupportPolygonContainer&) const;
 
-  void Init(const ContinuousSplineContainer& spline_container, double walking_height);
+  void Init(const ContinuousSplineContainer&, double walking_height);
 
 private:
   xpp::zmp::ContinuousSplineContainer spline_structure_;
@@ -43,9 +43,9 @@ private:
   MatVec y_zmp_;
 
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-                            const SupportPolygonContainer& supp_polygon_container) const;
+                            const SupportPolygonContainer&) const;
   std::vector<SupportPolygon> CreateSupportPolygonsWith4LS(
-      const SupportPolygonContainer& supp_polygon_container) const;
+      const SupportPolygonContainer&) const;
 
   static VecScalar GenerateLineConstraint(const SupportPolygon::SuppLine& l,
                                 const VecScalar& x_zmp_M,

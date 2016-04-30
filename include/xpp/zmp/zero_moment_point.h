@@ -20,13 +20,15 @@ public:
   typedef xpp::utils::Point3d State3d;
 
 public:
-  ZeroMomentPoint ();
-  virtual ~ZeroMomentPoint ();
+  ZeroMomentPoint () {};
+  virtual ~ZeroMomentPoint () {};
 
   static Vector2d CalcZmp(const State3d& cog, double height);
   static MatVec ExpressZmpThroughCoefficients(const ContinuousSplineContainer&,
                                               double walking_height, int dim);
 
+
+  static constexpr double gravity_ = 9.80665; // gravity acceleration [m\s^2]
 };
 
 } /* namespace zmp */

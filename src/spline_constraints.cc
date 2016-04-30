@@ -20,7 +20,7 @@ SplineConstraints::SplineConstraints (const ContinuousSplineContainer& spline_st
 SplineConstraints::MatVec
 SplineConstraints::InitialAccJerkConstraints(const Vector2d& initial_acc) const
 {
-  int n_constraints = kDim2d *2; //init {x,y} * {acc, jerk}
+  int n_constraints = kDim2d *1; //init {x,y} * {acc, jerk}
   MatVec init(n_constraints, n_opt_coefficients_);
 
   std::cout << "inital_acc: " << initial_acc << std::endl;
@@ -37,10 +37,10 @@ SplineConstraints::InitialAccJerkConstraints(const Vector2d& initial_acc) const
     int d = ContinuousSplineContainer::Index(0, dim, D);
     init.M(i,d) = 2.0;
     init.v(i++) = -initial_acc(dim);
-    // jerk set to zero
-    int c = ContinuousSplineContainer::Index(0, dim, C);
-    init.M(i,c) = 6.0;
-    init.v(i++) = -initial_jerk(dim);
+//    // jerk set to zero
+//    int c = ContinuousSplineContainer::Index(0, dim, C);
+//    init.M(i,c) = 6.0;
+//    init.v(i++) = -initial_jerk(dim);
   }
 
   std::cout << "init.M: " << init.M << std::endl;

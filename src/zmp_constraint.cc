@@ -126,6 +126,7 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
     }
   }
 
+  assert((n == x_zmp.M.rows()) && (n == y_zmp.M.rows()));
   assert(c <= num_ineq_constr);
   return ineq;
 }
