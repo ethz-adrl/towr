@@ -7,7 +7,10 @@
 
 #include <xpp/ros/zmp_publisher.h>
 #include <xpp/ros/ros_helpers.h>
+
+#include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/zero_moment_point.h>
+
 
 namespace xpp {
 namespace ros {
@@ -38,6 +41,7 @@ void ZmpPublisher::AddRvizMessage(
   AddStartStance(msg, start_stance);
   AddCogTrajectory(msg, splines, opt_footholds, "cog", alpha);
   AddZmpTrajectory(msg, splines, opt_footholds, "zmp", 0.4);
+  AddSupportPolygons(msg, start_stance, opt_footholds);
 
 //  AddLineStrip(msg, gap_center_x, gap_width_x, "gap");
 
@@ -53,8 +57,27 @@ void ZmpPublisher::AddStartStance(visualization_msgs::MarkerArray& msg,
 }
 
 
-void ZmpPublisher::AddSupportPolygon(const VecFoothold& footholds,
-                                     xpp::hyq::LegID leg_id)
+void ZmpPublisher::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
+                                      const VecFoothold& start_stance,
+                                      const VecFoothold& footholds) const
+{
+  xpp::hyq::SupportPolygonContainer support_polygon_container;
+  support_polygon_container.Init(start_stance, footholds);
+
+
+  xpp::hyq::SupportPolygonContainer::VecSupportPolygon supp;
+  supp = support_polygon_container.GetSupportPolygons();
+
+  for (int i=0; i<supp.size(); ++i) {
+    visualization_msgs::Marker m = BuildSupportPolygon(supp.at(i).footholds_conv_, footholds.at(i).leg);
+    msg.markers.push_back(m);
+  }
+}
+
+
+visualization_msgs::Marker
+ZmpPublisher::BuildSupportPolygon(const VecFoothold& stance,
+                                     xpp::hyq::LegID leg_id) const
 {
 //  static int i=0;
 //  geometry_msgs::PolygonStamped polygon_msg;
@@ -66,23 +89,23 @@ void ZmpPublisher::AddSupportPolygon(const VecFoothold& footholds,
   marker.id = (zmp_msg_.markers.size() == 0)? 0 : zmp_msg_.markers.back().id + 1;
   marker.header.frame_id = frame_id_;
   marker.header.stamp = ::ros::Time();
-  marker.ns = "support triangles for leg " + std::to_string(leg_id);
+  marker.ns = "leg " + std::to_string(leg_id) + " support triangles";
   marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
   marker.action = visualization_msgs::Marker::ADD;
  //    marker.lifetime = ros::Duration(10);
   marker.scale.x = marker.scale.y = marker.scale.z = 1.0;
-  marker.color = GetLegColor(leg_id); // fixme, use correct leg
+  marker.color = GetLegColor(leg_id);
   marker.color.a = 0.2;
 
   geometry_msgs::Point p1;
-  for (size_t i=0; i<footholds.size(); ++i) {
-    p1.x = footholds.at(i).p.x();
-    p1.y = footholds.at(i).p.y();
-    p1.z = footholds.at(i).p.z();
+  for (size_t i=0; i<stance.size(); ++i) {
+    p1.x = stance.at(i).p.x();
+    p1.y = stance.at(i).p.y();
+    p1.z = stance.at(i).p.z();
     marker.points.push_back(p1);
   }
 
-  zmp_msg_.markers.push_back(marker);
+  return marker;
 
 
 //  geometry_msgs::Point32 p1;

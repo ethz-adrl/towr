@@ -53,6 +53,8 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
       walking_height,
       xpp::utils::X);
 
+
+//  EXPECT_EQ(f_top_left.size(), poly.footholds_conv_.size());
 }
 
 

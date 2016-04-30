@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_PUBLISHER_H_
 
 #include <xpp/zmp/continuous_spline_container.h>
+
 #include <xpp/hyq/foothold.h>
 
 #include <ros/ros.h>
@@ -50,9 +51,13 @@ public:
 
   visualization_msgs::MarkerArray zmp_msg_;
   void AddGoal(MarkerArray& msg,const Vector2d& goal);
-  void AddSupportPolygon(const VecFoothold& footholds, xpp::hyq::LegID leg_id);
 private:
 
+  void AddSupportPolygons(visualization_msgs::MarkerArray& msg,
+                          const VecFoothold& start_stance,
+                          const VecFoothold& footholds) const;
+  visualization_msgs::Marker BuildSupportPolygon(const VecFoothold& stance_legs,
+                                                 xpp::hyq::LegID leg_id) const;
   void AddStartStance(MarkerArray& msg, const VecFoothold& start_stance);
 
   void AddCogTrajectory(visualization_msgs::MarkerArray& msg,
