@@ -36,20 +36,30 @@ protected:
   double t_stance = 0.1;
   double t_swing = 0.5;
   double t_stance_final = 1.0;
-  std::vector<LegID> step_sequence_ = {LH, LF, RH, RF, LH, LF};
+  std::vector<LegID> step_sequence_ = {LH, LF, RH, RF};
 };
+
+
+TEST_F(SplineContainerTest, GetSplineCount)
+{
+  EXPECT_EQ(1+step_sequence_.size()+1+1, spline_container_.GetSplineCount());
+  EXPECT_EQ(6, spline_container_.GetLastSpline().GetId());
+
+
+  for (const ZmpSpline& s: spline_container_.GetSplines()) {
+    prt(s);
+  }
+}
 
 
 TEST_F(SplineContainerTest, GetSplineID)
 {
   EXPECT_EQ(0, spline_container_.GetSplineID(0.0));
   EXPECT_EQ(1, spline_container_.GetSplineID(t_stance_initial+0.01));
-//  EXPECT_EQ(2, spline_container_.GetSplineID(t_stance_initial+t_stance+0.01));
-//  EXPECT_EQ(0, spline_container_.GetSplineID(0.0));
   double T = spline_container_.GetTotalTime();
-  EXPECT_DOUBLE_EQ(t_stance_initial + 6*t_swing + 2*t_stance + t_stance_final, T);
+  EXPECT_DOUBLE_EQ(t_stance_initial + 4*t_swing + t_stance + t_stance_final, T);
 
-  int n_splines = 1+step_sequence_.size()+2+1;
+  int n_splines = 1+step_sequence_.size()+1+1;
   EXPECT_EQ(n_splines-1, spline_container_.GetSplineID(T));
 }
 
@@ -57,47 +67,31 @@ TEST_F(SplineContainerTest, GetSplineID)
 TEST_F(SplineContainerTest, GetTotalFreeCoeff)
 {
   int n = spline_container_.GetTotalFreeCoeff();
-  int n_splines = 1+step_sequence_.size()+2+1;
+  int n_splines = 1+step_sequence_.size()+1+1;
   EXPECT_EQ(n_splines*4*2, n);
 }
 
 
+
+
 TEST_F(SplineContainerTest, ConstructSplineSequence)
 {
-  EXPECT_EQ(1+6+2+1, spline_container_.GetSplineCount());
-
 #define SPLINE_ID(id) spline_container_.GetSpline(id)
   EXPECT_TRUE(SPLINE_ID(0).IsFourLegSupport());
-
   EXPECT_FALSE(SPLINE_ID(1).IsFourLegSupport());
   EXPECT_FALSE(SPLINE_ID(2).IsFourLegSupport());
-
   EXPECT_TRUE(SPLINE_ID(3).IsFourLegSupport());
   EXPECT_FALSE(SPLINE_ID(4).IsFourLegSupport());
   EXPECT_FALSE(SPLINE_ID(5).IsFourLegSupport());
-
   EXPECT_TRUE(SPLINE_ID(6).IsFourLegSupport());
-  EXPECT_FALSE(SPLINE_ID(7).IsFourLegSupport());
-  EXPECT_FALSE(SPLINE_ID(8).IsFourLegSupport());
-
-  EXPECT_TRUE(SPLINE_ID(9).IsFourLegSupport());
-
-
 
   EXPECT_EQ(0,SPLINE_ID(0).GetNextPlannedStep());
-
   EXPECT_EQ(0,SPLINE_ID(1).GetCurrStep());
   EXPECT_EQ(1,SPLINE_ID(2).GetCurrStep());
-
   EXPECT_EQ(2,SPLINE_ID(3).GetNextPlannedStep());
   EXPECT_EQ(2,SPLINE_ID(4).GetCurrStep());
   EXPECT_EQ(3,SPLINE_ID(5).GetCurrStep());
-
-  EXPECT_EQ(4,SPLINE_ID(6).GetNextPlannedStep());
-  EXPECT_EQ(4,SPLINE_ID(7).GetCurrStep());
-  EXPECT_EQ(5,SPLINE_ID(8).GetCurrStep());
-
-  EXPECT_EQ(6,SPLINE_ID(9).GetNextPlannedStep());
+  EXPECT_EQ(Final4lsSpline,SPLINE_ID(6).GetType());
 }
 
 

@@ -79,6 +79,8 @@ Eigen::VectorXd
 ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,
                                                   const ContinuousSplineContainer& zmp_spline_container) const
 {
+  auto CreateSuppPolygons = &hyq::SupportPolygonContainer::CreateSupportPolygonsWith4LS; // alias
+
   const double x_nominal_b = 0.3; // 0.4
   const double y_nominal_b = 0.3; // 0.4
   const double dt = zmp_spline_container_.dt_;
@@ -95,12 +97,25 @@ ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer&
   std::vector<double> g_vec;
   g_vec.reserve(approx_n_constraints);
 
+
+  std::vector<xpp::hyq::SupportPolygon> suppport_polygons;
+  suppport_polygons = CreateSuppPolygons(supp_polygon_container,
+                                         zmp_spline_container.GetSplines());
+
   double t=0.0;
   do {
-    // know legs in contact at each step
+    // get legs in contact at each step
     VecFoothold stance_legs;
-    int step = zmp_spline_container.GetCurrOrNextStep(t);
-    stance_legs = supp_polygon_container.GetStanceDuring(step); // fixme, this doesn't use four leg suppport phases
+    int id = zmp_spline_container.GetSplineID(t);
+    std::cout << "id: " << id << std::endl;
+    std::cout << "suppport_polygons.size(): " << suppport_polygons.size() << std::endl;
+    std::cout << "suppport_polygons.at(id) :" << suppport_polygons.at(id) << std::endl;
+
+
+
+    stance_legs = suppport_polygons.at(id).footholds_;
+
+
 
     xpp::utils::Point2d cog_xy;
     zmp_spline_container.GetCOGxy(t, cog_xy);

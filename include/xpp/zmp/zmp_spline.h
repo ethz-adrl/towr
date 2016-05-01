@@ -76,7 +76,7 @@ protected:
 @brief Extends a general spline by specifying a duration during which it is
        active in creating the spline for the CoG movement.
 */
-enum ZmpSplineType {Initial4lsSpline, StepSpline, Intermediate4lsSpline, Final4lsSpline};
+enum ZmpSplineType {Initial4lsSpline=0, StepSpline, Intermediate4lsSpline, Final4lsSpline};
 class ZmpSpline : public Spline {
 
 public:

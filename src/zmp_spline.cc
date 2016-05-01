@@ -102,12 +102,13 @@ uint ZmpSpline::GetNextPlannedStep() const
 }
 
 
-inline std::ostream& operator<<(std::ostream& out, const ZmpSpline& s)
+std::ostream& operator<<(std::ostream& out, const ZmpSpline& s)
 {
   out << "Spline: id= "   << s.id_                << ":\t"
       << "duration="      << s.duration_          << "\t"
       << "four_leg_supp=" << s.IsFourLegSupport() << "\t"
-      << "step="          << s.curr_or_planned_              << "\n";
+      << "step="          << s.curr_or_planned_              << "\t"
+      << "type="          << s.type_ << " (Initial=0, Step=1, Intermediate4ls=2, Final=3) \n ";
   return out;
 }
 

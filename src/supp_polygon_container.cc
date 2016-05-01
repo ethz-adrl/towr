@@ -79,7 +79,6 @@ SupportPolygonContainer::GetStanceAfter(int n_steps) const
   VecFoothold combined = start_stance_;
   combined.insert(combined.end(), footholds_.begin(), footholds_.begin()+n_steps);
 
-
   // get the last step of each foot
   VecFoothold last_stance;
   Foothold f;
@@ -102,12 +101,12 @@ SupportPolygon SupportPolygonContainer::GetFinalPolygon() const
   return GetStancePolygon(GetFinalFootholds());
 }
 
+
 SupportPolygonContainer::VecFoothold
 SupportPolygonContainer::GetFinalFootholds() const
 {
   return GetStanceAfter(footholds_.size());
 }
-
 
 
 SupportPolygonContainer::VecSupportPolygon
@@ -148,6 +147,51 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
     end_cog += f.p.segment<2>(xpp::utils::X);
 
   return end_cog/_LEGS_COUNT;
+}
+
+
+SupportPolygonContainer::VecSupportPolygon
+SupportPolygonContainer::CreateSupportPolygonsWith4LS(
+    const SupportPolygonContainer& supp_polygon_container,
+    const VecZmpSpline& splines_)
+{
+  using namespace xpp::zmp;
+
+  // support polygons during step and in four leg support phases
+  VecSupportPolygon supp_no_4l = supp_polygon_container.GetSupportPolygons();
+
+  VecSupportPolygon supp;
+  for (const ZmpSpline& s : splines_)
+  {
+    SupportPolygon curr_supp;
+    switch (s.GetType()) {
+      case Initial4lsSpline: {
+        curr_supp = supp_polygon_container.GetStartPolygon();
+        break;
+      }
+      case StepSpline: {
+        curr_supp = supp_no_4l.at(s.GetCurrStep());
+        break;
+      }
+      case Intermediate4lsSpline: {
+        int next = s.GetNextPlannedStep();
+        curr_supp = SupportPolygon::CombineSupportPolygons(supp_no_4l.at(next),
+                                                           supp_no_4l.at(next-1));
+        break;
+      }
+      case Final4lsSpline: {
+        curr_supp = supp_polygon_container.GetFinalPolygon();
+        break;
+      }
+      default:
+        std::cerr << "CreateSuppPolygonswith4ls: Could not categorize spline";
+        break;
+    }
+
+    supp.push_back(curr_supp);
+  }
+
+  return supp;
 }
 
 

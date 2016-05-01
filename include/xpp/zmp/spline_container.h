@@ -76,7 +76,6 @@ public:
   int GetSplineID(double t_global) const { return GetSplineID(t_global, splines_); }
 
   int GetFourLegSupport(double t_global) const;
-  int GetCurrOrNextStep(double t_global) const;
 
   static double GetTotalTime(const VecSpline& splines, bool exclude_4ls_splines = false);
   double GetTotalTime(bool exclude_4ls_splines = false) const { return GetTotalTime(splines_, exclude_4ls_splines); }

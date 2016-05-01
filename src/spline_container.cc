@@ -54,6 +54,7 @@ SplineContainer::ConstructSplineSequence(
     double t_stance_initial,
     double t_stance_final)
 {
+
   VecSpline splines;
   int step = 0;
   unsigned int id = 0; // unique identifiers for each spline
@@ -80,8 +81,9 @@ SplineContainer::ConstructSplineSequence(
   }
 
   // always have last 4ls spline for robot to move into center of feet
+  const uint NO_NEXT_STEP = std::numeric_limits<uint>::max();
   if (n_steps > 0)
-    splines.push_back(ZmpSpline(id++, t_stance_final, Final4lsSpline, step+1));
+    splines.push_back(ZmpSpline(id++, t_stance_final, Final4lsSpline, NO_NEXT_STEP));
 
   return splines;
 }
@@ -113,18 +115,6 @@ int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
        return s.GetId();
    }
    return splines.back().GetId();
-}
-
-
-int SplineContainer::GetCurrOrNextStep(double t_global) const
-{
-  assert(t_global<=GetTotalTime());
-  ZmpSpline s = splines_.at(GetSplineID(t_global));
-
-  if (s.IsFourLegSupport())
-    return s.GetNextPlannedStep();
-  else
-    return s.GetCurrStep();
 }
 
 

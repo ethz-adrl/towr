@@ -44,8 +44,6 @@ private:
 
   MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const SupportPolygonContainer&) const;
-  std::vector<SupportPolygon> CreateSupportPolygonsWith4LS(
-      const SupportPolygonContainer&) const;
 
   static VecScalar GenerateLineConstraint(const SupportPolygon::SuppLine& l,
                                 const VecScalar& x_zmp_M,

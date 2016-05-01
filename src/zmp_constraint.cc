@@ -44,53 +44,11 @@ ZmpConstraint::CreateLineConstraints(const SupportPolygonContainer& supp_polygon
 }
 
 
-std::vector<hyq::SupportPolygon>
-ZmpConstraint::CreateSupportPolygonsWith4LS(const SupportPolygonContainer& supp_polygon_container) const
-{
-  std::vector<SupportPolygon> supp;
-
-  // support polygons during step and in four leg support phases
-  std::vector<SupportPolygon> supp_no_4l = supp_polygon_container.GetSupportPolygons();
-
-  for (const xpp::zmp::ZmpSpline& s : spline_structure_.GetSplines())
-  {
-    SupportPolygon curr_supp;
-    switch (s.GetType()) {
-      case Initial4lsSpline: {
-        curr_supp = supp_polygon_container.GetStartPolygon();
-        break;
-      }
-      case StepSpline: {
-        curr_supp = supp_no_4l.at(s.GetCurrStep());
-        break;
-      }
-      case Intermediate4lsSpline: {
-        int next = s.GetNextPlannedStep();
-        curr_supp = SupportPolygon::CombineSupportPolygons(supp_no_4l.at(next),
-                                                           supp_no_4l.at(next-1));
-        break;
-      }
-      case Final4lsSpline: {
-        curr_supp = supp_polygon_container.GetFinalPolygon();
-        break;
-      }
-      default:
-        std::cerr << "CreateSuppPolygonswith4ls: Could not categorize spline";
-        break;
-    }
-
-    supp.push_back(curr_supp);
-  }
-
-
-  return supp;
-}
-
-
 ZmpConstraint::MatVec
 ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                                   const SupportPolygonContainer& supp_polygon_container) const
 {
+  auto CreateSuppPoly = &hyq::SupportPolygonContainer::CreateSupportPolygonsWith4LS; // alias
   int coeff = spline_structure_.GetTotalFreeCoeff();
 
   int num_nodes_no_4ls = spline_structure_.GetTotalNodesNo4ls();
@@ -102,7 +60,8 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
 
-  std::vector<SupportPolygon> supp = CreateSupportPolygonsWith4LS(supp_polygon_container);
+  std::vector<SupportPolygon> supp = CreateSuppPoly(supp_polygon_container,
+                                                    spline_structure_.GetSplines());
 
   for (const zmp::ZmpSpline& s : spline_structure_.GetSplines())
   {

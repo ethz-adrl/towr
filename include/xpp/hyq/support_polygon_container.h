@@ -8,6 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 
+#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/support_polygon.h>
 
 namespace xpp {
@@ -20,6 +21,7 @@ public:
   typedef SupportPolygon::VecFoothold VecFoothold;
   typedef std::vector<xpp::hyq::LegID> VecLegID;
   typedef xpp::utils::MatVec MatVec;
+  typedef std::vector<xpp::zmp::ZmpSpline> VecZmpSpline;
 //  typedef xpp::hyq::LegID LegID;
 
 
@@ -77,6 +79,10 @@ public:
 
 
   VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
+
+  static VecSupportPolygon CreateSupportPolygonsWith4LS(
+      const SupportPolygonContainer&,
+      const VecZmpSpline&);
 
 
 private:
