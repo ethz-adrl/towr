@@ -179,7 +179,7 @@ Constraints::GetBounds()
   Eigen::VectorXd x_coeff(zmp_spline_container_.GetTotalFreeCoeff());
   StdVecEigen2d x_footholds(supp_polygon_container_.GetNumberOfSteps());
   x_coeff.setZero();
-  for (Vector2d f : x_footholds)
+  for (Vector2d& f : x_footholds)
     f.setZero();
 
 
