@@ -6,8 +6,6 @@
  */
 
 #include <xpp/hyq/hyq_state.h>
-
-#include <xpp/utils/logger_helpers-inl.h>
 #include <xpp/utils/orientation.h>
 
 namespace xpp {

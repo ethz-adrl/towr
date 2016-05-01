@@ -64,7 +64,7 @@ int ContinuousSplineContainer::GetTotalNodesNo4ls() const
   int node_count = 0;
 
   for (ZmpSpline s: splines_) {
-    if (s.four_leg_supp_)
+    if (s.IsFourLegSupport())
       continue;
     else
       node_count += s.GetNodeCount(dt_);
@@ -79,7 +79,7 @@ int ContinuousSplineContainer::GetTotalNodes4ls() const
   int node_count = 0;
 
   for (ZmpSpline s: splines_) {
-    if (s.four_leg_supp_)
+    if (s.IsFourLegSupport())
       node_count += s.GetNodeCount(dt_);
   };
   return node_count;
@@ -111,7 +111,7 @@ ContinuousSplineContainer::DescribeEByABCD(int dim, double start_cog_v) const
     e_coeff.v[k]     = e_coeff.v[kprev];
 
     // velocity change over previous spline due to a,b,c,d
-    double Tkprev = splines_.at(kprev).duration_;
+    double Tkprev = splines_.at(kprev).GetDuration();
     e_coeff.M(k, Index(kprev,dim,A)) += 5*std::pow(Tkprev,4);
     e_coeff.M(k, Index(kprev,dim,B)) += 4*std::pow(Tkprev,3);
     e_coeff.M(k, Index(kprev,dim,C)) += 3*std::pow(Tkprev,2);
@@ -138,7 +138,7 @@ ContinuousSplineContainer::DescribeFByABCD(int dim, double start_cog_p,
     f_coeff.M.row(k) = f_coeff.M.row(kprev);
     f_coeff.v[k]     = f_coeff.v[kprev];
 
-    double Tkprev    = splines_.at(kprev).duration_;
+    double Tkprev    = splines_.at(kprev).GetDuration();
 
     // position change over previous spline due to a,b,c,d
     f_coeff.M(k, Index(kprev,dim,A))        += std::pow(Tkprev,5);

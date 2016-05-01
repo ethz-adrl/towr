@@ -4,8 +4,8 @@
 
 float64[6] coeff_x
 float64[6] coeff_y
-uint8 id
+uint32 id
 float64 duration
-uint8 step
-bool four_leg_support
+uint32 step
+int32 type
 

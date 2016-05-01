@@ -81,17 +81,15 @@ void Spline::set_spline_coeff(const CoeffValues &coeff_values)
 }
 
 ZmpSpline::ZmpSpline()
-    : duration_(0.0),
-      id_(0),
-      four_leg_supp_(false),
-      step_(0)
+    : id_(0), duration_(0.0), type_(Initial4lsSpline), step_(0)
 {
   set_spline_coeff();
 }
 
 
-ZmpSpline::ZmpSpline(unsigned int id, double duration, bool four_leg_supp, int step)
-    : id_(id), duration_(duration), four_leg_supp_(four_leg_supp), step_(step)
+ZmpSpline::ZmpSpline(uint id, double duration,
+                     ZmpSplineType type, uint step)
+    : id_(id), duration_(duration), type_(type), step_(step)
 {
   set_spline_coeff();
 }

@@ -42,7 +42,7 @@ ZeroMomentPoint::ExpressZmpThroughCoefficients(const ContinuousSplineContainer& 
   for (const ZmpSpline& s : spline_structure.GetSplines()) {
 
     // calculate e and f coefficients from previous values
-    const int k = s.id_;
+    const int k = s.GetId();
     VecScalar Ek = spline_structure.GetCoefficient(k, dim, E);
     VecScalar Fk = spline_structure.GetCoefficient(k, dim, F);
     int a = ContinuousSplineContainer::Index(k,dim,A);

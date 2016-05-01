@@ -208,13 +208,13 @@ ZmpPublisher::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
     marker.ns = rviz_namespace;
 
 
-    bool four_legg_support = splines.at(id).four_leg_supp_;
+    bool four_legg_support = splines.at(id).IsFourLegSupport();
     if ( four_legg_support ) {
       marker.color.r = marker.color.g = marker.color.b = 0.1;
-      if (id==splines.back().id_)
+      if (id==splines.back().GetId())
         marker.color.g = marker.color.b = 1.0;
     } else {
-      int step = splines.at(id).step_;
+      int step = splines.at(id).GetCurrStep();
       xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
       marker.color = GetLegColor(swing_leg);
     }
@@ -253,13 +253,13 @@ ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     marker.ns = rviz_namespace;
 
 
-    bool four_legg_support = splines.at(id).four_leg_supp_;
+    bool four_legg_support = splines.at(id).IsFourLegSupport();
     if ( four_legg_support ) {
       marker.color.r = marker.color.g = marker.color.g = 0.1;
-      if (id==splines.back().id_)
+      if (id==splines.back().GetId())
         marker.color.g = marker.color.b = 1.0;
     } else {
-      int step = splines.at(id).step_;
+      int step = splines.at(id).GetCurrStep();
       xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
       marker.color = GetLegColor(swing_leg);
     }

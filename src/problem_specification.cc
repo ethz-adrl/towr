@@ -99,8 +99,8 @@ ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer&
   do {
     // know legs in contact at each step
     VecFoothold stance_legs;
-    int step = zmp_spline_container.GetStep(t);
-    stance_legs = supp_polygon_container.GetStanceDuring(step);
+    int step = zmp_spline_container.GetCurrOrNextStep(t);
+    stance_legs = supp_polygon_container.GetStanceDuring(step); // fixme, this doesn't use four leg suppport phases
 
     xpp::utils::Point2d cog_xy;
     zmp_spline_container.GetCOGxy(t, cog_xy);

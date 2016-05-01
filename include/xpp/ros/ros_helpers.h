@@ -60,9 +60,9 @@ XppToRos(const VecSpline& opt_splines)
     std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_y.begin());
 
     msgs.at(i).duration = opt_splines.at(i).duration_;
-    msgs.at(i).four_leg_support = opt_splines.at(i).four_leg_supp_;
-    msgs.at(i).id = opt_splines.at(i).id_;
-    msgs.at(i).step = opt_splines.at(i).step_;
+    msgs.at(i).type     = static_cast<int>(opt_splines.at(i).type_);
+    msgs.at(i).id       = opt_splines.at(i).id_;
+    msgs.at(i).step     = opt_splines.at(i).step_;
   }
 
   return msgs;
@@ -86,7 +86,7 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
     std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::Y]);
 
     xpp.at(i).duration_      = msgs.at(i).duration;
-    xpp.at(i).four_leg_supp_ = msgs.at(i).four_leg_support;
+    xpp.at(i).type_          = static_cast<zmp::ZmpSplineType>(msgs.at(i).type);
     xpp.at(i).id_            = msgs.at(i).id;
     xpp.at(i).step_          = msgs.at(i).step;
   }
@@ -176,7 +176,7 @@ XppToRos(const xpp::hyq::Foothold& xpp)
   ros.p.x = xpp.p.x();
   ros.p.y = xpp.p.y();
   ros.p.z = xpp.p.z();
-  ros.leg = xpp.leg;
+  ros.leg = static_cast<int>(xpp.leg);
 
   return ros;
 }

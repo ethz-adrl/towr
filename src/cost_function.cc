@@ -73,13 +73,13 @@ CostFunction::CreateMinAccCostFunction(const ContinuousSplineContainer& spline_s
   MatVec cf(n_coeff, n_coeff);
 
   for (const ZmpSpline& s : spline_structure.GetSplines()) {
-    std::array<double,8> t_span = utils::cache_exponents<8>(s.duration_);
+    std::array<double,8> t_span = utils::cache_exponents<8>(s.GetDuration());
 
     for (int dim = X; dim <= Y; dim++) {
-      const int a = ContinuousSplineContainer::Index(s.id_, dim, A);
-      const int b = ContinuousSplineContainer::Index(s.id_, dim, B);
-      const int c = ContinuousSplineContainer::Index(s.id_, dim, C);
-      const int d = ContinuousSplineContainer::Index(s.id_, dim, D);
+      const int a = ContinuousSplineContainer::Index(s.GetId(), dim, A);
+      const int b = ContinuousSplineContainer::Index(s.GetId(), dim, B);
+      const int c = ContinuousSplineContainer::Index(s.GetId(), dim, C);
+      const int d = ContinuousSplineContainer::Index(s.GetId(), dim, D);
 
       // for explanation of values see M.Kalakrishnan et al., page 248
       // "Learning, Planning and Control for Quadruped Robots over challenging

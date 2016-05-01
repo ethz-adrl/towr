@@ -6,7 +6,6 @@
  */
 
 #include <xpp/hyq/hyq_spliner.h>
-#include <xpp/utils/logger_helpers-inl.h>
 
 #include <kindr/rotations/RotationEigen.hpp>
 

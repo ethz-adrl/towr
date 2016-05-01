@@ -48,24 +48,40 @@ std::vector<hyq::SupportPolygon>
 ZmpConstraint::CreateSupportPolygonsWith4LS(const SupportPolygonContainer& supp_polygon_container) const
 {
   std::vector<SupportPolygon> supp;
-  std::vector<SupportPolygon> supp_no_4l = supp_polygon_container.GetSupportPolygons();
 
+  // support polygons during step and in four leg support phases
+  std::vector<SupportPolygon> supp_no_4l = supp_polygon_container.GetSupportPolygons();
 
   for (const xpp::zmp::ZmpSpline& s : spline_structure_.GetSplines())
   {
-    bool first_spline = (s.id_ == spline_structure_.GetFirstSpline().id_);
-    bool last_spline  = (s.id_ == spline_structure_.GetLastSpline().id_);
+    SupportPolygon curr_supp;
+    switch (s.GetType()) {
+      case Initial4lsSpline: {
+        curr_supp = supp_polygon_container.GetStartPolygon();
+        break;
+      }
+      case StepSpline: {
+        curr_supp = supp_no_4l.at(s.GetCurrStep());
+        break;
+      }
+      case Intermediate4lsSpline: {
+        int next = s.GetNextStep();
+        curr_supp = SupportPolygon::CombineSupportPolygons(supp_no_4l.at(next),
+                                                           supp_no_4l.at(next-1));
+        break;
+      }
+      case Final4lsSpline: {
+        curr_supp = supp_polygon_container.GetFinalPolygon();
+        break;
+      }
+      default:
+        std::cerr << "CreateSuppPolygonswith4ls: Could not categorize spline";
+        break;
+    }
 
-    if (s.four_leg_supp_)
-      if (first_spline)
-        supp.push_back(supp_polygon_container.GetStartPolygon());
-      else if (last_spline)
-        supp.push_back(supp_polygon_container.GetFinalPolygon());
-      else
-        supp.push_back((SupportPolygon::CombineSupportPolygons(supp_no_4l.at(s.step_), supp_no_4l.at(s.step_-1))));
-    else
-      supp.push_back(supp_no_4l.at(s.step_));
+    supp.push_back(curr_supp);
   }
+
 
   return supp;
 }
@@ -90,7 +106,7 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
 
   for (const zmp::ZmpSpline& s : spline_structure_.GetSplines())
   {
-    SupportPolygon::VecSuppLine lines = supp.at(s.id_).CalcLines();
+    SupportPolygon::VecSuppLine lines = supp.at(s.GetId()).CalcLines();
 
 
 //    Eigen::VectorXd lp(lines.size());

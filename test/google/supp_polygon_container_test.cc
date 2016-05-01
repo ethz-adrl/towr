@@ -103,11 +103,11 @@ TEST_F(SuppPolygonContainerTest, CreateSupportPolygons)
   std::vector<SupportPolygon> supp_4ls;
 
   for (const xpp::zmp::ZmpSpline& s : splines_) {
-    bool first_spline = (s.id_ == 0);
-    bool last_spline  = (s.id_ == splines_.size()-1);
-
-    if (s.four_leg_supp_ && !first_spline && !last_spline)
-      supp_4ls.push_back(SupportPolygon::CombineSupportPolygons(supp.at(s.step_), supp.at(s.step_-1)));
+    if (s.GetType() == xpp::zmp::Intermediate4lsSpline) {
+      int next_step = s.GetNextStep();
+      supp_4ls.push_back(SupportPolygon::CombineSupportPolygons(supp.at(next_step),
+                                                                supp.at(next_step-1)));
+    }
   }
 
   EXPECT_EQ(1, supp_4ls.size()); // only one four leg support phase LF->RH

@@ -12,6 +12,13 @@
 
 
 namespace xpp {
+namespace ros {
+class RosHelpers;
+}
+}
+
+
+namespace xpp {
 namespace zmp {
 
 
@@ -62,26 +69,66 @@ public:
 private:
 };
 
+
+
 /**
 @class ZmpSpline
 @brief Extends a general spline by specifying a duration during which it is
        active in creating the spline for the CoG movement.
 */
+enum ZmpSplineType {Initial4lsSpline, StepSpline, Intermediate4lsSpline, Final4lsSpline};
 class ZmpSpline : public Spline {
 
 public:
   ZmpSpline();
-  ZmpSpline(unsigned int id, double duration, bool four_leg_supp, int step);
+  ZmpSpline(uint id, double duration, ZmpSplineType, uint step);
   virtual ~ZmpSpline() {};
 
+  uint GetId() const { return id_; };
+  double GetDuration() const { return duration_; }
+  ZmpSplineType GetType() const { return type_; }
   int GetNodeCount(double dt) const { return std::floor(duration_/dt); }
 
-  unsigned int id_; // to identify the order relative to other zmp splines
-  double duration_; // time during which this spline is active
-  bool four_leg_supp_;
-  int step_;
+  uint GetCurrStep() const
+  {
+    // Only if spline is "StepSpline" a step is currently beeing executed.
+    // If this fails, call "GetCurrStep", because currently in four-leg-support
+    assert(!IsFourLegSupport());
+    return step_;
+  }
+
+  uint GetNextStep() const
+  {
+    // Only if spline is currently a four-leg support spline.
+    // The next step is the step planned to execute after the 4ls-phase is complete.
+    assert(IsFourLegSupport());
+    return step_;
+  }
+
+  bool IsFourLegSupport() const { return type_ != StepSpline; }
+
 private:
+  uint id_; // to identify the order relative to other zmp splines
+  double duration_; // time during which this spline is active
+  ZmpSplineType type_;
+  uint step_; // current step if step spline, otherwise planned next step
+
+  friend struct xpp::ros::RosHelpers;
+  friend std::ostream& operator<<(std::ostream& out, const ZmpSpline& tr);
+
 };
+
+
+inline std::ostream& operator<<(std::ostream& out, const ZmpSpline& s)
+{
+  out << "Spline: id= "   << s.id_                << ":\t"
+      << "duration="      << s.duration_          << "\t"
+      << "four_leg_supp=" << s.IsFourLegSupport() << "\t"
+      << "step="          << s.step_              << "\n";
+  return out;
+}
+
+
 
 
 } // namespace zmp

@@ -61,8 +61,8 @@ SplineConstraints::CreateFinalConstraints(const State& final_cond) const
   for (int dim = X; dim <= Y; ++dim)
   {
     ZmpSpline last = spline_structure_.GetLastSpline();
-    int K = last.id_;
-    double T = last.duration_;
+    int K = last.GetId();
+    double T = last.GetDuration();
     int last_spline = ContinuousSplineContainer::Index(K, dim, A);
     std::array<double,6> t_duration = utils::cache_exponents<6>(T);
 
@@ -116,7 +116,7 @@ SplineConstraints::CreateJunctionConstraints() const
   int i = 0; // constraint count
   for (uint s = 0; s < spline_structure_.GetSplineCount()-1; ++s)
   {
-    double duration = spline_structure_.GetSpline(s).duration_;
+    double duration = spline_structure_.GetSpline(s).GetDuration();
     std::array<double,6> T_curr = utils::cache_exponents<6>(duration);
     for (int dim = X; dim <= Y; dim++) {
 

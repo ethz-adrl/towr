@@ -67,37 +67,37 @@ TEST_F(SplineContainerTest, ConstructSplineSequence)
   EXPECT_EQ(1+6+2+1, spline_container_.GetSplineCount());
 
 #define SPLINE_ID(id) spline_container_.GetSpline(id)
-  EXPECT_TRUE(SPLINE_ID(0).four_leg_supp_);
+  EXPECT_TRUE(SPLINE_ID(0).IsFourLegSupport());
 
-  EXPECT_FALSE(SPLINE_ID(1).four_leg_supp_);
-  EXPECT_FALSE(SPLINE_ID(2).four_leg_supp_);
+  EXPECT_FALSE(SPLINE_ID(1).IsFourLegSupport());
+  EXPECT_FALSE(SPLINE_ID(2).IsFourLegSupport());
 
-  EXPECT_TRUE(SPLINE_ID(3).four_leg_supp_);
-  EXPECT_FALSE(SPLINE_ID(4).four_leg_supp_);
-  EXPECT_FALSE(SPLINE_ID(5).four_leg_supp_);
+  EXPECT_TRUE(SPLINE_ID(3).IsFourLegSupport());
+  EXPECT_FALSE(SPLINE_ID(4).IsFourLegSupport());
+  EXPECT_FALSE(SPLINE_ID(5).IsFourLegSupport());
 
-  EXPECT_TRUE(SPLINE_ID(6).four_leg_supp_);
-  EXPECT_FALSE(SPLINE_ID(7).four_leg_supp_);
-  EXPECT_FALSE(SPLINE_ID(8).four_leg_supp_);
+  EXPECT_TRUE(SPLINE_ID(6).IsFourLegSupport());
+  EXPECT_FALSE(SPLINE_ID(7).IsFourLegSupport());
+  EXPECT_FALSE(SPLINE_ID(8).IsFourLegSupport());
 
-  EXPECT_TRUE(SPLINE_ID(9).four_leg_supp_);
+  EXPECT_TRUE(SPLINE_ID(9).IsFourLegSupport());
 
 
 
-  EXPECT_EQ(0,SPLINE_ID(0).step_);
+  EXPECT_EQ(0,SPLINE_ID(0).GetNextStep());
 
-  EXPECT_EQ(0,SPLINE_ID(1).step_);
-  EXPECT_EQ(1,SPLINE_ID(2).step_);
+  EXPECT_EQ(0,SPLINE_ID(1).GetCurrStep());
+  EXPECT_EQ(1,SPLINE_ID(2).GetCurrStep());
 
-  EXPECT_EQ(2,SPLINE_ID(3).step_);
-  EXPECT_EQ(2,SPLINE_ID(4).step_);
-  EXPECT_EQ(3,SPLINE_ID(5).step_);
+  EXPECT_EQ(2,SPLINE_ID(3).GetNextStep());
+  EXPECT_EQ(2,SPLINE_ID(4).GetCurrStep());
+  EXPECT_EQ(3,SPLINE_ID(5).GetCurrStep());
 
-  EXPECT_EQ(4,SPLINE_ID(6).step_);
-  EXPECT_EQ(4,SPLINE_ID(7).step_);
-  EXPECT_EQ(5,SPLINE_ID(8).step_);
+  EXPECT_EQ(4,SPLINE_ID(6).GetNextStep());
+  EXPECT_EQ(4,SPLINE_ID(7).GetCurrStep());
+  EXPECT_EQ(5,SPLINE_ID(8).GetCurrStep());
 
-  EXPECT_EQ(6,SPLINE_ID(9).step_);
+  EXPECT_EQ(6,SPLINE_ID(9).GetNextStep());
 }
 
 
