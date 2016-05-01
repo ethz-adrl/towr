@@ -122,7 +122,7 @@ int SplineContainer::GetCurrOrNextStep(double t_global) const
   ZmpSpline s = splines_.at(GetSplineID(t_global));
 
   if (s.IsFourLegSupport())
-    return s.GetNextStep();
+    return s.GetNextPlannedStep();
   else
     return s.GetCurrStep();
 }

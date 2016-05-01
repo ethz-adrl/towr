@@ -104,7 +104,7 @@ TEST_F(SuppPolygonContainerTest, CreateSupportPolygons)
 
   for (const xpp::zmp::ZmpSpline& s : splines_) {
     if (s.GetType() == xpp::zmp::Intermediate4lsSpline) {
-      int next_step = s.GetNextStep();
+      int next_step = s.GetNextPlannedStep();
       supp_4ls.push_back(SupportPolygon::CombineSupportPolygons(supp.at(next_step),
                                                                 supp.at(next_step-1)));
     }

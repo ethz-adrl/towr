@@ -65,7 +65,7 @@ ZmpConstraint::CreateSupportPolygonsWith4LS(const SupportPolygonContainer& supp_
         break;
       }
       case Intermediate4lsSpline: {
-        int next = s.GetNextStep();
+        int next = s.GetNextPlannedStep();
         curr_supp = SupportPolygon::CombineSupportPolygons(supp_no_4l.at(next),
                                                            supp_no_4l.at(next-1));
         break;

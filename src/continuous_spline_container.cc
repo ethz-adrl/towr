@@ -184,7 +184,7 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
 
     } // dim:X..Y
 
-    splines.at(k).set_spline_coeff(coeff_values);
+    splines.at(k).SetSplineCoefficients(coeff_values);
 
   } // k=0..n_spline_infos_
 }

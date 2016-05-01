@@ -10,7 +10,7 @@
 
 #include <xpp/utils/geometric_structs.h>
 
-
+// for friend class declaration
 namespace xpp {
 namespace ros {
 class RosHelpers;
@@ -60,13 +60,13 @@ public:
 public:
   Spline();
   Spline(const CoeffValues &coeff_values);
-  virtual ~Spline();
+  virtual ~Spline() {};
 
   Vec2d GetState(const PosVelAcc &whichDeriv, const double &_t) const;
-  void set_spline_coeff(const CoeffValues &coeff_values = CoeffValues());
+  void SetSplineCoefficients(const CoeffValues &coeff_values = CoeffValues());
 
-  double spline_coeff_[kDim2d][kCoeffCount]; // FIXME, make privat
-private:
+protected:
+  double spline_coeff_[kDim2d][kCoeffCount];
 };
 
 
@@ -84,51 +84,31 @@ public:
   ZmpSpline(uint id, double duration, ZmpSplineType, uint step);
   virtual ~ZmpSpline() {};
 
-  uint GetId() const { return id_; };
-  double GetDuration() const { return duration_; }
+  uint GetId()            const { return id_; };
+  double GetDuration()    const { return duration_; }
   ZmpSplineType GetType() const { return type_; }
+
+  /** Only if spline is a "StepSpline" is a step is currently being executed.
+  If this fails, call "GetPlannedStep", because currently in four-leg-support */
+  uint GetCurrStep() const;
+
+  /** Only if spline is currently a four-leg support spline.
+   *  The next step is the step planned to execute after the 4ls-phase is complete */
+  uint GetNextPlannedStep() const;
+
   int GetNodeCount(double dt) const { return std::floor(duration_/dt); }
-
-  uint GetCurrStep() const
-  {
-    // Only if spline is "StepSpline" a step is currently beeing executed.
-    // If this fails, call "GetCurrStep", because currently in four-leg-support
-    assert(!IsFourLegSupport());
-    return step_;
-  }
-
-  uint GetNextStep() const
-  {
-    // Only if spline is currently a four-leg support spline.
-    // The next step is the step planned to execute after the 4ls-phase is complete.
-    assert(IsFourLegSupport());
-    return step_;
-  }
-
   bool IsFourLegSupport() const { return type_ != StepSpline; }
 
 private:
   uint id_; // to identify the order relative to other zmp splines
   double duration_; // time during which this spline is active
   ZmpSplineType type_;
-  uint step_; // current step if step spline, otherwise planned next step
+  uint curr_or_planned_; // current step if step spline, otherwise planned next step
 
   friend struct xpp::ros::RosHelpers;
   friend std::ostream& operator<<(std::ostream& out, const ZmpSpline& tr);
 
 };
-
-
-inline std::ostream& operator<<(std::ostream& out, const ZmpSpline& s)
-{
-  out << "Spline: id= "   << s.id_                << ":\t"
-      << "duration="      << s.duration_          << "\t"
-      << "four_leg_supp=" << s.IsFourLegSupport() << "\t"
-      << "step="          << s.step_              << "\n";
-  return out;
-}
-
-
 
 
 } // namespace zmp

@@ -6,8 +6,6 @@
  */
 
 #include <xpp/zmp/zmp_spline.h>
-
-#include <ros/console.h>
 #include <iostream>
 
 namespace xpp {
@@ -23,12 +21,7 @@ Spline::Spline()
 
 Spline::Spline(const CoeffValues &coeff_values)
 {
-  set_spline_coeff(coeff_values);
-}
-
-
-Spline::~Spline()
-{
+  SetSplineCoefficients(coeff_values);
 }
 
 
@@ -63,7 +56,7 @@ Spline::Vec2d Spline::GetState(const PosVelAcc &whichDerivative,
       ret[dim] = 20*a*t[3] + 12*b*t[2] + 6*c*t[1] + 2*d;
       break;
     default:
-      ROS_ERROR("Spline.GetState: Do you want pos, vel or acc info? returning 0.0");
+      std::cerr << "Spline.GetState: Do you want pos, vel or acc info? returning 0.0";
       ret[dim] = 0.0;
     }
   }
@@ -71,8 +64,7 @@ Spline::Vec2d Spline::GetState(const PosVelAcc &whichDerivative,
 }
 
 
-
-void Spline::set_spline_coeff(const CoeffValues &coeff_values)
+void Spline::SetSplineCoefficients(const CoeffValues &coeff_values)
 {
     for (int c = 0; c < kCoeffCount; ++c) {
       spline_coeff_[utils::X][c] = coeff_values.x[c];
@@ -80,18 +72,43 @@ void Spline::set_spline_coeff(const CoeffValues &coeff_values)
     }
 }
 
+
 ZmpSpline::ZmpSpline()
-    : id_(0), duration_(0.0), type_(Initial4lsSpline), step_(0)
+    : id_(0), duration_(0.0), type_(Initial4lsSpline), curr_or_planned_(0)
 {
-  set_spline_coeff();
+  SetSplineCoefficients();
 }
 
 
 ZmpSpline::ZmpSpline(uint id, double duration,
                      ZmpSplineType type, uint step)
-    : id_(id), duration_(duration), type_(type), step_(step)
+    : id_(id), duration_(duration), type_(type), curr_or_planned_(step)
 {
-  set_spline_coeff();
+  SetSplineCoefficients();
+}
+
+
+uint ZmpSpline::GetCurrStep() const
+{
+  assert(!IsFourLegSupport());
+  return curr_or_planned_;
+}
+
+
+uint ZmpSpline::GetNextPlannedStep() const
+{
+  assert((type_==Initial4lsSpline) || (type_==Intermediate4lsSpline));
+  return curr_or_planned_;
+}
+
+
+inline std::ostream& operator<<(std::ostream& out, const ZmpSpline& s)
+{
+  out << "Spline: id= "   << s.id_                << ":\t"
+      << "duration="      << s.duration_          << "\t"
+      << "four_leg_supp=" << s.IsFourLegSupport() << "\t"
+      << "step="          << s.curr_or_planned_              << "\n";
+  return out;
 }
 
 

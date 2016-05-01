@@ -84,20 +84,20 @@ TEST_F(SplineContainerTest, ConstructSplineSequence)
 
 
 
-  EXPECT_EQ(0,SPLINE_ID(0).GetNextStep());
+  EXPECT_EQ(0,SPLINE_ID(0).GetNextPlannedStep());
 
   EXPECT_EQ(0,SPLINE_ID(1).GetCurrStep());
   EXPECT_EQ(1,SPLINE_ID(2).GetCurrStep());
 
-  EXPECT_EQ(2,SPLINE_ID(3).GetNextStep());
+  EXPECT_EQ(2,SPLINE_ID(3).GetNextPlannedStep());
   EXPECT_EQ(2,SPLINE_ID(4).GetCurrStep());
   EXPECT_EQ(3,SPLINE_ID(5).GetCurrStep());
 
-  EXPECT_EQ(4,SPLINE_ID(6).GetNextStep());
+  EXPECT_EQ(4,SPLINE_ID(6).GetNextPlannedStep());
   EXPECT_EQ(4,SPLINE_ID(7).GetCurrStep());
   EXPECT_EQ(5,SPLINE_ID(8).GetCurrStep());
 
-  EXPECT_EQ(6,SPLINE_ID(9).GetNextStep());
+  EXPECT_EQ(6,SPLINE_ID(9).GetNextPlannedStep());
 }
 
 

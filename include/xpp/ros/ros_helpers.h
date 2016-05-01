@@ -62,7 +62,7 @@ XppToRos(const VecSpline& opt_splines)
     msgs.at(i).duration = opt_splines.at(i).duration_;
     msgs.at(i).type     = static_cast<int>(opt_splines.at(i).type_);
     msgs.at(i).id       = opt_splines.at(i).id_;
-    msgs.at(i).step     = opt_splines.at(i).step_;
+    msgs.at(i).step     = opt_splines.at(i).curr_or_planned_;
   }
 
   return msgs;
@@ -88,7 +88,7 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
     xpp.at(i).duration_      = msgs.at(i).duration;
     xpp.at(i).type_          = static_cast<zmp::ZmpSplineType>(msgs.at(i).type);
     xpp.at(i).id_            = msgs.at(i).id;
-    xpp.at(i).step_          = msgs.at(i).step;
+    xpp.at(i).curr_or_planned_          = msgs.at(i).step;
   }
 
   return xpp;
