@@ -97,6 +97,7 @@ private:
 
   SupportPolygon GetStancePolygon(const VecFoothold& footholds) const;
   bool initialized_ = false;
+  friend class SuppPolygonContainerTest_CreateSupportPolygons_Test;
 };
 
 } /* namespace hyq */

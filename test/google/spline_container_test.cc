@@ -96,7 +96,5 @@ TEST_F(SplineContainerTest, ConstructSplineSequence)
 
 
 
-
-
 } // namespace hyq
 } // namespace xpp

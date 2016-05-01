@@ -24,15 +24,17 @@ protected:
 
   virtual void SetUp()
   {
-    start_stance_[LH] = Foothold(-0.3, 0.3, 0.0, LH);
-    start_stance_[LF] = Foothold( 0.3, 0.3, 0.0, LF);
-    start_stance_[RH] = Foothold(-0.3, -0.3, 0.0, RH);
-    start_stance_[RF] = Foothold( 0.3, -0.3, 0.0, RF);
+    start_stance_[LH] = Foothold(-0.31,  0.37, 0.0, LH);
+    start_stance_[LF] = Foothold( 0.33,  0.35, 0.0, LF);
+    start_stance_[RH] = Foothold(-0.35, -0.33, 0.0, RH);
+    start_stance_[RF] = Foothold( 0.37, -0.31, 0.0, RF);
 
     double step_length = 0.25;
+    Eigen::Vector3d step;
+    step << 0.25, 0.05, 0.0;
     for (LegID leg : LegIDArray) {
       final_stance_[leg] = start_stance_[leg];
-      final_stance_[leg].p.x() += step_length;
+      final_stance_[leg].p += step;
     }
 
     // decide step sequence
@@ -86,14 +88,62 @@ TEST_F(SuppPolygonContainerTest, CreateSupportPolygonsWith4LS)
   for (const xpp::hyq::SupportPolygon& p : supp_all)
     prt(p);
 
+
+  EXPECT_EQ(4, supp_all.at(0).footholds_conv_.size()); // intial 4ls
+  EXPECT_EQ(3, supp_all.at(1).footholds_conv_.size()); // step 0
+  EXPECT_EQ(3, supp_all.at(2).footholds_conv_.size()); // step 1
+  EXPECT_EQ(4, supp_all.at(3).footholds_conv_.size()); // 4ls
+  EXPECT_EQ(3, supp_all.at(4).footholds_conv_.size()); // step 2
+  EXPECT_EQ(3, supp_all.at(5).footholds_conv_.size()); // step 3
+  EXPECT_EQ(4, supp_all.at(6).footholds_conv_.size()); // final 4ls
+
 }
 
 
-TEST_F(SuppPolygonContainerTest, GetSupportPolygons)
+TEST_F(SuppPolygonContainerTest, GetNumberOfSteps)
 {
-  std::vector<SupportPolygon> supp = start_to_final_supp_.GetSupportPolygons();
-  EXPECT_EQ(4, supp.size());
+  EXPECT_EQ(4, start_to_final_supp_.GetNumberOfSteps());
 }
+
+
+TEST_F(SuppPolygonContainerTest, CreateSupportPolygons)
+{
+  std::vector<SupportPolygon> supp = start_to_final_supp_.CreateSupportPolygons(f0_);
+
+  for (const xpp::hyq::SupportPolygon& p : supp)
+    prt(p);
+}
+
+
+TEST_F(SuppPolygonContainerTest, GetStanceAfter)
+{
+  for (int i=0; i<start_to_final_supp_.GetNumberOfSteps(); ++i) {
+    std::cout << "\n\n step: " << i << ":\n";
+    for (int j=0; j<4; ++j) {
+      std::cout << start_to_final_supp_.GetStanceAfter(i).at(j) << std::endl;
+    }
+  }
+}
+
+
+TEST_F(SuppPolygonContainerTest, SetFootholdsXY)
+{
+  start_to_final_supp_.SetFootholdsXY(0, 0.0, 0.0);
+  start_to_final_supp_.SetFootholdsXY(1, 0.0, 0.0);
+  start_to_final_supp_.SetFootholdsXY(2, 0.0, 0.0);
+  start_to_final_supp_.SetFootholdsXY(3, 0.0, 0.0);
+
+  std::vector<SupportPolygon> supp = start_to_final_supp_.GetSupportPolygons();
+
+  EXPECT_EQ(3, supp.at(0).footholds_conv_.size()); // while lh swings to center
+  EXPECT_EQ(3, supp.at(1).footholds_conv_.size()); // while lf swings to center
+  EXPECT_EQ(2, supp.at(2).footholds_conv_.size()); // while rh swings to center (lh,lf at center)
+  EXPECT_EQ(1, supp.at(3).footholds_conv_.size()); // while rf swings to center
+
+  for (const xpp::hyq::SupportPolygon& p : supp)
+    prt(p);
+}
+
 
 
 TEST_F(SuppPolygonContainerTest, CombineSupportPolygons)

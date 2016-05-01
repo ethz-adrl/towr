@@ -44,21 +44,12 @@ public:
   Foothold GetStartStance(LegID leg) const { return supp_polygon_container_.GetStartStance()[leg]; };
   VecFoothold GetStartStance() const { return supp_polygon_container_.GetStartStance(); };
 
-private:
-  Eigen::VectorXd DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,
-                                              const ContinuousSplineContainer& zmp_spline_container) const;
 
 protected:
   SupportPolygonContainer supp_polygon_container_;
   ContinuousSplineContainer zmp_spline_container_;
-//  const VecFoothold planned_footholds_;
 
-protected:
   void UpdateCurrentState(const VectorXd& x_coeff, const StdVecEigen2d& footholds);
-//  Eigen::VectorXd DistanceFootFromPlanned(const StdVecEigen2d& footholds) const;
-//  Eigen::VectorXd DistanceFootToNominalStance() const {
-//    return DistanceFootToNominalStance(supp_polygon_container_, zmp_spline_container_);
-//  }
   Eigen::VectorXd DistanceFootToNominalStance(const VectorXd& x_coeff, const StdVecEigen2d& footholds) const
   {
     // update current state of support polygon and zmp spline
@@ -66,6 +57,7 @@ protected:
     spline_container.AddOptimizedCoefficients(x_coeff);
 
     SupportPolygonContainer supp_polygon_container = supp_polygon_container_;
+
     for (uint i=0; i<footholds.size(); ++i)
       supp_polygon_container.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
 
@@ -73,8 +65,12 @@ protected:
   }
 
   Eigen::VectorXd DistanceSquareFootToGapboarder(const StdVecEigen2d& footholds,
-                                           double gap_center_x,
-                                           double gap_width_x) const;
+                                                 double gap_center_x,
+                                                 double gap_width_x) const;
+
+private:
+  Eigen::VectorXd DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,
+                                              const ContinuousSplineContainer& zmp_spline_container) const;
 };
 
 } /* namespace zmp */
