@@ -115,7 +115,7 @@ MarginValues SupportPolygon::GetZeroMargins()
   zero_margins[FRONT] = 0.0;
   zero_margins[HIND]  = 0.0;
   zero_margins[SIDE]  = 0.0;
-  zero_margins[DIAG]  = 0.0; // controls sidesway motion
+  zero_margins[DIAG]  = 0.16; // controls sidesway motion
 
   return zero_margins;
 }

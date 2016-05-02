@@ -44,6 +44,20 @@ struct CoeffValues {
     x[A] = xa; x[B] = xb; x[C] = xc; x[D] = xd; x[E] = xe; x[F] = xf;
     y[A] = ya; y[B] = yb; y[C] = yc; y[D] = yd; y[E] = ye; y[F] = yf;
   }
+
+//  bool operator==(const CoeffValues& rhs) const
+//  {
+//    static const double eps = std::numeric_limits<double>::epsilon();
+//
+//    for (int c = A; c <= F; ++c) {
+//      bool x_equal = std::abs(x[c] - rhs.x[c]) <= eps * std::abs(x[c]);
+//      bool y_equal = std::abs(y[c] - rhs.y[c]) <= eps * std::abs(y[c]);
+//
+//      if (!x_equal || !y_equal)
+//        return false;
+//    }
+//    return true;
+//  }
 };
 
 /**
@@ -67,6 +81,7 @@ public:
 
 protected:
   double spline_coeff_[kDim2d][kCoeffCount];
+  friend class SplineContainerTest_EandFCoefficientTest_Test;
 };
 
 
