@@ -16,18 +16,26 @@ namespace xpp {
 namespace zmp {
 
 using namespace xpp::hyq;
+using namespace xpp::utils::coords_wrapper;
 
 class ZeroMomentPointTest : public ::testing::Test {
 
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW; // for fixed size eigen members
   typedef ZeroMomentPoint::MatVec MatVec;
 
 protected:
   virtual void SetUp()
   {
-    cont_spline_container_.Init(Eigen::Vector2d::Zero(),
-                                Eigen::Vector2d::Zero(),
-                                step_sequence_,
+    init_pos.setZero();
+    init_vel.setZero();
+
+    init_pos << 0.8, 1.2;
+    init_vel << 0.2, 1.3;
+
+    cont_spline_container_.Init(init_pos,
+                                init_vel,
+                                {LH, LF, RH},//, RF, LH, LF};
                                 t_stance,
                                 t_swing,
                                 t_stance_initial,
@@ -40,7 +48,9 @@ protected:
   double t_swing = 0.5;
   double t_stance_final = 1.0;
   double walking_height = 0.58;
-  std::vector<xpp::hyq::LegID> step_sequence_ = {LH};//, LF, RH, RF, LH, LF};
+
+  Eigen::Vector2d init_pos;
+  Eigen::Vector2d init_vel;
 
 };
 
@@ -48,10 +58,88 @@ protected:
 TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
 {
 
-  MatVec x_zmp = ZeroMomentPoint::ExpressZmpThroughCoefficients(
-      cont_spline_container_,
-      walking_height,
-      xpp::utils::X);
+  auto ZmpMap = &ZeroMomentPoint::ExpressZmpThroughCoefficients;
+  // expresses zero moment point only depending on initial pos and velocity
+  // and a,b,c,d coefficients of spline
+  MatVec x_zmp_map = ZmpMap(cont_spline_container_,walking_height,X);
+  MatVec y_zmp_map = ZmpMap(cont_spline_container_,walking_height,Y);
+
+
+  // create a random spline (polynome not connected at junctions)
+  std::vector<ZmpSpline> splines = cont_spline_container_.GetSplines(); // get ids and durations
+  Eigen::VectorXd abcd(cont_spline_container_.GetTotalFreeCoeff());
+
+
+
+  // initialize first spline to match position and velocity
+  // all other splines must match position, velocity at junctions
+  // build first spline
+  CoeffValues coeff;
+  coeff.SetRandom();
+  coeff.x[E] = init_vel.x();
+  coeff.x[F] = init_pos.x();
+  coeff.y[E] = init_vel.y();
+  coeff.y[F] = init_pos.y();
+  splines.front().SetSplineCoefficients(coeff);
+  for (int c=A; c<= D; ++c) {
+    abcd(ContinuousSplineContainer::Index(0, X, c)) = coeff.x[c];
+    abcd(ContinuousSplineContainer::Index(0, Y, c)) = coeff.y[c];
+  }
+
+  // shorthand for spline durations
+  const int n_splines = splines.size();
+  std::vector<double> T;
+  for (int spline=0; spline<n_splines; spline++)
+    T.push_back(splines.at(spline).GetDuration());
+
+
+  Eigen::Vector2d f,e;
+  // build splines ensuring equal position and velocity at juntions
+  for (int spline=1; spline<n_splines; spline++) {
+
+    CoeffValues coeff;
+    coeff.SetRandom();
+
+    // make sure splines are continuous in position and velocity
+    f = splines.at(spline-1).GetState(kPos, T.at(spline-1));
+    e = splines.at(spline-1).GetState(kVel, T.at(spline-1));
+    coeff.x[E] = e.x();
+    coeff.x[F] = f.x();
+    coeff.y[E] = e.y();
+    coeff.y[F] = f.y();
+
+    splines.at(spline).SetSplineCoefficients(coeff);
+    for (int c=A; c<= D; ++c) {
+      abcd(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
+      abcd(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
+    }
+  }
+
+
+  // with the initial conditions and the abcd coefficients, calculate the zmp
+  // for every discrete time step
+  Eigen::VectorXd x_zmp = x_zmp_map.M*abcd + x_zmp_map.v;
+  Eigen::VectorXd y_zmp = y_zmp_map.M*abcd + y_zmp_map.v;
+
+
+  // compare
+  double t = 0.0;
+  int n = 0;
+  while (t<cont_spline_container_.GetTotalTime()) {
+    xpp::utils::Point2d cog_xy;
+    ContinuousSplineContainer::GetCOGxy(t, cog_xy, splines);
+
+    Eigen::Vector2d zmp_true = ZeroMomentPoint::CalcZmp(cog_xy.Make3D(), walking_height);
+
+    EXPECT_FLOAT_EQ(zmp_true.x(), x_zmp[n]);
+    EXPECT_FLOAT_EQ(zmp_true.y(), y_zmp[n]);
+
+    t += cont_spline_container_.dt_;
+    n++;
+  }
+
+
+
 
 
 //  EXPECT_EQ(f_top_left.size(), poly.footholds_conv_.size());

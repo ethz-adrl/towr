@@ -80,7 +80,6 @@ public:
   static double GetTotalTime(const VecSpline& splines, bool exclude_4ls_splines = false);
   double GetTotalTime(bool exclude_4ls_splines = false) const { return GetTotalTime(splines_, exclude_4ls_splines); }
 
-
 protected:
   VecSpline splines_;
   void CheckIfSplinesInitialized() const;

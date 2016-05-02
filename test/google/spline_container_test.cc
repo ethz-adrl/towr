@@ -120,8 +120,6 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   // v(t) =  5at^4 +  4bt^3 + 3ct^2 + 2dt  + e
   // a(t) = 20at^3 + 12bt^2 + 6ct   + 2d
 
-  srand(time(NULL)); // initialize random number generator with system time
-
   Eigen::Vector2d init_pos, init_vel, init_acc;
   init_pos.setZero(); init_vel.setZero();
   init_pos << 0.4, 3.4;
@@ -148,16 +146,14 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   int spline=0;
   f = init_pos;
   e = init_vel;
-  init_acc << 3.1, 0.0;
+  init_acc << 3.1, -0.5;
   d = init_acc/2.0;
 
 
   // build first spline
   CoeffValues coeff;
-  for (int c = A; c <= C; ++c){
-    coeff.x[c] = (double)rand() / RAND_MAX * 100 - 50; // generates spline value between -50 and 50
-    coeff.y[c] = (double)rand() / RAND_MAX * 100 - 50; // generates spline value between -50 and 50
-  }
+  coeff.SetRandom();
+
   coeff.x[D] = d.x();
   coeff.x[E] = e.x();
   coeff.x[F] = f.x();
@@ -183,10 +179,7 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   for (int spline=1; spline<n_splines; spline++) {
 
     CoeffValues coeff;
-    for (int c = A; c <= D; ++c){
-      coeff.x[c] = (double)rand() / RAND_MAX * 100 - 50; // generates spline value between -50 and 50
-      coeff.y[c] = (double)rand() / RAND_MAX * 100 - 50; // generates spline value between -50 and 50;
-    }
+    coeff.SetRandom();
 
     // make sure splines are continuous in position and velocity
     f = splines_ref.at(spline-1).GetState(kPos, T.at(spline-1));

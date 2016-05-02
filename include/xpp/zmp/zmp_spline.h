@@ -45,6 +45,15 @@ struct CoeffValues {
     y[A] = ya; y[B] = yb; y[C] = yc; y[D] = yd; y[E] = ye; y[F] = yf;
   }
 
+  /** generates random spline coefficients between -50 and 50 */
+  void SetRandom()
+  {
+    for (int c = A; c <= F; ++c) {
+      x[c] = (double)rand() / RAND_MAX * 100 - 50;
+      y[c] = (double)rand() / RAND_MAX * 100 - 50;
+    }
+  }
+
 //  bool operator==(const CoeffValues& rhs) const
 //  {
 //    static const double eps = std::numeric_limits<double>::epsilon();
