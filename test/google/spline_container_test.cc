@@ -114,12 +114,13 @@ TEST_F(SplineContainerTest, GetState)
 
 
 
-
 TEST_F(SplineContainerTest, EandFCoefficientTest)
 {
   // p(t) =   at^5 +   bt^4 + ct^3  + dt^2 + et + f
   // v(t) =  5at^4 +  4bt^3 + 3ct^2 + 2dt  + e
   // a(t) = 20at^3 + 12bt^2 + 6ct   + 2d
+
+  srand(time(NULL)); // initialize random number generator with system time
 
   Eigen::Vector2d init_pos, init_vel, init_acc;
   init_pos.setZero(); init_vel.setZero();
@@ -141,46 +142,60 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   Eigen::VectorXd abcd_coeff(splines_estimated_ef.GetTotalFreeCoeff());
   abcd_coeff.setZero();
 
-  CoeffValues coeff;
   Eigen::Vector2d f,e,d;
-
-
 
 
   int spline=0;
   f = init_pos;
   e = init_vel;
-//  init_acc << 3.1, 0.0;
-//  d = init_acc/2.0;
+  init_acc << 3.1, 0.0;
+  d = init_acc/2.0;
 
-  int n_splines = splines_estimated_ef.GetSplineCount();
-  std::array<double, n_splines > T;
+
+  // build first spline
+  CoeffValues coeff;
+  for (int c = A; c <= C; ++c){
+    coeff.x[c] = (double)rand() / RAND_MAX * 100 - 50; // generates spline value between -50 and 50
+    coeff.y[c] = (double)rand() / RAND_MAX * 100 - 50; // generates spline value between -50 and 50
+  }
+  coeff.x[D] = d.x();
+  coeff.x[E] = e.x();
+  coeff.x[F] = f.x();
+
+  coeff.y[D] = d.y();
+  coeff.y[E] = e.y();
+  coeff.y[F] = f.y();
+  splines_ref.at(spline).SetSplineCoefficients(coeff);
+  for (int c=A; c<= D; ++c) {
+    abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
+    abcd_coeff(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
+  }
+
+
+  // shorthand for spline durations
+  const int n_splines = splines_estimated_ef.GetSplineCount();
+  std::vector<double> T;
   for (int spline=0; spline<n_splines; spline++)
-    T.at(spline) = splines_ref.at(spline).GetDuration();
+    T.push_back(splines_ref.at(spline).GetDuration());
 
 
+  // build splines ensuring equal position and velocity at juntions
+  for (int spline=1; spline<n_splines; spline++) {
 
-
-
-//  = {splines_ref.at(0).GetDuration(),
-//                              splines_ref.at(1).GetDuration(),
-//                              splines_ref.at(2).GetDuration()};
-
-
-  for (int spline=0; spline<n_splines; spline++) {
-
-    for (int c = A; c <= F; ++c){
-      coeff.x[c] = 0.0;
-      coeff.y[c] = 0.0;
+    CoeffValues coeff;
+    for (int c = A; c <= D; ++c){
+      coeff.x[c] = (double)rand() / RAND_MAX * 100 - 50; // generates spline value between -50 and 50
+      coeff.y[c] = (double)rand() / RAND_MAX * 100 - 50; // generates spline value between -50 and 50;
     }
 
+    // make sure splines are continuous in position and velocity
+    f = splines_ref.at(spline-1).GetState(kPos, T.at(spline-1));
+    e = splines_ref.at(spline-1).GetState(kVel, T.at(spline-1));
     coeff.x[E] = e.x();
     coeff.x[F] = f.x();
     coeff.y[E] = e.y();
     coeff.y[F] = f.y();
 
-//    coeff = CoeffValues(-0.1,   0.3, 1.2, d.x(), e.x(), f.x(),      /* x: a -> f */
-//                         1.3, -50.0, 2.0, d.y(), e.y(), f.y());    // y: a -> f
     splines_ref.at(spline).SetSplineCoefficients(coeff);
     for (int c=A; c<= D; ++c) {
       abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
@@ -189,114 +204,30 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   }
 
 
-  spline++;
-
-
-  // 1 spline (step lh)
-  f = splines_ref.at(spline-1).GetState(kPos, T.at(spline-1));
-  e = splines_ref.at(spline-1).GetState(kVel, T.at(spline-1));
-
-  coeff = CoeffValues(  1.8, -2.0, 0.4, 1.2, e.x(), f.x(),    /* x: a -> f */
-                      -10.0,  1.2, 9.0, 3.0, e.y(), f.y());   // y: a -> f
-  splines_ref.at(spline).SetSplineCoefficients(coeff);
-  for (int c=A; c<= D; ++c) {
-    abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
-    abcd_coeff(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
-  }
-  spline++;
-
-
-  // 2. spline (step lf)
-  f = splines_ref.at(spline-1).GetState(kPos, T.at(spline-1));
-  e = splines_ref.at(spline-1).GetState(kVel, T.at(spline-1));
-  coeff = CoeffValues(2.6, 12.1, -5.0, 2.3, e.x(), f.x(),     /* x: a -> f */
-                      7.0,  2.0,  7.0, 1.3, e.y(), f.y());    // y: a -> f
-  splines_ref.at(spline).SetSplineCoefficients(coeff);
-  for (int c=A; c<= D; ++c) {
-    abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
-    abcd_coeff(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
-  }
-  spline++;
-
-
-  // 3. spline (4ls)
-  f = splines_ref.at(spline-1).GetState(kPos, T.at(spline-1));
-  e = splines_ref.at(spline-1).GetState(kVel, T.at(spline-1));
-  coeff = CoeffValues(2.6, 12.1, -5.0, 2.3, e.x(), f.x(),     /* x: a -> f */
-                      7.0,  2.0,  7.0, 1.3, e.y(), f.y());    // y: a -> f
-  splines_ref.at(spline).SetSplineCoefficients(coeff);
-  for (int c=A; c<= D; ++c) {
-    abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
-    abcd_coeff(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
-  }
-  spline++;
-
-
-  // 4. spline (4ls)
-  f = splines_ref.at(spline-1).GetState(kPos, T.at(spline-1));
-  e = splines_ref.at(spline-1).GetState(kVel, T.at(spline-1));
-  coeff = CoeffValues(2.6, 12.1, -5.0, 2.3, e.x(), f.x(),     /* x: a -> f */
-                      7.0,  2.0,  7.0, 1.3, e.y(), f.y());    // y: a -> f
-  splines_ref.at(spline).SetSplineCoefficients(coeff);
-  for (int c=A; c<= D; ++c) {
-    abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
-    abcd_coeff(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
-  }
-  spline++;
-
 
 
   // Describe the same spline with only abcd coefficients and the constraint that
   // the junctions should have equal position and velocity
   splines_estimated_ef.AddOptimizedCoefficients(abcd_coeff);
 
+  for (int dim=X; dim<=Y; ++dim) {
+    EXPECT_FLOAT_EQ(init_pos[dim], splines_estimated_ef.GetSpline(0).spline_coeff_[dim][F]);
+    EXPECT_FLOAT_EQ(init_vel[dim], splines_estimated_ef.GetSpline(0).spline_coeff_[dim][E]);
+    EXPECT_FLOAT_EQ(init_acc[dim], 2* splines_estimated_ef.GetSpline(0).spline_coeff_[dim][D]);
+  }
 
-  // compare the real and the calculated coefficients
-  int s=0;
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][A], splines_estimated_ef.GetSpline(s).spline_coeff_[X][A]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][B], splines_estimated_ef.GetSpline(s).spline_coeff_[X][B]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][C], splines_estimated_ef.GetSpline(s).spline_coeff_[X][C]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][D], splines_estimated_ef.GetSpline(s).spline_coeff_[X][D]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][E], splines_estimated_ef.GetSpline(s).spline_coeff_[X][E]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][F], splines_estimated_ef.GetSpline(s).spline_coeff_[X][F]);
 
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][A], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][A]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][B], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][B]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][C], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][C]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][D], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][D]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][E], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][E]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][F], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][F]);
-  s++;
-
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][A], splines_estimated_ef.GetSpline(s).spline_coeff_[X][A]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][B], splines_estimated_ef.GetSpline(s).spline_coeff_[X][B]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][C], splines_estimated_ef.GetSpline(s).spline_coeff_[X][C]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][D], splines_estimated_ef.GetSpline(s).spline_coeff_[X][D]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][E], splines_estimated_ef.GetSpline(s).spline_coeff_[X][E]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][F], splines_estimated_ef.GetSpline(s).spline_coeff_[X][F]);
-
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][A], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][A]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][B], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][B]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][C], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][C]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][D], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][D]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][E], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][E]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][F], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][F]);
-  s++;
-
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][A], splines_estimated_ef.GetSpline(s).spline_coeff_[X][A]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][B], splines_estimated_ef.GetSpline(s).spline_coeff_[X][B]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][C], splines_estimated_ef.GetSpline(s).spline_coeff_[X][C]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][D], splines_estimated_ef.GetSpline(s).spline_coeff_[X][D]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][E], splines_estimated_ef.GetSpline(s).spline_coeff_[X][E]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[X][F], splines_estimated_ef.GetSpline(s).spline_coeff_[X][F]);
-
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][A], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][A]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][B], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][B]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][C], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][C]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][D], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][D]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][E], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][E]);
-  EXPECT_DOUBLE_EQ(splines_ref.at(s).spline_coeff_[Y][F], splines_estimated_ef.GetSpline(s).spline_coeff_[Y][F]);
-  s++;
+  // the set coefficients and the one estimated through above constraint must be equal
+  for (int s=1; s<n_splines; s++) {
+    for (int dim=X; dim<=Y; ++dim) {
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][A], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][A]);
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][B], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][B]);
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][C], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][C]);
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][D], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][D]);
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][E], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][E]);
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][F], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][F]);
+    }
+  }
 }
 
 
