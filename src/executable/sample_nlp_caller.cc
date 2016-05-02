@@ -27,7 +27,7 @@ void OptParamsCallback(const OptimizedParametersMsg& msg)
 
 int main(int argc, char **argv)
 {
-  if (argc==1) ROS_FATAL("Please specify current x-acceleration as parameter");
+  if (argc==1) ROS_FATAL("Please specify current x-velocity & acceleration as parameter");
 
   ros::init(argc, argv, "sample_nlp_caller");
   ros::NodeHandle n;
@@ -43,8 +43,10 @@ int main(int argc, char **argv)
 
   ReqInfoMsg msg;
   msg.curr_state.pos.x = 0.0;
-  msg.curr_state.vel.x = 0.0; // figure out why this fails
-  msg.curr_state.acc.x = atof(argv[1]); // this is a constraint
+  msg.curr_state.vel.x = atof(argv[1]); // figure out why this fails
+  msg.curr_state.vel.y = atof(argv[1]); // figure out why this fails
+  msg.curr_state.acc.x = atof(argv[2]); // this is a constraint
+  msg.curr_state.acc.y = atof(argv[2]); // this is a constraint
 //  msg.curr_state.acc.y = 1.0;
 
   using namespace xpp::hyq;
@@ -57,7 +59,7 @@ int main(int argc, char **argv)
   current_info_pub.publish(msg);
 
 
-  xpp::ros::ZmpPublisher zmp_publisher("sample_nlp_publisher");
+  xpp::ros::ZmpPublisher zmp_publisher("example_publisher");
   ros::Rate loop_rate(10);
   while (ros::ok()) {
     ros::spinOnce();

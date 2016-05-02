@@ -25,7 +25,7 @@ void OptParamsCallback(const OptimizedParametersMsg& msg)
 int main(int argc, char **argv)
 {
   using namespace xpp::ros;
-  if (argc==1) ROS_FATAL("Please specify current x- velocity acceleration as parameters");
+  if (argc==1) ROS_FATAL("Please specify current x- velocity & acceleration as parameters");
 
   ros::init(argc, argv, "sample_qp_caller");
   ros::NodeHandle n;
@@ -42,7 +42,9 @@ int main(int argc, char **argv)
   ReqInfoMsg msg;
   msg.curr_state.pos.x = 0.0;
   msg.curr_state.vel.x = atof(argv[1]); // figure out why this fails
+  msg.curr_state.vel.y = atof(argv[1]); // figure out why this fails
   msg.curr_state.acc.x = atof(argv[2]); // this is a constraint
+  msg.curr_state.acc.y = atof(argv[2]); // this is a constraint
 //  msg.curr_state.acc.y = 1.0;
 
   using namespace xpp::hyq;
@@ -60,7 +62,7 @@ int main(int argc, char **argv)
 
   current_info_pub.publish(msg);
 
-  xpp::ros::ZmpPublisher zmp_publisher("sample_qp_publisher");
+  xpp::ros::ZmpPublisher zmp_publisher("example_publisher");
   ros::Rate loop_rate(10);
   while (ros::ok()) {
     ros::spinOnce();

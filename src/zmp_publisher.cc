@@ -40,7 +40,7 @@ void ZmpPublisher::AddRvizMessage(
   AddFootholds(msg, opt_footholds, "footholds", visualization_msgs::Marker::CUBE, alpha);
   AddStartStance(msg, start_stance);
   AddCogTrajectory(msg, splines, opt_footholds, "cog", alpha);
-  AddZmpTrajectory(msg, splines, opt_footholds, "zmp", 0.4);
+  AddZmpTrajectory(msg, splines, opt_footholds, "zmp_4ls", 0.4);
   AddSupportPolygons(msg, start_stance, opt_footholds);
 
 //  AddLineStrip(msg, gap_center_x, gap_width_x, "gap");
@@ -89,7 +89,7 @@ ZmpPublisher::BuildSupportPolygon(const VecFoothold& stance,
   marker.id = (zmp_msg_.markers.size() == 0)? 0 : zmp_msg_.markers.back().id + 1;
   marker.header.frame_id = frame_id_;
   marker.header.stamp = ::ros::Time();
-  marker.ns = "leg " + std::to_string(leg_id) + " support triangles";
+  marker.ns = "leg " + std::to_string(leg_id);
   marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
   marker.action = visualization_msgs::Marker::ADD;
  //    marker.lifetime = ros::Duration(10);
@@ -249,8 +249,9 @@ ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     marker = GenerateMarker(zmp,
                             visualization_msgs::Marker::CUBE,
                             0.005);
-    marker.id = i++;
+
     marker.ns = rviz_namespace;
+    marker.id = i++;
 
 
     bool four_legg_support = splines.at(id).IsFourLegSupport();
@@ -261,6 +262,7 @@ ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     } else {
       int step = splines.at(id).GetCurrStep();
       xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
+      marker.ns = "leg " + std::to_string(swing_leg);
       marker.color = GetLegColor(swing_leg);
     }
 

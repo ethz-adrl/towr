@@ -92,7 +92,7 @@ ContinuousSplineContainer::GetCoefficient(int spline_id_k, int dim, SplineCoeff 
   CheckIfSplinesInitialized();
   assert(c== E || c== F);
   const MatVec& rel = (c==E)? relationship_e_to_abcd_.at(dim) : relationship_f_to_abdc_.at(dim);
-  return rel.ExtractRow(spline_id_k);
+  return rel.GetRow(spline_id_k);
 }
 
 

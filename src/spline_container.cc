@@ -61,6 +61,8 @@ SplineContainer::ConstructSplineSequence(
 
   // first 4ls-phase and step
   splines.push_back(ZmpSpline(id++, t_stance_initial, Initial4lsSpline, step));
+//  splines.push_back(ZmpSpline(id++, t_stance_initial/3., Initial4lsSpline, step));
+//  splines.push_back(ZmpSpline(id++, t_stance_initial/3., Initial4lsSpline, step));
 
   int n_steps = step_sequence.size();
   if (n_steps > 0)

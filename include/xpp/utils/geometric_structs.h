@@ -132,9 +132,9 @@ struct MatVec {
       :M(Eigen::MatrixXd::Zero(rows, cols)),
        v(Eigen::VectorXd::Zero(rows))
   {}
-  VecScalar ExtractRow(int r) const;
+  VecScalar GetRow(int r) const;
   void operator<<(const MatVec& rhs);
-  void AddVecScalar(const VecScalar& val, size_t row) ;
+  void WriteRow(const VecScalar& val, size_t row) ;
 };
 
 

@@ -49,16 +49,21 @@ QpOptimizer::SolveQp(const State& initial_state,
   supp_polygon_container.Init(start_stance, steps, hyq::SupportPolygon::GetDefaultMargins());
 
 
-  std::cout << "n_support_polygons: " << supp_polygon_container.GetSupportPolygons().size() << std::endl;
-  std::cout << supp_polygon_container.GetStartPolygon() << std::endl;
+  ROS_INFO_STREAM("Start polygon:\n" << supp_polygon_container.GetStartPolygon());
+  std::vector<hyq::SupportPolygon> supp = supp_polygon_container.GetSupportPolygons();
+
+  ROS_INFO_STREAM("Support polygons for the " << supp.size() << " steps:\n");
+  for (const hyq::SupportPolygon& s : supp) {
+    ROS_INFO_STREAM(s);
+  }
 
   ZmpConstraint zmp_constraint(spline_structure, robot_height);
   inequality_constraints_ = zmp_constraint.CreateLineConstraints(supp_polygon_container);
 
-  std::cout << "inequality_constraints_.M.rows()" << inequality_constraints_.M.rows() << std::endl;
-  std::cout << "inequality_constraints_.M.cols()" << inequality_constraints_.M.cols() << std::endl;
-  std::cout << inequality_constraints_.M << std::endl;
-  std::cout << inequality_constraints_.v << std::endl;
+//  std::cout << "inequality_constraints_.M.rows()" << inequality_constraints_.M.rows() << std::endl;
+//  std::cout << "inequality_constraints_.M.cols()" << inequality_constraints_.M.cols() << std::endl;
+//  std::cout << inequality_constraints_.M << std::endl;
+//  std::cout << inequality_constraints_.v << std::endl;
 
   ROS_INFO_STREAM("Initial state:\t" << initial_state);
   ROS_INFO_STREAM("Final state:\t" << final_state);

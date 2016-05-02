@@ -32,9 +32,9 @@ Point2d Point3d::Get2D() const
 }
 
 
-VecScalar MatVec::ExtractRow(int r) const
+VecScalar MatVec::GetRow(int row) const
 {
-  return VecScalar(M.row(r), v[r]);
+  return VecScalar(M.row(row), v[row]);
 }
 
 
@@ -50,7 +50,7 @@ void MatVec::operator<<(const MatVec& rhs)
 }
 
 
-void MatVec::AddVecScalar(const VecScalar& val, size_t row)
+void MatVec::WriteRow(const VecScalar& val, size_t row)
 {
   assert((val.v.cols()==M.cols()) && (row<M.rows()));
 
