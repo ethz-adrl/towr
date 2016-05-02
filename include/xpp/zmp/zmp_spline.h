@@ -38,8 +38,8 @@ struct CoeffValues {
       x[c] = y[c] = 0.0;
   };
 
-  CoeffValues(int xa, int xb, int xc, int xd, int xe, int xf,
-              int ya, int yb, int yc, int yd, int ye, int yf)
+  CoeffValues(double xa, double xb, double xc, double xd, double xe, double xf,
+              double ya, double yb, double yc, double yd, double ye, double yf)
   {
     x[A] = xa; x[B] = xb; x[C] = xc; x[D] = xd; x[E] = xe; x[F] = xf;
     y[A] = ya; y[B] = yb; y[C] = yc; y[D] = yd; y[E] = ye; y[F] = yf;
