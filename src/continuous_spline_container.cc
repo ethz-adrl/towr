@@ -108,34 +108,6 @@ int ContinuousSplineContainer::Index(int spline, int dim, int coeff)
 }
 
 
-int ContinuousSplineContainer::GetTotalNodesNo4ls() const
-{
-  CheckIfSplinesInitialized();
-  int node_count = 0;
-
-  for (ZmpSpline s: splines_) {
-    if (s.IsFourLegSupport())
-      continue;
-    else
-      node_count += s.GetNodeCount(dt_);
-  };
-  return node_count;
-}
-
-
-int ContinuousSplineContainer::GetTotalNodes4ls() const
-{
-  CheckIfSplinesInitialized();
-  int node_count = 0;
-
-  for (ZmpSpline s: splines_) {
-    if (s.IsFourLegSupport())
-      node_count += s.GetNodeCount(dt_);
-  };
-  return node_count;
-}
-
-
 ContinuousSplineContainer::VecScalar
 ContinuousSplineContainer::GetCoefficient(int spline_id_k, int dim, SplineCoeff c) const
 {

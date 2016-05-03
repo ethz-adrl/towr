@@ -77,6 +77,7 @@ public:
 
   /** Returns the time that the spline active at t_global has been running */
   static double GetLocalTime(double t_global, const VecSpline& splines);
+  double GetLocalTime(double t_global) const { return GetLocalTime(t_global, splines_); };
 
   int GetFourLegSupport(double t_global) const;
 
@@ -95,6 +96,7 @@ protected:
 private:
   // Creates a sequence of Splines without the optimized coefficients
   bool splines_initialized_ = false;
+  static constexpr double eps_ = 1e-10; // maximum inaccuracy when adding double numbers
 
 };
 

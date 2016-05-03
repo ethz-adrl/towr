@@ -56,8 +56,7 @@ public:
    */
   static int Index(int spline, int dim, int coeff);
   int GetTotalFreeCoeff() const;
-  int GetTotalNodesNo4ls() const;
-  int GetTotalNodes4ls() const;
+  int GetTotalNodes() const { return 1 + std::floor(GetTotalTime()/dt_); };
 
   void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff,
                                 VecSpline& splines) const;
