@@ -108,8 +108,7 @@ ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer&
     int id = zmp_spline_container.GetSplineID(t);
     stance_legs = suppport_polygons.at(id).footholds_;
 
-    xpp::utils::Point2d cog_xy;
-    zmp_spline_container.GetCOGxy(t, cog_xy);
+    xpp::utils::Point2d cog_xy = zmp_spline_container.GetCOGxy(t);
 
     // calculate distance to base for every stance leg
     // restrict to quadrants

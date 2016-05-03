@@ -121,8 +121,7 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
   double t = 0.0;
   int n = 0;
   while (t<cont_spline_container_.GetTotalTime()) {
-    xpp::utils::Point2d cog_xy;
-    ContinuousSplineContainer::GetCOGxy(t, cog_xy, splines);
+    xpp::utils::Point2d cog_xy = ContinuousSplineContainer::GetCOGxy(t, splines);
 
     Eigen::Vector2d zmp_true = ZeroMomentPoint::CalcZmp(cog_xy.Make3D(), walking_height);
 

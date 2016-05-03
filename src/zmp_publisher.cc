@@ -194,8 +194,7 @@ ZmpPublisher::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
   for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= 0.02)
   {
 
-    xpp::utils::Point2d cog_state;
-    SplineContainer::GetCOGxy(t, cog_state,splines);
+    xpp::utils::Point2d cog_state = SplineContainer::GetCOGxy(t, splines);
     int id = SplineContainer::GetSplineID(t, splines);
 
 
@@ -236,8 +235,7 @@ ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
   for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= 0.02)
   {
 
-    xpp::utils::Point2d cog_state;
-    SplineContainer::GetCOGxy(t, cog_state,splines);
+    xpp::utils::Point2d cog_state = SplineContainer::GetCOGxy(t, splines);
 
     Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height_);
 

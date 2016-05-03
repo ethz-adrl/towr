@@ -69,11 +69,14 @@ public:
   @param Derivative which value (pos,vel,acc) at this time we are interested in
   @return x and y state of position,velocity OR acceleration
    */
-  static void GetCOGxy(double t_global, Point2d& cog_xy, const VecSpline& splines);
-  void GetCOGxy(double t_global, Point2d& cog_xy) const { GetCOGxy(t_global, cog_xy, splines_); }
+  static Point2d GetCOGxy(double t_global, const VecSpline& splines);
+  Point2d GetCOGxy(double t_global) const { return GetCOGxy(t_global, splines_); }
 
   static int GetSplineID(double t_global, const VecSpline& splines);
   int GetSplineID(double t_global) const { return GetSplineID(t_global, splines_); }
+
+  /** Returns the time that the spline active at t_global has been running */
+  static double GetLocalTime(double t_global, const VecSpline& splines);
 
   int GetFourLegSupport(double t_global) const;
 

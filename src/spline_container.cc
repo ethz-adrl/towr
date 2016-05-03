@@ -116,7 +116,21 @@ int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
      if (t >= t_global)
        return s.GetId();
    }
+
    return splines.back().GetId();
+}
+
+
+double SplineContainer::GetLocalTime(double t_global, const VecSpline& splines)
+{
+  int id_spline = GetSplineID(t_global,splines);
+
+  double t_local = t_global;
+  for (int id=0; id<id_spline; id++) {
+    t_local -= splines.at(id).GetDuration();
+  }
+
+  return t_local;
 }
 
 
@@ -127,24 +141,18 @@ int SplineContainer::GetFourLegSupport(double t_global) const
 }
 
 
-void SplineContainer::GetCOGxy(double t_global, Point2d& cog_xy,
-                               const VecSpline& splines)
+SplineContainer::Point2d
+SplineContainer::GetCOGxy(double t_global, const VecSpline& splines)
 {
-  assert(t_global<=GetTotalTime(splines));
+  int id = GetSplineID(t_global,splines);
+  double t_local = GetLocalTime(t_global, splines);
 
-  uint curr_spline = 0;
+  Point2d cog_xy;
+  cog_xy.p = splines[id].GetState(kPos, t_local);
+  cog_xy.v = splines[id].GetState(kVel, t_local);
+  cog_xy.a = splines[id].GetState(kAcc, t_local);
 
-  /** Transform global time to local spline time dt */
-  double t_local = t_global;
-  while (t_local > splines[curr_spline].GetDuration()) {
-    t_local -= splines[curr_spline++].GetDuration();
-  }
-
-  cog_xy.p = splines[curr_spline].GetState(kPos, t_local);
-  cog_xy.v = splines[curr_spline].GetState(kVel, t_local);
-  cog_xy.a = splines[curr_spline].GetState(kAcc, t_local);
-
-  assert(curr_spline < splines.size()); // make sure the current spline is in the buffer
+  return cog_xy;
 }
 
 

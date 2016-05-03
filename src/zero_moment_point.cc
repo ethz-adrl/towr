@@ -44,12 +44,10 @@ ZeroMomentPoint::ExpressZmpThroughCoefficients(const ContinuousSplineContainer& 
   int n = 0; // node counter
   for (const ZmpSpline& s : spline_structure.GetSplines()) {
 
-    const int id = s.GetId();
-
     for (double i=0; i < s.GetNodeCount(spline_structure.dt_); ++i) {
       double t_local = i*spline_structure.dt_;
-      VecScalar pos = spline_structure.ExpressCogPosThroughABCD(t_local, id, dim);
-      VecScalar acc = spline_structure.ExpressCogAccThroughABCD(t_local, id, dim);
+      VecScalar pos = spline_structure.ExpressCogPosThroughABCD(t_local, s.GetId(), dim);
+      VecScalar acc = spline_structure.ExpressCogAccThroughABCD(t_local, s.GetId(), dim);
       zmp.WriteRow(CalcZmp(pos, acc, height), n++);
     }
   }
