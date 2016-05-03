@@ -38,7 +38,7 @@ protected:
 
   double t_stance_initial = 2.0;
   double t_stance = 0.1;
-  double t_swing = 0.5;
+  double t_swing = 0.6;
   double t_stance_final = 1.0;
 
   std::vector<LegID> step_sequence_4_ = {LH, LF, RH, RF};
@@ -213,6 +213,8 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   // the set coefficients and the one estimated through above constraint must be equal
   for (int s=1; s<n_splines; s++) {
     for (int dim=X; dim<=Y; ++dim) {
+      SCOPED_TRACE("s = " + std::to_string(s));
+      SCOPED_TRACE("dim = " + std::to_string(dim));
       EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][A], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][A]);
       EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][B], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][B]);
       EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][C], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][C]);

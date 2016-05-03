@@ -45,6 +45,56 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
 }
 
 
+ContinuousSplineContainer::VecScalar
+ContinuousSplineContainer::ExpressCogPosThroughABCD(double t_local, int id, int dim) const
+{
+  VecScalar pos(GetTotalFreeCoeff());
+
+  VecScalar Ek = GetCoefficient(id, dim, E);
+  VecScalar Fk = GetCoefficient(id, dim, F);
+
+  // x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
+  pos.v(Index(id,dim,A))   = std::pow(t_local,5);
+  pos.v(Index(id,dim,B))   = std::pow(t_local,4);
+  pos.v(Index(id,dim,C))   = std::pow(t_local,3);
+  pos.v(Index(id,dim,D))   = std::pow(t_local,2);
+  pos.v                   += t_local*Ek.v;
+  pos.v                   += 1*Fk.v;
+
+  pos.s = Ek.s*t_local + Fk.s;
+
+  return pos;
+}
+
+
+ContinuousSplineContainer::VecScalar
+ContinuousSplineContainer::ExpressCogAccThroughABCD(double t_local, int id, int dim) const
+{
+  VecScalar acc(GetTotalFreeCoeff());
+
+  int idx = Index(id,dim,A);
+  acc.v.middleCols<kFreeCoeffPerSpline>(idx) = ExpressCogAccThroughABCD(t_local);
+
+  return acc;
+}
+
+
+ContinuousSplineContainer::VecABCD
+ContinuousSplineContainer::ExpressCogAccThroughABCD(double t_local) const
+{
+  VecABCD acc;
+
+  // x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
+  acc(A)   = 20.0 * std::pow(t_local,3);
+  acc(B)   = 12.0 * std::pow(t_local,2);
+  acc(C)   =  6.0 * t_local;
+  acc(D)   =  2.0;
+
+  return acc;
+}
+
+
+
 int ContinuousSplineContainer::GetTotalFreeCoeff() const
 {
   CheckIfSplinesInitialized();

@@ -70,6 +70,8 @@ QpOptimizer::SolveQp(const State& initial_state,
 
   Eigen::VectorXd opt_abcd = EigenSolveQuadprog();
 
+  std::cout << "opt_abcd: " << opt_abcd;
+
   spline_structure.AddOptimizedCoefficients(opt_abcd);
 
   return spline_structure.GetSplines();

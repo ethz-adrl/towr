@@ -18,17 +18,22 @@ public:
   typedef xpp::utils::MatVec MatVec;
   typedef Eigen::Vector2d Vector2d;
   typedef xpp::utils::Point3d State3d;
+  typedef xpp::utils::VecScalar VecScalar;
 
 public:
   ZeroMomentPoint () {};
   virtual ~ZeroMomentPoint () {};
 
   static Vector2d CalcZmp(const State3d& cog, double height);
+  static VecScalar CalcZmp(const VecScalar& pos, const VecScalar& acc, double height);
+
   static MatVec ExpressZmpThroughCoefficients(const ContinuousSplineContainer&,
                                               double walking_height, int dim);
 
 
+
   static constexpr double gravity_ = 9.80665; // gravity acceleration [m\s^2]
+
 };
 
 } /* namespace zmp */

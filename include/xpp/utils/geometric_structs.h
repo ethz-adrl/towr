@@ -121,7 +121,13 @@ struct VecScalar {
       :v(_v),
        s(_s)
   {}
+  VecScalar operator-(const VecScalar& rhs) const
+  {
+    return VecScalar(v-rhs.v, s-rhs.s);
+  }
 };
+
+VecScalar operator*(double d, const VecScalar& rhs);
 
 
 struct MatVec {

@@ -63,10 +63,10 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
   std::vector<SupportPolygon> supp = CreateSuppPoly(supp_polygon_container,
                                                     spline_structure_.GetSplines());
 
-  std::cout << "IN ZMPCONSTRAINT: Support polygons for the " << supp.size() << " steps:\n";
-  for (const hyq::SupportPolygon& s : supp) {
-    std::cout << s;
-  }
+//  std::cout << "IN ZMPCONSTRAINT: Support polygons for the " << supp.size() << " steps:\n";
+//  for (const hyq::SupportPolygon& s : supp) {
+//    std::cout << s;
+//  }
 
   for (const zmp::ZmpSpline& s : spline_structure_.GetSplines())
   {

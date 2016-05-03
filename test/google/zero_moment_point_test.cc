@@ -43,38 +43,27 @@ protected:
   }
 
   ContinuousSplineContainer cont_spline_container_;
-  double t_stance_initial = 2.0;
-  double t_stance = 0.1;
-  double t_swing = 0.5;
+  double t_stance_initial = 1.0;
+  double t_stance = 0.2;
+  double t_swing = 0.7; // muss .2, .4, .6, ..sein
   double t_stance_final = 1.0;
   double walking_height = 0.58;
 
   Eigen::Vector2d init_pos;
   Eigen::Vector2d init_vel;
-
 };
 
 
 TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
 {
-
-  auto ZmpMap = &ZeroMomentPoint::ExpressZmpThroughCoefficients;
-  // expresses zero moment point only depending on initial pos and velocity
-  // and a,b,c,d coefficients of spline
-  MatVec x_zmp_map = ZmpMap(cont_spline_container_,walking_height,X);
-  MatVec y_zmp_map = ZmpMap(cont_spline_container_,walking_height,Y);
-
-
-  // create a random spline (polynome not connected at junctions)
+  // create a random spline with pos, vel equal at spline juntions
   std::vector<ZmpSpline> splines = cont_spline_container_.GetSplines(); // get ids and durations
   Eigen::VectorXd abcd(cont_spline_container_.GetTotalFreeCoeff());
-
-
+  CoeffValues coeff;
 
   // initialize first spline to match position and velocity
   // all other splines must match position, velocity at junctions
   // build first spline
-  CoeffValues coeff;
   coeff.SetRandom();
   coeff.x[E] = init_vel.x();
   coeff.x[F] = init_pos.x();
@@ -116,10 +105,16 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
   }
 
 
+  // expresses zero moment point only depending on initial pos and velocity
+  // and a,b,c,d coefficients of spline
+  auto ZmpMap = &ZeroMomentPoint::ExpressZmpThroughCoefficients;
+  MatVec x_zmp_map = ZmpMap(cont_spline_container_,walking_height,X);
+  MatVec y_zmp_map = ZmpMap(cont_spline_container_,walking_height,Y);
   // with the initial conditions and the abcd coefficients, calculate the zmp
   // for every discrete time step
   Eigen::VectorXd x_zmp = x_zmp_map.M*abcd + x_zmp_map.v;
   Eigen::VectorXd y_zmp = y_zmp_map.M*abcd + y_zmp_map.v;
+  prt(x_zmp.rows());
 
 
   // compare
@@ -131,6 +126,7 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
 
     Eigen::Vector2d zmp_true = ZeroMomentPoint::CalcZmp(cog_xy.Make3D(), walking_height);
 
+    SCOPED_TRACE("n = " + std::to_string(n));
     EXPECT_FLOAT_EQ(zmp_true.x(), x_zmp[n]);
     EXPECT_FLOAT_EQ(zmp_true.y(), y_zmp[n]);
 

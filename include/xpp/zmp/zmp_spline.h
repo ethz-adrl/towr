@@ -45,12 +45,12 @@ struct CoeffValues {
     y[A] = ya; y[B] = yb; y[C] = yc; y[D] = yd; y[E] = ye; y[F] = yf;
   }
 
-  /** generates random spline coefficients between -50 and 50 */
+  /** generates random spline coefficients between -25 and 25 */
   void SetRandom()
   {
     for (int c = A; c <= F; ++c) {
-      x[c] = (double)rand() / RAND_MAX * 100 - 50;
-      y[c] = (double)rand() / RAND_MAX * 100 - 50;
+      x[c] = (double)rand() / RAND_MAX * 50 - 25;
+      y[c] = (double)rand() / RAND_MAX * 50 - 25;
     }
   }
 
@@ -112,7 +112,7 @@ public:
   double GetDuration()    const { return duration_; }
   ZmpSplineType GetType() const { return type_; }
 
-  /** Only if spline is a "StepSpline" is a step is currently being executed.
+  /** Only if spline is a "StepSpline" is a step currently being executed.
   If this fails, call "GetPlannedStep", because currently in four-leg-support */
   uint GetCurrStep() const;
 

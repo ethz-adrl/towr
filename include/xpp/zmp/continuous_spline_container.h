@@ -26,6 +26,7 @@ public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::VecScalar VecScalar;
   typedef Eigen::Vector2d Vector2d;
+  typedef Eigen::RowVector4d VecABCD;
 
 public:
   ContinuousSplineContainer () {};
@@ -67,7 +68,20 @@ public:
 
   VecScalar GetCoefficient(int spline_id_k, int dim, SplineCoeff c) const;
 
+  /**
+   * Produces a vector and scalar, that, multiplied with the spline coefficients
+   * a,b,c,d of all splines returns the position of the CoG at time t_local
+   * @param t_local @attention local time of spline. So t_local=0 returns CoG at beginning of this spline.
+   * @param id id of current spline
+   * @param dim dimension specifying if x or y coordinate of CoG should be calculated
+   * @return
+   */
+  VecScalar ExpressCogPosThroughABCD(double t_local, int id, int dim) const;
+
+  VecScalar ExpressCogAccThroughABCD(double t_local, int id, int dim) const;
+
 private:
+  VecABCD ExpressCogAccThroughABCD(double t_local) const;
   static const int kFreeCoeffPerSpline = kCoeffCount-2;
 
   std::array<MatVec, 2> relationship_e_to_abcd_;

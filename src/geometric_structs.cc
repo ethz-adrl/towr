@@ -32,6 +32,12 @@ Point2d Point3d::Get2D() const
 }
 
 
+VecScalar operator*(double d, const VecScalar& rhs)
+{
+  return VecScalar(d*rhs.v, d*rhs.s);
+}
+
+
 VecScalar MatVec::GetRow(int row) const
 {
   return VecScalar(M.row(row), v[row]);
