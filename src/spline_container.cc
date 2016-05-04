@@ -97,16 +97,11 @@ SplineContainer::ConstructSplineSequence(
 }
 
 
-double SplineContainer::GetTotalTime(const VecSpline& splines, bool exclude_4ls_splines)
+double SplineContainer::GetTotalTime(const VecSpline& splines)
 {
   double T = 0.0;
-  for (const ZmpSpline& s: splines) {
-
-    if (s.IsFourLegSupport() && exclude_4ls_splines)
-      continue;
-
+  for (const ZmpSpline& s: splines)
     T += s.GetDuration();
-  };
   return T-eps_; // just to never get value greater than true duration due to rounding errors
 }
 
