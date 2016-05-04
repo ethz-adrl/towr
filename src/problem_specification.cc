@@ -79,7 +79,6 @@ Eigen::VectorXd
 ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,
                                                   const ContinuousSplineContainer& zmp_spline_container) const
 {
-  auto CreateSuppPolygons = &hyq::SupportPolygonContainer::CreateSupportPolygonsWith4LS; // alias
 
   const double x_nominal_b = 0.3; // 0.4
   const double y_nominal_b = 0.3; // 0.4
@@ -98,9 +97,9 @@ ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer&
   g_vec.reserve(approx_n_constraints);
 
 
-  std::vector<xpp::hyq::SupportPolygon> suppport_polygons;
-  suppport_polygons = CreateSuppPolygons(supp_polygon_container,
-                                         zmp_spline_container.GetSplines());
+  std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
+      supp_polygon_container.CreateSupportPolygonsWith4LS(zmp_spline_container.GetSplines());
+
   double t=0.0;
   do {
     // get legs in contact at each step

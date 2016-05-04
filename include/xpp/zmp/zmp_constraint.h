@@ -22,7 +22,10 @@ public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::hyq::SupportPolygon SupportPolygon;
+  typedef xpp::hyq::SupportPolygon::VecSuppLine NodeConstraints;
+
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  typedef SupportPolygonContainer::VecVecSuppLine AktiveContraints;
   typedef Eigen::Vector2d Vector2d;
   typedef xpp::utils::Point3d State3d;
   typedef xpp::utils::Point2d State2d;
@@ -32,22 +35,33 @@ public:
   ZmpConstraint(const ContinuousSplineContainer&, double walking_height);
   virtual ~ZmpConstraint () {};
 
-
-  MatVec CreateLineConstraints(const SupportPolygonContainer&) const;
-
   void Init(const ContinuousSplineContainer&, double walking_height);
+
+  MatVec CalcZmpConstraints(const SupportPolygonContainer& s) const
+  {
+    CheckIfInitialized();
+    return CalcZmpConstraints(x_zmp_, y_zmp_, s);
+  };
+
 
 private:
   xpp::zmp::ContinuousSplineContainer spline_structure_;
   MatVec x_zmp_;
   MatVec y_zmp_;
 
-  MatVec AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+  MatVec CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const SupportPolygonContainer&) const;
+
+  static void AddNodeConstraints(const NodeConstraints&,
+                                 const VecScalar& x_zmp,
+                                 const VecScalar& y_zmp,
+                                 int row_start,
+                                 MatVec& ineq);
 
   static VecScalar GenerateLineConstraint(const SupportPolygon::SuppLine& l,
                                 const VecScalar& x_zmp_M,
                                 const VecScalar& y_zmp_M);
+
 
 
 

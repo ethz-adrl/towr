@@ -58,7 +58,7 @@ QpOptimizer::SolveQp(const State& initial_state,
   }
 
   ZmpConstraint zmp_constraint(spline_structure, robot_height);
-  inequality_constraints_ = zmp_constraint.CreateLineConstraints(supp_polygon_container);
+  inequality_constraints_ = zmp_constraint.CalcZmpConstraints(supp_polygon_container);
 
 //  std::cout << "inequality_constraints_.M.rows()" << inequality_constraints_.M.rows() << std::endl;
 //  std::cout << "inequality_constraints_.M.cols()" << inequality_constraints_.M.cols() << std::endl;

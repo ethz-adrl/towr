@@ -98,7 +98,7 @@ Constraints::KeepZmpInSuppPolygon(const VectorXd& x_coeff,
 //    prt(f);
 //  }
 
-  MatVec ineq = zmp_constraint_.CreateLineConstraints(supp_polygon_container_);
+  MatVec ineq = zmp_constraint_.CalcZmpConstraints(supp_polygon_container_);
 
   Constraint constraints;
   constraints.values_ = ineq.M*x_coeff + ineq.v;
