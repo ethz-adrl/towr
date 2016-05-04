@@ -21,6 +21,9 @@ using namespace xpp::utils::coords_wrapper;
 
 class SplineContainerTest : public ::testing::Test {
 protected:
+
+  typedef SplineContainer::VecSpline VecSpline;
+
   virtual void SetUp()
   {
 
@@ -32,14 +35,33 @@ protected:
                                   t_swing,
                                   t_stance_initial,
                                   t_stance_final);
+
+    n_initial_splines = GetInitial4lsSplines(spline_container_4steps_.GetSplines());
+    n_steps = step_sequence_4_.size();
+    n_four_leg_support = 1;
+    n_final_splines = 1;
+  }
+
+  virtual int GetInitial4lsSplines(const VecSpline& splines) const {
+    int n = 0;
+    for (const ZmpSpline& s: splines)
+      if (s.GetType() == Initial4lsSpline)
+        n++;
+
+    return n;
   }
 
   ContinuousSplineContainer spline_container_4steps_;
 
-  double t_stance_initial = 10.0;
+  double t_stance_initial = 2.0;
   double t_stance = 0.1;
   double t_swing = 0.6;
   double t_stance_final = 1.0;
+
+  int n_initial_splines;
+  int n_steps;
+  int n_four_leg_support;
+  int n_final_splines;
 
   std::vector<LegID> step_sequence_4_ = {LH, LF, RH, RF};
 };
@@ -229,9 +251,10 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
 
 TEST_F(SplineContainerTest, GetSplineCount)
 {
-  EXPECT_EQ(1+step_sequence_4_.size()+1+1, spline_container_4steps_.GetSplineCount());
-  EXPECT_EQ(6, spline_container_4steps_.GetLastSpline().GetId());
+  int n_total = n_initial_splines + n_steps + n_four_leg_support + n_final_splines;
 
+  EXPECT_EQ(n_total, spline_container_4steps_.GetSplineCount());
+  EXPECT_EQ(n_total-1, spline_container_4steps_.GetLastSpline().GetId());
 
   for (const ZmpSpline& s: spline_container_4steps_.GetSplines()) {
     prt(s);
@@ -241,9 +264,15 @@ TEST_F(SplineContainerTest, GetSplineCount)
 
 TEST_F(SplineContainerTest, GetSplineID)
 {
-  EXPECT_EQ(0, spline_container_4steps_.GetSplineID(0.0));
-  EXPECT_EQ(1, spline_container_4steps_.GetSplineID(t_stance_initial+0.01));
+  int initial_splines = GetInitial4lsSplines(spline_container_4steps_.GetSplines());
 
+
+  EXPECT_EQ(0, spline_container_4steps_.GetSplineID(0.0));
+  EXPECT_EQ(initial_splines, spline_container_4steps_.GetSplineID(t_stance_initial+0.01));
+
+  for (const ZmpSpline& s: spline_container_4steps_.GetSplines()) {
+    prt(s);
+  }
   double T = spline_container_4steps_.GetTotalTime();
   int last_id = spline_container_4steps_.GetLastSpline().GetId();
 
@@ -253,51 +282,64 @@ TEST_F(SplineContainerTest, GetSplineID)
   EXPECT_EQ(last_id-2 , spline_container_4steps_.GetSplineID(T-t_stance_final - t_swing - 0.01));
 
   EXPECT_FLOAT_EQ(t_stance_initial + 4*t_swing + t_stance + t_stance_final, T);
-
-  int n_splines = 1+step_sequence_4_.size()+1+1;
-  EXPECT_EQ(n_splines-1, spline_container_4steps_.GetSplineID(T));
 }
 
 
-TEST_F(SplineContainerTest, GetLocalTime)
-{
-  EXPECT_FLOAT_EQ(0.1, spline_container_4steps_.GetLocalTime(0.1));
-  EXPECT_FLOAT_EQ(t_stance_initial, spline_container_4steps_.GetLocalTime(t_stance_initial));
-
-  EXPECT_FLOAT_EQ(0.1, spline_container_4steps_.GetLocalTime(t_stance_initial+0.1));
-  EXPECT_FLOAT_EQ(0.2, spline_container_4steps_.GetLocalTime(t_stance_initial+t_swing+0.2));
-
-  double T = spline_container_4steps_.GetTotalTime();
-  EXPECT_FLOAT_EQ(t_stance_final, spline_container_4steps_.GetLocalTime(T));
-}
+//TEST_F(SplineContainerTest, GetLocalTime)
+//{
+//  EXPECT_FLOAT_EQ(0.1, spline_container_4steps_.GetLocalTime(0.1));
+//  EXPECT_FLOAT_EQ(t_stance_initial, spline_container_4steps_.GetLocalTime(t_stance_initial));
+//
+//  EXPECT_FLOAT_EQ(0.1, spline_container_4steps_.GetLocalTime(t_stance_initial+0.1));
+//  EXPECT_FLOAT_EQ(0.2, spline_container_4steps_.GetLocalTime(t_stance_initial+t_swing+0.2));
+//
+//  double T = spline_container_4steps_.GetTotalTime();
+//  EXPECT_FLOAT_EQ(t_stance_final, spline_container_4steps_.GetLocalTime(T));
+//}
 
 
 TEST_F(SplineContainerTest, GetTotalFreeCoeff)
 {
-  int n = spline_container_4steps_.GetTotalFreeCoeff();
-  int n_splines = 1+step_sequence_4_.size()+1+1;
-  EXPECT_EQ(n_splines*4*2, n);
+  int n_splines = n_initial_splines + n_steps + n_four_leg_support + n_final_splines;
+  int abcd_coeff = 4;
+  int n = n_splines * abcd_coeff * utils::kDim2d;
+  EXPECT_EQ(n, spline_container_4steps_.GetTotalFreeCoeff());
 }
 
 
-
-TEST_F(SplineContainerTest, ConstructSplineSequence)
+TEST_F(SplineContainerTest, IsFourLegSupport)
 {
-  EXPECT_TRUE (spline_container_4steps_.GetSpline(0).IsFourLegSupport());
-  EXPECT_FALSE(spline_container_4steps_.GetSpline(1).IsFourLegSupport());
-  EXPECT_FALSE(spline_container_4steps_.GetSpline(2).IsFourLegSupport());
-  EXPECT_TRUE (spline_container_4steps_.GetSpline(3).IsFourLegSupport());
-  EXPECT_FALSE(spline_container_4steps_.GetSpline(4).IsFourLegSupport());
-  EXPECT_FALSE(spline_container_4steps_.GetSpline(5).IsFourLegSupport());
-  EXPECT_TRUE (spline_container_4steps_.GetSpline(6).IsFourLegSupport());
+  int id = 0;
+  SCOPED_TRACE("id" + id);
 
-  EXPECT_EQ(0,spline_container_4steps_.GetSpline(0).GetNextPlannedStep());
-  EXPECT_EQ(0,spline_container_4steps_.GetSpline(1).GetCurrStep());
-  EXPECT_EQ(1,spline_container_4steps_.GetSpline(2).GetCurrStep());
-  EXPECT_EQ(2,spline_container_4steps_.GetSpline(3).GetNextPlannedStep());
-  EXPECT_EQ(2,spline_container_4steps_.GetSpline(4).GetCurrStep());
-  EXPECT_EQ(3,spline_container_4steps_.GetSpline(5).GetCurrStep());
-  EXPECT_EQ(Final4lsSpline,spline_container_4steps_.GetSpline(6).GetType());
+  for (int j=0; j<n_initial_splines; ++j)
+    EXPECT_TRUE (spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
+
+  EXPECT_FALSE(spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
+  EXPECT_FALSE(spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
+  EXPECT_TRUE (spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
+  EXPECT_FALSE(spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
+  EXPECT_FALSE(spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
+  EXPECT_TRUE (spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
+
+}
+
+
+TEST_F(SplineContainerTest, GetNextPlannedStep)
+{
+  int id = 0;
+  SCOPED_TRACE("id" + id);
+
+  for (int j=0; j<n_initial_splines; ++j)
+    EXPECT_EQ(0, spline_container_4steps_.GetSpline(id++).GetNextPlannedStep());
+
+  EXPECT_EQ(0,spline_container_4steps_.GetSpline(id++).GetCurrStep());
+  EXPECT_EQ(1,spline_container_4steps_.GetSpline(id++).GetCurrStep());
+  EXPECT_EQ(2,spline_container_4steps_.GetSpline(id++).GetNextPlannedStep());
+  EXPECT_EQ(2,spline_container_4steps_.GetSpline(id++).GetCurrStep());
+  EXPECT_EQ(3,spline_container_4steps_.GetSpline(id++).GetCurrStep());
+  EXPECT_EQ(Final4lsSpline,spline_container_4steps_.GetSpline(id++).GetType());
+
 }
 
 

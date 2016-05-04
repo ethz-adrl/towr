@@ -27,6 +27,7 @@ void OptParamsCallback(const OptimizedParametersMsg& msg)
 
 int main(int argc, char **argv)
 {
+  using namespace xpp::ros;
   if (argc==1) ROS_FATAL("Please specify current x-velocity & acceleration as parameter");
 
   ros::init(argc, argv, "sample_nlp_caller");
@@ -51,10 +52,10 @@ int main(int argc, char **argv)
 
   using namespace xpp::hyq;
   xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
-  msg.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x,  0.3, 0.0, LF)));
-  msg.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x, -0.3, 0.0, RF)));
-  msg.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x,  0.3, 0.0, LH)));
-  msg.curr_stance.push_back(xpp::ros::RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x, -0.3, 0.0, RH)));
+  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x,  0.3, 0.0, LF)));
+  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x, -0.3, 0.0, RF)));
+  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x,  0.3, 0.0, LH)));
+  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x, -0.3, 0.0, RH)));
 
   current_info_pub.publish(msg);
 
@@ -65,7 +66,7 @@ int main(int argc, char **argv)
     ros::spinOnce();
     zmp_publisher.AddRvizMessage(splines,    // from nlp server
                                  footholds,  // from qp server
-                                 xpp::ros::RosHelpers::RosToXpp(msg.curr_stance),
+                                 RosHelpers::RosToXpp(msg.curr_stance),
                                  0.0, 0.0,
                                  1.0);
     zmp_publisher.publish();

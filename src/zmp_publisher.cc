@@ -235,14 +235,11 @@ ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
   for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= xpp::zmp::ContinuousSplineContainer::dt_)
   {
-
     xpp::utils::Point2d cog_state = SplineContainer::GetCOGxy(t, splines);
 
     Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height_);
 
     int id = SplineContainer::GetSplineID(t, splines);
-
-
 
     visualization_msgs::Marker marker;
     marker = GenerateMarker(zmp,
@@ -251,7 +248,6 @@ ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
 
     marker.ns = rviz_namespace;
     marker.id = i++;
-
 
     if ( splines.at(id).IsFourLegSupport() ) {
       marker.color.r = marker.color.g = marker.color.g = 0.1;

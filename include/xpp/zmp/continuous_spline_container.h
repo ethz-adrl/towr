@@ -39,7 +39,6 @@ public:
                              double t_stance_final);
   virtual ~ContinuousSplineContainer () {};
 
-  static constexpr double dt_ = 0.1; // This is needed for creating support triangle inequality constraints
 public:
 
   void Init(const Eigen::Vector2d& start_cog_p,
@@ -56,8 +55,6 @@ public:
    */
   static int Index(int spline, int dim, int coeff);
   int GetTotalFreeCoeff() const;
-  int GetTotalNodes() const { return 1 + std::floor(GetTotalTime()/dt_); };
-  int GetNodeCount(size_t i) const { return GetSpline(i).GetNodeCount(dt_); };
 
   void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff,
                                 VecSpline& splines) const;

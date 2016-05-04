@@ -81,8 +81,12 @@ public:
 
   bool IsFourLegSupport(double t_global) const;
 
-  static double GetTotalTime(const VecSpline& splines, bool exclude_4ls_splines = false);
-  double GetTotalTime(bool exclude_4ls_splines = false) const { return GetTotalTime(splines_, exclude_4ls_splines); }
+  static double GetTotalTime(const VecSpline& splines);
+  double GetTotalTime() const { return GetTotalTime(splines_); }
+
+  static constexpr double dt_ = 0.1; // This is needed for creating support triangle inequality constraints
+  int GetTotalNodes() const { return 1 + std::floor(GetTotalTime()/dt_); };
+  int GetNodeCount(size_t i) const { return GetSpline(i).GetNodeCount(dt_); };
 
 protected:
   VecSpline splines_;

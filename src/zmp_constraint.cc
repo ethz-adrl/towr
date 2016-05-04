@@ -57,7 +57,7 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                                                                spline_structure_.GetSplines());
 
   std::vector<SupportPolygon::VecSuppLine> supp_lines;
-  int max_num_constraints = 0;// = 4*supp.front().CalcLines().size(); // for first node x and y
+  const int max_num_constraints = spline_structure_.GetTotalNodes()*SupportPolygon::kMaxSides;
 
 
 
@@ -67,7 +67,7 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
     SupportPolygon::VecSuppLine lines = supp.at(s).CalcLines();
     supp_lines.push_back(lines);
     // add one, because that could be the maximum off for rounding errors
-    max_num_constraints += (spline_structure_.GetNodeCount(s))*5;//lines.size();
+//    max_num_constraints += (spline_structure_.GetNodeCount(s))*4;//lines.size();
   }
 
 
@@ -93,6 +93,10 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
       VecScalar constr = GenerateLineConstraint(l, x_zmp.GetRow(n), y_zmp.GetRow(n));
       ineq.WriteRow(constr,c++);
     }
+    // skip the remaining lines
+    int n_lines = supp_lines.at(spline).size();
+    c += SupportPolygon::kMaxSides-n_lines;
+
 
     t_global += spline_structure_.dt_; // fixme, this must be equal to x_zmp step
     n++;
@@ -101,10 +105,10 @@ ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
 
 
   assert(c <= max_num_constraints);
-  ineq.M.conservativeResize(c, Eigen::NoChange);
-  ineq.v.conservativeResize(c);
+//  ineq.M.conservativeResize(c, Eigen::NoChange);
+//  ineq.v.conservativeResize(c);
 
-  std::cout << "c = " << c << std::endl;
+//  std::cout << "c = " << c << std::endl;
 
   assert((n == x_zmp.M.rows()) && (n == y_zmp.M.rows()));
   return ineq;

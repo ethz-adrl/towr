@@ -21,6 +21,7 @@ class SuppPolygonContainerTest : public ::testing::Test {
 protected:
 
   typedef xpp::zmp::SplineContainer SplineContainer;
+  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
 
   virtual void SetUp()
   {
@@ -67,6 +68,15 @@ protected:
 
   }
 
+  virtual int GetInitial4lsSplines(const VecSpline& splines) const {
+    int n = 0;
+    for (const xpp::zmp::ZmpSpline& s: splines)
+      if (s.GetType() == xpp::zmp::Initial4lsSpline)
+        n++;
+
+    return n;
+  }
+
   SupportPolygon::VecFoothold f1_;
   SupportPolygonContainer start_to_final_supp_;
 
@@ -88,17 +98,20 @@ TEST_F(SuppPolygonContainerTest, CreateSupportPolygonsWith4LS)
   for (const xpp::hyq::SupportPolygon& p : supp_all)
     prt(p);
 
-  int i = 1; // number of initial four leg support splines
+  int inital_splines = GetInitial4lsSplines(splines_);
 
-  EXPECT_EQ(4, supp_all.at(0).footholds_conv_.size()); // intial 4ls
+  int id = 0; // number of initial four leg support splines
+  SCOPED_TRACE("id" + id);
+  for (int j=0; j<inital_splines; ++j)
+    EXPECT_EQ(4, supp_all.at(id++).footholds_conv_.size()); // initial four leg support phases
+
   // possibly more 4leg support splines
-  EXPECT_EQ(3, supp_all.at(i+0).footholds_conv_.size()); // step 0
-  EXPECT_EQ(3, supp_all.at(i+1).footholds_conv_.size()); // step 1
-  EXPECT_EQ(4, supp_all.at(i+2).footholds_conv_.size()); // 4ls
-  EXPECT_EQ(3, supp_all.at(i+3).footholds_conv_.size()); // step 2
-  EXPECT_EQ(3, supp_all.at(i+4).footholds_conv_.size()); // step 3
-  EXPECT_EQ(4, supp_all.at(i+5).footholds_conv_.size()); // final 4ls
-
+  EXPECT_EQ(3, supp_all.at(id++).footholds_conv_.size()); // step 0
+  EXPECT_EQ(3, supp_all.at(id++).footholds_conv_.size()); // step 1
+  EXPECT_EQ(4, supp_all.at(id++).footholds_conv_.size()); // 4ls
+  EXPECT_EQ(3, supp_all.at(id++).footholds_conv_.size()); // step 2
+  EXPECT_EQ(3, supp_all.at(id++).footholds_conv_.size()); // step 3
+  EXPECT_EQ(4, supp_all.at(id++).footholds_conv_.size()); // final 4ls
 }
 
 

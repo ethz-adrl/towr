@@ -34,6 +34,8 @@ public:
   typedef std::vector<SuppLine> VecSuppLine;
   typedef std::vector<Foothold> VecFoothold;
 
+  enum MaxSidesType   { kMaxSides = 4 };
+
 public:
   SupportPolygon() {};
   SupportPolygon(const MarginValues& margins, const VecFoothold& footholds);
