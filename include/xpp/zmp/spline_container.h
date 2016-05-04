@@ -79,7 +79,7 @@ public:
   static double GetLocalTime(double t_global, const VecSpline& splines);
   double GetLocalTime(double t_global) const { return GetLocalTime(t_global, splines_); };
 
-  int GetFourLegSupport(double t_global) const;
+  bool IsFourLegSupport(double t_global) const;
 
   static double GetTotalTime(const VecSpline& splines, bool exclude_4ls_splines = false);
   double GetTotalTime(bool exclude_4ls_splines = false) const { return GetTotalTime(splines_, exclude_4ls_splines); }

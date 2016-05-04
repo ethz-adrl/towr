@@ -88,14 +88,16 @@ TEST_F(SuppPolygonContainerTest, CreateSupportPolygonsWith4LS)
   for (const xpp::hyq::SupportPolygon& p : supp_all)
     prt(p);
 
+  int i = 1; // number of initial four leg support splines
 
   EXPECT_EQ(4, supp_all.at(0).footholds_conv_.size()); // intial 4ls
-  EXPECT_EQ(3, supp_all.at(1).footholds_conv_.size()); // step 0
-  EXPECT_EQ(3, supp_all.at(2).footholds_conv_.size()); // step 1
-  EXPECT_EQ(4, supp_all.at(3).footholds_conv_.size()); // 4ls
-  EXPECT_EQ(3, supp_all.at(4).footholds_conv_.size()); // step 2
-  EXPECT_EQ(3, supp_all.at(5).footholds_conv_.size()); // step 3
-  EXPECT_EQ(4, supp_all.at(6).footholds_conv_.size()); // final 4ls
+  // possibly more 4leg support splines
+  EXPECT_EQ(3, supp_all.at(i+0).footholds_conv_.size()); // step 0
+  EXPECT_EQ(3, supp_all.at(i+1).footholds_conv_.size()); // step 1
+  EXPECT_EQ(4, supp_all.at(i+2).footholds_conv_.size()); // 4ls
+  EXPECT_EQ(3, supp_all.at(i+3).footholds_conv_.size()); // step 2
+  EXPECT_EQ(3, supp_all.at(i+4).footholds_conv_.size()); // step 3
+  EXPECT_EQ(4, supp_all.at(i+5).footholds_conv_.size()); // final 4ls
 
 }
 

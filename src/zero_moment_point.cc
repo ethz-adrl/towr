@@ -36,20 +36,24 @@ ZeroMomentPoint::MatVec
 ZeroMomentPoint::ExpressZmpThroughCoefficients(const ContinuousSplineContainer& spline_structure,
                                                double height, int dim)
 {
-  int num_nodes = spline_structure.GetTotalNodes4ls() + spline_structure.GetTotalNodesNo4ls();
+  // fixme, write common block for this
+  int num_nodes = spline_structure.GetTotalNodes();
   int coeff = spline_structure.GetTotalFreeCoeff();
 
   MatVec zmp(num_nodes, coeff);
 
   int n = 0; // node counter
-  for (const ZmpSpline& s : spline_structure.GetSplines()) {
+  double t = 0.0;
+  while (t < spline_structure.GetTotalTime())
+  {
+    double t_local = spline_structure.GetLocalTime(t);
+    int spline = spline_structure.GetSplineID(t);
+    VecScalar pos = spline_structure.ExpressCogPosThroughABCD(t_local, spline, dim);
+    VecScalar acc = spline_structure.ExpressCogAccThroughABCD(t_local, spline, dim);
 
-    for (double i=0; i < s.GetNodeCount(spline_structure.dt_); ++i) {
-      double t_local = i*spline_structure.dt_;
-      VecScalar pos = spline_structure.ExpressCogPosThroughABCD(t_local, s.GetId(), dim);
-      VecScalar acc = spline_structure.ExpressCogAccThroughABCD(t_local, s.GetId(), dim);
-      zmp.WriteRow(CalcZmp(pos, acc, height), n++);
-    }
+    zmp.WriteRow(CalcZmp(pos, acc, height), n++);
+
+    t += spline_structure.dt_;
   }
 
   assert(n<=num_nodes); // check that Eigen matrix didn't overflow

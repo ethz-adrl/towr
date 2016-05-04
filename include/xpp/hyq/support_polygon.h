@@ -58,6 +58,15 @@ private:
   friend std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr);
 };
 
+inline std::ostream& operator<<(std::ostream& out, const SupportPolygon::SuppLine& line)
+{
+  out << "line:"
+      << "\tcoeff: p="  << line.coeff.p << ", q=" << line.coeff.q << ", r=" << line.coeff.r
+      << ", margin: " << line.s_margin;
+
+  return out;
+}
+
 
 inline std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr)
 {

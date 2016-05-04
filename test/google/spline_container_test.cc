@@ -36,7 +36,7 @@ protected:
 
   ContinuousSplineContainer spline_container_4steps_;
 
-  double t_stance_initial = 2.0;
+  double t_stance_initial = 10.0;
   double t_stance = 0.1;
   double t_swing = 0.6;
   double t_stance_final = 1.0;
@@ -243,11 +243,32 @@ TEST_F(SplineContainerTest, GetSplineID)
 {
   EXPECT_EQ(0, spline_container_4steps_.GetSplineID(0.0));
   EXPECT_EQ(1, spline_container_4steps_.GetSplineID(t_stance_initial+0.01));
+
   double T = spline_container_4steps_.GetTotalTime();
-  EXPECT_DOUBLE_EQ(t_stance_initial + 4*t_swing + t_stance + t_stance_final, T);
+  int last_id = spline_container_4steps_.GetLastSpline().GetId();
+
+  EXPECT_EQ(last_id , spline_container_4steps_.GetSplineID(T));
+  EXPECT_EQ(last_id , spline_container_4steps_.GetSplineID(T-0.1));
+  EXPECT_EQ(last_id-1 , spline_container_4steps_.GetSplineID(T-t_stance_final));
+  EXPECT_EQ(last_id-2 , spline_container_4steps_.GetSplineID(T-t_stance_final - t_swing - 0.01));
+
+  EXPECT_FLOAT_EQ(t_stance_initial + 4*t_swing + t_stance + t_stance_final, T);
 
   int n_splines = 1+step_sequence_4_.size()+1+1;
   EXPECT_EQ(n_splines-1, spline_container_4steps_.GetSplineID(T));
+}
+
+
+TEST_F(SplineContainerTest, GetLocalTime)
+{
+  EXPECT_FLOAT_EQ(0.1, spline_container_4steps_.GetLocalTime(0.1));
+  EXPECT_FLOAT_EQ(t_stance_initial, spline_container_4steps_.GetLocalTime(t_stance_initial));
+
+  EXPECT_FLOAT_EQ(0.1, spline_container_4steps_.GetLocalTime(t_stance_initial+0.1));
+  EXPECT_FLOAT_EQ(0.2, spline_container_4steps_.GetLocalTime(t_stance_initial+t_swing+0.2));
+
+  double T = spline_container_4steps_.GetTotalTime();
+  EXPECT_FLOAT_EQ(t_stance_final, spline_container_4steps_.GetLocalTime(T));
 }
 
 

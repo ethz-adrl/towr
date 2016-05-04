@@ -60,9 +60,15 @@ SplineContainer::ConstructSplineSequence(
   unsigned int id = 0; // unique identifiers for each spline
 
   // first 4ls-phase and step
-  splines.push_back(ZmpSpline(id++, t_stance_initial, Initial4lsSpline, step));
-//  splines.push_back(ZmpSpline(id++, t_stance_initial/3., Initial4lsSpline, step));
-//  splines.push_back(ZmpSpline(id++, t_stance_initial/3., Initial4lsSpline, step));
+  splines.push_back(ZmpSpline(id++, t_stance_initial/3., Initial4lsSpline, step));
+  splines.push_back(ZmpSpline(id++, t_stance_initial/3., Initial4lsSpline, step));
+  splines.push_back(ZmpSpline(id++, t_stance_initial/3., Initial4lsSpline, step));
+//  splines.push_back(ZmpSpline(id++, t_stance_initial/4., Initial4lsSpline, step));
+//  splines.push_back(ZmpSpline(id++, t_stance_initial/9., Initial4lsSpline, step));
+//  splines.push_back(ZmpSpline(id++, t_stance_initial/9., Initial4lsSpline, step));
+//  splines.push_back(ZmpSpline(id++, t_stance_initial/9., Initial4lsSpline, step));
+//  splines.push_back(ZmpSpline(id++, t_stance_initial/9., Initial4lsSpline, step));
+//  splines.push_back(ZmpSpline(id++, t_stance_initial/9., Initial4lsSpline, step));
 
   int n_steps = step_sequence.size();
   if (n_steps > 0)
@@ -94,14 +100,14 @@ SplineContainer::ConstructSplineSequence(
 double SplineContainer::GetTotalTime(const VecSpline& splines, bool exclude_4ls_splines)
 {
   double T = 0.0;
-  for (ZmpSpline s: splines) {
+  for (const ZmpSpline& s: splines) {
 
     if (s.IsFourLegSupport() && exclude_4ls_splines)
       continue;
 
     T += s.GetDuration();
   };
-  return T;
+  return T-eps_; // just to never get value greater than true duration due to rounding errors
 }
 
 
@@ -110,14 +116,12 @@ int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
    assert(t_global<=GetTotalTime(splines));
 
    double t = 0;
-   for (ZmpSpline s: splines) {
+   for (const ZmpSpline& s: splines) {
      t += s.GetDuration();
 
-     if (t >= t_global)
+     if (t >= t_global-eps_)
        return s.GetId();
    }
-
-   return splines.back().GetId();
 }
 
 
@@ -130,11 +134,11 @@ double SplineContainer::GetLocalTime(double t_global, const VecSpline& splines)
     t_local -= splines.at(id).GetDuration();
   }
 
-  return t_local;
+  return t_local-eps_; // just to never get value greater than true duration due to rounding errors
 }
 
 
-int SplineContainer::GetFourLegSupport(double t_global) const
+bool SplineContainer::IsFourLegSupport(double t_global) const
 {
   assert(t_global<=GetTotalTime());
   return splines_.at(GetSplineID(t_global)).IsFourLegSupport();

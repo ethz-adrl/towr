@@ -9,6 +9,7 @@
 #include <xpp/ros/ros_helpers.h>
 
 #include <xpp/hyq/support_polygon_container.h>
+#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/zero_moment_point.h>
 
 
@@ -40,7 +41,7 @@ void ZmpPublisher::AddRvizMessage(
   AddFootholds(msg, opt_footholds, "footholds", visualization_msgs::Marker::CUBE, alpha);
   AddStartStance(msg, start_stance);
   AddCogTrajectory(msg, splines, opt_footholds, "cog", alpha);
-  AddZmpTrajectory(msg, splines, opt_footholds, "zmp_4ls", 0.4);
+  AddZmpTrajectory(msg, splines, opt_footholds, "zmp_4ls", 0.7);
   AddSupportPolygons(msg, start_stance, opt_footholds);
 
 //  AddLineStrip(msg, gap_center_x, gap_width_x, "gap");
@@ -95,7 +96,7 @@ ZmpPublisher::BuildSupportPolygon(const VecFoothold& stance,
  //    marker.lifetime = ros::Duration(10);
   marker.scale.x = marker.scale.y = marker.scale.z = 1.0;
   marker.color = GetLegColor(leg_id);
-  marker.color.a = 0.2;
+  marker.color.a = 0.1;
 
   geometry_msgs::Point p1;
   for (size_t i=0; i<stance.size(); ++i) {
@@ -210,7 +211,7 @@ ZmpPublisher::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
     bool four_legg_support = splines.at(id).IsFourLegSupport();
     if ( four_legg_support ) {
       marker.color.r = marker.color.g = marker.color.b = 0.1;
-      if (id==splines.back().GetId())
+      if (splines.at(id).GetType() == xpp::zmp::Initial4lsSpline)
         marker.color.g = marker.color.b = 1.0;
     } else {
       int step = splines.at(id).GetCurrStep();
@@ -232,7 +233,7 @@ ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
                             double alpha)
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
-  for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= 0.02)
+  for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= xpp::zmp::ContinuousSplineContainer::dt_)
   {
 
     xpp::utils::Point2d cog_state = SplineContainer::GetCOGxy(t, splines);
@@ -252,10 +253,9 @@ ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     marker.id = i++;
 
 
-    bool four_legg_support = splines.at(id).IsFourLegSupport();
-    if ( four_legg_support ) {
+    if ( splines.at(id).IsFourLegSupport() ) {
       marker.color.r = marker.color.g = marker.color.g = 0.1;
-      if (id==splines.back().GetId())
+      if (splines.at(id).GetType() == xpp::zmp::Initial4lsSpline)
         marker.color.g = marker.color.b = 1.0;
     } else {
       int step = splines.at(id).GetCurrStep();

@@ -48,66 +48,65 @@ ZmpConstraint::MatVec
 ZmpConstraint::AddLineConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                                   const SupportPolygonContainer& supp_polygon_container) const
 {
-  auto CreateSuppPoly = &hyq::SupportPolygonContainer::CreateSupportPolygonsWith4LS; // alias
+
+
+
+
+  std::vector<SupportPolygon> supp;
+  supp = SupportPolygonContainer::CreateSupportPolygonsWith4LS(supp_polygon_container,
+                                                               spline_structure_.GetSplines());
+
+  std::vector<SupportPolygon::VecSuppLine> supp_lines;
+  int max_num_constraints = 0;// = 4*supp.front().CalcLines().size(); // for first node x and y
+
+
+
+
+  // FIXME this has to be exact number of constraints, otherwise solution is very different!!!!
+  for (int s=0; s<spline_structure_.GetSplineCount(); ++s) {
+    SupportPolygon::VecSuppLine lines = supp.at(s).CalcLines();
+    supp_lines.push_back(lines);
+    // add one, because that could be the maximum off for rounding errors
+    max_num_constraints += (spline_structure_.GetNodeCount(s))*5;//lines.size();
+  }
+
+
+//  std::cout << "num_constraint: " << num_constraints << std::endl;
+
   int coeff = spline_structure_.GetTotalFreeCoeff();
+  MatVec ineq(max_num_constraints, coeff);
 
-  int num_nodes_no_4ls = spline_structure_.GetTotalNodesNo4ls();
-  int num_nodes_4ls = spline_structure_.GetTotalNodes4ls();
-  int num_ineq_constr = 3*num_nodes_no_4ls + 4*num_nodes_4ls; // upper limit, not accurate
 
-  MatVec ineq(num_ineq_constr, coeff);
+
+
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
-
-  std::vector<SupportPolygon> supp = CreateSuppPoly(supp_polygon_container,
-                                                    spline_structure_.GetSplines());
-
-//  std::cout << "IN ZMPCONSTRAINT: Support polygons for the " << supp.size() << " steps:\n";
-//  for (const hyq::SupportPolygon& s : supp) {
-//    std::cout << s;
-//  }
-
-  for (const zmp::ZmpSpline& s : spline_structure_.GetSplines())
+  double t_global = 0.0;
+  while (t_global < spline_structure_.GetTotalTime())
   {
-    SupportPolygon::VecSuppLine lines = supp.at(s.GetId()).CalcLines();
+    int spline = spline_structure_.GetSplineID(t_global);
+//    std::cout << "spline: " << spline << std::endl;
 
-
-//    Eigen::VectorXd lp(lines.size());
-//    Eigen::VectorXd lq(lines.size());
-//    Eigen::VectorXd lr(lines.size());
-//    Eigen::VectorXd ls(lines.size());
-//
-//    for (int i=0; i<lines.size(); ++i){
-//      lp[i] = lines.at(i).coeff.p;
-//      lq[i] = lines.at(i).coeff.q;
-//      lr[i] = lines.at(i).coeff.r;
-//      ls[i] = lines.at(i).s_margin;
-//    }
-
-    for (double i=0; i < s.GetNodeCount(spline_structure_.dt_); ++i) {
-      // FIXME: Optimize by performing one matrix*vector multiplication
-
-
-//      const VecScalar& x_ = x_zmp.ExtractRow(n);
-//      const VecScalar& y_ = y_zmp.ExtractRow(n);
-//
-//      ineq.M.middleRows(c,lines.size()) = lp*x_.v + lq*y_.v;
-//      ineq.v.segment(c,lines.size())    = lp*x_.s - lq*y_.s + lr - ls;
-//      c += lines.size();
-
-      for (SupportPolygon::SuppLine l : lines) { // add three/four line constraints for each node
-        VecScalar constr = GenerateLineConstraint(l, x_zmp.GetRow(n), y_zmp.GetRow(n));
-        ineq.WriteRow(constr,c++);
-      }
-
-
-      n++;
+    for (SupportPolygon::SuppLine l : supp_lines.at(spline)) { // add three/four line constraints for each node
+//      std::cout << l << std::endl;
+      VecScalar constr = GenerateLineConstraint(l, x_zmp.GetRow(n), y_zmp.GetRow(n));
+      ineq.WriteRow(constr,c++);
     }
+
+    t_global += spline_structure_.dt_; // fixme, this must be equal to x_zmp step
+    n++;
+
   }
 
+
+  assert(c <= max_num_constraints);
+  ineq.M.conservativeResize(c, Eigen::NoChange);
+  ineq.v.conservativeResize(c);
+
+  std::cout << "c = " << c << std::endl;
+
   assert((n == x_zmp.M.rows()) && (n == y_zmp.M.rows()));
-  assert(c <= num_ineq_constr);
   return ineq;
 }
 

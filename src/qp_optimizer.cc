@@ -69,9 +69,6 @@ QpOptimizer::SolveQp(const State& initial_state,
   ROS_INFO_STREAM("Final state:\t" << final_state);
 
   Eigen::VectorXd opt_abcd = EigenSolveQuadprog();
-
-  std::cout << "opt_abcd: " << opt_abcd;
-
   spline_structure.AddOptimizedCoefficients(opt_abcd);
 
   return spline_structure.GetSplines();

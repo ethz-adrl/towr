@@ -43,9 +43,9 @@ protected:
   }
 
   ContinuousSplineContainer cont_spline_container_;
-  double t_stance_initial = 1.0;
+  double t_stance_initial = 1.2;
   double t_stance = 0.2;
-  double t_swing = 0.7; // muss .2, .4, .6, ..sein
+  double t_swing = 0.75; // muss .2, .4, .6, ..sein
   double t_stance_final = 1.0;
   double walking_height = 0.58;
 
