@@ -27,8 +27,19 @@ public:
   static Vector2d CalcZmp(const State3d& cog, double height);
   static VecScalar CalcZmp(const VecScalar& pos, const VecScalar& acc, double height);
 
-  static MatVec ExpressZmpThroughCoefficients(const ContinuousSplineContainer&,
-                                              double walking_height, int dim);
+  /**
+   * Calculates the position of the ZMP for every discrete time dt along a trajectory.
+   *
+   * @param cog_spline The CoG spline of 5. order polynomials initialized with specific pos/vel.
+   * @param walking_height the height of the CoG above ground.
+   * @param dimension what ZMP coordinate you are interested in (X or Y).
+   *
+   * @return A MatrixVector type m, that together with the spline coefficients x
+   * (a,b,c,d) of each spline will return a vector of ZMP positions zmp for each
+   * disrete time as: zmp = m.M*x + m.v
+   */
+  static MatVec ExpressZmpThroughCoefficients(const ContinuousSplineContainer& cog_spline,
+                                              double walking_height, int dimension);
 
 
 

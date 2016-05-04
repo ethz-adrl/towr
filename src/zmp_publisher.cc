@@ -69,7 +69,7 @@ void ZmpPublisher::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
   xpp::hyq::SupportPolygonContainer::VecSupportPolygon supp;
   supp = support_polygon_container.GetSupportPolygons();
 
-  for (int i=0; i<supp.size(); ++i) {
+  for (uint i=0; i<supp.size(); ++i) {
     visualization_msgs::Marker m = BuildSupportPolygon(supp.at(i).footholds_conv_, footholds.at(i).leg);
     msg.markers.push_back(m);
   }
@@ -233,7 +233,7 @@ ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
                             double alpha)
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
-  for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= xpp::zmp::ContinuousSplineContainer::dt_)
+  for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= 0.1)
   {
     xpp::utils::Point2d cog_state = SplineContainer::GetCOGxy(t, splines);
 

@@ -82,7 +82,6 @@ ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer&
 
   const double x_nominal_b = 0.3; // 0.4
   const double y_nominal_b = 0.3; // 0.4
-  const double dt = zmp_spline_container_.dt_;
 
   xpp::hyq::LegDataMap<Vector2d> B_r_BaseToNominal;
   B_r_BaseToNominal[hyq::LF] <<  x_nominal_b,  y_nominal_b;
@@ -90,18 +89,17 @@ ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer&
   B_r_BaseToNominal[hyq::LH] << -x_nominal_b,  y_nominal_b;
   B_r_BaseToNominal[hyq::RH] << -x_nominal_b, -y_nominal_b;
 
-  double T  = zmp_spline_container.GetTotalTime();
-  int N     = std::ceil(T/dt);
+  int N     = zmp_spline_container.GetTotalNodes();
   int approx_n_constraints = 4*N*2; // 3 or 4 legs in contact at every discrete time, 2 b/c x-y
   std::vector<double> g_vec;
   g_vec.reserve(approx_n_constraints);
 
-
   std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
       supp_polygon_container.CreateSupportPolygonsWith4LS(zmp_spline_container.GetSplines());
 
-  double t=0.0;
-  do {
+
+  for (double t : zmp_spline_container.GetDiscretizedGlobalTimes()) {
+
     // get legs in contact at each step
     VecFoothold stance_legs;
     int id = zmp_spline_container.GetSplineID(t);
@@ -124,9 +122,7 @@ ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer&
       g_vec.push_back(r_FC.x());
       g_vec.push_back(r_FC.y());
     }
-    t += dt;
-
-  } while(t < T);
+  }
 
   return Eigen::Map<const VectorXd>(&g_vec.front(),g_vec.size());
 }

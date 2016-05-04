@@ -120,16 +120,15 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
   // compare
   double t = 0.0;
   int n = 0;
-  while (t<cont_spline_container_.GetTotalTime()) {
+  for (double t : cont_spline_container_.GetDiscretizedGlobalTimes())
+  {
     xpp::utils::Point2d cog_xy = ContinuousSplineContainer::GetCOGxy(t, splines);
-
     Eigen::Vector2d zmp_true = ZeroMomentPoint::CalcZmp(cog_xy.Make3D(), walking_height);
 
     SCOPED_TRACE("n = " + std::to_string(n));
     EXPECT_FLOAT_EQ(zmp_true.x(), x_zmp[n]);
     EXPECT_FLOAT_EQ(zmp_true.y(), y_zmp[n]);
 
-    t += cont_spline_container_.dt_;
     n++;
   }
 

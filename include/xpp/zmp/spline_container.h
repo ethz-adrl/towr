@@ -84,9 +84,10 @@ public:
   static double GetTotalTime(const VecSpline& splines);
   double GetTotalTime() const { return GetTotalTime(splines_); }
 
-  static constexpr double dt_ = 0.1; // This is needed for creating support triangle inequality constraints
   int GetTotalNodes() const { return 1 + std::floor(GetTotalTime()/dt_); };
   int GetNodeCount(size_t i) const { return GetSpline(i).GetNodeCount(dt_); };
+
+  std::vector<double> GetDiscretizedGlobalTimes() const;
 
 protected:
   VecSpline splines_;
@@ -98,7 +99,7 @@ protected:
             double t_stance_final);
 
 private:
-  // Creates a sequence of Splines without the optimized coefficients
+  static constexpr double dt_ = 0.1; //discretization time [seconds]: needed for creating support triangle inequality constraints
   bool splines_initialized_ = false;
   static constexpr double eps_ = 1e-10; // maximum inaccuracy when adding double numbers
 

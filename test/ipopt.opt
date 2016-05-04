@@ -22,7 +22,7 @@ tol 1e-1
 #constr_viol_tol 1e-4
 #compl_inf_tol 1e-4
 max_cpu_time 10.0
-#max_iter 2
+max_iter 20
 #bound_frac 0.5
 
 #acceptable_iter 10

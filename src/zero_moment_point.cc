@@ -14,12 +14,8 @@ namespace zmp {
 ZeroMomentPoint::Vector2d
 ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
 {
-  double z_acc = cog.a.z();
-
-  Vector2d zmp;
-  zmp.x() = cog.p.x() - height/(gravity_+z_acc) * cog.a.x();
-  zmp.y() = cog.p.y() - height/(gravity_+z_acc) * cog.a.y();
-
+  double z_acc = cog.a.z(); // TODO: calculate z_acc based on foothold height
+  Vector2d zmp = cog.Get2D().p - height/(gravity_+z_acc) * cog.Get2D().a;
   return zmp;
 }
 
@@ -36,24 +32,21 @@ ZeroMomentPoint::MatVec
 ZeroMomentPoint::ExpressZmpThroughCoefficients(const ContinuousSplineContainer& spline_structure,
                                                double height, int dim)
 {
-  // fixme, write common block for this
   int num_nodes = spline_structure.GetTotalNodes();
   int coeff = spline_structure.GetTotalFreeCoeff();
 
   MatVec zmp(num_nodes, coeff);
 
   int n = 0; // node counter
-  double t = 0.0;
-  while (t < spline_structure.GetTotalTime())
+  for (double t_global : spline_structure.GetDiscretizedGlobalTimes())
   {
-    double t_local = spline_structure.GetLocalTime(t);
-    int spline = spline_structure.GetSplineID(t);
+    double t_local = spline_structure.GetLocalTime(t_global);
+    int spline = spline_structure.GetSplineID(t_global);
+
     VecScalar pos = spline_structure.ExpressCogPosThroughABCD(t_local, spline, dim);
     VecScalar acc = spline_structure.ExpressCogAccThroughABCD(t_local, spline, dim);
 
     zmp.WriteRow(CalcZmp(pos, acc, height), n++);
-
-    t += spline_structure.dt_;
   }
 
   assert(n<=num_nodes); // check that Eigen matrix didn't overflow

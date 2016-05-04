@@ -118,6 +118,19 @@ int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
 }
 
 
+std::vector<double>
+SplineContainer::GetDiscretizedGlobalTimes() const
+{
+  std::vector<double> dt;
+  double t = 0.0;
+  while (t < GetTotalTime()) {
+    dt.push_back(t);
+    t += dt_;
+  }
+  return dt;
+}
+
+
 double SplineContainer::GetLocalTime(double t_global, const VecSpline& splines)
 {
   int id_spline = GetSplineID(t_global,splines);
