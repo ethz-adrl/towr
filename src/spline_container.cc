@@ -59,16 +59,14 @@ SplineContainer::ConstructSplineSequence(
   int step = 0;
   unsigned int id = 0; // unique identifiers for each spline
 
-  // first 4ls-phase and step
-  splines.push_back(ZmpSpline(id++, t_stance_initial/3., Initial4lsSpline, step));
-  splines.push_back(ZmpSpline(id++, t_stance_initial/3., Initial4lsSpline, step));
-  splines.push_back(ZmpSpline(id++, t_stance_initial/3., Initial4lsSpline, step));
-//  splines.push_back(ZmpSpline(id++, t_stance_initial/4., Initial4lsSpline, step));
-//  splines.push_back(ZmpSpline(id++, t_stance_initial/9., Initial4lsSpline, step));
-//  splines.push_back(ZmpSpline(id++, t_stance_initial/9., Initial4lsSpline, step));
-//  splines.push_back(ZmpSpline(id++, t_stance_initial/9., Initial4lsSpline, step));
-//  splines.push_back(ZmpSpline(id++, t_stance_initial/9., Initial4lsSpline, step));
-//  splines.push_back(ZmpSpline(id++, t_stance_initial/9., Initial4lsSpline, step));
+  const double t_init_max = 0.4; //s
+  int n_init_splines = std::ceil(t_stance_initial/t_init_max);
+
+  double t_init_spline = t_stance_initial/n_init_splines;
+
+  for (int i=0; i<n_init_splines; ++i)
+    splines.push_back(ZmpSpline(id++, t_init_spline, Initial4lsSpline, step));
+
 
   int n_steps = step_sequence.size();
   if (n_steps > 0)
