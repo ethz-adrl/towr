@@ -100,7 +100,7 @@ double SplineContainer::GetTotalTime(const VecSpline& splines)
   double T = 0.0;
   for (const ZmpSpline& s: splines)
     T += s.GetDuration();
-  return T-eps_; // just to never get value greater than true duration due to rounding errors
+  return T;
 }
 
 
@@ -112,22 +112,27 @@ int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
    for (const ZmpSpline& s: splines) {
      t += s.GetDuration();
 
-     if (t >= t_global-eps_)
+     if (t >= t_global) // at junctions, returns previous spline (=)
        return s.GetId();
    }
+   throw std::runtime_error("SplineContainer::GetSplineID failed");
 }
 
 
 std::vector<double>
 SplineContainer::GetDiscretizedGlobalTimes() const
 {
-  std::vector<double> dt;
+  static constexpr double dt = 0.1; //discretization time [seconds]: needed for creating support triangle inequality constraints
+
+  std::vector<double> vec;
   double t = 0.0;
-  while (t < GetTotalTime()) {
-    dt.push_back(t);
-    t += dt_;
+  while (t <= GetTotalTime()-dt+eps_) { // still add the second to last time, even if rounding errors to to floating point arithmetics
+    vec.push_back(t);
+    t += dt;
   }
-  return dt;
+
+  vec.push_back(GetTotalTime());
+  return vec;
 }
 
 

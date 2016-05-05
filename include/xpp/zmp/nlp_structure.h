@@ -23,6 +23,8 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef double Number;
 
+  enum Dim2d { kDim2d = xpp::utils::kDim2d };
+
 
 public:
   NlpStructure(int n_spline_coeff = 0, int n_steps = 0)
@@ -38,29 +40,33 @@ public:
   }
 
 
-  VectorXd ExtractSplineCoefficients(const VectorXd& x_eig) const
-  {
-    return x_eig.head(n_spline_coeff_);
-  }
   VectorXd ExtractSplineCoefficients(const Number* x) const
   {
     return ExtractSplineCoefficients(ConvertToEigen(x));
   }
 
 
-  StdVecEigen2d ExtractFootholds(const VectorXd& x_eig) const
+  VectorXd ExtractSplineCoefficients(const VectorXd& x_eig) const
   {
-    Eigen::VectorXd footholds_xy = x_eig.tail(2*n_steps_);
-    StdVecEigen2d fooothold_vec(n_steps_);
-    for (int i=0; i<n_steps_; ++i) {
-      fooothold_vec.at(i) = footholds_xy.segment<2>(2*i);
-    }
-
-    return fooothold_vec;
+    return x_eig.head(n_spline_coeff_);
   }
+
+
   StdVecEigen2d ExtractFootholds(const Number* x) const
   {
     return ExtractFootholds(ConvertToEigen(x));
+  }
+
+
+  StdVecEigen2d ExtractFootholds(const VectorXd& x_eig) const
+  {
+    Eigen::VectorXd footholds_xy = x_eig.tail(n_steps_*kDim2d);
+    StdVecEigen2d fooothold_vec(n_steps_);
+    for (int i=0; i<n_steps_; ++i) {
+      fooothold_vec.at(i) = footholds_xy.segment<kDim2d>(2*i);
+    }
+
+    return fooothold_vec;
   }
 
 

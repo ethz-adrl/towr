@@ -75,7 +75,7 @@ public:
    */
   int operator() (const InputType& x, ValueType& obj_value) const
   {
-    throw std::runtime_error("Can't differentiate contraints because EvalContaints() not constant");
+    throw std::runtime_error("Can't differentiate contraints because EvalConstaints() not constant");
 //    obj_value = EvalContraints(x);
     return 1;
   }

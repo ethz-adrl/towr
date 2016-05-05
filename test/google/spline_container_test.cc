@@ -56,7 +56,7 @@ protected:
   double t_stance_initial = 2.0;
   double t_stance = 0.1;
   double t_swing = 0.6;
-  double t_stance_final = 1.0;
+  double t_stance_final = 0.1;
 
   int n_initial_splines;
   int n_steps;
@@ -277,7 +277,7 @@ TEST_F(SplineContainerTest, GetSplineID)
   int last_id = spline_container_4steps_.GetLastSpline().GetId();
 
   EXPECT_EQ(last_id , spline_container_4steps_.GetSplineID(T));
-  EXPECT_EQ(last_id , spline_container_4steps_.GetSplineID(T-0.1));
+  EXPECT_EQ(last_id , spline_container_4steps_.GetSplineID(T-0.05));
   EXPECT_EQ(last_id-1 , spline_container_4steps_.GetSplineID(T-t_stance_final));
   EXPECT_EQ(last_id-2 , spline_container_4steps_.GetSplineID(T-t_stance_final - t_swing - 0.01));
 

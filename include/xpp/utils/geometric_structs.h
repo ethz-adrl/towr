@@ -36,7 +36,7 @@ static const Coords3D Coords3DArray[] = { X, Y, Z };
 }
 using namespace coords_wrapper;
 
-static const int kDim2d = 2; // X,Y
+static constexpr int kDim2d = 2; // X,Y
 typedef Eigen::Vector2d Vec2d; /// X,Y
 typedef Eigen::Vector3d Vec3d; /// X,Y,Z
 typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > StdVecEigen2d;

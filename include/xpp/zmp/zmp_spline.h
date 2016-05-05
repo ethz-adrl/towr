@@ -120,8 +120,6 @@ public:
    *  The next step is the step planned to execute after the 4ls-phase is complete */
   uint GetNextPlannedStep() const;
 
-  /** nodes on polyomial if discretized. first node located at 0, then spaced by dt */
-  int GetNodeCount(double dt) const { return std::floor(duration_/dt); }
   bool IsFourLegSupport() const { return type_ != StepSpline; }
 
 private:

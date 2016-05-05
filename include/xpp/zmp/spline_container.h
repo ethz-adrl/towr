@@ -84,10 +84,14 @@ public:
   static double GetTotalTime(const VecSpline& splines);
   double GetTotalTime() const { return GetTotalTime(splines_); }
 
-  int GetTotalNodes() const { return 1 + std::floor(GetTotalTime()/dt_); };
-  int GetNodeCount(size_t i) const { return GetSpline(i).GetNodeCount(dt_); };
-
+  /** If the trajectory has to be discretized, use this for consistent time steps.
+   *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
+   *
+   *  so first and last time are t0 and and tN, but there might be a
+   *  timestep > delta t before the last node.
+   */
   std::vector<double> GetDiscretizedGlobalTimes() const;
+  int GetTotalNodes() const { return GetDiscretizedGlobalTimes().size(); };
 
 protected:
   VecSpline splines_;
@@ -99,7 +103,6 @@ protected:
             double t_stance_final);
 
 private:
-  static constexpr double dt_ = 0.1; //discretization time [seconds]: needed for creating support triangle inequality constraints
   bool splines_initialized_ = false;
   static constexpr double eps_ = 1e-10; // maximum inaccuracy when adding double numbers
 
