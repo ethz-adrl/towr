@@ -46,7 +46,7 @@ QpOptimizer::SolveQp(const State& initial_state,
   equality_constraints_ = spline_constraint.CreateAllSplineConstraints(initial_state.a, final_state);
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  supp_polygon_container.Init(start_stance, steps, hyq::SupportPolygon::GetZeroMargins());
+  supp_polygon_container.Init(start_stance, steps, hyq::SupportPolygon::GetDefaultMargins());
 
 
   ROS_INFO_STREAM("Start polygon:\n" << supp_polygon_container.GetStartPolygon());
@@ -60,10 +60,6 @@ QpOptimizer::SolveQp(const State& initial_state,
   ZmpConstraint zmp_constraint(spline_structure, robot_height);
   inequality_constraints_ = zmp_constraint.CalcZmpConstraints(supp_polygon_container);
 
-//  std::cout << "inequality_constraints_.M.rows()" << inequality_constraints_.M.rows() << std::endl;
-//  std::cout << "inequality_constraints_.M.cols()" << inequality_constraints_.M.cols() << std::endl;
-//  std::cout << inequality_constraints_.M << std::endl;
-//  std::cout << inequality_constraints_.v << std::endl;
 
   ROS_INFO_STREAM("Initial state:\t" << initial_state);
   ROS_INFO_STREAM("Final state:\t" << final_state);

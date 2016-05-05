@@ -25,7 +25,7 @@ public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
 
 public:
-  ZmpConstraint();
+  ZmpConstraint() {};
   ZmpConstraint(const ContinuousSplineContainer&, double walking_height);
   virtual ~ZmpConstraint () {};
 

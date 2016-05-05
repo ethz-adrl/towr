@@ -41,8 +41,8 @@ public:
 
 public:
 
-  void Init(const Eigen::Vector2d& start_cog_p,
-            const Eigen::Vector2d& start_cog_v,
+  void Init(const Vector2d& start_cog_p,
+            const Vector2d& start_cog_v,
             const std::vector<xpp::hyq::LegID>& step_sequence,
             double t_stance,
             double t_swing,
