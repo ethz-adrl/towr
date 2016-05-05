@@ -7,13 +7,8 @@
 
 #include <xpp/zmp/zmp_constraint.h>
 
-
 namespace xpp {
 namespace zmp {
-
-ZmpConstraint::ZmpConstraint()
-{
-}
 
 
 ZmpConstraint::ZmpConstraint(const ContinuousSplineContainer& spline_container, double walking_height)

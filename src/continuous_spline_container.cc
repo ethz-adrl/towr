@@ -7,9 +7,6 @@
 
 #include <xpp/zmp/continuous_spline_container.h>
 
-#include <ctime>      // std::clock_t
-#include <cmath>      // std::numeric_limits
-
 namespace xpp {
 namespace zmp {
 
@@ -92,7 +89,6 @@ ContinuousSplineContainer::ExpressCogAccThroughABCD(double t_local) const
 
   return acc;
 }
-
 
 
 int ContinuousSplineContainer::GetTotalFreeCoeff() const

@@ -24,7 +24,7 @@ public:
   ZeroMomentPoint () {};
   virtual ~ZeroMomentPoint () {};
 
-  static Vector2d CalcZmp(const State3d& cog, double height);
+  static Vector2d  CalcZmp(const State3d& cog, double height);
   static VecScalar CalcZmp(const VecScalar& pos, const VecScalar& acc, double height);
 
   /**
