@@ -136,23 +136,39 @@ HyqSpliner::BuildNode(const HyqState& state, double t_max)
 }
 
 
+
+double HyqSpliner::GetTotalTime() const
+{
+  double T = 0.0;
+  for (uint n = 1; n < nodes_.size(); n++) {
+    T += nodes_.at(n).T;
+  }
+  return T;
+}
+
+
+double HyqSpliner::GetLocalTime(double t_global) const
+{
+  double t_local = t_global;
+  for (uint n = 1; n < curr_goal_; n++) {
+    t_local -= nodes_.at(n).T;
+  }
+  return t_local;
+}
+
+
+
 HyqState HyqSpliner::getPoint(double t_global)
 {
+  double t_local = GetLocalTime(t_global);
 
+  // Positions, although this is actually overwritten by optimizes trajectory
   HyqState curr;
-
-  /** Transform global time to local spline time dt */
-  double dt = t_global;
-  for (uint n = 1; n < curr_goal_; n++) {
-    dt -= nodes_[n].T;
-  }
-
-  /** Positions */
-  pos_spliner_.GetPoint(dt, curr.base_.pos);
+  pos_spliner_.GetPoint(t_local, curr.base_.pos);
 
   /** Orientations */
   Point curr_ori, curr_foot;
-  ori_spliner_.GetPoint(dt, curr_ori);
+  ori_spliner_.GetPoint(t_local, curr_ori);
 
   kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB(curr_ori.p);
   kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
@@ -169,18 +185,18 @@ HyqState HyqSpliner::getPoint(double t_global)
   {
     double t_upswing = nodes_[curr_goal_].T * kUpswingPercent;
 
-    if ( dt < t_upswing) // leg swinging up
-      feet_spliner_up_[sl].GetPoint(dt, curr.feet_[sl]);
+    if ( t_local < t_upswing) // leg swinging up
+      feet_spliner_up_[sl].GetPoint(t_local, curr.feet_[sl]);
     else // leg swinging down
-      feet_spliner_down_[sl].GetPoint(dt - t_upswing, curr.feet_[sl]);
+      feet_spliner_down_[sl].GetPoint(t_local - t_upswing, curr.feet_[sl]);
 
     curr.swingleg_[sl] = true;
   }
 
-  LOG4CXX_TRACE(log_, "dt = " << dt << ", curr_goal.T = " << nodes_[curr_goal_].T);
+  LOG4CXX_TRACE(log_, "dt = " << t_local << ", curr_goal.T = " << nodes_[curr_goal_].T);
 
 
-  if (dt >= nodes_[curr_goal_].T)
+  if (t_local >= nodes_[curr_goal_].T)
     SetCurrGoal(++curr_goal_);
 
   // sanity check so robot doesn't blow up

@@ -17,11 +17,11 @@ hessian_approximation limited-memory
 #derivative_test first-order
 #derivative_test second-order
 
-tol 1e-1
+tol 1e-3
 #dual_inf_tol 1e-1
 #constr_viol_tol 1e-4
 #compl_inf_tol 1e-4
-max_cpu_time 10.00
+max_cpu_time 0.05
 #max_iter 20
 #bound_frac 0.5
 

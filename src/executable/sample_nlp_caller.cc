@@ -43,7 +43,8 @@ int main(int argc, char **argv)
 
 
   ReqInfoMsg msg;
-  msg.curr_state.pos.x = 0.0;
+  msg.curr_state.pos.x = -0.0;
+  msg.curr_state.pos.y =  0.0;
   msg.curr_state.vel.x = atof(argv[1]); // figure out why this fails
   msg.curr_state.vel.y = atof(argv[1]); // figure out why this fails
   msg.curr_state.acc.x = atof(argv[2]); // this is a constraint
@@ -52,10 +53,10 @@ int main(int argc, char **argv)
 
   using namespace xpp::hyq;
   xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
-  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x,  0.3, 0.0, LF)));
-  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x, -0.3, 0.0, RF)));
-  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x,  0.3, 0.0, LH)));
-  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x, -0.3, 0.0, RH)));
+  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x,  0.3+msg.curr_state.pos.y, 0.0, LF)));
+  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x, -0.3+msg.curr_state.pos.y, 0.0, RF)));
+  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x,  0.3+msg.curr_state.pos.y, 0.0, LH)));
+  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x, -0.3+msg.curr_state.pos.y, 0.0, RH)));
 
   msg.curr_swingleg = xpp::hyq::RF;
 

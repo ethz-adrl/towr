@@ -68,7 +68,6 @@ std::vector<xpp::hyq::LegID>
 NlpOptimizerNode::DetermineStepSequence(const State& curr_state, LegID curr_swingleg) const
 {
   // TODO make step sequence dependent on curr_state
-
   const double length_per_step = 0.35;
   const double width_per_step = 0.20;
   Eigen::Vector2d start_to_goal = goal_cog_.p.segment<2>(0) - curr_cog_.p.segment<2>(0);

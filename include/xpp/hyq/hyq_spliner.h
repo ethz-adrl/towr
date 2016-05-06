@@ -89,6 +89,8 @@ public:
                  double lift_height,
                  double outward_swing_distance);
 
+  double GetTotalTime() const;
+
   void ClearNodes() { nodes_.clear(); }
 
 
@@ -110,6 +112,8 @@ private:
   Spliner3d pos_spliner_, ori_spliner_;
   LegDataMap< Spliner3d > feet_spliner_up_, feet_spliner_down_;
 
+  /** Transform global time to local spline time dt */
+  double GetLocalTime(double t_global) const;
   log4cxx::LoggerPtr log_;
 
 };

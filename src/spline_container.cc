@@ -111,7 +111,7 @@ int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
      if (t >= t_global) // at junctions, returns previous spline (=)
        return s.GetId();
    }
-   throw std::runtime_error("SplineContainer::GetSplineID failed");
+   assert(false); // this should never be reached
 }
 
 
