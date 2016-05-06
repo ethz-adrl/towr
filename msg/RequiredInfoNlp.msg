@@ -3,4 +3,5 @@
 # service call.
 
 StateLin3d curr_state
-Foothold[] curr_stance 
+Foothold[] curr_stance
+int32 curr_swingleg 

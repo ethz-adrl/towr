@@ -34,6 +34,7 @@ typedef xpp::utils::Point3d State;
 typedef xpp::hyq::Foothold Foothold;
 typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
 typedef xpp_opt::Spline SplineMsg;
+typedef xpp::hyq::LegID LegID;
 
 static double GetDoubleFromServer(const std::string& ros_param_name) {
   double val;
@@ -159,12 +160,20 @@ RosToXpp(const geometry_msgs::Point& ros)
 }
 
 
+static LegID
+RosToXpp(const int rosleg)
+{
+  assert(0 <= rosleg && rosleg < xpp::hyq::_LEGS_COUNT); //integer cannot be mapped to a LegID
+  return static_cast<LegID>(rosleg);
+}
+
+
 static Foothold
 RosToXpp(const xpp_opt::Foothold& ros)
 {
   Foothold f;
-  f.leg = static_cast<xpp::hyq::LegID>(ros.leg);
-  f.p = RosToXpp(ros.p);
+  f.leg = RosToXpp(ros.leg);
+  f.p   = RosToXpp(ros.p);
   return f;
 }
 

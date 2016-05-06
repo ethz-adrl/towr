@@ -23,6 +23,7 @@ class NlpOptimizerNode : public OptimizerNodeBase {
 public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::zmp::NlpOptimizer NlpOptimizer;
+  typedef xpp::hyq::LegID LegID;
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersNlp OptParamMsg;
 
@@ -37,11 +38,19 @@ private:
   NlpOptimizer nlp_optimizer_;
   void OptimizeTrajectory();
 
-  std::vector<xpp::hyq::LegID> DetermineStepSequence() const;
+
+  /** Determines the order of the steps to take. This depends on what direction
+   * the CoG is moving (e.g. an outward step might have to catch an acceleration
+   * in a specific direction) and which leg is currently swinging.
+   */
+  std::vector<LegID> DetermineStepSequence(const State& curr_state, LegID curr_swingleg) const;
+  LegID NextSwingLeg(LegID curr) const;
+  LegID curr_swingleg_;
 
   ::ros::Subscriber current_info_sub_;
   ::ros::Publisher opt_params_pub_;
   void CurrentInfoCallback(const ReqInfoMsg& msg);
+  void PublishOptimizedValues() const;
 
 };
 

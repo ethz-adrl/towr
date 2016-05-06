@@ -34,7 +34,13 @@ QpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
 
   OptimizeTrajectory();
 
-  // send something out everytime something has been optimized
+  PublishOptimizedSplines();
+}
+
+
+void
+QpOptimizerNode::PublishOptimizedSplines() const
+{
   OptParamMsg msg_out;
   msg_out.splines = xpp::ros::RosHelpers::XppToRos(opt_splines_);
   opt_params_pub_.publish(msg_out);

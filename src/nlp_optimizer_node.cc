@@ -27,15 +27,22 @@ NlpOptimizerNode::NlpOptimizerNode ()
 void
 NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
 {
-  curr_cog_ = RosHelpers::RosToXpp(msg.curr_state);
-  curr_stance_ = RosHelpers::RosToXpp(msg.curr_stance);
+  curr_cog_      = RosHelpers::RosToXpp(msg.curr_state);
+  curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
+  curr_swingleg_ = RosHelpers::RosToXpp(msg.curr_swingleg);
 
   OptimizeTrajectory();
+  PublishOptimizedValues();
+}
 
-  // send something out everytime something has been optimized
+
+void
+NlpOptimizerNode::PublishOptimizedValues() const
+{
   OptParamMsg msg_out;
-  msg_out.splines = xpp::ros::RosHelpers::XppToRos(opt_splines_);
+  msg_out.splines   = xpp::ros::RosHelpers::XppToRos(opt_splines_);
   msg_out.footholds = xpp::ros::RosHelpers::XppToRos(footholds_);
+
   opt_params_pub_.publish(msg_out);
 }
 
@@ -43,7 +50,7 @@ NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
 void
 NlpOptimizerNode::OptimizeTrajectory()
 {
-  std::vector<xpp::hyq::LegID> step_sequence = DetermineStepSequence();
+  std::vector<xpp::hyq::LegID> step_sequence = DetermineStepSequence(curr_cog_, curr_swingleg_);
   std::cout << "step_sequence.size(): " << step_sequence.size() << std::endl;
 
   nlp_optimizer_.SolveNlp(curr_cog_.Get2D(),
@@ -58,8 +65,10 @@ NlpOptimizerNode::OptimizeTrajectory()
 
 
 std::vector<xpp::hyq::LegID>
-NlpOptimizerNode::DetermineStepSequence() const
+NlpOptimizerNode::DetermineStepSequence(const State& curr_state, LegID curr_swingleg) const
 {
+  // TODO make step sequence dependent on curr_state
+
   const double length_per_step = 0.35;
   const double width_per_step = 0.20;
   Eigen::Vector2d start_to_goal = goal_cog_.p.segment<2>(0) - curr_cog_.p.segment<2>(0);
@@ -69,15 +78,32 @@ NlpOptimizerNode::DetermineStepSequence() const
   // get greatest value of all
   int req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);
 
+
   using namespace xpp::hyq;
-  const std::vector<xpp::hyq::LegID> take_4_steps = {LH, LF, RH, RF};
   std::vector<xpp::hyq::LegID> step_sequence;
-  for (int i=0; i<req_steps_per_leg; ++i) {
-    // insert 4 steps
-    step_sequence.insert(step_sequence.end(), take_4_steps.begin(), take_4_steps.end());
+
+  LegID curr = curr_swingleg;
+  for (int step=0; step<req_steps_per_leg*4; ++step) {
+    step_sequence.push_back(NextSwingLeg(curr));
+    curr = step_sequence.back();
   }
 
   return step_sequence;
+}
+
+
+NlpOptimizerNode::LegID
+NlpOptimizerNode::NextSwingLeg(LegID curr) const
+{
+  using namespace xpp::hyq;
+
+  switch (curr) {
+    case LH: return LF;
+    case LF: return RH;
+    case RH: return RF;
+    case RF: return LH;
+    default: assert(false); // this should never happen
+  };
 }
 
 

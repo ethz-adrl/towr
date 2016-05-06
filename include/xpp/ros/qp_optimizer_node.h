@@ -40,6 +40,9 @@ private:
   ::ros::Publisher opt_params_pub_;
   void CurrentInfoCallback(const ReqInfoMsg& msg);
 
+
+  void PublishOptimizedSplines() const;
+
   /**
    * Service that takes in current info and returns optimzed splines
    */

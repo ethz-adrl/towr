@@ -57,6 +57,8 @@ int main(int argc, char **argv)
   msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x,  0.3, 0.0, LH)));
   msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x, -0.3, 0.0, RH)));
 
+  msg.curr_swingleg = xpp::hyq::RF;
+
   current_info_pub.publish(msg);
 
 
