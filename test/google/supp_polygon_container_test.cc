@@ -58,13 +58,10 @@ protected:
     double t_swing = 0.6;
     double t_stance_initial = 2.0;
     double t_stance_final = 0.5;
+    xpp::zmp::SplineTimes spline_times(t_stance, t_swing, t_stance_initial, t_stance_final);
     std::vector<LegID> step_sequence = {LH, LF, RH, RF};
 
-    splines_ = SplineContainer::ConstructSplineSequence(step_sequence,
-                                                        t_stance,
-                                                        t_swing,
-                                                        t_stance_initial,
-                                                        t_stance_final);
+    splines_ = SplineContainer::ConstructSplineSequence(step_sequence, spline_times);
 
   }
 

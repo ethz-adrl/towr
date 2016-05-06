@@ -28,10 +28,7 @@ protected:
     cont_spline_container_.Init(Eigen::Vector2d::Zero(),
                                 Eigen::Vector2d::Zero(),
                                 step_sequence_,
-                                t_stance,
-                                t_swing,
-                                t_stance_initial,
-                                t_stance_final);
+                                SplineTimes(t_stance, t_swing, t_stance_initial, t_stance_final));
 
     zmp_constaint_.Init(cont_spline_container_, walking_height);
   }

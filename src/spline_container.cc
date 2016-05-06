@@ -25,34 +25,24 @@ SplineContainer::SplineContainer(const VecSpline& splines)
 
 
 SplineContainer::SplineContainer(const VecLegID& step_sequence,
-                                 double t_stance,
-                                 double t_swing,
-                                 double t_stance_initial,
-                                 double t_stance_final)
+                                 const SplineTimes& times)
 {
-  Init(step_sequence,t_stance,t_swing,t_stance_initial,t_stance_final);
+  Init(step_sequence, times);
 }
 
 
 void SplineContainer::Init(const std::vector<xpp::hyq::LegID>& step_sequence,
-                           double t_stance,
-                           double t_swing,
-                           double t_stance_initial,
-                           double t_stance_final)
+                           const SplineTimes& times)
 {
-  splines_ = ConstructSplineSequence(step_sequence,t_stance,t_swing,t_stance_initial,t_stance_final);
+  splines_ = ConstructSplineSequence(step_sequence, times);
   splines_initialized_ = true;
 }
 
 
 // Creates a sequence of Splines without the optimized coefficients
 SplineContainer::VecSpline
-SplineContainer::ConstructSplineSequence(
-    const std::vector<LegID>& step_sequence,
-    double t_stance,
-    double t_swing,
-    double t_stance_initial,
-    double t_stance_final)
+SplineContainer::ConstructSplineSequence(const std::vector<LegID>& step_sequence,
+                                         const SplineTimes& times)
 {
 
   VecSpline splines;
@@ -60,9 +50,9 @@ SplineContainer::ConstructSplineSequence(
   unsigned int id = 0; // unique identifiers for each spline
 
   const double t_init_max = 0.4; //s
-  int n_init_splines = std::ceil(t_stance_initial/t_init_max);
+  int n_init_splines = std::ceil(times.t_stance_initial_/t_init_max);
 
-  double t_init_spline = t_stance_initial/n_init_splines;
+  double t_init_spline = times.t_stance_initial_/n_init_splines;
 
   for (int i=0; i<n_init_splines; ++i)
     splines.push_back(ZmpSpline(id++, t_init_spline, Initial4lsSpline, step));
@@ -73,7 +63,7 @@ SplineContainer::ConstructSplineSequence(
     return splines;
 
 
-  splines.push_back(ZmpSpline(id++, t_swing, StepSpline, step));
+  splines.push_back(ZmpSpline(id++, times.t_swing_, StepSpline, step));
   for (int i=1; i<step_sequence.size(); ++i)
   {
     step++;
@@ -82,20 +72,20 @@ SplineContainer::ConstructSplineSequence(
     xpp::hyq::LegID swing_leg = step_sequence[i];
     xpp::hyq::LegID swing_leg_prev = step_sequence[i-1];
     if (xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg_prev, swing_leg))
-      splines.push_back(ZmpSpline(id++, t_stance, Intermediate4lsSpline, step));
+      splines.push_back(ZmpSpline(id++, times.t_stance_, Intermediate4lsSpline, step));
 
     // insert swing phase splines
-    splines.push_back(ZmpSpline(id++, t_swing, StepSpline, step));
+    splines.push_back(ZmpSpline(id++, times.t_swing_, StepSpline, step));
   }
 
 
   const double t_final_max = 0.4; //s
-  int n_final_splines = std::ceil(t_stance_final/t_final_max);
+  int n_final_splines = std::ceil(times.t_stance_final_/t_final_max);
 
   // always have last 4ls spline for robot to move into center of feet
   const uint NO_NEXT_STEP = std::numeric_limits<uint>::max();
   for (int i=0; i<n_final_splines; ++i)
-    splines.push_back(ZmpSpline(id++, t_stance_final, Final4lsSpline, NO_NEXT_STEP));
+    splines.push_back(ZmpSpline(id++, times.t_stance_final_, Final4lsSpline, NO_NEXT_STEP));
 
   return splines;
 }

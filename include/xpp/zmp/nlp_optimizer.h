@@ -10,6 +10,7 @@
 
 
 #include <xpp/hyq/foothold.h>
+#include <xpp/zmp/spline_container.h>
 #include <xpp/ros/zmp_publisher.h> // fixme, this should be one layer above, ros dependent
 
 #include <IpIpoptApplication.hpp>
@@ -39,10 +40,7 @@ public:
    * @param final_state desired final position, velocity and acceleration of the CoG
    * @param step_sequence the sequence (e.g. left hind, left front,...) of steps to be taken
    * @param start_stance the initial contacts (e.g left front,...) and position
-   * @param swing_time time for one step
-   * @param stance_time time to transition between disjoint support polygons
-   * @param stance_time_initial time before executing the first step
-   * @param stance_time_final time after executing the last step to still move the CoG
+   * @param times the duration of the different splines
    * @param robot_height the walking height of the robot (affects ZMP)
    * @param[out] opt_splines the optimized CoG trajectory
    * @param[out] final_footholds the optimized foothold positions
@@ -52,10 +50,7 @@ public:
                 const State& final_state,
                 const std::vector<xpp::hyq::LegID>& step_sequence,
                 const VecFoothold& start_stance,
-                double swing_time,
-                double stance_time,
-                double stance_time_initial,
-                double stance_time_final,
+                const SplineTimes& times,
                 double robot_height,
                 VecSpline& opt_splines,
                 VecFoothold& final_footholds,

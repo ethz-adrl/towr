@@ -10,6 +10,7 @@
 
 
 #include <xpp/hyq/foothold.h>
+#include <xpp/zmp/spline_container.h>
 #include <xpp/zmp/zmp_spline.h>
 
 
@@ -72,10 +73,7 @@ public:
                     const State& final_state,
                     const VecFoothold& start_stance,
                     const VecFoothold& steps,
-                    double swing_time,
-                    double stance_time,
-                    double stance_time_initial,
-                    double stance_time_final,
+                    const SplineTimes& times,
                     double robot_height);
 
 

@@ -33,10 +33,7 @@ public:
   ContinuousSplineContainer (const Vector2d& start_cog_p,
                              const Vector2d& start_cog_v,
                              const std::vector<xpp::hyq::LegID>& step_sequence,
-                             double t_stance,
-                             double t_swing,
-                             double t_stance_initial,
-                             double t_stance_final);
+                             const SplineTimes& times);
   virtual ~ContinuousSplineContainer () {};
 
 public:
@@ -44,10 +41,7 @@ public:
   void Init(const Vector2d& start_cog_p,
             const Vector2d& start_cog_v,
             const std::vector<xpp::hyq::LegID>& step_sequence,
-            double t_stance,
-            double t_swing,
-            double t_stance_initial,
-            double t_stance_final);
+            const SplineTimes& times);
 
   /**
    * The index number of the coefficient \c coeff, for dimension \c dim and

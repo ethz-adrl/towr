@@ -35,11 +35,8 @@ protected:
 
     cont_spline_container_.Init(init_pos,
                                 init_vel,
-                                {LH, LF, RH},//, RF, LH, LF};
-                                t_stance,
-                                t_swing,
-                                t_stance_initial,
-                                t_stance_final);
+                                {LH, LF, RH},//, RF, LH, LF};,
+                                SplineTimes(t_stance, t_swing, t_stance_initial, t_stance_final));
   }
 
   ContinuousSplineContainer cont_spline_container_;

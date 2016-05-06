@@ -27,6 +27,15 @@ OptimizerNodeBase::OptimizerNodeBase ()
   return_footholds_srv_ = n_.advertiseService("return_optimized_footholds",
                                 &OptimizerNodeBase::ReturnOptimizedFootholds, this);
 
+
+  double t_stance  = RosHelpers::GetDoubleFromServer("/xpp/stance_time");
+  double t_swing   = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
+  double t_init    = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
+  double t_final   = RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
+  spline_times_ = xpp::zmp::SplineTimes(t_stance, t_swing, t_init, t_final);
+
+  robot_height_ = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
+
   // This should be overwritten by joystick
   goal_cog_.p.x() = 0.25;
 }

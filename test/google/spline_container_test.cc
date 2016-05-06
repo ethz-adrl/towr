@@ -31,10 +31,7 @@ protected:
     spline_container_4steps_.Init(Eigen::Vector2d::Zero(),
                                   Eigen::Vector2d::Zero(),
                                   step_sequence_4_,
-                                  t_stance,
-                                  t_swing,
-                                  t_stance_initial,
-                                  t_stance_final);
+                                  SplineTimes(t_stance, t_swing, t_stance_initial, t_stance_final));
 
     n_initial_splines = GetInitial4lsSplines(spline_container_4steps_.GetSplines());
     n_steps = step_sequence_4_.size();
@@ -53,10 +50,10 @@ protected:
 
   ContinuousSplineContainer spline_container_4steps_;
 
-  double t_stance_initial = 2.0;
-  double t_stance = 0.1;
-  double t_swing = 0.6;
-  double t_stance_final = 0.1;
+  const double t_stance_initial = 2.0;
+  const double t_stance = 0.1;
+  const double t_swing = 0.6;
+  const double t_stance_final = 0.1;
 
   int n_initial_splines;
   int n_steps;
@@ -76,11 +73,9 @@ TEST_F(SplineContainerTest, GetState)
   // Create a straight spline in x direction composed of 3 splines (4ls, step 1, 4ls)
   // that has equal position and velocity at junctions
   std::vector<ZmpSpline> x_spline;
-  x_spline = ContinuousSplineContainer::ConstructSplineSequence({LH},
-                                                                t_stance,
-                                                                t_swing,
-                                                                t_stance_initial,
-                                                                t_stance_final);
+  x_spline = ContinuousSplineContainer::ConstructSplineSequence(
+      {LH}, SplineTimes(t_stance, t_swing, t_stance_initial, t_stance_final));
+
   double pos0 = 0.4; // initial position (f0)
   double vel0 = 1.1; // initial velocity (e0)
   double acc0 = 3.1; // initial acceleration (2*d0)
@@ -151,10 +146,7 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   splines_estimated_ef.Init(init_pos,
                                 init_vel,
                                 {LH, LF, RH},
-                                t_stance,
-                                t_swing,
-                                t_stance_initial,
-                                t_stance_final);
+                                SplineTimes(t_stance, t_swing, t_stance_initial, t_stance_final));
 
   // Create a straight spline in x direction composed of 3 splines (4ls, step 1, 4ls)
   // that has equal position and velocity at junctions

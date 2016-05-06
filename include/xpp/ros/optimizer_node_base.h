@@ -50,12 +50,15 @@ protected:
   VecSpline opt_splines_;
   VecFoothold footholds_;
 
+  xpp::zmp::SplineTimes spline_times_;
+  double robot_height_;
 private:
 //  ::ros::Publisher opt_var_pub_;
 //  ::ros::Subscriber curr_state_sub_;
   ::ros::Subscriber goal_state_sub_;
   ::ros::ServiceServer return_splines_srv_;
   ::ros::ServiceServer return_footholds_srv_;
+
 
 
 

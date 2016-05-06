@@ -44,25 +44,14 @@ void
 NlpOptimizerNode::OptimizeTrajectory()
 {
   std::vector<xpp::hyq::LegID> step_sequence = DetermineStepSequence();
-
   std::cout << "step_sequence.size(): " << step_sequence.size() << std::endl;
-
-  double swing_time          = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
-  double stance_time         = RosHelpers::GetDoubleFromServer("/xpp/stance_time");
-  double stance_time_initial = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
-  double stance_time_final   = RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
-  double robot_height        = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
-
 
   nlp_optimizer_.SolveNlp(curr_cog_.Get2D(),
                           goal_cog_.Get2D(),
                           step_sequence,
                           curr_stance_,
-                          swing_time,
-                          stance_time,
-                          stance_time_initial,
-                          stance_time_final,
-                          robot_height,
+                          spline_times_,
+                          robot_height_,
                           opt_splines_,
                           footholds_);
 }

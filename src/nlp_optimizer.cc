@@ -33,10 +33,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                        const State& final_state,
                        const std::vector<xpp::hyq::LegID>& step_sequence,
                        const VecFoothold& start_stance,
-                       double swing_time,
-                       double stance_time,
-                       double stance_time_initial,
-                       double stance_time_final,
+                       const SplineTimes& times,
                        double robot_height,
                        VecSpline& opt_splines,
                        VecFoothold& final_footholds,
@@ -49,10 +46,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   spline_structure.Init(initial_state.p,
                         initial_state.v ,
                         step_sequence,
-                        stance_time,
-                        swing_time,
-                        stance_time_initial,
-                        stance_time_final);
+                        times);
 
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;

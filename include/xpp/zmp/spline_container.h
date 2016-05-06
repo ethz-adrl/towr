@@ -24,6 +24,27 @@
 namespace xpp {
 namespace zmp {
 
+
+/** The duration of each polynom in the sequence that describes some trajectory */
+struct SplineTimes
+{
+  SplineTimes() {};
+  /**
+  * @param t_stance time to transition between disjoint support polygons
+  * @param t_swing time for one step
+  * @param t_init time before executing the first step
+  * @param t_final time after executing the last step to still move the CoG
+  */
+  SplineTimes(double t_stance, double t_swing, double t_init, double t_final)
+      :t_stance_(t_stance), t_swing_(t_swing), t_stance_initial_(t_init), t_stance_final_(t_final) {}
+
+  double t_stance_;
+  double t_swing_;
+  double t_stance_initial_;
+  double t_stance_final_;
+};
+
+
 /**
 @class SplineContainer
 @brief holds multiple splines and knows when these are active in the sequence.
@@ -42,19 +63,12 @@ public:
 public:
   SplineContainer() {};
   SplineContainer(const VecSpline& splines);
-  SplineContainer(const std::vector<xpp::hyq::LegID>& step_sequence,
-                  double t_stance,
-                  double t_swing,
-                  double t_stance_initial,
-                  double t_stance_final);
+  SplineContainer(const std::vector<xpp::hyq::LegID>& step_sequence, const SplineTimes&);
   virtual ~SplineContainer() {};
 
 public:
   static VecSpline ConstructSplineSequence(const VecLegID& step_sequence,
-                                           double t_stance,
-                                           double t_swing,
-                                           double t_stance_initial,
-                                           double t_stance_final);
+                                           const SplineTimes&);
 
   VecSpline GetSplines()        const { return splines_; }
   ZmpSpline GetSpline(size_t i) const { return splines_.at(i); }
@@ -96,17 +110,16 @@ public:
 protected:
   VecSpline splines_;
   void CheckIfSplinesInitialized() const;
-  void Init(const std::vector<xpp::hyq::LegID>& step_sequence,
-            double t_stance,
-            double t_swing,
-            double t_stance_initial,
-            double t_stance_final);
+  void Init(const std::vector<xpp::hyq::LegID>& step_sequence, const SplineTimes&);
 
 private:
   bool splines_initialized_ = false;
   static constexpr double eps_ = 1e-10; // maximum inaccuracy when adding double numbers
 
 };
+
+
+
 
 } // namespace zmp
 } // namespace xpp

@@ -29,17 +29,14 @@ QpOptimizer::SolveQp(const State& initial_state,
                      const State& final_state,
                      const VecFoothold& start_stance,
                      const VecFoothold& steps,
-                     double swing_time,
-                     double stance_time,
-                     double stance_time_initial,
-                     double stance_time_final,
+                     const SplineTimes& times,
                      double robot_height)
 {
   ContinuousSplineContainer spline_structure;
   std::vector<xpp::hyq::LegID> leg_ids;
   for (Foothold f : steps)
     leg_ids.push_back(f.leg);
-  spline_structure.Init(initial_state.p, initial_state.v ,leg_ids, stance_time, swing_time, stance_time_initial,stance_time_final);
+  spline_structure.Init(initial_state.p, initial_state.v ,leg_ids, times);
   cost_function_ = CostFunction::CreateMinAccCostFunction(spline_structure);
 
   SplineConstraints spline_constraint(spline_structure);
