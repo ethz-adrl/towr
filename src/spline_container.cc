@@ -68,11 +68,13 @@ SplineContainer::ConstructSplineSequence(
     splines.push_back(ZmpSpline(id++, t_init_spline, Initial4lsSpline, step));
 
 
-  int n_steps = step_sequence.size();
-  if (n_steps > 0)
-    splines.push_back(ZmpSpline(id++, t_swing, StepSpline, step));
+  // just body shift
+  if (step_sequence.size() == 0)
+    return splines;
 
-  for (int i=1; i<n_steps; ++i)
+
+  splines.push_back(ZmpSpline(id++, t_swing, StepSpline, step));
+  for (int i=1; i<step_sequence.size(); ++i)
   {
     step++;
 
@@ -86,9 +88,13 @@ SplineContainer::ConstructSplineSequence(
     splines.push_back(ZmpSpline(id++, t_swing, StepSpline, step));
   }
 
+
+  const double t_final_max = 0.4; //s
+  int n_final_splines = std::ceil(t_stance_final/t_final_max);
+
   // always have last 4ls spline for robot to move into center of feet
   const uint NO_NEXT_STEP = std::numeric_limits<uint>::max();
-  if (n_steps > 0)
+  for (int i=0; i<n_final_splines; ++i)
     splines.push_back(ZmpSpline(id++, t_stance_final, Final4lsSpline, NO_NEXT_STEP));
 
   return splines;

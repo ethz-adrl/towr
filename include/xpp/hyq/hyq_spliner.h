@@ -57,7 +57,7 @@ public:
   virtual ~HyqSpliner() {};
 
 
-  static std::vector<SplineNode> BuildStepSequence(const HyqState& P_init,
+  static std::vector<SplineNode> BuildStateSequence(const HyqState& P_init,
                                             const VecZmpSpline& zmp_splines,
                                             const VecFoothold& footholds,
                                             double robot_height);

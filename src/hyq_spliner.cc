@@ -34,7 +34,7 @@ void HyqSpliner::SetParams(double upswing,
 
 
 std::vector<SplineNode>
-HyqSpliner::BuildStepSequence(const HyqState& P_init,
+HyqSpliner::BuildStateSequence(const HyqState& P_init,
                               const VecZmpSpline& zmp_splines,
                               const VecFoothold& footholds,
                               double robot_height)

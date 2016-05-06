@@ -60,10 +60,8 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                               step_sequence,
                               SupportPolygon::GetDefaultMargins());
 
-
   NlpStructure nlp_structure(spline_structure.GetTotalFreeCoeff(),
                              supp_polygon_container.GetNumberOfSteps());
-
 
   Constraints constraints(supp_polygon_container,
                           spline_structure,

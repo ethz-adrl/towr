@@ -122,6 +122,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
     // x[c++] = constraints_.planned_footholds_.at(i).p.y();
 	}
 
+	assert(c == nlp_structure_.GetOptimizationVariableCount());
   return true;
 }
 
@@ -190,6 +191,7 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
                                    const IpoptData* ip_data,
                                    IpoptCalculatedQuantities* ip_cq)
 {
+//   std::cout << "Press Enter to continue...";
 //   std::cin.get(); // use to pause after every iteration
 
   // Get the current value of the optimization variable:

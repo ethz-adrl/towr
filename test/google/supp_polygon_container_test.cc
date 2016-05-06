@@ -57,7 +57,7 @@ protected:
     double t_stance = 0.1;
     double t_swing = 0.6;
     double t_stance_initial = 2.0;
-    double t_stance_final = 1.0;
+    double t_stance_final = 0.5;
     std::vector<LegID> step_sequence = {LH, LF, RH, RF};
 
     splines_ = SplineContainer::ConstructSplineSequence(step_sequence,
