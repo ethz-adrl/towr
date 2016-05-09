@@ -97,13 +97,19 @@ ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer&
   std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
       supp_polygon_container.CreateSupportPolygonsWith4LS(zmp_spline_container.GetSplines());
 
+  double T = zmp_spline_container.GetDiscretizedGlobalTimes().back();
 
   for (double t : zmp_spline_container.GetDiscretizedGlobalTimes()) {
 
     // get legs in contact at each step
     VecFoothold stance_legs;
     int id = zmp_spline_container.GetSplineID(t);
-    stance_legs = suppport_polygons.at(id).footholds_;
+
+    // final foothold never creates aktive support polygon, so handle manually
+    if (t == T)
+      stance_legs = supp_polygon_container.GetFinalFootholds();
+    else
+      stance_legs = suppport_polygons.at(id).footholds_;
 
     xpp::utils::Point2d cog_xy = zmp_spline_container.GetCOGxy(t);
 
