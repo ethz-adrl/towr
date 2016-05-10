@@ -46,9 +46,7 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
 
 void SupportPolygonContainer::SetFootholdsXY(int idx, double x, double y)
 {
-  footholds_.at(idx).p.x() = x;
-  footholds_.at(idx).p.y() = y;
-
+  footholds_.at(idx).SetXy(x,y);
   support_polygons_ = CreateSupportPolygons(footholds_); //update support polygons as well
 };
 
@@ -83,10 +81,15 @@ SupportPolygonContainer::GetStanceAfter(int n_steps) const
   VecFoothold last_stance;
   Foothold f;
   for (LegID l : LegIDArray)
-    if(Foothold::GetLastFoothold(l,combined, f))
-      last_stance.push_back(f);
+    last_stance.push_back(Foothold::GetLastFoothold(l,combined));
 
   return last_stance;
+}
+
+
+Foothold SupportPolygonContainer::GetStartFoothold(LegID leg) const
+{
+  return Foothold::GetLastFoothold(leg, start_stance_);
 }
 
 
@@ -126,7 +129,7 @@ SupportPolygonContainer::CreateSupportPolygons(const VecFoothold& footholds) con
     supp.push_back(SupportPolygon(margins_, legs_in_contact));
 
     // update current stance after step
-    Foothold::UpdateFoohold(f, curr_stance);
+    Foothold::UpdateFoothold(f, curr_stance);
   }
 
   return supp;

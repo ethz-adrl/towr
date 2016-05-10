@@ -93,24 +93,15 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	assert(init_z == false);
 	assert(init_lambda == false);
 
-
-//	// set initial value to zero if wrong size input
-//  if (initial_spline_coeff_.rows() != nlp_structure_.n_spline_coeff_ ) {
-//    initial_spline_coeff_.resize(nlp_structure_.n_spline_coeff_,1);
-//    initial_spline_coeff_.setZero();
-//  }
-
-
   int c = 0;
-	for (int i=0; i<opt_variables_.spline_coeff_.rows(); ++i) {
-	  x[c++] = 0.0; //initial_spline_coeff_[i]; // splines of the form x = t^5+t^4+t^3+t^2+t
-	}
 
+  VectorXd x_spline_coeff_init = opt_variables_.spline_coeff_;
+	Eigen::Map<VectorXd>(&x[c], x_spline_coeff_init.rows()) = x_spline_coeff_init;
+	c += x_spline_coeff_init.rows();
 
-
-	VectorXd footholds = nlp_structure_.ExtractFootholds(opt_variables_.footholds_);
-	Eigen::Map<VectorXd>(&x[c], footholds.rows()) = footholds;
-	c += footholds.rows();
+	VectorXd x_footholds_init = nlp_structure_.ExtractFootholds(opt_variables_.footholds_);
+	Eigen::Map<VectorXd>(&x[c], x_footholds_init.rows()) = x_footholds_init;
+	c += x_footholds_init.rows();
 
 
 
@@ -212,16 +203,15 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
       tnlp_adapter->ResortX(*ip_data->curr()->x(), x);
 
       // visualize the current state with rviz
-      StdVecEigen2d curr_footholds = nlp_structure_.ExtractFootholds(x);
+      StdVecEigen2d x_footholds_xy = nlp_structure_.ExtractFootholds(x);
       VectorXd curr_coeff = nlp_structure_.ExtractSplineCoefficients(x);
 
       ZmpPublisher::VecFoothold footholds(nlp_structure_.n_steps_);
       for (uint i=0; i<footholds.size(); ++i) {
         footholds.at(i).leg = constraints_.GetLegID(i);
-        footholds.at(i).p.x() = curr_footholds.at(i).x(),
-        footholds.at(i).p.y() = curr_footholds.at(i).y(),
-        footholds.at(i).p.z() = 0.0;
       }
+
+      xpp::hyq::Foothold::SetXy(x_footholds_xy, footholds);
 
       zmp_publisher_.zmp_msg_.markers.clear();
       constraints_.GetSplineContainer().AddOptimizedCoefficients(curr_coeff);

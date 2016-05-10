@@ -96,6 +96,7 @@ include_directories(
 set(SOURCES  
   src/geometric_structs.cc
   src/qp_optimizer.cc
+  src/foothold.cc
   src/nlp_optimizer.cc
   src/zmp_spline.cc
   src/spline_container.cc    

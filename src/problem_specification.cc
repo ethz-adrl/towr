@@ -54,6 +54,22 @@ ProblemSpecification::UpdateCurrentState(const VectorXd& x_coeff, const StdVecEi
 
 
 Eigen::VectorXd
+ProblemSpecification::DistanceFootToNominalStance(const VectorXd& x_coeff, const StdVecEigen2d& footholds) const
+{
+  // update current state of support polygon and zmp spline
+  ContinuousSplineContainer spline_container = zmp_spline_container_;
+  spline_container.AddOptimizedCoefficients(x_coeff);
+
+  SupportPolygonContainer supp_polygon_container = supp_polygon_container_;
+
+  for (uint i=0; i<footholds.size(); ++i)
+    supp_polygon_container.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
+
+  return DistanceFootToNominalStance(supp_polygon_container, spline_container);
+}
+
+
+Eigen::VectorXd
 ProblemSpecification::DistanceSquareFootToGapboarder(const StdVecEigen2d& footholds,
                                                double gap_center_x,
                                                double gap_width_x) const

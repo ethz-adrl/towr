@@ -61,12 +61,12 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
 
+
   NlpStructure::NlpVariables initial_variables(nlp_structure);
-  for (int step=0; step<initial_variables.footholds_.size(); ++step) {
-    // initialize with start stance
+  // initialize with start stance
+  for (uint step=0; step<initial_variables.footholds_.size(); ++step) {
     xpp::hyq::LegID leg = supp_polygon_container.GetLegID(step);
-    // fixme, the order of start stance does not neccessarily correspond to LF=0, RF=1, ...
-    initial_variables.footholds_.at(step) = supp_polygon_container.GetStartStance()[leg].p.segment<2>(0);
+    initial_variables.footholds_.at(step) = supp_polygon_container.GetStartFoothold(leg).GetXy();
   }
 
 
@@ -106,14 +106,12 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
   int n_steps = optimized_variables.footholds_.size();
   opt_footholds.resize(n_steps);
-
   for (int i=0; i<n_steps; ++i) {
-    Eigen::Vector2d f = optimized_variables.footholds_.at(i);
-    opt_footholds.at(i).p.x() = f.x();
-    opt_footholds.at(i).p.y() = f.y();
     opt_footholds.at(i).leg = step_sequence.at(i);
-
   }
+
+  xpp::hyq::Foothold::SetXy(optimized_variables.footholds_, opt_footholds);
+
 
   spline_structure.AddOptimizedCoefficients(optimized_variables.spline_coeff_);
   opt_splines = spline_structure.GetSplines();

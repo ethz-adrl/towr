@@ -74,6 +74,8 @@ public:
   void SetFootholdsXY(int idx, double x, double y);
 
   VecFoothold GetStartStance() const {return start_stance_;};
+  Foothold GetStartFoothold(LegID leg) const;
+
 
   /** First step is considered step=0. */
   LegID GetLegID(int step) const { return footholds_.at(step).leg; };
