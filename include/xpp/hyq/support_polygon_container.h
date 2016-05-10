@@ -23,6 +23,7 @@ public:
   typedef xpp::utils::MatVec MatVec;
   typedef std::vector<xpp::zmp::ZmpSpline> VecZmpSpline;
   typedef std::vector<SupportPolygon::VecSuppLine> VecVecSuppLine;
+  typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
 //  typedef xpp::hyq::LegID LegID;
 
 
@@ -85,6 +86,9 @@ public:
 
   VecSupportPolygon CreateSupportPolygonsWith4LS(const VecZmpSpline&) const;
   VecVecSuppLine GetActiveConstraintsForEachStep(const VecZmpSpline&) const;
+
+  /** returns the foothold sequence, but each leg is initialized to start stance xy */
+  StdVecEigen2d GetFootholdsInitializedToStart() const;
 
 
 private:

@@ -40,13 +40,13 @@ public:
   void SetXy(const Vector2d& xy);
   static void SetXy(const StdVecEigen2d& xy, VecFoothold& footholds);
 
-  /** returns true if a foothold with that leg is present in footholds */
+  /**  @brief returns true if a foothold with that leg is present in footholds */
   static bool IsInFootholds(LegID leg, const VecFoothold& footholds);
-  /** searches through footholds looking for leg starting from most current ones */
+  /** @brief  searches through footholds looking for leg starting from most current ones */
   static Foothold GetLastFoothold(LegID leg, const VecFoothold& footholds);
-  /** finds the last foothold with that leg and updates the x,y,z-position */
+  /** @brief finds the last foothold with that leg and updates the x,y,z-position */
   static void UpdateFoothold(const Foothold& f_new, VecFoothold& footholds);
-  /** returns the position of the last foothold with that leg */
+  /** @brief returns the position of the last foothold with that leg */
   static int GetLastIndex(LegID leg, const VecFoothold& footholds);
 
   bool operator==(const Foothold& rhs) const;

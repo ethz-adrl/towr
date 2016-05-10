@@ -11,6 +11,9 @@
 
 #include <xpp/hyq/foothold.h>
 #include <xpp/zmp/spline_container.h>
+#include <xpp/zmp/nlp_structure.h>
+#include <xpp/hyq/support_polygon_container.h>
+
 #include <xpp/ros/zmp_publisher.h> // fixme, this should be one layer above, ros dependent
 
 #include <IpIpoptApplication.hpp>
@@ -24,6 +27,8 @@ public:
   typedef xpp::utils::Point2d State;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
   typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
+  typedef NlpStructure::NlpVariables NlpVariables;
+  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
 
 public:
   NlpOptimizer ();
@@ -43,7 +48,7 @@ public:
    * @param times the duration of the different splines
    * @param robot_height the walking height of the robot (affects ZMP)
    * @param[out] opt_splines the optimized CoG trajectory
-   * @param[out] final_footholds the optimized foothold positions
+   * @param[out] opt_footholds the optimized foothold positions
    */
   void SolveNlp(const State& initial_state,
                 const State& final_state,
@@ -55,6 +60,12 @@ public:
                 VecFoothold& opt_footholds);
 
 
+private:
+  void SetInitialVariables(const NlpStructure&, const SupportPolygonContainer&);
+
+
+
+  NlpVariables initial_variables_;
 
   Ipopt::IpoptApplication app_;
   Ipopt::ApplicationReturnStatus status_;

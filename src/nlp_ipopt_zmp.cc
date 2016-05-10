@@ -103,22 +103,6 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	Eigen::Map<VectorXd>(&x[c], x_footholds_init.rows()) = x_footholds_init;
 	c += x_footholds_init.rows();
 
-
-
-//	// TODO use initial values
-//	// initialize footstep locations
-//	// must be different from all zeros to create proper support polygons
-//	for (int i=0; i<nlp_structure_.n_steps_; ++i) {
-//	  // initialize with start stance
-//	  xpp::hyq::LegID leg = constraints_.GetLegID(i);
-//	  x[c++] = constraints_.GetStartStance(leg).p.x();
-//	  x[c++] = constraints_.GetStartStance(leg).p.y();
-//
-//	  // // intialize with planned footholds
-//    // x[c++] = constraints_.planned_footholds_.at(i).p.y();
-//    // x[c++] = constraints_.planned_footholds_.at(i).p.y();
-//	}
-
 	assert(c == nlp_structure_.GetOptimizationVariableCount());
   return true;
 }

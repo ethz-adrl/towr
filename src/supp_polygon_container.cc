@@ -48,7 +48,21 @@ void SupportPolygonContainer::SetFootholdsXY(int idx, double x, double y)
 {
   footholds_.at(idx).SetXy(x,y);
   support_polygons_ = CreateSupportPolygons(footholds_); //update support polygons as well
-};
+}
+
+
+SupportPolygonContainer::StdVecEigen2d
+SupportPolygonContainer::GetFootholdsInitializedToStart() const
+{
+  StdVecEigen2d footholds_xy(footholds_.size());
+
+  for (uint step=0; step<footholds_.size(); ++step) {
+    xpp::hyq::LegID leg = footholds_.at(step).leg;
+    footholds_xy.at(step) = GetStartFoothold(leg).GetXy();
+  }
+
+  return footholds_xy;
+}
 
 
 SupportPolygon SupportPolygonContainer::GetStancePolygon(const VecFoothold& footholds) const

@@ -28,6 +28,8 @@ public:
 
   struct NlpVariables
   {
+    NlpVariables() {};
+
     /** Initializes all variables to zero */
     NlpVariables(const NlpStructure& structure)
         :spline_coeff_(VectorXd::Zero(structure.n_spline_coeff_)),
