@@ -31,6 +31,7 @@ public:
   typedef xpp::zmp::CostFunction CostFunction;
   typedef xpp::zmp::Constraints Constraints;
   typedef xpp::zmp::NlpStructure NlpStructure;
+  typedef NlpStructure::NlpVariables NlpVariables;
   typedef Eigen::VectorXd VectorXd;
 
 
@@ -39,7 +40,7 @@ public:
 	            const Constraints& constraints,
 	            const NlpStructure& nlp_structure,
 	            const ZmpPublisher& zmp_publisher, // just for visualization
-	            const VectorXd& initial_spline_coefficients);
+	            const NlpVariables& initial_values);
 
   /** default destructor */
   virtual ~NlpIpoptZmp() {};
@@ -113,9 +114,7 @@ public:
 
 
 
-
-  Eigen::VectorXd opt_coeff_;
-  StdVecEigen2d opt_footholds_;
+  NlpVariables opt_variables_;
 
 private:
 
@@ -126,11 +125,6 @@ private:
   Eigen::NumericalDiff<Constraints> num_diff_constraints_;
 
   ZmpPublisher zmp_publisher_;
-
-
-
-
-  VectorXd initial_spline_coeff_;
 
   /**@name Methods to block default compiler methods.
    * The compiler automatically generates the following three methods.

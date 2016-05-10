@@ -40,6 +40,7 @@ void SplineContainer::Init(const std::vector<xpp::hyq::LegID>& step_sequence,
 
 
 // Creates a sequence of Splines without the optimized coefficients
+// TODO this function is definetly doing more than one thing -> split up
 SplineContainer::VecSpline
 SplineContainer::ConstructSplineSequence(const std::vector<LegID>& step_sequence,
                                          const SplineTimes& times)

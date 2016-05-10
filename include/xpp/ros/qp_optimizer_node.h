@@ -43,9 +43,7 @@ private:
 
   void PublishOptimizedSplines() const;
 
-  /**
-   * Service that takes in current info and returns optimzed splines
-   */
+  /** Service that takes in current info and returns optimzed splines */
   ::ros::ServiceServer opt_srv_;
   bool OptimizeTrajectoryService(xpp_opt::SolveQp::Request& req,
                                  xpp_opt::SolveQp::Response& res);

@@ -23,7 +23,7 @@ NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
                          const Constraints& constraints,
                          const NlpStructure& nlp_structure,
                          const ZmpPublisher& zmp_publisher, // just for visualization
-                         const VectorXd& initial_spline_coefficients)
+                         const NlpVariables& initial_values)
     :cost_function_(cost_function),
      constraints_(constraints),
      nlp_structure_(nlp_structure),
@@ -31,11 +31,9 @@ NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
      num_diff_cost_function_(cost_function, 10*std::numeric_limits<double>::epsilon()),
      num_diff_constraints_(constraints, std::sqrt(std::numeric_limits<double>::epsilon())),
      // just for visualization
-     zmp_publisher_(zmp_publisher)
-
-{
-  initial_spline_coeff_ = initial_spline_coefficients;
-}
+     zmp_publisher_(zmp_publisher),
+     opt_variables_(initial_values)
+{}
 
 
 bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
@@ -96,31 +94,39 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	assert(init_lambda == false);
 
 
-	// set initial value to zero if wrong size input
-  if (initial_spline_coeff_.rows() != nlp_structure_.n_spline_coeff_ ) {
-    initial_spline_coeff_.resize(nlp_structure_.n_spline_coeff_,1);
-    initial_spline_coeff_.setZero();
-  }
+//	// set initial value to zero if wrong size input
+//  if (initial_spline_coeff_.rows() != nlp_structure_.n_spline_coeff_ ) {
+//    initial_spline_coeff_.resize(nlp_structure_.n_spline_coeff_,1);
+//    initial_spline_coeff_.setZero();
+//  }
 
 
   int c = 0;
-	for (int i=0; i<initial_spline_coeff_.rows(); ++i) {
+	for (int i=0; i<opt_variables_.spline_coeff_.rows(); ++i) {
 	  x[c++] = 0.0; //initial_spline_coeff_[i]; // splines of the form x = t^5+t^4+t^3+t^2+t
 	}
 
 
-	// initialize footstep locations
-	// must be different from all zeros to create proper support polygons
-	for (int i=0; i<nlp_structure_.n_steps_; ++i) {
-	  // initialize with start stance
-	  xpp::hyq::LegID leg = constraints_.GetLegID(i);
-	  x[c++] = constraints_.GetStartStance(leg).p.x();
-	  x[c++] = constraints_.GetStartStance(leg).p.y();
 
-	  // // intialize with planned footholds
-    // x[c++] = constraints_.planned_footholds_.at(i).p.y();
-    // x[c++] = constraints_.planned_footholds_.at(i).p.y();
-	}
+	VectorXd footholds = nlp_structure_.ExtractFootholds(opt_variables_.footholds_);
+	Eigen::Map<VectorXd>(&x[c], footholds.rows()) = footholds;
+	c += footholds.rows();
+
+
+
+//	// TODO use initial values
+//	// initialize footstep locations
+//	// must be different from all zeros to create proper support polygons
+//	for (int i=0; i<nlp_structure_.n_steps_; ++i) {
+//	  // initialize with start stance
+//	  xpp::hyq::LegID leg = constraints_.GetLegID(i);
+//	  x[c++] = constraints_.GetStartStance(leg).p.x();
+//	  x[c++] = constraints_.GetStartStance(leg).p.y();
+//
+//	  // // intialize with planned footholds
+//    // x[c++] = constraints_.planned_footholds_.at(i).p.y();
+//    // x[c++] = constraints_.planned_footholds_.at(i).p.y();
+//	}
 
 	assert(c == nlp_structure_.GetOptimizationVariableCount());
   return true;
@@ -243,8 +249,9 @@ void NlpIpoptZmp::finalize_solution(SolverReturn status,
 			                        const IpoptData* ip_data,
 			                        IpoptCalculatedQuantities* ip_cq)
 {
-  opt_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);
-  opt_footholds_ = nlp_structure_.ExtractFootholds(x);
+
+  opt_variables_.spline_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);
+  opt_variables_.footholds_ = nlp_structure_.ExtractFootholds(x);
 
   //  // write data to xml file
   //	Eigen::MatrixXd opt_u(1,n);

@@ -44,7 +44,6 @@ public:
    * @param robot_height the walking height of the robot (affects ZMP)
    * @param[out] opt_splines the optimized CoG trajectory
    * @param[out] final_footholds the optimized foothold positions
-   * @param initial_spline_coeff initialization values for the nlp solver (optional)
    */
   void SolveNlp(const State& initial_state,
                 const State& final_state,
@@ -53,8 +52,7 @@ public:
                 const SplineTimes& times,
                 double robot_height,
                 VecSpline& opt_splines,
-                VecFoothold& final_footholds,
-                const Eigen::VectorXd& initial_spline_coeff = Eigen::Vector2d::Zero());
+                VecFoothold& opt_footholds);
 
 
 

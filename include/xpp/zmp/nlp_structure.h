@@ -26,6 +26,21 @@ public:
   enum Dim2d { kDim2d = xpp::utils::kDim2d };
 
 
+  struct NlpVariables
+  {
+    /** Initializes all variables to zero */
+    NlpVariables(const NlpStructure& structure)
+        :spline_coeff_(VectorXd::Zero(structure.n_spline_coeff_)),
+         footholds_(StdVecEigen2d(structure.n_steps_, Eigen::Vector2d::Zero())) {}
+
+    NlpVariables(const VectorXd& spline_coeff, const StdVecEigen2d& footholds)
+        :spline_coeff_(spline_coeff), footholds_(footholds) {}
+
+    VectorXd spline_coeff_;
+    StdVecEigen2d footholds_;
+  };
+
+
 public:
   NlpStructure(int n_spline_coeff = 0, int n_steps = 0)
     :n_spline_coeff_(n_spline_coeff),
@@ -55,6 +70,20 @@ public:
   StdVecEigen2d ExtractFootholds(const Number* x) const
   {
     return ExtractFootholds(ConvertToEigen(x));
+  }
+
+
+  VectorXd ExtractFootholds(const StdVecEigen2d& footholds_xy) const
+  {
+    uint n_steps = footholds_xy.size();
+    VectorXd vec(kDim2d*n_steps);
+    int c=0;
+    for (uint step=0; step<n_steps; ++step)
+    {
+      vec[c++] = footholds_xy.at(step).x();
+      vec[c++] = footholds_xy.at(step).y();
+    }
+    return vec;
   }
 
 

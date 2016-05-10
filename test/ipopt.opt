@@ -8,7 +8,7 @@
 #linear_solver ma27
 linear_solver ma57
 #linear_solver ma77
-#linear_solver ma86
+#uplinear_solver ma86
 #linear_solver ma97
 
 jacobian_approximation finite-difference-values
@@ -21,7 +21,7 @@ tol 1e-3
 #dual_inf_tol 1e-1
 #constr_viol_tol 1e-4
 #compl_inf_tol 1e-4
-max_cpu_time 0.05
+max_cpu_time 5.2
 #max_iter 20
 #bound_frac 0.5
 

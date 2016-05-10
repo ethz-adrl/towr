@@ -38,7 +38,7 @@ public:
   virtual ~ProblemSpecification ();
 
   ContinuousSplineContainer GetSplineContainer() const { return zmp_spline_container_; };
-  LegID GetLegID(int step) const { return supp_polygon_container_.GetLegID(step); };
+  LegID GetLegID(int step) const { return supp_polygon_container_.GetLegID(step); }; // fixme
 //  Foothold GetPlannedFoothold(size_t i) const { return planned_footholds_.at(i); };
 //  VecFoothold GetPlannedFootholds() const { return planned_footholds_; };
   Foothold GetStartStance(LegID leg) const { return supp_polygon_container_.GetStartStance()[leg]; };
