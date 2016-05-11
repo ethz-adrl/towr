@@ -33,7 +33,7 @@ class HyqState
 public:
   typedef utils::Vec3d Vec3d;
   typedef utils::Point2d Pos2d;
-  typedef utils::Point3d Pos;
+  typedef utils::Point3d Point3d;
   typedef utils::Ori Ori;
   typedef utils::Coords3D Coords3D;
   typedef utils::Pose Pose;
@@ -42,7 +42,7 @@ public:
 public:
   bool swing_phase_;
   LegDataMap< bool > swingleg_;
-  LegDataMap<Pos> feet_;
+  LegDataMap<Point3d> feet_;
   Pose base_; // geometric center of mass, vel, acc
 
 

@@ -20,21 +20,15 @@ namespace xpp {
 namespace hyq {
 
 
-// todo replace this with HyqState + double T
 struct SplineNode {
-  typedef ::xpp::utils::QuinticSpliner Spliner;
-  typedef ::xpp::utils::Spliner3d< Spliner > Spliner3d;
-  typedef Spliner3d::Point Point;
+  typedef xpp::utils::Point3d Point3d;
 
+  SplineNode(const HyqState& state, const Point3d& ori_rpy, double t_max)
+      : state_(state), ori_rpy_(ori_rpy), T(t_max) {};
 
-  Point pos;
-  Point ori;
-  LegDataMap<Point> feet;
-  int swingleg;             // leg to reach this state
+  HyqState state_;
+  xpp::utils::Point3d ori_rpy_; // fixme remove this and use quaternion orientation directly for interpolation
   double T;                 // time to reach this state
-  SplineNode(const Point& _pos, const Point& _ori,
-             const LegDataMap<Point>& _feet, int _swingleg, double _T)
-      : pos(_pos), ori(_ori), feet(_feet), swingleg(_swingleg), T(_T) {};
 };
 
 

@@ -108,6 +108,8 @@ HyqSpliner::BuildStateSequence(const HyqState& P_init,
 SplineNode
 HyqSpliner::BuildNode(const HyqState& state, double t_max)
 {
+
+  // wrap orientation
   kindr::rotations::eigen_impl::RotationQuaternionPD qIB(state.base_.ori.q);
 
   kindr::rotations::eigen_impl::EulerAnglesXyzPD rpyIB(qIB);
@@ -129,10 +131,9 @@ HyqSpliner::BuildNode(const HyqState& state, double t_max)
   // contains information that orientation went 360deg around
   kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB_full = rpyIB;
   yprIB_full.setYaw(rpyIB.yaw() + counter360*2*M_PI);
-  Point ori = Point(yprIB_full.toImplementation());
+  Point ori_rpy = Point(yprIB_full.toImplementation());
 
-
-  return SplineNode(state.base_.pos, ori, state.feet_, state.SwinglegID(), t_max);
+  return SplineNode(state, ori_rpy, t_max);
 }
 
 
@@ -156,11 +157,11 @@ double HyqSpliner::GetLocalTime(double t_global) const
   return t_local;
 }
 
+
 SplineNode HyqSpliner::GetCurrGoal() const
 {
   return nodes_.at(curr_goal_);
 }
-
 
 
 HyqState HyqSpliner::getPoint(double t_global)
@@ -183,9 +184,9 @@ HyqState HyqSpliner::getPoint(double t_global)
 
   /** 3. Feet Position */
   curr.swingleg_ = false;
-  curr.feet_ = nodes_[curr_goal_].feet;
+  curr.feet_ = nodes_[curr_goal_].state_.feet_;
 
-  int sl = nodes_[curr_goal_].swingleg;
+  int sl = nodes_[curr_goal_].state_.SwinglegID();
   if (sl != NO_SWING_LEG) // only spline foot of swingleg
   {
     double t_upswing = nodes_[curr_goal_].T * kUpswingPercent;
@@ -224,17 +225,17 @@ void HyqSpliner::SetCurrGoal(uint des_goal)
   SplineNode to   = nodes_.at(curr_goal_);
 
   // Positions, velocities and accelerations
-  pos_spliner_.SetBoundary(to.T, from.pos, to.pos);
+  pos_spliner_.SetBoundary(to.T, from.state_.base_.pos, to.state_.base_.pos);
 
   // Orientation, angular velocity and angular acceleration
-  ori_spliner_.SetBoundary(to.T, from.ori, to.ori);
+  ori_spliner_.SetBoundary(to.T, from.ori_rpy_, to.ori_rpy_);
 
   // Feet spliner for all legs, even if might be stance legs
   for (LegID leg : LegIDArray) {
 
     // raise intermediate foothold dependant on foothold difference
-    double delta_z = std::abs(to.feet[leg].p(Z) - from.feet[leg].p(Z));
-    Point foot_raised = to.feet[leg];
+    double delta_z = std::abs(to.state_.feet_[leg].p(Z) - from.state_.feet_[leg].p(Z));
+    Point foot_raised = to.state_.feet_[leg];
     foot_raised.p[Z] += kLiftHeight + delta_z;
 
     // move outward only if footholds significantly differ in height
@@ -245,13 +246,13 @@ void HyqSpliner::SetCurrGoal(uint des_goal)
 
     // upward swing
     double swing_time = to.T;
-    feet_spliner_up_[leg].SetBoundary(swing_time, from.feet[leg], foot_raised);
+    feet_spliner_up_[leg].SetBoundary(swing_time, from.state_.feet_[leg], foot_raised);
 
     // downward swing from the foothold at switch state to original
     double t_switch = swing_time * kUpswingPercent;
     Point foot_at_switch;
     feet_spliner_up_[leg].GetPoint(t_switch, foot_at_switch);
-    feet_spliner_down_[leg].SetBoundary(swing_time - t_switch,  foot_at_switch, to.feet[leg]);
+    feet_spliner_down_[leg].SetBoundary(swing_time - t_switch,  foot_at_switch, to.state_.feet_[leg]);
   }
 }
 
