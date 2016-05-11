@@ -43,6 +43,13 @@ static double GetDoubleFromServer(const std::string& ros_param_name) {
   return val;
 }
 
+static double GetBoolFromServer(const std::string& ros_param_name) {
+  bool val;
+  if(!::ros::param::get(ros_param_name,val))
+    throw ::ros::Exception("GetBoolFromServer: Couldn't read parameter: " + ros_param_name);
+  return val;
+}
+
 
 static std::vector<SplineMsg>
 XppToRos(const VecSpline& opt_splines)
