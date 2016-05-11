@@ -89,12 +89,14 @@ void Foothold::UpdateFoothold(const Foothold& f_new, VecFoothold& footholds)
 }
 
 
-bool Foothold::operator==(const Foothold& rhs) const {
+bool Foothold::operator==(const Foothold& rhs) const
+{
   return (p==rhs.p) && (leg==rhs.leg);
 }
 
 
-bool Foothold::operator!=(const Foothold& rhs) const {
+bool Foothold::operator!=(const Foothold& rhs) const
+{
   return !(*this==rhs);
 }
 

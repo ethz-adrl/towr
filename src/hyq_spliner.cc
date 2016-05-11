@@ -156,6 +156,11 @@ double HyqSpliner::GetLocalTime(double t_global) const
   return t_local;
 }
 
+SplineNode HyqSpliner::GetCurrGoal() const
+{
+  return nodes_.at(curr_goal_);
+}
+
 
 
 HyqState HyqSpliner::getPoint(double t_global)

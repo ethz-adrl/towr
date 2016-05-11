@@ -54,7 +54,7 @@ public:
   LegDataMap< Foothold > FeetToFootholds() const;
   Foothold FootToFoothold(LegID leg) const;
 
-  const LegDataMap<Eigen::Vector3d>& GetFeetPosOnly();
+  const LegDataMap<Eigen::Vector3d> GetFeetPosOnly();
   VecFoothold GetStanceLegs() const;
 
 

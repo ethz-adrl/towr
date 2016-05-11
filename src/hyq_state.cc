@@ -42,7 +42,7 @@ void HyqState::ZeroVelAcc()
 }
 
 
-const LegDataMap<Eigen::Vector3d>& HyqState::GetFeetPosOnly()
+const LegDataMap<Eigen::Vector3d> HyqState::GetFeetPosOnly()
 {
   static LegDataMap<Eigen::Vector3d> feet_pos;
   for (LegID leg : LegIDArray)

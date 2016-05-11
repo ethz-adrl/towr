@@ -69,6 +69,9 @@ struct CoeffValues {
 //  }
 };
 
+
+// todo rename to fifth order polynome!
+
 /**
 @class Spline
 @brief fully represents a spline in 2d and allows retrieving
@@ -85,7 +88,7 @@ public:
   Spline(const CoeffValues &coeff_values);
   virtual ~Spline() {};
 
-  Vec2d GetState(const PosVelAcc &whichDeriv, const double &_t) const;
+  Vec2d GetState(PosVelAcc whichDeriv, double t) const;
   void SetSplineCoefficients(const CoeffValues &coeff_values = CoeffValues());
 
 protected:

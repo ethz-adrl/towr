@@ -56,7 +56,12 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                              supp_polygon_container.GetNumberOfSteps());
 
 
-  SetInitialVariables(nlp_structure, supp_polygon_container);
+  // fixme this should also change if the goal or any other parameter changes apart from the start position
+  bool init_with_zeros = true;
+  bool num_steps_changed = initial_variables_.footholds_.size() != nlp_structure.n_steps_;
+  if (num_steps_changed || init_with_zeros) {
+    SetInitialVariables(nlp_structure, supp_polygon_container);
+  } else {} // use previous values
 
 
   Constraints constraints(supp_polygon_container, spline_structure, nlp_structure, robot_height, initial_state.a, final_state);
@@ -103,26 +108,10 @@ void
 NlpOptimizer::SetInitialVariables(const NlpStructure& nlp_structure,
                                   const SupportPolygonContainer& supp_polygons)
 {
-  // fixme this should also change if the goal or any other parameter changes apart from the start position
-  if (initial_variables_.footholds_.size() != nlp_structure.n_steps_) {
-    initial_variables_ = NlpStructure::NlpVariables(nlp_structure);
-    initial_variables_.spline_coeff_.setZero();
-    initial_variables_.footholds_ = supp_polygons.GetFootholdsInitializedToStart();
-  }
+  initial_variables_ = NlpStructure::NlpVariables(nlp_structure);
+  initial_variables_.spline_coeff_.setZero();
+  initial_variables_.footholds_ = supp_polygons.GetFootholdsInitializedToStart();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 } /* namespace zmp */

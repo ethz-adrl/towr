@@ -25,8 +25,7 @@ Spline::Spline(const CoeffValues &coeff_values)
 }
 
 
-Spline::Vec2d Spline::GetState(const PosVelAcc &whichDerivative,
-                         const double& _t) const
+Spline::Vec2d Spline::GetState(PosVelAcc whichDerivative, double _t) const
 {
   // caching the exponential times
   double t[6];

@@ -20,6 +20,7 @@ namespace xpp {
 namespace hyq {
 
 
+// todo replace this with HyqState + double T
 struct SplineNode {
   typedef ::xpp::utils::QuinticSpliner Spliner;
   typedef ::xpp::utils::Spliner3d< Spliner > Spliner3d;
@@ -90,6 +91,7 @@ public:
                  double outward_swing_distance);
 
   double GetTotalTime() const;
+  SplineNode GetCurrGoal() const;
 
   void ClearNodes() { nodes_.clear(); }
 
