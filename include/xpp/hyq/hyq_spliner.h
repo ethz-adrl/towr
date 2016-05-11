@@ -103,12 +103,14 @@ private:
                                                 const SplineNode& to) const;
 
 
-  int GetSplineID(double t_global) const;
 
+  int GetSplineID(double t_global) const;
   void BuildOneSegment(const SplineNode& from, const SplineNode& to,
                    Spliner3d& pos, Spliner3d& ori,
                    LegDataMap< Spliner3d >& feet_up,
                    LegDataMap< Spliner3d >& feet_down) const;
+
+  friend class HyqSplinerTest_GetSplineID_Test;
 };
 
 } // namespace hyq

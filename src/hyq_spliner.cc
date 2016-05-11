@@ -41,15 +41,10 @@ HyqSpliner::BuildStateSequence(const HyqState& P_init,
                               double robot_height)
 {
   std::vector<SplineNode> nodes;
-  using namespace xpp::utils::coords_wrapper; // pulls in X, Y, Z..
-
 
   // start node
   SplineNode init_node = BuildNode(P_init, 0.0);
   nodes.push_back(init_node); // this node has to be reached instantly (t=0)
-  std::cout << "P_init Node:\n" << init_node.state_ << std::endl;
-  std::cout << init_node.ori_rpy_ << std::endl;
-  std::cout << init_node.T << std::endl << std::endl;
 
   /** Add state sequence based on footsteps **/
   // desired state after first 4 leg support phase
@@ -60,6 +55,7 @@ HyqSpliner::BuildStateSequence(const HyqState& P_init,
   }
   P_plan_prev.base_.pos.p(Z) = robot_height + P_plan_prev.GetZAvg(); // height of footholds
 
+  // fixme: don't create multiple nodes for many initial splines
   for (const ZmpSpline& s : zmp_splines)
   {
     // copy a few values from previous state
@@ -100,15 +96,7 @@ HyqSpliner::BuildStateSequence(const HyqState& P_init,
       P_plan.base_.pos.p(Z) = robot_height + P_plan.GetZAvg(); // height of footholds
     }
 
-
-
-    SplineNode node = BuildNode(P_plan, s.GetDuration());
-    std::cout << "Node:\n" << node.state_ << std::endl;
-    std::cout << node.ori_rpy_ << std::endl;
-    std::cout << node.T << std::endl << std::endl;
-    nodes.push_back(node);
-
-
+    nodes.push_back(BuildNode(P_plan, s.GetDuration()));
     P_plan_prev = P_plan;
   }
 
@@ -125,6 +113,7 @@ void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
 
   Spliner3d pos, ori;
   LegDataMap< Spliner3d > feet_up, feet_down;
+  std::cout << "nodes.size(): " << nodes.size() << std::endl;
   for (int n=1; n<nodes_.size(); ++n) {
     SplineNode from = nodes.at(n-1);
     SplineNode to   = nodes.at(n);
