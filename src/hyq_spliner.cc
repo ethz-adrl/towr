@@ -6,20 +6,12 @@
  */
 
 #include <xpp/hyq/hyq_spliner.h>
-
 #include <kindr/rotations/RotationEigen.hpp>
 
 namespace xpp {
 namespace hyq {
 
-using ::xpp::utils::Y;
-using ::xpp::utils::Z;
-
-
-HyqSpliner::HyqSpliner()
-{
-  log_ = log4cxx::Logger::getLogger("xpp.hyq.hyqspliner");
-}
+using namespace xpp::utils::coords_wrapper;
 
 
 void HyqSpliner::SetParams(double upswing,
@@ -30,6 +22,15 @@ void HyqSpliner::SetParams(double upswing,
   kLiftHeight = lift_height;
   kOutwardSwingDistance = outward_swing_distance;
 
+}
+
+void HyqSpliner::Init(const HyqState& P_init,
+                      const VecZmpSpline& zmp_splines,
+                      const VecFoothold& footholds,
+                      double robot_height)
+{
+  nodes_ = BuildStateSequence(P_init, zmp_splines, footholds, robot_height);
+  CreateAllSplines(nodes_);
 }
 
 
@@ -44,7 +45,11 @@ HyqSpliner::BuildStateSequence(const HyqState& P_init,
 
 
   // start node
-  nodes.push_back(BuildNode(P_init, std::numeric_limits<double>::infinity()));
+  SplineNode init_node = BuildNode(P_init, 0.0);
+  nodes.push_back(init_node); // this node has to be reached instantly (t=0)
+  std::cout << "P_init Node:\n" << init_node.state_ << std::endl;
+  std::cout << init_node.ori_rpy_ << std::endl;
+  std::cout << init_node.T << std::endl << std::endl;
 
   /** Add state sequence based on footsteps **/
   // desired state after first 4 leg support phase
@@ -96,21 +101,57 @@ HyqSpliner::BuildStateSequence(const HyqState& P_init,
     }
 
 
-    nodes.push_back(BuildNode(P_plan, s.GetDuration()));
+
+    SplineNode node = BuildNode(P_plan, s.GetDuration());
+    std::cout << "Node:\n" << node.state_ << std::endl;
+    std::cout << node.ori_rpy_ << std::endl;
+    std::cout << node.T << std::endl << std::endl;
+    nodes.push_back(node);
+
+
     P_plan_prev = P_plan;
   }
-
 
   return nodes;
 }
 
 
+void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
+{
+  pos_spliner_.clear();
+  ori_spliner_.clear();
+  feet_spliner_up_.clear();
+  feet_spliner_down_.clear();
+
+  Spliner3d pos, ori;
+  LegDataMap< Spliner3d > feet_up, feet_down;
+  for (int n=1; n<nodes_.size(); ++n) {
+    SplineNode from = nodes.at(n-1);
+    SplineNode to   = nodes.at(n);
+
+    BuildOneSegment(from, to, pos, ori, feet_up, feet_down);
+    pos_spliner_.push_back(pos);
+    ori_spliner_.push_back(ori);
+    feet_spliner_up_.push_back(feet_up);
+    feet_spliner_down_.push_back(feet_down);
+  }
+}
+
+
+// fixme use quaternion in state directly, don't map to roll-pitch-yaw
 SplineNode
 HyqSpliner::BuildNode(const HyqState& state, double t_max)
 {
+  Point ori_rpy(TransformQuatToRpy(state.base_.ori.q));
+  return SplineNode(state, ori_rpy, t_max);
+}
 
+
+Eigen::Vector3d
+HyqSpliner::TransformQuatToRpy(const Eigen::Quaterniond& q)
+{
   // wrap orientation
-  kindr::rotations::eigen_impl::RotationQuaternionPD qIB(state.base_.ori.q);
+  kindr::rotations::eigen_impl::RotationQuaternionPD qIB(q);
 
   kindr::rotations::eigen_impl::EulerAnglesXyzPD rpyIB(qIB);
   rpyIB.setUnique(); // wrap euler angles yaw from -pi..pi
@@ -131,11 +172,9 @@ HyqSpliner::BuildNode(const HyqState& state, double t_max)
   // contains information that orientation went 360deg around
   kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB_full = rpyIB;
   yprIB_full.setYaw(rpyIB.yaw() + counter360*2*M_PI);
-  Point ori_rpy = Point(yprIB_full.toImplementation());
 
-  return SplineNode(state, ori_rpy, t_max);
+  return yprIB_full.toImplementation();
 }
-
 
 
 double HyqSpliner::GetTotalTime() const
@@ -148,33 +187,55 @@ double HyqSpliner::GetTotalTime() const
 }
 
 
-double HyqSpliner::GetLocalTime(double t_global) const
+double HyqSpliner::GetLocalSplineTime(double t_global) const
 {
+  int spline = GetSplineID(t_global);
+  int goal_node = spline+1;
+
   double t_local = t_global;
-  for (uint n = 1; n < curr_goal_; n++) {
+  for (int n = 1; n < goal_node; n++) {
     t_local -= nodes_.at(n).T;
   }
   return t_local;
 }
 
 
-SplineNode HyqSpliner::GetCurrGoal() const
+int HyqSpliner::GetSplineID(double t_global) const
 {
-  return nodes_.at(curr_goal_);
+  assert(t_global < GetTotalTime()); // time inside the time frame
+
+  double t = 0;
+  for (uint n=1; n<nodes_.size(); ++n) {
+    t += nodes_.at(n).T;
+
+    if (t >= t_global)
+      return n-1; // since first spline connects node 0 and 1
+  }
+  assert(false); // this should never be reached
 }
 
 
-HyqState HyqSpliner::getPoint(double t_global)
+SplineNode HyqSpliner::GetGoalNode(double t_global) const
 {
-  double t_local = GetLocalTime(t_global);
+  int spline = GetSplineID(t_global);
+  int goal_node = spline+1;
+  return nodes_.at(goal_node);
+}
+
+
+HyqState HyqSpliner::GetSplinedState(double t_global) const
+{
+  double t_local = GetLocalSplineTime(t_global);
+  int  spline    = GetSplineID(t_global);
+  int  goal_node = spline+1;
 
   // Positions, although this is actually overwritten by optimizes trajectory
   HyqState curr;
-  pos_spliner_.GetPoint(t_local, curr.base_.pos);
+  pos_spliner_.at(spline).GetPoint(t_local, curr.base_.pos);
 
   /** Orientations */
-  Point curr_ori, curr_foot;
-  ori_spliner_.GetPoint(t_local, curr_ori);
+  Point curr_ori;
+  ori_spliner_.at(spline).GetPoint(t_local, curr_ori);
 
   kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB(curr_ori.p);
   kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
@@ -184,51 +245,68 @@ HyqState HyqSpliner::getPoint(double t_global)
 
   /** 3. Feet Position */
   curr.swingleg_ = false;
-  curr.feet_ = nodes_[curr_goal_].state_.feet_;
+  curr.feet_ = nodes_[goal_node].state_.feet_;
 
-  int sl = nodes_[curr_goal_].state_.SwinglegID();
+  int sl = nodes_[goal_node].state_.SwinglegID();
   if (sl != NO_SWING_LEG) // only spline foot of swingleg
   {
-    double t_upswing = nodes_[curr_goal_].T * kUpswingPercent;
+    double t_upswing = nodes_[goal_node].T * kUpswingPercent;
 
     if ( t_local < t_upswing) // leg swinging up
-      feet_spliner_up_[sl].GetPoint(t_local, curr.feet_[sl]);
+      feet_spliner_up_.at(spline)[sl].GetPoint(t_local, curr.feet_[sl]);
     else // leg swinging down
-      feet_spliner_down_[sl].GetPoint(t_local - t_upswing, curr.feet_[sl]);
+      feet_spliner_down_.at(spline)[sl].GetPoint(t_local - t_upswing, curr.feet_[sl]);
 
     curr.swingleg_[sl] = true;
   }
-
-  LOG4CXX_TRACE(log_, "dt = " << t_local << ", curr_goal.T = " << nodes_[curr_goal_].T);
-
-
-  if (t_local >= nodes_[curr_goal_].T)
-    SetCurrGoal(++curr_goal_);
-
-  // sanity check so robot doesn't blow up
-  for (LegID leg : LegIDArray)
-    if (std::abs(curr.feet_[leg].p(Z)) > 0.5)
-      throw std::logic_error("HyqSpliner::getPoint(): Desired foothold is too high. "
-                             "Ground plane is at zero.");
 
   return curr;
 }
 
 
-void HyqSpliner::SetCurrGoal(uint des_goal)
+
+void HyqSpliner::BuildOneSegment(const SplineNode& from, const SplineNode& to,
+                                 Spliner3d& pos, Spliner3d& ori,
+                                 LegDataMap< Spliner3d >& feet_up,
+                                 LegDataMap< Spliner3d >& feet_down) const
 {
-  curr_goal_ = des_goal;
-  if (curr_goal_ >= nodes_.size())
-    throw std::out_of_range("SplinerHolder::NextGoal():\n Goal=" + std::to_string(curr_goal_) + " >= nodes_.size()=" +  std::to_string(nodes_.size()));
+  pos = BuildPositionSpline(from, to);
+  ori = BuildOrientationRpySpline(from, to);
+  feet_up = BuildFootstepSplineUp(from, to);
 
-  SplineNode from = nodes_.at(curr_goal_-1);
-  SplineNode to   = nodes_.at(curr_goal_);
+  // this is the outter/upper-most point the foot swings to
+  LegDataMap<Point> f_switch;
+  double t_switch = to.T * kUpswingPercent;
+  for (LegID leg : LegIDArray) {
+     feet_up[leg].GetPoint(t_switch, f_switch[leg]);
+  }
 
-  // Positions, velocities and accelerations
-  pos_spliner_.SetBoundary(to.T, from.state_.base_.pos, to.state_.base_.pos);
+  feet_down = BuildFootstepSplineDown(f_switch, to);
+}
 
-  // Orientation, angular velocity and angular acceleration
-  ori_spliner_.SetBoundary(to.T, from.ori_rpy_, to.ori_rpy_);
+
+HyqSpliner::Spliner3d
+HyqSpliner::BuildPositionSpline(const SplineNode& from, const SplineNode& to) const
+{
+  Spliner3d pos;
+  pos.SetBoundary(to.T, from.state_.base_.pos, to.state_.base_.pos);
+  return pos;
+}
+
+
+HyqSpliner::Spliner3d
+HyqSpliner::BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const
+{
+  Spliner3d ori;
+  ori.SetBoundary(to.T, from.ori_rpy_, to.ori_rpy_);
+  return ori;
+}
+
+
+xpp::hyq::LegDataMap<HyqSpliner::Spliner3d>
+HyqSpliner::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const
+{
+  LegDataMap< Spliner3d > feet_up;
 
   // Feet spliner for all legs, even if might be stance legs
   for (LegID leg : LegIDArray) {
@@ -246,14 +324,27 @@ void HyqSpliner::SetCurrGoal(uint des_goal)
 
     // upward swing
     double swing_time = to.T;
-    feet_spliner_up_[leg].SetBoundary(swing_time, from.state_.feet_[leg], foot_raised);
+    feet_up[leg].SetBoundary(swing_time, from.state_.feet_[leg], foot_raised);
+  }
+
+  return feet_up;
+}
+
+
+xpp::hyq::LegDataMap<HyqSpliner::Spliner3d>
+HyqSpliner::BuildFootstepSplineDown(const LegDataMap<Point>& feet_at_switch, const SplineNode& to) const
+{
+  LegDataMap< Spliner3d > feet_down;
+
+  // Feet spliner for all legs, even if might be stance legs
+  for (LegID leg : LegIDArray) {
 
     // downward swing from the foothold at switch state to original
-    double t_switch = swing_time * kUpswingPercent;
-    Point foot_at_switch;
-    feet_spliner_up_[leg].GetPoint(t_switch, foot_at_switch);
-    feet_spliner_down_[leg].SetBoundary(swing_time - t_switch,  foot_at_switch, to.state_.feet_[leg]);
+    double duration = to.T * (1.0-kUpswingPercent);
+    feet_down[leg].SetBoundary(duration, feet_at_switch[leg], to.state_.feet_[leg]);
   }
+
+  return feet_down;
 }
 
 
