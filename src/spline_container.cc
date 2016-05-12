@@ -119,7 +119,7 @@ int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
 std::vector<double>
 SplineContainer::GetDiscretizedGlobalTimes() const
 {
-  static constexpr double dt = 0.1; //discretization time [seconds]: needed for creating support triangle inequality constraints
+  static constexpr double dt = 0.2; //discretization time [seconds]: needed for creating support triangle inequality constraints
 
   std::vector<double> vec;
   double t = 0.0;
