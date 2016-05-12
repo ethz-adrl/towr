@@ -93,7 +93,7 @@ int ContinuousSplineContainer::GetTotalFreeCoeff() const
 }
 
 
-int ContinuousSplineContainer::Index(int spline, Coords dim, int coeff)
+int ContinuousSplineContainer::Index(int spline, Coords dim, SplineCoeff coeff)
 {
   return kFreeCoeffPerSpline * kDim2d * spline + kFreeCoeffPerSpline * dim + coeff;
 }

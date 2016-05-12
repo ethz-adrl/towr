@@ -67,7 +67,7 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
   coeff.y[E] = init_vel.y();
   coeff.y[F] = init_pos.y();
   splines.front().SetSplineCoefficients(coeff);
-  for (int c=A; c<= D; ++c) {
+  for (const SplineCoeff c : FreeSplineCoeff) {
     abcd(ContinuousSplineContainer::Index(0, X, c)) = coeff.x[c];
     abcd(ContinuousSplineContainer::Index(0, Y, c)) = coeff.y[c];
   }
@@ -95,7 +95,7 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
     coeff.y[F] = f.y();
 
     splines.at(spline).SetSplineCoefficients(coeff);
-    for (int c=A; c<= D; ++c) {
+    for (const SplineCoeff c : FreeSplineCoeff) {
       abcd(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
       abcd(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
     }

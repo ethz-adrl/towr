@@ -13,6 +13,9 @@
 namespace xpp {
 namespace zmp {
 
+static const int kFreeCoeffPerSpline = kCoeffCount-2;
+static const SplineCoeff FreeSplineCoeff[] = { A, B, C, D };
+
 /**
  * This class represents a collection of fifth order polynomials
  * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f, that are
@@ -49,7 +52,7 @@ public:
    * The index number of the coefficient \c coeff, for dimension \c dim and
    * spline number \c spline.
    */
-  static int Index(int spline, Coords dim, int coeff);
+  static int Index(int spline, Coords dim, SplineCoeff coeff);
   int GetTotalFreeCoeff() const;
 
   void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff,
@@ -75,7 +78,7 @@ public:
 
 private:
   VecABCD ExpressCogAccThroughABCD(double t_local) const;
-  static const int kFreeCoeffPerSpline = kCoeffCount-2;
+
 
   std::array<MatVec, 2> relationship_e_to_abcd_;
   std::array<MatVec, 2> relationship_f_to_abdc_;

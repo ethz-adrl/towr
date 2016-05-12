@@ -176,7 +176,7 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   coeff.y[E] = e.y();
   coeff.y[F] = f.y();
   splines_ref.at(spline).SetSplineCoefficients(coeff);
-  for (int c=A; c<= D; ++c) {
+  for (const SplineCoeff c : FreeSplineCoeff) {
     abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
     abcd_coeff(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
   }
@@ -204,7 +204,7 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
     coeff.y[F] = f.y();
 
     splines_ref.at(spline).SetSplineCoefficients(coeff);
-    for (int c=A; c<= D; ++c) {
+    for (const SplineCoeff c : FreeSplineCoeff) {
       abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
       abcd_coeff(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
     }

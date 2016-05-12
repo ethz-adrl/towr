@@ -103,7 +103,7 @@ public:
   }
 
 
-  static int Index(int spline, Coords dim, int coeff)
+  static int Index(int spline, Coords dim, SplineCoeff coeff)
   {
     int idx = 0;
     idx += ContinuousSplineContainer::Index(spline, dim, coeff);
