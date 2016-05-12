@@ -42,8 +42,8 @@ ContinuousSplineContainer::ExpressCogPosThroughABCD(double t_local, int id, Coor
 {
   VecScalar pos(GetTotalFreeCoeff());
 
-  VecScalar Ek = GetCoefficient(id, dim, E);
-  VecScalar Fk = GetCoefficient(id, dim, F);
+  VecScalar Ek = GetECoefficient(id, dim);
+  VecScalar Fk = GetFCoefficient(id, dim);
 
   // x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
   pos.v(Index(id,dim,A))   = std::pow(t_local,5);
@@ -99,14 +99,31 @@ int ContinuousSplineContainer::Index(int spline, Coords dim, SplineCoeff coeff)
 }
 
 
+//ContinuousSplineContainer::VecScalar
+//ContinuousSplineContainer::GetCoefficient(int spline_id_k, Coords dim, SplineCoeff c) const
+//{
+//  CheckIfSplinesInitialized();
+//  assert(c== E || c== F);
+//  const MatVec& rel = (c==E)? relationship_e_to_abcd_.at(dim) : relationship_f_to_abdc_.at(dim);
+//  return rel.GetRow(spline_id_k);
+//}
+
+
 ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::GetCoefficient(int spline_id_k, Coords dim, SplineCoeff c) const
+ContinuousSplineContainer::GetECoefficient(int spline_id_k, Coords dim) const
 {
   CheckIfSplinesInitialized();
-  assert(c== E || c== F);
-  const MatVec& rel = (c==E)? relationship_e_to_abcd_.at(dim) : relationship_f_to_abdc_.at(dim);
-  return rel.GetRow(spline_id_k);
+  return relationship_e_to_abcd_.at(dim).GetRow(spline_id_k);
 }
+
+
+ContinuousSplineContainer::VecScalar
+ContinuousSplineContainer::GetFCoefficient(int spline_id_k, Coords dim) const
+{
+  CheckIfSplinesInitialized();
+  return relationship_f_to_abdc_.at(dim).GetRow(spline_id_k);
+}
+
 
 
 ContinuousSplineContainer::MatVec
@@ -189,8 +206,8 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
       cv[D] = optimized_coeff[Index(k,dim,D)];
 
       // calculate e and f coefficients from previous values
-      VecScalar Ek = GetCoefficient(k, dim, E);
-      VecScalar Fk = GetCoefficient(k, dim, F);
+      VecScalar Ek = GetECoefficient(k, dim);
+      VecScalar Fk = GetFCoefficient(k, dim);
 
       cv[E] = Ek.v*optimized_coeff + Ek.s;
       cv[F] = Fk.v*optimized_coeff + Fk.s;

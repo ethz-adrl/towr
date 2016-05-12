@@ -62,7 +62,8 @@ public:
     AddOptimizedCoefficients(optimized_coeff, splines_);
   }
 
-  VecScalar GetCoefficient(int spline_id_k, Coords dim, SplineCoeff c) const;
+  VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
+  VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;
 
   /**
    * Produces a vector and scalar, that, multiplied with the spline coefficients

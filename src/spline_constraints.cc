@@ -71,8 +71,8 @@ SplineConstraints::CreateFinalConstraints(const State& final_cond) const
     std::array<double,6> t_duration = utils::cache_exponents<6>(T);
 
     // calculate e and f coefficients from previous values
-    VecScalar Ek = spline_structure_.GetCoefficient(K, dim, E);
-    VecScalar Fk = spline_structure_.GetCoefficient(K, dim, F);
+    VecScalar Ek = spline_structure_.GetECoefficient(K, dim);
+    VecScalar Fk = spline_structure_.GetFCoefficient(K, dim);
 
     // position
     final.M(i, last_spline + A) = t_duration[5];

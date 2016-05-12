@@ -23,7 +23,9 @@ namespace zmp {
 
 
 static const int kCoeffCount = 6;
-enum SplineCoeff { A=0, B, C, D, E, F };
+enum SplineCoeff { A=0, B, C, D }; // the coefficients that are optimized over
+enum SplineCoeffE { E=D+1};
+enum SplineCoeffF { F=D+2};
 
 static const int kDerivCount = 3;
 enum PosVelAcc { kPos=0, kVel, kAcc };
