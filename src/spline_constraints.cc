@@ -10,6 +10,10 @@
 namespace xpp {
 namespace zmp {
 
+
+using namespace xpp::utils::coords_wrapper;
+
+
 SplineConstraints::SplineConstraints (const ContinuousSplineContainer& spline_structure)
     :spline_structure_(spline_structure)
 {
@@ -31,7 +35,7 @@ SplineConstraints::InitialAccJerkConstraints(const Vector2d& initial_acc) const
   std::cout << "initial_jerk(Y): " << initial_jerk(Y) << std::endl;
 
   int i = 0; // constraint count
-  for (int dim = X; dim <= Y; ++dim)
+  for (const Coords3D dim : Coords2DArray)
   {
     // acceleration set to zero
     int d = ContinuousSplineContainer::Index(0, dim, D);
@@ -58,7 +62,7 @@ SplineConstraints::CreateFinalConstraints(const State& final_cond) const
   MatVec final(n_constraints, n_opt_coefficients_);
 
   int i = 0; // constraint count
-  for (int dim = X; dim <= Y; ++dim)
+  for (const Coords3D dim : Coords2DArray)
   {
     ZmpSpline last = spline_structure_.GetLastSpline();
     int K = last.GetId();
@@ -114,12 +118,12 @@ SplineConstraints::CreateJunctionConstraints() const
 
   // FIXME maybe replace with range based loop
   int i = 0; // constraint count
-  for (uint s = 0; s < spline_structure_.GetSplineCount()-1; ++s)
+  for (int s = 0; s < spline_structure_.GetSplineCount()-1; ++s)
   {
     double duration = spline_structure_.GetSpline(s).GetDuration();
     std::array<double,6> T_curr = utils::cache_exponents<6>(duration);
-    for (int dim = X; dim <= Y; dim++) {
-
+    for (const Coords3D dim : Coords2DArray)
+    {
       int curr_spline = ContinuousSplineContainer::Index(s, dim, A);
       int next_spline = ContinuousSplineContainer::Index(s + 1, dim, A);
 

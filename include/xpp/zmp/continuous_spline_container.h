@@ -28,6 +28,8 @@ public:
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::RowVector4d VecABCD;
 
+  typedef xpp::utils::coords_wrapper::Coords3D Coords;
+
 public:
   ContinuousSplineContainer () {};
   ContinuousSplineContainer (const Vector2d& start_cog_p,
@@ -47,7 +49,7 @@ public:
    * The index number of the coefficient \c coeff, for dimension \c dim and
    * spline number \c spline.
    */
-  static int Index(int spline, int dim, int coeff);
+  static int Index(int spline, Coords dim, int coeff);
   int GetTotalFreeCoeff() const;
 
   void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff,
@@ -57,7 +59,7 @@ public:
     AddOptimizedCoefficients(optimized_coeff, splines_);
   }
 
-  VecScalar GetCoefficient(int spline_id_k, int dim, SplineCoeff c) const;
+  VecScalar GetCoefficient(int spline_id_k, Coords dim, SplineCoeff c) const;
 
   /**
    * Produces a vector and scalar, that, multiplied with the spline coefficients
@@ -67,9 +69,9 @@ public:
    * @param dim dimension specifying if x or y coordinate of CoG should be calculated
    * @return
    */
-  VecScalar ExpressCogPosThroughABCD(double t_local, int id, int dim) const;
+  VecScalar ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const;
 
-  VecScalar ExpressCogAccThroughABCD(double t_local, int id, int dim) const;
+  VecScalar ExpressCogAccThroughABCD(double t_local, int id, Coords dim) const;
 
 private:
   VecABCD ExpressCogAccThroughABCD(double t_local) const;
@@ -87,8 +89,8 @@ private:
    * @param start_v the initial velocity of the first spline
    * @returns matrix and vector that describe the coefficient
    */
-  MatVec DescribeEByABCD(int dim, double start_cog_v) const;
-  MatVec DescribeFByABCD(int dim, double start_cog_p, double start_cog_v) const;
+  MatVec DescribeEByABCD(Coords Coords, double start_cog_v) const;
+  MatVec DescribeFByABCD(Coords Coords, double start_cog_p, double start_cog_v) const;
 
 
 };

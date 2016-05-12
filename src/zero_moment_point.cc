@@ -30,7 +30,7 @@ ZeroMomentPoint::CalcZmp(const VecScalar& pos, const VecScalar& acc, double heig
 
 ZeroMomentPoint::MatVec
 ZeroMomentPoint::ExpressZmpThroughCoefficients(const ContinuousSplineContainer& spline_structure,
-                                               double height, int dim)
+                                               double height, Coords dim)
 {
   int num_nodes = spline_structure.GetTotalNodes();
   int coeff = spline_structure.GetTotalFreeCoeff();

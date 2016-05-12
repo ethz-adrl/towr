@@ -43,10 +43,31 @@ public:
   };
 
   enum ConstraintType {
-    EQUALITY=0,  //0.0 -> 0.0
-    INEQUALITY=1, //0.0 -> inf
-    COGTOFOOTHOLD=2,
+    kFinalState,
+    kInitialAcceleration,
+    kSmoothJerkAccAtSplineJunctions,
+    kZmpInSupport,
+    kObstacle,
+    kCogToFoothold,
   };
+
+
+
+  const Bound kEqualityBound           = Bound(0.0, 0.0);
+  const Bound kInequalityBoundPositive = Bound(0.0, 1.0e19);
+
+  const std::map<ConstraintType, Bound> bound_types
+  {
+    {kZmpInSupport, kInequalityBoundPositive},
+    {kObstacle,     kInequalityBoundPositive},
+
+    {kSmoothJerkAccAtSplineJunctions, kEqualityBound},
+    {kInitialAcceleration,            kEqualityBound},
+    {kFinalState,                     kEqualityBound},
+
+    {kCogToFoothold, Bound(-0.20, 0.20)}
+  };
+
 
   struct Constraint {
     VectorXd values_;

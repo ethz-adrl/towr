@@ -137,14 +137,15 @@ bool NlpIpoptZmp::eval_jac_g(Index n, const Number* x, bool new_x,
                        Index m, Index nele_jac, Index* iRow, Index *jCol,
                        Number* values)
 {
+  assert(nele_jac == n*m); // number of elements in jacobian
+
   // FIXME exploit sparsity structure more.
 	// say at which positions the nonzero elements of the jacobian are
   if (values == NULL) {
     // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
   	int c_nonzero = 0;
-  	// colum major so eigen matrices can be mapped directly as default
-    for (int col=0; col<n; ++col) {
-  	  for (int row=0; row<m; ++row) {
+    for (int row=0; row<m; ++row) {
+      for (int col=0; col<n; ++col) {
   			iRow[c_nonzero] = row;
   			jCol[c_nonzero] = col;
   			c_nonzero++;
@@ -152,6 +153,8 @@ bool NlpIpoptZmp::eval_jac_g(Index n, const Number* x, bool new_x,
   	}
   }
   else {
+    // only gets used if "jacobian_approximation finite-difference-values"
+    // is not set
     Eigen::MatrixXd jac(m,n);
     num_diff_constraints_.df(nlp_structure_.ConvertToEigen(x),jac);
     Eigen::Map<Eigen::MatrixXd>(values,jac.rows(),jac.cols()) = jac;

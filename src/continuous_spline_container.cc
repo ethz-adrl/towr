@@ -10,6 +10,7 @@
 namespace xpp {
 namespace zmp {
 
+using namespace xpp::utils::coords_wrapper;
 
 ContinuousSplineContainer::ContinuousSplineContainer (
     const Vector2d& start_cog_p,
@@ -29,7 +30,7 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
 {
   SplineContainer::Init(step_sequence, times);
 
-  for (int dim = xpp::utils::X; dim<=xpp::utils::Y; ++dim) {
+  for (const Coords3D dim : Coords2DArray) {
     relationship_e_to_abcd_.at(dim) = DescribeEByABCD(dim, start_cog_v(dim));
     relationship_f_to_abdc_.at(dim) = DescribeFByABCD(dim, start_cog_p(dim), start_cog_v(dim));
   }
@@ -37,7 +38,7 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
 
 
 ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::ExpressCogPosThroughABCD(double t_local, int id, int dim) const
+ContinuousSplineContainer::ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const
 {
   VecScalar pos(GetTotalFreeCoeff());
 
@@ -59,7 +60,7 @@ ContinuousSplineContainer::ExpressCogPosThroughABCD(double t_local, int id, int 
 
 
 ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::ExpressCogAccThroughABCD(double t_local, int id, int dim) const
+ContinuousSplineContainer::ExpressCogAccThroughABCD(double t_local, int id, Coords dim) const
 {
   VecScalar acc(GetTotalFreeCoeff());
 
@@ -92,14 +93,14 @@ int ContinuousSplineContainer::GetTotalFreeCoeff() const
 }
 
 
-int ContinuousSplineContainer::Index(int spline, int dim, int coeff)
+int ContinuousSplineContainer::Index(int spline, Coords dim, int coeff)
 {
   return kFreeCoeffPerSpline * kDim2d * spline + kFreeCoeffPerSpline * dim + coeff;
 }
 
 
 ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::GetCoefficient(int spline_id_k, int dim, SplineCoeff c) const
+ContinuousSplineContainer::GetCoefficient(int spline_id_k, Coords dim, SplineCoeff c) const
 {
   CheckIfSplinesInitialized();
   assert(c== E || c== F);
@@ -109,7 +110,7 @@ ContinuousSplineContainer::GetCoefficient(int spline_id_k, int dim, SplineCoeff 
 
 
 ContinuousSplineContainer::MatVec
-ContinuousSplineContainer::DescribeEByABCD(int dim, double start_cog_v) const
+ContinuousSplineContainer::DescribeEByABCD(Coords dim, double start_cog_v) const
 {
   MatVec e_coeff(splines_.size(), GetTotalFreeCoeff());
   e_coeff.v[0] = start_cog_v;
@@ -135,7 +136,7 @@ ContinuousSplineContainer::DescribeEByABCD(int dim, double start_cog_v) const
 
 
 ContinuousSplineContainer::MatVec
-ContinuousSplineContainer::DescribeFByABCD(int dim, double start_cog_p,
+ContinuousSplineContainer::DescribeFByABCD(Coords dim, double start_cog_p,
                                            double start_cog_v) const
 {
   MatVec e_coeff = DescribeEByABCD(dim, start_cog_v);
@@ -177,7 +178,7 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
   for (size_t k=0; k<splines.size(); ++k) {
     CoeffValues coeff_values;
 
-    for (int dim=xpp::utils::X; dim<=xpp::utils::Y; dim++) {
+    for (const Coords3D dim : Coords2DArray) {
 
       double* cv = (dim == xpp::utils::X) ? coeff_values.x : coeff_values.y;
 

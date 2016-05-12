@@ -19,6 +19,7 @@ public:
   typedef Eigen::Vector2d Vector2d;
   typedef xpp::utils::Point3d State3d;
   typedef xpp::utils::VecScalar VecScalar;
+  typedef xpp::zmp::ContinuousSplineContainer::Coords Coords;
 
 public:
   ZeroMomentPoint () {};
@@ -39,7 +40,7 @@ public:
    * disrete time as: zmp = m.M*x + m.v
    */
   static MatVec ExpressZmpThroughCoefficients(const ContinuousSplineContainer& cog_spline,
-                                              double walking_height, int dimension);
+                                              double walking_height, Coords dimension);
 
 
 

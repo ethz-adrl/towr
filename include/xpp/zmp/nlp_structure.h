@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_STRUCTURE_H_
 
 #include <xpp/utils/geometric_structs.h>
+#include <xpp/zmp/continuous_spline_container.h>
 #include <Eigen/Dense>
 
 namespace xpp {
@@ -20,6 +21,7 @@ namespace zmp {
 class NlpStructure {
 public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
+  typedef ContinuousSplineContainer::Coords Coords;
   typedef Eigen::VectorXd VectorXd;
   typedef double Number;
 
@@ -98,6 +100,22 @@ public:
     }
 
     return fooothold_vec;
+  }
+
+
+  static int Index(int spline, Coords dim, int coeff)
+  {
+    int idx = 0;
+    idx += ContinuousSplineContainer::Index(spline, dim, coeff);
+    return idx;
+  }
+
+
+  int Index(int step, Coords dim)
+  {
+    int idx = n_spline_coeff_;
+    idx += step*kDim2d + dim;
+    return idx;
   }
 
 

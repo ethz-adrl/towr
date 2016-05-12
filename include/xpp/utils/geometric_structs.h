@@ -33,9 +33,10 @@ enum Coords3D { X=0, Y, Z};
 enum Coords6D { AX=0, AY, AZ, LX, LY, LZ };
 
 static const Coords3D Coords3DArray[] = { X, Y, Z };
+static const Coords3D Coords2DArray[] = { X, Y };
 static constexpr int kDim2d = 2; // X,Y
 }
-using namespace coords_wrapper;
+using namespace coords_wrapper; // put into scope of namespace xpp::utils
 
 typedef Eigen::Vector2d Vec2d; /// X,Y
 typedef Eigen::Vector3d Vec3d; /// X,Y,Z

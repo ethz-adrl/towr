@@ -65,7 +65,8 @@ CostFunction::PenalizeFootholdFromNominal(const VectorXd& x_coeff,
 CostFunction::MatVec
 CostFunction::CreateMinAccCostFunction(const ContinuousSplineContainer& spline_structure)
 {
-  using utils::X; using utils::Y;
+  using namespace xpp::utils::coords_wrapper;
+
   std::array<double,2> weight = {1.0, 3.0}; // weight in x and y direction
 
   // total number of coefficients to be optimized
@@ -75,7 +76,7 @@ CostFunction::CreateMinAccCostFunction(const ContinuousSplineContainer& spline_s
   for (const ZmpSpline& s : spline_structure.GetSplines()) {
     std::array<double,8> t_span = utils::cache_exponents<8>(s.GetDuration());
 
-    for (int dim = X; dim <= Y; dim++) {
+    for (const Coords3D dim : Coords2DArray) {
       const int a = ContinuousSplineContainer::Index(s.GetId(), dim, A);
       const int b = ContinuousSplineContainer::Index(s.GetId(), dim, B);
       const int c = ContinuousSplineContainer::Index(s.GetId(), dim, C);
