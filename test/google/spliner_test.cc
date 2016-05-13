@@ -14,10 +14,13 @@
 namespace xpp {
 namespace utils {
 
-typedef Spliner::Point Point;
+
 
 // A start and an end position for the splines. checking only boundary conditions
 class SplineTest : public ::testing::Test {
+public:
+  typedef Spliner::Point Point;
+
 protected:
   virtual void SetUp()
   {
@@ -36,6 +39,7 @@ protected:
   Spliner::Point end;
   double T;
 };
+
 
 TEST_F(SplineTest, LinearSpliner)
 {

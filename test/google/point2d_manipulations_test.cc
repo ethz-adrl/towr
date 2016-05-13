@@ -14,55 +14,25 @@
 namespace xpp {
 namespace utils {
 
-//typedef Spliner::Point Point;
-//
-// A start and an end position for the splines. checking only boundary conditions
+
 class Point2dManipulationsTest : public ::testing::Test {
 protected:
-  virtual void SetUp()
-  {
-    A.x() = 0;
-    A.y() = 0;
+  virtual void SetUp() {}
 
-    B.x() = 1;
-    B.y() = 0;
-
-    C.x() = 1;
-    C.y() = 1;
-
-    D.x() = 0;
-    D.y() = 1;
-
-
-    q0.x() = -1;
-    q0.y() = -1;
-
-    q1.x() =  1;
-    q1.y() = -2;
-
-    q2.x() = -0.1;
-    q2.y() =  0.1;
-
-    // this point lies inside the convec hull of the others
-    q3.x() = 0;
-    q3.y() = -0.5;
-  }
-
-  // points arranged in positive square starting at origin
   Eigen::Vector2d A;
   Eigen::Vector2d B;
   Eigen::Vector2d C;
   Eigen::Vector2d D;
 
-  // points that don't create a convex hull, but one can be eliminated
-  Eigen::Vector2d q0;
-  Eigen::Vector2d q1;
-  Eigen::Vector2d q2;
-  Eigen::Vector2d q3;
 };
 
 TEST_F(Point2dManipulationsTest, LineCoefficients)
 {
+  A << 0, 0;
+  B << 1, 0;
+  C << 1, 1;
+  D << 0, 1;
+
   LineCoeff2d line;
   // x-axis line (y=0)
   line = Point2dManip::LineCoeff(A,B);
@@ -89,23 +59,55 @@ TEST_F(Point2dManipulationsTest, LineCoefficients)
   EXPECT_DOUBLE_EQ( 1, line.r);
 }
 
-TEST_F(Point2dManipulationsTest, LineCoefficientsDistance)
+TEST_F(Point2dManipulationsTest, LineCoefficientsDistanceSign)
 {
-  xpp::utils::LineCoeff2d AC;
-  AC = xpp::utils::Point2dManip::LineCoeff(A,C);
+  A << 0, 0;
+  B << 1, 0;
+  C << 1, 1;
+  D << 0, 1;
 
-  double distance_to_B = AC.p*B.x() + AC.q*B.y() + AC.r;
-  double distance_to_D = AC.p*D.x() + AC.q*D.y() + AC.r;
+  // distance of point B and D to diagonal line A->C
+  double distance_to_B, distance_to_D;
+  xpp::utils::LineCoeff2d AC = xpp::utils::Point2dManip::LineCoeff(A,C);
+  distance_to_B = AC.p*B.x() + AC.q*B.y() + AC.r;
+  distance_to_D = AC.p*D.x() + AC.q*D.y() + AC.r;
 
   EXPECT_TRUE(distance_to_B < 0.0); // because B right of AC
   EXPECT_TRUE(distance_to_D > 0.0); // because D left  of AC
 
-  EXPECT_NEAR(hypot(0.5, 0.5), std::fabs(distance_to_B), 0.001);
-  EXPECT_DOUBLE_EQ(std::fabs(distance_to_B), std::fabs(distance_to_D)); // both on opposite sides of line
+
+  // reverse the direction of the line, now from C to A
+  xpp::utils::LineCoeff2d CA = xpp::utils::Point2dManip::LineCoeff(C,A);
+  distance_to_B = CA.p*B.x() + CA.q*B.y() + CA.r;
+  distance_to_D = CA.p*D.x() + CA.q*D.y() + CA.r;
+
+  EXPECT_TRUE(distance_to_B > 0.0); // because B right of AC
+  EXPECT_TRUE(distance_to_D < 0.0); // because D left  of AC
+}
+
+TEST_F(Point2dManipulationsTest, LineCoefficientsDistanceValue)
+{
+  A << 0, 0;
+  B << 1, 0;
+  C << 1, 1;
+  D << 0, 1;
+
+  // distance of point B and D to diagonal line A->C
+  xpp::utils::LineCoeff2d AC = xpp::utils::Point2dManip::LineCoeff(A,C);
+  double distance_to_B = AC.p*B.x() + AC.q*B.y() + AC.r;
+  double distance_to_D = AC.p*D.x() + AC.q*D.y() + AC.r;
+
+  EXPECT_DOUBLE_EQ(hypot(0.5, 0.5), std::fabs(distance_to_B));
+  EXPECT_DOUBLE_EQ(distance_to_B, -distance_to_D); // both on opposite sides of line
 }
 
 TEST_F(Point2dManipulationsTest, SortByXThenY)
 {
+  A << 0, 0;
+  B << 1, 0;
+  C << 1, 1;
+  D << 0, 1;
+
   EXPECT_TRUE(Point2dManip::P1LeftofP2(A,B));
   EXPECT_FALSE(Point2dManip::P1LeftofP2(B,A));
 
@@ -118,6 +120,10 @@ TEST_F(Point2dManipulationsTest, SortByXThenY)
 
 TEST_F(Point2dManipulationsTest, 3PointsSorted)
 {
+  A << 0, 0;
+  B << 1, 0;
+  C << 1, 1;
+
   Point2dManip::StdVectorEig2d points(3);
   points.at(0) = A;
   points.at(1) = B;
@@ -132,6 +138,10 @@ TEST_F(Point2dManipulationsTest, 3PointsSorted)
 
 TEST_F(Point2dManipulationsTest, 3PointsUnsorted1)
 {
+  A << 0, 0;
+  B << 1, 0;
+  C << 1, 1;
+
   Point2dManip::StdVectorEig2d points(3);
   points.at(0) = B;
   points.at(1) = C;
@@ -148,6 +158,10 @@ TEST_F(Point2dManipulationsTest, 3PointsUnsorted1)
 
 TEST_F(Point2dManipulationsTest, 3PointsUnsorted2)
 {
+  A << 0, 0;
+  B << 1, 0;
+  C << 1, 1;
+
   Point2dManip::StdVectorEig2d points(3);
   points.at(0) = C;
   points.at(1) = A;
@@ -164,6 +178,11 @@ TEST_F(Point2dManipulationsTest, 3PointsUnsorted2)
 // Testing with four points as used in four leg support polygons
 TEST_F(Point2dManipulationsTest, 4PointsConvexSorted)
 {
+  A << 0, 0;
+  B << 1, 0;
+  C << 1, 1;
+  D << 0, 1;
+
   Point2dManip::StdVectorEig2d points(4);
   points.at(0) = A;
   points.at(1) = B;
@@ -181,6 +200,11 @@ TEST_F(Point2dManipulationsTest, 4PointsConvexSorted)
 
 TEST_F(Point2dManipulationsTest, 4PointsConvexUnsorted)
 {
+  A << 0, 0;
+  B << 1, 0;
+  C << 1, 1;
+  D << 0, 1;
+
   Point2dManip::StdVectorEig2d points(4);
   points.at(0) = B;
   points.at(1) = D;
@@ -198,14 +222,19 @@ TEST_F(Point2dManipulationsTest, 4PointsConvexUnsorted)
 
 TEST_F(Point2dManipulationsTest, 4PointsNonConvex)
 {
+  A << -1.0, -1.0;
+  B <<  1.0, -2.0;
+  C << -0.1,  0.1;
+  D <<  0.0, -0.5;  // this point lies inside the convex hull of the others
+
   Point2dManip::StdVectorEig2d points(4);
-  points.at(0) = q0;
-  points.at(1) = q1;
-  points.at(2) = q2;
-  points.at(3) = q3;
+  points.at(0) = A;
+  points.at(1) = B;
+  points.at(2) = C;
+  points.at(3) = D;
 
   std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
-  EXPECT_EQ(3, idx.size());
+  EXPECT_EQ(3, idx.size()); // missing D
 
   EXPECT_EQ(0, idx.at(0));
   EXPECT_EQ(1, idx.at(1));
@@ -214,15 +243,16 @@ TEST_F(Point2dManipulationsTest, 4PointsNonConvex)
 
 TEST_F(Point2dManipulationsTest, 4PointsEqual)
 {
+  A << -1.0, -1.0;
+
   Point2dManip::StdVectorEig2d points(4);
-  points.at(0) = q0;
-  points.at(1) = q0;
-  points.at(2) = q0;
-  points.at(3) = q0;
+  points.at(0) = A;
+  points.at(1) = A;
+  points.at(2) = A;
+  points.at(3) = A;
 
   std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(points);
-  EXPECT_EQ(1, idx.size());
-
+  EXPECT_EQ(1, idx.size()); // should only include the point once
   EXPECT_EQ(0, idx.at(0));
 }
 

@@ -6,6 +6,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/hyq/foothold.h>
 #include <xpp/utils/ellipse.h>
@@ -27,7 +28,7 @@ protected:
 
 };
 
-TEST_F(HelpersTest, LinearSpliner)
+TEST_F(HelpersTest, LegDataMapToVector)
 {
   LegDataMap<Foothold> ldm;
 
