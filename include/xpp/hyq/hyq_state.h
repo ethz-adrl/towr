@@ -83,7 +83,16 @@ private:
 };
 
 
-#include "hyq_state-inl.h"
+inline std::ostream& operator<<(std::ostream& out, const HyqState& hyq)
+{
+  out << "base: " << hyq.base_ << "\n"
+      << "feet: " << "\tLF = " <<  hyq.feet_[LF] << "\n"
+                  << "\tRF = " <<  hyq.feet_[RF] << "\n"
+                  << "\tLH = " <<  hyq.feet_[LH] << "\n"
+                  << "\tRH = " <<  hyq.feet_[RH] << "\n"
+      << "swing:\t" << hyq.swingleg_ << "\n";
+   return out;
+}
 
 
 } // namespace hyq

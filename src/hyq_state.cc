@@ -78,6 +78,36 @@ std::array<Vec3d, kNumSides> HyqState::GetAvgSides() const
 }
 
 
+void HyqState::RampInPos(double des, Coords3D coord,
+                                    double t, double t_max)
+{
+  if (t > t_max)
+    base_.pos.p(coord) = des;
+
+  else {
+    double p = 1.0 - 1.0/t_max * t; // p(t=0) = 1 -->  p(t=t_max) = 0
+    base_.pos.p(coord) = (p * base_.pos.p(coord) + (1-p) * des);
+  }
+}
+
+
+int HyqState::SwinglegID() const
+{
+  for (LegID leg : LegIDArray)
+    if (swingleg_[leg])
+      return leg;
+
+  return NO_SWING_LEG;
+}
+
+
+void HyqState::SetSwingleg(LegID leg)
+{
+  swingleg_ = false;
+  swingleg_[leg] = true;
+}
+
+
 double HyqState::GetZAvg() const
 {
   std::array<Vec3d, kNumSides> avg = GetAvgSides();
