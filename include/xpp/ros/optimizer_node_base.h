@@ -14,6 +14,7 @@
 
 // custom msgs
 #include <xpp_opt/StateLin3d.h>
+#include <keyboard/Key.h>
 
 #include <ros/ros.h>
 
@@ -49,7 +50,9 @@ protected:
 
 private:
   ::ros::Subscriber goal_state_sub_;
+  ::ros::Subscriber goal_key_sub_;
   void GoalStateCallback(const StateMsg& msg);
+  void GoalStateCallbackKeyboard(const keyboard::Key& msg);
 };
 
 } /* namespace ros */

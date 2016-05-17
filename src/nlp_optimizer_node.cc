@@ -26,9 +26,6 @@ NlpOptimizerNode::NlpOptimizerNode ()
 void
 NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
 {
-  goal_cog_.p.x() = RosHelpers::GetDoubleFromServer("/xpp/goal_state_x");
-  goal_cog_.p.y() = RosHelpers::GetDoubleFromServer("/xpp/goal_state_y");
-
   // fixme DRY: use template method to move this and qp code to base class
   UpdateCurrentState(msg);
   OptimizeTrajectory();

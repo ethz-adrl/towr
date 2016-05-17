@@ -15,8 +15,11 @@ namespace ros {
 OptimizerNodeBase::OptimizerNodeBase ()
 {
   ::ros::NodeHandle n_;
-  goal_state_sub_ = n_.subscribe("goal_state", 10,
+  goal_state_sub_ = n_.subscribe("goal_state", 1,
                                 &OptimizerNodeBase::GoalStateCallback, this);
+
+  goal_key_sub_ = n_.subscribe("/keyboard/keydown", 1,
+                                &OptimizerNodeBase::GoalStateCallbackKeyboard, this);
 
   double t_stance  = RosHelpers::GetDoubleFromServer("/xpp/stance_time");
   double t_swing   = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
@@ -31,6 +34,7 @@ OptimizerNodeBase::OptimizerNodeBase ()
   goal_cog_.p.y() = RosHelpers::GetDoubleFromServer("/xpp/goal_state_y");
 }
 
+
 OptimizerNodeBase::~OptimizerNodeBase ()
 {
   // TODO Auto-generated destructor stub
@@ -42,6 +46,32 @@ OptimizerNodeBase::GoalStateCallback(const StateMsg& msg)
 {
   goal_cog_ = RosHelpers::RosToXpp(msg);
   ROS_INFO_STREAM("Goal state set to:\n" << goal_cog_);
+}
+
+
+void
+OptimizerNodeBase::GoalStateCallbackKeyboard(const keyboard::Key& msg)
+{
+  bool up_pressed = msg.code == msg.KEY_UP;
+
+  switch (msg.code) {
+    case msg.KEY_UP:
+      goal_cog_.p.x() = curr_cog_.p.x() + 0.25;
+      break;
+    case msg.KEY_DOWN:
+      goal_cog_.p.x() = curr_cog_.p.x() - 0.25;
+      break;
+    case msg.KEY_RIGHT:
+      goal_cog_.p.y() = curr_cog_.p.y() - 0.1;
+      break;
+    case msg.KEY_LEFT:
+      goal_cog_.p.y() = curr_cog_.p.y() + 0.1;
+      break;
+    default:
+      break;
+  }
+
+  ROS_INFO_STREAM("Goal state set to : " << goal_cog_);
 }
 
 
