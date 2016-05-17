@@ -68,14 +68,6 @@ public:
   std::array<Vec3d, kNumSides> GetAvgSides() const;
   double GetZAvg() const;
 
-  /**
-   * @brief smoothly changes the 2d-position of the body to desired one
-   *
-   * @param des desired 2d-position to set base to
-   * @param t_local time since splining began
-   * @param t_max if t_local reaches this time, the desired pos must be reached
-   */
-  void RampInPos(double des, Coords3D coord, double t_local, double t_max);
   void ZeroVelAcc();
 
 private:
