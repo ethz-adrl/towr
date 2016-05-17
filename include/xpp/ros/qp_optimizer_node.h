@@ -34,19 +34,15 @@ public:
 
 private:
   QpOptimizer qp_optimizer_;
+  void UpdateCurrentState(const ReqInfoMsg& msg);
   void OptimizeTrajectory();
+  void PublishOptimizedValues() const;
 
   ::ros::Subscriber current_info_sub_;
   ::ros::Publisher opt_params_pub_;
   void CurrentInfoCallback(const ReqInfoMsg& msg);
 
 
-  void PublishOptimizedSplines() const;
-
-  /** Service that takes in current info and returns optimzed splines */
-  ::ros::ServiceServer opt_srv_;
-  bool OptimizeTrajectoryService(xpp_opt::SolveQp::Request& req,
-                                 xpp_opt::SolveQp::Response& res);
 };
 
 } /* namespace ros */

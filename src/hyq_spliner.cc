@@ -49,7 +49,7 @@ HyqSpliner::BuildStateSequence(const HyqState& P_init,
   /** Add state sequence based on footsteps **/
   // desired state after first 4 leg support phase
   HyqState P_plan_prev = P_init;
-  P_plan_prev.ZeroVelAcc();
+  P_plan_prev.ZeroVelAcc(); // these aren't used anyway, overwritten by optimizer
   for (hyq::LegID l : hyq::LegIDArray) {
     P_plan_prev.feet_[l].p(Z) = 0.0;
   }

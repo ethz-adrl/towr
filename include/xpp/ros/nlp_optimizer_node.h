@@ -36,7 +36,9 @@ private:
    * Fills the member variables opt_footholds and opt_coefficients
    */
   NlpOptimizer nlp_optimizer_;
+  void UpdateCurrentState(const ReqInfoMsg& msg);
   void OptimizeTrajectory();
+  void PublishOptimizedValues() const;
 
 
   /** Determines the order of the steps to take. This depends on what direction
@@ -50,7 +52,6 @@ private:
   ::ros::Subscriber current_info_sub_;
   ::ros::Publisher opt_params_pub_;
   void CurrentInfoCallback(const ReqInfoMsg& msg);
-  void PublishOptimizedValues() const;
 
 };
 

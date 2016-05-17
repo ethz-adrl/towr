@@ -23,16 +23,25 @@ NlpOptimizerNode::NlpOptimizerNode ()
 }
 
 
-
 void
 NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
+{
+  goal_cog_.p.x() = RosHelpers::GetDoubleFromServer("/xpp/goal_state_x");
+  goal_cog_.p.y() = RosHelpers::GetDoubleFromServer("/xpp/goal_state_y");
+
+  // fixme DRY: use template method to move this and qp code to base class
+  UpdateCurrentState(msg);
+  OptimizeTrajectory();
+  PublishOptimizedValues();
+}
+
+
+void
+NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
 {
   curr_cog_      = RosHelpers::RosToXpp(msg.curr_state);
   curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
   curr_swingleg_ = RosHelpers::RosToXpp(msg.curr_swingleg);
-
-  OptimizeTrajectory();
-  PublishOptimizedValues();
 }
 
 
@@ -68,14 +77,19 @@ std::vector<xpp::hyq::LegID>
 NlpOptimizerNode::DetermineStepSequence(const State& curr_state, LegID curr_swingleg) const
 {
   // TODO make step sequence dependent on curr_state
-  const double length_per_step = 0.35;
+  const double length_per_step = 0.30;
   const double width_per_step = 0.20;
   Eigen::Vector2d start_to_goal = goal_cog_.p.segment<2>(0) - curr_cog_.p.segment<2>(0);
 
-  int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/length_per_step);
-  int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
-  // get greatest value of all
-  int req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);
+  int req_steps_per_leg;
+  // fixme don't take steps if body movement is sufficient
+  if (false /*start_to_goal.norm() < 0.1*/) {
+    req_steps_per_leg = 0;
+  } else {
+    int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/length_per_step);
+    int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
+    req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);
+  }
 
 
   using namespace xpp::hyq;

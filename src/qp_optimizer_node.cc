@@ -19,49 +19,34 @@ QpOptimizerNode::QpOptimizerNode ()
                                    &QpOptimizerNode::CurrentInfoCallback, this);
 
   opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_qp", 1);
-
-  opt_srv_ = n_.advertiseService("optimize_trajectory",
-                                &QpOptimizerNode::OptimizeTrajectoryService, this);
 }
 
 
 void
 QpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
 {
-  curr_cog_    = RosHelpers::RosToXpp(msg.curr_state);
-  curr_stance_ = RosHelpers::RosToXpp(msg.curr_stance);
-  footholds_   = RosHelpers::RosToXpp(msg.steps);
-
+  // fixme DRY: use template method to move this and qp code to base class
+  UpdateCurrentState(msg);
   OptimizeTrajectory();
-
-  PublishOptimizedSplines();
+  PublishOptimizedValues();
 }
 
 
 void
-QpOptimizerNode::PublishOptimizedSplines() const
+QpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
+{
+  curr_cog_    = RosHelpers::RosToXpp(msg.curr_state);
+  curr_stance_ = RosHelpers::RosToXpp(msg.curr_stance);
+  footholds_   = RosHelpers::RosToXpp(msg.steps);
+}
+
+
+void
+QpOptimizerNode::PublishOptimizedValues() const
 {
   OptParamMsg msg_out;
   msg_out.splines = xpp::ros::RosHelpers::XppToRos(opt_splines_);
   opt_params_pub_.publish(msg_out);
-}
-
-
-bool
-QpOptimizerNode::OptimizeTrajectoryService(xpp_opt::SolveQp::Request& req,
-                                           xpp_opt::SolveQp::Response& res)
-{
-  curr_cog_ = RosHelpers::RosToXpp(req.curr_state);
-  curr_stance_ = RosHelpers::RosToXpp(req.curr_stance);
-
-  int n_steps = req.steps.size();
-  footholds_.resize(n_steps);
-  for (int i=0; i<n_steps; i++) {
-    footholds_.at(i) = RosHelpers::RosToXpp(req.steps.at(i));
-  }
-
-  OptimizeTrajectory();
-  return true;
 }
 
 

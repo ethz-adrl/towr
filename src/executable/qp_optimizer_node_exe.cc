@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
 
 	xpp::ros::QpOptimizerNode qp_optimizer_node;
 
+	ros::Rate loop_rate(1000); // don't know if this acutally makes it faster
 	ros::spin();
 
 	return 1;
