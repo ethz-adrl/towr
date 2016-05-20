@@ -113,7 +113,7 @@ set(SOURCES
   src/constraints.cc
   src/zmp_constraint.cc
   src/zero_moment_point.cc
-  src/zmp_publisher.cc
+  src/trajectory_visualizer.cc
   src/ellipse.cc
   src/spline_constraints.cc
   src/problem_specification.cc

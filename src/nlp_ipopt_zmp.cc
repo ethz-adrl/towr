@@ -22,7 +22,7 @@ namespace Ipopt {
 NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
                          const Constraints& constraints,
                          const NlpStructure& nlp_structure,
-                         const ZmpPublisher& zmp_publisher, // just for visualization
+                         IVisualizer& zmp_publisher, // just for visualization
                          const NlpVariables& initial_values)
     :cost_function_(cost_function),
      constraints_(constraints),
@@ -31,8 +31,8 @@ NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
      num_diff_cost_function_(cost_function, 10*std::numeric_limits<double>::epsilon()),
      num_diff_constraints_(constraints, std::sqrt(std::numeric_limits<double>::epsilon())),
      // just for visualization
-     zmp_publisher_(zmp_publisher),
-     opt_variables_(initial_values)
+     opt_variables_(initial_values),
+     visualizer_(zmp_publisher)
 {}
 
 
@@ -193,22 +193,21 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
       StdVecEigen2d x_footholds_xy = nlp_structure_.ExtractFootholds(x);
       VectorXd curr_coeff = nlp_structure_.ExtractSplineCoefficients(x);
 
-      ZmpPublisher::VecFoothold footholds(nlp_structure_.n_steps_);
+      IVisualizer::VecFoothold footholds(nlp_structure_.n_steps_);
       for (uint i=0; i<footholds.size(); ++i) {
         footholds.at(i).leg = constraints_.GetLegID(i);
       }
 
       xpp::hyq::Foothold::SetXy(x_footholds_xy, footholds);
 
-      zmp_publisher_.zmp_msg_.markers.clear();
       constraints_.GetSplineContainer().AddOptimizedCoefficients(curr_coeff);
-      zmp_publisher_.AddRvizMessage(constraints_.GetSplineContainer().GetSplines(),
+      visualizer_.AddRvizMessage(constraints_.GetSplineContainer().GetSplines(),
                                     footholds,
                                     constraints_.GetStartStance(),
                                     constraints_.gap_center_x_,
                                     constraints_.gap_width_x_,
                                     1.0);
-      zmp_publisher_.publish();
+      visualizer_.publish();
     }
   }
 

@@ -14,7 +14,7 @@
 #include <xpp/zmp/nlp_structure.h>
 #include <xpp/hyq/support_polygon_container.h>
 
-#include <xpp/ros/zmp_publisher.h> // fixme, this should be one layer above, ros dependent
+#include <xpp/ros/i_visualizer.h>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
@@ -29,9 +29,10 @@ public:
   typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
   typedef NlpStructure::NlpVariables NlpVariables;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  typedef xpp::ros::IVisualizer IVisualizer;
 
 public:
-  NlpOptimizer ();
+  NlpOptimizer (IVisualizer& visualizer = xpp::ros::dummy_visualizer);
   virtual
   ~NlpOptimizer () {};
 
@@ -70,7 +71,7 @@ private:
   Ipopt::IpoptApplication app_;
   Ipopt::ApplicationReturnStatus status_;
 
-  xpp::ros::ZmpPublisher zmp_publisher_;
+  xpp::ros::IVisualizer& visualizer_;
 };
 
 } /* namespace zmp */

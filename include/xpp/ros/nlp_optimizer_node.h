@@ -14,7 +14,7 @@
 #include <xpp_opt/RequiredInfoNlp.h>        // receive
 #include <xpp_opt/OptimizedParametersNlp.h> // send
 
-
+#include <xpp/ros/i_visualizer.h>
 
 namespace xpp {
 namespace ros {
@@ -28,7 +28,7 @@ public:
   typedef xpp_opt::OptimizedParametersNlp OptParamMsg;
 
 public:
-  NlpOptimizerNode ();
+  NlpOptimizerNode (IVisualizer& visualizer = xpp::ros::dummy_visualizer);
   virtual ~NlpOptimizerNode () {};
 
 private:

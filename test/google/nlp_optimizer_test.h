@@ -25,10 +25,6 @@ protected:
   virtual void SetUp()
   {
     using namespace xpp::hyq;
-    // FIXME only for zmp publisher, remove from lowlevel optimizer code...
-    int argc = 0;
-    char **argv;
-    ::ros::init(argc, argv, "NlpOptimizerTest");
 
     NlpOptimizer nlp_optimizer;
     start_xy_.p << 0.01, 0.4,  0.7;

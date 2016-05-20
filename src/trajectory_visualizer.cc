@@ -5,18 +5,18 @@
  *      Author: winklera
  */
 
-#include <xpp/ros/zmp_publisher.h>
 #include <xpp/ros/ros_helpers.h>
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/zero_moment_point.h>
+#include "../include/xpp/ros/trajectory_visualizer.h"
 
 
 namespace xpp {
 namespace ros {
 
-ZmpPublisher::ZmpPublisher(const std::string& topic)
+TrajectoryVisualizer::TrajectoryVisualizer(const std::string& topic)
 {
   zmp_msg_.markers.clear();
 
@@ -27,7 +27,7 @@ ZmpPublisher::ZmpPublisher(const std::string& topic)
 }
 
 
-void ZmpPublisher::AddRvizMessage(
+void TrajectoryVisualizer::AddRvizMessage(
     const VecSpline& splines,
     const VecFoothold& opt_footholds,
     const VecFoothold& start_stance,
@@ -51,14 +51,14 @@ void ZmpPublisher::AddRvizMessage(
 }
 
 
-void ZmpPublisher::AddStartStance(visualization_msgs::MarkerArray& msg,
+void TrajectoryVisualizer::AddStartStance(visualization_msgs::MarkerArray& msg,
                                   const VecFoothold& start_stance)
 {
   AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::SPHERE, 1.0);
 }
 
 
-void ZmpPublisher::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
+void TrajectoryVisualizer::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
                                       const VecFoothold& start_stance,
                                       const VecFoothold& footholds) const
 {
@@ -77,7 +77,7 @@ void ZmpPublisher::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
 
 
 visualization_msgs::Marker
-ZmpPublisher::BuildSupportPolygon(const VecFoothold& stance,
+TrajectoryVisualizer::BuildSupportPolygon(const VecFoothold& stance,
                                      xpp::hyq::LegID leg_id) const
 {
 //  static int i=0;
@@ -120,7 +120,7 @@ ZmpPublisher::BuildSupportPolygon(const VecFoothold& stance,
 }
 
 
-void ZmpPublisher::AddGoal(
+void TrajectoryVisualizer::AddGoal(
     visualization_msgs::MarkerArray& msg,
     const Eigen::Vector2d& goal)
 {
@@ -134,7 +134,7 @@ void ZmpPublisher::AddGoal(
 
 
 visualization_msgs::Marker
-ZmpPublisher::GenerateMarker(Eigen::Vector2d pos, int32_t type, double size) const
+TrajectoryVisualizer::GenerateMarker(Eigen::Vector2d pos, int32_t type, double size) const
 {
   visualization_msgs::Marker marker;
   marker.pose.position.x = pos.x();
@@ -152,7 +152,7 @@ ZmpPublisher::GenerateMarker(Eigen::Vector2d pos, int32_t type, double size) con
 }
 
 void
-ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg,
+TrajectoryVisualizer::AddLineStrip(visualization_msgs::MarkerArray& msg,
                            double center_x, double depth_x,
                            const std::string& rviz_namespace) const
 {
@@ -185,7 +185,7 @@ ZmpPublisher::AddLineStrip(visualization_msgs::MarkerArray& msg,
 
 
 void
-ZmpPublisher::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
+TrajectoryVisualizer::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
                             const VecSpline& splines,
                             const std::vector<xpp::hyq::Foothold>& H_footholds,
                             const std::string& rviz_namespace,
@@ -226,7 +226,7 @@ ZmpPublisher::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
 
 
 void
-ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
+TrajectoryVisualizer::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
                             const VecSpline& splines,
                             const std::vector<xpp::hyq::Foothold>& H_footholds,
                             const std::string& rviz_namespace,
@@ -266,7 +266,7 @@ ZmpPublisher::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
 }
 
 
-void ZmpPublisher::AddFootholds(
+void TrajectoryVisualizer::AddFootholds(
     visualization_msgs::MarkerArray& msg,
     const std::vector<xpp::hyq::Foothold>& H_footholds,
     const std::string& rviz_namespace,
@@ -331,7 +331,7 @@ void ZmpPublisher::AddFootholds(
 }
 
 
-std_msgs::ColorRGBA ZmpPublisher::GetLegColor(xpp::hyq::LegID leg) const
+std_msgs::ColorRGBA TrajectoryVisualizer::GetLegColor(xpp::hyq::LegID leg) const
 {
   // define a few colors
   std_msgs::ColorRGBA red, green, blue, yellow, white;

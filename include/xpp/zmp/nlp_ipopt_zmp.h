@@ -15,19 +15,18 @@
 #include <xpp/zmp/cost_function.h>
 #include <xpp/zmp/constraints.h>
 
-#include <xpp/ros/zmp_publisher.h> // fixme, this depends on ROS, think of removing
+#include <xpp/ros/i_visualizer.h>
 
 namespace Ipopt {
 
 
-class NlpIpoptZmp : public Ipopt::TNLP
-{
+class NlpIpoptZmp : public Ipopt::TNLP {
 
 public:
   typedef xpp::zmp::ContinuousSplineContainer Splines;
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::zmp::Constraints::StdVecEigen2d StdVecEigen2d;
-  typedef xpp::ros::ZmpPublisher ZmpPublisher;
+  typedef xpp::ros::IVisualizer IVisualizer;
   typedef xpp::zmp::CostFunction CostFunction;
   typedef xpp::zmp::Constraints Constraints;
   typedef xpp::zmp::NlpStructure NlpStructure;
@@ -39,7 +38,7 @@ public:
 	NlpIpoptZmp(const CostFunction& cost_function,
 	            const Constraints& constraints,
 	            const NlpStructure& nlp_structure,
-	            const ZmpPublisher& zmp_publisher, // just for visualization
+	            IVisualizer& zmp_publisher, // just for visualization
 	            const NlpVariables& initial_values);
 
   /** default destructor */
@@ -124,7 +123,7 @@ private:
   Eigen::NumericalDiff<CostFunction> num_diff_cost_function_;
   Eigen::NumericalDiff<Constraints> num_diff_constraints_;
 
-  ZmpPublisher zmp_publisher_;
+  IVisualizer& visualizer_;
 
   /**@name Methods to block default compiler methods.
    * The compiler automatically generates the following three methods.

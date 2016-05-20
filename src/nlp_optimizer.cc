@@ -15,8 +15,8 @@ namespace xpp {
 namespace zmp {
 
 
-NlpOptimizer::NlpOptimizer ()
-    :zmp_publisher_("nlp_zmp_publisher")
+NlpOptimizer::NlpOptimizer (IVisualizer& visualizer)
+    :visualizer_(visualizer)
 {
   app_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
   status_ = app_.Initialize();
@@ -72,7 +72,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
       new Ipopt::NlpIpoptZmp(cost_function,
                              constraints,
                              nlp_structure,
-                             zmp_publisher_,
+                             visualizer_,
                              initial_variables_);
 
   status_ = app_.OptimizeTNLP(nlp_ipopt_zmp);

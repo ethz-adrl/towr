@@ -5,11 +5,11 @@
  * \brief  sends out a sample current state and footholds to the QP server
  */
 
-#include <xpp/ros/zmp_publisher.h>
 #include <xpp/ros/ros_helpers.h>
 
 #include <xpp_opt/RequiredInfoQp.h>          // send
 #include <xpp_opt/OptimizedParametersQp.h>   // receive
+#include "../../include/xpp/ros/trajectory_visualizer.h"
 
 typedef xpp_opt::RequiredInfoQp ReqInfoMsg;
 typedef xpp_opt::OptimizedParametersQp OptimizedParametersMsg;
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 
   current_info_pub.publish(msg);
 
-  xpp::ros::ZmpPublisher zmp_publisher("example_publisher");
+  xpp::ros::TrajectoryVisualizer zmp_publisher("example_publisher");
   ros::Rate loop_rate(10);
   while (ros::ok()) {
     ros::spinOnce();

@@ -8,6 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_PUBLISHER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_PUBLISHER_H_
 
+#include <xpp/ros/i_visualizer.h>
+
 #include <xpp/zmp/continuous_spline_container.h>
 
 #include <xpp/hyq/foothold.h>
@@ -21,7 +23,7 @@
 namespace xpp {
 namespace ros {
 
-class ZmpPublisher {
+class TrajectoryVisualizer : public IVisualizer{
 
 public:
   typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > StdVecEigen2d;
@@ -33,9 +35,9 @@ public:
   typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
 
 public:
-  ZmpPublisher(const std::string& topic = "zmp_publisher");
+  TrajectoryVisualizer(const std::string& topic = "zmp_publisher");
   virtual
-  ~ZmpPublisher () {};
+  ~TrajectoryVisualizer () {};
 
 public:
 
@@ -45,13 +47,13 @@ public:
       const VecFoothold& start_stance,
       double gap_center_x,
       double gap_width_x,
-      double alpha = 1.0);
+      double alpha) override;
 
-  void publish() const { ros_publisher_.publish(zmp_msg_); };
+  void publish() const override { ros_publisher_.publish(zmp_msg_); };
 
+private:
   visualization_msgs::MarkerArray zmp_msg_;
   void AddGoal(MarkerArray& msg,const Vector2d& goal);
-private:
 
   void AddSupportPolygons(visualization_msgs::MarkerArray& msg,
                           const VecFoothold& start_stance,

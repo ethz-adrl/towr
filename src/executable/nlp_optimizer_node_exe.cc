@@ -7,12 +7,15 @@
 
 #include <xpp/ros/nlp_optimizer_node.h>
 
+#include <xpp/ros/trajectory_visualizer.h>
+
 
 int main(int argc, char *argv[])
 {
 	ros::init(argc, argv, "nlp_optimizer_node");
 
-	xpp::ros::NlpOptimizerNode xpp_optimizer_node;
+	xpp::ros::TrajectoryVisualizer visualizer("nlp_zmp_publisher");
+	xpp::ros::NlpOptimizerNode xpp_optimizer_node(visualizer);
 
 	ros::spin();
 

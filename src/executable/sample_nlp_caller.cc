@@ -5,11 +5,11 @@
  * \brief  sends out a sample current state to the NLP server
  */
 
-#include <xpp/ros/zmp_publisher.h>
 #include <xpp/ros/ros_helpers.h>
 
 #include <xpp_opt/RequiredInfoNlp.h>         // send
 #include <xpp_opt/OptimizedParametersNlp.h> // receive
+#include "../../include/xpp/ros/trajectory_visualizer.h"
 
 
 typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   current_info_pub.publish(msg);
 
 
-  xpp::ros::ZmpPublisher zmp_publisher("example_publisher");
+  xpp::ros::TrajectoryVisualizer zmp_publisher("example_publisher");
   ros::Rate loop_rate(10);
   while (ros::ok()) {
     ros::spinOnce();

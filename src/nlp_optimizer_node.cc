@@ -13,8 +13,10 @@
 namespace xpp {
 namespace ros {
 
-NlpOptimizerNode::NlpOptimizerNode ()
+NlpOptimizerNode::NlpOptimizerNode (IVisualizer& visualizer)
+    :nlp_optimizer_(visualizer)
 {
+  curr_swingleg_ = xpp::hyq::LH;
   current_info_sub_ = n_.subscribe("required_info_nlp",
                                    1, // take only the most recent information
                                    &NlpOptimizerNode::CurrentInfoCallback, this);
