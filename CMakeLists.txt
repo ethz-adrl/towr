@@ -198,6 +198,7 @@ if(BUILD_TESTS)
                         test/google/zmp_constraint_test.cc
                         test/google/zero_moment_point_test.cc
                         test/google/hyq_spliner_test.cc
+                        test/google/nlp_optimizer_test.cc
                         #test/google/eigen_num_diff_test.cc
                         )
                
