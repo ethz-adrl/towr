@@ -37,6 +37,8 @@ static const Coords3D Coords2DArray[] = { X, Y };
 static constexpr int kDim2d = 2; // X,Y
 }
 using namespace coords_wrapper; // put into scope of namespace xpp::utils
+enum PosVelAcc { kPos=0, kVel, kAcc };
+static const int kDerivCount = 3;
 
 typedef Eigen::Vector2d Vec2d; /// X,Y
 typedef Eigen::Vector3d Vec3d; /// X,Y,Z

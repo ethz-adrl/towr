@@ -142,7 +142,7 @@ double SplineContainer::GetLocalTime(double t_global, const VecSpline& splines)
     t_local -= splines.at(id).GetDuration();
   }
 
-  return t_local-eps_; // just to never get value greater than true duration due to rounding errors
+  return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
 }
 
 
@@ -160,9 +160,9 @@ SplineContainer::GetCOGxy(double t_global, const VecSpline& splines)
   double t_local = GetLocalTime(t_global, splines);
 
   Point2d cog_xy;
-  cog_xy.p = splines[id].GetState(kPos, t_local);
-  cog_xy.v = splines[id].GetState(kVel, t_local);
-  cog_xy.a = splines[id].GetState(kAcc, t_local);
+  cog_xy.p = splines[id].GetState(xpp::utils::kPos, t_local);
+  cog_xy.v = splines[id].GetState(xpp::utils::kVel, t_local);
+  cog_xy.a = splines[id].GetState(xpp::utils::kAcc, t_local);
 
   return cog_xy;
 }

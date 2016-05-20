@@ -6,6 +6,8 @@
  */
 
 #include <xpp/hyq/hyq_spliner.h>
+#include <xpp/zmp/spline_container.h>
+
 #include <kindr/rotations/RotationEigen.hpp>
 
 namespace xpp {
@@ -25,12 +27,13 @@ void HyqSpliner::SetParams(double upswing,
 }
 
 void HyqSpliner::Init(const HyqState& P_init,
-                      const VecZmpSpline& zmp_splines,
+                      const VecZmpSpline& optimized_xy_spline,
                       const VecFoothold& footholds,
                       double robot_height)
 {
-  nodes_ = BuildStateSequence(P_init, zmp_splines, footholds, robot_height);
+  nodes_ = BuildStateSequence(P_init, optimized_xy_spline, footholds, robot_height);
   CreateAllSplines(nodes_);
+  optimized_xy_spline_ = optimized_xy_spline;
 }
 
 
@@ -191,7 +194,7 @@ double HyqSpliner::GetLocalSplineTime(double t_global) const
 
 int HyqSpliner::GetSplineID(double t_global) const
 {
-  assert(t_global < GetTotalTime()); // time inside the time frame
+  assert(t_global <= GetTotalTime()); // time inside the time frame
 
   double t = 0;
   for (uint n=1; n<nodes_.size(); ++n) {
@@ -212,29 +215,80 @@ SplineNode HyqSpliner::GetGoalNode(double t_global) const
 }
 
 
-HyqState HyqSpliner::GetSplinedState(double t_global) const
+
+Eigen::Vector3d
+HyqSpliner::GetCurrZState(double t_global) const
+{
+  double t_local = GetLocalSplineTime(t_global);
+  int  spline    = GetSplineID(t_global);
+
+  Point pos;
+  pos_spliner_.at(spline).GetPoint(t_local, pos);
+
+  Eigen::Vector3d z_state;
+
+  z_state(xpp::utils::kPos) = pos.p.z();
+  z_state(xpp::utils::kVel) = pos.v.z();
+  z_state(xpp::utils::kAcc) = pos.a.z();
+
+  return z_state;
+}
+
+
+HyqSpliner::Point
+HyqSpliner::GetCurrPosition(double t_global) const
+{
+  // overwrites body position (x,y) by optmized values after first cog shift
+  Vector3d z_splined = GetCurrZState(t_global);
+  xpp::utils::Point2d xy_optimized = xpp::zmp::SplineContainer::GetCOGxy(t_global, optimized_xy_spline_);
+
+  Point pos;
+
+  pos.p.segment(0,2) = xy_optimized.p;// - (P_R_Bdes*b_r_geomtocog).segment<2>(X);
+  pos.p.z()          = z_splined(xpp::utils::kPos);
+  pos.v.segment(0,2) = xy_optimized.v;
+  pos.v.z()          = z_splined(xpp::utils::kVel);
+  pos.a.segment(0,2) = xy_optimized.a;
+  pos.a.z()          = z_splined(xpp::utils::kAcc);
+
+  return pos;
+}
+
+
+
+xpp::utils::Ori
+HyqSpliner::GetCurrOrientation(double t_global) const
+{
+  double t_local = GetLocalSplineTime(t_global);
+  int  spline    = GetSplineID(t_global);
+
+  Point ori_rpy;
+  ori_spliner_.at(spline).GetPoint(t_local, ori_rpy);
+
+  // transform to orientation with quaternion
+  xpp::utils::Ori ori;
+  kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB(ori_rpy.p);
+  kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
+  ori.q = qIB.toImplementation();
+  ori.v = ori_rpy.v;
+  ori.a = ori_rpy.a;
+
+  return ori;
+}
+
+
+void
+HyqSpliner::FillCurrFeet(double t_global,
+                        LegDataMap<Point>& feet,
+                        LegDataMap<bool>& swingleg) const
 {
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
   int  goal_node = spline+1;
 
-  // Positions, although this is actually overwritten by optimizes trajectory
-  HyqState curr;
-  pos_spliner_.at(spline).GetPoint(t_local, curr.base_.pos);
+  swingleg = false;
 
-  /** Orientations */
-  Point curr_ori;
-  ori_spliner_.at(spline).GetPoint(t_local, curr_ori);
-
-  kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB(curr_ori.p);
-  kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
-  curr.base_.ori.q = qIB.toImplementation();
-  curr.base_.ori.v = curr_ori.v;
-  curr.base_.ori.a = curr_ori.a;
-
-  /** 3. Feet Position */
-  curr.swingleg_ = false;
-  curr.feet_ = nodes_[goal_node].state_.feet_;
+  feet = nodes_[goal_node].state_.feet_;
 
   int sl = nodes_[goal_node].state_.SwinglegID();
   if (sl != NO_SWING_LEG) // only spline foot of swingleg
@@ -242,14 +296,12 @@ HyqState HyqSpliner::GetSplinedState(double t_global) const
     double t_upswing = nodes_[goal_node].T * kUpswingPercent;
 
     if ( t_local < t_upswing) // leg swinging up
-      feet_spliner_up_.at(spline)[sl].GetPoint(t_local, curr.feet_[sl]);
+      feet_spliner_up_.at(spline)[sl].GetPoint(t_local, feet[sl]);
     else // leg swinging down
-      feet_spliner_down_.at(spline)[sl].GetPoint(t_local - t_upswing, curr.feet_[sl]);
+      feet_spliner_down_.at(spline)[sl].GetPoint(t_local - t_upswing, feet[sl]);
 
-    curr.swingleg_[sl] = true;
+    swingleg[sl] = true;
   }
-
-  return curr;
 }
 
 

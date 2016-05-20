@@ -27,8 +27,6 @@ enum SplineCoeff { A=0, B, C, D }; // the coefficients that are optimized over
 enum SplineCoeffE { E=D+1};
 enum SplineCoeffF { F=D+2};
 
-static const int kDerivCount = 3;
-enum PosVelAcc { kPos=0, kVel, kAcc };
 
 
 struct CoeffValues {
@@ -83,6 +81,8 @@ class Spline {
 
 public:
   typedef xpp::utils::Vec2d Vec2d;
+  typedef xpp::utils::PosVelAcc PosVelAcc;
+
   static const int kDim2d = xpp::utils::kDim2d;
 
 public:

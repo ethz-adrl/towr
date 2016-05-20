@@ -45,13 +45,13 @@ Spline::Vec2d Spline::GetState(PosVelAcc whichDerivative, double _t) const
     const double &f = spline_coeff_[dim][5];
 
     switch (whichDerivative) {
-    case kPos:
+    case xpp::utils::kPos:
       ret[dim] =    a*t[5] +    b*t[4] +   c*t[3] +   d*t[2] + e*t[1] + f;
       break;
-    case kVel:
+    case xpp::utils::kVel:
       ret[dim] =  5*a*t[4] +  4*b*t[3] + 3*c*t[2] + 2*d*t[1] + e;
       break;
-    case kAcc:
+    case xpp::utils::kAcc:
       ret[dim] = 20*a*t[3] + 12*b*t[2] + 6*c*t[1] + 2*d;
       break;
     default:

@@ -31,7 +31,7 @@ struct SplineNode {
 
 
 /**
-@brief Splines the base pose (position + orientation).
+@brief Splines the base pose (only z-position + orientation).
 
 No velocity and accelerations of orientation, only roll, pitch, yaw.
 For that transfer roll, pitch yaw velocities and accelerations into fixed global
@@ -55,12 +55,16 @@ public:
   void SetParams(double upswing, double lift_height, double outward_swing_distance);
   void Init(const HyqState& P_init, const VecZmpSpline& zmp_splines,
             const VecFoothold& footholds, double robot_height);
+
   /**
-  @brief function to access the current state AFTER states have been set.
-  @param[in]  t_global global time.
-  @return     curr position, orientation and current foothold of hyq.
+   * These function access the intermediate splined states fo the robot
    */
-  HyqState GetSplinedState(double t_global) const;
+  Point GetCurrPosition(double t_global) const;
+  xpp::utils::Ori GetCurrOrientation(double t_global) const;
+  void FillCurrFeet(double t_global, LegDataMap<Point>& feet, LegDataMap<bool>& swingleg) const;
+
+
+
   double GetTotalTime() const;
   SplineNode GetGoalNode(double t_global) const;
 
@@ -68,6 +72,7 @@ private:
   std::vector<SplineNode> nodes_; // the discrete states to spline through
   std::vector<Spliner3d> pos_spliner_, ori_spliner_;
   std::vector<LegDataMap< Spliner3d > > feet_spliner_up_, feet_spliner_down_;
+  VecZmpSpline optimized_xy_spline_;
 
   double kUpswingPercent;       // how long to swing up during swing
   double kLiftHeight;           // how high to lift the leg
@@ -76,6 +81,7 @@ private:
   /** Transform global time to local spline time dt */
   double GetLocalSplineTime(double t_global) const;
 
+  Vector3d GetCurrZState(double t_global) const;
 
 
   static std::vector<SplineNode> BuildStateSequence(const HyqState& P_init,
@@ -94,6 +100,7 @@ private:
   @param[in] time_to_reach how long the robot has to achieve this state
    */
   static SplineNode BuildNode(const HyqState& state, double t_max);
+  friend class HyqSplinerTest_BuildNode_Test;
 
 
   Spliner3d BuildPositionSpline(const SplineNode& from, const SplineNode& to) const;
@@ -105,12 +112,13 @@ private:
 
 
   int GetSplineID(double t_global) const;
+  friend class HyqSplinerTest_GetSplineID_Test;
+
   void BuildOneSegment(const SplineNode& from, const SplineNode& to,
                    Spliner3d& pos, Spliner3d& ori,
                    LegDataMap< Spliner3d >& feet_up,
                    LegDataMap< Spliner3d >& feet_down) const;
 
-  friend class HyqSplinerTest_GetSplineID_Test;
 };
 
 } // namespace hyq

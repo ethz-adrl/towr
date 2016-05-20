@@ -87,8 +87,8 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
     coeff.SetRandom();
 
     // make sure splines are continuous in position and velocity
-    f = splines.at(spline-1).GetState(kPos, T.at(spline-1));
-    e = splines.at(spline-1).GetState(kVel, T.at(spline-1));
+    f = splines.at(spline-1).GetState(xpp::utils::kPos, T.at(spline-1));
+    e = splines.at(spline-1).GetState(xpp::utils::kVel, T.at(spline-1));
     coeff.x[E] = e.x();
     coeff.x[F] = f.x();
     coeff.y[E] = e.y();

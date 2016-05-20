@@ -30,8 +30,8 @@ protected:
   virtual void SetUp()
   {
     // FIXME only for zmp publisher, remove from lowlevel optimizer code...
-    int argc = 1;
-    char *argv[] = {"dummy"};
+    int argc = 0;
+    char **argv;
     ::ros::init(argc, argv, "HyqSplinerTest");
 
     NlpOptimizer nlp_optimizer;
@@ -42,7 +42,13 @@ protected:
     init_.feet_[RF].p <<  0.37, -0.31, 0.0;
 
 
-    goal_.p.x() = 0.25;
+    init_.base_.pos.p << 0.01, 0.4,  0.7;
+    init_.base_.pos.v << 0.02, 0.5,  0.8;
+    init_.base_.pos.a << 0.03, 0.6,  0.9;
+
+    goal_.p <<  0.10, 0.11;
+    goal_.v <<  0.12, 0.13;
+    goal_.a <<  0.14, 0.15;
 
     std::vector<Foothold> start_stance;
     start_stance.push_back(Foothold(-0.31,  0.37, 0.0, LH));
@@ -56,26 +62,26 @@ protected:
     times_.t_stance_initial_ = 0.5; // this will create two initial splines
     times_.t_stance_final_ = 0.2;
 
-    NlpOptimizer::VecSpline opt_splines;
+    NlpOptimizer::VecSpline opt_xy_splines;
     NlpOptimizer::VecFoothold opt_footholds;
-    double robot_height = 0.58;
+    robot_height_ = 0.58;
     nlp_optimizer.SolveNlp(init_.base_.pos.Get2D(), goal_,
                            {LH, LF, RH, RF}, init_.FeetToFootholds().ToVector(),
-                           times_, robot_height,
-                           opt_splines, opt_footholds);
+                           times_, robot_height_,
+                           opt_xy_splines, opt_footholds);
 
     double upswing_percent = 0.5;
     double lift_height = 0.3;
     double outward_swing = 0.3;
     spliner_.SetParams(upswing_percent, lift_height, outward_swing);
-    spliner_.Init(init_, opt_splines, opt_footholds, robot_height);
-
+    spliner_.Init(init_, opt_xy_splines, opt_footholds, robot_height_);
   }
 
   xpp::zmp::SplineTimes times_;
   HyqState init_;
   Point2d goal_;
   HyqSpliner spliner_;
+  double robot_height_;
 };
 
 
@@ -107,58 +113,59 @@ TEST_F(HyqSplinerTest, GetGoalNode)
 }
 
 
-TEST_F(HyqSplinerTest, GetSplinedState)
+TEST_F(HyqSplinerTest, BuildNode)
 {
-  HyqState initial_state = spliner_.GetSplinedState(0.0);
-  EXPECT_EQ(init_.base_.pos.p, initial_state.base_.pos.p);
+  double t = 1.5;
+  SplineNode node = HyqSpliner::BuildNode(init_, 1.5);
 
-//  // not filling the position in code when constructing nodes, so this won't work
-//  // zmp overwrites it anyways
-//  HyqState inter_state = spliner_.GetSplinedState(0.5);
-//  EXPECT_DOUBLE_EQ(goal_.p.x(), inter_state.base_.pos.p.x());
-//  EXPECT_DOUBLE_EQ(goal_.p.y(), inter_state.base_.pos.p.y());
-//
-//
-//  HyqState final_state = spliner_.GetSplinedState(spliner_.GetTotalTime());
-//  EXPECT_DOUBLE_EQ(goal_.p.x(), final_state.base_.pos.p.x());
-//  EXPECT_DOUBLE_EQ(goal_.p.y(), final_state.base_.pos.p.y());
+  EXPECT_DOUBLE_EQ(node.T, t);
+  EXPECT_EQ(node.state_.base_.pos.p, init_.base_.pos.p);
+  EXPECT_EQ(node.state_.base_.pos.v, init_.base_.pos.v);
+  EXPECT_EQ(node.state_.base_.pos.a, init_.base_.pos.a);
+  EXPECT_EQ(node.ori_rpy_.p, HyqSpliner::TransformQuatToRpy(init_.base_.ori.q));
 }
 
 
+TEST_F(HyqSplinerTest, GetCurrPositionInit)
+{
+  Point3d splined_init = spliner_.GetCurrPosition(0.0);
+  SCOPED_TRACE(testing::Message() << "init_.base_.pos: " << init_.base_.pos);
+  SCOPED_TRACE(testing::Message() << "splined_init: "    << splined_init);
+
+  EXPECT_EQ(init_.base_.pos.p, splined_init.p);
+  EXPECT_EQ(init_.base_.pos.v, splined_init.v);
+  // these are constraints in the optimizer, so they won't be exactly fullfilled
+  // only according to the "tol" parameter set in the ipopt config file
+  double tol = 0.01; // m/s^2
+  EXPECT_NEAR     (init_.base_.pos.a.x(), splined_init.a.x(), tol);
+  EXPECT_NEAR     (init_.base_.pos.a.y(), splined_init.a.y(), tol);
+  EXPECT_DOUBLE_EQ(init_.base_.pos.a.z(), splined_init.a.z());
+}
 
 
+TEST_F(HyqSplinerTest, GetCurrPositionGoal)
+{
+  double T = spliner_.GetTotalTime();
+  Point3d splined_final = spliner_.GetCurrPosition(T);
+  SCOPED_TRACE(testing::Message() << "goal_: " << goal_);
+  SCOPED_TRACE(testing::Message() << "splined_final: "    << splined_final);
 
+  // these are all constraints in the optimizer, so they won't be exactly fullfilled
+  // only according to the "tol" parameter set in the ipopt config file
+  double tol = 0.01; // m/s^2
+  EXPECT_NEAR(goal_.p.x(), splined_final.p.x(), tol);
+  EXPECT_NEAR(goal_.v.x(), splined_final.v.x(), tol);
+  EXPECT_NEAR(goal_.a.x(), splined_final.a.x(), tol);
 
+  EXPECT_NEAR(goal_.p.y(), splined_final.p.y(), tol);
+  EXPECT_NEAR(goal_.v.y(), splined_final.v.y(), tol);
+  EXPECT_NEAR(goal_.a.y(), splined_final.a.y(), tol);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  // z position is not optimized, and therefore matched exactly
+  EXPECT_DOUBLE_EQ(robot_height_, splined_final.p.z());
+  EXPECT_DOUBLE_EQ(0.0,           splined_final.v.z());
+  EXPECT_DOUBLE_EQ(0.0,           splined_final.a.z());
+}
 
 
 

@@ -213,6 +213,7 @@ TEST_F(SplineContainerTest, GetState)
 
 
   // initial position and velocity
+  using namespace xpp::utils;
   EXPECT_DOUBLE_EQ(pos0, x_spline.at(0).GetState(kPos, 0.0).x());
   EXPECT_DOUBLE_EQ(vel0, x_spline.at(0).GetState(kVel, 0.0).x());
 
@@ -295,8 +296,8 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
     coeff.SetRandom();
 
     // make sure splines are continuous in position and velocity
-    f = splines_ref.at(spline-1).GetState(kPos, T.at(spline-1));
-    e = splines_ref.at(spline-1).GetState(kVel, T.at(spline-1));
+    f = splines_ref.at(spline-1).GetState(xpp::utils::kPos, T.at(spline-1));
+    e = splines_ref.at(spline-1).GetState(xpp::utils::kVel, T.at(spline-1));
     coeff.x[E] = e.x();
     coeff.x[F] = f.x();
     coeff.y[E] = e.y();
