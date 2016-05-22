@@ -22,7 +22,7 @@ public:
   typedef Spliner::Point Point;
 
 protected:
-  virtual void SetUp()
+  static void SetUpTestCase() // this is now only done one for all test in this test case
   {
     start.x   =  5.0;
     start.xd  = -1.0;
@@ -35,10 +35,14 @@ protected:
     T = 3.2;
   }
 
-  Spliner::Point start;
-  Spliner::Point end;
-  double T;
+  static Spliner::Point start;
+  static Spliner::Point end;
+  static double T;
 };
+
+Spliner::Point SplineTest::start = Point();
+Spliner::Point SplineTest::end = Point();
+double SplineTest::T = 0.0;
 
 
 TEST_F(SplineTest, LinearSpliner)

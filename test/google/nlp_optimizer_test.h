@@ -14,7 +14,7 @@
 namespace xpp {
 namespace zmp {
 
-class NlpOptimizerTest : public  ::testing::TestWithParam< double > {
+class NlpOptimizerTest : public  ::testing::Test {
 public:
   typedef xpp::utils::Point2d Point2d;
   typedef xpp::utils::Point3d Point3d;
@@ -22,14 +22,17 @@ public:
   typedef NlpOptimizer::VecFoothold VecFoothold;
 
 protected:
-  virtual void SetUp()
+  /** optimizes the spline only once for all tests that are build from this
+   * test case.
+   */
+  static void SetUpTestCase()
   {
     using namespace xpp::hyq;
 
     NlpOptimizer nlp_optimizer;
-    start_xy_.p << 0.01, 0.4,  0.7;
-    start_xy_.v << 0.02, 0.5,  0.8;
-    start_xy_.a << 0.03, 0.6,  0.9;
+    start_xy_.p << 0.01, 0.04,  0.07;
+    start_xy_.v << 0.02, 0.05,  0.08;
+    start_xy_.a << 0.03, 0.06,  0.09;
 
     goal_xy_.p <<  0.10, 0.11;
     goal_xy_.v <<  0.12, 0.13;
@@ -52,14 +55,22 @@ protected:
                            opt_xy_splines_, opt_footholds_);
   }
 
-  static constexpr double robot_height_ = 0.58;
-  SplineTimes times_;
-  Point2d start_xy_, goal_xy_;
-  VecFoothold start_stance_;
+  virtual void SetUp()
+  {
+    // specific setup run before each test
+  }
 
-  VecSpline opt_xy_splines_;
-  VecFoothold opt_footholds_;
+  // these are shared over all classes (=tests) of the test-case NlpOptimizerTest
+  // and derived classes
+  static constexpr double robot_height_ = 0.58;
+  static SplineTimes times_;
+  static Point2d start_xy_, goal_xy_;
+  static VecFoothold start_stance_;
+  static VecSpline opt_xy_splines_;
+  static VecFoothold opt_footholds_;
 };
+
+
 
 
 } // namespace zmp

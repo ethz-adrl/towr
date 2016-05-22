@@ -16,7 +16,7 @@ namespace xpp {
 namespace hyq {
 
 
-// A start and an end position for the splines. checking only boundary conditions
+// uses the optimized spline created by the nlp optimizer
 class HyqSplinerTest : public xpp::zmp::NlpOptimizerTest {
 public:
   typedef xpp::utils::Point2d Point2d;
@@ -25,7 +25,7 @@ public:
 protected:
   virtual void SetUp()
   {
-    NlpOptimizerTest::SetUp(); // initialize super class (creates optimized splines)
+    NlpOptimizerTest::SetUp(); // initialize super class
 
     init_.base_.pos = start_xy_.Make3D();
     init_.base_.pos.p.z() = 0.7;

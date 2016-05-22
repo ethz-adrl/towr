@@ -29,20 +29,11 @@
 
 #include <stdio.h>
 #include <cstdlib>  //std::getenv
-
 #include <gtest/gtest.h>
 
-//#include <log4cxx/logger.h>
-//#include <log4cxx/propertyconfigurator.h>
 
 GTEST_API_ int main(int argc, char **argv) {
   printf("Running main() from gtest_main.cc\n");
-
-//  // environmental variable set in sl_env.h script
-//  std::string cfile(getenv("XPP_ROOT"));
-//  cfile.append("/test/log4cxx.properties");
-//
-//  log4cxx::PropertyConfigurator::configure(cfile.c_str());
 
   testing::GTEST_FLAG(print_time) = true;
   testing::InitGoogleTest(&argc, argv);

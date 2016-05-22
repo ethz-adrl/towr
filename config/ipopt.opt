@@ -1,4 +1,5 @@
-# The config file for ipopt. The program must be started from within the folder
+# Configuration options for the IpOpt Nlp solver.
+# All test executable must be started from within the folder
 # where this file is located. These parameters can also be set in the cpp-code
 # itself:
 # app.Options()->SetStringValue("linear_solver", "ma86");
