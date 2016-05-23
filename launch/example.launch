@@ -1,0 +1,6 @@
+<launch>
+  <node name="xpp_example_node" pkg="xpp_opt" type="example" output="screen" cwd="node" > <!-- launches example from directory of current binary -->
+  </node>
+  <include file="$(find xpp_opt)/launch/upload_xpp_params.launch">
+  </include>
+</launch>

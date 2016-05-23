@@ -9,9 +9,10 @@
 #define _XPP_UTILS_POINT2D_MANIPULATOR_H_
 
 #include "geometric_structs.h"
+#include <Eigen/StdVector>
 
 #include <array>
-#include <algorithm>
+#include <algorithm> // std::sort
 #include <cmath>
 #include <iostream>
 
@@ -23,13 +24,17 @@ namespace utils {
 @brief Some utilities for manipulating 2 dimensional points, distances, lines.
  */
 struct Point2dManip {
+public:
+  typedef std::vector<Vec2d, Eigen::aligned_allocator<Vec2d> > StdVectorEig2d;
 
+public:
+  // from http://math.stackexchange.com/questions/1076292/obtain-coefficients-of-a-line-from-2-points
   static LineCoeff2d LineCoeff(const Vec2d& pt0, const Vec2d& pt1, bool normalize = true) {
 
     LineCoeff2d ret;
-    ret.p = pt0(Y) - pt1(Y);
-    ret.q = pt1(X) - pt0(X);
-    ret.r = -ret.p * pt0(X) - ret.q * pt0(Y);
+    ret.p = pt0.y() - pt1.y();
+    ret.q = pt1.x() - pt0.x();
+    ret.r = -ret.p * pt0.x() - ret.q * pt0.y(); //pt0.x()*pt1.y() - pt1.x()*pt0.y();
 
     // normalize the equation in order to intuitively use stability margins
     if (normalize) {
@@ -42,52 +47,92 @@ struct Point2dManip {
     return ret;
   }
 
-
-  static double Distance(Vec2d pt1, Vec2d pt2);
-
-  /// \brief  Checks if p2 is on the right side of line from p0 to p1
-  /// \return >0 for P2 right of the line from P0 to P1
-  ///         =0 for P2 on the line
-  ///         <0 for P2 left of the line
-  static double Point2isRightOfLine(const Vec2d& p0, const Vec2d p1, const Vec2d& p2)
+  //  Checks if B is on the right side of line OA
+  static bool BisRightOfOA(const Vec2d& O, const Vec2d A, const Vec2d& B)
   {
-    return (p2(X) - p0(X)) * (p1(Y) - p0(Y))
-         - (p1(X) - p0(X)) * (p2(Y) - p0(Y));
+    return (Cross(O, A, B) <= 0.0);
+  }
+
+  // 2D cross product of OA and OB vectors, i.e. z-component of their 3D cross product.
+  // Returns a positive value, if OAB makes a counter-clockwise turn,
+  // negative for clockwise turn, and zero if the points are collinear.
+  static double Cross(const Vec2d &O, const Vec2d &A, const Vec2d &B)
+  {
+    return (A.x() - O.x()) * (B.y() - O.y())
+         - (A.y() - O.y()) * (B.x() - O.x());
   }
 
 
-
-  static bool SortByXThenY(const Vec2d& lhs, const Vec2d& rhs)
+  static bool P1LeftofP2(const Vec2d& p1, const Vec2d& p2)
   {
-    if (lhs(X) != rhs(X))
-      return lhs(X) < rhs(X);
+    if (p1(X) != p2(X))
+      return p1(X) < p2(X);
     else
-      return lhs(Y) < rhs(Y);
+      return p1(Y) < p2(Y);
   }
+
 
   /**
-  \brief Performs a counter clockwise radial sort of the input points
-         starting with the bottom left point
-  @param[out] p Unsorted points or footholds.
-  Uses the slow n^2 sort algorithm, shouldn't matter for sorting 4 points :)
-  Fails when 3 points are on same line and one could be removed
+   * Sorts the points in p from left to right (tie: bottom to top) obtaining the indexes.
+   * @param p 2d points to be sorted
+   * @return the sorted indexes so the value, e.g. i=idx[0] corresponds to point p[i]
+   * @link http://stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
    */
-  template<std::size_t N >
-  static void CounterClockwiseSort(std::array<Vec2d,N>& p)
-  {
-    // make sure the first point is the one with lowest (x,y) value
-    std::sort(p.begin(), p.end(), SortByXThenY);
+  static std::vector<size_t> SortIndexesLeftToRight(const StdVectorEig2d& p)
+      {
+    // index vector where the number corresponds to the point at that index  in p
+    std::vector<size_t> idx(p.size());
+    std::iota( idx.begin(), idx.end(), 0 ); // fills vector with sequentially increasing values starting at 0
 
-    // sort counterclockwise
-    for (size_t i = 1; i < p.size() - 1; i++) {
-      for (size_t j = i + 1; j < p.size(); j++) {
-        if (Point2isRightOfLine(p[0], p[i], p[j])  > 0.0) {
-          Vec2d tmp = p[i];
-          p[i] = p[j];
-          p[j] = tmp;
-        }
+    // Sort points lexicographically
+    // make sure the first point is the one with lowest (x,y) value
+    std::sort(idx.begin(), idx.end(),
+              [&p](size_t i1, size_t i2) {return P1LeftofP2(p[i1], p[i2]);});
+
+    return idx;
       }
+
+  /**
+   * Extracts the points in p that define the convex hull and sorts them counterclockwise
+   * @param p 2d points to be sorted
+   * @return the sorted indexes so the value, e.g. i=idx[0] corresponds to point p[i]
+   * @link https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
+   */
+  static std::vector<size_t>
+  BuildConvexHullCounterClockwise(const StdVectorEig2d& p)
+  {
+    std::vector<size_t> idx;
+
+    // If all points are equal convex hull is just one of the points
+    if (std::equal(p.begin()+1, p.end(), p.begin())) {
+      idx.push_back(0);
+      return idx;
     }
+
+    idx = SortIndexesLeftToRight(p);
+
+    // Returns a list of points on the convex hull in counter-clockwise order.
+    int n = p.size(), k = 0;
+    std::vector<size_t> idx_hull(2*n);
+
+    // Build lower hull
+    for (int i = 0; i < n; ++i) {
+      while (k >= 2 && BisRightOfOA(p[idx_hull[k-2]], p[idx_hull[k-1]], p[idx[i]])) k--;
+      idx_hull[k++] = idx[i];
+    }
+
+    // Build upper hull
+    for (int i = n-2, t = k+1; i >= 0; i--) {
+      while (k >= t && BisRightOfOA(p[idx_hull[k-2]], p[idx_hull[k-1]], p[idx[i]])) k--;
+      idx_hull[k++] = idx[i];
+    }
+
+    idx_hull.resize(k-1); // remove double start and end point
+//    if (p[idx_hull[0]] == p[idx_hull[1]])
+//      idx_hull.resize(1);
+
+    return idx_hull;
+
   }
 
 };

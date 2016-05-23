@@ -10,18 +10,24 @@
 
 #include <xpp/utils/geometric_structs.h>
 
-#include <log4cxx/logger.h>
+// for friend class declaration
+namespace xpp {
+namespace ros {
+class RosHelpers;
+}
+}
+
 
 namespace xpp {
 namespace zmp {
 
+
 static const int kCoeffCount = 6;
-enum SplineCoeff { A=0, B, C, D, E, F };
+enum SplineCoeff { A=0, B, C, D }; // the coefficients that are optimized over
+enum SplineCoeffE { E=D+1};
+enum SplineCoeffF { F=D+2};
 
-static const int kDerivCount = 3;
-enum PosVelAcc { kPos=0, kVel, kAcc };
 
-static const int kDim2d = 2; // X,Y
 
 struct CoeffValues {
   double x[kCoeffCount];
@@ -32,13 +38,39 @@ struct CoeffValues {
       x[c] = y[c] = 0.0;
   };
 
-  CoeffValues(int xa, int xb, int xc, int xd, int xe, int xf,
-              int ya, int yb, int yc, int yd, int ye, int yf)
+  CoeffValues(double xa, double xb, double xc, double xd, double xe, double xf,
+              double ya, double yb, double yc, double yd, double ye, double yf)
   {
     x[A] = xa; x[B] = xb; x[C] = xc; x[D] = xd; x[E] = xe; x[F] = xf;
     y[A] = ya; y[B] = yb; y[C] = yc; y[D] = yd; y[E] = ye; y[F] = yf;
   }
+
+  /** generates random spline coefficients between -25 and 25 */
+  void SetRandom()
+  {
+    for (int c = A; c <= F; ++c) {
+      x[c] = (double)rand() / RAND_MAX * 50 - 25;
+      y[c] = (double)rand() / RAND_MAX * 50 - 25;
+    }
+  }
+
+//  bool operator==(const CoeffValues& rhs) const
+//  {
+//    static const double eps = std::numeric_limits<double>::epsilon();
+//
+//    for (int c = A; c <= F; ++c) {
+//      bool x_equal = std::abs(x[c] - rhs.x[c]) <= eps * std::abs(x[c]);
+//      bool y_equal = std::abs(y[c] - rhs.y[c]) <= eps * std::abs(y[c]);
+//
+//      if (!x_equal || !y_equal)
+//        return false;
+//    }
+//    return true;
+//  }
 };
+
+
+// todo rename to fifth order polynome!
 
 /**
 @class Spline
@@ -48,36 +80,62 @@ struct CoeffValues {
 class Spline {
 
 public:
-  typedef utils::Vec2d Vec2d;
+  typedef xpp::utils::Vec2d Vec2d;
+  typedef xpp::utils::PosVelAcc PosVelAcc;
+
+  static const int kDim2d = xpp::utils::kDim2d;
+
 public:
   Spline();
   Spline(const CoeffValues &coeff_values);
-  virtual ~Spline();
+  virtual ~Spline() {};
 
-  Vec2d GetState(const PosVelAcc &whichDeriv, const double &_t) const;
-  void set_spline_coeff(const CoeffValues &coeff_values);
+  Vec2d GetState(PosVelAcc whichDeriv, double t) const;
+  void SetSplineCoefficients(const CoeffValues &coeff_values = CoeffValues());
 
-  static log4cxx::LoggerPtr log_;
-private:
+protected:
   double spline_coeff_[kDim2d][kCoeffCount];
+  friend class SplineContainerTest_EandFCoefficientTest_Test;
 };
+
+
 
 /**
 @class ZmpSpline
 @brief Extends a general spline by specifying a duration during which it is
        active in creating the spline for the CoG movement.
 */
+enum ZmpSplineType {Initial4lsSpline=0, StepSpline, Intermediate4lsSpline, Final4lsSpline};
 class ZmpSpline : public Spline {
 
 public:
   ZmpSpline();
-  ZmpSpline(const CoeffValues &coeff_values, double duration);
-  virtual ~ZmpSpline();
+  ZmpSpline(uint id, double duration, ZmpSplineType, uint step);
+  virtual ~ZmpSpline() {};
 
-  double Duration() const; ///< global time-span in which this spline is active
+  uint GetId()            const { return id_; };
+  double GetDuration()    const { return duration_; }
+  ZmpSplineType GetType() const { return type_; }
+
+  /** Only if spline is a "StepSpline" is a step currently being executed.
+  If this fails, call "GetPlannedStep", because currently in four-leg-support */
+  uint GetCurrStep() const;
+
+  /** Only if spline is currently a four-leg support spline.
+   *  The next step is the step planned to execute after the 4ls-phase is complete */
+  uint GetNextPlannedStep() const;
+
+  bool IsFourLegSupport() const { return type_ != StepSpline; }
 
 private:
-  double duration_;
+  uint id_; // to identify the order relative to other zmp splines
+  double duration_; // time during which this spline is active
+  ZmpSplineType type_;
+  uint curr_or_planned_; // current step if step spline, otherwise planned next step
+
+  friend struct xpp::ros::RosHelpers;
+  friend std::ostream& operator<<(std::ostream& out, const ZmpSpline& tr);
+
 };
 
 

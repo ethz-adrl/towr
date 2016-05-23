@@ -9,6 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
+SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4")
+
 find_package(Eigen3 REQUIRED)
 
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
@@ -21,6 +23,9 @@ endif()
 
 
 
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x -fopenmp -O3")
+#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG -fopenmp -O3")
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
 
@@ -32,12 +37,29 @@ set(LIB_NAME xpp_opt)
 add_message_files(
   FILES
   FootholdSequence.msg
+  Foothold.msg
+  Spline.msg
+  StateLin3d.msg
+#  SplineCoefficients.msg
+  Footholds2d.msg
+  RequiredInfoNlp.msg
+  OptimizedParametersNlp.msg
+  RequiredInfoQp.msg
+  OptimizedParametersQp.msg
+#  VariablesNlp.msg
+)
+add_service_files(
+  FILES
+#  SolveNlp.srv
+  SolveQp.srv
+  ReturnOptSplines.srv
+  ReturnOptFootholds.srv
 )
 generate_messages(
   DEPENDENCIES
+  std_msgs
   geometry_msgs
 )
-
 
 ###################################
 ## catkin specific configuration ##
@@ -51,69 +73,159 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}
   LIBRARIES ${LIB_NAME}
-  CATKIN_DEPENDS message_runtime
-  DEPENDS log4cxx
+  CATKIN_DEPENDS message_runtime std_msgs geometry_msgs
+  DEPENDS log4cxx ${IPOPT_LIBS} 
 )
-
-
 
 
 
 # Include directories
-include_directories(${EIGEN3_INCLUDE_DIR})
-include_directories(include)
+SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4") # these two lines must be included everywhere where this project is needed
+link_directories(${IPOPT_SOURCE_DIR}/build/lib)
+set(IPOPT_LIBS
+    ipopt
+)
 
+include_directories(
+  include
+  ${EIGEN3_INCLUDE_DIR}
+  ${catkin_INCLUDE_DIRS}
+ "${IPOPT_SOURCE_DIR}/build/include/coin"
+)
 
-set(SOURCES  src/zmp_optimizer.cc
-             src/zmp_spline.cc
-             src/spline_container.cc    
-             src/spliner.cc
-             src/spliner_3d.cc
-             src/hyq_state.cc
-             src/orientation.cc
-             src/supp_triangle.cc
-             src/hyq_spliner.cc
-             )
-
-
+set(SOURCES  
+  src/geometric_structs.cc
+  src/qp_optimizer.cc
+  src/foothold.cc
+  src/nlp_optimizer.cc
+  src/zmp_spline.cc
+  src/spline_container.cc    
+  src/continuous_spline_container.cc    
+  src/spliner.cc
+  src/spliner_3d.cc
+  src/hyq_state.cc
+  src/orientation.cc
+  src/support_polygon.cc
+  src/supp_polygon_container.cc
+  src/hyq_spliner.cc
+  src/nlp_ipopt_zmp.cc
+  src/cost_function.cc
+  src/constraints.cc
+  src/zmp_constraint.cc
+  src/zero_moment_point.cc
+  src/trajectory_visualizer.cc
+  src/ellipse.cc
+  src/spline_constraints.cc
+  src/problem_specification.cc
+  src/optimizer_node_base.cc
+  src/nlp_optimizer_node.cc
+  src/qp_optimizer_node.cc
+)
+             
 # Add the shared library
-set(LIB_NAME xpp_opt)
-add_library(${LIB_NAME} 
-            ${SOURCES})
+add_library(${LIB_NAME}
+   ${SOURCES}
+)
 target_link_libraries(${LIB_NAME} 
   log4cxx
-)                        
+  ${catkin_LIBRARIES}
+  ${IPOPT_LIBS}
+)  
+# makes sure messages are built before the package
+add_dependencies(${LIB_NAME} 
+  ${LIB_NAME}_generate_messages_cpp
+)
+
+add_executable(nlp_optimizer_node 
+  src/executable/nlp_optimizer_node_exe.cc
+)
+target_link_libraries(nlp_optimizer_node 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)   
+
+
+add_executable(qp_optimizer_node 
+  src/executable/qp_optimizer_node_exe.cc
+)
+target_link_libraries(qp_optimizer_node 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)  
+
+add_executable(goal_state_pub 
+  src/executable/goal_state_publisher.cc
+)
+target_link_libraries(goal_state_pub 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)                 
                                       
+add_executable(sample_nlp_caller 
+    src/executable/sample_nlp_caller.cc
+)
+target_link_libraries(sample_nlp_caller 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)
+
+add_executable(sample_qp_caller 
+    src/executable/sample_qp_caller.cc
+)
+target_link_libraries(sample_qp_caller 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)
+  
 # Some example executables if turned "ON"
 option(BUILD_TESTS "Build some testing executables" ON) 
 if(BUILD_TESTS)
-
-add_executable(example 
-    test/example.cc
-)
-target_link_libraries(example 
-  ${LIB_NAME}
-)
-
-enable_testing()
-find_package(GTest)  
-if(GTEST_FOUND)
-  set(MY_GTEST_UNITS  test/google/gtest_main.cc 
-                      test/google/spliner_test.cc)
-             
-  add_executable(googleTest ${MY_GTEST_UNITS})
   
-  target_link_libraries(googleTest 
-                        ${LIB_NAME} 
-                        ${GTEST_LIBRARIES} pthread) 
-endif(GTEST_FOUND)
+  # enable_testing()
+  # FIXME use catkins macro to build the unit test
+  # http://wiki.ros.org/catkin/CMakeLists.txt#msgs_srvs_actions
+  # catkin_add_gtest(myUnitTest test/utest.cpp)
+  find_package(GTest)  
+  message(STATUS "GTEST_FOUND " ${GTEST_FOUND})
+  if(GTEST_FOUND)
+    set(MY_GTEST_UNITS  test/google/gtest_main.cc 
+                        test/google/spliner_test.cc
+                        test/google/point2d_manipulations_test.cc
+                        test/google/supp_polygon_test.cc
+                        test/google/supp_polygon_container_test.cc
+                        test/google/spline_container_test.cc
+                        test/google/helpers.cc
+                        test/google/zmp_constraint_test.cc
+                        test/google/zero_moment_point_test.cc
+                        test/google/hyq_spliner_test.cc
+                        test/google/nlp_optimizer_test.cc
+                        #test/google/eigen_num_diff_test.cc
+                        )
+               
+    add_executable(googleTest ${MY_GTEST_UNITS})
+    
+    target_link_libraries(googleTest 
+                          ${LIB_NAME} 
+                          ${GTEST_LIBRARIES})
+  endif(GTEST_FOUND)
 endif()
 
 # To install and link to the library globally
 # Install (ie copy) the header files
-set(HEADER_INSTALL_ROOT /usr/local/include/ CACHE PATH "Where to install the headers")
-set(LIB_INSTALL_ROOT /usr/local/lib/ CACHE PATH "Where to install the shared library")
+#set(HEADER_INSTALL_ROOT /usr/local/include/ CACHE PATH "Where to install the headers")
+#set(LIB_INSTALL_ROOT /usr/local/lib/ CACHE PATH "Where to install the shared library")
+#
+#install(
+#  DIRECTORY include/ 
+#  DESTINATION ${HEADER_INSTALL_ROOT} 
+#  PATTERN *~ EXCLUDE
+#  )
+#install(
+#  TARGETS ${LIB_NAME}
+#  ARCHIVE DESTINATION ${LIB_INSTALL_ROOT}
+#  LIBRARY DESTINATION ${LIB_INSTALL_ROOT}
+#)
 
-install(DIRECTORY include/ DESTINATION ${HEADER_INSTALL_ROOT} PATTERN *~ EXCLUDE)
-install(TARGETS ${LIB_NAME} LIBRARY DESTINATION ${LIB_INSTALL_ROOT})
+
+
 

@@ -6,8 +6,6 @@
  */
 
 #include <xpp/hyq/hyq_state.h>
-
-#include <xpp/utils/logger_helpers-inl.h>
 #include <xpp/utils/orientation.h>
 
 namespace xpp {
@@ -44,13 +42,15 @@ void HyqState::ZeroVelAcc()
 }
 
 
-const LegDataMap<Eigen::Vector3d>& HyqState::GetFeetPosOnly()
+const LegDataMap<Eigen::Vector3d> HyqState::GetFeetPosOnly()
 {
   static LegDataMap<Eigen::Vector3d> feet_pos;
   for (LegID leg : LegIDArray)
     feet_pos[leg] = feet_[leg].p;
   return feet_pos;
 }
+
+
 
 
 std::array<Vec3d, kNumSides> HyqState::GetAvgSides() const
@@ -78,6 +78,23 @@ std::array<Vec3d, kNumSides> HyqState::GetAvgSides() const
 }
 
 
+int HyqState::SwinglegID() const
+{
+  for (LegID leg : LegIDArray)
+    if (swingleg_[leg])
+      return leg;
+
+  return NO_SWING_LEG;
+}
+
+
+void HyqState::SetSwingleg(LegID leg)
+{
+  swingleg_ = false;
+  swingleg_[leg] = true;
+}
+
+
 double HyqState::GetZAvg() const
 {
   std::array<Vec3d, kNumSides> avg = GetAvgSides();
@@ -91,6 +108,18 @@ LegDataMap<Foothold> HyqState::FeetToFootholds() const
   for (LegID leg : LegIDArray)
     footholds[leg] = FootToFoothold(leg);
   return footholds;
+}
+
+
+HyqState::VecFoothold
+HyqState::GetStanceLegs() const
+{
+  VecFoothold stance_legs;
+  for (LegID leg : LegIDArray)
+    if (!swingleg_[leg])
+      stance_legs.push_back(FootToFoothold(leg));
+
+  return stance_legs;
 }
 
 

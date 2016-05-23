@@ -13,6 +13,7 @@ It was extended by a few arrays for easier range-based looping.
 
 #include <stdexcept>
 #include <iostream>
+#include <vector>
 
 
 namespace xpp {
@@ -44,6 +45,7 @@ namespace hyq {
 	    T& operator[](int index) throw(std::runtime_error);
 	    const T& operator[](LegID whichHip) const;
 	    const T& operator[](int index) const throw(std::runtime_error);
+	    std::vector<T> ToVector() const;
 	private:
 	    void copydata(const LegDataMap& rhs);
 	    void assignAll(const T& value);
@@ -59,6 +61,14 @@ LegDataMap<T>::LegDataMap(const LegDataMap& rhs) //cannot use initializer list f
 {
     copydata(rhs);
 }
+
+
+template<typename T> inline
+std::vector<T> LegDataMap<T>::ToVector() const
+{
+  return std::vector<T>(data, data + sizeof(data)/sizeof(T));
+}
+
 
 template<typename T> inline
 LegDataMap<T>& LegDataMap<T>::operator=(const LegDataMap& rhs)
