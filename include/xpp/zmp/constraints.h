@@ -15,7 +15,7 @@
 
 #include <xpp/zmp/problem_specification.h>
 #include <xpp/zmp/spline_constraints.h>
-#include <xpp/zmp/zmp_constraint.h>
+#include "zmp_constraint_builder.h"
 
 
 namespace xpp {
@@ -105,7 +105,7 @@ public:
   MatVec spline_initial_acc_constraints_;
   MatVec spline_final_constraints_;
 
-  ZmpConstraint zmp_constraint_;
+  ZmpConstraintBuilder zmp_constraint_;
 
   const double gap_center_x_ = 0.25;
   const double gap_width_x_  = 0.3;

@@ -15,7 +15,7 @@
 namespace xpp {
 namespace zmp {
 
-class ZmpConstraint {
+class ZmpConstraintBuilder {
 
 public:
   typedef xpp::utils::MatVec MatVec;
@@ -25,9 +25,9 @@ public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
 
 public:
-  ZmpConstraint() {};
-  ZmpConstraint(const ContinuousSplineContainer&, double walking_height);
-  virtual ~ZmpConstraint () {};
+  ZmpConstraintBuilder() {};
+  ZmpConstraintBuilder(const ContinuousSplineContainer&, double walking_height);
+  virtual ~ZmpConstraintBuilder () {};
 
   /**
    * Initializes the object by pre-calculating the map from optimal coefficients

@@ -111,7 +111,7 @@ set(SOURCES
   src/nlp_ipopt_zmp.cc
   src/cost_function.cc
   src/constraints.cc
-  src/zmp_constraint.cc
+  src/zmp_constraint_builder.cc
   src/zero_moment_point.cc
   src/trajectory_visualizer.cc
   src/ellipse.cc
@@ -203,7 +203,7 @@ if(BUILD_TESTS)
                         test/google/supp_polygon_container_test.cc
                         test/google/spline_container_test.cc
                         test/google/helpers.cc
-                        test/google/zmp_constraint_test.cc
+                        test/google/zmp_constraint_builder_test.cc
                         test/google/zero_moment_point_test.cc
                         #test/google/nlp_optimizer_test.cc
                         #test/google/hyq_spliner_test.cc

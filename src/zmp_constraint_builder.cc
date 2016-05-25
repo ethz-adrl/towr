@@ -5,20 +5,20 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/zmp_constraint.h>
+#include "../include/xpp/zmp/zmp_constraint_builder.h"
 
 namespace xpp {
 namespace zmp {
 
 
-ZmpConstraint::ZmpConstraint(const ContinuousSplineContainer& spline_container, double walking_height)
+ZmpConstraintBuilder::ZmpConstraintBuilder(const ContinuousSplineContainer& spline_container, double walking_height)
 {
   Init(spline_container, walking_height);
 }
 
 
 void
-ZmpConstraint::Init(const ContinuousSplineContainer& spline_container, double walking_height)
+ZmpConstraintBuilder::Init(const ContinuousSplineContainer& spline_container, double walking_height)
 {
   spline_structure_ = spline_container;
 
@@ -30,8 +30,8 @@ ZmpConstraint::Init(const ContinuousSplineContainer& spline_container, double wa
 }
 
 
-ZmpConstraint::MatVec
-ZmpConstraint::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+ZmpConstraintBuilder::MatVec
+ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                                   const SupportPolygonContainer& supp_polygon_container) const
 {
   std::vector<NodeConstraint> supp_lines = supp_polygon_container.GetActiveConstraintsForEachStep(spline_structure_.GetSplines());
@@ -59,7 +59,7 @@ ZmpConstraint::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
 
 
 void
-ZmpConstraint::GenerateNodeConstraint(const NodeConstraint& node_constraints,
+ZmpConstraintBuilder::GenerateNodeConstraint(const NodeConstraint& node_constraints,
                                       const VecScalar& x_zmp,
                                       const VecScalar& y_zmp,
                                       int row_start,
@@ -73,8 +73,8 @@ ZmpConstraint::GenerateNodeConstraint(const NodeConstraint& node_constraints,
 }
 
 
-ZmpConstraint::VecScalar
-ZmpConstraint::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
+ZmpConstraintBuilder::VecScalar
+ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
                                       const VecScalar& x_zmp,
                                       const VecScalar& y_zmp)
 {
@@ -89,7 +89,7 @@ ZmpConstraint::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
 
 
 void
-ZmpConstraint::CheckIfInitialized() const
+ZmpConstraintBuilder::CheckIfInitialized() const
 {
   if (!initialized_) {
     throw std::runtime_error("ZmpConstraint not initialized. Call Init() first");

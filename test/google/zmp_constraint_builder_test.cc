@@ -5,8 +5,9 @@
  *      Author: awinkler
  */
 
+#include "../../include/xpp/zmp/zmp_constraint_builder.h"
+
 #include <gtest/gtest.h>
-#include <xpp/zmp/zmp_constraint.h>
 #include <iostream>
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
@@ -20,7 +21,7 @@ using namespace xpp::hyq;
 class ZmpConstraintTest : public ::testing::Test {
 
 public:
-  typedef ZmpConstraint::MatVec MatVec;
+  typedef ZmpConstraintBuilder::MatVec MatVec;
 
 protected:
   virtual void SetUp()
@@ -42,7 +43,7 @@ protected:
   double walking_height = 0.58;
   std::vector<xpp::hyq::LegID> step_sequence_ = {xpp::hyq::LH};//, LF, RH, RF, LH, LF};
 
-  ZmpConstraint zmp_constaint_;
+  ZmpConstraintBuilder zmp_constaint_;
 };
 
 

@@ -10,7 +10,6 @@
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/support_polygon_container.h>
 
-#include <xpp/zmp/zmp_constraint.h>
 #include <xpp/zmp/spline_constraints.h>
 #include <xpp/zmp/cost_function.h>
 #include <xpp/zmp/eigen_quadprog-inl.h>
@@ -18,6 +17,7 @@
 #include <cmath>      // std::numeric_limits
 
 #include <ros/console.h>
+#include "../include/xpp/zmp/zmp_constraint_builder.h"
 
 namespace xpp {
 namespace zmp {
@@ -54,7 +54,7 @@ QpOptimizer::SolveQp(const State& initial_state,
     ROS_INFO_STREAM(s);
   }
 
-  ZmpConstraint zmp_constraint(spline_structure, robot_height);
+  ZmpConstraintBuilder zmp_constraint(spline_structure, robot_height);
   inequality_constraints_ = zmp_constraint.CalcZmpConstraints(supp_polygon_container);
 
 
