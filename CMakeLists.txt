@@ -120,6 +120,13 @@ set(SOURCES
   src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
   src/qp_optimizer_node.cc
+  # observer pattern code
+  src/a_subject.cc
+  src/optimization_variables.cc
+  src/i_observer.cc
+  src/a_constraint.cc
+  src/initial_acceleration_constraint.cc
+  src/constraint_container.cc
 )
              
 # Add the shared library
@@ -197,9 +204,10 @@ if(BUILD_TESTS)
                         test/google/helpers.cc
                         test/google/zmp_constraint_test.cc
                         test/google/zero_moment_point_test.cc
-                        test/google/hyq_spliner_test.cc
-                        test/google/nlp_optimizer_test.cc
+                        #test/google/nlp_optimizer_test.cc
+                        #test/google/hyq_spliner_test.cc
                         #test/google/eigen_num_diff_test.cc
+                        test/google/initial_acceleration_constraint_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

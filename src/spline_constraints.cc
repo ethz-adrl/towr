@@ -27,12 +27,7 @@ SplineConstraints::InitialAccJerkConstraints(const Vector2d& initial_acc) const
   int n_constraints = kDim2d *1; //init {x,y} * {acc, jerk}
   MatVec init(n_constraints, n_opt_coefficients_);
 
-  std::cout << "inital_acc: " << initial_acc << std::endl;
-
   const Vector2d initial_jerk = Vector2d::Zero(); // this should never need to be different
-  std::cout << "initial_jerk: " << initial_jerk << std::endl;
-  std::cout << "initial_jerk(X): " << initial_jerk(X) << std::endl;
-  std::cout << "initial_jerk(Y): " << initial_jerk(Y) << std::endl;
 
   int i = 0; // constraint count
   for (const Coords3D dim : Coords2DArray)
@@ -46,9 +41,6 @@ SplineConstraints::InitialAccJerkConstraints(const Vector2d& initial_acc) const
 //    init.M(i,c) = 6.0;
 //    init.v(i++) = -initial_jerk(dim);
   }
-
-  std::cout << "init.M: " << init.M << std::endl;
-  std::cout << "init.v: " << init.v << std::endl;
 
   assert(i==n_constraints);
   return init;

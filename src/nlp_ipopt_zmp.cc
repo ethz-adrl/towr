@@ -21,11 +21,13 @@ namespace Ipopt {
 
 NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
                          const Constraints& constraints,
+                         const ConstraintContainer& constraint_container,
                          const NlpStructure& nlp_structure,
                          IVisualizer& zmp_publisher, // just for visualization
                          const NlpVariables& initial_values)
     :cost_function_(cost_function),
      constraints_(constraints),
+     constraint_container_(constraint_container),
      nlp_structure_(nlp_structure),
      // These epsilons play a big role in convergence
      num_diff_cost_function_(cost_function, 10*std::numeric_limits<double>::epsilon()),
@@ -72,7 +74,7 @@ bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
   }
 
   // specific bounds depending on equality and inequality constraints
-  std::vector<Constraints::Bound> bounds = constraints_.GetBounds();
+  std::vector<xpp::zmp::AConstraint::Bound> bounds = constraint_container_.GetBounds();
   for (uint c=0; c<bounds.size(); ++c) {
     g_l[c] = bounds.at(c).lower_;
     g_u[c] = bounds.at(c).upper_;
@@ -127,7 +129,8 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
 
 bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
-  VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.ConvertToEigen(x));
+//  VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.ConvertToEigen(x));
+  VectorXd g_eig = constraint_container_.EvaluateConstraints();
   Eigen::Map<VectorXd>(g,m) = g_eig;
   return true;
 }

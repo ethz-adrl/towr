@@ -10,6 +10,7 @@
 
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/spline_constraints.h>
+#include <xpp/zmp/constraint_container.h>
 
 namespace xpp {
 namespace zmp {
@@ -68,9 +69,16 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   CostFunction cost_function(spline_structure, supp_polygon_container, nlp_structure);
 
 
+
+  ConstraintContainer constraint_container;
+  // todo  still add constraints here
+
+
+
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
       new Ipopt::NlpIpoptZmp(cost_function,
                              constraints,
+                             constraint_container,
                              nlp_structure,
                              visualizer_,
                              initial_variables_);
