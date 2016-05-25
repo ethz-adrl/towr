@@ -21,6 +21,7 @@ namespace Ipopt {
 
 NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
                          const Constraints& constraints,
+                         OptimizationVariables& opt_variables,
                          const ConstraintContainer& constraint_container,
                          const NlpStructure& nlp_structure,
                          IVisualizer& zmp_publisher, // just for visualization
@@ -35,7 +36,9 @@ NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
      // just for visualization
      opt_variables_(initial_values),
      visualizer_(zmp_publisher)
-{}
+{
+  new_opt_variables_ = &opt_variables;
+}
 
 
 bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
@@ -45,7 +48,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   n = nlp_structure_.GetOptimizationVariableCount(); // x,y-coordinate of footholds
   std::cout << "optimizing n= " << n << " variables\n";
 
-  m = constraints_.GetBounds().size();
+  m = constraint_container_.GetBounds().size();
   std::cout << "with m= " << m << "constraints\n";
 
 
@@ -130,6 +133,7 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
 bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
 //  VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.ConvertToEigen(x));
+  new_opt_variables_->SetVariables(nlp_structure_.ConvertToEigen(x));
   VectorXd g_eig = constraint_container_.EvaluateConstraints();
   Eigen::Map<VectorXd>(g,m) = g_eig;
   return true;

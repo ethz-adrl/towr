@@ -13,9 +13,9 @@ namespace xpp {
 namespace zmp {
 
 InitialAccelerationConstraint::InitialAccelerationConstraint (
-  OptimizationVariables* subject)
+  OptimizationVariables& subject)
 {
-  subject_ = subject;
+  subject_ = &subject;
   subject_->RegisterObserver(this);
 
   Update();

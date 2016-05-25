@@ -16,6 +16,7 @@
 
 #include <xpp/zmp/constraints.h> // todo remove this one
 #include <xpp/zmp/constraint_container.h>
+#include <xpp/zmp/optimization_variables.h>
 
 #include <xpp/ros/i_visualizer.h>
 
@@ -32,6 +33,7 @@ public:
   typedef xpp::zmp::CostFunction CostFunction;
   typedef xpp::zmp::Constraints Constraints;
   typedef xpp::zmp::ConstraintContainer ConstraintContainer;
+  typedef xpp::zmp::OptimizationVariables OptimizationVariables;
   typedef xpp::zmp::NlpStructure NlpStructure;
   typedef NlpStructure::NlpVariables NlpVariables;
   typedef Eigen::VectorXd VectorXd;
@@ -40,6 +42,7 @@ public:
 public:
 	NlpIpoptZmp(const CostFunction& cost_function,
 	            const Constraints& constraints,
+	            OptimizationVariables& opt_variables,
 	            const ConstraintContainer& constraint_container,
 	            const NlpStructure& nlp_structure,
 	            IVisualizer& zmp_publisher, // just for visualization
@@ -116,6 +119,8 @@ public:
   //@}
 
 
+
+  OptimizationVariables* new_opt_variables_;
 
   NlpVariables opt_variables_;
 

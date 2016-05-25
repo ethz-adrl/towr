@@ -19,8 +19,8 @@ class ConstraintContainerTest : public ::testing::Test {
 public:
   ConstraintContainerTest()
       : subject_(n_coeff_, n_steps_),
-        c1(&subject_),
-        c2(&subject_)
+        c1(subject_),
+        c2(subject_)
   {}
 
 protected:

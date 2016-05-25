@@ -23,7 +23,7 @@ public:
   typedef xpp::utils::MatVec MatVec;
   typedef Eigen::Vector2d Vector2d;
 
-  InitialAccelerationConstraint (OptimizationVariables* subject);
+  InitialAccelerationConstraint (OptimizationVariables& subject);
   virtual ~InitialAccelerationConstraint () {};
 
   void SetDesiredInitialAcceleration(const Vector2d& acc_xy);

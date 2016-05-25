@@ -10,6 +10,10 @@
 
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/spline_constraints.h>
+
+
+#include <xpp/zmp/optimization_variables.h>
+#include <xpp/zmp/initial_acceleration_constraint.h>
 #include <xpp/zmp/constraint_container.h>
 
 namespace xpp {
@@ -70,17 +74,28 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
 
+  // new stuff
+  OptimizationVariables subject(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
+  InitialAccelerationConstraint c1(subject);
+  c1.SetDesiredInitialAcceleration(initial_state.a);
+
+
+
+
   ConstraintContainer constraint_container;
+  constraint_container.AddConstraint(c1);
 
 
 
-  // todo  still add constraints here
+
+  // end of observer pattern stuff
 
 
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
       new Ipopt::NlpIpoptZmp(cost_function,
                              constraints,
+                             subject, // optmization variables
                              constraint_container,
                              nlp_structure,
                              visualizer_,

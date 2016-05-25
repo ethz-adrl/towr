@@ -16,7 +16,7 @@ class InitialAccelerationConstraintTest : public ::testing::Test {
 public:
   InitialAccelerationConstraintTest()
       : subject_(3*utils::kDim2d*kFreeCoeffPerSpline, 0),
-        constraint_(&subject_) {} // because these members have no default constructor
+        constraint_(subject_) {} // because these members have no default constructor
 
 protected:
   virtual void SetUp()
@@ -40,7 +40,6 @@ TEST_F(InitialAccelerationConstraintTest, EvaluateConstraint)
   EXPECT_EQ(2, g.rows());
   EXPECT_DOUBLE_EQ(-init_acceleration_.x(), g(0));
   EXPECT_DOUBLE_EQ(-init_acceleration_.y(), g(1));
-
 
   // change the splines acceleration
   int n_opt_var = subject_.GetOptimizationVariableCount();
