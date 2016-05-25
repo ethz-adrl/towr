@@ -126,6 +126,7 @@ set(SOURCES
   src/i_observer.cc
   src/a_constraint.cc
   src/initial_acceleration_constraint.cc
+  src/final_state_constraint.cc
   src/constraint_container.cc
 )
              
@@ -209,6 +210,7 @@ if(BUILD_TESTS)
                         #test/google/eigen_num_diff_test.cc
                         test/google/optimization_variables_test.cc
                         test/google/initial_acceleration_constraint_test.cc
+                        test/google/final_state_constraint_test.cc
                         test/google/constraint_container_test.cc
                         )
                

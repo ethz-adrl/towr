@@ -17,8 +17,7 @@
 namespace xpp {
 namespace zmp {
 
-class InitialAccelerationConstraint : public IObserver,
-                                      public AConstraint {
+class InitialAccelerationConstraint : public IObserver, public AConstraint {
 public:
   typedef xpp::utils::MatVec MatVec;
   typedef Eigen::Vector2d Vector2d;
