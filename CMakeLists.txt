@@ -207,7 +207,9 @@ if(BUILD_TESTS)
                         #test/google/nlp_optimizer_test.cc
                         #test/google/hyq_spliner_test.cc
                         #test/google/eigen_num_diff_test.cc
+                        test/google/optimization_variables_test.cc
                         test/google/initial_acceleration_constraint_test.cc
+                        test/google/constraint_container_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

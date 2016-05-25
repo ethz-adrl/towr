@@ -23,6 +23,12 @@ OptimizationVariables::~OptimizationVariables ()
 }
 
 void
+xpp::zmp::OptimizationVariables::SetStructure (int n_spline_coeff, int n_steps)
+{
+  nlp_structure_ = NlpStructure(n_spline_coeff, n_steps);
+}
+
+void
 OptimizationVariables::RegisterObserver(IObserver* o)
 {
   observers_.push_back(o);

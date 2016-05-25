@@ -25,6 +25,8 @@ public:
   void NotifyObservers () override;
   void RegisterObserver(IObserver* o) override;
 
+  void SetStructure(int n_spline_coeff, int n_steps);
+
   StdVecEigen2d GetFootholds() const;
   VectorXd GetSplineCoefficients() const;
   int GetOptimizationVariableCount() const;

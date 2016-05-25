@@ -5,8 +5,8 @@
  *      Author: winklera
  */
 
-#include <gtest/gtest.h>
 #include <xpp/zmp/initial_acceleration_constraint.h>
+#include <gtest/gtest.h>
 
 namespace xpp {
 namespace zmp {
@@ -34,7 +34,6 @@ protected:
 
 TEST_F(InitialAccelerationConstraintTest, EvaluateConstraint)
 {
-
   Eigen::VectorXd g;
   // the splines are initialized with zero, so constraint violation will be negative desired acceleration
   g = constraint_.EvaluateConstraint();

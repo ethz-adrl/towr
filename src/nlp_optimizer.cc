@@ -71,6 +71,9 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
   ConstraintContainer constraint_container;
+
+
+
   // todo  still add constraints here
 
 
