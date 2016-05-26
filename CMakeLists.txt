@@ -128,6 +128,7 @@ set(SOURCES
   src/initial_acceleration_constraint.cc
   src/final_state_constraint.cc
   src/constraint_container.cc
+  src/zmp_constraint.cc
 )
              
 # Add the shared library
@@ -211,6 +212,7 @@ if(BUILD_TESTS)
                         test/google/optimization_variables_test.cc
                         test/google/initial_acceleration_constraint_test.cc
                         test/google/final_state_constraint_test.cc
+                        test/google/zmp_constraint_test.cc
                         test/google/constraint_container_test.cc
                         )
                

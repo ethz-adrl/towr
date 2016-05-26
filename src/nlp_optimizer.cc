@@ -13,8 +13,11 @@
 
 
 #include <xpp/zmp/optimization_variables.h>
+
 #include <xpp/zmp/initial_acceleration_constraint.h>
 #include <xpp/zmp/final_state_constraint.h>
+#include <xpp/zmp/zmp_constraint.h>
+
 #include <xpp/zmp/constraint_container.h>
 
 namespace xpp {
@@ -83,11 +86,16 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   FinalStateConstraint c2(subject);
   c2.SetSpecifications(final_state, spline_structure);
 
+  ZmpConstraint c3(subject);
+  c3.Init(spline_structure, supp_polygon_container, robot_height);
+
+
 
 
   ConstraintContainer constraint_container;
   constraint_container.AddConstraint(c1);
   constraint_container.AddConstraint(c2);
+  constraint_container.AddConstraint(c3);
 
 
 
