@@ -7,6 +7,7 @@
 
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/optimization_variables.h>
+
 #include <xpp/zmp/initial_acceleration_constraint.h>
 
 #include <gtest/gtest.h>

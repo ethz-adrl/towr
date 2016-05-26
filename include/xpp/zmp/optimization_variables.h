@@ -20,12 +20,10 @@ public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d; // for footholds
 
   OptimizationVariables (int n_spline_coeff, int n_steps);
-  virtual ~OptimizationVariables ();
+  virtual ~OptimizationVariables () {};
 
-  void NotifyObservers () override;
+  void NotifyObservers () const override;
   void RegisterObserver(IObserver* o) override;
-
-  void SetStructure(int n_spline_coeff, int n_steps);
 
   StdVecEigen2d GetFootholds() const;
   VectorXd GetSplineCoefficients() const;

@@ -27,7 +27,6 @@ ZmpConstraint::Init (const ContinuousSplineContainer& spline_container,
   Update();
 }
 
-
 void
 ZmpConstraint::Update ()
 {
@@ -48,12 +47,11 @@ ZmpConstraint::EvaluateConstraint () const
   return ineq.M*x_coeff_ + ineq.v;
 }
 
-
 ZmpConstraint::VecBound
 ZmpConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
-  VectorXd g = EvaluateConstraint();
+  VectorXd g = EvaluateConstraint(); // only need the number of constraints
 
   for (int i=0; i<g.rows(); ++i)
     bounds.push_back(kInequalityBoundPositive_);

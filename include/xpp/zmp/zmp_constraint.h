@@ -39,11 +39,11 @@ public:
 private:
   VectorXd x_coeff_;
   FootholdsXY footholds_;
-  SupportPolygonContainer supp_polygon_container_;
-
-  OptimizationVariables* subject_;
+  SupportPolygonContainer supp_polygon_container_; // this should also be removed i think
 
   ZmpConstraintBuilder zmp_constraint_builder_;
+
+  OptimizationVariables* subject_;
 };
 
 } /* namespace zmp */

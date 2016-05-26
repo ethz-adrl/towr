@@ -14,15 +14,17 @@ ProblemSpecification::ProblemSpecification (const SupportPolygonContainer& supp_
                                             const ContinuousSplineContainer& cog_spline_container)
     /*:planned_footholds_(supp_poly_container.GetFootholds())*/
 {
-  zmp_spline_container_    = cog_spline_container;
-  supp_polygon_container_  = supp_poly_container;
+  Init(supp_poly_container, cog_spline_container);
 }
 
-ProblemSpecification::~ProblemSpecification ()
+void
+xpp::zmp::ProblemSpecification::Init (
+    const SupportPolygonContainer& supp_poly_container,
+    const ContinuousSplineContainer& cog_spline_container)
 {
-  // TODO Auto-generated destructor stub
+  supp_polygon_container_ = supp_poly_container;
+  zmp_spline_container_ = cog_spline_container;
 }
-
 
 void
 ProblemSpecification::UpdateCurrentState(const VectorXd& x_coeff, const StdVecEigen2d& footholds)
@@ -93,7 +95,7 @@ ProblemSpecification::DistanceSquareFootToGapboarder(const StdVecEigen2d& footho
 
 Eigen::VectorXd
 ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,
-                                                  const ContinuousSplineContainer& zmp_spline_container) const
+                                                  const ContinuousSplineContainer& zmp_spline_container)
 {
 
   const double x_nominal_b = 0.3; // 0.4
@@ -154,3 +156,5 @@ ProblemSpecification::DistanceFootToNominalStance(const SupportPolygonContainer&
 
 } /* namespace zmp */
 } /* namespace xpp */
+
+

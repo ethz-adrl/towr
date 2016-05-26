@@ -17,6 +17,7 @@
 #include <xpp/zmp/initial_acceleration_constraint.h>
 #include <xpp/zmp/final_state_constraint.h>
 #include <xpp/zmp/zmp_constraint.h>
+#include <xpp/zmp/range_of_motion_constraint.h>
 
 #include <xpp/zmp/constraint_container.h>
 
@@ -83,11 +84,17 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   InitialAccelerationConstraint c1(subject);
   c1.Init(initial_state.a);
 
+  State des_final = final_state;
+  des_final.p.x() = -0.1;
+
   FinalStateConstraint c2(subject);
   c2.Init(final_state, spline_structure);
 
   ZmpConstraint c3(subject);
   c3.Init(spline_structure, supp_polygon_container, robot_height);
+
+  RangeOfMotionConstraint c4(subject);
+  c4.Init(spline_structure, supp_polygon_container);
 
 
 
@@ -96,6 +103,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   constraint_container.AddConstraint(c1);
   constraint_container.AddConstraint(c2);
   constraint_container.AddConstraint(c3);
+  constraint_container.AddConstraint(c4);
 
 
 

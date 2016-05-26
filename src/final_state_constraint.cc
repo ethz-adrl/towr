@@ -14,8 +14,6 @@ FinalStateConstraint::FinalStateConstraint (OptimizationVariables& subject)
 {
   subject_ = &subject;
   subject_->RegisterObserver(this);
-
-  Update();
 }
 
 void
@@ -23,6 +21,7 @@ FinalStateConstraint::Init (const State2d& final_xy,
                             const ContinuousSplineContainer& c)
 {
   lin_constraint_ = BuildLinearConstraint(final_xy, c);
+  Update();
 }
 
 void

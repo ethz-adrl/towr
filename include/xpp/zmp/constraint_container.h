@@ -30,8 +30,6 @@ private:
   std::vector<const AConstraint*> constraints_;
   VectorXd g_;
   VecBound bounds_;
-
-  VecBound EvaluateBounds () const;
 };
 
 } /* namespace zmp */

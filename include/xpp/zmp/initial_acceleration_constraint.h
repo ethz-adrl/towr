@@ -38,10 +38,6 @@ private:
 
 
   VectorXd x_coeff_; ///< the current spline coefficients
-
-  // delete the copy and copy assignment operators
-  InitialAccelerationConstraint& operator=(const InitialAccelerationConstraint&) = delete;
-  InitialAccelerationConstraint(const InitialAccelerationConstraint&)            = delete;
 };
 
 } /* namespace zmp */

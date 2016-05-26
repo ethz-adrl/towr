@@ -26,7 +26,7 @@ protected:
 private:
   // these methods never need to be called from the base class or base class pointer anyway
   virtual void RegisterObserver(IObserver*) = 0;
-  virtual void NotifyObservers() = 0;
+  virtual void NotifyObservers() const = 0;
 //  virtual void RemoveObserver();
 };
 

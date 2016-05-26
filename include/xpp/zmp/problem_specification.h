@@ -33,9 +33,12 @@ public:
   typedef xpp::hyq::LegID LegID;
 
 public:
+  explicit ProblemSpecification() {}
   explicit ProblemSpecification (const SupportPolygonContainer& supp_poly_container,
                                  const ContinuousSplineContainer& cog_spline_container);
-  virtual ~ProblemSpecification ();
+  virtual ~ProblemSpecification () {};
+  void Init(const SupportPolygonContainer& supp_poly_container,
+            const ContinuousSplineContainer& cog_spline_container);
 
   ContinuousSplineContainer GetSplineContainer() const { return zmp_spline_container_; };
   LegID GetLegID(int step) const { return supp_polygon_container_.GetLegID(step); };
@@ -53,9 +56,9 @@ protected:
                                           double gap_center_x,
                                           double gap_width_x) const;
 
-private:
-  Eigen::VectorXd DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,
-                                              const ContinuousSplineContainer& zmp_spline_container) const;
+public:
+  static Eigen::VectorXd DistanceFootToNominalStance(const SupportPolygonContainer& supp_polygon_container,
+                                              const ContinuousSplineContainer& zmp_spline_container);
 };
 
 } /* namespace zmp */

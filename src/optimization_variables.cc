@@ -17,17 +17,6 @@ OptimizationVariables::OptimizationVariables (int n_spline_coeff, int n_steps)
   x_.setZero();
 }
 
-OptimizationVariables::~OptimizationVariables ()
-{
-  // TODO Auto-generated destructor stub
-}
-
-void
-xpp::zmp::OptimizationVariables::SetStructure (int n_spline_coeff, int n_steps)
-{
-  nlp_structure_ = NlpStructure(n_spline_coeff, n_steps);
-}
-
 void
 OptimizationVariables::RegisterObserver(IObserver* o)
 {
@@ -35,7 +24,7 @@ OptimizationVariables::RegisterObserver(IObserver* o)
 }
 
 void
-OptimizationVariables::NotifyObservers ()
+OptimizationVariables::NotifyObservers () const
 {
   for (IObserver* const o : observers_)
     o->Update();

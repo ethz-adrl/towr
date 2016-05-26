@@ -129,6 +129,7 @@ set(SOURCES
   src/final_state_constraint.cc
   src/constraint_container.cc
   src/zmp_constraint.cc
+  src/range_of_motion_constraint.cc
 )
              
 # Add the shared library
@@ -214,6 +215,7 @@ if(BUILD_TESTS)
                         test/google/final_state_constraint_test.cc
                         test/google/zmp_constraint_test.cc
                         test/google/constraint_container_test.cc
+                        test/google/range_of_motion_constraint_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

@@ -25,7 +25,10 @@ void
 ConstraintContainer::AddConstraint (const AConstraint& constraint)
 {
   constraints_.push_back(&constraint);
-  bounds_ = EvaluateBounds();
+
+  VecBound b = constraint.GetBounds();
+  bounds_.insert(bounds_.end(), b.begin(), b.end());
+
   g_ = VectorXd(bounds_.size());
 }
 
@@ -48,19 +51,6 @@ ConstraintContainer::VecBound
 ConstraintContainer::GetBounds ()
 {
   return bounds_;
-}
-
-ConstraintContainer::VecBound
-ConstraintContainer::EvaluateBounds () const
-{
-  VecBound bounds;
-
-  for (auto c : constraints_) {
-    VecBound b = c->GetBounds();
-    bounds.insert(bounds.begin(), b.begin(), b.end());
-  }
-
-  return bounds;
 }
 
 

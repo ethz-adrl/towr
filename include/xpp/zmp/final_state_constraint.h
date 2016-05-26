@@ -40,10 +40,6 @@ private:
 
   MatVec BuildLinearConstraint(const State2d& final_xy,
                                const ContinuousSplineContainer& c);
-
-  // delete the copy and copy assignment operators
-  FinalStateConstraint& operator=(const FinalStateConstraint&) = delete;
-  FinalStateConstraint(const FinalStateConstraint&)            = delete;
 };
 
 } /* namespace zmp */

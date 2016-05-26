@@ -17,8 +17,6 @@ InitialAccelerationConstraint::InitialAccelerationConstraint (
 {
   subject_ = &subject;
   subject_->RegisterObserver(this);
-
-  Update();
 }
 
 void
@@ -26,6 +24,7 @@ InitialAccelerationConstraint::Init (
     const Vector2d& acc_xy)
 {
   lin_constraint_ = BuildLinearConstraint(acc_xy);
+  Update();
 }
 
 void
