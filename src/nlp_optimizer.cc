@@ -74,12 +74,13 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   } else {} // use previous values
 
 
-  Constraints constraints(supp_polygon_container, spline_structure, nlp_structure, robot_height, initial_state.a, final_state);
+//  Constraints constraints(supp_polygon_container, spline_structure, nlp_structure, robot_height, initial_state.a, final_state);
   CostFunction cost_function(spline_structure, supp_polygon_container, nlp_structure);
 
 
 
   // new stuff
+
   OptimizationVariables subject(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
   InitialAccelerationConstraint c1(subject);
   c1.Init(initial_state.a);
@@ -105,16 +106,12 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   constraint_container.AddConstraint(c3);
   constraint_container.AddConstraint(c4);
 
-
-
-
   // end of observer pattern stuff
 
 
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
       new Ipopt::NlpIpoptZmp(cost_function,
-                             constraints,
                              subject, // optmization variables
                              constraint_container,
                              nlp_structure,

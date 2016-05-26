@@ -10,6 +10,14 @@
 namespace xpp {
 namespace zmp {
 
+
+//OptimizationVariables&
+//OptimizationVariables::GetInstance(int n_spline_coeff, int n_steps)
+//{
+//  static OptimizationVariables unique_instance(n_spline_coeff, n_steps);
+//  return unique_instance;
+//}
+
 OptimizationVariables::OptimizationVariables (int n_spline_coeff, int n_steps)
     :nlp_structure_(n_spline_coeff, n_steps)
 {

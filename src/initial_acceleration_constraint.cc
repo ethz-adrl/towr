@@ -6,7 +6,6 @@
  */
 
 #include <xpp/zmp/initial_acceleration_constraint.h>
-
 #include <xpp/utils/geometric_structs.h>
 
 namespace xpp {
@@ -20,8 +19,7 @@ InitialAccelerationConstraint::InitialAccelerationConstraint (
 }
 
 void
-InitialAccelerationConstraint::Init (
-    const Vector2d& acc_xy)
+InitialAccelerationConstraint::Init (const Vector2d& acc_xy)
 {
   lin_constraint_ = BuildLinearConstraint(acc_xy);
   Update();

@@ -10,8 +10,6 @@
 
 #include <xpp/zmp/i_observer.h>
 #include <xpp/zmp/a_constraint.h>
-
-
 #include <xpp/zmp/optimization_variables.h>
 
 namespace xpp {
@@ -35,8 +33,6 @@ private:
   MatVec BuildLinearConstraint (const Vector2d& initial_acc);
   MatVec lin_constraint_;
   OptimizationVariables* subject_;
-
-
   VectorXd x_coeff_; ///< the current spline coefficients
 };
 

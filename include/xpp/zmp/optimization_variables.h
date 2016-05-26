@@ -31,12 +31,15 @@ public:
 
   void SetVariables(const VectorXd& x);
 
-
-
-
+//  // Singleton pattern: Ensure there is only one instance of this class in program
+//  static OptimizationVariables& GetInstance(int n_spline_coeff, int n_steps);
+//  // singletons are not allowed to be copied
+//  OptimizationVariables(OptimizationVariables const&) = delete;
+//  void operator=(OptimizationVariables const&)        = delete;
 private:
   VectorXd x_;                ///< optimization variables
   NlpStructure nlp_structure_; // fixme this class seems redundant
+
 };
 
 } /* namespace zmp */

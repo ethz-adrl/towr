@@ -14,7 +14,6 @@
 #include <xpp/zmp/nlp_structure.h>
 #include <xpp/zmp/cost_function.h>
 
-#include <xpp/zmp/constraints.h> // todo remove this one
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/optimization_variables.h>
 
@@ -28,10 +27,9 @@ class NlpIpoptZmp : public Ipopt::TNLP {
 public:
   typedef xpp::zmp::ContinuousSplineContainer Splines;
   typedef xpp::utils::MatVec MatVec;
-  typedef xpp::zmp::Constraints::StdVecEigen2d StdVecEigen2d;
+  typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::ros::IVisualizer IVisualizer;
   typedef xpp::zmp::CostFunction CostFunction;
-  typedef xpp::zmp::Constraints Constraints;
   typedef xpp::zmp::ConstraintContainer ConstraintContainer;
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
   typedef xpp::zmp::NlpStructure NlpStructure;
@@ -41,7 +39,6 @@ public:
 
 public:
 	NlpIpoptZmp(const CostFunction& cost_function,
-	            const Constraints& constraints,
 	            OptimizationVariables& opt_variables,
 	            const ConstraintContainer& constraint_container,
 	            const NlpStructure& nlp_structure,
@@ -127,11 +124,9 @@ public:
 private:
 
   CostFunction cost_function_;
-  Constraints constraints_;
   ConstraintContainer constraint_container_;
   NlpStructure nlp_structure_;
   Eigen::NumericalDiff<CostFunction> num_diff_cost_function_;
-  Eigen::NumericalDiff<Constraints> num_diff_constraints_;
 
   IVisualizer& visualizer_;
 

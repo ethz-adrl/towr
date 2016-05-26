@@ -32,9 +32,6 @@ public:
   VecBound GetBounds () const override;
 
 private:
-  VectorXd x_coeff_;
-  FootholdsXY footholds_;
-
   SupportPolygonContainer supp_polygon_container_;
   ContinuousSplineContainer continuous_spline_container_;
 

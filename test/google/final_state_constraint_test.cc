@@ -21,7 +21,8 @@ public:
 
 protected:
   virtual void SetUp()
-  {}
+  {
+  }
 
   OptimizationVariables subject_;
   FinalStateConstraint constraint_;

@@ -19,11 +19,11 @@ RangeOfMotionConstraint::RangeOfMotionConstraint (OptimizationVariables& subject
 }
 
 void
-RangeOfMotionConstraint::Init (const ContinuousSplineContainer& c,
-                               const SupportPolygonContainer& s)
+RangeOfMotionConstraint::Init (const ContinuousSplineContainer& spline,
+                               const SupportPolygonContainer& support)
 {
-  continuous_spline_container_ = c;
-  supp_polygon_container_ = s;
+  continuous_spline_container_ = spline;
+  supp_polygon_container_ = support;
 
   Update();
 }
@@ -31,16 +31,15 @@ RangeOfMotionConstraint::Init (const ContinuousSplineContainer& c,
 void
 RangeOfMotionConstraint::Update ()
 {
-  x_coeff_ = subject_->GetSplineCoefficients();
-  footholds_ = subject_->GetFootholds();
+  VectorXd x_coeff      = subject_->GetSplineCoefficients();
+  FootholdsXY footholds = subject_->GetFootholds();
 
-  continuous_spline_container_.AddOptimizedCoefficients(x_coeff_);
+  continuous_spline_container_.AddOptimizedCoefficients(x_coeff);
   // fixme move this to foothold class and generally see if i really need
   // the previous support polygon container, or if footholds + legs is enough
   // for sure need start stance
-  for (uint i=0; i<footholds_.size(); ++i)
-    supp_polygon_container_.SetFootholdsXY(i,footholds_.at(i).x(), footholds_.at(i).y());
-
+  for (uint i=0; i<footholds.size(); ++i)
+    supp_polygon_container_.SetFootholdsXY(i,footholds.at(i).x(), footholds.at(i).y());
 }
 
 RangeOfMotionConstraint::VectorXd

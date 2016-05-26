@@ -20,19 +20,16 @@ namespace Ipopt {
 
 
 NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
-                         const Constraints& constraints,
                          OptimizationVariables& opt_variables,
                          const ConstraintContainer& constraint_container,
                          const NlpStructure& nlp_structure,
                          IVisualizer& zmp_publisher, // just for visualization
                          const NlpVariables& initial_values)
     :cost_function_(cost_function),
-     constraints_(constraints),
      constraint_container_(constraint_container),
      nlp_structure_(nlp_structure),
      // These epsilons play a big role in convergence
      num_diff_cost_function_(cost_function, 10*std::numeric_limits<double>::epsilon()),
-     num_diff_constraints_(constraints, std::sqrt(std::numeric_limits<double>::epsilon())),
      // just for visualization
      opt_variables_(initial_values),
      visualizer_(zmp_publisher)
@@ -115,6 +112,8 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
+  new_opt_variables_->SetVariables(nlp_structure_.ConvertToEigen(x));
+
   obj_value = cost_function_.EvalCostFunction(nlp_structure_.ConvertToEigen(x));
   return true;
 }
@@ -122,6 +121,8 @@ bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value
 
 bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
+  new_opt_variables_->SetVariables(nlp_structure_.ConvertToEigen(x));
+
   Eigen::MatrixXd jac(1,n);
   num_diff_cost_function_.df(nlp_structure_.ConvertToEigen(x), jac);
 
@@ -160,11 +161,11 @@ bool NlpIpoptZmp::eval_jac_g(Index n, const Number* x, bool new_x,
   	}
   }
   else {
-    // only gets used if "jacobian_approximation finite-difference-values"
-    // is not set
-    Eigen::MatrixXd jac(m,n);
-    num_diff_constraints_.df(nlp_structure_.ConvertToEigen(x),jac);
-    Eigen::Map<Eigen::MatrixXd>(values,jac.rows(),jac.cols()) = jac;
+//    // only gets used if "jacobian_approximation finite-difference-values"
+//    // is not set
+//    Eigen::MatrixXd jac(m,n);
+//    num_diff_constraints_.df(nlp_structure_.ConvertToEigen(x),jac);
+//    Eigen::Map<Eigen::MatrixXd>(values,jac.rows(),jac.cols()) = jac;
   }
 
   return true;
@@ -196,24 +197,33 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
       double* x = new double[nlp_structure_.GetOptimizationVariableCount()];
       tnlp_adapter->ResortX(*ip_data->curr()->x(), x);
 
+      new_opt_variables_->SetVariables(nlp_structure_.ConvertToEigen(x));
+
+
+
       // visualize the current state with rviz
-      StdVecEigen2d x_footholds_xy = nlp_structure_.ExtractFootholds(x);
-      VectorXd curr_coeff = nlp_structure_.ExtractSplineCoefficients(x);
+      StdVecEigen2d x_footholds_xy = new_opt_variables_->GetFootholds();
+      VectorXd curr_coeff = new_opt_variables_->GetSplineCoefficients();
+
+
 
       IVisualizer::VecFoothold footholds(nlp_structure_.n_steps_);
       for (uint i=0; i<footholds.size(); ++i) {
-        footholds.at(i).leg = constraints_.GetLegID(i);
+        footholds.at(i).leg = xpp::hyq::LF;//todo fix this constraints_.GetLegID(i);
       }
 
-      xpp::hyq::Foothold::SetXy(x_footholds_xy, footholds);
 
-      constraints_.GetSplineContainer().AddOptimizedCoefficients(curr_coeff);
-      visualizer_.AddRvizMessage(constraints_.GetSplineContainer().GetSplines(),
-                                    footholds,
-                                    constraints_.GetStartStance(),
-                                    constraints_.gap_center_x_,
-                                    constraints_.gap_width_x_,
-                                    1.0);
+
+//
+//      xpp::hyq::Foothold::SetXy(x_footholds_xy, footholds);
+//
+//      constraints_.GetSplineContainer().AddOptimizedCoefficients(curr_coeff);
+//      visualizer_.AddRvizMessage(constraints_.GetSplineContainer().GetSplines(),
+//                                    footholds,
+//                                    constraints_.GetStartStance(),
+//                                    constraints_.gap_center_x_,
+//                                    constraints_.gap_width_x_,
+//                                    1.0);
       visualizer_.publish();
     }
   }

@@ -60,10 +60,10 @@ private:
                             const SupportPolygonContainer&) const;
 
   static void GenerateNodeConstraint(const NodeConstraint&,
-                                 const VecScalar& x_zmp,
-                                 const VecScalar& y_zmp,
-                                 int row_start,
-                                 MatVec& ineq);
+                                     const VecScalar& x_zmp,
+                                     const VecScalar& y_zmp,
+                                     int row_start,
+                                     MatVec& ineq);
 
   // the zero moment point must always lay on one side of triangle side:
   // p*x_zmp + q*y_zmp + r > stability_margin
@@ -79,7 +79,6 @@ private:
   void CheckIfInitialized() const; // put only in public functions
   bool initialized_ = false;
 };
-
 
 
 } /* namespace zmp */
