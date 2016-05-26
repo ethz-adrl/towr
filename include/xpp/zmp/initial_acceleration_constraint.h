@@ -25,7 +25,7 @@ public:
   InitialAccelerationConstraint (OptimizationVariables& subject);
   virtual ~InitialAccelerationConstraint () {};
 
-  void SetDesiredInitialAcceleration(const Vector2d& acc_xy);
+  void Init(const Vector2d& acc_xy);
 
   void Update() override;
   VectorXd EvaluateConstraint () const override;

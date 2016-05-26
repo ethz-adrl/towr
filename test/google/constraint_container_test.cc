@@ -25,8 +25,8 @@ public:
 
 protected:
   virtual void SetUp(){
-    c1.SetDesiredInitialAcceleration(Eigen::Vector2d::Ones());
-    c2.SetDesiredInitialAcceleration(Eigen::Vector2d::Zero());
+    c1.Init(Eigen::Vector2d::Ones());
+    c2.Init(Eigen::Vector2d::Zero());
 
     constraints.AddConstraint(c1);
     constraints.AddConstraint(c2);

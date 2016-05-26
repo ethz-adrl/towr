@@ -22,7 +22,7 @@ protected:
   virtual void SetUp()
   {
     init_acceleration_ << 1.3, 2.4; // x and y
-    constraint_.SetDesiredInitialAcceleration(init_acceleration_);
+    constraint_.Init(init_acceleration_);
 
     EXPECT_EQ(1, subject_.GetObserverCount());
   }

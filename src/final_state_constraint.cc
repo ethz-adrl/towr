@@ -19,8 +19,8 @@ FinalStateConstraint::FinalStateConstraint (OptimizationVariables& subject)
 }
 
 void
-FinalStateConstraint::SetSpecifications (const State2d& final_xy,
-                                         const ContinuousSplineContainer& c)
+FinalStateConstraint::Init (const State2d& final_xy,
+                            const ContinuousSplineContainer& c)
 {
   lin_constraint_ = BuildLinearConstraint(final_xy, c);
 }

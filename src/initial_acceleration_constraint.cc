@@ -22,7 +22,7 @@ InitialAccelerationConstraint::InitialAccelerationConstraint (
 }
 
 void
-InitialAccelerationConstraint::SetDesiredInitialAcceleration (
+InitialAccelerationConstraint::Init (
     const Vector2d& acc_xy)
 {
   lin_constraint_ = BuildLinearConstraint(acc_xy);

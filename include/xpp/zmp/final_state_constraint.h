@@ -26,7 +26,7 @@ public:
   FinalStateConstraint (OptimizationVariables& subject);
   virtual ~FinalStateConstraint () {};
 
-  void SetSpecifications(const State2d& final_xy,
+  void Init(const State2d& final_xy,
                          const ContinuousSplineContainer&);
 
   void Update() override;

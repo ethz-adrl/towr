@@ -81,10 +81,10 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   // new stuff
   OptimizationVariables subject(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
   InitialAccelerationConstraint c1(subject);
-  c1.SetDesiredInitialAcceleration(initial_state.a);
+  c1.Init(initial_state.a);
 
   FinalStateConstraint c2(subject);
-  c2.SetSpecifications(final_state, spline_structure);
+  c2.Init(final_state, spline_structure);
 
   ZmpConstraint c3(subject);
   c3.Init(spline_structure, supp_polygon_container, robot_height);
