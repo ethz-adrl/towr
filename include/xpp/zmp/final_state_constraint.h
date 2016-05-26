@@ -26,9 +26,7 @@ public:
   FinalStateConstraint (OptimizationVariables& subject);
   virtual ~FinalStateConstraint () {};
 
-  void Init(const State2d& final_xy,
-                         const ContinuousSplineContainer&);
-
+  void Init(const State2d& final_xy, const ContinuousSplineContainer&);
   void Update() override;
   VectorXd EvaluateConstraint () const override;
   VecBound GetBounds () const override;

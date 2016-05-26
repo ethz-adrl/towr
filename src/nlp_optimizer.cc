@@ -18,6 +18,7 @@
 #include <xpp/zmp/final_state_constraint.h>
 #include <xpp/zmp/zmp_constraint.h>
 #include <xpp/zmp/range_of_motion_constraint.h>
+#include <xpp/zmp/spline_junction_constraint.h>
 
 #include <xpp/zmp/constraint_container.h>
 
@@ -97,6 +98,9 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   RangeOfMotionConstraint c4(subject);
   c4.Init(spline_structure, supp_polygon_container);
 
+  SplineJunctionConstraint c5(subject);
+  c5.Init(spline_structure);
+
 
 
 
@@ -105,6 +109,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   constraint_container.AddConstraint(c2);
   constraint_container.AddConstraint(c3);
   constraint_container.AddConstraint(c4);
+  constraint_container.AddConstraint(c5);
 
   // end of observer pattern stuff
 
