@@ -59,13 +59,13 @@ xpp::zmp::OptimizationVariables::SetVariables (const double* x)
 OptimizationVariables::StdVecEigen2d
 OptimizationVariables::GetFootholdsStd () const
 {
-  return nlp_structure_.ExtractFootholds(x_);
+  return nlp_structure_.ExtractFootholdsToStd(x_);
 }
 
 OptimizationVariables::VectorXd
-OptimizationVariables::GetFootholds1 () const
+OptimizationVariables::GetFootholdsEig () const
 {
-  return nlp_structure_.ExtractFootholds1(x_);
+  return nlp_structure_.ExtractFootholdsToEig(x_);
 }
 
 OptimizationVariables::VectorXd

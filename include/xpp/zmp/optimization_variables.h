@@ -26,7 +26,7 @@ public:
   void RegisterObserver(IObserver* o) override;
 
   StdVecEigen2d GetFootholdsStd() const;
-  VectorXd GetFootholds1 () const;
+  VectorXd GetFootholdsEig () const;
 
   VectorXd GetSplineCoefficients() const;
   VectorXd GetOptimizationVariables() const { return x_; };

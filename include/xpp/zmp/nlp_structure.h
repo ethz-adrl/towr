@@ -40,11 +40,8 @@ public:
     return Eigen::Map<const VectorXd>(x,GetOptimizationVariableCount());
   }
 
-  void SetFootholds(const StdVecEigen2d& footholds_xy, VectorXd& x) const
-  {
-    x.tail(n_steps_*kDim2d) = ExtractFootholds(footholds_xy);
-  }
 
+  /** Spline functions */
   VectorXd ExtractSplineCoefficients(const Number* x) const
   {
     return ExtractSplineCoefficients(ConvertToEigen(x));
@@ -55,17 +52,8 @@ public:
     return x_eig.head(n_spline_coeff_);
   }
 
-  VectorXd ExtractFootholds1(const VectorXd& x_eig) const
-  {
-    return x_eig.middleRows(n_spline_coeff_, kDim2d*n_steps_);
-  }
-
-  StdVecEigen2d ExtractFootholds(const Number* x) const
-  {
-    return ExtractFootholds(ConvertToEigen(x));
-  }
-
-  VectorXd ExtractFootholds(const StdVecEigen2d& footholds_xy) const
+  /** Foothold functions */
+  VectorXd ConvertStdToEig(const StdVecEigen2d& footholds_xy) const
   {
     assert(footholds_xy.size() == n_steps_);
 
@@ -79,9 +67,19 @@ public:
     return vec;
   }
 
-  StdVecEigen2d ExtractFootholds(const VectorXd& x_eig) const
+  void SetFootholds(const StdVecEigen2d& footholds_xy, VectorXd& x) const
   {
-    Eigen::VectorXd footholds_xy = ExtractFootholds1(x_eig);
+    x.middleRows(n_spline_coeff_, n_steps_*kDim2d) = ConvertStdToEig(footholds_xy);
+  }
+
+  VectorXd ExtractFootholdsToEig(const VectorXd& x_eig) const
+  {
+    return x_eig.middleRows(n_spline_coeff_, kDim2d*n_steps_);
+  }
+
+  StdVecEigen2d ExtractFootholdsToStd(const VectorXd& x_eig) const
+  {
+    Eigen::VectorXd footholds_xy = ExtractFootholdsToEig(x_eig);
     StdVecEigen2d fooothold_vec(n_steps_);
     for (int i=0; i<n_steps_; ++i) {
       fooothold_vec.at(i) = footholds_xy.segment<kDim2d>(2*i);
@@ -90,6 +88,12 @@ public:
     return fooothold_vec;
   }
 
+  StdVecEigen2d ExtractFootholdsToStd(const Number* x) const
+  {
+    return ExtractFootholdsToStd(ConvertToEigen(x));
+  }
+
+  /** miscellaneous helper functions */
   static int Index(int spline, Coords dim, SplineCoeff coeff)
   {
     int idx = 0;
@@ -104,6 +108,7 @@ public:
     return idx;
   }
 
+private:
   int n_spline_coeff_;
   int n_steps_;
 };

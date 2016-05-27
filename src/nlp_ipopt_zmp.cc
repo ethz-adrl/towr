@@ -99,7 +99,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	Eigen::Map<VectorXd>(&x[c], x_spline_coeff_init.rows()) = x_spline_coeff_init;
 	c += x_spline_coeff_init.rows();
 
-	VectorXd x_footholds_init = new_opt_variables_->GetFootholds1();
+	VectorXd x_footholds_init = new_opt_variables_->GetFootholdsEig();
 	Eigen::Map<VectorXd>(&x[c], x_footholds_init.rows()) = x_footholds_init;
 	c += x_footholds_init.rows();
 
