@@ -9,19 +9,13 @@
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
 #include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/zmp/spline_constraints.h>
-
-
 #include <xpp/zmp/optimization_variables.h>
-
 #include <xpp/zmp/a_linear_constraint.h>
 #include <xpp/zmp/initial_acceleration_equation.h>
 #include <xpp/zmp/final_state_equation.h>
 #include <xpp/zmp/spline_junction_equation.h>
-
 #include <xpp/zmp/zmp_constraint.h>
 #include <xpp/zmp/range_of_motion_constraint.h>
-
 #include <xpp/zmp/constraint_container.h>
 
 namespace xpp {

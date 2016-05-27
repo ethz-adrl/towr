@@ -10,19 +10,22 @@
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/support_polygon_container.h>
 
-#include <xpp/zmp/spline_constraints.h>
+#include <xpp/zmp/a_linear_constraint.h>
+#include <xpp/zmp/initial_acceleration_equation.h>
+#include <xpp/zmp/final_state_equation.h>
+#include <xpp/zmp/spline_junction_equation.h>
+
+#include <xpp/zmp/zmp_constraint_builder.h>
+
 #include <xpp/zmp/cost_function.h>
-#include <xpp/zmp/eigen_quadprog-inl.h>
+#include <xpp/utils/eigen_quadprog-inl.h>
 
 #include <cmath>      // std::numeric_limits
-
+#include <memory>
 #include <ros/console.h>
-#include "../include/xpp/zmp/zmp_constraint_builder.h"
 
 namespace xpp {
 namespace zmp {
-
-
 
 QpOptimizer::VecSpline
 QpOptimizer::SolveQp(const State& initial_state,
@@ -39,12 +42,22 @@ QpOptimizer::SolveQp(const State& initial_state,
   spline_structure.Init(initial_state.p, initial_state.v ,leg_ids, times);
   cost_function_ = CostFunction::CreateMinAccCostFunction(spline_structure);
 
-  SplineConstraints spline_constraint(spline_structure);
-  equality_constraints_ = spline_constraint.CreateAllSplineConstraints(initial_state.a, final_state);
+
+  InitialAccelerationEquation eq_acc(initial_state.a, spline_structure.GetTotalFreeCoeff());
+  FinalStateEquation eq_final(final_state, spline_structure);
+  SplineJunctionEquation eq_junction(spline_structure);
+
+  std::vector<ILinearEquationBuilder*> eq;
+  eq.push_back(&eq_acc);
+  eq.push_back(&eq_final);
+  eq.push_back(&eq_junction);
+
+  equality_constraints_ = MatVec(); // clear
+  for (ILinearEquationBuilder* p : eq)
+    equality_constraints_ << p->BuildLinearEquation();
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(start_stance, steps, hyq::SupportPolygon::GetDefaultMargins());
-
 
   ROS_INFO_STREAM("Start polygon:\n" << supp_polygon_container.GetStartPolygon());
   std::vector<hyq::SupportPolygon> supp = supp_polygon_container.GetSupportPolygons();
@@ -57,7 +70,6 @@ QpOptimizer::SolveQp(const State& initial_state,
   ZmpConstraintBuilder zmp_constraint(spline_structure, robot_height);
   inequality_constraints_ = zmp_constraint.CalcZmpConstraints(supp_polygon_container);
 
-
   ROS_INFO_STREAM("Initial state:\t" << initial_state);
   ROS_INFO_STREAM("Final state:\t" << final_state);
 
@@ -67,9 +79,8 @@ QpOptimizer::SolveQp(const State& initial_state,
   return spline_structure.GetSplines();
 }
 
-
-
-Eigen::VectorXd QpOptimizer::EigenSolveQuadprog()
+Eigen::VectorXd
+QpOptimizer::EigenSolveQuadprog()
 {
   Eigen::VectorXd opt_spline_coeff_xy;
   ROS_INFO("QP optimizer running...");

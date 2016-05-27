@@ -110,12 +110,9 @@ set(SOURCES
   src/hyq_spliner.cc
   src/nlp_ipopt_zmp.cc
   src/cost_function.cc
-  src/constraints.cc
   src/zmp_constraint_builder.cc
   src/zero_moment_point.cc
   src/trajectory_visualizer.cc
-  src/ellipse.cc
-  src/spline_constraints.cc
   src/problem_specification.cc
   src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
@@ -124,6 +121,7 @@ set(SOURCES
   src/a_subject.cc
   src/optimization_variables.cc
   src/i_observer.cc
+  # constraints
   src/a_constraint.cc
   src/a_linear_constraint.cc
   src/initial_acceleration_equation.cc
