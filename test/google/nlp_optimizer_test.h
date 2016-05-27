@@ -16,8 +16,7 @@ namespace zmp {
 
 class NlpOptimizerTest : public  ::testing::Test {
 public:
-  typedef xpp::utils::Point2d Point2d;
-  typedef xpp::utils::Point3d Point3d;
+  typedef NlpOptimizer::State Point2d;
   typedef NlpOptimizer::VecSpline VecSpline;
   typedef NlpOptimizer::VecFoothold VecFoothold;
 
@@ -30,9 +29,9 @@ protected:
     using namespace xpp::hyq;
 
     NlpOptimizer nlp_optimizer;
-    start_xy_.p << 0.01, 0.04,  0.07;
-    start_xy_.v << 0.02, 0.05,  0.08;
-    start_xy_.a << 0.03, 0.06,  0.09;
+    start_xy_.p << 0.01, 0.04;
+    start_xy_.v << 0.02, 0.05;
+    start_xy_.a << 0.03, 0.06;
 
     goal_xy_.p <<  0.10, 0.11;
     goal_xy_.v <<  0.12, 0.13;

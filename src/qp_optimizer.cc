@@ -53,7 +53,7 @@ QpOptimizer::SolveQp(const State& initial_state,
   eq.push_back(&eq_junction);
 
   equality_constraints_ = MatVec(); // clear
-  for (ILinearEquationBuilder* p : eq)
+  for (const ILinearEquationBuilder* const p : eq)
     equality_constraints_ << p->BuildLinearEquation();
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
