@@ -125,12 +125,13 @@ set(SOURCES
   src/optimization_variables.cc
   src/i_observer.cc
   src/a_constraint.cc
-  src/initial_acceleration_constraint.cc
-  src/final_state_constraint.cc
+  src/a_linear_constraint.cc
+  src/initial_acceleration_equation.cc
+  src/final_state_equation.cc
+  src/spline_junction_equation.cc
   src/constraint_container.cc
   src/zmp_constraint.cc
   src/range_of_motion_constraint.cc
-  src/spline_junction_constraint.cc
 )
              
 # Add the shared library
@@ -208,16 +209,14 @@ if(BUILD_TESTS)
                         test/google/helpers.cc
                         test/google/zmp_constraint_builder_test.cc
                         test/google/zero_moment_point_test.cc
-                        #test/google/nlp_optimizer_test.cc
-                        #test/google/hyq_spliner_test.cc
+                        test/google/nlp_optimizer_test.cc
+                        test/google/hyq_spliner_test.cc
                         #test/google/eigen_num_diff_test.cc
                         test/google/optimization_variables_test.cc
-                        test/google/initial_acceleration_constraint_test.cc
-                        test/google/final_state_constraint_test.cc
+                        test/google/initial_acceleration_equation_test.cc
                         test/google/zmp_constraint_test.cc
                         test/google/constraint_container_test.cc
                         test/google/range_of_motion_constraint_test.cc
-                        test/google/spline_junction_constraint_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

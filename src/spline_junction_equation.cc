@@ -1,69 +1,36 @@
 /**
- @file    spline_junction_constraint.cc
+ @file    spline_junction_equation.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    May 26, 2016
  @brief   Brief description
  */
 
-#include <xpp/zmp/spline_junction_constraint.h>
+#include <xpp/zmp/spline_junction_equation.h>
 
 namespace xpp {
 namespace zmp {
 
-SplineJunctionConstraint::SplineJunctionConstraint (OptimizationVariables& subject)
-{
-  subject_ = &subject;
-  subject_->RegisterObserver(this);
-}
+SplineJunctionEquation::SplineJunctionEquation (
+    const ContinuousSplineContainer& splines)
+    :splines_(splines)
+{}
 
-void
-SplineJunctionConstraint::Init (const ContinuousSplineContainer& s)
-{
-  lin_constraint_ = BuildLinearConstraint(s);
-  Update();
-}
-
-void
-SplineJunctionConstraint::Update ()
-{
-  x_coeff_ = subject_->GetSplineCoefficients();
-}
-
-SplineJunctionConstraint::VectorXd
-SplineJunctionConstraint::EvaluateConstraint () const
-{
-  return lin_constraint_.M*x_coeff_ + lin_constraint_.v;
-}
-
-SplineJunctionConstraint::VecBound
-SplineJunctionConstraint::GetBounds () const
-{
-  std::vector<Bound> bounds;
-  VectorXd g = EvaluateConstraint();
-
-  for (int i=0; i<g.rows(); ++i)
-    bounds.push_back(kEqualityBound_);
-
-  return bounds;
-}
-
-SplineJunctionConstraint::MatVec
-SplineJunctionConstraint::BuildLinearConstraint (
-    const ContinuousSplineContainer& spline_structure_)
+SplineJunctionEquation::MatVec
+SplineJunctionEquation::BuildLinearEquation () const
 {
   using namespace xpp::utils;
 
   // junctions {acc,jerk} since pos, vel  implied
-  int n_constraints = 2 /*{acc,(jerk)}*/ * (spline_structure_.GetSplineCount()-1) * kDim2d;
-  int n_spline_coeff = subject_->GetSplineCoefficients().rows();
+  int n_constraints = 2 /*{acc,(jerk)}*/ * (splines_.GetSplineCount()-1) * kDim2d;
+  int n_spline_coeff = splines_.GetTotalFreeCoeff();
 
   MatVec junction(n_constraints, n_spline_coeff);
 
   // FIXME maybe replace with range based loop
   int i = 0; // constraint count
-  for (int s = 0; s < spline_structure_.GetSplineCount()-1; ++s)
+  for (int s = 0; s < splines_.GetSplineCount()-1; ++s)
   {
-    double duration = spline_structure_.GetSpline(s).GetDuration();
+    double duration = splines_.GetSpline(s).GetDuration();
     std::array<double,6> T_curr = utils::cache_exponents<6>(duration);
     for (const Coords3D dim : Coords2DArray)
     {

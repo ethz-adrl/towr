@@ -14,11 +14,13 @@
 
 #include <xpp/zmp/optimization_variables.h>
 
-#include <xpp/zmp/initial_acceleration_constraint.h>
-#include <xpp/zmp/final_state_constraint.h>
+#include <xpp/zmp/a_linear_constraint.h>
+#include <xpp/zmp/initial_acceleration_equation.h>
+#include <xpp/zmp/final_state_equation.h>
+#include <xpp/zmp/spline_junction_equation.h>
+
 #include <xpp/zmp/zmp_constraint.h>
 #include <xpp/zmp/range_of_motion_constraint.h>
-#include <xpp/zmp/spline_junction_constraint.h>
 
 #include <xpp/zmp/constraint_container.h>
 
@@ -80,36 +82,36 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
 
-  // new stuff
+  // the linear equations
+  InitialAccelerationEquation eq_acc(initial_state.a, spline_structure.GetTotalFreeCoeff());
+  FinalStateEquation eq_final(final_state, spline_structure);
+  SplineJunctionEquation eq_junction(spline_structure);
+
 
   OptimizationVariables subject(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
-  InitialAccelerationConstraint c1(subject);
-  c1.Init(initial_state.a);
 
-  State des_final = final_state;
-  des_final.p.x() = -0.1;
+  LinearEqualityConstraint c_acc(subject);
+  c_acc.Init(eq_acc.BuildLinearEquation());
 
-  FinalStateConstraint c2(subject);
-  c2.Init(final_state, spline_structure);
+  LinearEqualityConstraint c_final(subject);
+  c_final.Init(eq_final.BuildLinearEquation());
 
-  ZmpConstraint c3(subject);
-  c3.Init(spline_structure, supp_polygon_container, robot_height);
+  LinearEqualityConstraint c_junction(subject);
+  c_junction.Init(eq_junction.BuildLinearEquation());
 
-  RangeOfMotionConstraint c4(subject);
-  c4.Init(spline_structure, supp_polygon_container);
+  ZmpConstraint c_zmp(subject);
+  c_zmp.Init(spline_structure, supp_polygon_container, robot_height);
 
-  SplineJunctionConstraint c5(subject);
-  c5.Init(spline_structure);
-
-
+  RangeOfMotionConstraint c_rom(subject);
+  c_rom.Init(spline_structure, supp_polygon_container);
 
 
   ConstraintContainer constraint_container;
-  constraint_container.AddConstraint(c1);
-  constraint_container.AddConstraint(c2);
-  constraint_container.AddConstraint(c3);
-  constraint_container.AddConstraint(c4);
-  constraint_container.AddConstraint(c5);
+  constraint_container.AddConstraint(c_acc);
+  constraint_container.AddConstraint(c_final);
+  constraint_container.AddConstraint(c_junction);
+  constraint_container.AddConstraint(c_zmp);
+  constraint_container.AddConstraint(c_rom);
 
   // end of observer pattern stuff
 

@@ -1,20 +1,21 @@
-/*
- * initial_acceleration_constraint_test.cc
- *
- *  Created on: May 24, 2016
- *      Author: winklera
+/**
+ @file    initial_acceleration_equation_test.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 26, 2016
+ @brief   Brief description
  */
 
-#include <xpp/zmp/initial_acceleration_constraint.h>
+#include <xpp/zmp/a_linear_constraint.h>
+#include <xpp/zmp/initial_acceleration_equation.h>
 #include <gtest/gtest.h>
 
 namespace xpp {
 namespace zmp {
 
-class InitialAccelerationConstraintTest : public ::testing::Test {
+class InitialAccelerationEquationTest : public ::testing::Test {
 
 public:
-  InitialAccelerationConstraintTest()
+  InitialAccelerationEquationTest()
       : subject_(3*utils::kDim2d*kFreeCoeffPerSpline, 0),
         constraint_(subject_) {} // because these members have no default constructor
 
@@ -22,17 +23,17 @@ protected:
   virtual void SetUp()
   {
     init_acceleration_ << 1.3, 2.4; // x and y
-    constraint_.Init(init_acceleration_);
-
+    InitialAccelerationEquation eq(init_acceleration_, subject_.GetSplineCoefficients().rows());
+    constraint_.Init(eq.BuildLinearEquation());
     EXPECT_EQ(1, subject_.GetObserverCount());
   }
 
   Eigen::Vector2d init_acceleration_;
   OptimizationVariables subject_;
-  InitialAccelerationConstraint constraint_;
+  LinearEqualityConstraint constraint_;
 };
 
-TEST_F(InitialAccelerationConstraintTest, EvaluateConstraint)
+TEST_F(InitialAccelerationEquationTest, EvaluateConstraint)
 {
   Eigen::VectorXd g;
   // the splines are initialized with zero, so constraint violation will be negative desired acceleration
@@ -55,7 +56,7 @@ TEST_F(InitialAccelerationConstraintTest, EvaluateConstraint)
   EXPECT_DOUBLE_EQ(-init_acceleration_.y(), g(1));
 }
 
-TEST_F(InitialAccelerationConstraintTest, GetBounds)
+TEST_F(InitialAccelerationEquationTest, GetBounds)
 {
   AConstraint::VecBound bounds = constraint_.GetBounds();
 
