@@ -23,15 +23,13 @@ NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
                          OptimizationVariables& opt_variables,
                          const ConstraintContainer& constraint_container,
                          const NlpStructure& nlp_structure,
-                         IVisualizer& zmp_publisher, // just for visualization
-                         const NlpVariables& initial_values)
+                         IVisualizer& zmp_publisher)
     :cost_function_(cost_function),
      constraint_container_(constraint_container),
      nlp_structure_(nlp_structure),
      // These epsilons play a big role in convergence
      num_diff_cost_function_(cost_function, 10*std::numeric_limits<double>::epsilon()),
      // just for visualization
-     opt_variables_(initial_values),
      visualizer_(zmp_publisher)
 {
   new_opt_variables_ = &opt_variables;
@@ -97,11 +95,11 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
   int c = 0;
 
-  VectorXd x_spline_coeff_init = opt_variables_.spline_coeff_;
+  VectorXd x_spline_coeff_init = new_opt_variables_->GetSplineCoefficients();
 	Eigen::Map<VectorXd>(&x[c], x_spline_coeff_init.rows()) = x_spline_coeff_init;
 	c += x_spline_coeff_init.rows();
 
-	VectorXd x_footholds_init = nlp_structure_.ExtractFootholds(opt_variables_.footholds_);
+	VectorXd x_footholds_init = nlp_structure_.ExtractFootholds(new_opt_variables_->GetFootholds());
 	Eigen::Map<VectorXd>(&x[c], x_footholds_init.rows()) = x_footholds_init;
 	c += x_footholds_init.rows();
 
@@ -243,8 +241,8 @@ void NlpIpoptZmp::finalize_solution(SolverReturn status,
 			                        IpoptCalculatedQuantities* ip_cq)
 {
 
-  opt_variables_.spline_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);
-  opt_variables_.footholds_ = nlp_structure_.ExtractFootholds(x);
+//  opt_variables_.spline_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);
+//  opt_variables_.footholds_ = nlp_structure_.ExtractFootholds(x);
 
   //  // write data to xml file
   //	Eigen::MatrixXd opt_u(1,n);

@@ -27,9 +27,11 @@ public:
 
   StdVecEigen2d GetFootholds() const;
   VectorXd GetSplineCoefficients() const;
+  VectorXd GetOptimizationVariables() const { return x_; };
   int GetOptimizationVariableCount() const;
 
   void SetVariables(const VectorXd& x);
+  void SetFootholds (const StdVecEigen2d& footholds);
 
 //  // Singleton pattern: Ensure there is only one instance of this class in program
 //  static OptimizationVariables& GetInstance(int n_spline_coeff, int n_steps);

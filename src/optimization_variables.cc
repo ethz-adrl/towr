@@ -51,6 +51,12 @@ xpp::zmp::OptimizationVariables::SetVariables (const VectorXd& x)
   NotifyObservers();
 }
 
+void
+OptimizationVariables::SetFootholds (const StdVecEigen2d& footholds)
+{
+  nlp_structure_.SetFootholds(footholds, x_);
+}
+
 OptimizationVariables::StdVecEigen2d
 OptimizationVariables::GetFootholds () const
 {

@@ -64,11 +64,11 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
   // fixme this should also change if the goal or any other parameter changes apart from the start position
-  bool init_with_zeros = true;
-  bool num_steps_changed = initial_variables_.footholds_.size() != nlp_structure.n_steps_;
-  if (num_steps_changed || init_with_zeros) {
-    SetInitialVariables(nlp_structure, supp_polygon_container);
-  } else {} // use previous values
+//  bool init_with_zeros = true;
+//  bool num_steps_changed = initial_variables_.footholds_.size() != nlp_structure.n_steps_;
+//  if (num_steps_changed || init_with_zeros) {
+//    SetInitialVariables(nlp_structure, supp_polygon_container);
+//  } else {} // use previous values
 
 
 //  Constraints constraints(supp_polygon_container, spline_structure, nlp_structure, robot_height, initial_state.a, final_state);
@@ -83,6 +83,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
   OptimizationVariables subject(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
+  subject.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
 
   LinearEqualityConstraint c_acc(subject);
   c_acc.Init(eq_acc.BuildLinearEquation());
@@ -116,8 +117,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                              subject, // optmization variables
                              constraint_container,
                              nlp_structure,
-                             visualizer_,
-                             initial_variables_);
+                             visualizer_);
 
   status_ = app_.OptimizeTNLP(nlp_ipopt_zmp);
   if (status_ == Ipopt::Solve_Succeeded) {
@@ -130,32 +130,18 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   }
 
 
-  // save the solution for initialization of the next loop
-  initial_variables_ = nlp_ipopt_zmp->opt_variables_;
-
-
-  int n_steps = initial_variables_.footholds_.size();
+  int n_steps = subject.GetFootholds().size();
   opt_footholds.resize(n_steps);
   for (int i=0; i<n_steps; ++i) {
     opt_footholds.at(i).leg = step_sequence.at(i);
   }
 
-  xpp::hyq::Foothold::SetXy(initial_variables_.footholds_, opt_footholds);
-
-  spline_structure.AddOptimizedCoefficients(initial_variables_.spline_coeff_);
+  xpp::hyq::Foothold::SetXy(subject.GetFootholds(), opt_footholds);
+  spline_structure.AddOptimizedCoefficients(subject.GetSplineCoefficients());
   opt_splines = spline_structure.GetSplines();
 }
 
 
-
-void
-NlpOptimizer::SetInitialVariables(const NlpStructure& nlp_structure,
-                                  const SupportPolygonContainer& supp_polygons)
-{
-  initial_variables_ = NlpStructure::NlpVariables(nlp_structure);
-  initial_variables_.spline_coeff_.setZero();
-  initial_variables_.footholds_ = supp_polygons.GetFootholdsInitializedToStart();
-}
 
 
 } /* namespace zmp */

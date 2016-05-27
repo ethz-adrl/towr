@@ -33,7 +33,6 @@ public:
   typedef xpp::zmp::ConstraintContainer ConstraintContainer;
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
   typedef xpp::zmp::NlpStructure NlpStructure;
-  typedef NlpStructure::NlpVariables NlpVariables;
   typedef Eigen::VectorXd VectorXd;
 
 
@@ -42,8 +41,7 @@ public:
 	            OptimizationVariables& opt_variables,
 	            const ConstraintContainer& constraint_container,
 	            const NlpStructure& nlp_structure,
-	            IVisualizer& zmp_publisher, // just for visualization
-	            const NlpVariables& initial_values);
+	            IVisualizer& zmp_publisher);
 
   /** default destructor */
   virtual ~NlpIpoptZmp() {};
@@ -118,8 +116,6 @@ public:
 
 
   OptimizationVariables* new_opt_variables_;
-
-  NlpVariables opt_variables_;
 
 private:
 
