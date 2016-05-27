@@ -49,7 +49,7 @@ protected:
     times_.t_stance_final_ = 0.2;
 
     nlp_optimizer.SolveNlp(start_xy_, goal_xy_,
-                           {LH, LF, RH, RF}, start_stance_,
+                           {LH, LF}, start_stance_,
                            times_, robot_height_,
                            opt_xy_splines_, opt_footholds_);
   }
