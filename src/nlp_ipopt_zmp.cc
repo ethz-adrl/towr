@@ -40,7 +40,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
   // How many variables to optimize over
-  n = nlp_structure_.GetOptimizationVariableCount(); // x,y-coordinate of footholds
+  n = new_opt_variables_->GetOptimizationVariableCount(); // x,y-coordinate of footholds
   std::cout << "optimizing n= " << n << " variables\n";
 
   m = constraint_container_.GetBounds().size();
@@ -99,11 +99,11 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 	Eigen::Map<VectorXd>(&x[c], x_spline_coeff_init.rows()) = x_spline_coeff_init;
 	c += x_spline_coeff_init.rows();
 
-	VectorXd x_footholds_init = nlp_structure_.ExtractFootholds(new_opt_variables_->GetFootholds());
+	VectorXd x_footholds_init = new_opt_variables_->GetFootholds1();
 	Eigen::Map<VectorXd>(&x[c], x_footholds_init.rows()) = x_footholds_init;
 	c += x_footholds_init.rows();
 
-	assert(c == nlp_structure_.GetOptimizationVariableCount());
+	assert(c == n);
   return true;
 }
 
@@ -184,47 +184,47 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
 //   std::cout << "Press Enter to continue...";
 //   std::cin.get(); // use to pause after every iteration
 
-  // Get the current value of the optimization variable:
-  Ipopt::TNLPAdapter* tnlp_adapter = NULL;
-  if( ip_cq != NULL )
-  {
-    Ipopt::OrigIpoptNLP* orignlp;
-    orignlp = dynamic_cast<OrigIpoptNLP*>(GetRawPtr(ip_cq->GetIpoptNLP()));
-    if( orignlp != NULL ) {
-      tnlp_adapter = dynamic_cast<TNLPAdapter*>(GetRawPtr(orignlp->nlp()));
-      double* x = new double[nlp_structure_.GetOptimizationVariableCount()];
-      tnlp_adapter->ResortX(*ip_data->curr()->x(), x);
-
-      new_opt_variables_->SetVariables(nlp_structure_.ConvertToEigen(x));
-
-
-
-      // visualize the current state with rviz
-      StdVecEigen2d x_footholds_xy = new_opt_variables_->GetFootholds();
-      VectorXd curr_coeff = new_opt_variables_->GetSplineCoefficients();
-
-
-
-      IVisualizer::VecFoothold footholds(nlp_structure_.n_steps_);
-      for (uint i=0; i<footholds.size(); ++i) {
-        footholds.at(i).leg = xpp::hyq::LF;//todo fix this constraints_.GetLegID(i);
-      }
-
-
-
+//  // Get the current value of the optimization variable:
+//  Ipopt::TNLPAdapter* tnlp_adapter = NULL;
+//  if( ip_cq != NULL )
+//  {
+//    Ipopt::OrigIpoptNLP* orignlp;
+//    orignlp = dynamic_cast<OrigIpoptNLP*>(GetRawPtr(ip_cq->GetIpoptNLP()));
+//    if( orignlp != NULL ) {
+//      tnlp_adapter = dynamic_cast<TNLPAdapter*>(GetRawPtr(orignlp->nlp()));
+//      double* x = new double[nlp_structure_.GetOptimizationVariableCount()];
+//      tnlp_adapter->ResortX(*ip_data->curr()->x(), x);
 //
-//      xpp::hyq::Foothold::SetXy(x_footholds_xy, footholds);
+//      new_opt_variables_->SetVariables(nlp_structure_.ConvertToEigen(x));
 //
-//      constraints_.GetSplineContainer().AddOptimizedCoefficients(curr_coeff);
-//      visualizer_.AddRvizMessage(constraints_.GetSplineContainer().GetSplines(),
-//                                    footholds,
-//                                    constraints_.GetStartStance(),
-//                                    constraints_.gap_center_x_,
-//                                    constraints_.gap_width_x_,
-//                                    1.0);
-      visualizer_.publish();
-    }
-  }
+//
+//
+//      // visualize the current state with rviz
+//      StdVecEigen2d x_footholds_xy = new_opt_variables_->GetFootholds();
+//      VectorXd curr_coeff = new_opt_variables_->GetSplineCoefficients();
+//
+//
+//
+//      IVisualizer::VecFoothold footholds(nlp_structure_.n_steps_);
+//      for (uint i=0; i<footholds.size(); ++i) {
+//        footholds.at(i).leg = xpp::hyq::LF;//todo fix this constraints_.GetLegID(i);
+//      }
+//
+//
+//
+////
+////      xpp::hyq::Foothold::SetXy(x_footholds_xy, footholds);
+////
+////      constraints_.GetSplineContainer().AddOptimizedCoefficients(curr_coeff);
+////      visualizer_.AddRvizMessage(constraints_.GetSplineContainer().GetSplines(),
+////                                    footholds,
+////                                    constraints_.GetStartStance(),
+////                                    constraints_.gap_center_x_,
+////                                    constraints_.gap_width_x_,
+////                                    1.0);
+//      visualizer_.publish();
+//    }
+//  }
 
 
 

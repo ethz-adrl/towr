@@ -25,12 +25,15 @@ public:
   void NotifyObservers () const override;
   void RegisterObserver(IObserver* o) override;
 
-  StdVecEigen2d GetFootholds() const;
+  StdVecEigen2d GetFootholdsStd() const;
+  VectorXd GetFootholds1 () const;
+
   VectorXd GetSplineCoefficients() const;
   VectorXd GetOptimizationVariables() const { return x_; };
   int GetOptimizationVariableCount() const;
 
   void SetVariables(const VectorXd& x);
+  void SetVariables(const double* x);
   void SetFootholds (const StdVecEigen2d& footholds);
 
 //  // Singleton pattern: Ensure there is only one instance of this class in program

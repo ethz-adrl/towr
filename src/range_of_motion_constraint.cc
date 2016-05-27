@@ -32,7 +32,7 @@ void
 RangeOfMotionConstraint::Update ()
 {
   VectorXd x_coeff      = subject_->GetSplineCoefficients();
-  FootholdsXY footholds = subject_->GetFootholds();
+  FootholdsXY footholds = subject_->GetFootholdsStd();
 
   continuous_spline_container_.AddOptimizedCoefficients(x_coeff);
   // fixme move this to foothold class and generally see if i really need

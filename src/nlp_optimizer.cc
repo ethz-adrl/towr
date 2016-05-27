@@ -130,13 +130,13 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   }
 
 
-  int n_steps = subject.GetFootholds().size();
+  int n_steps = subject.GetFootholdsStd().size();
   opt_footholds.resize(n_steps);
   for (int i=0; i<n_steps; ++i) {
     opt_footholds.at(i).leg = step_sequence.at(i);
   }
 
-  xpp::hyq::Foothold::SetXy(subject.GetFootholds(), opt_footholds);
+  xpp::hyq::Foothold::SetXy(subject.GetFootholdsStd(), opt_footholds);
   spline_structure.AddOptimizedCoefficients(subject.GetSplineCoefficients());
   opt_splines = spline_structure.GetSplines();
 }

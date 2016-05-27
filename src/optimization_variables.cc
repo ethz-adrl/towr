@@ -10,19 +10,17 @@
 namespace xpp {
 namespace zmp {
 
-
-//OptimizationVariables&
-//OptimizationVariables::GetInstance(int n_spline_coeff, int n_steps)
-//{
-//  static OptimizationVariables unique_instance(n_spline_coeff, n_steps);
-//  return unique_instance;
-//}
-
 OptimizationVariables::OptimizationVariables (int n_spline_coeff, int n_steps)
     :nlp_structure_(n_spline_coeff, n_steps)
 {
   x_ = VectorXd(nlp_structure_.GetOptimizationVariableCount());
   x_.setZero();
+}
+
+void
+xpp::zmp::OptimizationVariables::SetFootholds (const StdVecEigen2d& footholds)
+{
+  nlp_structure_.SetFootholds(footholds, x_);
 }
 
 void
@@ -52,15 +50,22 @@ xpp::zmp::OptimizationVariables::SetVariables (const VectorXd& x)
 }
 
 void
-OptimizationVariables::SetFootholds (const StdVecEigen2d& footholds)
+xpp::zmp::OptimizationVariables::SetVariables (const double* x)
 {
-  nlp_structure_.SetFootholds(footholds, x_);
+  x_ = nlp_structure_.ConvertToEigen(x);
+  NotifyObservers();
 }
 
 OptimizationVariables::StdVecEigen2d
-OptimizationVariables::GetFootholds () const
+OptimizationVariables::GetFootholdsStd () const
 {
   return nlp_structure_.ExtractFootholds(x_);
+}
+
+OptimizationVariables::VectorXd
+OptimizationVariables::GetFootholds1 () const
+{
+  return nlp_structure_.ExtractFootholds1(x_);
 }
 
 OptimizationVariables::VectorXd
@@ -72,5 +77,4 @@ OptimizationVariables::GetSplineCoefficients () const
 
 } /* namespace zmp */
 } /* namespace xpp */
-
 

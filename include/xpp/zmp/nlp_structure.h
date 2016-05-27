@@ -55,6 +55,11 @@ public:
     return x_eig.head(n_spline_coeff_);
   }
 
+  VectorXd ExtractFootholds1(const VectorXd& x_eig) const
+  {
+    return x_eig.middleRows(n_spline_coeff_, kDim2d*n_steps_);
+  }
+
   StdVecEigen2d ExtractFootholds(const Number* x) const
   {
     return ExtractFootholds(ConvertToEigen(x));
@@ -62,10 +67,11 @@ public:
 
   VectorXd ExtractFootholds(const StdVecEigen2d& footholds_xy) const
   {
-    uint n_steps = footholds_xy.size();
-    VectorXd vec(kDim2d*n_steps);
+    assert(footholds_xy.size() == n_steps_);
+
+    VectorXd vec(kDim2d*n_steps_);
     int c=0;
-    for (uint step=0; step<n_steps; ++step)
+    for (uint step=0; step<n_steps_; ++step)
     {
       vec[c++] = footholds_xy.at(step).x();
       vec[c++] = footholds_xy.at(step).y();
@@ -75,7 +81,7 @@ public:
 
   StdVecEigen2d ExtractFootholds(const VectorXd& x_eig) const
   {
-    Eigen::VectorXd footholds_xy = x_eig.tail(n_steps_*kDim2d);
+    Eigen::VectorXd footholds_xy = ExtractFootholds1(x_eig);
     StdVecEigen2d fooothold_vec(n_steps_);
     for (int i=0; i<n_steps_; ++i) {
       fooothold_vec.at(i) = footholds_xy.segment<kDim2d>(2*i);
