@@ -26,10 +26,18 @@ double
 CostContainer::EvaluateTotalCost () const
 {
  double total_cost = 0.0;
-  for (auto cost : costs_)
+  for (const ACost* cost : costs_)
     total_cost += cost->EvaluateCost();
 
   return total_cost;
+}
+
+int
+CostContainer::operator() (const InputType& x, ValueType& obj_value) const
+{
+  subject_->SetVariables(x);
+  obj_value(0) = EvaluateTotalCost();
+  return 1;
 }
 
 } /* namespace zmp */

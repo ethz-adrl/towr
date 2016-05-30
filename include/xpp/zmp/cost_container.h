@@ -22,18 +22,11 @@ public:
 
   void AddCost(const ACost& cost);
   double EvaluateTotalCost () const;
-
-  int operator() (const InputType& x, ValueType& obj_value) const
-  {
-    subject_->SetVariables(x);
-    obj_value(0) = EvaluateTotalCost();
-    return 1;
-  }
+  int operator() (const InputType& x, ValueType& obj_value) const override;
 
 private:
   std::vector<const ACost*> costs_;
   OptimizationVariables* subject_;
-
 };
 
 } /* namespace zmp */

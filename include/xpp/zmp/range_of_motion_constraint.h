@@ -14,6 +14,7 @@
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/zmp/foothold_nominal_deviation.h>
 
 namespace xpp {
 namespace zmp {
@@ -36,6 +37,7 @@ private:
   ContinuousSplineContainer continuous_spline_container_;
 
   OptimizationVariables* subject_;
+  FootholdNominalDeviation builder_;
 };
 
 } /* namespace zmp */

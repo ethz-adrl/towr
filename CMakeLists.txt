@@ -134,6 +134,8 @@ set(SOURCES
   src/a_quadratic_cost.cc
   src/total_acceleration_equation.cc
   src/cost_container.cc
+  src/foothold_nominal_deviation.cc
+  src/range_of_motion_cost.cc
 )
              
 # Add the shared library
@@ -222,7 +224,9 @@ if(BUILD_TESTS)
                         # costs
                         test/google/a_quadratic_cost_test.cc
                         test/google/total_acceleration_equation_test.cc
+                        test/google/range_of_motion_cost_test.cc
                         test/google/cost_container_test.cc
+                        test/google/foothold_nominal_deviation_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

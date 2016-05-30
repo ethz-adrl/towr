@@ -20,6 +20,7 @@
 #include <xpp/zmp/constraint_container.h>
 // cost function stuff
 #include <xpp/zmp/a_quadratic_cost.h>
+#include <xpp/zmp/range_of_motion_cost.h>
 #include <xpp/zmp/total_acceleration_equation.h>
 #include <xpp/zmp/cost_container.h>
 
@@ -77,8 +78,6 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
 //  Constraints constraints(supp_polygon_container, spline_structure, nlp_structure, robot_height, initial_state.a, final_state);
-  CostFunction cost_function(spline_structure, supp_polygon_container, nlp_structure);
-
 
 
   // This should all be hidden inside a factor method
@@ -115,13 +114,18 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   constraint_container.AddConstraint(c_rom);
 
 
+  // costs
   TotalAccelerationEquation eq_total_acc(spline_structure);
 
   AQuadraticCost cost_acc(subject);
   cost_acc.Init(eq_total_acc.BuildLinearEquation());
 
+  RangeOfMotionCost cost_rom(subject);
+  cost_rom.Init(spline_structure, supp_polygon_container);
+
   CostContainer cost_container(subject);
   cost_container.AddCost(cost_acc);
+  cost_container.AddCost(cost_rom);
 
 
   // end of observer pattern stuff
@@ -129,8 +133,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
-      new Ipopt::NlpIpoptZmp(cost_function,
-                             subject, // optmization variables
+      new Ipopt::NlpIpoptZmp(subject, // optmization variables
                              cost_container,
                              constraint_container,
                              nlp_structure,

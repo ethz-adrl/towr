@@ -45,8 +45,8 @@ RangeOfMotionConstraint::Update ()
 RangeOfMotionConstraint::VectorXd
 RangeOfMotionConstraint::EvaluateConstraint () const
 {
-  return ProblemSpecification::DistanceFootToNominalStance(supp_polygon_container_,
-                                                           continuous_spline_container_);
+  return builder_.DistanceToNominalStance(continuous_spline_container_,
+                                          supp_polygon_container_);
 }
 
 RangeOfMotionConstraint::VecBound
@@ -54,7 +54,8 @@ RangeOfMotionConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
   VectorXd g = EvaluateConstraint();
-  Bound bound(-0.20, 0.20);
+  double radius = 0.2; //m
+  Bound bound(-radius, +radius);
 
   for (int i=0; i<g.rows(); ++i)
     bounds.push_back(bound);
