@@ -45,16 +45,14 @@ ALinearConstraint::GetBounds () const
   return bounds;
 }
 
-LinearEqualityConstraint::LinearEqualityConstraint (
-    OptimizationVariables& subject)
-  :ALinearConstraint(subject)
+LinearEqualityConstraint::LinearEqualityConstraint (OptimizationVariables& subject)
+    :ALinearConstraint(subject)
 {
   bound_ = kEqualityBound_;
 }
 
-LinearInequalityConstraint::LinearInequalityConstraint (
-    OptimizationVariables& subject)
-  :ALinearConstraint(subject)
+LinearInequalityConstraint::LinearInequalityConstraint (OptimizationVariables& subject)
+    :ALinearConstraint(subject)
 {
   bound_ = kInequalityBoundPositive_;
 }
