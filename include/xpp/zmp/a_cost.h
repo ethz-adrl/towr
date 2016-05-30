@@ -13,6 +13,7 @@
 namespace xpp {
 namespace zmp {
 
+/** @brief Common interface to define a cost, which simply returns a scalar value */
 class ACost {
 public:
   ACost () {};

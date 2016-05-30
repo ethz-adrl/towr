@@ -23,14 +23,14 @@ NlpIpoptZmp::NlpIpoptZmp(OptimizationVariables& opt_variables,
                          const CostContainer& cost_container,
                          const ConstraintContainer& constraint_container,
                          IVisualizer& zmp_publisher)
-    :cost_container_(cost_container),
+    :opt_variables_(opt_variables),
+     cost_container_(cost_container),
      constraint_container_(constraint_container),
      // These epsilons play a big role in convergence
      num_diff_cost_function_(cost_container, 1*std::numeric_limits<double>::epsilon()),
      // just for visualization
      visualizer_(zmp_publisher)
 {
-  opt_variables_ = &opt_variables;
 }
 
 
@@ -38,7 +38,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
   // How many variables to optimize over
-  n = opt_variables_->GetOptimizationVariableCount(); // x,y-coordinate of footholds
+  n = opt_variables_.GetOptimizationVariableCount(); // x,y-coordinate of footholds
   std::cout << "optimizing n= " << n << " variables\n";
 
   m = constraint_container_.GetBounds().size();
@@ -93,11 +93,11 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
   int c = 0;
 
-  VectorXd x_spline_coeff_init = opt_variables_->GetSplineCoefficients();
+  VectorXd x_spline_coeff_init = opt_variables_.GetSplineCoefficients();
 	Eigen::Map<VectorXd>(&x[c], x_spline_coeff_init.rows()) = x_spline_coeff_init;
 	c += x_spline_coeff_init.rows();
 
-	VectorXd x_footholds_init = opt_variables_->GetFootholdsEig();
+	VectorXd x_footholds_init = opt_variables_.GetFootholdsEig();
 	Eigen::Map<VectorXd>(&x[c], x_footholds_init.rows()) = x_footholds_init;
 	c += x_footholds_init.rows();
 
@@ -108,7 +108,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
-  opt_variables_->SetVariables(x);
+  opt_variables_.SetVariables(x);
   obj_value = cost_container_.EvaluateTotalCost();
   return true;
 }
@@ -127,7 +127,7 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
 bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
 //  VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.ConvertToEigen(x));
-  opt_variables_->SetVariables(x);
+  opt_variables_.SetVariables(x);
   VectorXd g_eig = constraint_container_.EvaluateConstraints();
   Eigen::Map<VectorXd>(g,m) = g_eig;
   return true;
@@ -190,13 +190,13 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
 //      double* x = new double[nlp_structure_.GetOptimizationVariableCount()];
 //      tnlp_adapter->ResortX(*ip_data->curr()->x(), x);
 //
-//      new_opt_variables_->SetVariables(nlp_structure_.ConvertToEigen(x));
+//      new_opt_variables_.SetVariables(nlp_structure_.ConvertToEigen(x));
 //
 //
 //
 //      // visualize the current state with rviz
-//      StdVecEigen2d x_footholds_xy = new_opt_variables_->GetFootholds();
-//      VectorXd curr_coeff = new_opt_variables_->GetSplineCoefficients();
+//      StdVecEigen2d x_footholds_xy = new_opt_variables_.GetFootholds();
+//      VectorXd curr_coeff = new_opt_variables_.GetSplineCoefficients();
 //
 //
 //

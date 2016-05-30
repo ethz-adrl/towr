@@ -1,8 +1,8 @@
 /**
- @file    a_linear_cost.h
+ @file    a_quadratic_cost.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    May 30, 2016
- @brief   Brief description
+ @brief   Provides a class to implement quadratic cost functions x*M*x + b*x.
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_QUADRATIC_COST_H_
@@ -16,6 +16,11 @@
 namespace xpp {
 namespace zmp {
 
+/** @brief Calculates the scalar cost for a given quadratic equation.
+  *
+  * This class is responsible for getting the current value of the optimization
+  * variables from the subject and calculating the scalar cost from these.
+  */
 class AQuadraticCost : public ACost, public IObserver {
 public:
   typedef Eigen::VectorXd VectorXd;
@@ -24,14 +29,18 @@ public:
   AQuadraticCost (OptimizationVariables& subject);
   virtual ~AQuadraticCost ()  {}
 
-  void Init(const MatVec& linear_equation);
+  /** @brief Defines the matrices and vectors used for calcuting the quadratic cost.
+    *
+    * The cost is calculated as cost = x^T * M * x   +   v^T * x
+   */
+  void Init(const MatVec& quadratic_equation);
   void Update() override;
   double EvaluateCost () const override;
 
 private:
   OptimizationVariables* subject_;
   VectorXd x_coeff_;                ///< the current spline coefficients
-  MatVec linear_equation_;
+  MatVec quadratic_equation_;
 };
 
 } /* namespace zmp */

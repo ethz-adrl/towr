@@ -2,7 +2,7 @@
  @file    cost_container.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    May 30, 2016
- @brief   Brief description
+ @brief   Provides a class to hold all the different cost terms.
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COST_CONTAINER_H_
@@ -15,6 +15,12 @@
 namespace xpp {
 namespace zmp {
 
+/** @brief Combines all the cost terms to a cost function a provides value.
+  *
+  * This class is responsible for knowing about all the different cost terms
+  * and delivering the total cost for specific optimization variables. It also
+  * provides the derivative of the cost based on numerical differentiation.
+  */
 class CostContainer : public xpp::utils::EigenNumDiffFunctor<double>{
 public:
   CostContainer (OptimizationVariables& subject);

@@ -111,14 +111,12 @@ public:
 
 
 
-  OptimizationVariables* opt_variables_;
 
 private:
+  OptimizationVariables& opt_variables_;
   CostContainer cost_container_;
   Eigen::NumericalDiff<CostContainer> num_diff_cost_function_;
-
   ConstraintContainer constraint_container_;
-
   IVisualizer& visualizer_;
 
   /**@name Methods to block default compiler methods.

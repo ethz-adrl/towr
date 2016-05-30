@@ -1,8 +1,8 @@
-/*
- * a_constraint.h
- *
- *  Created on: May 24, 2016
- *      Author: winklera
+/**
+ @file    a_constraint.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Abstract class representing a constraint for the NLP problem.
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_CONSTRAINT_H_
@@ -12,8 +12,6 @@
 
 namespace xpp {
 namespace zmp {
-
-
 
 class AConstraint {
 public:
@@ -32,7 +30,12 @@ public:
   AConstraint ();
   virtual ~AConstraint ();
 
+  /** A constraint always delivers a vector of constraint violations.
+   */
   virtual VectorXd EvaluateConstraint () const = 0;
+
+  /** For each returned constraint an upper and lower bound is given.
+   */
   virtual VecBound GetBounds () const = 0;
 
 protected:

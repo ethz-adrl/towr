@@ -1,8 +1,8 @@
-/*
- * constraint_container.h
- *
- *  Created on: May 24, 2016
- *      Author: winklera
+/**
+ @file    constraint_container.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Provides a class to combine knowledge of individual constraints.
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_CONSTRAINT_CONTAINER_H_
@@ -13,6 +13,11 @@
 namespace xpp {
 namespace zmp {
 
+/** @brief Knows about all constraints and gives information about them.
+  *
+  * For every constraint that \c ConstraintContainer knows about, it will return
+  * the constraint violations and the acceptable bounds.
+  */
 class ConstraintContainer {
 public:
   typedef AConstraint::VectorXd VectorXd;

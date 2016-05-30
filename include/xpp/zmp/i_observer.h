@@ -1,8 +1,9 @@
-/*
- * i_observer.h
- *
- *  Created on: May 24, 2016
- *      Author: winklera
+/**
+ @file    i_observer.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Provides an abstract base class to implement the Observer in the
+          observer pattern (https://sourcemaking.com/design_patterns/observer/cpp/3)
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_I_OBSERVER_H_

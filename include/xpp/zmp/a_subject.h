@@ -1,8 +1,9 @@
-/*
- * a_subject.h
- *
- *  Created on: May 24, 2016
- *      Author: winklera
+/**
+ @file    a_subject.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Provides an abstract base class to implement the Subject in the \
+          observer pattern (https://sourcemaking.com/design_patterns/observer/cpp/3)
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_SUBJECT_H_
@@ -28,6 +29,11 @@ private:
   virtual void RegisterObserver(IObserver*) = 0;
   virtual void NotifyObservers() const = 0;
 //  virtual void RemoveObserver();
+
+  // delete the copy and copy assignment operators, since that messes up the
+  // observer pattern logic
+  ASubject(ASubject const&) = delete;
+  void operator=(ASubject const&)        = delete;
 };
 
 } /* namespace zmp */

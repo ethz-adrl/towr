@@ -17,9 +17,9 @@ AQuadraticCost::AQuadraticCost (OptimizationVariables& subject)
 }
 
 void
-AQuadraticCost::Init (const MatVec& linear_equation)
+AQuadraticCost::Init (const MatVec& quadratic_equation)
 {
-  linear_equation_ = linear_equation;
+  quadratic_equation_ = quadratic_equation;
   Update();
 }
 
@@ -34,8 +34,8 @@ AQuadraticCost::EvaluateCost () const
 {
   double cost = 0.0;
 
-  cost += x_coeff_.transpose() * linear_equation_.M * x_coeff_;
-  cost += linear_equation_.v.transpose() * x_coeff_;
+  cost += x_coeff_.transpose() * quadratic_equation_.M * x_coeff_;
+  cost += quadratic_equation_.v.transpose() * x_coeff_;
 
   return cost;
 }
