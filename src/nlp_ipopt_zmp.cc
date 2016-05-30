@@ -30,7 +30,8 @@ NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
      constraint_container_(constraint_container),
      nlp_structure_(nlp_structure),
      // These epsilons play a big role in convergence
-     num_diff_cost_function_(cost_function, 10*std::numeric_limits<double>::epsilon()),
+     num_diff_cost_function_(cost_container, 10*std::numeric_limits<double>::epsilon()),
+     num_diff_cost_function_old_(cost_function, 10*std::numeric_limits<double>::epsilon()),
      // just for visualization
      visualizer_(zmp_publisher)
 {
@@ -113,18 +114,21 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
   new_opt_variables_->SetVariables(x);
+  obj_value = cost_container_.EvaluateTotalCost();
 
-  obj_value = cost_function_.EvalCostFunction(nlp_structure_.ConvertToEigen(x));
+//  obj_value = cost_function_.EvalCostFunction(nlp_structure_.ConvertToEigen(x));
   return true;
 }
 
 
 bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
-  new_opt_variables_->SetVariables(x);
+//  new_opt_variables_->SetVariables(x);
 
   Eigen::MatrixXd jac(1,n);
+
   num_diff_cost_function_.df(nlp_structure_.ConvertToEigen(x), jac);
+//  num_diff_cost_function_old_.df(nlp_structure_.ConvertToEigen(x), jac);
 
   Eigen::Map<Eigen::MatrixXd>(grad_f,1,n) = jac;
 	return true;

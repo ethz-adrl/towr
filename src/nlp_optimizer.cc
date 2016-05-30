@@ -120,7 +120,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   AQuadraticCost cost_acc(subject);
   cost_acc.Init(eq_total_acc.BuildLinearEquation());
 
-  CostContainer cost_container;
+  CostContainer cost_container(subject);
   cost_container.AddCost(cost_acc);
 
 

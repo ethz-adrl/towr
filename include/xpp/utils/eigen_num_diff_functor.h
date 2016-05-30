@@ -26,8 +26,6 @@ public:
   typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,1> ValueType;
   typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,InputsAtCompileTime> JacobianType;
 
-
-  explicit EigenNumDiffFunctor() : m_inputs(InputsAtCompileTime), m_values(ValuesAtCompileTime) {}
   explicit EigenNumDiffFunctor(int inputs, int values) : m_inputs(inputs), m_values(values) {}
   virtual ~EigenNumDiffFunctor () {};
 

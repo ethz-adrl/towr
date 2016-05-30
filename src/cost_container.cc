@@ -10,9 +10,10 @@
 namespace xpp {
 namespace zmp {
 
-CostContainer::CostContainer ()
+CostContainer::CostContainer (OptimizationVariables& subject)
+    :EigenNumDiffFunctor(subject.GetOptimizationVariableCount(), 1)
 {
-  // TODO Auto-generated constructor stub
+  subject_ = &subject;
 }
 
 void
@@ -22,7 +23,7 @@ CostContainer::AddCost (const ACost& cost)
 }
 
 double
-CostContainer::EvaluateTotalCost ()
+CostContainer::EvaluateTotalCost () const
 {
  double total_cost = 0.0;
   for (auto cost : costs_)

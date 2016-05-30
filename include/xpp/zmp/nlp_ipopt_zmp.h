@@ -128,7 +128,8 @@ private:
 
   ConstraintContainer constraint_container_;
   NlpStructure nlp_structure_;
-  Eigen::NumericalDiff<CostFunction> num_diff_cost_function_;
+  Eigen::NumericalDiff<CostContainer> num_diff_cost_function_;
+  Eigen::NumericalDiff<CostFunction> num_diff_cost_function_old_;
 
   IVisualizer& visualizer_;
 

@@ -28,8 +28,8 @@ CostFunction::EvalCostFunction(const InputType& x) const
 
   obj_value += MinimizeAcceleration(nlp_structure_.ExtractSplineCoefficients(x));
 //  obj_value += PenalizeFootholdFromPlanned(nlp_structure_.ExtractFootholds(x));
-  obj_value += PenalizeFootholdFromNominal(nlp_structure_.ExtractSplineCoefficients(x),
-                                           nlp_structure_.ExtractFootholdsToStd(x));
+//  obj_value += PenalizeFootholdFromNominal(nlp_structure_.ExtractSplineCoefficients(x),
+//                                           nlp_structure_.ExtractFootholdsToStd(x));
 
   return obj_value;
 }
