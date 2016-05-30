@@ -110,7 +110,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
-  new_opt_variables_->SetVariables(nlp_structure_.ConvertToEigen(x));
+  new_opt_variables_->SetVariables(x);
 
   obj_value = cost_function_.EvalCostFunction(nlp_structure_.ConvertToEigen(x));
   return true;
@@ -119,7 +119,7 @@ bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value
 
 bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
-  new_opt_variables_->SetVariables(nlp_structure_.ConvertToEigen(x));
+  new_opt_variables_->SetVariables(x);
 
   Eigen::MatrixXd jac(1,n);
   num_diff_cost_function_.df(nlp_structure_.ConvertToEigen(x), jac);
@@ -132,7 +132,7 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
 bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
 //  VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.ConvertToEigen(x));
-  new_opt_variables_->SetVariables(nlp_structure_.ConvertToEigen(x));
+  new_opt_variables_->SetVariables(x);
   VectorXd g_eig = constraint_container_.EvaluateConstraints();
   Eigen::Map<VectorXd>(g,m) = g_eig;
   return true;

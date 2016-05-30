@@ -43,7 +43,7 @@ public:
 //  void operator=(OptimizationVariables const&)        = delete;
 private:
   VectorXd x_;                ///< optimization variables
-  NlpStructure nlp_structure_; // fixme this class seems redundant
+  NlpStructure nlp_structure_; // fixme this class holds all the structural information
 
 };
 
