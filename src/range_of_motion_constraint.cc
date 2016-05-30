@@ -7,8 +7,6 @@
 
 #include <xpp/zmp/range_of_motion_constraint.h>
 
-#include <xpp/zmp/problem_specification.h> // fixme violates SRP, fix or rename
-
 namespace xpp {
 namespace zmp {
 

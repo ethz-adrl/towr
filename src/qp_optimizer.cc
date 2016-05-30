@@ -17,11 +17,10 @@
 
 #include <xpp/zmp/zmp_constraint_builder.h>
 
-#include <xpp/zmp/cost_function.h>
+#include <xpp/zmp/total_acceleration_equation.h>
 #include <xpp/utils/eigen_quadprog-inl.h>
 
 #include <cmath>      // std::numeric_limits
-#include <memory>
 #include <ros/console.h>
 
 namespace xpp {
@@ -40,7 +39,10 @@ QpOptimizer::SolveQp(const State& initial_state,
   for (Foothold f : steps)
     leg_ids.push_back(f.leg);
   spline_structure.Init(initial_state.p, initial_state.v ,leg_ids, times);
-  cost_function_ = CostFunction::CreateMinAccCostFunction(spline_structure);
+
+
+  TotalAccelerationEquation total_acc_eq(spline_structure);
+  cost_function_ = total_acc_eq.BuildLinearEquation();
 
 
   InitialAccelerationEquation eq_acc(initial_state.a, spline_structure.GetTotalFreeCoeff());

@@ -11,8 +11,6 @@
 
 #include <IpTNLP.hpp>
 
-#include <xpp/zmp/nlp_structure.h>
-
 #include <xpp/zmp/cost_container.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/optimization_variables.h>
@@ -32,7 +30,6 @@ public:
   typedef xpp::zmp::ConstraintContainer ConstraintContainer;
   typedef xpp::zmp::CostContainer CostContainer;
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
-  typedef xpp::zmp::NlpStructure NlpStructure;
   typedef Eigen::VectorXd VectorXd;
 
 
@@ -40,7 +37,6 @@ public:
 	NlpIpoptZmp(OptimizationVariables& opt_variables,
 	            const CostContainer& cost_container,
 	            const ConstraintContainer& constraint_container,
-	            const NlpStructure& nlp_structure,
 	            IVisualizer& zmp_publisher);
 
   /** default destructor */
@@ -115,14 +111,13 @@ public:
 
 
 
-  OptimizationVariables* new_opt_variables_;
+  OptimizationVariables* opt_variables_;
 
 private:
   CostContainer cost_container_;
   Eigen::NumericalDiff<CostContainer> num_diff_cost_function_;
 
   ConstraintContainer constraint_container_;
-  NlpStructure nlp_structure_;
 
   IVisualizer& visualizer_;
 

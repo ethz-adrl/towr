@@ -136,7 +136,6 @@ NlpOptimizer::SolveNlp(const State& initial_state,
       new Ipopt::NlpIpoptZmp(subject, // optmization variables
                              cost_container,
                              constraint_container,
-                             nlp_structure,
                              visualizer_);
 
   status_ = app_.OptimizeTNLP(nlp_ipopt_zmp);

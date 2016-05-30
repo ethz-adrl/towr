@@ -22,17 +22,15 @@ namespace Ipopt {
 NlpIpoptZmp::NlpIpoptZmp(OptimizationVariables& opt_variables,
                          const CostContainer& cost_container,
                          const ConstraintContainer& constraint_container,
-                         const NlpStructure& nlp_structure,
                          IVisualizer& zmp_publisher)
     :cost_container_(cost_container),
      constraint_container_(constraint_container),
-     nlp_structure_(nlp_structure),
      // These epsilons play a big role in convergence
-     num_diff_cost_function_(cost_container, 10*std::numeric_limits<double>::epsilon()),
+     num_diff_cost_function_(cost_container, 1*std::numeric_limits<double>::epsilon()),
      // just for visualization
      visualizer_(zmp_publisher)
 {
-  new_opt_variables_ = &opt_variables;
+  opt_variables_ = &opt_variables;
 }
 
 
@@ -40,7 +38,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
   // How many variables to optimize over
-  n = new_opt_variables_->GetOptimizationVariableCount(); // x,y-coordinate of footholds
+  n = opt_variables_->GetOptimizationVariableCount(); // x,y-coordinate of footholds
   std::cout << "optimizing n= " << n << " variables\n";
 
   m = constraint_container_.GetBounds().size();
@@ -95,11 +93,11 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
   int c = 0;
 
-  VectorXd x_spline_coeff_init = new_opt_variables_->GetSplineCoefficients();
+  VectorXd x_spline_coeff_init = opt_variables_->GetSplineCoefficients();
 	Eigen::Map<VectorXd>(&x[c], x_spline_coeff_init.rows()) = x_spline_coeff_init;
 	c += x_spline_coeff_init.rows();
 
-	VectorXd x_footholds_init = new_opt_variables_->GetFootholdsEig();
+	VectorXd x_footholds_init = opt_variables_->GetFootholdsEig();
 	Eigen::Map<VectorXd>(&x[c], x_footholds_init.rows()) = x_footholds_init;
 	c += x_footholds_init.rows();
 
@@ -110,7 +108,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 
 bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
-  new_opt_variables_->SetVariables(x);
+  opt_variables_->SetVariables(x);
   obj_value = cost_container_.EvaluateTotalCost();
   return true;
 }
@@ -119,7 +117,8 @@ bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value
 bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
   Eigen::MatrixXd jac(1,n);
-  num_diff_cost_function_.df(nlp_structure_.ConvertToEigen(x), jac);
+  VectorXd x_eig = Eigen::Map<const VectorXd>(x,n);
+  num_diff_cost_function_.df(x_eig, jac);
   Eigen::Map<Eigen::MatrixXd>(grad_f,1,n) = jac;
 	return true;
 }
@@ -128,7 +127,7 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
 bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
 //  VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.ConvertToEigen(x));
-  new_opt_variables_->SetVariables(x);
+  opt_variables_->SetVariables(x);
   VectorXd g_eig = constraint_container_.EvaluateConstraints();
   Eigen::Map<VectorXd>(g,m) = g_eig;
   return true;
