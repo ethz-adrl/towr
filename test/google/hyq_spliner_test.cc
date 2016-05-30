@@ -50,7 +50,7 @@ protected:
 
 TEST_F(HyqSplinerTest, GetTotalTime)
 {
-  double T = times_.t_stance_initial_ + 4*times_.t_swing_ + times_.t_stance_ + times_.t_stance_final_;
+  double T = times_.t_stance_initial_ + 2*times_.t_swing_  + times_.t_stance_final_;
   EXPECT_DOUBLE_EQ(T, spliner_.GetTotalTime());
 }
 

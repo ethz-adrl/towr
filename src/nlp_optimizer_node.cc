@@ -5,10 +5,8 @@
  *      Author: winklera
  */
 
-
 #include <xpp/ros/nlp_optimizer_node.h>
 #include <xpp/ros/ros_helpers.h>
-
 
 namespace xpp {
 namespace ros {
@@ -24,7 +22,6 @@ NlpOptimizerNode::NlpOptimizerNode (IVisualizer& visualizer)
   opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
 }
 
-
 void
 NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
 {
@@ -34,7 +31,6 @@ NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
   PublishOptimizedValues();
 }
 
-
 void
 NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
 {
@@ -42,7 +38,6 @@ NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
   curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
   curr_swingleg_ = RosHelpers::RosToXpp(msg.curr_swingleg);
 }
-
 
 void
 NlpOptimizerNode::PublishOptimizedValues() const
@@ -53,7 +48,6 @@ NlpOptimizerNode::PublishOptimizedValues() const
 
   opt_params_pub_.publish(msg_out);
 }
-
 
 void
 NlpOptimizerNode::OptimizeTrajectory()
@@ -70,7 +64,6 @@ NlpOptimizerNode::OptimizeTrajectory()
                           opt_splines_,
                           footholds_);
 }
-
 
 std::vector<xpp::hyq::LegID>
 NlpOptimizerNode::DetermineStepSequence(const State& curr_state, LegID curr_swingleg) const
@@ -103,7 +96,6 @@ NlpOptimizerNode::DetermineStepSequence(const State& curr_state, LegID curr_swin
   return step_sequence;
 }
 
-
 NlpOptimizerNode::LegID
 NlpOptimizerNode::NextSwingLeg(LegID curr) const
 {
@@ -117,9 +109,6 @@ NlpOptimizerNode::NextSwingLeg(LegID curr) const
     default: assert(false); // this should never happen
   };
 }
-
-
-
 
 } /* namespace ros */
 } /* namespace xpp */

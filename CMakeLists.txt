@@ -109,17 +109,31 @@ set(SOURCES
   src/supp_polygon_container.cc
   src/hyq_spliner.cc
   src/nlp_ipopt_zmp.cc
-  src/cost_function.cc
-  src/constraints.cc
-  src/zmp_constraint.cc
+  src/zmp_constraint_builder.cc
   src/zero_moment_point.cc
   src/trajectory_visualizer.cc
-  src/ellipse.cc
-  src/spline_constraints.cc
-  src/problem_specification.cc
   src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
   src/qp_optimizer_node.cc
+  # observer pattern code
+  src/a_subject.cc
+  src/optimization_variables.cc
+  src/i_observer.cc
+  # constraints
+  src/a_constraint.cc
+  src/a_linear_constraint.cc
+  src/initial_acceleration_equation.cc
+  src/final_state_equation.cc
+  src/spline_junction_equation.cc
+  src/constraint_container.cc
+  src/zmp_constraint.cc
+  src/range_of_motion_constraint.cc
+  # costs
+  src/a_quadratic_cost.cc
+  src/total_acceleration_equation.cc
+  src/cost_container.cc
+  src/foothold_nominal_deviation.cc
+  src/range_of_motion_cost.cc
 )
              
 # Add the shared library
@@ -195,11 +209,22 @@ if(BUILD_TESTS)
                         test/google/supp_polygon_container_test.cc
                         test/google/spline_container_test.cc
                         test/google/helpers.cc
-                        test/google/zmp_constraint_test.cc
+                        test/google/zmp_constraint_builder_test.cc
                         test/google/zero_moment_point_test.cc
-                        test/google/hyq_spliner_test.cc
                         test/google/nlp_optimizer_test.cc
+                        test/google/hyq_spliner_test.cc
                         #test/google/eigen_num_diff_test.cc
+                        test/google/optimization_variables_test.cc
+                        test/google/initial_acceleration_equation_test.cc
+                        test/google/zmp_constraint_test.cc
+                        test/google/constraint_container_test.cc
+                        test/google/range_of_motion_constraint_test.cc
+                        # costs
+                        test/google/a_quadratic_cost_test.cc
+                        test/google/total_acceleration_equation_test.cc
+                        test/google/range_of_motion_cost_test.cc
+                        test/google/cost_container_test.cc
+                        test/google/foothold_nominal_deviation_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

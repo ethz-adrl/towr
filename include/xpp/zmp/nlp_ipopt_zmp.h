@@ -11,9 +11,9 @@
 
 #include <IpTNLP.hpp>
 
-#include <xpp/zmp/nlp_structure.h>
-#include <xpp/zmp/cost_function.h>
-#include <xpp/zmp/constraints.h>
+#include <xpp/zmp/cost_container.h>
+#include <xpp/zmp/constraint_container.h>
+#include <xpp/zmp/optimization_variables.h>
 
 #include <xpp/ros/i_visualizer.h>
 
@@ -25,21 +25,19 @@ class NlpIpoptZmp : public Ipopt::TNLP {
 public:
   typedef xpp::zmp::ContinuousSplineContainer Splines;
   typedef xpp::utils::MatVec MatVec;
-  typedef xpp::zmp::Constraints::StdVecEigen2d StdVecEigen2d;
+  typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::ros::IVisualizer IVisualizer;
-  typedef xpp::zmp::CostFunction CostFunction;
-  typedef xpp::zmp::Constraints Constraints;
-  typedef xpp::zmp::NlpStructure NlpStructure;
-  typedef NlpStructure::NlpVariables NlpVariables;
+  typedef xpp::zmp::ConstraintContainer ConstraintContainer;
+  typedef xpp::zmp::CostContainer CostContainer;
+  typedef xpp::zmp::OptimizationVariables OptimizationVariables;
   typedef Eigen::VectorXd VectorXd;
 
 
 public:
-	NlpIpoptZmp(const CostFunction& cost_function,
-	            const Constraints& constraints,
-	            const NlpStructure& nlp_structure,
-	            IVisualizer& zmp_publisher, // just for visualization
-	            const NlpVariables& initial_values);
+	NlpIpoptZmp(OptimizationVariables& opt_variables,
+	            const CostContainer& cost_container,
+	            const ConstraintContainer& constraint_container,
+	            IVisualizer& zmp_publisher);
 
   /** default destructor */
   virtual ~NlpIpoptZmp() {};
@@ -113,16 +111,12 @@ public:
 
 
 
-  NlpVariables opt_variables_;
 
 private:
-
-  CostFunction cost_function_;
-  Constraints constraints_;
-  NlpStructure nlp_structure_;
-  Eigen::NumericalDiff<CostFunction> num_diff_cost_function_;
-  Eigen::NumericalDiff<Constraints> num_diff_constraints_;
-
+  OptimizationVariables& opt_variables_;
+  CostContainer cost_container_;
+  Eigen::NumericalDiff<CostContainer> num_diff_cost_function_;
+  ConstraintContainer constraint_container_;
   IVisualizer& visualizer_;
 
   /**@name Methods to block default compiler methods.

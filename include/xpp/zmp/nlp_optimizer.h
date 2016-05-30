@@ -27,7 +27,6 @@ public:
   typedef xpp::utils::Point2d State;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
   typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
-  typedef NlpStructure::NlpVariables NlpVariables;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef xpp::ros::IVisualizer IVisualizer;
 
@@ -62,12 +61,6 @@ public:
 
 
 private:
-  void SetInitialVariables(const NlpStructure&, const SupportPolygonContainer&);
-
-
-
-  NlpVariables initial_variables_;
-
   Ipopt::IpoptApplication app_;
   Ipopt::ApplicationReturnStatus status_;
 

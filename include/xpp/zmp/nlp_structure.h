@@ -27,31 +27,13 @@ public:
 
   enum Dim2d { kDim2d = xpp::utils::kDim2d };
 
-
-  struct NlpVariables
-  {
-    NlpVariables() {};
-
-    /** Initializes all variables to zero */
-    NlpVariables(const NlpStructure& structure)
-        :spline_coeff_(VectorXd::Zero(structure.n_spline_coeff_)),
-         footholds_(StdVecEigen2d(structure.n_steps_, Eigen::Vector2d::Zero())) {}
-
-    NlpVariables(const VectorXd& spline_coeff, const StdVecEigen2d& footholds)
-        :spline_coeff_(spline_coeff), footholds_(footholds) {}
-
-    VectorXd spline_coeff_;
-    StdVecEigen2d footholds_;
-  };
-
-
 public:
   NlpStructure(int n_spline_coeff = 0, int n_steps = 0)
     :n_spline_coeff_(n_spline_coeff),
      n_steps_(n_steps)
-  {
-  }
+  {}
 
+  int GetOptimizationVariableCount() const { return n_spline_coeff_ + 2*n_steps_; };
 
   VectorXd ConvertToEigen(const Number* x) const
   {
@@ -59,30 +41,25 @@ public:
   }
 
 
+  /** Spline functions */
   VectorXd ExtractSplineCoefficients(const Number* x) const
   {
     return ExtractSplineCoefficients(ConvertToEigen(x));
   }
-
 
   VectorXd ExtractSplineCoefficients(const VectorXd& x_eig) const
   {
     return x_eig.head(n_spline_coeff_);
   }
 
-
-  StdVecEigen2d ExtractFootholds(const Number* x) const
+  /** Foothold functions */
+  VectorXd ConvertStdToEig(const StdVecEigen2d& footholds_xy) const
   {
-    return ExtractFootholds(ConvertToEigen(x));
-  }
+    assert(footholds_xy.size() == n_steps_);
 
-
-  VectorXd ExtractFootholds(const StdVecEigen2d& footholds_xy) const
-  {
-    uint n_steps = footholds_xy.size();
-    VectorXd vec(kDim2d*n_steps);
+    VectorXd vec(kDim2d*n_steps_);
     int c=0;
-    for (uint step=0; step<n_steps; ++step)
+    for (uint step=0; step<n_steps_; ++step)
     {
       vec[c++] = footholds_xy.at(step).x();
       vec[c++] = footholds_xy.at(step).y();
@@ -90,10 +67,19 @@ public:
     return vec;
   }
 
-
-  StdVecEigen2d ExtractFootholds(const VectorXd& x_eig) const
+  void SetFootholds(const StdVecEigen2d& footholds_xy, VectorXd& x) const
   {
-    Eigen::VectorXd footholds_xy = x_eig.tail(n_steps_*kDim2d);
+    x.middleRows(n_spline_coeff_, n_steps_*kDim2d) = ConvertStdToEig(footholds_xy);
+  }
+
+  VectorXd ExtractFootholdsToEig(const VectorXd& x_eig) const
+  {
+    return x_eig.middleRows(n_spline_coeff_, kDim2d*n_steps_);
+  }
+
+  StdVecEigen2d ExtractFootholdsToStd(const VectorXd& x_eig) const
+  {
+    Eigen::VectorXd footholds_xy = ExtractFootholdsToEig(x_eig);
     StdVecEigen2d fooothold_vec(n_steps_);
     for (int i=0; i<n_steps_; ++i) {
       fooothold_vec.at(i) = footholds_xy.segment<kDim2d>(2*i);
@@ -102,14 +88,18 @@ public:
     return fooothold_vec;
   }
 
+  StdVecEigen2d ExtractFootholdsToStd(const Number* x) const
+  {
+    return ExtractFootholdsToStd(ConvertToEigen(x));
+  }
 
+  /** miscellaneous helper functions */
   static int Index(int spline, Coords dim, SplineCoeff coeff)
   {
     int idx = 0;
     idx += ContinuousSplineContainer::Index(spline, dim, coeff);
     return idx;
   }
-
 
   int Index(int step, Coords dim)
   {
@@ -118,12 +108,9 @@ public:
     return idx;
   }
 
-
+private:
   int n_spline_coeff_;
   int n_steps_;
-
-  int GetOptimizationVariableCount() const { return n_spline_coeff_ + 2*n_steps_; };
-
 };
 
 } // namespace zmp

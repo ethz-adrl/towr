@@ -1,11 +1,11 @@
 /*
- * zmp_constraint_test.cc
+ * a_constraint_test.cc
  *
- *  Created on: May 25, 2016
+ *  Created on: May 24, 2016
  *      Author: winklera
  */
 
-#include <xpp/zmp/zmp_constraint.h>
+#include "a_constraint.h"
 
 namespace xpp {
 namespace zmp {
