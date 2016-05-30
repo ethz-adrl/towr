@@ -14,6 +14,8 @@
 #include <xpp/zmp/nlp_structure.h>
 #include <xpp/zmp/cost_function.h>
 
+
+#include <xpp/zmp/cost_container.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/optimization_variables.h>
 
@@ -31,6 +33,7 @@ public:
   typedef xpp::ros::IVisualizer IVisualizer;
   typedef xpp::zmp::CostFunction CostFunction;
   typedef xpp::zmp::ConstraintContainer ConstraintContainer;
+  typedef xpp::zmp::CostContainer CostContainer;
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
   typedef xpp::zmp::NlpStructure NlpStructure;
   typedef Eigen::VectorXd VectorXd;
@@ -39,6 +42,7 @@ public:
 public:
 	NlpIpoptZmp(const CostFunction& cost_function,
 	            OptimizationVariables& opt_variables,
+	            const CostContainer& cost_container,
 	            const ConstraintContainer& constraint_container,
 	            const NlpStructure& nlp_structure,
 	            IVisualizer& zmp_publisher);
@@ -120,6 +124,8 @@ public:
 private:
 
   CostFunction cost_function_;
+  CostContainer cost_container_;
+
   ConstraintContainer constraint_container_;
   NlpStructure nlp_structure_;
   Eigen::NumericalDiff<CostFunction> num_diff_cost_function_;

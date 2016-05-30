@@ -8,6 +8,7 @@
 #include <xpp/zmp/nlp_optimizer.h>
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
+// this looks like i need the factor method
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/a_linear_constraint.h>
@@ -17,6 +18,10 @@
 #include <xpp/zmp/zmp_constraint.h>
 #include <xpp/zmp/range_of_motion_constraint.h>
 #include <xpp/zmp/constraint_container.h>
+// cost function stuff
+#include <xpp/zmp/a_quadratic_cost.h>
+#include <xpp/zmp/total_acceleration_equation.h>
+#include <xpp/zmp/cost_container.h>
 
 namespace xpp {
 namespace zmp {
@@ -76,6 +81,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
 
+  // This should all be hidden inside a factor method
   // the linear equations
   InitialAccelerationEquation eq_acc(initial_state.a, spline_structure.GetTotalFreeCoeff());
   FinalStateEquation eq_final(final_state, spline_structure);
@@ -108,6 +114,16 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   constraint_container.AddConstraint(c_zmp);
   constraint_container.AddConstraint(c_rom);
 
+
+  TotalAccelerationEquation eq_total_acc(spline_structure);
+
+  AQuadraticCost cost_acc(subject);
+  cost_acc.Init(eq_total_acc.BuildLinearEquation());
+
+  CostContainer cost_container;
+  cost_container.AddCost(cost_acc);
+
+
   // end of observer pattern stuff
 
 
@@ -115,6 +131,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
       new Ipopt::NlpIpoptZmp(cost_function,
                              subject, // optmization variables
+                             cost_container,
                              constraint_container,
                              nlp_structure,
                              visualizer_);

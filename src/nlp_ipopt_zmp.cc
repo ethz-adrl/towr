@@ -21,10 +21,12 @@ namespace Ipopt {
 
 NlpIpoptZmp::NlpIpoptZmp(const CostFunction& cost_function,
                          OptimizationVariables& opt_variables,
+                         const CostContainer& cost_container,
                          const ConstraintContainer& constraint_container,
                          const NlpStructure& nlp_structure,
                          IVisualizer& zmp_publisher)
     :cost_function_(cost_function),
+     cost_container_(cost_container),
      constraint_container_(constraint_container),
      nlp_structure_(nlp_structure),
      // These epsilons play a big role in convergence
