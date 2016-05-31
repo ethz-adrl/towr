@@ -46,7 +46,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 
 
   // nonzeros in the jacobian of the constraint g(x)
-  nnz_jac_g = m * n; // all constraints depend on all inputs
+  nnz_jac_g = m * n; // fixme all constraints depend on all inputs
 
   // nonzeros in the hessian of the lagrangian
   // (one in the hessian of the objective for x2,
@@ -187,20 +187,20 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
 //    orignlp = dynamic_cast<OrigIpoptNLP*>(GetRawPtr(ip_cq->GetIpoptNLP()));
 //    if( orignlp != NULL ) {
 //      tnlp_adapter = dynamic_cast<TNLPAdapter*>(GetRawPtr(orignlp->nlp()));
-//      double* x = new double[nlp_structure_.GetOptimizationVariableCount()];
+//      double* x = new double[opt_variables_.GetOptimizationVariableCount()];
 //      tnlp_adapter->ResortX(*ip_data->curr()->x(), x);
 //
-//      new_opt_variables_.SetVariables(nlp_structure_.ConvertToEigen(x));
+//      opt_variables_.SetVariables(x);
 //
 //
 //
 //      // visualize the current state with rviz
-//      StdVecEigen2d x_footholds_xy = new_opt_variables_.GetFootholds();
-//      VectorXd curr_coeff = new_opt_variables_.GetSplineCoefficients();
+//      StdVecEigen2d x_footholds_xy = opt_variables_.GetFootholdsStd();
+//      VectorXd curr_coeff = opt_variables_.GetSplineCoefficients();
 //
 //
 //
-//      IVisualizer::VecFoothold footholds(nlp_structure_.n_steps_);
+//      IVisualizer::VecFoothold footholds(x_footholds_xy.size());
 //      for (uint i=0; i<footholds.size(); ++i) {
 //        footholds.at(i).leg = xpp::hyq::LF;//todo fix this constraints_.GetLegID(i);
 //      }

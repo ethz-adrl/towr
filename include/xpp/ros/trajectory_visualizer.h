@@ -40,7 +40,6 @@ public:
   ~TrajectoryVisualizer () {};
 
 public:
-
   void AddRvizMessage(
       const VecSpline& splines,
       const VecFoothold& opt_footholds,

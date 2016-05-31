@@ -42,7 +42,6 @@ public:
 private:
   VectorXd x_;                 ///< optimization variables
   NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
-
 };
 
 } /* namespace zmp */

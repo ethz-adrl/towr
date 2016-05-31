@@ -15,7 +15,7 @@
 namespace xpp {
 namespace zmp {
 
-/** @brief Combines all the cost terms to a cost function a provides value.
+/** @brief Combines all the cost terms to a cost function and provides value.
   *
   * This class is responsible for knowing about all the different cost terms
   * and delivering the total cost for specific optimization variables. It also

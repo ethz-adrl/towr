@@ -10,7 +10,7 @@
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/zero_moment_point.h>
-#include "../include/xpp/ros/trajectory_visualizer.h"
+#include <xpp/ros/trajectory_visualizer.h>
 
 
 namespace xpp {

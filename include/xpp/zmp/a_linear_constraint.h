@@ -26,26 +26,25 @@ class ALinearConstraint : public IObserver, public AConstraint {
 public:
   typedef xpp::utils::MatVec MatVec;
 
-  virtual ~ALinearConstraint () {}
-
   /** @brief Defines the elements of the linear constraint as g = Mx+v.
     *
     * @param linear_equation the matrix M and vector v.
     */
   void Init(const MatVec& linear_equation);
 
-  /** @brief Updates the values of the optimization variables */
+  /** @brief Updates the values of the optimization variables. */
   void Update() override;
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd EvaluateConstraint () const override;
 
-  /** @brief Returns an upper and lower bound for each constraint violation */
+  /** @brief Returns an upper and lower bound for each constraint violation. */
   VecBound GetBounds () const override;
 
 protected:
-  /** only allow child classes of this class to be instantiated */
+  /** only allow child classes of this class to be instantiated. */
   ALinearConstraint (OptimizationVariables& subject);
+  virtual ~ALinearConstraint () {}
   Bound bound_;
 
 private:

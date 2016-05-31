@@ -80,7 +80,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 //  Constraints constraints(supp_polygon_container, spline_structure, nlp_structure, robot_height, initial_state.a, final_state);
 
 
-  // This should all be hidden inside a factor method
+  // This should all be hidden inside a factory method
   // the linear equations
   InitialAccelerationEquation eq_acc(initial_state.a, spline_structure.GetTotalFreeCoeff());
   FinalStateEquation eq_final(final_state, spline_structure);
