@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 {
 	ros::init(argc, argv, "nlp_optimizer_node");
 
-	xpp::ros::MarkerArrayBuilder visualizer("nlp_zmp_publisher");
+	xpp::ros::MarkerArrayBuilder visualizer("nlp_zmp_publisher_old");
 	xpp::ros::NlpOptimizerNode xpp_optimizer_node(visualizer);
 
 	ros::spin();

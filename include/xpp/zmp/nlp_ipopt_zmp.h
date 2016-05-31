@@ -1,13 +1,12 @@
-// Copyright (C) 2004, 2006 International Business Machines and others.
-// All Rights Reserved.
-// This code is published under the Eclipse Public License.
-//
-// $Id: MyNLPHyQ.hpp 1861 2010-12-21 21:34:47Z andreasw $
-//
-// Authors:  Carl Laird, Andreas Waechter     IBM    2004-11-05
+/**
+ @file    nlp_ipopt_zmp.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Jan 10, 2016
+ @brief   Defines the actual IPOPT solver
+ */
 
-#ifndef __MYNLP_HPP__
-#define __MYNLP_HPP__
+#ifndef XXPP_ZMP_NLP_IPOPT_ZMP_H_
+#define XXPP_ZMP_NLP_IPOPT_ZMP_H_
 
 #include <IpTNLP.hpp>
 
@@ -15,29 +14,19 @@
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/optimization_variables.h>
 
-#include <xpp/ros/i_visualizer.h>
-
 namespace Ipopt {
-
 
 class NlpIpoptZmp : public Ipopt::TNLP {
 
 public:
-  typedef xpp::zmp::ContinuousSplineContainer Splines;
-  typedef xpp::utils::MatVec MatVec;
-  typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
-  typedef xpp::ros::IVisualizer IVisualizer;
   typedef xpp::zmp::ConstraintContainer ConstraintContainer;
   typedef xpp::zmp::CostContainer CostContainer;
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
   typedef Eigen::VectorXd VectorXd;
 
-
-public:
 	NlpIpoptZmp(OptimizationVariables& opt_variables,
 	            const CostContainer& cost_container,
-	            const ConstraintContainer& constraint_container,
-	            IVisualizer& zmp_publisher);
+	            const ConstraintContainer& constraint_container);
 
   /** default destructor */
   virtual ~NlpIpoptZmp() {};
@@ -105,38 +94,21 @@ public:
                                  Index n, const Number* x, const Number* z_L, const Number* z_U,
                                  Index m, const Number* g, const Number* lambda,
                                  Number obj_value,
-				 const IpoptData* ip_data,
-				 IpoptCalculatedQuantities* ip_cq);
+                                 const IpoptData* ip_data,
+                                 IpoptCalculatedQuantities* ip_cq);
   //@}
-
-
-
 
 private:
   OptimizationVariables& opt_variables_;
   CostContainer cost_container_;
   Eigen::NumericalDiff<CostContainer> num_diff_cost_function_;
   ConstraintContainer constraint_container_;
-  IVisualizer& visualizer_;
 
-  /**@name Methods to block default compiler methods.
-   * The compiler automatically generates the following three methods.
-   *  Since the default compiler implementation is generally not what
-   *  you want (for all but the most simple classes), we usually 
-   *  put the declarations of these methods in the private section
-   *  and never implement them. This prevents the compiler from
-   *  implementing an incorrect "default" behavior without us
-   *  knowing. (See Scott Meyers book, "Effective C++")
-   *  
-   */
-  //@{
-  //  MyNLPHyQ();
-  NlpIpoptZmp(const NlpIpoptZmp&);
-  NlpIpoptZmp& operator=(const NlpIpoptZmp&);
-  //@}
 
+  NlpIpoptZmp(const NlpIpoptZmp&) = delete;
+  NlpIpoptZmp& operator=(const NlpIpoptZmp&) = delete;
 };
 
 } // namespace Ipopt
 
-#endif
+#endif /* XXPP_ZMP_NLP_IPOPT_ZMP_H_ */

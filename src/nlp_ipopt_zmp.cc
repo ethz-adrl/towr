@@ -12,24 +12,17 @@
 #include "IpTNLPAdapter.hpp"
 #include "IpOrigIpoptNLP.hpp"
 
-#include <ros/ros.h>
-
 namespace Ipopt {
-
-#define prt(x) std::cout << #x << " = " << std::endl << x << std::endl << std::endl;
 
 
 NlpIpoptZmp::NlpIpoptZmp(OptimizationVariables& opt_variables,
                          const CostContainer& cost_container,
-                         const ConstraintContainer& constraint_container,
-                         IVisualizer& zmp_publisher)
+                         const ConstraintContainer& constraint_container)
     :opt_variables_(opt_variables),
      cost_container_(cost_container),
      constraint_container_(constraint_container),
      // These epsilons play a big role in convergence
-     num_diff_cost_function_(cost_container, 1*std::numeric_limits<double>::epsilon()),
-     // just for visualization
-     visualizer_(zmp_publisher)
+     num_diff_cost_function_(cost_container, 1*std::numeric_limits<double>::epsilon())
 {
 }
 
@@ -191,37 +184,6 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
 //      tnlp_adapter->ResortX(*ip_data->curr()->x(), x);
 //
 //      opt_variables_.SetVariables(x);
-//
-//
-//
-//      // visualize the current state with rviz
-//      StdVecEigen2d x_footholds_xy = opt_variables_.GetFootholdsStd();
-//      VectorXd curr_coeff = opt_variables_.GetSplineCoefficients();
-//
-//
-//
-//      IVisualizer::VecFoothold footholds(x_footholds_xy.size());
-//      for (uint i=0; i<footholds.size(); ++i) {
-//        footholds.at(i).leg = xpp::hyq::LF;//todo fix this constraints_.GetLegID(i);
-//      }
-//
-//
-//
-////
-////      xpp::hyq::Foothold::SetXy(x_footholds_xy, footholds);
-////
-////      constraints_.GetSplineContainer().AddOptimizedCoefficients(curr_coeff);
-////      visualizer_.AddRvizMessage(constraints_.GetSplineContainer().GetSplines(),
-////                                    footholds,
-////                                    constraints_.GetStartStance(),
-////                                    constraints_.gap_center_x_,
-////                                    constraints_.gap_width_x_,
-////                                    1.0);
-//      visualizer_.publish();
-//    }
-//  }
-
-
 
 	return true;
 }

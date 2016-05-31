@@ -134,14 +134,10 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   xpp::ros::OptimizationVisualizer optimization_visualizer(subject);
   optimization_visualizer.Init(step_sequence, spline_structure);
 
-
-
-  sleep(1);
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
       new Ipopt::NlpIpoptZmp(subject, // optmization variables
                              cost_container,
-                             constraint_container,
-                             visualizer_);
+                             constraint_container);
 
   status_ = app_.OptimizeTNLP(nlp_ipopt_zmp);
   if (status_ == Ipopt::Solve_Succeeded) {
