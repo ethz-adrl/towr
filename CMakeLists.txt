@@ -111,7 +111,6 @@ set(SOURCES
   src/nlp_ipopt_zmp.cc
   src/zmp_constraint_builder.cc
   src/zero_moment_point.cc
-  src/marker_array_builder.cc
   src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
   src/qp_optimizer_node.cc
@@ -134,6 +133,9 @@ set(SOURCES
   src/cost_container.cc
   src/foothold_nominal_deviation.cc
   src/range_of_motion_cost.cc
+  # ros
+  src/marker_array_builder.cc
+  src/optimization_visualizer.cc
 )
              
 # Add the shared library
@@ -225,6 +227,7 @@ if(BUILD_TESTS)
                         test/google/range_of_motion_cost_test.cc
                         test/google/cost_container_test.cc
                         test/google/foothold_nominal_deviation_test.cc
+                        test/google/optimization_visualizer_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

@@ -35,9 +35,12 @@ public:
   typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
 
 public:
-  MarkerArrayBuilder(const std::string& topic = "zmp_publisher");
+  MarkerArrayBuilder(const std::string& topic = "nlp_zmp_publisher");
 
   virtual ~MarkerArrayBuilder () {};
+
+  visualization_msgs::MarkerArray BuildMsg(const VecSpline& splines,
+                                           const VecFoothold& opt_footholds);
 
 public:
   void AddRvizMessage(

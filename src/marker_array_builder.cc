@@ -27,6 +27,17 @@ MarkerArrayBuilder::MarkerArrayBuilder(const std::string& topic)
   walking_height_ = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 }
 
+MarkerArrayBuilder::MarkerArray
+MarkerArrayBuilder::BuildMsg (const VecSpline& splines,
+                              const VecFoothold& opt_footholds)
+{
+  visualization_msgs::MarkerArray msg;
+  AddFootholds(msg, opt_footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
+  AddCogTrajectory(msg, splines, opt_footholds, "cog", 1.0);
+  AddZmpTrajectory(msg, splines, opt_footholds, "zmp_4ls", 0.7);
+
+  return msg;
+}
 
 void MarkerArrayBuilder::AddRvizMessage(
     const VecSpline& splines,
@@ -369,3 +380,5 @@ std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(xpp::hyq::LegID leg) const
 
 } /* namespace ros */
 } /* namespace xpp */
+
+

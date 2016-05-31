@@ -24,7 +24,7 @@
 #include <xpp/zmp/total_acceleration_equation.h>
 #include <xpp/zmp/cost_container.h>
 //
-#include "../include/xpp/ros/marker_array_builder.h"
+#include <xpp/ros/optimization_visualizer.h>
 
 namespace xpp {
 namespace zmp {
@@ -131,11 +131,12 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
   // end of observer pattern stuff
+  xpp::ros::OptimizationVisualizer optimization_visualizer(subject);
+  optimization_visualizer.Init(step_sequence, spline_structure);
 
 
 
-
-
+  sleep(1);
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
       new Ipopt::NlpIpoptZmp(subject, // optmization variables
                              cost_container,
