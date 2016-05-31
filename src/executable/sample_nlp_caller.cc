@@ -64,16 +64,20 @@ int main(int argc, char **argv)
   current_info_pub.publish(msg);
 
 
-  xpp::ros::MarkerArrayBuilder zmp_publisher("example_publisher");
+  xpp::ros::MarkerArrayBuilder marker_builder;
+  double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
+  ros::Publisher ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("example_publisher", 1);
+
   ros::Rate loop_rate(10);
   while (ros::ok()) {
     ros::spinOnce();
-    zmp_publisher.AddRvizMessage(splines,    // from nlp server
-                                 footholds,  // from qp server
-                                 RosHelpers::RosToXpp(msg.curr_stance),
-                                 0.0, 0.0,
-                                 1.0);
-    zmp_publisher.publish();
+//    zmp_publisher.AddRvizMessage(splines,    // from nlp server
+//                                 footholds,  // from qp server
+//                                 RosHelpers::RosToXpp(msg.curr_stance),
+//                                 0.0, 0.0,
+//                                 1.0);
+    visualization_msgs::MarkerArray msg_markers = marker_builder.BuildMsg(splines, footholds, walking_height);
+    ros_publisher_.publish(msg_markers);
     loop_rate.sleep();
   }
 }

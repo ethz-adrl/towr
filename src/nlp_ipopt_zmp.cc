@@ -17,12 +17,14 @@ namespace Ipopt {
 
 NlpIpoptZmp::NlpIpoptZmp(OptimizationVariables& opt_variables,
                          const CostContainer& cost_container,
-                         const ConstraintContainer& constraint_container)
+                         const ConstraintContainer& constraint_container,
+                         IVisualizer& visualizer)
     :opt_variables_(opt_variables),
      cost_container_(cost_container),
      constraint_container_(constraint_container),
      // These epsilons play a big role in convergence
-     num_diff_cost_function_(cost_container, 1*std::numeric_limits<double>::epsilon())
+     num_diff_cost_function_(cost_container, 1*std::numeric_limits<double>::epsilon()),
+     visualizer_(visualizer)
 {
 }
 
@@ -185,6 +187,7 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
 //
 //      opt_variables_.SetVariables(x);
 
+  visualizer_.PublishMsg();
 	return true;
 }
 

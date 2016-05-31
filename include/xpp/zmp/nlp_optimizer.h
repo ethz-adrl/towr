@@ -31,7 +31,7 @@ public:
   typedef xpp::ros::IVisualizer IVisualizer;
 
 public:
-  NlpOptimizer (IVisualizer& visualizer = xpp::ros::dummy_visualizer);
+  NlpOptimizer ();
   virtual
   ~NlpOptimizer () {};
 

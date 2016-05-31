@@ -9,10 +9,10 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 
 #include <xpp/zmp/i_observer.h>
+#include <xpp/ros/i_visualizer.h>
+
 #include <xpp/ros/marker_array_builder.h>
-
 #include <xpp/zmp/optimization_variables.h>
-
 #include <xpp/zmp/continuous_spline_container.h>
 
 #include <ros/ros.h>
@@ -23,10 +23,11 @@ namespace ros {
 /** @brief Visualizes the current values of the optimization variables.
   *
   * This class is responsible for getting the current values of the optimization
-  * variables and generating ROS messages for rviz to visualize. It delegates
-  * the actual generation of these messages to a specific member.
+  * variables and generating ROS messages for rviz to visualize. After adding
+  * some semantic information to the optimization variables, it delegates
+  * the actual generation of these messages to \c msg_builder_.
   */
-class OptimizationVisualizer : public xpp::zmp::IObserver {
+class OptimizationVisualizer : public xpp::zmp::IObserver, public IVisualizer {
 public:
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
   typedef xpp::zmp::ContinuousSplineContainer ContinuousSplineContainer;
@@ -42,12 +43,9 @@ public:
 
   /** @brief Updates the values of the optimization variables. */
    void Update() override;
-
-
-
+  void PublishMsg();
 
 private:
-  void PublishMsg();
   ::ros::Publisher ros_publisher_;
 
   MarkerArrayBuilder msg_builder_;

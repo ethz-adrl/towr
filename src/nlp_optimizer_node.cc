@@ -11,8 +11,7 @@
 namespace xpp {
 namespace ros {
 
-NlpOptimizerNode::NlpOptimizerNode (IVisualizer& visualizer)
-    :nlp_optimizer_(visualizer)
+NlpOptimizerNode::NlpOptimizerNode ()
 {
   curr_swingleg_ = xpp::hyq::LH;
   current_info_sub_ = n_.subscribe("required_info_nlp",

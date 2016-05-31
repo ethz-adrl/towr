@@ -13,6 +13,7 @@
 #include <xpp/zmp/cost_container.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/optimization_variables.h>
+#include <xpp/ros/i_visualizer.h>
 
 namespace Ipopt {
 
@@ -22,11 +23,13 @@ public:
   typedef xpp::zmp::ConstraintContainer ConstraintContainer;
   typedef xpp::zmp::CostContainer CostContainer;
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
+  typedef xpp::ros::IVisualizer IVisualizer;
   typedef Eigen::VectorXd VectorXd;
 
 	NlpIpoptZmp(OptimizationVariables& opt_variables,
 	            const CostContainer& cost_container,
-	            const ConstraintContainer& constraint_container);
+	            const ConstraintContainer& constraint_container,
+	            IVisualizer& visualizer = xpp::ros::dummy_visualizer);
 
   /** default destructor */
   virtual ~NlpIpoptZmp() {};
@@ -103,10 +106,7 @@ private:
   CostContainer cost_container_;
   Eigen::NumericalDiff<CostContainer> num_diff_cost_function_;
   ConstraintContainer constraint_container_;
-
-
-  NlpIpoptZmp(const NlpIpoptZmp&) = delete;
-  NlpIpoptZmp& operator=(const NlpIpoptZmp&) = delete;
+  IVisualizer& visualizer_;
 };
 
 } // namespace Ipopt

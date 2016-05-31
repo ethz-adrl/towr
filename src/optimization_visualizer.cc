@@ -7,6 +7,8 @@
 
 #include <xpp/ros/optimization_visualizer.h>
 
+#include <xpp/ros/ros_helpers.h>
+
 namespace xpp {
 namespace ros {
 
@@ -17,7 +19,7 @@ xpp::ros::OptimizationVisualizer::OptimizationVisualizer (
   subject_.RegisterObserver(this);
 
   ::ros::NodeHandle n;
-  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("nlp_zmp_publisher", 1);
+  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
 }
 
 void
@@ -25,8 +27,6 @@ xpp::ros::OptimizationVisualizer::Update ()
 {
   x_coeff_ = subject_.GetSplineCoefficients();
   footholds_xy_ = subject_.GetFootholdsStd();
-
-//  PublishMsg (); // fixme, remove this from here
 }
 
 void
@@ -40,21 +40,20 @@ OptimizationVisualizer::Init (const std::vector<LegID>& swing_leg_sequence,
 void
 xpp::ros::OptimizationVisualizer::PublishMsg ()
 {
-  typedef xpp::ros::MarkerArrayBuilder::VecSpline VecSpline;
-  typedef xpp::ros::MarkerArrayBuilder::VecFoothold VecFoohold;
-
   // fill in some semantic information to interpret optimization variables
   splines_.AddOptimizedCoefficients(x_coeff_);
   VecSpline splines = splines_.GetSplines();
 
-  VecFoohold footholds(footholds_xy_.size());
+  VecFoothold footholds(footholds_xy_.size());
   for (uint i=0; i<footholds.size(); ++i) {
     footholds.at(i).leg = leg_ids_.at(i);
     footholds.at(i).p.x() = footholds_xy_.at(i).x();
     footholds.at(i).p.y() = footholds_xy_.at(i).y();
   }
 
-  visualization_msgs::MarkerArray msg = msg_builder_.BuildMsg(splines, footholds);
+  double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
+
+  visualization_msgs::MarkerArray msg = msg_builder_.BuildMsg(splines, footholds, walking_height);
   ros_publisher_.publish(msg);
 }
 

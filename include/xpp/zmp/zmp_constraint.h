@@ -38,6 +38,8 @@ public:
 
 private:
   VectorXd x_coeff_;
+  FootholdsXY footholds_;
+
   SupportPolygonContainer supp_polygon_container_;
 
   ZmpConstraintBuilder zmp_constraint_builder_;

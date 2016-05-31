@@ -32,17 +32,7 @@ public:
   virtual
   ~IVisualizer () {};
 
-public:
-
-  virtual void AddRvizMessage(const VecSpline& splines,
-                              const VecFoothold& opt_footholds,
-                              const VecFoothold& start_stance,
-                              double gap_center_x,
-                              double gap_width_x,
-                              double alpha = 1.0)
-  { /* this interface does nothing in this case; */ };
-
-  virtual void publish() const { /* also does nothing */  };
+  virtual void PublishMsg() { /* this interface does nothing in this case; */ };
 };
 
 // compilation unit scope object that can be used as default initialization

@@ -10,7 +10,7 @@
 #include <xpp_opt/RequiredInfoQp.h>          // send
 #include <xpp_opt/OptimizedParametersQp.h>   // receive
 
-#include "../../include/xpp/ros/marker_array_builder.h"
+#include <xpp/ros/marker_array_builder.h>
 
 typedef xpp_opt::RequiredInfoQp ReqInfoMsg;
 typedef xpp_opt::OptimizedParametersQp OptimizedParametersMsg;
@@ -63,16 +63,22 @@ int main(int argc, char **argv)
 
   current_info_pub.publish(msg);
 
-  xpp::ros::MarkerArrayBuilder zmp_publisher("example_publisher");
+
+
+  xpp::ros::MarkerArrayBuilder marker_builder;
+  double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
+  ros::Publisher ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("example_publisher", 1);
+
   ros::Rate loop_rate(10);
   while (ros::ok()) {
     ros::spinOnce();
-    zmp_publisher.AddRvizMessage(splines, // from qp server
-                                 RosHelpers::RosToXpp(msg.steps),
-                                 RosHelpers::RosToXpp(msg.curr_stance),
-                                 0.0, 0.0,
-                                 1.0);
-    zmp_publisher.publish();
+//    marker_builder.AddRvizMessage(splines, // from qp server
+//                                 RosHelpers::RosToXpp(msg.steps),
+//                                 RosHelpers::RosToXpp(msg.curr_stance),
+//                                 0.0, 0.0,
+//                                 1.0);
+    visualization_msgs::MarkerArray msg_markers = marker_builder.BuildMsg(splines, RosHelpers::RosToXpp(msg.steps), walking_height);
+    ros_publisher_.publish(msg_markers);
     loop_rate.sleep();
   }
 }

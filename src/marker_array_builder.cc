@@ -5,9 +5,7 @@
  *      Author: winklera
  */
 
-#include "../include/xpp/ros/marker_array_builder.h"
-
-#include <xpp/ros/ros_helpers.h>
+#include <xpp/ros/marker_array_builder.h>
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
@@ -17,49 +15,21 @@
 namespace xpp {
 namespace ros {
 
-MarkerArrayBuilder::MarkerArrayBuilder(const std::string& topic)
+MarkerArrayBuilder::MarkerArrayBuilder()
 {
-  zmp_msg_.markers.clear();
-
-  ::ros::NodeHandle n;
-  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>(topic, 1);
-
-  walking_height_ = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 }
 
 MarkerArrayBuilder::MarkerArray
 MarkerArrayBuilder::BuildMsg (const VecSpline& splines,
-                              const VecFoothold& opt_footholds)
+                              const VecFoothold& opt_footholds,
+                              double walking_height)
 {
   visualization_msgs::MarkerArray msg;
   AddFootholds(msg, opt_footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
   AddCogTrajectory(msg, splines, opt_footholds, "cog", 1.0);
-  AddZmpTrajectory(msg, splines, opt_footholds, "zmp_4ls", 0.7);
+  AddZmpTrajectory(msg, splines, walking_height, opt_footholds, "zmp_4ls", 0.7);
 
   return msg;
-}
-
-void MarkerArrayBuilder::AddRvizMessage(
-    const VecSpline& splines,
-    const VecFoothold& opt_footholds,
-    const VecFoothold& start_stance,
-    double gap_center_x,
-    double gap_width_x,
-    double alpha)
-{
-  zmp_msg_.markers.clear();
-
-  visualization_msgs::MarkerArray msg;
-  AddFootholds(msg, opt_footholds, "footholds", visualization_msgs::Marker::CUBE, alpha);
-  AddStartStance(msg, start_stance);
-  AddCogTrajectory(msg, splines, opt_footholds, "cog", alpha);
-  AddZmpTrajectory(msg, splines, opt_footholds, "zmp_4ls", 0.7);
-  AddSupportPolygons(msg, start_stance, opt_footholds);
-
-//  AddLineStrip(msg, gap_center_x, gap_width_x, "gap");
-
-  zmp_msg_.markers.insert(zmp_msg_.markers.end(),
-                          msg.markers.begin(),msg.markers.end());
 }
 
 
@@ -82,14 +52,16 @@ void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg
   supp = support_polygon_container.GetSupportPolygons();
 
   for (uint i=0; i<supp.size(); ++i) {
-    visualization_msgs::Marker m = BuildSupportPolygon(supp.at(i).footholds_conv_, footholds.at(i).leg);
+    visualization_msgs::Marker m = BuildSupportPolygon(msg, supp.at(i).footholds_conv_, footholds.at(i).leg);
     msg.markers.push_back(m);
   }
 }
 
 
 visualization_msgs::Marker
-MarkerArrayBuilder::BuildSupportPolygon(const VecFoothold& stance,
+MarkerArrayBuilder::BuildSupportPolygon(
+    visualization_msgs::MarkerArray& msg,
+    const VecFoothold& stance,
                                      xpp::hyq::LegID leg_id) const
 {
 //  static int i=0;
@@ -99,7 +71,7 @@ MarkerArrayBuilder::BuildSupportPolygon(const VecFoothold& stance,
 
 
   visualization_msgs::Marker marker;
-  marker.id = (zmp_msg_.markers.size() == 0)? 0 : zmp_msg_.markers.back().id + 1;
+  marker.id = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
   marker.header.frame_id = frame_id_;
   marker.header.stamp = ::ros::Time();
   marker.ns = "leg " + std::to_string(leg_id);
@@ -240,6 +212,7 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
 void
 MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
                             const VecSpline& splines,
+                            double walking_height,
                             const std::vector<xpp::hyq::Foothold>& H_footholds,
                             const std::string& rviz_namespace,
                             double alpha)
@@ -249,7 +222,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
   {
     xpp::utils::Point2d cog_state = SplineContainer::GetCOGxy(t, splines);
 
-    Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height_);
+    Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height);
 
     int id = SplineContainer::GetSplineID(t, splines);
 

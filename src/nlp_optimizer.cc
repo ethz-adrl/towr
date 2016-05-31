@@ -30,8 +30,8 @@ namespace xpp {
 namespace zmp {
 
 
-NlpOptimizer::NlpOptimizer (IVisualizer& visualizer)
-    :visualizer_(visualizer)
+NlpOptimizer::NlpOptimizer ()
+    :visualizer_(xpp::ros::dummy_visualizer)
 {
   app_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
   status_ = app_.Initialize();
@@ -71,6 +71,8 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                              supp_polygon_container.GetNumberOfSteps());
 
 
+
+
   // fixme this should also change if the goal or any other parameter changes apart from the start position
 //  bool init_with_zeros = true;
 //  bool num_steps_changed = initial_variables_.footholds_.size() != nlp_structure.n_steps_;
@@ -92,6 +94,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   OptimizationVariables subject(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
   subject.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
 
+  // add the constraints
   LinearEqualityConstraint c_acc(subject);
   c_acc.Init(eq_acc.BuildLinearEquation());
 
@@ -130,14 +133,17 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   cost_container.AddCost(cost_rom);
 
 
-  // end of observer pattern stuff
-  xpp::ros::OptimizationVisualizer optimization_visualizer(subject);
-  optimization_visualizer.Init(step_sequence, spline_structure);
+  // fixme make this a class member so ros registration only has to happen once
+//  xpp::ros::OptimizationVisualizer optimization_visualizer(subject);
+//  optimization_visualizer.Init(step_sequence, spline_structure);
+
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
       new Ipopt::NlpIpoptZmp(subject, // optmization variables
                              cost_container,
-                             constraint_container);
+                             constraint_container
+                             /*optimization_visualizer*/);
+
 
   status_ = app_.OptimizeTNLP(nlp_ipopt_zmp);
   if (status_ == Ipopt::Solve_Succeeded) {

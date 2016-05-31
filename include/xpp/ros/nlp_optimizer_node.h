@@ -14,8 +14,6 @@
 #include <xpp_opt/RequiredInfoNlp.h>        // receive
 #include <xpp_opt/OptimizedParametersNlp.h> // send
 
-#include <xpp/ros/i_visualizer.h>
-
 namespace xpp {
 namespace ros {
 
@@ -28,13 +26,12 @@ public:
   typedef xpp_opt::OptimizedParametersNlp OptParamMsg;
 
 public:
-  NlpOptimizerNode (IVisualizer& visualizer = xpp::ros::dummy_visualizer);
+  NlpOptimizerNode ();
   virtual ~NlpOptimizerNode () {};
 
 private:
-  /**
-   * Fills the member variables opt_footholds and opt_coefficients
-   */
+  /** Fills the member variables opt_footholds and opt_coefficients
+    */
   NlpOptimizer nlp_optimizer_;
   void UpdateCurrentState(const ReqInfoMsg& msg);
   void OptimizeTrajectory();
@@ -42,9 +39,9 @@ private:
 
 
   /** Determines the order of the steps to take. This depends on what direction
-   * the CoG is moving (e.g. an outward step might have to catch an acceleration
-   * in a specific direction) and which leg is currently swinging.
-   */
+    * the CoG is moving (e.g. an outward step might have to catch an acceleration
+    * in a specific direction) and which leg is currently swinging.
+    */
   std::vector<LegID> DetermineStepSequence(const State& curr_state, LegID curr_swingleg) const;
   LegID NextSwingLeg(LegID curr) const;
   LegID curr_swingleg_;
