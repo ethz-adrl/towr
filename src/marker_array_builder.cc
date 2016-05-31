@@ -5,18 +5,19 @@
  *      Author: winklera
  */
 
+#include "../include/xpp/ros/marker_array_builder.h"
+
 #include <xpp/ros/ros_helpers.h>
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/zero_moment_point.h>
-#include <xpp/ros/trajectory_visualizer.h>
 
 
 namespace xpp {
 namespace ros {
 
-TrajectoryVisualizer::TrajectoryVisualizer(const std::string& topic)
+MarkerArrayBuilder::MarkerArrayBuilder(const std::string& topic)
 {
   zmp_msg_.markers.clear();
 
@@ -27,7 +28,7 @@ TrajectoryVisualizer::TrajectoryVisualizer(const std::string& topic)
 }
 
 
-void TrajectoryVisualizer::AddRvizMessage(
+void MarkerArrayBuilder::AddRvizMessage(
     const VecSpline& splines,
     const VecFoothold& opt_footholds,
     const VecFoothold& start_stance,
@@ -51,14 +52,14 @@ void TrajectoryVisualizer::AddRvizMessage(
 }
 
 
-void TrajectoryVisualizer::AddStartStance(visualization_msgs::MarkerArray& msg,
+void MarkerArrayBuilder::AddStartStance(visualization_msgs::MarkerArray& msg,
                                   const VecFoothold& start_stance)
 {
   AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::SPHERE, 1.0);
 }
 
 
-void TrajectoryVisualizer::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
+void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
                                       const VecFoothold& start_stance,
                                       const VecFoothold& footholds) const
 {
@@ -77,7 +78,7 @@ void TrajectoryVisualizer::AddSupportPolygons(visualization_msgs::MarkerArray& m
 
 
 visualization_msgs::Marker
-TrajectoryVisualizer::BuildSupportPolygon(const VecFoothold& stance,
+MarkerArrayBuilder::BuildSupportPolygon(const VecFoothold& stance,
                                      xpp::hyq::LegID leg_id) const
 {
 //  static int i=0;
@@ -120,7 +121,7 @@ TrajectoryVisualizer::BuildSupportPolygon(const VecFoothold& stance,
 }
 
 
-void TrajectoryVisualizer::AddGoal(
+void MarkerArrayBuilder::AddGoal(
     visualization_msgs::MarkerArray& msg,
     const Eigen::Vector2d& goal)
 {
@@ -134,7 +135,7 @@ void TrajectoryVisualizer::AddGoal(
 
 
 visualization_msgs::Marker
-TrajectoryVisualizer::GenerateMarker(Eigen::Vector2d pos, int32_t type, double size) const
+MarkerArrayBuilder::GenerateMarker(Eigen::Vector2d pos, int32_t type, double size) const
 {
   visualization_msgs::Marker marker;
   marker.pose.position.x = pos.x();
@@ -152,7 +153,7 @@ TrajectoryVisualizer::GenerateMarker(Eigen::Vector2d pos, int32_t type, double s
 }
 
 void
-TrajectoryVisualizer::AddLineStrip(visualization_msgs::MarkerArray& msg,
+MarkerArrayBuilder::AddLineStrip(visualization_msgs::MarkerArray& msg,
                            double center_x, double depth_x,
                            const std::string& rviz_namespace) const
 {
@@ -185,7 +186,7 @@ TrajectoryVisualizer::AddLineStrip(visualization_msgs::MarkerArray& msg,
 
 
 void
-TrajectoryVisualizer::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
+MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
                             const VecSpline& splines,
                             const std::vector<xpp::hyq::Foothold>& H_footholds,
                             const std::string& rviz_namespace,
@@ -226,7 +227,7 @@ TrajectoryVisualizer::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
 
 
 void
-TrajectoryVisualizer::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
+MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
                             const VecSpline& splines,
                             const std::vector<xpp::hyq::Foothold>& H_footholds,
                             const std::string& rviz_namespace,
@@ -266,7 +267,7 @@ TrajectoryVisualizer::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
 }
 
 
-void TrajectoryVisualizer::AddFootholds(
+void MarkerArrayBuilder::AddFootholds(
     visualization_msgs::MarkerArray& msg,
     const std::vector<xpp::hyq::Foothold>& H_footholds,
     const std::string& rviz_namespace,
@@ -331,7 +332,7 @@ void TrajectoryVisualizer::AddFootholds(
 }
 
 
-std_msgs::ColorRGBA TrajectoryVisualizer::GetLegColor(xpp::hyq::LegID leg) const
+std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(xpp::hyq::LegID leg) const
 {
   // define a few colors
   std_msgs::ColorRGBA red, green, blue, yellow, white;

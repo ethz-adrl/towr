@@ -23,7 +23,7 @@
 namespace xpp {
 namespace ros {
 
-class TrajectoryVisualizer : public IVisualizer{
+class MarkerArrayBuilder : public IVisualizer {
 
 public:
   typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > StdVecEigen2d;
@@ -35,9 +35,9 @@ public:
   typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
 
 public:
-  TrajectoryVisualizer(const std::string& topic = "zmp_publisher");
-  virtual
-  ~TrajectoryVisualizer () {};
+  MarkerArrayBuilder(const std::string& topic = "zmp_publisher");
+
+  virtual ~MarkerArrayBuilder () {};
 
 public:
   void AddRvizMessage(

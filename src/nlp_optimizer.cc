@@ -23,6 +23,8 @@
 #include <xpp/zmp/range_of_motion_cost.h>
 #include <xpp/zmp/total_acceleration_equation.h>
 #include <xpp/zmp/cost_container.h>
+//
+#include "../include/xpp/ros/marker_array_builder.h"
 
 namespace xpp {
 namespace zmp {
@@ -129,6 +131,8 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
   // end of observer pattern stuff
+
+
 
 
 

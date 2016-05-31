@@ -59,7 +59,7 @@ public:
 
     VectorXd vec(kDim2d*n_steps_);
     int c=0;
-    for (uint step=0; step<n_steps_; ++step)
+    for (int step=0; step<n_steps_; ++step)
     {
       vec[c++] = footholds_xy.at(step).x();
       vec[c++] = footholds_xy.at(step).y();

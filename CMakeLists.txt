@@ -111,7 +111,7 @@ set(SOURCES
   src/nlp_ipopt_zmp.cc
   src/zmp_constraint_builder.cc
   src/zero_moment_point.cc
-  src/trajectory_visualizer.cc
+  src/marker_array_builder.cc
   src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
   src/qp_optimizer_node.cc
