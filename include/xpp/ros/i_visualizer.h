@@ -8,9 +8,6 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_IVISUALIZER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_IVISUALIZER_H_
 
-#include <xpp/zmp/spline_container.h>
-#include <xpp/hyq/foothold.h>
-
 namespace xpp {
 namespace ros {
 
@@ -22,11 +19,6 @@ namespace ros {
  * spline dependecies.
  */
 class IVisualizer {
-public:
-  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
-  typedef xpp::hyq::Foothold::VecFoothold VecFoothold;
-
-
 public:
   IVisualizer() {};
   virtual

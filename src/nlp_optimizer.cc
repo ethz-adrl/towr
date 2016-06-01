@@ -8,6 +8,10 @@
 #include <xpp/zmp/nlp_optimizer.h>
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
+#include <xpp/zmp/spline_container.h>
+#include <xpp/zmp/nlp_structure.h>
+#include <xpp/hyq/support_polygon_container.h>
+
 // this looks like i need the factor method
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/a_linear_constraint.h>
@@ -57,18 +61,25 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   typedef xpp::hyq::SupportPolygon SupportPolygon;
 
   // create the general spline structure
-  spline_structure_.Init(initial_state.p,
+  // fixme, can probably remove this
+  ContinuousSplineContainer spline_structure;
+  spline_structure.Init(initial_state.p,
                         initial_state.v ,
                         step_sequence,
                         times);
 
-  step_sequence_ = step_sequence;
-
-
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(start_stance,
-                              step_sequence_,
+                              step_sequence,
                               SupportPolygon::GetDefaultMargins());
+
+  subject_.Init(initial_state.p,
+                initial_state.v,
+                step_sequence,
+                times);
+
+  subject_.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
+
 
 //  NlpStructure nlp_structure(spline_structure_.GetTotalFreeCoeff(),
 //                             supp_polygon_container.GetNumberOfSteps());
@@ -86,17 +97,11 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
   // This should all be hidden inside a factory method
   // the linear equations
-  InitialAccelerationEquation eq_acc(initial_state.a, spline_structure_.GetTotalFreeCoeff());
-  FinalStateEquation eq_final(final_state, spline_structure_);
-  SplineJunctionEquation eq_junction(spline_structure_);
+  InitialAccelerationEquation eq_acc(initial_state.a, spline_structure.GetTotalFreeCoeff());
+  FinalStateEquation eq_final(final_state, spline_structure);
+  SplineJunctionEquation eq_junction(spline_structure);
 
 
-  subject_.Init(initial_state.p,
-                initial_state.v,
-                step_sequence,
-                times);
-
-  subject_.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
 
   // add the constraints
   LinearEqualityConstraint c_acc(subject_);
@@ -109,10 +114,10 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   c_junction.Init(eq_junction.BuildLinearEquation());
 
   ZmpConstraint c_zmp(subject_);
-  c_zmp.Init(spline_structure_, supp_polygon_container, robot_height);
+  c_zmp.Init(spline_structure, supp_polygon_container, robot_height);
 
   RangeOfMotionConstraint c_rom(subject_);
-  c_rom.Init(spline_structure_, supp_polygon_container);
+  c_rom.Init(spline_structure, supp_polygon_container);
 
 
   ConstraintContainer constraint_container;
@@ -124,13 +129,13 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
   // costs
-  TotalAccelerationEquation eq_total_acc(spline_structure_);
+  TotalAccelerationEquation eq_total_acc(spline_structure);
 
   AQuadraticCost cost_acc(subject_);
   cost_acc.Init(eq_total_acc.BuildLinearEquation());
 
   RangeOfMotionCost cost_rom(subject_);
-  cost_rom.Init(spline_structure_, supp_polygon_container);
+  cost_rom.Init(spline_structure, supp_polygon_container);
 
   CostContainer cost_container(subject_);
   cost_container.AddCost(cost_acc);

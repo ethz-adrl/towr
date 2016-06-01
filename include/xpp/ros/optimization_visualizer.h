@@ -11,6 +11,9 @@
 #include <xpp/zmp/i_observer.h>
 #include <xpp/ros/i_visualizer.h>
 
+#include <xpp/zmp/zmp_spline.h>
+#include <xpp/hyq/foothold.h>
+
 #include <xpp/ros/marker_array_builder.h>
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/continuous_spline_container.h>
@@ -29,9 +32,10 @@ namespace ros {
   */
 class OptimizationVisualizer : public xpp::zmp::IObserver, public IVisualizer {
 public:
+  typedef std::vector<xpp::zmp::ZmpSpline> VecSpline;
+  typedef xpp::hyq::Foothold::VecFoothold VecFoothold;
+
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
-  typedef xpp::zmp::ContinuousSplineContainer ContinuousSplineContainer;
-  typedef OptimizationVariables::StdVecEigen2d StdVecEigen2d;
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::hyq::LegID LegID;
 

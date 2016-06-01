@@ -10,15 +10,14 @@
 
 
 #include <xpp/hyq/foothold.h>
-#include <xpp/zmp/spline_container.h>
-#include <xpp/zmp/nlp_structure.h>
-#include <xpp/hyq/support_polygon_container.h>
+#include <xpp/zmp/zmp_spline.h>
 
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/ros/i_visualizer.h>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
+
 
 namespace xpp {
 namespace zmp {
@@ -27,16 +26,12 @@ class NlpOptimizer {
 public:
   typedef xpp::utils::Point2d State;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
-  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  typedef std::vector<ZmpSpline> VecSpline;
   typedef xpp::ros::IVisualizer IVisualizer;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
 
-public:
   NlpOptimizer ();
-  virtual
-  ~NlpOptimizer () {};
-
+  virtual ~NlpOptimizer () {};
 
   /**
    * @brief Solves the nonlinear program (NLP) of moving the CoG from an initial to a
@@ -67,10 +62,6 @@ public:
 private:
   void SolveIpopt(const IpoptPtr& nlp);
   OptimizationVariables subject_;
-
-  // these are necessary for correctly interpreting the optimization variables
-  std::vector<xpp::hyq::LegID> step_sequence_;
-  ContinuousSplineContainer spline_structure_;
 
   Ipopt::IpoptApplication app_;
   Ipopt::ApplicationReturnStatus status_;

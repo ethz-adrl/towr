@@ -7,6 +7,8 @@
 
 #include <xpp/zmp/optimization_variables.h>
 
+#include <xpp/hyq/foothold.h>
+
 namespace xpp {
 namespace zmp {
 
