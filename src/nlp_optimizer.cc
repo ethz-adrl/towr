@@ -141,14 +141,19 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   xpp::ros::OptimizationVisualizer optimization_visualizer(subject_);
   optimization_visualizer.Init(step_sequence_, spline_structure_);
 
-  Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
-      new Ipopt::NlpIpoptZmp(subject_, // optmization variables
-                             cost_container,
-                             constraint_container,
-                             optimization_visualizer);
+  IpoptPtr nlp_ptr = new Ipopt::NlpIpoptZmp(subject_, // optmization variables
+                                            cost_container,
+                                            constraint_container,
+                                            optimization_visualizer);
 
+  SolveIpopt(nlp);
+  subject_.RemoveObservers();
+}
 
-  status_ = app_.OptimizeTNLP(nlp_ipopt_zmp);
+void
+NlpOptimizer::SolveIpopt (const IpoptPtr& nlp)
+{
+  status_ = app_.OptimizeTNLP(nlp);
   if (status_ == Ipopt::Solve_Succeeded) {
     // Retrieve some statistics about the solve
     Ipopt::Index iter_count = app_.Statistics()->IterationCount();
@@ -157,8 +162,6 @@ NlpOptimizer::SolveNlp(const State& initial_state,
     Ipopt::Number final_obj = app_.Statistics()->FinalObjective();
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
   }
-
-  subject_.RemoveObservers();
 }
 
 NlpOptimizer::VecFoothold

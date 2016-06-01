@@ -30,6 +30,7 @@ public:
   typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef xpp::ros::IVisualizer IVisualizer;
+  typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
 
 public:
   NlpOptimizer ();
@@ -58,12 +59,13 @@ public:
                 const SplineTimes& times,
                 double robot_height);
 
-//  void AttachVisualizer(xpp::ros::IVisualizer&
+  void AttachVisualizer(xpp::ros::IVisualizer& visualizer);
 
   VecFoothold GetFootholds() const;
   VecSpline GetSplines();
 
 private:
+  void SolveIpopt(const IpoptPtr& nlp);
   OptimizationVariables subject_;
 
   // these are necessary for correctly interpreting the optimization variables

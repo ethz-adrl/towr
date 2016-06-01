@@ -41,6 +41,7 @@ void
 xpp::ros::OptimizationVisualizer::PublishMsg ()
 {
   // fill in some semantic information to interpret optimization variables
+  // fixme, this replicates NlpOptimizer::GetFootholds
   splines_.AddOptimizedCoefficients(x_coeff_);
   VecSpline splines = splines_.GetSplines();
 
