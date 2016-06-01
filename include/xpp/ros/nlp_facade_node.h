@@ -5,14 +5,13 @@
  *      Author: winklera
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
+#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_FACADE_NODE_H_
+#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_FACADE_NODE_H_
 
 #include <xpp/ros/optimizer_node_base.h>
-#include <xpp/zmp/nlp_optimizer.h>
-
 #include <xpp_opt/RequiredInfoNlp.h>        // receive
 #include <xpp_opt/OptimizedParametersNlp.h> // send
+#include "../zmp/nlp_facade.h"
 
 namespace xpp {
 namespace ros {
@@ -20,7 +19,7 @@ namespace ros {
 class NlpOptimizerNode : public OptimizerNodeBase {
 public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
-  typedef xpp::zmp::NlpOptimizer NlpOptimizer;
+  typedef xpp::zmp::NlpFacade NlpOptimizer;
   typedef xpp::hyq::LegID LegID;
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersNlp OptParamMsg;
@@ -55,4 +54,4 @@ private:
 } /* namespace ros */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_ */
+#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_FACADE_NODE_H_ */

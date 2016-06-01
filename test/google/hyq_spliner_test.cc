@@ -7,8 +7,8 @@
 
 #include <gtest/gtest.h>
 #include <xpp/hyq/hyq_spliner.h>
-#include "nlp_optimizer_test.h"
 #include <iostream>
+#include "nlp_facade_test.h"
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 

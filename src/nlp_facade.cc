@@ -5,7 +5,8 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/nlp_optimizer.h>
+#include "../include/xpp/zmp/nlp_facade.h"
+
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
 #include <xpp/zmp/spline_container.h>
@@ -33,7 +34,7 @@ namespace xpp {
 namespace zmp {
 
 
-NlpOptimizer::NlpOptimizer ()
+NlpFacade::NlpFacade ()
     :visualizer_(xpp::ros::dummy_visualizer)
 {
   app_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
@@ -51,7 +52,7 @@ NlpOptimizer::NlpOptimizer ()
 
 
 void
-NlpOptimizer::SolveNlp(const State& initial_state,
+NlpFacade::SolveNlp(const State& initial_state,
                        const State& final_state,
                        const std::vector<xpp::hyq::LegID>& step_sequence,
                        const VecFoothold& start_stance,
@@ -155,7 +156,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 }
 
 void
-NlpOptimizer::SolveIpopt (const IpoptPtr& nlp)
+NlpFacade::SolveIpopt (const IpoptPtr& nlp)
 {
   status_ = app_.OptimizeTNLP(nlp);
   if (status_ == Ipopt::Solve_Succeeded) {
@@ -168,14 +169,14 @@ NlpOptimizer::SolveIpopt (const IpoptPtr& nlp)
   }
 }
 
-NlpOptimizer::VecFoothold
-NlpOptimizer::GetFootholds () const
+NlpFacade::VecFoothold
+NlpFacade::GetFootholds () const
 {
   return subject_.GetFootholds();
 }
 
-NlpOptimizer::VecSpline
-NlpOptimizer::GetSplines ()
+NlpFacade::VecSpline
+NlpFacade::GetSplines ()
 {
   return subject_.GetSplines();
 }

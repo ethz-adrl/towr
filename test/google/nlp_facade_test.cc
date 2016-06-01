@@ -5,7 +5,7 @@
  *      Author: awinkler
  */
 
-#include "nlp_optimizer_test.h"
+#include "nlp_facade_test.h"
 
 
 namespace xpp {

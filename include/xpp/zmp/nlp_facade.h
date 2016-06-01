@@ -5,8 +5,8 @@
  *      Author: winklera
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_OPTIMIZER_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_OPTIMIZER_H_
+#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
+#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 
 
 #include <xpp/hyq/foothold.h>
@@ -22,7 +22,7 @@
 namespace xpp {
 namespace zmp {
 
-class NlpOptimizer {
+class NlpFacade {
 public:
   typedef xpp::utils::Point2d State;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
@@ -30,8 +30,8 @@ public:
   typedef xpp::ros::IVisualizer IVisualizer;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
 
-  NlpOptimizer ();
-  virtual ~NlpOptimizer () {};
+  NlpFacade ();
+  virtual ~NlpFacade () {};
 
   /**
    * @brief Solves the nonlinear program (NLP) of moving the CoG from an initial to a
@@ -72,4 +72,4 @@ private:
 } /* namespace zmp */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_OPTIMIZER_H_ */
+#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_ */

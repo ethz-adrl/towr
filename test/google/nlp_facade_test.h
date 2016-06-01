@@ -5,7 +5,8 @@
  *      Author: awinkler
  */
 
-#include <xpp/zmp/nlp_optimizer.h>
+#include "../../include/xpp/zmp/nlp_facade.h"
+
 #include <gtest/gtest.h>
 #include <iostream>
 
@@ -16,9 +17,9 @@ namespace zmp {
 
 class NlpOptimizerTest : public  ::testing::Test {
 public:
-  typedef NlpOptimizer::State Point2d;
-  typedef NlpOptimizer::VecSpline VecSpline;
-  typedef NlpOptimizer::VecFoothold VecFoothold;
+  typedef NlpFacade::State Point2d;
+  typedef NlpFacade::VecSpline VecSpline;
+  typedef NlpFacade::VecFoothold VecFoothold;
 
 protected:
   /** optimizes the spline only once for all tests that are build from this
@@ -28,7 +29,7 @@ protected:
   {
     using namespace xpp::hyq;
 
-    NlpOptimizer nlp_optimizer;
+    NlpFacade nlp_optimizer;
     start_xy_.p << 0.01, 0.04;
     start_xy_.v << 0.02, 0.05;
     start_xy_.a << 0.03, 0.06;
