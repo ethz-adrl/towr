@@ -1,16 +1,17 @@
-/*
- * nlp_ipopt.h
- *
- *  Created on: Apr 12, 2016
- *      Author: winklera
+/**
+ @file    nlp_ipopt_zmp.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Jan 10, 2016
+ @brief   Defines the actual IPOPT solver
  */
+
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
 // only to get the optimization variables in the intermediate callback
-#include "IpIpoptCalculatedQuantities.hpp"
-#include "IpIpoptData.hpp"
-#include "IpTNLPAdapter.hpp"
-#include "IpOrigIpoptNLP.hpp"
+//#include "IpIpoptCalculatedQuantities.hpp"
+//#include "IpIpoptData.hpp"
+//#include "IpTNLPAdapter.hpp"
+//#include "IpOrigIpoptNLP.hpp"
 
 namespace Ipopt {
 

@@ -34,9 +34,10 @@ namespace xpp {
 namespace zmp {
 
 
-NlpFacade::NlpFacade ()
-    :visualizer_(xpp::ros::dummy_visualizer)
+NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
+    :visualizer_(&visualizer)
 {
+
   app_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
   status_ = app_.Initialize();
   if (status_ != Ipopt::Solve_Succeeded) {
@@ -50,6 +51,11 @@ NlpFacade::NlpFacade ()
 
 }
 
+void
+NlpFacade::AttachVisualizer (xpp::ros::IVisualizer& visualizer)
+{
+//  visualizer_ = &visualizer;
+}
 
 void
 NlpFacade::SolveNlp(const State& initial_state,
@@ -91,9 +97,6 @@ NlpFacade::SolveNlp(const State& initial_state,
 //  if (num_steps_changed || init_with_zeros) {
 //    SetInitialVariables(nlp_structure, supp_polygon_container);
 //  } else {} // use previous values
-
-
-//  Constraints constraints(supp_polygon_container, spline_structure_, nlp_structure, robot_height, initial_state.a, final_state);
 
 
   // This should all be hidden inside a factory method
@@ -149,7 +152,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   IpoptPtr nlp_ptr = new Ipopt::NlpIpoptZmp(subject_, // optmization variables
                                             cost_container,
                                             constraint_container,
-                                            optimization_visualizer);
+                                            *visualizer_);
 
   SolveIpopt(nlp_ptr);
   subject_.RemoveObservers();
@@ -183,3 +186,4 @@ NlpFacade::GetSplines ()
 
 } /* namespace zmp */
 } /* namespace xpp */
+

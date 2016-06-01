@@ -29,7 +29,7 @@ public:
 	NlpIpoptZmp(OptimizationVariables& opt_variables,
 	            const CostContainer& cost_container,
 	            const ConstraintContainer& constraint_container,
-	            IVisualizer& visualizer = xpp::ros::dummy_visualizer);
+	            IVisualizer& visualizer = xpp::ros::do_nothing_visualizer);
 
   /** default destructor */
   virtual ~NlpIpoptZmp() {};

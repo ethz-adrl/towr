@@ -118,6 +118,7 @@ set(SOURCES
   src/a_subject.cc
   src/optimization_variables.cc
   src/i_observer.cc
+  src/a_observer_visualizer.cc
   # constraints
   src/a_constraint.cc
   src/a_linear_constraint.cc
@@ -217,6 +218,7 @@ if(BUILD_TESTS)
                         test/google/hyq_spliner_test.cc
                         #test/google/eigen_num_diff_test.cc
 #                        test/google/optimization_variables_test.cc
+                        test/google/a_observer_visualizer_test.cc
                         test/google/initial_acceleration_equation_test.cc
                         test/google/zmp_constraint_test.cc
 #                        test/google/constraint_container_test.cc

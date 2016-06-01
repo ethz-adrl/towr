@@ -29,7 +29,7 @@ public:
 
 // compilation unit scope object that can be used as default initialization
 // "static" : each .cc files that includes this header has it's own copy of this variable
-static IVisualizer dummy_visualizer;
+static IVisualizer do_nothing_visualizer;
 
 } /* namespace ros */
 } /* namespace xpp */

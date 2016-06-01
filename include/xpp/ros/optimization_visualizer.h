@@ -8,15 +8,12 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 
-#include <xpp/zmp/i_observer.h>
-#include <xpp/ros/i_visualizer.h>
-
+#include <xpp/zmp/a_observer_visualizer.h>
 #include <xpp/zmp/zmp_spline.h>
 #include <xpp/hyq/foothold.h>
 
 #include <xpp/ros/marker_array_builder.h>
 #include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/continuous_spline_container.h>
 
 #include <ros/ros.h>
 
@@ -30,7 +27,7 @@ namespace ros {
   * some semantic information to the optimization variables, it delegates
   * the actual generation of these messages to \c msg_builder_.
   */
-class OptimizationVisualizer : public xpp::zmp::IObserver, public IVisualizer {
+class OptimizationVisualizer : public xpp::zmp::AObserverVisualizer {
 public:
   typedef std::vector<xpp::zmp::ZmpSpline> VecSpline;
   typedef xpp::hyq::Foothold::VecFoothold VecFoothold;
@@ -41,6 +38,8 @@ public:
 
   OptimizationVisualizer (OptimizationVariables& subject);
   virtual ~OptimizationVisualizer () {}
+
+  void RegisterWithSubject();
 
   /** @brief Updates the values of the optimization variables. */
    void Update() override;

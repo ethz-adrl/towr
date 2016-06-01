@@ -12,8 +12,7 @@
 namespace xpp {
 namespace ros {
 
-xpp::ros::OptimizationVisualizer::OptimizationVisualizer (
-    OptimizationVariables& subject)
+OptimizationVisualizer::OptimizationVisualizer (OptimizationVariables& subject)
     : subject_(subject)
 {
   subject_.RegisterObserver(this);
@@ -23,14 +22,20 @@ xpp::ros::OptimizationVisualizer::OptimizationVisualizer (
 }
 
 void
-xpp::ros::OptimizationVisualizer::Update ()
+OptimizationVisualizer::RegisterWithSubject ()
+{
+  subject_.RegisterObserver(this);
+}
+
+void
+OptimizationVisualizer::Update ()
 {
   splines_ = subject_.GetSplines();
   footholds_ = subject_.GetFootholds();
 }
 
 void
-xpp::ros::OptimizationVisualizer::PublishMsg ()
+OptimizationVisualizer::PublishMsg ()
 {
   double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 
@@ -40,3 +45,4 @@ xpp::ros::OptimizationVisualizer::PublishMsg ()
 
 } /* namespace ros */
 } /* namespace xpp */
+
