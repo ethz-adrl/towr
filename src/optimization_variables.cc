@@ -39,7 +39,9 @@ xpp::zmp::OptimizationVariables::SetFootholds (const StdVecEigen2d& footholds)
 void
 OptimizationVariables::RegisterObserver(IObserver* o)
 {
-  observers_.push_back(o);
+  bool observer_already_registered = std::find(observers_.begin(), observers_.end(), o) != observers_.end();
+  if (!observer_already_registered)
+    observers_.push_back(o);
 }
 
 void

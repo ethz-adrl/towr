@@ -12,26 +12,23 @@
 namespace xpp {
 namespace ros {
 
-OptimizationVisualizer::OptimizationVisualizer (OptimizationVariables& subject)
-    : subject_(subject)
+OptimizationVisualizer::OptimizationVisualizer ()
 {
-  subject_.RegisterObserver(this);
-
-  ::ros::NodeHandle n;
-  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
+  InitRos();
 }
 
-void
-OptimizationVisualizer::RegisterWithSubject ()
+OptimizationVisualizer::OptimizationVisualizer (OptimizationVariables& subject)
+    : subject_(&subject)
 {
-  subject_.RegisterObserver(this);
+  RegisterWithSubject(subject);
+  InitRos();
 }
 
 void
 OptimizationVisualizer::Update ()
 {
-  splines_ = subject_.GetSplines();
-  footholds_ = subject_.GetFootholds();
+  splines_ = subject_->GetSplines();
+  footholds_ = subject_->GetFootholds();
 }
 
 void
@@ -41,6 +38,20 @@ OptimizationVisualizer::PublishMsg ()
 
   visualization_msgs::MarkerArray msg = msg_builder_.BuildMsg(splines_, footholds_, walking_height);
   ros_publisher_.publish(msg);
+}
+
+void
+OptimizationVisualizer::RegisterWithSubject (OptimizationVariables& subject)
+{
+  subject_ = &subject;
+  subject_->RegisterObserver(this);
+}
+
+void
+OptimizationVisualizer::InitRos ()
+{
+  ::ros::NodeHandle n;
+  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
 }
 
 } /* namespace ros */

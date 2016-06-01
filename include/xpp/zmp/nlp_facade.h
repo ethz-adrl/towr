@@ -11,11 +11,11 @@
 
 #include <xpp/hyq/foothold.h>
 #include <xpp/zmp/zmp_spline.h>
-
 #include <xpp/zmp/optimization_variables.h>
+#include <xpp/zmp/a_observer_visualizer.h>
+
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
-#include <xpp/zmp/a_observer_visualizer.h>
 
 
 namespace xpp {
@@ -52,7 +52,7 @@ public:
                 const SplineTimes& times,
                 double robot_height);
 
-  void AttachVisualizer(xpp::ros::IVisualizer& visualizer);
+  void AttachVisualizer(AObserverVisualizer& visualizer);
 
   VecFoothold GetFootholds() const;
   VecSpline GetSplines();

@@ -17,8 +17,8 @@ namespace Ipopt {
 
 
 NlpIpoptZmp::NlpIpoptZmp(OptimizationVariables& opt_variables,
-                         const CostContainer& cost_container,
-                         const ConstraintContainer& constraint_container,
+                         CostContainer& cost_container,
+                         ConstraintContainer& constraint_container,
                          IVisualizer& visualizer)
     :opt_variables_(opt_variables),
      cost_container_(cost_container),

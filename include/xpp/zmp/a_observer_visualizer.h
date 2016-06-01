@@ -11,6 +11,7 @@
 
 #include <xpp/zmp/i_observer.h>
 #include <xpp/ros/i_visualizer.h>
+#include <xpp/zmp/optimization_variables.h>
 
 namespace xpp {
 namespace zmp {
@@ -19,10 +20,13 @@ class AObserverVisualizer : public IObserver, public ros::IVisualizer {
 public:
   AObserverVisualizer ();
   virtual ~AObserverVisualizer ();
+
+  virtual void RegisterWithSubject(OptimizationVariables& subject) = 0;
 };
 
 class DoNothingObserverVisualizer : public AObserverVisualizer {
   void Update() { /* does nothing */ };
+  void RegisterWithSubject(OptimizationVariables& subject) { /* does nothing */ };
 };
 
 // compilation unit scope object that can be used as default initialization

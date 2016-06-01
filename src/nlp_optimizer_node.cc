@@ -5,8 +5,8 @@
  *      Author: winklera
  */
 
+#include <xpp/ros/nlp_facade_node.h> // fixme rename this
 #include <xpp/ros/ros_helpers.h>
-#include "../include/xpp/ros/nlp_facade_node.h"
 
 namespace xpp {
 namespace ros {
@@ -19,6 +19,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                    &NlpOptimizerNode::CurrentInfoCallback, this);
 
   opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
+  nlp_facade_.AttachVisualizer(optimization_visualizer_);
 }
 
 void
@@ -54,15 +55,15 @@ NlpOptimizerNode::OptimizeTrajectory()
   std::vector<xpp::hyq::LegID> step_sequence = DetermineStepSequence(curr_cog_, curr_swingleg_);
   std::cout << "step_sequence.size(): " << step_sequence.size() << std::endl;
 
-  nlp_optimizer_.SolveNlp(curr_cog_.Get2D(),
-                          goal_cog_.Get2D(),
-                          step_sequence,
-                          curr_stance_,
-                          spline_times_,
-                          robot_height_);
+  nlp_facade_.SolveNlp(curr_cog_.Get2D(),
+                       goal_cog_.Get2D(),
+                       step_sequence,
+                       curr_stance_,
+                       spline_times_,
+                       robot_height_);
 
-  opt_splines_ = nlp_optimizer_.GetSplines();
-  footholds_   = nlp_optimizer_.GetFootholds();
+  opt_splines_ = nlp_facade_.GetSplines();
+  footholds_   = nlp_facade_.GetFootholds();
 }
 
 std::vector<xpp::hyq::LegID>

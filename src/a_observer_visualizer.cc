@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/zmp/a_observer_visualizer.h"
+#include <xpp/zmp/a_observer_visualizer.h>
 
 namespace xpp {
 namespace zmp {
@@ -22,3 +22,4 @@ AObserverVisualizer::~AObserverVisualizer ()
 
 } /* namespace zmp */
 } /* namespace xpp */
+

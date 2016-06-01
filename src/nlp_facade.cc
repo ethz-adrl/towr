@@ -5,7 +5,7 @@
  *      Author: winklera
  */
 
-#include "../include/xpp/zmp/nlp_facade.h"
+#include <xpp/zmp/nlp_facade.h>
 
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
@@ -13,7 +13,9 @@
 #include <xpp/zmp/nlp_structure.h>
 #include <xpp/hyq/support_polygon_container.h>
 
-// this looks like i need the factor method
+#include <xpp/ros/optimization_visualizer.h> // remove this
+
+// this looks like i need the factory method
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/a_linear_constraint.h>
 #include <xpp/zmp/initial_acceleration_equation.h>
@@ -27,8 +29,7 @@
 #include <xpp/zmp/range_of_motion_cost.h>
 #include <xpp/zmp/total_acceleration_equation.h>
 #include <xpp/zmp/cost_container.h>
-//
-#include <xpp/ros/optimization_visualizer.h>
+
 
 namespace xpp {
 namespace zmp {
@@ -52,9 +53,10 @@ NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
 }
 
 void
-NlpFacade::AttachVisualizer (xpp::ros::IVisualizer& visualizer)
+NlpFacade::AttachVisualizer (AObserverVisualizer& visualizer)
 {
-//  visualizer_ = &visualizer;
+  visualizer_ = &visualizer;
+  visualizer_->RegisterWithSubject(subject_);
 }
 
 void
@@ -146,8 +148,8 @@ NlpFacade::SolveNlp(const State& initial_state,
   cost_container.AddCost(cost_rom);
 
 
-  // fixme make this a class member so ros registration only has to happen once
-  xpp::ros::OptimizationVisualizer optimization_visualizer(subject_);
+//  xpp::ros::OptimizationVisualizer vis;
+//  vis.RegisterWithSubject(subject_);
 
   IpoptPtr nlp_ptr = new Ipopt::NlpIpoptZmp(subject_, // optmization variables
                                             cost_container,

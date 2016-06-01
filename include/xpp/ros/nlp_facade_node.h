@@ -9,9 +9,11 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_FACADE_NODE_H_
 
 #include <xpp/ros/optimizer_node_base.h>
+#include <xpp/zmp/nlp_facade.h>
+#include <xpp/ros/optimization_visualizer.h>
+
 #include <xpp_opt/RequiredInfoNlp.h>        // receive
 #include <xpp_opt/OptimizedParametersNlp.h> // send
-#include "../zmp/nlp_facade.h"
 
 namespace xpp {
 namespace ros {
@@ -19,7 +21,7 @@ namespace ros {
 class NlpOptimizerNode : public OptimizerNodeBase {
 public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
-  typedef xpp::zmp::NlpFacade NlpOptimizer;
+  typedef xpp::zmp::NlpFacade NlpFacade;
   typedef xpp::hyq::LegID LegID;
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersNlp OptParamMsg;
@@ -31,7 +33,7 @@ public:
 private:
   /** Fills the member variables opt_footholds and opt_coefficients
     */
-  NlpOptimizer nlp_optimizer_;
+  NlpFacade nlp_facade_;
   void UpdateCurrentState(const ReqInfoMsg& msg);
   void OptimizeTrajectory();
   void PublishOptimizedValues() const;
@@ -49,6 +51,7 @@ private:
   ::ros::Publisher opt_params_pub_;
   void CurrentInfoCallback(const ReqInfoMsg& msg);
 
+  xpp::ros::OptimizationVisualizer optimization_visualizer_;
 };
 
 } /* namespace ros */

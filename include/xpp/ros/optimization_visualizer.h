@@ -31,25 +31,24 @@ class OptimizationVisualizer : public xpp::zmp::AObserverVisualizer {
 public:
   typedef std::vector<xpp::zmp::ZmpSpline> VecSpline;
   typedef xpp::hyq::Foothold::VecFoothold VecFoothold;
-
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
-  typedef Eigen::VectorXd VectorXd;
-  typedef xpp::hyq::LegID LegID;
 
+  OptimizationVisualizer();
   OptimizationVisualizer (OptimizationVariables& subject);
   virtual ~OptimizationVisualizer () {}
 
-  void RegisterWithSubject();
+  void RegisterWithSubject (OptimizationVariables& subject);
 
   /** @brief Updates the values of the optimization variables. */
    void Update() override;
   void PublishMsg();
 
 private:
-  ::ros::Publisher ros_publisher_;
 
+  void InitRos();
+  OptimizationVariables* subject_;
+  ::ros::Publisher ros_publisher_;
   MarkerArrayBuilder msg_builder_;
-  OptimizationVariables& subject_;
 
   // optimization variables
   VecSpline splines_;

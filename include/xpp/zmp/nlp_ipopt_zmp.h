@@ -27,8 +27,8 @@ public:
   typedef Eigen::VectorXd VectorXd;
 
 	NlpIpoptZmp(OptimizationVariables& opt_variables,
-	            const CostContainer& cost_container,
-	            const ConstraintContainer& constraint_container,
+	            CostContainer& cost_container,
+	            ConstraintContainer& constraint_container,
 	            IVisualizer& visualizer = xpp::ros::do_nothing_visualizer);
 
   /** default destructor */
@@ -103,9 +103,9 @@ public:
 
 private:
   OptimizationVariables& opt_variables_;
-  CostContainer cost_container_;
+  CostContainer& cost_container_;
   Eigen::NumericalDiff<CostContainer> num_diff_cost_function_;
-  ConstraintContainer constraint_container_;
+  ConstraintContainer& constraint_container_;
   IVisualizer& visualizer_;
 };
 
