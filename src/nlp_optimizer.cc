@@ -10,7 +10,6 @@
 
 // this looks like i need the factor method
 #include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/a_linear_constraint.h>
 #include <xpp/zmp/initial_acceleration_equation.h>
 #include <xpp/zmp/final_state_equation.h>
@@ -31,7 +30,8 @@ namespace zmp {
 
 
 NlpOptimizer::NlpOptimizer ()
-    :visualizer_(xpp::ros::dummy_visualizer)
+    :subject_(0,0), // initialized with zero values
+     visualizer_(xpp::ros::dummy_visualizer)
 {
   app_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
   status_ = app_.Initialize();
@@ -39,6 +39,11 @@ NlpOptimizer::NlpOptimizer ()
     std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
     throw std::length_error("Ipopt could not initialize correctly");
   }
+
+
+
+
+
 }
 
 
@@ -91,23 +96,23 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   SplineJunctionEquation eq_junction(spline_structure);
 
 
-  OptimizationVariables subject(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
-  subject.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
+  subject_.Init(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
+  subject_.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
 
   // add the constraints
-  LinearEqualityConstraint c_acc(subject);
+  LinearEqualityConstraint c_acc(subject_);
   c_acc.Init(eq_acc.BuildLinearEquation());
 
-  LinearEqualityConstraint c_final(subject);
+  LinearEqualityConstraint c_final(subject_);
   c_final.Init(eq_final.BuildLinearEquation());
 
-  LinearEqualityConstraint c_junction(subject);
+  LinearEqualityConstraint c_junction(subject_);
   c_junction.Init(eq_junction.BuildLinearEquation());
 
-  ZmpConstraint c_zmp(subject);
+  ZmpConstraint c_zmp(subject_);
   c_zmp.Init(spline_structure, supp_polygon_container, robot_height);
 
-  RangeOfMotionConstraint c_rom(subject);
+  RangeOfMotionConstraint c_rom(subject_);
   c_rom.Init(spline_structure, supp_polygon_container);
 
 
@@ -122,27 +127,26 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   // costs
   TotalAccelerationEquation eq_total_acc(spline_structure);
 
-  AQuadraticCost cost_acc(subject);
+  AQuadraticCost cost_acc(subject_);
   cost_acc.Init(eq_total_acc.BuildLinearEquation());
 
-  RangeOfMotionCost cost_rom(subject);
+  RangeOfMotionCost cost_rom(subject_);
   cost_rom.Init(spline_structure, supp_polygon_container);
 
-  CostContainer cost_container(subject);
+  CostContainer cost_container(subject_);
   cost_container.AddCost(cost_acc);
   cost_container.AddCost(cost_rom);
 
 
   // fixme make this a class member so ros registration only has to happen once
-//  xpp::ros::OptimizationVisualizer optimization_visualizer(subject);
-//  optimization_visualizer.Init(step_sequence, spline_structure);
-
+  xpp::ros::OptimizationVisualizer optimization_visualizer(subject_);
+  optimization_visualizer.Init(step_sequence, spline_structure);
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
-      new Ipopt::NlpIpoptZmp(subject, // optmization variables
+      new Ipopt::NlpIpoptZmp(subject_, // optmization variables
                              cost_container,
-                             constraint_container
-                             /*optimization_visualizer*/);
+                             constraint_container,
+                             optimization_visualizer);
 
 
   status_ = app_.OptimizeTNLP(nlp_ipopt_zmp);
@@ -156,15 +160,17 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   }
 
 
-  int n_steps = subject.GetFootholdsStd().size();
+  int n_steps = subject_.GetFootholdsStd().size();
   opt_footholds.resize(n_steps);
   for (int i=0; i<n_steps; ++i) {
     opt_footholds.at(i).leg = step_sequence.at(i);
   }
 
-  xpp::hyq::Foothold::SetXy(subject.GetFootholdsStd(), opt_footholds);
-  spline_structure.AddOptimizedCoefficients(subject.GetSplineCoefficients());
+  xpp::hyq::Foothold::SetXy(subject_.GetFootholdsStd(), opt_footholds);
+  spline_structure.AddOptimizedCoefficients(subject_.GetSplineCoefficients());
   opt_splines = spline_structure.GetSplines();
+
+  subject_.RemoveObservers();
 }
 
 

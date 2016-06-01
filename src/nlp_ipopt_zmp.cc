@@ -201,6 +201,7 @@ void NlpIpoptZmp::finalize_solution(SolverReturn status,
 			                        IpoptCalculatedQuantities* ip_cq)
 {
 
+  opt_variables_.SetVariables(x);
 //  opt_variables_.spline_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);
 //  opt_variables_.footholds_ = nlp_structure_.ExtractFootholds(x);
 

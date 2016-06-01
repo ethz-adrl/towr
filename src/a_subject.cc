@@ -29,5 +29,12 @@ ASubject::GetObserverCount () const
   return observers_.size();
 }
 
+void
+xpp::zmp::ASubject::RemoveObservers ()
+{
+  observers_.clear();
+}
+
 } /* namespace zmp */
 } /* namespace xpp */
+

@@ -14,6 +14,7 @@
 #include <xpp/zmp/nlp_structure.h>
 #include <xpp/hyq/support_polygon_container.h>
 
+#include <xpp/zmp/optimization_variables.h>
 #include <xpp/ros/i_visualizer.h>
 
 #include <IpIpoptApplication.hpp>
@@ -59,8 +60,12 @@ public:
                 VecSpline& opt_splines,
                 VecFoothold& opt_footholds);
 
+//  void AttachVisualizer(xpp::ros::IVisualizer&
+
 
 private:
+  OptimizationVariables subject_;
+
   Ipopt::IpoptApplication app_;
   Ipopt::ApplicationReturnStatus status_;
 

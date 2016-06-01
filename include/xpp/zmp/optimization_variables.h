@@ -22,6 +22,8 @@ public:
   OptimizationVariables (int n_spline_coeff, int n_steps);
   virtual ~OptimizationVariables () {};
 
+  void Init(int n_spline_coeff, int n_steps);
+
   void NotifyObservers () const override;
   void RegisterObserver(IObserver* o) override;
 

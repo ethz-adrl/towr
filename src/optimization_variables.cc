@@ -13,6 +13,13 @@ namespace zmp {
 OptimizationVariables::OptimizationVariables (int n_spline_coeff, int n_steps)
     :nlp_structure_(n_spline_coeff, n_steps)
 {
+  Init(n_spline_coeff, n_steps);
+}
+
+void
+OptimizationVariables::Init (int n_spline_coeff, int n_steps)
+{
+  nlp_structure_ = NlpStructure(n_spline_coeff, n_steps);
   x_ = VectorXd(nlp_structure_.GetOptimizationVariableCount());
   x_.setZero();
 }
@@ -77,4 +84,5 @@ OptimizationVariables::GetSplineCoefficients () const
 
 } /* namespace zmp */
 } /* namespace xpp */
+
 

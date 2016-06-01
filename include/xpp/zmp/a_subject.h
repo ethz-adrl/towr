@@ -20,6 +20,7 @@ public:
   virtual ~ASubject ();
 
   int GetObserverCount() const;
+  virtual void RemoveObservers();
 
 protected:
   std::vector<IObserver*> observers_;
@@ -28,7 +29,6 @@ private:
   // these methods never need to be called from the base class or base class pointer anyway
   virtual void RegisterObserver(IObserver*) = 0;
   virtual void NotifyObservers() const = 0;
-//  virtual void RemoveObserver();
 
   // delete the copy and copy assignment operators, since that messes up the
   // observer pattern logic

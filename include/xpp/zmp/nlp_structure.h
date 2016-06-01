@@ -40,7 +40,6 @@ public:
     return Eigen::Map<const VectorXd>(x,GetOptimizationVariableCount());
   }
 
-
   /** Spline functions */
   VectorXd ExtractSplineCoefficients(const Number* x) const
   {
