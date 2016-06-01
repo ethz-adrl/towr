@@ -16,8 +16,7 @@ class InitialAccelerationEquationTest : public ::testing::Test {
 
 public:
   InitialAccelerationEquationTest()
-      : subject_(3*utils::kDim2d*kFreeCoeffPerSpline, 0),
-        constraint_(subject_) {} // because these members have no default constructor
+      : constraint_(subject_) {} // because these members have no default constructor
 
 protected:
   virtual void SetUp()

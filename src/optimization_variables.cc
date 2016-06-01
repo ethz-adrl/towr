@@ -10,16 +10,20 @@
 namespace xpp {
 namespace zmp {
 
-OptimizationVariables::OptimizationVariables (int n_spline_coeff, int n_steps)
-    :nlp_structure_(n_spline_coeff, n_steps)
+OptimizationVariables::OptimizationVariables ()
 {
-  Init(n_spline_coeff, n_steps);
 }
 
 void
-OptimizationVariables::Init (int n_spline_coeff, int n_steps)
+OptimizationVariables::Init (const Vector2d& start_cog_p,
+                             const Vector2d& start_cog_v,
+                             const std::vector<xpp::hyq::LegID>& step_sequence,
+                             const SplineTimes& times)
 {
-  nlp_structure_ = NlpStructure(n_spline_coeff, n_steps);
+  spline_structure_.Init(start_cog_p, start_cog_v ,step_sequence, times);
+  step_sequence_ = step_sequence;
+
+  nlp_structure_.Init(spline_structure_.GetTotalFreeCoeff(), step_sequence_.size());
   x_ = VectorXd(nlp_structure_.GetOptimizationVariableCount());
   x_.setZero();
 }
@@ -81,8 +85,28 @@ OptimizationVariables::GetSplineCoefficients () const
   return nlp_structure_.ExtractSplineCoefficients(x_);
 }
 
+OptimizationVariables::VecFoothold
+OptimizationVariables::GetFootholds () const
+{
+  OptimizationVariables::StdVecEigen2d footholds_xy = GetFootholdsStd();
+
+  VecFoothold opt_footholds(footholds_xy.size());
+  xpp::hyq::Foothold::SetXy(footholds_xy, opt_footholds);
+
+  uint i=0;
+  for (hyq::Foothold& f : opt_footholds)
+    f.leg = step_sequence_.at(i++);
+
+  return opt_footholds;
+}
+
+OptimizationVariables::VecSpline
+OptimizationVariables::GetSplines ()
+{
+  spline_structure_.AddOptimizedCoefficients(GetSplineCoefficients());
+  return spline_structure_.GetSplines();
+}
 
 } /* namespace zmp */
 } /* namespace xpp */
-
 

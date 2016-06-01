@@ -38,9 +38,6 @@ public:
   OptimizationVisualizer (OptimizationVariables& subject);
   virtual ~OptimizationVisualizer () {}
 
-  void Init(const std::vector<LegID>& swing_leg_sequence,
-            const ContinuousSplineContainer&);
-
   /** @brief Updates the values of the optimization variables. */
    void Update() override;
   void PublishMsg();
@@ -52,11 +49,8 @@ private:
   OptimizationVariables& subject_;
 
   // optimization variables
-  VectorXd x_coeff_;
-  StdVecEigen2d footholds_xy_;
-
-  ContinuousSplineContainer splines_;
-  std::vector<LegID> leg_ids_; ///< these are predefined, not part of optimization
+  VecSpline splines_;
+  VecFoothold footholds_;
 };
 
 } /* namespace ros */

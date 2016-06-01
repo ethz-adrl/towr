@@ -216,14 +216,14 @@ if(BUILD_TESTS)
                         test/google/nlp_optimizer_test.cc
                         test/google/hyq_spliner_test.cc
                         #test/google/eigen_num_diff_test.cc
-                        test/google/optimization_variables_test.cc
+#                        test/google/optimization_variables_test.cc
                         test/google/initial_acceleration_equation_test.cc
                         test/google/zmp_constraint_test.cc
-                        test/google/constraint_container_test.cc
+#                        test/google/constraint_container_test.cc
                         test/google/range_of_motion_constraint_test.cc
                         # costs
                         test/google/a_quadratic_cost_test.cc
-                        test/google/total_acceleration_equation_test.cc
+#                        test/google/total_acceleration_equation_test.cc
                         test/google/range_of_motion_cost_test.cc
                         test/google/cost_container_test.cc
                         test/google/foothold_nominal_deviation_test.cc

@@ -30,8 +30,7 @@ namespace zmp {
 
 
 NlpOptimizer::NlpOptimizer ()
-    :subject_(0,0), // initialized with zero values
-     visualizer_(xpp::ros::dummy_visualizer)
+    :visualizer_(xpp::ros::dummy_visualizer)
 {
   app_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
   status_ = app_.Initialize();
@@ -71,11 +70,8 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                               step_sequence_,
                               SupportPolygon::GetDefaultMargins());
 
-  NlpStructure nlp_structure(spline_structure_.GetTotalFreeCoeff(),
-                             supp_polygon_container.GetNumberOfSteps());
-
-
-
+//  NlpStructure nlp_structure(spline_structure_.GetTotalFreeCoeff(),
+//                             supp_polygon_container.GetNumberOfSteps());
 
   // fixme this should also change if the goal or any other parameter changes apart from the start position
 //  bool init_with_zeros = true;
@@ -95,7 +91,11 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   SplineJunctionEquation eq_junction(spline_structure_);
 
 
-  subject_.Init(spline_structure_.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
+  subject_.Init(initial_state.p,
+                initial_state.v,
+                step_sequence,
+                times);
+
   subject_.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
 
   // add the constraints
@@ -139,14 +139,13 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
   // fixme make this a class member so ros registration only has to happen once
   xpp::ros::OptimizationVisualizer optimization_visualizer(subject_);
-  optimization_visualizer.Init(step_sequence_, spline_structure_);
 
   IpoptPtr nlp_ptr = new Ipopt::NlpIpoptZmp(subject_, // optmization variables
                                             cost_container,
                                             constraint_container,
                                             optimization_visualizer);
 
-  SolveIpopt(nlp);
+  SolveIpopt(nlp_ptr);
   subject_.RemoveObservers();
 }
 
@@ -167,23 +166,13 @@ NlpOptimizer::SolveIpopt (const IpoptPtr& nlp)
 NlpOptimizer::VecFoothold
 NlpOptimizer::GetFootholds () const
 {
-  OptimizationVariables::StdVecEigen2d footholds_xy = subject_.GetFootholdsStd();
-
-  VecFoothold opt_footholds(footholds_xy.size());
-  xpp::hyq::Foothold::SetXy(footholds_xy, opt_footholds);
-
-  uint i=0;
-  for (hyq::Foothold& f : opt_footholds)
-    f.leg = step_sequence_.at(i++);
-
-  return opt_footholds;
+  return subject_.GetFootholds();
 }
 
 NlpOptimizer::VecSpline
 NlpOptimizer::GetSplines ()
 {
-  spline_structure_.AddOptimizedCoefficients(subject_.GetSplineCoefficients());
-  return spline_structure_.GetSplines();
+  return subject_.GetSplines();
 }
 
 } /* namespace zmp */

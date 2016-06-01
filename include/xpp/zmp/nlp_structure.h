@@ -29,9 +29,15 @@ public:
 
 public:
   NlpStructure(int n_spline_coeff = 0, int n_steps = 0)
-    :n_spline_coeff_(n_spline_coeff),
-     n_steps_(n_steps)
-  {}
+  {
+    Init(n_spline_coeff, n_steps);
+  }
+
+  void Init(int n_spline_coeff = 0, int n_steps = 0)
+  {
+    n_spline_coeff_ = n_spline_coeff;
+    n_steps_ = n_steps;
+  }
 
   int GetOptimizationVariableCount() const { return n_spline_coeff_ + 2*n_steps_; };
 

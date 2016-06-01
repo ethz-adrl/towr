@@ -25,36 +25,16 @@ xpp::ros::OptimizationVisualizer::OptimizationVisualizer (
 void
 xpp::ros::OptimizationVisualizer::Update ()
 {
-  x_coeff_ = subject_.GetSplineCoefficients();
-  footholds_xy_ = subject_.GetFootholdsStd();
-}
-
-void
-OptimizationVisualizer::Init (const std::vector<LegID>& swing_leg_sequence,
-                              const ContinuousSplineContainer& splines)
-{
-  leg_ids_ = swing_leg_sequence;
-  splines_ = splines;
+  splines_ = subject_.GetSplines();
+  footholds_ = subject_.GetFootholds();
 }
 
 void
 xpp::ros::OptimizationVisualizer::PublishMsg ()
 {
-  // fill in some semantic information to interpret optimization variables
-  // fixme, this replicates NlpOptimizer::GetFootholds
-  splines_.AddOptimizedCoefficients(x_coeff_);
-  VecSpline splines = splines_.GetSplines();
-
-  VecFoothold footholds(footholds_xy_.size());
-  for (uint i=0; i<footholds.size(); ++i) {
-    footholds.at(i).leg = leg_ids_.at(i);
-    footholds.at(i).p.x() = footholds_xy_.at(i).x();
-    footholds.at(i).p.y() = footholds_xy_.at(i).y();
-  }
-
   double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 
-  visualization_msgs::MarkerArray msg = msg_builder_.BuildMsg(splines, footholds, walking_height);
+  visualization_msgs::MarkerArray msg = msg_builder_.BuildMsg(splines_, footholds_, walking_height);
   ros_publisher_.publish(msg);
 }
 
