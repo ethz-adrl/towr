@@ -42,7 +42,7 @@ NlpOptimizer::NlpOptimizer ()
 
 
 
-
+  // fixme add the constraint registration with subject here
 
 }
 
@@ -53,26 +53,25 @@ NlpOptimizer::SolveNlp(const State& initial_state,
                        const std::vector<xpp::hyq::LegID>& step_sequence,
                        const VecFoothold& start_stance,
                        const SplineTimes& times,
-                       double robot_height,
-                       VecSpline& opt_splines,
-                       VecFoothold& opt_footholds)
+                       double robot_height)
 {
   typedef xpp::hyq::SupportPolygon SupportPolygon;
 
   // create the general spline structure
-  ContinuousSplineContainer spline_structure;
-  spline_structure.Init(initial_state.p,
+  spline_structure_.Init(initial_state.p,
                         initial_state.v ,
                         step_sequence,
                         times);
 
+  step_sequence_ = step_sequence;
+
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(start_stance,
-                              step_sequence,
+                              step_sequence_,
                               SupportPolygon::GetDefaultMargins());
 
-  NlpStructure nlp_structure(spline_structure.GetTotalFreeCoeff(),
+  NlpStructure nlp_structure(spline_structure_.GetTotalFreeCoeff(),
                              supp_polygon_container.GetNumberOfSteps());
 
 
@@ -86,17 +85,17 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 //  } else {} // use previous values
 
 
-//  Constraints constraints(supp_polygon_container, spline_structure, nlp_structure, robot_height, initial_state.a, final_state);
+//  Constraints constraints(supp_polygon_container, spline_structure_, nlp_structure, robot_height, initial_state.a, final_state);
 
 
   // This should all be hidden inside a factory method
   // the linear equations
-  InitialAccelerationEquation eq_acc(initial_state.a, spline_structure.GetTotalFreeCoeff());
-  FinalStateEquation eq_final(final_state, spline_structure);
-  SplineJunctionEquation eq_junction(spline_structure);
+  InitialAccelerationEquation eq_acc(initial_state.a, spline_structure_.GetTotalFreeCoeff());
+  FinalStateEquation eq_final(final_state, spline_structure_);
+  SplineJunctionEquation eq_junction(spline_structure_);
 
 
-  subject_.Init(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
+  subject_.Init(spline_structure_.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
   subject_.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
 
   // add the constraints
@@ -110,10 +109,10 @@ NlpOptimizer::SolveNlp(const State& initial_state,
   c_junction.Init(eq_junction.BuildLinearEquation());
 
   ZmpConstraint c_zmp(subject_);
-  c_zmp.Init(spline_structure, supp_polygon_container, robot_height);
+  c_zmp.Init(spline_structure_, supp_polygon_container, robot_height);
 
   RangeOfMotionConstraint c_rom(subject_);
-  c_rom.Init(spline_structure, supp_polygon_container);
+  c_rom.Init(spline_structure_, supp_polygon_container);
 
 
   ConstraintContainer constraint_container;
@@ -125,13 +124,13 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
 
   // costs
-  TotalAccelerationEquation eq_total_acc(spline_structure);
+  TotalAccelerationEquation eq_total_acc(spline_structure_);
 
   AQuadraticCost cost_acc(subject_);
   cost_acc.Init(eq_total_acc.BuildLinearEquation());
 
   RangeOfMotionCost cost_rom(subject_);
-  cost_rom.Init(spline_structure, supp_polygon_container);
+  cost_rom.Init(spline_structure_, supp_polygon_container);
 
   CostContainer cost_container(subject_);
   cost_container.AddCost(cost_acc);
@@ -140,7 +139,7 @@ NlpOptimizer::SolveNlp(const State& initial_state,
 
   // fixme make this a class member so ros registration only has to happen once
   xpp::ros::OptimizationVisualizer optimization_visualizer(subject_);
-  optimization_visualizer.Init(step_sequence, spline_structure);
+  optimization_visualizer.Init(step_sequence_, spline_structure_);
 
   Ipopt::SmartPtr<Ipopt::NlpIpoptZmp> nlp_ipopt_zmp =
       new Ipopt::NlpIpoptZmp(subject_, // optmization variables
@@ -159,22 +158,30 @@ NlpOptimizer::SolveNlp(const State& initial_state,
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
   }
 
-
-  int n_steps = subject_.GetFootholdsStd().size();
-  opt_footholds.resize(n_steps);
-  for (int i=0; i<n_steps; ++i) {
-    opt_footholds.at(i).leg = step_sequence.at(i);
-  }
-
-  xpp::hyq::Foothold::SetXy(subject_.GetFootholdsStd(), opt_footholds);
-  spline_structure.AddOptimizedCoefficients(subject_.GetSplineCoefficients());
-  opt_splines = spline_structure.GetSplines();
-
   subject_.RemoveObservers();
 }
 
+NlpOptimizer::VecFoothold
+NlpOptimizer::GetFootholds () const
+{
+  OptimizationVariables::StdVecEigen2d footholds_xy = subject_.GetFootholdsStd();
 
+  VecFoothold opt_footholds(footholds_xy.size());
+  xpp::hyq::Foothold::SetXy(footholds_xy, opt_footholds);
 
+  uint i=0;
+  for (hyq::Foothold& f : opt_footholds)
+    f.leg = step_sequence_.at(i++);
+
+  return opt_footholds;
+}
+
+NlpOptimizer::VecSpline
+NlpOptimizer::GetSplines ()
+{
+  spline_structure_.AddOptimizedCoefficients(subject_.GetSplineCoefficients());
+  return spline_structure_.GetSplines();
+}
 
 } /* namespace zmp */
 } /* namespace xpp */

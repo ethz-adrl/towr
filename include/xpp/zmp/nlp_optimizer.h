@@ -56,15 +56,19 @@ public:
                 const std::vector<xpp::hyq::LegID>& step_sequence,
                 const VecFoothold& start_stance,
                 const SplineTimes& times,
-                double robot_height,
-                VecSpline& opt_splines,
-                VecFoothold& opt_footholds);
+                double robot_height);
 
 //  void AttachVisualizer(xpp::ros::IVisualizer&
 
+  VecFoothold GetFootholds() const;
+  VecSpline GetSplines();
 
 private:
   OptimizationVariables subject_;
+
+  // these are necessary for correctly interpreting the optimization variables
+  std::vector<xpp::hyq::LegID> step_sequence_;
+  ContinuousSplineContainer spline_structure_;
 
   Ipopt::IpoptApplication app_;
   Ipopt::ApplicationReturnStatus status_;

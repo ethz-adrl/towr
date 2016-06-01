@@ -59,9 +59,10 @@ NlpOptimizerNode::OptimizeTrajectory()
                           step_sequence,
                           curr_stance_,
                           spline_times_,
-                          robot_height_,
-                          opt_splines_,
-                          footholds_);
+                          robot_height_);
+
+  opt_splines_ = nlp_optimizer_.GetSplines();
+  footholds_   = nlp_optimizer_.GetFootholds();
 }
 
 std::vector<xpp::hyq::LegID>

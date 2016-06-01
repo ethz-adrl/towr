@@ -50,8 +50,10 @@ protected:
 
     nlp_optimizer.SolveNlp(start_xy_, goal_xy_,
                            {LH, LF}, start_stance_,
-                           times_, robot_height_,
-                           opt_xy_splines_, opt_footholds_);
+                           times_, robot_height_);
+
+    opt_xy_splines_ = nlp_optimizer.GetSplines();
+    opt_footholds_  = nlp_optimizer.GetFootholds();
   }
 
   virtual void SetUp()

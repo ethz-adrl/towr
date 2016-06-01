@@ -35,7 +35,6 @@ public:
   virtual
   ~OptimizerNodeBase ();
 
-
 protected:
   ::ros::NodeHandle n_;
   State goal_cog_;
