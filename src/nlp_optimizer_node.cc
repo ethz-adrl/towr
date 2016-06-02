@@ -5,7 +5,7 @@
  *      Author: winklera
  */
 
-#include <xpp/ros/nlp_facade_node.h> // fixme rename this
+#include <xpp/ros/nlp_optimizer_node.h>
 #include <xpp/ros/ros_helpers.h>
 
 namespace xpp {

@@ -5,7 +5,7 @@
 @brief   Start the nlp foothold optimization server
  */
 
-#include "../../include/xpp/ros/nlp_facade_node.h"
+#include <xpp/ros/nlp_optimizer_node.h>
 
 
 int main(int argc, char *argv[])
