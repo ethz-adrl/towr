@@ -12,6 +12,9 @@
 #include <xpp/utils/eigen_num_diff_functor.h>
 #include <xpp/zmp/optimization_variables.h>
 
+#include <map>
+#include <memory>
+
 namespace xpp {
 namespace zmp {
 
@@ -23,15 +26,20 @@ namespace zmp {
   */
 class CostContainer : public xpp::utils::EigenNumDiffFunctor<double>{
 public:
+  typedef std::shared_ptr<ACost> CostPtr;
+
   CostContainer (OptimizationVariables& subject);
   virtual ~CostContainer () {};
 
-  void AddCost(const ACost& cost);
+  ACost& GetCost(const std::string& name);
+
+  void AddCost(CostPtr cost, const std::string& name);
   double EvaluateTotalCost () const;
   int operator() (const InputType& x, ValueType& obj_value) const override;
 
 private:
-  std::vector<const ACost*> costs_;
+  std::map<std::string, CostPtr > costs_;
+
   OptimizationVariables* subject_;
 };
 

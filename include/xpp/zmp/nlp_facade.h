@@ -17,10 +17,7 @@
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
 
-// this looks like i need the factory method
-#include <xpp/zmp/a_linear_constraint.h>
-#include <xpp/zmp/zmp_constraint.h>
-#include <xpp/zmp/range_of_motion_constraint.h>
+
 #include <xpp/zmp/constraint_container.h>
 // cost function stuff
 #include <xpp/zmp/a_quadratic_cost.h>
@@ -69,16 +66,8 @@ public:
 private:
   void SolveIpopt(const IpoptPtr& nlp);
   OptimizationVariables opt_variables_;
-
   ConstraintContainer constraints_;
-  LinearEqualityConstraint c_acc_, c_final_, c_junction_;
-  ZmpConstraint c_zmp_;
-  RangeOfMotionConstraint c_rom_;
-
-  CostContainer cost_container_;
-  AQuadraticCost cost_acc_;
-  RangeOfMotionCost cost_rom_;
-
+  CostContainer costs_;
 
   Ipopt::IpoptApplication ipopt_solver_;
   Ipopt::ApplicationReturnStatus status_;

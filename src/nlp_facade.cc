@@ -15,28 +15,26 @@
 #include <xpp/zmp/spline_junction_equation.h>
 #include <xpp/zmp/ipopt_adapter.h>
 
+// this looks like i need the factory method
+#include <xpp/zmp/a_linear_constraint.h>
+#include <xpp/zmp/zmp_constraint.h>
+#include <xpp/zmp/range_of_motion_constraint.h>
+
 namespace xpp {
 namespace zmp {
 
 NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
-    :c_acc_(opt_variables_),
-     c_final_(opt_variables_),
-     c_junction_(opt_variables_),
-     c_zmp_(opt_variables_),
-     c_rom_(opt_variables_),
-     cost_container_(opt_variables_),
-     cost_acc_(opt_variables_),
-     cost_rom_(opt_variables_),
+    :costs_(opt_variables_),
      visualizer_(&visualizer)
 {
-  constraints_.AddConstraint(c_acc_, "acc");
-  constraints_.AddConstraint(c_final_, "final");
-  constraints_.AddConstraint(c_junction_, "junction");
-  constraints_.AddConstraint(c_zmp_, "zmp");
-  constraints_.AddConstraint(c_rom_, "rom");
+  constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "acc");
+  constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "final");
+  constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "junction");
+  constraints_.AddConstraint(std::make_shared<ZmpConstraint>(opt_variables_), "zmp");
+  constraints_.AddConstraint(std::make_shared<RangeOfMotionConstraint>(opt_variables_), "rom");
 
-  cost_container_.AddCost(cost_acc_);
-  cost_container_.AddCost(cost_rom_);
+  costs_.AddCost(std::make_shared<AQuadraticCost>(opt_variables_), "cost_acc");
+  costs_.AddCost(std::make_shared<RangeOfMotionCost>(opt_variables_), "cost_rom");
 
   // initialize the ipopt solver
   ipopt_solver_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
@@ -78,6 +76,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   SplineJunctionEquation eq_junction(spline_structure);
 
   // initialize the constraints
+  // fixme bad practice, remove
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("acc")).Init(eq_acc.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("final")).Init(eq_final.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
@@ -87,12 +86,12 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   // costs
   TotalAccelerationEquation eq_total_acc(spline_structure);
-  cost_acc_.Init(eq_total_acc.BuildLinearEquation());
-  cost_rom_.Init(spline_structure, supp_polygon_container);
+  dynamic_cast<AQuadraticCost&>(costs_.GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
+  dynamic_cast<RangeOfMotionCost&>(costs_.GetCost("cost_rom")).Init(spline_structure, supp_polygon_container);
 
   // todo create complete class out of these input arguments
   IpoptPtr nlp_ptr = new Ipopt::IpoptAdapter(opt_variables_,
-                                             cost_container_,
+                                             costs_,
                                              constraints_,
                                              *visualizer_);
   SolveIpopt(nlp_ptr);

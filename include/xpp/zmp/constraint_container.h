@@ -10,6 +10,7 @@
 
 #include <xpp/zmp/a_constraint.h>
 #include <map>
+#include <memory>
 
 namespace xpp {
 namespace zmp {
@@ -23,21 +24,22 @@ class ConstraintContainer {
 public:
   typedef AConstraint::VectorXd VectorXd;
   typedef AConstraint::VecBound VecBound;
+  typedef std::shared_ptr<AConstraint> ConstraintPtr;
 
   ConstraintContainer ();
   virtual ~ConstraintContainer ();
 
-  void AddConstraint (AConstraint& constraint,
+  void AddConstraint (ConstraintPtr constraint,
                       const std::string& name);
 
-  AConstraint& GetConstraint(const std::string& name) const;
+  AConstraint& GetConstraint(const std::string& name);
 
   VectorXd EvaluateConstraints ();
   VecBound GetBounds () const;
   void Refresh ();
 
 private:
-  std::map<std::string, AConstraint*> constraints_;
+  std::map<std::string, ConstraintPtr > constraints_;
   VectorXd g_;
   VecBound bounds_;
 

@@ -17,19 +17,25 @@ CostContainer::CostContainer (OptimizationVariables& subject)
 }
 
 void
-CostContainer::AddCost (const ACost& cost)
+CostContainer::AddCost (CostPtr cost, const std::string& name)
 {
-  costs_.push_back(&cost);
+  costs_.emplace(name, cost);
 }
 
 double
 CostContainer::EvaluateTotalCost () const
 {
  double total_cost = 0.0;
-  for (const ACost* cost : costs_)
-    total_cost += cost->EvaluateCost();
+  for (const auto& cost : costs_)
+    total_cost += cost.second->EvaluateCost();
 
   return total_cost;
+}
+
+ACost&
+CostContainer::GetCost (const std::string& name)
+{
+  return *costs_.at(name);
 }
 
 int
