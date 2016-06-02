@@ -29,11 +29,11 @@ NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
      cost_rom_(opt_variables_),
      visualizer_(&visualizer)
 {
-  constraints_.AddConstraint(c_acc_);
-  constraints_.AddConstraint(c_final_);
-  constraints_.AddConstraint(c_junction_);
-  constraints_.AddConstraint(c_zmp_);
-  constraints_.AddConstraint(c_rom_);
+  constraints_.AddConstraint(c_acc_, "acc");
+  constraints_.AddConstraint(c_final_, "final");
+  constraints_.AddConstraint(c_junction_, "junction");
+  constraints_.AddConstraint(c_zmp_, "zmp");
+  constraints_.AddConstraint(c_rom_, "rom");
 
   cost_container_.AddCost(cost_acc_);
   cost_container_.AddCost(cost_rom_);
@@ -77,12 +77,12 @@ NlpFacade::SolveNlp(const State& initial_state,
   FinalStateEquation eq_final(final_state, spline_structure);
   SplineJunctionEquation eq_junction(spline_structure);
 
-  // constraints
-  c_acc_.Init(eq_acc.BuildLinearEquation());
-  c_final_.Init(eq_final.BuildLinearEquation());
-  c_zmp_.Init(spline_structure, supp_polygon_container, robot_height);
-  c_rom_.Init(spline_structure, supp_polygon_container);
-  c_junction_.Init(eq_junction.BuildLinearEquation());
+  // initialize the constraints
+  dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("acc")).Init(eq_acc.BuildLinearEquation());
+  dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("final")).Init(eq_final.BuildLinearEquation());
+  dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
+  dynamic_cast<ZmpConstraint&>(constraints_.GetConstraint("zmp")).Init(spline_structure, supp_polygon_container, robot_height);
+  dynamic_cast<RangeOfMotionConstraint&>(constraints_.GetConstraint("rom")).Init(spline_structure, supp_polygon_container);
   constraints_.Refresh();
 
   // costs

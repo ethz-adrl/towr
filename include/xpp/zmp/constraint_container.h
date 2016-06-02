@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_CONSTRAINT_CONTAINER_H_
 
 #include <xpp/zmp/a_constraint.h>
+#include <map>
 
 namespace xpp {
 namespace zmp {
@@ -26,14 +27,17 @@ public:
   ConstraintContainer ();
   virtual ~ConstraintContainer ();
 
-  void AddConstraint (const AConstraint& constraint);
+  void AddConstraint (AConstraint& constraint,
+                      const std::string& name);
+
+  AConstraint& GetConstraint(const std::string& name) const;
 
   VectorXd EvaluateConstraints ();
   VecBound GetBounds () const;
   void Refresh ();
 
 private:
-  std::vector<const AConstraint*> constraints_;
+  std::map<std::string, AConstraint*> constraints_;
   VectorXd g_;
   VecBound bounds_;
 
