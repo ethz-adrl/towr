@@ -47,11 +47,7 @@ public:
    * inequality constraint (m.M*x + m.v > 0) at that discrete time and for that
    * specific support polygon.
    */
-  MatVec CalcZmpConstraints(const SupportPolygonContainer& s) const
-  {
-    CheckIfInitialized();
-    return CalcZmpConstraints(x_zmp_map_, y_zmp_map_, s);
-  };
+  MatVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
 
 
 private:

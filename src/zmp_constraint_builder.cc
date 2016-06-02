@@ -5,17 +5,15 @@
  *      Author: winklera
  */
 
-#include "../include/xpp/zmp/zmp_constraint_builder.h"
+#include <xpp/zmp/zmp_constraint_builder.h>
 
 namespace xpp {
 namespace zmp {
-
 
 ZmpConstraintBuilder::ZmpConstraintBuilder(const ContinuousSplineContainer& spline_container, double walking_height)
 {
   Init(spline_container, walking_height);
 }
-
 
 void
 ZmpConstraintBuilder::Init(const ContinuousSplineContainer& spline_container, double walking_height)
@@ -29,6 +27,12 @@ ZmpConstraintBuilder::Init(const ContinuousSplineContainer& spline_container, do
   initialized_ = true;
 }
 
+ZmpConstraintBuilder::MatVec
+ZmpConstraintBuilder::CalcZmpConstraints(const SupportPolygonContainer& s) const
+{
+  CheckIfInitialized();
+  return CalcZmpConstraints(x_zmp_map_, y_zmp_map_, s);
+};
 
 ZmpConstraintBuilder::MatVec
 ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
@@ -56,7 +60,6 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
   assert((n == x_zmp.M.rows()) && (n == y_zmp.M.rows()));
   return ineq;
 }
-
 
 void
 ZmpConstraintBuilder::GenerateNodeConstraint(const NodeConstraint& node_constraints,
@@ -87,17 +90,13 @@ ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
   return line_constr;
 }
 
-
 void
 ZmpConstraintBuilder::CheckIfInitialized() const
 {
   if (!initialized_) {
-    throw std::runtime_error("ZmpConstraint not initialized. Call Init() first");
+    throw std::runtime_error("ZmpConstraintBuilder not initialized. Call Init() first");
   }
 }
-
-
-
 
 } /* namespace zmp */
 } /* namespace xpp */

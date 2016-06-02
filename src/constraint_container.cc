@@ -13,7 +13,7 @@ namespace zmp {
 
 ConstraintContainer::ConstraintContainer ()
 {
-  // TODO Auto-generated constructor stub
+  bounds_up_to_date_ = true;
 }
 
 ConstraintContainer::~ConstraintContainer ()
@@ -25,17 +25,13 @@ void
 ConstraintContainer::AddConstraint (const AConstraint& constraint)
 {
   constraints_.push_back(&constraint);
-
-  VecBound b = constraint.GetBounds();
-  bounds_.insert(bounds_.end(), b.begin(), b.end());
-
-  g_ = VectorXd(bounds_.size());
+  bounds_up_to_date_ = false;
 }
 
 ConstraintContainer::VectorXd
 ConstraintContainer::EvaluateConstraints ()
 {
-  assert(g_.rows() != 0); // the size of constraint must have already been determined
+  assert(bounds_up_to_date_); // call Refresh() if this fails
 
   int c = 0;
   for (auto constraint : constraints_) {
@@ -47,9 +43,23 @@ ConstraintContainer::EvaluateConstraints ()
   return g_;
 }
 
-ConstraintContainer::VecBound
-ConstraintContainer::GetBounds ()
+void
+ConstraintContainer::Refresh ()
 {
+  bounds_.clear();
+  for (auto constraint : constraints_) {
+    VecBound b = constraint->GetBounds();
+    bounds_.insert(bounds_.end(), b.begin(), b.end());
+  }
+
+  g_ = VectorXd(bounds_.size());
+  bounds_up_to_date_ = true;
+}
+
+ConstraintContainer::VecBound
+ConstraintContainer::GetBounds () const
+{
+  assert(bounds_up_to_date_); // call Refresh() if this fails
   return bounds_;
 }
 

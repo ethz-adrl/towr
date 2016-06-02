@@ -34,7 +34,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
   // How many variables to optimize over
-  n = opt_variables_.GetOptimizationVariableCount(); // x,y-coordinate of footholds
+  n = opt_variables_.GetOptimizationVariableCount();
   std::cout << "optimizing n= " << n << " variables\n";
 
   m = constraint_container_.GetBounds().size();

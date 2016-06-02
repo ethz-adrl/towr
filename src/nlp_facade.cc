@@ -7,36 +7,28 @@
 
 #include <xpp/zmp/nlp_facade.h>
 
+#include <xpp/zmp/spline_container.h>
+#include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/nlp_ipopt_zmp.h>
 
-#include <xpp/zmp/spline_container.h>
-#include <xpp/zmp/nlp_structure.h>
-#include <xpp/hyq/support_polygon_container.h>
-
-#include <xpp/ros/optimization_visualizer.h> // remove this
-
-// this looks like i need the factory method
-#include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/zmp/a_linear_constraint.h>
 #include <xpp/zmp/initial_acceleration_equation.h>
 #include <xpp/zmp/final_state_equation.h>
 #include <xpp/zmp/spline_junction_equation.h>
-#include <xpp/zmp/zmp_constraint.h>
-#include <xpp/zmp/range_of_motion_constraint.h>
-#include <xpp/zmp/constraint_container.h>
-// cost function stuff
-#include <xpp/zmp/a_quadratic_cost.h>
-#include <xpp/zmp/range_of_motion_cost.h>
-#include <xpp/zmp/total_acceleration_equation.h>
-#include <xpp/zmp/cost_container.h>
-
 
 namespace xpp {
 namespace zmp {
 
-
 NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
-    :visualizer_(&visualizer)
+    :c_acc_(subject_),
+     c_final_(subject_),
+     c_junction_(subject_),
+     c_zmp_(subject_),
+     c_rom_(subject_),
+     cost_container_(subject_),
+     cost_acc_(subject_),
+     cost_rom_(subject_),
+     visualizer_(&visualizer)
 {
 
   app_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
@@ -47,9 +39,14 @@ NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
   }
 
 
+  constraints_.AddConstraint(c_acc_);
+  constraints_.AddConstraint(c_final_);
+  constraints_.AddConstraint(c_junction_);
+  constraints_.AddConstraint(c_zmp_);
+  constraints_.AddConstraint(c_rom_);
 
-  // fixme add the constraint registration with subject here
-
+  cost_container_.AddCost(cost_acc_);
+  cost_container_.AddCost(cost_rom_);
 }
 
 void
@@ -100,64 +97,33 @@ NlpFacade::SolveNlp(const State& initial_state,
 //    SetInitialVariables(nlp_structure, supp_polygon_container);
 //  } else {} // use previous values
 
-
+  // add the constraints
   // This should all be hidden inside a factory method
   // the linear equations
   InitialAccelerationEquation eq_acc(initial_state.a, spline_structure.GetTotalFreeCoeff());
   FinalStateEquation eq_final(final_state, spline_structure);
   SplineJunctionEquation eq_junction(spline_structure);
 
-
-
-  // add the constraints
-  LinearEqualityConstraint c_acc(subject_);
-  c_acc.Init(eq_acc.BuildLinearEquation());
-
-  LinearEqualityConstraint c_final(subject_);
-  c_final.Init(eq_final.BuildLinearEquation());
-
-  LinearEqualityConstraint c_junction(subject_);
-  c_junction.Init(eq_junction.BuildLinearEquation());
-
-  ZmpConstraint c_zmp(subject_);
-  c_zmp.Init(spline_structure, supp_polygon_container, robot_height);
-
-  RangeOfMotionConstraint c_rom(subject_);
-  c_rom.Init(spline_structure, supp_polygon_container);
-
-
-  ConstraintContainer constraint_container;
-  constraint_container.AddConstraint(c_acc);
-  constraint_container.AddConstraint(c_final);
-  constraint_container.AddConstraint(c_junction);
-  constraint_container.AddConstraint(c_zmp);
-  constraint_container.AddConstraint(c_rom);
-
+  c_acc_.Init(eq_acc.BuildLinearEquation());
+  c_final_.Init(eq_final.BuildLinearEquation());
+  c_zmp_.Init(spline_structure, supp_polygon_container, robot_height);
+  c_rom_.Init(spline_structure, supp_polygon_container);
+  c_junction_.Init(eq_junction.BuildLinearEquation());
+  constraints_.Refresh();
 
   // costs
   TotalAccelerationEquation eq_total_acc(spline_structure);
-
-  AQuadraticCost cost_acc(subject_);
-  cost_acc.Init(eq_total_acc.BuildLinearEquation());
-
-  RangeOfMotionCost cost_rom(subject_);
-  cost_rom.Init(spline_structure, supp_polygon_container);
-
-  CostContainer cost_container(subject_);
-  cost_container.AddCost(cost_acc);
-  cost_container.AddCost(cost_rom);
+  cost_acc_.Init(eq_total_acc.BuildLinearEquation());
+  cost_rom_.Init(spline_structure, supp_polygon_container);
 
 
-//  xpp::ros::OptimizationVisualizer vis;
-//  vis.RegisterWithSubject(subject_);
-
+  // todo make this class ipoptAdapter
   IpoptPtr nlp_ptr = new Ipopt::NlpIpoptZmp(subject_, // optmization variables
-                                            cost_container,
-                                            constraint_container,
+                                            cost_container_,
+                                            constraints_,
                                             *visualizer_);
 
   SolveIpopt(nlp_ptr);
-  subject_.RemoveObservers();
 }
 
 void

@@ -29,12 +29,15 @@ public:
   void AddConstraint (const AConstraint& constraint);
 
   VectorXd EvaluateConstraints ();
-  VecBound GetBounds ();
+  VecBound GetBounds () const;
+  void Refresh ();
 
 private:
   std::vector<const AConstraint*> constraints_;
   VectorXd g_;
   VecBound bounds_;
+
+  bool bounds_up_to_date_;
 };
 
 } /* namespace zmp */
