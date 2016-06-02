@@ -5,7 +5,7 @@
  @brief   Defines the actual IPOPT solver
  */
 
-#include <xpp/zmp/nlp_ipopt_zmp.h>
+#include <xpp/zmp/ipopt_adapter.h>
 
 // only to get the optimization variables in the intermediate callback
 //#include "IpIpoptCalculatedQuantities.hpp"
@@ -16,7 +16,7 @@
 namespace Ipopt {
 
 
-NlpIpoptZmp::NlpIpoptZmp(OptimizationVariables& opt_variables,
+IpoptAdapter::IpoptAdapter(OptimizationVariables& opt_variables,
                          CostContainer& cost_container,
                          ConstraintContainer& constraint_container,
                          IVisualizer& visualizer)
@@ -30,7 +30,7 @@ NlpIpoptZmp::NlpIpoptZmp(OptimizationVariables& opt_variables,
 }
 
 
-bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
+bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
   // How many variables to optimize over
@@ -55,7 +55,7 @@ bool NlpIpoptZmp::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   return true;
 }
 
-bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
+bool IpoptAdapter::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
                             Index m, Number* g_l, Number* g_u)
 {
 
@@ -75,7 +75,7 @@ bool NlpIpoptZmp::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
   return true;
 }
 
-bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
+bool IpoptAdapter::get_starting_point(Index n, bool init_x, Number* x,
                                bool init_z, Number* z_L, Number* z_U,
                                Index m, bool init_lambda,
                                Number* lambda)
@@ -102,7 +102,7 @@ bool NlpIpoptZmp::get_starting_point(Index n, bool init_x, Number* x,
 }
 
 
-bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
+bool IpoptAdapter::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
   opt_variables_.SetVariables(x);
   obj_value = cost_container_.EvaluateTotalCost();
@@ -110,7 +110,7 @@ bool NlpIpoptZmp::eval_f(Index n, const Number* x, bool new_x, Number& obj_value
 }
 
 
-bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
+bool IpoptAdapter::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
   Eigen::MatrixXd jac(1,n);
   VectorXd x_eig = Eigen::Map<const VectorXd>(x,n);
@@ -120,7 +120,7 @@ bool NlpIpoptZmp::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad
 }
 
 
-bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
+bool IpoptAdapter::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
 //  VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.ConvertToEigen(x));
   opt_variables_.SetVariables(x);
@@ -130,7 +130,7 @@ bool NlpIpoptZmp::eval_g(Index n, const Number* x, bool new_x, Index m, Number* 
 }
 
 
-bool NlpIpoptZmp::eval_jac_g(Index n, const Number* x, bool new_x,
+bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
                        Index m, Index nele_jac, Index* iRow, Index *jCol,
                        Number* values)
 {
@@ -162,7 +162,7 @@ bool NlpIpoptZmp::eval_jac_g(Index n, const Number* x, bool new_x,
 
 
 
-bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
+bool IpoptAdapter::intermediate_callback(AlgorithmMode mode,
                                    Index iter, Number obj_value,
                                    Number inf_pr, Number inf_du,
                                    Number mu, Number d_norm,
@@ -194,7 +194,7 @@ bool NlpIpoptZmp::intermediate_callback(AlgorithmMode mode,
 
 
 
-void NlpIpoptZmp::finalize_solution(SolverReturn status,
+void IpoptAdapter::finalize_solution(SolverReturn status,
                               Index n, const Number* x, const Number* z_L, const Number* z_U,
                               Index m, const Number* g, const Number* lambda,
                               Number obj_value,

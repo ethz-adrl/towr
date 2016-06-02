@@ -53,8 +53,6 @@ public:
     * @param start_stance the initial contacts (e.g left front,...) and position
     * @param times the duration of the different splines
     * @param robot_height the walking height of the robot (affects ZMP)
-    * @param[out] opt_splines the optimized CoG trajectory
-    * @param[out] opt_footholds the optimized foothold positions
     */
   void SolveNlp(const State& initial_state,
                 const State& final_state,
@@ -70,7 +68,7 @@ public:
 
 private:
   void SolveIpopt(const IpoptPtr& nlp);
-  OptimizationVariables subject_;
+  OptimizationVariables opt_variables_;
 
   ConstraintContainer constraints_;
   LinearEqualityConstraint c_acc_, c_final_, c_junction_;
@@ -82,7 +80,7 @@ private:
   RangeOfMotionCost cost_rom_;
 
 
-  Ipopt::IpoptApplication app_;
+  Ipopt::IpoptApplication ipopt_solver_;
   Ipopt::ApplicationReturnStatus status_;
 
   AObserverVisualizer* visualizer_;

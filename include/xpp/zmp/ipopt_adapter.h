@@ -2,7 +2,7 @@
  @file    nlp_ipopt_zmp.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jan 10, 2016
- @brief   Defines the actual IPOPT solver
+ @brief   Defines the Adapter class to interact with the Ipopt Library.
  */
 
 #ifndef XXPP_ZMP_NLP_IPOPT_ZMP_H_
@@ -17,7 +17,12 @@
 
 namespace Ipopt {
 
-class NlpIpoptZmp : public Ipopt::TNLP {
+/** @brief Converts the NLP defined in the xpp interface to the IPOPT interface.
+  *
+  * This implements the Adapter pattern. This class should not add any functionality,
+  * but merely delegate it to the Adaptee (the xpp code).
+  */
+class IpoptAdapter : public Ipopt::TNLP {
 
 public:
   typedef xpp::zmp::ConstraintContainer ConstraintContainer;
@@ -26,13 +31,13 @@ public:
   typedef xpp::ros::IVisualizer IVisualizer;
   typedef Eigen::VectorXd VectorXd;
 
-	NlpIpoptZmp(OptimizationVariables& opt_variables,
+	IpoptAdapter(OptimizationVariables& opt_variables,
 	            CostContainer& cost_container,
 	            ConstraintContainer& constraint_container,
 	            IVisualizer& visualizer = xpp::ros::do_nothing_visualizer);
 
   /** default destructor */
-  virtual ~NlpIpoptZmp() {};
+  virtual ~IpoptAdapter() {};
 
   /**@name Overloaded from TNLP */
   //@{

@@ -108,7 +108,7 @@ set(SOURCES
   src/support_polygon.cc
   src/supp_polygon_container.cc
   src/hyq_spliner.cc
-  src/nlp_ipopt_zmp.cc
+  src/ipopt_adapter.cc
   src/zmp_constraint_builder.cc
   src/zero_moment_point.cc
   src/optimizer_node_base.cc
