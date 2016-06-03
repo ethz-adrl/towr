@@ -19,9 +19,10 @@ public:
   IObserver ();
   virtual ~IObserver ();
 
-  virtual void Update() = 0;
 
+  virtual void Update() = 0;
 private:
+
   // delete the copy and copy assignment operators, since that messes up the
   // logic with the subject in the observer pattern.
   IObserver& operator=(const IObserver&) = delete;

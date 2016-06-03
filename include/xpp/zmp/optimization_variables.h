@@ -20,7 +20,7 @@ namespace zmp {
   * optimization variables and supplying it to all the observers (cost function,
   * constraints, visualizers,...) that depend on this state.
   *
-  * @ref https://sourcemaking.com/design_patterns/observer
+  * https://sourcemaking.com/design_patterns/observer
   */
 class OptimizationVariables : public ASubject {
 public:

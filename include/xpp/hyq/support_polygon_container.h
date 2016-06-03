@@ -14,6 +14,8 @@
 namespace xpp {
 namespace hyq {
 
+/** @brief Hold the support polygons created by the contacts with the environment.
+  */
 class SupportPolygonContainer
 {
 public:
@@ -24,7 +26,6 @@ public:
   typedef std::vector<xpp::zmp::ZmpSpline> VecZmpSpline;
   typedef std::vector<SupportPolygon::VecSuppLine> VecVecSuppLine;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
-//  typedef xpp::hyq::LegID LegID;
 
 
 public:
@@ -34,27 +35,26 @@ public:
 
 public:
 
-  /**
-   * Initializes with the info needed for the QP optimizer, which includes
-   * foothold locations.
-   *
-   * @param start_stance the feet that are initial in contact with the environment
-   * @param footholds the steps to take
-   * @param margins how much to shrink the support polygon
-   */
+  /** @brief Initializes with the info needed for the QP optimizer, which includes
+    * foothold locations.
+    *
+    * @param start_stance the feet that are initial in contact with the environment
+    * @param footholds the steps to take
+    * @param margins how much to shrink the support polygon
+    */
   void Init(const VecFoothold& start_stance,
             const VecFoothold& footholds,
             const MarginValues& margins = SupportPolygon::GetZeroMargins());
 
-  /**
-   * Initializes with the info needed for the NLP optimizer, that only needs to
-   * know the step sequence, and will optimize the foothold locations. Each
-   * foothold is initialized to x=y=z=0.
-   *
-   * @param start_stance the feet that are initial in contact with the environment
-   * @param footholds the order of steps to take
-   * @param margins how much to shrink the support polygon
-   */
+  /** @brief Initializes with the info needed for the NLP optimizer, that only needs to
+    * know the step sequence, and will optimize the foothold locations.
+    *
+    * Each foothold is initialized to x=y=z=0.
+    *
+    * @param start_stance the feet that are initial in contact with the environment
+    * @param footholds the order of steps to take
+    * @param margins how much to shrink the support polygon
+    */
   void Init(const VecFoothold& start_stance,
             const VecLegID& step_sequence,
             const MarginValues& margins = SupportPolygon::GetZeroMargins());
@@ -78,7 +78,7 @@ public:
   Foothold GetStartFoothold(LegID leg) const;
 
 
-  /** First step is considered step=0. */
+  /** @brief First step is considered step=0. */
   LegID GetLegID(int step) const { return footholds_.at(step).leg; };
 
 
@@ -87,7 +87,7 @@ public:
   VecSupportPolygon CreateSupportPolygonsWith4LS(const VecZmpSpline&) const;
   VecVecSuppLine GetActiveConstraintsForEachStep(const VecZmpSpline&) const;
 
-  /** returns the foothold sequence, but each leg is initialized to start stance xy */
+  /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */
   StdVecEigen2d GetFootholdsInitializedToStart() const;
 
 

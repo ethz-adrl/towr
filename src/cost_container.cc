@@ -29,7 +29,7 @@ CostContainer::AddCost (CostPtr cost, const std::string& name)
 double
 CostContainer::EvaluateTotalCost () const
 {
- double total_cost = 0.0;
+  double total_cost = 0.0;
   for (const auto& cost : costs_)
     total_cost += cost.second->EvaluateCost();
 

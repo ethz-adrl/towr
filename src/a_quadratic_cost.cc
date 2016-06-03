@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/zmp/a_quadratic_cost.h"
+#include <xpp/zmp/a_quadratic_cost.h>
 
 namespace xpp {
 namespace zmp {

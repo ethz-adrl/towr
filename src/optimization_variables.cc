@@ -36,13 +36,6 @@ xpp::zmp::OptimizationVariables::SetFootholds (const StdVecEigen2d& footholds)
   nlp_structure_.SetFootholds(footholds, x_);
 }
 
-int
-OptimizationVariables::GetOptimizationVariableCount () const
-{
-  assert(initialized_);
-  return nlp_structure_.GetOptimizationVariableCount();
-}
-
 void
 xpp::zmp::OptimizationVariables::SetVariables (const VectorXd& x)
 {
@@ -57,6 +50,13 @@ xpp::zmp::OptimizationVariables::SetVariables (const double* x)
   assert(initialized_);
   x_ = nlp_structure_.ConvertToEigen(x);
   NotifyObservers();
+}
+
+int
+OptimizationVariables::GetOptimizationVariableCount () const
+{
+  assert(initialized_);
+  return nlp_structure_.GetOptimizationVariableCount();
 }
 
 OptimizationVariables::StdVecEigen2d
