@@ -134,6 +134,7 @@ set(SOURCES
   src/cost_container.cc
   src/foothold_nominal_deviation.cc
   src/range_of_motion_cost.cc
+  src/cost_function_functor.cc
   # ros
   src/marker_array_builder.cc
   src/optimization_visualizer.cc
@@ -225,6 +226,7 @@ if(BUILD_TESTS)
                         test/google/range_of_motion_constraint_test.cc
                         # costs
                         test/google/a_quadratic_cost_test.cc
+                        test/google/cost_function_functor_test.cc
 #                        test/google/total_acceleration_equation_test.cc
                         test/google/range_of_motion_cost_test.cc
                         test/google/cost_container_test.cc
