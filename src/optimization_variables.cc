@@ -6,7 +6,6 @@
  */
 
 #include <xpp/zmp/optimization_variables.h>
-
 #include <xpp/hyq/foothold.h>
 
 namespace xpp {
@@ -28,11 +27,14 @@ OptimizationVariables::Init (const Vector2d& start_cog_p,
   nlp_structure_.Init(spline_structure_.GetTotalFreeCoeff(), step_sequence_.size());
   x_ = VectorXd(nlp_structure_.GetOptimizationVariableCount());
   x_.setZero();
+
+  initialized_ = true;
 }
 
 void
 xpp::zmp::OptimizationVariables::SetFootholds (const StdVecEigen2d& footholds)
 {
+  assert(initialized_);
   nlp_structure_.SetFootholds(footholds, x_);
 }
 
@@ -54,12 +56,14 @@ OptimizationVariables::NotifyObservers () const
 int
 OptimizationVariables::GetOptimizationVariableCount () const
 {
+  assert(initialized_);
   return nlp_structure_.GetOptimizationVariableCount();
 }
 
 void
 xpp::zmp::OptimizationVariables::SetVariables (const VectorXd& x)
 {
+  assert(initialized_);
   x_ = x;
   NotifyObservers();
 }
@@ -67,6 +71,7 @@ xpp::zmp::OptimizationVariables::SetVariables (const VectorXd& x)
 void
 xpp::zmp::OptimizationVariables::SetVariables (const double* x)
 {
+  assert(initialized_);
   x_ = nlp_structure_.ConvertToEigen(x);
   NotifyObservers();
 }
@@ -74,24 +79,28 @@ xpp::zmp::OptimizationVariables::SetVariables (const double* x)
 OptimizationVariables::StdVecEigen2d
 OptimizationVariables::GetFootholdsStd () const
 {
+  assert(initialized_);
   return nlp_structure_.ExtractFootholdsToStd(x_);
 }
 
 OptimizationVariables::VectorXd
 OptimizationVariables::GetFootholdsEig () const
 {
+  assert(initialized_);
   return nlp_structure_.ExtractFootholdsToEig(x_);
 }
 
 OptimizationVariables::VectorXd
 OptimizationVariables::GetSplineCoefficients () const
 {
+  assert(initialized_);
   return nlp_structure_.ExtractSplineCoefficients(x_);
 }
 
 OptimizationVariables::VecFoothold
 OptimizationVariables::GetFootholds () const
 {
+  assert(initialized_);
   OptimizationVariables::StdVecEigen2d footholds_xy = GetFootholdsStd();
 
   VecFoothold opt_footholds(footholds_xy.size());
@@ -107,6 +116,7 @@ OptimizationVariables::GetFootholds () const
 OptimizationVariables::VecSpline
 OptimizationVariables::GetSplines ()
 {
+  assert(initialized_);
   spline_structure_.AddOptimizedCoefficients(GetSplineCoefficients());
   return spline_structure_.GetSplines();
 }

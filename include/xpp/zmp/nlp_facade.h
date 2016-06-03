@@ -8,23 +8,15 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 
-
 #include <xpp/hyq/foothold.h>
 #include <xpp/zmp/zmp_spline.h>
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/a_observer_visualizer.h>
+#include <xpp/zmp/constraint_container.h>
+#include <xpp/zmp/cost_container.h>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
-
-
-#include <xpp/zmp/constraint_container.h>
-// cost function stuff
-#include <xpp/zmp/a_quadratic_cost.h>
-#include <xpp/zmp/range_of_motion_cost.h>
-#include <xpp/zmp/total_acceleration_equation.h>
-#include <xpp/zmp/cost_container.h>
-
 
 namespace xpp {
 namespace zmp {

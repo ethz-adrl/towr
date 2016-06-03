@@ -14,11 +14,14 @@
 #include <xpp/zmp/final_state_equation.h>
 #include <xpp/zmp/spline_junction_equation.h>
 #include <xpp/zmp/ipopt_adapter.h>
-
 // this looks like i need the factory method
 #include <xpp/zmp/a_linear_constraint.h>
 #include <xpp/zmp/zmp_constraint.h>
 #include <xpp/zmp/range_of_motion_constraint.h>
+// cost function stuff
+#include <xpp/zmp/a_quadratic_cost.h>
+#include <xpp/zmp/range_of_motion_cost.h>
+#include <xpp/zmp/total_acceleration_equation.h>
 
 namespace xpp {
 namespace zmp {
@@ -43,13 +46,6 @@ NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
     std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
     throw std::length_error("Ipopt could not initialize correctly");
   }
-}
-
-void
-NlpFacade::AttachVisualizer (AObserverVisualizer& visualizer)
-{
-  visualizer_ = &visualizer;
-  visualizer_->RegisterWithSubject(opt_variables_);
 }
 
 void
@@ -109,6 +105,13 @@ NlpFacade::SolveIpopt (const IpoptPtr& nlp)
     Ipopt::Number final_obj = ipopt_solver_.Statistics()->FinalObjective();
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
   }
+}
+
+void
+NlpFacade::AttachVisualizer (AObserverVisualizer& visualizer)
+{
+  visualizer_ = &visualizer;
+  visualizer_->RegisterWithSubject(opt_variables_);
 }
 
 NlpFacade::VecFoothold

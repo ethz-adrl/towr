@@ -60,15 +60,14 @@ public:
   void SetVariables(const double* x);
   void SetFootholds (const StdVecEigen2d& footholds);
 
-//  // Singleton pattern: Ensure there is only one instance of this class in program
-//  static OptimizationVariables& GetInstance(int n_spline_coeff, int n_steps);
-
 private:
   VectorXd x_;                 ///< optimization variables
   NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
 
   std::vector<xpp::hyq::LegID> step_sequence_;
   ContinuousSplineContainer spline_structure_;
+
+  bool initialized_ = false; // checks if the init() method has been called
 };
 
 } /* namespace zmp */
