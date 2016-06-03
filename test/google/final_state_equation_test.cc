@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "final_state_equation.h"
+#include <xpp/zmp/final_state_equation.h>
 
 namespace xpp {
 namespace zmp {

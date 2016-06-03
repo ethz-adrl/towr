@@ -7,6 +7,9 @@
 
 #include <xpp/zmp/a_linear_constraint.h>
 #include <xpp/zmp/initial_acceleration_equation.h>
+#include <xpp/zmp/optimization_variables.h>
+#include <xpp/zmp/continuous_spline_container.h>
+
 #include <gtest/gtest.h>
 
 namespace xpp {
@@ -21,12 +24,17 @@ public:
 protected:
   virtual void SetUp()
   {
+
+    subject_.Init(n_coeff_, n_steps_);
     init_acceleration_ << 1.3, 2.4; // x and y
     InitialAccelerationEquation eq(init_acceleration_, subject_.GetSplineCoefficients().rows());
     constraint_.Init(eq.BuildLinearEquation());
     EXPECT_EQ(1, subject_.GetObserverCount());
   }
 
+
+  const int n_coeff_ = utils::kDim2d*kFreeCoeffPerSpline;
+  const int n_steps_ = 2;
   Eigen::Vector2d init_acceleration_;
   OptimizationVariables subject_;
   LinearEqualityConstraint constraint_;

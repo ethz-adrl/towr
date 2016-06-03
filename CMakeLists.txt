@@ -221,11 +221,13 @@ if(BUILD_TESTS)
                         #test/google/eigen_num_diff_test.cc
 #                        test/google/optimization_variables_test.cc
                         test/google/a_observer_visualizer_test.cc
-                        test/google/initial_acceleration_equation_test.cc
                         test/google/zmp_constraint_test.cc
 #                        test/google/constraint_container_test.cc
                         test/google/range_of_motion_constraint_test.cc
-                        # costs
+                        #equations
+                        test/google/initial_acceleration_equation_test.cc
+                        test/google/spline_junction_equation_test.cc
+                        # costs                       
                         test/google/a_quadratic_cost_test.cc
                         test/google/cost_function_functor_test.cc
 #                        test/google/total_acceleration_equation_test.cc

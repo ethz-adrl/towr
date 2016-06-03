@@ -14,10 +14,9 @@
 namespace xpp {
 namespace utils {
 
-
 template<typename _Scalar, int NX = Eigen::Dynamic, int NY = Eigen::Dynamic>
 class EigenNumDiffFunctor {
-public:
+protected:
   typedef _Scalar Scalar;
   enum {
     InputsAtCompileTime = NX,
@@ -27,11 +26,7 @@ public:
   typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,1> ValueType;
   typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,InputsAtCompileTime> JacobianType;
 
-
-  explicit EigenNumDiffFunctor() : m_inputs(0), m_values(0)
-  {
-    std::cerr << "EigenNumDiffFunctor not initialized.\n";
-  }
+  explicit EigenNumDiffFunctor() : m_inputs(0), m_values(0) {}
   explicit EigenNumDiffFunctor(int inputs, int values) : m_inputs(inputs), m_values(values) {}
   virtual ~EigenNumDiffFunctor () {};
 
@@ -40,21 +35,12 @@ public:
   int inputs() const { return m_inputs; }
   int values() const { return m_values; }
 
-protected:
-  void set_inputs(int inputs) {
-    m_inputs = inputs;
-    std::cout << "EigenNumDiffFunctor.inputs = " << m_inputs << " initialized\n";
-  }
-  void set_values(int values)
-  {
-    m_values = values;
-    std::cout << "EigenNumDiffFunctor.values = " << m_values << " initialized\n";
-  }
+  void set_inputs(int inputs) { m_inputs = inputs; }
+  void set_values(int values) { m_values = values; }
 
 private:
   int m_inputs, m_values;
 };
-
 
 } /* namespace utils */
 } /* namespace xpp */

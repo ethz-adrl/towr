@@ -5,7 +5,7 @@
  *      Author: awinkler
  */
 
-#include "../../include/xpp/zmp/zmp_constraint_builder.h"
+#include <xpp/zmp/zmp_constraint_builder.h>
 
 #include <gtest/gtest.h>
 #include <iostream>

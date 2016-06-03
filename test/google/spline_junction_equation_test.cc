@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "spline_junction_equation.h"
+#include <xpp/zmp/spline_junction_equation.h>
 
 namespace xpp {
 namespace zmp {

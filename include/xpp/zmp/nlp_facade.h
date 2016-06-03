@@ -23,8 +23,8 @@ namespace zmp {
 class NlpFacade {
 public:
   typedef xpp::utils::Point2d State;
-  typedef OptimizationVariables::VecFoothold VecFoothold;
-  typedef OptimizationVariables::VecSpline VecSpline;
+  typedef OptimizationVariablesInterpreter::VecFoothold VecFoothold;
+  typedef OptimizationVariablesInterpreter::VecSpline VecSpline;
   typedef xpp::ros::IVisualizer IVisualizer;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
 

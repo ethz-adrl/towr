@@ -2,7 +2,7 @@
  @file    cost_function_functor.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jun 3, 2016
- @brief   Brief description
+ @brief   Defines a class to calculate numerical derivatives through Eigen
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COST_FUNCTION_FUNCTOR_H_
@@ -15,6 +15,12 @@
 namespace xpp {
 namespace zmp {
 
+/** @brief Calculates the derivatives of the cost function.
+  *
+  * This class is responsible for supplying the value of the cost function
+  * evaluated for the current value of the optimization variables. This
+  * operator() is then used with Eigen/NumericalDiff to calculate the derivatives.
+  */
 class CostFunctionFunctor : public utils::EigenNumDiffFunctor<double> {
 public:
   typedef utils::EigenNumDiffFunctor<double> Base;

@@ -49,20 +49,21 @@ NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
 
 void
 NlpFacade::SolveNlp(const State& initial_state,
-                       const State& final_state,
-                       const std::vector<xpp::hyq::LegID>& step_sequence,
-                       const VecFoothold& start_stance,
-                       const SplineTimes& times,
-                       double robot_height)
+                    const State& final_state,
+                    const std::vector<xpp::hyq::LegID>& step_sequence,
+                    const VecFoothold& start_stance,
+                    const SplineTimes& times,
+                    double robot_height)
 {
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(start_stance, step_sequence, xpp::hyq::SupportPolygon::GetDefaultMargins());
 
-  opt_variables_.Init(initial_state.p, initial_state.v, step_sequence, times);
-  opt_variables_.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
-
   ContinuousSplineContainer spline_structure;
   spline_structure.Init(initial_state.p, initial_state.v, step_sequence, times);
+
+  opt_variables_.Init(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
+  opt_variables_.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
+
 
   // This should all be hidden inside a factory method
   // the linear equations
