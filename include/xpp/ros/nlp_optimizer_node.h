@@ -45,7 +45,7 @@ private:
     */
   std::vector<LegID> DetermineStepSequence(const State& curr_state, LegID curr_swingleg) const;
   LegID NextSwingLeg(LegID curr) const;
-  LegID curr_swingleg_;
+  std::vector<xpp::hyq::LegID> step_sequence_;
 
   ::ros::Subscriber current_info_sub_;
   ::ros::Publisher opt_params_pub_;

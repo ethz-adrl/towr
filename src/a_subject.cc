@@ -7,15 +7,12 @@
 
 #include <xpp/zmp/a_subject.h>
 
-namespace xpp
-{
-namespace zmp
-{
+namespace xpp {
+namespace zmp {
 
 ASubject::ASubject ()
 {
   // TODO Auto-generated constructor stub
-
 }
 
 ASubject::~ASubject ()
@@ -30,9 +27,24 @@ ASubject::GetObserverCount () const
 }
 
 void
-xpp::zmp::ASubject::RemoveObservers ()
+ASubject::RemoveObservers ()
 {
   observers_.clear();
+}
+
+void
+ASubject::RegisterObserver(IObserver* o)
+{
+  bool observer_already_registered = std::find(observers_.begin(), observers_.end(), o) != observers_.end();
+  if (!observer_already_registered)
+    observers_.push_back(o);
+}
+
+void
+ASubject::NotifyObservers () const
+{
+  for (IObserver* const o : observers_)
+    o->Update();
 }
 
 } /* namespace zmp */

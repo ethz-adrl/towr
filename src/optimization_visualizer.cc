@@ -6,7 +6,6 @@
  */
 
 #include <xpp/ros/optimization_visualizer.h>
-
 #include <xpp/ros/ros_helpers.h>
 
 namespace xpp {
@@ -25,10 +24,25 @@ OptimizationVisualizer::OptimizationVisualizer (OptimizationVariables& subject)
 }
 
 void
+OptimizationVisualizer::RegisterWithSubject (OptimizationVariables& subject)
+{
+  subject_ = &subject;
+  subject_->RegisterObserver(this);
+}
+
+void
+OptimizationVisualizer::InitInterpreter (
+    const Vector2d& start_cog_p, const Vector2d& start_cog_v,
+    const std::vector<xpp::hyq::LegID>& step_sequence, const SplineTimes& times)
+{
+  interpreter_.Init(start_cog_p, start_cog_v, step_sequence, times);
+}
+
+void
 OptimizationVisualizer::Update ()
 {
-  splines_ = subject_->GetSplines();
-  footholds_ = subject_->GetFootholds();
+  splines_   = interpreter_.GetSplines(subject_->GetSplineCoefficients());
+  footholds_ = interpreter_.GetFootholds(subject_->GetFootholdsStd());
 }
 
 void
@@ -41,13 +55,6 @@ OptimizationVisualizer::PublishMsg ()
 }
 
 void
-OptimizationVisualizer::RegisterWithSubject (OptimizationVariables& subject)
-{
-  subject_ = &subject;
-  subject_->RegisterObserver(this);
-}
-
-void
 OptimizationVisualizer::InitRos ()
 {
   ::ros::NodeHandle n;
@@ -56,4 +63,3 @@ OptimizationVisualizer::InitRos ()
 
 } /* namespace ros */
 } /* namespace xpp */
-

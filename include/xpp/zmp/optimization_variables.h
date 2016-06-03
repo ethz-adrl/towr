@@ -10,6 +10,7 @@
 
 #include <xpp/zmp/a_subject.h>
 #include <xpp/zmp/nlp_structure.h>
+#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/foothold.h>
 
 namespace xpp {
@@ -32,20 +33,18 @@ public:
   OptimizationVariables ();
   virtual ~OptimizationVariables () {};
 
+  // todo, remove this method, it introduces to many dependencies
   void Init(const Vector2d& start_cog_p,
             const Vector2d& start_cog_v,
             const std::vector<xpp::hyq::LegID>& step_sequence,
             const SplineTimes& times);
 
-  void NotifyObservers () const override;
-  void RegisterObserver(IObserver* o) override;
-
   StdVecEigen2d GetFootholdsStd() const;
   VectorXd GetFootholdsEig () const;
-  VecFoothold GetFootholds() const;
+//  VecFoothold GetFootholds() const;
 
   VectorXd GetSplineCoefficients() const;
-  VecSpline GetSplines();
+//  VecSpline GetSplines();
 
   VectorXd GetOptimizationVariables() const { return x_; };
   int GetOptimizationVariableCount() const;

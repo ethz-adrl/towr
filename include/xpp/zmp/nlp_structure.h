@@ -9,8 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_STRUCTURE_H_
 
 #include <xpp/utils/geometric_structs.h>
-#include <xpp/zmp/continuous_spline_container.h>
-#include <Eigen/Dense>
+// should not need to include anything more here!
 
 namespace xpp {
 namespace zmp {
@@ -21,7 +20,7 @@ namespace zmp {
 class NlpStructure {
 public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
-  typedef ContinuousSplineContainer::Coords Coords;
+  typedef xpp::utils::coords_wrapper::Coords3D Coords;
   typedef Eigen::VectorXd VectorXd;
   typedef double Number;
 
@@ -99,19 +98,19 @@ public:
   }
 
   /** miscellaneous helper functions */
-  static int Index(int spline, Coords dim, SplineCoeff coeff)
-  {
-    int idx = 0;
-    idx += ContinuousSplineContainer::Index(spline, dim, coeff);
-    return idx;
-  }
-
-  int Index(int step, Coords dim)
-  {
-    int idx = n_spline_coeff_;
-    idx += step*kDim2d + dim;
-    return idx;
-  }
+//  static int Index(int spline, Coords dim, SplineCoeff coeff)
+//  {
+//    int idx = 0;
+//    idx += ContinuousSplineContainer::Index(spline, dim, coeff);
+//    return idx;
+//  }
+//
+//  int Index(int step, Coords dim)
+//  {
+//    int idx = n_spline_coeff_;
+//    idx += step*kDim2d + dim;
+//    return idx;
+//  }
 
 private:
   int n_spline_coeff_;

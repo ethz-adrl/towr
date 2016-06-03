@@ -14,6 +14,7 @@
 
 #include <xpp/ros/marker_array_builder.h>
 #include <xpp/zmp/optimization_variables.h>
+#include <xpp/zmp/optimization_variables_interpreter.h>
 
 #include <ros/ros.h>
 
@@ -32,12 +33,19 @@ public:
   typedef std::vector<xpp::zmp::ZmpSpline> VecSpline;
   typedef xpp::hyq::Foothold::VecFoothold VecFoothold;
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
+  typedef xpp::zmp::OptimizationVariablesInterpreter Interpreter;
+  typedef xpp::zmp::SplineTimes SplineTimes;
+  typedef Eigen::Vector2d Vector2d;
 
   OptimizationVisualizer();
   OptimizationVisualizer (OptimizationVariables& subject);
   virtual ~OptimizationVisualizer () {}
 
   void RegisterWithSubject (OptimizationVariables& subject);
+  void InitInterpreter(const Vector2d& start_cog_p,
+                       const Vector2d& start_cog_v,
+                       const std::vector<xpp::hyq::LegID>& step_sequence,
+                       const SplineTimes& times);
 
   /** @brief Updates the values of the optimization variables. */
    void Update() override;
@@ -50,7 +58,9 @@ private:
   ::ros::Publisher ros_publisher_;
   MarkerArrayBuilder msg_builder_;
 
-  // optimization variables
+  Interpreter interpreter_;
+
+  // interpreted optimization variables
   VecSpline splines_;
   VecFoothold footholds_;
 };

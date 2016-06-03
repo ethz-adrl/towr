@@ -12,6 +12,7 @@
 #include <xpp/zmp/a_observer_visualizer.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/cost_container.h>
+#include <xpp/zmp/optimization_variables_interpreter.h>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
@@ -54,15 +55,21 @@ public:
   VecSpline GetSplines();
 
 private:
+  VecFoothold footholds_;
+  VecSpline splines_;
+
   void SolveIpopt(const IpoptPtr& nlp);
   OptimizationVariables opt_variables_;
   ConstraintContainer constraints_;
   CostContainer costs_;
 
+  OptimizationVariablesInterpreter opt_var_interpreter_;
+  AObserverVisualizer* visualizer_;
+
   Ipopt::IpoptApplication ipopt_solver_;
   Ipopt::ApplicationReturnStatus status_;
 
-  AObserverVisualizer* visualizer_;
+
 };
 
 } /* namespace zmp */

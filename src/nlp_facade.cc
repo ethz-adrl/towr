@@ -90,6 +90,11 @@ NlpFacade::SolveNlp(const State& initial_state,
                                              constraints_,
                                              *visualizer_);
   SolveIpopt(nlp_ptr);
+
+  // save the result of the optimization for the client to access, even if new optimization is running
+  opt_var_interpreter_.Init(initial_state.p, initial_state.v, step_sequence, times);
+  footholds_ = opt_var_interpreter_.GetFootholds(opt_variables_.GetFootholdsStd());
+  splines_ = opt_var_interpreter_.GetSplines(opt_variables_.GetSplineCoefficients());
 }
 
 void
@@ -116,13 +121,13 @@ NlpFacade::AttachVisualizer (AObserverVisualizer& visualizer)
 NlpFacade::VecFoothold
 NlpFacade::GetFootholds () const
 {
-  return opt_variables_.GetFootholds();
+  return footholds_;
 }
 
 NlpFacade::VecSpline
 NlpFacade::GetSplines ()
 {
-  return opt_variables_.GetSplines();
+  return splines_;
 }
 
 } /* namespace zmp */

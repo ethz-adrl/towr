@@ -117,6 +117,7 @@ set(SOURCES
   # observer pattern code
   src/a_subject.cc
   src/optimization_variables.cc
+  src/optimization_variables_interpreter.cc
   src/i_observer.cc
   src/a_observer_visualizer.cc
   # constraints
@@ -232,6 +233,7 @@ if(BUILD_TESTS)
                         test/google/cost_container_test.cc
                         test/google/foothold_nominal_deviation_test.cc
                         test/google/optimization_visualizer_test.cc
+                        test/google/optimization_variables_interpreter_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

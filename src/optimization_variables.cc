@@ -38,21 +38,6 @@ xpp::zmp::OptimizationVariables::SetFootholds (const StdVecEigen2d& footholds)
   nlp_structure_.SetFootholds(footholds, x_);
 }
 
-void
-OptimizationVariables::RegisterObserver(IObserver* o)
-{
-  bool observer_already_registered = std::find(observers_.begin(), observers_.end(), o) != observers_.end();
-  if (!observer_already_registered)
-    observers_.push_back(o);
-}
-
-void
-OptimizationVariables::NotifyObservers () const
-{
-  for (IObserver* const o : observers_)
-    o->Update();
-}
-
 int
 OptimizationVariables::GetOptimizationVariableCount () const
 {
@@ -97,29 +82,29 @@ OptimizationVariables::GetSplineCoefficients () const
   return nlp_structure_.ExtractSplineCoefficients(x_);
 }
 
-OptimizationVariables::VecFoothold
-OptimizationVariables::GetFootholds () const
-{
-  assert(initialized_);
-  OptimizationVariables::StdVecEigen2d footholds_xy = GetFootholdsStd();
-
-  VecFoothold opt_footholds(footholds_xy.size());
-  xpp::hyq::Foothold::SetXy(footholds_xy, opt_footholds);
-
-  uint i=0;
-  for (hyq::Foothold& f : opt_footholds)
-    f.leg = step_sequence_.at(i++);
-
-  return opt_footholds;
-}
-
-OptimizationVariables::VecSpline
-OptimizationVariables::GetSplines ()
-{
-  assert(initialized_);
-  spline_structure_.AddOptimizedCoefficients(GetSplineCoefficients());
-  return spline_structure_.GetSplines();
-}
+//OptimizationVariables::VecFoothold
+//OptimizationVariables::GetFootholds () const
+//{
+//  assert(initialized_);
+//  OptimizationVariables::StdVecEigen2d footholds_xy = GetFootholdsStd();
+//
+//  VecFoothold opt_footholds(footholds_xy.size());
+//  xpp::hyq::Foothold::SetXy(footholds_xy, opt_footholds);
+//
+//  uint i=0;
+//  for (hyq::Foothold& f : opt_footholds)
+//    f.leg = step_sequence_.at(i++);
+//
+//  return opt_footholds;
+//}
+//
+//OptimizationVariables::VecSpline
+//OptimizationVariables::GetSplines ()
+//{
+//  assert(initialized_);
+//  spline_structure_.AddOptimizedCoefficients(GetSplineCoefficients());
+//  return spline_structure_.GetSplines();
+//}
 
 } /* namespace zmp */
 } /* namespace xpp */
