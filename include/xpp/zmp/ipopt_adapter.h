@@ -11,6 +11,8 @@
 #include <IpTNLP.hpp>
 
 #include <xpp/zmp/cost_container.h>
+#include <xpp/zmp/cost_function_functor.h>
+
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/ros/i_visualizer.h>
@@ -27,6 +29,8 @@ class IpoptAdapter : public Ipopt::TNLP {
 public:
   typedef xpp::zmp::ConstraintContainer ConstraintContainer;
   typedef xpp::zmp::CostContainer CostContainer;
+  typedef xpp::zmp::CostFunctionFunctor CostFunctionFunctor;
+  typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
   typedef xpp::ros::IVisualizer IVisualizer;
   typedef Eigen::VectorXd VectorXd;
@@ -109,8 +113,9 @@ public:
 private:
   OptimizationVariables& opt_variables_;
   CostContainer& cost_container_;
-  Eigen::NumericalDiff<CostContainer> num_diff_cost_function_;
   ConstraintContainer& constraint_container_;
+
+  NumericalDiffFunctor cf_num_diff_functor_;
   IVisualizer& visualizer_;
 };
 

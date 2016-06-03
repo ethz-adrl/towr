@@ -24,6 +24,7 @@ public:
 
   void AddCosts(OptimizationVariables& subject, CostContainer& costs);
 
+protected:
   int operator() (const InputType& x, ValueType& obj_value) const override;
 
 private:

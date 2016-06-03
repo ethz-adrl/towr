@@ -8,8 +8,6 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 
-#include <xpp/hyq/foothold.h>
-#include <xpp/zmp/zmp_spline.h>
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/a_observer_visualizer.h>
 #include <xpp/zmp/constraint_container.h>
@@ -24,8 +22,8 @@ namespace zmp {
 class NlpFacade {
 public:
   typedef xpp::utils::Point2d State;
-  typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef std::vector<ZmpSpline> VecSpline;
+  typedef OptimizationVariables::VecFoothold VecFoothold;
+  typedef OptimizationVariables::VecSpline VecSpline;
   typedef xpp::ros::IVisualizer IVisualizer;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
 

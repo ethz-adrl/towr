@@ -27,8 +27,7 @@ namespace xpp {
 namespace zmp {
 
 NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
-    :costs_(opt_variables_),
-     visualizer_(&visualizer)
+     :visualizer_(&visualizer)
 {
   constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "acc");
   constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "final");

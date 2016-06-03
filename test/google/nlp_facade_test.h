@@ -5,7 +5,7 @@
  *      Author: awinkler
  */
 
-#include "../../include/xpp/zmp/nlp_facade.h"
+#include <xpp/zmp/nlp_facade.h>
 
 #include <gtest/gtest.h>
 #include <iostream>

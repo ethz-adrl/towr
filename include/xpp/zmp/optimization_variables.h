@@ -10,13 +10,7 @@
 
 #include <xpp/zmp/a_subject.h>
 #include <xpp/zmp/nlp_structure.h>
-//#include <xpp/hyq/foothold.h>
-
-namespace xpp {
-namespace hyq {
-  class Foothold;
-}
-}
+#include <xpp/hyq/foothold.h>
 
 namespace xpp {
 namespace zmp {

@@ -24,9 +24,10 @@ IpoptAdapter::IpoptAdapter(OptimizationVariables& opt_variables,
      cost_container_(cost_container),
      constraint_container_(constraint_container),
      // These epsilons play a big role in convergence
-     num_diff_cost_function_(cost_container, 1*std::numeric_limits<double>::epsilon()),
+     cf_num_diff_functor_(1*std::numeric_limits<double>::epsilon()),
      visualizer_(visualizer)
 {
+  cf_num_diff_functor_.AddCosts(opt_variables_, cost_container_);
 }
 
 
@@ -114,7 +115,7 @@ bool IpoptAdapter::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 {
   Eigen::MatrixXd jac(1,n);
   VectorXd x_eig = Eigen::Map<const VectorXd>(x,n);
-  num_diff_cost_function_.df(x_eig, jac);
+  cf_num_diff_functor_.df(x_eig, jac);
   Eigen::Map<Eigen::MatrixXd>(grad_f,1,n) = jac;
 	return true;
 }

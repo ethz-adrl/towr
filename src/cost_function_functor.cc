@@ -12,7 +12,7 @@ namespace zmp {
 
 CostFunctionFunctor::CostFunctionFunctor ()
 {
-  subject_ = nullptr;
+  subject_        = nullptr;
   cost_container_ = nullptr;
 }
 

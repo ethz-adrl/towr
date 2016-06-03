@@ -41,8 +41,15 @@ public:
   int values() const { return m_values; }
 
 protected:
-  void set_inputs(int inputs) { m_inputs = inputs; std::cout << "inputs initialized\n";}
-  void set_values(int values) { m_values = values; std::cout << "values initialized\n";}
+  void set_inputs(int inputs) {
+    m_inputs = inputs;
+    std::cout << "EigenNumDiffFunctor.inputs = " << m_inputs << " initialized\n";
+  }
+  void set_values(int values)
+  {
+    m_values = values;
+    std::cout << "EigenNumDiffFunctor.values = " << m_values << " initialized\n";
+  }
 
 private:
   int m_inputs, m_values;

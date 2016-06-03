@@ -10,10 +10,14 @@
 namespace xpp {
 namespace zmp {
 
-CostContainer::CostContainer (OptimizationVariables& subject)
-    :EigenNumDiffFunctor(subject.GetOptimizationVariableCount(), 1)
+CostContainer::CostContainer ()
 {
-  subject_ = &subject;
+  // TODO Auto-generated constructor stub
+}
+
+CostContainer::~CostContainer ()
+{
+  // TODO Auto-generated destructor stub
 }
 
 void
@@ -36,14 +40,6 @@ ACost&
 CostContainer::GetCost (const std::string& name)
 {
   return *costs_.at(name);
-}
-
-int
-CostContainer::operator() (const InputType& x, ValueType& obj_value) const
-{
-  subject_->SetVariables(x);
-  obj_value(0) = EvaluateTotalCost();
-  return 1;
 }
 
 } /* namespace zmp */
