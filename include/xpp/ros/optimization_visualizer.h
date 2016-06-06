@@ -31,7 +31,7 @@ namespace ros {
 class OptimizationVisualizer : public xpp::zmp::AObserverVisualizer {
 public:
   typedef std::vector<xpp::zmp::ZmpSpline> VecSpline;
-  typedef xpp::hyq::Foothold::VecFoothold VecFoothold;
+  typedef std::vector<xpp::hyq::Foothold>VecFoothold;
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
   typedef xpp::zmp::OptimizationVariablesInterpreter Interpreter;
   typedef xpp::zmp::SplineTimes SplineTimes;

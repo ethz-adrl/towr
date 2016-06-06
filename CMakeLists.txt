@@ -113,6 +113,7 @@ set(SOURCES
   src/zmp_constraint_builder.cc
   src/zero_moment_point.cc
   src/stance_feet_calculator.cc
+  src/a_inverse_kinematics.cc
   src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
   src/qp_optimizer_node.cc
@@ -121,6 +122,7 @@ set(SOURCES
   src/optimization_variables.cc
   src/optimization_variables_interpreter.cc
   src/i_observer.cc
+  src/a_interpreting_observer.cc
   src/a_observer_visualizer.cc
   # constraints
   src/a_constraint.cc
@@ -131,7 +133,7 @@ set(SOURCES
   src/constraint_container.cc
   src/zmp_constraint.cc
   src/range_of_motion_constraint.cc
-  src/a_inverse_kinematics.cc
+  src/joint_angles_constraint.cc
   # costs
   src/a_quadratic_cost.cc
   src/total_acceleration_equation.cc
@@ -225,7 +227,10 @@ if(BUILD_TESTS)
                         #test/google/eigen_num_diff_test.cc
 #                        test/google/optimization_variables_test.cc
                         test/google/a_observer_visualizer_test.cc
+                        test/google/a_interpreting_observer_test.cc
+                        #constraints
                         test/google/zmp_constraint_test.cc
+                        test/google/joint_angles_constraint_test.cc
 #                        test/google/constraint_container_test.cc
                         test/google/range_of_motion_constraint_test.cc
                         #equations
