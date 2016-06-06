@@ -38,7 +38,6 @@ public:
   double EvaluateCost () const override;
 
 private:
-  OptimizationVariables* subject_;
   VectorXd x_coeff_;                ///< the current spline coefficients
   MatVec quadratic_equation_;
 };

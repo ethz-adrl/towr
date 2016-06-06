@@ -124,6 +124,7 @@ set(SOURCES
   src/i_observer.cc
   src/a_interpreting_observer.cc
   src/a_observer_visualizer.cc
+  src/observer_decorator.cc
   # constraints
   src/a_constraint.cc
   src/a_linear_constraint.cc

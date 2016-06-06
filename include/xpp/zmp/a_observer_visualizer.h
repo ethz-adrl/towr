@@ -16,6 +16,8 @@
 namespace xpp {
 namespace zmp {
 
+// fixme make this class visualizer, but delegate/compose observer responsibilities,
+// not inheritance
 class AObserverVisualizer : public IObserver, public ros::IVisualizer {
 public:
   AObserverVisualizer ();

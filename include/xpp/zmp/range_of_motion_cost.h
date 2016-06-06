@@ -31,7 +31,6 @@ public:
   double EvaluateCost () const override;
 
 private:
-  OptimizationVariables* subject_;
   FootholdNominalDeviation builder_;
 
   SupportPolygonContainer supp_polygon_container_;

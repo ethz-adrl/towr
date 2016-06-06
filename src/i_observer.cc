@@ -6,14 +6,15 @@
  */
 
 #include <xpp/zmp/i_observer.h>
+#include <xpp/zmp/optimization_variables.h>
 
 namespace xpp {
 namespace zmp {
 
-
-// fixme a true "interface" would not have this file
-IObserver::IObserver ()
+IObserver::IObserver (OptimizationVariables& subject)
 {
+  subject_ = &subject;
+  subject_->RegisterObserver(this);
 }
 
 IObserver::~IObserver ()

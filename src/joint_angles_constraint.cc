@@ -10,10 +10,10 @@
 namespace xpp {
 namespace zmp {
 
-JointAnglesConstraint::JointAnglesConstraint ()
+JointAnglesConstraint::JointAnglesConstraint (OptimizationVariables& subject)
+    :IObserver(subject)
 {
   // TODO Auto-generated constructor stub
-
 }
 
 JointAnglesConstraint::~JointAnglesConstraint ()

@@ -11,9 +11,8 @@ namespace xpp {
 namespace zmp {
 
 RangeOfMotionCost::RangeOfMotionCost (OptimizationVariables& subject)
+    :IObserver(subject)
 {
-  subject_ = &subject;
-  subject_->RegisterObserver(this);
 }
 
 void

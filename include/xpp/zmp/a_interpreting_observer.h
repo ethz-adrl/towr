@@ -20,7 +20,7 @@ public:
   typedef std::vector<xpp::hyq::Foothold>VecFoothold;
   typedef xpp::zmp::OptimizationVariablesInterpreter Interpreter;
 
-  AInterpretingObserver ();
+  AInterpretingObserver (OptimizationVariables& subject);
   virtual ~AInterpretingObserver ();
 
 

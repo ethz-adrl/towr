@@ -36,7 +36,6 @@ private:
   SupportPolygonContainer supp_polygon_container_;
   ContinuousSplineContainer continuous_spline_container_;
 
-  OptimizationVariables* subject_;
   FootholdNominalDeviation builder_;
 };
 

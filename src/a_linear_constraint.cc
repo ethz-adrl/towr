@@ -11,9 +11,8 @@ namespace xpp {
 namespace zmp {
 
 ALinearConstraint::ALinearConstraint (OptimizationVariables& subject)
+    :IObserver(subject)
 {
-  subject_ = &subject;
-  subject_->RegisterObserver(this);
 }
 
 void

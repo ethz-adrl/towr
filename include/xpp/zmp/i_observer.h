@@ -14,15 +14,20 @@
 namespace xpp {
 namespace zmp {
 
+class OptimizationVariables; // forward declaration to avoid circular dependencies
+
 class IObserver {
 public:
-  IObserver ();
+  IObserver () {}; // fixme remove this, only for observer_visualizer
+  IObserver (OptimizationVariables& subject);
   virtual ~IObserver ();
 
-
   virtual void Update() = 0;
-private:
 
+protected:
+  OptimizationVariables* subject_; ///< this variable holds the current state of optimization variables
+
+private:
   // delete the copy and copy assignment operators, since that messes up the
   // logic with the subject in the observer pattern.
   IObserver& operator=(const IObserver&) = delete;

@@ -10,10 +10,10 @@
 namespace xpp {
 namespace zmp {
 
-AInterpretingObserver::AInterpretingObserver ()
+AInterpretingObserver::AInterpretingObserver (OptimizationVariables& subject)
+    :IObserver(subject)
 {
   // TODO Auto-generated constructor stub
-
 }
 
 AInterpretingObserver::~AInterpretingObserver ()

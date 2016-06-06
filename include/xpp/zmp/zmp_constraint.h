@@ -43,8 +43,6 @@ private:
   SupportPolygonContainer supp_polygon_container_;
 
   ZmpConstraintBuilder zmp_constraint_builder_;
-
-  OptimizationVariables* subject_;
 };
 
 } /* namespace zmp */

@@ -23,7 +23,7 @@ class JointAnglesConstraint : public AConstraint, public IObserver {
 public:
 //  typedef OptimizationVariables::StdVecEigen2d FootholdsXY;
 
-  JointAnglesConstraint ();
+  JointAnglesConstraint (OptimizationVariables& subject);
   virtual ~JointAnglesConstraint ();
 
 

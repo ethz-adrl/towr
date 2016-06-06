@@ -48,7 +48,6 @@ protected:
   Bound bound_;
 
 private:
-  OptimizationVariables* subject_;  ///< this variable holds the current state of optimization variables
   VectorXd x_coeff_;                ///< the current spline coefficients
   MatVec linear_equation_;
 };
