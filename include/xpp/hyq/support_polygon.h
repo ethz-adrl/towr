@@ -38,7 +38,7 @@ public:
 
 public:
   SupportPolygon() {};
-  SupportPolygon(const MarginValues& margins, const VecFoothold& footholds);
+  SupportPolygon(const VecFoothold& footholds, const MarginValues& margins = GetZeroMargins());
   virtual ~SupportPolygon() {};
 
   VecSuppLine CalcLines() const;
@@ -46,8 +46,8 @@ public:
   static MarginValues GetZeroMargins();
 
 
-  MarginValues margins_;
   VecFoothold footholds_; // all the contact points for this support polygon
+  MarginValues margins_;
   VecFoothold footholds_conv_; // only the convex footholds if some are not relevant for support polygon
 
 

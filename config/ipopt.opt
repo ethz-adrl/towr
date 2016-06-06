@@ -6,8 +6,8 @@
 # app.Options()->SetNumericValue("tol", 1e-2);
 
 
-#linear_solver ma27
-linear_solver ma57
+linear_solver ma27
+#linear_solver ma57
 #linear_solver ma77
 #uplinear_solver ma86
 #linear_solver ma97

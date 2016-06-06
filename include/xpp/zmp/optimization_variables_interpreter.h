@@ -31,7 +31,7 @@ public:
             const SplineTimes& times);
 
   VecFoothold GetFootholds(const FootholdPositionsXY&) const;
-  VecSpline GetSplines(const VectorXd& spline_coeff_abcd);
+  VecSpline GetSplines(const VectorXd& spline_coeff_abcd) const;
 
 private:
   std::vector<xpp::hyq::LegID> step_sequence_;

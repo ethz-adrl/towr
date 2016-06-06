@@ -43,13 +43,13 @@ FootholdNominalDeviation::DistanceToNominalStance (
 
     // get legs in contact at each step
     VecFoothold stance_legs;
-    int id = cog_spline.GetSplineID(t);
+    int spline_id = cog_spline.GetSplineID(t);
 
     // final foothold never creates aktive support polygon, so handle manually
     if (t == T)
       stance_legs = supp_polygon_container.GetFinalFootholds();
     else
-      stance_legs = suppport_polygons.at(id).footholds_;
+      stance_legs = suppport_polygons.at(spline_id).footholds_;
 
     xpp::utils::Point2d cog_xy = cog_spline.GetCOGxy(t);
 

@@ -10,7 +10,6 @@
 namespace xpp {
 namespace hyq {
 
-
 void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const VecFoothold& footholds,
                                    const MarginValues& margins)
@@ -22,7 +21,6 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
 
   initialized_ = true;
 }
-
 
 void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const VecLegID& step_sequence,
@@ -43,13 +41,11 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
   initialized_ = true;
 }
 
-
 void SupportPolygonContainer::SetFootholdsXY(int idx, double x, double y)
 {
   footholds_.at(idx).SetXy(x,y);
   support_polygons_ = CreateSupportPolygons(footholds_); //update support polygons as well
 }
-
 
 SupportPolygonContainer::StdVecEigen2d
 SupportPolygonContainer::GetFootholdsInitializedToStart() const
@@ -64,13 +60,11 @@ SupportPolygonContainer::GetFootholdsInitializedToStart() const
   return footholds_xy;
 }
 
-
 SupportPolygon SupportPolygonContainer::GetStancePolygon(const VecFoothold& footholds) const
 {
   CheckIfInitialized();
-  return SupportPolygon(margins_, footholds);
+  return SupportPolygon(footholds, margins_);
 }
-
 
 SupportPolygonContainer::VecFoothold
 SupportPolygonContainer::GetStanceDuring(int step) const
@@ -81,7 +75,6 @@ SupportPolygonContainer::GetStanceDuring(int step) const
   else
     return support_polygons_.at(step).footholds_;
 }
-
 
 SupportPolygonContainer::VecFoothold
 SupportPolygonContainer::GetStanceAfter(int n_steps) const
@@ -100,12 +93,10 @@ SupportPolygonContainer::GetStanceAfter(int n_steps) const
   return last_stance;
 }
 
-
 Foothold SupportPolygonContainer::GetStartFoothold(LegID leg) const
 {
   return Foothold::GetLastFoothold(leg, start_stance_);
 }
-
 
 SupportPolygon SupportPolygonContainer::GetStartPolygon() const
 {
@@ -118,13 +109,11 @@ SupportPolygon SupportPolygonContainer::GetFinalPolygon() const
   return GetStancePolygon(GetFinalFootholds());
 }
 
-
 SupportPolygonContainer::VecFoothold
 SupportPolygonContainer::GetFinalFootholds() const
 {
   return GetStanceAfter(footholds_.size());
 }
-
 
 SupportPolygonContainer::VecSupportPolygon
 SupportPolygonContainer::CreateSupportPolygons(const VecFoothold& footholds) const
@@ -140,7 +129,7 @@ SupportPolygonContainer::CreateSupportPolygons(const VecFoothold& footholds) con
       if(f_curr.leg != f.leg)
         legs_in_contact.push_back(f_curr);
 
-    supp.push_back(SupportPolygon(margins_, legs_in_contact));
+    supp.push_back(SupportPolygon(legs_in_contact, margins_));
 
     // update current stance after step
     Foothold::UpdateFoothold(f, curr_stance);
@@ -148,7 +137,6 @@ SupportPolygonContainer::CreateSupportPolygons(const VecFoothold& footholds) con
 
   return supp;
 }
-
 
 Eigen::Vector2d
 SupportPolygonContainer::GetCenterOfFinalStance() const
@@ -166,7 +154,6 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
   return end_cog/_LEGS_COUNT;
 }
 
-
 SupportPolygonContainer::VecVecSuppLine
 SupportPolygonContainer::GetActiveConstraintsForEachStep(const VecZmpSpline& splines) const
 {
@@ -179,7 +166,6 @@ SupportPolygonContainer::GetActiveConstraintsForEachStep(const VecZmpSpline& spl
 
   return supp_lines;
 }
-
 
 SupportPolygonContainer::VecSupportPolygon
 SupportPolygonContainer::CreateSupportPolygonsWith4LS(const VecZmpSpline& splines) const
@@ -223,7 +209,6 @@ SupportPolygonContainer::CreateSupportPolygonsWith4LS(const VecZmpSpline& spline
   return supp;
 }
 
-
 bool SupportPolygonContainer::Insert4LSPhase(LegID prev, LegID next)
 {
   using namespace xpp::hyq;
@@ -236,7 +221,6 @@ bool SupportPolygonContainer::Insert4LSPhase(LegID prev, LegID next)
   return false;
 }
 
-
 void
 SupportPolygonContainer::CheckIfInitialized() const
 {
@@ -244,7 +228,6 @@ SupportPolygonContainer::CheckIfInitialized() const
     throw std::runtime_error("SuppTriangleContainer not initialized. Call Init() first");
   }
 }
-
 
 } /* namespace hyq */
 } /* namespace xpp */

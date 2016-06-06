@@ -49,12 +49,10 @@ OptimizationVariablesInterpreter::GetFootholds (const FootholdPositionsXY& footh
 }
 
 OptimizationVariablesInterpreter::VecSpline
-OptimizationVariablesInterpreter::GetSplines (const VectorXd& spline_coeff_abcd)
+OptimizationVariablesInterpreter::GetSplines (const VectorXd& spline_coeff_abcd) const
 {
   assert(initialized_);
-
-  spline_structure_.AddOptimizedCoefficients(spline_coeff_abcd);
-  return spline_structure_.GetSplines();
+  return spline_structure_.BuildOptimizedSplines(spline_coeff_abcd);
 }
 
 } /* namespace zmp */

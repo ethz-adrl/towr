@@ -15,9 +15,9 @@ namespace hyq {
 
 using namespace ::xpp::utils; //X,Y,Z,Poin2dManip
 
-SupportPolygon::SupportPolygon(const MarginValues& margins, const VecFoothold& footholds)
-    :margins_(margins),
-     footholds_(footholds),
+SupportPolygon::SupportPolygon(const VecFoothold& footholds, const MarginValues& margins)
+    :footholds_(footholds),
+     margins_(margins),
      footholds_conv_(BuildSortedConvexHull(footholds))
 {
 }
@@ -93,7 +93,7 @@ SupportPolygon SupportPolygon::CombineSupportPolygons(const SupportPolygon& p1,
   std::sort(contacts.begin(), contacts.end(), [](Foothold f1, Foothold f2) {return f1.leg < f2.leg;});
   contacts.erase(std::unique(contacts.begin(), contacts.end()), contacts.end()); // removes adjacent duplicate and resizes vector
 
-  return SupportPolygon(p1.margins_, contacts);
+  return SupportPolygon(contacts, p1.margins_);
 }
 
 

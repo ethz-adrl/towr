@@ -61,6 +61,12 @@ public:
   {
     AddOptimizedCoefficients(optimized_coeff, splines_);
   }
+  VecSpline BuildOptimizedSplines(const Eigen::VectorXd& optimized_coeff) const
+  {
+    VecSpline splines = splines_;
+    AddOptimizedCoefficients(optimized_coeff, splines);
+    return splines;
+  }
 
   VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
   VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;

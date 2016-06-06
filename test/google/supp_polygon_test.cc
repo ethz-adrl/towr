@@ -86,22 +86,22 @@ protected:
 TEST_F(SuppPolygonTest, OrderCounterClockwise)
 {
   SupportPolygon poly;
-  poly = SupportPolygon(margins_, f_bottom_right);
+  poly = SupportPolygon(f_bottom_right, margins_);
   EXPECT_EQ(f_bottom_right.size(), poly.footholds_conv_.size());
   EXPECT_EQ(f_bottom_right, poly.footholds_);
   EXPECT_EQ(f_bottom_right, poly.footholds_conv_);
 
-  poly = SupportPolygon(margins_, f_top_left);
+  poly = SupportPolygon(f_top_left, margins_);
   EXPECT_EQ(f_top_left.size(), poly.footholds_conv_.size());
   EXPECT_EQ(f_top_left, poly.footholds_);
   EXPECT_NE(f_top_left, poly.footholds_conv_);
 
-  poly = SupportPolygon(margins_, f_4_not_ordered);
+  poly = SupportPolygon(f_4_not_ordered, margins_);
   EXPECT_EQ(f_4_not_ordered.size(), poly.footholds_conv_.size());
   EXPECT_EQ(f_4_not_ordered, poly.footholds_);
   EXPECT_NE(f_4_not_ordered, poly.footholds_conv_);
 
-  poly = SupportPolygon(margins_, f_all_non_conv);
+  poly = SupportPolygon(f_all_non_conv, margins_);
   EXPECT_EQ(f_all_non_conv.size()-1, poly.footholds_conv_.size());
   EXPECT_EQ(f_all_non_conv, poly.footholds_);
   EXPECT_NE(f_all_non_conv, poly.footholds_conv_);
@@ -110,8 +110,8 @@ TEST_F(SuppPolygonTest, OrderCounterClockwise)
 
 TEST_F(SuppPolygonTest, CombineSupportPolygons)
 {
-  SupportPolygon supp1 = SupportPolygon(margins_, f_bottom_right);
-  SupportPolygon supp2 = SupportPolygon(margins_, f_top_left);
+  SupportPolygon supp1 = SupportPolygon(f_bottom_right, margins_);
+  SupportPolygon supp2 = SupportPolygon(f_top_left, margins_);
 
   SupportPolygon combined = SupportPolygon::CombineSupportPolygons(supp1, supp2);
 
@@ -124,7 +124,7 @@ TEST_F(SuppPolygonTest, CombineSupportPolygons)
 
 TEST_F(SuppPolygonTest, CombineSupportPolygonsSame)
 {
-  SupportPolygon supp1 = SupportPolygon(margins_, f_bottom_right);
+  SupportPolygon supp1 = SupportPolygon(f_bottom_right, margins_);
   SupportPolygon combined = SupportPolygon::CombineSupportPolygons(supp1, supp1);
 
   EXPECT_EQ(f_bottom_right, combined.footholds_conv_);
@@ -134,7 +134,7 @@ TEST_F(SuppPolygonTest, CombineSupportPolygonsSame)
 
 TEST_F(SuppPolygonTest, CalcLinesTopRight)
 {
-  SupportPolygon supp = SupportPolygon(margins_, f_top_right);
+  SupportPolygon supp = SupportPolygon(f_top_right, margins_);
   SupportPolygon::VecSuppLine lines = supp.CalcLines();
 
   // expect three lines
@@ -159,7 +159,7 @@ TEST_F(SuppPolygonTest, CalcLinesTopRight)
 
 TEST_F(SuppPolygonTest, FourLegSuppNotOrdered)
 {
-  SupportPolygon supp = SupportPolygon(margins_, f_4_not_ordered);
+  SupportPolygon supp = SupportPolygon(f_4_not_ordered, margins_);
   SupportPolygon::VecSuppLine lines = supp.CalcLines();
 
   EXPECT_EQ(4, lines.size());
