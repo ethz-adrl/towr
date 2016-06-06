@@ -5,31 +5,29 @@
  @brief   Brief description
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_INTERPRETING_OBSERVER_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_INTERPRETING_OBSERVER_H_
+#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_INTERPRETING_DECORATOR_H_
+#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_INTERPRETING_DECORATOR_H_
 
-#include <xpp/zmp/i_observer.h>
+#include <xpp/zmp/observer_decorator.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
 namespace zmp {
 
-class AInterpretingObserver : public IObserver {
+class InterpretingDecorator : public ObserverDecorator {
 public:
   typedef std::vector<xpp::zmp::ZmpSpline> VecSpline;
   typedef std::vector<xpp::hyq::Foothold>VecFoothold;
   typedef xpp::zmp::OptimizationVariablesInterpreter Interpreter;
 
-  AInterpretingObserver (OptimizationVariables& subject);
-  virtual ~AInterpretingObserver ();
-
+  InterpretingDecorator (OptimizationVariables& subject, ObserverPtr& core);
+  virtual ~InterpretingDecorator ();
 
   void Update();
 
 private:
   Interpreter interpreter_;
 
-  // interpreted optimization variables
   VecSpline splines_;
   VecFoothold footholds_;
 };
@@ -37,4 +35,4 @@ private:
 } /* namespace zmp */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_INTERPRETING_OBSERVER_H_ */
+#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_INTERPRETING_DECORATOR_H_ */

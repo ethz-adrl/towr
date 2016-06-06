@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/a_interpreting_observer.h>
+#include <xpp/zmp/interpreting_decorator.h>
 
 namespace xpp {
 namespace zmp {
