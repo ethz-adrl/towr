@@ -97,7 +97,7 @@ set(SOURCES
   src/geometric_structs.cc
   src/qp_optimizer.cc
   src/foothold.cc
-  src/nlp_facade.cc
+  src/hyq_inverse_kinematics.cc
   src/zmp_spline.cc
   src/spline_container.cc    
   src/continuous_spline_container.cc    
@@ -109,6 +109,7 @@ set(SOURCES
   src/supp_polygon_container.cc
   src/hyq_spliner.cc
   src/ipopt_adapter.cc
+  src/nlp_facade.cc
   src/zmp_constraint_builder.cc
   src/zero_moment_point.cc
   src/optimizer_node_base.cc
@@ -129,6 +130,7 @@ set(SOURCES
   src/constraint_container.cc
   src/zmp_constraint.cc
   src/range_of_motion_constraint.cc
+  src/a_inverse_kinematics.cc
   # costs
   src/a_quadratic_cost.cc
   src/total_acceleration_equation.cc
