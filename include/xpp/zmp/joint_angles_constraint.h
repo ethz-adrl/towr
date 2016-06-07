@@ -34,26 +34,20 @@ public:
   JointAnglesConstraint (OptimizationVariables& subject);
   virtual ~JointAnglesConstraint ();
 
-  void AddInterpreter(const Interpreter& interpreter);
+  void Init(const Interpreter& interpreter, const VecFoothold& start_stance);
   void Update() override;
 
   VectorXd EvaluateConstraint() const override;
   VecBound GetBounds() const override;
 
 private:
-  Interpreter interpreter_;               ///< adds context to the optimization variables
   AInverseKinematics* inv_kin_;           ///< endeffector to joint angle conversions
   StanceFeetCalculator stance_feet_calc_; ///< supplies feet position in base frame
 
   VecFoothold start_stance_;
+  Interpreter interpreter_; ///< adds context to the optimization variables
 
-  VectorXd x_coeff_;
-  FootholdsXY x_footholds_;
-  VecSpline splines_; // fixme redundant
-
-
-
-  //  OptimizationVariables* subject_;
+  std::vector<double> vec_t_; ///< evaluates constraint at each of these times
 };
 
 } /* namespace zmp */

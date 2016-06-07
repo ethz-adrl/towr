@@ -6,6 +6,7 @@
  */
 
 #include <xpp/hyq/hyq_inverse_kinematics.h>
+#include <xpp/hyq/leg_data_map.h>
 
 namespace xpp {
 namespace hyq {
@@ -66,6 +67,60 @@ HyqInverseKinematics::GetJointAngles(const EEPosition& pos_b, size_t ee) const
     throw  std::runtime_error(std::string("computing joint position resulted in error! err_code: " + std::to_string(error_code)) );
 
   return q;
+}
+
+HyqInverseKinematics::JointAngles
+HyqInverseKinematics::GetUpperJointLimits (size_t ee) const
+{
+  // make sure to follow structure of GetJointAngles(). In this case
+  // HAA, HFE, KFE
+  JointAngles q_max(3);
+  switch (ee) {
+    case LF:
+      q_max << 30, 70, -20;
+      break;
+    case RF:
+      q_max << 30, 70, -20;
+      break;
+    case LH:
+      q_max << 30, 50, 140;
+      break;
+    case RH:
+      q_max << 30, 50, 140;
+      break;
+    default:
+      assert(false);
+      break;
+  }
+
+  return q_max/180.0*M_PI; // convert to radians
+}
+
+HyqInverseKinematics::JointAngles
+HyqInverseKinematics::GetLowerJointLimits (size_t ee) const
+{
+  // make sure to follow structure of GetJointAngles(). In this case
+  // HAA, HFE, KFE
+  JointAngles q_min(3);
+  switch (ee) {
+    case LF:
+      q_min << -90, -50, -140;
+      break;
+    case RF:
+      q_min << -90, -50, -140;
+      break;
+    case LH:
+      q_min << -90, -70, 20;
+      break;
+    case RH:
+      q_min << -90, -70, 20;
+      break;
+    default:
+      assert(false);
+      break;
+  }
+
+  return q_min/180.0*M_PI; // convert to radians
 }
 
 bool

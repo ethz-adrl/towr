@@ -23,6 +23,9 @@ public:
 	  */
 	JointAngles GetJointAngles(const EEPosition& pos_b, size_t ee) const override;
 
+  JointAngles GetUpperJointLimits(size_t ee) const;
+  JointAngles GetLowerJointLimits(size_t ee) const;
+
 private:
 	bool compute(size_t leg, const EEPosition& x, JointAngles& q_bf, int &rc) const;
 };
