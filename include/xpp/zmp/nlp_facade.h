@@ -51,7 +51,6 @@ public:
                 double robot_height);
 
 
-  void SetInterpreter(OptimizationVariablesInterpreter interpreter);
   void AttachVisualizer(AObserverVisualizer& visualizer);
 
   VecFoothold GetFootholds() const;

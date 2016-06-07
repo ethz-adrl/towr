@@ -48,13 +48,6 @@ NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
 }
 
 void
-NlpFacade::SetInterpreter (
-    OptimizationVariablesInterpreter interpreter)
-{
-  opt_var_interpreter_ = interpreter;
-}
-
-void
 NlpFacade::SolveNlp(const State& initial_state,
                     const State& final_state,
                     const std::vector<xpp::hyq::LegID>& step_sequence,
@@ -62,11 +55,15 @@ NlpFacade::SolveNlp(const State& initial_state,
                     const SplineTimes& times,
                     double robot_height)
 {
-  xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  supp_polygon_container.Init(start_stance, step_sequence, xpp::hyq::SupportPolygon::GetDefaultMargins());
+  // save the framework of the optimization problem
+  opt_var_interpreter_.Init(initial_state.p, initial_state.v, step_sequence, start_stance, times, robot_height);
 
-  ContinuousSplineContainer spline_structure;
-  spline_structure.Init(initial_state.p, initial_state.v, step_sequence, times);
+  xpp::hyq::SupportPolygonContainer supp_polygon_container;
+  supp_polygon_container.Init(opt_var_interpreter_.GetStartStance(),
+                              opt_var_interpreter_.GetStepSequence(),
+                              xpp::hyq::SupportPolygon::GetDefaultMargins());
+
+  ContinuousSplineContainer spline_structure = opt_var_interpreter_.GetSplineStructure();
 
   opt_variables_.Init(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
   opt_variables_.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
