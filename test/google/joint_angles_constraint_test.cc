@@ -26,21 +26,25 @@ TEST(JointAnglesContraintTest, Limits)
   Vector2d init_pos, init_vel;
   init_pos.setZero(); init_vel.setZero();
 
-  OptimizationVariablesInterpreter interpreter;
-  interpreter.Init(init_pos, init_vel, step_sequence, SplineTimes());
-
   std::vector<Foothold> start_stance_;
   start_stance_.push_back(Foothold(-0.31,  0.37, 0.0, xpp::hyq::LH));
   start_stance_.push_back(Foothold( 0.33,  0.35, 0.0, xpp::hyq::LF));
   start_stance_.push_back(Foothold(-0.35, -0.33, 0.0, xpp::hyq::RH));
   start_stance_.push_back(Foothold( 0.37, -0.31, 0.0, xpp::hyq::RF));
 
+  double robot_height = 0.58;
+  SplineTimes times;
+  times.SetDefault();
 
-  xpp::hyq::HyqInverseKinematics hyq;
+  OptimizationVariablesInterpreter interpreter;
 
+  interpreter.Init(init_pos, init_vel, step_sequence, start_stance_, times, robot_height);
+
+
+  xpp::hyq::HyqInverseKinematics hyq_inv_kin;
 
   JointAnglesConstraint constraint(subject_);
-  constraint.Init(interpreter, &hyq, start_stance_);
+  constraint.Init(interpreter, &hyq_inv_kin);
 
 
 
