@@ -11,6 +11,7 @@
 #include <xpp/ros/optimizer_node_base.h>
 #include <xpp/zmp/nlp_facade.h>
 #include <xpp/ros/optimization_visualizer.h>
+#include <xpp/zmp/optimization_variables_interpreter.h>
 
 #include <xpp_opt/RequiredInfoNlp.h>        // receive
 #include <xpp_opt/OptimizedParametersNlp.h> // send
@@ -25,6 +26,7 @@ public:
   typedef xpp::hyq::LegID LegID;
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersNlp OptParamMsg;
+  typedef xpp::zmp::OptimizationVariablesInterpreter Interpreter;
 
 public:
   NlpOptimizerNode ();
@@ -51,7 +53,8 @@ private:
   ::ros::Publisher opt_params_pub_;
   void CurrentInfoCallback(const ReqInfoMsg& msg);
 
-  xpp::ros::OptimizationVisualizer optimization_visualizer_;
+  OptimizationVisualizer optimization_visualizer_;
+  Interpreter interpreter_;
 };
 
 } /* namespace ros */

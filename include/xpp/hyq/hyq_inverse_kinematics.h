@@ -10,7 +10,7 @@ namespace xpp {
 namespace hyq {
 
 /** @brief The SL implementation of the inverse kinematics */
-class HyqInverseKinematics : xpp::zmp::AInverseKinematics {
+class HyqInverseKinematics : public xpp::zmp::AInverseKinematics {
 public:
 	HyqInverseKinematics();
 	virtual ~HyqInverseKinematics();
@@ -27,7 +27,7 @@ public:
   JointAngles GetLowerJointLimits(size_t ee) const;
 
 private:
-	bool compute(size_t leg, const EEPosition& x, JointAngles& q_bf, int &rc) const;
+	bool compute(size_t leg, const EEPosition& x, Eigen::Vector3d& q_bf, int &rc) const;
 };
 
 } /* namespace xpp */

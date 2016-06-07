@@ -29,12 +29,14 @@ public:
   typedef xpp::zmp::OptimizationVariablesInterpreter Interpreter;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
   typedef std::vector<ZmpSpline> VecSpline;
-  typedef AInverseKinematics::JointAngles JointAngles3d;
+  typedef AInverseKinematics::JointAngles JointAngles;
+  typedef xpp::hyq::Foothold Foothold;
 
   JointAnglesConstraint (OptimizationVariables& subject);
   virtual ~JointAnglesConstraint ();
 
-  void Init(const Interpreter& interpreter, const VecFoothold& start_stance);
+  void Init(const Interpreter& interpreter,
+            AInverseKinematics* inv_kin);
   void Update() override;
 
   VectorXd EvaluateConstraint() const override;
@@ -44,7 +46,6 @@ private:
   AInverseKinematics* inv_kin_;           ///< endeffector to joint angle conversions
   StanceFeetCalculator stance_feet_calc_; ///< supplies feet position in base frame
 
-  VecFoothold start_stance_;
   Interpreter interpreter_; ///< adds context to the optimization variables
 
   std::vector<double> vec_t_; ///< evaluates constraint at each of these times
@@ -52,5 +53,7 @@ private:
 
 } /* namespace zmp */
 } /* namespace xpp */
+
+
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_JOINT_ANGLES_CONSTRAINT_H_ */

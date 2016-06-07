@@ -25,19 +25,21 @@ public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
   typedef std::vector<xpp::zmp::ZmpSpline> VecSpline;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
-  typedef Eigen::Vector2d Vector2d;
+  typedef Eigen::Vector3d Vector3d;
 
   StanceFeetCalculator ();
   virtual ~StanceFeetCalculator ();
 
-  void Update(const VecFoothold& start_stance, const VecFoothold& steps, const VecSpline& cog_spline);
+  void Update(const VecFoothold& start_stance, const VecFoothold& steps,
+              const VecSpline& cog_spline, double robot_height);
   VecFoothold GetStanceFeetInBase(double t) const;
 
 private:
-  VecFoothold ConvertFeetToBase(VecFoothold ee_i, Vector2d cog_i) const;
+  VecFoothold ConvertFeetToBase(VecFoothold ee_i, Vector3d cog_i) const;
 
-  VecSpline cog_spline_;
+  VecSpline cog_spline_xy_;
   SupportPolygonContainer supp_polygon_container_;
+  double robot_height_;
 };
 
 } /* namespace zmp */

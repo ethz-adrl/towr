@@ -27,10 +27,12 @@ JointAnglesConstraint::~JointAnglesConstraint ()
 
 void
 JointAnglesConstraint::Init (const Interpreter& interpreter,
-                             const VecFoothold& start_stance)
+                             AInverseKinematics* inv_kin)
 {
   interpreter_ = interpreter;
-  start_stance_ = start_stance;
+  inv_kin_ = inv_kin;
+
+  Update();
 }
 
 void
@@ -44,7 +46,8 @@ JointAnglesConstraint::Update ()
   VecSpline splines     = interpreter_.GetSplines(x_coeff);
 
   vec_t_ = SplineContainer::GetDiscretizedGlobalTimes(splines);
-  stance_feet_calc_.Update(start_stance_, footholds, splines);
+  stance_feet_calc_.Update(interpreter_.GetStartStance(),
+                           footholds, splines, interpreter_.GetRobotHeight());
 }
 
 JointAnglesConstraint::VectorXd
@@ -57,9 +60,9 @@ JointAnglesConstraint::EvaluateConstraint() const
   for (double t : vec_t_) {
     VecFoothold stance_b = stance_feet_calc_.GetStanceFeetInBase(t);
 
-    for (const xpp::hyq::Foothold& f : stance_b) {
+    for (const Foothold& f : stance_b) {
 
-      JointAngles3d q = inv_kin_->GetJointAngles(f.p, f.leg);
+      JointAngles q = inv_kin_->GetJointAngles(f.p, f.leg);
       for (int i=0; i<q.rows(); ++i) {
         g_vec.push_back(q[i]);
       }
@@ -69,17 +72,24 @@ JointAnglesConstraint::EvaluateConstraint() const
   return Eigen::Map<const VectorXd>(&g_vec.front(),g_vec.size());
 }
 
-
 JointAnglesConstraint::VecBound
 JointAnglesConstraint::GetBounds () const
 {
-
-
   std::vector<Bound> bounds;
-  VectorXd g = EvaluateConstraint(); // only need the number of constraints
 
-  for (int i=0; i<g.rows(); ++i)
-    bounds.push_back(kInequalityBoundPositive_);
+  // fixme, duplicates code in Evaluate Constraint, use template pattern or similar
+  for (double t : vec_t_) {
+    VecFoothold stance_b = stance_feet_calc_.GetStanceFeetInBase(t);
+
+    for (const Foothold& f : stance_b) {
+
+      JointAngles q_min = inv_kin_->GetLowerJointLimits(f.leg);
+      JointAngles q_max = inv_kin_->GetUpperJointLimits(f.leg);
+      for (int i=0; i<q_min.rows(); ++i) {
+        bounds.push_back(Bound(q_min[i], q_max[i]));
+      }
+    }
+  }
 
   return bounds;
 }

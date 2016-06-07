@@ -18,7 +18,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                    &NlpOptimizerNode::CurrentInfoCallback, this);
 
   opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
-  nlp_facade_.AttachVisualizer(optimization_visualizer_);
+//  nlp_facade_.AttachVisualizer(optimization_visualizer_);
 }
 
 void
@@ -37,10 +37,10 @@ NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
   curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
   step_sequence_ = DetermineStepSequence(curr_cog_, RosHelpers::RosToXpp(msg.curr_swingleg));
 
-  optimization_visualizer_.InitInterpreter(curr_cog_.Get2D().p,
-                                           curr_cog_.Get2D().v,
-                                           step_sequence_,
-                                           spline_times_);
+//  optimization_visualizer_.InitInterpreter(curr_cog_.Get2D().p,
+//                                           curr_cog_.Get2D().v,
+//                                           step_sequence_,
+//                                           spline_times_);
 }
 
 void
@@ -56,6 +56,16 @@ NlpOptimizerNode::PublishOptimizedValues() const
 void
 NlpOptimizerNode::OptimizeTrajectory()
 {
+  // this is the framework in which the parameters will be optimized
+  interpreter_.Init(curr_cog_.Get2D().p,
+                    curr_cog_.Get2D().v,
+                    step_sequence_,
+                    curr_stance_,
+                    spline_times_,
+                    robot_height_);
+
+  nlp_facade_.SetInterpreter(interpreter_);
+
   nlp_facade_.SolveNlp(curr_cog_.Get2D(),
                        goal_cog_.Get2D(),
                        step_sequence_,

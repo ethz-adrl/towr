@@ -22,11 +22,17 @@ OptimizationVariablesInterpreter::~OptimizationVariablesInterpreter ()
 
 void
 OptimizationVariablesInterpreter::Init (
-    const Vector2d& start_cog_p, const Vector2d& start_cog_v,
-    const std::vector<xpp::hyq::LegID>& step_sequence, const SplineTimes& times)
+    const Vector2d& start_cog_p,
+    const Vector2d& start_cog_v,
+    const std::vector<xpp::hyq::LegID>& step_sequence,
+    const VecFoothold& start_stance,
+    const SplineTimes& times,
+    double robot_height)
 {
   spline_structure_.Init(start_cog_p, start_cog_v ,step_sequence, times);
   step_sequence_ = step_sequence;
+  start_stance_ = start_stance;
+  robot_height_ = robot_height;
 
   initialized_ = true;
 }
@@ -53,6 +59,30 @@ OptimizationVariablesInterpreter::GetSplines (const VectorXd& spline_coeff_abcd)
 {
   assert(initialized_);
   return spline_structure_.BuildOptimizedSplines(spline_coeff_abcd);
+}
+
+double
+OptimizationVariablesInterpreter::GetRobotHeight () const
+{
+  return robot_height_;
+}
+
+ContinuousSplineContainer
+OptimizationVariablesInterpreter::GetSplineStructure () const
+{
+  return spline_structure_;
+}
+
+OptimizationVariablesInterpreter::VecFoothold
+OptimizationVariablesInterpreter::GetStartStance () const
+{
+  return start_stance_;
+}
+
+OptimizationVariablesInterpreter::VecLegID
+OptimizationVariablesInterpreter::GetStepSequence () const
+{
+  return step_sequence_;
 }
 
 } /* namespace zmp */

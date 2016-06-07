@@ -230,7 +230,7 @@ if(BUILD_TESTS)
                         test/google/a_interpreting_observer_test.cc
                         #constraints
                         test/google/zmp_constraint_test.cc
-                        test/google/joint_angles_constraint_test.cc
+#                        test/google/joint_angles_constraint_test.cc
 #                        test/google/constraint_container_test.cc
                         test/google/range_of_motion_constraint_test.cc
                         #equations

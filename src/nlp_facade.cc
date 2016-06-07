@@ -48,6 +48,13 @@ NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
 }
 
 void
+NlpFacade::SetInterpreter (
+    OptimizationVariablesInterpreter interpreter)
+{
+  opt_var_interpreter_ = interpreter;
+}
+
+void
 NlpFacade::SolveNlp(const State& initial_state,
                     const State& final_state,
                     const std::vector<xpp::hyq::LegID>& step_sequence,
@@ -93,9 +100,8 @@ NlpFacade::SolveNlp(const State& initial_state,
   SolveIpopt(nlp_ptr);
 
   // save the result of the optimization for the client to access, even if new optimization is running
-  opt_var_interpreter_.Init(initial_state.p, initial_state.v, step_sequence, times);
   footholds_ = opt_var_interpreter_.GetFootholds(opt_variables_.GetFootholdsStd());
-  splines_ = opt_var_interpreter_.GetSplines(opt_variables_.GetSplineCoefficients());
+  splines_   = opt_var_interpreter_.GetSplines(opt_variables_.GetSplineCoefficients());
 }
 
 void

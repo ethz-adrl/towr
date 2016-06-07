@@ -31,11 +31,9 @@ OptimizationVisualizer::RegisterWithSubject (OptimizationVariables& subject)
 }
 
 void
-OptimizationVisualizer::InitInterpreter (
-    const Vector2d& start_cog_p, const Vector2d& start_cog_v,
-    const std::vector<xpp::hyq::LegID>& step_sequence, const SplineTimes& times)
+OptimizationVisualizer::SetInterpreter (const Interpreter& interpreter)
 {
-  interpreter_.Init(start_cog_p, start_cog_v, step_sequence, times);
+  interpreter_ = interpreter;
 }
 
 void

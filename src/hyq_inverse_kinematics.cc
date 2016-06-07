@@ -58,7 +58,7 @@ HyqInverseKinematics::~HyqInverseKinematics ()
 HyqInverseKinematics::JointAngles
 HyqInverseKinematics::GetJointAngles(const EEPosition& pos_b, size_t ee) const
 {
-  JointAngles q;
+  Eigen::Vector3d q;
 
   int error_code;
   bool successFlag = compute(ee, pos_b, q, error_code);
@@ -124,7 +124,7 @@ HyqInverseKinematics::GetLowerJointLimits (size_t ee) const
 }
 
 bool
-HyqInverseKinematics::compute(size_t leg, const EEPosition& x, JointAngles& q_bf, int &rc) const
+HyqInverseKinematics::compute(size_t leg, const EEPosition& x, Eigen::Vector3d& q_bf, int &rc) const
 {
 	int i;
 	double q_HAA_bf, q_HAA_br, q_HFE_br, q_HFE_bf, q_KFE_br, q_KFE_bf, q_HAA_temp;
