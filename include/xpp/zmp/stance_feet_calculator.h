@@ -36,6 +36,7 @@ public:
 
 private:
   VecFoothold ConvertFeetToBase(VecFoothold ee_i, Vector3d cog_i) const;
+  bool AreSame(double time_1, double time_2) const;
 
   VecSpline cog_spline_xy_;
   SupportPolygonContainer supp_polygon_container_;

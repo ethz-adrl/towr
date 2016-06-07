@@ -14,7 +14,7 @@
 namespace xpp {
 namespace zmp {
 
-TEST(JointAnglesContraintTest, Limits)
+TEST(JointAnglesContraintTest, StartStanceInLimits)
 {
   int n_splines = 1;
   std::vector<xpp::hyq::LegID> step_sequence = {};
@@ -46,27 +46,20 @@ TEST(JointAnglesContraintTest, Limits)
   JointAnglesConstraint constraint(subject_);
   constraint.Init(interpreter, &hyq_inv_kin);
 
-
-
   VectorXd q = constraint.EvaluateConstraint();
   AConstraint::VecBound q_bounds = constraint.GetBounds();
 
 
   EXPECT_GT(q.rows(), 0);
   EXPECT_GT(q_bounds.size(), 0);
+  EXPECT_EQ(q.rows(), q_bounds.size());
+
 
   std::cout << std::setprecision(2);
   for (int i=0; i<q.rows(); ++i) {
-    std::cout << q_bounds.at(i).lower_;
-    std::cout << "\t<\t" << q[i] << "\t<\t";
-    std::cout << q_bounds.at(i).upper_ << std::endl;
+    EXPECT_LT(q_bounds.at(i).lower_, q[i]);
+    EXPECT_LT(q[i], q_bounds.at(i).upper_);
   }
-
-
-
-
-
-
 
 
 }

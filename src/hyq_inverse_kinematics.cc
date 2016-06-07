@@ -40,12 +40,40 @@ namespace hyq {
 #define Y 1
 #define Z 2
 
+// real joint angle limits
+const static double haa_min_real = -90;
+const static double haa_max_real = +30;
+
+const static double hfe_min_real = -50;
+const static double hfe_max_real =  70;
+
+const static double kfe_min_real = -140;
+const static double kfe_max_real =  -20;
+
+// reduced joint angles for optimization
+
+//static double haa_min = haa_min_real;
+//static double haa_max = haa_max_real;
+const static double haa_min = -30;
+const static double haa_max =   0;
+
+//static double hfe_min = hfe_min_real;
+//static double hfe_max = hfe_max_real;
+const static double hfe_min = 0.0;
+const static double hfe_max = 70;
+
+//static double kfe_min = kfe_min_real;
+//static double kfe_max = kfe_max_real;
+const static double kfe_min = -90 - 20;
+const static double kfe_max = -90 + 20;
+
+
+
 const double joint_range[DOF_PER_LEG][NR_OF_CONSTRAINTS] = {
  {-M_PI, M_PI},
  {-M_PI, M_PI},
  {-M_PI, M_PI}
 };
-
 
 HyqInverseKinematics::HyqInverseKinematics ()
 {
@@ -77,16 +105,16 @@ HyqInverseKinematics::GetUpperJointLimits (size_t ee) const
   JointAngles q_max(3);
   switch (ee) {
     case LF:
-      q_max << 30, 70, -20;
+      q_max << haa_max, hfe_max, kfe_max;
       break;
     case RF:
-      q_max << 30, 70, -20;
+      q_max << haa_max, hfe_max, kfe_max;
       break;
     case LH:
-      q_max << 30, 50, 140;
+      q_max << haa_max, -hfe_min, -kfe_min;
       break;
     case RH:
-      q_max << 30, 50, 140;
+      q_max << haa_max, -hfe_min, -kfe_min;
       break;
     default:
       assert(false);
@@ -104,16 +132,16 @@ HyqInverseKinematics::GetLowerJointLimits (size_t ee) const
   JointAngles q_min(3);
   switch (ee) {
     case LF:
-      q_min << -90, -50, -140;
+      q_min << haa_min, hfe_min, kfe_min;
       break;
     case RF:
-      q_min << -90, -50, -140;
+      q_min << haa_min, hfe_min, kfe_min;
       break;
     case LH:
-      q_min << -90, -70, 20;
+      q_min << haa_min, -hfe_max, -kfe_max;
       break;
     case RH:
-      q_min << -90, -70, 20;
+      q_min << haa_min, -hfe_max, -kfe_max;
       break;
     default:
       assert(false);

@@ -42,7 +42,18 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
   // legs in contact during each step/spline
   VecFoothold p_stance_legs_i;
   int spline_id = SplineContainer::GetSplineID(t, cog_spline_xy_);
-  p_stance_legs_i = suppport_polygons.at(spline_id).footholds_;
+
+
+  // because last swing support polygon will not restrict landing position of foot
+  double T = SplineContainer::GetTotalTime(cog_spline_xy_);
+
+//  std::cout << "T_else: " << T_else << std::endl;
+//  double T = SplineContainer::GetDiscretizedGlobalTimes(cog_spline_xy_).back();
+//  std::cout << "T: " << T << std::endl;
+  if (AreSame(t,T))
+    p_stance_legs_i = supp_polygon_container_.GetFinalFootholds();
+  else
+    p_stance_legs_i = suppport_polygons.at(spline_id).footholds_;
 
   // body position during the step
   xpp::utils::Point2d cog_xy_i = SplineContainer::GetCOGxy(t, cog_spline_xy_);
@@ -50,7 +61,6 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
   cog_i << cog_xy_i.p.x(),
            cog_xy_i.p.y(),
            robot_height_;
-
 
   return ConvertFeetToBase(p_stance_legs_i, cog_i);
 }
@@ -67,6 +77,12 @@ StanceFeetCalculator::ConvertFeetToBase (VecFoothold endeffectors_i, Vector3d co
   }
 
   return p_stance_legs_b;
+}
+
+bool
+StanceFeetCalculator::AreSame (double t1, double t2) const
+{
+  return std::fabs(t1 - t2) < 1e-4; //seconds
 }
 
 } /* namespace zmp */

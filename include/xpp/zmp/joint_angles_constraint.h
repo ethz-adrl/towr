@@ -35,8 +35,7 @@ public:
   JointAnglesConstraint (OptimizationVariables& subject);
   virtual ~JointAnglesConstraint ();
 
-  void Init(const Interpreter& interpreter,
-            AInverseKinematics* inv_kin);
+  void Init(const Interpreter& interpreter, AInverseKinematics* inv_kin);
   void Update() override;
 
   VectorXd EvaluateConstraint() const override;

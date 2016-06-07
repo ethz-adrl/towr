@@ -62,7 +62,13 @@ JointAnglesConstraint::EvaluateConstraint() const
 
     for (const Foothold& f : stance_b) {
 
-      JointAngles q = inv_kin_->GetJointAngles(f.p, f.leg);
+      JointAngles q;
+      try {
+        q = inv_kin_->GetJointAngles(f.p, f.leg);
+      } catch (const std::runtime_error& e) {
+        // no inverse kinematics solution found, do something
+      }
+
       for (int i=0; i<q.rows(); ++i) {
         g_vec.push_back(q[i]);
       }
