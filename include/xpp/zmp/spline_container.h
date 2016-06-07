@@ -104,7 +104,11 @@ public:
    *  so first and last time are t0 and and tN, but there might be a
    *  timestep > delta t before the last node.
    */
-  std::vector<double> GetDiscretizedGlobalTimes() const;
+  static std::vector<double> GetDiscretizedGlobalTimes(const VecSpline& splines);
+  std::vector<double> GetDiscretizedGlobalTimes() const {
+    return GetDiscretizedGlobalTimes(splines_);
+  }
+
   int GetTotalNodes() const { return GetDiscretizedGlobalTimes().size(); };
 
 protected:
