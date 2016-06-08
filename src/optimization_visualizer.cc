@@ -13,34 +13,14 @@ namespace ros {
 
 OptimizationVisualizer::OptimizationVisualizer ()
 {
-  InitRos();
-}
-
-OptimizationVisualizer::OptimizationVisualizer (OptimizationVariables& subject)
-    : subject_(&subject)
-{
-  RegisterWithSubject(subject);
-  InitRos();
+  ::ros::NodeHandle n;
+  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
 }
 
 void
-OptimizationVisualizer::RegisterWithSubject (OptimizationVariables& subject)
+OptimizationVisualizer::SetInterpreter (const InterpretingObserverPtr& interpreter)
 {
-  subject_ = &subject;
-  subject_->RegisterObserver(this);
-}
-
-void
-OptimizationVisualizer::SetInterpreter (const Interpreter& interpreter)
-{
-  interpreter_ = interpreter;
-}
-
-void
-OptimizationVisualizer::Update ()
-{
-  splines_   = interpreter_.GetSplines(subject_->GetSplineCoefficients());
-  footholds_ = interpreter_.GetFootholds(subject_->GetFootholdsStd());
+  observer_ = interpreter;
 }
 
 void
@@ -48,15 +28,11 @@ OptimizationVisualizer::PublishMsg ()
 {
   double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 
-  visualization_msgs::MarkerArray msg = msg_builder_.BuildMsg(splines_, footholds_, walking_height);
-  ros_publisher_.publish(msg);
-}
+  VecSpline spline      = observer_->GetSplines();
+  VecFoothold footholds = observer_->GetFootholds();
 
-void
-OptimizationVisualizer::InitRos ()
-{
-  ::ros::NodeHandle n;
-  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
+  visualization_msgs::MarkerArray msg = msg_builder_.BuildMsg(spline, footholds, walking_height);
+  ros_publisher_.publish(msg);
 }
 
 } /* namespace ros */

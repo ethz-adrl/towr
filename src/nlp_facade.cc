@@ -25,12 +25,16 @@
 #include <xpp/zmp/range_of_motion_cost.h>
 #include <xpp/zmp/total_acceleration_equation.h>
 
+#include <xpp/zmp/interpreting_observer.h>
+
 namespace xpp {
 namespace zmp {
 
 NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
      :visualizer_(&visualizer)
 {
+  interpreting_observer_ = std::make_shared<InterpretingObserver>(opt_variables_);
+
   constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "acc");
   constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "final");
   constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "junction");
@@ -59,14 +63,21 @@ NlpFacade::SolveNlp(const State& initial_state,
                     double robot_height)
 {
   // save the framework of the optimization problem
-  opt_var_interpreter_.Init(initial_state.p, initial_state.v, step_sequence, start_stance, times, robot_height);
+
+  auto interpreter_ptr = std::make_shared<OptimizationVariablesInterpreter>();
+  interpreter_ptr->Init(initial_state.p, initial_state.v, step_sequence, start_stance, times, robot_height);
+
+  interpreting_observer_->SetInterpreter(interpreter_ptr);
+
+//  InterpretingObserver interpreting_obs_(opt_variables_);
+//  interpreting_obs_.SetInterpreter(opt_var_interpreter_);
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  supp_polygon_container.Init(opt_var_interpreter_.GetStartStance(),
-                              opt_var_interpreter_.GetStepSequence(),
+  supp_polygon_container.Init(interpreter_ptr->GetStartStance(),
+                              interpreter_ptr->GetStepSequence(),
                               xpp::hyq::SupportPolygon::GetDefaultMargins());
 
-  ContinuousSplineContainer spline_structure = opt_var_interpreter_.GetSplineStructure();
+  ContinuousSplineContainer spline_structure = interpreter_ptr->GetSplineStructure();
 
   opt_variables_.Init(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
   opt_variables_.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
@@ -87,7 +98,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
   dynamic_cast<ZmpConstraint&>(constraints_.GetConstraint("zmp")).Init(spline_structure, supp_polygon_container, robot_height);
 //  dynamic_cast<RangeOfMotionConstraint&>(constraints_.GetConstraint("rom")).Init(spline_structure, supp_polygon_container);
-  dynamic_cast<JointAnglesConstraint&>(constraints_.GetConstraint("joint_angles")).Init(opt_var_interpreter_, &hyq_inv_kin);
+  dynamic_cast<JointAnglesConstraint&>(constraints_.GetConstraint("joint_angles")).Init(*interpreter_ptr, &hyq_inv_kin);
   constraints_.Refresh();
 
   // costs
@@ -103,8 +114,8 @@ NlpFacade::SolveNlp(const State& initial_state,
   SolveIpopt(nlp_ptr);
 
   // save the result of the optimization for the client to access, even if new optimization is running
-  footholds_ = opt_var_interpreter_.GetFootholds(opt_variables_.GetFootholdsStd());
-  splines_   = opt_var_interpreter_.GetSplines(opt_variables_.GetSplineCoefficients());
+  footholds_ = interpreter_ptr->GetFootholds(opt_variables_.GetFootholdsStd());
+  splines_   = interpreter_ptr->GetSplines(opt_variables_.GetSplineCoefficients());
 }
 
 void

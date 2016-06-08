@@ -8,13 +8,16 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 
-#include <xpp/zmp/a_observer_visualizer.h>
+// fixme remove these dependencies
+#include <xpp/ros/i_visualizer.h>
 #include <xpp/zmp/zmp_spline.h>
 #include <xpp/hyq/foothold.h>
 
 #include <xpp/ros/marker_array_builder.h>
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
+
+#include <xpp/zmp/interpreting_observer.h>
 
 #include <ros/ros.h>
 
@@ -23,43 +26,28 @@ namespace ros {
 
 /** @brief Visualizes the current values of the optimization variables.
   *
-  * This class is responsible for getting the current values of the optimization
-  * variables and generating ROS messages for rviz to visualize. After adding
-  * some semantic information to the optimization variables, it delegates
-  * the actual generation of these messages to \c msg_builder_.
+  * This class is responsible for getting the state of the optimizaton
+  * variables and generating ROS messages for rviz to visualize. The \c observer_
+  * is responsible for supplying the interpreted optimization variables and
+  * \c msg_builder_ is responsible for the generation of the ROS messages.
   */
-class OptimizationVisualizer : public xpp::zmp::AObserverVisualizer {
+class OptimizationVisualizer : public xpp::ros::IVisualizer {
 public:
   typedef std::vector<xpp::zmp::ZmpSpline> VecSpline;
   typedef std::vector<xpp::hyq::Foothold>VecFoothold;
-  typedef xpp::zmp::OptimizationVariables OptimizationVariables;
-  typedef xpp::zmp::OptimizationVariablesInterpreter Interpreter;
-  typedef xpp::zmp::SplineTimes SplineTimes;
-  typedef Eigen::Vector2d Vector2d;
+  typedef std::shared_ptr<xpp::zmp::InterpretingObserver> InterpretingObserverPtr;
 
   OptimizationVisualizer();
-  OptimizationVisualizer (OptimizationVariables& subject);
   virtual ~OptimizationVisualizer () {}
 
-  void RegisterWithSubject (OptimizationVariables& subject);
-  void SetInterpreter(const Interpreter& interpreter);
-
-  /** @brief Updates the values of the optimization variables. */
-   void Update() override;
+  void SetInterpreter(const InterpretingObserverPtr& interpreter);
   void PublishMsg();
 
 private:
-
-  void InitRos();
-  OptimizationVariables* subject_;
   ::ros::Publisher ros_publisher_;
   MarkerArrayBuilder msg_builder_;
 
-  Interpreter interpreter_;
-
-  // interpreted optimization variables
-  VecSpline splines_;
-  VecFoothold footholds_;
+  InterpretingObserverPtr observer_;
 };
 
 } /* namespace ros */

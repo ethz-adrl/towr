@@ -14,6 +14,8 @@
 #include <xpp/zmp/cost_container.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 
+#include <xpp/zmp/interpreting_observer.h>
+
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
 
@@ -28,6 +30,7 @@ public:
   typedef Interpreter::VecSpline VecSpline;
   typedef xpp::ros::IVisualizer IVisualizer;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
+  typedef std::shared_ptr<InterpretingObserver> InterpretingObserverPtr;
 
   NlpFacade (AObserverVisualizer& visualizer = do_nothing_observer_visualizer);
   virtual ~NlpFacade () {};
@@ -65,7 +68,10 @@ private:
   ConstraintContainer constraints_;
   CostContainer costs_;
 
-  Interpreter opt_var_interpreter_;
+//  Interpreter opt_var_interpreter_;
+  InterpretingObserverPtr interpreting_observer_;
+
+
   AObserverVisualizer* visualizer_;
 
   Ipopt::IpoptApplication ipopt_solver_;
