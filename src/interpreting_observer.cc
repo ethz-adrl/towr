@@ -6,7 +6,9 @@
  */
 
 #include <xpp/zmp/interpreting_observer.h>
+
 #include <xpp/zmp/optimization_variables.h>
+#include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
 namespace zmp {
