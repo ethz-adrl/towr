@@ -9,20 +9,26 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 
 #include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/a_observer_visualizer.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/cost_container.h>
-#include <xpp/zmp/optimization_variables_interpreter.h>
 
-#include <xpp/ros/optimization_visualizer.h>
-
-#include <xpp/zmp/interpreting_observer.h>
+#include <xpp/zmp/i_visualizer.h>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
 
 namespace xpp {
+namespace hyq {
+class Foothold;
+}
+}
+
+namespace xpp {
 namespace zmp {
+
+class OptimizationVariablesInterpreter;
+class InterpretingObserver;
+class ZmpSpline;
 
 /** @brief Simplified interface to setup and solve a Nonlinear-Program.
   *
@@ -33,16 +39,13 @@ namespace zmp {
 class NlpFacade {
 public:
   typedef xpp::utils::Point2d State;
-  typedef OptimizationVariablesInterpreter Interpreter;
-  typedef std::shared_ptr<Interpreter> InterpreterPtr;
-  typedef Interpreter::VecFoothold VecFoothold;
-  typedef Interpreter::VecSpline VecSpline;
-  typedef xpp::ros::IVisualizer IVisualizer;
+  typedef std::shared_ptr<OptimizationVariablesInterpreter> InterpreterPtr;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
   typedef std::shared_ptr<InterpretingObserver> InterpretingObserverPtr;
-  typedef xpp::ros::OptimizationVisualizer OptimizationVisualizer;
+  typedef std::vector<xpp::hyq::Foothold> VecFoothold;
+  typedef std::vector<ZmpSpline> VecSpline;
 
-  NlpFacade (IVisualizer& visualizer = xpp::ros::do_nothing_visualizer);
+  NlpFacade (IVisualizer& visualizer = do_nothing_visualizer);
   virtual ~NlpFacade () {};
 
   /** @brief Solves the nonlinear program (NLP) of moving the CoG from an initial to a
@@ -64,27 +67,20 @@ public:
   InterpretingObserverPtr GetObserver() const;
 
   VecFoothold GetFootholds() const;
-  VecSpline GetSplines();
+  VecSpline GetSplines() const;
 
 private:
-  VecFoothold footholds_;
-  VecSpline splines_;
-
   void SolveIpopt(const IpoptPtr& nlp);
+
   OptimizationVariables opt_variables_;
   ConstraintContainer constraints_;
   CostContainer costs_;
 
-//  Interpreter opt_var_interpreter_;
   InterpretingObserverPtr interpreting_observer_;
-
-
   IVisualizer* visualizer_;
 
   Ipopt::IpoptApplication ipopt_solver_;
   Ipopt::ApplicationReturnStatus status_;
-
-
 };
 
 } /* namespace zmp */

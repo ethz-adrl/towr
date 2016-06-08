@@ -42,7 +42,7 @@ public:
 
   MarkerArray BuildMsg(const VecSpline& splines,
                        const VecFoothold& opt_footholds,
-                       double walking_height);
+                       double walking_height) const;
 
 private:
   void AddGoal(MarkerArray& msg,const Vector2d& goal);
@@ -59,21 +59,21 @@ private:
                      const VecSpline& splines,
                      const std::vector<xpp::hyq::Foothold>& H_footholds,
                      const std::string& rviz_namespace,
-                     double alpha = 1.0);
+                     double alpha = 1.0) const;
 
   void AddZmpTrajectory(MarkerArray& msg,
                      const VecSpline& splines,
                      double walking_height,
                      const std::vector<xpp::hyq::Foothold>& H_footholds,
                      const std::string& rviz_namespace,
-                     double alpha = 1.0);
+                     double alpha = 1.0) const;
 
   void AddFootholds(
       MarkerArray& msg,
       const VecFoothold& H_footholds,
       const std::string& rviz_namespace,
       int32_t type = visualization_msgs::Marker::SPHERE,
-      double alpha = 1.0);
+      double alpha = 1.0) const;
 
   void AddLineStrip(MarkerArray& msg,
                     double center_x, double width_x,

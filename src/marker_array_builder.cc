@@ -22,7 +22,7 @@ MarkerArrayBuilder::MarkerArrayBuilder()
 MarkerArrayBuilder::MarkerArray
 MarkerArrayBuilder::BuildMsg (const VecSpline& splines,
                               const VecFoothold& opt_footholds,
-                              double walking_height)
+                              double walking_height) const
 {
   visualization_msgs::MarkerArray msg;
   AddFootholds(msg, opt_footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
@@ -173,7 +173,7 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
                             const VecSpline& splines,
                             const std::vector<xpp::hyq::Foothold>& H_footholds,
                             const std::string& rviz_namespace,
-                            double alpha)
+                            double alpha) const
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
   for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= 0.02)
@@ -215,7 +215,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
                             double walking_height,
                             const std::vector<xpp::hyq::Foothold>& H_footholds,
                             const std::string& rviz_namespace,
-                            double alpha)
+                            double alpha) const
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
   for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= 0.1)
@@ -256,7 +256,7 @@ void MarkerArrayBuilder::AddFootholds(
     const std::vector<xpp::hyq::Foothold>& H_footholds,
     const std::string& rviz_namespace,
     int32_t type,
-    double alpha)
+    double alpha) const
 {
 
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;

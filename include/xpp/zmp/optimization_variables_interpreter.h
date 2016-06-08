@@ -45,7 +45,6 @@ private:
   VecLegID step_sequence_;
   VecFoothold start_stance_;
   ContinuousSplineContainer spline_structure_;
-
   double robot_height_;
 
   bool initialized_ = false; // checks if the Init() method has been called

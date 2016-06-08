@@ -8,18 +8,15 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 
-// fixme remove these dependencies
-#include <xpp/ros/i_visualizer.h>
-#include <xpp/zmp/zmp_spline.h>
-#include <xpp/hyq/foothold.h>
-
+#include <xpp/zmp/i_visualizer.h>
 #include <xpp/ros/marker_array_builder.h>
-#include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/optimization_variables_interpreter.h>
+#include <ros/publisher.h>
 
-#include <xpp/zmp/interpreting_observer.h>
-
-#include <ros/ros.h>
+namespace xpp {
+namespace zmp {
+class InterpretingObserver;
+}
+}
 
 namespace xpp {
 namespace ros {
@@ -31,17 +28,17 @@ namespace ros {
   * is responsible for supplying the interpreted optimization variables and
   * \c msg_builder_ is responsible for the generation of the ROS messages.
   */
-class OptimizationVisualizer : public xpp::ros::IVisualizer {
+class OptimizationVisualizer : public xpp::zmp::IVisualizer {
 public:
-  typedef std::vector<xpp::zmp::ZmpSpline> VecSpline;
-  typedef std::vector<xpp::hyq::Foothold>VecFoothold;
   typedef std::shared_ptr<xpp::zmp::InterpretingObserver> InterpretingObserverPtr;
 
   OptimizationVisualizer();
-  virtual ~OptimizationVisualizer () {}
+  virtual ~OptimizationVisualizer ();
 
   void SetObserver(const InterpretingObserverPtr&);
-  void PublishMsg();
+
+  /** @brief Send a message with topic "optimization_variables" out to rviz */
+  void Visualize() const override;
 
 private:
   ::ros::Publisher ros_publisher_;

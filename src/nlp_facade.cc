@@ -62,10 +62,6 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   // save the framework of the optimization problem
   interpreting_observer_->SetInterpreter(interpreter_ptr);
 
-
-//  visualizer_->SetObserver(interpreting_observer_);
-
-
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(interpreter_ptr->GetStartStance(),
                               interpreter_ptr->GetStepSequence(),
@@ -106,10 +102,6 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
                                              constraints_,
                                              *visualizer_); // just so it can poll the PublishMsg() method
   SolveIpopt(nlp_ptr);
-
-  // save the result of the optimization for the client to access, even if new optimization is running
-  footholds_ = interpreter_ptr->GetFootholds(opt_variables_.GetFootholdsStd());
-  splines_   = interpreter_ptr->GetSplines(opt_variables_.GetSplineCoefficients());
 }
 
 void
@@ -141,13 +133,13 @@ NlpFacade::AttachVisualizer (IVisualizer& visualizer)
 NlpFacade::VecFoothold
 NlpFacade::GetFootholds () const
 {
-  return footholds_;
+  return interpreting_observer_->GetFootholds();
 }
 
 NlpFacade::VecSpline
-NlpFacade::GetSplines ()
+NlpFacade::GetSplines () const
 {
-  return splines_;
+  return interpreting_observer_->GetSplines();
 }
 
 } /* namespace zmp */

@@ -189,7 +189,7 @@ bool IpoptAdapter::intermediate_callback(AlgorithmMode mode,
 //
 //      opt_variables_.SetVariables(x);
 
-  visualizer_.PublishMsg();
+  visualizer_.Visualize();
 	return true;
 }
 

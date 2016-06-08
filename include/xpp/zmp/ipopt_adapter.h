@@ -15,7 +15,7 @@
 
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/optimization_variables.h>
-#include <xpp/ros/i_visualizer.h>
+#include <xpp/zmp/i_visualizer.h>
 
 namespace Ipopt {
 
@@ -32,13 +32,13 @@ public:
   typedef xpp::zmp::CostFunctionFunctor CostFunctionFunctor;
   typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
   typedef xpp::zmp::OptimizationVariables OptimizationVariables;
-  typedef xpp::ros::IVisualizer IVisualizer;
+  typedef xpp::zmp::IVisualizer IVisualizer;
   typedef Eigen::VectorXd VectorXd;
 
 	IpoptAdapter(OptimizationVariables& opt_variables,
 	            CostContainer& cost_container,
 	            ConstraintContainer& constraint_container,
-	            IVisualizer& visualizer = xpp::ros::do_nothing_visualizer);
+	            IVisualizer& visualizer);
 
   /** default destructor */
   virtual ~IpoptAdapter() {};

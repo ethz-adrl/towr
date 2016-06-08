@@ -122,7 +122,6 @@ set(SOURCES
   src/optimization_variables.cc
   src/optimization_variables_interpreter.cc
   src/i_observer.cc
-  src/a_observer_visualizer.cc
   src/interpreting_observer.cc
   # constraints
   src/a_constraint.cc
@@ -226,7 +225,6 @@ if(BUILD_TESTS)
                         test/google/stance_feet_calculator_test.cc
                         #test/google/eigen_num_diff_test.cc
 #                        test/google/optimization_variables_test.cc
-                        test/google/a_observer_visualizer_test.cc
                         test/google/interpreting_observer_test.cc
                         #constraints
                         test/google/zmp_constraint_test.cc

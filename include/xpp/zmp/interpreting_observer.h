@@ -12,8 +12,8 @@
 
 #include <Eigen/Dense>
 #include <Eigen/StdVector> // for std::eigen vector
-#include <vector> // std::vector
-#include <memory> // std::shared ptr
+#include <vector>          // std::vector
+#include <memory>          // std::shared ptr
 
 namespace xpp {
 namespace hyq {
