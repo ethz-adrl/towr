@@ -34,6 +34,7 @@ class NlpFacade {
 public:
   typedef xpp::utils::Point2d State;
   typedef OptimizationVariablesInterpreter Interpreter;
+  typedef std::shared_ptr<Interpreter> InterpreterPtr;
   typedef Interpreter::VecFoothold VecFoothold;
   typedef Interpreter::VecSpline VecSpline;
   typedef xpp::ros::IVisualizer IVisualizer;
@@ -55,15 +56,12 @@ public:
     * @param times the duration of the different splines
     * @param robot_height the walking height of the robot (affects ZMP)
     */
-  void SolveNlp(const State& initial_state,
+  void SolveNlp(const Eigen::Vector2d& initial_acc,
                 const State& final_state,
-                const std::vector<xpp::hyq::LegID>& step_sequence,
-                const VecFoothold& start_stance,
-                const SplineTimes& times,
-                double robot_height);
-
+                const InterpreterPtr&);
 
   void AttachVisualizer(IVisualizer& visualizer);
+  InterpretingObserverPtr GetObserver() const;
 
   VecFoothold GetFootholds() const;
   VecSpline GetSplines();

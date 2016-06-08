@@ -55,24 +55,16 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
 }
 
 void
-NlpFacade::SolveNlp(const State& initial_state,
-                    const State& final_state, // this is not contained in interpreter yet, it's a constraint
-                    const std::vector<xpp::hyq::LegID>& step_sequence,
-                    const VecFoothold& start_stance,
-                    const SplineTimes& times,
-                    double robot_height)
+NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
+                    const State& final_state,
+                    const InterpreterPtr& interpreter_ptr)
 {
   // save the framework of the optimization problem
-
-  auto interpreter_ptr = std::make_shared<OptimizationVariablesInterpreter>();
-  interpreter_ptr->Init(initial_state.p, initial_state.v, step_sequence, start_stance, times, robot_height);
   interpreting_observer_->SetInterpreter(interpreter_ptr);
 
 
 //  visualizer_->SetObserver(interpreting_observer_);
 
-//  InterpretingObserver interpreting_obs_(opt_variables_);
-//  interpreting_obs_.SetInterpreter(opt_var_interpreter_);
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(interpreter_ptr->GetStartStance(),
@@ -87,7 +79,7 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   // This should all be hidden inside a factory method
   // the linear equations
-  InitialAccelerationEquation eq_acc(initial_state.a, spline_structure.GetTotalFreeCoeff());
+  InitialAccelerationEquation eq_acc(initial_acc, spline_structure.GetTotalFreeCoeff());
   FinalStateEquation eq_final(final_state, spline_structure);
   SplineJunctionEquation eq_junction(spline_structure);
 
@@ -98,7 +90,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("acc")).Init(eq_acc.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("final")).Init(eq_final.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
-  dynamic_cast<ZmpConstraint&>(constraints_.GetConstraint("zmp")).Init(spline_structure, supp_polygon_container, robot_height);
+  dynamic_cast<ZmpConstraint&>(constraints_.GetConstraint("zmp")).Init(spline_structure, supp_polygon_container, interpreter_ptr->GetRobotHeight());
 //  dynamic_cast<RangeOfMotionConstraint&>(constraints_.GetConstraint("rom")).Init(spline_structure, supp_polygon_container);
   dynamic_cast<JointAnglesConstraint&>(constraints_.GetConstraint("joint_angles")).Init(*interpreter_ptr, &hyq_inv_kin);
   constraints_.Refresh();
@@ -132,6 +124,12 @@ NlpFacade::SolveIpopt (const IpoptPtr& nlp)
     Ipopt::Number final_obj = ipopt_solver_.Statistics()->FinalObjective();
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
   }
+}
+
+NlpFacade::InterpretingObserverPtr
+NlpFacade::GetObserver () const
+{
+  return interpreting_observer_;
 }
 
 void

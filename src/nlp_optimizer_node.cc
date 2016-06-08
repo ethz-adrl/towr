@@ -8,6 +8,8 @@
 #include <xpp/ros/nlp_optimizer_node.h>
 #include <xpp/ros/ros_helpers.h>
 
+#include <xpp/zmp/optimization_variables_interpreter.h>
+
 namespace xpp {
 namespace ros {
 
@@ -18,7 +20,10 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                    &NlpOptimizerNode::CurrentInfoCallback, this);
 
   opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
-//  nlp_facade_.AttachVisualizer(optimization_visualizer_);
+
+  // get current optimization values from the optimizer
+  optimization_visualizer_.SetObserver(nlp_facade_.GetObserver());
+  nlp_facade_.AttachVisualizer(optimization_visualizer_);
 }
 
 void
@@ -51,12 +56,13 @@ NlpOptimizerNode::PublishOptimizedValues() const
 void
 NlpOptimizerNode::OptimizeTrajectory()
 {
-  nlp_facade_.SolveNlp(curr_cog_.Get2D(),
+  auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
+  interpreter_ptr->Init(curr_cog_.Get2D().p, curr_cog_.Get2D().v,
+                        step_sequence_, curr_stance_, spline_times_, robot_height_);
+
+  nlp_facade_.SolveNlp(curr_cog_.Get2D().a,
                        goal_cog_.Get2D(),
-                       step_sequence_,
-                       curr_stance_,
-                       spline_times_,
-                       robot_height_);
+                       interpreter_ptr);
 
   opt_splines_ = nlp_facade_.GetSplines();
   footholds_   = nlp_facade_.GetFootholds();

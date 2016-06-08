@@ -221,8 +221,8 @@ if(BUILD_TESTS)
                         test/google/helpers.cc
                         test/google/zmp_constraint_builder_test.cc
                         test/google/zero_moment_point_test.cc
-                        test/google/nlp_facade_test.cc
-                        test/google/hyq_spliner_test.cc
+#                        test/google/nlp_facade_test.cc
+#                        test/google/hyq_spliner_test.cc
                         test/google/stance_feet_calculator_test.cc
                         #test/google/eigen_num_diff_test.cc
 #                        test/google/optimization_variables_test.cc
