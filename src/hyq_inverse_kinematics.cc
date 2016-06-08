@@ -26,8 +26,8 @@ namespace hyq {
 #define LH_LEG 2
 #define RH_LEG 3
 
-#define LF_HFE 0
-#define LF_HAA 1
+#define LF_HAA 0
+#define LF_HFE 1
 #define LF_KFE 2
 #define DOF_PER_LEG 3
 
@@ -51,6 +51,13 @@ const static double kfe_min_real = -140;
 const static double kfe_max_real =  -20;
 
 // reduced joint angles for optimization
+// for left front leg
+const double joint_range[DOF_PER_LEG][NR_OF_CONSTRAINTS] = {
+ {haa_min_real/180.0*M_PI, haa_max_real/180.0*M_PI},
+ {hfe_min_real/180.0*M_PI, hfe_max_real/180.0*M_PI},
+ {kfe_min_real/180.0*M_PI, kfe_max_real/180.0*M_PI}
+};
+
 
 //static double haa_min = haa_min_real;
 //static double haa_max = haa_max_real;
@@ -68,12 +75,6 @@ const static double kfe_min = -90 - 20;
 const static double kfe_max = -90 + 20;
 
 
-
-const double joint_range[DOF_PER_LEG][NR_OF_CONSTRAINTS] = {
- {-M_PI, M_PI},
- {-M_PI, M_PI},
- {-M_PI, M_PI}
-};
 
 HyqInverseKinematics::HyqInverseKinematics ()
 {
@@ -159,8 +160,8 @@ HyqInverseKinematics::compute(size_t leg, const EEPosition& x, Eigen::Vector3d& 
 	double tmp1;
 	double alpha,beta,gamma;
 	double ll,lu;
-	bool check_br = false;
-	bool check_bf = false;
+	bool br_exceeds_joint_limit = false;
+	bool bf_exceeds_joint_limit = false;
 
 	Eigen::Vector3d xr;
 	Eigen::Vector3d xrd;
@@ -186,13 +187,12 @@ HyqInverseKinematics::compute(size_t leg, const EEPosition& x, Eigen::Vector3d& 
 		xr = x.cwiseProduct(Eigen::Vector3d(-1,-1,1)) + Eigen::Vector3d(-BASE2HAAX,-BASE2HAAY,-ZOFFSET);
 	}
 	else {
-		rc = 1;
+		rc = 1; // leg doesn't exist
 		return false;
 	}
 
 	// compute the HAA angle
 	q_HAA_bf = q_HAA_br = -atan2(xr[Y],-xr[Z]);
-
 
 	// rotate into the HFE coordinate system (rot around X)
 	R << 1.0, 0.0, 0.0, 0.0, cos(q_HAA_bf), -sin(q_HAA_bf), 0.0, sin(q_HAA_bf), cos(q_HAA_bf);
@@ -207,7 +207,7 @@ HyqInverseKinematics::compute(size_t leg, const EEPosition& x, Eigen::Vector3d& 
 
 
 	// compute temporary angles (with reachability check)
-	lu  = LUPPER; // length of upper leg
+	lu = LUPPER; // length of upper leg
 	ll = LLOWER;  // length of lower leg
 	alpha = atan2(-xr[Z],xr[X]) - 0.5*M_PI;  //  flip and rotate to match HyQ joint definition
 
@@ -218,11 +218,9 @@ HyqInverseKinematics::compute(size_t leg, const EEPosition& x, Eigen::Vector3d& 
 	}
 
 	beta = acos((pow(lu,2)+tmp1-pow(ll,2))/(2.*lu*sqrt(tmp1)));
-	//printf("debug beta: %f\n",beta);
 
 	// compute Hip FE angle
 	q_HFE_bf = q_HFE_br = alpha + beta;
-	///////////////////////////////
 
 	// law of cosines give the knee angle
 	if (fabs((pow(ll,2)+pow(lu,2)-tmp1)/(2.*ll*lu)) > 1) {
@@ -236,59 +234,58 @@ HyqInverseKinematics::compute(size_t leg, const EEPosition& x, Eigen::Vector3d& 
 	//printf("debug gamma: %f\n",gamma);
 	q_KFE_bf = q_KFE_br = gamma - M_PI;  // -(PI - gamma);
 
-	///////////////////////////////
-	check_bf = true;
-	check_br = true;
-	// check joint angle range bf
+	// check if joint angle lies in the correct range
+	bf_exceeds_joint_limit = false;
 	if (q_HFE_bf > joint_range[LF_HFE][MAX_THETA_INDEX]) {
 		q_HFE_bf = joint_range[LF_HFE][MAX_THETA_INDEX];0;
-		check_bf = true;
+		bf_exceeds_joint_limit = true;
 	}
 	if (q_HFE_bf < joint_range[LF_HFE][MIN_THETA_INDEX]) {
 		q_HFE_bf = joint_range[LF_HFE][MIN_THETA_INDEX];
-		check_bf = true;
+		bf_exceeds_joint_limit = true;
 	}
 	if (q_HAA_bf > joint_range[LF_HAA][MAX_THETA_INDEX]) {
 		q_HAA_bf = joint_range[LF_HAA][MAX_THETA_INDEX];
-		check_bf = true;
+		bf_exceeds_joint_limit = true;
 	}
 	if (q_HAA_bf < joint_range[LF_HAA][MIN_THETA_INDEX]) {
 		q_HAA_bf = joint_range[LF_HAA][MIN_THETA_INDEX];;
-		check_bf = true;
+		bf_exceeds_joint_limit = true;
 	}
 	if (q_KFE_bf > joint_range[LF_KFE][MAX_THETA_INDEX]) {
 		q_KFE_bf = joint_range[LF_KFE][MAX_THETA_INDEX];
-		check_bf = true;
+		bf_exceeds_joint_limit = true;
 	}
 	if (q_KFE_bf < joint_range[LF_KFE][MIN_THETA_INDEX]) {
 		q_KFE_bf = joint_range[LF_KFE][MIN_THETA_INDEX];
-		check_bf = true;
+		bf_exceeds_joint_limit = true;
 	}
 
 	// check joint angle range br
+	br_exceeds_joint_limit = false;
 	if (q_HFE_br > joint_range[LF_HFE][MAX_THETA_INDEX]) {
 		q_HFE_br = joint_range[LF_HFE][MAX_THETA_INDEX];
-		check_br = true;
+		br_exceeds_joint_limit = true;
 	}
 	if (q_HFE_br < joint_range[LF_HFE][MIN_THETA_INDEX]) {
 		q_HFE_br = joint_range[LF_HFE][MIN_THETA_INDEX];
-		check_br = true;
+		br_exceeds_joint_limit = true;
 	}
 	if (q_HAA_br > joint_range[LF_HAA][MAX_THETA_INDEX]) {
 		q_HAA_br = joint_range[LF_HAA][MAX_THETA_INDEX];
-		check_br = true;
+		br_exceeds_joint_limit = true;
 	}
 	if (q_HAA_br < joint_range[LF_HAA][MIN_THETA_INDEX]) {
 		q_HAA_br = joint_range[LF_HAA][MIN_THETA_INDEX];
-		check_br = true;
+		br_exceeds_joint_limit = true;
 	}
 	if (q_KFE_br > joint_range[LF_KFE][MAX_THETA_INDEX]) {
 		q_KFE_br = joint_range[LF_KFE][MAX_THETA_INDEX];
-		check_br = true;
+		br_exceeds_joint_limit = true;
 	}
 	if (q_KFE_br < joint_range[LF_KFE][MIN_THETA_INDEX]) {
 		q_KFE_br = joint_range[LF_KFE][MIN_THETA_INDEX];
-		check_br = true;
+		br_exceeds_joint_limit = true;
 	}
 
 	// assign to output arrays

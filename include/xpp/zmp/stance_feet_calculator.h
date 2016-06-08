@@ -35,7 +35,7 @@ public:
   VecFoothold GetStanceFeetInBase(double t) const;
 
 private:
-  VecFoothold ConvertFeetToBase(VecFoothold ee_i, Vector3d cog_i) const;
+  VecFoothold ConvertFeetToBase(const VecFoothold& ee_i, const Vector3d& cog_i) const;
   bool AreSame(double time_1, double time_2) const;
 
   VecSpline cog_spline_xy_;

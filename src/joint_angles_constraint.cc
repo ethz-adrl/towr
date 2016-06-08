@@ -66,7 +66,9 @@ JointAnglesConstraint::EvaluateConstraint() const
       try {
         q = inv_kin_->GetJointAngles(f.p, f.leg);
       } catch (const std::runtime_error& e) {
-        // no inverse kinematics solution found, do something
+//        std::cerr << e.what() << q.transpose() << std::endl;
+
+        q = inv_kin_->GetLowerJointLimits(f.leg)*500;
       }
 
       for (int i=0; i<q.rows(); ++i) {

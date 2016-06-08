@@ -66,7 +66,8 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
 }
 
 StanceFeetCalculator::VecFoothold
-StanceFeetCalculator::ConvertFeetToBase (VecFoothold endeffectors_i, Vector3d cog_i) const
+StanceFeetCalculator::ConvertFeetToBase (const VecFoothold& endeffectors_i,
+                                         const Vector3d& cog_i) const
 {
   VecFoothold p_stance_legs_b = endeffectors_i;
 
