@@ -13,14 +13,16 @@ namespace ros {
 
 OptimizationVisualizer::OptimizationVisualizer ()
 {
+  observer_ = nullptr;
+
   ::ros::NodeHandle n;
   ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
 }
 
 void
-OptimizationVisualizer::SetInterpreter (const InterpretingObserverPtr& interpreter)
+OptimizationVisualizer::SetObserver (const InterpretingObserverPtr& observer)
 {
-  observer_ = interpreter;
+  observer_ = observer;
 }
 
 void

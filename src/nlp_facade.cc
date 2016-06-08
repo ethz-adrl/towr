@@ -30,7 +30,7 @@
 namespace xpp {
 namespace zmp {
 
-NlpFacade::NlpFacade (AObserverVisualizer& visualizer)
+NlpFacade::NlpFacade (IVisualizer& visualizer)
      :visualizer_(&visualizer)
 {
   interpreting_observer_ = std::make_shared<InterpretingObserver>(opt_variables_);
@@ -66,8 +66,10 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   auto interpreter_ptr = std::make_shared<OptimizationVariablesInterpreter>();
   interpreter_ptr->Init(initial_state.p, initial_state.v, step_sequence, start_stance, times, robot_height);
-
   interpreting_observer_->SetInterpreter(interpreter_ptr);
+
+
+//  visualizer_->SetObserver(interpreting_observer_);
 
 //  InterpretingObserver interpreting_obs_(opt_variables_);
 //  interpreting_obs_.SetInterpreter(opt_var_interpreter_);
@@ -110,7 +112,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   IpoptPtr nlp_ptr = new Ipopt::IpoptAdapter(opt_variables_,
                                              costs_,
                                              constraints_,
-                                             *visualizer_); // just so it can poll the PublishMsg method
+                                             *visualizer_); // just so it can poll the PublishMsg() method
   SolveIpopt(nlp_ptr);
 
   // save the result of the optimization for the client to access, even if new optimization is running
@@ -133,10 +135,9 @@ NlpFacade::SolveIpopt (const IpoptPtr& nlp)
 }
 
 void
-NlpFacade::AttachVisualizer (AObserverVisualizer& visualizer)
+NlpFacade::AttachVisualizer (IVisualizer& visualizer)
 {
   visualizer_ = &visualizer;
-  visualizer_->RegisterWithSubject(opt_variables_);
 }
 
 NlpFacade::VecFoothold

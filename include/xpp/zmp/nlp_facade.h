@@ -14,6 +14,8 @@
 #include <xpp/zmp/cost_container.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 
+#include <xpp/ros/optimization_visualizer.h>
+
 #include <xpp/zmp/interpreting_observer.h>
 
 #include <IpIpoptApplication.hpp>
@@ -22,6 +24,12 @@
 namespace xpp {
 namespace zmp {
 
+/** @brief Simplified interface to setup and solve a Nonlinear-Program.
+  *
+  * This follows the facade pattern, to hide the complexity of the cost and
+  * constraint object creation from the client. The client can optionally
+  * pass in a visualizer, but ultimately this class is ROS independent.
+  */
 class NlpFacade {
 public:
   typedef xpp::utils::Point2d State;
@@ -31,8 +39,9 @@ public:
   typedef xpp::ros::IVisualizer IVisualizer;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
   typedef std::shared_ptr<InterpretingObserver> InterpretingObserverPtr;
+  typedef xpp::ros::OptimizationVisualizer OptimizationVisualizer;
 
-  NlpFacade (AObserverVisualizer& visualizer = do_nothing_observer_visualizer);
+  NlpFacade (IVisualizer& visualizer = xpp::ros::do_nothing_visualizer);
   virtual ~NlpFacade () {};
 
   /** @brief Solves the nonlinear program (NLP) of moving the CoG from an initial to a
@@ -54,7 +63,7 @@ public:
                 double robot_height);
 
 
-  void AttachVisualizer(AObserverVisualizer& visualizer);
+  void AttachVisualizer(IVisualizer& visualizer);
 
   VecFoothold GetFootholds() const;
   VecSpline GetSplines();
@@ -72,7 +81,7 @@ private:
   InterpretingObserverPtr interpreting_observer_;
 
 
-  AObserverVisualizer* visualizer_;
+  IVisualizer* visualizer_;
 
   Ipopt::IpoptApplication ipopt_solver_;
   Ipopt::ApplicationReturnStatus status_;

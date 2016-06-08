@@ -40,7 +40,7 @@ public:
   OptimizationVisualizer();
   virtual ~OptimizationVisualizer () {}
 
-  void SetInterpreter(const InterpretingObserverPtr& interpreter);
+  void SetObserver(const InterpretingObserverPtr&);
   void PublishMsg();
 
 private:
