@@ -99,7 +99,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   IpoptPtr nlp_ptr = new Ipopt::IpoptAdapter(opt_variables_,
                                              costs_,
                                              constraints_,
-                                             *visualizer_);
+                                             *visualizer_); // just so it can poll the PublishMsg method
   SolveIpopt(nlp_ptr);
 
   // save the result of the optimization for the client to access, even if new optimization is running
