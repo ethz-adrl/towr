@@ -123,8 +123,6 @@ set(SOURCES
   src/optimization_variables_interpreter.cc
   src/i_observer.cc
   src/a_observer_visualizer.cc
-  src/observer_decorator.cc
-  src/interpreting_decorator.cc
   # constraints
   src/a_constraint.cc
   src/a_linear_constraint.cc
@@ -228,7 +226,6 @@ if(BUILD_TESTS)
                         #test/google/eigen_num_diff_test.cc
 #                        test/google/optimization_variables_test.cc
                         test/google/a_observer_visualizer_test.cc
-                        test/google/interpreting_decorator_test.cc
                         #constraints
                         test/google/zmp_constraint_test.cc
                         test/google/joint_angles_constraint_test.cc

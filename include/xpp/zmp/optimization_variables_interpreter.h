@@ -18,6 +18,7 @@ class OptimizationVariablesInterpreter {
 public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
   typedef SplineContainer::VecSpline VecSpline;
+  typedef std::vector<xpp::hyq::LegID> VecLegID;
   typedef xpp::utils::StdVecEigen2d FootholdPositionsXY;
   typedef Eigen::VectorXd VectorXd;
   typedef Eigen::Vector2d Vector2d;
@@ -28,14 +29,24 @@ public:
   void Init(const Vector2d& start_cog_p,
             const Vector2d& start_cog_v,
             const std::vector<xpp::hyq::LegID>& step_sequence,
-            const SplineTimes& times);
+            const VecFoothold& start_stance,
+            const SplineTimes& times,
+            double robot_height);
+
+  double GetRobotHeight() const;
+  ContinuousSplineContainer GetSplineStructure() const;
+  VecFoothold GetStartStance() const;
+  VecLegID GetStepSequence() const;
 
   VecFoothold GetFootholds(const FootholdPositionsXY&) const;
   VecSpline GetSplines(const VectorXd& spline_coeff_abcd) const;
 
 private:
-  std::vector<xpp::hyq::LegID> step_sequence_;
+  VecLegID step_sequence_;
+  VecFoothold start_stance_;
   ContinuousSplineContainer spline_structure_;
+
+  double robot_height_;
 
   bool initialized_ = false; // checks if the Init() method has been called
 };

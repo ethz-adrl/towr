@@ -11,6 +11,10 @@
 #include <xpp/zmp/a_constraint.h>
 #include <xpp/zmp/i_observer.h>
 
+#include <xpp/zmp/optimization_variables_interpreter.h>
+#include <xpp/zmp/stance_feet_calculator.h>
+#include <xpp/zmp/a_inverse_kinematics.h>
+
 namespace xpp {
 namespace zmp {
 
@@ -21,23 +25,34 @@ namespace zmp {
   */
 class JointAnglesConstraint : public AConstraint, public IObserver {
 public:
-//  typedef OptimizationVariables::StdVecEigen2d FootholdsXY;
+  typedef xpp::utils::StdVecEigen2d FootholdsXY;
+  typedef xpp::zmp::OptimizationVariablesInterpreter Interpreter;
+  typedef std::vector<xpp::hyq::Foothold> VecFoothold;
+  typedef std::vector<ZmpSpline> VecSpline;
+  typedef AInverseKinematics::JointAngles JointAngles;
+  typedef xpp::hyq::Foothold Foothold;
 
   JointAnglesConstraint (OptimizationVariables& subject);
   virtual ~JointAnglesConstraint ();
 
+  void Init(const Interpreter& interpreter, AInverseKinematics* inv_kin);
+  void Update() override;
 
+  VectorXd EvaluateConstraint() const override;
+  VecBound GetBounds() const override;
 
 private:
-  VectorXd x_coeff_;
-//  FootholdsXY footholds_;
+  AInverseKinematics* inv_kin_;           ///< endeffector to joint angle conversions
+  StanceFeetCalculator stance_feet_calc_; ///< supplies feet position in base frame
 
+  Interpreter interpreter_; ///< adds context to the optimization variables
 
-
-//  OptimizationVariables* subject_;
+  std::vector<double> vec_t_; ///< evaluates constraint at each of these times
 };
 
 } /* namespace zmp */
 } /* namespace xpp */
+
+
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_JOINT_ANGLES_CONSTRAINT_H_ */

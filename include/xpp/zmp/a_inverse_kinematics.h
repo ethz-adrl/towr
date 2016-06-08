@@ -33,6 +33,10 @@ public:
     * @return the joints angles of the robot.
     */
   virtual JointAngles GetJointAngles(const EEPosition& pos_b, size_t ee) const = 0;
+
+  /** @brief The upper and lower limit of the joints moving endeffector ee. */
+  virtual JointAngles GetUpperJointLimits(size_t ee) const = 0;
+  virtual JointAngles GetLowerJointLimits(size_t ee) const = 0;
 };
 
 } /* namespace zmp */

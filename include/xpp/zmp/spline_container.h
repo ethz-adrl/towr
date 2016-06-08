@@ -42,6 +42,13 @@ struct SplineTimes
   double t_swing_;
   double t_stance_initial_;
   double t_stance_final_;
+
+  void SetDefault() {
+    t_stance_         = 0.2; //s
+    t_swing_          = 0.7; //s
+    t_stance_initial_ = 0.4; //s
+    t_stance_final_   = 0.2; //s
+  }
 };
 
 
@@ -104,7 +111,11 @@ public:
    *  so first and last time are t0 and and tN, but there might be a
    *  timestep > delta t before the last node.
    */
-  std::vector<double> GetDiscretizedGlobalTimes() const;
+  static std::vector<double> GetDiscretizedGlobalTimes(const VecSpline& splines);
+  std::vector<double> GetDiscretizedGlobalTimes() const {
+    return GetDiscretizedGlobalTimes(splines_);
+  }
+
   int GetTotalNodes() const { return GetDiscretizedGlobalTimes().size(); };
 
 protected:

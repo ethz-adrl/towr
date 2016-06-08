@@ -23,8 +23,9 @@ namespace zmp {
 class NlpFacade {
 public:
   typedef xpp::utils::Point2d State;
-  typedef OptimizationVariablesInterpreter::VecFoothold VecFoothold;
-  typedef OptimizationVariablesInterpreter::VecSpline VecSpline;
+  typedef OptimizationVariablesInterpreter Interpreter;
+  typedef Interpreter::VecFoothold VecFoothold;
+  typedef Interpreter::VecSpline VecSpline;
   typedef xpp::ros::IVisualizer IVisualizer;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
 
@@ -49,6 +50,7 @@ public:
                 const SplineTimes& times,
                 double robot_height);
 
+
   void AttachVisualizer(AObserverVisualizer& visualizer);
 
   VecFoothold GetFootholds() const;
@@ -63,7 +65,7 @@ private:
   ConstraintContainer constraints_;
   CostContainer costs_;
 
-  OptimizationVariablesInterpreter opt_var_interpreter_;
+  Interpreter opt_var_interpreter_;
   AObserverVisualizer* visualizer_;
 
   Ipopt::IpoptApplication ipopt_solver_;

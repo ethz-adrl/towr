@@ -42,10 +42,7 @@ public:
   virtual ~OptimizationVisualizer () {}
 
   void RegisterWithSubject (OptimizationVariables& subject);
-  void InitInterpreter(const Vector2d& start_cog_p,
-                       const Vector2d& start_cog_v,
-                       const std::vector<xpp::hyq::LegID>& step_sequence,
-                       const SplineTimes& times);
+  void SetInterpreter(const Interpreter& interpreter);
 
   /** @brief Updates the values of the optimization variables. */
    void Update() override;

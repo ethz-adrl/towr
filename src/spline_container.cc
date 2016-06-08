@@ -117,18 +117,18 @@ int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
 
 
 std::vector<double>
-SplineContainer::GetDiscretizedGlobalTimes() const
+SplineContainer::GetDiscretizedGlobalTimes(const VecSpline& splines)
 {
   static constexpr double dt = 0.2; //discretization time [seconds]: needed for creating support triangle inequality constraints
 
   std::vector<double> vec;
   double t = 0.0;
-  while (t <= GetTotalTime()-dt+eps_) { // still add the second to last time, even if rounding errors to to floating point arithmetics
+  while (t <= GetTotalTime(splines)-dt+eps_) { // still add the second to last time, even if rounding errors to to floating point arithmetics
     vec.push_back(t);
     t += dt;
   }
 
-  vec.push_back(GetTotalTime());
+  vec.push_back(GetTotalTime(splines));
   return vec;
 }
 
@@ -178,3 +178,5 @@ SplineContainer::CheckIfSplinesInitialized() const
 
 } // namespace zmp
 } // namespace xpp
+
+
