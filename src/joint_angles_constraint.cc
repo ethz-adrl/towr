@@ -53,7 +53,6 @@ JointAnglesConstraint::Update ()
 JointAnglesConstraint::VectorXd
 JointAnglesConstraint::EvaluateConstraint() const
 {
-
   std::vector<double> g_vec;
   g_vec.reserve(vec_t_.size()*xpp::utils::kDim2d*4/*stance legs */);
 
@@ -66,9 +65,10 @@ JointAnglesConstraint::EvaluateConstraint() const
       try {
         q = inv_kin_->GetJointAngles(f.p, f.leg);
       } catch (const std::runtime_error& e) {
-//        std::cerr << e.what() << q.transpose() << std::endl;
-
-        q = inv_kin_->GetLowerJointLimits(f.leg)*500;
+        // no joint angles can produce desired endeffector position
+        // ensure that it matches the size of constraint bounds to not mess up alignment
+        // todo make up some joint angles that violate constraint
+        q = 500/*random number*/*inv_kin_->GetLowerJointLimits(f.leg);
       }
 
       for (int i=0; i<q.rows(); ++i) {
