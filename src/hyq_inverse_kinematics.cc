@@ -58,21 +58,21 @@ const double joint_range[DOF_PER_LEG][NR_OF_CONSTRAINTS] = {
  {kfe_min_real/180.0*M_PI, kfe_max_real/180.0*M_PI}
 };
 
-
+// these are for the left front leg
 //static double haa_min = haa_min_real;
 //static double haa_max = haa_max_real;
-const static double haa_min = -30;
-const static double haa_max =   0;
+const static double haa_min = -20;
+const static double haa_max = -10;
 
 //static double hfe_min = hfe_min_real;
 //static double hfe_max = hfe_max_real;
-const static double hfe_min = 0.0;
-const static double hfe_max = 70;
+const static double hfe_min = 10;
+const static double hfe_max = 50;
 
 //static double kfe_min = kfe_min_real;
 //static double kfe_max = kfe_max_real;
 const static double kfe_min = -90 - 20;
-const static double kfe_max = -90 + 20;
+const static double kfe_max = -60;
 
 
 
@@ -88,12 +88,15 @@ HyqInverseKinematics::JointAngles
 HyqInverseKinematics::GetJointAngles(const EEPosition& pos_b, size_t ee) const
 {
   Eigen::Vector3d q;
+  q.setZero();
 
   int error_code;
   bool successFlag = compute(ee, pos_b, q, error_code);
 
-  if(!successFlag)
-    throw  std::runtime_error(std::string("computing joint position resulted in error! err_code: " + std::to_string(error_code)) );
+  if(!successFlag) {
+    std::cout << "no successfull in calculating q. q: " << q.transpose() << std::endl;
+//    throw  std::runtime_error(std::string("computing joint position resulted in error! err_code: " + std::to_string(error_code)) );
+  }
 
   return q;
 }
@@ -153,7 +156,7 @@ HyqInverseKinematics::GetLowerJointLimits (size_t ee) const
 }
 
 bool
-HyqInverseKinematics::compute(size_t leg, const EEPosition& x, Eigen::Vector3d& q_bf, int &rc) const
+HyqInverseKinematics::compute(size_t leg, const EEPosition& x, Eigen::Vector3d& q, int &rc) const
 {
 	int i;
 	double q_HAA_bf, q_HAA_br, q_HFE_br, q_HFE_bf, q_KFE_br, q_KFE_bf, q_HAA_temp;
@@ -211,45 +214,63 @@ HyqInverseKinematics::compute(size_t leg, const EEPosition& x, Eigen::Vector3d& 
 	ll = LLOWER;  // length of lower leg
 	alpha = atan2(-xr[Z],xr[X]) - 0.5*M_PI;  //  flip and rotate to match HyQ joint definition
 
-	if (fabs((pow(lu,2)+tmp1-pow(ll,2))/(2.*lu*sqrt(tmp1))) > 1) {
+
+	double some_random_value_for_beta = (pow(lu,2)+tmp1-pow(ll,2))/(2.*lu*sqrt(tmp1)); // this must be between -1 and 1
+	if (some_random_value_for_beta > 1) {
 		// printf("Error in  for HFE in %s\n",cart_names[leg]);
 		rc = 7;
-		return false;
+		some_random_value_for_beta = 1;
+//		return false;
 	}
-
-	beta = acos((pow(lu,2)+tmp1-pow(ll,2))/(2.*lu*sqrt(tmp1)));
+  if (some_random_value_for_beta < -1) {
+    // printf("Error in  for HFE in %s\n",cart_names[leg]);
+    rc = 7;
+    some_random_value_for_beta = -1;
+//    return false;
+  }
+	beta = acos(some_random_value_for_beta);
+//	printf("debug beta: %f\n",beta);
 
 	// compute Hip FE angle
 	q_HFE_bf = q_HFE_br = alpha + beta;
 
+
+	double some_random_value_for_gamma = (pow(ll,2)+pow(lu,2)-tmp1)/(2.*ll*lu);
 	// law of cosines give the knee angle
-	if (fabs((pow(ll,2)+pow(lu,2)-tmp1)/(2.*ll*lu)) > 1) {
+	if (some_random_value_for_gamma > 1) {
 		// printf("Error in computeFootIKVel for KFE in %s\n",cart_names[leg]);
 		rc = 5;
-		return false;
+		some_random_value_for_gamma = 1;
+//		return false;
 	}
-	gamma  = acos((pow(ll,2)+pow(lu,2)-tmp1)/(2.*ll*lu));
+  if (some_random_value_for_gamma < -1) {
+    // printf("Error in computeFootIKVel for KFE in %s\n",cart_names[leg]);
+    rc = 5;
+    some_random_value_for_gamma = -1;
+//    return false;
+  }
+	gamma  = acos(some_random_value_for_gamma);
 
 
-	//printf("debug gamma: %f\n",gamma);
+//	printf("debug gamma: %f\n",gamma);
 	q_KFE_bf = q_KFE_br = gamma - M_PI;  // -(PI - gamma);
 
 	// check if joint angle lies in the correct range
 	bf_exceeds_joint_limit = false;
-	if (q_HFE_bf > joint_range[LF_HFE][MAX_THETA_INDEX]) {
-		q_HFE_bf = joint_range[LF_HFE][MAX_THETA_INDEX];0;
-		bf_exceeds_joint_limit = true;
-	}
-	if (q_HFE_bf < joint_range[LF_HFE][MIN_THETA_INDEX]) {
-		q_HFE_bf = joint_range[LF_HFE][MIN_THETA_INDEX];
-		bf_exceeds_joint_limit = true;
-	}
 	if (q_HAA_bf > joint_range[LF_HAA][MAX_THETA_INDEX]) {
 		q_HAA_bf = joint_range[LF_HAA][MAX_THETA_INDEX];
 		bf_exceeds_joint_limit = true;
 	}
 	if (q_HAA_bf < joint_range[LF_HAA][MIN_THETA_INDEX]) {
 		q_HAA_bf = joint_range[LF_HAA][MIN_THETA_INDEX];;
+		bf_exceeds_joint_limit = true;
+	}
+	if (q_HFE_bf > joint_range[LF_HFE][MAX_THETA_INDEX]) {
+		q_HFE_bf = joint_range[LF_HFE][MAX_THETA_INDEX];0;
+		bf_exceeds_joint_limit = true;
+	}
+	if (q_HFE_bf < joint_range[LF_HFE][MIN_THETA_INDEX]) {
+		q_HFE_bf = joint_range[LF_HFE][MIN_THETA_INDEX];
 		bf_exceeds_joint_limit = true;
 	}
 	if (q_KFE_bf > joint_range[LF_KFE][MAX_THETA_INDEX]) {
@@ -263,20 +284,20 @@ HyqInverseKinematics::compute(size_t leg, const EEPosition& x, Eigen::Vector3d& 
 
 	// check joint angle range br
 	br_exceeds_joint_limit = false;
-	if (q_HFE_br > joint_range[LF_HFE][MAX_THETA_INDEX]) {
-		q_HFE_br = joint_range[LF_HFE][MAX_THETA_INDEX];
-		br_exceeds_joint_limit = true;
-	}
-	if (q_HFE_br < joint_range[LF_HFE][MIN_THETA_INDEX]) {
-		q_HFE_br = joint_range[LF_HFE][MIN_THETA_INDEX];
-		br_exceeds_joint_limit = true;
-	}
 	if (q_HAA_br > joint_range[LF_HAA][MAX_THETA_INDEX]) {
 		q_HAA_br = joint_range[LF_HAA][MAX_THETA_INDEX];
 		br_exceeds_joint_limit = true;
 	}
 	if (q_HAA_br < joint_range[LF_HAA][MIN_THETA_INDEX]) {
 		q_HAA_br = joint_range[LF_HAA][MIN_THETA_INDEX];
+		br_exceeds_joint_limit = true;
+	}
+	if (q_HFE_br > joint_range[LF_HFE][MAX_THETA_INDEX]) {
+		q_HFE_br = joint_range[LF_HFE][MAX_THETA_INDEX];
+		br_exceeds_joint_limit = true;
+	}
+	if (q_HFE_br < joint_range[LF_HFE][MIN_THETA_INDEX]) {
+		q_HFE_br = joint_range[LF_HFE][MIN_THETA_INDEX];
 		br_exceeds_joint_limit = true;
 	}
 	if (q_KFE_br > joint_range[LF_KFE][MAX_THETA_INDEX]) {
@@ -290,10 +311,10 @@ HyqInverseKinematics::compute(size_t leg, const EEPosition& x, Eigen::Vector3d& 
 
 	// assign to output arrays
 	if (leg==RH_LEG || leg==LH_LEG) { // for hind legs swap the forward bent/rear bent
-		q_bf << q_HAA_br, -q_HFE_br, -q_KFE_br;
+		q << q_HAA_br, -q_HFE_br, -q_KFE_br;
 	}
 	else {
-		q_bf << q_HAA_bf, q_HFE_bf, q_KFE_bf;
+		q << q_HAA_bf, q_HFE_bf, q_KFE_bf;
 	}
 
 

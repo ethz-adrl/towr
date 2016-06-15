@@ -32,9 +32,7 @@ ZmpConstraint::Update ()
   x_coeff_ = subject_->GetSplineCoefficients();
   footholds_ = subject_->GetFootholdsStd();
 
-  // fixme move this to foothold class and generally see if i really need
-  // the previous support polygon container, or if footholds + legs is enough
-  // for sure need start stance
+  // fixme use interpreter class for this, it knows about the foothold sequence
   for (uint i=0; i<footholds_.size(); ++i)
     supp_polygon_container_.SetFootholdsXY(i,footholds_.at(i).x(), footholds_.at(i).y());
 }

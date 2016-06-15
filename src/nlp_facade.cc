@@ -39,8 +39,8 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "final");
   constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "junction");
   constraints_.AddConstraint(std::make_shared<ZmpConstraint>(opt_variables_), "zmp");
-//  constraints_.AddConstraint(std::make_shared<RangeOfMotionConstraint>(opt_variables_), "rom");
-  constraints_.AddConstraint(std::make_shared<JointAnglesConstraint>(opt_variables_), "joint_angles");
+  constraints_.AddConstraint(std::make_shared<RangeOfMotionConstraint>(opt_variables_), "rom");
+//  constraints_.AddConstraint(std::make_shared<JointAnglesConstraint>(opt_variables_), "joint_angles");
 
   costs_.AddCost(std::make_shared<AQuadraticCost>(opt_variables_), "cost_acc");
 //  costs_.AddCost(std::make_shared<RangeOfMotionCost>(opt_variables_), "cost_rom");
@@ -87,8 +87,8 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("final")).Init(eq_final.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
   dynamic_cast<ZmpConstraint&>(constraints_.GetConstraint("zmp")).Init(spline_structure, supp_polygon_container, interpreter_ptr->GetRobotHeight());
-//  dynamic_cast<RangeOfMotionConstraint&>(constraints_.GetConstraint("rom")).Init(spline_structure, supp_polygon_container);
-  dynamic_cast<JointAnglesConstraint&>(constraints_.GetConstraint("joint_angles")).Init(*interpreter_ptr, &hyq_inv_kin);
+  dynamic_cast<RangeOfMotionConstraint&>(constraints_.GetConstraint("rom")).Init(spline_structure, supp_polygon_container);
+//  dynamic_cast<JointAnglesConstraint&>(constraints_.GetConstraint("joint_angles")).Init(*interpreter_ptr, &hyq_inv_kin);
   constraints_.Refresh();
 
   // costs

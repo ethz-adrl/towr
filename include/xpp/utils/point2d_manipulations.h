@@ -34,7 +34,8 @@ public:
     LineCoeff2d ret;
     ret.p = pt0.y() - pt1.y();
     ret.q = pt1.x() - pt0.x();
-    ret.r = -ret.p * pt0.x() - ret.q * pt0.y(); //pt0.x()*pt1.y() - pt1.x()*pt0.y();
+//    ret.r = -ret.p * pt0.x() - ret.q * pt0.y();
+    ret.r = pt0.x()*pt1.y() - pt1.x()*pt0.y();
 
     // normalize the equation in order to intuitively use stability margins
     if (normalize) {

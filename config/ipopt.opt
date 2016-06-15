@@ -6,8 +6,8 @@
 # app.Options()->SetNumericValue("tol", 1e-2);
 
 
-linear_solver ma27
-#linear_solver ma57
+#linear_solver ma27
+linear_solver ma57
 #linear_solver ma77
 #uplinear_solver ma86
 #linear_solver ma97
@@ -22,7 +22,7 @@ tol 1e-2
 #dual_inf_tol 1e-1
 #constr_viol_tol 1e-4
 #compl_inf_tol 1e-4
-max_cpu_time 2.30 #0.3 was perfect for running the zmp walk
+max_cpu_time 0.3 #0.3 was perfect for running the zmp walk
 #max_iter 20
 #bound_frac 0.5
 

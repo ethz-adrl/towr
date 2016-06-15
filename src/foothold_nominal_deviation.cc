@@ -23,6 +23,7 @@ FootholdNominalDeviation::DistanceToNominalStance (
   const double x_nominal_b = 0.3; // 0.4
   const double y_nominal_b = 0.3; // 0.4
 
+  // this nominal position should be calculated through forward kinematics with nominal joint angles
   xpp::hyq::LegDataMap<Eigen::Vector2d> B_r_BaseToNominal;
   B_r_BaseToNominal[hyq::LF] <<  x_nominal_b,  y_nominal_b;
   B_r_BaseToNominal[hyq::RF] <<  x_nominal_b, -y_nominal_b;

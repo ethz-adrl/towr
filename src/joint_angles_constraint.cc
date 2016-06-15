@@ -62,14 +62,15 @@ JointAnglesConstraint::EvaluateConstraint() const
     for (const Foothold& f : stance_b) {
 
       JointAngles q;
-      try {
+//      try {
         q = inv_kin_->GetJointAngles(f.p, f.leg);
-      } catch (const std::runtime_error& e) {
-        // no joint angles can produce desired endeffector position
-        // ensure that it matches the size of constraint bounds to not mess up alignment
-        // todo make up some joint angles that violate constraint
-        q = 500/*random number*/*inv_kin_->GetLowerJointLimits(f.leg);
-      }
+//      } catch (const std::runtime_error& e) {
+//        // no joint angles can produce desired endeffector position
+//        // ensure that it matches the size of constraint bounds to not mess up alignment
+//        // todo make up some joint angles that violate constraint
+//        std::cout << "violation for foothold: " << f << std::endl;
+//        q = 500/*random number*/*inv_kin_->GetLowerJointLimits(f.leg);
+//      }
 
       for (int i=0; i<q.rows(); ++i) {
         g_vec.push_back(q[i]);
