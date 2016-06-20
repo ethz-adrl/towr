@@ -157,7 +157,7 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
 SupportPolygonContainer::VecVecSuppLine
 SupportPolygonContainer::GetActiveConstraintsForEachStep(const VecZmpSpline& splines) const
 {
-  std::vector<SupportPolygon> supp = CreateSupportPolygonsWith4LS(splines);
+  VecSupportPolygon supp = CreateSupportPolygonsWith4LS(splines);
 
   std::vector<SupportPolygon::VecSuppLine> supp_lines;
   for (uint s=0; s<splines.size(); ++s) {

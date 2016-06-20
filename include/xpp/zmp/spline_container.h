@@ -17,8 +17,6 @@
 #include <xpp/zmp/zmp_spline.h>
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/leg_data_map.h>
-
-
 #include <vector>
 
 namespace xpp {
@@ -52,13 +50,11 @@ struct SplineTimes
 };
 
 
-/**
-@class SplineContainer
-@brief holds multiple splines and knows when these are active in the sequence.
-
-Should have no explicit foothold locations or discretization time. Only the framework
-of splines, where the actual coefficients must be filled through an optimization.
-*/
+/** @brief holds multiple splines and knows when these are active in the sequence.
+  *
+  * Should have no explicit foothold locations or discretization time. Only the framework
+  * of splines, where the actual coefficients must be filled through an optimization.
+  */
 class SplineContainer {
 public:
   typedef std::vector<ZmpSpline> VecSpline;
@@ -76,6 +72,16 @@ public:
 public:
   static VecSpline ConstructSplineSequence(const VecLegID& step_sequence,
                                            const SplineTimes&);
+
+  //////////////////////////////////////////////////////////
+  // implement these
+  static VecSpline ConstructSplineStepSequence(const VecLegID& step_sequence,
+                                               const SplineTimes&);
+  // these should be private
+  static ZmpSpline ConstructStanceSpline(double t_stance);
+  static ZmpSpline ConstructStepSpline(double t_step);
+  //////////////////////////////////////////////////////////
+
 
   VecSpline GetSplines()        const { return splines_; }
   ZmpSpline GetSpline(size_t i) const { return splines_.at(i); }

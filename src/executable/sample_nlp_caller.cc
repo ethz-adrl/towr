@@ -10,7 +10,7 @@
 #include <xpp_opt/RequiredInfoNlp.h>         // send
 #include <xpp_opt/OptimizedParametersNlp.h> // receive
 
-#include "../../include/xpp/ros/marker_array_builder.h"
+#include <xpp/ros/marker_array_builder.h>
 
 
 typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;

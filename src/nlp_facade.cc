@@ -43,7 +43,7 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
 //  constraints_.AddConstraint(std::make_shared<JointAnglesConstraint>(opt_variables_), "joint_angles");
 
   costs_.AddCost(std::make_shared<AQuadraticCost>(opt_variables_), "cost_acc");
-//  costs_.AddCost(std::make_shared<RangeOfMotionCost>(opt_variables_), "cost_rom");
+  costs_.AddCost(std::make_shared<RangeOfMotionCost>(opt_variables_), "cost_rom");
 
   // initialize the ipopt solver
   ipopt_solver_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
@@ -94,7 +94,7 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   // costs
   TotalAccelerationEquation eq_total_acc(spline_structure);
   dynamic_cast<AQuadraticCost&>(costs_.GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
-//  dynamic_cast<RangeOfMotionCost&>(costs_.GetCost("cost_rom")).Init(spline_structure, supp_polygon_container);
+  dynamic_cast<RangeOfMotionCost&>(costs_.GetCost("cost_rom")).Init(spline_structure, supp_polygon_container);
 
   // todo create complete class out of these input arguments
   IpoptPtr nlp_ptr = new Ipopt::IpoptAdapter(opt_variables_,

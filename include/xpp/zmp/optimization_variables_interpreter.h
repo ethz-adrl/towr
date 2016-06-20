@@ -14,6 +14,11 @@
 namespace xpp {
 namespace zmp {
 
+/** @brief Holds the context information of the optimization variables.
+  *
+  * Holds information that helps to interpret, what the values in the optimization
+  * variables vector represent. These are usually initial conditions.
+  */
 class OptimizationVariablesInterpreter {
 public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
