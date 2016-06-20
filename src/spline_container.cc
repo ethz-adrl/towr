@@ -34,8 +34,14 @@ SplineContainer::SplineContainer(const VecLegID& step_sequence,
 void SplineContainer::Init(const std::vector<xpp::hyq::LegID>& step_sequence,
                            const SplineTimes& times)
 {
-  splines_ = ConstructSplineSequence(step_sequence, times);
+
+  // fixme, hack!
+  static bool add_initial_stance = true;
+
+  splines_ = ConstructSplineSequence(step_sequence, times, add_initial_stance);
   splines_initialized_ = true;
+
+  add_initial_stance = false;
 }
 
 
@@ -43,20 +49,24 @@ void SplineContainer::Init(const std::vector<xpp::hyq::LegID>& step_sequence,
 // fixme this function is definetly doing more than one thing -> split up
 SplineContainer::VecSpline
 SplineContainer::ConstructSplineSequence(const std::vector<LegID>& step_sequence,
-                                         const SplineTimes& times)
+                                         const SplineTimes& times,
+                                         bool add_initial_stance)
 {
   VecSpline splines;
   int step = 0;
   unsigned int id = 0; // unique identifiers for each spline
 
-  const double t_init_max = 0.4; //s
-  int n_init_splines = std::ceil(times.t_stance_initial_/t_init_max);
 
-  double t_init_spline = times.t_stance_initial_/n_init_splines;
+  if (add_initial_stance) {
+    const double t_init_max = 0.4; //s
+    int n_init_splines = std::ceil(times.t_stance_initial_/t_init_max);
 
-  for (int i=0; i<n_init_splines; ++i)
-    splines.push_back(ZmpSpline(id++, t_init_spline, Initial4lsSpline, step));
+    double t_init_spline = times.t_stance_initial_/n_init_splines;
 
+    for (int i=0; i<n_init_splines; ++i)
+      splines.push_back(ZmpSpline(id++, t_init_spline, Initial4lsSpline, step));
+
+  }
 
   // just body shift
   if (step_sequence.size() == 0)
@@ -103,11 +113,11 @@ SplineContainer::ConstructSplineSequenceBare (const VecLegID& step_sequence,
   {
     step++;
 
-    // 1. insert 4ls-phase when switching between disjoint support triangles
-    xpp::hyq::LegID swing_leg = step_sequence[i];
-    xpp::hyq::LegID swing_leg_prev = step_sequence[i-1];
-    if (xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg_prev, swing_leg))
-      splines.push_back(ZmpSpline(id++, times.t_stance_, Intermediate4lsSpline, step));
+//    // 1. insert 4ls-phase when switching between disjoint support triangles
+//    xpp::hyq::LegID swing_leg = step_sequence[i];
+//    xpp::hyq::LegID swing_leg_prev = step_sequence[i-1];
+//    if (xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg_prev, swing_leg))
+//      splines.push_back(ZmpSpline(id++, times.t_stance_, Intermediate4lsSpline, step));
 
     // insert swing phase splines
     splines.push_back(ZmpSpline(id++, times.t_swing_, StepSpline, step));
@@ -144,7 +154,7 @@ int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
 std::vector<double>
 SplineContainer::GetDiscretizedGlobalTimes(const VecSpline& splines)
 {
-  static constexpr double dt = 0.2; //discretization time [seconds]: needed for creating support triangle inequality constraints
+  static constexpr double dt = 0.1; //discretization time [seconds]: needed for creating support triangle inequality constraints
 
   std::vector<double> vec;
   double t = 0.0;

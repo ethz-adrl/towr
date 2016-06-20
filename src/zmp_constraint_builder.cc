@@ -57,31 +57,34 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
     // check if this spline needs a four leg support phase to go to next spline.
     // if yes, insert half of this at end of spline, and the other half at beginning
     // of next spline (skips constraints).
-    if (id > 2 && id < spline_structure_.GetLastSpline().GetId()) { // not initial 4ls spline
+    if (id < spline_structure_.GetLastSpline().GetId()) { // not initial 4ls spline
       int step = spline_structure_.GetSpline(id).GetCurrStep();
 
       double t_stance = 0.2; // this should replace the ros param "stance_time"
 
-      xpp::hyq::LegID prev_swing_leg = supp_polygon_container.GetLegID(step-1);
       xpp::hyq::LegID swing_leg = supp_polygon_container.GetLegID(step);
-      xpp::hyq::LegID next_swing_leg = supp_polygon_container.GetLegID(step+1);
-
-      // check if spline junction switches between disjoint support polygons
-      bool insert_stance_at_end = xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg, next_swing_leg);
-      bool insert_stance_at_front = xpp::hyq::SupportPolygonContainer::Insert4LSPhase(prev_swing_leg, swing_leg);
-
-
-      double t_start_local = spline_structure_.GetSpline(id).GetDuration() - t_stance/2;
       double t_local = spline_structure_.GetLocalTime(t_global);
-      if (insert_stance_at_end && t_local > t_start_local) {
-        n++;
-        continue; // don't add constraint
+
+
+
+      if (step > 0) {
+        xpp::hyq::LegID prev_swing_leg = supp_polygon_container.GetLegID(step-1);
+        bool insert_stance_at_front = xpp::hyq::SupportPolygonContainer::Insert4LSPhase(prev_swing_leg, swing_leg);
+        if (insert_stance_at_front && t_local < t_stance/2.) {
+          n++; continue; // don't add constraint
+        }
       }
 
-      if (insert_stance_at_front && t_local < t_stance/2.) {
-        n++;
-        continue; // don't add constraint
+
+      xpp::hyq::LegID next_swing_leg = supp_polygon_container.GetLegID(step+1);
+      double t_start_local = spline_structure_.GetSpline(id).GetDuration() - t_stance/2;
+      bool insert_stance_at_end = xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg, next_swing_leg);
+      if (insert_stance_at_end && t_local > t_start_local) {
+        n++; continue; // don't add constraint
       }
+
+
+
     }
 
 

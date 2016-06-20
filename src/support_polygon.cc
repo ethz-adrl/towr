@@ -103,7 +103,7 @@ MarginValues SupportPolygon::GetDefaultMargins()
   default_margins[FRONT] = 0.10;
   default_margins[HIND]  = 0.10;
   default_margins[SIDE]  = 0.10;
-  default_margins[DIAG]  = 0.08; // controls sidesway motion
+  default_margins[DIAG]  = 0.06; // controls sidesway motion
 
   return default_margins;
 }

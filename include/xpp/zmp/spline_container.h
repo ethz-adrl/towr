@@ -71,7 +71,8 @@ public:
 
 public:
   static VecSpline ConstructSplineSequence(const VecLegID& step_sequence,
-                                           const SplineTimes&);
+                                           const SplineTimes&,
+                                           bool add_initial_stance = true);
   /** No 4ls phase at beginning or end.
     *
     * @param step_sequence
