@@ -111,6 +111,6 @@ std::ostream& operator<<(std::ostream& out, const ZmpSpline& s)
   return out;
 }
 
-
 } // namespace zmp
 } // namespace xpp
+

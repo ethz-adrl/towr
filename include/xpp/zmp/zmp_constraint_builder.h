@@ -45,7 +45,8 @@ public:
    * @param s the support polygons from step sequence and location.
    * @return MatrixVectorType m where each set of four rows represents an
    * inequality constraint (m.M*x + m.v > 0) at that discrete time and for that
-   * specific support polygon.
+   * specific support polygon. This constraint is evaluated by multiplying with
+   * the spline coefficients x.
    */
   MatVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
 

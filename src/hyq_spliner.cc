@@ -200,7 +200,7 @@ int HyqSpliner::GetSplineID(double t_global) const
   for (uint n=1; n<nodes_.size(); ++n) {
     t += nodes_.at(n).T;
 
-    if (t >= t_global)
+    if (t >= t_global - 1e-4) // so at "equal", previous spline is returned
       return n-1; // since first spline connects node 0 and 1
   }
   assert(false); // this should never be reached

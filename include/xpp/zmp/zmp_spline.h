@@ -138,6 +138,17 @@ private:
 
 };
 
+class SupportSpline : public ZmpSpline {
+public:
+//  typedef xpp::hyq::SupportPolygon SupportPolygon;
+
+  SupportSpline() {};
+  virtual ~SupportSpline() {};
+
+private:
+//  SupportPolygon support_polygon_;
+};
+
 
 } // namespace zmp
 } // namespace xpp

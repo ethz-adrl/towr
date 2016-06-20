@@ -68,11 +68,11 @@ SplineContainer::ConstructSplineSequence(const std::vector<LegID>& step_sequence
   {
     step++;
 
-    // 1. insert 4ls-phase when switching between disjoint support triangles
-    xpp::hyq::LegID swing_leg = step_sequence[i];
-    xpp::hyq::LegID swing_leg_prev = step_sequence[i-1];
-    if (xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg_prev, swing_leg))
-      splines.push_back(ZmpSpline(id++, times.t_stance_, Intermediate4lsSpline, step));
+//    // 1. insert 4ls-phase when switching between disjoint support triangles
+//    xpp::hyq::LegID swing_leg = step_sequence[i];
+//    xpp::hyq::LegID swing_leg_prev = step_sequence[i-1];
+//    if (xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg_prev, swing_leg))
+//      splines.push_back(ZmpSpline(id++, times.t_stance_, Intermediate4lsSpline, step));
 
     // insert swing phase splines
     splines.push_back(ZmpSpline(id++, times.t_swing_, StepSpline, step));
@@ -86,6 +86,32 @@ SplineContainer::ConstructSplineSequence(const std::vector<LegID>& step_sequence
   const uint NO_NEXT_STEP = std::numeric_limits<uint>::max();
   for (int i=0; i<n_final_splines; ++i)
     splines.push_back(ZmpSpline(id++, times.t_stance_final_/n_final_splines, Final4lsSpline, NO_NEXT_STEP));
+
+  return splines;
+}
+
+SplineContainer::VecSpline
+SplineContainer::ConstructSplineSequenceBare (const VecLegID& step_sequence,
+                                              const SplineTimes& times)
+{
+  VecSpline splines;
+  int step = 0;
+  unsigned int id = 0; // unique identifiers for each spline
+
+  splines.push_back(ZmpSpline(id++, times.t_swing_, StepSpline, step));
+  for (int i=1; i<step_sequence.size(); ++i)
+  {
+    step++;
+
+    // 1. insert 4ls-phase when switching between disjoint support triangles
+    xpp::hyq::LegID swing_leg = step_sequence[i];
+    xpp::hyq::LegID swing_leg_prev = step_sequence[i-1];
+    if (xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg_prev, swing_leg))
+      splines.push_back(ZmpSpline(id++, times.t_stance_, Intermediate4lsSpline, step));
+
+    // insert swing phase splines
+    splines.push_back(ZmpSpline(id++, times.t_swing_, StepSpline, step));
+  }
 
   return splines;
 }
@@ -165,7 +191,6 @@ SplineContainer::GetCOGxy(double t_global, const VecSpline& splines)
 
   return cog_xy;
 }
-
 
 void
 SplineContainer::CheckIfSplinesInitialized() const

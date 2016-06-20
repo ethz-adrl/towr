@@ -49,15 +49,38 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
   int c = 0; // inequality constraint counter
   for (double t_global : spline_structure_.GetDiscretizedGlobalTimes())
   {
-    int spline = spline_structure_.GetSplineID(t_global);
-    GenerateNodeConstraint(supp_lines.at(spline), x_zmp.GetRow(n), y_zmp.GetRow(n), c, ineq);
+    int id = spline_structure_.GetSplineID(t_global);
+
+
+
+
+    // check if this spline needs a four leg support phase to go to next spline
+    // skip constraint then
+    if (id > 2 && id < spline_structure_.GetLastSpline().GetId()) { // not initial 4ls spline
+      int step = spline_structure_.GetSpline(id).GetCurrStep();
+      xpp::hyq::LegID swing_leg = supp_polygon_container.GetLegID(step);
+      xpp::hyq::LegID swing_leg_prev = supp_polygon_container.GetLegID(step-1);
+
+      bool insert_stance = xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg_prev, swing_leg);
+      double t_stance = 0.2; // this should replace the ros param "stance_time"
+      if (insert_stance && spline_structure_.GetLocalTime(t_global) < t_stance) {
+        n++;
+        continue; // don't add constraint
+      }
+    }
+
+
+
+
+
+    GenerateNodeConstraint(supp_lines.at(id), x_zmp.GetRow(n), y_zmp.GetRow(n), c, ineq);
 
     n++;
     c += SupportPolygon::kMaxSides;
   }
 
   assert(c <= max_num_constraints);
-  assert((n == x_zmp.M.rows()) && (n == y_zmp.M.rows()));
+//  assert((n == x_zmp.M.rows()) && (n == y_zmp.M.rows())); // don't need constraint for every node
   return ineq;
 }
 

@@ -72,14 +72,21 @@ public:
 public:
   static VecSpline ConstructSplineSequence(const VecLegID& step_sequence,
                                            const SplineTimes&);
-
-  //////////////////////////////////////////////////////////
-  // implement these
-  static VecSpline ConstructSplineStepSequence(const VecLegID& step_sequence,
+  /** No 4ls phase at beginning or end.
+    *
+    * @param step_sequence
+    * @param
+    * @return
+    */
+  static VecSpline ConstructSplineSequenceBare(const VecLegID& step_sequence,
                                                const SplineTimes&);
-  // these should be private
-  static ZmpSpline ConstructStanceSpline(double t_stance);
-  static ZmpSpline ConstructStepSpline(double t_step);
+  //////////////////////////////////////////////////////////
+//  // implement these
+//  static VecSpline ConstructSplineStepSequence(const VecLegID& step_sequence,
+//                                               const SplineTimes&);
+//  // these should be private
+//  static ZmpSpline ConstructStanceSpline(double t_stance);
+//  static ZmpSpline ConstructStepSpline(double t_step);
   //////////////////////////////////////////////////////////
 
 
