@@ -79,13 +79,13 @@ SplineContainer::ConstructSplineSequence(const std::vector<LegID>& step_sequence
   }
 
 
-  const double t_final_max = 0.4; //s
-  int n_final_splines = std::ceil(times.t_stance_final_/t_final_max);
-
-  // always have last 4ls spline for robot to move into center of feet
-  const uint NO_NEXT_STEP = std::numeric_limits<uint>::max();
-  for (int i=0; i<n_final_splines; ++i)
-    splines.push_back(ZmpSpline(id++, times.t_stance_final_/n_final_splines, Final4lsSpline, NO_NEXT_STEP));
+//  const double t_final_max = 0.4; //s
+//  int n_final_splines = std::ceil(times.t_stance_final_/t_final_max);
+//
+//  // always have last 4ls spline for robot to move into center of feet
+//  const uint NO_NEXT_STEP = std::numeric_limits<uint>::max();
+//  for (int i=0; i<n_final_splines; ++i)
+//    splines.push_back(ZmpSpline(id++, times.t_stance_final_/n_final_splines, Final4lsSpline, NO_NEXT_STEP));
 
   return splines;
 }
