@@ -175,26 +175,26 @@ SupportPolygonContainer::AssignSupportPolygonsToSplines(const VecZmpSpline& spli
   // support polygons during steps
   VecSupportPolygon supp_steps = GetSupportPolygons();
 
+  int prev_step = -1;
+
   VecSupportPolygon supp;
   for (const ZmpSpline& s : splines)
   {
     SupportPolygon curr_supp;
-    switch (s.GetType()) {
-      // fixme: this only allows one initial and final spline
-      case StanceSpline: {
-        if (s.GetId() == 0)
-          curr_supp = GetStartPolygon();
-        if (s.GetId() == splines.back().GetId())
-          curr_supp = GetFinalPolygon();
-        break;
+
+    if (!s.IsFourLegSupport()) {
+      curr_supp = supp_steps.at(s.GetCurrStep());
+      prev_step = s.GetCurrStep();
+    } else {
+      if (prev_step == -1)
+        curr_supp = GetStartPolygon();
+      else if (prev_step == GetNumberOfSteps()-1)
+        curr_supp = GetFinalPolygon();
+      else { // for intermediate splines
+        int next_step = prev_step+1;
+        curr_supp = SupportPolygon::CombineSupportPolygons(supp_steps.at(prev_step),
+                                                           supp_steps.at(next_step));
       }
-      case StepSpline: {
-        curr_supp = supp_steps.at(s.GetCurrStep());
-        break;
-      }
-      default:
-        std::cerr << "CreateSuppPolygonswith4ls: Could not categorize spline";
-        break;
     }
 
     supp.push_back(curr_supp);

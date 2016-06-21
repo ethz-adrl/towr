@@ -110,20 +110,18 @@ class ZmpSpline : public Spline {
 
 public:
   ZmpSpline();
-  ZmpSpline(uint id, double duration, ZmpSplineType, uint step);
+  ZmpSpline(uint id, double duration, ZmpSplineType);
   virtual ~ZmpSpline() {};
 
   uint GetId()            const { return id_; };
   double GetDuration()    const { return duration_; }
-  ZmpSplineType GetType() const { return type_; }
+//  ZmpSplineType GetType() const { return type_; }
+
+  void SetStep(int step) {step_ = step; };
 
   /** Only if spline is a "StepSpline" is a step currently being executed.
   If this fails, call "GetPlannedStep", because currently in four-leg-support */
   uint GetCurrStep() const;
-
-  /** Only if spline is currently a four-leg support spline.
-   *  The next step is the step planned to execute after the 4ls-phase is complete */
-  uint GetNextPlannedStep() const;
 
   bool IsFourLegSupport() const { return type_ == StanceSpline; }
 
@@ -131,7 +129,7 @@ private:
   uint id_; // to identify the order relative to other zmp splines
   double duration_; // time during which this spline is active
   ZmpSplineType type_;
-  int curr_or_planned_; // current step if step spline, otherwise planned next step
+  int step_; // current step
 
   friend struct xpp::ros::RosHelpers;
   friend std::ostream& operator<<(std::ostream& out, const ZmpSpline& tr);

@@ -73,15 +73,14 @@ void Spline::SetSplineCoefficients(const CoeffValues &coeff_values)
 
 
 ZmpSpline::ZmpSpline()
-    : id_(0), duration_(0.0), type_(StepSpline), curr_or_planned_(0)
+    : id_(0), duration_(0.0), type_(StanceSpline), step_(-1)
 {
   SetSplineCoefficients();
 }
 
 
-ZmpSpline::ZmpSpline(uint id, double duration,
-                     ZmpSplineType type, uint step)
-    : id_(id), duration_(duration), type_(type), curr_or_planned_(step)
+ZmpSpline::ZmpSpline(uint id, double duration, ZmpSplineType type)
+    : id_(id), duration_(duration), type_(type), step_(-1)
 {
   SetSplineCoefficients();
 }
@@ -90,14 +89,7 @@ ZmpSpline::ZmpSpline(uint id, double duration,
 uint ZmpSpline::GetCurrStep() const
 {
   assert(!IsFourLegSupport());
-  return curr_or_planned_;
-}
-
-
-uint ZmpSpline::GetNextPlannedStep() const
-{
-  assert(type_==StanceSpline);
-  return curr_or_planned_;
+  return step_;
 }
 
 
@@ -106,7 +98,6 @@ std::ostream& operator<<(std::ostream& out, const ZmpSpline& s)
   out << "Spline: id= "   << s.id_                << ":\t"
       << "duration="      << s.duration_          << "\t"
       << "four_leg_supp=" << s.IsFourLegSupport() << "\t"
-      << "step="          << s.curr_or_planned_              << "\t"
       << "type="          << s.type_ << " (Initial=0, Step=1, Intermediate4ls=2, Final=3) \n ";
   return out;
 }

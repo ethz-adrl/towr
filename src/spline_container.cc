@@ -112,15 +112,18 @@ SplineContainer::AddSplinesStepSequence (int step_count, double t_swing,
 {
   unsigned int id = splines.size()==0 ? 0 : splines.back().GetId()+1;
 
-  for (int step=0; step<step_count; ++step)
-    splines.push_back(ZmpSpline(id++, t_swing, StepSpline, step));
+  for (int step=0; step<step_count; ++step) {
+    ZmpSpline spline(id++, t_swing, StepSpline);
+    spline.SetStep(step);
+    splines.push_back(spline);
+  }
 }
 
 void
 SplineContainer::AddStanceSpline (double t_stance, VecSpline& splines)
 {
   unsigned int id = splines.size()==0 ? 0 : splines.back().GetId()+1;
-  splines.push_back(ZmpSpline(id++, t_stance, StanceSpline, -1));
+  splines.push_back(ZmpSpline(id++, t_stance, StanceSpline));
 }
 
 

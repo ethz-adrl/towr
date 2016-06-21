@@ -47,6 +47,7 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
+
   for (double t_global : spline_structure_.GetDiscretizedGlobalTimes()) {
     int id = spline_structure_.GetSplineID(t_global);
 
@@ -98,7 +99,7 @@ bool
 ZmpConstraintBuilder::DisjSuppSwitch (double t, const ZmpSpline& curr_spline,
                                       const SupportPolygonContainer& supp_polygon_container) const
 {
-  if (curr_spline.GetType() == StepSpline) {
+  if (!curr_spline.IsFourLegSupport()) {
 
     int step = curr_spline.GetCurrStep();
     double t_local = spline_structure_.GetLocalTime(t);
