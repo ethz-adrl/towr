@@ -5,3 +5,4 @@
 StateLin3d curr_state
 Foothold[] curr_stance
 int32 curr_swingleg 
+bool start_with_com_shift     #whether to first shift cog before lifting leg

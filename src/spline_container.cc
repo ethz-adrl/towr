@@ -7,123 +7,31 @@
  */
 
 #include <xpp/zmp/spline_container.h>
-#include <xpp/hyq/support_polygon_container.h>
-
-#include <boost/range/adaptor/reversed.hpp> // boost::adaptors::reverse
-#include <cmath>
-#include <iostream>
-#include <iomanip>      // std::setprecision
-#include <cassert>
 
 namespace xpp {
 namespace zmp {
 
-SplineContainer::SplineContainer(const VecSpline& splines)
-    :splines_(splines),
-     splines_initialized_(true)
-{}
-
-
-SplineContainer::SplineContainer(int step_count, const SplineTimes& times)
-{
-  Init(step_count, times);
-}
-
-void SplineContainer::Init(int step_count, const SplineTimes& times)
-{
-  // fixme, hack!
-  static bool add_initial_stance = true;
-
-
-  if (add_initial_stance)
-    AddStanceSpline(times.t_stance_initial_, splines_);
-
-
-  AddSplinesStepSequence(step_count, times.t_swing_, splines_);
-
-  AddStanceSpline(times.t_stance_final_, splines_);
-
-
-//  splines_ = ConstructSplineSequence(step_sequence, times, add_initial_stance);
-  splines_initialized_ = true;
-
-  add_initial_stance = false;
-}
-
-
-//// Creates a sequence of Splines without the optimized coefficients
-//// fixme this function is definetly doing more than one thing -> split up
-//SplineContainer::VecSpline
-//SplineContainer::ConstructSplineSequence(const std::vector<LegID>& step_sequence,
-//                                         const SplineTimes& times,
-//                                         bool add_initial_stance)
-//{
-//  VecSpline splines;
-//  int step = 0;
-//  unsigned int id = 0; // unique identifiers for each spline
-//
-//
-//  if (add_initial_stance) {
-//    const double t_init_max = 0.4; //s
-//    int n_init_splines = std::ceil(times.t_stance_initial_/t_init_max);
-//
-//    double t_init_spline = times.t_stance_initial_/n_init_splines;
-//
-//    for (int i=0; i<n_init_splines; ++i)
-//      splines.push_back(ZmpSpline(id++, t_init_spline, Initial4lsSpline, step));
-//
-//  }
-//
-//  // just body shift
-//  if (step_sequence.size() == 0)
-//    return splines;
-//
-//
-//  splines.push_back(ZmpSpline(id++, times.t_swing_, StepSpline, step));
-//  for (int i=1; i<step_sequence.size(); ++i)
-//  {
-//    step++;
-//
-////    // 1. insert 4ls-phase when switching between disjoint support triangles
-////    xpp::hyq::LegID swing_leg = step_sequence[i];
-////    xpp::hyq::LegID swing_leg_prev = step_sequence[i-1];
-////    if (xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg_prev, swing_leg))
-////      splines.push_back(ZmpSpline(id++, times.t_stance_, Intermediate4lsSpline, step));
-//
-//    // insert swing phase splines
-//    splines.push_back(ZmpSpline(id++, times.t_swing_, StepSpline, step));
-//  }
-//
-//
-////  const double t_final_max = 0.4; //s
-////  int n_final_splines = std::ceil(times.t_stance_final_/t_final_max);
-////
-////  // always have last 4ls spline for robot to move into center of feet
-////  const uint NO_NEXT_STEP = std::numeric_limits<uint>::max();
-////  for (int i=0; i<n_final_splines; ++i)
-////    splines.push_back(ZmpSpline(id++, times.t_stance_final_/n_final_splines, Final4lsSpline, NO_NEXT_STEP));
-//
-//  return splines;
-//}
-
 void
-SplineContainer::AddSplinesStepSequence (int step_count, double t_swing,
-                                        VecSpline& splines)
+SplineContainer::AddSplinesStepSequence (int step_count, double t_swing)
 {
-  unsigned int id = splines.size()==0 ? 0 : splines.back().GetId()+1;
+  unsigned int id = splines_.size()==0 ? 0 : splines_.back().GetId()+1;
 
   for (int step=0; step<step_count; ++step) {
     ZmpSpline spline(id++, t_swing, StepSpline);
     spline.SetStep(step);
-    splines.push_back(spline);
+    splines_.push_back(spline);
   }
+
+  splines_initialized_ = true;
 }
 
 void
-SplineContainer::AddStanceSpline (double t_stance, VecSpline& splines)
+SplineContainer::AddStanceSpline (double t_stance)
 {
-  unsigned int id = splines.size()==0 ? 0 : splines.back().GetId()+1;
-  splines.push_back(ZmpSpline(id++, t_stance, StanceSpline));
+  unsigned int id = splines_.size()==0 ? 0 : splines_.back().GetId()+1;
+  splines_.push_back(ZmpSpline(id++, t_stance, StanceSpline));
+
+  splines_initialized_ = true;
 }
 
 

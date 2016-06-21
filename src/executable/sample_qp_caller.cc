@@ -61,6 +61,8 @@ int main(int argc, char **argv)
   msg.steps.push_back(RosHelpers::XppToRos(Foothold(-0.35 + step_length, -0.3, 0.0, RH)));
   msg.steps.push_back(RosHelpers::XppToRos(Foothold( 0.35 + step_length, -0.3, 0.0, RF)));
 
+  msg.start_with_com_shift = true;
+
   current_info_pub.publish(msg);
 
 

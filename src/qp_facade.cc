@@ -28,14 +28,16 @@ namespace zmp {
 
 QpFacade::VecSpline
 QpFacade::SolveQp(const State& initial_state,
-                     const State& final_state,
-                     const VecFoothold& start_stance,
-                     const VecFoothold& steps,
-                     const SplineTimes& times,
-                     double robot_height)
+                  const State& final_state,
+                  const VecFoothold& start_stance,
+                  const VecFoothold& steps,
+                  const SplineTimes& times,
+                  bool start_with_com_shift,
+                  double robot_height)
 {
   ContinuousSplineContainer spline_structure;
-  spline_structure.Init(initial_state.p, initial_state.v ,steps.size(), times);
+  spline_structure.Init(initial_state.p, initial_state.v , steps.size(), times,
+                        start_with_com_shift, true);
 
 
   TotalAccelerationEquation total_acc_eq(spline_structure);

@@ -106,8 +106,8 @@ protected:
        active in creating the spline for the CoG movement.
 */
 enum ZmpSplineType {StanceSpline=0, StepSpline};
-class ZmpSpline : public Spline {
-
+class ZmpSpline : public Spline
+{
 public:
   ZmpSpline();
   ZmpSpline(uint id, double duration, ZmpSplineType);
@@ -115,12 +115,9 @@ public:
 
   uint GetId()            const { return id_; };
   double GetDuration()    const { return duration_; }
-//  ZmpSplineType GetType() const { return type_; }
-
   void SetStep(int step) {step_ = step; };
 
-  /** Only if spline is a "StepSpline" is a step currently being executed.
-  If this fails, call "GetPlannedStep", because currently in four-leg-support */
+  /** Only if spline is a "StepSpline" is a step currently being executed. */
   uint GetCurrStep() const;
 
   bool IsFourLegSupport() const { return type_ == StanceSpline; }
@@ -133,19 +130,7 @@ private:
 
   friend struct xpp::ros::RosHelpers;
   friend std::ostream& operator<<(std::ostream& out, const ZmpSpline& tr);
-
 };
-
-//class SupportSpline : public ZmpSpline {
-//public:
-////  typedef xpp::hyq::SupportPolygon SupportPolygon;
-//
-//  SupportSpline() {};
-//  virtual ~SupportSpline() {};
-//
-//private:
-////  SupportPolygon support_polygon_;
-//};
 
 
 } // namespace zmp

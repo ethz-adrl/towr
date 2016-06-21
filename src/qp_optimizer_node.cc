@@ -6,8 +6,7 @@
  */
 
 #include <xpp/ros/ros_helpers.h>
-#include "../include/xpp/ros/qp_facade_node.h"
-
+#include <xpp/ros/qp_facade_node.h>
 
 namespace xpp {
 namespace ros {
@@ -21,7 +20,6 @@ QpOptimizerNode::QpOptimizerNode ()
   opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_qp", 1);
 }
 
-
 void
 QpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
 {
@@ -31,15 +29,14 @@ QpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
   PublishOptimizedValues();
 }
 
-
 void
 QpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
 {
   curr_cog_    = RosHelpers::RosToXpp(msg.curr_state);
   curr_stance_ = RosHelpers::RosToXpp(msg.curr_stance);
   footholds_   = RosHelpers::RosToXpp(msg.steps);
+  start_with_com_shift_ = msg.start_with_com_shift;
 }
-
 
 void
 QpOptimizerNode::PublishOptimizedValues() const
@@ -49,7 +46,6 @@ QpOptimizerNode::PublishOptimizedValues() const
   opt_params_pub_.publish(msg_out);
 }
 
-
 void
 QpOptimizerNode::OptimizeTrajectory()
 {
@@ -58,12 +54,9 @@ QpOptimizerNode::OptimizeTrajectory()
                                        curr_stance_,
                                        footholds_,
                                        spline_times_,
+                                       start_with_com_shift_,
                                        robot_height_);
 }
-
-
-
-
 
 } /* namespace ros */
 } /* namespace xpp */

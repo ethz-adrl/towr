@@ -62,11 +62,7 @@ public:
 
 public:
   SplineContainer() {};
-  SplineContainer(const VecSpline& splines);
-  SplineContainer(int step_count, const SplineTimes&);
   virtual ~SplineContainer() {};
-
-public:
 
   VecSpline GetSplines()        const { return splines_; }
   ZmpSpline GetSpline(size_t i) const { return splines_.at(i); }
@@ -109,19 +105,14 @@ public:
 
   int GetTotalNodes() const { return GetDiscretizedGlobalTimes().size(); };
 
+
 protected:
   VecSpline splines_;
   void CheckIfSplinesInitialized() const;
-  void Init(int step_count, const SplineTimes&);
+  void AddSplinesStepSequence(int step_count, double t_swing);
+  void AddStanceSpline(double t_stance);
 
 private:
-//  static VecSpline ConstructSplineSequence(const VecLegID& step_sequence,
-//                                           const SplineTimes&,
-//                                           bool add_initial_stance = true);
-
-  static void AddSplinesStepSequence(int step_count, double t_swing, VecSpline& splines);
-  static void AddStanceSpline(double t_stance, VecSpline& splines);
-
   bool splines_initialized_ = false;
   static constexpr double eps_ = 1e-10; // maximum inaccuracy when adding double numbers
 

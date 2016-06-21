@@ -31,11 +31,9 @@ public:
   OptimizationVariablesInterpreter ();
   virtual ~OptimizationVariablesInterpreter ();
 
-  void Init(const Vector2d& start_cog_p,
-            const Vector2d& start_cog_v,
+  void Init(const ContinuousSplineContainer& splines,
             const std::vector<xpp::hyq::LegID>& step_sequence,
             const VecFoothold& start_stance,
-            const SplineTimes& times,
             double robot_height);
 
   double GetRobotHeight() const;
@@ -47,9 +45,9 @@ public:
   VecSpline GetSplines(const VectorXd& spline_coeff_abcd) const;
 
 private:
+  ContinuousSplineContainer spline_structure_;
   VecLegID step_sequence_;
   VecFoothold start_stance_;
-  ContinuousSplineContainer spline_structure_;
   double robot_height_;
 
   bool initialized_ = false; // checks if the Init() method has been called

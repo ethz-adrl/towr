@@ -41,6 +41,7 @@ NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
   curr_cog_      = RosHelpers::RosToXpp(msg.curr_state);
   curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
   step_sequence_ = DetermineStepSequence(curr_cog_, RosHelpers::RosToXpp(msg.curr_swingleg));
+  start_with_com_shift_ = msg.start_with_com_shift;
 }
 
 void
@@ -56,9 +57,13 @@ NlpOptimizerNode::PublishOptimizedValues() const
 void
 NlpOptimizerNode::OptimizeTrajectory()
 {
+
+  xpp::zmp::ContinuousSplineContainer spline_structure;
+  spline_structure.Init(curr_cog_.Get2D().p, curr_cog_.Get2D().v, step_sequence_.size(),
+                        spline_times_, start_with_com_shift_, true);
+
   auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
-  interpreter_ptr->Init(curr_cog_.Get2D().p, curr_cog_.Get2D().v,
-                        step_sequence_, curr_stance_, spline_times_, robot_height_);
+  interpreter_ptr->Init(spline_structure, step_sequence_, curr_stance_, robot_height_);
 
   nlp_facade_.SolveNlp(curr_cog_.Get2D().a,
                        goal_cog_.Get2D(),

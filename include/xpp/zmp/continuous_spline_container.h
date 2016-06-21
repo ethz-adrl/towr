@@ -46,7 +46,9 @@ public:
   void Init(const Vector2d& start_cog_p,
             const Vector2d& start_cog_v,
             int step_count,
-            const SplineTimes& times);
+            const SplineTimes& times,
+            bool insert_initial_stance = true,
+            bool insert_final_stance = true);
 
   /**
    * The index number of the coefficient \c coeff, for dimension \c dim and

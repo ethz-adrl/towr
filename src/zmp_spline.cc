@@ -62,7 +62,6 @@ Spline::Vec2d Spline::GetState(PosVelAcc whichDerivative, double _t) const
   return ret;
 }
 
-
 void Spline::SetSplineCoefficients(const CoeffValues &coeff_values)
 {
     for (int c = 0; c < kCoeffCount; ++c) {
@@ -71,13 +70,11 @@ void Spline::SetSplineCoefficients(const CoeffValues &coeff_values)
     }
 }
 
-
 ZmpSpline::ZmpSpline()
     : id_(0), duration_(0.0), type_(StanceSpline), step_(-1)
 {
   SetSplineCoefficients();
 }
-
 
 ZmpSpline::ZmpSpline(uint id, double duration, ZmpSplineType type)
     : id_(id), duration_(duration), type_(type), step_(-1)
@@ -85,20 +82,19 @@ ZmpSpline::ZmpSpline(uint id, double duration, ZmpSplineType type)
   SetSplineCoefficients();
 }
 
-
 uint ZmpSpline::GetCurrStep() const
 {
   assert(!IsFourLegSupport());
   return step_;
 }
 
-
 std::ostream& operator<<(std::ostream& out, const ZmpSpline& s)
 {
   out << "Spline: id= "   << s.id_                << ":\t"
       << "duration="      << s.duration_          << "\t"
       << "four_leg_supp=" << s.IsFourLegSupport() << "\t"
-      << "type="          << s.type_ << " (Initial=0, Step=1, Intermediate4ls=2, Final=3) \n ";
+      << "step="          << s.step_ << "\t"
+      << "type="          << s.type_ << " (Stance=0, Step=1)) \n ";
   return out;
 }
 

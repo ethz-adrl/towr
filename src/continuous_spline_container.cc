@@ -25,9 +25,18 @@ ContinuousSplineContainer::ContinuousSplineContainer (
 void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
                                      const Vector2d& start_cog_v,
                                      int step_count,
-                                     const SplineTimes& times)
+                                     const SplineTimes& times,
+                                     bool insert_initial_stance,
+                                     bool insert_final_stance)
 {
-  SplineContainer::Init(step_count, times);
+  // build the spline structure
+  if (insert_initial_stance)
+    SplineContainer::AddStanceSpline(times.t_stance_initial_);
+
+  SplineContainer::AddSplinesStepSequence(step_count, times.t_swing_);
+
+  if (insert_final_stance)
+    SplineContainer::AddStanceSpline(times.t_stance_final_);
 
   for (const Coords3D dim : Coords2DArray) {
     relationship_e_to_abcd_.at(dim) = DescribeEByABCD(dim, start_cog_v(dim));

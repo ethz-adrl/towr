@@ -40,6 +40,7 @@ protected:
   State goal_cog_;
   State curr_cog_;
   VecFoothold curr_stance_;
+  bool start_with_com_shift_; ///< whether to shift Center of Mass before lifting first leg
 
   VecSpline opt_splines_;
   VecFoothold footholds_;

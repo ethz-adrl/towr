@@ -74,6 +74,7 @@ public:
                     const VecFoothold& start_stance,
                     const VecFoothold& steps,
                     const SplineTimes& times,
+                    bool start_with_com_shift,
                     double robot_height);
 
 

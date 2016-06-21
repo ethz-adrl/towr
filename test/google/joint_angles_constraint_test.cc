@@ -37,8 +37,8 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
   times.SetDefault();
 
   OptimizationVariablesInterpreter interpreter;
-
-  interpreter.Init(init_pos, init_vel, step_sequence, start_stance_, times, robot_height);
+  ContinuousSplineContainer spline_structure(init_pos, init_vel, step_sequence.size(), times);
+  interpreter.Init(spline_structure, step_sequence, start_stance_, robot_height);
 
 
   xpp::hyq::HyqInverseKinematics hyq_inv_kin;
