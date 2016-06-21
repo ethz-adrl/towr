@@ -6,7 +6,7 @@
  */
 
 
-#include <xpp/ros/qp_optimizer_node.h>
+#include "../../include/xpp/ros/qp_facade_node.h"
 
 
 int main(int argc, char *argv[])

@@ -5,8 +5,8 @@
  *      Author: winklera
  */
 
-#include <xpp/ros/qp_optimizer_node.h>
 #include <xpp/ros/ros_helpers.h>
+#include "../include/xpp/ros/qp_facade_node.h"
 
 
 namespace xpp {

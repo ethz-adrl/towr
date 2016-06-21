@@ -5,7 +5,7 @@
 @brief  Dynamic Walking using Zero-Moment-Point (ZMP) Criteria
  */
 
-#include <xpp/zmp/qp_optimizer.h>
+#include <xpp/zmp/qp_facade.h>
 
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/support_polygon_container.h>
@@ -26,8 +26,8 @@
 namespace xpp {
 namespace zmp {
 
-QpOptimizer::VecSpline
-QpOptimizer::SolveQp(const State& initial_state,
+QpFacade::VecSpline
+QpFacade::SolveQp(const State& initial_state,
                      const State& final_state,
                      const VecFoothold& start_stance,
                      const VecFoothold& steps,
@@ -79,7 +79,7 @@ QpOptimizer::SolveQp(const State& initial_state,
 }
 
 Eigen::VectorXd
-QpOptimizer::EigenSolveQuadprog()
+QpFacade::EigenSolveQuadprog()
 {
   Eigen::VectorXd opt_spline_coeff_xy;
   ROS_INFO("QP optimizer running...");

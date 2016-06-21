@@ -95,7 +95,7 @@ include_directories(
 
 set(SOURCES  
   src/geometric_structs.cc
-  src/qp_optimizer.cc
+  src/qp_facade.cc
   src/foothold.cc
   src/hyq_inverse_kinematics.cc
   src/zmp_spline.cc

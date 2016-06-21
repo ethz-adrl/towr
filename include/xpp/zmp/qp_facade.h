@@ -32,7 +32,7 @@ namespace zmp {
 
 
 /**
-\class ZmpOptimizer
+\class QpOptimizer
 \brief Optimizes spline coefficients w.r.t Zero-Moment-Point criteria.
 
 This class provides and interface to optimize the trajectory of the CoM of HyQ
@@ -41,7 +41,7 @@ the ZMP inside the current support triangle. The QP-solver implemented in
 eigen_quadprog.hpp performs the optimization.
 
  */
-class QpOptimizer {
+class QpFacade {
 public:
   typedef std::vector<ZmpSpline> VecSpline;
   typedef xpp::utils::MatVec MatVec;
@@ -50,8 +50,8 @@ public:
   typedef std::vector<Foothold> VecFoothold;
 
 public:
-  QpOptimizer() {};
-  virtual ~QpOptimizer() {};
+  QpFacade() {};
+  virtual ~QpFacade() {};
 
   /**
    * @brief Solves the quadratic program (QP) of moving the CoG from an initial to a

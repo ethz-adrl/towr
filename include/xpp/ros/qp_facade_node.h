@@ -5,15 +5,14 @@
  *      Author: winklera
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_OPTIMIZER_NODE_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_OPTIMIZER_NODE_H_
+#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_FACADE_NODE_H_
+#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_FACADE_NODE_H_
 
 #include <xpp/ros/optimizer_node_base.h>
-#include <xpp/zmp/qp_optimizer.h>
-
 #include <xpp_opt/RequiredInfoQp.h>        // receive
 #include <xpp_opt/OptimizedParametersQp.h> // send
 #include <xpp_opt/SolveQp.h>               // service
+#include "../zmp/qp_facade.h"
 
 
 
@@ -22,7 +21,7 @@ namespace ros {
 
 class QpOptimizerNode : public OptimizerNodeBase {
 public:
-  typedef xpp::zmp::QpOptimizer QpOptimizer;
+  typedef xpp::zmp::QpFacade QpOptimizer;
   typedef xpp_opt::RequiredInfoQp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersQp OptParamMsg;
 
@@ -48,4 +47,4 @@ private:
 } /* namespace ros */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_OPTIMIZER_NODE_H_ */
+#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_FACADE_NODE_H_ */
