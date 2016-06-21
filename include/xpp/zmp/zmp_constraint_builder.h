@@ -69,6 +69,19 @@ private:
                                 const VecScalar& x_zmp_M,
                                 const VecScalar& y_zmp_M);
 
+  /** check if this spline needs a four leg support phase to go to next spline.
+    *
+    * Reducing the support polygons by a margin creates disjoint support triangles
+    * when switching to diagonally opposite swing legs. This causes the optimizer
+    * to fail, if the constraints are not disregarded at theses times.
+    *
+    * @param t current time of trajectory
+    * @param curr_spline active spline at the moment
+    * @param support polygon
+    * @return true if there are no constrains on current spline at time t
+    */
+  bool DisjSuppSwitch(double t, const ZmpSpline& curr_spline, const SupportPolygonContainer&) const;
+
   bool DisjointSuppPolygonsAtBeginning(int step, const SupportPolygonContainer&) const;
   bool DisjointSuppPolygonsAtEnd(int step, const SupportPolygonContainer&) const;
 

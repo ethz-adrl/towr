@@ -50,23 +50,9 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
   for (double t_global : spline_structure_.GetDiscretizedGlobalTimes()) {
     int id = spline_structure_.GetSplineID(t_global);
 
-    // check if this spline needs a four leg support phase to go to next spline.
-    // if yes, insert half of this at end of spline, and the other half at beginning
-    // of next spline (->skips constraints).
-    if (spline_structure_.GetSpline(id).GetType() == StepSpline) {
-
-      int step = spline_structure_.GetSpline(id).GetCurrStep();
-      double t_local = spline_structure_.GetLocalTime(t_global);
-
-      static const double t_stance = 0.2; // time to switch between disjoint support triangles
-      if (DisjointSuppPolygonsAtBeginning(step,supp_polygon_container) && t_local < t_stance/2.) {
-        n++; continue; // don't add constraint
-      }
-
-      double t_start_local = spline_structure_.GetSpline(id).GetDuration() - t_stance/2;
-      if (DisjointSuppPolygonsAtEnd(step,supp_polygon_container) && t_local > t_start_local) {
-        n++; continue; // don't add constraint
-      }
+    if (DisjSuppSwitch(t_global, spline_structure_.GetSpline(id), supp_polygon_container)) {
+      n++; // no constraints
+      continue;
     }
 
     GenerateNodeConstraint(supp_lines.at(id), x_zmp.GetRow(n), y_zmp.GetRow(n), c, ineq);
@@ -109,6 +95,25 @@ ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
 }
 
 bool
+ZmpConstraintBuilder::DisjSuppSwitch (double t, const ZmpSpline& curr_spline,
+                                      const SupportPolygonContainer& supp_polygon_container) const
+{
+  if (curr_spline.GetType() == StepSpline) {
+
+    int step = curr_spline.GetCurrStep();
+    double t_local = spline_structure_.GetLocalTime(t);
+    static const double t_stance = 0.2; // time to switch between disjoint support triangles
+    double t_start_local = curr_spline.GetDuration() - t_stance/2;
+
+    if (DisjointSuppPolygonsAtBeginning(step,supp_polygon_container) && t_local < t_stance/2.)
+      return true;
+    if (DisjointSuppPolygonsAtEnd(step,supp_polygon_container) && t_local > t_start_local)
+      return true;
+  }
+  return false;
+}
+
+bool
 ZmpConstraintBuilder::DisjointSuppPolygonsAtBeginning(
     int step, const SupportPolygonContainer& supp_polygon_container) const
 {
@@ -134,7 +139,6 @@ ZmpConstraintBuilder::DisjointSuppPolygonsAtEnd(
     return Insert4LSPhase(swing_leg, next_swing_leg);
   }
 }
-
 
 bool
 ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)

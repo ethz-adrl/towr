@@ -188,12 +188,6 @@ SupportPolygonContainer::CreateSupportPolygonsWith4LS(const VecZmpSpline& spline
         curr_supp = supp_steps.at(s.GetCurrStep());
         break;
       }
-//      case Intermediate4lsSpline: {
-//        int next = s.GetNextPlannedStep();
-//        curr_supp = SupportPolygon::CombineSupportPolygons(supp_steps.at(next),
-//                                                           supp_steps.at(next-1));
-//        break;
-//      }
       case Final4lsSpline: {
         curr_supp = GetFinalPolygon();
         break;
