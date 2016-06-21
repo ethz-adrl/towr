@@ -47,49 +47,27 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
-  for (double t_global : spline_structure_.GetDiscretizedGlobalTimes())
-  {
+  for (double t_global : spline_structure_.GetDiscretizedGlobalTimes()) {
     int id = spline_structure_.GetSplineID(t_global);
-
-
-
 
     // check if this spline needs a four leg support phase to go to next spline.
     // if yes, insert half of this at end of spline, and the other half at beginning
-    // of next spline (skips constraints).
-    if (id < spline_structure_.GetLastSpline().GetId()) { // not initial 4ls spline
+    // of next spline (->skips constraints).
+    if (spline_structure_.GetSpline(id).GetType() == StepSpline) {
+
       int step = spline_structure_.GetSpline(id).GetCurrStep();
-
-      double t_stance = 0.2; // this should replace the ros param "stance_time"
-
-      xpp::hyq::LegID swing_leg = supp_polygon_container.GetLegID(step);
       double t_local = spline_structure_.GetLocalTime(t_global);
 
-
-
-      if (step > 0) {
-        xpp::hyq::LegID prev_swing_leg = supp_polygon_container.GetLegID(step-1);
-        bool insert_stance_at_front = xpp::hyq::SupportPolygonContainer::Insert4LSPhase(prev_swing_leg, swing_leg);
-        if (insert_stance_at_front && t_local < t_stance/2.) {
-          n++; continue; // don't add constraint
-        }
-      }
-
-
-      xpp::hyq::LegID next_swing_leg = supp_polygon_container.GetLegID(step+1);
-      double t_start_local = spline_structure_.GetSpline(id).GetDuration() - t_stance/2;
-      bool insert_stance_at_end = xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg, next_swing_leg);
-      if (insert_stance_at_end && t_local > t_start_local) {
+      static const double t_stance = 0.2; // time to switch between disjoint support triangles
+      if (DisjointSuppPolygonsAtBeginning(step,supp_polygon_container) && t_local < t_stance/2.) {
         n++; continue; // don't add constraint
       }
 
-
-
+      double t_start_local = spline_structure_.GetSpline(id).GetDuration() - t_stance/2;
+      if (DisjointSuppPolygonsAtEnd(step,supp_polygon_container) && t_local > t_start_local) {
+        n++; continue; // don't add constraint
+      }
     }
-
-
-
-
 
     GenerateNodeConstraint(supp_lines.at(id), x_zmp.GetRow(n), y_zmp.GetRow(n), c, ineq);
 
@@ -116,7 +94,6 @@ ZmpConstraintBuilder::GenerateNodeConstraint(const NodeConstraint& node_constrai
   }
 }
 
-
 ZmpConstraintBuilder::VecScalar
 ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
                                       const VecScalar& x_zmp,
@@ -129,6 +106,47 @@ ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
   line_constr.s += l.coeff.r - l.s_margin;
 
   return line_constr;
+}
+
+bool
+ZmpConstraintBuilder::DisjointSuppPolygonsAtBeginning(
+    int step, const SupportPolygonContainer& supp_polygon_container) const
+{
+  LegID swing_leg = supp_polygon_container.GetLegID(step);
+  if (step == 0) {
+    return false; // initial zmp should be inside support polygon
+  } else {
+    LegID prev_swing_leg = supp_polygon_container.GetLegID(step-1);
+    return Insert4LSPhase(prev_swing_leg, swing_leg);
+  }
+}
+
+bool
+ZmpConstraintBuilder::DisjointSuppPolygonsAtEnd(
+    int step, const SupportPolygonContainer& supp_polygon_container) const
+{
+  LegID swing_leg = supp_polygon_container.GetLegID(step);
+  bool last_step = step == supp_polygon_container.GetNumberOfSteps()-1;
+  if (last_step) {
+    return false; // zmp should still be inside support polygon after final step
+  } else {
+    LegID next_swing_leg = supp_polygon_container.GetLegID(step+1);
+    return Insert4LSPhase(swing_leg, next_swing_leg);
+  }
+}
+
+
+bool
+ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)
+{
+  using namespace xpp::hyq;
+  // check for switching between disjoint support triangles.
+  // the direction the robot is moving between triangles does not matter.
+  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+  std::swap(prev, next);
+  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+
+  return false;
 }
 
 void

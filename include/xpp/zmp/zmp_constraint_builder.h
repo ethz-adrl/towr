@@ -23,6 +23,7 @@ public:
   typedef xpp::hyq::SupportPolygon SupportPolygon;
   typedef xpp::hyq::SupportPolygon::VecSuppLine NodeConstraint;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  typedef xpp::hyq::LegID LegID;
 
 public:
   ZmpConstraintBuilder() {};
@@ -67,6 +68,14 @@ private:
   static VecScalar GenerateLineConstraint(const SupportPolygon::SuppLine& l,
                                 const VecScalar& x_zmp_M,
                                 const VecScalar& y_zmp_M);
+
+  bool DisjointSuppPolygonsAtBeginning(int step, const SupportPolygonContainer&) const;
+  bool DisjointSuppPolygonsAtEnd(int step, const SupportPolygonContainer&) const;
+
+
+
+  static bool Insert4LSPhase(LegID prev, LegID next);
+
 
 
   xpp::zmp::ContinuousSplineContainer spline_structure_;

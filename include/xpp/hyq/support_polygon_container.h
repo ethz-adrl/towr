@@ -61,7 +61,7 @@ public:
 
 
   Eigen::Vector2d GetCenterOfFinalStance() const;
-  static bool Insert4LSPhase(LegID prev, LegID next);
+//  static bool Insert4LSPhase(LegID prev, LegID next);
   VecFoothold GetStanceDuring(int step) const;
   VecFoothold GetStanceAfter(int n_steps) const;
 

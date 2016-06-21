@@ -173,7 +173,7 @@ SupportPolygonContainer::CreateSupportPolygonsWith4LS(const VecZmpSpline& spline
   using namespace xpp::zmp;
 
   // support polygons during step and in four leg support phases
-  VecSupportPolygon supp_no_4l = GetSupportPolygons();
+  VecSupportPolygon supp_steps = GetSupportPolygons();
 
   VecSupportPolygon supp;
   for (const ZmpSpline& s : splines)
@@ -185,15 +185,15 @@ SupportPolygonContainer::CreateSupportPolygonsWith4LS(const VecZmpSpline& spline
         break;
       }
       case StepSpline: {
-        curr_supp = supp_no_4l.at(s.GetCurrStep());
+        curr_supp = supp_steps.at(s.GetCurrStep());
         break;
       }
-      case Intermediate4lsSpline: {
-        int next = s.GetNextPlannedStep();
-        curr_supp = SupportPolygon::CombineSupportPolygons(supp_no_4l.at(next),
-                                                           supp_no_4l.at(next-1));
-        break;
-      }
+//      case Intermediate4lsSpline: {
+//        int next = s.GetNextPlannedStep();
+//        curr_supp = SupportPolygon::CombineSupportPolygons(supp_steps.at(next),
+//                                                           supp_steps.at(next-1));
+//        break;
+//      }
       case Final4lsSpline: {
         curr_supp = GetFinalPolygon();
         break;
@@ -207,18 +207,6 @@ SupportPolygonContainer::CreateSupportPolygonsWith4LS(const VecZmpSpline& spline
   }
 
   return supp;
-}
-
-bool SupportPolygonContainer::Insert4LSPhase(LegID prev, LegID next)
-{
-  using namespace xpp::hyq;
-  // check for switching between disjoint support triangles.
-  // the direction the robot is moving between triangles does not matter.
-  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-  std::swap(prev, next);
-  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-
-  return false;
 }
 
 void
