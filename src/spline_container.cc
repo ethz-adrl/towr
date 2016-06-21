@@ -38,7 +38,15 @@ void SplineContainer::Init(const std::vector<xpp::hyq::LegID>& step_sequence,
   // fixme, hack!
   static bool add_initial_stance = true;
 
-  splines_ = ConstructSplineSequence(step_sequence, times, add_initial_stance);
+
+  if (add_initial_stance)
+    AddStanceSpline(times.t_stance_initial_, splines_);
+
+
+  AddSplinesStepSequence(step_sequence.size(), times.t_swing_, splines_);
+
+
+//  splines_ = ConstructSplineSequence(step_sequence, times, add_initial_stance);
   splines_initialized_ = true;
 
   add_initial_stance = false;
@@ -100,30 +108,22 @@ SplineContainer::ConstructSplineSequence(const std::vector<LegID>& step_sequence
   return splines;
 }
 
-SplineContainer::VecSpline
-SplineContainer::ConstructSplineSequenceBare (const VecLegID& step_sequence,
-                                              const SplineTimes& times)
+void
+SplineContainer::AddSplinesStepSequence (int step_count, double t_swing,
+                                        VecSpline& splines)
 {
-  VecSpline splines;
-  int step = 0;
-  unsigned int id = 0; // unique identifiers for each spline
+  unsigned int id = splines.size()==0 ? 0 : splines.back().GetId()+1;
 
-  splines.push_back(ZmpSpline(id++, times.t_swing_, StepSpline, step));
-  for (int i=1; i<step_sequence.size(); ++i)
-  {
-    step++;
+  for (int step=0; step<step_count; ++step)
+    splines.push_back(ZmpSpline(id++, t_swing, StepSpline, step));
+}
 
-//    // 1. insert 4ls-phase when switching between disjoint support triangles
-//    xpp::hyq::LegID swing_leg = step_sequence[i];
-//    xpp::hyq::LegID swing_leg_prev = step_sequence[i-1];
-//    if (xpp::hyq::SupportPolygonContainer::Insert4LSPhase(swing_leg_prev, swing_leg))
-//      splines.push_back(ZmpSpline(id++, times.t_stance_, Intermediate4lsSpline, step));
+void
+SplineContainer::AddStanceSpline (double t_stance, VecSpline& splines)
+{
+  unsigned int id = splines.size()==0 ? 0 : splines.back().GetId()+1;
+  splines.push_back(ZmpSpline(id++, t_stance, Initial4lsSpline, 0));
 
-    // insert swing phase splines
-    splines.push_back(ZmpSpline(id++, times.t_swing_, StepSpline, step));
-  }
-
-  return splines;
 }
 
 
@@ -209,6 +209,8 @@ SplineContainer::CheckIfSplinesInitialized() const
     throw std::runtime_error("ContinousSplineContainer.splines_ not initialized. Call Init() first");
   }
 }
+
+
 
 } // namespace zmp
 } // namespace xpp

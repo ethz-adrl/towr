@@ -70,17 +70,8 @@ public:
   virtual ~SplineContainer() {};
 
 public:
-  static VecSpline ConstructSplineSequence(const VecLegID& step_sequence,
-                                           const SplineTimes&,
-                                           bool add_initial_stance = true);
-  /** No 4ls phase at beginning or end.
-    *
-    * @param step_sequence
-    * @param
-    * @return
-    */
-  static VecSpline ConstructSplineSequenceBare(const VecLegID& step_sequence,
-                                               const SplineTimes&);
+
+
   //////////////////////////////////////////////////////////
 //  // implement these
 //  static VecSpline ConstructSplineStepSequence(const VecLegID& step_sequence,
@@ -138,6 +129,13 @@ protected:
   void Init(const std::vector<xpp::hyq::LegID>& step_sequence, const SplineTimes&);
 
 private:
+  static VecSpline ConstructSplineSequence(const VecLegID& step_sequence,
+                                           const SplineTimes&,
+                                           bool add_initial_stance = true);
+
+  static void AddSplinesStepSequence(int step_count, double t_swing, VecSpline& splines);
+  static void AddStanceSpline(double t_stance, VecSpline& splines);
+
   bool splines_initialized_ = false;
   static constexpr double eps_ = 1e-10; // maximum inaccuracy when adding double numbers
 
