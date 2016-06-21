@@ -157,7 +157,7 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
 SupportPolygonContainer::VecVecSuppLine
 SupportPolygonContainer::GetActiveConstraintsForEachStep(const VecZmpSpline& splines) const
 {
-  VecSupportPolygon supp = CreateSupportPolygonsWith4LS(splines);
+  VecSupportPolygon supp = AssignSupportPolygonsToSplines(splines);
 
   std::vector<SupportPolygon::VecSuppLine> supp_lines;
   for (uint s=0; s<splines.size(); ++s) {
@@ -168,11 +168,11 @@ SupportPolygonContainer::GetActiveConstraintsForEachStep(const VecZmpSpline& spl
 }
 
 SupportPolygonContainer::VecSupportPolygon
-SupportPolygonContainer::CreateSupportPolygonsWith4LS(const VecZmpSpline& splines) const
+SupportPolygonContainer::AssignSupportPolygonsToSplines(const VecZmpSpline& splines) const
 {
   using namespace xpp::zmp;
 
-  // support polygons during step and in four leg support phases
+  // support polygons during steps
   VecSupportPolygon supp_steps = GetSupportPolygons();
 
   VecSupportPolygon supp;
@@ -180,16 +180,16 @@ SupportPolygonContainer::CreateSupportPolygonsWith4LS(const VecZmpSpline& spline
   {
     SupportPolygon curr_supp;
     switch (s.GetType()) {
-      case Initial4lsSpline: {
-        curr_supp = GetStartPolygon();
+      // fixme: this only allows one initial and final spline
+      case StanceSpline: {
+        if (s.GetId() == 0)
+          curr_supp = GetStartPolygon();
+        if (s.GetId() == splines.back().GetId())
+          curr_supp = GetFinalPolygon();
         break;
       }
       case StepSpline: {
         curr_supp = supp_steps.at(s.GetCurrStep());
-        break;
-      }
-      case Final4lsSpline: {
-        curr_supp = GetFinalPolygon();
         break;
       }
       default:

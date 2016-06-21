@@ -195,7 +195,7 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
     bool four_legg_support = splines.at(id).IsFourLegSupport();
     if ( four_legg_support ) {
       marker.color.r = marker.color.g = marker.color.b = 0.1;
-      if (splines.at(id).GetType() == xpp::zmp::Initial4lsSpline)
+      if (splines.at(id).GetType() == xpp::zmp::StepSpline && id == 0)
         marker.color.g = marker.color.b = 1.0;
     } else {
       int step = splines.at(id).GetCurrStep();
@@ -236,7 +236,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
 
     if ( splines.at(id).IsFourLegSupport() ) {
       marker.color.r = marker.color.g = marker.color.g = 0.1;
-      if (splines.at(id).GetType() == xpp::zmp::Initial4lsSpline)
+      if (splines.at(id).GetType() == xpp::zmp::StepSpline && id == 0)
         marker.color.g = marker.color.b = 1.0;
     } else {
       int step = splines.at(id).GetCurrStep();

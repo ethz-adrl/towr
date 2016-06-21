@@ -105,7 +105,7 @@ protected:
 @brief Extends a general spline by specifying a duration during which it is
        active in creating the spline for the CoG movement.
 */
-enum ZmpSplineType {Initial4lsSpline=0, StepSpline, Intermediate4lsSpline, Final4lsSpline};
+enum ZmpSplineType {StanceSpline=0, StepSpline};
 class ZmpSpline : public Spline {
 
 public:
@@ -125,29 +125,29 @@ public:
    *  The next step is the step planned to execute after the 4ls-phase is complete */
   uint GetNextPlannedStep() const;
 
-  bool IsFourLegSupport() const { return type_ != StepSpline; }
+  bool IsFourLegSupport() const { return type_ == StanceSpline; }
 
 private:
   uint id_; // to identify the order relative to other zmp splines
   double duration_; // time during which this spline is active
   ZmpSplineType type_;
-  uint curr_or_planned_; // current step if step spline, otherwise planned next step
+  int curr_or_planned_; // current step if step spline, otherwise planned next step
 
   friend struct xpp::ros::RosHelpers;
   friend std::ostream& operator<<(std::ostream& out, const ZmpSpline& tr);
 
 };
 
-class SupportSpline : public ZmpSpline {
-public:
-//  typedef xpp::hyq::SupportPolygon SupportPolygon;
-
-  SupportSpline() {};
-  virtual ~SupportSpline() {};
-
-private:
-//  SupportPolygon support_polygon_;
-};
+//class SupportSpline : public ZmpSpline {
+//public:
+////  typedef xpp::hyq::SupportPolygon SupportPolygon;
+//
+//  SupportSpline() {};
+//  virtual ~SupportSpline() {};
+//
+//private:
+////  SupportPolygon support_polygon_;
+//};
 
 
 } // namespace zmp

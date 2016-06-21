@@ -15,7 +15,6 @@
 namespace xpp {
 namespace zmp {
 
-using namespace xpp::hyq;
 using namespace xpp::utils::coords_wrapper;
 
 class ZeroMomentPointTest : public ::testing::Test {
@@ -35,7 +34,7 @@ protected:
 
     cont_spline_container_.Init(init_pos,
                                 init_vel,
-                                {LH, LF, RH},//, RF, LH, LF};,
+                                3,
                                 SplineTimes(t_stance, t_swing, t_stance_initial, t_stance_final));
   }
 

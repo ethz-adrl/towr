@@ -15,20 +15,19 @@ using namespace xpp::utils::coords_wrapper;
 ContinuousSplineContainer::ContinuousSplineContainer (
     const Vector2d& start_cog_p,
     const Vector2d& start_cog_v,
-    const std::vector<xpp::hyq::LegID>& step_sequence,
+    int step_count,
     const SplineTimes& times)
-    :SplineContainer(step_sequence, times)
 {
-  Init(start_cog_p, start_cog_v, step_sequence, times);
+  Init(start_cog_p, start_cog_v, step_count, times);
 }
 
 
 void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
                                      const Vector2d& start_cog_v,
-                                     const std::vector<xpp::hyq::LegID>& step_sequence,
+                                     int step_count,
                                      const SplineTimes& times)
 {
-  SplineContainer::Init(step_sequence, times);
+  SplineContainer::Init(step_count, times);
 
   for (const Coords3D dim : Coords2DArray) {
     relationship_e_to_abcd_.at(dim) = DescribeEByABCD(dim, start_cog_v(dim));

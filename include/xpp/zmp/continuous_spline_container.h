@@ -37,7 +37,7 @@ public:
   ContinuousSplineContainer () {};
   ContinuousSplineContainer (const Vector2d& start_cog_p,
                              const Vector2d& start_cog_v,
-                             const std::vector<xpp::hyq::LegID>& step_sequence,
+                             int step_count,
                              const SplineTimes& times);
   virtual ~ContinuousSplineContainer () {};
 
@@ -45,7 +45,7 @@ public:
 
   void Init(const Vector2d& start_cog_p,
             const Vector2d& start_cog_v,
-            const std::vector<xpp::hyq::LegID>& step_sequence,
+            int step_count,
             const SplineTimes& times);
 
   /**

@@ -35,10 +35,7 @@ QpOptimizer::SolveQp(const State& initial_state,
                      double robot_height)
 {
   ContinuousSplineContainer spline_structure;
-  std::vector<xpp::hyq::LegID> leg_ids;
-  for (Foothold f : steps)
-    leg_ids.push_back(f.leg);
-  spline_structure.Init(initial_state.p, initial_state.v ,leg_ids, times);
+  spline_structure.Init(initial_state.p, initial_state.v ,steps.size(), times);
 
 
   TotalAccelerationEquation total_acc_eq(spline_structure);

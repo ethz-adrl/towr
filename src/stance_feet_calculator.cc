@@ -37,7 +37,7 @@ StanceFeetCalculator::VecFoothold
 StanceFeetCalculator::GetStanceFeetInBase (double t) const
 {
   std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
-      supp_polygon_container_.CreateSupportPolygonsWith4LS(cog_spline_xy_);
+      supp_polygon_container_.AssignSupportPolygonsToSplines(cog_spline_xy_);
 
   // legs in contact during each step/spline
   VecFoothold p_stance_legs_i;

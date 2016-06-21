@@ -73,7 +73,7 @@ void Spline::SetSplineCoefficients(const CoeffValues &coeff_values)
 
 
 ZmpSpline::ZmpSpline()
-    : id_(0), duration_(0.0), type_(Initial4lsSpline), curr_or_planned_(0)
+    : id_(0), duration_(0.0), type_(StepSpline), curr_or_planned_(0)
 {
   SetSplineCoefficients();
 }
@@ -96,7 +96,7 @@ uint ZmpSpline::GetCurrStep() const
 
 uint ZmpSpline::GetNextPlannedStep() const
 {
-  assert((type_==Initial4lsSpline) || (type_==Intermediate4lsSpline));
+  assert(type_==StanceSpline);
   return curr_or_planned_;
 }
 

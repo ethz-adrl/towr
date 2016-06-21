@@ -36,7 +36,7 @@ FootholdNominalDeviation::DistanceToNominalStance (
   g_vec.reserve(approx_n_constraints);
 
   std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
-      supp_polygon_container.CreateSupportPolygonsWith4LS(cog_spline.GetSplines());
+      supp_polygon_container.AssignSupportPolygonsToSplines(cog_spline.GetSplines());
 
   double T = cog_spline.GetDiscretizedGlobalTimes().back();
 

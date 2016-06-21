@@ -84,7 +84,7 @@ public:
 
   VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
 
-  VecSupportPolygon CreateSupportPolygonsWith4LS(const VecZmpSpline&) const;
+  VecSupportPolygon AssignSupportPolygonsToSplines(const VecZmpSpline&) const;
   VecVecSuppLine GetActiveConstraintsForEachStep(const VecZmpSpline&) const;
 
   /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */

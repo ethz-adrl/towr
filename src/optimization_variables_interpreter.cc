@@ -29,7 +29,7 @@ OptimizationVariablesInterpreter::Init (
     const SplineTimes& times,
     double robot_height)
 {
-  spline_structure_.Init(start_cog_p, start_cog_v ,step_sequence, times);
+  spline_structure_.Init(start_cog_p, start_cog_v ,step_sequence.size(), times);
   step_sequence_ = step_sequence;
   start_stance_ = start_stance;
   robot_height_ = robot_height;

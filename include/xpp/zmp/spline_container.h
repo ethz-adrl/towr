@@ -16,7 +16,6 @@
 
 #include <xpp/zmp/zmp_spline.h>
 #include <xpp/utils/geometric_structs.h>
-#include <xpp/hyq/leg_data_map.h>
 #include <vector>
 
 namespace xpp {
@@ -59,28 +58,15 @@ class SplineContainer {
 public:
   typedef std::vector<ZmpSpline> VecSpline;
   typedef xpp::utils::Point2d Point2d;
-  typedef std::vector<xpp::hyq::LegID> VecLegID;
-  typedef xpp::hyq::LegID LegID;
   static const int kDim2d = xpp::utils::kDim2d;
 
 public:
   SplineContainer() {};
   SplineContainer(const VecSpline& splines);
-  SplineContainer(const std::vector<xpp::hyq::LegID>& step_sequence, const SplineTimes&);
+  SplineContainer(int step_count, const SplineTimes&);
   virtual ~SplineContainer() {};
 
 public:
-
-
-  //////////////////////////////////////////////////////////
-//  // implement these
-//  static VecSpline ConstructSplineStepSequence(const VecLegID& step_sequence,
-//                                               const SplineTimes&);
-//  // these should be private
-//  static ZmpSpline ConstructStanceSpline(double t_stance);
-//  static ZmpSpline ConstructStepSpline(double t_step);
-  //////////////////////////////////////////////////////////
-
 
   VecSpline GetSplines()        const { return splines_; }
   ZmpSpline GetSpline(size_t i) const { return splines_.at(i); }
@@ -126,12 +112,12 @@ public:
 protected:
   VecSpline splines_;
   void CheckIfSplinesInitialized() const;
-  void Init(const std::vector<xpp::hyq::LegID>& step_sequence, const SplineTimes&);
+  void Init(int step_count, const SplineTimes&);
 
 private:
-  static VecSpline ConstructSplineSequence(const VecLegID& step_sequence,
-                                           const SplineTimes&,
-                                           bool add_initial_stance = true);
+//  static VecSpline ConstructSplineSequence(const VecLegID& step_sequence,
+//                                           const SplineTimes&,
+//                                           bool add_initial_stance = true);
 
   static void AddSplinesStepSequence(int step_count, double t_swing, VecSpline& splines);
   static void AddStanceSpline(double t_stance, VecSpline& splines);

@@ -87,10 +87,10 @@ protected:
 };
 
 
-TEST_F(SuppPolygonContainerTest, CreateSupportPolygonsWith4LS)
+TEST_F(SuppPolygonContainerTest, AssignSupportPolygonsToSplines)
 {
   std::vector<xpp::hyq::SupportPolygon> supp_all;
-  supp_all = start_to_final_supp_.CreateSupportPolygonsWith4LS(splines_);
+  supp_all = start_to_final_supp_.AssignSupportPolygonsToSplines(splines_);
 
   for (const xpp::hyq::SupportPolygon& p : supp_all)
     prt(p);

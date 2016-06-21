@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 
   xpp::ros::MarkerArrayBuilder marker_builder;
   double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
-  ros::Publisher ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("example_publisher", 1);
+  ros::Publisher ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
 
   ros::Rate loop_rate(10);
   while (ros::ok()) {
