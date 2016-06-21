@@ -19,7 +19,7 @@ IObserver::IObserver (OptimizationVariables& subject)
 
 IObserver::~IObserver ()
 {
-  // TODO Auto-generated destructor stub
+  subject_->DeregisterObserver(this);
 }
 
 } /* namespace zmp */

@@ -41,6 +41,13 @@ ASubject::RegisterObserver(IObserver* o)
 }
 
 void
+ASubject::DeregisterObserver(IObserver* o)
+{
+  auto it = std::find(observers_.begin(), observers_.end(), o);
+  observers_.erase(it);
+}
+
+void
 ASubject::NotifyObservers () const
 {
   for (IObserver* const o : observers_)

@@ -16,7 +16,7 @@ public:
   OptimizationVariablesTest() : subject_(n_coeff_, n_steps_) {}
 
 protected:
-  const int n_coeff_ = utils::kDim2d*kFreeCoeffPerSpline;
+  const int n_coeff_ = utils::kDim2d*4/* optimizing over a,b,c,d*/;
   const int n_steps_ = 2;
   OptimizationVariables subject_;
 };

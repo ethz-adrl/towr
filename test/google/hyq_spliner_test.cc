@@ -17,7 +17,7 @@ namespace hyq {
 
 
 // uses the optimized spline created by the nlp optimizer
-class HyqSplinerTest : public xpp::zmp::NlpOptimizerTest {
+class HyqSplinerTest : public xpp::zmp::NlpFacadeTest {
 public:
   typedef xpp::utils::Point2d Point2d;
   typedef xpp::utils::Point3d Point3d;
@@ -25,7 +25,7 @@ public:
 protected:
   virtual void SetUp()
   {
-    NlpOptimizerTest::SetUp(); // initialize super class
+    NlpFacadeTest::SetUp(); // initialize super class
 
     init_.base_.pos = start_xy_.Make3D();
     init_.base_.pos.p.z() = 0.7;
@@ -47,34 +47,28 @@ protected:
   HyqSpliner spliner_;
 };
 
-
 TEST_F(HyqSplinerTest, GetTotalTime)
 {
   double T = times_.t_stance_initial_ + 2*times_.t_swing_  + times_.t_stance_final_;
   EXPECT_DOUBLE_EQ(T, spliner_.GetTotalTime());
 }
 
-
 TEST_F(HyqSplinerTest, GetSplineID)
 {
-  // remember that depending on the initial spline time, more than one
-  // initial and final spline are created
   EXPECT_EQ(0, spliner_.GetSplineID(0.0));
-  EXPECT_EQ(0, spliner_.GetSplineID(0.2));
-  EXPECT_EQ(1, spliner_.GetSplineID(0.3));
+  EXPECT_EQ(0, spliner_.GetSplineID(0.3));
 
-  EXPECT_EQ(2, spliner_.GetSplineID(0.6));
-  EXPECT_EQ(3, spliner_.GetSplineID(0.5+0.7+0.1));
+  // here t>t_stance_initial
+  EXPECT_EQ(1, spliner_.GetSplineID(times_.t_stance_initial_ + 0.01));
+  EXPECT_EQ(2, spliner_.GetSplineID(times_.t_stance_initial_ + times_.t_swing_ + 0.01));
 }
-
 
 TEST_F(HyqSplinerTest, GetGoalNode)
 {
-  // two splines to create inital movement
-  EXPECT_DOUBLE_EQ(times_.t_stance_initial_/2.0, spliner_.GetGoalNode(0.0).T);
-  EXPECT_DOUBLE_EQ(times_.t_stance_initial_/2.0, spliner_.GetGoalNode(0.3).T);
+  // same goal node while still in initial spline
+  EXPECT_DOUBLE_EQ(times_.t_stance_initial_, spliner_.GetGoalNode(0.0).T);
+  EXPECT_DOUBLE_EQ(times_.t_stance_initial_, spliner_.GetGoalNode(0.3).T);
 }
-
 
 TEST_F(HyqSplinerTest, BuildNode)
 {
@@ -88,7 +82,6 @@ TEST_F(HyqSplinerTest, BuildNode)
   EXPECT_EQ(node.ori_rpy_.p, HyqSpliner::TransformQuatToRpy(init_.base_.ori.q));
 }
 
-
 TEST_F(HyqSplinerTest, GetCurrPositionInit)
 {
   Point3d splined_init = spliner_.GetCurrPosition(0.0);
@@ -98,7 +91,6 @@ TEST_F(HyqSplinerTest, GetCurrPositionInit)
   // xy positions filled in by optimized spline and tested in NlpOptimizer
   EXPECT_DOUBLE_EQ(init_.base_.pos.a.z(), splined_init.a.z());
 }
-
 
 TEST_F(HyqSplinerTest, GetCurrPositionGoal)
 {
@@ -112,8 +104,6 @@ TEST_F(HyqSplinerTest, GetCurrPositionGoal)
   EXPECT_DOUBLE_EQ(0.0,           splined_final.v.z());
   EXPECT_DOUBLE_EQ(0.0,           splined_final.a.z());
 }
-
-
 
 } // namespace hyq
 } // namespace xpp

@@ -19,11 +19,12 @@ namespace zmp {
 
 class ConstraintContainerTest : public ::testing::Test {
 public:
+  typedef std::shared_ptr<LinearEqualityConstraint> ConstraintPtr;
+
   ConstraintContainerTest()
-      : subject_(n_coeff_, n_steps_),
-        c_zeros(subject_),
-        c_ones(subject_)
-  {}
+      : subject_(n_coeff_, n_steps_)
+  {
+  }
 
 protected:
   virtual void SetUp(){
@@ -32,19 +33,23 @@ protected:
     InitialAccelerationEquation eq_acc_zeros(Eigen::Vector2d::Zero(),n_spline_coeff);
     InitialAccelerationEquation eq_acc_ones(Eigen::Vector2d::Ones(), n_spline_coeff);
 
-    c_zeros.Init(eq_acc_zeros.BuildLinearEquation());
-    c_ones.Init(eq_acc_ones.BuildLinearEquation());
+    // use shared pointer to store constraint objects on heap
+    c_zeros = std::make_shared<LinearEqualityConstraint>(subject_);
+    c_ones  = std::make_shared<LinearEqualityConstraint>(subject_);
 
+    c_zeros->Init(eq_acc_zeros.BuildLinearEquation());
+    c_ones->Init(eq_acc_ones.BuildLinearEquation());
 
-    constraints.AddConstraint(c_zeros);
-    constraints.AddConstraint(c_ones);
+    constraints.AddConstraint(c_zeros, "zero_acc");
+    constraints.AddConstraint(c_ones, "one_acc");
+    constraints.Refresh();
   }
 
-  const int n_coeff_ = utils::kDim2d*kFreeCoeffPerSpline;
+  const int n_coeff_ = utils::kDim2d*4/*coefficients a,b,c,d*/;
   const int n_steps_ = 2;
   OptimizationVariables subject_;
 
-  LinearEqualityConstraint c_zeros, c_ones;
+  ConstraintPtr c_zeros, c_ones;
   ConstraintContainer constraints;
 };
 
@@ -53,8 +58,10 @@ TEST_F(ConstraintContainerTest, EvaluateConstraints)
   Eigen::VectorXd g = constraints.EvaluateConstraints();
 
   EXPECT_EQ(4, g.rows()); // two constraints in x and one in y
-  EXPECT_EQ(c_zeros.EvaluateConstraint(), g.head<2>()); // two constraints in x and one in y
-  EXPECT_EQ(c_ones.EvaluateConstraint() , g.tail<2>()); // two constraints in x and one in y
+
+  // remember: constraints stored in std::map, so no ordering (e.g. not first added first out)
+  EXPECT_EQ(c_zeros->EvaluateConstraint(), g.tail<2>()); // two constraints in x and one in y
+  EXPECT_EQ(c_ones->EvaluateConstraint() , g.head<2>()); // two constraints in x and one in y
 }
 
 TEST_F(ConstraintContainerTest, GetBounds)

@@ -22,6 +22,7 @@ public:
   int GetObserverCount() const;
   void RemoveObservers();
   void RegisterObserver(IObserver*);
+  void DeregisterObserver(IObserver* o);
 
   // fixme think about not updating all observers (costs, constraints) all the time
   void NotifyObservers() const;

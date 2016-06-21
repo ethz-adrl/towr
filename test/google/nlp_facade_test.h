@@ -6,6 +6,9 @@
  */
 
 #include <xpp/zmp/nlp_facade.h>
+#include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/zmp/optimization_variables_interpreter.h>
+#include <xpp/hyq/foothold.h>
 
 #include <gtest/gtest.h>
 #include <iostream>
@@ -15,7 +18,12 @@
 namespace xpp {
 namespace zmp {
 
-class NlpOptimizerTest : public  ::testing::Test {
+/** Test the NlpFacade by solving an optimization problem.
+  *
+  * Remember to run the optimization from a folder, where a ipopt.opt config
+  * files is present (xpp/test/google/).
+  */
+class NlpFacadeTest : public  ::testing::Test {
 public:
   typedef NlpFacade::State Point2d;
   typedef NlpFacade::VecSpline VecSpline;
@@ -23,13 +31,13 @@ public:
 
 protected:
   /** optimizes the spline only once for all tests that are build from this
-   * test case.
-   */
+    * test case.
+    */
   static void SetUpTestCase()
   {
     using namespace xpp::hyq;
 
-    NlpFacade nlp_optimizer;
+    NlpFacade nlp_facade;
     start_xy_.p << 0.01, 0.04;
     start_xy_.v << 0.02, 0.05;
     start_xy_.a << 0.03, 0.06;
@@ -49,12 +57,20 @@ protected:
     times_.t_stance_initial_ = 0.5; // this will create two initial splines
     times_.t_stance_final_ = 0.2;
 
-    nlp_optimizer.SolveNlp(start_xy_, goal_xy_,
-                           {LH, LF}, start_stance_,
-                           times_, robot_height_);
+    std::vector<LegID> leg_ids = {LH, LF};
 
-    opt_xy_splines_ = nlp_optimizer.GetSplines();
-    opt_footholds_  = nlp_optimizer.GetFootholds();
+    bool start_with_com_shift = true;
+    xpp::zmp::ContinuousSplineContainer spline_structure;
+    spline_structure.Init(start_xy_.p, start_xy_.v, leg_ids.size(),
+                          times_, start_with_com_shift, true);
+
+    auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
+    interpreter_ptr->Init(spline_structure, leg_ids, start_stance_, robot_height_);
+
+    nlp_facade.SolveNlp(start_xy_.a, goal_xy_, interpreter_ptr);
+
+    opt_xy_splines_ = nlp_facade.GetSplines();
+    opt_footholds_  = nlp_facade.GetFootholds();
   }
 
   virtual void SetUp()

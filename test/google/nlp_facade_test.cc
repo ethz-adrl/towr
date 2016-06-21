@@ -12,15 +12,15 @@ namespace xpp {
 namespace zmp {
 
 // initializing the static member variables
-SplineTimes NlpOptimizerTest::times_ = SplineTimes();
-NlpOptimizerTest::Point2d  NlpOptimizerTest::start_xy_ = Point2d();
-NlpOptimizerTest::Point2d  NlpOptimizerTest::goal_xy_  = Point2d();
-NlpOptimizerTest::VecFoothold NlpOptimizerTest::start_stance_ = VecFoothold();
-NlpOptimizerTest::VecSpline NlpOptimizerTest::opt_xy_splines_ = VecSpline();
-NlpOptimizerTest::VecFoothold NlpOptimizerTest::opt_footholds_ = VecFoothold();
+SplineTimes NlpFacadeTest::times_ = SplineTimes();
+NlpFacadeTest::Point2d  NlpFacadeTest::start_xy_ = Point2d();
+NlpFacadeTest::Point2d  NlpFacadeTest::goal_xy_  = Point2d();
+NlpFacadeTest::VecFoothold NlpFacadeTest::start_stance_ = VecFoothold();
+NlpFacadeTest::VecSpline NlpFacadeTest::opt_xy_splines_ = VecSpline();
+NlpFacadeTest::VecFoothold NlpFacadeTest::opt_footholds_ = VecFoothold();
 
 
-TEST_F(NlpOptimizerTest, GetCOGxyInitialAccelerationConstraint)
+TEST_F(NlpFacadeTest, GetCOGxyInitialAccelerationConstraint)
 {
   double t0 = 0.0;
   xpp::utils::Point2d xy_optimized = SplineContainer::GetCOGxy(t0, opt_xy_splines_);
@@ -36,7 +36,7 @@ TEST_F(NlpOptimizerTest, GetCOGxyInitialAccelerationConstraint)
 }
 
 
-TEST_F(NlpOptimizerTest, GetCOGxyFinalAccelerationConstraint)
+TEST_F(NlpFacadeTest, GetCOGxyFinalAccelerationConstraint)
 {
   double T = SplineContainer::GetTotalTime(opt_xy_splines_);
   xpp::utils::Point2d xy_optimized = SplineContainer::GetCOGxy(T, opt_xy_splines_);
