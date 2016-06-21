@@ -61,17 +61,22 @@ protected:
     xpp::zmp::SplineTimes spline_times(t_stance, t_swing, t_stance_initial, t_stance_final);
     std::vector<LegID> step_sequence = {LH, LF, RH, RF};
 
-    splines_ = SplineContainer::ConstructSplineSequence(step_sequence, spline_times);
+
+    xpp::zmp::ContinuousSplineContainer spline_cont;
+    spline_cont.Init(Eigen::Vector2d::Zero(), Eigen::Vector2d::Zero(),
+                     4, spline_times, true, true);
+    splines_ = spline_cont.GetSplines();
 
   }
 
-  virtual int GetInitial4lsSplines(const VecSpline& splines) const {
+  virtual int GetInitial4lsSplines(const VecSpline& splines) const
+  {
     int n = 0;
     for (const xpp::zmp::ZmpSpline& s: splines)
-      if (s.GetType() == xpp::zmp::Initial4lsSpline)
+      if (s.IsFourLegSupport())
         n++;
-
-    return n;
+      else
+        return n;
   }
 
   SupportPolygon::VecFoothold f1_;
@@ -105,7 +110,6 @@ TEST_F(SuppPolygonContainerTest, AssignSupportPolygonsToSplines)
   // possibly more 4leg support splines
   EXPECT_EQ(3, supp_all.at(id++).footholds_conv_.size()); // step 0
   EXPECT_EQ(3, supp_all.at(id++).footholds_conv_.size()); // step 1
-  EXPECT_EQ(4, supp_all.at(id++).footholds_conv_.size()); // 4ls
   EXPECT_EQ(3, supp_all.at(id++).footholds_conv_.size()); // step 2
   EXPECT_EQ(3, supp_all.at(id++).footholds_conv_.size()); // step 3
   EXPECT_EQ(4, supp_all.at(id++).footholds_conv_.size()); // final 4ls
@@ -165,11 +169,13 @@ TEST_F(SuppPolygonContainerTest, CombineSupportPolygons)
 
   std::vector<SupportPolygon> supp_4ls;
 
+  int prev_step = -1;
   for (const xpp::zmp::ZmpSpline& s : splines_) {
-    if (s.GetType() == xpp::zmp::Intermediate4lsSpline) {
-      int next_step = s.GetNextPlannedStep();
-      supp_4ls.push_back(SupportPolygon::CombineSupportPolygons(supp.at(next_step),
-                                                                supp.at(next_step-1)));
+    if (s.GetId() == 3) {
+      supp_4ls.push_back(SupportPolygon::CombineSupportPolygons(supp.at(prev_step),
+                                                                supp.at(prev_step+1)));
+    } else {
+      prev_step = s.GetCurrStep();
     }
   }
 

@@ -215,8 +215,8 @@ if(BUILD_TESTS)
                         test/google/spliner_test.cc
                         test/google/point2d_manipulations_test.cc
                         test/google/supp_polygon_test.cc
-#                        test/google/supp_polygon_container_test.cc
-#                        test/google/spline_container_test.cc
+                        test/google/supp_polygon_container_test.cc
+                        test/google/spline_container_test.cc
                         test/google/helpers.cc
                         test/google/zmp_constraint_builder_test.cc
                         test/google/zero_moment_point_test.cc

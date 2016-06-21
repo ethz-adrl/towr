@@ -17,8 +17,7 @@ namespace zmp {
 TEST(JointAnglesContraintTest, StartStanceInLimits)
 {
   int n_splines = 1;
-  std::vector<xpp::hyq::LegID> step_sequence = {};
-  OptimizationVariables subject_(n_splines*kFreeCoeffPerSpline*2, step_sequence.size());
+  OptimizationVariables subject_(n_splines*kFreeCoeffPerSpline*2, 0);
 
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::VectorXd VectorXd;
@@ -37,8 +36,9 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
   times.SetDefault();
 
   OptimizationVariablesInterpreter interpreter;
-  ContinuousSplineContainer spline_structure(init_pos, init_vel, step_sequence.size(), times);
-  interpreter.Init(spline_structure, step_sequence, start_stance_, robot_height);
+  ContinuousSplineContainer spline_structure;
+  spline_structure.Init(init_pos, init_vel, 0, times, true, false);
+  interpreter.Init(spline_structure, {}, start_stance_, robot_height);
 
 
   xpp::hyq::HyqInverseKinematics hyq_inv_kin;

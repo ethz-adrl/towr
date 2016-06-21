@@ -94,7 +94,7 @@ HyqInverseKinematics::GetJointAngles(const EEPosition& pos_b, size_t ee) const
   bool successFlag = compute(ee, pos_b, q, error_code);
 
   if(!successFlag) {
-    std::cout << "no successfull in calculating q. q: " << q.transpose() << std::endl;
+    std::cout << "not successfull in calculating q. q: " << q.transpose() << std::endl;
 //    throw  std::runtime_error(std::string("computing joint position resulted in error! err_code: " + std::to_string(error_code)) );
   }
 
