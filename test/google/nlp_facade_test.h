@@ -51,8 +51,6 @@ protected:
     start_stance_.push_back(Foothold(-0.35, -0.33, 0.0, RH));
     start_stance_.push_back(Foothold( 0.37, -0.31, 0.0, RF));
 
-
-    times_.t_stance_ = 0.2;
     times_.t_swing_ = 0.7;
     times_.t_stance_initial_ = 0.5; // this will create two initial splines
     times_.t_stance_final_ = 0.2;

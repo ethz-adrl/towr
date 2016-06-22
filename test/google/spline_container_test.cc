@@ -26,7 +26,6 @@ protected:
   virtual void SetUp()
   {
     // create a spline container taking four steps
-    times_.t_stance_ = 0.1;
     times_.t_stance_final_ = 0.6;
     times_.t_swing_ = 0.6;
     times_.t_stance_initial_ = 2.0;

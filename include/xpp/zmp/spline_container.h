@@ -32,16 +32,14 @@ struct SplineTimes
   * @param t_init time before executing the first step
   * @param t_final time after executing the last step to still move the CoG
   */
-  SplineTimes(double t_stance, double t_swing, double t_init, double t_final)
-      :t_stance_(t_stance), t_swing_(t_swing), t_stance_initial_(t_init), t_stance_final_(t_final) {}
+  SplineTimes(double t_swing, double t_init, double t_final)
+      :t_swing_(t_swing), t_stance_initial_(t_init), t_stance_final_(t_final) {}
 
-  double t_stance_;
   double t_swing_;
   double t_stance_initial_;
   double t_stance_final_;
 
   void SetDefault() {
-    t_stance_         = 0.2; //s
     t_swing_          = 0.7; //s
     t_stance_initial_ = 0.4; //s
     t_stance_final_   = 0.2; //s

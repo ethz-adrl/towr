@@ -52,13 +52,10 @@ protected:
     f0_.push_back(Foothold(0.0, 0.0, 0.0, RF));
     start_to_f0_supp_.Init(start_stance_.ToVector(), f0_);
 
-
-
-    double t_stance = 0.1;
     double t_swing = 0.6;
     double t_stance_initial = 2.0;
     double t_stance_final = 0.5;
-    xpp::zmp::SplineTimes spline_times(t_stance, t_swing, t_stance_initial, t_stance_final);
+    xpp::zmp::SplineTimes spline_times(t_swing, t_stance_initial, t_stance_final);
     std::vector<LegID> step_sequence = {LH, LF, RH, RF};
 
 
