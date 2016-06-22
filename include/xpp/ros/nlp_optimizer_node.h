@@ -43,9 +43,10 @@ private:
     * the CoG is moving (e.g. an outward step might have to catch an acceleration
     * in a specific direction) and which leg is currently swinging.
     */
-  std::vector<LegID> DetermineStepSequence(const State& curr_state, LegID curr_swingleg);
+  std::vector<LegID> DetermineStepSequence(const State& curr_state, int curr_swingleg);
   LegID NextSwingLeg(LegID curr) const;
   std::vector<xpp::hyq::LegID> step_sequence_;
+  LegID prev_swingleg_; // so the value of last optimization known, even if in support phase
 
   ::ros::Subscriber current_info_sub_;
   ::ros::Publisher opt_params_pub_;

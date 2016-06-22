@@ -167,19 +167,21 @@ RosToXpp(const geometry_msgs::Point& ros)
 }
 
 
-static LegID
-RosToXpp(const int rosleg)
-{
-  assert(0 <= rosleg && rosleg < xpp::hyq::_LEGS_COUNT); //integer cannot be mapped to a LegID
-  return static_cast<LegID>(rosleg);
-}
+//static LegID
+//RosToXpp(const int rosleg)
+//{
+//  assert(0 <= rosleg && rosleg < xpp::hyq::_LEGS_COUNT); //integer cannot be mapped to a LegID
+//  return static_cast<LegID>(rosleg);
+//}
 
 
 static Foothold
 RosToXpp(const xpp_opt::Foothold& ros)
 {
   Foothold f;
-  f.leg = RosToXpp(ros.leg);
+
+  assert(0 <= ros.leg && ros.leg < xpp::hyq::_LEGS_COUNT); //integer cannot be mapped to a LegID
+  f.leg = static_cast<LegID>(ros.leg);
   f.p   = RosToXpp(ros.p);
   return f;
 }

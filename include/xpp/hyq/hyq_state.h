@@ -63,8 +63,8 @@ public:
 
   void ZeroVelAcc();
 
-private:
   int SwinglegID() const;
+private:
 };
 
 

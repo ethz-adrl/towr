@@ -28,6 +28,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
   // get current optimization values from the optimizer
   optimization_visualizer_.SetObserver(nlp_facade_.GetObserver());
   nlp_facade_.AttachVisualizer(optimization_visualizer_);
+  prev_swingleg_ = hyq::RF;
 }
 
 void
@@ -44,8 +45,7 @@ NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
 {
   curr_cog_      = RosHelpers::RosToXpp(msg.curr_state);
   curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
-  step_sequence_ = DetermineStepSequence(curr_cog_, RosHelpers::RosToXpp(msg.curr_swingleg));
-//  start_with_com_shift_ = msg.start_with_com_shift;
+  step_sequence_ = DetermineStepSequence(curr_cog_, msg.curr_swingleg);
 }
 
 void
@@ -63,8 +63,9 @@ NlpOptimizerNode::OptimizeTrajectory()
 {
 
   xpp::zmp::ContinuousSplineContainer spline_structure;
+  bool add_final_stance = true;
   spline_structure.Init(curr_cog_.Get2D().p, curr_cog_.Get2D().v, step_sequence_.size(),
-                        spline_times_, start_with_com_shift_, true);
+                        spline_times_, start_with_com_shift_, add_final_stance);
 
   auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
   interpreter_ptr->Init(spline_structure, step_sequence_, curr_stance_, robot_height_);
@@ -78,7 +79,7 @@ NlpOptimizerNode::OptimizeTrajectory()
 }
 
 std::vector<xpp::hyq::LegID>
-NlpOptimizerNode::DetermineStepSequence(const State& curr_state, LegID curr_swingleg)
+NlpOptimizerNode::DetermineStepSequence(const State& curr_state, int curr_swingleg)
 {
   // TODO make step sequence dependent on curr_state
   const double length_per_step = 0.30;
@@ -105,10 +106,19 @@ NlpOptimizerNode::DetermineStepSequence(const State& curr_state, LegID curr_swin
   using namespace xpp::hyq;
   std::vector<xpp::hyq::LegID> step_sequence;
 
-  LegID curr = curr_swingleg;
+
+  LegID sl;
+  if (curr_swingleg == hyq::NO_SWING_LEG)
+    sl = prev_swingleg_;
+  else
+    sl = static_cast<LegID>(curr_swingleg);
+
+  prev_swingleg_ = sl;
+
+
   for (int step=0; step<req_steps_per_leg*4; ++step) {
-    step_sequence.push_back(NextSwingLeg(curr));
-    curr = step_sequence.back();
+    step_sequence.push_back(NextSwingLeg(sl));
+    sl = step_sequence.back();
   }
 
 
@@ -123,7 +133,7 @@ NlpOptimizerNode::DetermineStepSequence(const State& curr_state, LegID curr_swin
   int idx_swingleg = Foothold::GetLastIndex(first_swingleg, first_stance);
   first_stance.erase(first_stance.begin() + idx_swingleg);
 
-  // zero margins, since i actually allow violation of zmp constraint
+  // fixme zero margins, since i actually allow violation of zmp constraint
   // don't want 4ls to be inserted there
   hyq::SupportPolygon supp(first_stance, hyq::SupportPolygon::GetZeroMargins());
 
