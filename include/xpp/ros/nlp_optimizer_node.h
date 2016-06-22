@@ -43,7 +43,7 @@ private:
     * the CoG is moving (e.g. an outward step might have to catch an acceleration
     * in a specific direction) and which leg is currently swinging.
     */
-  std::vector<LegID> DetermineStepSequence(const State& curr_state, LegID curr_swingleg) const;
+  std::vector<LegID> DetermineStepSequence(const State& curr_state, LegID curr_swingleg);
   LegID NextSwingLeg(LegID curr) const;
   std::vector<xpp::hyq::LegID> step_sequence_;
 

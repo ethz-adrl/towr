@@ -10,6 +10,10 @@
 
 #include <xpp/zmp/optimization_variables_interpreter.h>
 
+// for calculating if initial stance phase neccessary, fixme move to own class
+#include <xpp/zmp/zero_moment_point.h>
+#include <xpp/zmp/zmp_constraint_builder.h>
+
 namespace xpp {
 namespace ros {
 
@@ -41,7 +45,7 @@ NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
   curr_cog_      = RosHelpers::RosToXpp(msg.curr_state);
   curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
   step_sequence_ = DetermineStepSequence(curr_cog_, RosHelpers::RosToXpp(msg.curr_swingleg));
-  start_with_com_shift_ = msg.start_with_com_shift;
+//  start_with_com_shift_ = msg.start_with_com_shift;
 }
 
 void
@@ -74,12 +78,18 @@ NlpOptimizerNode::OptimizeTrajectory()
 }
 
 std::vector<xpp::hyq::LegID>
-NlpOptimizerNode::DetermineStepSequence(const State& curr_state, LegID curr_swingleg) const
+NlpOptimizerNode::DetermineStepSequence(const State& curr_state, LegID curr_swingleg)
 {
   // TODO make step sequence dependent on curr_state
   const double length_per_step = 0.30;
   const double width_per_step = 0.20;
   Eigen::Vector2d start_to_goal = goal_cog_.p.segment<2>(0) - curr_cog_.p.segment<2>(0);
+
+  // don't do anything if goal to close
+  if (start_to_goal.norm() < 0.05) {
+    std::cout << "goal closer than 0.05m\n";
+    return std::vector<xpp::hyq::LegID>(); // empty vector, take no steps
+  }
 
   int req_steps_per_leg;
   // fixme don't take steps if body movement is sufficient
@@ -100,6 +110,25 @@ NlpOptimizerNode::DetermineStepSequence(const State& curr_state, LegID curr_swin
     step_sequence.push_back(NextSwingLeg(curr));
     curr = step_sequence.back();
   }
+
+
+
+
+  // test if current zmp is inside support polygon of current stance
+  Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(curr_state, robot_height_);
+
+  // remove first swingleg from current stance
+  VecFoothold first_stance = curr_stance_;
+  LegID first_swingleg = step_sequence.front();
+  int idx_swingleg = Foothold::GetLastIndex(first_swingleg, first_stance);
+  first_stance.erase(first_stance.begin() + idx_swingleg);
+
+  // zero margins, since i actually allow violation of zmp constraint
+  // don't want 4ls to be inserted there
+  hyq::SupportPolygon supp(first_stance, hyq::SupportPolygon::GetZeroMargins());
+
+  bool zmp_inside = zmp::ZmpConstraintBuilder::IsZmpInsideSuppPolygon(zmp,supp);
+  start_with_com_shift_ = zmp_inside? false : true;
 
   return step_sequence;
 }

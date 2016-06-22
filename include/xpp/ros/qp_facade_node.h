@@ -9,10 +9,11 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_FACADE_NODE_H_
 
 #include <xpp/ros/optimizer_node_base.h>
+#include <xpp/zmp/qp_facade.h>
+
 #include <xpp_opt/RequiredInfoQp.h>        // receive
 #include <xpp_opt/OptimizedParametersQp.h> // send
 #include <xpp_opt/SolveQp.h>               // service
-#include "../zmp/qp_facade.h"
 
 
 

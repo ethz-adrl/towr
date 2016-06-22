@@ -14,8 +14,6 @@ namespace hyq {
 using ::xpp::utils::Z;
 using ::xpp::utils::Vec3d;
 
-log4cxx::LoggerPtr HyqState::log_(log4cxx::Logger::getLogger("xpp.hyq.hyqstate"));
-
 HyqState::HyqState()
 {
   // feet and base initialized to zero by default by struct Pos and Ori
@@ -78,6 +76,13 @@ std::array<Vec3d, kNumSides> HyqState::GetAvgSides() const
 }
 
 
+double HyqState::GetZAvg() const
+{
+  std::array<Vec3d, kNumSides> avg = GetAvgSides();
+  return (avg[FRONT_SIDE](Z) + avg[HIND_SIDE](Z)) / 2;
+}
+
+
 int HyqState::SwinglegID() const
 {
   for (LegID leg : LegIDArray)
@@ -95,11 +100,6 @@ void HyqState::SetSwingleg(LegID leg)
 }
 
 
-double HyqState::GetZAvg() const
-{
-  std::array<Vec3d, kNumSides> avg = GetAvgSides();
-  return (avg[FRONT_SIDE](Z) + avg[HIND_SIDE](Z)) / 2;
-}
 
 
 LegDataMap<Foothold> HyqState::FeetToFootholds() const

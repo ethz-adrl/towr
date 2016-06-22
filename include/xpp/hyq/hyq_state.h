@@ -13,8 +13,6 @@
 
 #include <xpp/utils/geometric_structs.h>
 
-#include <log4cxx/logger.h>
-
 namespace xpp {
 
 /**
@@ -40,16 +38,12 @@ public:
   typedef std::vector<Foothold> VecFoothold;
 
 public:
-  bool swing_phase_;
-  LegDataMap< bool > swingleg_;
-  LegDataMap<Point3d> feet_;
-  Pose base_; // geometric center of mass, vel, acc
-
-
-public:
   HyqState();
   virtual ~HyqState();
 
+  LegDataMap< bool > swingleg_;
+  LegDataMap<Point3d> feet_;
+  Pose base_; // geometric center of mass, vel, acc
 
   LegDataMap< Foothold > FeetToFootholds() const;
   Foothold FootToFoothold(LegID leg) const;
@@ -63,7 +57,6 @@ public:
    */
   void SwitchSwingleg();
   void SetSwingleg(LegID leg);
-  int SwinglegID() const;
 
   std::array<Vec3d, kNumSides> GetAvgSides() const;
   double GetZAvg() const;
@@ -71,7 +64,7 @@ public:
   void ZeroVelAcc();
 
 private:
-  static log4cxx::LoggerPtr log_;
+  int SwinglegID() const;
 };
 
 
