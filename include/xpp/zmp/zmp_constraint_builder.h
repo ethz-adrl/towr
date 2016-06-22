@@ -24,32 +24,32 @@ public:
   typedef xpp::hyq::SupportPolygon::VecSuppLine NodeConstraint;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef xpp::hyq::LegID LegID;
+  typedef Eigen::Vector2d Vector2d;
 
 public:
   ZmpConstraintBuilder() {};
   ZmpConstraintBuilder(const ContinuousSplineContainer&, double walking_height);
   virtual ~ZmpConstraintBuilder () {};
 
-  /**
-   * Initializes the object by pre-calculating the map from optimal coefficients
-   * (a,b,c,d) to the zero moment point at every discrete time step t.
-   *
-   * @param splines the initial map depends only depend on initial state and spline structure.
-   * @param walking_height the ZMP is influenced by the height above the ground.
-   */
+  /** Initializes the object by pre-calculating the map from optimal coefficients
+    * (a,b,c,d) to the zero moment point at every discrete time step t.
+    *
+    * @param splines the initial map depends only depend on initial state and spline structure.
+    * @param walking_height the ZMP is influenced by the height above the ground.
+    */
   void Init(const ContinuousSplineContainer&, double walking_height);
 
-  /**
-   * Calculates the constraints that keep the ZMP inside the current support
-   * polygon.
-   *
-   * @param s the support polygons from step sequence and location.
-   * @return MatrixVectorType m where each set of four rows represents an
-   * inequality constraint (m.M*x + m.v > 0) at that discrete time and for that
-   * specific support polygon. This constraint is evaluated by multiplying with
-   * the spline coefficients x.
-   */
+  /** Calculates the constraints that keep the ZMP inside the current support
+    * polygon.
+    *
+    * @param s the support polygons from step sequence and location.
+    * @return MatrixVectorType m where each set of four rows represents an
+    * inequality constraint (m.M*x + m.v > 0) at that discrete time and for that
+    * specific support polygon. This constraint is evaluated by multiplying with
+    * the spline coefficients x.
+    */
   MatVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
+  static bool IsZmpInsideSuppPolygon(const Vector2d& zmp, const SupportPolygon&);
 
 
 private:
@@ -69,7 +69,7 @@ private:
                                 const VecScalar& x_zmp_M,
                                 const VecScalar& y_zmp_M);
 
-  /** check if this spline needs a four leg support phase to go to next spline.
+  /** Check if this spline needs a four leg support phase to go to next spline.
     *
     * Reducing the support polygons by a margin creates disjoint support triangles
     * when switching to diagonally opposite swing legs. This causes the optimizer

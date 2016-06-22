@@ -142,6 +142,19 @@ ZmpConstraintBuilder::DisjointSuppPolygonsAtEnd(
 }
 
 bool
+ZmpConstraintBuilder::IsZmpInsideSuppPolygon (const Vector2d& zmp,
+                                             const SupportPolygon& supp)
+{
+  for (const SupportPolygon::SuppLine& l : supp.CalcLines()) {
+    bool zmp_outside = l.coeff.p*zmp.x() + l.coeff.q*zmp.y() + l.coeff.r < l.s_margin;
+    if(zmp_outside)
+      return false;
+  }
+
+  return true;
+}
+
+bool
 ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)
 {
   using namespace xpp::hyq;
@@ -164,5 +177,4 @@ ZmpConstraintBuilder::CheckIfInitialized() const
 
 } /* namespace zmp */
 } /* namespace xpp */
-
 
