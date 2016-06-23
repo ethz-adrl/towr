@@ -120,7 +120,7 @@ ZmpConstraintBuilder::DisjointSuppPolygonsAtBeginning(
 {
   LegID swing_leg = supp_polygon_container.GetLegID(step);
   if (step == 0) {
-    return false; // initial zmp should be inside support polygon
+    return true; // allow initial zmp to violate constraint for first part of first step
   } else {
     LegID prev_swing_leg = supp_polygon_container.GetLegID(step-1);
     return Insert4LSPhase(prev_swing_leg, swing_leg);
@@ -134,7 +134,7 @@ ZmpConstraintBuilder::DisjointSuppPolygonsAtEnd(
   LegID swing_leg = supp_polygon_container.GetLegID(step);
   bool last_step = step == supp_polygon_container.GetNumberOfSteps()-1;
   if (last_step) {
-    return false; // zmp should still be inside support polygon after final step
+    return true; // allow zmp to violate constraint at last part of last step
   } else {
     LegID next_swing_leg = supp_polygon_container.GetLegID(step+1);
     return Insert4LSPhase(swing_leg, next_swing_leg);
