@@ -133,28 +133,28 @@ Foothold HyqState::FootToFoothold(LegID leg) const
 }
 
 
-void HyqState::SwitchSwingleg()
-{
-  switch (SwinglegID()) {
-    case NO_SWING_LEG:
-      SetSwingleg(LH);
-      break;
-    case LH:
-      SetSwingleg(LF);
-      break;
-    case LF:
-      SetSwingleg(RH);
-      break;
-    case RH:
-      SetSwingleg(RF);
-      break;
-    case RF:
-      SetSwingleg(LH);
-      break;
-    default:
-      break;
-  };
-}
+//void HyqState::SwitchSwingleg()
+//{
+//  switch (SwinglegID()) {
+//    case NO_SWING_LEG:
+//      SetSwingleg(LH);
+//      break;
+//    case LH:
+//      SetSwingleg(LF);
+//      break;
+//    case LF:
+//      SetSwingleg(RH);
+//      break;
+//    case RH:
+//      SetSwingleg(RF);
+//      break;
+//    case RF:
+//      SetSwingleg(LH);
+//      break;
+//    default:
+//      break;
+//  };
+//}
 
 } // namespace hyq
 } // namespace xpp

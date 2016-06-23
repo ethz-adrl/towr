@@ -52,10 +52,10 @@ public:
   VecFoothold GetStanceLegs() const;
 
 
-  /**
-   *@brief changes the swingleg to next following McGhee gait: LH, LF, RH, RF
-   */
-  void SwitchSwingleg();
+//  /**
+//   *@brief changes the swingleg to next following McGhee gait: LH, LF, RH, RF
+//   */
+//  void SwitchSwingleg();
   void SetSwingleg(LegID leg);
 
   std::array<Vec3d, kNumSides> GetAvgSides() const;
