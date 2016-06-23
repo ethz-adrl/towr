@@ -86,11 +86,6 @@ NlpOptimizerNode::DetermineStepSequence(const State& curr_state, int curr_swingl
   const double width_per_step = 0.20;
   Eigen::Vector2d start_to_goal = goal_cog_.p.segment<2>(0) - curr_cog_.p.segment<2>(0);
 
-  // don't do anything if goal to close
-  if (start_to_goal.norm() < 0.05) {
-    std::cout << "goal closer than 0.05m\n";
-    return std::vector<xpp::hyq::LegID>(); // empty vector, take no steps
-  }
 
   int req_steps_per_leg;
   // fixme don't take steps if body movement is sufficient
@@ -103,17 +98,28 @@ NlpOptimizerNode::DetermineStepSequence(const State& curr_state, int curr_swingl
   }
 
 
-  using namespace xpp::hyq;
-  std::vector<xpp::hyq::LegID> step_sequence;
+
+  // don't do anything if goal to close
+  if (start_to_goal.norm() < 0.05) {
+    std::cout << "goal closer than 0.05m\n";
+    start_with_com_shift_ = false;
+    return std::vector<xpp::hyq::LegID>(); // empty vector, take no steps
+  }
 
 
   LegID sl;
   if (curr_swingleg == hyq::NO_SWING_LEG)
     sl = prev_swingleg_;
-  else
+  else {
     sl = static_cast<LegID>(curr_swingleg);
+    prev_swingleg_ = sl;
+  }
 
-  prev_swingleg_ = sl;
+
+
+
+  using namespace xpp::hyq;
+  std::vector<xpp::hyq::LegID> step_sequence;
 
 
   for (int step=0; step<req_steps_per_leg*4; ++step) {
@@ -124,7 +130,7 @@ NlpOptimizerNode::DetermineStepSequence(const State& curr_state, int curr_swingl
 
 
 
-  // test if current zmp is inside support polygon of current stance
+  // determine, whether initial stance phase must be inserted
   Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(curr_state, robot_height_);
 
   // remove first swingleg from current stance
@@ -135,10 +141,15 @@ NlpOptimizerNode::DetermineStepSequence(const State& curr_state, int curr_swingl
 
   // fixme zero margins, since i actually allow violation of zmp constraint
   // don't want 4ls to be inserted there
-  hyq::SupportPolygon supp(first_stance, hyq::SupportPolygon::GetZeroMargins());
+  hyq::SupportPolygon supp(first_stance, hyq::SupportPolygon::GetDefaultMargins());
 
   bool zmp_inside = zmp::ZmpConstraintBuilder::IsZmpInsideSuppPolygon(zmp,supp);
-  start_with_com_shift_ = zmp_inside? false : true;
+
+  start_with_com_shift_ = false;
+  // so 4ls-phase not always inserted b/c of short time zmp constraints are ignore
+  // when switching between disjoint support triangles.
+  if (!zmp_inside && curr_state.v.norm() < 0.01)
+    start_with_com_shift_ = true;
 
   return step_sequence;
 }
