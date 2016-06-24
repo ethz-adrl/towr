@@ -20,6 +20,7 @@ namespace hyq {
 struct SplineNode {
   typedef xpp::utils::Point3d Point3d;
 
+  SplineNode(){};
   SplineNode(const HyqState& state, const Point3d& ori_rpy, double t_max)
       : state_(state), ori_rpy_(ori_rpy), T(t_max) {};
 
@@ -67,6 +68,7 @@ public:
 
   double GetTotalTime() const;
   SplineNode GetGoalNode(double t_global) const;
+  SplineNode GetNode(int node) const { return nodes_.at(node); };
 
 private:
   std::vector<SplineNode> nodes_; // the discrete states to spline through
