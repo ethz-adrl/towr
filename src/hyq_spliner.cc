@@ -58,10 +58,6 @@ HyqSpliner::BuildStateSequence(const HyqState& P_init,
   }
   P_plan_prev.base_.pos.p(Z) = robot_height + P_plan_prev.GetZAvg(); // height of footholds
 
-  // fixme: don't create multiple nodes for many initial splines
-
-  int step = 0;
-
   for (const ZmpSpline& s : zmp_splines)
   {
     // copy a few values from previous state
@@ -70,7 +66,7 @@ HyqSpliner::BuildStateSequence(const HyqState& P_init,
 
     // only change state in swingphase
     if (!s.IsFourLegSupport()) {
-      const Foothold& f = footholds.at(step++);
+      const Foothold& f = footholds.at(s.GetCurrStep());
       P_plan.swingleg_[f.leg] = true;
       P_plan.feet_[f.leg].p(X) = f.p(X);
       P_plan.feet_[f.leg].p(Y) = f.p(Y);
