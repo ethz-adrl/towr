@@ -66,6 +66,7 @@ NlpOptimizerNode::OptimizeTrajectory()
   bool add_final_stance = true;
   spline_structure.Init(curr_cog_.Get2D().p, curr_cog_.Get2D().v, step_sequence_.size(),
                         spline_times_, start_with_com_shift_, add_final_stance);
+  spline_structure.SetEndAtStart();
 
   auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
   interpreter_ptr->Init(spline_structure, step_sequence_, curr_stance_, robot_height_);
@@ -141,14 +142,16 @@ NlpOptimizerNode::DetermineStepSequence(const State& curr_state, int curr_swingl
 
   // fixme zero margins, since i actually allow violation of zmp constraint
   // don't want 4ls to be inserted there
-  hyq::SupportPolygon supp(first_stance, hyq::SupportPolygon::GetDefaultMargins());
+  MarginValues margins = hyq::SupportPolygon::GetDefaultMargins();
+  margins.at(DIAG)/=2.;
+  hyq::SupportPolygon supp(first_stance, margins);
 
   bool zmp_inside = zmp::ZmpConstraintBuilder::IsZmpInsideSuppPolygon(zmp,supp);
 
   start_with_com_shift_ = false;
   // so 4ls-phase not always inserted b/c of short time zmp constraints are ignore
   // when switching between disjoint support triangles.
-  if (!zmp_inside && curr_state.v.norm() < 0.01)
+  if (!zmp_inside /*&& curr_state.v.norm() < 0.01*/)
     start_with_com_shift_ = true;
 
   return step_sequence;

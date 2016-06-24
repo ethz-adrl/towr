@@ -56,6 +56,11 @@ public:
     return x_eig.head(n_spline_coeff_);
   }
 
+  void SetSplineCoefficients(const VectorXd& x_abdc, VectorXd& x) const
+  {
+    x.head(n_spline_coeff_) = x_abdc;
+  }
+
   /** Foothold functions */
   VectorXd ConvertStdToEig(const StdVecEigen2d& footholds_xy) const
   {

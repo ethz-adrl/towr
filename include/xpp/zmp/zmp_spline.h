@@ -24,6 +24,7 @@ namespace zmp {
 
 static const int kCoeffCount = 6;
 enum SplineCoeff { A=0, B, C, D }; // the coefficients that are optimized over
+static const SplineCoeff SplineCoeffArray[] = { A, B, C, D };
 enum SplineCoeffE { E=D+1};
 enum SplineCoeffF { F=D+2};
 
@@ -92,6 +93,7 @@ public:
 
   Vec2d GetState(PosVelAcc whichDeriv, double t) const;
   void SetSplineCoefficients(const CoeffValues &coeff_values = CoeffValues());
+  double GetCoefficient(int dim, SplineCoeff coeff) const;
 
 protected:
   double spline_coeff_[kDim2d][kCoeffCount];

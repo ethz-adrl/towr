@@ -17,7 +17,8 @@ namespace zmp {
 TEST(JointAnglesContraintTest, StartStanceInLimits)
 {
   int n_splines = 1;
-  OptimizationVariables subject_(n_splines*kFreeCoeffPerSpline*2, 0);
+  OptimizationVariables subject;
+  subject.Init(Eigen::VectorXd::Zero(n_splines*kFreeCoeffPerSpline*2), 0);
 
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::VectorXd VectorXd;
@@ -43,7 +44,7 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
 
   xpp::hyq::HyqInverseKinematics hyq_inv_kin;
 
-  JointAnglesConstraint constraint(subject_);
+  JointAnglesConstraint constraint(subject);
   constraint.Init(interpreter, &hyq_inv_kin);
 
   VectorXd q = constraint.EvaluateConstraint();

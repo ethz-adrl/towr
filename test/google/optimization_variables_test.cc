@@ -12,10 +12,11 @@ namespace xpp {
 namespace zmp {
 
 class OptimizationVariablesTest : public ::testing::Test {
-public:
-  OptimizationVariablesTest() : subject_(n_coeff_, n_steps_) {}
-
 protected:
+  virtual void SetUp(){
+    subject_.Init(Eigen::VectorXd::Zero(n_coeff_), n_steps_);
+  }
+
   const int n_coeff_ = utils::kDim2d*4/* optimizing over a,b,c,d*/;
   const int n_steps_ = 2;
   OptimizationVariables subject_;

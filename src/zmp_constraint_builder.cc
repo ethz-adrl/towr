@@ -120,7 +120,7 @@ ZmpConstraintBuilder::DisjointSuppPolygonsAtBeginning(
 {
   LegID swing_leg = supp_polygon_container.GetLegID(step);
   if (step == 0) {
-    return true; // allow initial zmp to violate constraint for first part of first step
+    return false; // don't allow initial zmp to violate constraint for first part of first step
   } else {
     LegID prev_swing_leg = supp_polygon_container.GetLegID(step-1);
     return Insert4LSPhase(prev_swing_leg, swing_leg);

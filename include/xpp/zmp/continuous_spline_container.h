@@ -30,6 +30,7 @@ public:
   typedef xpp::utils::VecScalar VecScalar;
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::RowVector4d VecABCD;
+  typedef Eigen::VectorXd VectorXd;
 
   typedef xpp::utils::coords_wrapper::Coords3D Coords;
 
@@ -56,14 +57,14 @@ public:
    */
   static int Index(int spline, Coords dim, SplineCoeff coeff);
   int GetTotalFreeCoeff() const;
+  VectorXd GetABCDCoeffients() const;
 
-  void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff,
-                                VecSpline& splines) const;
-  void AddOptimizedCoefficients(const Eigen::VectorXd& optimized_coeff)
+  void AddOptimizedCoefficients(const VectorXd& optimized_coeff, VecSpline& splines) const;
+  void AddOptimizedCoefficients(const VectorXd& optimized_coeff)
   {
     AddOptimizedCoefficients(optimized_coeff, splines_);
   }
-  VecSpline BuildOptimizedSplines(const Eigen::VectorXd& optimized_coeff) const
+  VecSpline BuildOptimizedSplines(const VectorXd& optimized_coeff) const
   {
     VecSpline splines = splines_;
     AddOptimizedCoefficients(optimized_coeff, splines);

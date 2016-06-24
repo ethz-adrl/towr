@@ -108,7 +108,6 @@ MarginValues SupportPolygon::GetDefaultMargins()
   return default_margins;
 }
 
-
 MarginValues SupportPolygon::GetZeroMargins()
 {
   MarginValues zero_margins;

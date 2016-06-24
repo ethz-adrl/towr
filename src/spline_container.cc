@@ -16,10 +16,15 @@ SplineContainer::AddSplinesStepSequence (int step_count, double t_swing)
 {
   unsigned int id = splines_.size()==0 ? 0 : splines_.back().GetId()+1;
 
+  // fixme more than one currently not supported, change hyq_spliner
+  // and ZMP constraint to not relax constraints at these duplicate splines.
+  int n_splines_per_step = 1;
   for (int step=0; step<step_count; ++step) {
-    ZmpSpline spline(id++, t_swing, StepSpline);
-    spline.SetStep(step);
-    splines_.push_back(spline);
+    for (int i=0; i<n_splines_per_step; ++i) {
+      ZmpSpline spline(id++, t_swing/n_splines_per_step, StepSpline);
+      spline.SetStep(step);
+      splines_.push_back(spline);
+    }
   }
 
   splines_initialized_ = true;

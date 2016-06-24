@@ -100,10 +100,11 @@ TEST_F(SplineContainerTest, SetEndAtStart)
   splines.SetEndAtStart();
   EXPECT_EQ(init_pos, splines.GetCOGxy(0.0).p);
   EXPECT_EQ(init_vel, splines.GetCOGxy(0.0).v);
-  EXPECT_NEAR(init_pos.x(), splines.GetCOGxy(T).p.x(),1e-8);
-  EXPECT_NEAR(init_pos.y(), splines.GetCOGxy(T).p.y(),1e-8);
-  EXPECT_NEAR(0.0, splines.GetCOGxy(T).v.x(),1e-8);
-  EXPECT_NEAR(0.0, splines.GetCOGxy(T).v.y(),1e-8);
+  double tol = 1e-8;
+  EXPECT_NEAR(init_pos.x(), splines.GetCOGxy(T).p.x(),tol);
+  EXPECT_NEAR(init_pos.y(), splines.GetCOGxy(T).p.y(),tol);
+  EXPECT_NEAR(0.0, splines.GetCOGxy(T).v.x(),tol);
+  EXPECT_NEAR(0.0, splines.GetCOGxy(T).v.y(),tol);
 }
 
 TEST_F(SplineContainerTest, ConstructSplineSequenceInitFinalCount)

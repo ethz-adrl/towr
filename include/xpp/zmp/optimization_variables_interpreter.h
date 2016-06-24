@@ -41,8 +41,8 @@ public:
   VecFoothold GetStartStance() const;
   VecLegID GetStepSequence() const;
 
-  VecFoothold GetFootholds(const FootholdPositionsXY&) const;
-  VecSpline GetSplines(const VectorXd& spline_coeff_abcd) const;
+  VecFoothold GetFootholds(const FootholdPositionsXY& x_feet) const;
+  VecSpline GetSplines(const VectorXd& x_spline_coeff_abcd) const;
 
 private:
   ContinuousSplineContainer spline_structure_;

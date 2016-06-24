@@ -47,9 +47,9 @@ int main(int argc, char **argv)
   msg.curr_state.pos.x = -0.0;
   msg.curr_state.pos.y =  0.0;
   msg.curr_state.vel.x = atof(argv[1]); // figure out why this fails
-  msg.curr_state.vel.y = atof(argv[1]); // figure out why this fails
-  msg.curr_state.acc.x = atof(argv[2]); // this is a constraint
-  msg.curr_state.acc.y = atof(argv[2]); // this is a constraint
+  msg.curr_state.vel.y = atof(argv[2]); // figure out why this fails
+  msg.curr_state.acc.x = 0.0;// this is a constraint
+  msg.curr_state.acc.y = 0.0; // this is a constraint
 //  msg.curr_state.acc.y = 1.0;
 
   using namespace xpp::hyq;

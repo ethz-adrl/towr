@@ -69,7 +69,8 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
 
   ContinuousSplineContainer spline_structure = interpreter_ptr->GetSplineStructure();
 
-  opt_variables_.Init(spline_structure.GetTotalFreeCoeff(), supp_polygon_container.GetNumberOfSteps());
+
+  opt_variables_.Init(spline_structure.GetABCDCoeffients(), supp_polygon_container.GetNumberOfSteps());
   opt_variables_.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
 
 

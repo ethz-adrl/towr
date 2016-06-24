@@ -21,13 +21,10 @@ class ConstraintContainerTest : public ::testing::Test {
 public:
   typedef std::shared_ptr<LinearEqualityConstraint> ConstraintPtr;
 
-  ConstraintContainerTest()
-      : subject_(n_coeff_, n_steps_)
-  {
-  }
-
 protected:
   virtual void SetUp(){
+
+    subject_.Init(Eigen::VectorXd::Zero(n_coeff_), n_steps_);
 
     int n_spline_coeff = subject_.GetSplineCoefficients().rows();
     InitialAccelerationEquation eq_acc_zeros(Eigen::Vector2d::Zero(),n_spline_coeff);

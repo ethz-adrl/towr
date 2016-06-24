@@ -1,9 +1,9 @@
 <launch>
   <!-- zmp optimization paramters -->
   <group ns="xpp">  
-    <param name="swing_time"          value="0.6"  type="double"/>	
+    <param name="swing_time"          value="0.7"  type="double"/>	
     <param name="robot_height"        value="0.58" type="double"/> 
-    <param name="stance_time_initial" value="0.5"  type="double"/> 
+    <param name="stance_time_initial" value="0.6"  type="double"/> 
     <param name="stance_time_final"   value="0.6"  type="double"/> 
     <param name="goal_state_x"        value="0.2"  type="double"/>
     <param name="goal_state_y"        value="0.0"  type="double"/>    

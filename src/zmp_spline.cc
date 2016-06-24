@@ -70,6 +70,12 @@ void Spline::SetSplineCoefficients(const CoeffValues &coeff_values)
     }
 }
 
+double
+Spline::GetCoefficient (int dim, SplineCoeff coeff) const
+{
+  return spline_coeff_[dim][coeff];
+}
+
 ZmpSpline::ZmpSpline()
     : id_(0), duration_(0.0), type_(StanceSpline), step_(-1)
 {

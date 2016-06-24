@@ -108,6 +108,18 @@ int ContinuousSplineContainer::GetTotalFreeCoeff() const
   return splines_.size() * kFreeCoeffPerSpline * kDim2d;
 }
 
+ContinuousSplineContainer::VectorXd
+ContinuousSplineContainer::GetABCDCoeffients () const
+{
+  VectorXd x_abcd(GetTotalFreeCoeff());
+
+  for (const auto& s : splines_)
+    for (auto dim : Coords2DArray)
+      for (auto coeff : SplineCoeffArray)
+        x_abcd[Index(s.GetId(), dim, coeff)] = s.GetCoefficient(dim, coeff);
+
+  return x_abcd;
+}
 
 int ContinuousSplineContainer::Index(int spline, Coords dim, SplineCoeff coeff)
 {
@@ -166,7 +178,6 @@ ContinuousSplineContainer::DescribeEByABCD(Coords dim, double start_cog_v) const
 
   return e_coeff;
 }
-
 
 ContinuousSplineContainer::MatVec
 ContinuousSplineContainer::DescribeFByABCD(Coords dim, double start_cog_p,

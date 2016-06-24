@@ -14,17 +14,14 @@ OptimizationVariables::OptimizationVariables ()
 {
 }
 
-OptimizationVariables::OptimizationVariables (int n_spline_coeff, int n_steps)
-{
-  Init(n_spline_coeff, n_steps);
-}
-
 void
-OptimizationVariables::Init (int n_spline_coeff, int n_steps)
+OptimizationVariables::Init (const VectorXd& x_coeff_abcd, int n_steps)
 {
-  nlp_structure_.Init(n_spline_coeff, n_steps);
+  nlp_structure_.Init(x_coeff_abcd.rows(), n_steps);
   x_ = VectorXd(nlp_structure_.GetOptimizationVariableCount());
   x_.setZero();
+
+  nlp_structure_.SetSplineCoefficients(x_coeff_abcd, x_);
 
   initialized_ = true;
 }
