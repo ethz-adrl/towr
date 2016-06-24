@@ -84,6 +84,28 @@ TEST_F(SplineContainerTest, GetCOGxy)
   EXPECT_EQ(init_vel, splines.GetCOGxy(T).v);
 }
 
+TEST_F(SplineContainerTest, SetEndAtStart)
+{
+  ContinuousSplineContainer splines;
+  const Vector2d init_pos(0.5, -0.2);
+  const Vector2d init_vel(1.5, 0.3);
+  splines.Init(init_pos, init_vel, n_steps, times_);
+  const double T = splines.GetTotalTime();
+  const double t_first_spline = splines.GetFirstSpline().GetDuration();
+
+  // spline ends up in different position than start due to initial velocity
+  EXPECT_NE(init_pos, splines.GetCOGxy(T).p);
+
+  // same initial pos,vel, but should now end up at inital pos with zero velocity
+  splines.SetEndAtStart();
+  EXPECT_EQ(init_pos, splines.GetCOGxy(0.0).p);
+  EXPECT_EQ(init_vel, splines.GetCOGxy(0.0).v);
+  EXPECT_NEAR(init_pos.x(), splines.GetCOGxy(T).p.x(),1e-8);
+  EXPECT_NEAR(init_pos.y(), splines.GetCOGxy(T).p.y(),1e-8);
+  EXPECT_NEAR(0.0, splines.GetCOGxy(T).v.x(),1e-8);
+  EXPECT_NEAR(0.0, splines.GetCOGxy(T).v.y(),1e-8);
+}
+
 TEST_F(SplineContainerTest, ConstructSplineSequenceInitFinalCount)
 {
   VecSpline spline = spline_container_4steps_.GetSplines();

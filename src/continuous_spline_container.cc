@@ -235,11 +235,12 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
   } // k=0..n_spline_infos_
 }
 
-
 void
-ContinuousSplineContainer::SetEndAtStart (const Vector2d& start_com_v,
-                                          double T)
+ContinuousSplineContainer::SetEndAtStart ()
 {
+  const Vector2d& start_com_v = splines_.front().GetState(xpp::utils::kVel,0.0);
+  double T = splines_.front().GetDuration();
+
   Eigen::Matrix2d A; A << 3*T*T, 2*T, // velocity equal to zero
                           T*T*T, T*T; // position equal to initial
   Vector2d b(1,T);
@@ -247,10 +248,14 @@ ContinuousSplineContainer::SetEndAtStart (const Vector2d& start_com_v,
   Vector2d c_and_d_x = A.lu().solve(-start_com_v.x()*b);
   Vector2d c_and_d_y = A.lu().solve(-start_com_v.y()*b);
 
-  splines_.front().SetXCoefficient(C,c_and_d_x(0));
-  splines_.front().SetXCoefficient(D,c_and_d_x(1));
-  splines_.front().SetYCoefficient(C,c_and_d_y(0));
-  splines_.front().SetYCoefficient(D,c_and_d_y(1));
+  Eigen::VectorXd abcd(GetTotalFreeCoeff());
+  abcd.setZero();
+  abcd[Index(0,X,C)] = c_and_d_x(0);
+  abcd[Index(0,X,D)] = c_and_d_x(1);
+  abcd[Index(0,Y,C)] = c_and_d_y(0);
+  abcd[Index(0,Y,D)] = c_and_d_y(1);
+
+  AddOptimizedCoefficients(abcd);
 }
 
 } /* namespace zmp */
