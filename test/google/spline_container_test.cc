@@ -21,6 +21,8 @@ class SplineContainerTest : public ::testing::Test {
 
 public:
   typedef SplineContainer::VecSpline VecSpline;
+  typedef xpp::utils::Point2d Point2d;
+  typedef Eigen::Vector2d Vector2d;
 
 protected:
   virtual void SetUp()
@@ -34,8 +36,8 @@ protected:
     bool add_initial_spline = true;
     bool add_final_spline  = true;
 
-    spline_container_4steps_.Init(Eigen::Vector2d::Zero(),
-                                  Eigen::Vector2d::Zero(),
+    spline_container_4steps_.Init(Vector2d(0.5,-0.2), // initial position
+                                  Vector2d(1.5, 0.3), // initial velocity
                                   n_steps,
                                   times_,
                                   add_initial_spline,
@@ -53,6 +55,34 @@ protected:
   int n_final_splines;
 };
 
+TEST_F(SplineContainerTest, GetCOGxy)
+{
+  ContinuousSplineContainer splines;
+  splines.Init(Vector2d::Zero(), Vector2d::Zero(), n_steps, times_);
+  const double T = splines.GetTotalTime();
+
+  // zero initial position and velocity
+  EXPECT_EQ(Vector2d::Zero(), splines.GetCOGxy(0.0).p);
+  EXPECT_EQ(Vector2d::Zero(), splines.GetCOGxy(T).p);
+
+  // with initial position (final position should be same)
+  const Vector2d init_pos(0.5, -0.2);
+  splines.Init(init_pos, Vector2d::Zero(), n_steps, times_);
+  EXPECT_EQ(init_pos, splines.GetCOGxy(0.0).p);
+  EXPECT_EQ(init_pos, splines.GetCOGxy(T).p);
+
+  // with initial velocity (final velocity should be same)
+  const Vector2d init_vel(1.5, 0.3);
+  splines.Init(Vector2d::Zero(), init_vel, n_steps, times_);
+  EXPECT_EQ(init_vel, splines.GetCOGxy(0.0).v);
+  EXPECT_EQ(init_vel, splines.GetCOGxy(T).v);
+
+  // with initial position and velocity (final position should be different, velocity same)
+  splines.Init(init_pos, init_vel, n_steps, times_);
+  EXPECT_EQ(init_pos, splines.GetCOGxy(0.0).p);
+  EXPECT_NE(init_pos, splines.GetCOGxy(T).p);
+  EXPECT_EQ(init_vel, splines.GetCOGxy(T).v);
+}
 
 TEST_F(SplineContainerTest, ConstructSplineSequenceInitFinalCount)
 {
@@ -60,13 +90,11 @@ TEST_F(SplineContainerTest, ConstructSplineSequenceInitFinalCount)
   EXPECT_EQ(n_initial_splines + 4/*steps*/ + 0/*4LS*/ + n_final_splines, spline.size());
 }
 
-
 TEST_F(SplineContainerTest, GetSplineCount)
 {
   int n_total = n_initial_splines + n_steps  + n_final_splines;
   EXPECT_EQ(n_total, spline_container_4steps_.GetSplineCount());
 }
-
 
 TEST_F(SplineContainerTest, GetTotalFreeCoeff)
 {
@@ -74,7 +102,6 @@ TEST_F(SplineContainerTest, GetTotalFreeCoeff)
   int n = n_splines * kFreeCoeffPerSpline * utils::kDim2d;
   EXPECT_EQ(n, spline_container_4steps_.GetTotalFreeCoeff());
 }
-
 
 TEST_F(SplineContainerTest, GetTotalTime)
 {
@@ -84,7 +111,6 @@ TEST_F(SplineContainerTest, GetTotalTime)
 
   EXPECT_DOUBLE_EQ(T, spline_container_4steps_.GetTotalTime());
 }
-
 
 TEST_F(SplineContainerTest, GetSplineID)
 {
@@ -101,7 +127,6 @@ TEST_F(SplineContainerTest, GetSplineID)
   EXPECT_EQ(last_id-n_final_splines-1, spline_container_4steps_.GetSplineID(t_just_at_end_of_swing - times_.t_swing_ - 0.01));
 }
 
-
 TEST_F(SplineContainerTest, GetLocalTime)
 {
   double t_global;
@@ -115,7 +140,6 @@ TEST_F(SplineContainerTest, GetLocalTime)
   t_global = spline_container_4steps_.GetTotalTime();
   EXPECT_FLOAT_EQ(times_.t_stance_final_/n_final_splines, spline_container_4steps_.GetLocalTime(t_global));
 }
-
 
 TEST_F(SplineContainerTest, IsFourLegSupport)
 {
@@ -131,7 +155,6 @@ TEST_F(SplineContainerTest, IsFourLegSupport)
   EXPECT_FALSE(spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
   EXPECT_TRUE (spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
 }
-
 
 TEST_F(SplineContainerTest, GetState)
 {

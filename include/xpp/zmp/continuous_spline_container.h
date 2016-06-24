@@ -73,6 +73,17 @@ public:
   VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
   VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;
 
+  /** Sets polynomial coefficients, so spline ends up at initial position.
+    *
+    * So at the end of the polynomial (time T), the state of the system will
+    * be the start position with zero velocity. Following splines can then just
+    * be set with zero coefficient values to stay there as well.
+    *
+    * @param start_com_v initial velocity of the Center of Mass.
+    * @param T the duration of the first polynome in spline.
+   */
+  void SetEndAtStart(const Vector2d& start_com_v, double T);
+
   /**
    * Produces a vector and scalar, that, multiplied with the spline coefficients
    * a,b,c,d of all splines returns the position of the CoG at time t_local

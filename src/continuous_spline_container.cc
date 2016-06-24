@@ -6,6 +6,7 @@
  */
 
 #include <xpp/zmp/continuous_spline_container.h>
+#include <Eigen/LU>
 
 namespace xpp {
 namespace zmp {
@@ -29,6 +30,8 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
                                      bool insert_initial_stance,
                                      bool insert_final_stance)
 {
+  splines_.clear();
+
   // build the spline structure
   if (insert_initial_stance)
     SplineContainer::AddStanceSpline(times.t_stance_initial_);
@@ -42,6 +45,11 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
     relationship_e_to_abcd_.at(dim) = DescribeEByABCD(dim, start_cog_v(dim));
     relationship_f_to_abdc_.at(dim) = DescribeFByABCD(dim, start_cog_p(dim), start_cog_v(dim));
   }
+
+  // initialize all other coefficients apart from e,f of first spline to zero
+  Eigen::VectorXd abcd(GetTotalFreeCoeff());
+  abcd.setZero();
+  AddOptimizedCoefficients(abcd);
 }
 
 
@@ -228,5 +236,23 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
 }
 
 
+void
+ContinuousSplineContainer::SetEndAtStart (const Vector2d& start_com_v,
+                                          double T)
+{
+  Eigen::Matrix2d A; A << 3*T*T, 2*T, // velocity equal to zero
+                          T*T*T, T*T; // position equal to initial
+  Vector2d b(1,T);
+
+  Vector2d c_and_d_x = A.lu().solve(-start_com_v.x()*b);
+  Vector2d c_and_d_y = A.lu().solve(-start_com_v.y()*b);
+
+  splines_.front().SetXCoefficient(C,c_and_d_x(0));
+  splines_.front().SetXCoefficient(D,c_and_d_x(1));
+  splines_.front().SetYCoefficient(C,c_and_d_y(0));
+  splines_.front().SetYCoefficient(D,c_and_d_y(1));
+}
+
 } /* namespace zmp */
 } /* namespace xpp */
+

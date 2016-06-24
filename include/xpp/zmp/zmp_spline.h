@@ -92,6 +92,8 @@ public:
 
   Vec2d GetState(PosVelAcc whichDeriv, double t) const;
   void SetSplineCoefficients(const CoeffValues &coeff_values = CoeffValues());
+  void SetXCoefficient(int coeff, double val) { spline_coeff_[xpp::utils::X][coeff] = val; } ;
+  void SetYCoefficient(int coeff, double val) { spline_coeff_[xpp::utils::Y][coeff] = val; } ;
 
 protected:
   double spline_coeff_[kDim2d][kCoeffCount];
