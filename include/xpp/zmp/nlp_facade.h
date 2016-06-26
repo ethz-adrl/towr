@@ -50,10 +50,15 @@ public:
   virtual ~NlpFacade () {};
 
 
+  /** Specifies that initial optimization variables where NLP starts.
+    *
+    * @param n_spline_coeff number of spline coefficients.
+    * @param n_footholds number of footholds.
+    */
+  void InitializeVariables(int n_spline_coeff, int n_footholds);
   void InitializeVariables(const Eigen::VectorXd& spline_abcd_coeff,
                            const StdVecEigen2d& footholds);
 
-  void InitializeVariables(int n_spline_coeff, int n_footholds);
 
   /** @brief Solves the nonlinear program (NLP) of moving the CoG from an initial to a
     * final state while keeping the Zero-Moment-Point (ZMP) inside the support
@@ -88,8 +93,6 @@ private:
 
   Ipopt::IpoptApplication ipopt_solver_;
   Ipopt::ApplicationReturnStatus status_;
-
-  bool opt_variables_initialized_ = false;
 };
 
 } /* namespace zmp */

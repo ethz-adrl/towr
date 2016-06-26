@@ -19,6 +19,8 @@
 namespace xpp {
 namespace zmp {
 
+class OptimizationVariablesInterpreter;
+
 class RangeOfMotionConstraint : public IObserver, public AConstraint {
 public:
   typedef OptimizationVariables::StdVecEigen2d FootholdsXY;
@@ -27,7 +29,7 @@ public:
   RangeOfMotionConstraint (OptimizationVariables& subject);
   virtual ~RangeOfMotionConstraint () {};
 
-  void Init(const ContinuousSplineContainer&, const SupportPolygonContainer&);
+  void Init(const OptimizationVariablesInterpreter&);
   void Update() override;
   VectorXd EvaluateConstraint () const override;
   VecBound GetBounds () const override;

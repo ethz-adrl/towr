@@ -6,6 +6,7 @@
  */
 
 #include <xpp/zmp/zmp_constraint.h>
+#include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
 namespace zmp {
@@ -16,12 +17,10 @@ ZmpConstraint::ZmpConstraint (OptimizationVariables& subject)
 }
 
 void
-ZmpConstraint::Init (const ContinuousSplineContainer& spline_container,
-                     const SupportPolygonContainer& supp_polygon_container,
-                     double walking_height)
+ZmpConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
 {
-  supp_polygon_container_ = supp_polygon_container;
-  zmp_constraint_builder_.Init(spline_container, walking_height);
+  supp_polygon_container_ = interpreter.GetSuppPolygonContainer();
+  zmp_constraint_builder_.Init(interpreter.GetSplineStructure(), interpreter.GetRobotHeight());
 
   Update();
 }

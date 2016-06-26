@@ -6,6 +6,7 @@
  */
 
 #include <xpp/zmp/range_of_motion_constraint.h>
+#include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
 namespace zmp {
@@ -16,11 +17,10 @@ RangeOfMotionConstraint::RangeOfMotionConstraint (OptimizationVariables& subject
 }
 
 void
-RangeOfMotionConstraint::Init (const ContinuousSplineContainer& spline,
-                               const SupportPolygonContainer& support)
+RangeOfMotionConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
 {
-  continuous_spline_container_ = spline;
-  supp_polygon_container_ = support;
+  continuous_spline_container_ = interpreter.GetSplineStructure();
+  supp_polygon_container_ = interpreter.GetSuppPolygonContainer();
 
   Update();
 }

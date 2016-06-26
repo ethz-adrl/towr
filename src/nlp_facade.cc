@@ -55,18 +55,16 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
 }
 
 void
+NlpFacade::InitializeVariables (int n_spline_coeff, int n_footholds)
+{
+  opt_variables_.Init(n_spline_coeff, n_footholds);
+}
+
+void
 NlpFacade::InitializeVariables (const Eigen::VectorXd& spline_abcd_coeff,
                                 const StdVecEigen2d& footholds)
 {
   opt_variables_.Init(spline_abcd_coeff, footholds);
-  opt_variables_initialized_ = true;
-}
-
-void
-NlpFacade::InitializeVariables (int n_spline_coeff, int n_footholds)
-{
-  opt_variables_.Init(n_spline_coeff, n_footholds);
-  opt_variables_initialized_ = true;
 }
 
 void
@@ -74,39 +72,32 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
                     const State& final_state,
                     const InterpreterPtr& interpreter_ptr)
 {
-  assert(opt_variables_initialized_);
   // save the framework of the optimization problem
   interpreting_observer_->SetInterpreter(interpreter_ptr);
 
-  xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  supp_polygon_container.Init(interpreter_ptr->GetStartStance(),
-                              interpreter_ptr->GetStepSequence(),
-                              xpp::hyq::SupportPolygon::GetDefaultMargins());
-
-  ContinuousSplineContainer spline_structure = interpreter_ptr->GetSplineStructure();
 
   // This should all be hidden inside a factory method
   // the linear equations
+  ContinuousSplineContainer spline_structure = interpreter_ptr->GetSplineStructure();
   InitialAccelerationEquation eq_acc(initial_acc, spline_structure.GetTotalFreeCoeff());
   FinalStateEquation eq_final(final_state, spline_structure);
   SplineJunctionEquation eq_junction(spline_structure);
+  TotalAccelerationEquation eq_total_acc(spline_structure);
 
   // initialize the constraints
-  // fixme bad practice, remove
-  xpp::hyq::HyqInverseKinematics hyq_inv_kin;
-
+  // fixme casting is bad practice -> remove
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("acc")).Init(eq_acc.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("final")).Init(eq_final.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
-  dynamic_cast<ZmpConstraint&>(constraints_.GetConstraint("zmp")).Init(spline_structure, supp_polygon_container, interpreter_ptr->GetRobotHeight());
-  dynamic_cast<RangeOfMotionConstraint&>(constraints_.GetConstraint("rom")).Init(spline_structure, supp_polygon_container);
+  dynamic_cast<ZmpConstraint&>(constraints_.GetConstraint("zmp")).Init(*interpreter_ptr);
+  dynamic_cast<RangeOfMotionConstraint&>(constraints_.GetConstraint("rom")).Init(*interpreter_ptr);
+//  xpp::hyq::HyqInverseKinematics hyq_inv_kin;
 //  dynamic_cast<JointAnglesConstraint&>(constraints_.GetConstraint("joint_angles")).Init(*interpreter_ptr, &hyq_inv_kin);
   constraints_.Refresh();
 
   // costs
-  TotalAccelerationEquation eq_total_acc(spline_structure);
   dynamic_cast<AQuadraticCost&>(costs_.GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
-  dynamic_cast<RangeOfMotionCost&>(costs_.GetCost("cost_rom")).Init(spline_structure, supp_polygon_container);
+  dynamic_cast<RangeOfMotionCost&>(costs_.GetCost("cost_rom")).Init(*interpreter_ptr);
 
   // todo create complete class out of these input arguments
   IpoptPtr nlp_ptr = new Ipopt::IpoptAdapter(opt_variables_,
@@ -114,7 +105,6 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
                                              constraints_,
                                              *visualizer_); // just so it can poll the PublishMsg() method
   SolveIpopt(nlp_ptr);
-  opt_variables_initialized_ = false;
 }
 
 void

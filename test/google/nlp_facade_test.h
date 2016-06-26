@@ -62,8 +62,11 @@ protected:
     spline_structure.Init(start_xy_.p, start_xy_.v, leg_ids.size(),
                           times_, start_with_com_shift, true);
 
+    SupportPolygonContainer support_polygon_container_;
+    support_polygon_container_.Init(start_stance_, leg_ids, SupportPolygon::GetDefaultMargins());
+
     auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
-    interpreter_ptr->Init(spline_structure, leg_ids, start_stance_, robot_height_);
+    interpreter_ptr->Init(spline_structure, support_polygon_container_, robot_height_);
 
     nlp_facade.InitializeVariables(spline_structure.GetTotalFreeCoeff(), leg_ids.size());
     nlp_facade.SolveNlp(start_xy_.a, goal_xy_, interpreter_ptr);

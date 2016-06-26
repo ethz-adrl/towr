@@ -23,17 +23,30 @@ OptimizationVariablesInterpreter::~OptimizationVariablesInterpreter ()
 void
 OptimizationVariablesInterpreter::Init (
     const ContinuousSplineContainer& splines,
-    const std::vector<xpp::hyq::LegID>& step_sequence,
-    const VecFoothold& start_stance,
+    const SupportPolygonContainer& support_polygon_container,
     double robot_height)
 {
   spline_structure_ = splines;
-  step_sequence_ = step_sequence;
-  start_stance_ = start_stance;
+  supp_polygon_container_ = support_polygon_container;
   robot_height_ = robot_height;
 
   initialized_ = true;
 }
+
+//void
+//OptimizationVariablesInterpreter::Init (
+//    const ContinuousSplineContainer& splines,
+//    const std::vector<xpp::hyq::LegID>& step_sequence,
+//    const VecFoothold& start_stance,
+//    double robot_height)
+//{
+//  spline_structure_ = splines;
+//  step_sequence_ = step_sequence;
+//  start_stance_ = start_stance;
+//  robot_height_ = robot_height;
+//
+//  initialized_ = true;
+//}
 
 OptimizationVariablesInterpreter::VecFoothold
 OptimizationVariablesInterpreter::GetFootholds (const FootholdPositionsXY& footholds_xy) const
@@ -45,7 +58,7 @@ OptimizationVariablesInterpreter::GetFootholds (const FootholdPositionsXY& footh
 
   uint i=0;
   for (hyq::Foothold& f : opt_footholds) {
-    f.leg = step_sequence_.at(i++);
+    f.leg = supp_polygon_container_.GetLegID(i++);
     f.p.z() = 0.0;
   }
 
@@ -74,14 +87,15 @@ OptimizationVariablesInterpreter::GetSplineStructure () const
 OptimizationVariablesInterpreter::VecFoothold
 OptimizationVariablesInterpreter::GetStartStance () const
 {
-  return start_stance_;
+  return supp_polygon_container_.GetStartStance();
 }
 
-OptimizationVariablesInterpreter::VecLegID
-OptimizationVariablesInterpreter::GetStepSequence () const
+OptimizationVariablesInterpreter::SupportPolygonContainer
+OptimizationVariablesInterpreter::GetSuppPolygonContainer () const
 {
-  return step_sequence_;
+  return supp_polygon_container_;
 }
 
 } /* namespace zmp */
 } /* namespace xpp */
+

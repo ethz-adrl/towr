@@ -39,7 +39,11 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
   OptimizationVariablesInterpreter interpreter;
   ContinuousSplineContainer spline_structure;
   spline_structure.Init(init_pos, init_vel, 0, times, true, false);
-  interpreter.Init(spline_structure, {}, start_stance_, robot_height);
+
+  hyq::SupportPolygonContainer support_polygon_container_;
+  support_polygon_container_.Init(start_stance_);
+
+  interpreter.Init(spline_structure, support_polygon_container_, robot_height);
 
 
   xpp::hyq::HyqInverseKinematics hyq_inv_kin;

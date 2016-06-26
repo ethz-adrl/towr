@@ -22,6 +22,16 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
   initialized_ = true;
 }
 
+void SupportPolygonContainer::Init(const VecFoothold& start_stance)
+{
+  start_stance_  = start_stance;
+  footholds_     = {};
+  margins_       = SupportPolygon::GetZeroMargins();
+  support_polygons_ = CreateSupportPolygons(footholds_);
+
+  initialized_ = true;
+}
+
 void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const VecLegID& step_sequence,
                                    const MarginValues& margins)

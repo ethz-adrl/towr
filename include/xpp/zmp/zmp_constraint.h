@@ -19,6 +19,8 @@
 namespace xpp {
 namespace zmp {
 
+class OptimizationVariablesInterpreter;
+
 class ZmpConstraint : public IObserver, public AConstraint {
 public:
   typedef OptimizationVariables::StdVecEigen2d FootholdsXY;
@@ -28,9 +30,7 @@ public:
   ZmpConstraint (OptimizationVariables& subject);
   virtual ~ZmpConstraint () {};
 
-  void Init(const ContinuousSplineContainer&,
-            const SupportPolygonContainer&,
-            double walking_height);
+  void Init(const OptimizationVariablesInterpreter& interpreter);
 
   void Update () override;
   VectorXd EvaluateConstraint () const override;

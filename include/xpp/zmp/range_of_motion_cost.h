@@ -17,6 +17,8 @@
 namespace xpp {
 namespace zmp {
 
+class OptimizationVariablesInterpreter;
+
 class RangeOfMotionCost : public ACost, public IObserver {
 public:
   typedef Eigen::VectorXd VectorXd;
@@ -26,7 +28,7 @@ public:
   RangeOfMotionCost (OptimizationVariables& subject);
   virtual ~RangeOfMotionCost () {}
 
-  void Init(const ContinuousSplineContainer&, const SupportPolygonContainer&);
+  void Init(const OptimizationVariablesInterpreter&);
   void Update() override;
   double EvaluateCost () const override;
 

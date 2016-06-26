@@ -59,6 +59,7 @@ public:
             const VecLegID& step_sequence,
             const MarginValues& margins = SupportPolygon::GetZeroMargins());
 
+  void Init(const VecFoothold& start_stance);
 
   Eigen::Vector2d GetCenterOfFinalStance() const;
 //  static bool Insert4LSPhase(LegID prev, LegID next);

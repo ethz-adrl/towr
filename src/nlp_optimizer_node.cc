@@ -62,23 +62,22 @@ void
 NlpOptimizerNode::OptimizeTrajectory()
 {
 
+  // determine with which optimization variables NLP should start
+  xpp::hyq::SupportPolygonContainer supp_polygon_container;
+  supp_polygon_container.Init(curr_stance_, step_sequence_, xpp::hyq::SupportPolygon::GetDefaultMargins());
+
   xpp::zmp::ContinuousSplineContainer spline_structure;
   bool add_final_stance = true;
   spline_structure.Init(curr_cog_.Get2D().p, curr_cog_.Get2D().v, step_sequence_.size(),
                         spline_times_, start_with_com_shift_, add_final_stance);
   spline_structure.SetEndAtStart();
 
-
-  xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  supp_polygon_container.Init(curr_stance_, step_sequence_, xpp::hyq::SupportPolygon::GetDefaultMargins());
-
-
   nlp_facade_.InitializeVariables(spline_structure.GetABCDCoeffients(),
                                   supp_polygon_container.GetFootholdsInitializedToStart());
 
-
+  // solve the actual NLP
   auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
-  interpreter_ptr->Init(spline_structure, step_sequence_, curr_stance_, robot_height_);
+  interpreter_ptr->Init(spline_structure, supp_polygon_container, robot_height_);
 
   nlp_facade_.SolveNlp(curr_cog_.Get2D().a,
                        goal_cog_.Get2D(),
