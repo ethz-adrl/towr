@@ -68,6 +68,15 @@ NlpOptimizerNode::OptimizeTrajectory()
                         spline_times_, start_with_com_shift_, add_final_stance);
   spline_structure.SetEndAtStart();
 
+
+  xpp::hyq::SupportPolygonContainer supp_polygon_container;
+  supp_polygon_container.Init(curr_stance_, step_sequence_, xpp::hyq::SupportPolygon::GetDefaultMargins());
+
+
+  nlp_facade_.InitializeVariables(spline_structure.GetABCDCoeffients(),
+                                  supp_polygon_container.GetFootholdsInitializedToStart());
+
+
   auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
   interpreter_ptr->Init(spline_structure, step_sequence_, curr_stance_, robot_height_);
 

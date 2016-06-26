@@ -24,7 +24,7 @@ public:
 protected:
   virtual void SetUp(){
 
-    subject_.Init(Eigen::VectorXd::Zero(n_coeff_), n_steps_);
+    subject_.Init(n_coeff_, n_steps_);
 
     int n_spline_coeff = subject_.GetSplineCoefficients().rows();
     InitialAccelerationEquation eq_acc_zeros(Eigen::Vector2d::Zero(),n_spline_coeff);

@@ -31,9 +31,15 @@ public:
   // fixme think about removing default constructor and use pointers if this
   // is supposed to be a member variable.
   OptimizationVariables ();
-  virtual ~OptimizationVariables () {};
+  virtual ~OptimizationVariables ();
 
-  void Init (const VectorXd& x_coeff_abcd, int n_steps);
+  void Init (int n_spline_coeff, int n_steps);
+  void Init (const VectorXd& x_coeff_abcd, const StdVecEigen2d& footholds);
+
+  void SetVariables(const VectorXd& x);
+  void SetVariables(const double* x);
+  void SetSplineCoefficient(const VectorXd& x_coeff_abcd);
+  void SetFootholds (const StdVecEigen2d& footholds);
 
   StdVecEigen2d GetFootholdsStd() const;
   VectorXd GetFootholdsEig () const;
@@ -43,9 +49,6 @@ public:
   VectorXd GetOptimizationVariables() const { return x_; };
   int GetOptimizationVariableCount() const;
 
-  void SetVariables(const VectorXd& x);
-  void SetVariables(const double* x);
-  void SetFootholds (const StdVecEigen2d& footholds);
 
 private:
   VectorXd x_;                 ///< optimization variables

@@ -65,6 +65,7 @@ protected:
     auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
     interpreter_ptr->Init(spline_structure, leg_ids, start_stance_, robot_height_);
 
+    nlp_facade.InitializeVariables(spline_structure.GetTotalFreeCoeff(), leg_ids.size());
     nlp_facade.SolveNlp(start_xy_.a, goal_xy_, interpreter_ptr);
 
     opt_xy_splines_ = nlp_facade.GetSplines();

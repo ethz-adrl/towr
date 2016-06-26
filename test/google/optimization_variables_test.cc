@@ -14,7 +14,7 @@ namespace zmp {
 class OptimizationVariablesTest : public ::testing::Test {
 protected:
   virtual void SetUp(){
-    subject_.Init(Eigen::VectorXd::Zero(n_coeff_), n_steps_);
+    subject_.Init(n_coeff_, n_steps_);
   }
 
   const int n_coeff_ = utils::kDim2d*4/* optimizing over a,b,c,d*/;

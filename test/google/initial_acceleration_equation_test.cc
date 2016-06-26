@@ -25,7 +25,7 @@ protected:
   virtual void SetUp()
   {
 
-    subject_.Init(Eigen::VectorXd::Zero(n_coeff_), n_steps_);
+    subject_.Init(n_coeff_, n_steps_);
     init_acceleration_ << 1.3, 2.4; // x and y
     InitialAccelerationEquation eq(init_acceleration_, subject_.GetSplineCoefficients().rows());
     constraint_.Init(eq.BuildLinearEquation());

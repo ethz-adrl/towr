@@ -39,6 +39,7 @@ class ZmpSpline;
 class NlpFacade {
 public:
   typedef xpp::utils::Point2d State;
+  typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef std::shared_ptr<OptimizationVariablesInterpreter> InterpreterPtr;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
   typedef std::shared_ptr<InterpretingObserver> InterpretingObserverPtr;
@@ -48,20 +49,26 @@ public:
   NlpFacade (IVisualizer& visualizer = do_nothing_visualizer);
   virtual ~NlpFacade () {};
 
+
+  void InitializeVariables(const Eigen::VectorXd& spline_abcd_coeff,
+                           const StdVecEigen2d& footholds);
+
+  void InitializeVariables(int n_spline_coeff, int n_footholds);
+
   /** @brief Solves the nonlinear program (NLP) of moving the CoG from an initial to a
     * final state while keeping the Zero-Moment-Point (ZMP) inside the support
     * polygons created by the contact points (e.g. feet).
     *
-    * @param initial_state position, velocity and acceleration of the CoG
+    * This function does not take care of the initialization with previous values,
+    * that should be taken care of by new function.
+    *
+    * @param initial_acc initial acceleration of the CoG
     * @param final_state desired final position, velocity and acceleration of the CoG
-    * @param step_sequence the sequence (e.g. left hind, left front,...) of steps to be taken
-    * @param start_stance the initial contacts (e.g left front,...) and position
-    * @param times the duration of the different splines
-    * @param robot_height the walking height of the robot (affects ZMP)
+    * @param interpreter holds information about what the opt. variables represent
     */
   void SolveNlp(const Eigen::Vector2d& initial_acc,
                 const State& final_state,
-                const InterpreterPtr&);
+                const InterpreterPtr& interpreter);
 
   void AttachVisualizer(IVisualizer& visualizer);
   InterpretingObserverPtr GetObserver() const;
@@ -81,6 +88,8 @@ private:
 
   Ipopt::IpoptApplication ipopt_solver_;
   Ipopt::ApplicationReturnStatus status_;
+
+  bool opt_variables_initialized_ = false;
 };
 
 } /* namespace zmp */

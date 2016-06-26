@@ -55,10 +55,26 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
 }
 
 void
+NlpFacade::InitializeVariables (const Eigen::VectorXd& spline_abcd_coeff,
+                                const StdVecEigen2d& footholds)
+{
+  opt_variables_.Init(spline_abcd_coeff, footholds);
+  opt_variables_initialized_ = true;
+}
+
+void
+NlpFacade::InitializeVariables (int n_spline_coeff, int n_footholds)
+{
+  opt_variables_.Init(n_spline_coeff, n_footholds);
+  opt_variables_initialized_ = true;
+}
+
+void
 NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
                     const State& final_state,
                     const InterpreterPtr& interpreter_ptr)
 {
+  assert(opt_variables_initialized_);
   // save the framework of the optimization problem
   interpreting_observer_->SetInterpreter(interpreter_ptr);
 
@@ -68,11 +84,6 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
                               xpp::hyq::SupportPolygon::GetDefaultMargins());
 
   ContinuousSplineContainer spline_structure = interpreter_ptr->GetSplineStructure();
-
-
-  opt_variables_.Init(spline_structure.GetABCDCoeffients(), supp_polygon_container.GetNumberOfSteps());
-  opt_variables_.SetFootholds(supp_polygon_container.GetFootholdsInitializedToStart());
-
 
   // This should all be hidden inside a factory method
   // the linear equations
@@ -103,6 +114,7 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
                                              constraints_,
                                              *visualizer_); // just so it can poll the PublishMsg() method
   SolveIpopt(nlp_ptr);
+  opt_variables_initialized_ = false;
 }
 
 void

@@ -18,7 +18,7 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
 {
   int n_splines = 1;
   OptimizationVariables subject;
-  subject.Init(Eigen::VectorXd::Zero(n_splines*kFreeCoeffPerSpline*2), 0);
+  subject.Init(n_splines*kFreeCoeffPerSpline*2, 0);
 
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::VectorXd VectorXd;
