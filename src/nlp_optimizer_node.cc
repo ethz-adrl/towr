@@ -159,7 +159,7 @@ NlpOptimizerNode::DetermineStepSequence(const State& curr_state, int curr_swingl
   start_with_com_shift_ = false;
   // so 4ls-phase not always inserted b/c of short time zmp constraints are ignore
   // when switching between disjoint support triangles.
-  if (!zmp_inside /*&& curr_state.v.norm() < 0.01*/)
+  if (/* !zmp_inside && */ curr_state.v.norm() < 0.01)
     start_with_com_shift_ = true;
 
   return step_sequence;

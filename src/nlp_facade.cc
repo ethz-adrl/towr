@@ -42,6 +42,7 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   constraints_.AddConstraint(std::make_shared<RangeOfMotionConstraint>(opt_variables_), "rom");
 //  constraints_.AddConstraint(std::make_shared<JointAnglesConstraint>(opt_variables_), "joint_angles");
 
+//  costs_.AddCost(std::make_shared<AQuadraticCost>(opt_variables_), "cost_final");
   costs_.AddCost(std::make_shared<AQuadraticCost>(opt_variables_), "cost_acc");
   costs_.AddCost(std::make_shared<RangeOfMotionCost>(opt_variables_), "cost_rom");
 
@@ -96,6 +97,8 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   constraints_.Refresh();
 
   // costs
+  // fixme, only soft cost on position, vel, acc not so important
+//  dynamic_cast<AQuadraticCost&>(costs_.GetCost("cost_final")).Init(eq_final.BuildLinearEquation());
   dynamic_cast<AQuadraticCost&>(costs_.GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
   dynamic_cast<RangeOfMotionCost&>(costs_.GetCost("cost_rom")).Init(*interpreter_ptr);
 
