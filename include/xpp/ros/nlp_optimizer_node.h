@@ -47,6 +47,7 @@ private:
   LegID NextSwingLeg(LegID curr) const;
   std::vector<xpp::hyq::LegID> step_sequence_;
   LegID prev_swingleg_; // so the value of last optimization known, even if in support phase
+  double margin_diagonal_;
 
   ::ros::Subscriber current_info_sub_;
   ::ros::Publisher opt_params_pub_;

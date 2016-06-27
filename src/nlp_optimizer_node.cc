@@ -25,6 +25,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
 
+  margin_diagonal_ = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");
+
   // get current optimization values from the optimizer
   optimization_visualizer_.SetObserver(nlp_facade_.GetObserver());
   nlp_facade_.AttachVisualizer(optimization_visualizer_);
@@ -64,7 +66,9 @@ NlpOptimizerNode::OptimizeTrajectory()
 
   // determine with which optimization variables NLP should start
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  supp_polygon_container.Init(curr_stance_, step_sequence_, xpp::hyq::SupportPolygon::GetDefaultMargins());
+  xpp::hyq::MarginValues margins = xpp::hyq::SupportPolygon::GetDefaultMargins();
+  margins[hyq::DIAG] = margin_diagonal_;
+  supp_polygon_container.Init(curr_stance_, step_sequence_, margins);
 
   xpp::zmp::ContinuousSplineContainer spline_structure;
   bool add_final_stance = true;
