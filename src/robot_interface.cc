@@ -5,10 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/hyq/robot_interface.h>
+#include <xpp/exe/robot_interface.h>
 
 namespace xpp {
-namespace hyq {
+namespace exe {
 
 RobotInterface::RobotInterface ()
 {
@@ -21,5 +21,5 @@ RobotInterface::~RobotInterface ()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace hyq */
+} /* namespace exe */
 } /* namespace xpp */

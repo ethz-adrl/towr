@@ -14,7 +14,7 @@
 #include <Eigen/Dense>
 
 namespace xpp {
-namespace hyq {
+namespace exe {
 
 /** Abstracts the robot/simulation and allows to interact with it.
   *
@@ -46,20 +46,21 @@ public:
   virtual void SetDesiredTorque(const Torques& uff) const = 0;
 
   virtual void StopRobot() const = 0;
+  //todo don't use hyq leg data map here, use std::array size 4
   virtual Torques CalcRequiredTorques(const JointState& q_des,
                                           const JointState& qd_des,
                                           const JointState& qdd_des,
                                           const SpatialAcceleration& i_base_acc_des,
-                                          const LegDataMap<bool>& swinglegs) const = 0;
+                                          const hyq::LegDataMap<bool>& swinglegs) const = 0;
 
-  virtual LegDataMap<FootXYZ> GetFeetPositions() const = 0;
+  virtual hyq::LegDataMap<FootXYZ> GetFeetPositions() const = 0;
   virtual JointState EstimateDesiredJointVelocity(const JointState& q_des,
                                                   bool use_q_as_prev) const = 0;
   virtual JointState EstimateDesiredJointAcceleration(const JointState& qd_des,
                                                     bool use_curr_as_prev) const = 0;
 };
 
-} /* namespace hyq */
+} /* namespace exe */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_HYQ_ROBOT_INTERFACE_H_ */

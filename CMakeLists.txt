@@ -7,6 +7,9 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   message_generation
+  #these should only be needed for the exe/ namespace
+  hyq_rbd_codegen   
+  hyq_inverse_kinematics
 )
 
 SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4")
@@ -117,7 +120,10 @@ set(SOURCES
   src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
   src/qp_optimizer_node.cc
+  #exe
   src/robot_interface.cc
+  src/controller.cc
+  src/zmp_runner.cc
   # observer pattern code
   src/a_subject.cc
   src/optimization_variables.cc
