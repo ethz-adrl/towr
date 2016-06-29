@@ -228,7 +228,6 @@ if(BUILD_TESTS)
                         test/google/foothold_nominal_deviation_test.cc
                         test/google/optimization_visualizer_test.cc
                         test/google/optimization_variables_interpreter_test.cc
-                        test/google/robot_interface_test.cc
                         #constraints
                         test/google/zmp_constraint_test.cc
                         test/google/zmp_constraint_builder_test.cc
