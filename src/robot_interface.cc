@@ -13,8 +13,8 @@ namespace exe {
 RobotInterface::RobotInterface ()
 {
   // TODO Auto-generated constructor stub
-
 }
+
 
 RobotInterface::~RobotInterface ()
 {

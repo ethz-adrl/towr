@@ -11,8 +11,6 @@
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/leg_data_map.h>
 
-#include <Eigen/Dense>
-
 namespace xpp {
 namespace exe {
 
@@ -28,6 +26,8 @@ public:
   typedef Eigen::Matrix<double, 6, 1> SpatialAcceleration;
   typedef Eigen::Vector3d FootXYZ;
   typedef xpp::utils::Pose Pose;
+  typedef xpp::hyq::LegDataMap<bool> LegDataMapBool;
+  typedef xpp::hyq::LegDataMap<FootXYZ> LegDataMapFoot;
 
   RobotInterface ();
   virtual ~RobotInterface ();
@@ -51,9 +51,9 @@ public:
                                           const JointState& qd_des,
                                           const JointState& qdd_des,
                                           const SpatialAcceleration& i_base_acc_des,
-                                          const hyq::LegDataMap<bool>& swinglegs) const = 0;
+                                          const LegDataMapBool& swinglegs) const = 0;
 
-  virtual hyq::LegDataMap<FootXYZ> GetFeetPositions() const = 0;
+  virtual LegDataMapFoot GetFeetPositions() const = 0;
   virtual JointState EstimateDesiredJointVelocity(const JointState& q_des,
                                                   bool use_q_as_prev) const = 0;
   virtual JointState EstimateDesiredJointAcceleration(const JointState& qd_des,
