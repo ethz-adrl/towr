@@ -31,21 +31,7 @@ OptimizationVariables::Init (const VectorXd& x_coeff_abcd,
 {
   Init(x_coeff_abcd.rows(), footholds.size());
 
-  SetSplineCoefficient(x_coeff_abcd);
-  SetFootholds(footholds);
-}
-
-void
-OptimizationVariables::SetSplineCoefficient (const VectorXd& x_coeff_abcd)
-{
-  assert(initialized_);
   nlp_structure_.SetSplineCoefficients(x_coeff_abcd);
-}
-
-void
-xpp::zmp::OptimizationVariables::SetFootholds (const StdVecEigen2d& footholds)
-{
-  assert(initialized_);
   nlp_structure_.SetFootholds(footholds);
 }
 
@@ -65,6 +51,12 @@ xpp::zmp::OptimizationVariables::SetVariables (const double* x)
   NotifyObservers();
 }
 
+OptimizationVariables::VectorXd
+OptimizationVariables::GetOptimizationVariables () const
+{
+  return nlp_structure_.GetOptimizationVariables();
+}
+
 int
 OptimizationVariables::GetOptimizationVariableCount () const
 {
@@ -76,21 +68,14 @@ OptimizationVariables::StdVecEigen2d
 OptimizationVariables::GetFootholdsStd () const
 {
   assert(initialized_);
-  return nlp_structure_.ExtractFootholdsToStd();
-}
-
-OptimizationVariables::VectorXd
-OptimizationVariables::GetFootholdsEig () const
-{
-  assert(initialized_);
-  return nlp_structure_.ExtractFootholdsToEig();
+  return nlp_structure_.GetFootholdsStd();
 }
 
 OptimizationVariables::VectorXd
 OptimizationVariables::GetSplineCoefficients () const
 {
   assert(initialized_);
-  return nlp_structure_.ExtractSplineCoefficients();
+  return nlp_structure_.GetSplineCoefficients();
 }
 
 } /* namespace zmp */

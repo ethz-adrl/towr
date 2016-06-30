@@ -90,13 +90,9 @@ bool IpoptAdapter::get_starting_point(Index n, bool init_x, Number* x,
 
   int c = 0;
 
-  VectorXd x_spline_coeff_init = opt_variables_.GetSplineCoefficients();
-	Eigen::Map<VectorXd>(&x[c], x_spline_coeff_init.rows()) = x_spline_coeff_init;
-	c += x_spline_coeff_init.rows();
-
-	VectorXd x_footholds_init = opt_variables_.GetFootholdsEig();
-	Eigen::Map<VectorXd>(&x[c], x_footholds_init.rows()) = x_footholds_init;
-	c += x_footholds_init.rows();
+  VectorXd x_all = opt_variables_.GetOptimizationVariables();
+  Eigen::Map<VectorXd>(&x[c], x_all.rows()) = x_all;
+  c += x_all.rows();
 
 	assert(c == n);
   return true;

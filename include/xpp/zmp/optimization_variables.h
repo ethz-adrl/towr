@@ -16,8 +16,8 @@ namespace zmp {
 
 /** @brief hold the state of the optimization variables.
   *
-  * This class is responsible for keeping the up-to-date values of the
-  * optimization variables and supplying it to all the observers (cost function,
+  * This class is responsible for publishing the up-to-date values of the
+  * optimization variables to all the observers (cost function,
   * constraints, visualizers,...) that depend on this state. It doesn't know about
   * internal structure of the variables, that is all handled by the owned member.
   *
@@ -29,30 +29,21 @@ public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d; // for footholds
   typedef Eigen::Vector2d Vector2d;
 
-  // fixme think about removing default constructor and use pointers if this
-  // is supposed to be a member variable.
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
 
   void Init (int n_spline_coeff, int n_steps);
   void Init (const VectorXd& x_coeff_abcd, const StdVecEigen2d& footholds);
 
-  void SetVariables(const VectorXd& x);
-  void SetVariables(const double* x);
-  void SetSplineCoefficient(const VectorXd& x_coeff_abcd);
-  void SetFootholds (const StdVecEigen2d& footholds);
-
+  VectorXd GetOptimizationVariables() const;
   StdVecEigen2d GetFootholdsStd() const;
-  VectorXd GetFootholdsEig () const;
-
   VectorXd GetSplineCoefficients() const;
-
-//  VectorXd GetOptimizationVariables() const { return x_; };
   int GetOptimizationVariableCount() const;
 
+  void SetVariables(const double* x);
+  void SetVariables(const VectorXd& x);
 
 private:
-//  VectorXd x_;                 ///< optimization variables
   NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
 
   bool initialized_ = false; // checks if the init() method has been called

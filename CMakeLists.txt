@@ -127,6 +127,7 @@ set(SOURCES
   src/walking_controller_state.cc
   # observer pattern code
   src/a_subject.cc
+  src/nlp_structure.cc
   src/optimization_variables.cc
   src/optimization_variables_interpreter.cc
   src/i_observer.cc
