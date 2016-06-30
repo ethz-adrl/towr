@@ -23,7 +23,7 @@
 #include <iit/robots/hyq/jsim.h>
 #include <iit/robots/hyq/transforms.h>
 
-#include "state_machine.h" // always sl includes last, because of #define macro
+//#include "state_machine.h" // always sl includes last, because of #define macro
 #include "virtual_model-inl.h"
 
 
@@ -37,12 +37,33 @@
 namespace xpp {
 namespace exe {
 
+class ZmpRunner;
+
+//fixme, move to other class
+class ControllerState {
+public:
+  virtual ~ControllerState() {};
+//  explicit ControllerState();
+
+  virtual void Run(ZmpRunner*) const = 0;
+};
+
+class Planning : public ControllerState {
+public:
+  void Run(ZmpRunner* context) const;
+};
+
+class Executing : public ControllerState {
+public:
+  void Run(ZmpRunner* context) const;
+};
+
 
 /**
 \class ZmpRunner
 \brief C++ representation of task that walks with respect to the zmp
  */
-class ZmpRunner : public StateMachine {
+class ZmpRunner : public Controller {
 public:
   typedef Eigen::Vector3d Vector3d;
   typedef iit::HyQ::JointState JointState;
@@ -63,10 +84,52 @@ public:
   explicit ZmpRunner();
   virtual ~ZmpRunner();
 
+  void PlanTrajectory();
+  bool ExecuteLoop();
+  enum TaskState{EXECUTING, PLANNING, WAITING} state_;
+  void SetState(TaskState state) {
+    state_ = state;
+  }
+  bool first_time_sending_commands_;
 private:
-  void InitDerivedClassMembers1();
-  bool DoSomething1();
 //  void AddVarForLogging();
+
+
+  ///////////////////////////////////////////////////////////////////////////////
+
+  /*virtual*/ void InitDerivedClassMembers() override {
+    state_ = PLANNING;
+  }
+
+  /*virtual*/ bool DoSomething() override
+  {
+    controller_state_.at(state_)->Run(this);
+    return true;
+//    switch (state_)
+//    {
+//      case PLANNING: {
+//        PlanTrajectory();
+//        state_ = EXECUTING;
+//        break;
+//      }
+//      case EXECUTING: {
+//        bool success = ExecuteLoop();
+//        first_time_sending_commands_ = false;
+//        if (!success)
+//          state_ = PLANNING;
+//        break;
+//      }
+//      case WAITING: {
+//        break;
+//      }
+//
+//    }
+//    return true;
+  }
+///////////////////////////////////////////////////////////////////////////////
+
+  std::map<TaskState, ControllerState*> controller_state_;
+
 
 private:
 
@@ -85,6 +148,7 @@ private:
   void EstimateCurrPose();
 
   bool reoptimize_before_finish_;
+
 
   VecSpline opt_splines_;
   VecFoothold opt_footholds_;
@@ -123,6 +187,7 @@ private:
   Eigen::Vector3d TransformBaseToProjectedFrame(const Eigen::Vector3d& B_r_btox,
                                                 const xpp::utils::Pose& P_base_BtoP) const;
 };
+
 
 } // namespace exe
 } // namespace iit

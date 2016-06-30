@@ -18,8 +18,6 @@ namespace exe {
 
 Controller::Controller()
 {
-  dt_ = 0.0;
-  first_control_loop_ever_ = true;
   ResetTime();
 }
 
@@ -31,7 +29,6 @@ void
 Controller::AddRobot (RobotInterfacePtr p_robot)
 {
   robot_ = std::move(p_robot); // transfer sole ownership of robot to this class
-  dt_ = robot_->GetControlLoopInterval();
 }
 
 void
@@ -40,7 +37,7 @@ Controller::ResetTime()
   time_ = 0.0;
 }
 
-int Controller::GetReady()
+bool Controller::GetReady()
 {
   robot_->StartStateEstimation();
 
@@ -58,16 +55,21 @@ int Controller::GetReady()
   return true;
 }
 
-int Controller::Run()
+bool Controller::Run()
 {
   try {
-    DoSomething();
+    DoSomething(); // state machine->DoSomething()
   } catch (std::exception& e) {
     std::cerr << "Run() caught exception: " << e.what() << "\n\t -> freezing robot.";
     robot_->StopRobot();
   }
 
-  time_ += dt_;
+  time_ += robot_->GetControlLoopInterval();
+  return true;
+}
+
+bool Controller::Change()
+{
   return true;
 }
 

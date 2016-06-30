@@ -30,6 +30,22 @@ static xpp::hyq::VirtualModel::Accelerations log_base_acc_des_fb;
 static xpp::hyq::VirtualModel::Accelerations log_base_acc_des_ff;
 
 
+
+void Planning::Run(ZmpRunner* context) const
+{
+  context->PlanTrajectory();
+  context->SetState(ZmpRunner::EXECUTING);
+}
+
+void Executing::Run(ZmpRunner* context) const
+{
+  bool success = context->ExecuteLoop();
+  context->first_time_sending_commands_ = false;
+  if (!success)
+    context->SetState(ZmpRunner::PLANNING);
+}
+
+
 ZmpRunner::ZmpRunner()
      :jsim_(inertia_properties_, force_transforms_)
 {
@@ -63,6 +79,12 @@ ZmpRunner::ZmpRunner()
   // to determine when to start reoptimization
   t_stance_initial_ = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
   t_swing_          = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
+
+  controller_state_.emplace(EXECUTING, new Executing());
+  controller_state_.emplace(PLANNING, new Planning());
+  state_ = PLANNING;
+
+  first_time_sending_commands_ = true;
 }
 
 ZmpRunner::~ZmpRunner()
@@ -79,7 +101,7 @@ ZmpRunner::OptParamsCallback(const OptimizedParametersMsg& msg)
 }
 
 
-void ZmpRunner::InitDerivedClassMembers1()
+void ZmpRunner::PlanTrajectory()
 {
   using namespace xpp::hyq;
   using namespace xpp::utils;
@@ -90,7 +112,7 @@ void ZmpRunner::InitDerivedClassMembers1()
   ROS_INFO_STREAM("P_init: \t" << P_curr_ << "\n");
 
   // todo first task run stuff also sounds like state pattern
-  if (first_control_loop_ever_) {
+  if (first_time_sending_commands_) {
 
 //    AddVarForLogging();
 
@@ -130,11 +152,12 @@ void ZmpRunner::InitDerivedClassMembers1()
   switch_node_ = spliner_.GetNode(1);
 
   t_switch_ = switch_node_.T;
+  Controller::ResetTime();
 }
 
 
 
-bool ZmpRunner::DoSomething1()
+bool ZmpRunner::ExecuteLoop()
 {
   using namespace xpp::utils;
   using namespace xpp::zmp;
@@ -188,7 +211,7 @@ bool ZmpRunner::DoSomething1()
   spliner_.FillCurrFeet(Time(), P_des_.feet_, P_des_.swingleg_);
   // logging
   log_base_acc_des_ff.segment<3>(LX) = P_des_.base_.pos.a; // logging only
-  ROS_INFO_STREAM_THROTTLE(dt_, "time: " << Time());
+  ROS_INFO_STREAM_THROTTLE(robot_->GetControlLoopInterval(), "time: " << Time());
 //  ROS_INFO_STREAM_THROTTLE(dt_, "\nP_des_:\n" << P_des_);
   Orientation::QuaternionToRPY(P_des_.base_.ori.q, log_rpy_des);
   log_swingleg_id = P_des_.SwinglegID();
@@ -232,8 +255,8 @@ bool ZmpRunner::DoSomething1()
     q_des.segment<3>(3*ee) = q_des_leg;
   }
 
-  JointState qd_des = robot_->EstimateDesiredJointVelocity(q_des, first_control_loop_ever_);
-  JointState qdd_des = robot_->EstimateDesiredJointAcceleration(qd_des, first_control_loop_ever_);
+  JointState qd_des = robot_->EstimateDesiredJointVelocity(q_des, first_time_sending_commands_);
+  JointState qdd_des = robot_->EstimateDesiredJointAcceleration(qd_des, first_time_sending_commands_);
 
 
   JointState uff = robot_->CalcRequiredTorques(q_des, qd_des, qdd_des,
@@ -253,7 +276,7 @@ bool ZmpRunner::DoSomething1()
 
   // switch to next optimized spline
   // this must happen AFTER sending desired joint values and torques to the robot
-  if (Time() >= t_switch_-dt_ /*|| Time() >= spliner_.GetTotalTime()-dt_*/) {
+  if (Time() >= t_switch_-robot_->GetControlLoopInterval() /*|| Time() >= spliner_.GetTotalTime()-dt_*/) {
     return false;
   }
 
@@ -346,7 +369,7 @@ void ZmpRunner::EstimateCurrPose()
 
 
   // todo this still estimates high current z-velocities, which aren't really there
-  if (first_control_loop_ever_) {
+  if (first_time_sending_commands_) {
     P_curr_.base_.pos.p.z() = base_new;
   } else {
     // inifinite impulse response filter
@@ -360,7 +383,7 @@ void ZmpRunner::EstimateCurrPose()
 
   // safety check
   Orientation::QuaternionToRPY(P_curr_.base_.ori.q, log_rpy_curr);
-  if (first_control_loop_ever_) {
+  if (first_time_sending_commands_) {
     if(    (std::abs(log_rpy_curr.x()) > 7./180. * M_PI)
         || (std::abs(log_rpy_curr.y()) > 7./180. * M_PI)
         || (P_curr_.base_.pos.p.z() < 0.4)
@@ -371,7 +394,7 @@ void ZmpRunner::EstimateCurrPose()
   }
 
   // logging
-  ROS_DEBUG_STREAM_THROTTLE(dt_, "time: " << Time() << "\nP_curr_:\n" << P_curr_);
+  ROS_DEBUG_STREAM_THROTTLE(robot_->GetControlLoopInterval(), "time: " << Time() << "\nP_curr_:\n" << P_curr_);
 }
 
 
@@ -404,7 +427,7 @@ void ZmpRunner::SmoothTorquesAtContactChange(JointState& uff)
     if (ffsplining_) {
       if (ffspliner_timer_ >= 0.0) {
         uff = uff_prev_ + ((ffspline_duration_ - ffspliner_timer_)/ffspline_duration_) * (uff - uff_prev_);
-        ffspliner_timer_ -= dt_ ;
+        ffspliner_timer_ -= robot_->GetControlLoopInterval();
       } else {
         ffsplining_ = false;
       }

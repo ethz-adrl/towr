@@ -37,16 +37,13 @@ protected:
     switch (state_)
     {
       case RUNNING: {
-        bool success = DoSomething1();
-        first_control_loop_ever_ = false;
-//        first_control_loop_ = false;
+        bool success = ExecuteLoop();
         if (!success)
           state_ = INITIALIZING;
         break;
       }
       case INITIALIZING: {
-        Controller::ResetTime();
-        InitDerivedClassMembers1();
+        PlanTrajectory();
         state_ = RUNNING;
         break;
       }
@@ -63,8 +60,8 @@ protected:
 private:
   enum TaskState{RUNNING, INITIALIZING, WAITING} state_ = INITIALIZING;
 
-  virtual bool DoSomething1() = 0;
-  virtual void InitDerivedClassMembers1() = 0;
+  virtual bool ExecuteLoop() = 0;
+  virtual void PlanTrajectory() = 0;
 
 };
 

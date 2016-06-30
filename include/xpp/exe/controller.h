@@ -28,9 +28,9 @@ class Controller {
 public:
   typedef std::unique_ptr<RobotInterface> RobotInterfacePtr;
 
-  int GetReady();
-  int Run();
-  int Change() {}; // not implemented, needed by sl
+  bool GetReady();
+  bool Run();
+  bool Change();
 
   void AddRobot(RobotInterfacePtr robot);
 
@@ -39,9 +39,6 @@ protected:
   explicit Controller();
 
   double Time() const { return time_; };
-
-  double dt_; // duration of one task loop
-  bool first_control_loop_ever_;
 
   // using the template method pattern, where the base algorithm gets filled
   // in by specific implementations of the derived class
