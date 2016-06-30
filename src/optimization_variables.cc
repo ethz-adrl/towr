@@ -23,8 +23,7 @@ OptimizationVariables::~OptimizationVariables ()
 void
 OptimizationVariables::Init (int n_spline_coeff, int n_steps)
 {
-  assert(!initialized_); // only do this once
-
+  nlp_structure_.Reset();
   nlp_structure_.AddVariableSet("spline_coeff", n_spline_coeff);
   nlp_structure_.AddVariableSet("footholds", kDim2d*n_steps);
 

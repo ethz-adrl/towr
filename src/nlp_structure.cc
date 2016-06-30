@@ -26,6 +26,14 @@ NlpStructure::AddVariableSet (std::string name, int n_variables)
   n_variables_ += n_variables;
 }
 
+
+void
+NlpStructure::Reset ()
+{
+  variable_sets_.clear();
+  n_variables_ = 0;
+}
+
 int
 NlpStructure::GetOptimizationVariableCount() const
 {

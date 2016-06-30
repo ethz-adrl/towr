@@ -45,6 +45,8 @@ public:
   void SetVariables(std::string set_name, const VectorXd& values);
   VectorXd GetVariables(std::string set_name) const;
 
+  void Reset();
+
 
 private:
   VariableSetMap variable_sets_;
