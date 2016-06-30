@@ -18,7 +18,8 @@ namespace zmp {
   *
   * This class is responsible for keeping the up-to-date values of the
   * optimization variables and supplying it to all the observers (cost function,
-  * constraints, visualizers,...) that depend on this state.
+  * constraints, visualizers,...) that depend on this state. It doesn't know about
+  * internal structure of the variables, that is all handled by the owned member.
   *
   * https://sourcemaking.com/design_patterns/observer
   */
@@ -46,12 +47,12 @@ public:
 
   VectorXd GetSplineCoefficients() const;
 
-  VectorXd GetOptimizationVariables() const { return x_; };
+//  VectorXd GetOptimizationVariables() const { return x_; };
   int GetOptimizationVariableCount() const;
 
 
 private:
-  VectorXd x_;                 ///< optimization variables
+//  VectorXd x_;                 ///< optimization variables
   NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
 
   bool initialized_ = false; // checks if the init() method has been called

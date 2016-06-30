@@ -14,9 +14,12 @@
 namespace xpp {
 namespace zmp {
 
-/**
- * Holds what the optimization variables represent and in which order
- */
+/** @brief Knows about the internal structure of the optimization variables.
+  *
+  * This class can supply all the information, that is \b immediately extractable
+  * from the values of the optimization variables, without any context knowledge
+  * such as initialization values etc.
+  */
 class NlpStructure {
 public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
@@ -36,6 +39,7 @@ public:
   {
     n_spline_coeff_ = n_spline_coeff;
     n_steps_ = n_steps;
+    x_ = Eigen::VectorXd::Zero(GetOptimizationVariableCount());
   }
 
   int GetOptimizationVariableCount() const { return n_spline_coeff_ + 2*n_steps_; };
@@ -45,20 +49,28 @@ public:
     return Eigen::Map<const VectorXd>(x,GetOptimizationVariableCount());
   }
 
-  /** Spline functions */
-  VectorXd ExtractSplineCoefficients(const Number* x) const
+//  /** Spline functions */
+//  VectorXd ExtractSplineCoefficients(const Number* x) const
+//  {
+//    return ExtractSplineCoefficients(ConvertToEigen(x));
+//  }
+
+  VectorXd ExtractSplineCoefficients() const
   {
-    return ExtractSplineCoefficients(ConvertToEigen(x));
+    return x_.head(n_spline_coeff_);
   }
 
-  VectorXd ExtractSplineCoefficients(const VectorXd& x_eig) const
-  {
-    return x_eig.head(n_spline_coeff_);
+  void SetAllVariables(const VectorXd& x_all) {
+    x_ = x_all;
   }
 
-  void SetSplineCoefficients(const VectorXd& x_abdc, VectorXd& x) const
+  void SetAllVariables(const Number* x_all) {
+    x_ = ConvertToEigen(x_all);
+  }
+
+  void SetSplineCoefficients(const VectorXd& x_abdc)
   {
-    x.head(n_spline_coeff_) = x_abdc;
+    x_.head(n_spline_coeff_) = x_abdc;
   }
 
   /** Foothold functions */
@@ -76,19 +88,19 @@ public:
     return vec;
   }
 
-  void SetFootholds(const StdVecEigen2d& footholds_xy, VectorXd& x) const
+  void SetFootholds(const StdVecEigen2d& footholds_xy)
   {
-    x.middleRows(n_spline_coeff_, n_steps_*kDim2d) = ConvertStdToEig(footholds_xy);
+    x_.middleRows(n_spline_coeff_, n_steps_*kDim2d) = ConvertStdToEig(footholds_xy);
   }
 
-  VectorXd ExtractFootholdsToEig(const VectorXd& x_eig) const
+  VectorXd ExtractFootholdsToEig() const
   {
-    return x_eig.middleRows(n_spline_coeff_, kDim2d*n_steps_);
+    return x_.middleRows(n_spline_coeff_, kDim2d*n_steps_);
   }
 
-  StdVecEigen2d ExtractFootholdsToStd(const VectorXd& x_eig) const
+  StdVecEigen2d ExtractFootholdsToStd() const
   {
-    Eigen::VectorXd footholds_xy = ExtractFootholdsToEig(x_eig);
+    Eigen::VectorXd footholds_xy = ExtractFootholdsToEig();
     StdVecEigen2d fooothold_vec(n_steps_);
     for (int i=0; i<n_steps_; ++i) {
       fooothold_vec.at(i) = footholds_xy.segment<kDim2d>(2*i);
@@ -97,10 +109,10 @@ public:
     return fooothold_vec;
   }
 
-  StdVecEigen2d ExtractFootholdsToStd(const Number* x) const
-  {
-    return ExtractFootholdsToStd(ConvertToEigen(x));
-  }
+//  StdVecEigen2d ExtractFootholdsToStd(const Number* x) const
+//  {
+//    return ExtractFootholdsToStd(ConvertToEigen(x));
+//  }
 
   /** miscellaneous helper functions */
 //  static int Index(int spline, Coords dim, SplineCoeff coeff)
@@ -118,6 +130,8 @@ public:
 //  }
 
 private:
+  VectorXd x_;  ///< optimization variables
+
   int n_spline_coeff_;
   int n_steps_;
 };
