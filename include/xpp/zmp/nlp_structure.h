@@ -8,21 +8,19 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_STRUCTURE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_STRUCTURE_H_
 
-#include <xpp/utils/geometric_structs.h>
-// should not need to include anything more here!
+#include <Eigen/Dense>
 
 namespace xpp {
 namespace zmp {
 
-/** @brief Knows about the internal structure of the optimization variables.
+/** @brief Holds the optimization variables.
   *
   * This class is responsible for holding the current values of the optimization
   * variables and giving semantic information what each variable represents. It
-  * returns only exactly those values in different forms.
+  * returns only exactly those values.
   */
 class NlpStructure {
 public:
-  typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef Eigen::VectorXd VectorXd;
   typedef double Number;
 
@@ -32,13 +30,15 @@ public:
 
   VectorXd GetOptimizationVariables() const;
   int GetOptimizationVariableCount() const;
-  VectorXd GetSplineCoefficients() const;
-  StdVecEigen2d GetFootholdsStd() const;
 
   void SetAllVariables(const VectorXd& x_all);
   void SetAllVariables(const Number* x_all);
+
+  VectorXd GetSplineCoefficients() const;
+
   void SetSplineCoefficients(const VectorXd& x_abdc);
-  void SetFootholds(const StdVecEigen2d& footholds_xy);
+  void SetFootholds(const VectorXd& footholds_xy);
+  VectorXd GetFootholdsEig() const;
 
 private:
   VectorXd x_;  ///< optimization variables
@@ -46,9 +46,7 @@ private:
   int n_spline_coeff_;
   int n_steps_;
 
-  VectorXd GetFootholdsEig() const;
   VectorXd ConvertToEigen(const Number* x) const;
-  VectorXd ConvertStdToEig(const StdVecEigen2d& footholds_xy) const;
 };
 
 } // namespace zmp

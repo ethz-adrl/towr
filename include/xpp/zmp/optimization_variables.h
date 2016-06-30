@@ -10,6 +10,7 @@
 
 #include <xpp/zmp/a_subject.h>
 #include <xpp/zmp/nlp_structure.h>
+#include <xpp/utils/geometric_structs.h>
 
 namespace xpp {
 namespace zmp {
@@ -47,6 +48,9 @@ public:
 
 private:
   NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
+
+
+  VectorXd ConvertStdToEig(const StdVecEigen2d& footholds_xy) const;
 
   bool initialized_ = false; // checks if the init() method has been called
 };
