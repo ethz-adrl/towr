@@ -20,6 +20,8 @@ namespace zmp {
   * optimization variables to all the observers (cost function,
   * constraints, visualizers,...) that depend on this state. It doesn't know about
   * internal structure of the variables, that is all handled by the owned member.
+  * It is able to interpret the values of the optimization variables if they are
+  * independent of the initialization values of the NLP.
   *
   * https://sourcemaking.com/design_patterns/observer
   */

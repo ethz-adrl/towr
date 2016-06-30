@@ -16,9 +16,9 @@ namespace zmp {
 
 /** @brief Knows about the internal structure of the optimization variables.
   *
-  * This class can supply all the information, that is \b immediately extractable
-  * from the values of the optimization variables, without any context knowledge
-  * such as initialization values etc.
+  * This class is responsible for holding the current values of the optimization
+  * variables and giving semantic information what each variable represents. It
+  * returns only exactly those values in different forms.
   */
 class NlpStructure {
 public:
