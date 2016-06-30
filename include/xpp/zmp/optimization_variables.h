@@ -43,8 +43,12 @@ public:
   VectorXd GetSplineCoefficients() const;
   int GetOptimizationVariableCount() const;
 
-  void SetVariables(const double* x);
-  void SetVariables(const VectorXd& x);
+  template<typename T> void SetVariables(T x)
+  {
+    assert(initialized_);
+    nlp_structure_.SetAllVariables(x);
+    NotifyObservers();
+  }
 
   void SetSplineCoefficients(const VectorXd& x);
 
@@ -56,6 +60,7 @@ private:
 
   bool initialized_ = false; // checks if the init() method has been called
 };
+
 
 } /* namespace zmp */
 } /* namespace xpp */
