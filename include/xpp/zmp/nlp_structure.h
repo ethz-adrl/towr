@@ -21,7 +21,7 @@ class VariableSet;
 /** @brief Holds the optimization variables.
   *
   * This class is responsible for holding the current values of the optimization
-  * variables and giving semantic information what each variable represents. It
+  * variables and providing a name what each variable represents. It
   * returns only exactly those values.
   */
 class NlpStructure {
@@ -34,7 +34,13 @@ public:
   NlpStructure();
   virtual ~NlpStructure();
 
+  /** A variable set is a block of variables with some semantic information.
+    *
+    * @param name What the variables represents.
+    * @param n_variables The number of variables.
+   */
   void AddVariableSet(std::string name, int n_variables);
+
 
   VectorXd GetOptimizationVariables() const;
   int GetOptimizationVariableCount() const;
@@ -47,25 +53,12 @@ public:
 
   void Reset();
 
-
 private:
   VariableSetMap variable_sets_;
   int n_variables_;
   VectorXd ConvertToEigen(const Number* x) const;
 };
 
-
-class VariableSet {
-public:
-  typedef Eigen::VectorXd VectorXd;
-  VariableSet(int n_variables);
-  virtual ~VariableSet();
-
-  VectorXd GetVariables() const;
-  void SetVariables(const VectorXd& x);
-private:
-  VectorXd x_;
-};
 
 } // namespace zmp
 } // namespace xpp

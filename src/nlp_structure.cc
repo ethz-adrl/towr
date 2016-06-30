@@ -10,6 +10,40 @@
 namespace xpp {
 namespace zmp {
 
+class VariableSet {
+public:
+  typedef Eigen::VectorXd VectorXd;
+  VariableSet(int n_variables);
+  virtual ~VariableSet();
+
+  VectorXd GetVariables() const;
+  void SetVariables(const VectorXd& x);
+private:
+  VectorXd x_;
+};
+
+VariableSet::VariableSet (int n_variables)
+{
+  x_ = Eigen::VectorXd::Zero(n_variables);
+}
+
+VariableSet::~VariableSet ()
+{
+}
+
+VariableSet::VectorXd
+VariableSet::GetVariables () const
+{
+  return x_;
+}
+
+void
+VariableSet::SetVariables (const VectorXd& x)
+{
+  x_ = x;
+}
+///////////////////////////////////////////////////////////////////////////////
+
 NlpStructure::NlpStructure()
 {
   n_variables_ = 0;
@@ -25,7 +59,6 @@ NlpStructure::AddVariableSet (std::string name, int n_variables)
   variable_sets_.emplace(name, VariableSetPtr(new VariableSet(n_variables)));
   n_variables_ += n_variables;
 }
-
 
 void
 NlpStructure::Reset ()
@@ -89,28 +122,6 @@ NlpStructure::ConvertToEigen(const Number* x) const
   return Eigen::Map<const VectorXd>(x,GetOptimizationVariableCount());
 }
 
-
-// The Variable Set
-VariableSet::VariableSet (int n_variables)
-{
-  x_ = Eigen::VectorXd::Zero(n_variables);
-}
-
-VariableSet::~VariableSet ()
-{
-}
-
-VariableSet::VectorXd
-VariableSet::GetVariables () const
-{
-  return x_;
-}
-
-void
-VariableSet::SetVariables (const VectorXd& x)
-{
-  x_ = x;
-}
 
 } // namespace zmp
 } // namespace xpp
