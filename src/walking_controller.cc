@@ -11,7 +11,8 @@
  */
 
 
-#include <xpp/exe/zmp_runner.h>
+#include "../include/xpp/exe/walking_controller.h"
+
 #include <InverseKinematics.h>
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/exe/robot_interface.h>
@@ -30,25 +31,17 @@ static xpp::hyq::VirtualModel::Accelerations log_base_acc_des_fb;
 static xpp::hyq::VirtualModel::Accelerations log_base_acc_des_ff;
 
 
-
-void Planning::Run(ZmpRunner* context) const
-{
-  context->PlanTrajectory();
-  context->SetState(ZmpRunner::EXECUTING);
-}
-
-void Executing::Run(ZmpRunner* context) const
-{
-  bool success = context->ExecuteLoop();
-  context->first_time_sending_commands_ = false;
-  if (!success)
-    context->SetState(ZmpRunner::PLANNING);
-}
-
-
-ZmpRunner::ZmpRunner()
+WalkingController::WalkingController()
      :jsim_(inertia_properties_, force_transforms_)
 {
+}
+
+WalkingController::~WalkingController()
+{
+}
+
+void
+WalkingController::GetReadyHook() {
   using namespace xpp::ros;
   // setup ROS
   int argc = 0;
@@ -56,7 +49,7 @@ ZmpRunner::ZmpRunner()
   ::ros::init(argc, argv, "sl_ros_subscriber_node");
   std::shared_ptr<::ros::NodeHandle> nh(new ::ros::NodeHandle);
   current_info_pub_ = nh->advertise<ReqInfoMsg>("required_info_nlp", 1);
-  opt_params_sub_ = nh->subscribe("optimized_parameters_nlp", 1, &ZmpRunner::OptParamsCallback, this);
+  opt_params_sub_ = nh->subscribe("optimized_parameters_nlp", 1, &WalkingController::OptParamsCallback, this);
 
 
   b_r_geomtocog = inertia_properties_.getCOM_trunk();
@@ -80,19 +73,26 @@ ZmpRunner::ZmpRunner()
   t_stance_initial_ = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
   t_swing_          = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
 
-  controller_state_.emplace(EXECUTING, new Executing());
-  controller_state_.emplace(PLANNING, new Planning());
-  state_ = PLANNING;
+  states_map_ = WalkingControllerState::BuildStates();
+  current_state_ = WalkingControllerState::PLANNING;
 
   first_time_sending_commands_ = true;
 }
 
-ZmpRunner::~ZmpRunner()
+bool
+WalkingController::RunHook()
 {
+  states_map_.at(current_state_)->Run(this);
+  return true;
 }
 
 void
-ZmpRunner::OptParamsCallback(const OptimizedParametersMsg& msg)
+WalkingController::SetState(WalkingControllerState::TaskState state) {
+  current_state_ = state;
+}
+
+void
+WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
 {
   opt_splines_   = xpp::ros::RosHelpers::RosToXpp(msg.splines);
   opt_footholds_ = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
@@ -101,7 +101,7 @@ ZmpRunner::OptParamsCallback(const OptimizedParametersMsg& msg)
 }
 
 
-void ZmpRunner::PlanTrajectory()
+void WalkingController::PlanTrajectory()
 {
   using namespace xpp::hyq;
   using namespace xpp::utils;
@@ -157,7 +157,7 @@ void ZmpRunner::PlanTrajectory()
 
 
 
-bool ZmpRunner::ExecuteLoop()
+bool WalkingController::ExecuteLoop()
 {
   using namespace xpp::utils;
   using namespace xpp::zmp;
@@ -283,8 +283,8 @@ bool ZmpRunner::ExecuteLoop()
   return true;
 }
 
-ZmpRunner::State
-ZmpRunner::GetStartStateForOptimization(/*const double required_time*/) const
+WalkingController::State
+WalkingController::GetStartStateForOptimization(/*const double required_time*/) const
 {
   // fixme initialize not with planned, but with current predicted state
   // this allows to react to pushes/disturbances
@@ -330,7 +330,7 @@ ZmpRunner::GetStartStateForOptimization(/*const double required_time*/) const
 
 
 
-void ZmpRunner::EstimateCurrPose()
+void WalkingController::EstimateCurrPose()
 {
   xpp::utils::Pose curr_base_state_est = robot_->GetBodyPose();
 //  GetStateEst(::base_state, ::base_orient, curr_base_state_est);
@@ -399,7 +399,7 @@ void ZmpRunner::EstimateCurrPose()
 
 
 Eigen::Vector3d
-ZmpRunner::TransformBaseToProjectedFrame(const Eigen::Vector3d& B_r_btox,
+WalkingController::TransformBaseToProjectedFrame(const Eigen::Vector3d& B_r_btox,
                                          const xpp::utils::Pose& P_base_BtoP) const
 {
   Eigen::Matrix3d P_R_B    = P_base_BtoP.ori.q.normalized().toRotationMatrix();
@@ -410,7 +410,7 @@ ZmpRunner::TransformBaseToProjectedFrame(const Eigen::Vector3d& B_r_btox,
 }
 
 
-void ZmpRunner::SmoothTorquesAtContactChange(JointState& uff)
+void WalkingController::SmoothTorquesAtContactChange(JointState& uff)
 {
 
   if (ffspline_duration_ > 0.0) {

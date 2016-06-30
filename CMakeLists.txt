@@ -123,7 +123,8 @@ set(SOURCES
   #exe
   src/robot_interface.cc
   src/controller.cc
-  src/zmp_runner.cc
+  src/walking_controller.cc
+  src/walking_controller_state.cc
   # observer pattern code
   src/a_subject.cc
   src/optimization_variables.cc

@@ -13,6 +13,9 @@
 #ifndef IIT_ZMP_RUNNER_H_
 #define IIT_ZMP_RUNNER_H_
 
+#include "controller.h"
+#include "walking_controller_state.h"
+
 #include <xpp_opt/OptimizedParametersNlp.h>
 #include <xpp_opt/RequiredInfoNlp.h>
 #include <xpp/hyq/hyq_spliner.h>
@@ -31,39 +34,14 @@
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 #include <vector>
-#include "controller.h"
+
 
 
 namespace xpp {
 namespace exe {
 
-class ZmpRunner;
 
-//fixme, move to other class
-class ControllerState {
-public:
-  virtual ~ControllerState() {};
-//  explicit ControllerState();
-
-  virtual void Run(ZmpRunner*) const = 0;
-};
-
-class Planning : public ControllerState {
-public:
-  void Run(ZmpRunner* context) const;
-};
-
-class Executing : public ControllerState {
-public:
-  void Run(ZmpRunner* context) const;
-};
-
-
-/**
-\class ZmpRunner
-\brief C++ representation of task that walks with respect to the zmp
- */
-class ZmpRunner : public Controller {
+class WalkingController : public Controller {
 public:
   typedef Eigen::Vector3d Vector3d;
   typedef iit::HyQ::JointState JointState;
@@ -81,56 +59,23 @@ public:
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
 
-  explicit ZmpRunner();
-  virtual ~ZmpRunner();
+  explicit WalkingController();
+  virtual ~WalkingController();
 
+  // fsm callable functions
+  void SetState(WalkingControllerState::TaskState state);
   void PlanTrajectory();
   bool ExecuteLoop();
-  enum TaskState{EXECUTING, PLANNING, WAITING} state_;
-  void SetState(TaskState state) {
-    state_ = state;
-  }
+
   bool first_time_sending_commands_;
 private:
 //  void AddVarForLogging();
 
+  void GetReadyHook() override;
+  bool RunHook() override;
 
-  ///////////////////////////////////////////////////////////////////////////////
-
-  /*virtual*/ void InitDerivedClassMembers() override {
-    state_ = PLANNING;
-  }
-
-  /*virtual*/ bool DoSomething() override
-  {
-    controller_state_.at(state_)->Run(this);
-    return true;
-//    switch (state_)
-//    {
-//      case PLANNING: {
-//        PlanTrajectory();
-//        state_ = EXECUTING;
-//        break;
-//      }
-//      case EXECUTING: {
-//        bool success = ExecuteLoop();
-//        first_time_sending_commands_ = false;
-//        if (!success)
-//          state_ = PLANNING;
-//        break;
-//      }
-//      case WAITING: {
-//        break;
-//      }
-//
-//    }
-//    return true;
-  }
-///////////////////////////////////////////////////////////////////////////////
-
-  std::map<TaskState, ControllerState*> controller_state_;
-
-
+  WalkingControllerState::TaskState current_state_;
+  WalkingControllerState::StatesMap states_map_;
 private:
 
   void OptParamsCallback(const OptimizedParametersMsg& msg);

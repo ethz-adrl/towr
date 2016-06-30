@@ -1,7 +1,7 @@
 /*!
  * \file   controller.h
  * \author Alexander Winkler
- * \date   Oct 4, 2014
+ * \date   Oct 4, 2016
  * \brief  A controller that incorporates general functionalities used by
  *         all tasks such as time keeping, logging, failure handling.
  *
@@ -18,15 +18,12 @@ namespace exe {
 
 class RobotInterface;
 
-/*!
- * \class SlTask
- * \brief Abstract class that provides basic functionality
- *
- * Supplies current time, logging and config file reading
- */
 class Controller {
 public:
   typedef std::unique_ptr<RobotInterface> RobotInterfacePtr;
+
+  explicit Controller();
+  virtual ~Controller();
 
   bool GetReady();
   bool Run();
@@ -34,22 +31,17 @@ public:
 
   void AddRobot(RobotInterfacePtr robot);
 
-  virtual ~Controller();
 protected:
-  explicit Controller();
-
   double Time() const { return time_; };
-
-  // using the template method pattern, where the base algorithm gets filled
-  // in by specific implementations of the derived class
-  virtual void InitDerivedClassMembers() = 0;
-  virtual bool DoSomething() = 0;
-
   void ResetTime();
   RobotInterfacePtr robot_;
 
-private:
+  // using the template method pattern, where the base algorithm gets filled
+  // in by specific implementations of the derived class
+  virtual void GetReadyHook() = 0;
+  virtual bool RunHook() = 0;
 
+private:
   double time_;
 };
 

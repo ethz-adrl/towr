@@ -27,12 +27,12 @@ protected:
   virtual ~StateMachine() {};
 
 
-  /*virtual*/ void InitDerivedClassMembers() override {
+  /*virtual*/ void GetReadyHook() override {
     state_ = INITIALIZING;
   }
 
 
-  /*virtual*/ bool DoSomething() override
+  /*virtual*/ bool RunHook() override
   {
     switch (state_)
     {

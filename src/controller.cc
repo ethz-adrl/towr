@@ -43,7 +43,7 @@ bool Controller::GetReady()
 
   try {
     ResetTime();
-    InitDerivedClassMembers();
+    GetReadyHook();
   } catch (std::exception& e) {
     std::cerr << "GetReady() caught exception: " << e.what() << "\n\t -> aborting task.\n";
     return false;
@@ -58,7 +58,7 @@ bool Controller::GetReady()
 bool Controller::Run()
 {
   try {
-    DoSomething(); // state machine->DoSomething()
+    RunHook(); // state machine->DoSomething()
   } catch (std::exception& e) {
     std::cerr << "Run() caught exception: " << e.what() << "\n\t -> freezing robot.";
     robot_->StopRobot();
