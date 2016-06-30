@@ -41,15 +41,12 @@ public:
   void SetAllVariables(const VectorXd& x_all);
   void SetAllVariables(const Number* x_all);
 
-  VectorXd GetSplineCoefficients() const;
+  void SetVariables(std::string set_name, const VectorXd& values);
+  VectorXd GetVariables(std::string set_name) const;
 
-  void SetSplineCoefficients(const VectorXd& x_abdc);
-  void SetFootholds(const VectorXd& footholds_xy);
-  VectorXd GetFootholdsEig() const;
 
 private:
   VariableSetMap variable_sets_;
-
   VectorXd ConvertToEigen(const Number* x) const;
 };
 

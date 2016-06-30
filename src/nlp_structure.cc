@@ -38,18 +38,6 @@ NlpStructure::GetOptimizationVariableCount() const
 }
 
 NlpStructure::VectorXd
-NlpStructure::GetSplineCoefficients() const
-{
-  return variable_sets_.at("spline_coeff")->GetVariables();
-}
-
-NlpStructure::VectorXd
-NlpStructure::GetFootholdsEig() const
-{
-  return variable_sets_.at("footholds")->GetVariables();
-}
-
-NlpStructure::VectorXd
 NlpStructure::GetOptimizationVariables () const
 {
   Eigen::VectorXd x(GetOptimizationVariableCount());
@@ -81,15 +69,15 @@ NlpStructure::SetAllVariables(const Number* x_all)
 }
 
 void
-NlpStructure::SetSplineCoefficients(const VectorXd& x_abcd)
+NlpStructure::SetVariables (std::string set_name, const VectorXd& values)
 {
-  variable_sets_.at("spline_coeff")->SetVariables(x_abcd);
+  variable_sets_.at(set_name)->SetVariables(values);
 }
 
-void
-NlpStructure::SetFootholds(const VectorXd& footholds_xy)
+NlpStructure::VectorXd
+NlpStructure::GetVariables (std::string set_name) const
 {
-  variable_sets_.at("footholds")->SetVariables(footholds_xy);
+  return variable_sets_.at(set_name)->GetVariables();
 }
 
 NlpStructure::VectorXd
