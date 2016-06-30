@@ -26,16 +26,22 @@ WalkingControllerState::BuildStates ()
 {
   StatesMap states;
 
-  states.emplace(EXECUTING, new Executing());
-  states.emplace(PLANNING, new Planning());
+  states.emplace(kFirstPlanning,   std::make_shared<Planning>());
+  states.emplace(kExecuting,  std::make_shared<Executing>());
+  states.emplace(kRePlanning, std::make_shared<RePlanning>());
+  states.emplace(kSleeping,      std::make_shared<Sleep>());
 
   return states;
 }
 
 void Planning::Run(WalkingController* context) const
 {
-  context->PlanTrajectory();
-  context->SetState(EXECUTING);
+  context->EstimateCurrPose();
+  context->PublishCurrentState();
+  context->ffsplining_ = false;
+  context->BuildPlan();
+
+  context->SetState(kExecuting);
 }
 
 void Executing::Run(WalkingController* context) const
@@ -43,7 +49,20 @@ void Executing::Run(WalkingController* context) const
   bool success = context->ExecuteLoop();
   context->first_time_sending_commands_ = false;
   if (!success)
-    context->SetState(PLANNING);
+    context->SetState(kRePlanning);
+}
+
+void RePlanning::Run(WalkingController* context) const
+{
+  context->ffsplining_ = true;
+  context->BuildPlan();
+
+  context->SetState(kExecuting);
+}
+
+void Sleep::Run(WalkingController* context) const
+{
+  // do nothing
 }
 
 } /* namespace exe */

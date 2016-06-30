@@ -74,7 +74,7 @@ WalkingController::GetReadyHook() {
   t_swing_          = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
 
   states_map_ = WalkingControllerState::BuildStates();
-  current_state_ = WalkingControllerState::PLANNING;
+  current_state_ = WalkingControllerState::kFirstPlanning;
 
   first_time_sending_commands_ = true;
 }
@@ -87,7 +87,7 @@ WalkingController::RunHook()
 }
 
 void
-WalkingController::SetState(WalkingControllerState::TaskState state) {
+WalkingController::SetState(WalkingControllerState::State state) {
   current_state_ = state;
 }
 
@@ -100,46 +100,24 @@ WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
   ROS_INFO_STREAM("updated splines [size=" << opt_splines_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
 }
 
-
-void WalkingController::PlanTrajectory()
+void WalkingController::PublishCurrentState()
 {
-  using namespace xpp::hyq;
-  using namespace xpp::utils;
+  //    AddVarForLogging();
 
+  ReqInfoMsg msg;
+  msg.curr_state    = xpp::ros::RosHelpers::XppToRos(P_curr_.base_.pos);
+  msg.curr_stance   = xpp::ros::RosHelpers::XppToRos(P_curr_.GetStanceLegs());
+  msg.curr_swingleg = xpp::hyq::NO_SWING_LEG;
 
-  // 1. insert current start state
-  EstimateCurrPose();
-  ROS_INFO_STREAM("P_init: \t" << P_curr_ << "\n");
+  // send out the message
+  current_info_pub_.publish(msg);
 
-  // todo first task run stuff also sounds like state pattern
-  if (first_time_sending_commands_) {
+  P_des_ = P_curr_;
+  sleep(2.0); // wait for optimizer to finish. Fixme: do not sleep controller on real robot!
+}
 
-//    AddVarForLogging();
-
-    // send out initial state and wait for optimization
-    ReqInfoMsg msg;
-    msg.curr_state    = xpp::ros::RosHelpers::XppToRos(P_curr_.base_.pos);
-    msg.curr_stance   = xpp::ros::RosHelpers::XppToRos(P_curr_.GetStanceLegs());
-    msg.curr_swingleg = NO_SWING_LEG;
-
-    // send out the message
-    current_info_pub_.publish(msg);
-
-//    t_switch_ =  t_stance_initial_ + t_swing_;
-
-    P_des_ = P_curr_;
-    sleep(2.0); // wait for optimizer to finish
-
-    // don't spline in initial feed-forward torques
-    ffsplining_ = false;
-    uff_prev_.setZero();
-  } else {
-    // some stuff to do before every re-optimization
-    ffsplining_ = true;
-
-//    t_switch_ =  t_swing_; // can only switch at exactly after swing is complete
-  }
-
+void WalkingController::BuildPlan()
+{
   ffspliner_timer_ = ffspline_duration_;
   reoptimize_before_finish_ = true;
 
@@ -154,7 +132,6 @@ void WalkingController::PlanTrajectory()
   t_switch_ = switch_node_.T;
   Controller::ResetTime();
 }
-
 
 
 bool WalkingController::ExecuteLoop()

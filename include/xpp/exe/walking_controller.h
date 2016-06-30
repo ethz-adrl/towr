@@ -62,19 +62,22 @@ public:
   explicit WalkingController();
   virtual ~WalkingController();
 
+  void SetState(WalkingControllerState::State state);
   // fsm callable functions
-  void SetState(WalkingControllerState::TaskState state);
-  void PlanTrajectory();
+  void PublishCurrentState();
+  void BuildPlan();
   bool ExecuteLoop();
+  void EstimateCurrPose();
 
   bool first_time_sending_commands_;
+  bool ffsplining_;
 private:
 //  void AddVarForLogging();
 
   void GetReadyHook() override;
   bool RunHook() override;
 
-  WalkingControllerState::TaskState current_state_;
+  WalkingControllerState::State current_state_;
   WalkingControllerState::StatesMap states_map_;
 private:
 
@@ -90,7 +93,7 @@ private:
     */
   State GetStartStateForOptimization(/*const double required_time*/) const;
 
-  void EstimateCurrPose();
+
 
   bool reoptimize_before_finish_;
 
@@ -115,7 +118,6 @@ private:
 
   void SmoothTorquesAtContactChange(JointState& uff);
   LegDataMap<bool> prev_swingleg_;
-  bool ffsplining_;
   double ffspliner_timer_;
   double ffspline_duration_;
   JointState uff_prev_;

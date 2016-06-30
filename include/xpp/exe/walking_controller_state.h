@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_EXE_WALKING_CONTROLLER_STATE_H_
 
 #include <map>
+#include <memory>
 
 namespace xpp {
 namespace exe {
@@ -17,8 +18,9 @@ class WalkingController;
 
 class WalkingControllerState {
 public:
-  enum TaskState{PLANNING, EXECUTING, WAITING};
-  typedef std::map<TaskState, WalkingControllerState*> StatesMap;
+  enum State {kFirstPlanning, kRePlanning, kExecuting, kSleeping};
+  typedef std::shared_ptr<WalkingControllerState> StatePtr;
+  typedef std::map<State, StatePtr> StatesMap;
 
   WalkingControllerState ();
   virtual ~WalkingControllerState ();
@@ -36,6 +38,17 @@ class Executing : public WalkingControllerState {
 public:
   void Run(WalkingController* context) const;
 };
+
+class RePlanning : public WalkingControllerState {
+public:
+  void Run(WalkingController* context) const;
+};
+
+class Sleep : public WalkingControllerState {
+public:
+  void Run(WalkingController* context) const;
+};
+
 
 } /* namespace exe */
 } /* namespace xpp */
