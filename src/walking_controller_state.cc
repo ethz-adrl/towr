@@ -26,43 +26,42 @@ WalkingControllerState::BuildStates ()
 {
   StatesMap states;
 
-  states.emplace(kFirstPlanning,   std::make_shared<Planning>());
-  states.emplace(kExecuting,  std::make_shared<Executing>());
-  states.emplace(kRePlanning, std::make_shared<RePlanning>());
-  states.emplace(kSleeping,      std::make_shared<Sleep>());
+  states.emplace(kFirstPlanning, std::make_shared<FirstPlanning>());
+  states.emplace(kExecuting,     std::make_shared<Executing>());
+  states.emplace(kUpdateAndExecuting,    std::make_shared<UpdateAndExecuting>());
+  states.emplace(kSleeping,      std::make_shared<Sleeping>());
 
   return states;
 }
 
-void Planning::Run(WalkingController* context) const
+void FirstPlanning::Run(WalkingController* context) const
 {
   context->EstimateCurrPose();
   context->PublishCurrentState();
-  context->ffsplining_ = false;
-  context->BuildPlan();
-
-  context->SetState(kExecuting);
+  context->SetState(kSleeping); // waiting for nlp optimizer to finish
 }
 
 void Executing::Run(WalkingController* context) const
 {
   bool success = context->ExecuteLoop();
-  context->first_time_sending_commands_ = false;
-  if (!success)
-    context->SetState(kRePlanning);
+
+  if (context->TimeExceeded())
+    context->SetState(kUpdateAndExecuting);
 }
 
-void RePlanning::Run(WalkingController* context) const
+void UpdateAndExecuting::Run(WalkingController* context) const
 {
-  context->ffsplining_ = true;
   context->BuildPlan();
-
   context->SetState(kExecuting);
+  context->ExecuteLoop(); // to always send values to the controller
 }
 
-void Sleep::Run(WalkingController* context) const
+void Sleeping::Run(WalkingController* context) const
 {
-  // do nothing
+  if (context->Time() > 2.0) {
+    context->ResetTime();
+    context->SetState(kUpdateAndExecuting);
+  }
 }
 
 } /* namespace exe */

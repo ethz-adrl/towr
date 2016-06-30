@@ -30,10 +30,10 @@ public:
   bool Change();
 
   void AddRobot(RobotInterfacePtr robot);
-
-protected:
   double Time() const { return time_; };
   void ResetTime();
+
+protected:
   RobotInterfacePtr robot_;
 
   // using the template method pattern, where the base algorithm gets filled

@@ -76,12 +76,13 @@ WalkingController::GetReadyHook() {
   states_map_ = WalkingControllerState::BuildStates();
   current_state_ = WalkingControllerState::kFirstPlanning;
 
-  first_time_sending_commands_ = true;
+ first_time_sending_commands_ = true;
 }
 
 bool
 WalkingController::RunHook()
 {
+  // delegates the actual execution to the current state
   states_map_.at(current_state_)->Run(this);
   return true;
 }
@@ -113,7 +114,7 @@ void WalkingController::PublishCurrentState()
   current_info_pub_.publish(msg);
 
   P_des_ = P_curr_;
-  sleep(2.0); // wait for optimizer to finish. Fixme: do not sleep controller on real robot!
+//  sleep(2.0); // wait for optimizer to finish. Fixme: do not sleep controller on real robot!
 }
 
 void WalkingController::BuildPlan()
@@ -123,6 +124,7 @@ void WalkingController::BuildPlan()
 
   ::ros::spinOnce(); // process callbacks (get the optimized values).
 
+  // start from desired state so there is no jump in desired
   spliner_.Init(P_des_, opt_splines_, opt_footholds_, robot_height_);
 
 
@@ -232,6 +234,8 @@ bool WalkingController::ExecuteLoop()
     q_des.segment<3>(3*ee) = q_des_leg;
   }
 
+
+  // fixme: maybe move this to robot scope
   JointState qd_des = robot_->EstimateDesiredJointVelocity(q_des, first_time_sending_commands_);
   JointState qdd_des = robot_->EstimateDesiredJointAcceleration(qd_des, first_time_sending_commands_);
 
@@ -250,12 +254,7 @@ bool WalkingController::ExecuteLoop()
   robot_->SetDesiredJointPosition(q_des);
   robot_->SetDesiredJointVelocity(qd_des);
   robot_->SetDesiredTorque(uff);
-
-  // switch to next optimized spline
-  // this must happen AFTER sending desired joint values and torques to the robot
-  if (Time() >= t_switch_-robot_->GetControlLoopInterval() /*|| Time() >= spliner_.GetTotalTime()-dt_*/) {
-    return false;
-  }
+  first_time_sending_commands_ = false;
 
   return true;
 }
@@ -374,6 +373,12 @@ void WalkingController::EstimateCurrPose()
   ROS_DEBUG_STREAM_THROTTLE(robot_->GetControlLoopInterval(), "time: " << Time() << "\nP_curr_:\n" << P_curr_);
 }
 
+bool
+WalkingController::TimeExceeded () const
+{
+  double t_max = t_switch_ - robot_->GetControlLoopInterval();
+  return Time() >= t_max; /*|| Time() >= spliner_.GetTotalTime()-dt_*/
+}
 
 Eigen::Vector3d
 WalkingController::TransformBaseToProjectedFrame(const Eigen::Vector3d& B_r_btox,
@@ -389,6 +394,8 @@ WalkingController::TransformBaseToProjectedFrame(const Eigen::Vector3d& B_r_btox
 
 void WalkingController::SmoothTorquesAtContactChange(JointState& uff)
 {
+
+  static bool ffsplining_ = false; // the first control loop ever we want no splining, full torques!
 
   if (ffspline_duration_ > 0.0) {
     // check if contacts have changed during this task loop

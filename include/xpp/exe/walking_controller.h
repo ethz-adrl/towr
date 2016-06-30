@@ -68,9 +68,10 @@ public:
   void BuildPlan();
   bool ExecuteLoop();
   void EstimateCurrPose();
+  bool TimeExceeded() const;
 
-  bool first_time_sending_commands_;
-  bool ffsplining_;
+
+
 private:
 //  void AddVarForLogging();
 
@@ -79,7 +80,6 @@ private:
 
   WalkingControllerState::State current_state_;
   WalkingControllerState::StatesMap states_map_;
-private:
 
   void OptParamsCallback(const OptimizedParametersMsg& msg);
   ::ros::Publisher current_info_pub_;
@@ -111,6 +111,7 @@ private:
   double t_stance_initial_;
   double t_swing_;
   double robot_height_;
+
   double t_switch_; // when to abort spline and go to already next optimized one
   hyq::SplineNode switch_node_;
   double kOptTimeReq_;
@@ -122,6 +123,7 @@ private:
   double ffspline_duration_;
   JointState uff_prev_;
   Eigen::Vector3d b_r_geomtocog; // tranform from geometric body center to center of gravity
+  bool first_time_sending_commands_;
 
 
   bool use_virtual_model_;

@@ -18,7 +18,7 @@ class WalkingController;
 
 class WalkingControllerState {
 public:
-  enum State {kFirstPlanning, kRePlanning, kExecuting, kSleeping};
+  enum State {kFirstPlanning, kUpdateAndExecuting, kExecuting, kSleeping};
   typedef std::shared_ptr<WalkingControllerState> StatePtr;
   typedef std::map<State, StatePtr> StatesMap;
 
@@ -29,7 +29,7 @@ public:
   static StatesMap BuildStates();
 };
 
-class Planning : public WalkingControllerState {
+class FirstPlanning : public WalkingControllerState {
 public:
   void Run(WalkingController* context) const;
 };
@@ -39,12 +39,12 @@ public:
   void Run(WalkingController* context) const;
 };
 
-class RePlanning : public WalkingControllerState {
+class UpdateAndExecuting : public WalkingControllerState {
 public:
   void Run(WalkingController* context) const;
 };
 
-class Sleep : public WalkingControllerState {
+class Sleeping : public WalkingControllerState {
 public:
   void Run(WalkingController* context) const;
 };
