@@ -46,6 +46,8 @@ public:
   void SetVariables(const double* x);
   void SetVariables(const VectorXd& x);
 
+  void SetSplineCoefficients(const VectorXd& x);
+
 private:
   NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
 

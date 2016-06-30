@@ -56,14 +56,11 @@ protected:
     double t_stance_initial = 2.0;
     double t_stance_final = 0.5;
     xpp::zmp::SplineTimes spline_times(t_swing, t_stance_initial, t_stance_final);
-    std::vector<LegID> step_sequence = {LH, LF, RH, RF};
-
 
     xpp::zmp::ContinuousSplineContainer spline_cont;
     spline_cont.Init(Eigen::Vector2d::Zero(), Eigen::Vector2d::Zero(),
                      4, spline_times, true, true);
     splines_ = spline_cont.GetSplines();
-
   }
 
   virtual int GetInitial4lsSplines(const VecSpline& splines) const
@@ -168,12 +165,13 @@ TEST_F(SuppPolygonContainerTest, CombineSupportPolygons)
 
   int prev_step = -1;
   for (const xpp::zmp::ZmpSpline& s : splines_) {
+
     if (s.GetId() == 3) {
       supp_4ls.push_back(SupportPolygon::CombineSupportPolygons(supp.at(prev_step),
                                                                 supp.at(prev_step+1)));
-    } else {
-      prev_step = s.GetCurrStep();
     }
+    if (!s.IsFourLegSupport() )
+      prev_step = s.GetCurrStep();
   }
 
   // only one four leg support phase LF->RH

@@ -50,13 +50,13 @@ TEST_F(InitialAccelerationEquationTest, EvaluateConstraint)
   EXPECT_DOUBLE_EQ(-init_acceleration_.y(), g(1));
 
   // change the splines acceleration
-  int n_opt_var = subject_.GetOptimizationVariableCount();
-  Eigen::VectorXd x(n_opt_var);
+  // with new optimization variables the x-acceleration should cancel out.
+  Eigen::VectorXd x(subject_.GetSplineCoefficients().rows());
   x.setZero();
   int idx = ContinuousSplineContainer::Index(0, utils::X, D);
   x(idx) = init_acceleration_.x()/2.0;
 
-  subject_.SetVariables(x);
+  subject_.SetSplineCoefficients(x);
   g = constraint_.EvaluateConstraint();
   EXPECT_EQ(2, g.rows());
   EXPECT_DOUBLE_EQ(0.0, g(0));

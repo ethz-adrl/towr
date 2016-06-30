@@ -31,9 +31,10 @@ public:
   typedef std::unique_ptr<VariableSet> VariableSetPtr;
   typedef std::map<std::string, VariableSetPtr> VariableSetMap;
 
-  NlpStructure(int n_spline_coeff = 0, int n_steps = 0);
+  NlpStructure();
   virtual ~NlpStructure();
-  void Init(int n_spline_coeff = 0, int n_steps = 0);
+
+  void AddVariableSet(std::string name, int n_variables);
 
   VectorXd GetOptimizationVariables() const;
   int GetOptimizationVariableCount() const;
@@ -47,6 +48,7 @@ public:
 
 private:
   VariableSetMap variable_sets_;
+  int n_variables_;
   VectorXd ConvertToEigen(const Number* x) const;
 };
 

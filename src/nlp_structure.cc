@@ -10,11 +10,9 @@
 namespace xpp {
 namespace zmp {
 
-static constexpr int kDim2d = 2; // X,Y
-
-NlpStructure::NlpStructure(int n_spline_coeff, int n_steps)
+NlpStructure::NlpStructure()
 {
-  Init(n_spline_coeff, n_steps);
+  n_variables_ = 0;
 }
 
 NlpStructure::~NlpStructure ()
@@ -22,19 +20,16 @@ NlpStructure::~NlpStructure ()
 }
 
 void
-NlpStructure::Init(int n_spline_coeff, int n_steps)
+NlpStructure::AddVariableSet (std::string name, int n_variables)
 {
-  variable_sets_.emplace("spline_coeff", VariableSetPtr(new VariableSet(n_spline_coeff)));
-  variable_sets_.emplace("footholds",    VariableSetPtr(new VariableSet(kDim2d*n_steps)));
+  variable_sets_.emplace(name, VariableSetPtr(new VariableSet(n_variables)));
+  n_variables_ += n_variables;
 }
 
 int
 NlpStructure::GetOptimizationVariableCount() const
 {
-  int c = 0;
-  for (const auto& set : variable_sets_)
-    c += set.second->GetVariables().rows();
-  return c;
+  return n_variables_;
 }
 
 NlpStructure::VectorXd
