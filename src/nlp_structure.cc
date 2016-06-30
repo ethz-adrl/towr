@@ -24,57 +24,72 @@ NlpStructure::~NlpStructure ()
 void
 NlpStructure::Init(int n_spline_coeff, int n_steps)
 {
-  n_spline_coeff_ = n_spline_coeff;
-  n_steps_ = n_steps;
-  x_ = Eigen::VectorXd::Zero(n_spline_coeff_ + kDim2d*n_steps_);
+  variable_sets_.emplace("spline_coeff", VariableSetPtr(new VariableSet(n_spline_coeff)));
+  variable_sets_.emplace("footholds",    VariableSetPtr(new VariableSet(kDim2d*n_steps)));
 }
 
 int
 NlpStructure::GetOptimizationVariableCount() const
 {
-  return x_.rows();
+  int c = 0;
+  for (const auto& set : variable_sets_)
+    c += set.second->GetVariables().rows();
+  return c;
 }
 
 NlpStructure::VectorXd
 NlpStructure::GetSplineCoefficients() const
 {
-  return x_.head(n_spline_coeff_);
-}
-
-NlpStructure::VectorXd
-NlpStructure::GetOptimizationVariables () const
-{
-  return x_;
-}
-
-void
-NlpStructure::SetAllVariables(const VectorXd& x_all)
-{
-  x_ = x_all;
-}
-
-void
-NlpStructure::SetAllVariables(const Number* x_all)
-{
-  x_ = ConvertToEigen(x_all);
-}
-
-void
-NlpStructure::SetSplineCoefficients(const VectorXd& x_abdc)
-{
-  x_.head(n_spline_coeff_) = x_abdc;
-}
-
-void
-NlpStructure::SetFootholds(const VectorXd& footholds_xy)
-{
-  x_.middleRows(n_spline_coeff_, n_steps_*kDim2d) = footholds_xy;
+  return variable_sets_.at("spline_coeff")->GetVariables();
 }
 
 NlpStructure::VectorXd
 NlpStructure::GetFootholdsEig() const
 {
-  return x_.middleRows(n_spline_coeff_, kDim2d*n_steps_);
+  return variable_sets_.at("footholds")->GetVariables();
+}
+
+NlpStructure::VectorXd
+NlpStructure::GetOptimizationVariables () const
+{
+  Eigen::VectorXd x(GetOptimizationVariableCount());
+  int c = 0;
+  for (const auto& set : variable_sets_) {
+    const VectorXd& var = set.second->GetVariables();
+    x.middleRows(c, var.rows()) = var;
+    c += var.rows();
+  }
+
+  return x;
+}
+
+void
+NlpStructure::SetAllVariables(const VectorXd& x_all)
+{
+  int c = 0;
+  for (const auto& set : variable_sets_) {
+    int n_var = set.second->GetVariables().rows();
+    set.second->SetVariables(x_all.middleRows(c,n_var));
+    c += n_var;
+  }
+}
+
+void
+NlpStructure::SetAllVariables(const Number* x_all)
+{
+  SetAllVariables(ConvertToEigen(x_all));
+}
+
+void
+NlpStructure::SetSplineCoefficients(const VectorXd& x_abcd)
+{
+  variable_sets_.at("spline_coeff")->SetVariables(x_abcd);
+}
+
+void
+NlpStructure::SetFootholds(const VectorXd& footholds_xy)
+{
+  variable_sets_.at("footholds")->SetVariables(footholds_xy);
 }
 
 NlpStructure::VectorXd
@@ -83,6 +98,28 @@ NlpStructure::ConvertToEigen(const Number* x) const
   return Eigen::Map<const VectorXd>(x,GetOptimizationVariableCount());
 }
 
+
+// The Variable Set
+VariableSet::VariableSet (int n_variables)
+{
+  x_ = Eigen::VectorXd::Zero(n_variables);
+}
+
+VariableSet::~VariableSet ()
+{
+}
+
+VariableSet::VectorXd
+VariableSet::GetVariables () const
+{
+  return x_;
+}
+
+void
+VariableSet::SetVariables (const VectorXd& x)
+{
+  x_ = x;
+}
 
 } // namespace zmp
 } // namespace xpp

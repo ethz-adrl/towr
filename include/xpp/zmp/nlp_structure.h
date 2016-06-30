@@ -10,8 +10,13 @@
 
 #include <Eigen/Dense>
 
+#include <memory>
+#include <map>
+
 namespace xpp {
 namespace zmp {
+
+class VariableSet;
 
 /** @brief Holds the optimization variables.
   *
@@ -23,6 +28,8 @@ class NlpStructure {
 public:
   typedef Eigen::VectorXd VectorXd;
   typedef double Number;
+  typedef std::unique_ptr<VariableSet> VariableSetPtr;
+  typedef std::map<std::string, VariableSetPtr> VariableSetMap;
 
   NlpStructure(int n_spline_coeff = 0, int n_steps = 0);
   virtual ~NlpStructure();
@@ -41,12 +48,22 @@ public:
   VectorXd GetFootholdsEig() const;
 
 private:
-  VectorXd x_;  ///< optimization variables
-
-  int n_spline_coeff_;
-  int n_steps_;
+  VariableSetMap variable_sets_;
 
   VectorXd ConvertToEigen(const Number* x) const;
+};
+
+
+class VariableSet {
+public:
+  typedef Eigen::VectorXd VectorXd;
+  VariableSet(int n_variables);
+  virtual ~VariableSet();
+
+  VectorXd GetVariables() const;
+  void SetVariables(const VectorXd& x);
+private:
+  VectorXd x_;
 };
 
 } // namespace zmp
