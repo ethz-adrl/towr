@@ -74,13 +74,13 @@ int main(int argc, char **argv)
   ros::Rate loop_rate(10);
   while (ros::ok()) {
     ros::spinOnce();
-//    marker_builder.AddRvizMessage(splines, // from qp server
-//                                 RosHelpers::RosToXpp(msg.steps),
-//                                 RosHelpers::RosToXpp(msg.curr_stance),
-//                                 0.0, 0.0,
-//                                 1.0);
-    visualization_msgs::MarkerArray msg_markers = marker_builder.BuildMsg(splines, RosHelpers::RosToXpp(msg.steps), walking_height);
-    ros_publisher_.publish(msg_markers);
+
+    visualization_msgs::MarkerArray marker_msg;
+    marker_builder.AddFootholds(marker_msg, RosHelpers::RosToXpp(msg.steps), "footholds", visualization_msgs::Marker::CUBE, 1.0);
+    marker_builder.AddCogTrajectory(marker_msg, splines, RosHelpers::RosToXpp(msg.steps), "cog", 1.0);
+    marker_builder.AddZmpTrajectory(marker_msg, splines, walking_height, RosHelpers::RosToXpp(msg.steps), "zmp_4ls", 0.7);
+
+    ros_publisher_.publish(marker_msg);
     loop_rate.sleep();
   }
 }

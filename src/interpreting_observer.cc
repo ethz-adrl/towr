@@ -49,5 +49,11 @@ InterpretingObserver::GetFootholds () const
   return interpreter_->GetFootholds(x_feet_);
 }
 
+InterpretingObserver::VecFoothold
+InterpretingObserver::GetStartStance () const
+{
+  return interpreter_->GetStartStance();
+}
+
 } /* namespace zmp */
 } /* namespace xpp */

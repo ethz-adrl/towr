@@ -48,6 +48,7 @@ public:
   void Update() override;
   VecSpline GetSplines() const;
   VecFoothold GetFootholds() const;
+  VecFoothold GetStartStance() const;
 
 private:
   InterpreterPtr interpreter_;

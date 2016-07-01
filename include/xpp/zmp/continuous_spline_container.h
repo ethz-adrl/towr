@@ -17,12 +17,12 @@ static const int kFreeCoeffPerSpline = kCoeffCount-2;
 static const SplineCoeff FreeSplineCoeff[] = { A, B, C, D };
 
 /**
- * This class represents a collection of fifth order polynomials
- * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f, that are
- * continuous in position and velocity at their borders. This means that the e
- * and f coefficients of all splines can be uniquely determined from the other
- * coefficients and the initial position/velocity.
- */
+  * This class represents a collection of fifth order polynomials
+  * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f, that are
+  * continuous in position and velocity at their borders. This means that the e
+  * and f coefficients of all splines can be uniquely determined from the other
+  * coefficients and the initial position/velocity.
+  */
 class ContinuousSplineContainer : public SplineContainer
 {
 public:

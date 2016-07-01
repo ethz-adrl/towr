@@ -19,22 +19,9 @@ MarkerArrayBuilder::MarkerArrayBuilder()
 {
 }
 
-MarkerArrayBuilder::MarkerArray
-MarkerArrayBuilder::BuildMsg (const VecSpline& splines,
-                              const VecFoothold& opt_footholds,
-                              double walking_height) const
-{
-  visualization_msgs::MarkerArray msg;
-  AddFootholds(msg, opt_footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
-  AddCogTrajectory(msg, splines, opt_footholds, "cog", 1.0);
-  AddZmpTrajectory(msg, splines, walking_height, opt_footholds, "zmp_4ls", 0.7);
-
-  return msg;
-}
-
 
 void MarkerArrayBuilder::AddStartStance(visualization_msgs::MarkerArray& msg,
-                                  const VecFoothold& start_stance)
+                                        const VecFoothold& start_stance) const
 {
   AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::SPHERE, 1.0);
 }
@@ -51,32 +38,31 @@ void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg
   xpp::hyq::SupportPolygonContainer::VecSupportPolygon supp;
   supp = support_polygon_container.GetSupportPolygons();
 
-  for (uint i=0; i<supp.size(); ++i) {
-    visualization_msgs::Marker m = BuildSupportPolygon(msg, supp.at(i).footholds_conv_, footholds.at(i).leg);
-    msg.markers.push_back(m);
-  }
+  for (uint i=0; i<supp.size(); ++i)
+    BuildSupportPolygon(msg, supp.at(i).footholds_conv_, footholds.at(i).leg);
 }
 
 
-visualization_msgs::Marker
+void
 MarkerArrayBuilder::BuildSupportPolygon(
     visualization_msgs::MarkerArray& msg,
     const VecFoothold& stance,
-                                     xpp::hyq::LegID leg_id) const
+    xpp::hyq::LegID leg_id) const
 {
 //  static int i=0;
 //  geometry_msgs::PolygonStamped polygon_msg;
 //  polygon_msg.header.frame_id = "world";
 //  polygon_msg.header.seq = i++;
 
+  int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
 
   visualization_msgs::Marker marker;
-  marker.id = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
+  marker.id = i;
   marker.header.frame_id = frame_id_;
   marker.header.stamp = ::ros::Time();
   marker.ns = "leg " + std::to_string(leg_id);
   marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
-  marker.action = visualization_msgs::Marker::ADD;
+  marker.action = visualization_msgs::Marker::MODIFY;
  //    marker.lifetime = ros::Duration(10);
   marker.scale.x = marker.scale.y = marker.scale.z = 1.0;
   marker.color = GetLegColor(leg_id);
@@ -90,7 +76,7 @@ MarkerArrayBuilder::BuildSupportPolygon(
     marker.points.push_back(p1);
   }
 
-  return marker;
+  msg.markers.push_back(marker);
 
 
 //  geometry_msgs::Point32 p1;
@@ -108,7 +94,10 @@ void MarkerArrayBuilder::AddGoal(
     visualization_msgs::MarkerArray& msg,
     const Eigen::Vector2d& goal)
 {
+  int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
+
   Marker marker;
+  marker.id = i;
   marker = GenerateMarker(goal, visualization_msgs::Marker::CYLINDER, 0.03);
   marker.ns = "goal";
   marker.scale.z = 0.1;
@@ -127,7 +116,7 @@ MarkerArrayBuilder::GenerateMarker(Eigen::Vector2d pos, int32_t type, double siz
   marker.header.frame_id = frame_id_;
   marker.header.stamp = ::ros::Time();
   marker.type = type;
-  marker.action = visualization_msgs::Marker::ADD;
+  marker.action = visualization_msgs::Marker::MODIFY;
 //  marker.lifetime = ::ros::Duration(0.01);
   marker.scale.x = marker.scale.y = marker.scale.z = size;
   marker.color.a = 1.0;
@@ -140,13 +129,15 @@ MarkerArrayBuilder::AddLineStrip(visualization_msgs::MarkerArray& msg,
                            double center_x, double depth_x,
                            const std::string& rviz_namespace) const
 {
+  int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
+
   visualization_msgs::Marker line_strip;
   line_strip.header.frame_id = frame_id_;
   line_strip.header.stamp = ::ros::Time::now();
-  line_strip.id = 1;
+  line_strip.id = i;
   line_strip.type = visualization_msgs::Marker::LINE_STRIP;
   line_strip.ns = rviz_namespace;
-  line_strip.action = visualization_msgs::Marker::ADD;
+  line_strip.action = visualization_msgs::Marker::MODIFY;
   line_strip.pose.orientation.x = line_strip.pose.orientation.y = line_strip.pose.orientation.z = 0.0;
   line_strip.pose.orientation.w = 1.0;
   line_strip.color.b = 1.0;
@@ -287,7 +278,7 @@ void MarkerArrayBuilder::AddFootholds(
     // publish to rviz
     visualization_msgs::Marker marker_msg;
     marker_msg.type = type;
-    marker_msg.action = visualization_msgs::Marker::ADD;
+    marker_msg.action = visualization_msgs::Marker::MODIFY;
 
     marker_msg.pose.position = f_curr;
 //    marker_msg.points.push_back(f_next1);

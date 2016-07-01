@@ -40,8 +40,21 @@ OptimizationVisualizer::Visualize () const
 
   std::vector<xpp::zmp::ZmpSpline> spline   = observer_->GetSplines();
   std::vector<xpp::hyq::Foothold> footholds = observer_->GetFootholds();
+  std::vector<xpp::hyq::Foothold> start_stance = observer_->GetStartStance();
 
-  visualization_msgs::MarkerArray msg = msg_builder_.BuildMsg(spline, footholds, walking_height);
+  visualization_msgs::MarkerArray msg;
+  msg_builder_.AddStartStance(msg, start_stance);
+  msg_builder_.AddFootholds(msg, footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
+  msg_builder_.AddCogTrajectory(msg, spline, footholds, "cog", 1.0);
+  msg_builder_.AddZmpTrajectory(msg, spline, walking_height, footholds, "zmp_4ls", 0.7);
+  msg_builder_.AddSupportPolygons(msg, start_stance, footholds);
+
+//  static int n_markers_first_iteration = msg.markers.size();
+//  for (int i=n_markers_first_iteration; i<msg.markers.size(); ++i) {
+//    msg.markers.at(i).type = visualization_msgs::Marker::DELETE;
+//    msg.markers.at(i).color.a = 0.0;
+//  }
+
   ros_publisher_.publish(msg);
 }
 

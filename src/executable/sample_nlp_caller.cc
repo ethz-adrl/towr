@@ -68,18 +68,18 @@ int main(int argc, char **argv)
   double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
   ros::Publisher ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("example_publisher", 1);
 
-  ros::Rate loop_rate(10);
-  while (ros::ok()) {
-    ros::spinOnce();
-//    zmp_publisher.AddRvizMessage(splines,    // from nlp server
-//                                 footholds,  // from qp server
-//                                 RosHelpers::RosToXpp(msg.curr_stance),
-//                                 0.0, 0.0,
-//                                 1.0);
-    visualization_msgs::MarkerArray msg_markers = marker_builder.BuildMsg(splines, footholds, walking_height);
-    ros_publisher_.publish(msg_markers);
-    loop_rate.sleep();
-  }
+//  ros::Rate loop_rate(10);
+//  while (ros::ok()) {
+//    ros::spinOnce();
+////    zmp_publisher.AddRvizMessage(splines,    // from nlp server
+////                                 footholds,  // from qp server
+////                                 RosHelpers::RosToXpp(msg.curr_stance),
+////                                 0.0, 0.0,
+////                                 1.0);
+//    visualization_msgs::MarkerArray msg_markers = marker_builder.BuildMsg(splines, footholds, walking_height);
+//    ros_publisher_.publish(msg_markers);
+//    loop_rate.sleep();
+//  }
 }
 
 

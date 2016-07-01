@@ -40,20 +40,14 @@ public:
   MarkerArrayBuilder();
   virtual ~MarkerArrayBuilder () {};
 
-  MarkerArray BuildMsg(const VecSpline& splines,
-                       const VecFoothold& opt_footholds,
-                       double walking_height) const;
-
-private:
+  void AddStartStance(MarkerArray& msg, const VecFoothold& start_stance) const;
   void AddGoal(MarkerArray& msg,const Vector2d& goal);
 
   void AddSupportPolygons(MarkerArray& msg,
                           const VecFoothold& start_stance,
                           const VecFoothold& footholds) const;
-  visualization_msgs::Marker BuildSupportPolygon(MarkerArray& msg,
-                                                 const VecFoothold& stance_legs,
-                                                 xpp::hyq::LegID leg_id) const;
-  void AddStartStance(MarkerArray& msg, const VecFoothold& start_stance);
+  void BuildSupportPolygon(MarkerArray& msg,const VecFoothold& stance_legs,
+                           xpp::hyq::LegID leg_id) const;
 
   void AddCogTrajectory(MarkerArray& msg,
                      const VecSpline& splines,
@@ -78,6 +72,7 @@ private:
   void AddLineStrip(MarkerArray& msg,
                     double center_x, double width_x,
                     const std::string& rviz_namespace) const;
+private:
   Marker GenerateMarker(Vector2d pos, int32_t type, double size) const;
 
   std_msgs::ColorRGBA GetLegColor(xpp::hyq::LegID leg) const;
