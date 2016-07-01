@@ -9,9 +9,8 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_STRUCTURE_H_
 
 #include <Eigen/Dense>
-
 #include <memory>
-#include <map>
+#include <vector>
 
 namespace xpp {
 namespace zmp {
@@ -29,7 +28,7 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef double Number;
   typedef std::unique_ptr<VariableSet> VariableSetPtr;
-  typedef std::map<std::string, VariableSetPtr> VariableSetMap;
+  typedef std::vector<VariableSetPtr> VariableSetVector;
 
   NlpStructure();
   virtual ~NlpStructure();
@@ -38,7 +37,7 @@ public:
     *
     * @param name What the variables represents.
     * @param n_variables The number of variables.
-   */
+    */
   void AddVariableSet(std::string name, int n_variables);
 
 
@@ -54,7 +53,7 @@ public:
   void Reset();
 
 private:
-  VariableSetMap variable_sets_;
+  VariableSetVector variable_sets_;
   int n_variables_;
   VectorXd ConvertToEigen(const Number* x) const;
 };

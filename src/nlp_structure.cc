@@ -13,22 +13,32 @@ namespace zmp {
 class VariableSet {
 public:
   typedef Eigen::VectorXd VectorXd;
-  VariableSet(int n_variables);
+  VariableSet(int n_variables, const std::string& name);
   virtual ~VariableSet();
 
   VectorXd GetVariables() const;
+  std::string GetName() const;
+
   void SetVariables(const VectorXd& x);
 private:
   VectorXd x_;
+  std::string name_;
 };
 
-VariableSet::VariableSet (int n_variables)
+VariableSet::VariableSet (int n_variables, const std::string& name)
 {
   x_ = Eigen::VectorXd::Zero(n_variables);
+  name_ = name;
 }
 
 VariableSet::~VariableSet ()
 {
+}
+
+std::string
+VariableSet::GetName () const
+{
+  return name_;
 }
 
 VariableSet::VectorXd
@@ -56,7 +66,7 @@ NlpStructure::~NlpStructure ()
 void
 NlpStructure::AddVariableSet (std::string name, int n_variables)
 {
-  variable_sets_.emplace(name, VariableSetPtr(new VariableSet(n_variables)));
+  variable_sets_.push_back(VariableSetPtr(new VariableSet(n_variables, name)));
   n_variables_ += n_variables;
 }
 
@@ -79,7 +89,7 @@ NlpStructure::GetOptimizationVariables () const
   Eigen::VectorXd x(GetOptimizationVariableCount());
   int c = 0;
   for (const auto& set : variable_sets_) {
-    const VectorXd& var = set.second->GetVariables();
+    const VectorXd& var = set->GetVariables();
     x.middleRows(c, var.rows()) = var;
     c += var.rows();
   }
@@ -92,8 +102,8 @@ NlpStructure::SetAllVariables(const VectorXd& x_all)
 {
   int c = 0;
   for (const auto& set : variable_sets_) {
-    int n_var = set.second->GetVariables().rows();
-    set.second->SetVariables(x_all.middleRows(c,n_var));
+    int n_var = set->GetVariables().rows();
+    set->SetVariables(x_all.middleRows(c,n_var));
     c += n_var;
   }
 }
@@ -107,13 +117,23 @@ NlpStructure::SetAllVariables(const Number* x_all)
 void
 NlpStructure::SetVariables (std::string set_name, const VectorXd& values)
 {
-  variable_sets_.at(set_name)->SetVariables(values);
+  for (const auto& s : variable_sets_)
+    if (s->GetName() == set_name) {
+     s->SetVariables(values);
+     return;
+    }
+
+  assert(false); // name not present in set
 }
 
 NlpStructure::VectorXd
 NlpStructure::GetVariables (std::string set_name) const
 {
-  return variable_sets_.at(set_name)->GetVariables();
+  for (const auto& s : variable_sets_)
+    if (s->GetName() == set_name)
+     return s->GetVariables();
+
+  assert(false); // name not present in set
 }
 
 NlpStructure::VectorXd
