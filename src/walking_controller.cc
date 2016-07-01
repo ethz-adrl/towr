@@ -136,7 +136,7 @@ void WalkingController::BuildPlan()
 }
 
 
-bool WalkingController::ExecuteLoop()
+void WalkingController::ExecuteLoop()
 {
   using namespace xpp::utils;
   using namespace xpp::zmp;
@@ -255,8 +255,6 @@ bool WalkingController::ExecuteLoop()
   robot_->SetDesiredJointVelocity(qd_des);
   robot_->SetDesiredTorque(uff);
   first_time_sending_commands_ = false;
-
-  return true;
 }
 
 WalkingController::State

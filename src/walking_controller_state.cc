@@ -43,8 +43,7 @@ void FirstPlanning::Run(WalkingController* context) const
 
 void Executing::Run(WalkingController* context) const
 {
-  bool success = context->ExecuteLoop();
-
+  context->ExecuteLoop();
   if (context->TimeExceeded())
     context->SetState(kUpdateAndExecuting);
 }

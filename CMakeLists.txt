@@ -82,18 +82,23 @@ catkin_package(
 
 
 
-# Include directories
+# NLP solvers
 SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4") # these two lines must be included everywhere where this project is needed
 link_directories(${IPOPT_SOURCE_DIR}/build/lib)
-set(IPOPT_LIBS
-    ipopt
-)
+set(IPOPT_INCLUDE_DIRS ${IPOPT_SOURCE_DIR}/build/include/coin)
+set(IPOPT_LIBS ipopt)
+
+SET(SNOPT_SOURCE_DIR "/home/winklera/Software/snopt_lib") # these two lines must be included everywhere where this project is needed
+link_directories(${SNOPT_SOURCE_DIR}/lib)
+set(SNOPT_INCLUDE_DIRS ${SNOPT_SOURCE_DIR}/include)
+set(SNOPT_LIBS snopt7_cpp snopt7)
 
 include_directories(
   include
   ${EIGEN3_INCLUDE_DIR}
   ${catkin_INCLUDE_DIRS}
- "${IPOPT_SOURCE_DIR}/build/include/coin"
+  ${IPOPT_INCLUDE_DIRS}
+  ${SNOPT_INCLUDE_DIRS}
 )
 
 set(SOURCES  
@@ -162,6 +167,7 @@ target_link_libraries(${LIB_NAME}
   log4cxx
   ${catkin_LIBRARIES}
   ${IPOPT_LIBS}
+  ${SNOPT_LIBS}
 )  
 # makes sure messages are built before the package
 add_dependencies(${LIB_NAME} 
@@ -251,12 +257,14 @@ if(BUILD_TESTS)
                         test/google/cost_function_functor_test.cc
                         test/google/range_of_motion_cost_test.cc
                         test/google/cost_container_test.cc
+                        # nlp optimizers
+                        test/google/snopt_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})
     
     target_link_libraries(googleTest 
-                          ${LIB_NAME} 
+                          ${LIB_NAME}
                           ${GTEST_LIBRARIES})
   endif(GTEST_FOUND)
 endif()

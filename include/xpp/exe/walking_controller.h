@@ -66,7 +66,7 @@ public:
   // fsm callable functions
   void PublishCurrentState();
   void BuildPlan();
-  bool ExecuteLoop();
+  void ExecuteLoop();
   void EstimateCurrPose();
   bool TimeExceeded() const;
 
