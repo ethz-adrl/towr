@@ -1,3 +1,4 @@
 /bin/*
 /build/*
 /doc/html/*
+*.out
