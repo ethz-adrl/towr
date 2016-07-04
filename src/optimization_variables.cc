@@ -41,6 +41,14 @@ OptimizationVariables::Init (const VectorXd& x_coeff_abcd,
 }
 
 void
+OptimizationVariables::SetVariables(const VectorXd& x)
+{
+  assert(initialized_);
+  nlp_structure_.SetAllVariables(x);
+  NotifyObservers();
+}
+
+void
 OptimizationVariables::SetSplineCoefficients (const VectorXd& x)
 {
   nlp_structure_.SetVariables("spline_coeff", x);

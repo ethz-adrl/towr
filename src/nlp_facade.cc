@@ -7,6 +7,8 @@
 
 #include <xpp/zmp/nlp_facade.h>
 
+#include <xpp/zmp/nlp.h>
+
 #include <xpp/zmp/spline_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/support_polygon_container.h>
@@ -33,18 +35,22 @@ namespace zmp {
 NlpFacade::NlpFacade (IVisualizer& visualizer)
      :visualizer_(&visualizer)
 {
-  interpreting_observer_ = std::make_shared<InterpretingObserver>(opt_variables_);
+  // create corresponding heap object for each of the member pointers
+  opt_variables_         = std::make_shared<OptimizationVariables>();
+  costs_                 = std::make_shared<CostContainer>();
+  constraints_           = std::make_shared<ConstraintContainer>();
+  interpreting_observer_ = std::make_shared<InterpretingObserver>(*opt_variables_);
 
-  constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "acc");
-  constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "final");
-  constraints_.AddConstraint(std::make_shared<LinearEqualityConstraint>(opt_variables_), "junction");
-  constraints_.AddConstraint(std::make_shared<ZmpConstraint>(opt_variables_), "zmp");
-  constraints_.AddConstraint(std::make_shared<RangeOfMotionConstraint>(opt_variables_), "rom");
-//  constraints_.AddConstraint(std::make_shared<JointAnglesConstraint>(opt_variables_), "joint_angles");
+  constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(*opt_variables_), "acc");
+  constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(*opt_variables_), "final");
+  constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(*opt_variables_), "junction");
+  constraints_->AddConstraint(std::make_shared<ZmpConstraint>(*opt_variables_), "zmp");
+  constraints_->AddConstraint(std::make_shared<RangeOfMotionConstraint>(*opt_variables_), "rom");
+//  constraints_.AddConstraint(std::make_shared<JointAnglesConstraint>(*opt_variables_), "joint_angles");
 
-//  costs_.AddCost(std::make_shared<AQuadraticCost>(opt_variables_), "cost_final");
-  costs_.AddCost(std::make_shared<AQuadraticCost>(opt_variables_), "cost_acc");
-  costs_.AddCost(std::make_shared<RangeOfMotionCost>(opt_variables_), "cost_rom");
+//  costs_.AddCost(std::make_shared<AQuadraticCost>(*opt_variables_), "cost_final");
+  costs_->AddCost(std::make_shared<AQuadraticCost>(*opt_variables_), "cost_acc");
+  costs_->AddCost(std::make_shared<RangeOfMotionCost>(*opt_variables_), "cost_rom");
 
   // initialize the ipopt solver
   ipopt_solver_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
@@ -58,14 +64,14 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
 void
 NlpFacade::InitializeVariables (int n_spline_coeff, int n_footholds)
 {
-  opt_variables_.Init(n_spline_coeff, n_footholds);
+  opt_variables_->Init(n_spline_coeff, n_footholds);
 }
 
 void
 NlpFacade::InitializeVariables (const Eigen::VectorXd& spline_abcd_coeff,
                                 const StdVecEigen2d& footholds)
 {
-  opt_variables_.Init(spline_abcd_coeff, footholds);
+  opt_variables_->Init(spline_abcd_coeff, footholds);
 }
 
 void
@@ -87,26 +93,26 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
 
   // initialize the constraints
   // fixme casting is bad practice -> remove
-  dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("acc")).Init(eq_acc.BuildLinearEquation());
-  dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("final")).Init(eq_final.BuildLinearEquation());
-  dynamic_cast<LinearEqualityConstraint&>(constraints_.GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
-  dynamic_cast<ZmpConstraint&>(constraints_.GetConstraint("zmp")).Init(*interpreter_ptr);
-  dynamic_cast<RangeOfMotionConstraint&>(constraints_.GetConstraint("rom")).Init(*interpreter_ptr);
+  dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("acc")).Init(eq_acc.BuildLinearEquation());
+  dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("final")).Init(eq_final.BuildLinearEquation());
+  dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
+  dynamic_cast<ZmpConstraint&>(constraints_->GetConstraint("zmp")).Init(*interpreter_ptr);
+  dynamic_cast<RangeOfMotionConstraint&>(constraints_->GetConstraint("rom")).Init(*interpreter_ptr);
 //  xpp::hyq::HyqInverseKinematics hyq_inv_kin;
 //  dynamic_cast<JointAnglesConstraint&>(constraints_.GetConstraint("joint_angles")).Init(*interpreter_ptr, &hyq_inv_kin);
-  constraints_.RefreshBounds();
+  constraints_->RefreshBounds();
 
   // costs
   // fixme, only soft cost on position, vel, acc not so important
 //  dynamic_cast<AQuadraticCost&>(costs_.GetCost("cost_final")).Init(eq_final.BuildLinearEquation());
-  dynamic_cast<AQuadraticCost&>(costs_.GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
-  dynamic_cast<RangeOfMotionCost&>(costs_.GetCost("cost_rom")).Init(*interpreter_ptr);
+  dynamic_cast<AQuadraticCost&>(costs_->GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
+  dynamic_cast<RangeOfMotionCost&>(costs_->GetCost("cost_rom")).Init(*interpreter_ptr);
 
-  // todo create complete class out of these input arguments
-  IpoptPtr nlp_ptr = new Ipopt::IpoptAdapter(opt_variables_,
-                                             costs_,
-                                             constraints_,
-                                             *visualizer_); // just so it can poll the PublishMsg() method
+
+  NLP nlp;
+  nlp.Init(opt_variables_, costs_, constraints_);
+
+  IpoptPtr nlp_ptr = new Ipopt::IpoptAdapter(nlp, *visualizer_); // just so it can poll the PublishMsg() method
   SolveIpopt(nlp_ptr);
 }
 

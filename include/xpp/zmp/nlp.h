@@ -28,34 +28,39 @@ namespace zmp {
 class NLP {
 public:
   typedef AConstraint::Bound Bound;
+  typedef double Number;
   typedef Eigen::VectorXd VectorXd;
   typedef std::vector<Bound> BoundVec;
   typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
-  typedef std::unique_ptr<OptimizationVariables> OptimizationVariablesPtr;
+  typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
+  typedef std::shared_ptr<CostContainer> CostContainerPtr;
+  typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
 
   NLP ();
   virtual ~NLP ();
 
-  void Init(OptimizationVariablesPtr&, const CostContainer&, const ConstraintContainer&);
+  void Init(OptimizationVariablesPtr&, CostContainerPtr&, ConstraintContainerPtr&);
 
   int GetNumberOfOptimizationVariables() const;
   BoundVec GetBoundsOnOptimizationVariables() const;
   VectorXd GetStartingValues() const;
 
-  double EvaluateCostFunction() const;
-  VectorXd EvaluateCostFunctionGradient() const;
+  double EvaluateCostFunction(const Number* x) const;
+  VectorXd EvaluateCostFunctionGradient(const Number* x) const;
 
   int GetNumberOfConstraints() const;
   BoundVec GetBoundsOnConstraints() const;
-  VectorXd EvaluateConstraints() const;
+  VectorXd EvaluateConstraints(const Number* x) const;
 
 
 private:
   OptimizationVariablesPtr opt_variables_;
-  ConstraintContainer constraints_;
-  CostContainer costs_;
+  CostContainerPtr costs_;
+  ConstraintContainerPtr constraints_;
 
-  NumericalDiffFunctor cf_num_diff_functor_;
+  NumericalDiffFunctor cost_derivative_;
+
+  VectorXd ConvertToEigen(const Number* x) const;
 };
 
 } /* namespace zmp */

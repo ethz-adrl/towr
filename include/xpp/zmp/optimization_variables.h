@@ -45,13 +45,7 @@ public:
   VectorXd GetSplineCoefficients() const;
   int GetOptimizationVariableCount() const;
 
-
-  template<typename T> void SetVariables(T x)
-  {
-    assert(initialized_);
-    nlp_structure_.SetAllVariables(x);
-    NotifyObservers();
-  }
+  void SetVariables(const VectorXd& x);
   void SetSplineCoefficients(const VectorXd& x);
 
 private:

@@ -10,11 +10,7 @@
 
 #include <IpTNLP.hpp>
 
-#include <xpp/zmp/cost_container.h>
-#include <xpp/zmp/cost_function_functor.h>
-
-#include <xpp/zmp/constraint_container.h>
-#include <xpp/zmp/optimization_variables.h>
+#include <xpp/zmp/nlp.h>
 #include <xpp/zmp/i_visualizer.h>
 
 namespace Ipopt {
@@ -27,7 +23,7 @@ namespace Ipopt {
 class IpoptAdapter : public Ipopt::TNLP {
 
 public:
-  typedef xpp::zmp::ConstraintContainer ConstraintContainer;
+  typedef xpp::zmp::NLP NLP;
   typedef xpp::zmp::CostContainer CostContainer;
   typedef xpp::zmp::CostFunctionFunctor CostFunctionFunctor;
   typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
@@ -35,10 +31,8 @@ public:
   typedef xpp::zmp::IVisualizer IVisualizer;
   typedef Eigen::VectorXd VectorXd;
 
-	IpoptAdapter(OptimizationVariables& opt_variables,
-	            CostContainer& cost_container,
-	            ConstraintContainer& constraint_container,
-	            IVisualizer& visualizer);
+	IpoptAdapter(NLP& nlp,
+	             IVisualizer& visualizer);
 
   /** default destructor */
   virtual ~IpoptAdapter() {};
@@ -111,11 +105,7 @@ public:
   //@}
 
 private:
-  OptimizationVariables& opt_variables_;
-  CostContainer& cost_container_;
-  ConstraintContainer& constraint_container_;
-
-  NumericalDiffFunctor cf_num_diff_functor_;
+  NLP& nlp_;
   IVisualizer& visualizer_;
 };
 

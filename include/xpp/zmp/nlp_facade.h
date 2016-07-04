@@ -46,6 +46,10 @@ public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
   typedef std::vector<ZmpSpline> VecSpline;
 
+  typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
+  typedef std::shared_ptr<CostContainer> CostContainerPtr;
+  typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
+
   NlpFacade (IVisualizer& visualizer = do_nothing_visualizer);
   virtual ~NlpFacade () {};
 
@@ -84,9 +88,9 @@ public:
 private:
   void SolveIpopt(const IpoptPtr& nlp);
 
-  OptimizationVariables opt_variables_;
-  ConstraintContainer constraints_;
-  CostContainer costs_;
+  OptimizationVariablesPtr opt_variables_;
+  CostContainerPtr costs_;
+  ConstraintContainerPtr constraints_;
 
   InterpretingObserverPtr interpreting_observer_;
   IVisualizer* visualizer_;

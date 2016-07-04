@@ -11,7 +11,7 @@ namespace xpp {
 namespace zmp {
 
 NLP::NLP ()
-    :cf_num_diff_functor_(1*std::numeric_limits<double>::epsilon())
+    :cost_derivative_(1*std::numeric_limits<double>::epsilon())
 {
 }
 
@@ -22,14 +22,14 @@ NLP::~NLP ()
 
 void
 NLP::Init (OptimizationVariablesPtr& opt_variables,
-           const CostContainer& costs,
-           const ConstraintContainer& constraints)
+           CostContainerPtr& costs,
+           ConstraintContainerPtr& constraints)
 {
-  opt_variables_ = std::move(opt_variables); // transfer ownership
-  constraints_ = constraints;
+  opt_variables_ = /*std::move*/(opt_variables);
+  costs_         = /*std::move*/(costs);
+  constraints_   = /*std::move*/(constraints);
 
-  costs_ = costs;
-  cf_num_diff_functor_.AddCosts(*opt_variables_, costs_);
+  cost_derivative_.AddCosts(*opt_variables_, *costs_);
 }
 
 int
@@ -51,35 +51,44 @@ NLP::GetStartingValues () const
 }
 
 double
-NLP::EvaluateCostFunction () const
+NLP::EvaluateCostFunction (const Number* x_all) const
 {
-  return costs_.EvaluateTotalCost();
+  opt_variables_->SetVariables(ConvertToEigen(x_all));
+  return costs_->EvaluateTotalCost();
 }
 
 NLP::VectorXd
-NLP::EvaluateCostFunctionGradient () const
+NLP::EvaluateCostFunctionGradient (const Number* x_all) const
 {
+  opt_variables_->SetVariables(ConvertToEigen(x_all));
   Eigen::MatrixXd jacobian(1, GetNumberOfOptimizationVariables());
-  cf_num_diff_functor_.df(opt_variables_->GetOptimizationVariables(), jacobian);
-  return jacobian;
-}
-
-int
-NLP::GetNumberOfConstraints () const
-{
-  return constraints_.GetBounds().size();
+  cost_derivative_.df(opt_variables_->GetOptimizationVariables(), jacobian);
+  return jacobian.transpose();
 }
 
 NLP::BoundVec
 NLP::GetBoundsOnConstraints () const
 {
-  return constraints_.GetBounds();
+  return constraints_->GetBounds();
+}
+
+int
+NLP::GetNumberOfConstraints () const
+{
+  return GetBoundsOnConstraints().size();
 }
 
 NLP::VectorXd
-NLP::EvaluateConstraints () const
+NLP::EvaluateConstraints (const Number* x_all) const
 {
-  return constraints_.EvaluateConstraints();
+  opt_variables_->SetVariables(ConvertToEigen(x_all));
+  return constraints_->EvaluateConstraints();
+}
+
+NLP::VectorXd
+NLP::ConvertToEigen(const Number* x) const
+{
+  return Eigen::Map<const VectorXd>(x,GetNumberOfOptimizationVariables());
 }
 
 } /* namespace zmp */

@@ -16,18 +16,11 @@
 namespace Ipopt {
 
 
-IpoptAdapter::IpoptAdapter(OptimizationVariables& opt_variables,
-                         CostContainer& cost_container,
-                         ConstraintContainer& constraint_container,
-                         IVisualizer& visualizer)
-    :opt_variables_(opt_variables),
-     cost_container_(cost_container),
-     constraint_container_(constraint_container),
-     // These epsilons play a big role in convergence
-     cf_num_diff_functor_(1*std::numeric_limits<double>::epsilon()),
+IpoptAdapter::IpoptAdapter(NLP& nlp,
+                           IVisualizer& visualizer)
+    :nlp_(nlp),
      visualizer_(visualizer)
 {
-  cf_num_diff_functor_.AddCosts(opt_variables_, cost_container_);
 }
 
 
@@ -35,10 +28,10 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
   // How many variables to optimize over
-  n = opt_variables_.GetOptimizationVariableCount();
+  n = nlp_.GetNumberOfOptimizationVariables();
   std::cout << "optimizing n= " << n << " variables\n";
 
-  m = constraint_container_.GetBounds().size();
+  m = nlp_.GetNumberOfConstraints();
   std::cout << "with m= " << m << "constraints\n";
 
 
@@ -61,16 +54,17 @@ bool IpoptAdapter::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
 {
 
   // no bounds on the spline coefficients of footholds
-  for (int i=0; i<n; ++i) {
-    x_lower[i] = -1.0e19;
-    x_upper[i] = +1.0e19;
+  auto bounds_x = nlp_.GetBoundsOnOptimizationVariables();
+  for (uint c=0; c<bounds_x.size(); ++c) {
+    x_lower[c] = bounds_x.at(c).lower_;
+    x_upper[c] = bounds_x.at(c).upper_;
   }
 
   // specific bounds depending on equality and inequality constraints
-  std::vector<xpp::zmp::AConstraint::Bound> bounds = constraint_container_.GetBounds();
-  for (uint c=0; c<bounds.size(); ++c) {
-    g_l[c] = bounds.at(c).lower_;
-    g_u[c] = bounds.at(c).upper_;
+  auto bounds_g = nlp_.GetBoundsOnConstraints();
+  for (uint c=0; c<bounds_g.size(); ++c) {
+    g_l[c] = bounds_g.at(c).lower_;
+    g_u[c] = bounds_g.at(c).upper_;
   }
 
   return true;
@@ -90,7 +84,7 @@ bool IpoptAdapter::get_starting_point(Index n, bool init_x, Number* x,
 
   int c = 0;
 
-  VectorXd x_all = opt_variables_.GetOptimizationVariables();
+  VectorXd x_all = nlp_.GetStartingValues();
   Eigen::Map<VectorXd>(&x[c], x_all.rows()) = x_all;
   c += x_all.rows();
 
@@ -101,27 +95,22 @@ bool IpoptAdapter::get_starting_point(Index n, bool init_x, Number* x,
 
 bool IpoptAdapter::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
-  opt_variables_.SetVariables(x);
-  obj_value = cost_container_.EvaluateTotalCost();
+  obj_value = nlp_.EvaluateCostFunction(x);
   return true;
 }
 
 
 bool IpoptAdapter::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
-  Eigen::MatrixXd jac(1,n);
-  VectorXd x_eig = Eigen::Map<const VectorXd>(x,n);
-  cf_num_diff_functor_.df(x_eig, jac);
-  Eigen::Map<Eigen::MatrixXd>(grad_f,1,n) = jac;
+  Eigen::VectorXd grad = nlp_.EvaluateCostFunctionGradient(x);
+  Eigen::Map<Eigen::MatrixXd>(grad_f,n,1) = grad;
 	return true;
 }
 
 
 bool IpoptAdapter::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
-//  VectorXd g_eig = constraints_.EvalContraints(nlp_structure_.ConvertToEigen(x));
-  opt_variables_.SetVariables(x);
-  VectorXd g_eig = constraint_container_.EvaluateConstraints();
+  VectorXd g_eig = nlp_.EvaluateConstraints(x);
   Eigen::Map<VectorXd>(g,m) = g_eig;
   return true;
 }
@@ -199,7 +188,7 @@ void IpoptAdapter::finalize_solution(SolverReturn status,
 			                        IpoptCalculatedQuantities* ip_cq)
 {
 
-  opt_variables_.SetVariables(x);
+//  opt_variables_.SetVariables(x);
 //  opt_variables_.spline_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);
 //  opt_variables_.footholds_ = nlp_structure_.ExtractFootholds(x);
 
