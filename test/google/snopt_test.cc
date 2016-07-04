@@ -233,6 +233,9 @@ TEST(SnoptTest, sntoyA)
     cout << "F = " << F[i] << " Fstate = " << Fstate[i] << endl;
   }
 
+  EXPECT_NEAR(0,x[0], 1e-5);
+  EXPECT_NEAR(-1,x[1],1e-5);
+
 
   delete []iAfun;  delete []jAvar;  delete []A;
   delete []iGfun;  delete []jGvar;

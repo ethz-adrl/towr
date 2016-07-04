@@ -22,11 +22,34 @@ namespace zmp {
   */
 class SnoptAdapter : public snoptProblemA {
 public:
-  SnoptAdapter (NLP& nlp);
+  typedef Eigen::VectorXd VectorXd;
+  typedef SnoptAdapter* SelfPtr;
+  typedef std::unique_ptr<NLP> NLPPtr;
+
+  /** Only way to get an instance of this class.
+    *
+    * This implements the singleton pattern, to be sure that only one instance
+    * of this class exists at all times.
+    */
+  static SelfPtr GetInstance();
   virtual ~SnoptAdapter ();
 
+
+  void SetNLP(NLPPtr&);
+  void Init();
+  static void ObjectiveAndConstraintFct(int    *Status, int *n,    double x[],
+                                 int    *needF,  int *neF,  double F[],
+                                 int    *needG,  int *neG,  double G[],
+                                 char      *cu,  int *lencu,
+                                 int    iu[],    int *leniu,
+                                 double ru[],    int *lenru);
+
+  VectorXd GetVariables() const;
+
 private:
-  NLP& nlp_;
+  SnoptAdapter ();
+  NLPPtr nlp_;
+  static SelfPtr instance_; ///< to access member variables in static function
 };
 
 } /* namespace zmp */
