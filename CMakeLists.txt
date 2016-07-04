@@ -116,7 +116,6 @@ set(SOURCES
   src/support_polygon.cc
   src/supp_polygon_container.cc
   src/hyq_spliner.cc
-  src/ipopt_adapter.cc
   src/nlp_facade.cc
   src/zmp_constraint_builder.cc
   src/zero_moment_point.cc
@@ -126,6 +125,8 @@ set(SOURCES
   src/nlp_optimizer_node.cc
   src/qp_optimizer_node.cc
   src/nlp.cc
+  src/ipopt_adapter.cc
+  src/snopt_adapter.cc
   #exe
   src/robot_interface.cc
   src/controller.cc
@@ -261,6 +262,7 @@ if(BUILD_TESTS)
                         # nlp optimizers
                         test/google/nlp_test.cc
                         test/google/snopt_test.cc
+                        test/google/snopt_adapter_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})
