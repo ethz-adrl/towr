@@ -30,18 +30,19 @@ ConstraintContainer::AddConstraint (ConstraintPtr constraint,
 }
 
 ConstraintContainer::VectorXd
-ConstraintContainer::EvaluateConstraints ()
+ConstraintContainer::EvaluateConstraints () const
 {
   assert(bounds_up_to_date_); // call Refresh() if this fails
+  VectorXd g_all(bounds_.size());
 
   int c = 0;
   for (const auto& constraint : constraints_) {
     VectorXd g = constraint.second->EvaluateConstraint();
     int c_new = g.rows();
-    g_.middleRows(c, c_new) = g;
+    g_all.middleRows(c, c_new) = g;
     c += c_new;
   }
-  return g_;
+  return g_all;
 }
 
 AConstraint&
@@ -51,7 +52,7 @@ ConstraintContainer::GetConstraint (const std::string& name)
 }
 
 void
-ConstraintContainer::Refresh ()
+ConstraintContainer::RefreshBounds ()
 {
   bounds_.clear();
   for (const auto& constraint : constraints_) {
@@ -59,7 +60,6 @@ ConstraintContainer::Refresh ()
     bounds_.insert(bounds_.end(), b.begin(), b.end());
   }
 
-  g_ = VectorXd(bounds_.size());
   bounds_up_to_date_ = true;
 }
 

@@ -39,7 +39,7 @@ protected:
 
     constraints.AddConstraint(c_zeros, "zero_acc");
     constraints.AddConstraint(c_ones, "one_acc");
-    constraints.Refresh();
+    constraints.RefreshBounds();
   }
 
   const int n_coeff_ = utils::kDim2d*4/*coefficients a,b,c,d*/;

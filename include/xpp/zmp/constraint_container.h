@@ -34,13 +34,12 @@ public:
 
   AConstraint& GetConstraint(const std::string& name);
 
-  VectorXd EvaluateConstraints ();
+  VectorXd EvaluateConstraints () const;
   VecBound GetBounds () const;
-  void Refresh ();
+  void RefreshBounds ();
 
 private:
   std::map<std::string, ConstraintPtr > constraints_;
-  VectorXd g_;
   VecBound bounds_;
 
   bool bounds_up_to_date_;

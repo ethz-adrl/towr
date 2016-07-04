@@ -94,7 +94,7 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   dynamic_cast<RangeOfMotionConstraint&>(constraints_.GetConstraint("rom")).Init(*interpreter_ptr);
 //  xpp::hyq::HyqInverseKinematics hyq_inv_kin;
 //  dynamic_cast<JointAnglesConstraint&>(constraints_.GetConstraint("joint_angles")).Init(*interpreter_ptr, &hyq_inv_kin);
-  constraints_.Refresh();
+  constraints_.RefreshBounds();
 
   // costs
   // fixme, only soft cost on position, vel, acc not so important
