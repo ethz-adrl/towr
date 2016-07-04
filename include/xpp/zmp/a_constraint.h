@@ -38,7 +38,7 @@ public:
    */
   virtual VecBound GetBounds () const = 0;
 
-protected:
+  static const Bound kNoBound_;
   static const Bound kEqualityBound_;
   static const Bound kInequalityBoundPositive_;
 };

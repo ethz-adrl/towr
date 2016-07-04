@@ -36,11 +36,11 @@ void toyusrf_(int    *Status, int *n,    double x[],
   // problem featured in the SnoptA users guide.
   // neF = 3, n = 2.
   //
-  //   Minimize     x(2)
+  //   Minimize     x1
   //
-  //   subject to   x(1)**2      + 4 x(2)**2  <= 4,
-  //               (x(1) - 2)**2 +   x(2)**2  <= 5,
-  //                x(1) >= 0.
+  //   subject to   x0^2       + 4*x1^2  <= 4,
+  //               (x0 - 2)^2  +   x1^2  <= 5,
+  //                x0 >= 0.
   //
   //==================================================================
   F[0] =  x[1];
@@ -60,11 +60,11 @@ void toyusrfg_( int    *Status, int *n,    double x[],
   // problem featured in the SnoptA users guide.
   // neF = 3, n = 2.
   //
-  //   Minimize     x(2)
+  //   Minimize     x1
   //
-  //   subject to   x(1)**2      + 4 x(2)**2  <= 4,
-  //               (x(1) - 2)**2 +   x(2)**2  <= 5,
-  //                x(1) >= 0.
+  //   subject to   x0^2       + 4*x1^2  <= 4,
+  //               (x0 - 2)^2  +   x1^2  <= 5,
+  //                x0 >= 0.
   //
   // The triples (g(k),iGfun(k),jGvar(k)), k = 1:neG, define
   // the sparsity pattern and values of the nonlinear elements
@@ -132,6 +132,8 @@ TEST(SnoptTest, sntoyA)
   Flow[0] = -1e20; Flow[1] = -1e20; Flow[2] = -1e20;
   Fupp[0] =  1e20; Fupp[1] =   4.0; Fupp[2] =  5.0;
   Fmul[0] =   0;   Fmul[0] =   0;   Fmul[0] =    0;
+
+  // initial values of the optimization
   x[0]    = 1.0;
   x[1]    = 1.0;
 

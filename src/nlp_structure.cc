@@ -13,21 +13,27 @@ namespace zmp {
 class VariableSet {
 public:
   typedef Eigen::VectorXd VectorXd;
+  typedef AConstraint::VecBound VecBound;
+
   VariableSet(int n_variables, const std::string& name);
   virtual ~VariableSet();
 
   VectorXd GetVariables() const;
+  VecBound GetBounds() const;
   std::string GetName() const;
 
   void SetVariables(const VectorXd& x);
 private:
   VectorXd x_;
+  VecBound bounds_;
+
   std::string name_;
 };
 
 VariableSet::VariableSet (int n_variables, const std::string& name)
 {
   x_ = Eigen::VectorXd::Zero(n_variables);
+  bounds_.assign(n_variables, AConstraint::kNoBound_);
   name_ = name;
 }
 
@@ -45,6 +51,12 @@ VariableSet::VectorXd
 VariableSet::GetVariables () const
 {
   return x_;
+}
+
+VariableSet::VecBound
+VariableSet::GetBounds () const
+{
+  return bounds_;
 }
 
 void
@@ -84,7 +96,7 @@ NlpStructure::GetOptimizationVariableCount() const
 }
 
 NlpStructure::VectorXd
-NlpStructure::GetOptimizationVariables () const
+NlpStructure::GetAllOptimizationVariables () const
 {
   Eigen::VectorXd x(GetOptimizationVariableCount());
   int c = 0;
@@ -95,6 +107,18 @@ NlpStructure::GetOptimizationVariables () const
   }
 
   return x;
+}
+
+NlpStructure::VecBound
+NlpStructure::GetAllBounds () const
+{
+  VecBound bounds_;
+  for (const auto& set : variable_sets_) {
+    const VecBound& b = set->GetBounds();
+    bounds_.insert(std::end(bounds_), std::begin(b), std::end(b));
+  }
+
+  return bounds_;
 }
 
 void

@@ -29,6 +29,7 @@ namespace zmp {
 class OptimizationVariables : public ASubject {
 public:
   typedef Eigen::VectorXd VectorXd;
+  typedef NlpStructure::VecBound VecBound;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d; // for footholds
   typedef Eigen::Vector2d Vector2d;
 
@@ -39,6 +40,7 @@ public:
   void Init (const VectorXd& x_coeff_abcd, const StdVecEigen2d& footholds);
 
   VectorXd GetOptimizationVariables() const;
+  VecBound GetOptimizationVariableBounds() const;
   StdVecEigen2d GetFootholdsStd() const;
   VectorXd GetSplineCoefficients() const;
   int GetOptimizationVariableCount() const;

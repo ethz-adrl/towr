@@ -125,6 +125,7 @@ set(SOURCES
   src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
   src/qp_optimizer_node.cc
+  src/nlp.cc
   #exe
   src/robot_interface.cc
   src/controller.cc
@@ -258,6 +259,7 @@ if(BUILD_TESTS)
                         test/google/range_of_motion_cost_test.cc
                         test/google/cost_container_test.cc
                         # nlp optimizers
+                        test/google/nlp_test.cc
                         test/google/snopt_test.cc
                         )
                

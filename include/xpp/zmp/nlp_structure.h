@@ -8,6 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_STRUCTURE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_STRUCTURE_H_
 
+#include <xpp/zmp/a_constraint.h> // Bound
+
 #include <Eigen/Dense>
 #include <memory>
 #include <vector>
@@ -29,6 +31,7 @@ public:
   typedef double Number;
   typedef std::unique_ptr<VariableSet> VariableSetPtr;
   typedef std::vector<VariableSetPtr> VariableSetVector;
+  typedef AConstraint::VecBound VecBound;
 
   NlpStructure();
   virtual ~NlpStructure();
@@ -41,8 +44,9 @@ public:
   void AddVariableSet(std::string name, int n_variables);
 
 
-  VectorXd GetOptimizationVariables() const;
   int GetOptimizationVariableCount() const;
+  VectorXd GetAllOptimizationVariables() const;
+  VecBound GetAllBounds () const;
 
   void SetAllVariables(const VectorXd& x_all);
   void SetAllVariables(const Number* x_all);

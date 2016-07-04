@@ -10,6 +10,7 @@
 namespace xpp {
 namespace zmp {
 
+const AConstraint::Bound AConstraint::kNoBound_                 = Bound(-1.0e19, +1.0e19);
 const AConstraint::Bound AConstraint::kEqualityBound_           = Bound(0.0, 0.0);
 const AConstraint::Bound AConstraint::kInequalityBoundPositive_ = Bound(0.0, 1.0e19);
 
@@ -17,7 +18,6 @@ const AConstraint::Bound AConstraint::kInequalityBoundPositive_ = Bound(0.0, 1.0
 AConstraint::AConstraint ()
 {
   // TODO Auto-generated constructor stub
-
 }
 
 AConstraint::~AConstraint ()

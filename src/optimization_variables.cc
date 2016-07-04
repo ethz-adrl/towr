@@ -50,7 +50,13 @@ OptimizationVariables::SetSplineCoefficients (const VectorXd& x)
 OptimizationVariables::VectorXd
 OptimizationVariables::GetOptimizationVariables () const
 {
-  return nlp_structure_.GetOptimizationVariables();
+  return nlp_structure_.GetAllOptimizationVariables();
+}
+
+OptimizationVariables::VecBound
+OptimizationVariables::GetOptimizationVariableBounds () const
+{
+  return nlp_structure_.GetAllBounds();
 }
 
 int
