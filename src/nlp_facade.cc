@@ -112,7 +112,7 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   NLP nlp;
   nlp.Init(opt_variables_, costs_, constraints_);
 
-  IpoptPtr nlp_ptr = new Ipopt::IpoptAdapter(nlp, *visualizer_); // just so it can poll the PublishMsg() method
+  IpoptPtr nlp_ptr = new IpoptAdapter(nlp, *visualizer_); // just so it can poll the PublishMsg() method
   SolveIpopt(nlp_ptr);
 }
 

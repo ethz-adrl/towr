@@ -26,7 +26,6 @@ public:
 private:
   VectorXd x_;
   VecBound bounds_;
-
   std::string name_;
 };
 
@@ -132,12 +131,6 @@ NlpStructure::SetAllVariables(const VectorXd& x_all)
   }
 }
 
-//void
-//NlpStructure::SetAllVariables(const Number* x_all)
-//{
-//  SetAllVariables(ConvertToEigen(x_all));
-//}
-
 void
 NlpStructure::SetVariables (std::string set_name, const VectorXd& values)
 {
@@ -159,13 +152,6 @@ NlpStructure::GetVariables (std::string set_name) const
 
   assert(false); // name not present in set
 }
-
-//NlpStructure::VectorXd
-//NlpStructure::ConvertToEigen(const Number* x) const
-//{
-//  return Eigen::Map<const VectorXd>(x,GetOptimizationVariableCount());
-//}
-
 
 } // namespace zmp
 } // namespace xpp

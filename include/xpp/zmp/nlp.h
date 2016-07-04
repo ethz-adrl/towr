@@ -40,6 +40,7 @@ public:
   virtual ~NLP ();
 
   void Init(OptimizationVariablesPtr&, CostContainerPtr&, ConstraintContainerPtr&);
+  void SetVariables(const Number* x);
 
   int GetNumberOfOptimizationVariables() const;
   BoundVec GetBoundsOnOptimizationVariables() const;

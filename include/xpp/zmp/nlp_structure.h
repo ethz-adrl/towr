@@ -28,7 +28,6 @@ class VariableSet;
 class NlpStructure {
 public:
   typedef Eigen::VectorXd VectorXd;
-//  typedef double Number;
   typedef std::unique_ptr<VariableSet> VariableSetPtr;
   typedef std::vector<VariableSetPtr> VariableSetVector;
   typedef AConstraint::VecBound VecBound;
@@ -43,14 +42,11 @@ public:
     */
   void AddVariableSet(std::string name, int n_variables);
 
-
   int GetOptimizationVariableCount() const;
   VectorXd GetAllOptimizationVariables() const;
   VecBound GetAllBounds () const;
 
   void SetAllVariables(const VectorXd& x_all);
-//  void SetAllVariables(const Number* x_all);
-
   void SetVariables(std::string set_name, const VectorXd& values);
   VectorXd GetVariables(std::string set_name) const;
 
@@ -59,7 +55,6 @@ public:
 private:
   VariableSetVector variable_sets_;
   int n_variables_;
-//  VectorXd ConvertToEigen(const Number* x) const;
 };
 
 

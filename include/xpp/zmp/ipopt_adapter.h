@@ -13,23 +13,20 @@
 #include <xpp/zmp/nlp.h>
 #include <xpp/zmp/i_visualizer.h>
 
-namespace Ipopt {
+namespace xpp {
+namespace zmp {
 
 /** @brief Converts the NLP defined in the xpp interface to the IPOPT interface.
   *
   * This implements the Adapter pattern. This class should not add any functionality,
-  * but merely delegate it to the Adaptee (the xpp code).
+  * but merely delegate it to the Adaptee (the nlp class).
   */
 class IpoptAdapter : public Ipopt::TNLP {
 
 public:
-  typedef xpp::zmp::NLP NLP;
-  typedef xpp::zmp::CostContainer CostContainer;
-  typedef xpp::zmp::CostFunctionFunctor CostFunctionFunctor;
-  typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
-  typedef xpp::zmp::OptimizationVariables OptimizationVariables;
-  typedef xpp::zmp::IVisualizer IVisualizer;
   typedef Eigen::VectorXd VectorXd;
+  typedef Ipopt::Index Index;
+  typedef Ipopt::Number Number;
 
 	IpoptAdapter(NLP& nlp,
 	             IVisualizer& visualizer);
@@ -82,26 +79,26 @@ public:
   //@}
 
 
-  virtual bool intermediate_callback(AlgorithmMode mode,
+  virtual bool intermediate_callback(Ipopt::AlgorithmMode mode,
                                      Index iter, Number obj_value,
                                      Number inf_pr, Number inf_du,
                                      Number mu, Number d_norm,
                                      Number regularization_size,
                                      Number alpha_du, Number alpha_pr,
                                      Index ls_trials,
-                                     const IpoptData* ip_data,
-                                     IpoptCalculatedQuantities* ip_cq);
+                                     const Ipopt::IpoptData* ip_data,
+                                     Ipopt::IpoptCalculatedQuantities* ip_cq);
 
 
   /** @name Solution Methods */
   //@{
   /** This method is called when the algorithm is complete so the TNLP can store/write the solution */
-  virtual void finalize_solution(SolverReturn status,
+  virtual void finalize_solution(Ipopt::SolverReturn status,
                                  Index n, const Number* x, const Number* z_L, const Number* z_U,
                                  Index m, const Number* g, const Number* lambda,
                                  Number obj_value,
-                                 const IpoptData* ip_data,
-                                 IpoptCalculatedQuantities* ip_cq);
+                                 const Ipopt::IpoptData* ip_data,
+                                 Ipopt::IpoptCalculatedQuantities* ip_cq);
   //@}
 
 private:
@@ -109,6 +106,7 @@ private:
   IVisualizer& visualizer_;
 };
 
-} // namespace Ipopt
+} // namespace zmp
+} // namespace xpp
 
 #endif /* XXPP_ZMP_NLP_IPOPT_ZMP_H_ */

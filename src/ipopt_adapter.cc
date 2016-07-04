@@ -2,7 +2,7 @@
  @file    nlp_ipopt_zmp.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jan 10, 2016
- @brief   Defines the actual IPOPT solver
+ @brief   Defines the IPOPT adapter
  */
 
 #include <xpp/zmp/ipopt_adapter.h>
@@ -13,7 +13,8 @@
 //#include "IpTNLPAdapter.hpp"
 //#include "IpOrigIpoptNLP.hpp"
 
-namespace Ipopt {
+namespace xpp {
+namespace zmp {
 
 
 IpoptAdapter::IpoptAdapter(NLP& nlp,
@@ -148,15 +149,15 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
 
 
 
-bool IpoptAdapter::intermediate_callback(AlgorithmMode mode,
+bool IpoptAdapter::intermediate_callback(Ipopt::AlgorithmMode mode,
                                    Index iter, Number obj_value,
                                    Number inf_pr, Number inf_du,
                                    Number mu, Number d_norm,
                                    Number regularization_size,
                                    Number alpha_du, Number alpha_pr,
                                    Index ls_trials,
-                                   const IpoptData* ip_data,
-                                   IpoptCalculatedQuantities* ip_cq)
+                                   const Ipopt::IpoptData* ip_data,
+                                   Ipopt::IpoptCalculatedQuantities* ip_cq)
 {
 //   std::cout << "Press Enter to continue...";
 //   std::cin.get(); // use to pause after every iteration
@@ -180,15 +181,16 @@ bool IpoptAdapter::intermediate_callback(AlgorithmMode mode,
 
 
 
-void IpoptAdapter::finalize_solution(SolverReturn status,
+void IpoptAdapter::finalize_solution(Ipopt::SolverReturn status,
                               Index n, const Number* x, const Number* z_L, const Number* z_U,
                               Index m, const Number* g, const Number* lambda,
                               Number obj_value,
-			                        const IpoptData* ip_data,
-			                        IpoptCalculatedQuantities* ip_cq)
+			                        const Ipopt::IpoptData* ip_data,
+			                        Ipopt::IpoptCalculatedQuantities* ip_cq)
 {
 
-//  opt_variables_.SetVariables(x);
+
+  nlp_.SetVariables(x);
 //  opt_variables_.spline_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);
 //  opt_variables_.footholds_ = nlp_structure_.ExtractFootholds(x);
 
@@ -208,6 +210,7 @@ void IpoptAdapter::finalize_solution(SolverReturn status,
 
 
 
-} // namespace Ipopt
+} // namespace zmp
+} // namespace xpp
 
 

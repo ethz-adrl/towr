@@ -51,16 +51,16 @@ NLP::GetStartingValues () const
 }
 
 double
-NLP::EvaluateCostFunction (const Number* x_all) const
+NLP::EvaluateCostFunction (const Number* x) const
 {
-  opt_variables_->SetVariables(ConvertToEigen(x_all));
+  opt_variables_->SetVariables(ConvertToEigen(x));
   return costs_->EvaluateTotalCost();
 }
 
 NLP::VectorXd
-NLP::EvaluateCostFunctionGradient (const Number* x_all) const
+NLP::EvaluateCostFunctionGradient (const Number* x) const
 {
-  opt_variables_->SetVariables(ConvertToEigen(x_all));
+  opt_variables_->SetVariables(ConvertToEigen(x));
   Eigen::MatrixXd jacobian(1, GetNumberOfOptimizationVariables());
   cost_derivative_.df(opt_variables_->GetOptimizationVariables(), jacobian);
   return jacobian.transpose();
@@ -79,10 +79,16 @@ NLP::GetNumberOfConstraints () const
 }
 
 NLP::VectorXd
-NLP::EvaluateConstraints (const Number* x_all) const
+NLP::EvaluateConstraints (const Number* x) const
 {
-  opt_variables_->SetVariables(ConvertToEigen(x_all));
+  opt_variables_->SetVariables(ConvertToEigen(x));
   return constraints_->EvaluateConstraints();
+}
+
+void
+xpp::zmp::NLP::SetVariables (const Number* x)
+{
+  opt_variables_->SetVariables(ConvertToEigen(x));
 }
 
 NLP::VectorXd
@@ -93,3 +99,4 @@ NLP::ConvertToEigen(const Number* x) const
 
 } /* namespace zmp */
 } /* namespace xpp */
+
