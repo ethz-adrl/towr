@@ -83,13 +83,9 @@ bool IpoptAdapter::get_starting_point(Index n, bool init_x, Number* x,
 	assert(init_z == false);
 	assert(init_lambda == false);
 
-  int c = 0;
-
   VectorXd x_all = nlp_.GetStartingValues();
-  Eigen::Map<VectorXd>(&x[c], x_all.rows()) = x_all;
-  c += x_all.rows();
+  Eigen::Map<VectorXd>(&x[0], x_all.rows()) = x_all;
 
-	assert(c == n);
   return true;
 }
 

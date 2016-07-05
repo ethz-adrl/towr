@@ -16,7 +16,7 @@ SnoptAdapter::SelfPtr
 SnoptAdapter::GetInstance ()
 {
   if (!instance_)
-    instance_ = new SnoptAdapter;
+    instance_ = new SnoptAdapter();
   return instance_;
 }
 
@@ -29,8 +29,8 @@ SnoptAdapter::SetNLP (NLPPtr& nlp)
 void
 SnoptAdapter::Init ()
 {
-  n = 2;   // number of optimization variables
-  neF = 3; // number of constraints + 1
+  n   = nlp_->GetNumberOfOptimizationVariables(); // number of optimization variables
+  neF = nlp_->GetNumberOfConstraints()+1;         // +1 because of cost function
 
   x      = new double[n];
   xlow   = new double[n];
@@ -44,28 +44,40 @@ SnoptAdapter::Init ()
   Fmul   = new double[neF];
   Fstate = new int[neF];
 
-
   // Set the upper and lower bounds.
-  xlow[0]   =  0.0;  xlow[1]   = -1e20;
-  xupp[0]   = 1e20;  xupp[1]   =  1e20;
-  xstate[0] =    0;  xstate[1] =  0;
+  // no bounds on the spline coefficients of footholds
+  auto bounds_x = nlp_->GetBoundsOnOptimizationVariables();
+  for (uint c=0; c<bounds_x.size(); ++c) {
+    xlow[c] = bounds_x.at(c).lower_;
+    xupp[c] = bounds_x.at(c).upper_;
+    xstate[c] = 0;
+  }
 
-  Flow[0] = -1e20; Flow[1] = -1e20; Flow[2] = -1e20;
-  Fupp[0] =  1e20; Fupp[1] =   4.0; Fupp[2] =  5.0;
-  Fmul[0] =   0;   Fmul[0] =   0;   Fmul[0] =    0;
+  // specific bounds depending on equality and inequality constraints
+  Flow[0] = -1e20; Fupp[0] = 1e20; Fmul[0] = 0.0;
+  auto bounds_g = nlp_->GetBoundsOnConstraints();
+  for (uint c=0; c<bounds_g.size(); ++c) {
+    Flow[c+1] = bounds_g.at(c).lower_;
+    Fupp[c+1] = bounds_g.at(c).upper_;
+    Fmul[c+1] = 0.0;
+  }
 
   // initial values of the optimization
-  x[0]    = 1.0;
-  x[1]    = 1.0;
+  VectorXd x_all = nlp_->GetStartingValues();
+  Eigen::Map<VectorXd>(&x[0], x_all.rows()) = x_all;
+
 
   ObjRow  = 0;   // the row in user function that corresponds to the objective function
   ObjAdd  = 0.0; // the constant to be added to the objective function
 
-
-  setProbName("Toy0");
-  setIntParameter( "Derivative option", 0 );
-  setIntParameter( "Verify level ", 3 );
+  setProblemSize( n, neF );
+  setObjective  ( ObjRow, ObjAdd );
+  setX          ( x, xlow, xupp, xmul, xstate );
+  setF          ( F, Flow, Fupp, Fmul, Fstate );
   setUserFun(&SnoptAdapter::ObjectiveAndConstraintFct);
+
+  setIntParameter( "Derivative option", 0 ); // let snopt estimate derivatives
+  setIntParameter( "Verify level ", 3 );
 }
 
 void
@@ -75,15 +87,18 @@ SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
                                          char* cu, int* lencu, int iu[],
                                          int* leniu, double ru[], int* lenru)
 {
-  // want to call member variable "nlp" in here...
+  F[0] = instance_->nlp_->EvaluateCostFunction(x);
 
-  instance_->Init();
+  VectorXd g_eig = instance_->nlp_->EvaluateConstraints(x);
 
-//  F[0] = instance_->nlp_->EvaluateCostFunction(x);
+//  Eigen::Map<VectorXd>(F+1, g_eig.rows()) = g_eig; // should work as well
+  for (int i=0; i<g_eig.rows(); ++i) {
+    F[i+1] = g_eig[i];
+  }
 
-  F[0] =  x[1];
-  F[1] =  x[0]*x[0] + 4*x[1]*x[1];
-  F[2] = (x[0] - 2)*(x[0] - 2) + x[1]*x[1];
+//  F[0] =  x[1];
+//  F[1] =  x[0]*x[0] + 4*x[1]*x[1];
+//  F[2] = (x[0] - 2)*(x[0] - 2) + x[1]*x[1];
 }
 
 Eigen::VectorXd
