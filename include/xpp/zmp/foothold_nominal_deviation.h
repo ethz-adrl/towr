@@ -19,13 +19,22 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef SupportPolygonContainer::VecFoothold VecFoothold;
+  typedef utils::StdVecEigen2d StdVecEigen2d;
 
   FootholdNominalDeviation ();
   virtual ~FootholdNominalDeviation () {}
 
-  VectorXd DistanceToNominalStance(const ContinuousSplineContainer&,
-                                   const SupportPolygonContainer&) const;
+  StdVecEigen2d GetFeetInBase(const ContinuousSplineContainer&,
+                              const SupportPolygonContainer&,
+                              StdVecEigen2d& nominal_foothold_b_) const;
 
+//  StdVecEigen2d GetNominalInBase() const;
+
+private:
+//  StdVecEigen2d nominal_foothold_b_; ///< positions x-y of nominal position in base frame of that foothold  const double x_nominal_b = 0.3; // 0.4
+//  const double x_nominal_b = 0.3; // 0.4
+//  const double y_nominal_b = 0.3; // 0.4
+//  xpp::hyq::LegDataMap<Eigen::Vector2d> B_r_BaseToNominal;
 };
 
 } /* namespace zmp */

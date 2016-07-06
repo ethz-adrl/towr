@@ -48,6 +48,7 @@ private:
   VectorXd x_coeff_;                ///< the current spline coefficients
 };
 
+
 class LinearEqualityConstraint : public ALinearConstraint {
 public:
   LinearEqualityConstraint (OptimizationVariables& subject);
@@ -55,6 +56,7 @@ public:
   VecBound GetBounds () const override;
 };
 
+// smell rename to "LinearEqualityGreaterThan"
 class LinearInequalityConstraint : public ALinearConstraint {
 public:
   LinearInequalityConstraint (OptimizationVariables& subject);

@@ -42,20 +42,45 @@ RangeOfMotionConstraint::Update ()
 RangeOfMotionConstraint::VectorXd
 RangeOfMotionConstraint::EvaluateConstraint () const
 {
-  return builder_.DistanceToNominalStance(continuous_spline_container_,
-                                          supp_polygon_container_);
+  utils::StdVecEigen2d footholds_b, nominal_footholds_b;
+  footholds_b = builder_.GetFeetInBase(continuous_spline_container_,
+                                       supp_polygon_container_,
+                                       nominal_footholds_b);
+
+  VectorXd g(footholds_b.size()*utils::kDim2d);
+  int c=0;
+  for (int i=0; i<footholds_b.size(); ++i) {
+    g[c++] = footholds_b.at(i).x();
+    g[c++] = footholds_b.at(i).y();
+  }
+
+  return g;
 }
 
 RangeOfMotionConstraint::VecBound
 RangeOfMotionConstraint::GetBounds () const
 {
-  std::vector<Bound> bounds;
-  VectorXd g = EvaluateConstraint();
-  double radius = 0.15; //m
-  Bound bound(-radius, +radius);
+  utils::StdVecEigen2d footholds_b, nominal_footholds_b;
+  footholds_b = builder_.GetFeetInBase(continuous_spline_container_,
+                                       supp_polygon_container_,
+                                       nominal_footholds_b);
 
-  for (int i=0; i<g.rows(); ++i)
-    bounds.push_back(bound);
+  std::vector<Bound> bounds;
+//  VectorXd g = EvaluateConstraint();
+  double radius = 0.12; //m
+//  Bound bound(-radius, +radius);
+//
+//  for (int i=0; i<g.rows(); ++i)
+//    bounds.push_back(bound);
+
+
+  // SMELL  clean this up
+  for (int i=0; i<nominal_footholds_b.size(); ++i) {
+    Bound x_bound(-radius+nominal_footholds_b.at(i).x(), +radius+nominal_footholds_b.at(i).x());
+    Bound y_bound(-radius+nominal_footholds_b.at(i).y(), +radius+nominal_footholds_b.at(i).y());
+    bounds.push_back(x_bound);
+    bounds.push_back(y_bound);
+  }
 
   return bounds;
 }

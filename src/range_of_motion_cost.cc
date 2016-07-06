@@ -42,9 +42,18 @@ RangeOfMotionCost::Update ()
 double
 RangeOfMotionCost::EvaluateCost () const
 {
-  VectorXd distances = builder_.DistanceToNominalStance(continuous_spline_container_,
-                                                        supp_polygon_container_);
-  return distances.norm();
+  utils::StdVecEigen2d footholds_b, nominal_footholds_b;
+  footholds_b = builder_.GetFeetInBase(continuous_spline_container_,
+                                       supp_polygon_container_,
+                                       nominal_footholds_b);
+  VectorXd g(footholds_b.size()*utils::kDim2d);
+  int i=0;
+  for (const auto& vec2d : footholds_b) {
+    g.middleRows(i, utils::kDim2d) = vec2d;
+    i += utils::kDim2d;
+  }
+
+  return g.norm();
 }
 
 } /* namespace zmp */

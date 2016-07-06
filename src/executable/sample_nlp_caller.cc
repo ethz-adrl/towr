@@ -29,7 +29,7 @@ void OptParamsCallback(const OptimizedParametersMsg& msg)
 int main(int argc, char **argv)
 {
   using namespace xpp::ros;
-  if (argc==1) ROS_FATAL("Please specify current x-velocity & acceleration as parameter");
+  if (argc!=7) ROS_FATAL("Please specify current xy-pos/vel/acc.");
 
   ros::init(argc, argv, "sample_nlp_caller");
   ros::NodeHandle n;
@@ -44,12 +44,12 @@ int main(int argc, char **argv)
 
 
   ReqInfoMsg msg;
-  msg.curr_state.pos.x = -0.0;
-  msg.curr_state.pos.y =  0.0;
-  msg.curr_state.vel.x = atof(argv[1]); // figure out why this fails
-  msg.curr_state.vel.y = atof(argv[2]); // figure out why this fails
-  msg.curr_state.acc.x = 0.0;// this is a constraint
-  msg.curr_state.acc.y = 0.0; // this is a constraint
+  msg.curr_state.pos.x = atof(argv[1]);
+  msg.curr_state.pos.y = atof(argv[2]);
+  msg.curr_state.vel.x = atof(argv[3]);
+  msg.curr_state.vel.y = atof(argv[4]);
+  msg.curr_state.acc.x = atof(argv[5]); // constraint
+  msg.curr_state.acc.y = atof(argv[6]); // constraint
 //  msg.curr_state.acc.y = 1.0;
 
   using namespace xpp::hyq;

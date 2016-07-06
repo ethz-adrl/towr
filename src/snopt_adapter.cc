@@ -70,6 +70,9 @@ SnoptAdapter::Init ()
   ObjRow  = 0;   // the row in user function that corresponds to the objective function
   ObjAdd  = 0.0; // the constant to be added to the objective function
 
+  setProbName   ( "SnoptNLP" );
+  setPrintFile  ( "SnoptNLP.out" );
+
   setProblemSize( n, neF );
   setObjective  ( ObjRow, ObjAdd );
   setX          ( x, xlow, xupp, xmul, xstate );
