@@ -46,7 +46,7 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(*opt_variables_), "acc");
   constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(*opt_variables_), "final");
   constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(*opt_variables_), "junction");
-//  constraints_->AddConstraint(std::make_shared<ZmpConstraint>(*opt_variables_), "zmp");
+  constraints_->AddConstraint(std::make_shared<ZmpConstraint>(*opt_variables_), "zmp");
   constraints_->AddConstraint(std::make_shared<RangeOfMotionConstraint>(*opt_variables_), "rom");
 //  constraints_.AddConstraint(std::make_shared<JointAnglesConstraint>(*opt_variables_), "joint_angles");
 
@@ -98,7 +98,7 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("acc")).Init(eq_acc.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("final")).Init(eq_final.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
-//  dynamic_cast<ZmpConstraint&>(constraints_->GetConstraint("zmp")).Init(*interpreter_ptr);
+  dynamic_cast<ZmpConstraint&>(constraints_->GetConstraint("zmp")).Init(*interpreter_ptr);
   dynamic_cast<RangeOfMotionConstraint&>(constraints_->GetConstraint("rom")).Init(*interpreter_ptr);
 //  xpp::hyq::HyqInverseKinematics hyq_inv_kin;
 //  dynamic_cast<JointAnglesConstraint&>(constraints_.GetConstraint("joint_angles")).Init(*interpreter_ptr, &hyq_inv_kin);
@@ -111,20 +111,20 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
 //  dynamic_cast<RangeOfMotionCost&>(costs_->GetCost("cost_rom")).Init(*interpreter_ptr);
 
 
-  SnoptAdapter::NLPPtr nlp(new NLP);
+  std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);
 
-  // Snopt solving
-  auto snopt_problem = SnoptAdapter::GetInstance();
-  snopt_problem->SetNLP(nlp);
-  snopt_problem->Init();
-  int Cold = 0, Basis = 1, Warm = 2;
-  snopt_problem->solve(Cold);
-  opt_variables_->SetVariables(snopt_problem->GetVariables());
+//  // Snopt solving
+//  auto snopt_problem = SnoptAdapter::GetInstance();
+//  snopt_problem->SetNLP(nlp);
+//  snopt_problem->Init();
+//  int Cold = 0, Basis = 1, Warm = 2;
+//  snopt_problem->solve(Cold);
+//  opt_variables_->SetVariables(snopt_problem->GetVariables());
 
-//  // Ipopt solving
-//  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, *visualizer_); // just so it can poll the PublishMsg() method
-//  SolveIpopt(nlp_ptr);
+  // Ipopt solving
+  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, *visualizer_); // just so it can poll the PublishMsg() method
+  SolveIpopt(nlp_ptr);
 }
 
 void

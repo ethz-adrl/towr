@@ -43,11 +43,11 @@ protected:
 TEST_F(InitialAccelerationEquationTest, EvaluateConstraint)
 {
   Eigen::VectorXd g;
-  // the splines are initialized with zero, so constraint violation will be negative desired acceleration
+  // the splines are initialized with zero, so constraint represents this zero acceleration
   g = constraint_.EvaluateConstraint();
   EXPECT_EQ(2, g.rows());
-  EXPECT_DOUBLE_EQ(-init_acceleration_.x(), g(0));
-  EXPECT_DOUBLE_EQ(-init_acceleration_.y(), g(1));
+  EXPECT_DOUBLE_EQ(0.0, g(0));
+  EXPECT_DOUBLE_EQ(0.0, g(1));
 
   // change the splines acceleration
   // with new optimization variables the x-acceleration should cancel out.
@@ -59,8 +59,8 @@ TEST_F(InitialAccelerationEquationTest, EvaluateConstraint)
   subject_.SetSplineCoefficients(x);
   g = constraint_.EvaluateConstraint();
   EXPECT_EQ(2, g.rows());
-  EXPECT_DOUBLE_EQ(0.0, g(0));
-  EXPECT_DOUBLE_EQ(-init_acceleration_.y(), g(1));
+  EXPECT_DOUBLE_EQ(init_acceleration_.x(), g(0));
+  EXPECT_DOUBLE_EQ(0.0, g(1)); // same as before
 }
 
 TEST_F(InitialAccelerationEquationTest, GetBounds)
@@ -69,10 +69,10 @@ TEST_F(InitialAccelerationEquationTest, GetBounds)
 
   EXPECT_EQ(2, bounds.size()); // x and y acceleration
   // these are equality constraints
-  EXPECT_DOUBLE_EQ(0.0, bounds.at(0).lower_);
-  EXPECT_DOUBLE_EQ(0.0, bounds.at(0).upper_);
-  EXPECT_DOUBLE_EQ(0.0, bounds.at(1).lower_);
-  EXPECT_DOUBLE_EQ(0.0, bounds.at(1).upper_);
+  EXPECT_DOUBLE_EQ(init_acceleration_.x(), bounds.at(0).lower_);
+  EXPECT_DOUBLE_EQ(init_acceleration_.x(), bounds.at(0).upper_);
+  EXPECT_DOUBLE_EQ(init_acceleration_.y(), bounds.at(1).lower_);
+  EXPECT_DOUBLE_EQ(init_acceleration_.y(), bounds.at(1).upper_);
 }
 
 

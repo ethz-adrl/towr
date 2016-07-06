@@ -38,28 +38,28 @@ public:
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd EvaluateConstraint () const override;
 
-  /** @brief Returns an upper and lower bound for each constraint violation. */
-  VecBound GetBounds () const override;
-
 protected:
   /** only allow child classes of this class to be instantiated. */
   ALinearConstraint (OptimizationVariables& subject);
   virtual ~ALinearConstraint () {}
-  Bound bound_;
+  MatVec linear_equation_;
 
 private:
   VectorXd x_coeff_;                ///< the current spline coefficients
-  MatVec linear_equation_;
 };
 
 class LinearEqualityConstraint : public ALinearConstraint {
 public:
   LinearEqualityConstraint (OptimizationVariables& subject);
+  /** @brief Returns an upper and lower bound for each constraint violation. */
+  VecBound GetBounds () const override;
 };
 
 class LinearInequalityConstraint : public ALinearConstraint {
 public:
   LinearInequalityConstraint (OptimizationVariables& subject);
+  /** @brief Returns an upper and lower bound for each constraint violation. */
+  VecBound GetBounds () const override;
 };
 
 } /* namespace zmp */

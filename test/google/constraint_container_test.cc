@@ -66,9 +66,15 @@ TEST_F(ConstraintContainerTest, GetBounds)
   ConstraintContainer::VecBound bounds = constraints.GetBounds();
 
   EXPECT_EQ(4, bounds.size()); // two constraints in x and one in y
-  for (AConstraint::Bound b : bounds) {
+
+  for (auto b : constraints.GetConstraint("zero_acc").GetBounds()) {
     EXPECT_EQ(0.0, b.lower_);
     EXPECT_EQ(0.0, b.upper_);
+  }
+
+  for (auto b : constraints.GetConstraint("one_acc").GetBounds()) {
+    EXPECT_EQ(1.0, b.lower_);
+    EXPECT_EQ(1.0, b.upper_);
   }
 
 }

@@ -131,7 +131,7 @@ TEST(SnoptTest, sntoyA)
 
   Flow[0] = -1e20; Flow[1] = -1e20; Flow[2] = -1e20;
   Fupp[0] =  1e20; Fupp[1] =   4.0; Fupp[2] =  5.0;
-  Fmul[0] =   0;   Fmul[0] =   0;   Fmul[0] =    0;
+  Fmul[0] =   0;   Fmul[1] =   0;   Fmul[2] =    0;
 
   // initial values of the optimization
   x[0]    = 1.0;

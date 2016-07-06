@@ -31,29 +31,39 @@ ALinearConstraint::Update ()
 ALinearConstraint::VectorXd
 ALinearConstraint::EvaluateConstraint () const
 {
-  return linear_equation_.M*x_coeff_ + linear_equation_.v;
-}
-
-ALinearConstraint::VecBound
-ALinearConstraint::GetBounds () const
-{
-  VecBound bounds;
-  for (int i=0; i<linear_equation_.v.rows(); ++i)
-    bounds.push_back(bound_);
-
-  return bounds;
+  return linear_equation_.M*x_coeff_; // linear part respected in bounds
 }
 
 LinearEqualityConstraint::LinearEqualityConstraint (OptimizationVariables& subject)
     :ALinearConstraint(subject)
 {
-  bound_ = kEqualityBound_;
+}
+
+LinearEqualityConstraint::VecBound
+LinearEqualityConstraint::GetBounds () const
+{
+  VecBound bounds;
+  for (int i=0; i<linear_equation_.v.rows(); ++i) {
+    Bound bound(-linear_equation_.v[i],-linear_equation_.v[i]);
+    bounds.push_back(bound);
+  }
+  return bounds;
 }
 
 LinearInequalityConstraint::LinearInequalityConstraint (OptimizationVariables& subject)
     :ALinearConstraint(subject)
 {
-  bound_ = kInequalityBoundPositive_;
+}
+
+LinearInequalityConstraint::VecBound
+LinearInequalityConstraint::GetBounds () const
+{
+  VecBound bounds;
+  for (int i=0; i<linear_equation_.v.rows(); ++i) {
+    Bound bound(-linear_equation_.v[i], kNoBound_.upper_);
+    bounds.push_back(bound);
+  }
+  return bounds;
 }
 
 } /* namespace zmp */
