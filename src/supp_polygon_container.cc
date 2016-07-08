@@ -196,7 +196,7 @@ SupportPolygonContainer::AssignSupportPolygonsToSplines(const VecZmpSpline& spli
       curr_supp = supp_steps.at(s.GetCurrStep());
       prev_step = s.GetCurrStep();
     } else {
-      if (prev_step == -1)
+      if (prev_step == -1) // first spline
         curr_supp = GetStartPolygon();
       else if (prev_step == GetNumberOfSteps()-1)
         curr_supp = GetFinalPolygon();
