@@ -114,7 +114,6 @@ void WalkingController::PublishCurrentState()
   current_info_pub_.publish(msg);
 
   P_des_ = P_curr_;
-//  sleep(2.0); // wait for optimizer to finish. Fixme: do not sleep controller on real robot!
 }
 
 void WalkingController::BuildPlan()
