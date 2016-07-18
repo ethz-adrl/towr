@@ -43,6 +43,7 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   constraints_           = std::make_shared<ConstraintContainer>();
   interpreting_observer_ = std::make_shared<InterpretingObserver>(*opt_variables_);
 
+  // todo, remove this duplication
   constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(*opt_variables_), "acc");
   constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(*opt_variables_), "final");
   constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(*opt_variables_), "junction");
@@ -114,7 +115,7 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);
 
-//  // Snopt solving
+  // Snopt solving
 //  auto snopt_problem = SnoptAdapter::GetInstance();
 //  snopt_problem->SetNLP(nlp);
 //  snopt_problem->Init();
