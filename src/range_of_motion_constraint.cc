@@ -65,7 +65,8 @@ RangeOfMotionConstraint::GetBounds () const
 
   std::vector<Bound> bounds;
 //  VectorXd g = EvaluateConstraint();
-  double radius = 0.18; //m
+  double radius_x = 0.15; //m
+  double radius_y = 0.10; //m
 //  Bound bound(-radius, +radius);
 //
 //  for (int i=0; i<g.rows(); ++i)
@@ -74,8 +75,8 @@ RangeOfMotionConstraint::GetBounds () const
 
   // SMELL  clean this up
   for (int i=0; i<nominal_footholds_b.size(); ++i) {
-    Bound x_bound(nominal_footholds_b.at(i).x()-radius, nominal_footholds_b.at(i).x()+radius);
-    Bound y_bound(nominal_footholds_b.at(i).y()-radius, nominal_footholds_b.at(i).y()+radius);
+    Bound x_bound(nominal_footholds_b.at(i).x()-radius_x, nominal_footholds_b.at(i).x()+radius_x);
+    Bound y_bound(nominal_footholds_b.at(i).y()-radius_y, nominal_footholds_b.at(i).y()+radius_y);
     bounds.push_back(x_bound);
     bounds.push_back(y_bound);
   }

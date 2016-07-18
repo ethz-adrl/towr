@@ -95,29 +95,26 @@ std::vector<xpp::hyq::LegID>
 NlpOptimizerNode::DetermineStepSequence(const State& curr_state, int curr_swingleg)
 {
   // TODO make step sequence dependent on curr_state
-  const double length_per_step = 0.30;
-  const double width_per_step = 0.20;
+  const double length_per_step = 0.25;
+  const double width_per_step = 0.15;
   Eigen::Vector2d start_to_goal = goal_cog_.p.segment<2>(0) - curr_cog_.p.segment<2>(0);
 
 
-  int req_steps_per_leg;
-  // fixme don't take steps if body movement is sufficient
-  if (false /*start_to_goal.norm() < 0.1*/) {
-    req_steps_per_leg = 0;
-  } else {
-    int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/length_per_step);
-    int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
-    req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);
-  }
-
-
-
   // don't do anything if goal to close
-  if (start_to_goal.norm() < 0.05) {
+  if (start_to_goal.norm() < 0.08) {
     std::cout << "goal closer than 0.05m\n";
     start_with_com_shift_ = false;
     return std::vector<xpp::hyq::LegID>(); // empty vector, take no steps
   }
+
+
+  //    // based on distance to cover
+  //    int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/length_per_step);
+  //    int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
+  //    int req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);
+  // hardcoded 4 steps
+  int req_steps_per_leg = 1;
+
 
 
   LegID sl;
