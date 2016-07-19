@@ -28,6 +28,7 @@ NLP::Init (OptimizationVariablesPtr& opt_variables,
   opt_variables_ = /*std::move*/(opt_variables);
   costs_         = /*std::move*/(costs);
   constraints_   = /*std::move*/(constraints);
+  constraints_->RefreshBounds();
 
   cost_derivative_.AddCosts(*opt_variables_, *costs_);
 }

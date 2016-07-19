@@ -9,11 +9,12 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_JOINT_ANGLES_CONSTRAINT_H_
 
 #include <xpp/zmp/a_constraint.h>
-#include <xpp/zmp/i_observer.h>
 
 #include <xpp/zmp/optimization_variables_interpreter.h>
 #include <xpp/zmp/stance_feet_calculator.h>
 #include <xpp/zmp/a_inverse_kinematics.h>
+
+#include <memory>
 
 namespace xpp {
 namespace zmp {
@@ -23,7 +24,7 @@ namespace zmp {
   * This class is responsible for calculating the joint angles for the current
   * optimization variables and providing it's limits.
   */
-class JointAnglesConstraint : public AConstraint, public IObserver {
+class JointAnglesConstraint : public AConstraint {
 public:
   typedef xpp::utils::StdVecEigen2d FootholdsXY;
   typedef xpp::zmp::OptimizationVariablesInterpreter Interpreter;
@@ -31,18 +32,19 @@ public:
   typedef std::vector<ZmpSpline> VecSpline;
   typedef AInverseKinematics::JointAngles JointAngles;
   typedef xpp::hyq::Foothold Foothold;
+  typedef std::shared_ptr<AInverseKinematics> InvKinPtr;
 
-  JointAnglesConstraint (OptimizationVariables& subject);
+  JointAnglesConstraint ();
   virtual ~JointAnglesConstraint ();
 
-  void Init(const Interpreter& interpreter, AInverseKinematics* inv_kin);
-  void Update() override;
+  void Init(const Interpreter& interpreter, const InvKinPtr& inv_kin);
+  void UpdateVariables(const ConstraintContainer*) override;
 
   VectorXd EvaluateConstraint() const override;
   VecBound GetBounds() const override;
 
 private:
-  AInverseKinematics* inv_kin_;           ///< endeffector to joint angle conversions
+  InvKinPtr inv_kin_;           ///< endeffector to joint angle conversions
   StanceFeetCalculator stance_feet_calc_; ///< supplies feet position in base frame
 
   Interpreter interpreter_; ///< adds context to the optimization variables

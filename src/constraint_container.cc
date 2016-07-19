@@ -30,6 +30,12 @@ ConstraintContainer::Update ()
 }
 
 void
+ConstraintContainer::ClearConstraints ()
+{
+  constraints_.clear();
+}
+
+void
 ConstraintContainer::AddConstraint (ConstraintPtr constraint,
                                     const std::string& name)
 {

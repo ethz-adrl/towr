@@ -141,6 +141,7 @@ set(SOURCES
   src/interpreting_observer.cc
   # constraints
   src/a_constraint.cc
+  src/constraint_factory.cc
   src/a_linear_constraint.cc
   src/initial_acceleration_equation.cc
   src/final_state_equation.cc
@@ -246,8 +247,9 @@ if(BUILD_TESTS)
                         test/google/optimization_variables_interpreter_test.cc
                         #constraints
                         test/google/zmp_constraint_test.cc
+                        test/google/constraint_factory_test.cc
                         test/google/zmp_constraint_builder_test.cc
-                        test/google/joint_angles_constraint_test.cc
+#                        test/google/joint_angles_constraint_test.cc
 #                        test/google/constraint_container_test.cc
                         test/google/range_of_motion_constraint_test.cc
                         #equations

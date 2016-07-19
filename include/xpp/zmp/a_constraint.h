@@ -28,11 +28,10 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef std::vector<Bound> VecBound;
 
-
   AConstraint ();
   virtual ~AConstraint ();
 
-  virtual void UpdateVariables(const ConstraintContainer*) {} /* = 0*/;
+  virtual void UpdateVariables(const ConstraintContainer*) = 0;
 
   /** A constraint always delivers a vector of constraint violations.
    */

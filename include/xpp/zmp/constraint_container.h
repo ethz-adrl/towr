@@ -34,6 +34,7 @@ public:
   virtual ~ConstraintContainer ();
 
   void Update () override;
+  void ClearConstraints();
 
   void AddConstraint (ConstraintPtr constraint,
                       const std::string& name);

@@ -7,28 +7,16 @@
 
 #include <xpp/zmp/nlp_facade.h>
 
-#include <xpp/zmp/nlp.h>
-
-#include <xpp/zmp/spline_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/initial_acceleration_equation.h>
-#include <xpp/zmp/final_state_equation.h>
-#include <xpp/zmp/spline_junction_equation.h>
-#include <xpp/zmp/ipopt_adapter.h>
-// this looks like i need the factory method
-#include <xpp/zmp/a_linear_constraint.h>
-#include <xpp/zmp/zmp_constraint.h>
-#include <xpp/zmp/range_of_motion_constraint.h>
-#include <xpp/zmp/joint_angles_constraint.h>
-#include <xpp/hyq/hyq_inverse_kinematics.h>
-// cost function stuff
+#include <xpp/zmp/constraint_factory.h>
 #include <xpp/zmp/a_quadratic_cost.h>
 #include <xpp/zmp/range_of_motion_cost.h>
 #include <xpp/zmp/total_acceleration_equation.h>
-
+#include <xpp/zmp/optimization_variables_interpreter.h>
 #include <xpp/zmp/interpreting_observer.h>
 
+#include <xpp/zmp/nlp.h>
+#include <xpp/zmp/ipopt_adapter.h>
 #include <xpp/zmp/snopt_adapter.h>
 
 namespace xpp {
@@ -43,16 +31,8 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   constraints_           = std::make_shared<ConstraintContainer>(*opt_variables_);
   interpreting_observer_ = std::make_shared<InterpretingObserver>(*opt_variables_);
 
-  // todo, remove this duplication
-  constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(), "acc");
-  constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(), "final");
-  constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(), "junction");
-  constraints_->AddConstraint(std::make_shared<ZmpConstraint>(), "zmp");
-  constraints_->AddConstraint(std::make_shared<RangeOfMotionConstraint>(), "rom");
-//  constraints_.AddConstraint(std::make_shared<JointAnglesConstraint>(*opt_variables_), "joint_angles");
-
-//  costs_.AddCost(std::make_shared<AQuadraticCost>(*opt_variables_), "cost_final");
   costs_->AddCost(std::make_shared<AQuadraticCost>(*opt_variables_), "cost_acc");
+//  costs_.AddCost(std::make_shared<AQuadraticCost>(*opt_variables_), "cost_final");
 //  costs_->AddCost(std::make_shared<RangeOfMotionCost>(*opt_variables_), "cost_rom");
 
   // initialize the ipopt solver
@@ -85,36 +65,20 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   // save the framework of the optimization problem
   interpreting_observer_->SetInterpreter(interpreter_ptr);
 
-
-  // This should all be hidden inside a factory method
-  // the linear equations
   ContinuousSplineContainer spline_structure = interpreter_ptr->GetSplineStructure();
 
-
-  InitialAccelerationEquation eq_acc(initial_acc, spline_structure.GetTotalFreeCoeff());
-  FinalStateEquation eq_final(final_state, spline_structure);
-  SplineJunctionEquation eq_junction(spline_structure);
-  TotalAccelerationEquation eq_total_acc(spline_structure);
-
-  // initialize the constraints
-//  auto acc_constraint = std::make_shared<LinearEqualityConstraint>(*opt_variables_);
-//  acc_constraint->Init(eq_acc.BuildLinearEquation());
-//  constraints_->AddConstraint(acc_constraint, "acc");
-
-  // fixme casting is bad practice -> remove
-  dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("acc")).Init(eq_acc.BuildLinearEquation());
-  dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("final")).Init(eq_final.BuildLinearEquation());
-  dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
-  dynamic_cast<ZmpConstraint&>(constraints_->GetConstraint("zmp")).Init(*interpreter_ptr);
-  dynamic_cast<RangeOfMotionConstraint&>(constraints_->GetConstraint("rom")).Init(*interpreter_ptr);
-//  xpp::hyq::HyqInverseKinematics hyq_inv_kin;
-//  dynamic_cast<JointAnglesConstraint&>(constraints_.GetConstraint("joint_angles")).Init(*interpreter_ptr, &hyq_inv_kin);
-
-  constraints_->RefreshBounds();
+  constraints_->ClearConstraints();
+  constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(initial_acc, spline_structure.GetTotalFreeCoeff()), "acc");
+  constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure), "final");
+  constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure), "junction");
+  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(*interpreter_ptr), "zmp");
+  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(*interpreter_ptr), "rom");
+//  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr), "joint_angles");
 
   // costs
   // fixme, only soft cost on position, vel, acc not so important
 //  dynamic_cast<AQuadraticCost&>(costs_.GetCost("cost_final")).Init(eq_final.BuildLinearEquation());
+  TotalAccelerationEquation eq_total_acc(spline_structure);
   dynamic_cast<AQuadraticCost&>(costs_->GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
 //  dynamic_cast<RangeOfMotionCost&>(costs_->GetCost("cost_rom")).Init(*interpreter_ptr);
 

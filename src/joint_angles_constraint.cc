@@ -6,18 +6,16 @@
  */
 
 #include <xpp/zmp/joint_angles_constraint.h>
-#include <xpp/zmp/spline_container.h>
 
-#include <xpp/zmp/optimization_variables.h>
+#include <xpp/zmp/constraint_container.h>
+#include <xpp/zmp/spline_container.h>
 
 namespace xpp {
 namespace zmp {
 
-JointAnglesConstraint::JointAnglesConstraint (OptimizationVariables& subject)
-    :IObserver(subject)
+JointAnglesConstraint::JointAnglesConstraint ()
 {
   inv_kin_ = nullptr;
-  // TODO Auto-generated constructor stub
 }
 
 JointAnglesConstraint::~JointAnglesConstraint ()
@@ -27,19 +25,17 @@ JointAnglesConstraint::~JointAnglesConstraint ()
 
 void
 JointAnglesConstraint::Init (const Interpreter& interpreter,
-                             AInverseKinematics* inv_kin)
+                             const InvKinPtr& inv_kin)
 {
   interpreter_ = interpreter;
   inv_kin_ = inv_kin;
-
-  Update();
 }
 
 void
-JointAnglesConstraint::Update ()
+JointAnglesConstraint::UpdateVariables (const ConstraintContainer* container)
 {
-  VectorXd x_coeff        = subject_->GetSplineCoefficients();
-  FootholdsXY x_footholds = subject_->GetFootholdsStd();
+  VectorXd x_coeff        = container->GetSplineCoefficients();
+  FootholdsXY x_footholds = container->GetFootholds();
 
   // calculate interpreted values from the optimization values
   VecFoothold footholds = interpreter_.GetFootholds(x_footholds);
