@@ -6,6 +6,7 @@
  */
 
 #include <xpp/zmp/a_subject.h>
+#include <iostream>
 
 namespace xpp {
 namespace zmp {

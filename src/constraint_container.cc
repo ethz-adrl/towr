@@ -25,7 +25,7 @@ void
 ConstraintContainer::Update ()
 {
   spline_coeff_ = subject_->GetSplineCoefficients();
-  footholds_ = subject_->GetFootholdsStd();
+  footholds_    = subject_->GetFootholdsStd();
 }
 
 void
@@ -39,7 +39,14 @@ ConstraintContainer::AddConstraint (ConstraintPtr constraint,
                                     const std::string& name)
 {
   constraints_.emplace(name, constraint);
+  Update();
   RefreshBounds ();
+}
+
+AConstraint&
+ConstraintContainer::GetConstraint (const std::string& name)
+{
+  return *constraints_.at(name);
 }
 
 ConstraintContainer::VectorXd
@@ -56,12 +63,6 @@ ConstraintContainer::EvaluateConstraints () const
     c += c_new;
   }
   return g_all;
-}
-
-AConstraint&
-ConstraintContainer::GetConstraint (const std::string& name)
-{
-  return *constraints_.at(name);
 }
 
 void

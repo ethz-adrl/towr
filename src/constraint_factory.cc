@@ -21,7 +21,6 @@ namespace zmp {
 
 ConstraintFactory::ConstraintFactory ()
 {
-  // TODO Auto-generated constructor stub
 }
 
 ConstraintFactory::~ConstraintFactory ()

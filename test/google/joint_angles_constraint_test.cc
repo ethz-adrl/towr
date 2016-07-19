@@ -43,9 +43,9 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
 
   // create the joint angle constraint and put into the container
   int n_splines = 1;
-  OptimizationVariables subject;
-  subject.Init(n_splines*kFreeCoeffPerSpline*2, 0);
-  ConstraintContainer constraint_container(subject);
+  OptimizationVariables opt_variables;
+  opt_variables.Init(n_splines*kFreeCoeffPerSpline*2, 0);
+  ConstraintContainer constraint_container(opt_variables);
   auto constraint = ConstraintFactory::CreateJointAngleConstraint(interpreter);
   constraint_container.AddConstraint(constraint, "joint_angles");
 

@@ -21,7 +21,9 @@ namespace zmp {
 /** @brief Knows about all constraints and gives information about them.
   *
   * For every constraint that \c ConstraintContainer knows about, it will return
-  * the constraint violations and the acceptable bounds.
+  * the constraint violations and the acceptable bounds. It also maintains a
+  * connection to the optimization variables, and constantly keeps up-to-date
+  * values of these (observer).
   */
 class ConstraintContainer : public IObserver {
 public:
@@ -43,13 +45,13 @@ public:
 
   VectorXd EvaluateConstraints () const;
   VecBound GetBounds () const;
-  void RefreshBounds ();
 
 
   const FootholdsXY& GetFootholds() const;
   const VectorXd& GetSplineCoefficients() const;
 
 private:
+  void RefreshBounds ();
   std::map<std::string, ConstraintPtr > constraints_;
   VecBound bounds_;
 

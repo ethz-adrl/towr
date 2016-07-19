@@ -18,7 +18,6 @@ class OptimizationVariables; // forward declaration to avoid circular dependenci
 
 class IObserver {
 public:
-  IObserver () {}; // fixme remove this, only for observer_visualizer
   IObserver (OptimizationVariables& subject);
   virtual ~IObserver ();
 
