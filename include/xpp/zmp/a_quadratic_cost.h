@@ -9,9 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_QUADRATIC_COST_H_
 
 #include <xpp/zmp/a_cost.h>
-#include <xpp/zmp/i_observer.h>
-
-#include <xpp/zmp/optimization_variables.h>
+#include <xpp/utils/geometric_structs.h>
 
 namespace xpp {
 namespace zmp {
@@ -21,12 +19,12 @@ namespace zmp {
   * This class is responsible for getting the current value of the optimization
   * variables from the subject and calculating the scalar cost from these.
   */
-class AQuadraticCost : public ACost, public IObserver {
+class AQuadraticCost : public ACost {
 public:
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::utils::MatVec MatVec;
 
-  AQuadraticCost (OptimizationVariables& subject);
+  AQuadraticCost ();
   virtual ~AQuadraticCost ()  {}
 
   /** @brief Defines the matrices and vectors used for calcuting the quadratic cost.
@@ -34,7 +32,7 @@ public:
     * The cost is calculated as cost = x^T * M * x   +   v^T * x
    */
   void Init(const MatVec& quadratic_equation);
-  void Update() override;
+  void UpdateVariables(const CostContainer*) override;
   double EvaluateCost () const override;
 
 private:

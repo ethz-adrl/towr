@@ -6,12 +6,12 @@
  */
 
 #include <xpp/zmp/a_quadratic_cost.h>
+#include <xpp/zmp/cost_container.h>
 
 namespace xpp {
 namespace zmp {
 
-AQuadraticCost::AQuadraticCost (OptimizationVariables& subject)
-    :IObserver(subject)
+AQuadraticCost::AQuadraticCost ()
 {
 }
 
@@ -19,13 +19,12 @@ void
 AQuadraticCost::Init (const MatVec& quadratic_equation)
 {
   quadratic_equation_ = quadratic_equation;
-  Update();
 }
 
 void
-AQuadraticCost::Update ()
+AQuadraticCost::UpdateVariables (const CostContainer* cost_container)
 {
-  x_coeff_ = subject_->GetSplineCoefficients();
+  x_coeff_ = cost_container->GetSplineCoefficients();
 }
 
 double

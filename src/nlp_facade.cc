@@ -27,13 +27,11 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
 {
   // create corresponding heap object for each of the member pointers
   opt_variables_         = std::make_shared<OptimizationVariables>();
-  costs_                 = std::make_shared<CostContainer>();
+  costs_                 = std::make_shared<CostContainer>(*opt_variables_);
   constraints_           = std::make_shared<ConstraintContainer>(*opt_variables_);
   interpreting_observer_ = std::make_shared<InterpretingObserver>(*opt_variables_);
 
-  costs_->AddCost(std::make_shared<AQuadraticCost>(*opt_variables_), "cost_acc");
-//  costs_.AddCost(std::make_shared<AQuadraticCost>(*opt_variables_), "cost_final");
-//  costs_->AddCost(std::make_shared<RangeOfMotionCost>(*opt_variables_), "cost_rom");
+
 
   // initialize the ipopt solver
   ipopt_solver_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
@@ -78,9 +76,19 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   // costs
   // fixme, only soft cost on position, vel, acc not so important
 //  dynamic_cast<AQuadraticCost&>(costs_.GetCost("cost_final")).Init(eq_final.BuildLinearEquation());
-  TotalAccelerationEquation eq_total_acc(spline_structure);
-  dynamic_cast<AQuadraticCost&>(costs_->GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
+//  costs_->AddCost(std::make_shared<AQuadraticCost>(), "cost_final");
+//  costs_->AddCost(std::make_shared<RangeOfMotionCost>(*opt_variables_), "cost_rom");
+//  dynamic_cast<AQuadraticCost&>(costs_->GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
 //  dynamic_cast<RangeOfMotionCost&>(costs_->GetCost("cost_rom")).Init(*interpreter_ptr);
+
+  // fixme this should be done in a CostFactory
+  TotalAccelerationEquation eq_total_acc(spline_structure);
+  auto acc_cost = std::make_shared<AQuadraticCost>();
+  acc_cost->Init(eq_total_acc.BuildLinearEquation());
+  costs_->AddCost(acc_cost, "cost_acc");
+
+
+
 
 
   std::unique_ptr<NLP> nlp(new NLP);

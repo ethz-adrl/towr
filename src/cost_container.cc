@@ -10,9 +10,9 @@
 namespace xpp {
 namespace zmp {
 
-CostContainer::CostContainer ()
+CostContainer::CostContainer (OptimizationVariables& subject)
+    :IObserver(subject)
 {
-  // TODO Auto-generated constructor stub
 }
 
 CostContainer::~CostContainer ()
@@ -26,12 +26,21 @@ CostContainer::AddCost (CostPtr cost, const std::string& name)
   costs_.emplace(name, cost);
 }
 
+void
+CostContainer::Update ()
+{
+  spline_coeff_ = subject_->GetSplineCoefficients();
+  footholds_    = subject_->GetFootholdsStd();
+}
+
 double
 CostContainer::EvaluateTotalCost () const
 {
   double total_cost = 0.0;
-  for (const auto& cost : costs_)
+  for (const auto& cost : costs_) {
+    cost.second->UpdateVariables(this);
     total_cost += cost.second->EvaluateCost();
+  }
 
   return total_cost;
 }
@@ -40,6 +49,18 @@ ACost&
 CostContainer::GetCost (const std::string& name)
 {
   return *costs_.at(name);
+}
+
+const CostContainer::FootholdsXY&
+CostContainer::GetFootholds () const
+{
+  return footholds_;
+}
+
+const CostContainer::VectorXd&
+CostContainer::GetSplineCoefficients () const
+{
+  return spline_coeff_;
 }
 
 } /* namespace zmp */
