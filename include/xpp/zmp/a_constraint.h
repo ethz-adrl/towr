@@ -32,6 +32,8 @@ public:
   AConstraint ();
   virtual ~AConstraint ();
 
+  virtual void UpdateVariables(const ConstraintContainer*) {} /* = 0*/;
+
   /** A constraint always delivers a vector of constraint violations.
    */
   virtual VectorXd EvaluateConstraint () const = 0;

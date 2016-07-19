@@ -7,7 +7,7 @@
 
 #include <xpp/zmp/a_linear_constraint.h>
 #include <xpp/zmp/initial_acceleration_equation.h>
-#include <xpp/zmp/optimization_variables.h>
+#include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
 
 #include <gtest/gtest.h>
@@ -19,12 +19,11 @@ class InitialAccelerationEquationTest : public ::testing::Test {
 
 public:
   InitialAccelerationEquationTest()
-      : constraint_(subject_) {} // because these members have no default constructor
+      : constraint_container_(subject_) {} // because these members have no default constructor
 
 protected:
   virtual void SetUp()
   {
-
     subject_.Init(n_coeff_, n_steps_);
     init_acceleration_ << 1.3, 2.4; // x and y
     InitialAccelerationEquation eq(init_acceleration_, subject_.GetSplineCoefficients().rows());
@@ -38,6 +37,7 @@ protected:
   Eigen::Vector2d init_acceleration_;
   OptimizationVariables subject_;
   LinearEqualityConstraint constraint_;
+  ConstraintContainer constraint_container_;
 };
 
 TEST_F(InitialAccelerationEquationTest, EvaluateConstraint)

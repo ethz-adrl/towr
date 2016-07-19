@@ -6,12 +6,12 @@
  */
 
 #include <xpp/zmp/a_linear_constraint.h>
+#include <xpp/zmp/constraint_container.h>
 
 namespace xpp {
 namespace zmp {
 
-ALinearConstraint::ALinearConstraint (OptimizationVariables& subject)
-    :IObserver(subject)
+ALinearConstraint::ALinearConstraint ()
 {
 }
 
@@ -19,13 +19,12 @@ void
 ALinearConstraint::Init (const MatVec& linear_equation)
 {
   linear_equation_ = linear_equation;
-  Update();
 }
 
 void
-ALinearConstraint::Update ()
+ALinearConstraint::UpdateVariables(const ConstraintContainer* container)
 {
-  x_coeff_ = subject_->GetSplineCoefficients();
+  x_coeff_ = container->GetSplineCoefficients();
 }
 
 ALinearConstraint::VectorXd
@@ -34,8 +33,7 @@ ALinearConstraint::EvaluateConstraint () const
   return linear_equation_.M*x_coeff_; // linear part respected in bounds
 }
 
-LinearEqualityConstraint::LinearEqualityConstraint (OptimizationVariables& subject)
-    :ALinearConstraint(subject)
+LinearEqualityConstraint::LinearEqualityConstraint ()
 {
 }
 
@@ -50,8 +48,7 @@ LinearEqualityConstraint::GetBounds () const
   return bounds;
 }
 
-LinearInequalityConstraint::LinearInequalityConstraint (OptimizationVariables& subject)
-    :ALinearConstraint(subject)
+LinearInequalityConstraint::LinearInequalityConstraint ()
 {
 }
 

@@ -34,6 +34,7 @@ ConstraintContainer::AddConstraint (ConstraintPtr constraint,
                                     const std::string& name)
 {
   constraints_.emplace(name, constraint);
+  // smell just update bounds here directly
   bounds_up_to_date_ = false;
 }
 
@@ -45,6 +46,7 @@ ConstraintContainer::EvaluateConstraints () const
 
   int c = 0;
   for (const auto& constraint : constraints_) {
+    constraint.second->UpdateVariables(this);
     VectorXd g = constraint.second->EvaluateConstraint();
     int c_new = g.rows();
     g_all.middleRows(c, c_new) = g;
@@ -64,6 +66,7 @@ ConstraintContainer::RefreshBounds ()
 {
   bounds_.clear();
   for (const auto& constraint : constraints_) {
+    constraint.second->UpdateVariables(this);
     VecBound b = constraint.second->GetBounds();
     bounds_.insert(bounds_.end(), b.begin(), b.end());
   }

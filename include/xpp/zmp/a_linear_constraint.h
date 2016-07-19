@@ -9,12 +9,12 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_LINEAR_CONSTRAINT_H_
 
 #include <xpp/zmp/a_constraint.h>
-#include <xpp/zmp/i_observer.h>
-
-#include <xpp/zmp/optimization_variables.h>
+#include <xpp/utils/geometric_structs.h>
 
 namespace xpp {
 namespace zmp {
+
+class ConstraintContainer;
 
 /** @brief Calculates the constraint violations for linear constraints.
   *
@@ -22,7 +22,7 @@ namespace zmp {
   * variables from the subject and using this to calculate the constraint
   * violations.
   */
-class ALinearConstraint : public IObserver, public AConstraint {
+class ALinearConstraint : public AConstraint {
 public:
   typedef xpp::utils::MatVec MatVec;
 
@@ -33,14 +33,14 @@ public:
   void Init(const MatVec& linear_equation);
 
   /** @brief Updates the values of the optimization variables. */
-  void Update() override;
+  void UpdateVariables(const ConstraintContainer*) override;
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd EvaluateConstraint () const override;
 
 protected:
   /** only allow child classes of this class to be instantiated. */
-  ALinearConstraint (OptimizationVariables& subject);
+  ALinearConstraint ();
   virtual ~ALinearConstraint () {}
   MatVec linear_equation_;
 
@@ -51,7 +51,7 @@ private:
 
 class LinearEqualityConstraint : public ALinearConstraint {
 public:
-  LinearEqualityConstraint (OptimizationVariables& subject);
+  LinearEqualityConstraint ();
   /** @brief Returns an upper and lower bound for each constraint violation. */
   VecBound GetBounds () const override;
 };
@@ -59,7 +59,7 @@ public:
 // smell rename to "LinearEqualityGreaterThan"
 class LinearInequalityConstraint : public ALinearConstraint {
 public:
-  LinearInequalityConstraint (OptimizationVariables& subject);
+  LinearInequalityConstraint ();
   /** @brief Returns an upper and lower bound for each constraint violation. */
   VecBound GetBounds () const override;
 };
