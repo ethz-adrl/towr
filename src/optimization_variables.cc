@@ -26,8 +26,9 @@ OptimizationVariables::Init (int n_spline_coeff, int n_steps)
   nlp_structure_.Reset();
   nlp_structure_.AddVariableSet("spline_coeff", n_spline_coeff);
   nlp_structure_.AddVariableSet("footholds", kDim2d*n_steps);
-
   initialized_ = true;
+
+  NotifyObservers();
 }
 
 void
@@ -38,6 +39,7 @@ OptimizationVariables::Init (const VectorXd& x_coeff_abcd,
 
   nlp_structure_.SetVariables("spline_coeff",x_coeff_abcd);
   nlp_structure_.SetVariables("footholds", ConvertStdToEig(footholds));
+  NotifyObservers();
 }
 
 void

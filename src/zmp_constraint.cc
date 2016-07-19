@@ -6,13 +6,13 @@
  */
 
 #include <xpp/zmp/zmp_constraint.h>
+#include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
 namespace zmp {
 
-ZmpConstraint::ZmpConstraint (OptimizationVariables& subject)
-    :IObserver(subject)
+ZmpConstraint::ZmpConstraint ()
 {
 }
 
@@ -21,15 +21,13 @@ ZmpConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
 {
   supp_polygon_container_ = interpreter.GetSuppPolygonContainer();
   zmp_constraint_builder_.Init(interpreter.GetSplineStructure(), interpreter.GetRobotHeight());
-
-  Update();
 }
 
 void
-ZmpConstraint::Update ()
+ZmpConstraint::UpdateVariables (const ConstraintContainer* container)
 {
-  x_coeff_ = subject_->GetSplineCoefficients();
-  footholds_ = subject_->GetFootholdsStd();
+  x_coeff_ = container->GetSplineCoefficients();
+  footholds_ = container->GetFootholds();
 
   // fixme use interpreter class for this, it knows about the foothold sequence
   for (uint i=0; i<footholds_.size(); ++i)
