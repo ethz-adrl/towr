@@ -253,7 +253,6 @@ if(BUILD_TESTS)
                         test/google/constraint_container_test.cc
                         test/google/range_of_motion_constraint_test.cc
                         #equations
-#                        test/google/initial_acceleration_equation_test.cc
                         test/google/total_acceleration_equation_test.cc
                         test/google/spline_junction_equation_test.cc
                         # costs                       

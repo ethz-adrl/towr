@@ -41,7 +41,7 @@ protected:
   ConstraintContainerPtr constraints_;
 };
 
-TEST_F(ConstraintContainerTest, EvaluateConstraints)
+TEST_F(ConstraintContainerTest, EvaluateConstraintsInitialAcc)
 {
   Eigen::VectorXd g = constraints_->EvaluateConstraints();
   std::cout << "g: " << g.transpose() << std::endl;
@@ -53,7 +53,7 @@ TEST_F(ConstraintContainerTest, EvaluateConstraints)
   EXPECT_EQ(c_ones_->EvaluateConstraint() , g.head<2>()); // two constraints in x and one in y
 }
 
-TEST_F(ConstraintContainerTest, GetBounds)
+TEST_F(ConstraintContainerTest, GetBoundsInitialAcc)
 {
   ConstraintContainer::VecBound bounds = constraints_->GetBounds();
 
