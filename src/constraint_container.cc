@@ -11,7 +11,8 @@
 namespace xpp {
 namespace zmp {
 
-ConstraintContainer::ConstraintContainer ()
+ConstraintContainer::ConstraintContainer (OptimizationVariables& subject)
+    :IObserver(subject)
 {
   bounds_up_to_date_ = true;
 }
@@ -19,6 +20,13 @@ ConstraintContainer::ConstraintContainer ()
 ConstraintContainer::~ConstraintContainer ()
 {
   // TODO Auto-generated destructor stub
+}
+
+void
+ConstraintContainer::Update ()
+{
+  spline_coeff_ = subject_->GetSplineCoefficients();
+  footholds_ = subject_->GetFootholdsStd();
 }
 
 void
@@ -70,6 +78,17 @@ ConstraintContainer::GetBounds () const
   return bounds_;
 }
 
+const ConstraintContainer::FootholdsXY&
+ConstraintContainer::GetFootholds () const
+{
+  return footholds_;
+}
+
+const ConstraintContainer::VectorXd&
+ConstraintContainer::GetSplineCoefficients () const
+{
+  return spline_coeff_;
+}
 
 } /* namespace zmp */
 } /* namespace xpp */

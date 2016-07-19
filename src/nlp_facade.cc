@@ -40,7 +40,7 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   // create corresponding heap object for each of the member pointers
   opt_variables_         = std::make_shared<OptimizationVariables>();
   costs_                 = std::make_shared<CostContainer>();
-  constraints_           = std::make_shared<ConstraintContainer>();
+  constraints_           = std::make_shared<ConstraintContainer>(*opt_variables_);
   interpreting_observer_ = std::make_shared<InterpretingObserver>(*opt_variables_);
 
   // todo, remove this duplication
@@ -89,14 +89,20 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   // This should all be hidden inside a factory method
   // the linear equations
   ContinuousSplineContainer spline_structure = interpreter_ptr->GetSplineStructure();
+
+
   InitialAccelerationEquation eq_acc(initial_acc, spline_structure.GetTotalFreeCoeff());
   FinalStateEquation eq_final(final_state, spline_structure);
   SplineJunctionEquation eq_junction(spline_structure);
   TotalAccelerationEquation eq_total_acc(spline_structure);
 
   // initialize the constraints
+  auto acc_constraint = std::make_shared<LinearEqualityConstraint>(*opt_variables_);
+  acc_constraint->Init(eq_acc.BuildLinearEquation());
+  constraints_->AddConstraint(acc_constraint, "acc");
+
   // fixme casting is bad practice -> remove
-  dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("acc")).Init(eq_acc.BuildLinearEquation());
+//  dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("acc")).Init(eq_acc.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("final")).Init(eq_final.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
   dynamic_cast<ZmpConstraint&>(constraints_->GetConstraint("zmp")).Init(*interpreter_ptr);

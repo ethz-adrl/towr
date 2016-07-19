@@ -13,6 +13,8 @@
 namespace xpp {
 namespace zmp {
 
+class ConstraintContainer;
+
 class AConstraint {
 public:
   struct Bound {
