@@ -5,9 +5,10 @@
  @brief   Brief description
  */
 
+#include <xpp/zmp/constraint_factory.h>
+#include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/joint_angles_constraint.h>
 #include <xpp/zmp/optimization_variables.h>
-#include <xpp/hyq/hyq_inverse_kinematics.h>
 
 #include <gtest/gtest.h>
 
@@ -16,10 +17,6 @@ namespace zmp {
 
 TEST(JointAnglesContraintTest, StartStanceInLimits)
 {
-  int n_splines = 1;
-  OptimizationVariables subject;
-  subject.Init(n_splines*kFreeCoeffPerSpline*2, 0);
-
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::hyq::Foothold Foothold;
@@ -36,37 +33,34 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
   SplineTimes times;
   times.SetDefault();
 
+  // create the framework of the optimization
   OptimizationVariablesInterpreter interpreter;
   ContinuousSplineContainer spline_structure;
   spline_structure.Init(init_pos, init_vel, 0, times, true, false);
-
   hyq::SupportPolygonContainer support_polygon_container_;
   support_polygon_container_.Init(start_stance_);
-
   interpreter.Init(spline_structure, support_polygon_container_, robot_height);
 
+  // create the joint angle constraint and put into the container
+  int n_splines = 1;
+  OptimizationVariables subject;
+  subject.Init(n_splines*kFreeCoeffPerSpline*2, 0);
+  ConstraintContainer constraint_container(subject);
+  auto constraint = ConstraintFactory::CreateJointAngleConstraint(interpreter);
+  constraint_container.AddConstraint(constraint, "joint_angles");
 
-  xpp::hyq::HyqInverseKinematics hyq_inv_kin;
-
-  JointAnglesConstraint constraint(subject);
-  constraint.Init(interpreter, &hyq_inv_kin);
-
-  VectorXd q = constraint.EvaluateConstraint();
-  AConstraint::VecBound q_bounds = constraint.GetBounds();
-
+  VectorXd q = constraint_container.EvaluateConstraints();
+  AConstraint::VecBound q_bounds = constraint_container.GetBounds();
 
   EXPECT_GT(q.rows(), 0);
   EXPECT_GT(q_bounds.size(), 0);
   EXPECT_EQ(q.rows(), q_bounds.size());
-
 
   std::cout << std::setprecision(2);
   for (int i=0; i<q.rows(); ++i) {
     EXPECT_LT(q_bounds.at(i).lower_, q[i]);
     EXPECT_LT(q[i], q_bounds.at(i).upper_);
   }
-
-
 }
 
 } /* namespace zmp */

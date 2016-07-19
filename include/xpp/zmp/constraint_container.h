@@ -55,8 +55,6 @@ private:
 
   VectorXd spline_coeff_;
   FootholdsXY footholds_;
-
-  bool bounds_up_to_date_;
 };
 
 } /* namespace zmp */

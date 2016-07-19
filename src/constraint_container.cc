@@ -14,7 +14,6 @@ namespace zmp {
 ConstraintContainer::ConstraintContainer (OptimizationVariables& subject)
     :IObserver(subject)
 {
-  bounds_up_to_date_ = true;
 }
 
 ConstraintContainer::~ConstraintContainer ()
@@ -40,14 +39,12 @@ ConstraintContainer::AddConstraint (ConstraintPtr constraint,
                                     const std::string& name)
 {
   constraints_.emplace(name, constraint);
-  // smell just update bounds here directly
-  bounds_up_to_date_ = false;
+  RefreshBounds ();
 }
 
 ConstraintContainer::VectorXd
 ConstraintContainer::EvaluateConstraints () const
 {
-  assert(bounds_up_to_date_); // call Refresh() if this fails
   VectorXd g_all(bounds_.size());
 
   int c = 0;
@@ -76,14 +73,11 @@ ConstraintContainer::RefreshBounds ()
     VecBound b = constraint.second->GetBounds();
     bounds_.insert(bounds_.end(), b.begin(), b.end());
   }
-
-  bounds_up_to_date_ = true;
 }
 
 ConstraintContainer::VecBound
 ConstraintContainer::GetBounds () const
 {
-  assert(bounds_up_to_date_); // call Refresh() if this fails
   return bounds_;
 }
 
