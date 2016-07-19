@@ -8,9 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include <xpp/zmp/i_observer.h>
 #include <xpp/zmp/a_constraint.h>
-#include <xpp/zmp/optimization_variables.h>
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
@@ -21,16 +19,15 @@ namespace zmp {
 
 class OptimizationVariablesInterpreter;
 
-class RangeOfMotionConstraint : public IObserver, public AConstraint {
+class RangeOfMotionConstraint : public AConstraint {
 public:
-  typedef OptimizationVariables::StdVecEigen2d FootholdsXY;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
 
-  RangeOfMotionConstraint (OptimizationVariables& subject);
+  RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint () {};
 
   void Init(const OptimizationVariablesInterpreter&);
-  void Update() override;
+  void UpdateVariables(const ConstraintContainer*) override;
   VectorXd EvaluateConstraint () const override;
   VecBound GetBounds () const override;
 

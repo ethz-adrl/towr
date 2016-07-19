@@ -48,7 +48,7 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(), "final");
   constraints_->AddConstraint(std::make_shared<LinearEqualityConstraint>(), "junction");
   constraints_->AddConstraint(std::make_shared<ZmpConstraint>(), "zmp");
-//  constraints_->AddConstraint(std::make_shared<RangeOfMotionConstraint>(*opt_variables_), "rom");
+  constraints_->AddConstraint(std::make_shared<RangeOfMotionConstraint>(), "rom");
 //  constraints_.AddConstraint(std::make_shared<JointAnglesConstraint>(*opt_variables_), "joint_angles");
 
 //  costs_.AddCost(std::make_shared<AQuadraticCost>(*opt_variables_), "cost_final");
@@ -106,7 +106,7 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("final")).Init(eq_final.BuildLinearEquation());
   dynamic_cast<LinearEqualityConstraint&>(constraints_->GetConstraint("junction")).Init(eq_junction.BuildLinearEquation());
   dynamic_cast<ZmpConstraint&>(constraints_->GetConstraint("zmp")).Init(*interpreter_ptr);
-//  dynamic_cast<RangeOfMotionConstraint&>(constraints_->GetConstraint("rom")).Init(*interpreter_ptr);
+  dynamic_cast<RangeOfMotionConstraint&>(constraints_->GetConstraint("rom")).Init(*interpreter_ptr);
 //  xpp::hyq::HyqInverseKinematics hyq_inv_kin;
 //  dynamic_cast<JointAnglesConstraint&>(constraints_.GetConstraint("joint_angles")).Init(*interpreter_ptr, &hyq_inv_kin);
 

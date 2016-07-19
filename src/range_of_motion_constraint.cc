@@ -6,13 +6,15 @@
  */
 
 #include <xpp/zmp/range_of_motion_constraint.h>
+#include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
 namespace zmp {
 
-RangeOfMotionConstraint::RangeOfMotionConstraint (OptimizationVariables& subject)
-    :IObserver(subject)
+typedef xpp::utils::StdVecEigen2d FootholdsXY;
+
+RangeOfMotionConstraint::RangeOfMotionConstraint ()
 {
 }
 
@@ -21,15 +23,13 @@ RangeOfMotionConstraint::Init (const OptimizationVariablesInterpreter& interpret
 {
   continuous_spline_container_ = interpreter.GetSplineStructure();
   supp_polygon_container_ = interpreter.GetSuppPolygonContainer();
-
-  Update();
 }
 
 void
-RangeOfMotionConstraint::Update ()
+RangeOfMotionConstraint::UpdateVariables (const ConstraintContainer* container)
 {
-  VectorXd x_coeff      = subject_->GetSplineCoefficients();
-  FootholdsXY footholds = subject_->GetFootholdsStd();
+  VectorXd x_coeff      = container->GetSplineCoefficients();
+  FootholdsXY footholds = container->GetFootholds();
 
   continuous_spline_container_.AddOptimizedCoefficients(x_coeff);
   // fixme move this to foothold class and generally see if i really need
