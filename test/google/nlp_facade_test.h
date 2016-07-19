@@ -46,10 +46,10 @@ protected:
     goal_xy_.v <<  0.12, 0.13;
     goal_xy_.a <<  0.14, 0.15;
 
-    start_stance_.push_back(Foothold(-0.31,  0.37, 0.0, LH));
-    start_stance_.push_back(Foothold( 0.33,  0.35, 0.0, LF));
-    start_stance_.push_back(Foothold(-0.35, -0.33, 0.0, RH));
-    start_stance_.push_back(Foothold( 0.37, -0.31, 0.0, RF));
+    start_stance_.push_back(Foothold(-0.31,  0.34, 0.0, LH));
+    start_stance_.push_back(Foothold( 0.32,  0.33, 0.0, LF));
+    start_stance_.push_back(Foothold(-0.33, -0.32, 0.0, RH));
+    start_stance_.push_back(Foothold( 0.34, -0.31, 0.0, RF));
 
     times_.t_swing_ = 0.7;
     times_.t_stance_initial_ = 0.5; // this will create two initial splines

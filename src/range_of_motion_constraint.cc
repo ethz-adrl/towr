@@ -66,7 +66,7 @@ RangeOfMotionConstraint::GetBounds () const
   std::vector<Bound> bounds;
 //  VectorXd g = EvaluateConstraint();
   double radius_x = 0.15; //m
-  double radius_y = 0.10; //m
+  double radius_y = 0.15; //m
 //  Bound bound(-radius, +radius);
 //
 //  for (int i=0; i<g.rows(); ++i)

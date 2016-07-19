@@ -15,6 +15,7 @@ FootholdNominalDeviation::FootholdNominalDeviation ()
   // TODO Auto-generated constructor stub
 }
 
+// smell does two things, feet position and nomial foothold position
 FootholdNominalDeviation::StdVecEigen2d
 FootholdNominalDeviation::GetFeetInBase (
     const ContinuousSplineContainer& cog_spline,
