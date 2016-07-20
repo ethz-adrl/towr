@@ -27,7 +27,7 @@ public:
   AQuadraticCost ();
   virtual ~AQuadraticCost ()  {}
 
-  /** @brief Defines the matrices and vectors used for calcuting the quadratic cost.
+  /** @brief Defines the matrices and vectors used for calculating the quadratic cost.
     *
     * The cost is calculated as cost = x^T * M * x   +   v^T * x
    */

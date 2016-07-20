@@ -14,8 +14,6 @@
 namespace xpp {
 namespace zmp {
 
-class ConstraintContainer;
-
 /** @brief Calculates the constraint violations for linear constraints.
   *
   * This class is responsible for getting the current state of the optimization
