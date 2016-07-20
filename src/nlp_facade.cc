@@ -7,14 +7,12 @@
 
 #include <xpp/zmp/nlp_facade.h>
 
+#include <xpp/zmp/optimization_variables.h>
+#include <xpp/zmp/constraint_container.h>
+#include <xpp/zmp/cost_container.h>
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/constraint_factory.h>
 #include <xpp/zmp/cost_factory.h>
-
-
-#include <xpp/zmp/a_quadratic_cost.h>
-#include <xpp/zmp/range_of_motion_cost.h>
-#include <xpp/zmp/total_acceleration_equation.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 #include <xpp/zmp/interpreting_observer.h>
 
@@ -76,24 +74,11 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(*interpreter_ptr), "rom");
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr), "joint_angles");
 
-  // costs
-  // fixme, only soft cost on position, vel, acc not so important
-//  dynamic_cast<AQuadraticCost&>(costs_.GetCost("cost_final")).Init(eq_final.BuildLinearEquation());
-//  costs_->AddCost(std::make_shared<AQuadraticCost>(), "cost_final");
-//  costs_->AddCost(std::make_shared<RangeOfMotionCost>(*opt_variables_), "cost_rom");
-//  dynamic_cast<RangeOfMotionCost&>(costs_->GetCost("cost_rom")).Init(*interpreter_ptr);
-//  dynamic_cast<AQuadraticCost&>(costs_->GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
-
-  // fixme this should be done in a CostFactory
-//  TotalAccelerationEquation eq_total_acc(spline_structure);
-//  auto acc_cost = std::make_shared<AQuadraticCost>();
-//  acc_cost->Init(eq_total_acc.BuildLinearEquation());
   costs_->ClearCosts();
   costs_->AddCost(CostFactory::CreateAccelerationCost(spline_structure), "cost_acc");
-
-
-
-
+  // careful: these are not quite debugged yet
+//  costs_->AddCost(CostFactory::CreateFinalCost(final_state, spline_structure), "cost_final");
+//  costs_->AddCost(CostFactory::CreateRangeOfMotionCost(*interpreter_ptr), "cost_rom");
 
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);

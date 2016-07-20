@@ -16,6 +16,7 @@ namespace zmp {
 
 class ACost;
 class ContinuousSplineContainer;
+class OptimizationVariablesInterpreter;
 
 class CostFactory {
 public:
@@ -26,8 +27,9 @@ public:
   virtual ~CostFactory ();
 
   static CostPtr CreateAccelerationCost(const ContinuousSplineContainer&);
-  static CostPtr CreateFinalCost(const State2d& final_state_xy,
-                                 const ContinuousSplineContainer&);
+
+  static CostPtr CreateFinalCost(const State2d& final_state_xy, const ContinuousSplineContainer&);
+  static CostPtr CreateRangeOfMotionCost(const OptimizationVariablesInterpreter&);
 };
 
 } /* namespace zmp */

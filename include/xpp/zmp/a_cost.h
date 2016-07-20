@@ -22,7 +22,7 @@ public:
   virtual ~ACost () {}
 
   virtual double EvaluateCost () const = 0;
-  virtual void UpdateVariables(const CostContainer*) {} /* = 0*/;
+  virtual void UpdateVariables(const CostContainer*) = 0;
 };
 
 } /* namespace zmp */

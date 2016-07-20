@@ -8,14 +8,12 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 
-#include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/constraint_container.h>
-#include <xpp/zmp/cost_container.h>
-
+#include <xpp/utils/geometric_structs.h>
 #include <xpp/zmp/i_visualizer.h>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
+#include <memory>
 
 namespace xpp {
 namespace hyq {
@@ -26,6 +24,9 @@ class Foothold;
 namespace xpp {
 namespace zmp {
 
+class OptimizationVariables;
+class CostContainer;
+class ConstraintContainer;
 class OptimizationVariablesInterpreter;
 class InterpretingObserver;
 class ZmpSpline;

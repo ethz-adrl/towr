@@ -37,12 +37,20 @@ CostFactory::CreateAccelerationCost (const ContinuousSplineContainer& splines)
 }
 
 CostFactory::CostPtr
-CostFactory::CreateFinalCost (
-    const State2d& final_state_xy, const ContinuousSplineContainer& splines)
+CostFactory::CreateFinalCost (const State2d& final_state_xy,
+                              const ContinuousSplineContainer& splines)
 {
   FinalStateEquation eq(final_state_xy, splines);
   auto cost = std::make_shared<AQuadraticCost>();
   cost->Init(eq.BuildLinearEquation());
+  return cost;
+}
+
+CostFactory::CostPtr
+CostFactory::CreateRangeOfMotionCost (const OptimizationVariablesInterpreter& interpreter)
+{
+  auto cost = std::make_shared<RangeOfMotionCost>();
+  cost->Init(interpreter);
   return cost;
 }
 
