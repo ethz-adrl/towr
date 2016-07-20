@@ -41,6 +41,7 @@ public:
   static ConstraintPtr CreateZmpConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateRangeOfMotionConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
+  static ConstraintPtr CreateObstacleConstraint();
 };
 
 } /* namespace zmp */

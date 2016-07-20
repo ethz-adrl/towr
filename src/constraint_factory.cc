@@ -15,6 +15,7 @@
 #include <xpp/zmp/range_of_motion_constraint.h>
 #include <xpp/zmp/joint_angles_constraint.h>
 #include <xpp/hyq/hyq_inverse_kinematics.h>
+#include <xpp/zmp/obstacle_constraint.h>
 
 namespace xpp {
 namespace zmp {
@@ -84,6 +85,12 @@ ConstraintFactory::CreateJointAngleConstraint (
   return constraint;
 }
 
+ConstraintFactory::ConstraintPtr
+ConstraintFactory::CreateObstacleConstraint ()
+{
+  auto constraint = std::make_shared<ObstacleConstraint>();
+  return constraint;
+}
 
 } /* namespace zmp */
 } /* namespace xpp */
