@@ -29,7 +29,7 @@ class ConstraintFactory {
 public:
   typedef std::shared_ptr<AConstraint> ConstraintPtr;
   typedef Eigen::Vector2d Vector2d;
-  typedef xpp::utils::Point2d State2d;;
+  typedef xpp::utils::Point2d State2d;
 
   ConstraintFactory ();
   virtual ~ConstraintFactory ();

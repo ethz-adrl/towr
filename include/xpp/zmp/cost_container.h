@@ -36,6 +36,7 @@ public:
 
   ACost& GetCost(const std::string& name);
 
+  void ClearCosts ();
   void AddCost(CostPtr cost, const std::string& name);
   double EvaluateTotalCost () const;
 

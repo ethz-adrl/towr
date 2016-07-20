@@ -151,6 +151,7 @@ set(SOURCES
   src/range_of_motion_constraint.cc
   src/joint_angles_constraint.cc
   # costs
+  src/cost_factory.cc
   src/a_quadratic_cost.cc
   src/total_acceleration_equation.cc
   src/cost_container.cc
@@ -255,7 +256,8 @@ if(BUILD_TESTS)
                         #equations
                         test/google/total_acceleration_equation_test.cc
                         test/google/spline_junction_equation_test.cc
-                        # costs                       
+                        # costs 
+                        test/google/cost_factory_test.cc                      
                         test/google/a_quadratic_cost_test.cc
                         test/google/cost_function_functor_test.cc
                         test/google/range_of_motion_cost_test.cc

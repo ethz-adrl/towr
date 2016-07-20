@@ -9,6 +9,9 @@
 
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/constraint_factory.h>
+#include <xpp/zmp/cost_factory.h>
+
+
 #include <xpp/zmp/a_quadratic_cost.h>
 #include <xpp/zmp/range_of_motion_cost.h>
 #include <xpp/zmp/total_acceleration_equation.h>
@@ -78,14 +81,15 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
 //  dynamic_cast<AQuadraticCost&>(costs_.GetCost("cost_final")).Init(eq_final.BuildLinearEquation());
 //  costs_->AddCost(std::make_shared<AQuadraticCost>(), "cost_final");
 //  costs_->AddCost(std::make_shared<RangeOfMotionCost>(*opt_variables_), "cost_rom");
-//  dynamic_cast<AQuadraticCost&>(costs_->GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
 //  dynamic_cast<RangeOfMotionCost&>(costs_->GetCost("cost_rom")).Init(*interpreter_ptr);
+//  dynamic_cast<AQuadraticCost&>(costs_->GetCost("cost_acc")).Init(eq_total_acc.BuildLinearEquation());
 
   // fixme this should be done in a CostFactory
-  TotalAccelerationEquation eq_total_acc(spline_structure);
-  auto acc_cost = std::make_shared<AQuadraticCost>();
-  acc_cost->Init(eq_total_acc.BuildLinearEquation());
-  costs_->AddCost(acc_cost, "cost_acc");
+//  TotalAccelerationEquation eq_total_acc(spline_structure);
+//  auto acc_cost = std::make_shared<AQuadraticCost>();
+//  acc_cost->Init(eq_total_acc.BuildLinearEquation());
+  costs_->ClearCosts();
+  costs_->AddCost(CostFactory::CreateAccelerationCost(spline_structure), "cost_acc");
 
 
 

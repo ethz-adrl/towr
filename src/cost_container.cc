@@ -21,6 +21,12 @@ CostContainer::~CostContainer ()
 }
 
 void
+CostContainer::ClearCosts ()
+{
+  costs_.clear();
+}
+
+void
 CostContainer::AddCost (CostPtr cost, const std::string& name)
 {
   costs_.emplace(name, cost);
