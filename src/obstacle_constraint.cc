@@ -7,6 +7,7 @@
 
 #include <xpp/zmp/obstacle_constraint.h>
 #include <xpp/zmp/constraint_container.h>
+#include <xpp/zmp/ellipse.h>
 
 namespace xpp {
 namespace zmp {
@@ -32,12 +33,12 @@ ObstacleConstraint::EvaluateConstraint () const
 {
   VectorXd g(footholds_.size());
 
-  //  xpp::utils::Ellipse ellipse(gap_depth, gap_width, x_center, y_center);
+//  Ellipse ellipse(gap_width_x_, 3.0, gap_center_x_, 0.0);
 
   int i = 0;
   for (const Eigen::Vector2d& f : footholds_)
   {
-    //    g_vec.push_back(ellipse.DistanceToEdge(f.p.x(), f.p.y()));
+//    g[i++] = ellipse.DistanceToEdge(f.x(), f.y());
     g[i++] = std::pow(f.x()-gap_center_x_,2);
 
   }

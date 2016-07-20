@@ -156,6 +156,36 @@ MarkerArrayBuilder::AddLineStrip(visualization_msgs::MarkerArray& msg,
   msg.markers.push_back(line_strip);
 }
 
+void
+MarkerArrayBuilder::AddEllipse(visualization_msgs::MarkerArray& msg,
+                               double center_x, double center_y,
+                               double width_x, double width_y,
+                               const std::string& rviz_namespace) const
+{
+
+  int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
+
+  visualization_msgs::Marker ellipse;
+  ellipse.header.frame_id = frame_id_;
+  ellipse.header.stamp = ::ros::Time::now();
+  ellipse.id = i;
+  ellipse.type = visualization_msgs::Marker::CYLINDER;
+  ellipse.ns = rviz_namespace;
+  ellipse.action = visualization_msgs::Marker::MODIFY;
+  ellipse.pose.position.x = center_x;
+  ellipse.pose.position.y = center_y;
+  ellipse.pose.orientation.x = ellipse.pose.orientation.y = ellipse.pose.orientation.z = 0.0;
+  ellipse.pose.orientation.w = 1.0;
+  ellipse.color.b = 1.0;
+  ellipse.color.a = 0.2;
+
+  ellipse.scale.x = width_x;
+  ellipse.scale.y = width_y;
+  ellipse.scale.z = 0.01; // height of cylinder
+
+  msg.markers.push_back(ellipse);
+}
+
 
 
 

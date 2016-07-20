@@ -72,6 +72,11 @@ public:
   void AddLineStrip(MarkerArray& msg,
                     double center_x, double width_x,
                     const std::string& rviz_namespace) const;
+
+  void AddEllipse(visualization_msgs::MarkerArray& msg,
+                  double center_x, double center_y,
+                  double width_x, double width_y,
+                  const std::string& rviz_namespace) const;
 private:
   Marker GenerateMarker(Vector2d pos, int32_t type, double size) const;
 
