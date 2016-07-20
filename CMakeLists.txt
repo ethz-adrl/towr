@@ -103,6 +103,7 @@ include_directories(
 
 set(SOURCES  
   src/geometric_structs.cc
+  src/ellipse.cc
   src/qp_facade.cc
   src/foothold.cc
   src/hyq_inverse_kinematics.cc

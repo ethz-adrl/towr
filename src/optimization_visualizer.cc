@@ -48,7 +48,7 @@ OptimizationVisualizer::Visualize () const
   msg_builder_.AddCogTrajectory(msg, spline, footholds, "cog", 1.0);
   msg_builder_.AddZmpTrajectory(msg, spline, walking_height, footholds, "zmp_4ls", 0.7);
   msg_builder_.AddSupportPolygons(msg, start_stance, footholds);
-  msg_builder_.AddLineStrip(msg, -0.2, 0.2, "gap");
+  msg_builder_.AddLineStrip(msg, -0.05, 0.2, "gap");
 
 //  static int n_markers_first_iteration = msg.markers.size();
 //  for (int i=n_markers_first_iteration; i<msg.markers.size(); ++i) {
