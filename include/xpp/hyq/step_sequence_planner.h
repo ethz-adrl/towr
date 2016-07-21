@@ -27,21 +27,24 @@ public:
   typedef std::vector<Foothold> VecFoothold;
   typedef xpp::utils::Point3d State;
 
-  StepSequencePlanner (const State& curr, const State& goal, int swingleg);
+  StepSequencePlanner ();
+  StepSequencePlanner (const State& curr, const State& goal);
   virtual ~StepSequencePlanner ();
 
-  bool GoalTooCloseToStep() const;
-  bool StartWithStancePhase(VecFoothold curr_stance_,double robot_height,LegID first_swingleg) const;
-  LegIDVec DetermineStepSequence();
+  void SetCurrAndGoal(const State& curr, const State& goal);
+
+  bool StartWithStancePhase(VecFoothold curr_stance_,double robot_height,
+                            LegID first_swingleg) const;
+  LegIDVec DetermineStepSequence(int curr_swing_leg_);
 
 private:
+  bool GoalTooCloseToStep() const;
   LegID NextSwingLeg(LegID curr) const;
 
   State curr_state_;
   State goal_state_;
-  int curr_swing_leg_;   // this can also be a four-leg-support indicator
   LegID prev_swing_leg_; // this is always a swingleg
-  const double min_distance_to_step_ = 0.08;//m
+
 };
 
 } /* namespace hyq */

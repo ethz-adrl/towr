@@ -5,19 +5,22 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/step_sequence_planner.h>
-#include <xpp/zmp/zmp_constraint_builder.h>
+#include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/hyq/support_polygon.h>
+#include <xpp/zmp/zmp_constraint_builder.h>
 #include <cassert>
 
 namespace xpp {
 namespace hyq {
 
-StepSequencePlanner::StepSequencePlanner (const State& curr, const State& goal, int swingleg)
-    :curr_state_(curr),
-     goal_state_(goal),
-     curr_swing_leg_(swingleg)
+StepSequencePlanner::StepSequencePlanner ()
 {
+  // must still initialize current and goal state
+}
+
+StepSequencePlanner::StepSequencePlanner (const State& curr, const State& goal)
+{
+  SetCurrAndGoal(curr,goal);
 }
 
 StepSequencePlanner::~StepSequencePlanner ()
@@ -25,8 +28,15 @@ StepSequencePlanner::~StepSequencePlanner ()
   // TODO Auto-generated destructor stub
 }
 
+void
+StepSequencePlanner::SetCurrAndGoal (const State& curr, const State& goal)
+{
+  curr_state_ = curr;
+  goal_state_ = goal;
+}
+
 StepSequencePlanner::LegIDVec
-StepSequencePlanner::DetermineStepSequence ()
+StepSequencePlanner::DetermineStepSequence (int curr_swing_leg)
 {
   if (GoalTooCloseToStep()) {
     return std::vector<xpp::hyq::LegID>(); // empty vector, take no steps
@@ -42,13 +52,11 @@ StepSequencePlanner::DetermineStepSequence ()
     // hardcoded 4 steps
     int req_steps_per_leg = 1;
 
-
-
     LegID sl;
-    if (curr_swing_leg_ == hyq::NO_SWING_LEG)
+    if (curr_swing_leg == hyq::NO_SWING_LEG)
       sl = prev_swing_leg_;
     else {
-      sl = static_cast<LegID>(curr_swing_leg_);
+      sl = static_cast<LegID>(curr_swing_leg);
       prev_swing_leg_ = sl;
     }
 
@@ -97,9 +105,9 @@ StepSequencePlanner::StartWithStancePhase (VecFoothold curr_stance,
 bool
 StepSequencePlanner::GoalTooCloseToStep () const
 {
-  std::cout << "goal closer than " << min_distance_to_step_ << "m.";
+  static const double min_distance_to_step = 0.08;//m
   Eigen::Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
-  return start_to_goal.norm() < min_distance_to_step_;
+  return start_to_goal.norm() < min_distance_to_step;
 }
 
 LegID

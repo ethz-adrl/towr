@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/step_sequence_planner.h>
+#include <xpp/hyq/step_sequence_planner.h>
 
 namespace xpp {
 namespace hyq {

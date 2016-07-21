@@ -18,6 +18,7 @@
 namespace xpp {
 namespace hyq {
 class Foothold;
+class StepSequencePlanner;
 }
 }
 
@@ -50,6 +51,7 @@ public:
   typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
   typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
+  typedef std::shared_ptr<xpp::hyq::StepSequencePlanner> StepSequencePlannerPtr;
 
   NlpFacade (IVisualizer& visualizer = do_nothing_visualizer);
   virtual ~NlpFacade () {};
@@ -88,6 +90,8 @@ public:
 
 private:
   void SolveIpopt(const IpoptPtr& nlp);
+
+  StepSequencePlannerPtr step_sequence_planner_;
 
   OptimizationVariablesPtr opt_variables_;
   CostContainerPtr costs_;

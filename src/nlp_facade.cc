@@ -15,6 +15,7 @@
 #include <xpp/zmp/cost_factory.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 #include <xpp/zmp/interpreting_observer.h>
+#include <xpp/hyq/step_sequence_planner.h>
 
 #include <xpp/zmp/nlp.h>
 #include <xpp/zmp/ipopt_adapter.h>
@@ -31,7 +32,7 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   costs_                 = std::make_shared<CostContainer>(*opt_variables_);
   constraints_           = std::make_shared<ConstraintContainer>(*opt_variables_);
   interpreting_observer_ = std::make_shared<InterpretingObserver>(*opt_variables_);
-
+  step_sequence_planner_ = std::make_shared<xpp::hyq::StepSequencePlanner>();
 
 
   // initialize the ipopt solver
