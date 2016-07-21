@@ -72,7 +72,7 @@ NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
   constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure), "junction");
   constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(*interpreter_ptr), "zmp");
   constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(*interpreter_ptr), "rom");
-  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint(), "obstacle");
+//  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint(), "obstacle");
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr), "joint_angles");
 
   costs_->ClearCosts();

@@ -30,7 +30,7 @@ public:
 private:
   FootholdsXY footholds_;
   const double gap_center_x_ = -0.2; //m
-  const double gap_width_x_ = 0.2; //m
+  const double gap_width_x_ = 0.15; //m
 };
 
 } /* namespace zmp */
