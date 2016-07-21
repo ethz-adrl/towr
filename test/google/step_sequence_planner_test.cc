@@ -11,7 +11,6 @@
 namespace xpp {
 namespace hyq {
 
-
 class StepSequencePlannerTest : public ::testing::Test {
 public:
   typedef StepSequencePlanner::State State;
@@ -19,8 +18,7 @@ public:
   typedef StepSequencePlanner::VecFoothold VecFoothold;
 
 protected:
-  virtual void SetUp()
-  {
+  virtual void SetUp() {
     State curr;
     State goal;
     goal.p.x() = 0.25;
@@ -36,6 +34,10 @@ TEST_F(StepSequencePlannerTest, DetermineStepSequence)
   LegIDVec step_sequence = planner_.DetermineStepSequence(curr_swingleg);
 
   EXPECT_EQ(4, step_sequence.size());
+  EXPECT_EQ(RH, step_sequence[0]);
+  EXPECT_EQ(RF, step_sequence[1]);
+  EXPECT_EQ(LH, step_sequence[2]);
+  EXPECT_EQ(LF, step_sequence[3]);
 }
 
 TEST_F(StepSequencePlannerTest, StartWithStancePhase)

@@ -61,7 +61,6 @@ private:
   State curr_state_;
   State goal_state_;
   LegID prev_swing_leg_; // this is always a swingleg
-
 };
 
 } /* namespace hyq */

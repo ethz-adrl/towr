@@ -55,21 +55,15 @@ protected:
     times_.t_stance_initial_ = 0.5; // this will create two initial splines
     times_.t_stance_final_ = 0.2;
 
-    std::vector<LegID> leg_ids = {LH, LF};
+//    std::vector<LegID> leg_ids = {LH, LF};
 
-    bool start_with_com_shift = true;
-    xpp::zmp::ContinuousSplineContainer spline_structure;
-    spline_structure.Init(start_xy_.p, start_xy_.v, leg_ids.size(),
-                          times_, start_with_com_shift, true);
-
-    SupportPolygonContainer support_polygon_container_;
-    support_polygon_container_.Init(start_stance_, leg_ids, SupportPolygon::GetDefaultMargins());
-
-    auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
-    interpreter_ptr->Init(spline_structure, support_polygon_container_, robot_height_);
-
-    nlp_facade.InitializeVariables(spline_structure.GetTotalFreeCoeff(), leg_ids.size());
-    nlp_facade.SolveNlp(start_xy_.a, goal_xy_, interpreter_ptr);
+    nlp_facade.SolveNlp(start_xy_,
+                        goal_xy_,
+                        RF,
+                        robot_height_,
+                        start_stance_,
+                        SupportPolygon::GetDefaultMargins(),
+                        times_);
 
     opt_xy_splines_ = nlp_facade.GetSplines();
     opt_footholds_  = nlp_facade.GetFootholds();
