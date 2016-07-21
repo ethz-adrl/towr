@@ -58,17 +58,42 @@ NlpFacade::InitializeVariables (const Eigen::VectorXd& spline_abcd_coeff,
 }
 
 void
-NlpFacade::SolveNlp(const Eigen::Vector2d& initial_acc,
+NlpFacade::SolveNlp(const State& curr_cog_,
                     const State& final_state,
-                    const InterpreterPtr& interpreter_ptr)
+                    int curr_swing_leg,
+                    double robot_height_,
+                    VecFoothold curr_stance,
+                    xpp::hyq::MarginValues margins,
+                    xpp::zmp::SplineTimes spline_times_)
 {
+
+  step_sequence_planner_->SetCurrAndGoal(curr_cog_, final_state);
+  std::vector<xpp::hyq::LegID> step_sequence_ = step_sequence_planner_->DetermineStepSequence(curr_swing_leg);
+
+  // determine with which optimization variables NLP should start
+  xpp::hyq::SupportPolygonContainer supp_polygon_container;
+  supp_polygon_container.Init(curr_stance, step_sequence_, margins);
+
+  xpp::zmp::ContinuousSplineContainer spline_structure;
+  bool add_final_stance = true;
+  bool start_with_com_shift = false;
+  if (!step_sequence_.empty())
+    start_with_com_shift = step_sequence_planner_->StartWithStancePhase(curr_stance, robot_height_, step_sequence_.front());
+  spline_structure.Init(curr_cog_.p, curr_cog_.v, step_sequence_.size(), spline_times_, start_with_com_shift, add_final_stance);
+  spline_structure.SetEndAtStart();
+
+  InitializeVariables(spline_structure.GetABCDCoeffients(),
+                      supp_polygon_container.GetFootholdsInitializedToStart());
+
+  auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
+  interpreter_ptr->Init(spline_structure, supp_polygon_container, robot_height_);
+
+
   // save the framework of the optimization problem
   interpreting_observer_->SetInterpreter(interpreter_ptr);
 
-  ContinuousSplineContainer spline_structure = interpreter_ptr->GetSplineStructure();
-
   constraints_->ClearConstraints();
-  constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(initial_acc, spline_structure.GetTotalFreeCoeff()), "acc");
+  constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure.GetTotalFreeCoeff()), "acc");
   constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure), "final");
   constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure), "junction");
   constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(*interpreter_ptr), "zmp");

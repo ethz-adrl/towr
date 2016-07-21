@@ -16,11 +16,7 @@ namespace hyq {
 StepSequencePlanner::StepSequencePlanner ()
 {
   // must still initialize current and goal state
-}
-
-StepSequencePlanner::StepSequencePlanner (const State& curr, const State& goal)
-{
-  SetCurrAndGoal(curr,goal);
+  prev_swing_leg_ = RF;
 }
 
 StepSequencePlanner::~StepSequencePlanner ()
@@ -78,7 +74,7 @@ StepSequencePlanner::StartWithStancePhase (VecFoothold curr_stance,
                                            LegID first_swingleg) const
 {
   // determine, whether initial stance phase must be inserted
-  Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(curr_state_, robot_height);
+  Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(curr_state_.Make3D(), robot_height);
 
   // remove first swingleg from current stance
   VecFoothold first_stance = curr_stance;

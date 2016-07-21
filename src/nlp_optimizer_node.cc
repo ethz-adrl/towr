@@ -47,7 +47,8 @@ NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
 {
   curr_cog_      = RosHelpers::RosToXpp(msg.curr_state);
   curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
-  step_sequence_ = DetermineStepSequence(curr_cog_, msg.curr_swingleg);
+  curr_swingleg_ = msg.curr_swingleg;
+//  step_sequence_ = DetermineStepSequence(curr_cog_, msg.curr_swingleg);
 }
 
 void
@@ -65,27 +66,34 @@ NlpOptimizerNode::OptimizeTrajectory()
 {
 
   // determine with which optimization variables NLP should start
-  xpp::hyq::SupportPolygonContainer supp_polygon_container;
+//  xpp::hyq::SupportPolygonContainer supp_polygon_container;
   xpp::hyq::MarginValues margins = xpp::hyq::SupportPolygon::GetDefaultMargins();
   margins[hyq::DIAG] = margin_diagonal_;
-  supp_polygon_container.Init(curr_stance_, step_sequence_, margins);
+//  supp_polygon_container.Init(curr_stance_, step_sequence_, margins);
+//
+//  xpp::zmp::ContinuousSplineContainer spline_structure;
+//  bool add_final_stance = true;
+//  spline_structure.Init(curr_cog_.Get2D().p, curr_cog_.Get2D().v, step_sequence_.size(),
+//                        spline_times_, start_with_com_shift_, add_final_stance);
+//  spline_structure.SetEndAtStart();
+//
+//  nlp_facade_.InitializeVariables(spline_structure.GetABCDCoeffients(),
+//                                  supp_polygon_container.GetFootholdsInitializedToStart());
+//
+//  // solve the actual NLP
+//  auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
+//  interpreter_ptr->Init(spline_structure, supp_polygon_container, robot_height_);
 
-  xpp::zmp::ContinuousSplineContainer spline_structure;
-  bool add_final_stance = true;
-  spline_structure.Init(curr_cog_.Get2D().p, curr_cog_.Get2D().v, step_sequence_.size(),
-                        spline_times_, start_with_com_shift_, add_final_stance);
-  spline_structure.SetEndAtStart();
 
-  nlp_facade_.InitializeVariables(spline_structure.GetABCDCoeffients(),
-                                  supp_polygon_container.GetFootholdsInitializedToStart());
 
-  // solve the actual NLP
-  auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
-  interpreter_ptr->Init(spline_structure, supp_polygon_container, robot_height_);
 
-  nlp_facade_.SolveNlp(curr_cog_.Get2D().a,
+  nlp_facade_.SolveNlp(curr_cog_.Get2D(),
                        goal_cog_.Get2D(),
-                       interpreter_ptr);
+                       curr_swingleg_,
+                       robot_height_,
+                       curr_stance_,
+                       margins,
+                       spline_times_);
 
   opt_splines_ = nlp_facade_.GetSplines();
   footholds_   = nlp_facade_.GetFootholds();

@@ -25,10 +25,9 @@ class StepSequencePlanner {
 public:
   typedef std::vector<LegID> LegIDVec;
   typedef std::vector<Foothold> VecFoothold;
-  typedef xpp::utils::Point3d State;
+  typedef xpp::utils::Point2d State;
 
   StepSequencePlanner ();
-  StepSequencePlanner (const State& curr, const State& goal);
   virtual ~StepSequencePlanner ();
 
   void SetCurrAndGoal(const State& curr, const State& goal);

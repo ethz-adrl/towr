@@ -10,6 +10,8 @@
 
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/zmp/i_visualizer.h>
+#include <xpp/hyq/support_polygon.h>
+#include <xpp/zmp/spline_container.h>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
@@ -78,9 +80,13 @@ public:
     * @param final_state desired final position, velocity and acceleration of the CoG
     * @param interpreter holds information about what the opt. variables represent
     */
-  void SolveNlp(const Eigen::Vector2d& initial_acc,
+  void SolveNlp(const State& curr_cog_,
                 const State& final_state,
-                const InterpreterPtr& interpreter);
+                int curr_swing_leg,
+                double robot_height_,
+                VecFoothold curr_stance,
+                xpp::hyq::MarginValues margins,
+                xpp::zmp::SplineTimes spline_times_);
 
   void AttachVisualizer(IVisualizer& visualizer);
   InterpretingObserverPtr GetObserver() const;
