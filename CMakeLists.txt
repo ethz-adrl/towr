@@ -122,9 +122,7 @@ set(SOURCES
   src/zero_moment_point.cc
   src/stance_feet_calculator.cc
   src/a_inverse_kinematics.cc
-  src/optimizer_node_base.cc
-  src/nlp_optimizer_node.cc
-  src/qp_optimizer_node.cc
+  src/step_sequence_planner.cc
   src/nlp.cc
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
@@ -161,6 +159,9 @@ set(SOURCES
   src/range_of_motion_cost.cc
   src/cost_function_functor.cc
   # ros
+  src/optimizer_node_base.cc
+  src/nlp_optimizer_node.cc
+  src/qp_optimizer_node.cc
   src/marker_array_builder.cc
   src/optimization_visualizer.cc
 )
@@ -248,6 +249,7 @@ if(BUILD_TESTS)
                         test/google/foothold_nominal_deviation_test.cc
                         test/google/optimization_visualizer_test.cc
                         test/google/optimization_variables_interpreter_test.cc
+                        test/google/step_sequence_planner_test.cc
                         #constraints
                         test/google/zmp_constraint_test.cc
                         test/google/constraint_factory_test.cc
