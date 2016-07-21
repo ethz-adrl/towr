@@ -69,7 +69,7 @@ StepSequencePlanner::DetermineStepSequence (int curr_swing_leg)
 }
 
 bool
-StepSequencePlanner::StartWithStancePhase (VecFoothold curr_stance,
+StepSequencePlanner::StartWithStancePhase (const VecFoothold& start_stance,
                                            double robot_height,
                                            LegID first_swingleg) const
 {
@@ -77,7 +77,7 @@ StepSequencePlanner::StartWithStancePhase (VecFoothold curr_stance,
   Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(curr_state_.Make3D(), robot_height);
 
   // remove first swingleg from current stance
-  VecFoothold first_stance = curr_stance;
+  VecFoothold first_stance = start_stance;
   int idx_swingleg = Foothold::GetLastIndex(first_swingleg, first_stance);
   first_stance.erase(first_stance.begin() + idx_swingleg);
 
