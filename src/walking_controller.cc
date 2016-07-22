@@ -148,7 +148,6 @@ void WalkingController::ExecuteLoop()
   EstimateCurrPose(); // through sensors and state estimation
   jsim_.update(q);
 
-
   double time_left = t_switch_ - Time();
   if (time_left <= kOptTimeReq_ && reoptimize_before_finish_)
   {
@@ -239,9 +238,7 @@ void WalkingController::ExecuteLoop()
   JointState qdd_des = robot_->EstimateDesiredJointAcceleration(qd_des, first_time_sending_commands_);
 
 
-  JointState uff = robot_->CalcRequiredTorques(q_des, qd_des, qdd_des,
-               P_base_acc_des,
-               P_curr_.swingleg_);
+  JointState uff = robot_->CalcRequiredTorques(q_des, qd_des, qdd_des,P_base_acc_des,P_curr_.swingleg_);
 
 
   SmoothTorquesAtContactChange(uff);

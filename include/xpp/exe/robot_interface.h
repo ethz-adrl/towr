@@ -58,6 +58,8 @@ public:
                                                   bool use_q_as_prev) const = 0;
   virtual JointState EstimateDesiredJointAcceleration(const JointState& qd_des,
                                                     bool use_curr_as_prev) const = 0;
+
+  virtual void PushBase(const Eigen::Vector3d& f_i) {};
 };
 
 } /* namespace exe */
