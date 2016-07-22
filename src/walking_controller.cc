@@ -11,7 +11,7 @@
  */
 
 
-#include "../include/xpp/exe/walking_controller.h"
+#include <xpp/exe/walking_controller.h>
 
 #include <InverseKinematics.h>
 #include <xpp/ros/ros_helpers.h>
@@ -261,11 +261,12 @@ WalkingController::GetStartStateForOptimization(/*const double required_time*/) 
   using namespace xpp::utils;
   using namespace xpp::zmp;
 
-//  // predict where current state is going to be after optimization is done (e.g. after kOptReq)
+////  // predict where current state is going to be after optimization is done (e.g. after kOptReq)
+//  double opt_time = 0.3;
 //  State curr_state = P_curr_.base_.pos;
 //  ROS_INFO_STREAM("curr_state: \t" << curr_state);
 //
-//  Eigen::Vector3d jerk = (curr_state.a - prev_state_.a)/dt_;
+//  Eigen::Vector3d jerk = (curr_state.a - prev_state_.a)/robot_->GetControlLoopInterval();
 //
 //  CoeffValues coeff;
 //  coeff.x[F] = curr_state.p.x();
@@ -281,10 +282,11 @@ WalkingController::GetStartStateForOptimization(/*const double required_time*/) 
 //  Spline spline(coeff);
 //
 //  State predicted_state = curr_state; // z position, vel and acceleration
-//  predicted_state.p.segment<kDim2d>(X) = spline.GetState(kPos, required_time);
-//  predicted_state.v.segment<kDim2d>(X) = spline.GetState(kVel, required_time);
-//  predicted_state.a.segment<kDim2d>(X) = spline.GetState(kAcc, required_time);
+//  predicted_state.p.segment<kDim2d>(X) = spline.GetState(kPos, opt_time);
+//  predicted_state.v.segment<kDim2d>(X) = spline.GetState(kVel, opt_time);
+//  predicted_state.a.segment<kDim2d>(X) = spline.GetState(kAcc, opt_time);
 //  ROS_INFO_STREAM("predicted: \t" << predicted_state);
+//  return predicted_state;
 
 
   // this is the state where the robot is planned to be, no current feedback
@@ -293,8 +295,7 @@ WalkingController::GetStartStateForOptimization(/*const double required_time*/) 
   end_des.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
   end_des.v.segment(0,2) = end_des_xy.v;
   end_des.a.segment(0,2) = end_des_xy.a;
-
-  return end_des; // predicted state
+  return end_des;
 }
 
 

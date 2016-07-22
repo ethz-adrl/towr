@@ -55,7 +55,7 @@ public:
   LegIDVec DetermineStepSequence(int curr_swing_leg);
 
 private:
-  bool GoalTooCloseToStep() const;
+  bool IsStepNecessary() const;
   LegID NextSwingLeg(LegID curr) const;
 
   State curr_state_;

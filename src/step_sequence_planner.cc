@@ -34,7 +34,7 @@ StepSequencePlanner::SetCurrAndGoal (const State& curr, const State& goal)
 StepSequencePlanner::LegIDVec
 StepSequencePlanner::DetermineStepSequence (int curr_swing_leg)
 {
-  if (GoalTooCloseToStep()) {
+  if (!IsStepNecessary()) {
     return std::vector<xpp::hyq::LegID>(); // empty vector, take no steps
   } else {
 
@@ -84,7 +84,7 @@ StepSequencePlanner::StartWithStancePhase (const VecFoothold& start_stance,
   // fixme zero margins, since i actually allow violation of zmp constraint
   // don't want 4ls to be inserted there
   MarginValues margins = hyq::SupportPolygon::GetDefaultMargins();
-  margins.at(DIAG)/=2.;
+//  margins.at(DIAG)/=2.;
   hyq::SupportPolygon supp(first_stance, margins);
 
   bool zmp_inside = zmp::ZmpConstraintBuilder::IsZmpInsideSuppPolygon(zmp,supp);
@@ -92,18 +92,22 @@ StepSequencePlanner::StartWithStancePhase (const VecFoothold& start_stance,
   bool start_with_com_shift = false;
   // so 4ls-phase not always inserted b/c of short time zmp constraints are ignore
   // when switching between disjoint support triangles.
-  if (/* !zmp_inside && */ curr_state_.v.norm() < 0.01 && !GoalTooCloseToStep ())
+  if (/* !zmp_inside  && */ curr_state_.v.norm() < 0.01)
     start_with_com_shift = true;
 
   return start_with_com_shift;
 }
 
 bool
-StepSequencePlanner::GoalTooCloseToStep () const
+StepSequencePlanner::IsStepNecessary () const
 {
   static const double min_distance_to_step = 0.08;//m
   Eigen::Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
-  return start_to_goal.norm() < min_distance_to_step;
+
+  bool step_necessary = (start_to_goal.norm() > min_distance_to_step)
+                     || (curr_state_.v.norm() > 0.1);
+
+  return step_necessary;
 }
 
 LegID
