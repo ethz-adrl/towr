@@ -152,7 +152,7 @@ set(SOURCES
   src/obstacle_constraint.cc
   # costs
   src/cost_factory.cc
-  src/a_quadratic_cost.cc
+  src/a_spline_cost.cc
   src/total_acceleration_equation.cc
   src/cost_container.cc
   src/foothold_nominal_deviation.cc
@@ -262,8 +262,7 @@ if(BUILD_TESTS)
                         test/google/total_acceleration_equation_test.cc
                         test/google/spline_junction_equation_test.cc
                         # costs 
-                        test/google/cost_factory_test.cc                      
-                        test/google/a_quadratic_cost_test.cc
+                        test/google/cost_factory_test.cc
                         test/google/cost_function_functor_test.cc
                         test/google/range_of_motion_cost_test.cc
                         test/google/cost_container_test.cc

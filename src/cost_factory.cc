@@ -8,11 +8,11 @@
 #include <xpp/zmp/cost_factory.h>
 
 #include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/zmp/a_quadratic_cost.h>
 #include <xpp/zmp/range_of_motion_cost.h>
 
 #include <xpp/zmp/final_state_equation.h>
 #include <xpp/zmp/total_acceleration_equation.h>
+#include "../include/xpp/zmp/a_spline_cost.h"
 
 namespace xpp {
 namespace zmp {
@@ -31,7 +31,7 @@ CostFactory::CostPtr
 CostFactory::CreateAccelerationCost (const ContinuousSplineContainer& splines)
 {
   TotalAccelerationEquation eq_total_acc(splines);
-  auto cost = std::make_shared<AQuadraticCost>();
+  auto cost = std::make_shared<QuadraticSplineCost>();
   cost->Init(eq_total_acc.BuildLinearEquation());
   return cost;
 }
@@ -41,7 +41,7 @@ CostFactory::CreateFinalCost (const State2d& final_state_xy,
                               const ContinuousSplineContainer& splines)
 {
   FinalStateEquation eq(final_state_xy, splines);
-  auto cost = std::make_shared<AQuadraticCost>();
+  auto cost = std::make_shared<SquaredSplineCost>();
   cost->Init(eq.BuildLinearEquation());
   return cost;
 }
