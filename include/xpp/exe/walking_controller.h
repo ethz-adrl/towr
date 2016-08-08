@@ -98,6 +98,7 @@ private:
   bool reoptimize_before_finish_;
 
 
+
   VecSpline opt_splines_;
   VecFoothold opt_footholds_;
 
@@ -119,6 +120,7 @@ private:
 
   void SmoothTorquesAtContactChange(JointState& uff);
   LegDataMap<bool> prev_swingleg_;
+  bool ffsplining_;
   double ffspliner_timer_;
   double ffspline_duration_;
   JointState uff_prev_;

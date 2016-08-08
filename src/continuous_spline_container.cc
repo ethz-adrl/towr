@@ -32,8 +32,13 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
   splines_.clear();
 
   // build the spline structure
-  if (insert_initial_stance)
-    SplineContainer::AddStanceSpline(times.t_stance_initial_);
+  if (insert_initial_stance) {
+    const int n_stance_splines = 3; // allows quicker reaction
+    double t = times.t_stance_initial_/n_stance_splines;
+    for (int i=0; i<n_stance_splines; ++i)
+      SplineContainer::AddStanceSpline(t);
+  }
+
 
   SplineContainer::AddSplinesStepSequence(step_count, times.t_swing_);
 

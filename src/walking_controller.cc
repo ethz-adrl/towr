@@ -62,6 +62,7 @@ WalkingController::GetReadyHook() {
                100,   100,  200);// velocity gains roll, pitch, yaw  | 100, 100, 100);
 
   ffspline_duration_ = RosHelpers::GetDoubleFromServer("/exec/ff_spline_duration");
+  ffsplining_ = false;
 
   double lift_height = RosHelpers::GetDoubleFromServer("/exec/lift_height");
   double outward_swing = RosHelpers::GetDoubleFromServer("/exec/outward_swing_distance");
@@ -120,6 +121,7 @@ void WalkingController::BuildPlan()
 {
   ffspliner_timer_ = ffspline_duration_;
   reoptimize_before_finish_ = true;
+//  ffsplining_ = true; // because of delay from optimization
 
   ::ros::spinOnce(); // process callbacks (get the optimized values).
 
@@ -128,14 +130,15 @@ void WalkingController::BuildPlan()
 
 
   // allow >20ms for ROS communication. So whatever ipopt's max_cpu_time
-  // is set for, add 20ms to make sure the msg reaches the controller
-  kOptTimeReq_ = 0.17;
+  // is set for, add 40ms to make sure the msg reaches the controller
+  double communication_delay = 0.04;
+  // also, no spline can have lower duration than this
+  kOptTimeReq_ = 0.15+communication_delay;
   switch_node_ = spliner_.GetNode(1);
 
   t_switch_ = switch_node_.T;
   Controller::ResetTime();
 }
-
 
 void WalkingController::ExecuteLoop()
 {
@@ -301,8 +304,6 @@ WalkingController::GetStartStateForOptimization(/*const double required_time*/) 
 }
 
 
-
-
 void WalkingController::EstimateCurrPose()
 {
   xpp::utils::Pose curr_base_state_est = robot_->GetBodyPose();
@@ -392,7 +393,7 @@ WalkingController::TransformBaseToProjectedFrame(const Eigen::Vector3d& B_r_btox
 void WalkingController::SmoothTorquesAtContactChange(JointState& uff)
 {
 
-  static bool ffsplining_ = false; // the first control loop ever we want no splining, full torques!
+//  static bool ffsplining_ = false; // the first control loop ever we want no splining, full torques!
 
   if (ffspline_duration_ > 0.0) {
     // check if contacts have changed during this task loop
