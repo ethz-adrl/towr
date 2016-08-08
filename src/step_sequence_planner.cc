@@ -25,10 +25,13 @@ StepSequencePlanner::~StepSequencePlanner ()
 }
 
 void
-StepSequencePlanner::SetCurrAndGoal (const State& curr, const State& goal)
+StepSequencePlanner::Init (const State& curr, const State& goal,
+                                     const VecFoothold& start_stance, double robot_height)
 {
   curr_state_ = curr;
   goal_state_ = goal;
+  start_stance_ = start_stance;
+  robot_height_ = robot_height;
 }
 
 StepSequencePlanner::LegIDVec
@@ -59,7 +62,7 @@ StepSequencePlanner::DetermineStepSequence (int curr_swing_leg)
 
     LegIDVec step_sequence;
 
-    for (int step=0; step<4/*req_steps_per_leg*4*/; ++step) {
+    for (int step=0; step<2/*req_steps_per_leg*4*/; ++step) {
       step_sequence.push_back(NextSwingLeg(sl));
       sl = step_sequence.back();
     }
@@ -69,16 +72,38 @@ StepSequencePlanner::DetermineStepSequence (int curr_swing_leg)
 }
 
 bool
-StepSequencePlanner::StartWithStancePhase (const VecFoothold& start_stance,
-                                           double robot_height,
-                                           const LegIDVec& step_sequence) const
+StepSequencePlanner::IsStepNecessary () const
+{
+  static const double min_distance_to_step = 0.10;//m
+  Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
+
+  bool distance_large_enough = start_to_goal.norm() > min_distance_to_step;
+  bool goal_inside = IsGoalInsideStance();
+  bool x_capture_inside = IsCapturePointInsideStance();
+
+//  if (!x_capture_inside) {
+//    throw std::runtime_error("Capture not inside");
+//  }
+
+  bool step_necessary =
+//                        distance_large_enough ||
+//                        !x_capture_inside ||
+                        !goal_inside
+//                      ||  (curr_state_.v.norm() > 0.1)
+                     ;
+
+  return step_necessary;
+}
+
+bool
+StepSequencePlanner::StartWithStancePhase (const LegIDVec& step_sequence) const
 {
   bool start_with_stance_phase = false;
 
   if (step_sequence.empty())
     start_with_stance_phase = true;
   else {
-    bool zmp_inside = IsZmpInsideFirstStep(start_stance, robot_height, step_sequence.front());
+    bool zmp_inside = IsZmpInsideFirstStep(step_sequence.front());
 
     // so 4ls-phase not always inserted b/c of short time zmp constraints are ignored
     // when switching between disjoint support triangles.
@@ -87,24 +112,6 @@ StepSequencePlanner::StartWithStancePhase (const VecFoothold& start_stance,
   }
 
   return start_with_stance_phase;
-}
-
-
-
-bool
-StepSequencePlanner::IsStepNecessary () const
-{
-  static const double min_distance_to_step = 0.10;//m
-  Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
-
-
-  // ZMP doesn't reflect high velocity that might require stepping.
-  // Use capture point for this
-
-  bool step_necessary = (start_to_goal.norm() > min_distance_to_step)
-                     /*|| (curr_state_.v.norm() > 0.1)  */;
-
-  return step_necessary;
 }
 
 LegID
@@ -120,14 +127,10 @@ StepSequencePlanner::NextSwingLeg (LegID curr) const
 }
 
 bool
-StepSequencePlanner::IsZmpInsideFirstStep (const VecFoothold& start_stance,
-                                           double robot_height,
-                                           LegID first_step) const
+StepSequencePlanner::IsZmpInsideFirstStep (LegID first_step) const
 {
-  Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(curr_state_.Make3D(), robot_height);
-
   // remove first swingleg from current stance
-  VecFoothold first_stance = start_stance;
+  VecFoothold first_stance = start_stance_;
   int idx_swingleg = Foothold::GetLastIndex(first_step, first_stance);
   first_stance.erase(first_stance.begin() + idx_swingleg);
 
@@ -137,20 +140,33 @@ StepSequencePlanner::IsZmpInsideFirstStep (const VecFoothold& start_stance,
 //  margins.at(DIAG)/=2.;
   hyq::SupportPolygon supp(first_stance, margins);
 
+  Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(curr_state_.Make3D(), robot_height_);
   return supp.IsPointInside(zmp);
 }
 
-StepSequencePlanner::Vector2d
-StepSequencePlanner::CalcCapturePoint (const Vector2d& cog_vel,
-                                       double robot_height) const
+bool
+StepSequencePlanner::IsCapturePointInsideStance () const
 {
-  static const double g = 9.80665; // gravity acceleration [m\s^2]
   // Jerry Pratt et al. : "Capture point: A step toward humanoid push recovery"
-  Vector2d x_capture = curr_state_.p.segment<2>(xpp::utils::X)*std::sqrt(robot_height/g);
-  return x_capture;
+  static const double g = 9.80665; // gravity acceleration [m\s^2]
+  // Defined in frame C located at contact point of inverted pendulum
+  Vector2d x_capture_C = curr_state_.v.segment<2>(0)*std::sqrt(robot_height_/g);
+  Vector2d x_capture_I = x_capture_C + curr_state_.p.segment<2>(0);
+
+  MarginValues margins = hyq::SupportPolygon::GetDefaultMargins();
+  hyq::SupportPolygon supp(start_stance_, margins);
+  return supp.IsPointInside(x_capture_I);
+}
+
+bool
+StepSequencePlanner::IsGoalInsideStance () const
+{
+  MarginValues margins = hyq::SupportPolygon::GetDefaultMargins();
+  hyq::SupportPolygon supp(start_stance_, margins);
+
+  return supp.IsPointInside(goal_state_.p);
 }
 
 } /* namespace hyq */
 } /* namespace xpp */
-
 

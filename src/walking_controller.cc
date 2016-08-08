@@ -127,7 +127,9 @@ void WalkingController::BuildPlan()
   spliner_.Init(P_des_, opt_splines_, opt_footholds_, robot_height_);
 
 
-  kOptTimeReq_ = 0.35; // allow >150ms for ROS communication. how long before end of spline to start optimizing
+  // allow >20ms for ROS communication. So whatever ipopt's max_cpu_time
+  // is set for, add 20ms to make sure the msg reaches the controller
+  kOptTimeReq_ = 0.17;
   switch_node_ = spliner_.GetNode(1);
 
   t_switch_ = switch_node_.T;
@@ -178,8 +180,6 @@ void WalkingController::ExecuteLoop()
 
     reoptimize_before_finish_ = false;
   }
-
-
 
 
   /** @brief DESIRED state given by splined plan and zmp optimizer **/
@@ -256,14 +256,14 @@ void WalkingController::ExecuteLoop()
 WalkingController::State
 WalkingController::GetStartStateForOptimization(/*const double required_time*/) const
 {
-  // fixme initialize not with planned, but with current predicted state
-  // this allows to react to pushes/disturbances
   using namespace xpp::utils;
   using namespace xpp::zmp;
 
 ////  // predict where current state is going to be after optimization is done (e.g. after kOptReq)
-//  double opt_time = 0.3;
-//  State curr_state = P_curr_.base_.pos;
+  // fixme initialize not with planned, but with current predicted state
+  // this allows to react to pushes/disturbances
+  // attention: this closes the feedback loop, so stability will be affected.
+  State curr_state = P_curr_.base_.pos;
 //  ROS_INFO_STREAM("curr_state: \t" << curr_state);
 //
 //  Eigen::Vector3d jerk = (curr_state.a - prev_state_.a)/robot_->GetControlLoopInterval();
@@ -281,6 +281,7 @@ WalkingController::GetStartStateForOptimization(/*const double required_time*/) 
 //
 //  Spline spline(coeff);
 //
+//  double opt_time = 0.3;
 //  State predicted_state = curr_state; // z position, vel and acceleration
 //  predicted_state.p.segment<kDim2d>(X) = spline.GetState(kPos, opt_time);
 //  predicted_state.v.segment<kDim2d>(X) = spline.GetState(kVel, opt_time);
@@ -296,6 +297,7 @@ WalkingController::GetStartStateForOptimization(/*const double required_time*/) 
   end_des.v.segment(0,2) = end_des_xy.v;
   end_des.a.segment(0,2) = end_des_xy.a;
   return end_des;
+//  return curr_state;
 }
 
 

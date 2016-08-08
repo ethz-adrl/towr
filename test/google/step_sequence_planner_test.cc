@@ -22,7 +22,16 @@ protected:
     State curr;
     State goal;
     goal.p.x() = 0.25;
-    planner_.SetCurrAndGoal(curr, goal);
+
+    VecFoothold curr_stance;
+    curr_stance.push_back(Foothold( 0.35,  0.3, 0.0, LF));
+    curr_stance.push_back(Foothold( 0.35, -0.3, 0.0, RF));
+    curr_stance.push_back(Foothold(-0.35,  0.3, 0.0, LH));
+    curr_stance.push_back(Foothold(-0.35, -0.3, 0.0, RH));
+
+    double robot_height = 0.58;
+
+    planner_.Init(curr, goal, curr_stance, robot_height);
   }
 
   StepSequencePlanner planner_;
@@ -42,14 +51,7 @@ TEST_F(StepSequencePlannerTest, DetermineStepSequence)
 
 TEST_F(StepSequencePlannerTest, StartWithStancePhase)
 {
-  VecFoothold curr_stance;
-  curr_stance.push_back(Foothold( 0.35,  0.3, 0.0, LF));
-  curr_stance.push_back(Foothold( 0.35, -0.3, 0.0, RF));
-  curr_stance.push_back(Foothold(-0.35,  0.3, 0.0, LH));
-  curr_stance.push_back(Foothold(-0.35, -0.3, 0.0, RH));
-
-  double robot_height = 0.58;
-  bool start_with_com_shift = planner_.StartWithStancePhase(curr_stance, robot_height, {LF, RF});
+  bool start_with_com_shift = planner_.StartWithStancePhase({LF, RF});
 
   EXPECT_TRUE(start_with_com_shift);
 }

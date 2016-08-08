@@ -61,15 +61,15 @@ void
 NlpFacade::SolveNlp(const State& curr_cog_,
                     const State& final_state,
                     int curr_swing_leg,
-                    double robot_height_,
+                    double robot_height,
                     VecFoothold curr_stance,
                     xpp::hyq::MarginValues margins,
                     xpp::zmp::SplineTimes spline_times_)
 {
 
-  step_sequence_planner_->SetCurrAndGoal(curr_cog_, final_state);
+  step_sequence_planner_->Init(curr_cog_, final_state, curr_stance, robot_height);
   std::vector<xpp::hyq::LegID> step_sequence = step_sequence_planner_->DetermineStepSequence(curr_swing_leg);
-  bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase(curr_stance, robot_height_, step_sequence);
+  bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase(step_sequence);
 
   std::cout << "start_with_com_shift: " << start_with_com_shift;
 
@@ -85,7 +85,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
                       supp_polygon_container.GetFootholdsInitializedToStart());
 
   auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
-  interpreter_ptr->Init(spline_structure, supp_polygon_container, robot_height_);
+  interpreter_ptr->Init(spline_structure, supp_polygon_container, robot_height);
 
 
   // save the framework of the optimization problem

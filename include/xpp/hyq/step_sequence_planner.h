@@ -31,22 +31,25 @@ public:
   StepSequencePlanner ();
   virtual ~StepSequencePlanner ();
 
-  /** @brief Set the current and the goal state */
-  void SetCurrAndGoal(const State& curr, const State& goal);
+  /** Necessary information to determine the step sequence.
+    *
+    * @param the current pos/vel/acc of the robot.
+    * @param the desired pos/vel/acc that the robot should achieve.
+    * @param start_stance the 4 footholds right before swinging the first leg.
+    * @param robot_height the walking height [m] of the robot.
+    */
+  void Init(const State& curr, const State& goal,
+            const VecFoothold& start_stance, double robot_height);
 
   /** Determines whether an initial stance phase is inserted.
     *
     * This is necessary, if the initial ZMP is outside the area of support
     * of the first step, so the optimizer would not be able to find a solution.
     *
-    * @param start_stance the 4 footholds right before swining the first leg.
-    * @param robot_height the walking height [m] of the robot.
     * @param step sequence the order of swing legs.
     * @return true if stance phase must be inserted.
     */
-  bool StartWithStancePhase(const VecFoothold& start_stance,
-                            double robot_height,
-                            const LegIDVec& step_sequence) const;
+  bool StartWithStancePhase(const LegIDVec& step_sequence) const;
 
   /** Determines the sequence of steps (LH, LF, ...) to take.
     *
@@ -58,13 +61,16 @@ public:
 private:
   bool IsStepNecessary() const;
   LegID NextSwingLeg(LegID curr) const;
-  bool IsZmpInsideFirstStep(const VecFoothold& start_stance,
-                            double robot_height,
-                            LegID first_step) const;
-  Vector2d CalcCapturePoint(const Vector2d& cog_vel, double robot_height) const;
+
+  bool IsZmpInsideFirstStep(LegID first_step) const;
+  bool IsCapturePointInsideStance() const;
+  bool IsGoalInsideStance() const;
 
   State curr_state_;
   State goal_state_;
+  VecFoothold start_stance_;
+  double robot_height_;
+
   LegID prev_swing_leg_; // this is always a swingleg
 };
 
