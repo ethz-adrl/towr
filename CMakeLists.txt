@@ -158,6 +158,7 @@ set(SOURCES
   src/foothold_nominal_deviation.cc
   src/range_of_motion_cost.cc
   src/cost_function_functor.cc
+  src/a_foothold_cost.cc
   # ros
   src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
@@ -266,6 +267,7 @@ if(BUILD_TESTS)
                         test/google/cost_function_functor_test.cc
                         test/google/range_of_motion_cost_test.cc
                         test/google/cost_container_test.cc
+                        test/google/a_foothold_cost_test.cc
                         # nlp optimizers
                         test/google/nlp_test.cc
                         test/google/snopt_test.cc

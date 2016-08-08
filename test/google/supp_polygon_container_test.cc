@@ -138,10 +138,12 @@ TEST_F(SuppPolygonContainerTest, GetStanceAfter)
 
 TEST_F(SuppPolygonContainerTest, SetFootholdsXY)
 {
-  start_to_final_supp_.SetFootholdsXY(0, 0.0, 0.0);
-  start_to_final_supp_.SetFootholdsXY(1, 0.0, 0.0);
-  start_to_final_supp_.SetFootholdsXY(2, 0.0, 0.0);
-  start_to_final_supp_.SetFootholdsXY(3, 0.0, 0.0);
+  xpp::utils::StdVecEigen2d foothold_xy(4);
+  for (auto& xy : foothold_xy)
+    xy.setZero();
+
+
+  start_to_final_supp_.SetFootholdsXY(foothold_xy);
 
   std::vector<SupportPolygon> supp = start_to_final_supp_.GetSupportPolygons();
 

@@ -9,6 +9,7 @@
 
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/range_of_motion_cost.h>
+#include <xpp/zmp/a_foothold_cost.h>
 
 #include <xpp/zmp/final_state_equation.h>
 #include <xpp/zmp/total_acceleration_equation.h>
@@ -37,7 +38,7 @@ CostFactory::CreateAccelerationCost (const ContinuousSplineContainer& splines)
 }
 
 CostFactory::CostPtr
-CostFactory::CreateFinalCost (const State2d& final_state_xy,
+CostFactory::CreateFinalComCost (const State2d& final_state_xy,
                               const ContinuousSplineContainer& splines)
 {
   FinalStateEquation eq(final_state_xy, splines);
@@ -54,6 +55,15 @@ CostFactory::CreateRangeOfMotionCost (const OptimizationVariablesInterpreter& in
   return cost;
 }
 
+CostFactory::CostPtr
+CostFactory::CreateFinalStanceCost (
+    const Vector2d& goal_xy,
+    const SupportPolygonContainer& supp_polygon_container)
+{
+  auto cost = std::make_shared<FootholdGoalCost>();
+  cost->Init(goal_xy, supp_polygon_container);
+  return cost;
+}
 
 } /* namespace zmp */
 } /* namespace xpp */

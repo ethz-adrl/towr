@@ -51,9 +51,13 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
   initialized_ = true;
 }
 
-void SupportPolygonContainer::SetFootholdsXY(int idx, double x, double y)
+void
+SupportPolygonContainer::SetFootholdsXY(const StdVecEigen2d& footholds_xy)
 {
-  footholds_.at(idx).SetXy(x,y);
+  assert(footholds_xy.size() == footholds_.size());
+  for (uint i=0; i<footholds_xy.size(); ++i)
+    footholds_.at(i).SetXy(footholds_xy.at(i).x(), footholds_xy.at(i).y());
+
   support_polygons_ = CreateSupportPolygons(footholds_); //update support polygons as well
 }
 

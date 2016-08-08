@@ -104,7 +104,8 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   costs_->ClearCosts();
   costs_->AddCost(CostFactory::CreateAccelerationCost(spline_structure), "cost_acc");
   // careful: these are not quite debugged yet
-  costs_->AddCost(CostFactory::CreateFinalCost(final_state, spline_structure), "cost_final");
+//  costs_->AddCost(CostFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container), "cost_stance_final");
+//  costs_->AddCost(CostFactory::CreateFinalComCost(final_state, spline_structure), "cost_cog_final");
 //  costs_->AddCost(CostFactory::CreateRangeOfMotionCost(interpreter), "cost_rom");
 
   std::unique_ptr<NLP> nlp(new NLP);

@@ -27,11 +27,7 @@ void
 ZmpConstraint::UpdateVariables (const ConstraintContainer* container)
 {
   x_coeff_ = container->GetSplineCoefficients();
-  footholds_ = container->GetFootholds();
-
-  // fixme use interpreter class for this, it knows about the foothold sequence
-  for (uint i=0; i<footholds_.size(); ++i)
-    supp_polygon_container_.SetFootholdsXY(i,footholds_.at(i).x(), footholds_.at(i).y());
+  supp_polygon_container_.SetFootholdsXY(container->GetFootholds());
 }
 
 ZmpConstraint::VectorXd
