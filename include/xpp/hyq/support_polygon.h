@@ -33,6 +33,7 @@ public:
 
   typedef std::vector<SuppLine> VecSuppLine;
   typedef std::vector<Foothold> VecFoothold;
+  typedef Eigen::Vector2d Vector2d;
 
   enum MaxSidesType   { kMaxSides = 4 };
 
@@ -44,6 +45,8 @@ public:
   VecSuppLine CalcLines() const;
   static MarginValues GetDefaultMargins();
   static MarginValues GetZeroMargins();
+
+  bool IsPointInside(const Vector2d& p) const;
 
 
   VecFoothold footholds_; // all the contact points for this support polygon
@@ -68,7 +71,6 @@ inline std::ostream& operator<<(std::ostream& out, const SupportPolygon::SuppLin
 
   return out;
 }
-
 
 inline std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr)
 {

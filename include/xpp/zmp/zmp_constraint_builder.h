@@ -49,8 +49,6 @@ public:
     * the spline coefficients x.
     */
   MatVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
-  static bool IsZmpInsideSuppPolygon(const Vector2d& zmp, const SupportPolygon&);
-
 
 private:
 

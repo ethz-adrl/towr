@@ -82,7 +82,7 @@ StepSequencePlanner::StartWithStancePhase (const VecFoothold& start_stance,
 
     // so 4ls-phase not always inserted b/c of short time zmp constraints are ignored
     // when switching between disjoint support triangles.
-    if (/* !zmp_inside  && */ curr_state_.v.norm() < 0.01)
+    if ( !zmp_inside  &&  curr_state_.v.norm() < 0.01)
       start_with_stance_phase = true;
   }
 
@@ -95,7 +95,11 @@ bool
 StepSequencePlanner::IsStepNecessary () const
 {
   static const double min_distance_to_step = 0.10;//m
-  Eigen::Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
+  Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
+
+
+  // ZMP doesn't reflect high velocity that might require stepping.
+  // Use capture point for this
 
   bool step_necessary = (start_to_goal.norm() > min_distance_to_step)
                      /*|| (curr_state_.v.norm() > 0.1)  */;
@@ -133,7 +137,17 @@ StepSequencePlanner::IsZmpInsideFirstStep (const VecFoothold& start_stance,
 //  margins.at(DIAG)/=2.;
   hyq::SupportPolygon supp(first_stance, margins);
 
-  return zmp::ZmpConstraintBuilder::IsZmpInsideSuppPolygon(zmp,supp);
+  return supp.IsPointInside(zmp);
+}
+
+StepSequencePlanner::Vector2d
+StepSequencePlanner::CalcCapturePoint (const Vector2d& cog_vel,
+                                       double robot_height) const
+{
+  static const double g = 9.80665; // gravity acceleration [m\s^2]
+  // Jerry Pratt et al. : "Capture point: A step toward humanoid push recovery"
+  Vector2d x_capture = curr_state_.p.segment<2>(xpp::utils::X)*std::sqrt(robot_height/g);
+  return x_capture;
 }
 
 } /* namespace hyq */

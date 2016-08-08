@@ -96,6 +96,17 @@ SupportPolygon SupportPolygon::CombineSupportPolygons(const SupportPolygon& p1,
   return SupportPolygon(contacts, p1.margins_);
 }
 
+bool
+SupportPolygon::IsPointInside (const Vector2d& p) const
+{
+  for (const SupportPolygon::SuppLine& l : CalcLines()) {
+    bool zmp_outside = l.coeff.p*p.x() + l.coeff.q*p.y() + l.coeff.r < l.s_margin;
+    if(zmp_outside)
+      return false;
+  }
+
+  return true;
+}
 
 MarginValues SupportPolygon::GetDefaultMargins()
 {

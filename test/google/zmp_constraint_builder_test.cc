@@ -62,19 +62,19 @@ TEST_F(ZmpConstraintTest, IsZmpInsideSuppPolygon4Contacts)
   stance.push_back(Foothold( 0.33, -0.31, 0.0, hyq::RF));
 
   SupportPolygon supp(stance, supp_poly_margins);
-  EXPECT_TRUE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d( 0.0, 0.0),supp));
+  EXPECT_TRUE(supp.IsPointInside(Vector2d( 0.0, 0.0)));
 
   // at x and y borders
-  EXPECT_TRUE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d( 0.23, 0.0),supp));
-  EXPECT_TRUE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d(-0.23, 0.0),supp));
-  EXPECT_TRUE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d(  0.0, 0.21),supp));
-  EXPECT_TRUE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d(  0.0,-0.21),supp));
+  EXPECT_TRUE(supp.IsPointInside(Vector2d( 0.23, 0.0)));
+  EXPECT_TRUE(supp.IsPointInside(Vector2d(-0.23, 0.0)));
+  EXPECT_TRUE(supp.IsPointInside(Vector2d(  0.0, 0.21)));
+  EXPECT_TRUE(supp.IsPointInside(Vector2d(  0.0,-0.21)));
 
   // over x and y borders
-  EXPECT_FALSE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d( 0.24, 0.0),supp));
-  EXPECT_FALSE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d(-0.24, 0.0),supp));
-  EXPECT_FALSE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d(  0.0, 0.22),supp));
-  EXPECT_FALSE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d(  0.0,-0.22),supp));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d( 0.24, 0.0)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(-0.24, 0.0)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(  0.0, 0.22)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(  0.0,-0.22)));
 }
 
 TEST_F(ZmpConstraintTest, IsZmpInsideSuppPolygon3Contacts)
@@ -87,19 +87,19 @@ TEST_F(ZmpConstraintTest, IsZmpInsideSuppPolygon3Contacts)
   SupportPolygon supp(stance, supp_poly_margins);
 
   // point at diagonal is not inside, since support polygon shrunk by stability margin
-  EXPECT_FALSE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d( 0.0, 0.0),supp));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d( 0.0, 0.0)));
 
   // zmp forward works, because left hind leg not touching. zmp backwards fails
-  EXPECT_TRUE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d(  0.1, 0.0),supp));
-  EXPECT_FALSE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d(-0.1, 0.0),supp));
+  EXPECT_TRUE(supp.IsPointInside(Vector2d(  0.1, 0.0)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(-0.1, 0.0)));
 
   // zmp right works, because left hind leg not touching. zmp right fails
-  EXPECT_TRUE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d( 0.0,-0.1),supp));
-  EXPECT_FALSE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d(0.0, 0.1),supp));
+  EXPECT_TRUE(supp.IsPointInside(Vector2d( 0.0,-0.1)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(0.0, 0.1)));
 
   // moving towards front right workd, towards left hind fails
-  EXPECT_TRUE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d(  0.1,-0.1),supp));
-  EXPECT_FALSE(ZmpConstraintBuilder::IsZmpInsideSuppPolygon(Vector2d(-0.1, 0.1),supp));
+  EXPECT_TRUE(supp.IsPointInside(Vector2d(  0.1,-0.1)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(-0.1, 0.1)));
 }
 
 

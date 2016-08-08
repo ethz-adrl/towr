@@ -26,6 +26,7 @@ public:
   typedef std::vector<LegID> LegIDVec;
   typedef std::vector<Foothold> VecFoothold;
   typedef xpp::utils::Point2d State;
+  typedef Eigen::Vector2d Vector2d;
 
   StepSequencePlanner ();
   virtual ~StepSequencePlanner ();
@@ -60,6 +61,7 @@ private:
   bool IsZmpInsideFirstStep(const VecFoothold& start_stance,
                             double robot_height,
                             LegID first_step) const;
+  Vector2d CalcCapturePoint(const Vector2d& cog_vel, double robot_height) const;
 
   State curr_state_;
   State goal_state_;
