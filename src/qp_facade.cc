@@ -37,7 +37,7 @@ QpFacade::SolveQp(const State& initial_state,
 {
   ContinuousSplineContainer spline_structure;
   spline_structure.Init(initial_state.p, initial_state.v , steps.size(), times,
-                        start_with_com_shift, true);
+                        start_with_com_shift);
 
 
   TotalAccelerationEquation total_acc_eq(spline_structure);

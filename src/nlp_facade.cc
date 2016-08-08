@@ -68,18 +68,17 @@ NlpFacade::SolveNlp(const State& curr_cog_,
 {
 
   step_sequence_planner_->SetCurrAndGoal(curr_cog_, final_state);
-  std::vector<xpp::hyq::LegID> step_sequence_ = step_sequence_planner_->DetermineStepSequence(curr_swing_leg);
+  std::vector<xpp::hyq::LegID> step_sequence = step_sequence_planner_->DetermineStepSequence(curr_swing_leg);
+  bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase(curr_stance, robot_height_, step_sequence);
+
+  std::cout << "start_with_com_shift: " << start_with_com_shift;
 
   // determine with which optimization variables NLP should start
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  supp_polygon_container.Init(curr_stance, step_sequence_, margins);
+  supp_polygon_container.Init(curr_stance, step_sequence, margins);
 
   xpp::zmp::ContinuousSplineContainer spline_structure;
-  bool add_final_stance = true;
-  bool start_with_com_shift = false;
-  if (!step_sequence_.empty())
-    start_with_com_shift = step_sequence_planner_->StartWithStancePhase(curr_stance, robot_height_, step_sequence_.front());
-  spline_structure.Init(curr_cog_.p, curr_cog_.v, step_sequence_.size(), spline_times_, start_with_com_shift, add_final_stance);
+  spline_structure.Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
   spline_structure.SetEndAtStart();
 
   InitializeVariables(spline_structure.GetABCDCoeffients(),

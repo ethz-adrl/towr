@@ -40,12 +40,12 @@ public:
     *
     * @param start_stance the 4 footholds right before swining the first leg.
     * @param robot_height the walking height [m] of the robot.
-    * @param first_swingleg the first leg to be swung.
+    * @param step sequence the order of swing legs.
     * @return true if stance phase must be inserted.
     */
   bool StartWithStancePhase(const VecFoothold& start_stance,
                             double robot_height,
-                            LegID first_swingleg) const;
+                            const LegIDVec& step_sequence) const;
 
   /** Determines the sequence of steps (LH, LF, ...) to take.
     *
@@ -57,6 +57,9 @@ public:
 private:
   bool IsStepNecessary() const;
   LegID NextSwingLeg(LegID curr) const;
+  bool IsZmpInsideFirstStep(const VecFoothold& start_stance,
+                            double robot_height,
+                            LegID first_step) const;
 
   State curr_state_;
   State goal_state_;

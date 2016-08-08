@@ -49,7 +49,7 @@ TEST_F(StepSequencePlannerTest, StartWithStancePhase)
   curr_stance.push_back(Foothold(-0.35, -0.3, 0.0, RH));
 
   double robot_height = 0.58;
-  bool start_with_com_shift = planner_.StartWithStancePhase(curr_stance, robot_height, LF);
+  bool start_with_com_shift = planner_.StartWithStancePhase(curr_stance, robot_height, {LF, RF});
 
   EXPECT_TRUE(start_with_com_shift);
 }

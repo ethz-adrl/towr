@@ -12,7 +12,7 @@
 
 #include <xpp/zmp/final_state_equation.h>
 #include <xpp/zmp/total_acceleration_equation.h>
-#include "../include/xpp/zmp/a_spline_cost.h"
+#include <xpp/zmp/a_spline_cost.h>
 
 namespace xpp {
 namespace zmp {

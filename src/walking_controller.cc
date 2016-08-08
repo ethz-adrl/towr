@@ -127,7 +127,7 @@ void WalkingController::BuildPlan()
   spliner_.Init(P_des_, opt_splines_, opt_footholds_, robot_height_);
 
 
-  kOptTimeReq_ = 0.45; // allow >150ms for ROS communication. how long before end of spline to start optimizing
+  kOptTimeReq_ = 0.35; // allow >150ms for ROS communication. how long before end of spline to start optimizing
   switch_node_ = spliner_.GetNode(1);
 
   t_switch_ = switch_node_.T;

@@ -34,17 +34,15 @@ protected:
 
     n_steps = 4;
     bool add_initial_spline = true;
-    bool add_final_spline  = true;
 
     spline_container_4steps_.Init(Vector2d(0.5,-0.2), // initial position
                                   Vector2d(1.5, 0.3), // initial velocity
                                   n_steps,
                                   times_,
-                                  add_initial_spline,
-                                  add_final_spline);
+                                  add_initial_spline);
 
     n_initial_splines  = add_initial_spline? 1 : 0;
-    n_final_splines    = add_final_spline?   1 : 0;
+    n_final_splines    = 0;
   }
 
   ContinuousSplineContainer spline_container_4steps_;
@@ -189,7 +187,7 @@ TEST_F(SplineContainerTest, GetState)
   // that has equal position and velocity at junctions
   ContinuousSplineContainer spline_container;
   spline_container.Init(Eigen::Vector2d::Zero(), Eigen::Vector2d::Zero(),1,
-                        times_,true, true);
+                        times_,true);
   std::vector<ZmpSpline> x_spline = spline_container.GetSplines();
 
   double pos0 = 0.4; // initial position (f0)
@@ -256,7 +254,7 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   init_vel << 1.1, -1.9;
 
   ContinuousSplineContainer splines_estimated_ef;
-  splines_estimated_ef.Init(init_pos, init_vel, 3, times_, true, true);
+  splines_estimated_ef.Init(init_pos, init_vel, 3, times_, true);
 
   // Create a straight spline in x direction composed of 3 splines (4ls, step 1, 4ls)
   // that has equal position and velocity at junctions
