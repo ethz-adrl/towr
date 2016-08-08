@@ -93,15 +93,10 @@ private:
     */
   State GetStartStateForOptimization(/*const double required_time*/) const;
 
-
-
   bool reoptimize_before_finish_;
-
-
 
   VecSpline opt_splines_;
   VecFoothold opt_footholds_;
-
 
   HyqSpliner spliner_;  //for normal body, ori, and feet traj.
   HyqState P_des_;

@@ -53,10 +53,10 @@ public:
 
   /** Determines the sequence of steps (LH, LF, ...) to take.
     *
-    * @param curr_swing_leg The current swing leg, optimization then starts with next one.
+    * @param swingleg_of_last_spline The leg of the last spline that was completed. Could also be a stance spline.
     * @return vector of swinglegs.
     */
-  LegIDVec DetermineStepSequence(int curr_swing_leg);
+  LegIDVec DetermineStepSequence(int swingleg_of_last_spline);
 
 private:
   bool IsStepNecessary() const;

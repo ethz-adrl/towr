@@ -7,16 +7,12 @@
 
 #include <xpp/zmp/interpreting_observer.h>
 
-#include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/optimization_variables_interpreter.h>
-
 namespace xpp {
 namespace zmp {
 
 InterpretingObserver::InterpretingObserver (OptimizationVariables& subject)
     :IObserver(subject)
 {
-  interpreter_ = nullptr;
 }
 
 InterpretingObserver::~InterpretingObserver ()
@@ -25,9 +21,9 @@ InterpretingObserver::~InterpretingObserver ()
 }
 
 void
-InterpretingObserver::SetInterpreter (const InterpreterPtr& interpreter)
+InterpretingObserver::SetInterpreter (const Interpreter& interpreter)
 {
-  interpreter_ = interpreter; // now also interpreter_ has ownership of Interpreter-object owned by interpreter
+  interpreter_ = interpreter;
 }
 
 void
@@ -40,19 +36,19 @@ InterpretingObserver::Update ()
 InterpretingObserver::VecSpline
 InterpretingObserver::GetSplines () const
 {
-  return interpreter_->GetSplines(x_coeff_);
+  return interpreter_.GetSplines(x_coeff_);
 }
 
 InterpretingObserver::VecFoothold
 InterpretingObserver::GetFootholds () const
 {
-  return interpreter_->GetFootholds(x_feet_);
+  return interpreter_.GetFootholds(x_feet_);
 }
 
 InterpretingObserver::VecFoothold
 InterpretingObserver::GetStartStance () const
 {
-  return interpreter_->GetStartStance();
+  return interpreter_.GetStartStance();
 }
 
 } /* namespace zmp */

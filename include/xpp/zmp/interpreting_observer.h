@@ -9,6 +9,8 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_INTERPRETING_OBSERVER_H_
 
 #include <xpp/zmp/i_observer.h>
+#include <xpp/zmp/optimization_variables.h>
+#include <xpp/zmp/optimization_variables_interpreter.h>
 
 #include <Eigen/Dense>
 #include <Eigen/StdVector> // for std::eigen vector
@@ -38,12 +40,12 @@ public:
   typedef std::vector<ZmpSpline> VecSpline;
   typedef Eigen::VectorXd SplineCoefficients;
   typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > Footholds;
-  typedef std::shared_ptr<OptimizationVariablesInterpreter> InterpreterPtr;
+  typedef OptimizationVariablesInterpreter Interpreter;
 
   InterpretingObserver (OptimizationVariables& subject);
   virtual ~InterpretingObserver ();
 
-  void SetInterpreter(const InterpreterPtr&);
+  void SetInterpreter(const Interpreter&);
 
   void Update() override;
   VecSpline GetSplines() const;
@@ -51,7 +53,7 @@ public:
   VecFoothold GetStartStance() const;
 
 private:
-  InterpreterPtr interpreter_;
+  Interpreter interpreter_;
   SplineCoefficients x_coeff_;
   Footholds x_feet_;
 };

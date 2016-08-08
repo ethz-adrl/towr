@@ -84,27 +84,28 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   InitializeVariables(spline_structure.GetABCDCoeffients(),
                       supp_polygon_container.GetFootholdsInitializedToStart());
 
-  auto interpreter_ptr = std::make_shared<xpp::zmp::OptimizationVariablesInterpreter>();
-  interpreter_ptr->Init(spline_structure, supp_polygon_container, robot_height);
+
+  OptimizationVariablesInterpreter interpreter;
+  interpreter.Init(spline_structure, supp_polygon_container, robot_height);
 
 
   // save the framework of the optimization problem
-  interpreting_observer_->SetInterpreter(interpreter_ptr);
+  interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();
   constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure.GetTotalFreeCoeff()), "acc");
   constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure), "final");
   constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure), "junction");
-  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(*interpreter_ptr), "zmp");
-  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(*interpreter_ptr), "rom");
+  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter), "zmp");
+  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter), "rom");
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint(), "obstacle");
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr), "joint_angles");
 
   costs_->ClearCosts();
   costs_->AddCost(CostFactory::CreateAccelerationCost(spline_structure), "cost_acc");
   // careful: these are not quite debugged yet
-//  costs_->AddCost(CostFactory::CreateFinalCost(final_state, spline_structure), "cost_final");
-//  costs_->AddCost(CostFactory::CreateRangeOfMotionCost(*interpreter_ptr), "cost_rom");
+  costs_->AddCost(CostFactory::CreateFinalCost(final_state, spline_structure), "cost_final");
+//  costs_->AddCost(CostFactory::CreateRangeOfMotionCost(interpreter), "cost_rom");
 
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);

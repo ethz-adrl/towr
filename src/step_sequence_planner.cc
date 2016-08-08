@@ -26,7 +26,7 @@ StepSequencePlanner::~StepSequencePlanner ()
 
 void
 StepSequencePlanner::Init (const State& curr, const State& goal,
-                                     const VecFoothold& start_stance, double robot_height)
+                           const VecFoothold& start_stance, double robot_height)
 {
   curr_state_ = curr;
   goal_state_ = goal;
@@ -35,7 +35,7 @@ StepSequencePlanner::Init (const State& curr, const State& goal,
 }
 
 StepSequencePlanner::LegIDVec
-StepSequencePlanner::DetermineStepSequence (int curr_swing_leg)
+StepSequencePlanner::DetermineStepSequence (int swingleg_of_last_spline)
 {
   if (!IsStepNecessary()) {
     return std::vector<xpp::hyq::LegID>(); // empty vector, take no steps
@@ -51,20 +51,20 @@ StepSequencePlanner::DetermineStepSequence (int curr_swing_leg)
     // hardcoded 4 steps
     int req_steps_per_leg = 1;
 
-    LegID sl;
-    if (curr_swing_leg == hyq::NO_SWING_LEG)
-      sl = prev_swing_leg_;
+    LegID last_swingleg;
+    if (swingleg_of_last_spline == hyq::NO_SWING_LEG)
+      last_swingleg = prev_swing_leg_;
     else {
-      sl = static_cast<LegID>(curr_swing_leg);
-      prev_swing_leg_ = sl;
+      last_swingleg = static_cast<LegID>(swingleg_of_last_spline);
+      prev_swing_leg_ = last_swingleg;
     }
 
 
     LegIDVec step_sequence;
 
     for (int step=0; step<2/*req_steps_per_leg*4*/; ++step) {
-      step_sequence.push_back(NextSwingLeg(sl));
-      sl = step_sequence.back();
+      step_sequence.push_back(NextSwingLeg(last_swingleg));
+      last_swingleg = step_sequence.back();
     }
 
     return step_sequence;
@@ -74,7 +74,7 @@ StepSequencePlanner::DetermineStepSequence (int curr_swing_leg)
 bool
 StepSequencePlanner::IsStepNecessary () const
 {
-  static const double min_distance_to_step = 0.10;//m
+  static const double min_distance_to_step = 0.8;//m
   Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
 
   bool distance_large_enough = start_to_goal.norm() > min_distance_to_step;
