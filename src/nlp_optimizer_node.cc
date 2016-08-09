@@ -36,6 +36,7 @@ NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
   UpdateCurrentState(msg);
   OptimizeTrajectory();
   PublishOptimizedValues();
+  optimization_visualizer_.Visualize();
 }
 
 void
