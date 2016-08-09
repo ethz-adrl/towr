@@ -1,12 +1,12 @@
 /**
-@file   zmp_optimizer.cc
+@file   qp_facade.cc
 @author Alexander Winkler (winklera@ethz.ch)
 @date   Oct 21,  2014
 @brief  Dynamic Walking using Zero-Moment-Point (ZMP) Criteria
  */
 
-#ifndef _XPP_ZMP_OPTIMIZER_H_
-#define _XPP_ZMP_OPTIMIZER_H_
+#ifndef _XPP_ZMP_QP_FACADE_H_
+#define _XPP_ZMP_QP_FACADE_H_
 
 
 #include <xpp/hyq/foothold.h>
@@ -32,7 +32,7 @@ namespace zmp {
 
 
 /**
-\class QpOptimizer
+\class QpFacade
 \brief Optimizes spline coefficients w.r.t Zero-Moment-Point criteria.
 
 This class provides and interface to optimize the trajectory of the CoM of HyQ
@@ -62,10 +62,8 @@ public:
    * @param final_state desired final position, velocity and acceleration of the CoG
    * @param start_stance the initial contacts (e.g left front,...) and position
    * @param steps the sequence of footholds (leg and position) to be optimized for
-   * @param swing_time time for one step
-   * @param stance_time time to transition between disjoint support polygons
-   * @param stance_time_initial time before executing the first step
-   * @param stance_time_final time after executing the last step to still move the CoG
+   * @param times duration of each CoM spline
+   * @param start_with_com_shift first spline is a four-leg-support spline, no step
    * @param robot_height the walking height of the robot (affects ZMP)
    * @return the optimized CoG trajectory
    */
@@ -90,4 +88,4 @@ private:
 } // namespace zmp
 } // namespace xpp
 
-#endif // _XPP_ZMP_OPTIMIZER_H_
+#endif // _XPP_ZMP_QP_FACADE_H_
