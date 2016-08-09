@@ -38,13 +38,13 @@ public:
   void SetNLP(NLPPtr&);
   void Init();
   static void ObjectiveAndConstraintFct(int    *Status, int *n,    double x[],
-                                 int    *needF,  int *neF,  double F[],
-                                 int    *needG,  int *neG,  double G[],
-                                 char      *cu,  int *lencu,
-                                 int    iu[],    int *leniu,
-                                 double ru[],    int *lenru);
+                                        int    *needF,  int *neF,  double F[],
+                                        int    *needG,  int *neG,  double G[],
+                                        char      *cu,  int *lencu,
+                                        int    iu[],    int *leniu,
+                                        double ru[],    int *lenru);
 
-  VectorXd GetVariables() const;
+  void SolveSQP(int start_type);
 
 private:
   SnoptAdapter ();

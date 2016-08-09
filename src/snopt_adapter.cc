@@ -42,7 +42,7 @@ SnoptAdapter::Init ()
   Flow   = new double[neF];
   Fupp   = new double[neF];
   Fmul   = new double[neF];
-  Fstate = new int[neF];
+  Fstate = new    int[neF];
 
   // Set the upper and lower bounds.
   // no bounds on the spline coefficients of footholds
@@ -77,10 +77,21 @@ SnoptAdapter::Init ()
   setObjective  ( ObjRow, ObjAdd );
   setX          ( x, xlow, xupp, xmul, xstate );
   setF          ( F, Flow, Fupp, Fmul, Fstate );
-  setUserFun(&SnoptAdapter::ObjectiveAndConstraintFct);
+  setUserFun    (&SnoptAdapter::ObjectiveAndConstraintFct);
 
   setIntParameter( "Derivative option", 0 ); // let snopt estimate derivatives
   setIntParameter( "Verify level ", 3 );
+}
+
+void
+SnoptAdapter::SolveSQP (int start_type)
+{
+  snoptProblemA::solve(start_type);
+  nlp_->SetVariables(x);
+
+  // this seems to be necessary, to create a new snopt problem for every run
+  delete instance_;
+  instance_ = nullptr;
 }
 
 void
@@ -104,12 +115,6 @@ SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
 //  F[2] = (x[0] - 2)*(x[0] - 2) + x[1]*x[1];
 }
 
-Eigen::VectorXd
-SnoptAdapter::GetVariables () const
-{
-  return Eigen::Map<const VectorXd>(x,n);
-}
-
 SnoptAdapter::SnoptAdapter ()
 {
 }
@@ -121,3 +126,4 @@ SnoptAdapter::~SnoptAdapter ()
 
 } /* namespace zmp */
 } /* namespace xpp */
+

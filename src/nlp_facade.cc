@@ -97,7 +97,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure), "final");
   constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure), "junction");
   constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter), "zmp");
-  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter), "rom");
+//  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter), "rom");
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint(), "obstacle");
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr), "joint_angles");
 
@@ -112,16 +112,15 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   nlp->Init(opt_variables_, costs_, constraints_);
 
   // Snopt solving
-//  auto snopt_problem = SnoptAdapter::GetInstance();
-//  snopt_problem->SetNLP(nlp);
-//  snopt_problem->Init();
-//  int Cold = 0, Basis = 1, Warm = 2;
-//  snopt_problem->solve(Cold);
-//  opt_variables_->SetVariables(snopt_problem->GetVariables());
+  auto snopt_problem = SnoptAdapter::GetInstance();
+  snopt_problem->SetNLP(nlp);
+  snopt_problem->Init();
+  int Cold = 0, Basis = 1, Warm = 2;
+  snopt_problem->SolveSQP(Cold);
 
-  // Ipopt solving
-  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, *visualizer_); // just so it can poll the PublishMsg() method
-  SolveIpopt(nlp_ptr);
+//  // Ipopt solving
+//  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, *visualizer_); // just so it can poll the PublishMsg() method
+//  SolveIpopt(nlp_ptr);
 }
 
 void
