@@ -20,6 +20,7 @@ class ZmpConstraintBuilder {
 public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::VecScalar VecScalar;
+  typedef xpp::utils::VecScalarScalar VecScalarScalar;
   typedef xpp::hyq::SupportPolygon SupportPolygon;
   typedef xpp::hyq::SupportPolygon::VecSuppLine NodeConstraint;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
@@ -63,9 +64,9 @@ private:
 
   // the zero moment point must always lay on one side of triangle side:
   // p*x_zmp + q*y_zmp + r > stability_margin
-  static VecScalar GenerateLineConstraint(const SupportPolygon::SuppLine& l,
-                                const VecScalar& x_zmp_M,
-                                const VecScalar& y_zmp_M);
+  static VecScalarScalar GenerateLineConstraint(const SupportPolygon::SuppLine& l,
+                                                const VecScalar& x_zmp_M,
+                                                const VecScalar& y_zmp_M);
 
   /** Check if this spline needs a four leg support phase to go to next spline.
     *

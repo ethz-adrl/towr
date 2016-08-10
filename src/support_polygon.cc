@@ -53,6 +53,12 @@ SupportPolygon::VecSuppLine SupportPolygon::CalcLines() const
     Foothold to = (i == last_idx) ? footholds_conv_[0] : footholds_conv_[i+1];
     lines[i].coeff = Point2dManip::LineCoeff(from.p.segment(0,2), to.p.segment(0,2));
     lines[i].s_margin = UseMargin(from.leg, to.leg);
+
+    // this is to separate out the constant terms of the constraints
+    if (from.fixed_by_start_stance && to.fixed_by_start_stance)
+      lines[i].fixed_by_start_stance = true;
+    else
+      lines[i].fixed_by_start_stance = false;
   }
 
   return lines;

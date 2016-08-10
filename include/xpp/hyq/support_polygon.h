@@ -29,6 +29,7 @@ public:
   struct SuppLine {
     utils::LineCoeff2d coeff;
     double s_margin;
+    bool fixed_by_start_stance;
   };
 
   typedef std::vector<SuppLine> VecSuppLine;

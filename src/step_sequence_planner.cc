@@ -61,7 +61,7 @@ StepSequencePlanner::DetermineStepSequence (int swingleg_of_last_spline)
 
 
     LegIDVec step_sequence;
-    int n_steps = 4; // how many steps to take
+    int n_steps = 2; // how many steps to take
 
     for (int step=0; step<n_steps/*req_steps_per_leg*4*/; ++step) {
       step_sequence.push_back(NextSwingLeg(last_swingleg));

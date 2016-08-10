@@ -132,7 +132,6 @@ struct VecScalar {
 
 VecScalar operator*(double d, const VecScalar& rhs);
 
-
 struct MatVec {
   Eigen::MatrixXd M;
   Eigen::VectorXd v;
@@ -146,6 +145,24 @@ struct MatVec {
   void WriteRow(const VecScalar& val, size_t row) ;
 };
 
+struct VecScalarScalar {
+  VecScalar vs;
+  double constant;
+  VecScalarScalar() {};
+  VecScalarScalar(int rows)
+      :vs(rows),
+       constant(0.0)
+  {}
+};
+
+struct MatVecVec {
+  MatVec Mv;
+  Eigen::VectorXd constant;
+  MatVecVec(int rows, int cols)
+      :Mv(rows,cols),
+       constant(Eigen::VectorXd::Zero(rows))
+  {}
+};
 
 template<std::size_t N>
 std::array<double,N> cache_exponents(double t)

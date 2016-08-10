@@ -31,6 +31,7 @@ public:
 public:
   Eigen::Vector3d p;
   LegID leg;
+  bool fixed_by_start_stance;
 
   Foothold(Eigen::Vector3d _pos = Eigen::Vector3d::Zero(), LegID _leg = LF);
   Foothold(double x, double y, double z, LegID _leg = LF);

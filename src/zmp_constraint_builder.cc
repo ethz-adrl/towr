@@ -81,18 +81,25 @@ ZmpConstraintBuilder::GenerateNodeConstraint(const NodeConstraint& node_constrai
   }
 }
 
-ZmpConstraintBuilder::VecScalar
+ZmpConstraintBuilder::VecScalarScalar
 ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
                                       const VecScalar& x_zmp,
                                       const VecScalar& y_zmp)
 {
-  VecScalar line_constr;
+  VecScalarScalar line_constr_sep;
+  // separate the constraints that depend only on the start stance with the ones
+  // that depend on the optimized footholds
+  line_constr_sep.vs.v  = l.coeff.p*x_zmp.v + l.coeff.q*y_zmp.v;
+  line_constr_sep.vs.s = 0;
+  line_constr_sep.constant = -l.s_margin;
 
-  line_constr.v  = l.coeff.p*x_zmp.v + l.coeff.q*y_zmp.v;
-  line_constr.s  = l.coeff.p*x_zmp.s + l.coeff.q*y_zmp.s;
-  line_constr.s += l.coeff.r - l.s_margin;
+  double line_coeff_terms = l.coeff.p*x_zmp.s + l.coeff.q*y_zmp.s + l.coeff.r;
+  if (l.fixed_by_start_stance)
+    line_constr_sep.constant = line_coeff_terms;
+  else
+    line_constr_sep.vs.s = line_coeff_terms;
 
-  return line_constr;
+  return line_constr_sep;
 }
 
 bool
