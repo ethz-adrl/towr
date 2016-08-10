@@ -38,7 +38,7 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
   ContinuousSplineContainer spline_structure;
   spline_structure.Init(init_pos, init_vel, 0, times, true);
   hyq::SupportPolygonContainer support_polygon_container_;
-  support_polygon_container_.Init(start_stance_);
+  support_polygon_container_.Init(start_stance_, hyq::SupportPolygonContainer::VecFoothold(), hyq::SupportPolygon::GetZeroMargins());
   interpreter.Init(spline_structure, support_polygon_container_, robot_height);
 
   // create the joint angle constraint and put into the container

@@ -14,20 +14,10 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const VecFoothold& footholds,
                                    const MarginValues& margins)
 {
-  start_stance_  = start_stance;
-  footholds_     = footholds;
+  SetStartStance(start_stance);
+  SetFootholds(footholds);
   margins_       = margins;
   support_polygons_ = CreateSupportPolygons(footholds);
-
-  initialized_ = true;
-}
-
-void SupportPolygonContainer::Init(const VecFoothold& start_stance)
-{
-  start_stance_  = start_stance;
-  footholds_     = {};
-  margins_       = SupportPolygon::GetZeroMargins();
-  support_polygons_ = CreateSupportPolygons(footholds_);
 
   initialized_ = true;
 }
@@ -37,14 +27,14 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const MarginValues& margins)
 {
   // initial all footholds with the correct leg, but x=y=z=0.0
-  std::vector<xpp::hyq::Foothold> zero_footholds;
   for (uint i=0; i<step_sequence.size(); ++i) {
     xpp::hyq::Foothold f; // sets x=y=z=0.0
     f.leg   = step_sequence.at(i);
     footholds_.push_back(f);
   }
 
-  start_stance_  = start_stance;
+  SetStartStance(start_stance);
+  SetFootholds(footholds_);
   margins_       = margins;
   support_polygons_ = CreateSupportPolygons(footholds_);
 
@@ -225,5 +215,22 @@ SupportPolygonContainer::CheckIfInitialized() const
   }
 }
 
+void
+SupportPolygonContainer::SetStartStance (const VecFoothold& start_stance)
+{
+  start_stance_ = start_stance;
+  for (auto& f : start_stance_)
+    f.fixed_by_start_stance = true;
+}
+
+void
+SupportPolygonContainer::SetFootholds (const VecFoothold& footholds)
+{
+  footholds_ = footholds;
+  for (auto& f : footholds_)
+    f.fixed_by_start_stance = false;
+}
+
 } /* namespace hyq */
 } /* namespace xpp */
+

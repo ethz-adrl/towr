@@ -75,6 +75,9 @@ QpFacade::SolveQp(const State& initial_state,
   inequality_constraints_.M = zmp_constr.Mv.M;
   inequality_constraints_.v = zmp_constr.Mv.v + zmp_constr.constant;
 
+  std::cout << "zmp_constr.Mv.v" << zmp_constr.Mv.v.transpose() << std::endl;
+  std::cout << "zmp_constr.constant" << zmp_constr.constant.transpose() << std::endl;
+
   ROS_INFO_STREAM("Initial state:\t" << initial_state);
   ROS_INFO_STREAM("Final state:\t" << final_state);
 

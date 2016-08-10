@@ -59,8 +59,6 @@ public:
             const VecLegID& step_sequence,
             const MarginValues& margins = SupportPolygon::GetZeroMargins());
 
-  void Init(const VecFoothold& start_stance);
-
   Eigen::Vector2d GetCenterOfFinalStance() const;
   VecFoothold GetStanceDuring(int step) const;
   VecFoothold GetStanceAfter(int n_steps) const;
@@ -99,6 +97,9 @@ private:
 
   VecSupportPolygon CreateSupportPolygons(const VecFoothold& footholds) const;
   void CheckIfInitialized() const;
+
+  void SetStartStance(const VecFoothold& start_stance);
+  void SetFootholds  (const VecFoothold& footholds);
 
   SupportPolygon GetStancePolygon(const VecFoothold& footholds) const;
   bool initialized_ = false;

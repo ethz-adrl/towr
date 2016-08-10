@@ -95,9 +95,9 @@ ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
 
   double line_coeff_terms = l.coeff.p*x_zmp.s + l.coeff.q*y_zmp.s + l.coeff.r;
   if (l.fixed_by_start_stance)
-    line_constr_sep.constant = line_coeff_terms;
+    line_constr_sep.constant += line_coeff_terms;
   else
-    line_constr_sep.vs.s = line_coeff_terms;
+    line_constr_sep.vs.s += line_coeff_terms;
 
   return line_constr_sep;
 }
