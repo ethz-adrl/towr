@@ -36,18 +36,21 @@ ZmpConstraint::VectorXd
 ZmpConstraint::EvaluateConstraint () const
 {
   MatVecVec ineq = zmp_constraint_builder_.CalcZmpConstraints(supp_polygon_container_);
-  return ineq.Mv.M*x_coeff_ + ineq.Mv.v + ineq.constant;
+  return ineq.Mv.M*x_coeff_ + ineq.Mv.v ; //+ ineq.constant; // put into bound
 }
 
 ZmpConstraint::VecBound
 ZmpConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
-  VectorXd g = EvaluateConstraint(); // only need the number of constraints
 
-  for (int i=0; i<g.rows(); ++i)
+  // evaluate once to get constant terms
+  MatVecVec ineq = zmp_constraint_builder_.CalcZmpConstraints(supp_polygon_container_);
+
+  for (int i=0; i<ineq.constant.rows(); ++i) {
     bounds.push_back(kInequalityBoundPositive_);
-
+    bounds.at(i).lower_ -= ineq.constant[i];
+  }
   return bounds;
 }
 
