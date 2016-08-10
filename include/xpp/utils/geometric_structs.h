@@ -162,6 +162,7 @@ struct MatVecVec {
       :Mv(rows,cols),
        constant(Eigen::VectorXd::Zero(rows))
   {}
+  void WriteRow(const VecScalarScalar& val, size_t row);
 };
 
 template<std::size_t N>

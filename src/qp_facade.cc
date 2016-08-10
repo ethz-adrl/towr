@@ -26,6 +26,8 @@
 namespace xpp {
 namespace zmp {
 
+typedef xpp::utils::MatVecVec MatVecVec;
+
 QpFacade::VecSpline
 QpFacade::SolveQp(const State& initial_state,
                   const State& final_state,
@@ -69,7 +71,9 @@ QpFacade::SolveQp(const State& initial_state,
   }
 
   ZmpConstraintBuilder zmp_constraint(spline_structure, robot_height);
-  inequality_constraints_ = zmp_constraint.CalcZmpConstraints(supp_polygon_container);
+  MatVecVec zmp_constr = zmp_constraint.CalcZmpConstraints(supp_polygon_container);
+  inequality_constraints_.M = zmp_constr.Mv.M;
+  inequality_constraints_.v = zmp_constr.Mv.v + zmp_constr.constant;
 
   ROS_INFO_STREAM("Initial state:\t" << initial_state);
   ROS_INFO_STREAM("Final state:\t" << final_state);

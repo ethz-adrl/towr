@@ -20,7 +20,6 @@ class OptimizationVariablesInterpreter;
 class ZmpConstraint : public AConstraint {
 public:
   typedef xpp::utils::StdVecEigen2d FootholdsXY;
-  typedef xpp::utils::MatVec MatVec;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
 
   ZmpConstraint ();

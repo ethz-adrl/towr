@@ -21,6 +21,7 @@ public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::VecScalarScalar VecScalarScalar;
+  typedef xpp::utils::MatVecVec MatVecVec;
   typedef xpp::hyq::SupportPolygon SupportPolygon;
   typedef xpp::hyq::SupportPolygon::VecSuppLine NodeConstraint;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
@@ -49,18 +50,18 @@ public:
     * specific support polygon. This constraint is evaluated by multiplying with
     * the spline coefficients x.
     */
-  MatVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
+  MatVecVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
 
 private:
 
-  MatVec CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+  MatVecVec CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const SupportPolygonContainer&) const;
 
   static void GenerateNodeConstraint(const NodeConstraint&,
                                      const VecScalar& x_zmp,
                                      const VecScalar& y_zmp,
                                      int row_start,
-                                     MatVec& ineq);
+                                     MatVecVec& ineq);
 
   // the zero moment point must always lay on one side of triangle side:
   // p*x_zmp + q*y_zmp + r > stability_margin

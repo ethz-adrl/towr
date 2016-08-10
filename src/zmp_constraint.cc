@@ -12,6 +12,8 @@
 namespace xpp {
 namespace zmp {
 
+typedef xpp::utils::MatVecVec MatVecVec;
+
 ZmpConstraint::ZmpConstraint ()
 {
 }
@@ -33,8 +35,8 @@ ZmpConstraint::UpdateVariables (const ConstraintContainer* container)
 ZmpConstraint::VectorXd
 ZmpConstraint::EvaluateConstraint () const
 {
-  MatVec ineq = zmp_constraint_builder_.CalcZmpConstraints(supp_polygon_container_);
-  return ineq.M*x_coeff_ + ineq.v;
+  MatVecVec ineq = zmp_constraint_builder_.CalcZmpConstraints(supp_polygon_container_);
+  return ineq.Mv.M*x_coeff_ + ineq.Mv.v + ineq.constant;
 }
 
 ZmpConstraint::VecBound

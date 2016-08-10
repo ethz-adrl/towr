@@ -7,10 +7,8 @@
 
 #include<xpp/utils/geometric_structs.h>
 
-
 namespace xpp {
 namespace utils {
-
 
 Point3d Point2d::Make3D() const
 {
@@ -21,7 +19,6 @@ Point3d Point2d::Make3D() const
   return p3d;
 }
 
-
 Point2d Point3d::Get2D() const
 {
   Point2d p2d;
@@ -31,18 +28,15 @@ Point2d Point3d::Get2D() const
   return p2d;
 }
 
-
 VecScalar operator*(double d, const VecScalar& rhs)
 {
   return VecScalar(d*rhs.v, d*rhs.s);
 }
 
-
 VecScalar MatVec::GetRow(int row) const
 {
   return VecScalar(M.row(row), v[row]);
 }
-
 
 void MatVec::operator<<(const MatVec& rhs)
 {
@@ -55,7 +49,6 @@ void MatVec::operator<<(const MatVec& rhs)
   v.tail(rhs.v.rows()) = rhs.v;
 }
 
-
 void MatVec::WriteRow(const VecScalar& val, size_t row)
 {
   assert((val.v.cols()==M.cols()) && (row<M.rows()));
@@ -64,7 +57,14 @@ void MatVec::WriteRow(const VecScalar& val, size_t row)
   v[row]     = val.s;
 }
 
+void
+MatVecVec::WriteRow (const VecScalarScalar& val, size_t row)
+{
+  Mv.WriteRow(val.vs, row);
+  constant[row] = val.constant;
+}
 
 
 }
 }
+
