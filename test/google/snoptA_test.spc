@@ -3,4 +3,5 @@ Begin  Toy NLP problem
 *                             (JFLXBT)
    Minor print level                1
    Solution                       yes
+   Major iterations limit           6
 End   Toy NLP problem

@@ -39,6 +39,7 @@ public:
   void ClearCosts ();
   void AddCost(CostPtr cost, const std::string& name);
   double EvaluateTotalCost () const;
+  bool IsEmpty() const;
 
   const FootholdsXY& GetFootholds() const;
   const VectorXd& GetSplineCoefficients() const;

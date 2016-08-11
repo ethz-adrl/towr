@@ -69,5 +69,12 @@ CostContainer::GetSplineCoefficients () const
   return spline_coeff_;
 }
 
+bool
+xpp::zmp::CostContainer::IsEmpty () const
+{
+  return costs_.empty();
+}
+
 } /* namespace zmp */
 } /* namespace xpp */
+

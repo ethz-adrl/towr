@@ -89,8 +89,9 @@ TEST(SnoptTest, sntoyA)
   x[1]    = 1.0;
 
   // Load the data for ToyProb ...
-  ToyProb.setProbName   ("Toy0");
-  ToyProb.setPrintFile  ( "Toy0.out" );
+  ToyProb.setProbName   ("snoptA_test");
+  ToyProb.setSpecsFile  ("snoptA_test.spc"); // this must be located in the same folder as the executable
+  ToyProb.setPrintFile  ("snoptA_test.out");
 
   ToyProb.setProblemSize( n, neF );
   ToyProb.setObjective  ( ObjRow, ObjAdd );
@@ -104,6 +105,7 @@ TEST(SnoptTest, sntoyA)
   // The user has the option of calling  snJac  to define the
   // coordinate arrays (iAfun,jAvar,A) and (iGfun, jGvar).
   ToyProb.setIntParameter( "Derivative option", 0 );
+//  ToyProb.setIntParameter( "Major iterations limit", 2 );
   ToyProb.setIntParameter( "Verify level ", 3 );
 
   // Solve the problem.
@@ -194,7 +196,7 @@ void toyconB ( int *mode,  int *nnCon, int *nnJac, int *negCon,
 
 TEST(SnoptTest, sntoyB)
 {
-  snoptProblemB ToyProb("ToyB");
+  snoptProblemB ToyProb("snoptB_test");
 
   int n     =  2;
   int m     =  3;

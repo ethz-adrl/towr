@@ -43,6 +43,7 @@ public:
   void SetVariables(const Number* x);
 
   int GetNumberOfOptimizationVariables() const;
+  bool HasCostTerms() const;
   BoundVec GetBoundsOnOptimizationVariables() const;
   VectorXd GetStartingValues() const;
 
@@ -52,6 +53,7 @@ public:
   int GetNumberOfConstraints() const;
   BoundVec GetBoundsOnConstraints() const;
   VectorXd EvaluateConstraints(const Number* x) const;
+
 
 
 private:

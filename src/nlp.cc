@@ -86,9 +86,15 @@ NLP::EvaluateConstraints (const Number* x) const
 }
 
 void
-xpp::zmp::NLP::SetVariables (const Number* x)
+NLP::SetVariables (const Number* x)
 {
   opt_variables_->SetVariables(ConvertToEigen(x));
+}
+
+bool
+NLP::HasCostTerms () const
+{
+  return !costs_->IsEmpty();
 }
 
 NLP::VectorXd

@@ -29,8 +29,9 @@ SnoptAdapter::SetNLP (NLPPtr& nlp)
 void
 SnoptAdapter::Init ()
 {
-  n   = nlp_->GetNumberOfOptimizationVariables(); // number of optimization variables
-  neF = nlp_->GetNumberOfConstraints()+1;         // +1 because of cost function
+  n    = nlp_->GetNumberOfOptimizationVariables(); // number of optimization variables
+  neF  = nlp_->GetNumberOfConstraints();
+  if (nlp_->HasCostTerms()) neF++;
 
   x      = new double[n];
   xlow   = new double[n];
@@ -45,21 +46,26 @@ SnoptAdapter::Init ()
   Fstate = new    int[neF];
 
   // Set the upper and lower bounds.
-  // no bounds on the spline coefficients of footholds
+  // no bounds on the spline coefficients or footholds
   auto bounds_x = nlp_->GetBoundsOnOptimizationVariables();
-  for (uint c=0; c<bounds_x.size(); ++c) {
-    xlow[c] = bounds_x.at(c).lower_;
-    xupp[c] = bounds_x.at(c).upper_;
-    xstate[c] = 0;
+  for (uint _n=0; _n<bounds_x.size(); ++_n) {
+    xlow[_n] = bounds_x.at(_n).lower_;
+    xupp[_n] = bounds_x.at(_n).upper_;
+    xstate[_n] = 0;
   }
 
-  // specific bounds depending on equality and inequality constraints
-  Flow[0] = -1e20; Fupp[0] = 1e20; Fmul[0] = 0.0;
+  // bounds on the cost function if it exists
+  int c = 0;
+  if (nlp_->HasCostTerms()) {
+    Flow[c] = -1e20; Fupp[c] = 1e20; Fmul[c] = 0.0; // no bounds on cost function
+    c++;
+  }
+
+  // bounds on equality and inequality constraints
   auto bounds_g = nlp_->GetBoundsOnConstraints();
-  for (uint c=0; c<bounds_g.size(); ++c) {
-    Flow[c+1] = bounds_g.at(c).lower_;
-    Fupp[c+1] = bounds_g.at(c).upper_;
-    Fmul[c+1] = 0.0;
+  for (const auto& b : bounds_g) {
+    Flow[c] = b.lower_; Fupp[c] = b.upper_; Fmul[c] = 0.0;
+    c++;
   }
 
   // initial values of the optimization
@@ -67,11 +73,12 @@ SnoptAdapter::Init ()
   Eigen::Map<VectorXd>(&x[0], x_all.rows()) = x_all;
 
 
-  ObjRow  = 0;   // the row in user function that corresponds to the objective function
-  ObjAdd  = 0.0; // the constant to be added to the objective function
+  ObjRow  = nlp_->HasCostTerms()? 0 : -1; // the row in user function that corresponds to the objective function
+  ObjAdd  = 0.0;                          // the constant to be added to the objective function
 
-  setProbName   ( "SnoptNLP" );
-  setPrintFile  ( "SnoptNLP.out" );
+  setProbName   ( "snopt" );
+  setPrintFile  ( "snopt.out" );
+  setSpecsFile  ( "snopt.spc" );
 
   setProblemSize( n, neF );
   setObjective  ( ObjRow, ObjAdd );
@@ -101,13 +108,15 @@ SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
                                          char* cu, int* lencu, int iu[],
                                          int* leniu, double ru[], int* lenru)
 {
-  F[0] = instance_->nlp_->EvaluateCostFunction(x);
+  int c=0;
+  if (instance_->nlp_->HasCostTerms())
+    F[c++] = instance_->nlp_->EvaluateCostFunction(x);
 
   VectorXd g_eig = instance_->nlp_->EvaluateConstraints(x);
 
-//  Eigen::Map<VectorXd>(F+1, g_eig.rows()) = g_eig; // should work as well
+//  Eigen::Map<VectorXd>(F+c, g_eig.rows()) = g_eig; // should work as well
   for (int i=0; i<g_eig.rows(); ++i) {
-    F[i+1] = g_eig[i];
+    F[c++] = g_eig[i];
   }
 
 //  F[0] =  x[1];

@@ -69,11 +69,13 @@ FootholdNominalDeviation::GetFeetInBase (
       Eigen::Vector2d r_BF = f.p.segment<2>(0) - cog_xy.p;
 
       // current foot to nominal
-//      Eigen::Vector2d r_FC = -r_BF + B_r_BaseToNominal[f.leg];
+//      Eigen::Vector2d B_r_footToCenter = -r_BF + B_r_BaseToNominal[f.leg];
 
       // don't use std::fabs() or std::pow() since you loose information about sign
       // this information help the optimizer to find the correct gradient.
       g_vec.push_back(r_BF);
+//      g_vec.push_back(B_r_footToCenter);
+
       nominal_foothold_b_.push_back(B_r_BaseToNominal[f.leg]);
     }
   }
