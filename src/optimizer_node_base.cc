@@ -53,10 +53,10 @@ OptimizerNodeBase::GoalStateCallbackKeyboard(const keyboard::Key& msg)
 {
   switch (msg.code) {
     case msg.KEY_UP:
-      goal_cog_.p.x() = curr_cog_.p.x() + 0.25;
+      goal_cog_.p.x() = curr_cog_.p.x() + 0.15;
       break;
     case msg.KEY_DOWN:
-      goal_cog_.p.x() = curr_cog_.p.x() - 0.25;
+      goal_cog_.p.x() = curr_cog_.p.x() - 0.15;
       break;
     case msg.KEY_RIGHT:
       goal_cog_.p.y() = curr_cog_.p.y() - 0.15;

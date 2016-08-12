@@ -73,6 +73,7 @@ WalkingController::GetReadyHook() {
   // to determine when to start reoptimization
   t_stance_initial_ = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
   t_swing_          = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
+  max_cpu_time_     = RosHelpers::GetDoubleFromServer("/xpp/max_cpu_time");
 
   states_map_ = WalkingControllerState::BuildStates();
   current_state_ = WalkingControllerState::kFirstPlanning;
@@ -133,7 +134,7 @@ void WalkingController::BuildPlan()
   // is set for, add 40ms to make sure the msg reaches the controller
   double communication_delay = 0.04;
   // also, no spline can have lower duration than this
-  kOptTimeReq_ = 0.15+communication_delay;
+  kOptTimeReq_ = max_cpu_time_ + communication_delay;
   switch_node_ = spliner_.GetNode(1);
 
   t_switch_ = switch_node_.T;
@@ -294,13 +295,13 @@ WalkingController::GetStartStateForOptimization(/*const double required_time*/) 
 
 
   // this is the state where the robot is planned to be, no current feedback
-//  State end_des;
-//  Point2d end_des_xy = spliner_.GetCurrPosition(t_switch_).Get2D();
-//  end_des.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
-//  end_des.v.segment(0,2) = end_des_xy.v;
-//  end_des.a.segment(0,2) = end_des_xy.a;
-//  return end_des;
-  return curr_state;
+  State end_des;
+  Point2d end_des_xy = spliner_.GetCurrPosition(t_switch_).Get2D();
+  end_des.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
+  end_des.v.segment(0,2) = end_des_xy.v;
+  end_des.a.segment(0,2) = end_des_xy.a;
+  return end_des;
+//  return curr_state;
 }
 
 

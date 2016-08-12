@@ -37,6 +37,8 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
 
   // initialize the ipopt solver
   ipopt_solver_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
+
+
   status_ = ipopt_solver_.Initialize();
   if (status_ != Ipopt::Solve_Succeeded) {
     std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
@@ -64,7 +66,8 @@ NlpFacade::SolveNlp(const State& curr_cog_,
                     double robot_height,
                     VecFoothold curr_stance,
                     xpp::hyq::MarginValues margins,
-                    xpp::zmp::SplineTimes spline_times_)
+                    xpp::zmp::SplineTimes spline_times_,
+                    double max_cpu_time)
 {
 
   step_sequence_planner_->Init(curr_cog_, final_state, curr_stance, robot_height);
@@ -122,12 +125,15 @@ NlpFacade::SolveNlp(const State& curr_cog_,
 
   // Ipopt solving
   IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, *visualizer_); // just so it can poll the PublishMsg() method
-  SolveIpopt(nlp_ptr);
+  SolveIpopt(nlp_ptr, max_cpu_time);
 }
 
 void
-NlpFacade::SolveIpopt (const IpoptPtr& nlp)
+NlpFacade::SolveIpopt (const IpoptPtr& nlp, double max_cpu_time)
 {
+  // some options to change on the fly
+  ipopt_solver_.Options()->SetNumericValue("max_cpu_time", max_cpu_time);
+
   status_ = ipopt_solver_.OptimizeTNLP(nlp);
   if (status_ == Ipopt::Solve_Succeeded) {
     // Retrieve some statistics about the solve

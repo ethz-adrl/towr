@@ -4,6 +4,7 @@
 # itself:
 # app.Options()->SetStringValue("linear_solver", "ma86");
 # app.Options()->SetNumericValue("tol", 1e-2);
+# app.Options()->SetNumericValue("max_cpu_time", 0.15);
 
 
 #linear_solver ma27
@@ -23,7 +24,6 @@ tol 1e-4
 #dual_inf_tol 1e-1
 #constr_viol_tol 1e-4
 #compl_inf_tol 1e-4
-max_cpu_time 0.15 #0.3 was perfect for running the zmp walk
 #max_iter 20
 #bound_frac 0.5
 

@@ -86,7 +86,8 @@ public:
                 double robot_height_,
                 VecFoothold curr_stance,
                 xpp::hyq::MarginValues margins,
-                xpp::zmp::SplineTimes spline_times_);
+                xpp::zmp::SplineTimes spline_times_,
+                double max_cpu_time = 1e20);
 
   void AttachVisualizer(IVisualizer& visualizer);
   InterpretingObserverPtr GetObserver() const;
@@ -95,7 +96,7 @@ public:
   VecSpline GetSplines() const;
 
 private:
-  void SolveIpopt(const IpoptPtr& nlp);
+  void SolveIpopt(const IpoptPtr& nlp, double max_cpu_time);
 
   StepSequencePlannerPtr step_sequence_planner_;
 

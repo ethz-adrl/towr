@@ -35,6 +35,7 @@ private:
   void OptimizeTrajectory();
   void PublishOptimizedValues() const;
 
+  double max_cpu_time_; ///< maximum allowable time to spend on solving the NLP
   int curr_swingleg_;
   xpp::hyq::MarginValues supp_polygon_margins_;
 

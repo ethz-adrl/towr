@@ -24,6 +24,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
   supp_polygon_margins_ = xpp::hyq::SupportPolygon::GetDefaultMargins();
   supp_polygon_margins_[hyq::DIAG] = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");
 
+  max_cpu_time_ = RosHelpers::GetDoubleFromServer("/xpp/max_cpu_time");
+
   // get current optimization values from the optimizer
   optimization_visualizer_.SetObserver(nlp_facade_.GetObserver());
   nlp_facade_.AttachVisualizer(optimization_visualizer_);
@@ -66,7 +68,8 @@ NlpOptimizerNode::OptimizeTrajectory()
                        robot_height_,
                        curr_stance_,
                        supp_polygon_margins_,
-                       spline_times_);
+                       spline_times_,
+                       max_cpu_time_);
 
   opt_splines_ = nlp_facade_.GetSplines();
   footholds_   = nlp_facade_.GetFootholds();

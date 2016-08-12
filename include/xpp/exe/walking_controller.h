@@ -107,6 +107,7 @@ private:
   double t_stance_initial_;
   double t_swing_;
   double robot_height_;
+  double max_cpu_time_;
 
   double t_switch_; // when to abort spline and go to already next optimized one
   hyq::SplineNode switch_node_;
