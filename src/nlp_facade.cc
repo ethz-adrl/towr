@@ -93,7 +93,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();
-//  constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure.GetTotalFreeCoeff()), "acc");
+  constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure.GetTotalFreeCoeff()), "acc");
   constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure), "final");
   constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure), "junction");
   constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter), "zmp");
@@ -111,16 +111,18 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);
 
-  // Snopt solving
-  auto snopt_problem = SnoptAdapter::GetInstance();
-  snopt_problem->SetNLP(nlp);
-  snopt_problem->Init();
-  int Cold = 0, Basis = 1, Warm = 2;
-  snopt_problem->SolveSQP(Cold);
+//  // Snopt solving
+//  // fixme some constraints are still linear and have constant terms in its
+//  // values, so this wont work
+//  auto snopt_problem = SnoptAdapter::GetInstance();
+//  snopt_problem->SetNLP(nlp);
+//  snopt_problem->Init();
+//  int Cold = 0, Basis = 1, Warm = 2;
+//  snopt_problem->SolveSQP(Cold);
 
-//  // Ipopt solving
-//  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, *visualizer_); // just so it can poll the PublishMsg() method
-//  SolveIpopt(nlp_ptr);
+  // Ipopt solving
+  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, *visualizer_); // just so it can poll the PublishMsg() method
+  SolveIpopt(nlp_ptr);
 }
 
 void

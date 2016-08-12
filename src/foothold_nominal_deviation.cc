@@ -10,6 +10,10 @@
 namespace xpp {
 namespace zmp {
 
+typedef Eigen::VectorXd VectorXd;
+typedef Eigen::Vector2d Vector2d;
+
+
 FootholdNominalDeviation::FootholdNominalDeviation ()
 {
   // TODO Auto-generated constructor stub
@@ -22,12 +26,12 @@ FootholdNominalDeviation::GetFeetInBase (
     const SupportPolygonContainer& supp_polygon_container,
     StdVecEigen2d& nominal_foothold_b_) const
 {
-  const double x_nominal_b = 0.3; // 0.4
-  const double y_nominal_b = 0.3; // 0.4
+  const double x_nominal_b = 0.36; // 0.4
+  const double y_nominal_b = 0.33; // 0.4
 
   // this nominal position should be calculated through forward kinematics with nominal joint angles
   // SMELL This does not have to be recomputed every time
-  xpp::hyq::LegDataMap<Eigen::Vector2d> B_r_BaseToNominal;
+  xpp::hyq::LegDataMap<Vector2d> B_r_BaseToNominal;
   B_r_BaseToNominal[hyq::LF] <<  x_nominal_b,  y_nominal_b;
   B_r_BaseToNominal[hyq::RF] <<  x_nominal_b, -y_nominal_b;
   B_r_BaseToNominal[hyq::LH] << -x_nominal_b,  y_nominal_b;
@@ -59,24 +63,28 @@ FootholdNominalDeviation::GetFeetInBase (
     else
       stance_legs = suppport_polygons.at(spline_id).footholds_;
 
-    xpp::utils::Point2d cog_xy = cog_spline.GetCOGxy(t);
+    xpp::utils::Point2d I_cog_xy = cog_spline.GetCOGxy(t);
 
     // calculate distance to base for every stance leg
     // restrict to quadrants
-    for (const hyq::Foothold& f : stance_legs) {
+    for (const hyq::Foothold& I_foot : stance_legs) {
 
-      // base to foot
-      Eigen::Vector2d r_BF = f.p.segment<2>(0) - cog_xy.p;
+      // base to foot in inertial frame
+      Vector2d I_r_baseToFeet = I_foot.p.segment<2>(0) - I_cog_xy.p;
+
+      // fixme this only works if the base has no yaw anlge
+      Vector2d B_r_baseToFeet = I_r_baseToFeet;
+
 
       // current foot to nominal
 //      Eigen::Vector2d B_r_footToCenter = -r_BF + B_r_BaseToNominal[f.leg];
 
       // don't use std::fabs() or std::pow() since you loose information about sign
       // this information help the optimizer to find the correct gradient.
-      g_vec.push_back(r_BF);
+      g_vec.push_back(B_r_baseToFeet);
 //      g_vec.push_back(B_r_footToCenter);
 
-      nominal_foothold_b_.push_back(B_r_BaseToNominal[f.leg]);
+      nominal_foothold_b_.push_back(B_r_BaseToNominal[I_foot.leg]);
     }
   }
 

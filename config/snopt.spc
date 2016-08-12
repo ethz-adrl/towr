@@ -24,4 +24,9 @@ Begin  TO NLP problem
 * something about gradient approximation
 * Nonderivative linesearch
 
+* Convergence Tolerances 
+  Major feasibility tolerance 1.0e-2  *target nonlinear constraint violation
+  Major optimality tolerance 1.0e-2   *target complementarity gap 
+  Minor feasibility tolerance 1.0e-2  *for satisfying the QP bounds
+
 End  TO NLP problem

@@ -77,8 +77,8 @@ SnoptAdapter::Init ()
   ObjAdd  = 0.0;                          // the constant to be added to the objective function
 
   setProbName   ( "snopt" );
-  setPrintFile  ( "snopt.out" );
   setSpecsFile  ( "snopt.spc" );
+//  setPrintFile  ( "snopt.out" ); // appends the file
 
   setProblemSize( n, neF );
   setObjective  ( ObjRow, ObjAdd );
@@ -119,6 +119,7 @@ SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
     F[c++] = g_eig[i];
   }
 
+// example
 //  F[0] =  x[1];
 //  F[1] =  x[0]*x[0] + 4*x[1]*x[1];
 //  F[2] = (x[0] - 2)*(x[0] - 2) + x[1]*x[1];

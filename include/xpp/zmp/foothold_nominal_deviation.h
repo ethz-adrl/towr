@@ -16,7 +16,6 @@ namespace zmp {
 
 class FootholdNominalDeviation {
 public:
-  typedef Eigen::VectorXd VectorXd;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef SupportPolygonContainer::VecFoothold VecFoothold;
   typedef utils::StdVecEigen2d StdVecEigen2d;
