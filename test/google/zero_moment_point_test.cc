@@ -35,13 +35,12 @@ protected:
     cont_spline_container_.Init(init_pos,
                                 init_vel,
                                 3,
-                                SplineTimes(t_swing, t_stance_initial, t_stance_final));
+                                SplineTimes(t_swing, t_stance_initial));
   }
 
   ContinuousSplineContainer cont_spline_container_;
   double t_stance_initial = 1.2;
   double t_swing = 0.75; // muss .2, .4, .6, ..sein
-  double t_stance_final = 1.0;
   double walking_height = 0.58;
 
   Eigen::Vector2d init_pos;

@@ -53,7 +53,6 @@ protected:
 
     times_.t_swing_ = 0.7;
     times_.t_stance_initial_ = 0.5; // this will create two initial splines
-    times_.t_stance_final_ = 0.2;
 
 //    std::vector<LegID> leg_ids = {LH, LF};
 

@@ -28,7 +28,6 @@ protected:
   virtual void SetUp()
   {
     // create a spline container taking four steps
-    times_.t_stance_final_ = 0.6;
     times_.t_swing_ = 0.6;
     times_.t_stance_initial_ = 2.0;
 
@@ -127,8 +126,7 @@ TEST_F(SplineContainerTest, GetTotalFreeCoeff)
 TEST_F(SplineContainerTest, GetTotalTime)
 {
   double T =  1                 *times_.t_stance_initial_
-            + n_steps           *times_.t_swing_
-            + 1                 *times_.t_stance_final_;
+            + n_steps           *times_.t_swing_;
 
   EXPECT_DOUBLE_EQ(T, spline_container_4steps_.GetTotalTime());
 }
@@ -143,9 +141,8 @@ TEST_F(SplineContainerTest, GetSplineID)
 
   EXPECT_EQ(last_id  , spline_container_4steps_.GetSplineID(T));
   EXPECT_EQ(last_id  , spline_container_4steps_.GetSplineID(T-0.05));
-  double t_just_at_end_of_swing = T-times_.t_stance_final_;
-  EXPECT_EQ(last_id-n_final_splines, spline_container_4steps_.GetSplineID(t_just_at_end_of_swing));
-  EXPECT_EQ(last_id-n_final_splines-1, spline_container_4steps_.GetSplineID(t_just_at_end_of_swing - times_.t_swing_ - 0.01));
+  EXPECT_EQ(last_id-n_final_splines, spline_container_4steps_.GetSplineID(T));
+  EXPECT_EQ(last_id-n_final_splines-1, spline_container_4steps_.GetSplineID(T - times_.t_swing_ - 0.01));
 }
 
 TEST_F(SplineContainerTest, GetLocalTime)
@@ -158,8 +155,6 @@ TEST_F(SplineContainerTest, GetLocalTime)
   EXPECT_FLOAT_EQ(0.1, spline_container_4steps_.GetLocalTime(t_global));
   EXPECT_FLOAT_EQ(0.2, spline_container_4steps_.GetLocalTime(t_global+0.1));
 
-  t_global = spline_container_4steps_.GetTotalTime();
-  EXPECT_FLOAT_EQ(times_.t_stance_final_/n_final_splines, spline_container_4steps_.GetLocalTime(t_global));
 }
 
 TEST_F(SplineContainerTest, IsFourLegSupport)

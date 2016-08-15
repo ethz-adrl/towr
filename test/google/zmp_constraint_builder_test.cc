@@ -30,7 +30,7 @@ protected:
     cont_spline_container_.Init(Eigen::Vector2d::Zero(),
                                 Eigen::Vector2d::Zero(),
                                 1,
-                                SplineTimes(t_swing, t_stance_initial, t_stance_final));
+                                SplineTimes(t_swing, t_stance_initial));
 
     zmp_constaint_.Init(cont_spline_container_, walking_height);
 
@@ -44,7 +44,6 @@ protected:
   ContinuousSplineContainer cont_spline_container_;
   double t_stance_initial = 2.0;
   double t_swing = 0.5;
-  double t_stance_final = 1.0;
   double walking_height = 0.58;
 
   hyq::MarginValues supp_poly_margins;

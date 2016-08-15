@@ -37,6 +37,10 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
     double t = times.t_stance_initial_/n_stance_splines;
     for (int i=0; i<n_stance_splines; ++i)
       SplineContainer::AddStanceSpline(t);
+
+//    double t_reaction = 0.06;
+//    SplineContainer::AddStanceSpline(t_reaction);
+//    SplineContainer::AddStanceSpline(times.t_stance_initial_-t_reaction);
   }
 
 

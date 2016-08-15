@@ -132,9 +132,11 @@ void WalkingController::BuildPlan()
 
   // allow >20ms for ROS communication. So whatever ipopt's max_cpu_time
   // is set for, add 40ms to make sure the msg reaches the controller
-  double communication_delay = 0.04;
+  static const double ros_message_delay = 0.04;
   // also, no spline can have lower duration than this
-  kOptTimeReq_ = max_cpu_time_ + communication_delay;
+  // this delay should not be too large, as it makes the closed feedback loop
+  // unstable.
+  kOptTimeReq_ = max_cpu_time_ + ros_message_delay;
   switch_node_ = spliner_.GetNode(1);
 
   t_switch_ = switch_node_.T;
@@ -294,14 +296,14 @@ WalkingController::GetStartStateForOptimization(/*const double required_time*/) 
 //  return predicted_state;
 
 
-  // this is the state where the robot is planned to be, no current feedback
-  State end_des;
-  Point2d end_des_xy = spliner_.GetCurrPosition(t_switch_).Get2D();
-  end_des.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
-  end_des.v.segment(0,2) = end_des_xy.v;
-  end_des.a.segment(0,2) = end_des_xy.a;
-  return end_des;
-//  return curr_state;
+//  // this is the state where the robot is planned to be, no current feedback
+//  State end_des;
+//  Point2d end_des_xy = spliner_.GetCurrPosition(t_switch_).Get2D();
+//  end_des.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
+//  end_des.v.segment(0,2) = end_des_xy.v;
+//  end_des.a.segment(0,2) = end_des_xy.a;
+//  return end_des;
+  return curr_state;
 }
 
 

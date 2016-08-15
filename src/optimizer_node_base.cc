@@ -23,8 +23,7 @@ OptimizerNodeBase::OptimizerNodeBase ()
 
   double t_swing   = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
   double t_init    = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
-  double t_final   = RosHelpers::GetDoubleFromServer("/xpp/stance_time_final");
-  spline_times_ = xpp::zmp::SplineTimes(t_swing, t_init, t_final);
+  spline_times_ = xpp::zmp::SplineTimes(t_swing, t_init);
 
   robot_height_ = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 

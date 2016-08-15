@@ -54,8 +54,7 @@ protected:
 
     double t_swing = 0.6;
     double t_stance_initial = 2.0;
-    double t_stance_final = 0.5;
-    xpp::zmp::SplineTimes spline_times(t_swing, t_stance_initial, t_stance_final);
+    xpp::zmp::SplineTimes spline_times(t_swing, t_stance_initial);
 
     xpp::zmp::ContinuousSplineContainer spline_cont;
     spline_cont.Init(Eigen::Vector2d::Zero(), Eigen::Vector2d::Zero(),
