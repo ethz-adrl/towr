@@ -97,6 +97,13 @@ NLP::HasCostTerms () const
   return !costs_->IsEmpty();
 }
 
+NLP::Jacobian
+NLP::EvalJacobianOfConstraints (const Number* x) const
+{
+  // this should come from constraints
+  return Jacobian(1,1);
+}
+
 NLP::VectorXd
 NLP::ConvertToEigen(const Number* x) const
 {

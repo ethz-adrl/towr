@@ -32,6 +32,8 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef std::vector<Bound> BoundVec;
   typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
+  typedef AConstraint::Jacobian Jacobian;
+
   typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
   typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
@@ -54,7 +56,7 @@ public:
   BoundVec GetBoundsOnConstraints() const;
   VectorXd EvaluateConstraints(const Number* x) const;
 
-
+  Jacobian EvalJacobianOfConstraints(const Number* x) const;
 
 private:
   OptimizationVariablesPtr opt_variables_;

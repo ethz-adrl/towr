@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_CONSTRAINT_H_
 
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 namespace xpp {
 namespace zmp {
@@ -27,6 +28,7 @@ public:
   };
   typedef Eigen::VectorXd VectorXd;
   typedef std::vector<Bound> VecBound;
+  typedef Eigen::SparseMatrix<double, Eigen::RowMajor> Jacobian;
 
   AConstraint ();
   virtual ~AConstraint ();

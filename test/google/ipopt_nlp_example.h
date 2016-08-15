@@ -236,6 +236,7 @@ inline bool MyNLP::eval_jac_g(Index n, const Number* x, bool new_x,
                        Index m, Index nele_jac, Index* iRow, Index *jCol,
                        Number* values)
 {
+
   if (values == NULL) {
     // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
     // depends on index style specified:
@@ -262,7 +263,6 @@ inline bool MyNLP::eval_jac_g(Index n, const Number* x, bool new_x,
 //
 //    // element at 0,1: grad_{x0} g_{0}(x)
 //    values[1] = -1.0;
-
 
     typedef Eigen::SparseMatrix<double, Eigen::RowMajor> SpMatrix;
     SpMatrix mat(m,n);
