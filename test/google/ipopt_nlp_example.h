@@ -18,6 +18,9 @@
 #define __MYNLP_HPP__
 
 #include "IpTNLP.hpp"
+
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <cassert>
 
 using namespace Ipopt;
@@ -237,6 +240,7 @@ inline bool MyNLP::eval_jac_g(Index n, const Number* x, bool new_x,
     // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
     // depends on index style specified:
     // index_style = C_STYLE;
+    // defined in row major order
 
     // element at 0,0: grad_{x0} g_{0}(x)
     iRow[0] = 0;
@@ -249,13 +253,29 @@ inline bool MyNLP::eval_jac_g(Index n, const Number* x, bool new_x,
   else {
     // return the values of the jacobian of the constraints
     // only gets used if "jacobian_approximation finite-difference-values" is not set
-    std::cout << "solving with exact derivatives since \"jacobian_approximation finite-difference-values\" is off\n";
+//    std::cout << "solving with exact derivatives since \"jacobian_approximation finite-difference-values\" is off\n";
+//    Eigen::MatrixXd jac(m,n);
+//    jac(0,0) = -2.0 * x[0];
+//    jac(0,1) = -1.0;
+//    // element at 0,0: grad_{x0} g_{0}(x)
+//    values[0] = -2.0 * x[0];
+//
+//    // element at 0,1: grad_{x0} g_{0}(x)
+//    values[1] = -1.0;
 
-    // element at 0,0: grad_{x0} g_{0}(x)
-    values[0] = -2.0 * x[0];
 
-    // element at 0,1: grad_{x0} g_{0}(x)
-    values[1] = -1.0;
+    typedef Eigen::SparseMatrix<double, Eigen::RowMajor> SpMatrix;
+    SpMatrix mat(m,n);
+    mat.insert(0,0) = -2.0 * x[0];
+    mat.insert(0,1) = -1.0;
+
+    int i=0;
+    for (int k=0; k<mat.outerSize(); ++k) {
+      for (SpMatrix::InnerIterator it(mat,k); it; ++it) {
+        std::cout << "i: " << i << " = " << it.value() << std::endl;
+        values[i++] = it.value();
+      }
+    }
   }
 
   return true;
