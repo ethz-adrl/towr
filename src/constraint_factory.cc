@@ -34,7 +34,7 @@ ConstraintFactory::CreateAccConstraint (const Vector2d& init_acc_xy,
                                         uint n_spline_coeff)
 {
   InitialAccelerationEquation eq(init_acc_xy, n_spline_coeff);
-  auto constraint = std::make_shared<LinearEqualityConstraint>();
+  auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.BuildLinearEquation());
   return constraint;
 }
@@ -44,7 +44,7 @@ ConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
                                           const ContinuousSplineContainer& splines)
 {
   FinalStateEquation eq(final_state_xy, splines);
-  auto constraint = std::make_shared<LinearEqualityConstraint>();
+  auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.BuildLinearEquation());
   return constraint;
 }
@@ -53,7 +53,7 @@ ConstraintFactory::ConstraintPtr
 ConstraintFactory::CreateJunctionConstraint (const ContinuousSplineContainer& splines)
 {
   SplineJunctionEquation eq(splines);
-  auto constraint = std::make_shared<LinearEqualityConstraint>();
+  auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.BuildLinearEquation());
   return constraint;
 }

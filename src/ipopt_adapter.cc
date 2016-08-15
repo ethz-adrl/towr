@@ -119,32 +119,32 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
 {
   assert(nele_jac == n*m); // number of elements in jacobian
 
-  NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints(x);
+//  NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints(x);
 
   // FIXME exploit sparsity structure more.
 	// say at which positions the nonzero elements of the jacobian are
   if (values == NULL) {
 
 
-//    // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
-//  	int c_nonzero = 0;
-//    for (int row=0; row<m; ++row) {
-//      for (int col=0; col<n; ++col) {
-//  			iRow[c_nonzero] = row;
-//  			jCol[c_nonzero] = col;
-//  			c_nonzero++;
-//  		}
-//  	}
+    // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
+  	int c_nonzero = 0;
+    for (int row=0; row<m; ++row) {
+      for (int col=0; col<n; ++col) {
+  			iRow[c_nonzero] = row;
+  			jCol[c_nonzero] = col;
+  			c_nonzero++;
+  		}
+  	}
 
 
-    int nele=0; // nonzero cells in jacobian
-    for (int k=0; k<jac.outerSize(); ++k) {
-      for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
-        iRow[nele] = it.row();
-        jCol[nele] = it.col();
-        nele++;
-      }
-    }
+//    int nele=0; // nonzero cells in jacobian
+//    for (int k=0; k<jac.outerSize(); ++k) {
+//      for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
+//        iRow[nele] = it.row();
+//        jCol[nele] = it.col();
+//        nele++;
+//      }
+//    }
 
 
 
@@ -156,10 +156,10 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
 //    Eigen::Map<Eigen::MatrixXd>(values,jac.rows(),jac.cols()) = jac;
 
 
-    int nele=0;
-    for (int k=0; k<jac.outerSize(); ++k)
-      for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it)
-        values[nele++] = it.value();
+//    int nele=0;
+//    for (int k=0; k<jac.outerSize(); ++k)
+//      for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it)
+//        values[nele++] = it.value();
 
   }
 

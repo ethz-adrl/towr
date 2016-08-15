@@ -21,20 +21,16 @@ ALinearConstraint::Init (const MatVec& linear_equation)
   linear_equation_ = linear_equation;
 }
 
-void
-ALinearConstraint::UpdateVariables(const ConstraintContainer* container)
-{
-  x_coeff_ = container->GetSplineCoefficients();
-}
-
 ALinearConstraint::VectorXd
 ALinearConstraint::EvaluateConstraint () const
 {
-  return linear_equation_.M*x_coeff_; // linear part respected in bounds
+  return linear_equation_.M*x_; // linear part respected in bounds
 }
 
-LinearEqualityConstraint::LinearEqualityConstraint ()
+ALinearConstraint::Jacobian
+ALinearConstraint::GetJacobian () const
 {
+
 }
 
 LinearEqualityConstraint::VecBound
@@ -48,10 +44,6 @@ LinearEqualityConstraint::GetBounds () const
   return bounds;
 }
 
-LinearInequalityConstraint::LinearInequalityConstraint ()
-{
-}
-
 LinearInequalityConstraint::VecBound
 LinearInequalityConstraint::GetBounds () const
 {
@@ -61,6 +53,12 @@ LinearInequalityConstraint::GetBounds () const
     bounds.push_back(bound);
   }
   return bounds;
+}
+
+void
+LinearSplineEqualityConstraint::UpdateVariables (const ConstraintContainer* container)
+{
+  x_ = container->GetSplineCoefficients();
 }
 
 } /* namespace zmp */

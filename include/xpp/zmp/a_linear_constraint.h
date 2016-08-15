@@ -30,26 +30,23 @@ public:
     */
   void Init(const MatVec& linear_equation);
 
-  /** @brief Updates the values of the optimization variables. */
-  void UpdateVariables(const ConstraintContainer*) override;
-
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd EvaluateConstraint () const override;
+
+  /** @brief Returns the Jacobian Matrix of this constraint. */
+  Jacobian GetJacobian () const override;
 
 protected:
   /** only allow child classes of this class to be instantiated. */
   ALinearConstraint ();
   virtual ~ALinearConstraint () {}
   MatVec linear_equation_;
-
-private:
-  VectorXd x_coeff_;                ///< the current spline coefficients
+  VectorXd x_;                ///< the optimization variables
 };
 
 
 class LinearEqualityConstraint : public ALinearConstraint {
 public:
-  LinearEqualityConstraint ();
   /** @brief Returns an upper and lower bound for each constraint violation. */
   VecBound GetBounds () const override;
 };
@@ -57,10 +54,19 @@ public:
 // smell rename to "LinearEqualityGreaterThan"
 class LinearInequalityConstraint : public ALinearConstraint {
 public:
-  LinearInequalityConstraint ();
   /** @brief Returns an upper and lower bound for each constraint violation. */
   VecBound GetBounds () const override;
 };
+
+
+class LinearSplineEqualityConstraint : public LinearEqualityConstraint {
+public:
+  /** @brief Updates the values of the optimization variables. */
+  void UpdateVariables(const ConstraintContainer*) override;
+};
+
+
+
 
 } /* namespace zmp */
 } /* namespace xpp */
