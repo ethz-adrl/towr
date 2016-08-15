@@ -19,7 +19,7 @@
 TEST(IpoptTest, MyNLP)
 {
   // Create an instance of your nlp...
-  SmartPtr<TNLP> mynlp = new MyNLP();
+  SmartPtr<MyNLP> mynlp = new MyNLP();
 
   // Create an instance of the IpoptApplication
   //
@@ -46,4 +46,7 @@ TEST(IpoptTest, MyNLP)
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
   }
 
+
+  EXPECT_NEAR(1.0, mynlp->x0, 1e-4);
+  EXPECT_NEAR(0.0, mynlp->x1, 1e-4);
 }
