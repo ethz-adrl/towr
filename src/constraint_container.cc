@@ -65,6 +65,24 @@ ConstraintContainer::EvaluateConstraints () const
   return g_all;
 }
 
+ConstraintContainer::Jacobian
+ConstraintContainer::GetJacobian () const
+{
+  int n_constraints = bounds_.size();
+  int n_opt_var = subject_->GetOptimizationVariableCount();
+  Jacobian jac_all(n_constraints, n_opt_var);
+
+  int c = 0;
+  for (const auto& constraint : constraints_) {
+    constraint.second->UpdateVariables(this);
+    Jacobian jac = constraint.second->GetJacobian();
+    int c_new = jac.rows();
+    jac_all.middleRows(c, c_new) = jac;
+    c += c_new;
+  }
+  return jac_all;
+}
+
 void
 ConstraintContainer::RefreshBounds ()
 {

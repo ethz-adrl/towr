@@ -29,6 +29,7 @@ class ConstraintContainer : public IObserver {
 public:
   typedef AConstraint::VectorXd VectorXd;
   typedef AConstraint::VecBound VecBound;
+  typedef AConstraint::Jacobian Jacobian;
   typedef std::shared_ptr<AConstraint> ConstraintPtr;
   typedef xpp::utils::StdVecEigen2d FootholdsXY;
 
@@ -44,6 +45,7 @@ public:
   AConstraint& GetConstraint(const std::string& name);
 
   VectorXd EvaluateConstraints () const;
+  Jacobian GetJacobian () const;
   VecBound GetBounds () const;
 
 

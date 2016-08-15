@@ -100,8 +100,8 @@ NLP::HasCostTerms () const
 NLP::Jacobian
 NLP::EvalJacobianOfConstraints (const Number* x) const
 {
-  // this should come from constraints
-  return Jacobian(1,1);
+  opt_variables_->SetVariables(ConvertToEigen(x));
+  return constraints_->GetJacobian();
 }
 
 NLP::VectorXd

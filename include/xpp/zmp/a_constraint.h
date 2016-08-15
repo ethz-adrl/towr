@@ -39,6 +39,12 @@ public:
    */
   virtual VectorXd EvaluateConstraint () const = 0;
 
+  /** The jacobian of the constraints.
+    *
+    * So the derivative of each constraint w.r.t each decision variable.
+    */
+  virtual Jacobian GetJacobian () const {};
+
   /** For each returned constraint an upper and lower bound is given.
    */
   virtual VecBound GetBounds () const = 0;
