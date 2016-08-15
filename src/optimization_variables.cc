@@ -24,8 +24,8 @@ void
 OptimizationVariables::Init (int n_spline_coeff, int n_steps)
 {
   nlp_structure_.Reset();
-  nlp_structure_.AddVariableSet("spline_coeff", n_spline_coeff);
-  nlp_structure_.AddVariableSet("footholds", kDim2d*n_steps);
+  nlp_structure_.AddVariableSet(kSplineCoff, n_spline_coeff);
+  nlp_structure_.AddVariableSet(kFootholds, kDim2d*n_steps);
   initialized_ = true;
 
   NotifyObservers();
@@ -37,8 +37,8 @@ OptimizationVariables::Init (const VectorXd& x_coeff_abcd,
 {
   Init(x_coeff_abcd.rows(), footholds.size());
 
-  nlp_structure_.SetVariables("spline_coeff",x_coeff_abcd);
-  nlp_structure_.SetVariables("footholds", ConvertStdToEig(footholds));
+  nlp_structure_.SetVariables(kSplineCoff, x_coeff_abcd);
+  nlp_structure_.SetVariables(kFootholds, ConvertStdToEig(footholds));
   NotifyObservers();
 }
 
@@ -53,7 +53,7 @@ OptimizationVariables::SetVariables(const VectorXd& x)
 void
 OptimizationVariables::SetSplineCoefficients (const VectorXd& x)
 {
-  nlp_structure_.SetVariables("spline_coeff", x);
+  nlp_structure_.SetVariables(kSplineCoff, x);
   NotifyObservers();
 }
 
@@ -81,7 +81,7 @@ OptimizationVariables::GetFootholdsStd () const
 {
   assert(initialized_);
 
-  Eigen::VectorXd footholds_xy = nlp_structure_.GetVariables("footholds");
+  Eigen::VectorXd footholds_xy = nlp_structure_.GetVariables(kFootholds);
   StdVecEigen2d fooothold_vec(footholds_xy.rows()/2.);
   for (int i=0; i<fooothold_vec.size(); ++i) {
     fooothold_vec.at(i) = footholds_xy.segment<kDim2d>(kDim2d*i);
@@ -94,7 +94,7 @@ OptimizationVariables::VectorXd
 OptimizationVariables::GetSplineCoefficients () const
 {
   assert(initialized_);
-  return nlp_structure_.GetVariables("spline_coeff");
+  return nlp_structure_.GetVariables(kSplineCoff);
 }
 
 OptimizationVariables::VectorXd

@@ -34,7 +34,7 @@ public:
   VectorXd EvaluateConstraint () const override;
 
   /** @brief Returns the Jacobian Matrix of this constraint. */
-  Jacobian GetJacobian () const override;
+  Jacobian GetJacobian (int var_set) const override;
 
 protected:
   /** only allow child classes of this class to be instantiated. */

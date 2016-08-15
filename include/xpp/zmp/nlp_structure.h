@@ -37,18 +37,18 @@ public:
 
   /** A variable set is a block of variables with some semantic information.
     *
-    * @param name What the variables represents.
+    * @param idx The index (order) of this variable set compared to the others.
     * @param n_variables The number of variables.
     */
-  void AddVariableSet(std::string name, int n_variables);
+  void AddVariableSet(int idx, int n_variables);
 
   int GetOptimizationVariableCount() const;
   VectorXd GetAllOptimizationVariables() const;
   VecBound GetAllBounds () const;
 
   void SetAllVariables(const VectorXd& x_all);
-  void SetVariables(std::string set_name, const VectorXd& values);
-  VectorXd GetVariables(std::string set_name) const;
+  void SetVariables(int idx, const VectorXd& values);
+  VectorXd GetVariables(int idx) const;
 
   void Reset();
 

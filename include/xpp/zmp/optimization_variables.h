@@ -33,6 +33,9 @@ public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d; // for footholds
   typedef Eigen::Vector2d Vector2d;
 
+  enum VariableSets {kSplineCoff, kFootholds};
+  const std::array<VariableSets, 2> kVarSet = {{kSplineCoff, kFootholds}};
+
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
 

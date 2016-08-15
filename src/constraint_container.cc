@@ -75,7 +75,11 @@ ConstraintContainer::GetJacobian () const
   int c = 0;
   for (const auto& constraint : constraints_) {
     constraint.second->UpdateVariables(this);
-    Jacobian jac = constraint.second->GetJacobian();
+
+    // fixme
+    Jacobian jac = constraint.second->GetJacobian(1);
+
+
     int c_new = jac.rows();
     jac_all.middleRows(c, c_new) = jac;
     c += c_new;

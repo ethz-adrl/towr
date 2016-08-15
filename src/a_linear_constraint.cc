@@ -28,9 +28,9 @@ ALinearConstraint::EvaluateConstraint () const
 }
 
 ALinearConstraint::Jacobian
-ALinearConstraint::GetJacobian () const
+ALinearConstraint::GetJacobian (int var_set) const
 {
-
+  return linear_equation_.M.sparseView();
 }
 
 LinearEqualityConstraint::VecBound

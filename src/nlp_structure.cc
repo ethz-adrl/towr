@@ -15,35 +15,35 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef AConstraint::VecBound VecBound;
 
-  VariableSet(int n_variables, const std::string& name);
+  VariableSet(int n_variables, int idx);
   virtual ~VariableSet();
 
   VectorXd GetVariables() const;
   VecBound GetBounds() const;
-  std::string GetName() const;
+  int GetIndex() const;
 
   void SetVariables(const VectorXd& x);
 private:
   VectorXd x_;
   VecBound bounds_;
-  std::string name_;
+  int idx_;
 };
 
-VariableSet::VariableSet (int n_variables, const std::string& name)
+VariableSet::VariableSet (int n_variables, int idx)
 {
   x_ = Eigen::VectorXd::Zero(n_variables);
   bounds_.assign(n_variables, AConstraint::kNoBound_);
-  name_ = name;
+  idx_ = idx;
 }
 
 VariableSet::~VariableSet ()
 {
 }
 
-std::string
-VariableSet::GetName () const
+int
+VariableSet::GetIndex () const
 {
-  return name_;
+  return idx_;
 }
 
 VariableSet::VectorXd
@@ -75,9 +75,9 @@ NlpStructure::~NlpStructure ()
 }
 
 void
-NlpStructure::AddVariableSet (std::string name, int n_variables)
+NlpStructure::AddVariableSet (int idx, int n_variables)
 {
-  variable_sets_.push_back(VariableSetPtr(new VariableSet(n_variables, name)));
+  variable_sets_.push_back(VariableSetPtr(new VariableSet(n_variables, idx)));
   n_variables_ += n_variables;
 }
 
@@ -132,10 +132,10 @@ NlpStructure::SetAllVariables(const VectorXd& x_all)
 }
 
 void
-NlpStructure::SetVariables (std::string set_name, const VectorXd& values)
+NlpStructure::SetVariables (int idx, const VectorXd& values)
 {
   for (const auto& s : variable_sets_)
-    if (s->GetName() == set_name) {
+    if (s->GetIndex() == idx) {
      s->SetVariables(values);
      return;
     }
@@ -144,10 +144,10 @@ NlpStructure::SetVariables (std::string set_name, const VectorXd& values)
 }
 
 NlpStructure::VectorXd
-NlpStructure::GetVariables (std::string set_name) const
+NlpStructure::GetVariables (int idx) const
 {
   for (const auto& s : variable_sets_)
-    if (s->GetName() == set_name)
+    if (s->GetIndex() == idx)
      return s->GetVariables();
 
   assert(false); // name not present in set

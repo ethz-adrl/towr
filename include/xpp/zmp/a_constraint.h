@@ -43,7 +43,7 @@ public:
     *
     * So the derivative of each constraint w.r.t each decision variable.
     */
-  virtual Jacobian GetJacobian () const {};
+  virtual Jacobian GetJacobian (int var_set) const {};
 
   /** For each returned constraint an upper and lower bound is given.
    */
