@@ -296,14 +296,14 @@ WalkingController::GetStartStateForOptimization(/*const double required_time*/) 
 //  return predicted_state;
 
 
-//  // this is the state where the robot is planned to be, no current feedback
-//  State end_des;
-//  Point2d end_des_xy = spliner_.GetCurrPosition(t_switch_).Get2D();
-//  end_des.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
-//  end_des.v.segment(0,2) = end_des_xy.v;
-//  end_des.a.segment(0,2) = end_des_xy.a;
-//  return end_des;
-  return curr_state;
+  // this is the state where the robot is planned to be, no current feedback
+  State end_des;
+  Point2d end_des_xy = spliner_.GetCurrPosition(t_switch_).Get2D();
+  end_des.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
+  end_des.v.segment(0,2) = end_des_xy.v;
+  end_des.a.segment(0,2) = end_des_xy.a;
+  return end_des;
+//  return curr_state;
 }
 
 
