@@ -10,26 +10,7 @@
 namespace xpp {
 namespace zmp {
 
-class VariableSet {
-public:
-  typedef Eigen::VectorXd VectorXd;
-  typedef AConstraint::VecBound VecBound;
-
-  VariableSet(int n_variables, int id);
-  virtual ~VariableSet();
-
-  VectorXd GetVariables() const;
-  VecBound GetBounds() const;
-  int GetId() const;
-
-  void SetVariables(const VectorXd& x);
-private:
-  VectorXd x_;
-  VecBound bounds_;
-  int id_;
-};
-
-VariableSet::VariableSet (int n_variables, int id)
+VariableSet::VariableSet (int n_variables, std::string id)
 {
   x_ = Eigen::VectorXd::Zero(n_variables);
   bounds_.assign(n_variables, AConstraint::kNoBound_);
@@ -40,7 +21,7 @@ VariableSet::~VariableSet ()
 {
 }
 
-int
+std::string
 VariableSet::GetId () const
 {
   return id_;
@@ -75,7 +56,7 @@ NlpStructure::~NlpStructure ()
 }
 
 void
-NlpStructure::AddVariableSet (int id, int n_variables)
+NlpStructure::AddVariableSet (std::string id, int n_variables)
 {
   variable_sets_.push_back(VariableSetPtr(new VariableSet(n_variables, id)));
   n_variables_ += n_variables;
@@ -108,6 +89,12 @@ NlpStructure::GetAllOptimizationVariables () const
   return x;
 }
 
+const NlpStructure::VariableSetVector
+NlpStructure::GetVariableSets () const
+{
+  return variable_sets_;
+}
+
 NlpStructure::VecBound
 NlpStructure::GetAllBounds () const
 {
@@ -132,7 +119,7 @@ NlpStructure::SetAllVariables(const VectorXd& x_all)
 }
 
 void
-NlpStructure::SetVariables (int id, const VectorXd& values)
+NlpStructure::SetVariables (std::string id, const VectorXd& values)
 {
   for (const auto& s : variable_sets_)
     if (s->GetId() == id) {
@@ -144,7 +131,7 @@ NlpStructure::SetVariables (int id, const VectorXd& values)
 }
 
 NlpStructure::VectorXd
-NlpStructure::GetVariables (int id) const
+NlpStructure::GetVariables (std::string id) const
 {
   for (const auto& s : variable_sets_)
     if (s->GetId() == id)
@@ -153,20 +140,7 @@ NlpStructure::GetVariables (int id) const
   assert(false); // name not present in set
 }
 
-int
-NlpStructure::GetStartIndex (int set_id) const
-{
-  int idx=0;
-  for (const auto& s : variable_sets_) {
-    if (s->GetId() == set_id)
-      return idx;
-    else
-      idx += s->GetVariables().rows();
-  }
-
-  assert(false);
-}
-
 } // namespace zmp
 } // namespace xpp
+
 

@@ -20,20 +20,14 @@ OptimizationVariables::~OptimizationVariables ()
 {
 }
 
-std::vector<OptimizationVariables::VariableSets>
-OptimizationVariables::GetVarSets ()
+NlpStructure::VariableSetVector
+OptimizationVariables::GetVarSets () const
 {
-  return std::vector<VariableSets>({kSplineCoff, kFootholds});
-}
-
-int
-OptimizationVariables::IndexStart (VariableSets set) const
-{
-  return nlp_structure_.GetStartIndex(set);
+  return nlp_structure_.GetVariableSets();
 }
 
 void
-OptimizationVariables::AddVariableSet (int id, const VectorXd& values)
+OptimizationVariables::AddVariableSet (std::string id, const VectorXd& values)
 {
   nlp_structure_.AddVariableSet(id, values.rows());
   nlp_structure_.SetVariables(id, values);
@@ -73,7 +67,7 @@ OptimizationVariables::SetVariables(const VectorXd& x)
 void
 OptimizationVariables::SetSplineCoefficients (const VectorXd& x)
 {
-  nlp_structure_.SetVariables(kSplineCoff, x);
+  nlp_structure_.SetVariables("SplineCoff", x);
   NotifyObservers();
 }
 
@@ -101,7 +95,7 @@ OptimizationVariables::GetFootholdsStd () const
 {
   assert(initialized_);
 
-  Eigen::VectorXd footholds_xy = nlp_structure_.GetVariables(kFootholds);
+  Eigen::VectorXd footholds_xy = nlp_structure_.GetVariables("Footholds");
   StdVecEigen2d fooothold_vec(footholds_xy.rows()/2.);
   for (int i=0; i<fooothold_vec.size(); ++i) {
     fooothold_vec.at(i) = footholds_xy.segment<kDim2d>(kDim2d*i);
@@ -114,7 +108,7 @@ OptimizationVariables::VectorXd
 OptimizationVariables::GetSplineCoefficients () const
 {
   assert(initialized_);
-  return nlp_structure_.GetVariables(kSplineCoff);
+  return nlp_structure_.GetVariables("SplineCoff");
 }
 
 

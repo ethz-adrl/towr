@@ -40,7 +40,7 @@ public:
 
   /** The jacobian of the constraints with respect to each decision variable set
     */
-  virtual Jacobian GetJacobianWithRespectTo (int var_set) const {};
+  virtual Jacobian GetJacobianWithRespectTo (std::string var_set) const {};
 
   /** For each returned constraint an upper and lower bound is given.
    */

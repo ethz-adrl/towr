@@ -56,11 +56,11 @@ LinearSplineEqualityConstraint::UpdateVariables (const ConstraintContainer* cont
 }
 
 LinearSplineEqualityConstraint::Jacobian
-LinearSplineEqualityConstraint::GetJacobianWithRespectTo (int var_set) const
+LinearSplineEqualityConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empy matrix
 
-  if (var_set == OptimizationVariables::VariableSets::kSplineCoff)
+  if (var_set == "SplineCoff")
     jac = linear_equation_.M;
 
   return jac;

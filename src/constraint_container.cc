@@ -79,15 +79,17 @@ ConstraintContainer::GetJacobian () const
 
     Jacobian jac;
     int n_constraints = 0;
+    int col_start = 0;
     for (const auto& set : subject_->GetVarSets()) {
 
-      jac = constraint.second->GetJacobianWithRespectTo(set);
+      jac = constraint.second->GetJacobianWithRespectTo(set->GetId());
 
       if (jac.size() != 0) {// constraint dependent on this variable set
-        int col_start = subject_->IndexStart(set);
         jac_all.block(row,col_start,n_constraints,jac.cols()) = jac;
         n_constraints = jac.rows();
       }
+
+      col_start += set->GetVariables().rows();
 
     }
 

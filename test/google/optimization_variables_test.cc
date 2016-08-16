@@ -15,9 +15,8 @@ class OptimizationVariablesTest : public ::testing::Test {
 protected:
   virtual void SetUp(){
 
-    enum VariableSets {kSplineCoff, kFootholds};
-    subject_.AddVariableSet(kSplineCoff, Eigen::Vector4d(0.0, 1.0, 2.0, 3.0));
-    subject_.AddVariableSet(kFootholds, Eigen::Vector4d(0.3, -0.3, 0.3, 0.3));
+    subject_.AddVariableSet("SplineCoff", Eigen::Vector4d(0.0, 1.0, 2.0, 3.0));
+    subject_.AddVariableSet("Footholds", Eigen::Vector4d(0.3, -0.3, 0.3, 0.3));
   }
 
   const int n_coeff_ = utils::kDim2d*4/* optimizing over a,b,c,d*/;

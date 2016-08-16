@@ -84,8 +84,8 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   spline_structure.SetEndAtStart();
 
   enum VariableSets {kSplineCoff=0, kFootholds};
-  opt_variables_->AddVariableSet(kSplineCoff, spline_structure.GetABCDCoeffients());
-  opt_variables_->AddVariableSet(kFootholds, supp_polygon_container.GetFootholdsInitializedToStart());
+  opt_variables_->AddVariableSet("SplineCoff", spline_structure.GetABCDCoeffients());
+  opt_variables_->AddVariableSet("Footholds", supp_polygon_container.GetFootholdsInitializedToStart());
   opt_variables_->NotifyObservers();
 //  opt_variables_->Init(spline_structure.GetABCDCoeffients(), supp_polygon_container.GetFootholdsInitializedToStart());
 
