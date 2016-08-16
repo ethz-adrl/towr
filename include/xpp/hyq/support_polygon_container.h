@@ -85,7 +85,7 @@ public:
   VecVecSuppLine GetActiveConstraintsForEachStep(const VecZmpSpline&) const;
 
   /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */
-  StdVecEigen2d GetFootholdsInitializedToStart() const;
+  Eigen::VectorXd GetFootholdsInitializedToStart() const;
 
 
 private:

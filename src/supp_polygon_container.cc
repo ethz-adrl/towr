@@ -51,7 +51,7 @@ SupportPolygonContainer::SetFootholdsXY(const StdVecEigen2d& footholds_xy)
   support_polygons_ = CreateSupportPolygons(footholds_); //update support polygons as well
 }
 
-SupportPolygonContainer::StdVecEigen2d
+Eigen::VectorXd
 SupportPolygonContainer::GetFootholdsInitializedToStart() const
 {
   StdVecEigen2d footholds_xy(footholds_.size());
@@ -61,7 +61,7 @@ SupportPolygonContainer::GetFootholdsInitializedToStart() const
     footholds_xy.at(step) = GetStartFoothold(leg).GetXy();
   }
 
-  return footholds_xy;
+  return utils::ConvertStdToEig(footholds_xy);
 }
 
 SupportPolygon SupportPolygonContainer::GetStancePolygon(const VecFoothold& footholds) const

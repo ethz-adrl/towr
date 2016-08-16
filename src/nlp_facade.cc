@@ -46,18 +46,18 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   }
 }
 
-void
-NlpFacade::InitializeVariables (int n_spline_coeff, int n_footholds)
-{
-  opt_variables_->Init(n_spline_coeff, n_footholds);
-}
+//void
+//NlpFacade::InitializeVariables (int n_spline_coeff, int n_footholds)
+//{
+//  opt_variables_->Init(n_spline_coeff, n_footholds);
+//}
 
-void
-NlpFacade::InitializeVariables (const Eigen::VectorXd& spline_abcd_coeff,
-                                const StdVecEigen2d& footholds)
-{
-  opt_variables_->Init(spline_abcd_coeff, footholds);
-}
+//void
+//NlpFacade::InitializeVariables (const Eigen::VectorXd& spline_abcd_coeff,
+//                                const StdVecEigen2d& footholds)
+//{
+//  opt_variables_->Init(spline_abcd_coeff, footholds);
+//}
 
 void
 NlpFacade::SolveNlp(const State& curr_cog_,
@@ -69,7 +69,6 @@ NlpFacade::SolveNlp(const State& curr_cog_,
                     xpp::zmp::SplineTimes spline_times_,
                     double max_cpu_time)
 {
-
   step_sequence_planner_->Init(curr_cog_, final_state, curr_stance, robot_height);
   std::vector<xpp::hyq::LegID> step_sequence = step_sequence_planner_->DetermineStepSequence(curr_swing_leg);
   bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase(step_sequence);
@@ -84,9 +83,11 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   spline_structure.Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
   spline_structure.SetEndAtStart();
 
-  InitializeVariables(spline_structure.GetABCDCoeffients(),
-                      supp_polygon_container.GetFootholdsInitializedToStart());
-
+  enum VariableSets {kSplineCoff=0, kFootholds};
+  opt_variables_->AddVariableSet(kSplineCoff, spline_structure.GetABCDCoeffients());
+  opt_variables_->AddVariableSet(kFootholds, supp_polygon_container.GetFootholdsInitializedToStart());
+  opt_variables_->NotifyObservers();
+//  opt_variables_->Init(spline_structure.GetABCDCoeffients(), supp_polygon_container.GetFootholdsInitializedToStart());
 
   OptimizationVariablesInterpreter interpreter;
   interpreter.Init(spline_structure, supp_polygon_container, robot_height);
@@ -99,8 +100,8 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure.GetTotalFreeCoeff()), "acc");
   constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure), "final");
   constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure), "junction");
-//  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter), "zmp");
-//  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter), "rom");
+  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter), "zmp");
+  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter), "rom");
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint(), "obstacle");
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr), "joint_angles");
 

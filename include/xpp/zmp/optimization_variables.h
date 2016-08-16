@@ -19,7 +19,9 @@ namespace zmp {
   *
   * This class is responsible for publishing the up-to-date values of the
   * optimization variables to all the observers (cost function,
-  * constraints, visualizers,...) that depend on this state. It doesn't know about
+  * constraints, visualizers,...) that depend on this state.
+  *
+  * It doesn't know about
   * internal structure of the variables, that is all handled by nlp_structure_.
   * It is able to interpret the values of the optimization variables if they are
   * independent of the initialization values of the NLP.
@@ -34,15 +36,22 @@ public:
   typedef Eigen::Vector2d Vector2d;
 
   // fixme this is ugly, make member variable
-  enum VariableSets {kSplineCoff, kFootholds};
+  enum VariableSets {kSplineCoff=0, kFootholds};
   static std::vector<VariableSets> GetVarSets();
   int IndexStart(VariableSets set) const;
 
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
 
-  void Init (int n_spline_coeff, int n_steps);
-  void Init (const VectorXd& x_coeff_abcd, const StdVecEigen2d& footholds);
+
+  void AddVariableSet(int id, const VectorXd& values);
+
+//
+//  void Init (int n_spline_coeff, int n_steps);
+//  void Init (const VectorXd& x_coeff_abcd, const StdVecEigen2d& footholds);
+
+
+
 
   VectorXd GetOptimizationVariables() const;
   VecBound GetOptimizationVariableBounds() const;
@@ -56,8 +65,6 @@ public:
 
 private:
   NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
-  VectorXd ConvertStdToEig(const StdVecEigen2d& footholds_xy) const;
-
   bool initialized_ = false; // checks if the init() method has been called
 };
 

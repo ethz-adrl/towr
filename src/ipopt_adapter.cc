@@ -37,7 +37,7 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 
 
   // nonzeros in the jacobian of the constraint g(x)
-  NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints();
+//  NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints();
 //  nnz_jac_g = jac.nonZeros();
   nnz_jac_g = m * n; // fixme all constraints depend on all inputs
 
@@ -127,31 +127,31 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
   if (values == NULL) {
 
 
-//    // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
-//  	int c_nonzero = 0;
-//    for (int row=0; row<m; ++row) {
-//      for (int col=0; col<n; ++col) {
-//  			iRow[c_nonzero] = row;
-//  			jCol[c_nonzero] = col;
-//  			c_nonzero++;
-//  		}
-//  	}
+    // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
+  	int c_nonzero = 0;
+    for (int row=0; row<m; ++row) {
+      for (int col=0; col<n; ++col) {
+  			iRow[c_nonzero] = row;
+  			jCol[c_nonzero] = col;
+  			c_nonzero++;
+  		}
+  	}
 
 
-    // fixme, this doesn't work, because sparsity structure estimated by
-    // zero entries, but this could be just for initial values of decision variables
-    // -> define all the elements as sparse matrix
-    NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints();
-    int nele=0; // nonzero cells in jacobian
-    for (int k=0; k<jac.outerSize(); ++k) {
-      for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
-        iRow[nele] = it.row();
-        jCol[nele] = it.col();
-        nele++;
-      }
-    }
-
-    std::cout << "jac: " << jac << std::endl;
+//    // fixme, this doesn't work, because sparsity structure estimated by
+//    // zero entries, but this could be just for initial values of decision variables
+//    // -> define all the elements as sparse matrix
+//    NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints();
+//    int nele=0; // nonzero cells in jacobian
+//    for (int k=0; k<jac.outerSize(); ++k) {
+//      for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
+//        iRow[nele] = it.row();
+//        jCol[nele] = it.col();
+//        nele++;
+//      }
+//    }
+//
+//    std::cout << "jac: " << jac << std::endl;
 
 
 

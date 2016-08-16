@@ -25,7 +25,10 @@ protected:
   {
     const int n_coeff_ = utils::kDim2d*4 /*coefficients a,b,c,d*/;
     const int n_steps_ = 2;
-    opt_var_.Init(n_coeff_, n_steps_);
+    enum VariableSets {kSplineCoff, kFootholds};
+    opt_var_.AddVariableSet(kSplineCoff, Eigen::VectorXd(n_coeff_));
+    opt_var_.AddVariableSet(kFootholds, Eigen::VectorXd(n_steps_*2));
+
     constraints_ = std::make_shared<ConstraintContainer>(opt_var_);
 
     int n_spline_coeff = opt_var_.GetSplineCoefficients().rows();

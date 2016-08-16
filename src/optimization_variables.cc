@@ -37,30 +37,30 @@ OptimizationVariables::AddVariableSet (int id, const VectorXd& values)
 {
   nlp_structure_.AddVariableSet(id, values.rows());
   nlp_structure_.SetVariables(id, values);
-  NotifyObservers();
-}
-
-void
-OptimizationVariables::Init (int n_spline_coeff, int n_steps)
-{
-  nlp_structure_.Reset();
-  nlp_structure_.AddVariableSet(kSplineCoff, n_spline_coeff);
-  nlp_structure_.AddVariableSet(kFootholds, kDim2d*n_steps);
   initialized_ = true;
-
-  NotifyObservers();
 }
 
-void
-OptimizationVariables::Init (const VectorXd& x_coeff_abcd,
-                             const StdVecEigen2d& footholds)
-{
-  Init(x_coeff_abcd.rows(), footholds.size());
-
-  nlp_structure_.SetVariables(kSplineCoff, x_coeff_abcd);
-  nlp_structure_.SetVariables(kFootholds, ConvertStdToEig(footholds));
-  NotifyObservers();
-}
+//void
+//OptimizationVariables::Init (int n_spline_coeff, int n_steps)
+//{
+//  nlp_structure_.Reset();
+//  nlp_structure_.AddVariableSet(kSplineCoff, n_spline_coeff);
+//  nlp_structure_.AddVariableSet(kFootholds, kDim2d*n_steps);
+//  initialized_ = true;
+//
+//  NotifyObservers();
+//}
+//
+//void
+//OptimizationVariables::Init (const VectorXd& x_coeff_abcd,
+//                             const StdVecEigen2d& footholds)
+//{
+//  Init(x_coeff_abcd.rows(), footholds.size());
+//
+//  nlp_structure_.SetVariables(kSplineCoff, x_coeff_abcd);
+//  nlp_structure_.SetVariables(kFootholds, ConvertStdToEig(footholds));
+//  NotifyObservers();
+//}
 
 void
 OptimizationVariables::SetVariables(const VectorXd& x)
@@ -115,21 +115,6 @@ OptimizationVariables::GetSplineCoefficients () const
 {
   assert(initialized_);
   return nlp_structure_.GetVariables(kSplineCoff);
-}
-
-OptimizationVariables::VectorXd
-OptimizationVariables::ConvertStdToEig(const StdVecEigen2d& footholds_xy) const
-{
-  int n_steps = footholds_xy.size();
-
-  VectorXd vec(kDim2d*n_steps);
-  int c=0;
-  for (int step=0; step<n_steps; ++step)
-  {
-    vec[c++] = footholds_xy.at(step).x();
-    vec[c++] = footholds_xy.at(step).y();
-  }
-  return vec;
 }
 
 
