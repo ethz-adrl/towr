@@ -20,6 +20,18 @@ OptimizationVariables::~OptimizationVariables ()
 {
 }
 
+std::vector<OptimizationVariables::VariableSets>
+OptimizationVariables::GetVarSets ()
+{
+  return std::vector<VariableSets>({kSplineCoff, kFootholds});
+}
+
+int
+OptimizationVariables::IndexStart (VariableSets set) const
+{
+  nlp_structure_.GetStartIndex(set);
+}
+
 void
 OptimizationVariables::Init (int n_spline_coeff, int n_steps)
 {

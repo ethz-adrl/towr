@@ -33,9 +33,6 @@ public:
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd EvaluateConstraint () const override;
 
-  /** @brief Returns the Jacobian Matrix of this constraint. */
-  Jacobian GetJacobian (int var_set) const override;
-
 protected:
   /** only allow child classes of this class to be instantiated. */
   ALinearConstraint ();
@@ -63,6 +60,8 @@ class LinearSplineEqualityConstraint : public LinearEqualityConstraint {
 public:
   /** @brief Updates the values of the optimization variables. */
   void UpdateVariables(const ConstraintContainer*) override;
+  /** @brief Returns the Jacobian Matrix of this constraint. */
+  Jacobian GetJacobianWithRespectTo (int var_set) const override;
 };
 
 

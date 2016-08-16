@@ -9,7 +9,6 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_CONSTRAINT_H_
 
 #include <Eigen/Dense>
-#include <Eigen/Sparse>
 
 namespace xpp {
 namespace zmp {
@@ -28,7 +27,7 @@ public:
   };
   typedef Eigen::VectorXd VectorXd;
   typedef std::vector<Bound> VecBound;
-  typedef Eigen::SparseMatrix<double, Eigen::RowMajor> Jacobian;
+  typedef Eigen::MatrixXd Jacobian;
 
   AConstraint ();
   virtual ~AConstraint ();
@@ -39,11 +38,9 @@ public:
    */
   virtual VectorXd EvaluateConstraint () const = 0;
 
-  /** The jacobian of the constraints.
-    *
-    * So the derivative of each constraint w.r.t each decision variable.
+  /** The jacobian of the constraints with respect to each decision variable set
     */
-  virtual Jacobian GetJacobian (int var_set) const {};
+  virtual Jacobian GetJacobianWithRespectTo (int var_set) const {};
 
   /** For each returned constraint an upper and lower bound is given.
    */

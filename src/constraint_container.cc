@@ -68,21 +68,30 @@ ConstraintContainer::EvaluateConstraints () const
 ConstraintContainer::Jacobian
 ConstraintContainer::GetJacobian () const
 {
-  int n_constraints = bounds_.size();
-  int n_opt_var = subject_->GetOptimizationVariableCount();
-  Jacobian jac_all(n_constraints, n_opt_var);
+  int m = bounds_.size();
+  int n = subject_->GetOptimizationVariableCount();
+  Jacobian jac_all(m, n);
+  jac_all.setZero();
 
-  int c = 0;
+  int row = 0;
   for (const auto& constraint : constraints_) {
     constraint.second->UpdateVariables(this);
 
-    // fixme
-    Jacobian jac = constraint.second->GetJacobian(1);
+    Jacobian jac;
+    int n_constraints = 0;
+    for (const auto& set : subject_->GetVarSets()) {
 
+      jac = constraint.second->GetJacobianWithRespectTo(set);
 
-    int c_new = jac.rows();
-    jac_all.middleRows(c, c_new) = jac;
-    c += c_new;
+      if (jac.size() != 0) {// constraint dependent on this variable set
+        int col_start = subject_->IndexStart(set);
+        jac_all.block(row,col_start,n_constraints,jac.cols()) = jac;
+        n_constraints = jac.rows();
+      }
+
+    }
+
+    row += n_constraints;
   }
   return jac_all;
 }

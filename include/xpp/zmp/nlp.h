@@ -13,6 +13,7 @@
 #include <xpp/zmp/cost_container.h>
 #include <xpp/zmp/cost_function_functor.h>
 
+#include <Eigen/Sparse>
 #include <memory>
 
 namespace xpp {
@@ -32,7 +33,7 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef std::vector<Bound> BoundVec;
   typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
-  typedef AConstraint::Jacobian Jacobian;
+  typedef Eigen::SparseMatrix<double, Eigen::RowMajor> Jacobian;
 
   typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
@@ -57,6 +58,7 @@ public:
   VectorXd EvaluateConstraints(const Number* x) const;
 
   Jacobian EvalJacobianOfConstraints(const Number* x) const;
+  Jacobian EvalJacobianOfConstraints() const; //fixme remove this
 
 private:
   OptimizationVariablesPtr opt_variables_;

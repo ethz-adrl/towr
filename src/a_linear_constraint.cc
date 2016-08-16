@@ -27,12 +27,6 @@ ALinearConstraint::EvaluateConstraint () const
   return linear_equation_.M*x_; // linear part respected in bounds
 }
 
-ALinearConstraint::Jacobian
-ALinearConstraint::GetJacobian (int var_set) const
-{
-  return linear_equation_.M.sparseView();
-}
-
 LinearEqualityConstraint::VecBound
 LinearEqualityConstraint::GetBounds () const
 {
@@ -59,6 +53,17 @@ void
 LinearSplineEqualityConstraint::UpdateVariables (const ConstraintContainer* container)
 {
   x_ = container->GetSplineCoefficients();
+}
+
+LinearSplineEqualityConstraint::Jacobian
+LinearSplineEqualityConstraint::GetJacobianWithRespectTo (int var_set) const
+{
+  Jacobian jac; // empy matrix
+
+  if (var_set == OptimizationVariables::VariableSets::kSplineCoff)
+    jac = linear_equation_.M;
+
+  return jac;
 }
 
 } /* namespace zmp */

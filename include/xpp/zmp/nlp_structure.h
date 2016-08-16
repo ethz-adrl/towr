@@ -40,16 +40,17 @@ public:
     * @param idx The index (order) of this variable set compared to the others.
     * @param n_variables The number of variables.
     */
-  void AddVariableSet(int idx, int n_variables);
+  void AddVariableSet(int id, int n_variables);
 
   int GetOptimizationVariableCount() const;
   VectorXd GetAllOptimizationVariables() const;
   VecBound GetAllBounds () const;
 
   void SetAllVariables(const VectorXd& x_all);
-  void SetVariables(int idx, const VectorXd& values);
-  VectorXd GetVariables(int idx) const;
+  void SetVariables(int id, const VectorXd& values);
+  VectorXd GetVariables(int id) const;
 
+  int GetStartIndex(int set_id) const;
   void Reset();
 
 private:

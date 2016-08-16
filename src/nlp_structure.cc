@@ -15,25 +15,25 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef AConstraint::VecBound VecBound;
 
-  VariableSet(int n_variables, int idx);
+  VariableSet(int n_variables, int id);
   virtual ~VariableSet();
 
   VectorXd GetVariables() const;
   VecBound GetBounds() const;
-  int GetIndex() const;
+  int GetId() const;
 
   void SetVariables(const VectorXd& x);
 private:
   VectorXd x_;
   VecBound bounds_;
-  int idx_;
+  int id_;
 };
 
-VariableSet::VariableSet (int n_variables, int idx)
+VariableSet::VariableSet (int n_variables, int id)
 {
   x_ = Eigen::VectorXd::Zero(n_variables);
   bounds_.assign(n_variables, AConstraint::kNoBound_);
-  idx_ = idx;
+  id_ = id;
 }
 
 VariableSet::~VariableSet ()
@@ -41,9 +41,9 @@ VariableSet::~VariableSet ()
 }
 
 int
-VariableSet::GetIndex () const
+VariableSet::GetId () const
 {
-  return idx_;
+  return id_;
 }
 
 VariableSet::VectorXd
@@ -75,9 +75,9 @@ NlpStructure::~NlpStructure ()
 }
 
 void
-NlpStructure::AddVariableSet (int idx, int n_variables)
+NlpStructure::AddVariableSet (int id, int n_variables)
 {
-  variable_sets_.push_back(VariableSetPtr(new VariableSet(n_variables, idx)));
+  variable_sets_.push_back(VariableSetPtr(new VariableSet(n_variables, id)));
   n_variables_ += n_variables;
 }
 
@@ -132,10 +132,10 @@ NlpStructure::SetAllVariables(const VectorXd& x_all)
 }
 
 void
-NlpStructure::SetVariables (int idx, const VectorXd& values)
+NlpStructure::SetVariables (int id, const VectorXd& values)
 {
   for (const auto& s : variable_sets_)
-    if (s->GetIndex() == idx) {
+    if (s->GetId() == id) {
      s->SetVariables(values);
      return;
     }
@@ -144,14 +144,29 @@ NlpStructure::SetVariables (int idx, const VectorXd& values)
 }
 
 NlpStructure::VectorXd
-NlpStructure::GetVariables (int idx) const
+NlpStructure::GetVariables (int id) const
 {
   for (const auto& s : variable_sets_)
-    if (s->GetIndex() == idx)
+    if (s->GetId() == id)
      return s->GetVariables();
 
   assert(false); // name not present in set
 }
 
+int
+NlpStructure::GetStartIndex (int set_id) const
+{
+  int idx=0;
+  for (const auto& s : variable_sets_) {
+    if (s->GetId() == set_id)
+      return idx;
+    else
+      idx += s->GetVariables().rows();
+  }
+
+  assert(false);
+}
+
 } // namespace zmp
 } // namespace xpp
+

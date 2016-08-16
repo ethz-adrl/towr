@@ -33,8 +33,10 @@ public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d; // for footholds
   typedef Eigen::Vector2d Vector2d;
 
+  // fixme this is ugly, make member variable
   enum VariableSets {kSplineCoff, kFootholds};
-  const std::array<VariableSets, 2> kVarSet = {{kSplineCoff, kFootholds}};
+  static std::vector<VariableSets> GetVarSets();
+  int IndexStart(VariableSets set) const;
 
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
@@ -50,6 +52,7 @@ public:
 
   void SetVariables(const VectorXd& x);
   void SetSplineCoefficients(const VectorXd& x);
+
 
 private:
   NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
