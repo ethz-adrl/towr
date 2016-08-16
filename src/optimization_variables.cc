@@ -29,7 +29,15 @@ OptimizationVariables::GetVarSets ()
 int
 OptimizationVariables::IndexStart (VariableSets set) const
 {
-  nlp_structure_.GetStartIndex(set);
+  return nlp_structure_.GetStartIndex(set);
+}
+
+void
+OptimizationVariables::AddVariableSet (int id, const VectorXd& values)
+{
+  nlp_structure_.AddVariableSet(id, values.rows());
+  nlp_structure_.SetVariables(id, values);
+  NotifyObservers();
 }
 
 void
