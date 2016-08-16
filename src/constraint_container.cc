@@ -24,10 +24,8 @@ ConstraintContainer::~ConstraintContainer ()
 void
 ConstraintContainer::Update ()
 {
-  spline_coeff_      = subject_->GetVariables(OptimizationVariables::kSplineCoeff);
-  VectorXd footholds = subject_->GetVariables(OptimizationVariables::kFootholds);
-
-  footholds_    = utils::ConvertEigToStd(footholds);
+  // optimization variables changed. "Observer" pull functionality implemented
+  // in the specific constraints, so here nothing to be done.
 }
 
 void
@@ -41,7 +39,6 @@ ConstraintContainer::AddConstraint (ConstraintPtr constraint,
                                     const std::string& name)
 {
   constraints_.emplace(name, constraint);
-  Update();
   RefreshBounds ();
 }
 
@@ -58,7 +55,7 @@ ConstraintContainer::EvaluateConstraints () const
 
   int c = 0;
   for (const auto& constraint : constraints_) {
-    constraint.second->UpdateVariables(this);
+    constraint.second->UpdateVariables(subject_);
     VectorXd g = constraint.second->EvaluateConstraint();
     int c_new = g.rows();
     g_all.middleRows(c, c_new) = g;
@@ -77,7 +74,7 @@ ConstraintContainer::GetJacobian () const
 
   int row = 0;
   for (const auto& constraint : constraints_) {
-    constraint.second->UpdateVariables(this);
+    constraint.second->UpdateVariables(subject_);
 
     Jacobian jac;
     int n_constraints = 0;
@@ -105,7 +102,7 @@ ConstraintContainer::RefreshBounds ()
 {
   bounds_.clear();
   for (const auto& constraint : constraints_) {
-    constraint.second->UpdateVariables(this);
+    constraint.second->UpdateVariables(subject_);
     VecBound b = constraint.second->GetBounds();
     bounds_.insert(bounds_.end(), b.begin(), b.end());
   }
@@ -115,18 +112,6 @@ ConstraintContainer::VecBound
 ConstraintContainer::GetBounds () const
 {
   return bounds_;
-}
-
-const ConstraintContainer::FootholdsXY&
-ConstraintContainer::GetFootholds () const
-{
-  return footholds_;
-}
-
-const ConstraintContainer::VectorXd&
-ConstraintContainer::GetSplineCoefficients () const
-{
-  return spline_coeff_;
 }
 
 } /* namespace zmp */

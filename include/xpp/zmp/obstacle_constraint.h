@@ -21,7 +21,7 @@ public:
   ObstacleConstraint ();
   virtual ~ObstacleConstraint ();
 
-  void UpdateVariables(const ConstraintContainer*) override;
+  void UpdateVariables(const OptimizationVariables*) override;
 
   /** @brief Returns a vector of constraint violations for current variables */
   VectorXd EvaluateConstraint () const override;

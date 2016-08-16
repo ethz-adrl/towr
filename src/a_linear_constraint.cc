@@ -6,7 +6,7 @@
  */
 
 #include <xpp/zmp/a_linear_constraint.h>
-#include <xpp/zmp/constraint_container.h>
+#include <xpp/zmp/optimization_variables.h>
 
 namespace xpp {
 namespace zmp {
@@ -50,9 +50,9 @@ LinearInequalityConstraint::GetBounds () const
 }
 
 void
-LinearSplineEqualityConstraint::UpdateVariables (const ConstraintContainer* container)
+LinearSplineEqualityConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  x_ = container->GetSplineCoefficients();
+  x_ = opt_var->GetVariables(OptimizationVariables::kSplineCoeff);
 }
 
 LinearSplineEqualityConstraint::Jacobian

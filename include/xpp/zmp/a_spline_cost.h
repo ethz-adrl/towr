@@ -31,7 +31,7 @@ public:
     * spline coefficients determine the cost.
     */
   void Init(const MatVec&);
-  void UpdateVariables(const CostContainer*) override;
+  void UpdateVariables(const OptimizationVariables*) override;
 
 protected:
   VectorXd spline_coeff_; ///< the current spline coefficients

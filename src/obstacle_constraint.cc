@@ -6,7 +6,7 @@
  */
 
 #include <xpp/zmp/obstacle_constraint.h>
-#include <xpp/zmp/constraint_container.h>
+#include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/ellipse.h>
 
 namespace xpp {
@@ -23,9 +23,10 @@ ObstacleConstraint::~ObstacleConstraint ()
 }
 
 void
-ObstacleConstraint::UpdateVariables (const ConstraintContainer* container)
+ObstacleConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  footholds_ = container->GetFootholds();
+  VectorXd footholds = opt_var->GetVariables(OptimizationVariables::kFootholds);
+  footholds_ = utils::ConvertEigToStd(footholds);
 }
 
 ObstacleConstraint::VectorXd

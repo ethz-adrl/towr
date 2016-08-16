@@ -6,7 +6,7 @@
  */
 
 #include <xpp/zmp/zmp_constraint.h>
-#include <xpp/zmp/constraint_container.h>
+#include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
@@ -26,10 +26,11 @@ ZmpConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
 }
 
 void
-ZmpConstraint::UpdateVariables (const ConstraintContainer* container)
+ZmpConstraint::UpdateVariables (const OptimizationVariables* subject)
 {
-  x_coeff_ = container->GetSplineCoefficients();
-  supp_polygon_container_.SetFootholdsXY(container->GetFootholds());
+  x_coeff_           = subject->GetVariables(OptimizationVariables::kSplineCoeff);
+  VectorXd footholds = subject->GetVariables(OptimizationVariables::kFootholds);
+  supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
 ZmpConstraint::VectorXd

@@ -6,7 +6,7 @@
  */
 
 #include <xpp/zmp/range_of_motion_cost.h>
-#include <xpp/zmp/cost_container.h>
+#include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
@@ -27,13 +27,13 @@ RangeOfMotionCost::Init (const OptimizationVariablesInterpreter& interpreter)
 }
 
 void
-RangeOfMotionCost::UpdateVariables(const CostContainer* container)
+RangeOfMotionCost::UpdateVariables(const OptimizationVariables* opt_var)
 {
-  VectorXd x_coeff      = container->GetSplineCoefficients();
-  FootholdsXY footholds = container->GetFootholds();
+  VectorXd x_coeff   = opt_var->GetVariables(OptimizationVariables::kSplineCoeff);
+  VectorXd footholds = opt_var->GetVariables(OptimizationVariables::kFootholds);
 
   continuous_spline_container_.AddOptimizedCoefficients(x_coeff);
-  supp_polygon_container_.SetFootholdsXY(footholds);
+  supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
 double

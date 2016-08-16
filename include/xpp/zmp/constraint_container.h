@@ -48,17 +48,10 @@ public:
   Jacobian GetJacobian () const;
   VecBound GetBounds () const;
 
-
-  const FootholdsXY& GetFootholds() const;
-  const VectorXd& GetSplineCoefficients() const;
-
 private:
   void RefreshBounds ();
   std::map<std::string, ConstraintPtr > constraints_;
   VecBound bounds_;
-
-  VectorXd spline_coeff_;
-  FootholdsXY footholds_;
 };
 
 } /* namespace zmp */

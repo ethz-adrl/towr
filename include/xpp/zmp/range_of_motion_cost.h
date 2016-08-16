@@ -24,7 +24,7 @@ public:
   virtual ~RangeOfMotionCost () {}
 
   void Init(const OptimizationVariablesInterpreter&);
-  void UpdateVariables(const CostContainer*) override;
+  void UpdateVariables(const OptimizationVariables*) override;
   double EvaluateCost () const override;
 
 private:

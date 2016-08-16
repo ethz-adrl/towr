@@ -6,8 +6,7 @@
  */
 
 #include <xpp/zmp/joint_angles_constraint.h>
-
-#include <xpp/zmp/constraint_container.h>
+#include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/spline_container.h>
 
 namespace xpp {
@@ -32,13 +31,13 @@ JointAnglesConstraint::Init (const Interpreter& interpreter,
 }
 
 void
-JointAnglesConstraint::UpdateVariables (const ConstraintContainer* container)
+JointAnglesConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd x_coeff        = container->GetSplineCoefficients();
-  FootholdsXY x_footholds = container->GetFootholds();
+  VectorXd x_coeff      = opt_var->GetVariables(OptimizationVariables::kSplineCoeff);
+  VectorXd footholds_xy = opt_var->GetVariables(OptimizationVariables::kFootholds);
 
   // calculate interpreted values from the optimization values
-  VecFoothold footholds = interpreter_.GetFootholds(x_footholds);
+  VecFoothold footholds = interpreter_.GetFootholds(utils::ConvertEigToStd(footholds_xy));
   VecSpline splines     = interpreter_.GetSplines(x_coeff);
 
   vec_t_ = SplineContainer::GetDiscretizedGlobalTimes(splines);

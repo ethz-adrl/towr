@@ -12,6 +12,29 @@ namespace xpp {
 namespace zmp {
 
 
+class MyCustomConstraint : AConstraint {
+public:
+  void UpdateVariables(const ConstraintContainer*) {
+
+  }
+
+  VectorXd EvaluateConstraint () const {
+
+  }
+
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const {
+
+  }
+
+  VecBound GetBounds () const {
+
+  }
+private:
+  VectorXd x_;
+
+};
+
+
 TEST(NlpTest, JacobiansCheck) {
 
   auto opt_variables = std::make_shared<OptimizationVariables>();

@@ -13,7 +13,7 @@
 namespace xpp {
 namespace zmp {
 
-class ConstraintContainer;
+class OptimizationVariables;
 
 class AConstraint {
 public:
@@ -32,7 +32,7 @@ public:
   AConstraint ();
   virtual ~AConstraint ();
 
-  virtual void UpdateVariables(const ConstraintContainer*) = 0;
+  virtual void UpdateVariables(const OptimizationVariables*) = 0;
 
   /** A constraint always delivers a vector of constraint violations.
    */

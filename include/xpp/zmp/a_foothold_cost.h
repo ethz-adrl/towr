@@ -27,7 +27,7 @@ public:
   AFootholdCost ();
   virtual ~AFootholdCost ();
 
-  void UpdateVariables(const CostContainer*) override;
+  void UpdateVariables(const OptimizationVariables*) override;
 
 protected:
   void Init(const SupportPolygonContainer&);

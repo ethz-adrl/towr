@@ -13,7 +13,7 @@
 namespace xpp {
 namespace zmp {
 
-class CostContainer;
+class OptimizationVariables;
 
 /** @brief Common interface to define a cost, which simply returns a scalar value */
 class ACost {
@@ -22,7 +22,7 @@ public:
   virtual ~ACost () {}
 
   virtual double EvaluateCost () const = 0;
-  virtual void UpdateVariables(const CostContainer*) = 0;
+  virtual void UpdateVariables(const OptimizationVariables*) = 0;
 };
 
 } /* namespace zmp */

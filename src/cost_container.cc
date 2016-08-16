@@ -35,10 +35,10 @@ CostContainer::AddCost (CostPtr cost, const std::string& name)
 void
 CostContainer::Update ()
 {
-  spline_coeff_      = subject_->GetVariables(OptimizationVariables::kSplineCoeff);
-  VectorXd footholds = subject_->GetVariables(OptimizationVariables::kFootholds);
-
-  footholds_    = utils::ConvertEigToStd(footholds);
+//  spline_coeff_      = subject_->GetVariables(OptimizationVariables::kSplineCoeff);
+//  VectorXd footholds = subject_->GetVariables(OptimizationVariables::kFootholds);
+//
+//  footholds_    = utils::ConvertEigToStd(footholds);
 }
 
 double
@@ -46,7 +46,7 @@ CostContainer::EvaluateTotalCost () const
 {
   double total_cost = 0.0;
   for (const auto& cost : costs_) {
-    cost.second->UpdateVariables(this);
+    cost.second->UpdateVariables(subject_);
     total_cost += cost.second->EvaluateCost();
   }
 

@@ -6,7 +6,7 @@
  */
 
 #include <xpp/zmp/a_foothold_cost.h>
-#include <xpp/zmp/cost_container.h>
+#include <xpp/zmp/optimization_variables.h>
 
 namespace xpp {
 namespace zmp {
@@ -28,11 +28,11 @@ AFootholdCost::Init (const SupportPolygonContainer& supp_polygon_container)
 }
 
 void
-AFootholdCost::UpdateVariables (const CostContainer* container)
+AFootholdCost::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  supp_polygon_container_.SetFootholdsXY(container->GetFootholds());
+  Eigen::VectorXd footholds = opt_var->GetVariables(OptimizationVariables::kFootholds);
+  supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
-
 
 void
 FootholdGoalCost::Init (const Vector2d& goal_xy,

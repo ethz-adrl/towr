@@ -6,7 +6,7 @@
  */
 
 #include <xpp/zmp/a_spline_cost.h>
-#include <xpp/zmp/cost_container.h>
+#include <xpp/zmp/optimization_variables.h>
 
 namespace xpp {
 namespace zmp {
@@ -22,9 +22,9 @@ ASplineCost::Init (const MatVec& mat_vec)
 }
 
 void
-ASplineCost::UpdateVariables (const CostContainer* cost_container)
+ASplineCost::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  spline_coeff_ = cost_container->GetSplineCoefficients();
+  spline_coeff_ = opt_var->GetVariables(OptimizationVariables::kSplineCoeff);
 }
 
 double

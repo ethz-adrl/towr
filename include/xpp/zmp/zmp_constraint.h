@@ -27,7 +27,7 @@ public:
 
   void Init(const OptimizationVariablesInterpreter& interpreter);
 
-  void UpdateVariables (const ConstraintContainer*) override;
+  void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
   VecBound GetBounds () const override;
 

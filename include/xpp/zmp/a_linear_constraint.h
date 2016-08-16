@@ -59,7 +59,7 @@ public:
 class LinearSplineEqualityConstraint : public LinearEqualityConstraint {
 public:
   /** @brief Updates the values of the optimization variables. */
-  void UpdateVariables(const ConstraintContainer*) override;
+  void UpdateVariables(const OptimizationVariables*) override;
   /** @brief Returns the Jacobian Matrix of this constraint. */
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 };

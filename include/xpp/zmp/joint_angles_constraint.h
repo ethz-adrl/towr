@@ -38,7 +38,7 @@ public:
   virtual ~JointAnglesConstraint ();
 
   void Init(const Interpreter& interpreter, const InvKinPtr& inv_kin);
-  void UpdateVariables(const ConstraintContainer*) override;
+  void UpdateVariables(const OptimizationVariables*) override;
 
   VectorXd EvaluateConstraint() const override;
   VecBound GetBounds() const override;
