@@ -29,8 +29,10 @@ InterpretingObserver::SetInterpreter (const Interpreter& interpreter)
 void
 InterpretingObserver::Update ()
 {
-  x_coeff_ = subject_->GetSplineCoefficients();
-  x_feet_  = subject_->GetFootholdsStd();
+  x_coeff_                  = subject_->GetVariables(OptimizationVariables::kSplineCoeff);
+  Eigen::VectorXd footholds = subject_->GetVariables(OptimizationVariables::kFootholds);
+
+  x_feet_    = utils::ConvertEigToStd(footholds);
 }
 
 InterpretingObserver::VecSpline

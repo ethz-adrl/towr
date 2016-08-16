@@ -10,14 +10,26 @@
 namespace xpp {
 namespace zmp {
 
-static constexpr int kDim2d = 2; // X,Y
-
 OptimizationVariables::OptimizationVariables ()
 {
 }
 
 OptimizationVariables::~OptimizationVariables ()
 {
+}
+
+OptimizationVariables::VectorXd
+OptimizationVariables::GetVariables (std::string id) const
+{
+  assert(initialized_);
+  return nlp_structure_.GetVariables(id);
+}
+
+void
+OptimizationVariables::SetVariables (std::string id, const VectorXd& values)
+{
+  assert(initialized_);
+  nlp_structure_.SetVariables(id, values);
 }
 
 NlpStructure::VariableSetVector
@@ -30,7 +42,7 @@ void
 OptimizationVariables::AddVariableSet (std::string id, const VectorXd& values)
 {
   nlp_structure_.AddVariableSet(id, values.rows());
-  nlp_structure_.SetVariables(id, values);
+  SetVariables(id, values);
   initialized_ = true;
 }
 
@@ -64,12 +76,12 @@ OptimizationVariables::SetVariables(const VectorXd& x)
   NotifyObservers();
 }
 
-void
-OptimizationVariables::SetSplineCoefficients (const VectorXd& x)
-{
-  nlp_structure_.SetVariables("SplineCoff", x);
-  NotifyObservers();
-}
+//void
+//OptimizationVariables::SetSplineCoefficients (const VectorXd& x)
+//{
+//  nlp_structure_.SetVariables("SplineCoff", x);
+//  NotifyObservers();
+//}
 
 OptimizationVariables::VectorXd
 OptimizationVariables::GetOptimizationVariables () const
@@ -90,27 +102,22 @@ OptimizationVariables::GetOptimizationVariableCount () const
   return nlp_structure_.GetOptimizationVariableCount();
 }
 
-OptimizationVariables::StdVecEigen2d
-OptimizationVariables::GetFootholdsStd () const
-{
-  assert(initialized_);
+//OptimizationVariables::StdVecEigen2d
+//OptimizationVariables::GetFootholdsStd () const
+//{
+//  assert(initialized_);
+//  Eigen::VectorXd footholds_xy = nlp_structure_.GetVariables(kFootholds);
+//  return utils::ConvertEigToStd(footholds_xy);
+//}
 
-  Eigen::VectorXd footholds_xy = nlp_structure_.GetVariables("Footholds");
-  StdVecEigen2d fooothold_vec(footholds_xy.rows()/2.);
-  for (int i=0; i<fooothold_vec.size(); ++i) {
-    fooothold_vec.at(i) = footholds_xy.segment<kDim2d>(kDim2d*i);
-  }
-
-  return fooothold_vec;
-}
-
-OptimizationVariables::VectorXd
-OptimizationVariables::GetSplineCoefficients () const
-{
-  assert(initialized_);
-  return nlp_structure_.GetVariables("SplineCoff");
-}
+//OptimizationVariables::VectorXd
+//OptimizationVariables::GetSplineCoefficients () const
+//{
+//  assert(initialized_);
+//  return nlp_structure_.GetVariables("SplineCoff");
+//}
 
 
 } /* namespace zmp */
 } /* namespace xpp */
+

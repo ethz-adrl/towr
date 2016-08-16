@@ -10,6 +10,32 @@
 namespace xpp {
 namespace utils {
 
+Eigen::VectorXd
+ConvertStdToEig(const StdVecEigen2d& vec_std_2d)
+{
+  int n_steps = vec_std_2d.size();
+
+  Eigen::VectorXd vec(kDim2d*n_steps);
+  int c=0;
+  for (int i=0; i<n_steps; ++i)
+  {
+    vec[c++] = vec_std_2d.at(i).x();
+    vec[c++] = vec_std_2d.at(i).y();
+  }
+  return vec;
+}
+
+StdVecEigen2d
+ConvertEigToStd (const Eigen::VectorXd& vec_eig)
+{
+  StdVecEigen2d fooothold_vec(vec_eig.rows()/2.);
+  for (int i=0; i<fooothold_vec.size(); ++i) {
+    fooothold_vec.at(i) = vec_eig.segment<kDim2d>(kDim2d*i);
+  }
+
+  return fooothold_vec;
+}
+
 Point3d Point2d::Make3D() const
 {
   Point3d p3d;

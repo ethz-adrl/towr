@@ -54,9 +54,10 @@ public:
 
   void Reset();
 
+
 private:
   VariableSetVector variable_sets_;
-  int n_variables_;
+  VariableSetPtr GetSet(std::string id) const;
 };
 
 

@@ -35,6 +35,11 @@ public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d; // for footholds
   typedef Eigen::Vector2d Vector2d;
 
+  /** Common strings to use to name optimization variable sets. This is just to
+    * avoid misspelling resulting in a set not being found.
+    */
+  static constexpr const char* kSplineCoeff = "spline_coeff";
+  static constexpr const char* kFootholds   = "footholds";
 
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
@@ -47,16 +52,19 @@ public:
 //  void Init (const VectorXd& x_coeff_abcd, const StdVecEigen2d& footholds);
 
 
+  VectorXd GetVariables(std::string id) const;
+  void SetVariables(std::string id, const VectorXd& values);
+
 
 
   VectorXd GetOptimizationVariables() const;
   VecBound GetOptimizationVariableBounds() const;
-  StdVecEigen2d GetFootholdsStd() const;
-  VectorXd GetSplineCoefficients() const;
+//  StdVecEigen2d GetFootholdsStd() const;
+//  VectorXd GetSplineCoefficients() const;
   int GetOptimizationVariableCount() const;
 
   void SetVariables(const VectorXd& x);
-  void SetSplineCoefficients(const VectorXd& x);
+//  void SetSplineCoefficients(const VectorXd& x);
 
   NlpStructure::VariableSetVector GetVarSets() const;
 

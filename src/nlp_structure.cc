@@ -48,7 +48,6 @@ VariableSet::SetVariables (const VectorXd& x)
 
 NlpStructure::NlpStructure()
 {
-  n_variables_ = 0;
 }
 
 NlpStructure::~NlpStructure ()
@@ -58,21 +57,28 @@ NlpStructure::~NlpStructure ()
 void
 NlpStructure::AddVariableSet (std::string id, int n_variables)
 {
-  variable_sets_.push_back(VariableSetPtr(new VariableSet(n_variables, id)));
-  n_variables_ += n_variables;
+  auto set_ptr = GetSet(id);
+  auto new_set = std::make_shared<VariableSet>(n_variables, id);
+  if (set_ptr == nullptr) // set doesn't exist yet, so add
+    variable_sets_.push_back(new_set);
+  else  // overwrite existing set
+    set_ptr = new_set;
 }
 
 void
 NlpStructure::Reset ()
 {
   variable_sets_.clear();
-  n_variables_ = 0;
 }
 
 int
 NlpStructure::GetOptimizationVariableCount() const
 {
-  return n_variables_;
+  int c=0;
+  for (const auto& set : variable_sets_)
+    c += set->GetVariables().rows();
+
+  return c;
 }
 
 NlpStructure::VectorXd
@@ -118,26 +124,26 @@ NlpStructure::SetAllVariables(const VectorXd& x_all)
   }
 }
 
+NlpStructure::VariableSetPtr
+NlpStructure::GetSet (std::string id) const
+{
+  for (const auto& s : variable_sets_)
+    if (s->GetId() == id)
+     return s;
+
+  return nullptr; // set with this id does not exist
+}
+
 void
 NlpStructure::SetVariables (std::string id, const VectorXd& values)
 {
-  for (const auto& s : variable_sets_)
-    if (s->GetId() == id) {
-     s->SetVariables(values);
-     return;
-    }
-
-  assert(false); // name not present in set
+  GetSet(id)->SetVariables(values);
 }
 
 NlpStructure::VectorXd
 NlpStructure::GetVariables (std::string id) const
 {
-  for (const auto& s : variable_sets_)
-    if (s->GetId() == id)
-     return s->GetVariables();
-
-  assert(false); // name not present in set
+  return GetSet(id)->GetVariables();
 }
 
 } // namespace zmp

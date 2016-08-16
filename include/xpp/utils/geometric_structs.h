@@ -44,21 +44,8 @@ typedef Eigen::Vector2d Vec2d; /// X,Y
 typedef Eigen::Vector3d Vec3d; /// X,Y,Z
 
 typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > StdVecEigen2d;
-
-inline Eigen::VectorXd
-ConvertStdToEig(const StdVecEigen2d& vec_std_2d)
-{
-  int n_steps = vec_std_2d.size();
-
-  Eigen::VectorXd vec(kDim2d*n_steps);
-  int c=0;
-  for (int step=0; step<n_steps; ++step)
-  {
-    vec[c++] = vec_std_2d.at(step).x();
-    vec[c++] = vec_std_2d.at(step).y();
-  }
-  return vec;
-}
+Eigen::VectorXd ConvertStdToEig(const StdVecEigen2d& vec_std_2d);
+StdVecEigen2d ConvertEigToStd (const Eigen::VectorXd& vec_eigen);
 
 // forward declarations
 struct Point2d;
