@@ -33,8 +33,8 @@ JointAnglesConstraint::Init (const Interpreter& interpreter,
 void
 JointAnglesConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd x_coeff      = opt_var->GetVariables(OptimizationVariables::kSplineCoeff);
-  VectorXd footholds_xy = opt_var->GetVariables(OptimizationVariables::kFootholds);
+  VectorXd x_coeff      = opt_var->GetVariables(VariableNames::kSplineCoeff);
+  VectorXd footholds_xy = opt_var->GetVariables(VariableNames::kFootholds);
 
   // calculate interpreted values from the optimization values
   VecFoothold footholds = interpreter_.GetFootholds(utils::ConvertEigToStd(footholds_xy));

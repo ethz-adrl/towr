@@ -29,8 +29,8 @@ RangeOfMotionCost::Init (const OptimizationVariablesInterpreter& interpreter)
 void
 RangeOfMotionCost::UpdateVariables(const OptimizationVariables* opt_var)
 {
-  VectorXd x_coeff   = opt_var->GetVariables(OptimizationVariables::kSplineCoeff);
-  VectorXd footholds = opt_var->GetVariables(OptimizationVariables::kFootholds);
+  VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
+  VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
 
   continuous_spline_container_.AddOptimizedCoefficients(x_coeff);
   supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));

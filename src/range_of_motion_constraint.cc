@@ -29,8 +29,8 @@ RangeOfMotionConstraint::Init (const OptimizationVariablesInterpreter& interpret
 void
 RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd x_coeff   = opt_var->GetVariables(OptimizationVariables::kSplineCoeff);
-  VectorXd footholds = opt_var->GetVariables(OptimizationVariables::kFootholds);
+  VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
+  VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
 
   continuous_spline_container_.AddOptimizedCoefficients(x_coeff);
   supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
@@ -47,7 +47,7 @@ RangeOfMotionConstraint::EvaluateConstraint () const
 
   std::vector<double> g_vec;
 
-  for (int i=0; i<B_r_baseToFeet.size(); ++i) {
+  for (uint i=0; i<B_r_baseToFeet.size(); ++i) {
 
 //    // for the first time discretization, the footholds (start stance) as well
 //    // as the body position is fixed, so no constraint must be added there.

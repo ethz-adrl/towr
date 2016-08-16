@@ -52,7 +52,7 @@ LinearInequalityConstraint::GetBounds () const
 void
 LinearSplineEqualityConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  x_ = opt_var->GetVariables(OptimizationVariables::kSplineCoeff);
+  x_ = opt_var->GetVariables(VariableNames::kSplineCoeff);
 }
 
 LinearSplineEqualityConstraint::Jacobian
@@ -60,7 +60,7 @@ LinearSplineEqualityConstraint::GetJacobianWithRespectTo (std::string var_set) c
 {
   Jacobian jac; // empy matrix
 
-  if (var_set == OptimizationVariables::kSplineCoeff)
+  if (var_set == VariableNames::kSplineCoeff)
     jac = linear_equation_.M;
 
   return jac;

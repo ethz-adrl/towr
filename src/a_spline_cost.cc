@@ -24,7 +24,7 @@ ASplineCost::Init (const MatVec& mat_vec)
 void
 ASplineCost::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  spline_coeff_ = opt_var->GetVariables(OptimizationVariables::kSplineCoeff);
+  spline_coeff_ = opt_var->GetVariables(VariableNames::kSplineCoeff);
 }
 
 double

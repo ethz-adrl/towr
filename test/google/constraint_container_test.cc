@@ -30,7 +30,7 @@ protected:
 
     constraints_ = std::make_shared<ConstraintContainer>(opt_var_);
 
-    int n_spline_coeff = opt_var_.GetVariables(OptimizationVariables::kSplineCoeff).rows();
+    int n_spline_coeff = opt_var_.GetVariables(VariableNames::kSplineCoeff).rows();
     c_zeros_ = ConstraintFactory::CreateAccConstraint(Eigen::Vector2d::Zero(),n_spline_coeff);
     c_ones_  = ConstraintFactory::CreateAccConstraint(Eigen::Vector2d::Ones(),n_spline_coeff);
 

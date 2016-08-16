@@ -25,7 +25,7 @@ ObstacleConstraint::~ObstacleConstraint ()
 void
 ObstacleConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd footholds = opt_var->GetVariables(OptimizationVariables::kFootholds);
+  VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
   footholds_ = utils::ConvertEigToStd(footholds);
 }
 

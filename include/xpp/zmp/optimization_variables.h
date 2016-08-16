@@ -31,12 +31,6 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef NlpStructure::VecBound VecBound;
 
-  /** Common strings to use to name optimization variable sets. This is just to
-    * avoid misspelling resulting in a set not being found.
-    */
-  static constexpr const char* kSplineCoeff = "spline_coeff";
-  static constexpr const char* kFootholds   = "footholds";
-
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
 

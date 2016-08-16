@@ -28,8 +28,8 @@ ZmpConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
 void
 ZmpConstraint::UpdateVariables (const OptimizationVariables* subject)
 {
-  x_coeff_           = subject->GetVariables(OptimizationVariables::kSplineCoeff);
-  VectorXd footholds = subject->GetVariables(OptimizationVariables::kFootholds);
+  x_coeff_           = subject->GetVariables(VariableNames::kSplineCoeff);
+  VectorXd footholds = subject->GetVariables(VariableNames::kFootholds);
   supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 

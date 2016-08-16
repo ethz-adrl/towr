@@ -30,7 +30,7 @@ AFootholdCost::Init (const SupportPolygonContainer& supp_polygon_container)
 void
 AFootholdCost::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  Eigen::VectorXd footholds = opt_var->GetVariables(OptimizationVariables::kFootholds);
+  Eigen::VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
   supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
