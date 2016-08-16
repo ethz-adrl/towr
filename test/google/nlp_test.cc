@@ -16,20 +16,24 @@ namespace zmp {
 
 typedef Eigen::VectorXd VectorXd;
 typedef ConstraintContainer::ConstraintPtr ConstraintPtr;
-static const std::string set1 = "coeff";
-//static const std::string set2 = "feet";
+static const std::string set1 = "set1_variables";
+static const std::string set2 = "set2_variables";
 
 
 class FooConstraint : public AConstraint {
 public:
-  void UpdateVariables(const OptimizationVariables* opt_var) {
-    x = opt_var->GetVariables(set1);
+  void UpdateVariables(const OptimizationVariables* opt_var)
+  {
+    x_set1 = opt_var->GetVariables(set1);
+    x_set2 = opt_var->GetVariables(set2);
   }
 
   VectorXd EvaluateConstraint () const
   {
-    VectorXd g(1);
-    g[0] = x[0] + 2*x[1] - 4.0;
+    // two constraints, where the second also depends on the second variable set
+    VectorXd g(2);
+    g[0] = 1*x_set1[0] + 2*x_set1[1] - 4.0;
+    g[1] = x_set1[0]*x_set1[0] + 4*x_set2[0];
     return g;
   }
 
@@ -38,9 +42,17 @@ public:
     Jacobian jac; // empy default
 
     if (var_set == set1) {
-      jac = Jacobian(1,2); // one constraint, two optimization variables;
+      jac = Jacobian(2,2); // one constraint, two optimization variables;
       jac(0,0) = 1;
       jac(0,1) = 2;
+      jac(1,0) = 2*x_set1[0];
+      jac(1,1) = 0;
+    }
+
+    if (var_set == set2) {
+      jac = Jacobian(2,1); // one constraint, two optimization variables;
+      jac(0,0) = 0;
+      jac(1,0) = 4;
     }
 
     return jac;
@@ -49,11 +61,13 @@ public:
   VecBound GetBounds () const {
     VecBound bounds;
     bounds.push_back(AConstraint::kEqualityBound_);
+    bounds.push_back(AConstraint::kEqualityBound_);
     return bounds;
   }
 
 private:
-  VectorXd x;
+  VectorXd x_set1;
+  VectorXd x_set2;
 
 };
 
@@ -66,7 +80,7 @@ protected:
     auto constraints   = std::make_shared<ConstraintContainer>(*opt_variables_);
 
     opt_variables_->AddVariableSet(set1, VectorXd(2));
-//    opt_variables_->AddVariableSet(set2, VectorXd(3));
+    opt_variables_->AddVariableSet(set2, VectorXd(1));
 
     auto foo_constraint = std::make_shared<FooConstraint>();
     constraints->AddConstraint(foo_constraint, "foo_constraint");

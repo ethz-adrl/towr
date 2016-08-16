@@ -37,9 +37,13 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 
 
   // nonzeros in the jacobian of the constraint g(x)
-//  NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints();
-//  nnz_jac_g = jac.nonZeros();
-  nnz_jac_g = m * n; // fixme all constraints depend on all inputs
+  double* x_start = new double[n];
+  for (int i=0; i<n; ++i) {
+    x_start[i] = 1.0;
+  }
+  NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints(x_start);
+  nnz_jac_g = jac.nonZeros();
+//  nnz_jac_g = m * n; // fixme all constraints depend on all inputs
 
   // nonzeros in the hessian of the lagrangian
   // (one in the hessian of the objective for x2,
@@ -119,7 +123,7 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
                        Index m, Index nele_jac, Index* iRow, Index *jCol,
                        Number* values)
 {
-  assert(nele_jac == n*m); // number of elements in jacobian
+//  assert(nele_jac == n*m); // number of elements in jacobian
 
 
   // FIXME exploit sparsity structure more.
@@ -127,29 +131,36 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
   if (values == NULL) {
 
 
-    // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
-  	int c_nonzero = 0;
-    for (int row=0; row<m; ++row) {
-      for (int col=0; col<n; ++col) {
-  			iRow[c_nonzero] = row;
-  			jCol[c_nonzero] = col;
-  			c_nonzero++;
-  		}
-  	}
+//    // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
+//  	int c_nonzero = 0;
+//    for (int row=0; row<m; ++row) {
+//      for (int col=0; col<n; ++col) {
+//  			iRow[c_nonzero] = row;
+//  			jCol[c_nonzero] = col;
+//  			c_nonzero++;
+//  		}
+//  	}
 
 
-//    // fixme, this doesn't work, because sparsity structure estimated by
-//    // zero entries, but this could be just for initial values of decision variables
-//    // -> define all the elements as sparse matrix
-//    NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints(x);
-//    int nele=0; // nonzero cells in jacobian
-//    for (int k=0; k<jac.outerSize(); ++k) {
-//      for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
-//        iRow[nele] = it.row();
-//        jCol[nele] = it.col();
-//        nele++;
-//      }
-//    }
+    // fixme, this doesn't work, because sparsity structure estimated by
+    // zero entries, but this could be just for initial values of decision variables
+    // -> define all the elements as sparse matrix
+    // nonzeros in the jacobian of the constraint g(x)
+    double* x_start = new double[n];
+    for (int i=0; i<n; ++i) {
+      x_start[i] = 1.0;
+    }
+
+    NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints(x_start);
+    std::cout << "first jac: " << jac << std::endl;
+    int nele=0; // nonzero cells in jacobian
+    for (int k=0; k<jac.outerSize(); ++k) {
+      for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
+        iRow[nele] = it.row();
+        jCol[nele] = it.col();
+        nele++;
+      }
+    }
 
 
 
@@ -169,6 +180,7 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
       for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it)
         values[nele++] = it.value();
 
+    std::cout << "jac.size(): " << jac.rows() << " x " << jac.cols() << std::endl;
     std::cout << "jac: " << jac << std::endl;
 
   }
