@@ -13,7 +13,7 @@ namespace xpp {
 namespace zmp {
 
 typedef Eigen::VectorXd VectorXd;
-typedef OptimizationVariables::StdVecEigen2d FootholdsXY;
+typedef xpp::utils::StdVecEigen2d FootholdsXY;
 
 RangeOfMotionCost::RangeOfMotionCost ()
 {

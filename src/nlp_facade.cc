@@ -46,19 +46,6 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   }
 }
 
-//void
-//NlpFacade::InitializeVariables (int n_spline_coeff, int n_footholds)
-//{
-//  opt_variables_->Init(n_spline_coeff, n_footholds);
-//}
-
-//void
-//NlpFacade::InitializeVariables (const Eigen::VectorXd& spline_abcd_coeff,
-//                                const StdVecEigen2d& footholds)
-//{
-//  opt_variables_->Init(spline_abcd_coeff, footholds);
-//}
-
 void
 NlpFacade::SolveNlp(const State& curr_cog_,
                     const State& final_state,
@@ -85,14 +72,10 @@ NlpFacade::SolveNlp(const State& curr_cog_,
 
   opt_variables_->AddVariableSet(OptimizationVariables::kSplineCoeff, spline_structure.GetABCDCoeffients());
   opt_variables_->AddVariableSet(OptimizationVariables::kFootholds, supp_polygon_container.GetFootholdsInitializedToStart());
-  opt_variables_->NotifyObservers();
-//  opt_variables_->Init(spline_structure.GetABCDCoeffients(), supp_polygon_container.GetFootholdsInitializedToStart());
-
-  OptimizationVariablesInterpreter interpreter;
-  interpreter.Init(spline_structure, supp_polygon_container, robot_height);
-
 
   // save the framework of the optimization problem
+  OptimizationVariablesInterpreter interpreter;
+  interpreter.Init(spline_structure, supp_polygon_container, robot_height);
   interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();

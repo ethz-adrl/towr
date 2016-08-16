@@ -104,12 +104,6 @@ NLP::EvalJacobianOfConstraints (const Number* x) const
   return constraints_->GetJacobian().sparseView();
 }
 
-NLP::Jacobian
-NLP::EvalJacobianOfConstraints () const
-{
-  return constraints_->GetJacobian().sparseView();
-}
-
 NLP::VectorXd
 NLP::ConvertToEigen(const Number* x) const
 {

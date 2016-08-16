@@ -19,18 +19,17 @@ public:
   ASubject ();
   virtual ~ASubject ();
 
-  int GetObserverCount() const;
-  void RemoveObservers();
   void RegisterObserver(IObserver*);
   void DeregisterObserver(IObserver* o);
-
-  // fixme think about not updating all observers (costs, constraints) all the time
-  void NotifyObservers() const;
+  int GetObserverCount() const;
 
 protected:
-  std::vector<IObserver*> observers_;
+  void NotifyObservers() const;
 
 private:
+  std::vector<IObserver*> observers_;
+  void RemoveObservers();
+
   // delete the copy and copy assignment operators, since that messes up the
   // observer pattern logic
   ASubject(ASubject const&) = delete;

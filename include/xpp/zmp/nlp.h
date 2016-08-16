@@ -58,7 +58,6 @@ public:
   VectorXd EvaluateConstraints(const Number* x) const;
 
   Jacobian EvalJacobianOfConstraints(const Number* x) const;
-  Jacobian EvalJacobianOfConstraints() const; //fixme remove this
 
 private:
   OptimizationVariablesPtr opt_variables_;

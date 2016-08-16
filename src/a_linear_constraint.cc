@@ -60,7 +60,7 @@ LinearSplineEqualityConstraint::GetJacobianWithRespectTo (std::string var_set) c
 {
   Jacobian jac; // empy matrix
 
-  if (var_set == "SplineCoff")
+  if (var_set == OptimizationVariables::kSplineCoeff)
     jac = linear_equation_.M;
 
   return jac;

@@ -58,17 +58,6 @@ public:
   NlpFacade (IVisualizer& visualizer = do_nothing_visualizer);
   virtual ~NlpFacade () {};
 
-
-//  /** Specifies that initial optimization variables where NLP starts.
-//    *
-//    * @param n_spline_coeff number of spline coefficients.
-//    * @param n_footholds number of footholds.
-//    */
-//  void InitializeVariables(int n_spline_coeff, int n_footholds);
-//  void InitializeVariables(const Eigen::VectorXd& spline_abcd_coeff,
-//                           const StdVecEigen2d& footholds);
-
-
   /** @brief Solves the nonlinear program (NLP) of moving the CoG from an initial to a
     * final state while keeping the Zero-Moment-Point (ZMP) inside the support
     * polygons created by the contact points (e.g. feet).
