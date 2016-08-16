@@ -29,7 +29,7 @@ public:
   typedef Ipopt::Number Number;
 
 	IpoptAdapter(NLP& nlp,
-	             IVisualizer& visualizer);
+	             IVisualizer& visualizer = do_nothing_visualizer);
 
   /** default destructor */
   virtual ~IpoptAdapter() {};

@@ -84,7 +84,7 @@ ConstraintContainer::GetJacobian () const
       jac = constraint.second->GetJacobianWithRespectTo(set->GetId());
 
       if (jac.size() != 0) {// constraint dependent on this variable set
-        jac_all.block(row,col_start,n_constraints,jac.cols()) = jac;
+        jac_all.block(row,col_start,jac.rows(),jac.cols()) = jac;
         n_constraints = jac.rows();
       }
 
