@@ -155,6 +155,10 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
     //    num_diff_constraints_.df(nlp_structure_.ConvertToEigen(x),jac);
     //    Eigen::Map<Eigen::MatrixXd>(values,jac.rows(),jac.cols()) = jac;
 
+
+    NLP::Jacobian jac = nlp_.GetJacobianOfConstraints();
+    std::cout << "jac: " << jac << std::endl;
+
   }
 
   return true;

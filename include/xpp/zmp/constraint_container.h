@@ -12,7 +12,6 @@
 #include <xpp/zmp/i_observer.h>
 #include <xpp/zmp/optimization_variables.h>
 
-#include <map>
 #include <memory>
 
 namespace xpp {
@@ -31,7 +30,6 @@ public:
   typedef AConstraint::VecBound VecBound;
   typedef AConstraint::Jacobian Jacobian;
   typedef std::shared_ptr<AConstraint> ConstraintPtr;
-  typedef xpp::utils::StdVecEigen2d FootholdsXY;
 
   ConstraintContainer (OptimizationVariables& subject);
   virtual ~ConstraintContainer ();
@@ -39,10 +37,7 @@ public:
   void Update () override;
   void ClearConstraints();
 
-  void AddConstraint (ConstraintPtr constraint,
-                      const std::string& name);
-
-  AConstraint& GetConstraint(const std::string& name);
+  void AddConstraint (ConstraintPtr constraint);
 
   VectorXd EvaluateConstraints () const;
   Jacobian GetJacobian () const;
@@ -50,7 +45,7 @@ public:
 
 private:
   void RefreshBounds ();
-  std::map<std::string, ConstraintPtr > constraints_;
+  std::vector<ConstraintPtr> constraints_;
   VecBound bounds_;
 };
 

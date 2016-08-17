@@ -79,16 +79,16 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();
-  constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure.GetTotalFreeCoeff()), "acc");
-  constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure), "final");
-  constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure), "junction");
-  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter), "zmp");
-  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter), "rom");
+  constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure.GetTotalFreeCoeff()));
+  constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure));
+  constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure));
+//  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter), "zmp");
+//  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter), "rom");
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint(), "obstacle");
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr), "joint_angles");
 
   costs_->ClearCosts();
-  costs_->AddCost(CostFactory::CreateAccelerationCost(spline_structure), "cost_acc");
+//  costs_->AddCost(CostFactory::CreateAccelerationCost(spline_structure), "cost_acc");
   // careful: these are not quite debugged yet
 //  costs_->AddCost(CostFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container), "cost_stance_final");
 //  costs_->AddCost(CostFactory::CreateFinalComCost(final_state, spline_structure), "cost_cog_final");

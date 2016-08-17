@@ -34,8 +34,8 @@ protected:
     c_zeros_ = ConstraintFactory::CreateAccConstraint(Eigen::Vector2d::Zero(),n_spline_coeff);
     c_ones_  = ConstraintFactory::CreateAccConstraint(Eigen::Vector2d::Ones(),n_spline_coeff);
 
-    constraints_->AddConstraint(c_zeros_, "zero_acc");
-    constraints_->AddConstraint(c_ones_, "one_acc");
+    constraints_->AddConstraint(c_zeros_);
+    constraints_->AddConstraint(c_ones_);
   }
 
   OptimizationVariables opt_var_;
@@ -61,16 +61,10 @@ TEST_F(ConstraintContainerTest, GetBoundsInitialAcc)
 
   EXPECT_EQ(4, bounds.size()); // two constraints in x and one in y
 
-  for (auto b : constraints_->GetConstraint("zero_acc").GetBounds()) {
-    EXPECT_EQ(0.0, b.lower_);
-    EXPECT_EQ(0.0, b.upper_);
-  }
-
-  for (auto b : constraints_->GetConstraint("one_acc").GetBounds()) {
-    EXPECT_EQ(1.0, b.lower_);
-    EXPECT_EQ(1.0, b.upper_);
-  }
-
+  EXPECT_EQ(0.0, bounds.at(0).lower_); EXPECT_EQ(0.0, bounds.at(0).upper_); // x direction
+  EXPECT_EQ(0.0, bounds.at(1).lower_); EXPECT_EQ(0.0, bounds.at(1).upper_); // y direction
+  EXPECT_EQ(1.0, bounds.at(2).lower_); EXPECT_EQ(1.0, bounds.at(2).upper_); // x direction
+  EXPECT_EQ(1.0, bounds.at(3).lower_); EXPECT_EQ(1.0, bounds.at(3).upper_); // y direction
 }
 
 } /* namespace zmp */

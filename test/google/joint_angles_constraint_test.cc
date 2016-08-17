@@ -47,7 +47,7 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
   opt_variables.AddVariableSet(0, Eigen::VectorXd(n_splines*kFreeCoeffPerSpline*2));
   ConstraintContainer constraint_container(opt_variables);
   auto constraint = ConstraintFactory::CreateJointAngleConstraint(interpreter);
-  constraint_container.AddConstraint(constraint, "joint_angles");
+  constraint_container.AddConstraint(constraint);
 
   VectorXd q = constraint_container.EvaluateConstraints();
   AConstraint::VecBound q_bounds = constraint_container.GetBounds();

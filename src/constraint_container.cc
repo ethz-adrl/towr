@@ -35,17 +35,10 @@ ConstraintContainer::ClearConstraints ()
 }
 
 void
-ConstraintContainer::AddConstraint (ConstraintPtr constraint,
-                                    const std::string& name)
+ConstraintContainer::AddConstraint (ConstraintPtr constraint)
 {
-  constraints_.emplace(name, constraint);
+  constraints_.push_back(constraint);
   RefreshBounds ();
-}
-
-AConstraint&
-ConstraintContainer::GetConstraint (const std::string& name)
-{
-  return *constraints_.at(name);
 }
 
 ConstraintContainer::VectorXd
@@ -55,8 +48,8 @@ ConstraintContainer::EvaluateConstraints () const
 
   int c = 0;
   for (const auto& constraint : constraints_) {
-    constraint.second->UpdateVariables(subject_);
-    VectorXd g = constraint.second->EvaluateConstraint();
+    constraint->UpdateVariables(subject_);
+    VectorXd g = constraint->EvaluateConstraint();
     int c_new = g.rows();
     g_all.middleRows(c, c_new) = g;
     c += c_new;
@@ -74,12 +67,12 @@ ConstraintContainer::GetJacobian () const
 
   int row = 0;
   for (const auto& constraint : constraints_) {
-    constraint.second->UpdateVariables(subject_);
+    constraint->UpdateVariables(subject_);
 
     int col = 0;
     for (const auto& set : subject_->GetVarSets()) {
 
-      Jacobian jac = constraint.second->GetJacobianWithRespectTo(set->GetId());
+      Jacobian jac = constraint->GetJacobianWithRespectTo(set->GetId());
 
       // insert the derivative in the correct position in the overall jacobian
       for (int k=0; k<jac.outerSize(); ++k)
@@ -90,7 +83,7 @@ ConstraintContainer::GetJacobian () const
       col += set->GetVariables().rows();
     }
 
-    row += constraint.second->GetNumberOfConstraints();
+    row += constraint->GetNumberOfConstraints();
   }
   return jac_all;
 }
@@ -100,8 +93,8 @@ ConstraintContainer::RefreshBounds ()
 {
   bounds_.clear();
   for (const auto& constraint : constraints_) {
-    constraint.second->UpdateVariables(subject_);
-    VecBound b = constraint.second->GetBounds();
+    constraint->UpdateVariables(subject_);
+    VecBound b = constraint->GetBounds();
     bounds_.insert(bounds_.end(), b.begin(), b.end());
   }
 }

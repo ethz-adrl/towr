@@ -58,8 +58,8 @@ public:
 
   VecBound GetBounds () const {
     VecBound bounds;
-    bounds.push_back(AConstraint::kEqualityBound_);
-    bounds.push_back(AConstraint::kEqualityBound_);
+    for (int i=0; i<m; ++i)
+      bounds.push_back(AConstraint::kEqualityBound_);
     return bounds;
   }
 
@@ -67,6 +67,47 @@ private:
   VectorXd x_set1;
   VectorXd x_set2;
   const int m = 2; // number of constraints
+
+};
+
+
+class BarConstraint : public AConstraint {
+public:
+  void UpdateVariables(const OptimizationVariables* opt_var)
+  {
+    x_set2 = opt_var->GetVariables(set2);
+  }
+
+  VectorXd EvaluateConstraint () const
+  {
+    // two constraints, where the second also depends on the second variable set
+    VectorXd g(m);
+    g[0] = x_set2[0]*x_set2[0] -9;
+    return g;
+  }
+
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const
+  {
+    Jacobian jac; // empy default
+
+    if (var_set == set2) {
+      jac = Jacobian(m,x_set2.rows()); // two constraint, one optimization variables;
+      jac.insert(0,0) = 2*x_set2[0];
+    }
+
+    return jac;
+  }
+
+  VecBound GetBounds () const {
+    VecBound bounds;
+    for (int i=0; i<m; ++i)
+      bounds.push_back(AConstraint::kEqualityBound_);
+    return bounds;
+  }
+
+private:
+  VectorXd x_set2;
+  const int m = 1; // number of constraints
 
 };
 
@@ -82,7 +123,9 @@ protected:
     opt_variables_->AddVariableSet(set2, VectorXd(1));
 
     auto foo_constraint = std::make_shared<FooConstraint>();
-    constraints->AddConstraint(foo_constraint, "foo_constraint");
+    auto bar_constraint = std::make_shared<BarConstraint>();
+    constraints->AddConstraint(foo_constraint);
+    constraints->AddConstraint(bar_constraint);
 
     nlp_.Init(opt_variables_, costs, constraints);
   }
@@ -100,9 +143,9 @@ TEST_F(NlpTest, ApproximatingJacobian)
   solver.OptimizeTNLP(nlp_ipopt);
 
   double tol = 1e-1;
-  EXPECT_NEAR(0.749747, opt_variables_->GetOptimizationVariables()[0], tol);
-  EXPECT_NEAR( 1.62513, opt_variables_->GetOptimizationVariables()[1], tol);
-  EXPECT_NEAR(-0.14053, opt_variables_->GetOptimizationVariables()[2], tol);
+  EXPECT_NEAR( 3.4641, opt_variables_->GetOptimizationVariables()[0], tol);
+  EXPECT_NEAR( 0.2679, opt_variables_->GetOptimizationVariables()[1], tol);
+  EXPECT_NEAR(-3.0,    opt_variables_->GetOptimizationVariables()[2], tol);
   std::cout << opt_variables_->GetOptimizationVariables().transpose() << std::endl;
 }
 
@@ -114,9 +157,9 @@ TEST_F(NlpTest, AnalyticalJacobian)
   solver.OptimizeTNLP(nlp_ipopt);
 
   double tol = 1e-1;
-  EXPECT_NEAR(0.749747, opt_variables_->GetOptimizationVariables()[0], tol);
-  EXPECT_NEAR( 1.62513, opt_variables_->GetOptimizationVariables()[1], tol);
-  EXPECT_NEAR(-0.14053, opt_variables_->GetOptimizationVariables()[2], tol);
+  EXPECT_NEAR( 3.4641, opt_variables_->GetOptimizationVariables()[0], tol);
+  EXPECT_NEAR( 0.2679, opt_variables_->GetOptimizationVariables()[1], tol);
+  EXPECT_NEAR(-3.0,    opt_variables_->GetOptimizationVariables()[2], tol);
   std::cout << opt_variables_->GetOptimizationVariables().transpose() << std::endl;
 }
 
