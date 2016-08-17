@@ -97,10 +97,17 @@ NLP::HasCostTerms () const
   return !costs_->IsEmpty();
 }
 
-NLP::Jacobian
-NLP::EvalJacobianOfConstraints (const Number* x) const
+void
+NLP::EvalNonzerosOfJacobian (const Number* x, Number* values) const
 {
   opt_variables_->SetVariables(ConvertToEigen(x));
+  const Jacobian& jac = constraints_->GetJacobian();
+  std::copy(jac.valuePtr(), jac.valuePtr() + jac.nonZeros() , values);
+}
+
+NLP::Jacobian
+NLP::GetJacobianOfConstraints () const
+{
   return constraints_->GetJacobian();
 }
 
@@ -112,4 +119,5 @@ NLP::ConvertToEigen(const Number* x) const
 
 } /* namespace zmp */
 } /* namespace xpp */
+
 

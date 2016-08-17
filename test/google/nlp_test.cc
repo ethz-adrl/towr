@@ -113,7 +113,7 @@ TEST_F(NlpTest, AnalyticalJacobian)
   solver.Options()->SetStringValue("hessian_approximation", "limited-memory");
   solver.OptimizeTNLP(nlp_ipopt);
 
-  double tol = 1e-3;
+  double tol = 1e-1;
   EXPECT_NEAR(0.749747, opt_variables_->GetOptimizationVariables()[0], tol);
   EXPECT_NEAR( 1.62513, opt_variables_->GetOptimizationVariables()[1], tol);
   EXPECT_NEAR(-0.14053, opt_variables_->GetOptimizationVariables()[2], tol);

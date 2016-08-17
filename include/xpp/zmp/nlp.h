@@ -57,7 +57,8 @@ public:
   BoundVec GetBoundsOnConstraints() const;
   VectorXd EvaluateConstraints(const Number* x) const;
 
-  Jacobian EvalJacobianOfConstraints(const Number* x) const;
+  void EvalNonzerosOfJacobian(const Number* x, Number* values) const;
+  Jacobian GetJacobianOfConstraints() const;
 
 private:
   OptimizationVariablesPtr opt_variables_;
