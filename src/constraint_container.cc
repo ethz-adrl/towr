@@ -76,23 +76,21 @@ ConstraintContainer::GetJacobian () const
   for (const auto& constraint : constraints_) {
     constraint.second->UpdateVariables(subject_);
 
-    Jacobian jac;
-    int n_constraints = 0;
-    int col_start = 0;
+    int col = 0;
     for (const auto& set : subject_->GetVarSets()) {
 
-      jac = constraint.second->GetJacobianWithRespectTo(set->GetId());
+      Jacobian jac = constraint.second->GetJacobianWithRespectTo(set->GetId());
 
-      if (jac.size() != 0) {// constraint dependent on this variable set
-        jac_all.block(row,col_start,jac.rows(),jac.cols()) = jac;
-        n_constraints = jac.rows();
-      }
+      // insert the derivative in the correct position in the overall jacobian
+      for (int k=0; k<jac.outerSize(); ++k)
+        for (Jacobian::InnerIterator it(jac,k); it; ++it)
+          jac_all.insert(row+it.row(), col+it.col()) = it.value();
 
-      col_start += set->GetVariables().rows();
 
+      col += set->GetVariables().rows();
     }
 
-    row += n_constraints;
+    row += constraint.second->GetNumberOfConstraints();
   }
   return jac_all;
 }

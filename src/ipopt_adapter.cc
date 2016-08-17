@@ -43,6 +43,8 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   }
   NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints(x_start);
   nnz_jac_g = jac.nonZeros();
+  std::cout << "non_zeros= " << nnz_jac_g << "\n";
+  std::cout << "jac: " << jac << std::endl;
 //  nnz_jac_g = m * n; // fixme all constraints depend on all inputs
 
   // nonzeros in the hessian of the lagrangian
@@ -148,7 +150,7 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
     // nonzeros in the jacobian of the constraint g(x)
     double* x_start = new double[n];
     for (int i=0; i<n; ++i) {
-      x_start[i] = 1.0;
+      x_start[i] = 0.0;
     }
 
     NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints(x_start);
@@ -176,12 +178,15 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
 
     int nele=0;
     NLP::Jacobian jac = nlp_.EvalJacobianOfConstraints(x);
+
+    std::cout << jac << std::endl;
+
     for (int k=0; k<jac.outerSize(); ++k)
       for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it)
         values[nele++] = it.value();
 
-    std::cout << "jac.size(): " << jac.rows() << " x " << jac.cols() << std::endl;
-    std::cout << "jac: " << jac << std::endl;
+//    std::cout << "jac.size(): " << jac.rows() << " x " << jac.cols() << std::endl;
+//    std::cout << "jac: " << jac << std::endl;
 
   }
 

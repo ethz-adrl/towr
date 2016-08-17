@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_CONSTRAINT_H_
 
 #include <xpp/zmp/variable_names.h>
+#include <Eigen/Sparse>
 #include <Eigen/Dense>
 
 namespace xpp {
@@ -28,7 +29,7 @@ public:
   };
   typedef Eigen::VectorXd VectorXd;
   typedef std::vector<Bound> VecBound;
-  typedef Eigen::MatrixXd Jacobian;
+  typedef Eigen::SparseMatrix<double, Eigen::RowMajor> Jacobian;
 
   AConstraint ();
   virtual ~AConstraint ();
@@ -46,6 +47,8 @@ public:
   /** For each returned constraint an upper and lower bound is given.
    */
   virtual VecBound GetBounds () const = 0;
+
+  int GetNumberOfConstraints() const;
 
   static const Bound kNoBound_;
   static const Bound kEqualityBound_;

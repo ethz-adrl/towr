@@ -273,6 +273,8 @@ if(BUILD_TESTS)
                         test/google/snopt_test.cc
                         test/google/snopt_adapter_test.cc
                         test/google/ipopt_test.cc
+                        # general
+                        test/google/sparse_matrix_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

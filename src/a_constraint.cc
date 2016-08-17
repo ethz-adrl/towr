@@ -25,5 +25,11 @@ AConstraint::~AConstraint ()
   // TODO Auto-generated destructor stub
 }
 
+int
+AConstraint::GetNumberOfConstraints () const
+{
+  return GetBounds().size();
+}
+
 } /* namespace zmp */
 } /* namespace xpp */

@@ -31,7 +31,7 @@ public:
   VectorXd EvaluateConstraint () const
   {
     // two constraints, where the second also depends on the second variable set
-    VectorXd g(2);
+    VectorXd g(m);
     g[0] = 1*x_set1[0] + 2*x_set1[1] - 4.0;
     g[1] = x_set1[0]*x_set1[0] + 4*x_set2[0];
     return g;
@@ -42,17 +42,15 @@ public:
     Jacobian jac; // empy default
 
     if (var_set == set1) {
-      jac = Jacobian(2,2); // one constraint, two optimization variables;
-      jac(0,0) = 1;
-      jac(0,1) = 2;
-      jac(1,0) = 2*x_set1[0];
-      jac(1,1) = 0;
+      jac = Jacobian(m,x_set1.rows()); // two constraint, two optimization variables;
+      jac.insert(0,0) = 1;
+      jac.insert(0,1) = 2;
+      jac.insert(1,0) = 2*x_set1[0];
     }
 
     if (var_set == set2) {
-      jac = Jacobian(2,1); // one constraint, two optimization variables;
-      jac(0,0) = 0;
-      jac(1,0) = 4;
+      jac = Jacobian(m,x_set2.rows()); // two constraint, one optimization variables;
+      jac.insert(1,0) = 4;
     }
 
     return jac;
@@ -68,6 +66,7 @@ public:
 private:
   VectorXd x_set1;
   VectorXd x_set2;
+  const int m = 2; // number of constraints
 
 };
 
@@ -100,6 +99,10 @@ TEST_F(NlpTest, ApproximatingJacobian)
   solver.Options()->SetStringValue("hessian_approximation", "limited-memory");
   solver.OptimizeTNLP(nlp_ipopt);
 
+  double tol = 1e-1;
+  EXPECT_NEAR(0.749747, opt_variables_->GetOptimizationVariables()[0], tol);
+  EXPECT_NEAR( 1.62513, opt_variables_->GetOptimizationVariables()[1], tol);
+  EXPECT_NEAR(-0.14053, opt_variables_->GetOptimizationVariables()[2], tol);
   std::cout << opt_variables_->GetOptimizationVariables().transpose() << std::endl;
 }
 
@@ -110,6 +113,10 @@ TEST_F(NlpTest, AnalyticalJacobian)
   solver.Options()->SetStringValue("hessian_approximation", "limited-memory");
   solver.OptimizeTNLP(nlp_ipopt);
 
+  double tol = 1e-3;
+  EXPECT_NEAR(0.749747, opt_variables_->GetOptimizationVariables()[0], tol);
+  EXPECT_NEAR( 1.62513, opt_variables_->GetOptimizationVariables()[1], tol);
+  EXPECT_NEAR(-0.14053, opt_variables_->GetOptimizationVariables()[2], tol);
   std::cout << opt_variables_->GetOptimizationVariables().transpose() << std::endl;
 }
 

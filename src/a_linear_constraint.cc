@@ -61,7 +61,7 @@ LinearSplineEqualityConstraint::GetJacobianWithRespectTo (std::string var_set) c
   Jacobian jac; // empy matrix
 
   if (var_set == VariableNames::kSplineCoeff)
-    jac = linear_equation_.M;
+    jac = linear_equation_.M.sparseView();
 
   return jac;
 }

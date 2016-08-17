@@ -13,7 +13,6 @@
 #include <xpp/zmp/cost_container.h>
 #include <xpp/zmp/cost_function_functor.h>
 
-#include <Eigen/Sparse>
 #include <memory>
 
 namespace xpp {
@@ -29,11 +28,12 @@ namespace zmp {
 class NLP {
 public:
   typedef AConstraint::Bound Bound;
+  typedef AConstraint::Jacobian Jacobian;
   typedef double Number;
   typedef Eigen::VectorXd VectorXd;
   typedef std::vector<Bound> BoundVec;
   typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
-  typedef Eigen::SparseMatrix<double, Eigen::RowMajor> Jacobian;
+
 
   typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
