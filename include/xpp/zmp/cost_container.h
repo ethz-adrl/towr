@@ -12,7 +12,6 @@
 #include <xpp/zmp/i_observer.h>
 #include <xpp/zmp/optimization_variables.h>
 
-#include <map>
 #include <memory>
 
 namespace xpp {
@@ -27,28 +26,19 @@ class CostContainer : public IObserver {
 public:
   typedef std::shared_ptr<ACost> CostPtr;
   typedef AConstraint::VectorXd VectorXd;
-  typedef xpp::utils::StdVecEigen2d FootholdsXY;
 
   CostContainer (OptimizationVariables& subject);
   virtual ~CostContainer ();
 
   void Update () override;
 
-  ACost& GetCost(const std::string& name);
-
   void ClearCosts ();
-  void AddCost(CostPtr cost, const std::string& name);
+  void AddCost(CostPtr cost);
   double EvaluateTotalCost () const;
   bool IsEmpty() const;
 
-  const FootholdsXY& GetFootholds() const;
-  const VectorXd& GetSplineCoefficients() const;
-
 private:
-  std::map<std::string, CostPtr > costs_;
-
-  VectorXd spline_coeff_;
-  FootholdsXY footholds_;
+  std::vector<CostPtr > costs_;
 };
 
 } /* namespace zmp */

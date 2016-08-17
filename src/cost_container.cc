@@ -27,9 +27,9 @@ CostContainer::ClearCosts ()
 }
 
 void
-CostContainer::AddCost (CostPtr cost, const std::string& name)
+CostContainer::AddCost (CostPtr cost)
 {
-  costs_.emplace(name, cost);
+  costs_.push_back(cost);
 }
 
 void
@@ -46,29 +46,11 @@ CostContainer::EvaluateTotalCost () const
 {
   double total_cost = 0.0;
   for (const auto& cost : costs_) {
-    cost.second->UpdateVariables(subject_);
-    total_cost += cost.second->EvaluateCost();
+    cost->UpdateVariables(subject_);
+    total_cost += cost->EvaluateCost();
   }
 
   return total_cost;
-}
-
-ACost&
-CostContainer::GetCost (const std::string& name)
-{
-  return *costs_.at(name);
-}
-
-const CostContainer::FootholdsXY&
-CostContainer::GetFootholds () const
-{
-  return footholds_;
-}
-
-const CostContainer::VectorXd&
-CostContainer::GetSplineCoefficients () const
-{
-  return spline_coeff_;
 }
 
 bool
