@@ -57,14 +57,9 @@ ConstraintContainer::EvaluateConstraints () const
   return g_all;
 }
 
-ConstraintContainer::Jacobian
+ConstraintContainer::JacobianPtr
 ConstraintContainer::GetJacobian () const
 {
-  int m = bounds_.size();
-  int n = subject_->GetOptimizationVariableCount();
-  Jacobian jac_all(m, n);
-  jac_all.setZero();
-
   int row = 0;
   for (const auto& constraint : constraints_) {
     constraint->UpdateVariables(subject_);
@@ -77,7 +72,7 @@ ConstraintContainer::GetJacobian () const
       // insert the derivative in the correct position in the overall jacobian
       for (int k=0; k<jac.outerSize(); ++k)
         for (Jacobian::InnerIterator it(jac,k); it; ++it)
-          jac_all.insert(row+it.row(), col+it.col()) = it.value();
+          jacobian_->coeffRef(row+it.row(), col+it.col()) = it.value();
 
 
       col += set->GetVariables().rows();
@@ -85,7 +80,8 @@ ConstraintContainer::GetJacobian () const
 
     row += constraint->GetNumberOfConstraints();
   }
-  return jac_all;
+
+  return jacobian_;
 }
 
 void
@@ -97,6 +93,10 @@ ConstraintContainer::RefreshBounds ()
     VecBound b = constraint->GetBounds();
     bounds_.insert(bounds_.end(), b.begin(), b.end());
   }
+
+  int n_constraints = bounds_.size();
+  int n_variables   = subject_->GetOptimizationVariableCount();
+  jacobian_ = std::make_shared<Jacobian>(n_constraints, n_variables);
 }
 
 ConstraintContainer::VecBound

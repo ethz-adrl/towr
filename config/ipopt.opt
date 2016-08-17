@@ -17,14 +17,14 @@ jacobian_approximation finite-difference-values
 hessian_approximation limited-memory
 
 
-#derivative_test first-order
+derivative_test first-order
 #derivative_test second-order
 
 tol 1e-4
 #dual_inf_tol 1e-1
 #constr_viol_tol 1e-4
 #compl_inf_tol 1e-4
-#max_iter 20
+#max_iter 1
 #bound_frac 0.5
 
 #acceptable_iter 10

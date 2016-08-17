@@ -33,7 +33,7 @@ public:
     // two constraints, where the second also depends on the second variable set
     VectorXd g(m);
     g[0] = 1*x_set1[0] + 2*x_set1[1] - 4.0;
-    g[1] = x_set1[0]*x_set1[0] + 4*x_set2[0];
+    g[1] = x_set1[0]*x_set1[0] - 4*x_set2[0];
     return g;
   }
 
@@ -50,7 +50,7 @@ public:
 
     if (var_set == set2) {
       jac = Jacobian(m,x_set2.rows()); // two constraint, one optimization variables;
-      jac.insert(1,0) = 4;
+      jac.insert(1,0) = -4;
     }
 
     return jac;
@@ -119,8 +119,12 @@ protected:
     auto costs         = std::make_shared<CostContainer>(*opt_variables_);
     auto constraints   = std::make_shared<ConstraintContainer>(*opt_variables_);
 
-    opt_variables_->AddVariableSet(set1, VectorXd(2));
-    opt_variables_->AddVariableSet(set2, VectorXd(1));
+    // different initial values might cause solver to end up in different local
+    // minimum.
+    VectorXd init_set_1(2); init_set_1.setZero();
+    VectorXd init_set_2(1); init_set_2.setOnes();
+    opt_variables_->AddVariableSet(set1, init_set_1);
+    opt_variables_->AddVariableSet(set2, init_set_2);
 
     auto foo_constraint = std::make_shared<FooConstraint>();
     auto bar_constraint = std::make_shared<BarConstraint>();
@@ -145,7 +149,7 @@ TEST_F(NlpTest, ApproximatingJacobian)
   double tol = 1e-1;
   EXPECT_NEAR( 3.4641, opt_variables_->GetOptimizationVariables()[0], tol);
   EXPECT_NEAR( 0.2679, opt_variables_->GetOptimizationVariables()[1], tol);
-  EXPECT_NEAR(-3.0,    opt_variables_->GetOptimizationVariables()[2], tol);
+  EXPECT_NEAR( 3.0,    opt_variables_->GetOptimizationVariables()[2], tol);
   std::cout << opt_variables_->GetOptimizationVariables().transpose() << std::endl;
 }
 
@@ -153,13 +157,14 @@ TEST_F(NlpTest, AnalyticalJacobian)
 {
   auto nlp_ipopt = new IpoptAdapter(nlp_);
   Ipopt::IpoptApplication solver;
+  solver.Options()->SetStringValue("derivative_test", "first-order");
   solver.Options()->SetStringValue("hessian_approximation", "limited-memory");
   solver.OptimizeTNLP(nlp_ipopt);
 
   double tol = 1e-1;
   EXPECT_NEAR( 3.4641, opt_variables_->GetOptimizationVariables()[0], tol);
   EXPECT_NEAR( 0.2679, opt_variables_->GetOptimizationVariables()[1], tol);
-  EXPECT_NEAR(-3.0,    opt_variables_->GetOptimizationVariables()[2], tol);
+  EXPECT_NEAR( 3.0,    opt_variables_->GetOptimizationVariables()[2], tol);
   std::cout << opt_variables_->GetOptimizationVariables().transpose() << std::endl;
 }
 

@@ -30,6 +30,7 @@ public:
   typedef AConstraint::VecBound VecBound;
   typedef AConstraint::Jacobian Jacobian;
   typedef std::shared_ptr<AConstraint> ConstraintPtr;
+  typedef std::shared_ptr<Jacobian> JacobianPtr;;
 
   ConstraintContainer (OptimizationVariables& subject);
   virtual ~ConstraintContainer ();
@@ -40,13 +41,14 @@ public:
   void AddConstraint (ConstraintPtr constraint);
 
   VectorXd EvaluateConstraints () const;
-  Jacobian GetJacobian () const;
+  JacobianPtr GetJacobian () const;
   VecBound GetBounds () const;
 
 private:
   void RefreshBounds ();
   std::vector<ConstraintPtr> constraints_;
   VecBound bounds_;
+  JacobianPtr jacobian_;
 };
 
 } /* namespace zmp */
