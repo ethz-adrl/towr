@@ -82,8 +82,8 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure.GetTotalFreeCoeff()));
   constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure));
   constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure));
-//  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter));
-//  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter));
+  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter));
+  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter));
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint());
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 

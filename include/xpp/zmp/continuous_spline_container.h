@@ -59,19 +59,8 @@ public:
   VectorXd GetABCDCoeffients() const;
 
   void AddOptimizedCoefficients(const VectorXd& optimized_coeff, VecSpline& splines) const;
-  void AddOptimizedCoefficients(const VectorXd& optimized_coeff)
-  {
-    AddOptimizedCoefficients(optimized_coeff, splines_);
-  }
-  VecSpline BuildOptimizedSplines(const VectorXd& optimized_coeff) const
-  {
-    VecSpline splines = splines_;
-    AddOptimizedCoefficients(optimized_coeff, splines);
-    return splines;
-  }
-
-  VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
-  VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;
+  void AddOptimizedCoefficients(const VectorXd& optimized_coeff);
+  VecSpline BuildOptimizedSplines(const VectorXd& optimized_coeff) const;
 
   /** Sets polynomial coefficients, so spline ends up at initial position.
     *
@@ -89,16 +78,12 @@ public:
    * @param dim dimension specifying if x or y coordinate of CoG should be calculated
    * @return
    */
-  VecScalar ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const;
-
-  VecScalar ExpressCogAccThroughABCD(double t_local, int id, Coords dim) const;
+  VecScalar ExpressComThroughCoeff(xpp::utils::PosVelAcc, double t_local, int id, Coords dim) const;
 
 private:
-  VecABCD ExpressCogAccThroughABCD(double t_local) const;
-
-
   std::array<MatVec, 2> relationship_e_to_abcd_;
   std::array<MatVec, 2> relationship_f_to_abdc_;
+
   /**
    * Creates a Vector whose scalar product with the optimized coefficients (a,b,c,d)
    * has the same effect as the original e/f coefficients in the spline equation
@@ -112,7 +97,12 @@ private:
   MatVec DescribeEByABCD(Coords Coords, double start_cog_v) const;
   MatVec DescribeFByABCD(Coords Coords, double start_cog_p, double start_cog_v) const;
 
-
+  VecABCD ExpressCogAccThroughABCD(double t_local) const;
+  VecScalar ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const;
+  VecScalar ExpressCogVelThroughABCD(double t_local, int id, Coords dim) const;
+  VecScalar ExpressCogAccThroughABCD(double t_local, int id, Coords dim) const;
+  VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
+  VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;
 };
 
 } /* namespace zmp */

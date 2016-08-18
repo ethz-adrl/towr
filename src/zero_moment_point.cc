@@ -43,8 +43,8 @@ ZeroMomentPoint::ExpressZmpThroughCoefficients(const ContinuousSplineContainer& 
     double t_local = spline_structure.GetLocalTime(t_global);
     int spline = spline_structure.GetSplineID(t_global);
 
-    VecScalar pos = spline_structure.ExpressCogPosThroughABCD(t_local, spline, dim);
-    VecScalar acc = spline_structure.ExpressCogAccThroughABCD(t_local, spline, dim);
+    VecScalar pos = spline_structure.ExpressComThroughCoeff(utils::kPos, t_local, spline, dim);
+    VecScalar acc = spline_structure.ExpressComThroughCoeff(utils::kAcc, t_local, spline, dim);
 
     zmp.WriteRow(CalcZmp(pos, acc, height), n++);
   }

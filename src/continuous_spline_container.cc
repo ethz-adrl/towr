@@ -57,6 +57,34 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
   AddOptimizedCoefficients(abcd);
 }
 
+ContinuousSplineContainer::VecScalar
+ContinuousSplineContainer::ExpressComThroughCoeff (
+    xpp::utils::PosVelAcc posVelAcc, double t_local, int id, Coords dim) const
+{
+  switch (posVelAcc) {
+    case xpp::utils::kPos:
+      return ExpressCogPosThroughABCD(t_local, id, dim);
+    case xpp::utils::kVel:
+      return ExpressCogVelThroughABCD(t_local, id, dim);
+    case xpp::utils::kAcc:
+      return ExpressCogAccThroughABCD(t_local, id, dim);
+  }
+}
+
+
+void
+ContinuousSplineContainer::AddOptimizedCoefficients(const VectorXd& optimized_coeff)
+{
+  AddOptimizedCoefficients(optimized_coeff, splines_);
+}
+
+ContinuousSplineContainer::VecSpline
+ContinuousSplineContainer::BuildOptimizedSplines(const VectorXd& optimized_coeff) const
+{
+  VecSpline splines = splines_;
+  AddOptimizedCoefficients(optimized_coeff, splines);
+  return splines;
+}
 
 ContinuousSplineContainer::VecScalar
 ContinuousSplineContainer::ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const
@@ -77,6 +105,26 @@ ContinuousSplineContainer::ExpressCogPosThroughABCD(double t_local, int id, Coor
   pos.s = Ek.s*t_local + Fk.s;
 
   return pos;
+}
+
+ContinuousSplineContainer::VecScalar
+ContinuousSplineContainer::ExpressCogVelThroughABCD (double t_local, int id,
+                                                     Coords dim) const
+{
+  VecScalar vel(GetTotalFreeCoeff());
+
+  VecScalar Ek = GetECoefficient(id, dim);
+
+  // x_vel = 5at^4 +   4bt^3 +  3ct^2 + 2dt + e
+  vel.v(Index(id,dim,A))   = 5 * std::pow(t_local,4);
+  vel.v(Index(id,dim,B))   = 4 * std::pow(t_local,3);
+  vel.v(Index(id,dim,C))   = 3 * std::pow(t_local,2);
+  vel.v(Index(id,dim,D))   = 2 * std::pow(t_local,1);
+  vel.v                   += Ek.v;
+
+  vel.s = Ek.s;
+
+  return vel;
 }
 
 
@@ -184,6 +232,7 @@ ContinuousSplineContainer::DescribeEByABCD(Coords dim, double start_cog_v) const
   return e_coeff;
 }
 
+
 ContinuousSplineContainer::MatVec
 ContinuousSplineContainer::DescribeFByABCD(Coords dim, double start_cog_p,
                                            double start_cog_v) const
@@ -276,4 +325,3 @@ ContinuousSplineContainer::SetEndAtStart ()
 
 } /* namespace zmp */
 } /* namespace xpp */
-
