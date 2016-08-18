@@ -88,7 +88,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 
   costs_->ClearCosts();
-//  costs_->AddCost(CostFactory::CreateAccelerationCost(spline_structure));
+  costs_->AddCost(CostFactory::CreateAccelerationCost(spline_structure));
   // careful: these are not quite debugged yet
 //  costs_->AddCost(CostFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
 //  costs_->AddCost(CostFactory::CreateFinalComCost(final_state, spline_structure));

@@ -31,11 +31,11 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   n = nlp_.GetNumberOfOptimizationVariables();
   m = nlp_.GetNumberOfConstraints();
   nnz_jac_g = nlp_.GetJacobianOfConstraints().nonZeros();
+//  nnz_jac_g = m * n; // fixme all constraints depend on all inputs
 
   std::cout << n << " variables\n";
   std::cout << m << " constraints\n";
   std::cout << nnz_jac_g << " nonzeros in the jacobian\n";
-//  nnz_jac_g = m * n; // fixme all constraints depend on all inputs
 
   // nonzeros in the hessian of the lagrangian
   // (one in the hessian of the objective for x2,
@@ -149,19 +149,6 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
   else {
   // only gets used if "jacobian_approximation finite-difference-values" is not set
     nlp_.EvalNonzerosOfJacobian(x, values);
-
-
-//    for (int i=0; i<nele_jac; ++i)
-//      std::cout << "val[" << i << "]: " << values[i] << std::endl;
-
-    //    Eigen::MatrixXd jac(m,n);
-    //    num_diff_constraints_.df(nlp_structure_.ConvertToEigen(x),jac);
-    //    Eigen::Map<Eigen::MatrixXd>(values,jac.rows(),jac.cols()) = jac;
-
-
-//    NLP::Jacobian jac = nlp_.GetJacobianOfConstraints();
-//    std::cout << "jac: " << jac << std::endl;
-
   }
 
   return true;

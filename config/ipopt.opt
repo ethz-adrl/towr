@@ -13,7 +13,7 @@ linear_solver ma57
 #linear_solver ma86
 #linear_solver ma97
 
-jacobian_approximation finite-difference-values
+#jacobian_approximation finite-difference-values
 hessian_approximation limited-memory
 
 
