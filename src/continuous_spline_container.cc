@@ -68,6 +68,8 @@ ContinuousSplineContainer::ExpressComThroughCoeff (
       return ExpressCogVelThroughABCD(t_local, id, dim);
     case xpp::utils::kAcc:
       return ExpressCogAccThroughABCD(t_local, id, dim);
+    case xpp::utils::kJerk:
+      return ExpressCogJerkThroughABCD(t_local, id, dim);
   }
 }
 
@@ -152,6 +154,20 @@ ContinuousSplineContainer::ExpressCogAccThroughABCD(double t_local) const
   acc(D)   =  2.0;
 
   return acc;
+}
+
+ContinuousSplineContainer::VecScalar
+ContinuousSplineContainer::ExpressCogJerkThroughABCD (double t_local, int id,
+                                                      Coords dim) const
+{
+  VecScalar jerk(GetTotalFreeCoeff());
+
+  // x_jerk = 60at^2 +   24bt +  6c
+  jerk.v(Index(id,dim,A))   = 60 * std::pow(t_local,2);
+  jerk.v(Index(id,dim,B))   = 24 * std::pow(t_local,1);
+  jerk.v(Index(id,dim,C))   = 6;
+
+  return jerk;
 }
 
 
@@ -325,3 +341,4 @@ ContinuousSplineContainer::SetEndAtStart ()
 
 } /* namespace zmp */
 } /* namespace xpp */
+

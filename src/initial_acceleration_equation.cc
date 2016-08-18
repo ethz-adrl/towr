@@ -6,17 +6,16 @@
  */
 
 #include <xpp/zmp/initial_acceleration_equation.h>
-#include <xpp/zmp/continuous_spline_container.h>
 
 namespace xpp {
 namespace zmp {
 
 InitialAccelerationEquation::InitialAccelerationEquation (
     const Vector2d& initial_acceleration_xy,
-    uint n_spline_coeff)
+    const ContinuousSplineContainer& splines)
+  :initial_acceleration_xy_(initial_acceleration_xy),
+   splines_(splines)
 {
-  initial_acceleration_xy_ = initial_acceleration_xy;
-  n_spline_coeff_ = n_spline_coeff;
 }
 
 InitialAccelerationEquation::MatVec
@@ -25,15 +24,16 @@ InitialAccelerationEquation::BuildLinearEquation () const
   using namespace xpp::utils;
 
   int n_constraints = kDim2d *1; // acceleration in x and y direction
-  MatVec lin_eq(n_constraints, n_spline_coeff_);
+  MatVec lin_eq(n_constraints, splines_.GetTotalFreeCoeff());
 
   int i = 0; // constraint count
+  double t = 0.0;
+  int spline_id = 0;
   for (const Coords3D dim : Coords2DArray)
   {
-    // acceleration set to zero
-    int d = ContinuousSplineContainer::Index(0, dim, D);
-    lin_eq.M(i,d) = 2.0;
-    lin_eq.v(i++) = -initial_acceleration_xy_(dim);
+    VecScalar acc = splines_.ExpressComThroughCoeff(kAcc, t, spline_id, dim);
+    acc.s -= -initial_acceleration_xy_(dim);
+    lin_eq.WriteRow(acc, i++);
   }
 
   assert(i==n_constraints);

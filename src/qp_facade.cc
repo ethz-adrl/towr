@@ -46,7 +46,7 @@ QpFacade::SolveQp(const State& initial_state,
   cost_function_ = total_acc_eq.BuildLinearEquation();
 
 
-  InitialAccelerationEquation eq_acc(initial_state.a, spline_structure.GetTotalFreeCoeff());
+  InitialAccelerationEquation eq_acc(initial_state.a, spline_structure);
   FinalStateEquation eq_final(final_state, spline_structure);
   SplineJunctionEquation eq_junction(spline_structure);
 

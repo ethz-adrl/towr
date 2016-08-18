@@ -50,16 +50,22 @@ public:
             const SplineTimes& times,
             bool insert_initial_stance = true);
 
-  /**
-   * The index number of the coefficient \c coeff, for dimension \c dim and
-   * spline number \c spline.
-   */
+  /** The index number of the coefficient \c coeff, for dimension \c dim and
+    * spline number \c spline.
+    */
   static int Index(int spline, Coords dim, SplineCoeff coeff);
   int GetTotalFreeCoeff() const;
   VectorXd GetABCDCoeffients() const;
 
-  void AddOptimizedCoefficients(const VectorXd& optimized_coeff, VecSpline& splines) const;
+  /** Creates all the coefficients for the 5th order polyomials from the variables
+    */
   void AddOptimizedCoefficients(const VectorXd& optimized_coeff);
+
+  /** Builds all the 5th order polynomials while not modifying it's internals.
+    *
+    * @param optimized_coeff the varying parameters
+    * @return a copy of the polynomials that these parameters produce.
+    */
   VecSpline BuildOptimizedSplines(const VectorXd& optimized_coeff) const;
 
   /** Sets polynomial coefficients, so spline ends up at initial position.
@@ -70,14 +76,14 @@ public:
     */
   void SetEndAtStart();
 
-  /**
-   * Produces a vector and scalar, that, multiplied with the spline coefficients
-   * a,b,c,d of all splines returns the position of the CoG at time t_local
-   * @param t_local @attention local time of spline. So t_local=0 returns CoG at beginning of this spline.
-   * @param id id of current spline
-   * @param dim dimension specifying if x or y coordinate of CoG should be calculated
-   * @return
-   */
+  /** Produces a vector and scalar, that, multiplied with the spline coefficients
+    * a,b,c,d of all splines returns the position of the CoG at time t_local.
+    *
+    * @param t_local @attention local time of spline. So t_local=0 returns CoG at beginning of this spline.
+    * @param id id of current spline
+    * @param dim dimension specifying if x or y coordinate of CoG should be calculated
+    * @return
+    */
   VecScalar ExpressComThroughCoeff(xpp::utils::PosVelAcc, double t_local, int id, Coords dim) const;
 
 private:
@@ -101,8 +107,11 @@ private:
   VecScalar ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const;
   VecScalar ExpressCogVelThroughABCD(double t_local, int id, Coords dim) const;
   VecScalar ExpressCogAccThroughABCD(double t_local, int id, Coords dim) const;
+  VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const;
   VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
   VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;
+
+  void AddOptimizedCoefficients(const VectorXd& optimized_coeff, VecSpline& splines) const;
 };
 
 } /* namespace zmp */

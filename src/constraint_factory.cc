@@ -31,9 +31,9 @@ ConstraintFactory::~ConstraintFactory ()
 
 ConstraintFactory::ConstraintPtr
 ConstraintFactory::CreateAccConstraint (const Vector2d& init_acc_xy,
-                                        uint n_spline_coeff)
+                                        const ContinuousSplineContainer& splines)
 {
-  InitialAccelerationEquation eq(init_acc_xy, n_spline_coeff);
+  InitialAccelerationEquation eq(init_acc_xy, splines);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.BuildLinearEquation());
   return constraint;

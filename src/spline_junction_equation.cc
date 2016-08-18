@@ -20,44 +20,28 @@ SplineJunctionEquation::BuildLinearEquation () const
 {
   using namespace xpp::utils;
 
-  // junctions {acc,jerk} since pos, vel  implied
-  int n_constraints = 2 /*{acc,(jerk)}*/ * (splines_.GetSplineCount()-1) * kDim2d;
-  int n_spline_coeff = splines_.GetTotalFreeCoeff();
+  // jerk ensures that minimum acceleration cost function cannot trick
+  // by moving all the big jumps in acc to the junction to save cost.
+  std::vector<PosVelAcc> derivative = {kAcc, kJerk};
 
+  int id_last = splines_.GetLastSpline().GetId();
+  int n_constraints = derivative.size() * id_last * kDim2d;
+  int n_spline_coeff = splines_.GetTotalFreeCoeff();
   MatVec junction(n_constraints, n_spline_coeff);
 
-  // FIXME maybe replace with range based loop
   int i = 0; // constraint count
-  for (int s = 0; s < splines_.GetSplineCount()-1; ++s)
-  {
-    double duration = splines_.GetSpline(s).GetDuration();
-    std::array<double,6> T_curr = utils::cache_exponents<6>(duration);
-    for (const Coords3D dim : Coords2DArray)
-    {
-      int curr_spline = ContinuousSplineContainer::Index(s, dim, A);
-      int next_spline = ContinuousSplineContainer::Index(s + 1, dim, A);
-
-      // acceleration
-      junction.M(i, curr_spline + A) = 20 * T_curr[3];
-      junction.M(i, curr_spline + B) = 12 * T_curr[2];
-      junction.M(i, curr_spline + C) = 6  * T_curr[1];
-      junction.M(i, curr_spline + D) = 2;
-      junction.M(i, next_spline + D) = -2.0;
-      junction.v(i++) = 0.0;
-
-
-      // FIXME also increase number of constraints at top if commenting this back in
-      // jerk (derivative of acceleration)
-      // this ensures that minimum acceleration cost function cannot trick
-      // by moving all the big jumps in acc to the junction to save cost.
-      junction.M(i, curr_spline + A) = 60 * T_curr[2];
-      junction.M(i, curr_spline + B) = 24 * T_curr[1];
-      junction.M(i, curr_spline + C) = 6;
-      junction.M(i, next_spline + C) = -6.0;
-      junction.v(i++) = 0.0;
+  for (int id = 0; id < id_last; ++id) {
+    double T = splines_.GetSpline(id).GetDuration();
+    for (auto dim : Coords2DArray) {
+      for (auto pva :  derivative) {
+        VecScalar curr = splines_.ExpressComThroughCoeff(pva, T, id,   dim);
+        VecScalar next = splines_.ExpressComThroughCoeff(pva, 0, id+1, dim);
+        junction.WriteRow(curr-next, i++);
+      }
     }
   }
   assert(i==n_constraints);
+
   return junction;
 }
 

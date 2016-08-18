@@ -34,9 +34,8 @@ public:
   ConstraintFactory ();
   virtual ~ConstraintFactory ();
 
-  static ConstraintPtr CreateAccConstraint(const Vector2d& init_acc_xy, uint n_spline_coeff);
-  static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy,
-                                             const ContinuousSplineContainer&);
+  static ConstraintPtr CreateAccConstraint(const Vector2d& init_acc_xy, const ContinuousSplineContainer&);
+  static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ContinuousSplineContainer&);
   static ConstraintPtr CreateJunctionConstraint(const ContinuousSplineContainer&);
   static ConstraintPtr CreateZmpConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateRangeOfMotionConstraint(const OptimizationVariablesInterpreter&);
