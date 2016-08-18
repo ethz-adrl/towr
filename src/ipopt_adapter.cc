@@ -30,7 +30,7 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 {
   n = nlp_.GetNumberOfOptimizationVariables();
   m = nlp_.GetNumberOfConstraints();
-  nnz_jac_g = nlp_.GetJacobianOfConstraints().nonZeros();
+  nnz_jac_g = nlp_.GetJacobianOfConstraints()->nonZeros();
 //  nnz_jac_g = m * n; // fixme all constraints depend on all inputs
 
   std::cout << n << " variables\n";
@@ -134,10 +134,11 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
 //  	}
 
 
-    NLP::Jacobian jac = nlp_.GetJacobianOfConstraints();
+
+    auto jac = nlp_.GetJacobianOfConstraints();
     int nele=0; // nonzero cells in jacobian
-    for (int k=0; k<jac.outerSize(); ++k) {
-      for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
+    for (int k=0; k<jac->outerSize(); ++k) {
+      for (NLP::Jacobian::InnerIterator it(*jac,k); it; ++it) {
         iRow[nele] = it.row();
         jCol[nele] = it.col();
         nele++;

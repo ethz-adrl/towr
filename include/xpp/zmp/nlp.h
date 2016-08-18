@@ -35,6 +35,7 @@ public:
   typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
 
 
+  typedef std::shared_ptr<Jacobian> JacobianPtr;
   typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
   typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
@@ -58,7 +59,7 @@ public:
   VectorXd EvaluateConstraints(const Number* x) const;
 
   void EvalNonzerosOfJacobian(const Number* x, Number* values) const;
-  Jacobian GetJacobianOfConstraints() const;
+  JacobianPtr GetJacobianOfConstraints() const;
 
 private:
   OptimizationVariablesPtr opt_variables_;
