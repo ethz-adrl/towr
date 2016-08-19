@@ -8,7 +8,7 @@
 #ifndef _XPP_UTILS_POINT2D_MANIPULATOR_H_
 #define _XPP_UTILS_POINT2D_MANIPULATOR_H_
 
-#include "geometric_structs.h"
+#include <xpp/utils/geometric_structs.h>
 #include <Eigen/StdVector>
 
 #include <array>
