@@ -15,7 +15,7 @@
 
 #include <InverseKinematics.h>
 #include <xpp/ros/ros_helpers.h>
-#include <xpp/exe/robot_interface.h>
+#include <xpp_controller/robot_interface.h>
 
 #include <kindr/rotations/RotationEigen.hpp>
 
