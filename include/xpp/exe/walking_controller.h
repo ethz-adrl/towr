@@ -13,7 +13,8 @@
 #ifndef IIT_ZMP_RUNNER_H_
 #define IIT_ZMP_RUNNER_H_
 
-#include "controller.h"
+#include <xpp_controller/controller.h>
+#include <xpp_controller/virtual_model-inl.h>
 #include "walking_controller_state.h"
 
 #include <xpp_opt/OptimizedParametersNlp.h>
@@ -26,16 +27,10 @@
 #include <iit/robots/hyq/jsim.h>
 #include <iit/robots/hyq/transforms.h>
 
-//#include "state_machine.h" // always sl includes last, because of #define macro
-#include "virtual_model-inl.h"
-
-
 #include <Eigen/src/Core/Matrix.h>
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 #include <vector>
-
-
 
 namespace xpp {
 namespace exe {

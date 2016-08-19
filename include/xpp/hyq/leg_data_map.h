@@ -67,13 +67,23 @@ LegDataMap<T>::LegDataMap(const LegDataMap& rhs) //cannot use initializer list f
 template<typename T> inline
 std::vector<T> LegDataMap<T>::ToVector() const
 {
-  return std::vector<T>(data, data + sizeof(data)/sizeof(T));
+  std::vector<T> vec(_LEGS_COUNT);
+  int i=0;
+  for (auto& v : vec)
+    v = data[i++];
+
+  return vec;
 }
 
 template<typename T> inline
 std::array<T,_LEGS_COUNT> LegDataMap<T>::ToArray() const
 {
-  return std::array<T,_LEGS_COUNT>(data, data + sizeof(data)/sizeof(T));
+  std::array<T,_LEGS_COUNT> array;
+  int i=0;
+  for (auto& a : array)
+    a = data[i++];
+
+  return array;
 }
 
 template<typename T> inline

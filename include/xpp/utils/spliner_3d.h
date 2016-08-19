@@ -8,9 +8,8 @@
 #ifndef _XPP_UTILS_SPLINER_3D_H_
 #define _XPP_UTILS_SPLINER_3D_H_
 
-#include "geometric_structs.h"
 #include "spliner.h"
-
+#include <xpp/utils/geometric_structs.h>
 #include <Eigen/Dense>
 
 namespace xpp {

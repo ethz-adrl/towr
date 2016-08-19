@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   message_generation
   #these should only be needed for the exe/ namespace
-  hyq_rbd_codegen   
+  xpp_controller   
   hyq_inverse_kinematics
 )
 
@@ -127,8 +127,6 @@ set(SOURCES
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
   #exe
-  src/robot_interface.cc
-  src/controller.cc
   src/walking_controller.cc
   src/walking_controller_state.cc
   # observer pattern code
