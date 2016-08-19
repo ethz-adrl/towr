@@ -74,6 +74,8 @@ public:
 namespace xpp {
 namespace exe {
 
+/** Concrete robot interface class for a robot with 12 joints and 4 endeffectors.
+  */
 class HyqRobotInterface : public xpp::exe::RobotInterface<12, 4> {
 };
 

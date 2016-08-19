@@ -38,7 +38,7 @@ SampleController::GetReadyHook ()
 bool
 SampleController::RunHook ()
 {
-  double t = Time();      // s
+  double t = Time(); // s
   double frequency = 0.3; // Hz
   double amplitude = 10.*M_PI/180.; // rad
 
