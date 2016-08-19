@@ -13,8 +13,6 @@
 
 #include <xpp/utils/geometric_structs.h>
 
-#include <log4cxx/logger.h>
-
 namespace xpp {
 
 /**
@@ -33,54 +31,53 @@ class HyqState
 public:
   typedef utils::Vec3d Vec3d;
   typedef utils::Point2d Pos2d;
-  typedef utils::Point3d Pos;
+  typedef utils::Point3d Point3d;
   typedef utils::Ori Ori;
   typedef utils::Coords3D Coords3D;
   typedef utils::Pose Pose;
-
-public:
-  bool swing_phase_;
-  LegDataMap< bool > swingleg_;
-  LegDataMap<Pos> feet_;
-  Pose base_; // geometric center of mass, vel, acc
-
+  typedef std::vector<Foothold> VecFoothold;
 
 public:
   HyqState();
   virtual ~HyqState();
 
+  LegDataMap< bool > swingleg_;
+  LegDataMap<Point3d> feet_;
+  Pose base_; // geometric center of mass, vel, acc
 
   LegDataMap< Foothold > FeetToFootholds() const;
   Foothold FootToFoothold(LegID leg) const;
 
-  const LegDataMap<Eigen::Vector3d>& GetFeetPosOnly();
+  const LegDataMap<Eigen::Vector3d> GetFeetPosOnly();
+  VecFoothold GetStanceLegs() const;
 
-  /**
-   *@brief changes the swingleg to next following McGhee gait: LH, LF, RH, RF
-   */
-  void SwitchSwingleg();
+
+//  /**
+//   *@brief changes the swingleg to next following McGhee gait: LH, LF, RH, RF
+//   */
+//  void SwitchSwingleg();
   void SetSwingleg(LegID leg);
-  int SwinglegID() const;
 
   std::array<Vec3d, kNumSides> GetAvgSides() const;
   double GetZAvg() const;
 
-  /**
-   * @brief smoothly changes the 2d-position of the body to desired one
-   *
-   * @param des desired 2d-position to set base to
-   * @param t_local time since splining began
-   * @param t_max if t_local reaches this time, the desired pos must be reached
-   */
-  void RampInPos(double des, Coords3D coord, double t_local, double t_max);
   void ZeroVelAcc();
 
+  int SwinglegID() const;
 private:
-  static log4cxx::LoggerPtr log_;
 };
 
 
-#include "hyq_state-inl.h"
+inline std::ostream& operator<<(std::ostream& out, const HyqState& hyq)
+{
+  out << "base: " << hyq.base_ << "\n"
+      << "feet: " << "\tLF = " <<  hyq.feet_[LF] << "\n"
+                  << "\tRF = " <<  hyq.feet_[RF] << "\n"
+                  << "\tLH = " <<  hyq.feet_[LH] << "\n"
+                  << "\tRH = " <<  hyq.feet_[RH] << "\n"
+      << "swing:\t" << hyq.swingleg_ << "\n";
+   return out;
+}
 
 
 } // namespace hyq

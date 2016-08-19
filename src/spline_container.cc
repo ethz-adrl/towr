@@ -8,51 +8,124 @@
 
 #include <xpp/zmp/spline_container.h>
 
-#include <cmath>
-#include <iostream>
-#include <iomanip>      // std::setprecision
-#include <cassert>
-
 namespace xpp {
 namespace zmp {
 
-log4cxx::LoggerPtr SplineContainer::log_(log4cxx::Logger::getLogger("xpp.zmp.splinecontainer"));
-
-SplineContainer::SplineContainer()
+void
+SplineContainer::AddSplinesStepSequence (int step_count, double t_swing)
 {
+  unsigned int id = splines_.size()==0 ? 0 : splines_.back().GetId()+1;
+
+  // fixme more than one currently not supported, change hyq_spliner
+  // and ZMP constraint to not relax constraints at these duplicate splines.
+  int n_splines_per_step = 1;
+  for (int step=0; step<step_count; ++step) {
+    for (int i=0; i<n_splines_per_step; ++i) {
+      ZmpSpline spline(id++, t_swing/n_splines_per_step, StepSpline);
+      spline.SetStep(step);
+      splines_.push_back(spline);
+    }
+  }
+
+  splines_initialized_ = true;
+}
+
+void
+SplineContainer::AddStanceSpline (double t_stance)
+{
+  unsigned int id = splines_.size()==0 ? 0 : splines_.back().GetId()+1;
+  splines_.push_back(ZmpSpline(id++, t_stance, StanceSpline));
+
+  splines_initialized_ = true;
 }
 
 
-SplineContainer::~SplineContainer()
+double SplineContainer::GetTotalTime(const VecSpline& splines)
 {
-  // TODO Auto-generated destructor stub
+  double T = 0.0;
+  for (const ZmpSpline& s: splines)
+    T += s.GetDuration();
+  return T;
 }
 
 
-void SplineContainer::AddSplines(const Splines &splines)
+int SplineContainer::GetSplineID(double t_global, const VecSpline& splines)
 {
-  curr_spline_ = 0;
-  splines_ = splines;
+   assert(t_global<=GetTotalTime(splines));
+
+   double t = 0;
+   for (const ZmpSpline& s: splines) {
+     t += s.GetDuration();
+
+     if (t >= t_global) // at junctions, returns previous spline (=)
+       return s.GetId();
+   }
+   assert(false); // this should never be reached
 }
 
 
-void SplineContainer::GetCOGxy(double t_global, Lin2d& cog_xy)
+std::vector<double>
+SplineContainer::GetDiscretizedGlobalTimes(const VecSpline& splines)
 {
-  /** Transform global time to local spline time dt */
+  static constexpr double dt = 0.1; //discretization time [seconds]: needed for creating support triangle inequality constraints
+
+  std::vector<double> vec;
+  double t = 0.0;
+  while (t <= GetTotalTime(splines)-dt+eps_) { // still add the second to last time, even if rounding errors to to floating point arithmetics
+    vec.push_back(t);
+    t += dt;
+  }
+
+  vec.push_back(GetTotalTime(splines));
+  return vec;
+}
+
+
+double SplineContainer::GetLocalTime(double t_global, const VecSpline& splines)
+{
+  int id_spline = GetSplineID(t_global,splines);
+
   double t_local = t_global;
-  for (uint s = 0; s < curr_spline_; s++)
-    t_local -= splines_[s].Duration();
+  for (int id=0; id<id_spline; id++) {
+    t_local -= splines.at(id).GetDuration();
+  }
 
-  cog_xy.p = splines_[curr_spline_].GetState(kPos, t_local);
-  cog_xy.v = splines_[curr_spline_].GetState(kVel, t_local);
-  cog_xy.a = splines_[curr_spline_].GetState(kAcc, t_local);
+  return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
+}
 
-  if (t_local > splines_[curr_spline_].Duration()) {
-    ++curr_spline_;
-    assert(curr_spline_ < splines_.size()); // make sure the current spline is in the buffer
-    LOG4CXX_TRACE(log_, std::setprecision(1) << std::fixed << " switched to zmp-spline " << curr_spline_);
+
+bool SplineContainer::IsFourLegSupport(double t_global) const
+{
+  assert(t_global<=GetTotalTime());
+  return splines_.at(GetSplineID(t_global)).IsFourLegSupport();
+}
+
+
+SplineContainer::Point2d
+SplineContainer::GetCOGxy(double t_global, const VecSpline& splines)
+{
+  int id = GetSplineID(t_global,splines);
+  double t_local = GetLocalTime(t_global, splines);
+
+  Point2d cog_xy;
+  cog_xy.p = splines[id].GetState(xpp::utils::kPos, t_local);
+  cog_xy.v = splines[id].GetState(xpp::utils::kVel, t_local);
+  cog_xy.a = splines[id].GetState(xpp::utils::kAcc, t_local);
+
+  return cog_xy;
+}
+
+void
+SplineContainer::CheckIfSplinesInitialized() const
+{
+  if (!splines_initialized_) {
+    throw std::runtime_error("ContinousSplineContainer.splines_ not initialized. Call Init() first");
   }
 }
 
+
+
 } // namespace zmp
 } // namespace xpp
+
+
