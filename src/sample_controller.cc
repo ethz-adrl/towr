@@ -38,13 +38,20 @@ SampleController::GetReadyHook ()
 bool
 SampleController::RunHook ()
 {
-//  JointState q_des = std::sin(
+  double t = Time();      // s
+  double frequency = 0.3; // Hz
+  double amplitude = 10.*M_PI/180.; // rad
 
-  // set desired as current
-  JointState q_des = robot_->GetJointPosition();
+  static const JointState q_start  = robot_->GetJointPosition();
 
-  q_des[iit::HyQ::LF_KFE] = 1.0;
+  using namespace iit::HyQ;
+  JointState q_des = q_start;
+  q_des[LF_KFE] = q_start[LF_KFE] + amplitude * std::sin(2*M_PI*frequency*t);
+  q_des[RF_KFE] = q_start[RF_KFE] + amplitude * std::sin(2*M_PI*frequency*t);
+  q_des[LH_KFE] = q_start[LH_KFE] - amplitude * std::sin(2*M_PI*frequency*t);
+  q_des[RH_KFE] = q_start[RH_KFE] - amplitude * std::sin(2*M_PI*frequency*t);
 
+  robot_->SetDesiredJointPosition(q_des);
 }
 
 } /* namespace exe */

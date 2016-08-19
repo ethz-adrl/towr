@@ -15,6 +15,8 @@ namespace exe {
 
 /** A sample controller to demonstrate how to create a controller using the interface.
   *
+  * This controller queries the current position of the joints and them produces
+  * an open-loop sine motion of the knees.
   */
 class SampleController : public Controller {
 public:
