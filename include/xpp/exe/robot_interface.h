@@ -2,14 +2,15 @@
  @file    robot_interface.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jun 27, 2016
- @brief   Brief description
+ @brief   Declares the RobotInterface class.
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_HYQ_ROBOT_INTERFACE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_HYQ_ROBOT_INTERFACE_H_
 
 #include <xpp/utils/geometric_structs.h>
-#include <xpp/hyq/leg_data_map.h>
+#include <iit/robots/hyq/leg_data_map.h>
+#include <iit/robots/hyq/declarations.h>
 
 namespace xpp {
 namespace exe {
@@ -18,6 +19,11 @@ namespace exe {
   *
   * This class is responsible for providing the current state of the
   * real robot/simulation and passing commands of the controller to the robot.
+  * This allows to write a controller independent of where it will be used
+  * (SL, Gazebo, ...) as long as the functionality listed below are implemented.
+  *
+  * An example that implements this interface for the HyQ robot controlled by SL
+  * is given in sl_hyqUser.
   */
 class RobotInterface {
 public:
@@ -26,8 +32,11 @@ public:
   typedef Eigen::Matrix<double, 6, 1> SpatialAcceleration;
   typedef Eigen::Vector3d FootXYZ;
   typedef xpp::utils::Pose Pose;
-  typedef xpp::hyq::LegDataMap<bool> LegDataMapBool;
-  typedef xpp::hyq::LegDataMap<FootXYZ> LegDataMapFoot;
+  typedef std::array<bool, 4> LegDataMapBool;
+  typedef std::array<FootXYZ, 4> LegDataMapFoot;
+
+//  typedef iit::hyq::LegDataMap<bool> LegDataMapBool;
+//  typedef iit::hyq::LegDataMap<FootXYZ> LegDataMapFoot;
 
   RobotInterface ();
   virtual ~RobotInterface ();
@@ -58,8 +67,6 @@ public:
                                                   bool use_q_as_prev) const = 0;
   virtual JointState EstimateDesiredJointAcceleration(const JointState& qd_des,
                                                     bool use_curr_as_prev) const = 0;
-
-  virtual void PushBase(const Eigen::Vector3d& f_i) {};
 };
 
 } /* namespace exe */

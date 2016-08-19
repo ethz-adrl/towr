@@ -243,8 +243,7 @@ void WalkingController::ExecuteLoop()
   JointState qd_des = robot_->EstimateDesiredJointVelocity(q_des, first_time_sending_commands_);
   JointState qdd_des = robot_->EstimateDesiredJointAcceleration(qd_des, first_time_sending_commands_);
 
-
-  JointState uff = robot_->CalcRequiredTorques(q_des, qd_des, qdd_des,P_base_acc_des,P_curr_.swingleg_);
+  JointState uff = robot_->CalcRequiredTorques(q_des, qd_des, qdd_des,P_base_acc_des,P_curr_.swingleg_.ToArray());
 
 
   SmoothTorquesAtContactChange(uff);
@@ -328,7 +327,10 @@ void WalkingController::EstimateCurrPose()
 
 
   // state estimator drifts, so estimate body position by joint angles.
-  LegDataMap<Vector3d> curr_feet_local = robot_->GetFeetPositions();
+//  RobotInterface::LegDataMapFoot
+
+
+  RobotInterface::LegDataMapFoot curr_feet_local = robot_->GetFeetPositions();
   double z_sum = 0.0;
   int stance_leg_count = 0;
   for (LegID leg : hyq::LegIDArray)

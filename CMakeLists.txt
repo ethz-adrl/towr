@@ -129,6 +129,7 @@ set(SOURCES
   #exe
   src/robot_interface.cc
   src/controller.cc
+  src/sample_controller.cc
   src/walking_controller.cc
   src/walking_controller_state.cc
   # observer pattern code
