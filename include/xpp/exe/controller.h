@@ -16,11 +16,17 @@
 namespace xpp {
 namespace exe {
 
-class RobotInterface;
+class HyqRobotInterface;
 
+/** Basic structure to control the robot HyQ in an arbitrary framework.
+  *
+  * Every controller should derive from this class and specify specific
+  * controller features using the hooks provided. A sample implementation
+  * is SampleController.
+  */
 class Controller {
 public:
-  typedef std::unique_ptr<RobotInterface> RobotInterfacePtr;
+  typedef std::unique_ptr<HyqRobotInterface> RobotInterfacePtr;
 
   explicit Controller();
   virtual ~Controller();

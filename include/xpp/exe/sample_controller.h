@@ -18,8 +18,6 @@ namespace exe {
   */
 class SampleController : public Controller {
 public:
-
-
   SampleController ();
   virtual ~SampleController ();
 

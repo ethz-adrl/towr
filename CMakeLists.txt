@@ -127,7 +127,6 @@ set(SOURCES
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
   #exe
-  src/robot_interface.cc
   src/controller.cc
   src/sample_controller.cc
   src/walking_controller.cc

@@ -243,7 +243,7 @@ void WalkingController::ExecuteLoop()
   JointState qd_des = robot_->EstimateDesiredJointVelocity(q_des, first_time_sending_commands_);
   JointState qdd_des = robot_->EstimateDesiredJointAcceleration(qd_des, first_time_sending_commands_);
 
-  JointState uff = robot_->CalcRequiredTorques(q_des, qd_des, qdd_des,P_base_acc_des,P_curr_.swingleg_.ToArray());
+  JointState uff = robot_->CalcProjectedInverseDynamics(q_des, qd_des, qdd_des,P_base_acc_des,P_curr_.swingleg_.ToArray());
 
 
   SmoothTorquesAtContactChange(uff);
@@ -323,14 +323,15 @@ void WalkingController::EstimateCurrPose()
   P_curr_.base_.pos.a = P_R_B*curr_base_state_est.pos.a;
   P_curr_.base_.ori.v = P_R_B*curr_base_state_est.ori.v;
   P_curr_.base_.ori.a = P_R_B*curr_base_state_est.ori.a;
-  P_curr_.base_.pos.a.z() -= iit::rbd::g; // exclude gravity from base acceleration
+  const double g = 9.81;
+  P_curr_.base_.pos.a.z() -= g; // exclude gravity from base acceleration
 
 
   // state estimator drifts, so estimate body position by joint angles.
 //  RobotInterface::LegDataMapFoot
 
 
-  RobotInterface::LegDataMapFoot curr_feet_local = robot_->GetFeetPositions();
+  auto curr_feet_local = robot_->GetFeetPositions();
   double z_sum = 0.0;
   int stance_leg_count = 0;
   for (LegID leg : hyq::LegIDArray)
