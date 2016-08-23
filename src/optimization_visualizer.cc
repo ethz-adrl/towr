@@ -10,7 +10,6 @@
 
 #include <xpp/hyq/foothold.h>
 #include <xpp/zmp/interpreting_observer.h>
-#include "../include/xpp/zmp/zmp_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace ros {

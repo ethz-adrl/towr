@@ -10,7 +10,7 @@
 
 #include <xpp/hyq/hyq_state.h>
 #include <xpp/utils/spliner_3d.h>
-#include "../zmp/zmp_polynomial_fifth_order.h"
+#include <xpp/zmp/com_polynomial.h>
 
 
 namespace xpp {

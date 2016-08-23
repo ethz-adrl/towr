@@ -30,7 +30,7 @@ ComSpline::AddSplinesStepSequence (int step_count, double t_swing)
   int n_splines_per_step = 1;
   for (int step=0; step<step_count; ++step) {
     for (int i=0; i<n_splines_per_step; ++i) {
-      ComPolynomial spline(id++, t_swing/n_splines_per_step, StepSpline);
+      ComPolynomial spline(id++, t_swing/n_splines_per_step, StepPolynomial);
       spline.SetStep(step);
       splines_.push_back(spline);
     }
@@ -43,7 +43,7 @@ void
 ComSpline::AddStanceSpline (double t_stance)
 {
   unsigned int id = splines_.size()==0 ? 0 : splines_.back().GetId()+1;
-  splines_.push_back(ComPolynomial(id++, t_stance, StanceSpline));
+  splines_.push_back(ComPolynomial(id++, t_stance, StancePolynomial));
 
   splines_initialized_ = true;
 }

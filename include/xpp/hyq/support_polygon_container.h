@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 
 #include <xpp/hyq/support_polygon.h>
-#include "../zmp/zmp_polynomial_fifth_order.h"
+#include <xpp/zmp/com_polynomial.h>
 
 namespace xpp {
 namespace hyq {
@@ -30,8 +30,7 @@ public:
 
 public:
   SupportPolygonContainer () {};
-  virtual
-  ~SupportPolygonContainer () {};
+  virtual ~SupportPolygonContainer () {};
 
 public:
 

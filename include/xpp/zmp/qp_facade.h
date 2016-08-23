@@ -8,9 +8,8 @@
 #ifndef _XPP_ZMP_QP_FACADE_H_
 #define _XPP_ZMP_QP_FACADE_H_
 
-#include <xpp/hyq/foothold.h>
 #include "com_spline6.h"
-#include "zmp_polynomial_fifth_order.h"
+#include <xpp/hyq/foothold.h>
 
 
 /**

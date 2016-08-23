@@ -94,7 +94,7 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
     std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::Y]);
 
     xpp.at(i).duration_      = msgs.at(i).duration;
-    xpp.at(i).type_          = static_cast<zmp::ZmpSplineType>(msgs.at(i).type);
+    xpp.at(i).type_          = static_cast<zmp::ComPolynomialType>(msgs.at(i).type);
     xpp.at(i).id_            = msgs.at(i).id;
     xpp.at(i).step_          = msgs.at(i).step;
   }

@@ -10,7 +10,7 @@
 
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include "zmp_polynomial_fifth_order.h"
+#include <xpp/zmp/com_polynomial.h>
 
 namespace xpp {
 namespace zmp {

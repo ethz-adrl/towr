@@ -9,8 +9,8 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 
 #include "com_motion.h"
+#include "com_polynomial.h"
 #include <memory>
-#include "zmp_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace zmp {

@@ -124,7 +124,7 @@ set(SOURCES
   src/com_spline.cc
   src/com_spline6.cc    
   src/com_spline4.cc    
-  src/zmp_polynomial_fifth_order.cc
+  src/com_polynomial.cc
   #exe
   src/walking_controller.cc
   src/walking_controller_state.cc

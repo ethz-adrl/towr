@@ -1,12 +1,12 @@
 /**
-@file   zmp_spline.cc
+@file   com_polynomial.cc
 @author Alexander Winkler (winklera@ethz.ch)
-@date   Oct 21,  2014
-@brief  Spline created by the zmp optimizaton and added to SplineContainer.
+@date   Oct 21,  2015
+@brief  Declares CoeffValues, PolynomialFifthOrder and ComPolynomial
  */
 
-#ifndef _XPP_ZMP_SPLINE_H_
-#define _XPP_ZMP_SPLINE_H_
+#ifndef _XPP_ZMP_COM_POLYNOMIAL_H_
+#define _XPP_ZMP_COM_POLYNOMIAL_H_
 
 #include <xpp/utils/geometric_structs.h>
 
@@ -54,32 +54,12 @@ struct CoeffValues {
       y[c] = (double)rand() / RAND_MAX * 50 - 25;
     }
   }
-
-//  bool operator==(const CoeffValues& rhs) const
-//  {
-//    static const double eps = std::numeric_limits<double>::epsilon();
-//
-//    for (int c = A; c <= F; ++c) {
-//      bool x_equal = std::abs(x[c] - rhs.x[c]) <= eps * std::abs(x[c]);
-//      bool y_equal = std::abs(y[c] - rhs.y[c]) <= eps * std::abs(y[c]);
-//
-//      if (!x_equal || !y_equal)
-//        return false;
-//    }
-//    return true;
-//  }
 };
 
 
-// todo rename to fifth order polynome!
-
-/**
-@class Spline
-@brief fully represents a spline in 2d and allows retrieving
-       values at specific time instances
-*/
+/** Builds a 5th order polynomial from the polynomial coefficients.
+  */
 class PolynomialFifthOrder {
-
 public:
   typedef xpp::utils::Vec2d Vec2d;
   typedef xpp::utils::PosVelAcc PosVelAcc;
@@ -101,18 +81,13 @@ protected:
 };
 
 
-
-/**
-@class ZmpSpline
-@brief Extends a general spline by specifying a duration during which it is
-       active in creating the spline for the CoG movement.
-*/
-enum ZmpSplineType {StanceSpline=0, StepSpline};
-class ComPolynomial : public PolynomialFifthOrder
-{
+/** A fifth order spline that now holds some context information about the Center of Mass.
+  */
+enum ComPolynomialType {StancePolynomial=0, StepPolynomial};
+class ComPolynomial : public PolynomialFifthOrder {
 public:
   ComPolynomial();
-  ComPolynomial(uint id, double duration, ZmpSplineType);
+  ComPolynomial(uint id, double duration, ComPolynomialType);
   virtual ~ComPolynomial() {};
 
   uint GetId()            const { return id_; };
@@ -122,12 +97,12 @@ public:
   /** Only if spline is a "StepSpline" is a step currently being executed. */
   uint GetCurrStep() const;
 
-  bool IsFourLegSupport() const { return type_ == StanceSpline; }
+  bool IsFourLegSupport() const { return type_ == StancePolynomial; }
 
 private:
   uint id_; // to identify the order relative to other zmp splines
   double duration_; // time during which this spline is active
-  ZmpSplineType type_;
+  ComPolynomialType type_;
   int step_; // current step
 
   friend struct xpp::ros::RosHelpers;
@@ -138,4 +113,4 @@ private:
 } // namespace zmp
 } // namespace xpp
 
-#endif // _XPP_ZMP_SPLINE_H_
+#endif // _XPP_ZMP_COM_POLYNOMIAL_H_

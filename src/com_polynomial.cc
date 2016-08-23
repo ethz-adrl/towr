@@ -1,8 +1,8 @@
 /**
-@file   zmp_spline.cc
+@file   com_polynomial.cc
 @author Alexander Winkler (winklera@ethz.ch)
-@date   Oct 21,  2014
-@brief  Spline created by the zmp optimizaton and added to SplineContainer.
+@date   Oct 21,  2015
+@brief  Defines CoeffValues, PolynomialFifthOrder and ComPolynomial
  */
 
 #include <iostream>
@@ -78,12 +78,12 @@ PolynomialFifthOrder::GetCoefficient (int dim, SplineCoeff coeff) const
 }
 
 ComPolynomial::ComPolynomial()
-    : id_(0), duration_(0.0), type_(StanceSpline), step_(-1)
+    : id_(0), duration_(0.0), type_(StancePolynomial), step_(-1)
 {
   SetSplineCoefficients();
 }
 
-ComPolynomial::ComPolynomial(uint id, double duration, ZmpSplineType type)
+ComPolynomial::ComPolynomial(uint id, double duration, ComPolynomialType type)
     : id_(id), duration_(duration), type_(type), step_(-1)
 {
   SetSplineCoefficients();
