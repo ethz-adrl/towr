@@ -70,7 +70,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   spline_structure.Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
   spline_structure.SetEndAtStart();
 
-  opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, spline_structure.GetOptimizedCoeffients());
+  opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, spline_structure.GetCoeffients());
   opt_variables_->AddVariableSet(VariableNames::kFootholds, supp_polygon_container.GetFootholdsInitializedToStart());
 
   // save the framework of the optimization problem

@@ -64,12 +64,12 @@ void ComSpline4::Init(const Vector2d& start_cog_p,
   // initialize all other coefficients apart from e,f of first spline to zero
   Eigen::VectorXd abcd(GetTotalFreeCoeff());
   abcd.setZero();
-  AddOptimizedCoefficients(abcd);
+  SetCoefficients(abcd);
 }
 
 
 void
-ComSpline4::AddOptimizedCoefficients(const VectorXd& optimized_coeff)
+ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
 {
   AddOptimizedCoefficients(optimized_coeff, splines_);
 }
@@ -165,7 +165,7 @@ int ComSpline4::GetTotalFreeCoeff() const
 }
 
 ComSpline4::VectorXd
-ComSpline4::GetOptimizedCoeffients () const
+ComSpline4::GetCoeffients () const
 {
   VectorXd x_abcd(GetTotalFreeCoeff());
 
@@ -312,7 +312,7 @@ ComSpline4::SetEndAtStart ()
   abcd[Index(0,Y,C)] = c_and_d_y(0);
   abcd[Index(0,Y,D)] = c_and_d_y(1);
 
-  AddOptimizedCoefficients(abcd);
+  SetCoefficients(abcd);
 }
 
 } /* namespace zmp */

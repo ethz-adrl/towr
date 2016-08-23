@@ -44,7 +44,7 @@ void
 OptimizationVariablesInterpreter::SetSplineCoefficients (
     const VectorXd& x_spline_coeff)
 {
-  spline_structure_->AddOptimizedCoefficients(x_spline_coeff);
+  spline_structure_->SetCoefficients(x_spline_coeff);
 }
 
 OptimizationVariablesInterpreter::VecFoothold

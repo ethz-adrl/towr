@@ -29,8 +29,6 @@ public:
   ComMotion ();
   virtual ~ComMotion ();
 
-  virtual int GetTotalFreeCoeff() const = 0;
-  virtual VectorXd GetOptimizedCoeffients() const = 0;
 
   /** Get the Center of Mass position, velocity and acceleration.
     *
@@ -39,12 +37,14 @@ public:
     */
   virtual Point2d GetCom(double t_global) const = 0;
 
-  /** Add all coefficients to fully describe the CoM motion.
+  /** Set all coefficients to fully describe the CoM motion.
     *
-    * These can be spline coefficients or parameters from any type of equation
+    * These can be spline coefficients or coefficients from any type of equation
     * that produce x(t) = ...
     */
-  virtual void AddOptimizedCoefficients(const VectorXd& optimized_coeff) = 0;
+  virtual void SetCoefficients(const VectorXd& optimized_coeff) = 0;
+  virtual int GetTotalFreeCoeff() const = 0;
+  virtual VectorXd GetCoeffients() const = 0;
 
   /** If the trajectory has to be discretized, use this for consistent time steps.
    *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)

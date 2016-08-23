@@ -83,7 +83,7 @@ QpFacade::SolveQp(const State& initial_state,
   ROS_INFO_STREAM("Final state:\t" << final_state);
 
   Eigen::VectorXd opt_abcd = EigenSolveQuadprog();
-  spline_structure.AddOptimizedCoefficients(opt_abcd);
+  spline_structure.SetCoefficients(opt_abcd);
 
   return spline_structure.GetSplines();
 }
