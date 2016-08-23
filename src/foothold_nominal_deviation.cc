@@ -63,7 +63,7 @@ FootholdNominalDeviation::GetFeetInBase (
     else
       stance_legs = suppport_polygons.at(spline_id).footholds_;
 
-    xpp::utils::Point2d I_cog_xy = cog_spline->GetCOGxy(t);
+    xpp::utils::Point2d I_cog_xy = cog_spline->GetCom(t);
 
     // calculate distance to base for every stance leg
     // restrict to quadrants

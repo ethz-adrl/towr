@@ -165,7 +165,7 @@ int ComSpline4::GetTotalFreeCoeff() const
 }
 
 ComSpline4::VectorXd
-ComSpline4::GetABCDCoeffients () const
+ComSpline4::GetOptimizedCoeffients () const
 {
   VectorXd x_abcd(GetTotalFreeCoeff());
 

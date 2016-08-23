@@ -48,7 +48,7 @@ public:
 
   int Index(int spline, Coords dim, SplineCoeff coeff) const override;
   int GetTotalFreeCoeff() const override;
-  VectorXd GetABCDCoeffients() const override;
+  VectorXd GetOptimizedCoeffients() const override;
   void AddOptimizedCoefficients(const VectorXd& optimized_coeff) override;
   void SetEndAtStart() override;
 

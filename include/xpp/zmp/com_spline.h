@@ -46,6 +46,8 @@ struct SplineTimes
 class ComSpline : public ComMotion {
 public:
   typedef std::vector<ComPolynomial> VecSpline;
+  typedef xpp::utils::PosVelAcc PosVelAcc;
+  typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::Point2d Point2d;
   typedef std::shared_ptr<ComSpline> Ptr;
   typedef xpp::utils::Coords3D Coords;
@@ -68,7 +70,7 @@ public:
   @return x and y state of position,velocity OR acceleration
    */
   static Point2d GetCOGxy(double t_global, const VecSpline& splines);
-  Point2d GetCOGxy(double t_global) const { return GetCOGxy(t_global, splines_); }
+  Point2d GetCom(double t_global) const { return GetCOGxy(t_global, splines_); }
 
   static int GetSplineID(double t_global, const VecSpline& splines);
   int GetSplineID(double t_global) const { return GetSplineID(t_global, splines_); }
@@ -88,7 +90,7 @@ public:
     * @param dim dimension specifying if x or y coordinate of CoG should be calculated
     * @return
     */
-  VecScalar ExpressComThroughCoeff(xpp::utils::PosVelAcc, double t_local, int id, Coords3D dim) const;
+  VecScalar ExpressComThroughCoeff(PosVelAcc, double t_local, int id, Coords dim) const;
 
 
 protected:

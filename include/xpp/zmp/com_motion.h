@@ -23,27 +23,28 @@ namespace zmp {
 class ComMotion {
 public:
   typedef Eigen::VectorXd VectorXd;
-  typedef xpp::utils::VecScalar VecScalar;
-  typedef xpp::utils::Coords3D Coords3D;
-  typedef xpp::utils::PosVelAcc PosVelAcc;
   typedef xpp::utils::Point2d Point2d;
   typedef std::shared_ptr<ComMotion> Ptr;
 
   ComMotion ();
   virtual ~ComMotion ();
 
-
   virtual int GetTotalFreeCoeff() const = 0;
-  virtual VectorXd GetABCDCoeffients() const = 0;
+  virtual VectorXd GetOptimizedCoeffients() const = 0;
 
-  virtual Point2d GetCOGxy(double t_global) const = 0;
+  /** Get the Center of Mass position, velocity and acceleration.
+    *
+    * @param t_global current time
+    * @return pos/vel/acc in 2D.
+    */
+  virtual Point2d GetCom(double t_global) const = 0;
 
-
-  /** Creates all the coefficients for the 5th order polynomials from the variables
+  /** Add all coefficients to fully describe the CoM motion.
+    *
+    * These can be spline coefficients or parameters from any type of equation
+    * that produce x(t) = ...
     */
   virtual void AddOptimizedCoefficients(const VectorXd& optimized_coeff) = 0;
-
-  virtual double GetTotalTime() const = 0;
 
   /** If the trajectory has to be discretized, use this for consistent time steps.
    *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
@@ -52,8 +53,11 @@ public:
    *  timestep > delta t before the last node.
    */
   std::vector<double> GetDiscretizedGlobalTimes() const;
+  virtual double GetTotalTime() const = 0;
   int GetTotalNodes() const;
 
+  // refactor implement this to swap com_spline with com_motion
+//  virtual int GetCurrentStep(double t_global) const = 0;
 
   /** Sets coefficients, so motion ends up at initial position.
     *
@@ -62,9 +66,6 @@ public:
     * be set with zero coefficient values to stay there as well.
     */
   virtual void SetEndAtStart() = 0;
-
-private:
-  static constexpr double eps_ = 1e-10; // maximum inaccuracy when adding double numbers
 };
 
 } /* namespace zmp */

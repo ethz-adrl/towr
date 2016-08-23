@@ -53,33 +53,33 @@ protected:
   int n_final_splines;
 };
 
-TEST_F(SplineContainerTest, GetCOGxy)
+TEST_F(SplineContainerTest, GetCom)
 {
   ComSpline4 splines;
   splines.Init(Vector2d::Zero(), Vector2d::Zero(), n_steps, times_);
   const double T = splines.GetTotalTime();
 
   // zero initial position and velocity
-  EXPECT_EQ(Vector2d::Zero(), splines.GetCOGxy(0.0).p);
-  EXPECT_EQ(Vector2d::Zero(), splines.GetCOGxy(T).p);
+  EXPECT_EQ(Vector2d::Zero(), splines.GetCom(0.0).p);
+  EXPECT_EQ(Vector2d::Zero(), splines.GetCom(T).p);
 
   // with initial position (final position should be same)
   const Vector2d init_pos(0.5, -0.2);
   splines.Init(init_pos, Vector2d::Zero(), n_steps, times_);
-  EXPECT_EQ(init_pos, splines.GetCOGxy(0.0).p);
-  EXPECT_EQ(init_pos, splines.GetCOGxy(T).p);
+  EXPECT_EQ(init_pos, splines.GetCom(0.0).p);
+  EXPECT_EQ(init_pos, splines.GetCom(T).p);
 
   // with initial velocity (final velocity should be same)
   const Vector2d init_vel(1.5, 0.3);
   splines.Init(Vector2d::Zero(), init_vel, n_steps, times_);
-  EXPECT_EQ(init_vel, splines.GetCOGxy(0.0).v);
-  EXPECT_EQ(init_vel, splines.GetCOGxy(T).v);
+  EXPECT_EQ(init_vel, splines.GetCom(0.0).v);
+  EXPECT_EQ(init_vel, splines.GetCom(T).v);
 
   // with initial position and velocity (final position should be different, velocity same)
   splines.Init(init_pos, init_vel, n_steps, times_);
-  EXPECT_EQ(init_pos, splines.GetCOGxy(0.0).p);
-  EXPECT_NE(init_pos, splines.GetCOGxy(T).p);
-  EXPECT_EQ(init_vel, splines.GetCOGxy(T).v);
+  EXPECT_EQ(init_pos, splines.GetCom(0.0).p);
+  EXPECT_NE(init_pos, splines.GetCom(T).p);
+  EXPECT_EQ(init_vel, splines.GetCom(T).v);
 }
 
 TEST_F(SplineContainerTest, SetEndAtStart)
@@ -92,17 +92,17 @@ TEST_F(SplineContainerTest, SetEndAtStart)
   const double t_first_spline = splines.GetFirstSpline().GetDuration();
 
   // spline ends up in different position than start due to initial velocity
-  EXPECT_NE(init_pos, splines.GetCOGxy(T).p);
+  EXPECT_NE(init_pos, splines.GetCom(T).p);
 
   // same initial pos,vel, but should now end up at inital pos with zero velocity
   splines.SetEndAtStart();
-  EXPECT_EQ(init_pos, splines.GetCOGxy(0.0).p);
-  EXPECT_EQ(init_vel, splines.GetCOGxy(0.0).v);
+  EXPECT_EQ(init_pos, splines.GetCom(0.0).p);
+  EXPECT_EQ(init_vel, splines.GetCom(0.0).v);
   double tol = 1e-8;
-  EXPECT_NEAR(init_pos.x(), splines.GetCOGxy(T).p.x(),tol);
-  EXPECT_NEAR(init_pos.y(), splines.GetCOGxy(T).p.y(),tol);
-  EXPECT_NEAR(0.0, splines.GetCOGxy(T).v.x(),tol);
-  EXPECT_NEAR(0.0, splines.GetCOGxy(T).v.y(),tol);
+  EXPECT_NEAR(init_pos.x(), splines.GetCom(T).p.x(),tol);
+  EXPECT_NEAR(init_pos.y(), splines.GetCom(T).p.y(),tol);
+  EXPECT_NEAR(0.0, splines.GetCom(T).v.x(),tol);
+  EXPECT_NEAR(0.0, splines.GetCom(T).v.y(),tol);
 }
 
 TEST_F(SplineContainerTest, ConstructSplineSequenceInitFinalCount)

@@ -55,7 +55,7 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
     p_stance_legs_i = suppport_polygons.at(spline_id).footholds_;
 
   // body position during the step
-  xpp::utils::Point2d cog_xy_i = cog_spline_xy_->GetCOGxy(t);
+  xpp::utils::Point2d cog_xy_i = cog_spline_xy_->GetCom(t);
   Vector3d cog_i;
   cog_i << cog_xy_i.p.x(),
            cog_xy_i.p.y(),
