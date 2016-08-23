@@ -5,10 +5,11 @@
  *      Author: awinkler
  */
 
+#include "../../include/xpp/zmp/com_spline6.h"
+
 #include <gtest/gtest.h>
-#include <xpp/zmp/spline_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
 #include <iostream>
+#include "../../include/xpp/zmp/com_spline4.h"
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 
@@ -20,7 +21,7 @@ using namespace xpp::utils::coords_wrapper;
 class SplineContainerTest : public ::testing::Test {
 
 public:
-  typedef SplineContainer::VecSpline VecSpline;
+  typedef ComSpline6::VecSpline VecSpline;
   typedef xpp::utils::Point2d Point2d;
   typedef Eigen::Vector2d Vector2d;
 
@@ -44,7 +45,7 @@ protected:
     n_final_splines    = 0;
   }
 
-  ContinuousSplineContainer spline_container_4steps_;
+  ComSpline4 spline_container_4steps_;
   SplineTimes times_;
 
   int n_initial_splines;
@@ -54,7 +55,7 @@ protected:
 
 TEST_F(SplineContainerTest, GetCOGxy)
 {
-  ContinuousSplineContainer splines;
+  ComSpline4 splines;
   splines.Init(Vector2d::Zero(), Vector2d::Zero(), n_steps, times_);
   const double T = splines.GetTotalTime();
 
@@ -83,7 +84,7 @@ TEST_F(SplineContainerTest, GetCOGxy)
 
 TEST_F(SplineContainerTest, SetEndAtStart)
 {
-  ContinuousSplineContainer splines;
+  ComSpline4 splines;
   const Vector2d init_pos(0.5, -0.2);
   const Vector2d init_vel(1.5, 0.3);
   splines.Init(init_pos, init_vel, n_steps, times_);
@@ -180,7 +181,7 @@ TEST_F(SplineContainerTest, GetState)
 
   // Create a straight spline in x direction composed of 3 splines (4ls, step 1, 4ls)
   // that has equal position and velocity at junctions
-  ContinuousSplineContainer spline_container;
+  ComSpline4 spline_container;
   spline_container.Init(Eigen::Vector2d::Zero(), Eigen::Vector2d::Zero(),1,
                         times_,true);
   std::vector<ZmpSpline> x_spline = spline_container.GetSplines();
@@ -248,7 +249,7 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   init_pos << 0.4, 3.4;
   init_vel << 1.1, -1.9;
 
-  ContinuousSplineContainer splines_estimated_ef;
+  ComSpline4 splines_estimated_ef;
   splines_estimated_ef.Init(init_pos, init_vel, 3, times_, true);
 
   // Create a straight spline in x direction composed of 3 splines (4ls, step 1, 4ls)
@@ -280,8 +281,8 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   coeff.y[F] = f.y();
   splines_ref.at(spline).SetSplineCoefficients(coeff);
   for (const SplineCoeff c : FreeSplineCoeff) {
-    abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
-    abcd_coeff(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
+    abcd_coeff(ComSpline4::Index(spline, X, c)) = coeff.x[c];
+    abcd_coeff(ComSpline4::Index(spline, Y, c)) = coeff.y[c];
   }
 
 
@@ -308,8 +309,8 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
 
     splines_ref.at(spline).SetSplineCoefficients(coeff);
     for (const SplineCoeff c : FreeSplineCoeff) {
-      abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
-      abcd_coeff(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
+      abcd_coeff(ComSpline4::Index(spline, X, c)) = coeff.x[c];
+      abcd_coeff(ComSpline4::Index(spline, Y, c)) = coeff.y[c];
     }
   }
 

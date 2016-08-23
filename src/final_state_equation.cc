@@ -11,7 +11,7 @@ namespace xpp {
 namespace zmp {
 
 FinalStateEquation::FinalStateEquation (const State2d& final_state_xy,
-                                        const ContinuousSplineContainer& splines)
+                                        const ComSpline4& splines)
     :final_state_xy_(final_state_xy),
      splines_(splines)
 {}

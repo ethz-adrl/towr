@@ -7,7 +7,7 @@
 
 #include <xpp/zmp/stance_feet_calculator.h>
 
-#include <xpp/zmp/spline_container.h>
+#include "../include/xpp/zmp/com_spline6.h"
 
 namespace xpp {
 namespace zmp {
@@ -41,11 +41,11 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
 
   // legs in contact during each step/spline
   VecFoothold p_stance_legs_i;
-  int spline_id = SplineContainer::GetSplineID(t, cog_spline_xy_);
+  int spline_id = ComSpline6::GetSplineID(t, cog_spline_xy_);
 
 
   // because last swing support polygon will not restrict landing position of foot
-  double T = SplineContainer::GetTotalTime(cog_spline_xy_);
+  double T = ComSpline6::GetTotalTime(cog_spline_xy_);
 
 //  std::cout << "T_else: " << T_else << std::endl;
 //  double T = SplineContainer::GetDiscretizedGlobalTimes(cog_spline_xy_).back();
@@ -56,7 +56,7 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
     p_stance_legs_i = suppport_polygons.at(spline_id).footholds_;
 
   // body position during the step
-  xpp::utils::Point2d cog_xy_i = SplineContainer::GetCOGxy(t, cog_spline_xy_);
+  xpp::utils::Point2d cog_xy_i = ComSpline6::GetCOGxy(t, cog_spline_xy_);
   Vector3d cog_i;
   cog_i << cog_xy_i.p.x(),
            cog_xy_i.p.y(),

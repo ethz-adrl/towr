@@ -9,20 +9,20 @@
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_TOTAL_ACCELERATION_EQUATION_H_
 
 #include <xpp/zmp/i_linear_equation_builder.h>
-#include <xpp/zmp/continuous_spline_container.h>
+#include "com_spline4.h"
 
 namespace xpp {
 namespace zmp {
 
 class TotalAccelerationEquation : public ILinearEquationBuilder {
 public:
-  TotalAccelerationEquation (const ContinuousSplineContainer&);
+  TotalAccelerationEquation (const ComSpline4&);
   virtual ~TotalAccelerationEquation () {}
 
   MatVec BuildLinearEquation() const override;
 
 private:
-  const ContinuousSplineContainer splines_;
+  const ComSpline4 splines_;
 };
 
 } /* namespace zmp */

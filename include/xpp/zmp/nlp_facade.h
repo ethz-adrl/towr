@@ -11,11 +11,10 @@
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/zmp/i_visualizer.h>
 #include <xpp/hyq/support_polygon.h>
-#include <xpp/zmp/spline_container.h>
-
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
 #include <memory>
+#include "com_spline6.h"
 
 namespace xpp {
 namespace hyq {

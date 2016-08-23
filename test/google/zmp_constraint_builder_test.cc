@@ -40,8 +40,8 @@ protected:
     supp_poly_margins[hyq::DIAG]  = 0.06; // controls sidesway motion 0.8 even better
   }
 
-  SplineContainer spline_container_;
-  ContinuousSplineContainer cont_spline_container_;
+  ComSpline6 spline_container_;
+  ComSpline4 cont_spline_container_;
   double t_stance_initial = 2.0;
   double t_swing = 0.5;
   double walking_height = 0.58;

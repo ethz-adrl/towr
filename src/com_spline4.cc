@@ -1,11 +1,11 @@
-/*
- * continuous_spline_container.cc
- *
- *  Created on: Mar 18, 2016
- *      Author: winklera
+/**
+@file    com_spline4.cc
+@author  Alexander W. Winkler (winklera@ethz.ch)
+@date    Oct 21, 2015
+@brief   Defines ComSpline4, which realizes a ComSpline
  */
 
-#include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/zmp/com_spline4.h>
 #include <Eigen/LU>
 
 namespace xpp {
@@ -13,7 +13,7 @@ namespace zmp {
 
 using namespace xpp::utils::coords_wrapper;
 
-ContinuousSplineContainer::ContinuousSplineContainer (
+ComSpline4::ComSpline4 (
     const Vector2d& start_cog_p,
     const Vector2d& start_cog_v,
     int step_count,
@@ -23,7 +23,7 @@ ContinuousSplineContainer::ContinuousSplineContainer (
 }
 
 
-void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
+void ComSpline4::Init(const Vector2d& start_cog_p,
                                      const Vector2d& start_cog_v,
                                      int step_count,
                                      const SplineTimes& times,
@@ -57,8 +57,8 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
   AddOptimizedCoefficients(abcd);
 }
 
-ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::ExpressComThroughCoeff (
+ComSpline4::VecScalar
+ComSpline4::ExpressComThroughCoeff (
     xpp::utils::PosVelAcc posVelAcc, double t_local, int id, Coords dim) const
 {
   switch (posVelAcc) {
@@ -75,21 +75,21 @@ ContinuousSplineContainer::ExpressComThroughCoeff (
 
 
 void
-ContinuousSplineContainer::AddOptimizedCoefficients(const VectorXd& optimized_coeff)
+ComSpline4::AddOptimizedCoefficients(const VectorXd& optimized_coeff)
 {
   AddOptimizedCoefficients(optimized_coeff, splines_);
 }
 
-ContinuousSplineContainer::VecSpline
-ContinuousSplineContainer::BuildOptimizedSplines(const VectorXd& optimized_coeff) const
+ComSpline4::VecSpline
+ComSpline4::BuildOptimizedSplines(const VectorXd& optimized_coeff) const
 {
   VecSpline splines = splines_;
   AddOptimizedCoefficients(optimized_coeff, splines);
   return splines;
 }
 
-ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const
+ComSpline4::VecScalar
+ComSpline4::ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const
 {
   VecScalar pos(GetTotalFreeCoeff());
 
@@ -109,8 +109,8 @@ ContinuousSplineContainer::ExpressCogPosThroughABCD(double t_local, int id, Coor
   return pos;
 }
 
-ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::ExpressCogVelThroughABCD (double t_local, int id,
+ComSpline4::VecScalar
+ComSpline4::ExpressCogVelThroughABCD (double t_local, int id,
                                                      Coords dim) const
 {
   VecScalar vel(GetTotalFreeCoeff());
@@ -130,8 +130,8 @@ ContinuousSplineContainer::ExpressCogVelThroughABCD (double t_local, int id,
 }
 
 
-ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::ExpressCogAccThroughABCD(double t_local, int id, Coords dim) const
+ComSpline4::VecScalar
+ComSpline4::ExpressCogAccThroughABCD(double t_local, int id, Coords dim) const
 {
   VecScalar acc(GetTotalFreeCoeff());
 
@@ -142,8 +142,8 @@ ContinuousSplineContainer::ExpressCogAccThroughABCD(double t_local, int id, Coor
 }
 
 
-ContinuousSplineContainer::VecABCD
-ContinuousSplineContainer::ExpressCogAccThroughABCD(double t_local) const
+ComSpline4::VecABCD
+ComSpline4::ExpressCogAccThroughABCD(double t_local) const
 {
   VecABCD acc;
 
@@ -156,8 +156,8 @@ ContinuousSplineContainer::ExpressCogAccThroughABCD(double t_local) const
   return acc;
 }
 
-ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::ExpressCogJerkThroughABCD (double t_local, int id,
+ComSpline4::VecScalar
+ComSpline4::ExpressCogJerkThroughABCD (double t_local, int id,
                                                       Coords dim) const
 {
   VecScalar jerk(GetTotalFreeCoeff());
@@ -171,14 +171,14 @@ ContinuousSplineContainer::ExpressCogJerkThroughABCD (double t_local, int id,
 }
 
 
-int ContinuousSplineContainer::GetTotalFreeCoeff() const
+int ComSpline4::GetTotalFreeCoeff() const
 {
   CheckIfSplinesInitialized();
   return splines_.size() * kFreeCoeffPerSpline * kDim2d;
 }
 
-ContinuousSplineContainer::VectorXd
-ContinuousSplineContainer::GetABCDCoeffients () const
+ComSpline4::VectorXd
+ComSpline4::GetABCDCoeffients () const
 {
   VectorXd x_abcd(GetTotalFreeCoeff());
 
@@ -190,7 +190,7 @@ ContinuousSplineContainer::GetABCDCoeffients () const
   return x_abcd;
 }
 
-int ContinuousSplineContainer::Index(int spline, Coords dim, SplineCoeff coeff)
+int ComSpline4::Index(int spline, Coords dim, SplineCoeff coeff)
 {
   return kFreeCoeffPerSpline * kDim2d * spline + kFreeCoeffPerSpline * dim + coeff;
 }
@@ -206,16 +206,16 @@ int ContinuousSplineContainer::Index(int spline, Coords dim, SplineCoeff coeff)
 //}
 
 
-ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::GetECoefficient(int spline_id_k, Coords dim) const
+ComSpline4::VecScalar
+ComSpline4::GetECoefficient(int spline_id_k, Coords dim) const
 {
   CheckIfSplinesInitialized();
   return relationship_e_to_abcd_.at(dim).GetRow(spline_id_k);
 }
 
 
-ContinuousSplineContainer::VecScalar
-ContinuousSplineContainer::GetFCoefficient(int spline_id_k, Coords dim) const
+ComSpline4::VecScalar
+ComSpline4::GetFCoefficient(int spline_id_k, Coords dim) const
 {
   CheckIfSplinesInitialized();
   return relationship_f_to_abdc_.at(dim).GetRow(spline_id_k);
@@ -223,8 +223,8 @@ ContinuousSplineContainer::GetFCoefficient(int spline_id_k, Coords dim) const
 
 
 
-ContinuousSplineContainer::MatVec
-ContinuousSplineContainer::DescribeEByABCD(Coords dim, double start_cog_v) const
+ComSpline4::MatVec
+ComSpline4::DescribeEByABCD(Coords dim, double start_cog_v) const
 {
   MatVec e_coeff(splines_.size(), GetTotalFreeCoeff());
   e_coeff.v[0] = start_cog_v;
@@ -249,8 +249,8 @@ ContinuousSplineContainer::DescribeEByABCD(Coords dim, double start_cog_v) const
 }
 
 
-ContinuousSplineContainer::MatVec
-ContinuousSplineContainer::DescribeFByABCD(Coords dim, double start_cog_p,
+ComSpline4::MatVec
+ComSpline4::DescribeFByABCD(Coords dim, double start_cog_p,
                                            double start_cog_v) const
 {
   MatVec e_coeff = DescribeEByABCD(dim, start_cog_v);
@@ -282,7 +282,7 @@ ContinuousSplineContainer::DescribeFByABCD(Coords dim, double start_cog_p,
 
 
 void
-ContinuousSplineContainer::AddOptimizedCoefficients(
+ComSpline4::AddOptimizedCoefficients(
     const Eigen::VectorXd& optimized_coeff,
     VecSpline& splines) const
 {
@@ -317,7 +317,7 @@ ContinuousSplineContainer::AddOptimizedCoefficients(
 }
 
 void
-ContinuousSplineContainer::SetEndAtStart ()
+ComSpline4::SetEndAtStart ()
 {
   const Vector2d& start_com_v = splines_.front().GetState(xpp::utils::kVel,0.0);
   double T = splines_.front().GetDuration();

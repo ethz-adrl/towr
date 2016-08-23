@@ -35,7 +35,7 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
 
   // create the framework of the optimization
   OptimizationVariablesInterpreter interpreter;
-  ContinuousSplineContainer spline_structure;
+  ComSpline4 spline_structure;
   spline_structure.Init(init_pos, init_vel, 0, times, true);
   hyq::SupportPolygonContainer support_polygon_container_;
   support_polygon_container_.Init(start_stance_, hyq::SupportPolygonContainer::VecFoothold(), hyq::SupportPolygon::GetZeroMargins());

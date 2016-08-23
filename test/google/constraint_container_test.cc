@@ -8,9 +8,8 @@
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/constraint_factory.h>
-#include <xpp/zmp/continuous_spline_container.h>
-
 #include <gtest/gtest.h>
+#include "../../include/xpp/zmp/com_spline4.h"
 
 namespace xpp {
 namespace zmp {
@@ -42,7 +41,7 @@ protected:
   OptimizationVariables opt_var_;
   ConstraintPtr c_zeros_, c_ones_;
   ConstraintContainerPtr constraints_;
-  ContinuousSplineContainer splines_;
+  ComSpline4 splines_;
 };
 
 TEST_F(ConstraintContainerTest, EvaluateConstraintsInitialAcc)

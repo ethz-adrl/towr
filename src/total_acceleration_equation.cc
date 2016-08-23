@@ -11,7 +11,7 @@ namespace xpp {
 namespace zmp {
 
 TotalAccelerationEquation::TotalAccelerationEquation (
-    const ContinuousSplineContainer& splines)
+    const ComSpline4& splines)
     :splines_(splines)
 {}
 
@@ -30,10 +30,10 @@ TotalAccelerationEquation::BuildLinearEquation () const
     std::array<double,8> t_span = utils::cache_exponents<8>(s.GetDuration());
 
     for (const Coords3D dim : Coords2DArray) {
-      const int a = ContinuousSplineContainer::Index(s.GetId(), dim, A);
-      const int b = ContinuousSplineContainer::Index(s.GetId(), dim, B);
-      const int c = ContinuousSplineContainer::Index(s.GetId(), dim, C);
-      const int d = ContinuousSplineContainer::Index(s.GetId(), dim, D);
+      const int a = ComSpline4::Index(s.GetId(), dim, A);
+      const int b = ComSpline4::Index(s.GetId(), dim, B);
+      const int c = ComSpline4::Index(s.GetId(), dim, C);
+      const int d = ComSpline4::Index(s.GetId(), dim, D);
 
       // for explanation of values see M.Kalakrishnan et al., page 248
       // "Learning, Planning and Control for Quadruped Robots over challenging

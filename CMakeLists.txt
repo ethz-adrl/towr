@@ -122,9 +122,9 @@ set(SOURCES
   # com
   src/com_motion.cc
   src/com_spline.cc
-  src/spline_container.cc    
+  src/com_spline6.cc    
+  src/com_spline4.cc    
   src/zmp_spline.cc
-  src/continuous_spline_container.cc    
   #exe
   src/walking_controller.cc
   src/walking_controller_state.cc

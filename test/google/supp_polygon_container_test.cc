@@ -7,8 +7,8 @@
 
 #include <gtest/gtest.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
 #include <iostream>
+#include "../../include/xpp/zmp/com_spline4.h"
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 //#define prt(x)
@@ -20,8 +20,8 @@ namespace hyq {
 class SuppPolygonContainerTest : public ::testing::Test {
 protected:
 
-  typedef xpp::zmp::SplineContainer SplineContainer;
-  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
+  typedef xpp::zmp::ComSpline6 SplineContainer;
+  typedef xpp::zmp::ComSpline6::VecSpline VecSpline;
 
   virtual void SetUp()
   {
@@ -56,7 +56,7 @@ protected:
     double t_stance_initial = 2.0;
     xpp::zmp::SplineTimes spline_times(t_swing, t_stance_initial);
 
-    xpp::zmp::ContinuousSplineContainer spline_cont;
+    xpp::zmp::ComSpline4 spline_cont;
     spline_cont.Init(Eigen::Vector2d::Zero(), Eigen::Vector2d::Zero(),
                      4, spline_times, true);
     splines_ = spline_cont.GetSplines();

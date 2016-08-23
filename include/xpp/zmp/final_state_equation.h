@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_FINAL_STATE_EQUATION_H_
 
 #include <xpp/zmp/i_linear_equation_builder.h>
-#include <xpp/zmp/continuous_spline_container.h>
+#include "com_spline4.h"
 
 namespace xpp {
 namespace zmp {
@@ -19,14 +19,14 @@ public:
   typedef xpp::utils::Point2d State2d;
 
   FinalStateEquation (const State2d& final_state_xy_,
-                      const ContinuousSplineContainer&);
+                      const ComSpline4&);
   virtual  ~FinalStateEquation () {}
 
   MatVec BuildLinearEquation() const override;
 
 private:
   const State2d final_state_xy_;
-  const ContinuousSplineContainer splines_;
+  const ComSpline4 splines_;
 };
 
 } /* namespace zmp */

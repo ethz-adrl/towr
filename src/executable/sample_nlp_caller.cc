@@ -17,7 +17,7 @@ typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
 typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
 
 
-xpp::zmp::SplineContainer::VecSpline splines;
+xpp::zmp::ComSpline6::VecSpline splines;
 std::vector<xpp::hyq::Foothold> footholds;
 void OptParamsCallback(const OptimizedParametersMsg& msg)
 {

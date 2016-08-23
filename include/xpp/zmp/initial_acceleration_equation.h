@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_INITIAL_ACCELERATION_EQUATION_H_
 
 #include <xpp/zmp/i_linear_equation_builder.h>
-#include <xpp/zmp/continuous_spline_container.h>
+#include "com_spline4.h"
 
 namespace xpp {
 namespace zmp {
@@ -19,14 +19,14 @@ public:
   typedef Eigen::Vector2d Vector2d;
 
   InitialAccelerationEquation (const Vector2d& initial_acceleration_xy,
-                               const ContinuousSplineContainer&);
+                               const ComSpline4&);
   virtual ~InitialAccelerationEquation () {}
 
   MatVec BuildLinearEquation() const override;
 
 private:
   Vector2d initial_acceleration_xy_;
-  const ContinuousSplineContainer splines_;
+  const ComSpline4 splines_;
 };
 
 } /* namespace zmp */

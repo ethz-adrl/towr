@@ -7,7 +7,7 @@
 
 #include <xpp/zmp/joint_angles_constraint.h>
 #include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/spline_container.h>
+#include "../include/xpp/zmp/com_spline6.h"
 
 namespace xpp {
 namespace zmp {
@@ -40,7 +40,7 @@ JointAnglesConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   VecFoothold footholds = interpreter_.GetFootholds(utils::ConvertEigToStd(footholds_xy));
   VecSpline splines     = interpreter_.GetSplines(x_coeff);
 
-  vec_t_ = SplineContainer::GetDiscretizedGlobalTimes(splines);
+  vec_t_ = ComSpline6::GetDiscretizedGlobalTimes(splines);
   stance_feet_calc_.Update(interpreter_.GetStartStance(),
                            footholds, splines, interpreter_.GetRobotHeight());
 }

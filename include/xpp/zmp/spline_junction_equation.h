@@ -9,20 +9,20 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_SPLINE_JUNCTION_EQUATION_H_
 
 #include <xpp/zmp/i_linear_equation_builder.h>
-#include <xpp/zmp/continuous_spline_container.h>
+#include "com_spline4.h"
 
 namespace xpp {
 namespace zmp {
 
 class SplineJunctionEquation : public ILinearEquationBuilder {
 public:
-  SplineJunctionEquation (const ContinuousSplineContainer&);
+  SplineJunctionEquation (const ComSpline4&);
   virtual ~SplineJunctionEquation () { }
 
   MatVec BuildLinearEquation() const override;
 
 private:
-  const ContinuousSplineContainer splines_;
+  const ComSpline4 splines_;
 };
 
 } /* namespace zmp */

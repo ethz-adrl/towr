@@ -6,12 +6,12 @@
  */
 
 #include <xpp/zmp/nlp_facade.h>
-#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 #include <xpp/hyq/foothold.h>
 
 #include <gtest/gtest.h>
 #include <iostream>
+#include "../../include/xpp/zmp/com_spline4.h"
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 

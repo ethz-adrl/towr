@@ -11,7 +11,7 @@ namespace xpp {
 namespace zmp {
 
 SplineJunctionEquation::SplineJunctionEquation (
-    const ContinuousSplineContainer& splines)
+    const ComSpline4& splines)
     :splines_(splines)
 {}
 

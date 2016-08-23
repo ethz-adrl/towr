@@ -12,7 +12,7 @@ namespace zmp {
 
 InitialAccelerationEquation::InitialAccelerationEquation (
     const Vector2d& initial_acceleration_xy,
-    const ContinuousSplineContainer& splines)
+    const ComSpline4& splines)
   :initial_acceleration_xy_(initial_acceleration_xy),
    splines_(splines)
 {

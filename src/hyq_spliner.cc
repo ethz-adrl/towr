@@ -6,9 +6,8 @@
  */
 
 #include <xpp/hyq/hyq_spliner.h>
-#include <xpp/zmp/spline_container.h>
-
 #include <kindr/rotations/RotationEigen.hpp>
+#include "../include/xpp/zmp/com_spline6.h"
 
 namespace xpp {
 namespace hyq {
@@ -239,7 +238,7 @@ HyqSpliner::GetCurrPosition(double t_global) const
 {
   // overwrites body position (x,y) by optmized values after first cog shift
   Vector3d z_splined = GetCurrZState(t_global);
-  xpp::utils::Point2d xy_optimized = xpp::zmp::SplineContainer::GetCOGxy(t_global, optimized_xy_spline_);
+  xpp::utils::Point2d xy_optimized = xpp::zmp::ComSpline6::GetCOGxy(t_global, optimized_xy_spline_);
 
   Point pos;
 

@@ -15,7 +15,7 @@ namespace xpp {
 namespace zmp {
 
 class AConstraint;
-class ContinuousSplineContainer;
+class ComSpline4;
 class OptimizationVariablesInterpreter;
 
 /** Builds all types of constraints for the user.
@@ -34,9 +34,9 @@ public:
   ConstraintFactory ();
   virtual ~ConstraintFactory ();
 
-  static ConstraintPtr CreateAccConstraint(const Vector2d& init_acc_xy, const ContinuousSplineContainer&);
-  static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ContinuousSplineContainer&);
-  static ConstraintPtr CreateJunctionConstraint(const ContinuousSplineContainer&);
+  static ConstraintPtr CreateAccConstraint(const Vector2d& init_acc_xy, const ComSpline4&);
+  static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ComSpline4&);
+  static ConstraintPtr CreateJunctionConstraint(const ComSpline4&);
   static ConstraintPtr CreateZmpConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateRangeOfMotionConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);

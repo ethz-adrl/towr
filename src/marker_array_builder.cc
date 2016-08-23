@@ -8,8 +8,8 @@
 #include <xpp/ros/marker_array_builder.h>
 
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/zero_moment_point.h>
+#include "../include/xpp/zmp/com_spline4.h"
 
 
 namespace xpp {

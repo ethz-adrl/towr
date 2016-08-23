@@ -18,7 +18,7 @@
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/leg_data_map.h>
-#include <xpp/zmp/spline_container.h>
+#include "../zmp/com_spline6.h"
 
 namespace xpp {
 namespace ros {
@@ -32,7 +32,7 @@ struct RosHelpers {
 typedef Eigen::Vector3d Vector3d;
 typedef xpp::utils::Point3d State;
 typedef xpp::hyq::Foothold Foothold;
-typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
+typedef xpp::zmp::ComSpline6::VecSpline VecSpline;
 typedef xpp_opt::Spline SplineMsg;
 typedef xpp::hyq::LegID LegID;
 

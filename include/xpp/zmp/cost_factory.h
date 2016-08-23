@@ -20,7 +20,7 @@ class SupportPolygonContainer;
 namespace zmp {
 
 class ACost;
-class ContinuousSplineContainer;
+class ComSpline4;
 class OptimizationVariablesInterpreter;
 
 class CostFactory {
@@ -33,9 +33,9 @@ public:
   CostFactory ();
   virtual ~CostFactory ();
 
-  static CostPtr CreateAccelerationCost(const ContinuousSplineContainer&);
+  static CostPtr CreateAccelerationCost(const ComSpline4&);
 
-  static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ContinuousSplineContainer&);
+  static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComSpline4&);
   static CostPtr CreateRangeOfMotionCost(const OptimizationVariablesInterpreter&);
   static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy,
                                        const SupportPolygonContainer& supp_polygon_container);

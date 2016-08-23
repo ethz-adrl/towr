@@ -10,7 +10,6 @@
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/cost_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/constraint_factory.h>
 #include <xpp/zmp/cost_factory.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
@@ -20,6 +19,7 @@
 #include <xpp/zmp/nlp.h>
 #include <xpp/zmp/ipopt_adapter.h>
 #include <xpp/zmp/snopt_adapter.h>
+#include "../include/xpp/zmp/com_spline4.h"
 
 namespace xpp {
 namespace zmp {
@@ -66,7 +66,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(curr_stance, step_sequence, margins);
 
-  ContinuousSplineContainer spline_structure;
+  ComSpline4 spline_structure;
   spline_structure.Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
   spline_structure.SetEndAtStart();
 
@@ -75,7 +75,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
 
   // save the framework of the optimization problem
   OptimizationVariablesInterpreter interpreter;
-  interpreter.Init(std::make_shared<ContinuousSplineContainer>(spline_structure), supp_polygon_container, robot_height);
+  interpreter.Init(std::make_shared<ComSpline4>(spline_structure), supp_polygon_container, robot_height);
   interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();
