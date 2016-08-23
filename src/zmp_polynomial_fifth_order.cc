@@ -5,27 +5,29 @@
 @brief  Spline created by the zmp optimizaton and added to SplineContainer.
  */
 
-#include <xpp/zmp/zmp_spline.h>
+#include "../include/xpp/zmp/zmp_polynomial_fifth_order.h"
+
 #include <iostream>
 
 namespace xpp {
 namespace zmp {
 
 
-Spline::Spline()
+PolynomialFifthOrder::PolynomialFifthOrder()
 {
   for (int dim = 0; dim < kDim2d; ++dim)
     for (int coeff = 0; coeff < kCoeffCount; ++coeff)
       spline_coeff_[dim][coeff] = 0.0;
 }
 
-Spline::Spline(const CoeffValues &coeff_values)
+PolynomialFifthOrder::PolynomialFifthOrder(const CoeffValues &coeff_values)
 {
   SetSplineCoefficients(coeff_values);
 }
 
 
-Spline::Vec2d Spline::GetState(PosVelAcc whichDerivative, double _t) const
+PolynomialFifthOrder::Vec2d
+PolynomialFifthOrder::GetState(PosVelAcc whichDerivative, double _t) const
 {
   // caching the exponential times
   double t[6];
@@ -62,7 +64,7 @@ Spline::Vec2d Spline::GetState(PosVelAcc whichDerivative, double _t) const
   return ret;
 }
 
-void Spline::SetSplineCoefficients(const CoeffValues &coeff_values)
+void PolynomialFifthOrder::SetSplineCoefficients(const CoeffValues &coeff_values)
 {
     for (int c = 0; c < kCoeffCount; ++c) {
       spline_coeff_[utils::X][c] = coeff_values.x[c];
@@ -71,30 +73,30 @@ void Spline::SetSplineCoefficients(const CoeffValues &coeff_values)
 }
 
 double
-Spline::GetCoefficient (int dim, SplineCoeff coeff) const
+PolynomialFifthOrder::GetCoefficient (int dim, SplineCoeff coeff) const
 {
   return spline_coeff_[dim][coeff];
 }
 
-ZmpSpline::ZmpSpline()
+ComPolynomial::ComPolynomial()
     : id_(0), duration_(0.0), type_(StanceSpline), step_(-1)
 {
   SetSplineCoefficients();
 }
 
-ZmpSpline::ZmpSpline(uint id, double duration, ZmpSplineType type)
+ComPolynomial::ComPolynomial(uint id, double duration, ZmpSplineType type)
     : id_(id), duration_(duration), type_(type), step_(-1)
 {
   SetSplineCoefficients();
 }
 
-uint ZmpSpline::GetCurrStep() const
+uint ComPolynomial::GetCurrStep() const
 {
   assert(!IsFourLegSupport());
   return step_;
 }
 
-std::ostream& operator<<(std::ostream& out, const ZmpSpline& s)
+std::ostream& operator<<(std::ostream& out, const ComPolynomial& s)
 {
   out << "Spline: id= "   << s.id_                << ":\t"
       << "duration="      << s.duration_          << "\t"

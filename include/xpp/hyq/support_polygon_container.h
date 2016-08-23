@@ -8,8 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 
-#include <xpp/zmp/zmp_spline.h>
 #include <xpp/hyq/support_polygon.h>
+#include "../zmp/zmp_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace hyq {
@@ -23,7 +23,7 @@ public:
   typedef SupportPolygon::VecFoothold VecFoothold;
   typedef std::vector<xpp::hyq::LegID> VecLegID;
   typedef xpp::utils::MatVec MatVec;
-  typedef std::vector<xpp::zmp::ZmpSpline> VecZmpSpline;
+  typedef std::vector<xpp::zmp::ComPolynomial> VecZmpSpline;
   typedef std::vector<SupportPolygon::VecSuppLine> VecVecSuppLine;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
 

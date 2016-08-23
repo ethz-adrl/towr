@@ -9,8 +9,8 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_FOOTHOLD_NOMINAL_DEVIATION_H_
 
 // refactor   only use com_motion, shouldn't have to know about internal structure.
-#include <xpp/zmp/com_spline.h>
 #include <xpp/hyq/support_polygon_container.h>
+#include "com_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace zmp {

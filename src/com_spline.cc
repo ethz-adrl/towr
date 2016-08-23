@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/com_spline.h>
+#include "../include/xpp/zmp/com_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace zmp {
@@ -30,7 +30,7 @@ ComSpline::AddSplinesStepSequence (int step_count, double t_swing)
   int n_splines_per_step = 1;
   for (int step=0; step<step_count; ++step) {
     for (int i=0; i<n_splines_per_step; ++i) {
-      ZmpSpline spline(id++, t_swing/n_splines_per_step, StepSpline);
+      ComPolynomial spline(id++, t_swing/n_splines_per_step, StepSpline);
       spline.SetStep(step);
       splines_.push_back(spline);
     }
@@ -43,7 +43,7 @@ void
 ComSpline::AddStanceSpline (double t_stance)
 {
   unsigned int id = splines_.size()==0 ? 0 : splines_.back().GetId()+1;
-  splines_.push_back(ZmpSpline(id++, t_stance, StanceSpline));
+  splines_.push_back(ComPolynomial(id++, t_stance, StanceSpline));
 
   splines_initialized_ = true;
 }
@@ -52,7 +52,7 @@ ComSpline::AddStanceSpline (double t_stance)
 double ComSpline::GetTotalTime(const VecSpline& splines)
 {
   double T = 0.0;
-  for (const ZmpSpline& s: splines)
+  for (const ComPolynomial& s: splines)
     T += s.GetDuration();
   return T;
 }
@@ -63,7 +63,7 @@ int ComSpline::GetSplineID(double t_global, const VecSpline& splines)
    assert(t_global<=GetTotalTime(splines));
 
    double t = 0;
-   for (const ZmpSpline& s: splines) {
+   for (const ComPolynomial& s: splines) {
      t += s.GetDuration();
 
      if (t >= t_global) // at junctions, returns previous spline (=)

@@ -5,13 +5,12 @@
  @brief   Declares the class ComSpline
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_SPLINE_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_SPLINE_H_
+#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
+#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 
 #include "com_motion.h"
-#include "zmp_spline.h"
-
 #include <memory>
+#include "zmp_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace zmp {
@@ -46,7 +45,7 @@ struct SplineTimes
   */
 class ComSpline : public ComMotion {
 public:
-  typedef std::vector<ZmpSpline> VecSpline;
+  typedef std::vector<ComPolynomial> VecSpline;
   typedef xpp::utils::Point2d Point2d;
   typedef std::shared_ptr<ComSpline> Ptr;
   static const int kDim2d = xpp::utils::kDim2d;
@@ -55,9 +54,9 @@ public:
   virtual ~ComSpline ();
 
   VecSpline GetSplines()        const { return splines_; }
-  ZmpSpline GetSpline(size_t i) const { return splines_.at(i); }
-  ZmpSpline GetFirstSpline()    const { return splines_.front(); };
-  ZmpSpline GetLastSpline()     const { return splines_.back(); };
+  ComPolynomial GetSpline(size_t i) const { return splines_.at(i); }
+  ComPolynomial GetFirstSpline()    const { return splines_.front(); };
+  ComPolynomial GetLastSpline()     const { return splines_.back(); };
   int GetSplineCount()          const { return splines_.size(); };
 
   /**
@@ -116,4 +115,4 @@ private:
 } /* namespace zmp */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_SPLINE_H_ */
+#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_ */

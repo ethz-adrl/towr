@@ -27,7 +27,7 @@ namespace xpp {
 namespace zmp {
 
 class OptimizationVariablesInterpreter;
-class ZmpSpline;
+class ComPolynomial;
 
 /** @brief Puts the optimization variables into context
   *
@@ -37,7 +37,7 @@ class ZmpSpline;
 class InterpretingObserver : public IObserver {
 public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef std::vector<ZmpSpline> VecSpline;
+  typedef std::vector<ComPolynomial> VecSpline;
   typedef Eigen::VectorXd SplineCoefficients;
   typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > Footholds;
   typedef OptimizationVariablesInterpreter Interpreter;

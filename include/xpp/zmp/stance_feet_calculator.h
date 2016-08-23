@@ -10,7 +10,7 @@
 
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/zmp_spline.h>
+#include "zmp_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace zmp {
@@ -23,7 +23,7 @@ namespace zmp {
 class StanceFeetCalculator {
 public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef std::vector<xpp::zmp::ZmpSpline> VecSpline;
+  typedef std::vector<xpp::zmp::ComPolynomial> VecSpline;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef Eigen::Vector3d Vector3d;
 

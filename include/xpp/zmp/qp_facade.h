@@ -9,8 +9,8 @@
 #define _XPP_ZMP_QP_FACADE_H_
 
 #include <xpp/hyq/foothold.h>
-#include <xpp/zmp/zmp_spline.h>
 #include "com_spline6.h"
+#include "zmp_polynomial_fifth_order.h"
 
 
 /**
@@ -42,7 +42,7 @@ eigen_quadprog.hpp performs the optimization.
  */
 class QpFacade {
 public:
-  typedef std::vector<ZmpSpline> VecSpline;
+  typedef std::vector<ComPolynomial> VecSpline;
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::Point2d State;
   typedef xpp::hyq::Foothold Foothold;

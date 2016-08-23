@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/com_spline.h>
 #include <gtest/gtest.h>
+#include "../../include/xpp/zmp/com_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace zmp {

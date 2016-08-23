@@ -26,7 +26,7 @@ TotalAccelerationEquation::BuildLinearEquation () const
   int n_coeff = splines_.GetTotalFreeCoeff();
   MatVec cf(n_coeff, n_coeff);
 
-  for (const ZmpSpline& s : splines_.GetSplines()) {
+  for (const ComPolynomial& s : splines_.GetSplines()) {
     std::array<double,8> t_span = utils::cache_exponents<8>(s.GetDuration());
 
     for (const Coords3D dim : Coords2DArray) {

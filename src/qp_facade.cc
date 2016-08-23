@@ -7,7 +7,6 @@
 
 #include <xpp/zmp/qp_facade.h>
 
-#include <xpp/zmp/com_spline.h>
 #include <xpp/hyq/support_polygon_container.h>
 
 #include <xpp/zmp/a_linear_constraint.h>
@@ -22,6 +21,8 @@
 
 #include <cmath>      // std::numeric_limits
 #include <ros/console.h>
+
+#include "../include/xpp/zmp/com_polynomial_fifth_order.h"
 #include "../include/xpp/zmp/com_spline4.h"
 
 namespace xpp {

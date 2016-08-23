@@ -8,9 +8,9 @@
 #include <xpp/ros/optimization_visualizer.h>
 #include <xpp/ros/ros_helpers.h>
 
-#include <xpp/zmp/zmp_spline.h>
 #include <xpp/hyq/foothold.h>
 #include <xpp/zmp/interpreting_observer.h>
+#include "../include/xpp/zmp/zmp_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace ros {
@@ -38,7 +38,7 @@ OptimizationVisualizer::Visualize () const
 {
   double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 
-  std::vector<xpp::zmp::ZmpSpline> spline   = observer_->GetSplines();
+  std::vector<xpp::zmp::ComPolynomial> spline   = observer_->GetSplines();
   std::vector<xpp::hyq::Foothold> footholds = observer_->GetFootholds();
   std::vector<xpp::hyq::Foothold> start_stance = observer_->GetStartStance();
 

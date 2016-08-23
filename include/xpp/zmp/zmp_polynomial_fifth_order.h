@@ -78,7 +78,7 @@ struct CoeffValues {
 @brief fully represents a spline in 2d and allows retrieving
        values at specific time instances
 */
-class Spline {
+class PolynomialFifthOrder {
 
 public:
   typedef xpp::utils::Vec2d Vec2d;
@@ -87,9 +87,9 @@ public:
   static const int kDim2d = xpp::utils::kDim2d;
 
 public:
-  Spline();
-  Spline(const CoeffValues &coeff_values);
-  virtual ~Spline() {};
+  PolynomialFifthOrder();
+  PolynomialFifthOrder(const CoeffValues &coeff_values);
+  virtual ~PolynomialFifthOrder() {};
 
   Vec2d GetState(PosVelAcc whichDeriv, double t) const;
   void SetSplineCoefficients(const CoeffValues &coeff_values = CoeffValues());
@@ -108,12 +108,12 @@ protected:
        active in creating the spline for the CoG movement.
 */
 enum ZmpSplineType {StanceSpline=0, StepSpline};
-class ZmpSpline : public Spline
+class ComPolynomial : public PolynomialFifthOrder
 {
 public:
-  ZmpSpline();
-  ZmpSpline(uint id, double duration, ZmpSplineType);
-  virtual ~ZmpSpline() {};
+  ComPolynomial();
+  ComPolynomial(uint id, double duration, ZmpSplineType);
+  virtual ~ComPolynomial() {};
 
   uint GetId()            const { return id_; };
   double GetDuration()    const { return duration_; }
@@ -131,7 +131,7 @@ private:
   int step_; // current step
 
   friend struct xpp::ros::RosHelpers;
-  friend std::ostream& operator<<(std::ostream& out, const ZmpSpline& tr);
+  friend std::ostream& operator<<(std::ostream& out, const ComPolynomial& tr);
 };
 
 

@@ -12,8 +12,8 @@
 
 // refactor   only use com_motion, shouldn't have to know about internal structure.
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/com_spline.h>
 #include <xpp/zmp/foothold_nominal_deviation.h>
+#include "com_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace zmp {

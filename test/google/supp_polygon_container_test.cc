@@ -65,7 +65,7 @@ protected:
   virtual int GetInitial4lsSplines(const VecSpline& splines) const
   {
     int n = 0;
-    for (const xpp::zmp::ZmpSpline& s: splines)
+    for (const xpp::zmp::ComPolynomial& s: splines)
       if (s.IsFourLegSupport())
         n++;
       else
@@ -165,7 +165,7 @@ TEST_F(SuppPolygonContainerTest, CombineSupportPolygons)
   std::vector<SupportPolygon> supp_4ls;
 
   int prev_step = -1;
-  for (const xpp::zmp::ZmpSpline& s : splines_) {
+  for (const xpp::zmp::ComPolynomial& s : splines_) {
 
     if (s.GetId() == 3) {
       supp_4ls.push_back(SupportPolygon::CombineSupportPolygons(supp.at(prev_step),

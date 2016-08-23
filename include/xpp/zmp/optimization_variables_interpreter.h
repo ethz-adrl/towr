@@ -8,10 +8,9 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_OPTIMIZATION_VARIABLES_INTERPRETER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_OPTIMIZATION_VARIABLES_INTERPRETER_H_
 
-#include "com_spline.h"
-
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/support_polygon_container.h>
+#include "com_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace zmp {

@@ -10,7 +10,7 @@
 
 #include <xpp/hyq/hyq_state.h>
 #include <xpp/utils/spliner_3d.h>
-#include <xpp/zmp/zmp_spline.h>
+#include "../zmp/zmp_polynomial_fifth_order.h"
 
 
 namespace xpp {
@@ -40,7 +40,7 @@ frame values omega (rollPitchYawToEar)
  */
 class HyqSpliner {
 public:
-  typedef xpp::zmp::ZmpSpline ZmpSpline;
+  typedef xpp::zmp::ComPolynomial ZmpSpline;
   typedef std::vector<ZmpSpline> VecZmpSpline;
   typedef Eigen::Vector3d Vector3d;
   typedef Foothold::VecFoothold VecFoothold;

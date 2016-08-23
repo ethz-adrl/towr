@@ -29,7 +29,7 @@ public:
   typedef xpp::utils::StdVecEigen2d FootholdsXY;
   typedef xpp::zmp::OptimizationVariablesInterpreter Interpreter;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef std::vector<ZmpSpline> VecSpline;
+  typedef std::vector<ComPolynomial> VecSpline;
   typedef AInverseKinematics::JointAngles JointAngles;
   typedef xpp::hyq::Foothold Foothold;
   typedef std::shared_ptr<AInverseKinematics> InvKinPtr;

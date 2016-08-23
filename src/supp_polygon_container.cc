@@ -182,7 +182,7 @@ SupportPolygonContainer::AssignSupportPolygonsToSplines(const VecZmpSpline& spli
   int prev_step = -1;
 
   VecSupportPolygon supp;
-  for (const ZmpSpline& s : splines)
+  for (const ComPolynomial& s : splines)
   {
     SupportPolygon curr_supp;
 

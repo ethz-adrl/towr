@@ -28,7 +28,7 @@ FinalStateEquation::BuildLinearEquation () const
    int c = 0; // constraint count
    for (const Coords3D dim : Coords2DArray)
    {
-     ZmpSpline last = splines_.GetLastSpline();
+     ComPolynomial last = splines_.GetLastSpline();
      int K = last.GetId();
      double T = last.GetDuration();
 

@@ -103,7 +103,7 @@ ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
 }
 
 bool
-ZmpConstraintBuilder::DisjSuppSwitch (double t, const ZmpSpline& curr_spline,
+ZmpConstraintBuilder::DisjSuppSwitch (double t, const ComPolynomial& curr_spline,
                                       const SupportPolygonContainer& supp_polygon_container) const
 {
   if (!curr_spline.IsFourLegSupport()) {

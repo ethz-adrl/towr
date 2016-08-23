@@ -184,7 +184,7 @@ TEST_F(SplineContainerTest, GetState)
   ComSpline4 spline_container;
   spline_container.Init(Eigen::Vector2d::Zero(), Eigen::Vector2d::Zero(),1,
                         times_,true);
-  std::vector<ZmpSpline> x_spline = spline_container.GetSplines();
+  std::vector<ComPolynomial> x_spline = spline_container.GetSplines();
 
   double pos0 = 0.4; // initial position (f0)
   double vel0 = 1.1; // initial velocity (e0)
@@ -254,7 +254,7 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
 
   // Create a straight spline in x direction composed of 3 splines (4ls, step 1, 4ls)
   // that has equal position and velocity at junctions
-  std::vector<ZmpSpline> splines_ref = splines_estimated_ef.GetSplines();
+  std::vector<ComPolynomial> splines_ref = splines_estimated_ef.GetSplines();
   Eigen::VectorXd abcd_coeff(splines_estimated_ef.GetTotalFreeCoeff());
   abcd_coeff.setZero();
 

@@ -31,7 +31,7 @@ class CostContainer;
 class ConstraintContainer;
 class OptimizationVariablesInterpreter;
 class InterpretingObserver;
-class ZmpSpline;
+class ComPolynomial;
 
 /** @brief Simplified interface to setup and solve a Nonlinear-Program.
   *
@@ -47,7 +47,7 @@ public:
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
   typedef std::shared_ptr<InterpretingObserver> InterpretingObserverPtr;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef std::vector<ZmpSpline> VecSpline;
+  typedef std::vector<ComPolynomial> VecSpline;
 
   typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
