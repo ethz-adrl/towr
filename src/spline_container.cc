@@ -94,13 +94,6 @@ double SplineContainer::GetLocalTime(double t_global, const VecSpline& splines)
 }
 
 
-bool SplineContainer::IsFourLegSupport(double t_global) const
-{
-  assert(t_global<=GetTotalTime());
-  return splines_.at(GetSplineID(t_global)).IsFourLegSupport();
-}
-
-
 SplineContainer::Point2d
 SplineContainer::GetCOGxy(double t_global, const VecSpline& splines)
 {

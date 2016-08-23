@@ -78,10 +78,7 @@ public:
   int GetSplineID(double t_global) const { return GetSplineID(t_global, splines_); }
 
   /** Returns the time that the spline active at t_global has been running */
-  static double GetLocalTime(double t_global, const VecSpline& splines);
   double GetLocalTime(double t_global) const { return GetLocalTime(t_global, splines_); };
-
-  bool IsFourLegSupport(double t_global) const;
 
   static double GetTotalTime(const VecSpline& splines);
   double GetTotalTime() const { return GetTotalTime(splines_); }
@@ -92,6 +89,7 @@ public:
    *  so first and last time are t0 and and tN, but there might be a
    *  timestep > delta t before the last node.
    */
+  // fixme this should maybe go somewhere else (constraints/costs).
   static std::vector<double> GetDiscretizedGlobalTimes(const VecSpline& splines);
   std::vector<double> GetDiscretizedGlobalTimes() const {
     return GetDiscretizedGlobalTimes(splines_);
@@ -107,6 +105,9 @@ protected:
   void AddStanceSpline(double t_stance);
 
 private:
+  static double GetLocalTime(double t_global, const VecSpline& splines);
+
+
   bool splines_initialized_ = false;
   static constexpr double eps_ = 1e-10; // maximum inaccuracy when adding double numbers
 

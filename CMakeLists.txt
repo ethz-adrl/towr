@@ -106,12 +106,8 @@ set(SOURCES
   src/qp_facade.cc
   src/foothold.cc
   src/hyq_inverse_kinematics.cc
-  src/zmp_spline.cc
-  src/spline_container.cc    
-  src/continuous_spline_container.cc    
   src/spliner.cc
   src/spliner_3d.cc
-  src/com_motion.cc
   src/hyq_state.cc
   src/orientation.cc
   src/support_polygon.cc
@@ -123,6 +119,12 @@ set(SOURCES
   src/stance_feet_calculator.cc
   src/a_inverse_kinematics.cc
   src/step_sequence_planner.cc
+  # com
+  src/com_motion.cc
+  src/com_spline.cc
+  src/spline_container.cc    
+  src/zmp_spline.cc
+  src/continuous_spline_container.cc    
   #exe
   src/walking_controller.cc
   src/walking_controller_state.cc
@@ -237,7 +239,6 @@ if(BUILD_TESTS)
                         test/google/point2d_manipulations_test.cc
                         test/google/supp_polygon_test.cc
                         test/google/supp_polygon_container_test.cc
-                        test/google/spline_container_test.cc
                         test/google/helpers.cc
                         test/google/zero_moment_point_test.cc
                         test/google/nlp_facade_test.cc
@@ -249,7 +250,10 @@ if(BUILD_TESTS)
                         test/google/optimization_visualizer_test.cc
                         test/google/optimization_variables_interpreter_test.cc
                         test/google/step_sequence_planner_test.cc
+                        # com
                         test/google/com_motion_test.cc
+                        test/google/com_spline_test.cc
+                        test/google/spline_container_test.cc
                         #constraints
                         test/google/zmp_constraint_test.cc
                         test/google/constraint_factory_test.cc
