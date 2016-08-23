@@ -61,6 +61,7 @@ public:
   Eigen::Vector2d GetCenterOfFinalStance() const;
   VecFoothold GetStanceDuring(int step) const;
   VecFoothold GetStanceAfter(int n_steps) const;
+  VecFoothold GetFootholds() const { return footholds_; };
 
 
   SupportPolygon GetStartPolygon() const;

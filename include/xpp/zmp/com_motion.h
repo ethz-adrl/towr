@@ -43,6 +43,8 @@ public:
     */
   virtual void AddOptimizedCoefficients(const VectorXd& optimized_coeff) = 0;
 
+  virtual double GetTotalTime() const = 0;
+
 
   /** Sets coefficients, so motion ends up at initial position.
     *

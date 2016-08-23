@@ -75,10 +75,10 @@ public:
   int GetSplineID(double t_global) const { return GetSplineID(t_global, splines_); }
 
   /** Returns the time that the spline active at t_global has been running */
+  static double GetTotalTime(const VecSpline& splines);
   double GetLocalTime(double t_global) const { return GetLocalTime(t_global, splines_); };
 
-  static double GetTotalTime(const VecSpline& splines);
-  double GetTotalTime() const { return GetTotalTime(splines_); }
+  double GetTotalTime() const override { return GetTotalTime(splines_); }
 
   /** If the trajectory has to be discretized, use this for consistent time steps.
    *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
@@ -94,14 +94,6 @@ public:
 
   int GetTotalNodes() const { return GetDiscretizedGlobalTimes().size(); };
 
-  /** Builds all the 5th order polynomials while not modifying it's internals.
-    *
-    * @param optimized_coeff the varying parameters
-    * @return a copy of the polynomials that these parameters produce.
-    */
-  virtual VecSpline BuildOptimizedSplines(const VectorXd& optimized_coeff) const = 0;
-
-  // This only works for linear representations!!!.
   /** Produces a vector and scalar, that, multiplied with the spline coefficients
     * a,b,c,d of all splines returns the position of the CoG at time t_local.
     *
@@ -120,6 +112,7 @@ protected:
   void AddStanceSpline(double t_stance);
 
 private:
+
   static double GetLocalTime(double t_global, const VecSpline& splines);
   bool splines_initialized_ = false;
   static constexpr double eps_ = 1e-10; // maximum inaccuracy when adding double numbers

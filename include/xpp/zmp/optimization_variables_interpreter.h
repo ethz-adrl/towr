@@ -38,14 +38,15 @@ public:
             const SupportPolygonContainer& support_polygon_container,
             double robot_height);
 
+  void SetSplineCoefficients(const VectorXd& x_spline_coeff_abcd);
+  void SetFootholds(const FootholdPositionsXY& x_feet);
+
   double GetRobotHeight() const;
   ComSplinePtr GetSplineStructure() const;
   SupportPolygonContainer GetSuppPolygonContainer() const;
-
   VecFoothold GetStartStance() const;
-
-  VecFoothold GetFootholds(const FootholdPositionsXY& x_feet) const;
-  VecSpline GetSplines(const VectorXd& x_spline_coeff_abcd) const;
+  VecFoothold GetFootholds() const;
+  VecSpline GetSplines() const;
 
 private:
   ComSplinePtr spline_structure_;

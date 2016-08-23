@@ -36,13 +36,15 @@ JointAnglesConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   VectorXd x_coeff      = opt_var->GetVariables(VariableNames::kSplineCoeff);
   VectorXd footholds_xy = opt_var->GetVariables(VariableNames::kFootholds);
 
-  // calculate interpreted values from the optimization values
-  VecFoothold footholds = interpreter_.GetFootholds(utils::ConvertEigToStd(footholds_xy));
-  VecSpline splines     = interpreter_.GetSplines(x_coeff);
+  interpreter_.SetFootholds(utils::ConvertEigToStd(footholds_xy));
+  interpreter_.SetSplineCoefficients(x_coeff);
 
-  vec_t_ = ComSpline6::GetDiscretizedGlobalTimes(splines);
+  // refactor
+  vec_t_ = ComSpline6::GetDiscretizedGlobalTimes(interpreter_.GetSplines());
   stance_feet_calc_.Update(interpreter_.GetStartStance(),
-                           footholds, splines, interpreter_.GetRobotHeight());
+                           interpreter_.GetFootholds(),
+                           interpreter_.GetSplineStructure(),
+                           interpreter_.GetRobotHeight());
 }
 
 JointAnglesConstraint::VectorXd

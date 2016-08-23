@@ -6,8 +6,7 @@
  */
 
 #include <xpp/zmp/stance_feet_calculator.h>
-
-#include "../include/xpp/zmp/com_spline6.h"
+#include <xpp/zmp/com_spline6.h>
 
 namespace xpp {
 namespace zmp {
@@ -25,7 +24,7 @@ StanceFeetCalculator::~StanceFeetCalculator ()
 void
 StanceFeetCalculator::Update (const VecFoothold& start_stance,
                               const VecFoothold& steps,
-                              const VecSpline& cog_spline,
+                              const ComSplinePtr& cog_spline,
                               double robot_height)
 {
   supp_polygon_container_.Init(start_stance, steps);
@@ -37,15 +36,15 @@ StanceFeetCalculator::VecFoothold
 StanceFeetCalculator::GetStanceFeetInBase (double t) const
 {
   std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
-      supp_polygon_container_.AssignSupportPolygonsToSplines(cog_spline_xy_);
+      supp_polygon_container_.AssignSupportPolygonsToSplines(cog_spline_xy_->GetSplines());
 
   // legs in contact during each step/spline
   VecFoothold p_stance_legs_i;
-  int spline_id = ComSpline6::GetSplineID(t, cog_spline_xy_);
+  int spline_id = cog_spline_xy_->GetSplineID(t);
 
 
   // because last swing support polygon will not restrict landing position of foot
-  double T = ComSpline6::GetTotalTime(cog_spline_xy_);
+  double T = cog_spline_xy_->GetTotalTime();
 
 //  std::cout << "T_else: " << T_else << std::endl;
 //  double T = SplineContainer::GetDiscretizedGlobalTimes(cog_spline_xy_).back();
@@ -56,7 +55,7 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
     p_stance_legs_i = suppport_polygons.at(spline_id).footholds_;
 
   // body position during the step
-  xpp::utils::Point2d cog_xy_i = ComSpline6::GetCOGxy(t, cog_spline_xy_);
+  xpp::utils::Point2d cog_xy_i = cog_spline_xy_->GetCOGxy(t);
   Vector3d cog_i;
   cog_i << cog_xy_i.p.x(),
            cog_xy_i.p.y(),

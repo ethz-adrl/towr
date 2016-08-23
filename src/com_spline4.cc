@@ -90,13 +90,6 @@ ComSpline4::AddOptimizedCoefficients(const VectorXd& optimized_coeff)
   AddOptimizedCoefficients(optimized_coeff, splines_);
 }
 
-ComSpline4::VecSpline
-ComSpline4::BuildOptimizedSplines(const VectorXd& optimized_coeff) const
-{
-  VecSpline splines = splines_;
-  AddOptimizedCoefficients(optimized_coeff, splines);
-  return splines;
-}
 
 ComSpline4::VecScalar
 ComSpline4::ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const
@@ -204,17 +197,6 @@ int ComSpline4::Index(int spline, Coords dim, SplineCoeff coeff) const
 {
   return kFreeCoeffPerSpline * kDim2d * spline + kFreeCoeffPerSpline * dim + coeff;
 }
-
-
-//ContinuousSplineContainer::VecScalar
-//ContinuousSplineContainer::GetCoefficient(int spline_id_k, Coords dim, SplineCoeff c) const
-//{
-//  CheckIfSplinesInitialized();
-//  assert(c== E || c== F);
-//  const MatVec& rel = (c==E)? relationship_e_to_abcd_.at(dim) : relationship_f_to_abdc_.at(dim);
-//  return rel.GetRow(spline_id_k);
-//}
-
 
 ComSpline4::VecScalar
 ComSpline4::GetECoefficient(int spline_id_k, Coords dim) const

@@ -51,17 +51,6 @@ public:
   void AddOptimizedCoefficients(const VectorXd& optimized_coeff) override;
   void SetEndAtStart() override;
 
-  VecSpline BuildOptimizedSplines(const VectorXd& optimized_coeff) const override;
-
-
-  /** Produces a vector and scalar, that, multiplied with the spline coefficients
-    * a,b,c,d of all splines returns the position of the CoG at time t_local.
-    *
-    * @param t_local @attention local time of spline. So t_local=0 returns CoG at beginning of this spline.
-    * @param id id of current spline
-    * @param dim dimension specifying if x or y coordinate of CoG should be calculated
-    * @return
-    */
   VecScalar ExpressComThroughCoeff(xpp::utils::PosVelAcc, double t_local, int id, Coords dim) const override;
 
 private:

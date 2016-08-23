@@ -11,6 +11,7 @@
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/com_polynomial.h>
+#include <xpp/zmp/com_spline.h>
 
 namespace xpp {
 namespace zmp {
@@ -25,20 +26,21 @@ public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
   typedef std::vector<xpp::zmp::ComPolynomial> VecSpline;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  typedef ComSpline::Ptr ComSplinePtr;
   typedef Eigen::Vector3d Vector3d;
 
   StanceFeetCalculator ();
   virtual ~StanceFeetCalculator ();
 
   void Update(const VecFoothold& start_stance, const VecFoothold& steps,
-              const VecSpline& cog_spline, double robot_height);
+              const ComSplinePtr& cog_spline, double robot_height);
   VecFoothold GetStanceFeetInBase(double t) const;
 
 private:
   VecFoothold ConvertFeetToBase(const VecFoothold& ee_i, const Vector3d& cog_i) const;
   bool AreSame(double time_1, double time_2) const;
 
-  VecSpline cog_spline_xy_;
+  ComSplinePtr cog_spline_xy_;
   SupportPolygonContainer supp_polygon_container_;
   double robot_height_;
 };
