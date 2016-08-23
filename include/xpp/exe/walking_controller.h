@@ -14,7 +14,7 @@
 #define IIT_ZMP_RUNNER_H_
 
 #include <xpp_controller/controller.h>
-#include <xpp_controller/virtual_model-inl.h>
+#include "virtual_model-inl.h"
 #include "walking_controller_state.h"
 
 #include <xpp_opt/OptimizedParametersNlp.h>

@@ -101,8 +101,7 @@ include_directories(
   ${SNOPT_INCLUDE_DIRS}
 )
 
-set(SOURCES  
-  src/geometric_structs.cc
+set(SOURCES
   src/ellipse.cc
   src/qp_facade.cc
   src/foothold.cc
