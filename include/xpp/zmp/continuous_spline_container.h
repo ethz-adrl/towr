@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_CONTINUOUS_SPLINE_CONTAINER_H_
 
 #include <xpp/zmp/spline_container.h>
+#include <xpp/zmp/com_motion.h>
 
 namespace xpp {
 namespace zmp {
@@ -23,7 +24,7 @@ static const SplineCoeff FreeSplineCoeff[] = { A, B, C, D };
   * and f coefficients of all splines can be uniquely determined from the other
   * coefficients and the initial position/velocity.
   */
-class ContinuousSplineContainer : public SplineContainer
+class ContinuousSplineContainer : public SplineContainer, public ComMotion
 {
 public:
   typedef xpp::utils::MatVec MatVec;
