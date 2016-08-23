@@ -111,6 +111,7 @@ set(SOURCES
   src/continuous_spline_container.cc    
   src/spliner.cc
   src/spliner_3d.cc
+  src/com_motion.cc
   src/hyq_state.cc
   src/orientation.cc
   src/support_polygon.cc
@@ -122,19 +123,19 @@ set(SOURCES
   src/stance_feet_calculator.cc
   src/a_inverse_kinematics.cc
   src/step_sequence_planner.cc
-  src/nlp.cc
-  src/ipopt_adapter.cc
-  src/snopt_adapter.cc
   #exe
   src/walking_controller.cc
   src/walking_controller_state.cc
-  # observer pattern code
+  # nlp
   src/a_subject.cc
   src/nlp_structure.cc
   src/optimization_variables.cc
   src/optimization_variables_interpreter.cc
   src/i_observer.cc
   src/interpreting_observer.cc
+  src/nlp.cc
+  src/ipopt_adapter.cc
+  src/snopt_adapter.cc
   # constraints
   src/a_constraint.cc
   src/constraint_factory.cc
@@ -248,6 +249,7 @@ if(BUILD_TESTS)
                         test/google/optimization_visualizer_test.cc
                         test/google/optimization_variables_interpreter_test.cc
                         test/google/step_sequence_planner_test.cc
+                        test/google/com_motion_test.cc
                         #constraints
                         test/google/zmp_constraint_test.cc
                         test/google/constraint_factory_test.cc
