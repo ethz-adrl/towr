@@ -48,16 +48,18 @@ public:
   typedef std::vector<ComPolynomial> VecSpline;
   typedef xpp::utils::Point2d Point2d;
   typedef std::shared_ptr<ComSpline> Ptr;
-  static const int kDim2d = xpp::utils::kDim2d;
+  typedef xpp::utils::Coords3D Coords;
 
   ComSpline ();
   virtual ~ComSpline ();
 
-  VecSpline GetSplines()        const { return splines_; }
+  VecSpline GetSplines()            const { return splines_; }
   ComPolynomial GetSpline(size_t i) const { return splines_.at(i); }
   ComPolynomial GetFirstSpline()    const { return splines_.front(); };
   ComPolynomial GetLastSpline()     const { return splines_.back(); };
-  int GetSplineCount()          const { return splines_.size(); };
+  int GetSplineCount()              const { return splines_.size(); };
+
+  virtual int Index(int spline, Coords dim, SplineCoeff coeff) const = 0;
 
   /**
   @brief Calculates the state of a spline at a specific point in time.
@@ -98,6 +100,17 @@ public:
     * @return a copy of the polynomials that these parameters produce.
     */
   virtual VecSpline BuildOptimizedSplines(const VectorXd& optimized_coeff) const = 0;
+
+  // This only works for linear representations!!!.
+  /** Produces a vector and scalar, that, multiplied with the spline coefficients
+    * a,b,c,d of all splines returns the position of the CoG at time t_local.
+    *
+    * @param t_local @attention local time of spline. So t_local=0 returns CoG at beginning of this spline.
+    * @param id id of current spline
+    * @param dim dimension specifying if x or y coordinate of CoG should be calculated
+    * @return
+    */
+  virtual VecScalar ExpressComThroughCoeff(xpp::utils::PosVelAcc, double t_local, int id, Coords3D dim) const = 0;
 
 
 protected:

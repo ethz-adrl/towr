@@ -23,6 +23,7 @@ class ComSpline6 : public ComSpline {
 public:
   ComSpline6();
   virtual ~ComSpline6();
+
 };
 
 

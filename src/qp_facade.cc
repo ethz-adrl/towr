@@ -43,7 +43,7 @@ QpFacade::SolveQp(const State& initial_state,
                         start_with_com_shift);
 
 
-  TotalAccelerationEquation total_acc_eq(spline_structure);
+  TotalAccelerationEquation total_acc_eq(std::make_shared<ComSpline4>(spline_structure));
   cost_function_ = total_acc_eq.BuildLinearEquation();
 
 

@@ -36,9 +36,7 @@ public:
   virtual int GetTotalFreeCoeff() const = 0;
   virtual VectorXd GetABCDCoeffients() const = 0;
 
-
-  // this is only in the base spline class
-//  virtual Point2d GetCOGxy(double t_global) const;
+  virtual Point2d GetCOGxy(double t_global) const = 0;
 
 
   /** Creates all the coefficients for the 5th order polyomials from the variables
@@ -53,17 +51,6 @@ public:
     * be set with zero coefficient values to stay there as well.
     */
   virtual void SetEndAtStart() = 0;
-
-  // This only works for linear representations!!!.
-  /** Produces a vector and scalar, that, multiplied with the spline coefficients
-    * a,b,c,d of all splines returns the position of the CoG at time t_local.
-    *
-    * @param t_local @attention local time of spline. So t_local=0 returns CoG at beginning of this spline.
-    * @param id id of current spline
-    * @param dim dimension specifying if x or y coordinate of CoG should be calculated
-    * @return
-    */
-  virtual VecScalar ExpressComThroughCoeff(xpp::utils::PosVelAcc, double t_local, int id, Coords3D dim) const = 0;
 };
 
 } /* namespace zmp */

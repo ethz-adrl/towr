@@ -13,6 +13,16 @@ namespace zmp {
 
 using namespace xpp::utils::coords_wrapper;
 
+ComSpline4::ComSpline4 ()
+{
+  // TODO Auto-generated constructor stub
+}
+
+ComSpline4::~ComSpline4 ()
+{
+  // TODO Auto-generated destructor stub
+}
+
 ComSpline4::ComSpline4 (
     const Vector2d& start_cog_p,
     const Vector2d& start_cog_v,
@@ -190,7 +200,7 @@ ComSpline4::GetABCDCoeffients () const
   return x_abcd;
 }
 
-int ComSpline4::Index(int spline, Coords dim, SplineCoeff coeff)
+int ComSpline4::Index(int spline, Coords dim, SplineCoeff coeff) const
 {
   return kFreeCoeffPerSpline * kDim2d * spline + kFreeCoeffPerSpline * dim + coeff;
 }

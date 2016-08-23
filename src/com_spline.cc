@@ -48,8 +48,8 @@ ComSpline::AddStanceSpline (double t_stance)
   splines_initialized_ = true;
 }
 
-
-double ComSpline::GetTotalTime(const VecSpline& splines)
+double
+ComSpline::GetTotalTime(const VecSpline& splines)
 {
   double T = 0.0;
   for (const ComPolynomial& s: splines)
@@ -57,8 +57,8 @@ double ComSpline::GetTotalTime(const VecSpline& splines)
   return T;
 }
 
-
-int ComSpline::GetSplineID(double t_global, const VecSpline& splines)
+int
+ComSpline::GetSplineID(double t_global, const VecSpline& splines)
 {
    assert(t_global<=GetTotalTime(splines));
 
@@ -71,7 +71,6 @@ int ComSpline::GetSplineID(double t_global, const VecSpline& splines)
    }
    assert(false); // this should never be reached
 }
-
 
 std::vector<double>
 ComSpline::GetDiscretizedGlobalTimes(const VecSpline& splines)
@@ -89,8 +88,8 @@ ComSpline::GetDiscretizedGlobalTimes(const VecSpline& splines)
   return vec;
 }
 
-
-double ComSpline::GetLocalTime(double t_global, const VecSpline& splines)
+double
+ComSpline::GetLocalTime(double t_global, const VecSpline& splines)
 {
   int id_spline = GetSplineID(t_global,splines);
 
@@ -101,7 +100,6 @@ double ComSpline::GetLocalTime(double t_global, const VecSpline& splines)
 
   return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
 }
-
 
 ComSpline::Point2d
 ComSpline::GetCOGxy(double t_global, const VecSpline& splines)
@@ -124,7 +122,6 @@ ComSpline::CheckIfSplinesInitialized() const
     throw std::runtime_error("ComSpline.splines_ not initialized. Call Init() first");
   }
 }
-
 
 
 } /* namespace zmp */

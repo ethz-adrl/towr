@@ -13,7 +13,7 @@
 #include <xpp/zmp/final_state_equation.h>
 #include <xpp/zmp/total_acceleration_equation.h>
 #include <xpp/zmp/a_spline_cost.h>
-#include "../include/xpp/zmp/com_spline4.h"
+#include <xpp/zmp/com_spline4.h>
 
 namespace xpp {
 namespace zmp {
@@ -31,7 +31,7 @@ CostFactory::~CostFactory ()
 CostFactory::CostPtr
 CostFactory::CreateAccelerationCost (const ComSpline4& splines)
 {
-  TotalAccelerationEquation eq_total_acc(splines);
+  TotalAccelerationEquation eq_total_acc(std::make_shared<ComSpline4>(splines));
   auto cost = std::make_shared<QuadraticSplineCost>();
   cost->Init(eq_total_acc.BuildLinearEquation());
   return cost;

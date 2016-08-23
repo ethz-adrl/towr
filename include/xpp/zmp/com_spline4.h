@@ -32,17 +32,12 @@ public:
   typedef Eigen::RowVector4d VecABCD;
   typedef Eigen::VectorXd VectorXd;
 
-  typedef xpp::utils::coords_wrapper::Coords3D Coords;
-
-public:
-  ComSpline4 () {};
+  ComSpline4 ();
+  virtual ~ComSpline4 ();
   ComSpline4 (const Vector2d& start_cog_p,
                              const Vector2d& start_cog_v,
                              int step_count,
                              const SplineTimes& times);
-  virtual ~ComSpline4 () {};
-
-public:
 
   void Init(const Vector2d& start_cog_p,
             const Vector2d& start_cog_v,
@@ -50,31 +45,14 @@ public:
             const SplineTimes& times,
             bool insert_initial_stance = true);
 
-  /** The index number of the coefficient \c coeff, for dimension \c dim and
-    * spline number \c spline.
-    */
-  static int Index(int spline, Coords dim, SplineCoeff coeff);
-  int GetTotalFreeCoeff() const;
-  VectorXd GetABCDCoeffients() const;
+  int Index(int spline, Coords dim, SplineCoeff coeff) const override;
+  int GetTotalFreeCoeff() const override;
+  VectorXd GetABCDCoeffients() const override;
+  void AddOptimizedCoefficients(const VectorXd& optimized_coeff) override;
+  void SetEndAtStart() override;
 
-  /** Creates all the coefficients for the 5th order polyomials from the variables
-    */
-  void AddOptimizedCoefficients(const VectorXd& optimized_coeff);
+  VecSpline BuildOptimizedSplines(const VectorXd& optimized_coeff) const override;
 
-  /** Builds all the 5th order polynomials while not modifying it's internals.
-    *
-    * @param optimized_coeff the varying parameters
-    * @return a copy of the polynomials that these parameters produce.
-    */
-  VecSpline BuildOptimizedSplines(const VectorXd& optimized_coeff) const;
-
-  /** Sets polynomial coefficients, so spline ends up at initial position.
-    *
-    * So at the end of the polynomial (time T), the state of the system will
-    * be the start position with zero velocity. Following splines can then just
-    * be set with zero coefficient values to stay there as well.
-    */
-  void SetEndAtStart();
 
   /** Produces a vector and scalar, that, multiplied with the spline coefficients
     * a,b,c,d of all splines returns the position of the CoG at time t_local.
@@ -84,7 +62,7 @@ public:
     * @param dim dimension specifying if x or y coordinate of CoG should be calculated
     * @return
     */
-  VecScalar ExpressComThroughCoeff(xpp::utils::PosVelAcc, double t_local, int id, Coords dim) const;
+  VecScalar ExpressComThroughCoeff(xpp::utils::PosVelAcc, double t_local, int id, Coords dim) const override;
 
 private:
   std::array<MatVec, 2> relationship_e_to_abcd_;
