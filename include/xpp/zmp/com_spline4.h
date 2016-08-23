@@ -39,6 +39,7 @@ public:
                              int step_count,
                              const SplineTimes& times);
 
+  // refactor move this to one base class
   void Init(const Vector2d& start_cog_p,
             const Vector2d& start_cog_v,
             int step_count,
@@ -50,8 +51,6 @@ public:
   VectorXd GetABCDCoeffients() const override;
   void AddOptimizedCoefficients(const VectorXd& optimized_coeff) override;
   void SetEndAtStart() override;
-
-  VecScalar ExpressComThroughCoeff(xpp::utils::PosVelAcc, double t_local, int id, Coords dim) const override;
 
 private:
   std::array<MatVec, 2> relationship_e_to_abcd_;
@@ -71,10 +70,11 @@ private:
   MatVec DescribeFByABCD(Coords Coords, double start_cog_p, double start_cog_v) const;
 
   VecABCD ExpressCogAccThroughABCD(double t_local) const;
-  VecScalar ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const;
-  VecScalar ExpressCogVelThroughABCD(double t_local, int id, Coords dim) const;
-  VecScalar ExpressCogAccThroughABCD(double t_local, int id, Coords dim) const;
-  VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const;
+  VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const override;
+  VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const override;
+  VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const override;
+  VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const override;
+
   VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
   VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;
 

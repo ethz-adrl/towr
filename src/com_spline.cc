@@ -72,22 +72,6 @@ ComSpline::GetSplineID(double t_global, const VecSpline& splines)
    assert(false); // this should never be reached
 }
 
-std::vector<double>
-ComSpline::GetDiscretizedGlobalTimes(const VecSpline& splines)
-{
-  static constexpr double dt = 0.1; //discretization time [seconds]: needed for creating support triangle inequality constraints
-
-  std::vector<double> vec;
-  double t = 0.0;
-  while (t <= GetTotalTime(splines)-dt+eps_) { // still add the second to last time, even if rounding errors to to floating point arithmetics
-    vec.push_back(t);
-    t += dt;
-  }
-
-  vec.push_back(GetTotalTime(splines));
-  return vec;
-}
-
 double
 ComSpline::GetLocalTime(double t_global, const VecSpline& splines)
 {
@@ -113,6 +97,22 @@ ComSpline::GetCOGxy(double t_global, const VecSpline& splines)
   cog_xy.a = splines[id].GetState(xpp::utils::kAcc, t_local);
 
   return cog_xy;
+}
+
+ComSpline::VecScalar
+ComSpline::ExpressComThroughCoeff (PosVelAcc posVelAcc, double t_local,
+                                   int id, Coords dim) const
+{
+  switch (posVelAcc) {
+    case xpp::utils::kPos:
+      return ExpressCogPosThroughABCD(t_local, id, dim);
+    case xpp::utils::kVel:
+      return ExpressCogVelThroughABCD(t_local, id, dim);
+    case xpp::utils::kAcc:
+      return ExpressCogAccThroughABCD(t_local, id, dim);
+    case xpp::utils::kJerk:
+      return ExpressCogJerkThroughABCD(t_local, id, dim);
+  }
 }
 
 void

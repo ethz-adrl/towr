@@ -39,8 +39,7 @@ JointAnglesConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   interpreter_.SetFootholds(utils::ConvertEigToStd(footholds_xy));
   interpreter_.SetSplineCoefficients(x_coeff);
 
-  // refactor
-  vec_t_ = ComSpline6::GetDiscretizedGlobalTimes(interpreter_.GetSplines());
+  vec_t_ = interpreter_.GetSplineStructure()->GetDiscretizedGlobalTimes();
   stance_feet_calc_.Update(interpreter_.GetStartStance(),
                            interpreter_.GetFootholds(),
                            interpreter_.GetSplineStructure(),

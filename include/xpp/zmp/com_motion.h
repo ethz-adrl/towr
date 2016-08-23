@@ -39,11 +39,20 @@ public:
   virtual Point2d GetCOGxy(double t_global) const = 0;
 
 
-  /** Creates all the coefficients for the 5th order polyomials from the variables
+  /** Creates all the coefficients for the 5th order polynomials from the variables
     */
   virtual void AddOptimizedCoefficients(const VectorXd& optimized_coeff) = 0;
 
   virtual double GetTotalTime() const = 0;
+
+  /** If the trajectory has to be discretized, use this for consistent time steps.
+   *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
+   *
+   *  so first and last time are t0 and and tN, but there might be a
+   *  timestep > delta t before the last node.
+   */
+  std::vector<double> GetDiscretizedGlobalTimes() const;
+  int GetTotalNodes() const;
 
 
   /** Sets coefficients, so motion ends up at initial position.
@@ -53,6 +62,9 @@ public:
     * be set with zero coefficient values to stay there as well.
     */
   virtual void SetEndAtStart() = 0;
+
+private:
+  static constexpr double eps_ = 1e-10; // maximum inaccuracy when adding double numbers
 };
 
 } /* namespace zmp */

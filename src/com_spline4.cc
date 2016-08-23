@@ -67,22 +67,6 @@ void ComSpline4::Init(const Vector2d& start_cog_p,
   AddOptimizedCoefficients(abcd);
 }
 
-ComSpline4::VecScalar
-ComSpline4::ExpressComThroughCoeff (
-    xpp::utils::PosVelAcc posVelAcc, double t_local, int id, Coords dim) const
-{
-  switch (posVelAcc) {
-    case xpp::utils::kPos:
-      return ExpressCogPosThroughABCD(t_local, id, dim);
-    case xpp::utils::kVel:
-      return ExpressCogVelThroughABCD(t_local, id, dim);
-    case xpp::utils::kAcc:
-      return ExpressCogAccThroughABCD(t_local, id, dim);
-    case xpp::utils::kJerk:
-      return ExpressCogJerkThroughABCD(t_local, id, dim);
-  }
-}
-
 
 void
 ComSpline4::AddOptimizedCoefficients(const VectorXd& optimized_coeff)

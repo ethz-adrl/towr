@@ -57,7 +57,6 @@ public:
   ComPolynomial GetSpline(size_t i) const { return splines_.at(i); }
   ComPolynomial GetFirstSpline()    const { return splines_.front(); };
   ComPolynomial GetLastSpline()     const { return splines_.back(); };
-  int GetSplineCount()              const { return splines_.size(); };
 
   virtual int Index(int spline, Coords dim, SplineCoeff coeff) const = 0;
 
@@ -75,24 +74,11 @@ public:
   int GetSplineID(double t_global) const { return GetSplineID(t_global, splines_); }
 
   /** Returns the time that the spline active at t_global has been running */
+  double GetTotalTime() const override { return GetTotalTime(splines_); }
   static double GetTotalTime(const VecSpline& splines);
+
   double GetLocalTime(double t_global) const { return GetLocalTime(t_global, splines_); };
 
-  double GetTotalTime() const override { return GetTotalTime(splines_); }
-
-  /** If the trajectory has to be discretized, use this for consistent time steps.
-   *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
-   *
-   *  so first and last time are t0 and and tN, but there might be a
-   *  timestep > delta t before the last node.
-   */
-  // fixme this should maybe go somewhere else (constraints/costs).
-  static std::vector<double> GetDiscretizedGlobalTimes(const VecSpline& splines);
-  std::vector<double> GetDiscretizedGlobalTimes() const {
-    return GetDiscretizedGlobalTimes(splines_);
-  }
-
-  int GetTotalNodes() const { return GetDiscretizedGlobalTimes().size(); };
 
   /** Produces a vector and scalar, that, multiplied with the spline coefficients
     * a,b,c,d of all splines returns the position of the CoG at time t_local.
@@ -102,7 +88,7 @@ public:
     * @param dim dimension specifying if x or y coordinate of CoG should be calculated
     * @return
     */
-  virtual VecScalar ExpressComThroughCoeff(xpp::utils::PosVelAcc, double t_local, int id, Coords3D dim) const = 0;
+  VecScalar ExpressComThroughCoeff(xpp::utils::PosVelAcc, double t_local, int id, Coords3D dim) const;
 
 
 protected:
@@ -112,10 +98,13 @@ protected:
   void AddStanceSpline(double t_stance);
 
 private:
+  virtual VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const = 0;
+  virtual VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const = 0;
+  virtual VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const = 0;
+  virtual VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const = 0;
 
   static double GetLocalTime(double t_global, const VecSpline& splines);
   bool splines_initialized_ = false;
-  static constexpr double eps_ = 1e-10; // maximum inaccuracy when adding double numbers
 };
 
 } /* namespace zmp */

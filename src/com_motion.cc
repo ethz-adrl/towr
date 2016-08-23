@@ -20,5 +20,27 @@ ComMotion::~ComMotion ()
   // TODO Auto-generated destructor stub
 }
 
+std::vector<double>
+ComMotion::GetDiscretizedGlobalTimes() const
+{
+  static constexpr double dt = 0.1; //discretization time [seconds]: needed for creating support triangle inequality constraints
+
+  std::vector<double> vec;
+  double t = 0.0;
+  while (t <= GetTotalTime()-dt+eps_) { // still add the second to last time, even if rounding errors to to floating point arithmetics
+    vec.push_back(t);
+    t += dt;
+  }
+
+  vec.push_back(GetTotalTime());
+  return vec;
+}
+
+int
+ComMotion::GetTotalNodes() const
+{
+  return GetDiscretizedGlobalTimes().size();
+}
+
 } /* namespace zmp */
 } /* namespace xpp */
