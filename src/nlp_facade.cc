@@ -66,7 +66,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(curr_stance, step_sequence, margins);
 
-  xpp::zmp::ContinuousSplineContainer spline_structure;
+  ContinuousSplineContainer spline_structure;
   spline_structure.Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
   spline_structure.SetEndAtStart();
 
@@ -75,7 +75,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
 
   // save the framework of the optimization problem
   OptimizationVariablesInterpreter interpreter;
-  interpreter.Init(spline_structure, supp_polygon_container, robot_height);
+  interpreter.Init(std::make_shared<ContinuousSplineContainer>(spline_structure), supp_polygon_container, robot_height);
   interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();

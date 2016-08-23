@@ -7,6 +7,7 @@
 
 #include <xpp/zmp/qp_facade.h>
 
+#include <xpp/zmp/com_spline.h>
 #include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/support_polygon_container.h>
 
@@ -70,7 +71,7 @@ QpFacade::SolveQp(const State& initial_state,
     ROS_INFO_STREAM(s);
   }
 
-  ZmpConstraintBuilder zmp_constraint(spline_structure, robot_height);
+  ZmpConstraintBuilder zmp_constraint(std::make_shared<ContinuousSplineContainer>(spline_structure), robot_height);
   MatVecVec zmp_constr = zmp_constraint.CalcZmpConstraints(supp_polygon_container);
   inequality_constraints_.M = zmp_constr.Mv.M;
   inequality_constraints_.v = zmp_constr.Mv.v + zmp_constr.constant;

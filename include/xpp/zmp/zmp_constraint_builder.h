@@ -8,8 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 
+#include <xpp/zmp/com_spline.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/zero_moment_point.h>
 
 namespace xpp {
@@ -18,6 +18,7 @@ namespace zmp {
 class ZmpConstraintBuilder {
 
 public:
+  typedef ComSpline::Ptr ComSplinePtr;
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::VecScalarScalar VecScalarScalar;
@@ -30,7 +31,7 @@ public:
 
 public:
   ZmpConstraintBuilder() {};
-  ZmpConstraintBuilder(const ContinuousSplineContainer&, double walking_height);
+  ZmpConstraintBuilder(const ComSplinePtr&, double walking_height);
   virtual ~ZmpConstraintBuilder () {};
 
   /** Initializes the object by pre-calculating the map from optimal coefficients
@@ -39,7 +40,7 @@ public:
     * @param splines the initial map depends only depend on initial state and spline structure.
     * @param walking_height the ZMP is influenced by the height above the ground.
     */
-  void Init(const ContinuousSplineContainer&, double walking_height);
+  void Init(const ComSplinePtr&, double walking_height);
 
   /** Calculates the constraints that keep the ZMP inside the current support
     * polygon.
@@ -91,7 +92,7 @@ private:
 
 
 
-  xpp::zmp::ContinuousSplineContainer spline_structure_;
+  ComSplinePtr spline_structure_;
   MatVec x_zmp_map_;
   MatVec y_zmp_map_;
 

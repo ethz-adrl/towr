@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_PUBLISHER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_PUBLISHER_H_
 
-#include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/zmp/com_spline.h>
 #include <xpp/hyq/foothold.h>
 
 #include <visualization_msgs/MarkerArray.h>
@@ -33,8 +33,8 @@ public:
   typedef visualization_msgs::Marker Marker;
   typedef visualization_msgs::MarkerArray MarkerArray;
   typedef Eigen::Vector2d Vector2d;
-  typedef xpp::zmp::SplineContainer SplineContainer;
-  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
+  typedef xpp::zmp::ComSpline ComSpline;
+  typedef xpp::zmp::ComSpline::VecSpline VecSpline;
 
 public:
   MarkerArrayBuilder();

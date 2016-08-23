@@ -22,7 +22,7 @@ OptimizationVariablesInterpreter::~OptimizationVariablesInterpreter ()
 
 void
 OptimizationVariablesInterpreter::Init (
-    const ContinuousSplineContainer& splines,
+    const ComSplinePtr& splines,
     const SupportPolygonContainer& support_polygon_container,
     double robot_height)
 {
@@ -69,7 +69,7 @@ OptimizationVariablesInterpreter::VecSpline
 OptimizationVariablesInterpreter::GetSplines (const VectorXd& spline_coeff_abcd) const
 {
   assert(initialized_);
-  return spline_structure_.BuildOptimizedSplines(spline_coeff_abcd);
+  return spline_structure_->BuildOptimizedSplines(spline_coeff_abcd);
 }
 
 double
@@ -78,7 +78,7 @@ OptimizationVariablesInterpreter::GetRobotHeight () const
   return robot_height_;
 }
 
-ContinuousSplineContainer
+OptimizationVariablesInterpreter::ComSplinePtr
 OptimizationVariablesInterpreter::GetSplineStructure () const
 {
   return spline_structure_;

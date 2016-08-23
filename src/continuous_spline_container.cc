@@ -36,7 +36,7 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
     const int n_stance_splines = 2; // 3 allows quicker reaction
     double t = times.t_stance_initial_/n_stance_splines;
     for (int i=0; i<n_stance_splines; ++i)
-      SplineContainer::AddStanceSpline(t);
+      AddStanceSpline(t);
 
 //    double t_reaction = 0.06;
 //    SplineContainer::AddStanceSpline(t_reaction);
@@ -44,7 +44,7 @@ void ContinuousSplineContainer::Init(const Vector2d& start_cog_p,
   }
 
 
-  SplineContainer::AddSplinesStepSequence(step_count, times.t_swing_);
+  AddSplinesStepSequence(step_count, times.t_swing_);
 
   for (const Coords3D dim : Coords2DArray) {
     relationship_e_to_abcd_.at(dim) = DescribeEByABCD(dim, start_cog_v(dim));

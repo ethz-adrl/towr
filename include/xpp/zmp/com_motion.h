@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_MOTION_H_
 
 #include <xpp/utils/geometric_structs.h>
+#include <memory>
 
 namespace xpp {
 namespace zmp {
@@ -26,6 +27,7 @@ public:
   typedef xpp::utils::Coords3D Coords3D;
   typedef xpp::utils::PosVelAcc PosVelAcc;
   typedef xpp::utils::Point2d Point2d;
+  typedef std::shared_ptr<ComMotion> Ptr;
 
   ComMotion ();
   virtual ~ComMotion ();

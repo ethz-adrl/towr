@@ -235,49 +235,49 @@ if(BUILD_TESTS)
   message(STATUS "GTEST_FOUND " ${GTEST_FOUND})
   if(GTEST_FOUND)
     set(MY_GTEST_UNITS  test/google/gtest_main.cc 
-                        test/google/spliner_test.cc
-                        test/google/point2d_manipulations_test.cc
-                        test/google/supp_polygon_test.cc
-                        test/google/supp_polygon_container_test.cc
-                        test/google/helpers.cc
-                        test/google/zero_moment_point_test.cc
-                        test/google/nlp_facade_test.cc
-#                        test/google/hyq_spliner_test.cc
-                        test/google/stance_feet_calculator_test.cc
-                        test/google/optimization_variables_test.cc
-                        test/google/interpreting_observer_test.cc
-                        test/google/foothold_nominal_deviation_test.cc
-                        test/google/optimization_visualizer_test.cc
-                        test/google/optimization_variables_interpreter_test.cc
-                        test/google/step_sequence_planner_test.cc
-                        # com
-                        test/google/com_motion_test.cc
-                        test/google/com_spline_test.cc
-                        test/google/spline_container_test.cc
-                        #constraints
-                        test/google/zmp_constraint_test.cc
-                        test/google/constraint_factory_test.cc
-                        test/google/zmp_constraint_builder_test.cc
-                        test/google/joint_angles_constraint_test.cc
-                        test/google/constraint_container_test.cc
-                        test/google/range_of_motion_constraint_test.cc
-                        test/google/obstacle_constraint_test.cc
-                        #equations
-                        test/google/total_acceleration_equation_test.cc
-                        test/google/spline_junction_equation_test.cc
-                        # costs 
-                        test/google/cost_factory_test.cc
-                        test/google/cost_function_functor_test.cc
-                        test/google/range_of_motion_cost_test.cc
-                        test/google/cost_container_test.cc
-                        test/google/a_foothold_cost_test.cc
-                        # nlp optimizers
-                        test/google/nlp_test.cc
-                        test/google/snopt_test.cc
-                        test/google/snopt_adapter_test.cc
-                        test/google/ipopt_test.cc
-                        # general
-                        test/google/sparse_matrix_test.cc
+#                        test/google/spliner_test.cc
+#                        test/google/point2d_manipulations_test.cc
+#                        test/google/supp_polygon_test.cc
+#                        test/google/supp_polygon_container_test.cc
+#                        test/google/helpers.cc
+#                        test/google/zero_moment_point_test.cc
+#                        test/google/nlp_facade_test.cc
+##                        test/google/hyq_spliner_test.cc
+#                        test/google/stance_feet_calculator_test.cc
+#                        test/google/optimization_variables_test.cc
+#                        test/google/interpreting_observer_test.cc
+#                        test/google/foothold_nominal_deviation_test.cc
+#                        test/google/optimization_visualizer_test.cc
+#                        test/google/optimization_variables_interpreter_test.cc
+#                        test/google/step_sequence_planner_test.cc
+#                        # com
+#                        test/google/com_motion_test.cc
+#                        test/google/com_spline_test.cc
+#                        test/google/spline_container_test.cc
+#                        #constraints
+#                        test/google/zmp_constraint_test.cc
+#                        test/google/constraint_factory_test.cc
+#                        test/google/zmp_constraint_builder_test.cc
+#                        test/google/joint_angles_constraint_test.cc
+#                        test/google/constraint_container_test.cc
+#                        test/google/range_of_motion_constraint_test.cc
+#                        test/google/obstacle_constraint_test.cc
+#                        #equations
+#                        test/google/total_acceleration_equation_test.cc
+#                        test/google/spline_junction_equation_test.cc
+#                        # costs 
+#                        test/google/cost_factory_test.cc
+#                        test/google/cost_function_functor_test.cc
+#                        test/google/range_of_motion_cost_test.cc
+#                        test/google/cost_container_test.cc
+#                        test/google/a_foothold_cost_test.cc
+#                        # nlp optimizers
+#                        test/google/nlp_test.cc
+#                        test/google/snopt_test.cc
+#                        test/google/snopt_adapter_test.cc
+#                        test/google/ipopt_test.cc
+#                        # general
+#                        test/google/sparse_matrix_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

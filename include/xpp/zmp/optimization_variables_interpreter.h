@@ -8,8 +8,9 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_OPTIMIZATION_VARIABLES_INTERPRETER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_OPTIMIZATION_VARIABLES_INTERPRETER_H_
 
+#include "com_spline.h"
+
 #include <xpp/hyq/foothold.h>
-#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/support_polygon_container.h>
 
 namespace xpp {
@@ -23,22 +24,23 @@ namespace zmp {
 class OptimizationVariablesInterpreter {
 public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef SplineContainer::VecSpline VecSpline;
+  typedef ComSpline::VecSpline VecSpline;
   typedef std::vector<xpp::hyq::LegID> VecLegID;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef xpp::utils::StdVecEigen2d FootholdPositionsXY;
+  typedef ComSpline::Ptr ComSplinePtr;
   typedef Eigen::VectorXd VectorXd;
   typedef Eigen::Vector2d Vector2d;
 
   OptimizationVariablesInterpreter ();
   virtual ~OptimizationVariablesInterpreter ();
 
-  void Init(const ContinuousSplineContainer& splines,
+  void Init(const ComSplinePtr& splines,
             const SupportPolygonContainer& support_polygon_container,
             double robot_height);
 
   double GetRobotHeight() const;
-  ContinuousSplineContainer GetSplineStructure() const;
+  ComSplinePtr GetSplineStructure() const;
   SupportPolygonContainer GetSuppPolygonContainer() const;
 
   VecFoothold GetStartStance() const;
@@ -47,7 +49,7 @@ public:
   VecSpline GetSplines(const VectorXd& x_spline_coeff_abcd) const;
 
 private:
-  ContinuousSplineContainer spline_structure_;
+  ComSplinePtr spline_structure_;
   SupportPolygonContainer supp_polygon_container_;
   double robot_height_;
 

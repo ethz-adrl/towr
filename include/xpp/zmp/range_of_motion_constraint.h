@@ -10,8 +10,9 @@
 
 #include <xpp/zmp/a_constraint.h>
 
+// refactor   only use com_motion, shouldn't have to know about internal structure.
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/zmp/com_spline.h>
 #include <xpp/zmp/foothold_nominal_deviation.h>
 
 namespace xpp {
@@ -22,6 +23,7 @@ class OptimizationVariablesInterpreter;
 class RangeOfMotionConstraint : public AConstraint {
 public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  typedef ComSpline::Ptr ComMotionPtr;
 
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint () {};
@@ -33,7 +35,7 @@ public:
 
 private:
   SupportPolygonContainer supp_polygon_container_;
-  ContinuousSplineContainer continuous_spline_container_;
+  ComMotionPtr continuous_spline_container_;
 
   FootholdNominalDeviation builder_;
 };

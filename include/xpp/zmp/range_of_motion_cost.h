@@ -19,6 +19,8 @@ class OptimizationVariablesInterpreter;
 class RangeOfMotionCost : public ACost {
 public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  // refactor use com_motion instead of spline, more general
+  typedef ComSpline::Ptr ComMotionPtr;
 
   RangeOfMotionCost ();
   virtual ~RangeOfMotionCost () {}
@@ -31,7 +33,7 @@ private:
   FootholdNominalDeviation builder_;
 
   SupportPolygonContainer supp_polygon_container_;
-  ContinuousSplineContainer continuous_spline_container_;
+  ComMotionPtr continuous_spline_container_;
 };
 
 } /* namespace zmp */
