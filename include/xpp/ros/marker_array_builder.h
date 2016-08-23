@@ -9,12 +9,11 @@
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_PUBLISHER_H_
 
 #include <xpp/hyq/foothold.h>
-
+#include <xpp/zmp/com_spline.h>
 #include <visualization_msgs/MarkerArray.h>
 
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
-#include "../zmp/com_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace ros {

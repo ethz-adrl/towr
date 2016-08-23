@@ -8,9 +8,9 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 
+#include "zero_moment_point.h"
+#include "com_spline.h"
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/zero_moment_point.h>
-#include "com_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace zmp {

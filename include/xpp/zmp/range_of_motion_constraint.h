@@ -8,12 +8,12 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include <xpp/zmp/a_constraint.h>
+#include "a_constraint.h"
+#include "foothold_nominal_deviation.h"
+#include "com_spline.h"
 
 // refactor   only use com_motion, shouldn't have to know about internal structure.
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/foothold_nominal_deviation.h>
-#include "com_polynomial_fifth_order.h"
 
 namespace xpp {
 namespace zmp {

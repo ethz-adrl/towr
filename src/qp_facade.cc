@@ -22,8 +22,7 @@
 #include <cmath>      // std::numeric_limits
 #include <ros/console.h>
 
-#include "../include/xpp/zmp/com_polynomial_fifth_order.h"
-#include "../include/xpp/zmp/com_spline4.h"
+#include <xpp/zmp/com_spline4.h>
 
 namespace xpp {
 namespace zmp {

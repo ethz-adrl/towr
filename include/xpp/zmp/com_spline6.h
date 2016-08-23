@@ -8,7 +8,7 @@
 #ifndef _XPP_ZMP_COMSPLINE6_H_
 #define _XPP_ZMP_COMSPLINE6_H_
 
-#include "com_polynomial_fifth_order.h"
+#include "com_spline.h"
 
 namespace xpp {
 namespace zmp {
