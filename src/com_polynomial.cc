@@ -78,7 +78,7 @@ PolynomialFifthOrder::GetCoefficient (int dim, SplineCoeff coeff) const
 }
 
 ComPolynomial::ComPolynomial()
-    : id_(0), duration_(0.0), phase_(PhaseInfo(kStancePhase,0)), step_(-1)
+    : id_(0), duration_(0.0), phase_(PhaseInfo()), step_(-1)
 {
   SetSplineCoefficients();
 }

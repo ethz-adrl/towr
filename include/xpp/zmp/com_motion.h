@@ -16,27 +16,22 @@ namespace zmp {
 
 
 enum PhaseType {kStancePhase=0, kStepPhase, kFlightPhase};
+/** Information to represent different types of motion.
+  */
 struct PhaseInfo {
-  /** Information to represent different types of motion.
-    *
-    * @param type_ whether this is a stance, step of flight phase.
-    * @param n_completed_steps_ how many steps completed by the previous phases
+  PhaseInfo() : type_(kStancePhase), n_completed_steps_(0), id_(-1) {};
+
+  /** @param type_ whether this is a stance, step of flight phase.
+    * @param n_completed_steps_ how many steps completed by the previous phases.
+    * @param id_ a phase with the same values has the same id.
     */
-  PhaseInfo(PhaseType type, int id) : type_(type), n_completed_steps_(id) {};
+  PhaseInfo(PhaseType type, int n_completed_steps, int id)
+    : type_(type), n_completed_steps_(n_completed_steps), id_(id) {};
+
   PhaseType type_;
   int n_completed_steps_;
+  int id_;
 };
-
-inline bool operator==(const PhaseInfo& lhs, const PhaseInfo& rhs)
-{
-  return (lhs.type_ == rhs.type_ && lhs.n_completed_steps_ == rhs.n_completed_steps_);
-}
-
-inline bool operator!=(const PhaseInfo& lhs, const PhaseInfo& rhs)
-{
-  return !(lhs == rhs);
-}
-
 
 /** Abstracts the Center of Mass (CoM) motion of any system.
   *
@@ -80,7 +75,7 @@ public:
   virtual double GetTotalTime() const = 0;
   int GetTotalNodes() const;
 
-  /** Gets the continuously increasing phase (stance, swing) count
+  /** Gets the phase (stance, swing) at this current instance of time.
     *
     * This allows to pair the current instance with the correct footholds
     * and support polygon. A phase is a motion during which the dynamics are

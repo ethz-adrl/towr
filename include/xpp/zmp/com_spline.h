@@ -101,7 +101,7 @@ protected:
   VecSpline splines_;
   void CheckIfSplinesInitialized() const;
   void AddSplinesStepSequence(int step_count, double t_swing);
-  void AddStanceSpline(double t_stance, int n_comleted_steps);
+  void AddStanceSpline(double t_stance);
 
 private:
   virtual VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const = 0;

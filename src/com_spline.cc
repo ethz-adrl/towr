@@ -23,27 +23,38 @@ ComSpline::~ComSpline ()
 void
 ComSpline::AddSplinesStepSequence (int step_count, double t_swing)
 {
-  unsigned int id = splines_.size()==0 ? 0 : splines_.back().GetId()+1;
+  unsigned int spline_id = splines_.empty() ? 0 : splines_.back().GetId()+1;
+  int phase_id           = splines_.empty() ? 0 : splines_.back().phase_.id_+1;
 
-  // fixme more than one currently not supported, change hyq_spliner
-  // and ZMP constraint to not relax constraints at these duplicate splines.
+
   int n_splines_per_step = 1;
   for (int step=0; step<step_count; ++step) {
     for (int i=0; i<n_splines_per_step; ++i) {
-      ComPolynomial spline(id++, t_swing/n_splines_per_step, PhaseInfo(kStepPhase, step));
+
+      PhaseInfo phase(kStepPhase, step, phase_id);
+      ComPolynomial spline(spline_id++, t_swing/n_splines_per_step, phase);
       spline.SetStep(step);
       splines_.push_back(spline);
     }
+    phase_id++;
   }
 
   splines_initialized_ = true;
 }
 
 void
-ComSpline::AddStanceSpline (double t_stance, int n_comleted_steps)
+ComSpline::AddStanceSpline (double t_stance)
 {
-  unsigned int id = splines_.empty() ? 0 : splines_.back().GetId()+1;
-  splines_.push_back(ComPolynomial(id++, t_stance, PhaseInfo(kStancePhase, n_comleted_steps)));
+  unsigned int spline_id = splines_.empty() ? 0 : splines_.back().GetId()+1;
+
+  PhaseInfo last(kStancePhase, 0, 0);
+  if (!splines_.empty()) {
+    last = splines_.back().phase_;
+    if (last.type_ != kStancePhase)
+      last.id_++;
+  }
+
+  splines_.push_back(ComPolynomial(spline_id++, t_stance, last));
 
   splines_initialized_ = true;
 }
@@ -83,12 +94,13 @@ ComSpline::PhaseInfoVec
 ComSpline::GetPhases () const
 {
   PhaseInfoVec phases;
-  PhaseInfo prev(kStancePhase, -1000); // something unrealistic
+
+  int prev_id = -1;
   for (const auto& s : splines_) {
     PhaseInfo curr = s.phase_;
-    if (curr != prev) { // never have the same phase twice
+    if (curr.id_ != prev_id) { // never have the same phase twice
       phases.push_back(curr);
-      prev = curr;
+      prev_id = curr.id_;
     }
   }
 
