@@ -106,8 +106,7 @@ ComSpline4::ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const
 }
 
 ComSpline4::VecScalar
-ComSpline4::ExpressCogVelThroughABCD (double t_local, int id,
-                                                     Coords dim) const
+ComSpline4::ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const
 {
   VecScalar vel(GetTotalFreeCoeff());
 

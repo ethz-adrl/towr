@@ -89,13 +89,6 @@ public:
     * to represent a stance phase.
     */
   virtual PhaseInfoVec GetPhases() const = 0;
-
-  /** Sets coefficients, so motion ends up at initial position.
-    *
-    * So at the end of the total time T, the state of the system will
-    * be the start position with zero velocity.
-    */
-  virtual void SetEndAtStart() = 0;
 };
 
 } /* namespace zmp */

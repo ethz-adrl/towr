@@ -27,13 +27,12 @@ public:
 
   void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
   void SetCoefficients(const VectorXd& optimized_coeff) override;
-//  void SetEndAtStart() override;
 
 private:
-//  VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const override;
-//  VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const override;
-//  VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const override;
-//  VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const override;
+  VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const override;
+  VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const override;
+  VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const override;
+  VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const override;
 
   int NumFreeCoeffPerSpline() const override { return 6; };
   std::vector<SplineCoeff> GetFreeCoeffPerSpline() const override { return {A,B,C,D,E,F}; };

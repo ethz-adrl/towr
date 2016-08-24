@@ -44,7 +44,7 @@ public:
             bool insert_initial_stance = true);
 
   void SetCoefficients(const VectorXd& optimized_coeff) override;
-  void SetEndAtStart() override;
+  void SetEndAtStart();
 
 private:
   int NumFreeCoeffPerSpline() const override { return 4; };

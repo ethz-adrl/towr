@@ -56,7 +56,7 @@ public:
   virtual ~ComSpline ();
 
 
-  // implements these functions from parent class
+  // implements these functions from parent class, now specific for splines
   Point2d GetCom(double t_global) const override { return GetCOGxy(t_global, polynomials_); }
   double GetTotalTime() const override { return GetTotalTime(polynomials_); }
   PhaseInfo GetCurrentPhase(double t_global) const override;
