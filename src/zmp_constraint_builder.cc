@@ -49,7 +49,7 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
   int c = 0; // inequality constraint counter
 
   for (double t_global : spline_structure_->GetDiscretizedGlobalTimes()) {
-    int id = spline_structure_->GetSplineID(t_global);
+    int id = spline_structure_->GetPolynomialID(t_global);
 
     if (DisjSuppSwitch(t_global, spline_structure_->GetSpline(id), supp_polygon_container)) {
       n++; // no constraints

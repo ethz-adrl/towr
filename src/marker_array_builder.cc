@@ -202,7 +202,7 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
   {
 
     xpp::utils::Point2d cog_state = ComSpline::GetCOGxy(t, splines);
-    int id = ComSpline::GetSplineID(t, splines);
+    int id = ComSpline::GetPolynomialID(t, splines);
 
 
 
@@ -246,7 +246,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
 
     Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height);
 
-    int id = ComSpline::GetSplineID(t, splines);
+    int id = ComSpline::GetPolynomialID(t, splines);
 
     visualization_msgs::Marker marker;
     marker = GenerateMarker(zmp,

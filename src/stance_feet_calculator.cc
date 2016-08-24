@@ -28,7 +28,7 @@ StanceFeetCalculator::Update (const VecFoothold& start_stance,
                               double robot_height)
 {
   supp_polygon_container_.Init(start_stance, steps);
-  cog_spline_xy_ = cog_spline;
+  com_motion_ = cog_spline;
   robot_height_ = robot_height;
 }
 
@@ -36,15 +36,15 @@ StanceFeetCalculator::VecFoothold
 StanceFeetCalculator::GetStanceFeetInBase (double t) const
 {
   std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
-      supp_polygon_container_.AssignSupportPolygonsToSplines(cog_spline_xy_->GetSplines());
+      supp_polygon_container_.AssignSupportPolygonsToPhases(*com_motion_);
 
   // legs in contact during each step/spline
   VecFoothold p_stance_legs_i;
-  int spline_id = cog_spline_xy_->GetSplineID(t);
+  int phase_id = com_motion_->GetCurrentPhase(t).id_;
 
 
   // because last swing support polygon will not restrict landing position of foot
-  double T = cog_spline_xy_->GetTotalTime();
+  double T = com_motion_->GetTotalTime();
 
 //  std::cout << "T_else: " << T_else << std::endl;
 //  double T = SplineContainer::GetDiscretizedGlobalTimes(cog_spline_xy_).back();
@@ -52,10 +52,10 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
   if (AreSame(t,T))
     p_stance_legs_i = supp_polygon_container_.GetFinalFootholds();
   else
-    p_stance_legs_i = suppport_polygons.at(spline_id).footholds_;
+    p_stance_legs_i = suppport_polygons.at(phase_id).footholds_;
 
   // body position during the step
-  xpp::utils::Point2d cog_xy_i = cog_spline_xy_->GetCom(t);
+  xpp::utils::Point2d cog_xy_i = com_motion_->GetCom(t);
   Vector3d cog_i;
   cog_i << cog_xy_i.p.x(),
            cog_xy_i.p.y(),

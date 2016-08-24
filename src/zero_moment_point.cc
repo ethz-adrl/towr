@@ -41,7 +41,7 @@ ZeroMomentPoint::ExpressZmpThroughCoefficients(const ComSplinePtr& spline_struct
   for (double t_global : spline_structure->GetDiscretizedGlobalTimes())
   {
     double t_local = spline_structure->GetLocalTime(t_global);
-    int spline = spline_structure->GetSplineID(t_global);
+    int spline = spline_structure->GetPolynomialID(t_global);
 
     VecScalar pos = spline_structure->ExpressComThroughCoeff(utils::kPos, t_local, spline, dim);
     VecScalar acc = spline_structure->ExpressComThroughCoeff(utils::kAcc, t_local, spline, dim);

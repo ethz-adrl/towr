@@ -132,18 +132,18 @@ TEST_F(SplineContainerTest, GetTotalTime)
   EXPECT_DOUBLE_EQ(T, spline_container_4steps_.GetTotalTime());
 }
 
-TEST_F(SplineContainerTest, GetSplineID)
+TEST_F(SplineContainerTest, GetPolynomialID)
 {
-  EXPECT_EQ(0, spline_container_4steps_.GetSplineID(0.0));
-  EXPECT_EQ(n_initial_splines, spline_container_4steps_.GetSplineID(times_.t_stance_initial_+0.01));
+  EXPECT_EQ(0, spline_container_4steps_.GetPolynomialID(0.0));
+  EXPECT_EQ(n_initial_splines, spline_container_4steps_.GetPolynomialID(times_.t_stance_initial_+0.01));
 
   double T = spline_container_4steps_.GetTotalTime();
   int last_id = spline_container_4steps_.GetLastSpline().GetId();
 
-  EXPECT_EQ(last_id  , spline_container_4steps_.GetSplineID(T));
-  EXPECT_EQ(last_id  , spline_container_4steps_.GetSplineID(T-0.05));
-  EXPECT_EQ(last_id-n_final_splines, spline_container_4steps_.GetSplineID(T));
-  EXPECT_EQ(last_id-n_final_splines-1, spline_container_4steps_.GetSplineID(T - times_.t_swing_ - 0.01));
+  EXPECT_EQ(last_id  , spline_container_4steps_.GetPolynomialID(T));
+  EXPECT_EQ(last_id  , spline_container_4steps_.GetPolynomialID(T-0.05));
+  EXPECT_EQ(last_id-n_final_splines, spline_container_4steps_.GetPolynomialID(T));
+  EXPECT_EQ(last_id-n_final_splines-1, spline_container_4steps_.GetPolynomialID(T - times_.t_swing_ - 0.01));
 }
 
 TEST_F(SplineContainerTest, GetLocalTime)

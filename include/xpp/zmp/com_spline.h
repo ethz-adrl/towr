@@ -73,8 +73,8 @@ public:
   Point2d GetCom(double t_global) const { return GetCOGxy(t_global, splines_); }
 
   // refactor rename to GetPolynomeID.
-  static int GetSplineID(double t_global, const VecSpline& splines);
-  int GetSplineID(double t_global) const { return GetSplineID(t_global, splines_); }
+  static int GetPolynomialID(double t_global, const VecSpline& splines);
+  int GetPolynomialID(double t_global) const { return GetPolynomialID(t_global, splines_); }
 
   /** Returns the time that the spline active at t_global has been running */
   double GetTotalTime() const override { return GetTotalTime(splines_); }

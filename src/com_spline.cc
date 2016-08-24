@@ -69,7 +69,7 @@ ComSpline::GetTotalTime(const VecSpline& splines)
 }
 
 int
-ComSpline::GetSplineID(double t_global, const VecSpline& splines)
+ComSpline::GetPolynomialID(double t_global, const VecSpline& splines)
 {
    assert(t_global<=GetTotalTime(splines));
 
@@ -86,7 +86,7 @@ ComSpline::GetSplineID(double t_global, const VecSpline& splines)
 PhaseInfo
 ComSpline::GetCurrentPhase (double t_global) const
 {
-  int id = GetSplineID(t_global);
+  int id = GetPolynomialID(t_global);
   return splines_.at(id).phase_;
 }
 
@@ -110,7 +110,7 @@ ComSpline::GetPhases () const
 double
 ComSpline::GetLocalTime(double t_global, const VecSpline& splines)
 {
-  int id_spline = GetSplineID(t_global,splines);
+  int id_spline = GetPolynomialID(t_global,splines);
 
   double t_local = t_global;
   for (int id=0; id<id_spline; id++) {
@@ -123,7 +123,7 @@ ComSpline::GetLocalTime(double t_global, const VecSpline& splines)
 ComSpline::Point2d
 ComSpline::GetCOGxy(double t_global, const VecSpline& splines)
 {
-  int id = GetSplineID(t_global,splines);
+  int id = GetPolynomialID(t_global,splines);
   double t_local = GetLocalTime(t_global, splines);
 
   Point2d cog_xy;
