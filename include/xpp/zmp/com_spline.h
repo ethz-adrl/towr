@@ -82,7 +82,8 @@ public:
 
   double GetLocalTime(double t_global) const { return GetLocalTime(t_global, splines_); };
 
-  int GetCurrentPhase(double t_global) const override;
+  PhaseInfo GetCurrentPhase(double t_global) const override;
+  PhaseInfoVec GetPhases() const override;
 
 
   /** Produces a vector and scalar, that, multiplied with the spline coefficients

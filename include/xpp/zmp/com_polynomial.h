@@ -10,25 +10,14 @@
 
 #include <xpp/utils/geometric_structs.h>
 
-// for friend class declaration
-namespace xpp {
-namespace ros {
-class RosHelpers;
-}
-}
-
-
 namespace xpp {
 namespace zmp {
-
 
 static const int kCoeffCount = 6;
 enum SplineCoeff { A=0, B, C, D }; // the coefficients that are optimized over
 static const SplineCoeff SplineCoeffArray[] = { A, B, C, D };
 enum SplineCoeffE { E=D+1};
 enum SplineCoeffF { F=D+2};
-
-
 
 struct CoeffValues {
   double x[kCoeffCount];
@@ -80,21 +69,15 @@ protected:
   friend class SplineContainerTest_EandFCoefficientTest_Test;
 };
 
+} // namespace zmp
+} // namespace xpp
 
-enum PhaseType {kStancePhase=0, kStepPhase, kFlightPhase};
-struct PhaseInfo {
-  /** Information to represent different types of motion.
-    *
-    * @param type whether this is a stance, step of flight phase.
-    * @param id for a step phase this specifies the current step taken ( first
-    *           step starting at 0. For a stance phase this specifies the
-    *           last step that was completed before the stance phase. The first
-    *           stance has an id of -1 (no step taken before).
-    */
-  PhaseInfo(PhaseType type, int id) : type_(type), id_(id) {};
-  PhaseType type_;
-  int id_;
-};
+
+#include "com_motion.h" // Phase Info
+namespace xpp { namespace ros { class RosHelpers; }} // forward declaration for friend
+
+namespace xpp {
+namespace zmp {
 
 /** A fifth order spline that now holds some context information about the Center of Mass.
   */

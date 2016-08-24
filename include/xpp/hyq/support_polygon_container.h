@@ -9,7 +9,8 @@
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 
 #include <xpp/hyq/support_polygon.h>
-#include <xpp/zmp/com_polynomial.h>
+#include <xpp/zmp/com_polynomial.h> // refactor get rid of this at some point
+#include <xpp/zmp/com_motion.h>
 
 namespace xpp {
 namespace hyq {
@@ -26,6 +27,7 @@ public:
   typedef std::vector<xpp::zmp::ComPolynomial> VecZmpSpline;
   typedef std::vector<SupportPolygon::VecSuppLine> VecVecSuppLine;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
+  typedef xpp::zmp::ComMotion ComMotion;
 
 
 public:
@@ -82,7 +84,7 @@ public:
   VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
 
   VecSupportPolygon AssignSupportPolygonsToSplines(const VecZmpSpline&) const;
-  VecSupportPolygon AssignSupportPolygonsToPhases(const VecZmpSpline&) const;
+  VecSupportPolygon AssignSupportPolygonsToPhases(const ComMotion&) const;
   VecVecSuppLine GetActiveConstraintsForEachStep(const VecZmpSpline&) const;
 
   /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */

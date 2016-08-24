@@ -72,12 +72,22 @@ ComSpline::GetSplineID(double t_global, const VecSpline& splines)
    assert(false); // this should never be reached
 }
 
-int
+PhaseInfo
 ComSpline::GetCurrentPhase (double t_global) const
 {
-  // refactor, what to do if spline if four leg support?
   int id = GetSplineID(t_global);
-  return splines_.at(id).GetCurrStep();
+  return splines_.at(id).phase_;
+}
+
+ComSpline::PhaseInfoVec
+ComSpline::GetPhases () const
+{
+  PhaseInfoVec phases;
+  for (const auto& s : splines_)
+    if (phases.back() != s.phase_) // never have the same phase twice
+      phases.push_back(s.phase_);
+
+  return phases;
 }
 
 double
