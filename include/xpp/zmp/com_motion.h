@@ -29,7 +29,6 @@ public:
   ComMotion ();
   virtual ~ComMotion ();
 
-
   /** Get the Center of Mass position, velocity and acceleration.
     *
     * @param t_global current time
@@ -57,7 +56,13 @@ public:
   int GetTotalNodes() const;
 
   // refactor implement this to swap com_spline with com_motion
-//  virtual int GetCurrentStep(double t_global) const = 0;
+  /** Gets the continuously increasing phase (stance, swing) count
+    *
+    * This allows to pair the current instance with the correct footholds
+    * and support polygon. A phase is a motion during which the dynamics are
+    * continuous (stance, swing, flight).
+    */
+  virtual int GetCurrentPhase(double t_global) const = 0;
 
   /** Sets coefficients, so motion ends up at initial position.
     *

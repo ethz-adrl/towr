@@ -78,13 +78,13 @@ PolynomialFifthOrder::GetCoefficient (int dim, SplineCoeff coeff) const
 }
 
 ComPolynomial::ComPolynomial()
-    : id_(0), duration_(0.0), type_(StancePolynomial), step_(-1)
+    : id_(0), duration_(0.0), type_(PhaseInfo(kStancePhase,0)), step_(-1)
 {
   SetSplineCoefficients();
 }
 
-ComPolynomial::ComPolynomial(uint id, double duration, ComPolynomialType type)
-    : id_(id), duration_(duration), type_(type), step_(-1)
+ComPolynomial::ComPolynomial(uint id, double duration, PhaseInfo phase_info)
+    : id_(id), duration_(duration), type_(phase_info), step_(-1)
 {
   SetSplineCoefficients();
 }
@@ -101,7 +101,7 @@ std::ostream& operator<<(std::ostream& out, const ComPolynomial& s)
       << "duration="      << s.duration_          << "\t"
       << "four_leg_supp=" << s.IsFourLegSupport() << "\t"
       << "step="          << s.step_ << "\t"
-      << "type="          << s.type_ << " (Stance=0, Step=1)) \n ";
+      << "type="          << s.type_.type_ << " (Stance=0, Step=1)) \n ";
   return out;
 }
 

@@ -72,6 +72,7 @@ public:
   static Point2d GetCOGxy(double t_global, const VecSpline& splines);
   Point2d GetCom(double t_global) const { return GetCOGxy(t_global, splines_); }
 
+  // refactor rename to GetPolynomeID.
   static int GetSplineID(double t_global, const VecSpline& splines);
   int GetSplineID(double t_global) const { return GetSplineID(t_global, splines_); }
 
@@ -80,6 +81,8 @@ public:
   static double GetTotalTime(const VecSpline& splines);
 
   double GetLocalTime(double t_global) const { return GetLocalTime(t_global, splines_); };
+
+  int GetCurrentPhase(double t_global) const override;
 
 
   /** Produces a vector and scalar, that, multiplied with the spline coefficients
@@ -97,7 +100,7 @@ protected:
   VecSpline splines_;
   void CheckIfSplinesInitialized() const;
   void AddSplinesStepSequence(int step_count, double t_swing);
-  void AddStanceSpline(double t_stance);
+  void AddStanceSpline(double t_stance, int phase_id);
 
 private:
   virtual VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const = 0;

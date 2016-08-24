@@ -81,13 +81,19 @@ protected:
 };
 
 
+enum PhaseType {kStancePhase=0, kStepPhase, kFlightPhase};
+struct PhaseInfo {
+  PhaseInfo(PhaseType type, int id) : type_(type), id_(id) {};
+  PhaseType type_; ///< whether this is a stance, step of flight phase.
+  int id_;         ///< which phase of the above type this motion belongs to
+};
+
 /** A fifth order spline that now holds some context information about the Center of Mass.
   */
-enum ComPolynomialType {StancePolynomial=0, StepPolynomial};
 class ComPolynomial : public PolynomialFifthOrder {
 public:
   ComPolynomial();
-  ComPolynomial(uint id, double duration, ComPolynomialType);
+  ComPolynomial(uint id, double duration, PhaseInfo);
   virtual ~ComPolynomial() {};
 
   uint GetId()            const { return id_; };
@@ -97,12 +103,12 @@ public:
   /** Only if spline is a "StepSpline" is a step currently being executed. */
   uint GetCurrStep() const;
 
-  bool IsFourLegSupport() const { return type_ == StancePolynomial; }
+  bool IsFourLegSupport() const { return type_.type_ == kStancePhase; }
 
 private:
   uint id_; // to identify the order relative to other zmp splines
   double duration_; // time during which this spline is active
-  ComPolynomialType type_;
+  PhaseInfo type_;
   int step_; // current step
 
   friend struct xpp::ros::RosHelpers;
