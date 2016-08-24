@@ -176,36 +176,76 @@ SupportPolygonContainer::AssignSupportPolygonsToSplines(const VecZmpSpline& spli
 {
   using namespace xpp::zmp;
 
-  // support polygons during steps
   VecSupportPolygon supp_steps = GetSupportPolygons();
 
-  int prev_step = -1;
-
   VecSupportPolygon supp;
-  for (const ComPolynomial& s : splines)
-  {
+  for (const ComPolynomial& s : splines) {
     SupportPolygon curr_supp;
 
-    if (!s.IsFourLegSupport()) {
-      curr_supp = supp_steps.at(s.GetCurrStep());
-      prev_step = s.GetCurrStep();
-    } else {
-      if (prev_step == -1) // first spline
-        curr_supp = GetStartPolygon();
-      else if (prev_step == GetNumberOfSteps()-1)
-        curr_supp = GetFinalPolygon();
-      else { // for intermediate splines
-        int next_step = prev_step+1;
-        curr_supp = SupportPolygon::CombineSupportPolygons(supp_steps.at(prev_step),
-                                                           supp_steps.at(next_step));
+    PhaseInfo phase = s.phase_;
+    switch (phase.type_) {
+      case kStepPhase: {
+        int curr_step = phase.id_;
+        curr_supp = supp_steps.at(curr_step);
+        break;
+      }
+      case kStancePhase: {
+        int prev_step = phase.id_;
+        if (prev_step == -1) // first spline
+          curr_supp = GetStartPolygon();
+        else if (prev_step == GetNumberOfSteps()-1)
+          curr_supp = GetFinalPolygon();
+        else // for intermediate splines
+          curr_supp = SupportPolygon::CombineSupportPolygons(supp_steps.at(prev_step), supp_steps.at(prev_step+1));
       }
     }
+
 
     supp.push_back(curr_supp);
   }
 
   return supp;
 }
+
+// refactor remove this
+SupportPolygonContainer::VecSupportPolygon
+SupportPolygonContainer::AssignSupportPolygonsToPhases(const VecZmpSpline& com_motion) const
+{
+  using namespace xpp::zmp;
+
+  VecSupportPolygon supp_steps  = GetSupportPolygons();
+
+  VecSupportPolygon supp_phases;
+
+//  // motion
+//  for (const PhaseInfo& phase : com_motion.GetPhases()) {
+//    SupportPolygon curr_supp;
+//
+//    switch (phase.type_) {
+//      case kStepPhase:
+//        int curr_step = phase.id_;
+//        curr_supp = supp_steps.at(phase.id_);
+//        break;
+//      case kStancePhase:
+//        int prev_step = phase.id_;
+//        switch (prev_step) {
+//          case -1:
+//            curr_supp = GetStartPolygon(); break;
+//          case GetNumberOfSteps()-1:
+//            curr_supp = GetFinalPolygon(); break;
+//          default:
+//            curr_supp = SupportPolygon::CombineSupportPolygons(supp_steps.at(prev_step),
+//                                                               supp_steps.at(prev_step+1));
+//            break;
+//        }
+//    }
+//
+//    supp_phases.push_back(curr_supp);
+//  }
+
+  return supp_phases;
+}
+
 
 void
 SupportPolygonContainer::CheckIfInitialized() const

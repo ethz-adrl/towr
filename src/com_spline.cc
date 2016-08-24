@@ -40,10 +40,10 @@ ComSpline::AddSplinesStepSequence (int step_count, double t_swing)
 }
 
 void
-ComSpline::AddStanceSpline (double t_stance, int phase_id)
+ComSpline::AddStanceSpline (double t_stance, int prev_step)
 {
   unsigned int id = splines_.empty() ? 0 : splines_.back().GetId()+1;
-  splines_.push_back(ComPolynomial(id++, t_stance, PhaseInfo(kStancePhase, phase_id)));
+  splines_.push_back(ComPolynomial(id++, t_stance, PhaseInfo(kStancePhase, prev_step)));
 
   splines_initialized_ = true;
 }

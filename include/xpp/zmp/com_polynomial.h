@@ -83,9 +83,17 @@ protected:
 
 enum PhaseType {kStancePhase=0, kStepPhase, kFlightPhase};
 struct PhaseInfo {
+  /** Information to represent different types of motion.
+    *
+    * @param type whether this is a stance, step of flight phase.
+    * @param id for a step phase this specifies the current step taken ( first
+    *           step starting at 0. For a stance phase this specifies the
+    *           last step that was completed before the stance phase. The first
+    *           stance has an id of -1 (no step taken before).
+    */
   PhaseInfo(PhaseType type, int id) : type_(type), id_(id) {};
-  PhaseType type_; ///< whether this is a stance, step of flight phase.
-  int id_;         ///< which phase of the above type this motion belongs to
+  PhaseType type_;
+  int id_;
 };
 
 /** A fifth order spline that now holds some context information about the Center of Mass.
@@ -103,12 +111,12 @@ public:
   /** Only if spline is a "StepSpline" is a step currently being executed. */
   uint GetCurrStep() const;
 
-  bool IsFourLegSupport() const { return type_.type_ == kStancePhase; }
+  bool IsFourLegSupport() const { return phase_.type_ == kStancePhase; }
 
+  PhaseInfo phase_;
 private:
   uint id_; // to identify the order relative to other zmp splines
   double duration_; // time during which this spline is active
-  PhaseInfo type_;
   int step_; // current step
 
   friend struct xpp::ros::RosHelpers;
