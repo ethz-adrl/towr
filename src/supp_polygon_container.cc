@@ -1,8 +1,8 @@
-/*
- * supp_triangle_container.cc
- *
- *  Created on: Mar 18, 2016
- *      Author: winklera
+/**
+ @file    support_polygon_container.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Defines the SupportPolygonContainer class
  */
 
 #include <xpp/hyq/support_polygon_container.h>
@@ -159,52 +159,15 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
 }
 
 SupportPolygonContainer::VecVecSuppLine
-SupportPolygonContainer::GetActiveConstraintsForEachStep(const VecZmpSpline& splines) const
+SupportPolygonContainer::GetActiveConstraintsForEachPhase(const ComMotion& com_motion) const
 {
-  VecSupportPolygon supp = AssignSupportPolygonsToSplines(splines);
-
+  VecSupportPolygon supp = AssignSupportPolygonsToPhases(com_motion);
   std::vector<SupportPolygon::VecSuppLine> supp_lines;
-  for (uint s=0; s<splines.size(); ++s) {
-    supp_lines.push_back(supp.at(s).CalcLines());
-  }
+
+  for (const auto& s : supp)
+    supp_lines.push_back(s.CalcLines());
 
   return supp_lines;
-}
-
-SupportPolygonContainer::VecSupportPolygon
-SupportPolygonContainer::AssignSupportPolygonsToSplines(const VecZmpSpline& splines) const
-{
-  using namespace xpp::zmp;
-
-  VecSupportPolygon supp_steps = GetSupportPolygons();
-
-  VecSupportPolygon supp;
-  for (const auto& s : splines) {
-    SupportPolygon curr_supp;
-    PhaseInfo phase = s.phase_;
-
-
-    int prev_step = phase.n_completed_steps_-1;
-    switch (phase.type_) {
-      case kStepPhase: {
-        curr_supp = supp_steps.at(prev_step+1);
-        break;
-      }
-      case kStancePhase: {
-        if (prev_step == -1) // first spline
-          curr_supp = GetStartPolygon();
-        else if (prev_step == GetNumberOfSteps()-1)
-          curr_supp = GetFinalPolygon();
-        else // for intermediate splines
-          curr_supp = SupportPolygon::CombineSupportPolygons(supp_steps.at(prev_step), supp_steps.at(prev_step+1));
-      }
-    }
-
-
-    supp.push_back(curr_supp);
-  }
-
-  return supp;
 }
 
 SupportPolygonContainer::VecSupportPolygon
@@ -234,10 +197,6 @@ SupportPolygonContainer::AssignSupportPolygonsToPhases(const ComMotion& com_moti
           curr_supp = SupportPolygon::CombineSupportPolygons(supp_steps.at(prev_step), supp_steps.at(prev_step+1));
       }
     }
-
-
-
-
 
     supp.push_back(curr_supp);
   }

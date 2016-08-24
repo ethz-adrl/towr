@@ -38,7 +38,7 @@ ZmpConstraintBuilder::MatVecVec
 ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                                   const SupportPolygonContainer& supp_polygon_container) const
 {
-  std::vector<NodeConstraint> supp_lines = supp_polygon_container.GetActiveConstraintsForEachStep(spline_structure_->GetSplines());
+  std::vector<NodeConstraint> supp_lines = supp_polygon_container.GetActiveConstraintsForEachPhase(*spline_structure_);
 
   // if every spline is a four leg support spline with 4 line constraints
   const int max_num_constraints = spline_structure_->GetTotalNodes()*SupportPolygon::kMaxSides;
@@ -49,14 +49,16 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
   int c = 0; // inequality constraint counter
 
   for (double t_global : spline_structure_->GetDiscretizedGlobalTimes()) {
-    int id = spline_structure_->GetPolynomialID(t_global);
+    int spline_id = spline_structure_->GetPolynomialID(t_global);
+    int phase_id  = spline_structure_->GetCurrentPhase(t_global).id_;
 
-    if (DisjSuppSwitch(t_global, spline_structure_->GetSpline(id), supp_polygon_container)) {
+    // refactor get rid of spline id, make phase somehow
+    if (DisjSuppSwitch(t_global, spline_structure_->GetSpline(spline_id), supp_polygon_container)) {
       n++; // no constraints
       continue;
     }
 
-    GenerateNodeConstraint(supp_lines.at(id), x_zmp.GetRow(n), y_zmp.GetRow(n), c, ineq);
+    GenerateNodeConstraint(supp_lines.at(phase_id), x_zmp.GetRow(n), y_zmp.GetRow(n), c, ineq);
 
     n++;
     c += SupportPolygon::kMaxSides;

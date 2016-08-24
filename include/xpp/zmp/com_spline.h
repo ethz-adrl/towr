@@ -72,7 +72,6 @@ public:
   static Point2d GetCOGxy(double t_global, const VecSpline& splines);
   Point2d GetCom(double t_global) const { return GetCOGxy(t_global, splines_); }
 
-  // refactor rename to GetPolynomeID.
   static int GetPolynomialID(double t_global, const VecSpline& splines);
   int GetPolynomialID(double t_global) const { return GetPolynomialID(t_global, splines_); }
 
