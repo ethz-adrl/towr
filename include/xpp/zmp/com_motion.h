@@ -19,20 +19,17 @@ enum PhaseType {kStancePhase=0, kStepPhase, kFlightPhase};
 struct PhaseInfo {
   /** Information to represent different types of motion.
     *
-    * @param type whether this is a stance, step of flight phase.
-    * @param id for a step phase this specifies the current step taken ( first
-    *           step starting at 0. For a stance phase this specifies the
-    *           last step that was completed before the stance phase. The first
-    *           stance has an id of -1 (no step taken before).
+    * @param type_ whether this is a stance, step of flight phase.
+    * @param n_completed_steps_ how many steps completed by the previous phases
     */
-  PhaseInfo(PhaseType type, int id) : type_(type), id_(id) {};
+  PhaseInfo(PhaseType type, int id) : type_(type), n_completed_steps_(id) {};
   PhaseType type_;
-  int id_;
+  int n_completed_steps_;
 };
 
 inline bool operator==(const PhaseInfo& lhs, const PhaseInfo& rhs)
 {
-  return (lhs.type_ == rhs.type_ && lhs.id_ == rhs.id_);
+  return (lhs.type_ == rhs.type_ && lhs.n_completed_steps_ == rhs.n_completed_steps_);
 }
 
 inline bool operator!=(const PhaseInfo& lhs, const PhaseInfo& rhs)
@@ -92,6 +89,9 @@ public:
   virtual PhaseInfo GetCurrentPhase(double t_global) const = 0;
 
   /** Returns a vector of phases, where no phase is duplicated.
+    *
+    * This class should not have to know e.g. how many splines are used
+    * to represent a stance phase.
     */
   virtual PhaseInfoVec GetPhases() const = 0;
 

@@ -49,6 +49,8 @@ FootholdNominalDeviation::GetFeetInBase (
   std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
       supp_polygon_container.AssignSupportPolygonsToSplines(cog_spline->GetSplines());
 
+//  std::cout << "suppport_polygons.size(): " << suppport_polygons.size();
+
   double T = cog_spline->GetDiscretizedGlobalTimes().back();
 
   for (double t : cog_spline->GetDiscretizedGlobalTimes()) {

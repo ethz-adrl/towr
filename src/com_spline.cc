@@ -40,10 +40,10 @@ ComSpline::AddSplinesStepSequence (int step_count, double t_swing)
 }
 
 void
-ComSpline::AddStanceSpline (double t_stance, int prev_step)
+ComSpline::AddStanceSpline (double t_stance, int n_comleted_steps)
 {
   unsigned int id = splines_.empty() ? 0 : splines_.back().GetId()+1;
-  splines_.push_back(ComPolynomial(id++, t_stance, PhaseInfo(kStancePhase, prev_step)));
+  splines_.push_back(ComPolynomial(id++, t_stance, PhaseInfo(kStancePhase, n_comleted_steps)));
 
   splines_initialized_ = true;
 }
@@ -83,9 +83,14 @@ ComSpline::PhaseInfoVec
 ComSpline::GetPhases () const
 {
   PhaseInfoVec phases;
-  for (const auto& s : splines_)
-    if (phases.back() != s.phase_) // never have the same phase twice
-      phases.push_back(s.phase_);
+  PhaseInfo prev(kStancePhase, -1000); // something unrealistic
+  for (const auto& s : splines_) {
+    PhaseInfo curr = s.phase_;
+    if (curr != prev) { // never have the same phase twice
+      phases.push_back(curr);
+      prev = curr;
+    }
+  }
 
   return phases;
 }

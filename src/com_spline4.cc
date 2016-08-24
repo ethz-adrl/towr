@@ -46,7 +46,7 @@ void ComSpline4::Init(const Vector2d& start_cog_p,
     const int n_stance_splines = 2; // 3 allows quicker reaction
     double t = times.t_stance_initial_/n_stance_splines;
     for (int i=0; i<n_stance_splines; ++i)
-      AddStanceSpline(t,-1);
+      AddStanceSpline(t, 0);
 
 //    double t_reaction = 0.06;
 //    SplineContainer::AddStanceSpline(t_reaction);

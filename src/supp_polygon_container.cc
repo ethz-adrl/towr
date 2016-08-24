@@ -181,16 +181,16 @@ SupportPolygonContainer::AssignSupportPolygonsToSplines(const VecZmpSpline& spli
   VecSupportPolygon supp;
   for (const auto& s : splines) {
     SupportPolygon curr_supp;
-
     PhaseInfo phase = s.phase_;
+
+
+    int prev_step = phase.n_completed_steps_-1;
     switch (phase.type_) {
       case kStepPhase: {
-        int curr_step = phase.id_;
-        curr_supp = supp_steps.at(curr_step);
+        curr_supp = supp_steps.at(prev_step+1);
         break;
       }
       case kStancePhase: {
-        int prev_step = phase.id_;
         if (prev_step == -1) // first spline
           curr_supp = GetStartPolygon();
         else if (prev_step == GetNumberOfSteps()-1)
@@ -219,14 +219,14 @@ SupportPolygonContainer::AssignSupportPolygonsToPhases(const ComMotion& com_moti
   for (const auto& phase : com_motion.GetPhases()) {
     SupportPolygon curr_supp;
 
+
+    int prev_step = phase.n_completed_steps_-1;
     switch (phase.type_) {
       case kStepPhase: {
-        int curr_step = phase.id_;
-        curr_supp = supp_steps.at(curr_step);
+        curr_supp = supp_steps.at(prev_step+1);
         break;
       }
       case kStancePhase: {
-        int prev_step = phase.id_;
         if (prev_step == -1) // first spline
           curr_supp = GetStartPolygon();
         else if (prev_step == GetNumberOfSteps()-1)
@@ -235,6 +235,9 @@ SupportPolygonContainer::AssignSupportPolygonsToPhases(const ComMotion& com_moti
           curr_supp = SupportPolygon::CombineSupportPolygons(supp_steps.at(prev_step), supp_steps.at(prev_step+1));
       }
     }
+
+
+
 
 
     supp.push_back(curr_supp);
