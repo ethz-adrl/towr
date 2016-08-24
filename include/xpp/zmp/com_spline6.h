@@ -37,7 +37,8 @@ private:
 //  VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const override;
 //  VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const override;
 
-  int GetFreeCoeffPerSpline() const override { return 6; }; // a,b,c,d,e,f
+  int NumFreeCoeffPerSpline() const override { return 6; };
+  std::vector<SplineCoeff> GetFreeCoeffPerSpline() const override { return {A,B,C,D,E,F}; };
 };
 
 

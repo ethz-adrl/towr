@@ -43,12 +43,12 @@ public:
             const SplineTimes& times,
             bool insert_initial_stance = true);
 
-  VectorXd GetCoeffients() const override;
   void SetCoefficients(const VectorXd& optimized_coeff) override;
   void SetEndAtStart() override;
 
 private:
-  int GetFreeCoeffPerSpline() const override { return 4; }; // a,b,c,d
+  int NumFreeCoeffPerSpline() const override { return 4; };
+  std::vector<SplineCoeff> GetFreeCoeffPerSpline() const override { return {A,B,C,D}; };
 
   std::array<MatVec, 2> relationship_e_to_abcd_;
   std::array<MatVec, 2> relationship_f_to_abdc_;

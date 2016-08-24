@@ -94,13 +94,27 @@ ComSpline::GetTotalTime(const VecPolynomials& splines)
 int
 ComSpline::Index (int spline, Coords dim, SplineCoeff coeff) const
 {
-  return GetFreeCoeffPerSpline() * kDim2d * spline + GetFreeCoeffPerSpline() * dim + coeff;
+  return NumFreeCoeffPerSpline() * kDim2d * spline + NumFreeCoeffPerSpline() * dim + coeff;
 }
 
 int
 ComSpline::GetTotalFreeCoeff () const
 {
-  return polynomials_.size() * GetFreeCoeffPerSpline() * kDim2d;
+  return polynomials_.size() * NumFreeCoeffPerSpline() * kDim2d;
+}
+
+ComSpline::VectorXd
+ComSpline::GetCoeffients () const
+{
+  using namespace xpp::utils::coords_wrapper;
+  VectorXd x_abcd(GetTotalFreeCoeff());
+
+  for (const auto& s : polynomials_)
+    for (auto dim : { X, Y })
+      for (auto coeff :  GetFreeCoeffPerSpline())
+        x_abcd[Index(s.GetId(), dim, coeff)] = s.GetCoefficient(dim, coeff);
+
+  return x_abcd;
 }
 
 int

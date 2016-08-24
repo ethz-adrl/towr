@@ -32,7 +32,6 @@ ComSpline4::ComSpline4 (
   Init(start_cog_p, start_cog_v, step_count, times);
 }
 
-
 void ComSpline4::Init(const Vector2d& start_cog_p,
                       const Vector2d& start_cog_v,
                       int step_count,
@@ -51,7 +50,6 @@ void ComSpline4::Init(const Vector2d& start_cog_p,
   abcd.setZero();
   SetCoefficients(abcd);
 }
-
 
 void
 ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
@@ -85,7 +83,6 @@ ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
 
   } // k=0..n_spline_infos_
 }
-
 
 ComSpline4::VecScalar
 ComSpline4::ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const
@@ -128,14 +125,13 @@ ComSpline4::ExpressCogVelThroughABCD (double t_local, int id,
   return vel;
 }
 
-
 ComSpline4::VecScalar
 ComSpline4::ExpressCogAccThroughABCD(double t_local, int id, Coords dim) const
 {
   VecScalar acc(GetTotalFreeCoeff());
 
   int idx = Index(id,dim,A);
-  acc.v.middleCols(idx, GetFreeCoeffPerSpline()) = ExpressCogAccThroughABCD(t_local);
+  acc.v.middleCols(idx, NumFreeCoeffPerSpline()) = ExpressCogAccThroughABCD(t_local);
 
   return acc;
 }
@@ -169,19 +165,6 @@ ComSpline4::ExpressCogJerkThroughABCD (double t_local, int id,
   return jerk;
 }
 
-ComSpline4::VectorXd
-ComSpline4::GetCoeffients () const
-{
-  VectorXd x_abcd(GetTotalFreeCoeff());
-
-  for (const auto& s : polynomials_)
-    for (auto dim : Coords2DArray)
-      for (auto coeff :  { A, B, C, D })
-        x_abcd[Index(s.GetId(), dim, coeff)] = s.GetCoefficient(dim, coeff);
-
-  return x_abcd;
-}
-
 ComSpline4::VecScalar
 ComSpline4::GetECoefficient(int spline_id_k, Coords dim) const
 {
@@ -189,15 +172,12 @@ ComSpline4::GetECoefficient(int spline_id_k, Coords dim) const
   return relationship_e_to_abcd_.at(dim).GetRow(spline_id_k);
 }
 
-
 ComSpline4::VecScalar
 ComSpline4::GetFCoefficient(int spline_id_k, Coords dim) const
 {
   CheckIfSplinesInitialized();
   return relationship_f_to_abdc_.at(dim).GetRow(spline_id_k);
 }
-
-
 
 ComSpline4::MatVec
 ComSpline4::DescribeEByABCD(Coords dim, double start_cog_v) const
@@ -223,7 +203,6 @@ ComSpline4::DescribeEByABCD(Coords dim, double start_cog_v) const
 
   return e_coeff;
 }
-
 
 ComSpline4::MatVec
 ComSpline4::DescribeFByABCD(Coords dim, double start_cog_p,
