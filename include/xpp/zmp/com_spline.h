@@ -62,7 +62,8 @@ public:
   PhaseInfo GetCurrentPhase(double t_global) const override;
   PhaseInfoVec GetPhases() const override;
 
-  virtual int Index(int spline, Coords dim, SplineCoeff coeff) const = 0;
+  int Index(int spline, Coords dim, SplineCoeff coeff) const;
+  int GetTotalFreeCoeff() const;
 
   static Point2d GetCOGxy(double t_global, const VecPolynomials& splines);
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
@@ -96,6 +97,7 @@ private:
   virtual VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const = 0;
   virtual VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const = 0;
   virtual VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const = 0;
+  virtual int GetFreeCoeffPerSpline() const = 0;
 
   void AddPolynomialStepSequence(int step_count, double t_swing);
   void AddStancePolynomial(double t_stance);

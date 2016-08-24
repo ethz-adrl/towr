@@ -10,6 +10,8 @@
 namespace xpp {
 namespace zmp {
 
+static int kDim2d = xpp::utils::kDim2d;
+
 ComSpline::ComSpline ()
 {
   // TODO Auto-generated constructor stub
@@ -87,6 +89,18 @@ ComSpline::GetTotalTime(const VecPolynomials& splines)
   for (const ComPolynomial& s: splines)
     T += s.GetDuration();
   return T;
+}
+
+int
+ComSpline::Index (int spline, Coords dim, SplineCoeff coeff) const
+{
+  return GetFreeCoeffPerSpline() * kDim2d * spline + GetFreeCoeffPerSpline() * dim + coeff;
+}
+
+int
+ComSpline::GetTotalFreeCoeff () const
+{
+  return polynomials_.size() * GetFreeCoeffPerSpline() * kDim2d;
 }
 
 int

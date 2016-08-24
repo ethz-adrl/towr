@@ -135,7 +135,7 @@ ComSpline4::ExpressCogAccThroughABCD(double t_local, int id, Coords dim) const
   VecScalar acc(GetTotalFreeCoeff());
 
   int idx = Index(id,dim,A);
-  acc.v.middleCols<kFreeCoeffPerSpline>(idx) = ExpressCogAccThroughABCD(t_local);
+  acc.v.middleCols(idx, GetFreeCoeffPerSpline()) = ExpressCogAccThroughABCD(t_local);
 
   return acc;
 }
@@ -169,13 +169,6 @@ ComSpline4::ExpressCogJerkThroughABCD (double t_local, int id,
   return jerk;
 }
 
-
-int ComSpline4::GetTotalFreeCoeff() const
-{
-  CheckIfSplinesInitialized();
-  return polynomials_.size() * kFreeCoeffPerSpline * kDim2d;
-}
-
 ComSpline4::VectorXd
 ComSpline4::GetCoeffients () const
 {
@@ -183,15 +176,10 @@ ComSpline4::GetCoeffients () const
 
   for (const auto& s : polynomials_)
     for (auto dim : Coords2DArray)
-      for (auto coeff : SplineCoeffArray)
+      for (auto coeff :  { A, B, C, D })
         x_abcd[Index(s.GetId(), dim, coeff)] = s.GetCoefficient(dim, coeff);
 
   return x_abcd;
-}
-
-int ComSpline4::Index(int spline, Coords dim, SplineCoeff coeff) const
-{
-  return kFreeCoeffPerSpline * kDim2d * spline + kFreeCoeffPerSpline * dim + coeff;
 }
 
 ComSpline4::VecScalar

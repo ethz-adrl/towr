@@ -14,10 +14,7 @@ namespace xpp {
 namespace zmp {
 
 static const int kCoeffCount = 6;
-enum SplineCoeff { A=0, B, C, D }; // the coefficients that are optimized over
-static const SplineCoeff SplineCoeffArray[] = { A, B, C, D };
-enum SplineCoeffE { E=D+1};
-enum SplineCoeffF { F=D+2};
+enum SplineCoeff { A=0, B, C, D, E, F };
 
 struct CoeffValues {
   double x[kCoeffCount];
