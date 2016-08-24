@@ -13,7 +13,6 @@ namespace zmp {
 typedef Eigen::VectorXd VectorXd;
 typedef Eigen::Vector2d Vector2d;
 
-
 FootholdNominalDeviation::FootholdNominalDeviation ()
 {
   // TODO Auto-generated constructor stub
@@ -47,9 +46,7 @@ FootholdNominalDeviation::GetFeetInBase (
   nominal_foothold_b_.reserve(g_vec.size());
 
   std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
-      supp_polygon_container.AssignSupportPolygonsToSplines(cog_spline->GetSplines());
-
-//  std::cout << "suppport_polygons.size(): " << suppport_polygons.size();
+      supp_polygon_container.AssignSupportPolygonsToPhases(*cog_spline);
 
   double T = cog_spline->GetDiscretizedGlobalTimes().back();
 
@@ -57,13 +54,14 @@ FootholdNominalDeviation::GetFeetInBase (
 
     // get legs in contact at each step
     VecFoothold stance_legs;
-    int spline_id = cog_spline->GetSplineID(t);
+    int phase_id = cog_spline->GetCurrentPhase(t).id_;
 
     // final foothold never creates active support polygon, so handle manually
     if (t == T)
       stance_legs = supp_polygon_container.GetFinalFootholds();
     else
-      stance_legs = suppport_polygons.at(spline_id).footholds_;
+      stance_legs = suppport_polygons.at(phase_id).footholds_;
+
 
     xpp::utils::Point2d I_cog_xy = cog_spline->GetCom(t);
 
@@ -92,12 +90,6 @@ FootholdNominalDeviation::GetFeetInBase (
 
   return g_vec;
 }
-
-//FootholdNominalDeviation::StdVecEigen2d
-//FootholdNominalDeviation::GetNominalInBase () const
-//{
-//  return nominal_foothold_b_;
-//}
 
 } /* namespace zmp */
 } /* namespace xpp */
