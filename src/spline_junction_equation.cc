@@ -24,14 +24,14 @@ SplineJunctionEquation::BuildLinearEquation () const
   // by moving all the big jumps in acc to the junction to save cost.
   std::vector<PosVelAcc> derivative = {kAcc, kJerk};
 
-  int id_last = splines_.GetLastSpline().GetId();
+  int id_last = splines_.GetLastPolynomial().GetId();
   int n_constraints = derivative.size() * id_last * kDim2d;
   int n_spline_coeff = splines_.GetTotalFreeCoeff();
   MatVec junction(n_constraints, n_spline_coeff);
 
   int i = 0; // constraint count
   for (int id = 0; id < id_last; ++id) {
-    double T = splines_.GetSpline(id).GetDuration();
+    double T = splines_.GetPolynomial(id).GetDuration();
     for (auto dim : Coords2DArray) {
       for (auto pva :  derivative) {
         VecScalar curr = splines_.ExpressComThroughCoeff(pva, T, id,   dim);

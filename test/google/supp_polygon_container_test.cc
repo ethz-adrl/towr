@@ -59,7 +59,7 @@ protected:
     xpp::zmp::ComSpline4 spline_cont;
     spline_cont.Init(Eigen::Vector2d::Zero(), Eigen::Vector2d::Zero(),
                      4, spline_times, true);
-    splines_ = spline_cont.GetSplines();
+    splines_ = spline_cont.GetPolynomials();
   }
 
   virtual int GetInitial4lsSplines(const VecSpline& splines) const

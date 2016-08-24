@@ -85,7 +85,7 @@ QpFacade::SolveQp(const State& initial_state,
   Eigen::VectorXd opt_abcd = EigenSolveQuadprog();
   spline_structure.SetCoefficients(opt_abcd);
 
-  return spline_structure.GetSplines();
+  return spline_structure.GetPolynomials();
 }
 
 Eigen::VectorXd

@@ -51,7 +51,7 @@ protected:
 TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
 {
   // create a random spline with pos, vel equal at spline juntions
-  std::vector<ComPolynomial> splines = cont_spline_container_.GetSplines(); // get ids and durations
+  std::vector<ComPolynomial> splines = cont_spline_container_.GetPolynomials(); // get ids and durations
   Eigen::VectorXd abcd(cont_spline_container_.GetTotalFreeCoeff());
   CoeffValues coeff;
 

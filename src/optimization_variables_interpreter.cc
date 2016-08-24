@@ -57,7 +57,7 @@ OptimizationVariablesInterpreter::VecSpline
 OptimizationVariablesInterpreter::GetSplines () const
 {
   assert(initialized_);
-  return spline_structure_->GetSplines();
+  return spline_structure_->GetPolynomials();
 }
 
 double

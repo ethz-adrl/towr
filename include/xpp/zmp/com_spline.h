@@ -41,7 +41,7 @@ struct SplineTimes
 /** Represents the Center of Mass (CoM) motion as a Spline (sequence of polynomials).
   *
   * This class is responsible for abstracting polynomial coefficients of multiple
-  * polynomes into a CoM position/velocity and acceleration.
+  * polynomials into a CoM position/velocity and acceleration.
   */
 class ComSpline : public ComMotion {
 public:
@@ -55,10 +55,9 @@ public:
   ComSpline ();
   virtual ~ComSpline ();
 
-  VecPolynomials GetSplines()            const { return polynomials_; }
-  ComPolynomial GetSpline(size_t i) const { return polynomials_.at(i); }
-  ComPolynomial GetFirstSpline()    const { return polynomials_.front(); };
-  ComPolynomial GetLastSpline()     const { return polynomials_.back(); };
+  VecPolynomials GetPolynomials()            const { return polynomials_; }
+  ComPolynomial GetPolynomial(size_t i) const { return polynomials_.at(i); }
+  ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
 
   virtual int Index(int spline, Coords dim, SplineCoeff coeff) const = 0;
 
@@ -99,8 +98,8 @@ public:
 protected:
   VecPolynomials polynomials_;
   void CheckIfSplinesInitialized() const;
-  void AddSplinesStepSequence(int step_count, double t_swing);
-  void AddStanceSpline(double t_stance);
+  void AddPolynomialStepSequence(int step_count, double t_swing);
+  void AddStancePolynomial(double t_stance);
 
 private:
   virtual VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const = 0;

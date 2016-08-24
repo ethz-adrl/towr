@@ -21,7 +21,7 @@ ComSpline::~ComSpline ()
 }
 
 void
-ComSpline::AddSplinesStepSequence (int step_count, double t_swing)
+ComSpline::AddPolynomialStepSequence (int step_count, double t_swing)
 {
   unsigned int spline_id = polynomials_.empty() ? 0 : polynomials_.back().GetId()+1;
   int phase_id           = polynomials_.empty() ? 0 : polynomials_.back().phase_.id_+1;
@@ -43,7 +43,7 @@ ComSpline::AddSplinesStepSequence (int step_count, double t_swing)
 }
 
 void
-ComSpline::AddStanceSpline (double t_stance)
+ComSpline::AddStancePolynomial (double t_stance)
 {
   unsigned int spline_id = polynomials_.empty() ? 0 : polynomials_.back().GetId()+1;
 
