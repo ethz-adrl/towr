@@ -23,8 +23,8 @@ ComSpline::~ComSpline ()
 void
 ComSpline::AddSplinesStepSequence (int step_count, double t_swing)
 {
-  unsigned int spline_id = splines_.empty() ? 0 : splines_.back().GetId()+1;
-  int phase_id           = splines_.empty() ? 0 : splines_.back().phase_.id_+1;
+  unsigned int spline_id = polynomials_.empty() ? 0 : polynomials_.back().GetId()+1;
+  int phase_id           = polynomials_.empty() ? 0 : polynomials_.back().phase_.id_+1;
 
 
   int n_splines_per_step = 1;
@@ -34,7 +34,7 @@ ComSpline::AddSplinesStepSequence (int step_count, double t_swing)
       PhaseInfo phase(kStepPhase, step, phase_id);
       ComPolynomial spline(spline_id++, t_swing/n_splines_per_step, phase);
       spline.SetStep(step);
-      splines_.push_back(spline);
+      polynomials_.push_back(spline);
     }
     phase_id++;
   }
@@ -45,22 +45,22 @@ ComSpline::AddSplinesStepSequence (int step_count, double t_swing)
 void
 ComSpline::AddStanceSpline (double t_stance)
 {
-  unsigned int spline_id = splines_.empty() ? 0 : splines_.back().GetId()+1;
+  unsigned int spline_id = polynomials_.empty() ? 0 : polynomials_.back().GetId()+1;
 
   PhaseInfo last(kStancePhase, 0, 0);
-  if (!splines_.empty()) {
-    last = splines_.back().phase_;
+  if (!polynomials_.empty()) {
+    last = polynomials_.back().phase_;
     if (last.type_ != kStancePhase)
       last.id_++;
   }
 
-  splines_.push_back(ComPolynomial(spline_id++, t_stance, last));
+  polynomials_.push_back(ComPolynomial(spline_id++, t_stance, last));
 
   splines_initialized_ = true;
 }
 
 double
-ComSpline::GetTotalTime(const VecSpline& splines)
+ComSpline::GetTotalTime(const VecPolynomials& splines)
 {
   double T = 0.0;
   for (const ComPolynomial& s: splines)
@@ -69,7 +69,7 @@ ComSpline::GetTotalTime(const VecSpline& splines)
 }
 
 int
-ComSpline::GetPolynomialID(double t_global, const VecSpline& splines)
+ComSpline::GetPolynomialID(double t_global, const VecPolynomials& splines)
 {
    assert(t_global<=GetTotalTime(splines));
 
@@ -87,7 +87,7 @@ PhaseInfo
 ComSpline::GetCurrentPhase (double t_global) const
 {
   int id = GetPolynomialID(t_global);
-  return splines_.at(id).phase_;
+  return polynomials_.at(id).phase_;
 }
 
 ComSpline::PhaseInfoVec
@@ -96,7 +96,7 @@ ComSpline::GetPhases () const
   PhaseInfoVec phases;
 
   int prev_id = -1;
-  for (const auto& s : splines_) {
+  for (const auto& s : polynomials_) {
     PhaseInfo curr = s.phase_;
     if (curr.id_ != prev_id) { // never have the same phase twice
       phases.push_back(curr);
@@ -108,7 +108,7 @@ ComSpline::GetPhases () const
 }
 
 double
-ComSpline::GetLocalTime(double t_global, const VecSpline& splines)
+ComSpline::GetLocalTime(double t_global, const VecPolynomials& splines)
 {
   int id_spline = GetPolynomialID(t_global,splines);
 
@@ -121,7 +121,7 @@ ComSpline::GetLocalTime(double t_global, const VecSpline& splines)
 }
 
 ComSpline::Point2d
-ComSpline::GetCOGxy(double t_global, const VecSpline& splines)
+ComSpline::GetCOGxy(double t_global, const VecPolynomials& splines)
 {
   int id = GetPolynomialID(t_global,splines);
   double t_local = GetLocalTime(t_global, splines);

@@ -33,7 +33,7 @@ public:
   typedef visualization_msgs::MarkerArray MarkerArray;
   typedef Eigen::Vector2d Vector2d;
   typedef xpp::zmp::ComSpline ComSpline;
-  typedef xpp::zmp::ComSpline::VecSpline VecSpline;
+  typedef xpp::zmp::ComSpline::VecPolynomials VecSpline;
 
 public:
   MarkerArrayBuilder();

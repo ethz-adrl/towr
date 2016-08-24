@@ -32,7 +32,7 @@ struct RosHelpers {
 typedef Eigen::Vector3d Vector3d;
 typedef xpp::utils::Point3d State;
 typedef xpp::hyq::Foothold Foothold;
-typedef xpp::zmp::ComSpline6::VecSpline VecSpline;
+typedef xpp::zmp::ComSpline6::VecPolynomials VecSpline;
 typedef xpp_opt::Spline SplineMsg;
 typedef xpp::hyq::LegID LegID;
 

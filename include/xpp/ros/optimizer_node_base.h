@@ -26,7 +26,7 @@ public:
   typedef xpp::hyq::Foothold Foothold;
   typedef std::vector<Foothold> VecFoothold;
   typedef xpp_opt::StateLin3d StateMsg;
-  typedef xpp::zmp::ComSpline6::VecSpline VecSpline;
+  typedef xpp::zmp::ComSpline6::VecPolynomials VecSpline;
 
 public:
   OptimizerNodeBase ();

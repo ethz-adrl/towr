@@ -23,7 +23,7 @@ namespace zmp {
 class OptimizationVariablesInterpreter {
 public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef ComSpline::VecSpline VecSpline;
+  typedef ComSpline::VecPolynomials VecSpline;
   typedef std::vector<xpp::hyq::LegID> VecLegID;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef xpp::utils::StdVecEigen2d FootholdPositionsXY;

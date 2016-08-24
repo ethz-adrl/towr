@@ -15,7 +15,7 @@
 typedef xpp_opt::RequiredInfoQp ReqInfoMsg;
 typedef xpp_opt::OptimizedParametersQp OptimizedParametersMsg;
 
-xpp::zmp::ComSpline6::VecSpline splines;
+xpp::zmp::ComSpline6::VecPolynomials splines;
 std::vector<xpp::hyq::Foothold> footholds;
 void OptParamsCallback(const OptimizedParametersMsg& msg)
 {

@@ -39,7 +39,7 @@ void ComSpline4::Init(const Vector2d& start_cog_p,
                                      const SplineTimes& times,
                                      bool insert_initial_stance)
 {
-  splines_.clear();
+  polynomials_.clear();
 
   // build the spline structure
   if (insert_initial_stance) {
@@ -71,7 +71,7 @@ void ComSpline4::Init(const Vector2d& start_cog_p,
 void
 ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
 {
-  AddOptimizedCoefficients(optimized_coeff, splines_);
+  AddOptimizedCoefficients(optimized_coeff, polynomials_);
 }
 
 
@@ -161,7 +161,7 @@ ComSpline4::ExpressCogJerkThroughABCD (double t_local, int id,
 int ComSpline4::GetTotalFreeCoeff() const
 {
   CheckIfSplinesInitialized();
-  return splines_.size() * kFreeCoeffPerSpline * kDim2d;
+  return polynomials_.size() * kFreeCoeffPerSpline * kDim2d;
 }
 
 ComSpline4::VectorXd
@@ -169,7 +169,7 @@ ComSpline4::GetCoeffients () const
 {
   VectorXd x_abcd(GetTotalFreeCoeff());
 
-  for (const auto& s : splines_)
+  for (const auto& s : polynomials_)
     for (auto dim : Coords2DArray)
       for (auto coeff : SplineCoeffArray)
         x_abcd[Index(s.GetId(), dim, coeff)] = s.GetCoefficient(dim, coeff);
@@ -202,10 +202,10 @@ ComSpline4::GetFCoefficient(int spline_id_k, Coords dim) const
 ComSpline4::MatVec
 ComSpline4::DescribeEByABCD(Coords dim, double start_cog_v) const
 {
-  MatVec e_coeff(splines_.size(), GetTotalFreeCoeff());
+  MatVec e_coeff(polynomials_.size(), GetTotalFreeCoeff());
   e_coeff.v[0] = start_cog_v;
 
-  for (uint k=1; k<splines_.size(); ++k)
+  for (uint k=1; k<polynomials_.size(); ++k)
   {
     int kprev = k-1;
 
@@ -214,7 +214,7 @@ ComSpline4::DescribeEByABCD(Coords dim, double start_cog_v) const
     e_coeff.v[k]     = e_coeff.v[kprev];
 
     // velocity change over previous spline due to a,b,c,d
-    double Tkprev = splines_.at(kprev).GetDuration();
+    double Tkprev = polynomials_.at(kprev).GetDuration();
     e_coeff.M(k, Index(kprev,dim,A)) += 5*std::pow(Tkprev,4);
     e_coeff.M(k, Index(kprev,dim,B)) += 4*std::pow(Tkprev,3);
     e_coeff.M(k, Index(kprev,dim,C)) += 3*std::pow(Tkprev,2);
@@ -231,17 +231,17 @@ ComSpline4::DescribeFByABCD(Coords dim, double start_cog_p,
 {
   MatVec e_coeff = DescribeEByABCD(dim, start_cog_v);
 
-  MatVec f_coeff(splines_.size(), GetTotalFreeCoeff());
+  MatVec f_coeff(polynomials_.size(), GetTotalFreeCoeff());
   f_coeff.v[0] = start_cog_p;
 
-  for (uint k=1; k<splines_.size(); ++k)
+  for (uint k=1; k<polynomials_.size(); ++k)
   {
     int kprev = k-1;
     // position at start of previous spline (=f_prev)
     f_coeff.M.row(k) = f_coeff.M.row(kprev);
     f_coeff.v[k]     = f_coeff.v[kprev];
 
-    double Tkprev    = splines_.at(kprev).GetDuration();
+    double Tkprev    = polynomials_.at(kprev).GetDuration();
 
     // position change over previous spline due to a,b,c,d
     f_coeff.M(k, Index(kprev,dim,A))        += std::pow(Tkprev,5);
@@ -260,7 +260,7 @@ ComSpline4::DescribeFByABCD(Coords dim, double start_cog_p,
 void
 ComSpline4::AddOptimizedCoefficients(
     const Eigen::VectorXd& optimized_coeff,
-    VecSpline& splines) const
+    VecPolynomials& splines) const
 {
   CheckIfSplinesInitialized();
   assert(splines.size() == (optimized_coeff.rows()/kDim2d/kFreeCoeffPerSpline));
@@ -295,8 +295,8 @@ ComSpline4::AddOptimizedCoefficients(
 void
 ComSpline4::SetEndAtStart ()
 {
-  const Vector2d& start_com_v = splines_.front().GetState(xpp::utils::kVel,0.0);
-  double T = splines_.front().GetDuration();
+  const Vector2d& start_com_v = polynomials_.front().GetState(xpp::utils::kVel,0.0);
+  double T = polynomials_.front().GetDuration();
 
   Eigen::Matrix2d A; A << 3*T*T, 2*T, // velocity equal to zero
                           T*T*T, T*T; // position equal to initial

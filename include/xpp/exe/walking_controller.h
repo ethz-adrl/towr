@@ -48,7 +48,7 @@ public:
   typedef xpp::hyq::LegID LegID;
   typedef xpp::utils::Point3d State;
   typedef xpp::utils::Orientation Orientation;
-  typedef xpp::zmp::ComSpline6::VecSpline VecSpline;
+  typedef xpp::zmp::ComSpline6::VecPolynomials VecSpline;
   // ROS stuff
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;

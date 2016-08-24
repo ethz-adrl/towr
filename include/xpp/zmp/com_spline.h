@@ -45,7 +45,7 @@ struct SplineTimes
   */
 class ComSpline : public ComMotion {
 public:
-  typedef std::vector<ComPolynomial> VecSpline;
+  typedef std::vector<ComPolynomial> VecPolynomials;
   typedef xpp::utils::PosVelAcc PosVelAcc;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::Point2d Point2d;
@@ -55,10 +55,10 @@ public:
   ComSpline ();
   virtual ~ComSpline ();
 
-  VecSpline GetSplines()            const { return splines_; }
-  ComPolynomial GetSpline(size_t i) const { return splines_.at(i); }
-  ComPolynomial GetFirstSpline()    const { return splines_.front(); };
-  ComPolynomial GetLastSpline()     const { return splines_.back(); };
+  VecPolynomials GetSplines()            const { return polynomials_; }
+  ComPolynomial GetSpline(size_t i) const { return polynomials_.at(i); }
+  ComPolynomial GetFirstSpline()    const { return polynomials_.front(); };
+  ComPolynomial GetLastSpline()     const { return polynomials_.back(); };
 
   virtual int Index(int spline, Coords dim, SplineCoeff coeff) const = 0;
 
@@ -69,17 +69,17 @@ public:
   @param Derivative which value (pos,vel,acc) at this time we are interested in
   @return x and y state of position,velocity OR acceleration
    */
-  static Point2d GetCOGxy(double t_global, const VecSpline& splines);
-  Point2d GetCom(double t_global) const { return GetCOGxy(t_global, splines_); }
+  static Point2d GetCOGxy(double t_global, const VecPolynomials& splines);
+  Point2d GetCom(double t_global) const { return GetCOGxy(t_global, polynomials_); }
 
-  static int GetPolynomialID(double t_global, const VecSpline& splines);
-  int GetPolynomialID(double t_global) const { return GetPolynomialID(t_global, splines_); }
+  static int GetPolynomialID(double t_global, const VecPolynomials& splines);
+  int GetPolynomialID(double t_global) const { return GetPolynomialID(t_global, polynomials_); }
 
   /** Returns the time that the spline active at t_global has been running */
-  double GetTotalTime() const override { return GetTotalTime(splines_); }
-  static double GetTotalTime(const VecSpline& splines);
+  double GetTotalTime() const override { return GetTotalTime(polynomials_); }
+  static double GetTotalTime(const VecPolynomials& splines);
 
-  double GetLocalTime(double t_global) const { return GetLocalTime(t_global, splines_); };
+  double GetLocalTime(double t_global) const { return GetLocalTime(t_global, polynomials_); };
 
   PhaseInfo GetCurrentPhase(double t_global) const override;
   PhaseInfoVec GetPhases() const override;
@@ -97,7 +97,7 @@ public:
 
 
 protected:
-  VecSpline splines_;
+  VecPolynomials polynomials_;
   void CheckIfSplinesInitialized() const;
   void AddSplinesStepSequence(int step_count, double t_swing);
   void AddStanceSpline(double t_stance);
@@ -108,7 +108,7 @@ private:
   virtual VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const = 0;
   virtual VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const = 0;
 
-  static double GetLocalTime(double t_global, const VecSpline& splines);
+  static double GetLocalTime(double t_global, const VecPolynomials& splines);
   bool splines_initialized_ = false;
 };
 

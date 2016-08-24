@@ -21,7 +21,7 @@ using namespace xpp::utils::coords_wrapper;
 class SplineContainerTest : public ::testing::Test {
 
 public:
-  typedef ComSpline6::VecSpline VecSpline;
+  typedef ComSpline6::VecPolynomials VecSpline;
   typedef xpp::utils::Point2d Point2d;
   typedef Eigen::Vector2d Vector2d;
 

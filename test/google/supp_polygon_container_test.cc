@@ -21,7 +21,7 @@ class SuppPolygonContainerTest : public ::testing::Test {
 protected:
 
   typedef xpp::zmp::ComSpline6 SplineContainer;
-  typedef xpp::zmp::ComSpline6::VecSpline VecSpline;
+  typedef xpp::zmp::ComSpline6::VecPolynomials VecSpline;
 
   virtual void SetUp()
   {
@@ -80,7 +80,7 @@ protected:
 
   SupportPolygon::VecFoothold f0_;
   SupportPolygonContainer start_to_f0_supp_;
-  SplineContainer::VecSpline splines_;
+  SplineContainer::VecPolynomials splines_;
 
 };
 
