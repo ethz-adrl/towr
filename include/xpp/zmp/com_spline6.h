@@ -26,9 +26,7 @@ public:
 
 
   void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
-
-//  VectorXd GetCoeffients() const override;
-//  void SetCoefficients(const VectorXd& optimized_coeff) override;
+  void SetCoefficients(const VectorXd& optimized_coeff) override;
 //  void SetEndAtStart() override;
 
 private:

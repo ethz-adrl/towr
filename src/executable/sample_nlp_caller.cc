@@ -6,6 +6,7 @@
  */
 
 #include <xpp/ros/ros_helpers.h>
+#include <xpp/zmp/com_spline6.h>
 
 #include <xpp_opt/RequiredInfoNlp.h>         // send
 #include <xpp_opt/OptimizedParametersNlp.h> // receive

@@ -18,7 +18,7 @@
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/leg_data_map.h>
-#include "../zmp/com_spline6.h"
+#include <xpp/zmp/com_spline.h>
 
 namespace xpp {
 namespace ros {
@@ -32,7 +32,7 @@ struct RosHelpers {
 typedef Eigen::Vector3d Vector3d;
 typedef xpp::utils::Point3d State;
 typedef xpp::hyq::Foothold Foothold;
-typedef xpp::zmp::ComSpline6::VecPolynomials VecSpline;
+typedef xpp::zmp::ComSpline::VecPolynomials VecSpline;
 typedef xpp_opt::Spline SplineMsg;
 typedef xpp::hyq::LegID LegID;
 
@@ -94,7 +94,7 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
     std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::Y]);
 
     xpp.at(i).duration_      = msgs.at(i).duration;
-    xpp.at(i).phase_.type_    = static_cast<zmp::PhaseType>(msgs.at(i).type);
+    xpp.at(i).phase_.type_   = static_cast<zmp::PhaseType>(msgs.at(i).type);
     xpp.at(i).id_            = msgs.at(i).id;
     xpp.at(i).step_          = msgs.at(i).step;
   }

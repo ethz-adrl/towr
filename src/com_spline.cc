@@ -92,9 +92,9 @@ ComSpline::GetTotalTime(const VecPolynomials& splines)
 }
 
 int
-ComSpline::Index (int spline, Coords dim, SplineCoeff coeff) const
+ComSpline::Index (int poly, Coords dim, SplineCoeff coeff) const
 {
-  return NumFreeCoeffPerSpline() * kDim2d * spline + NumFreeCoeffPerSpline() * dim + coeff;
+  return NumFreeCoeffPerSpline() * kDim2d * poly + NumFreeCoeffPerSpline() * dim + coeff;
 }
 
 int

@@ -6,6 +6,7 @@
  */
 
 #include <xpp/ros/ros_helpers.h>
+#include <xpp/zmp/com_spline6.h>
 
 #include <xpp_opt/RequiredInfoQp.h>          // send
 #include <xpp_opt/OptimizedParametersQp.h>   // receive

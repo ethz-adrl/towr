@@ -50,9 +50,6 @@ public:
   typedef xpp::utils::Vec2d Vec2d;
   typedef xpp::utils::PosVelAcc PosVelAcc;
 
-  static const int kDim2d = xpp::utils::kDim2d;
-
-public:
   PolynomialFifthOrder();
   PolynomialFifthOrder(const CoeffValues &coeff_values);
   virtual ~PolynomialFifthOrder() {};
@@ -61,9 +58,13 @@ public:
   void SetSplineCoefficients(const CoeffValues &coeff_values = CoeffValues());
   double GetCoefficient(int dim, SplineCoeff coeff) const;
 
+private:
+  static constexpr int kDim2d = xpp::utils::kDim2d;
+
 protected:
   double spline_coeff_[kDim2d][kCoeffCount];
   friend class SplineContainerTest_EandFCoefficientTest_Test;
+
 };
 
 } // namespace zmp

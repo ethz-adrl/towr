@@ -64,7 +64,7 @@ public:
   int GetTotalFreeCoeff() const override;
   VectorXd GetCoeffients () const override;
 
-  int Index(int spline, Coords dim, SplineCoeff coeff) const;
+  int Index(int polynomial, Coords dim, SplineCoeff coeff) const;
 
   static Point2d GetCOGxy(double t_global, const VecPolynomials& splines);
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
