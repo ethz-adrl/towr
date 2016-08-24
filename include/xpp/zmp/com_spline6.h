@@ -24,6 +24,20 @@ public:
   ComSpline6();
   virtual ~ComSpline6();
 
+
+  void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
+
+//  int Index(int spline, Coords dim, SplineCoeff coeff) const override;
+//  int GetTotalFreeCoeff() const override;
+//  VectorXd GetCoeffients() const override;
+//  void SetCoefficients(const VectorXd& optimized_coeff) override;
+//  void SetEndAtStart() override;
+
+private:
+//  VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const override;
+//  VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const override;
+//  VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const override;
+//  VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const override;
 };
 
 

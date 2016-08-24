@@ -77,8 +77,6 @@ private:
 
   VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
   VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;
-
-  void AddOptimizedCoefficients(const VectorXd& optimized_coeff, VecPolynomials& splines) const;
 };
 
 } /* namespace zmp */

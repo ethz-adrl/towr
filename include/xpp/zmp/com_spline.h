@@ -55,6 +55,7 @@ public:
   ComSpline ();
   virtual ~ComSpline ();
 
+
   // implements these functions from parent class
   Point2d GetCom(double t_global) const override { return GetCOGxy(t_global, polynomials_); }
   double GetTotalTime() const override { return GetTotalTime(polynomials_); }
@@ -87,15 +88,17 @@ public:
 
 protected:
   VecPolynomials polynomials_;
+  void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
   void CheckIfSplinesInitialized() const;
-  void AddPolynomialStepSequence(int step_count, double t_swing);
-  void AddStancePolynomial(double t_stance);
 
 private:
   virtual VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const = 0;
   virtual VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const = 0;
   virtual VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const = 0;
   virtual VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const = 0;
+
+  void AddPolynomialStepSequence(int step_count, double t_swing);
+  void AddStancePolynomial(double t_stance);
 
   static double GetLocalTime(double t_global, const VecPolynomials& splines);
   bool splines_initialized_ = false;

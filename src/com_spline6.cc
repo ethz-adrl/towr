@@ -20,6 +20,17 @@ ComSpline6::~ComSpline6 ()
   // TODO Auto-generated destructor stub
 }
 
+void
+ComSpline6::Init (int step_count, const SplineTimes& times,
+                  bool insert_initial_stance)
+{
+  ComSpline::Init(step_count, times, insert_initial_stance);
+
+  // initialize all coefficients to zero
+  Eigen::VectorXd abcd(GetTotalFreeCoeff());
+  abcd.setZero();
+  SetCoefficients(abcd);
+}
 
 } // namespace zmp
 } // namespace xpp

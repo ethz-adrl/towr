@@ -39,29 +39,14 @@ void ComSpline4::Init(const Vector2d& start_cog_p,
                       const SplineTimes& times,
                       bool insert_initial_stance)
 {
-  polynomials_.clear();
-
-  // build the spline structure
-  if (insert_initial_stance) {
-    const int n_stance_splines = 2; // 3 allows quicker reaction
-    double t = times.t_stance_initial_/n_stance_splines;
-    for (int i=0; i<n_stance_splines; ++i)
-      AddStancePolynomial(t);
-
-//    double t_reaction = 0.06;
-//    SplineContainer::AddStanceSpline(t_reaction);
-//    SplineContainer::AddStanceSpline(times.t_stance_initial_-t_reaction);
-  }
-
-
-  AddPolynomialStepSequence(step_count, times.t_swing_);
+  ComSpline::Init(step_count, times, insert_initial_stance);
 
   for (const Coords3D dim : Coords2DArray) {
     relationship_e_to_abcd_.at(dim) = DescribeEByABCD(dim, start_cog_v(dim));
     relationship_f_to_abdc_.at(dim) = DescribeFByABCD(dim, start_cog_p(dim), start_cog_v(dim));
   }
 
-  // initialize all other coefficients apart from e,f of first spline to zero
+  // initialize all other coefficients to zero
   Eigen::VectorXd abcd(GetTotalFreeCoeff());
   abcd.setZero();
   SetCoefficients(abcd);
@@ -71,7 +56,34 @@ void ComSpline4::Init(const Vector2d& start_cog_p,
 void
 ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
 {
-  AddOptimizedCoefficients(optimized_coeff, polynomials_);
+  CheckIfSplinesInitialized();
+  assert(polynomials_.size() == (optimized_coeff.rows()/kDim2d/kFreeCoeffPerSpline));
+
+  for (size_t k=0; k<polynomials_.size(); ++k) {
+    CoeffValues coeff_values;
+
+    for (const Coords3D dim : Coords2DArray) {
+
+      double* cv = (dim == xpp::utils::X) ? coeff_values.x : coeff_values.y;
+
+      // fill in only first 4 optimized coefficients
+      cv[A] = optimized_coeff[Index(k,dim,A)];
+      cv[B] = optimized_coeff[Index(k,dim,B)];
+      cv[C] = optimized_coeff[Index(k,dim,C)];
+      cv[D] = optimized_coeff[Index(k,dim,D)];
+
+      // calculate e and f coefficients from previous values
+      VecScalar Ek = GetECoefficient(k, dim);
+      VecScalar Fk = GetFCoefficient(k, dim);
+
+      cv[E] = Ek.v*optimized_coeff + Ek.s;
+      cv[F] = Fk.v*optimized_coeff + Fk.s;
+
+    } // dim:X..Y
+
+    polynomials_.at(k).SetSplineCoefficients(coeff_values);
+
+  } // k=0..n_spline_infos_
 }
 
 
@@ -254,42 +266,6 @@ ComSpline4::DescribeFByABCD(Coords dim, double start_cog_p,
   }
 
   return f_coeff;
-}
-
-
-void
-ComSpline4::AddOptimizedCoefficients(
-    const Eigen::VectorXd& optimized_coeff,
-    VecPolynomials& splines) const
-{
-  CheckIfSplinesInitialized();
-  assert(splines.size() == (optimized_coeff.rows()/kDim2d/kFreeCoeffPerSpline));
-
-  for (size_t k=0; k<splines.size(); ++k) {
-    CoeffValues coeff_values;
-
-    for (const Coords3D dim : Coords2DArray) {
-
-      double* cv = (dim == xpp::utils::X) ? coeff_values.x : coeff_values.y;
-
-      // fill in only first 4 optimized coefficients
-      cv[A] = optimized_coeff[Index(k,dim,A)];
-      cv[B] = optimized_coeff[Index(k,dim,B)];
-      cv[C] = optimized_coeff[Index(k,dim,C)];
-      cv[D] = optimized_coeff[Index(k,dim,D)];
-
-      // calculate e and f coefficients from previous values
-      VecScalar Ek = GetECoefficient(k, dim);
-      VecScalar Fk = GetFCoefficient(k, dim);
-
-      cv[E] = Ek.v*optimized_coeff + Ek.s;
-      cv[F] = Fk.v*optimized_coeff + Fk.s;
-
-    } // dim:X..Y
-
-    splines.at(k).SetSplineCoefficients(coeff_values);
-
-  } // k=0..n_spline_infos_
 }
 
 void
