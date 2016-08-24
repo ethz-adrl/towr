@@ -207,7 +207,6 @@ SupportPolygonContainer::AssignSupportPolygonsToSplines(const VecZmpSpline& spli
   return supp;
 }
 
-// refactor remove this
 SupportPolygonContainer::VecSupportPolygon
 SupportPolygonContainer::AssignSupportPolygonsToPhases(const ComMotion& com_motion) const
 {
