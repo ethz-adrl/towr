@@ -55,33 +55,23 @@ public:
   ComSpline ();
   virtual ~ComSpline ();
 
-  VecPolynomials GetPolynomials()            const { return polynomials_; }
-  ComPolynomial GetPolynomial(size_t i) const { return polynomials_.at(i); }
-  ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
+  // implements these functions from parent class
+  Point2d GetCom(double t_global) const override { return GetCOGxy(t_global, polynomials_); }
+  double GetTotalTime() const override { return GetTotalTime(polynomials_); }
+  PhaseInfo GetCurrentPhase(double t_global) const override;
+  PhaseInfoVec GetPhases() const override;
 
   virtual int Index(int spline, Coords dim, SplineCoeff coeff) const = 0;
 
-  /**
-  @brief Calculates the state of a spline at a specific point in time.
-
-  @param double specific time of spline
-  @param Derivative which value (pos,vel,acc) at this time we are interested in
-  @return x and y state of position,velocity OR acceleration
-   */
   static Point2d GetCOGxy(double t_global, const VecPolynomials& splines);
-  Point2d GetCom(double t_global) const { return GetCOGxy(t_global, polynomials_); }
-
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
-  int GetPolynomialID(double t_global) const { return GetPolynomialID(t_global, polynomials_); }
-
-  /** Returns the time that the spline active at t_global has been running */
-  double GetTotalTime() const override { return GetTotalTime(polynomials_); }
   static double GetTotalTime(const VecPolynomials& splines);
 
-  double GetLocalTime(double t_global) const { return GetLocalTime(t_global, polynomials_); };
-
-  PhaseInfo GetCurrentPhase(double t_global) const override;
-  PhaseInfoVec GetPhases() const override;
+  int GetPolynomialID(double t_global)  const { return GetPolynomialID(t_global, polynomials_); }
+  double GetLocalTime(double t_global)  const { return GetLocalTime(t_global, polynomials_); };
+  VecPolynomials GetPolynomials()       const { return polynomials_; }
+  ComPolynomial GetPolynomial(size_t i) const { return polynomials_.at(i); }
+  ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
 
 
   /** Produces a vector and scalar, that, multiplied with the spline coefficients

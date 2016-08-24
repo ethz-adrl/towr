@@ -52,7 +52,6 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
     int spline_id = spline_structure_->GetPolynomialID(t_global);
     int phase_id  = spline_structure_->GetCurrentPhase(t_global).id_;
 
-    // refactor get rid of spline id, make phase somehow
     if (DisjSuppSwitch(t_global, spline_structure_->GetPolynomial(spline_id), supp_polygon_container)) {
       n++; // no constraints
       continue;
