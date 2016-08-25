@@ -53,10 +53,6 @@ public:
   typedef xpp::utils::Coords3D Coords;
   typedef std::vector<PosVelAcc> Derivatives;
 
-  ComSpline ();
-  virtual ~ComSpline ();
-
-
   // implements these functions from parent class, now specific for splines
   Point2d GetCom(double t_global) const override { return GetCOGxy(t_global, polynomials_); }
   double GetTotalTime() const override { return GetTotalTime(polynomials_); }
@@ -103,6 +99,9 @@ protected:
   VecPolynomials polynomials_;
   void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
   void CheckIfSplinesInitialized() const;
+
+  ComSpline ();
+  virtual ~ComSpline ();
 
 private:
   virtual VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const = 0;

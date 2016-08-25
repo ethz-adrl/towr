@@ -7,11 +7,10 @@
 
 #include <xpp/zmp/qp_facade.h>
 
+#include <xpp/zmp/motion_factory.h>
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/linear_spline_equations.h>
 #include <xpp/zmp/zmp_constraint_builder.h>
-#include <xpp/zmp/com_spline4.h>
-#include <xpp/zmp/com_spline6.h>
 #include <xpp/utils/eigen_quadprog-inl.h>
 
 #include <cmath>      // std::numeric_limits
@@ -31,14 +30,11 @@ QpFacade::SolveQp(const State& initial_state,
                   bool start_with_com_shift,
                   double robot_height)
 {
-//  auto spline_structure = std::make_shared<ComSpline4>();
-//  spline_structure->Init(initial_state.p, initial_state.v , steps.size(), times,
-//                        start_with_com_shift);
+  // remember to comment in regularization when using this type of spline representation
+//  auto com_spline = MotionFactory::CreateComMotion(initial_state.p, initial_state.v , steps.size(), times,start_with_com_shift);
+  auto com_spline = MotionFactory::CreateComMotion(steps.size(), times, start_with_com_shift);
 
-  auto spline_structure = std::make_shared<ComSpline6>();
-  spline_structure->Init(steps.size(), times, start_with_com_shift);
-
-  LinearSplineEquations spline_eq(spline_structure);
+  LinearSplineEquations spline_eq(com_spline);
 
   cost_function_ = spline_eq.MakeAcceleration(1.0,3.0);
 
@@ -63,7 +59,7 @@ QpFacade::SolveQp(const State& initial_state,
   std::cout << "number of support polygons: " << supp.size() << std::endl;
 //  for (const hyq::SupportPolygon& s : supp) std::cout << s;
 
-  ZmpConstraintBuilder zmp_constraint(spline_structure, robot_height);
+  ZmpConstraintBuilder zmp_constraint(com_spline, robot_height);
   MatVecVec zmp_constr = zmp_constraint.CalcZmpConstraints(supp_polygon_container);
   inequality_constraints_.M = zmp_constr.Mv.M;
   inequality_constraints_.v = zmp_constr.Mv.v + zmp_constr.constant;
@@ -75,9 +71,9 @@ QpFacade::SolveQp(const State& initial_state,
   std::cout << "Final state:\t" << final_state << std::endl;
 
   Eigen::VectorXd opt_abcd = EigenSolveQuadprog();
-  spline_structure->SetCoefficients(opt_abcd);
+  com_spline->SetCoefficients(opt_abcd);
 
-  return spline_structure->GetPolynomials();
+  return com_spline->GetPolynomials();
 }
 
 Eigen::VectorXd

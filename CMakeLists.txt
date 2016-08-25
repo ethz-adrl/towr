@@ -125,6 +125,7 @@ set(SOURCES
   src/com_spline6.cc    
   src/com_spline4.cc    
   src/com_polynomial.cc
+  src/motion_factory.cc
   #exe
   src/walking_controller.cc
   src/walking_controller_state.cc
@@ -250,6 +251,7 @@ if(BUILD_TESTS)
 #                        test/google/com_motion_test.cc
 #                        test/google/com_spline_test.cc
 #                        test/google/spline_container_test.cc
+                         test/google/motion_factory_test.cc
 #                        #constraints
 #                        test/google/zmp_constraint_test.cc
 #                        test/google/constraint_factory_test.cc
