@@ -14,6 +14,10 @@
 namespace xpp {
 namespace zmp {
 
+// refactor lump all the equations related to spline in one class
+// and remove the class LinearEquationBuilder (too modular).
+// Rewrite the equations to also work for Spline6.
+// also remove from CMakeLists
 class FinalStateEquation : public ILinearEquationBuilder {
 public:
   typedef xpp::utils::Point2d State2d;

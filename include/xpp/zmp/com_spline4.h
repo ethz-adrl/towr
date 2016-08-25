@@ -36,7 +36,6 @@ public:
                              int step_count,
                              const SplineTimes& times);
 
-  // refactor move this to one base class
   void Init(const Vector2d& start_cog_p,
             const Vector2d& start_cog_v,
             int step_count,
