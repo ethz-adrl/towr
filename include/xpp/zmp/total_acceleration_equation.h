@@ -14,6 +14,7 @@
 namespace xpp {
 namespace zmp {
 
+// refactor this should also be in the spline equation class
 class TotalAccelerationEquation : public ILinearEquationBuilder {
 public:
   typedef ComSpline::Ptr ComSplinePtr;

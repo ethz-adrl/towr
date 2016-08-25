@@ -12,9 +12,15 @@
 #include <memory>
 
 namespace xpp {
+
+namespace hyq {
+class SupportPolygonContainer;
+}
+
 namespace zmp {
 
 class AConstraint;
+class ACost;
 class ComSpline;
 class OptimizationVariablesInterpreter;
 
@@ -29,8 +35,10 @@ class ConstraintFactory {
 public:
   typedef std::shared_ptr<AConstraint> ConstraintPtr;
   typedef std::shared_ptr<ComSpline> ComSplinePtr;
+  typedef std::shared_ptr<ACost> CostPtr;
   typedef Eigen::Vector2d Vector2d;
   typedef xpp::utils::Point2d State2d;
+  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
 
   ConstraintFactory ();
   virtual ~ConstraintFactory ();
@@ -42,6 +50,11 @@ public:
   static ConstraintPtr CreateRangeOfMotionConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateObstacleConstraint();
+
+  static CostPtr CreateAccelerationCost(const ComSplinePtr&);
+  static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComSplinePtr&);
+  static CostPtr CreateRangeOfMotionCost(const OptimizationVariablesInterpreter&);
+  static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const SupportPolygonContainer& supp_polygon_container);
 };
 
 } /* namespace zmp */

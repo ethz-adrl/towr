@@ -23,6 +23,7 @@ class ACost;
 class ComSpline4;
 class OptimizationVariablesInterpreter;
 
+// refactor remove this class as well, redundant to constraint factory
 class CostFactory {
 public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;

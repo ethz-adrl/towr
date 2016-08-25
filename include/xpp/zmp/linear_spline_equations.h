@@ -28,9 +28,12 @@ public:
   LinearSplineEquations (const ComSplinePtr& com_spline);
   virtual ~LinearSplineEquations ();
 
+  // refactor write nice comments what these mean
   MatVec MakeInitial(const State2d& init) const;
   MatVec MakeFinal(const State2d& final) const;
   MatVec MakeJunction() const;
+
+  MatVec MakeAcceleration(double weight_x, double weight_y) const;
 
 private:
   ComSplinePtr com_spline_;
