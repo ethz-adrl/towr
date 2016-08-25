@@ -11,11 +11,12 @@
 #include <xpp/zmp/linear_spline_equations.h>
 #include <xpp/zmp/zmp_constraint_builder.h>
 #include <xpp/zmp/com_spline4.h>
+#include <xpp/zmp/com_spline6.h>
 #include <xpp/utils/eigen_quadprog-inl.h>
 
 #include <cmath>      // std::numeric_limits
+// refactor don't have ros dependency here, this should only be in optimized node
 #include <ros/console.h>
-
 
 namespace xpp {
 namespace zmp {
@@ -35,14 +36,23 @@ QpFacade::SolveQp(const State& initial_state,
   spline_structure->Init(initial_state.p, initial_state.v , steps.size(), times,
                         start_with_com_shift);
 
+//  auto spline_structure = std::make_shared<ComSpline6>();
+//  spline_structure->Init(steps.size(), times, start_with_com_shift);
+
   LinearSplineEquations spline_eq(spline_structure);
 
   cost_function_ = spline_eq.MakeAcceleration(1.0,3.0);
+  Eigen::MatrixXd reg = cost_function_.M;
+  reg.setIdentity();
 
+  // refactor see how this can be removed
+//  cost_function_.M += 0.00001*reg; // because the matrix has to be positive semi definite.
+
+  // refactor make this automatic depending on spline
   equality_constraints_ = MatVec(); // clear
-  equality_constraints_ << spline_eq.MakeInitial(initial_state);
-  equality_constraints_ << spline_eq.MakeFinal(final_state);
-  equality_constraints_ << spline_eq.MakeJunction();
+  equality_constraints_ << spline_eq.MakeInitial(initial_state, {kAcc});
+  equality_constraints_ << spline_eq.MakeFinal(final_state, {kPos, kVel, kAcc});
+  equality_constraints_ << spline_eq.MakeJunction({kPos, kAcc});
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(start_stance, steps, hyq::SupportPolygon::GetDefaultMargins());
@@ -60,8 +70,8 @@ QpFacade::SolveQp(const State& initial_state,
   inequality_constraints_.M = zmp_constr.Mv.M;
   inequality_constraints_.v = zmp_constr.Mv.v + zmp_constr.constant;
 
-  std::cout << "zmp_constr.Mv.v" << zmp_constr.Mv.v.transpose() << std::endl;
-  std::cout << "zmp_constr.constant" << zmp_constr.constant.transpose() << std::endl;
+//  std::cout << "zmp_constr.Mv.v" << zmp_constr.Mv.v.transpose() << std::endl;
+//  std::cout << "zmp_constr.constant" << zmp_constr.constant.transpose() << std::endl;
 
   ROS_INFO_STREAM("Initial state:\t" << initial_state);
   ROS_INFO_STREAM("Final state:\t" << final_state);
@@ -76,6 +86,11 @@ Eigen::VectorXd
 QpFacade::EigenSolveQuadprog()
 {
   Eigen::VectorXd opt_spline_coeff_xy;
+
+  ROS_INFO_STREAM("n = " << cost_function_.M.rows() << " variables");
+  ROS_INFO_STREAM("m_eq = " << equality_constraints_.M.rows() << " equality constraints");
+  ROS_INFO_STREAM("m_in = " << inequality_constraints_.M.rows() << " inequality constraints");
+
   ROS_INFO("QP optimizer running...");
 
   clock_t start = std::clock();
@@ -93,6 +108,9 @@ QpFacade::EigenSolveQuadprog()
     throw std::length_error("Eigen::quadprog did not find a solution");
   else
     ROS_INFO_STREAM("QP optimizer solved in " << time << " ms.");
+
+  std::cout << "cost: " << cost << std::endl;
+  std::cout << "x: \n" << opt_spline_coeff_xy.transpose() << std::endl;
 
   return opt_spline_coeff_xy;
 }

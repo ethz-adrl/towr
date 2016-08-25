@@ -78,7 +78,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();
-  constraints_->AddConstraint(CostConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure));
+  constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(curr_cog_, spline_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, spline_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(spline_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(interpreter));

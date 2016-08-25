@@ -43,7 +43,7 @@ public:
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();
 
-  static ConstraintPtr CreateAccConstraint(const Vector2d& init_acc_xy, const ComSplinePtr&);
+  static ConstraintPtr CreateInitialConstraint(const State2d& init, const ComSplinePtr&);
   static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ComSplinePtr&);
   static ConstraintPtr CreateJunctionConstraint(const ComSplinePtr&);
   static ConstraintPtr CreateZmpConstraint(const OptimizationVariablesInterpreter&);

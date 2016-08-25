@@ -8,7 +8,7 @@
 #ifndef _XPP_ZMP_QP_FACADE_H_
 #define _XPP_ZMP_QP_FACADE_H_
 
-#include "com_spline6.h"
+#include "com_spline.h"
 #include <xpp/hyq/foothold.h>
 
 

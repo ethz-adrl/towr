@@ -25,9 +25,10 @@ LinearSplineEquations::~LinearSplineEquations ()
 
 // refactor add position and velocity constraint
 LinearSplineEquations::MatVec
-LinearSplineEquations::MakeInitial (const State2d& init) const
+LinearSplineEquations::MakeInitial (const State2d& init,
+                                    const Derivatives& derivatives) const
 {
-  int n_constraints = kDim2d *1; // acceleration in x and y direction
+  int n_constraints = kDim2d *derivatives.size();
   MatVec M(n_constraints, com_spline_->GetTotalFreeCoeff());
 
   int i = 0; // constraint count
@@ -35,9 +36,11 @@ LinearSplineEquations::MakeInitial (const State2d& init) const
   int spline_id = 0;
   for (const Coords3D dim : {X,Y})
   {
-    VecScalar acc = com_spline_->ExpressComThroughCoeff(kAcc, t, spline_id, dim);
-    acc.s -= -init.a(dim);
-    M.WriteRow(acc, i++);
+    for (auto dxdt :  derivatives) {
+      VecScalar acc = com_spline_->ExpressComThroughCoeff(dxdt, t, spline_id, dim);
+      acc.s -= -init.a(dim);
+      M.WriteRow(acc, i++);
+    }
   }
 
   assert(i==n_constraints);
@@ -45,9 +48,10 @@ LinearSplineEquations::MakeInitial (const State2d& init) const
 }
 
 LinearSplineEquations::MatVec
-LinearSplineEquations::MakeFinal (const State2d& final_state) const
+LinearSplineEquations::MakeFinal (const State2d& final_state,
+                                  const Derivatives& derivatives) const
 {
-  int n_constraints = 3*kDim2d; // pos, vel, acc
+  int n_constraints = derivatives.size()*kDim2d;
   int n_spline_coeff = com_spline_->GetTotalFreeCoeff();
   MatVec M(n_constraints, n_spline_coeff);
 
@@ -58,17 +62,19 @@ LinearSplineEquations::MakeFinal (const State2d& final_state) const
     int K = last.GetId();
     double T = last.GetDuration();
 
-    VecScalar pos = com_spline_->ExpressComThroughCoeff(kPos, T, K, dim);
-    pos.s -= final_state.p(dim);
-    M.WriteRow(pos, c++);
+    for (auto dxdt :  derivatives) {
+      const double* final_dxdt;
+      switch (dxdt) {
+        case kPos: final_dxdt = &final_state.p(dim); break;
+        case kVel: final_dxdt = &final_state.v(dim); break;
+        case kAcc: final_dxdt = &final_state.a(dim); break;
+        case kJerk: assert(false); break; // jerk not specified in final state
+      }
 
-    VecScalar vel = com_spline_->ExpressComThroughCoeff(kVel, T, K, dim);
-    vel.s -= final_state.v(dim);
-    M.WriteRow(vel, c++);
-
-    VecScalar acc = com_spline_->ExpressComThroughCoeff(kAcc, T, K, dim);
-    acc.s -= final_state.a(dim);
-    M.WriteRow(acc, c++);
+      VecScalar diff_dxdt = com_spline_->ExpressComThroughCoeff(dxdt, T, K, dim);
+      diff_dxdt.s -= *final_dxdt;
+      M.WriteRow(diff_dxdt, c++);
+    }
   }
 
   assert(c==n_constraints);
@@ -76,24 +82,22 @@ LinearSplineEquations::MakeFinal (const State2d& final_state) const
 }
 
 LinearSplineEquations::MatVec
-LinearSplineEquations::MakeJunction () const
+LinearSplineEquations::MakeJunction (const Derivatives& derivatives) const
 {
-  // jerk ensures that minimum acceleration cost function cannot trick
-  // by moving all the big jumps in acc to the junction to save cost.
-  std::vector<PosVelAcc> derivative = {kAcc, kJerk};
-
   int id_last = com_spline_->GetLastPolynomial().GetId();
-  int n_constraints = derivative.size() * id_last * kDim2d;
+  int n_constraints = derivatives.size() * id_last * kDim2d;
   int n_spline_coeff = com_spline_->GetTotalFreeCoeff();
   MatVec M(n_constraints, n_spline_coeff);
 
   int i = 0; // constraint count
   for (int id = 0; id < id_last; ++id) {
     double T = com_spline_->GetPolynomial(id).GetDuration();
-    for (auto dim : {X,Y}) {
-      for (auto pva :  derivative) {
-        VecScalar curr = com_spline_->ExpressComThroughCoeff(pva, T, id,   dim);
-        VecScalar next = com_spline_->ExpressComThroughCoeff(pva, 0, id+1, dim);
+    for (auto dim : {X,Y})
+    {
+      for (auto dxdt :  derivatives)
+      {
+        VecScalar curr = com_spline_->ExpressComThroughCoeff(dxdt, T, id,   dim);
+        VecScalar next = com_spline_->ExpressComThroughCoeff(dxdt, 0, id+1, dim);
         M.WriteRow(curr-next, i++);
       }
     }
