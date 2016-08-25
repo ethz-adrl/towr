@@ -27,6 +27,10 @@ public:
   void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
   void SetCoefficients(const VectorXd& optimized_coeff) override;
 
+  Derivatives GetInitialFreeMotions()  const;
+  Derivatives GetJunctionFreeMotions() const;
+  Derivatives GetFinalFreeMotions()    const;
+
 private:
   VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const override;
   VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const override;

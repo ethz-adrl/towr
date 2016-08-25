@@ -40,26 +40,22 @@ public:
   /** M*x + v gives the difference to the desired initial state
     *
     * @param init desired initial position, velocity and acceleration.
-    * @param d which difference to initial state should be calculated.
     */
-  MatVec MakeInitial(const State2d& init, const Derivatives& d = {kPos, kVel, kAcc}) const;
+  MatVec MakeInitial(const State2d& init) const;
 
   /** M*x + v gives the difference to the desired final state
     *
     * @param final desired final position, velocity and acceleration.
-    * @param d which difference to initial state should be calculated.
     */
-  MatVec MakeFinal(const State2d& final, const Derivatives& d = {kPos,kVel,kAcc}) const;
+  MatVec MakeFinal(const State2d& final) const;
 
   /** M*x + v gives the difference at the polynomial junctions of the spline
     *
     * A spline made up of 3 polynomials has 2 junctions, and for each of these
     * the position, velocity and acceleration difference in x-y is returned,
     * resulting in m = (number of splines-1) * 3 * 2
-    *
-    * @param d which difference to initial state should be calculated.
     */
-  MatVec MakeJunction(const Derivatives& d = {kPos,kVel,kAcc, kJerk}) const;
+  MatVec MakeJunction() const;
 
   /** xT*M*x + xT*v gives the scalar total acceleration cost with these x.
     *

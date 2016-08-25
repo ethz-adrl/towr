@@ -45,6 +45,10 @@ public:
   void SetCoefficients(const VectorXd& optimized_coeff) override;
   void SetEndAtStart();
 
+  Derivatives GetInitialFreeMotions()  const;
+  Derivatives GetJunctionFreeMotions() const;
+  Derivatives GetFinalFreeMotions()    const;
+
 private:
   int NumFreeCoeffPerSpline() const override { return 4; };
   std::vector<SplineCoeff> GetFreeCoeffPerSpline() const override { return {A,B,C,D}; };

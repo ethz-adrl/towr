@@ -33,11 +33,10 @@ CostConstraintFactory::~CostConstraintFactory ()
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateInitialConstraint (const State2d& init,
-                                            const ComSplinePtr& spline)
+                                                const ComSplinePtr& spline)
 {
   LinearSplineEquations eq(spline);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-
   constraint->Init(eq.MakeInitial(init));
   return constraint;
 }

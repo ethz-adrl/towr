@@ -23,11 +23,11 @@ LinearSplineEquations::~LinearSplineEquations ()
   // TODO Auto-generated destructor stub
 }
 
-// refactor add position and velocity constraint
 LinearSplineEquations::MatVec
-LinearSplineEquations::MakeInitial (const State2d& init,
-                                    const Derivatives& derivatives) const
+LinearSplineEquations::MakeInitial (const State2d& init) const
 {
+  auto derivatives = com_spline_->GetInitialFreeMotions();
+
   int n_constraints = kDim2d *derivatives.size();
   MatVec M(n_constraints, com_spline_->GetTotalFreeCoeff());
 
@@ -48,9 +48,10 @@ LinearSplineEquations::MakeInitial (const State2d& init,
 }
 
 LinearSplineEquations::MatVec
-LinearSplineEquations::MakeFinal (const State2d& final_state,
-                                  const Derivatives& derivatives) const
+LinearSplineEquations::MakeFinal (const State2d& final_state) const
 {
+  auto derivatives = com_spline_->GetFinalFreeMotions();
+
   int n_constraints = derivatives.size()*kDim2d;
   int n_spline_coeff = com_spline_->GetTotalFreeCoeff();
   MatVec M(n_constraints, n_spline_coeff);
@@ -75,8 +76,10 @@ LinearSplineEquations::MakeFinal (const State2d& final_state,
 }
 
 LinearSplineEquations::MatVec
-LinearSplineEquations::MakeJunction (const Derivatives& derivatives) const
+LinearSplineEquations::MakeJunction () const
 {
+  auto derivatives = com_spline_->GetJunctionFreeMotions();
+
   int id_last = com_spline_->GetLastPolynomial().GetId();
   int n_constraints = derivatives.size() * id_last * kDim2d;
   int n_spline_coeff = com_spline_->GetTotalFreeCoeff();

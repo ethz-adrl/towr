@@ -31,27 +31,28 @@ QpFacade::SolveQp(const State& initial_state,
                   bool start_with_com_shift,
                   double robot_height)
 {
-  auto spline_structure = std::make_shared<ComSpline4>();
-  spline_structure->Init(initial_state.p, initial_state.v , steps.size(), times,
-                        start_with_com_shift);
+//  auto spline_structure = std::make_shared<ComSpline4>();
+//  spline_structure->Init(initial_state.p, initial_state.v , steps.size(), times,
+//                        start_with_com_shift);
 
-//  auto spline_structure = std::make_shared<ComSpline6>();
-//  spline_structure->Init(steps.size(), times, start_with_com_shift);
+  auto spline_structure = std::make_shared<ComSpline6>();
+  spline_structure->Init(steps.size(), times, start_with_com_shift);
 
   LinearSplineEquations spline_eq(spline_structure);
 
   cost_function_ = spline_eq.MakeAcceleration(1.0,3.0);
+
+  // comment this in if using ComSpline6
+  // because the matrix has to be positive definite for eigen quadprog
   Eigen::MatrixXd reg = cost_function_.M;
   reg.setIdentity();
+  cost_function_.M += 1e-10*reg;
 
-  // refactor see how this can be removed
-//  cost_function_.M += 0.00001*reg; // because the matrix has to be positive semi definite.
 
-  // refactor make this automatic depending on spline
   equality_constraints_ = MatVec(); // clear
-  equality_constraints_ << spline_eq.MakeInitial(initial_state, {kAcc});
-  equality_constraints_ << spline_eq.MakeFinal(final_state, {kPos, kVel, kAcc});
-  equality_constraints_ << spline_eq.MakeJunction({kPos, kAcc});
+  equality_constraints_ << spline_eq.MakeInitial(initial_state);
+  equality_constraints_ << spline_eq.MakeFinal(final_state);
+  equality_constraints_ << spline_eq.MakeJunction();
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(start_stance, steps, hyq::SupportPolygon::GetDefaultMargins());

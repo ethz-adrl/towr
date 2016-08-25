@@ -66,7 +66,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(curr_stance, step_sequence, margins);
 
-  // refactor create spline factory? hide com_spline6 and com_spline4 even more :)
+////   refactor create spline factory? hide com_spline6 and com_spline4 even more :)
 //  auto spline_structure = std::make_shared<ComSpline4>();
 //  spline_structure->Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
 //  spline_structure->SetEndAtStart();

@@ -51,6 +51,24 @@ void ComSpline4::Init(const Vector2d& start_cog_p,
   SetCoefficients(abcd);
 }
 
+ComSpline4::Derivatives
+ComSpline4::GetInitialFreeMotions () const
+{
+  return {kAcc};
+}
+
+ComSpline4::Derivatives
+ComSpline4::GetJunctionFreeMotions () const
+{
+  return {kAcc, kJerk};
+}
+
+ComSpline4::Derivatives
+ComSpline4::GetFinalFreeMotions () const
+{
+  return {kPos, kVel, kAcc};
+}
+
 void
 ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
 {

@@ -34,6 +34,24 @@ ComSpline6::Init (int step_count, const SplineTimes& times,
   SetCoefficients(abcd);
 }
 
+ComSpline6::Derivatives
+ComSpline6::GetInitialFreeMotions () const
+{
+  return {kPos, kVel, kAcc};
+}
+
+ComSpline6::Derivatives
+ComSpline6::GetJunctionFreeMotions () const
+{
+  return {kPos, kVel, kAcc/*, kJerk*/};
+}
+
+ComSpline6::Derivatives
+ComSpline6::GetFinalFreeMotions () const
+{
+  return {kPos, kVel, kAcc};
+}
+
 void
 ComSpline6::SetCoefficients (const VectorXd& optimized_coeff)
 {
@@ -100,6 +118,7 @@ ComSpline6::ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const
 
   return acc;
 }
+
 
 ComSpline6::VecScalar
 ComSpline6::ExpressCogJerkThroughABCD (double t_local, int id, Coords dim) const

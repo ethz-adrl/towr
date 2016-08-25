@@ -51,6 +51,7 @@ public:
   typedef xpp::utils::Point2d Point2d;
   typedef std::shared_ptr<ComSpline> Ptr;
   typedef xpp::utils::Coords3D Coords;
+  typedef std::vector<PosVelAcc> Derivatives;
 
   ComSpline ();
   virtual ~ComSpline ();
@@ -65,6 +66,16 @@ public:
   VectorXd GetCoeffients () const override;
 
   int Index(int polynomial, Coords dim, SplineCoeff coeff) const;
+
+
+  /** The motions (pos,vel,acc) that are fixed by spline structure and cannot
+    * be modified through the coefficient values. These will be constrained
+    * in the nonlinear program.
+    */
+  virtual Derivatives GetInitialFreeMotions()  const = 0;
+  virtual Derivatives GetJunctionFreeMotions() const = 0;
+  virtual Derivatives GetFinalFreeMotions()    const = 0;
+
 
   static Point2d GetCOGxy(double t_global, const VecPolynomials& splines);
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
