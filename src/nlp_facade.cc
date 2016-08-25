@@ -66,16 +66,16 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(curr_stance, step_sequence, margins);
 
-  ComSpline4 spline_structure;
-  spline_structure.Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
-  spline_structure.SetEndAtStart();
+  auto spline_structure = std::make_shared<ComSpline4>();
+  spline_structure->Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
+  spline_structure->SetEndAtStart();
 
-  opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, spline_structure.GetCoeffients());
+  opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, spline_structure->GetCoeffients());
   opt_variables_->AddVariableSet(VariableNames::kFootholds, supp_polygon_container.GetFootholdsInitializedToStart());
 
   // save the framework of the optimization problem
   OptimizationVariablesInterpreter interpreter;
-  interpreter.Init(std::make_shared<ComSpline4>(spline_structure), supp_polygon_container, robot_height);
+  interpreter.Init(spline_structure, supp_polygon_container, robot_height);
   interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();
@@ -88,7 +88,7 @@ NlpFacade::SolveNlp(const State& curr_cog_,
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 
   costs_->ClearCosts();
-  costs_->AddCost(CostFactory::CreateAccelerationCost(spline_structure));
+  costs_->AddCost(CostFactory::CreateAccelerationCost(*spline_structure));
   // careful: these are not quite debugged yet
 //  costs_->AddCost(CostFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
 //  costs_->AddCost(CostFactory::CreateFinalComCost(final_state, spline_structure));

@@ -10,6 +10,9 @@
 #include <xpp/zmp/initial_acceleration_equation.h>
 #include <xpp/zmp/final_state_equation.h>
 #include <xpp/zmp/spline_junction_equation.h>
+
+#include <xpp/zmp/linear_spline_equations.h>
+
 #include <xpp/zmp/a_linear_constraint.h>
 #include <xpp/zmp/zmp_constraint.h>
 #include <xpp/zmp/range_of_motion_constraint.h>
@@ -31,30 +34,39 @@ ConstraintFactory::~ConstraintFactory ()
 
 ConstraintFactory::ConstraintPtr
 ConstraintFactory::CreateAccConstraint (const Vector2d& init_acc_xy,
-                                        const ComSpline4& splines)
+                                        const ComSplinePtr& spline)
 {
-  InitialAccelerationEquation eq(init_acc_xy, splines);
+  // refactor only add the splines once?
+  LinearSplineEquations eq(spline);
+//  InitialAccelerationEquation eq(init_acc_xy, *spline);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.BuildLinearEquation());
+
+  LinearSplineEquations::State2d init;
+  init.a = init_acc_xy;
+  constraint->Init(eq.MakeInitial(init));
   return constraint;
 }
 
 ConstraintFactory::ConstraintPtr
 ConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
-                                          const ComSpline4& splines)
+                                          const ComSplinePtr& spline)
 {
-  FinalStateEquation eq(final_state_xy, splines);
+  LinearSplineEquations eq(spline);
+
+//  FinalStateEquation eq(final_state_xy, *spline);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.BuildLinearEquation());
+  constraint->Init(eq.MakeFinal(final_state_xy));
   return constraint;
 }
 
 ConstraintFactory::ConstraintPtr
-ConstraintFactory::CreateJunctionConstraint (const ComSpline4& splines)
+ConstraintFactory::CreateJunctionConstraint (const ComSplinePtr& spline)
 {
-  SplineJunctionEquation eq(splines);
+  LinearSplineEquations eq(spline);
+
+//  SplineJunctionEquation eq(*spline);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.BuildLinearEquation());
+  constraint->Init(eq.MakeJunction());
   return constraint;
 }
 
