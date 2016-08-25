@@ -113,7 +113,7 @@ LinearSplineEquations::MakeAcceleration (double weight_x, double weight_y) const
   for (const ComPolynomial& s : com_spline_->GetPolynomials()) {
     std::array<double,8> t_span = utils::cache_exponents<8>(s.GetDuration());
 
-    for (const Coords3D dim : Coords2DArray) {
+    for (const Coords3D dim : {X,Y}) {
       const int a = com_spline_->Index(s.GetId(), dim, A);
       const int b = com_spline_->Index(s.GetId(), dim, B);
       const int c = com_spline_->Index(s.GetId(), dim, C);
