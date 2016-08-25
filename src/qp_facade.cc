@@ -37,7 +37,6 @@ QpFacade::SolveQp(const State& initial_state,
 
   LinearSplineEquations spline_eq(spline_structure);
 
-  // refactor figure out why qp is not working
   cost_function_ = spline_eq.MakeAcceleration(1.0,3.0);
 
   equality_constraints_ = MatVec(); // clear
