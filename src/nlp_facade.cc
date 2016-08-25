@@ -11,7 +11,6 @@
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/cost_container.h>
 #include <xpp/zmp/constraint_factory.h>
-#include <xpp/zmp/cost_factory.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 #include <xpp/zmp/interpreting_observer.h>
 #include <xpp/hyq/step_sequence_planner.h>
@@ -19,7 +18,7 @@
 #include <xpp/zmp/nlp.h>
 #include <xpp/zmp/ipopt_adapter.h>
 #include <xpp/zmp/snopt_adapter.h>
-#include "../include/xpp/zmp/com_spline4.h"
+#include <xpp/zmp/com_spline4.h>
 
 namespace xpp {
 namespace zmp {
@@ -88,11 +87,11 @@ NlpFacade::SolveNlp(const State& curr_cog_,
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 
   costs_->ClearCosts();
-  costs_->AddCost(CostFactory::CreateAccelerationCost(*spline_structure));
+  costs_->AddCost(ConstraintFactory::CreateAccelerationCost(spline_structure));
   // careful: these are not quite debugged yet
-//  costs_->AddCost(CostFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
-//  costs_->AddCost(CostFactory::CreateFinalComCost(final_state, spline_structure));
-//  costs_->AddCost(CostFactory::CreateRangeOfMotionCost(interpreter));
+//  costs_->AddCost(ConstraintFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
+//  costs_->AddCost(ConstraintFactory::CreateFinalComCost(final_state, spline_structure));
+//  costs_->AddCost(ConstraintFactory::CreateRangeOfMotionCost(interpreter));
 
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);

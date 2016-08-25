@@ -143,18 +143,18 @@ set(SOURCES
   src/constraint_factory.cc
   src/a_linear_constraint.cc
   src/linear_spline_equations.cc
-  src/initial_acceleration_equation.cc
-  src/final_state_equation.cc
-  src/spline_junction_equation.cc
+#  src/initial_acceleration_equation.cc
+#  src/final_state_equation.cc
+#  src/spline_junction_equation.cc
   src/constraint_container.cc
   src/zmp_constraint.cc
   src/range_of_motion_constraint.cc
   src/joint_angles_constraint.cc
   src/obstacle_constraint.cc
   # costs
-  src/cost_factory.cc
+#  src/cost_factory.cc
   src/a_spline_cost.cc
-  src/total_acceleration_equation.cc
+#  src/total_acceleration_equation.cc
   src/cost_container.cc
   src/foothold_nominal_deviation.cc
   src/range_of_motion_cost.cc
@@ -265,10 +265,7 @@ if(BUILD_TESTS)
 #                        test/google/range_of_motion_constraint_test.cc
 #                        test/google/obstacle_constraint_test.cc
 #                        #equations
-#                        test/google/total_acceleration_equation_test.cc
-#                        test/google/spline_junction_equation_test.cc
-#                        # costs 
-#                        test/google/cost_factory_test.cc
+#                        # costs
 #                        test/google/cost_function_functor_test.cc
 #                        test/google/range_of_motion_cost_test.cc
 #                        test/google/cost_container_test.cc

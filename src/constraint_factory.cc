@@ -15,14 +15,9 @@
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/zmp/obstacle_constraint.h>
 
-
 #include <xpp/zmp/range_of_motion_cost.h>
 #include <xpp/zmp/a_foothold_cost.h>
-
-#include <xpp/zmp/final_state_equation.h>
-#include <xpp/zmp/total_acceleration_equation.h>
 #include <xpp/zmp/a_spline_cost.h>
-#include <xpp/zmp/com_spline4.h>
 
 namespace xpp {
 namespace zmp {
