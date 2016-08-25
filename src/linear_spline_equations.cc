@@ -38,7 +38,7 @@ LinearSplineEquations::MakeInitial (const State2d& init,
   {
     for (auto dxdt :  derivatives) {
       VecScalar acc = com_spline_->ExpressComThroughCoeff(dxdt, t, spline_id, dim);
-      acc.s -= -init.a(dim);
+      acc.s -= GetByIndex(init, dxdt, dim);
       M.WriteRow(acc, i++);
     }
   }
@@ -62,17 +62,10 @@ LinearSplineEquations::MakeFinal (const State2d& final_state,
     int K = last.GetId();
     double T = last.GetDuration();
 
-    for (auto dxdt :  derivatives) {
-      const double* final_dxdt;
-      switch (dxdt) {
-        case kPos: final_dxdt = &final_state.p(dim); break;
-        case kVel: final_dxdt = &final_state.v(dim); break;
-        case kAcc: final_dxdt = &final_state.a(dim); break;
-        case kJerk: assert(false); break; // jerk not specified in final state
-      }
-
+    for (auto dxdt :  derivatives)
+    {
       VecScalar diff_dxdt = com_spline_->ExpressComThroughCoeff(dxdt, T, K, dim);
-      diff_dxdt.s -= *final_dxdt;
+      diff_dxdt.s -= GetByIndex(final_state, dxdt, dim);
       M.WriteRow(diff_dxdt, c++);
     }
   }
@@ -146,6 +139,19 @@ LinearSplineEquations::MakeAcceleration (double weight_x, double weight_y) const
   }
 
   return M;
+}
+
+double
+LinearSplineEquations::GetByIndex (const State2d& state,
+                                   PosVelAcc dxdt,
+                                   Coords3D dim) const
+{
+  switch (dxdt) {
+    case kPos: return state.p(dim);
+    case kVel: return state.v(dim);
+    case kAcc: return state.a(dim);
+    case kJerk: assert(false); break; // jerk not specified in final state
+  }
 }
 
 } /* namespace zmp */

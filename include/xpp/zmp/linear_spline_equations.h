@@ -28,11 +28,10 @@ class ComSpline;
   */
 class LinearSplineEquations {
 public:
-
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::Point2d State2d;
   typedef std::shared_ptr<ComSpline> ComSplinePtr;
-  typedef std::vector<xpp::utils::PosVelAcc> Derivatives;
+  typedef std::vector<PosVelAcc> Derivatives;
 
   LinearSplineEquations (const ComSplinePtr& com_spline);
   virtual ~LinearSplineEquations ();
@@ -41,14 +40,14 @@ public:
   /** M*x + v gives the difference to the desired initial state
     *
     * @param init desired initial position, velocity and acceleration.
-    * @param d which difference to initial state should be calculated (pos,vel,acc)
+    * @param d which difference to initial state should be calculated.
     */
-  MatVec MakeInitial(const State2d& init, const Derivatives& d = {kPos,kVel,kAcc}) const;
+  MatVec MakeInitial(const State2d& init, const Derivatives& d = {kPos, kVel, kAcc}) const;
 
   /** M*x + v gives the difference to the desired final state
     *
     * @param final desired final position, velocity and acceleration.
-    * @param d which difference to initial state should be calculated (pos,vel,acc)
+    * @param d which difference to initial state should be calculated.
     */
   MatVec MakeFinal(const State2d& final, const Derivatives& d = {kPos,kVel,kAcc}) const;
 
@@ -58,9 +57,9 @@ public:
     * the position, velocity and acceleration difference in x-y is returned,
     * resulting in m = (number of splines-1) * 3 * 2
     *
-    * @param d which difference to initial state should be calculated (pos,vel,acc)
+    * @param d which difference to initial state should be calculated.
     */
-  MatVec MakeJunction(const Derivatives& d = {kPos,kVel,kAcc,kJerk}) const;
+  MatVec MakeJunction(const Derivatives& d = {kPos,kVel,kAcc, kJerk}) const;
 
   /** xT*M*x + xT*v gives the scalar total acceleration cost with these x.
     *
@@ -68,13 +67,15 @@ public:
     * directions (x,y). Usually lateral motions are penalized more (bigger weight)
     * than forward backwards motions.
     *
-    * @param weight_x larger value produces larger cost for x motion
-    * @param weight_y larger value produces larger cost for y motion
+    * @param weight_x larger value produces larger cost for x motion.
+    * @param weight_y larger value produces larger cost for y motion.
     */
   MatVec MakeAcceleration(double weight_x, double weight_y) const;
 
 private:
   ComSplinePtr com_spline_;
+
+  double GetByIndex(const State2d& state, PosVelAcc, Coords3D dim) const;
 };
 
 } /* namespace zmp */

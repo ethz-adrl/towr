@@ -18,7 +18,8 @@
 #include <xpp/zmp/ipopt_adapter.h>
 #include <xpp/zmp/snopt_adapter.h>
 #include <xpp/zmp/com_spline4.h>
-#include "../include/xpp/zmp/cost_constraint_factory.h"
+#include <xpp/zmp/com_spline6.h>
+#include <xpp/zmp/cost_constraint_factory.h>
 
 namespace xpp {
 namespace zmp {
@@ -65,9 +66,13 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(curr_stance, step_sequence, margins);
 
-  auto spline_structure = std::make_shared<ComSpline4>();
-  spline_structure->Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
-  spline_structure->SetEndAtStart();
+  // refactor create spline factory? hide com_spline6 and com_spline4 even more :)
+//  auto spline_structure = std::make_shared<ComSpline4>();
+//  spline_structure->Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
+//  spline_structure->SetEndAtStart();
+
+  auto spline_structure = std::make_shared<ComSpline6>();
+  spline_structure->Init(step_sequence.size(), spline_times_, start_with_com_shift);
 
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, spline_structure->GetCoeffients());
   opt_variables_->AddVariableSet(VariableNames::kFootholds, supp_polygon_container.GetFootholdsInitializedToStart());
