@@ -23,6 +23,7 @@ LinearSplineEquations::~LinearSplineEquations ()
   // TODO Auto-generated destructor stub
 }
 
+// refactor add position and velocity constraint
 LinearSplineEquations::MatVec
 LinearSplineEquations::MakeInitial (const State2d& init) const
 {

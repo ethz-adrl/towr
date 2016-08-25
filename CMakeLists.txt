@@ -140,7 +140,7 @@ set(SOURCES
   src/snopt_adapter.cc
   # constraints
   src/a_constraint.cc
-  src/constraint_factory.cc
+  src/cost_constraint_factory.cc
   src/a_linear_constraint.cc
   src/linear_spline_equations.cc
   src/constraint_container.cc

@@ -10,7 +10,6 @@
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/cost_container.h>
-#include <xpp/zmp/constraint_factory.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 #include <xpp/zmp/interpreting_observer.h>
 #include <xpp/hyq/step_sequence_planner.h>
@@ -19,6 +18,7 @@
 #include <xpp/zmp/ipopt_adapter.h>
 #include <xpp/zmp/snopt_adapter.h>
 #include <xpp/zmp/com_spline4.h>
+#include "../include/xpp/zmp/cost_constraint_factory.h"
 
 namespace xpp {
 namespace zmp {
@@ -78,16 +78,16 @@ NlpFacade::SolveNlp(const State& curr_cog_,
   interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();
-  constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure));
-  constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure));
-  constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure));
-  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter));
-  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter));
+  constraints_->AddConstraint(CostConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure));
+  constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, spline_structure));
+  constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(spline_structure));
+  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(interpreter));
+  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(interpreter));
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint());
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 
   costs_->ClearCosts();
-  costs_->AddCost(ConstraintFactory::CreateAccelerationCost(spline_structure));
+  costs_->AddCost(CostConstraintFactory::CreateAccelerationCost(spline_structure));
   // careful: these are not quite debugged yet
 //  costs_->AddCost(ConstraintFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
 //  costs_->AddCost(ConstraintFactory::CreateFinalComCost(final_state, spline_structure));

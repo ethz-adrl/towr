@@ -5,8 +5,8 @@
  @brief   Declares factory class to build constraints.
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_CONSTRAINT_FACTORY_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_CONSTRAINT_FACTORY_H_
+#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COST_CONSTRAINT_FACTORY_H_
+#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COST_CONSTRAINT_FACTORY_H_
 
 #include <xpp/utils/geometric_structs.h>
 #include <memory>
@@ -24,14 +24,14 @@ class ACost;
 class ComSpline;
 class OptimizationVariablesInterpreter;
 
-/** Builds all types of constraints for the user.
+/** Builds all types of constraints/costs for the user.
   *
   * Implements the factory method, hiding object creation from the client.
-  * The client specifies which object it want, and this class is responsible
+  * The client specifies which object it wants, and this class is responsible
   * for the object creation. Factory method is like template method pattern
   * for object creation.
   */
-class ConstraintFactory {
+class CostConstraintFactory {
 public:
   typedef std::shared_ptr<AConstraint> ConstraintPtr;
   typedef std::shared_ptr<ComSpline> ComSplinePtr;
@@ -40,8 +40,8 @@ public:
   typedef xpp::utils::Point2d State2d;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
 
-  ConstraintFactory ();
-  virtual ~ConstraintFactory ();
+  CostConstraintFactory ();
+  virtual ~CostConstraintFactory ();
 
   static ConstraintPtr CreateAccConstraint(const Vector2d& init_acc_xy, const ComSplinePtr&);
   static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ComSplinePtr&);
@@ -60,4 +60,4 @@ public:
 } /* namespace zmp */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_CONSTRAINT_FACTORY_H_ */
+#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COST_CONSTRAINT_FACTORY_H_ */

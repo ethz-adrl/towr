@@ -5,12 +5,12 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/constraint_factory.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/joint_angles_constraint.h>
 #include <xpp/zmp/optimization_variables.h>
 
 #include <gtest/gtest.h>
+#include "../../include/xpp/zmp/cost_constraint_factory.h"
 
 namespace xpp {
 namespace zmp {
@@ -46,7 +46,7 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
   OptimizationVariables opt_variables;
   opt_variables.AddVariableSet(0, Eigen::VectorXd(n_splines*kFreeCoeffPerSpline*2));
   ConstraintContainer constraint_container(opt_variables);
-  auto constraint = ConstraintFactory::CreateJointAngleConstraint(interpreter);
+  auto constraint = CostConstraintFactory::CreateJointAngleConstraint(interpreter);
   constraint_container.AddConstraint(constraint);
 
   VectorXd q = constraint_container.EvaluateConstraints();
