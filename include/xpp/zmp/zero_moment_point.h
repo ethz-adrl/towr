@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_ZERO_MOMENT_POINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_ZERO_MOMENT_POINT_H_
 
-#include <xpp/zmp/continuous_spline_container.h>
+#include "com_spline.h"
 
 namespace xpp {
 namespace zmp {
@@ -17,9 +17,10 @@ class ZeroMomentPoint {
 public:
   typedef xpp::utils::MatVec MatVec;
   typedef Eigen::Vector2d Vector2d;
+  typedef ComSpline::Ptr ComSplinePtr;
   typedef xpp::utils::Point3d State3d;
   typedef xpp::utils::VecScalar VecScalar;
-  typedef xpp::zmp::ContinuousSplineContainer::Coords Coords;
+  typedef xpp::utils::Coords3D Coords;
 
 public:
   ZeroMomentPoint () {};
@@ -31,7 +32,7 @@ public:
   /**
    * Calculates the position of the ZMP for every discrete time dt along a trajectory.
    *
-   * @param cog_spline The CoG spline of 5. order polynomials initialized with specific pos/vel.
+   * @param com_spline The CoG spline of 5. order polynomials initialized with specific pos/vel.
    * @param walking_height the height of the CoG above ground.
    * @param dimension what ZMP coordinate you are interested in (X or Y).
    *
@@ -39,8 +40,7 @@ public:
    * (a,b,c,d) of each spline will return a vector of ZMP positions zmp for each
    * disrete time as: zmp = m.M*x + m.v
    */
-  static MatVec ExpressZmpThroughCoefficients(const ContinuousSplineContainer& cog_spline,
-                                              double walking_height, Coords dimension);
+  static MatVec ExpressZmpThroughCoefficients(const ComSplinePtr&, double walking_height, Coords dimension);
 
 
 

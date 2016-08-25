@@ -10,13 +10,13 @@
 namespace xpp {
 namespace zmp {
 
-ZmpConstraintBuilder::ZmpConstraintBuilder(const ContinuousSplineContainer& spline_container, double walking_height)
+ZmpConstraintBuilder::ZmpConstraintBuilder(const ComSplinePtr& spline_container, double walking_height)
 {
   Init(spline_container, walking_height);
 }
 
 void
-ZmpConstraintBuilder::Init(const ContinuousSplineContainer& spline_container, double walking_height)
+ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container, double walking_height)
 {
   spline_structure_ = spline_container;
 
@@ -38,25 +38,26 @@ ZmpConstraintBuilder::MatVecVec
 ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                                   const SupportPolygonContainer& supp_polygon_container) const
 {
-  std::vector<NodeConstraint> supp_lines = supp_polygon_container.GetActiveConstraintsForEachStep(spline_structure_.GetSplines());
+  std::vector<NodeConstraint> supp_lines = supp_polygon_container.GetActiveConstraintsForEachPhase(*spline_structure_);
 
   // if every spline is a four leg support spline with 4 line constraints
-  const int max_num_constraints = spline_structure_.GetTotalNodes()*SupportPolygon::kMaxSides;
-  int coeff = spline_structure_.GetTotalFreeCoeff();
+  const int max_num_constraints = spline_structure_->GetTotalNodes()*SupportPolygon::kMaxSides;
+  int coeff = spline_structure_->GetTotalFreeCoeff();
   MatVecVec ineq(max_num_constraints, coeff);
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
 
-  for (double t_global : spline_structure_.GetDiscretizedGlobalTimes()) {
-    int id = spline_structure_.GetSplineID(t_global);
+  for (double t_global : spline_structure_->GetDiscretizedGlobalTimes()) {
+    int spline_id = spline_structure_->GetPolynomialID(t_global);
+    int phase_id  = spline_structure_->GetCurrentPhase(t_global).id_;
 
-    if (DisjSuppSwitch(t_global, spline_structure_.GetSpline(id), supp_polygon_container)) {
+    if (DisjSuppSwitch(t_global, spline_structure_->GetPolynomial(spline_id), supp_polygon_container)) {
       n++; // no constraints
       continue;
     }
 
-    GenerateNodeConstraint(supp_lines.at(id), x_zmp.GetRow(n), y_zmp.GetRow(n), c, ineq);
+    GenerateNodeConstraint(supp_lines.at(phase_id), x_zmp.GetRow(n), y_zmp.GetRow(n), c, ineq);
 
     n++;
     c += SupportPolygon::kMaxSides;
@@ -103,13 +104,13 @@ ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
 }
 
 bool
-ZmpConstraintBuilder::DisjSuppSwitch (double t, const ZmpSpline& curr_spline,
+ZmpConstraintBuilder::DisjSuppSwitch (double t, const ComPolynomial& curr_spline,
                                       const SupportPolygonContainer& supp_polygon_container) const
 {
   if (!curr_spline.IsFourLegSupport()) {
 
     int step = curr_spline.GetCurrStep();
-    double t_local = spline_structure_.GetLocalTime(t);
+    double t_local = spline_structure_->GetLocalTime(t);
     static const double t_stance = 0.2; // time to switch between disjoint support triangles
     double t_start_local = curr_spline.GetDuration() - t_stance/2;
 

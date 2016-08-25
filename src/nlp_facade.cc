@@ -10,12 +10,11 @@
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/cost_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/zmp/constraint_factory.h>
-#include <xpp/zmp/cost_factory.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 #include <xpp/zmp/interpreting_observer.h>
 #include <xpp/hyq/step_sequence_planner.h>
+#include <xpp/zmp/cost_constraint_factory.h>
+#include <xpp/zmp/motion_factory.h>
 
 #include <xpp/zmp/nlp.h>
 #include <xpp/zmp/ipopt_adapter.h>
@@ -47,7 +46,7 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
 }
 
 void
-NlpFacade::SolveNlp(const State& curr_cog_,
+NlpFacade::SolveNlp(const State& initial_state,
                     const State& final_state,
                     int curr_swing_leg,
                     double robot_height,
@@ -56,43 +55,41 @@ NlpFacade::SolveNlp(const State& curr_cog_,
                     xpp::zmp::SplineTimes spline_times_,
                     double max_cpu_time)
 {
-  step_sequence_planner_->Init(curr_cog_, final_state, curr_stance, robot_height);
+  step_sequence_planner_->Init(initial_state, final_state, curr_stance, robot_height);
   std::vector<xpp::hyq::LegID> step_sequence = step_sequence_planner_->DetermineStepSequence(curr_swing_leg);
   bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase(step_sequence);
 
   std::cout << "start_with_com_shift: " << start_with_com_shift;
 
-  // determine with which optimization variables NLP should start
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(curr_stance, step_sequence, margins);
 
-  xpp::zmp::ContinuousSplineContainer spline_structure;
-  spline_structure.Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
-  spline_structure.SetEndAtStart();
+  auto com_spline = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
+//  auto com_spline = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
 
-  opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, spline_structure.GetABCDCoeffients());
+  opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_spline->GetCoeffients());
   opt_variables_->AddVariableSet(VariableNames::kFootholds, supp_polygon_container.GetFootholdsInitializedToStart());
 
   // save the framework of the optimization problem
   OptimizationVariablesInterpreter interpreter;
-  interpreter.Init(spline_structure, supp_polygon_container, robot_height);
+  interpreter.Init(com_spline, supp_polygon_container, robot_height);
   interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();
-  constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure));
-  constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure));
-  constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure));
-  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter));
-  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter));
+  constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, com_spline));
+  constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, com_spline));
+  constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(com_spline));
+  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(interpreter));
+  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(interpreter));
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint());
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 
   costs_->ClearCosts();
-  costs_->AddCost(CostFactory::CreateAccelerationCost(spline_structure));
+  costs_->AddCost(CostConstraintFactory::CreateAccelerationCost(com_spline));
   // careful: these are not quite debugged yet
-//  costs_->AddCost(CostFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
-//  costs_->AddCost(CostFactory::CreateFinalComCost(final_state, spline_structure));
-//  costs_->AddCost(CostFactory::CreateRangeOfMotionCost(interpreter));
+//  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
+//  costs_->AddCost(CostConstraintFactory::CreateFinalComCost(final_state, spline_structure));
+//  costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(interpreter));
 
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);

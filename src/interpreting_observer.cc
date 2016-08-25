@@ -10,6 +10,8 @@
 namespace xpp {
 namespace zmp {
 
+typedef Eigen::VectorXd VectorXd;
+
 InterpretingObserver::InterpretingObserver (OptimizationVariables& subject)
     :IObserver(subject)
 {
@@ -29,22 +31,24 @@ InterpretingObserver::SetInterpreter (const Interpreter& interpreter)
 void
 InterpretingObserver::Update ()
 {
-  x_coeff_                  = subject_->GetVariables(VariableNames::kSplineCoeff);
-  Eigen::VectorXd footholds = subject_->GetVariables(VariableNames::kFootholds);
+  VectorXd x_coeff_    = subject_->GetVariables(VariableNames::kSplineCoeff);
+  VectorXd x_footholds = subject_->GetVariables(VariableNames::kFootholds);
 
-  x_feet_    = utils::ConvertEigToStd(footholds);
+  // smell this could be a cause for slow performance
+  interpreter_.SetFootholds(utils::ConvertEigToStd(x_footholds));
+  interpreter_.SetSplineCoefficients(x_coeff_);
 }
 
 InterpretingObserver::VecSpline
 InterpretingObserver::GetSplines () const
 {
-  return interpreter_.GetSplines(x_coeff_);
+  return interpreter_.GetSplines();
 }
 
 InterpretingObserver::VecFoothold
 InterpretingObserver::GetFootholds () const
 {
-  return interpreter_.GetFootholds(x_feet_);
+  return interpreter_.GetFootholds();
 }
 
 InterpretingObserver::VecFoothold

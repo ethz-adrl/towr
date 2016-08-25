@@ -7,21 +7,14 @@
 
 #include <xpp/zmp/qp_facade.h>
 
-#include <xpp/zmp/continuous_spline_container.h>
+#include <xpp/zmp/motion_factory.h>
 #include <xpp/hyq/support_polygon_container.h>
-
-#include <xpp/zmp/a_linear_constraint.h>
-#include <xpp/zmp/initial_acceleration_equation.h>
-#include <xpp/zmp/final_state_equation.h>
-#include <xpp/zmp/spline_junction_equation.h>
-
+#include <xpp/zmp/linear_spline_equations.h>
 #include <xpp/zmp/zmp_constraint_builder.h>
-
-#include <xpp/zmp/total_acceleration_equation.h>
 #include <xpp/utils/eigen_quadprog-inl.h>
 
 #include <cmath>      // std::numeric_limits
-#include <ros/console.h>
+#include <ctime>      // std::clock()
 
 namespace xpp {
 namespace zmp {
@@ -37,61 +30,62 @@ QpFacade::SolveQp(const State& initial_state,
                   bool start_with_com_shift,
                   double robot_height)
 {
-  ContinuousSplineContainer spline_structure;
-  spline_structure.Init(initial_state.p, initial_state.v , steps.size(), times,
-                        start_with_com_shift);
+  // remember to comment in regularization when using this type of spline representation
+//  auto com_spline = MotionFactory::CreateComMotion(initial_state.p, initial_state.v , steps.size(), times,start_with_com_shift);
+  auto com_spline = MotionFactory::CreateComMotion(steps.size(), times, start_with_com_shift);
 
+  LinearSplineEquations spline_eq(com_spline);
 
-  TotalAccelerationEquation total_acc_eq(spline_structure);
-  cost_function_ = total_acc_eq.BuildLinearEquation();
+  cost_function_ = spline_eq.MakeAcceleration(1.0,3.0);
 
+  // comment this in if using ComSpline6
+  // because the matrix has to be positive definite for eigen quadprog
+  Eigen::MatrixXd reg = cost_function_.M;
+  reg.setIdentity();
+  cost_function_.M += 1e-10*reg;
 
-  InitialAccelerationEquation eq_acc(initial_state.a, spline_structure);
-  FinalStateEquation eq_final(final_state, spline_structure);
-  SplineJunctionEquation eq_junction(spline_structure);
-
-  std::vector<ILinearEquationBuilder*> eq;
-  eq.push_back(&eq_acc);
-  eq.push_back(&eq_final);
-  eq.push_back(&eq_junction);
 
   equality_constraints_ = MatVec(); // clear
-  for (const ILinearEquationBuilder* const p : eq)
-    equality_constraints_ << p->BuildLinearEquation();
+  equality_constraints_ << spline_eq.MakeInitial(initial_state);
+  equality_constraints_ << spline_eq.MakeFinal(final_state);
+  equality_constraints_ << spline_eq.MakeJunction();
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(start_stance, steps, hyq::SupportPolygon::GetDefaultMargins());
 
-  ROS_INFO_STREAM("Start polygon:\n" << supp_polygon_container.GetStartPolygon());
+//  std::cout << "Start polygon:\n" << supp_polygon_container.GetStartPolygon());
   std::vector<hyq::SupportPolygon> supp = supp_polygon_container.GetSupportPolygons();
 
-  ROS_INFO_STREAM("Support polygons for the " << supp.size() << " steps:\n");
-  for (const hyq::SupportPolygon& s : supp) {
-    ROS_INFO_STREAM(s);
-  }
+  std::cout << "number of support polygons: " << supp.size() << std::endl;
+//  for (const hyq::SupportPolygon& s : supp) std::cout << s;
 
-  ZmpConstraintBuilder zmp_constraint(spline_structure, robot_height);
+  ZmpConstraintBuilder zmp_constraint(com_spline, robot_height);
   MatVecVec zmp_constr = zmp_constraint.CalcZmpConstraints(supp_polygon_container);
   inequality_constraints_.M = zmp_constr.Mv.M;
   inequality_constraints_.v = zmp_constr.Mv.v + zmp_constr.constant;
 
-  std::cout << "zmp_constr.Mv.v" << zmp_constr.Mv.v.transpose() << std::endl;
-  std::cout << "zmp_constr.constant" << zmp_constr.constant.transpose() << std::endl;
+//  std::cout << "zmp_constr.Mv.v" << zmp_constr.Mv.v.transpose() << std::endl;
+//  std::cout << "zmp_constr.constant" << zmp_constr.constant.transpose() << std::endl;
 
-  ROS_INFO_STREAM("Initial state:\t" << initial_state);
-  ROS_INFO_STREAM("Final state:\t" << final_state);
+  std::cout << "Initial state:\t" << initial_state << std::endl;
+  std::cout << "Final state:\t" << final_state << std::endl;
 
   Eigen::VectorXd opt_abcd = EigenSolveQuadprog();
-  spline_structure.AddOptimizedCoefficients(opt_abcd);
+  com_spline->SetCoefficients(opt_abcd);
 
-  return spline_structure.GetSplines();
+  return com_spline->GetPolynomials();
 }
 
 Eigen::VectorXd
 QpFacade::EigenSolveQuadprog()
 {
   Eigen::VectorXd opt_spline_coeff_xy;
-  ROS_INFO("QP optimizer running...");
+
+  std::cout << "n = " << cost_function_.M.rows() << " variables\n";
+  std::cout << "m_eq = " << equality_constraints_.M.rows() << " equality constraints\n";
+  std::cout << "m_in = " << inequality_constraints_.M.rows() << " inequality constraints\n";
+
+  std::cout << "QP optimizer running...\n";
 
   clock_t start = std::clock();
 
@@ -107,7 +101,10 @@ QpFacade::EigenSolveQuadprog()
   if (cost == std::numeric_limits<double>::infinity())
     throw std::length_error("Eigen::quadprog did not find a solution");
   else
-    ROS_INFO_STREAM("QP optimizer solved in " << time << " ms.");
+    std::cout << "QP optimizer solved in " << time << " ms.\n";
+
+  std::cout << "cost: " << cost << std::endl;
+  std::cout << "x: \n" << opt_spline_coeff_xy.transpose() << std::endl;
 
   return opt_spline_coeff_xy;
 }

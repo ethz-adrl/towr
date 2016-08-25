@@ -1,11 +1,12 @@
 /**
- @file    spline_junction_equation_test.cc
+ @file    motion_factory_test.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    May 26, 2016
+ @date    Aug 25, 2016
  @brief   Brief description
  */
 
-#include <xpp/zmp/spline_junction_equation.h>
+#include <xpp/zmp/motion_factory.h>
+#include <gtest/gtest.h>
 
 namespace xpp {
 namespace zmp {

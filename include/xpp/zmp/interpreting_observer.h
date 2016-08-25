@@ -12,10 +12,6 @@
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/optimization_variables_interpreter.h>
 
-#include <Eigen/Dense>
-#include <Eigen/StdVector> // for std::eigen vector
-#include <vector>          // std::vector
-#include <memory>          // std::shared ptr
 
 namespace xpp {
 namespace hyq {
@@ -27,7 +23,7 @@ namespace xpp {
 namespace zmp {
 
 class OptimizationVariablesInterpreter;
-class ZmpSpline;
+class ComPolynomial;
 
 /** @brief Puts the optimization variables into context
   *
@@ -37,9 +33,7 @@ class ZmpSpline;
 class InterpretingObserver : public IObserver {
 public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef std::vector<ZmpSpline> VecSpline;
-  typedef Eigen::VectorXd SplineCoefficients;
-  typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > Footholds;
+  typedef std::vector<ComPolynomial> VecSpline;
   typedef OptimizationVariablesInterpreter Interpreter;
 
   InterpretingObserver (OptimizationVariables& subject);
@@ -54,8 +48,6 @@ public:
 
 private:
   Interpreter interpreter_;
-  SplineCoefficients x_coeff_;
-  Footholds x_feet_;
 };
 
 } /* namespace zmp */

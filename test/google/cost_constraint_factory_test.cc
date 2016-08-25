@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/constraint_factory.h>
+#include "../../include/xpp/zmp/cost_constraint_factory.h"
 
 namespace xpp {
 namespace zmp {

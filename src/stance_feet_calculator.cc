@@ -6,8 +6,7 @@
  */
 
 #include <xpp/zmp/stance_feet_calculator.h>
-
-#include <xpp/zmp/spline_container.h>
+#include <xpp/zmp/com_spline6.h>
 
 namespace xpp {
 namespace zmp {
@@ -25,11 +24,11 @@ StanceFeetCalculator::~StanceFeetCalculator ()
 void
 StanceFeetCalculator::Update (const VecFoothold& start_stance,
                               const VecFoothold& steps,
-                              const VecSpline& cog_spline,
+                              const ComSplinePtr& cog_spline,
                               double robot_height)
 {
   supp_polygon_container_.Init(start_stance, steps);
-  cog_spline_xy_ = cog_spline;
+  com_motion_ = cog_spline;
   robot_height_ = robot_height;
 }
 
@@ -37,15 +36,15 @@ StanceFeetCalculator::VecFoothold
 StanceFeetCalculator::GetStanceFeetInBase (double t) const
 {
   std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
-      supp_polygon_container_.AssignSupportPolygonsToSplines(cog_spline_xy_);
+      supp_polygon_container_.AssignSupportPolygonsToPhases(*com_motion_);
 
   // legs in contact during each step/spline
   VecFoothold p_stance_legs_i;
-  int spline_id = SplineContainer::GetSplineID(t, cog_spline_xy_);
+  int phase_id = com_motion_->GetCurrentPhase(t).id_;
 
 
   // because last swing support polygon will not restrict landing position of foot
-  double T = SplineContainer::GetTotalTime(cog_spline_xy_);
+  double T = com_motion_->GetTotalTime();
 
 //  std::cout << "T_else: " << T_else << std::endl;
 //  double T = SplineContainer::GetDiscretizedGlobalTimes(cog_spline_xy_).back();
@@ -53,10 +52,10 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
   if (AreSame(t,T))
     p_stance_legs_i = supp_polygon_container_.GetFinalFootholds();
   else
-    p_stance_legs_i = suppport_polygons.at(spline_id).footholds_;
+    p_stance_legs_i = suppport_polygons.at(phase_id).footholds_;
 
   // body position during the step
-  xpp::utils::Point2d cog_xy_i = SplineContainer::GetCOGxy(t, cog_spline_xy_);
+  xpp::utils::Point2d cog_xy_i = com_motion_->GetCom(t);
   Vector3d cog_i;
   cog_i << cog_xy_i.p.x(),
            cog_xy_i.p.y(),

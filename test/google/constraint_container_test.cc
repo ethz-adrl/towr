@@ -7,10 +7,9 @@
 
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/constraint_container.h>
-#include <xpp/zmp/constraint_factory.h>
-#include <xpp/zmp/continuous_spline_container.h>
-
 #include <gtest/gtest.h>
+#include "../../include/xpp/zmp/com_spline4.h"
+#include "../../include/xpp/zmp/cost_constraint_factory.h"
 
 namespace xpp {
 namespace zmp {
@@ -32,8 +31,8 @@ protected:
     constraints_ = std::make_shared<ConstraintContainer>(opt_var_);
 
     int n_spline_coeff = opt_var_.GetVariables(VariableNames::kSplineCoeff).rows();
-    c_zeros_ = ConstraintFactory::CreateAccConstraint(Eigen::Vector2d::Zero(),splines_);
-    c_ones_  = ConstraintFactory::CreateAccConstraint(Eigen::Vector2d::Ones(),splines_);
+    c_zeros_ = CostConstraintFactory::CreateAccConstraint(Eigen::Vector2d::Zero(),splines_);
+    c_ones_  = CostConstraintFactory::CreateAccConstraint(Eigen::Vector2d::Ones(),splines_);
 
     constraints_->AddConstraint(c_zeros_);
     constraints_->AddConstraint(c_ones_);
@@ -42,7 +41,7 @@ protected:
   OptimizationVariables opt_var_;
   ConstraintPtr c_zeros_, c_ones_;
   ConstraintContainerPtr constraints_;
-  ContinuousSplineContainer splines_;
+  ComSpline4 splines_;
 };
 
 TEST_F(ConstraintContainerTest, EvaluateConstraintsInitialAcc)

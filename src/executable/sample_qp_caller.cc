@@ -6,6 +6,7 @@
  */
 
 #include <xpp/ros/ros_helpers.h>
+#include <xpp/zmp/com_spline6.h>
 
 #include <xpp_opt/RequiredInfoQp.h>          // send
 #include <xpp_opt/OptimizedParametersQp.h>   // receive
@@ -15,7 +16,7 @@
 typedef xpp_opt::RequiredInfoQp ReqInfoMsg;
 typedef xpp_opt::OptimizedParametersQp OptimizedParametersMsg;
 
-xpp::zmp::SplineContainer::VecSpline splines;
+xpp::zmp::ComSpline6::VecPolynomials splines;
 std::vector<xpp::hyq::Foothold> footholds;
 void OptParamsCallback(const OptimizedParametersMsg& msg)
 {
@@ -60,6 +61,9 @@ int main(int argc, char **argv)
   msg.steps.push_back(RosHelpers::XppToRos(Foothold( 0.35 + step_length,  0.3, 0.0, LF)));
   msg.steps.push_back(RosHelpers::XppToRos(Foothold(-0.35 + step_length, -0.3, 0.0, RH)));
   msg.steps.push_back(RosHelpers::XppToRos(Foothold( 0.35 + step_length, -0.3, 0.0, RF)));
+  // this 5th step is neccessary, so a goal position of x+=0.25 can be reached,
+  // as the last step's (RF) support polygon otherwise can't be used
+  msg.steps.push_back(RosHelpers::XppToRos(Foothold(-0.35 + 2*step_length, 0.3, 0.0, LH)));
 
   msg.start_with_com_shift = true;
 

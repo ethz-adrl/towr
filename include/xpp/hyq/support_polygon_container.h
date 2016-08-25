@@ -1,20 +1,24 @@
-/*
- * supp_triangle_container.h
- *
- *  Created on: Mar 18, 2016
- *      Author: winklera
+/**
+ @file    support_polygon_container.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Declares the SupportPolygonContainer class
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 
-#include <xpp/zmp/zmp_spline.h>
 #include <xpp/hyq/support_polygon.h>
+#include <xpp/zmp/com_motion.h>
 
 namespace xpp {
 namespace hyq {
 
 /** @brief Hold the support polygons created by the contacts with the environment.
+  *
+  * This class is responsible for all tasks that turn footholds into support
+  * polygons. Since support polygons are paired with phases of the CoM motion,
+  * this class also depends on com_motion.
   */
 class SupportPolygonContainer
 {
@@ -22,16 +26,14 @@ public:
   typedef std::vector<SupportPolygon> VecSupportPolygon;
   typedef SupportPolygon::VecFoothold VecFoothold;
   typedef std::vector<xpp::hyq::LegID> VecLegID;
-  typedef xpp::utils::MatVec MatVec;
-  typedef std::vector<xpp::zmp::ZmpSpline> VecZmpSpline;
   typedef std::vector<SupportPolygon::VecSuppLine> VecVecSuppLine;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
+  typedef xpp::zmp::ComMotion ComMotion;
 
 
 public:
   SupportPolygonContainer () {};
-  virtual
-  ~SupportPolygonContainer () {};
+  virtual ~SupportPolygonContainer () {};
 
 public:
 
@@ -62,6 +64,7 @@ public:
   Eigen::Vector2d GetCenterOfFinalStance() const;
   VecFoothold GetStanceDuring(int step) const;
   VecFoothold GetStanceAfter(int n_steps) const;
+  VecFoothold GetFootholds() const { return footholds_; };
 
 
   SupportPolygon GetStartPolygon() const;
@@ -81,8 +84,8 @@ public:
 
   VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
 
-  VecSupportPolygon AssignSupportPolygonsToSplines(const VecZmpSpline&) const;
-  VecVecSuppLine GetActiveConstraintsForEachStep(const VecZmpSpline&) const;
+  VecSupportPolygon AssignSupportPolygonsToPhases(const ComMotion&) const;
+  VecVecSuppLine GetActiveConstraintsForEachPhase(const ComMotion&) const;
 
   /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */
   Eigen::VectorXd GetFootholdsInitializedToStart() const;

@@ -22,7 +22,7 @@ RangeOfMotionConstraint::RangeOfMotionConstraint ()
 void
 RangeOfMotionConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
 {
-  continuous_spline_container_ = interpreter.GetSplineStructure();
+  com_motion_             = interpreter.GetSplineStructure();
   supp_polygon_container_ = interpreter.GetSuppPolygonContainer();
 }
 
@@ -32,7 +32,7 @@ RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
 
-  continuous_spline_container_.AddOptimizedCoefficients(x_coeff);
+  com_motion_->SetCoefficients(x_coeff);
   supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
@@ -40,10 +40,7 @@ RangeOfMotionConstraint::VectorXd
 RangeOfMotionConstraint::EvaluateConstraint () const
 {
   utils::StdVecEigen2d B_r_baseToFeet, B_r_baseToNominal;
-  B_r_baseToFeet = builder_.GetFeetInBase(continuous_spline_container_,
-                                       supp_polygon_container_,
-                                       B_r_baseToNominal);
-
+  B_r_baseToFeet = builder_.GetFeetInBase(com_motion_, supp_polygon_container_, B_r_baseToNominal);
 
   std::vector<double> g_vec;
 
@@ -84,7 +81,7 @@ RangeOfMotionConstraint::GetBounds () const
 
   // if using "linear" bounds
   utils::StdVecEigen2d nominal_footholds_b;
-  builder_.GetFeetInBase(continuous_spline_container_,supp_polygon_container_,nominal_footholds_b);
+  builder_.GetFeetInBase(com_motion_,supp_polygon_container_,nominal_footholds_b);
   double radius_x = 0.15; //m
   double radius_y = 0.15; //m
   for (int i=0; i<nominal_footholds_b.size(); ++i) {

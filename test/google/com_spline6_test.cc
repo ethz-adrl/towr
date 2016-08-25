@@ -5,10 +5,11 @@
  *      Author: awinkler
  */
 
+#include "../../include/xpp/zmp/com_spline6.h"
+
 #include <gtest/gtest.h>
-#include <xpp/zmp/spline_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
 #include <iostream>
+#include "../../include/xpp/zmp/com_spline4.h"
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 
@@ -20,7 +21,7 @@ using namespace xpp::utils::coords_wrapper;
 class SplineContainerTest : public ::testing::Test {
 
 public:
-  typedef SplineContainer::VecSpline VecSpline;
+  typedef ComSpline6::VecPolynomials VecSpline;
   typedef xpp::utils::Point2d Point2d;
   typedef Eigen::Vector2d Vector2d;
 
@@ -44,7 +45,7 @@ protected:
     n_final_splines    = 0;
   }
 
-  ContinuousSplineContainer spline_container_4steps_;
+  ComSpline4 spline_container_4steps_;
   SplineTimes times_;
 
   int n_initial_splines;
@@ -52,38 +53,38 @@ protected:
   int n_final_splines;
 };
 
-TEST_F(SplineContainerTest, GetCOGxy)
+TEST_F(SplineContainerTest, GetCom)
 {
-  ContinuousSplineContainer splines;
+  ComSpline4 splines;
   splines.Init(Vector2d::Zero(), Vector2d::Zero(), n_steps, times_);
   const double T = splines.GetTotalTime();
 
   // zero initial position and velocity
-  EXPECT_EQ(Vector2d::Zero(), splines.GetCOGxy(0.0).p);
-  EXPECT_EQ(Vector2d::Zero(), splines.GetCOGxy(T).p);
+  EXPECT_EQ(Vector2d::Zero(), splines.GetCom(0.0).p);
+  EXPECT_EQ(Vector2d::Zero(), splines.GetCom(T).p);
 
   // with initial position (final position should be same)
   const Vector2d init_pos(0.5, -0.2);
   splines.Init(init_pos, Vector2d::Zero(), n_steps, times_);
-  EXPECT_EQ(init_pos, splines.GetCOGxy(0.0).p);
-  EXPECT_EQ(init_pos, splines.GetCOGxy(T).p);
+  EXPECT_EQ(init_pos, splines.GetCom(0.0).p);
+  EXPECT_EQ(init_pos, splines.GetCom(T).p);
 
   // with initial velocity (final velocity should be same)
   const Vector2d init_vel(1.5, 0.3);
   splines.Init(Vector2d::Zero(), init_vel, n_steps, times_);
-  EXPECT_EQ(init_vel, splines.GetCOGxy(0.0).v);
-  EXPECT_EQ(init_vel, splines.GetCOGxy(T).v);
+  EXPECT_EQ(init_vel, splines.GetCom(0.0).v);
+  EXPECT_EQ(init_vel, splines.GetCom(T).v);
 
   // with initial position and velocity (final position should be different, velocity same)
   splines.Init(init_pos, init_vel, n_steps, times_);
-  EXPECT_EQ(init_pos, splines.GetCOGxy(0.0).p);
-  EXPECT_NE(init_pos, splines.GetCOGxy(T).p);
-  EXPECT_EQ(init_vel, splines.GetCOGxy(T).v);
+  EXPECT_EQ(init_pos, splines.GetCom(0.0).p);
+  EXPECT_NE(init_pos, splines.GetCom(T).p);
+  EXPECT_EQ(init_vel, splines.GetCom(T).v);
 }
 
 TEST_F(SplineContainerTest, SetEndAtStart)
 {
-  ContinuousSplineContainer splines;
+  ComSpline4 splines;
   const Vector2d init_pos(0.5, -0.2);
   const Vector2d init_vel(1.5, 0.3);
   splines.Init(init_pos, init_vel, n_steps, times_);
@@ -91,22 +92,22 @@ TEST_F(SplineContainerTest, SetEndAtStart)
   const double t_first_spline = splines.GetFirstSpline().GetDuration();
 
   // spline ends up in different position than start due to initial velocity
-  EXPECT_NE(init_pos, splines.GetCOGxy(T).p);
+  EXPECT_NE(init_pos, splines.GetCom(T).p);
 
   // same initial pos,vel, but should now end up at inital pos with zero velocity
   splines.SetEndAtStart();
-  EXPECT_EQ(init_pos, splines.GetCOGxy(0.0).p);
-  EXPECT_EQ(init_vel, splines.GetCOGxy(0.0).v);
+  EXPECT_EQ(init_pos, splines.GetCom(0.0).p);
+  EXPECT_EQ(init_vel, splines.GetCom(0.0).v);
   double tol = 1e-8;
-  EXPECT_NEAR(init_pos.x(), splines.GetCOGxy(T).p.x(),tol);
-  EXPECT_NEAR(init_pos.y(), splines.GetCOGxy(T).p.y(),tol);
-  EXPECT_NEAR(0.0, splines.GetCOGxy(T).v.x(),tol);
-  EXPECT_NEAR(0.0, splines.GetCOGxy(T).v.y(),tol);
+  EXPECT_NEAR(init_pos.x(), splines.GetCom(T).p.x(),tol);
+  EXPECT_NEAR(init_pos.y(), splines.GetCom(T).p.y(),tol);
+  EXPECT_NEAR(0.0, splines.GetCom(T).v.x(),tol);
+  EXPECT_NEAR(0.0, splines.GetCom(T).v.y(),tol);
 }
 
 TEST_F(SplineContainerTest, ConstructSplineSequenceInitFinalCount)
 {
-  VecSpline spline = spline_container_4steps_.GetSplines();
+  VecSpline spline = spline_container_4steps_.GetPolynomials();
   EXPECT_EQ(n_initial_splines + 4/*steps*/ + 0/*4LS*/ + n_final_splines, spline.size());
 }
 
@@ -131,18 +132,18 @@ TEST_F(SplineContainerTest, GetTotalTime)
   EXPECT_DOUBLE_EQ(T, spline_container_4steps_.GetTotalTime());
 }
 
-TEST_F(SplineContainerTest, GetSplineID)
+TEST_F(SplineContainerTest, GetPolynomialID)
 {
-  EXPECT_EQ(0, spline_container_4steps_.GetSplineID(0.0));
-  EXPECT_EQ(n_initial_splines, spline_container_4steps_.GetSplineID(times_.t_stance_initial_+0.01));
+  EXPECT_EQ(0, spline_container_4steps_.GetPolynomialID(0.0));
+  EXPECT_EQ(n_initial_splines, spline_container_4steps_.GetPolynomialID(times_.t_stance_initial_+0.01));
 
   double T = spline_container_4steps_.GetTotalTime();
-  int last_id = spline_container_4steps_.GetLastSpline().GetId();
+  int last_id = spline_container_4steps_.GetLastPolynomial().GetId();
 
-  EXPECT_EQ(last_id  , spline_container_4steps_.GetSplineID(T));
-  EXPECT_EQ(last_id  , spline_container_4steps_.GetSplineID(T-0.05));
-  EXPECT_EQ(last_id-n_final_splines, spline_container_4steps_.GetSplineID(T));
-  EXPECT_EQ(last_id-n_final_splines-1, spline_container_4steps_.GetSplineID(T - times_.t_swing_ - 0.01));
+  EXPECT_EQ(last_id  , spline_container_4steps_.GetPolynomialID(T));
+  EXPECT_EQ(last_id  , spline_container_4steps_.GetPolynomialID(T-0.05));
+  EXPECT_EQ(last_id-n_final_splines, spline_container_4steps_.GetPolynomialID(T));
+  EXPECT_EQ(last_id-n_final_splines-1, spline_container_4steps_.GetPolynomialID(T - times_.t_swing_ - 0.01));
 }
 
 TEST_F(SplineContainerTest, GetLocalTime)
@@ -163,13 +164,13 @@ TEST_F(SplineContainerTest, IsFourLegSupport)
   SCOPED_TRACE("id" + id);
 
   for (int j=0; j<n_initial_splines; ++j)
-    EXPECT_TRUE (spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
+    EXPECT_TRUE (spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
 
-  EXPECT_FALSE(spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
-  EXPECT_FALSE(spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
-  EXPECT_FALSE(spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
-  EXPECT_FALSE(spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
-  EXPECT_TRUE (spline_container_4steps_.GetSpline(id++).IsFourLegSupport());
+  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
+  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
+  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
+  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
+  EXPECT_TRUE (spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
 }
 
 TEST_F(SplineContainerTest, GetState)
@@ -180,10 +181,10 @@ TEST_F(SplineContainerTest, GetState)
 
   // Create a straight spline in x direction composed of 3 splines (4ls, step 1, 4ls)
   // that has equal position and velocity at junctions
-  ContinuousSplineContainer spline_container;
+  ComSpline4 spline_container;
   spline_container.Init(Eigen::Vector2d::Zero(), Eigen::Vector2d::Zero(),1,
                         times_,true);
-  std::vector<ZmpSpline> x_spline = spline_container.GetSplines();
+  std::vector<ComPolynomial> x_spline = spline_container.GetPolynomials();
 
   double pos0 = 0.4; // initial position (f0)
   double vel0 = 1.1; // initial velocity (e0)
@@ -248,12 +249,12 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   init_pos << 0.4, 3.4;
   init_vel << 1.1, -1.9;
 
-  ContinuousSplineContainer splines_estimated_ef;
+  ComSpline4 splines_estimated_ef;
   splines_estimated_ef.Init(init_pos, init_vel, 3, times_, true);
 
   // Create a straight spline in x direction composed of 3 splines (4ls, step 1, 4ls)
   // that has equal position and velocity at junctions
-  std::vector<ZmpSpline> splines_ref = splines_estimated_ef.GetSplines();
+  std::vector<ComPolynomial> splines_ref = splines_estimated_ef.GetPolynomials();
   Eigen::VectorXd abcd_coeff(splines_estimated_ef.GetTotalFreeCoeff());
   abcd_coeff.setZero();
 
@@ -280,8 +281,8 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   coeff.y[F] = f.y();
   splines_ref.at(spline).SetSplineCoefficients(coeff);
   for (const SplineCoeff c : FreeSplineCoeff) {
-    abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
-    abcd_coeff(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
+    abcd_coeff(ComSpline4::Index(spline, X, c)) = coeff.x[c];
+    abcd_coeff(ComSpline4::Index(spline, Y, c)) = coeff.y[c];
   }
 
 
@@ -308,20 +309,20 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
 
     splines_ref.at(spline).SetSplineCoefficients(coeff);
     for (const SplineCoeff c : FreeSplineCoeff) {
-      abcd_coeff(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
-      abcd_coeff(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
+      abcd_coeff(ComSpline4::Index(spline, X, c)) = coeff.x[c];
+      abcd_coeff(ComSpline4::Index(spline, Y, c)) = coeff.y[c];
     }
   }
 
 
   // Describe the same spline with only abcd coefficients and the constraint that
   // the junctions should have equal position and velocity
-  splines_estimated_ef.AddOptimizedCoefficients(abcd_coeff);
+  splines_estimated_ef.SetCoefficients(abcd_coeff);
 
   for (int dim=X; dim<=Y; ++dim) {
-    EXPECT_FLOAT_EQ(init_pos[dim], splines_estimated_ef.GetSpline(0).spline_coeff_[dim][F]);
-    EXPECT_FLOAT_EQ(init_vel[dim], splines_estimated_ef.GetSpline(0).spline_coeff_[dim][E]);
-    EXPECT_FLOAT_EQ(init_acc[dim], 2* splines_estimated_ef.GetSpline(0).spline_coeff_[dim][D]);
+    EXPECT_FLOAT_EQ(init_pos[dim], splines_estimated_ef.GetPolynomial(0).spline_coeff_[dim][F]);
+    EXPECT_FLOAT_EQ(init_vel[dim], splines_estimated_ef.GetPolynomial(0).spline_coeff_[dim][E]);
+    EXPECT_FLOAT_EQ(init_acc[dim], 2* splines_estimated_ef.GetPolynomial(0).spline_coeff_[dim][D]);
   }
 
 
@@ -330,12 +331,12 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
     for (int dim=X; dim<=Y; ++dim) {
       SCOPED_TRACE("s = " + std::to_string(s));
       SCOPED_TRACE("dim = " + std::to_string(dim));
-      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][A], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][A]);
-      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][B], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][B]);
-      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][C], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][C]);
-      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][D], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][D]);
-      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][E], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][E]);
-      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][F], splines_estimated_ef.GetSpline(s).spline_coeff_[dim][F]);
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][A], splines_estimated_ef.GetPolynomial(s).spline_coeff_[dim][A]);
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][B], splines_estimated_ef.GetPolynomial(s).spline_coeff_[dim][B]);
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][C], splines_estimated_ef.GetPolynomial(s).spline_coeff_[dim][C]);
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][D], splines_estimated_ef.GetPolynomial(s).spline_coeff_[dim][D]);
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][E], splines_estimated_ef.GetPolynomial(s).spline_coeff_[dim][E]);
+      EXPECT_FLOAT_EQ(splines_ref.at(s).spline_coeff_[dim][F], splines_estimated_ef.GetPolynomial(s).spline_coeff_[dim][F]);
     }
   }
 }

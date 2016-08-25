@@ -10,13 +10,11 @@
 
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/foothold.h>
-#include <xpp/zmp/spline_container.h>
-
-// custom msgs
 #include <xpp_opt/StateLin3d.h>
 #include <keyboard/Key.h>
 
 #include <ros/ros.h>
+#include "../zmp/com_spline6.h"
 
 namespace xpp {
 namespace ros {
@@ -28,7 +26,7 @@ public:
   typedef xpp::hyq::Foothold Foothold;
   typedef std::vector<Foothold> VecFoothold;
   typedef xpp_opt::StateLin3d StateMsg;
-  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
+  typedef xpp::zmp::ComSpline6::VecPolynomials VecSpline;
 
 public:
   OptimizerNodeBase ();

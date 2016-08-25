@@ -1,11 +1,12 @@
 /**
- @file    cost_factory_test.cc
+ @file    linear_spline_equations_test.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Jul 20, 2016
+ @date    Aug 25, 2016
  @brief   Brief description
  */
 
-#include <xpp/zmp/cost_factory.h>
+#include <xpp/zmp/linear_spline_equations.h>
+#include <gtest/gtest.h>
 
 namespace xpp {
 namespace zmp {

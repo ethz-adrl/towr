@@ -22,7 +22,7 @@ OptimizationVariablesInterpreter::~OptimizationVariablesInterpreter ()
 
 void
 OptimizationVariablesInterpreter::Init (
-    const ContinuousSplineContainer& splines,
+    const ComSplinePtr& splines,
     const SupportPolygonContainer& support_polygon_container,
     double robot_height)
 {
@@ -33,43 +33,31 @@ OptimizationVariablesInterpreter::Init (
   initialized_ = true;
 }
 
-//void
-//OptimizationVariablesInterpreter::Init (
-//    const ContinuousSplineContainer& splines,
-//    const std::vector<xpp::hyq::LegID>& step_sequence,
-//    const VecFoothold& start_stance,
-//    double robot_height)
-//{
-//  spline_structure_ = splines;
-//  step_sequence_ = step_sequence;
-//  start_stance_ = start_stance;
-//  robot_height_ = robot_height;
-//
-//  initialized_ = true;
-//}
+void
+OptimizationVariablesInterpreter::SetFootholds (
+    const FootholdPositionsXY& x_feet)
+{
+  supp_polygon_container_.SetFootholdsXY(x_feet);
+}
+
+void
+OptimizationVariablesInterpreter::SetSplineCoefficients (
+    const VectorXd& x_spline_coeff)
+{
+  spline_structure_->SetCoefficients(x_spline_coeff);
+}
 
 OptimizationVariablesInterpreter::VecFoothold
-OptimizationVariablesInterpreter::GetFootholds (const FootholdPositionsXY& footholds_xy) const
+OptimizationVariablesInterpreter::GetFootholds () const
 {
-  assert(initialized_);
-
-  VecFoothold opt_footholds(footholds_xy.size());
-  xpp::hyq::Foothold::SetXy(footholds_xy, opt_footholds);
-
-  uint i=0;
-  for (hyq::Foothold& f : opt_footholds) {
-    f.leg = supp_polygon_container_.GetLegID(i++);
-    f.p.z() = 0.0;
-  }
-
-  return opt_footholds;
+  return supp_polygon_container_.GetFootholds();
 }
 
 OptimizationVariablesInterpreter::VecSpline
-OptimizationVariablesInterpreter::GetSplines (const VectorXd& spline_coeff_abcd) const
+OptimizationVariablesInterpreter::GetSplines () const
 {
   assert(initialized_);
-  return spline_structure_.BuildOptimizedSplines(spline_coeff_abcd);
+  return spline_structure_->GetPolynomials();
 }
 
 double
@@ -78,7 +66,7 @@ OptimizationVariablesInterpreter::GetRobotHeight () const
   return robot_height_;
 }
 
-ContinuousSplineContainer
+OptimizationVariablesInterpreter::ComSplinePtr
 OptimizationVariablesInterpreter::GetSplineStructure () const
 {
   return spline_structure_;
@@ -96,6 +84,8 @@ OptimizationVariablesInterpreter::GetSuppPolygonContainer () const
   return supp_polygon_container_;
 }
 
+
 } /* namespace zmp */
 } /* namespace xpp */
+
 

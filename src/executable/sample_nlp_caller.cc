@@ -6,6 +6,7 @@
  */
 
 #include <xpp/ros/ros_helpers.h>
+#include <xpp/zmp/com_spline6.h>
 
 #include <xpp_opt/RequiredInfoNlp.h>         // send
 #include <xpp_opt/OptimizedParametersNlp.h> // receive
@@ -17,7 +18,7 @@ typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
 typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
 
 
-xpp::zmp::SplineContainer::VecSpline splines;
+xpp::zmp::ComSpline6::VecPolynomials splines;
 std::vector<xpp::hyq::Foothold> footholds;
 void OptParamsCallback(const OptimizedParametersMsg& msg)
 {

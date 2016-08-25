@@ -10,7 +10,7 @@
 
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/zmp_spline.h>
+#include <xpp/zmp/com_motion.h>
 
 namespace xpp {
 namespace zmp {
@@ -23,22 +23,22 @@ namespace zmp {
 class StanceFeetCalculator {
 public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef std::vector<xpp::zmp::ZmpSpline> VecSpline;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  typedef ComMotion::Ptr ComSplinePtr;
   typedef Eigen::Vector3d Vector3d;
 
   StanceFeetCalculator ();
   virtual ~StanceFeetCalculator ();
 
   void Update(const VecFoothold& start_stance, const VecFoothold& steps,
-              const VecSpline& cog_spline, double robot_height);
+              const ComSplinePtr& cog_spline, double robot_height);
   VecFoothold GetStanceFeetInBase(double t) const;
 
 private:
   VecFoothold ConvertFeetToBase(const VecFoothold& ee_i, const Vector3d& cog_i) const;
   bool AreSame(double time_1, double time_2) const;
 
-  VecSpline cog_spline_xy_;
+  ComSplinePtr com_motion_;
   SupportPolygonContainer supp_polygon_container_;
   double robot_height_;
 };

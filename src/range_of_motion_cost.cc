@@ -22,7 +22,7 @@ RangeOfMotionCost::RangeOfMotionCost ()
 void
 RangeOfMotionCost::Init (const OptimizationVariablesInterpreter& interpreter)
 {
-  continuous_spline_container_ = interpreter.GetSplineStructure();
+  com_motion_ptr_ = interpreter.GetSplineStructure();
   supp_polygon_container_ = interpreter.GetSuppPolygonContainer();
 }
 
@@ -32,7 +32,7 @@ RangeOfMotionCost::UpdateVariables(const OptimizationVariables* opt_var)
   VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
 
-  continuous_spline_container_.AddOptimizedCoefficients(x_coeff);
+  com_motion_ptr_->SetCoefficients(x_coeff);
   supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
@@ -40,7 +40,7 @@ double
 RangeOfMotionCost::EvaluateCost () const
 {
   utils::StdVecEigen2d footholds_b, nominal_footholds_b;
-  footholds_b = builder_.GetFeetInBase(continuous_spline_container_,
+  footholds_b = builder_.GetFeetInBase(com_motion_ptr_,
                                        supp_polygon_container_,
                                        nominal_footholds_b);
   VectorXd g(footholds_b.size()*utils::kDim2d);
