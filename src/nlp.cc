@@ -112,6 +112,7 @@ NLP::GetJacobianOfConstraints () const
 {
   // use full default jacobian if not estimated, to make sure all the
   // elements are estimated by numerical differences.
+  // refactor this is something I will for sure forget, remove
   bool jacobians_defined = false;
 
   if (jacobians_defined)

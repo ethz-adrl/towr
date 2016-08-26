@@ -26,6 +26,24 @@ protected:
 
 };
 
+TEST_F(Point2dManipulationsTest, LineCoeffNormalize)
+{
+  A << 0, 1;
+  B << 2, 1;
+  C << 0, 3;
+
+  LineCoeff2d line_norm, line;
+  line      = Point2dManip::LineCoeff(A,B, false);
+  line_norm = Point2dManip::LineCoeff(A,B, true);
+
+  // test distance to point
+  double distance_to_C = line.p*C.x() + line.q*C.y() + line.r;
+  double distance_to_C_norm = line_norm.p*C.x() + line_norm.q*C.y() + line_norm.r;
+
+  EXPECT_NE(2.0, distance_to_C); // because line is not normalized
+  EXPECT_DOUBLE_EQ(2.0, distance_to_C_norm);
+}
+
 TEST_F(Point2dManipulationsTest, LineCoefficients)
 {
   A << 0, 0;

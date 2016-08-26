@@ -233,7 +233,7 @@ if(BUILD_TESTS)
   if(GTEST_FOUND)
     set(MY_GTEST_UNITS  test/google/gtest_main.cc 
 #                        test/google/spliner_test.cc
-#                        test/google/point2d_manipulations_test.cc
+                         test/google/point2d_manipulations_test.cc
 #                        test/google/supp_polygon_test.cc
 #                        test/google/supp_polygon_container_test.cc
 #                        test/google/helpers.cc
