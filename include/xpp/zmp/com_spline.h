@@ -85,10 +85,7 @@ public:
 
 
 
-  Jacobian GetJacobianWrtCoeff(double t_global,
-                               PosVelAcc posVelAcc,
-                               Coords3D dim,
-                               const VectorXd& coeff) const override;
+
 
   // refactor write documentation
   /**
@@ -104,6 +101,16 @@ public:
                                int id,
                                Coords3D dim) const;
 
+  // refactor remove
+  Jacobian GetJacobianWrtCoeff(double t_global,
+                               PosVelAcc posVelAcc,
+                               Coords3D dim,
+                               const VectorXd& coeff) const override;
+
+
+  Eigen::RowVectorXd GetJacobian(double t_global,
+                                 PosVelAcc posVelAcc,
+                                 Coords3D dim) const override;
 
 protected:
   VecPolynomials polynomials_;
@@ -114,6 +121,7 @@ protected:
   virtual ~ComSpline ();
 
 private:
+
   virtual VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const = 0;
   virtual VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const = 0;
   virtual VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const = 0;

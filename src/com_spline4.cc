@@ -118,6 +118,7 @@ ComSpline4::ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const
   pos.v                   += t_local*Ek.v;
   pos.v                   += 1*Fk.v;
 
+  // refactor remove all these, as they are not used (same as GetCom())
   pos.s = Ek.s*t_local + Fk.s;
 
   return pos;

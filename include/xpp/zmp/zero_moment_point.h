@@ -8,16 +8,19 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_ZERO_MOMENT_POINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_ZERO_MOMENT_POINT_H_
 
-#include "com_spline.h"
+#include <xpp/utils/geometric_structs.h>
+#include <memory>
 
 namespace xpp {
 namespace zmp {
+
+class ComSpline;
 
 class ZeroMomentPoint {
 public:
   typedef xpp::utils::MatVec MatVec;
   typedef Eigen::Vector2d Vector2d;
-  typedef ComSpline::Ptr ComSplinePtr;
+  typedef std::shared_ptr<ComSpline> ComSplinePtr;
   typedef xpp::utils::Point3d State3d;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::Coords3D Coords;

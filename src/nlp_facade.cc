@@ -64,8 +64,10 @@ NlpFacade::SolveNlp(const State& initial_state,
   xpp::hyq::SupportPolygonContainer supp_polygon_container;
   supp_polygon_container.Init(curr_stance, step_sequence, margins);
 
-//  auto com_spline = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
-  auto com_spline = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
+  auto com_spline = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
+//  auto com_spline = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
+
+  std::cout << "com_spline" << com_spline->GetCoeffients().transpose() << std::endl;
 
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_spline->GetCoeffients());
   opt_variables_->AddVariableSet(VariableNames::kFootholds, supp_polygon_container.GetFootholdsInitializedToStart());

@@ -38,12 +38,21 @@ ComMotion::GetDiscretizedGlobalTimes() const
 }
 
 ComMotion::Jacobian
-ComMotion::GetJacobianWrtCoeffAtZero (double t_global, PosVelAcc posVelAcc, Coords3D dim)
+ComMotion::GetJacobianWrtCoeffAtCurrent (double t_global, PosVelAcc posVelAcc, Coords3D dim)
 {
-  Eigen::VectorXd u_lin(GetTotalFreeCoeff());
-  u_lin.setZero(); // coefficient values at which to linearize motion function
-
+  Eigen::VectorXd u_lin = GetCoeffients();
   return GetJacobianWrtCoeff(t_global, posVelAcc, dim, u_lin);
+}
+
+ComMotion::Jacobian
+ComMotion::GetLinearApproxWrtCoeff (double t_global, PosVelAcc posVelAcc, Coords3D dim) const
+{
+  Jacobian linear_approx; // at coeff
+
+  linear_approx.v = GetJacobian(t_global, posVelAcc, dim);
+  linear_approx.s = GetCom(t_global).GetByIndex(posVelAcc, dim);
+
+  return linear_approx;
 }
 
 int
@@ -54,5 +63,3 @@ ComMotion::GetTotalNodes() const
 
 } /* namespace zmp */
 } /* namespace xpp */
-
-

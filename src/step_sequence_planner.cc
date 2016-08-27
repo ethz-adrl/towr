@@ -75,7 +75,7 @@ StepSequencePlanner::DetermineStepSequence (int swingleg_of_last_spline)
 bool
 StepSequencePlanner::IsStepNecessary () const
 {
-  static const double min_distance_to_step = 0.8;//m
+  static const double min_distance_to_step = 0.08;//m
   Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
 
   bool distance_large_enough = start_to_goal.norm() > min_distance_to_step;
@@ -108,7 +108,8 @@ StepSequencePlanner::StartWithStancePhase (const LegIDVec& step_sequence) const
 
     // so 4ls-phase not always inserted b/c of short time zmp constraints are ignored
     // when switching between disjoint support triangles.
-    if ( !zmp_inside  &&  curr_state_.v.norm() < 0.01)
+//    if ( !zmp_inside  &&  curr_state_.v.norm() < 0.01)
+    if (true)
       start_with_stance_phase = true;
   }
 

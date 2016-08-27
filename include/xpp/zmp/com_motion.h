@@ -68,6 +68,54 @@ public:
   virtual int GetTotalFreeCoeff() const = 0;
   virtual VectorXd GetCoeffients() const = 0;
 
+
+
+
+  // refactor think about how to query the approximation at specific values
+  Jacobian GetLinearApproxWrtCoeff(double t_global, PosVelAcc posVelAcc, Coords3D dim) const;
+
+
+
+  /** If the trajectory has to be discretized, use this for consistent time steps.
+   *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
+   *
+   *  so first and last time are t0 and and tN, but there might be a
+   *  timestep > delta t before the last node.
+   */
+  std::vector<double> GetDiscretizedGlobalTimes() const;
+  virtual double GetTotalTime() const = 0;
+  int GetTotalNodes() const;
+
+  /** Gets the phase (stance, swing) at this current instance of time.
+    *
+    * This allows to pair the current instance with the correct footholds
+    * and support polygon. A phase is a motion during which the dynamics are
+    * continuous (stance, swing, flight).
+    */
+  virtual PhaseInfo GetCurrentPhase(double t_global) const = 0;
+
+  /** Returns a vector of phases, where no phase is duplicated.
+    *
+    * This class should not have to know e.g. how many splines are used
+    * to represent a stance phase.
+    */
+  virtual PhaseInfoVec GetPhases() const = 0;
+
+private:
+  // refactor this should be typedeffed as "Jacobian", not the VecScalar
+  virtual Eigen::RowVectorXd GetJacobian(double t_global,
+                                         PosVelAcc posVelAcc,
+                                         Coords3D dim) const = 0;
+
+
+
+
+
+
+  // refactor rename posvelAcc and create documentation
+  // refactor Let user specify where he want the jacobian, add one for zero
+  Jacobian GetJacobianWrtCoeffAtCurrent(double t_global, PosVelAcc posVelAcc, Coords3D dim);
+
   /** Produces a vector and scalar, that, multiplied with the spline coefficients
     * a,b,c,d of all splines returns the position of the CoG at time t_local.
     *
@@ -95,38 +143,15 @@ public:
     * @return The Jacobian J(u*) evaluated at u* and the corresponding offset x(u*).
     */
   virtual Jacobian GetJacobianWrtCoeff(double t_global,
-                                       PosVelAcc posVelAcc,
-                                       Coords3D dim,
-                                       const VectorXd& coeff) const = 0;
-
-  // refactor rename posvelAcc and create documentation
-  Jacobian GetJacobianWrtCoeffAtZero(double t_global, PosVelAcc posVelAcc, Coords3D dim);
+                               PosVelAcc posVelAcc,
+                               Coords3D dim,
+                               const VectorXd& coeff) const = 0;
 
 
-  /** If the trajectory has to be discretized, use this for consistent time steps.
-   *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
-   *
-   *  so first and last time are t0 and and tN, but there might be a
-   *  timestep > delta t before the last node.
-   */
-  std::vector<double> GetDiscretizedGlobalTimes() const;
-  virtual double GetTotalTime() const = 0;
-  int GetTotalNodes() const;
 
-  /** Gets the phase (stance, swing) at this current instance of time.
-    *
-    * This allows to pair the current instance with the correct footholds
-    * and support polygon. A phase is a motion during which the dynamics are
-    * continuous (stance, swing, flight).
-    */
-  virtual PhaseInfo GetCurrentPhase(double t_global) const = 0;
 
-  /** Returns a vector of phases, where no phase is duplicated.
-    *
-    * This class should not have to know e.g. how many splines are used
-    * to represent a stance phase.
-    */
-  virtual PhaseInfoVec GetPhases() const = 0;
+
+
 };
 
 } /* namespace zmp */

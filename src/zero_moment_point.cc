@@ -6,6 +6,7 @@
  */
 
 #include <xpp/zmp/zero_moment_point.h>
+#include <xpp/zmp/com_spline.h>
 
 namespace xpp {
 namespace zmp {
@@ -24,7 +25,8 @@ ZeroMomentPoint::VecScalar
 ZeroMomentPoint::CalcZmp(const VecScalar& pos, const VecScalar& acc, double height)
 {
   const double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
-  return pos - height/(gravity_+z_acc)*acc;
+  double k = height/(gravity_+z_acc);
+  return pos - k*acc;
 }
 
 
@@ -40,9 +42,8 @@ ZeroMomentPoint::ExpressZmpThroughCoefficients(const ComSplinePtr& spline_struct
   int n = 0; // node counter
   for (double t_global : spline_structure->GetDiscretizedGlobalTimes())
   {
-    // refactor this to use range based loop (DRY)
-    VecScalar pos = spline_structure->GetJacobianWrtCoeffAtZero(t_global, utils::kPos, dim);
-    VecScalar acc = spline_structure->GetJacobianWrtCoeffAtZero(t_global, utils::kAcc, dim);
+    VecScalar pos = spline_structure->GetLinearApproxWrtCoeff(t_global, utils::kPos, dim);
+    VecScalar acc = spline_structure->GetLinearApproxWrtCoeff(t_global, utils::kAcc, dim);
 
     zmp.WriteRow(CalcZmp(pos, acc, height), n++);
   }

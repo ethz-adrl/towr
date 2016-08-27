@@ -36,8 +36,8 @@ LinearSplineEquations::MakeInitial (const State2d& init) const
   for (const Coords3D dim : {X,Y})
   {
     for (auto dxdt :  derivatives) {
-      VecScalar diff_dxdt = com_spline_->GetJacobianWrtCoeffAtZero(t_global, dxdt, dim);
-      diff_dxdt.s -= GetByIndex(init, dxdt, dim);
+      VecScalar diff_dxdt = com_spline_->GetLinearApproxWrtCoeff(t_global, dxdt, dim);
+      diff_dxdt.s -= init.GetByIndex(dxdt, dim);
       M.WriteRow(diff_dxdt, i++);
     }
   }
@@ -62,8 +62,8 @@ LinearSplineEquations::MakeFinal (const State2d& final_state) const
     ComPolynomial last = com_spline_->GetLastPolynomial();
     for (auto dxdt :  derivatives)
     {
-      VecScalar diff_dxdt = com_spline_->GetJacobianWrtCoeffAtZero(T, dxdt, dim);
-      diff_dxdt.s -= GetByIndex(final_state, dxdt, dim);
+      VecScalar diff_dxdt = com_spline_->GetLinearApproxWrtCoeff(T, dxdt, dim);
+      diff_dxdt.s -= final_state.GetByIndex(dxdt, dim);
       M.WriteRow(diff_dxdt, c++);
     }
   }
@@ -139,19 +139,6 @@ LinearSplineEquations::MakeAcceleration (double weight_x, double weight_y) const
   }
 
   return M;
-}
-
-double
-LinearSplineEquations::GetByIndex (const State2d& state,
-                                   PosVelAcc dxdt,
-                                   Coords3D dim) const
-{
-  switch (dxdt) {
-    case kPos: return state.p(dim);
-    case kVel: return state.v(dim);
-    case kAcc: return state.a(dim);
-    case kJerk: assert(false); break; // jerk not specified in final state
-  }
 }
 
 } /* namespace zmp */

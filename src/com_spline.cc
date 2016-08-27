@@ -203,6 +203,21 @@ ComSpline::GetJacobianWrtCoeff (double t_global,
   }
 }
 
+Eigen::RowVectorXd
+ComSpline::GetJacobian (double t_global, PosVelAcc posVelAcc,
+                        Coords3D dim) const
+{
+  int id = GetPolynomialID(t_global);
+  double t_local = GetLocalTime(t_global);
+
+  switch (posVelAcc) {
+    case kPos: return ExpressCogPosThroughABCD(t_local, id, dim).v;
+    case kVel: return ExpressCogVelThroughABCD(t_local, id, dim).v;
+    case kAcc: return ExpressCogAccThroughABCD(t_local, id, dim).v;
+    case kJerk:return ExpressCogJerkThroughABCD(t_local, id, dim).v;
+  }
+}
+
 ComSpline::Jacobian
 ComSpline::GetJacobianWrtCoeff (PosVelAcc posVelAcc, double t_local, int id,
                                 Coords3D dim) const

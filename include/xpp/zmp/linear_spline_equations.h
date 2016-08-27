@@ -55,6 +55,8 @@ public:
     * the position, velocity and acceleration difference in x-y is returned,
     * resulting in m = (number of splines-1) * 3 * 2
     */
+  // refactor think about moving to different class, as it is the only one that has to
+  // know about the internal spline configuration of the CoM motion.
   MatVec MakeJunction() const;
 
   /** xT*M*x + xT*v gives the scalar total acceleration cost with these x.
@@ -70,8 +72,6 @@ public:
 
 private:
   ComSplinePtr com_spline_;
-
-  double GetByIndex(const State2d& state, PosVelAcc, Coords3D dim) const;
 };
 
 } /* namespace zmp */
