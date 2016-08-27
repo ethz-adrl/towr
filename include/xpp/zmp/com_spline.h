@@ -103,13 +103,6 @@ public:
                                int id,
                                Coords3D dim) const;
 
-  // refactor remove
-  Jacobian GetJacobianWrtCoeff(double t_global,
-                               PosVelAcc posVelAcc,
-                               Coords3D dim,
-                               const VectorXd& coeff) const override;
-
-
   Eigen::RowVectorXd GetJacobian(double t_global,
                                  PosVelAcc posVelAcc,
                                  Coords3D dim) const override;

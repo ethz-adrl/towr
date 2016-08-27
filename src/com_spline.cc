@@ -183,26 +183,6 @@ ComSpline::GetCOGxy(double t_global, const VecPolynomials& splines)
   return cog_xy;
 }
 
-ComSpline::VecScalar
-ComSpline::GetJacobianWrtCoeff (double t_global,
-                                PosVelAcc posVelAcc,
-                                Coords3D dim,
-                                const VectorXd& coeff) const
-{
-  // coeff can just be ignored, since all functions are linear w.r.t the
-  // spline coefficients.
-
-  int id = GetPolynomialID(t_global);
-  double t_local = GetLocalTime(t_global);
-
-  switch (posVelAcc) {
-    case kPos: return ExpressCogPosThroughABCD(t_local, id, dim);
-    case kVel: return ExpressCogVelThroughABCD(t_local, id, dim);
-    case kAcc: return ExpressCogAccThroughABCD(t_local, id, dim);
-    case kJerk:return ExpressCogJerkThroughABCD(t_local, id, dim);
-  }
-}
-
 Eigen::RowVectorXd
 ComSpline::GetJacobian (double t_global, PosVelAcc posVelAcc,
                         Coords3D dim) const
