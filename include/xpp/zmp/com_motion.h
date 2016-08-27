@@ -33,6 +33,8 @@ struct PhaseInfo {
   int id_;
 };
 
+using namespace xpp::utils::coords_wrapper;
+
 /** Abstracts the Center of Mass (CoM) motion of any system.
   *
   * This class is responsible for providing a common interface to represent
@@ -43,6 +45,7 @@ class ComMotion {
 public:
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::utils::Point2d Point2d;
+  typedef xpp::utils::VecScalar Jacobian;
   typedef std::shared_ptr<ComMotion> Ptr;
   typedef std::vector<PhaseInfo> PhaseInfoVec;
 
@@ -61,9 +64,44 @@ public:
     * These can be spline coefficients or coefficients from any type of equation
     * that produce x(t) = ...
     */
-  virtual void SetCoefficients(const VectorXd& optimized_coeff) = 0;
+  virtual void SetCoefficients(const VectorXd& coeff) = 0;
   virtual int GetTotalFreeCoeff() const = 0;
   virtual VectorXd GetCoeffients() const = 0;
+
+  /** Produces a vector and scalar, that, multiplied with the spline coefficients
+    * a,b,c,d of all splines returns the position of the CoG at time t_local.
+    *
+    * @param t_local @attention local time of spline. So t_local=0 returns CoG at beginning of this spline.
+    * @param id id of current spline
+    * @param dim dimension specifying if x or y coordinate of CoG should be calculated
+    * @return
+    */
+
+  // refactor rename these function and maybe generalize enough to move to
+  // ComMotion. Maybe even move Jacobian calculation all the way down to
+  // polynomes.
+  /** Get the Jacobian w.r.t the free coefficients of the motion.
+    *
+    * Given some general nonlinear function x(u) = ... that represents the motion
+    * of the system. A linear approximation of this function around specific
+    * coefficients u* can be found using the Jacobian J evaluated at that point and
+    * the value of the original function at *u:
+    *
+    * x(u) ~ J(u*)*(u-u*) + x(u*)
+    *
+    * For an already linear function x(u), the Jacobian J is the same for all
+    * coefficients, so we choose u*=0, e.g. returning J(0) and x(0).
+    *
+    * @return The Jacobian J(u*) evaluated at u* and the corresponding offset x(u*).
+    */
+  virtual Jacobian GetJacobianWrtCoeff(double t_global,
+                                       PosVelAcc posVelAcc,
+                                       Coords3D dim,
+                                       const VectorXd& coeff) const = 0;
+
+  // refactor rename posvelAcc and create documentation
+  Jacobian GetJacobianWrtCoeffAtZero(double t_global, PosVelAcc posVelAcc, Coords3D dim);
+
 
   /** If the trajectory has to be discretized, use this for consistent time steps.
    *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)

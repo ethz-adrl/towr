@@ -84,15 +84,25 @@ public:
   ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
 
 
-  /** Produces a vector and scalar, that, multiplied with the spline coefficients
-    * a,b,c,d of all splines returns the position of the CoG at time t_local.
+
+  Jacobian GetJacobianWrtCoeff(double t_global,
+                               PosVelAcc posVelAcc,
+                               Coords3D dim,
+                               const VectorXd& coeff) const override;
+
+  // refactor write documentation
+  /**
     *
-    * @param t_local @attention local time of spline. So t_local=0 returns CoG at beginning of this spline.
-    * @param id id of current spline
-    * @param dim dimension specifying if x or y coordinate of CoG should be calculated
+    * @param posVelAcc
+    * @param t_local
+    * @param id
+    * @param dim
     * @return
     */
-  VecScalar ExpressComThroughCoeff(PosVelAcc, double t_local, int id, Coords dim) const;
+  Jacobian GetJacobianWrtCoeff(PosVelAcc posVelAcc,
+                               double t_local,
+                               int id,
+                               Coords3D dim) const;
 
 
 protected:

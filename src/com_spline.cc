@@ -176,26 +176,42 @@ ComSpline::GetCOGxy(double t_global, const VecPolynomials& splines)
   double t_local = GetLocalTime(t_global, splines);
 
   Point2d cog_xy;
-  cog_xy.p = splines[id].GetState(xpp::utils::kPos, t_local);
-  cog_xy.v = splines[id].GetState(xpp::utils::kVel, t_local);
-  cog_xy.a = splines[id].GetState(xpp::utils::kAcc, t_local);
+  cog_xy.p = splines[id].GetState(kPos, t_local);
+  cog_xy.v = splines[id].GetState(kVel, t_local);
+  cog_xy.a = splines[id].GetState(kAcc, t_local);
 
   return cog_xy;
 }
 
 ComSpline::VecScalar
-ComSpline::ExpressComThroughCoeff (PosVelAcc posVelAcc, double t_local,
-                                   int id, Coords dim) const
+ComSpline::GetJacobianWrtCoeff (double t_global,
+                                PosVelAcc posVelAcc,
+                                Coords3D dim,
+                                const VectorXd& coeff) const
+{
+  // coeff can just be ignored, since all functions are linear w.r.t the
+  // spline coefficients.
+
+  int id = GetPolynomialID(t_global);
+  double t_local = GetLocalTime(t_global);
+
+  switch (posVelAcc) {
+    case kPos: return ExpressCogPosThroughABCD(t_local, id, dim);
+    case kVel: return ExpressCogVelThroughABCD(t_local, id, dim);
+    case kAcc: return ExpressCogAccThroughABCD(t_local, id, dim);
+    case kJerk:return ExpressCogJerkThroughABCD(t_local, id, dim);
+  }
+}
+
+ComSpline::Jacobian
+ComSpline::GetJacobianWrtCoeff (PosVelAcc posVelAcc, double t_local, int id,
+                                Coords3D dim) const
 {
   switch (posVelAcc) {
-    case xpp::utils::kPos:
-      return ExpressCogPosThroughABCD(t_local, id, dim);
-    case xpp::utils::kVel:
-      return ExpressCogVelThroughABCD(t_local, id, dim);
-    case xpp::utils::kAcc:
-      return ExpressCogAccThroughABCD(t_local, id, dim);
-    case xpp::utils::kJerk:
-      return ExpressCogJerkThroughABCD(t_local, id, dim);
+    case kPos: return ExpressCogPosThroughABCD(t_local, id, dim);
+    case kVel: return ExpressCogVelThroughABCD(t_local, id, dim);
+    case kAcc: return ExpressCogAccThroughABCD(t_local, id, dim);
+    case kJerk:return ExpressCogJerkThroughABCD(t_local, id, dim);
   }
 }
 

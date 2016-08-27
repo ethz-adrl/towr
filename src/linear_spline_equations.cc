@@ -32,14 +32,13 @@ LinearSplineEquations::MakeInitial (const State2d& init) const
   MatVec M(n_constraints, com_spline_->GetTotalFreeCoeff());
 
   int i = 0; // constraint count
-  double t = 0.0;
-  int spline_id = 0;
+  double t_global = 0.0;
   for (const Coords3D dim : {X,Y})
   {
     for (auto dxdt :  derivatives) {
-      VecScalar acc = com_spline_->ExpressComThroughCoeff(dxdt, t, spline_id, dim);
-      acc.s -= GetByIndex(init, dxdt, dim);
-      M.WriteRow(acc, i++);
+      VecScalar diff_dxdt = com_spline_->GetJacobianWrtCoeffAtZero(t_global, dxdt, dim);
+      diff_dxdt.s -= GetByIndex(init, dxdt, dim);
+      M.WriteRow(diff_dxdt, i++);
     }
   }
 
@@ -57,15 +56,13 @@ LinearSplineEquations::MakeFinal (const State2d& final_state) const
   MatVec M(n_constraints, n_spline_coeff);
 
   int c = 0; // constraint count
+  double T = com_spline_->GetTotalTime();
   for (const Coords3D dim : {X,Y})
   {
     ComPolynomial last = com_spline_->GetLastPolynomial();
-    int K = last.GetId();
-    double T = last.GetDuration();
-
     for (auto dxdt :  derivatives)
     {
-      VecScalar diff_dxdt = com_spline_->ExpressComThroughCoeff(dxdt, T, K, dim);
+      VecScalar diff_dxdt = com_spline_->GetJacobianWrtCoeffAtZero(T, dxdt, dim);
       diff_dxdt.s -= GetByIndex(final_state, dxdt, dim);
       M.WriteRow(diff_dxdt, c++);
     }
@@ -92,8 +89,8 @@ LinearSplineEquations::MakeJunction () const
     {
       for (auto dxdt :  derivatives)
       {
-        VecScalar curr = com_spline_->ExpressComThroughCoeff(dxdt, T, id,   dim);
-        VecScalar next = com_spline_->ExpressComThroughCoeff(dxdt, 0, id+1, dim);
+        VecScalar curr = com_spline_->GetJacobianWrtCoeff(dxdt, T, id,   dim);
+        VecScalar next = com_spline_->GetJacobianWrtCoeff(dxdt, 0, id+1, dim);
         M.WriteRow(curr-next, i++);
       }
     }

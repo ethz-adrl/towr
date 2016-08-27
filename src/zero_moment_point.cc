@@ -40,11 +40,9 @@ ZeroMomentPoint::ExpressZmpThroughCoefficients(const ComSplinePtr& spline_struct
   int n = 0; // node counter
   for (double t_global : spline_structure->GetDiscretizedGlobalTimes())
   {
-    double t_local = spline_structure->GetLocalTime(t_global);
-    int spline = spline_structure->GetPolynomialID(t_global);
-
-    VecScalar pos = spline_structure->ExpressComThroughCoeff(utils::kPos, t_local, spline, dim);
-    VecScalar acc = spline_structure->ExpressComThroughCoeff(utils::kAcc, t_local, spline, dim);
+    // refactor this to use range based loop (DRY)
+    VecScalar pos = spline_structure->GetJacobianWrtCoeffAtZero(t_global, utils::kPos, dim);
+    VecScalar acc = spline_structure->GetJacobianWrtCoeffAtZero(t_global, utils::kAcc, dim);
 
     zmp.WriteRow(CalcZmp(pos, acc, height), n++);
   }

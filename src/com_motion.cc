@@ -37,6 +37,15 @@ ComMotion::GetDiscretizedGlobalTimes() const
   return vec;
 }
 
+ComMotion::Jacobian
+ComMotion::GetJacobianWrtCoeffAtZero (double t_global, PosVelAcc posVelAcc, Coords3D dim)
+{
+  Eigen::VectorXd u_lin(GetTotalFreeCoeff());
+  u_lin.setZero(); // coefficient values at which to linearize motion function
+
+  return GetJacobianWrtCoeff(t_global, posVelAcc, dim, u_lin);
+}
+
 int
 ComMotion::GetTotalNodes() const
 {
@@ -45,3 +54,5 @@ ComMotion::GetTotalNodes() const
 
 } /* namespace zmp */
 } /* namespace xpp */
+
+
