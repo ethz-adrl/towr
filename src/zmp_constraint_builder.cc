@@ -18,11 +18,17 @@ ZmpConstraintBuilder::ZmpConstraintBuilder(const ComSplinePtr& spline_container,
 void
 ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container, double walking_height)
 {
-  spline_structure_ = spline_container;
+  spline_structure_ = spline_container->clone();
+  // set coefficients to zero, since that is where I am approximating the function around
+  spline_structure_->SetCoefficientsZero();
 
   using namespace xpp::utils::coords_wrapper;
-  x_zmp_map_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(spline_structure_, walking_height, X);
-  y_zmp_map_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(spline_structure_, walking_height, Y);
+
+
+  // refactor these are Jacobians
+  // rename these
+  jac_px_0_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(*spline_structure_, walking_height, X);
+  jac_py_0_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(*spline_structure_, walking_height, Y);
 
   initialized_ = true;
 }
@@ -31,7 +37,7 @@ ZmpConstraintBuilder::MatVecVec
 ZmpConstraintBuilder::CalcZmpConstraints(const SupportPolygonContainer& s) const
 {
   CheckIfInitialized();
-  return CalcZmpConstraints(x_zmp_map_, y_zmp_map_, s);
+  return CalcZmpConstraints(jac_px_0_, jac_py_0_, s);
 };
 
 ZmpConstraintBuilder::MatVecVec

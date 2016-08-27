@@ -31,19 +31,19 @@ ZeroMomentPoint::CalcZmp(const VecScalar& pos, const VecScalar& acc, double heig
 
 
 ZeroMomentPoint::MatVec
-ZeroMomentPoint::ExpressZmpThroughCoefficients(const ComSplinePtr& spline_structure,
+ZeroMomentPoint::ExpressZmpThroughCoefficients(const ComSpline& spline_structure,
                                                double height, Coords dim)
 {
-  int num_nodes = spline_structure->GetTotalNodes();
-  int coeff = spline_structure->GetTotalFreeCoeff();
+  int num_nodes = spline_structure.GetTotalNodes();
+  int coeff = spline_structure.GetTotalFreeCoeff();
 
   MatVec zmp(num_nodes, coeff);
 
   int n = 0; // node counter
-  for (double t_global : spline_structure->GetDiscretizedGlobalTimes())
+  for (double t_global : spline_structure.GetDiscretizedGlobalTimes())
   {
-    VecScalar pos = spline_structure->GetLinearApproxWrtCoeff(t_global, utils::kPos, dim);
-    VecScalar acc = spline_structure->GetLinearApproxWrtCoeff(t_global, utils::kAcc, dim);
+    VecScalar pos = spline_structure.GetLinearApproxWrtCoeff(t_global, utils::kPos, dim);
+    VecScalar acc = spline_structure.GetLinearApproxWrtCoeff(t_global, utils::kAcc, dim);
 
     zmp.WriteRow(CalcZmp(pos, acc, height), n++);
   }

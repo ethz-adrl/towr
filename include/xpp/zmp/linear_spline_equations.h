@@ -30,10 +30,11 @@ class LinearSplineEquations {
 public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::Point2d State2d;
-  typedef std::shared_ptr<ComSpline> ComSplinePtr;
+  typedef std::unique_ptr<ComSpline> ComSplinePtr;
+  typedef std::shared_ptr<ComSpline> ComSplinePtrShared;
   typedef std::vector<PosVelAcc> Derivatives;
 
-  LinearSplineEquations (const ComSplinePtr& com_spline);
+  LinearSplineEquations (const ComSplinePtrShared& com_spline);
   virtual ~LinearSplineEquations ();
 
 

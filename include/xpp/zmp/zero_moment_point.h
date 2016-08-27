@@ -9,7 +9,6 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_ZERO_MOMENT_POINT_H_
 
 #include <xpp/utils/geometric_structs.h>
-#include <memory>
 
 namespace xpp {
 namespace zmp {
@@ -20,7 +19,6 @@ class ZeroMomentPoint {
 public:
   typedef xpp::utils::MatVec MatVec;
   typedef Eigen::Vector2d Vector2d;
-  typedef std::shared_ptr<ComSpline> ComSplinePtr;
   typedef xpp::utils::Point3d State3d;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::Coords3D Coords;
@@ -43,7 +41,8 @@ public:
    * (a,b,c,d) of each spline will return a vector of ZMP positions zmp for each
    * disrete time as: zmp = m.M*x + m.v
    */
-  static MatVec ExpressZmpThroughCoefficients(const ComSplinePtr&, double walking_height, Coords dimension);
+  // refactor rename this to Jacobian of ZMP
+  static MatVec ExpressZmpThroughCoefficients(const ComSpline&, double walking_height, Coords dimension);
 
 
 

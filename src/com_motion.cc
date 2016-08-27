@@ -37,6 +37,13 @@ ComMotion::GetDiscretizedGlobalTimes() const
   return vec;
 }
 
+void
+ComMotion::SetCoefficientsZero ()
+{
+  Eigen::VectorXd coeff(GetTotalFreeCoeff());
+  SetCoefficients(coeff.setZero());
+}
+
 ComMotion::Jacobian
 ComMotion::GetJacobianWrtCoeffAtCurrent (double t_global, PosVelAcc posVelAcc, Coords3D dim)
 {

@@ -31,6 +31,7 @@ public:
 
   ComSpline4 ();
   virtual ~ComSpline4 ();
+  UniquePtr clone() const override;
   ComSpline4 (const Vector2d& start_cog_p,
                              const Vector2d& start_cog_v,
                              int step_count,

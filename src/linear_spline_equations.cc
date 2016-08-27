@@ -13,9 +13,10 @@ namespace zmp {
 
 using namespace xpp::utils;
 
-LinearSplineEquations::LinearSplineEquations (const ComSplinePtr& com_spline )
+LinearSplineEquations::LinearSplineEquations (const ComSplinePtrShared& com_spline )
 {
-  com_spline_ = com_spline;
+  com_spline_ = com_spline->clone();
+  com_spline_->SetCoefficientsZero(); // the values my motion function approximation is around
 }
 
 LinearSplineEquations::~LinearSplineEquations ()

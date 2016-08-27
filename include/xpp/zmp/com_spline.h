@@ -49,9 +49,10 @@ public:
   typedef xpp::utils::PosVelAcc PosVelAcc;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::Point2d Point2d;
-  typedef std::shared_ptr<ComSpline> Ptr;
   typedef xpp::utils::Coords3D Coords;
   typedef std::vector<PosVelAcc> Derivatives;
+  typedef std::shared_ptr<ComSpline> Ptr;
+  typedef std::unique_ptr<ComSpline> UniquePtr;
 
   // implements these functions from parent class, now specific for splines
   Point2d GetCom(double t_global) const override { return GetCOGxy(t_global, polynomials_); }
@@ -84,6 +85,7 @@ public:
   ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
 
 
+  virtual UniquePtr clone() const = 0;
 
 
 
@@ -112,13 +114,15 @@ public:
                                  PosVelAcc posVelAcc,
                                  Coords3D dim) const override;
 
+
+  ComSpline ();
+  virtual ~ComSpline ();
+
 protected:
   VecPolynomials polynomials_;
   void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
   void CheckIfSplinesInitialized() const;
 
-  ComSpline ();
-  virtual ~ComSpline ();
 
 private:
 

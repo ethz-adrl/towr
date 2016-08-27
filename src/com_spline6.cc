@@ -22,6 +22,12 @@ ComSpline6::~ComSpline6 ()
   // TODO Auto-generated destructor stub
 }
 
+ComSpline6::UniquePtr
+ComSpline6::clone () const
+{
+  return std::unique_ptr<ComSpline>(new ComSpline6(*this));
+}
+
 void
 ComSpline6::Init (int step_count, const SplineTimes& times,
                   bool insert_initial_stance)
@@ -118,7 +124,6 @@ ComSpline6::ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const
 
   return acc;
 }
-
 
 ComSpline6::VecScalar
 ComSpline6::ExpressCogJerkThroughABCD (double t_local, int id, Coords dim) const

@@ -51,6 +51,7 @@ public:
     * specific support polygon. This constraint is evaluated by multiplying with
     * the spline coefficients x.
     */
+  // refactor returns jacobian, rename
   MatVecVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
 
 private:
@@ -92,9 +93,9 @@ private:
 
 
 
-  ComSplinePtr spline_structure_;
-  MatVec x_zmp_map_;
-  MatVec y_zmp_map_;
+  std::unique_ptr<ComSpline> spline_structure_;
+  MatVec jac_px_0_; ///< Jacobian of ZMP in x direction evaluated at spline coefficient values of zero
+  MatVec jac_py_0_; ///< Jacobian of ZMP in y direction evaluated at spline coefficient values of zero
 
   void CheckIfInitialized() const; // put only in public functions
   bool initialized_ = false;

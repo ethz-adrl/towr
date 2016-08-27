@@ -65,6 +65,8 @@ public:
     * that produce x(t) = ...
     */
   virtual void SetCoefficients(const VectorXd& coeff) = 0;
+  void SetCoefficientsZero();
+
   virtual int GetTotalFreeCoeff() const = 0;
   virtual VectorXd GetCoeffients() const = 0;
 
@@ -102,6 +104,8 @@ public:
   virtual PhaseInfoVec GetPhases() const = 0;
 
 private:
+
+
   // refactor this should be typedeffed as "Jacobian", not the VecScalar
   virtual Eigen::RowVectorXd GetJacobian(double t_global,
                                          PosVelAcc posVelAcc,
