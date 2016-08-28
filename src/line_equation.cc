@@ -2,7 +2,7 @@
  @file    line_equation.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Aug 28, 2016
- @brief   Brief description
+ @brief   Defines LineEquation
  */
 
 #include <xpp/utils/line_equation.h>
@@ -51,6 +51,26 @@ LineEquation::GetCoeff() const
   return ret;
 }
 
+LineEquation::JacobianCoeff
+LineEquation::GetJacobianLineCoeffWrtPoints () const
+{
+  // as calculated in latex document
+  double a =  pt0.x() - pt1.x();
+  double b =  pt0.y() - pt1.y();
+  double c = -pt1.x()*pt1.x()* + pt0.x()*pt1.x() - pt1.y()*pt1.y() + pt0.y()*pt1.y();
+  double d = -pt0.x()*pt0.x()* + pt0.x()*pt1.x() - pt0.y()*pt0.y() + pt0.y()*pt1.y();
+
+  JacobianCoeff jac;
+  jac.row(0) <<  -a*b,   a*a,  a*b,  -a*a; // coefficient p
+  jac.row(1) <<  -b*b,   a*b,  b*b,  -a*b; // coefficient q
+  jac.row(2) <<   b*c,  -a*c,  b*d,  -a*d; // coefficient r
+
+  double e =  std::pow(a*a + b*b, 1.5);
+  jac /= e;
+
+  return jac;
+}
+
 double
 LineEquation::GetDistanceFromLine (const Point& pt) const
 {
@@ -61,24 +81,13 @@ LineEquation::GetDistanceFromLine (const Point& pt) const
   return point.dot(coeff);
 }
 
-LineEquation::JacobianCoeff
-LineEquation::GetJacobianCoeffWrtPoints () const
+LineEquation::JacobianRow
+LineEquation::GetJacobianDistanceWrtPoints (const Point& pt) const
 {
-  // as calculated in latex document
-  double a = pt0.x() - pt1.x();
-  double b = pt0.y() - pt1.y();
-  double c = -pt1.x()*pt1.x()* + pt0.x()*pt1.x() - pt1.y()*pt1.y() + pt0.y()*pt1.y();
-  double d = -pt0.x()*pt0.x()* + pt0.x()*pt1.x() - pt0.y()*pt0.y() + pt0.y()*pt1.y();
-  double e = std::pow(a*a + b*b, 1.5);
+  Eigen::Vector3d point(pt.x(), pt.y(), 1.0);
+  JacobianCoeff jac_coeff = GetJacobianLineCoeffWrtPoints();
 
-  JacobianCoeff jac;
-  jac.row(0) <<  -a*b,   a*a,  a*b,  -a*a;
-  jac.row(1) <<  -b*b,   a*b,  b*b,  -a*b;
-  jac.row(2) <<   b*c,  -a*c,  b*d,  -a*d;
-
-  jac /= e;
-
-  return jac;
+  return point.transpose()*jac_coeff;
 }
 
 } /* namespace utils */
