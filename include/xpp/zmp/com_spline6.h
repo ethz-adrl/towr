@@ -34,10 +34,10 @@ public:
 
 
 private:
-  void ExpressCogPosThroughABCD (double t_local, int id, Coords dim, Jacobian&) const override;
-  void ExpressCogVelThroughABCD (double t_local, int id, Coords dim, Jacobian&) const override;
-  void ExpressCogAccThroughABCD (double t_local, int id, Coords dim, Jacobian&) const override;
-  void ExpressCogJerkThroughABCD(double t_local, int id, Coords dim, Jacobian&) const override;
+  void GetJacobianPos (double t_local, int id, Coords dim, Jacobian&) const override;
+  void GetJacobianVel (double t_local, int id, Coords dim, Jacobian&) const override;
+  void GetJacobianAcc (double t_local, int id, Coords dim, Jacobian&) const override;
+  void GetJacobianJerk(double t_local, int id, Coords dim, Jacobian&) const override;
 
   int NumFreeCoeffPerSpline() const override { return 6; };
   std::vector<SplineCoeff> GetFreeCoeffPerSpline() const override { return {A,B,C,D,E,F}; };

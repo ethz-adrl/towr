@@ -110,7 +110,7 @@ ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
 
 // refactor rename t_local to t_polynomial
 void
-ComSpline4::ExpressCogPosThroughABCD(double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline4::GetJacobianPos(double t_local, int id, Coords dim, Jacobian& jac) const
 {
   VecScalar Ek = GetECoefficient(id, dim);
   VecScalar Fk = GetFCoefficient(id, dim);
@@ -125,7 +125,7 @@ ComSpline4::ExpressCogPosThroughABCD(double t_local, int id, Coords dim, Jacobia
 }
 
 void
-ComSpline4::ExpressCogVelThroughABCD (double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline4::GetJacobianVel (double t_local, int id, Coords dim, Jacobian& jac) const
 {
   VecScalar Ek = GetECoefficient(id, dim);
 
@@ -137,7 +137,7 @@ ComSpline4::ExpressCogVelThroughABCD (double t_local, int id, Coords dim, Jacobi
   jac                   += Ek.v;
 }
 void
-ComSpline4::ExpressCogAccThroughABCD(double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline4::GetJacobianAcc(double t_local, int id, Coords dim, Jacobian& jac) const
 {
   Eigen::RowVector4d jac_xdd_abcd = Eigen::RowVector4d::Zero();
 
@@ -152,7 +152,7 @@ ComSpline4::ExpressCogAccThroughABCD(double t_local, int id, Coords dim, Jacobia
 
 
 void
-ComSpline4::ExpressCogJerkThroughABCD (double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline4::GetJacobianJerk (double t_local, int id, Coords dim, Jacobian& jac) const
 {
   // x_jerk = 60at^2 +   24bt +  6c
   jac(Index(id,dim,A))   = 60 * std::pow(t_local,2);

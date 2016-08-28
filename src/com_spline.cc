@@ -206,14 +206,11 @@ ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t
   Jacobian jac = Jacobian::Zero(GetTotalFreeCoeff());
 
   switch (posVelAcc) {
-    // refactor rename these!
-    case kPos: ExpressCogPosThroughABCD (t_local, id, dim, jac); break;
-    case kVel: ExpressCogVelThroughABCD (t_local, id, dim, jac); break;
-    case kAcc: ExpressCogAccThroughABCD (t_local, id, dim, jac); break;
-    case kJerk:ExpressCogJerkThroughABCD(t_local, id, dim, jac); break;
+    case kPos: GetJacobianPos (t_local, id, dim, jac); break;
+    case kVel: GetJacobianVel (t_local, id, dim, jac); break;
+    case kAcc: GetJacobianAcc (t_local, id, dim, jac); break;
+    case kJerk:GetJacobianJerk(t_local, id, dim, jac); break;
   }
-
-  std::cout << "jac in ComSpline: " << jac << std::endl;
 
   return jac;
 }

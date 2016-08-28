@@ -69,10 +69,10 @@ private:
   MatVec DescribeEByABCD(Coords Coords, double start_cog_v) const;
   MatVec DescribeFByABCD(Coords Coords, double start_cog_p, double start_cog_v) const;
 
-  void ExpressCogPosThroughABCD (double t_local, int id, Coords dim, Jacobian&) const override;
-  void ExpressCogVelThroughABCD (double t_local, int id, Coords dim, Jacobian&) const override;
-  void ExpressCogAccThroughABCD (double t_local, int id, Coords dim, Jacobian&) const override;
-  void ExpressCogJerkThroughABCD(double t_local, int id, Coords dim, Jacobian&) const override;
+  void GetJacobianPos (double t_local, int id, Coords dim, Jacobian&) const override;
+  void GetJacobianVel (double t_local, int id, Coords dim, Jacobian&) const override;
+  void GetJacobianAcc (double t_local, int id, Coords dim, Jacobian&) const override;
+  void GetJacobianJerk(double t_local, int id, Coords dim, Jacobian&) const override;
 
   VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
   VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;

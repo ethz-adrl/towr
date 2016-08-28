@@ -81,7 +81,7 @@ ComSpline6::SetCoefficients (const VectorXd& optimized_coeff)
 }
 
 void
-ComSpline6::ExpressCogPosThroughABCD (double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline6::GetJacobianPos (double t_local, int id, Coords dim, Jacobian& jac) const
 {
   // x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
   jac(Index(id,dim,A))   = std::pow(t_local,5);
@@ -95,7 +95,7 @@ ComSpline6::ExpressCogPosThroughABCD (double t_local, int id, Coords dim, Jacobi
 }
 
 void
-ComSpline6::ExpressCogVelThroughABCD (double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline6::GetJacobianVel (double t_local, int id, Coords dim, Jacobian& jac) const
 {
   // x_vel = 5at^4 +   4bt^3 +  3ct^2 + 2dt + e
   jac(Index(id,dim,A))   = 5 * std::pow(t_local,4);
@@ -106,7 +106,7 @@ ComSpline6::ExpressCogVelThroughABCD (double t_local, int id, Coords dim, Jacobi
 }
 
 void
-ComSpline6::ExpressCogAccThroughABCD (double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline6::GetJacobianAcc (double t_local, int id, Coords dim, Jacobian& jac) const
 {
   // x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
   jac(Index(id,dim,A))   = 20.0 * std::pow(t_local,3);
@@ -116,7 +116,7 @@ ComSpline6::ExpressCogAccThroughABCD (double t_local, int id, Coords dim, Jacobi
 }
 
 void
-ComSpline6::ExpressCogJerkThroughABCD (double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline6::GetJacobianJerk (double t_local, int id, Coords dim, Jacobian& jac) const
 {
   // x_jerk = 60at^2 +   24bt +  6c
   jac(Index(id,dim,A))   = 60 * std::pow(t_local,2);
