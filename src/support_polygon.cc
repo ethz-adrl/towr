@@ -52,7 +52,7 @@ SupportPolygon::VecSuppLine SupportPolygon::CalcLines() const
     int last_idx = footholds_conv_.size()-1;
     Foothold to = (i == last_idx) ? footholds_conv_[0] : footholds_conv_[i+1];
     LineEquation line(from.p.segment(0,2), to.p.segment(0,2));
-    lines[i].coeff = line.GetCoeff(false);
+    lines[i].coeff = line.GetCoeff();
     lines[i].s_margin = UseMargin(from.leg, to.leg);
 
     // this is to separate out the constant terms of the constraints

@@ -32,18 +32,27 @@ class LineEquation {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-  typedef Eigen::Vector2d Vec2d;
+  static const int kNumLineCoeff = 3;   // p, q, r
+  static const int kNumPointCoords = 4; // p0.x, p0.y, p1.x, p1.y
+  typedef Eigen::Matrix<double, kNumLineCoeff, kNumPointCoords> JacobianCoeff;
+  typedef Eigen::Matrix<double, 1, kNumPointCoords>  JacobianRow;
+
+  typedef Eigen::Vector2d Point;
 
   LineEquation ();
-  LineEquation (const Vec2d& pt0, const Vec2d& pt1);
+  LineEquation (const Point& pt0, const Point& pt1);
   virtual ~LineEquation ();
 
-  void SetPoints(const Vec2d& pt0, const Vec2d& pt1);
+  void SetPoints(const Point& pt0, const Point& pt1);
+  LineCoeff2d GetCoeff() const;
+  double GetDistanceFromLine(const Point& pt) const;
 
-  LineCoeff2d GetCoeff(bool normalize = true) const;
+
+  JacobianCoeff GetJacobianCoeffWrtPoints() const;
+
 
 private:
-  Vec2d pt0, pt1;
+  Point pt0, pt1;
 };
 
 

@@ -15,13 +15,13 @@ LineEquation::~LineEquation ()
   // TODO Auto-generated destructor stub
 }
 
-LineEquation::LineEquation (const Vec2d& _pt0, const Vec2d& _pt1)
+LineEquation::LineEquation (const Point& _pt0, const Point& _pt1)
 {
   SetPoints(_pt0, _pt1);
 }
 
 void
-LineEquation::SetPoints (const Vec2d& _pt0, const Vec2d& _pt1)
+LineEquation::SetPoints (const Point& _pt0, const Point& _pt1)
 {
   pt0 = _pt0;
   pt1 = _pt1;
@@ -33,23 +33,52 @@ LineEquation::LineEquation ()
 
 // from http://math.stackexchange.com/questions/1076292/obtain-coefficients-of-a-line-from-2-points
 LineCoeff2d
-LineEquation::GetCoeff(bool normalize) const {
-
+LineEquation::GetCoeff() const
+{
   LineCoeff2d ret;
   ret.p = pt0.y() - pt1.y();
   ret.q = pt1.x() - pt0.x();
-//    ret.r = -ret.p * pt0.x() - ret.q * pt0.y();
+  //    ret.r = -ret.p * pt0.x() - ret.q * pt0.y();
   ret.r = pt0.x()*pt1.y() - pt1.x()*pt0.y();
 
-  // normalize the equation in order to intuitively use stability margins
-  if (normalize) {
-    double norm = hypot(ret.p, ret.q);
-    ret.p /= norm;
-    ret.q /= norm;
-    ret.r /= norm;
-  }
+  // normalize so distance t line function is correct, otherwise
+  // point to line depends on how close the two line defining points where apart
+  double norm = hypot(ret.p, ret.q);
+  ret.p /= norm;
+  ret.q /= norm;
+  ret.r /= norm;
 
   return ret;
+}
+
+double
+LineEquation::GetDistanceFromLine (const Point& pt) const
+{
+  LineCoeff2d l = GetCoeff();
+  Eigen::Vector3d coeff(l.p, l.q, l.r);
+  Eigen::Vector3d point(pt.x(), pt.y(), 1.0);
+
+  return point.dot(coeff);
+}
+
+LineEquation::JacobianCoeff
+LineEquation::GetJacobianCoeffWrtPoints () const
+{
+  // as calculated in latex document
+  double a = pt0.x() - pt1.x();
+  double b = pt0.y() - pt1.y();
+  double c = -pt1.x()*pt1.x()* + pt0.x()*pt1.x() - pt1.y()*pt1.y() + pt0.y()*pt1.y();
+  double d = -pt0.x()*pt0.x()* + pt0.x()*pt1.x() - pt0.y()*pt0.y() + pt0.y()*pt1.y();
+  double e = std::pow(a*a + b*b, 1.5);
+
+  JacobianCoeff jac;
+  jac.row(0) <<  -a*b,   a*a,  a*b,  -a*a;
+  jac.row(1) <<  -b*b,   a*b,  b*b,  -a*b;
+  jac.row(2) <<   b*c,  -a*c,  b*d,  -a*d;
+
+  jac /= e;
+
+  return jac;
 }
 
 } /* namespace utils */

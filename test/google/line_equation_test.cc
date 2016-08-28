@@ -23,24 +23,6 @@ protected:
 
 };
 
-TEST_F(LineEquationTest, LineCoeffNormalize)
-{
-  A << 0, 1;
-  B << 2, 1;
-  C << 0, 3;
-
-  LineCoeff2d line_norm, line;
-  le.SetPoints(A,B);
-  line      = le.GetCoeff(false);
-  line_norm = le.GetCoeff(true);
-
-  // test distance to point
-  double distance_to_C = line.p*C.x() + line.q*C.y() + line.r;
-  double distance_to_C_norm = line_norm.p*C.x() + line_norm.q*C.y() + line_norm.r;
-
-  EXPECT_NE(2.0, distance_to_C); // because line is not normalized
-  EXPECT_DOUBLE_EQ(2.0, distance_to_C_norm);
-}
 
 TEST_F(LineEquationTest, LineCoefficients)
 {
@@ -64,19 +46,19 @@ TEST_F(LineEquationTest, LineCoefficients)
   EXPECT_DOUBLE_EQ( 0, line.q);
   EXPECT_DOUBLE_EQ( 1, line.r);
 
-  // diagonal line to top right not normalized
+  // diagonal line to top right
   le.SetPoints(A,C);
-  line = le.GetCoeff(false);
-  EXPECT_DOUBLE_EQ(-1, line.p);
-  EXPECT_DOUBLE_EQ( 1, line.q);
+  line = le.GetCoeff();
+  EXPECT_DOUBLE_EQ(-1/std::sqrt(2), line.p);
+  EXPECT_DOUBLE_EQ( 1/std::sqrt(2), line.q);
   EXPECT_DOUBLE_EQ( 0, line.r);
 
-  // diagonal line to top left not normalized
+  // diagonal line to top left
   le.SetPoints(B,D);
-  line = le.GetCoeff(false);
-  EXPECT_DOUBLE_EQ(-1, line.p);
-  EXPECT_DOUBLE_EQ(-1, line.q);
-  EXPECT_DOUBLE_EQ( 1, line.r);
+  line = le.GetCoeff();
+  EXPECT_DOUBLE_EQ(-1/std::sqrt(2), line.p);
+  EXPECT_DOUBLE_EQ(-1/std::sqrt(2), line.q);
+  EXPECT_DOUBLE_EQ( 1/std::sqrt(2), line.r);
 }
 
 TEST_F(LineEquationTest, LineCoefficientsDistanceSign)
@@ -89,19 +71,16 @@ TEST_F(LineEquationTest, LineCoefficientsDistanceSign)
   // distance of point B and D to diagonal line A->C
   double distance_to_B, distance_to_D;
   le.SetPoints(A,C);
-  xpp::utils::LineCoeff2d AC = le.GetCoeff();
-  distance_to_B = AC.p*B.x() + AC.q*B.y() + AC.r;
-  distance_to_D = AC.p*D.x() + AC.q*D.y() + AC.r;
+  distance_to_B = le.GetDistanceFromLine(B);
+  distance_to_D = le.GetDistanceFromLine(D);
 
   EXPECT_TRUE(distance_to_B < 0.0); // because B right of AC
   EXPECT_TRUE(distance_to_D > 0.0); // because D left  of AC
 
-
   // reverse the direction of the line, now from C to A
   le.SetPoints(C,A);
-  xpp::utils::LineCoeff2d CA = le.GetCoeff();
-  distance_to_B = CA.p*B.x() + CA.q*B.y() + CA.r;
-  distance_to_D = CA.p*D.x() + CA.q*D.y() + CA.r;
+  distance_to_B = le.GetDistanceFromLine(B);
+  distance_to_D = le.GetDistanceFromLine(D);
 
   EXPECT_TRUE(distance_to_B > 0.0); // because B right of AC
   EXPECT_TRUE(distance_to_D < 0.0); // because D left  of AC
@@ -116,9 +95,8 @@ TEST_F(LineEquationTest, LineCoefficientsDistanceValue)
 
   // distance of point B and D to diagonal line A->C
   le.SetPoints(A,C);
-  xpp::utils::LineCoeff2d AC = le.GetCoeff();
-  double distance_to_B = AC.p*B.x() + AC.q*B.y() + AC.r;
-  double distance_to_D = AC.p*D.x() + AC.q*D.y() + AC.r;
+  double distance_to_B = le.GetDistanceFromLine(B);
+  double distance_to_D = le.GetDistanceFromLine(D);
 
   EXPECT_DOUBLE_EQ(hypot(0.5, 0.5), std::fabs(distance_to_B));
   EXPECT_DOUBLE_EQ(distance_to_B, -distance_to_D); // both on opposite sides of line
