@@ -35,28 +35,22 @@ public:
   static Vector2d  CalcZmp(const State3d& cog, double height);
   static VecScalar CalcZmp(const VecScalar& pos, const VecScalar& acc, double height);
 
-  /** Creates a linear approximation of the ZMP w.r.t the current motion coefficients.
+  /** Creates a linear approximation of the ZMP w.r.t the current motion coefficients uc
     *
-    * The output of this is a sequence of Jacobian
+    * The output of this the Jacobian J(t, uc) w.r.t the current motion
+    * coefficients u_m and the offset x0(t), which is the ZMP evaluated
+    * for zero motion coefficients at each time t.
     *
+    * The position of the ZMP can be reconstructed with this information as:
+    * p = J*(u-uc) + x0
     *
-    * Calculates the position of the ZMP for every discrete time dt along a trajectory.
-    *
-    * @param com_spline The CoG spline of 5. order polynomials initialized with specific pos/vel.
-    * @param walking_height the height of the CoG above ground.
+    * This yields a vector of ZMP positions for every discretized time t.
+
+    * @param s a CoM motion described by current motion coefficients uc.
+    * @param walking_height the height of the CoM above ground.
     * @param dimension what ZMP coordinate you are interested in (X or Y).
-    *
-    * @return A MatrixVector type m, that together with the spline coefficients x
-    * (a,b,c,d) of each spline will return a vector of ZMP positions zmp for each
-    * disrete time as: zmp = m.M*x + m.v
     */
-  // refactor rename this to Jacobian of ZMP
-  static MatVec GetLinearApproxWrtMotionCoeff(const ComMotion&, double walking_height, Coords dimension);
-
-
-
-  static constexpr double gravity_ = 9.80665; // gravity acceleration [m\s^2]
-
+  static MatVec GetLinearApproxWrtMotionCoeff(const ComMotion& x, double walking_height, Coords dimension);
 };
 
 } /* namespace zmp */

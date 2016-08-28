@@ -11,39 +11,38 @@
 namespace xpp {
 namespace zmp {
 
+static constexpr double kGravity = 9.80665; // gravity acceleration [m\s^2]
 
 ZeroMomentPoint::Vector2d
 ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
 {
   double z_acc = cog.a.z(); // TODO: calculate z_acc based on foothold height
-  Vector2d zmp = cog.Get2D().p - height/(gravity_+z_acc) * cog.Get2D().a;
+  Vector2d zmp = cog.Get2D().p - height/(kGravity+z_acc) * cog.Get2D().a;
   return zmp;
 }
-
 
 ZeroMomentPoint::VecScalar
 ZeroMomentPoint::CalcZmp(const VecScalar& pos, const VecScalar& acc, double height)
 {
   const double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
-  double k = height/(gravity_+z_acc);
+  double k = height/(kGravity+z_acc);
   return pos - k*acc;
 }
 
-
 ZeroMomentPoint::MatVec
-ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(const ComMotion& spline_structure,
+ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(const ComMotion& com_motion,
                                                double height, Coords dim)
 {
-  auto vec_t = spline_structure.GetDiscretizedGlobalTimes();
-  int coeff = spline_structure.GetTotalFreeCoeff();
+  auto vec_t = com_motion.GetDiscretizedGlobalTimes();
+  int coeff = com_motion.GetTotalFreeCoeff();
 
   MatVec zmp(vec_t.size(), coeff);
 
   int n = 0; // node counter
   for (double t_global : vec_t)
   {
-    VecScalar pos = spline_structure.GetLinearApproxWrtCoeff(t_global, utils::kPos, dim);
-    VecScalar acc = spline_structure.GetLinearApproxWrtCoeff(t_global, utils::kAcc, dim);
+    VecScalar pos = com_motion.GetLinearApproxWrtCoeff(t_global, utils::kPos, dim);
+    VecScalar acc = com_motion.GetLinearApproxWrtCoeff(t_global, utils::kAcc, dim);
 
     zmp.WriteRow(CalcZmp(pos, acc, height), n++);
   }
@@ -51,10 +50,6 @@ ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(const ComMotion& spline_structure
   assert(n<=vec_t.size()); // check that Eigen matrix didn't overflow
   return zmp;
 }
-
-
-
-
 
 } /* namespace zmp */
 } /* namespace xpp */
