@@ -46,7 +46,6 @@ public:
                                       int step_count,
                                       const SplineTimes& times,
                                       bool insert_initial_stance);
-
 };
 
 } /* namespace zmp */

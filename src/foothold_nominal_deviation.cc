@@ -36,7 +36,8 @@ FootholdNominalDeviation::GetFeetInBase (
   B_r_BaseToNominal[hyq::LH] << -x_nominal_b,  y_nominal_b;
   B_r_BaseToNominal[hyq::RH] << -x_nominal_b, -y_nominal_b;
 
-  int N     = cog_spline->GetTotalNodes();
+  auto vec_t = cog_spline->GetDiscretizedGlobalTimes();
+  int N     = vec_t.size();
 //  int approx_n_constraints = 4*N*2; // 3 or 4 legs in contact at every discrete time, 2 b/c x-y
 //  std::vector<double> g_vec;
 //  g_vec.reserve(approx_n_constraints);
@@ -50,7 +51,7 @@ FootholdNominalDeviation::GetFeetInBase (
 
   double T = cog_spline->GetDiscretizedGlobalTimes().back();
 
-  for (double t : cog_spline->GetDiscretizedGlobalTimes()) {
+  for (double t : vec_t) {
 
     // get legs in contact at each step
     VecFoothold stance_legs;

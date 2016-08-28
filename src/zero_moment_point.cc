@@ -6,56 +6,50 @@
  */
 
 #include <xpp/zmp/zero_moment_point.h>
+#include <xpp/zmp/com_motion.h>
 
 namespace xpp {
 namespace zmp {
 
+static constexpr double kGravity = 9.80665; // gravity acceleration [m\s^2]
 
 ZeroMomentPoint::Vector2d
 ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
 {
   double z_acc = cog.a.z(); // TODO: calculate z_acc based on foothold height
-  Vector2d zmp = cog.Get2D().p - height/(gravity_+z_acc) * cog.Get2D().a;
+  Vector2d zmp = cog.Get2D().p - height/(kGravity+z_acc) * cog.Get2D().a;
   return zmp;
 }
-
 
 ZeroMomentPoint::VecScalar
 ZeroMomentPoint::CalcZmp(const VecScalar& pos, const VecScalar& acc, double height)
 {
   const double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
-  return pos - height/(gravity_+z_acc)*acc;
+  double k = height/(kGravity+z_acc);
+  return pos - k*acc;
 }
 
-
 ZeroMomentPoint::MatVec
-ZeroMomentPoint::ExpressZmpThroughCoefficients(const ComSplinePtr& spline_structure,
+ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(const ComMotion& com_motion,
                                                double height, Coords dim)
 {
-  int num_nodes = spline_structure->GetTotalNodes();
-  int coeff = spline_structure->GetTotalFreeCoeff();
+  auto vec_t = com_motion.GetDiscretizedGlobalTimes();
+  int coeff = com_motion.GetTotalFreeCoeff();
 
-  MatVec zmp(num_nodes, coeff);
+  MatVec zmp(vec_t.size(), coeff);
 
   int n = 0; // node counter
-  for (double t_global : spline_structure->GetDiscretizedGlobalTimes())
+  for (double t_global : vec_t)
   {
-    double t_local = spline_structure->GetLocalTime(t_global);
-    int spline = spline_structure->GetPolynomialID(t_global);
-
-    VecScalar pos = spline_structure->ExpressComThroughCoeff(utils::kPos, t_local, spline, dim);
-    VecScalar acc = spline_structure->ExpressComThroughCoeff(utils::kAcc, t_local, spline, dim);
+    VecScalar pos = com_motion.GetLinearApproxWrtCoeff(t_global, utils::kPos, dim);
+    VecScalar acc = com_motion.GetLinearApproxWrtCoeff(t_global, utils::kAcc, dim);
 
     zmp.WriteRow(CalcZmp(pos, acc, height), n++);
   }
 
-  assert(n<=num_nodes); // check that Eigen matrix didn't overflow
+  assert(n<=vec_t.size()); // check that Eigen matrix didn't overflow
   return zmp;
 }
-
-
-
-
 
 } /* namespace zmp */
 } /* namespace xpp */

@@ -18,11 +18,16 @@ ZmpConstraintBuilder::ZmpConstraintBuilder(const ComSplinePtr& spline_container,
 void
 ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container, double walking_height)
 {
-  spline_structure_ = spline_container;
+  spline_structure_ = spline_container->clone();
+  // set coefficients to zero, since that is where I am approximating the function
+  //around. can only do this in initialization, because ZMP is linear, so
+  // Jacobians and offset are independent of current coefficients.
+  spline_structure_->SetCoefficientsZero();
 
   using namespace xpp::utils::coords_wrapper;
-  x_zmp_map_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(spline_structure_, walking_height, X);
-  y_zmp_map_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(spline_structure_, walking_height, Y);
+
+  jac_px_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, X);
+  jac_py_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, Y);
 
   initialized_ = true;
 }
@@ -31,7 +36,7 @@ ZmpConstraintBuilder::MatVecVec
 ZmpConstraintBuilder::CalcZmpConstraints(const SupportPolygonContainer& s) const
 {
   CheckIfInitialized();
-  return CalcZmpConstraints(x_zmp_map_, y_zmp_map_, s);
+  return CalcZmpConstraints(jac_px_0_, jac_py_0_, s);
 };
 
 ZmpConstraintBuilder::MatVecVec
@@ -41,17 +46,20 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
   std::vector<NodeConstraint> supp_lines = supp_polygon_container.GetActiveConstraintsForEachPhase(*spline_structure_);
 
   // if every spline is a four leg support spline with 4 line constraints
-  const int max_num_constraints = spline_structure_->GetTotalNodes()*SupportPolygon::kMaxSides;
+  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
+  const int max_num_constraints = vec_t.size()*SupportPolygon::kMaxSides;
   int coeff = spline_structure_->GetTotalFreeCoeff();
   MatVecVec ineq(max_num_constraints, coeff);
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
 
-  for (double t_global : spline_structure_->GetDiscretizedGlobalTimes()) {
+  for (double t_global : vec_t) {
     int spline_id = spline_structure_->GetPolynomialID(t_global);
     int phase_id  = spline_structure_->GetCurrentPhase(t_global).id_;
 
+    // refactor have one function that knows at which global time the
+    // splines switch and disregard constraint at these times.
     if (DisjSuppSwitch(t_global, spline_structure_->GetPolynomial(spline_id), supp_polygon_container)) {
       n++; // no constraints
       continue;

@@ -14,7 +14,6 @@
 namespace xpp {
 namespace zmp {
 
-
 enum PhaseType {kStancePhase=0, kStepPhase, kFlightPhase};
 /** Information to represent different types of motion.
   */
@@ -33,6 +32,8 @@ struct PhaseInfo {
   int id_;
 };
 
+using namespace xpp::utils::coords_wrapper;
+
 /** Abstracts the Center of Mass (CoM) motion of any system.
   *
   * This class is responsible for providing a common interface to represent
@@ -43,6 +44,8 @@ class ComMotion {
 public:
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::utils::Point2d Point2d;
+  typedef xpp::utils::VecScalar VecScalar;
+  typedef Eigen::RowVectorXd Jacobian;
   typedef std::shared_ptr<ComMotion> Ptr;
   typedef std::vector<PhaseInfo> PhaseInfoVec;
 
@@ -61,9 +64,24 @@ public:
     * These can be spline coefficients or coefficients from any type of equation
     * that produce x(t) = ...
     */
-  virtual void SetCoefficients(const VectorXd& optimized_coeff) = 0;
+  virtual void SetCoefficients(const VectorXd& coeff) = 0;
+  void SetCoefficientsZero();
+
   virtual int GetTotalFreeCoeff() const = 0;
   virtual VectorXd GetCoeffients() const = 0;
+
+  /** Creates a linear approximation of the motion at the current coefficients.
+    *
+    * Given some general nonlinear function x(u) = ... that represents the motion
+    * of the system. A linear approximation of this function around specific
+    * coefficients u* can be found using the Jacobian J evaluated at that point and
+    * the value of the original function at *u:
+    *
+    * x(u) ~ J(u*)*(u-u*) + x(u*)
+    *
+    * @return The Jacobian J(u*) evaluated at u* and the corresponding offset x(u*).
+    */
+  VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative, Coords3D dim) const;
 
   /** If the trajectory has to be discretized, use this for consistent time steps.
    *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
@@ -73,7 +91,6 @@ public:
    */
   std::vector<double> GetDiscretizedGlobalTimes() const;
   virtual double GetTotalTime() const = 0;
-  int GetTotalNodes() const;
 
   /** Gets the phase (stance, swing) at this current instance of time.
     *
@@ -89,6 +106,16 @@ public:
     * to represent a stance phase.
     */
   virtual PhaseInfoVec GetPhases() const = 0;
+
+private:
+
+  /** Calculates the Jacobian J of the motion with respect to the current coefficients.
+    *
+    * @param t_global the time of the motion to evaluate the Jacobian
+    * @param dxdt wheather Jacobian for position, velocity, acceleration or jerk is desired
+    * @param dim which motion dimension (x,y) the jacobian represents.
+    */
+  virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
 };
 
 } /* namespace zmp */

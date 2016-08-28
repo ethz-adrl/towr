@@ -37,10 +37,22 @@ ComMotion::GetDiscretizedGlobalTimes() const
   return vec;
 }
 
-int
-ComMotion::GetTotalNodes() const
+void
+ComMotion::SetCoefficientsZero ()
 {
-  return GetDiscretizedGlobalTimes().size();
+  Eigen::VectorXd coeff(GetTotalFreeCoeff());
+  SetCoefficients(coeff.setZero());
+}
+
+ComMotion::VecScalar
+ComMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coords3D dim) const
+{
+  VecScalar linear_approx; // at current coefficient values
+
+  linear_approx.v = GetJacobian(t_global, dxdt, dim);
+  linear_approx.s = GetCom(t_global).GetByIndex(dxdt, dim);
+
+  return linear_approx;
 }
 
 } /* namespace zmp */

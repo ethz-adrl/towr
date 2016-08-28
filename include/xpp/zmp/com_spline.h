@@ -46,15 +46,19 @@ struct SplineTimes
 class ComSpline : public ComMotion {
 public:
   typedef std::vector<ComPolynomial> VecPolynomials;
-  typedef xpp::utils::PosVelAcc PosVelAcc;
+  typedef xpp::utils::MotionDerivative MotionDerivative;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::Point2d Point2d;
-  typedef std::shared_ptr<ComSpline> Ptr;
   typedef xpp::utils::Coords3D Coords;
-  typedef std::vector<PosVelAcc> Derivatives;
+  typedef std::vector<MotionDerivative> Derivatives;
+  typedef std::shared_ptr<ComSpline> Ptr;
+  typedef std::unique_ptr<ComSpline> UniquePtr;
+
+  ComSpline ();
+  virtual ~ComSpline ();
 
   // implements these functions from parent class, now specific for splines
-  Point2d GetCom(double t_global) const override { return GetCOGxy(t_global, polynomials_); }
+  Point2d GetCom(double t_global) const override { return GetCOM(t_global, polynomials_); }
   double GetTotalTime() const override { return GetTotalTime(polynomials_); }
   PhaseInfo GetCurrentPhase(double t_global) const override;
   PhaseInfoVec GetPhases() const override;
@@ -73,7 +77,7 @@ public:
   virtual Derivatives GetFinalFreeMotions()    const = 0;
 
 
-  static Point2d GetCOGxy(double t_global, const VecPolynomials& splines);
+  static Point2d GetCOM(double t_global, const VecPolynomials& splines);
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
   static double GetTotalTime(const VecPolynomials& splines);
 
@@ -84,15 +88,21 @@ public:
   ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
 
 
-  /** Produces a vector and scalar, that, multiplied with the spline coefficients
-    * a,b,c,d of all splines returns the position of the CoG at time t_local.
+  virtual UniquePtr clone() const = 0;
+
+
+  /** Calculates the Jacobian at a specific time of the motion, but specified by
+    * a local time and a polynome id. This allows to create spline junction constraints
     *
-    * @param t_local @attention local time of spline. So t_local=0 returns CoG at beginning of this spline.
-    * @param id id of current spline
-    * @param dim dimension specifying if x or y coordinate of CoG should be calculated
-    * @return
+    * @param dxdt whether position, velocity, acceleration or jerk Jacobian is desired
+    * @param t_poly the time at which the Jacobian is desired, expressed since current polynomial is active.
+    * @param id the ID of the current polynomial
+    * @param dim in which dimension (x,y) the Jacobian is desired.
     */
-  VecScalar ExpressComThroughCoeff(PosVelAcc, double t_local, int id, Coords dim) const;
+  Jacobian GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt, double t_poly, int id, Coords3D dim) const;
+  static Point2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
+  Point2d GetCOGxyAtPolynomial(int id, double t_local) {return GetCOGxyAtPolynomial(id, t_local, polynomials_); };
+
 
 
 protected:
@@ -100,14 +110,14 @@ protected:
   void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
   void CheckIfSplinesInitialized() const;
 
-  ComSpline ();
-  virtual ~ComSpline ();
 
 private:
-  virtual VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const = 0;
-  virtual VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const = 0;
-  virtual VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const = 0;
-  virtual VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const = 0;
+
+  Jacobian GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const override;
+  virtual void GetJacobianPos (double t_poly, int id, Coords dim, Jacobian&) const = 0;
+  virtual void GetJacobianVel (double t_poly, int id, Coords dim, Jacobian&) const = 0;
+  virtual void GetJacobianAcc (double t_poly, int id, Coords dim, Jacobian&) const = 0;
+  virtual void GetJacobianJerk(double t_poly, int id, Coords dim, Jacobian&) const = 0;
 
   virtual int NumFreeCoeffPerSpline() const = 0;
   virtual std::vector<SplineCoeff> GetFreeCoeffPerSpline() const = 0;

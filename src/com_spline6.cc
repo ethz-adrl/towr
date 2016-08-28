@@ -22,6 +22,12 @@ ComSpline6::~ComSpline6 ()
   // TODO Auto-generated destructor stub
 }
 
+ComSpline6::UniquePtr
+ComSpline6::clone () const
+{
+  return std::unique_ptr<ComSpline>(new ComSpline6(*this));
+}
+
 void
 ComSpline6::Init (int step_count, const SplineTimes& times,
                   bool insert_initial_stance)
@@ -74,63 +80,46 @@ ComSpline6::SetCoefficients (const VectorXd& optimized_coeff)
   }
 }
 
-ComSpline6::VecScalar
-ComSpline6::ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const
+void
+ComSpline6::GetJacobianPos (double t_poly, int id, Coords dim, Jacobian& jac) const
 {
-  VecScalar pos(GetTotalFreeCoeff());
-
   // x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
-  pos.v(Index(id,dim,A))   = std::pow(t_local,5);
-  pos.v(Index(id,dim,B))   = std::pow(t_local,4);
-  pos.v(Index(id,dim,C))   = std::pow(t_local,3);
-  pos.v(Index(id,dim,D))   = std::pow(t_local,2);
-  pos.v(Index(id,dim,E))   = t_local;
-  pos.v(Index(id,dim,F))   = 1;
-
-  return pos;
+  jac(Index(id,dim,A))   = std::pow(t_poly,5);
+  jac(Index(id,dim,B))   = std::pow(t_poly,4);
+  jac(Index(id,dim,C))   = std::pow(t_poly,3);
+  jac(Index(id,dim,D))   = std::pow(t_poly,2);
+  jac(Index(id,dim,E))   = t_poly;
+  jac(Index(id,dim,F))   = 1;
 }
 
-ComSpline6::VecScalar
-ComSpline6::ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const
+void
+ComSpline6::GetJacobianVel (double t_poly, int id, Coords dim, Jacobian& jac) const
 {
-  VecScalar vel(GetTotalFreeCoeff());
-
   // x_vel = 5at^4 +   4bt^3 +  3ct^2 + 2dt + e
-  vel.v(Index(id,dim,A))   = 5 * std::pow(t_local,4);
-  vel.v(Index(id,dim,B))   = 4 * std::pow(t_local,3);
-  vel.v(Index(id,dim,C))   = 3 * std::pow(t_local,2);
-  vel.v(Index(id,dim,D))   = 2 * t_local;
-  vel.v(Index(id,dim,E))   = 1;
-
-  return vel;
+  jac(Index(id,dim,A))   = 5 * std::pow(t_poly,4);
+  jac(Index(id,dim,B))   = 4 * std::pow(t_poly,3);
+  jac(Index(id,dim,C))   = 3 * std::pow(t_poly,2);
+  jac(Index(id,dim,D))   = 2 * t_poly;
+  jac(Index(id,dim,E))   = 1;
 }
 
-ComSpline6::VecScalar
-ComSpline6::ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const
+void
+ComSpline6::GetJacobianAcc (double t_poly, int id, Coords dim, Jacobian& jac) const
 {
-  VecScalar acc(GetTotalFreeCoeff());
-
   // x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
-  acc.v(Index(id,dim,A))   = 20.0 * std::pow(t_local,3);
-  acc.v(Index(id,dim,B))   = 12.0 * std::pow(t_local,2);
-  acc.v(Index(id,dim,C))   =  6.0 * t_local;
-  acc.v(Index(id,dim,D))   =  2.0;
-
-  return acc;
+  jac(Index(id,dim,A))   = 20.0 * std::pow(t_poly,3);
+  jac(Index(id,dim,B))   = 12.0 * std::pow(t_poly,2);
+  jac(Index(id,dim,C))   =  6.0 * t_poly;
+  jac(Index(id,dim,D))   =  2.0;
 }
 
-
-ComSpline6::VecScalar
-ComSpline6::ExpressCogJerkThroughABCD (double t_local, int id, Coords dim) const
+void
+ComSpline6::GetJacobianJerk (double t_poly, int id, Coords dim, Jacobian& jac) const
 {
-  VecScalar jerk(GetTotalFreeCoeff());
-
   // x_jerk = 60at^2 +   24bt +  6c
-  jerk.v(Index(id,dim,A))   = 60 * std::pow(t_local,2);
-  jerk.v(Index(id,dim,B))   = 24 * std::pow(t_local,1);
-  jerk.v(Index(id,dim,C))   = 6;
-
-  return jerk;
+  jac(Index(id,dim,A))   = 60 * std::pow(t_poly,2);
+  jac(Index(id,dim,B))   = 24 * std::pow(t_poly,1);
+  jac(Index(id,dim,C))   = 6;
 }
 
 } // namespace zmp

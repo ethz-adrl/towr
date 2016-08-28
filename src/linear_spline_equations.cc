@@ -13,9 +13,10 @@ namespace zmp {
 
 using namespace xpp::utils;
 
-LinearSplineEquations::LinearSplineEquations (const ComSplinePtr& com_spline )
+LinearSplineEquations::LinearSplineEquations (const ComSplinePtrShared& com_spline )
 {
-  com_spline_ = com_spline;
+  com_spline_ = com_spline->clone();
+  com_spline_->SetCoefficientsZero(); // the values my motion function approximation is around
 }
 
 LinearSplineEquations::~LinearSplineEquations ()
@@ -32,14 +33,13 @@ LinearSplineEquations::MakeInitial (const State2d& init) const
   MatVec M(n_constraints, com_spline_->GetTotalFreeCoeff());
 
   int i = 0; // constraint count
-  double t = 0.0;
-  int spline_id = 0;
+  double t_global = 0.0;
   for (const Coords3D dim : {X,Y})
   {
     for (auto dxdt :  derivatives) {
-      VecScalar acc = com_spline_->ExpressComThroughCoeff(dxdt, t, spline_id, dim);
-      acc.s -= GetByIndex(init, dxdt, dim);
-      M.WriteRow(acc, i++);
+      VecScalar diff_dxdt = com_spline_->GetLinearApproxWrtCoeff(t_global, dxdt, dim);
+      diff_dxdt.s -= init.GetByIndex(dxdt, dim);
+      M.WriteRow(diff_dxdt, i++);
     }
   }
 
@@ -57,16 +57,14 @@ LinearSplineEquations::MakeFinal (const State2d& final_state) const
   MatVec M(n_constraints, n_spline_coeff);
 
   int c = 0; // constraint count
+  double T = com_spline_->GetTotalTime();
   for (const Coords3D dim : {X,Y})
   {
     ComPolynomial last = com_spline_->GetLastPolynomial();
-    int K = last.GetId();
-    double T = last.GetDuration();
-
     for (auto dxdt :  derivatives)
     {
-      VecScalar diff_dxdt = com_spline_->ExpressComThroughCoeff(dxdt, T, K, dim);
-      diff_dxdt.s -= GetByIndex(final_state, dxdt, dim);
+      VecScalar diff_dxdt = com_spline_->GetLinearApproxWrtCoeff(T, dxdt, dim);
+      diff_dxdt.s -= final_state.GetByIndex(dxdt, dim);
       M.WriteRow(diff_dxdt, c++);
     }
   }
@@ -86,14 +84,21 @@ LinearSplineEquations::MakeJunction () const
   MatVec M(n_constraints, n_spline_coeff);
 
   int i = 0; // constraint count
+
   for (int id = 0; id < id_last; ++id) {
     double T = com_spline_->GetPolynomial(id).GetDuration();
-    for (auto dim : {X,Y})
-    {
-      for (auto dxdt :  derivatives)
-      {
-        VecScalar curr = com_spline_->ExpressComThroughCoeff(dxdt, T, id,   dim);
-        VecScalar next = com_spline_->ExpressComThroughCoeff(dxdt, 0, id+1, dim);
+
+    for (auto dim : {X,Y}) {
+      for (auto dxdt :  derivatives) {
+        VecScalar curr, next;
+
+        // coefficients are all set to zero
+        curr.s = com_spline_->GetCOGxyAtPolynomial(T, id).GetByIndex(dxdt, dim);
+        next.s = com_spline_->GetCOGxyAtPolynomial(0, id+1).GetByIndex(dxdt, dim);
+
+        curr.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);
+        next.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt, 0.0, id+1, dim);
+
         M.WriteRow(curr-next, i++);
       }
     }
@@ -142,19 +147,6 @@ LinearSplineEquations::MakeAcceleration (double weight_x, double weight_y) const
   }
 
   return M;
-}
-
-double
-LinearSplineEquations::GetByIndex (const State2d& state,
-                                   PosVelAcc dxdt,
-                                   Coords3D dim) const
-{
-  switch (dxdt) {
-    case kPos: return state.p(dim);
-    case kVel: return state.v(dim);
-    case kAcc: return state.a(dim);
-    case kJerk: assert(false); break; // jerk not specified in final state
-  }
 }
 
 } /* namespace zmp */

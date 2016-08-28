@@ -170,33 +170,49 @@ ComSpline::GetLocalTime(double t_global, const VecPolynomials& splines)
 }
 
 ComSpline::Point2d
-ComSpline::GetCOGxy(double t_global, const VecPolynomials& splines)
+ComSpline::GetCOM(double t_global, const VecPolynomials& splines)
 {
   int id = GetPolynomialID(t_global,splines);
   double t_local = GetLocalTime(t_global, splines);
 
+  return GetCOGxyAtPolynomial(id, t_local, splines);
+}
+
+ComSpline::Point2d
+ComSpline::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& splines)
+{
   Point2d cog_xy;
-  cog_xy.p = splines[id].GetState(xpp::utils::kPos, t_local);
-  cog_xy.v = splines[id].GetState(xpp::utils::kVel, t_local);
-  cog_xy.a = splines[id].GetState(xpp::utils::kAcc, t_local);
+  cog_xy.p = splines[id].GetState(kPos, t_local);
+  cog_xy.v = splines[id].GetState(kVel, t_local);
+  cog_xy.a = splines[id].GetState(kAcc, t_local);
 
   return cog_xy;
 }
 
-ComSpline::VecScalar
-ComSpline::ExpressComThroughCoeff (PosVelAcc posVelAcc, double t_local,
-                                   int id, Coords dim) const
+ComSpline::Jacobian
+ComSpline::GetJacobian (double t_global, MotionDerivative posVelAcc,
+                        Coords3D dim) const
 {
+  int id = GetPolynomialID(t_global);
+  double t_local = GetLocalTime(t_global);
+
+  return GetJacobianWrtCoeffAtPolynomial(posVelAcc, t_local, id, dim);
+}
+
+ComSpline::Jacobian
+ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t_local, int id,
+                                            Coords3D dim) const
+{
+  Jacobian jac = Jacobian::Zero(GetTotalFreeCoeff());
+
   switch (posVelAcc) {
-    case xpp::utils::kPos:
-      return ExpressCogPosThroughABCD(t_local, id, dim);
-    case xpp::utils::kVel:
-      return ExpressCogVelThroughABCD(t_local, id, dim);
-    case xpp::utils::kAcc:
-      return ExpressCogAccThroughABCD(t_local, id, dim);
-    case xpp::utils::kJerk:
-      return ExpressCogJerkThroughABCD(t_local, id, dim);
+    case kPos: GetJacobianPos (t_local, id, dim, jac); break;
+    case kVel: GetJacobianVel (t_local, id, dim, jac); break;
+    case kAcc: GetJacobianAcc (t_local, id, dim, jac); break;
+    case kJerk:GetJacobianJerk(t_local, id, dim, jac); break;
   }
+
+  return jac;
 }
 
 void
