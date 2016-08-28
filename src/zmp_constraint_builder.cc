@@ -19,14 +19,13 @@ void
 ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container, double walking_height)
 {
   spline_structure_ = spline_container->clone();
-  // set coefficients to zero, since that is where I am approximating the function around
+  // set coefficients to zero, since that is where I am approximating the function
+  //around. can only do this in initialization, because ZMP is linear, so
+  // Jacobians and offset are independent of current coefficients.
   spline_structure_->SetCoefficientsZero();
 
   using namespace xpp::utils::coords_wrapper;
 
-
-  // refactor these are Jacobians
-  // rename these
   jac_px_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, X);
   jac_py_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, Y);
 
@@ -59,6 +58,8 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
     int spline_id = spline_structure_->GetPolynomialID(t_global);
     int phase_id  = spline_structure_->GetCurrentPhase(t_global).id_;
 
+    // refactor have one function that knows at which global time the
+    // splines switch and disregard constraint at these times.
     if (DisjSuppSwitch(t_global, spline_structure_->GetPolynomial(spline_id), supp_polygon_container)) {
       n++; // no constraints
       continue;
