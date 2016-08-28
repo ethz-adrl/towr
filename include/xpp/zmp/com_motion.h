@@ -70,8 +70,7 @@ public:
   virtual int GetTotalFreeCoeff() const = 0;
   virtual VectorXd GetCoeffients() const = 0;
 
-
-  /** Get the Jacobian w.r.t the free coefficients of the motion.
+  /** Creates a linear approximation of the motion at the current coefficients.
     *
     * Given some general nonlinear function x(u) = ... that represents the motion
     * of the system. A linear approximation of this function around specific
@@ -80,14 +79,9 @@ public:
     *
     * x(u) ~ J(u*)*(u-u*) + x(u*)
     *
-    * For an already linear function x(u), the Jacobian J is the same for all
-    * coefficients, so we choose u*=0, e.g. returning J(0) and x(0).
-    *
     * @return The Jacobian J(u*) evaluated at u* and the corresponding offset x(u*).
     */
   VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative, Coords3D dim) const;
-
-
 
   /** If the trajectory has to be discretized, use this for consistent time steps.
    *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
@@ -116,7 +110,13 @@ public:
 
 private:
 
-  virtual Jacobian GetJacobian(double t_global, MotionDerivative, Coords3D dim) const = 0;
+  /** Calculates the Jacobian J of the motion with respect to the current coefficients.
+    *
+    * @param t_global the time of the motion to evaluate the Jacobian
+    * @param dxdt wheather Jacobian for position, velocity, acceleration or jerk is desired
+    * @param dim which motion dimension (x,y) the jacobian represents.
+    */
+  virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
 };
 
 } /* namespace zmp */

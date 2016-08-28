@@ -114,10 +114,10 @@ protected:
 private:
 
   Jacobian GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const override;
-  virtual void GetJacobianPos (double t_local, int id, Coords dim, Jacobian&) const = 0;
-  virtual void GetJacobianVel (double t_local, int id, Coords dim, Jacobian&) const = 0;
-  virtual void GetJacobianAcc (double t_local, int id, Coords dim, Jacobian&) const = 0;
-  virtual void GetJacobianJerk(double t_local, int id, Coords dim, Jacobian&) const = 0;
+  virtual void GetJacobianPos (double t_poly, int id, Coords dim, Jacobian&) const = 0;
+  virtual void GetJacobianVel (double t_poly, int id, Coords dim, Jacobian&) const = 0;
+  virtual void GetJacobianAcc (double t_poly, int id, Coords dim, Jacobian&) const = 0;
+  virtual void GetJacobianJerk(double t_poly, int id, Coords dim, Jacobian&) const = 0;
 
   virtual int NumFreeCoeffPerSpline() const = 0;
   virtual std::vector<SplineCoeff> GetFreeCoeffPerSpline() const = 0;

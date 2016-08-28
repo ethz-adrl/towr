@@ -108,42 +108,41 @@ ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
   } // k=0..n_spline_infos_
 }
 
-// refactor rename t_local to t_polynomial
 void
-ComSpline4::GetJacobianPos(double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline4::GetJacobianPos(double t_poly, int id, Coords dim, Jacobian& jac) const
 {
   VecScalar Ek = GetECoefficient(id, dim);
   VecScalar Fk = GetFCoefficient(id, dim);
 
   // x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
-  jac(Index(id,dim,A))   = std::pow(t_local,5);
-  jac(Index(id,dim,B))   = std::pow(t_local,4);
-  jac(Index(id,dim,C))   = std::pow(t_local,3);
-  jac(Index(id,dim,D))   = std::pow(t_local,2);
-  jac                   += t_local*Ek.v;
+  jac(Index(id,dim,A))   = std::pow(t_poly,5);
+  jac(Index(id,dim,B))   = std::pow(t_poly,4);
+  jac(Index(id,dim,C))   = std::pow(t_poly,3);
+  jac(Index(id,dim,D))   = std::pow(t_poly,2);
+  jac                   += t_poly*Ek.v;
   jac                   += 1*Fk.v;
 }
 
 void
-ComSpline4::GetJacobianVel (double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline4::GetJacobianVel (double t_poly, int id, Coords dim, Jacobian& jac) const
 {
   VecScalar Ek = GetECoefficient(id, dim);
 
   // x_vel = 5at^4 +   4bt^3 +  3ct^2 + 2dt + e
-  jac(Index(id,dim,A))   = 5 * std::pow(t_local,4);
-  jac(Index(id,dim,B))   = 4 * std::pow(t_local,3);
-  jac(Index(id,dim,C))   = 3 * std::pow(t_local,2);
-  jac(Index(id,dim,D))   = 2 * std::pow(t_local,1);
+  jac(Index(id,dim,A))   = 5 * std::pow(t_poly,4);
+  jac(Index(id,dim,B))   = 4 * std::pow(t_poly,3);
+  jac(Index(id,dim,C))   = 3 * std::pow(t_poly,2);
+  jac(Index(id,dim,D))   = 2 * std::pow(t_poly,1);
   jac                   += Ek.v;
 }
 void
-ComSpline4::GetJacobianAcc(double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline4::GetJacobianAcc(double t_poly, int id, Coords dim, Jacobian& jac) const
 {
   Eigen::RowVector4d jac_xdd_abcd = Eigen::RowVector4d::Zero();
 
-  jac_xdd_abcd(A)   = 20.0 * std::pow(t_local,3);
-  jac_xdd_abcd(B)   = 12.0 * std::pow(t_local,2);
-  jac_xdd_abcd(C)   =  6.0 * t_local;
+  jac_xdd_abcd(A)   = 20.0 * std::pow(t_poly,3);
+  jac_xdd_abcd(B)   = 12.0 * std::pow(t_poly,2);
+  jac_xdd_abcd(C)   =  6.0 * t_poly;
   jac_xdd_abcd(D)   =  2.0;
 
   int idx = Index(id,dim,A);
@@ -152,11 +151,11 @@ ComSpline4::GetJacobianAcc(double t_local, int id, Coords dim, Jacobian& jac) co
 
 
 void
-ComSpline4::GetJacobianJerk (double t_local, int id, Coords dim, Jacobian& jac) const
+ComSpline4::GetJacobianJerk (double t_poly, int id, Coords dim, Jacobian& jac) const
 {
   // x_jerk = 60at^2 +   24bt +  6c
-  jac(Index(id,dim,A))   = 60 * std::pow(t_local,2);
-  jac(Index(id,dim,B))   = 24 * std::pow(t_local,1);
+  jac(Index(id,dim,A))   = 60 * std::pow(t_poly,2);
+  jac(Index(id,dim,B))   = 24 * std::pow(t_poly,1);
   jac(Index(id,dim,C))   = 6;
 }
 
