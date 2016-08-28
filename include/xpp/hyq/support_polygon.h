@@ -11,7 +11,7 @@
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/leg_data_map.h> // LegID, LegIDArray
 #include <xpp/utils/geometric_structs.h>
-#include <xpp/zmp/line_equation.h>
+#include <xpp/utils/line_equation.h>
 
 #include <vector>
 

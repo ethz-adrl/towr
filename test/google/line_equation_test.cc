@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/line_equation.h>
+#include <xpp/utils/line_equation.h>
 #include <gtest/gtest.h>
 
 namespace xpp {
