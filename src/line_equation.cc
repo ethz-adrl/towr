@@ -10,19 +10,30 @@
 namespace xpp {
 namespace utils {
 
-LineEquation::LineEquation ()
-{
-  // TODO Auto-generated constructor stub
-}
-
 LineEquation::~LineEquation ()
 {
   // TODO Auto-generated destructor stub
 }
 
+LineEquation::LineEquation (const Vec2d& _pt0, const Vec2d& _pt1)
+{
+  SetPoints(_pt0, _pt1);
+}
+
+void
+LineEquation::SetPoints (const Vec2d& _pt0, const Vec2d& _pt1)
+{
+  pt0 = _pt0;
+  pt1 = _pt1;
+}
+
+LineEquation::LineEquation ()
+{
+}
+
 // from http://math.stackexchange.com/questions/1076292/obtain-coefficients-of-a-line-from-2-points
 LineCoeff2d
-LineEquation::LineCoeff(const Vec2d& pt0, const Vec2d& pt1, bool normalize) {
+LineEquation::GetCoeff(bool normalize) const {
 
   LineCoeff2d ret;
   ret.p = pt0.y() - pt1.y();
@@ -43,3 +54,4 @@ LineEquation::LineCoeff(const Vec2d& pt0, const Vec2d& pt1, bool normalize) {
 
 } /* namespace utils */
 } /* namespace xpp */
+

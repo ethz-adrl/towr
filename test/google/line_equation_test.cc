@@ -19,6 +19,7 @@ protected:
   Eigen::Vector2d B;
   Eigen::Vector2d C;
   Eigen::Vector2d D;
+  LineEquation le;
 
 };
 
@@ -29,8 +30,9 @@ TEST_F(LineEquationTest, LineCoeffNormalize)
   C << 0, 3;
 
   LineCoeff2d line_norm, line;
-  line      = LineEquation::LineCoeff(A,B, false);
-  line_norm = LineEquation::LineCoeff(A,B, true);
+  le.SetPoints(A,B);
+  line      = le.GetCoeff(false);
+  line_norm = le.GetCoeff(true);
 
   // test distance to point
   double distance_to_C = line.p*C.x() + line.q*C.y() + line.r;
@@ -49,25 +51,29 @@ TEST_F(LineEquationTest, LineCoefficients)
 
   LineCoeff2d line;
   // x-axis line (y=0)
-  line = LineEquation::LineCoeff(A,B);
+  le.SetPoints(A,B);
+  line = le.GetCoeff();
   EXPECT_DOUBLE_EQ(0, line.p);
   EXPECT_DOUBLE_EQ(1, line.q);
   EXPECT_DOUBLE_EQ(0, line.r);
 
   // shifted y-axis line (x=1)
-  line = LineEquation::LineCoeff(B,C);
+  le.SetPoints(B,C);
+  line = le.GetCoeff();
   EXPECT_DOUBLE_EQ(-1, line.p);
   EXPECT_DOUBLE_EQ( 0, line.q);
   EXPECT_DOUBLE_EQ( 1, line.r);
 
   // diagonal line to top right not normalized
-  line = LineEquation::LineCoeff(A,C,false);
+  le.SetPoints(A,C);
+  line = le.GetCoeff(false);
   EXPECT_DOUBLE_EQ(-1, line.p);
   EXPECT_DOUBLE_EQ( 1, line.q);
   EXPECT_DOUBLE_EQ( 0, line.r);
 
   // diagonal line to top left not normalized
-  line = LineEquation::LineCoeff(B,D,false);
+  le.SetPoints(B,D);
+  line = le.GetCoeff(false);
   EXPECT_DOUBLE_EQ(-1, line.p);
   EXPECT_DOUBLE_EQ(-1, line.q);
   EXPECT_DOUBLE_EQ( 1, line.r);
@@ -82,7 +88,8 @@ TEST_F(LineEquationTest, LineCoefficientsDistanceSign)
 
   // distance of point B and D to diagonal line A->C
   double distance_to_B, distance_to_D;
-  xpp::utils::LineCoeff2d AC = LineEquation::LineCoeff(A,C);
+  le.SetPoints(A,C);
+  xpp::utils::LineCoeff2d AC = le.GetCoeff();
   distance_to_B = AC.p*B.x() + AC.q*B.y() + AC.r;
   distance_to_D = AC.p*D.x() + AC.q*D.y() + AC.r;
 
@@ -91,7 +98,8 @@ TEST_F(LineEquationTest, LineCoefficientsDistanceSign)
 
 
   // reverse the direction of the line, now from C to A
-  xpp::utils::LineCoeff2d CA = LineEquation::LineCoeff(C,A);
+  le.SetPoints(C,A);
+  xpp::utils::LineCoeff2d CA = le.GetCoeff();
   distance_to_B = CA.p*B.x() + CA.q*B.y() + CA.r;
   distance_to_D = CA.p*D.x() + CA.q*D.y() + CA.r;
 
@@ -107,7 +115,8 @@ TEST_F(LineEquationTest, LineCoefficientsDistanceValue)
   D << 0, 1;
 
   // distance of point B and D to diagonal line A->C
-  xpp::utils::LineCoeff2d AC = LineEquation::LineCoeff(A,C);
+  le.SetPoints(A,C);
+  xpp::utils::LineCoeff2d AC = le.GetCoeff();
   double distance_to_B = AC.p*B.x() + AC.q*B.y() + AC.r;
   double distance_to_D = AC.p*D.x() + AC.q*D.y() + AC.r;
 

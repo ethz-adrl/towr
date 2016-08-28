@@ -30,13 +30,20 @@ inline std::ostream& operator<<(std::ostream& out, const LineCoeff2d& lc)
 
 class LineEquation {
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
   typedef Eigen::Vector2d Vec2d;
 
   LineEquation ();
+  LineEquation (const Vec2d& pt0, const Vec2d& pt1);
   virtual ~LineEquation ();
 
-  static LineCoeff2d LineCoeff(const Vec2d& pt0, const Vec2d& pt1, bool normalize = true);
+  void SetPoints(const Vec2d& pt0, const Vec2d& pt1);
 
+  LineCoeff2d GetCoeff(bool normalize = true) const;
+
+private:
+  Vec2d pt0, pt1;
 };
 
 
