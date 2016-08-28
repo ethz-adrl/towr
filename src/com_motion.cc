@@ -55,11 +55,5 @@ ComMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coor
   return linear_approx;
 }
 
-int
-ComMotion::GetTotalNodes() const
-{
-  return GetDiscretizedGlobalTimes().size();
-}
-
 } /* namespace zmp */
 } /* namespace xpp */

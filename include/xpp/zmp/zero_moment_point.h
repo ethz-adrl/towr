@@ -13,8 +13,13 @@
 namespace xpp {
 namespace zmp {
 
-class ComSpline;
+class ComMotion;
 
+/** Calculates the Zero Moment Point for a specific motion defined by coefficients.
+  *
+  * The ZMP is defined as:
+  * p = x - height/(gravity_+zdd)*xdd
+  */
 class ZeroMomentPoint {
 public:
   typedef xpp::utils::MatVec MatVec;
@@ -30,19 +35,23 @@ public:
   static Vector2d  CalcZmp(const State3d& cog, double height);
   static VecScalar CalcZmp(const VecScalar& pos, const VecScalar& acc, double height);
 
-  /**
-   * Calculates the position of the ZMP for every discrete time dt along a trajectory.
-   *
-   * @param com_spline The CoG spline of 5. order polynomials initialized with specific pos/vel.
-   * @param walking_height the height of the CoG above ground.
-   * @param dimension what ZMP coordinate you are interested in (X or Y).
-   *
-   * @return A MatrixVector type m, that together with the spline coefficients x
-   * (a,b,c,d) of each spline will return a vector of ZMP positions zmp for each
-   * disrete time as: zmp = m.M*x + m.v
-   */
+  /** Creates a linear approximation of the ZMP w.r.t the current motion coefficients.
+    *
+    * The output of this is a sequence of Jacobian
+    *
+    *
+    * Calculates the position of the ZMP for every discrete time dt along a trajectory.
+    *
+    * @param com_spline The CoG spline of 5. order polynomials initialized with specific pos/vel.
+    * @param walking_height the height of the CoG above ground.
+    * @param dimension what ZMP coordinate you are interested in (X or Y).
+    *
+    * @return A MatrixVector type m, that together with the spline coefficients x
+    * (a,b,c,d) of each spline will return a vector of ZMP positions zmp for each
+    * disrete time as: zmp = m.M*x + m.v
+    */
   // refactor rename this to Jacobian of ZMP
-  static MatVec ExpressZmpThroughCoefficients(const ComSpline&, double walking_height, Coords dimension);
+  static MatVec GetLinearApproxWrtMotionCoeff(const ComMotion&, double walking_height, Coords dimension);
 
 
 

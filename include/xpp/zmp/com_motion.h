@@ -91,7 +91,6 @@ public:
    */
   std::vector<double> GetDiscretizedGlobalTimes() const;
   virtual double GetTotalTime() const = 0;
-  int GetTotalNodes() const;
 
   /** Gets the phase (stance, swing) at this current instance of time.
     *

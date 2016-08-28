@@ -6,7 +6,7 @@
  */
 
 #include <xpp/zmp/zero_moment_point.h>
-#include <xpp/zmp/com_spline.h>
+#include <xpp/zmp/com_motion.h>
 
 namespace xpp {
 namespace zmp {
@@ -31,16 +31,16 @@ ZeroMomentPoint::CalcZmp(const VecScalar& pos, const VecScalar& acc, double heig
 
 
 ZeroMomentPoint::MatVec
-ZeroMomentPoint::ExpressZmpThroughCoefficients(const ComSpline& spline_structure,
+ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(const ComMotion& spline_structure,
                                                double height, Coords dim)
 {
-  int num_nodes = spline_structure.GetTotalNodes();
+  auto vec_t = spline_structure.GetDiscretizedGlobalTimes();
   int coeff = spline_structure.GetTotalFreeCoeff();
 
-  MatVec zmp(num_nodes, coeff);
+  MatVec zmp(vec_t.size(), coeff);
 
   int n = 0; // node counter
-  for (double t_global : spline_structure.GetDiscretizedGlobalTimes())
+  for (double t_global : vec_t)
   {
     VecScalar pos = spline_structure.GetLinearApproxWrtCoeff(t_global, utils::kPos, dim);
     VecScalar acc = spline_structure.GetLinearApproxWrtCoeff(t_global, utils::kAcc, dim);
@@ -48,7 +48,7 @@ ZeroMomentPoint::ExpressZmpThroughCoefficients(const ComSpline& spline_structure
     zmp.WriteRow(CalcZmp(pos, acc, height), n++);
   }
 
-  assert(n<=num_nodes); // check that Eigen matrix didn't overflow
+  assert(n<=vec_t.size()); // check that Eigen matrix didn't overflow
   return zmp;
 }
 

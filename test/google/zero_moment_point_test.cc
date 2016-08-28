@@ -48,7 +48,7 @@ protected:
 };
 
 
-TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
+TEST_F(ZeroMomentPointTest, GetLinearApproxWrtMotionCoeff)
 {
   // create a random spline with pos, vel equal at spline juntions
   std::vector<ComPolynomial> splines = cont_spline_container_.GetPolynomials(); // get ids and durations
@@ -101,7 +101,7 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
 
   // expresses zero moment point only depending on initial pos and velocity
   // and a,b,c,d coefficients of spline
-  auto ZmpMap = &ZeroMomentPoint::ExpressZmpThroughCoefficients;
+  auto ZmpMap = &ZeroMomentPoint::GetLinearApproxWrtMotionCoeff;
   MatVec x_zmp_map = ZmpMap(cont_spline_container_,walking_height,X);
   MatVec y_zmp_map = ZmpMap(cont_spline_container_,walking_height,Y);
   // with the initial conditions and the abcd coefficients, calculate the zmp

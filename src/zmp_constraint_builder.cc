@@ -27,8 +27,8 @@ ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container, double walking_
 
   // refactor these are Jacobians
   // rename these
-  jac_px_0_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(*spline_structure_, walking_height, X);
-  jac_py_0_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(*spline_structure_, walking_height, Y);
+  jac_px_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, X);
+  jac_py_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, Y);
 
   initialized_ = true;
 }
@@ -47,14 +47,15 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
   std::vector<NodeConstraint> supp_lines = supp_polygon_container.GetActiveConstraintsForEachPhase(*spline_structure_);
 
   // if every spline is a four leg support spline with 4 line constraints
-  const int max_num_constraints = spline_structure_->GetTotalNodes()*SupportPolygon::kMaxSides;
+  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
+  const int max_num_constraints = vec_t.size()*SupportPolygon::kMaxSides;
   int coeff = spline_structure_->GetTotalFreeCoeff();
   MatVecVec ineq(max_num_constraints, coeff);
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
 
-  for (double t_global : spline_structure_->GetDiscretizedGlobalTimes()) {
+  for (double t_global : vec_t) {
     int spline_id = spline_structure_->GetPolynomialID(t_global);
     int phase_id  = spline_structure_->GetCurrentPhase(t_global).id_;
 
