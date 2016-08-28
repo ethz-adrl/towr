@@ -170,7 +170,7 @@ ComSpline::GetLocalTime(double t_global, const VecPolynomials& splines)
 }
 
 ComSpline::Point2d
-ComSpline::GetCOGxy(double t_global, const VecPolynomials& splines)
+ComSpline::GetCOM(double t_global, const VecPolynomials& splines)
 {
   int id = GetPolynomialID(t_global,splines);
   double t_local = GetLocalTime(t_global, splines);
@@ -190,7 +190,7 @@ ComSpline::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& s
 }
 
 ComSpline::Jacobian
-ComSpline::GetJacobian (double t_global, PosVelAcc posVelAcc,
+ComSpline::GetJacobian (double t_global, MotionDerivative posVelAcc,
                         Coords3D dim) const
 {
   int id = GetPolynomialID(t_global);
@@ -200,7 +200,7 @@ ComSpline::GetJacobian (double t_global, PosVelAcc posVelAcc,
 }
 
 ComSpline::Jacobian
-ComSpline::GetJacobianWrtCoeffAtPolynomial (PosVelAcc posVelAcc, double t_local, int id,
+ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t_local, int id,
                                             Coords3D dim) const
 {
   Jacobian jac = Jacobian::Zero(GetTotalFreeCoeff());

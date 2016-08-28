@@ -46,11 +46,11 @@ struct SplineTimes
 class ComSpline : public ComMotion {
 public:
   typedef std::vector<ComPolynomial> VecPolynomials;
-  typedef xpp::utils::PosVelAcc PosVelAcc;
+  typedef xpp::utils::MotionDerivative MotionDerivative;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::Point2d Point2d;
   typedef xpp::utils::Coords3D Coords;
-  typedef std::vector<PosVelAcc> Derivatives;
+  typedef std::vector<MotionDerivative> Derivatives;
   typedef std::shared_ptr<ComSpline> Ptr;
   typedef std::unique_ptr<ComSpline> UniquePtr;
 
@@ -58,7 +58,7 @@ public:
   virtual ~ComSpline ();
 
   // implements these functions from parent class, now specific for splines
-  Point2d GetCom(double t_global) const override { return GetCOGxy(t_global, polynomials_); }
+  Point2d GetCom(double t_global) const override { return GetCOM(t_global, polynomials_); }
   double GetTotalTime() const override { return GetTotalTime(polynomials_); }
   PhaseInfo GetCurrentPhase(double t_global) const override;
   PhaseInfoVec GetPhases() const override;
@@ -77,7 +77,7 @@ public:
   virtual Derivatives GetFinalFreeMotions()    const = 0;
 
 
-  static Point2d GetCOGxy(double t_global, const VecPolynomials& splines);
+  static Point2d GetCOM(double t_global, const VecPolynomials& splines);
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
   static double GetTotalTime(const VecPolynomials& splines);
 
@@ -91,21 +91,19 @@ public:
   virtual UniquePtr clone() const = 0;
 
 
-  // refactor write documentation or get rid off
-  /**
+  /** Calculates the Jacobian at a specific time of the motion, but specified by
+    * a local time and a polynome id. This allows to create spline junction constraints
     *
-    * @param posVelAcc
-    * @param t_local
-    * @param id
-    * @param dim
-    * @return
+    * @param dxdt whether position, velocity, acceleration or jerk Jacobian is desired
+    * @param t_poly the time at which the Jacobian is desired, expressed since current polynomial is active.
+    * @param id the ID of the current polynomial
+    * @param dim in which dimension (x,y) the Jacobian is desired.
     */
-  Jacobian GetJacobianWrtCoeffAtPolynomial(PosVelAcc posVelAcc, double t_local, int id, Coords3D dim) const;
+  Jacobian GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt, double t_poly, int id, Coords3D dim) const;
   static Point2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
   Point2d GetCOGxyAtPolynomial(int id, double t_local) {return GetCOGxyAtPolynomial(id, t_local, polynomials_); };
 
 
-  Jacobian GetJacobian(double t_global, PosVelAcc posVelAcc, Coords3D dim) const override;
 
 protected:
   VecPolynomials polynomials_;
@@ -115,6 +113,7 @@ protected:
 
 private:
 
+  Jacobian GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const override;
   virtual void ExpressCogPosThroughABCD (double t_local, int id, Coords dim, Jacobian&) const = 0;
   virtual void ExpressCogVelThroughABCD (double t_local, int id, Coords dim, Jacobian&) const = 0;
   virtual void ExpressCogAccThroughABCD (double t_local, int id, Coords dim, Jacobian&) const = 0;

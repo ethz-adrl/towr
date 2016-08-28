@@ -32,7 +32,7 @@ public:
   typedef xpp::utils::Point2d State2d;
   typedef std::unique_ptr<ComSpline> ComSplinePtr;
   typedef std::shared_ptr<ComSpline> ComSplinePtrShared;
-  typedef std::vector<PosVelAcc> Derivatives;
+  typedef std::vector<MotionDerivative> Derivatives;
 
   LinearSplineEquations (const ComSplinePtrShared& com_spline);
   virtual ~LinearSplineEquations ();
@@ -56,8 +56,6 @@ public:
     * the position, velocity and acceleration difference in x-y is returned,
     * resulting in m = (number of splines-1) * 3 * 2
     */
-  // refactor think about moving to different class, as it is the only one that has to
-  // know about the internal spline configuration of the CoM motion.
   MatVec MakeJunction() const;
 
   /** xT*M*x + xT*v gives the scalar total acceleration cost with these x.

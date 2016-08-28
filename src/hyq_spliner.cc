@@ -238,7 +238,7 @@ HyqSpliner::GetCurrPosition(double t_global) const
 {
   // overwrites body position (x,y) by optmized values after first cog shift
   Vector3d z_splined = GetCurrZState(t_global);
-  xpp::utils::Point2d xy_optimized = xpp::zmp::ComSpline6::GetCOGxy(t_global, optimized_xy_spline_);
+  xpp::utils::Point2d xy_optimized = xpp::zmp::ComSpline6::GetCOM(t_global, optimized_xy_spline_);
 
   Point pos;
 

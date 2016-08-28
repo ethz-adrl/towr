@@ -48,7 +48,7 @@ struct CoeffValues {
 class PolynomialFifthOrder {
 public:
   typedef xpp::utils::Vec2d Vec2d;
-  typedef xpp::utils::PosVelAcc PosVelAcc;
+  typedef xpp::utils::MotionDerivative PosVelAcc;
 
   PolynomialFifthOrder();
   PolynomialFifthOrder(const CoeffValues &coeff_values);

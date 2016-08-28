@@ -45,12 +45,12 @@ ComMotion::SetCoefficientsZero ()
 }
 
 ComMotion::VecScalar
-ComMotion::GetLinearApproxWrtCoeff (double t_global, PosVelAcc posVelAcc, Coords3D dim) const
+ComMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coords3D dim) const
 {
   VecScalar linear_approx; // at current coefficient values
 
-  linear_approx.v = GetJacobian(t_global, posVelAcc, dim);
-  linear_approx.s = GetCom(t_global).GetByIndex(posVelAcc, dim);
+  linear_approx.v = GetJacobian(t_global, dxdt, dim);
+  linear_approx.s = GetCom(t_global).GetByIndex(dxdt, dim);
 
   return linear_approx;
 }

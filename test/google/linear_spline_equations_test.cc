@@ -2,7 +2,7 @@
  @file    linear_spline_equations_test.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Aug 25, 2016
- @brief   Brief description
+ @brief   Defines test for spline jacobians
  */
 
 #include <xpp/zmp/linear_spline_equations.h>

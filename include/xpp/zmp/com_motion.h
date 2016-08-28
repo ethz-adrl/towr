@@ -14,7 +14,6 @@
 namespace xpp {
 namespace zmp {
 
-
 enum PhaseType {kStancePhase=0, kStepPhase, kFlightPhase};
 /** Information to represent different types of motion.
   */
@@ -86,7 +85,7 @@ public:
     *
     * @return The Jacobian J(u*) evaluated at u* and the corresponding offset x(u*).
     */
-  VecScalar GetLinearApproxWrtCoeff(double t_global, PosVelAcc posVelAcc, Coords3D dim) const;
+  VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative, Coords3D dim) const;
 
 
 
@@ -117,8 +116,7 @@ public:
 
 private:
 
-  // refactor rename posVelAcc
-  virtual Jacobian GetJacobian(double t_global, PosVelAcc posVelAcc, Coords3D dim) const = 0;
+  virtual Jacobian GetJacobian(double t_global, MotionDerivative, Coords3D dim) const = 0;
 };
 
 } /* namespace zmp */
