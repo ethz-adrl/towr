@@ -1,8 +1,8 @@
-/*
- * zero_moment_point.h
- *
- *  Created on: Apr 30, 2016
- *      Author: winklera
+/**
+ @file    com_motion.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Aug 23, 2016
+ @brief   Declares the ZeroMomentPoint class
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_ZERO_MOMENT_POINT_H_

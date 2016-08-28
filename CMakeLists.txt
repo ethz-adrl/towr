@@ -119,6 +119,7 @@ set(SOURCES
   src/stance_feet_calculator.cc
   src/a_inverse_kinematics.cc
   src/step_sequence_planner.cc
+  src/line_equation.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
@@ -247,6 +248,7 @@ if(BUILD_TESTS)
 #                        test/google/optimization_visualizer_test.cc
 #                        test/google/optimization_variables_interpreter_test.cc
 #                        test/google/step_sequence_planner_test.cc
+                         test/google/line_equation_test.cc
 #                        # com
 #                        test/google/com_motion_test.cc
 #                        test/google/com_spline_test.cc

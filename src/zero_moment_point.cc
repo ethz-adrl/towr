@@ -1,8 +1,8 @@
-/*
- * zero_moment_point.cpp
- *
- *  Created on: Apr 30, 2016
- *      Author: winklera
+/**
+ @file    com_motion.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Aug 23, 2016
+ @brief   Defines the ZeroMomentPoint class
  */
 
 #include <xpp/zmp/zero_moment_point.h>

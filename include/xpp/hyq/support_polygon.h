@@ -11,6 +11,7 @@
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/leg_data_map.h> // LegID, LegIDArray
 #include <xpp/utils/geometric_structs.h>
+#include <xpp/zmp/line_equation.h>
 
 #include <vector>
 
@@ -32,6 +33,7 @@ public:
     bool fixed_by_start_stance;
   };
 
+  typedef xpp::utils::LineEquation LineEquation;
   typedef std::vector<SuppLine> VecSuppLine;
   typedef std::vector<Foothold> VecFoothold;
   typedef Eigen::Vector2d Vector2d;

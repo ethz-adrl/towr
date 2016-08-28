@@ -51,7 +51,7 @@ SupportPolygon::VecSuppLine SupportPolygon::CalcLines() const
     Foothold from = footholds_conv_[i];
     int last_idx = footholds_conv_.size()-1;
     Foothold to = (i == last_idx) ? footholds_conv_[0] : footholds_conv_[i+1];
-    lines[i].coeff = Point2dManip::LineCoeff(from.p.segment(0,2), to.p.segment(0,2), false);
+    lines[i].coeff = LineEquation::LineCoeff(from.p.segment(0,2), to.p.segment(0,2), false);
     lines[i].s_margin = UseMargin(from.leg, to.leg);
 
     // this is to separate out the constant terms of the constraints

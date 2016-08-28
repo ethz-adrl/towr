@@ -37,6 +37,7 @@ ZmpConstraint::VectorXd
 ZmpConstraint::EvaluateConstraint () const
 {
   MatVecVec ineq = zmp_constraint_builder_.CalcZmpConstraints(supp_polygon_container_);
+  // refactor multiply by all variables, including footholds
   return ineq.Mv.M*x_coeff_ + ineq.Mv.v ; //+ ineq.constant; // put into bound
 }
 
