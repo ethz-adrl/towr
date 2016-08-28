@@ -84,14 +84,30 @@ LinearSplineEquations::MakeJunction () const
   MatVec M(n_constraints, n_spline_coeff);
 
   int i = 0; // constraint count
+
   for (int id = 0; id < id_last; ++id) {
     double T = com_spline_->GetPolynomial(id).GetDuration();
+
     for (auto dim : {X,Y})
     {
       for (auto dxdt :  derivatives)
       {
-        VecScalar curr = com_spline_->GetJacobianWrtCoeff(dxdt, T, id,   dim);
-        VecScalar next = com_spline_->GetJacobianWrtCoeff(dxdt, 0, id+1, dim);
+        VecScalar curr, next;
+
+        // refactor add constant offset at u=0 here
+        // coefficients are all set to zero
+        curr.s = com_spline_->GetCOGxyAtPolynomial(T, id).GetByIndex(dxdt, dim);
+        next.s = com_spline_->GetCOGxyAtPolynomial(0, id+1).GetByIndex(dxdt, dim);
+
+        std::cout << "curr.s: " << curr.s << std::endl;
+        std::cout << "next.s: " << next.s << std::endl;
+
+        curr.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);
+        next.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt, 0.0, id+1, dim);
+
+        std::cout << "curr.v: " << curr.v << std::endl;
+        std::cout << "next.v: " << next.v << std::endl;
+
         M.WriteRow(curr-next, i++);
       }
     }

@@ -45,7 +45,8 @@ class ComMotion {
 public:
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::utils::Point2d Point2d;
-  typedef xpp::utils::VecScalar Jacobian;
+  typedef xpp::utils::VecScalar VecScalar;
+  typedef Eigen::RowVectorXd Jacobian;
   typedef std::shared_ptr<ComMotion> Ptr;
   typedef std::vector<PhaseInfo> PhaseInfoVec;
 
@@ -85,7 +86,7 @@ public:
     *
     * @return The Jacobian J(u*) evaluated at u* and the corresponding offset x(u*).
     */
-  Jacobian GetLinearApproxWrtCoeff(double t_global, PosVelAcc posVelAcc, Coords3D dim) const;
+  VecScalar GetLinearApproxWrtCoeff(double t_global, PosVelAcc posVelAcc, Coords3D dim) const;
 
 
 
@@ -116,11 +117,8 @@ public:
 
 private:
 
-  // refactor this should be typedeffed as "Jacobian", not the VecScalar
   // refactor rename posVelAcc
-  virtual Eigen::RowVectorXd GetJacobian(double t_global,
-                                         PosVelAcc posVelAcc,
-                                         Coords3D dim) const = 0;
+  virtual Jacobian GetJacobian(double t_global, PosVelAcc posVelAcc, Coords3D dim) const = 0;
 };
 
 } /* namespace zmp */

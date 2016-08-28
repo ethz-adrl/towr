@@ -26,7 +26,6 @@ public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::VecScalar VecScalar;
   typedef Eigen::Vector2d Vector2d;
-  typedef Eigen::RowVector4d VecABCD;
   typedef Eigen::VectorXd VectorXd;
 
   ComSpline4 ();
@@ -70,11 +69,10 @@ private:
   MatVec DescribeEByABCD(Coords Coords, double start_cog_v) const;
   MatVec DescribeFByABCD(Coords Coords, double start_cog_p, double start_cog_v) const;
 
-  VecABCD ExpressCogAccThroughABCD(double t_local) const;
-  VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const override;
-  VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const override;
-  VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const override;
-  VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const override;
+  void ExpressCogPosThroughABCD (double t_local, int id, Coords dim, Jacobian&) const override;
+  void ExpressCogVelThroughABCD (double t_local, int id, Coords dim, Jacobian&) const override;
+  void ExpressCogAccThroughABCD (double t_local, int id, Coords dim, Jacobian&) const override;
+  void ExpressCogJerkThroughABCD(double t_local, int id, Coords dim, Jacobian&) const override;
 
   VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
   VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;

@@ -108,85 +108,56 @@ ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
   } // k=0..n_spline_infos_
 }
 
-ComSpline4::VecScalar
-ComSpline4::ExpressCogPosThroughABCD(double t_local, int id, Coords dim) const
+// refactor rename t_local to t_polynomial
+void
+ComSpline4::ExpressCogPosThroughABCD(double t_local, int id, Coords dim, Jacobian& jac) const
 {
-  VecScalar pos(GetTotalFreeCoeff());
-
   VecScalar Ek = GetECoefficient(id, dim);
   VecScalar Fk = GetFCoefficient(id, dim);
 
   // x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
-  pos.v(Index(id,dim,A))   = std::pow(t_local,5);
-  pos.v(Index(id,dim,B))   = std::pow(t_local,4);
-  pos.v(Index(id,dim,C))   = std::pow(t_local,3);
-  pos.v(Index(id,dim,D))   = std::pow(t_local,2);
-  pos.v                   += t_local*Ek.v;
-  pos.v                   += 1*Fk.v;
-
-  // refactor remove all these, as they are not used (same as GetCom())
-  pos.s = Ek.s*t_local + Fk.s;
-
-  return pos;
+  jac(Index(id,dim,A))   = std::pow(t_local,5);
+  jac(Index(id,dim,B))   = std::pow(t_local,4);
+  jac(Index(id,dim,C))   = std::pow(t_local,3);
+  jac(Index(id,dim,D))   = std::pow(t_local,2);
+  jac                   += t_local*Ek.v;
+  jac                   += 1*Fk.v;
 }
 
-ComSpline4::VecScalar
-ComSpline4::ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const
+void
+ComSpline4::ExpressCogVelThroughABCD (double t_local, int id, Coords dim, Jacobian& jac) const
 {
-  VecScalar vel(GetTotalFreeCoeff());
-
   VecScalar Ek = GetECoefficient(id, dim);
 
   // x_vel = 5at^4 +   4bt^3 +  3ct^2 + 2dt + e
-  vel.v(Index(id,dim,A))   = 5 * std::pow(t_local,4);
-  vel.v(Index(id,dim,B))   = 4 * std::pow(t_local,3);
-  vel.v(Index(id,dim,C))   = 3 * std::pow(t_local,2);
-  vel.v(Index(id,dim,D))   = 2 * std::pow(t_local,1);
-  vel.v                   += Ek.v;
-
-  vel.s = Ek.s;
-
-  return vel;
+  jac(Index(id,dim,A))   = 5 * std::pow(t_local,4);
+  jac(Index(id,dim,B))   = 4 * std::pow(t_local,3);
+  jac(Index(id,dim,C))   = 3 * std::pow(t_local,2);
+  jac(Index(id,dim,D))   = 2 * std::pow(t_local,1);
+  jac                   += Ek.v;
 }
-
-ComSpline4::VecScalar
-ComSpline4::ExpressCogAccThroughABCD(double t_local, int id, Coords dim) const
+void
+ComSpline4::ExpressCogAccThroughABCD(double t_local, int id, Coords dim, Jacobian& jac) const
 {
-  VecScalar acc(GetTotalFreeCoeff());
+  Eigen::RowVector4d jac_xdd_abcd = Eigen::RowVector4d::Zero();
+
+  jac_xdd_abcd(A)   = 20.0 * std::pow(t_local,3);
+  jac_xdd_abcd(B)   = 12.0 * std::pow(t_local,2);
+  jac_xdd_abcd(C)   =  6.0 * t_local;
+  jac_xdd_abcd(D)   =  2.0;
 
   int idx = Index(id,dim,A);
-  acc.v.middleCols(idx, NumFreeCoeffPerSpline()) = ExpressCogAccThroughABCD(t_local);
-
-  return acc;
+  jac.middleCols(idx, NumFreeCoeffPerSpline()) = jac_xdd_abcd;
 }
 
 
-ComSpline4::VecABCD
-ComSpline4::ExpressCogAccThroughABCD(double t_local) const
+void
+ComSpline4::ExpressCogJerkThroughABCD (double t_local, int id, Coords dim, Jacobian& jac) const
 {
-  VecABCD acc;
-
-  // x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
-  acc(A)   = 20.0 * std::pow(t_local,3);
-  acc(B)   = 12.0 * std::pow(t_local,2);
-  acc(C)   =  6.0 * t_local;
-  acc(D)   =  2.0;
-
-  return acc;
-}
-
-ComSpline4::VecScalar
-ComSpline4::ExpressCogJerkThroughABCD (double t_local, int id,
-                                                      Coords dim) const
-{
-  VecScalar jerk(GetTotalFreeCoeff());
-
   // x_jerk = 60at^2 +   24bt +  6c
-  jerk.v(Index(id,dim,A))   = 60 * std::pow(t_local,2);
-  jerk.v(Index(id,dim,B))   = 24 * std::pow(t_local,1);
-  jerk.v(Index(id,dim,C))   = 6;
-
-  return jerk;
+  jac(Index(id,dim,A))   = 60 * std::pow(t_local,2);
+  jac(Index(id,dim,B))   = 24 * std::pow(t_local,1);
+  jac(Index(id,dim,C))   = 6;
 }
 
 ComSpline4::VecScalar

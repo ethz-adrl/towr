@@ -175,6 +175,12 @@ ComSpline::GetCOGxy(double t_global, const VecPolynomials& splines)
   int id = GetPolynomialID(t_global,splines);
   double t_local = GetLocalTime(t_global, splines);
 
+  return GetCOGxyAtPolynomial(id, t_local, splines);
+}
+
+ComSpline::Point2d
+ComSpline::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& splines)
+{
   Point2d cog_xy;
   cog_xy.p = splines[id].GetState(kPos, t_local);
   cog_xy.v = splines[id].GetState(kVel, t_local);
@@ -183,31 +189,33 @@ ComSpline::GetCOGxy(double t_global, const VecPolynomials& splines)
   return cog_xy;
 }
 
-Eigen::RowVectorXd
+ComSpline::Jacobian
 ComSpline::GetJacobian (double t_global, PosVelAcc posVelAcc,
                         Coords3D dim) const
 {
   int id = GetPolynomialID(t_global);
   double t_local = GetLocalTime(t_global);
 
-  switch (posVelAcc) {
-    case kPos: return ExpressCogPosThroughABCD(t_local, id, dim).v;
-    case kVel: return ExpressCogVelThroughABCD(t_local, id, dim).v;
-    case kAcc: return ExpressCogAccThroughABCD(t_local, id, dim).v;
-    case kJerk:return ExpressCogJerkThroughABCD(t_local, id, dim).v;
-  }
+  return GetJacobianWrtCoeffAtPolynomial(posVelAcc, t_local, id, dim);
 }
 
 ComSpline::Jacobian
-ComSpline::GetJacobianWrtCoeff (PosVelAcc posVelAcc, double t_local, int id,
-                                Coords3D dim) const
+ComSpline::GetJacobianWrtCoeffAtPolynomial (PosVelAcc posVelAcc, double t_local, int id,
+                                            Coords3D dim) const
 {
+  Jacobian jac = Jacobian::Zero(GetTotalFreeCoeff());
+
   switch (posVelAcc) {
-    case kPos: return ExpressCogPosThroughABCD(t_local, id, dim);
-    case kVel: return ExpressCogVelThroughABCD(t_local, id, dim);
-    case kAcc: return ExpressCogAccThroughABCD(t_local, id, dim);
-    case kJerk:return ExpressCogJerkThroughABCD(t_local, id, dim);
+    // refactor rename these!
+    case kPos: ExpressCogPosThroughABCD (t_local, id, dim, jac); break;
+    case kVel: ExpressCogVelThroughABCD (t_local, id, dim, jac); break;
+    case kAcc: ExpressCogAccThroughABCD (t_local, id, dim, jac); break;
+    case kJerk:ExpressCogJerkThroughABCD(t_local, id, dim, jac); break;
   }
+
+  std::cout << "jac in ComSpline: " << jac << std::endl;
+
+  return jac;
 }
 
 void

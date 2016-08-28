@@ -44,10 +44,10 @@ ComMotion::SetCoefficientsZero ()
   SetCoefficients(coeff.setZero());
 }
 
-ComMotion::Jacobian
+ComMotion::VecScalar
 ComMotion::GetLinearApproxWrtCoeff (double t_global, PosVelAcc posVelAcc, Coords3D dim) const
 {
-  Jacobian linear_approx; // at current coefficient values
+  VecScalar linear_approx; // at current coefficient values
 
   linear_approx.v = GetJacobian(t_global, posVelAcc, dim);
   linear_approx.s = GetCom(t_global).GetByIndex(posVelAcc, dim);

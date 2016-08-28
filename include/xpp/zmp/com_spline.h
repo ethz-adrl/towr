@@ -54,6 +54,9 @@ public:
   typedef std::shared_ptr<ComSpline> Ptr;
   typedef std::unique_ptr<ComSpline> UniquePtr;
 
+  ComSpline ();
+  virtual ~ComSpline ();
+
   // implements these functions from parent class, now specific for splines
   Point2d GetCom(double t_global) const override { return GetCOGxy(t_global, polynomials_); }
   double GetTotalTime() const override { return GetTotalTime(polynomials_); }
@@ -88,8 +91,7 @@ public:
   virtual UniquePtr clone() const = 0;
 
 
-
-  // refactor write documentation
+  // refactor write documentation or get rid off
   /**
     *
     * @param posVelAcc
@@ -98,18 +100,12 @@ public:
     * @param dim
     * @return
     */
-  Jacobian GetJacobianWrtCoeff(PosVelAcc posVelAcc,
-                               double t_local,
-                               int id,
-                               Coords3D dim) const;
-
-  Eigen::RowVectorXd GetJacobian(double t_global,
-                                 PosVelAcc posVelAcc,
-                                 Coords3D dim) const override;
+  Jacobian GetJacobianWrtCoeffAtPolynomial(PosVelAcc posVelAcc, double t_local, int id, Coords3D dim) const;
+  static Point2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
+  Point2d GetCOGxyAtPolynomial(int id, double t_local) {return GetCOGxyAtPolynomial(id, t_local, polynomials_); };
 
 
-  ComSpline ();
-  virtual ~ComSpline ();
+  Jacobian GetJacobian(double t_global, PosVelAcc posVelAcc, Coords3D dim) const override;
 
 protected:
   VecPolynomials polynomials_;
@@ -119,10 +115,10 @@ protected:
 
 private:
 
-  virtual VecScalar ExpressCogPosThroughABCD (double t_local, int id, Coords dim) const = 0;
-  virtual VecScalar ExpressCogVelThroughABCD (double t_local, int id, Coords dim) const = 0;
-  virtual VecScalar ExpressCogAccThroughABCD (double t_local, int id, Coords dim) const = 0;
-  virtual VecScalar ExpressCogJerkThroughABCD(double t_local, int id, Coords dim) const = 0;
+  virtual void ExpressCogPosThroughABCD (double t_local, int id, Coords dim, Jacobian&) const = 0;
+  virtual void ExpressCogVelThroughABCD (double t_local, int id, Coords dim, Jacobian&) const = 0;
+  virtual void ExpressCogAccThroughABCD (double t_local, int id, Coords dim, Jacobian&) const = 0;
+  virtual void ExpressCogJerkThroughABCD(double t_local, int id, Coords dim, Jacobian&) const = 0;
 
   virtual int NumFreeCoeffPerSpline() const = 0;
   virtual std::vector<SplineCoeff> GetFreeCoeffPerSpline() const = 0;
