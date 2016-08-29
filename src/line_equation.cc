@@ -38,8 +38,8 @@ LineEquation::GetCoeff() const
   LineCoeff2d ret;
   ret.p = pt0.y() - pt1.y();
   ret.q = pt1.x() - pt0.x();
-  //    ret.r = -ret.p * pt0.x() - ret.q * pt0.y();
   ret.r = pt0.x()*pt1.y() - pt1.x()*pt0.y();
+  //    ret.r = -ret.p * pt0.x() - ret.q * pt0.y();
 
   // normalize so distance t line function is correct, otherwise
   // point to line depends on how close the two line defining points where apart
@@ -57,8 +57,8 @@ LineEquation::GetJacobianLineCoeffWrtPoints () const
   // as calculated in latex document
   double a =  pt0.x() - pt1.x();
   double b =  pt0.y() - pt1.y();
-  double c = -pt1.x()*pt1.x()* + pt0.x()*pt1.x() - pt1.y()*pt1.y() + pt0.y()*pt1.y();
-  double d = -pt0.x()*pt0.x()* + pt0.x()*pt1.x() - pt0.y()*pt0.y() + pt0.y()*pt1.y();
+  double c = -pt1.x()*pt1.x() + pt0.x()*pt1.x() - pt1.y()*pt1.y() + pt0.y()*pt1.y();
+  double d = -pt0.x()*pt0.x() + pt0.x()*pt1.x() - pt0.y()*pt0.y() + pt0.y()*pt1.y();
 
   JacobianCoeff jac;
   jac.row(0) <<  -a*b,   a*a,  a*b,  -a*a; // coefficient p

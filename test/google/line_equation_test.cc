@@ -11,18 +11,73 @@
 namespace xpp {
 namespace utils {
 
+using Point = LineEquation::Point;
+
 class LineEquationTest : public ::testing::Test {
 protected:
   virtual void SetUp() {}
 
-  Eigen::Vector2d A;
-  Eigen::Vector2d B;
-  Eigen::Vector2d C;
-  Eigen::Vector2d D;
+  Point A;
+  Point B;
+  Point C;
+  Point D;
   LineEquation le;
 
 };
 
+TEST_F(LineEquationTest, CoeffJacbianTest)
+{
+  A << 1.3, 0.5;
+  B << -0.7, 2.9;
+
+  // evaluate through numerical differences
+  le.SetPoints(A,B);
+  auto coeff_base = le.GetCoeff();
+
+  double h = 1e-9;
+  Point dx(h,  0.0);
+  Point dy( 0.0, h);
+
+  le.SetPoints(A+dx,B);
+  auto coeff_0x = le.GetCoeff();
+
+  le.SetPoints(A+dy,B);
+  auto coeff_0y = le.GetCoeff();
+
+  le.SetPoints(A,B+dx);
+  auto coeff_1x = le.GetCoeff();
+
+  le.SetPoints(A,B+dy);
+  auto coeff_1y = le.GetCoeff();
+
+  double grad_p0x = (coeff_0x.p - coeff_base.p)/h;
+  double grad_p0y = (coeff_0y.p - coeff_base.p)/h;
+  double grad_p1x = (coeff_1x.p - coeff_base.p)/h;
+  double grad_p1y = (coeff_1y.p - coeff_base.p)/h;
+
+  double grad_q0x = (coeff_0x.q - coeff_base.q)/h;
+  double grad_q0y = (coeff_0y.q - coeff_base.q)/h;
+  double grad_q1x = (coeff_1x.q - coeff_base.q)/h;
+  double grad_q1y = (coeff_1y.q - coeff_base.q)/h;
+
+  double grad_r0x = (coeff_0x.r - coeff_base.r)/h;
+  double grad_r0y = (coeff_0y.r - coeff_base.r)/h;
+  double grad_r1x = (coeff_1x.r - coeff_base.r)/h;
+  double grad_r1y = (coeff_1y.r - coeff_base.r)/h;
+
+  LineEquation::JacobianCoeff jac_numerical;
+  jac_numerical.row(0) << grad_p0x, grad_p0y, grad_p1x, grad_p1y;
+  jac_numerical.row(1) << grad_q0x, grad_q0y, grad_q1x, grad_q1y;
+  jac_numerical.row(2) << grad_r0x, grad_r0y, grad_r1x, grad_r1y;
+
+  le.SetPoints(A,B);
+  auto jac_ana = le.GetJacobianLineCoeffWrtPoints();
+
+  EXPECT_TRUE(jac_numerical.isApprox(jac_ana, 1e-5));
+//  for (int row=0; row<3; row++)
+//    for (int col=0; col<4; col++)
+//      std::cout << jac_ana(row,col) << " vs " << jac_numerical(row,col) << std::endl;
+}
 
 TEST_F(LineEquationTest, LineCoefficients)
 {
