@@ -28,7 +28,8 @@ typedef std::array<double, kSideTypeCount> MarginValues;
 class SupportPolygon {
 public:
   struct SuppLine {
-    utils::LineCoeff2d coeff;
+    utils::LineEquation line;
+//    utils::LineCoeff2d coeff;
     double s_margin;
     bool fixed_by_start_stance;
   };
@@ -66,14 +67,14 @@ private:
   friend std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr);
 };
 
-inline std::ostream& operator<<(std::ostream& out, const SupportPolygon::SuppLine& line)
-{
-  out << "line:"
-      << "\tcoeff: p="  << line.coeff.p << ", q=" << line.coeff.q << ", r=" << line.coeff.r
-      << ", margin: " << line.s_margin;
-
-  return out;
-}
+//inline std::ostream& operator<<(std::ostream& out, const SupportPolygon::SuppLine& line)
+//{
+//  out << "line:"
+//      << "\tcoeff: p="  << line.coeff.p << ", q=" << line.coeff.q << ", r=" << line.coeff.r
+//      << ", margin: " << line.s_margin;
+//
+//  return out;
+//}
 
 inline std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr)
 {

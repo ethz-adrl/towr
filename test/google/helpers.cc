@@ -13,6 +13,30 @@
 namespace xpp {
 namespace hyq {
 
+TEST(HelpersTest, DiagonalMatrix)
+{
+  int cols = 9;
+  Eigen::MatrixXd H = Eigen::MatrixXd::Zero(3,cols);
+  Eigen::RowVector3d v(1,2,3);
+
+  H << v, v, v,
+      v, v, v,
+      v,v;
+
+  std::cout << H;
+
+  H.setZero();
+
+  Eigen::MatrixXd diag = v.asDiagonal();
+
+  for (int row=0; row<3; ++row)
+    H.row(row).middleCols(3*row, 3) = v;
+
+  std::cout << H;
+
+
+}
+
 TEST(HelpersTest, LegDataMapToVector)
 {
   LegDataMap<Foothold> ldm;

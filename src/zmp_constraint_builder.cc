@@ -26,6 +26,7 @@ ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container, double walking_
 
   using namespace xpp::utils::coords_wrapper;
 
+  walking_height_ = walking_height;
   jac_px_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, X);
   jac_py_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, Y);
 
@@ -95,14 +96,19 @@ ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
                                       const VecScalar& x_zmp,
                                       const VecScalar& y_zmp)
 {
+
+  // refactor shouldn't calculate this everytime
+  auto coeff = l.line.GetCoeff();
+
   VecScalarScalar line_constr_sep;
   // separate the constraints that depend only on the start stance with the ones
   // that depend on the optimized footholds
-  line_constr_sep.vs.v  = l.coeff.p*x_zmp.v + l.coeff.q*y_zmp.v;
+
+  line_constr_sep.vs.v  = coeff.p*x_zmp.v + coeff.q*y_zmp.v;
   line_constr_sep.vs.s = 0;
   line_constr_sep.constant = -l.s_margin;
 
-  double line_coeff_terms = l.coeff.p*x_zmp.s + l.coeff.q*y_zmp.s + l.coeff.r;
+  double line_coeff_terms = coeff.p*x_zmp.s + coeff.q*y_zmp.s + coeff.r;
   if (l.fixed_by_start_stance)
     line_constr_sep.constant += line_coeff_terms;
   else
@@ -174,14 +180,63 @@ ZmpConstraintBuilder::MatrixXd
 ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
-  auto output_dim = spline_structure_->GetDiscretizedGlobalTimes().size();
-  auto input_dim = spline_structure_->GetTotalFreeCoeff() + s.GetNumberOfSteps()*kDim2d;
+  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
+  auto output_dim = vec_t.size();
+
+  int n_motion = spline_structure_->GetTotalFreeCoeff();
+  int n_contacts = s.GetNumberOfSteps()*kDim2d;
+
+  int input_dim = n_motion + n_contacts;
+
+  // know the lines of of each support polygon
+  auto supp_lines = s.GetActiveConstraintsForEachPhase(*spline_structure_);
+
 
   MatrixXd jac(output_dim, input_dim);
 
 
   // for every time t
-//  for (int
+  for (auto t : vec_t) {
+
+    int phase_id  = spline_structure_->GetCurrentPhase(t).id_;
+    NodeConstraint supp = supp_lines.at(phase_id);
+
+    int num_lines = supp.size();
+    Eigen::VectorXd lx(num_lines);
+    Eigen::VectorXd ly(num_lines);
+    for (int i=0; i<num_lines; ++i) {
+      auto coeff = supp.at(i).line.GetCoeff();
+      lx(i) = coeff.p;
+      ly(i) = coeff.q;
+    }
+
+
+    auto state = spline_structure_->GetCom(t);
+
+    // the current position of the zero moment point
+    auto p = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
+
+    // create diagonal matrix from row vector h
+    Eigen::RowVector3d h(p.x(), p.y(), 1.0);
+    Eigen::MatrixXd H = Eigen::MatrixXd::Zero(num_lines, 3*num_lines);
+    for (int i=0; i<num_lines; ++i)
+      H.row(i).middleCols(3*i, 3) = h;
+
+
+    Eigen::MatrixXd jac_line_coeff(3*num_lines, n_contacts);
+
+
+
+
+
+
+//
+//    Eigen::Vector3d lx(supp.at(0).coeff.p, supp.at(1
+//
+//    supp.
+
+
+  }
 
 
   // build jacobian w.r.t x position;

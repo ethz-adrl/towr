@@ -102,6 +102,7 @@ private:
 
 
   std::unique_ptr<ComSpline> spline_structure_;
+  double walking_height_;
   MatVec jac_px_0_; ///< Jacobian of ZMP in x direction evaluated at spline coefficient values of zero
   MatVec jac_py_0_; ///< Jacobian of ZMP in y direction evaluated at spline coefficient values of zero
 

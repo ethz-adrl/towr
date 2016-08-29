@@ -237,7 +237,7 @@ if(BUILD_TESTS)
                          test/google/point2d_manipulations_test.cc
 #                        test/google/supp_polygon_test.cc
 #                        test/google/supp_polygon_container_test.cc
-#                        test/google/helpers.cc
+                        test/google/helpers.cc
 #                        test/google/zero_moment_point_test.cc
 #                        test/google/nlp_facade_test.cc
 ##                        test/google/hyq_spliner_test.cc

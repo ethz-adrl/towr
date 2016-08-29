@@ -52,7 +52,7 @@ SupportPolygon::VecSuppLine SupportPolygon::CalcLines() const
     int last_idx = footholds_conv_.size()-1;
     Foothold to = (i == last_idx) ? footholds_conv_[0] : footholds_conv_[i+1];
     LineEquation line(from.p.segment(0,2), to.p.segment(0,2));
-    lines[i].coeff = line.GetCoeff();
+    lines[i].line = line;
     lines[i].s_margin = UseMargin(from.leg, to.leg);
 
     // this is to separate out the constant terms of the constraints
@@ -106,8 +106,9 @@ SupportPolygon SupportPolygon::CombineSupportPolygons(const SupportPolygon& p1,
 bool
 SupportPolygon::IsPointInside (const Vector2d& p) const
 {
-  for (const SupportPolygon::SuppLine& l : CalcLines()) {
-    bool zmp_outside = l.coeff.p*p.x() + l.coeff.q*p.y() + l.coeff.r < l.s_margin;
+  for (const auto& l : CalcLines()) {
+    auto coeff = l.line.GetCoeff();
+    bool zmp_outside = coeff.p*p.x() + coeff.q*p.y() + coeff.r < l.s_margin;
     if(zmp_outside)
       return false;
   }
