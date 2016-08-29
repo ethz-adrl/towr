@@ -79,6 +79,48 @@ TEST_F(LineEquationTest, CoeffJacbianTest)
 //      std::cout << jac_ana(row,col) << " vs " << jac_numerical(row,col) << std::endl;
 }
 
+TEST_F(LineEquationTest, DistanceJacbianTest)
+{
+  A << 1.3, 0.5;
+  B << -0.7, 2.9;
+  C << 0.2, 1.9;
+  le.SetPoints(A,B);
+
+  auto distance_base = le.GetDistanceFromLine(C);
+
+  // perturb the points that define the line
+  double h = 1e-9;
+  Point dx(h,  0.0);
+  Point dy( 0.0, h);
+
+  le.SetPoints(A+dx,B);
+  auto coeff_0x = le.GetDistanceFromLine(C);
+
+  le.SetPoints(A+dy,B);
+  auto coeff_0y = le.GetDistanceFromLine(C);
+
+  le.SetPoints(A,B+dx);
+  auto coeff_1x = le.GetDistanceFromLine(C);
+
+  le.SetPoints(A,B+dy);
+  auto coeff_1y = le.GetDistanceFromLine(C);
+
+  double grad_d_0x = (coeff_0x - distance_base)/h;
+  double grad_d_0y = (coeff_0y - distance_base)/h;
+  double grad_d_1x = (coeff_1x - distance_base)/h;
+  double grad_d_1y = (coeff_1y - distance_base)/h;
+
+  LineEquation::JacobianRow jac_numerical;
+  jac_numerical << grad_d_0x, grad_d_0y, grad_d_1x, grad_d_1y;
+
+  le.SetPoints(A,B);
+  auto jac_analytical = le.GetJacobianDistanceWrtPoints(C);
+
+  EXPECT_TRUE(jac_numerical.isApprox(jac_analytical, 1e-5));
+//  for (int col=0; col<4; col++)
+//    std::cout << jac_analytical(0,col) << " vs " << jac_numerical(0,col) << std::endl;
+}
+
 TEST_F(LineEquationTest, LineCoefficients)
 {
   A << 0, 0;

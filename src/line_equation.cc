@@ -60,12 +60,16 @@ LineEquation::GetJacobianLineCoeffWrtPoints () const
   double c = -pt1.x()*pt1.x() + pt0.x()*pt1.x() - pt1.y()*pt1.y() + pt0.y()*pt1.y();
   double d = -pt0.x()*pt0.x() + pt0.x()*pt1.x() - pt0.y()*pt0.y() + pt0.y()*pt1.y();
 
+  double aa = a*a;
+  double ab = a*b;
+  double bb = b*b;
+
   JacobianCoeff jac;
-  jac.row(0) <<  -a*b,   a*a,  a*b,  -a*a; // coefficient p
-  jac.row(1) <<  -b*b,   a*b,  b*b,  -a*b; // coefficient q
+  jac.row(0) <<   -ab,    aa,   ab,   -aa; // coefficient p
+  jac.row(1) <<   -bb,    ab,   bb,   -ab; // coefficient q
   jac.row(2) <<   b*c,  -a*c,  b*d,  -a*d; // coefficient r
 
-  double e =  std::pow(a*a + b*b, 1.5);
+  double e =  std::pow(aa + bb, 1.5);
   jac /= e;
 
   return jac;
