@@ -14,6 +14,7 @@ namespace xpp {
 namespace utils {
 
 /** p*x + q*y + r = 0 */
+// refactor use just a 3d vector for this?
 struct LineCoeff2d {
   double p;
   double q;
@@ -36,11 +37,11 @@ class LineEquation {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-  typedef Eigen::Vector2d Point;
+  using Point = Eigen::Vector2d;
   static const int kNumLineCoeff = 3;   // p, q, r
   static const int kNumPointCoords = 4; // p0.x, p0.y, p1.x, p1.y
-  typedef Eigen::Matrix<double, 1, kNumPointCoords>  JacobianRow;
-  typedef Eigen::Matrix<double, kNumLineCoeff, kNumPointCoords> JacobianCoeff;
+  using JacobianRow = Eigen::Matrix<double, 1, kNumPointCoords>;
+  using JacobianCoeff = Eigen::Matrix<double, kNumLineCoeff, kNumPointCoords>;
 
   LineEquation ();
   LineEquation (const Point& pt0, const Point& pt1);
@@ -77,7 +78,7 @@ public:
   JacobianRow GetJacobianDistanceWrtPoints(const Point& pt) const;
 
 private:
-  Point pt0, pt1;
+  Point _0, _1;
 };
 
 

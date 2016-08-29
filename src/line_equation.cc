@@ -23,8 +23,8 @@ LineEquation::LineEquation (const Point& _pt0, const Point& _pt1)
 void
 LineEquation::SetPoints (const Point& _pt0, const Point& _pt1)
 {
-  pt0 = _pt0;
-  pt1 = _pt1;
+  _0 = _pt0;
+  _1 = _pt1;
 }
 
 LineEquation::LineEquation ()
@@ -36,13 +36,13 @@ LineCoeff2d
 LineEquation::GetCoeff() const
 {
   LineCoeff2d ret;
-  ret.p = pt0.y() - pt1.y();
-  ret.q = pt1.x() - pt0.x();
-  ret.r = pt0.x()*pt1.y() - pt1.x()*pt0.y();
+  ret.p = _0.y() - _1.y();
+  ret.q = _1.x() - _0.x();
+  ret.r = _0.x()*_1.y() - _1.x()*_0.y();
   //    ret.r = -ret.p * pt0.x() - ret.q * pt0.y();
 
-  // normalize so distance t line function is correct, otherwise
-  // point to line depends on how close the two line defining points where apart
+  // normalize so distance to line function is correct, otherwise
+  // distance to line depends on how close the two line defining points where apart
   double norm = hypot(ret.p, ret.q);
   ret.p /= norm;
   ret.q /= norm;
@@ -55,10 +55,10 @@ LineEquation::JacobianCoeff
 LineEquation::GetJacobianLineCoeffWrtPoints () const
 {
   // as calculated in latex document
-  double a =  pt0.x() - pt1.x();
-  double b =  pt0.y() - pt1.y();
-  double c = -pt1.x()*pt1.x() + pt0.x()*pt1.x() - pt1.y()*pt1.y() + pt0.y()*pt1.y();
-  double d = -pt0.x()*pt0.x() + pt0.x()*pt1.x() - pt0.y()*pt0.y() + pt0.y()*pt1.y();
+  double a =  _0.x() - _1.x();
+  double b =  _0.y() - _1.y();
+  double c = -_1.x()*_1.x() + _0.x()*_1.x() - _1.y()*_1.y() + _0.y()*_1.y();
+  double d = -_0.x()*_0.x() + _0.x()*_1.x() - _0.y()*_0.y() + _0.y()*_1.y();
 
   double aa = a*a;
   double ab = a*b;

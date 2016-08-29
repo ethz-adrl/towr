@@ -28,6 +28,11 @@ public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef xpp::hyq::LegID LegID;
   typedef Eigen::Vector2d Vector2d;
+  typedef Eigen::MatrixXd MatrixXd;
+
+
+  template <size_t NUM_TIMES, size_t COEFF_AND_CONTACTS>
+  using JacobianStability = Eigen::Matrix<double, NUM_TIMES, COEFF_AND_CONTACTS>;
 
 public:
   ZmpConstraintBuilder() {};
@@ -53,6 +58,9 @@ public:
     */
   // refactor returns jacobian, rename
   MatVecVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
+
+
+  MatrixXd GetJacobian(const SupportPolygonContainer& s) const;
 
 private:
 

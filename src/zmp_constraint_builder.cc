@@ -40,7 +40,7 @@ ZmpConstraintBuilder::CalcZmpConstraints(const SupportPolygonContainer& s) const
 };
 
 ZmpConstraintBuilder::MatVecVec
-ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& jac_px_0, const MatVec& jac_py_0,
                                   const SupportPolygonContainer& supp_polygon_container) const
 {
   std::vector<NodeConstraint> supp_lines = supp_polygon_container.GetActiveConstraintsForEachPhase(*spline_structure_);
@@ -65,7 +65,7 @@ ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zm
       continue;
     }
 
-    GenerateNodeConstraint(supp_lines.at(phase_id), x_zmp.GetRow(n), y_zmp.GetRow(n), c, ineq);
+    GenerateNodeConstraint(supp_lines.at(phase_id), jac_px_0.GetRow(n), jac_py_0.GetRow(n), c, ineq);
 
     n++;
     c += SupportPolygon::kMaxSides;
@@ -168,6 +168,26 @@ ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)
   if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
 
   return false;
+}
+
+ZmpConstraintBuilder::MatrixXd
+ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
+{
+  // refactor this discretized global times could specify where to evaluate zmp constraint
+  auto output_dim = spline_structure_->GetDiscretizedGlobalTimes().size();
+  auto input_dim = spline_structure_->GetTotalFreeCoeff() + s.GetNumberOfSteps()*kDim2d;
+
+  MatrixXd jac(output_dim, input_dim);
+
+
+  // for every time t
+//  for (int
+
+
+  // build jacobian w.r.t x position;
+
+
+  return jac;
 }
 
 void
