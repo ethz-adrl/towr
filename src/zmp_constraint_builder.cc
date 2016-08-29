@@ -98,7 +98,8 @@ ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
 {
 
   // refactor shouldn't calculate this everytime
-  auto coeff = l.line.GetCoeff();
+  utils::LineEquation line(l.from.p.segment<2>(X), l.to.p.segment<2>(X));
+  auto coeff = line.GetCoeff();
 
   VecScalarScalar line_constr_sep;
   // separate the constraints that depend only on the start stance with the ones
@@ -196,7 +197,11 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
 
 
   // for every time t
-  for (auto t : vec_t) {
+  for (const auto& t : vec_t) {
+
+    // the current position of the zero moment point
+    auto state = spline_structure_->GetCom(t);
+    auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
     int phase_id  = spline_structure_->GetCurrentPhase(t).id_;
     NodeConstraint supp = supp_lines.at(phase_id);
@@ -205,25 +210,30 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
     Eigen::VectorXd lx(num_lines);
     Eigen::VectorXd ly(num_lines);
     for (int i=0; i<num_lines; ++i) {
-      auto coeff = supp.at(i).line.GetCoeff();
+
+      // refactor do this only when phase change -> efficiency
+      utils::LineEquation line(supp.at(i).from.p.segment<2>(X), supp.at(i).to.p.segment<2>(X));
+      auto coeff = line.GetCoeff();
       lx(i) = coeff.p;
       ly(i) = coeff.q;
+
+      // get the jacobian of the line coefficient of each line
+      // but for that, need to know how many optimization variables exist
+      utils::LineEquation::JacobianRow jac_line;
+      jac_line = line.GetJacobianDistanceWrtPoints(zmp);
     }
 
 
-    auto state = spline_structure_->GetCom(t);
-
-    // the current position of the zero moment point
-    auto p = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
-
-    // create diagonal matrix from row vector h
-    Eigen::RowVector3d h(p.x(), p.y(), 1.0);
-    Eigen::MatrixXd H = Eigen::MatrixXd::Zero(num_lines, 3*num_lines);
-    for (int i=0; i<num_lines; ++i)
-      H.row(i).middleCols(3*i, 3) = h;
 
 
-    Eigen::MatrixXd jac_line_coeff(3*num_lines, n_contacts);
+//    // create diagonal matrix from row vector h
+//    Eigen::RowVector3d h(zmp.x(), zmp.y(), 1.0);
+//    Eigen::MatrixXd H = Eigen::MatrixXd::Zero(num_lines, 3*num_lines);
+//    for (int i=0; i<num_lines; ++i)
+//      H.row(i).middleCols(3*i, 3) = h;
+//
+//
+//    Eigen::MatrixXd jac_line_coeff(3*num_lines, n_contacts);
 
 
 

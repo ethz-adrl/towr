@@ -28,8 +28,7 @@ typedef std::array<double, kSideTypeCount> MarginValues;
 class SupportPolygon {
 public:
   struct SuppLine {
-    utils::LineEquation line;
-//    utils::LineCoeff2d coeff;
+    Foothold from, to;
     double s_margin;
     bool fixed_by_start_stance;
   };

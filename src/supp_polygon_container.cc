@@ -90,7 +90,6 @@ SupportPolygonContainer::GetStanceAfter(int n_steps) const
 
   // get the last step of each foot
   VecFoothold last_stance;
-  Foothold f;
   for (LegID l : LegIDArray)
     last_stance.push_back(Foothold::GetLastFoothold(l,combined));
 
@@ -217,16 +216,22 @@ void
 SupportPolygonContainer::SetStartStance (const VecFoothold& start_stance)
 {
   start_stance_ = start_stance;
-  for (auto& f : start_stance_)
+  for (auto& f : start_stance_) {
     f.fixed_by_start_stance = true;
+    f.id = -1;
+  }
 }
 
 void
 SupportPolygonContainer::SetFootholds (const VecFoothold& footholds)
 {
+  int id = 0;
+
   footholds_ = footholds;
-  for (auto& f : footholds_)
+  for (auto& f : footholds_) {
+    f.id = id++;
     f.fixed_by_start_stance = false;
+  }
 }
 
 } /* namespace hyq */

@@ -10,15 +10,25 @@
 namespace xpp {
 namespace hyq {
 
+Foothold::Foothold ()
+{
+  p.setZero();
+  leg = LF;
+  id = 0;
+  fixed_by_start_stance = false;
+}
+
 Foothold::Foothold(Eigen::Vector3d _pos, LegID _leg)
     : p(_pos), leg(_leg)
 {
+  id = 0;
   fixed_by_start_stance = false;
 };
 
 Foothold::Foothold(double x, double y, double z, LegID _leg)
     : p(x, y, z), leg(_leg)
 {
+  id = 0;
   fixed_by_start_stance = false;
 };
 
@@ -94,7 +104,3 @@ bool Foothold::operator!=(const Foothold& rhs) const
 
 } // namespace hyq
 } // namespace xpp
-
-
-
-
