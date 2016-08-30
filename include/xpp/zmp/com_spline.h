@@ -27,13 +27,8 @@ struct SplineTimes
   SplineTimes(double t_swing, double t_init)
       :t_swing_(t_swing), t_stance_initial_(t_init) {}
 
-  double t_swing_;
-  double t_stance_initial_;
-
-  void SetDefault() {
-    t_swing_          = 0.7; //s
-    t_stance_initial_ = 0.4; //s
-  }
+  double t_swing_{0.7};
+  double t_stance_initial_{0.4};
 };
 
 

@@ -25,7 +25,7 @@ void Iterate1To10(std::function<std::string (int)> f) {
 
 TEST(HelpersTest, LambdaFunction)
 {
-  Iterate1To10([](int i) { return "jojo " + std::to_string(i); });
+//  Iterate1To10([](int i) { return "jojo " + std::to_string(i); });
 }
 
 
@@ -35,9 +35,7 @@ TEST(HelpersTest, MiddleRows)
   int n_outputs = 6;
   Eigen::MatrixXd J = Eigen::MatrixXd::Zero(n_outputs, n_inputs);
 
-
   Eigen::MatrixXd J_node = Eigen::MatrixXd::Zero(2,n_inputs);
-
 
   J.middleRows(0,2) = J_node;
 }
@@ -50,10 +48,8 @@ TEST(HelpersTest, DiagonalMatrix)
   Eigen::RowVector3d v(1,2,3);
 
   H << v, v, v,
-      v, v, v,
-      v,v,v;
-
-  std::cout << H;
+       v, v, v,
+       v, v, v;
 
   H.setZero();
 
@@ -61,10 +57,6 @@ TEST(HelpersTest, DiagonalMatrix)
 
   for (int row=0; row<3; ++row)
     H.row(row).middleCols(3*row, 3) = v;
-
-  std::cout << H;
-
-
 }
 
 TEST(HelpersTest, LegDataMapToVector)

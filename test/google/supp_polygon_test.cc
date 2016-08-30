@@ -132,58 +132,121 @@ TEST_F(SuppPolygonTest, CombineSupportPolygonsSame)
 }
 
 
-TEST_F(SuppPolygonTest, CalcLinesTopRight)
+TEST_F(SuppPolygonTest, IsZmpInsideSuppPolygon4Contacts)
 {
-  SupportPolygon supp = SupportPolygon(f_top_right, margins_);
-  SupportPolygon::VecSuppLine lines = supp.GetLines();
+  using Vector2d = Eigen::Vector2d;
 
-  // expect three lines
-  EXPECT_EQ(3, lines.size());
-  // RH->RF: 0*x + 1*y + 0 = 0
-  EXPECT_FLOAT_EQ( 0, lines.at(0).coeff.p);
-  EXPECT_FLOAT_EQ( 1, lines.at(0).coeff.q);
-  EXPECT_FLOAT_EQ( 0, lines.at(0).coeff.r);
-  EXPECT_FLOAT_EQ( margins_[SIDE], lines.at(0).s_margin);
-  // RF->LF: -1*x + 0*y + 1 = 0
-  EXPECT_FLOAT_EQ(-1, lines.at(1).coeff.p);
-  EXPECT_FLOAT_EQ( 0, lines.at(1).coeff.q);
-  EXPECT_FLOAT_EQ( 1-offset_, lines.at(1).coeff.r);
-  EXPECT_FLOAT_EQ( margins_[FRONT], lines.at(1).s_margin);
-  // C->A: 1*x - 1*y + 0 = 0    // diagonal normalized
-  EXPECT_FLOAT_EQ( 1/sqrt(2), lines.at(2).coeff.p);
-  EXPECT_FLOAT_EQ(-1/sqrt(2), lines.at(2).coeff.q);
-  EXPECT_FLOAT_EQ( +offset_/sqrt(2.), lines.at(2).coeff.r);
-  EXPECT_FLOAT_EQ( margins_[DIAG], lines.at(2).s_margin);
+  SupportPolygon::VecFoothold stance;
+  stance.push_back(Foothold(-0.33,  0.31, 0.0, hyq::LH));
+  stance.push_back(Foothold( 0.33,  0.31, 0.0, hyq::LF));
+  stance.push_back(Foothold(-0.33, -0.31, 0.0, hyq::RH));
+  stance.push_back(Foothold( 0.33, -0.31, 0.0, hyq::RF));
+
+  hyq::MarginValues margins;
+  margins[hyq::FRONT] = 0.10;
+  margins[hyq::HIND]  = 0.10;
+  margins[hyq::SIDE]  = 0.10;
+  margins[hyq::DIAG]  = 0.06;
+  SupportPolygon supp(stance, margins);
+  EXPECT_TRUE(supp.IsPointInside(Vector2d( 0.0, 0.0)));
+
+  // at x and y borders
+  EXPECT_TRUE(supp.IsPointInside(Vector2d( 0.23, 0.0)));
+  EXPECT_TRUE(supp.IsPointInside(Vector2d(-0.23, 0.0)));
+  EXPECT_TRUE(supp.IsPointInside(Vector2d(  0.0, 0.21)));
+  EXPECT_TRUE(supp.IsPointInside(Vector2d(  0.0,-0.21)));
+
+  // over x and y borders
+  EXPECT_FALSE(supp.IsPointInside(Vector2d( 0.24, 0.0)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(-0.24, 0.0)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(  0.0, 0.22)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(  0.0,-0.22)));
 }
 
-
-TEST_F(SuppPolygonTest, FourLegSuppNotOrdered)
+TEST_F(SuppPolygonTest, IsZmpInsideSuppPolygon3Contacts)
 {
-  SupportPolygon supp = SupportPolygon(f_4_not_ordered, margins_);
-  SupportPolygon::VecSuppLine lines = supp.GetLines();
+  using Vector2d = Eigen::Vector2d;
 
-  EXPECT_EQ(4, lines.size());
-  // RH->RF: 0*x + 1*y + 0 = 0
-  EXPECT_FLOAT_EQ( 0, lines.at(0).coeff.p);
-  EXPECT_FLOAT_EQ( 1, lines.at(0).coeff.q);
-  EXPECT_FLOAT_EQ( 0, lines.at(0).coeff.r);
-  EXPECT_FLOAT_EQ( margins_[SIDE], lines.at(0).s_margin);
-  // RF->LF: -1*x + 0*y + 1 = 0
-  EXPECT_FLOAT_EQ(-1, lines.at(1).coeff.p);
-  EXPECT_FLOAT_EQ( 0, lines.at(1).coeff.q);
-  EXPECT_FLOAT_EQ( 1-offset_, lines.at(1).coeff.r);
-  EXPECT_FLOAT_EQ( margins_[FRONT], lines.at(1).s_margin);
-  // LF->LH: 0*x + -1*y + 1 = 0
-  EXPECT_FLOAT_EQ( 0, lines.at(2).coeff.p);
-  EXPECT_FLOAT_EQ(-1, lines.at(2).coeff.q);
-  EXPECT_FLOAT_EQ( 1, lines.at(2).coeff.r);
-  EXPECT_FLOAT_EQ( margins_[SIDE], lines.at(2).s_margin);
-  // LH->RH:  1*x + 0*y + 0 = 0
-  EXPECT_FLOAT_EQ( 1, lines.at(3).coeff.p);
-  EXPECT_FLOAT_EQ( 0, lines.at(3).coeff.q);
-  EXPECT_FLOAT_EQ( +offset_, lines.at(3).coeff.r);
-  EXPECT_FLOAT_EQ( margins_[HIND], lines.at(3).s_margin);
+  SupportPolygon::VecFoothold stance;
+  stance.push_back(Foothold( 0.33,  0.31, 0.0, hyq::LF));
+  stance.push_back(Foothold(-0.33, -0.31, 0.0, hyq::RH));
+  stance.push_back(Foothold( 0.33, -0.31, 0.0, hyq::RF));
+
+  hyq::MarginValues margins;
+  margins[hyq::FRONT] = 0.10;
+  margins[hyq::HIND]  = 0.10;
+  margins[hyq::SIDE]  = 0.10;
+  margins[hyq::DIAG]  = 0.06;
+  SupportPolygon supp(stance, margins);
+
+  // point at diagonal is not inside, since support polygon shrunk by stability margin
+  EXPECT_FALSE(supp.IsPointInside(Vector2d( 0.0, 0.0)));
+
+  // zmp forward works, because left hind leg not touching. zmp backwards fails
+  EXPECT_TRUE(supp.IsPointInside(Vector2d(  0.1, 0.0)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(-0.1, 0.0)));
+
+  // zmp right works, because left hind leg not touching. zmp right fails
+  EXPECT_TRUE(supp.IsPointInside(Vector2d( 0.0,-0.1)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(0.0, 0.1)));
+
+  // moving towards front right workd, towards left hind fails
+  EXPECT_TRUE(supp.IsPointInside(Vector2d(  0.1,-0.1)));
+  EXPECT_FALSE(supp.IsPointInside(Vector2d(-0.1, 0.1)));
 }
+
+//TEST_F(SuppPolygonTest, CalcLinesTopRight)
+//{
+//  SupportPolygon supp = SupportPolygon(f_top_right, margins_);
+//  SupportPolygon::VecSuppLine lines = supp.GetLines();
+//
+//  // expect three lines
+//  EXPECT_EQ(3, lines.size());
+//  // RH->RF: 0*x + 1*y + 0 = 0
+//  EXPECT_FLOAT_EQ( 0, lines.at(0).coeff.p);
+//  EXPECT_FLOAT_EQ( 1, lines.at(0).coeff.q);
+//  EXPECT_FLOAT_EQ( 0, lines.at(0).coeff.r);
+//  EXPECT_FLOAT_EQ( margins_[SIDE], lines.at(0).s_margin);
+//  // RF->LF: -1*x + 0*y + 1 = 0
+//  EXPECT_FLOAT_EQ(-1, lines.at(1).coeff.p);
+//  EXPECT_FLOAT_EQ( 0, lines.at(1).coeff.q);
+//  EXPECT_FLOAT_EQ( 1-offset_, lines.at(1).coeff.r);
+//  EXPECT_FLOAT_EQ( margins_[FRONT], lines.at(1).s_margin);
+//  // C->A: 1*x - 1*y + 0 = 0    // diagonal normalized
+//  EXPECT_FLOAT_EQ( 1/sqrt(2), lines.at(2).coeff.p);
+//  EXPECT_FLOAT_EQ(-1/sqrt(2), lines.at(2).coeff.q);
+//  EXPECT_FLOAT_EQ( +offset_/sqrt(2.), lines.at(2).coeff.r);
+//  EXPECT_FLOAT_EQ( margins_[DIAG], lines.at(2).s_margin);
+//}
+
+
+//TEST_F(SuppPolygonTest, FourLegSuppNotOrdered)
+//{
+//  SupportPolygon supp = SupportPolygon(f_4_not_ordered, margins_);
+//  SupportPolygon::VecSuppLine lines = supp.GetLines();
+//
+//  EXPECT_EQ(4, lines.size());
+//  // RH->RF: 0*x + 1*y + 0 = 0
+//  EXPECT_FLOAT_EQ( 0, lines.at(0).coeff.p);
+//  EXPECT_FLOAT_EQ( 1, lines.at(0).coeff.q);
+//  EXPECT_FLOAT_EQ( 0, lines.at(0).coeff.r);
+//  EXPECT_FLOAT_EQ( margins_[SIDE], lines.at(0).s_margin);
+//  // RF->LF: -1*x + 0*y + 1 = 0
+//  EXPECT_FLOAT_EQ(-1, lines.at(1).coeff.p);
+//  EXPECT_FLOAT_EQ( 0, lines.at(1).coeff.q);
+//  EXPECT_FLOAT_EQ( 1-offset_, lines.at(1).coeff.r);
+//  EXPECT_FLOAT_EQ( margins_[FRONT], lines.at(1).s_margin);
+//  // LF->LH: 0*x + -1*y + 1 = 0
+//  EXPECT_FLOAT_EQ( 0, lines.at(2).coeff.p);
+//  EXPECT_FLOAT_EQ(-1, lines.at(2).coeff.q);
+//  EXPECT_FLOAT_EQ( 1, lines.at(2).coeff.r);
+//  EXPECT_FLOAT_EQ( margins_[SIDE], lines.at(2).s_margin);
+//  // LH->RH:  1*x + 0*y + 0 = 0
+//  EXPECT_FLOAT_EQ( 1, lines.at(3).coeff.p);
+//  EXPECT_FLOAT_EQ( 0, lines.at(3).coeff.q);
+//  EXPECT_FLOAT_EQ( +offset_, lines.at(3).coeff.r);
+//  EXPECT_FLOAT_EQ( margins_[HIND], lines.at(3).s_margin);
+//}
 
 
 
