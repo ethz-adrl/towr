@@ -42,6 +42,8 @@ public:
 
   VectorXd EvaluateConstraint() const override;
   VecBound GetBounds() const override;
+  // not implemented yet
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const override { assert(false); };
 
 private:
   InvKinPtr inv_kin_;           ///< endeffector to joint angle conversions

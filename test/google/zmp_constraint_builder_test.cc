@@ -31,7 +31,7 @@ TEST(ZmpConstraintBuilderTest, JacobianWrtMotion)
   auto com_spline = MotionFactory::CreateComMotion(steps.size(), SplineTimes(), false);
 
   ZmpConstraintBuilder builder;
-  builder.Init(com_spline, 0.58);
+  builder.Init(com_spline, supp_polygons, 0.58);
 
   builder.spline_structure_->SetCoefficientsZero();
 
@@ -39,7 +39,7 @@ TEST(ZmpConstraintBuilderTest, JacobianWrtMotion)
   MatrixXd jac_wrt_contacts = builder.GetJacobianWrtContacts();
 
   // calculate the jacobian numerically
-  VectorXd g = builder.GetDistanceToLineMargin(supp_polygons);
+  VectorXd g = builder.GetDistanceToLineMargin();
 
   // perturb the coefficients a little
 

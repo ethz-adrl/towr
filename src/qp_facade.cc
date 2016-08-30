@@ -59,7 +59,7 @@ QpFacade::SolveQp(const State& initial_state,
   std::cout << "number of support polygons: " << supp.size() << std::endl;
 //  for (const hyq::SupportPolygon& s : supp) std::cout << s;
 
-  ZmpConstraintBuilder zmp_constraint(com_spline, robot_height);
+  ZmpConstraintBuilder zmp_constraint(com_spline, supp_polygon_container, robot_height);
   MatVecVec zmp_constr = zmp_constraint.CalcZmpConstraints(supp_polygon_container);
   inequality_constraints_.M = zmp_constr.Mv.M;
   inequality_constraints_.v = zmp_constr.Mv.v + zmp_constr.constant;

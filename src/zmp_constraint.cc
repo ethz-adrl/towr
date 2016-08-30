@@ -22,20 +22,19 @@ ZmpConstraint::ZmpConstraint ()
 void
 ZmpConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
 {
-  supp_polygon_container_ = interpreter.GetSuppPolygonContainer();
-  zmp_constraint_builder_.Init(interpreter.GetSplineStructure(), interpreter.GetRobotHeight());
+  zmp_constraint_builder_.Init(interpreter.GetSplineStructure(),
+                               interpreter.GetSuppPolygonContainer(),
+                               interpreter.GetRobotHeight());
 }
 
 void
 ZmpConstraint::UpdateVariables (const OptimizationVariables* subject)
 {
-  x_coeff_           = subject->GetVariables(VariableNames::kSplineCoeff);
+  VectorXd x_coeff   = subject->GetVariables(VariableNames::kSplineCoeff);
   VectorXd footholds = subject->GetVariables(VariableNames::kFootholds);
-  supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 
-  coeff_and_footholds_ = subject->GetOptimizationVariables();
-  zmp_constraint_builder_.spline_structure_->SetCoefficients(x_coeff_);
-  zmp_constraint_builder_.CalcJacobians(supp_polygon_container_);
+  zmp_constraint_builder_.Update(x_coeff, footholds);
+  zmp_constraint_builder_.CalcJacobians();
 }
 
 ZmpConstraint::VectorXd
@@ -45,7 +44,9 @@ ZmpConstraint::EvaluateConstraint () const
 //  return constraint_approx.v;
 //  return constraint_approx.M*coeff_and_footholds_ + constraint_approx.v;
 
-  return zmp_constraint_builder_.GetDistanceToLineMargin(supp_polygon_container_);
+
+  // write update function for zmp_constraint_builder
+  return zmp_constraint_builder_.GetDistanceToLineMargin();
 
 //  MatVecVec ineq = zmp_constraint_builder_.CalcZmpConstraints(supp_polygon_container_);
 //  return ineq.Mv.M*x_coeff_ + ineq.Mv.v ; //+ ineq.constant; // put into bound
@@ -56,10 +57,12 @@ ZmpConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
 
-  // evaluate once to get constant terms
-  MatVecVec ineq = zmp_constraint_builder_.CalcZmpConstraints(supp_polygon_container_);
+  VectorXd d = zmp_constraint_builder_.GetDistanceToLineMargin();
 
-  for (int i=0; i<ineq.constant.rows(); ++i) {
+//  // evaluate once to get constant terms
+//  MatVecVec ineq = zmp_constraint_builder_.CalcZmpConstraints(supp_polygon_container_);
+
+  for (int i=0; i<d.rows(); ++i) {
     bounds.push_back(kInequalityBoundPositive_);
 //    bounds.at(i).lower_ -= ineq.constant[i];
   }

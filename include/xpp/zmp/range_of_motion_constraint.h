@@ -30,6 +30,8 @@ public:
   VectorXd EvaluateConstraint () const override;
   VecBound GetBounds () const override;
 
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
+
 private:
   SupportPolygonContainer supp_polygon_container_;
   ComMotionPtr com_motion_;

@@ -124,5 +124,20 @@ RangeOfMotionConstraint::GetBounds () const
   return bounds;
 }
 
+RangeOfMotionConstraint::Jacobian
+RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
+{
+  Jacobian jac; // empy matrix
+
+  if (var_set == VariableNames::kFootholds) {
+    int n = supp_polygon_container_.GetTotalFreeCoeff();
+    jac = Jacobian(n,n);
+    jac.setIdentity();
+  }
+
+  return jac;
+}
+
 } /* namespace zmp */
 } /* namespace xpp */
+

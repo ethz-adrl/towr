@@ -10,19 +10,25 @@
 namespace xpp {
 namespace zmp {
 
-ZmpConstraintBuilder::ZmpConstraintBuilder(const ComSplinePtr& spline_container, double walking_height)
+ZmpConstraintBuilder::ZmpConstraintBuilder(const ComSplinePtr& spline_container,
+                                           const SupportPolygonContainer& supp,
+                                           double walking_height)
 {
-  Init(spline_container, walking_height);
+  Init(spline_container, supp, walking_height);
 }
 
 void
-ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container, double walking_height)
+ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container,
+                           const SupportPolygonContainer& supp,
+                           double walking_height)
 {
   spline_structure_ = spline_container->clone();
   // set coefficients to zero, since that is where I am approximating the function
   //around. can only do this in initialization, because ZMP is linear, so
   // Jacobians and offset are independent of current coefficients.
   spline_structure_->SetCoefficientsZero();
+
+  supp_polygon_ = supp;
 
   using namespace xpp::utils::coords_wrapper;
 
@@ -31,6 +37,14 @@ ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container, double walking_
   jac_py_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, Y);
 
   initialized_ = true;
+}
+
+void
+ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
+                              const VectorXd& footholds)
+{
+  spline_structure_->SetCoefficients(motion_coeff);
+  supp_polygon_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
 ZmpConstraintBuilder::MatVecVec
@@ -178,14 +192,14 @@ ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)
 }
 
 void
-ZmpConstraintBuilder::CalcJacobians (const SupportPolygonContainer& s)
+ZmpConstraintBuilder::CalcJacobians ()
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
   auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
   auto n_nodes = vec_t.size();
 
   int n_motion = spline_structure_->GetTotalFreeCoeff();
-  int n_contacts = s.GetTotalFreeCoeff();
+  int n_contacts = supp_polygon_.GetTotalFreeCoeff();
 
   int output_dim = n_nodes*SupportPolygon::kMaxSides; // this is ugly
 
@@ -194,7 +208,7 @@ ZmpConstraintBuilder::CalcJacobians (const SupportPolygonContainer& s)
 
 
   // know the lines of of each support polygon
-  auto supp_lines = s.GetActiveConstraintsForEachPhase(*spline_structure_);
+  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*spline_structure_);
 
   using JacobianRow = Eigen::RowVectorXd;
   using MatrixXd = Eigen::MatrixXd;
@@ -240,13 +254,13 @@ ZmpConstraintBuilder::CalcJacobians (const SupportPolygonContainer& s)
 
       // only if line is not fixed by start stance does it go into the jacobian
       if (!f_from.fixed_by_start_stance) {
-        jac_node_wrt_contacts(i,s.Index(f_from.id, X)) = jac_line(0);
-        jac_node_wrt_contacts(i,s.Index(f_from.id, Y)) = jac_line(1);
+        jac_node_wrt_contacts(i,supp_polygon_.Index(f_from.id, X)) = jac_line(0);
+        jac_node_wrt_contacts(i,supp_polygon_.Index(f_from.id, Y)) = jac_line(1);
       }
 
       if (!f_to.fixed_by_start_stance) {
-        jac_node_wrt_contacts(i,s.Index(f_to.id, X))   = jac_line(2);
-        jac_node_wrt_contacts(i,s.Index(f_to.id, Y))   = jac_line(3);
+        jac_node_wrt_contacts(i,supp_polygon_.Index(f_to.id, X))   = jac_line(2);
+        jac_node_wrt_contacts(i,supp_polygon_.Index(f_to.id, Y))   = jac_line(3);
       }
 
     }
@@ -263,7 +277,7 @@ ZmpConstraintBuilder::CalcJacobians (const SupportPolygonContainer& s)
 }
 
 ZmpConstraintBuilder::VectorXd
-ZmpConstraintBuilder::GetDistanceToLineMargin (const SupportPolygonContainer& s) const
+ZmpConstraintBuilder::GetDistanceToLineMargin () const
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
   auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
@@ -271,7 +285,7 @@ ZmpConstraintBuilder::GetDistanceToLineMargin (const SupportPolygonContainer& s)
   int output_dim = n_nodes*SupportPolygon::kMaxSides; // this is ugly
 
   // know the lines of of each support polygon
-  auto supp_lines = s.GetActiveConstraintsForEachPhase(*spline_structure_);
+  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*spline_structure_);
 
   VectorXd distance = VectorXd::Zero(output_dim);
 
@@ -328,5 +342,3 @@ ZmpConstraintBuilder::CheckIfInitialized() const
 
 } /* namespace zmp */
 } /* namespace xpp */
-
-

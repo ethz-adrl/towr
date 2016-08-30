@@ -38,7 +38,7 @@ public:
 
 public:
   ZmpConstraintBuilder() {};
-  ZmpConstraintBuilder(const ComSplinePtr&, double walking_height);
+  ZmpConstraintBuilder(const ComSplinePtr&, const SupportPolygonContainer&, const double walking_height);
   virtual ~ZmpConstraintBuilder () {};
 
   /** Initializes the object by pre-calculating the map from optimal coefficients
@@ -47,7 +47,9 @@ public:
     * @param splines the initial map depends only depend on initial state and spline structure.
     * @param walking_height the ZMP is influenced by the height above the ground.
     */
-  void Init(const ComSplinePtr&, double walking_height);
+  void Init(const ComSplinePtr&, const SupportPolygonContainer& supp, double walking_height);
+
+  void Update(const VectorXd& motion_coeff, const VectorXd& footholds);
 
   /** Calculates the constraints that keep the ZMP inside the current support
     * polygon.
@@ -68,16 +70,18 @@ public:
     * these current parameters  for each discrete time t along the trajectory
     * and for every line at this discrete time t.
     */
-  void CalcJacobians(const SupportPolygonContainer& s);
+  void CalcJacobians();
 
   MatrixXd GetJacobianWrtMotion() const;
   MatrixXd GetJacobianWrtContacts() const;
 
 
-  VectorXd GetDistanceToLineMargin(const SupportPolygonContainer& s) const;
+  VectorXd GetDistanceToLineMargin() const;
 
   // refactor make private again
   std::unique_ptr<ComSpline> spline_structure_;
+  SupportPolygonContainer supp_polygon_;
+
 private:
   double GetDistanceToLineMargin(const Vector2d& zmp, SuppLine line) const;
 
