@@ -10,8 +10,24 @@
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/hyq/foothold.h>
 
+#include <functional>
+
 namespace xpp {
 namespace hyq {
+
+
+void Iterate1To10(std::function<std::string (int)> f) {
+
+  for (int t=0; t<10; ++t) {
+    std::cout << f(t) << std::endl;
+  }
+}
+
+TEST(HelpersTest, LambdaFunction)
+{
+  Iterate1To10([](int i) { return "jojo " + std::to_string(i); });
+}
+
 
 TEST(HelpersTest, MiddleRows)
 {

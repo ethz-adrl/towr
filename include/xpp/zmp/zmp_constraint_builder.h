@@ -29,6 +29,8 @@ public:
   typedef xpp::hyq::LegID LegID;
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::MatrixXd MatrixXd;
+  typedef Eigen::VectorXd VectorXd;
+  using SuppLine = xpp::hyq::SupportPolygon::SuppLine;
 
 
   template <size_t NUM_TIMES, size_t COEFF_AND_CONTACTS>
@@ -60,17 +62,23 @@ public:
   MatVecVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
 
 
-  /** The Jacobian for the current motion and contact coefficients and the
-    * value of the constraint violation for these current parameters
-    * for each discrete time t along the trajectory and for every line
-    * at this discrete time t.
-    */
-  MatVec GetJacobian(const SupportPolygonContainer& s) const;
+  /////////////////////new stuff///////////////////////////////
 
+  /** The Jacobian for the current motion and contact coefficients for
+    * these current parameters  for each discrete time t along the trajectory
+    * and for every line at this discrete time t.
+    */
+  MatrixXd GetJacobian(const SupportPolygonContainer& s) const;
+
+//  MatrixXd GetJacobianWrtMotion(const SupportPolygonContainer& s) const;
+
+
+  VectorXd GetDistanceToLineMargin(const SupportPolygonContainer& s) const;
 
   // refactor make private again
   std::unique_ptr<ComSpline> spline_structure_;
 private:
+  double GetDistanceToLineMargin(const Vector2d& zmp, SuppLine line) const;
 
   MatVecVec CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
                             const SupportPolygonContainer&) const;
@@ -112,6 +120,9 @@ private:
   double walking_height_;
   MatVec jac_px_0_; ///< Jacobian of ZMP in x direction evaluated at spline coefficient values of zero
   MatVec jac_py_0_; ///< Jacobian of ZMP in y direction evaluated at spline coefficient values of zero
+
+  MatVec jac_wrt_motion_;
+  MatVec jac_wrt_contacts_;
 
   void CheckIfInitialized() const; // put only in public functions
   bool initialized_ = false;

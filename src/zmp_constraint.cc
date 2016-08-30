@@ -40,9 +40,11 @@ ZmpConstraint::UpdateVariables (const OptimizationVariables* subject)
 ZmpConstraint::VectorXd
 ZmpConstraint::EvaluateConstraint () const
 {
-  MatVec constraint_approx = zmp_constraint_builder_.GetJacobian(supp_polygon_container_);
-  return constraint_approx.v;
+//  MatVec constraint_approx = zmp_constraint_builder_.GetJacobian(supp_polygon_container_);
+//  return constraint_approx.v;
 //  return constraint_approx.M*coeff_and_footholds_ + constraint_approx.v;
+
+  return zmp_constraint_builder_.GetDistanceToLineMargin(supp_polygon_container_);
 
 //  MatVecVec ineq = zmp_constraint_builder_.CalcZmpConstraints(supp_polygon_container_);
 //  return ineq.Mv.M*x_coeff_ + ineq.Mv.v ; //+ ineq.constant; // put into bound

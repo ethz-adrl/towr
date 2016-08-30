@@ -177,7 +177,7 @@ ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)
   return false;
 }
 
-ZmpConstraintBuilder::MatVec
+ZmpConstraintBuilder::MatrixXd
 ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
@@ -197,7 +197,7 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
   using MatrixXd = Eigen::MatrixXd;
 
   JacobianRow jac_line_full = JacobianRow::Zero(n_contacts);
-  MatVec jac(output_dim, input_dim);
+  MatrixXd jac = MatrixXd::Zero(output_dim, input_dim);
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
@@ -215,10 +215,10 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
     int num_lines = supp_line.size();
     Eigen::VectorXd lx(num_lines);
     Eigen::VectorXd ly(num_lines);
-    Eigen::VectorXd distance_zmp_to_line_margin(num_lines);
     MatrixXd jac_node_wrt_contacts = MatrixXd::Zero(num_lines, n_contacts);
 
     for (int i=0; i<num_lines; ++i) {
+
 
       auto f_from = supp_line.at(i).from;
       auto f_to = supp_line.at(i).to;
@@ -226,7 +226,6 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
       // refactor do this only when phase change -> efficiency
       utils::LineEquation line(f_from.p.segment<2>(X), f_to.p.segment<2>(X));
 
-      distance_zmp_to_line_margin(i) = line.GetDistanceFromLine(zmp) - supp_line.at(i).s_margin;
 
       auto coeff = line.GetCoeff();
       lx(i) = coeff.p;
@@ -261,11 +260,8 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
     jac_node.rightCols(n_contacts) = jac_node_wrt_contacts;
 
 
-
-    jac.M.middleRows(c,num_lines) = jac_node;
-    jac.v.middleRows(c,num_lines) = distance_zmp_to_line_margin;
-
-    c += SupportPolygon::kMaxSides; // will create blank spaces in polygons
+    jac.middleRows(c,num_lines) = jac_node;
+    c += SupportPolygon::kMaxSides; // will create blank spaces in polygons, but keep constraint affiliation same
     n++;
 
 
@@ -283,6 +279,50 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
   return jac;
 }
 
+ZmpConstraintBuilder::VectorXd
+ZmpConstraintBuilder::GetDistanceToLineMargin (const SupportPolygonContainer& s) const
+{
+  // refactor this discretized global times could specify where to evaluate zmp constraint
+  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
+  auto n_nodes = vec_t.size();
+  int output_dim = n_nodes*SupportPolygon::kMaxSides; // this is ugly
+
+  // know the lines of of each support polygon
+  auto supp_lines = s.GetActiveConstraintsForEachPhase(*spline_structure_);
+
+  VectorXd distance = VectorXd::Zero(output_dim);
+
+
+  // for every time t
+  int c=0; // constraint counter
+  // refactor exclude times where the splines transition between disjoint support polygons
+  for (const auto& t : vec_t) {
+
+    // the current position of the zero moment point
+    auto state = spline_structure_->GetCom(t);
+    auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
+
+    int phase_id  = spline_structure_->GetCurrentPhase(t).id_;
+    NodeConstraint supp_line = supp_lines.at(phase_id);
+
+    for (const auto& l : supp_line)
+      distance(c++) = GetDistanceToLineMargin(zmp, l);
+  }
+
+  return distance;
+}
+
+double
+ZmpConstraintBuilder::GetDistanceToLineMargin (const Vector2d& zmp, SuppLine supp_line) const
+{
+  auto f_from = supp_line.from;
+  auto f_to   = supp_line.to;
+
+  utils::LineEquation line(f_from.p.segment<2>(X), f_to.p.segment<2>(X));
+
+  return line.GetDistanceFromLine(zmp) - supp_line.s_margin;
+}
+
 void
 ZmpConstraintBuilder::CheckIfInitialized() const
 {
@@ -293,4 +333,5 @@ ZmpConstraintBuilder::CheckIfInitialized() const
 
 } /* namespace zmp */
 } /* namespace xpp */
+
 
