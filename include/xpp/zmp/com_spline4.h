@@ -25,8 +25,6 @@ class ComSpline4 : public ComSpline {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-  typedef xpp::utils::MatVec MatVec;
-  typedef xpp::utils::VecScalar VecScalar;
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::VectorXd VectorXd;
   typedef Eigen::SparseMatrix<double, Eigen::RowMajor> JacobianEFWrtABCD;
@@ -56,35 +54,21 @@ private:
   int NumFreeCoeffPerSpline() const override { return 4; };
   std::vector<SplineCoeff> GetFreeCoeffPerSpline() const override { return {A,B,C,D}; };
 
-//  std::array<MatVec, 2> relationship_e_to_abcd_;
-//  std::array<MatVec, 2> relationship_f_to_abdc_;
-
-  std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_e_wrt_abcd_;
-  std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_f_wrt_abcd_;
-
-//  /**
-//   * Creates a Vector whose scalar product with the optimized coefficients (a,b,c,d)
-//   * has the same effect as the original e/f coefficients in the spline equation
-//   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
-//   *
-//   * @param dim X=0, Y=1
-//   * @param start_p the initial position of the first spline
-//   * @param start_v the initial velocity of the first spline
-//   * @returns matrix and vector that describe the coefficient
-//   */
-//  MatVec DescribeEByABCD(Coords Coords, double start_cog_v) const;
-//  MatVec DescribeFByABCD(Coords Coords, double start_cog_p, double start_cog_v) const;
-
   void GetJacobianPos (double t_poly, int id, Coords dim, JacobianRow&) const override;
   void GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow&) const override;
   void GetJacobianAcc (double t_poly, int id, Coords dim, JacobianRow&) const override;
   void GetJacobianJerk(double t_poly, int id, Coords dim, JacobianRow&) const override;
 
-  JacobianEFWrtABCD GetJacobianEWrtABCD(Coords) const;
-  JacobianEFWrtABCD GetJacobianFWrtABCD(Coords) const;
+  /** Returns the Jacobian of coefficient E with respect to coefficients a,b,c,d
+   *  for a specific spline k and dimension (x,y).
+   */
+  JacobianRow GetJacobianE(int spline_id_k, Coords dim) const;
+  JacobianRow GetJacobianF(int spline_id_k, Coords dim) const;
 
-  JacobianRow GetECoefficient(int spline_id_k, Coords dim) const;
-  JacobianRow GetFCoefficient(int spline_id_k, Coords dim) const;
+  JacobianEFWrtABCD CalcJacobianEWrtABCD(Coords) const;
+  JacobianEFWrtABCD CalcJacobianFWrtABCD(Coords) const;
+  std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_e_wrt_abcd_;
+  std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_f_wrt_abcd_;
 
   Vector2d start_cog_p_;
   Vector2d start_cog_v_;
