@@ -12,7 +12,8 @@
 namespace xpp {
 namespace zmp {
 
-typedef xpp::utils::MatVecVec MatVecVec;
+using MatVecVec = xpp::utils::MatVecVec;
+using MatVec = xpp::utils::MatVec;
 
 ZmpConstraint::ZmpConstraint ()
 {
@@ -31,14 +32,20 @@ ZmpConstraint::UpdateVariables (const OptimizationVariables* subject)
   x_coeff_           = subject->GetVariables(VariableNames::kSplineCoeff);
   VectorXd footholds = subject->GetVariables(VariableNames::kFootholds);
   supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
+
+  coeff_and_footholds_ = subject->GetOptimizationVariables();
+  zmp_constraint_builder_.spline_structure_->SetCoefficients(x_coeff_);
 }
 
 ZmpConstraint::VectorXd
 ZmpConstraint::EvaluateConstraint () const
 {
-  MatVecVec ineq = zmp_constraint_builder_.CalcZmpConstraints(supp_polygon_container_);
-  // refactor multiply by all variables, including footholds
-  return ineq.Mv.M*x_coeff_ + ineq.Mv.v ; //+ ineq.constant; // put into bound
+  MatVec constraint_approx = zmp_constraint_builder_.GetJacobian(supp_polygon_container_);
+  return constraint_approx.v;
+//  return constraint_approx.M*coeff_and_footholds_ + constraint_approx.v;
+
+//  MatVecVec ineq = zmp_constraint_builder_.CalcZmpConstraints(supp_polygon_container_);
+//  return ineq.Mv.M*x_coeff_ + ineq.Mv.v ; //+ ineq.constant; // put into bound
 }
 
 ZmpConstraint::VecBound
@@ -51,7 +58,7 @@ ZmpConstraint::GetBounds () const
 
   for (int i=0; i<ineq.constant.rows(); ++i) {
     bounds.push_back(kInequalityBoundPositive_);
-    bounds.at(i).lower_ -= ineq.constant[i];
+//    bounds.at(i).lower_ -= ineq.constant[i];
   }
   return bounds;
 }

@@ -60,8 +60,16 @@ public:
   MatVecVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
 
 
-  MatrixXd GetJacobian(const SupportPolygonContainer& s) const;
+  /** The Jacobian for the current motion and contact coefficients and the
+    * value of the constraint violation for these current parameters
+    * for each discrete time t along the trajectory and for every line
+    * at this discrete time t.
+    */
+  MatVec GetJacobian(const SupportPolygonContainer& s) const;
 
+
+  // refactor make private again
+  std::unique_ptr<ComSpline> spline_structure_;
 private:
 
   MatVecVec CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
@@ -101,7 +109,6 @@ private:
 
 
 
-  std::unique_ptr<ComSpline> spline_structure_;
   double walking_height_;
   MatVec jac_px_0_; ///< Jacobian of ZMP in x direction evaluated at spline coefficient values of zero
   MatVec jac_py_0_; ///< Jacobian of ZMP in y direction evaluated at spline coefficient values of zero

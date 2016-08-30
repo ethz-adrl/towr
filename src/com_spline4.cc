@@ -79,7 +79,7 @@ void
 ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
 {
   CheckIfSplinesInitialized();
-  assert(polynomials_.size() == (optimized_coeff.rows()/kDim2d/kFreeCoeffPerSpline));
+  assert(polynomials_.size() == GetTotalFreeCoeff());
 
   for (size_t k=0; k<polynomials_.size(); ++k) {
     CoeffValues coeff_values;

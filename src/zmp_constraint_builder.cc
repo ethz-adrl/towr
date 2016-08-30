@@ -177,17 +177,18 @@ ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)
   return false;
 }
 
-ZmpConstraintBuilder::MatrixXd
+ZmpConstraintBuilder::MatVec
 ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
   auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
-  auto output_dim = vec_t.size();
+  auto n_nodes = vec_t.size();
 
   int n_motion = spline_structure_->GetTotalFreeCoeff();
   int n_contacts = s.GetTotalFreeCoeff();
 
   int input_dim = n_motion + n_contacts;
+  int output_dim = n_nodes*SupportPolygon::kMaxSides; // this is ugly
 
   // know the lines of of each support polygon
   auto supp_lines = s.GetActiveConstraintsForEachPhase(*spline_structure_);
@@ -196,9 +197,10 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
   using MatrixXd = Eigen::MatrixXd;
 
   JacobianRow jac_line_full = JacobianRow::Zero(n_contacts);
-  MatrixXd jac = MatrixXd::Zero(output_dim, input_dim);
-  int c=0; // constraint counter
+  MatVec jac(output_dim, input_dim);
 
+  int n = 0; // node counter
+  int c = 0; // inequality constraint counter
 
   // for every time t
   for (const auto& t : vec_t) {
@@ -208,20 +210,23 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
     int phase_id  = spline_structure_->GetCurrentPhase(t).id_;
-    NodeConstraint supp = supp_lines.at(phase_id);
+    NodeConstraint supp_line = supp_lines.at(phase_id);
 
-    int num_lines = supp.size();
+    int num_lines = supp_line.size();
     Eigen::VectorXd lx(num_lines);
     Eigen::VectorXd ly(num_lines);
+    Eigen::VectorXd distance_zmp_to_line_margin(num_lines);
     MatrixXd jac_node_wrt_contacts = MatrixXd::Zero(num_lines, n_contacts);
 
     for (int i=0; i<num_lines; ++i) {
 
-      auto f_from = supp.at(i).from;
-      auto f_to = supp.at(i).to;
+      auto f_from = supp_line.at(i).from;
+      auto f_to = supp_line.at(i).to;
 
       // refactor do this only when phase change -> efficiency
       utils::LineEquation line(f_from.p.segment<2>(X), f_to.p.segment<2>(X));
+
+      distance_zmp_to_line_margin(i) = line.GetDistanceFromLine(zmp) - supp_line.at(i).s_margin;
 
       auto coeff = line.GetCoeff();
       lx(i) = coeff.p;
@@ -232,56 +237,41 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
       jac_line = line.GetJacobianDistanceWrtPoints(zmp);
 
 
-      jac_node_wrt_contacts(i,s.Index(f_from.id, X)) = jac_line(0);
-      jac_node_wrt_contacts(i,s.Index(f_from.id, Y)) = jac_line(1);
-      jac_node_wrt_contacts(i,s.Index(f_to.id, X))   = jac_line(2);
-      jac_node_wrt_contacts(i,s.Index(f_to.id, Y))   = jac_line(3);
+      // only if line is not fixed by start stance does it go into the jacobian
+      if (!f_from.fixed_by_start_stance) {
+        jac_node_wrt_contacts(i,s.Index(f_from.id, X)) = jac_line(0);
+        jac_node_wrt_contacts(i,s.Index(f_from.id, Y)) = jac_line(1);
+      }
+
+      if (!f_to.fixed_by_start_stance) {
+        jac_node_wrt_contacts(i,s.Index(f_to.id, X))   = jac_line(2);
+        jac_node_wrt_contacts(i,s.Index(f_to.id, Y))   = jac_line(3);
+      }
+
     }
 
-    MatrixXd jac_zmp_wrt_x = jac_px_0_.M;
-    MatrixXd jac_zmp_wrt_y = jac_py_0_.M;
+    JacobianRow jac_zmp_wrt_x_t = jac_px_0_.M.row(n);
+    JacobianRow jac_zmp_wrt_y_t = jac_py_0_.M.row(n);
 
 
     MatrixXd jac_node = Eigen::MatrixXd::Zero(num_lines, input_dim);
 
     // this information should not actually be known
-    jac_node.leftCols(n_motion)    = lx*jac_zmp_wrt_x + ly*jac_zmp_wrt_y;
+    jac_node.leftCols(n_motion)    = lx*jac_zmp_wrt_x_t + ly*jac_zmp_wrt_y_t;
     jac_node.rightCols(n_contacts) = jac_node_wrt_contacts;
 
 
 
-    jac.middleRows(c,num_lines) << jac_node;
-    c += num_lines;
+    jac.M.middleRows(c,num_lines) = jac_node;
+    jac.v.middleRows(c,num_lines) = distance_zmp_to_line_margin;
+
+    c += SupportPolygon::kMaxSides; // will create blank spaces in polygons
+    n++;
 
 
 
 
 
-
-
-
-
-
-
-
-//    // create diagonal matrix from row vector h
-//    Eigen::RowVector3d h(zmp.x(), zmp.y(), 1.0);
-//    Eigen::MatrixXd H = Eigen::MatrixXd::Zero(num_lines, 3*num_lines);
-//    for (int i=0; i<num_lines; ++i)
-//      H.row(i).middleCols(3*i, 3) = h;
-//
-//
-//    Eigen::MatrixXd jac_line_coeff(3*num_lines, n_contacts);
-
-
-
-
-
-
-//
-//    Eigen::Vector3d lx(supp.at(0).coeff.p, supp.at(1
-//
-//    supp.
 
 
   }

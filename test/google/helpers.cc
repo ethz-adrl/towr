@@ -13,6 +13,20 @@
 namespace xpp {
 namespace hyq {
 
+TEST(HelpersTest, MiddleRows)
+{
+  int n_inputs = 3;
+  int n_outputs = 6;
+  Eigen::MatrixXd J = Eigen::MatrixXd::Zero(n_outputs, n_inputs);
+
+
+  Eigen::MatrixXd J_node = Eigen::MatrixXd::Zero(2,n_inputs);
+
+
+  J.middleRows(0,2) = J_node;
+}
+
+
 TEST(HelpersTest, DiagonalMatrix)
 {
   int cols = 9;
@@ -21,7 +35,7 @@ TEST(HelpersTest, DiagonalMatrix)
 
   H << v, v, v,
       v, v, v,
-      v,v;
+      v,v,v;
 
   std::cout << H;
 

@@ -35,6 +35,8 @@ private:
   VectorXd x_coeff_;
   SupportPolygonContainer supp_polygon_container_;
   ZmpConstraintBuilder zmp_constraint_builder_;
+
+  VectorXd coeff_and_footholds_;
 };
 
 } /* namespace zmp */
