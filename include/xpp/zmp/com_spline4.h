@@ -23,6 +23,8 @@ namespace zmp {
   */
 class ComSpline4 : public ComSpline {
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::VecScalar VecScalar;
   typedef Eigen::Vector2d Vector2d;
@@ -54,35 +56,38 @@ private:
   int NumFreeCoeffPerSpline() const override { return 4; };
   std::vector<SplineCoeff> GetFreeCoeffPerSpline() const override { return {A,B,C,D}; };
 
-  std::array<MatVec, 2> relationship_e_to_abcd_;
-  std::array<MatVec, 2> relationship_f_to_abdc_;
+//  std::array<MatVec, 2> relationship_e_to_abcd_;
+//  std::array<MatVec, 2> relationship_f_to_abdc_;
 
   std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_e_wrt_abcd_;
   std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_f_wrt_abcd_;
 
-  /**
-   * Creates a Vector whose scalar product with the optimized coefficients (a,b,c,d)
-   * has the same effect as the original e/f coefficients in the spline equation
-   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
-   *
-   * @param dim X=0, Y=1
-   * @param start_p the initial position of the first spline
-   * @param start_v the initial velocity of the first spline
-   * @returns matrix and vector that describe the coefficient
-   */
-  MatVec DescribeEByABCD(Coords Coords, double start_cog_v) const;
-  MatVec DescribeFByABCD(Coords Coords, double start_cog_p, double start_cog_v) const;
+//  /**
+//   * Creates a Vector whose scalar product with the optimized coefficients (a,b,c,d)
+//   * has the same effect as the original e/f coefficients in the spline equation
+//   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f
+//   *
+//   * @param dim X=0, Y=1
+//   * @param start_p the initial position of the first spline
+//   * @param start_v the initial velocity of the first spline
+//   * @returns matrix and vector that describe the coefficient
+//   */
+//  MatVec DescribeEByABCD(Coords Coords, double start_cog_v) const;
+//  MatVec DescribeFByABCD(Coords Coords, double start_cog_p, double start_cog_v) const;
 
   void GetJacobianPos (double t_poly, int id, Coords dim, JacobianRow&) const override;
   void GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow&) const override;
   void GetJacobianAcc (double t_poly, int id, Coords dim, JacobianRow&) const override;
   void GetJacobianJerk(double t_poly, int id, Coords dim, JacobianRow&) const override;
 
-  JacobianEFWrtABCD GetJacobianEWrtABCD(Coords, double start_com_vel) const;
-  JacobianEFWrtABCD GetJacobianFWrtABCD(Coords, double start_cog_p, double start_cog_v) const;
+  JacobianEFWrtABCD GetJacobianEWrtABCD(Coords) const;
+  JacobianEFWrtABCD GetJacobianFWrtABCD(Coords) const;
 
-  VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
-  VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;
+  JacobianRow GetECoefficient(int spline_id_k, Coords dim) const;
+  JacobianRow GetFCoefficient(int spline_id_k, Coords dim) const;
+
+  Vector2d start_cog_p_;
+  Vector2d start_cog_v_;
 };
 
 } /* namespace zmp */
