@@ -135,7 +135,7 @@ TEST_F(SuppPolygonTest, CombineSupportPolygonsSame)
 TEST_F(SuppPolygonTest, CalcLinesTopRight)
 {
   SupportPolygon supp = SupportPolygon(f_top_right, margins_);
-  SupportPolygon::VecSuppLine lines = supp.CalcLines();
+  SupportPolygon::VecSuppLine lines = supp.GetLines();
 
   // expect three lines
   EXPECT_EQ(3, lines.size());
@@ -160,7 +160,7 @@ TEST_F(SuppPolygonTest, CalcLinesTopRight)
 TEST_F(SuppPolygonTest, FourLegSuppNotOrdered)
 {
   SupportPolygon supp = SupportPolygon(f_4_not_ordered, margins_);
-  SupportPolygon::VecSuppLine lines = supp.CalcLines();
+  SupportPolygon::VecSuppLine lines = supp.GetLines();
 
   EXPECT_EQ(4, lines.size());
   // RH->RF: 0*x + 1*y + 0 = 0

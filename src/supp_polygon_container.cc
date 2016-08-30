@@ -164,7 +164,7 @@ SupportPolygonContainer::GetActiveConstraintsForEachPhase(const ComMotion& com_m
   std::vector<SupportPolygon::VecSuppLine> supp_lines;
 
   for (const auto& s : supp)
-    supp_lines.push_back(s.CalcLines());
+    supp_lines.push_back(s.GetLines());
 
   return supp_lines;
 }
@@ -212,6 +212,19 @@ SupportPolygonContainer::CheckIfInitialized() const
   }
 }
 
+int
+SupportPolygonContainer::GetTotalFreeCoeff () const
+{
+  return GetNumberOfSteps()*xpp::utils::kDim2d;
+}
+
+
+int
+SupportPolygonContainer::Index (int id, Coords dim) const
+{
+  return id*xpp::utils::kDim2d + dim;
+}
+
 void
 SupportPolygonContainer::SetStartStance (const VecFoothold& start_stance)
 {
@@ -236,4 +249,3 @@ SupportPolygonContainer::SetFootholds (const VecFoothold& footholds)
 
 } /* namespace hyq */
 } /* namespace xpp */
-

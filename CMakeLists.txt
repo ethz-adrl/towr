@@ -83,12 +83,12 @@ catkin_package(
 
 
 # NLP solvers
-SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4") # these two lines must be included everywhere where this project is needed
+SET(IPOPT_SOURCE_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4") # these two lines must be included everywhere where this project is needed
 link_directories(${IPOPT_SOURCE_DIR}/build/lib)
 set(IPOPT_INCLUDE_DIRS ${IPOPT_SOURCE_DIR}/build/include/coin)
 set(IPOPT_LIBS ipopt)
 
-SET(SNOPT_SOURCE_DIR "/home/winklera/Software/snopt_lib") # these two lines must be included everywhere where this project is needed
+SET(SNOPT_SOURCE_DIR "/home/winklera/3rd_party_software/snopt_lib") # these two lines must be included everywhere where this project is needed
 link_directories(${SNOPT_SOURCE_DIR}/lib)
 set(SNOPT_INCLUDE_DIRS ${SNOPT_SOURCE_DIR}/include)
 set(SNOPT_LIBS snopt7_cpp snopt7)

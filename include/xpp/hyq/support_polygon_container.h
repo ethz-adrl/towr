@@ -29,6 +29,7 @@ public:
   typedef std::vector<SupportPolygon::VecSuppLine> VecVecSuppLine;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::zmp::ComMotion ComMotion;
+  typedef xpp::utils::Coords3D Coords;
 
 
 public:
@@ -65,6 +66,13 @@ public:
   VecFoothold GetStanceDuring(int step) const;
   VecFoothold GetStanceAfter(int n_steps) const;
   VecFoothold GetFootholds() const { return footholds_; };
+
+  /** Position where the foothold is stored in the optimization variables.
+   *
+   *  u = [x0 y0 x1 y1 ... xN yN]
+   */
+  int Index(int foothold_id, Coords dim) const;
+  int GetTotalFreeCoeff() const;
 
 
   SupportPolygon GetStartPolygon() const;

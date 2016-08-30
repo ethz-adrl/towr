@@ -185,15 +185,19 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
   auto output_dim = vec_t.size();
 
   int n_motion = spline_structure_->GetTotalFreeCoeff();
-  int n_contacts = s.GetNumberOfSteps()*kDim2d;
+  int n_contacts = s.GetTotalFreeCoeff();
 
   int input_dim = n_motion + n_contacts;
 
   // know the lines of of each support polygon
   auto supp_lines = s.GetActiveConstraintsForEachPhase(*spline_structure_);
 
+  using JacobianRow = Eigen::RowVectorXd;
+  using MatrixXd = Eigen::MatrixXd;
 
-  MatrixXd jac(output_dim, input_dim);
+  JacobianRow jac_line_full = JacobianRow::Zero(n_contacts);
+  MatrixXd jac = MatrixXd::Zero(output_dim, input_dim);
+  int c=0; // constraint counter
 
 
   // for every time t
@@ -209,19 +213,53 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
     int num_lines = supp.size();
     Eigen::VectorXd lx(num_lines);
     Eigen::VectorXd ly(num_lines);
+    MatrixXd jac_node_wrt_contacts = MatrixXd::Zero(num_lines, n_contacts);
+
     for (int i=0; i<num_lines; ++i) {
 
+      auto f_from = supp.at(i).from;
+      auto f_to = supp.at(i).to;
+
       // refactor do this only when phase change -> efficiency
-      utils::LineEquation line(supp.at(i).from.p.segment<2>(X), supp.at(i).to.p.segment<2>(X));
+      utils::LineEquation line(f_from.p.segment<2>(X), f_to.p.segment<2>(X));
+
       auto coeff = line.GetCoeff();
       lx(i) = coeff.p;
       ly(i) = coeff.q;
 
       // get the jacobian of the line coefficient of each line
-      // but for that, need to know how many optimization variables exist
       utils::LineEquation::JacobianRow jac_line;
       jac_line = line.GetJacobianDistanceWrtPoints(zmp);
+
+
+      jac_node_wrt_contacts(i,s.Index(f_from.id, X)) = jac_line(0);
+      jac_node_wrt_contacts(i,s.Index(f_from.id, Y)) = jac_line(1);
+      jac_node_wrt_contacts(i,s.Index(f_to.id, X))   = jac_line(2);
+      jac_node_wrt_contacts(i,s.Index(f_to.id, Y))   = jac_line(3);
     }
+
+    MatrixXd jac_zmp_wrt_x = jac_px_0_.M;
+    MatrixXd jac_zmp_wrt_y = jac_py_0_.M;
+
+
+    MatrixXd jac_node = Eigen::MatrixXd::Zero(num_lines, input_dim);
+
+    // this information should not actually be known
+    jac_node.leftCols(n_motion)    = lx*jac_zmp_wrt_x + ly*jac_zmp_wrt_y;
+    jac_node.rightCols(n_contacts) = jac_node_wrt_contacts;
+
+
+
+    jac.middleRows(c,num_lines) << jac_node;
+    c += num_lines;
+
+
+
+
+
+
+
+
 
 
 

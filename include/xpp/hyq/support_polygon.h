@@ -29,6 +29,7 @@ class SupportPolygon {
 public:
   struct SuppLine {
     Foothold from, to;
+    // refactor this information is redundant, remove and calculate when needed
     double s_margin;
     bool fixed_by_start_stance;
   };
@@ -45,7 +46,7 @@ public:
   SupportPolygon(const VecFoothold& footholds, const MarginValues& margins = GetZeroMargins());
   virtual ~SupportPolygon() {};
 
-  VecSuppLine CalcLines() const;
+  VecSuppLine GetLines() const;
   static MarginValues GetDefaultMargins();
   static MarginValues GetZeroMargins();
 

@@ -44,7 +44,7 @@ SupportPolygon::BuildSortedConvexHull(const VecFoothold& footholds) const
 }
 
 
-SupportPolygon::VecSuppLine SupportPolygon::CalcLines() const
+SupportPolygon::VecSuppLine SupportPolygon::GetLines() const
 {
   VecSuppLine lines(footholds_conv_.size());
   for (uint i = 0; i<lines.size(); ++i) {
@@ -54,7 +54,6 @@ SupportPolygon::VecSuppLine SupportPolygon::CalcLines() const
 
     lines[i].from = from;
     lines[i].to = to;
-
     lines[i].s_margin = UseMargin(from.leg, to.leg);
 
     // this is to separate out the constant terms of the constraints
@@ -108,7 +107,7 @@ SupportPolygon SupportPolygon::CombineSupportPolygons(const SupportPolygon& p1,
 bool
 SupportPolygon::IsPointInside (const Vector2d& p) const
 {
-  for (const auto& l : CalcLines()) {
+  for (const auto& l : GetLines()) {
     LineEquation line(l.from.p.segment<2>(X), l.to.p.segment<2>(X));
 
     bool zmp_outside = line.GetDistanceFromLine(p) < l.s_margin;
