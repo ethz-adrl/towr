@@ -41,6 +41,7 @@ ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(const ComMotion& com_motion,
   int n = 0; // node counter
   for (double t_global : vec_t)
   {
+    // get to here sparse format
     VecScalar pos = com_motion.GetLinearApproxWrtCoeff(t_global, utils::kPos, dim);
     VecScalar acc = com_motion.GetLinearApproxWrtCoeff(t_global, utils::kAcc, dim);
 

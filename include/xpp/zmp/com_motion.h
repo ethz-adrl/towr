@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_MOTION_H_
 
 #include <xpp/utils/geometric_structs.h>
+#include <Eigen/Sparse>
 #include <memory>
 
 namespace xpp {
@@ -45,7 +46,8 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::utils::Point2d Point2d;
   typedef xpp::utils::VecScalar VecScalar;
-  typedef Eigen::RowVectorXd Jacobian;
+  // refactor define only one, already in constraint?
+  typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
   typedef std::shared_ptr<ComMotion> Ptr;
   typedef std::vector<PhaseInfo> PhaseInfoVec;
 
@@ -115,7 +117,7 @@ private:
     * @param dxdt wheather Jacobian for position, velocity, acceleration or jerk is desired
     * @param dim which motion dimension (x,y) the jacobian represents.
     */
-  virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
+  virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
 };
 
 } /* namespace zmp */

@@ -16,6 +16,8 @@
 namespace xpp {
 namespace hyq {
 
+using VectorXd = Eigen::VectorXd;
+
 
 void Iterate1To10(std::function<std::string (int)> f) {
 
@@ -30,13 +32,39 @@ TEST(HelpersTest, SparseMatrixManipulation)
 
   Eigen::SparseMatrix<double, Eigen::RowMajor> sm2(1,3);
   sm2.insert(0,0) = 1.0;
-  sm2.insert(0,1) = 2.0;
+  sm2.insert(0,1) = 0.0;
   sm2.insert(0,2) = 3.0;
 
-  sm1.row(0) = sm2;
+  Eigen::SparseMatrix<double, Eigen::RowMajor> sm3(1,2);
+  sm3.insert(0,0) = 1.0;
+  sm3.insert(0,1) = 2.0;
 
-  std::cout << sm1;
-  std::cout << sm2;
+  Eigen::Vector3d x(1.0, 1.0, 1.0);
+
+  Eigen::SparseVector<double, Eigen::RowMajor> sv(3);
+  sv.insert(0) = 1.0;
+  sv.insert(1) = 0.0;
+  sv.insert(2) = 3.0;
+  std::cout << "sv: " << sv << "size: " << sv.size();
+
+//  sv.insert(0) = 1.0;
+//  sv.insert(1) = 0.0;
+//  sv.insert(2) = 3.0;
+
+  VectorXd val = sv*x;
+  std::cout << "val: " << val << "val.size(): " << val.size() << std::endl;
+
+//  VectorXd x
+//  Eigen::
+
+  sm1.row(0) += sv;
+
+  Eigen::SparseMatrix<double, Eigen::RowMajor> row1 = sm1.row(0);
+  std::cout << "row1: " << row1;
+
+
+  std::cout << "sm1: " << sm1;
+  std::cout << "sm1: " << sm2;
 
 //  Iterate1To10([](int i) { return "jojo " + std::to_string(i); });
 }

@@ -27,6 +27,7 @@ public:
   typedef xpp::utils::VecScalar VecScalar;
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::VectorXd VectorXd;
+  typedef Eigen::SparseMatrix<double, Eigen::RowMajor> JacobianEFWrtABCD;
 
   ComSpline4 ();
   virtual ~ComSpline4 ();
@@ -56,6 +57,9 @@ private:
   std::array<MatVec, 2> relationship_e_to_abcd_;
   std::array<MatVec, 2> relationship_f_to_abdc_;
 
+  std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_e_wrt_abcd_;
+  std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_f_wrt_abcd_;
+
   /**
    * Creates a Vector whose scalar product with the optimized coefficients (a,b,c,d)
    * has the same effect as the original e/f coefficients in the spline equation
@@ -69,10 +73,13 @@ private:
   MatVec DescribeEByABCD(Coords Coords, double start_cog_v) const;
   MatVec DescribeFByABCD(Coords Coords, double start_cog_p, double start_cog_v) const;
 
-  void GetJacobianPos (double t_poly, int id, Coords dim, Jacobian&) const override;
-  void GetJacobianVel (double t_poly, int id, Coords dim, Jacobian&) const override;
-  void GetJacobianAcc (double t_poly, int id, Coords dim, Jacobian&) const override;
-  void GetJacobianJerk(double t_poly, int id, Coords dim, Jacobian&) const override;
+  void GetJacobianPos (double t_poly, int id, Coords dim, JacobianRow&) const override;
+  void GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow&) const override;
+  void GetJacobianAcc (double t_poly, int id, Coords dim, JacobianRow&) const override;
+  void GetJacobianJerk(double t_poly, int id, Coords dim, JacobianRow&) const override;
+
+  JacobianEFWrtABCD GetJacobianEWrtABCD(Coords, double start_com_vel) const;
+  JacobianEFWrtABCD GetJacobianFWrtABCD(Coords, double start_cog_p, double start_cog_v) const;
 
   VecScalar GetECoefficient(int spline_id_k, Coords dim) const;
   VecScalar GetFCoefficient(int spline_id_k, Coords dim) const;

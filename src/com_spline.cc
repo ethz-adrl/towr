@@ -189,7 +189,7 @@ ComSpline::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& s
   return cog_xy;
 }
 
-ComSpline::Jacobian
+ComSpline::JacobianRow
 ComSpline::GetJacobian (double t_global, MotionDerivative posVelAcc,
                         Coords3D dim) const
 {
@@ -199,11 +199,11 @@ ComSpline::GetJacobian (double t_global, MotionDerivative posVelAcc,
   return GetJacobianWrtCoeffAtPolynomial(posVelAcc, t_local, id, dim);
 }
 
-ComSpline::Jacobian
+ComSpline::JacobianRow
 ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t_local, int id,
                                             Coords3D dim) const
 {
-  Jacobian jac = Jacobian::Zero(GetTotalFreeCoeff());
+  JacobianRow jac(1, GetTotalFreeCoeff());
 
   switch (posVelAcc) {
     case kPos: GetJacobianPos (t_local, id, dim, jac); break;

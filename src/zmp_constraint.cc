@@ -74,7 +74,7 @@ ZmpConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empy matrix
 
-  // refactor _make this whole function take in function pointer as argument
+  // refactor make this whole function take in function pointer as argument
   if (var_set == VariableNames::kSplineCoeff)
     jac =  zmp_constraint_builder_.GetJacobianWrtMotion().sparseView();
 

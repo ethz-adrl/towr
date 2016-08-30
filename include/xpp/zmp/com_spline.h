@@ -94,7 +94,7 @@ public:
     * @param id the ID of the current polynomial
     * @param dim in which dimension (x,y) the Jacobian is desired.
     */
-  Jacobian GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt, double t_poly, int id, Coords3D dim) const;
+  JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt, double t_poly, int id, Coords3D dim) const;
   static Point2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
   Point2d GetCOGxyAtPolynomial(int id, double t_local) {return GetCOGxyAtPolynomial(id, t_local, polynomials_); };
 
@@ -108,11 +108,11 @@ protected:
 
 private:
 
-  Jacobian GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const override;
-  virtual void GetJacobianPos (double t_poly, int id, Coords dim, Jacobian&) const = 0;
-  virtual void GetJacobianVel (double t_poly, int id, Coords dim, Jacobian&) const = 0;
-  virtual void GetJacobianAcc (double t_poly, int id, Coords dim, Jacobian&) const = 0;
-  virtual void GetJacobianJerk(double t_poly, int id, Coords dim, Jacobian&) const = 0;
+  JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const override;
+  virtual void GetJacobianPos (double t_poly, int id, Coords dim, JacobianRow&) const = 0;
+  virtual void GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow&) const = 0;
+  virtual void GetJacobianAcc (double t_poly, int id, Coords dim, JacobianRow&) const = 0;
+  virtual void GetJacobianJerk(double t_poly, int id, Coords dim, JacobianRow&) const = 0;
 
   virtual int NumFreeCoeffPerSpline() const = 0;
   virtual std::vector<SplineCoeff> GetFreeCoeffPerSpline() const = 0;
