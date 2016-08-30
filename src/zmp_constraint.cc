@@ -35,6 +35,7 @@ ZmpConstraint::UpdateVariables (const OptimizationVariables* subject)
 
   coeff_and_footholds_ = subject->GetOptimizationVariables();
   zmp_constraint_builder_.spline_structure_->SetCoefficients(x_coeff_);
+  zmp_constraint_builder_.CalcJacobians(supp_polygon_container_);
 }
 
 ZmpConstraint::VectorXd
@@ -63,6 +64,20 @@ ZmpConstraint::GetBounds () const
 //    bounds.at(i).lower_ -= ineq.constant[i];
   }
   return bounds;
+}
+
+ZmpConstraint::Jacobian
+ZmpConstraint::GetJacobianWithRespectTo (std::string var_set) const
+{
+  Jacobian jac; // empy matrix
+
+  if (var_set == VariableNames::kSplineCoeff)
+    jac =  zmp_constraint_builder_.GetJacobianWrtMotion().sparseView();
+
+  if (var_set == VariableNames::kFootholds)
+    jac = zmp_constraint_builder_.GetJacobianWrtContacts().sparseView();
+
+  return jac;
 }
 
 } /* namespace zmp */

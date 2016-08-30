@@ -177,8 +177,8 @@ ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)
   return false;
 }
 
-ZmpConstraintBuilder::MatrixXd
-ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
+void
+ZmpConstraintBuilder::CalcJacobians (const SupportPolygonContainer& s)
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
   auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
@@ -187,8 +187,11 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
   int n_motion = spline_structure_->GetTotalFreeCoeff();
   int n_contacts = s.GetTotalFreeCoeff();
 
-  int input_dim = n_motion + n_contacts;
   int output_dim = n_nodes*SupportPolygon::kMaxSides; // this is ugly
+
+  jac_wrt_motion_ .setZero(output_dim, n_motion);
+  jac_wrt_contacts_.setZero(output_dim, n_contacts);
+
 
   // know the lines of of each support polygon
   auto supp_lines = s.GetActiveConstraintsForEachPhase(*spline_structure_);
@@ -197,7 +200,6 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
   using MatrixXd = Eigen::MatrixXd;
 
   JacobianRow jac_line_full = JacobianRow::Zero(n_contacts);
-  MatrixXd jac = MatrixXd::Zero(output_dim, input_dim);
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
@@ -252,31 +254,12 @@ ZmpConstraintBuilder::GetJacobian (const SupportPolygonContainer& s) const
     JacobianRow jac_zmp_wrt_x_t = jac_px_0_.M.row(n);
     JacobianRow jac_zmp_wrt_y_t = jac_py_0_.M.row(n);
 
-
-    MatrixXd jac_node = Eigen::MatrixXd::Zero(num_lines, input_dim);
-
-    // this information should not actually be known
-    jac_node.leftCols(n_motion)    = lx*jac_zmp_wrt_x_t + ly*jac_zmp_wrt_y_t;
-    jac_node.rightCols(n_contacts) = jac_node_wrt_contacts;
-
-
-    jac.middleRows(c,num_lines) = jac_node;
+    jac_wrt_motion_.middleRows(c,num_lines)  = lx*jac_zmp_wrt_x_t + ly*jac_zmp_wrt_y_t;
+    jac_wrt_contacts_.middleRows(c,num_lines) = jac_node_wrt_contacts;
     c += SupportPolygon::kMaxSides; // will create blank spaces in polygons, but keep constraint affiliation same
     n++;
 
-
-
-
-
-
-
   }
-
-
-  // build jacobian w.r.t x position;
-
-
-  return jac;
 }
 
 ZmpConstraintBuilder::VectorXd
@@ -321,6 +304,18 @@ ZmpConstraintBuilder::GetDistanceToLineMargin (const Vector2d& zmp, SuppLine sup
   utils::LineEquation line(f_from.p.segment<2>(X), f_to.p.segment<2>(X));
 
   return line.GetDistanceFromLine(zmp) - supp_line.s_margin;
+}
+
+ZmpConstraintBuilder::MatrixXd
+ZmpConstraintBuilder::GetJacobianWrtMotion () const
+{
+  return jac_wrt_motion_;
+}
+
+ZmpConstraintBuilder::MatrixXd
+ZmpConstraintBuilder::GetJacobianWrtContacts () const
+{
+  return jac_wrt_contacts_;
 }
 
 void

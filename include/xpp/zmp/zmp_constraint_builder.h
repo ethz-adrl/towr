@@ -68,9 +68,10 @@ public:
     * these current parameters  for each discrete time t along the trajectory
     * and for every line at this discrete time t.
     */
-  MatrixXd GetJacobian(const SupportPolygonContainer& s) const;
+  void CalcJacobians(const SupportPolygonContainer& s);
 
-//  MatrixXd GetJacobianWrtMotion(const SupportPolygonContainer& s) const;
+  MatrixXd GetJacobianWrtMotion() const;
+  MatrixXd GetJacobianWrtContacts() const;
 
 
   VectorXd GetDistanceToLineMargin(const SupportPolygonContainer& s) const;
@@ -121,8 +122,8 @@ private:
   MatVec jac_px_0_; ///< Jacobian of ZMP in x direction evaluated at spline coefficient values of zero
   MatVec jac_py_0_; ///< Jacobian of ZMP in y direction evaluated at spline coefficient values of zero
 
-  MatVec jac_wrt_motion_;
-  MatVec jac_wrt_contacts_;
+  MatrixXd jac_wrt_motion_;
+  MatrixXd jac_wrt_contacts_;
 
   void CheckIfInitialized() const; // put only in public functions
   bool initialized_ = false;
