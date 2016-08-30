@@ -10,6 +10,7 @@
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/hyq/foothold.h>
 
+#include <Eigen/Sparse>
 #include <functional>
 
 namespace xpp {
@@ -22,6 +23,24 @@ void Iterate1To10(std::function<std::string (int)> f) {
     std::cout << f(t) << std::endl;
   }
 }
+
+TEST(HelpersTest, SparseMatrixManipulation)
+{
+  Eigen::SparseMatrix<double, Eigen::RowMajor> sm1(2,3);
+
+  Eigen::SparseMatrix<double, Eigen::RowMajor> sm2(1,3);
+  sm2.insert(0,0) = 1.0;
+  sm2.insert(0,1) = 2.0;
+  sm2.insert(0,2) = 3.0;
+
+  sm1.row(0) = sm2;
+
+  std::cout << sm1;
+  std::cout << sm2;
+
+//  Iterate1To10([](int i) { return "jojo " + std::to_string(i); });
+}
+
 
 TEST(HelpersTest, LambdaFunction)
 {

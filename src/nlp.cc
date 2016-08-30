@@ -101,7 +101,7 @@ void
 NLP::EvalNonzerosOfJacobian (const Number* x, Number* values) const
 {
   opt_variables_->SetVariables(ConvertToEigen(x));
-  auto jac = GetJacobianOfConstraints();
+  JacobianPtr jac = GetJacobianOfConstraints();
 
   jac->makeCompressed(); // so the valuePtr() is dense and accurate
   std::copy(jac->valuePtr(), jac->valuePtr() + jac->nonZeros(), values);

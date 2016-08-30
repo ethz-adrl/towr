@@ -36,6 +36,19 @@ ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container,
   jac_px_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, X);
   jac_py_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, Y);
 
+
+  // refactor this discretized global times could specify where to evaluate zmp constraint
+  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
+  auto n_nodes = vec_t.size();
+  int output_dim = n_nodes*SupportPolygon::kMaxSides; // this is ugly
+
+  int n_motion = spline_structure_->GetTotalFreeCoeff();
+  int n_contacts = supp_polygon_.GetTotalFreeCoeff();
+
+  jac_wrt_motion_   = MatrixXd::Zero(output_dim, n_motion);
+  jac_wrt_contacts_ = MatrixXd::Zero(output_dim, n_contacts);
+
+
   initialized_ = true;
 }
 
@@ -196,24 +209,15 @@ ZmpConstraintBuilder::CalcJacobians ()
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
   auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
-  auto n_nodes = vec_t.size();
-
-  int n_motion = spline_structure_->GetTotalFreeCoeff();
   int n_contacts = supp_polygon_.GetTotalFreeCoeff();
 
-  int output_dim = n_nodes*SupportPolygon::kMaxSides; // this is ugly
-
-  jac_wrt_motion_ .setZero(output_dim, n_motion);
-  jac_wrt_contacts_.setZero(output_dim, n_contacts);
-
+  jac_wrt_motion_ .setZero();
+  jac_wrt_contacts_.setZero();
 
   // know the lines of of each support polygon
   auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*spline_structure_);
 
   using JacobianRow = Eigen::RowVectorXd;
-  using MatrixXd = Eigen::MatrixXd;
-
-  JacobianRow jac_line_full = JacobianRow::Zero(n_contacts);
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
