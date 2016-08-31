@@ -55,6 +55,9 @@ PolynomialFifthOrder::GetState(PosVelAcc whichDerivative, double _t) const
     case xpp::utils::kAcc:
       ret[dim] = 20*a*t[3] + 12*b*t[2] + 6*c*t[1] + 2*d;
       break;
+    case xpp::utils::kJerk:
+      ret[dim] = 60*a*t[2] + 24*b*t[1] + 6*c;
+      break;
     default:
       std::cerr << "Spline.GetState: Do you want pos, vel or acc info? returning 0.0";
       ret[dim] = 0.0;

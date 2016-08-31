@@ -185,6 +185,7 @@ ComSpline::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& s
   cog_xy.p = splines[id].GetState(kPos, t_local);
   cog_xy.v = splines[id].GetState(kVel, t_local);
   cog_xy.a = splines[id].GetState(kAcc, t_local);
+  cog_xy.j = splines[id].GetState(kJerk, t_local);
 
   return cog_xy;
 }
