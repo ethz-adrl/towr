@@ -31,7 +31,8 @@ public:
   Eigen::Vector3d p;
   LegID leg;
   int id; // the number of this foothold in a sequence of footholds, -1 for start stance
-  bool fixed_by_start_stance;
+
+  static const int kFixedByStart = -1;
 
   Foothold();
   Foothold(Eigen::Vector3d _pos, LegID _leg);

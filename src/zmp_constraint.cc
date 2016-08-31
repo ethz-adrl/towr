@@ -25,6 +25,8 @@ ZmpConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
   zmp_constraint_builder_.Init(interpreter.GetSplineStructure(),
                                interpreter.GetSuppPolygonContainer(),
                                interpreter.GetRobotHeight());
+
+  zmp_constraint_builder_.CalcJacobians();
 }
 
 void

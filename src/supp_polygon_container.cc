@@ -11,31 +11,32 @@ namespace xpp {
 namespace hyq {
 
 void SupportPolygonContainer::Init(const VecFoothold& start_stance,
-                                   const VecFoothold& footholds,
-                                   const MarginValues& margins)
-{
-  SetStartStance(start_stance);
-  SetFootholds(footholds);
-  margins_       = margins;
-  support_polygons_ = CreateSupportPolygons(footholds);
-
-  initialized_ = true;
-}
-
-void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const VecLegID& step_sequence,
                                    const MarginValues& margins)
 {
+
+  VecFoothold footholds;
   // initial all footholds with the correct leg, but x=y=z=0.0
   for (uint i=0; i<step_sequence.size(); ++i) {
     xpp::hyq::Foothold f; // sets x=y=z=0.0
     f.leg   = step_sequence.at(i);
-    footholds_.push_back(f);
+    footholds.push_back(f);
   }
 
-  SetStartStance(start_stance);
-  SetFootholds(footholds_);
+  Init(start_stance, footholds, margins);
+}
+
+void SupportPolygonContainer::Init(const VecFoothold& start_stance,
+                                   const VecFoothold& footholds,
+                                   const MarginValues& margins)
+{
+  start_stance_ = start_stance;
+  footholds_ = footholds;
   margins_       = margins;
+
+  ModifyFootholds(start_stance_, [](Foothold& f, int i) {f.id = Foothold::kFixedByStart;} );
+  ModifyFootholds(footholds_,    [](Foothold& f, int i) {f.id = i;} );
+
   support_polygons_ = CreateSupportPolygons(footholds_);
 
   initialized_ = true;
@@ -45,6 +46,11 @@ void
 SupportPolygonContainer::SetFootholdsXY(const StdVecEigen2d& footholds_xy)
 {
   assert(footholds_xy.size() == footholds_.size());
+
+//  ModifyFootholds(footholds_, [&](Foothold& f, int i) {
+//    f.SetXy(footholds_xy.at(i).x(),footholds_xy.at(i).y());
+//  });
+
   for (uint i=0; i<footholds_xy.size(); ++i)
     footholds_.at(i).SetXy(footholds_xy.at(i).x(), footholds_xy.at(i).y());
 
@@ -226,25 +232,13 @@ SupportPolygonContainer::Index (int id, Coords dim) const
 }
 
 void
-SupportPolygonContainer::SetStartStance (const VecFoothold& start_stance)
+SupportPolygonContainer::ModifyFootholds (VecFoothold& footholds,
+                                          std::function<void (Foothold&, int)> fun) const
 {
-  start_stance_ = start_stance;
-  for (auto& f : start_stance_) {
-    f.fixed_by_start_stance = true;
-    f.id = -1;
-  }
-}
+  int i = 0;
 
-void
-SupportPolygonContainer::SetFootholds (const VecFoothold& footholds)
-{
-  int id = 0;
-
-  footholds_ = footholds;
-  for (auto& f : footholds_) {
-    f.id = id++;
-    f.fixed_by_start_stance = false;
-  }
+  for (auto& f : footholds)
+    fun(f, i++);
 }
 
 } /* namespace hyq */

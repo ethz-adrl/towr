@@ -55,12 +55,6 @@ SupportPolygon::VecSuppLine SupportPolygon::GetLines() const
     lines[i].from = from;
     lines[i].to = to;
     lines[i].s_margin = UseMargin(from.leg, to.leg);
-
-    // this is to separate out the constant terms of the constraints
-    if (from.fixed_by_start_stance && to.fixed_by_start_stance)
-      lines[i].fixed_by_start_stance = true;
-    else
-      lines[i].fixed_by_start_stance = false;
   }
 
   return lines;

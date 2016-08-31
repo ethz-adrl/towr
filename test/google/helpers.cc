@@ -19,13 +19,6 @@ namespace hyq {
 using VectorXd = Eigen::VectorXd;
 
 
-void Iterate1To10(std::function<std::string (int)> f) {
-
-  for (int t=0; t<10; ++t) {
-    std::cout << f(t) << std::endl;
-  }
-}
-
 TEST(HelpersTest, SparseMatrixZero)
 {
   Eigen::SparseMatrix<double, Eigen::RowMajor> sm2(2,3);
@@ -72,6 +65,12 @@ TEST(HelpersTest, SparseMatrixManipulation)
 
 }
 
+void Iterate1To10(std::function<std::string (int)> f) {
+
+  for (int t=0; t<10; ++t) {
+    std::cout << f(t) << std::endl;
+  }
+}
 
 TEST(HelpersTest, LambdaFunction)
 {

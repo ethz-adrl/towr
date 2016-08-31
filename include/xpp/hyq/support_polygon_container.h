@@ -11,6 +11,8 @@
 #include <xpp/hyq/support_polygon.h>
 #include <xpp/zmp/com_motion.h>
 
+#include <functional> // std::function
+
 namespace xpp {
 namespace hyq {
 
@@ -109,8 +111,7 @@ private:
   VecSupportPolygon CreateSupportPolygons(const VecFoothold& footholds) const;
   void CheckIfInitialized() const;
 
-  void SetStartStance(const VecFoothold& start_stance);
-  void SetFootholds  (const VecFoothold& footholds);
+  void ModifyFootholds (VecFoothold& footholds, std::function<void (Foothold&, int)>) const;
 
   SupportPolygon GetStancePolygon(const VecFoothold& footholds) const;
   bool initialized_ = false;

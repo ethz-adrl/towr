@@ -41,41 +41,41 @@ RangeOfMotionConstraint::EvaluateConstraint () const
 {
   std::vector<double> g_vec;
 
-//  // refactor _write out really simple constraint just to test ZMP motion
-//  auto feet = supp_polygon_container_.GetFootholds();
-//  for (const auto& f : feet) {
-//    g_vec.push_back(f.p.x());
-//    g_vec.push_back(f.p.y());
-//  }
-
-
-
-
-
-
-
-  // this is the standard constraint that has been proven to work etc.
-  utils::StdVecEigen2d B_r_baseToFeet, B_r_baseToNominal;
-  B_r_baseToFeet = builder_.GetFeetInBase(com_motion_, supp_polygon_container_, B_r_baseToNominal);
-
-
-  for (uint i=0; i<B_r_baseToFeet.size(); ++i) {
-
-//    // for the first time discretization, the footholds (start stance) as well
-//    // as the body position is fixed, so no constraint must be added there.
-//    static const int n_contacts_first_node = 4;
-//    if (i<n_contacts_first_node)
-//      continue; // the initial body position and footholds are fixed anyway
-//
-//    Vector2d B_r_footToNominal = -B_r_baseToFeet.at(i) + B_r_baseToNominal.at(i);
-//
-//    // circle constraint on feet (nonlinear constraint (squared))
-//    g_vec.push_back(B_r_footToNominal.norm());
-
-    // squared constraints on feet (sometimes better convergence)
-    g_vec.push_back(B_r_baseToFeet.at(i).x());
-    g_vec.push_back(B_r_baseToFeet.at(i).y());
+  // refactor _write out really simple constraint just to test ZMP motion
+  auto feet = supp_polygon_container_.GetFootholds();
+  for (const auto& f : feet) {
+    g_vec.push_back(f.p.x());
+    g_vec.push_back(f.p.y());
   }
+
+
+
+
+
+
+
+//  // this is the standard constraint that has been proven to work etc.
+//  utils::StdVecEigen2d B_r_baseToFeet, B_r_baseToNominal;
+//  B_r_baseToFeet = builder_.GetFeetInBase(com_motion_, supp_polygon_container_, B_r_baseToNominal);
+//
+//
+//  for (uint i=0; i<B_r_baseToFeet.size(); ++i) {
+//
+////    // for the first time discretization, the footholds (start stance) as well
+////    // as the body position is fixed, so no constraint must be added there.
+////    static const int n_contacts_first_node = 4;
+////    if (i<n_contacts_first_node)
+////      continue; // the initial body position and footholds are fixed anyway
+////
+////    Vector2d B_r_footToNominal = -B_r_baseToFeet.at(i) + B_r_baseToNominal.at(i);
+////
+////    // circle constraint on feet (nonlinear constraint (squared))
+////    g_vec.push_back(B_r_footToNominal.norm());
+//
+//    // squared constraints on feet (sometimes better convergence)
+//    g_vec.push_back(B_r_baseToFeet.at(i).x());
+//    g_vec.push_back(B_r_baseToFeet.at(i).y());
+//  }
 
 
 
@@ -88,33 +88,33 @@ RangeOfMotionConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
 
-//  // this is for creating fixed footholds (remember to comment in constraints above as well)
-//  auto start_stance = supp_polygon_container_.GetStartStance();
-//  auto steps = supp_polygon_container_.GetFootholds();
-//
-//  double step_length = 0.15;
-//  for (const auto& s : steps) {
-//    auto leg = s.leg;
-//    auto start_foothold = hyq::Foothold::GetLastFoothold(leg, start_stance);
-//
-//    bounds.push_back(Bound(start_foothold.p.x() + step_length, start_foothold.p.x() + step_length));
-//    bounds.push_back(Bound(start_foothold.p.y(), start_foothold.p.y()));
-//  }
+  // this is for creating fixed footholds (remember to comment in constraints above as well)
+  auto start_stance = supp_polygon_container_.GetStartStance();
+  auto steps = supp_polygon_container_.GetFootholds();
 
+  double step_length = 0.15;
+  for (const auto& s : steps) {
+    auto leg = s.leg;
+    auto start_foothold = hyq::Foothold::GetLastFoothold(leg, start_stance);
 
-
-
-  // this is the standard bound on the foothold that has been tested thoroughly
-  utils::StdVecEigen2d nominal_footholds_b;
-  builder_.GetFeetInBase(com_motion_,supp_polygon_container_,nominal_footholds_b);
-  double radius_x = 0.15; //m
-  double radius_y = 0.15; //m
-  for (int i=0; i<nominal_footholds_b.size(); ++i) {
-    Bound x_bound(nominal_footholds_b.at(i).x()-radius_x, nominal_footholds_b.at(i).x()+radius_x);
-    Bound y_bound(nominal_footholds_b.at(i).y()-radius_y, nominal_footholds_b.at(i).y()+radius_y);
-    bounds.push_back(x_bound);
-    bounds.push_back(y_bound);
+    bounds.push_back(Bound(start_foothold.p.x() + step_length, start_foothold.p.x() + step_length));
+    bounds.push_back(Bound(start_foothold.p.y(), start_foothold.p.y()));
   }
+
+
+
+
+//  // this is the standard bound on the foothold that has been tested thoroughly
+//  utils::StdVecEigen2d nominal_footholds_b;
+//  builder_.GetFeetInBase(com_motion_,supp_polygon_container_,nominal_footholds_b);
+//  double radius_x = 0.15; //m
+//  double radius_y = 0.15; //m
+//  for (int i=0; i<nominal_footholds_b.size(); ++i) {
+//    Bound x_bound(nominal_footholds_b.at(i).x()-radius_x, nominal_footholds_b.at(i).x()+radius_x);
+//    Bound y_bound(nominal_footholds_b.at(i).y()-radius_y, nominal_footholds_b.at(i).y()+radius_y);
+//    bounds.push_back(x_bound);
+//    bounds.push_back(y_bound);
+//  }
 
 
 

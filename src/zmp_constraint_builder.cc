@@ -88,13 +88,9 @@ ZmpConstraintBuilder::CalcJacobians ()
     NodeConstraint supp_line = supp_lines.at(phase_id);
 
     int num_lines = supp_line.size();
-    JacobianRow jac_line_wrt_contacts(n_contacts);
-    jac_line_wrt_contacts.reserve(4); // every line depends on 4 points
+
 
     for (int i=0; i<num_lines; ++i) {
-
-      jac_line_wrt_contacts.setZero();
-
 
       auto f_from = supp_line.at(i).from;
       auto f_to = supp_line.at(i).to;
@@ -107,12 +103,17 @@ ZmpConstraintBuilder::CalcJacobians ()
       jac_line = line.GetJacobianDistanceWrtPoints(zmp);
 
       // only if line is not fixed by start stance does it go into the jacobian
-      if (!f_from.fixed_by_start_stance) {
+      JacobianRow jac_line_wrt_contacts(n_contacts);
+      jac_line_wrt_contacts.reserve(4); // every line depends on 4 points
+
+      std::cout << "from.id: " << f_from.id << ", to.id: "   << f_to.id << std::endl;
+
+      if (f_from.id != hyq::Foothold::kFixedByStart) {
         jac_line_wrt_contacts.insert(supp_polygon_.Index(f_from.id, X)) = jac_line(0);
         jac_line_wrt_contacts.insert(supp_polygon_.Index(f_from.id, Y)) = jac_line(1);
       }
 
-      if (!f_to.fixed_by_start_stance) {
+      if (f_to.id != hyq::Foothold::kFixedByStart) {
         jac_line_wrt_contacts.insert(supp_polygon_.Index(f_to.id, X))   = jac_line(2);
         jac_line_wrt_contacts.insert(supp_polygon_.Index(f_to.id, Y))   = jac_line(3);
       }
