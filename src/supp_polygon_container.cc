@@ -51,8 +51,7 @@ SupportPolygonContainer::SetFootholdsXY(const StdVecEigen2d& footholds_xy)
 //    f.SetXy(footholds_xy.at(i).x(),footholds_xy.at(i).y());
 //  });
 
-  for (uint i=0; i<footholds_xy.size(); ++i)
-    footholds_.at(i).SetXy(footholds_xy.at(i).x(), footholds_xy.at(i).y());
+  Foothold::SetXy(footholds_xy, footholds_);
 
   support_polygons_ = CreateSupportPolygons(footholds_); //update support polygons as well
 }

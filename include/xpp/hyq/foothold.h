@@ -39,7 +39,6 @@ public:
   Foothold(double x, double y, double z, LegID _leg);
 
   Vector2d GetXy() const;
-  void SetXy(double x, double y);
   void SetXy(const Vector2d& xy);
   static void SetXy(const StdVecEigen2d& xy, VecFoothold& footholds);
 

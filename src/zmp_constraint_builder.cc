@@ -79,6 +79,8 @@ ZmpConstraintBuilder::CalcJacobians ()
 
   // for every time t
   for (const auto& t : vec_t) {
+    std::cout << " }\nt: " << t << "\t";
+
 
     // the current position of the zero moment point
     auto state = spline_structure_->GetCom(t);
@@ -89,7 +91,7 @@ ZmpConstraintBuilder::CalcJacobians ()
 
     int num_lines = supp_line.size();
 
-
+    std::cout << "lines: ";
     for (int i=0; i<num_lines; ++i) {
 
       auto f_from = supp_line.at(i).from;
@@ -102,16 +104,13 @@ ZmpConstraintBuilder::CalcJacobians ()
       utils::LineEquation::JacobianRow jac_line;
       jac_line = line.GetJacobianDistanceWrtPoints(zmp);
 
-      // only if line is not fixed by start stance does it go into the jacobian
       JacobianRow jac_line_wrt_contacts(n_contacts);
       jac_line_wrt_contacts.reserve(4); // every line depends on 4 points
 
+      // reason, sparsity structure changes between calls
+      std::cout << f_from.id << "->" << f_to.id << "  ,  ";
 
-
-//      std::cout << "\nf_from: " << f_from << std::endl;
-//      std::cout << "f_to: " << f_to << std::endl;
-
-
+      // only if line is not fixed by start stance does it go into the jacobian
       if (f_from.id != hyq::Foothold::kFixedByStart) {
         jac_line_wrt_contacts.insert(supp_polygon_.Index(f_from.id, X)) = jac_line(0);
         jac_line_wrt_contacts.insert(supp_polygon_.Index(f_from.id, Y)) = jac_line(1);

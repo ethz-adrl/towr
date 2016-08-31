@@ -35,12 +35,6 @@ Eigen::Vector2d Foothold::GetXy() const
   return p.segment<kDim2d>(X);
 }
 
-void Foothold::SetXy(double x, double y)
-{
-  p.x() = x;
-  p.y() = y;
-}
-
 void Foothold::SetXy(const Vector2d& xy)
 {
   using namespace xpp::utils::coords_wrapper;
