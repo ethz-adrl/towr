@@ -109,8 +109,6 @@ public:
     */
   virtual PhaseInfoVec GetPhases() const = 0;
 
-private:
-
   /** Calculates the Jacobian J of the motion with respect to the current coefficients.
     *
     * @param t_global the time of the motion to evaluate the Jacobian
@@ -118,6 +116,9 @@ private:
     * @param dim which motion dimension (x,y) the jacobian represents.
     */
   virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
+
+private:
+
 };
 
 } /* namespace zmp */

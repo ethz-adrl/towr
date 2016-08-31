@@ -11,8 +11,6 @@
 namespace xpp {
 namespace zmp {
 
-static constexpr double kGravity = 9.80665; // gravity acceleration [m\s^2]
-
 ZeroMomentPoint::Vector2d
 ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
 {
@@ -21,12 +19,28 @@ ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
   return zmp;
 }
 
-ZeroMomentPoint::VecScalar
-ZeroMomentPoint::CalcZmp(const VecScalar& pos, const VecScalar& acc, double height)
+ZeroMomentPoint::Jacobian
+ZeroMomentPoint::GetJacobianWrtCoeff (const ComMotion& x, double height, Coords dim)
 {
-  const double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
-  double k = height/(kGravity+z_acc);
-  return pos - k*acc;
+  auto vec_t = x.GetDiscretizedGlobalTimes();
+  int n_coeff = x.GetTotalFreeCoeff();
+
+  Jacobian jac_zmp(vec_t.size(), n_coeff);
+
+  int n = 0; // node counter
+  for (double t_global : vec_t)
+  {
+    // get to here sparse format
+    // refactor _think about getting position and acceleration at all time T
+    JacobianRow jac_pos_t = x.GetJacobian(t_global, utils::kPos, dim);
+    JacobianRow jac_acc_t = x.GetJacobian(t_global, utils::kAcc, dim);
+
+    JacobianRow zmp_t = CalcZmp(jac_pos_t, jac_acc_t, height);
+    jac_zmp.row(n++) = zmp_t;
+  }
+
+  assert(n<=vec_t.size()); // check that Eigen matrix didn't overflow
+  return jac_zmp;
 }
 
 ZeroMomentPoint::MatVec
@@ -52,5 +66,7 @@ ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(const ComMotion& com_motion,
   return zmp;
 }
 
+
 } /* namespace zmp */
 } /* namespace xpp */
+

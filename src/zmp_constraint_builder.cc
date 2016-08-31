@@ -306,8 +306,10 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
     int phase_id  = spline_structure_->GetCurrentPhase(t).id_;
     NodeConstraint supp_line = supp_lines.at(phase_id);
 
-    for (const auto& l : supp_line)
-      distance(c++) = GetDistanceToLineMargin(zmp, l);
+    for (int i=0; i<supp_line.size(); ++i)
+      distance(c+i) = GetDistanceToLineMargin(zmp, supp_line.at(i));
+
+    c += SupportPolygon::kMaxSides; // this is ugly
   }
 
   return distance;

@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_ZERO_MOMENT_POINT_H_
 
 #include <xpp/utils/geometric_structs.h>
+#include <Eigen/Sparse>
 
 namespace xpp {
 namespace zmp {
@@ -27,13 +28,16 @@ public:
   typedef xpp::utils::Point3d State3d;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::Coords3D Coords;
+  typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
+  typedef Eigen::SparseMatrix<double, Eigen::RowMajor> Jacobian;
 
 public:
   ZeroMomentPoint () {};
   virtual ~ZeroMomentPoint () {};
 
   static Vector2d  CalcZmp(const State3d& cog, double height);
-  static VecScalar CalcZmp(const VecScalar& pos, const VecScalar& acc, double height);
+  template <typename T>
+  static T CalcZmp(const T& pos, const T& acc, double height);
 
   /** Creates a linear approximation of the ZMP w.r.t the current motion coefficients uc
     *
@@ -51,7 +55,21 @@ public:
     * @param dimension what ZMP coordinate you are interested in (X or Y).
     */
   static MatVec GetLinearApproxWrtMotionCoeff(const ComMotion& x, double walking_height, Coords dimension);
+
+  Jacobian GetJacobianWrtCoeff(const ComMotion& x, double walking_height, Coords dimension);
+
+private:
+  static constexpr double kGravity = 9.80665; // gravity acceleration [m\s^2]
 };
+
+
+template <typename T> T
+ZeroMomentPoint::CalcZmp(const T& pos, const T& acc, double height)
+{
+  const double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
+  double k = height/(kGravity+z_acc);
+  return pos - k*acc;
+}
 
 } /* namespace zmp */
 } /* namespace xpp */
