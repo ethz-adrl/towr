@@ -106,7 +106,11 @@ ZmpConstraintBuilder::CalcJacobians ()
       JacobianRow jac_line_wrt_contacts(n_contacts);
       jac_line_wrt_contacts.reserve(4); // every line depends on 4 points
 
-      std::cout << "from.id: " << f_from.id << ", to.id: "   << f_to.id << std::endl;
+
+
+//      std::cout << "\nf_from: " << f_from << std::endl;
+//      std::cout << "f_to: " << f_to << std::endl;
+
 
       if (f_from.id != hyq::Foothold::kFixedByStart) {
         jac_line_wrt_contacts.insert(supp_polygon_.Index(f_from.id, X)) = jac_line(0);

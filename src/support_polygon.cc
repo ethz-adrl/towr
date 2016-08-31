@@ -44,7 +44,8 @@ SupportPolygon::BuildSortedConvexHull(const VecFoothold& footholds) const
 }
 
 
-SupportPolygon::VecSuppLine SupportPolygon::GetLines() const
+SupportPolygon::VecSuppLine
+SupportPolygon::GetLines() const
 {
   VecSuppLine lines(footholds_conv_.size());
   for (uint i = 0; i<lines.size(); ++i) {
@@ -54,6 +55,9 @@ SupportPolygon::VecSuppLine SupportPolygon::GetLines() const
 
     lines[i].from = from;
     lines[i].to = to;
+
+//    std::cout << "from.id: " << from.id << " , to.id: " << to.id << std::endl;
+
     lines[i].s_margin = UseMargin(from.leg, to.leg);
   }
 
@@ -61,7 +65,8 @@ SupportPolygon::VecSuppLine SupportPolygon::GetLines() const
 }
 
 
-double SupportPolygon::UseMargin(const LegID& f0, const LegID& f1) const
+double
+SupportPolygon::UseMargin(const LegID& f0, const LegID& f1) const
 {
   LegID foot[] = {f0, f1};
 

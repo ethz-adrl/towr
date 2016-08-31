@@ -26,6 +26,23 @@ protected:
 
 };
 
+TEST_F(Point2dManipulationsTest, SortIndexesLeftToRight)
+{
+  A << 0, 0;
+  B << 1, 0;
+  C << 1, 1;
+  D << 0, 1;
+
+  Point2dManip::StdVectorEig2d points(4);
+  points.at(0) = A;
+  points.at(1) = B;
+  points.at(2) = C;
+  points.at(3) = D;
+
+  auto idx = Point2dManip::SortIndexesLeftToRight(points);
+  for (auto i : idx) { std::cout << i << "\n"; }
+}
+
 TEST_F(Point2dManipulationsTest, SortByXThenY)
 {
   A << 0, 0;

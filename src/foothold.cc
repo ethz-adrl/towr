@@ -14,19 +14,19 @@ Foothold::Foothold ()
 {
   p.setZero();
   leg = LF;
-  id = 0;
+  id = kFixedByStart;
 }
 
 Foothold::Foothold(Eigen::Vector3d _pos, LegID _leg)
     : p(_pos), leg(_leg)
 {
-  id = 0;
+  id = kFixedByStart;
 };
 
 Foothold::Foothold(double x, double y, double z, LegID _leg)
     : p(x, y, z), leg(_leg)
 {
-  id = 0;
+  id = kFixedByStart;
 };
 
 Eigen::Vector2d Foothold::GetXy() const

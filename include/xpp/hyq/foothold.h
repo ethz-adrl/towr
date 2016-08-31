@@ -63,7 +63,7 @@ inline std::ostream& operator<<(std::ostream& out, const Foothold& f)
     { LF, "LF" }, { RF, "RF" }, { LH, "LH" }, { RH, "RH" }
   };
 
-  out << l[f.leg] << " : " << f.p.transpose();
+  out << l[f.leg] << " : " << f.p.transpose() << ", id: " << f.id;
   return out;
 }
 

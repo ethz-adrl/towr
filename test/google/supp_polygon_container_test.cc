@@ -24,8 +24,13 @@ TEST(SuppPolygonContainerRefactor, FootholdID)
                         Foothold(-0.35+0.3,  0.3, 0.0, LH),
                         Foothold(-0.35+0.3, -0.3, 0.0, RH)};
 
+  auto steps_zero =   { Foothold(0, 0, 0, LF),
+                        Foothold(0, 0, 0, RF),
+                        Foothold(0, 0, 0, LH),
+                        Foothold(0, 0, 0, RH)};
+
   hyq::SupportPolygonContainer supp_polygons;
-  supp_polygons.Init(start_stance, steps, SupportPolygon::GetDefaultMargins());
+  supp_polygons.Init(start_stance, steps_zero, SupportPolygon::GetDefaultMargins());
 
   auto footholds = supp_polygons.GetFootholds();
 
@@ -35,9 +40,9 @@ TEST(SuppPolygonContainerRefactor, FootholdID)
 
   int i = 0;
   for (const auto& p : supp_polygons.GetSupportPolygons()) {
-    std::cout << "\n\npolygon: " << i << std::endl;
-    for (const auto& f : p.footholds_conv_)
-      std::cout << f.id << " , ";
+    std::cout << "\n\npolygon: " << i++ << std::endl;
+    for (const auto& f : p.GetLines()/*footholds_conv_*/)
+      std::cout << f.from.id << " , " << f.to.id << std::endl;
   }
 }
 
