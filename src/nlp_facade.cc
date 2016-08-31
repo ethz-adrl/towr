@@ -79,10 +79,10 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   constraints_->ClearConstraints();
   constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, com_spline));
-  constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, com_spline));
-  constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(com_spline));
-  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(interpreter));
-  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(interpreter));
+//  constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, com_spline));
+//  constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(com_spline));
+//  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(interpreter));
+//  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(interpreter));
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint());
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 

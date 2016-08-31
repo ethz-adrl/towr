@@ -56,7 +56,7 @@ public:
     */
   static MatVec GetLinearApproxWrtMotionCoeff(const ComMotion& x, double walking_height, Coords dimension);
 
-  Jacobian GetJacobianWrtCoeff(const ComMotion& x, double walking_height, Coords dimension);
+  static Jacobian GetJacobianWrtCoeff(const ComMotion& x, double walking_height, Coords dimension);
 
 private:
   static constexpr double kGravity = 9.80665; // gravity acceleration [m\s^2]

@@ -76,10 +76,10 @@ ZmpConstraint::GetJacobianWithRespectTo (std::string var_set) const
 
   // refactor make this whole function take in function pointer as argument
   if (var_set == VariableNames::kSplineCoeff)
-    jac =  zmp_constraint_builder_.GetJacobianWrtMotion().sparseView();
+    jac =  zmp_constraint_builder_.GetJacobianWrtMotion();
 
   if (var_set == VariableNames::kFootholds)
-    jac = zmp_constraint_builder_.GetJacobianWrtContacts().sparseView();
+    jac = zmp_constraint_builder_.GetJacobianWrtContacts();
 
   return jac;
 }

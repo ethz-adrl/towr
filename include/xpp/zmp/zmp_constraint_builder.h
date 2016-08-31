@@ -28,13 +28,11 @@ public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef xpp::hyq::LegID LegID;
   typedef Eigen::Vector2d Vector2d;
-  typedef Eigen::MatrixXd MatrixXd;
   typedef Eigen::VectorXd VectorXd;
   using SuppLine = xpp::hyq::SupportPolygon::SuppLine;
 
-
-  template <size_t NUM_TIMES, size_t COEFF_AND_CONTACTS>
-  using JacobianStability = Eigen::Matrix<double, NUM_TIMES, COEFF_AND_CONTACTS>;
+  using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+  using JacobianRow = ComMotion::JacobianRow;
 
 public:
   ZmpConstraintBuilder() {};
@@ -61,7 +59,7 @@ public:
     * the spline coefficients x.
     */
   // refactor returns jacobian, rename
-  MatVecVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
+//  MatVecVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
 
 
   /////////////////////new stuff///////////////////////////////
@@ -72,8 +70,8 @@ public:
     */
   void CalcJacobians();
 
-  MatrixXd GetJacobianWrtMotion() const;
-  MatrixXd GetJacobianWrtContacts() const;
+  Jacobian GetJacobianWrtMotion() const;
+  Jacobian GetJacobianWrtContacts() const;
 
 
   VectorXd GetDistanceToLineMargin() const;
@@ -85,49 +83,49 @@ public:
 private:
   double GetDistanceToLineMargin(const Vector2d& zmp, SuppLine line) const;
 
-  MatVecVec CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-                            const SupportPolygonContainer&) const;
-
-  static void GenerateNodeConstraint(const NodeConstraint&,
-                                     const VecScalar& x_zmp,
-                                     const VecScalar& y_zmp,
-                                     int row_start,
-                                     MatVecVec& ineq);
-
-  // the zero moment point must always lay on one side of triangle side:
-  // p*x_zmp + q*y_zmp + r > stability_margin
-  static VecScalarScalar GenerateLineConstraint(const SupportPolygon::SuppLine& l,
-                                                const VecScalar& x_zmp_M,
-                                                const VecScalar& y_zmp_M);
-
-  /** Check if this spline needs a four leg support phase to go to next spline.
-    *
-    * Reducing the support polygons by a margin creates disjoint support triangles
-    * when switching to diagonally opposite swing legs. This causes the optimizer
-    * to fail, if the constraints are not disregarded at theses times.
-    *
-    * @param t current time of trajectory
-    * @param curr_spline active spline at the moment
-    * @param support polygon
-    * @return true if there are no constrains on current spline at time t
-    */
-  bool DisjSuppSwitch(double t, const ComPolynomial& curr_spline, const SupportPolygonContainer&) const;
-
-  bool DisjointSuppPolygonsAtBeginning(int step, const SupportPolygonContainer&) const;
-  bool DisjointSuppPolygonsAtEnd(int step, const SupportPolygonContainer&) const;
-
-
-
-  static bool Insert4LSPhase(LegID prev, LegID next);
+//  MatVecVec CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
+//                            const SupportPolygonContainer&) const;
+//
+//  static void GenerateNodeConstraint(const NodeConstraint&,
+//                                     const VecScalar& x_zmp,
+//                                     const VecScalar& y_zmp,
+//                                     int row_start,
+//                                     MatVecVec& ineq);
+//
+//  // the zero moment point must always lay on one side of triangle side:
+//  // p*x_zmp + q*y_zmp + r > stability_margin
+//  static VecScalarScalar GenerateLineConstraint(const SupportPolygon::SuppLine& l,
+//                                                const VecScalar& x_zmp_M,
+//                                                const VecScalar& y_zmp_M);
+//
+//  /** Check if this spline needs a four leg support phase to go to next spline.
+//    *
+//    * Reducing the support polygons by a margin creates disjoint support triangles
+//    * when switching to diagonally opposite swing legs. This causes the optimizer
+//    * to fail, if the constraints are not disregarded at theses times.
+//    *
+//    * @param t current time of trajectory
+//    * @param curr_spline active spline at the moment
+//    * @param support polygon
+//    * @return true if there are no constrains on current spline at time t
+//    */
+//  bool DisjSuppSwitch(double t, const ComPolynomial& curr_spline, const SupportPolygonContainer&) const;
+//
+//  bool DisjointSuppPolygonsAtBeginning(int step, const SupportPolygonContainer&) const;
+//  bool DisjointSuppPolygonsAtEnd(int step, const SupportPolygonContainer&) const;
+//
+//
+//
+//  static bool Insert4LSPhase(LegID prev, LegID next);
 
 
 
   double walking_height_;
-  MatVec jac_px_0_; ///< Jacobian of ZMP in x direction evaluated at spline coefficient values of zero
-  MatVec jac_py_0_; ///< Jacobian of ZMP in y direction evaluated at spline coefficient values of zero
+  Jacobian jac_zmpx_0_; ///< Jacobian of ZMP in x direction evaluated at spline coefficient values of zero
+  Jacobian jac_zmpy_0_; ///< Jacobian of ZMP in y direction evaluated at spline coefficient values of zero
 
-  MatrixXd jac_wrt_motion_;
-  MatrixXd jac_wrt_contacts_;
+  Jacobian jac_wrt_motion_;
+  Jacobian jac_wrt_contacts_;
 
   void CheckIfInitialized() const; // put only in public functions
   bool initialized_ = false;

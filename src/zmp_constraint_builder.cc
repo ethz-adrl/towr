@@ -33,8 +33,8 @@ ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container,
   using namespace xpp::utils::coords_wrapper;
 
   walking_height_ = walking_height;
-  jac_px_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, X);
-  jac_py_0_ = ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(*spline_structure_, walking_height, Y);
+  jac_zmpx_0_ = ZeroMomentPoint::GetJacobianWrtCoeff(*spline_structure_, walking_height, X);
+  jac_zmpy_0_ = ZeroMomentPoint::GetJacobianWrtCoeff(*spline_structure_, walking_height, Y);
 
 
   // refactor this discretized global times could specify where to evaluate zmp constraint
@@ -45,8 +45,8 @@ ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container,
   int n_motion = spline_structure_->GetTotalFreeCoeff();
   int n_contacts = supp_polygon_.GetTotalFreeCoeff();
 
-  jac_wrt_motion_   = MatrixXd::Zero(output_dim, n_motion);
-  jac_wrt_contacts_ = MatrixXd::Zero(output_dim, n_contacts);
+  jac_wrt_motion_   = Jacobian(output_dim, n_motion);
+  jac_wrt_contacts_ = Jacobian(output_dim, n_contacts);
 
 
   initialized_ = true;
@@ -60,150 +60,6 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
   supp_polygon_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
-ZmpConstraintBuilder::MatVecVec
-ZmpConstraintBuilder::CalcZmpConstraints(const SupportPolygonContainer& s) const
-{
-  CheckIfInitialized();
-  return CalcZmpConstraints(jac_px_0_, jac_py_0_, s);
-};
-
-ZmpConstraintBuilder::MatVecVec
-ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& jac_px_0, const MatVec& jac_py_0,
-                                  const SupportPolygonContainer& supp_polygon_container) const
-{
-  std::vector<NodeConstraint> supp_lines = supp_polygon_container.GetActiveConstraintsForEachPhase(*spline_structure_);
-
-  // if every spline is a four leg support spline with 4 line constraints
-  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
-  const int max_num_constraints = vec_t.size()*SupportPolygon::kMaxSides;
-  int coeff = spline_structure_->GetTotalFreeCoeff();
-  MatVecVec ineq(max_num_constraints, coeff);
-
-  int n = 0; // node counter
-  int c = 0; // inequality constraint counter
-
-  for (double t_global : vec_t) {
-    int spline_id = spline_structure_->GetPolynomialID(t_global);
-    int phase_id  = spline_structure_->GetCurrentPhase(t_global).id_;
-
-    // refactor have one function that knows at which global time the
-    // splines switch and disregard constraint at these times.
-    if (DisjSuppSwitch(t_global, spline_structure_->GetPolynomial(spline_id), supp_polygon_container)) {
-      n++; // no constraints
-      continue;
-    }
-
-    GenerateNodeConstraint(supp_lines.at(phase_id), jac_px_0.GetRow(n), jac_py_0.GetRow(n), c, ineq);
-
-    n++;
-    c += SupportPolygon::kMaxSides;
-  }
-
-  assert(c <= max_num_constraints);
-//  assert((n == x_zmp.M.rows()) && (n == y_zmp.M.rows())); // don't need constraint for every node
-  return ineq;
-}
-
-void
-ZmpConstraintBuilder::GenerateNodeConstraint(const NodeConstraint& node_constraints,
-                                      const VecScalar& x_zmp,
-                                      const VecScalar& y_zmp,
-                                      int row_start,
-                                      MatVecVec& ineq)
-{
-  // add three or four line constraints depending on if support triange/ support polygon etc
-  for (SupportPolygon::SuppLine l : node_constraints) {
-    VecScalarScalar constr = GenerateLineConstraint(l, x_zmp, y_zmp);
-    ineq.WriteRow(constr,row_start++);
-  }
-}
-
-ZmpConstraintBuilder::VecScalarScalar
-ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
-                                      const VecScalar& x_zmp,
-                                      const VecScalar& y_zmp)
-{
-
-  // refactor shouldn't calculate this everytime
-  utils::LineEquation line(l.from.p.segment<2>(X), l.to.p.segment<2>(X));
-  auto coeff = line.GetCoeff();
-
-  VecScalarScalar line_constr_sep;
-  // separate the constraints that depend only on the start stance with the ones
-  // that depend on the optimized footholds
-
-  line_constr_sep.vs.v  = coeff.p*x_zmp.v + coeff.q*y_zmp.v;
-  line_constr_sep.vs.s = 0;
-  line_constr_sep.constant = -l.s_margin;
-
-  double line_coeff_terms = coeff.p*x_zmp.s + coeff.q*y_zmp.s + coeff.r;
-  if (l.fixed_by_start_stance)
-    line_constr_sep.constant += line_coeff_terms;
-  else
-    line_constr_sep.vs.s += line_coeff_terms;
-
-  return line_constr_sep;
-}
-
-bool
-ZmpConstraintBuilder::DisjSuppSwitch (double t, const ComPolynomial& curr_spline,
-                                      const SupportPolygonContainer& supp_polygon_container) const
-{
-  if (!curr_spline.IsFourLegSupport()) {
-
-    int step = curr_spline.GetCurrStep();
-    double t_local = spline_structure_->GetLocalTime(t);
-    static const double t_stance = 0.2; // time to switch between disjoint support triangles
-    double t_start_local = curr_spline.GetDuration() - t_stance/2;
-
-    if (DisjointSuppPolygonsAtBeginning(step,supp_polygon_container) && t_local < t_stance/2.)
-      return true;
-    if (DisjointSuppPolygonsAtEnd(step,supp_polygon_container) && t_local > t_start_local)
-      return true;
-  }
-  return false;
-}
-
-bool
-ZmpConstraintBuilder::DisjointSuppPolygonsAtBeginning(
-    int step, const SupportPolygonContainer& supp_polygon_container) const
-{
-  LegID swing_leg = supp_polygon_container.GetLegID(step);
-  if (step == 0) {
-    return false; // don't allow initial zmp to violate constraint for first part of first step
-  } else {
-    LegID prev_swing_leg = supp_polygon_container.GetLegID(step-1);
-    return Insert4LSPhase(prev_swing_leg, swing_leg);
-  }
-}
-
-bool
-ZmpConstraintBuilder::DisjointSuppPolygonsAtEnd(
-    int step, const SupportPolygonContainer& supp_polygon_container) const
-{
-  LegID swing_leg = supp_polygon_container.GetLegID(step);
-  bool last_step = step == supp_polygon_container.GetNumberOfSteps()-1;
-  if (last_step) {
-    return true; // allow zmp to violate constraint at last part of last step
-  } else {
-    LegID next_swing_leg = supp_polygon_container.GetLegID(step+1);
-    return Insert4LSPhase(swing_leg, next_swing_leg);
-  }
-}
-
-bool
-ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)
-{
-  using namespace xpp::hyq;
-  // check for switching between disjoint support triangles.
-  // the direction the robot is moving between triangles does not matter.
-  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-  std::swap(prev, next);
-  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-
-  return false;
-}
-
 void
 ZmpConstraintBuilder::CalcJacobians ()
 {
@@ -211,13 +67,12 @@ ZmpConstraintBuilder::CalcJacobians ()
   auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
   int n_contacts = supp_polygon_.GetTotalFreeCoeff();
 
+  // refactor _this could be highly inefficient, don't do
   jac_wrt_motion_ .setZero();
   jac_wrt_contacts_.setZero();
 
   // know the lines of of each support polygon
   auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*spline_structure_);
-
-  using JacobianRow = Eigen::RowVectorXd;
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
@@ -233,11 +88,12 @@ ZmpConstraintBuilder::CalcJacobians ()
     NodeConstraint supp_line = supp_lines.at(phase_id);
 
     int num_lines = supp_line.size();
-    Eigen::VectorXd lx(num_lines);
-    Eigen::VectorXd ly(num_lines);
-    MatrixXd jac_node_wrt_contacts = MatrixXd::Zero(num_lines, n_contacts);
+    JacobianRow jac_line_wrt_contacts(n_contacts);
+    jac_line_wrt_contacts.reserve(4); // every line depends on 4 points
 
     for (int i=0; i<num_lines; ++i) {
+
+      jac_line_wrt_contacts.setZero();
 
 
       auto f_from = supp_line.at(i).from;
@@ -246,34 +102,27 @@ ZmpConstraintBuilder::CalcJacobians ()
       // refactor do this only when phase change -> efficiency
       utils::LineEquation line(f_from.p.segment<2>(X), f_to.p.segment<2>(X));
 
-
-      auto coeff = line.GetCoeff();
-      lx(i) = coeff.p;
-      ly(i) = coeff.q;
-
       // get the jacobian of the line coefficient of each line
       utils::LineEquation::JacobianRow jac_line;
       jac_line = line.GetJacobianDistanceWrtPoints(zmp);
 
-
       // only if line is not fixed by start stance does it go into the jacobian
       if (!f_from.fixed_by_start_stance) {
-        jac_node_wrt_contacts(i,supp_polygon_.Index(f_from.id, X)) = jac_line(0);
-        jac_node_wrt_contacts(i,supp_polygon_.Index(f_from.id, Y)) = jac_line(1);
+        jac_line_wrt_contacts.insert(supp_polygon_.Index(f_from.id, X)) = jac_line(0);
+        jac_line_wrt_contacts.insert(supp_polygon_.Index(f_from.id, Y)) = jac_line(1);
       }
 
       if (!f_to.fixed_by_start_stance) {
-        jac_node_wrt_contacts(i,supp_polygon_.Index(f_to.id, X))   = jac_line(2);
-        jac_node_wrt_contacts(i,supp_polygon_.Index(f_to.id, Y))   = jac_line(3);
+        jac_line_wrt_contacts.insert(supp_polygon_.Index(f_to.id, X))   = jac_line(2);
+        jac_line_wrt_contacts.insert(supp_polygon_.Index(f_to.id, Y))   = jac_line(3);
       }
 
+      auto coeff = line.GetCoeff();
+      // refactor _this line really impacts performance
+      jac_wrt_motion_.row(c+i)   = coeff.p*jac_zmpx_0_.row(n) + coeff.q*jac_zmpy_0_.row(n);
+      jac_wrt_contacts_.row(c+i) = jac_line_wrt_contacts;
     }
 
-    JacobianRow jac_zmp_wrt_x_t = jac_px_0_.M.row(n);
-    JacobianRow jac_zmp_wrt_y_t = jac_py_0_.M.row(n);
-
-    jac_wrt_motion_.middleRows(c,num_lines)  = lx*jac_zmp_wrt_x_t + ly*jac_zmp_wrt_y_t;
-    jac_wrt_contacts_.middleRows(c,num_lines) = jac_node_wrt_contacts;
     c += SupportPolygon::kMaxSides; // will create blank spaces in polygons, but keep constraint affiliation same
     n++;
 
@@ -306,7 +155,7 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
     int phase_id  = spline_structure_->GetCurrentPhase(t).id_;
     NodeConstraint supp_line = supp_lines.at(phase_id);
 
-    for (int i=0; i<supp_line.size(); ++i)
+    for (auto i=0; i<supp_line.size(); ++i)
       distance(c+i) = GetDistanceToLineMargin(zmp, supp_line.at(i));
 
     c += SupportPolygon::kMaxSides; // this is ugly
@@ -326,17 +175,163 @@ ZmpConstraintBuilder::GetDistanceToLineMargin (const Vector2d& zmp, SuppLine sup
   return line.GetDistanceFromLine(zmp) - supp_line.s_margin;
 }
 
-ZmpConstraintBuilder::MatrixXd
+ZmpConstraintBuilder::Jacobian
 ZmpConstraintBuilder::GetJacobianWrtMotion () const
 {
   return jac_wrt_motion_;
 }
 
-ZmpConstraintBuilder::MatrixXd
+ZmpConstraintBuilder::Jacobian
 ZmpConstraintBuilder::GetJacobianWrtContacts () const
 {
   return jac_wrt_contacts_;
 }
+
+//ZmpConstraintBuilder::MatVecVec
+//ZmpConstraintBuilder::CalcZmpConstraints(const SupportPolygonContainer& s) const
+//{
+//  CheckIfInitialized();
+//  return CalcZmpConstraints(jac_px_0_, jac_py_0_, s);
+//};
+//
+//
+//ZmpConstraintBuilder::MatVecVec
+//ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& jac_px_0, const MatVec& jac_py_0,
+//                                  const SupportPolygonContainer& supp_polygon_container) const
+//{
+//  std::vector<NodeConstraint> supp_lines = supp_polygon_container.GetActiveConstraintsForEachPhase(*spline_structure_);
+//
+//  // if every spline is a four leg support spline with 4 line constraints
+//  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
+//  const int max_num_constraints = vec_t.size()*SupportPolygon::kMaxSides;
+//  int coeff = spline_structure_->GetTotalFreeCoeff();
+//  MatVecVec ineq(max_num_constraints, coeff);
+//
+//  int n = 0; // node counter
+//  int c = 0; // inequality constraint counter
+//
+//  for (double t_global : vec_t) {
+//    int spline_id = spline_structure_->GetPolynomialID(t_global);
+//    int phase_id  = spline_structure_->GetCurrentPhase(t_global).id_;
+//
+//    // refactor have one function that knows at which global time the
+//    // splines switch and disregard constraint at these times.
+//    if (DisjSuppSwitch(t_global, spline_structure_->GetPolynomial(spline_id), supp_polygon_container)) {
+//      n++; // no constraints
+//      continue;
+//    }
+//
+//    GenerateNodeConstraint(supp_lines.at(phase_id), jac_px_0.GetRow(n), jac_py_0.GetRow(n), c, ineq);
+//
+//    n++;
+//    c += SupportPolygon::kMaxSides;
+//  }
+//
+//  assert(c <= max_num_constraints);
+////  assert((n == x_zmp.M.rows()) && (n == y_zmp.M.rows())); // don't need constraint for every node
+//  return ineq;
+//}
+//
+//void
+//ZmpConstraintBuilder::GenerateNodeConstraint(const NodeConstraint& node_constraints,
+//                                      const VecScalar& x_zmp,
+//                                      const VecScalar& y_zmp,
+//                                      int row_start,
+//                                      MatVecVec& ineq)
+//{
+//  // add three or four line constraints depending on if support triange/ support polygon etc
+//  for (SupportPolygon::SuppLine l : node_constraints) {
+//    VecScalarScalar constr = GenerateLineConstraint(l, x_zmp, y_zmp);
+//    ineq.WriteRow(constr,row_start++);
+//  }
+//}
+//
+//ZmpConstraintBuilder::VecScalarScalar
+//ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
+//                                      const VecScalar& x_zmp,
+//                                      const VecScalar& y_zmp)
+//{
+//
+//  // refactor shouldn't calculate this everytime
+//  utils::LineEquation line(l.from.p.segment<2>(X), l.to.p.segment<2>(X));
+//  auto coeff = line.GetCoeff();
+//
+//  VecScalarScalar line_constr_sep;
+//  // separate the constraints that depend only on the start stance with the ones
+//  // that depend on the optimized footholds
+//
+//  line_constr_sep.vs.v  = coeff.p*x_zmp.v + coeff.q*y_zmp.v;
+//  line_constr_sep.vs.s = 0;
+//  line_constr_sep.constant = -l.s_margin;
+//
+//  double line_coeff_terms = coeff.p*x_zmp.s + coeff.q*y_zmp.s + coeff.r;
+//  if (l.fixed_by_start_stance)
+//    line_constr_sep.constant += line_coeff_terms;
+//  else
+//    line_constr_sep.vs.s += line_coeff_terms;
+//
+//  return line_constr_sep;
+//}
+//
+//bool
+//ZmpConstraintBuilder::DisjSuppSwitch (double t, const ComPolynomial& curr_spline,
+//                                      const SupportPolygonContainer& supp_polygon_container) const
+//{
+//  if (!curr_spline.IsFourLegSupport()) {
+//
+//    int step = curr_spline.GetCurrStep();
+//    double t_local = spline_structure_->GetLocalTime(t);
+//    static const double t_stance = 0.2; // time to switch between disjoint support triangles
+//    double t_start_local = curr_spline.GetDuration() - t_stance/2;
+//
+//    if (DisjointSuppPolygonsAtBeginning(step,supp_polygon_container) && t_local < t_stance/2.)
+//      return true;
+//    if (DisjointSuppPolygonsAtEnd(step,supp_polygon_container) && t_local > t_start_local)
+//      return true;
+//  }
+//  return false;
+//}
+//
+//bool
+//ZmpConstraintBuilder::DisjointSuppPolygonsAtBeginning(
+//    int step, const SupportPolygonContainer& supp_polygon_container) const
+//{
+//  LegID swing_leg = supp_polygon_container.GetLegID(step);
+//  if (step == 0) {
+//    return false; // don't allow initial zmp to violate constraint for first part of first step
+//  } else {
+//    LegID prev_swing_leg = supp_polygon_container.GetLegID(step-1);
+//    return Insert4LSPhase(prev_swing_leg, swing_leg);
+//  }
+//}
+//
+//bool
+//ZmpConstraintBuilder::DisjointSuppPolygonsAtEnd(
+//    int step, const SupportPolygonContainer& supp_polygon_container) const
+//{
+//  LegID swing_leg = supp_polygon_container.GetLegID(step);
+//  bool last_step = step == supp_polygon_container.GetNumberOfSteps()-1;
+//  if (last_step) {
+//    return true; // allow zmp to violate constraint at last part of last step
+//  } else {
+//    LegID next_swing_leg = supp_polygon_container.GetLegID(step+1);
+//    return Insert4LSPhase(swing_leg, next_swing_leg);
+//  }
+//}
+//
+//bool
+//ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)
+//{
+//  using namespace xpp::hyq;
+//  // check for switching between disjoint support triangles.
+//  // the direction the robot is moving between triangles does not matter.
+//  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+//  std::swap(prev, next);
+//  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+//
+//  return false;
+//}
+
 
 void
 ZmpConstraintBuilder::CheckIfInitialized() const

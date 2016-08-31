@@ -26,47 +26,50 @@ void Iterate1To10(std::function<std::string (int)> f) {
   }
 }
 
-TEST(HelpersTest, SparseMatrixManipulation)
+TEST(HelpersTest, SparseMatrixZero)
 {
-  Eigen::SparseMatrix<double, Eigen::RowMajor> sm1(2,3);
-
-  Eigen::SparseMatrix<double, Eigen::RowMajor> sm2(1,3);
+  Eigen::SparseMatrix<double, Eigen::RowMajor> sm2(2,3);
   sm2.insert(0,0) = 1.0;
   sm2.insert(0,1) = 0.0;
   sm2.insert(0,2) = 3.0;
 
-  Eigen::SparseMatrix<double, Eigen::RowMajor> sm3(1,2);
-  sm3.insert(0,0) = 1.0;
-  sm3.insert(0,1) = 2.0;
 
-  Eigen::Vector3d x(1.0, 1.0, 1.0);
+  std::cout << "sm2: " << sm2;
+  std::cout << "nnz: " << sm2.nonZeros();
+
+  // remove
+  sm2.setZero();
+  sm2.insert(0,0) = 3.0;
+
+  std::cout << "sm2: " << sm2;
+  std::cout << "nnz: " << sm2.nonZeros();
+}
+
+TEST(HelpersTest, SparseMatrixManipulation)
+{
+  Eigen::SparseMatrix<double, Eigen::RowMajor> sm1(2,3);
 
   Eigen::SparseVector<double, Eigen::RowMajor> sv(3);
   sv.insert(0) = 1.0;
   sv.insert(1) = 0.0;
   sv.insert(2) = 3.0;
-  std::cout << "sv: " << sv << "size: " << sv.size();
 
-//  sv.insert(0) = 1.0;
-//  sv.insert(1) = 0.0;
-//  sv.insert(2) = 3.0;
+  Eigen::RowVectorXd dv = sv;
 
-  VectorXd val = sv*x;
-  std::cout << "val: " << val << "val.size(): " << val.size() << std::endl;
+  std::cout << "dv: " << dv;
 
-//  VectorXd x
-//  Eigen::
+  std::cout << "sv: " << sv;
 
-  sm1.row(0) += sv;
-
-  Eigen::SparseMatrix<double, Eigen::RowMajor> row1 = sm1.row(0);
-  std::cout << "row1: " << row1;
-
+  sm1.row(0) = sv;
 
   std::cout << "sm1: " << sm1;
-  std::cout << "sm1: " << sm2;
 
-//  Iterate1To10([](int i) { return "jojo " + std::to_string(i); });
+
+//  Eigen::SparseMatrix<double, Eigen::RowMajor> sm3(1,2);
+//  sm3.insert(0,0) = 1.0;
+//  sm3.insert(0,1) = 2.0;
+
+
 }
 
 
