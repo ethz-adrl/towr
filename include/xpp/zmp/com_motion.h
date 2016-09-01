@@ -46,7 +46,6 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef xpp::utils::Point2d Point2d;
   typedef xpp::utils::VecScalar VecScalar;
-  // refactor define only one, already in constraint?
   typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
   typedef std::vector<PhaseInfo> PhaseInfoVec;
   typedef std::shared_ptr<ComMotion> PtrS;

@@ -14,7 +14,6 @@ namespace xpp {
 namespace utils {
 
 /** p*x + q*y + r = 0 */
-// refactor use just a 3d vector for this?
 struct LineCoeff2d {
   double p;
   double q;

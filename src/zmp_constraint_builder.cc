@@ -122,11 +122,11 @@ ZmpConstraintBuilder::CalcJacobians ()
       auto f_from = node.at(i).from;
       auto f_to = node.at(i).to;
 
-      // refactor do this only when phase change -> efficiency
-      utils::LineEquation line(f_from.p.segment<2>(X), f_to.p.segment<2>(X));
 
       // get the jacobian of the line coefficient of each line
       utils::LineEquation::JacobianRow jac_line;
+      // refactor do this only when phase change -> efficiency
+      utils::LineEquation line(f_from.p.segment<2>(X), f_to.p.segment<2>(X));
       jac_line = line.GetJacobianDistanceWrtPoints(zmp);
 
       JacobianRow jac_line_wrt_contacts(n_contacts);
@@ -147,7 +147,7 @@ ZmpConstraintBuilder::CalcJacobians ()
       }
 
       auto coeff = line.GetCoeff();
-      // refactor _this line really impacts performance
+      // this line really impacts performance
       jac_wrt_motion_.row(c)   = coeff.p*jac_zmpx_0_.row(n) + coeff.q*jac_zmpy_0_.row(n);
       jac_wrt_contacts_.row(c) = jac_line_wrt_contacts;
       c++;
@@ -225,7 +225,6 @@ ZmpConstraintBuilder::GetJacobianWrtContacts () const
 //    int spline_id = spline_structure_->GetPolynomialID(t_global);
 //    int phase_id  = spline_structure_->GetCurrentPhase(t_global).id_;
 //
-//    // refactor have one function that knows at which global time the
 //    // splines switch and disregard constraint at these times.
 //    if (DisjSuppSwitch(t_global, spline_structure_->GetPolynomial(spline_id), supp_polygon_container)) {
 //      n++; // no constraints
@@ -263,7 +262,6 @@ ZmpConstraintBuilder::GetJacobianWrtContacts () const
 //                                      const VecScalar& y_zmp)
 //{
 //
-//  // refactor shouldn't calculate this everytime
 //  utils::LineEquation line(l.from.p.segment<2>(X), l.to.p.segment<2>(X));
 //  auto coeff = line.GetCoeff();
 //

@@ -60,7 +60,6 @@ QpFacade::SolveQp(const State& initial_state,
   std::cout << "number of support polygons: " << supp.size() << std::endl;
 //  for (const hyq::SupportPolygon& s : supp) std::cout << s;
 
-  // refactor _make this work again
   // the failing could be related to not relaxing the node constraints
   // when switchting between disjoint support triangles
   com_spline->SetCoefficientsZero();
@@ -69,6 +68,7 @@ QpFacade::SolveQp(const State& initial_state,
   MatrixXd jac_zmp_at_zero_coeff = zmp_constraint.GetJacobianWrtMotion();
   VectorXd distance_at_zero_coeff = zmp_constraint.GetDistanceToLineMargin();
 
+  // refactor _make this work again
   inequality_constraints_.M = jac_zmp_at_zero_coeff;
   inequality_constraints_.v = distance_at_zero_coeff;
 

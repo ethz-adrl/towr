@@ -49,7 +49,6 @@ ComMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coor
 {
   VecScalar linear_approx; // at current coefficient values
 
-  // refactor _continue sparsification from here (implict conversion to dense matrix)
   linear_approx.v = GetJacobian(t_global, dxdt, dim);
   linear_approx.s = GetCom(t_global).GetByIndex(dxdt, dim);
 

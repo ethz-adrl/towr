@@ -73,14 +73,11 @@ ZmpConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empy matrix
 
-  // refactor make this whole function take in function pointer as argument
-  if (var_set == VariableNames::kSplineCoeff) {
+  if (var_set == VariableNames::kSplineCoeff)
     jac =  zmp_constraint_builder_.GetJacobianWrtMotion();
-  }
 
-  if (var_set == VariableNames::kFootholds) {
+  if (var_set == VariableNames::kFootholds)
     jac = zmp_constraint_builder_.GetJacobianWrtContacts();
-  }
 
   return jac;
 }
