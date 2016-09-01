@@ -11,6 +11,30 @@
 namespace xpp {
 namespace zmp {
 
+ZeroMomentPoint::ZeroMomentPoint ()
+{
+}
+
+ZeroMomentPoint::ZeroMomentPoint (const ComMotion& x,
+                                  const std::vector<double>& times,
+                                  double height)
+{
+  Init(x, times, height);
+}
+
+ZeroMomentPoint::~ZeroMomentPoint ()
+{
+}
+
+void
+ZeroMomentPoint::Init (const ComMotion& x, const std::vector<double>& times,
+                       double height)
+{
+  com_motion_ = x.clone();
+  height_ = height;
+  times_ = times;
+}
+
 ZeroMomentPoint::Vector2d
 ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
 {
@@ -20,53 +44,29 @@ ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
 }
 
 ZeroMomentPoint::Jacobian
-ZeroMomentPoint::GetJacobianWrtCoeff (const ComMotion& x, double height, Coords dim)
+ZeroMomentPoint::GetJacobianWrtCoeff (Coords dim) const
 {
-  auto vec_t = x.GetDiscretizedGlobalTimes();
-  int n_coeff = x.GetTotalFreeCoeff();
+  int n_coeff = com_motion_->GetTotalFreeCoeff();
 
-  Jacobian jac_zmp(vec_t.size(), n_coeff);
+  Jacobian jac_zmp(times_.size(), n_coeff);
 
   int n = 0; // node counter
-  for (double t_global : vec_t)
+  for (double t_global : times_)
   {
     // get to here sparse format
     // refactor _think about getting position and acceleration at all time T
-    JacobianRow jac_pos_t = x.GetJacobian(t_global, utils::kPos, dim);
-    JacobianRow jac_acc_t = x.GetJacobian(t_global, utils::kAcc, dim);
+    JacobianRow jac_pos_t = com_motion_->GetJacobian(t_global, utils::kPos, dim);
+    JacobianRow jac_acc_t = com_motion_->GetJacobian(t_global, utils::kAcc, dim);
 
-    JacobianRow zmp_t = CalcZmp(jac_pos_t, jac_acc_t, height);
+    JacobianRow zmp_t = CalcZmp(jac_pos_t, jac_acc_t, height_);
     jac_zmp.row(n++) = zmp_t;
   }
 
-  assert(n<=vec_t.size()); // check that Eigen matrix didn't overflow
+  assert(n<=times_.size()); // check that Eigen matrix didn't overflow
   return jac_zmp;
 }
 
-ZeroMomentPoint::MatVec
-ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(const ComMotion& com_motion,
-                                               double height, Coords dim)
-{
-  auto vec_t = com_motion.GetDiscretizedGlobalTimes();
-  int coeff = com_motion.GetTotalFreeCoeff();
-
-  MatVec zmp(vec_t.size(), coeff);
-
-  int n = 0; // node counter
-  for (double t_global : vec_t)
-  {
-    // get to here sparse format
-    VecScalar pos = com_motion.GetLinearApproxWrtCoeff(t_global, utils::kPos, dim);
-    VecScalar acc = com_motion.GetLinearApproxWrtCoeff(t_global, utils::kAcc, dim);
-
-    zmp.WriteRow(CalcZmp(pos, acc, height), n++);
-  }
-
-  assert(n<=vec_t.size()); // check that Eigen matrix didn't overflow
-  return zmp;
-}
-
-
 } /* namespace zmp */
 } /* namespace xpp */
+
 

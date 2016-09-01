@@ -10,6 +10,7 @@
 
 #include <xpp/utils/geometric_structs.h>
 #include <Eigen/Sparse>
+#include <memory>
 
 namespace xpp {
 namespace zmp {
@@ -23,42 +24,42 @@ class ComMotion;
   */
 class ZeroMomentPoint {
 public:
-  typedef xpp::utils::MatVec MatVec;
   typedef Eigen::Vector2d Vector2d;
   typedef xpp::utils::Point3d State3d;
-  typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::Coords3D Coords;
   typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
   typedef Eigen::SparseMatrix<double, Eigen::RowMajor> Jacobian;
+  typedef std::unique_ptr<ComMotion> ComMotionPtr;
 
 public:
-  ZeroMomentPoint () {};
-  virtual ~ZeroMomentPoint () {};
+  ZeroMomentPoint ();
+  ZeroMomentPoint (const ComMotion& x, const std::vector<double>& times, double height);
+  virtual ~ZeroMomentPoint ();
+
+  /** @brief Provide the required info to calculate the ZMP.
+    * @param x       The CoM motion described by current motion coefficients u_m.
+    * @param times   All time instances at which the ZMP Jacobian is calculated.
+    * @param height  The position of the of the CoM above ground.
+    */
+  void Init(const ComMotion& x, const std::vector<double>& times, double height);
+
+  /** @brief Calculate the Jacobian of the ZMP position.
+    * @param dim   The coordinate (X or Y) of the ZMP.
+    * @return      The Jacobian of the ZMP position w.r.t to motion coefficients.
+    *
+    * The output is the Jacobian J(t, uc) w.r.t the current motion coefficients.
+    * The Jacobian has @p times.size() rows and @p u_m.size() cols.
+    */
+  Jacobian GetJacobianWrtCoeff(Coords dimension) const;
 
   static Vector2d  CalcZmp(const State3d& cog, double height);
   template <typename T>
   static T CalcZmp(const T& pos, const T& acc, double height);
 
-  /** Creates a linear approximation of the ZMP w.r.t the current motion coefficients uc
-    *
-    * The output of this the Jacobian J(t, uc) w.r.t the current motion
-    * coefficients u_m and the offset x0(t), which is the ZMP evaluated
-    * for zero motion coefficients at each time t.
-    *
-    * The position of the ZMP can be reconstructed with this information as:
-    * p = J*(u-uc) + x0
-    *
-    * This yields a vector of ZMP positions for every discretized time t.
-
-    * @param s a CoM motion described by current motion coefficients uc.
-    * @param walking_height the height of the CoM above ground.
-    * @param dimension what ZMP coordinate you are interested in (X or Y).
-    */
-  static MatVec GetLinearApproxWrtMotionCoeff(const ComMotion& x, double walking_height, Coords dimension);
-
-  static Jacobian GetJacobianWrtCoeff(const ComMotion& x, double walking_height, Coords dimension);
-
 private:
+  ComMotionPtr com_motion_;
+  std::vector<double> times_;
+  double height_;
   static constexpr double kGravity = 9.80665; // gravity acceleration [m\s^2]
 };
 

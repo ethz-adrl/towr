@@ -52,16 +52,13 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
   supp_polygon_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
 
 
-
+  ZeroMomentPoint zmp(*com_motion_, com_motion_->GetDiscretizedGlobalTimes(), walking_height);
   walking_height_ = walking_height;
-  jac_zmpx_0_ = ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, walking_height, X);
-  jac_zmpy_0_ = ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, walking_height, Y);
-
-
+  jac_zmpx_0_ = zmp.GetJacobianWrtCoeff(X);
+  jac_zmpy_0_ = zmp.GetJacobianWrtCoeff(Y);
 
   int n_motion = com_motion_->GetTotalFreeCoeff();
   int n_contacts = supp_polygon_->GetTotalFreeCoeff();
-
 
   n_constraints_ = GetNumberOfConstraints();
   jac_wrt_motion_   = Jacobian(n_constraints_, n_motion);
