@@ -8,30 +8,35 @@
 #include <xpp/zmp/zmp_constraint_builder.h>
 
 #include <xpp/zmp/com_motion.h>
+#include <xpp/hyq/support_polygon_container.h>
+
 #include <xpp/zmp/zero_moment_point.h>
 #include <xpp/utils/line_equation.h>
 
 namespace xpp {
 namespace zmp {
 
+using NodeConstraints = xpp::hyq::SupportPolygon::VecSuppLine;
+using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
+
 ZmpConstraintBuilder::ZmpConstraintBuilder()
 {
   com_motion_ = nullptr;
 }
 
-ZmpConstraintBuilder::ZmpConstraintBuilder(const ComSplinePtr& spline_container,
+ZmpConstraintBuilder::ZmpConstraintBuilder(const ComMotion& com_motion,
                                            const SupportPolygonContainer& supp,
                                            double walking_height)
 {
-  Init(spline_container, supp, walking_height);
+  Init(com_motion, supp, walking_height);
 }
 
 void
-ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container,
+ZmpConstraintBuilder::Init(const ComMotion& com_motion,
                            const SupportPolygonContainer& supp,
                            double walking_height)
 {
-  com_motion_ = spline_container->clone();
+  com_motion_ = com_motion.clone();
   // set coefficients to zero, since that is where I am approximating the function
   //around. can only do this in initialization, because ZMP is linear, so
   // Jacobians and offset are independent of current coefficients.
@@ -54,6 +59,8 @@ ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container,
   n_constraints_ = GetNumberOfConstraints();
   jac_wrt_motion_   = Jacobian(n_constraints_, n_motion);
   jac_wrt_contacts_ = Jacobian(n_constraints_, n_contacts);
+
+  CalcJacobians();
 }
 
 void
@@ -62,6 +69,8 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
 {
   com_motion_->SetCoefficients(motion_coeff);
   supp_polygon_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
+
+  CalcJacobians();
 }
 
 int
@@ -73,7 +82,7 @@ ZmpConstraintBuilder::GetNumberOfConstraints () const
   int n_constraints = 0;
   for (auto t : vec_t) {
     int phase_id  = com_motion_->GetCurrentPhase(t).id_;
-    NodeConstraint supp_line = supp_lines.at(phase_id);
+    NodeConstraints supp_line = supp_lines.at(phase_id);
     n_constraints += supp_line.size();
   }
 
@@ -87,9 +96,9 @@ ZmpConstraintBuilder::CalcJacobians ()
   auto vec_t = com_motion_->GetDiscretizedGlobalTimes();
   int n_contacts = supp_polygon_.GetTotalFreeCoeff();
 
-  // refactor _this could be highly inefficient, don't do
-  jac_wrt_motion_ .setZero();
-  jac_wrt_contacts_.setZero();
+//  // refactor _this could be highly inefficient, don't do
+//  jac_wrt_motion_ .setZero();
+//  jac_wrt_contacts_.setZero();
 
   // know the lines of of each support polygon
   auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*com_motion_);
@@ -104,13 +113,12 @@ ZmpConstraintBuilder::CalcJacobians ()
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
     int phase_id  = com_motion_->GetCurrentPhase(t).id_;
-    NodeConstraint supp_line = supp_lines.at(phase_id);
-    int num_lines = supp_line.size();
+    NodeConstraints node = supp_lines.at(phase_id);
 
-    for (int i=0; i<num_lines; ++i) {
+    for (int i=0; i<node.size(); ++i) {
 
-      auto f_from = supp_line.at(i).from;
-      auto f_to = supp_line.at(i).to;
+      auto f_from = node.at(i).from;
+      auto f_to = node.at(i).to;
 
       // refactor do this only when phase change -> efficiency
       utils::LineEquation line(f_from.p.segment<2>(X), f_to.p.segment<2>(X));
@@ -167,24 +175,13 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
     int phase_id  = com_motion_->GetCurrentPhase(t).id_;
-    NodeConstraint supp_line = supp_lines.at(phase_id);
+    NodeConstraints supp_line = supp_lines.at(phase_id);
 
     for (auto i=0; i<supp_line.size(); ++i)
-      distance(c++) = GetDistanceToLineMargin(zmp, supp_line.at(i));
+      distance(c++) = supp_line.at(i).GetDistanceToPoint(zmp);
   }
 
   return distance;
-}
-
-double
-ZmpConstraintBuilder::GetDistanceToLineMargin (const Vector2d& zmp, SuppLine supp_line) const
-{
-  auto f_from = supp_line.from;
-  auto f_to   = supp_line.to;
-
-  utils::LineEquation line(f_from.p.segment<2>(X), f_to.p.segment<2>(X));
-
-  return line.GetDistanceFromLine(zmp) - supp_line.s_margin;
 }
 
 ZmpConstraintBuilder::Jacobian

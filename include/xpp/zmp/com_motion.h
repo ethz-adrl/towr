@@ -48,8 +48,8 @@ public:
   typedef xpp::utils::VecScalar VecScalar;
   // refactor define only one, already in constraint?
   typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
-  typedef std::shared_ptr<ComMotion> Ptr;
   typedef std::vector<PhaseInfo> PhaseInfoVec;
+  typedef std::shared_ptr<ComMotion> PtrS;
   typedef std::unique_ptr<ComMotion> PtrU;
 
   ComMotion ();

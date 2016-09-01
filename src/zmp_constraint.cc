@@ -22,7 +22,7 @@ ZmpConstraint::ZmpConstraint ()
 void
 ZmpConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
 {
-  zmp_constraint_builder_.Init(interpreter.GetSplineStructure(),
+  zmp_constraint_builder_.Init(*interpreter.GetSplineStructure(),
                                interpreter.GetSuppPolygonContainer(),
                                interpreter.GetRobotHeight());
 }
@@ -34,7 +34,6 @@ ZmpConstraint::UpdateVariables (const OptimizationVariables* subject)
   VectorXd footholds = subject->GetVariables(VariableNames::kFootholds);
 
   zmp_constraint_builder_.Update(x_coeff, footholds);
-  zmp_constraint_builder_.CalcJacobians();
 }
 
 ZmpConstraint::VectorXd

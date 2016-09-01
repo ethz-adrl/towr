@@ -34,9 +34,8 @@ TEST(ZmpConstraintBuilderTest, JacobianWrtContact)
   auto com_spline = MotionFactory::CreateComMotion(steps.size(), SplineTimes(), false);
 
   ZmpConstraintBuilder builder;
-  builder.Init(com_spline, supp_polygons, 0.58);
+  builder.Init(*com_spline, supp_polygons, 0.58);
 
-  builder.CalcJacobians();
   Jacobian jac_wrt_contacts = builder.GetJacobianWrtContacts();
   std::cout << "nnz: " << jac_wrt_contacts.nonZeros() << std::endl;
 
@@ -45,7 +44,6 @@ TEST(ZmpConstraintBuilderTest, JacobianWrtContact)
   VectorXd u_m = com_spline->GetCoeffients();
 
   builder.Update(u_m, u_c);
-  builder.CalcJacobians();
   jac_wrt_contacts = builder.GetJacobianWrtContacts();
 
   std::cout << "nnz: " << jac_wrt_contacts.nonZeros() << std::endl;

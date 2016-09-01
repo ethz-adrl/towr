@@ -24,7 +24,7 @@ class StanceFeetCalculator {
 public:
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
-  typedef ComMotion::Ptr ComSplinePtr;
+  typedef ComMotion::PtrS ComSplinePtr;
   typedef Eigen::Vector3d Vector3d;
 
   StanceFeetCalculator ();

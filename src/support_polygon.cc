@@ -52,6 +52,13 @@ SupportPolygon::GetLines() const
   return lines;
 }
 
+double
+SupportPolygon::SuppLine::GetDistanceToPoint(const Vector2d& p) const
+{
+  LineEquation line(from.p.topRows(kDim2d), to.p.topRows(kDim2d));
+  return line.GetDistanceFromLine(p) - s_margin;
+}
+
 SupportPolygon::VecFoothold
 SupportPolygon::GetFootholds () const
 {
