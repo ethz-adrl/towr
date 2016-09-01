@@ -129,10 +129,10 @@ TEST_F(SuppPolygonContainerTest, SetFootholdsXY)
 
   std::vector<SupportPolygon> supp = start_to_final_supp_.GetSupportPolygons();
 
-  EXPECT_EQ(3, supp.at(0).footholds_conv_.size()); // while lh swings to center
-  EXPECT_EQ(3, supp.at(1).footholds_conv_.size()); // while lf swings to center
-  EXPECT_EQ(2, supp.at(2).footholds_conv_.size()); // while rh swings to center (lh,lf at center)
-  EXPECT_EQ(1, supp.at(3).footholds_conv_.size()); // while rf swings to center
+  EXPECT_EQ(3, supp.at(0).GetFootholds().size()); // while lh swings to center
+  EXPECT_EQ(3, supp.at(1).GetFootholds().size()); // while lf swings to center
+  EXPECT_EQ(2, supp.at(2).GetFootholds().size()); // while rh swings to center (lh,lf at center)
+  EXPECT_EQ(1, supp.at(3).GetFootholds().size()); // while rf swings to center
 
   for (const xpp::hyq::SupportPolygon& p : supp)
     std::cout << "p: " << p;
@@ -142,19 +142,19 @@ TEST_F(SuppPolygonContainerTest, GetFirstAndLastPolygon)
 {
   // ordered from lowest x-y counterlockwise
   SupportPolygon start_stance = start_to_final_supp_.GetStartPolygon();
-  EXPECT_EQ(4, start_stance.footholds_conv_.size());
-  EXPECT_EQ(start_stance_[RH], start_stance.footholds_conv_.at(0));
-  EXPECT_EQ(start_stance_[RF], start_stance.footholds_conv_.at(1));
-  EXPECT_EQ(start_stance_[LF], start_stance.footholds_conv_.at(2));
-  EXPECT_EQ(start_stance_[LH], start_stance.footholds_conv_.at(3));
+  EXPECT_EQ(4, start_stance.GetFootholds().size());
+  EXPECT_EQ(start_stance_[RH], start_stance.GetFootholds().at(0));
+  EXPECT_EQ(start_stance_[RF], start_stance.GetFootholds().at(1));
+  EXPECT_EQ(start_stance_[LF], start_stance.GetFootholds().at(2));
+  EXPECT_EQ(start_stance_[LH], start_stance.GetFootholds().at(3));
 
 
   SupportPolygon last_stance = start_to_final_supp_.GetFinalPolygon();
-  EXPECT_EQ(4, last_stance.footholds_conv_.size());
-  EXPECT_EQ(final_stance_[RH], last_stance.footholds_conv_.at(0));
-  EXPECT_EQ(final_stance_[RF], last_stance.footholds_conv_.at(1));
-  EXPECT_EQ(final_stance_[LF], last_stance.footholds_conv_.at(2));
-  EXPECT_EQ(final_stance_[LH], last_stance.footholds_conv_.at(3));
+  EXPECT_EQ(4, last_stance.GetFootholds().size());
+  EXPECT_EQ(final_stance_[RH], last_stance.GetFootholds().at(0));
+  EXPECT_EQ(final_stance_[RF], last_stance.GetFootholds().at(1));
+  EXPECT_EQ(final_stance_[LF], last_stance.GetFootholds().at(2));
+  EXPECT_EQ(final_stance_[LH], last_stance.GetFootholds().at(3));
 }
 
 
@@ -163,10 +163,10 @@ TEST_F(SuppPolygonContainerTest, SameFoothold)
   std::vector<SupportPolygon> supp = start_to_f0_supp_.GetSupportPolygons();
   EXPECT_EQ(4, supp.size()); // only one four leg support phase LF->RH
 
-  EXPECT_EQ(3, supp.at(0).footholds_conv_.size()); // while lh swings to center
-  EXPECT_EQ(3, supp.at(1).footholds_conv_.size()); // while lf swings to center
-  EXPECT_EQ(2, supp.at(2).footholds_conv_.size()); // while rh swings to center (lh,lf at center)
-  EXPECT_EQ(1, supp.at(3).footholds_conv_.size()); // while rf swings to center
+  EXPECT_EQ(3, supp.at(0).GetFootholds().size()); // while lh swings to center
+  EXPECT_EQ(3, supp.at(1).GetFootholds().size()); // while lf swings to center
+  EXPECT_EQ(2, supp.at(2).GetFootholds().size()); // while rh swings to center (lh,lf at center)
+  EXPECT_EQ(1, supp.at(3).GetFootholds().size()); // while rf swings to center
 }
 
 } // namespace hyq

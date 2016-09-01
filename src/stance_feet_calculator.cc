@@ -52,7 +52,7 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
   if (AreSame(t,T))
     p_stance_legs_i = supp_polygon_container_.GetFinalFootholds();
   else
-    p_stance_legs_i = suppport_polygons.at(phase_id).footholds_;
+    p_stance_legs_i = suppport_polygons.at(phase_id).GetFootholds();
 
   // body position during the step
   xpp::utils::Point2d cog_xy_i = com_motion_->GetCom(t);

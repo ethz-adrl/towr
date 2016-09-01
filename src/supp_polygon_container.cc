@@ -82,7 +82,7 @@ SupportPolygonContainer::GetStanceDuring(int step) const
   if (step == GetNumberOfSteps())
     return GetFinalFootholds();
   else
-    return support_polygons_.at(step).footholds_;
+    return support_polygons_.at(step).GetFootholds();
 }
 
 SupportPolygonContainer::VecFoothold

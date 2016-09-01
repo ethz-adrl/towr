@@ -83,6 +83,8 @@ public:
 private:
   double GetDistanceToLineMargin(const Vector2d& zmp, SuppLine line) const;
 
+  int GetNumberOfConstraints() const;
+
 //  MatVecVec CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
 //                            const SupportPolygonContainer&) const;
 //
@@ -119,6 +121,7 @@ private:
 //  static bool Insert4LSPhase(LegID prev, LegID next);
 
 
+  int n_constraints_ = 0;
 
   double walking_height_;
   Jacobian jac_zmpx_0_; ///< Jacobian of ZMP in x direction evaluated at spline coefficient values of zero

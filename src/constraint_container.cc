@@ -69,8 +69,6 @@ ConstraintContainer::GetJacobian () const
 
       Jacobian jac = constraint->GetJacobianWithRespectTo(set->GetId());
 
-//      std::cout << "GotJac for varset " << set->GetId() << "\n";
-
       // insert the derivative in the correct position in the overall Jacobian
       for (int k=0; k<jac.outerSize(); ++k)
         for (Jacobian::InnerIterator it(jac,k); it; ++it)
@@ -82,12 +80,6 @@ ConstraintContainer::GetJacobian () const
 
     row += constraint->GetNumberOfConstraints();
   }
-
-//  static int counter = 0;
-//  std::cout << "returning jac for the " << counter << " time." << std::endl;
-//  std::cout << "nonzero entries: " << jacobian_->nonZeros() << std::endl;
-//  counter++;
-
   return jacobian_;
 }
 

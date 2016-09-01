@@ -9,7 +9,7 @@
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/zero_moment_point.h>
-#include "../include/xpp/zmp/com_spline4.h"
+#include <xpp/zmp/com_spline.h>
 
 
 namespace xpp {
@@ -39,7 +39,7 @@ void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg
   supp = support_polygon_container.GetSupportPolygons();
 
   for (uint i=0; i<supp.size(); ++i)
-    BuildSupportPolygon(msg, supp.at(i).footholds_conv_, footholds.at(i).leg);
+    BuildSupportPolygon(msg, supp.at(i).GetFootholds(), footholds.at(i).leg);
 }
 
 

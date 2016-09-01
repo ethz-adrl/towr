@@ -6,6 +6,7 @@
  */
 
 #include <xpp/zmp/zmp_constraint_builder.h>
+#include <xpp/utils/line_equation.h>
 
 namespace xpp {
 namespace zmp {
@@ -37,16 +38,14 @@ ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container,
   jac_zmpy_0_ = ZeroMomentPoint::GetJacobianWrtCoeff(*spline_structure_, walking_height, Y);
 
 
-  // refactor this discretized global times could specify where to evaluate zmp constraint
-  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
-  auto n_nodes = vec_t.size();
-  int output_dim = n_nodes*SupportPolygon::kMaxSides; // this is ugly
 
   int n_motion = spline_structure_->GetTotalFreeCoeff();
   int n_contacts = supp_polygon_.GetTotalFreeCoeff();
 
-  jac_wrt_motion_   = Jacobian(output_dim, n_motion);
-  jac_wrt_contacts_ = Jacobian(output_dim, n_contacts);
+
+  n_constraints_ = GetNumberOfConstraints();
+  jac_wrt_motion_   = Jacobian(n_constraints_, n_motion);
+  jac_wrt_contacts_ = Jacobian(n_constraints_, n_contacts);
 
 
   initialized_ = true;
@@ -58,6 +57,22 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
 {
   spline_structure_->SetCoefficients(motion_coeff);
   supp_polygon_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
+}
+
+int
+ZmpConstraintBuilder::GetNumberOfConstraints () const
+{
+  // refactor this discretized global times could specify where to evaluate zmp constraint
+  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
+  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*spline_structure_);
+  int n_constraints = 0;
+  for (auto t : vec_t) {
+    int phase_id  = spline_structure_->GetCurrentPhase(t).id_;
+    NodeConstraint supp_line = supp_lines.at(phase_id);
+    n_constraints += supp_line.size();
+  }
+
+  return n_constraints;
 }
 
 void
@@ -77,10 +92,7 @@ ZmpConstraintBuilder::CalcJacobians ()
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
 
-  // for every time t
   for (const auto& t : vec_t) {
-//    std::cout << " }\nt: " << t << "\t";
-
 
     // the current position of the zero moment point
     auto state = spline_structure_->GetCom(t);
@@ -88,10 +100,8 @@ ZmpConstraintBuilder::CalcJacobians ()
 
     int phase_id  = spline_structure_->GetCurrentPhase(t).id_;
     NodeConstraint supp_line = supp_lines.at(phase_id);
-
     int num_lines = supp_line.size();
 
-//    std::cout << "lines: ";
     for (int i=0; i<num_lines; ++i) {
 
       auto f_from = supp_line.at(i).from;
@@ -123,11 +133,11 @@ ZmpConstraintBuilder::CalcJacobians ()
 
       auto coeff = line.GetCoeff();
       // refactor _this line really impacts performance
-      jac_wrt_motion_.row(c+i)   = coeff.p*jac_zmpx_0_.row(n) + coeff.q*jac_zmpy_0_.row(n);
-      jac_wrt_contacts_.row(c+i) = jac_line_wrt_contacts;
+      jac_wrt_motion_.row(c)   = coeff.p*jac_zmpx_0_.row(n) + coeff.q*jac_zmpy_0_.row(n);
+      jac_wrt_contacts_.row(c) = jac_line_wrt_contacts;
+      c++;
     }
 
-    c += SupportPolygon::kMaxSides; // will create blank spaces in polygons, but keep constraint affiliation same
     n++;
 
   }
@@ -138,14 +148,9 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
   auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
-  auto n_nodes = vec_t.size();
-  int output_dim = n_nodes*SupportPolygon::kMaxSides; // this is ugly
-
-  // know the lines of of each support polygon
   auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*spline_structure_);
 
-  VectorXd distance = VectorXd::Zero(output_dim);
-
+  VectorXd distance = VectorXd::Zero(n_constraints_);
 
   // for every time t
   int c=0; // constraint counter
@@ -160,9 +165,7 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
     NodeConstraint supp_line = supp_lines.at(phase_id);
 
     for (auto i=0; i<supp_line.size(); ++i)
-      distance(c+i) = GetDistanceToLineMargin(zmp, supp_line.at(i));
-
-    c += SupportPolygon::kMaxSides; // this is ugly
+      distance(c++) = GetDistanceToLineMargin(zmp, supp_line.at(i));
   }
 
   return distance;

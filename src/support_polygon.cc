@@ -7,7 +7,7 @@
 
 #include <xpp/hyq/support_polygon.h>
 #include <xpp/utils/point2d_manipulations.h>
-
+#include <xpp/utils/line_equation.h>
 #include <algorithm>
 
 
@@ -18,67 +18,51 @@ namespace hyq {
 using namespace ::xpp::utils; //X,Y,Z,Poin2dManip
 
 SupportPolygon::SupportPolygon(const VecFoothold& footholds, const MarginValues& margins)
-    :footholds_(footholds),
-     margins_(margins),
-     footholds_conv_(BuildSortedConvexHull(footholds))
+    :sorted_footholds_(footholds),
+     margins_(margins)
 {
-//  footholds_conv_.clear();
-//  for (const auto& f : footholds)
-//    footholds_conv_.push_back
+  SortCounterclockWise(sorted_footholds_);
+}
 
+void
+SupportPolygon::SortCounterclockWise (VecFoothold& footholds) const
+{
   std::map<LegID, int> leg_order = { {LH,0} , {RH,1}, {RF,2}, {LF,3} };
 
-//  footholds_conv_ = footholds;
-  std::sort(footholds_conv_.begin(), footholds_conv_.end(),
+  std::sort(footholds.begin(), footholds.end(),
             [&leg_order](Foothold f1, Foothold f2)
             { return leg_order[f1.leg] < leg_order[f2.leg];}
   );
-
-
 }
-
-
-/** sort points so inequality constraints are on correct side of line later **/
-SupportPolygon::VecFoothold
-SupportPolygon::BuildSortedConvexHull(const VecFoothold& footholds) const
-{
-  assert(footholds.size() > 2);
-  Point2dManip::StdVectorEig2d f_xy;
-
-  for (const Foothold& f : footholds)
-    f_xy.push_back(f.p.segment<2>(0)); // extract x-y position of footholds
-
-  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(f_xy);
-
-  VecFoothold footholds_sorted(idx.size());
-  for (uint i=0; i<idx.size(); ++i) {
-    footholds_sorted.at(i) = footholds.at(idx[i]);
-  }
-
-  return footholds_sorted;
-}
-
 
 SupportPolygon::VecSuppLine
 SupportPolygon::GetLines() const
 {
-  VecSuppLine lines(footholds_conv_.size());
+  VecSuppLine lines(sorted_footholds_.size());
   for (uint i = 0; i<lines.size(); ++i) {
-    Foothold from = footholds_conv_[i];
-    int last_idx = footholds_conv_.size()-1;
-    Foothold to = (i == last_idx) ? footholds_conv_[0] : footholds_conv_[i+1];
+    Foothold from = sorted_footholds_[i];
+    int last_idx = sorted_footholds_.size()-1;
+    Foothold to = (i == last_idx) ? sorted_footholds_[0] : sorted_footholds_[i+1];
 
     lines[i].from = from;
     lines[i].to = to;
-
-//    std::cout << "from.id: " << from.id << " , to.id: " << to.id << std::endl;
-
     lines[i].s_margin = UseMargin(from.leg, to.leg);
   }
 
   return lines;
 }
 
+SupportPolygon::VecFoothold
+SupportPolygon::GetFootholds () const
+{
+  return sorted_footholds_;
+}
+
+MarginValues
+SupportPolygon::GetMargins () const
+{
+  return margins_;
+}
 
 double
 SupportPolygon::UseMargin(const LegID& f0, const LegID& f1) const
@@ -108,8 +92,8 @@ SupportPolygon SupportPolygon::CombineSupportPolygons(const SupportPolygon& p1,
                                                       const SupportPolygon& p2)
 {
   VecFoothold contacts;
-  contacts.insert(contacts.end(), p1.footholds_.begin(), p1.footholds_.end());
-  contacts.insert(contacts.end(), p2.footholds_.begin(), p2.footholds_.end());
+  contacts.insert(contacts.end(), p1.sorted_footholds_.begin(), p1.sorted_footholds_.end());
+  contacts.insert(contacts.end(), p2.sorted_footholds_.begin(), p2.sorted_footholds_.end());
 
   // compare leg ids and make sure the same footholds in not inserted twice
   std::sort(contacts.begin(), contacts.end(), [](Foothold f1, Foothold f2) {return f1.leg < f2.leg;});
@@ -152,6 +136,25 @@ MarginValues SupportPolygon::GetZeroMargins()
   zero_margins[DIAG]  = 0.0;
 
   return zero_margins;
+}
+
+SupportPolygon::VecFoothold
+SupportPolygon::BuildSortedConvexHull(const VecFoothold& footholds) const
+{
+  assert(footholds.size() > 2);
+  Point2dManip::StdVectorEig2d f_xy;
+
+  for (const Foothold& f : footholds)
+    f_xy.push_back(f.p.segment<2>(0)); // extract x-y position of footholds
+
+  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(f_xy);
+
+  VecFoothold footholds_sorted(idx.size());
+  for (uint i=0; i<idx.size(); ++i) {
+    footholds_sorted.at(i) = footholds.at(idx[i]);
+  }
+
+  return footholds_sorted;
 }
 
 } // namespace hyq

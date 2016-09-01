@@ -61,7 +61,7 @@ FootholdNominalDeviation::GetFeetInBase (
     if (t == T)
       stance_legs = supp_polygon_container.GetFinalFootholds();
     else
-      stance_legs = suppport_polygons.at(phase_id).footholds_;
+      stance_legs = suppport_polygons.at(phase_id).GetFootholds();
 
 
     xpp::utils::Point2d I_cog_xy = cog_spline->GetCom(t);

@@ -83,31 +83,6 @@ protected:
 };
 
 
-TEST_F(SuppPolygonTest, OrderCounterClockwise)
-{
-  SupportPolygon poly;
-  poly = SupportPolygon(f_bottom_right, margins_);
-  EXPECT_EQ(f_bottom_right.size(), poly.footholds_conv_.size());
-  EXPECT_EQ(f_bottom_right, poly.footholds_);
-  EXPECT_EQ(f_bottom_right, poly.footholds_conv_);
-
-  poly = SupportPolygon(f_top_left, margins_);
-  EXPECT_EQ(f_top_left.size(), poly.footholds_conv_.size());
-  EXPECT_EQ(f_top_left, poly.footholds_);
-  EXPECT_NE(f_top_left, poly.footholds_conv_);
-
-  poly = SupportPolygon(f_4_not_ordered, margins_);
-  EXPECT_EQ(f_4_not_ordered.size(), poly.footholds_conv_.size());
-  EXPECT_EQ(f_4_not_ordered, poly.footholds_);
-  EXPECT_NE(f_4_not_ordered, poly.footholds_conv_);
-
-  poly = SupportPolygon(f_all_non_conv, margins_);
-  EXPECT_EQ(f_all_non_conv.size()-1, poly.footholds_conv_.size());
-  EXPECT_EQ(f_all_non_conv, poly.footholds_);
-  EXPECT_NE(f_all_non_conv, poly.footholds_conv_);
-}
-
-
 TEST_F(SuppPolygonTest, CombineSupportPolygons)
 {
   SupportPolygon supp1 = SupportPolygon(f_bottom_right, margins_);
@@ -115,10 +90,9 @@ TEST_F(SuppPolygonTest, CombineSupportPolygons)
 
   SupportPolygon combined = SupportPolygon::CombineSupportPolygons(supp1, supp2);
 
-  EXPECT_EQ(4, combined.footholds_conv_.size());
-  EXPECT_EQ(f_4_ordered, combined.footholds_conv_);
-  EXPECT_NE(f_4_ordered, combined.footholds_);
-  EXPECT_EQ(supp1.margins_, combined.margins_);
+  EXPECT_EQ(4, combined.GetFootholds().size());
+  EXPECT_EQ(f_4_ordered, combined.GetFootholds());
+  EXPECT_EQ(supp1.GetMargins(), combined.GetMargins());
 }
 
 
@@ -127,8 +101,7 @@ TEST_F(SuppPolygonTest, CombineSupportPolygonsSame)
   SupportPolygon supp1 = SupportPolygon(f_bottom_right, margins_);
   SupportPolygon combined = SupportPolygon::CombineSupportPolygons(supp1, supp1);
 
-  EXPECT_EQ(f_bottom_right, combined.footholds_conv_);
-  EXPECT_NE(f_bottom_right, combined.footholds_);
+  EXPECT_EQ(f_bottom_right, combined.GetFootholds());
 }
 
 
