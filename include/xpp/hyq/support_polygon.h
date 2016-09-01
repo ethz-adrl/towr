@@ -25,14 +25,17 @@ typedef std::array<double, kSideTypeCount> MarginValues;
   */
 class SupportPolygon {
 public:
+  using VecFoothold = std::vector<Foothold>;
+  using Vector2d = Eigen::Vector2d;
+
   struct SuppLine {
     Foothold from, to;
     double s_margin;
+
+    double GetDistanceToPoint(const Vector2d& p) const;
   };
 
   using VecSuppLine = std::vector<SuppLine>;
-  using VecFoothold = std::vector<Foothold>;
-  using Vector2d = Eigen::Vector2d;
 
   SupportPolygon() {};
   SupportPolygon(const VecFoothold& footholds, const MarginValues& margins = GetZeroMargins());

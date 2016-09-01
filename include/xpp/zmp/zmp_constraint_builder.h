@@ -8,8 +8,11 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 
-#include "com_motion.h"
+
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <xpp/hyq/support_polygon_container.h>
+
 
 namespace xpp {
 namespace hyq {
@@ -23,74 +26,42 @@ namespace zmp {
 class ComMotion;
 
 class ZmpConstraintBuilder {
-
 public:
-  typedef ComMotion::Ptr ComSplinePtr;
-  typedef xpp::utils::MatVec MatVec;
-  typedef xpp::utils::VecScalar VecScalar;
-  typedef xpp::utils::VecScalarScalar VecScalarScalar;
-  typedef xpp::utils::MatVecVec MatVecVec;
-  typedef xpp::hyq::SupportPolygon SupportPolygon;
-  typedef xpp::hyq::SupportPolygon::VecSuppLine NodeConstraint;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
-  typedef xpp::hyq::LegID LegID;
-  typedef Eigen::Vector2d Vector2d;
   typedef Eigen::VectorXd VectorXd;
-  using SuppLine = xpp::hyq::SupportPolygon::SuppLine;
-
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-  using JacobianRow = ComMotion::JacobianRow;
 
-public:
   ZmpConstraintBuilder();
-  ZmpConstraintBuilder(const ComSplinePtr&, const SupportPolygonContainer&, const double walking_height);
+  ZmpConstraintBuilder(const ComMotion&, const SupportPolygonContainer&, const double walking_height);
   virtual ~ZmpConstraintBuilder () {};
 
-  /** Initializes the object by pre-calculating the map from optimal coefficients
-    * (a,b,c,d) to the zero moment point at every discrete time step t.
-    *
-    * @param splines the initial map depends only depend on initial state and spline structure.
-    * @param walking_height the ZMP is influenced by the height above the ground.
-    */
-  void Init(const ComSplinePtr&, const SupportPolygonContainer& supp, double walking_height);
+  void Init(const ComMotion&, const SupportPolygonContainer& supp, double walking_height);
 
   void Update(const VectorXd& motion_coeff, const VectorXd& footholds);
 
-  /** Calculates the constraints that keep the ZMP inside the current support
-    * polygon.
-    *
-    * @param s the support polygons from step sequence and location.
-    * @return MatrixVectorType m where each set of four rows represents an
-    * inequality constraint (m.M*x + m.v > 0) at that discrete time and for that
-    * specific support polygon. This constraint is evaluated by multiplying with
-    * the spline coefficients x.
-    */
-  // refactor returns jacobian, rename
-//  MatVecVec CalcZmpConstraints(const SupportPolygonContainer& s) const;
+  Jacobian GetJacobianWrtMotion() const;
+  Jacobian GetJacobianWrtContacts() const;
+  VectorXd GetDistanceToLineMargin() const;
 
-
-  /////////////////////new stuff///////////////////////////////
+private:
+  ComMotion::PtrU com_motion_;
+  SupportPolygonContainer supp_polygon_;
 
   /** The Jacobian for the current motion and contact coefficients for
     * these current parameters  for each discrete time t along the trajectory
     * and for every line at this discrete time t.
     */
   void CalcJacobians();
-
-  Jacobian GetJacobianWrtMotion() const;
-  Jacobian GetJacobianWrtContacts() const;
-
-
-  VectorXd GetDistanceToLineMargin() const;
-
-
-private:
-  ComMotion::PtrU com_motion_;
-  SupportPolygonContainer supp_polygon_;
-
-  double GetDistanceToLineMargin(const Vector2d& zmp, SuppLine line) const;
-
   int GetNumberOfConstraints() const;
+
+  int n_constraints_ = 0;
+
+  double walking_height_;
+  Jacobian jac_zmpx_0_; ///< Jacobian of ZMP in x direction evaluated at spline coefficient values of zero
+  Jacobian jac_zmpy_0_; ///< Jacobian of ZMP in y direction evaluated at spline coefficient values of zero
+
+  Jacobian jac_wrt_motion_;
+  Jacobian jac_wrt_contacts_;
 
 //  MatVecVec CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
 //                            const SupportPolygonContainer&) const;
@@ -126,16 +97,6 @@ private:
 //
 //
 //  static bool Insert4LSPhase(LegID prev, LegID next);
-
-
-  int n_constraints_ = 0;
-
-  double walking_height_;
-  Jacobian jac_zmpx_0_; ///< Jacobian of ZMP in x direction evaluated at spline coefficient values of zero
-  Jacobian jac_zmpy_0_; ///< Jacobian of ZMP in y direction evaluated at spline coefficient values of zero
-
-  Jacobian jac_wrt_motion_;
-  Jacobian jac_wrt_contacts_;
 };
 
 
