@@ -28,6 +28,16 @@ JointAnglesConstraint::Init (const Interpreter& interpreter,
 {
   interpreter_ = interpreter;
   inv_kin_ = inv_kin;
+
+  double t_total = interpreter_.GetSplineStructure()->GetTotalTime();
+
+  double t = 0.0;
+  double dt = 0.1;
+  while (t < t_total) {
+    vec_t_.push_back(t);
+    t += dt;
+  }
+
 }
 
 void
@@ -39,7 +49,6 @@ JointAnglesConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   interpreter_.SetFootholds(utils::ConvertEigToStd(footholds_xy));
   interpreter_.SetSplineCoefficients(x_coeff);
 
-  vec_t_ = interpreter_.GetSplineStructure()->GetDiscretizedGlobalTimes();
   stance_feet_calc_.Update(interpreter_.GetStartStance(),
                            interpreter_.GetFootholds(),
                            interpreter_.GetSplineStructure(),

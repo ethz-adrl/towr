@@ -36,7 +36,19 @@ FootholdNominalDeviation::GetFeetInBase (
   B_r_BaseToNominal[hyq::LH] << -x_nominal_b,  y_nominal_b;
   B_r_BaseToNominal[hyq::RH] << -x_nominal_b, -y_nominal_b;
 
-  auto vec_t = cog_spline->GetDiscretizedGlobalTimes();
+
+  // the times at which to evalute the constraint
+  double t_total = cog_spline->GetTotalTime();
+
+  double t = 0.0;
+  double dt = 0.1;
+  std::vector<double> vec_t;
+  while (t < t_total) {
+    vec_t.push_back(t);
+    t += dt;
+  }
+
+
   int N     = vec_t.size();
 //  int approx_n_constraints = 4*N*2; // 3 or 4 legs in contact at every discrete time, 2 b/c x-y
 //  std::vector<double> g_vec;
@@ -49,7 +61,9 @@ FootholdNominalDeviation::GetFeetInBase (
   std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
       supp_polygon_container.AssignSupportPolygonsToPhases(*cog_spline);
 
-  double T = cog_spline->GetDiscretizedGlobalTimes().back();
+
+
+
 
   for (double t : vec_t) {
 
@@ -58,7 +72,7 @@ FootholdNominalDeviation::GetFeetInBase (
     int phase_id = cog_spline->GetCurrentPhase(t).id_;
 
     // final foothold never creates active support polygon, so handle manually
-    if (t == T)
+    if (t == t_total)
       stance_legs = supp_polygon_container.GetFinalFootholds();
     else
       stance_legs = suppport_polygons.at(phase_id).GetFootholds();

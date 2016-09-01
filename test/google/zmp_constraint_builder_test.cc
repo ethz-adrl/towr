@@ -1,8 +1,8 @@
-/*
- * gtest_zmp.cpp
- *
- *  Created on: May 23, 2014
- *      Author: awinkler
+/**
+ @file    zmp_contraint_builder_test.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Google unit tests for the ZmpConstraintBuilder class.
  */
 
 #include <xpp/zmp/zmp_constraint_builder.h>
@@ -35,11 +35,22 @@ TEST(ZmpConstraintBuilderTest, GetTimesDisjointSwitches)
                                                    SplineTimes(0.2, 0.3), true);
 
   ZmpConstraintBuilder builder;
-  builder.Init(*com_spline, supp_polygons, 0.58);
+  builder.Init(*com_spline, supp_polygons, 0.58, 0.1);
 
   auto t_switch = builder.GetTimesDisjointSwitches();
   EXPECT_FLOAT_EQ(0.5, t_switch.at(0)); // RF -> LH
   EXPECT_FLOAT_EQ(0.9, t_switch.at(1)); // LF -> RH
+
+
+  std::cout << "GetTotalTIme: " << com_spline->GetTotalTime();
+  std::cout << "\nt_switch_:\n";
+  for (auto t : t_switch)
+    std::cout << t << std::endl;
+
+  std::cout << "\nt_constraint_:\n";
+  auto t_constraint = builder.GetTimesForConstraitEvaluation(0.1, 0.2);
+  for (auto t : t_constraint)
+    std::cout << t << std::endl;
 }
 
 

@@ -20,23 +20,6 @@ ComMotion::~ComMotion ()
   // TODO Auto-generated destructor stub
 }
 
-std::vector<double>
-ComMotion::GetDiscretizedGlobalTimes() const
-{
-  static constexpr double dt = 0.1; //discretization time [seconds]: needed for creating support triangle inequality constraints
-  static constexpr double eps = 1e-10; // maximum inaccuracy when adding double numbers
-
-  std::vector<double> vec;
-  double t = 0.0;
-  while (t <= GetTotalTime()-dt+eps) { // still add the second to last time, even if rounding errors to to floating point arithmetics
-    vec.push_back(t);
-    t += dt;
-  }
-
-  vec.push_back(GetTotalTime());
-  return vec;
-}
-
 void
 ComMotion::SetCoefficientsZero ()
 {

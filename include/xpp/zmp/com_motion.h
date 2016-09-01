@@ -84,13 +84,6 @@ public:
     */
   virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
 
-  /** @brief If the trajectory has to be discretized, use this for consistent time steps.
-   *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
-   *
-   *  so first and last time are t0 and and tN, but there might be a
-   *  timestep > delta t before the last node.
-   */
-  std::vector<double> GetDiscretizedGlobalTimes() const;
   virtual double GetTotalTime() const = 0;
 
   /** @brief Gets the phase (stance, swing) at this current instance of time.

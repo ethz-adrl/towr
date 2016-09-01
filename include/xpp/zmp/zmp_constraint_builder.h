@@ -39,11 +39,17 @@ public:
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
   ZmpConstraintBuilder();
-  ZmpConstraintBuilder(const ComMotion&, const SupportPolygonContainer&,
-                       double walking_height);
+  /** @param motion  The CoM motion for which stability should be ensured.
+    * @param support The support polygons comprised of the footsteps.
+    * @param height  The height at which the robot is walking.
+    * @param dt      The timestep[s] at which the constraint is enforced.
+    */
+  ZmpConstraintBuilder(const ComMotion& motion, const SupportPolygonContainer& support,
+                       double height, double dt);
   virtual ~ZmpConstraintBuilder ();
 
-  void Init(const ComMotion&, const SupportPolygonContainer&, double walking_height);
+  void Init(const ComMotion&, const SupportPolygonContainer&,
+            double walking_height, double dt);
 
   void Update(const VectorXd& motion_coeff, const VectorXd& footholds);
 
@@ -61,7 +67,6 @@ private:
     */
   void CalcJacobians();
   int GetNumberOfConstraints() const;
-  std::vector<double> GetTimesDisjointSwitches() const;
 
   int n_constraints_ = 0;
 
@@ -72,44 +77,25 @@ private:
   Jacobian jac_wrt_motion_;
   Jacobian jac_wrt_contacts_;
 
+  /** @returns the times at which two phases have disjoint support polygons
+    */
+  std::vector<double> GetTimesDisjointSwitches() const;
+
+  /** @returns times at which the ZMP constraint is evaluated.
+    * @param dt       The time between two evaluation nodes of the trajectory.
+    * @param t_switch The times where the motion switches between disjoint suppport areas
+    *
+    * This is necessary, as we are forcing the CoM to be inside a support polygon
+    * at all times. However, for disjoint support polyons (e.g. swinging the
+    * LF leg -> RF leg) there is a gap between these as we are shrinking them
+    * by a stability margin. We relax the stability constraint at theses nodes
+    * for a short time @p t_swithc to allow the motion to smoothly traverse
+    * to the next polygon.
+    */
+  std::vector<double> GetTimesForConstraitEvaluation(double dt, double t_switch) const;
   std::vector<double> times_; ///< times at which constraint should be evaluated
 
-
-//  MatVecVec CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-//                            const SupportPolygonContainer&) const;
-//
-//  static void GenerateNodeConstraint(const NodeConstraint&,
-//                                     const VecScalar& x_zmp,
-//                                     const VecScalar& y_zmp,
-//                                     int row_start,
-//                                     MatVecVec& ineq);
-//
-//  // the zero moment point must always lay on one side of triangle side:
-//  // p*x_zmp + q*y_zmp + r > stability_margin
-//  static VecScalarScalar GenerateLineConstraint(const SupportPolygon::SuppLine& l,
-//                                                const VecScalar& x_zmp_M,
-//                                                const VecScalar& y_zmp_M);
-//
-//  /** Check if this spline needs a four leg support phase to go to next spline.
-//    *
-//    * Reducing the support polygons by a margin creates disjoint support triangles
-//    * when switching to diagonally opposite swing legs. This causes the optimizer
-//    * to fail, if the constraints are not disregarded at theses times.
-//    *
-//    * @param t current time of trajectory
-//    * @param curr_spline active spline at the moment
-//    * @param support polygon
-//    * @return true if there are no constrains on current spline at time t
-//    */
-//  bool DisjSuppSwitch(double t, const ComPolynomial& curr_spline, const SupportPolygonContainer&) const;
-//
-//  bool DisjointSuppPolygonsAtBeginning(int step, const SupportPolygonContainer&) const;
-//  bool DisjointSuppPolygonsAtEnd(int step, const SupportPolygonContainer&) const;
-//
-//
-//
   friend class ZmpConstraintBuilderTest_GetTimesDisjointSwitches_Test;
-
 };
 
 
