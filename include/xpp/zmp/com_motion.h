@@ -50,7 +50,7 @@ public:
   typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
   typedef std::shared_ptr<ComMotion> Ptr;
   typedef std::vector<PhaseInfo> PhaseInfoVec;
-  typedef std::unique_ptr<ComMotion> UniquePtr;
+  typedef std::unique_ptr<ComMotion> PtrU;
 
   ComMotion ();
   virtual ~ComMotion ();
@@ -118,7 +118,7 @@ public:
     */
   virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
 
-  virtual UniquePtr clone() const = 0;
+  virtual PtrU clone() const = 0;
 
 };
 

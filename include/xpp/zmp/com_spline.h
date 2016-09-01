@@ -46,7 +46,7 @@ public:
   typedef xpp::utils::Point2d Point2d;
   typedef xpp::utils::Coords3D Coords;
   typedef std::vector<MotionDerivative> Derivatives;
-  typedef std::shared_ptr<ComSpline> Ptr;
+  typedef std::shared_ptr<ComSpline> PtrS;
   typedef std::unique_ptr<ComSpline> PtrU;
 
 

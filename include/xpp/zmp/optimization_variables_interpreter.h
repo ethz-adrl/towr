@@ -27,7 +27,7 @@ public:
   typedef std::vector<xpp::hyq::LegID> VecLegID;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef xpp::utils::StdVecEigen2d FootholdPositionsXY;
-  typedef ComSpline::Ptr ComSplinePtr;
+  typedef ComSpline::PtrS ComSplinePtr;
   typedef Eigen::VectorXd VectorXd;
   typedef Eigen::Vector2d Vector2d;
 

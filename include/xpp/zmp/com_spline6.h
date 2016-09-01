@@ -21,9 +21,11 @@ namespace zmp {
   */
 class ComSpline6 : public ComSpline {
 public:
+  using PtrClone = ComMotion::PtrU;
+
   ComSpline6();
   virtual ~ComSpline6();
-  UniquePtr clone() const override;
+  PtrClone clone() const override;
 
   void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
   void SetCoefficients(const VectorXd& optimized_coeff) override;

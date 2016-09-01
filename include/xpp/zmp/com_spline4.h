@@ -27,11 +27,12 @@ public:
 
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::VectorXd VectorXd;
+  using PtrClone = ComMotion::PtrU;
   typedef Eigen::SparseMatrix<double, Eigen::RowMajor> JacobianEFWrtABCD;
 
   ComSpline4 ();
   virtual ~ComSpline4 ();
-  UniquePtr clone() const override;
+  PtrClone clone() const override;
   ComSpline4 (const Vector2d& start_cog_p,
                              const Vector2d& start_cog_v,
                              int step_count,

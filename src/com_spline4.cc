@@ -23,10 +23,10 @@ ComSpline4::~ComSpline4 ()
   // TODO Auto-generated destructor stub
 }
 
-ComMotion::UniquePtr
+ComSpline4::PtrClone
 ComSpline4::clone () const
 {
-  return UniquePtr(new ComSpline4(*this));
+  return PtrClone(new ComSpline4(*this));
 }
 
 ComSpline4::ComSpline4 (
