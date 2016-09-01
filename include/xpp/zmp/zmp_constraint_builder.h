@@ -1,18 +1,16 @@
-/*
- * zmp_constraint.h
- *
- *  Created on: Apr 4, 2016
- *      Author: winklera
+/**
+ @file    zmp_contraint_builder.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Declares the ZmpConstraintBuilder class
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 
-
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
-#include <xpp/hyq/support_polygon_container.h>
-
+#include <memory>
 
 namespace xpp {
 namespace hyq {
@@ -25,17 +23,27 @@ namespace zmp {
 
 class ComMotion;
 
+/** @brief Calculates the value and jacobian of the stability constraint.
+  *
+  * This class is responsible for providing the distance of the ZMP to the
+  * boarders of the support polygon for each discrete time t. Additionally
+  * it supplies the jacobian of this distance with respect to the motion
+  * coefficients and with respect to the contact positions.
+  */
 class ZmpConstraintBuilder {
 public:
-  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
-  typedef Eigen::VectorXd VectorXd;
+  using SupportPolygonContainer = xpp::hyq::SupportPolygonContainer;
+  using SuppPolygonPtrU = std::unique_ptr<xpp::hyq::SupportPolygonContainer>;
+  using MotionPtrU      = std::unique_ptr<ComMotion>;
+  using VectorXd = Eigen::VectorXd;
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
   ZmpConstraintBuilder();
-  ZmpConstraintBuilder(const ComMotion&, const SupportPolygonContainer&, const double walking_height);
-  virtual ~ZmpConstraintBuilder () {};
+  ZmpConstraintBuilder(const ComMotion&, const SupportPolygonContainer&,
+                       double walking_height);
+  virtual ~ZmpConstraintBuilder ();
 
-  void Init(const ComMotion&, const SupportPolygonContainer& supp, double walking_height);
+  void Init(const ComMotion&, const SupportPolygonContainer&, double walking_height);
 
   void Update(const VectorXd& motion_coeff, const VectorXd& footholds);
 
@@ -44,8 +52,8 @@ public:
   VectorXd GetDistanceToLineMargin() const;
 
 private:
-  ComMotion::PtrU com_motion_;
-  SupportPolygonContainer supp_polygon_;
+  MotionPtrU com_motion_;
+  SuppPolygonPtrU supp_polygon_;
 
   /** The Jacobian for the current motion and contact coefficients for
     * these current parameters  for each discrete time t along the trajectory

@@ -1,8 +1,8 @@
-/*
- * zmp_constraint.cc
- *
- *  Created on: Apr 4, 2016
- *      Author: winklera
+/**
+ @file    zmp_contraint_builder.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Defines the ZmpConstraintBuilder class
  */
 
 #include <xpp/zmp/zmp_constraint_builder.h>
@@ -19,9 +19,12 @@ namespace zmp {
 using NodeConstraints = xpp::hyq::SupportPolygon::VecSuppLine;
 using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
+using namespace xpp::utils::coords_wrapper; // X, Y
+
 ZmpConstraintBuilder::ZmpConstraintBuilder()
 {
-  com_motion_ = nullptr;
+  com_motion_   = nullptr;
+  supp_polygon_ = nullptr;
 }
 
 ZmpConstraintBuilder::ZmpConstraintBuilder(const ComMotion& com_motion,
@@ -29,6 +32,10 @@ ZmpConstraintBuilder::ZmpConstraintBuilder(const ComMotion& com_motion,
                                            double walking_height)
 {
   Init(com_motion, supp, walking_height);
+}
+
+ZmpConstraintBuilder::~ZmpConstraintBuilder()
+{
 }
 
 void
@@ -42,9 +49,9 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
   // Jacobians and offset are independent of current coefficients.
   com_motion_->SetCoefficientsZero();
 
-  supp_polygon_ = supp;
+  supp_polygon_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
 
-  using namespace xpp::utils::coords_wrapper;
+
 
   walking_height_ = walking_height;
   jac_zmpx_0_ = ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, walking_height, X);
@@ -53,7 +60,7 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
 
 
   int n_motion = com_motion_->GetTotalFreeCoeff();
-  int n_contacts = supp_polygon_.GetTotalFreeCoeff();
+  int n_contacts = supp_polygon_->GetTotalFreeCoeff();
 
 
   n_constraints_ = GetNumberOfConstraints();
@@ -68,7 +75,7 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
                               const VectorXd& footholds)
 {
   com_motion_->SetCoefficients(motion_coeff);
-  supp_polygon_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
+  supp_polygon_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
 
   CalcJacobians();
 }
@@ -78,7 +85,7 @@ ZmpConstraintBuilder::GetNumberOfConstraints () const
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
   auto vec_t = com_motion_->GetDiscretizedGlobalTimes();
-  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*com_motion_);
+  auto supp_lines = supp_polygon_->GetActiveConstraintsForEachPhase(*com_motion_);
   int n_constraints = 0;
   for (auto t : vec_t) {
     int phase_id  = com_motion_->GetCurrentPhase(t).id_;
@@ -93,20 +100,15 @@ void
 ZmpConstraintBuilder::CalcJacobians ()
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
-  auto vec_t = com_motion_->GetDiscretizedGlobalTimes();
-  int n_contacts = supp_polygon_.GetTotalFreeCoeff();
-
-//  // refactor _this could be highly inefficient, don't do
-//  jac_wrt_motion_ .setZero();
-//  jac_wrt_contacts_.setZero();
+  int n_contacts = supp_polygon_->GetTotalFreeCoeff();
 
   // know the lines of of each support polygon
-  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*com_motion_);
+  auto supp_lines = supp_polygon_->GetActiveConstraintsForEachPhase(*com_motion_);
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
 
-  for (const auto& t : vec_t) {
+  for (const auto& t : com_motion_->GetDiscretizedGlobalTimes()) {
 
     // the current position of the zero moment point
     auto state = com_motion_->GetCom(t);
@@ -135,13 +137,13 @@ ZmpConstraintBuilder::CalcJacobians ()
 
       // only if line is not fixed by start stance does it go into the jacobian
       if (f_from.id != hyq::Foothold::kFixedByStart) {
-        jac_line_wrt_contacts.insert(supp_polygon_.Index(f_from.id, X)) = jac_line(0);
-        jac_line_wrt_contacts.insert(supp_polygon_.Index(f_from.id, Y)) = jac_line(1);
+        jac_line_wrt_contacts.insert(supp_polygon_->Index(f_from.id, X)) = jac_line(0);
+        jac_line_wrt_contacts.insert(supp_polygon_->Index(f_from.id, Y)) = jac_line(1);
       }
 
       if (f_to.id != hyq::Foothold::kFixedByStart) {
-        jac_line_wrt_contacts.insert(supp_polygon_.Index(f_to.id, X))   = jac_line(2);
-        jac_line_wrt_contacts.insert(supp_polygon_.Index(f_to.id, Y))   = jac_line(3);
+        jac_line_wrt_contacts.insert(supp_polygon_->Index(f_to.id, X))   = jac_line(2);
+        jac_line_wrt_contacts.insert(supp_polygon_->Index(f_to.id, Y))   = jac_line(3);
       }
 
       auto coeff = line.GetCoeff();
@@ -161,7 +163,7 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
   auto vec_t = com_motion_->GetDiscretizedGlobalTimes();
-  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*com_motion_);
+  auto supp_lines = supp_polygon_->GetActiveConstraintsForEachPhase(*com_motion_);
 
   VectorXd distance = VectorXd::Zero(n_constraints_);
 
