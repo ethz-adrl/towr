@@ -14,7 +14,6 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const VecLegID& step_sequence,
                                    const MarginValues& margins)
 {
-
   VecFoothold footholds;
   // initial all footholds with the correct leg, but x=y=z=0.0
   for (uint i=0; i<step_sequence.size(); ++i) {
@@ -38,21 +37,13 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
   ModifyFootholds(footholds_,    [](Foothold& f, int i) {f.id = i;} );
 
   support_polygons_ = CreateSupportPolygons(footholds_);
-
-  initialized_ = true;
 }
 
 void
 SupportPolygonContainer::SetFootholdsXY(const StdVecEigen2d& footholds_xy)
 {
   assert(footholds_xy.size() == footholds_.size());
-
-//  ModifyFootholds(footholds_, [&](Foothold& f, int i) {
-//    f.SetXy(footholds_xy.at(i).x(),footholds_xy.at(i).y());
-//  });
-
   Foothold::SetXy(footholds_xy, footholds_);
-
   support_polygons_ = CreateSupportPolygons(footholds_); //update support polygons as well
 }
 
@@ -71,7 +62,6 @@ SupportPolygonContainer::GetFootholdsInitializedToStart() const
 
 SupportPolygon SupportPolygonContainer::GetStancePolygon(const VecFoothold& footholds) const
 {
-  CheckIfInitialized();
   return SupportPolygon(footholds, margins_);
 }
 
@@ -88,8 +78,6 @@ SupportPolygonContainer::GetStanceDuring(int step) const
 SupportPolygonContainer::VecFoothold
 SupportPolygonContainer::GetStanceAfter(int n_steps) const
 {
-  CheckIfInitialized();
-
   VecFoothold combined = start_stance_;
   combined.insert(combined.end(), footholds_.begin(), footholds_.begin()+n_steps);
 
@@ -149,8 +137,6 @@ SupportPolygonContainer::CreateSupportPolygons(const VecFoothold& footholds) con
 Eigen::Vector2d
 SupportPolygonContainer::GetCenterOfFinalStance() const
 {
-  CheckIfInitialized();
-
   VecFoothold last_stance = GetFinalFootholds();
 
   // calculate average x-y-postion of last stance
@@ -162,17 +148,6 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
   return end_cog/_LEGS_COUNT;
 }
 
-SupportPolygonContainer::VecVecSuppLine
-SupportPolygonContainer::GetActiveConstraintsForEachPhase(const ComMotion& com_motion) const
-{
-  VecSupportPolygon supp = AssignSupportPolygonsToPhases(com_motion);
-  std::vector<SupportPolygon::VecSuppLine> supp_lines;
-
-  for (const auto& s : supp)
-    supp_lines.push_back(s.GetLines());
-
-  return supp_lines;
-}
 
 SupportPolygonContainer::VecSupportPolygon
 SupportPolygonContainer::AssignSupportPolygonsToPhases(const ComMotion& com_motion) const
@@ -208,21 +183,11 @@ SupportPolygonContainer::AssignSupportPolygonsToPhases(const ComMotion& com_moti
   return supp;
 }
 
-
-void
-SupportPolygonContainer::CheckIfInitialized() const
-{
-  if (!initialized_) {
-    throw std::runtime_error("SuppTriangleContainer not initialized. Call Init() first");
-  }
-}
-
 int
 SupportPolygonContainer::GetTotalFreeCoeff () const
 {
   return GetNumberOfSteps()*xpp::utils::kDim2d;
 }
-
 
 int
 SupportPolygonContainer::Index (int id, Coords dim) const
@@ -238,6 +203,18 @@ SupportPolygonContainer::ModifyFootholds (VecFoothold& footholds,
 
   for (auto& f : footholds)
     fun(f, i++);
+}
+
+bool
+SupportPolygonContainer::DisJointSupportPolygons(LegID prev, LegID next)
+{
+  // check for switching between disjoint support triangles.
+  // the direction the robot is moving between triangles does not matter.
+  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+  std::swap(prev, next);
+  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+
+  return false;
 }
 
 } /* namespace hyq */

@@ -95,14 +95,6 @@ TEST_F(SuppPolygonContainerTest, GetNumberOfSteps)
   EXPECT_EQ(4, start_to_final_supp_.GetNumberOfSteps());
 }
 
-TEST_F(SuppPolygonContainerTest, CreateSupportPolygons)
-{
-  std::vector<SupportPolygon> supp = start_to_final_supp_.CreateSupportPolygons(f0_);
-
-  for (const xpp::hyq::SupportPolygon& p : supp)
-    std::cout << "p: " << p;
-}
-
 TEST_F(SuppPolygonContainerTest, GetStanceAfter)
 {
   for (int i=0; i<start_to_final_supp_.GetNumberOfSteps(); ++i) {

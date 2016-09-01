@@ -19,18 +19,22 @@ enum PhaseType {kStancePhase=0, kStepPhase, kFlightPhase};
 /** Information to represent different types of motion.
   */
 struct PhaseInfo {
-  PhaseInfo() : type_(kStancePhase), n_completed_steps_(0), id_(-1) {};
+  PhaseInfo() : type_(kStancePhase), n_completed_steps_(0),
+                id_(-1), duration_(0.0) {};
 
-  /** @param type_ whether this is a stance, step of flight phase.
-    * @param n_completed_steps_ how many steps completed by the previous phases.
-    * @param id_ a phase with the same values has the same id.
+  /** @param type     Whether this is a stance, step of flight phase.
+    * @param n_completed_steps how many steps completed by the previous phases.
+    * @param id       Each phase has a unique ID.
+    * @param duration How many seconds this phase lasts.
     */
-  PhaseInfo(PhaseType type, int n_completed_steps, int id)
-    : type_(type), n_completed_steps_(n_completed_steps), id_(id) {};
+  PhaseInfo(PhaseType type, int n_completed_steps, int id, double duration)
+    : type_(type), n_completed_steps_(n_completed_steps), id_(id),
+      duration_(duration) {};
 
   PhaseType type_;
   int n_completed_steps_;
   int id_;
+  double duration_;
 };
 
 using namespace xpp::utils::coords_wrapper;

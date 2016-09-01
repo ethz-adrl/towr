@@ -22,23 +22,17 @@ namespace hyq {
   * polygons. Since support polygons are paired with phases of the CoM motion,
   * this class also depends on com_motion.
   */
-class SupportPolygonContainer
-{
+class SupportPolygonContainer {
 public:
   typedef std::vector<SupportPolygon> VecSupportPolygon;
   typedef SupportPolygon::VecFoothold VecFoothold;
   typedef std::vector<xpp::hyq::LegID> VecLegID;
-  typedef std::vector<SupportPolygon::VecSuppLine> VecVecSuppLine;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef xpp::zmp::ComMotion ComMotion;
   typedef xpp::utils::Coords3D Coords;
 
-
-public:
   SupportPolygonContainer () {};
   virtual ~SupportPolygonContainer () {};
-
-public:
 
   /** @brief Initializes with the info needed for the QP optimizer, which includes
     * foothold locations.
@@ -93,14 +87,12 @@ public:
 
 
   VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
-
   VecSupportPolygon AssignSupportPolygonsToPhases(const ComMotion&) const;
-  VecVecSuppLine GetActiveConstraintsForEachPhase(const ComMotion&) const;
 
   /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */
   Eigen::VectorXd GetFootholdsInitializedToStart() const;
 
-
+  static bool DisJointSupportPolygons(LegID prev, LegID next);
 private:
 
   VecFoothold footholds_;
@@ -114,8 +106,6 @@ private:
   void ModifyFootholds (VecFoothold& footholds, std::function<void (Foothold&, int)>) const;
 
   SupportPolygon GetStancePolygon(const VecFoothold& footholds) const;
-  bool initialized_ = false;
-  friend class SuppPolygonContainerTest_CreateSupportPolygons_Test;
 };
 
 } /* namespace hyq */

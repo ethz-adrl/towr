@@ -61,6 +61,7 @@ private:
     */
   void CalcJacobians();
   int GetNumberOfConstraints() const;
+  std::vector<double> GetTimesDisjointSwitches() const;
 
   int n_constraints_ = 0;
 
@@ -70,6 +71,9 @@ private:
 
   Jacobian jac_wrt_motion_;
   Jacobian jac_wrt_contacts_;
+
+  std::vector<double> times_; ///< times at which constraint should be evaluated
+
 
 //  MatVecVec CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
 //                            const SupportPolygonContainer&) const;
@@ -104,7 +108,8 @@ private:
 //
 //
 //
-//  static bool Insert4LSPhase(LegID prev, LegID next);
+  friend class ZmpConstraintBuilderTest_GetTimesDisjointSwitches_Test;
+
 };
 
 

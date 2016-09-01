@@ -54,7 +54,7 @@ ComSpline::AddPolynomialStepSequence (int step_count, double t_swing)
   for (int step=0; step<step_count; ++step) {
     for (int i=0; i<n_splines_per_step; ++i) {
 
-      PhaseInfo phase(kStepPhase, step, phase_id);
+      PhaseInfo phase(kStepPhase, step, phase_id, t_swing);
       ComPolynomial spline(spline_id++, t_swing/n_splines_per_step, phase);
       spline.SetStep(step);
       polynomials_.push_back(spline);
@@ -68,17 +68,22 @@ ComSpline::AddPolynomialStepSequence (int step_count, double t_swing)
 void
 ComSpline::AddStancePolynomial (double t_stance)
 {
-  unsigned int spline_id = polynomials_.empty() ? 0 : polynomials_.back().GetId()+1;
-
-  PhaseInfo last(kStancePhase, 0, 0);
-  if (!polynomials_.empty()) {
-    last = polynomials_.back().phase_;
-    if (last.type_ != kStancePhase)
-      last.id_++;
+  int spline_id;
+  PhaseInfo phase;
+  if (polynomials_.empty()) {
+    spline_id = 0;
+    phase = PhaseInfo(kStancePhase, 0, 0, t_stance);
+  } else {
+    spline_id = polynomials_.back().GetId()+1;
+    PhaseInfo last_phase = polynomials_.back().phase_;
+    phase = last_phase;
+    phase.duration_ = t_stance;
+    phase.id_++;
+    if (last_phase.type_ == kStepPhase )
+      phase.n_completed_steps_++;
   }
 
-  polynomials_.push_back(ComPolynomial(spline_id++, t_stance, last));
-
+  polynomials_.push_back(ComPolynomial(spline_id, t_stance, phase));
   splines_initialized_ = true;
 }
 
@@ -147,7 +152,7 @@ ComSpline::GetPhases () const
   int prev_id = -1;
   for (const auto& s : polynomials_) {
     PhaseInfo curr = s.phase_;
-    if (curr.id_ != prev_id) { // never have the same phase twice
+    if (curr.id_ != prev_id) { // multiple splines can correspond to only one phase
       phases.push_back(curr);
       prev_id = curr.id_;
     }

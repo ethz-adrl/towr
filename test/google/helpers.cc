@@ -19,6 +19,26 @@ namespace hyq {
 using VectorXd = Eigen::VectorXd;
 
 
+TEST(HelpersTest, FillVector)
+{
+  std::vector<double> times(10);
+  double dt = 0.1;
+  double t = 0;
+  std::for_each(times.begin(), times.end(), [&](double& d)
+  { d  =t;
+    t += dt;
+  });
+
+
+
+
+  for (auto t : times) {
+    if (t==0.4) {
+    }
+    std::cout << t << std::endl;
+  }
+}
+
 TEST(HelpersTest, SparseMatrixZero)
 {
   Eigen::SparseMatrix<double, Eigen::RowMajor> sm(2,3);

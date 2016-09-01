@@ -50,10 +50,60 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
   com_motion_->SetCoefficientsZero();
 
   supp_polygon_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
+  walking_height_ = walking_height;
+
+
+
+
+
+
+
+  // calculate the times at which support polygon constraint should be active
+  auto phases = com_motion_->GetPhases();
+  auto polygons = supp_polygon_->AssignSupportPolygonsToPhases(*com_motion_);
+
+  std::vector<double> times;
+
+//  std::iota(times.begin(), times.end(), 0);
+//
+//  for (auto phase : phases) {
+//    if (
+//
+//
+//  }
+
+
+//  static constexpr double dt = 0.1; //discretization time [seconds]: needed for creating support triangle inequality constraints
+//  static constexpr double eps = 1e-10; // maximum inaccuracy when adding double numbers
+//
+//  double t = 0.0;
+//  while (t <= com_motion_->GetTotalTime()-dt+eps) { // still add the second to last time, even if rounding errors to to floating point arithmetics
+//
+//    auto phase = com_motion_->GetCurrentPhase(t);
+//    auto poly = polygons.at(phase.id_);
+
+
+  std::vector<double> t_disjoint_switches;
+  for(int i=0; i<phases.size()-1; ++i) {
+
+    if (phases.at(i).type_ == kStepPhase) {
+      int step = phases.at(i).n_completed_steps_;
+      auto curr_leg = supp_polygon_->GetLegID(step);
+
+      if (phases.at(i+1).type_ == kStepPhase) {
+        auto next_leg = supp_polygon_->GetLegID(step+1);
+
+        if (SupportPolygonContainer::DisJointSupportPolygons(curr_leg, next_leg))
+          t_disjoint_switches.push_back(phases.at(i).duration_);
+      }
+    }
+  }
+
+
+
 
 
   ZeroMomentPoint zmp(*com_motion_, com_motion_->GetDiscretizedGlobalTimes(), walking_height);
-  walking_height_ = walking_height;
   jac_zmpx_0_ = zmp.GetJacobianWrtCoeff(X);
   jac_zmpy_0_ = zmp.GetJacobianWrtCoeff(Y);
 
@@ -65,6 +115,34 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
   jac_wrt_contacts_ = Jacobian(n_constraints_, n_contacts);
 
   CalcJacobians();
+}
+
+std::vector<double>
+ZmpConstraintBuilder::GetTimesDisjointSwitches () const
+{
+  auto phases = com_motion_->GetPhases();
+
+  std::vector<double> t_disjoint_switches;
+  double t_global = 0;
+  for(int i=0; i<phases.size()-1; ++i) {
+
+    t_global += phases.at(i).duration_;
+
+    bool curr_phase_is_step = phases.at(i).type_   == kStepPhase;
+    bool next_phase_is_step = phases.at(i+1).type_ == kStepPhase;
+
+    if (curr_phase_is_step && next_phase_is_step) {
+      int step = phases.at(i).n_completed_steps_;
+      auto curr_leg = supp_polygon_->GetLegID(step);
+      auto next_leg = supp_polygon_->GetLegID(step+1);
+
+      if (SupportPolygonContainer::DisJointSupportPolygons(curr_leg, next_leg))
+        t_disjoint_switches.push_back(t_global);
+
+    }
+  }
+
+  return t_disjoint_switches;
 }
 
 void
@@ -82,11 +160,11 @@ ZmpConstraintBuilder::GetNumberOfConstraints () const
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
   auto vec_t = com_motion_->GetDiscretizedGlobalTimes();
-  auto supp_lines = supp_polygon_->GetActiveConstraintsForEachPhase(*com_motion_);
+  auto supp_polygons = supp_polygon_->AssignSupportPolygonsToPhases(*com_motion_);
   int n_constraints = 0;
   for (auto t : vec_t) {
     int phase_id  = com_motion_->GetCurrentPhase(t).id_;
-    NodeConstraints supp_line = supp_lines.at(phase_id);
+    NodeConstraints supp_line = supp_polygons.at(phase_id).GetLines();
     n_constraints += supp_line.size();
   }
 
@@ -100,7 +178,7 @@ ZmpConstraintBuilder::CalcJacobians ()
   int n_contacts = supp_polygon_->GetTotalFreeCoeff();
 
   // know the lines of of each support polygon
-  auto supp_lines = supp_polygon_->GetActiveConstraintsForEachPhase(*com_motion_);
+  auto supp_polygon = supp_polygon_->AssignSupportPolygonsToPhases(*com_motion_);
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
@@ -112,7 +190,7 @@ ZmpConstraintBuilder::CalcJacobians ()
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
     int phase_id  = com_motion_->GetCurrentPhase(t).id_;
-    NodeConstraints node = supp_lines.at(phase_id);
+    NodeConstraints node = supp_polygon.at(phase_id).GetLines();
 
     for (int i=0; i<node.size(); ++i) {
 
@@ -160,7 +238,7 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
   auto vec_t = com_motion_->GetDiscretizedGlobalTimes();
-  auto supp_lines = supp_polygon_->GetActiveConstraintsForEachPhase(*com_motion_);
+  auto supp_polygons = supp_polygon_->AssignSupportPolygonsToPhases(*com_motion_);
 
   VectorXd distance = VectorXd::Zero(n_constraints_);
 
@@ -174,7 +252,7 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
     int phase_id  = com_motion_->GetCurrentPhase(t).id_;
-    NodeConstraints supp_line = supp_lines.at(phase_id);
+    NodeConstraints supp_line = supp_polygons.at(phase_id).GetLines();
 
     for (auto i=0; i<supp_line.size(); ++i)
       distance(c++) = supp_line.at(i).GetDistanceToPoint(zmp);
@@ -325,18 +403,6 @@ ZmpConstraintBuilder::GetJacobianWrtContacts () const
 //  }
 //}
 //
-//bool
-//ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)
-//{
-//  using namespace xpp::hyq;
-//  // check for switching between disjoint support triangles.
-//  // the direction the robot is moving between triangles does not matter.
-//  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-//  std::swap(prev, next);
-//  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-//
-//  return false;
-//}
 
 } /* namespace zmp */
 } /* namespace xpp */
