@@ -8,12 +8,19 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 
-
 #include "com_motion.h"
 #include <xpp/hyq/support_polygon_container.h>
 
 namespace xpp {
+namespace hyq {
+class SupportPolygonContainer;
+}
+}
+
+namespace xpp {
 namespace zmp {
+
+class ComMotion;
 
 class ZmpConstraintBuilder {
 
@@ -76,11 +83,11 @@ public:
 
   VectorXd GetDistanceToLineMargin() const;
 
-  // refactor make private again
-  std::unique_ptr<ComMotion> spline_structure_;
-  SupportPolygonContainer supp_polygon_;
 
 private:
+  ComMotion::PtrU com_motion_;
+  SupportPolygonContainer supp_polygon_;
+
   double GetDistanceToLineMargin(const Vector2d& zmp, SuppLine line) const;
 
   int GetNumberOfConstraints() const;
@@ -129,9 +136,6 @@ private:
 
   Jacobian jac_wrt_motion_;
   Jacobian jac_wrt_contacts_;
-
-  void CheckIfInitialized() const; // put only in public functions
-  bool initialized_ = false;
 };
 
 

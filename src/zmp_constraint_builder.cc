@@ -6,6 +6,8 @@
  */
 
 #include <xpp/zmp/zmp_constraint_builder.h>
+
+#include <xpp/zmp/com_motion.h>
 #include <xpp/zmp/zero_moment_point.h>
 #include <xpp/utils/line_equation.h>
 
@@ -14,7 +16,7 @@ namespace zmp {
 
 ZmpConstraintBuilder::ZmpConstraintBuilder()
 {
-  spline_structure_ = nullptr;
+  com_motion_ = nullptr;
 }
 
 ZmpConstraintBuilder::ZmpConstraintBuilder(const ComSplinePtr& spline_container,
@@ -29,39 +31,36 @@ ZmpConstraintBuilder::Init(const ComSplinePtr& spline_container,
                            const SupportPolygonContainer& supp,
                            double walking_height)
 {
-  spline_structure_ = spline_container->clone();
+  com_motion_ = spline_container->clone();
   // set coefficients to zero, since that is where I am approximating the function
   //around. can only do this in initialization, because ZMP is linear, so
   // Jacobians and offset are independent of current coefficients.
-  spline_structure_->SetCoefficientsZero();
+  com_motion_->SetCoefficientsZero();
 
   supp_polygon_ = supp;
 
   using namespace xpp::utils::coords_wrapper;
 
   walking_height_ = walking_height;
-  jac_zmpx_0_ = ZeroMomentPoint::GetJacobianWrtCoeff(*spline_structure_, walking_height, X);
-  jac_zmpy_0_ = ZeroMomentPoint::GetJacobianWrtCoeff(*spline_structure_, walking_height, Y);
+  jac_zmpx_0_ = ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, walking_height, X);
+  jac_zmpy_0_ = ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, walking_height, Y);
 
 
 
-  int n_motion = spline_structure_->GetTotalFreeCoeff();
+  int n_motion = com_motion_->GetTotalFreeCoeff();
   int n_contacts = supp_polygon_.GetTotalFreeCoeff();
 
 
   n_constraints_ = GetNumberOfConstraints();
   jac_wrt_motion_   = Jacobian(n_constraints_, n_motion);
   jac_wrt_contacts_ = Jacobian(n_constraints_, n_contacts);
-
-
-  initialized_ = true;
 }
 
 void
 ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
                               const VectorXd& footholds)
 {
-  spline_structure_->SetCoefficients(motion_coeff);
+  com_motion_->SetCoefficients(motion_coeff);
   supp_polygon_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
@@ -69,11 +68,11 @@ int
 ZmpConstraintBuilder::GetNumberOfConstraints () const
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
-  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
-  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*spline_structure_);
+  auto vec_t = com_motion_->GetDiscretizedGlobalTimes();
+  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*com_motion_);
   int n_constraints = 0;
   for (auto t : vec_t) {
-    int phase_id  = spline_structure_->GetCurrentPhase(t).id_;
+    int phase_id  = com_motion_->GetCurrentPhase(t).id_;
     NodeConstraint supp_line = supp_lines.at(phase_id);
     n_constraints += supp_line.size();
   }
@@ -85,7 +84,7 @@ void
 ZmpConstraintBuilder::CalcJacobians ()
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
-  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
+  auto vec_t = com_motion_->GetDiscretizedGlobalTimes();
   int n_contacts = supp_polygon_.GetTotalFreeCoeff();
 
   // refactor _this could be highly inefficient, don't do
@@ -93,7 +92,7 @@ ZmpConstraintBuilder::CalcJacobians ()
   jac_wrt_contacts_.setZero();
 
   // know the lines of of each support polygon
-  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*spline_structure_);
+  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*com_motion_);
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
@@ -101,10 +100,10 @@ ZmpConstraintBuilder::CalcJacobians ()
   for (const auto& t : vec_t) {
 
     // the current position of the zero moment point
-    auto state = spline_structure_->GetCom(t);
+    auto state = com_motion_->GetCom(t);
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
-    int phase_id  = spline_structure_->GetCurrentPhase(t).id_;
+    int phase_id  = com_motion_->GetCurrentPhase(t).id_;
     NodeConstraint supp_line = supp_lines.at(phase_id);
     int num_lines = supp_line.size();
 
@@ -153,8 +152,8 @@ ZmpConstraintBuilder::VectorXd
 ZmpConstraintBuilder::GetDistanceToLineMargin () const
 {
   // refactor this discretized global times could specify where to evaluate zmp constraint
-  auto vec_t = spline_structure_->GetDiscretizedGlobalTimes();
-  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*spline_structure_);
+  auto vec_t = com_motion_->GetDiscretizedGlobalTimes();
+  auto supp_lines = supp_polygon_.GetActiveConstraintsForEachPhase(*com_motion_);
 
   VectorXd distance = VectorXd::Zero(n_constraints_);
 
@@ -164,10 +163,10 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
   for (const auto& t : vec_t) {
 
     // the current position of the zero moment point
-    auto state = spline_structure_->GetCom(t);
+    auto state = com_motion_->GetCom(t);
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
-    int phase_id  = spline_structure_->GetCurrentPhase(t).id_;
+    int phase_id  = com_motion_->GetCurrentPhase(t).id_;
     NodeConstraint supp_line = supp_lines.at(phase_id);
 
     for (auto i=0; i<supp_line.size(); ++i)
@@ -344,15 +343,6 @@ ZmpConstraintBuilder::GetJacobianWrtContacts () const
 //
 //  return false;
 //}
-
-
-void
-ZmpConstraintBuilder::CheckIfInitialized() const
-{
-  if (!initialized_) {
-    throw std::runtime_error("ZmpConstraintBuilder not initialized. Call Init() first");
-  }
-}
 
 } /* namespace zmp */
 } /* namespace xpp */
