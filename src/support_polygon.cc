@@ -8,6 +8,8 @@
 #include <xpp/hyq/support_polygon.h>
 #include <xpp/utils/point2d_manipulations.h>
 
+#include <algorithm>
+
 
 namespace xpp {
 namespace hyq {
@@ -20,6 +22,19 @@ SupportPolygon::SupportPolygon(const VecFoothold& footholds, const MarginValues&
      margins_(margins),
      footholds_conv_(BuildSortedConvexHull(footholds))
 {
+//  footholds_conv_.clear();
+//  for (const auto& f : footholds)
+//    footholds_conv_.push_back
+
+  std::map<LegID, int> leg_order = { {LH,0} , {RH,1}, {RF,2}, {LF,3} };
+
+//  footholds_conv_ = footholds;
+  std::sort(footholds_conv_.begin(), footholds_conv_.end(),
+            [&leg_order](Foothold f1, Foothold f2)
+            { return leg_order[f1.leg] < leg_order[f2.leg];}
+  );
+
+
 }
 
 

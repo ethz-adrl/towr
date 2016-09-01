@@ -13,17 +13,19 @@ namespace xpp {
 namespace zmp {
 
 using namespace xpp::hyq;
-using MatrixXd = Eigen::MatrixXd;
+using Jacobian = ZmpConstraintBuilder::Jacobian;
 using VectorXd = Eigen::VectorXd;
 
-TEST(ZmpConstraintBuilderTest, JacobianWrtMotion)
+TEST(ZmpConstraintBuilderTest, JacobianWrtContact)
 {
   auto start_stance = { Foothold( 0.35,  0.3, 0.0, LF),
                         Foothold( 0.35, -0.3, 0.0, RF),
                         Foothold(-0.35,  0.3, 0.0, LH),
                         Foothold(-0.35, -0.3, 0.0, RH)};
 
-  auto steps =        { Foothold( 0.35+0.3,  0.3, 0.0, LF) };
+  auto steps =        { Foothold( 0.0,  0.0, 0.0, LH),
+                        Foothold( 0.0,  0.0, 0.0, LF),
+                        Foothold( 0.0,  0.0, 0.0, RH)};
 
   hyq::SupportPolygonContainer supp_polygons;
   supp_polygons.Init(start_stance, steps, SupportPolygon::GetDefaultMargins());
@@ -33,13 +35,22 @@ TEST(ZmpConstraintBuilderTest, JacobianWrtMotion)
   ZmpConstraintBuilder builder;
   builder.Init(com_spline, supp_polygons, 0.58);
 
-  builder.spline_structure_->SetCoefficientsZero();
+  builder.CalcJacobians();
+  Jacobian jac_wrt_contacts = builder.GetJacobianWrtContacts();
+  std::cout << "nnz: " << jac_wrt_contacts.nonZeros() << std::endl;
 
-  MatrixXd jac_wrt_motion   = builder.GetJacobianWrtMotion();
-  MatrixXd jac_wrt_contacts = builder.GetJacobianWrtContacts();
+  // set the footholds to different positions
+  VectorXd u_c = supp_polygons.GetFootholdsInitializedToStart();
+  VectorXd u_m = com_spline->GetCoeffients();
 
-  // calculate the jacobian numerically
-  VectorXd g = builder.GetDistanceToLineMargin();
+  builder.Update(u_m, u_c);
+  builder.CalcJacobians();
+  jac_wrt_contacts = builder.GetJacobianWrtContacts();
+
+  std::cout << "nnz: " << jac_wrt_contacts.nonZeros() << std::endl;
+
+
+
 
   // perturb the coefficients a little
 

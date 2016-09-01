@@ -79,7 +79,7 @@ ZmpConstraintBuilder::CalcJacobians ()
 
   // for every time t
   for (const auto& t : vec_t) {
-    std::cout << " }\nt: " << t << "\t";
+//    std::cout << " }\nt: " << t << "\t";
 
 
     // the current position of the zero moment point
@@ -91,7 +91,7 @@ ZmpConstraintBuilder::CalcJacobians ()
 
     int num_lines = supp_line.size();
 
-    std::cout << "lines: ";
+//    std::cout << "lines: ";
     for (int i=0; i<num_lines; ++i) {
 
       auto f_from = supp_line.at(i).from;
@@ -108,7 +108,7 @@ ZmpConstraintBuilder::CalcJacobians ()
       jac_line_wrt_contacts.reserve(4); // every line depends on 4 points
 
       // reason, sparsity structure changes between calls
-      std::cout << f_from.id << "->" << f_to.id << "  ,  ";
+//      std::cout << f_from.id << "->" << f_to.id << "  ,  ";
 
       // only if line is not fixed by start stance does it go into the jacobian
       if (f_from.id != hyq::Foothold::kFixedByStart) {
