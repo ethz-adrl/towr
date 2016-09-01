@@ -27,9 +27,9 @@ protected:
     Foothold lh(0.0-offset_, 1.0, 0.0, LH);
 
     // bottom right (ordered)
+    f_bottom_right.push_back(lh);
     f_bottom_right.push_back(rh);
     f_bottom_right.push_back(rf);
-    f_bottom_right.push_back(lh);
 
     // top left (not ordered)
     f_top_left.push_back(lh);
@@ -43,10 +43,10 @@ protected:
 
 
     // all (ordered)
+    f_4_ordered.push_back(lh);
     f_4_ordered.push_back(rh);
     f_4_ordered.push_back(rf);
     f_4_ordered.push_back(lf);
-    f_4_ordered.push_back(lh);
 
     // all (not ordered)
     f_4_not_ordered.push_back(lh);

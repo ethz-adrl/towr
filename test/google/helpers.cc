@@ -21,21 +21,17 @@ using VectorXd = Eigen::VectorXd;
 
 TEST(HelpersTest, SparseMatrixZero)
 {
-  Eigen::SparseMatrix<double, Eigen::RowMajor> sm2(2,3);
-  sm2.insert(0,0) = 1.0;
-  sm2.insert(0,1) = 0.0;
-  sm2.insert(0,2) = 3.0;
+  Eigen::SparseMatrix<double, Eigen::RowMajor> sm(2,3);
+  sm.insert(0,0) = 1.0;
+  sm.insert(0,1) = 0.0;
+  sm.insert(0,2) = 3.0;
 
+  EXPECT_EQ(3, sm.nonZeros());
 
-  std::cout << "sm2: " << sm2;
-  std::cout << "nnz: " << sm2.nonZeros();
+  // remove all elements
+  sm.setZero();
 
-  // remove
-  sm2.setZero();
-  sm2.insert(0,0) = 3.0;
-
-  std::cout << "sm2: " << sm2;
-  std::cout << "nnz: " << sm2.nonZeros();
+  EXPECT_EQ(0, sm.nonZeros());
 }
 
 TEST(HelpersTest, SparseMatrixManipulation)
