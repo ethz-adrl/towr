@@ -8,6 +8,7 @@
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/hyq/support_polygon.h>
 #include <xpp/zmp/zmp_constraint_builder.h>
+#include <xpp/zmp/zero_moment_point.h>
 #include <cassert>
 
 namespace xpp {

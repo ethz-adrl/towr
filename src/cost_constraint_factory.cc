@@ -35,7 +35,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateInitialConstraint (const State2d& init,
                                                 const ComSplinePtr& spline)
 {
-  LinearSplineEquations eq(spline);
+  LinearSplineEquations eq(*spline);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.MakeInitial(init));
   return constraint;
@@ -45,7 +45,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
                                           const ComSplinePtr& spline)
 {
-  LinearSplineEquations eq(spline);
+  LinearSplineEquations eq(*spline);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.MakeFinal(final_state_xy));
   return constraint;
@@ -54,7 +54,7 @@ CostConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateJunctionConstraint (const ComSplinePtr& spline)
 {
-  LinearSplineEquations eq(spline);
+  LinearSplineEquations eq(*spline);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.MakeJunction());
   return constraint;
@@ -97,7 +97,7 @@ CostConstraintFactory::CreateObstacleConstraint ()
 CostConstraintFactory::CostPtr
 CostConstraintFactory::CreateAccelerationCost (const ComSplinePtr& spline)
 {
-  LinearSplineEquations eq(spline);
+  LinearSplineEquations eq(*spline);
   auto cost = std::make_shared<QuadraticSplineCost>();
   cost->Init(eq.MakeAcceleration(1.0,3.0));
   return cost;
@@ -107,7 +107,7 @@ CostConstraintFactory::CostPtr
 CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
                                        const ComSplinePtr& spline)
 {
-  LinearSplineEquations eq(spline);
+  LinearSplineEquations eq(*spline);
   auto cost = std::make_shared<SquaredSplineCost>();
   cost->Init(eq.MakeFinal(final_state_xy));
   return cost;

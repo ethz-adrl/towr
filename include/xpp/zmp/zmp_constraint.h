@@ -34,7 +34,7 @@ public:
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
-  mutable ZmpConstraintBuilder zmp_constraint_builder_;
+  ZmpConstraintBuilder zmp_constraint_builder_;
 };
 
 } /* namespace zmp */

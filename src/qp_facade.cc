@@ -35,7 +35,7 @@ QpFacade::SolveQp(const State& initial_state,
 //  auto com_spline = MotionFactory::CreateComMotion(initial_state.p, initial_state.v , steps.size(), times,start_with_com_shift);
   auto com_spline = MotionFactory::CreateComMotion(steps.size(), times, start_with_com_shift);
 
-  LinearSplineEquations spline_eq(com_spline);
+  LinearSplineEquations spline_eq(*com_spline);
 
   cost_function_ = spline_eq.MakeAcceleration(1.0,3.0);
 

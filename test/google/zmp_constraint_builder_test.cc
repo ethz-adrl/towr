@@ -6,6 +6,7 @@
  */
 
 #include <xpp/zmp/zmp_constraint_builder.h>
+#include <xpp/zmp/com_spline.h>
 #include <xpp/zmp/motion_factory.h>
 #include <gtest/gtest.h>
 

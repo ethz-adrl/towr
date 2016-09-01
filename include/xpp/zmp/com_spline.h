@@ -47,7 +47,8 @@ public:
   typedef xpp::utils::Coords3D Coords;
   typedef std::vector<MotionDerivative> Derivatives;
   typedef std::shared_ptr<ComSpline> Ptr;
-  typedef std::unique_ptr<ComSpline> UniquePtr;
+  typedef std::unique_ptr<ComSpline> PtrU;
+
 
   ComSpline ();
   virtual ~ComSpline ();
@@ -81,9 +82,6 @@ public:
   VecPolynomials GetPolynomials()       const { return polynomials_; }
   ComPolynomial GetPolynomial(size_t i) const { return polynomials_.at(i); }
   ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
-
-
-  virtual UniquePtr clone() const = 0;
 
 
   /** Calculates the Jacobian at a specific time of the motion, but specified by

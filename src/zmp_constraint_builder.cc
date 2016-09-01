@@ -6,10 +6,16 @@
  */
 
 #include <xpp/zmp/zmp_constraint_builder.h>
+#include <xpp/zmp/zero_moment_point.h>
 #include <xpp/utils/line_equation.h>
 
 namespace xpp {
 namespace zmp {
+
+ZmpConstraintBuilder::ZmpConstraintBuilder()
+{
+  spline_structure_ = nullptr;
+}
 
 ZmpConstraintBuilder::ZmpConstraintBuilder(const ComSplinePtr& spline_container,
                                            const SupportPolygonContainer& supp,

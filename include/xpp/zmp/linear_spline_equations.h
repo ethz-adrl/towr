@@ -30,11 +30,11 @@ class LinearSplineEquations {
 public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::Point2d State2d;
-  typedef std::unique_ptr<ComSpline> ComSplinePtr;
-  typedef std::shared_ptr<ComSpline> ComSplinePtrShared;
+  typedef std::unique_ptr<ComSpline> PtrU;
+  typedef std::shared_ptr<ComSpline> PtrS;
   typedef std::vector<MotionDerivative> Derivatives;
 
-  LinearSplineEquations (const ComSplinePtrShared& com_spline);
+  LinearSplineEquations (const ComSpline& com_spline);
   virtual ~LinearSplineEquations ();
 
 
@@ -70,7 +70,7 @@ public:
   MatVec MakeAcceleration(double weight_x, double weight_y) const;
 
 private:
-  ComSplinePtr com_spline_;
+  PtrU com_spline_;
 };
 
 } /* namespace zmp */

@@ -8,8 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 
-#include "zero_moment_point.h"
-#include "com_spline.h"
+
+#include "com_motion.h"
 #include <xpp/hyq/support_polygon_container.h>
 
 namespace xpp {
@@ -18,7 +18,7 @@ namespace zmp {
 class ZmpConstraintBuilder {
 
 public:
-  typedef ComSpline::Ptr ComSplinePtr;
+  typedef ComMotion::Ptr ComSplinePtr;
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::VecScalarScalar VecScalarScalar;
@@ -35,7 +35,7 @@ public:
   using JacobianRow = ComMotion::JacobianRow;
 
 public:
-  ZmpConstraintBuilder() {};
+  ZmpConstraintBuilder();
   ZmpConstraintBuilder(const ComSplinePtr&, const SupportPolygonContainer&, const double walking_height);
   virtual ~ZmpConstraintBuilder () {};
 
@@ -77,7 +77,7 @@ public:
   VectorXd GetDistanceToLineMargin() const;
 
   // refactor make private again
-  std::unique_ptr<ComSpline> spline_structure_;
+  std::unique_ptr<ComMotion> spline_structure_;
   SupportPolygonContainer supp_polygon_;
 
 private:
