@@ -53,8 +53,6 @@ ZeroMomentPoint::GetJacobianWrtCoeff (Coords dim) const
   int n = 0; // node counter
   for (double t_global : times_)
   {
-    // get to here sparse format
-    // refactor _think about getting position and acceleration at all time T
     JacobianRow jac_pos_t = com_motion_->GetJacobian(t_global, utils::kPos, dim);
     JacobianRow jac_acc_t = com_motion_->GetJacobian(t_global, utils::kAcc, dim);
 

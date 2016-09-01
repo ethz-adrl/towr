@@ -57,7 +57,7 @@ public:
   /** Get the Center of Mass position, velocity and acceleration.
     *
     * @param t_global current time
-    * @return pos/vel/acc in 2D.
+    * @return pos/vel/acc/jerk in 2D.
     */
   virtual Point2d GetCom(double t_global) const = 0;
 
@@ -72,7 +72,39 @@ public:
   virtual int GetTotalFreeCoeff() const = 0;
   virtual VectorXd GetCoeffients() const = 0;
 
-  /** Creates a linear approximation of the motion at the current coefficients.
+  /** @brief Calculates the Jacobian J of the motion with respect to the current coefficients.
+    *
+    * @param t_global the time of the motion to evaluate the Jacobian
+    * @param dxdt wheather Jacobian for position, velocity, acceleration or jerk is desired
+    * @param dim which motion dimension (x,y) the jacobian represents.
+    */
+  virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
+
+  /** @brief If the trajectory has to be discretized, use this for consistent time steps.
+   *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
+   *
+   *  so first and last time are t0 and and tN, but there might be a
+   *  timestep > delta t before the last node.
+   */
+  std::vector<double> GetDiscretizedGlobalTimes() const;
+  virtual double GetTotalTime() const = 0;
+
+  /** @brief Gets the phase (stance, swing) at this current instance of time.
+    *
+    * This allows to pair the current instance with the correct footholds
+    * and support polygon. A phase is a motion during which the dynamics are
+    * continuous (stance, swing, flight).
+    */
+  virtual PhaseInfo GetCurrentPhase(double t_global) const = 0;
+
+  /** @brief Returns a vector of phases, where no phase is duplicated.
+    *
+    * This class should not have to know e.g. how many splines are used
+    * to represent a stance phase.
+    */
+  virtual PhaseInfoVec GetPhases() const = 0;
+
+  /** @brief Creates a linear approximation of the motion at the current coefficients.
     *
     * Given some general nonlinear function x(u) = ... that represents the motion
     * of the system. A linear approximation of this function around specific
@@ -85,38 +117,8 @@ public:
     */
   VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative, Coords3D dim) const;
 
-  /** If the trajectory has to be discretized, use this for consistent time steps.
-   *  t(0)------t(1)------t(2)------...------t(N-1)---|------t(N)
-   *
-   *  so first and last time are t0 and and tN, but there might be a
-   *  timestep > delta t before the last node.
-   */
-  std::vector<double> GetDiscretizedGlobalTimes() const;
-  virtual double GetTotalTime() const = 0;
-
-  /** Gets the phase (stance, swing) at this current instance of time.
-    *
-    * This allows to pair the current instance with the correct footholds
-    * and support polygon. A phase is a motion during which the dynamics are
-    * continuous (stance, swing, flight).
+  /** @brief Copies the derived class in the heap and returns a pointer to it.
     */
-  virtual PhaseInfo GetCurrentPhase(double t_global) const = 0;
-
-  /** Returns a vector of phases, where no phase is duplicated.
-    *
-    * This class should not have to know e.g. how many splines are used
-    * to represent a stance phase.
-    */
-  virtual PhaseInfoVec GetPhases() const = 0;
-
-  /** Calculates the Jacobian J of the motion with respect to the current coefficients.
-    *
-    * @param t_global the time of the motion to evaluate the Jacobian
-    * @param dxdt wheather Jacobian for position, velocity, acceleration or jerk is desired
-    * @param dim which motion dimension (x,y) the jacobian represents.
-    */
-  virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
-
   virtual PtrU clone() const = 0;
 
 };
