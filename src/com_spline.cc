@@ -209,6 +209,8 @@ ComSpline::JacobianRow
 ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t_local, int id,
                                             Coords3D dim) const
 {
+  assert(0 <= id && id <= polynomials_.back().GetId());
+
   JacobianRow jac(1, GetTotalFreeCoeff());
 
   switch (posVelAcc) {

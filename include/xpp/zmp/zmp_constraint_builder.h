@@ -65,7 +65,7 @@ private:
     * these current parameters  for each discrete time t along the trajectory
     * and for every line at this discrete time t.
     */
-  void CalcJacobians();
+  void UpdateJacobians(Jacobian& jac_motion, Jacobian& jac_contacts) const;
   int GetNumberOfConstraints() const;
 
   int n_constraints_ = 0;
@@ -74,8 +74,11 @@ private:
   Jacobian jac_zmpx_0_; ///< Jacobian of ZMP in x direction evaluated at spline coefficient values of zero
   Jacobian jac_zmpy_0_; ///< Jacobian of ZMP in y direction evaluated at spline coefficient values of zero
 
-  Jacobian jac_wrt_motion_;
-  Jacobian jac_wrt_contacts_;
+  // these don't really define the state of the object, only for caching
+  mutable bool variables_changed_;
+  void CheckAndUpdateJacobians() const;
+  mutable Jacobian jac_wrt_motion_;
+  mutable Jacobian jac_wrt_contacts_;
 
   /** @returns the times at which two phases have disjoint support polygons
     */

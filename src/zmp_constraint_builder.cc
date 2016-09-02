@@ -68,7 +68,7 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
   jac_wrt_motion_   = Jacobian(n_constraints_, n_motion);
   jac_wrt_contacts_ = Jacobian(n_constraints_, n_contacts);
 
-  CalcJacobians();
+  variables_changed_ = true;
 }
 
 std::vector<double>
@@ -98,7 +98,6 @@ ZmpConstraintBuilder::GetTimesDisjointSwitches () const
 
   return t_disjoint_switches;
 }
-
 
 std::vector<double>
 ZmpConstraintBuilder::GetTimesForConstraitEvaluation (double dt, double t_cross) const
@@ -135,7 +134,7 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
   com_motion_->SetCoefficients(motion_coeff);
   supp_polygon_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
 
-  CalcJacobians();
+  variables_changed_ = true;
 }
 
 int
@@ -153,7 +152,8 @@ ZmpConstraintBuilder::GetNumberOfConstraints () const
 }
 
 void
-ZmpConstraintBuilder::CalcJacobians ()
+ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
+                                     Jacobian& jac_contacts) const
 {
   int n_contacts = supp_polygon_->GetTotalFreeCoeff();
 
@@ -203,8 +203,8 @@ ZmpConstraintBuilder::CalcJacobians ()
 
       auto coeff = line.GetCoeff();
       // this line really impacts performance
-      jac_wrt_motion_.row(c)   = coeff.p*jac_zmpx_0_.row(n) + coeff.q*jac_zmpy_0_.row(n);
-      jac_wrt_contacts_.row(c) = jac_line_wrt_contacts;
+      jac_motion.row(c)   = coeff.p*jac_zmpx_0_.row(n) + coeff.q*jac_zmpy_0_.row(n);
+      jac_contacts.row(c) = jac_line_wrt_contacts;
       c++;
     }
 
@@ -242,13 +242,24 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
 ZmpConstraintBuilder::Jacobian
 ZmpConstraintBuilder::GetJacobianWrtMotion () const
 {
+  CheckAndUpdateJacobians();
   return jac_wrt_motion_;
 }
 
 ZmpConstraintBuilder::Jacobian
 ZmpConstraintBuilder::GetJacobianWrtContacts () const
 {
+  CheckAndUpdateJacobians();
   return jac_wrt_contacts_;
+}
+
+void
+ZmpConstraintBuilder::CheckAndUpdateJacobians () const
+{
+  if (variables_changed_) {
+    UpdateJacobians(jac_wrt_motion_, jac_wrt_contacts_);
+    variables_changed_ = false;
+  }
 }
 
 } /* namespace zmp */
