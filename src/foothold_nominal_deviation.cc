@@ -85,7 +85,7 @@ FootholdNominalDeviation::GetFeetInBase (
     for (const hyq::Foothold& I_foot : stance_legs) {
 
       // base to foot in inertial frame
-      Vector2d I_r_baseToFeet = I_foot.p.segment<2>(0) - I_cog_xy.p;
+      Vector2d I_r_baseToFeet = I_foot.p.topRows(kDim2d) - I_cog_xy.p;
 
       // fixme this only works if the base has no yaw anlge
       Vector2d B_r_baseToFeet = I_r_baseToFeet;

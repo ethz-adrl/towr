@@ -153,7 +153,7 @@ ZmpConstraintBuilder::GetNumberOfConstraints () const
 
 void
 ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
-                                     Jacobian& jac_contacts) const
+                                       Jacobian& jac_contacts) const
 {
   int n_contacts = supp_polygon_->GetTotalFreeCoeff();
 

@@ -56,8 +56,6 @@ public:
   // implements these functions from parent class, now specific for splines
   Point2d GetCom(double t_global) const override { return GetCOM(t_global, polynomials_); }
   double GetTotalTime() const override { return GetTotalTime(polynomials_); }
-  PhaseInfo GetCurrentPhase(double t_global) const override;
-  PhaseInfoVec GetPhases() const override;
   int GetTotalFreeCoeff() const override;
   VectorXd GetCoeffients () const override;
 

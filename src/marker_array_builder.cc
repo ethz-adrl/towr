@@ -214,7 +214,7 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
     marker.ns = rviz_namespace;
 
 
-    bool four_legg_support = splines.at(id).IsFourLegSupport();
+    bool four_legg_support = splines.at(id).DeprecatedIsFourLegSupport();
     if ( four_legg_support ) {
       marker.color.r = marker.color.g = marker.color.b = 0.1;
       if (id == 0)
@@ -256,7 +256,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     marker.ns = rviz_namespace;
     marker.id = i++;
 
-    if ( splines.at(id).IsFourLegSupport() ) {
+    if ( splines.at(id).DeprecatedIsFourLegSupport() ) {
       marker.color.r = marker.color.g = marker.color.g = 0.1;
       if (id == 0)
         marker.color.g = marker.color.b = 1.0;

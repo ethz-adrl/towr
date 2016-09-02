@@ -92,14 +92,14 @@ public:
     * and support polygon. A phase is a motion during which the dynamics are
     * continuous (stance, swing, flight).
     */
-  virtual PhaseInfo GetCurrentPhase(double t_global) const = 0;
+  PhaseInfo GetCurrentPhase(double t_global) const;
 
   /** @brief Returns a vector of phases, where no phase is duplicated.
     *
     * This class should not have to know e.g. how many splines are used
     * to represent a stance phase.
     */
-  virtual PhaseInfoVec GetPhases() const = 0;
+  PhaseInfoVec GetPhases() const;
 
   /** @brief Creates a linear approximation of the motion at the current coefficients.
     *
@@ -118,6 +118,8 @@ public:
     */
   virtual PtrU clone() const = 0;
 
+protected:
+  PhaseInfoVec phases_;
 };
 
 } /* namespace zmp */
