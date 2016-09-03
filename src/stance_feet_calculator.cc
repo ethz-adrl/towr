@@ -17,11 +17,12 @@ StanceFeetCalculator::StanceFeetCalculator ()
   // TODO Auto-generated constructor stub
 }
 
-StanceFeetCalculator::StanceFeetCalculator (const std::vector<double>& times,
-                                            const ComMotion& com_motion,
-                                            const SupportPolygonContainer& supp)
+StanceFeetCalculator::StanceFeetCalculator (const LegIDVec& start_legs,
+                                            const LegIDVec& step_legs,
+                                            const PhaseVec& phases,
+                                            double dt)
 {
-  Init(times, com_motion, supp);
+  Init(start_legs, step_legs, phases, dt);
 }
 
 StanceFeetCalculator::~StanceFeetCalculator ()
@@ -30,60 +31,44 @@ StanceFeetCalculator::~StanceFeetCalculator ()
 }
 
 void
-StanceFeetCalculator::Init (const std::vector<double>& times, const ComMotion& com_motion,
-                            const SupportPolygonContainer& supp_poly)
+StanceFeetCalculator::Init (const LegIDVec& start_legs, const LegIDVec& step_legs,
+                            const PhaseVec& phases, double dt)
 {
-  com_motion_ = com_motion.clone();
-  foothold_container_ = ComSuppPolyPtrU(new SupportPolygonContainer(supp_poly));
-  contact_info_vec_ = BuildContactInfoVec(times);
+  start_stance_ = start_legs;
+  steps_ = step_legs;
+  phases_ = phases;
 
+  contact_info_vec_ = BuildContactInfoVec(dt);
 }
-
-void
-StanceFeetCalculator::Update (const MotionCoeff& motion_coeff,
-                              const PositionVecT& footholds_xy)
-{
-  com_motion_->SetCoefficients(motion_coeff);
-  foothold_container_->SetFootholdsXY(footholds_xy);
-}
-
-//StanceFeetCalculator::PositionVecT
-//StanceFeetCalculator::CalculateComPostionInWorld () const
-//{
-//  PositionVecT com_pos;
-//  for (double t : times_)
-//    com_pos.push_back(com_motion_->GetCom(t).p);
-//
-//  return com_pos;
-//}
-//
-//StanceFeetCalculator::StanceVecT
-//StanceFeetCalculator::GetStanceFootholdsInWorld () const
-//{
-//  StanceVecT stance_footholds;
-//
-//  auto supp = foothold_container_->AssignSupportPolygonsToPhases(*com_motion_);
-//
-//  for (double t : times_) {
-//    int phase = com_motion_->GetCurrentPhase(t).id_;
-//    stance_footholds.push_back(supp.at(phase).GetFootholds());
-//  }
-//
-//  return stance_footholds;
-//}
 
 std::vector<StanceFeetCalculator::ContactInfo>
-StanceFeetCalculator::BuildContactInfoVec (const std::vector<double>& times) const
+StanceFeetCalculator::BuildContactInfoVec (double dt) const
 {
-  auto supp = foothold_container_->AssignSupportPolygonsToPhases(*com_motion_);
+  xpp::hyq::SupportPolygonContainer foothold_container;
+
+  foothold_container.Init(start_stance_, steps_);
+
+  auto supp = foothold_container.AssignSupportPolygonsToPhases(phases_);
 
   std::vector<ContactInfo> info;
-  for (double t : times) {
-    int phase = com_motion_->GetCurrentPhase(t).id_;
-    auto stance_feet = supp.at(phase).GetFootholds();
 
-    for (const auto& f : stance_feet)
-      info.push_back(ContactInfo(t, f.id, f.leg));
+
+  double t_global = 0;
+  for (auto phase : phases_) {
+
+    auto stance_feet = supp.at(phase.id_).GetFootholds();
+
+    int nodes_in_phase = std::floor(phase.duration_/dt);
+
+    for (int k=0; k<nodes_in_phase; ++k ) {
+
+      for (const auto& f : stance_feet)
+        info.push_back(ContactInfo(t_global+k*dt, f.id, f.leg));
+    }
+
+    t_global += phase.duration_;
+
+
   }
 
   return info;

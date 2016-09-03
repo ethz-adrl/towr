@@ -9,22 +9,12 @@
 #define XPP_OPT_INCLUDE_XPP_ZMP_STANCE_FEET_CALCULATOR_H_
 
 #include <xpp/hyq/leg_data_map.h>
-
-#include <Eigen/Dense>
-#include <Eigen/StdVector> // for std::vector<Eigen:...>
 #include <vector>
-#include <memory>
 
 namespace xpp {
-
-namespace hyq {
-class Foothold;
-class SupportPolygonContainer;
-}
-
 namespace zmp {
 
-class ComMotion;
+class PhaseInfo;
 
 /** @brief Determines the relationship between stance legs and CoG position.
   *
@@ -33,36 +23,16 @@ class ComMotion;
   */
 class StanceFeetCalculator {
 public:
-  using StanceFootholds = std::vector<xpp::hyq::Foothold>;
-  using StanceVecT      = std::vector<StanceFootholds>;
-  using PositionVecT    = std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> >;
-
-  using MotionCoeff  = Eigen::VectorXd;
-  using SupportPolygonContainer = xpp::hyq::SupportPolygonContainer;
-  using ComMotionPtrU = std::unique_ptr<ComMotion>;
-  using ComSuppPolyPtrU = std::unique_ptr<SupportPolygonContainer>;
-
+  using LegIDVec = std::vector<xpp::hyq::LegID>;
+  using PhaseVec = std::vector<PhaseInfo>;
 
   StanceFeetCalculator ();
-  StanceFeetCalculator (const std::vector<double>& times, const ComMotion&,
-                        const SupportPolygonContainer&);
-
+  StanceFeetCalculator (const LegIDVec& start_legs, const LegIDVec& step_legs,
+                        const PhaseVec& phases, double dt);
   virtual ~StanceFeetCalculator ();
 
-  void Init(const std::vector<double>& times, const ComMotion&,
-            const SupportPolygonContainer&);
-
-  void Update(const MotionCoeff&, const PositionVecT&);
-
-
-
-  // new and improved functions
-//  PositionVecT CalculateComPostionInWorld() const;
-//  StanceVecT GetStanceFootholdsInWorld() const;
-
-
-
-
+  void Init(const LegIDVec& start_legs, const LegIDVec& step_legs,
+            const PhaseVec& phases, double dt);
 
   struct ContactInfo {
     ContactInfo(double time, int id, xpp::hyq::LegID leg)
@@ -73,29 +43,15 @@ public:
     xpp::hyq::LegID leg_;
   };
 
-  // this info will never change! fixed once initially
-  // should move to higher level class
-  std::vector<ContactInfo> BuildContactInfoVec(const std::vector<double>& times) const;
-
-
   std::vector<ContactInfo> GetContactInfoVec() const;
 
-
-//  void Update(const StanceFootholds& start_stance, const StanceFootholds& steps,
-//              const ComSplinePtr& cog_spline, double robot_height);
-//  StanceFootholds GetStanceFeetInBase(double t) const;
-
 private:
+  std::vector<ContactInfo> BuildContactInfoVec(double dt) const;
   std::vector<ContactInfo> contact_info_vec_;
 
-  ComMotionPtrU com_motion_;
-  ComSuppPolyPtrU foothold_container_;
-
-//  double robot_height_;
-//  StanceFootholds ConvertFeetToBase(const StanceFootholds& ee_i, const PosXYZ& cog_i) const;
-//  bool AreSame(double time_1, double time_2) const;
-
-
+  LegIDVec start_stance_;
+  LegIDVec steps_;
+  PhaseVec phases_;
 };
 
 } /* namespace zmp */

@@ -28,7 +28,7 @@ public:
   typedef SupportPolygon::VecFoothold VecFoothold;
   typedef std::vector<xpp::hyq::LegID> VecLegID;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
-  typedef xpp::zmp::ComMotion ComMotion;
+  typedef xpp::zmp::ComMotion::PhaseInfoVec PhaseInfoVec;
   typedef xpp::utils::Coords3D Coords;
 
   SupportPolygonContainer () {};
@@ -55,6 +55,10 @@ public:
     * @param margins how much to shrink the support polygon
     */
   void Init(const VecFoothold& start_stance,
+            const VecLegID& step_sequence,
+            const MarginValues& margins = SupportPolygon::GetZeroMargins());
+
+  void Init(const VecLegID& start_stance,
             const VecLegID& step_sequence,
             const MarginValues& margins = SupportPolygon::GetZeroMargins());
 
@@ -93,7 +97,7 @@ public:
   // these are the only ones linked to actual motion, maybe move to
   // different class
 //  SupportPolygon GetSupportPolygon(double t_global, const ComMotion&) const;
-  VecSupportPolygon AssignSupportPolygonsToPhases(const ComMotion&) const;
+  VecSupportPolygon AssignSupportPolygonsToPhases(const PhaseInfoVec&) const;
 
 
 

@@ -26,15 +26,21 @@ RangeOfMotionConstraint::Init (const OptimizationVariablesInterpreter& interpret
   supp_polygon_container_ = interpreter.GetSuppPolygonContainer();
 
   // the times at which to evalute the constraint
-  double t = 0.0;
   double dt = 0.1;
-  std::vector<double> vec_t;
-  while (t < com_motion_->GetTotalTime()) {
-    vec_t.push_back(t);
-    t += dt;
+
+  auto start_feet = supp_polygon_container_.GetStartStance();
+  StanceFeetCalculator::LegIDVec start_legs;
+  for (const auto& f : start_feet) {
+    start_legs.push_back(f.leg);
   }
 
-  stance_feet_cal_.Init(vec_t, *com_motion_, supp_polygon_container_);
+  auto step_feet = supp_polygon_container_.GetFootholds();
+  StanceFeetCalculator::LegIDVec step_legs;
+  for (const auto& f : step_feet) {
+    step_legs.push_back(f.leg);
+  }
+
+  stance_feet_cal_.Init(start_legs, step_legs, com_motion_->GetPhases(), dt);
 }
 
 void
@@ -43,7 +49,7 @@ RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
 
-  stance_feet_cal_.Update(x_coeff, utils::ConvertEigToStd(footholds));
+//  stance_feet_cal_.Update(x_coeff, utils::ConvertEigToStd(footholds));
 
 
   com_motion_->SetCoefficients(x_coeff);

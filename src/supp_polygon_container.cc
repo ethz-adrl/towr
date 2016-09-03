@@ -11,6 +11,20 @@ namespace xpp {
 namespace hyq {
 
 void SupportPolygonContainer::Init(const VecFoothold& start_stance,
+                                   const VecFoothold& footholds,
+                                   const MarginValues& margins)
+{
+  start_stance_ = start_stance;
+  footholds_ = footholds;
+  margins_       = margins;
+
+  ModifyFootholds(start_stance_, [](Foothold& f, int i) {f.id = Foothold::kFixedByStart;} );
+  ModifyFootholds(footholds_,    [](Foothold& f, int i) {f.id = i;} );
+
+  support_polygons_ = CreateSupportPolygons(footholds_);
+}
+
+void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const VecLegID& step_sequence,
                                    const MarginValues& margins)
 {
@@ -25,18 +39,19 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
   Init(start_stance, footholds, margins);
 }
 
-void SupportPolygonContainer::Init(const VecFoothold& start_stance,
-                                   const VecFoothold& footholds,
-                                   const MarginValues& margins)
+void
+SupportPolygonContainer::Init (const VecLegID& start_legs,
+                               const VecLegID& step_sequence,
+                               const MarginValues& margins)
 {
-  start_stance_ = start_stance;
-  footholds_ = footholds;
-  margins_       = margins;
+  VecFoothold start_stance;
+  for (uint i=0; i<start_legs.size(); ++i) {
+    xpp::hyq::Foothold f; // sets x=y=z=0.0
+    f.leg   = start_legs.at(i);
+    start_stance.push_back(f);
+  }
 
-  ModifyFootholds(start_stance_, [](Foothold& f, int i) {f.id = Foothold::kFixedByStart;} );
-  ModifyFootholds(footholds_,    [](Foothold& f, int i) {f.id = i;} );
-
-  support_polygons_ = CreateSupportPolygons(footholds_);
+  Init(start_stance, step_sequence, margins);
 }
 
 void
@@ -158,12 +173,12 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
 //}
 
 SupportPolygonContainer::VecSupportPolygon
-SupportPolygonContainer::AssignSupportPolygonsToPhases(const ComMotion& com_motion) const
+SupportPolygonContainer::AssignSupportPolygonsToPhases(const PhaseInfoVec& phases) const
 {
   using namespace xpp::zmp;
 
   VecSupportPolygon supp;
-  for (const auto& phase : com_motion.GetPhases()) {
+  for (const auto& phase : phases) {
     SupportPolygon curr_supp;
 
 
@@ -227,5 +242,3 @@ SupportPolygonContainer::DisJointSupportPolygons(LegID prev, LegID next)
 
 } /* namespace hyq */
 } /* namespace xpp */
-
-

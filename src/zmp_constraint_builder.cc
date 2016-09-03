@@ -140,7 +140,7 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
 int
 ZmpConstraintBuilder::GetNumberOfConstraints () const
 {
-  auto supp_polygons = supp_polygon_->AssignSupportPolygonsToPhases(*com_motion_);
+  auto supp_polygons = supp_polygon_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
   int n_constraints = 0;
   for (auto t : times_) {
     int phase_id  = com_motion_->GetCurrentPhase(t).id_;
@@ -158,7 +158,7 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
   int n_contacts = supp_polygon_->GetTotalFreeCoeff();
 
   // know the lines of of each support polygon
-  auto supp_polygon = supp_polygon_->AssignSupportPolygonsToPhases(*com_motion_);
+  auto supp_polygon = supp_polygon_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
@@ -216,7 +216,7 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
 ZmpConstraintBuilder::VectorXd
 ZmpConstraintBuilder::GetDistanceToLineMargin () const
 {
-  auto supp_polygons = supp_polygon_->AssignSupportPolygonsToPhases(*com_motion_);
+  auto supp_polygons = supp_polygon_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
 
   VectorXd distance = VectorXd::Zero(n_constraints_);
 
