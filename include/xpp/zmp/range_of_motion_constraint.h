@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
 #include "a_constraint.h"
-#include "stance_feet_calculator.h"
+#include "motion_structure.h"
 #include <xpp/hyq/support_polygon_container.h>
 
 namespace xpp {
@@ -37,11 +37,10 @@ public:
 private:
   PosXY GetNominalPositionInBase(LegID leg) const;
 
-  // remove these as well, they are already in stance feet calc
   SupportPolygonContainer supp_polygon_container_;
   ComMotionPtr com_motion_;
 
-  StanceFeetCalculator stance_feet_cal_;
+  MotionStructure::MotionInfoVec motion_info_;
 };
 
 } /* namespace zmp */

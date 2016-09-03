@@ -116,7 +116,7 @@ set(SOURCES
   src/nlp_facade.cc
   src/zmp_constraint_builder.cc
   src/zero_moment_point.cc
-  src/stance_feet_calculator.cc
+  src/motion_structure.cc
   src/a_inverse_kinematics.cc
   src/step_sequence_planner.cc
   src/line_equation.cc
@@ -239,7 +239,6 @@ if(BUILD_TESTS)
 #                        test/google/zero_moment_point_test.cc
 #                        test/google/nlp_facade_test.cc
 ##                        test/google/hyq_spliner_test.cc
-#                        test/google/stance_feet_calculator_test.cc
 #                        test/google/optimization_variables_test.cc
 #                        test/google/interpreting_observer_test.cc
 #                        test/google/optimization_visualizer_test.cc

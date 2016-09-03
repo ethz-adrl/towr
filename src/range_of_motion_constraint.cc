@@ -29,18 +29,20 @@ RangeOfMotionConstraint::Init (const OptimizationVariablesInterpreter& interpret
   double dt = 0.1;
 
   auto start_feet = supp_polygon_container_.GetStartStance();
-  StanceFeetCalculator::LegIDVec start_legs;
+  MotionStructure::LegIDVec start_legs;
   for (const auto& f : start_feet) {
     start_legs.push_back(f.leg);
   }
 
   auto step_feet = supp_polygon_container_.GetFootholds();
-  StanceFeetCalculator::LegIDVec step_legs;
+  MotionStructure::LegIDVec step_legs;
   for (const auto& f : step_feet) {
     step_legs.push_back(f.leg);
   }
 
-  stance_feet_cal_.Init(start_legs, step_legs, com_motion_->GetPhases(), dt);
+  MotionStructure motion_structure;
+  motion_structure.Init(start_legs, step_legs, com_motion_->GetPhases());
+  motion_info_ = motion_structure.GetContactInfoVec(dt);
 }
 
 void
@@ -61,10 +63,7 @@ RangeOfMotionConstraint::EvaluateConstraint () const
 {
   std::vector<double> g_vec;
 
-
-  auto contact_info_vec = stance_feet_cal_.GetContactInfoVec();
-
-  for (const auto& c : contact_info_vec) {
+  for (const auto& c : motion_info_) {
 
     PosXY com_pos = com_motion_->GetCom(c.time_).p;
 
@@ -134,10 +133,7 @@ RangeOfMotionConstraint::GetBounds () const
 
 //  auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
 
-
-  auto contact_info_vec = stance_feet_cal_.GetContactInfoVec();
-
-  for (auto c :  contact_info_vec) {
+  for (auto c :  motion_info_) {
 
     PosXY start_offset = PosXY::Zero(); // because initial foothold is fixed
     if (c.foothold_id_ == xpp::hyq::Foothold::kFixedByStart) {
@@ -214,13 +210,12 @@ RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
   Jacobian jac; // empy matrix
 
   if (var_set == VariableNames::kFootholds) {
-    auto contact_info_vec = stance_feet_cal_.GetContactInfoVec();
     int n = supp_polygon_container_.GetTotalFreeCoeff();
-    int m = contact_info_vec.size() * kDim2d;
+    int m = motion_info_.size() * kDim2d;
     jac = Jacobian(m,n);
 
     int row=0;
-    for (const auto& c : contact_info_vec) {
+    for (const auto& c : motion_info_) {
 
       int id = c.foothold_id_;
       if (id != xpp::hyq::Foothold::kFixedByStart)
@@ -263,14 +258,12 @@ RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
   if (var_set == VariableNames::kSplineCoeff) {
 
 
-
-    auto contact_info_vec = stance_feet_cal_.GetContactInfoVec();
     int n = supp_polygon_container_.GetTotalFreeCoeff();
-    int m = contact_info_vec.size() * kDim2d;
+    int m = motion_info_.size() * kDim2d;
     jac = Jacobian(m,n);
 
     int row=0;
-    for (const auto& c : contact_info_vec)
+    for (const auto& c : motion_info_)
       for (auto dim : {X,Y})
         jac.row(row++) = -com_motion_->GetJacobian(c.time_, kPos, dim);
 

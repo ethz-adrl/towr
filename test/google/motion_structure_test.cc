@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/stance_feet_calculator.h>
+#include "../../include/xpp/zmp/motion_structure.h"
 
 namespace xpp {
 namespace zmp {
