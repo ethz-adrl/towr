@@ -73,7 +73,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateRangeOfMotionConstraint (
     const ComMotion& com_motion, const Contacts& contacts)
 {
-  auto constraint = std::make_shared<RangeOfMotionConstraint>();
+  auto constraint = std::make_shared<RangeOfMotionBox>();
   constraint->Init(com_motion, contacts);
   return constraint;
 }
