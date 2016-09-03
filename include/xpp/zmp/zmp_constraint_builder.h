@@ -59,7 +59,7 @@ public:
 
 private:
   MotionPtrU com_motion_;
-  SuppPolygonPtrU supp_polygon_;
+  SuppPolygonPtrU contacts_;
 
   /** The Jacobian for the current motion and contact coefficients for
     * these current parameters  for each discrete time t along the trajectory

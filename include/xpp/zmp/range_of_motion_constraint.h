@@ -28,7 +28,6 @@ public:
   using ComMotionPtrU = std::unique_ptr<ComMotion>;
   using ContactPtrU   = std::unique_ptr<Contacts>;
   using PosXY         = Eigen::Vector2d;
-  using LegID         = xpp::hyq::LegID;
 
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint () {};
@@ -41,8 +40,6 @@ public:
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
-  PosXY GetNominalPositionInBase(LegID leg) const; // move to support polygon
-
   void SetJacobianWrtContacts();
   void SetJacobianWrtMotion();
 

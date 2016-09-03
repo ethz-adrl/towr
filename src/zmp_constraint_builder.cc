@@ -24,7 +24,7 @@ using namespace xpp::utils::coords_wrapper; // X, Y
 ZmpConstraintBuilder::ZmpConstraintBuilder()
 {
   com_motion_   = nullptr;
-  supp_polygon_ = nullptr;
+  contacts_ = nullptr;
 }
 
 ZmpConstraintBuilder::ZmpConstraintBuilder(const ComMotion& com_motion,
@@ -51,7 +51,7 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
   // Jacobians and offset are independent of current coefficients.
   com_motion_->SetCoefficientsZero();
 
-  supp_polygon_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
+  contacts_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
   walking_height_ = walking_height;
 
   double t_switch = 0.2; // the timeframe at which the constraint is relaxed
@@ -62,7 +62,7 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
   jac_zmpy_0_ = zmp.GetJacobianWrtCoeff(Y);
 
   int n_motion = com_motion_->GetTotalFreeCoeff();
-  int n_contacts = supp_polygon_->GetTotalFreeCoeff();
+  int n_contacts = contacts_->GetTotalFreeCoeff();
 
   n_constraints_ = GetNumberOfConstraints();
   jac_wrt_motion_   = Jacobian(n_constraints_, n_motion);
@@ -87,8 +87,8 @@ ZmpConstraintBuilder::GetTimesDisjointSwitches () const
 
     if (curr_phase_is_step && next_phase_is_step) {
       int step = phases.at(i).n_completed_steps_;
-      auto curr_leg = supp_polygon_->GetLegID(step);
-      auto next_leg = supp_polygon_->GetLegID(step+1);
+      auto curr_leg = contacts_->GetLegID(step);
+      auto next_leg = contacts_->GetLegID(step+1);
 
       if (SupportPolygonContainer::DisJointSupportPolygons(curr_leg, next_leg))
         t_disjoint_switches.push_back(t_global);
@@ -132,7 +132,7 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
                               const VectorXd& footholds)
 {
   com_motion_->SetCoefficients(motion_coeff);
-  supp_polygon_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
+  contacts_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
 
   variables_changed_ = true;
 }
@@ -140,7 +140,7 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
 int
 ZmpConstraintBuilder::GetNumberOfConstraints () const
 {
-  auto supp_polygons = supp_polygon_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
+  auto supp_polygons = contacts_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
   int n_constraints = 0;
   for (auto t : times_) {
     int phase_id  = com_motion_->GetCurrentPhase(t).id_;
@@ -155,10 +155,10 @@ void
 ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
                                        Jacobian& jac_contacts) const
 {
-  int n_contacts = supp_polygon_->GetTotalFreeCoeff();
+  int n_contacts = contacts_->GetTotalFreeCoeff();
 
   // know the lines of of each support polygon
-  auto supp_polygon = supp_polygon_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
+  auto supp_polygon = contacts_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
@@ -192,13 +192,13 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
 
       // only if line is not fixed by start stance does it go into the jacobian
       if (f_from.id != hyq::Foothold::kFixedByStart) {
-        jac_line_wrt_contacts.insert(supp_polygon_->Index(f_from.id, X)) = jac_line(0);
-        jac_line_wrt_contacts.insert(supp_polygon_->Index(f_from.id, Y)) = jac_line(1);
+        jac_line_wrt_contacts.insert(contacts_->Index(f_from.id, X)) = jac_line(0);
+        jac_line_wrt_contacts.insert(contacts_->Index(f_from.id, Y)) = jac_line(1);
       }
 
       if (f_to.id != hyq::Foothold::kFixedByStart) {
-        jac_line_wrt_contacts.insert(supp_polygon_->Index(f_to.id, X))   = jac_line(2);
-        jac_line_wrt_contacts.insert(supp_polygon_->Index(f_to.id, Y))   = jac_line(3);
+        jac_line_wrt_contacts.insert(contacts_->Index(f_to.id, X))   = jac_line(2);
+        jac_line_wrt_contacts.insert(contacts_->Index(f_to.id, Y))   = jac_line(3);
       }
 
       auto coeff = line.GetCoeff();
@@ -216,7 +216,7 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
 ZmpConstraintBuilder::VectorXd
 ZmpConstraintBuilder::GetDistanceToLineMargin () const
 {
-  auto supp_polygons = supp_polygon_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
+  auto supp_polygons = contacts_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
 
   VectorXd distance = VectorXd::Zero(n_constraints_);
 

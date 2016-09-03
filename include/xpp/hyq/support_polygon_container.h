@@ -33,6 +33,7 @@ public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef std::vector<xpp::zmp::PhaseInfo> PhaseInfoVec;
   typedef xpp::utils::Coords3D Coords;
+  using PosXY = Eigen::Vector2d;
 
   SupportPolygonContainer () {};
   virtual ~SupportPolygonContainer () {};
@@ -103,6 +104,7 @@ public:
   VecSupportPolygon AssignSupportPolygonsToPhases(const PhaseInfoVec&) const;
 
 
+  PosXY GetNominalPositionInBase(LegID leg) const; // move to support polygon
 
 
 
