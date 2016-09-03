@@ -190,7 +190,7 @@ SupportPolygonContainer::GetTotalFreeCoeff () const
 }
 
 int
-SupportPolygonContainer::Index (int id, Coords dim) const
+SupportPolygonContainer::Index (int id, Coords dim)
 {
   assert(id != Foothold::kFixedByStart); // they can't be optimized, have no index
   return id*xpp::utils::kDim2d + dim;

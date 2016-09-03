@@ -64,8 +64,8 @@ public:
 //              const ComSplinePtr& cog_spline, double robot_height);
 //  StanceFootholds GetStanceFeetInBase(double t) const;
 
-private:
   std::vector<double> times_;
+private:
 
   ComMotionPtrU com_motion_;
   ComSuppPolyPtrU foothold_container_;

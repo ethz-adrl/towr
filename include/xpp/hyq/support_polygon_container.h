@@ -67,7 +67,7 @@ public:
    *
    *  u = [x0 y0 x1 y1 ... xN yN]
    */
-  int Index(int foothold_id, Coords dim) const;
+  static int Index(int foothold_id, Coords dim);
   int GetTotalFreeCoeff() const;
 
 

@@ -88,6 +88,7 @@ RangeOfMotionConstraint::EvaluateConstraint () const
 
 
 
+
 //  // refactor _write out really simple constraint just to test ZMP motion
 //  auto feet = supp_polygon_container_.GetFootholds();
 //  for (const auto& f : feet) {
@@ -225,11 +226,77 @@ RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empy matrix
 
+  // rows alternate between x,y
+
+
+
+
+  using Triplet =  Eigen::Triplet<double>;
+
+
+
   if (var_set == VariableNames::kFootholds) {
     int n = supp_polygon_container_.GetTotalFreeCoeff();
-    jac = Jacobian(n,n);
-    jac.setIdentity();
+    int m = EvaluateConstraint().rows(); // count number of constraints
+    jac = Jacobian(m,n);
+
+
+    auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
+
+
+    int row=0;
+    std::vector<Triplet> jac_triplets;
+    for (auto stance : vec_stance_feet_W) {
+
+      for (auto contact : stance) {
+
+        int foothold_id = contact.id;
+        if (foothold_id != xpp::hyq::Foothold::kFixedByStart) {
+          for (auto dim : {X,Y}) {
+            jac_triplets.push_back(Triplet(row+dim, SupportPolygonContainer::Index(foothold_id,dim), 1.0));
+          }
+        }
+        row += kDim2d;
+      }
+    }
+
+    jac.setFromTriplets(jac_triplets.begin(), jac_triplets.end());
   }
+
+
+
+
+  if (var_set == VariableNames::kSplineCoeff) {
+    int m = EvaluateConstraint().rows(); // count number of constraints
+    int n = com_motion_->GetTotalFreeCoeff();
+    jac = Jacobian(m,n);
+
+
+    auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
+
+    int row=0;
+    for (int k=0; k<stance_feet_cal_.times_.size(); ++k) {
+
+      double t = stance_feet_cal_.times_.at(k);
+
+      for (auto stance : vec_stance_feet_W.at(k))
+        for (auto dim : {X,Y})
+          jac.row(row++) = -com_motion_->GetJacobian(t,kPos,dim);
+    }
+  }
+
+
+
+//  // keep this somehow, nice for debuggin
+//  if (var_set == VariableNames::kFootholds) {
+//    int n = supp_polygon_container_.GetTotalFreeCoeff();
+//    jac = Jacobian(n,n);
+//    jac.setIdentity();
+//  }
+
+
+
+
 
   return jac;
 }
