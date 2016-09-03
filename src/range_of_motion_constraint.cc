@@ -24,6 +24,17 @@ RangeOfMotionConstraint::Init (const OptimizationVariablesInterpreter& interpret
 {
   com_motion_             = interpreter.GetSplineStructure();
   supp_polygon_container_ = interpreter.GetSuppPolygonContainer();
+
+  // the times at which to evalute the constraint
+  double t = 0.0;
+  double dt = 0.1;
+  std::vector<double> vec_t;
+  while (t < com_motion_->GetTotalTime()) {
+    vec_t.push_back(t);
+    t += dt;
+  }
+
+  stance_feet_cal_.Init(vec_t, *com_motion_, supp_polygon_container_);
 }
 
 void
@@ -32,6 +43,9 @@ RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
 
+  stance_feet_cal_.Update(x_coeff, utils::ConvertEigToStd(footholds));
+
+
   com_motion_->SetCoefficients(x_coeff);
   supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
@@ -39,14 +53,49 @@ RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 RangeOfMotionConstraint::VectorXd
 RangeOfMotionConstraint::EvaluateConstraint () const
 {
+//  using namespace xpp::utils::coords_wrapper; // X, Y
   std::vector<double> g_vec;
 
-  // refactor _write out really simple constraint just to test ZMP motion
-  auto feet = supp_polygon_container_.GetFootholds();
-  for (const auto& f : feet) {
-    g_vec.push_back(f.p.x());
-    g_vec.push_back(f.p.y());
+
+  // for every discrete time t
+  auto vec_com_pos_W = stance_feet_cal_.CalculateComPostionInWorld();
+  auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
+
+  for (int k=0; k<vec_com_pos_W.size(); ++k) {
+
+    PosXY com_pos_k     = vec_com_pos_W.at(k);
+    auto stance_feet_k = vec_stance_feet_W.at(k);
+
+    for (auto contact : stance_feet_k) {
+
+      for (auto dim : {X,Y}) {
+        if(contact.id == xpp::hyq::Foothold::kFixedByStart)
+          g_vec.push_back( -com_pos_k(dim) ); // contact goes in bounds because never changes
+        else
+          g_vec.push_back(contact.p(dim) - com_pos_k(dim));
+      }
+    }
   }
+
+
+
+
+
+
+
+
+
+
+
+
+//  // refactor _write out really simple constraint just to test ZMP motion
+//  auto feet = supp_polygon_container_.GetFootholds();
+//  for (const auto& f : feet) {
+//    g_vec.push_back(f.p.x());
+//    g_vec.push_back(f.p.y());
+//  }
+
+
 
 
 
@@ -88,18 +137,58 @@ RangeOfMotionConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
 
-  // this is for creating fixed footholds (remember to comment in constraints above as well)
-  auto start_stance = supp_polygon_container_.GetStartStance();
-  auto steps = supp_polygon_container_.GetFootholds();
+  double d = 0.3; // bounding box edge length of each foot
 
-  double step_length = 0.15;
-  for (const auto& s : steps) {
-    auto leg = s.leg;
-    auto start_foothold = hyq::Foothold::GetLastFoothold(leg, start_stance);
 
-    bounds.push_back(Bound(start_foothold.p.x() + step_length, start_foothold.p.x() + step_length));
-    bounds.push_back(Bound(start_foothold.p.y(), start_foothold.p.y()));
+  auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
+
+  for (auto stance : vec_stance_feet_W) {
+
+    for (auto contact : stance) {
+
+      PosXY pos_nom_B = GetNominalPositionInBase(contact.leg);
+
+      for (auto dim : {X,Y}) {
+
+        Bound b;
+        b.upper_ = pos_nom_B(dim) + d/2.;
+        b.lower_ = pos_nom_B(dim) - d/2.;
+
+        if (contact.id == xpp::hyq::Foothold::kFixedByStart) {
+          b -= contact.p(dim);
+        }
+
+        bounds.push_back(b);
+
+      }
+
+    }
+
   }
+
+
+
+
+
+
+
+
+
+
+
+
+//  // this is for creating fixed footholds (remember to comment in constraints above as well)
+//  auto start_stance = supp_polygon_container_.GetStartStance();
+//  auto steps = supp_polygon_container_.GetFootholds();
+//
+//  double step_length = 0.15;
+//  for (const auto& s : steps) {
+//    auto leg = s.leg;
+//    auto start_foothold = hyq::Foothold::GetLastFoothold(leg, start_stance);
+//
+//    bounds.push_back(Bound(start_foothold.p.x() + step_length, start_foothold.p.x() + step_length));
+//    bounds.push_back(Bound(start_foothold.p.y(), start_foothold.p.y()));
+//  }
 
 
 

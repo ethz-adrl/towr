@@ -42,6 +42,9 @@ public:
 
 
   StanceFeetCalculator ();
+  StanceFeetCalculator (const std::vector<double>& times, const ComMotion&,
+                        const SupportPolygonContainer&);
+
   virtual ~StanceFeetCalculator ();
 
   void Init(const std::vector<double>& times, const ComMotion&,
@@ -65,7 +68,7 @@ private:
   std::vector<double> times_;
 
   ComMotionPtrU com_motion_;
-  ComSuppPolyPtrU supp_polygon_container_;
+  ComSuppPolyPtrU foothold_container_;
 
 //  double robot_height_;
 //  StanceFootholds ConvertFeetToBase(const StanceFootholds& ee_i, const PosXYZ& cog_i) const;

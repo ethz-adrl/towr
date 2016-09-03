@@ -6,7 +6,6 @@
  */
 
 #include <xpp/zmp/stance_feet_calculator.h>
-
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/com_motion.h>
 
@@ -16,6 +15,13 @@ namespace zmp {
 StanceFeetCalculator::StanceFeetCalculator ()
 {
   // TODO Auto-generated constructor stub
+}
+
+StanceFeetCalculator::StanceFeetCalculator (const std::vector<double>& times,
+                                            const ComMotion& com_motion,
+                                            const SupportPolygonContainer& supp)
+{
+  Init(times, com_motion, supp);
 }
 
 StanceFeetCalculator::~StanceFeetCalculator ()
@@ -29,7 +35,7 @@ StanceFeetCalculator::Init (const std::vector<double>& times, const ComMotion& c
 {
   times_ = times;
   com_motion_ = com_motion.clone();
-  supp_polygon_container_ = ComSuppPolyPtrU(new SupportPolygonContainer(supp_poly));
+  foothold_container_ = ComSuppPolyPtrU(new SupportPolygonContainer(supp_poly));
 }
 
 void
@@ -37,7 +43,7 @@ StanceFeetCalculator::Update (const MotionCoeff& motion_coeff,
                               const PositionVecT& footholds_xy)
 {
   com_motion_->SetCoefficients(motion_coeff);
-  supp_polygon_container_->SetFootholdsXY(footholds_xy);
+  foothold_container_->SetFootholdsXY(footholds_xy);
 }
 
 StanceFeetCalculator::PositionVecT
@@ -55,7 +61,7 @@ StanceFeetCalculator::GetStanceFootholdsInWorld () const
 {
   StanceVecT stance_footholds;
 
-  auto supp = supp_polygon_container_->AssignSupportPolygonsToPhases(*com_motion_);
+  auto supp = foothold_container_->AssignSupportPolygonsToPhases(*com_motion_);
 
   for (double t : times_) {
     int phase = com_motion_->GetCurrentPhase(t).id_;

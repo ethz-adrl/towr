@@ -26,6 +26,11 @@ public:
     }
     double lower_;
     double upper_;
+
+    void operator-=(double scalar) {
+      lower_ -= scalar;
+      upper_ -= scalar;
+    }
   };
   typedef Eigen::VectorXd VectorXd;
   typedef std::vector<Bound> VecBound;
