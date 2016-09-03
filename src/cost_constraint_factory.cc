@@ -34,9 +34,9 @@ CostConstraintFactory::~CostConstraintFactory ()
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateInitialConstraint (const State2d& init,
-                                                const ComSplinePtr& spline)
+                                                const ComMotion& motion)
 {
-  LinearSplineEquations eq(*spline);
+  LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.MakeInitial(init));
   return constraint;
@@ -44,18 +44,18 @@ CostConstraintFactory::CreateInitialConstraint (const State2d& init,
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
-                                              const ComSplinePtr& spline)
+                                              const ComMotion& motion)
 {
-  LinearSplineEquations eq(*spline);
+  LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.MakeFinal(final_state_xy));
   return constraint;
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateJunctionConstraint (const ComSplinePtr& spline)
+CostConstraintFactory::CreateJunctionConstraint (const ComMotion& motion)
 {
-  LinearSplineEquations eq(*spline);
+  LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.MakeJunction());
   return constraint;
@@ -96,9 +96,9 @@ CostConstraintFactory::CreateObstacleConstraint ()
 }
 
 CostConstraintFactory::CostPtr
-CostConstraintFactory::CreateAccelerationCost (const ComSplinePtr& spline)
+CostConstraintFactory::CreateAccelerationCost (const ComMotion& motion)
 {
-  LinearSplineEquations eq(*spline);
+  LinearSplineEquations eq(motion);
   auto cost = std::make_shared<QuadraticSplineCost>();
   cost->Init(eq.MakeAcceleration(1.0,3.0));
   return cost;
@@ -106,9 +106,9 @@ CostConstraintFactory::CreateAccelerationCost (const ComSplinePtr& spline)
 
 CostConstraintFactory::CostPtr
 CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
-                                       const ComSplinePtr& spline)
+                                       const ComMotion& motion)
 {
-  LinearSplineEquations eq(*spline);
+  LinearSplineEquations eq(motion);
   auto cost = std::make_shared<SquaredSplineCost>();
   cost->Init(eq.MakeFinal(final_state_xy));
   return cost;

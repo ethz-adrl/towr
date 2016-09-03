@@ -21,7 +21,6 @@ namespace zmp {
 
 class AConstraint;
 class ACost;
-class ComSpline;
 class ComMotion;
 class OptimizationVariablesInterpreter;
 
@@ -35,7 +34,6 @@ class OptimizationVariablesInterpreter;
 class CostConstraintFactory {
 public:
   typedef std::shared_ptr<AConstraint> ConstraintPtr;
-  typedef std::shared_ptr<ComSpline> ComSplinePtr;
   typedef std::shared_ptr<ACost> CostPtr;
   typedef Eigen::Vector2d Vector2d;
   typedef xpp::utils::Point2d State2d;
@@ -44,16 +42,16 @@ public:
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();
 
-  static ConstraintPtr CreateInitialConstraint(const State2d& init, const ComSplinePtr&);
-  static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ComSplinePtr&);
-  static ConstraintPtr CreateJunctionConstraint(const ComSplinePtr&);
+  static ConstraintPtr CreateInitialConstraint(const State2d& init, const ComMotion&);
+  static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ComMotion&);
+  static ConstraintPtr CreateJunctionConstraint(const ComMotion&);
   static ConstraintPtr CreateZmpConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&);
 //  static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateObstacleConstraint();
 
-  static CostPtr CreateAccelerationCost(const ComSplinePtr&);
-  static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComSplinePtr&);
+  static CostPtr CreateAccelerationCost(const ComMotion&);
+  static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComMotion&);
   static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const Contacts&);
 };
 

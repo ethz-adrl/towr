@@ -20,20 +20,20 @@ RangeOfMotionConstraint::RangeOfMotionConstraint ()
 void
 RangeOfMotionConstraint::Init (const ComMotion& com_motion, const Contacts& contacts)
 {
-  com_motion_             = com_motion.clone();
-  supp_polygon_container_ = ContactPtrU(new Contacts(contacts));
+  com_motion_ = com_motion.clone();
+  contacts_   = ContactPtrU(new Contacts(contacts));
 
 
   // the times at which to evalute the constraint
   double dt = 0.1;
 
-  auto start_feet = supp_polygon_container_->GetStartStance();
+  auto start_feet = contacts_->GetStartStance();
   MotionStructure::LegIDVec start_legs;
   for (const auto& f : start_feet) {
     start_legs.push_back(f.leg);
   }
 
-  auto step_feet = supp_polygon_container_->GetFootholds();
+  auto step_feet = contacts_->GetFootholds();
   MotionStructure::LegIDVec step_legs;
   for (const auto& f : step_feet) {
     step_legs.push_back(f.leg);
@@ -44,7 +44,7 @@ RangeOfMotionConstraint::Init (const ComMotion& com_motion, const Contacts& cont
   motion_info_ = motion_structure.GetContactInfoVec(dt);
 
 
-  int n_contacts = supp_polygon_container_->GetTotalFreeCoeff();
+  int n_contacts = contacts_->GetTotalFreeCoeff();
   int n_motion   = com_motion_->GetTotalFreeCoeff();
   int m_constraints = motion_info_.size() * kDim2d;
 
@@ -62,7 +62,7 @@ RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
 
   com_motion_->SetCoefficients(x_coeff);
-  supp_polygon_container_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
+  contacts_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
 RangeOfMotionConstraint::VectorXd
@@ -77,7 +77,7 @@ RangeOfMotionConstraint::EvaluateConstraint () const
     PosXY contact_pos = PosXY::Zero();
 
     if(c.foothold_id_ != xpp::hyq::Foothold::kFixedByStart) {
-      auto footholds = supp_polygon_container_->GetFootholds();
+      auto footholds = contacts_->GetFootholds();
       contact_pos = footholds.at(c.foothold_id_).p.topRows(kDim2d);
     }
 
@@ -107,7 +107,7 @@ RangeOfMotionConstraint::GetBounds () const
 
     PosXY start_offset = PosXY::Zero(); // because initial foothold is fixed
     if (c.foothold_id_ == xpp::hyq::Foothold::kFixedByStart) {
-      start_offset = supp_polygon_container_->GetStartFoothold(c.leg_).p.topRows(kDim2d);
+      start_offset = contacts_->GetStartFoothold(c.leg_).p.topRows(kDim2d);
     }
 
     PosXY pos_nom_B = GetNominalPositionInBase(c.leg_);

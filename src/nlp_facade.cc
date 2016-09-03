@@ -65,27 +65,27 @@ NlpFacade::SolveNlp(const State& initial_state,
   contacts.Init(curr_stance, step_sequence, margins);
 
 //  auto com_spline = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
-  auto com_spline = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
+  auto com_motion = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
 
-  opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_spline->GetCoeffients());
+  opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
   opt_variables_->AddVariableSet(VariableNames::kFootholds, contacts.GetFootholdsInitializedToStart());
 
   // save the framework of the optimization problem
   OptimizationVariablesInterpreter interpreter;
-  interpreter.Init(com_spline, contacts, robot_height);
+  interpreter.Init(com_motion, contacts, robot_height);
   interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();
-  constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, com_spline));
-  constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, com_spline));
-  constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(com_spline));
+  constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, *com_motion));
+  constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, *com_motion));
+  constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(*com_motion));
   constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(interpreter));
-  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_spline, contacts ));
+  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts ));
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint());
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 
   costs_->ClearCosts();
-  costs_->AddCost(CostConstraintFactory::CreateAccelerationCost(com_spline));
+  costs_->AddCost(CostConstraintFactory::CreateAccelerationCost(*com_motion));
   // careful: these are not quite debugged yet
 //  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
 //  costs_->AddCost(CostConstraintFactory::CreateFinalComCost(final_state, spline_structure));

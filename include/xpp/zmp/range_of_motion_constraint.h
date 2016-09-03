@@ -46,14 +46,13 @@ private:
   void SetJacobianWrtContacts();
   void SetJacobianWrtMotion();
 
-  ContactPtrU supp_polygon_container_;
+  ContactPtrU contacts_;
   ComMotionPtrU com_motion_;
 
   MotionStructure::MotionInfoVec motion_info_;
 
   Jacobian jac_wrt_contacts_;
   Jacobian jac_wrt_motion_;
-
 };
 
 } /* namespace zmp */

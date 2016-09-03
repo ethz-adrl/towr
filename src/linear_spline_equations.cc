@@ -12,8 +12,9 @@ namespace xpp {
 namespace zmp {
 
 using namespace xpp::utils;
+using namespace xpp::utils::coords_wrapper; //kPos,kVel,kAcc,kJerk
 
-LinearSplineEquations::LinearSplineEquations (const ComSpline& com_spline )
+LinearSplineEquations::LinearSplineEquations (const ComMotion& com_spline )
 {
   // cast com motion to spline, because i need some specific features of that
   auto base_ptr = com_spline.clone();
