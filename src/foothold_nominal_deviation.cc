@@ -63,8 +63,6 @@ FootholdNominalDeviation::GetFeetInBase (
 
 
 
-
-
   for (double t : vec_t) {
 
     // get legs in contact at each step

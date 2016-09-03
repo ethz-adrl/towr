@@ -95,7 +95,8 @@ public:
   // DEPRECATED:
   // The phase information should only be used from the base class
   // com_motion and not linked to a specific spline. This is an implementation
-  // detail not relevant outside the optimizer
+  // detail not relevant outside the optimizer. Also the step info is not
+  // neccessary here as well, remove.
   // Will remove soon.
   // refactor remove deprecated phase stuff
   bool DeprecatedIsFourLegSupport() const { return deprecated_phase_.type_ == kStancePhase; }

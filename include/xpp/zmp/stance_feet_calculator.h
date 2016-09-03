@@ -22,25 +22,46 @@ namespace zmp {
   */
 class StanceFeetCalculator {
 public:
-  typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
-  typedef ComMotion::PtrS ComSplinePtr;
-  typedef Eigen::Vector3d Vector3d;
+  typedef std::vector<xpp::hyq::Foothold> StanceFootholds;
+
+  // for every discrete time
+  using ComPositionVecT = xpp::utils::StdVecEigen2d;
+  using StanceVecT      = std::vector<StanceFootholds>;
+
+
+  using SupportPolygonContainer = xpp::hyq::SupportPolygonContainer;
+  using ComSplinePtr = ComMotion::PtrS;
+  using PosXY = Eigen::Vector2d;
+  using PosXYZ = Eigen::Vector3d;
 
   StanceFeetCalculator ();
   virtual ~StanceFeetCalculator ();
 
-  void Update(const VecFoothold& start_stance, const VecFoothold& steps,
+  void Init(const std::vector<double>& times);
+
+  void Update(const StanceFootholds& start_stance, const StanceFootholds& steps,
               const ComSplinePtr& cog_spline, double robot_height);
-  VecFoothold GetStanceFeetInBase(double t) const;
+  StanceFootholds GetStanceFeetInBase(double t) const;
+
+
+  // new and improved functions
+  ComPositionVecT CalculateComPostionInWorld() const;
+  StanceVecT GetStanceFootholdsInWorld() const;
+  PosXY GetNominalPositionInBase(xpp::hyq::LegID leg) const;
 
 private:
-  VecFoothold ConvertFeetToBase(const VecFoothold& ee_i, const Vector3d& cog_i) const;
+  std::vector<double> times_;
+
+
+
+  StanceFootholds ConvertFeetToBase(const StanceFootholds& ee_i, const PosXYZ& cog_i) const;
   bool AreSame(double time_1, double time_2) const;
 
   ComSplinePtr com_motion_;
   SupportPolygonContainer supp_polygon_container_;
   double robot_height_;
+
+
 };
 
 } /* namespace zmp */

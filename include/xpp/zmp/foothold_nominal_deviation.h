@@ -28,6 +28,8 @@ public:
   StdVecEigen2d GetFeetInBase(const ComMotionPtr&,
                               const SupportPolygonContainer&,
                               StdVecEigen2d& nominal_foothold_b_) const;
+
+private:
 };
 
 } /* namespace zmp */

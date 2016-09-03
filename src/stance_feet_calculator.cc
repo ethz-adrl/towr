@@ -22,8 +22,38 @@ StanceFeetCalculator::~StanceFeetCalculator ()
 }
 
 void
-StanceFeetCalculator::Update (const VecFoothold& start_stance,
-                              const VecFoothold& steps,
+StanceFeetCalculator::Init (const std::vector<double>& times)
+{
+  times_ = times;
+}
+
+StanceFeetCalculator::ComPositionVecT
+StanceFeetCalculator::CalculateComPostionInWorld () const
+{
+  ComPositionVecT com_pos;
+  for (double t : times_)
+    com_pos.push_back(com_motion_->GetCom(t).p);
+
+  return com_pos;
+}
+
+StanceFeetCalculator::StanceVecT
+StanceFeetCalculator::GetStanceFootholdsInWorld () const
+{
+  StanceVecT stance_footholds;
+
+  auto supp = supp_polygon_container_.AssignSupportPolygonsToPhases(*com_motion_);
+
+  for (double t : times_) {
+    int phase = com_motion_->GetCurrentPhase(t).id_;
+    stance_footholds.push_back(supp.at(phase).GetFootholds());
+  }
+
+}
+
+void
+StanceFeetCalculator::Update (const StanceFootholds& start_stance,
+                              const StanceFootholds& steps,
                               const ComSplinePtr& cog_spline,
                               double robot_height)
 {
@@ -32,23 +62,20 @@ StanceFeetCalculator::Update (const VecFoothold& start_stance,
   robot_height_ = robot_height;
 }
 
-StanceFeetCalculator::VecFoothold
+StanceFeetCalculator::StanceFootholds
 StanceFeetCalculator::GetStanceFeetInBase (double t) const
 {
   std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
       supp_polygon_container_.AssignSupportPolygonsToPhases(*com_motion_);
 
   // legs in contact during each step/spline
-  VecFoothold p_stance_legs_i;
+  StanceFootholds p_stance_legs_i;
   int phase_id = com_motion_->GetCurrentPhase(t).id_;
 
 
   // because last swing support polygon will not restrict landing position of foot
   double T = com_motion_->GetTotalTime();
 
-//  std::cout << "T_else: " << T_else << std::endl;
-//  double T = SplineContainer::GetDiscretizedGlobalTimes(cog_spline_xy_).back();
-//  std::cout << "T: " << T << std::endl;
   if (AreSame(t,T))
     p_stance_legs_i = supp_polygon_container_.GetFinalFootholds();
   else
@@ -56,7 +83,7 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
 
   // body position during the step
   xpp::utils::Point2d cog_xy_i = com_motion_->GetCom(t);
-  Vector3d cog_i;
+  PosXYZ cog_i;
   cog_i << cog_xy_i.p.x(),
            cog_xy_i.p.y(),
            robot_height_;
@@ -64,11 +91,11 @@ StanceFeetCalculator::GetStanceFeetInBase (double t) const
   return ConvertFeetToBase(p_stance_legs_i, cog_i);
 }
 
-StanceFeetCalculator::VecFoothold
-StanceFeetCalculator::ConvertFeetToBase (const VecFoothold& endeffectors_i,
-                                         const Vector3d& cog_i) const
+StanceFeetCalculator::StanceFootholds
+StanceFeetCalculator::ConvertFeetToBase (const StanceFootholds& endeffectors_i,
+                                         const PosXYZ& cog_i) const
 {
-  VecFoothold p_stance_legs_b = endeffectors_i;
+  StanceFootholds p_stance_legs_b = endeffectors_i;
 
   for (uint e=0; e<endeffectors_i.size(); ++e) {
     p_stance_legs_b.at(e).p.x() -= cog_i.x();
