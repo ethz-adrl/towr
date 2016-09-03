@@ -53,7 +53,6 @@ RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 RangeOfMotionConstraint::VectorXd
 RangeOfMotionConstraint::EvaluateConstraint () const
 {
-//  using namespace xpp::utils::coords_wrapper; // X, Y
   std::vector<double> g_vec;
 
 
@@ -63,14 +62,17 @@ RangeOfMotionConstraint::EvaluateConstraint () const
 
     PosXY com_pos = com_motion_->GetCom(c.time_).p;
 
-    for (auto dim : {X,Y}) {
-      if(c.foothold_id_ == xpp::hyq::Foothold::kFixedByStart)
-        g_vec.push_back( -com_pos(dim) ); // contact goes in bounds because never changes
-      else {
-        auto f = supp_polygon_container_.GetFootholds().at(c.foothold_id_);
-        g_vec.push_back(f.p(dim) - com_pos(dim));
-      }
+    PosXY contact_pos = PosXY::Zero();
+
+    if(c.foothold_id_ != xpp::hyq::Foothold::kFixedByStart) {
+      auto footholds = supp_polygon_container_.GetFootholds();
+      contact_pos = footholds.at(c.foothold_id_).p.topRows(kDim2d);
     }
+
+    for (auto dim : {X,Y})
+      g_vec.push_back(contact_pos(dim) - com_pos(dim));
+
+
   }
 
 

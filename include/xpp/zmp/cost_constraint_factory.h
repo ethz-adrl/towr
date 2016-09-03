@@ -53,7 +53,6 @@ public:
 
   static CostPtr CreateAccelerationCost(const ComSplinePtr&);
   static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComSplinePtr&);
-  static CostPtr CreateRangeOfMotionCost(const OptimizationVariablesInterpreter&);
   static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const SupportPolygonContainer& supp_polygon_container);
 };
 

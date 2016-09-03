@@ -33,9 +33,10 @@ void
 StanceFeetCalculator::Init (const std::vector<double>& times, const ComMotion& com_motion,
                             const SupportPolygonContainer& supp_poly)
 {
-  times_ = times;
   com_motion_ = com_motion.clone();
   foothold_container_ = ComSuppPolyPtrU(new SupportPolygonContainer(supp_poly));
+  contact_info_vec_ = BuildContactInfoVec(times);
+
 }
 
 void
@@ -46,38 +47,38 @@ StanceFeetCalculator::Update (const MotionCoeff& motion_coeff,
   foothold_container_->SetFootholdsXY(footholds_xy);
 }
 
-StanceFeetCalculator::PositionVecT
-StanceFeetCalculator::CalculateComPostionInWorld () const
-{
-  PositionVecT com_pos;
-  for (double t : times_)
-    com_pos.push_back(com_motion_->GetCom(t).p);
-
-  return com_pos;
-}
-
-StanceFeetCalculator::StanceVecT
-StanceFeetCalculator::GetStanceFootholdsInWorld () const
-{
-  StanceVecT stance_footholds;
-
-  auto supp = foothold_container_->AssignSupportPolygonsToPhases(*com_motion_);
-
-  for (double t : times_) {
-    int phase = com_motion_->GetCurrentPhase(t).id_;
-    stance_footholds.push_back(supp.at(phase).GetFootholds());
-  }
-
-  return stance_footholds;
-}
+//StanceFeetCalculator::PositionVecT
+//StanceFeetCalculator::CalculateComPostionInWorld () const
+//{
+//  PositionVecT com_pos;
+//  for (double t : times_)
+//    com_pos.push_back(com_motion_->GetCom(t).p);
+//
+//  return com_pos;
+//}
+//
+//StanceFeetCalculator::StanceVecT
+//StanceFeetCalculator::GetStanceFootholdsInWorld () const
+//{
+//  StanceVecT stance_footholds;
+//
+//  auto supp = foothold_container_->AssignSupportPolygonsToPhases(*com_motion_);
+//
+//  for (double t : times_) {
+//    int phase = com_motion_->GetCurrentPhase(t).id_;
+//    stance_footholds.push_back(supp.at(phase).GetFootholds());
+//  }
+//
+//  return stance_footholds;
+//}
 
 std::vector<StanceFeetCalculator::ContactInfo>
-StanceFeetCalculator::GetContactInfoVec () const
+StanceFeetCalculator::BuildContactInfoVec (const std::vector<double>& times) const
 {
   auto supp = foothold_container_->AssignSupportPolygonsToPhases(*com_motion_);
 
   std::vector<ContactInfo> info;
-  for (double t : times_) {
+  for (double t : times) {
     int phase = com_motion_->GetCurrentPhase(t).id_;
     auto stance_feet = supp.at(phase).GetFootholds();
 
@@ -88,6 +89,11 @@ StanceFeetCalculator::GetContactInfoVec () const
   return info;
 }
 
+std::vector<StanceFeetCalculator::ContactInfo>
+StanceFeetCalculator::GetContactInfoVec () const
+{
+  return contact_info_vec_;
+}
 
 
 } /* namespace zmp */

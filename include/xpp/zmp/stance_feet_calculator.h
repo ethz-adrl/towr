@@ -57,8 +57,10 @@ public:
 
 
   // new and improved functions
-  PositionVecT CalculateComPostionInWorld() const;
-  StanceVecT GetStanceFootholdsInWorld() const;
+//  PositionVecT CalculateComPostionInWorld() const;
+//  StanceVecT GetStanceFootholdsInWorld() const;
+
+
 
 
 
@@ -73,16 +75,18 @@ public:
 
   // this info will never change! fixed once initially
   // should move to higher level class
-  std::vector<ContactInfo> GetContactInfoVec() const;
+  std::vector<ContactInfo> BuildContactInfoVec(const std::vector<double>& times) const;
 
+
+  std::vector<ContactInfo> GetContactInfoVec() const;
 
 
 //  void Update(const StanceFootholds& start_stance, const StanceFootholds& steps,
 //              const ComSplinePtr& cog_spline, double robot_height);
 //  StanceFootholds GetStanceFeetInBase(double t) const;
 
-  std::vector<double> times_;
 private:
+  std::vector<ContactInfo> contact_info_vec_;
 
   ComMotionPtrU com_motion_;
   ComSuppPolyPtrU foothold_container_;

@@ -15,7 +15,6 @@
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/zmp/obstacle_constraint.h>
 
-#include <xpp/zmp/range_of_motion_cost.h>
 #include <xpp/zmp/a_foothold_cost.h>
 #include <xpp/zmp/a_spline_cost.h>
 
@@ -110,14 +109,6 @@ CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
   LinearSplineEquations eq(*spline);
   auto cost = std::make_shared<SquaredSplineCost>();
   cost->Init(eq.MakeFinal(final_state_xy));
-  return cost;
-}
-
-CostConstraintFactory::CostPtr
-CostConstraintFactory::CreateRangeOfMotionCost (const OptimizationVariablesInterpreter& interpreter)
-{
-  auto cost = std::make_shared<RangeOfMotionCost>();
-  cost->Init(interpreter);
   return cost;
 }
 
