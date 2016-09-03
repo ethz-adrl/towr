@@ -148,7 +148,7 @@ set(SOURCES
   src/constraint_container.cc
   src/zmp_constraint.cc
   src/range_of_motion_constraint.cc
-  src/joint_angles_constraint.cc
+#  src/joint_angles_constraint.cc
   src/obstacle_constraint.cc
   # costs
   src/a_spline_cost.cc

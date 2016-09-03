@@ -145,6 +145,21 @@ RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
   return jac;
 }
 
+RangeOfMotionConstraint::PosXY
+RangeOfMotionConstraint::GetNominalPositionInBase (LegID leg) const
+{
+  const double x_nominal_b = 0.36; // 0.4
+  const double y_nominal_b = 0.33; // 0.4
+
+  switch (leg) {
+    case hyq::LF: return PosXY( x_nominal_b,   y_nominal_b); break;
+    case hyq::RF: return PosXY( x_nominal_b,  -y_nominal_b); break;
+    case hyq::LH: return PosXY(-x_nominal_b,   y_nominal_b); break;
+    case hyq::RH: return PosXY(-x_nominal_b,  -y_nominal_b); break;
+    default: assert(false); // this should never happen
+  }
+}
+
 } /* namespace zmp */
 } /* namespace xpp */
 

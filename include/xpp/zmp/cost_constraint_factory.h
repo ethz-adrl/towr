@@ -48,7 +48,7 @@ public:
   static ConstraintPtr CreateJunctionConstraint(const ComSplinePtr&);
   static ConstraintPtr CreateZmpConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateRangeOfMotionConstraint(const OptimizationVariablesInterpreter&);
-  static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
+//  static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateObstacleConstraint();
 
   static CostPtr CreateAccelerationCost(const ComSplinePtr&);

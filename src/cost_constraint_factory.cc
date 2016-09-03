@@ -5,13 +5,13 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/zmp/cost_constraint_factory.h"
+#include <xpp/zmp/cost_constraint_factory.h>
 
 #include <xpp/zmp/linear_spline_equations.h>
 #include <xpp/zmp/a_linear_constraint.h>
 #include <xpp/zmp/zmp_constraint.h>
 #include <xpp/zmp/range_of_motion_constraint.h>
-#include <xpp/zmp/joint_angles_constraint.h>
+//#include <xpp/zmp/joint_angles_constraint.h>
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/zmp/obstacle_constraint.h>
 
@@ -77,15 +77,15 @@ CostConstraintFactory::CreateRangeOfMotionConstraint (
   return constraint;
 }
 
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateJointAngleConstraint (
-    const OptimizationVariablesInterpreter& interpreter)
-{
-  auto inv_kin = std::make_shared<xpp::hyq::HyqInverseKinematics>();
-  auto constraint = std::make_shared<JointAnglesConstraint>();
-  constraint->Init(interpreter, inv_kin);
-  return constraint;
-}
+//CostConstraintFactory::ConstraintPtr
+//CostConstraintFactory::CreateJointAngleConstraint (
+//    const OptimizationVariablesInterpreter& interpreter)
+//{
+//  auto inv_kin = std::make_shared<xpp::hyq::HyqInverseKinematics>();
+//  auto constraint = std::make_shared<JointAnglesConstraint>();
+//  constraint->Init(interpreter, inv_kin);
+//  return constraint;
+//}
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateObstacleConstraint ()

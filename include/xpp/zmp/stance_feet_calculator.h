@@ -5,15 +5,24 @@
  @brief   Brief description
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_STANCE_FEET_CALCULATOR_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_STANCE_FEET_CALCULATOR_H_
+#ifndef XPP_OPT_INCLUDE_XPP_ZMP_STANCE_FEET_CALCULATOR_H_
+#define XPP_OPT_INCLUDE_XPP_ZMP_STANCE_FEET_CALCULATOR_H_
 
-#include <xpp/hyq/foothold.h>
-#include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/com_motion.h>
+#include <Eigen/Dense>
+#include <Eigen/StdVector> // for std::vector<Eigen:...>
+#include <vector>
+#include <memory>
 
 namespace xpp {
+
+namespace hyq {
+class Foothold;
+class SupportPolygonContainer;
+}
+
 namespace zmp {
+
+class ComMotion;
 
 /** @brief Determines the relationship between stance legs and CoG position.
   *
@@ -22,44 +31,45 @@ namespace zmp {
   */
 class StanceFeetCalculator {
 public:
-  typedef std::vector<xpp::hyq::Foothold> StanceFootholds;
-
-  // for every discrete time
-  using ComPositionVecT = xpp::utils::StdVecEigen2d;
+  using StanceFootholds = std::vector<xpp::hyq::Foothold>;
   using StanceVecT      = std::vector<StanceFootholds>;
+  using PositionVecT    = std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> >;
 
-
+  using MotionCoeff  = Eigen::VectorXd;
   using SupportPolygonContainer = xpp::hyq::SupportPolygonContainer;
-  using ComSplinePtr = ComMotion::PtrS;
-  using PosXY = Eigen::Vector2d;
-  using PosXYZ = Eigen::Vector3d;
+  using ComMotionPtrU = std::unique_ptr<ComMotion>;
+  using ComSuppPolyPtrU = std::unique_ptr<SupportPolygonContainer>;
+
 
   StanceFeetCalculator ();
   virtual ~StanceFeetCalculator ();
 
-  void Init(const std::vector<double>& times);
+  void Init(const std::vector<double>& times, const ComMotion&,
+            const SupportPolygonContainer&);
 
-  void Update(const StanceFootholds& start_stance, const StanceFootholds& steps,
-              const ComSplinePtr& cog_spline, double robot_height);
-  StanceFootholds GetStanceFeetInBase(double t) const;
+  void Update(const MotionCoeff&, const PositionVecT&);
+
 
 
   // new and improved functions
-  ComPositionVecT CalculateComPostionInWorld() const;
+  PositionVecT CalculateComPostionInWorld() const;
   StanceVecT GetStanceFootholdsInWorld() const;
-  PosXY GetNominalPositionInBase(xpp::hyq::LegID leg) const;
+
+
+
+//  void Update(const StanceFootholds& start_stance, const StanceFootholds& steps,
+//              const ComSplinePtr& cog_spline, double robot_height);
+//  StanceFootholds GetStanceFeetInBase(double t) const;
 
 private:
   std::vector<double> times_;
 
+  ComMotionPtrU com_motion_;
+  ComSuppPolyPtrU supp_polygon_container_;
 
-
-  StanceFootholds ConvertFeetToBase(const StanceFootholds& ee_i, const PosXYZ& cog_i) const;
-  bool AreSame(double time_1, double time_2) const;
-
-  ComSplinePtr com_motion_;
-  SupportPolygonContainer supp_polygon_container_;
-  double robot_height_;
+//  double robot_height_;
+//  StanceFootholds ConvertFeetToBase(const StanceFootholds& ee_i, const PosXYZ& cog_i) const;
+//  bool AreSame(double time_1, double time_2) const;
 
 
 };
@@ -67,4 +77,4 @@ private:
 } /* namespace zmp */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_STANCE_FEET_CALCULATOR_H_ */
+#endif /* XPP_OPT_INCLUDE_XPP_ZMP_STANCE_FEET_CALCULATOR_H_ */

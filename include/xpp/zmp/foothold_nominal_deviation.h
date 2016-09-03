@@ -14,6 +14,7 @@
 namespace xpp {
 namespace zmp {
 
+// refactor remove this class
 class FootholdNominalDeviation {
 public:
 

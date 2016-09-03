@@ -21,6 +21,8 @@ class RangeOfMotionConstraint : public AConstraint {
 public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
   typedef FootholdNominalDeviation::ComMotionPtr ComMotionPtr;
+  using PosXY = Eigen::Vector2d;
+  using LegID = xpp::hyq::LegID;
 
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint () {};
@@ -33,6 +35,8 @@ public:
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
+  PosXY GetNominalPositionInBase(LegID leg) const;
+
   SupportPolygonContainer supp_polygon_container_;
   ComMotionPtr com_motion_;
 
