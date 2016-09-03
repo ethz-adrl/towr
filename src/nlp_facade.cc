@@ -61,18 +61,18 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   std::cout << "start_with_com_shift: " << start_with_com_shift;
 
-  xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  supp_polygon_container.Init(curr_stance, step_sequence, margins);
+  xpp::hyq::SupportPolygonContainer contacts;
+  contacts.Init(curr_stance, step_sequence, margins);
 
 //  auto com_spline = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
   auto com_spline = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
 
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_spline->GetCoeffients());
-  opt_variables_->AddVariableSet(VariableNames::kFootholds, supp_polygon_container.GetFootholdsInitializedToStart());
+  opt_variables_->AddVariableSet(VariableNames::kFootholds, contacts.GetFootholdsInitializedToStart());
 
   // save the framework of the optimization problem
   OptimizationVariablesInterpreter interpreter;
-  interpreter.Init(com_spline, supp_polygon_container, robot_height);
+  interpreter.Init(com_spline, contacts, robot_height);
   interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();
@@ -80,7 +80,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, com_spline));
   constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(com_spline));
   constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(interpreter));
-  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(interpreter));
+  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_spline, contacts ));
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint());
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 

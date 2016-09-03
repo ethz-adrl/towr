@@ -22,6 +22,7 @@ namespace zmp {
 class AConstraint;
 class ACost;
 class ComSpline;
+class ComMotion;
 class OptimizationVariablesInterpreter;
 
 /** Builds all types of constraints/costs for the user.
@@ -38,7 +39,7 @@ public:
   typedef std::shared_ptr<ACost> CostPtr;
   typedef Eigen::Vector2d Vector2d;
   typedef xpp::utils::Point2d State2d;
-  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  using Contacts = xpp::hyq::SupportPolygonContainer;
 
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();
@@ -47,13 +48,13 @@ public:
   static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ComSplinePtr&);
   static ConstraintPtr CreateJunctionConstraint(const ComSplinePtr&);
   static ConstraintPtr CreateZmpConstraint(const OptimizationVariablesInterpreter&);
-  static ConstraintPtr CreateRangeOfMotionConstraint(const OptimizationVariablesInterpreter&);
+  static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&);
 //  static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateObstacleConstraint();
 
   static CostPtr CreateAccelerationCost(const ComSplinePtr&);
   static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComSplinePtr&);
-  static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const SupportPolygonContainer& supp_polygon_container);
+  static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const Contacts&);
 };
 
 } /* namespace zmp */

@@ -9,11 +9,14 @@
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 
 #include <xpp/hyq/support_polygon.h>
-#include <xpp/zmp/com_motion.h>
-
 #include <functional> // std::function
 
 namespace xpp {
+
+namespace zmp {
+class PhaseInfo;
+}
+
 namespace hyq {
 
 /** @brief Hold the support polygons created by the contacts with the environment.
@@ -28,7 +31,7 @@ public:
   typedef SupportPolygon::VecFoothold VecFoothold;
   typedef std::vector<xpp::hyq::LegID> VecLegID;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
-  typedef xpp::zmp::ComMotion::PhaseInfoVec PhaseInfoVec;
+  typedef std::vector<xpp::zmp::PhaseInfo> PhaseInfoVec;
   typedef xpp::utils::Coords3D Coords;
 
   SupportPolygonContainer () {};

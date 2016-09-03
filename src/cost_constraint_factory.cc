@@ -7,6 +7,8 @@
 
 #include <xpp/zmp/cost_constraint_factory.h>
 
+#include <xpp/zmp/com_motion.h>
+
 #include <xpp/zmp/linear_spline_equations.h>
 #include <xpp/zmp/a_linear_constraint.h>
 #include <xpp/zmp/zmp_constraint.h>
@@ -42,7 +44,7 @@ CostConstraintFactory::CreateInitialConstraint (const State2d& init,
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
-                                          const ComSplinePtr& spline)
+                                              const ComSplinePtr& spline)
 {
   LinearSplineEquations eq(*spline);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
@@ -69,10 +71,10 @@ CostConstraintFactory::CreateZmpConstraint (const OptimizationVariablesInterpret
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateRangeOfMotionConstraint (
-    const OptimizationVariablesInterpreter& interpreter)
+    const ComMotion& com_motion, const Contacts& contacts)
 {
   auto constraint = std::make_shared<RangeOfMotionConstraint>();
-  constraint->Init(interpreter);
+  constraint->Init(com_motion, contacts);
   return constraint;
 }
 
@@ -115,10 +117,10 @@ CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
 CostConstraintFactory::CostPtr
 CostConstraintFactory::CreateFinalStanceCost (
     const Vector2d& goal_xy,
-    const SupportPolygonContainer& supp_polygon_container)
+    const Contacts& contacts)
 {
   auto cost = std::make_shared<FootholdGoalCost>();
-  cost->Init(goal_xy, supp_polygon_container);
+  cost->Init(goal_xy, contacts);
   return cost;
 }
 

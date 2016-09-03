@@ -6,6 +6,7 @@
  */
 
 #include <xpp/hyq/support_polygon_container.h>
+#include <xpp/zmp/com_motion.h>
 
 namespace xpp {
 namespace hyq {

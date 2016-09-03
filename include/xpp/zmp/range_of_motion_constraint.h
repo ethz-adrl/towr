@@ -10,24 +10,30 @@
 
 #include "a_constraint.h"
 #include "motion_structure.h"
-#include <xpp/hyq/support_polygon_container.h>
+#include <memory>
 
 namespace xpp {
+
+namespace hyq {
+class SupportPolygonContainer;
+}
+
 namespace zmp {
 
-class OptimizationVariablesInterpreter;
+class ComMotion;
 
 class RangeOfMotionConstraint : public AConstraint {
 public:
-  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
-  using ComMotionPtr = std::shared_ptr<ComMotion>;
-  using PosXY = Eigen::Vector2d;
-  using LegID = xpp::hyq::LegID;
+  using Contacts      = xpp::hyq::SupportPolygonContainer;
+  using ComMotionPtrU = std::unique_ptr<ComMotion>;
+  using ContactPtrU   = std::unique_ptr<Contacts>;
+  using PosXY         = Eigen::Vector2d;
+  using LegID         = xpp::hyq::LegID;
 
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint () {};
 
-  void Init(const OptimizationVariablesInterpreter&);
+  void Init(const ComMotion&, const Contacts&);
   void UpdateVariables(const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
   VecBound GetBounds () const override;
@@ -35,12 +41,19 @@ public:
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
-  PosXY GetNominalPositionInBase(LegID leg) const;
+  PosXY GetNominalPositionInBase(LegID leg) const; // move to support polygon
 
-  SupportPolygonContainer supp_polygon_container_;
-  ComMotionPtr com_motion_;
+  void SetJacobianWrtContacts();
+  void SetJacobianWrtMotion();
+
+  ContactPtrU supp_polygon_container_;
+  ComMotionPtrU com_motion_;
 
   MotionStructure::MotionInfoVec motion_info_;
+
+  Jacobian jac_wrt_contacts_;
+  Jacobian jac_wrt_motion_;
+
 };
 
 } /* namespace zmp */

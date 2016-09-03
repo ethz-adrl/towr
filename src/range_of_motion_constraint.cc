@@ -6,35 +6,34 @@
  */
 
 #include <xpp/zmp/range_of_motion_constraint.h>
+#include <xpp/hyq/support_polygon_container.h>
+#include <xpp/zmp/com_motion.h>
 #include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
 namespace zmp {
-
-typedef xpp::utils::StdVecEigen2d FootholdsXY;
-typedef Eigen::Vector2d Vector2d;
 
 RangeOfMotionConstraint::RangeOfMotionConstraint ()
 {
 }
 
 void
-RangeOfMotionConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
+RangeOfMotionConstraint::Init (const ComMotion& com_motion, const Contacts& contacts)
 {
-  com_motion_             = interpreter.GetSplineStructure();
-  supp_polygon_container_ = interpreter.GetSuppPolygonContainer();
+  com_motion_             = com_motion.clone();
+  supp_polygon_container_ = ContactPtrU(new Contacts(contacts));
+
 
   // the times at which to evalute the constraint
   double dt = 0.1;
 
-  auto start_feet = supp_polygon_container_.GetStartStance();
+  auto start_feet = supp_polygon_container_->GetStartStance();
   MotionStructure::LegIDVec start_legs;
   for (const auto& f : start_feet) {
     start_legs.push_back(f.leg);
   }
 
-  auto step_feet = supp_polygon_container_.GetFootholds();
+  auto step_feet = supp_polygon_container_->GetFootholds();
   MotionStructure::LegIDVec step_legs;
   for (const auto& f : step_feet) {
     step_legs.push_back(f.leg);
@@ -43,6 +42,17 @@ RangeOfMotionConstraint::Init (const OptimizationVariablesInterpreter& interpret
   MotionStructure motion_structure;
   motion_structure.Init(start_legs, step_legs, com_motion_->GetPhases());
   motion_info_ = motion_structure.GetContactInfoVec(dt);
+
+
+  int n_contacts = supp_polygon_container_->GetTotalFreeCoeff();
+  int n_motion   = com_motion_->GetTotalFreeCoeff();
+  int m_constraints = motion_info_.size() * kDim2d;
+
+  jac_wrt_contacts_ = Jacobian(m_constraints, n_contacts);
+  jac_wrt_motion_   = Jacobian(m_constraints, n_motion);
+
+  SetJacobianWrtContacts();
+  SetJacobianWrtMotion();
 }
 
 void
@@ -51,11 +61,8 @@ RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
 
-//  stance_feet_cal_.Update(x_coeff, utils::ConvertEigToStd(footholds));
-
-
   com_motion_->SetCoefficients(x_coeff);
-  supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
+  supp_polygon_container_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
 RangeOfMotionConstraint::VectorXd
@@ -70,50 +77,17 @@ RangeOfMotionConstraint::EvaluateConstraint () const
     PosXY contact_pos = PosXY::Zero();
 
     if(c.foothold_id_ != xpp::hyq::Foothold::kFixedByStart) {
-      auto footholds = supp_polygon_container_.GetFootholds();
+      auto footholds = supp_polygon_container_->GetFootholds();
       contact_pos = footholds.at(c.foothold_id_).p.topRows(kDim2d);
     }
 
     for (auto dim : {X,Y})
       g_vec.push_back(contact_pos(dim) - com_pos(dim));
 
-
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-//  // for every discrete time t
-//  auto vec_com_pos_W = stance_feet_cal_.CalculateComPostionInWorld();
-//  auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
-//
-//  for (int k=0; k<vec_com_pos_W.size(); ++k) {
-//
-//    PosXY com_pos_k     = vec_com_pos_W.at(k);
-//    auto stance_feet_k = vec_stance_feet_W.at(k);
-//
-//    for (auto contact : stance_feet_k) {
-//
-//      for (auto dim : {X,Y}) {
-//        if(contact.id == xpp::hyq::Foothold::kFixedByStart)
-//          g_vec.push_back( -com_pos_k(dim) ); // contact goes in bounds because never changes
-//        else
-//          g_vec.push_back(contact.p(dim) - com_pos_k(dim));
-//      }
-//    }
-//  }
-
 //  // refactor _write out really simple constraint just to test ZMP motion
-//  auto feet = supp_polygon_container_.GetFootholds();
+//  auto feet = supp_polygon_container_->GetFootholds();
 //  for (const auto& f : feet) {
 //    g_vec.push_back(f.p.x());
 //    g_vec.push_back(f.p.y());
@@ -129,15 +103,11 @@ RangeOfMotionConstraint::GetBounds () const
   std::vector<Bound> bounds;
 
   double d = 0.3; // bounding box edge length of each foot
-
-
-//  auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
-
   for (auto c :  motion_info_) {
 
     PosXY start_offset = PosXY::Zero(); // because initial foothold is fixed
     if (c.foothold_id_ == xpp::hyq::Foothold::kFixedByStart) {
-      start_offset = supp_polygon_container_.GetStartFoothold(c.leg_).p.topRows(kDim2d);
+      start_offset = supp_polygon_container_->GetStartFoothold(c.leg_).p.topRows(kDim2d);
     }
 
     PosXY pos_nom_B = GetNominalPositionInBase(c.leg_);
@@ -151,46 +121,9 @@ RangeOfMotionConstraint::GetBounds () const
 
   }
 
-
-//
-//  for (auto stance : vec_stance_feet_W) {
-//
-//    for (auto contact : stance) {
-//
-//      PosXY pos_nom_B = GetNominalPositionInBase(contact.leg);
-//
-//      for (auto dim : {X,Y}) {
-//
-//        Bound b;
-//        b.upper_ = pos_nom_B(dim) + d/2.;
-//        b.lower_ = pos_nom_B(dim) - d/2.;
-//
-//        if (contact.id == xpp::hyq::Foothold::kFixedByStart) {
-//          b -= contact.p(dim);
-//        }
-//
-//        bounds.push_back(b);
-//
-//      }
-//
-//    }
-//
-//  }
-
-
-
-
-
-
-
-
-
-
-
-
 //  // this is for creating fixed footholds (remember to comment in constraints above as well)
-//  auto start_stance = supp_polygon_container_.GetStartStance();
-//  auto steps = supp_polygon_container_.GetFootholds();
+//  auto start_stance = supp_polygon_container_->GetStartStance();
+//  auto steps = supp_polygon_container_->GetFootholds();
 //
 //  double step_length = 0.15;
 //  for (const auto& s : steps) {
@@ -207,111 +140,19 @@ RangeOfMotionConstraint::GetBounds () const
 RangeOfMotionConstraint::Jacobian
 RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
-  Jacobian jac; // empy matrix
-
-  if (var_set == VariableNames::kFootholds) {
-    int n = supp_polygon_container_.GetTotalFreeCoeff();
-    int m = motion_info_.size() * kDim2d;
-    jac = Jacobian(m,n);
-
-    int row=0;
-    for (const auto& c : motion_info_) {
-
-      int id = c.foothold_id_;
-      if (id != xpp::hyq::Foothold::kFixedByStart)
-        for (auto dim : {X,Y})
-          jac.insert(row+dim, SupportPolygonContainer::Index(id,dim)) = 1.0;
-
-      row += kDim2d;
-    }
-
-
-//    int n = supp_polygon_container_.GetTotalFreeCoeff();
-//    int m = EvaluateConstraint().rows(); // count number of constraints
-//    jac = Jacobian(m,n);
-//
-//    auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
-//
-//
-//    int row=0;
-//    std::vector<Triplet> jac_triplets;
-//    for (auto stance : vec_stance_feet_W) {
-//
-//      for (auto contact : stance) {
-//
-//        int foothold_id = contact.id;
-//        if (foothold_id != xpp::hyq::Foothold::kFixedByStart) {
-//          for (auto dim : {X,Y}) {
-//            jac_triplets.push_back(Triplet(row+dim, SupportPolygonContainer::Index(foothold_id,dim), 1.0));
-//          }
-//        }
-//        row += kDim2d;
-//      }
-//    }
-//
-//    jac.setFromTriplets(jac_triplets.begin(), jac_triplets.end());
-  }
-
-
-
-
-  if (var_set == VariableNames::kSplineCoeff) {
-
-
-    int n = supp_polygon_container_.GetTotalFreeCoeff();
-    int m = motion_info_.size() * kDim2d;
-    jac = Jacobian(m,n);
-
-    int row=0;
-    for (const auto& c : motion_info_)
-      for (auto dim : {X,Y})
-        jac.row(row++) = -com_motion_->GetJacobian(c.time_, kPos, dim);
-
-
-
-
-
-
-
-
-
-
-    //    int m = EvaluateConstraint().rows(); // count number of constraints
-    //    int n = com_motion_->GetTotalFreeCoeff();
-    //    jac = Jacobian(m,n);
-    //
-    //
-    //    auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
-    //
-    //    int row=0;
-    //    for (int k=0; k<stance_feet_cal_.times_.size(); ++k) {
-    //
-    //      double t = stance_feet_cal_.times_.at(k);
-    //
-    //      for (auto stance : vec_stance_feet_W.at(k))
-    //        for (auto dim : {X,Y})
-    //          jac.row(row++) = -com_motion_->GetJacobian(t,kPos,dim);
-    //    }
-
-
-
-
-  }
-
-
+  if (var_set == VariableNames::kFootholds)
+    return jac_wrt_contacts_;
+  else if (var_set == VariableNames::kSplineCoeff)
+    return jac_wrt_motion_;
+  else
+    return Jacobian();
 
 //  // keep this somehow, nice for debugging
 //  if (var_set == VariableNames::kFootholds) {
-//    int n = supp_polygon_container_.GetTotalFreeCoeff();
+//    int n = supp_polygon_container_->GetTotalFreeCoeff();
 //    jac = Jacobian(n,n);
 //    jac.setIdentity();
 //  }
-
-
-
-
-
-  return jac;
 }
 
 RangeOfMotionConstraint::PosXY
@@ -327,6 +168,30 @@ RangeOfMotionConstraint::GetNominalPositionInBase (LegID leg) const
     case hyq::RH: return PosXY(-x_nominal_b,  -y_nominal_b); break;
     default: assert(false); // this should never happen
   }
+}
+
+void
+RangeOfMotionConstraint::SetJacobianWrtContacts ()
+{
+  int row=0;
+  for (const auto& c : motion_info_) {
+
+    int id = c.foothold_id_;
+    if (id != xpp::hyq::Foothold::kFixedByStart)
+      for (auto dim : {X,Y})
+        jac_wrt_contacts_.insert(row+dim, Contacts::Index(id,dim)) = 1.0;
+
+    row += kDim2d;
+  }
+}
+
+void
+RangeOfMotionConstraint::SetJacobianWrtMotion ()
+{
+  int row=0;
+  for (const auto& c : motion_info_)
+    for (auto dim : {X,Y})
+      jac_wrt_motion_.row(row++) = -com_motion_->GetJacobian(c.time_, kPos, dim);
 }
 
 } /* namespace zmp */
