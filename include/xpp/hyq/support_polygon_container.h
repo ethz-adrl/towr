@@ -70,7 +70,6 @@ public:
   static int Index(int foothold_id, Coords dim);
   int GetTotalFreeCoeff() const;
 
-
   SupportPolygon GetStartPolygon() const;
   SupportPolygon GetFinalPolygon() const;
   VecFoothold GetFinalFootholds() const ;
@@ -87,7 +86,18 @@ public:
 
 
   VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
+
+
+
+
+  // these are the only ones linked to actual motion, maybe move to
+  // different class
+//  SupportPolygon GetSupportPolygon(double t_global, const ComMotion&) const;
   VecSupportPolygon AssignSupportPolygonsToPhases(const ComMotion&) const;
+
+
+
+
 
   /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */
   Eigen::VectorXd GetFootholdsInitializedToStart() const;
@@ -101,8 +111,6 @@ private:
   VecFoothold start_stance_;
 
   VecSupportPolygon CreateSupportPolygons(const VecFoothold& footholds) const;
-  void CheckIfInitialized() const;
-
   void ModifyFootholds (VecFoothold& footholds, std::function<void (Foothold&, int)>) const;
 
   SupportPolygon GetStancePolygon(const VecFoothold& footholds) const;

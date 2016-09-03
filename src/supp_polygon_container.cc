@@ -148,13 +148,19 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
   return end_cog/_LEGS_COUNT;
 }
 
+//SupportPolygon
+//SupportPolygonContainer::GetSupportPolygon (double t_global,
+//                                            const ComMotion& com_motion) const
+//{
+//  auto supp = AssignSupportPolygonsToPhases(com_motion);
+//  int phase = com_motion.GetCurrentPhase(t_global).id_;
+//  return supp.at(phase);
+//}
 
 SupportPolygonContainer::VecSupportPolygon
 SupportPolygonContainer::AssignSupportPolygonsToPhases(const ComMotion& com_motion) const
 {
   using namespace xpp::zmp;
-
-  VecSupportPolygon supp_steps = GetSupportPolygons();
 
   VecSupportPolygon supp;
   for (const auto& phase : com_motion.GetPhases()) {
@@ -164,7 +170,7 @@ SupportPolygonContainer::AssignSupportPolygonsToPhases(const ComMotion& com_moti
     int prev_step = phase.n_completed_steps_-1;
     switch (phase.type_) {
       case kStepPhase: {
-        curr_supp = supp_steps.at(prev_step+1);
+        curr_supp = support_polygons_.at(prev_step+1);
         break;
       }
       case kStancePhase: {
@@ -173,7 +179,8 @@ SupportPolygonContainer::AssignSupportPolygonsToPhases(const ComMotion& com_moti
         else if (prev_step == GetNumberOfSteps()-1)
           curr_supp = GetFinalPolygon();
         else // for intermediate splines
-          curr_supp = SupportPolygon::CombineSupportPolygons(supp_steps.at(prev_step), supp_steps.at(prev_step+1));
+          curr_supp = SupportPolygon::CombineSupportPolygons(support_polygons_.at(prev_step),
+                                                             support_polygons_.at(prev_step+1));
       }
     }
 
@@ -220,3 +227,5 @@ SupportPolygonContainer::DisJointSupportPolygons(LegID prev, LegID next)
 
 } /* namespace hyq */
 } /* namespace xpp */
+
+

@@ -8,6 +8,8 @@
 #ifndef XPP_OPT_INCLUDE_XPP_ZMP_STANCE_FEET_CALCULATOR_H_
 #define XPP_OPT_INCLUDE_XPP_ZMP_STANCE_FEET_CALCULATOR_H_
 
+#include <xpp/hyq/leg_data_map.h>
+
 #include <Eigen/Dense>
 #include <Eigen/StdVector> // for std::vector<Eigen:...>
 #include <vector>
@@ -57,6 +59,21 @@ public:
   // new and improved functions
   PositionVecT CalculateComPostionInWorld() const;
   StanceVecT GetStanceFootholdsInWorld() const;
+
+
+
+  struct ContactInfo {
+    ContactInfo(double time, int id, xpp::hyq::LegID leg)
+        :time_(time), foothold_id_(id), leg_(leg) {};
+
+    double time_;
+    double foothold_id_;
+    xpp::hyq::LegID leg_;
+  };
+
+  // this info will never change! fixed once initially
+  // should move to higher level class
+  std::vector<ContactInfo> GetContactInfoVec() const;
 
 
 

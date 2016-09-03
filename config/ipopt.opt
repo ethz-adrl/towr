@@ -13,7 +13,7 @@ linear_solver ma57
 #linear_solver ma86
 #linear_solver ma97
 
-#jacobian_approximation finite-difference-values #rember to set flag in NLP class
+jacobian_approximation finite-difference-values #rember to set flag in NLP class
 hessian_approximation limited-memory
 
 
@@ -24,7 +24,7 @@ tol 1e-4
 #dual_inf_tol 1e-1
 #constr_viol_tol 1e-4
 #compl_inf_tol 1e-4
-max_cpu_time 0.1   #careful: overwrites ros parameter
+max_cpu_time 5.1   #careful: overwrites ros parameter
 #max_iter 1
 #bound_frac 0.5
 

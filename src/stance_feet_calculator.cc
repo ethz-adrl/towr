@@ -71,66 +71,25 @@ StanceFeetCalculator::GetStanceFootholdsInWorld () const
   return stance_footholds;
 }
 
-//void
-//StanceFeetCalculator::Update (const StanceFootholds& start_stance,
-//                              const StanceFootholds& steps,
-//                              const ComSplinePtr& cog_spline,
-//                              double robot_height)
-//{
-//  supp_polygon_container_.Init(start_stance, steps);
-//  com_motion_ = cog_spline;
-//  robot_height_ = robot_height;
-//}
-//
-//StanceFeetCalculator::StanceFootholds
-//StanceFeetCalculator::GetStanceFeetInBase (double t) const
-//{
-//  std::vector<xpp::hyq::SupportPolygon> suppport_polygons =
-//      supp_polygon_container_.AssignSupportPolygonsToPhases(*com_motion_);
-//
-//  // legs in contact during each step/spline
-//  StanceFootholds p_stance_legs_i;
-//  int phase_id = com_motion_->GetCurrentPhase(t).id_;
-//
-//
-//  // because last swing support polygon will not restrict landing position of foot
-//  double T = com_motion_->GetTotalTime();
-//
-//  if (AreSame(t,T))
-//    p_stance_legs_i = supp_polygon_container_.GetFinalFootholds();
-//  else
-//    p_stance_legs_i = suppport_polygons.at(phase_id).GetFootholds();
-//
-//  // body position during the step
-//  xpp::utils::Point2d cog_xy_i = com_motion_->GetCom(t);
-//  PosXYZ cog_i;
-//  cog_i << cog_xy_i.p.x(),
-//           cog_xy_i.p.y(),
-//           robot_height_;
-//
-//  return ConvertFeetToBase(p_stance_legs_i, cog_i);
-//}
-//
-//StanceFeetCalculator::StanceFootholds
-//StanceFeetCalculator::ConvertFeetToBase (const StanceFootholds& endeffectors_i,
-//                                         const PosXYZ& cog_i) const
-//{
-//  StanceFootholds p_stance_legs_b = endeffectors_i;
-//
-//  for (uint e=0; e<endeffectors_i.size(); ++e) {
-//    p_stance_legs_b.at(e).p.x() -= cog_i.x();
-//    p_stance_legs_b.at(e).p.y() -= cog_i.y();
-//    p_stance_legs_b.at(e).p.z() -= cog_i.z();
-//  }
-//
-//  return p_stance_legs_b;
-//}
-//
-//bool
-//StanceFeetCalculator::AreSame (double t1, double t2) const
-//{
-//  return std::fabs(t1 - t2) < 1e-4; //seconds
-//}
+std::vector<StanceFeetCalculator::ContactInfo>
+StanceFeetCalculator::GetContactInfoVec () const
+{
+  auto supp = foothold_container_->AssignSupportPolygonsToPhases(*com_motion_);
+
+  std::vector<ContactInfo> info;
+  for (double t : times_) {
+    int phase = com_motion_->GetCurrentPhase(t).id_;
+    auto stance_feet = supp.at(phase).GetFootholds();
+
+    for (const auto& f : stance_feet)
+      info.push_back(ContactInfo(t, f.id, f.leg));
+  }
+
+  return info;
+}
+
+
 
 } /* namespace zmp */
 } /* namespace xpp */
+
