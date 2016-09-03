@@ -6,7 +6,8 @@
  */
 
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/com_motion.h>
+#include <xpp/zmp/motion_structure.h>
+#include <xpp/zmp/phase_info.h>
 
 namespace xpp {
 namespace hyq {
@@ -185,11 +186,11 @@ SupportPolygonContainer::AssignSupportPolygonsToPhases(const PhaseInfoVec& phase
 
     int prev_step = phase.n_completed_steps_-1;
     switch (phase.type_) {
-      case kStepPhase: {
+      case PhaseInfo::kStepPhase: {
         curr_supp = support_polygons_.at(prev_step+1);
         break;
       }
-      case kStancePhase: {
+      case PhaseInfo::kStancePhase: {
         if (prev_step == -1) // first spline
           curr_supp = GetStartPolygon();
         else if (prev_step == GetNumberOfSteps()-1)

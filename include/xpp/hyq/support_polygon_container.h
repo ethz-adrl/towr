@@ -94,18 +94,10 @@ public:
 
 
   VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
-
-
-
-
-  // these are the only ones linked to actual motion, maybe move to
-  // different class
-//  SupportPolygon GetSupportPolygon(double t_global, const ComMotion&) const;
   VecSupportPolygon AssignSupportPolygonsToPhases(const PhaseInfoVec&) const;
 
 
   PosXY GetNominalPositionInBase(LegID leg) const; // move to support polygon
-
 
 
   /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */

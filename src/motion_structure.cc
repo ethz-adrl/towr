@@ -7,7 +7,7 @@
 
 #include <xpp/zmp/motion_structure.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/com_motion.h>
+#include <xpp/zmp/phase_info.h>
 
 namespace xpp {
 namespace zmp {

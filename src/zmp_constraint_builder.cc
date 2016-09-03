@@ -24,7 +24,7 @@ using namespace xpp::utils::coords_wrapper; // X, Y
 ZmpConstraintBuilder::ZmpConstraintBuilder()
 {
   com_motion_   = nullptr;
-  contacts_ = nullptr;
+  contacts_     = nullptr;
 }
 
 ZmpConstraintBuilder::ZmpConstraintBuilder(const ComMotion& com_motion,
@@ -82,8 +82,8 @@ ZmpConstraintBuilder::GetTimesDisjointSwitches () const
 
     t_global += phases.at(i).duration_;
 
-    bool curr_phase_is_step = phases.at(i).type_   == kStepPhase;
-    bool next_phase_is_step = phases.at(i+1).type_ == kStepPhase;
+    bool curr_phase_is_step = phases.at(i).type_   == PhaseInfo::kStepPhase;
+    bool next_phase_is_step = phases.at(i+1).type_ == PhaseInfo::kStepPhase;
 
     if (curr_phase_is_step && next_phase_is_step) {
       int step = phases.at(i).n_completed_steps_;

@@ -53,7 +53,7 @@ ComSpline::AddPolynomialStepSequence (int step_count, double t_swing)
   int n_splines_per_step = 1;
   for (int step=0; step<step_count; ++step) {
 
-    PhaseInfo phase(kStepPhase, step, phase_id, t_swing);
+    PhaseInfo phase(PhaseInfo::kStepPhase, step, phase_id, t_swing);
     for (int i=0; i<n_splines_per_step; ++i) {
 
 
@@ -77,16 +77,16 @@ ComSpline::AddStancePolynomial (double t_stance)
   PhaseInfo phase;
   if (polynomials_.empty()) {
     spline_id = 0;
-    phase = PhaseInfo(kStancePhase, 0, 0, t_stance);
+    phase = PhaseInfo(PhaseInfo::kStancePhase, 0, 0, t_stance);
     phases_.push_back(phase);
     polynomials_.push_back(ComPolynomial(spline_id, t_stance, phase));
   } else {
     spline_id = polynomials_.back().GetId()+1;
 
     // only add new phase if previous one wasn't also a stance phase, otherwise just lengthen phase
-    if (phases_.back().type_ == kStepPhase ) {
+    if (phases_.back().type_ == PhaseInfo::kStepPhase ) {
       PhaseInfo last_phase = phases_.back();
-      phase.type_ = kStancePhase;
+      phase.type_ = PhaseInfo::kStancePhase;
       phase.duration_ = t_stance;
       phase.n_completed_steps_ = last_phase.n_completed_steps_+1;
       phase.id_ = last_phase.id_+1;

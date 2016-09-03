@@ -71,7 +71,7 @@ protected:
 } // namespace xpp
 
 
-#include "com_motion.h" // Phase Info
+#include "phase_info.h"
 namespace xpp { namespace ros { class RosHelpers; }} // forward declaration for friend
 
 namespace xpp {
@@ -99,7 +99,7 @@ public:
   // neccessary here as well, remove.
   // Will remove soon.
   // refactor remove deprecated phase stuff
-  bool DeprecatedIsFourLegSupport() const { return deprecated_phase_.type_ == kStancePhase; }
+  bool DeprecatedIsFourLegSupport() const { return deprecated_phase_.type_ == PhaseInfo::kStancePhase; }
 
 private:
   uint id_; // to identify the order relative to other zmp splines

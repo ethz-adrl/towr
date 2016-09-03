@@ -6,6 +6,7 @@
  */
 
 #include <xpp/zmp/com_motion.h>
+#include <xpp/zmp/phase_info.h>
 
 namespace xpp {
 namespace zmp {
