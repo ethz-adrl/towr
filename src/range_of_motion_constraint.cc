@@ -57,25 +57,53 @@ RangeOfMotionConstraint::EvaluateConstraint () const
   std::vector<double> g_vec;
 
 
-  // for every discrete time t
-  auto vec_com_pos_W = stance_feet_cal_.CalculateComPostionInWorld();
-  auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
+  auto contact_info_vec = stance_feet_cal_.GetContactInfoVec();
 
-  for (int k=0; k<vec_com_pos_W.size(); ++k) {
+  for (const auto& c : contact_info_vec) {
 
-    PosXY com_pos_k     = vec_com_pos_W.at(k);
-    auto stance_feet_k = vec_stance_feet_W.at(k);
+    PosXY com_pos = com_motion_->GetCom(c.time_).p;
 
-    for (auto contact : stance_feet_k) {
-
-      for (auto dim : {X,Y}) {
-        if(contact.id == xpp::hyq::Foothold::kFixedByStart)
-          g_vec.push_back( -com_pos_k(dim) ); // contact goes in bounds because never changes
-        else
-          g_vec.push_back(contact.p(dim) - com_pos_k(dim));
+    for (auto dim : {X,Y}) {
+      if(c.foothold_id_ == xpp::hyq::Foothold::kFixedByStart)
+        g_vec.push_back( -com_pos(dim) ); // contact goes in bounds because never changes
+      else {
+        auto f = supp_polygon_container_.GetFootholds().at(c.foothold_id_);
+        g_vec.push_back(f.p(dim) - com_pos(dim));
       }
     }
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//  // for every discrete time t
+//  auto vec_com_pos_W = stance_feet_cal_.CalculateComPostionInWorld();
+//  auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
+//
+//  for (int k=0; k<vec_com_pos_W.size(); ++k) {
+//
+//    PosXY com_pos_k     = vec_com_pos_W.at(k);
+//    auto stance_feet_k = vec_stance_feet_W.at(k);
+//
+//    for (auto contact : stance_feet_k) {
+//
+//      for (auto dim : {X,Y}) {
+//        if(contact.id == xpp::hyq::Foothold::kFixedByStart)
+//          g_vec.push_back( -com_pos_k(dim) ); // contact goes in bounds because never changes
+//        else
+//          g_vec.push_back(contact.p(dim) - com_pos_k(dim));
+//      }
+//    }
+//  }
 
 //  // refactor _write out really simple constraint just to test ZMP motion
 //  auto feet = supp_polygon_container_.GetFootholds();
@@ -177,56 +205,96 @@ RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empy matrix
 
-  using Triplet =  Eigen::Triplet<double>;
-
   if (var_set == VariableNames::kFootholds) {
+    auto contact_info_vec = stance_feet_cal_.GetContactInfoVec();
     int n = supp_polygon_container_.GetTotalFreeCoeff();
-    int m = EvaluateConstraint().rows(); // count number of constraints
+    int m = contact_info_vec.size() * kDim2d;
     jac = Jacobian(m,n);
 
-
-    auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
-
-
     int row=0;
-    std::vector<Triplet> jac_triplets;
-    for (auto stance : vec_stance_feet_W) {
+    for (const auto& c : contact_info_vec) {
 
-      for (auto contact : stance) {
+      int id = c.foothold_id_;
+      if (id != xpp::hyq::Foothold::kFixedByStart)
+        for (auto dim : {X,Y})
+          jac.insert(row+dim, SupportPolygonContainer::Index(id,dim)) = 1.0;
 
-        int foothold_id = contact.id;
-        if (foothold_id != xpp::hyq::Foothold::kFixedByStart) {
-          for (auto dim : {X,Y}) {
-            jac_triplets.push_back(Triplet(row+dim, SupportPolygonContainer::Index(foothold_id,dim), 1.0));
-          }
-        }
-        row += kDim2d;
-      }
+      row += kDim2d;
     }
 
-    jac.setFromTriplets(jac_triplets.begin(), jac_triplets.end());
+
+//    int n = supp_polygon_container_.GetTotalFreeCoeff();
+//    int m = EvaluateConstraint().rows(); // count number of constraints
+//    jac = Jacobian(m,n);
+//
+//    auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
+//
+//
+//    int row=0;
+//    std::vector<Triplet> jac_triplets;
+//    for (auto stance : vec_stance_feet_W) {
+//
+//      for (auto contact : stance) {
+//
+//        int foothold_id = contact.id;
+//        if (foothold_id != xpp::hyq::Foothold::kFixedByStart) {
+//          for (auto dim : {X,Y}) {
+//            jac_triplets.push_back(Triplet(row+dim, SupportPolygonContainer::Index(foothold_id,dim), 1.0));
+//          }
+//        }
+//        row += kDim2d;
+//      }
+//    }
+//
+//    jac.setFromTriplets(jac_triplets.begin(), jac_triplets.end());
   }
 
 
 
 
   if (var_set == VariableNames::kSplineCoeff) {
-    int m = EvaluateConstraint().rows(); // count number of constraints
-    int n = com_motion_->GetTotalFreeCoeff();
+
+
+
+    auto contact_info_vec = stance_feet_cal_.GetContactInfoVec();
+    int n = supp_polygon_container_.GetTotalFreeCoeff();
+    int m = contact_info_vec.size() * kDim2d;
     jac = Jacobian(m,n);
 
-
-    auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
-
     int row=0;
-    for (int k=0; k<stance_feet_cal_.times_.size(); ++k) {
+    for (const auto& c : contact_info_vec)
+      for (auto dim : {X,Y})
+        jac.row(row++) = -com_motion_->GetJacobian(c.time_, kPos, dim);
 
-      double t = stance_feet_cal_.times_.at(k);
 
-      for (auto stance : vec_stance_feet_W.at(k))
-        for (auto dim : {X,Y})
-          jac.row(row++) = -com_motion_->GetJacobian(t,kPos,dim);
-    }
+
+
+
+
+
+
+
+
+    //    int m = EvaluateConstraint().rows(); // count number of constraints
+    //    int n = com_motion_->GetTotalFreeCoeff();
+    //    jac = Jacobian(m,n);
+    //
+    //
+    //    auto vec_stance_feet_W = stance_feet_cal_.GetStanceFootholdsInWorld();
+    //
+    //    int row=0;
+    //    for (int k=0; k<stance_feet_cal_.times_.size(); ++k) {
+    //
+    //      double t = stance_feet_cal_.times_.at(k);
+    //
+    //      for (auto stance : vec_stance_feet_W.at(k))
+    //        for (auto dim : {X,Y})
+    //          jac.row(row++) = -com_motion_->GetJacobian(t,kPos,dim);
+    //    }
+
+
+
+
   }
 
 

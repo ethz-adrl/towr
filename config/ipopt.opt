@@ -17,7 +17,7 @@ jacobian_approximation finite-difference-values #rember to set flag in NLP class
 hessian_approximation limited-memory
 
 
-#derivative_test first-order
+derivative_test first-order
 #derivative_test second-order
 
 tol 1e-4
