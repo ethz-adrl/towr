@@ -65,11 +65,7 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
     step_legs.push_back(f.leg);
   }
 
-  MotionStructure motion_structure;
-  motion_structure.Init(start_legs, step_legs, com_motion_->GetPhases());
-
-  motion_info_ = motion_structure.GetContactInfoVec(dt);
-  motion_phases_ = motion_structure.GetPhases();
+  motion_structure_.Init(start_legs, step_legs, com_motion_->GetPhases(), dt);
 
 
 
@@ -106,13 +102,15 @@ ZmpConstraintBuilder::GetTimesDisjointSwitches () const
 {
   std::vector<double> t_disjoint_switches;
   double t_global = 0;
-  for(int i=0; i<motion_phases_.size()-1; ++i) {
 
-    auto phase = motion_phases_.at(i);
+  auto phases = motion_structure_.GetPhases();
+  for(int i=0; i<phases.size()-1; ++i) {
+
+    auto phase = phases.at(i);
     t_global += phase.duration_;
 
     bool curr_phase_is_step = phase.type_   == PhaseInfo::kStepPhase;
-    bool next_phase_is_step = motion_phases_.at(i+1).type_ == PhaseInfo::kStepPhase;
+    bool next_phase_is_step = phases.at(i+1).type_ == PhaseInfo::kStepPhase;
 
     if (curr_phase_is_step && next_phase_is_step) {
       int step = phase.n_completed_steps_;

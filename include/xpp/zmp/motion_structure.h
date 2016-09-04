@@ -27,12 +27,13 @@ class PhaseInfo;
 class MotionStructure {
 public:
   struct MotionInfo {
-    MotionInfo(double time, int id, xpp::hyq::LegID leg)
-        :time_(time), foothold_id_(id), leg_(leg) {};
+    MotionInfo() {}
+    MotionInfo(double time, std::vector<int> ids, xpp::hyq::LegID legs)
+        :time_(time), foothold_ids_(ids), legs_(legs) {};
 
     double time_;
-    double foothold_id_;
-    xpp::hyq::LegID leg_;
+    std::vector<int> foothold_ids_;
+    std::vector<xpp::hyq::LegID> legs_;
   };
 
   using LegIDVec      = std::vector<xpp::hyq::LegID>;
@@ -41,11 +42,11 @@ public:
 
   MotionStructure ();
   MotionStructure (const LegIDVec& start_legs, const LegIDVec& step_legs,
-                   const PhaseVec& phases);
+                   const PhaseVec& phases, double dt);
   virtual ~MotionStructure ();
 
   void Init(const LegIDVec& start_legs, const LegIDVec& step_legs,
-            const PhaseVec& phases);
+            const PhaseVec& phases, double dt);
 
 
   /** @returns time samples with information about the structure of the motion.
@@ -56,11 +57,14 @@ public:
     *
     * @param dt   The discretization time for the motion.
     */
-  MotionInfoVec GetContactInfoVec(double dt) const;
+  MotionInfoVec GetContactInfoVec() const;
+
+  int GetTotalNumberOfDiscreteContacts() const;
 
   PhaseVec GetPhases() const;
 
 private:
+  double dt_; ///< discretization interval [s]
 
   LegIDVec start_stance_;
   LegIDVec steps_;

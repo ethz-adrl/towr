@@ -46,7 +46,7 @@ public:
 protected:
   ContactPtrU contacts_;
   ComMotionPtrU com_motion_;
-  MotionStructure::MotionInfoVec motion_info_;
+  MotionStructure motion_structure_;
 
 private:
   Jacobian jac_wrt_contacts_;

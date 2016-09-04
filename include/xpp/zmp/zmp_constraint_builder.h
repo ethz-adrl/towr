@@ -62,8 +62,7 @@ public:
 private:
   MotionPtrU com_motion_;
   SuppPolygonPtrU contacts_;
-  MotionStructure::MotionInfoVec motion_info_;
-  MotionStructure::PhaseVec motion_phases_;
+  MotionStructure motion_structure_;
 
 
 

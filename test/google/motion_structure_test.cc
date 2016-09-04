@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "../../include/xpp/zmp/motion_structure.h"
+#include <xpp/zmp/motion_structure.h>
 
 namespace xpp {
 namespace zmp {
