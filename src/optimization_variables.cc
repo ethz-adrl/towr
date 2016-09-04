@@ -18,6 +18,12 @@ OptimizationVariables::~OptimizationVariables ()
 {
 }
 
+void
+OptimizationVariables::ClearVariables ()
+{
+  nlp_structure_.Reset();
+}
+
 OptimizationVariables::VectorXd
 OptimizationVariables::GetVariables (std::string id) const
 {
@@ -70,4 +76,3 @@ OptimizationVariables::GetOptimizationVariableCount () const
 
 } /* namespace zmp */
 } /* namespace xpp */
-

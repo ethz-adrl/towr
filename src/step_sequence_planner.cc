@@ -90,8 +90,8 @@ StepSequencePlanner::IsStepNecessary () const
   bool step_necessary =
 //                        distance_large_enough ||
 //                        !x_capture_inside ||
-                        !goal_inside
-//                      ||  (curr_state_.v.norm() > 0.1)
+//                        !goal_inside ||
+                         (curr_state_.v.norm() > 0.1)
                      ;
 
   return step_necessary;
