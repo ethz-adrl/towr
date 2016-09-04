@@ -24,6 +24,7 @@ SupportPolygon::SupportPolygon(const VecFoothold& footholds, const MarginValues&
   SortCounterclockWise(sorted_footholds_);
 }
 
+// refactor DRY with function below...
 void
 SupportPolygon::SortCounterclockWise (VecFoothold& footholds)
 {
@@ -32,6 +33,17 @@ SupportPolygon::SortCounterclockWise (VecFoothold& footholds)
   std::sort(footholds.begin(), footholds.end(),
             [&leg_order](Foothold f1, Foothold f2)
             { return leg_order[f1.leg] < leg_order[f2.leg];}
+  );
+}
+
+void
+SupportPolygon::SortCounterclockWise (std::vector<LegID>& leg_ids)
+{
+  std::map<LegID, int> leg_order = { {LH,0} , {RH,1}, {RF,2}, {LF,3} };
+
+  std::sort(leg_ids.begin(), leg_ids.end(),
+            [&leg_order](LegID l1, LegID l2)
+            { return leg_order[l1] < leg_order[l2];}
   );
 }
 

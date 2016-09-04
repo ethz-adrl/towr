@@ -27,13 +27,15 @@ class PhaseInfo;
 class MotionStructure {
 public:
   struct MotionInfo {
-    MotionInfo() {}
-    MotionInfo(double time, std::vector<int> ids, xpp::hyq::LegID legs)
-        :time_(time), foothold_ids_(ids), legs_(legs) {};
+    struct Contact {
+      Contact(int _id, xpp::hyq::LegID _leg) : id(_id), leg(_leg) {}
+      int id;
+      xpp::hyq::LegID leg;
+    };
 
+    MotionInfo() {};
     double time_;
-    std::vector<int> foothold_ids_;
-    std::vector<xpp::hyq::LegID> legs_;
+    std::vector<Contact> contacts;
   };
 
   using LegIDVec      = std::vector<xpp::hyq::LegID>;

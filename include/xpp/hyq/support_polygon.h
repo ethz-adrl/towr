@@ -48,6 +48,8 @@ public:
     * are crossed (e.g support polygon flips).
     */
   static void SortCounterclockWise(VecFoothold&);
+  static void SortCounterclockWise(std::vector<LegID>&);
+
   VecSuppLine GetLines() const;
 
   bool IsPointInside(const Vector2d& p) const;

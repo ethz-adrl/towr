@@ -71,13 +71,13 @@ RangeOfMotionBox::EvaluateConstraint () const
   for (const auto& node : motion_structure_.GetContactInfoVec()) {
     PosXY com_pos = com_motion_->GetCom(node.time_).p;
 
-    for (const auto& f_id : node.foothold_ids_) {
+    for (const auto& c : node.contacts) {
 
       PosXY contact_pos = PosXY::Zero();
 
-      if(f_id != xpp::hyq::Foothold::kFixedByStart) {
+      if(c.id != xpp::hyq::Foothold::kFixedByStart) {
         auto footholds = contacts_->GetFootholds();
-        contact_pos = footholds.at(f_id).p.topRows(kDim2d);
+        contact_pos = footholds.at(c.id).p.topRows(kDim2d);
       }
 
       for (auto dim : {X,Y})
@@ -95,15 +95,14 @@ RangeOfMotionBox::GetBounds () const
   std::vector<Bound> bounds;
   for (auto node : motion_structure_.GetContactInfoVec()) {
 
-    int c=0;
-    for (auto leg : node.legs_) {
+    for (auto c : node.contacts) {
 
       PosXY start_offset = PosXY::Zero();
 
-      if (node.foothold_ids_.at(c) == xpp::hyq::Foothold::kFixedByStart)
-        start_offset = contacts_->GetStartFoothold(leg).p.topRows(kDim2d);
+      if (c.id == xpp::hyq::Foothold::kFixedByStart)
+        start_offset = contacts_->GetStartFoothold(c.leg).p.topRows(kDim2d);
 
-      PosXY pos_nom_B = contacts_->GetNominalPositionInBase(leg);
+      PosXY pos_nom_B = contacts_->GetNominalPositionInBase(c.leg);
       for (auto dim : {X,Y}) {
         Bound b;
         b.upper_ = pos_nom_B(dim) + kBoxLength_/2.;
@@ -111,8 +110,6 @@ RangeOfMotionBox::GetBounds () const
         b -= start_offset(dim);
         bounds.push_back(b);
       }
-
-      c++;
     }
   }
   return bounds;
@@ -126,18 +123,14 @@ RangeOfMotionBox::SetJacobianWrtContacts (Jacobian& jac_wrt_contacts) const
   jac_wrt_contacts = Jacobian(m_constraints, n_contacts);
 
   int row=0;
-  for (const auto& node : motion_structure_.GetContactInfoVec()) {
-
-    for (auto f_id : node.foothold_ids_) {
-
-      if (f_id != xpp::hyq::Foothold::kFixedByStart) {
+  for (const auto& node : motion_structure_.GetContactInfoVec())
+    for (auto c : node.contacts) {
+      if (c.id != xpp::hyq::Foothold::kFixedByStart)
         for (auto dim : {X,Y})
-          jac_wrt_contacts.insert(row+dim, Contacts::Index(f_id,dim)) = 1.0;
-      }
+          jac_wrt_contacts.insert(row+dim, Contacts::Index(c.id,dim)) = 1.0;
 
       row += kDim2d;
     }
-  }
 }
 
 void
@@ -149,7 +142,7 @@ RangeOfMotionBox::SetJacobianWrtMotion (Jacobian& jac_wrt_motion) const
 
   int row=0;
   for (const auto& node : motion_structure_.GetContactInfoVec())
-    for (const auto contact : node.foothold_ids_)
+    for (const auto c : node.contacts)
       for (auto dim : {X,Y})
         jac_wrt_motion.row(row++) = -1*com_motion_->GetJacobian(node.time_, kPos, dim);
 }

@@ -167,7 +167,7 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
 int
 ZmpConstraintBuilder::GetNumberOfConstraints () const
 {
-//  return motion_info_.size();
+//  return motion_structure_.GetTotalNumberOfDiscreteContacts();
 
   auto supp_polygons = contacts_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
   int n_constraints = 0;
@@ -193,15 +193,21 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
   int c = 0; // inequality constraint counter
 
 
-  for (const auto& t : times_) {
+    for (auto t : times_) {
+//  for (auto node_new : motion_structure_.GetContactInfoVec()) {
 
     // the current position of the zero moment point
-    auto state = com_motion_->GetCom(t);
+
+    auto state = com_motion_->GetCom(t/*node_new.time_*/);
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
 
-    int phase_id  = com_motion_->GetCurrentPhase(t).id_;
+    int phase_id  = com_motion_->GetCurrentPhase(t/*node_new.time_*/).id_;
     NodeConstraints node = supp_polygon.at(phase_id).GetLines();
+
+
+//    hyq::SupportPolygon::SortCounterclockWise(node_new.legs_);
+
 
 
     for (int i=0; i<node.size(); ++i) {
