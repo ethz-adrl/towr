@@ -153,9 +153,23 @@ void WalkingController::IntegrateOptimizedTrajectory()
 }
 
 void
-WalkingController::StartOptimization()
+WalkingController::PublishOptimizationStartState()
 {
-  xpp::utils::Point3d predicted_state = GetStartStateForOptimization();
+//  xpp::utils::Point3d predicted_state;// = GetStartStateForOptimization();
+
+
+  State predicted_state;
+  xpp::utils::Point2d end_des_xy = spliner_.GetCurrPosition(t_switch_).Get2D();
+  predicted_state.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
+  predicted_state.v.segment(0,2) = end_des_xy.v;
+  predicted_state.a.segment(0,2) = end_des_xy.a;
+
+  State curr_state = P_curr_.base_.pos;
+
+
+  xpp::utils::Point3d start_state_optimization = predicted_state;
+
+
 
   // todo this is the one that doesn't let me change nodes at arbitrary times (stance different from 4 legs)
   // use this somehow:
@@ -174,7 +188,7 @@ WalkingController::StartOptimization()
 
   // always just send current information, no logic/commands/etc
   ReqInfoMsg msg;
-  msg.curr_state = xpp::ros::RosHelpers::XppToRos(predicted_state);
+  msg.curr_state = xpp::ros::RosHelpers::XppToRos(start_state_optimization);
   msg.curr_stance = xpp::ros::RosHelpers::XppToRos(predicted_stance);
   msg.curr_swingleg = P_curr_.SwinglegID();
 
@@ -280,52 +294,52 @@ void WalkingController::ExecuteLoop()
   first_time_sending_commands_ = false;
 }
 
-WalkingController::State
-WalkingController::GetStartStateForOptimization(/*const double required_time*/) const
-{
-  using namespace xpp::utils;
-  using namespace xpp::zmp;
-
-////  // predict where current state is going to be after optimization is done (e.g. after kOptReq)
-  // fixme initialize not with planned, but with current predicted state
-  // this allows to react to pushes/disturbances
-  // attention: this closes the feedback loop, so stability will be affected.
-  State curr_state = P_curr_.base_.pos;
-//  ROS_INFO_STREAM("curr_state: \t" << curr_state);
+//WalkingController::State
+//WalkingController::GetStartStateForOptimization(/*const double required_time*/) const
+//{
+//  using namespace xpp::utils;
+//  using namespace xpp::zmp;
 //
-//  Eigen::Vector3d jerk = (curr_state.a - prev_state_.a)/robot_->GetControlLoopInterval();
+//////  // predict where current state is going to be after optimization is done (e.g. after kOptReq)
+//  // fixme initialize not with planned, but with current predicted state
+//  // this allows to react to pushes/disturbances
+//  // attention: this closes the feedback loop, so stability will be affected.
+//  State curr_state = P_curr_.base_.pos;
+////  ROS_INFO_STREAM("curr_state: \t" << curr_state);
+////
+////  Eigen::Vector3d jerk = (curr_state.a - prev_state_.a)/robot_->GetControlLoopInterval();
+////
+////  CoeffValues coeff;
+////  coeff.x[F] = curr_state.p.x();
+////  coeff.x[E] = curr_state.v.x();
+////  coeff.x[D] = curr_state.a.x()/2.;
+////  coeff.x[C] = jerk.x()/6.;
+////
+////  coeff.y[F] = curr_state.p.y();
+////  coeff.y[E] = curr_state.v.y();
+////  coeff.y[D] = curr_state.a.y()/2.;
+////  coeff.y[C] = jerk.y()/6.;
+////
+////  Spline spline(coeff);
+////
+////  double opt_time = 0.3;
+////  State predicted_state = curr_state; // z position, vel and acceleration
+////  predicted_state.p.segment<kDim2d>(X) = spline.GetState(kPos, opt_time);
+////  predicted_state.v.segment<kDim2d>(X) = spline.GetState(kVel, opt_time);
+////  predicted_state.a.segment<kDim2d>(X) = spline.GetState(kAcc, opt_time);
+////  ROS_INFO_STREAM("predicted: \t" << predicted_state);
+////  return predicted_state;
 //
-//  CoeffValues coeff;
-//  coeff.x[F] = curr_state.p.x();
-//  coeff.x[E] = curr_state.v.x();
-//  coeff.x[D] = curr_state.a.x()/2.;
-//  coeff.x[C] = jerk.x()/6.;
 //
-//  coeff.y[F] = curr_state.p.y();
-//  coeff.y[E] = curr_state.v.y();
-//  coeff.y[D] = curr_state.a.y()/2.;
-//  coeff.y[C] = jerk.y()/6.;
-//
-//  Spline spline(coeff);
-//
-//  double opt_time = 0.3;
-//  State predicted_state = curr_state; // z position, vel and acceleration
-//  predicted_state.p.segment<kDim2d>(X) = spline.GetState(kPos, opt_time);
-//  predicted_state.v.segment<kDim2d>(X) = spline.GetState(kVel, opt_time);
-//  predicted_state.a.segment<kDim2d>(X) = spline.GetState(kAcc, opt_time);
-//  ROS_INFO_STREAM("predicted: \t" << predicted_state);
-//  return predicted_state;
-
-
-  // this is the state where the robot is planned to be, no current feedback
-  State end_des;
-  Point2d end_des_xy = spliner_.GetCurrPosition(t_switch_).Get2D();
-  end_des.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
-  end_des.v.segment(0,2) = end_des_xy.v;
-  end_des.a.segment(0,2) = end_des_xy.a;
-  return end_des;
-//  return curr_state;
-}
+//  // this is the state where the robot is planned to be, no current feedback
+//  State end_des;
+//  Point2d end_des_xy = spliner_.GetCurrPosition(t_switch_).Get2D();
+//  end_des.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
+//  end_des.v.segment(0,2) = end_des_xy.v;
+//  end_des.a.segment(0,2) = end_des_xy.a;
+//  return end_des;
+////  return curr_state;
+//}
 
 
 void WalkingController::EstimateCurrPose()

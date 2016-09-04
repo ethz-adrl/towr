@@ -44,7 +44,7 @@ void FirstPlanning::Run(WalkingController* context) const
 void Executing::Run(WalkingController* context) const
 {
   if (context->TimeCloseToEndOfTrajectory())
-    context->StartOptimization();
+    context->PublishOptimizationStartState();
 
   context->ExecuteLoop();
 

@@ -63,7 +63,7 @@ public:
   void EstimateCurrPose();
   bool SwitchToNewTrajectory() const;
   bool TimeCloseToEndOfTrajectory() const;
-  void StartOptimization(); // sends out command to start NLP optimization
+  void PublishOptimizationStartState(); // sends out command to start NLP optimization
 
 
 
@@ -80,13 +80,13 @@ private:
   ::ros::Publisher current_info_pub_;
   ::ros::Subscriber opt_params_sub_;
 
-  /** Estimates where the robot will be when optimization is complete in order
-    * to start optimization from there.
-    *
-    * @param required_time
-    * @return
-    */
-  State GetStartStateForOptimization(/*const double required_time*/) const;
+//  /** Estimates where the robot will be when optimization is complete in order
+//    * to start optimization from there.
+//    *
+//    * @param required_time
+//    * @return
+//    */
+//  State GetStartStateForOptimization(/*const double required_time*/) const;
 
   bool reoptimize_before_finish_;
 
