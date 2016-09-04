@@ -58,6 +58,8 @@ public:
     */
   MotionInfoVec GetContactInfoVec(double dt) const;
 
+  PhaseVec GetPhases() const;
+
 private:
 
   LegIDVec start_stance_;

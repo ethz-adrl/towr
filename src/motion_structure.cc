@@ -73,6 +73,11 @@ MotionStructure::GetContactInfoVec (double dt) const
   return info;
 }
 
+MotionStructure::PhaseVec
+MotionStructure::GetPhases () const
+{
+  return phases_;
+}
+
 } /* namespace zmp */
 } /* namespace xpp */
-

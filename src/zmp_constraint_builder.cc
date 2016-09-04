@@ -28,11 +28,11 @@ ZmpConstraintBuilder::ZmpConstraintBuilder()
 }
 
 ZmpConstraintBuilder::ZmpConstraintBuilder(const ComMotion& com_motion,
-                                           const SupportPolygonContainer& supp,
+                                           const SupportPolygonContainer& contacts,
                                            double walking_height,
                                            double dt)
 {
-  Init(com_motion, supp, walking_height, dt);
+  Init(com_motion, contacts, walking_height, dt);
 }
 
 ZmpConstraintBuilder::~ZmpConstraintBuilder()
@@ -46,17 +46,47 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
                            double dt)
 {
   com_motion_ = com_motion.clone();
+  contacts_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
+
+
+
+
+
+  // assign the fixed part of the motion
+  auto start_feet = contacts_->GetStartStance();
+  MotionStructure::LegIDVec start_legs;
+  for (const auto& f : start_feet) {
+    start_legs.push_back(f.leg);
+  }
+
+  auto step_feet = contacts_->GetFootholds();
+  MotionStructure::LegIDVec step_legs;
+  for (const auto& f : step_feet) {
+    step_legs.push_back(f.leg);
+  }
+
+  MotionStructure motion_structure;
+  motion_structure.Init(start_legs, step_legs, com_motion_->GetPhases());
+
+  motion_info_ = motion_structure.GetContactInfoVec(dt);
+  motion_phases_ = motion_structure.GetPhases();
+
+
+
+
+
+
+
+  walking_height_ = walking_height;
+
+  // refactor remove this, all info contained in motion_info_
+  double t_switch = 0.2; // the timeframe at which the constraint is relaxed
+  times_ = GetTimesForConstraitEvaluation(dt, t_switch);
+
   // set coefficients to zero, since that is where I am approximating the function
   //around. can only do this in initialization, because ZMP is linear, so
   // Jacobians and offset are independent of current coefficients.
   com_motion_->SetCoefficientsZero();
-
-  contacts_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
-  walking_height_ = walking_height;
-
-  double t_switch = 0.2; // the timeframe at which the constraint is relaxed
-  times_ = GetTimesForConstraitEvaluation(dt, t_switch);
-
   ZeroMomentPoint zmp(*com_motion_, times_, walking_height);
   jac_zmpx_0_ = zmp.GetJacobianWrtCoeff(X);
   jac_zmpy_0_ = zmp.GetJacobianWrtCoeff(Y);
@@ -74,19 +104,18 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
 std::vector<double>
 ZmpConstraintBuilder::GetTimesDisjointSwitches () const
 {
-  auto phases = com_motion_->GetPhases();
-
   std::vector<double> t_disjoint_switches;
   double t_global = 0;
-  for(int i=0; i<phases.size()-1; ++i) {
+  for(int i=0; i<motion_phases_.size()-1; ++i) {
 
-    t_global += phases.at(i).duration_;
+    auto phase = motion_phases_.at(i);
+    t_global += phase.duration_;
 
-    bool curr_phase_is_step = phases.at(i).type_   == PhaseInfo::kStepPhase;
-    bool next_phase_is_step = phases.at(i+1).type_ == PhaseInfo::kStepPhase;
+    bool curr_phase_is_step = phase.type_   == PhaseInfo::kStepPhase;
+    bool next_phase_is_step = motion_phases_.at(i+1).type_ == PhaseInfo::kStepPhase;
 
     if (curr_phase_is_step && next_phase_is_step) {
-      int step = phases.at(i).n_completed_steps_;
+      int step = phase.n_completed_steps_;
       auto curr_leg = contacts_->GetLegID(step);
       auto next_leg = contacts_->GetLegID(step+1);
 
@@ -140,6 +169,8 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
 int
 ZmpConstraintBuilder::GetNumberOfConstraints () const
 {
+//  return motion_info_.size();
+
   auto supp_polygons = contacts_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
   int n_constraints = 0;
   for (auto t : times_) {
@@ -163,14 +194,17 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
 
+
   for (const auto& t : times_) {
 
     // the current position of the zero moment point
     auto state = com_motion_->GetCom(t);
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
+
     int phase_id  = com_motion_->GetCurrentPhase(t).id_;
     NodeConstraints node = supp_polygon.at(phase_id).GetLines();
+
 
     for (int i=0; i<node.size(); ++i) {
 

@@ -25,7 +25,7 @@ SupportPolygon::SupportPolygon(const VecFoothold& footholds, const MarginValues&
 }
 
 void
-SupportPolygon::SortCounterclockWise (VecFoothold& footholds) const
+SupportPolygon::SortCounterclockWise (VecFoothold& footholds)
 {
   std::map<LegID, int> leg_order = { {LH,0} , {RH,1}, {RF,2}, {LF,3} };
 
