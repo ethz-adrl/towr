@@ -64,6 +64,12 @@ MotionStructure::GetContactInfoVec (double dt) const
     t_global += phase.duration_;
   }
 
+  // even though the last footstep doesn't create a support polygon, still include
+  // this last time instance with contact configuration
+  auto final_stance_feet = foothold_container.GetFootholds();
+  for (const auto& f : final_stance_feet)
+    info.push_back(MotionInfo(t_global, f.id, f.leg));
+
   return info;
 }
 
