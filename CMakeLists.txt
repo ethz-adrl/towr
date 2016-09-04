@@ -83,12 +83,12 @@ catkin_package(
 
 
 # NLP solvers
-SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4") # these two lines must be included everywhere where this project is needed
+SET(IPOPT_SOURCE_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4") # these two lines must be included everywhere where this project is needed
 link_directories(${IPOPT_SOURCE_DIR}/build/lib)
 set(IPOPT_INCLUDE_DIRS ${IPOPT_SOURCE_DIR}/build/include/coin)
 set(IPOPT_LIBS ipopt)
 
-SET(SNOPT_SOURCE_DIR "/home/winklera/Software/snopt_lib") # these two lines must be included everywhere where this project is needed
+SET(SNOPT_SOURCE_DIR "/home/winklera/3rd_party_software/snopt_lib") # these two lines must be included everywhere where this project is needed
 link_directories(${SNOPT_SOURCE_DIR}/lib)
 set(SNOPT_INCLUDE_DIRS ${SNOPT_SOURCE_DIR}/include)
 set(SNOPT_LIBS snopt7_cpp snopt7)
@@ -116,9 +116,10 @@ set(SOURCES
   src/nlp_facade.cc
   src/zmp_constraint_builder.cc
   src/zero_moment_point.cc
-  src/stance_feet_calculator.cc
+  src/motion_structure.cc
   src/a_inverse_kinematics.cc
   src/step_sequence_planner.cc
+  src/line_equation.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
@@ -147,13 +148,11 @@ set(SOURCES
   src/constraint_container.cc
   src/zmp_constraint.cc
   src/range_of_motion_constraint.cc
-  src/joint_angles_constraint.cc
+#  src/joint_angles_constraint.cc
   src/obstacle_constraint.cc
   # costs
   src/a_spline_cost.cc
   src/cost_container.cc
-  src/foothold_nominal_deviation.cc
-  src/range_of_motion_cost.cc
   src/cost_function_functor.cc
   src/a_foothold_cost.cc
   # ros
@@ -234,19 +233,18 @@ if(BUILD_TESTS)
     set(MY_GTEST_UNITS  test/google/gtest_main.cc 
 #                        test/google/spliner_test.cc
                          test/google/point2d_manipulations_test.cc
-#                        test/google/supp_polygon_test.cc
-#                        test/google/supp_polygon_container_test.cc
-#                        test/google/helpers.cc
+                         test/google/supp_polygon_test.cc
+                         test/google/supp_polygon_container_test.cc
+                         test/google/helpers.cc
 #                        test/google/zero_moment_point_test.cc
 #                        test/google/nlp_facade_test.cc
 ##                        test/google/hyq_spliner_test.cc
-#                        test/google/stance_feet_calculator_test.cc
 #                        test/google/optimization_variables_test.cc
 #                        test/google/interpreting_observer_test.cc
-#                        test/google/foothold_nominal_deviation_test.cc
 #                        test/google/optimization_visualizer_test.cc
 #                        test/google/optimization_variables_interpreter_test.cc
 #                        test/google/step_sequence_planner_test.cc
+                         test/google/line_equation_test.cc
 #                        # com
 #                        test/google/com_motion_test.cc
 #                        test/google/com_spline_test.cc
@@ -255,7 +253,7 @@ if(BUILD_TESTS)
 #                        #constraints
 #                        test/google/zmp_constraint_test.cc
 #                        test/google/constraint_factory_test.cc
-#                        test/google/zmp_constraint_builder_test.cc
+                         test/google/zmp_constraint_builder_test.cc
                          test/google/linear_spline_equations_test.cc
 #                        test/google/joint_angles_constraint_test.cc
 #                        test/google/constraint_container_test.cc
@@ -264,7 +262,6 @@ if(BUILD_TESTS)
 #                        #equations
 #                        # costs
 #                        test/google/cost_function_functor_test.cc
-#                        test/google/range_of_motion_cost_test.cc
 #                        test/google/cost_container_test.cc
 #                        test/google/a_foothold_cost_test.cc
 #                        # nlp optimizers

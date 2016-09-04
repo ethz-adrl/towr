@@ -158,19 +158,19 @@ TEST_F(SplineContainerTest, GetLocalTime)
 
 }
 
-TEST_F(SplineContainerTest, IsFourLegSupport)
+TEST_F(SplineContainerTest, DeprecatedIsFourLegSupport)
 {
   int id = 0;
   SCOPED_TRACE("id" + id);
 
   for (int j=0; j<n_initial_splines; ++j)
-    EXPECT_TRUE (spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
+    EXPECT_TRUE (spline_container_4steps_.GetPolynomial(id++).DeprecatedIsFourLegSupport());
 
-  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
-  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
-  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
-  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
-  EXPECT_TRUE (spline_container_4steps_.GetPolynomial(id++).IsFourLegSupport());
+  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).DeprecatedIsFourLegSupport());
+  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).DeprecatedIsFourLegSupport());
+  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).DeprecatedIsFourLegSupport());
+  EXPECT_FALSE(spline_container_4steps_.GetPolynomial(id++).DeprecatedIsFourLegSupport());
+  EXPECT_TRUE (spline_container_4steps_.GetPolynomial(id++).DeprecatedIsFourLegSupport());
 }
 
 TEST_F(SplineContainerTest, GetState)

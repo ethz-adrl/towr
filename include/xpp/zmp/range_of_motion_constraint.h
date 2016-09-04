@@ -1,41 +1,95 @@
-/*
- * range_of_motion_constraint.h
- *
- *  Created on: May 26, 2016
- *      Author: winklera
+/**
+ @file    motion_structure.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Jun 6, 2016
+ @brief   Declares various Range of Motion Constraint Classes
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
 #include "a_constraint.h"
-#include "foothold_nominal_deviation.h"
-#include <xpp/hyq/support_polygon_container.h>
+#include "motion_structure.h"
+#include <memory>
 
 namespace xpp {
+
+namespace hyq {
+class SupportPolygonContainer;
+}
+
 namespace zmp {
 
-class OptimizationVariablesInterpreter;
+class ComMotion;
 
+/** @brief Base class for a constraint between contacts and CoM position.
+  *
+  * These constraints are necessary to avoid choosing contact locations
+  * that are outside the kinematic reach of the robot. The constraint can
+  * be defined in terms of joint limits or Cartesian estimates of the
+  * reachability.
+  */
 class RangeOfMotionConstraint : public AConstraint {
 public:
-  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
-  typedef FootholdNominalDeviation::ComMotionPtr ComMotionPtr;
+  using Contacts      = xpp::hyq::SupportPolygonContainer;
+  using ComMotionPtrU = std::unique_ptr<ComMotion>;
+  using ContactPtrU   = std::unique_ptr<Contacts>;
+  using PosXY         = Eigen::Vector2d;
 
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint () {};
 
-  void Init(const OptimizationVariablesInterpreter&);
-  void UpdateVariables(const OptimizationVariables*) override;
-  VectorXd EvaluateConstraint () const override;
-  VecBound GetBounds () const override;
+  void Init(const ComMotion&, const Contacts&);
+  void UpdateVariables(const OptimizationVariables*) final;
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const final;
+
+protected:
+  ContactPtrU contacts_;
+  ComMotionPtrU com_motion_;
+  MotionStructure::MotionInfoVec motion_info_;
 
 private:
-  SupportPolygonContainer supp_polygon_container_;
-  ComMotionPtr com_motion_;
+  Jacobian jac_wrt_contacts_;
+  Jacobian jac_wrt_motion_;
 
-  FootholdNominalDeviation builder_;
+  virtual void SetJacobianWrtContacts(Jacobian&) const = 0;
+  virtual void SetJacobianWrtMotion(Jacobian&) const = 0;
 };
+
+/** @brief Constrains the contact to lie in a box around the nominal stance
+  *
+  * This constraint calculates the position of of the contact expressed in the
+  * current CoM frame and constrains it to lie in a box around the nominal/
+  * natural contact position for that leg.
+  */
+class RangeOfMotionBox : public RangeOfMotionConstraint {
+public:
+  virtual VectorXd EvaluateConstraint () const final;
+  virtual VecBound GetBounds () const final;
+
+private:
+  const double kBoxLength_ = 0.3;
+  virtual void SetJacobianWrtContacts(Jacobian&) const final;
+  virtual void SetJacobianWrtMotion(Jacobian&) const final;
+};
+
+/** @brief Constrains the contact to lie at a fixed position in world frame.
+  *
+  * This constraint places the footholds at predefined positions with no
+  * margin. It is mainly useful for debugging when other features of the optimizer
+  * are being tested.
+  */
+class RangeOfMotionFixed : public RangeOfMotionConstraint {
+public:
+  virtual VectorXd EvaluateConstraint () const final;
+  virtual VecBound GetBounds () const final;
+
+private:
+  const double kStepLength_ = 0.15;
+  virtual void SetJacobianWrtContacts(Jacobian&) const final;
+  virtual void SetJacobianWrtMotion(Jacobian&) const final;
+};
+
 
 } /* namespace zmp */
 } /* namespace xpp */

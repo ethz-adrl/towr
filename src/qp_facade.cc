@@ -19,7 +19,8 @@
 namespace xpp {
 namespace zmp {
 
-typedef xpp::utils::MatVecVec MatVecVec;
+using MatrixXd = Eigen::MatrixXd;
+using VectorXd = Eigen::VectorXd;
 
 QpFacade::VecSpline
 QpFacade::SolveQp(const State& initial_state,
@@ -34,7 +35,7 @@ QpFacade::SolveQp(const State& initial_state,
 //  auto com_spline = MotionFactory::CreateComMotion(initial_state.p, initial_state.v , steps.size(), times,start_with_com_shift);
   auto com_spline = MotionFactory::CreateComMotion(steps.size(), times, start_with_com_shift);
 
-  LinearSplineEquations spline_eq(com_spline);
+  LinearSplineEquations spline_eq(*com_spline);
 
   cost_function_ = spline_eq.MakeAcceleration(1.0,3.0);
 
@@ -59,10 +60,17 @@ QpFacade::SolveQp(const State& initial_state,
   std::cout << "number of support polygons: " << supp.size() << std::endl;
 //  for (const hyq::SupportPolygon& s : supp) std::cout << s;
 
-  ZmpConstraintBuilder zmp_constraint(com_spline, robot_height);
-  MatVecVec zmp_constr = zmp_constraint.CalcZmpConstraints(supp_polygon_container);
-  inequality_constraints_.M = zmp_constr.Mv.M;
-  inequality_constraints_.v = zmp_constr.Mv.v + zmp_constr.constant;
+  // the failing could be related to not relaxing the node constraints
+  // when switchting between disjoint support triangles
+  com_spline->SetCoefficientsZero();
+  ZmpConstraintBuilder zmp_constraint(*com_spline, supp_polygon_container, robot_height, 0.1);
+
+  MatrixXd jac_zmp_at_zero_coeff = zmp_constraint.GetJacobianWrtMotion();
+  VectorXd distance_at_zero_coeff = zmp_constraint.GetDistanceToLineMargin();
+
+  // refactor _make this work again
+  inequality_constraints_.M = jac_zmp_at_zero_coeff;
+  inequality_constraints_.v = distance_at_zero_coeff;
 
 //  std::cout << "zmp_constr.Mv.v" << zmp_constr.Mv.v.transpose() << std::endl;
 //  std::cout << "zmp_constr.constant" << zmp_constr.constant.transpose() << std::endl;

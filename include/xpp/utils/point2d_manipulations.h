@@ -28,26 +28,6 @@ public:
   typedef std::vector<Vec2d, Eigen::aligned_allocator<Vec2d> > StdVectorEig2d;
 
 public:
-  // from http://math.stackexchange.com/questions/1076292/obtain-coefficients-of-a-line-from-2-points
-  static LineCoeff2d LineCoeff(const Vec2d& pt0, const Vec2d& pt1, bool normalize = true) {
-
-    LineCoeff2d ret;
-    ret.p = pt0.y() - pt1.y();
-    ret.q = pt1.x() - pt0.x();
-//    ret.r = -ret.p * pt0.x() - ret.q * pt0.y();
-    ret.r = pt0.x()*pt1.y() - pt1.x()*pt0.y();
-
-    // normalize the equation in order to intuitively use stability margins
-    if (normalize) {
-      double norm = hypot(ret.p, ret.q);
-      ret.p /= norm;
-      ret.q /= norm;
-      ret.r /= norm;
-    }
-
-    return ret;
-  }
-
   //  Checks if B is on the right side of line OA
   static bool BisRightOfOA(const Vec2d& O, const Vec2d A, const Vec2d& B)
   {

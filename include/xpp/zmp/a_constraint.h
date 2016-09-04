@@ -26,6 +26,11 @@ public:
     }
     double lower_;
     double upper_;
+
+    void operator-=(double scalar) {
+      lower_ -= scalar;
+      upper_ -= scalar;
+    }
   };
   typedef Eigen::VectorXd VectorXd;
   typedef std::vector<Bound> VecBound;
@@ -40,10 +45,9 @@ public:
    */
   virtual VectorXd EvaluateConstraint () const = 0;
 
-  /** The jacobian of the constraints with respect to each decision variable set
+  /** The Jacobian of the constraints with respect to each decision variable set
     */
-  // refactor remove default implementation
-  virtual Jacobian GetJacobianWithRespectTo (std::string var_set) const {};
+  virtual Jacobian GetJacobianWithRespectTo (std::string var_set) const = 0;
 
   /** For each returned constraint an upper and lower bound is given.
    */

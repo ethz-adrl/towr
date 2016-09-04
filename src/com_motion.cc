@@ -6,6 +6,7 @@
  */
 
 #include <xpp/zmp/com_motion.h>
+#include <xpp/zmp/phase_info.h>
 
 namespace xpp {
 namespace zmp {
@@ -20,28 +21,30 @@ ComMotion::~ComMotion ()
   // TODO Auto-generated destructor stub
 }
 
-std::vector<double>
-ComMotion::GetDiscretizedGlobalTimes() const
-{
-  static constexpr double dt = 0.1; //discretization time [seconds]: needed for creating support triangle inequality constraints
-  static constexpr double eps = 1e-10; // maximum inaccuracy when adding double numbers
-
-  std::vector<double> vec;
-  double t = 0.0;
-  while (t <= GetTotalTime()-dt+eps) { // still add the second to last time, even if rounding errors to to floating point arithmetics
-    vec.push_back(t);
-    t += dt;
-  }
-
-  vec.push_back(GetTotalTime());
-  return vec;
-}
-
 void
 ComMotion::SetCoefficientsZero ()
 {
   Eigen::VectorXd coeff(GetTotalFreeCoeff());
   SetCoefficients(coeff.setZero());
+}
+
+ComMotion::PhaseInfoVec
+ComMotion::GetPhases () const
+{
+  return phases_;
+}
+
+PhaseInfo
+ComMotion::GetCurrentPhase (double t_global) const
+{
+  double t = 0;
+  for (const auto& phase: phases_) {
+    t += phase.duration_;
+
+    if (t >= t_global) // at junctions, returns previous phase (=)
+      return phase;
+  }
+  assert(false); // this should never be reached
 }
 
 ComMotion::VecScalar
@@ -55,5 +58,10 @@ ComMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coor
   return linear_approx;
 }
 
+
+
+
+
 } /* namespace zmp */
 } /* namespace xpp */
+

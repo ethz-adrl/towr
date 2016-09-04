@@ -27,13 +27,8 @@ struct SplineTimes
   SplineTimes(double t_swing, double t_init)
       :t_swing_(t_swing), t_stance_initial_(t_init) {}
 
-  double t_swing_;
-  double t_stance_initial_;
-
-  void SetDefault() {
-    t_swing_          = 0.7; //s
-    t_stance_initial_ = 0.4; //s
-  }
+  double t_swing_{0.7};
+  double t_stance_initial_{0.4};
 };
 
 
@@ -51,8 +46,9 @@ public:
   typedef xpp::utils::Point2d Point2d;
   typedef xpp::utils::Coords3D Coords;
   typedef std::vector<MotionDerivative> Derivatives;
-  typedef std::shared_ptr<ComSpline> Ptr;
-  typedef std::unique_ptr<ComSpline> UniquePtr;
+  typedef std::shared_ptr<ComSpline> PtrS;
+  typedef std::unique_ptr<ComSpline> PtrU;
+
 
   ComSpline ();
   virtual ~ComSpline ();
@@ -60,8 +56,6 @@ public:
   // implements these functions from parent class, now specific for splines
   Point2d GetCom(double t_global) const override { return GetCOM(t_global, polynomials_); }
   double GetTotalTime() const override { return GetTotalTime(polynomials_); }
-  PhaseInfo GetCurrentPhase(double t_global) const override;
-  PhaseInfoVec GetPhases() const override;
   int GetTotalFreeCoeff() const override;
   VectorXd GetCoeffients () const override;
 
@@ -88,9 +82,6 @@ public:
   ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
 
 
-  virtual UniquePtr clone() const = 0;
-
-
   /** Calculates the Jacobian at a specific time of the motion, but specified by
     * a local time and a polynome id. This allows to create spline junction constraints
     *
@@ -99,7 +90,7 @@ public:
     * @param id the ID of the current polynomial
     * @param dim in which dimension (x,y) the Jacobian is desired.
     */
-  Jacobian GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt, double t_poly, int id, Coords3D dim) const;
+  JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt, double t_poly, int id, Coords3D dim) const;
   static Point2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
   Point2d GetCOGxyAtPolynomial(int id, double t_local) {return GetCOGxyAtPolynomial(id, t_local, polynomials_); };
 
@@ -113,11 +104,11 @@ protected:
 
 private:
 
-  Jacobian GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const override;
-  virtual void GetJacobianPos (double t_poly, int id, Coords dim, Jacobian&) const = 0;
-  virtual void GetJacobianVel (double t_poly, int id, Coords dim, Jacobian&) const = 0;
-  virtual void GetJacobianAcc (double t_poly, int id, Coords dim, Jacobian&) const = 0;
-  virtual void GetJacobianJerk(double t_poly, int id, Coords dim, Jacobian&) const = 0;
+  JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const override;
+  virtual void GetJacobianPos (double t_poly, int id, Coords dim, JacobianRow&) const = 0;
+  virtual void GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow&) const = 0;
+  virtual void GetJacobianAcc (double t_poly, int id, Coords dim, JacobianRow&) const = 0;
+  virtual void GetJacobianJerk(double t_poly, int id, Coords dim, JacobianRow&) const = 0;
 
   virtual int NumFreeCoeffPerSpline() const = 0;
   virtual std::vector<SplineCoeff> GetFreeCoeffPerSpline() const = 0;

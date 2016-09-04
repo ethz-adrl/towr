@@ -9,9 +9,14 @@
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 
 #include <xpp/hyq/support_polygon.h>
-#include <xpp/zmp/com_motion.h>
+#include <functional> // std::function
 
 namespace xpp {
+
+namespace zmp {
+class PhaseInfo;
+}
+
 namespace hyq {
 
 /** @brief Hold the support polygons created by the contacts with the environment.
@@ -20,22 +25,18 @@ namespace hyq {
   * polygons. Since support polygons are paired with phases of the CoM motion,
   * this class also depends on com_motion.
   */
-class SupportPolygonContainer
-{
+class SupportPolygonContainer {
 public:
   typedef std::vector<SupportPolygon> VecSupportPolygon;
   typedef SupportPolygon::VecFoothold VecFoothold;
   typedef std::vector<xpp::hyq::LegID> VecLegID;
-  typedef std::vector<SupportPolygon::VecSuppLine> VecVecSuppLine;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
-  typedef xpp::zmp::ComMotion ComMotion;
+  typedef std::vector<xpp::zmp::PhaseInfo> PhaseInfoVec;
+  typedef xpp::utils::Coords3D Coords;
+  using PosXY = Eigen::Vector2d;
 
-
-public:
   SupportPolygonContainer () {};
   virtual ~SupportPolygonContainer () {};
-
-public:
 
   /** @brief Initializes with the info needed for the QP optimizer, which includes
     * foothold locations.
@@ -61,11 +62,21 @@ public:
             const VecLegID& step_sequence,
             const MarginValues& margins = SupportPolygon::GetZeroMargins());
 
+  void Init(const VecLegID& start_stance,
+            const VecLegID& step_sequence,
+            const MarginValues& margins = SupportPolygon::GetZeroMargins());
+
   Eigen::Vector2d GetCenterOfFinalStance() const;
   VecFoothold GetStanceDuring(int step) const;
   VecFoothold GetStanceAfter(int n_steps) const;
   VecFoothold GetFootholds() const { return footholds_; };
 
+  /** Position where the foothold is stored in the optimization variables.
+   *
+   *  u = [x0 y0 x1 y1 ... xN yN]
+   */
+  static int Index(int foothold_id, Coords dim);
+  int GetTotalFreeCoeff() const;
 
   SupportPolygon GetStartPolygon() const;
   SupportPolygon GetFinalPolygon() const;
@@ -83,14 +94,16 @@ public:
 
 
   VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
+  VecSupportPolygon AssignSupportPolygonsToPhases(const PhaseInfoVec&) const;
 
-  VecSupportPolygon AssignSupportPolygonsToPhases(const ComMotion&) const;
-  VecVecSuppLine GetActiveConstraintsForEachPhase(const ComMotion&) const;
+
+  PosXY GetNominalPositionInBase(LegID leg) const; // move to support polygon
+
 
   /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */
   Eigen::VectorXd GetFootholdsInitializedToStart() const;
 
-
+  static bool DisJointSupportPolygons(LegID prev, LegID next);
 private:
 
   VecFoothold footholds_;
@@ -99,14 +112,9 @@ private:
   VecFoothold start_stance_;
 
   VecSupportPolygon CreateSupportPolygons(const VecFoothold& footholds) const;
-  void CheckIfInitialized() const;
-
-  void SetStartStance(const VecFoothold& start_stance);
-  void SetFootholds  (const VecFoothold& footholds);
+  void ModifyFootholds (VecFoothold& footholds, std::function<void (Foothold&, int)>) const;
 
   SupportPolygon GetStancePolygon(const VecFoothold& footholds) const;
-  bool initialized_ = false;
-  friend class SuppPolygonContainerTest_CreateSupportPolygons_Test;
 };
 
 } /* namespace hyq */

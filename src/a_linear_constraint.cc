@@ -60,8 +60,11 @@ LinearSplineEqualityConstraint::GetJacobianWithRespectTo (std::string var_set) c
 {
   Jacobian jac; // empy matrix
 
-  if (var_set == VariableNames::kSplineCoeff)
+  if (var_set == VariableNames::kSplineCoeff) {
+    // careful, .sparseView is only valid when the Jacobian is constant, e.g.
+    // the constraints are all linear w.r.t. the decision variables.
     jac = linear_equation_.M.sparseView();
+  }
 
   return jac;
 }

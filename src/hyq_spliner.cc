@@ -64,7 +64,7 @@ HyqSpliner::BuildStateSequence(const HyqState& P_init,
     P_plan.swingleg_ = false;
 
     // only change state in swingphase
-    if (!s.IsFourLegSupport()) {
+    if (!s.DeprecatedIsFourLegSupport()) {
       const Foothold& f = footholds.at(s.GetCurrStep());
       P_plan.swingleg_[f.leg] = true;
       P_plan.feet_[f.leg].p(X) = f.p(X);

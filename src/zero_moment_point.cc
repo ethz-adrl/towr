@@ -1,8 +1,8 @@
-/*
- * zero_moment_point.cpp
- *
- *  Created on: Apr 30, 2016
- *      Author: winklera
+/**
+ @file    com_motion.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Aug 23, 2016
+ @brief   Defines the ZeroMomentPoint class
  */
 
 #include <xpp/zmp/zero_moment_point.h>
@@ -11,7 +11,29 @@
 namespace xpp {
 namespace zmp {
 
-static constexpr double kGravity = 9.80665; // gravity acceleration [m\s^2]
+ZeroMomentPoint::ZeroMomentPoint ()
+{
+}
+
+ZeroMomentPoint::ZeroMomentPoint (const ComMotion& x,
+                                  const std::vector<double>& times,
+                                  double height)
+{
+  Init(x, times, height);
+}
+
+ZeroMomentPoint::~ZeroMomentPoint ()
+{
+}
+
+void
+ZeroMomentPoint::Init (const ComMotion& x, const std::vector<double>& times,
+                       double height)
+{
+  com_motion_ = x.clone();
+  height_ = height;
+  times_ = times;
+}
 
 ZeroMomentPoint::Vector2d
 ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
@@ -21,35 +43,28 @@ ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
   return zmp;
 }
 
-ZeroMomentPoint::VecScalar
-ZeroMomentPoint::CalcZmp(const VecScalar& pos, const VecScalar& acc, double height)
+ZeroMomentPoint::Jacobian
+ZeroMomentPoint::GetJacobianWrtCoeff (Coords dim) const
 {
-  const double z_acc = 0.0; // TODO: calculate z_acc based on foothold height
-  double k = height/(kGravity+z_acc);
-  return pos - k*acc;
-}
+  int n_coeff = com_motion_->GetTotalFreeCoeff();
 
-ZeroMomentPoint::MatVec
-ZeroMomentPoint::GetLinearApproxWrtMotionCoeff(const ComMotion& com_motion,
-                                               double height, Coords dim)
-{
-  auto vec_t = com_motion.GetDiscretizedGlobalTimes();
-  int coeff = com_motion.GetTotalFreeCoeff();
-
-  MatVec zmp(vec_t.size(), coeff);
+  Jacobian jac_zmp(times_.size(), n_coeff);
 
   int n = 0; // node counter
-  for (double t_global : vec_t)
+  for (double t_global : times_)
   {
-    VecScalar pos = com_motion.GetLinearApproxWrtCoeff(t_global, utils::kPos, dim);
-    VecScalar acc = com_motion.GetLinearApproxWrtCoeff(t_global, utils::kAcc, dim);
+    JacobianRow jac_pos_t = com_motion_->GetJacobian(t_global, utils::kPos, dim);
+    JacobianRow jac_acc_t = com_motion_->GetJacobian(t_global, utils::kAcc, dim);
 
-    zmp.WriteRow(CalcZmp(pos, acc, height), n++);
+    JacobianRow zmp_t = CalcZmp(jac_pos_t, jac_acc_t, height_);
+    jac_zmp.row(n++) = zmp_t;
   }
 
-  assert(n<=vec_t.size()); // check that Eigen matrix didn't overflow
-  return zmp;
+  assert(n<=times_.size()); // check that Eigen matrix didn't overflow
+  return jac_zmp;
 }
 
 } /* namespace zmp */
 } /* namespace xpp */
+
+

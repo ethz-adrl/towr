@@ -71,7 +71,7 @@ protected:
 } // namespace xpp
 
 
-#include "com_motion.h" // Phase Info
+#include "phase_info.h"
 namespace xpp { namespace ros { class RosHelpers; }} // forward declaration for friend
 
 namespace xpp {
@@ -92,13 +92,20 @@ public:
   /** Only if spline is a "StepSpline" is a step currently being executed. */
   uint GetCurrStep() const;
 
-  bool IsFourLegSupport() const { return phase_.type_ == kStancePhase; }
+  // DEPRECATED:
+  // The phase information should only be used from the base class
+  // com_motion and not linked to a specific spline. This is an implementation
+  // detail not relevant outside the optimizer. Also the step info is not
+  // neccessary here as well, remove.
+  // Will remove soon.
+  // refactor remove deprecated phase stuff
+  bool DeprecatedIsFourLegSupport() const { return deprecated_phase_.type_ == PhaseInfo::kStancePhase; }
 
-  PhaseInfo phase_;
 private:
   uint id_; // to identify the order relative to other zmp splines
   double duration_; // time during which this spline is active
   int step_; // current step
+  PhaseInfo deprecated_phase_;
 
   friend struct xpp::ros::RosHelpers;
   friend std::ostream& operator<<(std::ostream& out, const ComPolynomial& tr);

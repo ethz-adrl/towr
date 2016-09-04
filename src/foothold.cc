@@ -10,28 +10,29 @@
 namespace xpp {
 namespace hyq {
 
+Foothold::Foothold ()
+{
+  p.setZero();
+  leg = LF;
+  id = kFixedByStart;
+}
+
 Foothold::Foothold(Eigen::Vector3d _pos, LegID _leg)
     : p(_pos), leg(_leg)
 {
-  fixed_by_start_stance = false;
+  id = kFixedByStart;
 };
 
 Foothold::Foothold(double x, double y, double z, LegID _leg)
     : p(x, y, z), leg(_leg)
 {
-  fixed_by_start_stance = false;
+  id = kFixedByStart;
 };
 
 Eigen::Vector2d Foothold::GetXy() const
 {
   using namespace xpp::utils::coords_wrapper;
   return p.segment<kDim2d>(X);
-}
-
-void Foothold::SetXy(double x, double y)
-{
-  p.x() = x;
-  p.y() = y;
 }
 
 void Foothold::SetXy(const Vector2d& xy)
@@ -94,7 +95,3 @@ bool Foothold::operator!=(const Foothold& rhs) const
 
 } // namespace hyq
 } // namespace xpp
-
-
-
-

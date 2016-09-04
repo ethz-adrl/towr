@@ -68,7 +68,7 @@ XppToRos(const VecSpline& opt_splines)
     std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_y.begin());
 
     msgs.at(i).duration = opt_splines.at(i).duration_;
-    msgs.at(i).type     = static_cast<int>(opt_splines.at(i).phase_.type_);
+    msgs.at(i).type     = static_cast<int>(opt_splines.at(i).deprecated_phase_.type_);
     msgs.at(i).id       = opt_splines.at(i).id_;
     msgs.at(i).step     = opt_splines.at(i).step_;
   }
@@ -94,7 +94,7 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
     std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::Y]);
 
     xpp.at(i).duration_      = msgs.at(i).duration;
-    xpp.at(i).phase_.type_   = static_cast<zmp::PhaseType>(msgs.at(i).type);
+    xpp.at(i).deprecated_phase_.type_   = static_cast<zmp::PhaseInfo::Type>(msgs.at(i).type);
     xpp.at(i).id_            = msgs.at(i).id;
     xpp.at(i).step_          = msgs.at(i).step;
   }

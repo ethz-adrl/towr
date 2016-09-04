@@ -27,6 +27,9 @@ public:
   VectorXd EvaluateConstraint () const override;
   VecBound GetBounds () const override;
 
+  // not implemented yet
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const override { assert(false); };
+
 private:
   FootholdsXY footholds_;
   const double gap_center_x_ = -0.2; //m

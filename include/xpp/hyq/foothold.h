@@ -20,8 +20,7 @@ namespace hyq {
 /**
 @brief A foot position (x,y,z) and an associated leg.
 */
-class Foothold
-{
+class Foothold {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   typedef std::vector<Foothold> VecFoothold;
@@ -31,13 +30,15 @@ public:
 public:
   Eigen::Vector3d p;
   LegID leg;
-  bool fixed_by_start_stance;
+  int id; // the number of this foothold in a sequence of footholds, -1 for start stance
 
-  Foothold(Eigen::Vector3d _pos = Eigen::Vector3d::Zero(), LegID _leg = LF);
-  Foothold(double x, double y, double z, LegID _leg = LF);
+  static const int kFixedByStart = -1;
+
+  Foothold();
+  Foothold(Eigen::Vector3d _pos, LegID _leg);
+  Foothold(double x, double y, double z, LegID _leg);
 
   Vector2d GetXy() const;
-  void SetXy(double x, double y);
   void SetXy(const Vector2d& xy);
   static void SetXy(const StdVecEigen2d& xy, VecFoothold& footholds);
 
@@ -61,7 +62,7 @@ inline std::ostream& operator<<(std::ostream& out, const Foothold& f)
     { LF, "LF" }, { RF, "RF" }, { LH, "LH" }, { RH, "RH" }
   };
 
-  out << l[f.leg] << " : " << f.p.transpose();
+  out << l[f.leg] << " : " << f.p.transpose() << ", id: " << f.id;
   return out;
 }
 

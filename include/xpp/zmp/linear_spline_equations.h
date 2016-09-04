@@ -11,12 +11,11 @@
 #include <xpp/utils/geometric_structs.h>
 #include <memory>
 
-using namespace xpp::utils::coords_wrapper; //kPos,kVel,kAcc,kJerk
-
 namespace xpp {
 namespace zmp {
 
-class ComSpline;
+class ComMotion;
+class ComSpline; // at some point get rid of this
 
 /** Produces linear equations related to CoM spline motion coefficients x.
   *
@@ -30,11 +29,11 @@ class LinearSplineEquations {
 public:
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::Point2d State2d;
-  typedef std::unique_ptr<ComSpline> ComSplinePtr;
-  typedef std::shared_ptr<ComSpline> ComSplinePtrShared;
-  typedef std::vector<MotionDerivative> Derivatives;
+  typedef std::unique_ptr<ComSpline> ComSplinePtrU;
 
-  LinearSplineEquations (const ComSplinePtrShared& com_spline);
+  /** @attention ComMotion is downcast to ComSpline.
+    */
+  LinearSplineEquations (const ComMotion& com_spline);
   virtual ~LinearSplineEquations ();
 
 
@@ -70,7 +69,7 @@ public:
   MatVec MakeAcceleration(double weight_x, double weight_y) const;
 
 private:
-  ComSplinePtr com_spline_;
+  ComSplinePtrU com_spline_;
 };
 
 } /* namespace zmp */

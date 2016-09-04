@@ -12,10 +12,20 @@ namespace xpp {
 namespace zmp {
 
 using namespace xpp::utils;
+using namespace xpp::utils::coords_wrapper; //kPos,kVel,kAcc,kJerk
 
-LinearSplineEquations::LinearSplineEquations (const ComSplinePtrShared& com_spline )
+LinearSplineEquations::LinearSplineEquations (const ComMotion& com_spline )
 {
-  com_spline_ = com_spline->clone();
+  // cast com motion to spline, because i need some specific features of that
+  auto base_ptr = com_spline.clone();
+  ComSpline *tmp = dynamic_cast<ComSpline*>(base_ptr.get());
+
+  if(tmp != nullptr)
+  {
+    base_ptr.release();
+    com_spline_.reset(tmp);
+  }
+
   com_spline_->SetCoefficientsZero(); // the values my motion function approximation is around
 }
 
@@ -60,7 +70,6 @@ LinearSplineEquations::MakeFinal (const State2d& final_state) const
   double T = com_spline_->GetTotalTime();
   for (const Coords3D dim : {X,Y})
   {
-    ComPolynomial last = com_spline_->GetLastPolynomial();
     for (auto dxdt :  derivatives)
     {
       VecScalar diff_dxdt = com_spline_->GetLinearApproxWrtCoeff(T, dxdt, dim);

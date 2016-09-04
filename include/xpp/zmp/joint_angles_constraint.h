@@ -11,10 +11,10 @@
 #include <xpp/zmp/a_constraint.h>
 
 #include <xpp/zmp/optimization_variables_interpreter.h>
-#include <xpp/zmp/stance_feet_calculator.h>
 #include <xpp/zmp/a_inverse_kinematics.h>
 
 #include <memory>
+#include "motion_structure.h"
 
 namespace xpp {
 namespace zmp {
@@ -42,10 +42,12 @@ public:
 
   VectorXd EvaluateConstraint() const override;
   VecBound GetBounds() const override;
+  // not implemented yet
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const override { assert(false); };
 
 private:
   InvKinPtr inv_kin_;           ///< endeffector to joint angle conversions
-  StanceFeetCalculator stance_feet_calc_; ///< supplies feet position in base frame
+  MotionStructure stance_feet_calc_; ///< supplies feet position in base frame
 
   Interpreter interpreter_; ///< adds context to the optimization variables
 
