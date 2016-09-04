@@ -65,10 +65,14 @@ public:
 
 private:
   double dt_; ///< discretization interval [s]
-
   LegIDVec start_stance_;
   LegIDVec steps_;
   PhaseVec phases_;
+
+  // the values don't really define the structure of the class -> mutable
+  MotionInfoVec CalcContactInfoVec() const;
+  mutable bool cache_needs_updating_;
+  mutable MotionInfoVec cached_motion_vector_;
 };
 
 } /* namespace zmp */

@@ -34,14 +34,26 @@ void
 MotionStructure::Init (const LegIDVec& start_legs, const LegIDVec& step_legs,
                        const PhaseVec& phases, double dt)
 {
-  start_stance_ = start_legs;
-  steps_        = step_legs;
-  phases_       = phases;
-  dt_           = dt;
+  start_stance_   = start_legs;
+  steps_          = step_legs;
+  phases_         = phases;
+  dt_             = dt;
+  cache_needs_updating_ = true;
 }
 
 MotionStructure::MotionInfoVec
 MotionStructure::GetContactInfoVec () const
+{
+  if (cache_needs_updating_) {
+    cached_motion_vector_ = CalcContactInfoVec();
+    cache_needs_updating_ = false;
+  }
+
+  return cached_motion_vector_;
+}
+
+MotionStructure::MotionInfoVec
+MotionStructure::CalcContactInfoVec () const
 {
   xpp::hyq::SupportPolygonContainer foothold_container;
   foothold_container.Init(start_stance_, steps_);
