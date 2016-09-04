@@ -78,7 +78,16 @@ WalkingController::GetReadyHook() {
   states_map_ = WalkingControllerState::BuildStates();
   current_state_ = WalkingControllerState::kFirstPlanning;
 
- first_time_sending_commands_ = true;
+  // allow >20ms for ROS communication. So whatever ipopt's max_cpu_time
+  // is set for, add 40ms to make sure the msg reaches the controller
+  static const double ros_message_delay = 0.02;
+  // also, no spline can have lower duration than this
+  // this delay should not be too large, as it makes the closed feedback loop
+  // unstable.
+  kOptTimeReq_ = max_cpu_time_ + ros_message_delay;
+
+
+  first_time_sending_commands_ = true;
 }
 
 bool
@@ -110,15 +119,22 @@ void WalkingController::PublishCurrentState()
   ReqInfoMsg msg;
   msg.curr_state    = xpp::ros::RosHelpers::XppToRos(P_curr_.base_.pos);
   msg.curr_stance   = xpp::ros::RosHelpers::XppToRos(P_curr_.GetStanceLegs());
-  msg.curr_swingleg = xpp::hyq::NO_SWING_LEG;
+  msg.curr_swingleg = P_curr_.SwinglegID();
 
   // send out the message
   current_info_pub_.publish(msg);
-
-  P_des_ = P_curr_;
 }
 
-void WalkingController::BuildPlan()
+bool
+WalkingController::TimeCloseToEndOfTrajectory() const
+{
+  // constantly send out state
+  return true;
+//  double time_left = t_switch_ - Time();
+//  return (time_left <= kOptTimeReq_ && reoptimize_before_finish_);
+}
+
+void WalkingController::IntegrateOptimizedTrajectory()
 {
   ffspliner_timer_ = ffspline_duration_;
   reoptimize_before_finish_ = true;
@@ -130,23 +146,49 @@ void WalkingController::BuildPlan()
   spliner_.Init(P_des_, opt_splines_, opt_footholds_, robot_height_);
 
 
-  // allow >20ms for ROS communication. So whatever ipopt's max_cpu_time
-  // is set for, add 40ms to make sure the msg reaches the controller
-  static const double ros_message_delay = 0.04;
-  // also, no spline can have lower duration than this
-  // this delay should not be too large, as it makes the closed feedback loop
-  // unstable.
-  kOptTimeReq_ = max_cpu_time_ + ros_message_delay;
   switch_node_ = spliner_.GetNode(1);
 
   t_switch_ = switch_node_.T;
   Controller::ResetTime();
 }
 
+void
+WalkingController::StartOptimization()
+{
+  xpp::utils::Point3d predicted_state = GetStartStateForOptimization();
+
+  // todo this is the one that doesn't let me change nodes at arbitrary times (stance different from 4 legs)
+  // use this somehow:
+  //    LegDataMap<Point3d> predicted_feet;
+  //    LegDataMap<bool> predicted_swing_leg;
+  //    spliner_.FillCurrFeet(t_switch_, predicted_feet, predicted_swing_leg);
+  // or VecFoothold predicted_stance = spliner_.GetGoalNode(Time()).state_.GetStanceLegs();
+  VecFoothold predicted_stance = switch_node_.state_.FeetToFootholds().ToVector();
+
+
+//    ROS_INFO_STREAM("time: " << Time() << "\npredicted_start_state_:\n" << predicted_state);
+//
+//    std::cout << "predicted stance: \n";
+//    for (const hyq::Foothold& f : predicted_stance)
+//      std::cout << f << std::endl;
+
+  // always just send current information, no logic/commands/etc
+  ReqInfoMsg msg;
+  msg.curr_state = xpp::ros::RosHelpers::XppToRos(predicted_state);
+  msg.curr_stance = xpp::ros::RosHelpers::XppToRos(predicted_stance);
+  msg.curr_swingleg = P_curr_.SwinglegID();
+
+  current_info_pub_.publish(msg);
+
+  reoptimize_before_finish_ = false;
+}
+
 void WalkingController::ExecuteLoop()
 {
   using namespace xpp::utils;
   using namespace xpp::zmp;
+  ROS_INFO_STREAM_THROTTLE(robot_->GetControlLoopInterval(), "time: " << Time());
+
   /** 1. motion plan generation */
   /** CURRENT state of robot through joint encoder readings and state estimation **/
   JointState q = robot_->GetJointPosition();
@@ -154,51 +196,23 @@ void WalkingController::ExecuteLoop()
 
   P_curr_.swingleg_ = P_des_.swingleg_;
   EstimateCurrPose(); // through sensors and state estimation
+  std::cout << "P_curr: " << P_curr_.base_.pos << "\n";
   jsim_.update(q);
-
-  double time_left = t_switch_ - Time();
-  if (time_left <= kOptTimeReq_ && reoptimize_before_finish_)
-  {
-    Point3d predicted_state = GetStartStateForOptimization();
-
-    // todo this is the one that doesn't let me change nodes at arbitrary times (stance different from 4 legs)
-    // use this somehow:
-    //    LegDataMap<Point3d> predicted_feet;
-    //    LegDataMap<bool> predicted_swing_leg;
-    //    spliner_.FillCurrFeet(t_switch_, predicted_feet, predicted_swing_leg);
-    // or VecFoothold predicted_stance = spliner_.GetGoalNode(Time()).state_.GetStanceLegs();
-    VecFoothold predicted_stance = switch_node_.state_.FeetToFootholds().ToVector();
-
-
-    ROS_INFO_STREAM("time: " << Time() << "\npredicted_start_state_:\n" << predicted_state);
-
-    std::cout << "predicted stance: \n";
-    for (const hyq::Foothold& f : predicted_stance)
-      std::cout << f << std::endl;
-
-    // always just send current information, no logic/commands/etc
-    ReqInfoMsg msg;
-    msg.curr_state = xpp::ros::RosHelpers::XppToRos(predicted_state);
-    msg.curr_stance = xpp::ros::RosHelpers::XppToRos(predicted_stance);
-    msg.curr_swingleg = P_curr_.SwinglegID();
-
-    current_info_pub_.publish(msg);
-
-    reoptimize_before_finish_ = false;
-  }
 
 
   /** @brief DESIRED state given by splined plan and zmp optimizer **/
+//  if (first_time_sending_commands_)
+//    P_des_ = P_curr_;
+
   P_des_.base_.pos = spliner_.GetCurrPosition(Time());
   P_des_.base_.ori = spliner_.GetCurrOrientation(Time());
+  std::cout << "P_des: " << P_des_.base_.pos << "\n";
   spliner_.FillCurrFeet(Time(), P_des_.feet_, P_des_.swingleg_);
   // logging
   log_base_acc_des_ff.segment<3>(LX) = P_des_.base_.pos.a; // logging only
-  ROS_INFO_STREAM_THROTTLE(robot_->GetControlLoopInterval(), "time: " << Time());
 //  ROS_INFO_STREAM_THROTTLE(dt_, "\nP_des_:\n" << P_des_);
   Orientation::QuaternionToRPY(P_des_.base_.ori.q, log_rpy_des);
   log_swingleg_id = P_des_.SwinglegID();
-
 
 
 
@@ -221,7 +235,7 @@ void WalkingController::ExecuteLoop()
 
 
 
-  // transform to desired joint state
+  // get desired desired joint state from plan
   JointState q_des;
   HyQInverseKinematics inverseKinematics;
   Eigen::Vector3d q_des_leg;
@@ -238,18 +252,26 @@ void WalkingController::ExecuteLoop()
     q_des.segment<3>(3*ee) = q_des_leg;
   }
 
-
   // fixme: maybe move this to robot scope
   JointState qd_des = robot_->EstimateDesiredJointVelocity(q_des, first_time_sending_commands_);
+
+  // skip this the first time the new variables are used
   JointState qdd_des = robot_->EstimateDesiredJointAcceleration(qd_des, first_time_sending_commands_);
 
-  JointState uff = robot_->CalcProjectedInverseDynamics(q_des, qd_des, qdd_des,P_base_acc_des,P_curr_.swingleg_.ToArray());
+
+
+  std::cout << "qd_des: " << qd_des.transpose() << std::endl;
+  std::cout << "qdd_des: " << qdd_des.transpose() << std::endl;
+
+
+  JointState uff = robot_->CalcProjectedInverseDynamics(q, qd, qdd_des, P_base_acc_des, P_curr_.swingleg_.ToArray());
+
 
 
   SmoothTorquesAtContactChange(uff);
 
   if (std::fabs(uff.maxCoeff()) > 180)
-    throw std::runtime_error("uff torques greater than 150");
+    throw std::runtime_error("uff torques greater than 180");
 
   // write PD torque references and feed-forward torques in appropriate SL variable
   robot_->SetDesiredJointPosition(q_des);
@@ -373,12 +395,16 @@ void WalkingController::EstimateCurrPose()
     }
   }
 
+  if (first_time_sending_commands_) {
+    P_des_ = P_curr_;
+  }
+
   // logging
   ROS_DEBUG_STREAM_THROTTLE(robot_->GetControlLoopInterval(), "time: " << Time() << "\nP_curr_:\n" << P_curr_);
 }
 
 bool
-WalkingController::TimeExceeded () const
+WalkingController::SwitchToNewTrajectory () const
 {
   double t_max = t_switch_ - robot_->GetControlLoopInterval();
   return Time() >= t_max; /*|| Time() >= spliner_.GetTotalTime()-dt_*/

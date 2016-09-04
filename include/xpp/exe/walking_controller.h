@@ -58,10 +58,12 @@ public:
   void SetState(WalkingControllerState::State state);
   // fsm callable functions
   void PublishCurrentState();
-  void BuildPlan();
+  void IntegrateOptimizedTrajectory();
   void ExecuteLoop();
   void EstimateCurrPose();
-  bool TimeExceeded() const;
+  bool SwitchToNewTrajectory() const;
+  bool TimeCloseToEndOfTrajectory() const;
+  void StartOptimization(); // sends out command to start NLP optimization
 
 
 

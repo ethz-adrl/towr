@@ -43,14 +43,18 @@ void FirstPlanning::Run(WalkingController* context) const
 
 void Executing::Run(WalkingController* context) const
 {
+  if (context->TimeCloseToEndOfTrajectory())
+    context->StartOptimization();
+
   context->ExecuteLoop();
-  if (context->TimeExceeded())
+
+  if (context->SwitchToNewTrajectory())
     context->SetState(kUpdateAndExecuting);
 }
 
 void UpdateAndExecuting::Run(WalkingController* context) const
 {
-  context->BuildPlan();
+  context->IntegrateOptimizedTrajectory();
   context->SetState(kExecuting);
   context->ExecuteLoop(); // to always send values to the controller
 }
