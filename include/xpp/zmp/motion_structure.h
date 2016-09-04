@@ -27,12 +27,15 @@ class PhaseInfo;
 class MotionStructure {
 public:
   struct MotionInfo {
-    MotionInfo(double time, int id, xpp::hyq::LegID leg)
-        :time_(time), foothold_id_(id), leg_(leg) {};
+    struct Contact {
+      Contact(int _id, xpp::hyq::LegID _leg) : id(_id), leg(_leg) {}
+      int id;
+      xpp::hyq::LegID leg;
+    };
 
+    MotionInfo() {};
     double time_;
-    double foothold_id_;
-    xpp::hyq::LegID leg_;
+    std::vector<Contact> contacts;
   };
 
   using LegIDVec      = std::vector<xpp::hyq::LegID>;
@@ -41,11 +44,11 @@ public:
 
   MotionStructure ();
   MotionStructure (const LegIDVec& start_legs, const LegIDVec& step_legs,
-                   const PhaseVec& phases);
+                   const PhaseVec& phases, double dt);
   virtual ~MotionStructure ();
 
   void Init(const LegIDVec& start_legs, const LegIDVec& step_legs,
-            const PhaseVec& phases);
+            const PhaseVec& phases, double dt);
 
 
   /** @returns time samples with information about the structure of the motion.
@@ -56,13 +59,22 @@ public:
     *
     * @param dt   The discretization time for the motion.
     */
-  MotionInfoVec GetContactInfoVec(double dt) const;
+  MotionInfoVec GetContactInfoVec() const;
+
+  int GetTotalNumberOfDiscreteContacts() const;
+
+  PhaseVec GetPhases() const;
 
 private:
-
+  double dt_; ///< discretization interval [s]
   LegIDVec start_stance_;
   LegIDVec steps_;
   PhaseVec phases_;
+
+  // the values don't really define the structure of the class -> mutable
+  MotionInfoVec CalcContactInfoVec() const;
+  mutable bool cache_needs_updating_;
+  mutable MotionInfoVec cached_motion_vector_;
 };
 
 } /* namespace zmp */

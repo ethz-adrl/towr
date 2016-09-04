@@ -8,6 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 
+//#include "motion_structure.h"
+
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <memory>
@@ -60,6 +62,9 @@ public:
 private:
   MotionPtrU com_motion_;
   SuppPolygonPtrU contacts_;
+//  MotionStructure motion_structure_;
+
+
 
   /** The Jacobian for the current motion and contact coefficients for
     * these current parameters  for each discrete time t along the trajectory

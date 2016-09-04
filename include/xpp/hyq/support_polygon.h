@@ -47,7 +47,9 @@ public:
     * However, it assumes that HyQ will never stand in a way that the legs
     * are crossed (e.g support polygon flips).
     */
-  void SortCounterclockWise(VecFoothold&) const;
+  static void SortCounterclockWise(VecFoothold&);
+  static void SortCounterclockWise(std::vector<LegID>&);
+
   VecSuppLine GetLines() const;
 
   bool IsPointInside(const Vector2d& p) const;
