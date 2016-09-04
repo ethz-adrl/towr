@@ -49,7 +49,6 @@ public:
 
   Derivatives GetInitialFreeMotions()  const;
   Derivatives GetJunctionFreeMotions() const;
-  Derivatives GetFinalFreeMotions()    const;
 
 private:
   int NumFreeCoeffPerSpline() const override { return 4; };

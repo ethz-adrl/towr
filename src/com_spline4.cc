@@ -72,12 +72,6 @@ ComSpline4::GetJunctionFreeMotions () const
   return {kAcc, kJerk};
 }
 
-ComSpline4::Derivatives
-ComSpline4::GetFinalFreeMotions () const
-{
-  return {kPos, kVel, kAcc};
-}
-
 void
 ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
 {

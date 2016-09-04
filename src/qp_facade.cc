@@ -48,7 +48,7 @@ QpFacade::SolveQp(const State& initial_state,
 
   equality_constraints_ = MatVec(); // clear
   equality_constraints_ << spline_eq.MakeInitial(initial_state);
-  equality_constraints_ << spline_eq.MakeFinal(final_state);
+  equality_constraints_ << spline_eq.MakeFinal(final_state, {kPos, kVel, kAcc});
   equality_constraints_ << spline_eq.MakeJunction();
 
   xpp::hyq::SupportPolygonContainer supp_polygon_container;

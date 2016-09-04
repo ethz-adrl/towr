@@ -32,7 +32,6 @@ public:
 
   Derivatives GetInitialFreeMotions()  const;
   Derivatives GetJunctionFreeMotions() const;
-  Derivatives GetFinalFreeMotions()    const;
 
 
 private:

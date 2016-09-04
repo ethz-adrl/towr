@@ -68,8 +68,6 @@ public:
     */
   virtual Derivatives GetInitialFreeMotions()  const = 0;
   virtual Derivatives GetJunctionFreeMotions() const = 0;
-  virtual Derivatives GetFinalFreeMotions()    const = 0;
-
 
   static Point2d GetCOM(double t_global, const VecPolynomials& splines);
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);

@@ -27,9 +27,10 @@ class ComSpline; // at some point get rid of this
   */
 class LinearSplineEquations {
 public:
-  typedef xpp::utils::MatVec MatVec;
-  typedef xpp::utils::Point2d State2d;
-  typedef std::unique_ptr<ComSpline> ComSplinePtrU;
+  using MatVec            = xpp::utils::MatVec;
+  using State2d           = xpp::utils::Point2d;
+  using MotionDerivatives = std::vector<xpp::utils::MotionDerivative>;
+  using ComSplinePtrU     = std::unique_ptr<ComSpline>;
 
   /** @attention ComMotion is downcast to ComSpline.
     */
@@ -47,7 +48,7 @@ public:
     *
     * @param final desired final position, velocity and acceleration.
     */
-  MatVec MakeFinal(const State2d& final) const;
+  MatVec MakeFinal(const State2d& final, const MotionDerivatives& ) const;
 
   /** M*x + v gives the difference at the polynomial junctions of the spline
     *

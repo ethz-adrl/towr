@@ -58,10 +58,9 @@ LinearSplineEquations::MakeInitial (const State2d& init) const
 }
 
 LinearSplineEquations::MatVec
-LinearSplineEquations::MakeFinal (const State2d& final_state) const
+LinearSplineEquations::MakeFinal (const State2d& final_state,
+                                  const MotionDerivatives& derivatives) const
 {
-  auto derivatives = com_spline_->GetFinalFreeMotions();
-
   int n_constraints = derivatives.size()*kDim2d;
   int n_spline_coeff = com_spline_->GetTotalFreeCoeff();
   MatVec M(n_constraints, n_spline_coeff);
