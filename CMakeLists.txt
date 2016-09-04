@@ -12,7 +12,16 @@ find_package(catkin REQUIRED COMPONENTS
   hyq_inverse_kinematics
 )
 
-SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4")
+
+# NLP solvers (adapt global path accordingly)
+set(IPOPT_SRC_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4")
+set(IPOPT_INCLUDE_DIRS ${IPOPT_SRC_DIR}/build/include/coin)
+set(IPOPT_LIBS         ${IPOPT_SRC_DIR}/build/lib/libipopt.so) # must be absolute path
+
+SET(SNOPT_SRC_DIR "/home/winklera/3rd_party_software/snopt_lib")
+set(SNOPT_INCLUDE_DIRS ${SNOPT_SRC_DIR}/include)
+set(SNOPT_LIBS ${SNOPT_SRC_DIR}/lib/libsnopt7_cpp.so ${SNOPT_SRC_DIR}/lib/libsnopt7.so) # must be absolute path
+
 
 find_package(Eigen3 REQUIRED)
 
@@ -74,24 +83,11 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}
-  LIBRARIES ${LIB_NAME}
+  INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
+  LIBRARIES ${LIB_NAME} ${IPOPT_LIBS} ${SNOPT_LIBS}
   CATKIN_DEPENDS message_runtime std_msgs geometry_msgs
-  DEPENDS log4cxx ${IPOPT_LIBS} 
+  DEPENDS
 )
-
-
-
-# NLP solvers
-SET(IPOPT_SOURCE_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4") # these two lines must be included everywhere where this project is needed
-link_directories(${IPOPT_SOURCE_DIR}/build/lib)
-set(IPOPT_INCLUDE_DIRS ${IPOPT_SOURCE_DIR}/build/include/coin)
-set(IPOPT_LIBS ipopt)
-
-SET(SNOPT_SOURCE_DIR "/home/winklera/3rd_party_software/snopt_lib") # these two lines must be included everywhere where this project is needed
-link_directories(${SNOPT_SOURCE_DIR}/lib)
-set(SNOPT_INCLUDE_DIRS ${SNOPT_SOURCE_DIR}/include)
-set(SNOPT_LIBS snopt7_cpp snopt7)
 
 include_directories(
   include

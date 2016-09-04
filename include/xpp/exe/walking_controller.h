@@ -16,10 +16,10 @@
 #include <xpp_controller/controller.h>
 #include "virtual_model-inl.h"
 #include "walking_controller_state.h"
+#include <xpp/hyq/hyq_spliner.h>
 
 #include <xpp_opt/OptimizedParametersNlp.h>
 #include <xpp_opt/RequiredInfoNlp.h>
-#include <xpp/hyq/hyq_spliner.h>
 #include <iit/robots/hyq/declarations.h>
 #include <iit/robots/hyq/inertia_properties.h>
 #include <iit/robots/hyq/jsim.h>
@@ -29,7 +29,6 @@
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 #include <vector>
-#include "../zmp/com_spline6.h"
 
 namespace xpp {
 namespace exe {
@@ -48,7 +47,7 @@ public:
   typedef xpp::hyq::LegID LegID;
   typedef xpp::utils::Point3d State;
   typedef xpp::utils::Orientation Orientation;
-  typedef xpp::zmp::ComSpline6::VecPolynomials VecSpline;
+  using VecSpline = HyqSpliner::VecZmpSpline;
   // ROS stuff
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;

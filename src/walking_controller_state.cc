@@ -26,10 +26,10 @@ WalkingControllerState::BuildStates ()
 {
   StatesMap states;
 
-  states.emplace(kFirstPlanning, std::make_shared<FirstPlanning>());
-  states.emplace(kExecuting,     std::make_shared<Executing>());
-  states.emplace(kUpdateAndExecuting,    std::make_shared<UpdateAndExecuting>());
-  states.emplace(kSleeping,      std::make_shared<Sleeping>());
+  states.emplace(kFirstPlanning,      std::make_shared<FirstPlanning>());
+  states.emplace(kExecuting,          std::make_shared<Executing>());
+  states.emplace(kUpdateAndExecuting, std::make_shared<UpdateAndExecuting>());
+  states.emplace(kSleeping,           std::make_shared<Sleeping>());
 
   return states;
 }
