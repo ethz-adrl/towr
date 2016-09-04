@@ -39,7 +39,8 @@ public:
     * @param robot_height the walking height [m] of the robot.
     */
   void Init(const State& curr, const State& goal,
-            const VecFoothold& start_stance, double robot_height);
+            const VecFoothold& start_stance, double robot_height,
+            int swingleg_of_last_spline);
 
   /** Determines whether an initial stance phase is inserted.
     *
@@ -49,14 +50,14 @@ public:
     * @param step sequence the order of swing legs.
     * @return true if stance phase must be inserted.
     */
-  bool StartWithStancePhase(const LegIDVec& step_sequence) const;
+  bool StartWithStancePhase() const;
 
   /** Determines the sequence of steps (LH, LF, ...) to take.
     *
     * @param swingleg_of_last_spline The leg of the last spline that was completed. Could also be a stance spline.
     * @return vector of swinglegs.
     */
-  LegIDVec DetermineStepSequence(int swingleg_of_last_spline);
+  LegIDVec DetermineStepSequence();
 
 private:
   bool IsStepNecessary() const;
@@ -71,6 +72,7 @@ private:
   VecFoothold start_stance_;
   double robot_height_;
 
+  int swingleg_of_last_spline_; // this could also be no swingleg (stance phase)
   LegID prev_swing_leg_; // this is always a swingleg
 };
 

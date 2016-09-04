@@ -27,16 +27,18 @@ StepSequencePlanner::~StepSequencePlanner ()
 
 void
 StepSequencePlanner::Init (const State& curr, const State& goal,
-                           const VecFoothold& start_stance, double robot_height)
+                           const VecFoothold& start_stance, double robot_height,
+                           int swingleg_of_last_spline)
 {
   curr_state_ = curr;
   goal_state_ = goal;
   start_stance_ = start_stance;
   robot_height_ = robot_height;
+  swingleg_of_last_spline_ = swingleg_of_last_spline;
 }
 
 StepSequencePlanner::LegIDVec
-StepSequencePlanner::DetermineStepSequence (int swingleg_of_last_spline)
+StepSequencePlanner::DetermineStepSequence ()
 {
   if (!IsStepNecessary()) {
     return std::vector<xpp::hyq::LegID>(); // empty vector, take no steps
@@ -53,10 +55,10 @@ StepSequencePlanner::DetermineStepSequence (int swingleg_of_last_spline)
     int req_steps_per_leg = 1;
 
     LegID last_swingleg;
-    if (swingleg_of_last_spline == hyq::NO_SWING_LEG)
+    if (swingleg_of_last_spline_ == hyq::NO_SWING_LEG)
       last_swingleg = prev_swing_leg_;
     else {
-      last_swingleg = static_cast<LegID>(swingleg_of_last_spline);
+      last_swingleg = static_cast<LegID>(swingleg_of_last_spline_);
       prev_swing_leg_ = last_swingleg;
     }
 
@@ -71,6 +73,26 @@ StepSequencePlanner::DetermineStepSequence (int swingleg_of_last_spline)
 
     return step_sequence;
   }
+}
+
+bool
+StepSequencePlanner::StartWithStancePhase () const
+{
+  bool start_with_stance_phase = false;
+
+  if (!IsStepNecessary())
+    start_with_stance_phase = true;
+  else {
+    bool zmp_inside = IsZmpInsideFirstStep(NextSwingLeg(prev_swing_leg_));
+
+    // so 4ls-phase not always inserted b/c of short time zmp constraints are ignored
+    // when switching between disjoint support triangles.
+//    if ( !zmp_inside  &&  curr_state_.v.norm() < 0.01)
+    if (true)
+      start_with_stance_phase = true;
+  }
+
+  return start_with_stance_phase;
 }
 
 bool
@@ -95,26 +117,6 @@ StepSequencePlanner::IsStepNecessary () const
                      ;
 
   return step_necessary;
-}
-
-bool
-StepSequencePlanner::StartWithStancePhase (const LegIDVec& step_sequence) const
-{
-  bool start_with_stance_phase = false;
-
-  if (step_sequence.empty())
-    start_with_stance_phase = true;
-  else {
-    bool zmp_inside = IsZmpInsideFirstStep(step_sequence.front());
-
-    // so 4ls-phase not always inserted b/c of short time zmp constraints are ignored
-    // when switching between disjoint support triangles.
-//    if ( !zmp_inside  &&  curr_state_.v.norm() < 0.01)
-    if (true)
-      start_with_stance_phase = true;
-  }
-
-  return start_with_stance_phase;
 }
 
 LegID
