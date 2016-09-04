@@ -89,6 +89,7 @@ private:
 //  State GetStartStateForOptimization(/*const double required_time*/) const;
 
   bool reoptimize_before_finish_;
+  bool first_run_after_integrating_opt_trajectory_;
 
   VecSpline opt_splines_;
   VecFoothold opt_footholds_;
@@ -116,8 +117,6 @@ private:
   double ffspline_duration_;
   JointState uff_prev_;
   Eigen::Vector3d b_r_geomtocog; // tranform from geometric body center to center of gravity
-  bool first_time_sending_commands_;
-
 
   bool use_virtual_model_;
   VirtualModel vm_;

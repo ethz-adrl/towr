@@ -64,8 +64,11 @@ NlpFacade::SolveNlp(const State& initial_state,
   xpp::hyq::SupportPolygonContainer contacts;
   contacts.Init(curr_stance, step_sequence, margins);
 
-//  auto com_spline = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
-  auto com_motion = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
+  // insight: this spline might be better for MPC, as it always matches the initial
+  // position and velocity, avoiding jumps in state. For the other spline this is
+  // a constraint, that might not be fulfilled.
+  auto com_motion = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
+//  auto com_motion = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
 
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
   opt_variables_->AddVariableSet(VariableNames::kFootholds, contacts.GetFootholdsInitializedToStart());

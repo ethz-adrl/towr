@@ -86,8 +86,7 @@ WalkingController::GetReadyHook() {
   // unstable.
   kOptTimeReq_ = max_cpu_time_ + ros_message_delay;
 
-
-  first_time_sending_commands_ = true;
+  first_run_after_integrating_opt_trajectory_ = true;
 }
 
 bool
@@ -128,10 +127,8 @@ void WalkingController::PublishCurrentState()
 bool
 WalkingController::TimeCloseToEndOfTrajectory() const
 {
-  // constantly send out state
-  return true;
-//  double time_left = t_switch_ - Time();
-//  return (time_left <= kOptTimeReq_ && reoptimize_before_finish_);
+  double time_left = t_switch_ - Time();
+  return (time_left <= kOptTimeReq_ && reoptimize_before_finish_);
 }
 
 void WalkingController::IntegrateOptimizedTrajectory()
@@ -150,6 +147,8 @@ void WalkingController::IntegrateOptimizedTrajectory()
 
   t_switch_ = switch_node_.T;
   Controller::ResetTime();
+
+  first_run_after_integrating_opt_trajectory_ = true;
 }
 
 void
@@ -167,7 +166,7 @@ WalkingController::PublishOptimizationStartState()
   State curr_state = P_curr_.base_.pos;
 
 
-  xpp::utils::Point3d start_state_optimization = predicted_state;
+  xpp::utils::Point3d start_state_optimization = curr_state;
 
 
 
@@ -215,9 +214,6 @@ void WalkingController::ExecuteLoop()
 
 
   /** @brief DESIRED state given by splined plan and zmp optimizer **/
-//  if (first_time_sending_commands_)
-//    P_des_ = P_curr_;
-
   P_des_.base_.pos = spliner_.GetCurrPosition(Time());
   P_des_.base_.ori = spliner_.GetCurrOrientation(Time());
   std::cout << "P_des: " << P_des_.base_.pos << "\n";
@@ -249,7 +245,7 @@ void WalkingController::ExecuteLoop()
 
 
 
-  // get desired desired joint state from plan
+  // get desired desired joint acceleration from plan
   JointState q_des;
   HyQInverseKinematics inverseKinematics;
   Eigen::Vector3d q_des_leg;
@@ -266,21 +262,16 @@ void WalkingController::ExecuteLoop()
     q_des.segment<3>(3*ee) = q_des_leg;
   }
 
-  // fixme: maybe move this to robot scope
-  JointState qd_des = robot_->EstimateDesiredJointVelocity(q_des, first_time_sending_commands_);
-
-  // skip this the first time the new variables are used
-  JointState qdd_des = robot_->EstimateDesiredJointAcceleration(qd_des, first_time_sending_commands_);
-
-
-
-  std::cout << "qd_des: " << qd_des.transpose() << std::endl;
-  std::cout << "qdd_des: " << qdd_des.transpose() << std::endl;
-
+  // differentiate twice
+  // This flag is neccessary, as when switchting between optimized trajectories
+  // the joint angles jump discretely in one control loop, causing very high
+  // desired joint vel/acc. To avoid this, we estimate the joint vel/acc
+  // at these switching instances using the current joint pos/vel.
+  bool use_current_as_previous = first_run_after_integrating_opt_trajectory_;
+  JointState qd_des = robot_->EstimateDesiredJointVelocity(q_des, use_current_as_previous);
+  JointState qdd_des = robot_->EstimateDesiredJointAcceleration(qd_des, use_current_as_previous);
 
   JointState uff = robot_->CalcProjectedInverseDynamics(q, qd, qdd_des, P_base_acc_des, P_curr_.swingleg_.ToArray());
-
-
 
   SmoothTorquesAtContactChange(uff);
 
@@ -291,7 +282,8 @@ void WalkingController::ExecuteLoop()
   robot_->SetDesiredJointPosition(q_des);
   robot_->SetDesiredJointVelocity(qd_des);
   robot_->SetDesiredTorque(uff);
-  first_time_sending_commands_ = false;
+
+  first_run_after_integrating_opt_trajectory_ = false;
 }
 
 //WalkingController::State
@@ -385,7 +377,7 @@ void WalkingController::EstimateCurrPose()
 
 
   // todo this still estimates high current z-velocities, which aren't really there
-  if (first_time_sending_commands_) {
+  if (first_run_after_integrating_opt_trajectory_) {
     P_curr_.base_.pos.p.z() = base_new;
   } else {
     // inifinite impulse response filter
@@ -397,9 +389,13 @@ void WalkingController::EstimateCurrPose()
     P_curr_.feet_[leg].p = TransformBaseToProjectedFrame(curr_feet_local[leg], P_curr_.base_);
 
 
+  if (first_run_after_integrating_opt_trajectory_) {
+    P_des_ = P_curr_;
+  }
+
   // safety check
   Orientation::QuaternionToRPY(P_curr_.base_.ori.q, log_rpy_curr);
-  if (first_time_sending_commands_) {
+  if (first_run_after_integrating_opt_trajectory_) {
     if(    (std::abs(log_rpy_curr.x()) > 7./180. * M_PI)
         || (std::abs(log_rpy_curr.y()) > 7./180. * M_PI)
         || (P_curr_.base_.pos.p.z() < 0.4)
@@ -407,10 +403,6 @@ void WalkingController::EstimateCurrPose()
       ROS_WARN_STREAM("i_curr_: \n" << P_curr_);
       throw std::runtime_error("initial base state is not in projected frame");
     }
-  }
-
-  if (first_time_sending_commands_) {
-    P_des_ = P_curr_;
   }
 
   // logging

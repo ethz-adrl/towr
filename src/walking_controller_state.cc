@@ -41,15 +41,12 @@ void FirstPlanning::Run(WalkingController* context) const
   context->SetState(kSleeping); // waiting for nlp optimizer to finish
 }
 
-void Executing::Run(WalkingController* context) const
+void Sleeping::Run(WalkingController* context) const
 {
-  if (context->TimeCloseToEndOfTrajectory())
-    context->PublishOptimizationStartState();
-
-  context->ExecuteLoop();
-
-  if (context->SwitchToNewTrajectory())
+  if (context->Time() > 2.0) {
+    context->ResetTime();
     context->SetState(kUpdateAndExecuting);
+  }
 }
 
 void UpdateAndExecuting::Run(WalkingController* context) const
@@ -59,13 +56,19 @@ void UpdateAndExecuting::Run(WalkingController* context) const
   context->ExecuteLoop(); // to always send values to the controller
 }
 
-void Sleeping::Run(WalkingController* context) const
+void Executing::Run(WalkingController* context) const
 {
-  if (context->Time() > 2.0) {
-    context->ResetTime();
+//  if (context->TimeCloseToEndOfTrajectory())
+  if (true) // publish every control loop
+    context->PublishOptimizationStartState();
+
+  context->ExecuteLoop();
+
+  if (context->SwitchToNewTrajectory())
     context->SetState(kUpdateAndExecuting);
-  }
 }
+
+
 
 } /* namespace exe */
 } /* namespace xpp */

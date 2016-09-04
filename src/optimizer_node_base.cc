@@ -50,7 +50,7 @@ OptimizerNodeBase::GoalStateCallback(const StateMsg& msg)
 void
 OptimizerNodeBase::GoalStateCallbackKeyboard(const keyboard::Key& msg)
 {
-  const static double dx = 0.15;
+  const static double dx = 0.1;
   const static double dy = 0.1;
 
   switch (msg.code) {
