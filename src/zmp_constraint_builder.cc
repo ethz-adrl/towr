@@ -52,20 +52,20 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
 
 
 
-  // assign the fixed part of the motion
-  auto start_feet = contacts_->GetStartStance();
-  MotionStructure::LegIDVec start_legs;
-  for (const auto& f : start_feet) {
-    start_legs.push_back(f.leg);
-  }
-
-  auto step_feet = contacts_->GetFootholds();
-  MotionStructure::LegIDVec step_legs;
-  for (const auto& f : step_feet) {
-    step_legs.push_back(f.leg);
-  }
-
-  motion_structure_.Init(start_legs, step_legs, com_motion_->GetPhases(), dt);
+//  // assign the fixed part of the motion
+//  auto start_feet = contacts_->GetStartStance();
+//  MotionStructure::LegIDVec start_legs;
+//  for (const auto& f : start_feet) {
+//    start_legs.push_back(f.leg);
+//  }
+//
+//  auto step_feet = contacts_->GetFootholds();
+//  MotionStructure::LegIDVec step_legs;
+//  for (const auto& f : step_feet) {
+//    step_legs.push_back(f.leg);
+//  }
+//
+//  motion_structure_.Init(start_legs, step_legs, com_motion_->GetPhases(), dt);
 
 
 
@@ -103,7 +103,7 @@ ZmpConstraintBuilder::GetTimesDisjointSwitches () const
   std::vector<double> t_disjoint_switches;
   double t_global = 0;
 
-  auto phases = motion_structure_.GetPhases();
+  auto phases = com_motion_->GetPhases();
   for(int i=0; i<phases.size()-1; ++i) {
 
     auto phase = phases.at(i);
