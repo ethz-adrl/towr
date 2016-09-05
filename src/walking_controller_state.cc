@@ -58,8 +58,7 @@ void UpdateAndExecuting::Run(WalkingController* context) const
 
 void Executing::Run(WalkingController* context) const
 {
-//  if (context->TimeCloseToEndOfTrajectory())
-  if (true) // publish every control loop
+  if (context->IsTimeToSendOutState())
     context->PublishOptimizationStartState();
 
   context->ExecuteLoop();

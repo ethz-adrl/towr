@@ -62,7 +62,7 @@ public:
   void ExecuteLoop();
   void EstimateCurrPose();
   bool SwitchToNewTrajectory();
-  bool TimeCloseToEndOfTrajectory() const;
+  bool IsTimeToSendOutState() const;
   void PublishOptimizationStartState(); // sends out command to start NLP optimization
 
 

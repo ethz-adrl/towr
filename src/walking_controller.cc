@@ -127,10 +127,12 @@ void WalkingController::PublishCurrentState()
 }
 
 bool
-WalkingController::TimeCloseToEndOfTrajectory() const
+WalkingController::IsTimeToSendOutState() const
 {
-  double time_left = t_switch_ - Time();
-  return (time_left <= kOptTimeReq_ && reoptimize_before_finish_);
+  return true; // send out every controll loop
+
+//  double time_left = t_switch_ - Time();
+//  return (time_left <= kOptTimeReq_ && reoptimize_before_finish_);
 }
 
 void WalkingController::IntegrateOptimizedTrajectory()
@@ -178,7 +180,20 @@ WalkingController::PublishOptimizationStartState()
   //    LegDataMap<bool> predicted_swing_leg;
   //    spliner_.FillCurrFeet(t_switch_, predicted_feet, predicted_swing_leg);
   // or VecFoothold predicted_stance = spliner_.GetGoalNode(Time()).state_.GetStanceLegs();
+
   VecFoothold predicted_stance = switch_node_.state_.FeetToFootholds().ToVector();
+
+//  // extract current stance legs
+//  VecFoothold curr_stance;
+//  auto swinglegs = P_curr_.swingleg_.ToArray();
+//  auto leg_positions = P_curr_.FeetToFootholds().ToArray();
+//  for (int l=0; l<leg_positions.size(); ++l) {
+//    if (!swinglegs.at(l)) {
+//      curr_stance.push_back(leg_positions.at(l));
+//    }
+//  }
+
+  VecFoothold start_stance_optimization = predicted_stance;
 
 
 //    ROS_INFO_STREAM("time: " << Time() << "\npredicted_start_state_:\n" << predicted_state);
@@ -190,7 +205,7 @@ WalkingController::PublishOptimizationStartState()
   // always just send current information, no logic/commands/etc
   ReqInfoMsg msg;
   msg.curr_state = xpp::ros::RosHelpers::XppToRos(start_state_optimization);
-  msg.curr_stance = xpp::ros::RosHelpers::XppToRos(predicted_stance);
+  msg.curr_stance = xpp::ros::RosHelpers::XppToRos(start_stance_optimization);
   msg.curr_swingleg = P_curr_.SwinglegID();
 
   current_info_pub_.publish(msg);

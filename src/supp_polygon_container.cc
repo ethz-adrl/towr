@@ -100,9 +100,15 @@ SupportPolygonContainer::GetStanceAfter(int n_steps) const
 
   // get the last step of each foot
   VecFoothold last_stance;
-  for (LegID l : LegIDArray)
-    last_stance.push_back(Foothold::GetLastFoothold(l,combined));
+  for (LegID l : LegIDArray) {
 
+    if(std::find_if(combined.begin(), combined.end(),
+                 [&l](const Foothold& f) {return f.leg == l;}) != combined.end())
+    {
+      last_stance.push_back(Foothold::GetLastFoothold(l,combined));
+    }
+
+  }
   return last_stance;
 }
 

@@ -68,6 +68,8 @@ private:
   bool IsCapturePointInsideStance() const;
   bool IsGoalInsideStance() const;
 
+//  bool step_already_executed = false;
+
   State curr_state_;
   State goal_state_;
   VecFoothold start_stance_;

@@ -35,7 +35,7 @@ ComSpline::Init (int step_count, const SplineTimes& times,
 //    for (int i=0; i<n_stance_splines; ++i)
 //      AddStancePolynomial(t);
 
-    double t_reaction = 0.1;
+    double t_reaction = 0.05;
     AddStancePolynomial(t_reaction);
     AddStancePolynomial(times.t_stance_initial_-t_reaction);
   }

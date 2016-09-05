@@ -138,7 +138,8 @@ ZmpConstraintBuilder::GetTimesForConstraitEvaluation (double dt, double t_cross)
 
   // allow the zmp to be outside of the support polygon the entire first
   // swingphase and then catch itself
-  double t = T_first_phase + dt;
+  // refactor don't forget, ignoring ZMP for first step
+  double t = T_first_phase + dt; // t_cross; //
   double t_total = com_motion_->GetTotalTime();
   while (t <= t_total) {
     skip_timestep = false;

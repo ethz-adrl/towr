@@ -48,7 +48,7 @@ CostConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
 {
   LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeFinal(final_state_xy, {kVel, kAcc}));
+  constraint->Init(eq.MakeFinal(final_state_xy, {/*kPos,*/ kVel, kAcc}));
   return constraint;
 }
 
