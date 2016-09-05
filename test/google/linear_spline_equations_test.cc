@@ -16,6 +16,17 @@ namespace zmp {
 using Coeff = Eigen::VectorXd;
 using JacobianRow = ComMotion::JacobianRow;
 
+TEST(LinearSplineEquations, AccelerationCostTest)
+{
+  // create a spline made up of two fifth order polynomials
+  auto com_spline = MotionFactory::CreateComMotion(2, SplineTimes(0.7,0.4), false);
+
+  LinearSplineEquations eq(*com_spline);
+
+  auto M = eq.MakeAcceleration(1.0, 1.0);
+
+}
+
 TEST(LinearSplineEquations, JunctionTestPosition)
 {
   // create a spline made up of two fifth order polynomials
@@ -48,6 +59,7 @@ TEST(LinearSplineEquations, JunctionTestPosition)
 
   EXPECT_DOUBLE_EQ(xT_at_u, x0_at_u);
 }
+
 
 } /* namespace zmp */
 } /* namespace xpp */

@@ -132,8 +132,13 @@ ZmpConstraintBuilder::GetTimesForConstraitEvaluation (double dt, double t_cross)
   std::vector<double> t_switch = GetTimesDisjointSwitches();
   bool skip_timestep = false;
 
+  double T_first_phase = com_motion_->GetPhases().front().duration_;
+
   std::vector<double> t_constraint;
-  double t = 0.0;
+
+  // allow the zmp to be outside of the support polygon the entire first
+  // swingphase and then catch itself
+  double t = T_first_phase + dt;
   double t_total = com_motion_->GetTotalTime();
   while (t <= t_total) {
     skip_timestep = false;

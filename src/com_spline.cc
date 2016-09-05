@@ -41,6 +41,8 @@ ComSpline::Init (int step_count, const SplineTimes& times,
   }
 
   AddPolynomialStepSequence(step_count, times.t_swing_);
+
+  AddStancePolynomial(0.5);
 }
 
 void

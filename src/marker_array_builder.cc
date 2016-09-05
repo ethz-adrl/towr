@@ -240,7 +240,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
                             double alpha) const
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
-  for (double t(0.0); t < ComSpline::GetTotalTime(splines); t+= 0.1)
+  for (double t(0.0); t < ComSpline::GetTotalTime(splines); t+= 0.01)
   {
     xpp::utils::Point2d cog_state = ComSpline::GetCOM(t, splines);
 

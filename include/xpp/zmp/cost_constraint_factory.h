@@ -50,7 +50,7 @@ public:
 //  static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateObstacleConstraint();
 
-  static CostPtr CreateAccelerationCost(const ComMotion&);
+  static CostPtr CreateMotionCost(const ComMotion&, const xpp::utils::MotionDerivative);
   static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComMotion&);
   static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const Contacts&);
 };

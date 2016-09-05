@@ -60,14 +60,15 @@ public:
 
   /** xT*M*x + xT*v gives the scalar total acceleration cost with these x.
     *
-    * To turn the acceleration into costs they are weighed according to the
+    * To turn the motion derivatives into costs they are weighed according to the
     * directions (x,y). Usually lateral motions are penalized more (bigger weight)
     * than forward backwards motions.
     *
     * @param weight_x larger value produces larger cost for x motion.
     * @param weight_y larger value produces larger cost for y motion.
     */
-  MatVec MakeAcceleration(double weight_x, double weight_y) const;
+  Eigen::MatrixXd MakeAcceleration(double weight_x, double weight_y) const;
+  Eigen::MatrixXd MakeJerk(double weight_x, double weight_y) const;
 
 private:
   ComSplinePtrU com_spline_;

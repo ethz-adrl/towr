@@ -98,13 +98,14 @@ uint ComPolynomial::GetCurrStep() const
   return step_;
 }
 
-std::ostream& operator<<(std::ostream& out, const ComPolynomial& s)
+std::ostream&
+operator<<(std::ostream& out, const ComPolynomial& p)
 {
-  out << "Spline: id= "   << s.id_                << ":\t"
-      << "duration="      << s.duration_          << "\t"
-      << "four_leg_supp=" << s.DeprecatedIsFourLegSupport() << "\t"
-      << "step="          << s.step_ << "\t"
-      << "type="          << s.deprecated_phase_.type_ << " (Stance=0, Step=1)) \n ";
+  out << "id: " << p.id_
+      << "\t phase.id: " << p.deprecated_phase_.id_
+      << "\t duration: " << p.duration_
+      << "\t step: " << p.step_;
+
   return out;
 }
 

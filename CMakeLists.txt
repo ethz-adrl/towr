@@ -243,7 +243,7 @@ if(BUILD_TESTS)
                          test/google/line_equation_test.cc
 #                        # com
 #                        test/google/com_motion_test.cc
-#                        test/google/com_spline_test.cc
+                         test/google/com_spline_test.cc
 #                        test/google/spline_container_test.cc
                          test/google/motion_factory_test.cc
 #                        #constraints

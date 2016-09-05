@@ -115,15 +115,15 @@ LinearSplineEquations::MakeJunction () const
   return M;
 }
 
-LinearSplineEquations::MatVec
+Eigen::MatrixXd
 LinearSplineEquations::MakeAcceleration (double weight_x, double weight_y) const
 {
   std::array<double,2> weight = {weight_x, weight_y}; // weight in x and y direction [1,3]
 
   // total number of coefficients to be optimized
   int n_coeff = com_spline_->GetTotalFreeCoeff();
-  MatVec M(n_coeff, n_coeff);
 
+  Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
   for (const ComPolynomial& p : com_spline_->GetPolynomials()) {
     std::array<double,8> t_span = utils::cache_exponents<8>(p.GetDuration());
 
@@ -136,21 +136,55 @@ LinearSplineEquations::MakeAcceleration (double weight_x, double weight_y) const
       // for explanation of values see M.Kalakrishnan et al., page 248
       // "Learning, Planning and Control for Quadruped Robots over challenging
       // Terrain", IJRR, 2010
-      M.M(a, a) = 400.0 / 7.0      * t_span[7] * weight[dim];
-      M.M(a, b) = 40.0             * t_span[6] * weight[dim];
-      M.M(a, c) = 120.0 / 5.0      * t_span[5] * weight[dim];
-      M.M(a, d) = 10.0             * t_span[4] * weight[dim];
-      M.M(b, b) = 144.0 / 5.0      * t_span[5] * weight[dim];
-      M.M(b, c) = 18.0             * t_span[4] * weight[dim];
-      M.M(b, d) = 8.0              * t_span[3] * weight[dim];
-      M.M(c, c) = 12.0             * t_span[3] * weight[dim];
-      M.M(c, d) = 6.0              * t_span[2] * weight[dim];
-      M.M(d, d) = 4.0              * t_span[1] * weight[dim];
+      M(a, a) = 400.0 / 7.0      * t_span[7] * weight[dim];
+      M(a, b) = 40.0             * t_span[6] * weight[dim];
+      M(a, c) = 120.0 / 5.0      * t_span[5] * weight[dim];
+      M(a, d) = 10.0             * t_span[4] * weight[dim];
+      M(b, b) = 144.0 / 5.0      * t_span[5] * weight[dim];
+      M(b, c) = 18.0             * t_span[4] * weight[dim];
+      M(b, d) = 8.0              * t_span[3] * weight[dim];
+      M(c, c) = 12.0             * t_span[3] * weight[dim];
+      M(c, d) = 6.0              * t_span[2] * weight[dim];
+      M(d, d) = 4.0              * t_span[1] * weight[dim];
 
       // mirrow values over diagonal to fill bottom left triangle
-      for (int c = 0; c < M.M.cols(); ++c)
-        for (int r = c + 1; r < M.M.rows(); ++r)
-          M.M(r, c) = M.M(c, r);
+      for (int c = 0; c < M.cols(); ++c)
+        for (int r = c + 1; r < M.rows(); ++r)
+          M(r, c) = M(c, r);
+    }
+  }
+
+  return M;
+}
+
+Eigen::MatrixXd
+LinearSplineEquations::MakeJerk (double weight_x, double weight_y) const
+{
+  std::array<double,2> weight = {weight_x, weight_y}; // weight in x and y direction [1,3]
+
+  // total number of coefficients to be optimized
+  int n_coeff = com_spline_->GetTotalFreeCoeff();
+
+  Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
+  for (const ComPolynomial& p : com_spline_->GetPolynomials()) {
+    std::array<double,8> t_span = utils::cache_exponents<8>(p.GetDuration());
+
+    for (const Coords3D dim : {X,Y}) {
+      const int a = com_spline_->Index(p.GetId(), dim, A);
+      const int b = com_spline_->Index(p.GetId(), dim, B);
+      const int c = com_spline_->Index(p.GetId(), dim, C);
+
+      M(a, a) = 60.*60. / 5.      * t_span[5] * weight[dim];
+      M(a, b) = 60.*24. / 4.      * t_span[4] * weight[dim];
+      M(a, c) = 60.* 6. / 3.      * t_span[3] * weight[dim];
+      M(b, b) = 24.*24. / 3.      * t_span[3] * weight[dim];
+      M(b, c) = 24.* 6. / 2.      * t_span[2] * weight[dim];
+      M(c, c) =  6.* 6. / 1.      * t_span[1] * weight[dim];
+
+      // mirrow values over diagonal to fill bottom left triangle
+      for (int c = 0; c < M.cols(); ++c)
+        for (int r = c + 1; r < M.rows(); ++r)
+          M(r, c) = M(c, r);
     }
   }
 

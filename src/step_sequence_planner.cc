@@ -65,7 +65,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     LegIDVec step_sequence;
-    int n_steps = 2; // how many steps to take
+    int n_steps = 1; // how many steps to take
 
     for (int step=0; step<n_steps/*req_steps_per_leg*4*/; ++step) {
       step_sequence.push_back(NextSwingLeg(last_swingleg));
@@ -79,6 +79,7 @@ StepSequencePlanner::DetermineStepSequence ()
 bool
 StepSequencePlanner::StartWithStancePhase () const
 {
+
   if (curr_state_.v.norm() > 0.1) {
     return false;
   } else
@@ -124,6 +125,8 @@ StepSequencePlanner::IsStepNecessary () const
 //                        !goal_inside ||
                          (curr_state_.v.norm() > 0.1)
                      ;
+
+  std::cout << "current velocity: " << curr_state_.v.norm() << "\n";
 
   return step_necessary;
 }

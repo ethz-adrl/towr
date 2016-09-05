@@ -37,7 +37,10 @@ QpFacade::SolveQp(const State& initial_state,
 
   LinearSplineEquations spline_eq(*com_spline);
 
-  cost_function_ = spline_eq.MakeAcceleration(1.0,3.0);
+  MatrixXd acc = spline_eq.MakeAcceleration(1.0,3.0);
+  cost_function_ = MatVec(acc.rows(), acc.cols());
+  cost_function_.M = acc;
+  cost_function_.v.setZero();
 
   // comment this in if using ComSpline6
   // because the matrix has to be positive definite for eigen quadprog

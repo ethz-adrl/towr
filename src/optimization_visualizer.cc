@@ -45,7 +45,7 @@ OptimizationVisualizer::Visualize () const
   msg_builder_.AddStartStance(msg, start_stance);
   msg_builder_.AddFootholds(msg, footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
   msg_builder_.AddCogTrajectory(msg, spline, footholds, "cog", 1.0);
-  msg_builder_.AddZmpTrajectory(msg, spline, walking_height, footholds, "zmp_4ls", 0.7);
+  msg_builder_.AddZmpTrajectory(msg, spline, walking_height, footholds, "zmp_4ls", 0.2);
   msg_builder_.AddSupportPolygons(msg, start_stance, footholds);
 //  msg_builder_.AddLineStrip(msg, -0.2, 0.2, "gap");
 //  msg_builder_.AddEllipse(msg, -0.2, 0.0, 0.15, 2.0, "ellipse");

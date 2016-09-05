@@ -67,8 +67,8 @@ NlpFacade::SolveNlp(const State& initial_state,
   // insight: this spline might be better for MPC, as it always matches the initial
   // position and velocity, avoiding jumps in state. For the other spline this is
   // a constraint, that might not be fulfilled.
-  auto com_motion = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
-//  auto com_motion = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
+//  auto com_motion = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
+  auto com_motion = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
@@ -89,7 +89,7 @@ NlpFacade::SolveNlp(const State& initial_state,
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 
   costs_->ClearCosts();
-  costs_->AddCost(CostConstraintFactory::CreateAccelerationCost(*com_motion));
+  costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion, kJerk));
   // careful: these are not quite debugged yet
 //  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
 //  costs_->AddCost(CostConstraintFactory::CreateFinalComCost(final_state, spline_structure));

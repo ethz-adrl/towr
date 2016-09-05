@@ -8,6 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_PHASE_INFO_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_PHASE_INFO_H_
 
+#include <iostream>
+
 namespace xpp {
 namespace zmp {
 
@@ -33,9 +35,18 @@ public:
       duration_(duration) {};
 };
 
+inline std::ostream& operator<<(std::ostream& out, const PhaseInfo& p)
+{
+  out << "id: " << p.id_
+      << "\t type: " << p.type_
+      << "\t duration: " << p.duration_
+      << "\t n_completed_steps: " << p.n_completed_steps_;
+
+  return out;
+}
+
 } /* namespace zmp */
 } /* namespace xpp */
-
 
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_PHASE_INFO_H_ */

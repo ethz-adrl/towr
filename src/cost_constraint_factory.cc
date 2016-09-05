@@ -96,11 +96,25 @@ CostConstraintFactory::CreateObstacleConstraint ()
 }
 
 CostConstraintFactory::CostPtr
-CostConstraintFactory::CreateAccelerationCost (const ComMotion& motion)
+CostConstraintFactory::CreateMotionCost (const ComMotion& motion,
+                                         const xpp::utils::MotionDerivative dxdt)
 {
   LinearSplineEquations eq(motion);
   auto cost = std::make_shared<QuadraticSplineCost>();
-  cost->Init(eq.MakeAcceleration(1.0,1.0));
+
+  Eigen::MatrixXd term;
+
+  switch (dxdt) {
+    case kAcc:  term = eq.MakeAcceleration(1.0,1.0); break;
+    case kJerk: term = eq.MakeJerk(1.0,1.0); break;
+    default: assert(false); break; // this cost is not implemented
+  }
+
+  xpp::utils::MatVec mv(term.rows(), term.cols());
+  mv.M = term;
+  mv.v.setZero();
+
+  cost->Init(mv);
   return cost;
 }
 
