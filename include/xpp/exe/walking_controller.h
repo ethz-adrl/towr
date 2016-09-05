@@ -61,7 +61,7 @@ public:
   void IntegrateOptimizedTrajectory();
   void ExecuteLoop();
   void EstimateCurrPose();
-  bool SwitchToNewTrajectory() const;
+  bool SwitchToNewTrajectory();
   bool TimeCloseToEndOfTrajectory() const;
   void PublishOptimizationStartState(); // sends out command to start NLP optimization
 
@@ -93,6 +93,7 @@ private:
 
   VecSpline opt_splines_;
   VecFoothold opt_footholds_;
+  bool optimal_trajectory_updated;
 
   HyqSpliner spliner_;  //for normal body, ori, and feet traj.
   HyqState P_des_;

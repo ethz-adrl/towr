@@ -70,6 +70,7 @@ ComSpline4::Derivatives
 ComSpline4::GetJunctionFreeMotions () const
 {
   return {kAcc, kJerk};
+//  return {kAcc /*, kJerk*/}; // jerk doesn't seem to work properly in spline junction
 }
 
 void

@@ -108,6 +108,8 @@ WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
   opt_splines_   = xpp::ros::RosHelpers::RosToXpp(msg.splines);
   opt_footholds_ = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
 
+  optimal_trajectory_updated = true;
+
   ROS_INFO_STREAM("updated splines [size=" << opt_splines_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
 }
 
@@ -410,8 +412,15 @@ void WalkingController::EstimateCurrPose()
 }
 
 bool
-WalkingController::SwitchToNewTrajectory () const
+WalkingController::SwitchToNewTrajectory ()
 {
+//  if (optimal_trajectory_updated) {
+//    optimal_trajectory_updated = false;
+//    return true;
+//  }
+//
+//  return false;
+
   double t_max = t_switch_ - robot_->GetControlLoopInterval();
   return Time() >= t_max; /*|| Time() >= spliner_.GetTotalTime()-dt_*/
 }

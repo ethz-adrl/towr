@@ -27,6 +27,7 @@ class PhaseInfo;
 class MotionStructure {
 public:
   struct MotionInfo {
+
     struct Contact {
       Contact(int _id, xpp::hyq::LegID _leg) : id(_id), leg(_leg) {}
       int id;
@@ -62,8 +63,6 @@ public:
   MotionInfoVec GetContactInfoVec() const;
 
   int GetTotalNumberOfDiscreteContacts() const;
-
-  PhaseVec GetPhases() const;
 
 private:
   double dt_; ///< discretization interval [s]

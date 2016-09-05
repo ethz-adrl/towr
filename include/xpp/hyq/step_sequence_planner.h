@@ -62,6 +62,7 @@ public:
 private:
   bool IsStepNecessary() const;
   LegID NextSwingLeg(LegID curr) const;
+  LegID NextSwingLegBackwards(LegID curr) const;
 
   bool IsZmpInsideFirstStep(LegID first_step) const;
   bool IsCapturePointInsideStance() const;

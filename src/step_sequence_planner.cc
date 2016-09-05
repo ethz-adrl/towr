@@ -18,6 +18,7 @@ StepSequencePlanner::StepSequencePlanner ()
 {
   // must still initialize current and goal state
   prev_swing_leg_ = RF;
+//  prev_swing_leg_ = LH;
 }
 
 StepSequencePlanner::~StepSequencePlanner ()
@@ -64,7 +65,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     LegIDVec step_sequence;
-    int n_steps = 4; // how many steps to take
+    int n_steps = 2; // how many steps to take
 
     for (int step=0; step<n_steps/*req_steps_per_leg*4*/; ++step) {
       step_sequence.push_back(NextSwingLeg(last_swingleg));
@@ -78,21 +79,29 @@ StepSequencePlanner::DetermineStepSequence ()
 bool
 StepSequencePlanner::StartWithStancePhase () const
 {
-  bool start_with_stance_phase = false;
+  if (curr_state_.v.norm() > 0.1) {
+    return false;
+  } else
+    return true;
 
-  if (!IsStepNecessary())
-    start_with_stance_phase = true;
-  else {
-    bool zmp_inside = IsZmpInsideFirstStep(NextSwingLeg(prev_swing_leg_));
 
-    // so 4ls-phase not always inserted b/c of short time zmp constraints are ignored
-    // when switching between disjoint support triangles.
-//    if ( !zmp_inside  &&  curr_state_.v.norm() < 0.01)
-    if (true)
-      start_with_stance_phase = true;
-  }
 
-  return start_with_stance_phase;
+
+//  bool start_with_stance_phase = false;
+//
+//  if (!IsStepNecessary())
+//    start_with_stance_phase = true;
+//  else {
+//    bool zmp_inside = IsZmpInsideFirstStep(NextSwingLeg(prev_swing_leg_));
+//
+//    // so 4ls-phase not always inserted b/c of short time zmp constraints are ignored
+//    // when switching between disjoint support triangles.
+////    if ( !zmp_inside  &&  curr_state_.v.norm() < 0.01)
+//    if (true)
+//      start_with_stance_phase = true;
+//  }
+//
+//  return start_with_stance_phase;
 }
 
 bool
@@ -127,6 +136,18 @@ StepSequencePlanner::NextSwingLeg (LegID curr) const
     case LF: return RH;
     case RH: return RF;
     case RF: return LH;
+    default: assert(false); // this should never happen
+  };
+}
+
+LegID
+StepSequencePlanner::NextSwingLegBackwards (LegID curr) const
+{
+  switch (curr) {
+    case LH: return RF;
+    case RF: return RH;
+    case RH: return LF;
+    case LF: return LH;
     default: assert(false); // this should never happen
   };
 }

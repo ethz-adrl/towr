@@ -102,7 +102,7 @@ LinearSplineEquations::MakeJunction () const
 
         // coefficients are all set to zero
         curr.s = com_spline_->GetCOGxyAtPolynomial(T, id).GetByIndex(dxdt, dim);
-        next.s = com_spline_->GetCOGxyAtPolynomial(0, id+1).GetByIndex(dxdt, dim);
+        next.s = com_spline_->GetCOGxyAtPolynomial(0.0, id+1).GetByIndex(dxdt, dim);
 
         curr.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);
         next.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt, 0.0, id+1, dim);
@@ -124,14 +124,14 @@ LinearSplineEquations::MakeAcceleration (double weight_x, double weight_y) const
   int n_coeff = com_spline_->GetTotalFreeCoeff();
   MatVec M(n_coeff, n_coeff);
 
-  for (const ComPolynomial& s : com_spline_->GetPolynomials()) {
-    std::array<double,8> t_span = utils::cache_exponents<8>(s.GetDuration());
+  for (const ComPolynomial& p : com_spline_->GetPolynomials()) {
+    std::array<double,8> t_span = utils::cache_exponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
-      const int a = com_spline_->Index(s.GetId(), dim, A);
-      const int b = com_spline_->Index(s.GetId(), dim, B);
-      const int c = com_spline_->Index(s.GetId(), dim, C);
-      const int d = com_spline_->Index(s.GetId(), dim, D);
+      const int a = com_spline_->Index(p.GetId(), dim, A);
+      const int b = com_spline_->Index(p.GetId(), dim, B);
+      const int c = com_spline_->Index(p.GetId(), dim, C);
+      const int d = com_spline_->Index(p.GetId(), dim, D);
 
       // for explanation of values see M.Kalakrishnan et al., page 248
       // "Learning, Planning and Control for Quadruped Robots over challenging

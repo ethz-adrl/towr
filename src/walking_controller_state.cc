@@ -53,7 +53,7 @@ void UpdateAndExecuting::Run(WalkingController* context) const
 {
   context->IntegrateOptimizedTrajectory();
   context->SetState(kExecuting);
-  context->ExecuteLoop(); // to always send values to the controller
+  context->ExecuteLoop(); // to send values to the controller in every controller iteration
 }
 
 void Executing::Run(WalkingController* context) const

@@ -100,7 +100,7 @@ CostConstraintFactory::CreateAccelerationCost (const ComMotion& motion)
 {
   LinearSplineEquations eq(motion);
   auto cost = std::make_shared<QuadraticSplineCost>();
-  cost->Init(eq.MakeAcceleration(1.0,3.0));
+  cost->Init(eq.MakeAcceleration(1.0,1.0));
   return cost;
 }
 

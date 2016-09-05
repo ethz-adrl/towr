@@ -59,7 +59,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   auto step_sequence        = step_sequence_planner_->DetermineStepSequence();
   bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase();
 
-  std::cout << "start_with_com_shift: " << start_with_com_shift;
+  std::cout << "start_with_com_shift: " << start_with_com_shift << std::endl;
 
   xpp::hyq::SupportPolygonContainer contacts;
   contacts.Init(curr_stance, step_sequence, margins);

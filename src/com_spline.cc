@@ -30,14 +30,14 @@ ComSpline::Init (int step_count, const SplineTimes& times,
 
   // build the spline structure
   if (insert_initial_stance) {
-    const int n_stance_splines = 2; // 3 allows quicker reaction
-    double t = times.t_stance_initial_/n_stance_splines;
-    for (int i=0; i<n_stance_splines; ++i)
-      AddStancePolynomial(t);
+//    const int n_stance_splines = 2; // 3 allows quicker reaction
+//    double t = times.t_stance_initial_/n_stance_splines;
+//    for (int i=0; i<n_stance_splines; ++i)
+//      AddStancePolynomial(t);
 
-//    double t_reaction = 0.06;
-//    SplineContainer::AddStanceSpline(t_reaction);
-//    SplineContainer::AddStanceSpline(times.t_stance_initial_-t_reaction);
+    double t_reaction = 0.1;
+    AddStancePolynomial(t_reaction);
+    AddStancePolynomial(times.t_stance_initial_-t_reaction);
   }
 
   AddPolynomialStepSequence(step_count, times.t_swing_);
