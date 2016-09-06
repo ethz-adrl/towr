@@ -11,9 +11,11 @@
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/hyq/foothold.h>
 #include <xpp/utils/geometric_structs.h>
+#include <xpp/hyq/support_polygon.h>
 
 namespace xpp {
 namespace hyq {
+
 
 /** Plans the sequence of steps (LH, LF, ...) for a given optimization problem.
   *
@@ -40,7 +42,8 @@ public:
     */
   void Init(const State& curr, const State& goal,
             const VecFoothold& start_stance, double robot_height,
-            int swingleg_of_last_spline);
+            int swingleg_of_last_spline,
+            MarginValues margins);
 
   /** Determines whether an initial stance phase is inserted.
     *
@@ -74,6 +77,7 @@ private:
   State goal_state_;
   VecFoothold start_stance_;
   double robot_height_;
+  MarginValues margins_;
 
   int swingleg_of_last_spline_; // this could also be no swingleg (stance phase)
   LegID prev_swing_leg_; // this is always a swingleg

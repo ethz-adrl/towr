@@ -29,13 +29,15 @@ StepSequencePlanner::~StepSequencePlanner ()
 void
 StepSequencePlanner::Init (const State& curr, const State& goal,
                            const VecFoothold& start_stance, double robot_height,
-                           int swingleg_of_last_spline)
+                           int swingleg_of_last_spline,
+                           MarginValues margins)
 {
   curr_state_ = curr;
   goal_state_ = goal;
   start_stance_ = start_stance;
   robot_height_ = robot_height;
   swingleg_of_last_spline_ = swingleg_of_last_spline;
+  margins_ = margins;
 }
 
 StepSequencePlanner::LegIDVec
@@ -70,7 +72,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     LegIDVec step_sequence;
-    int n_steps = 1; // how many steps to take
+    int n_steps = 2; // how many steps to take
 
     for (int step=0; step<n_steps/*req_steps_per_leg*4*/; ++step) {
       step_sequence.push_back(NextSwingLeg(last_swingleg));
@@ -88,10 +90,12 @@ bool
 StepSequencePlanner::StartWithStancePhase () const
 {
 
-  if (curr_state_.v.norm() > 0.1) {
-    return false;
-  } else
-    return true;
+  return false;
+
+//  if (curr_state_.v.norm() > 0.1) {
+//    return false;
+//  } else
+//    return true;
 
 
 
@@ -206,9 +210,7 @@ StepSequencePlanner::IsCapturePointInsideStance () const
 bool
 StepSequencePlanner::IsGoalInsideStance () const
 {
-  MarginValues margins = hyq::SupportPolygon::GetDefaultMargins();
-  hyq::SupportPolygon supp(start_stance_, margins);
-
+  hyq::SupportPolygon supp(start_stance_, margins_);
   return supp.IsPointInside(goal_state_.p);
 }
 

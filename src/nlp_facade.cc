@@ -55,7 +55,7 @@ NlpFacade::SolveNlp(const State& initial_state,
                     xpp::zmp::SplineTimes spline_times_,
                     double max_cpu_time)
 {
-  step_sequence_planner_->Init(initial_state, final_state, curr_stance, robot_height, curr_swing_leg);
+  step_sequence_planner_->Init(initial_state, final_state, curr_stance, robot_height, curr_swing_leg, margins);
   auto step_sequence        = step_sequence_planner_->DetermineStepSequence();
   bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase();
 
