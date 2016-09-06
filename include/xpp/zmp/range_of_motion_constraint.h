@@ -16,6 +16,7 @@ namespace xpp {
 
 namespace hyq {
 class SupportPolygonContainer;
+class Foothold;
 }
 
 namespace zmp {
@@ -37,9 +38,10 @@ public:
   using ContactPtrU   = std::unique_ptr<Contacts>;
   using RobotPtrU     = std::unique_ptr<ARobotInterface>;
   using PosXY         = Eigen::Vector2d;
+  using Stance        = std::vector<xpp::hyq::Foothold>;
 
   RangeOfMotionConstraint ();
-  virtual ~RangeOfMotionConstraint () {};
+  virtual ~RangeOfMotionConstraint ();
 
   void Init(const ComMotion&, const Contacts&, RobotPtrU);
   void UpdateVariables(const OptimizationVariables*) final;
@@ -69,6 +71,9 @@ class RangeOfMotionBox : public RangeOfMotionConstraint {
 public:
   virtual VectorXd EvaluateConstraint () const final;
   virtual VecBound GetBounds () const final;
+
+  static bool IsPositionInsideRangeOfMotion(const PosXY&, const Stance&,
+                                            const ARobotInterface&);
 
 private:
   virtual void SetJacobianWrtContacts(Jacobian&) const final;

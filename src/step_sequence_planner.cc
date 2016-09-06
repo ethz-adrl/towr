@@ -9,16 +9,22 @@
 #include <xpp/hyq/support_polygon.h>
 #include <xpp/zmp/zmp_constraint_builder.h>
 #include <xpp/zmp/zero_moment_point.h>
+#include <xpp/zmp/range_of_motion_constraint.h>
+
 #include <cassert>
 
 namespace xpp {
 namespace hyq {
+
+using namespace xpp::utils::coords_wrapper; // X,Y
 
 StepSequencePlanner::StepSequencePlanner ()
 {
   // must still initialize current and goal state
   prev_swing_leg_ = RF;
 //  prev_swing_leg_ = LH;
+
+  robot_ = HyqRobotInterface();
 }
 
 StepSequencePlanner::~StepSequencePlanner ()
@@ -72,7 +78,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     LegIDVec step_sequence;
-    int n_steps = 2; // how many steps to take
+    int n_steps = 4; // how many steps to take
 
     for (int step=0; step<n_steps/*req_steps_per_leg*4*/; ++step) {
       step_sequence.push_back(NextSwingLeg(last_swingleg));
@@ -90,12 +96,12 @@ bool
 StepSequencePlanner::StartWithStancePhase () const
 {
 
-  return false;
+//  return false;
 
 //  if (curr_state_.v.norm() > 0.1) {
 //    return false;
 //  } else
-//    return true;
+    return true;
 
 
 
@@ -124,17 +130,20 @@ StepSequencePlanner::IsStepNecessary () const
 //  Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
 //
 //  bool distance_large_enough = start_to_goal.norm() > min_distance_to_step;
-  bool goal_inside = IsGoalInsideStance();
 //  bool x_capture_inside = IsCapturePointInsideStance();
 //
 ////  if (!x_capture_inside) {
 ////    throw std::runtime_error("Capture not inside");
 ////  }
 //
+
+
+
   bool step_necessary =
 //                      distance_large_enough ||
 //                      !x_capture_inside ||
-                        !goal_inside
+                        IsGoalOutsideSupportPolygon() ||
+                        IsGoalOutsideRangeOfMotion()
 //                      (curr_state_.v.norm() > 0.1 )
                      ;
 
@@ -208,10 +217,23 @@ StepSequencePlanner::IsCapturePointInsideStance () const
 }
 
 bool
-StepSequencePlanner::IsGoalInsideStance () const
+StepSequencePlanner::IsGoalOutsideSupportPolygon () const
 {
   hyq::SupportPolygon supp(start_stance_, margins_);
-  return supp.IsPointInside(goal_state_.p);
+  return !supp.IsPointInside(goal_state_.p);
+}
+
+bool
+StepSequencePlanner::IsGoalOutsideRangeOfMotion () const
+{
+  bool goal_inside = xpp::zmp::RangeOfMotionBox::IsPositionInsideRangeOfMotion
+  (
+    goal_state_.p,
+    start_stance_,
+    robot_
+  );
+
+  return !goal_inside;
 }
 
 } /* namespace hyq */

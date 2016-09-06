@@ -22,7 +22,7 @@ ZmpConstraint::ZmpConstraint ()
 void
 ZmpConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
 {
-  double dt = 0.1; // discretization interval
+  double dt = 0.2; // discretization interval
   zmp_constraint_builder_.Init(*interpreter.GetSplineStructure(),
                                interpreter.GetSuppPolygonContainer(),
                                interpreter.GetRobotHeight(),

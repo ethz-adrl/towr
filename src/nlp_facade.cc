@@ -87,7 +87,7 @@ NlpFacade::SolveNlp(const State& initial_state,
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 
   costs_->ClearCosts();
-  costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion, kJerk));
+  costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion, kAcc));
   // careful: these are not quite debugged yet
 //  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
 //  costs_->AddCost(CostConstraintFactory::CreateFinalComCost(final_state, spline_structure));
@@ -141,6 +141,10 @@ NlpFacade::SolveIpopt (const IpoptPtr& nlp, double max_cpu_time)
 
     Ipopt::Number final_obj = ipopt_solver_.Statistics()->FinalObjective();
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
+  }
+
+  if (status_ == Ipopt::Infeasible_Problem_Detected) {
+    std::cout << "Problem/Constraints infeasible; run again?";
   }
 }
 

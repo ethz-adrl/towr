@@ -46,7 +46,6 @@ OptimizerNodeBase::GoalStateCallback(const StateMsg& msg)
   ROS_INFO_STREAM("Goal state set to:\n" << goal_cog_);
 }
 
-
 void
 OptimizerNodeBase::GoalStateCallbackKeyboard(const keyboard::Key& msg)
 {
@@ -55,16 +54,16 @@ OptimizerNodeBase::GoalStateCallbackKeyboard(const keyboard::Key& msg)
 
   switch (msg.code) {
     case msg.KEY_UP:
-      goal_cog_.p.x() = curr_cog_.p.x() + dx;
+      goal_cog_.p.x() += dx;
       break;
     case msg.KEY_DOWN:
-      goal_cog_.p.x() = curr_cog_.p.x() - dx;
+      goal_cog_.p.x() -= dx;
       break;
     case msg.KEY_RIGHT:
-      goal_cog_.p.y() = curr_cog_.p.y() - dy;
+      goal_cog_.p.y() -= dy;
       break;
     case msg.KEY_LEFT:
-      goal_cog_.p.y() = curr_cog_.p.y() + dy;
+      goal_cog_.p.y() += dy;
       break;
     default:
       break;
@@ -72,6 +71,32 @@ OptimizerNodeBase::GoalStateCallbackKeyboard(const keyboard::Key& msg)
 
   ROS_INFO_STREAM("Goal state set to : " << goal_cog_);
 }
+
+//void
+//OptimizerNodeBase::GoalStateCallbackKeyboard(const keyboard::Key& msg)
+//{
+//  const static double dx = 0.1;
+//  const static double dy = 0.1;
+//
+//  switch (msg.code) {
+//    case msg.KEY_UP:
+//      goal_cog_.p.x() = curr_cog_.p.x() + dx;
+//      break;
+//    case msg.KEY_DOWN:
+//      goal_cog_.p.x() = curr_cog_.p.x() - dx;
+//      break;
+//    case msg.KEY_RIGHT:
+//      goal_cog_.p.y() = curr_cog_.p.y() - dy;
+//      break;
+//    case msg.KEY_LEFT:
+//      goal_cog_.p.y() = curr_cog_.p.y() + dy;
+//      break;
+//    default:
+//      break;
+//  }
+//
+//  ROS_INFO_STREAM("Goal state set to : " << goal_cog_);
+//}
 
 
 

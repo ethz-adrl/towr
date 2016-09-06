@@ -43,8 +43,7 @@ ComSpline::Init (int step_count, const SplineTimes& times,
   AddPolynomialStepSequence(step_count, times.t_swing_);
 
   AddStancePolynomial(0.05);
-  // refactor check why long time here causes spline assert to trigger
-  AddStancePolynomial( 0.5);
+//  AddStancePolynomial( 0.5);
 }
 
 void

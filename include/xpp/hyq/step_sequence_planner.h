@@ -12,6 +12,7 @@
 #include <xpp/hyq/foothold.h>
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/hyq/support_polygon.h>
+#include <xpp/hyq/hyq_robot_interface.h>
 
 namespace xpp {
 namespace hyq {
@@ -69,7 +70,8 @@ private:
 
   bool IsZmpInsideFirstStep(LegID first_step) const;
   bool IsCapturePointInsideStance() const;
-  bool IsGoalInsideStance() const;
+  bool IsGoalOutsideSupportPolygon() const;
+  bool IsGoalOutsideRangeOfMotion() const;
 
 //  bool step_already_executed = false;
 
@@ -78,6 +80,8 @@ private:
   VecFoothold start_stance_;
   double robot_height_;
   MarginValues margins_;
+
+  HyqRobotInterface robot_;
 
   int swingleg_of_last_spline_; // this could also be no swingleg (stance phase)
   LegID prev_swing_leg_; // this is always a swingleg

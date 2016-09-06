@@ -42,7 +42,7 @@ HyqRobotInterface::GetNominalStanceInBase (int leg_id) const
 double
 HyqRobotInterface::GetMaxDeviationXYFromNominal () const
 {
-  return 0.25; // cm
+  return 0.15; // cm
 }
 
 } /* namespace zmp */

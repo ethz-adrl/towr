@@ -18,6 +18,10 @@ RangeOfMotionConstraint::RangeOfMotionConstraint ()
 {
 }
 
+RangeOfMotionConstraint::~RangeOfMotionConstraint ()
+{
+}
+
 void
 RangeOfMotionConstraint::Init (const ComMotion& com_motion,
                                const Contacts& contacts,
@@ -39,7 +43,7 @@ RangeOfMotionConstraint::Init (const ComMotion& com_motion,
     step_legs.push_back(f.leg);
   }
 
-  double dt = 0.1;   // the times at which to evalute the constraint
+  double dt = 0.3;   // the times at which to evalute the constraint
   motion_structure_.Init(start_legs, step_legs, com_motion_->GetPhases(), dt);
 
   SetJacobianWrtContacts(jac_wrt_contacts_);
@@ -65,6 +69,28 @@ RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
     return jac_wrt_motion_;
   else
     return Jacobian();
+}
+
+bool
+RangeOfMotionBox::IsPositionInsideRangeOfMotion (
+    const PosXY& pos, const Stance& stance, const ARobotInterface& robot)
+{
+  double max_deviation = robot.GetMaxDeviationXYFromNominal();
+
+  for (auto f : stance) {
+    auto p_nominal = robot.GetNominalStanceInBase(f.leg);
+
+    for (auto dim : {X,Y}) {
+
+      double distance_to_foot = f.p(dim) - pos(dim);
+      double distance_to_nom  = distance_to_foot - p_nominal(dim);
+
+      if (std::abs(distance_to_nom) > max_deviation)
+        return false;
+    }
+  }
+
+  return true;
 }
 
 RangeOfMotionBox::VectorXd
