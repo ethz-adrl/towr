@@ -101,21 +101,22 @@ set(SOURCES
   src/ellipse.cc
   src/qp_facade.cc
   src/foothold.cc
-  src/hyq_inverse_kinematics.cc
   src/spliner.cc
   src/spliner_3d.cc
-  src/hyq_state.cc
   src/orientation.cc
+  src/zero_moment_point.cc
+  src/motion_structure.cc
+  src/step_sequence_planner.cc
+  src/line_equation.cc
+  src/a_inverse_kinematics.cc
+  src/a_robot_interface.cc
+  #hyq
+  src/hyq_inverse_kinematics.cc
+  src/hyq_robot_interface
+  src/hyq_state.cc
   src/support_polygon.cc
   src/supp_polygon_container.cc
   src/hyq_spliner.cc
-  src/nlp_facade.cc
-  src/zmp_constraint_builder.cc
-  src/zero_moment_point.cc
-  src/motion_structure.cc
-  src/a_inverse_kinematics.cc
-  src/step_sequence_planner.cc
-  src/line_equation.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
@@ -132,6 +133,7 @@ set(SOURCES
   src/optimization_variables.cc
   src/optimization_variables_interpreter.cc
   src/i_observer.cc
+  src/nlp_facade.cc
   src/interpreting_observer.cc
   src/nlp.cc
   src/ipopt_adapter.cc
@@ -140,6 +142,7 @@ set(SOURCES
   src/a_constraint.cc
   src/cost_constraint_factory.cc
   src/a_linear_constraint.cc
+  src/zmp_constraint_builder.cc
   src/linear_spline_equations.cc
   src/constraint_container.cc
   src/zmp_constraint.cc
@@ -241,6 +244,8 @@ if(BUILD_TESTS)
 #                        test/google/optimization_variables_interpreter_test.cc
 #                        test/google/step_sequence_planner_test.cc
                          test/google/line_equation_test.cc
+                         # hyq
+                         test/google/hyq_robot_interface_test.cc
 #                        # com
 #                        test/google/com_motion_test.cc
                          test/google/com_spline_test.cc
