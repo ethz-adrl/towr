@@ -26,6 +26,7 @@ void OptParamsCallback(const OptimizedParametersMsg& msg)
   footholds = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
 }
 
+using namespace xpp::hyq;
 
 int main(int argc, char **argv)
 {
@@ -53,12 +54,22 @@ int main(int argc, char **argv)
   msg.curr_state.acc.y = atof(argv[6]); // constraint
 //  msg.curr_state.acc.y = 1.0;
 
-  using namespace xpp::hyq;
-  xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
-  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x,  0.3+msg.curr_state.pos.y, 0.0, LF)));
-  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x, -0.3+msg.curr_state.pos.y, 0.0, RF)));
-  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x,  0.3+msg.curr_state.pos.y, 0.0, LH)));
-  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x, -0.3+msg.curr_state.pos.y, 0.0, RH)));
+  auto start_stance = { Foothold( 0.359692,   0.327653, 0.0, LF),
+                        Foothold( 0.359694,  -0.327644, 0.0, RF),
+                        Foothold(-0.358797,   0.327698, 0.0, LH),
+                        Foothold(-0.358802,  -0.327695, 0.0, RH)};
+
+  for (auto f : start_stance) {
+    msg.curr_stance.push_back(RosHelpers::XppToRos(f));
+  }
+
+
+//  using namespace xpp::hyq;
+//  xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
+//  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x,  0.3+msg.curr_state.pos.y, 0.0, LF)));
+//  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x, -0.3+msg.curr_state.pos.y, 0.0, RF)));
+//  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x,  0.3+msg.curr_state.pos.y, 0.0, LH)));
+//  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x, -0.3+msg.curr_state.pos.y, 0.0, RH)));
 
   msg.curr_swingleg = xpp::hyq::NO_SWING_LEG;
 

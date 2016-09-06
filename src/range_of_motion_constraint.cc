@@ -9,6 +9,7 @@
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/com_motion.h>
 #include <xpp/zmp/optimization_variables.h>
+#include <xpp/zmp/a_robot_interface.h>
 
 namespace xpp {
 namespace zmp {
@@ -18,10 +19,13 @@ RangeOfMotionConstraint::RangeOfMotionConstraint ()
 }
 
 void
-RangeOfMotionConstraint::Init (const ComMotion& com_motion, const Contacts& contacts)
+RangeOfMotionConstraint::Init (const ComMotion& com_motion,
+                               const Contacts& contacts,
+                               RobotPtrU p_robot)
 {
   com_motion_ = com_motion.clone();
   contacts_   = ContactPtrU(new Contacts(contacts));
+  robot_      = std::move(p_robot);
 
   auto start_feet = contacts_->GetStartStance();
   MotionStructure::LegIDVec start_legs;
@@ -92,6 +96,8 @@ RangeOfMotionBox::EvaluateConstraint () const
 RangeOfMotionBox::VecBound
 RangeOfMotionBox::GetBounds () const
 {
+  const double max_deviation = robot_->GetMaxDeviationXYFromNominal();
+
   std::vector<Bound> bounds;
   for (auto node : motion_structure_.GetContactInfoVec()) {
 
@@ -102,11 +108,11 @@ RangeOfMotionBox::GetBounds () const
       if (c.id == xpp::hyq::Foothold::kFixedByStart)
         start_offset = contacts_->GetStartFoothold(c.leg).p.topRows(kDim2d);
 
-      PosXY pos_nom_B = contacts_->GetNominalPositionInBase(c.leg);
+      PosXY pos_nom_B = robot_->GetNominalStanceInBase(c.leg);
       for (auto dim : {X,Y}) {
         Bound b;
-        b.upper_ = pos_nom_B(dim) + kBoxLength_/2.;
-        b.lower_ = pos_nom_B(dim) - kBoxLength_/2.;
+        b.upper_ = pos_nom_B(dim) + max_deviation;
+        b.lower_ = pos_nom_B(dim) - max_deviation;
         b -= start_offset(dim);
         bounds.push_back(b);
       }

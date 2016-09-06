@@ -59,16 +59,14 @@ NlpFacade::SolveNlp(const State& initial_state,
   auto step_sequence        = step_sequence_planner_->DetermineStepSequence();
   bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase();
 
-  std::cout << "start_with_com_shift: " << start_with_com_shift << std::endl;
-
   xpp::hyq::SupportPolygonContainer contacts;
   contacts.Init(curr_stance, step_sequence, margins);
 
   // insight: this spline might be better for MPC, as it always matches the initial
   // position and velocity, avoiding jumps in state. For the other spline this is
   // a constraint, that might not be fulfilled.
-//  auto com_motion = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
-  auto com_motion = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
+  auto com_motion = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
+//  auto com_motion = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
@@ -97,6 +95,23 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);
+
+  std::cout << "start_state: " << initial_state << std::endl;
+  std::cout << "goal_state: " << final_state << std::endl;
+
+  std::cout << "\nstart_stance: \n";
+  for (auto f : curr_stance)
+    std::cout << f << std::endl;
+
+  std::cout << "\npolynomials:\n";
+  auto com_spline = dynamic_cast<ComSpline*>(com_motion.get());
+  for (auto poly : com_spline->GetPolynomials()) {
+    std::cout << poly << std::endl;
+  }
+
+
+
+
 
 //  // Snopt solving
 //  // fixme some constraints are still linear and have constant terms in its

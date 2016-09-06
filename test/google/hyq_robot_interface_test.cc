@@ -9,7 +9,7 @@
 #include <gtest/gtest.h>
 
 namespace xpp {
-namespace zmp {
+namespace hyq {
 
 } /* namespace zmp */
 } /* namespace xpp */

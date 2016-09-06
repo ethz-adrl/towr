@@ -11,12 +11,15 @@
 #include <xpp/zmp/a_robot_interface.h>
 
 namespace xpp {
-namespace zmp {
+namespace hyq {
 
 class HyqRobotInterface : public xpp::zmp::ARobotInterface{
 public:
   HyqRobotInterface ();
   virtual ~HyqRobotInterface ();
+
+  virtual PosXY GetNominalStanceInBase(int leg_id) const final;
+  virtual double GetMaxDeviationXYFromNominal() const final;
 };
 
 } /* namespace zmp */

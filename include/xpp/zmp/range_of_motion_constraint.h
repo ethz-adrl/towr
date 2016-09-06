@@ -21,6 +21,7 @@ class SupportPolygonContainer;
 namespace zmp {
 
 class ComMotion;
+class ARobotInterface;
 
 /** @brief Base class for a constraint between contacts and CoM position.
   *
@@ -34,12 +35,13 @@ public:
   using Contacts      = xpp::hyq::SupportPolygonContainer;
   using ComMotionPtrU = std::unique_ptr<ComMotion>;
   using ContactPtrU   = std::unique_ptr<Contacts>;
+  using RobotPtrU     = std::unique_ptr<ARobotInterface>;
   using PosXY         = Eigen::Vector2d;
 
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint () {};
 
-  void Init(const ComMotion&, const Contacts&);
+  void Init(const ComMotion&, const Contacts&, RobotPtrU);
   void UpdateVariables(const OptimizationVariables*) final;
   Jacobian GetJacobianWithRespectTo (std::string var_set) const final;
 
@@ -47,6 +49,7 @@ protected:
   ContactPtrU contacts_;
   ComMotionPtrU com_motion_;
   MotionStructure motion_structure_;
+  RobotPtrU robot_;
 
 private:
   Jacobian jac_wrt_contacts_;
@@ -68,7 +71,6 @@ public:
   virtual VecBound GetBounds () const final;
 
 private:
-  const double kBoxLength_ = 0.3;
   virtual void SetJacobianWrtContacts(Jacobian&) const final;
   virtual void SetJacobianWrtMotion(Jacobian&) const final;
 };

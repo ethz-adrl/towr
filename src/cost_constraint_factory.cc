@@ -16,6 +16,7 @@
 //#include <xpp/zmp/joint_angles_constraint.h>
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/zmp/obstacle_constraint.h>
+#include <xpp/hyq/hyq_robot_interface.h>
 
 #include <xpp/zmp/a_foothold_cost.h>
 #include <xpp/zmp/a_spline_cost.h>
@@ -74,7 +75,9 @@ CostConstraintFactory::CreateRangeOfMotionConstraint (
     const ComMotion& com_motion, const Contacts& contacts)
 {
   auto constraint = std::make_shared<RangeOfMotionBox>();
-  constraint->Init(com_motion, contacts);
+  auto hyq = std::unique_ptr<ARobotInterface>(new xpp::hyq::HyqRobotInterface());
+
+  constraint->Init(com_motion, contacts, std::move(hyq));
   return constraint;
 }
 
