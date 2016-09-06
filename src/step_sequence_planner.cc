@@ -60,27 +60,27 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
 
-//    LegID last_swingleg;
-//    if (swingleg_of_last_spline_ == hyq::NO_SWING_LEG)
-//      last_swingleg = prev_swing_leg_;
-//    else {
-//      last_swingleg = static_cast<LegID>(swingleg_of_last_spline_);
-//      prev_swing_leg_ = last_swingleg;
-//    }
-//
-//
-//    LegIDVec step_sequence;
-//    int n_steps = 1; // how many steps to take
-//
-//    for (int step=0; step<n_steps/*req_steps_per_leg*4*/; ++step) {
-//      step_sequence.push_back(NextSwingLeg(last_swingleg));
-//      last_swingleg = step_sequence.back();
-//    }
+    LegID last_swingleg;
+    if (swingleg_of_last_spline_ == hyq::NO_SWING_LEG)
+      last_swingleg = prev_swing_leg_;
+    else {
+      last_swingleg = static_cast<LegID>(swingleg_of_last_spline_);
+      prev_swing_leg_ = last_swingleg;
+    }
+
+
+    LegIDVec step_sequence;
+    int n_steps = 1; // how many steps to take
+
+    for (int step=0; step<n_steps/*req_steps_per_leg*4*/; ++step) {
+      step_sequence.push_back(NextSwingLeg(last_swingleg));
+      last_swingleg = step_sequence.back();
+    }
 
 
 
 
-    return {LH};
+    return step_sequence; //{LH}
   }
 }
 
@@ -120,29 +120,31 @@ StepSequencePlanner::IsStepNecessary () const
 //  Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
 //
 //  bool distance_large_enough = start_to_goal.norm() > min_distance_to_step;
-//  bool goal_inside = IsGoalInsideStance();
+  bool goal_inside = IsGoalInsideStance();
 //  bool x_capture_inside = IsCapturePointInsideStance();
 //
 ////  if (!x_capture_inside) {
 ////    throw std::runtime_error("Capture not inside");
 ////  }
 //
-//  bool step_necessary =
-////                        distance_large_enough ||
-////                        !x_capture_inside ||
-////                        !goal_inside ||
-//                         (curr_state_.v.norm() > 0.1)
-//                     ;
+  bool step_necessary =
+//                      distance_large_enough ||
+//                      !x_capture_inside ||
+                        !goal_inside
+//                      (curr_state_.v.norm() > 0.1 )
+                     ;
 
-  bool vel_large = curr_state_.v.norm() > 0.1;
-  bool acc_large = curr_state_.a.norm() > 2.1;
-  bool four_legs_on_ground = start_stance_.size() == 4;
+//  bool vel_large = curr_state_.v.norm() > 0.1;
+//  bool acc_large = curr_state_.a.norm() > 2.1;
+//  bool four_legs_on_ground = start_stance_.size() == 4;
+//
+//  bool step_necessary = acc_large && four_legs_on_ground;
+//
+//  std::cout << "start_stance.size() :" << start_stance_.size();
+//  std::cout << "current velocity: " << curr_state_.v.norm() << "\n";
+//  std::cout << "current acceleration: " << curr_state_.a.norm() << "\n";
 
-  std::cout << "start_stance.size() :" << start_stance_.size();
-  std::cout << "current velocity: " << curr_state_.v.norm() << "\n";
-  std::cout << "current acceleration: " << curr_state_.a.norm() << "\n";
-
-  return acc_large && four_legs_on_ground;
+  return step_necessary;
 }
 
 LegID
