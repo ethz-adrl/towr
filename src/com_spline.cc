@@ -43,7 +43,8 @@ ComSpline::Init (int step_count, const SplineTimes& times,
   AddPolynomialStepSequence(step_count, times.t_swing_);
 
   AddStancePolynomial(0.05);
-  AddStancePolynomial(10.5);
+  // refactor check why long time here causes spline assert to trigger
+  AddStancePolynomial( 0.5);
 }
 
 void
@@ -143,13 +144,14 @@ ComSpline::GetCoeffients () const
 int
 ComSpline::GetPolynomialID(double t_global, const VecPolynomials& splines)
 {
-   assert(t_global<=GetTotalTime(splines));
+  double eps = 1e-10; // double imprecision
+  assert(t_global<=GetTotalTime(splines)+eps); // machine precision
 
    double t = 0;
    for (const ComPolynomial& s: splines) {
      t += s.GetDuration();
 
-     if (t >= t_global) // at junctions, returns previous spline (=)
+     if (t >= t_global-eps) // at junctions, returns previous spline (=)
        return s.GetId();
    }
    assert(false); // this should never be reached
