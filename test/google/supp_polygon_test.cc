@@ -14,6 +14,22 @@
 namespace xpp {
 namespace hyq {
 
+using Vector2d = Eigen::Vector2d;
+
+TEST(SupportPolygonTest, PointInside)
+{
+  auto start_stance = { Foothold( 0.359692,   0.327653, 0.0, LF),
+                        Foothold( 0.359694,  -0.327644, 0.0, RF),
+                        Foothold(-0.358797,   0.327698, 0.0, LH),
+                        Foothold(-0.358802,  -0.327695, 0.0, RH)};
+
+  auto margins = SupportPolygon::GetDefaultMargins();
+  SupportPolygon supp(start_stance, margins);
+
+  Vector2d p(0.0, -0.212744);
+
+  EXPECT_TRUE(supp.IsPointInside(p));
+}
 
 class SuppPolygonTest : public ::testing::Test {
 protected:
