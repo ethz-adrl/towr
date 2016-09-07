@@ -69,7 +69,7 @@ public:
                     const State& final_state,
                     const VecFoothold& start_stance,
                     const VecFoothold& steps,
-                    const SplineTimes& times,
+                    double t_swing, double t_stance,
                     bool start_with_com_shift,
                     double robot_height);
 

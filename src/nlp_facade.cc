@@ -53,7 +53,7 @@ NlpFacade::SolveNlp(const State& initial_state,
                     double robot_height,
                     VecFoothold curr_stance,
                     xpp::hyq::MarginValues margins,
-                    xpp::zmp::SplineTimes spline_times_,
+                    double t_swing, double t_stance,
                     double max_cpu_time)
 {
   step_sequence_planner_->Init(initial_state, final_state, curr_stance, robot_height, curr_swing_leg, margins);
@@ -63,11 +63,7 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   // create the fixed motion structure
   MotionStructure motion_structure;
-  motion_structure.Init(curr_stance, step_sequence, spline_times_, start_with_com_shift, true);
-
-
-
-
+  motion_structure.Init(curr_stance, step_sequence, t_swing, t_stance, start_with_com_shift, true);
 
 
 

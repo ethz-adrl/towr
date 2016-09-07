@@ -43,7 +43,8 @@ protected:
   VecSpline opt_splines_;
   VecFoothold footholds_;
 
-  xpp::zmp::SplineTimes spline_times_;
+  double t_swing_;
+  double t_stance_;
   double robot_height_;
 
 private:

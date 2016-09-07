@@ -23,7 +23,7 @@ TEST(LinearSplineEquations, AccelerationCostTest)
 {
   // create the fixed motion structure
   MotionStructure motion_structure;
-  motion_structure.Init({}, {hyq::LH, hyq::LF}, SplineTimes(), true, true);
+  motion_structure.Init({}, {hyq::LH, hyq::LF}, 0.7, 0.4, true, true);
 
   // create a spline made up of two fifth order polynomials
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
@@ -38,7 +38,7 @@ TEST(LinearSplineEquations, JunctionTestPosition)
 {
   // create the fixed motion structure
   MotionStructure motion_structure;
-  motion_structure.Init({}, {hyq::LH, hyq::LF}, SplineTimes(), true, true);
+  motion_structure.Init({}, {hyq::LH, hyq::LF}, 0.7, 0.4, true, true);
 
   // create a spline made up of two fifth order polynomials
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());

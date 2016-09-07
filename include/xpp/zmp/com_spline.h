@@ -15,25 +15,6 @@
 namespace xpp {
 namespace zmp {
 
-
-/** The duration of each polynome in the sequence that describes some trajectory */
-// motion_ref rename to phase times and move somewhere else
-struct SplineTimes
-{
-  SplineTimes() {};
-
-  /** @param t_swing time for one step
-    * @param t_init time before executing the first step
-    */
-  SplineTimes(double t_swing, double t_init)
-      :t_swing_(t_swing), t_stance_initial_(t_init) {}
-
-  double t_swing_{0.7};
-  double t_stance_initial_{0.4};
-};
-
-
-
 /** Represents the Center of Mass (CoM) motion as a Spline (sequence of polynomials).
   *
   * This class is responsible for abstracting polynomial coefficients of multiple

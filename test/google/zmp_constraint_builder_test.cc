@@ -40,7 +40,7 @@ TEST(ZmpConstraintBuilderTest, GetTimesDisjointSwitches)
 
   // create the fixed motion structure
   MotionStructure motion_structure;
-  motion_structure.Init({}, legs, SplineTimes(0.2, 0.3), true, true);
+  motion_structure.Init({}, legs, 0.3, 0.2, true, true);
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
 
 

@@ -36,7 +36,7 @@ MotionStructure::~MotionStructure ()
 void
 MotionStructure::Init (const StartStance& start_stance,
                        const LegIDVec& step_legs,
-                       const SplineTimes& times,
+                       double t_swing, double t_stance,
                        bool insert_initial_stance,
                        bool insert_final_stance)
 {
@@ -47,13 +47,13 @@ MotionStructure::Init (const StartStance& start_stance,
   int n_completed_steps = 0;
 
   if (insert_initial_stance) {
-    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, times.t_stance_initial_);
+    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, t_stance);
     phases_.push_back(phase);
   }
 
   // steps
   for (int step=0; step<step_legs.size(); ++step) {
-    PhaseInfo phase(PhaseInfo::kStepPhase, n_completed_steps++, id++, times.t_swing_);
+    PhaseInfo phase(PhaseInfo::kStepPhase, n_completed_steps++, id++, t_swing);
     phases_.push_back(phase);
   }
 

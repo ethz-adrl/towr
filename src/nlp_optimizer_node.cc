@@ -68,7 +68,7 @@ NlpOptimizerNode::OptimizeTrajectory()
                        robot_height_,
                        curr_stance_,
                        supp_polygon_margins_,
-                       spline_times_,
+                       t_swing_, t_stance_,
                        max_cpu_time_);
 
   opt_splines_ = nlp_facade_.GetSplines();

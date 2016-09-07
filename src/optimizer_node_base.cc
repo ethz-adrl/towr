@@ -21,9 +21,8 @@ OptimizerNodeBase::OptimizerNodeBase ()
   goal_key_sub_ = n_.subscribe("/keyboard/keydown", 1,
                                 &OptimizerNodeBase::GoalStateCallbackKeyboard, this);
 
-  double t_swing   = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
-  double t_init    = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
-  spline_times_ = xpp::zmp::SplineTimes(t_swing, t_init);
+  t_swing_   = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
+  t_stance_   = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
 
   robot_height_ = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 

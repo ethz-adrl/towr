@@ -74,7 +74,7 @@ public:
                 double robot_height_,
                 VecFoothold curr_stance,
                 xpp::hyq::MarginValues margins,
-                xpp::zmp::SplineTimes spline_times_,
+                double t_swing, double t_stance,
                 double max_cpu_time = 1e20);
 
   void AttachVisualizer(IVisualizer& visualizer);
