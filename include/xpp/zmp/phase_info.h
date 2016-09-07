@@ -22,6 +22,12 @@ struct Contact {
   EndeffectorID ee;
 };
 
+inline std::ostream& operator<<(std::ostream& out, const Contact& c)
+{
+  out << "id: " << c.id << "\t ee: " << c.ee;
+  return out;
+}
+
 /** Information to represent different types of motion.
   */
 // motion_ref augment phase info with id's of legs in contact
@@ -52,7 +58,11 @@ inline std::ostream& operator<<(std::ostream& out, const PhaseInfo& p)
   out << "id: " << p.id_
       << "\t type: " << p.type_
       << "\t duration: " << p.duration_
-      << "\t n_completed_steps: " << p.n_completed_steps_;
+      << "\t n_completed_steps: " << p.n_completed_steps_
+      << "\t contacts:\n";
+
+  for (auto c : p.contacts_)
+    out << c << "\n";
 
   return out;
 }

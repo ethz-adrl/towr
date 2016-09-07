@@ -247,6 +247,7 @@ if(BUILD_TESTS)
                          # hyq
                          test/google/hyq_robot_interface_test.cc
 #                        # com
+                         test/google/motion_structure_test.cc
 #                        test/google/com_motion_test.cc
                          test/google/com_spline_test.cc
 #                        test/google/spline_container_test.cc

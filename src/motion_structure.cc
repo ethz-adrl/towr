@@ -63,7 +63,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
     // add newly made contact of previous swing
     if (i > 0)
-      active_contacts.push_back(Contact(i, static_cast<EndeffectorID>(step_legs.at(i-1))));
+      active_contacts.push_back(Contact(i-1, static_cast<EndeffectorID>(step_legs.at(i-1))));
 
     PhaseInfo phase(PhaseInfo::kStepPhase, n_completed_steps++, phase_id++, t_swing);
     phase.contacts_ = active_contacts;
