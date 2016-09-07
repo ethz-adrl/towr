@@ -29,7 +29,7 @@ TEST(ComSplineTest, PhaseInfo) {
                                                    );
 
   std::cout << "phases:\n";
-  for (auto phase : com_motion->GetPhases()) {
+  for (auto phase : motion_structure.GetPhases()) {
     std::cout << phase << std::endl;
   }
 

@@ -146,7 +146,7 @@ ZmpConstraintBuilder::GetNumberOfConstraints () const
 {
   int n_constraints = 0;
   for (auto t : times_) {
-    int phase_id  = com_motion_->GetCurrentPhase(t).id_; // motion_ref this should also be motion struct
+    int phase_id  = motion_structure_.GetCurrentPhase(t).id_;
     NodeConstraints supp_line = support_polygon_per_phase_.at(phase_id).GetLines();
     n_constraints += supp_line.size();
   }
@@ -173,7 +173,7 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
 
-    int phase_id  = com_motion_->GetCurrentPhase(t/*node_new.time_*/).id_;
+    int phase_id  = motion_structure_.GetCurrentPhase(t/*node_new.time_*/).id_;
     NodeConstraints node = support_polygon_per_phase_.at(phase_id).GetLines();
 
 
@@ -235,7 +235,7 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
     auto state = com_motion_->GetCom(t);
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
-    int phase_id  = com_motion_->GetCurrentPhase(t).id_;
+    int phase_id  = motion_structure_.GetCurrentPhase(t).id_;
     NodeConstraints supp_line = support_polygon_per_phase_.at(phase_id).GetLines();
 
     for (auto i=0; i<supp_line.size(); ++i)

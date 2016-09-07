@@ -27,8 +27,6 @@ public:
   virtual ~ComSpline6();
   PtrClone clone() const override;
 
-  void Init(const PhaseInfoVec& phases);
-
   void SetCoefficients(const VectorXd& optimized_coeff) override;
 
   Derivatives GetInitialFreeMotions()  const;

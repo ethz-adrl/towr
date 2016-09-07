@@ -15,6 +15,8 @@
 namespace xpp {
 namespace zmp {
 
+using namespace xpp::utils::coords_wrapper;
+
 /** Represents the Center of Mass (CoM) motion as a Spline (sequence of polynomials).
   *
   * This class is responsible for abstracting polynomial coefficients of multiple
@@ -34,6 +36,8 @@ public:
 
   ComSpline ();
   virtual ~ComSpline ();
+
+  virtual void Init(const PhaseVec& phases) final;
 
   // implements these functions from parent class, now specific for splines
   Point2d GetCom(double t_global) const override { return GetCOM(t_global, polynomials_); }
@@ -78,8 +82,6 @@ public:
 
 protected:
   VecPolynomials polynomials_;
-
-  void Init(const PhaseInfoVec& phases);
   void CheckIfSplinesInitialized() const;
 
 

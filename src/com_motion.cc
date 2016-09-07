@@ -6,10 +6,11 @@
  */
 
 #include <xpp/zmp/com_motion.h>
-#include <xpp/zmp/phase_info.h>
 
 namespace xpp {
 namespace zmp {
+
+using namespace xpp::utils::coords_wrapper;
 
 ComMotion::ComMotion ()
 {
@@ -28,25 +29,6 @@ ComMotion::SetCoefficientsZero ()
   SetCoefficients(coeff.setZero());
 }
 
-ComMotion::PhaseInfoVec
-ComMotion::GetPhases () const
-{
-  return phases_;
-}
-
-PhaseInfo
-ComMotion::GetCurrentPhase (double t_global) const
-{
-  double t = 0;
-  for (const auto& phase: phases_) {
-    t += phase.duration_;
-
-    if (t >= t_global) // at junctions, returns previous phase (=)
-      return phase;
-  }
-  assert(false); // this should never be reached
-}
-
 ComMotion::VecScalar
 ComMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coords3D dim) const
 {
@@ -57,10 +39,6 @@ ComMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coor
 
   return linear_approx;
 }
-
-
-
-
 
 } /* namespace zmp */
 } /* namespace xpp */

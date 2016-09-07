@@ -34,9 +34,7 @@ public:
   virtual ~ComSpline4 ();
   PtrClone clone() const override;
 
-  void Init(const Vector2d& start_cog_p,
-            const Vector2d& start_cog_v,
-            const PhaseInfoVec& phases);
+  void SetStartPosVel (const Vector2d& start_cog_p, const Vector2d& start_cog_v);
 
   void SetCoefficients(const VectorXd& optimized_coeff) override;
   void SetEndAtStart();

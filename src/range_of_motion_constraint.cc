@@ -14,6 +14,8 @@
 namespace xpp {
 namespace zmp {
 
+using namespace xpp::utils::coords_wrapper;
+
 RangeOfMotionConstraint::RangeOfMotionConstraint ()
 {
 }

@@ -28,17 +28,6 @@ ComSpline6::clone () const
   return PtrClone(new ComSpline6(*this));
 }
 
-void
-ComSpline6::Init (const PhaseInfoVec& phases)
-{
-  ComSpline::Init(phases);
-
-  // initialize all coefficients to zero
-  Eigen::VectorXd abcd(GetTotalFreeCoeff());
-  abcd.setZero();
-  SetCoefficients(abcd);
-}
-
 ComSpline6::Derivatives
 ComSpline6::GetInitialFreeMotions () const
 {

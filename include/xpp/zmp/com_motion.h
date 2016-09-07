@@ -8,15 +8,14 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_MOTION_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_MOTION_H_
 
-#include "phase_info.h"
 #include <xpp/utils/geometric_structs.h>
+#include <xpp/zmp/phase_info.h>
+
 #include <Eigen/Sparse>
 #include <memory>
 
 namespace xpp {
 namespace zmp {
-
-using namespace xpp::utils::coords_wrapper;
 
 /** Abstracts the Center of Mass (CoM) motion of any system.
   *
@@ -30,18 +29,20 @@ public:
   typedef xpp::utils::Point2d Point2d;
   typedef xpp::utils::VecScalar VecScalar;
   typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
-  typedef std::vector<PhaseInfo> PhaseInfoVec;
   typedef std::shared_ptr<ComMotion> PtrS;
   typedef std::unique_ptr<ComMotion> PtrU;
 
   ComMotion ();
   virtual ~ComMotion ();
 
+  virtual void Init(const PhaseVec& phases) = 0;
+
   /** @returns the Center of Mass position, velocity and acceleration in 2D.
     *
     * @param t_global current time
     */
   virtual Point2d GetCom(double t_global) const = 0;
+  virtual double GetTotalTime() const = 0;
 
   /** Set all coefficients to fully describe the CoM motion.
     *
@@ -60,24 +61,8 @@ public:
     * @param dxdt wheather Jacobian for position, velocity, acceleration or jerk is desired
     * @param dim which motion dimension (x,y) the jacobian represents.
     */
-  virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
-
-  virtual double GetTotalTime() const = 0;
-
-  /** @brief Gets the phase (stance, swing) at this current instance of time.
-    *
-    * This allows to pair the current instance with the correct footholds
-    * and support polygon. A phase is a motion during which the dynamics are
-    * continuous (stance, swing, flight).
-    */
-  PhaseInfo GetCurrentPhase(double t_global) const;
-
-  /** @brief Returns a vector of phases, where no phase is duplicated.
-    *
-    * This class should not have to know e.g. how many splines are used
-    * to represent a stance phase.
-    */
-  PhaseInfoVec GetPhases() const;
+  virtual JacobianRow GetJacobian(double t_global, utils::MotionDerivative dxdt,
+                                                   utils::Coords3D dim) const = 0;
 
   /** @brief Creates a linear approximation of the motion at the current coefficients.
     *
@@ -90,14 +75,12 @@ public:
     *
     * @return The Jacobian J(u*) evaluated at u* and the corresponding offset x(u*).
     */
-  VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative, Coords3D dim) const;
+  VecScalar GetLinearApproxWrtCoeff(double t_global, utils::MotionDerivative,
+                                                     utils::Coords3D dim) const;
 
   /** @brief Copies the derived class in the heap and returns a pointer to it.
     */
   virtual PtrU clone() const = 0;
-
-protected:
-  PhaseInfoVec phases_;
 };
 
 } /* namespace zmp */

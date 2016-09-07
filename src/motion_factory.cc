@@ -36,7 +36,8 @@ MotionFactory::CreateComMotion (const PhaseVec& phases,
                                 const Vector2d& start_cog_v)
 {
   auto com_spline = std::make_shared<ComSpline4>();
-  com_spline->Init(start_cog_p, start_cog_v, phases);
+  com_spline->Init(phases);
+  com_spline->SetStartPosVel(start_cog_p, start_cog_v);
   com_spline->SetEndAtStart();
   return com_spline;
 }

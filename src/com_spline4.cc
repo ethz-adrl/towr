@@ -30,11 +30,8 @@ ComSpline4::clone () const
 }
 
 void
-ComSpline4::Init (const Vector2d& start_cog_p, const Vector2d& start_cog_v,
-                  const PhaseInfoVec& phases)
+ComSpline4::SetStartPosVel (const Vector2d& start_cog_p, const Vector2d& start_cog_v)
 {
- ComSpline::Init(phases);
-
  start_cog_p_ = start_cog_p;
  start_cog_v_ = start_cog_v;
 

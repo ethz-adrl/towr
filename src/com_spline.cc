@@ -23,7 +23,7 @@ ComSpline::~ComSpline ()
 }
 
 void
-ComSpline::Init (const PhaseInfoVec& phases)
+ComSpline::Init (const PhaseVec& phases)
 {
   int id = 0;
 
@@ -47,8 +47,6 @@ ComSpline::Init (const PhaseInfoVec& phases)
     }
 
   }
-
-  phases_ = phases; // motion_ref remove this
 
   splines_initialized_ = true;
 }

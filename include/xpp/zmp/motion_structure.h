@@ -57,7 +57,23 @@ public:
             double t_swing, double t_stance, bool insert_initial_stance,
             bool insert_final_stance);
 
-  void SetDisretization(double dt);
+
+  double GetTotalTime() const;
+
+  /** @brief Gets the phase (stance, swing) at this current instance of time.
+    *
+    * This allows to pair the current instance with the correct footholds
+    * and support polygon. A phase is a motion during which the dynamics are
+    * continuous (stance, swing, flight).
+    */
+  PhaseInfo GetCurrentPhase(double t_global) const;
+
+  /** @brief Returns a vector of phases, where no phase is duplicated.
+    *
+    * This class should not have to know e.g. how many splines are used
+    * to represent a stance phase.
+    */
+  PhaseVec GetPhases() const;
 
   /** @returns time samples with information about the structure of the motion.
     *
@@ -69,9 +85,8 @@ public:
     */
   MotionInfoVec GetContactInfoVec() const;
 
+  void SetDisretization(double dt);
   int GetTotalNumberOfDiscreteContacts() const;
-
-  PhaseVec GetPhases() const;
 
 private:
   StartStance start_stance_;

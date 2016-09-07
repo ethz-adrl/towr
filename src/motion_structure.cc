@@ -22,7 +22,6 @@ MotionStructure::~MotionStructure ()
   // TODO Auto-generated destructor stub
 }
 
-
 void
 MotionStructure::Init (const StartStance& start_stance,
                        const LegIDVec& step_legs,
@@ -64,6 +63,29 @@ MotionStructure::BuildPhases (int steps, double t_swing, double t_stance,
 
   return phases;
 }
+
+PhaseInfo
+MotionStructure::GetCurrentPhase (double t_global) const
+{
+  double t = 0;
+  for (const auto& phase: phases_) {
+    t += phase.duration_;
+
+    if (t >= t_global) // at junctions, returns previous phase (=)
+      return phase;
+  }
+  assert(false); // this should never be reached
+}
+
+double
+MotionStructure::GetTotalTime() const
+{
+  double T = 0.0;
+  for (const auto& phase: phases_)
+    T += phase.duration_;
+  return T;
+}
+
 
 MotionStructure::MotionInfoVec
 MotionStructure::GetContactInfoVec () const
