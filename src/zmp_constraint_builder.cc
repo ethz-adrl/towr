@@ -266,7 +266,6 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
 
   // for every time t
   int c=0; // constraint counter
-  // refactor exclude times where the splines transition between disjoint support polygons
   for (const auto& t : times_) {
 
     // the current position of the zero moment point
