@@ -43,7 +43,7 @@ public:
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint ();
 
-  void Init(const ComMotion&, const Contacts&, RobotPtrU);
+  void Init(const ComMotion&, const Contacts&, const MotionStructure&, RobotPtrU);
   void UpdateVariables(const OptimizationVariables*) final;
   Jacobian GetJacobianWithRespectTo (std::string var_set) const final;
 

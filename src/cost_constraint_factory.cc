@@ -73,13 +73,14 @@ CostConstraintFactory::CreateZmpConstraint (const ComMotion& com_motion,
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateRangeOfMotionConstraint (
-    const ComMotion& com_motion, const Contacts& contacts)
+CostConstraintFactory::CreateRangeOfMotionConstraint (const ComMotion& com_motion,
+                                                      const Contacts& contacts,
+                                                      const MotionStructure& motion_structure)
 {
   auto constraint = std::make_shared<RangeOfMotionBox>();
   auto hyq = std::unique_ptr<ARobotInterface>(new xpp::hyq::HyqRobotInterface());
 
-  constraint->Init(com_motion, contacts, std::move(hyq));
+  constraint->Init(com_motion, contacts, motion_structure, std::move(hyq));
   return constraint;
 }
 

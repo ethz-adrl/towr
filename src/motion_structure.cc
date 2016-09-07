@@ -5,10 +5,7 @@
  @brief   Defines the MotionStructure class.
  */
 
-// motion_ref these should both be removed (see UML, only uni-association)
 #include <xpp/zmp/motion_structure.h>
-#include <xpp/zmp/com_spline.h> // spline times
-
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/phase_info.h>
 
@@ -17,21 +14,14 @@ namespace zmp {
 
 MotionStructure::MotionStructure ()
 {
-  // TODO Auto-generated constructor stub
-}
-
-MotionStructure::MotionStructure (const LegIDVec& start_legs,
-                                  const LegIDVec& step_legs,
-                                  const PhaseVec& phases,
-                                  double dt)
-{
-  Init(start_legs, step_legs, phases, dt);
+  dt_ = 0.2; //standart discretization
 }
 
 MotionStructure::~MotionStructure ()
 {
   // TODO Auto-generated destructor stub
 }
+
 
 void
 MotionStructure::Init (const StartStance& start_stance,
@@ -40,40 +30,39 @@ MotionStructure::Init (const StartStance& start_stance,
                        bool insert_initial_stance,
                        bool insert_final_stance)
 {
-  // motion_ref add IDs and even footholds here
-  phases_.clear();
+  phases_ = BuildPhases(step_legs.size(), t_swing, t_stance, insert_initial_stance,
+                        insert_final_stance);
+  start_stance_ = start_stance;
+  steps_ = step_legs;
+  cache_needs_updating_ = true;
+}
+
+MotionStructure::PhaseVec
+MotionStructure::BuildPhases (int steps, double t_swing, double t_stance,
+                              bool insert_init, bool insert_final) const
+{
+  PhaseVec phases;
 
   int id = 0;
   int n_completed_steps = 0;
 
-  if (insert_initial_stance) {
+  if (insert_init) {
     PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, t_stance);
-    phases_.push_back(phase);
+    phases.push_back(phase);
   }
 
   // steps
-  for (int step=0; step<step_legs.size(); ++step) {
+  for (int step=0; step<steps; ++step) {
     PhaseInfo phase(PhaseInfo::kStepPhase, n_completed_steps++, id++, t_swing);
-    phases_.push_back(phase);
+    phases.push_back(phase);
   }
 
-  if (insert_final_stance) {
+  if (insert_final) {
     PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, 0.55);
-    phases_.push_back(phase);
+    phases.push_back(phase);
   }
 
-}
-
-
-void
-MotionStructure::Init (const LegIDVec& start_legs, const LegIDVec& step_legs,
-                       const PhaseVec& phases, double dt)
-{
-  start_stance_   = start_legs;
-  steps_          = step_legs;
-  phases_         = phases;
-  dt_             = dt;
-  cache_needs_updating_ = true;
+  return phases;
 }
 
 MotionStructure::MotionInfoVec
@@ -147,5 +136,13 @@ MotionStructure::GetPhases () const
   return phases_;
 }
 
+void
+MotionStructure::SetDisretization (double dt)
+{
+  dt_ = dt;
+  cache_needs_updating_ = true;
+}
+
 } /* namespace zmp */
 } /* namespace xpp */
+

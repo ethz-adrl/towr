@@ -11,10 +11,6 @@
 #include <xpp/hyq/leg_data_map.h>
 #include <vector>
 
-// motion_ref these should both be removed (see UML, only uni-association)
-#include <xpp/zmp/motion_structure.h>
-#include <xpp/zmp/com_spline.h> // spline times
-
 namespace xpp {
 
 namespace hyq {
@@ -55,27 +51,13 @@ public:
 
   MotionStructure ();
 
-  // motion_ref remove the phases term from this
-  MotionStructure (const LegIDVec& start_legs, const LegIDVec& step_legs,
-                   const PhaseVec& phases, double dt);
   virtual ~MotionStructure ();
-
-
-
-
 
   void Init(const StartStance& start_stance, const LegIDVec& step_legs,
             double t_swing, double t_stance, bool insert_initial_stance,
             bool insert_final_stance);
 
-
-
-
-
-  // motion_ref remove the phases term from this
-  void Init(const LegIDVec& start_legs, const LegIDVec& step_legs,
-            const PhaseVec& phases, double dt);
-
+  void SetDisretization(double dt);
 
   /** @returns time samples with information about the structure of the motion.
     *
@@ -92,10 +74,13 @@ public:
   PhaseVec GetPhases() const;
 
 private:
-  double dt_; ///< discretization interval [s]
-  LegIDVec start_stance_;
+  StartStance start_stance_;
   LegIDVec steps_;
   PhaseVec phases_;
+  double dt_; ///< discretization interval [s]
+
+  PhaseVec BuildPhases(int steps, double t_swing, double t_stance,
+                       bool insert_init, bool insert_final) const;
 
   // the values don't really define the structure of the class -> mutable
   MotionInfoVec CalcContactInfoVec() const;

@@ -86,7 +86,8 @@ NlpFacade::SolveNlp(const State& initial_state,
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, *com_motion));
   constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(*com_motion));
   constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(*com_motion, contacts, robot_height));
-  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts ));
+  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts,
+                                                                                   motion_structure));
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint());
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 

@@ -23,6 +23,7 @@ class AConstraint;
 class ACost;
 class ComMotion;
 class OptimizationVariablesInterpreter;
+class MotionStructure;
 
 /** Builds all types of constraints/costs for the user.
   *
@@ -48,7 +49,8 @@ public:
   static ConstraintPtr CreateZmpConstraint(const ComMotion& com_motion,
                                            const Contacts& contacts,
                                            double walking_height);
-  static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&);
+  static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&,
+                                                     const MotionStructure&);
 //  static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateObstacleConstraint();
 

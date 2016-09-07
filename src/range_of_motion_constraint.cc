@@ -25,26 +25,15 @@ RangeOfMotionConstraint::~RangeOfMotionConstraint ()
 void
 RangeOfMotionConstraint::Init (const ComMotion& com_motion,
                                const Contacts& contacts,
+                               const MotionStructure& motion_structure,
                                RobotPtrU p_robot)
 {
-  com_motion_ = com_motion.clone();
-  contacts_   = ContactPtrU(new Contacts(contacts));
-  robot_      = std::move(p_robot);
+  com_motion_       = com_motion.clone();
+  contacts_         = ContactPtrU(new Contacts(contacts));
+  motion_structure_ = motion_structure;
+  robot_            = std::move(p_robot);
 
-  auto start_feet = contacts_->GetStartStance();
-  MotionStructure::LegIDVec start_legs;
-  for (const auto& f : start_feet) {
-    start_legs.push_back(f.leg);
-  }
-
-  auto step_feet = contacts_->GetFootholds();
-  MotionStructure::LegIDVec step_legs;
-  for (const auto& f : step_feet) {
-    step_legs.push_back(f.leg);
-  }
-
-  double dt = 0.3;   // the times at which to evalute the constraint
-  motion_structure_.Init(start_legs, step_legs, com_motion_->GetPhases(), dt);
+  motion_structure_.SetDisretization(0.3);
 
   SetJacobianWrtContacts(jac_wrt_contacts_);
   SetJacobianWrtMotion(jac_wrt_motion_);
