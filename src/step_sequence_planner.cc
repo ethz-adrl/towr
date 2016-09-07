@@ -78,7 +78,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     LegIDVec step_sequence;
-    int n_steps = 4; // how many steps to take
+    int n_steps = 1; // how many steps to take
 
     for (int step=0; step<n_steps/*req_steps_per_leg*4*/; ++step) {
       step_sequence.push_back(NextSwingLeg(last_swingleg));
@@ -96,12 +96,11 @@ bool
 StepSequencePlanner::StartWithStancePhase () const
 {
 
-//  return false;
+//  return true;
 
 //  if (curr_state_.v.norm() > 0.1) {
 //    return false;
 //  } else
-    return true;
 
 
 

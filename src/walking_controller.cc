@@ -167,20 +167,20 @@ void WalkingController::IntegrateOptimizedTrajectory()
   spliner_.Init(P_des_, opt_splines_, opt_footholds_, robot_height_);
 
 
-  // when to use new trajectory. If a step is planned, switch only after the
-  // step has been executed
-  if (opt_footholds_.empty())
-    switch_node_ = spliner_.GetNode(1);
-  else
-    for (auto spline : opt_splines_)
-      if (!spline.DeprecatedIsFourLegSupport()) { // first step
-        int node_id = spline.GetId()+1;
-        switch_node_ = spliner_.GetNode(node_id);
-        break;
-      }
+//  // when to use new trajectory. If a step is planned, switch only after the
+//  // step has been executed
+//  if (opt_footholds_.empty())
+//    switch_node_ = spliner_.GetNode(1);
+//  else
+//    for (auto spline : opt_splines_)
+//      if (!spline.DeprecatedIsFourLegSupport()) { // first step
+//        int node_id = spline.GetId()+1;
+//        switch_node_ = spliner_.GetNode(node_id);
+//        break;
+//      }
 
 
-
+  switch_node_ = spliner_.GetNode(1);
 
 
 
