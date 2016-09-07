@@ -36,56 +36,61 @@ MotionStructure::Init (const StartStance& start_stance,
 //                        insert_final_stance);
 
 
-  std::vector<Contact> active_contacts;
-  for (auto c : start_stance)
-    active_contacts.push_back(Contact(Foothold::kFixedByStart, static_cast<EndeffectorID>(c.leg)));
-
-
-  int phase_id = 0;
-  int n_completed_steps = 0;
+//  std::vector<Contact> active_contacts;
+//  for (auto c : start_stance)
+//    active_contacts.push_back(Contact(Foothold::kFixedByStart, static_cast<EndeffectorID>(c.leg)));
 
   if (insert_initial_stance) {
-    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, phase_id++, t_stance);
-    phase.contacts_ = active_contacts;
+    PhaseInfo phase(PhaseInfo::kStancePhase, 0, t_stance);
+    phase.fixed_contacts_ = start_stance;
+//    phase.contacts_ = active_contacts;
     phases_.push_back(phase);
   }
 
 
   // the steps
   for (uint i=0; i<step_legs.size(); ++i) {
+    PhaseInfo phase = phases_.back();
 
-    // remove current ee from list of active contacts
-    auto it = std::find_if(active_contacts.begin(), active_contacts.end(),
+
+    // remove current swingleg from list of active contacts
+    auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
+                           [&](const Foothold& f) {return f.leg == step_legs.at(i);});
+
+    if (it_fixed != phase.fixed_contacts_.end()) // step found in initial stance
+      phase.fixed_contacts_.erase(it_fixed);     // remove contact, because now swinging leg
+
+
+
+    // remove current swingleg from last free contacts
+    auto it_free = std::find_if(phase.contacts_.begin(), phase.contacts_.end(),
                            [&](const Contact& c) {return c.ee == static_cast<EndeffectorID>(step_legs.at(i));});
 
-    if (it != active_contacts.end()) // step found in initial stance
-      active_contacts.erase(it);     // remove contact, because now swinging leg
+    if (it_free != phase.contacts_.end()) // step found in initial stance
+      phase.contacts_.erase(it_free);     // remove contact, because now swinging leg
+
+
 
     // add newly made contact of previous swing
     if (i > 0)
-      active_contacts.push_back(Contact(i-1, static_cast<EndeffectorID>(step_legs.at(i-1))));
+      phase.contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(step_legs.at(i-1))));
 
-    PhaseInfo phase(PhaseInfo::kStepPhase, n_completed_steps++, phase_id++, t_swing);
-    phase.contacts_ = active_contacts;
+    phase.id_++;
+    phase.duration_ = t_swing;
     phases_.push_back(phase);
   }
 
   // the final stance
   if (insert_final_stance) {
-    int last_id = step_legs.size()-1;
-    active_contacts.push_back(Contact(last_id, static_cast<EndeffectorID>(step_legs.back())));
-    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, phase_id++, 0.55);
-    phase.contacts_ = active_contacts;
+    PhaseInfo phase = phases_.back();
+
+    int last_contact_id = step_legs.size()-1;
+    phase.contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(step_legs.back())));
+
+    phase.id_++;
+    phase.duration_ = 0.55;
     phases_.push_back(phase);
   }
-
-
-
-
-
-
-
-
 
 
   start_stance_ = start_stance;

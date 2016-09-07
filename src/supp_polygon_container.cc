@@ -174,13 +174,39 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
 SupportPolygonContainer::VecSupportPolygon
 SupportPolygonContainer::AssignSupportPolygonsToPhases(const PhaseInfoVec& phases) const
 {
+
+//
+//  for (const auto& phase : phases) {
+//
+//    VecFoothold contacts;
+//    for (auto c : phase.contacts_) {
+//
+//      Foothold f;
+//      if (c.id != Foothold::kFixedByStart) {
+//        f = footholds_.at(c.id);
+//      } else {
+//        auto it = std::fin
+//
+//
+//        f = start_stance_.
+//      }
+//
+//
+//      contacts.push_back(Foothold(f));
+//    }
+//
+//  }
+
+
+
+
   using namespace xpp::zmp;
 
   VecSupportPolygon supp;
   for (const auto& phase : phases) {
     SupportPolygon curr_supp;
 
-
+//     motion_ref THIS IS ONLY COMMENTED FOR NOW, LOGICALLY BELONGS
     int prev_step = phase.n_completed_steps_-1;
     switch (phase.type_) {
       case PhaseInfo::kStepPhase: {
