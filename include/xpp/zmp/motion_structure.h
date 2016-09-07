@@ -9,6 +9,8 @@
 #define XPP_OPT_INCLUDE_XPP_ZMP_MOTION_STRUCTURE_H_
 
 #include <xpp/hyq/leg_data_map.h>
+#include "phase_info.h"
+
 #include <vector>
 
 namespace xpp {
@@ -19,7 +21,7 @@ class Foothold;
 
 namespace zmp {
 
-class PhaseInfo;
+//class PhaseInfo;
 
 /** @brief Holds all the information about the fixed aspects of the motion.
   *
@@ -33,15 +35,9 @@ class MotionStructure {
 public:
   struct MotionInfo {
 
-    struct Contact {
-      Contact(int _id, xpp::hyq::LegID _leg) : id(_id), leg(_leg) {}
-      int id;
-      xpp::hyq::LegID leg;
-    };
-
     MotionInfo() {};
     double time_;
-    std::vector<Contact> contacts;
+    PhaseInfo phase_;
   };
 
   using LegIDVec      = std::vector<xpp::hyq::LegID>;

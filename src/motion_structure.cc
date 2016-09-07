@@ -120,7 +120,7 @@ MotionStructure::CalcContactInfoVec () const
       contact_info.time_ = t_global+k*dt_;
 
       for (const auto& f : stance_feet)
-        contact_info.contacts.push_back(MotionInfo::Contact(f.id, f.leg));
+        contact_info.phase_.contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
 
       info.push_back(contact_info);
     }
@@ -133,7 +133,7 @@ MotionStructure::CalcContactInfoVec () const
   MotionInfo final_contacts;
   final_contacts.time_ = t_global;
   for (const auto& f : foothold_container.GetFinalFootholds())
-    final_contacts.contacts.push_back(MotionInfo::Contact(f.id, f.leg));
+    final_contacts.phase_.contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
 
   info.push_back(final_contacts);
 
@@ -147,7 +147,7 @@ MotionStructure::GetTotalNumberOfDiscreteContacts () const
 
   int i = 0;
   for (auto node : contact_info_vec)
-    i += node.contacts.size();
+    i += node.phase_.contacts_.size();
 
   return i;
 }
