@@ -171,15 +171,6 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
   return end_cog/_LEGS_COUNT;
 }
 
-//SupportPolygon
-//SupportPolygonContainer::GetSupportPolygon (double t_global,
-//                                            const ComMotion& com_motion) const
-//{
-//  auto supp = AssignSupportPolygonsToPhases(com_motion);
-//  int phase = com_motion.GetCurrentPhase(t_global).id_;
-//  return supp.at(phase);
-//}
-
 SupportPolygonContainer::VecSupportPolygon
 SupportPolygonContainer::AssignSupportPolygonsToPhases(const PhaseInfoVec& phases) const
 {
@@ -246,21 +237,6 @@ SupportPolygonContainer::DisJointSupportPolygons(LegID prev, LegID next)
   if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
 
   return false;
-}
-
-SupportPolygonContainer::PosXY
-SupportPolygonContainer::GetNominalPositionInBase (LegID leg) const
-{
-  const double x_nominal_b = 0.36; // 0.4
-  const double y_nominal_b = 0.33; // 0.4
-
-  switch (leg) {
-    case hyq::LF: return PosXY( x_nominal_b,   y_nominal_b); break;
-    case hyq::RF: return PosXY( x_nominal_b,  -y_nominal_b); break;
-    case hyq::LH: return PosXY(-x_nominal_b,   y_nominal_b); break;
-    case hyq::RH: return PosXY(-x_nominal_b,  -y_nominal_b); break;
-    default: assert(false); // this should never happen
-  }
 }
 
 } /* namespace hyq */
