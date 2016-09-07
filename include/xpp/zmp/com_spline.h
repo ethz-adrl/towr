@@ -99,8 +99,6 @@ protected:
   VecPolynomials polynomials_;
 
   void Init(const PhaseInfoVec& phases);
-  // motion_ref remove this
-  void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
   void CheckIfSplinesInitialized() const;
 
 
@@ -114,10 +112,6 @@ private:
 
   virtual int NumFreeCoeffPerSpline() const = 0;
   virtual std::vector<SplineCoeff> GetFreeCoeffPerSpline() const = 0;
-
-  // motion_ref remove these
-  void AddPolynomialStepSequence(int step_count, double t_swing);
-  void AddStancePolynomial(double t_stance);
 
   static double GetLocalTime(double t_global, const VecPolynomials& splines);
   bool splines_initialized_ = false;

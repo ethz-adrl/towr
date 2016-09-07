@@ -34,7 +34,7 @@ public:
 
   /** @attention ComMotion is downcast to ComSpline.
     */
-  LinearSplineEquations (const ComMotion& com_spline);
+  LinearSplineEquations (const ComMotion&);
   virtual ~LinearSplineEquations ();
 
 

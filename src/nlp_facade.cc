@@ -112,7 +112,7 @@ NlpFacade::SolveNlp(const State& initial_state,
     std::cout << f << std::endl;
 
   std::cout << "\npolynomials:\n";
-  auto com_spline = dynamic_cast<ComSpline*>(com_motion.get());
+  auto com_spline = std::dynamic_pointer_cast<ComSpline> (com_motion);
   for (auto poly : com_spline->GetPolynomials()) {
     std::cout << poly << std::endl;
   }

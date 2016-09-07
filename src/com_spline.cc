@@ -53,91 +53,6 @@ ComSpline::Init (const PhaseInfoVec& phases)
   splines_initialized_ = true;
 }
 
-void
-ComSpline::Init (int step_count, const SplineTimes& times,
-                 bool insert_initial_stance)
-{
-  polynomials_.clear();
-
-  // build the spline structure
-  if (insert_initial_stance) {
-//    const int n_stance_splines = 2; // 3 allows quicker reaction
-//    double t = times.t_stance_initial_/n_stance_splines;
-//    for (int i=0; i<n_stance_splines; ++i)
-//      AddStancePolynomial(t);
-
-    double t_reaction = 0.15;
-
-
-    AddStancePolynomial(t_reaction);
-    AddStancePolynomial(times.t_stance_initial_-t_reaction);
-  }
-
-  AddPolynomialStepSequence(step_count, times.t_swing_);
-
-  AddStancePolynomial(0.05);
-  AddStancePolynomial( 0.5);
-}
-
-void
-ComSpline::AddPolynomialStepSequence (int step_count, double t_swing)
-{
-  unsigned int spline_id = polynomials_.empty() ? 0 : polynomials_.back().GetId()+1;
-  int phase_id           = phases_.empty() ? 0 : phases_.back().id_+1;
-
-
-  int n_splines_per_step = 1;
-  for (int step=0; step<step_count; ++step) {
-
-    PhaseInfo phase(PhaseInfo::kStepPhase, step, phase_id, t_swing);
-    for (int i=0; i<n_splines_per_step; ++i) {
-
-
-      ComPolynomial spline(spline_id++, t_swing/n_splines_per_step, phase);
-      spline.SetStep(step);
-      polynomials_.push_back(spline);
-    }
-
-    phases_.push_back(phase);
-    phase_id++;
-  }
-
-
-  splines_initialized_ = true;
-}
-
-void
-ComSpline::AddStancePolynomial (double t_stance)
-{
-  int spline_id;
-  PhaseInfo phase;
-  if (polynomials_.empty()) {
-    spline_id = 0;
-    phase = PhaseInfo(PhaseInfo::kStancePhase, 0, 0, t_stance);
-    phases_.push_back(phase);
-    polynomials_.push_back(ComPolynomial(spline_id, t_stance, phase));
-  } else {
-    spline_id = polynomials_.back().GetId()+1;
-
-    // only add new phase if previous one wasn't also a stance phase, otherwise just lengthen phase
-    if (phases_.back().type_ == PhaseInfo::kStepPhase ) {
-      PhaseInfo last_phase = phases_.back();
-      phase.type_ = PhaseInfo::kStancePhase;
-      phase.duration_ = t_stance;
-      phase.n_completed_steps_ = last_phase.n_completed_steps_+1;
-      phase.id_ = last_phase.id_+1;
-      phases_.push_back(phase);
-      polynomials_.push_back(ComPolynomial(spline_id, t_stance, phases_.back()));
-    } else {
-      phases_.back().duration_ += t_stance; // phase is now longer
-      polynomials_.push_back(ComPolynomial(spline_id, t_stance, phases_.back()));
-    }
-
-  }
-
-  splines_initialized_ = true;
-}
-
 double
 ComSpline::GetTotalTime(const VecPolynomials& splines)
 {
@@ -188,30 +103,6 @@ ComSpline::GetPolynomialID(double t_global, const VecPolynomials& splines)
    }
    assert(false); // this should never be reached
 }
-
-//PhaseInfo
-//ComSpline::GetCurrentPhase (double t_global) const
-//{
-//  int id = GetPolynomialID(t_global);
-//  return polynomials_.at(id).phase_;
-//}
-//
-//ComSpline::PhaseInfoVec
-//ComSpline::GetPhases () const
-//{
-//  PhaseInfoVec phases;
-//
-//  int prev_id = -1;
-//  for (const auto& s : polynomials_) {
-//    PhaseInfo curr = s.phase_;
-//    if (curr.id_ != prev_id) { // multiple splines can correspond to only one phase
-//      phases.push_back(curr);
-//      prev_id = curr.id_;
-//    }
-//  }
-//
-//  return phases;
-//}
 
 double
 ComSpline::GetLocalTime(double t_global, const VecPolynomials& splines)

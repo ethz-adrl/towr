@@ -14,11 +14,11 @@ namespace zmp {
 using namespace xpp::utils;
 using namespace xpp::utils::coords_wrapper; //kPos,kVel,kAcc,kJerk
 
-LinearSplineEquations::LinearSplineEquations (const ComMotion& com_spline )
+LinearSplineEquations::LinearSplineEquations (const ComMotion& com_motion )
 {
-  // motion_ref use dynamic pointer cast here as well?
   // cast com motion to spline, because i need some specific features of that
-  auto base_ptr = com_spline.clone();
+  auto base_ptr = com_motion.clone();
+
   ComSpline *tmp = dynamic_cast<ComSpline*>(base_ptr.get());
 
   if(tmp != nullptr)

@@ -29,9 +29,6 @@ public:
 
   void Init(const PhaseInfoVec& phases);
 
-  // remove this
-  void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
-
   void SetCoefficients(const VectorXd& optimized_coeff) override;
 
   Derivatives GetInitialFreeMotions()  const;
