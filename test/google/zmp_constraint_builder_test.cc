@@ -9,6 +9,7 @@
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/com_spline.h>
 #include <xpp/zmp/motion_factory.h>
+#include <xpp/zmp/motion_structure.h>
 #include <gtest/gtest.h>
 
 namespace xpp {
@@ -31,18 +32,27 @@ TEST(ZmpConstraintBuilderTest, GetTimesDisjointSwitches)
   SupportPolygonContainer supp_polygons;
   supp_polygons.Init(start_stance, steps, SupportPolygon::GetDefaultMargins());
 
-  auto com_spline = MotionFactory::CreateComMotion(steps.size(),
-                                                   SplineTimes(0.2, 0.3), true);
+
+  std::vector<xpp::hyq::LegID> legs;
+  for (const auto& s : steps) {
+    legs.push_back(static_cast<xpp::hyq::LegID>(s.id));
+  }
+
+  // create the fixed motion structure
+  MotionStructure motion_structure;
+  motion_structure.Init({}, legs, SplineTimes(0.2, 0.3), true, true);
+  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
+
 
   ZmpConstraintBuilder builder;
-  builder.Init(*com_spline, supp_polygons, 0.58, 0.1);
+  builder.Init(*com_motion, supp_polygons, 0.58, 0.1);
 
   auto t_switch = builder.GetTimesDisjointSwitches();
   EXPECT_FLOAT_EQ(0.5, t_switch.at(0)); // RF -> LH
   EXPECT_FLOAT_EQ(0.9, t_switch.at(1)); // LF -> RH
 
 
-  std::cout << "GetTotalTIme: " << com_spline->GetTotalTime();
+  std::cout << "GetTotalTIme: " << com_motion->GetTotalTime();
   std::cout << "\nt_switch_:\n";
   for (auto t : t_switch)
     std::cout << t << std::endl;

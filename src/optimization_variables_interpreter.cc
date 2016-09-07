@@ -22,11 +22,11 @@ OptimizationVariablesInterpreter::~OptimizationVariablesInterpreter ()
 
 void
 OptimizationVariablesInterpreter::Init (
-    const ComSplinePtr& splines,
+    const std::shared_ptr<ComMotion>& com_motion,
     const SupportPolygonContainer& support_polygon_container,
     double robot_height)
 {
-  spline_structure_ = splines;
+  spline_structure_ = std::dynamic_pointer_cast<ComSpline> (com_motion);
   supp_polygon_container_ = support_polygon_container;
   robot_height_ = robot_height;
 

@@ -5,9 +5,12 @@
  @brief   Brief description
  */
 
-#include <gtest/gtest.h>
 #include <xpp/zmp/motion_factory.h>
+#include <xpp/zmp/motion_structure.h>
 #include <xpp/zmp/com_spline.h>
+#include <xpp/hyq/foothold.h>
+
+#include <gtest/gtest.h>
 
 namespace xpp {
 namespace zmp {
@@ -16,18 +19,21 @@ using namespace Eigen;
 
 TEST(ComSplineTest, PhaseInfo) {
 
-  auto com_motion = MotionFactory::CreateComMotion(Vector2d(0.0,0.0), // pos
-                                                   Vector2d(0.0,0.2), // vel
-                                                   2,
-                                                   SplineTimes(),
-                                                   true);
+  // create the fixed motion structure
+  MotionStructure motion_structure;
+  motion_structure.Init({}, {hyq::LH, hyq::LF}, SplineTimes(), true, true);
+
+  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(),
+                                                   Vector2d(0.0,0.0), // pos
+                                                   Vector2d(0.0,0.2) // vel
+                                                   );
 
   std::cout << "phases:\n";
   for (auto phase : com_motion->GetPhases()) {
     std::cout << phase << std::endl;
   }
 
-  auto com_spline = dynamic_cast<ComSpline*>(com_motion.get());
+  auto com_spline = std::dynamic_pointer_cast<ComSpline>(com_motion);
 
   std::cout << "polynomials:\n";
   for (auto poly : com_spline->GetPolynomials()) {

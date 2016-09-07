@@ -7,7 +7,10 @@
 
 #include <xpp/zmp/linear_spline_equations.h>
 #include <xpp/zmp/motion_factory.h>
+#include <xpp/zmp/motion_structure.h>
+#include <xpp/hyq/foothold.h>
 #include <xpp/zmp/com_spline.h>
+
 #include <gtest/gtest.h>
 
 namespace xpp {
@@ -18,10 +21,14 @@ using JacobianRow = ComMotion::JacobianRow;
 
 TEST(LinearSplineEquations, AccelerationCostTest)
 {
-  // create a spline made up of two fifth order polynomials
-  auto com_spline = MotionFactory::CreateComMotion(2, SplineTimes(0.7,0.4), false);
+  // create the fixed motion structure
+  MotionStructure motion_structure;
+  motion_structure.Init({}, {hyq::LH, hyq::LF}, SplineTimes(), true, true);
 
-  LinearSplineEquations eq(*com_spline);
+  // create a spline made up of two fifth order polynomials
+  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
+
+  LinearSplineEquations eq(*com_motion);
 
   auto M = eq.MakeAcceleration(1.0, 1.0);
 
@@ -29,8 +36,13 @@ TEST(LinearSplineEquations, AccelerationCostTest)
 
 TEST(LinearSplineEquations, JunctionTestPosition)
 {
+  // create the fixed motion structure
+  MotionStructure motion_structure;
+  motion_structure.Init({}, {hyq::LH, hyq::LF}, SplineTimes(), true, true);
+
   // create a spline made up of two fifth order polynomials
-  auto com_spline = MotionFactory::CreateComMotion(2, SplineTimes(0.7,0.4), false);
+  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
+  auto com_spline = std::dynamic_pointer_cast<ComSpline>(com_motion);
 
   // duration of first polynomial
   double T = com_spline->GetPolynomial(0).GetDuration();

@@ -19,13 +19,14 @@ class OptimizationVariablesInterpreter;
 
 class ZmpConstraint : public AConstraint {
 public:
-  typedef xpp::utils::StdVecEigen2d FootholdsXY;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  using Contacts = xpp::hyq::SupportPolygonContainer;
+  typedef xpp::utils::StdVecEigen2d FootholdsXY;
 
   ZmpConstraint ();
   virtual ~ZmpConstraint () {};
 
-  void Init(const OptimizationVariablesInterpreter& interpreter);
+  void Init(const ComMotion&, const Contacts&, double walking_height);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;

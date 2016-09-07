@@ -10,6 +10,7 @@
 
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/support_polygon_container.h>
+#include "com_motion.h"
 #include "com_spline.h"
 
 namespace xpp {
@@ -34,8 +35,8 @@ public:
   OptimizationVariablesInterpreter ();
   virtual ~OptimizationVariablesInterpreter ();
 
-  void Init(const ComSplinePtr& splines,
-            const SupportPolygonContainer& support_polygon_container,
+  void Init(const std::shared_ptr<ComMotion>& motion,
+            const SupportPolygonContainer&,
             double robot_height);
 
   void SetSplineCoefficients(const VectorXd& x_spline_coeff_abcd);

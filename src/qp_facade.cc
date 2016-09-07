@@ -7,6 +7,7 @@
 
 #include <xpp/zmp/qp_facade.h>
 
+#include <xpp/zmp/motion_structure.h>
 #include <xpp/zmp/motion_factory.h>
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/linear_spline_equations.h>
@@ -31,11 +32,22 @@ QpFacade::SolveQp(const State& initial_state,
                   bool start_with_com_shift,
                   double robot_height)
 {
-  // remember to comment in regularization when using this type of spline representation
-//  auto com_spline = MotionFactory::CreateComMotion(initial_state.p, initial_state.v , steps.size(), times,start_with_com_shift);
-  auto com_spline = MotionFactory::CreateComMotion(steps.size(), times, start_with_com_shift);
 
-  LinearSplineEquations spline_eq(*com_spline);
+  std::vector<xpp::hyq::LegID> step_sequence;
+  for (const auto& step : steps)
+    step_sequence.push_back(step.leg);
+
+
+  // create the fixed motion structure
+  MotionStructure motion_structure;
+  motion_structure.Init(start_stance, step_sequence, times, start_with_com_shift, true);
+
+  // remember to comment in regularization when using this type of spline representation
+//  auto com_spline = MotionFactory::CreateComMotion(motion_structure.GetPhases(),
+//                                                   initial_state.p, initial_state.v);
+  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
+
+  LinearSplineEquations spline_eq(*com_motion);
 
   MatrixXd acc = spline_eq.MakeAcceleration(1.0,3.0);
   cost_function_ = MatVec(acc.rows(), acc.cols());
@@ -65,8 +77,8 @@ QpFacade::SolveQp(const State& initial_state,
 
   // the failing could be related to not relaxing the node constraints
   // when switchting between disjoint support triangles
-  com_spline->SetCoefficientsZero();
-  ZmpConstraintBuilder zmp_constraint(*com_spline, supp_polygon_container, robot_height, 0.1);
+  com_motion->SetCoefficientsZero();
+  ZmpConstraintBuilder zmp_constraint(*com_motion, supp_polygon_container, robot_height, 0.1);
 
   MatrixXd jac_zmp_at_zero_coeff = zmp_constraint.GetJacobianWrtMotion();
   VectorXd distance_at_zero_coeff = zmp_constraint.GetDistanceToLineMargin();
@@ -82,8 +94,10 @@ QpFacade::SolveQp(const State& initial_state,
   std::cout << "Final state:\t" << final_state << std::endl;
 
   Eigen::VectorXd opt_abcd = EigenSolveQuadprog();
-  com_spline->SetCoefficients(opt_abcd);
+  com_motion->SetCoefficients(opt_abcd);
 
+  //still need the polynomials to plot, so ugly cast;
+  auto com_spline = std::dynamic_pointer_cast<ComSpline>(com_motion);
   return com_spline->GetPolynomials();
 }
 

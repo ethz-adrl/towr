@@ -63,7 +63,7 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   // create the fixed motion structure
   MotionStructure motion_structure;
-  motion_structure.Init(curr_stance, step_sequence, spline_times_, true, true);
+  motion_structure.Init(curr_stance, step_sequence, spline_times_, start_with_com_shift, true);
 
 
 
@@ -78,22 +78,18 @@ NlpFacade::SolveNlp(const State& initial_state,
   // position and velocity, avoiding jumps in state. For the other spline this is
   // a constraint, that might not be fulfilled.
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
-//  auto com_motion = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
+//  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
   opt_variables_->AddVariableSet(VariableNames::kFootholds, contacts.GetFootholdsInitializedToStart());
 
-  // save the framework of the optimization problem
-  OptimizationVariablesInterpreter interpreter;
-  interpreter.Init(com_motion, contacts, robot_height);
-  interpreting_observer_->SetInterpreter(interpreter);
 
   constraints_->ClearConstraints();
   constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, *com_motion));
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, *com_motion));
   constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(*com_motion));
-  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(interpreter));
+  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(*com_motion, contacts, robot_height));
   constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts ));
 //  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint());
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
@@ -133,6 +129,11 @@ NlpFacade::SolveNlp(const State& initial_state,
 //  snopt_problem->Init();
 //  int Cold = 0, Basis = 1, Warm = 2;
 //  snopt_problem->SolveSQP(Cold);
+
+  // for visualization mostly
+  OptimizationVariablesInterpreter interpreter;
+  interpreter.Init(com_motion, contacts, robot_height);
+  interpreting_observer_->SetInterpreter(interpreter);
 
   // Ipopt solving
   IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, *visualizer_); // just so it can poll the PublishMsg() method
@@ -175,6 +176,8 @@ NlpFacade::AttachVisualizer (IVisualizer& visualizer)
 NlpFacade::VecFoothold
 NlpFacade::GetFootholds () const
 {
+
+
   return interpreting_observer_->GetFootholds();
 }
 
