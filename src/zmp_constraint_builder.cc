@@ -27,49 +27,21 @@ ZmpConstraintBuilder::ZmpConstraintBuilder()
   contacts_     = nullptr;
 }
 
-ZmpConstraintBuilder::ZmpConstraintBuilder(const ComMotion& com_motion,
-                                           const SupportPolygonContainer& contacts,
-                                           double walking_height,
-                                           double dt)
-{
-  Init(com_motion, contacts, walking_height, dt);
-}
-
 ZmpConstraintBuilder::~ZmpConstraintBuilder()
 {
 }
 
 void
-ZmpConstraintBuilder::Init(const ComMotion& com_motion,
+ZmpConstraintBuilder::Init(const MotionStructure& structure,
+                           const ComMotion& com_motion,
                            const SupportPolygonContainer& supp,
                            double walking_height,
                            double dt)
 {
+  motion_structure_ = structure;
+  motion_structure_.SetDisretization(dt);
   com_motion_ = com_motion.clone();
   contacts_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
-
-
-
-
-
-//  // assign the fixed part of the motion
-//  auto start_feet = contacts_->GetStartStance();
-//  MotionStructure::LegIDVec start_legs;
-//  for (const auto& f : start_feet) {
-//    start_legs.push_back(f.leg);
-//  }
-//
-//  auto step_feet = contacts_->GetFootholds();
-//  MotionStructure::LegIDVec step_legs;
-//  for (const auto& f : step_feet) {
-//    step_legs.push_back(f.leg);
-//  }
-//
-//  motion_structure_.Init(start_legs, step_legs, com_motion_->GetPhases(), dt);
-
-
-
-
 
 
 

@@ -78,7 +78,8 @@ QpFacade::SolveQp(const State& initial_state,
   // the failing could be related to not relaxing the node constraints
   // when switchting between disjoint support triangles
   com_motion->SetCoefficientsZero();
-  ZmpConstraintBuilder zmp_constraint(*com_motion, supp_polygon_container, robot_height, 0.1);
+  ZmpConstraintBuilder zmp_constraint;
+  zmp_constraint.Init(motion_structure, *com_motion, supp_polygon_container, robot_height, 0.1);
 
   MatrixXd jac_zmp_at_zero_coeff = zmp_constraint.GetJacobianWrtMotion();
   VectorXd distance_at_zero_coeff = zmp_constraint.GetDistanceToLineMargin();

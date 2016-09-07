@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 
-//#include "motion_structure.h"
+#include "motion_structure.h"
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
@@ -24,6 +24,7 @@ namespace xpp {
 namespace zmp {
 
 class ComMotion;
+class MotionStructure;
 
 /** @brief Calculates the value and jacobian of the stability constraint.
   *
@@ -41,16 +42,14 @@ public:
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
   ZmpConstraintBuilder();
+  virtual ~ZmpConstraintBuilder ();
+
   /** @param motion  The CoM motion for which stability should be ensured.
     * @param support The support polygons comprised of the footsteps.
     * @param height  The height at which the robot is walking.
     * @param dt      The timestep[s] at which the constraint is enforced.
     */
-  ZmpConstraintBuilder(const ComMotion& motion, const SupportPolygonContainer& support,
-                       double height, double dt);
-  virtual ~ZmpConstraintBuilder ();
-
-  void Init(const ComMotion&, const SupportPolygonContainer&,
+  void Init(const MotionStructure&, const ComMotion&, const SupportPolygonContainer&,
             double walking_height, double dt);
 
   void Update(const VectorXd& motion_coeff, const VectorXd& footholds);
@@ -62,7 +61,7 @@ public:
 private:
   MotionPtrU com_motion_;
   SuppPolygonPtrU contacts_;
-//  MotionStructure motion_structure_;
+  MotionStructure motion_structure_;
 
 
 

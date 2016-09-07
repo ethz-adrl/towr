@@ -46,8 +46,9 @@ public:
   static ConstraintPtr CreateInitialConstraint(const State2d& init, const ComMotion&);
   static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ComMotion&);
   static ConstraintPtr CreateJunctionConstraint(const ComMotion&);
-  static ConstraintPtr CreateZmpConstraint(const ComMotion& com_motion,
-                                           const Contacts& contacts,
+  static ConstraintPtr CreateZmpConstraint(const MotionStructure&,
+                                           const ComMotion&,
+                                           const Contacts&,
                                            double walking_height);
   static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&,
                                                      const MotionStructure&);

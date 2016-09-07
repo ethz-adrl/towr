@@ -45,7 +45,7 @@ TEST(ZmpConstraintBuilderTest, GetTimesDisjointSwitches)
 
 
   ZmpConstraintBuilder builder;
-  builder.Init(*com_motion, supp_polygons, 0.58, 0.1);
+  builder.Init(motion_structure, *com_motion, supp_polygons, 0.58, 0.1);
 
   auto t_switch = builder.GetTimesDisjointSwitches();
   EXPECT_FLOAT_EQ(0.5, t_switch.at(0)); // RF -> LH
