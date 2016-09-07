@@ -17,6 +17,7 @@
 namespace xpp {
 namespace hyq {
 class SupportPolygonContainer;
+class SupportPolygon;
 }
 }
 
@@ -37,6 +38,7 @@ class ZmpConstraintBuilder {
 public:
   using SupportPolygonContainer = xpp::hyq::SupportPolygonContainer;
   using SuppPolygonPtrU = std::unique_ptr<xpp::hyq::SupportPolygonContainer>;
+  using VecSupportPolygon = std::vector<xpp::hyq::SupportPolygon>;
   using MotionPtrU      = std::unique_ptr<ComMotion>;
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
@@ -62,6 +64,8 @@ private:
   MotionPtrU com_motion_;
   SuppPolygonPtrU contacts_;
   MotionStructure motion_structure_;
+
+  VecSupportPolygon support_polygon_per_phase_;
 
 
 

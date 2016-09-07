@@ -42,9 +42,7 @@ ZmpConstraintBuilder::Init(const MotionStructure& structure,
   motion_structure_.SetDisretization(dt);
   com_motion_ = com_motion.clone();
   contacts_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
-
-
-
+  support_polygon_per_phase_ = contacts_->AssignSupportPolygonsToPhases(motion_structure_.GetPhases());
   walking_height_ = walking_height;
 
   // refactor remove this, all info contained in motion_info_
@@ -75,7 +73,7 @@ ZmpConstraintBuilder::GetTimesDisjointSwitches () const
   std::vector<double> t_disjoint_switches;
   double t_global = 0;
 
-  auto phases = com_motion_->GetPhases();
+  auto phases = motion_structure_.GetPhases();
   for(int i=0; i<phases.size()-1; ++i) {
 
     auto phase = phases.at(i);
@@ -104,7 +102,7 @@ ZmpConstraintBuilder::GetTimesForConstraitEvaluation (double dt, double t_cross)
   std::vector<double> t_switch = GetTimesDisjointSwitches();
   bool skip_timestep = false;
 
-  double T_first_phase = com_motion_->GetPhases().front().duration_;
+  double T_first_phase = motion_structure_.GetPhases().front().duration_;
 
   std::vector<double> t_constraint;
 
@@ -138,6 +136,7 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
 {
   com_motion_->SetCoefficients(motion_coeff);
   contacts_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
+  support_polygon_per_phase_ = contacts_->AssignSupportPolygonsToPhases(motion_structure_.GetPhases());
 
   variables_changed_ = true;
 }
@@ -145,13 +144,10 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
 int
 ZmpConstraintBuilder::GetNumberOfConstraints () const
 {
-//  return motion_structure_.GetTotalNumberOfDiscreteContacts();
-
-  auto supp_polygons = contacts_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
   int n_constraints = 0;
   for (auto t : times_) {
-    int phase_id  = com_motion_->GetCurrentPhase(t).id_;
-    NodeConstraints supp_line = supp_polygons.at(phase_id).GetLines();
+    int phase_id  = com_motion_->GetCurrentPhase(t).id_; // motion_ref this should also be motion struct
+    NodeConstraints supp_line = support_polygon_per_phase_.at(phase_id).GetLines();
     n_constraints += supp_line.size();
   }
 
@@ -163,9 +159,6 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
                                        Jacobian& jac_contacts) const
 {
   int n_contacts = contacts_->GetTotalFreeCoeff();
-
-  // know the lines of of each support polygon
-  auto supp_polygon = contacts_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
@@ -181,7 +174,7 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
 
 
     int phase_id  = com_motion_->GetCurrentPhase(t/*node_new.time_*/).id_;
-    NodeConstraints node = supp_polygon.at(phase_id).GetLines();
+    NodeConstraints node = support_polygon_per_phase_.at(phase_id).GetLines();
 
 
 //    hyq::SupportPolygon::SortCounterclockWise(node_new.legs_);
@@ -232,8 +225,6 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
 ZmpConstraintBuilder::VectorXd
 ZmpConstraintBuilder::GetDistanceToLineMargin () const
 {
-  auto supp_polygons = contacts_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
-
   VectorXd distance = VectorXd::Zero(n_constraints_);
 
   // for every time t
@@ -245,7 +236,7 @@ ZmpConstraintBuilder::GetDistanceToLineMargin () const
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
     int phase_id  = com_motion_->GetCurrentPhase(t).id_;
-    NodeConstraints supp_line = supp_polygons.at(phase_id).GetLines();
+    NodeConstraints supp_line = support_polygon_per_phase_.at(phase_id).GetLines();
 
     for (auto i=0; i<supp_line.size(); ++i)
       distance(c++) = supp_line.at(i).GetDistanceToPoint(zmp);
