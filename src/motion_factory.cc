@@ -24,6 +24,25 @@ MotionFactory::~MotionFactory ()
 }
 
 MotionFactory::ComSplinePtr
+MotionFactory::CreateComMotion (const PhaseVec& phases)
+{
+  auto com_spline = std::make_shared<ComSpline6>();
+  com_spline->Init(phases);
+  return com_spline;
+}
+
+MotionFactory::ComSplinePtr
+MotionFactory::CreateComMotion (const PhaseVec& phases,
+                                const Vector2d& start_cog_p,
+                                const Vector2d& start_cog_v)
+{
+  auto com_spline = std::make_shared<ComSpline4>();
+  com_spline->Init(start_cog_p, start_cog_v, phases);
+  com_spline->SetEndAtStart();
+  return com_spline;
+}
+
+MotionFactory::ComSplinePtr
 MotionFactory::CreateComMotion (int step_count, const SplineTimes& times,
                                 bool insert_initial_stance)
 {

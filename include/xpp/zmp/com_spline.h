@@ -17,6 +17,7 @@ namespace zmp {
 
 
 /** The duration of each polynome in the sequence that describes some trajectory */
+// motion_ref rename to phase times and move somewhere else
 struct SplineTimes
 {
   SplineTimes() {};
@@ -96,6 +97,9 @@ public:
 
 protected:
   VecPolynomials polynomials_;
+
+  void Init(const PhaseInfoVec& phases);
+  // motion_ref remove this
   void Init(int step_count, const SplineTimes& times, bool insert_initial_stance);
   void CheckIfSplinesInitialized() const;
 
@@ -111,6 +115,7 @@ private:
   virtual int NumFreeCoeffPerSpline() const = 0;
   virtual std::vector<SplineCoeff> GetFreeCoeffPerSpline() const = 0;
 
+  // motion_ref remove these
   void AddPolynomialStepSequence(int step_count, double t_swing);
   void AddStancePolynomial(double t_stance);
 

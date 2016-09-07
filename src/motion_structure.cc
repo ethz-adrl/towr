@@ -5,7 +5,10 @@
  @brief   Defines the MotionStructure class.
  */
 
+// motion_ref these should both be removed (see UML, only uni-association)
 #include <xpp/zmp/motion_structure.h>
+#include <xpp/zmp/com_spline.h> // spline times
+
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/phase_info.h>
 
@@ -29,6 +32,38 @@ MotionStructure::~MotionStructure ()
 {
   // TODO Auto-generated destructor stub
 }
+
+void
+MotionStructure::Init (const StartStance& start_stance,
+                       const LegIDVec& step_legs,
+                       const SplineTimes& times,
+                       bool insert_initial_stance,
+                       bool insert_final_stance)
+{
+  // motion_ref add IDs and even footholds here
+  phases_.clear();
+
+  int id = 0;
+  int n_completed_steps = 0;
+
+  if (insert_initial_stance) {
+    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, times.t_stance_initial_);
+    phases_.push_back(phase);
+  }
+
+  // steps
+  for (int step=0; step<step_legs.size(); ++step) {
+    PhaseInfo phase(PhaseInfo::kStepPhase, n_completed_steps++, id++, times.t_swing_);
+    phases_.push_back(phase);
+  }
+
+  if (insert_final_stance) {
+    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, 0.55);
+    phases_.push_back(phase);
+  }
+
+}
+
 
 void
 MotionStructure::Init (const LegIDVec& start_legs, const LegIDVec& step_legs,
@@ -104,6 +139,12 @@ MotionStructure::GetTotalNumberOfDiscreteContacts () const
     i += node.contacts.size();
 
   return i;
+}
+
+MotionStructure::PhaseVec
+MotionStructure::GetPhases () const
+{
+  return phases_;
 }
 
 } /* namespace zmp */

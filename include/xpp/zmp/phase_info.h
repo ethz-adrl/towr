@@ -9,12 +9,14 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_PHASE_INFO_H_
 
 #include <iostream>
+#include <vector>
 
 namespace xpp {
 namespace zmp {
 
 /** Information to represent different types of motion.
   */
+// motion_ref augment phase info with id's of legs in contact
 class PhaseInfo {
 public:
   enum Type {kStancePhase=0, kStepPhase, kFlightPhase} type_;
@@ -44,6 +46,8 @@ inline std::ostream& operator<<(std::ostream& out, const PhaseInfo& p)
 
   return out;
 }
+
+using PhaseVec = std::vector<PhaseInfo>;
 
 } /* namespace zmp */
 } /* namespace xpp */

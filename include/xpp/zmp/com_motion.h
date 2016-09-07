@@ -37,10 +37,9 @@ public:
   ComMotion ();
   virtual ~ComMotion ();
 
-  /** Get the Center of Mass position, velocity and acceleration.
+  /** @returns the Center of Mass position, velocity and acceleration in 2D.
     *
     * @param t_global current time
-    * @return pos/vel/acc/jerk in 2D.
     */
   virtual Point2d GetCom(double t_global) const = 0;
 

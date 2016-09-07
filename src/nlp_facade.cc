@@ -7,6 +7,7 @@
 
 #include <xpp/zmp/nlp_facade.h>
 
+#include <xpp/zmp/motion_structure.h>
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/cost_container.h>
@@ -59,13 +60,24 @@ NlpFacade::SolveNlp(const State& initial_state,
   auto step_sequence        = step_sequence_planner_->DetermineStepSequence();
   bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase();
 
+
+  // create the fixed motion structure
+  MotionStructure motion_structure;
+  motion_structure.Init(curr_stance, step_sequence, spline_times_, true, true);
+
+
+
+
+
+
+
   xpp::hyq::SupportPolygonContainer contacts;
   contacts.Init(curr_stance, step_sequence, margins);
 
   // insight: this spline might be better for MPC, as it always matches the initial
   // position and velocity, avoiding jumps in state. For the other spline this is
   // a constraint, that might not be fulfilled.
-  auto com_motion = MotionFactory::CreateComMotion(initial_state.p, initial_state.v, step_sequence.size(), spline_times_, start_with_com_shift);
+  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
 //  auto com_motion = MotionFactory::CreateComMotion(step_sequence.size(), spline_times_, start_with_com_shift);
 
   opt_variables_->ClearVariables();

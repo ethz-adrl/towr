@@ -11,7 +11,16 @@
 #include <xpp/hyq/leg_data_map.h>
 #include <vector>
 
+// motion_ref these should both be removed (see UML, only uni-association)
+#include <xpp/zmp/motion_structure.h>
+#include <xpp/zmp/com_spline.h> // spline times
+
 namespace xpp {
+
+namespace hyq {
+class Foothold;
+}
+
 namespace zmp {
 
 class PhaseInfo;
@@ -42,12 +51,28 @@ public:
   using LegIDVec      = std::vector<xpp::hyq::LegID>;
   using PhaseVec      = std::vector<PhaseInfo>;
   using MotionInfoVec = std::vector<MotionInfo>;
+  using StartStance   = std::vector<xpp::hyq::Foothold>;
 
   MotionStructure ();
+
+  // motion_ref remove the phases term from this
   MotionStructure (const LegIDVec& start_legs, const LegIDVec& step_legs,
                    const PhaseVec& phases, double dt);
   virtual ~MotionStructure ();
 
+
+
+
+
+  void Init(const StartStance& start_stance, const LegIDVec& step_legs,
+            const SplineTimes& times, bool insert_initial_stance,
+            bool insert_final_stance);
+
+
+
+
+
+  // motion_ref remove the phases term from this
   void Init(const LegIDVec& start_legs, const LegIDVec& step_legs,
             const PhaseVec& phases, double dt);
 
@@ -63,6 +88,8 @@ public:
   MotionInfoVec GetContactInfoVec() const;
 
   int GetTotalNumberOfDiscreteContacts() const;
+
+  PhaseVec GetPhases() const;
 
 private:
   double dt_; ///< discretization interval [s]

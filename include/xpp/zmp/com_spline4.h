@@ -40,6 +40,11 @@ public:
 
   void Init(const Vector2d& start_cog_p,
             const Vector2d& start_cog_v,
+            const PhaseInfoVec& phases);
+
+  // motion_ref remove this
+  void Init(const Vector2d& start_cog_p,
+            const Vector2d& start_cog_v,
             int step_count,
             const SplineTimes& times,
             bool insert_initial_stance = true);

@@ -38,6 +38,26 @@ ComSpline4::ComSpline4 (
   Init(start_cog_p, start_cog_v, step_count, times);
 }
 
+void
+ComSpline4::Init (const Vector2d& start_cog_p, const Vector2d& start_cog_v,
+                  const PhaseInfoVec& phases)
+{
+ ComSpline::Init(phases);
+
+ start_cog_p_ = start_cog_p;
+ start_cog_v_ = start_cog_v;
+
+ for (const Coords3D dim : Coords2DArray) {
+   jac_e_wrt_abcd_.at(dim) = CalcJacobianEWrtABCD(dim);
+   jac_f_wrt_abcd_.at(dim) = CalcJacobianFWrtABCD(dim);
+ }
+
+ // initialize all other coefficients to zero
+ Eigen::VectorXd abcd(GetTotalFreeCoeff());
+ abcd.setZero();
+ SetCoefficients(abcd);
+}
+
 void ComSpline4::Init(const Vector2d& start_cog_p,
                       const Vector2d& start_cog_v,
                       int step_count,

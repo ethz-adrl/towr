@@ -29,6 +29,17 @@ ComSpline6::clone () const
 }
 
 void
+ComSpline6::Init (const PhaseInfoVec& phases)
+{
+  ComSpline::Init(phases);
+
+  // initialize all coefficients to zero
+  Eigen::VectorXd abcd(GetTotalFreeCoeff());
+  abcd.setZero();
+  SetCoefficients(abcd);
+}
+
+void
 ComSpline6::Init (int step_count, const SplineTimes& times,
                   bool insert_initial_stance)
 {
