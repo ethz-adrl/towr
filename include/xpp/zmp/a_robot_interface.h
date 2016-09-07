@@ -39,7 +39,7 @@ public:
 
 };
 
-
+// refactor generalize all LegIDs with this
 enum class EndeffectorID { E0, E1, E2, E3, E4, E5 };
 
 } /* namespace zmp */

@@ -90,8 +90,8 @@ private:
   PhaseVec phases_;
   double dt_; ///< discretization interval [s]
 
-  PhaseVec BuildPhases(int steps, double t_swing, double t_stance,
-                       bool insert_init, bool insert_final) const;
+//  PhaseVec BuildPhases(int steps, double t_swing, double t_stance,
+//                       bool insert_init, bool insert_final) const;
 
   // the values don't really define the structure of the class -> mutable
   MotionInfoVec CalcContactInfoVec() const;

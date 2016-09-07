@@ -30,7 +30,7 @@ public:
   enum Type {kStancePhase=0, kStepPhase, kFlightPhase} type_; // replace this with if contacts=4=total number of legs
   int n_completed_steps_; // this is also not needed anymore, implicitly in the contacts
 
-  std::vector<Contact> contacts_;
+  std::vector<Contact> contacts_; // all the stance legs currently in contact
   int id_;
   double duration_;
 

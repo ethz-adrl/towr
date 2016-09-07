@@ -8,9 +8,12 @@
 #include <xpp/zmp/motion_structure.h>
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/phase_info.h>
+#include <algorithm>
 
 namespace xpp {
 namespace zmp {
+
+using Foothold = xpp::hyq::Foothold;
 
 MotionStructure::MotionStructure ()
 {
@@ -29,40 +32,94 @@ MotionStructure::Init (const StartStance& start_stance,
                        bool insert_initial_stance,
                        bool insert_final_stance)
 {
-  phases_ = BuildPhases(step_legs.size(), t_swing, t_stance, insert_initial_stance,
-                        insert_final_stance);
+//  phases_ = BuildPhases(step_legs.size(), t_swing, t_stance, insert_initial_stance,
+//                        insert_final_stance);
+
+
+  std::vector<Contact> active_contacts;
+  for (auto c : start_stance)
+    active_contacts.push_back(Contact(Foothold::kFixedByStart, static_cast<EndeffectorID>(c.leg)));
+
+
+  int phase_id = 0;
+  int n_completed_steps = 0;
+
+  if (insert_initial_stance) {
+    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, phase_id++, t_stance);
+    phase.contacts_ = active_contacts;
+    phases_.push_back(phase);
+  }
+
+
+  // the steps
+  for (uint i=0; i<step_legs.size(); ++i) {
+
+    // remove current ee from list of active contacts
+    auto it = std::find_if(active_contacts.begin(), active_contacts.end(),
+                           [&](const Contact& c) {return c.ee == static_cast<EndeffectorID>(step_legs.at(i));});
+
+    if (it != active_contacts.end()) // step found in initial stance
+      active_contacts.erase(it);     // remove contact, because now swinging leg
+
+    // add newly made contact of previous swing
+    if (i > 0)
+      active_contacts.push_back(Contact(i, static_cast<EndeffectorID>(step_legs.at(i-1))));
+
+    PhaseInfo phase(PhaseInfo::kStepPhase, n_completed_steps++, phase_id++, t_swing);
+    phase.contacts_ = active_contacts;
+    phases_.push_back(phase);
+  }
+
+  // the final stance
+  if (insert_final_stance) {
+    int last_id = step_legs.size()-1;
+    active_contacts.push_back(Contact(last_id, static_cast<EndeffectorID>(step_legs.back())));
+    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, phase_id++, 0.55);
+    phase.contacts_ = active_contacts;
+    phases_.push_back(phase);
+  }
+
+
+
+
+
+
+
+
+
+
   start_stance_ = start_stance;
   steps_ = step_legs;
   cache_needs_updating_ = true;
 }
 
-MotionStructure::PhaseVec
-MotionStructure::BuildPhases (int steps, double t_swing, double t_stance,
-                              bool insert_init, bool insert_final) const
-{
-  PhaseVec phases;
-
-  int id = 0;
-  int n_completed_steps = 0;
-
-  if (insert_init) {
-    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, t_stance);
-    phases.push_back(phase);
-  }
-
-  // steps
-  for (int step=0; step<steps; ++step) {
-    PhaseInfo phase(PhaseInfo::kStepPhase, n_completed_steps++, id++, t_swing);
-    phases.push_back(phase);
-  }
-
-  if (insert_final) {
-    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, 0.55);
-    phases.push_back(phase);
-  }
-
-  return phases;
-}
+//MotionStructure::PhaseVec
+//MotionStructure::BuildPhases (int steps, double t_swing, double t_stance,
+//                              bool insert_init, bool insert_final) const
+//{
+//  PhaseVec phases;
+//
+//  int id = 0;
+//  int n_completed_steps = 0;
+//
+//  if (insert_init) {
+//    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, t_stance);
+//    phases.push_back(phase);
+//  }
+//
+//  // steps
+//  for (int step=0; step<steps; ++step) {
+//    PhaseInfo phase(PhaseInfo::kStepPhase, n_completed_steps++, id++, t_swing);
+//    phases.push_back(phase);
+//  }
+//
+//  if (insert_final) {
+//    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, 0.55);
+//    phases.push_back(phase);
+//  }
+//
+//  return phases;
+//}
 
 PhaseInfo
 MotionStructure::GetCurrentPhase (double t_global) const
