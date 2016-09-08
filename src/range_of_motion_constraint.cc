@@ -92,7 +92,7 @@ RangeOfMotionBox::EvaluateConstraint () const
   for (const auto& node : motion_structure_.GetContactInfoVec()) {
     PosXY com_pos = com_motion_->GetCom(node.time_).p;
 
-    for (const auto& c : node.phase_.contacts_) {
+    for (const auto& c : node.phase_.free_contacts_) {
 
       PosXY contact_pos = PosXY::Zero();
 
@@ -118,7 +118,7 @@ RangeOfMotionBox::GetBounds () const
   std::vector<Bound> bounds;
   for (auto node : motion_structure_.GetContactInfoVec()) {
 
-    for (auto c : node.phase_.contacts_) {
+    for (auto c : node.phase_.free_contacts_) {
 
       PosXY start_offset = PosXY::Zero();
 
@@ -147,7 +147,7 @@ RangeOfMotionBox::SetJacobianWrtContacts (Jacobian& jac_wrt_contacts) const
 
   int row=0;
   for (const auto& node : motion_structure_.GetContactInfoVec())
-    for (auto c : node.phase_.contacts_) {
+    for (auto c : node.phase_.free_contacts_) {
       if (c.id != xpp::hyq::Foothold::kFixedByStart)
         for (auto dim : {X,Y})
           jac_wrt_contacts.insert(row+dim, Contacts::Index(c.id,dim)) = 1.0;
@@ -165,7 +165,7 @@ RangeOfMotionBox::SetJacobianWrtMotion (Jacobian& jac_wrt_motion) const
 
   int row=0;
   for (const auto& node : motion_structure_.GetContactInfoVec())
-    for (const auto c : node.phase_.contacts_)
+    for (const auto c : node.phase_.free_contacts_)
       for (auto dim : {X,Y})
         jac_wrt_motion.row(row++) = -1*com_motion_->GetJacobian(node.time_, kPos, dim);
 }

@@ -51,7 +51,6 @@ public:
   static void SortCounterclockWise(std::vector<LegID>&);
 
   VecSuppLine GetLines() const;
-
   bool IsPointInside(const Vector2d& p) const;
 
   VecFoothold GetFootholds() const;
@@ -59,16 +58,17 @@ public:
 
   static MarginValues GetDefaultMargins();
   static MarginValues GetZeroMargins();
-  static SupportPolygon CombineSupportPolygons(const SupportPolygon& p1,
-                                               const SupportPolygon& p2);
+
 private:
   VecFoothold sorted_footholds_;
   MarginValues margins_;
 
-  /** sort points so inequality constraints are on correct side of line later **/
-  VecFoothold BuildSortedConvexHull(const VecFoothold& footholds) const;
   double UseMargin(const LegID& f0, const LegID& f1) const;
   friend std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr);
+//  /** sort points so inequality constraints are on correct side of line later **/
+//  VecFoothold BuildSortedConvexHull(const VecFoothold& footholds) const;
+//  static SupportPolygon CombineSupportPolygons(const SupportPolygon& p1,
+//                                               const SupportPolygon& p2);
 };
 
 inline std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr)

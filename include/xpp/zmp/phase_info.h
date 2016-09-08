@@ -31,15 +31,10 @@ inline std::ostream& operator<<(std::ostream& out, const Contact& c)
 
 /** Information to represent different types of motion.
   */
-// motion_ref augment phase info with id's of legs in contact
 class PhaseInfo {
 public:
-
-//  enum Type {kStancePhase=0, kStepPhase, kFlightPhase} type_; // motion_ref replace this with if contacts=4=total number of legs
-  int n_completed_steps_; // this is also not needed anymore, implicitly in the contacts
-
-  // motion_ref rename to free contacts
-  std::vector<Contact> contacts_; // all the stance legs currently in contact but not fixed by start
+  int n_completed_steps_; // this is redundant, implicitly in the contacts ids
+  std::vector<Contact> free_contacts_; // all the stance legs currently in contact but not fixed by start
   std::vector<xpp::hyq::Foothold> fixed_contacts_;
   int id_;
   double duration_;
@@ -54,7 +49,7 @@ public:
   PhaseInfo(int id, double duration) :  id_(id), duration_(duration) {};
 
   // for hyq 4 legs means stance
-  bool IsStep() const { return (contacts_.size() + fixed_contacts_.size()) != 4;  }
+  bool IsStep() const { return (free_contacts_.size() + fixed_contacts_.size()) != 4;  }
 };
 
 inline std::ostream& operator<<(std::ostream& out, const PhaseInfo& p)
@@ -63,7 +58,7 @@ inline std::ostream& operator<<(std::ostream& out, const PhaseInfo& p)
       << "\t duration: " << p.duration_
       << "\n free contacts: ";
 
-  for (auto c : p.contacts_)
+  for (auto c : p.free_contacts_)
     out << c << "\t";
 
   out << "\n fixed contacts: ";

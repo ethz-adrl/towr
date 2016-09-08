@@ -54,17 +54,17 @@ MotionStructure::Init (const StartStance& start_stance,
 
 
     // remove current swingleg from last free contacts
-    auto it_free = std::find_if(phase.contacts_.begin(), phase.contacts_.end(),
+    auto it_free = std::find_if(phase.free_contacts_.begin(), phase.free_contacts_.end(),
                            [&](const Contact& c) {return c.ee == static_cast<EndeffectorID>(step_legs.at(i));});
 
-    if (it_free != phase.contacts_.end()) // step found in initial stance
-      phase.contacts_.erase(it_free);     // remove contact, because now swinging leg
+    if (it_free != phase.free_contacts_.end()) // step found in initial stance
+      phase.free_contacts_.erase(it_free);     // remove contact, because now swinging leg
 
 
 
     // add newly made contact of previous swing
     if (i > 0)
-      phase.contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(step_legs.at(i-1))));
+      phase.free_contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(step_legs.at(i-1))));
 
     phase.n_completed_steps_ = i;
     phase.id_++;
@@ -77,7 +77,7 @@ MotionStructure::Init (const StartStance& start_stance,
     PhaseInfo phase = phases_.back();
 
     int last_contact_id = step_legs.size()-1;
-    phase.contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(step_legs.back())));
+    phase.free_contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(step_legs.back())));
 
     phase.n_completed_steps_++;
     phase.id_++;
@@ -147,7 +147,7 @@ MotionStructure::CalcContactInfoVec () const
       contact_info.time_ = t_global+k*dt_;
 
       for (const auto& f : stance_feet)
-        contact_info.phase_.contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
+        contact_info.phase_.free_contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
 
       info.push_back(contact_info);
     }
@@ -160,7 +160,7 @@ MotionStructure::CalcContactInfoVec () const
   MotionInfo final_contacts;
   final_contacts.time_ = t_global;
   for (const auto& f : foothold_container.GetFinalFootholds())
-    final_contacts.phase_.contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
+    final_contacts.phase_.free_contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
 
   info.push_back(final_contacts);
 
@@ -174,7 +174,7 @@ MotionStructure::GetTotalNumberOfDiscreteContacts () const
 
   int i = 0;
   for (auto node : contact_info_vec)
-    i += node.phase_.contacts_.size();
+    i += node.phase_.free_contacts_.size();
 
   return i;
 }

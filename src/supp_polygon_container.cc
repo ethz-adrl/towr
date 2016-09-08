@@ -179,7 +179,7 @@ SupportPolygonContainer::AssignSupportPolygonsToPhases(const PhaseInfoVec& phase
   for (const auto& phase : phases) {
 
     VecFoothold contacts;
-    for (auto c : phase.contacts_)
+    for (auto c : phase.free_contacts_)
       contacts.push_back(footholds_.at(c.id));
 
     for (auto f : phase.fixed_contacts_)
@@ -187,41 +187,6 @@ SupportPolygonContainer::AssignSupportPolygonsToPhases(const PhaseInfoVec& phase
 
     supp.push_back(SupportPolygon(contacts, margins_));
   }
-
-
-//  for (auto poly : supp) {
-//    std::cout << poly;
-//  }
-//
-//  assert(false);
-
-// //refactor remove this comment and the combine support polygon function
-//
-//
-//  using namespace xpp::zmp;
-//
-//  for (const auto& phase : phases) {
-//    SupportPolygon curr_supp;
-//
-//    int prev_step = phase.n_completed_steps_-1;
-//    switch (phase.type_) {
-//      case PhaseInfo::kStepPhase: {
-//        curr_supp = support_polygons_.at(prev_step+1);
-//        break;
-//      }
-//      case PhaseInfo::kStancePhase: {
-//        if (prev_step == -1) // first spline
-//          curr_supp = GetStartPolygon();
-//        else if (prev_step == GetNumberOfSteps()-1)
-//          curr_supp = GetFinalPolygon();
-//        else // for intermediate splines
-//          curr_supp = SupportPolygon::CombineSupportPolygons(support_polygons_.at(prev_step),
-//                                                             support_polygons_.at(prev_step+1));
-//      }
-//    }
-//
-//    supp.push_back(curr_supp);
-//  }
 
   return supp;
 }

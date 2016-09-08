@@ -100,7 +100,6 @@ public:
   /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */
   Eigen::VectorXd GetFootholdsInitializedToStart() const;
 
-  // motion_ref remove this
   static bool DisJointSupportPolygons(LegID prev, LegID next);
 private:
 
