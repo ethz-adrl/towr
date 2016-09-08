@@ -13,7 +13,6 @@
 #include <xpp_opt/PhaseInfo.h>
 #include <xpp_opt/Contact.h>
 #include <xpp_opt/Spline.h>
-#include <xpp_opt/Footholds2d.h>
 #include <xpp_opt/StateLin3d.h>
 #include <xpp_opt/Foothold.h>
 
@@ -150,7 +149,6 @@ XppToRos(const VecSpline& opt_splines)
   return msgs;
 }
 
-
 static VecSpline
 RosToXpp(const std::vector<SplineMsg>& msgs)
 {
@@ -173,22 +171,6 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
   return xpp;
 }
 
-
-static xpp_opt::Footholds2d
-XppToRos(const xpp::utils::StdVecEigen2d& opt_footholds)
-{
-  xpp_opt::Footholds2d ros;
-  for (uint i=0; i<opt_footholds.size(); ++i) {
-    geometry_msgs::Point p;
-    p.x = opt_footholds.at(i).x();
-    p.y = opt_footholds.at(i).y();
-    ros.data.push_back(p);
-  }
-
-  return ros;
-}
-
-
 static State
 RosToXpp(const xpp_opt::StateLin3d& ros)
 {
@@ -207,7 +189,6 @@ RosToXpp(const xpp_opt::StateLin3d& ros)
 
   return point;
 }
-
 
 static xpp_opt::StateLin3d
 XppToRos(const State& xpp)
@@ -228,7 +209,6 @@ XppToRos(const State& xpp)
   return ros;
 }
 
-
 static Vector3d
 RosToXpp(const geometry_msgs::Point& ros)
 {
@@ -236,15 +216,6 @@ RosToXpp(const geometry_msgs::Point& ros)
   vec << ros.x, ros.y, ros.z;
   return vec;
 }
-
-
-//static LegID
-//RosToXpp(const int rosleg)
-//{
-//  assert(0 <= rosleg && rosleg < xpp::hyq::_LEGS_COUNT); //integer cannot be mapped to a LegID
-//  return static_cast<LegID>(rosleg);
-//}
-
 
 static Foothold
 RosToXpp(const xpp_opt::Foothold& ros)
@@ -256,7 +227,6 @@ RosToXpp(const xpp_opt::Foothold& ros)
   f.p   = RosToXpp(ros.p);
   return f;
 }
-
 
 static xpp_opt::Foothold
 XppToRos(const xpp::hyq::Foothold& xpp)
@@ -284,7 +254,6 @@ XppToRos(const std::vector<xpp::hyq::Foothold>& xpp)
   return ros_vec;
 }
 
-
 static std::vector<xpp::hyq::Foothold>
 RosToXpp(const std::vector<xpp_opt::Foothold>& ros)
 {
@@ -296,7 +265,6 @@ RosToXpp(const std::vector<xpp_opt::Foothold>& ros)
 
   return xpp_vec;
 }
-
 
 }; // RosHelpers
 

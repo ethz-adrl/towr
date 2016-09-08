@@ -49,18 +49,14 @@ set(LIB_NAME xpp_opt)
 add_message_files(
   FILES
   Contact.msg
-  FootholdSequence.msg
   Foothold.msg
   Spline.msg
   StateLin3d.msg
-#  SplineCoefficients.msg
-  Footholds2d.msg
   PhaseInfo.msg
   RequiredInfoNlp.msg
   OptimizedParametersNlp.msg
   RequiredInfoQp.msg
   OptimizedParametersQp.msg
-#  VariablesNlp.msg
 )
 add_service_files(
   FILES
