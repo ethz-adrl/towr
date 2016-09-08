@@ -16,7 +16,7 @@
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
 #include <memory>
-#include "com_spline6.h"
+#include "com_spline6.h" // motion_ref remove this
 
 namespace xpp {
 namespace hyq {
@@ -34,6 +34,7 @@ class ConstraintContainer;
 class OptimizationVariablesInterpreter;
 class InterpretingObserver;
 class ComPolynomial;
+class ComMotion;
 
 /** @brief Simplified interface to setup and solve a Nonlinear-Program.
   *
@@ -55,6 +56,9 @@ public:
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
   typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
   typedef std::shared_ptr<xpp::hyq::StepSequencePlanner> StepSequencePlannerPtr;
+
+  using ComMotionPtrS = std::shared_ptr<ComMotion>;
+
 
   NlpFacade (IVisualizer& visualizer = do_nothing_visualizer);
   virtual ~NlpFacade () {};
@@ -83,7 +87,7 @@ public:
   InterpretingObserverPtr GetObserver() const;
 
   VecFoothold GetFootholds() const;
-  VecSpline GetSplines() const;
+  ComMotionPtrS GetMotion() const;
   PhaseVec GetPhases() const;
 
 private:
@@ -94,6 +98,7 @@ private:
   OptimizationVariablesPtr opt_variables_;
   CostContainerPtr costs_;
   ConstraintContainerPtr constraints_;
+
 
   InterpretingObserverPtr interpreting_observer_;
   IVisualizer* visualizer_;

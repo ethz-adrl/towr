@@ -136,11 +136,6 @@ NlpFacade::SolveNlp(const State& initial_state,
   // for visualization mostly
 
 
-
-//  OptimizationVariablesInterpreter interpreter;
-//  interpreter.Init(com_motion, contacts, robot_height);
-  // motion_ref remove this at some point
-//  interpreting_observer_->SetInterpreter(interpreter);
   interpreting_observer_->Init(motion_structure, *com_motion, contacts);
 
   // Ipopt solving
@@ -187,10 +182,10 @@ NlpFacade::GetFootholds () const
   return interpreting_observer_->GetFootholds();
 }
 
-NlpFacade::VecSpline
-NlpFacade::GetSplines () const
+NlpFacade::ComMotionPtrS
+NlpFacade::GetMotion () const
 {
-  return interpreting_observer_->GetSplines();
+  return interpreting_observer_->GetComMotion();
 }
 
 PhaseVec

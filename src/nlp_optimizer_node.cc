@@ -72,7 +72,8 @@ NlpOptimizerNode::OptimizeTrajectory()
                        t_swing_, t_stance_,
                        max_cpu_time_);
 
-  opt_splines_   = nlp_facade_.GetSplines();
+  auto& com_spline = dynamic_cast<xpp::zmp::ComSpline&>(*nlp_facade_.GetMotion());
+  opt_splines_   = com_spline.GetPolynomials();
   footholds_     = nlp_facade_.GetFootholds();
   motion_phases_ = nlp_facade_.GetPhases();
 }

@@ -39,7 +39,7 @@ public:
   using VecSpline       = std::vector<ComPolynomial>;
   using Contacts        = xpp::hyq::SupportPolygonContainer;
   using ContactsPtrU    = std::unique_ptr<Contacts>;
-  using MotionPtrU      = std::unique_ptr<ComMotion>;
+  using MotionPtrS      = std::shared_ptr<ComMotion>;
 
   InterpretingObserver (OptimizationVariables& subject);
   virtual ~InterpretingObserver ();
@@ -50,14 +50,13 @@ public:
 
   void Update() override;
 
-  VecSpline GetSplines() const;
   VecFoothold GetFootholds() const;
   VecFoothold GetStartStance() const;
-  MotionPtrU GetComMotion() const;
+  MotionPtrS GetComMotion() const;
   MotionStructure GetStructure() const;
 
 private:
-  MotionPtrU com_motion_;
+  MotionPtrS com_motion_;
   ContactsPtrU contacts_;
   MotionStructure motion_structure_;
 };

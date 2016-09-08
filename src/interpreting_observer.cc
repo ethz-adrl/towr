@@ -10,8 +10,6 @@
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/hyq/support_polygon_container.h>
 
-#include <xpp/zmp/com_spline.h> //motion_ref this should not be here
-
 namespace xpp {
 namespace zmp {
 
@@ -49,10 +47,10 @@ InterpretingObserver::Update ()
   contacts_->SetFootholdsXY(utils::ConvertEigToStd(x_contacts));
 }
 
-InterpretingObserver::MotionPtrU
+InterpretingObserver::MotionPtrS
 InterpretingObserver::GetComMotion() const
 {
-  return com_motion_->clone();
+  return com_motion_;
 };
 
 MotionStructure
@@ -60,14 +58,6 @@ InterpretingObserver::GetStructure() const
 {
   return motion_structure_;
 };
-
-InterpretingObserver::VecSpline
-InterpretingObserver::GetSplines () const
-{
-  // motion_ref ugly, figure out how to use general motion for info
-  auto& spline = dynamic_cast<ComSpline&>(*com_motion_);
-  return spline.GetPolynomials();
-}
 
 InterpretingObserver::VecFoothold
 InterpretingObserver::GetFootholds () const
