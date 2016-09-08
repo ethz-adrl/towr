@@ -48,12 +48,14 @@ set(LIB_NAME xpp_opt)
 # Generate added messages with any dependencies listed here
 add_message_files(
   FILES
+  Contact.msg
   FootholdSequence.msg
   Foothold.msg
   Spline.msg
   StateLin3d.msg
 #  SplineCoefficients.msg
   Footholds2d.msg
+  PhaseInfo.msg
   RequiredInfoNlp.msg
   OptimizedParametersNlp.msg
   RequiredInfoQp.msg

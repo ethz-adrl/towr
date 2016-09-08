@@ -193,6 +193,12 @@ NlpFacade::GetSplines () const
   return interpreting_observer_->GetSplines();
 }
 
+PhaseVec
+NlpFacade::GetPhases () const
+{
+  return interpreting_observer_->GetStructure().GetPhases();
+}
+
 } /* namespace zmp */
 } /* namespace xpp */
 

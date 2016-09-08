@@ -13,6 +13,7 @@
 #ifndef IIT_ZMP_RUNNER_H_
 #define IIT_ZMP_RUNNER_H_
 
+#include <xpp/zmp/phase_info.h>
 #include <xpp_controller/controller.h>
 #include "virtual_model-inl.h"
 #include "walking_controller_state.h"
@@ -48,6 +49,7 @@ public:
   typedef xpp::utils::Point3d State;
   typedef xpp::utils::Orientation Orientation;
   using VecSpline = HyqSpliner::VecZmpSpline;
+  using VecPhase  = xpp::zmp::PhaseVec;
   // ROS stuff
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
@@ -93,6 +95,7 @@ private:
 
   VecSpline opt_splines_;
   VecFoothold opt_footholds_;
+  VecPhase motion_phases_;
   bool optimal_trajectory_updated;
 
   HyqSpliner spliner_;  //for normal body, ori, and feet traj.

@@ -12,6 +12,8 @@
 #include <xpp/utils/spliner_3d.h>
 #include <xpp/zmp/com_polynomial.h>
 
+#include <xpp/zmp/phase_info.h>
+
 
 namespace xpp {
 namespace hyq {
@@ -54,8 +56,11 @@ public:
 
 
   void SetParams(double upswing, double lift_height, double outward_swing_distance);
-  void Init(const HyqState& P_init, const VecZmpSpline& zmp_splines,
-            const VecFoothold& footholds, double robot_height);
+  void Init(const HyqState& P_init,
+            const xpp::zmp::PhaseVec&,
+            const VecZmpSpline&,
+            const VecFoothold&,
+            double robot_height);
 
   /**
    * These function access the intermediate splined states fo the robot
@@ -63,7 +68,6 @@ public:
   Point GetCurrPosition(double t_global) const;
   xpp::utils::Ori GetCurrOrientation(double t_global) const;
   void FillCurrFeet(double t_global, LegDataMap<Point>& feet, LegDataMap<bool>& swingleg) const;
-
 
 
   double GetTotalTime() const;
@@ -90,6 +94,12 @@ private:
                                             const VecZmpSpline& zmp_splines,
                                             const VecFoothold& footholds,
                                             double robot_height);
+
+  std::vector<SplineNode>
+  BuildPhaseSequence(const HyqState& P_init,
+                                const xpp::zmp::PhaseVec&,
+                                const VecFoothold& footholds,
+                                double robot_height);
 
   void CreateAllSplines(const std::vector<SplineNode>& nodes);
 

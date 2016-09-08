@@ -55,6 +55,7 @@ NlpOptimizerNode::PublishOptimizedValues() const
   OptParamMsg msg_out;
   msg_out.splines   = xpp::ros::RosHelpers::XppToRos(opt_splines_);
   msg_out.footholds = xpp::ros::RosHelpers::XppToRos(footholds_);
+//  msg_out.phases    = xpp::ros::RosHelpers::XppToRos(motion_phases_);
 
   opt_params_pub_.publish(msg_out);
 }
@@ -71,8 +72,9 @@ NlpOptimizerNode::OptimizeTrajectory()
                        t_swing_, t_stance_,
                        max_cpu_time_);
 
-  opt_splines_ = nlp_facade_.GetSplines();
-  footholds_   = nlp_facade_.GetFootholds();
+  opt_splines_   = nlp_facade_.GetSplines();
+  footholds_     = nlp_facade_.GetFootholds();
+  motion_phases_ = nlp_facade_.GetPhases();
 }
 
 } /* namespace ros */

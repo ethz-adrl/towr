@@ -18,9 +18,10 @@ namespace xpp {
 namespace zmp {
 
 struct Contact {
+  Contact() {};
   Contact(int _id, EndeffectorID _ee) : id(_id), ee(_ee) {}
-  int id; ///< a unique identifier for each contact, -1 if fixed by start
-  EndeffectorID ee;
+  int id = -1; ///< a unique identifier for each contact, -1 if fixed by start
+  EndeffectorID ee = EndeffectorID::E0;
 };
 
 inline std::ostream& operator<<(std::ostream& out, const Contact& c)
@@ -33,20 +34,19 @@ inline std::ostream& operator<<(std::ostream& out, const Contact& c)
   */
 class PhaseInfo {
 public:
-  int n_completed_steps_; // this is redundant, implicitly in the contacts ids
   std::vector<Contact> free_contacts_; // all the stance legs currently in contact but not fixed by start
   std::vector<xpp::hyq::Foothold> fixed_contacts_;
-  int id_;
-  double duration_;
+  int id_ = 0;
+  double duration_ = 0.0;
+  int n_completed_steps_ = 0; // this is redundant, implicitly in the contacts ids
 
-  PhaseInfo() : id_(-1), duration_(0.0) {};
+  PhaseInfo() {};
 
   /** @param type     Whether this is a stance, step of flight phase.
     * @param n_completed_steps how many steps completed by the previous phases.
     * @param id       Each phase has a unique ID.
     * @param duration How many seconds this phase lasts.
     */
-  PhaseInfo(int id, double duration) :  id_(id), duration_(duration) {};
 
   // for hyq 4 legs means stance
   bool IsStep() const { return (free_contacts_.size() + fixed_contacts_.size()) != 4;  }

@@ -10,12 +10,15 @@
 
 #include <ros/ros.h>
 
+#include <xpp_opt/PhaseInfo.h>
+#include <xpp_opt/Contact.h>
 #include <xpp_opt/Spline.h>
 #include <xpp_opt/Footholds2d.h>
 #include <xpp_opt/StateLin3d.h>
 #include <xpp_opt/Foothold.h>
 
 #include <xpp/utils/geometric_structs.h>
+#include <xpp/zmp/phase_info.h>
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/zmp/com_spline.h>
@@ -36,6 +39,12 @@ typedef xpp::zmp::ComSpline::VecPolynomials VecSpline;
 typedef xpp_opt::Spline SplineMsg;
 typedef xpp::hyq::LegID LegID;
 
+using ContactMsg   = xpp_opt::Contact;
+using ContactXpp   = xpp::zmp::Contact;
+using PhaseInfoMsg = xpp_opt::PhaseInfo;
+using PhaseInfoXpp = xpp::zmp::PhaseInfo;
+
+
 static double GetDoubleFromServer(const std::string& ros_param_name) {
   double val;
   if(!::ros::param::get(ros_param_name,val))
@@ -50,6 +59,73 @@ static double GetBoolFromServer(const std::string& ros_param_name) {
   return val;
 }
 
+static ContactMsg
+XppToRos(const ContactXpp& xpp)
+{
+  ContactMsg msg;
+  msg.id = xpp.id;
+  msg.ee = static_cast<int>(xpp.ee);
+
+  return msg;
+}
+
+static ContactXpp
+RosToXpp(const ContactMsg& msg)
+{
+  ContactXpp xpp;
+  xpp.id = msg.id;
+  xpp.ee = static_cast<xpp::zmp::EndeffectorID>(msg.ee);
+
+  return xpp;
+}
+
+static PhaseInfoMsg
+XppToRos(const PhaseInfoXpp& xpp)
+{
+  PhaseInfoMsg msg;
+  msg.n_completed_steps = xpp.n_completed_steps_;
+  for (auto c : xpp.free_contacts_)  msg.free_contacts.push_back(XppToRos(c));
+  for (auto f : xpp.fixed_contacts_) msg.fixed_contacts.push_back(XppToRos(f));
+  msg.id                = xpp.id_;
+  msg.duration          = xpp.duration_;
+
+  return msg;
+}
+
+static PhaseInfoXpp
+RosToXpp(const PhaseInfoMsg& msg)
+{
+  PhaseInfoXpp xpp;
+  xpp.n_completed_steps_ = msg.n_completed_steps;
+  for (auto c : msg.free_contacts)  xpp.free_contacts_.push_back(RosToXpp(c));
+  for (auto f : msg.fixed_contacts) xpp.fixed_contacts_.push_back(RosToXpp(f));
+  xpp.id_                = msg.id;
+  xpp.duration_          = msg.duration;
+
+  return xpp;
+}
+
+static std::vector<PhaseInfoMsg>
+XppToRos(const std::vector<PhaseInfoXpp>& xpp)
+{
+  std::vector<PhaseInfoMsg> msg;
+
+  for (const auto& phase : xpp)
+    msg.push_back(XppToRos(phase));
+
+  return msg;
+}
+
+static std::vector<PhaseInfoXpp>
+RosToXpp(const std::vector<PhaseInfoMsg>& msg)
+{
+  std::vector<PhaseInfoXpp> xpp;
+
+  for (auto phase : msg)
+    xpp.push_back(RosToXpp(phase));
+
+  return xpp;
+}
 
 static std::vector<SplineMsg>
 XppToRos(const VecSpline& opt_splines)

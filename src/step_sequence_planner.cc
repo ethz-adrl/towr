@@ -96,7 +96,7 @@ bool
 StepSequencePlanner::StartWithStancePhase () const
 {
 
-//  return true;
+  return true;
 
 //  if (curr_state_.v.norm() > 0.1) {
 //    return false;

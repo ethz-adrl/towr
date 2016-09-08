@@ -8,6 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 
+
+#include <xpp/zmp/phase_info.h>
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/zmp/i_visualizer.h>
 #include <xpp/hyq/support_polygon.h>
@@ -82,6 +84,7 @@ public:
 
   VecFoothold GetFootholds() const;
   VecSpline GetSplines() const;
+  PhaseVec GetPhases() const;
 
 private:
   void SolveIpopt(const IpoptPtr& nlp, double max_cpu_time);

@@ -107,6 +107,7 @@ WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
 {
   opt_splines_   = xpp::ros::RosHelpers::RosToXpp(msg.splines);
   opt_footholds_ = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
+  motion_phases_ = xpp::ros::RosHelpers::RosToXpp(msg.phases);
 
   optimal_trajectory_updated = true;
 
@@ -166,7 +167,7 @@ void WalkingController::IntegrateOptimizedTrajectory()
   for (auto f : opt_footholds_)
     std::cout << f;
 
-  spliner_.Init(P_des_, opt_splines_, opt_footholds_, robot_height_);
+  spliner_.Init(P_des_, motion_phases_, opt_splines_, opt_footholds_, robot_height_);
 
 
 //  // when to use new trajectory. If a step is planned, switch only after the

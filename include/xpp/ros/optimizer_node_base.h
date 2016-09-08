@@ -8,12 +8,15 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZER_NODE_BASE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZER_NODE_BASE_H_
 
+#include <xpp/zmp/phase_info.h>
 #include <xpp/utils/geometric_structs.h>
+
 #include <xpp/hyq/foothold.h>
 #include <xpp_opt/StateLin3d.h>
 #include <keyboard/Key.h>
 
 #include <ros/ros.h>
+// motion_ref remove this
 #include "../zmp/com_spline6.h"
 
 namespace xpp {
@@ -27,6 +30,7 @@ public:
   typedef std::vector<Foothold> VecFoothold;
   typedef xpp_opt::StateLin3d StateMsg;
   typedef xpp::zmp::ComSpline6::VecPolynomials VecSpline;
+  using PhaseVec = xpp::zmp::PhaseVec;
 
 public:
   OptimizerNodeBase ();
@@ -43,6 +47,7 @@ protected:
   // motion_ref make this a motion that is being published, not a spline
   VecSpline opt_splines_;
   VecFoothold footholds_;
+  PhaseVec motion_phases_;
 
   double t_swing_;
   double t_stance_;
