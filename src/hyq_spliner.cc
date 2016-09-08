@@ -31,16 +31,17 @@ void HyqSpliner::Init(const HyqState& P_init,
                       const VecFoothold& footholds,
                       double robot_height)
 {
-  nodes_ = BuildStateSequence(P_init, optimized_xy_spline, footholds, robot_height);
+  nodes_ = BuildPhaseSequence(P_init, phase_info, footholds, robot_height);
+//  nodes_ = BuildStateSequence(P_init, optimized_xy_spline, footholds, robot_height);
   CreateAllSplines(nodes_);
   optimized_xy_spline_ = optimized_xy_spline;
 }
 
 std::vector<SplineNode>
 HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
-                                  const xpp::zmp::PhaseVec& phase_info,
-                                  const VecFoothold& footholds,
-                                  double robot_height)
+                               const xpp::zmp::PhaseVec& phase_info,
+                               const VecFoothold& footholds,
+                               double robot_height)
 {
   std::vector<SplineNode> nodes;
 
@@ -57,25 +58,34 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
   }
   P_plan_prev.base_.pos.p(Z) = robot_height + P_plan_prev.GetZAvg(); // height of footholds
 
-  for (const auto& s : phase_info)
+  for (const auto& curr_phase : phase_info)
   {
     // copy a few values from previous state
-    HyqState P_plan = P_plan_prev;
-    P_plan.swingleg_ = true;
+    HyqState goal_node = P_plan_prev;
 
+    // current contact configuration during the phase
     VecFoothold contacts;
-    for (auto c : s.free_contacts_) {
-      P_plan.feet_[static_cast<LegID>(c.ee)].p   = footholds.at(c.id).p;
-      P_plan.swingleg_[static_cast<LegID>(c.ee)] = false;
+    for (auto c : curr_phase.free_contacts_) {
+      goal_node.feet_[static_cast<LegID>(c.ee)].p   = footholds.at(c.id).p;
+      goal_node.swingleg_[static_cast<LegID>(c.ee)] = false;
     }
 
-    for (auto f : s.fixed_contacts_) {
-      P_plan.feet_[f.leg].p = f.p;
-      P_plan.swingleg_[f.leg] = false;
+    for (auto f : curr_phase.fixed_contacts_) {
+      goal_node.feet_[f.leg].p = f.p;
+      goal_node.swingleg_[f.leg] = false;
+    }
+
+    // add the desired foothold after swinging if this is a step phase
+    if (curr_phase.IsStep()) {
+      int step = curr_phase.n_completed_steps_;
+      LegID step_leg = footholds.at(step).leg;
+      auto goal_of_step = footholds.at(step);
+      goal_node.feet_[step_leg].p   = footholds.at(step).p;
+      goal_node.swingleg_[step_leg] = true; // currently this leg is swinging
     }
 
     // adjust orientation depending on footholds
-    std::array<Vector3d, kNumSides> avg = P_plan.GetAvgSides();
+    std::array<Vector3d, kNumSides> avg = goal_node.GetAvgSides();
     // fixme calculate distance based on current foothold position, not fixed values
     double width_hip = 0.414;
     double length_hip = 0.747;
@@ -94,14 +104,14 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
 
 
     kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
-    P_plan.base_.ori.q = qIB.toImplementation();
+    goal_node.base_.ori.q = qIB.toImplementation();
 
     // adjust global z position of body depending on footholds
-    P_plan.base_.pos.p(Z) = robot_height + P_plan.GetZAvg(); // height of footholds
+    goal_node.base_.pos.p(Z) = robot_height + goal_node.GetZAvg(); // height of footholds
 
 
-    nodes.push_back(BuildNode(P_plan, s.duration_));
-    P_plan_prev = P_plan;
+    nodes.push_back(BuildNode(goal_node, curr_phase.duration_));
+    P_plan_prev = goal_node;
   }
 
   return nodes;

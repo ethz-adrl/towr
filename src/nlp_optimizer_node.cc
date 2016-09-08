@@ -55,7 +55,7 @@ NlpOptimizerNode::PublishOptimizedValues() const
   OptParamMsg msg_out;
   msg_out.splines   = xpp::ros::RosHelpers::XppToRos(opt_splines_);
   msg_out.footholds = xpp::ros::RosHelpers::XppToRos(footholds_);
-//  msg_out.phases    = xpp::ros::RosHelpers::XppToRos(motion_phases_);
+  msg_out.phases    = xpp::ros::RosHelpers::XppToRos(motion_phases_);
 
   opt_params_pub_.publish(msg_out);
 }

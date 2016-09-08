@@ -162,11 +162,11 @@ void WalkingController::IntegrateOptimizedTrajectory()
 
   ::ros::spinOnce(); // process callbacks (get the optimized values).
 
-  // start from desired state so there is no jump in desired
-  std::cout << "optimal_footholds:\n";
-  for (auto f : opt_footholds_)
-    std::cout << f;
+  std::cout << "motion_phases:\n";
+  for (auto p : motion_phases_)
+    std::cout << p << std::endl;
 
+  // start from desired, so there is no jump in desired
   spliner_.Init(P_des_, motion_phases_, opt_splines_, opt_footholds_, robot_height_);
 
 
