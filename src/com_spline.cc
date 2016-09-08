@@ -30,14 +30,13 @@ ComSpline::Init (const PhaseVec& phases)
   for (const auto& phase : phases) {
 
 
-    if (phase.type_ == PhaseInfo::kStancePhase) {
+    if (!phase.IsStep())
+    {
       double t_reaction = 0.15;
       polynomials_.push_back(ComPolynomial(id++, t_reaction, phase));
       polynomials_.push_back(ComPolynomial(id++, phase.duration_-t_reaction, phase));
-    }
-
-
-    if (phase.type_ == PhaseInfo::kStepPhase) {
+    } else
+    {
       int n_splines_per_step = 1;
       for (int i=0; i<n_splines_per_step; ++i) {
         ComPolynomial spline(id++, phase.duration_/n_splines_per_step, phase);

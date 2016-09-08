@@ -34,7 +34,8 @@ inline std::ostream& operator<<(std::ostream& out, const Contact& c)
 // motion_ref augment phase info with id's of legs in contact
 class PhaseInfo {
 public:
-  enum Type {kStancePhase=0, kStepPhase, kFlightPhase} type_; // motion_ref replace this with if contacts=4=total number of legs
+
+//  enum Type {kStancePhase=0, kStepPhase, kFlightPhase} type_; // motion_ref replace this with if contacts=4=total number of legs
   int n_completed_steps_; // this is also not needed anymore, implicitly in the contacts
 
   // motion_ref rename to free contacts
@@ -43,25 +44,22 @@ public:
   int id_;
   double duration_;
 
-  PhaseInfo() : type_(kStancePhase), id_(-1), duration_(0.0) {};
+  PhaseInfo() : id_(-1), duration_(0.0) {};
 
   /** @param type     Whether this is a stance, step of flight phase.
     * @param n_completed_steps how many steps completed by the previous phases.
     * @param id       Each phase has a unique ID.
     * @param duration How many seconds this phase lasts.
     */
-  PhaseInfo(Type type, int id, double duration)
-    : type_(type), id_(id),
-      duration_(duration) {};
+  PhaseInfo(int id, double duration) :  id_(id), duration_(duration) {};
 
   // for hyq 4 legs means stance
-  bool IsStep() { return (contacts_.size() + fixed_contacts_.size()) != 4;  }
+  bool IsStep() const { return (contacts_.size() + fixed_contacts_.size()) != 4;  }
 };
 
 inline std::ostream& operator<<(std::ostream& out, const PhaseInfo& p)
 {
   out << "id: " << p.id_
-      << "\t type: " << p.type_
       << "\t duration: " << p.duration_
       << "\n free contacts: ";
 

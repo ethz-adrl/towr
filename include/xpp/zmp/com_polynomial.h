@@ -99,7 +99,7 @@ public:
   // neccessary here as well, remove.
   // Will remove soon.
   // refactor remove deprecated phase stuff
-  bool DeprecatedIsFourLegSupport() const { return deprecated_phase_.type_ == PhaseInfo::kStancePhase; }
+  bool DeprecatedIsFourLegSupport() const { return !deprecated_phase_.IsStep(); }
 
 private:
   uint id_; // to identify the order relative to other zmp splines

@@ -34,7 +34,7 @@ MotionStructure::Init (const StartStance& start_stance,
 {
 
   if (insert_initial_stance) {
-    PhaseInfo phase(PhaseInfo::kStancePhase, 0, t_stance);
+    PhaseInfo phase(0, t_stance);
     phase.fixed_contacts_ = start_stance;
     phase.n_completed_steps_ = 0;
     phases_.push_back(phase);
@@ -66,7 +66,6 @@ MotionStructure::Init (const StartStance& start_stance,
     if (i > 0)
       phase.contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(step_legs.at(i-1))));
 
-    phase.type_ = PhaseInfo::kStepPhase;
     phase.n_completed_steps_ = i;
     phase.id_++;
     phase.duration_ = t_swing;
@@ -80,7 +79,6 @@ MotionStructure::Init (const StartStance& start_stance,
     int last_contact_id = step_legs.size()-1;
     phase.contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(step_legs.back())));
 
-    phase.type_ = PhaseInfo::kStancePhase;
     phase.n_completed_steps_++;
     phase.id_++;
     phase.duration_ = 0.55;
