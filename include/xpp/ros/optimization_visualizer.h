@@ -9,7 +9,6 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 
 #include <xpp/zmp/i_visualizer.h>
-#include <xpp/ros/marker_array_builder.h>
 #include <ros/publisher.h>
 
 namespace xpp {
@@ -42,8 +41,6 @@ public:
 
 private:
   ::ros::Publisher ros_publisher_;
-  MarkerArrayBuilder msg_builder_;
-
   InterpretingObserverPtr observer_;
 };
 

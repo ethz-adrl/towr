@@ -9,38 +9,36 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_INTERPRETING_OBSERVER_H_
 
 #include <xpp/zmp/i_observer.h>
-#include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/optimization_variables_interpreter.h>
-
-#include <xpp/zmp/com_motion.h>
-#include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/motion_structure.h>
+
+#include <memory>
+#include <vector>
 
 namespace xpp {
 namespace hyq {
 class Foothold;
+class SupportPolygonContainer;
 }
 }
 
 namespace xpp {
 namespace zmp {
 
-class OptimizationVariablesInterpreter;
-class ComPolynomial;
+class ComMotion;
+class ComPolynomial; // motion_ref remove this
+class OptimizationVariables;
 
-/** @brief Puts the optimization variables into context
+/** @brief General optimization values observer
   *
   * This class is responsible for observing the current values of the
-  * optimization variables and interpreting them based on the problem structure.
+  * optimization variables and returning them if needed.
   */
 class InterpretingObserver : public IObserver {
 public:
-  typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef std::vector<ComPolynomial> VecSpline;
-  typedef OptimizationVariablesInterpreter Interpreter;
-  using Contacts = xpp::hyq::SupportPolygonContainer;
-  using SuppPolygonPtrU = std::unique_ptr<xpp::hyq::SupportPolygonContainer>;
-
+  using VecFoothold     = std::vector<xpp::hyq::Foothold>;
+  using VecSpline       = std::vector<ComPolynomial>;
+  using Contacts        = xpp::hyq::SupportPolygonContainer;
+  using ContactsPtrU    = std::unique_ptr<Contacts>;
   using MotionPtrU      = std::unique_ptr<ComMotion>;
 
   InterpretingObserver (OptimizationVariables& subject);
@@ -50,37 +48,18 @@ public:
             const ComMotion& com_motion,
             const Contacts& contacts);
 
-
-
-
-  void SetInterpreter(const Interpreter&);
-
   void Update() override;
+
   VecSpline GetSplines() const;
   VecFoothold GetFootholds() const;
   VecFoothold GetStartStance() const;
-
-  MotionPtrU GetComMotion() const      { return com_motion_->clone(); };
-  Contacts GetContacts() const         { return *contacts_; };
-  MotionStructure GetStructure() const { return motion_structure_; };
-
-
-
-
-
-//  VectorXd GetMotionCoefficients() const { return  x_motion_; };
-//  VectorXd GetContactCoefficients() const { return x_contacts_; };
-
-
+  MotionPtrU GetComMotion() const;
+  MotionStructure GetStructure() const;
 
 private:
   MotionPtrU com_motion_;
-  SuppPolygonPtrU contacts_;
+  ContactsPtrU contacts_;
   MotionStructure motion_structure_;
-
-//  VectorXd x_motion_;
-//  VectorXd x_contacts_;
-  Interpreter interpreter_; // motion_ref remove
 };
 
 } /* namespace zmp */

@@ -8,10 +8,11 @@
 #include <xpp/zmp/nlp_facade.h>
 
 #include <xpp/zmp/motion_structure.h>
+#include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/cost_container.h>
-#include <xpp/zmp/optimization_variables_interpreter.h>
+//#include <xpp/zmp/optimization_variables_interpreter.h>
 #include <xpp/zmp/interpreting_observer.h>
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/zmp/cost_constraint_factory.h>
@@ -23,6 +24,8 @@
 
 namespace xpp {
 namespace zmp {
+
+using Contacts = xpp::hyq::SupportPolygonContainer;
 
 NlpFacade::NlpFacade (IVisualizer& visualizer)
      :visualizer_(&visualizer)
@@ -67,7 +70,7 @@ NlpFacade::SolveNlp(const State& initial_state,
 
 
 
-  xpp::hyq::SupportPolygonContainer contacts;
+  Contacts contacts;
   contacts.Init(curr_stance, step_sequence, margins);
 
   // insight: this spline might be better for MPC, as it always matches the initial
@@ -134,10 +137,10 @@ NlpFacade::SolveNlp(const State& initial_state,
 
 
 
-  OptimizationVariablesInterpreter interpreter;
-  interpreter.Init(com_motion, contacts, robot_height);
+//  OptimizationVariablesInterpreter interpreter;
+//  interpreter.Init(com_motion, contacts, robot_height);
   // motion_ref remove this at some point
-  interpreting_observer_->SetInterpreter(interpreter);
+//  interpreting_observer_->SetInterpreter(interpreter);
   interpreting_observer_->Init(motion_structure, *com_motion, contacts);
 
   // Ipopt solving

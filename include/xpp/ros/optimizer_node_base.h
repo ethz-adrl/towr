@@ -40,6 +40,7 @@ protected:
   VecFoothold curr_stance_;
   bool start_with_com_shift_; ///< whether to shift Center of Mass before lifting first leg
 
+  // motion_ref make this a motion that is being published, not a spline
   VecSpline opt_splines_;
   VecFoothold footholds_;
 

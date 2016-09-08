@@ -6,6 +6,11 @@
  */
 
 #include <xpp/zmp/interpreting_observer.h>
+#include <xpp/zmp/com_motion.h>
+#include <xpp/zmp/optimization_variables.h>
+#include <xpp/hyq/support_polygon_container.h>
+
+#include <xpp/zmp/com_spline.h> //motion_ref this should not be here
 
 namespace xpp {
 namespace zmp {
@@ -29,8 +34,8 @@ InterpretingObserver::Init(const MotionStructure& structure,
                            const ComMotion& com_motion,
                            const Contacts& contacts)
 {
-  com_motion_ = com_motion.clone();
-  contacts_ = SuppPolygonPtrU(new Contacts(contacts));
+  com_motion_       = com_motion.clone();
+  contacts_         = ContactsPtrU(new Contacts(contacts));
   motion_structure_ = structure;
 }
 
@@ -38,28 +43,30 @@ void
 InterpretingObserver::Update ()
 {
   VectorXd x_motion    = subject_->GetVariables(VariableNames::kSplineCoeff);
-  VectorXd x_contacts = subject_->GetVariables(VariableNames::kFootholds);
+  VectorXd x_contacts  = subject_->GetVariables(VariableNames::kFootholds);
 
   com_motion_->SetCoefficients(x_motion);
   contacts_->SetFootholdsXY(utils::ConvertEigToStd(x_contacts));
-
-//  // smell this could be a cause for slow performance
-  interpreter_.SetFootholds(utils::ConvertEigToStd(x_contacts));
-  interpreter_.SetSplineCoefficients(x_motion);
 }
 
-// motion_ref remove this
-void
-InterpretingObserver::SetInterpreter (const Interpreter& interpreter)
+InterpretingObserver::MotionPtrU
+InterpretingObserver::GetComMotion() const
 {
-  interpreter_ = interpreter;
-}
+  return com_motion_->clone();
+};
 
-// deprecated
+MotionStructure
+InterpretingObserver::GetStructure() const
+{
+  return motion_structure_;
+};
+
 InterpretingObserver::VecSpline
 InterpretingObserver::GetSplines () const
 {
-  return interpreter_.GetSplines();
+  // motion_ref ugly, figure out how to use general motion for info
+  auto& spline = dynamic_cast<ComSpline&>(*com_motion_);
+  return spline.GetPolynomials();
 }
 
 InterpretingObserver::VecFoothold

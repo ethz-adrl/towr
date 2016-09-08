@@ -7,9 +7,8 @@
 
 #include <xpp/ros/optimization_visualizer.h>
 #include <xpp/ros/ros_helpers.h>
-
-#include <xpp/hyq/foothold.h>
 #include <xpp/zmp/interpreting_observer.h>
+#include <xpp/ros/marker_array_builder.h>
 
 namespace xpp {
 namespace ros {
@@ -39,18 +38,13 @@ OptimizationVisualizer::Visualize () const
 {
   double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 
-  std::vector<xpp::hyq::Foothold> start_stance = observer_->GetStartStance();
-
-//  VectorXd x_motion = observer_->GetMotionCoefficients();
-//  VectorXd x_motion = observer_->GetMotionCoefficients();
-
-
-  auto com_motion = observer_->GetComMotion();
-  auto footholds = observer_->GetFootholds();
-  auto structure = observer_->GetStructure();
-
+  auto start_stance = observer_->GetStartStance();
+  auto com_motion   = observer_->GetComMotion();
+  auto footholds    = observer_->GetFootholds();
+  auto structure    = observer_->GetStructure();
 
   visualization_msgs::MarkerArray msg;
+  MarkerArrayBuilder msg_builder_;
   msg_builder_.AddStartStance(msg, start_stance);
   msg_builder_.AddFootholds(msg, footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
   msg_builder_.AddCogTrajectory(msg, *com_motion, structure, footholds, "cog", 1.0);
