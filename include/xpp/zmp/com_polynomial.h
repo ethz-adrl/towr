@@ -87,10 +87,7 @@ public:
 
   uint GetId()            const { return id_; };
   double GetDuration()    const { return duration_; }
-  void SetStep(int step) {step_ = step; };
 
-  /** Only if spline is a "StepSpline" is a step currently being executed. */
-  uint GetCurrStep() const;
 
   // DEPRECATED:
   // The phase information should only be used from the base class
@@ -99,14 +96,17 @@ public:
   // neccessary here as well, remove.
   // Will remove soon.
   // refactor remove deprecated phase stuff
+  /** Only if spline is a "StepSpline" is a step currently being executed. */
+  void SetStep(int step) {step_ = step; };
+  uint GetCurrStep() const;
   bool DeprecatedIsFourLegSupport() const { return deprecated_is_four_leg_supp_; }
-
   bool deprecated_is_four_leg_supp_ = true;
+  int step_; // current step
+  PhaseInfo deprecated_phase_;
+
 private:
   uint id_; // to identify the order relative to other zmp splines
   double duration_; // time during which this spline is active
-  int step_; // current step
-  PhaseInfo deprecated_phase_;
 
   friend struct xpp::ros::RosHelpers;
   friend std::ostream& operator<<(std::ostream& out, const ComPolynomial& tr);

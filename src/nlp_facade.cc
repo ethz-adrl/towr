@@ -131,9 +131,14 @@ NlpFacade::SolveNlp(const State& initial_state,
 //  snopt_problem->SolveSQP(Cold);
 
   // for visualization mostly
+
+
+
   OptimizationVariablesInterpreter interpreter;
   interpreter.Init(com_motion, contacts, robot_height);
+  // motion_ref remove this at some point
   interpreting_observer_->SetInterpreter(interpreter);
+  interpreting_observer_->Init(motion_structure, *com_motion, contacts);
 
   // Ipopt solving
   IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, *visualizer_); // just so it can poll the PublishMsg() method
@@ -176,8 +181,6 @@ NlpFacade::AttachVisualizer (IVisualizer& visualizer)
 NlpFacade::VecFoothold
 NlpFacade::GetFootholds () const
 {
-
-
   return interpreting_observer_->GetFootholds();
 }
 

@@ -7,6 +7,7 @@
 
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/zmp/com_spline6.h>
+#include <xpp/zmp/motion_structure.h>
 
 #include <xpp_opt/RequiredInfoQp.h>          // send
 #include <xpp_opt/OptimizedParametersQp.h>   // receive
@@ -15,6 +16,7 @@
 
 typedef xpp_opt::RequiredInfoQp ReqInfoMsg;
 typedef xpp_opt::OptimizedParametersQp OptimizedParametersMsg;
+using MotionStructure = xpp::zmp::MotionStructure;
 
 xpp::zmp::ComSpline6::VecPolynomials splines;
 std::vector<xpp::hyq::Foothold> footholds;
@@ -70,7 +72,6 @@ int main(int argc, char **argv)
   current_info_pub.publish(msg);
 
 
-
   xpp::ros::MarkerArrayBuilder marker_builder;
   double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
   ros::Publisher ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
@@ -81,8 +82,8 @@ int main(int argc, char **argv)
 
     visualization_msgs::MarkerArray marker_msg;
     marker_builder.AddFootholds(marker_msg, RosHelpers::RosToXpp(msg.steps), "footholds", visualization_msgs::Marker::CUBE, 1.0);
-    marker_builder.AddCogTrajectory(marker_msg, splines, RosHelpers::RosToXpp(msg.steps), "cog", 1.0);
-    marker_builder.AddZmpTrajectory(marker_msg, splines, walking_height, RosHelpers::RosToXpp(msg.steps), "zmp_4ls", 0.7);
+//    marker_builder.AddCogTrajectory(marker_msg, splines, RosHelpers::RosToXpp(msg.steps), "cog", 1.0);
+//    marker_builder.AddZmpTrajectory(marker_msg, splines, walking_height, RosHelpers::RosToXpp(msg.steps), "zmp_4ls", 0.7);
 
     ros_publisher_.publish(marker_msg);
     loop_rate.sleep();

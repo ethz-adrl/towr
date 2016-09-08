@@ -14,6 +14,8 @@
 namespace xpp {
 namespace ros {
 
+using VectorXd = Eigen::VectorXd;
+
 OptimizationVisualizer::OptimizationVisualizer ()
 {
   observer_ = nullptr;
@@ -37,15 +39,22 @@ OptimizationVisualizer::Visualize () const
 {
   double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 
-  std::vector<xpp::zmp::ComPolynomial> spline   = observer_->GetSplines();
-  std::vector<xpp::hyq::Foothold> footholds = observer_->GetFootholds();
   std::vector<xpp::hyq::Foothold> start_stance = observer_->GetStartStance();
+
+//  VectorXd x_motion = observer_->GetMotionCoefficients();
+//  VectorXd x_motion = observer_->GetMotionCoefficients();
+
+
+  auto com_motion = observer_->GetComMotion();
+  auto footholds = observer_->GetFootholds();
+  auto structure = observer_->GetStructure();
+
 
   visualization_msgs::MarkerArray msg;
   msg_builder_.AddStartStance(msg, start_stance);
   msg_builder_.AddFootholds(msg, footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
-  msg_builder_.AddCogTrajectory(msg, spline, footholds, "cog", 1.0);
-  msg_builder_.AddZmpTrajectory(msg, spline, walking_height, footholds, "zmp_4ls", 0.2);
+  msg_builder_.AddCogTrajectory(msg, *com_motion, structure, footholds, "cog", 1.0);
+  msg_builder_.AddZmpTrajectory(msg, *com_motion, structure, walking_height, footholds, "zmp_4ls", 0.2);
   msg_builder_.AddSupportPolygons(msg, start_stance, footholds);
 //  msg_builder_.AddLineStrip(msg, -0.2, 0.2, "gap");
 //  msg_builder_.AddEllipse(msg, -0.2, 0.0, 0.15, 2.0, "ellipse");

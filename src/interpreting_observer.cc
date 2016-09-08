@@ -15,6 +15,8 @@ typedef Eigen::VectorXd VectorXd;
 InterpretingObserver::InterpretingObserver (OptimizationVariables& subject)
     :IObserver(subject)
 {
+  com_motion_   = nullptr;
+  contacts_     = nullptr;
 }
 
 InterpretingObserver::~InterpretingObserver ()
@@ -23,22 +25,37 @@ InterpretingObserver::~InterpretingObserver ()
 }
 
 void
-InterpretingObserver::SetInterpreter (const Interpreter& interpreter)
+InterpretingObserver::Init(const MotionStructure& structure,
+                           const ComMotion& com_motion,
+                           const Contacts& contacts)
 {
-  interpreter_ = interpreter;
+  com_motion_ = com_motion.clone();
+  contacts_ = SuppPolygonPtrU(new Contacts(contacts));
+  motion_structure_ = structure;
 }
 
 void
 InterpretingObserver::Update ()
 {
-  VectorXd x_coeff_    = subject_->GetVariables(VariableNames::kSplineCoeff);
-  VectorXd x_footholds = subject_->GetVariables(VariableNames::kFootholds);
+  VectorXd x_motion    = subject_->GetVariables(VariableNames::kSplineCoeff);
+  VectorXd x_contacts = subject_->GetVariables(VariableNames::kFootholds);
 
-  // smell this could be a cause for slow performance
-  interpreter_.SetFootholds(utils::ConvertEigToStd(x_footholds));
-  interpreter_.SetSplineCoefficients(x_coeff_);
+  com_motion_->SetCoefficients(x_motion);
+  contacts_->SetFootholdsXY(utils::ConvertEigToStd(x_contacts));
+
+//  // smell this could be a cause for slow performance
+  interpreter_.SetFootholds(utils::ConvertEigToStd(x_contacts));
+  interpreter_.SetSplineCoefficients(x_motion);
 }
 
+// motion_ref remove this
+void
+InterpretingObserver::SetInterpreter (const Interpreter& interpreter)
+{
+  interpreter_ = interpreter;
+}
+
+// deprecated
 InterpretingObserver::VecSpline
 InterpretingObserver::GetSplines () const
 {
@@ -48,13 +65,13 @@ InterpretingObserver::GetSplines () const
 InterpretingObserver::VecFoothold
 InterpretingObserver::GetFootholds () const
 {
-  return interpreter_.GetFootholds();
+  return contacts_->GetFootholds();
 }
 
 InterpretingObserver::VecFoothold
 InterpretingObserver::GetStartStance () const
 {
-  return interpreter_.GetStartStance();
+  return contacts_->GetStartStance();
 }
 
 } /* namespace zmp */
