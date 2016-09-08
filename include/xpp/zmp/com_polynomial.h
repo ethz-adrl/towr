@@ -70,46 +70,28 @@ protected:
 } // namespace zmp
 } // namespace xpp
 
-
-#include "phase_info.h"
-namespace xpp { namespace ros { class RosHelpers; }} // forward declaration for friend
+namespace xpp {namespace ros{ class RosHelpers; }};
 
 namespace xpp {
 namespace zmp {
 
-/** A fifth order spline that now holds some context information about the Center of Mass.
+/** A fifth order spline that now holds some context information.
   */
 class ComPolynomial : public PolynomialFifthOrder {
 public:
   ComPolynomial();
-  ComPolynomial(uint id, double duration, PhaseInfo);
+  ComPolynomial(uint id, double duration);
   virtual ~ComPolynomial() {};
 
   uint GetId()            const { return id_; };
-  double GetDuration()    const { return duration_; }
-
-
-  // DEPRECATED:
-  // The phase information should only be used from the base class
-  // com_motion and not linked to a specific spline. This is an implementation
-  // detail not relevant outside the optimizer. Also the step info is not
-  // neccessary here as well, remove.
-  // Will remove soon.
-  // refactor remove deprecated phase stuff
-  /** Only if spline is a "StepSpline" is a step currently being executed. */
-  void SetStep(int step) {step_ = step; };
-  uint GetCurrStep() const;
-  bool DeprecatedIsFourLegSupport() const { return deprecated_is_four_leg_supp_; }
-  bool deprecated_is_four_leg_supp_ = true;
-  int step_; // current step
-  PhaseInfo deprecated_phase_;
+  double GetDuration()    const { return duration_; };
 
 private:
-  uint id_; // to identify the order relative to other zmp splines
+  uint id_; // to identify the order relative to other polynomials
   double duration_; // time during which this spline is active
 
-  friend struct xpp::ros::RosHelpers;
   friend std::ostream& operator<<(std::ostream& out, const ComPolynomial& tr);
+  friend struct xpp::ros::RosHelpers;
 };
 
 

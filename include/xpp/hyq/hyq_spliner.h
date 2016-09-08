@@ -89,17 +89,11 @@ private:
 
   Vector3d GetCurrZState(double t_global) const;
 
-
-  static std::vector<SplineNode> BuildStateSequence(const HyqState& P_init,
-                                            const VecZmpSpline& zmp_splines,
-                                            const VecFoothold& footholds,
-                                            double robot_height);
-
   std::vector<SplineNode>
   BuildPhaseSequence(const HyqState& P_init,
-                                const xpp::zmp::PhaseVec&,
-                                const VecFoothold& footholds,
-                                double robot_height);
+                     const xpp::zmp::PhaseVec&,
+                     const VecFoothold& footholds,
+                     double robot_height);
 
   void CreateAllSplines(const std::vector<SplineNode>& nodes);
 

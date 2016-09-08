@@ -145,8 +145,6 @@ XppToRos(const VecSpline& opt_splines)
 
     msgs.at(i).duration = opt_splines.at(i).duration_;
     msgs.at(i).id       = opt_splines.at(i).id_;
-    msgs.at(i).step     = opt_splines.at(i).step_;
-    msgs.at(i).is_4ls   = opt_splines.at(i).deprecated_is_four_leg_supp_;
   }
 
   return msgs;
@@ -169,14 +167,9 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
     const double* ay_coeff = msgs.at(i).coeff_y.begin();
     std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::Y]);
 
-    xpp.at(i).duration_                    = msgs.at(i).duration;
-    xpp.at(i).id_                          = msgs.at(i).id;
-    xpp.at(i).step_                        = msgs.at(i).step;
-    xpp.at(i).deprecated_is_four_leg_supp_ = msgs.at(i).is_4ls;
-    // motion_ref this is causing the seg fault
-//    xpp.at(i).deprecated_phase_     = static_cast<int>(opt_splines.at(i).deprecated_phase_.IsStep());
+    xpp.at(i).duration_ = msgs.at(i).duration;
+    xpp.at(i).id_       = msgs.at(i).id;
   }
-
   return xpp;
 }
 

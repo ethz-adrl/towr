@@ -6,6 +6,4 @@ float64[6] coeff_x
 float64[6] coeff_y
 uint32 id
 float64 duration
-uint32 step
-bool is_4ls
 

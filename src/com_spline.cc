@@ -29,23 +29,19 @@ ComSpline::Init (const PhaseVec& phases)
 
   for (const auto& phase : phases) {
 
-
     if (!phase.IsStep())
     {
       double t_reaction = 0.15;
-      polynomials_.push_back(ComPolynomial(id++, t_reaction, phase));
-      polynomials_.push_back(ComPolynomial(id++, phase.duration_-t_reaction, phase));
+      polynomials_.push_back(ComPolynomial(id++, t_reaction));
+      polynomials_.push_back(ComPolynomial(id++, phase.duration_-t_reaction));
     } else
     {
       int n_splines_per_step = 1;
       for (int i=0; i<n_splines_per_step; ++i) {
-        ComPolynomial polynomial(id++, phase.duration_/n_splines_per_step, phase);
-        polynomial.SetStep(phase.n_completed_steps_);
-        polynomial.deprecated_is_four_leg_supp_ = false;
+        ComPolynomial polynomial(id++, phase.duration_/n_splines_per_step);
         polynomials_.push_back(polynomial);
       }
     }
-
   }
 
   splines_initialized_ = true;

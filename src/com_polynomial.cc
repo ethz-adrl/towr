@@ -80,32 +80,21 @@ PolynomialFifthOrder::GetCoefficient (int dim, SplineCoeff coeff) const
   return spline_coeff_[dim][coeff];
 }
 
-ComPolynomial::ComPolynomial()
-    : id_(0), duration_(0.0), deprecated_phase_(PhaseInfo()), step_(-1)
+ComPolynomial::ComPolynomial() : id_(0), duration_(0.0)
 {
   SetSplineCoefficients();
 }
 
-ComPolynomial::ComPolynomial(uint id, double duration, PhaseInfo phase_info)
-    : id_(id), duration_(duration), deprecated_phase_(phase_info), step_(-1)
+ComPolynomial::ComPolynomial(uint id, double duration) : id_(id), duration_(duration)
 {
   SetSplineCoefficients();
-}
-
-uint ComPolynomial::GetCurrStep() const
-{
-  assert(!DeprecatedIsFourLegSupport());
-  return step_;
 }
 
 std::ostream&
 operator<<(std::ostream& out, const ComPolynomial& p)
 {
   out << "id: " << p.id_
-      << "\t phase.id: " << p.deprecated_phase_.id_
-      << "\t duration: " << p.duration_
-      << "\t step: " << p.step_;
-
+      << "\t duration: " << p.duration_;
   return out;
 }
 

@@ -32,7 +32,6 @@ void HyqSpliner::Init(const HyqState& P_init,
                       double robot_height)
 {
   nodes_ = BuildPhaseSequence(P_init, phase_info, footholds, robot_height);
-//  nodes_ = BuildStateSequence(P_init, optimized_xy_spline, footholds, robot_height);
   CreateAllSplines(nodes_);
   optimized_xy_spline_ = optimized_xy_spline;
 }
@@ -116,77 +115,6 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
 
   return nodes;
 }
-
-
-
-std::vector<SplineNode>
-HyqSpliner::BuildStateSequence(const HyqState& P_init,
-                              const VecZmpSpline& zmp_splines,
-                              const VecFoothold& footholds,
-                              double robot_height)
-{
-  std::vector<SplineNode> nodes;
-
-  // start node
-  SplineNode init_node = BuildNode(P_init, 0.0);
-  nodes.push_back(init_node); // this node has to be reached instantly (t=0)
-
-  /** Add state sequence based on footsteps **/
-  // desired state after first 4 leg support phase
-  HyqState P_plan_prev = P_init;
-  P_plan_prev.ZeroVelAcc(); // these aren't used anyway, overwritten by optimizer
-  for (hyq::LegID l : hyq::LegIDArray) {
-    P_plan_prev.feet_[l].p(Z) = 0.0;
-  }
-  P_plan_prev.base_.pos.p(Z) = robot_height + P_plan_prev.GetZAvg(); // height of footholds
-
-  for (const ZmpSpline& s : zmp_splines)
-  {
-    // copy a few values from previous state
-    HyqState P_plan = P_plan_prev;
-    P_plan.swingleg_ = false;
-
-    // only change state in swingphase
-    if (!s.DeprecatedIsFourLegSupport()) {
-      const Foothold& f = footholds.at(s.GetCurrStep());
-      P_plan.swingleg_[f.leg] = true;
-      P_plan.feet_[f.leg].p(X) = f.p(X);
-      P_plan.feet_[f.leg].p(Y) = f.p(Y);
-      P_plan.feet_[f.leg].p(Z) = f.p(Z);
-
-      // adjust orientation depending on footholds
-      std::array<Vector3d, kNumSides> avg = P_plan.GetAvgSides();
-      // fixme calculate distance based on current foothold position, not fixed values
-      double width_hip = 0.414;
-      double length_hip = 0.747;
-      double i_roll  = std::atan2((avg[LEFT_SIDE](Z) - avg[RIGHT_SIDE](Z)), width_hip);
-      double i_pitch = std::atan2((avg[HIND_SIDE](Z) - avg[FRONT_SIDE](Z)), length_hip);
-
-
-      // how strictly the body should follow difference in foothold height
-      double roll_gain = 0.0;
-      double pitch_gain = 0.0;
-      // Quaternion is the same for angle += i*pi
-      kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB(
-          roll_gain*i_roll,
-          pitch_gain*i_pitch,
-          0.0); // P_yaw_des.at(s.step_));
-
-
-      kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
-      P_plan.base_.ori.q = qIB.toImplementation();
-
-      // adjust global z position of body depending on footholds
-      P_plan.base_.pos.p(Z) = robot_height + P_plan.GetZAvg(); // height of footholds
-    }
-
-    nodes.push_back(BuildNode(P_plan, s.GetDuration()));
-    P_plan_prev = P_plan;
-  }
-
-  return nodes;
-}
-
 
 void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
 {
