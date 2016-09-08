@@ -99,8 +99,9 @@ public:
   // neccessary here as well, remove.
   // Will remove soon.
   // refactor remove deprecated phase stuff
-  bool DeprecatedIsFourLegSupport() const { return !deprecated_phase_.IsStep(); }
+  bool DeprecatedIsFourLegSupport() const { return deprecated_is_four_leg_supp_; }
 
+  bool deprecated_is_four_leg_supp_ = true;
 private:
   uint id_; // to identify the order relative to other zmp splines
   double duration_; // time during which this spline is active

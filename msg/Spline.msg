@@ -7,5 +7,5 @@ float64[6] coeff_y
 uint32 id
 float64 duration
 uint32 step
-int32 type
+bool is_4ls
 

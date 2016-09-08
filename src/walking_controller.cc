@@ -110,7 +110,7 @@ WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
 
   optimal_trajectory_updated = true;
 
-  ROS_INFO_STREAM("updated splines [size=" << opt_splines_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
+  ROS_INFO_STREAM("received splines [size=" << opt_splines_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
 }
 
 void WalkingController::PublishCurrentState()
@@ -143,15 +143,13 @@ WalkingController::SwitchToNewTrajectory ()
 //    return true;
 //  }
 //
-//  return false;
 
+  // don't switch, finish first planned trajectory
+  return false;
 
-
-
-  double t_switch = switch_node_.T;
-  double t_max = t_switch - robot_->GetControlLoopInterval();
-  return Time() >= t_max; /*|| Time() >= spliner_.GetTotalTime()-dt_*/
-
+//  double t_switch = switch_node_.T;
+//  double t_max = t_switch - robot_->GetControlLoopInterval();
+//  return Time() >= t_max; /*|| Time() >= spliner_.GetTotalTime()-dt_*/
 }
 
 
@@ -164,6 +162,10 @@ void WalkingController::IntegrateOptimizedTrajectory()
   ::ros::spinOnce(); // process callbacks (get the optimized values).
 
   // start from desired state so there is no jump in desired
+  std::cout << "optimal_footholds:\n";
+  for (auto f : opt_footholds_)
+    std::cout << f;
+
   spliner_.Init(P_des_, opt_splines_, opt_footholds_, robot_height_);
 
 

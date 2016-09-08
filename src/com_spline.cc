@@ -39,9 +39,10 @@ ComSpline::Init (const PhaseVec& phases)
     {
       int n_splines_per_step = 1;
       for (int i=0; i<n_splines_per_step; ++i) {
-        ComPolynomial spline(id++, phase.duration_/n_splines_per_step, phase);
-        spline.SetStep(phase.n_completed_steps_);
-        polynomials_.push_back(spline);
+        ComPolynomial polynomial(id++, phase.duration_/n_splines_per_step, phase);
+        polynomial.SetStep(phase.n_completed_steps_);
+        polynomial.deprecated_is_four_leg_supp_ = false;
+        polynomials_.push_back(polynomial);
       }
     }
 
