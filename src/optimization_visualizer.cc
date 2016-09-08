@@ -7,8 +7,8 @@
 
 #include <xpp/ros/optimization_visualizer.h>
 #include <xpp/ros/ros_helpers.h>
-#include <xpp/zmp/interpreting_observer.h>
 #include <xpp/ros/marker_array_builder.h>
+#include "../include/xpp/zmp/nlp_observer.h"
 
 namespace xpp {
 namespace ros {

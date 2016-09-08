@@ -13,7 +13,7 @@
 
 namespace xpp {
 namespace zmp {
-class InterpretingObserver;
+class NlpObserver;
 }
 }
 
@@ -29,7 +29,7 @@ namespace ros {
   */
 class OptimizationVisualizer : public xpp::zmp::IVisualizer {
 public:
-  typedef std::shared_ptr<xpp::zmp::InterpretingObserver> InterpretingObserverPtr;
+  typedef std::shared_ptr<xpp::zmp::NlpObserver> InterpretingObserverPtr;
 
   OptimizationVisualizer();
   virtual ~OptimizationVisualizer ();

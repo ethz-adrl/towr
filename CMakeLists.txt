@@ -131,7 +131,7 @@ set(SOURCES
   src/optimization_variables.cc
   src/i_observer.cc
   src/nlp_facade.cc
-  src/interpreting_observer.cc
+  src/nlp_observer.cc
   src/nlp.cc
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
@@ -236,7 +236,7 @@ if(BUILD_TESTS)
 #                        test/google/nlp_facade_test.cc
 ##                        test/google/hyq_spliner_test.cc
 #                        test/google/optimization_variables_test.cc
-#                        test/google/interpreting_observer_test.cc
+#                        test/google/nlp_observer_test.cc
 #                        test/google/optimization_visualizer_test.cc
 #                        test/google/step_sequence_planner_test.cc
                          test/google/line_equation_test.cc

@@ -5,7 +5,8 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/interpreting_observer.h>
+#include <xpp/zmp/nlp_observer.h>
+
 #include <xpp/zmp/com_motion.h>
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/hyq/support_polygon_container.h>
@@ -13,20 +14,20 @@
 namespace xpp {
 namespace zmp {
 
-InterpretingObserver::InterpretingObserver (OptimizationVariables& subject)
+NlpObserver::NlpObserver (OptimizationVariables& subject)
     :IObserver(subject)
 {
   com_motion_   = nullptr;
   contacts_     = nullptr;
 }
 
-InterpretingObserver::~InterpretingObserver ()
+NlpObserver::~NlpObserver ()
 {
   // TODO Auto-generated destructor stub
 }
 
 void
-InterpretingObserver::Init(const MotionStructure& structure,
+NlpObserver::Init(const MotionStructure& structure,
                            const ComMotion& com_motion,
                            const Contacts& contacts)
 {
@@ -36,7 +37,7 @@ InterpretingObserver::Init(const MotionStructure& structure,
 }
 
 void
-InterpretingObserver::Update ()
+NlpObserver::Update ()
 {
   using VectorXd = Eigen::VectorXd;
 
@@ -47,26 +48,26 @@ InterpretingObserver::Update ()
   contacts_->SetFootholdsXY(utils::ConvertEigToStd(x_contacts));
 }
 
-InterpretingObserver::MotionPtrS
-InterpretingObserver::GetComMotion() const
+NlpObserver::MotionPtrS
+NlpObserver::GetComMotion() const
 {
   return com_motion_;
 };
 
 MotionStructure
-InterpretingObserver::GetStructure() const
+NlpObserver::GetStructure() const
 {
   return motion_structure_;
 };
 
-InterpretingObserver::VecFoothold
-InterpretingObserver::GetFootholds () const
+NlpObserver::VecFoothold
+NlpObserver::GetFootholds () const
 {
   return contacts_->GetFootholds();
 }
 
-InterpretingObserver::VecFoothold
-InterpretingObserver::GetStartStance () const
+NlpObserver::VecFoothold
+NlpObserver::GetStartStance () const
 {
   return contacts_->GetStartStance();
 }

@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_INTERPRETING_OBSERVER_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_INTERPRETING_OBSERVER_H_
+#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_OBSERVER_H_
+#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_OBSERVER_H_
 
 #include <xpp/zmp/i_observer.h>
 #include <xpp/zmp/motion_structure.h>
@@ -32,15 +32,15 @@ class OptimizationVariables;
   * This class is responsible for observing the current values of the
   * optimization variables and returning them if needed.
   */
-class InterpretingObserver : public IObserver {
+class NlpObserver : public IObserver {
 public:
   using VecFoothold     = std::vector<xpp::hyq::Foothold>;
   using Contacts        = xpp::hyq::SupportPolygonContainer;
   using ContactsPtrU    = std::unique_ptr<Contacts>;
   using MotionPtrS      = std::shared_ptr<ComMotion>;
 
-  InterpretingObserver (OptimizationVariables& subject);
-  virtual ~InterpretingObserver ();
+  NlpObserver (OptimizationVariables& subject);
+  virtual ~NlpObserver ();
 
   void Init(const MotionStructure& structure,
             const ComMotion& com_motion,
@@ -62,4 +62,4 @@ private:
 } /* namespace zmp */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_INTERPRETING_OBSERVER_H_ */
+#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_OBSERVER_H_ */

@@ -12,7 +12,6 @@
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/cost_container.h>
-#include <xpp/zmp/interpreting_observer.h>
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/zmp/cost_constraint_factory.h>
 #include <xpp/zmp/motion_factory.h>
@@ -20,6 +19,7 @@
 #include <xpp/zmp/nlp.h>
 #include <xpp/zmp/ipopt_adapter.h>
 #include <xpp/zmp/snopt_adapter.h>
+#include "../include/xpp/zmp/nlp_observer.h"
 
 namespace xpp {
 namespace zmp {
@@ -33,7 +33,7 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   opt_variables_         = std::make_shared<OptimizationVariables>();
   costs_                 = std::make_shared<CostContainer>(*opt_variables_);
   constraints_           = std::make_shared<ConstraintContainer>(*opt_variables_);
-  interpreting_observer_ = std::make_shared<InterpretingObserver>(*opt_variables_);
+  nlp_observer_ = std::make_shared<NlpObserver>(*opt_variables_);
   step_sequence_planner_ = std::make_shared<xpp::hyq::StepSequencePlanner>();
 
 
@@ -67,8 +67,6 @@ NlpFacade::SolveNlp(const State& initial_state,
   MotionStructure motion_structure;
   motion_structure.Init(curr_stance, step_sequence, t_swing, t_stance, start_with_com_shift, true);
 
-
-
   Contacts contacts;
   contacts.Init(curr_stance, step_sequence, margins);
 
@@ -77,6 +75,8 @@ NlpFacade::SolveNlp(const State& initial_state,
   // a constraint, that might not be fulfilled.
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
 //  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
+
+  nlp_observer_->Init(motion_structure, *com_motion, contacts);
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
@@ -134,11 +134,6 @@ NlpFacade::SolveNlp(const State& initial_state,
 //  int Cold = 0, Basis = 1, Warm = 2;
 //  snopt_problem->SolveSQP(Cold);
 
-  // for visualization mostly
-
-
-  interpreting_observer_->Init(motion_structure, *com_motion, contacts);
-
   // Ipopt solving
   IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, *visualizer_); // just so it can poll the PublishMsg() method
   SolveIpopt(nlp_ptr, max_cpu_time);
@@ -165,10 +160,10 @@ NlpFacade::SolveIpopt (const IpoptPtr& nlp, double max_cpu_time)
   }
 }
 
-NlpFacade::InterpretingObserverPtr
+NlpFacade::NlpObserverPtr
 NlpFacade::GetObserver () const
 {
-  return interpreting_observer_;
+  return nlp_observer_;
 }
 
 void
@@ -180,19 +175,19 @@ NlpFacade::AttachVisualizer (IVisualizer& visualizer)
 NlpFacade::VecFoothold
 NlpFacade::GetFootholds () const
 {
-  return interpreting_observer_->GetFootholds();
+  return nlp_observer_->GetFootholds();
 }
 
 NlpFacade::ComMotionPtrS
 NlpFacade::GetMotion () const
 {
-  return interpreting_observer_->GetComMotion();
+  return nlp_observer_->GetComMotion();
 }
 
 PhaseVec
 NlpFacade::GetPhases () const
 {
-  return interpreting_observer_->GetStructure().GetPhases();
+  return nlp_observer_->GetStructure().GetPhases();
 }
 
 } /* namespace zmp */

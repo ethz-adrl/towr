@@ -32,7 +32,7 @@ class OptimizationVariables;
 class CostContainer;
 class ConstraintContainer;
 class OptimizationVariablesInterpreter;
-class InterpretingObserver;
+class NlpObserver;
 class ComPolynomial;
 class ComMotion;
 
@@ -48,7 +48,7 @@ public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef std::shared_ptr<OptimizationVariablesInterpreter> InterpreterPtr;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
-  typedef std::shared_ptr<InterpretingObserver> InterpretingObserverPtr;
+  typedef std::shared_ptr<NlpObserver> NlpObserverPtr;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
 
   typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
@@ -83,7 +83,7 @@ public:
                 double max_cpu_time = 1e20);
 
   void AttachVisualizer(IVisualizer& visualizer);
-  InterpretingObserverPtr GetObserver() const;
+  NlpObserverPtr GetObserver() const;
 
   VecFoothold GetFootholds() const;
   ComMotionPtrS GetMotion() const;
@@ -99,7 +99,7 @@ private:
   ConstraintContainerPtr constraints_;
 
 
-  InterpretingObserverPtr interpreting_observer_;
+  NlpObserverPtr nlp_observer_;
   IVisualizer* visualizer_;
 
   Ipopt::IpoptApplication ipopt_solver_;
