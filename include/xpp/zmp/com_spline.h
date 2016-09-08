@@ -38,8 +38,8 @@ public:
   virtual void Init(const PhaseVec& phases) final;
 
   // implements these functions from parent class, now specific for splines
-  Point2d GetCom(double t_global) const override { return GetCOM(t_global, polynomials_); }
-  double GetTotalTime() const override { return GetTotalTime(polynomials_); }
+  Point2d GetCom(double t_global) const override { return ComPolynomial::GetCOM(t_global, polynomials_); }
+  double GetTotalTime() const override { return ComPolynomial::GetTotalTime(polynomials_); }
   int GetTotalFreeCoeff() const override;
   VectorXd GetCoeffients () const override;
 
@@ -53,16 +53,11 @@ public:
   virtual Derivatives GetInitialFreeMotions()  const = 0;
   virtual Derivatives GetJunctionFreeMotions() const = 0;
 
-  static Point2d GetCOM(double t_global, const VecPolynomials& splines);
-  static int GetPolynomialID(double t_global, const VecPolynomials& splines);
-  static double GetTotalTime(const VecPolynomials& splines);
-
-  int GetPolynomialID(double t_global)  const { return GetPolynomialID(t_global, polynomials_); }
-  double GetLocalTime(double t_global)  const { return GetLocalTime(t_global, polynomials_); };
+  int GetPolynomialID(double t_global)  const { return ComPolynomial::GetPolynomialID(t_global, polynomials_); }
+  double GetLocalTime(double t_global)  const { return ComPolynomial::GetLocalTime(t_global, polynomials_); };
   VecPolynomials GetPolynomials()       const { return polynomials_; }
   ComPolynomial GetPolynomial(size_t i) const { return polynomials_.at(i); }
   ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
-
 
   /** Calculates the Jacobian at a specific time of the motion, but specified by
     * a local time and a polynome id. This allows to create spline junction constraints
@@ -73,8 +68,8 @@ public:
     * @param dim in which dimension (x,y) the Jacobian is desired.
     */
   JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt, double t_poly, int id, Coords3D dim) const;
-  static Point2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
-  Point2d GetCOGxyAtPolynomial(int id, double t_local) {return GetCOGxyAtPolynomial(id, t_local, polynomials_); };
+
+  Point2d GetCOGxyAtPolynomial(int id, double t_local) {return ComPolynomial::GetCOGxyAtPolynomial(id, t_local, polynomials_); };
 
 
 
@@ -94,7 +89,6 @@ private:
   virtual int NumFreeCoeffPerSpline() const = 0;
   virtual std::vector<SplineCoeff> GetFreeCoeffPerSpline() const = 0;
 
-  static double GetLocalTime(double t_global, const VecPolynomials& splines);
   bool splines_initialized_ = false;
 };
 

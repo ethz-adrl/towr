@@ -10,14 +10,11 @@
 
 #include <xpp/hyq/hyq_state.h>
 #include <xpp/utils/spliner_3d.h>
-#include <xpp/zmp/com_polynomial.h>
-
 #include <xpp/zmp/phase_info.h>
-
+#include <xpp/zmp/com_polynomial.h>
 
 namespace xpp {
 namespace hyq {
-
 
 struct SplineNode {
   typedef xpp::utils::Point3d Point3d;
@@ -31,8 +28,6 @@ struct SplineNode {
   double T;         // time to reach this state
 };
 
-
-
 /**
 @brief Splines the base pose (only z-position + orientation).
 
@@ -42,8 +37,7 @@ frame values omega (rollPitchYawToEar)
  */
 class HyqSpliner {
 public:
-  typedef xpp::zmp::ComPolynomial ZmpSpline;
-  typedef std::vector<ZmpSpline> VecZmpSpline;
+  typedef std::vector<xpp::zmp::ComPolynomial> VecPolyomials;
   typedef Eigen::Vector3d Vector3d;
   typedef Foothold::VecFoothold VecFoothold;
   typedef ::xpp::utils::QuinticSpliner Spliner;
@@ -58,7 +52,7 @@ public:
   void SetParams(double upswing, double lift_height, double outward_swing_distance);
   void Init(const HyqState& P_init,
             const xpp::zmp::PhaseVec&,
-            const VecZmpSpline&,
+            const VecPolyomials&,
             const VecFoothold&,
             double robot_height);
 
@@ -78,7 +72,7 @@ private:
   std::vector<SplineNode> nodes_; // the discrete states to spline through
   std::vector<Spliner3d> pos_spliner_, ori_spliner_;
   std::vector<LegDataMap< Spliner3d > > feet_spliner_up_, feet_spliner_down_;
-  VecZmpSpline optimized_xy_spline_;
+  VecPolyomials optimized_xy_spline_;
 
   double kUpswingPercent;       // how long to swing up during swing
   double kLiftHeight;           // how high to lift the leg

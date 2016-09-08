@@ -48,7 +48,7 @@ public:
   typedef xpp::hyq::LegID LegID;
   typedef xpp::utils::Point3d State;
   typedef xpp::utils::Orientation Orientation;
-  using VecSpline = HyqSpliner::VecZmpSpline;
+  using VecSpline = HyqSpliner::VecPolyomials;
   using VecPhase  = xpp::zmp::PhaseVec;
   // ROS stuff
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;

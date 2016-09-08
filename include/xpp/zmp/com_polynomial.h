@@ -79,12 +79,21 @@ namespace zmp {
   */
 class ComPolynomial : public PolynomialFifthOrder {
 public:
+  using VecPolynomials = std::vector<ComPolynomial>;
+  using Point2d = xpp::utils::Point2d;
+
   ComPolynomial();
   ComPolynomial(uint id, double duration);
   virtual ~ComPolynomial() {};
 
   uint GetId()            const { return id_; };
   double GetDuration()    const { return duration_; };
+
+  static Point2d GetCOM(double t_global, const VecPolynomials& splines);
+  static int GetPolynomialID(double t_global, const VecPolynomials& splines);
+  static double GetTotalTime(const VecPolynomials& splines);
+  static double GetLocalTime(double t_global, const VecPolynomials& splines);
+  static Point2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
 
 private:
   uint id_; // to identify the order relative to other polynomials

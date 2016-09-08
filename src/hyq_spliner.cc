@@ -7,7 +7,6 @@
 
 #include <xpp/hyq/hyq_spliner.h>
 #include <kindr/rotations/RotationEigen.hpp>
-#include "../include/xpp/zmp/com_spline6.h"
 
 namespace xpp {
 namespace hyq {
@@ -27,7 +26,7 @@ void HyqSpliner::SetParams(double upswing,
 
 void HyqSpliner::Init(const HyqState& P_init,
                       const xpp::zmp::PhaseVec& phase_info,
-                      const VecZmpSpline& optimized_xy_spline,
+                      const VecPolyomials& optimized_xy_spline,
                       const VecFoothold& footholds,
                       double robot_height)
 {
@@ -248,7 +247,7 @@ HyqSpliner::Point
 HyqSpliner::GetCurrPosition(double t_global) const
 {
   Vector3d z_splined = GetCurrZState(t_global);
-  xpp::utils::Point2d xy_optimized = xpp::zmp::ComSpline6::GetCOM(t_global, optimized_xy_spline_);
+  xpp::utils::Point2d xy_optimized = xpp::zmp::ComPolynomial::GetCOM(t_global, optimized_xy_spline_);
 
   Point pos;
 
