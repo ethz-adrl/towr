@@ -6,9 +6,7 @@
  */
 
 #include <xpp/ros/nlp_optimizer_node.h>
-
 #include <xpp/ros/ros_helpers.h>
-#include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
 namespace ros {

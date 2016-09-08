@@ -13,8 +13,6 @@
 namespace xpp {
 namespace zmp {
 
-typedef Eigen::VectorXd VectorXd;
-
 InterpretingObserver::InterpretingObserver (OptimizationVariables& subject)
     :IObserver(subject)
 {
@@ -40,6 +38,8 @@ InterpretingObserver::Init(const MotionStructure& structure,
 void
 InterpretingObserver::Update ()
 {
+  using VectorXd = Eigen::VectorXd;
+
   VectorXd x_motion    = subject_->GetVariables(VariableNames::kSplineCoeff);
   VectorXd x_contacts  = subject_->GetVariables(VariableNames::kFootholds);
 

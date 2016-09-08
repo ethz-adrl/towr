@@ -25,7 +25,6 @@ namespace xpp {
 namespace zmp {
 
 class ComMotion;
-class ComPolynomial; // motion_ref remove this
 class OptimizationVariables;
 
 /** @brief General optimization values observer
@@ -36,7 +35,6 @@ class OptimizationVariables;
 class InterpretingObserver : public IObserver {
 public:
   using VecFoothold     = std::vector<xpp::hyq::Foothold>;
-  using VecSpline       = std::vector<ComPolynomial>;
   using Contacts        = xpp::hyq::SupportPolygonContainer;
   using ContactsPtrU    = std::unique_ptr<Contacts>;
   using MotionPtrS      = std::shared_ptr<ComMotion>;

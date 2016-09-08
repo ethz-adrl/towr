@@ -129,7 +129,6 @@ set(SOURCES
   src/a_subject.cc
   src/nlp_structure.cc
   src/optimization_variables.cc
-  src/optimization_variables_interpreter.cc
   src/i_observer.cc
   src/nlp_facade.cc
   src/interpreting_observer.cc
@@ -239,7 +238,6 @@ if(BUILD_TESTS)
 #                        test/google/optimization_variables_test.cc
 #                        test/google/interpreting_observer_test.cc
 #                        test/google/optimization_visualizer_test.cc
-#                        test/google/optimization_variables_interpreter_test.cc
 #                        test/google/step_sequence_planner_test.cc
                          test/google/line_equation_test.cc
                          # hyq
