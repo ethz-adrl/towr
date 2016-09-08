@@ -174,58 +174,54 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
 SupportPolygonContainer::VecSupportPolygon
 SupportPolygonContainer::AssignSupportPolygonsToPhases(const PhaseInfoVec& phases) const
 {
+  VecSupportPolygon supp;
 
+  for (const auto& phase : phases) {
+
+    VecFoothold contacts;
+    for (auto c : phase.contacts_)
+      contacts.push_back(footholds_.at(c.id));
+
+    for (auto f : phase.fixed_contacts_)
+      contacts.push_back(f);
+
+    supp.push_back(SupportPolygon(contacts, margins_));
+  }
+
+
+//  for (auto poly : supp) {
+//    std::cout << poly;
+//  }
+//
+//  assert(false);
+
+// //refactor remove this comment and the combine support polygon function
+//
+//
+//  using namespace xpp::zmp;
 //
 //  for (const auto& phase : phases) {
+//    SupportPolygon curr_supp;
 //
-//    VecFoothold contacts;
-//    for (auto c : phase.contacts_) {
-//
-//      Foothold f;
-//      if (c.id != Foothold::kFixedByStart) {
-//        f = footholds_.at(c.id);
-//      } else {
-//        auto it = std::fin
-//
-//
-//        f = start_stance_.
+//    int prev_step = phase.n_completed_steps_-1;
+//    switch (phase.type_) {
+//      case PhaseInfo::kStepPhase: {
+//        curr_supp = support_polygons_.at(prev_step+1);
+//        break;
 //      }
-//
-//
-//      contacts.push_back(Foothold(f));
+//      case PhaseInfo::kStancePhase: {
+//        if (prev_step == -1) // first spline
+//          curr_supp = GetStartPolygon();
+//        else if (prev_step == GetNumberOfSteps()-1)
+//          curr_supp = GetFinalPolygon();
+//        else // for intermediate splines
+//          curr_supp = SupportPolygon::CombineSupportPolygons(support_polygons_.at(prev_step),
+//                                                             support_polygons_.at(prev_step+1));
+//      }
 //    }
 //
+//    supp.push_back(curr_supp);
 //  }
-
-
-
-
-  using namespace xpp::zmp;
-
-  VecSupportPolygon supp;
-  for (const auto& phase : phases) {
-    SupportPolygon curr_supp;
-
-//     motion_ref THIS IS ONLY COMMENTED FOR NOW, LOGICALLY BELONGS
-    int prev_step = phase.n_completed_steps_-1;
-    switch (phase.type_) {
-      case PhaseInfo::kStepPhase: {
-        curr_supp = support_polygons_.at(prev_step+1);
-        break;
-      }
-      case PhaseInfo::kStancePhase: {
-        if (prev_step == -1) // first spline
-          curr_supp = GetStartPolygon();
-        else if (prev_step == GetNumberOfSteps()-1)
-          curr_supp = GetFinalPolygon();
-        else // for intermediate splines
-          curr_supp = SupportPolygon::CombineSupportPolygons(support_polygons_.at(prev_step),
-                                                             support_polygons_.at(prev_step+1));
-      }
-    }
-
-    supp.push_back(curr_supp);
-  }
 
   return supp;
 }

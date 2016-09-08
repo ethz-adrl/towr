@@ -79,8 +79,8 @@ ZmpConstraintBuilder::GetTimesDisjointSwitches () const
     auto phase = phases.at(i);
     t_global += phase.duration_;
 
-    bool curr_phase_is_step = phase.type_   == PhaseInfo::kStepPhase;
-    bool next_phase_is_step = phases.at(i+1).type_ == PhaseInfo::kStepPhase;
+    bool curr_phase_is_step = phase.IsStep();
+    bool next_phase_is_step = phases.at(i+1).IsStep();
 
     if (curr_phase_is_step && next_phase_is_step) {
       int step = phase.n_completed_steps_;

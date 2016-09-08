@@ -32,26 +32,17 @@ MotionStructure::Init (const StartStance& start_stance,
                        bool insert_initial_stance,
                        bool insert_final_stance)
 {
-//  phases_ = BuildPhases(step_legs.size(), t_swing, t_stance, insert_initial_stance,
-//                        insert_final_stance);
-
-
-//  std::vector<Contact> active_contacts;
-//  for (auto c : start_stance)
-//    active_contacts.push_back(Contact(Foothold::kFixedByStart, static_cast<EndeffectorID>(c.leg)));
 
   if (insert_initial_stance) {
     PhaseInfo phase(PhaseInfo::kStancePhase, 0, t_stance);
     phase.fixed_contacts_ = start_stance;
-//    phase.contacts_ = active_contacts;
+    phase.n_completed_steps_ = 0;
     phases_.push_back(phase);
   }
-
 
   // the steps
   for (uint i=0; i<step_legs.size(); ++i) {
     PhaseInfo phase = phases_.back();
-
 
     // remove current swingleg from list of active contacts
     auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
@@ -75,6 +66,8 @@ MotionStructure::Init (const StartStance& start_stance,
     if (i > 0)
       phase.contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(step_legs.at(i-1))));
 
+    phase.type_ = PhaseInfo::kStepPhase;
+    phase.n_completed_steps_ = i;
     phase.id_++;
     phase.duration_ = t_swing;
     phases_.push_back(phase);
@@ -87,6 +80,8 @@ MotionStructure::Init (const StartStance& start_stance,
     int last_contact_id = step_legs.size()-1;
     phase.contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(step_legs.back())));
 
+    phase.type_ = PhaseInfo::kStancePhase;
+    phase.n_completed_steps_++;
     phase.id_++;
     phase.duration_ = 0.55;
     phases_.push_back(phase);
@@ -97,34 +92,6 @@ MotionStructure::Init (const StartStance& start_stance,
   steps_ = step_legs;
   cache_needs_updating_ = true;
 }
-
-//MotionStructure::PhaseVec
-//MotionStructure::BuildPhases (int steps, double t_swing, double t_stance,
-//                              bool insert_init, bool insert_final) const
-//{
-//  PhaseVec phases;
-//
-//  int id = 0;
-//  int n_completed_steps = 0;
-//
-//  if (insert_init) {
-//    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, t_stance);
-//    phases.push_back(phase);
-//  }
-//
-//  // steps
-//  for (int step=0; step<steps; ++step) {
-//    PhaseInfo phase(PhaseInfo::kStepPhase, n_completed_steps++, id++, t_swing);
-//    phases.push_back(phase);
-//  }
-//
-//  if (insert_final) {
-//    PhaseInfo phase(PhaseInfo::kStancePhase, n_completed_steps, id++, 0.55);
-//    phases.push_back(phase);
-//  }
-//
-//  return phases;
-//}
 
 PhaseInfo
 MotionStructure::GetCurrentPhase (double t_global) const
