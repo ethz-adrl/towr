@@ -23,6 +23,8 @@ namespace zmp {
 using MatrixXd = Eigen::MatrixXd;
 using VectorXd = Eigen::VectorXd;
 
+using namespace xpp::utils::coords_wrapper;
+
 QpFacade::VecSpline
 QpFacade::SolveQp(const State& initial_state,
                   const State& final_state,

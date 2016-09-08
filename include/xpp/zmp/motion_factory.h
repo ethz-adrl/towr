@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_MOTION_FACTORY_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_MOTION_FACTORY_H_
 
-#include <xpp/zmp/phase_info.h>
+#include <xpp/zmp/com_motion.h>
 
 #include <Eigen/Dense>
 #include <memory>
@@ -17,6 +17,7 @@ namespace xpp {
 namespace zmp {
 
 class ComMotion;
+class PhaseInfo;
 
 /** Creates different types of motions based on the input arguments.
   *
@@ -28,6 +29,7 @@ class MotionFactory {
 public:
   typedef std::shared_ptr<ComMotion> ComMotionPtrS;
   typedef Eigen::Vector2d Vector2d;
+  using PhaseVec = std::vector<PhaseInfo>;
 
   MotionFactory ();
   virtual ~MotionFactory ();

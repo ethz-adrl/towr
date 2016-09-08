@@ -34,10 +34,10 @@ public:
 
 
 private:
-  void GetJacobianPos (double t_poly, int id, Coords dim, JacobianRow&) const override;
-  void GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow&) const override;
-  void GetJacobianAcc (double t_poly, int id, Coords dim, JacobianRow&) const override;
-  void GetJacobianJerk(double t_poly, int id, Coords dim, JacobianRow&) const override;
+  void GetJacobianPos (double t_poly, int id, Coords3D dim, JacobianRow&) const override;
+  void GetJacobianVel (double t_poly, int id, Coords3D dim, JacobianRow&) const override;
+  void GetJacobianAcc (double t_poly, int id, Coords3D dim, JacobianRow&) const override;
+  void GetJacobianJerk(double t_poly, int id, Coords3D dim, JacobianRow&) const override;
 
   int NumFreeCoeffPerSpline() const override { return 6; };
   std::vector<SplineCoeff> GetFreeCoeffPerSpline() const override { return {A,B,C,D,E,F}; };

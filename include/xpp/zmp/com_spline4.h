@@ -46,19 +46,19 @@ private:
   int NumFreeCoeffPerSpline() const override { return 4; };
   std::vector<SplineCoeff> GetFreeCoeffPerSpline() const override { return {A,B,C,D}; };
 
-  void GetJacobianPos (double t_poly, int id, Coords dim, JacobianRow&) const override;
-  void GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow&) const override;
-  void GetJacobianAcc (double t_poly, int id, Coords dim, JacobianRow&) const override;
-  void GetJacobianJerk(double t_poly, int id, Coords dim, JacobianRow&) const override;
+  void GetJacobianPos (double t_poly, int id, Coords3D dim, JacobianRow&) const override;
+  void GetJacobianVel (double t_poly, int id, Coords3D dim, JacobianRow&) const override;
+  void GetJacobianAcc (double t_poly, int id, Coords3D dim, JacobianRow&) const override;
+  void GetJacobianJerk(double t_poly, int id, Coords3D dim, JacobianRow&) const override;
 
   /** Returns the Jacobian of coefficient E with respect to coefficients a,b,c,d
    *  for a specific spline k and dimension (x,y).
    */
-  JacobianRow GetJacobianE(int spline_id_k, Coords dim) const;
-  JacobianRow GetJacobianF(int spline_id_k, Coords dim) const;
+  JacobianRow GetJacobianE(int spline_id_k, Coords3D dim) const;
+  JacobianRow GetJacobianF(int spline_id_k, Coords3D dim) const;
 
-  JacobianEFWrtABCD CalcJacobianEWrtABCD(Coords) const;
-  JacobianEFWrtABCD CalcJacobianFWrtABCD(Coords) const;
+  JacobianEFWrtABCD CalcJacobianEWrtABCD(Coords3D) const;
+  JacobianEFWrtABCD CalcJacobianFWrtABCD(Coords3D) const;
   std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_e_wrt_abcd_;
   std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_f_wrt_abcd_;
 

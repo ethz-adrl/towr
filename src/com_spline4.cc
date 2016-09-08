@@ -105,7 +105,7 @@ ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
 }
 
 void
-ComSpline4::GetJacobianPos(double t_poly, int id, Coords dim, JacobianRow& jac) const
+ComSpline4::GetJacobianPos(double t_poly, int id, Coords3D dim, JacobianRow& jac) const
 {
   JacobianRow jac_e = GetJacobianE(id, dim);
   JacobianRow jac_f = GetJacobianF(id, dim);
@@ -120,7 +120,7 @@ ComSpline4::GetJacobianPos(double t_poly, int id, Coords dim, JacobianRow& jac) 
 }
 
 void
-ComSpline4::GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow& jac) const
+ComSpline4::GetJacobianVel (double t_poly, int id, Coords3D dim, JacobianRow& jac) const
 {
   JacobianRow jac_e = GetJacobianE(id, dim);
 
@@ -133,7 +133,7 @@ ComSpline4::GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow& jac)
 }
 
 void
-ComSpline4::GetJacobianAcc(double t_poly, int id, Coords dim, JacobianRow& jac) const
+ComSpline4::GetJacobianAcc(double t_poly, int id, Coords3D dim, JacobianRow& jac) const
 {
   // x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
   jac.insert(Index(id,dim,A))   = 20.0 * std::pow(t_poly,3);
@@ -143,7 +143,7 @@ ComSpline4::GetJacobianAcc(double t_poly, int id, Coords dim, JacobianRow& jac) 
 }
 
 void
-ComSpline4::GetJacobianJerk (double t_poly, int id, Coords dim, JacobianRow& jac) const
+ComSpline4::GetJacobianJerk (double t_poly, int id, Coords3D dim, JacobianRow& jac) const
 {
   // x_jerk = 60at^2 +   24bt +  6c
   jac.insert(Index(id,dim,A))   = 60 * std::pow(t_poly,2);
@@ -152,21 +152,21 @@ ComSpline4::GetJacobianJerk (double t_poly, int id, Coords dim, JacobianRow& jac
 }
 
 ComSpline4::JacobianRow
-ComSpline4::GetJacobianE(int spline_id_k, Coords dim) const
+ComSpline4::GetJacobianE(int spline_id_k, Coords3D dim) const
 {
   CheckIfSplinesInitialized();
   return jac_e_wrt_abcd_.at(dim).row(spline_id_k);
 }
 
 ComSpline4::JacobianRow
-ComSpline4::GetJacobianF(int spline_id_k, Coords dim) const
+ComSpline4::GetJacobianF(int spline_id_k, Coords3D dim) const
 {
   CheckIfSplinesInitialized();
   return jac_f_wrt_abcd_.at(dim).row(spline_id_k);
 }
 
 ComSpline4::JacobianEFWrtABCD
-ComSpline4::CalcJacobianEWrtABCD (Coords dim) const
+ComSpline4::CalcJacobianEWrtABCD (Coords3D dim) const
 {
   JacobianEFWrtABCD jac(polynomials_.size(), GetTotalFreeCoeff());
 
@@ -189,7 +189,7 @@ ComSpline4::CalcJacobianEWrtABCD (Coords dim) const
 }
 
 ComSpline4::JacobianEFWrtABCD
-ComSpline4::CalcJacobianFWrtABCD (Coords dim) const
+ComSpline4::CalcJacobianFWrtABCD (Coords3D dim) const
 {
   JacobianEFWrtABCD jac(polynomials_.size(), GetTotalFreeCoeff());
   JacobianEFWrtABCD jac_e = CalcJacobianEWrtABCD(dim);

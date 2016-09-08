@@ -15,8 +15,6 @@
 namespace xpp {
 namespace zmp {
 
-using namespace xpp::utils::coords_wrapper;
-
 /** Represents the Center of Mass (CoM) motion as a Spline (sequence of polynomials).
   *
   * This class is responsible for abstracting polynomial coefficients of multiple
@@ -28,7 +26,7 @@ public:
   typedef xpp::utils::MotionDerivative MotionDerivative;
   typedef xpp::utils::VecScalar VecScalar;
   typedef xpp::utils::Point2d Point2d;
-  typedef xpp::utils::Coords3D Coords;
+  typedef xpp::utils::Coords3D Coords3D;
   typedef std::vector<MotionDerivative> Derivatives;
   typedef std::shared_ptr<ComSpline> PtrS;
   typedef std::unique_ptr<ComSpline> PtrU;
@@ -45,7 +43,7 @@ public:
   int GetTotalFreeCoeff() const override;
   VectorXd GetCoeffients () const override;
 
-  int Index(int polynomial, Coords dim, SplineCoeff coeff) const;
+  int Index(int polynomial, Coords3D dim, SplineCoeff coeff) const;
 
 
   /** The motions (pos,vel,acc) that are fixed by spline structure and cannot
@@ -88,10 +86,10 @@ protected:
 private:
 
   JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const override;
-  virtual void GetJacobianPos (double t_poly, int id, Coords dim, JacobianRow&) const = 0;
-  virtual void GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow&) const = 0;
-  virtual void GetJacobianAcc (double t_poly, int id, Coords dim, JacobianRow&) const = 0;
-  virtual void GetJacobianJerk(double t_poly, int id, Coords dim, JacobianRow&) const = 0;
+  virtual void GetJacobianPos (double t_poly, int id, Coords3D dim, JacobianRow&) const = 0;
+  virtual void GetJacobianVel (double t_poly, int id, Coords3D dim, JacobianRow&) const = 0;
+  virtual void GetJacobianAcc (double t_poly, int id, Coords3D dim, JacobianRow&) const = 0;
+  virtual void GetJacobianJerk(double t_poly, int id, Coords3D dim, JacobianRow&) const = 0;
 
   virtual int NumFreeCoeffPerSpline() const = 0;
   virtual std::vector<SplineCoeff> GetFreeCoeffPerSpline() const = 0;

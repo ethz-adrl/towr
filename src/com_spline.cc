@@ -11,6 +11,7 @@ namespace xpp {
 namespace zmp {
 
 static int kDim2d = xpp::utils::kDim2d;
+using namespace xpp::utils::coords_wrapper;
 
 ComSpline::ComSpline ()
 {
@@ -57,7 +58,7 @@ ComSpline::GetTotalTime(const VecPolynomials& splines)
 }
 
 int
-ComSpline::Index (int poly, Coords dim, SplineCoeff coeff) const
+ComSpline::Index (int poly, Coords3D dim, SplineCoeff coeff) const
 {
   return NumFreeCoeffPerSpline() * kDim2d * poly + NumFreeCoeffPerSpline() * dim + coeff;
 }

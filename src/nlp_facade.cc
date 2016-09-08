@@ -12,7 +12,6 @@
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/cost_container.h>
-//#include <xpp/zmp/optimization_variables_interpreter.h>
 #include <xpp/zmp/interpreting_observer.h>
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/zmp/cost_constraint_factory.h>
@@ -98,7 +97,7 @@ NlpFacade::SolveNlp(const State& initial_state,
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 
   costs_->ClearCosts();
-  costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion, kAcc));
+  costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion, utils::kAcc));
   // careful: these are not quite debugged yet
 //  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
 //  costs_->AddCost(CostConstraintFactory::CreateFinalComCost(final_state, spline_structure));
@@ -107,18 +106,20 @@ NlpFacade::SolveNlp(const State& initial_state,
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);
 
-  std::cout << "start_state: " << initial_state << std::endl;
-  std::cout << "goal_state: " << final_state << std::endl;
 
-  std::cout << "\nstart_stance: \n";
-  for (auto f : curr_stance)
-    std::cout << f << std::endl;
 
-  std::cout << "\npolynomials:\n";
-  auto com_spline = std::dynamic_pointer_cast<ComSpline> (com_motion);
-  for (auto poly : com_spline->GetPolynomials()) {
-    std::cout << poly << std::endl;
-  }
+//  std::cout << "start_state: " << initial_state << std::endl;
+//  std::cout << "goal_state: " << final_state << std::endl;
+//
+//  std::cout << "\nstart_stance: \n";
+//  for (auto f : curr_stance)
+//    std::cout << f << std::endl;
+//
+//  std::cout << "\npolynomials:\n";
+//  auto com_spline = std::dynamic_pointer_cast<ComSpline> (com_motion);
+//  for (auto poly : com_spline->GetPolynomials()) {
+//    std::cout << poly << std::endl;
+//  }
 
 
 

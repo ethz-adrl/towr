@@ -16,6 +16,8 @@
 namespace xpp {
 namespace zmp {
 
+using namespace xpp::utils::coords_wrapper;
+
 using Coeff = Eigen::VectorXd;
 using JacobianRow = ComMotion::JacobianRow;
 
