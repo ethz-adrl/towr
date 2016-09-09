@@ -157,6 +157,7 @@ set(SOURCES
   src/qp_optimizer_node.cc
   src/marker_array_builder.cc
   src/optimization_visualizer.cc
+  src/nlp_user_input_node.cc
 )
              
 # Add the shared library
@@ -211,6 +212,14 @@ add_executable(sample_qp_caller
     src/executable/sample_qp_caller.cc
 )
 target_link_libraries(sample_qp_caller 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)
+
+add_executable(nlp_user_input_node
+    src/executable/nlp_user_input_node_exe.cc
+)
+target_link_libraries(nlp_user_input_node 
   ${LIB_NAME}
   ${catkin_LIBRARIES}
 )

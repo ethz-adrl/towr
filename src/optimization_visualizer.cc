@@ -8,7 +8,7 @@
 #include <xpp/ros/optimization_visualizer.h>
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/marker_array_builder.h>
-#include "../include/xpp/zmp/nlp_observer.h"
+#include <xpp/zmp/nlp_observer.h>
 
 namespace xpp {
 namespace ros {
@@ -21,6 +21,8 @@ OptimizationVisualizer::OptimizationVisualizer ()
 
   ::ros::NodeHandle n;
   ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
+
+  goal_key_sub_ = n.subscribe("goal_state", 1, &OptimizationVisualizer::GoalStateCallback, this);
 }
 
 OptimizationVisualizer::~OptimizationVisualizer ()
@@ -28,7 +30,7 @@ OptimizationVisualizer::~OptimizationVisualizer ()
 }
 
 void
-OptimizationVisualizer::SetObserver (const InterpretingObserverPtr& observer)
+OptimizationVisualizer::SetObserver (const NlpObserverPtr& observer)
 {
   observer_ = observer;
 }
@@ -50,6 +52,7 @@ OptimizationVisualizer::Visualize () const
   msg_builder_.AddCogTrajectory(msg, *com_motion, structure, footholds, "cog", 1.0);
   msg_builder_.AddZmpTrajectory(msg, *com_motion, structure, walking_height, footholds, "zmp_4ls", 0.2);
   msg_builder_.AddSupportPolygons(msg, start_stance, footholds);
+  msg_builder_.AddGoal(msg, goal_cog_.Get2D().p);
 //  msg_builder_.AddLineStrip(msg, -0.2, 0.2, "gap");
 //  msg_builder_.AddEllipse(msg, -0.2, 0.0, 0.15, 2.0, "ellipse");
 
@@ -60,6 +63,12 @@ OptimizationVisualizer::Visualize () const
 //  }
 
   ros_publisher_.publish(msg);
+}
+
+void
+OptimizationVisualizer::GoalStateCallback (const StateMsg& msg)
+{
+  goal_cog_ = RosHelpers::RosToXpp(msg);
 }
 
 } /* namespace ros */

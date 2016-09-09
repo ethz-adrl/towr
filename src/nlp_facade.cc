@@ -65,7 +65,6 @@ NlpFacade::SolveNlp(const State& initial_state,
   auto step_sequence        = step_sequence_planner_->DetermineStepSequence();
   bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase();
 
-
   // create the fixed motion structure
   MotionStructure motion_structure;
   motion_structure.Init(curr_stance, step_sequence, t_swing, t_stance, start_with_com_shift, true);

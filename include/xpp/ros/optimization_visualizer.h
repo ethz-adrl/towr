@@ -9,7 +9,11 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 
 #include <xpp/zmp/i_visualizer.h>
+#include <xpp/utils/geometric_structs.h>
+
+#include <xpp_opt/StateLin3d.h>
 #include <ros/publisher.h>
+#include <ros/subscriber.h>
 
 namespace xpp {
 namespace zmp {
@@ -29,19 +33,26 @@ namespace ros {
   */
 class OptimizationVisualizer : public xpp::zmp::IVisualizer {
 public:
-  typedef std::shared_ptr<xpp::zmp::NlpObserver> InterpretingObserverPtr;
+  typedef std::shared_ptr<xpp::zmp::NlpObserver> NlpObserverPtr;
+  using StateMsg = xpp_opt::StateLin3d;
+  using State = xpp::utils::Point3d;
 
   OptimizationVisualizer();
   virtual ~OptimizationVisualizer ();
 
-  void SetObserver(const InterpretingObserverPtr&);
+  void SetObserver(const NlpObserverPtr&);
 
   /** @brief Send a message with topic "optimization_variables" out to rviz */
   void Visualize() const override;
 
 private:
   ::ros::Publisher ros_publisher_;
-  InterpretingObserverPtr observer_;
+  ::ros::Subscriber goal_key_sub_;
+  NlpObserverPtr observer_;
+
+  void GoalStateCallback(const StateMsg& msg);
+
+  State goal_cog_;
 };
 
 } /* namespace ros */
