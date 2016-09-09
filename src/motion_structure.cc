@@ -80,10 +80,12 @@ MotionStructure::Init (const StartStance& start_stance,
   if (insert_final_stance) {
     PhaseInfo phase = phases_.back();
 
-    int last_contact_id = step_legs.size()-1;
-    phase.free_contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(step_legs.back())));
+    if (phase.IsStep()) {
+      int last_contact_id = step_legs.size()-1;
+      phase.free_contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(step_legs.back())));
+      phase.n_completed_steps_++;
+    }
 
-    phase.n_completed_steps_++;
     phase.id_++;
     phase.duration_ = 0.55;
     phases_.push_back(phase);
