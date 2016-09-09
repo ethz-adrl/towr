@@ -52,11 +52,11 @@ OptimizationVisualizer::Visualize () const
   msg_builder_.AddSupportPolygons(msg, start_stance, footholds);
 //  msg_builder_.AddGoal(msg, goal_cog_.Get2D().p);
   double gap_center_x = 0.45;
-  double gap_width_x = 0.15;
+  double gap_width_x = 0.2;
   double ellipse_width = 1.0;
 
-//  msg_builder_.AddLineStrip(msg, gap_center_x, gap_width_x, "gap");
-//  msg_builder_.AddEllipse(msg, gap_center_x, 0.0, gap_width_x, ellipse_width, "ellipse");
+  msg_builder_.AddLineStrip(msg, gap_center_x, gap_width_x, "gap");
+  msg_builder_.AddEllipse(msg, gap_center_x, 0.0, gap_width_x, ellipse_width, "ellipse");
 
 //  static int n_markers_first_iteration = msg.markers.size();
 //  for (int i=n_markers_first_iteration; i<msg.markers.size(); ++i) {
