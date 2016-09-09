@@ -2,7 +2,7 @@
  @file    nlp_user_input_node.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Sep 9, 2016
- @brief   Brief description
+ @brief   Declares the NlpUserInputNode class
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
@@ -18,6 +18,11 @@
 namespace xpp {
 namespace ros {
 
+/** @brief Provides user specified information about the NLP to the optimizer
+  *
+  * This includes high level input about where to go (e.g. converting
+  * joystick information to a goal state)
+  */
 class NlpUserInputNode {
 public:
   using State = xpp::utils::Point3d;

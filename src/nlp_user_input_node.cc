@@ -2,7 +2,7 @@
  @file    nlp_user_input_node.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Sep 9, 2016
- @brief   Brief description
+ @brief   Defines the NlpUserInputNode class
  */
 
 #include <xpp/ros/nlp_user_input_node.h>
@@ -42,16 +42,16 @@ NlpUserInputNode::CallbackKeyboard (const keyboard::Key& msg)
   const static double dy = 0.1;
 
   switch (msg.code) {
-    case msg.KEY_UP:
+    case msg.KEY_LEFT:
       goal_cog_.p.x() += dx;
       break;
-    case msg.KEY_DOWN:
+    case msg.KEY_RIGHT:
       goal_cog_.p.x() -= dx;
       break;
-    case msg.KEY_RIGHT:
+    case msg.KEY_UP:
       goal_cog_.p.y() -= dy;
       break;
-    case msg.KEY_LEFT:
+    case msg.KEY_DOWN:
       goal_cog_.p.y() += dy;
       break;
     default:
