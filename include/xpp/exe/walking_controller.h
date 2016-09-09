@@ -93,7 +93,7 @@ private:
   bool reoptimize_before_finish_;
   bool first_run_after_integrating_opt_trajectory_;
 
-  VecSpline opt_splines_;
+  VecSpline opt_spline_;
   VecFoothold opt_footholds_;
   VecPhase motion_phases_;
   bool optimal_trajectory_updated;

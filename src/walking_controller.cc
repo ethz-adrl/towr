@@ -105,13 +105,13 @@ WalkingController::SetState(WalkingControllerState::State state) {
 void
 WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
 {
-  opt_splines_   = xpp::ros::RosHelpers::RosToXpp(msg.splines);
+  opt_spline_   = xpp::ros::RosHelpers::RosToXpp(msg.splines);
   opt_footholds_ = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
   motion_phases_ = xpp::ros::RosHelpers::RosToXpp(msg.phases);
 
   optimal_trajectory_updated = true;
 
-  ROS_INFO_STREAM("received splines [size=" << opt_splines_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
+  ROS_INFO_STREAM("received splines [size=" << opt_spline_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
 }
 
 void WalkingController::PublishCurrentState()
@@ -162,12 +162,8 @@ void WalkingController::IntegrateOptimizedTrajectory()
 
   ::ros::spinOnce(); // process callbacks (get the optimized values).
 
-  std::cout << "motion_phases:\n";
-  for (auto p : motion_phases_)
-    std::cout << p << std::endl;
-
   // start from desired, so there is no jump in desired
-  spliner_.Init(P_des_, motion_phases_, opt_splines_, opt_footholds_, robot_height_);
+  spliner_.Init(P_des_, motion_phases_, opt_spline_, opt_footholds_, robot_height_);
 
 
 //  // when to use new trajectory. If a step is planned, switch only after the
