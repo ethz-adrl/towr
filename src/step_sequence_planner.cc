@@ -78,7 +78,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     LegIDVec step_sequence;
-    int n_steps = 8; // how many steps to take
+    int n_steps = 12; // how many steps to take
 
     for (int step=0; step<n_steps/*req_steps_per_leg*4*/; ++step) {
       step_sequence.push_back(NextSwingLeg(last_swingleg));

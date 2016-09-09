@@ -19,7 +19,7 @@ public:
   virtual ~HyqRobotInterface ();
 
   virtual PosXY GetNominalStanceInBase(int leg_id) const final;
-  virtual double GetMaxDeviationXYFromNominal() const final;
+  virtual MaxDevXY GetMaxDeviationXYFromNominal() const final;
 };
 
 } /* namespace zmp */

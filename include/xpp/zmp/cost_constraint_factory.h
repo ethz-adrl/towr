@@ -53,7 +53,7 @@ public:
   static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&,
                                                      const MotionStructure&);
 //  static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
-  static ConstraintPtr CreateObstacleConstraint();
+  static ConstraintPtr CreateObstacleConstraint(const Contacts&);
 
   static CostPtr CreateMotionCost(const ComMotion&, const xpp::utils::MotionDerivative);
   static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComMotion&);

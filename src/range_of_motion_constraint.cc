@@ -66,7 +66,7 @@ bool
 RangeOfMotionBox::IsPositionInsideRangeOfMotion (
     const PosXY& pos, const Stance& stance, const ARobotInterface& robot)
 {
-  double max_deviation = robot.GetMaxDeviationXYFromNominal();
+  auto max_deviation = robot.GetMaxDeviationXYFromNominal();
 
   for (auto f : stance) {
     auto p_nominal = robot.GetNominalStanceInBase(f.leg);
@@ -76,7 +76,7 @@ RangeOfMotionBox::IsPositionInsideRangeOfMotion (
       double distance_to_foot = f.p(dim) - pos(dim);
       double distance_to_nom  = distance_to_foot - p_nominal(dim);
 
-      if (std::abs(distance_to_nom) > max_deviation)
+      if (std::abs(distance_to_nom) > max_deviation.at(dim))
         return false;
     }
   }
@@ -113,7 +113,7 @@ RangeOfMotionBox::EvaluateConstraint () const
 RangeOfMotionBox::VecBound
 RangeOfMotionBox::GetBounds () const
 {
-  const double max_deviation = robot_->GetMaxDeviationXYFromNominal();
+  auto max_deviation = robot_->GetMaxDeviationXYFromNominal();
 
   std::vector<Bound> bounds;
   for (auto node : motion_structure_.GetContactInfoVec()) {
@@ -128,8 +128,8 @@ RangeOfMotionBox::GetBounds () const
       PosXY pos_nom_B = robot_->GetNominalStanceInBase(static_cast<xpp::hyq::LegID>(c.ee));
       for (auto dim : {X,Y}) {
         Bound b;
-        b.upper_ = pos_nom_B(dim) + max_deviation;
-        b.lower_ = pos_nom_B(dim) - max_deviation;
+        b.upper_ = pos_nom_B(dim) + max_deviation.at(dim);
+        b.lower_ = pos_nom_B(dim) - max_deviation.at(dim);
         b -= start_offset(dim);
         bounds.push_back(b);
       }

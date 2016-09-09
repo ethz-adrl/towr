@@ -51,8 +51,12 @@ OptimizationVisualizer::Visualize () const
   msg_builder_.AddZmpTrajectory(msg, *com_motion, structure, walking_height, footholds, "zmp_4ls", 0.2);
   msg_builder_.AddSupportPolygons(msg, start_stance, footholds);
 //  msg_builder_.AddGoal(msg, goal_cog_.Get2D().p);
-//  msg_builder_.AddLineStrip(msg, -0.2, 0.2, "gap");
-//  msg_builder_.AddEllipse(msg, -0.2, 0.0, 0.15, 2.0, "ellipse");
+  double gap_center_x = 0.45;
+  double gap_width_x = 0.15;
+  double ellipse_width = 1.0;
+
+//  msg_builder_.AddLineStrip(msg, gap_center_x, gap_width_x, "gap");
+//  msg_builder_.AddEllipse(msg, gap_center_x, 0.0, gap_width_x, ellipse_width, "ellipse");
 
 //  static int n_markers_first_iteration = msg.markers.size();
 //  for (int i=n_markers_first_iteration; i<msg.markers.size(); ++i) {
