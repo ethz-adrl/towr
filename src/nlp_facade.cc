@@ -15,11 +15,14 @@
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/zmp/cost_constraint_factory.h>
 #include <xpp/zmp/motion_factory.h>
+//#include <xpp/zmp/com_spline.h>
 
 #include <xpp/zmp/nlp.h>
 #include <xpp/zmp/ipopt_adapter.h>
 #include <xpp/zmp/snopt_adapter.h>
-#include "../include/xpp/zmp/nlp_observer.h"
+#include <xpp/zmp/nlp_observer.h>
+
+#include <iomanip>
 
 namespace xpp {
 namespace zmp {
@@ -108,13 +111,19 @@ NlpFacade::SolveNlp(const State& initial_state,
 
 
 
-//  std::cout << "start_state: " << initial_state << std::endl;
-//  std::cout << "goal_state: " << final_state << std::endl;
-//
-//  std::cout << "\nstart_stance: \n";
-//  for (auto f : curr_stance)
-//    std::cout << f << std::endl;
-//
+  std::cout << std::setprecision(2) << std::fixed;
+  std::cout << "start_state: " << initial_state << std::endl;
+  std::cout << "goal_state: " << final_state << std::endl;
+
+  std::cout << "\nstart_stance: \n";
+  for (auto f : curr_stance)
+    std::cout << f << std::endl;
+
+  std::cout << "\nphases:\n";
+  for (auto phase : motion_structure.GetPhases()) {
+    std::cout << phase << std::endl;
+  }
+
 //  std::cout << "\npolynomials:\n";
 //  auto com_spline = std::dynamic_pointer_cast<ComSpline> (com_motion);
 //  for (auto poly : com_spline->GetPolynomials()) {

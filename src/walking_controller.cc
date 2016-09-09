@@ -136,59 +136,6 @@ WalkingController::IsTimeToSendOutState() const
 //  return (time_left <= kOptTimeReq_ && reoptimize_before_finish_);
 }
 
-bool
-WalkingController::SwitchToNewTrajectory ()
-{
-//  if (optimal_trajectory_updated) {
-//    optimal_trajectory_updated = false;
-//    return true;
-//  }
-//
-
-  // don't switch, finish first planned trajectory
-  return false;
-
-//  double t_switch = switch_node_.T;
-//  double t_max = t_switch - robot_->GetControlLoopInterval();
-//  return Time() >= t_max; /*|| Time() >= spliner_.GetTotalTime()-dt_*/
-}
-
-
-void WalkingController::IntegrateOptimizedTrajectory()
-{
-  ffspliner_timer_ = ffspline_duration_;
-  reoptimize_before_finish_ = true;
-//  ffsplining_ = true; // because of delay from optimization
-
-  ::ros::spinOnce(); // process callbacks (get the optimized values).
-
-  // start from desired, so there is no jump in desired
-  spliner_.Init(P_des_, motion_phases_, opt_spline_, opt_footholds_, robot_height_);
-
-
-//  // when to use new trajectory. If a step is planned, switch only after the
-//  // step has been executed
-//  if (opt_footholds_.empty())
-//    switch_node_ = spliner_.GetNode(1);
-//  else
-//    for (auto spline : opt_splines_)
-//      if (!spline.DeprecatedIsFourLegSupport()) { // first step
-//        int node_id = spline.GetId()+1;
-//        switch_node_ = spliner_.GetNode(node_id);
-//        break;
-//      }
-
-
-  switch_node_ = spliner_.GetNode(1);
-
-
-
-
-  Controller::ResetTime();
-
-  first_run_after_integrating_opt_trajectory_ = true;
-}
-
 void
 WalkingController::PublishOptimizationStartState()
 {
@@ -205,7 +152,7 @@ WalkingController::PublishOptimizationStartState()
   State curr_state = P_curr_.base_.pos;
 
 
-  xpp::utils::Point3d start_state_optimization = curr_state;
+  xpp::utils::Point3d start_state_optimization = predicted_state;
 
 
 
@@ -245,6 +192,61 @@ WalkingController::PublishOptimizationStartState()
   current_info_pub_.publish(msg);
 
   reoptimize_before_finish_ = false;
+}
+
+bool
+WalkingController::EndCurrentExecution ()
+{
+//  if (optimal_trajectory_updated) {
+//    optimal_trajectory_updated = false;
+//    return true;
+//  }
+//
+
+
+
+  //  // when to use new trajectory. If a step is planned, switch only after the
+  //  // step has been executed
+  //  if (opt_footholds_.empty())
+  //    switch_node_ = spliner_.GetNode(1);
+  //  else
+  //    for (auto spline : opt_splines_)
+  //      if (!spline.DeprecatedIsFourLegSupport()) { // first step
+  //        int node_id = spline.GetId()+1;
+  //        switch_node_ = spliner_.GetNode(node_id);
+  //        break;
+  //      }
+
+
+
+  // terminate run loop
+  switch_node_ = spliner_.GetLastNode();
+  return Time() >= (spliner_.GetTotalTime()-robot_->GetControlLoopInterval());
+
+
+  // never switch from first planned trajectory
+  //  return false;
+
+//  double t_switch = switch_node_.T;
+//  double t_max = t_switch - robot_->GetControlLoopInterval();
+//  return Time() >= t_max; /*|| Time() >= spliner_.GetTotalTime()-dt_*/
+}
+
+
+void WalkingController::IntegrateOptimizedTrajectory()
+{
+  ffspliner_timer_ = ffspline_duration_;
+  reoptimize_before_finish_ = true;
+//  ffsplining_ = true; // because of delay from optimization
+
+  ::ros::spinOnce(); // process callbacks (get the optimized values).
+
+  // start from desired, so there is no jump in desired
+  spliner_.Init(P_des_, motion_phases_, opt_spline_, opt_footholds_, robot_height_);
+
+  Controller::ResetTime();
+
+  first_run_after_integrating_opt_trajectory_ = true;
 }
 
 void WalkingController::ExecuteLoop()

@@ -26,7 +26,7 @@ struct Contact {
 
 inline std::ostream& operator<<(std::ostream& out, const Contact& c)
 {
-  out << "id: " << c.id << ", ee: " << c.ee;
+  out  << c.ee << ": id: " << c.id;
   return out;
 }
 
@@ -59,11 +59,11 @@ inline std::ostream& operator<<(std::ostream& out, const PhaseInfo& p)
       << "\n free contacts: ";
 
   for (auto c : p.free_contacts_)
-    out << c << "\t";
+    out << c << ";    ";
 
   out << "\n fixed contacts: ";
   for (auto c : p.fixed_contacts_)
-    out << c << "\t";
+    out << c << ";    ";
 
   return out;
 }

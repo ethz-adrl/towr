@@ -30,7 +30,7 @@ void HyqSpliner::Init(const HyqState& P_init,
                       const VecFoothold& footholds,
                       double robot_height)
 {
-  nodes_ = BuildPhaseSequence(P_init, phase_info, footholds, robot_height);
+  nodes_ = BuildPhaseSequence(P_init, phase_info, optimized_xy_spline, footholds, robot_height);
   CreateAllSplines(nodes_);
   optimized_xy_spline_ = optimized_xy_spline;
 }
@@ -38,6 +38,7 @@ void HyqSpliner::Init(const HyqState& P_init,
 std::vector<SplineNode>
 HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
                                const xpp::zmp::PhaseVec& phase_info,
+                               const VecPolyomials& optimized_xy_spline,
                                const VecFoothold& footholds,
                                double robot_height)
 {
@@ -56,6 +57,7 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
   }
   P_plan_prev.base_.pos.p(Z) = robot_height + P_plan_prev.GetZAvg(); // height of footholds
 
+  double t_global = 0.0;
   for (const auto& curr_phase : phase_info)
   {
     // copy a few values from previous state
@@ -107,8 +109,14 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
     // adjust global z position of body depending on footholds
     goal_node.base_.pos.p(Z) = robot_height + goal_node.GetZAvg(); // height of footholds
 
+    // fill in x-y position, although overwritten anyway later
+    double t_phase = curr_phase.duration_;
+    t_global += t_phase;
+    auto com_xy_at_end_of_phase = xpp::zmp::ComPolynomial::GetCOM(t_global, optimized_xy_spline);
+    goal_node.base_.pos.p.topRows(kDim2d) = com_xy_at_end_of_phase.p;
 
-    nodes.push_back(BuildNode(goal_node, curr_phase.duration_));
+    nodes.push_back(BuildNode(goal_node, t_phase));
+
     P_plan_prev = goal_node;
   }
 

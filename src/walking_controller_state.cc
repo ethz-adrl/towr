@@ -58,13 +58,13 @@ void UpdateAndExecuting::Run(WalkingController* context) const
 
 void Executing::Run(WalkingController* context) const
 {
+  if (context->EndCurrentExecution())
+    context->SetState(kUpdateAndExecuting);
+
   if (context->IsTimeToSendOutState())
     context->PublishOptimizationStartState();
 
   context->ExecuteLoop();
-
-  if (context->SwitchToNewTrajectory())
-    context->SetState(kUpdateAndExecuting);
 }
 
 

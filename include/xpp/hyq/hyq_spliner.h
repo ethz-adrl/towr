@@ -67,6 +67,7 @@ public:
   double GetTotalTime() const;
   SplineNode GetGoalNode(double t_global) const;
   SplineNode GetNode(int node) const { return nodes_.at(node); };
+  SplineNode GetLastNode() const { return nodes_.back(); };
 
 private:
   std::vector<SplineNode> nodes_; // the discrete states to spline through
@@ -86,6 +87,7 @@ private:
   std::vector<SplineNode>
   BuildPhaseSequence(const HyqState& P_init,
                      const xpp::zmp::PhaseVec&,
+                     const VecPolyomials& optimized_xy_spline,
                      const VecFoothold& footholds,
                      double robot_height);
 
