@@ -10,12 +10,14 @@
 
 #include <ros/ros.h>
 
+#include <xpp_opt/PhaseInfo.h>
+#include <xpp_opt/Contact.h>
 #include <xpp_opt/Spline.h>
-#include <xpp_opt/Footholds2d.h>
 #include <xpp_opt/StateLin3d.h>
 #include <xpp_opt/Foothold.h>
 
 #include <xpp/utils/geometric_structs.h>
+#include <xpp/zmp/phase_info.h>
 #include <xpp/hyq/foothold.h>
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/zmp/com_spline.h>
@@ -36,6 +38,12 @@ typedef xpp::zmp::ComSpline::VecPolynomials VecSpline;
 typedef xpp_opt::Spline SplineMsg;
 typedef xpp::hyq::LegID LegID;
 
+using ContactMsg   = xpp_opt::Contact;
+using ContactXpp   = xpp::zmp::Contact;
+using PhaseInfoMsg = xpp_opt::PhaseInfo;
+using PhaseInfoXpp = xpp::zmp::PhaseInfo;
+
+
 static double GetDoubleFromServer(const std::string& ros_param_name) {
   double val;
   if(!::ros::param::get(ros_param_name,val))
@@ -50,6 +58,73 @@ static double GetBoolFromServer(const std::string& ros_param_name) {
   return val;
 }
 
+static ContactMsg
+XppToRos(const ContactXpp& xpp)
+{
+  ContactMsg msg;
+  msg.id = xpp.id;
+  msg.ee = static_cast<int>(xpp.ee);
+
+  return msg;
+}
+
+static ContactXpp
+RosToXpp(const ContactMsg& msg)
+{
+  ContactXpp xpp;
+  xpp.id = msg.id;
+  xpp.ee = static_cast<xpp::zmp::EndeffectorID>(msg.ee);
+
+  return xpp;
+}
+
+static PhaseInfoMsg
+XppToRos(const PhaseInfoXpp& xpp)
+{
+  PhaseInfoMsg msg;
+  msg.n_completed_steps = xpp.n_completed_steps_;
+  for (auto c : xpp.free_contacts_)  msg.free_contacts.push_back(XppToRos(c));
+  for (auto f : xpp.fixed_contacts_) msg.fixed_contacts.push_back(XppToRos(f));
+  msg.id                = xpp.id_;
+  msg.duration          = xpp.duration_;
+
+  return msg;
+}
+
+static PhaseInfoXpp
+RosToXpp(const PhaseInfoMsg& msg)
+{
+  PhaseInfoXpp xpp;
+  xpp.n_completed_steps_ = msg.n_completed_steps;
+  for (auto c : msg.free_contacts)  xpp.free_contacts_.push_back(RosToXpp(c));
+  for (auto f : msg.fixed_contacts) xpp.fixed_contacts_.push_back(RosToXpp(f));
+  xpp.id_                = msg.id;
+  xpp.duration_          = msg.duration;
+
+  return xpp;
+}
+
+static std::vector<PhaseInfoMsg>
+XppToRos(const std::vector<PhaseInfoXpp>& xpp)
+{
+  std::vector<PhaseInfoMsg> msg;
+
+  for (const auto& phase : xpp)
+    msg.push_back(XppToRos(phase));
+
+  return msg;
+}
+
+static std::vector<PhaseInfoXpp>
+RosToXpp(const std::vector<PhaseInfoMsg>& msg)
+{
+  std::vector<PhaseInfoXpp> xpp;
+
+  for (auto phase : msg)
+    xpp.push_back(RosToXpp(phase));
+
+  return xpp;
+}
 
 static std::vector<SplineMsg>
 XppToRos(const VecSpline& opt_splines)
@@ -68,14 +143,11 @@ XppToRos(const VecSpline& opt_splines)
     std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_y.begin());
 
     msgs.at(i).duration = opt_splines.at(i).duration_;
-    msgs.at(i).type     = static_cast<int>(opt_splines.at(i).deprecated_phase_.type_);
     msgs.at(i).id       = opt_splines.at(i).id_;
-    msgs.at(i).step     = opt_splines.at(i).step_;
   }
 
   return msgs;
 }
-
 
 static VecSpline
 RosToXpp(const std::vector<SplineMsg>& msgs)
@@ -93,30 +165,11 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
     const double* ay_coeff = msgs.at(i).coeff_y.begin();
     std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::Y]);
 
-    xpp.at(i).duration_      = msgs.at(i).duration;
-    xpp.at(i).deprecated_phase_.type_   = static_cast<zmp::PhaseInfo::Type>(msgs.at(i).type);
-    xpp.at(i).id_            = msgs.at(i).id;
-    xpp.at(i).step_          = msgs.at(i).step;
+    xpp.at(i).duration_ = msgs.at(i).duration;
+    xpp.at(i).id_       = msgs.at(i).id;
   }
-
   return xpp;
 }
-
-
-static xpp_opt::Footholds2d
-XppToRos(const xpp::utils::StdVecEigen2d& opt_footholds)
-{
-  xpp_opt::Footholds2d ros;
-  for (uint i=0; i<opt_footholds.size(); ++i) {
-    geometry_msgs::Point p;
-    p.x = opt_footholds.at(i).x();
-    p.y = opt_footholds.at(i).y();
-    ros.data.push_back(p);
-  }
-
-  return ros;
-}
-
 
 static State
 RosToXpp(const xpp_opt::StateLin3d& ros)
@@ -137,7 +190,6 @@ RosToXpp(const xpp_opt::StateLin3d& ros)
   return point;
 }
 
-
 static xpp_opt::StateLin3d
 XppToRos(const State& xpp)
 {
@@ -157,7 +209,6 @@ XppToRos(const State& xpp)
   return ros;
 }
 
-
 static Vector3d
 RosToXpp(const geometry_msgs::Point& ros)
 {
@@ -165,15 +216,6 @@ RosToXpp(const geometry_msgs::Point& ros)
   vec << ros.x, ros.y, ros.z;
   return vec;
 }
-
-
-//static LegID
-//RosToXpp(const int rosleg)
-//{
-//  assert(0 <= rosleg && rosleg < xpp::hyq::_LEGS_COUNT); //integer cannot be mapped to a LegID
-//  return static_cast<LegID>(rosleg);
-//}
-
 
 static Foothold
 RosToXpp(const xpp_opt::Foothold& ros)
@@ -185,7 +227,6 @@ RosToXpp(const xpp_opt::Foothold& ros)
   f.p   = RosToXpp(ros.p);
   return f;
 }
-
 
 static xpp_opt::Foothold
 XppToRos(const xpp::hyq::Foothold& xpp)
@@ -213,7 +254,6 @@ XppToRos(const std::vector<xpp::hyq::Foothold>& xpp)
   return ros_vec;
 }
 
-
 static std::vector<xpp::hyq::Foothold>
 RosToXpp(const std::vector<xpp_opt::Foothold>& ros)
 {
@@ -225,7 +265,6 @@ RosToXpp(const std::vector<xpp_opt::Foothold>& ros)
 
   return xpp_vec;
 }
-
 
 }; // RosHelpers
 

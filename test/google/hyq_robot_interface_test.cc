@@ -1,14 +1,15 @@
 /**
- @file    optimization_variables_interpreter_test.cc
+ @file    hyq_robot_interface_test.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Jun 3, 2016
+ @date    Sep 6, 2016
  @brief   Brief description
  */
 
-#include <xpp/zmp/optimization_variables_interpreter.h>
+#include <xpp/hyq/hyq_robot_interface.h>
+#include <gtest/gtest.h>
 
 namespace xpp {
-namespace zmp {
+namespace hyq {
 
 } /* namespace zmp */
 } /* namespace xpp */

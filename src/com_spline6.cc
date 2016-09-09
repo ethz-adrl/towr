@@ -28,18 +28,6 @@ ComSpline6::clone () const
   return PtrClone(new ComSpline6(*this));
 }
 
-void
-ComSpline6::Init (int step_count, const SplineTimes& times,
-                  bool insert_initial_stance)
-{
-  ComSpline::Init(step_count, times, insert_initial_stance);
-
-  // initialize all coefficients to zero
-  Eigen::VectorXd abcd(GetTotalFreeCoeff());
-  abcd.setZero();
-  SetCoefficients(abcd);
-}
-
 ComSpline6::Derivatives
 ComSpline6::GetInitialFreeMotions () const
 {
@@ -50,12 +38,6 @@ ComSpline6::Derivatives
 ComSpline6::GetJunctionFreeMotions () const
 {
   return {kPos, kVel, kAcc/*, kJerk*/};
-}
-
-ComSpline6::Derivatives
-ComSpline6::GetFinalFreeMotions () const
-{
-  return {kPos, kVel, kAcc};
 }
 
 void
@@ -81,7 +63,7 @@ ComSpline6::SetCoefficients (const VectorXd& optimized_coeff)
 }
 
 void
-ComSpline6::GetJacobianPos (double t_poly, int id, Coords dim, JacobianRow& jac) const
+ComSpline6::GetJacobianPos (double t_poly, int id, Coords3D dim, JacobianRow& jac) const
 {
   // x_pos = at^5 +   bt^4 +  ct^3 + dt*2 + et + f
   jac.insert(Index(id,dim,A))   = std::pow(t_poly,5);
@@ -93,7 +75,7 @@ ComSpline6::GetJacobianPos (double t_poly, int id, Coords dim, JacobianRow& jac)
 }
 
 void
-ComSpline6::GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow& jac) const
+ComSpline6::GetJacobianVel (double t_poly, int id, Coords3D dim, JacobianRow& jac) const
 {
   // x_vel = 5at^4 +   4bt^3 +  3ct^2 + 2dt + e
   jac.insert(Index(id,dim,A))   = 5 * std::pow(t_poly,4);
@@ -104,7 +86,7 @@ ComSpline6::GetJacobianVel (double t_poly, int id, Coords dim, JacobianRow& jac)
 }
 
 void
-ComSpline6::GetJacobianAcc (double t_poly, int id, Coords dim, JacobianRow& jac) const
+ComSpline6::GetJacobianAcc (double t_poly, int id, Coords3D dim, JacobianRow& jac) const
 {
   // x_acc = 20at^3 + 12bt^2 + 6ct   + 2d
   jac.insert(Index(id,dim,A))   = 20.0 * std::pow(t_poly,3);
@@ -114,7 +96,7 @@ ComSpline6::GetJacobianAcc (double t_poly, int id, Coords dim, JacobianRow& jac)
 }
 
 void
-ComSpline6::GetJacobianJerk (double t_poly, int id, Coords dim, JacobianRow& jac) const
+ComSpline6::GetJacobianJerk (double t_poly, int id, Coords3D dim, JacobianRow& jac) const
 {
   // x_jerk = 60at^2 +   24bt +  6c
   jac.insert(Index(id,dim,A))   = 60 * std::pow(t_poly,2);

@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_ZMP_CONSTRAINT_H_
 
 #include <xpp/zmp/a_constraint.h>
+#include <xpp/zmp/motion_structure.h>
 #include <xpp/zmp/zmp_constraint_builder.h>
 #include <xpp/hyq/support_polygon_container.h>
 
@@ -19,13 +20,14 @@ class OptimizationVariablesInterpreter;
 
 class ZmpConstraint : public AConstraint {
 public:
-  typedef xpp::utils::StdVecEigen2d FootholdsXY;
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
+  using Contacts = xpp::hyq::SupportPolygonContainer;
+  typedef xpp::utils::StdVecEigen2d FootholdsXY;
 
   ZmpConstraint ();
   virtual ~ZmpConstraint () {};
 
-  void Init(const OptimizationVariablesInterpreter& interpreter);
+  void Init(const MotionStructure&, const ComMotion&, const Contacts&, double walking_height);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;

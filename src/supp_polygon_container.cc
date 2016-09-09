@@ -100,9 +100,15 @@ SupportPolygonContainer::GetStanceAfter(int n_steps) const
 
   // get the last step of each foot
   VecFoothold last_stance;
-  for (LegID l : LegIDArray)
-    last_stance.push_back(Foothold::GetLastFoothold(l,combined));
+  for (LegID l : LegIDArray) {
 
+    if(std::find_if(combined.begin(), combined.end(),
+                 [&l](const Foothold& f) {return f.leg == l;}) != combined.end())
+    {
+      last_stance.push_back(Foothold::GetLastFoothold(l,combined));
+    }
+
+  }
   return last_stance;
 }
 
@@ -165,43 +171,21 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
   return end_cog/_LEGS_COUNT;
 }
 
-//SupportPolygon
-//SupportPolygonContainer::GetSupportPolygon (double t_global,
-//                                            const ComMotion& com_motion) const
-//{
-//  auto supp = AssignSupportPolygonsToPhases(com_motion);
-//  int phase = com_motion.GetCurrentPhase(t_global).id_;
-//  return supp.at(phase);
-//}
-
 SupportPolygonContainer::VecSupportPolygon
 SupportPolygonContainer::AssignSupportPolygonsToPhases(const PhaseInfoVec& phases) const
 {
-  using namespace xpp::zmp;
-
   VecSupportPolygon supp;
+
   for (const auto& phase : phases) {
-    SupportPolygon curr_supp;
 
+    VecFoothold contacts;
+    for (auto c : phase.free_contacts_)
+      contacts.push_back(footholds_.at(c.id));
 
-    int prev_step = phase.n_completed_steps_-1;
-    switch (phase.type_) {
-      case PhaseInfo::kStepPhase: {
-        curr_supp = support_polygons_.at(prev_step+1);
-        break;
-      }
-      case PhaseInfo::kStancePhase: {
-        if (prev_step == -1) // first spline
-          curr_supp = GetStartPolygon();
-        else if (prev_step == GetNumberOfSteps()-1)
-          curr_supp = GetFinalPolygon();
-        else // for intermediate splines
-          curr_supp = SupportPolygon::CombineSupportPolygons(support_polygons_.at(prev_step),
-                                                             support_polygons_.at(prev_step+1));
-      }
-    }
+    for (auto f : phase.fixed_contacts_)
+      contacts.push_back(f);
 
-    supp.push_back(curr_supp);
+    supp.push_back(SupportPolygon(contacts, margins_));
   }
 
   return supp;
@@ -240,21 +224,6 @@ SupportPolygonContainer::DisJointSupportPolygons(LegID prev, LegID next)
   if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
 
   return false;
-}
-
-SupportPolygonContainer::PosXY
-SupportPolygonContainer::GetNominalPositionInBase (LegID leg) const
-{
-  const double x_nominal_b = 0.36; // 0.4
-  const double y_nominal_b = 0.33; // 0.4
-
-  switch (leg) {
-    case hyq::LF: return PosXY( x_nominal_b,   y_nominal_b); break;
-    case hyq::RF: return PosXY( x_nominal_b,  -y_nominal_b); break;
-    case hyq::LH: return PosXY(-x_nominal_b,   y_nominal_b); break;
-    case hyq::RH: return PosXY(-x_nominal_b,  -y_nominal_b); break;
-    default: assert(false); // this should never happen
-  }
 }
 
 } /* namespace hyq */

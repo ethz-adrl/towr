@@ -6,9 +6,7 @@
  */
 
 #include <xpp/ros/nlp_optimizer_node.h>
-
 #include <xpp/ros/ros_helpers.h>
-#include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
 namespace ros {
@@ -55,6 +53,7 @@ NlpOptimizerNode::PublishOptimizedValues() const
   OptParamMsg msg_out;
   msg_out.splines   = xpp::ros::RosHelpers::XppToRos(opt_splines_);
   msg_out.footholds = xpp::ros::RosHelpers::XppToRos(footholds_);
+  msg_out.phases    = xpp::ros::RosHelpers::XppToRos(motion_phases_);
 
   opt_params_pub_.publish(msg_out);
 }
@@ -68,11 +67,13 @@ NlpOptimizerNode::OptimizeTrajectory()
                        robot_height_,
                        curr_stance_,
                        supp_polygon_margins_,
-                       spline_times_,
+                       t_swing_, t_stance_,
                        max_cpu_time_);
 
-  opt_splines_ = nlp_facade_.GetSplines();
-  footholds_   = nlp_facade_.GetFootholds();
+  auto& com_spline = dynamic_cast<xpp::zmp::ComSpline&>(*nlp_facade_.GetMotion());
+  opt_splines_   = com_spline.GetPolynomials();
+  footholds_     = nlp_facade_.GetFootholds();
+  motion_phases_ = nlp_facade_.GetPhases();
 }
 
 } /* namespace ros */

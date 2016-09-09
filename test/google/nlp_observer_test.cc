@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/interpreting_observer.h>
+#include "../../include/xpp/zmp/nlp_observer.h"
 
 namespace xpp {
 namespace zmp {

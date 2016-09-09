@@ -26,11 +26,8 @@ public:
   typedef xpp_opt::RequiredInfoQp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersQp OptParamMsg;
 
-
-public:
   QpOptimizerNode ();
   virtual ~QpOptimizerNode () {};
-
 
 private:
   QpOptimizer qp_optimizer_;
@@ -42,7 +39,7 @@ private:
   ::ros::Publisher opt_params_pub_;
   void CurrentInfoCallback(const ReqInfoMsg& msg);
 
-
+  bool start_with_com_shift_;
 };
 
 } /* namespace ros */

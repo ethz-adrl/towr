@@ -34,6 +34,8 @@ public:
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
 
+  void ClearVariables();
+
   VectorXd GetVariables(std::string id) const;
   VectorXd GetOptimizationVariables() const;
   VecBound GetOptimizationVariableBounds() const;

@@ -11,6 +11,7 @@ namespace xpp {
 namespace zmp {
 
 static int kDim2d = xpp::utils::kDim2d;
+using namespace xpp::utils::coords_wrapper;
 
 ComSpline::ComSpline ()
 {
@@ -23,96 +24,32 @@ ComSpline::~ComSpline ()
 }
 
 void
-ComSpline::Init (int step_count, const SplineTimes& times,
-                 bool insert_initial_stance)
+ComSpline::Init (const PhaseVec& phases)
 {
-  polynomials_.clear();
+  int id = 0;
 
-  // build the spline structure
-  if (insert_initial_stance) {
-    const int n_stance_splines = 2; // 3 allows quicker reaction
-    double t = times.t_stance_initial_/n_stance_splines;
-    for (int i=0; i<n_stance_splines; ++i)
-      AddStancePolynomial(t);
+  for (const auto& phase : phases) {
 
-//    double t_reaction = 0.06;
-//    SplineContainer::AddStanceSpline(t_reaction);
-//    SplineContainer::AddStanceSpline(times.t_stance_initial_-t_reaction);
-  }
-
-  AddPolynomialStepSequence(step_count, times.t_swing_);
-}
-
-void
-ComSpline::AddPolynomialStepSequence (int step_count, double t_swing)
-{
-  unsigned int spline_id = polynomials_.empty() ? 0 : polynomials_.back().GetId()+1;
-  int phase_id           = phases_.empty() ? 0 : phases_.back().id_+1;
-
-
-  int n_splines_per_step = 1;
-  for (int step=0; step<step_count; ++step) {
-
-    PhaseInfo phase(PhaseInfo::kStepPhase, step, phase_id, t_swing);
-    for (int i=0; i<n_splines_per_step; ++i) {
-
-
-      ComPolynomial spline(spline_id++, t_swing/n_splines_per_step, phase);
-      spline.SetStep(step);
-      polynomials_.push_back(spline);
+    if (!phase.IsStep())
+    {
+      double t_reaction = 0.15;
+      polynomials_.push_back(ComPolynomial(id++, t_reaction));
+      polynomials_.push_back(ComPolynomial(id++, phase.duration_-t_reaction));
+    } else
+    {
+      int n_splines_per_step = 1;
+      for (int i=0; i<n_splines_per_step; ++i) {
+        ComPolynomial polynomial(id++, phase.duration_/n_splines_per_step);
+        polynomials_.push_back(polynomial);
+      }
     }
-
-    phases_.push_back(phase);
-    phase_id++;
-  }
-
-
-  splines_initialized_ = true;
-}
-
-void
-ComSpline::AddStancePolynomial (double t_stance)
-{
-  int spline_id;
-  PhaseInfo phase;
-  if (polynomials_.empty()) {
-    spline_id = 0;
-    phase = PhaseInfo(PhaseInfo::kStancePhase, 0, 0, t_stance);
-    phases_.push_back(phase);
-    polynomials_.push_back(ComPolynomial(spline_id, t_stance, phase));
-  } else {
-    spline_id = polynomials_.back().GetId()+1;
-
-    // only add new phase if previous one wasn't also a stance phase, otherwise just lengthen phase
-    if (phases_.back().type_ == PhaseInfo::kStepPhase ) {
-      PhaseInfo last_phase = phases_.back();
-      phase.type_ = PhaseInfo::kStancePhase;
-      phase.duration_ = t_stance;
-      phase.n_completed_steps_ = last_phase.n_completed_steps_+1;
-      phase.id_ = last_phase.id_+1;
-      phases_.push_back(phase);
-      polynomials_.push_back(ComPolynomial(spline_id, t_stance, phases_.back()));
-    } else {
-      phases_.back().duration_ += t_stance; // phase is now longer
-      polynomials_.push_back(ComPolynomial(spline_id, t_stance, phases_.back()));
-    }
-
   }
 
   splines_initialized_ = true;
-}
-
-double
-ComSpline::GetTotalTime(const VecPolynomials& splines)
-{
-  double T = 0.0;
-  for (const ComPolynomial& s: splines)
-    T += s.GetDuration();
-  return T;
 }
 
 int
-ComSpline::Index (int poly, Coords dim, SplineCoeff coeff) const
+ComSpline::Index (int poly, Coords3D dim, SplineCoeff coeff) const
 {
   return NumFreeCoeffPerSpline() * kDim2d * poly + NumFreeCoeffPerSpline() * dim + coeff;
 }
@@ -135,79 +72,6 @@ ComSpline::GetCoeffients () const
         x_abcd[Index(s.GetId(), dim, coeff)] = s.GetCoefficient(dim, coeff);
 
   return x_abcd;
-}
-
-int
-ComSpline::GetPolynomialID(double t_global, const VecPolynomials& splines)
-{
-   assert(t_global<=GetTotalTime(splines));
-
-   double t = 0;
-   for (const ComPolynomial& s: splines) {
-     t += s.GetDuration();
-
-     if (t >= t_global) // at junctions, returns previous spline (=)
-       return s.GetId();
-   }
-   assert(false); // this should never be reached
-}
-
-//PhaseInfo
-//ComSpline::GetCurrentPhase (double t_global) const
-//{
-//  int id = GetPolynomialID(t_global);
-//  return polynomials_.at(id).phase_;
-//}
-//
-//ComSpline::PhaseInfoVec
-//ComSpline::GetPhases () const
-//{
-//  PhaseInfoVec phases;
-//
-//  int prev_id = -1;
-//  for (const auto& s : polynomials_) {
-//    PhaseInfo curr = s.phase_;
-//    if (curr.id_ != prev_id) { // multiple splines can correspond to only one phase
-//      phases.push_back(curr);
-//      prev_id = curr.id_;
-//    }
-//  }
-//
-//  return phases;
-//}
-
-double
-ComSpline::GetLocalTime(double t_global, const VecPolynomials& splines)
-{
-  int id_spline = GetPolynomialID(t_global,splines);
-
-  double t_local = t_global;
-  for (int id=0; id<id_spline; id++) {
-    t_local -= splines.at(id).GetDuration();
-  }
-
-  return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
-}
-
-ComSpline::Point2d
-ComSpline::GetCOM(double t_global, const VecPolynomials& splines)
-{
-  int id = GetPolynomialID(t_global,splines);
-  double t_local = GetLocalTime(t_global, splines);
-
-  return GetCOGxyAtPolynomial(id, t_local, splines);
-}
-
-ComSpline::Point2d
-ComSpline::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& splines)
-{
-  Point2d cog_xy;
-  cog_xy.p = splines[id].GetState(kPos, t_local);
-  cog_xy.v = splines[id].GetState(kVel, t_local);
-  cog_xy.a = splines[id].GetState(kAcc, t_local);
-  cog_xy.j = splines[id].GetState(kJerk, t_local);
-
-  return cog_xy;
 }
 
 ComSpline::JacobianRow

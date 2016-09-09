@@ -26,10 +26,10 @@ WalkingControllerState::BuildStates ()
 {
   StatesMap states;
 
-  states.emplace(kFirstPlanning, std::make_shared<FirstPlanning>());
-  states.emplace(kExecuting,     std::make_shared<Executing>());
-  states.emplace(kUpdateAndExecuting,    std::make_shared<UpdateAndExecuting>());
-  states.emplace(kSleeping,      std::make_shared<Sleeping>());
+  states.emplace(kFirstPlanning,      std::make_shared<FirstPlanning>());
+  states.emplace(kExecuting,          std::make_shared<Executing>());
+  states.emplace(kUpdateAndExecuting, std::make_shared<UpdateAndExecuting>());
+  states.emplace(kSleeping,           std::make_shared<Sleeping>());
 
   return states;
 }
@@ -41,20 +41,6 @@ void FirstPlanning::Run(WalkingController* context) const
   context->SetState(kSleeping); // waiting for nlp optimizer to finish
 }
 
-void Executing::Run(WalkingController* context) const
-{
-  context->ExecuteLoop();
-  if (context->TimeExceeded())
-    context->SetState(kUpdateAndExecuting);
-}
-
-void UpdateAndExecuting::Run(WalkingController* context) const
-{
-  context->BuildPlan();
-  context->SetState(kExecuting);
-  context->ExecuteLoop(); // to always send values to the controller
-}
-
 void Sleeping::Run(WalkingController* context) const
 {
   if (context->Time() > 2.0) {
@@ -62,6 +48,26 @@ void Sleeping::Run(WalkingController* context) const
     context->SetState(kUpdateAndExecuting);
   }
 }
+
+void UpdateAndExecuting::Run(WalkingController* context) const
+{
+  context->IntegrateOptimizedTrajectory();
+  context->SetState(kExecuting);
+  context->ExecuteLoop(); // to send values to the controller in every controller iteration
+}
+
+void Executing::Run(WalkingController* context) const
+{
+  if (context->IsTimeToSendOutState())
+    context->PublishOptimizationStartState();
+
+  context->ExecuteLoop();
+
+  if (context->SwitchToNewTrajectory())
+    context->SetState(kUpdateAndExecuting);
+}
+
+
 
 } /* namespace exe */
 } /* namespace xpp */

@@ -8,13 +8,15 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_NLP_FACADE_H_
 
+
+#include <xpp/zmp/phase_info.h>
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/zmp/i_visualizer.h>
 #include <xpp/hyq/support_polygon.h>
+
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
 #include <memory>
-#include "com_spline6.h"
 
 namespace xpp {
 namespace hyq {
@@ -30,8 +32,9 @@ class OptimizationVariables;
 class CostContainer;
 class ConstraintContainer;
 class OptimizationVariablesInterpreter;
-class InterpretingObserver;
+class NlpObserver;
 class ComPolynomial;
+class ComMotion;
 
 /** @brief Simplified interface to setup and solve a Nonlinear-Program.
   *
@@ -45,14 +48,16 @@ public:
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef std::shared_ptr<OptimizationVariablesInterpreter> InterpreterPtr;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
-  typedef std::shared_ptr<InterpretingObserver> InterpretingObserverPtr;
+  typedef std::shared_ptr<NlpObserver> NlpObserverPtr;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef std::vector<ComPolynomial> VecSpline;
 
   typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
   typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
   typedef std::shared_ptr<xpp::hyq::StepSequencePlanner> StepSequencePlannerPtr;
+
+  using ComMotionPtrS = std::shared_ptr<ComMotion>;
+
 
   NlpFacade (IVisualizer& visualizer = do_nothing_visualizer);
   virtual ~NlpFacade () {};
@@ -74,14 +79,15 @@ public:
                 double robot_height_,
                 VecFoothold curr_stance,
                 xpp::hyq::MarginValues margins,
-                xpp::zmp::SplineTimes spline_times_,
+                double t_swing, double t_stance,
                 double max_cpu_time = 1e20);
 
   void AttachVisualizer(IVisualizer& visualizer);
-  InterpretingObserverPtr GetObserver() const;
+  NlpObserverPtr GetObserver() const;
 
   VecFoothold GetFootholds() const;
-  VecSpline GetSplines() const;
+  ComMotionPtrS GetMotion() const;
+  PhaseVec GetPhases() const;
 
 private:
   void SolveIpopt(const IpoptPtr& nlp, double max_cpu_time);
@@ -92,7 +98,8 @@ private:
   CostContainerPtr costs_;
   ConstraintContainerPtr constraints_;
 
-  InterpretingObserverPtr interpreting_observer_;
+
+  NlpObserverPtr nlp_observer_;
   IVisualizer* visualizer_;
 
   Ipopt::IpoptApplication ipopt_solver_;

@@ -16,12 +16,15 @@
 //#include <xpp/zmp/joint_angles_constraint.h>
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/zmp/obstacle_constraint.h>
+#include <xpp/hyq/hyq_robot_interface.h>
 
 #include <xpp/zmp/a_foothold_cost.h>
 #include <xpp/zmp/a_spline_cost.h>
 
 namespace xpp {
 namespace zmp {
+
+using namespace xpp::utils::coords_wrapper;
 
 CostConstraintFactory::CostConstraintFactory ()
 {
@@ -48,7 +51,7 @@ CostConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
 {
   LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeFinal(final_state_xy));
+  constraint->Init(eq.MakeFinal(final_state_xy, {kPos, kVel, kAcc}));
   return constraint;
 }
 
@@ -62,19 +65,25 @@ CostConstraintFactory::CreateJunctionConstraint (const ComMotion& motion)
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateZmpConstraint (const OptimizationVariablesInterpreter& interpreter)
+CostConstraintFactory::CreateZmpConstraint (const MotionStructure& motion_structure,
+                                            const ComMotion& com_motion,
+                                            const Contacts& contacts,
+                                            double walking_height)
 {
   auto constraint = std::make_shared<ZmpConstraint>();
-  constraint->Init(interpreter);
+  constraint->Init(motion_structure, com_motion, contacts, walking_height);
   return constraint;
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateRangeOfMotionConstraint (
-    const ComMotion& com_motion, const Contacts& contacts)
+CostConstraintFactory::CreateRangeOfMotionConstraint (const ComMotion& com_motion,
+                                                      const Contacts& contacts,
+                                                      const MotionStructure& motion_structure)
 {
   auto constraint = std::make_shared<RangeOfMotionBox>();
-  constraint->Init(com_motion, contacts);
+  auto hyq = std::unique_ptr<ARobotInterface>(new xpp::hyq::HyqRobotInterface());
+
+  constraint->Init(com_motion, contacts, motion_structure, std::move(hyq));
   return constraint;
 }
 
@@ -96,11 +105,25 @@ CostConstraintFactory::CreateObstacleConstraint ()
 }
 
 CostConstraintFactory::CostPtr
-CostConstraintFactory::CreateAccelerationCost (const ComMotion& motion)
+CostConstraintFactory::CreateMotionCost (const ComMotion& motion,
+                                         const xpp::utils::MotionDerivative dxdt)
 {
   LinearSplineEquations eq(motion);
   auto cost = std::make_shared<QuadraticSplineCost>();
-  cost->Init(eq.MakeAcceleration(1.0,3.0));
+
+  Eigen::MatrixXd term;
+
+  switch (dxdt) {
+    case kAcc:  term = eq.MakeAcceleration(1.0,2.0); break;
+    case kJerk: term = eq.MakeJerk(1.0,2.0); break;
+    default: assert(false); break; // this cost is not implemented
+  }
+
+  xpp::utils::MatVec mv(term.rows(), term.cols());
+  mv.M = term;
+  mv.v.setZero();
+
+  cost->Init(mv);
   return cost;
 }
 
@@ -110,7 +133,7 @@ CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
 {
   LinearSplineEquations eq(motion);
   auto cost = std::make_shared<SquaredSplineCost>();
-  cost->Init(eq.MakeFinal(final_state_xy));
+  cost->Init(eq.MakeFinal(final_state_xy, {kPos, kVel, kAcc}));
   return cost;
 }
 

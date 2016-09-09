@@ -11,6 +11,7 @@
 namespace xpp {
 namespace zmp {
 
+using namespace xpp::utils::coords_wrapper;
 
 PolynomialFifthOrder::PolynomialFifthOrder()
 {
@@ -80,31 +81,80 @@ PolynomialFifthOrder::GetCoefficient (int dim, SplineCoeff coeff) const
   return spline_coeff_[dim][coeff];
 }
 
-ComPolynomial::ComPolynomial()
-    : id_(0), duration_(0.0), deprecated_phase_(PhaseInfo()), step_(-1)
+ComPolynomial::ComPolynomial() : id_(0), duration_(0.0)
 {
   SetSplineCoefficients();
 }
 
-ComPolynomial::ComPolynomial(uint id, double duration, PhaseInfo phase_info)
-    : id_(id), duration_(duration), deprecated_phase_(phase_info), step_(-1)
+ComPolynomial::ComPolynomial(uint id, double duration) : id_(id), duration_(duration)
 {
   SetSplineCoefficients();
 }
 
-uint ComPolynomial::GetCurrStep() const
+double
+ComPolynomial::GetTotalTime(const VecPolynomials& splines)
 {
-  assert(!DeprecatedIsFourLegSupport());
-  return step_;
+  double T = 0.0;
+  for (const ComPolynomial& s: splines)
+    T += s.GetDuration();
+  return T;
 }
 
-std::ostream& operator<<(std::ostream& out, const ComPolynomial& s)
+double
+ComPolynomial::GetLocalTime(double t_global, const VecPolynomials& splines)
 {
-  out << "Spline: id= "   << s.id_                << ":\t"
-      << "duration="      << s.duration_          << "\t"
-      << "four_leg_supp=" << s.DeprecatedIsFourLegSupport() << "\t"
-      << "step="          << s.step_ << "\t"
-      << "type="          << s.deprecated_phase_.type_ << " (Stance=0, Step=1)) \n ";
+  int id_spline = GetPolynomialID(t_global,splines);
+
+  double t_local = t_global;
+  for (int id=0; id<id_spline; id++) {
+    t_local -= splines.at(id).GetDuration();
+  }
+
+  return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
+}
+
+ComPolynomial::Point2d
+ComPolynomial::GetCOM(double t_global, const VecPolynomials& splines)
+{
+  int id = GetPolynomialID(t_global,splines);
+  double t_local = GetLocalTime(t_global, splines);
+
+  return GetCOGxyAtPolynomial(id, t_local, splines);
+}
+
+ComPolynomial::Point2d
+ComPolynomial::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& splines)
+{
+  Point2d cog_xy;
+  cog_xy.p = splines[id].GetState(kPos, t_local);
+  cog_xy.v = splines[id].GetState(kVel, t_local);
+  cog_xy.a = splines[id].GetState(kAcc, t_local);
+  cog_xy.j = splines[id].GetState(kJerk, t_local);
+
+  return cog_xy;
+}
+
+int
+ComPolynomial::GetPolynomialID(double t_global, const VecPolynomials& splines)
+{
+  double eps = 1e-10; // double imprecision
+  assert(t_global<=GetTotalTime(splines)+eps); // machine precision
+
+   double t = 0;
+   for (const ComPolynomial& s: splines) {
+     t += s.GetDuration();
+
+     if (t >= t_global-eps) // at junctions, returns previous spline (=)
+       return s.GetId();
+   }
+   assert(false); // this should never be reached
+}
+
+std::ostream&
+operator<<(std::ostream& out, const ComPolynomial& p)
+{
+  out << "id: " << p.id_
+      << "\t duration: " << p.duration_;
   return out;
 }
 

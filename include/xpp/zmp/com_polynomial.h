@@ -70,45 +70,37 @@ protected:
 } // namespace zmp
 } // namespace xpp
 
-
-#include "phase_info.h"
-namespace xpp { namespace ros { class RosHelpers; }} // forward declaration for friend
+namespace xpp {namespace ros{ class RosHelpers; }};
 
 namespace xpp {
 namespace zmp {
 
-/** A fifth order spline that now holds some context information about the Center of Mass.
+/** A fifth order spline that now holds some context information.
   */
 class ComPolynomial : public PolynomialFifthOrder {
 public:
+  using VecPolynomials = std::vector<ComPolynomial>;
+  using Point2d = xpp::utils::Point2d;
+
   ComPolynomial();
-  ComPolynomial(uint id, double duration, PhaseInfo);
+  ComPolynomial(uint id, double duration);
   virtual ~ComPolynomial() {};
 
   uint GetId()            const { return id_; };
-  double GetDuration()    const { return duration_; }
-  void SetStep(int step) {step_ = step; };
+  double GetDuration()    const { return duration_; };
 
-  /** Only if spline is a "StepSpline" is a step currently being executed. */
-  uint GetCurrStep() const;
-
-  // DEPRECATED:
-  // The phase information should only be used from the base class
-  // com_motion and not linked to a specific spline. This is an implementation
-  // detail not relevant outside the optimizer. Also the step info is not
-  // neccessary here as well, remove.
-  // Will remove soon.
-  // refactor remove deprecated phase stuff
-  bool DeprecatedIsFourLegSupport() const { return deprecated_phase_.type_ == PhaseInfo::kStancePhase; }
+  static Point2d GetCOM(double t_global, const VecPolynomials& splines);
+  static int GetPolynomialID(double t_global, const VecPolynomials& splines);
+  static double GetTotalTime(const VecPolynomials& splines);
+  static double GetLocalTime(double t_global, const VecPolynomials& splines);
+  static Point2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
 
 private:
-  uint id_; // to identify the order relative to other zmp splines
+  uint id_; // to identify the order relative to other polynomials
   double duration_; // time during which this spline is active
-  int step_; // current step
-  PhaseInfo deprecated_phase_;
 
-  friend struct xpp::ros::RosHelpers;
   friend std::ostream& operator<<(std::ostream& out, const ComPolynomial& tr);
+  friend struct xpp::ros::RosHelpers;
 };
 
 

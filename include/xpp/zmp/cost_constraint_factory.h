@@ -23,6 +23,7 @@ class AConstraint;
 class ACost;
 class ComMotion;
 class OptimizationVariablesInterpreter;
+class MotionStructure;
 
 /** Builds all types of constraints/costs for the user.
   *
@@ -45,12 +46,16 @@ public:
   static ConstraintPtr CreateInitialConstraint(const State2d& init, const ComMotion&);
   static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ComMotion&);
   static ConstraintPtr CreateJunctionConstraint(const ComMotion&);
-  static ConstraintPtr CreateZmpConstraint(const OptimizationVariablesInterpreter&);
-  static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&);
+  static ConstraintPtr CreateZmpConstraint(const MotionStructure&,
+                                           const ComMotion&,
+                                           const Contacts&,
+                                           double walking_height);
+  static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&,
+                                                     const MotionStructure&);
 //  static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateObstacleConstraint();
 
-  static CostPtr CreateAccelerationCost(const ComMotion&);
+  static CostPtr CreateMotionCost(const ComMotion&, const xpp::utils::MotionDerivative);
   static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComMotion&);
   static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const Contacts&);
 };

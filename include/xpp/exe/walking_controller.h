@@ -13,13 +13,14 @@
 #ifndef IIT_ZMP_RUNNER_H_
 #define IIT_ZMP_RUNNER_H_
 
+#include <xpp/zmp/phase_info.h>
 #include <xpp_controller/controller.h>
 #include "virtual_model-inl.h"
 #include "walking_controller_state.h"
+#include <xpp/hyq/hyq_spliner.h>
 
 #include <xpp_opt/OptimizedParametersNlp.h>
 #include <xpp_opt/RequiredInfoNlp.h>
-#include <xpp/hyq/hyq_spliner.h>
 #include <iit/robots/hyq/declarations.h>
 #include <iit/robots/hyq/inertia_properties.h>
 #include <iit/robots/hyq/jsim.h>
@@ -29,7 +30,6 @@
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 #include <vector>
-#include "../zmp/com_spline6.h"
 
 namespace xpp {
 namespace exe {
@@ -48,7 +48,8 @@ public:
   typedef xpp::hyq::LegID LegID;
   typedef xpp::utils::Point3d State;
   typedef xpp::utils::Orientation Orientation;
-  typedef xpp::zmp::ComSpline6::VecPolynomials VecSpline;
+  using VecSpline = HyqSpliner::VecPolyomials;
+  using VecPhase  = xpp::zmp::PhaseVec;
   // ROS stuff
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
@@ -59,10 +60,12 @@ public:
   void SetState(WalkingControllerState::State state);
   // fsm callable functions
   void PublishCurrentState();
-  void BuildPlan();
+  void IntegrateOptimizedTrajectory();
   void ExecuteLoop();
   void EstimateCurrPose();
-  bool TimeExceeded() const;
+  bool SwitchToNewTrajectory();
+  bool IsTimeToSendOutState() const;
+  void PublishOptimizationStartState(); // sends out command to start NLP optimization
 
 
 
@@ -79,18 +82,21 @@ private:
   ::ros::Publisher current_info_pub_;
   ::ros::Subscriber opt_params_sub_;
 
-  /** Estimates where the robot will be when optimization is complete in order
-    * to start optimization from there.
-    *
-    * @param required_time
-    * @return
-    */
-  State GetStartStateForOptimization(/*const double required_time*/) const;
+//  /** Estimates where the robot will be when optimization is complete in order
+//    * to start optimization from there.
+//    *
+//    * @param required_time
+//    * @return
+//    */
+//  State GetStartStateForOptimization(/*const double required_time*/) const;
 
   bool reoptimize_before_finish_;
+  bool first_run_after_integrating_opt_trajectory_;
 
-  VecSpline opt_splines_;
+  VecSpline opt_spline_;
   VecFoothold opt_footholds_;
+  VecPhase motion_phases_;
+  bool optimal_trajectory_updated;
 
   HyqSpliner spliner_;  //for normal body, ori, and feet traj.
   HyqState P_des_;
@@ -103,7 +109,6 @@ private:
   double robot_height_;
   double max_cpu_time_;
 
-  double t_switch_; // when to abort spline and go to already next optimized one
   hyq::SplineNode switch_node_;
   double kOptTimeReq_;
 
@@ -115,8 +120,6 @@ private:
   double ffspline_duration_;
   JointState uff_prev_;
   Eigen::Vector3d b_r_geomtocog; // tranform from geometric body center to center of gravity
-  bool first_time_sending_commands_;
-
 
   bool use_virtual_model_;
   VirtualModel vm_;

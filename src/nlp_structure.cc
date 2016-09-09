@@ -57,12 +57,9 @@ NlpStructure::~NlpStructure ()
 void
 NlpStructure::AddVariableSet (std::string id, int n_variables)
 {
-  auto set_ptr = GetSet(id);
   auto new_set = std::make_shared<VariableSet>(n_variables, id);
-  if (set_ptr == nullptr) // set doesn't exist yet, so add
-    variable_sets_.push_back(new_set);
-  else  // overwrite existing set
-    set_ptr = new_set;
+  assert(GetSet(id) == nullptr); // make sure doesn't exist yet, otherwise call ClearVariables()
+  variable_sets_.push_back(new_set);
 }
 
 void

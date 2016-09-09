@@ -9,12 +9,11 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 
 #include <xpp/zmp/i_visualizer.h>
-#include <xpp/ros/marker_array_builder.h>
 #include <ros/publisher.h>
 
 namespace xpp {
 namespace zmp {
-class InterpretingObserver;
+class NlpObserver;
 }
 }
 
@@ -30,7 +29,7 @@ namespace ros {
   */
 class OptimizationVisualizer : public xpp::zmp::IVisualizer {
 public:
-  typedef std::shared_ptr<xpp::zmp::InterpretingObserver> InterpretingObserverPtr;
+  typedef std::shared_ptr<xpp::zmp::NlpObserver> InterpretingObserverPtr;
 
   OptimizationVisualizer();
   virtual ~OptimizationVisualizer ();
@@ -42,8 +41,6 @@ public:
 
 private:
   ::ros::Publisher ros_publisher_;
-  MarkerArrayBuilder msg_builder_;
-
   InterpretingObserverPtr observer_;
 };
 

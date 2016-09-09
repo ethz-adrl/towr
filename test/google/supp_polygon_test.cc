@@ -14,6 +14,22 @@
 namespace xpp {
 namespace hyq {
 
+using Vector2d = Eigen::Vector2d;
+
+TEST(SupportPolygonTest, PointInside)
+{
+  auto start_stance = { Foothold( 0.359692,   0.327653, 0.0, LF),
+                        Foothold( 0.359694,  -0.327644, 0.0, RF),
+                        Foothold(-0.358797,   0.327698, 0.0, LH),
+                        Foothold(-0.358802,  -0.327695, 0.0, RH)};
+
+  auto margins = SupportPolygon::GetDefaultMargins();
+  SupportPolygon supp(start_stance, margins);
+
+  Vector2d p(0.0, -0.212744);
+
+  EXPECT_TRUE(supp.IsPointInside(p));
+}
 
 class SuppPolygonTest : public ::testing::Test {
 protected:
@@ -82,29 +98,6 @@ protected:
   MarginValues margins_;
 };
 
-
-TEST_F(SuppPolygonTest, CombineSupportPolygons)
-{
-  SupportPolygon supp1 = SupportPolygon(f_bottom_right, margins_);
-  SupportPolygon supp2 = SupportPolygon(f_top_left, margins_);
-
-  SupportPolygon combined = SupportPolygon::CombineSupportPolygons(supp1, supp2);
-
-  EXPECT_EQ(4, combined.GetFootholds().size());
-  EXPECT_EQ(f_4_ordered, combined.GetFootholds());
-  EXPECT_EQ(supp1.GetMargins(), combined.GetMargins());
-}
-
-
-TEST_F(SuppPolygonTest, CombineSupportPolygonsSame)
-{
-  SupportPolygon supp1 = SupportPolygon(f_bottom_right, margins_);
-  SupportPolygon combined = SupportPolygon::CombineSupportPolygons(supp1, supp1);
-
-  EXPECT_EQ(f_bottom_right, combined.GetFootholds());
-}
-
-
 TEST_F(SuppPolygonTest, IsZmpInsideSuppPolygon4Contacts)
 {
   using Vector2d = Eigen::Vector2d;
@@ -168,6 +161,27 @@ TEST_F(SuppPolygonTest, IsZmpInsideSuppPolygon3Contacts)
   EXPECT_FALSE(supp.IsPointInside(Vector2d(-0.1, 0.1)));
 }
 
+//TEST_F(SuppPolygonTest, CombineSupportPolygons)
+//{
+//  SupportPolygon supp1 = SupportPolygon(f_bottom_right, margins_);
+//  SupportPolygon supp2 = SupportPolygon(f_top_left, margins_);
+//
+//  SupportPolygon combined = SupportPolygon::CombineSupportPolygons(supp1, supp2);
+//
+//  EXPECT_EQ(4, combined.GetFootholds().size());
+//  EXPECT_EQ(f_4_ordered, combined.GetFootholds());
+//  EXPECT_EQ(supp1.GetMargins(), combined.GetMargins());
+//}
+//
+//
+//TEST_F(SuppPolygonTest, CombineSupportPolygonsSame)
+//{
+//  SupportPolygon supp1 = SupportPolygon(f_bottom_right, margins_);
+//  SupportPolygon combined = SupportPolygon::CombineSupportPolygons(supp1, supp1);
+//
+//  EXPECT_EQ(f_bottom_right, combined.GetFootholds());
+//}
+//
 //TEST_F(SuppPolygonTest, CalcLinesTopRight)
 //{
 //  SupportPolygon supp = SupportPolygon(f_top_right, margins_);

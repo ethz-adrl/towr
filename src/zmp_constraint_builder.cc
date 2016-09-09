@@ -27,36 +27,32 @@ ZmpConstraintBuilder::ZmpConstraintBuilder()
   contacts_     = nullptr;
 }
 
-ZmpConstraintBuilder::ZmpConstraintBuilder(const ComMotion& com_motion,
-                                           const SupportPolygonContainer& supp,
-                                           double walking_height,
-                                           double dt)
-{
-  Init(com_motion, supp, walking_height, dt);
-}
-
 ZmpConstraintBuilder::~ZmpConstraintBuilder()
 {
 }
 
 void
-ZmpConstraintBuilder::Init(const ComMotion& com_motion,
+ZmpConstraintBuilder::Init(const MotionStructure& structure,
+                           const ComMotion& com_motion,
                            const SupportPolygonContainer& supp,
                            double walking_height,
                            double dt)
 {
+  motion_structure_ = structure;
+  motion_structure_.SetDisretization(dt);
   com_motion_ = com_motion.clone();
+  contacts_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
+  support_polygon_per_phase_ = contacts_->AssignSupportPolygonsToPhases(motion_structure_.GetPhases());
+  walking_height_ = walking_height;
+
+  // refactor remove this, all info contained in motion_info_
+  double t_switch = 0.2; // the timeframe at which the constraint is relaxed
+  times_ = GetTimesForConstraitEvaluation(dt, t_switch);
+
   // set coefficients to zero, since that is where I am approximating the function
   //around. can only do this in initialization, because ZMP is linear, so
   // Jacobians and offset are independent of current coefficients.
   com_motion_->SetCoefficientsZero();
-
-  contacts_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
-  walking_height_ = walking_height;
-
-  double t_switch = 0.2; // the timeframe at which the constraint is relaxed
-  times_ = GetTimesForConstraitEvaluation(dt, t_switch);
-
   ZeroMomentPoint zmp(*com_motion_, times_, walking_height);
   jac_zmpx_0_ = zmp.GetJacobianWrtCoeff(X);
   jac_zmpy_0_ = zmp.GetJacobianWrtCoeff(Y);
@@ -74,19 +70,20 @@ ZmpConstraintBuilder::Init(const ComMotion& com_motion,
 std::vector<double>
 ZmpConstraintBuilder::GetTimesDisjointSwitches () const
 {
-  auto phases = com_motion_->GetPhases();
-
   std::vector<double> t_disjoint_switches;
   double t_global = 0;
+
+  auto phases = motion_structure_.GetPhases();
   for(int i=0; i<phases.size()-1; ++i) {
 
-    t_global += phases.at(i).duration_;
+    auto phase = phases.at(i);
+    t_global += phase.duration_;
 
-    bool curr_phase_is_step = phases.at(i).type_   == PhaseInfo::kStepPhase;
-    bool next_phase_is_step = phases.at(i+1).type_ == PhaseInfo::kStepPhase;
+    bool curr_phase_is_step = phase.IsStep();
+    bool next_phase_is_step = phases.at(i+1).IsStep();
 
     if (curr_phase_is_step && next_phase_is_step) {
-      int step = phases.at(i).n_completed_steps_;
+      int step = phase.n_completed_steps_;
       auto curr_leg = contacts_->GetLegID(step);
       auto next_leg = contacts_->GetLegID(step+1);
 
@@ -105,8 +102,14 @@ ZmpConstraintBuilder::GetTimesForConstraitEvaluation (double dt, double t_cross)
   std::vector<double> t_switch = GetTimesDisjointSwitches();
   bool skip_timestep = false;
 
+  double T_first_phase = motion_structure_.GetPhases().front().duration_;
+
   std::vector<double> t_constraint;
-  double t = 0.0;
+
+  // allow the zmp to be outside of the support polygon the entire first
+  // swingphase and then catch itself
+  // refactor don't forget, ignoring ZMP for part of first step
+  double t = t_cross/2.; //T_first_phase + dt; // t_cross
   double t_total = com_motion_->GetTotalTime();
   while (t <= t_total) {
     skip_timestep = false;
@@ -133,6 +136,7 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
 {
   com_motion_->SetCoefficients(motion_coeff);
   contacts_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
+  support_polygon_per_phase_ = contacts_->AssignSupportPolygonsToPhases(motion_structure_.GetPhases());
 
   variables_changed_ = true;
 }
@@ -140,11 +144,10 @@ ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
 int
 ZmpConstraintBuilder::GetNumberOfConstraints () const
 {
-  auto supp_polygons = contacts_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
   int n_constraints = 0;
   for (auto t : times_) {
-    int phase_id  = com_motion_->GetCurrentPhase(t).id_;
-    NodeConstraints supp_line = supp_polygons.at(phase_id).GetLines();
+    int phase_id  = motion_structure_.GetCurrentPhase(t).id_;
+    NodeConstraints supp_line = support_polygon_per_phase_.at(phase_id).GetLines();
     n_constraints += supp_line.size();
   }
 
@@ -157,20 +160,26 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
 {
   int n_contacts = contacts_->GetTotalFreeCoeff();
 
-  // know the lines of of each support polygon
-  auto supp_polygon = contacts_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
-
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
 
-  for (const auto& t : times_) {
+
+    for (auto t : times_) {
+//  for (auto node_new : motion_structure_.GetContactInfoVec()) {
 
     // the current position of the zero moment point
-    auto state = com_motion_->GetCom(t);
+
+    auto state = com_motion_->GetCom(t/*node_new.time_*/);
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
-    int phase_id  = com_motion_->GetCurrentPhase(t).id_;
-    NodeConstraints node = supp_polygon.at(phase_id).GetLines();
+
+    int phase_id  = motion_structure_.GetCurrentPhase(t/*node_new.time_*/).id_;
+    NodeConstraints node = support_polygon_per_phase_.at(phase_id).GetLines();
+
+
+//    hyq::SupportPolygon::SortCounterclockWise(node_new.legs_);
+
+
 
     for (int i=0; i<node.size(); ++i) {
 
@@ -216,21 +225,18 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
 ZmpConstraintBuilder::VectorXd
 ZmpConstraintBuilder::GetDistanceToLineMargin () const
 {
-  auto supp_polygons = contacts_->AssignSupportPolygonsToPhases(com_motion_->GetPhases());
-
   VectorXd distance = VectorXd::Zero(n_constraints_);
 
   // for every time t
   int c=0; // constraint counter
-  // refactor exclude times where the splines transition between disjoint support polygons
   for (const auto& t : times_) {
 
     // the current position of the zero moment point
     auto state = com_motion_->GetCom(t);
     auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
 
-    int phase_id  = com_motion_->GetCurrentPhase(t).id_;
-    NodeConstraints supp_line = supp_polygons.at(phase_id).GetLines();
+    int phase_id  = motion_structure_.GetCurrentPhase(t).id_;
+    NodeConstraints supp_line = support_polygon_per_phase_.at(phase_id).GetLines();
 
     for (auto i=0; i<supp_line.size(); ++i)
       distance(c++) = supp_line.at(i).GetDistanceToPoint(zmp);

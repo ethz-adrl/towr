@@ -12,7 +12,16 @@ find_package(catkin REQUIRED COMPONENTS
   hyq_inverse_kinematics
 )
 
-SET(IPOPT_SOURCE_DIR "/home/winklera/Software/Ipopt-3.12.4")
+
+# NLP solvers (adapt global path accordingly)
+set(IPOPT_SRC_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4")
+set(IPOPT_INCLUDE_DIRS ${IPOPT_SRC_DIR}/build/include/coin)
+set(IPOPT_LIBS         ${IPOPT_SRC_DIR}/build/lib/libipopt.so) # must be absolute path
+
+SET(SNOPT_SRC_DIR "/home/winklera/3rd_party_software/snopt_lib")
+set(SNOPT_INCLUDE_DIRS ${SNOPT_SRC_DIR}/include)
+set(SNOPT_LIBS ${SNOPT_SRC_DIR}/lib/libsnopt7_cpp.so ${SNOPT_SRC_DIR}/lib/libsnopt7.so) # must be absolute path
+
 
 find_package(Eigen3 REQUIRED)
 
@@ -29,7 +38,7 @@ endif()
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x -fopenmp -O3")
 #set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG -fopenmp -O3")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11") 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
 
 
@@ -39,17 +48,15 @@ set(LIB_NAME xpp_opt)
 # Generate added messages with any dependencies listed here
 add_message_files(
   FILES
-  FootholdSequence.msg
+  Contact.msg
   Foothold.msg
   Spline.msg
   StateLin3d.msg
-#  SplineCoefficients.msg
-  Footholds2d.msg
+  PhaseInfo.msg
   RequiredInfoNlp.msg
   OptimizedParametersNlp.msg
   RequiredInfoQp.msg
   OptimizedParametersQp.msg
-#  VariablesNlp.msg
 )
 add_service_files(
   FILES
@@ -74,24 +81,11 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}
-  LIBRARIES ${LIB_NAME}
+  INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
+  LIBRARIES ${LIB_NAME} ${IPOPT_LIBS} ${SNOPT_LIBS}
   CATKIN_DEPENDS message_runtime std_msgs geometry_msgs
-  DEPENDS log4cxx ${IPOPT_LIBS} 
+  DEPENDS
 )
-
-
-
-# NLP solvers
-SET(IPOPT_SOURCE_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4") # these two lines must be included everywhere where this project is needed
-link_directories(${IPOPT_SOURCE_DIR}/build/lib)
-set(IPOPT_INCLUDE_DIRS ${IPOPT_SOURCE_DIR}/build/include/coin)
-set(IPOPT_LIBS ipopt)
-
-SET(SNOPT_SOURCE_DIR "/home/winklera/3rd_party_software/snopt_lib") # these two lines must be included everywhere where this project is needed
-link_directories(${SNOPT_SOURCE_DIR}/lib)
-set(SNOPT_INCLUDE_DIRS ${SNOPT_SOURCE_DIR}/include)
-set(SNOPT_LIBS snopt7_cpp snopt7)
 
 include_directories(
   include
@@ -105,21 +99,22 @@ set(SOURCES
   src/ellipse.cc
   src/qp_facade.cc
   src/foothold.cc
-  src/hyq_inverse_kinematics.cc
   src/spliner.cc
   src/spliner_3d.cc
-  src/hyq_state.cc
   src/orientation.cc
+  src/zero_moment_point.cc
+  src/motion_structure.cc
+  src/step_sequence_planner.cc
+  src/line_equation.cc
+  src/a_inverse_kinematics.cc
+  src/a_robot_interface.cc
+  #hyq
+  src/hyq_inverse_kinematics.cc
+  src/hyq_robot_interface
+  src/hyq_state.cc
   src/support_polygon.cc
   src/supp_polygon_container.cc
   src/hyq_spliner.cc
-  src/nlp_facade.cc
-  src/zmp_constraint_builder.cc
-  src/zero_moment_point.cc
-  src/motion_structure.cc
-  src/a_inverse_kinematics.cc
-  src/step_sequence_planner.cc
-  src/line_equation.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
@@ -134,9 +129,9 @@ set(SOURCES
   src/a_subject.cc
   src/nlp_structure.cc
   src/optimization_variables.cc
-  src/optimization_variables_interpreter.cc
   src/i_observer.cc
-  src/interpreting_observer.cc
+  src/nlp_facade.cc
+  src/nlp_observer.cc
   src/nlp.cc
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
@@ -144,6 +139,7 @@ set(SOURCES
   src/a_constraint.cc
   src/cost_constraint_factory.cc
   src/a_linear_constraint.cc
+  src/zmp_constraint_builder.cc
   src/linear_spline_equations.cc
   src/constraint_container.cc
   src/zmp_constraint.cc
@@ -240,14 +236,16 @@ if(BUILD_TESTS)
 #                        test/google/nlp_facade_test.cc
 ##                        test/google/hyq_spliner_test.cc
 #                        test/google/optimization_variables_test.cc
-#                        test/google/interpreting_observer_test.cc
+#                        test/google/nlp_observer_test.cc
 #                        test/google/optimization_visualizer_test.cc
-#                        test/google/optimization_variables_interpreter_test.cc
 #                        test/google/step_sequence_planner_test.cc
                          test/google/line_equation_test.cc
+                         # hyq
+                         test/google/hyq_robot_interface_test.cc
 #                        # com
+                         test/google/motion_structure_test.cc
 #                        test/google/com_motion_test.cc
-#                        test/google/com_spline_test.cc
+                         test/google/com_spline_test.cc
 #                        test/google/spline_container_test.cc
                          test/google/motion_factory_test.cc
 #                        #constraints

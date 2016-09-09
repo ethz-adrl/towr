@@ -32,6 +32,7 @@ public:
   LegID leg;
   int id; // the number of this foothold in a sequence of footholds, -1 for start stance
 
+  // refactor remove this from here and move to contact
   static const int kFixedByStart = -1;
 
   Foothold();

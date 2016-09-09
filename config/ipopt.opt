@@ -13,18 +13,18 @@ linear_solver ma57
 #linear_solver ma86
 #linear_solver ma97
 
-jacobian_approximation finite-difference-values #rember to set flag in NLP class
+#jacobian_approximation finite-difference-values #rember to set flag in NLP class
 hessian_approximation limited-memory
 
 
 #derivative_test first-order
 #derivative_test second-order
 
-tol 1e-4
+tol 1e-2
 #dual_inf_tol 1e-1
 #constr_viol_tol 1e-4
 #compl_inf_tol 1e-4
-max_cpu_time 5.1   #careful: overwrites ros parameter
+max_cpu_time 1.05   #careful: overwrites ros parameter, but controller doesn't know
 #max_iter 1
 #bound_frac 0.5
 
@@ -44,5 +44,5 @@ max_cpu_time 5.1   #careful: overwrites ros parameter
 
 
 print_level 5
-print_user_options yes
+print_user_options no #yes
 print_timing_statistics no

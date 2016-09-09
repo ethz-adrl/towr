@@ -7,7 +7,6 @@
 
 #include <xpp/zmp/zmp_constraint.h>
 #include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
 namespace zmp {
@@ -20,13 +19,13 @@ ZmpConstraint::ZmpConstraint ()
 }
 
 void
-ZmpConstraint::Init (const OptimizationVariablesInterpreter& interpreter)
+ZmpConstraint::Init (const MotionStructure& structure,
+                     const ComMotion& com_motion,
+                     const Contacts& contacts,
+                     double walking_height)
 {
-  double dt = 0.1; // discretization interval
-  zmp_constraint_builder_.Init(*interpreter.GetSplineStructure(),
-                               interpreter.GetSuppPolygonContainer(),
-                               interpreter.GetRobotHeight(),
-                               dt);
+  double dt = 0.2; // discretization interval
+  zmp_constraint_builder_.Init(structure, com_motion, contacts, walking_height, dt);
 }
 
 void
