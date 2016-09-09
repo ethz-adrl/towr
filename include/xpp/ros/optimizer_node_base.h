@@ -47,7 +47,9 @@ protected:
 
 private:
   ::ros::Subscriber goal_state_sub_;
+  ::ros::ServiceClient goal_state_client_;
   void GoalStateCallback(const StateMsg& msg);
+  bool CallService();
 };
 
 } /* namespace ros */

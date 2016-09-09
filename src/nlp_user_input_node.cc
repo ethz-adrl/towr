@@ -7,6 +7,7 @@
 
 #include <xpp/ros/nlp_user_input_node.h>
 #include <xpp/ros/ros_helpers.h>
+#include <xpp/ros/marker_array_builder.h>
 
 namespace xpp {
 namespace ros {
@@ -18,6 +19,8 @@ NlpUserInputNode::NlpUserInputNode ()
                                 &NlpUserInputNode::CallbackKeyboard, this);
 
   goal_state_pub_ = n.advertise<StateMsg>("goal_state", 1);
+  rviz_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
+  get_goal_srv_   = n.advertiseService("get_goal_state", &NlpUserInputNode::GetGoalService, this);
 
   // Get Starting goal state from server
   goal_cog_.p.x() = RosHelpers::GetDoubleFromServer("/xpp/goal_state_x");
@@ -57,6 +60,19 @@ NlpUserInputNode::CallbackKeyboard (const keyboard::Key& msg)
 
   goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
   ROS_INFO_STREAM("Publishing goal state : " << goal_cog_);
+
+  // send out goal state to rviz
+  visualization_msgs::MarkerArray msg_rviz;
+  MarkerArrayBuilder msg_builder_;
+  msg_builder_.AddGoal(msg_rviz, goal_cog_.Get2D().p);
+  rviz_publisher_.publish(msg_rviz);
+}
+
+bool
+NlpUserInputNode::GetGoalService (GoalSrv::Request& req, GoalSrv::Response& res)
+{
+  res.state = RosHelpers::XppToRos(goal_cog_);
+  return true;
 }
 
 } /* namespace ros */

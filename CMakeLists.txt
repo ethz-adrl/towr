@@ -60,8 +60,8 @@ add_message_files(
 )
 add_service_files(
   FILES
-#  SolveNlp.srv
   SolveQp.srv
+  GetStateLin3d.srv
   ReturnOptSplines.srv
   ReturnOptFootholds.srv
 )

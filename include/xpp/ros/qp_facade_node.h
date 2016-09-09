@@ -16,7 +16,6 @@
 #include <xpp_opt/SolveQp.h>               // service
 
 
-
 namespace xpp {
 namespace ros {
 

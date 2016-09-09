@@ -10,6 +10,7 @@
 
 #include <xpp/utils/geometric_structs.h>
 
+#include <xpp_opt/GetStateLin3d.h>
 #include <xpp_opt/StateLin3d.h>
 #include <keyboard/Key.h>
 #include <ros/ros.h>
@@ -22,17 +23,21 @@ public:
   using State = xpp::utils::Point3d;
   using StateMsg = xpp_opt::StateLin3d;
   using KeyboardMsg = keyboard::Key;
+  using GoalSrv = xpp_opt::GetStateLin3d;
 
   NlpUserInputNode ();
   virtual ~NlpUserInputNode ();
 
 private:
   void CallbackKeyboard(const keyboard::Key& msg);
+  bool GetGoalService(GoalSrv::Request& req, GoalSrv::Response& res);
 
   State goal_cog_;
 
   ::ros::Subscriber goal_key_sub_;
   ::ros::Publisher  goal_state_pub_;
+  ::ros::Publisher  rviz_publisher_;
+  ::ros::ServiceServer get_goal_srv_;
 };
 
 } /* namespace ros */
