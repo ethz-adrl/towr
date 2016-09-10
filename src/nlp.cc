@@ -63,18 +63,18 @@ NLP::EvaluateCostFunctionGradient (const Number* x) const
   // motion_ref use matrix acceleration jacobian for this
   opt_variables_->SetVariables(ConvertToEigen(x));
 
-  // analytical (if implemented in costs)
-  VectorXd grad = costs_->EvaluateGradient();
+//  // analytical (if implemented in costs)
+//  VectorXd grad = costs_->EvaluateGradient();
 
 //  // motion_ref don't forget bout this
 //  // To just test for feasability
 //  VectorXd grad(opt_variables_->GetOptimizationVariableCount());
 //  grad.setOnes();
 
-//  // numerical differentiation
-//  Eigen::MatrixXd jacobian(1, GetNumberOfOptimizationVariables());
-//  cost_derivative_.df(opt_variables_->GetOptimizationVariables(), jacobian);
-//  VectorXd grad = jacobian.transpose();
+  // numerical differentiation
+  Eigen::MatrixXd jacobian(1, GetNumberOfOptimizationVariables());
+  cost_derivative_.df(opt_variables_->GetOptimizationVariables(), jacobian);
+  VectorXd grad = jacobian.transpose();
 
   return grad;
 }

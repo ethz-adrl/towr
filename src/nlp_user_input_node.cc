@@ -39,7 +39,7 @@ void
 NlpUserInputNode::CallbackKeyboard (const keyboard::Key& msg)
 {
   const static double dx = 0.1;
-  const static double dy = 0.1;
+  const static double dy = 0.05;
 
   switch (msg.code) {
     case msg.KEY_LEFT:
