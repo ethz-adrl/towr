@@ -43,9 +43,10 @@ void FirstPlanning::Run(WalkingController* context) const
 
 void Sleeping::Run(WalkingController* context) const
 {
-  if (context->Time() > 2.0) {
+  if (context->optimal_trajectory_updated) {
     context->ResetTime();
     context->SetState(kUpdateAndExecuting);
+    context->optimal_trajectory_updated = false;
   }
 }
 
@@ -59,7 +60,7 @@ void UpdateAndExecuting::Run(WalkingController* context) const
 void Executing::Run(WalkingController* context) const
 {
   if (context->EndCurrentExecution())
-    context->SetState(kUpdateAndExecuting);
+    context->SetState(kSleeping);
 
   if (context->IsTimeToSendOutState())
     context->PublishOptimizationStartState();

@@ -55,6 +55,7 @@ NlpOptimizerNode::PublishOptimizedValues() const
   msg_out.phases    = xpp::ros::RosHelpers::XppToRos(motion_phases_);
 
   opt_params_pub_.publish(msg_out);
+  ROS_INFO_STREAM("Publishing optimized values");
 }
 
 void

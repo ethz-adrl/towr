@@ -87,6 +87,7 @@ WalkingController::GetReadyHook() {
   kOptTimeReq_ = max_cpu_time_ + ros_message_delay;
 
   first_run_after_integrating_opt_trajectory_ = true;
+  optimal_trajectory_updated = false;
 }
 
 bool
@@ -94,6 +95,7 @@ WalkingController::RunHook()
 {
   // delegates the actual execution to the current state
   states_map_.at(current_state_)->Run(this);
+  ::ros::spinOnce(); // process callbacks (get the optimized values).
   return true;
 }
 
@@ -238,8 +240,6 @@ void WalkingController::IntegrateOptimizedTrajectory()
   ffspliner_timer_ = ffspline_duration_;
   reoptimize_before_finish_ = true;
 //  ffsplining_ = true; // because of delay from optimization
-
-  ::ros::spinOnce(); // process callbacks (get the optimized values).
 
   // start from desired, so there is no jump in desired
   spliner_.Init(P_des_, motion_phases_, opt_spline_, opt_footholds_, robot_height_);
