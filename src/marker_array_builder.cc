@@ -206,7 +206,7 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
     marker.ns = rviz_namespace;
 
     if ( !phase.IsStep() ) {
-      marker.color.r = marker.color.g = marker.color.b = 0.1;
+      marker.color.r = marker.color.g = marker.color.b = 1.0;
     } else {
       int step = phase.n_completed_steps_;
       xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
