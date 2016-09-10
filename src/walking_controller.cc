@@ -116,19 +116,6 @@ WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
   ROS_INFO_STREAM("received splines [size=" << opt_spline_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
 }
 
-//void WalkingController::PublishCurrentState()
-//{
-//  //    AddVarForLogging();
-//
-//  ReqInfoMsg msg;
-//  msg.curr_state    = xpp::ros::RosHelpers::XppToRos(P_curr_.base_.pos);
-//  msg.curr_stance   = xpp::ros::RosHelpers::XppToRos(P_curr_.GetStanceLegs());
-//  msg.curr_swingleg = P_curr_.SwinglegID();
-//
-//  // send out the message
-//  current_info_pub_.publish(msg);
-//}
-
 bool
 WalkingController::IsTimeToSendOutState() const
 {
@@ -145,21 +132,10 @@ WalkingController::PublishOptimizationStartState()
 
 
 
-
-  xpp::utils::Point2d end_des_xy;
-  VecFoothold predicted_stance;
-  State predicted_state;
-//  if (spliner_.HasNodes()) {
-    predicted_stance = switch_node_.state_.FeetToFootholds().ToVector();
-    predicted_state  = switch_node_.state_.base_.pos; //spliner_.GetCurrPosition(t_switch_).Get2D();
-//  } else {
-//    predicted_stance = P_des_.FeetToFootholds().ToVector();
-//    predicted_state  = P_des_.base_.pos;
-//  }
-
+  VecFoothold predicted_stance = switch_node_.state_.FeetToFootholds().ToVector();
+  State predicted_state  = switch_node_.state_.base_.pos; //spliner_.GetCurrPosition(t_switch_).Get2D();
 
   State curr_state = P_curr_.base_.pos;
-
 
   xpp::utils::Point3d start_state_optimization = predicted_state;
 
@@ -514,6 +490,18 @@ void WalkingController::SmoothTorquesAtContactChange(JointState& uff)
 ////  return curr_state;
 //}
 
+//void WalkingController::PublishCurrentState()
+//{
+//  //    AddVarForLogging();
+//
+//  ReqInfoMsg msg;
+//  msg.curr_state    = xpp::ros::RosHelpers::XppToRos(P_curr_.base_.pos);
+//  msg.curr_stance   = xpp::ros::RosHelpers::XppToRos(P_curr_.GetStanceLegs());
+//  msg.curr_swingleg = P_curr_.SwinglegID();
+//
+//  // send out the message
+//  current_info_pub_.publish(msg);
+//}
 
 } // namespace exe
 } // namespace xpp

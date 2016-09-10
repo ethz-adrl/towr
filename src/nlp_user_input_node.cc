@@ -19,7 +19,7 @@ NlpUserInputNode::NlpUserInputNode ()
                                 &NlpUserInputNode::CallbackKeyboard, this);
 
   goal_state_pub_ = n.advertise<StateMsg>("goal_state", 1);
-  rviz_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
+  rviz_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_fixed", 1);
   get_goal_srv_   = n.advertiseService("get_goal_state", &NlpUserInputNode::GetGoalService, this);
 
   // Get Starting goal state from server
@@ -28,8 +28,6 @@ NlpUserInputNode::NlpUserInputNode ()
 
   // publish values once initially
   goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
-
-  visual_tools_.reset(new rviz_visual_tools::RvizVisualTools("world","/optimization_variables"));
 }
 
 NlpUserInputNode::~NlpUserInputNode ()
@@ -59,7 +57,6 @@ NlpUserInputNode::CallbackKeyboard (const keyboard::Key& msg)
     case msg.KEY_RETURN:
       goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
       ROS_INFO_STREAM("Publishing goal state : " << goal_cog_);
-      visual_tools_->deleteAllMarkers();
       break;
     default:
       break;
@@ -69,7 +66,8 @@ NlpUserInputNode::CallbackKeyboard (const keyboard::Key& msg)
   // send out goal state to rviz
   visualization_msgs::MarkerArray msg_rviz;
   MarkerArrayBuilder msg_builder_;
-  msg_builder_.AddPoint(msg_rviz, goal_cog_.Get2D().p, "goal");
+  msg_builder_.AddPoint(msg_rviz, goal_cog_.Get2D().p, "goal",
+                        visualization_msgs::Marker::CUBE);
   rviz_publisher_.publish(msg_rviz);
 }
 

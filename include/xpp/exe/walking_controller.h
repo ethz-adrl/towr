@@ -59,7 +59,7 @@ public:
 
   void SetState(WalkingControllerState::State state);
   // fsm callable functions
-  void PublishCurrentState();
+//  void PublishCurrentState();
   void IntegrateOptimizedTrajectory();
   void ExecuteLoop();
   void EstimateCurrPose();

@@ -64,6 +64,9 @@ NlpOptimizerNode::PublishOptimizedValues() const
 void
 NlpOptimizerNode::OptimizeTrajectory()
 {
+  optimization_visualizer_.ClearOptimizedMarkers();
+  optimization_visualizer_.VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
+
   nlp_facade_.SolveNlp(curr_cog_.Get2D(),
                        goal_cog_.Get2D(),
                        curr_swingleg_,

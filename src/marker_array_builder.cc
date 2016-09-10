@@ -86,13 +86,14 @@ MarkerArrayBuilder::BuildSupportPolygon(
 void MarkerArrayBuilder::AddPoint(
     visualization_msgs::MarkerArray& msg,
     const Eigen::Vector2d& goal,
-    std::string rviz_namespace)
+    std::string rviz_namespace,
+    int marker_type)
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
 
   Marker marker;
   marker.id = i;
-  marker = GenerateMarker(goal, visualization_msgs::Marker::CYLINDER, 0.03);
+  marker = GenerateMarker(goal, marker_type, 0.03);
   marker.ns = rviz_namespace;
   marker.scale.z = 0.1;
   marker.color.a = 1.0;

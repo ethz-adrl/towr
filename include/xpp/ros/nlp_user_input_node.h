@@ -13,7 +13,6 @@
 #include <xpp_opt/GetStateLin3d.h>
 #include <xpp_opt/StateLin3d.h>
 #include <keyboard/Key.h>
-#include <rviz_visual_tools/rviz_visual_tools.h>
 #include <ros/ros.h>
 
 namespace xpp {
@@ -44,8 +43,6 @@ private:
   ::ros::Publisher  goal_state_pub_;
   ::ros::Publisher  rviz_publisher_;
   ::ros::ServiceServer get_goal_srv_;
-
-  ::rviz_visual_tools::RvizVisualToolsPtr visual_tools_;
 };
 
 } /* namespace ros */

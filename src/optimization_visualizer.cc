@@ -15,16 +15,28 @@ namespace ros {
 
 using VectorXd = Eigen::VectorXd;
 
+static const std::string topic_optimized = "optimization_variables";
+
 OptimizationVisualizer::OptimizationVisualizer ()
 {
   observer_ = nullptr;
 
   ::ros::NodeHandle n;
-  ros_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_variables", 1);
+  ros_publisher_optimized_ = n.advertise<visualization_msgs::MarkerArray>(topic_optimized, 1);
+  visual_tools_.reset(new rviz_visual_tools::RvizVisualTools("world", topic_optimized));
+
+  ros_publisher_fixed_     = n.advertise<visualization_msgs::MarkerArray>("optimization_fixed", 1);
 }
 
 OptimizationVisualizer::~OptimizationVisualizer ()
 {
+  visual_tools_->deleteAllMarkers();
+}
+
+void
+OptimizationVisualizer::ClearOptimizedMarkers () const
+{
+
 }
 
 void
@@ -40,10 +52,10 @@ OptimizationVisualizer::VisualizeCurrentState (const State& curr,
   visualization_msgs::MarkerArray msg;
   MarkerArrayBuilder msg_builder;
 
-  msg_builder.AddPoint(msg, curr.p, "current");
+  msg_builder.AddPoint(msg, curr.p, "current", visualization_msgs::Marker::CYLINDER);
   msg_builder.AddStartStance(msg, start_stance);
 
-  ros_publisher_.publish(msg);
+  ros_publisher_fixed_.publish(msg);
 }
 
 void
@@ -61,7 +73,7 @@ OptimizationVisualizer::Visualize () const
 //  msg_builder_.AddStartStance(msg, start_stance);
   msg_builder_.AddFootholds(msg, footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
   msg_builder_.AddCogTrajectory(msg, *com_motion, structure, footholds, "cog", 1.0);
-  msg_builder_.AddZmpTrajectory(msg, *com_motion, structure, walking_height, footholds, "zmp_4ls", 0.2);
+//  msg_builder_.AddZmpTrajectory(msg, *com_motion, structure, walking_height, footholds, "zmp_4ls", 0.2);
   msg_builder_.AddSupportPolygons(msg, start_stance, footholds);
 //  msg_builder_.AddGoal(msg, goal_cog_.Get2D().p);
   double gap_center_x = 0.45;
@@ -77,7 +89,8 @@ OptimizationVisualizer::Visualize () const
 //    msg.markers.at(i).color.a = 0.0;
 //  }
 
-  ros_publisher_.publish(msg);
+  visual_tools_->deleteAllMarkers();
+  ros_publisher_optimized_.publish(msg);
 }
 
 } /* namespace ros */
