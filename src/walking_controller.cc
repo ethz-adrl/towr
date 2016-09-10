@@ -76,7 +76,7 @@ WalkingController::GetReadyHook() {
   max_cpu_time_     = RosHelpers::GetDoubleFromServer("/xpp/max_cpu_time");
 
   states_map_ = WalkingControllerState::BuildStates();
-  current_state_ = WalkingControllerState::kFirstPlanning;
+  current_state_ = WalkingControllerState::kFirstPlanning; // not first planning
 
   // allow >20ms for ROS communication. So whatever ipopt's max_cpu_time
   // is set for, add 40ms to make sure the msg reaches the controller
@@ -116,18 +116,18 @@ WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
   ROS_INFO_STREAM("received splines [size=" << opt_spline_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
 }
 
-void WalkingController::PublishCurrentState()
-{
-  //    AddVarForLogging();
-
-  ReqInfoMsg msg;
-  msg.curr_state    = xpp::ros::RosHelpers::XppToRos(P_curr_.base_.pos);
-  msg.curr_stance   = xpp::ros::RosHelpers::XppToRos(P_curr_.GetStanceLegs());
-  msg.curr_swingleg = P_curr_.SwinglegID();
-
-  // send out the message
-  current_info_pub_.publish(msg);
-}
+//void WalkingController::PublishCurrentState()
+//{
+//  //    AddVarForLogging();
+//
+//  ReqInfoMsg msg;
+//  msg.curr_state    = xpp::ros::RosHelpers::XppToRos(P_curr_.base_.pos);
+//  msg.curr_stance   = xpp::ros::RosHelpers::XppToRos(P_curr_.GetStanceLegs());
+//  msg.curr_swingleg = P_curr_.SwinglegID();
+//
+//  // send out the message
+//  current_info_pub_.publish(msg);
+//}
 
 bool
 WalkingController::IsTimeToSendOutState() const
@@ -144,12 +144,19 @@ WalkingController::PublishOptimizationStartState()
 //  xpp::utils::Point3d predicted_state;// = GetStartStateForOptimization();
 
 
+
+
+  xpp::utils::Point2d end_des_xy;
+  VecFoothold predicted_stance;
   State predicted_state;
-  VecFoothold predicted_stance = switch_node_.state_.FeetToFootholds().ToVector();
-  xpp::utils::Point2d end_des_xy = switch_node_.state_.base_.pos.Get2D(); //spliner_.GetCurrPosition(t_switch_).Get2D();
-  predicted_state.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
-  predicted_state.v.segment(0,2) = end_des_xy.v;
-  predicted_state.a.segment(0,2) = end_des_xy.a;
+//  if (spliner_.HasNodes()) {
+    predicted_stance = switch_node_.state_.FeetToFootholds().ToVector();
+    predicted_state  = switch_node_.state_.base_.pos; //spliner_.GetCurrPosition(t_switch_).Get2D();
+//  } else {
+//    predicted_stance = P_des_.FeetToFootholds().ToVector();
+//    predicted_state  = P_des_.base_.pos;
+//  }
+
 
   State curr_state = P_curr_.base_.pos;
 
@@ -222,7 +229,7 @@ WalkingController::EndCurrentExecution ()
 
 
   // terminate run loop
-  switch_node_ = spliner_.GetLastNode();
+
   return Time() >= (spliner_.GetTotalTime()-robot_->GetControlLoopInterval());
 
 
@@ -243,6 +250,7 @@ void WalkingController::IntegrateOptimizedTrajectory()
 
   // start from desired, so there is no jump in desired
   spliner_.Init(P_des_, motion_phases_, opt_spline_, opt_footholds_, robot_height_);
+  switch_node_ = spliner_.GetLastNode();
 
   Controller::ResetTime();
 

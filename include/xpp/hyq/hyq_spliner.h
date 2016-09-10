@@ -68,6 +68,7 @@ public:
   SplineNode GetGoalNode(double t_global) const;
   SplineNode GetNode(int node) const { return nodes_.at(node); };
   SplineNode GetLastNode() const { return nodes_.back(); };
+  bool HasNodes() const { return !nodes_.empty(); };
 
 private:
   std::vector<SplineNode> nodes_; // the discrete states to spline through

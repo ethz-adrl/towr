@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   message_generation
+  rviz_visual_tools #  used in nlp_user_input.cc to delete all rviz markers
   #these should only be needed for the exe/ namespace
   xpp_controller   
   hyq_inverse_kinematics

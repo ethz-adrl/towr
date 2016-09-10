@@ -44,6 +44,9 @@ NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
   curr_cog_      = RosHelpers::RosToXpp(msg.curr_state);
   curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
   curr_swingleg_ = msg.curr_swingleg;
+  ROS_INFO_STREAM("Updated Current State: " << curr_cog_);
+
+  optimization_visualizer_.VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
 }
 
 void

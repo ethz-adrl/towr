@@ -34,6 +34,19 @@ OptimizationVisualizer::SetObserver (const NlpObserverPtr& observer)
 }
 
 void
+OptimizationVisualizer::VisualizeCurrentState (const State& curr,
+                                               const VecFoothold& start_stance) const
+{
+  visualization_msgs::MarkerArray msg;
+  MarkerArrayBuilder msg_builder;
+
+  msg_builder.AddPoint(msg, curr.p, "current");
+  msg_builder.AddStartStance(msg, start_stance);
+
+  ros_publisher_.publish(msg);
+}
+
+void
 OptimizationVisualizer::Visualize () const
 {
   double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
@@ -45,7 +58,7 @@ OptimizationVisualizer::Visualize () const
 
   visualization_msgs::MarkerArray msg;
   MarkerArrayBuilder msg_builder_;
-  msg_builder_.AddStartStance(msg, start_stance);
+//  msg_builder_.AddStartStance(msg, start_stance);
   msg_builder_.AddFootholds(msg, footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
   msg_builder_.AddCogTrajectory(msg, *com_motion, structure, footholds, "cog", 1.0);
   msg_builder_.AddZmpTrajectory(msg, *com_motion, structure, walking_height, footholds, "zmp_4ls", 0.2);

@@ -28,6 +28,8 @@ NlpUserInputNode::NlpUserInputNode ()
 
   // publish values once initially
   goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
+
+  visual_tools_.reset(new rviz_visual_tools::RvizVisualTools("world","/optimization_variables"));
 }
 
 NlpUserInputNode::~NlpUserInputNode ()
@@ -57,15 +59,17 @@ NlpUserInputNode::CallbackKeyboard (const keyboard::Key& msg)
     case msg.KEY_RETURN:
       goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
       ROS_INFO_STREAM("Publishing goal state : " << goal_cog_);
+      visual_tools_->deleteAllMarkers();
       break;
     default:
       break;
   }
 
+
   // send out goal state to rviz
   visualization_msgs::MarkerArray msg_rviz;
   MarkerArrayBuilder msg_builder_;
-  msg_builder_.AddGoal(msg_rviz, goal_cog_.Get2D().p);
+  msg_builder_.AddPoint(msg_rviz, goal_cog_.Get2D().p, "goal");
   rviz_publisher_.publish(msg_rviz);
 }
 
