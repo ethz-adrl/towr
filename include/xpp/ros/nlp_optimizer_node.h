@@ -31,9 +31,9 @@ public:
 
 private:
   NlpFacade nlp_facade_;
+  virtual void OptimizeTrajectory() override final;
+  virtual void PublishOptimizedValues() const override final;
   void UpdateCurrentState(const ReqInfoMsg& msg);
-  void OptimizeTrajectory();
-  void PublishOptimizedValues() const;
 
   double max_cpu_time_; ///< maximum allowable time to spend on solving the NLP
   int curr_swingleg_;

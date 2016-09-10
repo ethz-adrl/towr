@@ -32,11 +32,10 @@ NlpOptimizerNode::NlpOptimizerNode ()
 void
 NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
 {
-  // fixme DRY: use template method to move this and qp code to base class
   UpdateCurrentState(msg);
-  OptimizeTrajectory();
-  PublishOptimizedValues();
-  optimization_visualizer_.Visualize();
+//  OptimizeTrajectory();
+//  PublishOptimizedValues();
+//  optimization_visualizer_.Visualize();
 }
 
 void
@@ -74,6 +73,8 @@ NlpOptimizerNode::OptimizeTrajectory()
   opt_splines_   = com_spline.GetPolynomials();
   footholds_     = nlp_facade_.GetFootholds();
   motion_phases_ = nlp_facade_.GetPhases();
+
+  optimization_visualizer_.Visualize();
 }
 
 } /* namespace ros */

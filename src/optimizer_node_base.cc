@@ -60,6 +60,9 @@ OptimizerNodeBase::GoalStateCallback(const StateMsg& msg)
 {
   goal_cog_ = RosHelpers::RosToXpp(msg);
   ROS_INFO_STREAM("Goal state set to:\n" << goal_cog_);
+
+  OptimizeTrajectory();
+  PublishOptimizedValues();
 }
 
 } /* namespace ros */

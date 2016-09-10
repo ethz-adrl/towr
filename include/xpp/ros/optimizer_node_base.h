@@ -31,6 +31,9 @@ public:
   OptimizerNodeBase ();
   virtual ~OptimizerNodeBase ();
 
+  virtual void OptimizeTrajectory() = 0;
+  virtual void PublishOptimizedValues() const = 0;
+
 protected:
   ::ros::NodeHandle n_;
   State goal_cog_;

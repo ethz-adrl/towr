@@ -54,12 +54,13 @@ NlpUserInputNode::CallbackKeyboard (const keyboard::Key& msg)
     case msg.KEY_DOWN:
       goal_cog_.p.y() += dy;
       break;
+    case msg.KEY_RETURN:
+      goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
+      ROS_INFO_STREAM("Publishing goal state : " << goal_cog_);
+      break;
     default:
       break;
   }
-
-  goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
-  ROS_INFO_STREAM("Publishing goal state : " << goal_cog_);
 
   // send out goal state to rviz
   visualization_msgs::MarkerArray msg_rviz;
