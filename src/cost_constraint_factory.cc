@@ -98,9 +98,10 @@ CostConstraintFactory::CreateRangeOfMotionConstraint (const ComMotion& com_motio
 //}
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateObstacleConstraint ()
+CostConstraintFactory::CreateObstacleConstraint (const Contacts& contacts)
 {
-  auto constraint = std::make_shared<ObstacleConstraint>();
+  auto constraint = std::make_shared<ObstacleLineStrip>();
+  constraint->Init(contacts);
   return constraint;
 }
 

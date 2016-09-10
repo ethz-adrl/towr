@@ -49,22 +49,21 @@ StepSequencePlanner::Init (const State& curr, const State& goal,
 StepSequencePlanner::LegIDVec
 StepSequencePlanner::DetermineStepSequence ()
 {
-  if (!IsStepNecessary() /*|| step_already_executed*/) {
+  if (!IsStepNecessary()) {
     return std::vector<xpp::hyq::LegID>(); // empty vector, take no steps
   } else {
 
-//    step_already_executed = true;
 
-    //    // based on distance to cover
-    //  const double length_per_step = 0.25;
-    //  const double width_per_step = 0.15;
-    //  Eigen::Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
-    //    int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/length_per_step);
-    //    int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
-    //    int req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);
-    // hardcoded 4 steps
-    //    int req_steps_per_leg = 1;
+    // based on distance to cover
+    const double length_per_step = 0.25;
+    const double width_per_step = 0.15;
+    Eigen::Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
+    int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/length_per_step);
+    int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
+    int req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);
+    int n_steps = 4*req_steps_per_leg;
 
+//    int n_steps = 12; // fix how many steps to take
 
 
 
@@ -78,9 +77,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     LegIDVec step_sequence;
-    int n_steps = 8; // how many steps to take
-
-    for (int step=0; step<n_steps/*req_steps_per_leg*4*/; ++step) {
+    for (int step=0; step<n_steps; ++step) {
       step_sequence.push_back(NextSwingLeg(last_swingleg));
       last_swingleg = step_sequence.back();
     }

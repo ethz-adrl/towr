@@ -9,15 +9,16 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 
 #include <xpp/zmp/i_visualizer.h>
+#include <xpp/utils/geometric_structs.h>
+#include <rviz_visual_tools/rviz_visual_tools.h>
 #include <ros/publisher.h>
+#include <ros/subscriber.h>
 
 namespace xpp {
-namespace zmp {
-class NlpObserver;
-}
-}
 
-namespace xpp {
+namespace zmp { class NlpObserver; }
+namespace hyq { class Foothold; }
+
 namespace ros {
 
 /** @brief Visualizes the current values of the optimization variables.
@@ -29,19 +30,29 @@ namespace ros {
   */
 class OptimizationVisualizer : public xpp::zmp::IVisualizer {
 public:
-  typedef std::shared_ptr<xpp::zmp::NlpObserver> InterpretingObserverPtr;
+  typedef std::shared_ptr<xpp::zmp::NlpObserver> NlpObserverPtr;
+  using State = xpp::utils::Point2d;
+  using VecFoothold = std::vector<xpp::hyq::Foothold>;
 
   OptimizationVisualizer();
   virtual ~OptimizationVisualizer ();
 
-  void SetObserver(const InterpretingObserverPtr&);
+  void SetObserver(const NlpObserverPtr&);
+  void ClearOptimizedMarkers() const;
 
   /** @brief Send a message with topic "optimization_variables" out to rviz */
   void Visualize() const override;
 
+
+  void VisualizeCurrentState(const State& curr, const VecFoothold& start_stance) const;
+
 private:
-  ::ros::Publisher ros_publisher_;
-  InterpretingObserverPtr observer_;
+  ::ros::Publisher ros_publisher_optimized_;
+  ::ros::Publisher ros_publisher_fixed_;
+
+  NlpObserverPtr observer_;
+
+  ::rviz_visual_tools::RvizVisualToolsPtr visual_tools_;
 };
 
 } /* namespace ros */

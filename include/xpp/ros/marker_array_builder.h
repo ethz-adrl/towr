@@ -39,8 +39,10 @@ public:
 
   void AddStartStance(MarkerArray& msg,
                       const VecFoothold& start_stance) const;
-  void AddGoal(MarkerArray& msg,
-               const Vector2d& goal);
+  void AddPoint(MarkerArray& msg,
+               const Vector2d& goal,
+               std::string rviz_namespace,
+               int marker_type);
 
   void AddSupportPolygons(MarkerArray& msg,
                           const VecFoothold& start_stance,

@@ -39,10 +39,10 @@ HyqRobotInterface::GetNominalStanceInBase (int leg_id) const
   }
 }
 
-double
+HyqRobotInterface::MaxDevXY
 HyqRobotInterface::GetMaxDeviationXYFromNominal () const
 {
-  return 0.15; // cm
+  return {0.15, 0.15};
 }
 
 } /* namespace zmp */

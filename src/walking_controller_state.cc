@@ -37,16 +37,20 @@ WalkingControllerState::BuildStates ()
 void FirstPlanning::Run(WalkingController* context) const
 {
   context->EstimateCurrPose();
-  context->PublishCurrentState();
+  context->IntegrateOptimizedTrajectory();
+//  context->PublishCurrentState();
   context->SetState(kSleeping); // waiting for nlp optimizer to finish
 }
 
 void Sleeping::Run(WalkingController* context) const
 {
-  if (context->Time() > 2.0) {
+  if (context->optimal_trajectory_updated) {
     context->ResetTime();
     context->SetState(kUpdateAndExecuting);
+    context->optimal_trajectory_updated = false;
   }
+
+  context->PublishOptimizationStartState();
 }
 
 void UpdateAndExecuting::Run(WalkingController* context) const
@@ -58,13 +62,13 @@ void UpdateAndExecuting::Run(WalkingController* context) const
 
 void Executing::Run(WalkingController* context) const
 {
-  if (context->IsTimeToSendOutState())
-    context->PublishOptimizationStartState();
+  if (context->EndCurrentExecution())
+    context->SetState(kSleeping);
+
+//  if (context->IsTimeToSendOutState())
+  context->PublishOptimizationStartState();
 
   context->ExecuteLoop();
-
-  if (context->SwitchToNewTrajectory())
-    context->SetState(kUpdateAndExecuting);
 }
 
 

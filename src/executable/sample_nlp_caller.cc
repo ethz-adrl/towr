@@ -54,10 +54,10 @@ int main(int argc, char **argv)
   msg.curr_state.acc.y = atof(argv[6]); // constraint
 //  msg.curr_state.acc.y = 1.0;
 
-  auto start_stance = { Foothold( 0.359692,   0.327653, 0.0, LF),
-                        Foothold( 0.359694,  -0.327644, 0.0, RF),
-                        Foothold(-0.358797,   0.327698, 0.0, LH),
-                        Foothold(-0.358802,  -0.327695, 0.0, RH)};
+  auto start_stance = { Foothold( 0.359692 + msg.curr_state.pos.x,   0.327653, 0.0, LF),
+                        Foothold( 0.359694 + msg.curr_state.pos.x,  -0.327644, 0.0, RF),
+                        Foothold(-0.358797 + msg.curr_state.pos.x,   0.327698, 0.0, LH),
+                        Foothold(-0.358802 + msg.curr_state.pos.x,  -0.327695, 0.0, RH)};
 
   for (auto f : start_stance) {
     msg.curr_stance.push_back(RosHelpers::XppToRos(f));

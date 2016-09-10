@@ -59,15 +59,16 @@ public:
 
   void SetState(WalkingControllerState::State state);
   // fsm callable functions
-  void PublishCurrentState();
+//  void PublishCurrentState();
   void IntegrateOptimizedTrajectory();
   void ExecuteLoop();
   void EstimateCurrPose();
-  bool SwitchToNewTrajectory();
+  bool EndCurrentExecution();
   bool IsTimeToSendOutState() const;
   void PublishOptimizationStartState(); // sends out command to start NLP optimization
 
 
+  bool optimal_trajectory_updated;
 
 private:
 //  void AddVarForLogging();
@@ -96,7 +97,6 @@ private:
   VecSpline opt_spline_;
   VecFoothold opt_footholds_;
   VecPhase motion_phases_;
-  bool optimal_trajectory_updated;
 
   HyqSpliner spliner_;  //for normal body, ori, and feet traj.
   HyqState P_des_;

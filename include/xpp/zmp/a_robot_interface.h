@@ -24,6 +24,7 @@ namespace zmp {
 class ARobotInterface {
 public:
   using PosXY = Eigen::Vector2d;
+  using MaxDevXY = std::array<double,2>;
 
   ARobotInterface ();
   virtual ~ARobotInterface ();
@@ -37,7 +38,7 @@ public:
     *
     * Used by RangeOfMotionConstraint.
     */
-  virtual double GetMaxDeviationXYFromNominal() const = 0;
+  virtual MaxDevXY GetMaxDeviationXYFromNominal() const = 0;
 
 };
 

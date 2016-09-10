@@ -16,7 +16,6 @@
 #include <xpp_opt/SolveQp.h>               // service
 
 
-
 namespace xpp {
 namespace ros {
 
@@ -31,9 +30,9 @@ public:
 
 private:
   QpOptimizer qp_optimizer_;
+  virtual void OptimizeTrajectory() override final;
+  virtual void PublishOptimizedValues() const override final;
   void UpdateCurrentState(const ReqInfoMsg& msg);
-  void OptimizeTrajectory();
-  void PublishOptimizedValues() const;
 
   ::ros::Subscriber current_info_sub_;
   ::ros::Publisher opt_params_pub_;

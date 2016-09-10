@@ -14,7 +14,6 @@
 
 #include <xpp/hyq/foothold.h>
 #include <xpp_opt/StateLin3d.h>
-#include <keyboard/Key.h>
 
 #include <ros/ros.h>
 
@@ -32,6 +31,9 @@ public:
   OptimizerNodeBase ();
   virtual ~OptimizerNodeBase ();
 
+  virtual void OptimizeTrajectory() = 0;
+  virtual void PublishOptimizedValues() const = 0;
+
 protected:
   ::ros::NodeHandle n_;
   State goal_cog_;
@@ -48,9 +50,9 @@ protected:
 
 private:
   ::ros::Subscriber goal_state_sub_;
-  ::ros::Subscriber goal_key_sub_;
+  ::ros::ServiceClient goal_state_client_;
   void GoalStateCallback(const StateMsg& msg);
-  void GoalStateCallbackKeyboard(const keyboard::Key& msg);
+  bool CallService();
 };
 
 } /* namespace ros */

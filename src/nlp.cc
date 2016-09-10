@@ -11,7 +11,7 @@ namespace xpp {
 namespace zmp {
 
 NLP::NLP ()
-    :cost_derivative_(1*std::numeric_limits<double>::epsilon())
+    :cost_derivative_(std::numeric_limits<double>::epsilon())
 {
 }
 
@@ -60,10 +60,23 @@ NLP::EvaluateCostFunction (const Number* x) const
 NLP::VectorXd
 NLP::EvaluateCostFunctionGradient (const Number* x) const
 {
+  // motion_ref use matrix acceleration jacobian for this
   opt_variables_->SetVariables(ConvertToEigen(x));
-  Eigen::MatrixXd jacobian(1, GetNumberOfOptimizationVariables());
-  cost_derivative_.df(opt_variables_->GetOptimizationVariables(), jacobian);
-  return jacobian.transpose();
+
+  // analytical (if implemented in costs)
+  VectorXd grad = costs_->EvaluateGradient();
+
+//  // motion_ref don't forget bout this
+//  // To just test for feasability
+//  VectorXd grad(opt_variables_->GetOptimizationVariableCount());
+//  grad.setZero();
+
+//  // numerical differentiation
+//  Eigen::MatrixXd jacobian(1, GetNumberOfOptimizationVariables());
+//  cost_derivative_.df(opt_variables_->GetOptimizationVariables(), jacobian);
+//  VectorXd grad = jacobian.transpose();
+
+  return grad;
 }
 
 NLP::BoundVec

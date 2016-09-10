@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   message_generation
+  rviz_visual_tools #  used in nlp_user_input.cc to delete all rviz markers
   #these should only be needed for the exe/ namespace
   xpp_controller   
   hyq_inverse_kinematics
@@ -60,8 +61,8 @@ add_message_files(
 )
 add_service_files(
   FILES
-#  SolveNlp.srv
   SolveQp.srv
+  GetStateLin3d.srv
   ReturnOptSplines.srv
   ReturnOptFootholds.srv
 )
@@ -157,6 +158,7 @@ set(SOURCES
   src/qp_optimizer_node.cc
   src/marker_array_builder.cc
   src/optimization_visualizer.cc
+  src/nlp_user_input_node.cc
 )
              
 # Add the shared library
@@ -211,6 +213,14 @@ add_executable(sample_qp_caller
     src/executable/sample_qp_caller.cc
 )
 target_link_libraries(sample_qp_caller 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)
+
+add_executable(nlp_user_input_node
+    src/executable/nlp_user_input_node_exe.cc
+)
+target_link_libraries(nlp_user_input_node 
   ${LIB_NAME}
   ${catkin_LIBRARIES}
 )

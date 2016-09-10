@@ -19,7 +19,7 @@ MarkerArrayBuilder::MarkerArrayBuilder()
 void MarkerArrayBuilder::AddStartStance(visualization_msgs::MarkerArray& msg,
                                         const VecFoothold& start_stance) const
 {
-  AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::SPHERE, 1.0);
+  AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::SPHERE, 0.7);
 }
 
 void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
@@ -83,18 +83,23 @@ MarkerArrayBuilder::BuildSupportPolygon(
 //  ros__publisher_.publish(polygon_msg);
 }
 
-void MarkerArrayBuilder::AddGoal(
+void MarkerArrayBuilder::AddPoint(
     visualization_msgs::MarkerArray& msg,
-    const Eigen::Vector2d& goal)
+    const Eigen::Vector2d& goal,
+    std::string rviz_namespace,
+    int marker_type)
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
 
   Marker marker;
   marker.id = i;
-  marker = GenerateMarker(goal, visualization_msgs::Marker::CYLINDER, 0.03);
-  marker.ns = "goal";
+  marker = GenerateMarker(goal, marker_type, 0.03);
+  marker.ns = rviz_namespace;
   marker.scale.z = 0.1;
-  marker.color.a = 0.5;
+  marker.color.a = 1.0;
+  marker.color.r = 1.0;
+  marker.color.g = 1.0;
+  marker.color.b = 1.0;
   msg.markers.push_back(marker);
 }
 
@@ -201,7 +206,7 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
     marker.ns = rviz_namespace;
 
     if ( !phase.IsStep() ) {
-      marker.color.r = marker.color.g = marker.color.b = 0.1;
+      marker.color.r = marker.color.g = marker.color.b = 1.0;
     } else {
       int step = phase.n_completed_steps_;
       xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;

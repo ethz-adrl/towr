@@ -76,7 +76,7 @@ WalkingController::GetReadyHook() {
   max_cpu_time_     = RosHelpers::GetDoubleFromServer("/xpp/max_cpu_time");
 
   states_map_ = WalkingControllerState::BuildStates();
-  current_state_ = WalkingControllerState::kFirstPlanning;
+  current_state_ = WalkingControllerState::kFirstPlanning; // not first planning
 
   // allow >20ms for ROS communication. So whatever ipopt's max_cpu_time
   // is set for, add 40ms to make sure the msg reaches the controller
@@ -87,6 +87,7 @@ WalkingController::GetReadyHook() {
   kOptTimeReq_ = max_cpu_time_ + ros_message_delay;
 
   first_run_after_integrating_opt_trajectory_ = true;
+  optimal_trajectory_updated = false;
 }
 
 bool
@@ -94,6 +95,7 @@ WalkingController::RunHook()
 {
   // delegates the actual execution to the current state
   states_map_.at(current_state_)->Run(this);
+  ::ros::spinOnce(); // process callbacks (get the optimized values).
   return true;
 }
 
@@ -114,19 +116,6 @@ WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
   ROS_INFO_STREAM("received splines [size=" << opt_spline_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
 }
 
-void WalkingController::PublishCurrentState()
-{
-  //    AddVarForLogging();
-
-  ReqInfoMsg msg;
-  msg.curr_state    = xpp::ros::RosHelpers::XppToRos(P_curr_.base_.pos);
-  msg.curr_stance   = xpp::ros::RosHelpers::XppToRos(P_curr_.GetStanceLegs());
-  msg.curr_swingleg = P_curr_.SwinglegID();
-
-  // send out the message
-  current_info_pub_.publish(msg);
-}
-
 bool
 WalkingController::IsTimeToSendOutState() const
 {
@@ -136,76 +125,19 @@ WalkingController::IsTimeToSendOutState() const
 //  return (time_left <= kOptTimeReq_ && reoptimize_before_finish_);
 }
 
-bool
-WalkingController::SwitchToNewTrajectory ()
-{
-//  if (optimal_trajectory_updated) {
-//    optimal_trajectory_updated = false;
-//    return true;
-//  }
-//
-
-  // don't switch, finish first planned trajectory
-  return false;
-
-//  double t_switch = switch_node_.T;
-//  double t_max = t_switch - robot_->GetControlLoopInterval();
-//  return Time() >= t_max; /*|| Time() >= spliner_.GetTotalTime()-dt_*/
-}
-
-
-void WalkingController::IntegrateOptimizedTrajectory()
-{
-  ffspliner_timer_ = ffspline_duration_;
-  reoptimize_before_finish_ = true;
-//  ffsplining_ = true; // because of delay from optimization
-
-  ::ros::spinOnce(); // process callbacks (get the optimized values).
-
-  // start from desired, so there is no jump in desired
-  spliner_.Init(P_des_, motion_phases_, opt_spline_, opt_footholds_, robot_height_);
-
-
-//  // when to use new trajectory. If a step is planned, switch only after the
-//  // step has been executed
-//  if (opt_footholds_.empty())
-//    switch_node_ = spliner_.GetNode(1);
-//  else
-//    for (auto spline : opt_splines_)
-//      if (!spline.DeprecatedIsFourLegSupport()) { // first step
-//        int node_id = spline.GetId()+1;
-//        switch_node_ = spliner_.GetNode(node_id);
-//        break;
-//      }
-
-
-  switch_node_ = spliner_.GetNode(1);
-
-
-
-
-  Controller::ResetTime();
-
-  first_run_after_integrating_opt_trajectory_ = true;
-}
-
 void
 WalkingController::PublishOptimizationStartState()
 {
 //  xpp::utils::Point3d predicted_state;// = GetStartStateForOptimization();
 
 
-  State predicted_state;
+
   VecFoothold predicted_stance = switch_node_.state_.FeetToFootholds().ToVector();
-  xpp::utils::Point2d end_des_xy = switch_node_.state_.base_.pos.Get2D(); //spliner_.GetCurrPosition(t_switch_).Get2D();
-  predicted_state.p.segment(0,2) = end_des_xy.p; // - b_r_geomtocog.segment<2>(X)*/;
-  predicted_state.v.segment(0,2) = end_des_xy.v;
-  predicted_state.a.segment(0,2) = end_des_xy.a;
+  State predicted_state  = switch_node_.state_.base_.pos; //spliner_.GetCurrPosition(t_switch_).Get2D();
 
   State curr_state = P_curr_.base_.pos;
 
-
-  xpp::utils::Point3d start_state_optimization = curr_state;
+  xpp::utils::Point3d start_state_optimization = predicted_state;
 
 
 
@@ -245,6 +177,60 @@ WalkingController::PublishOptimizationStartState()
   current_info_pub_.publish(msg);
 
   reoptimize_before_finish_ = false;
+}
+
+bool
+WalkingController::EndCurrentExecution ()
+{
+//  if (optimal_trajectory_updated) {
+//    optimal_trajectory_updated = false;
+//    return true;
+//  }
+//
+
+
+
+  //  // when to use new trajectory. If a step is planned, switch only after the
+  //  // step has been executed
+  //  if (opt_footholds_.empty())
+  //    switch_node_ = spliner_.GetNode(1);
+  //  else
+  //    for (auto spline : opt_splines_)
+  //      if (!spline.DeprecatedIsFourLegSupport()) { // first step
+  //        int node_id = spline.GetId()+1;
+  //        switch_node_ = spliner_.GetNode(node_id);
+  //        break;
+  //      }
+
+
+
+  // terminate run loop
+
+  return Time() >= (spliner_.GetTotalTime()-robot_->GetControlLoopInterval());
+
+
+  // never switch from first planned trajectory
+  //  return false;
+
+//  double t_switch = switch_node_.T;
+//  double t_max = t_switch - robot_->GetControlLoopInterval();
+//  return Time() >= t_max; /*|| Time() >= spliner_.GetTotalTime()-dt_*/
+}
+
+
+void WalkingController::IntegrateOptimizedTrajectory()
+{
+  ffspliner_timer_ = ffspline_duration_;
+  reoptimize_before_finish_ = true;
+//  ffsplining_ = true; // because of delay from optimization
+
+  // start from desired, so there is no jump in desired
+  spliner_.Init(P_des_, motion_phases_, opt_spline_, opt_footholds_, robot_height_);
+  switch_node_ = spliner_.GetLastNode();
+
+  Controller::ResetTime();
+
+  first_run_after_integrating_opt_trajectory_ = true;
 }
 
 void WalkingController::ExecuteLoop()
@@ -504,6 +490,18 @@ void WalkingController::SmoothTorquesAtContactChange(JointState& uff)
 ////  return curr_state;
 //}
 
+//void WalkingController::PublishCurrentState()
+//{
+//  //    AddVarForLogging();
+//
+//  ReqInfoMsg msg;
+//  msg.curr_state    = xpp::ros::RosHelpers::XppToRos(P_curr_.base_.pos);
+//  msg.curr_stance   = xpp::ros::RosHelpers::XppToRos(P_curr_.GetStanceLegs());
+//  msg.curr_swingleg = P_curr_.SwinglegID();
+//
+//  // send out the message
+//  current_info_pub_.publish(msg);
+//}
 
 } // namespace exe
 } // namespace xpp

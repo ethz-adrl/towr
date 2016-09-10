@@ -36,6 +36,7 @@ public:
   void AddCost(CostPtr cost);
   double EvaluateTotalCost () const;
   bool IsEmpty() const;
+  VectorXd EvaluateGradient() const;
 
 private:
   std::vector<CostPtr > costs_;

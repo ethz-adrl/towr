@@ -6,10 +6,13 @@
  */
 
 #include <xpp/zmp/ellipse.h>
+#include <xpp/utils/geometric_structs.h>
 #include <cmath>
 
 namespace xpp {
 namespace zmp {
+
+using namespace xpp::utils::coords_wrapper;
 
 Ellipse::Ellipse ()
 {
@@ -40,6 +43,28 @@ double Ellipse::DistanceToEdge(double i_rx_p, double i_ry_p) const
 
   return ret;
 }
+
+double
+Ellipse::GetConstant () const
+{
+  double constant = 0.0;
+  constant += std::pow(2*i_rx_m_/x_axis_length_,2);
+  constant += std::pow(2*i_ry_m_/y_axis_length_,2);
+  constant -= 1;
+
+  return constant;
+}
+
+Ellipse::JacobianRow
+Ellipse::GetJacobianWrtXY (double i_rx_p, double i_ry_p) const
+{
+  JacobianRow jac;
+  jac.at(X) = 8./std::pow(x_axis_length_,2)*(i_rx_p - i_rx_m_);
+  jac.at(Y) = 8./std::pow(y_axis_length_,2)*(i_ry_p - i_ry_m_);
+
+  return jac;
+}
+
 
 } /* namespace zmp */
 } /* namespace xpp */

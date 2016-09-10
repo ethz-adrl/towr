@@ -37,7 +37,7 @@ ComSpline6::GetInitialFreeMotions () const
 ComSpline6::Derivatives
 ComSpline6::GetJunctionFreeMotions () const
 {
-  return {kPos, kVel, kAcc/*, kJerk*/};
+  return {kPos, kVel, kAcc, kJerk};
 }
 
 void

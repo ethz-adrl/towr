@@ -35,10 +35,31 @@ CostContainer::AddCost (CostPtr cost)
 void
 CostContainer::Update ()
 {
-//  spline_coeff_      = subject_->GetVariables(OptimizationVariables::kSplineCoeff);
-//  VectorXd footholds = subject_->GetVariables(OptimizationVariables::kFootholds);
-//
-//  footholds_    = utils::ConvertEigToStd(footholds);
+}
+
+CostContainer::VectorXd
+CostContainer::EvaluateGradient () const
+{
+  int n = subject_->GetOptimizationVariableCount();
+  VectorXd gradient = VectorXd::Zero(n);
+  for (const auto& cost : costs_) {
+    cost->UpdateVariables(subject_);
+
+    int row = 0;
+    for (const auto& set : subject_->GetVarSets()) {
+
+      int n_set = set->GetVariables().rows();
+      VectorXd grad_set = cost->EvaluateGradientWrt(set->GetId());
+
+      if (grad_set.rows() != 0) {
+        gradient.middleRows(row, n_set) += grad_set;
+      }
+
+      row += n_set;
+    }
+  }
+
+  return gradient;
 }
 
 double
@@ -54,7 +75,7 @@ CostContainer::EvaluateTotalCost () const
 }
 
 bool
-xpp::zmp::CostContainer::IsEmpty () const
+CostContainer::IsEmpty () const
 {
   return costs_.empty();
 }
