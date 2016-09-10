@@ -69,7 +69,7 @@ NLP::EvaluateCostFunctionGradient (const Number* x) const
 //  // motion_ref don't forget bout this
 //  // To just test for feasability
 //  VectorXd grad(opt_variables_->GetOptimizationVariableCount());
-//  grad.setOnes();
+//  grad.setZero();
 
 //  // numerical differentiation
 //  Eigen::MatrixXd jacobian(1, GetNumberOfOptimizationVariables());

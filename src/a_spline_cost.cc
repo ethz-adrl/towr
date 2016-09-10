@@ -44,7 +44,7 @@ QuadraticSplineCost::EvaluateGradientWrt(std::string var_set)
   VectorXd grad;
 
   if (var_set == VariableNames::kSplineCoeff)
-    grad =  2*matrix_vector_.M * spline_coeff_;
+    grad =  2.0 * matrix_vector_.M * spline_coeff_;
 
   return grad;
 }

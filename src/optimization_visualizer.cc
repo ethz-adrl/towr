@@ -15,7 +15,7 @@ namespace ros {
 
 using VectorXd = Eigen::VectorXd;
 
-static const std::string topic_optimized = "optimization_variables";
+static const std::string topic_optimized = "/optimization_variables";
 
 OptimizationVisualizer::OptimizationVisualizer ()
 {

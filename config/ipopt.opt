@@ -24,7 +24,7 @@ tol 1e-2
 #dual_inf_tol 1e-1
 #constr_viol_tol 1e-4
 #compl_inf_tol 1e-4
-max_cpu_time 0.5   #careful: overwrites ros parameter, but controller doesn't know
+max_cpu_time 5.5   #careful: overwrites ros parameter, but controller doesn't know
 #max_iter 1
 #bound_frac 0.5
 

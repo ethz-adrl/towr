@@ -19,7 +19,7 @@ MarkerArrayBuilder::MarkerArrayBuilder()
 void MarkerArrayBuilder::AddStartStance(visualization_msgs::MarkerArray& msg,
                                         const VecFoothold& start_stance) const
 {
-  AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::SPHERE, 1.0);
+  AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::SPHERE, 0.7);
 }
 
 void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg,

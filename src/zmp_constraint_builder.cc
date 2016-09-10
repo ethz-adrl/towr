@@ -45,7 +45,7 @@ ZmpConstraintBuilder::Init(const MotionStructure& structure,
   support_polygon_per_phase_ = contacts_->AssignSupportPolygonsToPhases(motion_structure_.GetPhases());
   walking_height_ = walking_height;
 
-  double t_switch = 0.15; // the timeframe at which the constraint is relaxed
+  double t_switch = 0.1; // the timeframe at which the constraint is relaxed
 
   // refactor remove this, all info contained in motion_info_
   times_ = GetTimesForConstraitEvaluation(dt, t_switch);
