@@ -237,7 +237,7 @@ void WalkingController::ExecuteLoop()
 {
   using namespace xpp::utils;
   using namespace xpp::zmp;
-  ROS_INFO_STREAM_THROTTLE(robot_->GetControlLoopInterval(), "time: " << Time());
+//  ROS_INFO_STREAM_THROTTLE(robot_->GetControlLoopInterval(), "time: " << Time());
 
   /** 1. motion plan generation */
   /** CURRENT state of robot through joint encoder readings and state estimation **/
@@ -246,14 +246,14 @@ void WalkingController::ExecuteLoop()
 
   P_curr_.swingleg_ = P_des_.swingleg_;
   EstimateCurrPose(); // through sensors and state estimation
-  std::cout << "P_curr: " << P_curr_.base_.pos << "\n";
+//  std::cout << "P_curr: " << P_curr_.base_.pos << "\n";
   jsim_.update(q);
 
 
   /** @brief DESIRED state given by splined plan and zmp optimizer **/
   P_des_.base_.pos = spliner_.GetCurrPosition(Time());
   P_des_.base_.ori = spliner_.GetCurrOrientation(Time());
-  std::cout << "P_des: " << P_des_.base_.pos << "\n";
+//  std::cout << "P_des: " << P_des_.base_.pos << "\n";
   spliner_.FillCurrFeet(Time(), P_des_.feet_, P_des_.swingleg_);
   // logging
   log_base_acc_des_ff.segment<3>(LX) = P_des_.base_.pos.a; // logging only
@@ -398,7 +398,7 @@ void WalkingController::EstimateCurrPose()
   }
 
   // logging
-  ROS_DEBUG_STREAM_THROTTLE(robot_->GetControlLoopInterval(), "time: " << Time() << "\nP_curr_:\n" << P_curr_);
+//  ROS_DEBUG_STREAM_THROTTLE(robot_->GetControlLoopInterval(), "time: " << Time() << "\nP_curr_:\n" << P_curr_);
 }
 
 Eigen::Vector3d
