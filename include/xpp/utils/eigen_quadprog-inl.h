@@ -224,7 +224,7 @@ inline double solve_quadprog(MatrixXd & G, VectorXd & g0, const MatrixXd & CE,
     if (!add_constraint(R, J, d, iq, R_norm)) {
       // FIXME: it should raise an error
       // Equality constraints are linearly dependent
-      printf("quadprog ERROR1\n");
+      printf("\n\n!!!!!!!!!! QUADPROG ERROR !!!!!!!!!!\n\n\n");
       return f_value;
     }
   }

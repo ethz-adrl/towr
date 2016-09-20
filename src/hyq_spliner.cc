@@ -6,8 +6,6 @@
  */
 
 #include <xpp/hyq/hyq_spliner.h>
-#include <xpp/zmp/spline_container.h>
-
 #include <kindr/rotations/RotationEigen.hpp>
 
 namespace xpp {
@@ -27,21 +25,22 @@ void HyqSpliner::SetParams(double upswing,
 }
 
 void HyqSpliner::Init(const HyqState& P_init,
-                      const VecZmpSpline& optimized_xy_spline,
+                      const xpp::zmp::PhaseVec& phase_info,
+                      const VecPolyomials& optimized_xy_spline,
                       const VecFoothold& footholds,
                       double robot_height)
 {
-  nodes_ = BuildStateSequence(P_init, optimized_xy_spline, footholds, robot_height);
+  nodes_ = BuildPhaseSequence(P_init, phase_info, optimized_xy_spline, footholds, robot_height);
   CreateAllSplines(nodes_);
   optimized_xy_spline_ = optimized_xy_spline;
 }
 
-
 std::vector<SplineNode>
-HyqSpliner::BuildStateSequence(const HyqState& P_init,
-                              const VecZmpSpline& zmp_splines,
-                              const VecFoothold& footholds,
-                              double robot_height)
+HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
+                               const xpp::zmp::PhaseVec& phase_info,
+                               const VecPolyomials& optimized_xy_spline,
+                               const VecFoothold& footholds,
+                               double robot_height)
 {
   std::vector<SplineNode> nodes;
 
@@ -58,53 +57,71 @@ HyqSpliner::BuildStateSequence(const HyqState& P_init,
   }
   P_plan_prev.base_.pos.p(Z) = robot_height + P_plan_prev.GetZAvg(); // height of footholds
 
-  for (const ZmpSpline& s : zmp_splines)
+  double t_global = 0.0;
+  for (const auto& curr_phase : phase_info)
   {
     // copy a few values from previous state
-    HyqState P_plan = P_plan_prev;
-    P_plan.swingleg_ = false;
+    HyqState goal_node = P_plan_prev;
 
-    // only change state in swingphase
-    if (!s.IsFourLegSupport()) {
-      const Foothold& f = footholds.at(s.GetCurrStep());
-      P_plan.swingleg_[f.leg] = true;
-      P_plan.feet_[f.leg].p(X) = f.p(X);
-      P_plan.feet_[f.leg].p(Y) = f.p(Y);
-      P_plan.feet_[f.leg].p(Z) = f.p(Z);
-
-      // adjust orientation depending on footholds
-      std::array<Vector3d, kNumSides> avg = P_plan.GetAvgSides();
-      // fixme calculate distance based on current foothold position, not fixed values
-      double width_hip = 0.414;
-      double length_hip = 0.747;
-      double i_roll  = std::atan2((avg[LEFT_SIDE](Z) - avg[RIGHT_SIDE](Z)), width_hip);
-      double i_pitch = std::atan2((avg[HIND_SIDE](Z) - avg[FRONT_SIDE](Z)), length_hip);
-
-
-      // how strictly the body should follow difference in foothold height
-      double roll_gain = 0.0;
-      double pitch_gain = 0.0;
-      // Quaternion is the same for angle += i*pi
-      kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB(
-          roll_gain*i_roll,
-          pitch_gain*i_pitch,
-          0.0); // P_yaw_des.at(s.step_));
-
-
-      kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
-      P_plan.base_.ori.q = qIB.toImplementation();
-
-      // adjust global z position of body depending on footholds
-      P_plan.base_.pos.p(Z) = robot_height + P_plan.GetZAvg(); // height of footholds
+    // current contact configuration during the phase
+    VecFoothold contacts;
+    for (auto c : curr_phase.free_contacts_) {
+      goal_node.feet_[static_cast<LegID>(c.ee)].p   = footholds.at(c.id).p;
+      goal_node.swingleg_[static_cast<LegID>(c.ee)] = false;
     }
 
-    nodes.push_back(BuildNode(P_plan, s.GetDuration()));
-    P_plan_prev = P_plan;
+    for (auto f : curr_phase.fixed_contacts_) {
+      goal_node.feet_[f.leg].p = f.p;
+      goal_node.swingleg_[f.leg] = false;
+    }
+
+    // add the desired foothold after swinging if this is a step phase
+    if (curr_phase.IsStep()) {
+      int step = curr_phase.n_completed_steps_;
+      LegID step_leg = footholds.at(step).leg;
+      auto goal_of_step = footholds.at(step);
+      goal_node.feet_[step_leg].p   = footholds.at(step).p;
+      goal_node.swingleg_[step_leg] = true; // currently this leg is swinging
+    }
+
+    // adjust orientation depending on footholds
+    std::array<Vector3d, kNumSides> avg = goal_node.GetAvgSides();
+    // fixme calculate distance based on current foothold position, not fixed values
+    double width_hip = 0.414;
+    double length_hip = 0.747;
+    double i_roll  = std::atan2((avg[LEFT_SIDE](Z) - avg[RIGHT_SIDE](Z)), width_hip);
+    double i_pitch = std::atan2((avg[HIND_SIDE](Z) - avg[FRONT_SIDE](Z)), length_hip);
+
+
+    // how strictly the body should follow difference in foothold height
+    double roll_gain = 0.0;
+    double pitch_gain = 0.0;
+    // Quaternion is the same for angle += i*pi
+    kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB(
+        roll_gain*i_roll,
+        pitch_gain*i_pitch,
+        0.0); // P_yaw_des.at(s.step_));
+
+
+    kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
+    goal_node.base_.ori.q = qIB.toImplementation();
+
+    // adjust global z position of body depending on footholds
+    goal_node.base_.pos.p(Z) = robot_height + goal_node.GetZAvg(); // height of footholds
+
+    // fill in x-y position, although overwritten anyway later
+    double t_phase = curr_phase.duration_;
+    t_global += t_phase;
+    auto com_xy_at_end_of_phase = xpp::zmp::ComPolynomial::GetCOM(t_global, optimized_xy_spline);
+    goal_node.base_.pos.p.topRows(kDim2d) = com_xy_at_end_of_phase.p;
+
+    nodes.push_back(BuildNode(goal_node, t_phase));
+
+    P_plan_prev = goal_node;
   }
 
   return nodes;
 }
-
 
 void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
 {
@@ -237,9 +254,8 @@ HyqSpliner::GetCurrZState(double t_global) const
 HyqSpliner::Point
 HyqSpliner::GetCurrPosition(double t_global) const
 {
-  // overwrites body position (x,y) by optmized values after first cog shift
   Vector3d z_splined = GetCurrZState(t_global);
-  xpp::utils::Point2d xy_optimized = xpp::zmp::SplineContainer::GetCOGxy(t_global, optimized_xy_spline_);
+  xpp::utils::Point2d xy_optimized = xpp::zmp::ComPolynomial::GetCOM(t_global, optimized_xy_spline_);
 
   Point pos;
 
@@ -252,7 +268,6 @@ HyqSpliner::GetCurrPosition(double t_global) const
 
   return pos;
 }
-
 
 
 xpp::utils::Ori

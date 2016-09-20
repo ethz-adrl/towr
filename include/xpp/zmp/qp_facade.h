@@ -8,9 +8,8 @@
 #ifndef _XPP_ZMP_QP_FACADE_H_
 #define _XPP_ZMP_QP_FACADE_H_
 
+#include "com_spline.h"
 #include <xpp/hyq/foothold.h>
-#include <xpp/zmp/spline_container.h>
-#include <xpp/zmp/zmp_spline.h>
 
 
 /**
@@ -42,7 +41,7 @@ eigen_quadprog.hpp performs the optimization.
  */
 class QpFacade {
 public:
-  typedef std::vector<ZmpSpline> VecSpline;
+  typedef std::vector<ComPolynomial> VecSpline;
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::Point2d State;
   typedef xpp::hyq::Foothold Foothold;
@@ -70,7 +69,7 @@ public:
                     const State& final_state,
                     const VecFoothold& start_stance,
                     const VecFoothold& steps,
-                    const SplineTimes& times,
+                    double t_swing, double t_stance,
                     bool start_with_com_shift,
                     double robot_height);
 

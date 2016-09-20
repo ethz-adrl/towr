@@ -45,6 +45,7 @@ class QuadraticSplineCost : public ASplineCost {
     *  cost = x^T * M * x   +   v^T * x
     */
   double EvaluateCost () const override;
+  virtual VectorXd EvaluateGradientWrt(std::string var_set) final;
 };
 
 class SquaredSplineCost : public ASplineCost {

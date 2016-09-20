@@ -7,22 +7,27 @@
 
 #include <xpp/zmp/nlp_facade.h>
 
+#include <xpp/zmp/motion_structure.h>
+#include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/constraint_container.h>
 #include <xpp/zmp/cost_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
-#include <xpp/zmp/constraint_factory.h>
-#include <xpp/zmp/cost_factory.h>
-#include <xpp/zmp/optimization_variables_interpreter.h>
-#include <xpp/zmp/interpreting_observer.h>
 #include <xpp/hyq/step_sequence_planner.h>
+#include <xpp/zmp/cost_constraint_factory.h>
+#include <xpp/zmp/motion_factory.h>
+//#include <xpp/zmp/com_spline.h>
 
 #include <xpp/zmp/nlp.h>
 #include <xpp/zmp/ipopt_adapter.h>
 #include <xpp/zmp/snopt_adapter.h>
+#include <xpp/zmp/nlp_observer.h>
+
+#include <iomanip>
 
 namespace xpp {
 namespace zmp {
+
+using Contacts = xpp::hyq::SupportPolygonContainer;
 
 NlpFacade::NlpFacade (IVisualizer& visualizer)
      :visualizer_(&visualizer)
@@ -31,7 +36,7 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
   opt_variables_         = std::make_shared<OptimizationVariables>();
   costs_                 = std::make_shared<CostContainer>(*opt_variables_);
   constraints_           = std::make_shared<ConstraintContainer>(*opt_variables_);
-  interpreting_observer_ = std::make_shared<InterpretingObserver>(*opt_variables_);
+  nlp_observer_ = std::make_shared<NlpObserver>(*opt_variables_);
   step_sequence_planner_ = std::make_shared<xpp::hyq::StepSequencePlanner>();
 
 
@@ -47,55 +52,85 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
 }
 
 void
-NlpFacade::SolveNlp(const State& curr_cog_,
+NlpFacade::SolveNlp(const State& initial_state,
                     const State& final_state,
                     int curr_swing_leg,
                     double robot_height,
                     VecFoothold curr_stance,
                     xpp::hyq::MarginValues margins,
-                    xpp::zmp::SplineTimes spline_times_,
+                    double t_swing, double t_stance,
                     double max_cpu_time)
 {
-  step_sequence_planner_->Init(curr_cog_, final_state, curr_stance, robot_height);
-  std::vector<xpp::hyq::LegID> step_sequence = step_sequence_planner_->DetermineStepSequence(curr_swing_leg);
-  bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase(step_sequence);
+  step_sequence_planner_->Init(initial_state, final_state, curr_stance, robot_height, curr_swing_leg, margins);
+  auto step_sequence        = step_sequence_planner_->DetermineStepSequence();
+  bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase();
 
-  std::cout << "start_with_com_shift: " << start_with_com_shift;
+  // create the fixed motion structure
+  MotionStructure motion_structure;
+  motion_structure.Init(curr_stance, step_sequence, t_swing, t_stance, start_with_com_shift, true);
 
-  // determine with which optimization variables NLP should start
-  xpp::hyq::SupportPolygonContainer supp_polygon_container;
-  supp_polygon_container.Init(curr_stance, step_sequence, margins);
+  Contacts contacts;
+  contacts.Init(curr_stance, step_sequence, margins);
 
-  xpp::zmp::ContinuousSplineContainer spline_structure;
-  spline_structure.Init(curr_cog_.p, curr_cog_.v, step_sequence.size(), spline_times_, start_with_com_shift);
-  spline_structure.SetEndAtStart();
+  // insight: this spline might be better for MPC, as it always matches the initial
+  // position and velocity, avoiding jumps in state. For the other spline this is
+  // a constraint, that might not be fulfilled.
+  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
+//  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
 
-  opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, spline_structure.GetABCDCoeffients());
-  opt_variables_->AddVariableSet(VariableNames::kFootholds, supp_polygon_container.GetFootholdsInitializedToStart());
+  nlp_observer_->Init(motion_structure, *com_motion, contacts);
 
-  // save the framework of the optimization problem
-  OptimizationVariablesInterpreter interpreter;
-  interpreter.Init(spline_structure, supp_polygon_container, robot_height);
-  interpreting_observer_->SetInterpreter(interpreter);
+  opt_variables_->ClearVariables();
+  opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
+  opt_variables_->AddVariableSet(VariableNames::kFootholds, contacts.GetFootholdsInitializedToStart());
+
 
   constraints_->ClearConstraints();
-  constraints_->AddConstraint(ConstraintFactory::CreateAccConstraint(curr_cog_.a, spline_structure));
-  constraints_->AddConstraint(ConstraintFactory::CreateFinalConstraint(final_state, spline_structure));
-  constraints_->AddConstraint(ConstraintFactory::CreateJunctionConstraint(spline_structure));
-  constraints_->AddConstraint(ConstraintFactory::CreateZmpConstraint(interpreter));
-  constraints_->AddConstraint(ConstraintFactory::CreateRangeOfMotionConstraint(interpreter));
-//  constraints_->AddConstraint(ConstraintFactory::CreateObstacleConstraint());
+  constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, *com_motion));
+  constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, *com_motion));
+  constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(*com_motion));
+  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(motion_structure,
+                                                                         *com_motion,
+                                                                         contacts,
+                                                                         robot_height));
+  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts, motion_structure));
+//  constraints_->AddConstraint(CostConstraintFactory::CreateObstacleConstraint(contacts));
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 
   costs_->ClearCosts();
-  costs_->AddCost(CostFactory::CreateAccelerationCost(spline_structure));
+  costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion, utils::kAcc));
   // careful: these are not quite debugged yet
-//  costs_->AddCost(CostFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
-//  costs_->AddCost(CostFactory::CreateFinalComCost(final_state, spline_structure));
-//  costs_->AddCost(CostFactory::CreateRangeOfMotionCost(interpreter));
+//  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
+//  costs_->AddCost(CostConstraintFactory::CreateFinalComCost(final_state, spline_structure));
+//  costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(interpreter));
 
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);
+
+
+
+  std::cout << std::setprecision(2) << std::fixed;
+  std::cout << "start_state: " << initial_state << std::endl;
+  std::cout << "goal_state: " << final_state << std::endl;
+
+  std::cout << "\nstart_stance: \n";
+  for (auto f : curr_stance)
+    std::cout << f << std::endl;
+
+  std::cout << "\nphases:\n";
+  for (auto phase : motion_structure.GetPhases()) {
+    std::cout << phase << std::endl;
+  }
+
+//  std::cout << "\npolynomials:\n";
+//  auto com_spline = std::dynamic_pointer_cast<ComSpline> (com_motion);
+//  for (auto poly : com_spline->GetPolynomials()) {
+//    std::cout << poly << std::endl;
+//  }
+
+
+
+
 
 //  // Snopt solving
 //  // fixme some constraints are still linear and have constant terms in its
@@ -126,12 +161,16 @@ NlpFacade::SolveIpopt (const IpoptPtr& nlp, double max_cpu_time)
     Ipopt::Number final_obj = ipopt_solver_.Statistics()->FinalObjective();
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
   }
+
+  if (status_ == Ipopt::Infeasible_Problem_Detected) {
+    std::cout << "Problem/Constraints infeasible; run again?";
+  }
 }
 
-NlpFacade::InterpretingObserverPtr
+NlpFacade::NlpObserverPtr
 NlpFacade::GetObserver () const
 {
-  return interpreting_observer_;
+  return nlp_observer_;
 }
 
 void
@@ -143,13 +182,19 @@ NlpFacade::AttachVisualizer (IVisualizer& visualizer)
 NlpFacade::VecFoothold
 NlpFacade::GetFootholds () const
 {
-  return interpreting_observer_->GetFootholds();
+  return nlp_observer_->GetFootholds();
 }
 
-NlpFacade::VecSpline
-NlpFacade::GetSplines () const
+NlpFacade::ComMotionPtrS
+NlpFacade::GetMotion () const
 {
-  return interpreting_observer_->GetSplines();
+  return nlp_observer_->GetComMotion();
+}
+
+PhaseVec
+NlpFacade::GetPhases () const
+{
+  return nlp_observer_->GetStructure().GetPhases();
 }
 
 } /* namespace zmp */

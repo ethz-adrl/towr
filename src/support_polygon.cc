@@ -7,6 +7,8 @@
 
 #include <xpp/hyq/support_polygon.h>
 #include <xpp/utils/point2d_manipulations.h>
+#include <xpp/utils/line_equation.h>
+#include <algorithm>
 
 
 namespace xpp {
@@ -16,56 +18,73 @@ namespace hyq {
 using namespace ::xpp::utils; //X,Y,Z,Poin2dManip
 
 SupportPolygon::SupportPolygon(const VecFoothold& footholds, const MarginValues& margins)
-    :footholds_(footholds),
-     margins_(margins),
-     footholds_conv_(BuildSortedConvexHull(footholds))
+    :sorted_footholds_(footholds),
+     margins_(margins)
 {
+  SortCounterclockWise(sorted_footholds_);
 }
 
-
-/** sort points so inequality constraints are on correct side of line later **/
-SupportPolygon::VecFoothold
-SupportPolygon::BuildSortedConvexHull(const VecFoothold& footholds) const
+// refactor DRY with function below...
+void
+SupportPolygon::SortCounterclockWise (VecFoothold& footholds)
 {
-  assert(footholds.size() > 2);
-  Point2dManip::StdVectorEig2d f_xy;
+  std::map<LegID, int> leg_order = { {LH,0} , {RH,1}, {RF,2}, {LF,3} };
 
-  for (const Foothold& f : footholds)
-    f_xy.push_back(f.p.segment<2>(0)); // extract x-y position of footholds
-
-  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(f_xy);
-
-  VecFoothold footholds_sorted(idx.size());
-  for (uint i=0; i<idx.size(); ++i) {
-    footholds_sorted.at(i) = footholds.at(idx[i]);
-  }
-
-  return footholds_sorted;
+  std::sort(footholds.begin(), footholds.end(),
+            [&leg_order](Foothold f1, Foothold f2)
+            { return leg_order[f1.leg] < leg_order[f2.leg];}
+  );
 }
 
-
-SupportPolygon::VecSuppLine SupportPolygon::CalcLines() const
+void
+SupportPolygon::SortCounterclockWise (std::vector<LegID>& leg_ids)
 {
-  VecSuppLine lines(footholds_conv_.size());
+  std::map<LegID, int> leg_order = { {LH,0} , {RH,1}, {RF,2}, {LF,3} };
+
+  std::sort(leg_ids.begin(), leg_ids.end(),
+            [&leg_order](LegID l1, LegID l2)
+            { return leg_order[l1] < leg_order[l2];}
+  );
+}
+
+SupportPolygon::VecSuppLine
+SupportPolygon::GetLines() const
+{
+  VecSuppLine lines(sorted_footholds_.size());
   for (uint i = 0; i<lines.size(); ++i) {
-    Foothold from = footholds_conv_[i];
-    int last_idx = footholds_conv_.size()-1;
-    Foothold to = (i == last_idx) ? footholds_conv_[0] : footholds_conv_[i+1];
-    lines[i].coeff = Point2dManip::LineCoeff(from.p.segment(0,2), to.p.segment(0,2));
-    lines[i].s_margin = UseMargin(from.leg, to.leg);
+    Foothold from = sorted_footholds_[i];
+    int last_idx = sorted_footholds_.size()-1;
+    Foothold to = (i == last_idx) ? sorted_footholds_[0] : sorted_footholds_[i+1];
 
-    // this is to separate out the constant terms of the constraints
-    if (from.fixed_by_start_stance && to.fixed_by_start_stance)
-      lines[i].fixed_by_start_stance = true;
-    else
-      lines[i].fixed_by_start_stance = false;
+    lines[i].from = from;
+    lines[i].to = to;
+    lines[i].s_margin = UseMargin(from.leg, to.leg);
   }
 
   return lines;
 }
 
+double
+SupportPolygon::SuppLine::GetDistanceToPoint(const Vector2d& p) const
+{
+  LineEquation line(from.p.topRows(kDim2d), to.p.topRows(kDim2d));
+  return line.GetDistanceFromLine(p) - s_margin;
+}
 
-double SupportPolygon::UseMargin(const LegID& f0, const LegID& f1) const
+SupportPolygon::VecFoothold
+SupportPolygon::GetFootholds () const
+{
+  return sorted_footholds_;
+}
+
+MarginValues
+SupportPolygon::GetMargins () const
+{
+  return margins_;
+}
+
+double
+SupportPolygon::UseMargin(const LegID& f0, const LegID& f1) const
 {
   LegID foot[] = {f0, f1};
 
@@ -87,26 +106,13 @@ double SupportPolygon::UseMargin(const LegID& f0, const LegID& f1) const
     return margins_[DIAG];
 }
 
-
-SupportPolygon SupportPolygon::CombineSupportPolygons(const SupportPolygon& p1,
-                                                      const SupportPolygon& p2)
-{
-  VecFoothold contacts;
-  contacts.insert(contacts.end(), p1.footholds_.begin(), p1.footholds_.end());
-  contacts.insert(contacts.end(), p2.footholds_.begin(), p2.footholds_.end());
-
-  // compare leg ids and make sure the same footholds in not inserted twice
-  std::sort(contacts.begin(), contacts.end(), [](Foothold f1, Foothold f2) {return f1.leg < f2.leg;});
-  contacts.erase(std::unique(contacts.begin(), contacts.end()), contacts.end()); // removes adjacent duplicate and resizes vector
-
-  return SupportPolygon(contacts, p1.margins_);
-}
-
 bool
 SupportPolygon::IsPointInside (const Vector2d& p) const
 {
-  for (const SupportPolygon::SuppLine& l : CalcLines()) {
-    bool zmp_outside = l.coeff.p*p.x() + l.coeff.q*p.y() + l.coeff.r < l.s_margin;
+  for (const auto& l : GetLines()) {
+    LineEquation line(l.from.p.segment<2>(X), l.to.p.segment<2>(X));
+
+    bool zmp_outside = line.GetDistanceFromLine(p) < l.s_margin;
     if(zmp_outside)
       return false;
   }
@@ -135,6 +141,39 @@ MarginValues SupportPolygon::GetZeroMargins()
 
   return zero_margins;
 }
+
+//SupportPolygon::VecFoothold
+//SupportPolygon::BuildSortedConvexHull(const VecFoothold& footholds) const
+//{
+//  assert(footholds.size() > 2);
+//  Point2dManip::StdVectorEig2d f_xy;
+//
+//  for (const Foothold& f : footholds)
+//    f_xy.push_back(f.p.segment<2>(0)); // extract x-y position of footholds
+//
+//  std::vector<size_t> idx = Point2dManip::BuildConvexHullCounterClockwise(f_xy);
+//
+//  VecFoothold footholds_sorted(idx.size());
+//  for (uint i=0; i<idx.size(); ++i) {
+//    footholds_sorted.at(i) = footholds.at(idx[i]);
+//  }
+//
+//  return footholds_sorted;
+//}
+
+//SupportPolygon SupportPolygon::CombineSupportPolygons(const SupportPolygon& p1,
+//                                                      const SupportPolygon& p2)
+//{
+//  VecFoothold contacts;
+//  contacts.insert(contacts.end(), p1.sorted_footholds_.begin(), p1.sorted_footholds_.end());
+//  contacts.insert(contacts.end(), p2.sorted_footholds_.begin(), p2.sorted_footholds_.end());
+//
+//  // compare leg ids and make sure the same footholds in not inserted twice
+//  std::sort(contacts.begin(), contacts.end(), [](Foothold f1, Foothold f2) {return f1.leg < f2.leg;});
+//  contacts.erase(std::unique(contacts.begin(), contacts.end()), contacts.end()); // removes adjacent duplicate and resizes vector
+//
+//  return SupportPolygon(contacts, p1.margins_);
+//}
 
 } // namespace hyq
 } // namespace xpp

@@ -26,79 +26,21 @@ protected:
 
 };
 
-TEST_F(Point2dManipulationsTest, LineCoefficients)
+TEST_F(Point2dManipulationsTest, SortIndexesLeftToRight)
 {
   A << 0, 0;
   B << 1, 0;
   C << 1, 1;
   D << 0, 1;
 
-  LineCoeff2d line;
-  // x-axis line (y=0)
-  line = Point2dManip::LineCoeff(A,B);
-  EXPECT_DOUBLE_EQ(0, line.p);
-  EXPECT_DOUBLE_EQ(1, line.q);
-  EXPECT_DOUBLE_EQ(0, line.r);
+  Point2dManip::StdVectorEig2d points(4);
+  points.at(0) = A;
+  points.at(1) = B;
+  points.at(2) = C;
+  points.at(3) = D;
 
-  // shifted y-axis line (x=1)
-  line = Point2dManip::LineCoeff(B,C);
-  EXPECT_DOUBLE_EQ(-1, line.p);
-  EXPECT_DOUBLE_EQ( 0, line.q);
-  EXPECT_DOUBLE_EQ( 1, line.r);
-
-  // diagonal line to top right not normalized
-  line = Point2dManip::LineCoeff(A,C,false);
-  EXPECT_DOUBLE_EQ(-1, line.p);
-  EXPECT_DOUBLE_EQ( 1, line.q);
-  EXPECT_DOUBLE_EQ( 0, line.r);
-
-  // diagonal line to top left not normalized
-  line = Point2dManip::LineCoeff(B,D,false);
-  EXPECT_DOUBLE_EQ(-1, line.p);
-  EXPECT_DOUBLE_EQ(-1, line.q);
-  EXPECT_DOUBLE_EQ( 1, line.r);
-}
-
-TEST_F(Point2dManipulationsTest, LineCoefficientsDistanceSign)
-{
-  A << 0, 0;
-  B << 1, 0;
-  C << 1, 1;
-  D << 0, 1;
-
-  // distance of point B and D to diagonal line A->C
-  double distance_to_B, distance_to_D;
-  xpp::utils::LineCoeff2d AC = xpp::utils::Point2dManip::LineCoeff(A,C);
-  distance_to_B = AC.p*B.x() + AC.q*B.y() + AC.r;
-  distance_to_D = AC.p*D.x() + AC.q*D.y() + AC.r;
-
-  EXPECT_TRUE(distance_to_B < 0.0); // because B right of AC
-  EXPECT_TRUE(distance_to_D > 0.0); // because D left  of AC
-
-
-  // reverse the direction of the line, now from C to A
-  xpp::utils::LineCoeff2d CA = xpp::utils::Point2dManip::LineCoeff(C,A);
-  distance_to_B = CA.p*B.x() + CA.q*B.y() + CA.r;
-  distance_to_D = CA.p*D.x() + CA.q*D.y() + CA.r;
-
-  EXPECT_TRUE(distance_to_B > 0.0); // because B right of AC
-  EXPECT_TRUE(distance_to_D < 0.0); // because D left  of AC
-}
-
-TEST_F(Point2dManipulationsTest, LineCoefficientsDistanceValue)
-{
-  A << 0, 0;
-  B << 1, 0;
-  C << 1, 1;
-  D << 0, 1;
-
-  // distance of point B and D to diagonal line A->C
-  xpp::utils::LineCoeff2d AC = xpp::utils::Point2dManip::LineCoeff(A,C);
-  double distance_to_B = AC.p*B.x() + AC.q*B.y() + AC.r;
-  double distance_to_D = AC.p*D.x() + AC.q*D.y() + AC.r;
-
-  EXPECT_DOUBLE_EQ(hypot(0.5, 0.5), std::fabs(distance_to_B));
-  EXPECT_DOUBLE_EQ(distance_to_B, -distance_to_D); // both on opposite sides of line
+  auto idx = Point2dManip::SortIndexesLeftToRight(points);
+  for (auto i : idx) { std::cout << i << "\n"; }
 }
 
 TEST_F(Point2dManipulationsTest, SortByXThenY)

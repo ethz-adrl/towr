@@ -6,9 +6,7 @@
  */
 
 #include <xpp/ros/nlp_optimizer_node.h>
-
 #include <xpp/ros/ros_helpers.h>
-#include <xpp/zmp/optimization_variables_interpreter.h>
 
 namespace xpp {
 namespace ros {
@@ -34,11 +32,10 @@ NlpOptimizerNode::NlpOptimizerNode ()
 void
 NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
 {
-  // fixme DRY: use template method to move this and qp code to base class
   UpdateCurrentState(msg);
-  OptimizeTrajectory();
-  PublishOptimizedValues();
-  optimization_visualizer_.Visualize();
+//  OptimizeTrajectory();
+//  PublishOptimizedValues();
+//  optimization_visualizer_.Visualize();
 }
 
 void
@@ -47,6 +44,9 @@ NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
   curr_cog_      = RosHelpers::RosToXpp(msg.curr_state);
   curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
   curr_swingleg_ = msg.curr_swingleg;
+//  ROS_INFO_STREAM("Updated Current State: " << curr_cog_);
+
+  optimization_visualizer_.VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
 }
 
 void
@@ -55,24 +55,33 @@ NlpOptimizerNode::PublishOptimizedValues() const
   OptParamMsg msg_out;
   msg_out.splines   = xpp::ros::RosHelpers::XppToRos(opt_splines_);
   msg_out.footholds = xpp::ros::RosHelpers::XppToRos(footholds_);
+  msg_out.phases    = xpp::ros::RosHelpers::XppToRos(motion_phases_);
 
   opt_params_pub_.publish(msg_out);
+  ROS_INFO_STREAM("Publishing optimized values");
 }
 
 void
 NlpOptimizerNode::OptimizeTrajectory()
 {
+  optimization_visualizer_.ClearOptimizedMarkers();
+  optimization_visualizer_.VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
+
   nlp_facade_.SolveNlp(curr_cog_.Get2D(),
                        goal_cog_.Get2D(),
                        curr_swingleg_,
                        robot_height_,
                        curr_stance_,
                        supp_polygon_margins_,
-                       spline_times_,
+                       t_swing_, t_stance_,
                        max_cpu_time_);
 
-  opt_splines_ = nlp_facade_.GetSplines();
-  footholds_   = nlp_facade_.GetFootholds();
+  auto& com_spline = dynamic_cast<xpp::zmp::ComSpline&>(*nlp_facade_.GetMotion());
+  opt_splines_   = com_spline.GetPolynomials();
+  footholds_     = nlp_facade_.GetFootholds();
+  motion_phases_ = nlp_facade_.GetPhases();
+
+  optimization_visualizer_.Visualize();
 }
 
 } /* namespace ros */

@@ -1,11 +1,13 @@
-/*
- * supp_triangle_container.cc
- *
- *  Created on: Mar 18, 2016
- *      Author: winklera
+/**
+ @file    support_polygon_container.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Defines the SupportPolygonContainer class
  */
 
 #include <xpp/hyq/support_polygon_container.h>
+#include <xpp/zmp/motion_structure.h>
+#include <xpp/zmp/phase_info.h>
 
 namespace xpp {
 namespace hyq {
@@ -14,40 +16,51 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const VecFoothold& footholds,
                                    const MarginValues& margins)
 {
-  SetStartStance(start_stance);
-  SetFootholds(footholds);
+  start_stance_ = start_stance;
+  footholds_ = footholds;
   margins_       = margins;
-  support_polygons_ = CreateSupportPolygons(footholds);
 
-  initialized_ = true;
+  ModifyFootholds(start_stance_, [](Foothold& f, int i) {f.id = Foothold::kFixedByStart;} );
+  ModifyFootholds(footholds_,    [](Foothold& f, int i) {f.id = i;} );
+
+  support_polygons_ = CreateSupportPolygons(footholds_);
 }
 
 void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const VecLegID& step_sequence,
                                    const MarginValues& margins)
 {
+  VecFoothold footholds;
   // initial all footholds with the correct leg, but x=y=z=0.0
   for (uint i=0; i<step_sequence.size(); ++i) {
     xpp::hyq::Foothold f; // sets x=y=z=0.0
     f.leg   = step_sequence.at(i);
-    footholds_.push_back(f);
+    footholds.push_back(f);
   }
 
-  SetStartStance(start_stance);
-  SetFootholds(footholds_);
-  margins_       = margins;
-  support_polygons_ = CreateSupportPolygons(footholds_);
+  Init(start_stance, footholds, margins);
+}
 
-  initialized_ = true;
+void
+SupportPolygonContainer::Init (const VecLegID& start_legs,
+                               const VecLegID& step_sequence,
+                               const MarginValues& margins)
+{
+  VecFoothold start_stance;
+  for (uint i=0; i<start_legs.size(); ++i) {
+    xpp::hyq::Foothold f; // sets x=y=z=0.0
+    f.leg   = start_legs.at(i);
+    start_stance.push_back(f);
+  }
+
+  Init(start_stance, step_sequence, margins);
 }
 
 void
 SupportPolygonContainer::SetFootholdsXY(const StdVecEigen2d& footholds_xy)
 {
   assert(footholds_xy.size() == footholds_.size());
-  for (uint i=0; i<footholds_xy.size(); ++i)
-    footholds_.at(i).SetXy(footholds_xy.at(i).x(), footholds_xy.at(i).y());
-
+  Foothold::SetXy(footholds_xy, footholds_);
   support_polygons_ = CreateSupportPolygons(footholds_); //update support polygons as well
 }
 
@@ -66,7 +79,6 @@ SupportPolygonContainer::GetFootholdsInitializedToStart() const
 
 SupportPolygon SupportPolygonContainer::GetStancePolygon(const VecFoothold& footholds) const
 {
-  CheckIfInitialized();
   return SupportPolygon(footholds, margins_);
 }
 
@@ -77,23 +89,26 @@ SupportPolygonContainer::GetStanceDuring(int step) const
   if (step == GetNumberOfSteps())
     return GetFinalFootholds();
   else
-    return support_polygons_.at(step).footholds_;
+    return support_polygons_.at(step).GetFootholds();
 }
 
 SupportPolygonContainer::VecFoothold
 SupportPolygonContainer::GetStanceAfter(int n_steps) const
 {
-  CheckIfInitialized();
-
   VecFoothold combined = start_stance_;
   combined.insert(combined.end(), footholds_.begin(), footholds_.begin()+n_steps);
 
   // get the last step of each foot
   VecFoothold last_stance;
-  Foothold f;
-  for (LegID l : LegIDArray)
-    last_stance.push_back(Foothold::GetLastFoothold(l,combined));
+  for (LegID l : LegIDArray) {
 
+    if(std::find_if(combined.begin(), combined.end(),
+                 [&l](const Foothold& f) {return f.leg == l;}) != combined.end())
+    {
+      last_stance.push_back(Foothold::GetLastFoothold(l,combined));
+    }
+
+  }
   return last_stance;
 }
 
@@ -145,8 +160,6 @@ SupportPolygonContainer::CreateSupportPolygons(const VecFoothold& footholds) con
 Eigen::Vector2d
 SupportPolygonContainer::GetCenterOfFinalStance() const
 {
-  CheckIfInitialized();
-
   VecFoothold last_stance = GetFinalFootholds();
 
   // calculate average x-y-postion of last stance
@@ -158,79 +171,60 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
   return end_cog/_LEGS_COUNT;
 }
 
-SupportPolygonContainer::VecVecSuppLine
-SupportPolygonContainer::GetActiveConstraintsForEachStep(const VecZmpSpline& splines) const
-{
-  VecSupportPolygon supp = AssignSupportPolygonsToSplines(splines);
-
-  std::vector<SupportPolygon::VecSuppLine> supp_lines;
-  for (uint s=0; s<splines.size(); ++s) {
-    supp_lines.push_back(supp.at(s).CalcLines());
-  }
-
-  return supp_lines;
-}
-
 SupportPolygonContainer::VecSupportPolygon
-SupportPolygonContainer::AssignSupportPolygonsToSplines(const VecZmpSpline& splines) const
+SupportPolygonContainer::AssignSupportPolygonsToPhases(const PhaseInfoVec& phases) const
 {
-  using namespace xpp::zmp;
-
-  // support polygons during steps
-  VecSupportPolygon supp_steps = GetSupportPolygons();
-
-  int prev_step = -1;
-
   VecSupportPolygon supp;
-  for (const ZmpSpline& s : splines)
-  {
-    SupportPolygon curr_supp;
 
-    if (!s.IsFourLegSupport()) {
-      curr_supp = supp_steps.at(s.GetCurrStep());
-      prev_step = s.GetCurrStep();
-    } else {
-      if (prev_step == -1) // first spline
-        curr_supp = GetStartPolygon();
-      else if (prev_step == GetNumberOfSteps()-1)
-        curr_supp = GetFinalPolygon();
-      else { // for intermediate splines
-        int next_step = prev_step+1;
-        curr_supp = SupportPolygon::CombineSupportPolygons(supp_steps.at(prev_step),
-                                                           supp_steps.at(next_step));
-      }
-    }
+  for (const auto& phase : phases) {
 
-    supp.push_back(curr_supp);
+    VecFoothold contacts;
+    for (auto c : phase.free_contacts_)
+      contacts.push_back(footholds_.at(c.id));
+
+    for (auto f : phase.fixed_contacts_)
+      contacts.push_back(f);
+
+    supp.push_back(SupportPolygon(contacts, margins_));
   }
 
   return supp;
 }
 
-void
-SupportPolygonContainer::CheckIfInitialized() const
+int
+SupportPolygonContainer::GetTotalFreeCoeff () const
 {
-  if (!initialized_) {
-    throw std::runtime_error("SuppTriangleContainer not initialized. Call Init() first");
-  }
+  return GetNumberOfSteps()*xpp::utils::kDim2d;
+}
+
+int
+SupportPolygonContainer::Index (int id, Coords dim)
+{
+  assert(id != Foothold::kFixedByStart); // they can't be optimized, have no index
+  return id*xpp::utils::kDim2d + dim;
 }
 
 void
-SupportPolygonContainer::SetStartStance (const VecFoothold& start_stance)
+SupportPolygonContainer::ModifyFootholds (VecFoothold& footholds,
+                                          std::function<void (Foothold&, int)> fun) const
 {
-  start_stance_ = start_stance;
-  for (auto& f : start_stance_)
-    f.fixed_by_start_stance = true;
+  int i = 0;
+
+  for (auto& f : footholds)
+    fun(f, i++);
 }
 
-void
-SupportPolygonContainer::SetFootholds (const VecFoothold& footholds)
+bool
+SupportPolygonContainer::DisJointSupportPolygons(LegID prev, LegID next)
 {
-  footholds_ = footholds;
-  for (auto& f : footholds_)
-    f.fixed_by_start_stance = false;
+  // check for switching between disjoint support triangles.
+  // the direction the robot is moving between triangles does not matter.
+  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+  std::swap(prev, next);
+  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
+
+  return false;
 }
 
 } /* namespace hyq */
 } /* namespace xpp */
-

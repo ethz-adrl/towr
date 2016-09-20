@@ -10,28 +10,53 @@
 
 #include <xpp/zmp/a_constraint.h>
 #include <xpp/utils/geometric_structs.h>
+#include <xpp/hyq/support_polygon_container.h>
+#include <xpp/zmp/ellipse.h>
 
 namespace xpp {
 namespace zmp {
 
 class ObstacleConstraint : public AConstraint {
 public:
-  typedef xpp::utils::StdVecEigen2d FootholdsXY;
+  using FootholdsXY = xpp::utils::StdVecEigen2d;
+  using Contacts = xpp::hyq::SupportPolygonContainer;
 
   ObstacleConstraint ();
   virtual ~ObstacleConstraint ();
 
-  void UpdateVariables(const OptimizationVariables*) override;
+  void Init(const Contacts&);
+  virtual void UpdateVariables(const OptimizationVariables*) override final;
 
-  /** @brief Returns a vector of constraint violations for current variables */
-  VectorXd EvaluateConstraint () const override;
-  VecBound GetBounds () const override;
-
-private:
+protected:
   FootholdsXY footholds_;
-  const double gap_center_x_ = -0.2; //m
+  Contacts contacts_;
+  const double gap_center_x_ = 0.45; //m
   const double gap_width_x_ = 0.15; //m
 };
+
+class ObstacleLineStrip : public ObstacleConstraint {
+public:
+  ObstacleLineStrip ();
+  virtual ~ObstacleLineStrip ();
+
+  VectorXd EvaluateConstraint () const override;
+  VecBound GetBounds () const override;
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
+};
+
+class ObstacleEllipse : public ObstacleConstraint {
+public:
+  ObstacleEllipse ();
+  virtual ~ObstacleEllipse ();
+
+  VectorXd EvaluateConstraint () const override;
+  VecBound GetBounds () const override;
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
+
+private:
+  Ellipse ellipse_;
+};
+
 
 } /* namespace zmp */
 } /* namespace xpp */

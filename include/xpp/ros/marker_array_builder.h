@@ -5,16 +5,15 @@
  @brief   Defines a class that builds rviz markers
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_PUBLISHER_H_
-#define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_PUBLISHER_H_
+#ifndef XPP_OPT_INCLUDE_MARKER_ARRAY_BUILDER_H_
+#define XPP_OPT_INCLUDE_MARKER_ARRAY_BUILDER_H_
 
-#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/hyq/foothold.h>
+#include <xpp/zmp/com_motion.h>
+#include <xpp/zmp/motion_structure.h>
 
 #include <visualization_msgs/MarkerArray.h>
-
 #include <Eigen/Dense>
-#include <Eigen/StdVector>
 
 namespace xpp {
 namespace ros {
@@ -26,66 +25,68 @@ namespace ros {
   * optimization variables.
   */
 class MarkerArrayBuilder {
-
 public:
-  typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > StdVecEigen2d;
-  typedef std::vector<xpp::hyq::Foothold> VecFoothold;
-  typedef visualization_msgs::Marker Marker;
-  typedef visualization_msgs::MarkerArray MarkerArray;
-  typedef Eigen::Vector2d Vector2d;
-  typedef xpp::zmp::SplineContainer SplineContainer;
-  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
+  using VecFoothold     = std::vector<xpp::hyq::Foothold>;
+  using ComMotion       = xpp::zmp::ComMotion;
+  using MotionStructure = xpp::zmp::MotionStructure;
+  using Vector2d        = Eigen::Vector2d;
+  using Marker          = visualization_msgs::Marker ;
+  using MarkerArray     = visualization_msgs::MarkerArray ;
 
 public:
   MarkerArrayBuilder();
   virtual ~MarkerArrayBuilder () {};
 
-  void AddStartStance(MarkerArray& msg, const VecFoothold& start_stance) const;
-  void AddGoal(MarkerArray& msg,const Vector2d& goal);
+  void AddStartStance(MarkerArray& msg,
+                      const VecFoothold& start_stance) const;
+  void AddPoint(MarkerArray& msg,
+               const Vector2d& goal,
+               std::string rviz_namespace,
+               int marker_type);
 
   void AddSupportPolygons(MarkerArray& msg,
                           const VecFoothold& start_stance,
                           const VecFoothold& footholds) const;
-  void BuildSupportPolygon(MarkerArray& msg,const VecFoothold& stance_legs,
+  void BuildSupportPolygon(MarkerArray& msg,
+                           const VecFoothold& stance_legs,
                            xpp::hyq::LegID leg_id) const;
 
   void AddCogTrajectory(MarkerArray& msg,
-                     const VecSpline& splines,
-                     const std::vector<xpp::hyq::Foothold>& H_footholds,
-                     const std::string& rviz_namespace,
-                     double alpha = 1.0) const;
+                        const ComMotion&,
+                        const MotionStructure&,
+                        const VecFoothold&,
+                        const std::string& rviz_namespace,
+                        double alpha = 1.0) const;
 
   void AddZmpTrajectory(MarkerArray& msg,
-                     const VecSpline& splines,
-                     double walking_height,
-                     const std::vector<xpp::hyq::Foothold>& H_footholds,
-                     const std::string& rviz_namespace,
-                     double alpha = 1.0) const;
+                      const ComMotion&,
+                      const MotionStructure&,
+                      double walking_height,
+                      const VecFoothold&,
+                      const std::string& rviz_namespace,
+                      double alpha = 1.0) const;
 
-  void AddFootholds(
-      MarkerArray& msg,
-      const VecFoothold& H_footholds,
-      const std::string& rviz_namespace,
-      int32_t type = visualization_msgs::Marker::SPHERE,
-      double alpha = 1.0) const;
+  void AddFootholds(MarkerArray& msg,
+                    const VecFoothold& H_footholds,
+                    const std::string& rviz_namespace,
+                    int32_t type = visualization_msgs::Marker::SPHERE,
+                    double alpha = 1.0) const;
 
   void AddLineStrip(MarkerArray& msg,
                     double center_x, double width_x,
                     const std::string& rviz_namespace) const;
 
-  void AddEllipse(visualization_msgs::MarkerArray& msg,
+  void AddEllipse(MarkerArray& msg,
                   double center_x, double center_y,
                   double width_x, double width_y,
                   const std::string& rviz_namespace) const;
 private:
   Marker GenerateMarker(Vector2d pos, int32_t type, double size) const;
-
   std_msgs::ColorRGBA GetLegColor(xpp::hyq::LegID leg) const;
-
   const std::string frame_id_ = "world";
 };
 
 } /* namespace ros */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_PUBLISHER_H_ */
+#endif /* XPP_OPT_INCLUDE_MARKER_ARRAY_BUILDER_H_ */

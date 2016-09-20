@@ -38,7 +38,7 @@ protected:
                                 SplineTimes(t_swing, t_stance_initial));
   }
 
-  ContinuousSplineContainer cont_spline_container_;
+  ComSpline4 cont_spline_container_;
   double t_stance_initial = 1.2;
   double t_swing = 0.75; // muss .2, .4, .6, ..sein
   double walking_height = 0.58;
@@ -48,10 +48,10 @@ protected:
 };
 
 
-TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
+TEST_F(ZeroMomentPointTest, GetLinearApproxWrtMotionCoeff)
 {
   // create a random spline with pos, vel equal at spline juntions
-  std::vector<ZmpSpline> splines = cont_spline_container_.GetSplines(); // get ids and durations
+  std::vector<ComPolynomial> splines = cont_spline_container_.GetPolynomials(); // get ids and durations
   Eigen::VectorXd abcd(cont_spline_container_.GetTotalFreeCoeff());
   CoeffValues coeff;
 
@@ -65,8 +65,8 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
   coeff.y[F] = init_pos.y();
   splines.front().SetSplineCoefficients(coeff);
   for (const SplineCoeff c : FreeSplineCoeff) {
-    abcd(ContinuousSplineContainer::Index(0, X, c)) = coeff.x[c];
-    abcd(ContinuousSplineContainer::Index(0, Y, c)) = coeff.y[c];
+    abcd(ComSpline4::Index(0, X, c)) = coeff.x[c];
+    abcd(ComSpline4::Index(0, Y, c)) = coeff.y[c];
   }
 
   // shorthand for spline durations
@@ -93,15 +93,15 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
 
     splines.at(spline).SetSplineCoefficients(coeff);
     for (const SplineCoeff c : FreeSplineCoeff) {
-      abcd(ContinuousSplineContainer::Index(spline, X, c)) = coeff.x[c];
-      abcd(ContinuousSplineContainer::Index(spline, Y, c)) = coeff.y[c];
+      abcd(ComSpline4::Index(spline, X, c)) = coeff.x[c];
+      abcd(ComSpline4::Index(spline, Y, c)) = coeff.y[c];
     }
   }
 
 
   // expresses zero moment point only depending on initial pos and velocity
   // and a,b,c,d coefficients of spline
-  auto ZmpMap = &ZeroMomentPoint::ExpressZmpThroughCoefficients;
+  auto ZmpMap = &ZeroMomentPoint::GetLinearApproxWrtMotionCoeff;
   MatVec x_zmp_map = ZmpMap(cont_spline_container_,walking_height,X);
   MatVec y_zmp_map = ZmpMap(cont_spline_container_,walking_height,Y);
   // with the initial conditions and the abcd coefficients, calculate the zmp
@@ -116,7 +116,7 @@ TEST_F(ZeroMomentPointTest, ExpressZmpThroughCoefficients)
   int n = 0;
   for (double t : cont_spline_container_.GetDiscretizedGlobalTimes())
   {
-    xpp::utils::Point2d cog_xy = ContinuousSplineContainer::GetCOGxy(t, splines);
+    xpp::utils::Point2d cog_xy = ComSpline4::GetCOGxy(t, splines);
     Eigen::Vector2d zmp_true = ZeroMomentPoint::CalcZmp(cog_xy.Make3D(), walking_height);
 
     SCOPED_TRACE("n = " + std::to_string(n));

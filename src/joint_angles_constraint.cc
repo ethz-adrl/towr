@@ -7,7 +7,7 @@
 
 #include <xpp/zmp/joint_angles_constraint.h>
 #include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/spline_container.h>
+#include "../include/xpp/zmp/com_spline6.h"
 
 namespace xpp {
 namespace zmp {
@@ -28,6 +28,16 @@ JointAnglesConstraint::Init (const Interpreter& interpreter,
 {
   interpreter_ = interpreter;
   inv_kin_ = inv_kin;
+
+  double t_total = interpreter_.GetSplineStructure()->GetTotalTime();
+
+  double t = 0.0;
+  double dt = 0.1;
+  while (t < t_total) {
+    vec_t_.push_back(t);
+    t += dt;
+  }
+
 }
 
 void
@@ -36,13 +46,13 @@ JointAnglesConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   VectorXd x_coeff      = opt_var->GetVariables(VariableNames::kSplineCoeff);
   VectorXd footholds_xy = opt_var->GetVariables(VariableNames::kFootholds);
 
-  // calculate interpreted values from the optimization values
-  VecFoothold footholds = interpreter_.GetFootholds(utils::ConvertEigToStd(footholds_xy));
-  VecSpline splines     = interpreter_.GetSplines(x_coeff);
+  interpreter_.SetFootholds(utils::ConvertEigToStd(footholds_xy));
+  interpreter_.SetSplineCoefficients(x_coeff);
 
-  vec_t_ = SplineContainer::GetDiscretizedGlobalTimes(splines);
   stance_feet_calc_.Update(interpreter_.GetStartStance(),
-                           footholds, splines, interpreter_.GetRobotHeight());
+                           interpreter_.GetFootholds(),
+                           interpreter_.GetSplineStructure(),
+                           interpreter_.GetRobotHeight());
 }
 
 JointAnglesConstraint::VectorXd

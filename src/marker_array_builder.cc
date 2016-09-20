@@ -6,11 +6,8 @@
  */
 
 #include <xpp/ros/marker_array_builder.h>
-
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/continuous_spline_container.h>
 #include <xpp/zmp/zero_moment_point.h>
-
 
 namespace xpp {
 namespace ros {
@@ -19,13 +16,11 @@ MarkerArrayBuilder::MarkerArrayBuilder()
 {
 }
 
-
 void MarkerArrayBuilder::AddStartStance(visualization_msgs::MarkerArray& msg,
                                         const VecFoothold& start_stance) const
 {
-  AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::SPHERE, 1.0);
+  AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::SPHERE, 0.7);
 }
-
 
 void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
                                       const VecFoothold& start_stance,
@@ -39,9 +34,8 @@ void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg
   supp = support_polygon_container.GetSupportPolygons();
 
   for (uint i=0; i<supp.size(); ++i)
-    BuildSupportPolygon(msg, supp.at(i).footholds_conv_, footholds.at(i).leg);
+    BuildSupportPolygon(msg, supp.at(i).GetFootholds(), footholds.at(i).leg);
 }
-
 
 void
 MarkerArrayBuilder::BuildSupportPolygon(
@@ -89,22 +83,25 @@ MarkerArrayBuilder::BuildSupportPolygon(
 //  ros__publisher_.publish(polygon_msg);
 }
 
-
-void MarkerArrayBuilder::AddGoal(
+void MarkerArrayBuilder::AddPoint(
     visualization_msgs::MarkerArray& msg,
-    const Eigen::Vector2d& goal)
+    const Eigen::Vector2d& goal,
+    std::string rviz_namespace,
+    int marker_type)
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
 
   Marker marker;
   marker.id = i;
-  marker = GenerateMarker(goal, visualization_msgs::Marker::CYLINDER, 0.03);
-  marker.ns = "goal";
+  marker = GenerateMarker(goal, marker_type, 0.03);
+  marker.ns = rviz_namespace;
   marker.scale.z = 0.1;
-  marker.color.a = 0.5;
+  marker.color.a = 1.0;
+  marker.color.r = 1.0;
+  marker.color.g = 1.0;
+  marker.color.b = 1.0;
   msg.markers.push_back(marker);
 }
-
 
 visualization_msgs::Marker
 MarkerArrayBuilder::GenerateMarker(Eigen::Vector2d pos, int32_t type, double size) const
@@ -186,25 +183,20 @@ MarkerArrayBuilder::AddEllipse(visualization_msgs::MarkerArray& msg,
   msg.markers.push_back(ellipse);
 }
 
-
-
-
 void
 MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
-                            const VecSpline& splines,
+                            const ComMotion& com_motion,
+                            const MotionStructure& motion_structure,
                             const std::vector<xpp::hyq::Foothold>& H_footholds,
                             const std::string& rviz_namespace,
                             double alpha) const
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
 
-  for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= 0.02)
+  for (double t(0.0); t < com_motion.GetTotalTime(); t+= 0.02)
   {
-
-    xpp::utils::Point2d cog_state = SplineContainer::GetCOGxy(t, splines);
-    int id = SplineContainer::GetSplineID(t, splines);
-
-
+    auto cog_state = com_motion.GetCom(t);
+    auto phase = motion_structure.GetCurrentPhase(t);
 
     visualization_msgs::Marker marker;
     marker = GenerateMarker(cog_state.p.segment<2>(0),
@@ -213,14 +205,10 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
     marker.id = i++;
     marker.ns = rviz_namespace;
 
-
-    bool four_legg_support = splines.at(id).IsFourLegSupport();
-    if ( four_legg_support ) {
-      marker.color.r = marker.color.g = marker.color.b = 0.1;
-      if (id == 0)
-        marker.color.g = marker.color.b = 1.0;
+    if ( !phase.IsStep() ) {
+      marker.color.r = marker.color.g = marker.color.b = 1.0;
     } else {
-      int step = splines.at(id).GetCurrStep();
+      int step = phase.n_completed_steps_;
       xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
       marker.color = GetLegColor(swing_leg);
     }
@@ -230,23 +218,23 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
   }
 }
 
-
 void
 MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
-                            const VecSpline& splines,
-                            double walking_height,
-                            const std::vector<xpp::hyq::Foothold>& H_footholds,
-                            const std::string& rviz_namespace,
-                            double alpha) const
+                                     const ComMotion& com_motion,
+                                     const MotionStructure& motion_structure,
+                                     double walking_height,
+                                     const std::vector<xpp::hyq::Foothold>& H_footholds,
+                                     const std::string& rviz_namespace,
+                                     double alpha) const
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
-  for (double t(0.0); t < SplineContainer::GetTotalTime(splines); t+= 0.1)
+  for (double t(0.0); t < com_motion.GetTotalTime(); t+= 0.01)
   {
-    xpp::utils::Point2d cog_state = SplineContainer::GetCOGxy(t, splines);
+    xpp::utils::Point2d cog_state = com_motion.GetCom(t);
 
     Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height);
 
-    int id = SplineContainer::GetSplineID(t, splines);
+    auto phase = motion_structure.GetCurrentPhase(t);
 
     visualization_msgs::Marker marker;
     marker = GenerateMarker(zmp,
@@ -256,12 +244,10 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     marker.ns = rviz_namespace;
     marker.id = i++;
 
-    if ( splines.at(id).IsFourLegSupport() ) {
+    if ( !phase.IsStep() ) {
       marker.color.r = marker.color.g = marker.color.g = 0.1;
-      if (id == 0)
-        marker.color.g = marker.color.b = 1.0;
     } else {
-      int step = splines.at(id).GetCurrStep();
+      int step = phase.n_completed_steps_;
       xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
       marker.ns = "leg " + std::to_string(swing_leg);
       marker.color = GetLegColor(swing_leg);
@@ -271,7 +257,6 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     msg.markers.push_back(marker);
   }
 }
-
 
 void MarkerArrayBuilder::AddFootholds(
     visualization_msgs::MarkerArray& msg,
@@ -337,7 +322,6 @@ void MarkerArrayBuilder::AddFootholds(
   }
 }
 
-
 std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(xpp::hyq::LegID leg) const
 {
   // define a few colors
@@ -375,5 +359,3 @@ std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(xpp::hyq::LegID leg) const
 
 } /* namespace ros */
 } /* namespace xpp */
-
-

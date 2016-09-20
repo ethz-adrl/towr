@@ -10,12 +10,11 @@
 
 #include <xpp/hyq/hyq_state.h>
 #include <xpp/utils/spliner_3d.h>
-#include <xpp/zmp/zmp_spline.h>
-
+#include <xpp/zmp/phase_info.h>
+#include <xpp/zmp/com_polynomial.h>
 
 namespace xpp {
 namespace hyq {
-
 
 struct SplineNode {
   typedef xpp::utils::Point3d Point3d;
@@ -29,8 +28,6 @@ struct SplineNode {
   double T;         // time to reach this state
 };
 
-
-
 /**
 @brief Splines the base pose (only z-position + orientation).
 
@@ -40,8 +37,7 @@ frame values omega (rollPitchYawToEar)
  */
 class HyqSpliner {
 public:
-  typedef xpp::zmp::ZmpSpline ZmpSpline;
-  typedef std::vector<ZmpSpline> VecZmpSpline;
+  typedef std::vector<xpp::zmp::ComPolynomial> VecPolyomials;
   typedef Eigen::Vector3d Vector3d;
   typedef Foothold::VecFoothold VecFoothold;
   typedef ::xpp::utils::QuinticSpliner Spliner;
@@ -54,8 +50,11 @@ public:
 
 
   void SetParams(double upswing, double lift_height, double outward_swing_distance);
-  void Init(const HyqState& P_init, const VecZmpSpline& zmp_splines,
-            const VecFoothold& footholds, double robot_height);
+  void Init(const HyqState& P_init,
+            const xpp::zmp::PhaseVec&,
+            const VecPolyomials&,
+            const VecFoothold&,
+            double robot_height);
 
   /**
    * These function access the intermediate splined states fo the robot
@@ -65,16 +64,17 @@ public:
   void FillCurrFeet(double t_global, LegDataMap<Point>& feet, LegDataMap<bool>& swingleg) const;
 
 
-
   double GetTotalTime() const;
   SplineNode GetGoalNode(double t_global) const;
   SplineNode GetNode(int node) const { return nodes_.at(node); };
+  SplineNode GetLastNode() const { return nodes_.back(); };
+  bool HasNodes() const { return !nodes_.empty(); };
 
 private:
   std::vector<SplineNode> nodes_; // the discrete states to spline through
   std::vector<Spliner3d> pos_spliner_, ori_spliner_;
   std::vector<LegDataMap< Spliner3d > > feet_spliner_up_, feet_spliner_down_;
-  VecZmpSpline optimized_xy_spline_;
+  VecPolyomials optimized_xy_spline_;
 
   double kUpswingPercent;       // how long to swing up during swing
   double kLiftHeight;           // how high to lift the leg
@@ -85,11 +85,12 @@ private:
 
   Vector3d GetCurrZState(double t_global) const;
 
-
-  static std::vector<SplineNode> BuildStateSequence(const HyqState& P_init,
-                                            const VecZmpSpline& zmp_splines,
-                                            const VecFoothold& footholds,
-                                            double robot_height);
+  std::vector<SplineNode>
+  BuildPhaseSequence(const HyqState& P_init,
+                     const xpp::zmp::PhaseVec&,
+                     const VecPolyomials& optimized_xy_spline,
+                     const VecFoothold& footholds,
+                     double robot_height);
 
   void CreateAllSplines(const std::vector<SplineNode>& nodes);
 

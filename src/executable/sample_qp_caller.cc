@@ -6,6 +6,8 @@
  */
 
 #include <xpp/ros/ros_helpers.h>
+#include <xpp/zmp/com_spline6.h>
+#include <xpp/zmp/motion_structure.h>
 
 #include <xpp_opt/RequiredInfoQp.h>          // send
 #include <xpp_opt/OptimizedParametersQp.h>   // receive
@@ -14,8 +16,9 @@
 
 typedef xpp_opt::RequiredInfoQp ReqInfoMsg;
 typedef xpp_opt::OptimizedParametersQp OptimizedParametersMsg;
+using MotionStructure = xpp::zmp::MotionStructure;
 
-xpp::zmp::SplineContainer::VecSpline splines;
+xpp::zmp::ComSpline6::VecPolynomials splines;
 std::vector<xpp::hyq::Foothold> footholds;
 void OptParamsCallback(const OptimizedParametersMsg& msg)
 {
@@ -60,11 +63,13 @@ int main(int argc, char **argv)
   msg.steps.push_back(RosHelpers::XppToRos(Foothold( 0.35 + step_length,  0.3, 0.0, LF)));
   msg.steps.push_back(RosHelpers::XppToRos(Foothold(-0.35 + step_length, -0.3, 0.0, RH)));
   msg.steps.push_back(RosHelpers::XppToRos(Foothold( 0.35 + step_length, -0.3, 0.0, RF)));
+  // this 5th step is neccessary, so a goal position of x+=0.25 can be reached,
+  // as the last step's (RF) support polygon otherwise can't be used
+  msg.steps.push_back(RosHelpers::XppToRos(Foothold(-0.35 + 2*step_length, 0.3, 0.0, LH)));
 
   msg.start_with_com_shift = true;
 
   current_info_pub.publish(msg);
-
 
 
   xpp::ros::MarkerArrayBuilder marker_builder;
@@ -77,8 +82,8 @@ int main(int argc, char **argv)
 
     visualization_msgs::MarkerArray marker_msg;
     marker_builder.AddFootholds(marker_msg, RosHelpers::RosToXpp(msg.steps), "footholds", visualization_msgs::Marker::CUBE, 1.0);
-    marker_builder.AddCogTrajectory(marker_msg, splines, RosHelpers::RosToXpp(msg.steps), "cog", 1.0);
-    marker_builder.AddZmpTrajectory(marker_msg, splines, walking_height, RosHelpers::RosToXpp(msg.steps), "zmp_4ls", 0.7);
+//    marker_builder.AddCogTrajectory(marker_msg, splines, RosHelpers::RosToXpp(msg.steps), "cog", 1.0);
+//    marker_builder.AddZmpTrajectory(marker_msg, splines, walking_height, RosHelpers::RosToXpp(msg.steps), "zmp_4ls", 0.7);
 
     ros_publisher_.publish(marker_msg);
     loop_rate.sleep();

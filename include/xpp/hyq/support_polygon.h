@@ -21,63 +21,71 @@ static const int kSideTypeCount = 4;
 enum SideTypes {FRONT = 0, HIND, SIDE, DIAG};
 typedef std::array<double, kSideTypeCount> MarginValues;
 
-/**
-@brief Defines a triangle created by footholds that affects stability.
- */
+/** Creates Support Lines from Footholds for HyQ.
+  */
 class SupportPolygon {
 public:
+  using VecFoothold = std::vector<Foothold>;
+  using Vector2d = Eigen::Vector2d;
+
   struct SuppLine {
-    utils::LineCoeff2d coeff;
+    Foothold from, to;
     double s_margin;
-    bool fixed_by_start_stance;
+
+    double GetDistanceToPoint(const Vector2d& p) const;
   };
 
-  typedef std::vector<SuppLine> VecSuppLine;
-  typedef std::vector<Foothold> VecFoothold;
-  typedef Eigen::Vector2d Vector2d;
+  using VecSuppLine = std::vector<SuppLine>;
 
-  enum MaxSidesType   { kMaxSides = 4 };
-
-public:
   SupportPolygon() {};
   SupportPolygon(const VecFoothold& footholds, const MarginValues& margins = GetZeroMargins());
   virtual ~SupportPolygon() {};
 
-  VecSuppLine CalcLines() const;
+  /** sorts the footholds starting with LH -> RH -> RF -> LF
+    *
+    * This allows to create the support lines with correct direction f1->f2.
+    * However, it assumes that HyQ will never stand in a way that the legs
+    * are crossed (e.g support polygon flips).
+    */
+  static void SortCounterclockWise(VecFoothold&);
+  static void SortCounterclockWise(std::vector<LegID>&);
+
+  VecSuppLine GetLines() const;
+  bool IsPointInside(const Vector2d& p) const;
+
+  VecFoothold GetFootholds() const;
+  MarginValues GetMargins() const;
+
   static MarginValues GetDefaultMargins();
   static MarginValues GetZeroMargins();
 
-  bool IsPointInside(const Vector2d& p) const;
-
-
-  VecFoothold footholds_; // all the contact points for this support polygon
-  MarginValues margins_;
-  VecFoothold footholds_conv_; // only the convex footholds if some are not relevant for support polygon
-
-
-  static SupportPolygon CombineSupportPolygons(const SupportPolygon& p1,
-                                               const SupportPolygon& p2);
 private:
+  VecFoothold sorted_footholds_;
+  MarginValues margins_;
 
-  VecFoothold BuildSortedConvexHull(const VecFoothold& footholds) const;
   double UseMargin(const LegID& f0, const LegID& f1) const;
   friend std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr);
+//  /** sort points so inequality constraints are on correct side of line later **/
+//  VecFoothold BuildSortedConvexHull(const VecFoothold& footholds) const;
+//  static SupportPolygon CombineSupportPolygons(const SupportPolygon& p1,
+//                                               const SupportPolygon& p2);
 };
-
-inline std::ostream& operator<<(std::ostream& out, const SupportPolygon::SuppLine& line)
-{
-  out << "line:"
-      << "\tcoeff: p="  << line.coeff.p << ", q=" << line.coeff.q << ", r=" << line.coeff.r
-      << ", margin: " << line.s_margin;
-
-  return out;
-}
 
 inline std::ostream& operator<<(std::ostream& out, const SupportPolygon& tr)
 {
   out <<"margins[front,hind,side,diag]=" << tr.margins_[0] << ", " << tr.margins_[1] << ", " << tr.margins_[2] << ", " << tr.margins_[3] << "\n";
-  for (const Foothold& f : tr.footholds_conv_)
+  for (const Foothold& f : tr.sorted_footholds_)
     out  << f << "\n";
+  return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const SupportPolygon::SuppLine& line)
+{
+  out << "line:"
+      << "\tfrom: " << line.from
+      << "\tto: "   << line.to
+      << ", margin: " << line.s_margin;
+
   return out;
 }
 

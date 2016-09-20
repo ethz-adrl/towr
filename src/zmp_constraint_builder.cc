@@ -1,174 +1,273 @@
-/*
- * zmp_constraint.cc
- *
- *  Created on: Apr 4, 2016
- *      Author: winklera
+/**
+ @file    zmp_contraint_builder.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Defines the ZmpConstraintBuilder class
  */
 
 #include <xpp/zmp/zmp_constraint_builder.h>
 
+#include <xpp/zmp/com_motion.h>
+#include <xpp/hyq/support_polygon_container.h>
+
+#include <xpp/zmp/zero_moment_point.h>
+#include <xpp/utils/line_equation.h>
+
 namespace xpp {
 namespace zmp {
 
-ZmpConstraintBuilder::ZmpConstraintBuilder(const ContinuousSplineContainer& spline_container, double walking_height)
+using NodeConstraints = xpp::hyq::SupportPolygon::VecSuppLine;
+using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
+
+using namespace xpp::utils::coords_wrapper; // X, Y
+
+ZmpConstraintBuilder::ZmpConstraintBuilder()
 {
-  Init(spline_container, walking_height);
+  com_motion_   = nullptr;
+  contacts_     = nullptr;
+}
+
+ZmpConstraintBuilder::~ZmpConstraintBuilder()
+{
 }
 
 void
-ZmpConstraintBuilder::Init(const ContinuousSplineContainer& spline_container, double walking_height)
+ZmpConstraintBuilder::Init(const MotionStructure& structure,
+                           const ComMotion& com_motion,
+                           const SupportPolygonContainer& supp,
+                           double walking_height,
+                           double dt)
 {
-  spline_structure_ = spline_container;
+  motion_structure_ = structure;
+  motion_structure_.SetDisretization(dt);
+  com_motion_ = com_motion.clone();
+  contacts_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
+  support_polygon_per_phase_ = contacts_->AssignSupportPolygonsToPhases(motion_structure_.GetPhases());
+  walking_height_ = walking_height;
 
-  using namespace xpp::utils::coords_wrapper;
-  x_zmp_map_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(spline_structure_, walking_height, X);
-  y_zmp_map_ = ZeroMomentPoint::ExpressZmpThroughCoefficients(spline_structure_, walking_height, Y);
+  double t_switch = 0.1; // the timeframe at which the constraint is relaxed
 
-  initialized_ = true;
+  // refactor remove this, all info contained in motion_info_
+  times_ = GetTimesForConstraitEvaluation(dt, t_switch);
+
+  // set coefficients to zero, since that is where I am approximating the function
+  //around. can only do this in initialization, because ZMP is linear, so
+  // Jacobians and offset are independent of current coefficients.
+  com_motion_->SetCoefficientsZero();
+  ZeroMomentPoint zmp(*com_motion_, times_, walking_height);
+  jac_zmpx_0_ = zmp.GetJacobianWrtCoeff(X);
+  jac_zmpy_0_ = zmp.GetJacobianWrtCoeff(Y);
+
+  int n_motion = com_motion_->GetTotalFreeCoeff();
+  int n_contacts = contacts_->GetTotalFreeCoeff();
+
+  n_constraints_ = GetNumberOfConstraints();
+  jac_wrt_motion_   = Jacobian(n_constraints_, n_motion);
+  jac_wrt_contacts_ = Jacobian(n_constraints_, n_contacts);
+
+  variables_changed_ = true;
 }
 
-ZmpConstraintBuilder::MatVecVec
-ZmpConstraintBuilder::CalcZmpConstraints(const SupportPolygonContainer& s) const
+std::vector<double>
+ZmpConstraintBuilder::GetTimesDisjointSwitches () const
 {
-  CheckIfInitialized();
-  return CalcZmpConstraints(x_zmp_map_, y_zmp_map_, s);
-};
+  std::vector<double> t_disjoint_switches;
+  double t_global = 0;
 
-ZmpConstraintBuilder::MatVecVec
-ZmpConstraintBuilder::CalcZmpConstraints(const MatVec& x_zmp, const MatVec& y_zmp,
-                                  const SupportPolygonContainer& supp_polygon_container) const
+  auto phases = motion_structure_.GetPhases();
+  for(int i=0; i<phases.size()-1; ++i) {
+
+    auto phase = phases.at(i);
+    t_global += phase.duration_;
+
+    bool curr_phase_is_step = phase.IsStep();
+    bool next_phase_is_step = phases.at(i+1).IsStep();
+
+    if (curr_phase_is_step && next_phase_is_step) {
+      int step = phase.n_completed_steps_;
+      auto curr_leg = contacts_->GetLegID(step);
+      auto next_leg = contacts_->GetLegID(step+1);
+
+      if (SupportPolygonContainer::DisJointSupportPolygons(curr_leg, next_leg))
+        t_disjoint_switches.push_back(t_global);
+
+    }
+  }
+
+  return t_disjoint_switches;
+}
+
+std::vector<double>
+ZmpConstraintBuilder::GetTimesForConstraitEvaluation (double dt, double t_cross) const
 {
-  std::vector<NodeConstraint> supp_lines = supp_polygon_container.GetActiveConstraintsForEachStep(spline_structure_.GetSplines());
+  std::vector<double> t_switch = GetTimesDisjointSwitches();
+  bool skip_timestep = false;
 
-  // if every spline is a four leg support spline with 4 line constraints
-  const int max_num_constraints = spline_structure_.GetTotalNodes()*SupportPolygon::kMaxSides;
-  int coeff = spline_structure_.GetTotalFreeCoeff();
-  MatVecVec ineq(max_num_constraints, coeff);
+  double T_first_phase = motion_structure_.GetPhases().front().duration_;
+
+  std::vector<double> t_constraint;
+
+  // allow the zmp to be outside of the support polygon the entire first
+  // swingphase and then catch itself
+  // refactor don't forget, ignoring ZMP for part of first step
+  double t = t_cross/2.; //T_first_phase + dt; // t_cross
+  double t_total = com_motion_->GetTotalTime();
+  while (t <= t_total) {
+    skip_timestep = false;
+    for (auto ts : t_switch) {
+      bool time_close_to_switch = std::abs(t - ts) < t_cross/2.0;
+      if (time_close_to_switch) { // don't add point in vicinity of t_cross
+        t += dt;
+        skip_timestep = true;
+      }
+    }
+
+    if (skip_timestep) continue;
+
+    t_constraint.push_back(t);
+    t += dt;
+  }
+
+  return t_constraint;
+}
+
+void
+ZmpConstraintBuilder::Update (const VectorXd& motion_coeff,
+                              const VectorXd& footholds)
+{
+  com_motion_->SetCoefficients(motion_coeff);
+  contacts_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
+  support_polygon_per_phase_ = contacts_->AssignSupportPolygonsToPhases(motion_structure_.GetPhases());
+
+  variables_changed_ = true;
+}
+
+int
+ZmpConstraintBuilder::GetNumberOfConstraints () const
+{
+  int n_constraints = 0;
+  for (auto t : times_) {
+    int phase_id  = motion_structure_.GetCurrentPhase(t).id_;
+    NodeConstraints supp_line = support_polygon_per_phase_.at(phase_id).GetLines();
+    n_constraints += supp_line.size();
+  }
+
+  return n_constraints;
+}
+
+void
+ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
+                                       Jacobian& jac_contacts) const
+{
+  int n_contacts = contacts_->GetTotalFreeCoeff();
 
   int n = 0; // node counter
   int c = 0; // inequality constraint counter
 
-  for (double t_global : spline_structure_.GetDiscretizedGlobalTimes()) {
-    int id = spline_structure_.GetSplineID(t_global);
 
-    if (DisjSuppSwitch(t_global, spline_structure_.GetSpline(id), supp_polygon_container)) {
-      n++; // no constraints
-      continue;
+    for (auto t : times_) {
+//  for (auto node_new : motion_structure_.GetContactInfoVec()) {
+
+    // the current position of the zero moment point
+
+    auto state = com_motion_->GetCom(t/*node_new.time_*/);
+    auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
+
+
+    int phase_id  = motion_structure_.GetCurrentPhase(t/*node_new.time_*/).id_;
+    NodeConstraints node = support_polygon_per_phase_.at(phase_id).GetLines();
+
+
+//    hyq::SupportPolygon::SortCounterclockWise(node_new.legs_);
+
+
+
+    for (int i=0; i<node.size(); ++i) {
+
+      auto f_from = node.at(i).from;
+      auto f_to = node.at(i).to;
+
+
+      // get the jacobian of the line coefficient of each line
+      utils::LineEquation::JacobianRow jac_line;
+      // refactor do this only when phase change -> efficiency
+      utils::LineEquation line(f_from.p.segment<2>(X), f_to.p.segment<2>(X));
+      jac_line = line.GetJacobianDistanceWrtPoints(zmp);
+
+      JacobianRow jac_line_wrt_contacts(n_contacts);
+      jac_line_wrt_contacts.reserve(4); // every line depends on 4 points
+
+      // reason, sparsity structure changes between calls
+//      std::cout << f_from.id << "->" << f_to.id << "  ,  ";
+
+      // only if line is not fixed by start stance does it go into the jacobian
+      if (f_from.id != hyq::Foothold::kFixedByStart) {
+        jac_line_wrt_contacts.insert(contacts_->Index(f_from.id, X)) = jac_line(0);
+        jac_line_wrt_contacts.insert(contacts_->Index(f_from.id, Y)) = jac_line(1);
+      }
+
+      if (f_to.id != hyq::Foothold::kFixedByStart) {
+        jac_line_wrt_contacts.insert(contacts_->Index(f_to.id, X))   = jac_line(2);
+        jac_line_wrt_contacts.insert(contacts_->Index(f_to.id, Y))   = jac_line(3);
+      }
+
+      auto coeff = line.GetCoeff();
+      // this line really impacts performance
+      jac_motion.row(c)   = coeff.p*jac_zmpx_0_.row(n) + coeff.q*jac_zmpy_0_.row(n);
+      jac_contacts.row(c) = jac_line_wrt_contacts;
+      c++;
     }
 
-    GenerateNodeConstraint(supp_lines.at(id), x_zmp.GetRow(n), y_zmp.GetRow(n), c, ineq);
-
     n++;
-    c += SupportPolygon::kMaxSides;
+
+  }
+}
+
+ZmpConstraintBuilder::VectorXd
+ZmpConstraintBuilder::GetDistanceToLineMargin () const
+{
+  VectorXd distance = VectorXd::Zero(n_constraints_);
+
+  // for every time t
+  int c=0; // constraint counter
+  for (const auto& t : times_) {
+
+    // the current position of the zero moment point
+    auto state = com_motion_->GetCom(t);
+    auto zmp = ZeroMomentPoint::CalcZmp(state.Make3D(), walking_height_);
+
+    int phase_id  = motion_structure_.GetCurrentPhase(t).id_;
+    NodeConstraints supp_line = support_polygon_per_phase_.at(phase_id).GetLines();
+
+    for (auto i=0; i<supp_line.size(); ++i)
+      distance(c++) = supp_line.at(i).GetDistanceToPoint(zmp);
   }
 
-  assert(c <= max_num_constraints);
-//  assert((n == x_zmp.M.rows()) && (n == y_zmp.M.rows())); // don't need constraint for every node
-  return ineq;
+  return distance;
+}
+
+ZmpConstraintBuilder::Jacobian
+ZmpConstraintBuilder::GetJacobianWrtMotion () const
+{
+  CheckAndUpdateJacobians();
+  return jac_wrt_motion_;
+}
+
+ZmpConstraintBuilder::Jacobian
+ZmpConstraintBuilder::GetJacobianWrtContacts () const
+{
+  CheckAndUpdateJacobians();
+  return jac_wrt_contacts_;
 }
 
 void
-ZmpConstraintBuilder::GenerateNodeConstraint(const NodeConstraint& node_constraints,
-                                      const VecScalar& x_zmp,
-                                      const VecScalar& y_zmp,
-                                      int row_start,
-                                      MatVecVec& ineq)
+ZmpConstraintBuilder::CheckAndUpdateJacobians () const
 {
-  // add three or four line constraints depending on if support triange/ support polygon etc
-  for (SupportPolygon::SuppLine l : node_constraints) {
-    VecScalarScalar constr = GenerateLineConstraint(l, x_zmp, y_zmp);
-    ineq.WriteRow(constr,row_start++);
-  }
-}
-
-ZmpConstraintBuilder::VecScalarScalar
-ZmpConstraintBuilder::GenerateLineConstraint(const SupportPolygon::SuppLine& l,
-                                      const VecScalar& x_zmp,
-                                      const VecScalar& y_zmp)
-{
-  VecScalarScalar line_constr_sep;
-  // separate the constraints that depend only on the start stance with the ones
-  // that depend on the optimized footholds
-  line_constr_sep.vs.v  = l.coeff.p*x_zmp.v + l.coeff.q*y_zmp.v;
-  line_constr_sep.vs.s = 0;
-  line_constr_sep.constant = -l.s_margin;
-
-  double line_coeff_terms = l.coeff.p*x_zmp.s + l.coeff.q*y_zmp.s + l.coeff.r;
-  if (l.fixed_by_start_stance)
-    line_constr_sep.constant += line_coeff_terms;
-  else
-    line_constr_sep.vs.s += line_coeff_terms;
-
-  return line_constr_sep;
-}
-
-bool
-ZmpConstraintBuilder::DisjSuppSwitch (double t, const ZmpSpline& curr_spline,
-                                      const SupportPolygonContainer& supp_polygon_container) const
-{
-  if (!curr_spline.IsFourLegSupport()) {
-
-    int step = curr_spline.GetCurrStep();
-    double t_local = spline_structure_.GetLocalTime(t);
-    static const double t_stance = 0.2; // time to switch between disjoint support triangles
-    double t_start_local = curr_spline.GetDuration() - t_stance/2;
-
-    if (DisjointSuppPolygonsAtBeginning(step,supp_polygon_container) && t_local < t_stance/2.)
-      return true;
-    if (DisjointSuppPolygonsAtEnd(step,supp_polygon_container) && t_local > t_start_local)
-      return true;
-  }
-  return false;
-}
-
-bool
-ZmpConstraintBuilder::DisjointSuppPolygonsAtBeginning(
-    int step, const SupportPolygonContainer& supp_polygon_container) const
-{
-  LegID swing_leg = supp_polygon_container.GetLegID(step);
-  if (step == 0) {
-    return false; // don't allow initial zmp to violate constraint for first part of first step
-  } else {
-    LegID prev_swing_leg = supp_polygon_container.GetLegID(step-1);
-    return Insert4LSPhase(prev_swing_leg, swing_leg);
-  }
-}
-
-bool
-ZmpConstraintBuilder::DisjointSuppPolygonsAtEnd(
-    int step, const SupportPolygonContainer& supp_polygon_container) const
-{
-  LegID swing_leg = supp_polygon_container.GetLegID(step);
-  bool last_step = step == supp_polygon_container.GetNumberOfSteps()-1;
-  if (last_step) {
-    return true; // allow zmp to violate constraint at last part of last step
-  } else {
-    LegID next_swing_leg = supp_polygon_container.GetLegID(step+1);
-    return Insert4LSPhase(swing_leg, next_swing_leg);
-  }
-}
-
-bool
-ZmpConstraintBuilder::Insert4LSPhase(LegID prev, LegID next)
-{
-  using namespace xpp::hyq;
-  // check for switching between disjoint support triangles.
-  // the direction the robot is moving between triangles does not matter.
-  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-  std::swap(prev, next);
-  if ((prev==LF && next==RH) || (prev==RF && next==LH)) return true;
-
-  return false;
-}
-
-void
-ZmpConstraintBuilder::CheckIfInitialized() const
-{
-  if (!initialized_) {
-    throw std::runtime_error("ZmpConstraintBuilder not initialized. Call Init() first");
+  if (variables_changed_) {
+    UpdateJacobians(jac_wrt_motion_, jac_wrt_contacts_);
+    variables_changed_ = false;
   }
 }
 
 } /* namespace zmp */
 } /* namespace xpp */
-

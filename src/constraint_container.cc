@@ -69,7 +69,7 @@ ConstraintContainer::GetJacobian () const
 
       Jacobian jac = constraint->GetJacobianWithRespectTo(set->GetId());
 
-      // insert the derivative in the correct position in the overall jacobian
+      // insert the derivative in the correct position in the overall Jacobian
       for (int k=0; k<jac.outerSize(); ++k)
         for (Jacobian::InnerIterator it(jac,k); it; ++it)
           jacobian_->coeffRef(row+it.row(), col+it.col()) = it.value();
@@ -80,7 +80,6 @@ ConstraintContainer::GetJacobian () const
 
     row += constraint->GetNumberOfConstraints();
   }
-
   return jacobian_;
 }
 

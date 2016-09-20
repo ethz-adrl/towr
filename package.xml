@@ -47,10 +47,10 @@
   <build_depend>std_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>xpp_controller</build_depend>
+  <build_depend>hyq_inverse_kinematics</build_depend>
   
   <run_depend>std_msgs</run_depend>
   <run_depend>geometry_msgs</run_depend>
-  <run_depend>log4cxx</run_depend>
   <run_depend>message_runtime</run_depend>
   
   

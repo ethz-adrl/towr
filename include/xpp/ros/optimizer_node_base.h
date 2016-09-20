@@ -8,13 +8,12 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZER_NODE_BASE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZER_NODE_BASE_H_
 
+#include <xpp/zmp/phase_info.h>
+#include <xpp/zmp/com_polynomial.h>
 #include <xpp/utils/geometric_structs.h>
-#include <xpp/hyq/foothold.h>
-#include <xpp/zmp/spline_container.h>
 
-// custom msgs
+#include <xpp/hyq/foothold.h>
 #include <xpp_opt/StateLin3d.h>
-#include <keyboard/Key.h>
 
 #include <ros/ros.h>
 
@@ -23,36 +22,37 @@ namespace ros {
 
 class OptimizerNodeBase {
 public:
-  typedef xpp::utils::Point3d State;
-  typedef Eigen::VectorXd VectorXd;
-  typedef xpp::hyq::Foothold Foothold;
-  typedef std::vector<Foothold> VecFoothold;
-  typedef xpp_opt::StateLin3d StateMsg;
-  typedef xpp::zmp::SplineContainer::VecSpline VecSpline;
+  using State = xpp::utils::Point3d;
+  using VecFoothold = std::vector<xpp::hyq::Foothold>;
+  using StateMsg = xpp_opt::StateLin3d;
+  using PhaseVec = xpp::zmp::PhaseVec;
+  using VecSpline = std::vector<xpp::zmp::ComPolynomial>;
 
-public:
   OptimizerNodeBase ();
-  virtual
-  ~OptimizerNodeBase ();
+  virtual ~OptimizerNodeBase ();
+
+  virtual void OptimizeTrajectory() = 0;
+  virtual void PublishOptimizedValues() const = 0;
 
 protected:
   ::ros::NodeHandle n_;
   State goal_cog_;
   State curr_cog_;
   VecFoothold curr_stance_;
-  bool start_with_com_shift_; ///< whether to shift Center of Mass before lifting first leg
 
   VecSpline opt_splines_;
   VecFoothold footholds_;
+  PhaseVec motion_phases_;
 
-  xpp::zmp::SplineTimes spline_times_;
+  double t_swing_;
+  double t_stance_;
   double robot_height_;
 
 private:
   ::ros::Subscriber goal_state_sub_;
-  ::ros::Subscriber goal_key_sub_;
+  ::ros::ServiceClient goal_state_client_;
   void GoalStateCallback(const StateMsg& msg);
-  void GoalStateCallbackKeyboard(const keyboard::Key& msg);
+  bool CallService();
 };
 
 } /* namespace ros */
