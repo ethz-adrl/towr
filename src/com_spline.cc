@@ -32,9 +32,10 @@ ComSpline::Init (const PhaseVec& phases)
 
     if (!phase.IsStep())
     {
-      double t_reaction = 0.15;
-      polynomials_.push_back(ComPolynomial(id++, t_reaction));
-      polynomials_.push_back(ComPolynomial(id++, phase.duration_-t_reaction));
+//      double t_reaction = 0.15;
+//      polynomials_.push_back(ComPolynomial(id++, t_reaction));
+//      polynomials_.push_back(ComPolynomial(id++, phase.duration_-t_reaction));
+      polynomials_.push_back(ComPolynomial(id++, phase.duration_));
     } else
     {
       int n_splines_per_step = 1;
