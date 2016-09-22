@@ -13,6 +13,8 @@
 #include <xpp/zmp/phase_info.h>
 #include <xpp/zmp/com_polynomial.h>
 
+#include <xpp_opt/RobotStateTrajectoryCartesian.h>
+
 namespace xpp {
 namespace hyq {
 
@@ -43,6 +45,8 @@ public:
   typedef ::xpp::utils::QuinticSpliner Spliner;
   typedef ::xpp::utils::Spliner3d< Spliner > Spliner3d;
   typedef Spliner3d::Point Point;
+  using RobotStateTrajMsg = xpp_opt::RobotStateTrajectoryCartesian;
+  using RobotStateMsg     = xpp_opt::RobotStateCartesian;
 
 public:
   HyqSpliner() {};
@@ -55,6 +59,15 @@ public:
             const VecPolyomials&,
             const VecFoothold&,
             double robot_height);
+
+  void Init(const xpp::zmp::PhaseVec&,
+            const VecPolyomials&,
+            const VecFoothold&,
+            double robot_height);
+
+  RobotStateTrajMsg BuildWholeBodyTrajectory() const;
+
+
 
   /**
    * These function access the intermediate splined states fo the robot

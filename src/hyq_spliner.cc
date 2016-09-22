@@ -35,6 +35,82 @@ void HyqSpliner::Init(const HyqState& P_init,
   optimized_xy_spline_ = optimized_xy_spline;
 }
 
+void
+HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com_spline,
+                  const VecFoothold& contacts, double robot_height)
+{
+  // cmo this should not need to be explicitly defined, merge both Init functions
+  HyqState x0;
+  x0.ZeroVelAcc();
+  x0.base_.pos.p.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).p;
+  x0.base_.pos.v.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).v;
+  x0.base_.pos.a.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).a;
+  x0.base_.pos.p.z() = robot_height;
+
+  for (auto f : phase_info.at(0).fixed_contacts_) {
+    x0.feet_[f.leg].p = f.p;
+    x0.swingleg_[f.leg] = false;
+  }
+
+  Init(x0,phase_info,com_spline,contacts,robot_height);
+}
+
+HyqSpliner::RobotStateTrajMsg
+HyqSpliner::BuildWholeBodyTrajectory () const
+{
+  RobotStateTrajMsg msg;
+
+  double controller_loop_interval = 0.004; // 250Hz SL task servo
+
+
+  double t=0.0;
+  while (t<GetTotalTime()) {
+
+    LegDataMap<Point> feet;
+    LegDataMap<bool> swingleg;
+
+    auto pos  = GetCurrPosition(t);
+    auto ori  = GetCurrOrientation(t);
+    FillCurrFeet(t, feet, swingleg);
+
+
+
+
+    RobotStateMsg x;
+
+    // cmo write conversion from base pose to BaseState.msg
+    // cmo look at floating base state mgs written in hyqb_essentials.
+    // cmo use geometry_msgs/Twist.
+    // cmo use geometry_msgs/Accel.
+    // don't use ros inside this class
+    x.base.pose.position.x = pos.p.x();
+//    x.base.pos.position.y = pos.p.y();
+//    x.base.pos.position.z = pos.p.z();
+//
+//    x.base.vel_lin = pos.
+
+    // cmo write conversion for hyqState to RobotStateCartesian
+    x.endeffectors[LF].pos.x = feet[LF].p.x();
+    x.endeffectors[LF].vel.x = feet[LF].v.x();
+    x.endeffectors[LF].acc.x = feet[LF].a.x();
+
+
+
+
+
+
+
+    t += controller_loop_interval;
+
+  }
+
+
+
+  return msg;
+}
+
+
+
 std::vector<SplineNode>
 HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
                                const xpp::zmp::PhaseVec& phase_info,
@@ -317,8 +393,6 @@ HyqSpliner::FillCurrFeet(double t_global,
     swingleg[sl] = true;
   }
 }
-
-
 
 void HyqSpliner::BuildOneSegment(const SplineNode& from, const SplineNode& to,
                                  Spliner3d& pos, Spliner3d& ori,

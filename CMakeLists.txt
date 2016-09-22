@@ -58,6 +58,8 @@ add_message_files(
   OptimizedParametersNlp.msg
   RequiredInfoQp.msg
   OptimizedParametersQp.msg
+  # representing a complete optimized trajectory
+  BaseState.msg
   RobotStateCartesian.msg
   RobotStateTrajectoryCartesian.msg
 )

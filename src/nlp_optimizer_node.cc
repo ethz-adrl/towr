@@ -67,6 +67,8 @@ NlpOptimizerNode::OptimizeTrajectory()
   optimization_visualizer_.ClearOptimizedMarkers();
   optimization_visualizer_.VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
 
+
+  // cmo pull the "phase planner" out of the nlp facade
   nlp_facade_.SolveNlp(curr_cog_.Get2D(),
                        goal_cog_.Get2D(),
                        curr_swingleg_,
@@ -80,6 +82,10 @@ NlpOptimizerNode::OptimizeTrajectory()
   opt_splines_   = com_spline.GetPolynomials();
   footholds_     = nlp_facade_.GetFootholds();
   motion_phases_ = nlp_facade_.GetPhases();
+
+
+  // convert to full body state
+  whole_body_mapper_.Init(motion_phases_,opt_splines_,footholds_, robot_height_);
 
   optimization_visualizer_.Visualize();
 }
