@@ -58,6 +58,8 @@ add_message_files(
   OptimizedParametersNlp.msg
   RequiredInfoQp.msg
   OptimizedParametersQp.msg
+  RobotStateCartesian.msg
+  RobotStateTrajectoryCartesian.msg
 )
 add_service_files(
   FILES
