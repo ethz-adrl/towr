@@ -1,3 +1,4 @@
 # The optimal motion plan represented in cartesian space
 
- RobotStateCartesian[] optimal_motion
+ RobotStateCartesian[] states    # trajectory of states
+ float64                    t    # time at corresponding state

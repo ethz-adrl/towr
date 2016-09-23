@@ -55,6 +55,7 @@ HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com
   Init(x0,phase_info,com_spline,contacts,robot_height);
 }
 
+
 HyqSpliner::RobotStateTrajMsg
 HyqSpliner::BuildWholeBodyTrajectory () const
 {
@@ -80,9 +81,7 @@ HyqSpliner::BuildWholeBodyTrajectory () const
 
     // cmo write conversion from base pose to BaseState.msg
     // cmo look at floating base state mgs written in hyqb_essentials.
-    // cmo use geometry_msgs/Twist.
-    // cmo use geometry_msgs/Accel.
-    // don't use ros inside this class
+    // cmo don't depend on ros inside this class
     x.base.pose.position.x = pos.p.x();
 //    x.base.pos.position.y = pos.p.y();
 //    x.base.pos.position.z = pos.p.z();
