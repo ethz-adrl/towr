@@ -33,6 +33,7 @@ public:
 
   virtual void OptimizeTrajectory() = 0;
   virtual void PublishOptimizedValues() const = 0;
+  virtual void PublishTrajectory() const = 0;
 
 protected:
   ::ros::NodeHandle n_;

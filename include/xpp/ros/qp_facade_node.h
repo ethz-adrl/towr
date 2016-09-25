@@ -32,6 +32,7 @@ private:
   QpOptimizer qp_optimizer_;
   virtual void OptimizeTrajectory() override final;
   virtual void PublishOptimizedValues() const override final;
+  virtual void PublishTrajectory() const override final {};
   void UpdateCurrentState(const ReqInfoMsg& msg);
 
   ::ros::Subscriber current_info_sub_;

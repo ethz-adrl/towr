@@ -121,6 +121,7 @@ void
 WalkingController::TrajectoryCallback (const RobotStateTrajMsg& msg)
 {
   optimized_trajectory_ = xpp::ros::RosHelpers::RosToXpp(msg);
+  k = 0;
 }
 
 bool
@@ -258,15 +259,16 @@ void WalkingController::ExecuteLoop()
 
 
   /** @brief DESIRED state given by splined plan and zmp optimizer **/
-  P_des_.base_.pos = spliner_.GetCurrPosition(Time());
-  P_des_.base_.ori = spliner_.GetCurrOrientation(Time());
-//  std::cout << "P_des: " << P_des_.base_.pos << "\n";
-  spliner_.FillCurrFeet(Time(), P_des_.feet_, P_des_.swingleg_);
-  // logging
-  log_base_acc_des_ff.segment<3>(LX) = P_des_.base_.pos.a; // logging only
-//  ROS_INFO_STREAM_THROTTLE(dt_, "\nP_des_:\n" << P_des_);
-  Orientation::QuaternionToRPY(P_des_.base_.ori.q, log_rpy_des);
-  log_swingleg_id = P_des_.SwinglegID();
+  P_des_ = optimized_trajectory_.at(k++);
+//  P_des_.base_.pos = spliner_.GetCurrPosition(Time());
+//  P_des_.base_.ori = spliner_.GetCurrOrientation(Time());
+////  std::cout << "P_des: " << P_des_.base_.pos << "\n";
+//  spliner_.FillCurrFeet(Time(), P_des_.feet_, P_des_.swingleg_);
+//  // logging
+//  log_base_acc_des_ff.segment<3>(LX) = P_des_.base_.pos.a; // logging only
+////  ROS_INFO_STREAM_THROTTLE(dt_, "\nP_des_:\n" << P_des_);
+//  Orientation::QuaternionToRPY(P_des_.base_.ori.q, log_rpy_des);
+//  log_swingleg_id = P_des_.SwinglegID();
 
 
 

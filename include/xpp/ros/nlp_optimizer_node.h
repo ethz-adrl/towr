@@ -40,7 +40,7 @@ private:
 
   virtual void OptimizeTrajectory() override final;
   virtual void PublishOptimizedValues() const override final;
-  void PublishTrajectory() const;
+  virtual void PublishTrajectory() const override final;
   void UpdateCurrentState(const ReqInfoMsg& msg);
 
   double max_cpu_time_; ///< maximum allowable time to spend on solving the NLP

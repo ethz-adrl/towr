@@ -87,6 +87,7 @@ private:
   ::ros::Subscriber opt_params_sub_;
   ::ros::Subscriber trajectory_sub_;
   std::vector<xpp::hyq::HyqStateStamped> optimized_trajectory_;
+  int k = 0; // position along optimized trajectory;
 
 //  /** Estimates where the robot will be when optimization is complete in order
 //    * to start optimization from there.

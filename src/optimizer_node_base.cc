@@ -62,7 +62,8 @@ OptimizerNodeBase::GoalStateCallback(const StateMsg& msg)
   ROS_INFO_STREAM("Goal state set to:\n" << goal_cog_);
 
   OptimizeTrajectory();
-  PublishOptimizedValues();
+  PublishOptimizedValues(); // cmo remove this, redundant
+  PublishTrajectory();
 }
 
 } /* namespace ros */
