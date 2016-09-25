@@ -46,7 +46,7 @@ using ContactXpp   = xpp::zmp::Contact;
 using PhaseInfoMsg = xpp_opt::PhaseInfo;
 using PhaseInfoXpp = xpp::zmp::PhaseInfo;
 using RobotStateTrajMsg = xpp_opt::RobotStateTrajectoryCartesian;
-using RobotStateMsg     = xpp_opt::RobotStateCartesian;
+using RobotStateMsg     = xpp_opt::RobotStateCartesianStamped;
 using BaseStateMsg      = xpp_opt::BaseState;
 
 
@@ -285,41 +285,92 @@ RosToXpp(const std::vector<xpp_opt::Foothold>& ros)
   return xpp_vec;
 }
 
+static Eigen::Quaterniond
+RosToXpp(const geometry_msgs::Quaternion ros)
+{
+  Eigen::Quaterniond xpp;
+  xpp.w() = ros.w;
+  xpp.x() = ros.x;
+  xpp.y() = ros.y;
+  xpp.z() = ros.z;
+
+  return xpp;
+}
+
+static geometry_msgs::Quaternion
+XppToRos(const Eigen::Quaterniond xpp)
+{
+  geometry_msgs::Quaternion ros;
+  ros.w = xpp.w();
+  ros.x = xpp.x();
+  ros.y = xpp.y();
+  ros.z = xpp.z();
+
+  return ros;
+}
+
 static BaseStateMsg
 XppToRos(const xpp::utils::Pose& xpp)
 {
   BaseStateMsg msg;
 
-  // linear
   msg.pose.position = XppToRos<geometry_msgs::Point>(xpp.pos.p);
   msg.twist.linear  = XppToRos<geometry_msgs::Vector3>(xpp.pos.v);
   msg.accel.linear  = XppToRos<geometry_msgs::Vector3>(xpp.pos.a);
 
-  // angular
-  msg.pose.orientation.w = xpp.ori.q.w();
-  msg.pose.orientation.x = xpp.ori.q.x();
-  msg.pose.orientation.y = xpp.ori.q.y();
-  msg.pose.orientation.z = xpp.ori.q.z();
-
-  msg.twist.angular = XppToRos<geometry_msgs::Vector3>(xpp.ori.v);
-  msg.accel.angular = XppToRos<geometry_msgs::Vector3>(xpp.ori.a);
+  msg.pose.orientation = XppToRos(xpp.ori.q);
+  msg.twist.angular    = XppToRos<geometry_msgs::Vector3>(xpp.ori.v);
+  msg.accel.angular    = XppToRos<geometry_msgs::Vector3>(xpp.ori.a);
 
   return msg;
 }
 
-static RobotStateMsg
-XppToRos(const xpp::hyq::HyqState& xpp)
+static xpp::utils::Pose
+RosToXpp(const BaseStateMsg& ros)
 {
-  RobotStateMsg msg;
+  xpp::utils::Pose xpp;
 
-  msg.base = XppToRos(xpp.base_);
+  xpp.pos.p = RosToXpp(ros.pose.position);
+  xpp.pos.v = RosToXpp(ros.twist.linear);
+  xpp.pos.a = RosToXpp(ros.accel.linear);
+
+  xpp.ori.q = RosToXpp(ros.pose.orientation);
+  xpp.ori.v = RosToXpp(ros.twist.angular);
+  xpp.ori.a = RosToXpp(ros.accel.angular);
+
+  return xpp;
+}
+
+static RobotStateMsg
+XppToRos(const xpp::hyq::HyqStateStamped& xpp)
+{
+  RobotStateMsg ros;
+
+  ros.state.base = XppToRos(xpp.base_);
+  ros.time       = xpp.t_;
 
   for (int leg=0; leg<4; ++leg) {
-    msg.ee_in_contact[leg] = !xpp.swingleg_[leg];
-    msg.endeffectors[leg]  = XppToRos(xpp.feet_[leg]);
+    ros.state.ee_in_contact[leg] = !xpp.swingleg_[leg];
+    ros.state.endeffectors[leg]  = XppToRos(xpp.feet_[leg]);
   }
 
-  return msg;
+  return ros;
+}
+
+static xpp::hyq::HyqStateStamped
+RosToXpp(const RobotStateMsg& ros)
+{
+  xpp::hyq::HyqStateStamped xpp;
+
+  xpp.base_ = RosToXpp(ros.state.base);
+  xpp.t_    = ros.time;
+
+  for (int leg=0; leg<4; ++leg) {
+    xpp.swingleg_[leg] = !ros.state.ee_in_contact[leg];
+    xpp.feet_[leg]     = RosToXpp(ros.state.endeffectors[leg]);
+  }
+
+  return xpp;
 }
 
 static RobotStateTrajMsg
@@ -327,12 +378,21 @@ XppToRos(const std::vector<xpp::hyq::HyqStateStamped>& xpp)
 {
   RobotStateTrajMsg msg;
 
-  for (const auto& state : xpp) {
+  for (const auto& state : xpp)
     msg.states.push_back(XppToRos(state));
-    msg.t.push_back(state.t);
-  }
 
   return msg;
+}
+
+static std::vector<xpp::hyq::HyqStateStamped>
+RosToXpp(const RobotStateTrajMsg& ros)
+{
+  std::vector<xpp::hyq::HyqStateStamped> xpp;
+
+  for (const auto& state : ros.states)
+    xpp.push_back(RosToXpp(state));
+
+  return xpp;
 }
 
 

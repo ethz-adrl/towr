@@ -69,7 +69,7 @@ private:
 
 class HyqStateStamped : public HyqState {
 public:
-  double t;
+  double t_;
 };
 
 

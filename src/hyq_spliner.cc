@@ -78,7 +78,7 @@ HyqSpliner::BuildWholeBodyTrajectory () const
     state.base_.ori = ori;
     state.feet_ = feet;
     state.swingleg_ = swingleg;
-    state.t = t;
+    state.t_ = t;
 
     trajectory.push_back(state);
 

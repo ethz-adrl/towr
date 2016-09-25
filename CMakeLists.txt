@@ -61,6 +61,7 @@ add_message_files(
   # representing a complete optimized trajectory
   BaseState.msg
   RobotStateCartesian.msg
+  RobotStateCartesianStamped.msg
   RobotStateTrajectoryCartesian.msg
 )
 add_service_files(
