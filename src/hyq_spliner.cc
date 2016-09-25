@@ -56,13 +56,12 @@ HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com
 }
 
 
-HyqSpliner::RobotStateTrajMsg
+HyqSpliner::RobotStateTraj
 HyqSpliner::BuildWholeBodyTrajectory () const
 {
-  RobotStateTrajMsg msg;
+  RobotStateTraj trajectory;
 
   double controller_loop_interval = 0.004; // 250Hz SL task servo
-
 
   double t=0.0;
   while (t<GetTotalTime()) {
@@ -74,38 +73,18 @@ HyqSpliner::BuildWholeBodyTrajectory () const
     auto ori  = GetCurrOrientation(t);
     FillCurrFeet(t, feet, swingleg);
 
+    HyqState state;
+    state.base_.pos = pos;
+    state.base_.ori = ori;
+    state.feet_ = feet;
+    state.swingleg_ = swingleg;
 
-
-
-    RobotStateMsg x;
-
-    // cmo write conversion from base pose to BaseState.msg
-    // cmo look at floating base state mgs written in hyqb_essentials.
-    // cmo don't depend on ros inside this class
-    x.base.pose.position.x = pos.p.x();
-//    x.base.pos.position.y = pos.p.y();
-//    x.base.pos.position.z = pos.p.z();
-//
-//    x.base.vel_lin = pos.
-
-    // cmo write conversion for hyqState to RobotStateCartesian
-    x.endeffectors[LF].pos.x = feet[LF].p.x();
-    x.endeffectors[LF].vel.x = feet[LF].v.x();
-    x.endeffectors[LF].acc.x = feet[LF].a.x();
-
-
-
-
-
-
+    trajectory.push_back(state);
 
     t += controller_loop_interval;
-
   }
 
-
-
-  return msg;
+  return trajectory;
 }
 
 

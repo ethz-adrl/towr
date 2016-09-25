@@ -45,6 +45,7 @@ public:
   typedef ::xpp::utils::QuinticSpliner Spliner;
   typedef ::xpp::utils::Spliner3d< Spliner > Spliner3d;
   typedef Spliner3d::Point Point;
+  using RobotStateTraj    = std::vector<HyqState>;
   using RobotStateTrajMsg = xpp_opt::RobotStateTrajectoryCartesian;
   using RobotStateMsg     = xpp_opt::RobotStateCartesian;
 
@@ -65,7 +66,7 @@ public:
             const VecFoothold&,
             double robot_height);
 
-  RobotStateTrajMsg BuildWholeBodyTrajectory() const;
+  RobotStateTraj BuildWholeBodyTrajectory() const;
 
 
 
