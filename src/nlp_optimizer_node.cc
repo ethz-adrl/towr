@@ -18,6 +18,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                    &NlpOptimizerNode::CurrentInfoCallback, this);
 
   opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
+  trajectory_pub_ = n_.advertise<RobotStateTrajMsg>("robot_trajectory", 1);
 
   supp_polygon_margins_ = xpp::hyq::SupportPolygon::GetDefaultMargins();
   supp_polygon_margins_[hyq::DIAG] = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");
@@ -66,24 +67,9 @@ void
 NlpOptimizerNode::PublishTrajectory () const
 {
   auto trajectory = whole_body_mapper_.BuildWholeBodyTrajectory();
+  RobotStateTrajMsg msg = xpp::ros::RosHelpers::XppToRos(trajectory);
 
-
-//  // publish trajectory
-//  RobotStateMsg x;
-//
-//  // cmo write conversion from base pose to BaseState.msg
-//  // cmo look at floating base state mgs written in hyqb_essentials.
-//  // cmo don't depend on ros inside this class
-//  x.base.pose.position.x = pos.p.x();
-////    x.base.pos.position.y = pos.p.y();
-////    x.base.pos.position.z = pos.p.z();
-////
-////    x.base.vel_lin = pos.
-//
-//  // cmo write conversion for hyqState to RobotStateCartesian
-//  x.endeffectors[LF].pos.x = feet[LF].p.x();
-//  x.endeffectors[LF].vel.x = feet[LF].v.x();
-//  x.endeffectors[LF].acc.x = feet[LF].a.x();
+  trajectory_pub_.publish(msg);
 }
 
 void

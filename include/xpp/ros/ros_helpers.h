@@ -15,10 +15,13 @@
 #include <xpp_opt/Spline.h>
 #include <xpp_opt/StateLin3d.h>
 #include <xpp_opt/Foothold.h>
+#include <xpp_opt/RobotStateTrajectoryCartesian.h>
+
 
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/zmp/phase_info.h>
 #include <xpp/hyq/foothold.h>
+#include <xpp/hyq/hyq_state.h>
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/zmp/com_spline.h>
 
@@ -42,6 +45,9 @@ using ContactMsg   = xpp_opt::Contact;
 using ContactXpp   = xpp::zmp::Contact;
 using PhaseInfoMsg = xpp_opt::PhaseInfo;
 using PhaseInfoXpp = xpp::zmp::PhaseInfo;
+using RobotStateTrajMsg = xpp_opt::RobotStateTrajectoryCartesian;
+using RobotStateMsg     = xpp_opt::RobotStateCartesian;
+using BaseStateMsg      = xpp_opt::BaseState;
 
 
 static double GetDoubleFromServer(const std::string& ros_param_name) {
@@ -209,12 +215,25 @@ XppToRos(const State& xpp)
   return ros;
 }
 
+template<typename T>
 static Vector3d
-RosToXpp(const geometry_msgs::Point& ros)
+RosToXpp(const T& ros)
 {
   Vector3d vec;
   vec << ros.x, ros.y, ros.z;
   return vec;
+}
+
+template<typename T>
+static T
+XppToRos(const Vector3d& xpp)
+{
+  T ros;
+  ros.x = xpp.x();
+  ros.y = xpp.y();
+  ros.z = xpp.z();
+
+  return ros;
 }
 
 static Foothold
@@ -265,6 +284,57 @@ RosToXpp(const std::vector<xpp_opt::Foothold>& ros)
 
   return xpp_vec;
 }
+
+static BaseStateMsg
+XppToRos(const xpp::utils::Pose& xpp)
+{
+  BaseStateMsg msg;
+
+  // linear
+  msg.pose.position = XppToRos<geometry_msgs::Point>(xpp.pos.p);
+  msg.twist.linear  = XppToRos<geometry_msgs::Vector3>(xpp.pos.v);
+  msg.accel.linear  = XppToRos<geometry_msgs::Vector3>(xpp.pos.a);
+
+  // angular
+  msg.pose.orientation.w = xpp.ori.q.w();
+  msg.pose.orientation.x = xpp.ori.q.x();
+  msg.pose.orientation.y = xpp.ori.q.y();
+  msg.pose.orientation.z = xpp.ori.q.z();
+
+  msg.twist.angular = XppToRos<geometry_msgs::Vector3>(xpp.ori.v);
+  msg.accel.angular = XppToRos<geometry_msgs::Vector3>(xpp.ori.a);
+
+  return msg;
+}
+
+static RobotStateMsg
+XppToRos(const xpp::hyq::HyqState& xpp)
+{
+  RobotStateMsg msg;
+
+  msg.base = XppToRos(xpp.base_);
+
+  for (int leg=0; leg<4; ++leg) {
+    msg.ee_in_contact[leg] = !xpp.swingleg_[leg];
+    msg.endeffectors[leg]  = XppToRos(xpp.feet_[leg]);
+  }
+
+  return msg;
+}
+
+static RobotStateTrajMsg
+XppToRos(const std::vector<xpp::hyq::HyqStateStamped>& xpp)
+{
+  RobotStateTrajMsg msg;
+
+  for (const auto& state : xpp) {
+    msg.states.push_back(XppToRos(state));
+    msg.t.push_back(state.t);
+  }
+
+  return msg;
+}
+
 
 }; // RosHelpers
 

@@ -67,6 +67,11 @@ public:
 private:
 };
 
+class HyqStateStamped : public HyqState {
+public:
+  double t;
+};
+
 
 inline std::ostream& operator<<(std::ostream& out, const HyqState& hyq)
 {

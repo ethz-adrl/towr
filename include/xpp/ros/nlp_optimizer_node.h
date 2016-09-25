@@ -15,6 +15,7 @@
 
 #include <xpp_opt/RequiredInfoNlp.h>        // receive
 #include <xpp_opt/OptimizedParametersNlp.h> // send
+#include <xpp_opt/RobotStateTrajectoryCartesian.h> // send
 
 namespace xpp {
 namespace ros {
@@ -25,7 +26,9 @@ public:
   typedef xpp::hyq::LegID LegID;
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersNlp OptParamMsg;
+
   using WholeBodyMapper = xpp::hyq::HyqSpliner;
+  using RobotStateTrajMsg = xpp_opt::RobotStateTrajectoryCartesian;
 
 public:
   NlpOptimizerNode ();
@@ -46,6 +49,8 @@ private:
 
   ::ros::Subscriber current_info_sub_;
   ::ros::Publisher opt_params_pub_;
+  ::ros::Publisher trajectory_pub_;
+
   void CurrentInfoCallback(const ReqInfoMsg& msg);
 
   OptimizationVisualizer optimization_visualizer_;

@@ -13,8 +13,6 @@
 #include <xpp/zmp/phase_info.h>
 #include <xpp/zmp/com_polynomial.h>
 
-#include <xpp_opt/RobotStateTrajectoryCartesian.h>
-
 namespace xpp {
 namespace hyq {
 
@@ -45,9 +43,8 @@ public:
   typedef ::xpp::utils::QuinticSpliner Spliner;
   typedef ::xpp::utils::Spliner3d< Spliner > Spliner3d;
   typedef Spliner3d::Point Point;
-  using RobotStateTraj    = std::vector<HyqState>;
-  using RobotStateTrajMsg = xpp_opt::RobotStateTrajectoryCartesian;
-  using RobotStateMsg     = xpp_opt::RobotStateCartesian;
+  using RobotStateTraj    = std::vector<HyqStateStamped>;
+
 
 public:
   HyqSpliner() {};
