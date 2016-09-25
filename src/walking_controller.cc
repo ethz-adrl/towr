@@ -65,11 +65,11 @@ WalkingController::GetReadyHook() {
   ffspline_duration_ = RosHelpers::GetDoubleFromServer("/exec/ff_spline_duration");
   ffsplining_ = false;
 
-  double lift_height = RosHelpers::GetDoubleFromServer("/exec/lift_height");
-  double outward_swing = RosHelpers::GetDoubleFromServer("/exec/outward_swing_distance");
-  spliner_.SetParams(0.5, lift_height, outward_swing);
+//  double lift_height = RosHelpers::GetDoubleFromServer("/exec/lift_height");
+//  double outward_swing = RosHelpers::GetDoubleFromServer("/exec/outward_swing_distance");
+//  spliner_.SetParams(0.5, lift_height, outward_swing);
+//  robot_height_     = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 
-  robot_height_     = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 
   // to determine when to start reoptimization
   t_stance_initial_ = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
@@ -112,7 +112,7 @@ WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
   opt_footholds_ = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
   motion_phases_ = xpp::ros::RosHelpers::RosToXpp(msg.phases);
 
-  optimal_trajectory_updated = true;
+//  optimal_trajectory_updated = true;
 
   ROS_INFO_STREAM("received splines [size=" << opt_spline_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
 }
@@ -121,6 +121,7 @@ void
 WalkingController::TrajectoryCallback (const RobotStateTrajMsg& msg)
 {
   optimized_trajectory_ = xpp::ros::RosHelpers::RosToXpp(msg);
+  optimal_trajectory_updated = true;
   k = 0;
 }
 
@@ -140,8 +141,8 @@ WalkingController::PublishOptimizationStartState()
 
 
 
-  VecFoothold predicted_stance = switch_node_.state_.FeetToFootholds().ToVector();
-  State predicted_state  = switch_node_.state_.base_.pos; //spliner_.GetCurrPosition(t_switch_).Get2D();
+  VecFoothold predicted_stance = switch_node_.FeetToFootholds().ToVector();
+  State predicted_state  = switch_node_.base_.pos; //spliner_.GetCurrPosition(t_switch_).Get2D();
 
   State curr_state = P_curr_.base_.pos;
 
@@ -214,7 +215,9 @@ WalkingController::EndCurrentExecution ()
 
   // terminate run loop
 
-  return Time() >= (spliner_.GetTotalTime()-robot_->GetControlLoopInterval());
+  return k >= optimized_trajectory_.size() - 1; //stop one control loop earlier
+
+//  return Time() >= (spliner_.GetTotalTime()-robot_->GetControlLoopInterval());
 
 
   // never switch from first planned trajectory
@@ -233,8 +236,14 @@ void WalkingController::IntegrateOptimizedTrajectory()
 //  ffsplining_ = true; // because of delay from optimization
 
   // start from desired, so there is no jump in desired
-  spliner_.Init(P_des_, motion_phases_, opt_spline_, opt_footholds_, robot_height_);
-  switch_node_ = spliner_.GetLastNode();
+//  spliner_.Init(P_des_, motion_phases_, opt_spline_, opt_footholds_, robot_height_);
+
+  if (optimized_trajectory_.empty()) {
+    switch_node_ = P_des_;
+  } else {
+    switch_node_ = optimized_trajectory_.back();
+  }
+//  switch_node_ = spliner_.GetLastNode();
 
   Controller::ResetTime();
 

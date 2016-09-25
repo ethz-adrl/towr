@@ -17,7 +17,9 @@
 #include <xpp_controller/controller.h>
 #include "virtual_model-inl.h"
 #include "walking_controller_state.h"
-#include <xpp/hyq/hyq_spliner.h>
+#include <xpp/hyq/hyq_state.h>
+#include <xpp/zmp/com_polynomial.h>
+//#include <xpp/hyq/hyq_spliner.h>
 
 #include <xpp_opt/OptimizedParametersNlp.h>
 #include <xpp_opt/RequiredInfoNlp.h>
@@ -42,7 +44,6 @@ public:
   typedef Eigen::Vector3d Vector3d;
   typedef iit::HyQ::JointState JointState;
   typedef xpp::hyq::HyqState HyqState;
-  typedef xpp::hyq::HyqSpliner HyqSpliner;
   typedef xpp::hyq::Foothold Foothold;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
   typedef xpp::hyq::VirtualModel VirtualModel;
@@ -50,7 +51,7 @@ public:
   typedef xpp::hyq::LegID LegID;
   typedef xpp::utils::Point3d State;
   typedef xpp::utils::Orientation Orientation;
-  using VecSpline = HyqSpliner::VecPolyomials;
+  using VecSpline = std::vector<xpp::zmp::ComPolynomial>;
   using VecPhase  = xpp::zmp::PhaseVec;
   // ROS stuff
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
@@ -105,7 +106,7 @@ private:
   VecPhase motion_phases_;
 
   // cmo remove this (redundant through see below)
-  HyqSpliner spliner_;  //for normal body, ori, and feet traj.
+//  HyqSpliner spliner_;  //for normal body, ori, and feet traj.
 
   HyqState P_des_;
   HyqState P_curr_;
@@ -117,7 +118,7 @@ private:
   double robot_height_;
   double max_cpu_time_;
 
-  hyq::SplineNode switch_node_;
+  HyqState switch_node_;
   double kOptTimeReq_;
 
 
