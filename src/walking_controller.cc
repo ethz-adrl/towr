@@ -50,6 +50,7 @@ WalkingController::GetReadyHook() {
   std::shared_ptr<::ros::NodeHandle> nh(new ::ros::NodeHandle);
   current_info_pub_ = nh->advertise<ReqInfoMsg>("required_info_nlp", 1);
   opt_params_sub_ = nh->subscribe("optimized_parameters_nlp", 1, &WalkingController::OptParamsCallback, this);
+  trajectory_sub_ = nh->subscribe("robot_trajectory", 1, &WalkingController::TrajectoryCallback, this);
 
 
   b_r_geomtocog = inertia_properties_.getCOM_trunk();
@@ -116,10 +117,16 @@ WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
   ROS_INFO_STREAM("received splines [size=" << opt_spline_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
 }
 
+void
+WalkingController::TrajectoryCallback (const RobotStateTrajMsg& msg)
+{
+  optimized_trajectory_ = xpp::ros::RosHelpers::RosToXpp(msg);
+}
+
 bool
 WalkingController::IsTimeToSendOutState() const
 {
-  return true; // send out every controll loop
+  return true; // send out every controlloptimized_trajectory_ loop
 
 //  double time_left = t_switch_ - Time();
 //  return (time_left <= kOptTimeReq_ && reoptimize_before_finish_);

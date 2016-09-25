@@ -21,6 +21,8 @@
 
 #include <xpp_opt/OptimizedParametersNlp.h>
 #include <xpp_opt/RequiredInfoNlp.h>
+#include <xpp_opt/RobotStateTrajectoryCartesian.h>
+
 #include <iit/robots/hyq/declarations.h>
 #include <iit/robots/hyq/inertia_properties.h>
 #include <iit/robots/hyq/jsim.h>
@@ -53,10 +55,10 @@ public:
   // ROS stuff
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
   typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
+  using RobotStateTrajMsg = xpp_opt::RobotStateTrajectoryCartesian;
 
   explicit WalkingController();
   virtual ~WalkingController();
-
   void SetState(WalkingControllerState::State state);
   // fsm callable functions
 //  void PublishCurrentState();
@@ -80,8 +82,11 @@ private:
   WalkingControllerState::StatesMap states_map_;
 
   void OptParamsCallback(const OptimizedParametersMsg& msg);
+  void TrajectoryCallback(const RobotStateTrajMsg& msg);
   ::ros::Publisher current_info_pub_;
   ::ros::Subscriber opt_params_sub_;
+  ::ros::Subscriber trajectory_sub_;
+  std::vector<xpp::hyq::HyqStateStamped> optimized_trajectory_;
 
 //  /** Estimates where the robot will be when optimization is complete in order
 //    * to start optimization from there.
@@ -98,7 +103,9 @@ private:
   VecFoothold opt_footholds_;
   VecPhase motion_phases_;
 
+  // cmo remove this (redundant through see below)
   HyqSpliner spliner_;  //for normal body, ori, and feet traj.
+
   HyqState P_des_;
   HyqState P_curr_;
 
