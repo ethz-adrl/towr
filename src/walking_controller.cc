@@ -49,7 +49,7 @@ WalkingController::GetReadyHook() {
   ::ros::init(argc, argv, "sl_ros_subscriber_node");
   std::shared_ptr<::ros::NodeHandle> nh(new ::ros::NodeHandle);
   current_info_pub_ = nh->advertise<ReqInfoMsg>("required_info_nlp", 1);
-  opt_params_sub_ = nh->subscribe("optimized_parameters_nlp", 1, &WalkingController::OptParamsCallback, this);
+//  opt_params_sub_ = nh->subscribe("optimized_parameters_nlp", 1, &WalkingController::OptParamsCallback, this);
   trajectory_sub_ = nh->subscribe("robot_trajectory", 1, &WalkingController::TrajectoryCallback, this);
 
 
@@ -105,17 +105,17 @@ WalkingController::SetState(WalkingControllerState::State state) {
   current_state_ = state;
 }
 
-void
-WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
-{
-  opt_spline_   = xpp::ros::RosHelpers::RosToXpp(msg.splines);
-  opt_footholds_ = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
-  motion_phases_ = xpp::ros::RosHelpers::RosToXpp(msg.phases);
-
-//  optimal_trajectory_updated = true;
-
-  ROS_INFO_STREAM("received splines [size=" << opt_spline_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
-}
+//void
+//WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
+//{
+//  opt_spline_   = xpp::ros::RosHelpers::RosToXpp(msg.splines);
+//  opt_footholds_ = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
+//  motion_phases_ = xpp::ros::RosHelpers::RosToXpp(msg.phases);
+//
+////  optimal_trajectory_updated = true;
+//
+//  ROS_INFO_STREAM("received splines [size=" << opt_spline_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
+//}
 
 void
 WalkingController::TrajectoryCallback (const RobotStateTrajMsg& msg)

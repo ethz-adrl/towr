@@ -18,10 +18,10 @@
 #include "virtual_model-inl.h"
 #include "walking_controller_state.h"
 #include <xpp/hyq/hyq_state.h>
-#include <xpp/zmp/com_polynomial.h>
+//#include <xpp/zmp/com_polynomial.h>
 //#include <xpp/hyq/hyq_spliner.h>
 
-#include <xpp_opt/OptimizedParametersNlp.h>
+//#include <xpp_opt/OptimizedParametersNlp.h>
 #include <xpp_opt/RequiredInfoNlp.h>
 #include <xpp_opt/RobotStateTrajectoryCartesian.h>
 
@@ -51,11 +51,11 @@ public:
   typedef xpp::hyq::LegID LegID;
   typedef xpp::utils::Point3d State;
   typedef xpp::utils::Orientation Orientation;
-  using VecSpline = std::vector<xpp::zmp::ComPolynomial>;
-  using VecPhase  = xpp::zmp::PhaseVec;
+//  using VecSpline = std::vector<xpp::zmp::ComPolynomial>;
+//  using VecPhase  = xpp::zmp::PhaseVec;
   // ROS stuff
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
-  typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
+//  typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
   using RobotStateTrajMsg = xpp_opt::RobotStateTrajectoryCartesian;
 
   explicit WalkingController();
@@ -82,10 +82,10 @@ private:
   WalkingControllerState::State current_state_;
   WalkingControllerState::StatesMap states_map_;
 
-  void OptParamsCallback(const OptimizedParametersMsg& msg);
+//  void OptParamsCallback(const OptimizedParametersMsg& msg);
   void TrajectoryCallback(const RobotStateTrajMsg& msg);
   ::ros::Publisher current_info_pub_;
-  ::ros::Subscriber opt_params_sub_;
+//  ::ros::Subscriber opt_params_sub_;
   ::ros::Subscriber trajectory_sub_;
   std::vector<xpp::hyq::HyqStateStamped> optimized_trajectory_;
   int k = 0; // position along optimized trajectory;
@@ -101,9 +101,9 @@ private:
   bool reoptimize_before_finish_;
   bool first_run_after_integrating_opt_trajectory_;
 
-  VecSpline opt_spline_;
-  VecFoothold opt_footholds_;
-  VecPhase motion_phases_;
+//  VecSpline opt_spline_;
+//  VecFoothold opt_footholds_;
+//  VecPhase motion_phases_;
 
   // cmo remove this (redundant through see below)
 //  HyqSpliner spliner_;  //for normal body, ori, and feet traj.
