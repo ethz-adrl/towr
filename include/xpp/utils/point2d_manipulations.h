@@ -25,9 +25,9 @@ namespace utils {
  */
 struct Point2dManip {
 public:
-  typedef std::vector<Vec2d, Eigen::aligned_allocator<Vec2d> > StdVectorEig2d;
+  using StdVectorEig2d = xpp::utils::StdVecEigen2d;
+  using Vec2d = Eigen::Vector2d;
 
-public:
   //  Checks if B is on the right side of line OA
   static bool BisRightOfOA(const Vec2d& O, const Vec2d A, const Vec2d& B)
   {

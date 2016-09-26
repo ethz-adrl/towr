@@ -11,7 +11,9 @@ namespace xpp {
 namespace hyq {
 
 using ::xpp::utils::Z;
-using ::xpp::utils::Vec3d;
+typedef utils::Point2d Pos2d;
+typedef utils::Ori Ori;
+typedef utils::Coords3D Coords3D;
 
 HyqState::HyqState()
 {
@@ -19,12 +21,10 @@ HyqState::HyqState()
   swingleg_ = false;
 }
 
-
 HyqState::~HyqState()
 {
   // TODO Auto-generated destructor stub
 }
-
 
 void HyqState::ZeroVelAcc()
 {
@@ -38,7 +38,6 @@ void HyqState::ZeroVelAcc()
   }
 }
 
-
 const LegDataMap<Eigen::Vector3d> HyqState::GetFeetPosOnly()
 {
   static LegDataMap<Eigen::Vector3d> feet_pos;
@@ -47,10 +46,7 @@ const LegDataMap<Eigen::Vector3d> HyqState::GetFeetPosOnly()
   return feet_pos;
 }
 
-
-
-
-std::array<Vec3d, kNumSides> HyqState::GetAvgSides() const
+std::array<Eigen::Vector3d, kNumSides> HyqState::GetAvgSides() const
 {
   typedef std::pair <Side,Side> LegSide;
   static LegDataMap<LegSide> leg_sides;
@@ -60,8 +56,8 @@ std::array<Vec3d, kNumSides> HyqState::GetAvgSides() const
   leg_sides[LH] = LegSide( LEFT_SIDE,  HIND_SIDE);
   leg_sides[RH] = LegSide(RIGHT_SIDE,  HIND_SIDE);
 
-  std::array<Vec3d, kNumSides> pos_avg;
-  for (Side s : SideArray) pos_avg[s] = Vec3d::Zero(); // zero values
+  std::array<Vector3d, kNumSides> pos_avg;
+  for (Side s : SideArray) pos_avg[s] = Vector3d::Zero(); // zero values
 
   for (LegID leg : LegIDArray)
   {
@@ -77,10 +73,9 @@ std::array<Vec3d, kNumSides> HyqState::GetAvgSides() const
 
 double HyqState::GetZAvg() const
 {
-  std::array<Vec3d, kNumSides> avg = GetAvgSides();
+  std::array<Vector3d, kNumSides> avg = GetAvgSides();
   return (avg[FRONT_SIDE](Z) + avg[HIND_SIDE](Z)) / 2;
 }
-
 
 int HyqState::SwinglegID() const
 {
@@ -91,15 +86,11 @@ int HyqState::SwinglegID() const
   return NO_SWING_LEG;
 }
 
-
 void HyqState::SetSwingleg(LegID leg)
 {
   swingleg_ = false;
   swingleg_[leg] = true;
 }
-
-
-
 
 LegDataMap<Foothold> HyqState::FeetToFootholds() const
 {
@@ -108,7 +99,6 @@ LegDataMap<Foothold> HyqState::FeetToFootholds() const
     footholds[leg] = FootToFoothold(leg);
   return footholds;
 }
-
 
 HyqState::VecFoothold
 HyqState::GetStanceLegs() const
@@ -121,7 +111,6 @@ HyqState::GetStanceLegs() const
   return stance_legs;
 }
 
-
 Foothold HyqState::FootToFoothold(LegID leg) const
 {
   Foothold foothold;
@@ -130,30 +119,6 @@ Foothold HyqState::FootToFoothold(LegID leg) const
 
   return foothold;
 }
-
-
-//void HyqState::SwitchSwingleg()
-//{
-//  switch (SwinglegID()) {
-//    case NO_SWING_LEG:
-//      SetSwingleg(LH);
-//      break;
-//    case LH:
-//      SetSwingleg(LF);
-//      break;
-//    case LF:
-//      SetSwingleg(RH);
-//      break;
-//    case RH:
-//      SetSwingleg(RF);
-//      break;
-//    case RF:
-//      SetSwingleg(LH);
-//      break;
-//    default:
-//      break;
-//  };
-//}
 
 } // namespace hyq
 } // namespace xpp

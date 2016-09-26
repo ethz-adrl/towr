@@ -14,30 +14,17 @@
 #include <xpp/utils/geometric_structs.h>
 
 namespace xpp {
-
-/**
-@brief Robot specific functions
-
-All features specific for the hydraulic quadruped "HyQ" are located in this
-namespace.
- */
 namespace hyq {
 
-/**
-@brief Captures the full state of the robot (body, feet)
-*/
-class HyqState
-{
+/** Captures the full state of the robot (body, feet)
+  */
+class HyqState {
 public:
-  typedef utils::Vec3d Vec3d;
-  typedef utils::Point2d Pos2d;
-  typedef utils::Point3d Point3d;
-  typedef utils::Ori Ori;
-  typedef utils::Coords3D Coords3D;
   typedef utils::Pose Pose;
+  typedef utils::Point3d Point3d;
+  typedef Eigen::Vector3d Vector3d;
   typedef std::vector<Foothold> VecFoothold;
 
-public:
   HyqState();
   virtual ~HyqState();
 
@@ -48,23 +35,14 @@ public:
   LegDataMap< Foothold > FeetToFootholds() const;
   Foothold FootToFoothold(LegID leg) const;
 
-  const LegDataMap<Eigen::Vector3d> GetFeetPosOnly();
+  const LegDataMap<Vector3d> GetFeetPosOnly();
   VecFoothold GetStanceLegs() const;
 
-
-//  /**
-//   *@brief changes the swingleg to next following McGhee gait: LH, LF, RH, RF
-//   */
-//  void SwitchSwingleg();
   void SetSwingleg(LegID leg);
-
-  std::array<Vec3d, kNumSides> GetAvgSides() const;
+  std::array<Vector3d, kNumSides> GetAvgSides() const;
   double GetZAvg() const;
-
   void ZeroVelAcc();
-
   int SwinglegID() const;
-private:
 };
 
 class HyqStateStamped : public HyqState {
