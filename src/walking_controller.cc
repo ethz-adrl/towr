@@ -17,8 +17,6 @@
 #include <xpp/ros/ros_helpers.h>
 #include <xpp_controller/robot_interface.h>
 
-#include <kindr/rotations/RotationEigen.hpp>
-
 
 namespace xpp {
 namespace exe {
@@ -65,12 +63,6 @@ WalkingController::GetReadyHook() {
   ffspline_duration_ = RosHelpers::GetDoubleFromServer("/exec/ff_spline_duration");
   ffsplining_ = false;
 
-//  double lift_height = RosHelpers::GetDoubleFromServer("/exec/lift_height");
-//  double outward_swing = RosHelpers::GetDoubleFromServer("/exec/outward_swing_distance");
-//  spliner_.SetParams(0.5, lift_height, outward_swing);
-//  robot_height_     = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
-
-
   // to determine when to start reoptimization
   t_stance_initial_ = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
   t_swing_          = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
@@ -78,14 +70,6 @@ WalkingController::GetReadyHook() {
 
   states_map_ = WalkingControllerState::BuildStates();
   current_state_ = WalkingControllerState::kFirstPlanning; // not first planning
-
-  // allow >20ms for ROS communication. So whatever ipopt's max_cpu_time
-  // is set for, add 40ms to make sure the msg reaches the controller
-  static const double ros_message_delay = 0.02;
-  // also, no spline can have lower duration than this
-  // this delay should not be too large, as it makes the closed feedback loop
-  // unstable.
-  kOptTimeReq_ = max_cpu_time_ + ros_message_delay;
 
   first_run_after_integrating_opt_trajectory_ = true;
   optimal_trajectory_updated = false;
@@ -105,18 +89,6 @@ WalkingController::SetState(WalkingControllerState::State state) {
   current_state_ = state;
 }
 
-//void
-//WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
-//{
-//  opt_spline_   = xpp::ros::RosHelpers::RosToXpp(msg.splines);
-//  opt_footholds_ = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
-//  motion_phases_ = xpp::ros::RosHelpers::RosToXpp(msg.phases);
-//
-////  optimal_trajectory_updated = true;
-//
-//  ROS_INFO_STREAM("received splines [size=" << opt_spline_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
-//}
-
 void
 WalkingController::TrajectoryCallback (const RobotStateTrajMsg& msg)
 {
@@ -130,10 +102,9 @@ WalkingController::TrajectoryCallback (const RobotStateTrajMsg& msg)
 bool
 WalkingController::IsTimeToSendOutState() const
 {
-  return true; // send out every controlloptimized_trajectory_ loop
-
 //  double time_left = t_switch_ - Time();
 //  return (time_left <= kOptTimeReq_ && reoptimize_before_finish_);
+  return true; // send out every controlloptimized_trajectory_ loop
 }
 
 void
@@ -213,8 +184,6 @@ WalkingController::EndCurrentExecution ()
   //        break;
   //      }
 
-
-
   // terminate run loop
 
   return k >= optimized_trajectory_.size() - 1; //stop one control loop earlier
@@ -271,17 +240,6 @@ void WalkingController::ExecuteLoop()
 
   /** @brief DESIRED state given by splined plan and zmp optimizer **/
   P_des_ = optimized_trajectory_.at(k++);
-//  P_des_.base_.pos = spliner_.GetCurrPosition(Time());
-//  P_des_.base_.ori = spliner_.GetCurrOrientation(Time());
-////  std::cout << "P_des: " << P_des_.base_.pos << "\n";
-//  spliner_.FillCurrFeet(Time(), P_des_.feet_, P_des_.swingleg_);
-//  // logging
-//  log_base_acc_des_ff.segment<3>(LX) = P_des_.base_.pos.a; // logging only
-////  ROS_INFO_STREAM_THROTTLE(dt_, "\nP_des_:\n" << P_des_);
-//  Orientation::QuaternionToRPY(P_des_.base_.ori.q, log_rpy_des);
-//  log_swingleg_id = P_des_.SwinglegID();
-
-
 
   /** TRACKING of desired body motion */
   VirtualModel::Accelerations P_base_acc_des;
@@ -406,7 +364,7 @@ void WalkingController::EstimateCurrPose()
   }
 
   // safety check
-  Orientation::QuaternionToRPY(P_curr_.base_.ori.q, log_rpy_curr);
+  log_rpy_curr = P_curr_.base_.ori.q.toRotationMatrix().eulerAngles(0,1,2);
   if (first_run_after_integrating_opt_trajectory_) {
     if(    (std::abs(log_rpy_curr.x()) > 7./180. * M_PI)
         || (std::abs(log_rpy_curr.y()) > 7./180. * M_PI)
@@ -521,6 +479,18 @@ void WalkingController::SmoothTorquesAtContactChange(JointState& uff)
 //
 //  // send out the message
 //  current_info_pub_.publish(msg);
+//}
+
+//void
+//WalkingController::OptParamsCallback(const OptimizedParametersMsg& msg)
+//{
+//  opt_spline_   = xpp::ros::RosHelpers::RosToXpp(msg.splines);
+//  opt_footholds_ = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
+//  motion_phases_ = xpp::ros::RosHelpers::RosToXpp(msg.phases);
+//
+////  optimal_trajectory_updated = true;
+//
+//  ROS_INFO_STREAM("received splines [size=" << opt_spline_.size() << "] and footholds [size=" << opt_footholds_.size() << "]");
 //}
 
 } // namespace exe

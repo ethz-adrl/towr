@@ -12,7 +12,6 @@
 #define _IIT_VIRTUAL_MODEL_H_
 
 #include <xpp/utils/geometric_structs.h>
-#include <xpp/utils/orientation.h>
 
 #include <iit/robots/hyq/inertia_properties.h>
 #include <iit/robots/hyq/transforms.h>

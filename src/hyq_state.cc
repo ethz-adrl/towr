@@ -6,7 +6,6 @@
  */
 
 #include <xpp/hyq/hyq_state.h>
-#include <xpp/utils/orientation.h>
 
 namespace xpp {
 namespace hyq {

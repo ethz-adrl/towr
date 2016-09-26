@@ -13,27 +13,17 @@
 #ifndef IIT_ZMP_RUNNER_H_
 #define IIT_ZMP_RUNNER_H_
 
-#include <xpp/zmp/phase_info.h>
 #include <xpp_controller/controller.h>
-#include "virtual_model-inl.h"
+
 #include "walking_controller_state.h"
 #include <xpp/hyq/hyq_state.h>
-//#include <xpp/zmp/com_polynomial.h>
-//#include <xpp/hyq/hyq_spliner.h>
 
-//#include <xpp_opt/OptimizedParametersNlp.h>
-#include <xpp_opt/RequiredInfoNlp.h>
-#include <xpp_opt/RobotStateTrajectoryCartesian.h>
+#include <xpp_opt/RequiredInfoNlp.h>               // send
+#include <xpp_opt/RobotStateTrajectoryCartesian.h> // receive
 
-#include <iit/robots/hyq/declarations.h>
-#include <iit/robots/hyq/inertia_properties.h>
-#include <iit/robots/hyq/jsim.h>
-#include <iit/robots/hyq/transforms.h>
+#include "virtual_model-inl.h"
 
-#include <Eigen/src/Core/Matrix.h>
-#include <ros/publisher.h>
-#include <ros/subscriber.h>
-#include <vector>
+#include <ros/ros.h>
 
 namespace xpp {
 namespace exe {
@@ -50,12 +40,7 @@ public:
   template<typename T> using LegDataMap = xpp::hyq::LegDataMap<T>;
   typedef xpp::hyq::LegID LegID;
   typedef xpp::utils::Point3d State;
-  typedef xpp::utils::Orientation Orientation;
-//  using VecSpline = std::vector<xpp::zmp::ComPolynomial>;
-//  using VecPhase  = xpp::zmp::PhaseVec;
-  // ROS stuff
   typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
-//  typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
   using RobotStateTrajMsg = xpp_opt::RobotStateTrajectoryCartesian;
 
   explicit WalkingController();
@@ -70,46 +55,27 @@ public:
   bool IsTimeToSendOutState() const;
   void PublishOptimizationStartState(); // sends out command to start NLP optimization
 
-
   bool optimal_trajectory_updated;
 
 private:
-//  void AddVarForLogging();
-
   void GetReadyHook() override;
   bool RunHook() override;
 
   WalkingControllerState::State current_state_;
   WalkingControllerState::StatesMap states_map_;
 
-//  void OptParamsCallback(const OptimizedParametersMsg& msg);
   void TrajectoryCallback(const RobotStateTrajMsg& msg);
   ::ros::Publisher current_info_pub_;
-//  ::ros::Subscriber opt_params_sub_;
   ::ros::Subscriber trajectory_sub_;
   std::vector<xpp::hyq::HyqStateStamped> optimized_trajectory_;
   int k = 0; // position along optimized trajectory;
 
-//  /** Estimates where the robot will be when optimization is complete in order
-//    * to start optimization from there.
-//    *
-//    * @param required_time
-//    * @return
-//    */
-//  State GetStartStateForOptimization(/*const double required_time*/) const;
-
   bool reoptimize_before_finish_;
   bool first_run_after_integrating_opt_trajectory_;
 
-//  VecSpline opt_spline_;
-//  VecFoothold opt_footholds_;
-//  VecPhase motion_phases_;
-
-  // cmo remove this (redundant through see below)
-//  HyqSpliner spliner_;  //for normal body, ori, and feet traj.
-
   HyqState P_des_;
   HyqState P_curr_;
+  HyqState switch_node_;  // where the new trajectory starts
 
   // some hacky stuff
   State prev_state_;
@@ -117,10 +83,6 @@ private:
   double t_swing_;
   double robot_height_;
   double max_cpu_time_;
-
-  HyqState switch_node_;
-  double kOptTimeReq_;
-
 
   void SmoothTorquesAtContactChange(JointState& uff);
   LegDataMap<bool> prev_swingleg_;
@@ -139,6 +101,7 @@ private:
 
   Eigen::Vector3d TransformBaseToProjectedFrame(const Eigen::Vector3d& B_r_btox,
                                                 const xpp::utils::Pose& P_base_BtoP) const;
+//  void AddVarForLogging();
 };
 
 

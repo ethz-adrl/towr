@@ -107,7 +107,6 @@ set(SOURCES
   src/foothold.cc
   src/spliner.cc
   src/spliner_3d.cc
-  src/orientation.cc
   src/zero_moment_point.cc
   src/motion_structure.cc
   src/step_sequence_planner.cc

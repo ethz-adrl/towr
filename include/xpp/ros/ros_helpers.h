@@ -17,7 +17,6 @@
 #include <xpp_opt/Foothold.h>
 #include <xpp_opt/RobotStateTrajectoryCartesian.h>
 
-
 #include <xpp/utils/geometric_structs.h>
 #include <xpp/zmp/phase_info.h>
 #include <xpp/hyq/foothold.h>
@@ -41,10 +40,11 @@ typedef xpp::zmp::ComSpline::VecPolynomials VecSpline;
 typedef xpp_opt::Spline SplineMsg;
 typedef xpp::hyq::LegID LegID;
 
-using ContactMsg   = xpp_opt::Contact;
-using ContactXpp   = xpp::zmp::Contact;
-using PhaseInfoMsg = xpp_opt::PhaseInfo;
-using PhaseInfoXpp = xpp::zmp::PhaseInfo;
+using ContactXpp        = xpp::zmp::Contact;
+using PhaseInfoXpp      = xpp::zmp::PhaseInfo;
+
+using ContactMsg        = xpp_opt::Contact;
+using PhaseInfoMsg      = xpp_opt::PhaseInfo;
 using RobotStateTrajMsg = xpp_opt::RobotStateTrajectoryCartesian;
 using RobotStateMsg     = xpp_opt::RobotStateCartesianStamped;
 using BaseStateMsg      = xpp_opt::BaseState;
@@ -398,9 +398,7 @@ RosToXpp(const RobotStateTrajMsg& ros)
 
 }; // RosHelpers
 
-
 }
 }
-
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_UTILS_ROS_HELPERS_H_ */
