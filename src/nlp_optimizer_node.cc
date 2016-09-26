@@ -28,6 +28,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
   // get current optimization values from the optimizer
   optimization_visualizer_.SetObserver(nlp_facade_.GetObserver());
   nlp_facade_.AttachVisualizer(optimization_visualizer_);
+
+  whole_body_mapper_.SetParams(0.5, 0.15, 0.0);
 }
 
 void

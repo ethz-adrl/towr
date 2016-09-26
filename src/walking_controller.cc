@@ -123,6 +123,8 @@ WalkingController::TrajectoryCallback (const RobotStateTrajMsg& msg)
   optimized_trajectory_ = xpp::ros::RosHelpers::RosToXpp(msg);
   optimal_trajectory_updated = true;
   k = 0;
+
+  ROS_INFO_STREAM("Received trajectory");
 }
 
 bool
