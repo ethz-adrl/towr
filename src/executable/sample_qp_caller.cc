@@ -22,7 +22,7 @@ xpp::zmp::ComSpline6::VecPolynomials splines;
 std::vector<xpp::hyq::Foothold> footholds;
 void OptParamsCallback(const OptimizedParametersMsg& msg)
 {
-  splines = xpp::ros::RosHelpers::RosToXpp(msg.splines);
+  splines = cmo::ros::RosHelpers::RosToXpp(msg.splines);
 }
 
 

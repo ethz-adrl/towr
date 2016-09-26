@@ -7,16 +7,17 @@
 
 
 #include <ros/ros.h>
-#include <xpp_opt/StateLin3d.h>
+#include <xpp_msgs/StateLin3d.h>
 
+using StateLin3dMsg = xpp_msgs::StateLin3d;
 
 int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "goal_state_publisher");
   ros::NodeHandle n;
-  ros::Publisher goal_state_pub = n.advertise<xpp_opt::StateLin3d>("goal_state", 10);
+  ros::Publisher goal_state_pub = n.advertise<StateLin3dMsg>("goal_state", 10);
 
-  xpp_opt::StateLin3d msg;
+  StateLin3dMsg msg;
   if (argc!=3)
     ROS_FATAL("Please specify goal xy-positions as parameter");
   msg.pos.x = atof(argv[1]);

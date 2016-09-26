@@ -6,7 +6,8 @@
  */
 
 #include <xpp/ros/nlp_optimizer_node.h>
-#include <xpp/ros/ros_helpers.h>
+#include <xpp/ros/ros_helpers.h>  // namespace cmo::ros
+#include <xpp_msgs/ros_helpers.h> // namespace xpp::ros
 
 namespace xpp {
 namespace ros {
@@ -56,9 +57,9 @@ void
 NlpOptimizerNode::PublishOptimizedValues() const
 {
   OptParamMsg msg_out;
-  msg_out.splines   = xpp::ros::RosHelpers::XppToRos(opt_splines_);
+  msg_out.splines   = cmo::ros::RosHelpers::XppToRos(opt_splines_);
   msg_out.footholds = xpp::ros::RosHelpers::XppToRos(footholds_);
-  msg_out.phases    = xpp::ros::RosHelpers::XppToRos(motion_phases_);
+  msg_out.phases    = cmo::ros::RosHelpers::XppToRos(motion_phases_);
 
   opt_params_pub_.publish(msg_out);
   ROS_INFO_STREAM("Publishing optimized values");

@@ -13,7 +13,7 @@
 #include <xpp/utils/geometric_structs.h>
 
 #include <xpp/hyq/foothold.h>
-#include <xpp_opt/StateLin3d.h>
+#include <xpp_msgs/StateLin3d.h>
 
 #include <ros/ros.h>
 
@@ -24,7 +24,7 @@ class OptimizerNodeBase {
 public:
   using State = xpp::utils::Point3d;
   using VecFoothold = std::vector<xpp::hyq::Foothold>;
-  using StateMsg = xpp_opt::StateLin3d;
+  using StateMsg = xpp_msgs::StateLin3d;
   using PhaseVec = xpp::zmp::PhaseVec;
   using VecSpline = std::vector<xpp::zmp::ComPolynomial>;
 

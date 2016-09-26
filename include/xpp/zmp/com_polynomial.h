@@ -70,7 +70,7 @@ protected:
 } // namespace zmp
 } // namespace xpp
 
-namespace xpp {namespace ros{ class RosHelpers; }};
+namespace cmo {namespace ros{ class RosHelpers; }};
 
 namespace xpp {
 namespace zmp {
@@ -100,7 +100,7 @@ private:
   double duration_; // time during which this spline is active
 
   friend std::ostream& operator<<(std::ostream& out, const ComPolynomial& tr);
-  friend struct xpp::ros::RosHelpers;
+  friend struct cmo::ros::RosHelpers;
 };
 
 

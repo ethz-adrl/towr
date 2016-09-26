@@ -4,4 +4,4 @@
 
 PhaseInfo[] phases    # not optimized, but puts the motion into context
 Spline[] splines
-Foothold[] footholds
+xpp_msgs/Foothold[] footholds

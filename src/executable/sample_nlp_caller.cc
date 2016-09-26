@@ -5,7 +5,9 @@
  * \brief  sends out a sample current state to the NLP server
  */
 
-#include <xpp/ros/ros_helpers.h>
+#include <xpp/ros/ros_helpers.h>  // xpp::cmo
+#include <xpp_msgs/ros_helpers.h> // xpp::ros
+
 #include <xpp/zmp/com_spline6.h>
 
 #include <xpp_opt/RequiredInfoNlp.h>         // send
@@ -22,7 +24,7 @@ xpp::zmp::ComSpline6::VecPolynomials splines;
 std::vector<xpp::hyq::Foothold> footholds;
 void OptParamsCallback(const OptimizedParametersMsg& msg)
 {
-  splines   = xpp::ros::RosHelpers::RosToXpp(msg.splines);
+  splines   = cmo::ros::RosHelpers::RosToXpp(msg.splines);
   footholds = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
 }
 

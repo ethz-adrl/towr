@@ -8,11 +8,9 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   message_generation
   rviz_visual_tools #  used in nlp_user_input.cc to delete all rviz markers
-  #these should only be needed for the exe/ namespace
-  xpp_controller   
+  xpp_msgs #defines the state to talk to the controller   
   hyq_inverse_kinematics
 )
-
 
 # NLP solvers (adapt global path accordingly)
 set(IPOPT_SRC_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4")
@@ -50,19 +48,12 @@ set(LIB_NAME xpp_opt)
 add_message_files(
   FILES
   Contact.msg
-  Foothold.msg
   Spline.msg
-  StateLin3d.msg
   PhaseInfo.msg
   RequiredInfoNlp.msg
   OptimizedParametersNlp.msg
   RequiredInfoQp.msg
   OptimizedParametersQp.msg
-  # representing a complete optimized trajectory
-  BaseState.msg
-  RobotStateCartesian.msg
-  RobotStateCartesianStamped.msg
-  RobotStateTrajectoryCartesian.msg
 )
 add_service_files(
   FILES
@@ -75,6 +66,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
+  xpp_msgs      # Foothold.msg
 )
 
 ###################################
@@ -89,7 +81,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
   LIBRARIES ${LIB_NAME} ${IPOPT_LIBS} ${SNOPT_LIBS}
-  CATKIN_DEPENDS message_runtime std_msgs geometry_msgs
+  CATKIN_DEPENDS
   DEPENDS
 )
 
@@ -104,7 +96,6 @@ include_directories(
 set(SOURCES
   src/ellipse.cc
   src/qp_facade.cc
-  src/foothold.cc
   src/spliner.cc
   src/spliner_3d.cc
   src/zero_moment_point.cc
@@ -116,7 +107,6 @@ set(SOURCES
   #hyq
   src/hyq_inverse_kinematics.cc
   src/hyq_robot_interface
-  src/hyq_state.cc
   src/support_polygon.cc
   src/supp_polygon_container.cc
   src/hyq_spliner.cc
@@ -127,9 +117,6 @@ set(SOURCES
   src/com_spline4.cc    
   src/com_polynomial.cc
   src/motion_factory.cc
-  #exe
-  src/walking_controller.cc
-  src/walking_controller_state.cc
   # nlp
   src/a_subject.cc
   src/nlp_structure.cc
@@ -169,8 +156,7 @@ set(SOURCES
 add_library(${LIB_NAME}
    ${SOURCES}
 )
-target_link_libraries(${LIB_NAME} 
-  log4cxx
+target_link_libraries(${LIB_NAME}
   ${catkin_LIBRARIES}
   ${IPOPT_LIBS}
   ${SNOPT_LIBS}

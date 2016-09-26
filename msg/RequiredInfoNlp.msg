@@ -5,6 +5,6 @@
 # The optimized values are saved in the server and can be retrieved by another
 # service call.
 
-StateLin3d curr_state
-Foothold[] curr_stance
+xpp_msgs/StateLin3d curr_state
+xpp_msgs/Foothold[] curr_stance
 int32 curr_swingleg           # can also be no swingleg, if in stance phase
