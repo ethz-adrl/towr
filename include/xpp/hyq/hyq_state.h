@@ -32,11 +32,12 @@ public:
   LegDataMap<Point3d> feet_;
   Pose base_; // geometric center of mass, vel, acc
 
+  // cmo this might not be necessary, return position and stance independent?
   LegDataMap< Foothold > FeetToFootholds() const;
   Foothold FootToFoothold(LegID leg) const;
+  VecFoothold GetStanceLegs() const;
 
   const LegDataMap<Vector3d> GetFeetPosOnly();
-  VecFoothold GetStanceLegs() const;
 
   void SetSwingleg(LegID leg);
   std::array<Vector3d, kNumSides> GetAvgSides() const;

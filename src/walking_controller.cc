@@ -114,7 +114,10 @@ WalkingController::PublishOptimizationStartState()
 
 
 
+  // cmo this might not be necessary
   VecFoothold predicted_stance = switch_node_.FeetToFootholds().ToVector();
+
+
   State predicted_state  = switch_node_.base_.pos; //spliner_.GetCurrPosition(t_switch_).Get2D();
 
   State curr_state = P_curr_.base_.pos;
