@@ -230,7 +230,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
   for (double t(0.0); t < com_motion.GetTotalTime(); t+= 0.01)
   {
-    xpp::utils::Point2d cog_state = com_motion.GetCom(t);
+    xpp::utils::BaseLin2d cog_state = com_motion.GetCom(t);
 
     Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height);
 

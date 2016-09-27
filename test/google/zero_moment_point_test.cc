@@ -116,7 +116,7 @@ TEST_F(ZeroMomentPointTest, GetLinearApproxWrtMotionCoeff)
   int n = 0;
   for (double t : cont_spline_container_.GetDiscretizedGlobalTimes())
   {
-    xpp::utils::Point2d cog_xy = ComSpline4::GetCOGxy(t, splines);
+    xpp::utils::BaseLin2d cog_xy = ComSpline4::GetCOGxy(t, splines);
     Eigen::Vector2d zmp_true = ZeroMomentPoint::CalcZmp(cog_xy.Make3D(), walking_height);
 
     SCOPED_TRACE("n = " + std::to_string(n));

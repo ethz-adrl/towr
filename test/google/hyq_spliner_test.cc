@@ -19,18 +19,18 @@ namespace hyq {
 // uses the optimized spline created by the nlp optimizer
 class HyqSplinerTest : public xpp::zmp::NlpFacadeTest {
 public:
-  typedef xpp::utils::Point2d Point2d;
-  typedef xpp::utils::Point3d Point3d;
+  typedef xpp::utils::BaseLin2d Point2d;
+  typedef xpp::utils::BaseLin3d Point3d;
 
 protected:
   virtual void SetUp()
   {
     NlpFacadeTest::SetUp(); // initialize super class
 
-    init_.base_.pos = start_xy_.Make3D();
-    init_.base_.pos.p.z() = 0.7;
-    init_.base_.pos.v.z() = 0.8;
-    init_.base_.pos.a.z() = 0.9;
+    init_.base_.lin = start_xy_.Make3D();
+    init_.base_.lin.p.z() = 0.7;
+    init_.base_.lin.v.z() = 0.8;
+    init_.base_.lin.a.z() = 0.9;
 
     for (LegID leg : LegIDArray) {
       init_.feet_[leg].p = Foothold::GetLastFoothold(leg, start_stance_).p;
@@ -76,20 +76,20 @@ TEST_F(HyqSplinerTest, BuildNode)
   SplineNode node = HyqSpliner::BuildNode(init_, 1.5);
 
   EXPECT_DOUBLE_EQ(node.T, t);
-  EXPECT_EQ(node.state_.base_.pos.p, init_.base_.pos.p);
-  EXPECT_EQ(node.state_.base_.pos.v, init_.base_.pos.v);
-  EXPECT_EQ(node.state_.base_.pos.a, init_.base_.pos.a);
-  EXPECT_EQ(node.ori_rpy_.p, HyqSpliner::TransformQuatToRpy(init_.base_.ori.q));
+  EXPECT_EQ(node.state_.base_.lin.p, init_.base_.lin.p);
+  EXPECT_EQ(node.state_.base_.lin.v, init_.base_.lin.v);
+  EXPECT_EQ(node.state_.base_.lin.a, init_.base_.lin.a);
+  EXPECT_EQ(node.ori_rpy_.p, HyqSpliner::TransformQuatToRpy(init_.base_.ang.q));
 }
 
 TEST_F(HyqSplinerTest, GetCurrPositionInit)
 {
   Point3d splined_init = spliner_.GetCurrPosition(0.0);
-  SCOPED_TRACE(testing::Message() << "init_.base_.pos: " << init_.base_.pos);
+  SCOPED_TRACE(testing::Message() << "init_.base_.pos: " << init_.base_.lin);
   SCOPED_TRACE(testing::Message() << "splined_init: "    << splined_init);
 
   // xy positions filled in by optimized spline and tested in NlpOptimizer
-  EXPECT_DOUBLE_EQ(init_.base_.pos.a.z(), splined_init.a.z());
+  EXPECT_DOUBLE_EQ(init_.base_.lin.a.z(), splined_init.a.z());
 }
 
 TEST_F(HyqSplinerTest, GetCurrPositionGoal)

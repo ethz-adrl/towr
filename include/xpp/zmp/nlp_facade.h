@@ -44,7 +44,7 @@ class ComMotion;
   */
 class NlpFacade {
 public:
-  typedef xpp::utils::Point2d State;
+  typedef xpp::utils::BaseLin2d State;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
   typedef std::shared_ptr<OptimizationVariablesInterpreter> InterpreterPtr;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;

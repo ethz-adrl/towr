@@ -25,7 +25,7 @@ class ComMotion;
 class ZeroMomentPoint {
 public:
   typedef Eigen::Vector2d Vector2d;
-  typedef xpp::utils::Point3d State3d;
+  typedef xpp::utils::BaseLin3d State3d;
   typedef xpp::utils::Coords3D Coords;
   typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
   typedef Eigen::SparseMatrix<double, Eigen::RowMajor> Jacobian;

@@ -26,7 +26,7 @@ class Spliner3d {
   SplineType splineX, splineY, splineZ;
 
 public:
-typedef utils::Point3d Point;
+typedef utils::BaseLin3d Point;
 
 public:
   explicit Spliner3d() {};

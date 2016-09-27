@@ -25,7 +25,7 @@ namespace ros {
   */
 class NlpUserInputNode {
 public:
-  using State = xpp::utils::Point3d;
+  using State = xpp::utils::BaseLin3d;
   using StateMsg = xpp_msgs::StateLin3d;
   using KeyboardMsg = keyboard::Key;
   using GoalSrv = xpp_opt::GetStateLin3d;

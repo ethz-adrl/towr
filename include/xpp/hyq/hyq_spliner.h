@@ -17,7 +17,7 @@ namespace xpp {
 namespace hyq {
 
 struct SplineNode {
-  typedef xpp::utils::Point3d Point3d;
+  typedef xpp::utils::BaseLin3d Point3d;
 
   SplineNode(){};
   SplineNode(const HyqState& state, const Point3d& ori_rpy, double t_max)
@@ -71,7 +71,7 @@ public:
    * These function access the intermediate splined states fo the robot
    */
   Point GetCurrPosition(double t_global) const;
-  xpp::utils::Ori GetCurrOrientation(double t_global) const;
+  xpp::utils::BaseAng3d GetCurrOrientation(double t_global) const;
   void FillCurrFeet(double t_global, LegDataMap<Point>& feet, LegDataMap<bool>& swingleg) const;
 
 

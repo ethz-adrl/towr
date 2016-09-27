@@ -25,7 +25,7 @@ public:
   typedef std::vector<ComPolynomial> VecPolynomials;
   typedef xpp::utils::MotionDerivative MotionDerivative;
   typedef xpp::utils::VecScalar VecScalar;
-  typedef xpp::utils::Point2d Point2d;
+  typedef xpp::utils::BaseLin2d Point2d;
   typedef xpp::utils::Coords3D Coords3D;
   typedef std::vector<MotionDerivative> Derivatives;
   typedef std::shared_ptr<ComSpline> PtrS;

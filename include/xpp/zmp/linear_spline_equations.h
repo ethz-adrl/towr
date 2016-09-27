@@ -28,7 +28,7 @@ class ComSpline; // at some point get rid of this
 class LinearSplineEquations {
 public:
   using MatVec            = xpp::utils::MatVec;
-  using State2d           = xpp::utils::Point2d;
+  using State2d           = xpp::utils::BaseLin2d;
   using MotionDerivatives = std::vector<xpp::utils::MotionDerivative>;
   using ComSplinePtrU     = std::unique_ptr<ComSpline>;
 

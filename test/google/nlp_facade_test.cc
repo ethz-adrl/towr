@@ -23,7 +23,7 @@ NlpFacadeTest::VecFoothold NlpFacadeTest::opt_footholds_ = VecFoothold();
 TEST_F(NlpFacadeTest, GetCOGxyInitialAccelerationConstraint)
 {
   double t0 = 0.0;
-  xpp::utils::Point2d xy_optimized = ComSpline6::GetCOGxy(t0, opt_xy_splines_);
+  xpp::utils::BaseLin2d xy_optimized = ComSpline6::GetCOGxy(t0, opt_xy_splines_);
 
   // these are hardcoded into the splines
   EXPECT_EQ(start_xy_.p, xy_optimized.p);
@@ -39,7 +39,7 @@ TEST_F(NlpFacadeTest, GetCOGxyInitialAccelerationConstraint)
 TEST_F(NlpFacadeTest, GetCOGxyFinalAccelerationConstraint)
 {
   double T = ComSpline6::GetTotalTime(opt_xy_splines_);
-  xpp::utils::Point2d xy_optimized = ComSpline6::GetCOGxy(T, opt_xy_splines_);
+  xpp::utils::BaseLin2d xy_optimized = ComSpline6::GetCOGxy(T, opt_xy_splines_);
 
   // these are all constraints in the optimizer, so they won't be exactly fullfilled
   // only according to the "tol" parameter set in the ipopt config file

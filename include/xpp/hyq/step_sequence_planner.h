@@ -28,7 +28,7 @@ class StepSequencePlanner {
 public:
   typedef std::vector<LegID> LegIDVec;
   typedef std::vector<Foothold> VecFoothold;
-  typedef xpp::utils::Point2d State;
+  typedef xpp::utils::BaseLin2d State;
   typedef Eigen::Vector2d Vector2d;
 
   StepSequencePlanner ();

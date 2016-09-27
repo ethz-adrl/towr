@@ -42,10 +42,10 @@ HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com
   // cmo this should not need to be explicitly defined, merge both Init functions
   HyqState x0;
   x0.ZeroVelAcc();
-  x0.base_.pos.p.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).p;
-  x0.base_.pos.v.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).v;
-  x0.base_.pos.a.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).a;
-  x0.base_.pos.p.z() = robot_height;
+  x0.base_.lin.p.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).p;
+  x0.base_.lin.v.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).v;
+  x0.base_.lin.a.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).a;
+  x0.base_.lin.p.z() = robot_height;
 
   for (auto f : phase_info.at(0).fixed_contacts_) {
     x0.feet_[f.leg].p = f.p;
@@ -74,8 +74,8 @@ HyqSpliner::BuildWholeBodyTrajectory () const
     FillCurrFeet(t, feet, swingleg);
 
     HyqStateStamped state;
-    state.base_.pos = pos;
-    state.base_.ori = ori;
+    state.base_.lin = pos;
+    state.base_.ang = ori;
     state.feet_ = feet;
     state.swingleg_ = swingleg;
     state.t_ = t;
@@ -110,7 +110,7 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
   for (hyq::LegID l : hyq::LegIDArray) {
     P_plan_prev.feet_[l].p(Z) = 0.0;
   }
-  P_plan_prev.base_.pos.p(Z) = robot_height + P_plan_prev.GetZAvg(); // height of footholds
+  P_plan_prev.base_.lin.p(Z) = robot_height + P_plan_prev.GetZAvg(); // height of footholds
 
   double t_global = 0.0;
   for (const auto& curr_phase : phase_info)
@@ -159,16 +159,16 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
 
 
     kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
-    goal_node.base_.ori.q = qIB.toImplementation();
+    goal_node.base_.ang.q = qIB.toImplementation();
 
     // adjust global z position of body depending on footholds
-    goal_node.base_.pos.p(Z) = robot_height + goal_node.GetZAvg(); // height of footholds
+    goal_node.base_.lin.p(Z) = robot_height + goal_node.GetZAvg(); // height of footholds
 
     // fill in x-y position, although overwritten anyway later
     double t_phase = curr_phase.duration_;
     t_global += t_phase;
     auto com_xy_at_end_of_phase = xpp::zmp::ComPolynomial::GetCOM(t_global, optimized_xy_spline);
-    goal_node.base_.pos.p.topRows(kDim2d) = com_xy_at_end_of_phase.p;
+    goal_node.base_.lin.p.topRows(kDim2d) = com_xy_at_end_of_phase.p;
 
     nodes.push_back(BuildNode(goal_node, t_phase));
 
@@ -205,7 +205,7 @@ void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
 SplineNode
 HyqSpliner::BuildNode(const HyqState& state, double t_max)
 {
-  Point ori_rpy(TransformQuatToRpy(state.base_.ori.q));
+  Point ori_rpy(TransformQuatToRpy(state.base_.ang.q));
   return SplineNode(state, ori_rpy, t_max);
 }
 
@@ -310,7 +310,7 @@ HyqSpliner::Point
 HyqSpliner::GetCurrPosition(double t_global) const
 {
   Vector3d z_splined = GetCurrZState(t_global);
-  xpp::utils::Point2d xy_optimized = xpp::zmp::ComPolynomial::GetCOM(t_global, optimized_xy_spline_);
+  xpp::utils::BaseLin2d xy_optimized = xpp::zmp::ComPolynomial::GetCOM(t_global, optimized_xy_spline_);
 
   Point pos;
 
@@ -325,7 +325,7 @@ HyqSpliner::GetCurrPosition(double t_global) const
 }
 
 
-xpp::utils::Ori
+xpp::utils::BaseAng3d
 HyqSpliner::GetCurrOrientation(double t_global) const
 {
   double t_local = GetLocalSplineTime(t_global);
@@ -335,7 +335,7 @@ HyqSpliner::GetCurrOrientation(double t_global) const
   ori_spliner_.at(spline).GetPoint(t_local, ori_rpy);
 
   // transform to orientation with quaternion
-  xpp::utils::Ori ori;
+  xpp::utils::BaseAng3d ori;
   kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB(ori_rpy.p);
   kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
   ori.q = qIB.toImplementation();
@@ -397,7 +397,7 @@ HyqSpliner::Spliner3d
 HyqSpliner::BuildPositionSpline(const SplineNode& from, const SplineNode& to) const
 {
   Spliner3d pos;
-  pos.SetBoundary(to.T, from.state_.base_.pos, to.state_.base_.pos);
+  pos.SetBoundary(to.T, from.state_.base_.lin, to.state_.base_.lin);
   return pos;
 }
 

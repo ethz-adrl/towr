@@ -31,7 +31,7 @@ namespace ros {
 class OptimizationVisualizer : public xpp::zmp::IVisualizer {
 public:
   typedef std::shared_ptr<xpp::zmp::NlpObserver> NlpObserverPtr;
-  using State = xpp::utils::Point2d;
+  using State = xpp::utils::BaseLin2d;
   using VecFoothold = std::vector<xpp::hyq::Foothold>;
 
   OptimizationVisualizer();

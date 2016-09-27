@@ -26,7 +26,7 @@ namespace zmp {
 class ComMotion {
 public:
   typedef Eigen::VectorXd VectorXd;
-  typedef xpp::utils::Point2d Point2d;
+  typedef xpp::utils::BaseLin2d Point2d;
   typedef xpp::utils::VecScalar VecScalar;
   typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
   typedef std::shared_ptr<ComMotion> PtrS;

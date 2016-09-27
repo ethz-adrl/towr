@@ -37,7 +37,7 @@ public:
   typedef std::shared_ptr<AConstraint> ConstraintPtr;
   typedef std::shared_ptr<ACost> CostPtr;
   typedef Eigen::Vector2d Vector2d;
-  typedef xpp::utils::Point2d State2d;
+  typedef xpp::utils::BaseLin2d State2d;
   using Contacts = xpp::hyq::SupportPolygonContainer;
 
   CostConstraintFactory ();

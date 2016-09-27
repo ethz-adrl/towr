@@ -22,7 +22,7 @@ namespace ros {
 
 class OptimizerNodeBase {
 public:
-  using State = xpp::utils::Point3d;
+  using State = xpp::utils::BaseLin3d;
   using VecFoothold = std::vector<xpp::hyq::Foothold>;
   using StateMsg = xpp_msgs::StateLin3d;
   using PhaseVec = xpp::zmp::PhaseVec;

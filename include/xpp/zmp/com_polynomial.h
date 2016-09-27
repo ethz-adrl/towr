@@ -80,7 +80,7 @@ namespace zmp {
 class ComPolynomial : public PolynomialFifthOrder {
 public:
   using VecPolynomials = std::vector<ComPolynomial>;
-  using Point2d = xpp::utils::Point2d;
+  using Point2d = xpp::utils::BaseLin2d;
 
   ComPolynomial();
   ComPolynomial(uint id, double duration);
