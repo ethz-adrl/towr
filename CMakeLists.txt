@@ -7,10 +7,11 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   message_generation
-  rviz_visual_tools #  used in nlp_user_input.cc to delete all rviz markers
-  xpp_msgs #defines the state to talk to the controller   
-  hyq_inverse_kinematics
+  rviz_visual_tools   # used in nlp_user_input.cc to delete all rviz markers
+  xpp_msgs            # defines the state to talk to the controller
 )
+
+find_package(Eigen3 REQUIRED)
 
 # NLP solvers (adapt global path accordingly)
 set(IPOPT_SRC_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4")
@@ -22,17 +23,12 @@ set(SNOPT_INCLUDE_DIRS ${SNOPT_SRC_DIR}/include)
 set(SNOPT_LIBS ${SNOPT_SRC_DIR}/lib/libsnopt7_cpp.so ${SNOPT_SRC_DIR}/lib/libsnopt7.so) # must be absolute path
 
 
-find_package(Eigen3 REQUIRED)
-
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
-
 # specify compiler flags. Default: Release
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: Debug, Release(EIGEN_NO_DEBUG)." FORCE)
 endif()
-
-
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x -fopenmp -O3")
 #set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG -fopenmp -O3")
@@ -40,9 +36,7 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11") 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
 
-
 set(LIB_NAME xpp_opt)
-
 
 # Generate added messages with any dependencies listed here
 add_message_files(
@@ -81,7 +75,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
   LIBRARIES ${LIB_NAME} ${IPOPT_LIBS} ${SNOPT_LIBS}
-  CATKIN_DEPENDS
+  CATKIN_DEPENDS message_runtime
   DEPENDS
 )
 
