@@ -73,7 +73,22 @@ public:
 
 private:
   ComSplinePtrU com_spline_;
+
+  template<std::size_t N>
+  std::array<double,N> CalcExponents(double t) const;
 };
+
+
+template<std::size_t N>
+std::array<double,N>
+LinearSplineEquations::CalcExponents(double t) const
+{
+  std::array<double,N> exp = {{ 1.0, t }};
+  for (uint e = 2; e < N; ++e)
+    exp[e] = exp[e-1] * t;
+  return exp;
+}
+
 
 } /* namespace zmp */
 } /* namespace xpp */

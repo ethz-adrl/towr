@@ -125,7 +125,7 @@ LinearSplineEquations::MakeAcceleration (double weight_x, double weight_y) const
 
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
   for (const ComPolynomial& p : com_spline_->GetPolynomials()) {
-    std::array<double,8> t_span = utils::cache_exponents<8>(p.GetDuration());
+    std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
       const int a = com_spline_->Index(p.GetId(), dim, A);
@@ -167,7 +167,7 @@ LinearSplineEquations::MakeJerk (double weight_x, double weight_y) const
 
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
   for (const ComPolynomial& p : com_spline_->GetPolynomials()) {
-    std::array<double,8> t_span = utils::cache_exponents<8>(p.GetDuration());
+    std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
       const int a = com_spline_->Index(p.GetId(), dim, A);
