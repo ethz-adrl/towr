@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_LINEAR_SPLINE_EQUATIONS_H_
 
 #include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/matrix_vector.h>
 #include <memory>
 
 namespace xpp {

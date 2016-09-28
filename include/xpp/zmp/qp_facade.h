@@ -9,25 +9,12 @@
 #define _XPP_ZMP_QP_FACADE_H_
 
 #include "com_spline.h"
+
+#include <xpp/utils/matrix_vector.h>
 #include <xpp/hyq/foothold.h>
 
-
-/**
-@brief Dynamic ("pp" = ++) locomotion ("x"-coordinate)
-
-All functions related to hyq, all utilities and all optimizations are a nested
-namespace of this.
- */
 namespace xpp {
-
-/**
-@brief Zero-Moment-Point (ZMP) optimization
-
-All classes that optimize the CoG trajectory while keeping the ZMP inside the
-current support triangle are located in this namespace
- */
 namespace zmp {
-
 
 /**
 \class QpFacade

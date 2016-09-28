@@ -11,8 +11,6 @@
 namespace xpp {
 namespace zmp {
 
-using MatVec = xpp::utils::MatVec;
-
 ZmpConstraint::ZmpConstraint ()
 {
 }

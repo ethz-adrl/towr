@@ -10,6 +10,7 @@
 
 #include <xpp/zmp/a_cost.h>
 #include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/matrix_vector.h>
 
 namespace xpp {
 namespace zmp {
