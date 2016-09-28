@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_SUPP_TRIANGLE_CONTAINER_H_
 
 #include <xpp/hyq/support_polygon.h>
+#include <xpp/utils/eigen_std_conversions.h>
 #include <functional> // std::function
 
 namespace xpp {
