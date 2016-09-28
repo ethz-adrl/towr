@@ -10,7 +10,7 @@
 
 
 #include <xpp/zmp/phase_info.h>
-#include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/base_state.h>
 #include <xpp/zmp/i_visualizer.h>
 #include <xpp/hyq/support_polygon.h>
 

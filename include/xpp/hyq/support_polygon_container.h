@@ -10,6 +10,7 @@
 
 #include <xpp/hyq/support_polygon.h>
 #include <xpp/utils/eigen_std_conversions.h>
+#include <xpp/utils/cartesian_declarations.h>
 #include <functional> // std::function
 
 namespace xpp {

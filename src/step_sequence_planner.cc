@@ -16,7 +16,7 @@
 namespace xpp {
 namespace hyq {
 
-using namespace xpp::utils::coords_wrapper; // X,Y
+using namespace xpp::utils; // X,Y
 
 StepSequencePlanner::StepSequencePlanner ()
 {

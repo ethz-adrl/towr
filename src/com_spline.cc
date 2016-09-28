@@ -10,8 +10,7 @@
 namespace xpp {
 namespace zmp {
 
-static int kDim2d = xpp::utils::kDim2d;
-using namespace xpp::utils::coords_wrapper;
+using namespace xpp::utils;
 
 ComSpline::ComSpline ()
 {
@@ -64,7 +63,6 @@ ComSpline::GetTotalFreeCoeff () const
 ComSpline::VectorXd
 ComSpline::GetCoeffients () const
 {
-  using namespace xpp::utils::coords_wrapper;
   VectorXd x_abcd(GetTotalFreeCoeff());
 
   for (const auto& s : polynomials_)

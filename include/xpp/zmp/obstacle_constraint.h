@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_OBSTACLE_CONSTRAINT_H_
 
 #include <xpp/zmp/a_constraint.h>
-#include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/eigen_std_conversions.h>
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/ellipse.h>
 

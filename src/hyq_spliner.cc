@@ -11,8 +11,7 @@
 namespace xpp {
 namespace hyq {
 
-using namespace xpp::utils::coords_wrapper;
-
+using namespace xpp::utils;
 
 void HyqSpliner::SetParams(double upswing,
                double lift_height,

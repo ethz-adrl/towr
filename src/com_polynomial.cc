@@ -11,7 +11,7 @@
 namespace xpp {
 namespace zmp {
 
-using namespace xpp::utils::coords_wrapper;
+using namespace xpp::utils;
 
 PolynomialFifthOrder::PolynomialFifthOrder()
 {
@@ -113,7 +113,7 @@ ComPolynomial::GetLocalTime(double t_global, const VecPolynomials& splines)
   return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
 }
 
-ComPolynomial::Point2d
+ComPolynomial::BaseLin2d
 ComPolynomial::GetCOM(double t_global, const VecPolynomials& splines)
 {
   int id = GetPolynomialID(t_global,splines);
@@ -122,10 +122,10 @@ ComPolynomial::GetCOM(double t_global, const VecPolynomials& splines)
   return GetCOGxyAtPolynomial(id, t_local, splines);
 }
 
-ComPolynomial::Point2d
+ComPolynomial::BaseLin2d
 ComPolynomial::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& splines)
 {
-  Point2d cog_xy;
+  BaseLin2d cog_xy;
   cog_xy.p = splines[id].GetState(kPos, t_local);
   cog_xy.v = splines[id].GetState(kVel, t_local);
   cog_xy.a = splines[id].GetState(kAcc, t_local);

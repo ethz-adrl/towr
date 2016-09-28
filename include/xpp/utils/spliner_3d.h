@@ -9,7 +9,7 @@
 #define _XPP_UTILS_SPLINER_3D_H_
 
 #include "spliner.h"
-#include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/base_state.h>
 #include <Eigen/Dense>
 
 namespace xpp {

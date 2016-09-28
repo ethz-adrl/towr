@@ -8,6 +8,7 @@
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/zmp/motion_structure.h>
 #include <xpp/zmp/phase_info.h>
+#include <xpp/utils/cartesian_declarations.h>
 
 namespace xpp {
 namespace hyq {
@@ -166,7 +167,7 @@ SupportPolygonContainer::GetCenterOfFinalStance() const
   Eigen::Vector2d end_cog = Eigen::Vector2d::Zero();
 
   for (const Foothold& f : last_stance)
-    end_cog += f.p.segment<2>(xpp::utils::X);
+    end_cog += f.p.topRows<utils::kDim2d>();
 
   return end_cog/_LEGS_COUNT;
 }
@@ -194,7 +195,7 @@ SupportPolygonContainer::AssignSupportPolygonsToPhases(const PhaseInfoVec& phase
 int
 SupportPolygonContainer::GetTotalFreeCoeff () const
 {
-  return GetNumberOfSteps()*xpp::utils::kDim2d;
+  return GetNumberOfSteps()*utils::kDim2d;
 }
 
 int

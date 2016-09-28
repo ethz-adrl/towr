@@ -5,8 +5,8 @@
 @brief   Brief description
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_UTILS_MATRIX_VECTOR_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_UTILS_MATRIX_VECTOR_H_
+#ifndef XPP_OPT_INCLUDE_XPP_UTILS_MATRIX_VECTOR_H_
+#define XPP_OPT_INCLUDE_XPP_UTILS_MATRIX_VECTOR_H_
 
 #include <Eigen/Dense>
 
@@ -80,4 +80,4 @@ inline void MatVec::WriteRow(const VecScalar& val, size_t row)
 } // namespace utils
 } // namespace xpp
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_UTILS_MATRIX_VECTOR_H_ */
+#endif /* XPP_OPT_INCLUDE_XPP_UTILS_MATRIX_VECTOR_H_ */

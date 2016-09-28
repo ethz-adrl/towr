@@ -24,7 +24,7 @@
 namespace xpp {
 namespace zmp {
 
-using namespace xpp::utils::coords_wrapper;
+using namespace xpp::utils;
 
 CostConstraintFactory::CostConstraintFactory ()
 {

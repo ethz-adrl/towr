@@ -16,7 +16,7 @@
 namespace xpp {
 namespace zmp {
 
-using namespace xpp::utils::coords_wrapper;
+using namespace xpp::utils;
 
 using Coeff = Eigen::VectorXd;
 using JacobianRow = ComMotion::JacobianRow;
@@ -33,7 +33,6 @@ TEST(LinearSplineEquations, AccelerationCostTest)
   LinearSplineEquations eq(*com_motion);
 
   auto M = eq.MakeAcceleration(1.0, 1.0);
-
 }
 
 TEST(LinearSplineEquations, JunctionTestPosition)

@@ -7,11 +7,12 @@
 
 #include <xpp/zmp/obstacle_constraint.h>
 #include <xpp/zmp/optimization_variables.h>
+#include <xpp/utils/cartesian_declarations.h> // X,Y,Z
 
 namespace xpp {
 namespace zmp {
 
-using namespace xpp::utils::coords_wrapper;
+using namespace xpp::utils;
 
 ObstacleConstraint::ObstacleConstraint ()
 {

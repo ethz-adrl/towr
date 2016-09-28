@@ -10,11 +10,12 @@
 #include <xpp/zmp/com_motion.h>
 #include <xpp/zmp/optimization_variables.h>
 #include <xpp/zmp/a_robot_interface.h>
+#include <xpp/utils/cartesian_declarations.h>
 
 namespace xpp {
 namespace zmp {
 
-using namespace xpp::utils::coords_wrapper;
+using namespace xpp::utils;
 
 RangeOfMotionConstraint::RangeOfMotionConstraint ()
 {

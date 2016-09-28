@@ -5,6 +5,7 @@
 @brief   Defines a triangle created by footholds that affects stability
  */
 
+#include <xpp/utils/cartesian_declarations.h>
 #include <xpp/hyq/support_polygon.h>
 #include <xpp/utils/point2d_manipulations.h>
 #include <xpp/utils/line_equation.h>
@@ -67,7 +68,7 @@ SupportPolygon::GetLines() const
 double
 SupportPolygon::SuppLine::GetDistanceToPoint(const Vector2d& p) const
 {
-  LineEquation line(from.p.topRows(kDim2d), to.p.topRows(kDim2d));
+  LineEquation line(from.p.topRows(utils::kDim2d), to.p.topRows(utils::kDim2d));
   return line.GetDistanceFromLine(p) - s_margin;
 }
 

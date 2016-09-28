@@ -8,8 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_MOTION_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_MOTION_H_
 
-#include <xpp/utils/geometric_structs.h>
 #include <xpp/utils/matrix_vector.h>
+#include <xpp/utils/base_state.h>
 #include <xpp/zmp/phase_info.h>
 
 #include <Eigen/Sparse>

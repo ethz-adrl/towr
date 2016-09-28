@@ -8,7 +8,7 @@
 #ifndef _XPP_ZMP_COM_POLYNOMIAL_H_
 #define _XPP_ZMP_COM_POLYNOMIAL_H_
 
-#include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/base_state.h>
 
 namespace xpp {
 namespace zmp {
@@ -80,7 +80,7 @@ namespace zmp {
 class ComPolynomial : public PolynomialFifthOrder {
 public:
   using VecPolynomials = std::vector<ComPolynomial>;
-  using Point2d = xpp::utils::BaseLin2d;
+  using BaseLin2d = xpp::utils::BaseLin2d;
 
   ComPolynomial();
   ComPolynomial(uint id, double duration);
@@ -89,11 +89,11 @@ public:
   uint GetId()            const { return id_; };
   double GetDuration()    const { return duration_; };
 
-  static Point2d GetCOM(double t_global, const VecPolynomials& splines);
+  static BaseLin2d GetCOM(double t_global, const VecPolynomials& splines);
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
   static double GetTotalTime(const VecPolynomials& splines);
   static double GetLocalTime(double t_global, const VecPolynomials& splines);
-  static Point2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
+  static BaseLin2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
 
 private:
   uint id_; // to identify the order relative to other polynomials

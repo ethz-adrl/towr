@@ -10,7 +10,7 @@
 
 #include <xpp/zmp/phase_info.h>
 #include <xpp/zmp/com_polynomial.h>
-#include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/base_state.h>
 
 #include <xpp/hyq/foothold.h>
 #include <xpp_msgs/StateLin3d.h>

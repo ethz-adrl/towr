@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
 
-#include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/base_state.h>
 
 #include <xpp_opt/GetStateLin3d.h>
 #include <xpp_msgs/StateLin3d.h>

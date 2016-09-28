@@ -13,6 +13,7 @@
 #include <xpp/zmp/linear_spline_equations.h>
 #include <xpp/zmp/zmp_constraint_builder.h>
 #include <xpp/utils/eigen_quadprog-inl.h>
+#include <xpp/utils/cartesian_declarations.h>
 
 #include <cmath>      // std::numeric_limits
 #include <ctime>      // std::clock()
@@ -23,7 +24,7 @@ namespace zmp {
 using MatrixXd = Eigen::MatrixXd;
 using VectorXd = Eigen::VectorXd;
 
-using namespace xpp::utils::coords_wrapper;
+using namespace xpp::utils;
 
 QpFacade::VecSpline
 QpFacade::SolveQp(const State& initial_state,

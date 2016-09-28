@@ -9,7 +9,6 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_A_SPLINE_COST_H_
 
 #include <xpp/zmp/a_cost.h>
-#include <xpp/utils/geometric_structs.h>
 #include <xpp/utils/matrix_vector.h>
 
 namespace xpp {

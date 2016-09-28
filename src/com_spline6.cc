@@ -10,7 +10,7 @@
 namespace xpp {
 namespace zmp {
 
-using namespace xpp::utils::coords_wrapper; // X,Y,Z
+using namespace xpp::utils; // X,Y,Z
 
 ComSpline6::ComSpline6 ()
 {
@@ -49,7 +49,7 @@ ComSpline6::SetCoefficients (const VectorXd& optimized_coeff)
     CoeffValues coeff_values;
 
     for (const Coords3D dim : {X,Y}) {
-      double* cv = (dim == xpp::utils::X) ? coeff_values.x : coeff_values.y;
+      double* cv = (dim == X) ? coeff_values.x : coeff_values.y;
       cv[A] = optimized_coeff[Index(p,dim,A)];
       cv[B] = optimized_coeff[Index(p,dim,B)];
       cv[C] = optimized_coeff[Index(p,dim,C)];

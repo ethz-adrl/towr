@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 
 #include <xpp/zmp/i_visualizer.h>
-#include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/base_state.h>
 #include <rviz_visual_tools/rviz_visual_tools.h>
 #include <ros/publisher.h>
 #include <ros/subscriber.h>

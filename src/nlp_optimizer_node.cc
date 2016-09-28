@@ -65,7 +65,6 @@ NlpOptimizerNode::PublishOptimizedValues() const
   ROS_INFO_STREAM("Publishing optimized values");
 }
 
-
 void
 NlpOptimizerNode::PublishTrajectory () const
 {

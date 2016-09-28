@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_ZERO_MOMENT_POINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_ZERO_MOMENT_POINT_H_
 
-#include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/base_state.h>
 #include <Eigen/Sparse>
 #include <memory>
 

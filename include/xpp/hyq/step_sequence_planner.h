@@ -10,7 +10,7 @@
 
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/hyq/foothold.h>
-#include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/base_state.h>
 #include <xpp/hyq/support_polygon.h>
 #include <xpp/hyq/hyq_robot_interface.h>
 

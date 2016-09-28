@@ -19,7 +19,7 @@ namespace zmp {
 using NodeConstraints = xpp::hyq::SupportPolygon::VecSuppLine;
 using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
-using namespace xpp::utils::coords_wrapper; // X, Y
+using namespace xpp::utils;
 
 ZmpConstraintBuilder::ZmpConstraintBuilder()
 {
@@ -75,7 +75,7 @@ ZmpConstraintBuilder::GetTimesDisjointSwitches () const
   double t_global = 0;
 
   auto phases = motion_structure_.GetPhases();
-  for(int i=0; i<phases.size()-1; ++i) {
+  for(auto i=0; i<phases.size()-1; ++i) {
 
     auto phase = phases.at(i);
     t_global += phase.duration_;

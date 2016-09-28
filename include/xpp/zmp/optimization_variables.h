@@ -10,7 +10,6 @@
 
 #include <xpp/zmp/a_subject.h>
 #include <xpp/zmp/nlp_structure.h>
-#include <xpp/utils/geometric_structs.h>
 
 namespace xpp {
 namespace zmp {

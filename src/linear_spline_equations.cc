@@ -12,7 +12,6 @@ namespace xpp {
 namespace zmp {
 
 using namespace xpp::utils;
-using namespace xpp::utils::coords_wrapper; //kPos,kVel,kAcc,kJerk
 
 LinearSplineEquations::LinearSplineEquations (const ComMotion& com_motion )
 {
