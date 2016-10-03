@@ -42,14 +42,6 @@ Spliner2d<SplineType>::SetCoefficients (int dim, SplineCoeff coeff, double value
 }
 
 template<typename SplineType>
-void
-Spliner2d<SplineType>::SetSplineCoefficients (const CoeffValues& coeff_values)
-{
-  std::copy(std::begin(coeff_values.x), std::end(coeff_values.x), std::begin(splineX.c));
-  std::copy(std::begin(coeff_values.y), std::end(coeff_values.y), std::begin(splineY.c));
-}
-
-template<typename SplineType>
 void Spliner2d<SplineType>::SetBoundary(double T, const Point& start,
                                                   const Point& end)
 {

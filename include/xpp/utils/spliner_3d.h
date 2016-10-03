@@ -33,8 +33,6 @@ public:
   double GetCoefficient(int dim, SplineCoeff coeff) const;
   void   SetCoefficients(int dim, SplineCoeff coeff, double value);
 
-  void SetSplineCoefficients(const CoeffValues &coeff_values = CoeffValues());
-
   // cmo make private again
   SplineType splineX, splineY;
 private:

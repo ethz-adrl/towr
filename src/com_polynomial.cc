@@ -13,12 +13,10 @@ namespace zmp {
 
 ComPolynomial::ComPolynomial() : id_(0), duration_(0.0)
 {
-  SetSplineCoefficients();
 }
 
 ComPolynomial::ComPolynomial(uint id, double duration) : id_(id), duration_(duration)
 {
-  SetSplineCoefficients();
   splineX.duration = duration_;
   splineY.duration = duration_;
 }
