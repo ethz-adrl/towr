@@ -10,78 +10,66 @@
 namespace xpp {
 namespace utils {
 
-template<typename SplineType>
-typename Spliner2d<SplineType>::Vector2d
-Spliner2d<SplineType>::GetState (MotionDerivative pos_vel_acc_jerk, double t) const
+template<typename SplineType, size_t N_DIM>
+void
+Spliner2d<SplineType, N_DIM>::SetDuration (double _duration)
+{
+  for (int dim=X; dim<kNumDim; ++dim)
+    polynomials_.at(dim).duration = _duration;
+}
+
+template<typename SplineType, size_t N_DIM>
+typename Spliner2d<SplineType, N_DIM>::Vector2d
+Spliner2d<SplineType, N_DIM>::GetState (MotionDerivative pos_vel_acc_jerk, double t) const
 {
   Point p;
   GetPoint(t, p);
   return p.GetByIndex(pos_vel_acc_jerk);
 }
 
-template<typename SplineType>
+template<typename SplineType, size_t N_DIM>
 double
-Spliner2d<SplineType>::GetCoefficient (int dim, SplineCoeff coeff) const
+Spliner2d<SplineType, N_DIM>::GetCoefficient (int dim, SplineCoeff coeff) const
 {
-  switch (dim) {
-    case X: return splineX.c[coeff]; break;
-    case Y: return splineY.c[coeff]; break;
-    default: assert(false);
-  }
+  return polynomials_.at(dim).c[coeff];
 }
 
-template<typename SplineType>
+template<typename SplineType, size_t N_DIM>
 void
-Spliner2d<SplineType>::SetCoefficients (int dim, SplineCoeff coeff, double value)
+Spliner2d<SplineType, N_DIM>::SetCoefficients (int dim, SplineCoeff coeff, double value)
 {
-  switch (dim) {
-    case X: splineX.c[coeff] = value; break;
-    case Y: splineY.c[coeff] = value; break;
-    default: assert(false);
-  }
+  polynomials_.at(dim).c[coeff] = value;
 }
 
-template<typename SplineType>
-void Spliner2d<SplineType>::SetBoundary(double T, const Point& start,
+template<typename SplineType, size_t N_DIM>
+void Spliner2d<SplineType, N_DIM>::SetBoundary(double T, const Point& start,
                                                   const Point& end)
 {
-  Spliner::Point start_x, end_x;
-  Spliner::Point start_y, end_y;
-  Spliner::Point start_z, end_z;
+  Spliner::BaseLin1d _start[kNumDim];
+  Spliner::BaseLin1d _end[kNumDim];
 
-  start_x.x   = start.p(X);  end_x.x   = end.p(X);
-  start_x.xd  = start.v(X);  end_x.xd  = end.v(X);
-  start_x.xdd = start.a(X);  end_x.xdd = end.a(X);
+  for (int dim=X; dim<kNumDim; ++dim) {
+    // convert data types
+    _start[dim].x   = start.p(X);  _end[dim].x   = end.p(X);
+    _start[dim].xd  = start.v(X);  _end[dim].xd  = end.v(X);
+    _start[dim].xdd = start.a(X);  _end[dim].xdd = end.a(X);
 
-  start_y.x   = start.p(Y);  end_y.x   = end.p(Y);
-  start_y.xd  = start.v(Y);  end_y.xd  = end.v(Y);
-  start_y.xdd = start.a(Y);  end_y.xdd = end.a(Y);
-
-  start_z.x   = start.p(Z);  end_z.x   = end.p(Z);
-  start_z.xd  = start.v(Z);  end_z.xd  = end.v(Z);
-  start_z.xdd = start.a(Z);  end_z.xdd = end.a(Z);
-
-  splineX.SetBoundary(T, start_x, end_x);
-  splineY.SetBoundary(T, start_y, end_y);
+    polynomials_.at(dim).SetBoundary(T, _start[dim], _end[dim]);
+  }
 }
 
-template<typename SplineType>
-bool Spliner2d<SplineType>::GetPoint(const double dt, Point& p) const
+template<typename SplineType, size_t N_DIM>
+bool Spliner2d<SplineType, N_DIM>::GetPoint(const double dt, Point& p) const
 {
-  Spliner::Point coord_result;
+  Spliner::BaseLin1d coord_result;
 
-  // cmo make for-loop out of this
-  splineX.GetPoint(dt, coord_result);
-  p.p(X) = coord_result.x;
-  p.v(X) = coord_result.xd;
-  p.a(X) = coord_result.xdd;
-  p.j(X) = coord_result.xddd;
-
-  splineY.GetPoint(dt, coord_result);
-  p.p(Y) = coord_result.x;
-  p.v(Y) = coord_result.xd;
-  p.a(Y) = coord_result.xdd;
-  p.j(Y) = coord_result.xddd;
+  for (int dim=X; dim<kNumDim; ++dim) {
+    polynomials_[dim].GetPoint(dt, coord_result);
+    p.p(dim) = coord_result.x;
+    p.v(dim) = coord_result.xd;
+    p.a(dim) = coord_result.xdd;
+    p.j(dim) = coord_result.xddd;
+  }
 
   return true;
 }
@@ -90,9 +78,9 @@ template<typename SplineType>
 void Spliner3d<SplineType>::SetBoundary(double T, const Point& start,
                                                   const Point& end)
 {
-	Spliner::Point start_x, end_x;
-	Spliner::Point start_y, end_y;
-	Spliner::Point start_z, end_z;
+	Spliner::BaseLin1d start_x, end_x;
+	Spliner::BaseLin1d start_y, end_y;
+	Spliner::BaseLin1d start_z, end_z;
 
 	start_x.x   = start.p(X);  end_x.x   = end.p(X);
 	start_x.xd  = start.v(X);  end_x.xd  = end.v(X);
@@ -115,7 +103,7 @@ void Spliner3d<SplineType>::SetBoundary(double T, const Point& start,
 template<typename SplineType>
 bool Spliner3d<SplineType>::GetPoint(const double dt, Point& p) const
 {
-  Spliner::Point coord_result;
+  Spliner::BaseLin1d coord_result;
 
   splineX.GetPoint(dt, coord_result);
   p.p(X) = coord_result.x;
@@ -137,16 +125,6 @@ bool Spliner3d<SplineType>::GetPoint(const double dt, Point& p) const
 
   return true;
 }
-
-//// generate required template classes from the class template
-//template class Spliner2d<LinearSpliner>;
-//template class Spliner2d<CubicSpliner>;
-//template class Spliner2d<QuinticSpliner>;
-//
-//template class Spliner3d<LinearSpliner>;
-//template class Spliner3d<CubicSpliner>;
-//template class Spliner3d<QuinticSpliner>;
-
 
 } // namespace utils
 } // namespace xpp

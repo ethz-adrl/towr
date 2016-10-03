@@ -116,9 +116,9 @@ XppToRos(const VecSpline& opt_splines)
   for (uint i=0; i<opt_splines.size(); ++i)
   {
 
-    for (int coeff=xpp::utils::A; coeff<xpp::utils::kCoeffCount; ++coeff) {
-      msgs.at(i).coeff_x[coeff] = opt_splines.at(i).splineX.c[coeff];
-      msgs.at(i).coeff_y[coeff] = opt_splines.at(i).splineY.c[coeff];
+    for (auto coeff : xpp::utils::AllSplineCoeff) {
+      msgs.at(i).coeff_x[coeff] = opt_splines.at(i).GetCoefficient(xpp::utils::X,coeff);
+      msgs.at(i).coeff_y[coeff] = opt_splines.at(i).GetCoefficient(xpp::utils::Y,coeff);
     }
 
     // cmo remove this
@@ -145,9 +145,9 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
 
   for (uint i=0; i<n_splines; ++i)
   {
-    for (int coeff=xpp::utils::A; coeff<xpp::utils::kCoeffCount; ++coeff) {
-      xpp.at(i).splineX.c[coeff] = msgs.at(i).coeff_x[coeff];
-      xpp.at(i).splineY.c[coeff] = msgs.at(i).coeff_y[coeff];
+    for (auto coeff : xpp::utils::AllSplineCoeff) {
+      xpp.at(i).SetCoefficients(xpp::utils::X, coeff, msgs.at(i).coeff_x[coeff]);
+      xpp.at(i).SetCoefficients(xpp::utils::Y, coeff, msgs.at(i).coeff_y[coeff]);
     }
 
 

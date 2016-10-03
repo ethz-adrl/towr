@@ -17,8 +17,7 @@ ComPolynomial::ComPolynomial() : id_(0), duration_(0.0)
 
 ComPolynomial::ComPolynomial(uint id, double duration) : id_(id), duration_(duration)
 {
-  splineX.duration = duration_;
-  splineY.duration = duration_;
+  SetDuration(duration_);
 }
 
 double

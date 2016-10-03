@@ -17,11 +17,12 @@ namespace xpp {
 namespace utils {
 
 
-template<typename SplineType>
+template<typename SplineType, size_t N_DIM>
 class Spliner2d {
 public:
   using Point = utils::BaseLin2d;
   using Vector2d = Eigen::Vector2d;
+  static const int kNumDim = N_DIM;
 
 public:
   explicit Spliner2d() {};
@@ -32,10 +33,10 @@ public:
   Vector2d GetState(MotionDerivative pos_vel_acc_jerk, double t) const;
   double GetCoefficient(int dim, SplineCoeff coeff) const;
   void   SetCoefficients(int dim, SplineCoeff coeff, double value);
+  void SetDuration(double duration);
 
-  // cmo make private again
-  SplineType splineX, splineY;
 private:
+  std::array<SplineType, N_DIM> polynomials_; // X,Y,Z dimensions
 };
 
 
@@ -44,6 +45,7 @@ private:
 
 The type of spline (linear, cubic, quintic) is set as a template parameter.
  */
+// cmo remove this class
 template<typename SplineType>
 class Spliner3d {
 
