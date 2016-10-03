@@ -23,17 +23,6 @@ void HyqSpliner::SetParams(double upswing,
 
 }
 
-void HyqSpliner::Init(const HyqState& P_init,
-                      const xpp::zmp::PhaseVec& phase_info,
-                      const VecPolyomials& optimized_xy_spline,
-                      const VecFoothold& footholds,
-                      double robot_height)
-{
-  nodes_ = BuildPhaseSequence(P_init, phase_info, optimized_xy_spline, footholds, robot_height);
-  CreateAllSplines(nodes_);
-  optimized_xy_spline_ = optimized_xy_spline;
-}
-
 void
 HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com_spline,
                   const VecFoothold& contacts, double robot_height)
@@ -51,7 +40,9 @@ HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com
     x0.swingleg_[f.leg] = false;
   }
 
-  Init(x0,phase_info,com_spline,contacts,robot_height);
+  nodes_ = BuildPhaseSequence(x0, phase_info, com_spline, contacts, robot_height);
+  CreateAllSplines(nodes_);
+  optimized_xy_spline_ = com_spline;
 }
 
 

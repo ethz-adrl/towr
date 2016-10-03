@@ -52,11 +52,6 @@ public:
 
 
   void SetParams(double upswing, double lift_height, double outward_swing_distance);
-  void Init(const HyqState& P_init,
-            const xpp::zmp::PhaseVec&,
-            const VecPolyomials&,
-            const VecFoothold&,
-            double robot_height);
 
   void Init(const xpp::zmp::PhaseVec&,
             const VecPolyomials&,
