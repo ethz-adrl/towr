@@ -22,6 +22,38 @@ Spliners ready to use:
 namespace xpp {
 namespace utils {
 
+// cmo move this inside Quintic Spliner class
+static const int kCoeffCount = 6;
+enum SplineCoeff { A=0, B, C, D, E, F };
+
+// cmo rename this to "2dCoeff" of smth
+struct CoeffValues {
+  double x[kCoeffCount];
+  double y[kCoeffCount];
+  CoeffValues()
+  {
+    for (int c = A; c <= F; ++c)
+      x[c] = y[c] = 0.0;
+  };
+
+  CoeffValues(double xa, double xb, double xc, double xd, double xe, double xf,
+              double ya, double yb, double yc, double yd, double ye, double yf)
+  {
+    x[A] = xa; x[B] = xb; x[C] = xc; x[D] = xd; x[E] = xe; x[F] = xf;
+    y[A] = ya; y[B] = yb; y[C] = yc; y[D] = yd; y[E] = ye; y[F] = yf;
+  }
+
+  /** generates random spline coefficients between -25 and 25 */
+  void SetRandom()
+  {
+    for (int c = A; c <= F; ++c) {
+      x[c] = (double)rand() / RAND_MAX * 50 - 25;
+      y[c] = (double)rand() / RAND_MAX * 50 - 25;
+    }
+  }
+};
+
+
 /**
  * @class Spliner
  * @addtogroup Spliners
@@ -84,6 +116,7 @@ public:
 
   static const int kMaxSplineOrder = 5; //! Only splines smaller than quintic splines can be implemented.
   std::array< double, kMaxSplineOrder+1 > c; //!< coefficients of spline
+  double duration; // cmo make access function
 private:
   /**
    * @brief Calculates all spline coeff of current spline.
@@ -94,7 +127,6 @@ private:
   virtual void CalcSplineCoeff(double T, const Point& start_p, const Point& end_p) = 0;
 
 protected:
-  double duration;
 };
 
 

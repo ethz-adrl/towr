@@ -34,10 +34,8 @@ template<typename SplineType>
 void
 Spliner2d<SplineType>::SetSplineCoefficients (const CoeffValues& coeff_values)
 {
-  for (int c = 0; c < kCoeffCount; ++c) {
-    splineX.c[c] = coeff_values.x[c];
-    splineY.c[c] = coeff_values.y[c];
-  }
+  std::copy(std::begin(coeff_values.x), std::end(coeff_values.x), std::begin(splineX.c));
+  std::copy(std::begin(coeff_values.y), std::end(coeff_values.y), std::begin(splineY.c));
 }
 
 template<typename SplineType>
@@ -69,15 +67,18 @@ bool Spliner2d<SplineType>::GetPoint(const double dt, Point& p) const
 {
   Spliner::Point coord_result;
 
+  // cmo make for-loop out of this
   splineX.GetPoint(dt, coord_result);
   p.p(X) = coord_result.x;
   p.v(X) = coord_result.xd;
   p.a(X) = coord_result.xdd;
+  p.j(X) = coord_result.xddd;
 
   splineY.GetPoint(dt, coord_result);
   p.p(Y) = coord_result.x;
   p.v(Y) = coord_result.xd;
   p.a(Y) = coord_result.xdd;
+  p.j(Y) = coord_result.xddd;
 
   return true;
 }
@@ -117,29 +118,31 @@ bool Spliner3d<SplineType>::GetPoint(const double dt, Point& p) const
   p.p(X) = coord_result.x;
   p.v(X) = coord_result.xd;
   p.a(X) = coord_result.xdd;
+  p.j(X) = coord_result.xddd;
 
   splineY.GetPoint(dt, coord_result);
   p.p(Y) = coord_result.x;
   p.v(Y) = coord_result.xd;
   p.a(Y) = coord_result.xdd;
+  p.j(Y) = coord_result.xddd;
 
   splineZ.GetPoint(dt, coord_result);
   p.p(Z) = coord_result.x;
   p.v(Z) = coord_result.xd;
   p.a(Z) = coord_result.xdd;
+  p.j(Z) = coord_result.xddd;
 
   return true;
 }
 
-// generate required template classes from the class template
-// generate required template classes from the class template
-template class Spliner2d<LinearSpliner>;
-template class Spliner2d<CubicSpliner>;
-template class Spliner2d<QuinticSpliner>;
-
-template class Spliner3d<LinearSpliner>;
-template class Spliner3d<CubicSpliner>;
-template class Spliner3d<QuinticSpliner>;
+//// generate required template classes from the class template
+//template class Spliner2d<LinearSpliner>;
+//template class Spliner2d<CubicSpliner>;
+//template class Spliner2d<QuinticSpliner>;
+//
+//template class Spliner3d<LinearSpliner>;
+//template class Spliner3d<CubicSpliner>;
+//template class Spliner3d<QuinticSpliner>;
 
 
 } // namespace utils

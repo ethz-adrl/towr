@@ -115,11 +115,18 @@ XppToRos(const VecSpline& opt_splines)
 
   for (uint i=0; i<opt_splines.size(); ++i)
   {
-    const double* ax_coeff = opt_splines.at(i).spline_coeff_[xpp::utils::X];
-    std::copy(ax_coeff, ax_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_x.begin());
 
-    const double* ay_coeff = opt_splines.at(i).spline_coeff_[xpp::utils::Y];
-    std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_y.begin());
+    for (int coeff=xpp::utils::A; coeff<xpp::utils::kCoeffCount; ++coeff) {
+      msgs.at(i).coeff_x[coeff] = opt_splines.at(i).splineX.c[coeff];
+      msgs.at(i).coeff_y[coeff] = opt_splines.at(i).splineY.c[coeff];
+    }
+
+    // cmo remove this
+    //    const double* ax_coeff = opt_splines.at(i).spline_coeff_[xpp::utils::X];
+    //    std::copy(ax_coeff, ax_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_x.begin());
+    //
+    //    const double* ay_coeff = opt_splines.at(i).spline_coeff_[xpp::utils::Y];
+    //    std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_y.begin());
 
     msgs.at(i).duration = opt_splines.at(i).duration_;
     msgs.at(i).id       = opt_splines.at(i).id_;
@@ -138,11 +145,17 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
 
   for (uint i=0; i<n_splines; ++i)
   {
-    const double* ax_coeff = msgs.at(i).coeff_x.begin();
-    std::copy(ax_coeff, ax_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::X]);
+    for (int coeff=xpp::utils::A; coeff<xpp::utils::kCoeffCount; ++coeff) {
+      xpp.at(i).splineX.c[coeff] = msgs.at(i).coeff_x[coeff];
+      xpp.at(i).splineY.c[coeff] = msgs.at(i).coeff_y[coeff];
+    }
 
-    const double* ay_coeff = msgs.at(i).coeff_y.begin();
-    std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::Y]);
+
+//    const double* ax_coeff = msgs.at(i).coeff_x.begin();
+//    std::copy(ax_coeff, ax_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::X]);
+//
+//    const double* ay_coeff = msgs.at(i).coeff_y.begin();
+//    std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::Y]);
 
     xpp.at(i).duration_ = msgs.at(i).duration;
     xpp.at(i).id_       = msgs.at(i).id;

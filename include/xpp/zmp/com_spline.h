@@ -30,6 +30,7 @@ public:
   typedef std::vector<MotionDerivative> Derivatives;
   typedef std::shared_ptr<ComSpline> PtrS;
   typedef std::unique_ptr<ComSpline> PtrU;
+  using SplineCoeff = xpp::utils::SplineCoeff;
 
 
   ComSpline ();
@@ -87,7 +88,7 @@ private:
   virtual void GetJacobianJerk(double t_poly, int id, Coords3D dim, JacobianRow&) const = 0;
 
   virtual int NumFreeCoeffPerSpline() const = 0;
-  virtual std::vector<SplineCoeff> GetFreeCoeffPerSpline() const = 0;
+  virtual std::vector<utils::SplineCoeff> GetFreeCoeffPerSpline() const = 0;
 
   bool splines_initialized_ = false;
 };

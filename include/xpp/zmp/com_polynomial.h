@@ -9,6 +9,8 @@
 #define _XPP_ZMP_COM_POLYNOMIAL_H_
 
 #include "polynomial_fifth_order.h"
+
+#include <xpp/utils/spliner_3d.h>
 #include <xpp/utils/base_state.h>
 
 namespace cmo {namespace ros{ class RosHelpers; }};
@@ -19,7 +21,8 @@ namespace zmp {
 /** A fifth order spline that now holds some context information about the
   *  Center of Mass (CoM).
   */
-class ComPolynomial : public PolynomialFifthOrder {
+class ComPolynomial : public xpp::utils::Spliner2d<xpp::utils::QuinticSpliner>
+{
 public:
   using VecPolynomials = std::vector<ComPolynomial>;
   using BaseLin2d = xpp::utils::BaseLin2d;
@@ -39,6 +42,7 @@ public:
 
 private:
   uint id_; // to identify the order relative to other polynomials
+  // cmo remove duration here, alrady in spliner2d
   double duration_; // time during which this spline is active
 
   friend std::ostream& operator<<(std::ostream& out, const ComPolynomial& tr);

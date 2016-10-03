@@ -44,7 +44,11 @@ public:
 
 private:
   int NumFreeCoeffPerSpline() const override { return 4; };
-  std::vector<SplineCoeff> GetFreeCoeffPerSpline() const override { return {A,B,C,D}; };
+  std::vector<SplineCoeff> GetFreeCoeffPerSpline() const override
+  {
+    using namespace xpp::utils;
+    return {A,B,C,D};
+  };
 
   void GetJacobianPos (double t_poly, int id, Coords3D dim, JacobianRow&) const override;
   void GetJacobianVel (double t_poly, int id, Coords3D dim, JacobianRow&) const override;

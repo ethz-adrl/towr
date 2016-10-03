@@ -68,7 +68,7 @@ ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
   Vector2d prev_pos = start_cog_p_;
 
   for (size_t k=0; k<polynomials_.size(); ++k) {
-    CoeffValues coeff_values;
+    utils::CoeffValues coeff_values;
 
     for (const Coords3D dim : Coords2DArray) {
 

@@ -15,7 +15,6 @@ namespace xpp {
 namespace utils {
 
 
-
 // A start and an end position for the splines. checking only boundary conditions
 class SplineTest : public ::testing::Test {
 public:

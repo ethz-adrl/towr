@@ -91,7 +91,6 @@ set(SOURCES
   src/ellipse.cc
   src/qp_facade.cc
   src/spliner.cc
-  src/spliner_3d.cc
   src/polynomial_fifth_order.cc
   src/zero_moment_point.cc
   src/motion_structure.cc
@@ -241,6 +240,7 @@ if(BUILD_TESTS)
                          test/google/motion_structure_test.cc
 #                        test/google/com_motion_test.cc
                          test/google/com_spline_test.cc
+                         test/google/spliner_test.cc
 #                        test/google/spline_container_test.cc
                          test/google/motion_factory_test.cc
 #                        #constraints
