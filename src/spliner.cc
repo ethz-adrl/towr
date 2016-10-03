@@ -33,14 +33,6 @@ bool Spliner::GetPoint(const double dt, Point& out) const
   double dt4 = dt1 * dt3;
   double dt5 = dt1 * dt4;
 
-//  /** Different spline type are generated, by setting the coefficients > order of spline to zero  */
-//  // cmo these are flipped compared to PolynomialFifthOrder
-//  out.x   = c[0] + c[1]*dt1 +   c[2]*dt2 +   c[3]*dt3 +    c[4]*dt4 +    c[5]*dt5;
-//  out.xd  =        c[1]     + 2*c[2]*dt1 + 3*c[3]*dt2 +  4*c[4]*dt3 +  5*c[5]*dt4;
-//  out.xdd =                   2*c[2]     + 6*c[3]*dt1 + 12*c[4]*dt2 + 20*c[5]*dt3;
-//  out.xddd=                                6*c[3]     + 24*c[4]*dt1 + 60*c[5]*dt2;
-
-  // swaped direction of coefficients
   out.x   = c[F] + c[E]*dt1 +   c[D]*dt2 +   c[C]*dt3 +    c[B]*dt4 +    c[A]*dt5;
   out.xd  =        c[E]     + 2*c[D]*dt1 + 3*c[C]*dt2 +  4*c[B]*dt3 +  5*c[A]*dt4;
   out.xdd =                   2*c[D]     + 6*c[C]*dt1 + 12*c[B]*dt2 + 20*c[A]*dt3;

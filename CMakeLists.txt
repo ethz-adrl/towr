@@ -91,7 +91,6 @@ set(SOURCES
   src/ellipse.cc
   src/qp_facade.cc
   src/spliner.cc
-  src/polynomial_fifth_order.cc
   src/zero_moment_point.cc
   src/motion_structure.cc
   src/step_sequence_planner.cc

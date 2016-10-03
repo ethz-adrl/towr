@@ -8,8 +8,6 @@
 #ifndef _XPP_ZMP_COM_POLYNOMIAL_H_
 #define _XPP_ZMP_COM_POLYNOMIAL_H_
 
-#include "polynomial_fifth_order.h"
-
 #include <xpp/utils/spliner_3d.h>
 #include <xpp/utils/base_state.h>
 
