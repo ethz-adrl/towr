@@ -46,19 +46,22 @@ ComSpline6::SetCoefficients (const VectorXd& optimized_coeff)
   CheckIfSplinesInitialized();
 
   for (size_t p=0; p<polynomials_.size(); ++p) {
-    CoeffValues coeff_values;
+//    CoeffValues coeff_values;
 
     for (const Coords3D dim : {X,Y}) {
-      double* cv = (dim == X) ? coeff_values.x : coeff_values.y;
-      cv[A] = optimized_coeff[Index(p,dim,A)];
-      cv[B] = optimized_coeff[Index(p,dim,B)];
-      cv[C] = optimized_coeff[Index(p,dim,C)];
-      cv[D] = optimized_coeff[Index(p,dim,D)];
-      cv[E] = optimized_coeff[Index(p,dim,E)];
-      cv[F] = optimized_coeff[Index(p,dim,F)];
+//      double* cv = (dim == X) ? coeff_values.x : coeff_values.y;
+
+      for (auto c : utils::AllSplineCoeff) {
+        polynomials_.at(p).SetCoefficients(dim, c, optimized_coeff[Index(p,dim,c)]);
+      }
+//      cv[B] = optimized_coeff[Index(p,dim,B)];
+//      cv[C] = optimized_coeff[Index(p,dim,C)];
+//      cv[D] = optimized_coeff[Index(p,dim,D)];
+//      cv[E] = optimized_coeff[Index(p,dim,E)];
+//      cv[F] = optimized_coeff[Index(p,dim,F)];
     }
 
-    polynomials_.at(p).SetSplineCoefficients(coeff_values);
+//    polynomials_.at(p).SetSplineCoefficients(coeff_values);
   }
 }
 

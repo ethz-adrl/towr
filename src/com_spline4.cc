@@ -72,7 +72,8 @@ ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
 
     for (const Coords3D dim : Coords2DArray) {
 
-      double* cv = (dim == xpp::utils::X) ? coeff_values.x : coeff_values.y;
+//      double* cv = (dim == xpp::utils::X) ? coeff_values.x : coeff_values.y;
+      std::array<double, utils::kCoeffCount> cv;
 
       // fill in only first 4 optimized coefficients
       cv[A] = optimized_coeff[Index(k,dim,A)];
@@ -97,9 +98,14 @@ ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
         cv[E] = (jac_e*optimized_coeff)[0] + start_cog_v_[dim];
         cv[F] = (jac_f*optimized_coeff)[0] + prev_pos[dim];
       }
+
+      for (auto c : utils::AllSplineCoeff) {
+        polynomials_.at(k).SetCoefficients(dim, c, cv[c]);
+      }
+
     } // dim:X..Y
 
-    polynomials_.at(k).SetSplineCoefficients(coeff_values);
+//    polynomials_.at(k).SetSplineCoefficients(coeff_values);
 
   } // k=0..n_spline_infos_
 }

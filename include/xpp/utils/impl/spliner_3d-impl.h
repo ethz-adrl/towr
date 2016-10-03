@@ -32,6 +32,17 @@ Spliner2d<SplineType>::GetCoefficient (int dim, SplineCoeff coeff) const
 
 template<typename SplineType>
 void
+Spliner2d<SplineType>::SetCoefficients (int dim, SplineCoeff coeff, double value)
+{
+  switch (dim) {
+    case X: splineX.c[coeff] = value; break;
+    case Y: splineY.c[coeff] = value; break;
+    default: assert(false);
+  }
+}
+
+template<typename SplineType>
+void
 Spliner2d<SplineType>::SetSplineCoefficients (const CoeffValues& coeff_values)
 {
   std::copy(std::begin(coeff_values.x), std::end(coeff_values.x), std::begin(splineX.c));

@@ -31,6 +31,8 @@ public:
 
   Vector2d GetState(MotionDerivative pos_vel_acc_jerk, double t) const;
   double GetCoefficient(int dim, SplineCoeff coeff) const;
+  void   SetCoefficients(int dim, SplineCoeff coeff, double value);
+
   void SetSplineCoefficients(const CoeffValues &coeff_values = CoeffValues());
 
   // cmo make private again

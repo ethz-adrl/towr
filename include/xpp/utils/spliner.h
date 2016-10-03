@@ -25,6 +25,7 @@ namespace utils {
 // cmo move this inside Quintic Spliner class
 static const int kCoeffCount = 6;
 enum SplineCoeff { A=0, B, C, D, E, F };
+static const std::array<SplineCoeff, kCoeffCount> AllSplineCoeff = {A,B,C,D,E,F};
 
 // cmo rename this to "2dCoeff" of smth
 struct CoeffValues {
@@ -41,15 +42,6 @@ struct CoeffValues {
   {
     x[A] = xa; x[B] = xb; x[C] = xc; x[D] = xd; x[E] = xe; x[F] = xf;
     y[A] = ya; y[B] = yb; y[C] = yc; y[D] = yd; y[E] = ye; y[F] = yf;
-  }
-
-  /** generates random spline coefficients between -25 and 25 */
-  void SetRandom()
-  {
-    for (int c = A; c <= F; ++c) {
-      x[c] = (double)rand() / RAND_MAX * 50 - 25;
-      y[c] = (double)rand() / RAND_MAX * 50 - 25;
-    }
   }
 };
 
@@ -129,13 +121,11 @@ private:
 protected:
 };
 
-
 inline Spliner::Spliner()
 {
   for (double& _c : c) _c = 0.0; /** set to zero so low-order spliners don't use. */
   duration = 0.0;
 }
-
 
 inline void Spliner::SetBoundary(double T, const Point& start_p, const Point& end_p)
 {
@@ -160,7 +150,6 @@ private:
   void CalcSplineCoeff(double T, const Point& start, const Point& end);
 };
 
-
 class CubicSpliner : public Spliner
 {
 public:
@@ -169,7 +158,6 @@ public:
 private:
   void CalcSplineCoeff(double T, const Point& start, const Point& end);
 };
-
 
 class QuinticSpliner : public Spliner
 {
