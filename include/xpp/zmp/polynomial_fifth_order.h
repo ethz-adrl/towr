@@ -52,7 +52,6 @@ public:
   typedef xpp::utils::MotionDerivative PosVelAcc;
 
   PolynomialFifthOrder();
-  PolynomialFifthOrder(const CoeffValues &coeff_values);
   virtual ~PolynomialFifthOrder();
 
   Vec2d GetState(PosVelAcc whichDeriv, double t) const;

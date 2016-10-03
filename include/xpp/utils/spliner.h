@@ -56,10 +56,11 @@ class Spliner {
 public:
 
   struct Point {
-    double x;   ///< position
-    double xd;  ///< velocity
-    double xdd; ///< acceleration
-    Point() : x(0.0), xd(0.0), xdd(0.0) {}
+    double x;    ///< position
+    double xd;   ///< velocity
+    double xdd;  ///< acceleration
+    double xddd; ///< jerk
+    Point() : x(0.0), xd(0.0), xdd(0.0), xddd(0.0) {}
   };
 
 public:

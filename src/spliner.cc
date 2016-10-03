@@ -37,6 +37,7 @@ bool Spliner::GetPoint(const double dt, Point& out) const
   out.x   = c[0] + c[1]*dt1 +   c[2]*dt2 +   c[3]*dt3 +    c[4]*dt4 +    c[5]*dt5;
   out.xd  =        c[1]     + 2*c[2]*dt1 + 3*c[3]*dt2 +  4*c[4]*dt3 +  5*c[5]*dt4;
   out.xdd =                   2*c[2]     + 6*c[3]*dt1 + 12*c[4]*dt2 + 20*c[5]*dt3;
+  out.xddd=                                6*c[3]     + 24*c[4]*dt1 + 60*c[5]*dt2;
 
   return true;
 }

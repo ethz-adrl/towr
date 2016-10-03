@@ -25,11 +25,6 @@ PolynomialFifthOrder::~PolynomialFifthOrder ()
   // TODO Auto-generated destructor stub
 }
 
-PolynomialFifthOrder::PolynomialFifthOrder(const CoeffValues &coeff_values)
-{
-  SetSplineCoefficients(coeff_values);
-}
-
 PolynomialFifthOrder::Vec2d
 PolynomialFifthOrder::GetState(PosVelAcc whichDerivative, double _t) const
 {
