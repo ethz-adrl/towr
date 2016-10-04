@@ -37,14 +37,16 @@ frame values omega (rollPitchYawToEar)
  */
 class HyqSpliner {
 public:
-  typedef std::vector<xpp::zmp::ComPolynomial> VecPolyomials;
+
+  typedef std::vector<xpp::utils::ComPolynomial> VecPolyomials;
   typedef Eigen::Vector3d Vector3d;
   typedef Foothold::VecFoothold VecFoothold;
   typedef ::xpp::utils::QuinticPolynomial Spliner;
   using Spliner3d = ::xpp::utils::PolynomialXd< ::xpp::utils::QuinticPolynomial,
                                                 ::xpp::utils::kDim3d,
                                                 ::xpp::utils::BaseLin3d>;
-//  using Spliner3d = xpp::utils::Spliner3d<::xpp::utils::QuinticPolynomial>;
+
+  using ComPolynomialHelpers = xpp::zmp::ComPolynomialHelpers;
   typedef Spliner3d::Point Point;
   using RobotStateTraj    = std::vector<HyqStateStamped>;
 

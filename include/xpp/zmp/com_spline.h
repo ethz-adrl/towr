@@ -22,6 +22,7 @@ namespace zmp {
   */
 class ComSpline : public ComMotion {
 public:
+  typedef xpp::utils::ComPolynomial ComPolynomial;
   typedef std::vector<ComPolynomial> VecPolynomials;
   typedef xpp::utils::MotionDerivative MotionDerivative;
   typedef xpp::utils::VecScalar VecScalar;
@@ -39,8 +40,8 @@ public:
   virtual void Init(const PhaseVec& phases) final;
 
   // implements these functions from parent class, now specific for splines
-  Point2d GetCom(double t_global) const override { return ComPolynomial::GetCOM(t_global, polynomials_); }
-  double GetTotalTime() const override { return ComPolynomial::GetTotalTime(polynomials_); }
+  Point2d GetCom(double t_global) const override { return ComPolynomialHelpers::GetCOM(t_global, polynomials_); }
+  double GetTotalTime() const override { return ComPolynomialHelpers::GetTotalTime(polynomials_); }
   int GetTotalFreeCoeff() const override;
   VectorXd GetCoeffients () const override;
 
@@ -54,8 +55,8 @@ public:
   virtual Derivatives GetInitialFreeMotions()  const = 0;
   virtual Derivatives GetJunctionFreeMotions() const = 0;
 
-  int GetPolynomialID(double t_global)  const { return ComPolynomial::GetPolynomialID(t_global, polynomials_); }
-  double GetLocalTime(double t_global)  const { return ComPolynomial::GetLocalTime(t_global, polynomials_); };
+  int GetPolynomialID(double t_global)  const { return ComPolynomialHelpers::GetPolynomialID(t_global, polynomials_); }
+  double GetLocalTime(double t_global)  const { return ComPolynomialHelpers::GetLocalTime(t_global, polynomials_); };
   VecPolynomials GetPolynomials()       const { return polynomials_; }
   ComPolynomial GetPolynomial(size_t i) const { return polynomials_.at(i); }
   ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
@@ -70,7 +71,7 @@ public:
     */
   JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt, double t_poly, int id, Coords3D dim) const;
 
-  Point2d GetCOGxyAtPolynomial(int id, double t_local) {return ComPolynomial::GetCOGxyAtPolynomial(id, t_local, polynomials_); };
+  Point2d GetCOGxyAtPolynomial(int id, double t_local) {return ComPolynomialHelpers::GetCOGxyAtPolynomial(id, t_local, polynomials_); };
 
 
 

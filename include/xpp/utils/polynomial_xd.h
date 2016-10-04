@@ -10,6 +10,7 @@
 
 #include <xpp/utils/cartesian_declarations.h>
 #include <xpp/utils/polynomial.h>
+#include <xpp/utils/base_state.h>
 #include <Eigen/Dense>
 
 namespace xpp {
@@ -24,8 +25,9 @@ public:
   static const int kNumDim = N_DIM;
 
 public:
-  explicit PolynomialXd() : id_(0) {};
-  virtual ~PolynomialXd() {};
+  explicit PolynomialXd() {};
+  explicit PolynomialXd(int id, double duration);
+  virtual ~PolynomialXd();
   void SetBoundary(double T, const Point& start, const Point& end);
   bool GetPoint(const double dt, Point& p) const;
 
@@ -43,6 +45,11 @@ private:
   std::array<PolynomialType, N_DIM> polynomials_; ///< X,Y,Z dimensions
   uint id_; // to identify the order relative to other polynomials
 };
+
+// for now a 2d polynomial
+using ComPolynomial = xpp::utils::PolynomialXd<QuinticPolynomial,
+                                               kDim2d,
+                                               BaseLin2d>;
 
 } // namespace utils
 } // namespace xpp

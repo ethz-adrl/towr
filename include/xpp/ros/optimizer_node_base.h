@@ -26,7 +26,7 @@ public:
   using VecFoothold = std::vector<xpp::hyq::Foothold>;
   using StateMsg = xpp_msgs::StateLin3d;
   using PhaseVec = xpp::zmp::PhaseVec;
-  using VecSpline = std::vector<xpp::zmp::ComPolynomial>;
+  using VecSpline = std::vector<xpp::utils::ComPolynomial>;
 
   OptimizerNodeBase ();
   virtual ~OptimizerNodeBase ();

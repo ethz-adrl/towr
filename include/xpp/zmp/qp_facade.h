@@ -28,7 +28,7 @@ eigen_quadprog.hpp performs the optimization.
  */
 class QpFacade {
 public:
-  typedef std::vector<ComPolynomial> VecSpline;
+  typedef std::vector<xpp::utils::ComPolynomial> VecSpline;
   typedef xpp::utils::MatVec MatVec;
   typedef xpp::utils::BaseLin2d State;
   typedef xpp::hyq::Foothold Foothold;

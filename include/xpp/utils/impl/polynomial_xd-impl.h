@@ -6,10 +6,23 @@
  */
 
 #include <xpp/utils/polynomial_xd.h>
-#include <xpp/utils/base_state.h>
 
 namespace xpp {
 namespace utils {
+
+template<typename PolynomialType, size_t N_DIM, typename PointType>
+PolynomialXd<PolynomialType, N_DIM, PointType>::PolynomialXd (int id,
+                                                              double duration)
+{
+  SetDuration(duration);
+  SetId(id);
+}
+
+template<typename PolynomialType, size_t N_DIM, typename PointType>
+PolynomialXd<PolynomialType, N_DIM, PointType>::~PolynomialXd ()
+{
+  // TODO Auto-generated destructor stub
+}
 
 template<typename PolynomialType, size_t N_DIM, typename PointType>
 void
