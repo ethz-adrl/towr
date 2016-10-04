@@ -46,11 +46,6 @@ private:
   uint id_; // to identify the order relative to other polynomials
 };
 
-// for now a 2d polynomial
-using ComPolynomial = xpp::utils::PolynomialXd<QuinticPolynomial,
-                                               kDim2d,
-                                               BaseLin2d>;
-
 } // namespace utils
 } // namespace xpp
 

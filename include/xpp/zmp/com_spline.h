@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 
 #include "com_motion.h"
-#include "com_polynomial.h"
+#include <xpp/utils/polynomial_helpers.h>
 #include <memory>
 
 namespace xpp {
@@ -32,6 +32,7 @@ public:
   typedef std::shared_ptr<ComSpline> PtrS;
   typedef std::unique_ptr<ComSpline> PtrU;
   using SplineCoeff = xpp::utils::SplineCoeff;
+  using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
 
 
   ComSpline ();

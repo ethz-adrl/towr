@@ -91,6 +91,7 @@ set(SOURCES
   src/ellipse.cc
   src/qp_facade.cc
   src/polynomial.cc
+  src/polynomial_helpers.cc
   src/zero_moment_point.cc
   src/motion_structure.cc
   src/step_sequence_planner.cc
@@ -107,8 +108,7 @@ set(SOURCES
   src/com_motion.cc
   src/com_spline.cc
   src/com_spline6.cc    
-  src/com_spline4.cc    
-  src/com_polynomial.cc
+  src/com_spline4.cc
   src/motion_factory.cc
   # nlp
   src/a_subject.cc

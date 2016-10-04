@@ -6,10 +6,10 @@
  */
 
 #include <iostream>
-#include <xpp/zmp/com_polynomial.h>
+#include <xpp/utils/polynomial_helpers.h>
 
 namespace xpp {
-namespace zmp {
+namespace utils {
 
 double
 ComPolynomialHelpers::GetTotalTime(const VecPolynomials& splines)
@@ -33,7 +33,7 @@ ComPolynomialHelpers::GetLocalTime(double t_global, const VecPolynomials& spline
   return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
 }
 
-ComPolynomialHelpers::BaseLin2d
+BaseLin2d
 ComPolynomialHelpers::GetCOM(double t_global, const VecPolynomials& splines)
 {
   int id = GetPolynomialID(t_global,splines);
@@ -42,7 +42,7 @@ ComPolynomialHelpers::GetCOM(double t_global, const VecPolynomials& splines)
   return GetCOGxyAtPolynomial(id, t_local, splines);
 }
 
-ComPolynomialHelpers::BaseLin2d
+BaseLin2d
 ComPolynomialHelpers::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& splines)
 {
   BaseLin2d cog_xy;
@@ -71,6 +71,6 @@ ComPolynomialHelpers::GetPolynomialID(double t_global, const VecPolynomials& spl
    assert(false); // this should never be reached
 }
 
-} // namespace zmp
+} // namespace utils
 } // namespace xpp
 

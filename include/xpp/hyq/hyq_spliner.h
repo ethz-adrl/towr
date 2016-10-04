@@ -10,7 +10,7 @@
 
 #include <xpp/hyq/hyq_state.h>
 #include <xpp/zmp/phase_info.h>
-#include <xpp/zmp/com_polynomial.h>
+#include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/polynomial_xd.h>
 
 namespace xpp {
@@ -46,7 +46,7 @@ public:
                                                 ::xpp::utils::kDim3d,
                                                 ::xpp::utils::BaseLin3d>;
 
-  using ComPolynomialHelpers = xpp::zmp::ComPolynomialHelpers;
+  using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
   typedef Spliner3d::Point Point;
   using RobotStateTraj    = std::vector<HyqStateStamped>;
 
