@@ -15,7 +15,7 @@
 #include <xpp_opt/Spline.h>
 
 #include <xpp/zmp/phase_info.h>
-#include <xpp/zmp/com_spline.h>
+#include <xpp/utils/polynomial_helpers.h>
 
 #include <xpp_msgs/ros_helpers.h>
 
@@ -28,7 +28,7 @@ namespace ros {
  */
 struct RosHelpers {
 
-using VecComPoly   = xpp::zmp::ComSpline::VecPolynomials;
+using VecComPoly   = std::vector<xpp::utils::ComPolynomial>;
 using SplineMsg    = xpp_opt::Spline;
 
 using ContactXpp   = xpp::zmp::Contact;

@@ -1,5 +1,5 @@
 /**
-@file   com_polynomial.cc
+@file   polynomial_helpers.cc
 @author Alexander Winkler (winklera@ethz.ch)
 @date   Oct 21,  2015
 @brief  Declares a representation of a Center of Mass Polynomial
@@ -16,8 +16,7 @@ namespace utils {
 // for now a 2d polynomial
 using ComPolynomial = PolynomialXd<QuinticPolynomial, kDim2d, BaseLin2d>;
 
-/** A fifth order spline that now holds some context information about the
-  *  Center of Mass (CoM).
+/** Some convenience functions to interact with a multiple polynomials.
   */
 class ComPolynomialHelpers {
 public:

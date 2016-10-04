@@ -35,6 +35,8 @@ public:
   double GetCoefficient(int dim, SplineCoeff coeff) const;
   void   SetCoefficients(int dim, SplineCoeff coeff, double value);
 
+  static int GetNumCoeff() { return PolynomialType::GetNumCoeff(); };
+
   void SetDuration(double duration);
   double GetDuration() const;
 

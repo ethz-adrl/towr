@@ -22,9 +22,9 @@ Spliners ready to use:
 namespace xpp {
 namespace utils {
 
-static const int kCoeffCount = 6;
+//static const int kCoeffCount = 6;
 enum SplineCoeff { A=0, B, C, D, E, F };
-static const std::array<SplineCoeff, kCoeffCount> AllSplineCoeff = {A,B,C,D,E,F};
+static const std::array<SplineCoeff, 6> AllSplineCoeff = {A,B,C,D,E,F};
 
 /**
  * @class Polynomial
@@ -86,7 +86,7 @@ public:
    */
   bool GetPoint(const double dt, Point1d& point) const;
 
-  std::array< double, kCoeffCount > c; //!< coefficients of spline
+  std::array< double, AllSplineCoeff.size() > c; //!< coefficients of spline
   double duration;
 private:
   /**
@@ -124,6 +124,9 @@ class LinearPolynomial : public Polynomial {
 public:
   LinearPolynomial() {};
   ~LinearPolynomial() {};
+
+  static int GetNumCoeff() { return 2; }; //E,F
+
 private:
   void SetPolynomialCoefficients(double T, const Point1d& start, const Point1d& end);
 };
@@ -132,6 +135,9 @@ class CubicPolynomial : public Polynomial {
 public:
   CubicPolynomial() {};
   ~CubicPolynomial() {};
+
+  static int GetNumCoeff() { return 4; }; //C,D,E,F
+
 private:
   void SetPolynomialCoefficients(double T, const Point1d& start, const Point1d& end);
 };
@@ -140,6 +146,9 @@ class QuinticPolynomial : public Polynomial {
 public:
   QuinticPolynomial() {};
   ~QuinticPolynomial() {};
+
+  static int GetNumCoeff() { return 6; }; //A,B,C,D,E,F
+
 private:
   void SetPolynomialCoefficients(double T, const Point1d& start, const Point1d& end);
 };

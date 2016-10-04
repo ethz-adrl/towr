@@ -6,6 +6,7 @@
  */
 
 #include <xpp/ros/nlp_optimizer_node.h>
+#include <xpp/zmp/com_spline.h>
 #include <xpp/ros/ros_helpers.h>  // namespace cmo::ros
 #include <xpp_msgs/ros_helpers.h> // namespace xpp::ros
 

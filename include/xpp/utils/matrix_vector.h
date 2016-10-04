@@ -13,7 +13,6 @@
 namespace xpp {
 namespace utils {
 
-// cmo move this to xpp_opt
 struct VecScalar {
   Eigen::RowVectorXd v;
   double s;

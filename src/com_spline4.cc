@@ -69,7 +69,8 @@ ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
 
   for (size_t k=0; k<polynomials_.size(); ++k) {
     for (const Coords3D dim : Coords2DArray) {
-      std::array<double, utils::kCoeffCount> cv;
+//      std::array<double, ComPolynomial::GetNumCoeff()> cv;
+      double cv[ComPolynomial::GetNumCoeff()];
 
       // fill in only first 4 optimized coefficients
       cv[A] = optimized_coeff[Index(k,dim,A)];

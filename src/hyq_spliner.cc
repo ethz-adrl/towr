@@ -27,7 +27,7 @@ void
 HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com_spline,
                   const VecFoothold& contacts, double robot_height)
 {
-  // cmo this should not need to be explicitly defined, merge both Init functions
+  // get first state
   HyqState x0;
   x0.ZeroVelAcc();
   x0.base_.lin.p.topRows<kDim2d>() = ComPolynomialHelpers::GetCOM(0.0, com_spline).p;
