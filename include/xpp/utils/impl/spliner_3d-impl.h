@@ -5,22 +5,22 @@
 @brief   Creates 3 dimensional spline from start to end with duration T
  */
 
-#include <xpp/utils/spliner_3d.h>
+#include "../polynomial_3d.h"
 
 namespace xpp {
 namespace utils {
 
 template<typename SplineType, size_t N_DIM>
 void
-Spliner2d<SplineType, N_DIM>::SetDuration (double _duration)
+PolynomialXd<SplineType, N_DIM>::SetDuration (double _duration)
 {
   for (int dim=X; dim<kNumDim; ++dim)
     polynomials_.at(dim).duration = _duration;
 }
 
 template<typename SplineType, size_t N_DIM>
-typename Spliner2d<SplineType, N_DIM>::Vector2d
-Spliner2d<SplineType, N_DIM>::GetState (MotionDerivative pos_vel_acc_jerk, double t) const
+typename PolynomialXd<SplineType, N_DIM>::Vector2d
+PolynomialXd<SplineType, N_DIM>::GetState (MotionDerivative pos_vel_acc_jerk, double t) const
 {
   Point p;
   GetPoint(t, p);
@@ -29,24 +29,24 @@ Spliner2d<SplineType, N_DIM>::GetState (MotionDerivative pos_vel_acc_jerk, doubl
 
 template<typename SplineType, size_t N_DIM>
 double
-Spliner2d<SplineType, N_DIM>::GetCoefficient (int dim, SplineCoeff coeff) const
+PolynomialXd<SplineType, N_DIM>::GetCoefficient (int dim, SplineCoeff coeff) const
 {
   return polynomials_.at(dim).c[coeff];
 }
 
 template<typename SplineType, size_t N_DIM>
 void
-Spliner2d<SplineType, N_DIM>::SetCoefficients (int dim, SplineCoeff coeff, double value)
+PolynomialXd<SplineType, N_DIM>::SetCoefficients (int dim, SplineCoeff coeff, double value)
 {
   polynomials_.at(dim).c[coeff] = value;
 }
 
 template<typename SplineType, size_t N_DIM>
-void Spliner2d<SplineType, N_DIM>::SetBoundary(double T, const Point& start,
+void PolynomialXd<SplineType, N_DIM>::SetBoundary(double T, const Point& start,
                                                   const Point& end)
 {
-  Spliner::Point1d _start[kNumDim];
-  Spliner::Point1d _end[kNumDim];
+  Polynomial::Point1d _start[kNumDim];
+  Polynomial::Point1d _end[kNumDim];
 
   for (int dim=X; dim<kNumDim; ++dim) {
     // convert data types
@@ -59,9 +59,9 @@ void Spliner2d<SplineType, N_DIM>::SetBoundary(double T, const Point& start,
 }
 
 template<typename SplineType, size_t N_DIM>
-bool Spliner2d<SplineType, N_DIM>::GetPoint(const double dt, Point& p) const
+bool PolynomialXd<SplineType, N_DIM>::GetPoint(const double dt, Point& p) const
 {
-  Spliner::Point1d coord_result;
+  Polynomial::Point1d coord_result;
 
   for (int dim=X; dim<kNumDim; ++dim) {
     polynomials_[dim].GetPoint(dt, coord_result);
@@ -78,9 +78,9 @@ template<typename SplineType>
 void Spliner3d<SplineType>::SetBoundary(double T, const Point& start,
                                                   const Point& end)
 {
-	Spliner::Point1d start_x, end_x;
-	Spliner::Point1d start_y, end_y;
-	Spliner::Point1d start_z, end_z;
+	Polynomial::Point1d start_x, end_x;
+	Polynomial::Point1d start_y, end_y;
+	Polynomial::Point1d start_z, end_z;
 
 	start_x.x   = start.p(X);  end_x.x   = end.p(X);
 	start_x.xd  = start.v(X);  end_x.xd  = end.v(X);
@@ -103,7 +103,7 @@ void Spliner3d<SplineType>::SetBoundary(double T, const Point& start,
 template<typename SplineType>
 bool Spliner3d<SplineType>::GetPoint(const double dt, Point& p) const
 {
-  Spliner::Point1d coord_result;
+  Polynomial::Point1d coord_result;
 
   splineX.GetPoint(dt, coord_result);
   p.p(X) = coord_result.x;

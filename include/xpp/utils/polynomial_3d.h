@@ -8,25 +8,25 @@
 #ifndef _XPP_UTILS_SPLINER_3D_H_
 #define _XPP_UTILS_SPLINER_3D_H_
 
-#include "spliner.h"
 #include <xpp/utils/cartesian_declarations.h>
 #include <xpp/utils/base_state.h>
 #include <Eigen/Dense>
+#include "polynomial.h"
 
 namespace xpp {
 namespace utils {
 
 
 template<typename SplineType, size_t N_DIM>
-class Spliner2d {
+class PolynomialXd {
 public:
   using Point = utils::BaseLin2d;
   using Vector2d = Eigen::Vector2d;
   static const int kNumDim = N_DIM;
 
 public:
-  explicit Spliner2d() {};
-  virtual ~Spliner2d() {};
+  explicit PolynomialXd() {};
+  virtual ~PolynomialXd() {};
   void SetBoundary(double T, const Point& start, const Point& end);
   bool GetPoint(const double dt, Point& p) const;
 

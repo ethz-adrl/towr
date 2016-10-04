@@ -11,7 +11,7 @@ Spliners ready to use:
         - Quintic Spliner
 */
 
-#include <xpp/utils/spliner.h>
+#include "../include/xpp/utils/polynomial.h"
 
 namespace xpp {
 namespace utils {
@@ -21,7 +21,7 @@ namespace utils {
  * spline coefficients are zero (as set by @ref Spliner()), the higher-order
  * terms have no effect
  */
-bool Spliner::GetPoint(const double dt, Point1d& out) const
+bool Polynomial::GetPoint(const double dt, Point1d& out) const
 {
   // sanity checks
   if (dt < 0)
@@ -41,7 +41,7 @@ bool Spliner::GetPoint(const double dt, Point1d& out) const
   return true;
 }
 
-void LinearSpliner::CalcSplineCoeff(double T, const Point1d& start, const Point1d& end)
+void LinearPolynomial::SetPolynomialCoefficients(double T, const Point1d& start, const Point1d& end)
 {
   c[F] = start.x;
   c[E] = (end.x - start.x) / T;
@@ -49,7 +49,7 @@ void LinearSpliner::CalcSplineCoeff(double T, const Point1d& start, const Point1
   c[D] = c[C] = c[B] = c[A] = 0.0;
 }
 
-void CubicSpliner::CalcSplineCoeff(double T, const Point1d& start, const Point1d& end)
+void CubicPolynomial::SetPolynomialCoefficients(double T, const Point1d& start, const Point1d& end)
 {
   double T1 = T;
   double T2 = T1 * T1;
@@ -63,7 +63,7 @@ void CubicSpliner::CalcSplineCoeff(double T, const Point1d& start, const Point1d
   c[B] = c[A] = 0.0;
 }
 
-void QuinticSpliner::CalcSplineCoeff(double T, const Point1d& start, const Point1d& end)
+void QuinticPolynomial::SetPolynomialCoefficients(double T, const Point1d& start, const Point1d& end)
 {
   double T1 = T;
   double T2 = T1 * T1;

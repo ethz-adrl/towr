@@ -8,8 +8,8 @@
 #ifndef _XPP_ZMP_COM_POLYNOMIAL_H_
 #define _XPP_ZMP_COM_POLYNOMIAL_H_
 
-#include <xpp/utils/spliner_3d.h>
 #include <xpp/utils/base_state.h>
+#include "../utils/polynomial_3d.h"
 
 namespace cmo {namespace ros{ class RosHelpers; }};
 
@@ -19,7 +19,7 @@ namespace zmp {
 /** A fifth order spline that now holds some context information about the
   *  Center of Mass (CoM).
   */
-class ComPolynomial : public xpp::utils::Spliner2d<xpp::utils::QuinticSpliner, 2>
+class ComPolynomial : public xpp::utils::PolynomialXd<xpp::utils::QuinticPolynomial, 2>
 {
 public:
   using VecPolynomials = std::vector<ComPolynomial>;

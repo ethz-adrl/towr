@@ -28,8 +28,8 @@ enum SplineCoeff { A=0, B, C, D, E, F };
 static const std::array<SplineCoeff, kCoeffCount> AllSplineCoeff = {A,B,C,D,E,F};
 
 /**
- * @class Spliner
- * @addtogroup Spliners
+ * @class Polynomial
+ * @addtogroup Polynomial
  *
  * @brief Splines points depending on the boundary conditions set.
  *
@@ -57,7 +57,7 @@ static const std::array<SplineCoeff, kCoeffCount> AllSplineCoeff = {A,B,C,D,E,F}
  *
  * For list of available spliners see \ref spliners "available spliners".
  */
-class Spliner {
+class Polynomial {
 public:
 
   struct Point1d {
@@ -69,8 +69,8 @@ public:
   };
 
 public:
-  Spliner();
-  virtual ~Spliner() {};
+  Polynomial();
+  virtual ~Polynomial() {};
 
   /**
    * @brief Sets the starting point of the spline and the end position.
@@ -97,56 +97,56 @@ private:
    * params are the same as @ref getPoint.
    * This is the only function that must be implemented by the child classes.
    */
-  virtual void CalcSplineCoeff(double T, const Point1d& start_p, const Point1d& end_p) = 0;
+  virtual void SetPolynomialCoefficients(double T, const Point1d& start_p, const Point1d& end_p) = 0;
 
 protected:
 };
 
-inline Spliner::Spliner()
+inline Polynomial::Polynomial()
 {
   for (double& _c : c) _c = 0.0; /** set to zero so low-order spliners don't use. */
   duration = 0.0;
 }
 
-inline void Spliner::SetBoundary(double T, const Point1d& start_p, const Point1d& end_p)
+inline void Polynomial::SetBoundary(double T, const Point1d& start_p, const Point1d& end_p)
 {
   if(T <= 0.0)
     throw std::invalid_argument("Cannot create a spliner with zero or negative duration");
 
   duration = T;
-  CalcSplineCoeff(T, start_p, end_p);
+  SetPolynomialCoefficients(T, start_p, end_p);
 }
 
 /**
- * @ingroup Spliners
- * \anchor spliners Ready to use Spliners.
+ * @ingroup Polynomials
+ * \anchor polynomials ready to use.
  * @{
  */
-class LinearSpliner : public Spliner
+class LinearPolynomial : public Polynomial
 {
 public:
-  LinearSpliner() {};
-  ~LinearSpliner() {};
+  LinearPolynomial() {};
+  ~LinearPolynomial() {};
 private:
-  void CalcSplineCoeff(double T, const Point1d& start, const Point1d& end);
+  void SetPolynomialCoefficients(double T, const Point1d& start, const Point1d& end);
 };
 
-class CubicSpliner : public Spliner
+class CubicPolynomial : public Polynomial
 {
 public:
-  CubicSpliner() {};
-  ~CubicSpliner() {};
+  CubicPolynomial() {};
+  ~CubicPolynomial() {};
 private:
-  void CalcSplineCoeff(double T, const Point1d& start, const Point1d& end);
+  void SetPolynomialCoefficients(double T, const Point1d& start, const Point1d& end);
 };
 
-class QuinticSpliner : public Spliner
+class QuinticPolynomial : public Polynomial
 {
 public:
-  QuinticSpliner() {};
-  ~QuinticSpliner() {};
+  QuinticPolynomial() {};
+  ~QuinticPolynomial() {};
 private:
-  void CalcSplineCoeff(double T, const Point1d& start, const Point1d& end);
+  void SetPolynomialCoefficients(double T, const Point1d& start, const Point1d& end);
 };
 /** @} */
 
