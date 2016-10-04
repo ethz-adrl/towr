@@ -6,6 +6,7 @@
  */
 
 #include <xpp/utils/polynomial_xd.h>
+#include <xpp/utils/base_state.h>
 
 namespace xpp {
 namespace utils {

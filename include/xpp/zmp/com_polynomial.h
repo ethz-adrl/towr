@@ -28,9 +28,6 @@ public:
   ComPolynomial(uint id, double duration);
   virtual ~ComPolynomial() {};
 
-  uint GetId()            const { return id_; };
-  void SetId(uint id)           { id_ = id;   };
-
   static BaseLin2d GetCOM(double t_global, const VecPolynomials& splines);
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
   static double GetTotalTime(const VecPolynomials& splines);
@@ -38,8 +35,7 @@ public:
   static BaseLin2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
 
 private:
-  uint id_; // to identify the order relative to other polynomials
-  friend std::ostream& operator<<(std::ostream& out, const ComPolynomial& tr);
+//  friend std::ostream& operator<<(std::ostream& out, const ComPolynomial& tr);
 };
 
 

@@ -22,7 +22,6 @@ Spliners ready to use:
 namespace xpp {
 namespace utils {
 
-// cmo move this inside Quintic Spliner class
 static const int kCoeffCount = 6;
 enum SplineCoeff { A=0, B, C, D, E, F };
 static const std::array<SplineCoeff, kCoeffCount> AllSplineCoeff = {A,B,C,D,E,F};
@@ -87,9 +86,8 @@ public:
    */
   bool GetPoint(const double dt, Point1d& point) const;
 
-  static const int kMaxSplineOrder = 5; //! Only splines smaller than quintic splines can be implemented.
-  std::array< double, kMaxSplineOrder+1 > c; //!< coefficients of spline
-  double duration; // cmo make access function
+  std::array< double, kCoeffCount > c; //!< coefficients of spline
+  double duration;
 private:
   /**
    * @brief Calculates all spline coeff of current spline.
@@ -122,8 +120,7 @@ inline void Polynomial::SetBoundary(double T, const Point1d& start_p, const Poin
  * \anchor polynomials ready to use.
  * @{
  */
-class LinearPolynomial : public Polynomial
-{
+class LinearPolynomial : public Polynomial {
 public:
   LinearPolynomial() {};
   ~LinearPolynomial() {};
@@ -131,8 +128,7 @@ private:
   void SetPolynomialCoefficients(double T, const Point1d& start, const Point1d& end);
 };
 
-class CubicPolynomial : public Polynomial
-{
+class CubicPolynomial : public Polynomial {
 public:
   CubicPolynomial() {};
   ~CubicPolynomial() {};
@@ -140,8 +136,7 @@ private:
   void SetPolynomialCoefficients(double T, const Point1d& start, const Point1d& end);
 };
 
-class QuinticPolynomial : public Polynomial
-{
+class QuinticPolynomial : public Polynomial {
 public:
   QuinticPolynomial() {};
   ~QuinticPolynomial() {};

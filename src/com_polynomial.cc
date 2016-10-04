@@ -11,13 +11,14 @@
 namespace xpp {
 namespace zmp {
 
-ComPolynomial::ComPolynomial() : id_(0)
+ComPolynomial::ComPolynomial()
 {
 }
 
-ComPolynomial::ComPolynomial(uint id, double duration) : id_(id)
+ComPolynomial::ComPolynomial(uint id, double duration)
 {
   SetDuration(duration);
+  SetId(id);
 }
 
 double
@@ -80,12 +81,12 @@ ComPolynomial::GetPolynomialID(double t_global, const VecPolynomials& splines)
    assert(false); // this should never be reached
 }
 
-std::ostream&
-operator<<(std::ostream& out, const ComPolynomial& p)
-{
-  out << "id: " << p.id_;
-  return out;
-}
+//std::ostream&
+//operator<<(std::ostream& out, const ComPolynomial& p)
+//{
+//  out << "id: " << p.GetID();
+//  return out;
+//}
 
 } // namespace zmp
 } // namespace xpp

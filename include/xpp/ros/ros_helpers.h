@@ -28,14 +28,14 @@ namespace ros {
  */
 struct RosHelpers {
 
-typedef xpp::zmp::ComSpline::VecPolynomials VecSpline;
-typedef xpp_opt::Spline SplineMsg;
+using VecComPoly   = xpp::zmp::ComSpline::VecPolynomials;
+using SplineMsg    = xpp_opt::Spline;
 
-using ContactXpp        = xpp::zmp::Contact;
-using PhaseInfoXpp      = xpp::zmp::PhaseInfo;
+using ContactXpp   = xpp::zmp::Contact;
+using PhaseInfoXpp = xpp::zmp::PhaseInfo;
 
-using ContactMsg        = xpp_opt::Contact;
-using PhaseInfoMsg      = xpp_opt::PhaseInfo;
+using ContactMsg   = xpp_opt::Contact;
+using PhaseInfoMsg = xpp_opt::PhaseInfo;
 
 static ContactMsg
 XppToRos(const ContactXpp& xpp)
@@ -106,7 +106,7 @@ RosToXpp(const std::vector<PhaseInfoMsg>& msg)
 }
 
 static std::vector<SplineMsg>
-XppToRos(const VecSpline& opt_splines)
+XppToRos(const VecComPoly& opt_splines)
 {
   using namespace xpp::zmp;
 
@@ -128,13 +128,13 @@ XppToRos(const VecSpline& opt_splines)
   return msgs;
 }
 
-static VecSpline
+static VecComPoly
 RosToXpp(const std::vector<SplineMsg>& msgs)
 {
   using namespace xpp::zmp;
 
   uint n_splines = msgs.size();
-  VecSpline xpp(n_splines);
+  VecComPoly xpp(n_splines);
 
   for (uint i=0; i<n_splines; ++i)
   {

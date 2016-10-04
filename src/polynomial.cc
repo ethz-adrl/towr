@@ -11,7 +11,7 @@ Spliners ready to use:
         - Quintic Spliner
 */
 
-#include "../include/xpp/utils/polynomial.h"
+#include <xpp/utils/polynomial.h>
 
 namespace xpp {
 namespace utils {

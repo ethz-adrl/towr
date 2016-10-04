@@ -9,7 +9,6 @@
 #define _XPP_UTILS_POLYNOMIALXD_H_
 
 #include <xpp/utils/cartesian_declarations.h>
-#include <xpp/utils/base_state.h>
 #include <xpp/utils/polynomial.h>
 #include <Eigen/Dense>
 
@@ -25,7 +24,7 @@ public:
   static const int kNumDim = N_DIM;
 
 public:
-  explicit PolynomialXd() {};
+  explicit PolynomialXd() : id_(0) {};
   virtual ~PolynomialXd() {};
   void SetBoundary(double T, const Point& start, const Point& end);
   bool GetPoint(const double dt, Point& p) const;
@@ -37,8 +36,12 @@ public:
   void SetDuration(double duration);
   double GetDuration() const;
 
+  uint GetId()            const { return id_; };
+  void SetId(uint id)           { id_ = id;   };
+
 private:
   std::array<PolynomialType, N_DIM> polynomials_; ///< X,Y,Z dimensions
+  uint id_; // to identify the order relative to other polynomials
 };
 
 } // namespace utils
