@@ -10,8 +10,8 @@
 
 #include <xpp/utils/cartesian_declarations.h>
 #include <xpp/utils/base_state.h>
+#include <xpp/utils/polynomial.h>
 #include <Eigen/Dense>
-#include "polynomial.h"
 
 namespace xpp {
 namespace utils {

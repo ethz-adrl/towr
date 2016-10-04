@@ -8,10 +8,7 @@
 #ifndef _XPP_ZMP_COM_POLYNOMIAL_H_
 #define _XPP_ZMP_COM_POLYNOMIAL_H_
 
-#include <xpp/utils/base_state.h>
 #include <xpp/utils/polynomial_xd.h>
-
-namespace cmo {namespace ros{ class RosHelpers; }};
 
 namespace xpp {
 namespace zmp {
@@ -32,6 +29,7 @@ public:
   virtual ~ComPolynomial() {};
 
   uint GetId()            const { return id_; };
+  void SetId(uint id)           { id_ = id;   };
 
   static BaseLin2d GetCOM(double t_global, const VecPolynomials& splines);
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
@@ -41,10 +39,7 @@ public:
 
 private:
   uint id_; // to identify the order relative to other polynomials
-  // cmo remove duration here, alrady in spliner2d
-
   friend std::ostream& operator<<(std::ostream& out, const ComPolynomial& tr);
-  friend struct cmo::ros::RosHelpers;
 };
 
 

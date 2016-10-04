@@ -122,7 +122,7 @@ XppToRos(const VecSpline& opt_splines)
     }
 
     msgs.at(i).duration = opt_splines.at(i).GetDuration();
-    msgs.at(i).id       = opt_splines.at(i).id_;
+    msgs.at(i).id       = opt_splines.at(i).GetId();
   }
 
   return msgs;
@@ -143,7 +143,7 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
       xpp.at(i).SetCoefficients(xpp::utils::Y, coeff, msgs.at(i).coeff_y[coeff]);
     }
     xpp.at(i).SetDuration(msgs.at(i).duration);
-    xpp.at(i).id_       = msgs.at(i).id;
+    xpp.at(i).SetId(msgs.at(i).id);
   }
   return xpp;
 }
