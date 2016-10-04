@@ -5,70 +5,75 @@
 @brief   Creates 3 dimensional spline from start to end with duration T
  */
 
-#include "../polynomial_3d.h"
+#include <xpp/utils/polynomial_3d.h>
 
 namespace xpp {
 namespace utils {
 
-template<typename SplineType, size_t N_DIM>
+template<typename PolynomialType, size_t N_DIM, typename PointType>
 void
-PolynomialXd<SplineType, N_DIM>::SetDuration (double _duration)
+PolynomialXd<PolynomialType, N_DIM, PointType>::SetDuration (double _duration)
 {
   for (int dim=X; dim<kNumDim; ++dim)
     polynomials_.at(dim).duration = _duration;
 }
 
-template<typename SplineType, size_t N_DIM>
-typename PolynomialXd<SplineType, N_DIM>::Vector2d
-PolynomialXd<SplineType, N_DIM>::GetState (MotionDerivative pos_vel_acc_jerk, double t) const
+template<typename PolynomialType, size_t N_DIM, typename PointType>
+typename PolynomialXd<PolynomialType, N_DIM, PointType>::Vector
+PolynomialXd<PolynomialType, N_DIM, PointType>::GetState (MotionDerivative pos_vel_acc_jerk,
+                                                          double t) const
 {
   Point p;
   GetPoint(t, p);
   return p.GetByIndex(pos_vel_acc_jerk);
 }
 
-template<typename SplineType, size_t N_DIM>
+template<typename PolynomialType, size_t N_DIM, typename PointType>
 double
-PolynomialXd<SplineType, N_DIM>::GetCoefficient (int dim, SplineCoeff coeff) const
+PolynomialXd<PolynomialType, N_DIM, PointType>::GetCoefficient (int dim, SplineCoeff coeff) const
 {
   return polynomials_.at(dim).c[coeff];
 }
 
-template<typename SplineType, size_t N_DIM>
+template<typename PolynomialType, size_t N_DIM, typename PointType>
 void
-PolynomialXd<SplineType, N_DIM>::SetCoefficients (int dim, SplineCoeff coeff, double value)
+PolynomialXd<PolynomialType, N_DIM, PointType>::SetCoefficients (int dim,
+                                                                 SplineCoeff coeff,
+                                                                 double value)
 {
   polynomials_.at(dim).c[coeff] = value;
 }
 
-template<typename SplineType, size_t N_DIM>
-void PolynomialXd<SplineType, N_DIM>::SetBoundary(double T, const Point& start,
-                                                  const Point& end)
+template<typename PolynomialType, size_t N_DIM, typename PointType>
+void PolynomialXd<PolynomialType, N_DIM, PointType>::SetBoundary(double T,
+                                                                 const Point& start,
+                                                                 const Point& end)
 {
-  Polynomial::Point1d _start[kNumDim];
-  Polynomial::Point1d _end[kNumDim];
+  Polynomial::Point1d start1d;
+  Polynomial::Point1d end1d;
 
   for (int dim=X; dim<kNumDim; ++dim) {
-    // convert data types
-    _start[dim].x   = start.p(X);  _end[dim].x   = end.p(X);
-    _start[dim].xd  = start.v(X);  _end[dim].xd  = end.v(X);
-    _start[dim].xdd = start.a(X);  _end[dim].xdd = end.a(X);
+    // convert to 1D points
+    start1d.x   = start.p(dim);  end1d.x   = end.p(dim);
+    start1d.xd  = start.v(dim);  end1d.xd  = end.v(dim);
+    start1d.xdd = start.a(dim);  end1d.xdd = end.a(dim);
 
-    polynomials_.at(dim).SetBoundary(T, _start[dim], _end[dim]);
+    polynomials_.at(dim).SetBoundary(T, start1d, end1d);
   }
 }
 
-template<typename SplineType, size_t N_DIM>
-bool PolynomialXd<SplineType, N_DIM>::GetPoint(const double dt, Point& p) const
+template<typename PolynomialType, size_t N_DIM, typename PointType>
+bool PolynomialXd<PolynomialType, N_DIM, PointType>::GetPoint(const double dt,
+                                                              Point& p) const
 {
-  Polynomial::Point1d coord_result;
+  Polynomial::Point1d point1d;
 
   for (int dim=X; dim<kNumDim; ++dim) {
-    polynomials_[dim].GetPoint(dt, coord_result);
-    p.p(dim) = coord_result.x;
-    p.v(dim) = coord_result.xd;
-    p.a(dim) = coord_result.xdd;
-    p.j(dim) = coord_result.xddd;
+    polynomials_.at(dim).GetPoint(dt, point1d);
+    p.p(dim) = point1d.x;
+    p.v(dim) = point1d.xd;
+    p.a(dim) = point1d.xdd;
+    p.j(dim) = point1d.xddd;
   }
 
   return true;

@@ -19,7 +19,9 @@ namespace zmp {
 /** A fifth order spline that now holds some context information about the
   *  Center of Mass (CoM).
   */
-class ComPolynomial : public xpp::utils::PolynomialXd<xpp::utils::QuinticPolynomial, 2>
+class ComPolynomial : public xpp::utils::PolynomialXd<xpp::utils::QuinticPolynomial,
+                                                      xpp::utils::kDim2d,
+                                                      xpp::utils::BaseLin2d>
 {
 public:
   using VecPolynomials = std::vector<ComPolynomial>;

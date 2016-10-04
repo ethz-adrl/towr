@@ -41,7 +41,10 @@ public:
   typedef Eigen::Vector3d Vector3d;
   typedef Foothold::VecFoothold VecFoothold;
   typedef ::xpp::utils::QuinticPolynomial Spliner;
-  typedef ::xpp::utils::Spliner3d< Spliner > Spliner3d;
+  using Spliner3d = ::xpp::utils::PolynomialXd< ::xpp::utils::QuinticPolynomial,
+                                                ::xpp::utils::kDim3d,
+                                                ::xpp::utils::BaseLin3d>;
+//  using Spliner3d = xpp::utils::Spliner3d<::xpp::utils::QuinticPolynomial>;
   typedef Spliner3d::Point Point;
   using RobotStateTraj    = std::vector<HyqStateStamped>;
 

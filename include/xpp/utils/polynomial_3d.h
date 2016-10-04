@@ -17,11 +17,11 @@ namespace xpp {
 namespace utils {
 
 
-template<typename SplineType, size_t N_DIM>
+template<typename PolynomialType, size_t N_DIM, typename PointType>
 class PolynomialXd {
 public:
-  using Point = utils::BaseLin2d;
-  using Vector2d = Eigen::Vector2d;
+  using Point = PointType;
+  using Vector = Eigen::Matrix<double,N_DIM,1>;
   static const int kNumDim = N_DIM;
 
 public:
@@ -30,13 +30,13 @@ public:
   void SetBoundary(double T, const Point& start, const Point& end);
   bool GetPoint(const double dt, Point& p) const;
 
-  Vector2d GetState(MotionDerivative pos_vel_acc_jerk, double t) const;
+  Vector GetState(MotionDerivative pos_vel_acc_jerk, double t) const;
   double GetCoefficient(int dim, SplineCoeff coeff) const;
   void   SetCoefficients(int dim, SplineCoeff coeff, double value);
   void SetDuration(double duration);
 
 private:
-  std::array<SplineType, N_DIM> polynomials_; // X,Y,Z dimensions
+  std::array<PolynomialType, N_DIM> polynomials_; ///< X,Y,Z dimensions
 };
 
 
