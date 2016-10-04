@@ -63,8 +63,8 @@ TEST(LinearSplineEquations, JunctionTestPosition)
   // now set coefficients so the junction at position is equal
   Coeff u = com_spline->GetCoeffients(); // zero
   double v0 = 1.0; // initial velocity
-  u(com_spline->Index(0,X,E)) = v0;
-  u(com_spline->Index(1,X,F)) = v0*T; // prediction where this spline will end up after T
+  u(com_spline->Index(0,X,Polynomial::PolynomialCoeff::E)) = v0;
+  u(com_spline->Index(1,X,Polynomial::PolynomialCoeff::F)) = v0*T; // prediction where this spline will end up after T
 
   // double check if linear approximation yields same results
   double xT_at_u = (jac_T*u)[0]  + xT_at_0;

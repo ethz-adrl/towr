@@ -37,6 +37,8 @@ using PhaseInfoXpp = xpp::zmp::PhaseInfo;
 using ContactMsg   = xpp_opt::Contact;
 using PhaseInfoMsg = xpp_opt::PhaseInfo;
 
+using Polynomial   = xpp::utils::Polynomial;
+
 static ContactMsg
 XppToRos(const ContactXpp& xpp)
 {
@@ -116,7 +118,7 @@ XppToRos(const VecComPoly& opt_splines)
   for (uint i=0; i<opt_splines.size(); ++i)
   {
 
-    for (auto coeff : xpp::utils::AllSplineCoeff) {
+    for (auto coeff : Polynomial::AllSplineCoeff) {
       msgs.at(i).coeff_x[coeff] = opt_splines.at(i).GetCoefficient(xpp::utils::X,coeff);
       msgs.at(i).coeff_y[coeff] = opt_splines.at(i).GetCoefficient(xpp::utils::Y,coeff);
     }
@@ -138,7 +140,7 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
 
   for (uint i=0; i<n_splines; ++i)
   {
-    for (auto coeff : xpp::utils::AllSplineCoeff) {
+    for (auto coeff : Polynomial::AllSplineCoeff) {
       xpp.at(i).SetCoefficients(xpp::utils::X, coeff, msgs.at(i).coeff_x[coeff]);
       xpp.at(i).SetCoefficients(xpp::utils::Y, coeff, msgs.at(i).coeff_y[coeff]);
     }

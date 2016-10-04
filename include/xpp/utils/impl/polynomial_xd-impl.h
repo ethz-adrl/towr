@@ -52,7 +52,7 @@ PolynomialXd<PolynomialType, N_DIM, PointType>::GetState (MotionDerivative pos_v
 
 template<typename PolynomialType, size_t N_DIM, typename PointType>
 double
-PolynomialXd<PolynomialType, N_DIM, PointType>::GetCoefficient (int dim, SplineCoeff coeff) const
+PolynomialXd<PolynomialType, N_DIM, PointType>::GetCoefficient (int dim, PolyCoeff coeff) const
 {
   return polynomials_.at(dim).c[coeff];
 }
@@ -60,7 +60,7 @@ PolynomialXd<PolynomialType, N_DIM, PointType>::GetCoefficient (int dim, SplineC
 template<typename PolynomialType, size_t N_DIM, typename PointType>
 void
 PolynomialXd<PolynomialType, N_DIM, PointType>::SetCoefficients (int dim,
-                                                                 SplineCoeff coeff,
+                                                                 PolyCoeff coeff,
                                                                  double value)
 {
   polynomials_.at(dim).c[coeff] = value;

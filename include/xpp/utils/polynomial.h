@@ -1,17 +1,17 @@
 /**
-@file   spliner.h
+@file   Polynomial.h
 @author Alexander Winkler (winklera@ethz.ch)
 @date   29.07.2014
 
-@brief  A virtual class spliner with ready to use derived spliners
+@brief  A virtual class Polynomial with ready to use derived Polynomials
 
-Spliners ready to use:
-        - Linear Spliner
-        - Cubic Spliner
-        - Quintic Spliner
+Polynomials ready to use:
+        - Linear Polynomial
+        - Cubic Polynomial
+        - Quintic Polynomial
 */
-#ifndef _XPP_UTILS_SPLINER_H_
-#define _XPP_UTILS_SPLINER_H_
+#ifndef _XPP_UTILS_Polynomial_H_
+#define _XPP_UTILS_Polynomial_H_
 
 #include <stdexcept>
 #include <iostream>
@@ -21,10 +21,6 @@ Spliners ready to use:
 
 namespace xpp {
 namespace utils {
-
-//static const int kCoeffCount = 6;
-enum SplineCoeff { A=0, B, C, D, E, F };
-static const std::array<SplineCoeff, 6> AllSplineCoeff = {A,B,C,D,E,F};
 
 /**
  * @class Polynomial
@@ -36,28 +32,32 @@ static const std::array<SplineCoeff, 6> AllSplineCoeff = {A,B,C,D,E,F};
  *
  * 1. Create Object:
  * \code
- * iit::commons::LinearSpliner ls;
+ * iit::commons::LinearPolynomial ls;
  * \endcode
  *
- * 2. Set boundary conditions for a specific spline:
+ * 2. Set boundary conditions for a specific polynomial:
  * \code
  * double max_time = 4.0;
- * iit::commons::Spliner::Point start(3.0, 0.0, 0.0); // pos, vel, acc
- * iit::commons::Spliner::Point goal (4.0, 1.0, 0.0); // pos, vel, acc
+ * Point start(3.0, 0.0, 0.0); // pos, vel, acc
+ * Point goal (4.0, 1.0, 0.0); // pos, vel, acc
  * ls.SetBoundary(max_time, start, goal)
  * \endcode
  *
- * 3. Get point of spline at specific time:
+ * 3. Get point of polynomial at specific time:
  * \code
- * iit::commons::Spliner::Point curr;
+ * iit::commons::Polynomial::Point curr;
  * double t_curr = 3.5;
  * ls.GetPoint(t_curr, curr);
  * \endcode
  *
- * For list of available spliners see \ref spliners "available spliners".
+ * For list of available Polynomials see \ref Polynomials "available Polynomials".
  */
 class Polynomial {
 public:
+
+  // f = At^5 + Bt^4 + Ct^3 + Dt^2 + Et + f
+  enum PolynomialCoeff { A=0, B, C, D, E, F };
+  static constexpr std::array<PolynomialCoeff, 6> AllSplineCoeff = {{A,B,C,D,E,F}};
 
   struct Point1d {
     double x;    ///< position
@@ -102,14 +102,14 @@ protected:
 
 inline Polynomial::Polynomial()
 {
-  for (double& _c : c) _c = 0.0; /** set to zero so low-order spliners don't use. */
+  for (double& _c : c) _c = 0.0; /** set to zero so low-order Polynomials don't use. */
   duration = 0.0;
 }
 
 inline void Polynomial::SetBoundary(double T, const Point1d& start_p, const Point1d& end_p)
 {
   if(T <= 0.0)
-    throw std::invalid_argument("Cannot create a spliner with zero or negative duration");
+    throw std::invalid_argument("Cannot create a Polynomial with zero or negative duration");
 
   duration = T;
   SetPolynomialCoefficients(T, start_p, end_p);
@@ -157,4 +157,4 @@ private:
 } // namespace utils
 } // namespace xpp
 
-#endif // XPP_UTILS_SPLINER_H_
+#endif // XPP_UTILS_Polynomial_H_

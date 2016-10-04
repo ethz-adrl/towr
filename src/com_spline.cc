@@ -49,7 +49,7 @@ ComSpline::Init (const PhaseVec& phases)
 }
 
 int
-ComSpline::Index (int poly, Coords3D dim, SplineCoeff coeff) const
+ComSpline::Index (int poly, Coords3D dim, PolyCoeff coeff) const
 {
   return NumFreeCoeffPerSpline() * kDim2d * poly + NumFreeCoeffPerSpline() * dim + coeff;
 }

@@ -22,6 +22,7 @@ namespace zmp {
   */
 class ComSpline : public ComMotion {
 public:
+  typedef xpp::utils::Polynomial Polynomial;
   typedef xpp::utils::ComPolynomial ComPolynomial;
   typedef std::vector<ComPolynomial> VecPolynomials;
   typedef xpp::utils::MotionDerivative MotionDerivative;
@@ -31,7 +32,7 @@ public:
   typedef std::vector<MotionDerivative> Derivatives;
   typedef std::shared_ptr<ComSpline> PtrS;
   typedef std::unique_ptr<ComSpline> PtrU;
-  using SplineCoeff = xpp::utils::SplineCoeff;
+  using PolyCoeff = Polynomial::PolynomialCoeff;
   using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
 
 
@@ -46,7 +47,7 @@ public:
   int GetTotalFreeCoeff() const override;
   VectorXd GetCoeffients () const override;
 
-  int Index(int polynomial, Coords3D dim, SplineCoeff coeff) const;
+  int Index(int polynomial, Coords3D dim, PolyCoeff coeff) const;
 
 
   /** The motions (pos,vel,acc) that are fixed by spline structure and cannot
@@ -90,7 +91,7 @@ private:
   virtual void GetJacobianJerk(double t_poly, int id, Coords3D dim, JacobianRow&) const = 0;
 
   virtual int NumFreeCoeffPerSpline() const = 0;
-  virtual std::vector<utils::SplineCoeff> GetFreeCoeffPerSpline() const = 0;
+  virtual std::vector<PolyCoeff> GetFreeCoeffPerSpline() const = 0;
 
   bool splines_initialized_ = false;
 };

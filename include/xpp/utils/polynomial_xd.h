@@ -22,6 +22,7 @@ class PolynomialXd {
 public:
   using Point = PointType;
   using Vector = Eigen::Matrix<double,N_DIM,1>;
+  using PolyCoeff = typename PolynomialType::PolynomialCoeff;
   static const int kNumDim = N_DIM;
 
 public:
@@ -32,8 +33,8 @@ public:
   bool GetPoint(const double dt, Point& p) const;
 
   Vector GetState(MotionDerivative pos_vel_acc_jerk, double t) const;
-  double GetCoefficient(int dim, SplineCoeff coeff) const;
-  void   SetCoefficients(int dim, SplineCoeff coeff, double value);
+  double GetCoefficient(int dim, PolyCoeff coeff) const;
+  void   SetCoefficients(int dim, PolyCoeff coeff, double value);
 
   static int GetNumCoeff() { return PolynomialType::GetNumCoeff(); };
 

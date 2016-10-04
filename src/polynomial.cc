@@ -1,7 +1,7 @@
 /**
-@file   spliner.h
-@author Alexander Wayne Winkler
-@date   29.07.2014
+@file   polynomial.cc
+@author Alexander W. Winkler
+@date   29.07.2016
 
 @brief  A virtual class spliner with ready to use derived spliners
 
@@ -15,6 +15,8 @@ Spliners ready to use:
 
 namespace xpp {
 namespace utils {
+
+constexpr std::array<Polynomial::PolynomialCoeff, 6> Polynomial::AllSplineCoeff;
 
 /**
  * The spliner always calculates the splines in the same way, but if the
