@@ -1,12 +1,12 @@
 /**
-@file    spliner_3d.cc
+@file    polynomial_xd.cc
 @author  Alexander Winkler (winklera@ethz.ch)
 @date    Oct 21, 2014
-@brief   Creates 3 dimensional spline from start to end with duration T
+@brief   Creates and x-dimensional spline from start to end with duration T
  */
 
-#ifndef _XPP_UTILS_SPLINER_3D_H_
-#define _XPP_UTILS_SPLINER_3D_H_
+#ifndef _XPP_UTILS_POLYNOMIALXD_H_
+#define _XPP_UTILS_POLYNOMIALXD_H_
 
 #include <xpp/utils/cartesian_declarations.h>
 #include <xpp/utils/base_state.h>
@@ -33,38 +33,17 @@ public:
   Vector GetState(MotionDerivative pos_vel_acc_jerk, double t) const;
   double GetCoefficient(int dim, SplineCoeff coeff) const;
   void   SetCoefficients(int dim, SplineCoeff coeff, double value);
+
   void SetDuration(double duration);
+  double GetDuration() const;
 
 private:
   std::array<PolynomialType, N_DIM> polynomials_; ///< X,Y,Z dimensions
 };
 
-
-/**
-@brief Creates 3 dimensional (x,y,z) spline from start to end with duration T.
-
-The type of spline (linear, cubic, quintic) is set as a template parameter.
- */
-// cmo remove this class
-template<typename SplineType>
-class Spliner3d {
-
-  SplineType splineX, splineY, splineZ;
-
-public:
-typedef utils::BaseLin3d Point;
-
-public:
-  explicit Spliner3d() {};
-  virtual ~Spliner3d() {};
-  void SetBoundary(double T, const Point& start, const Point& end);
-  bool GetPoint(const double dt, Point& p) const;
-};
-
-
 } // namespace utils
 } // namespace xpp
 
-#include "impl/spliner_3d-impl.h"
+#include "impl/polynomial_xd-impl.h"
 
-#endif // _XPP_UTILS_SPLINER_3D_H_
+#endif // _XPP_UTILS_POLYNOMIALXD_H_

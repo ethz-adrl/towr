@@ -9,7 +9,7 @@
 #define _XPP_ZMP_COM_POLYNOMIAL_H_
 
 #include <xpp/utils/base_state.h>
-#include "../utils/polynomial_3d.h"
+#include <xpp/utils/polynomial_xd.h>
 
 namespace cmo {namespace ros{ class RosHelpers; }};
 
@@ -25,14 +25,13 @@ class ComPolynomial : public xpp::utils::PolynomialXd<xpp::utils::QuinticPolynom
 {
 public:
   using VecPolynomials = std::vector<ComPolynomial>;
-  using BaseLin2d = xpp::utils::BaseLin2d;
+  using BaseLin2d = Point;
 
   ComPolynomial();
   ComPolynomial(uint id, double duration);
   virtual ~ComPolynomial() {};
 
   uint GetId()            const { return id_; };
-  double GetDuration()    const { return duration_; };
 
   static BaseLin2d GetCOM(double t_global, const VecPolynomials& splines);
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
@@ -43,7 +42,6 @@ public:
 private:
   uint id_; // to identify the order relative to other polynomials
   // cmo remove duration here, alrady in spliner2d
-  double duration_; // time during which this spline is active
 
   friend std::ostream& operator<<(std::ostream& out, const ComPolynomial& tr);
   friend struct cmo::ros::RosHelpers;

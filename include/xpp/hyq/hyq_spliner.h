@@ -11,7 +11,7 @@
 #include <xpp/hyq/hyq_state.h>
 #include <xpp/zmp/phase_info.h>
 #include <xpp/zmp/com_polynomial.h>
-#include "../utils/polynomial_3d.h"
+#include <xpp/utils/polynomial_xd.h>
 
 namespace xpp {
 namespace hyq {
