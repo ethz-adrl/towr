@@ -60,12 +60,12 @@ static const std::array<SplineCoeff, kCoeffCount> AllSplineCoeff = {A,B,C,D,E,F}
 class Spliner {
 public:
 
-  struct BaseLin1d {
+  struct Point1d {
     double x;    ///< position
     double xd;   ///< velocity
     double xdd;  ///< acceleration
     double xddd; ///< jerk
-    BaseLin1d() : x(0.0), xd(0.0), xdd(0.0), xddd(0.0) {}
+    Point1d() : x(0.0), xd(0.0), xdd(0.0), xddd(0.0) {}
   };
 
 public:
@@ -78,14 +78,14 @@ public:
    * @param start_p desired start position, velocity and acceleration.
    * @param end_p desired goal position, velocity and acceleration.
    */
-  void SetBoundary(double T, const BaseLin1d& start, const BaseLin1d& end);
+  void SetBoundary(double T, const Point1d& start, const Point1d& end);
 
   /**
    * @brief Sets the starting point of the spline and the end position.
    * @param dt current spline time.
    * @param point current position at time dt.
    */
-  bool GetPoint(const double dt, BaseLin1d& point) const;
+  bool GetPoint(const double dt, Point1d& point) const;
 
   static const int kMaxSplineOrder = 5; //! Only splines smaller than quintic splines can be implemented.
   std::array< double, kMaxSplineOrder+1 > c; //!< coefficients of spline
@@ -97,7 +97,7 @@ private:
    * params are the same as @ref getPoint.
    * This is the only function that must be implemented by the child classes.
    */
-  virtual void CalcSplineCoeff(double T, const BaseLin1d& start_p, const BaseLin1d& end_p) = 0;
+  virtual void CalcSplineCoeff(double T, const Point1d& start_p, const Point1d& end_p) = 0;
 
 protected:
 };
@@ -108,7 +108,7 @@ inline Spliner::Spliner()
   duration = 0.0;
 }
 
-inline void Spliner::SetBoundary(double T, const BaseLin1d& start_p, const BaseLin1d& end_p)
+inline void Spliner::SetBoundary(double T, const Point1d& start_p, const Point1d& end_p)
 {
   if(T <= 0.0)
     throw std::invalid_argument("Cannot create a spliner with zero or negative duration");
@@ -128,7 +128,7 @@ public:
   LinearSpliner() {};
   ~LinearSpliner() {};
 private:
-  void CalcSplineCoeff(double T, const BaseLin1d& start, const BaseLin1d& end);
+  void CalcSplineCoeff(double T, const Point1d& start, const Point1d& end);
 };
 
 class CubicSpliner : public Spliner
@@ -137,7 +137,7 @@ public:
   CubicSpliner() {};
   ~CubicSpliner() {};
 private:
-  void CalcSplineCoeff(double T, const BaseLin1d& start, const BaseLin1d& end);
+  void CalcSplineCoeff(double T, const Point1d& start, const Point1d& end);
 };
 
 class QuinticSpliner : public Spliner
@@ -146,7 +146,7 @@ public:
   QuinticSpliner() {};
   ~QuinticSpliner() {};
 private:
-  void CalcSplineCoeff(double T, const BaseLin1d& start, const BaseLin1d& end);
+  void CalcSplineCoeff(double T, const Point1d& start, const Point1d& end);
 };
 /** @} */
 

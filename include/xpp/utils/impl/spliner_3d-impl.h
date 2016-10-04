@@ -45,8 +45,8 @@ template<typename SplineType, size_t N_DIM>
 void Spliner2d<SplineType, N_DIM>::SetBoundary(double T, const Point& start,
                                                   const Point& end)
 {
-  Spliner::BaseLin1d _start[kNumDim];
-  Spliner::BaseLin1d _end[kNumDim];
+  Spliner::Point1d _start[kNumDim];
+  Spliner::Point1d _end[kNumDim];
 
   for (int dim=X; dim<kNumDim; ++dim) {
     // convert data types
@@ -61,7 +61,7 @@ void Spliner2d<SplineType, N_DIM>::SetBoundary(double T, const Point& start,
 template<typename SplineType, size_t N_DIM>
 bool Spliner2d<SplineType, N_DIM>::GetPoint(const double dt, Point& p) const
 {
-  Spliner::BaseLin1d coord_result;
+  Spliner::Point1d coord_result;
 
   for (int dim=X; dim<kNumDim; ++dim) {
     polynomials_[dim].GetPoint(dt, coord_result);
@@ -78,9 +78,9 @@ template<typename SplineType>
 void Spliner3d<SplineType>::SetBoundary(double T, const Point& start,
                                                   const Point& end)
 {
-	Spliner::BaseLin1d start_x, end_x;
-	Spliner::BaseLin1d start_y, end_y;
-	Spliner::BaseLin1d start_z, end_z;
+	Spliner::Point1d start_x, end_x;
+	Spliner::Point1d start_y, end_y;
+	Spliner::Point1d start_z, end_z;
 
 	start_x.x   = start.p(X);  end_x.x   = end.p(X);
 	start_x.xd  = start.v(X);  end_x.xd  = end.v(X);
@@ -103,7 +103,7 @@ void Spliner3d<SplineType>::SetBoundary(double T, const Point& start,
 template<typename SplineType>
 bool Spliner3d<SplineType>::GetPoint(const double dt, Point& p) const
 {
-  Spliner::BaseLin1d coord_result;
+  Spliner::Point1d coord_result;
 
   splineX.GetPoint(dt, coord_result);
   p.p(X) = coord_result.x;

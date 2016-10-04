@@ -121,13 +121,6 @@ XppToRos(const VecSpline& opt_splines)
       msgs.at(i).coeff_y[coeff] = opt_splines.at(i).GetCoefficient(xpp::utils::Y,coeff);
     }
 
-    // cmo remove this
-    //    const double* ax_coeff = opt_splines.at(i).spline_coeff_[xpp::utils::X];
-    //    std::copy(ax_coeff, ax_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_x.begin());
-    //
-    //    const double* ay_coeff = opt_splines.at(i).spline_coeff_[xpp::utils::Y];
-    //    std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_y.begin());
-
     msgs.at(i).duration = opt_splines.at(i).duration_;
     msgs.at(i).id       = opt_splines.at(i).id_;
   }
@@ -149,14 +142,6 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
       xpp.at(i).SetCoefficients(xpp::utils::X, coeff, msgs.at(i).coeff_x[coeff]);
       xpp.at(i).SetCoefficients(xpp::utils::Y, coeff, msgs.at(i).coeff_y[coeff]);
     }
-
-
-//    const double* ax_coeff = msgs.at(i).coeff_x.begin();
-//    std::copy(ax_coeff, ax_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::X]);
-//
-//    const double* ay_coeff = msgs.at(i).coeff_y.begin();
-//    std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::Y]);
-
     xpp.at(i).duration_ = msgs.at(i).duration;
     xpp.at(i).id_       = msgs.at(i).id;
   }
