@@ -27,12 +27,12 @@ void
 HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com_spline,
                   const VecFoothold& contacts, double robot_height)
 {
-  // cmo this should not need to be explicitly defined, merge both Init functions
+  // get first state
   HyqState x0;
   x0.ZeroVelAcc();
-  x0.base_.lin.p.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).p;
-  x0.base_.lin.v.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).v;
-  x0.base_.lin.a.topRows<kDim2d>() = xpp::zmp::ComPolynomial::GetCOM(0.0, com_spline).a;
+  x0.base_.lin.p.topRows<kDim2d>() = ComPolynomialHelpers::GetCOM(0.0, com_spline).p;
+  x0.base_.lin.v.topRows<kDim2d>() = ComPolynomialHelpers::GetCOM(0.0, com_spline).v;
+  x0.base_.lin.a.topRows<kDim2d>() = ComPolynomialHelpers::GetCOM(0.0, com_spline).a;
   x0.base_.lin.p.z() = robot_height;
 
   for (auto f : phase_info.at(0).fixed_contacts_) {
@@ -157,7 +157,7 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
     // fill in x-y position, although overwritten anyway later
     double t_phase = curr_phase.duration_;
     t_global += t_phase;
-    auto com_xy_at_end_of_phase = xpp::zmp::ComPolynomial::GetCOM(t_global, optimized_xy_spline);
+    auto com_xy_at_end_of_phase = ComPolynomialHelpers::GetCOM(t_global, optimized_xy_spline);
     goal_node.base_.lin.p.topRows(kDim2d) = com_xy_at_end_of_phase.p;
 
     nodes.push_back(BuildNode(goal_node, t_phase));
@@ -300,7 +300,7 @@ HyqSpliner::Point
 HyqSpliner::GetCurrPosition(double t_global) const
 {
   Vector3d z_splined = GetCurrZState(t_global);
-  xpp::utils::BaseLin2d xy_optimized = xpp::zmp::ComPolynomial::GetCOM(t_global, optimized_xy_spline_);
+  xpp::utils::BaseLin2d xy_optimized = ComPolynomialHelpers::GetCOM(t_global, optimized_xy_spline_);
 
   Point pos;
 

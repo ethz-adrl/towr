@@ -5,8 +5,9 @@
  *      Author: awinkler
  */
 
+#include "../../include/xpp/utils/polynomial.h"
+
 #include <gtest/gtest.h>
-#include <xpp/utils/spliner.h>
 #include <iostream>
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
@@ -15,11 +16,10 @@ namespace xpp {
 namespace utils {
 
 
-
 // A start and an end position for the splines. checking only boundary conditions
 class SplineTest : public ::testing::Test {
 public:
-  typedef Spliner::Point Point;
+  typedef Polynomial::Point1d Point;
 
 protected:
   static void SetUpTestCase() // this is now only done one for all test in this test case
@@ -35,22 +35,22 @@ protected:
     T = 3.2;
   }
 
-  static Spliner::Point start;
-  static Spliner::Point end;
+  static Polynomial::Point1d start;
+  static Polynomial::Point1d end;
   static double T;
 };
 
-Spliner::Point SplineTest::start = Point();
-Spliner::Point SplineTest::end = Point();
+Polynomial::Point1d SplineTest::start = Point();
+Polynomial::Point1d SplineTest::end = Point();
 double SplineTest::T = 0.0;
 
 
-TEST_F(SplineTest, LinearSpliner)
+TEST_F(SplineTest, LinearPolynomial)
 {
-  LinearSpliner s;
+  LinearPolynomial s;
   s.SetBoundary(T, start, end);
 
-  Spliner::Point p0, p1;
+  Polynomial::Point1d p0, p1;
   s.GetPoint(0.0, p0);
   s.GetPoint(T, p1);
 
@@ -65,12 +65,12 @@ TEST_F(SplineTest, LinearSpliner)
 }
 
 
-TEST_F(SplineTest, CubicSpliner)
+TEST_F(SplineTest, CubicPolynomial)
 {
-  CubicSpliner s;
+  CubicPolynomial s;
   s.SetBoundary(T, start, end);
 
-  Spliner::Point p0, p1;
+  Polynomial::Point1d p0, p1;
   s.GetPoint(0.0, p0);
   s.GetPoint(T, p1);
 
@@ -85,10 +85,10 @@ TEST_F(SplineTest, CubicSpliner)
 
 TEST_F(SplineTest, FifthOrderSpliner)
 {
-  QuinticSpliner s;
+  QuinticPolynomial s;
   s.SetBoundary(T, start, end);
 
-  Spliner::Point p0, p1;
+  Polynomial::Point1d p0, p1;
   s.GetPoint(0.0, p0);
   s.GetPoint(T, p1);
 
@@ -106,7 +106,7 @@ TEST_F(SplineTest, FifthOrderSpliner)
 
 TEST_F(SplineTest, FifthOrderSplinerSameStartGoal)
 {
-  QuinticSpliner s;
+  QuinticPolynomial s;
 
   Point p;
   p.x   = 2.0;
@@ -121,7 +121,7 @@ TEST_F(SplineTest, FifthOrderSplinerSameStartGoal)
   double t = 0.001;
   s.SetBoundary(t, p, pg);
 
-  Spliner::Point p0,p2;
+  Polynomial::Point1d p0,p2;
   s.GetPoint(0.0,   p0);
   s.GetPoint(t,     p2);
 

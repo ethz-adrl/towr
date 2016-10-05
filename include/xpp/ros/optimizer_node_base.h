@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZER_NODE_BASE_H_
 
 #include <xpp/zmp/phase_info.h>
-#include <xpp/zmp/com_polynomial.h>
+#include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/base_state.h>
 
 #include <xpp/hyq/foothold.h>
@@ -26,13 +26,13 @@ public:
   using VecFoothold = std::vector<xpp::hyq::Foothold>;
   using StateMsg = xpp_msgs::StateLin3d;
   using PhaseVec = xpp::zmp::PhaseVec;
-  using VecSpline = std::vector<xpp::zmp::ComPolynomial>;
+  using VecSpline = std::vector<xpp::utils::ComPolynomial>;
 
   OptimizerNodeBase ();
   virtual ~OptimizerNodeBase ();
 
   virtual void OptimizeTrajectory() = 0;
-  virtual void PublishOptimizedValues() const = 0;
+  virtual void PublishOptimizedValues() const {};
   virtual void PublishTrajectory() const = 0;
 
 protected:

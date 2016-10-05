@@ -6,6 +6,7 @@
  */
 
 #include <xpp/ros/nlp_optimizer_node.h>
+#include <xpp/zmp/com_spline.h>
 #include <xpp/ros/ros_helpers.h>  // namespace cmo::ros
 #include <xpp_msgs/ros_helpers.h> // namespace xpp::ros
 
@@ -18,7 +19,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                    1, // take only the most recent information
                                    &NlpOptimizerNode::CurrentInfoCallback, this);
 
-  opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
+//  opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
   trajectory_pub_ = n_.advertise<RobotStateTrajMsg>("robot_trajectory", 1);
 
   supp_polygon_margins_ = xpp::hyq::SupportPolygon::GetDefaultMargins();
@@ -53,17 +54,17 @@ NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
   optimization_visualizer_.VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
 }
 
-void
-NlpOptimizerNode::PublishOptimizedValues() const
-{
-  OptParamMsg msg_out;
-  msg_out.splines   = cmo::ros::RosHelpers::XppToRos(opt_splines_);
-  msg_out.footholds = xpp::ros::RosHelpers::XppToRos(footholds_);
-  msg_out.phases    = cmo::ros::RosHelpers::XppToRos(motion_phases_);
-
-  opt_params_pub_.publish(msg_out);
-  ROS_INFO_STREAM("Publishing optimized values");
-}
+//void
+//NlpOptimizerNode::PublishOptimizedValues() const
+//{
+//  OptParamMsg msg_out;
+//  msg_out.splines   = cmo::ros::RosHelpers::XppToRos(opt_splines_);
+//  msg_out.footholds = xpp::ros::RosHelpers::XppToRos(footholds_);
+//  msg_out.phases    = cmo::ros::RosHelpers::XppToRos(motion_phases_);
+//
+//  opt_params_pub_.publish(msg_out);
+//  ROS_INFO_STREAM("Publishing optimized values");
+//}
 
 void
 NlpOptimizerNode::PublishTrajectory () const
@@ -79,7 +80,6 @@ NlpOptimizerNode::OptimizeTrajectory()
 {
   optimization_visualizer_.ClearOptimizedMarkers();
   optimization_visualizer_.VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
-
 
   // cmo pull the "phase planner" out of the nlp facade
   nlp_facade_.SolveNlp(curr_cog_.Get2D(),

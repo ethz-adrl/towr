@@ -9,9 +9,9 @@
 #define _XPP_HYQ_SPLINER_H_
 
 #include <xpp/hyq/hyq_state.h>
-#include <xpp/utils/spliner_3d.h>
 #include <xpp/zmp/phase_info.h>
-#include <xpp/zmp/com_polynomial.h>
+#include <xpp/utils/polynomial_helpers.h>
+#include <xpp/utils/polynomial_xd.h>
 
 namespace xpp {
 namespace hyq {
@@ -37,11 +37,16 @@ frame values omega (rollPitchYawToEar)
  */
 class HyqSpliner {
 public:
-  typedef std::vector<xpp::zmp::ComPolynomial> VecPolyomials;
+
+  typedef std::vector<xpp::utils::ComPolynomial> VecPolyomials;
   typedef Eigen::Vector3d Vector3d;
   typedef Foothold::VecFoothold VecFoothold;
-  typedef ::xpp::utils::QuinticSpliner Spliner;
-  typedef ::xpp::utils::Spliner3d< Spliner > Spliner3d;
+  typedef ::xpp::utils::QuinticPolynomial Spliner;
+  using Spliner3d = ::xpp::utils::PolynomialXd< ::xpp::utils::QuinticPolynomial,
+                                                ::xpp::utils::kDim3d,
+                                                ::xpp::utils::BaseLin3d>;
+
+  using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
   typedef Spliner3d::Point Point;
   using RobotStateTraj    = std::vector<HyqStateStamped>;
 

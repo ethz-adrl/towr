@@ -15,7 +15,7 @@
 #include <xpp_opt/Spline.h>
 
 #include <xpp/zmp/phase_info.h>
-#include <xpp/zmp/com_spline.h>
+#include <xpp/utils/polynomial_helpers.h>
 
 #include <xpp_msgs/ros_helpers.h>
 
@@ -28,14 +28,16 @@ namespace ros {
  */
 struct RosHelpers {
 
-typedef xpp::zmp::ComSpline::VecPolynomials VecSpline;
-typedef xpp_opt::Spline SplineMsg;
+using VecComPoly   = std::vector<xpp::utils::ComPolynomial>;
+using SplineMsg    = xpp_opt::Spline;
 
-using ContactXpp        = xpp::zmp::Contact;
-using PhaseInfoXpp      = xpp::zmp::PhaseInfo;
+using ContactXpp   = xpp::zmp::Contact;
+using PhaseInfoXpp = xpp::zmp::PhaseInfo;
 
-using ContactMsg        = xpp_opt::Contact;
-using PhaseInfoMsg      = xpp_opt::PhaseInfo;
+using ContactMsg   = xpp_opt::Contact;
+using PhaseInfoMsg = xpp_opt::PhaseInfo;
+
+using Polynomial   = xpp::utils::Polynomial;
 
 static ContactMsg
 XppToRos(const ContactXpp& xpp)
@@ -106,7 +108,7 @@ RosToXpp(const std::vector<PhaseInfoMsg>& msg)
 }
 
 static std::vector<SplineMsg>
-XppToRos(const VecSpline& opt_splines)
+XppToRos(const VecComPoly& opt_splines)
 {
   using namespace xpp::zmp;
 
@@ -115,37 +117,35 @@ XppToRos(const VecSpline& opt_splines)
 
   for (uint i=0; i<opt_splines.size(); ++i)
   {
-    const double* ax_coeff = opt_splines.at(i).spline_coeff_[xpp::utils::X];
-    std::copy(ax_coeff, ax_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_x.begin());
 
-    const double* ay_coeff = opt_splines.at(i).spline_coeff_[xpp::utils::Y];
-    std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, msgs.at(i).coeff_y.begin());
+    for (auto coeff : Polynomial::AllSplineCoeff) {
+      msgs.at(i).coeff_x[coeff] = opt_splines.at(i).GetCoefficient(xpp::utils::X,coeff);
+      msgs.at(i).coeff_y[coeff] = opt_splines.at(i).GetCoefficient(xpp::utils::Y,coeff);
+    }
 
-    msgs.at(i).duration = opt_splines.at(i).duration_;
-    msgs.at(i).id       = opt_splines.at(i).id_;
+    msgs.at(i).duration = opt_splines.at(i).GetDuration();
+    msgs.at(i).id       = opt_splines.at(i).GetId();
   }
 
   return msgs;
 }
 
-static VecSpline
+static VecComPoly
 RosToXpp(const std::vector<SplineMsg>& msgs)
 {
   using namespace xpp::zmp;
 
   uint n_splines = msgs.size();
-  VecSpline xpp(n_splines);
+  VecComPoly xpp(n_splines);
 
   for (uint i=0; i<n_splines; ++i)
   {
-    const double* ax_coeff = msgs.at(i).coeff_x.begin();
-    std::copy(ax_coeff, ax_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::X]);
-
-    const double* ay_coeff = msgs.at(i).coeff_y.begin();
-    std::copy(ay_coeff, ay_coeff+xpp::zmp::kCoeffCount, xpp.at(i).spline_coeff_[xpp::utils::Y]);
-
-    xpp.at(i).duration_ = msgs.at(i).duration;
-    xpp.at(i).id_       = msgs.at(i).id;
+    for (auto coeff : Polynomial::AllSplineCoeff) {
+      xpp.at(i).SetCoefficients(xpp::utils::X, coeff, msgs.at(i).coeff_x[coeff]);
+      xpp.at(i).SetCoefficients(xpp::utils::Y, coeff, msgs.at(i).coeff_y[coeff]);
+    }
+    xpp.at(i).SetDuration(msgs.at(i).duration);
+    xpp.at(i).SetId(msgs.at(i).id);
   }
   return xpp;
 }

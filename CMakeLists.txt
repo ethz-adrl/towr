@@ -90,9 +90,8 @@ include_directories(
 set(SOURCES
   src/ellipse.cc
   src/qp_facade.cc
-  src/spliner.cc
-  src/spliner_3d.cc
-  src/polynomial_fifth_order.cc
+  src/polynomial.cc
+  src/polynomial_helpers.cc
   src/zero_moment_point.cc
   src/motion_structure.cc
   src/step_sequence_planner.cc
@@ -109,8 +108,7 @@ set(SOURCES
   src/com_motion.cc
   src/com_spline.cc
   src/com_spline6.cc    
-  src/com_spline4.cc    
-  src/com_polynomial.cc
+  src/com_spline4.cc
   src/motion_factory.cc
   # nlp
   src/a_subject.cc
@@ -241,6 +239,7 @@ if(BUILD_TESTS)
                          test/google/motion_structure_test.cc
 #                        test/google/com_motion_test.cc
                          test/google/com_spline_test.cc
+                         test/google/polynomial_test.cc
 #                        test/google/spline_container_test.cc
                          test/google/motion_factory_test.cc
 #                        #constraints

@@ -8,6 +8,7 @@
 #include <xpp/ros/optimizer_node_base.h>
 #include <xpp/ros/ros_helpers.h>
 #include <xpp_opt/GetStateLin3d.h>
+#include <xpp_msgs/topic_names.h>
 
 namespace xpp {
 namespace ros {
@@ -19,7 +20,7 @@ OptimizerNodeBase::OptimizerNodeBase ()
   ::ros::NodeHandle n;
 
   // motion_ref do i actually need this? not doing anything
-  goal_state_sub_ = n.subscribe("goal_state", 1,
+  goal_state_sub_ = n.subscribe(xpp_msgs::goal_state_topic, 1,
                                 &OptimizerNodeBase::GoalStateCallback, this);
 
   goal_state_client_ = n.serviceClient<GetStateSrv>("get_goal_state");
@@ -62,7 +63,6 @@ OptimizerNodeBase::GoalStateCallback(const StateMsg& msg)
   ROS_INFO_STREAM("Goal state set to:\n" << goal_cog_);
 
   OptimizeTrajectory();
-  PublishOptimizedValues(); // cmo remove this, redundant
   PublishTrajectory();
 }
 

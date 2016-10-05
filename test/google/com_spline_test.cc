@@ -34,12 +34,6 @@ TEST(ComSplineTest, PhaseInfo) {
   }
 
   auto com_spline = std::dynamic_pointer_cast<ComSpline>(com_motion);
-
-  std::cout << "polynomials:\n";
-  for (auto poly : com_spline->GetPolynomials()) {
-    std::cout << poly << std::endl;
-  }
-
 }
 
 } /* namespace zmp */

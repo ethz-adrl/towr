@@ -6,23 +6,13 @@
  */
 
 #include <iostream>
-#include <xpp/zmp/com_polynomial.h>
+#include <xpp/utils/polynomial_helpers.h>
 
 namespace xpp {
-namespace zmp {
-
-ComPolynomial::ComPolynomial() : id_(0), duration_(0.0)
-{
-  SetSplineCoefficients();
-}
-
-ComPolynomial::ComPolynomial(uint id, double duration) : id_(id), duration_(duration)
-{
-  SetSplineCoefficients();
-}
+namespace utils {
 
 double
-ComPolynomial::GetTotalTime(const VecPolynomials& splines)
+ComPolynomialHelpers::GetTotalTime(const VecPolynomials& splines)
 {
   double T = 0.0;
   for (const ComPolynomial& s: splines)
@@ -31,7 +21,7 @@ ComPolynomial::GetTotalTime(const VecPolynomials& splines)
 }
 
 double
-ComPolynomial::GetLocalTime(double t_global, const VecPolynomials& splines)
+ComPolynomialHelpers::GetLocalTime(double t_global, const VecPolynomials& splines)
 {
   int id_spline = GetPolynomialID(t_global,splines);
 
@@ -43,8 +33,8 @@ ComPolynomial::GetLocalTime(double t_global, const VecPolynomials& splines)
   return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
 }
 
-ComPolynomial::BaseLin2d
-ComPolynomial::GetCOM(double t_global, const VecPolynomials& splines)
+BaseLin2d
+ComPolynomialHelpers::GetCOM(double t_global, const VecPolynomials& splines)
 {
   int id = GetPolynomialID(t_global,splines);
   double t_local = GetLocalTime(t_global, splines);
@@ -52,8 +42,8 @@ ComPolynomial::GetCOM(double t_global, const VecPolynomials& splines)
   return GetCOGxyAtPolynomial(id, t_local, splines);
 }
 
-ComPolynomial::BaseLin2d
-ComPolynomial::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& splines)
+BaseLin2d
+ComPolynomialHelpers::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& splines)
 {
   BaseLin2d cog_xy;
   using namespace xpp::utils;
@@ -66,7 +56,7 @@ ComPolynomial::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomial
 }
 
 int
-ComPolynomial::GetPolynomialID(double t_global, const VecPolynomials& splines)
+ComPolynomialHelpers::GetPolynomialID(double t_global, const VecPolynomials& splines)
 {
   double eps = 1e-10; // double imprecision
   assert(t_global<=GetTotalTime(splines)+eps); // machine precision
@@ -81,14 +71,6 @@ ComPolynomial::GetPolynomialID(double t_global, const VecPolynomials& splines)
    assert(false); // this should never be reached
 }
 
-std::ostream&
-operator<<(std::ostream& out, const ComPolynomial& p)
-{
-  out << "id: " << p.id_
-      << "\t duration: " << p.duration_;
-  return out;
-}
-
-} // namespace zmp
+} // namespace utils
 } // namespace xpp
 
