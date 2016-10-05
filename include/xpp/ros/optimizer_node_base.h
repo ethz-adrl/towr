@@ -32,7 +32,7 @@ public:
   virtual ~OptimizerNodeBase ();
 
   virtual void OptimizeTrajectory() = 0;
-  virtual void PublishOptimizedValues() const = 0;
+  virtual void PublishOptimizedValues() const {};
   virtual void PublishTrajectory() const = 0;
 
 protected:

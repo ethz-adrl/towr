@@ -41,6 +41,7 @@ private:
 
   ::ros::Subscriber goal_key_sub_;
   ::ros::Publisher  goal_state_pub_;
+  ::ros::Publisher  walk_command_pub_; // tells the robot to start walking
   ::ros::Publisher  rviz_publisher_;
   ::ros::ServiceServer get_goal_srv_;
 };

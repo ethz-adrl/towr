@@ -8,6 +8,7 @@
 #include <xpp/ros/nlp_user_input_node.h>
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/marker_array_builder.h>
+#include <std_msgs/Empty.h>
 
 namespace xpp {
 namespace ros {
@@ -19,6 +20,10 @@ NlpUserInputNode::NlpUserInputNode ()
                                 &NlpUserInputNode::CallbackKeyboard, this);
 
   goal_state_pub_ = n.advertise<StateMsg>("goal_state", 1);
+
+  // start walking command
+  walk_command_pub_ = n.advertise<std_msgs::Empty>("start_walking",1);
+
   rviz_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_fixed", 1);
   get_goal_srv_   = n.advertiseService("get_goal_state", &NlpUserInputNode::GetGoalService, this);
 
@@ -57,6 +62,10 @@ NlpUserInputNode::CallbackKeyboard (const keyboard::Key& msg)
     case msg.KEY_RETURN:
       goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
       ROS_INFO_STREAM("Goal state set to " << goal_cog_.Get2D().p.transpose() << ".");
+      break;
+    case msg.KEY_w:
+      walk_command_pub_.publish(std_msgs::Empty());
+      ROS_INFO_STREAM("Walking command sent");
       break;
     default:
       break;
