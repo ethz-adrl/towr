@@ -13,6 +13,7 @@
 #include <xpp_opt/GetStateLin3d.h>
 #include <xpp_msgs/StateLin3d.h>
 #include <keyboard/Key.h>
+#include <sensor_msgs/Joy.h>
 #include <ros/ros.h>
 
 namespace xpp {
@@ -28,18 +29,22 @@ public:
   using State = xpp::utils::BaseLin3d;
   using StateMsg = xpp_msgs::StateLin3d;
   using KeyboardMsg = keyboard::Key;
+  using JoyMsg = sensor_msgs::Joy;
   using GoalSrv = xpp_opt::GetStateLin3d;
 
   NlpUserInputNode ();
   virtual ~NlpUserInputNode ();
 
 private:
-  void CallbackKeyboard(const keyboard::Key& msg);
+  void CallbackKeyboard(const KeyboardMsg& msg);
+  void CallbackJoy(const JoyMsg& msg);
   bool GetGoalService(GoalSrv::Request& req, GoalSrv::Response& res);
 
   State goal_cog_;
 
-  ::ros::Subscriber goal_key_sub_;
+  ::ros::Subscriber key_sub_;
+  ::ros::Subscriber joy_sub_;
+
   ::ros::Publisher  goal_state_pub_;
   ::ros::Publisher  walk_command_pub_; // tells the robot to start walking
   ::ros::Publisher  rviz_publisher_;

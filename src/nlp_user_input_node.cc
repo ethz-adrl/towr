@@ -9,6 +9,7 @@
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/marker_array_builder.h>
 #include <std_msgs/Empty.h>
+#include <xpp_msgs/topic_names.h>
 
 namespace xpp {
 namespace ros {
@@ -16,13 +17,13 @@ namespace ros {
 NlpUserInputNode::NlpUserInputNode ()
 {
   ::ros::NodeHandle n;
-  goal_key_sub_ = n.subscribe("/keyboard/keydown", 1,
-                                &NlpUserInputNode::CallbackKeyboard, this);
+  key_sub_ = n.subscribe("/keyboard/keydown", 1, &NlpUserInputNode::CallbackKeyboard, this);
+  joy_sub_ = n.subscribe("/joy", 1, &NlpUserInputNode::CallbackJoy, this);
 
-  goal_state_pub_ = n.advertise<StateMsg>("goal_state", 1);
+  goal_state_pub_ = n.advertise<StateMsg>(xpp_msgs::goal_state_topic, 1);
 
   // start walking command
-  walk_command_pub_ = n.advertise<std_msgs::Empty>("start_walking",1);
+  walk_command_pub_ = n.advertise<std_msgs::Empty>(xpp_msgs::start_walking_topic,1);
 
   rviz_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_fixed", 1);
   get_goal_srv_   = n.advertiseService("get_goal_state", &NlpUserInputNode::GetGoalService, this);
@@ -79,6 +80,15 @@ NlpUserInputNode::CallbackKeyboard (const keyboard::Key& msg)
   msg_builder_.AddPoint(msg_rviz, goal_cog_.Get2D().p, "goal",
                         visualization_msgs::Marker::CUBE);
   rviz_publisher_.publish(msg_rviz);
+}
+
+void
+NlpUserInputNode::CallbackJoy (const JoyMsg& msg)
+{
+  enum Buttons {X=0, A, B, Y};
+  if (msg.buttons[A] == 1) {
+    ROS_INFO_STREAM("A pressed");
+  }
 }
 
 bool
