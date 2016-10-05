@@ -14,24 +14,6 @@
 namespace xpp {
 namespace ros {
 
-static std::map<uint, NlpUserInputNode::Command> keyboard_map_ =
-{
-  {NlpUserInputNode::KeyboardMsg::KEY_RETURN, NlpUserInputNode::Command::kSetGoal,    },
-  {NlpUserInputNode::KeyboardMsg::KEY_w     , NlpUserInputNode::Command::kStartWalking}
-};
-
-enum JoyButtons {X=0, A, B, Y, NO_BUTTON};
-static std::vector<JoyButtons> AllJoyButtons = {JoyButtons::X,JoyButtons::A,
-                                                JoyButtons::B,JoyButtons::Y};
-static std::map<JoyButtons, NlpUserInputNode::Command> joy_map_
-{
-  {JoyButtons::X, NlpUserInputNode::Command::kSetGoal},
-  {JoyButtons::A, NlpUserInputNode::Command::kSetGoal},
-  {JoyButtons::B, NlpUserInputNode::Command::kSetGoal},
-  {JoyButtons::Y, NlpUserInputNode::Command::kStartWalking},
-};
-
-
 NlpUserInputNode::NlpUserInputNode ()
 {
   ::ros::NodeHandle n;
@@ -84,27 +66,36 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
 
   ROS_INFO_STREAM("Set goal state to " << goal_cog_.Get2D().p.transpose() << "?");
 
-  bool key_in_map = keyboard_map_.find(msg.code) != keyboard_map_.end();
+  static std::map<uint, NlpUserInputNode::Command> keyboard_command_map_ =
+  {
+    {NlpUserInputNode::KeyboardMsg::KEY_RETURN, NlpUserInputNode::Command::kSetGoal,    },
+    {NlpUserInputNode::KeyboardMsg::KEY_w     , NlpUserInputNode::Command::kStartWalking}
+  };
+
+  bool key_in_map = keyboard_command_map_.find(msg.code) != keyboard_command_map_.end();
   if (key_in_map)
-    command_ = keyboard_map_.at(msg.code);
+    command_ = keyboard_command_map_.at(msg.code);
 
 }
 
 void
 NlpUserInputNode::CallbackJoy (const JoyMsg& msg)
 {
-  prev_msg_ = msg;
+  joy_msg_ = msg;
+
+  enum JoyButtons {X=0, A, B, Y};
+  static std::map<JoyButtons, NlpUserInputNode::Command> joy_command_map_
+  {
+    {JoyButtons::X, NlpUserInputNode::Command::kSetGoal},
+    {JoyButtons::A, NlpUserInputNode::Command::kSetGoal},
+    {JoyButtons::B, NlpUserInputNode::Command::kSetGoal},
+    {JoyButtons::Y, NlpUserInputNode::Command::kStartWalking},
+  };
 
   // the last pushed button
-  JoyButtons pushed_button = JoyButtons::NO_BUTTON;
-  for (auto i : AllJoyButtons) {
-    if (prev_msg_.buttons[i] == 1)
-      pushed_button = i;
-  }
-
-  if (pushed_button != JoyButtons::NO_BUTTON) {
-    command_ = joy_map_.at(pushed_button);
-  }
+  for (auto i : {X,A,B,Y})
+    if (joy_msg_.buttons[i] == 1)
+      command_ = joy_command_map_.at(i);
 
   ROS_INFO_STREAM("Current goal set to " << goal_cog_.Get2D().p.transpose() << ".");
 }
@@ -114,8 +105,10 @@ NlpUserInputNode::ModifyGoalJoy ()
 {
   enum Axis {L_LEFT = 0, L_FORWARD, R_LEFT, R_FORWARD};
 
-  double vel_x = 0.5*prev_msg_.axes[L_FORWARD];
-  double vel_y = 0.5*prev_msg_.axes[L_LEFT];
+  double max_vel = 0.5; // [m/s]
+
+  double vel_x = max_vel*joy_msg_.axes[L_FORWARD];
+  double vel_y = max_vel*joy_msg_.axes[L_LEFT];
 
   // integrate velocity
   goal_cog_.p.x() += vel_x * 1.0/kLoopRate_;
@@ -124,27 +117,28 @@ NlpUserInputNode::ModifyGoalJoy ()
 
 void NlpUserInputNode::PublishCommand()
 {
-
-  if (!prev_msg_.axes.empty()) {
+  if (!joy_msg_.axes.empty())
     ModifyGoalJoy();
-  }
 
   switch (command_) {
     case Command::kSetGoal:
+      ROS_INFO_STREAM("Sending out desired goal state");
       goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
-      ROS_INFO_STREAM("Sending out desired goal state: " << goal_cog_.Get2D().p.transpose() << ".");
       break;
     case Command::kStartWalking:
-      walk_command_pub_.publish(std_msgs::Empty());
       ROS_INFO_STREAM("Sending out walking command");
+      walk_command_pub_.publish(std_msgs::Empty());
       break;
-    case Command::kNoCommand: // do nothing
-    default: break;
+    default: // no command
+      break;
   }
 
   command_ = Command::kNoCommand;
+}
 
-  // send out goal state to rviz
+void
+NlpUserInputNode::PublishRviz () const
+{
   visualization_msgs::MarkerArray msg_rviz;
   MarkerArrayBuilder msg_builder_;
   msg_builder_.AddPoint(msg_rviz, goal_cog_.Get2D().p, "goal",visualization_msgs::Marker::CUBE);

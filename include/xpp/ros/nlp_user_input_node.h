@@ -37,6 +37,7 @@ public:
   NlpUserInputNode ();
   virtual ~NlpUserInputNode ();
   void PublishCommand();
+  void PublishRviz() const;
 
   const int kLoopRate_ = 30; ///< frequency for sending out control commands
 
@@ -45,14 +46,13 @@ private:
   void CallbackJoy(const JoyMsg& msg);
 
   void ModifyGoalJoy();
-
   bool GetGoalService(GoalSrv::Request& req, GoalSrv::Response& res);
 
   State goal_cog_;
 
   ::ros::Subscriber key_sub_;
   ::ros::Subscriber joy_sub_;
-  JoyMsg prev_msg_;
+  JoyMsg joy_msg_;
 
   ::ros::Publisher  goal_state_pub_;
   ::ros::Publisher  walk_command_pub_; // tells the robot to start walking

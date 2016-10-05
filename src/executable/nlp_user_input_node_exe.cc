@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
   while (ros::ok())
   {
     nlp_user_input_node.PublishCommand();
+    nlp_user_input_node.PublishRviz();
 
     ros::spinOnce();
     loop_rate.sleep();
