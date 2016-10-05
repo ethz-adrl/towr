@@ -32,21 +32,25 @@ public:
   using JoyMsg = sensor_msgs::Joy;
   using GoalSrv = xpp_opt::GetStateLin3d;
 
-  enum class Command { kSetGoal, kStartWalking  };
+  enum class Command { kSetGoal, kStartWalking, kNoCommand } command_ = Command::kNoCommand;
 
   NlpUserInputNode ();
   virtual ~NlpUserInputNode ();
+  void PublishCommand();
 
 private:
   void CallbackKeyboard(const KeyboardMsg& msg);
   void CallbackJoy(const JoyMsg& msg);
+
+  void ProcessJoy();
+
   bool GetGoalService(GoalSrv::Request& req, GoalSrv::Response& res);
-  void PublishCommand(Command command) const;
 
   State goal_cog_;
 
   ::ros::Subscriber key_sub_;
   ::ros::Subscriber joy_sub_;
+  JoyMsg prev_msg_;
 
   ::ros::Publisher  goal_state_pub_;
   ::ros::Publisher  walk_command_pub_; // tells the robot to start walking
