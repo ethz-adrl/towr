@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
   ros::init(argc, argv, "nlp_user_input_node");
 
   xpp::ros::NlpUserInputNode nlp_user_input_node;
-  ros::Rate loop_rate(30);
+  ros::Rate loop_rate(nlp_user_input_node.kLoopRate_);
 
   while (ros::ok())
   {

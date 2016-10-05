@@ -31,7 +31,6 @@ static std::map<JoyButtons, NlpUserInputNode::Command> joy_map_
   {JoyButtons::Y, NlpUserInputNode::Command::kStartWalking},
 };
 
-enum Axis {L_LEFT = 0, L_FORWARD, R_LEFT, R_FORWARD};
 
 NlpUserInputNode::NlpUserInputNode ()
 {
@@ -85,7 +84,6 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
 
   ROS_INFO_STREAM("Set goal state to " << goal_cog_.Get2D().p.transpose() << "?");
 
-  command_ = Command::kNoCommand;
   bool key_in_map = keyboard_map_.find(msg.code) != keyboard_map_.end();
   if (key_in_map)
     command_ = keyboard_map_.at(msg.code);
@@ -104,32 +102,31 @@ NlpUserInputNode::CallbackJoy (const JoyMsg& msg)
       pushed_button = i;
   }
 
-  command_ = Command::kNoCommand;
-  if (pushed_button != JoyButtons::NO_BUTTON)
+  if (pushed_button != JoyButtons::NO_BUTTON) {
     command_ = joy_map_.at(pushed_button);
+  }
+
+  ROS_INFO_STREAM("Current goal set to " << goal_cog_.Get2D().p.transpose() << ".");
 }
 
 void
-NlpUserInputNode::ProcessJoy ()
+NlpUserInputNode::ModifyGoalJoy ()
 {
-  const static double dx = 0.01;
-  const static double dy = 0.01;
+  enum Axis {L_LEFT = 0, L_FORWARD, R_LEFT, R_FORWARD};
 
-  goal_cog_.p.x() += prev_msg_.axes[L_FORWARD]*dx;
-  goal_cog_.p.y() += prev_msg_.axes[L_LEFT]*dx;
-  ROS_INFO_STREAM("Set goal state to " << goal_cog_.Get2D().p.transpose() << "?");
+  double vel_x = 0.5*prev_msg_.axes[L_FORWARD];
+  double vel_y = 0.5*prev_msg_.axes[L_LEFT];
+
+  // integrate velocity
+  goal_cog_.p.x() += vel_x * 1.0/kLoopRate_;
+  goal_cog_.p.y() += vel_y * 1.0/kLoopRate_;
 }
 
 void NlpUserInputNode::PublishCommand()
 {
 
   if (!prev_msg_.axes.empty()) {
-
-    bool axis_zero = prev_msg_.axes[L_FORWARD]==0 && prev_msg_.axes[L_LEFT]==0;
-
-    if (!axis_zero) {
-      ProcessJoy();
-    }
+    ModifyGoalJoy();
   }
 
   switch (command_) {
@@ -144,6 +141,8 @@ void NlpUserInputNode::PublishCommand()
     case Command::kNoCommand: // do nothing
     default: break;
   }
+
+  command_ = Command::kNoCommand;
 
   // send out goal state to rviz
   visualization_msgs::MarkerArray msg_rviz;

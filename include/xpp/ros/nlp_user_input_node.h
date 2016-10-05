@@ -38,11 +38,13 @@ public:
   virtual ~NlpUserInputNode ();
   void PublishCommand();
 
+  const int kLoopRate_ = 30; ///< frequency for sending out control commands
+
 private:
   void CallbackKeyboard(const KeyboardMsg& msg);
   void CallbackJoy(const JoyMsg& msg);
 
-  void ProcessJoy();
+  void ModifyGoalJoy();
 
   bool GetGoalService(GoalSrv::Request& req, GoalSrv::Response& res);
 
