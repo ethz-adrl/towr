@@ -14,6 +14,15 @@
 namespace xpp {
 namespace ros {
 
+static std::map<uint, NlpUserInputNode::Command> keyboard_map_ =
+{
+  {NlpUserInputNode::KeyboardMsg::KEY_RETURN, NlpUserInputNode::Command::kSetGoal,    },
+  {NlpUserInputNode::KeyboardMsg::KEY_w     , NlpUserInputNode::Command::kStartWalking}
+};
+
+
+//std::map<NlpUserInputNode::Command, uint> joy_map_;
+
 NlpUserInputNode::NlpUserInputNode ()
 {
   ::ros::NodeHandle n;
@@ -42,7 +51,7 @@ NlpUserInputNode::~NlpUserInputNode ()
 }
 
 void
-NlpUserInputNode::CallbackKeyboard (const keyboard::Key& msg)
+NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
 {
   const static double dx = 0.1;
   const static double dy = 0.05;
@@ -60,35 +69,67 @@ NlpUserInputNode::CallbackKeyboard (const keyboard::Key& msg)
     case msg.KEY_DOWN:
       goal_cog_.p.y() += dy;
       break;
-    case msg.KEY_RETURN:
-      goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
-      ROS_INFO_STREAM("Goal state set to " << goal_cog_.Get2D().p.transpose() << ".");
-      break;
-    case msg.KEY_w:
-      walk_command_pub_.publish(std_msgs::Empty());
-      ROS_INFO_STREAM("Walking command sent");
-      break;
+//    case msg.KEY_RETURN:
+//      goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
+//      ROS_INFO_STREAM("Goal state set to " << goal_cog_.Get2D().p.transpose() << ".");
+//      break;
+//    case msg.KEY_w:
+//      walk_command_pub_.publish(std_msgs::Empty());
+//      ROS_INFO_STREAM("Walking command sent");
+//      break;
     default:
       break;
   }
 
   ROS_INFO_STREAM("Set goal state to " << goal_cog_.Get2D().p.transpose() << "?");
 
-  // send out goal state to rviz
-  visualization_msgs::MarkerArray msg_rviz;
-  MarkerArrayBuilder msg_builder_;
-  msg_builder_.AddPoint(msg_rviz, goal_cog_.Get2D().p, "goal",
-                        visualization_msgs::Marker::CUBE);
-  rviz_publisher_.publish(msg_rviz);
+  bool key_in_map = keyboard_map_.find(msg.code) != keyboard_map_.end();
+  if (key_in_map)
+    PublishCommand(keyboard_map_.at(msg.code));
+
+
+//  // send out goal state to rviz
+//  visualization_msgs::MarkerArray msg_rviz;
+//  MarkerArrayBuilder msg_builder_;
+//  msg_builder_.AddPoint(msg_rviz, goal_cog_.Get2D().p, "goal",
+//                        visualization_msgs::Marker::CUBE);
+//  rviz_publisher_.publish(msg_rviz);
 }
 
 void
 NlpUserInputNode::CallbackJoy (const JoyMsg& msg)
 {
   enum Buttons {X=0, A, B, Y};
+  enum Axis    {L_LEFT = 0, L_FORWARD, R_LEFT, R_FORWARD};
+
+
+
   if (msg.buttons[A] == 1) {
     ROS_INFO_STREAM("A pressed");
+
+
   }
+}
+
+void NlpUserInputNode::PublishCommand(Command command) const
+{
+  switch (command) {
+    case Command::kSetGoal:
+      goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
+      ROS_INFO_STREAM("Goal state set to " << goal_cog_.Get2D().p.transpose() << ".");
+      break;
+    case Command::kStartWalking:
+      walk_command_pub_.publish(std_msgs::Empty());
+      ROS_INFO_STREAM("Walking command sent");
+      break;
+    default: break;
+  }
+
+  // send out goal state to rviz
+  visualization_msgs::MarkerArray msg_rviz;
+  MarkerArrayBuilder msg_builder_;
+  msg_builder_.AddPoint(msg_rviz, goal_cog_.Get2D().p, "goal",visualization_msgs::Marker::CUBE);
+  rviz_publisher_.publish(msg_rviz);
 }
 
 bool

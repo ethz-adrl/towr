@@ -32,6 +32,8 @@ public:
   using JoyMsg = sensor_msgs::Joy;
   using GoalSrv = xpp_opt::GetStateLin3d;
 
+  enum class Command { kSetGoal, kStartWalking  };
+
   NlpUserInputNode ();
   virtual ~NlpUserInputNode ();
 
@@ -39,6 +41,7 @@ private:
   void CallbackKeyboard(const KeyboardMsg& msg);
   void CallbackJoy(const JoyMsg& msg);
   bool GetGoalService(GoalSrv::Request& req, GoalSrv::Response& res);
+  void PublishCommand(Command command) const;
 
   State goal_cog_;
 
