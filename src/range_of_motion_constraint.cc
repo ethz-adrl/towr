@@ -98,8 +98,8 @@ RangeOfMotionBox::EvaluateConstraint () const
       PosXY contact_pos = PosXY::Zero();
 
       if(c.id != xpp::hyq::Foothold::kFixedByStart) {
-        auto footholds = contacts_->GetFootholds();
-        contact_pos = footholds.at(c.id).p.topRows(kDim2d);
+        auto footholds_W = contacts_->GetFootholdsInWorld();
+        contact_pos = footholds_W.at(c.id).p.topRows(kDim2d);
       }
 
       for (auto dim : {X,Y})
@@ -126,6 +126,7 @@ RangeOfMotionBox::GetBounds () const
       if (c.id == xpp::hyq::Foothold::kFixedByStart)
         start_offset = contacts_->GetStartFoothold(static_cast<xpp::hyq::LegID>(c.ee)).p.topRows(kDim2d);
 
+      // bug the constraint compares footholds in world with bounds expressed in base
       PosXY pos_nom_B = robot_->GetNominalStanceInBase(static_cast<xpp::hyq::LegID>(c.ee));
       for (auto dim : {X,Y}) {
         Bound b;
@@ -177,7 +178,7 @@ RangeOfMotionFixed::EvaluateConstraint () const
 {
   std::vector<double> g_vec;
 
-  auto feet = contacts_->GetFootholds();
+  auto feet = contacts_->GetFootholdsInWorld();
   for (const auto& f : feet) {
     g_vec.push_back(f.p.x());
     g_vec.push_back(f.p.y());
@@ -192,7 +193,7 @@ RangeOfMotionFixed::GetBounds () const
   std::vector<Bound> bounds;
 
   auto start_stance = contacts_->GetStartStance();
-  auto steps = contacts_->GetFootholds();
+  auto steps = contacts_->GetFootholdsInWorld();
 
   for (const auto& s : steps) {
     auto leg = s.leg;

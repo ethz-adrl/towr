@@ -9,18 +9,19 @@
 #include <xpp/zmp/com_spline.h>
 #include <xpp/ros/ros_helpers.h>  // namespace cmo::ros
 #include <xpp_msgs/ros_helpers.h> // namespace xpp::ros
+#include <xpp_msgs/topic_names.h>
 
 namespace xpp {
 namespace ros {
 
 NlpOptimizerNode::NlpOptimizerNode ()
 {
-  current_info_sub_ = n_.subscribe("required_info_nlp",
+  current_info_sub_ = n_.subscribe(xpp_msgs::req_info_nlp,
                                    1, // take only the most recent information
                                    &NlpOptimizerNode::CurrentInfoCallback, this);
 
 //  opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
-  trajectory_pub_ = n_.advertise<RobotStateTrajMsg>("robot_trajectory", 1);
+  trajectory_pub_ = n_.advertise<RobotStateTrajMsg>(xpp_msgs::robot_trajectory, 1);
 
   supp_polygon_margins_ = xpp::hyq::SupportPolygon::GetDefaultMargins();
   supp_polygon_margins_[hyq::DIAG] = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");

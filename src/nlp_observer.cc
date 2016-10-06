@@ -63,7 +63,7 @@ NlpObserver::GetStructure() const
 NlpObserver::VecFoothold
 NlpObserver::GetFootholds () const
 {
-  return contacts_->GetFootholds();
+  return contacts_->GetFootholdsInWorld();
 }
 
 NlpObserver::VecFoothold

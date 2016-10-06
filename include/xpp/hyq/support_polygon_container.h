@@ -71,7 +71,7 @@ public:
   Eigen::Vector2d GetCenterOfFinalStance() const;
   VecFoothold GetStanceDuring(int step) const;
   VecFoothold GetStanceAfter(int n_steps) const;
-  VecFoothold GetFootholds() const { return footholds_; };
+  VecFoothold GetFootholdsInWorld() const { return footholds_I_; };
 
   /** Position where the foothold is stored in the optimization variables.
    *
@@ -84,7 +84,7 @@ public:
   SupportPolygon GetFinalPolygon() const;
   VecFoothold GetFinalFootholds() const ;
 
-  int GetNumberOfSteps() const { return footholds_.size(); };
+  int GetNumberOfSteps() const { return footholds_I_.size(); };
   void SetFootholdsXY(const StdVecEigen2d& footholds_xy);
 
   VecFoothold GetStartStance() const {return start_stance_;};
@@ -92,7 +92,7 @@ public:
 
 
   /** @brief First step is considered step=0. */
-  LegID GetLegID(int step) const { return footholds_.at(step).leg; };
+  LegID GetLegID(int step) const { return footholds_I_.at(step).leg; };
 
 
   VecSupportPolygon GetSupportPolygons() const {return support_polygons_;};
@@ -105,7 +105,7 @@ public:
   static bool DisJointSupportPolygons(LegID prev, LegID next);
 private:
 
-  VecFoothold footholds_;
+  VecFoothold footholds_I_;
   VecSupportPolygon support_polygons_;
   MarginValues margins_;
   VecFoothold start_stance_;

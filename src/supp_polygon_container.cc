@@ -18,13 +18,13 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
                                    const MarginValues& margins)
 {
   start_stance_ = start_stance;
-  footholds_ = footholds;
+  footholds_I_ = footholds;
   margins_       = margins;
 
   ModifyFootholds(start_stance_, [](Foothold& f, int i) {f.id = Foothold::kFixedByStart;} );
-  ModifyFootholds(footholds_,    [](Foothold& f, int i) {f.id = i;} );
+  ModifyFootholds(footholds_I_,    [](Foothold& f, int i) {f.id = i;} );
 
-  support_polygons_ = CreateSupportPolygons(footholds_);
+  support_polygons_ = CreateSupportPolygons(footholds_I_);
 }
 
 void SupportPolygonContainer::Init(const VecFoothold& start_stance,
@@ -60,18 +60,18 @@ SupportPolygonContainer::Init (const VecLegID& start_legs,
 void
 SupportPolygonContainer::SetFootholdsXY(const StdVecEigen2d& footholds_xy)
 {
-  assert(footholds_xy.size() == footholds_.size());
-  Foothold::SetXy(footholds_xy, footholds_);
-  support_polygons_ = CreateSupportPolygons(footholds_); //update support polygons as well
+  assert(footholds_xy.size() == footholds_I_.size());
+  Foothold::SetXy(footholds_xy, footholds_I_);
+  support_polygons_ = CreateSupportPolygons(footholds_I_); //update support polygons as well
 }
 
 Eigen::VectorXd
 SupportPolygonContainer::GetFootholdsInitializedToStart() const
 {
-  StdVecEigen2d footholds_xy(footholds_.size());
+  StdVecEigen2d footholds_xy(footholds_I_.size());
 
-  for (uint step=0; step<footholds_.size(); ++step) {
-    xpp::hyq::LegID leg = footholds_.at(step).leg;
+  for (uint step=0; step<footholds_I_.size(); ++step) {
+    xpp::hyq::LegID leg = footholds_I_.at(step).leg;
     footholds_xy.at(step) = GetStartFoothold(leg).GetXy();
   }
 
@@ -97,7 +97,7 @@ SupportPolygonContainer::VecFoothold
 SupportPolygonContainer::GetStanceAfter(int n_steps) const
 {
   VecFoothold combined = start_stance_;
-  combined.insert(combined.end(), footholds_.begin(), footholds_.begin()+n_steps);
+  combined.insert(combined.end(), footholds_I_.begin(), footholds_I_.begin()+n_steps);
 
   // get the last step of each foot
   VecFoothold last_stance;
@@ -132,7 +132,7 @@ SupportPolygon SupportPolygonContainer::GetFinalPolygon() const
 SupportPolygonContainer::VecFoothold
 SupportPolygonContainer::GetFinalFootholds() const
 {
-  return GetStanceAfter(footholds_.size());
+  return GetStanceAfter(footholds_I_.size());
 }
 
 SupportPolygonContainer::VecSupportPolygon
@@ -181,7 +181,7 @@ SupportPolygonContainer::AssignSupportPolygonsToPhases(const PhaseInfoVec& phase
 
     VecFoothold contacts;
     for (auto c : phase.free_contacts_)
-      contacts.push_back(footholds_.at(c.id));
+      contacts.push_back(footholds_I_.at(c.id));
 
     for (auto f : phase.fixed_contacts_)
       contacts.push_back(f);
