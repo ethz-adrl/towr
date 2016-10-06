@@ -7,26 +7,27 @@
 
 #include <xpp/ros/ros_helpers.h>  // xpp::cmo
 #include <xpp_msgs/ros_helpers.h> // xpp::ros
+#include <xpp_msgs/topic_names.h>
 
-#include <xpp/zmp/com_spline6.h>
+//#include <xpp/zmp/com_spline6.h>
 
 #include <xpp_opt/RequiredInfoNlp.h>         // send
-#include <xpp_opt/OptimizedParametersNlp.h> // receive
+//#include <xpp_opt/OptimizedParametersNlp.h> // receive
 
 #include <xpp/ros/marker_array_builder.h>
 
 
 typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
-typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
+//typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
 
 
-xpp::zmp::ComSpline6::VecPolynomials splines;
-std::vector<xpp::hyq::Foothold> footholds;
-void OptParamsCallback(const OptimizedParametersMsg& msg)
-{
-  splines   = cmo::ros::RosHelpers::RosToXpp(msg.splines);
-  footholds = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
-}
+//xpp::zmp::ComSpline6::VecPolynomials splines;
+//std::vector<xpp::hyq::Foothold> footholds;
+//void OptParamsCallback(const OptimizedParametersMsg& msg)
+//{
+//  splines   = cmo::ros::RosHelpers::RosToXpp(msg.splines);
+//  footholds = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
+//}
 
 using namespace xpp::hyq;
 
@@ -37,14 +38,16 @@ int main(int argc, char **argv)
 
   ros::init(argc, argv, "sample_nlp_caller");
   ros::NodeHandle n;
-  ros::Publisher current_info_pub = n.advertise<ReqInfoMsg>("required_info_nlp", 1);
-  ros::Subscriber opt_params_sub = n.subscribe("optimized_parameters_nlp", 1, OptParamsCallback);
+  ros::Publisher current_info_pub = n.advertise<ReqInfoMsg>(xpp_msgs::req_info_nlp, 1);
+//  ros::Subscriber opt_params_sub = n.subscribe("optimized_parameters_nlp", 1, OptParamsCallback);
 
   // give publisher and subscriber time to register with master
   ros::Rate poll_rate(100);
-  while(opt_params_sub.getNumPublishers() == 0 || current_info_pub.getNumSubscribers() == 0) {
+  while(/*opt_params_sub.getNumPublishers() == 0 || */current_info_pub.getNumSubscribers() == 0) {
     poll_rate.sleep(); // so node has time to connect
   }
+
+  ROS_INFO_STREAM("Subscriber connected");
 
 
   ReqInfoMsg msg;
@@ -64,14 +67,6 @@ int main(int argc, char **argv)
   for (auto f : start_stance) {
     msg.curr_stance.push_back(RosHelpers::XppToRos(f));
   }
-
-
-//  using namespace xpp::hyq;
-//  xpp::hyq::LegDataMap<xpp::hyq::Foothold> start_stance;
-//  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x,  0.3+msg.curr_state.pos.y, 0.0, LF)));
-//  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold( 0.35+msg.curr_state.pos.x, -0.3+msg.curr_state.pos.y, 0.0, RF)));
-//  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x,  0.3+msg.curr_state.pos.y, 0.0, LH)));
-//  msg.curr_stance.push_back(RosHelpers::XppToRos(Foothold(-0.35+msg.curr_state.pos.x, -0.3+msg.curr_state.pos.y, 0.0, RH)));
 
   msg.curr_swingleg = xpp::hyq::NO_SWING_LEG;
 
