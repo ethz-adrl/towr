@@ -24,7 +24,7 @@ OptimizationVisualizer::OptimizationVisualizer ()
   ros_publisher_optimized_ = n.advertise<visualization_msgs::MarkerArray>(xpp_msgs::rviz_optimized, 1);
   visual_tools_.reset(new rviz_visual_tools::RvizVisualTools("world", xpp_msgs::rviz_optimized));
 
-  ros_publisher_fixed_     = n.advertise<visualization_msgs::MarkerArray>("optimization_fixed", 1);
+  ros_publisher_fixed_     = n.advertise<visualization_msgs::MarkerArray>(xpp_msgs::rviz_fixed, 1);
 }
 
 OptimizationVisualizer::~OptimizationVisualizer ()
