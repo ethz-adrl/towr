@@ -10,7 +10,7 @@
 
 #include <xpp/zmp/i_visualizer.h>
 #include <xpp/utils/base_state.h>
-#include <rviz_visual_tools/rviz_visual_tools.h>
+//#include <rviz_visual_tools/rviz_visual_tools.h>
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 
@@ -52,7 +52,7 @@ private:
 
   NlpObserverPtr observer_;
 
-  ::rviz_visual_tools::RvizVisualToolsPtr visual_tools_;
+//  ::rviz_visual_tools::RvizVisualToolsPtr visual_tools_;
 };
 
 } /* namespace ros */
