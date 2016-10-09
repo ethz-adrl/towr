@@ -12,6 +12,8 @@
 namespace xpp {
 namespace ros {
 
+static const std::string supp_tr_topic = "support_polygons";
+
 MarkerArrayBuilder::MarkerArrayBuilder()
 {
 }
@@ -35,6 +37,18 @@ void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg
 
   for (uint i=0; i<supp.size(); ++i)
     BuildSupportPolygon(msg, supp.at(i).GetFootholds(), footholds.at(i).leg);
+
+
+  // delete the other markers, maximum of 30 support polygons.
+  int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
+  for (uint j=supp.size(); j<60; ++j) {
+    visualization_msgs::Marker marker;
+    marker.id = i++;
+    marker.ns = supp_tr_topic;
+    marker.action = visualization_msgs::Marker::DELETE;
+    msg.markers.push_back(marker);
+  }
+
 }
 
 void
@@ -54,7 +68,7 @@ MarkerArrayBuilder::BuildSupportPolygon(
   marker.id = i;
   marker.header.frame_id = frame_id_;
   marker.header.stamp = ::ros::Time();
-  marker.ns = "leg " + std::to_string(leg_id);
+  marker.ns = supp_tr_topic; //"leg " + std::to_string(leg_id);
   marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
   marker.action = visualization_msgs::Marker::MODIFY;
  //    marker.lifetime = ros::Duration(10);
@@ -71,7 +85,6 @@ MarkerArrayBuilder::BuildSupportPolygon(
   }
 
   msg.markers.push_back(marker);
-
 
 //  geometry_msgs::Point32 p1;
 //  for (size_t i=0; i<footholds.size(); ++i) {
@@ -217,7 +230,8 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
     msg.markers.push_back(marker);
   }
 
-  for (double t=com_motion.GetTotalTime(); t < 15.0; t+= 0.02)
+  // delete the other markers
+  for (double t=com_motion.GetTotalTime(); t < 30.0; t+= 0.02)
   {
     visualization_msgs::Marker marker;
 
