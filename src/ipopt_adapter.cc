@@ -18,7 +18,7 @@ namespace zmp {
 
 
 IpoptAdapter::IpoptAdapter(NLP& nlp,
-                           IVisualizer& visualizer)
+                           VisualizerPtr visualizer)
     :nlp_(nlp),
      visualizer_(visualizer)
 {
@@ -183,7 +183,7 @@ bool IpoptAdapter::intermediate_callback(Ipopt::AlgorithmMode mode,
 //
 //      opt_variables_.SetVariables(x);
 
-  visualizer_.Visualize();
+  visualizer_->Visualize();
 	return true;
 }
 

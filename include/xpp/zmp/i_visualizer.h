@@ -8,6 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_IVISUALIZER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_IVISUALIZER_H_
 
+#include <memory>
+
 namespace xpp {
 namespace zmp {
 
@@ -29,7 +31,8 @@ class DoNothingVisualizer : public IVisualizer {
 
 // compilation unit scope object that can be used as default initialization
 // "static" : each .cc files that includes this header has it's own copy of this variable
-static DoNothingVisualizer do_nothing_visualizer;
+typedef std::shared_ptr<IVisualizer> VisualizerPtr;
+static VisualizerPtr do_nothing_visualizer = std::make_shared< DoNothingVisualizer>();
 
 } /* namespace ros */
 } /* namespace zmp */

@@ -29,7 +29,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
   max_cpu_time_ = RosHelpers::GetDoubleFromServer("/xpp/max_cpu_time");
 
   // get current optimization values from the optimizer
-  optimization_visualizer_.SetObserver(nlp_facade_.GetObserver());
+  optimization_visualizer_ = std::make_shared<OptimizationVisualizer>();
+  optimization_visualizer_->SetObserver(nlp_facade_.GetObserver());
   nlp_facade_.AttachVisualizer(optimization_visualizer_);
 
   whole_body_mapper_.SetParams(0.5, 0.15, 0.0);
@@ -41,7 +42,7 @@ NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
   UpdateCurrentState(msg);
 //  OptimizeTrajectory();
 //  PublishOptimizedValues();
-//  optimization_visualizer_.Visualize();
+//  optimization_visualizer_->Visualize();
 }
 
 void
@@ -52,7 +53,7 @@ NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
   curr_swingleg_ = msg.curr_swingleg;
 //  ROS_INFO_STREAM("Updated Current State: " << curr_cog_);
 
-  optimization_visualizer_.VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
+  optimization_visualizer_->VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
 }
 
 //void
@@ -79,8 +80,10 @@ NlpOptimizerNode::PublishTrajectory () const
 void
 NlpOptimizerNode::OptimizeTrajectory()
 {
-  optimization_visualizer_.ClearOptimizedMarkers();
-  optimization_visualizer_.VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
+  std::cout << "NlpOptimizerNode::OptimizeTrajector()..." << std::endl;
+
+  optimization_visualizer_->ClearOptimizedMarkers();
+  optimization_visualizer_->VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
 
   // cmo pull the "phase planner" out of the nlp facade
   nlp_facade_.SolveNlp(curr_cog_.Get2D(),
@@ -97,11 +100,12 @@ NlpOptimizerNode::OptimizeTrajectory()
   footholds_     = nlp_facade_.GetFootholds();
   motion_phases_ = nlp_facade_.GetPhases();
 
-
+// cmo don't forget to put back in
   // convert to full body state
   whole_body_mapper_.Init(motion_phases_,opt_splines_,footholds_, robot_height_);
-
-  optimization_visualizer_.Visualize();
+  std::cout << "finished init of whole body mapper" << std::endl;
+//
+  optimization_visualizer_->Visualize();
 }
 
 } /* namespace ros */

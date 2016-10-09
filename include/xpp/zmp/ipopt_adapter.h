@@ -27,9 +27,10 @@ public:
   typedef Eigen::VectorXd VectorXd;
   typedef Ipopt::Index Index;
   typedef Ipopt::Number Number;
+  typedef std::shared_ptr<IVisualizer> VisualizerPtr;
 
 	IpoptAdapter(NLP& nlp,
-	             IVisualizer& visualizer = do_nothing_visualizer);
+	             VisualizerPtr visualizer = do_nothing_visualizer);
 
   /** default destructor */
   virtual ~IpoptAdapter() {};
@@ -103,7 +104,7 @@ public:
 
 private:
   NLP& nlp_;
-  IVisualizer& visualizer_;
+  VisualizerPtr visualizer_;
 };
 
 } // namespace zmp

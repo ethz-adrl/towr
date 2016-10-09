@@ -29,6 +29,7 @@ public:
 
   using WholeBodyMapper = xpp::hyq::HyqSpliner;
   using RobotStateTrajMsg = xpp_msgs::RobotStateTrajectoryCartesian;
+  using OptVisualizerPtr = std::shared_ptr<OptimizationVisualizer>;
 
 public:
   NlpOptimizerNode ();
@@ -53,7 +54,7 @@ private:
 
   void CurrentInfoCallback(const ReqInfoMsg& msg);
 
-  OptimizationVisualizer optimization_visualizer_;
+  OptVisualizerPtr optimization_visualizer_;
 };
 
 } /* namespace ros */

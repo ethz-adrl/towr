@@ -47,6 +47,7 @@ public:
   typedef xpp::utils::BaseLin2d State;
   typedef std::shared_ptr<OptimizationVariablesInterpreter> InterpreterPtr;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
+  typedef Ipopt::SmartPtr<Ipopt::IpoptApplication> IpoptApplicationPtr;
   typedef std::shared_ptr<NlpObserver> NlpObserverPtr;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
 
@@ -54,11 +55,12 @@ public:
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
   typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
   typedef std::shared_ptr<xpp::hyq::StepSequencePlanner> StepSequencePlannerPtr;
+  typedef std::shared_ptr<IVisualizer> VisualizerPtr;
 
   using ComMotionPtrS = std::shared_ptr<ComMotion>;
 
 
-  NlpFacade (IVisualizer& visualizer = do_nothing_visualizer);
+  NlpFacade (VisualizerPtr visualizer = do_nothing_visualizer);
   virtual ~NlpFacade () {};
 
   /** @brief Solves the nonlinear program (NLP) of moving the CoG from an initial to a
@@ -81,7 +83,7 @@ public:
                 double t_swing, double t_stance,
                 double max_cpu_time = 1e20);
 
-  void AttachVisualizer(IVisualizer& visualizer);
+  void AttachVisualizer(VisualizerPtr visualizer);
   NlpObserverPtr GetObserver() const;
 
   VecFoothold GetFootholds() const;
@@ -99,9 +101,10 @@ private:
 
 
   NlpObserverPtr nlp_observer_;
-  IVisualizer* visualizer_;
+  // cmo make this a shared pointer and don't dereference!
+  VisualizerPtr visualizer_;
 
-  Ipopt::IpoptApplication ipopt_solver_;
+  IpoptApplicationPtr ipopt_app_;
   Ipopt::ApplicationReturnStatus status_;
 };
 
