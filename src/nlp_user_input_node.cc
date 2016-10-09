@@ -120,10 +120,16 @@ void NlpUserInputNode::PublishCommand()
   if (!joy_msg_.axes.empty())
     ModifyGoalJoy();
 
+
+  // send out goal state only if changed w.r.t previous
+  if (goal_cog_.p != goal_prev_.p) {
+    goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
+  }
+  goal_prev_ = goal_cog_;
+
   switch (command_) {
     case Command::kSetGoal:
       ROS_INFO_STREAM("Sending out desired goal state");
-      goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
       break;
     case Command::kStartWalking:
       ROS_INFO_STREAM("Sending out walking command");

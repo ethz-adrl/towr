@@ -34,7 +34,10 @@ using namespace xpp::hyq;
 int main(int argc, char **argv)
 {
   using namespace xpp::ros;
-  if (argc!=7) ROS_FATAL("Please specify current xy-pos/vel/acc.");
+  if (argc!=7) {
+    ROS_FATAL("Please specify current xy-pos/vel/acc.");
+    return false;
+  }
 
   ros::init(argc, argv, "sample_nlp_caller");
   ros::NodeHandle n;
@@ -43,7 +46,7 @@ int main(int argc, char **argv)
 
   // give publisher and subscriber time to register with master
   ros::Rate poll_rate(100);
-  while(/*opt_params_sub.getNumPublishers() == 0 || */current_info_pub.getNumSubscribers() == 0) {
+  while(ros::ok() && /*opt_params_sub.getNumPublishers() == 0 || */current_info_pub.getNumSubscribers() == 0) {
     poll_rate.sleep(); // so node has time to connect
   }
 
@@ -70,6 +73,10 @@ int main(int argc, char **argv)
 
   msg.curr_swingleg = xpp::hyq::NO_SWING_LEG;
 
+  // publish message 4 times just to make sure nlp_optimizer gets it
+  current_info_pub.publish(msg);
+  current_info_pub.publish(msg);
+  current_info_pub.publish(msg);
   current_info_pub.publish(msg);
 }
 

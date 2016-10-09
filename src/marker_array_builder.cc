@@ -216,6 +216,16 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
     marker.color.a = alpha;
     msg.markers.push_back(marker);
   }
+
+  for (double t=com_motion.GetTotalTime(); t < 15.0; t+= 0.02)
+  {
+    visualization_msgs::Marker marker;
+
+    marker.id = i++;
+    marker.ns = rviz_namespace;
+    marker.action = visualization_msgs::Marker::DELETE;
+    msg.markers.push_back(marker);
+  }
 }
 
 void
@@ -319,6 +329,17 @@ void MarkerArrayBuilder::AddFootholds(
     marker_msg.color.a = alpha;
 
     msg.markers.push_back(marker_msg);
+  }
+
+  // maximum of 30 steps
+  for (int k=H_footholds.size(); k < 30; k++)
+  {
+    visualization_msgs::Marker marker;
+
+    marker.id = i++;
+    marker.ns = rviz_namespace;
+    marker.action = visualization_msgs::Marker::DELETE;
+    msg.markers.push_back(marker);
   }
 }
 

@@ -49,6 +49,7 @@ private:
   bool GetGoalService(GoalSrv::Request& req, GoalSrv::Response& res);
 
   State goal_cog_;
+  State goal_prev_;
 
   ::ros::Subscriber key_sub_;
   ::ros::Subscriber joy_sub_;
