@@ -9,21 +9,20 @@
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/marker_array_builder.h>
 #include <xpp/zmp/nlp_observer.h>
+#include <xpp_msgs/topic_names.h>
 
 namespace xpp {
 namespace ros {
 
 using VectorXd = Eigen::VectorXd;
 
-static const std::string topic_optimized = "/optimization_variables";
-
 OptimizationVisualizer::OptimizationVisualizer ()
 {
   observer_ = nullptr;
 
   ::ros::NodeHandle n;
-  ros_publisher_optimized_ = n.advertise<visualization_msgs::MarkerArray>(topic_optimized, 1);
-  visual_tools_.reset(new rviz_visual_tools::RvizVisualTools("world", topic_optimized));
+  ros_publisher_optimized_ = n.advertise<visualization_msgs::MarkerArray>(xpp_msgs::rviz_optimized, 1);
+  visual_tools_.reset(new rviz_visual_tools::RvizVisualTools("world", xpp_msgs::rviz_optimized));
 
   ros_publisher_fixed_     = n.advertise<visualization_msgs::MarkerArray>("optimization_fixed", 1);
 }
