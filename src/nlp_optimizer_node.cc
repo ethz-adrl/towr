@@ -10,9 +10,12 @@
 #include <xpp/ros/ros_helpers.h>  // namespace cmo::ros
 #include <xpp_msgs/ros_helpers.h> // namespace xpp::ros
 #include <xpp_msgs/topic_names.h>
+#include <hyqb_msgs/Trajectory.h>
 
 namespace xpp {
 namespace ros {
+
+using HyqTrajRvizMsg = hyqb_msgs::Trajectory;
 
 NlpOptimizerNode::NlpOptimizerNode ()
 {
@@ -22,6 +25,11 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
 //  opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
   trajectory_pub_ = n_.advertise<RobotStateTrajMsg>(xpp_msgs::robot_trajectory, 1);
+
+  // inv_kin hardcode this or put in topic_names.h
+  std::string trajectoryTopic;
+  ::ros::param::param<std::string>("trajectory_topic", trajectoryTopic, std::string("/trajectory"));
+  trajectory_pub_rviz_ = n_.advertise<HyqTrajRvizMsg>(trajectoryTopic, 10);
 
   supp_polygon_margins_ = xpp::hyq::SupportPolygon::GetDefaultMargins();
   supp_polygon_margins_[hyq::DIAG] = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");
@@ -73,8 +81,28 @@ NlpOptimizerNode::PublishTrajectory () const
 {
   auto trajectory = whole_body_mapper_.BuildWholeBodyTrajectory();
   RobotStateTrajMsg msg = xpp::ros::RosHelpers::XppToRos(trajectory);
-
   trajectory_pub_.publish(msg);
+
+  auto trajectory_rviz = whole_body_mapper_.BuildWholeBodyTrajectoryJoints();
+  HyqTrajRvizMsg msg_rviz = xpp::ros::RosHelpers::XppToRos(trajectory_rviz);
+
+
+//  // fill the trajectory
+//  HyqTrajRvizMsg traj;
+//  traj.dt.data = 0.01;
+//  int n_states = 100;
+//  traj.states.resize(n_states);
+//  for (int i=0; i<n_states; ++i) {
+//    traj.states.at(i).pose.position.x = 1.0*static_cast<double>(i)/n_states; // moves from zero to one meter forward
+//    traj.states.at(i).pose.position.y = 0;
+//    traj.states.at(i).pose.position.z = 0;
+//    traj.states.at(i).pose.orientation.w = 1;
+//    traj.states.at(i).joints.position.resize(12);
+//    traj.states.at(i).joints.position.at(2) = -1.0;
+//  }
+
+
+  trajectory_pub_rviz_.publish(msg_rviz);
 }
 
 void

@@ -48,7 +48,8 @@ public:
 
   using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
   typedef Spliner3d::Point Point;
-  using RobotStateTraj    = std::vector<HyqStateStamped>;
+  using RobotStateTraj          = std::vector<HyqStateStamped>;
+  using RobotStateTrajJoints    = std::vector<HyQStateJoints>;
 
 
 public:
@@ -64,6 +65,8 @@ public:
             double robot_height);
 
   RobotStateTraj BuildWholeBodyTrajectory() const;
+  RobotStateTrajJoints BuildWholeBodyTrajectoryJoints() const;
+
 
 
 
