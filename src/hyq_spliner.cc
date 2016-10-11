@@ -7,7 +7,7 @@
 
 #include <xpp/hyq/hyq_spliner.h>
 #include <kindr/rotations/RotationEigen.hpp>
-#include <InverseKinematics.h>
+#include <xpp/hyq/hyq_inverse_kinematics.h>
 
 namespace xpp {
 namespace hyq {
@@ -82,36 +82,27 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
 {
   auto trajectory_ee = BuildWholeBodyTrajectory();
   RobotStateTrajJoints trajectory_joints;
-
-  JointState q_des;
-  //inv_kin use refactored inverse dynamics class
-  ::HyQInverseKinematics inverseKinematics;
+  HyqInverseKinematics inv_kin;
 
   for (auto hyq : trajectory_ee) {
 
     HyQStateJoints hyq_j;
     hyq_j.base_ = hyq.base_;
 
-    Eigen::Vector3d q_des_leg;
     Eigen::Matrix3d P_R_B = hyq.base_.ang.q.normalized().toRotationMatrix();
-    for (size_t ee=0; ee<xpp::hyq::_LEGS_COUNT; ee++) {
 
+    for (size_t ee=0; ee<xpp::hyq::_LEGS_COUNT; ee++) {
       // Transform global into local feet position
       Eigen::Vector3d P_base = hyq.base_.lin.p;
       Eigen::Vector3d P_foot = hyq.GetFeetPosOnly()[ee];
       Eigen::Vector3d B_foot = P_R_B.transpose() * (P_foot - P_base);
 
-      inverseKinematics.update(ee, B_foot);
-      inverseKinematics.getJointPosition(q_des_leg);
-
-      hyq_j.joints_.segment<3>(3*ee) = q_des_leg;
+      hyq_j.joints_.segment<3>(3*ee) = inv_kin.GetJointAngles(B_foot, ee);
     }
-
     trajectory_joints.push_back(hyq_j);
   }
 
   return trajectory_joints;
-
 }
 
 std::vector<SplineNode>

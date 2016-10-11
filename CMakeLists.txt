@@ -7,9 +7,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   message_generation
-  hyq_inverse_kinematics #inv_kin remove this
   hyqb_msgs
-  #rviz_visual_tools   # used in nlp_user_input.cc to delete all rviz markers
+  kindr                # in hyq_spliner.cc
   xpp_msgs            # defines the state to talk to the controller
 )
 
