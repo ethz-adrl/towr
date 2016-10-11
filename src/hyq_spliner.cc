@@ -84,22 +84,38 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
   RobotStateTrajJoints trajectory_joints;
   HyqInverseKinematics inv_kin;
 
+  HyQStateJoints hyq_j_prev;
+  bool first_state = true;
   for (auto hyq : trajectory_ee) {
 
     HyQStateJoints hyq_j;
     hyq_j.base_ = hyq.base_;
 
+    // joint position
     Eigen::Matrix3d P_R_B = hyq.base_.ang.q.normalized().toRotationMatrix();
-
     for (size_t ee=0; ee<xpp::hyq::_LEGS_COUNT; ee++) {
       // Transform global into local feet position
       Eigen::Vector3d P_base = hyq.base_.lin.p;
       Eigen::Vector3d P_foot = hyq.GetFeetPosOnly()[ee];
       Eigen::Vector3d B_foot = P_R_B.transpose() * (P_foot - P_base);
 
-      hyq_j.joints_.segment<3>(3*ee) = inv_kin.GetJointAngles(B_foot, ee);
+      hyq_j.q.segment<3>(3*ee) = inv_kin.GetJointAngles(B_foot, ee);
     }
+
+    // joint velocity
+    if (!first_state) { // to avoid jump in vel/acc in first state
+      first_state = false;
+
+      // inv_kin somehow have this info in trajectory
+      const double kTaskLoopDuration = 1.0/200.0; // [s]
+      hyq_j.qd = (hyq_j.q - hyq_j_prev.q) / kTaskLoopDuration;
+
+      // joint acceleration
+      hyq_j.qdd = (hyq_j.qd - hyq_j_prev.qd) / kTaskLoopDuration;
+    }
+
     trajectory_joints.push_back(hyq_j);
+    hyq_j_prev = hyq_j;
   }
 
   return trajectory_joints;
