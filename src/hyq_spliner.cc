@@ -89,9 +89,11 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
   for (auto hyq : trajectory_ee) {
 
     HyQStateJoints hyq_j;
-    hyq_j.base_ = hyq.base_;
+    hyq_j.base_     = hyq.base_;
+    hyq_j.swingleg_ = hyq.swingleg_;
+    hyq_j.feet_     = hyq.feet_;
 
-    // joint position
+    // add joint position
     Eigen::Matrix3d P_R_B = hyq.base_.ang.q.normalized().toRotationMatrix();
     for (size_t ee=0; ee<xpp::hyq::_LEGS_COUNT; ee++) {
       // Transform global into local feet position
@@ -104,7 +106,6 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
 
     // joint velocity
     if (!first_state) { // to avoid jump in vel/acc in first state
-      first_state = false;
 
       // inv_kin somehow have this info in trajectory
       const double kTaskLoopDuration = 1.0/200.0; // [s]
@@ -116,6 +117,7 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
 
     trajectory_joints.push_back(hyq_j);
     hyq_j_prev = hyq_j;
+    first_state = false;
   }
 
   return trajectory_joints;

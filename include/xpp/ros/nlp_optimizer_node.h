@@ -52,6 +52,7 @@ private:
 //  ::ros::Publisher opt_params_pub_;
   ::ros::Publisher trajectory_pub_;
   ::ros::Publisher trajectory_pub_rviz_;
+  ::ros::Publisher trajectory_pub_hyqjoints_;
 
   void CurrentInfoCallback(const ReqInfoMsg& msg);
 
