@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/a_inverse_kinematics.h"
+#include <xpp/opt/a_inverse_kinematics.h>
 
 namespace xpp {
 namespace opt {
@@ -20,5 +20,5 @@ AInverseKinematics::~AInverseKinematics ()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */

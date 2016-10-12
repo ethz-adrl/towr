@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/a_robot_interface.h"
+#include <xpp/opt/a_robot_interface.h>
 
 namespace xpp {
 namespace opt {
@@ -21,5 +21,5 @@ ARobotInterface::~ARobotInterface ()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */

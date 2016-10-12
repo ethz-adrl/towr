@@ -1,26 +1,27 @@
-/*
- * nlp_optimizer.cpp
- *
- *  Created on: Mar 18, 2016
- *      Author: winklera
+/**
+ @file    nlp_facade.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Jul 1, 2016
+ @brief   Defines the class NlpFacade implementing the Facade Pattern.
  */
 
-#include "../include/xpp/opt/nlp_facade.h"
+#include <xpp/opt/nlp_facade.h>
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/opt/nlp.h>
+#include <xpp/opt/constraint_container.h>
+#include <xpp/opt/cost_constraint_factory.h>
+#include <xpp/opt/cost_container.h>
+#include <xpp/opt/ipopt_adapter.h>
+#include <xpp/opt/motion_factory.h>
+#include <xpp/opt/motion_structure.h>
+#include <xpp/opt/nlp.h>
+#include <xpp/opt/nlp_observer.h>
+#include <xpp/opt/optimization_variables.h>
+#include <xpp/opt/snopt_adapter.h>
+
 #include <iomanip>
-#include "../include/xpp/opt/constraint_container.h"
-#include "../include/xpp/opt/cost_constraint_factory.h"
-#include "../include/xpp/opt/cost_container.h"
-#include "../include/xpp/opt/ipopt_adapter.h"
-#include "../include/xpp/opt/motion_factory.h"
-#include "../include/xpp/opt/motion_structure.h"
-#include "../include/xpp/opt/nlp.h"
-#include "../include/xpp/opt/nlp_observer.h"
-#include "../include/xpp/opt/optimization_variables.h"
-#include "../include/xpp/opt/snopt_adapter.h"
 
 namespace xpp {
 namespace opt {

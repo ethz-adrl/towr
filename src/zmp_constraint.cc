@@ -5,9 +5,8 @@
  *      Author: winklera
  */
 
-#include "../include/xpp/opt/zmp_constraint.h"
-
-#include "../include/xpp/opt/optimization_variables.h"
+#include <xpp/opt/zmp_constraint.h>
+#include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
 namespace opt {

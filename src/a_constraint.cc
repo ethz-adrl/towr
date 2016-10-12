@@ -5,7 +5,7 @@
  *      Author: winklera
  */
 
-#include "../include/xpp/opt/a_constraint.h"
+#include <xpp/opt/a_constraint.h>
 
 namespace xpp {
 namespace opt {

@@ -5,12 +5,11 @@
  @brief   Brief description
  */
 
-#include "../../include/xpp/opt/nlp.h"
-
+#include <xpp/opt/nlp.h>
+#include <xpp/opt/ipopt_adapter.h>
 #include <IpIpoptApplication.hpp>
 
 #include <gtest/gtest.h>
-#include "../../include/xpp/opt/ipopt_adapter.h"
 
 namespace xpp {
 namespace opt {

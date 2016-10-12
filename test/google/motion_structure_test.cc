@@ -5,9 +5,9 @@
  @brief   Brief description
  */
 
-#include "../../include/xpp/opt/motion_structure.h"
-
+#include <xpp/opt/motion_structure.h>
 #include <xpp/hyq/foothold.h>
+
 #include <gtest/gtest.h>
 
 namespace xpp {

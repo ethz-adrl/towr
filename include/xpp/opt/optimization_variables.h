@@ -8,8 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
 
-#include "../opt/a_subject.h"
-#include "../opt/nlp_structure.h"
+#include "a_subject.h"
+#include "nlp_structure.h"
 
 namespace xpp {
 namespace opt {

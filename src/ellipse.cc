@@ -5,7 +5,7 @@
 @brief   Brief description
  */
 
-#include "../include/xpp/opt/ellipse.h"
+#include <xpp/opt/ellipse.h>
 
 #include <cmath>
 

@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_SPLINE_COST_H_
 
 #include <xpp/utils/matrix_vector.h>
-#include "../opt/a_cost.h"
+#include "a_cost.h"
 
 namespace xpp {
 namespace opt {

@@ -8,11 +8,11 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_H_
 
+#include "constraint_container.h"
+#include "cost_container.h"
+#include "cost_function_functor.h"
+#include "optimization_variables.h"
 #include <memory>
-#include "../opt/constraint_container.h"
-#include "../opt/cost_container.h"
-#include "../opt/cost_function_functor.h"
-#include "../opt/optimization_variables.h"
 
 namespace xpp {
 namespace opt {

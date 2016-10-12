@@ -8,9 +8,9 @@
 #ifndef _XPP_ZMP_QP_FACADE_H_
 #define _XPP_ZMP_QP_FACADE_H_
 
+#include "com_spline.h"
 #include <xpp/utils/matrix_vector.h>
 #include <xpp/hyq/foothold.h>
-#include "../opt/com_spline.h"
 
 namespace xpp {
 namespace opt {

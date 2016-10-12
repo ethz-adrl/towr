@@ -8,9 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_
 
+#include "nlp.h"
 #include <snoptProblem.hpp>
-
-#include "../opt/nlp.h"
 
 namespace xpp {
 namespace opt {

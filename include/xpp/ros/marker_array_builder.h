@@ -8,11 +8,11 @@
 #ifndef XPP_OPT_INCLUDE_MARKER_ARRAY_BUILDER_H_
 #define XPP_OPT_INCLUDE_MARKER_ARRAY_BUILDER_H_
 
+#include <xpp/opt/com_motion.h>
+#include <xpp/opt/motion_structure.h>
 #include <xpp/hyq/foothold.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <Eigen/Dense>
-#include "../opt/com_motion.h"
-#include "../opt/motion_structure.h"
 
 namespace xpp {
 namespace ros {

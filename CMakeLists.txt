@@ -220,7 +220,6 @@ if(BUILD_TESTS)
                          test/google/supp_polygon_container_test.cc
                          test/google/helpers.cc
 #                        test/google/zero_moment_point_test.cc
-#                        test/google/nlp_facade_test.cc
 ##                        test/google/hyq_spliner_test.cc
 #                        test/google/optimization_variables_test.cc
 #                        test/google/nlp_observer_test.cc
@@ -228,14 +227,12 @@ if(BUILD_TESTS)
 #                        test/google/step_sequence_planner_test.cc
                          test/google/line_equation_test.cc
                          # hyq
-                         test/google/hyq_robot_interface_test.cc
 #                        # com
                          test/google/motion_structure_test.cc
 #                        test/google/com_motion_test.cc
                          test/google/com_spline_test.cc
                          test/google/polynomial_test.cc
 #                        test/google/spline_container_test.cc
-                         test/google/motion_factory_test.cc
 #                        #constraints
 #                        test/google/zmp_constraint_test.cc
 #                        test/google/constraint_factory_test.cc

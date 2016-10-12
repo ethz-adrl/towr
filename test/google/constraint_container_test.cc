@@ -5,17 +5,15 @@
  *      Author: winklera
  */
 
-#include "../../include/xpp/opt/constraint_container.h"
+#include <xpp/opt/constraint_container.h>
+#include <xpp/opt/com_spline4.h>
+#include <xpp/opt/cost_constraint_factory.h>
+#include <xpp/opt/optimization_variables.h>
 
 #include <gtest/gtest.h>
 
-#include "../../include/xpp/opt/com_spline4.h"
-#include "../../include/xpp/opt/cost_constraint_factory.h"
-#include "../../include/xpp/opt/optimization_variables.h"
-
 namespace xpp {
 namespace opt {
-
 
 class ConstraintContainerTest : public ::testing::Test {
 public:

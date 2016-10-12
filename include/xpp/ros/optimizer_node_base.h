@@ -1,8 +1,8 @@
-/*
- * optimizer_node_base.h
- *
- *  Created on: Apr 22, 2016
- *      Author: winklera
+/**
+ @file    optimizer_node_base.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Jul 1, 2016
+ @brief   Declares the class OptimizerNodeBase
  */
 
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZER_NODE_BASE_H_
@@ -10,12 +10,11 @@
 
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/base_state.h>
-
 #include <xpp/hyq/foothold.h>
 #include <xpp_msgs/StateLin3d.h>
+#include <xpp/opt/phase_info.h>
 
 #include <ros/ros.h>
-#include "../opt/phase_info.h"
 
 namespace xpp {
 namespace ros {

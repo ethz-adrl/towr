@@ -7,8 +7,8 @@
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/utils/cartesian_declarations.h>
-#include "../include/xpp/opt/motion_structure.h"
-#include "../include/xpp/opt/phase_info.h"
+#include <xpp/opt/motion_structure.h>
+#include <xpp/opt/phase_info.h>
 
 namespace xpp {
 namespace hyq {

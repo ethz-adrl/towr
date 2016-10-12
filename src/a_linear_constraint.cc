@@ -5,9 +5,8 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/a_linear_constraint.h"
-
-#include "../include/xpp/opt/optimization_variables.h"
+#include <xpp/opt/a_linear_constraint.h>
+#include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
 namespace opt {

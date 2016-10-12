@@ -8,10 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_SRC_ZMP_CONSTRAINT_H_
 
+#include "motion_structure.h"
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <memory>
-#include "../opt/motion_structure.h"
 
 namespace xpp {
 namespace hyq {

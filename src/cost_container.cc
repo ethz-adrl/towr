@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/cost_container.h"
+#include <xpp/opt/cost_container.h>
 
 namespace xpp {
 namespace opt {

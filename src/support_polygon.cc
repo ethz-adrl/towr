@@ -11,10 +11,8 @@
 #include <xpp/utils/line_equation.h>
 #include <algorithm>
 
-
 namespace xpp {
 namespace hyq {
-
 
 using namespace ::xpp::utils; //X,Y,Z,Poin2dManip
 

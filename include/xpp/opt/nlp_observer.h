@@ -8,10 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_OBSERVER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_OBSERVER_H_
 
+#include "i_observer.h"
+#include "motion_structure.h"
 #include <memory>
 #include <vector>
-#include "../opt/i_observer.h"
-#include "../opt/motion_structure.h"
 
 namespace xpp {
 namespace hyq {

@@ -5,7 +5,7 @@
  *      Author: awinkler
  */
 
-#include "../../include/xpp/utils/polynomial.h"
+#include <xpp/utils/polynomial.h>
 
 #include <gtest/gtest.h>
 #include <iostream>

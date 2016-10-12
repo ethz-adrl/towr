@@ -10,7 +10,7 @@
 
 #include <xpp/utils/polynomial_helpers.h>
 #include <memory>
-#include "../opt/com_motion.h"
+#include "com_motion.h"
 
 namespace xpp {
 namespace opt {

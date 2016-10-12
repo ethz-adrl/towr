@@ -5,7 +5,7 @@
  *      Author: winklera
  */
 
-#include "../../include/xpp/opt/optimization_variables.h"
+#include <xpp/opt/optimization_variables.h>
 
 #include <gtest/gtest.h>
 

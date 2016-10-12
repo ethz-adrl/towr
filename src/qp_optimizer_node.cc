@@ -6,7 +6,7 @@
  */
 
 #include <xpp/ros/ros_helpers.h>
-#include <xpp/ros/qp_facade_node.h>
+#include <xpp/ros/qp_optimizer_node.h>
 
 namespace xpp {
 namespace ros {
@@ -42,7 +42,7 @@ void
 QpOptimizerNode::PublishOptimizedValues() const
 {
   OptParamMsg msg_out;
-  msg_out.splines = cmo::ros::RosHelpers::XppToRos(opt_splines_);
+  msg_out.splines = xpp::ros::opt::RosHelpers::XppToRos(opt_splines_);
   opt_params_pub_.publish(msg_out);
 }
 

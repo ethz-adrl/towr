@@ -7,10 +7,9 @@
 
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/hyq/support_polygon.h>
-#include <cassert>
-#include "../include/xpp/opt/range_of_motion_constraint.h"
-#include "../include/xpp/opt/zero_moment_point.h"
-#include "../include/xpp/opt/zmp_constraint_builder.h"
+#include <xpp/opt/range_of_motion_constraint.h>
+#include <xpp/opt/zero_moment_point.h>
+#include <xpp/opt/zmp_constraint_builder.h>
 
 namespace xpp {
 namespace hyq {

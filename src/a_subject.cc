@@ -5,7 +5,7 @@
  *      Author: winklera
  */
 
-#include "../include/xpp/opt/a_subject.h"
+#include <xpp/opt/a_subject.h>
 
 #include <iostream>
 

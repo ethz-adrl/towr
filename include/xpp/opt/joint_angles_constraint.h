@@ -8,12 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_JOINT_ANGLES_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_JOINT_ANGLES_CONSTRAINT_H_
 
-#include <xpp/zmp/optimization_variables_interpreter.h>
+#include "a_constraint.h"
+#include "a_inverse_kinematics.h"
+#include "motion_structure.h"
 #include <memory>
-
-#include "../opt/a_constraint.h"
-#include "../opt/a_inverse_kinematics.h"
-#include "../opt/motion_structure.h"
 
 namespace xpp {
 namespace opt {

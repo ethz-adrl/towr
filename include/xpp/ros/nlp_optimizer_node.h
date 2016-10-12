@@ -11,9 +11,8 @@
 #include <xpp/ros/optimizer_node_base.h>
 #include <xpp/ros/optimization_visualizer.h>
 #include <xpp/hyq/hyq_spliner.h>
-
+#include <xpp/opt/nlp_facade.h>
 #include <xpp_msgs/RequiredInfoNlp.h>        // receive
-#include "../opt/nlp_facade.h"
 
 namespace xpp {
 namespace ros {

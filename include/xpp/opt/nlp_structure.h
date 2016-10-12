@@ -8,10 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_STRUCTURE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_STRUCTURE_H_
 
+#include "a_constraint.h" // Bound
 #include <Eigen/Dense>
 #include <memory>
 #include <vector>
-#include "../opt/a_constraint.h" // Bound
 
 namespace xpp {
 namespace opt {

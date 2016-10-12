@@ -10,8 +10,8 @@
 #include <xpp_msgs/OptimizedParametersQp.h>   // receive
 
 #include <xpp/ros/marker_array_builder.h>
-#include "../../include/xpp/opt/com_spline6.h"
-#include "../../include/xpp/opt/motion_structure.h"
+#include <xpp/opt/com_spline6.h>
+#include <xpp/opt/motion_structure.h>
 
 typedef xpp_msgs::RequiredInfoQp ReqInfoMsg;
 typedef xpp_msgs::OptimizedParametersQp OptimizedParametersMsg;
@@ -21,9 +21,8 @@ xpp::opt::ComSpline6::VecPolynomials splines;
 std::vector<xpp::hyq::Foothold> footholds;
 void OptParamsCallback(const OptimizedParametersMsg& msg)
 {
-  splines = cmo::ros::RosHelpers::RosToXpp(msg.splines);
+  splines = xpp::ros::opt::RosHelpers::RosToXpp(msg.splines);
 }
-
 
 int main(int argc, char **argv)
 {

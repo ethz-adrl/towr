@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_COST_H_
 
 #include <Eigen/Dense>
-#include "../opt/variable_names.h"
+#include "variable_names.h"
 
 namespace xpp {
 namespace opt {

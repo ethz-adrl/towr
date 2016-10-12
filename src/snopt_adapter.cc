@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/snopt_adapter.h"
+#include <xpp/opt/snopt_adapter.h>
 
 namespace xpp {
 namespace opt {

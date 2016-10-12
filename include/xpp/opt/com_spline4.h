@@ -8,7 +8,7 @@
 #ifndef _XPP_ZMP_COMSPLINE4_H_
 #define _XPP_ZMP_COMSPLINE4_H_
 
-#include "../opt/com_spline.h"
+#include "com_spline.h"
 
 namespace xpp {
 namespace opt {

@@ -9,25 +9,10 @@
 #include <xpp_msgs/ros_helpers.h> // xpp::ros
 #include <xpp_msgs/topic_names.h>
 
-//#include <xpp/zmp/com_spline6.h>
-
-#include <xpp_msgs/RequiredInfoNlp.h>         // send
-//#include <xpp_msgs/OptimizedParametersNlp.h> // receive
-
+#include <xpp_msgs/RequiredInfoNlp.h>
 #include <xpp/ros/marker_array_builder.h>
 
-
 typedef xpp_msgs::RequiredInfoNlp ReqInfoMsg;
-//typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
-
-
-//xpp::zmp::ComSpline6::VecPolynomials splines;
-//std::vector<xpp::hyq::Foothold> footholds;
-//void OptParamsCallback(const OptimizedParametersMsg& msg)
-//{
-//  splines   = cmo::ros::RosHelpers::RosToXpp(msg.splines);
-//  footholds = xpp::ros::RosHelpers::RosToXpp(msg.footholds);
-//}
 
 using namespace xpp::hyq;
 

@@ -8,6 +8,7 @@
 #include <xpp/ros/nlp_user_input_node.h>
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/marker_array_builder.h>
+
 #include <std_msgs/Empty.h>
 #include <xpp_msgs/topic_names.h>
 

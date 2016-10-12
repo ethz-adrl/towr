@@ -8,10 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OBSTACLE_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OBSTACLE_CONSTRAINT_H_
 
+#include "a_constraint.h"
+#include "ellipse.h"
 #include <xpp/utils/eigen_std_conversions.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include "../opt/a_constraint.h"
-#include "../opt/ellipse.h"
 
 namespace xpp {
 namespace opt {

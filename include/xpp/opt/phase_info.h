@@ -8,11 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_PHASE_INFO_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_PHASE_INFO_H_
 
+#include "a_robot_interface.h"
 #include <xpp/hyq/foothold.h>
-
 #include <iostream>
 #include <vector>
-#include "../opt/a_robot_interface.h"
 
 namespace xpp {
 namespace opt {

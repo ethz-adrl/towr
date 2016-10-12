@@ -5,7 +5,7 @@
 @brief   Defines ComSpline6, which realizes a ComSpline
  */
 
-#include "../include/xpp/opt/com_spline6.h"
+#include <xpp/opt/com_spline6.h>
 
 namespace xpp {
 namespace opt {

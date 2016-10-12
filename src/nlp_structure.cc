@@ -5,7 +5,7 @@
  @brief   Defines the class functions in NlpStructure
  */
 
-#include "../include/xpp/opt/nlp_structure.h"
+#include <xpp/opt/nlp_structure.h>
 
 namespace xpp {
 namespace opt {

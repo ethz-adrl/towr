@@ -10,8 +10,8 @@
 
 #include <IpTNLP.hpp>
 
-#include "../opt/i_visualizer.h"
-#include "../opt/nlp.h"
+#include "i_visualizer.h"
+#include "nlp.h"
 
 namespace xpp {
 namespace opt {

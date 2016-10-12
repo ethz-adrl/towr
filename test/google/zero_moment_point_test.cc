@@ -5,7 +5,7 @@
  *      Author: awinkler
  */
 
-#include "../../include/xpp/opt/zero_moment_point.h"
+#include <xpp/opt/zero_moment_point.h>
 
 #include <gtest/gtest.h>
 #include <iostream>

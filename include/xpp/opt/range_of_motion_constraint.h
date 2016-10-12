@@ -8,9 +8,9 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
+#include "a_constraint.h"
+#include "motion_structure.h"
 #include <memory>
-#include "../opt/a_constraint.h"
-#include "../opt/motion_structure.h"
 
 namespace xpp {
 

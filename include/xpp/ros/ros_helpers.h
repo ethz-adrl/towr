@@ -8,19 +8,18 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_UTILS_ROS_HELPERS_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_UTILS_ROS_HELPERS_H_
 
-#include <ros/ros.h>
-
 #include <xpp_msgs/PhaseInfo.h>
 #include <xpp_msgs/Contact.h>
 #include <xpp_msgs/Spline.h>
+#include <xpp_msgs/ros_helpers.h>
 
 #include <xpp/utils/polynomial_helpers.h>
+#include <xpp/opt/phase_info.h>
+#include <ros/ros.h>
 
-#include <xpp_msgs/ros_helpers.h>
-#include "../opt/phase_info.h"
-
-namespace cmo {
+namespace xpp {
 namespace ros {
+namespace opt {
 
 /**
  * Ros specific functions that only depend on utils folder, ros messages,
@@ -152,7 +151,8 @@ RosToXpp(const std::vector<SplineMsg>& msgs)
 
 }; // RosHelpers
 
+} // namespace opt
 } // namespace ros
-} // namespace cmo
+} // namespace xpp
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_UTILS_ROS_HELPERS_H_ */

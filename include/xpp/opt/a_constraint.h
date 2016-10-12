@@ -10,7 +10,7 @@
 
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
-#include "../opt/variable_names.h"
+#include "variable_names.h"
 
 namespace xpp {
 namespace opt {

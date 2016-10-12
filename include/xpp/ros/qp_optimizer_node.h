@@ -5,15 +5,15 @@
  *      Author: winklera
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_FACADE_NODE_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_FACADE_NODE_H_
+#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_OPTIMIZER_NODE_H_
+#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_QP_OPTIMIZER_NODE_H_
 
 #include <xpp/ros/optimizer_node_base.h>
+#include <xpp/opt/qp_facade.h>
+
 #include <xpp_msgs/RequiredInfoQp.h>        // receive
 #include <xpp_msgs/OptimizedParametersQp.h> // send
 #include <xpp_msgs/SolveQp.h>               // service
-#include "../opt/qp_facade.h"
-
 
 namespace xpp {
 namespace ros {

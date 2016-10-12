@@ -5,10 +5,9 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/joint_angles_constraint.h"
-
-#include "../include/xpp/opt/com_spline6.h"
-#include "../include/xpp/opt/optimization_variables.h"
+#include <xpp/opt/joint_angles_constraint.h>
+#include <xpp/opt/com_spline6.h>
+#include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
 namespace opt {

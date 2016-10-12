@@ -8,10 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 
+#include "a_constraint.h"
+#include "i_observer.h"
+#include "optimization_variables.h"
 #include <memory>
-#include "../opt/a_constraint.h"
-#include "../opt/i_observer.h"
-#include "../opt/optimization_variables.h"
 
 namespace xpp {
 namespace opt {

@@ -9,7 +9,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_SUBJECT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_SUBJECT_H_
 
-#include "../opt/i_observer.h"
+#include "i_observer.h"
 
 namespace xpp {
 namespace opt {

@@ -9,8 +9,8 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_FUNCTION_FUNCTOR_H_
 
 #include <xpp/utils/eigen_num_diff_functor.h>
-#include "../opt/cost_container.h"
-#include "../opt/optimization_variables.h"
+#include "cost_container.h"
+#include "optimization_variables.h"
 
 namespace xpp {
 namespace opt {

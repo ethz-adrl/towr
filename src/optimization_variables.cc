@@ -5,7 +5,7 @@
  @brief   Defines a class to hold the value of the optimization variables.
  */
 
-#include "../include/xpp/opt/optimization_variables.h"
+#include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
 namespace opt {

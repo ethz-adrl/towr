@@ -7,7 +7,7 @@
 
 #include <xpp/ros/marker_array_builder.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include "../include/xpp/opt/zero_moment_point.h"
+#include <xpp/opt/zero_moment_point.h>
 
 namespace xpp {
 namespace ros {

@@ -5,7 +5,7 @@
 @brief   Defines ComSpline4, which realizes a ComSpline
  */
 
-#include "../include/xpp/opt/com_spline4.h"
+#include <xpp/opt/com_spline4.h>
 
 #include <Eigen/LU>
 

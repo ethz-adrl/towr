@@ -8,10 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_ZMP_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_ZMP_CONSTRAINT_H_
 
+#include "a_constraint.h"
+#include "motion_structure.h"
+#include "zmp_constraint_builder.h"
 #include <xpp/hyq/support_polygon_container.h>
-#include "../opt/a_constraint.h"
-#include "../opt/motion_structure.h"
-#include "../opt/zmp_constraint_builder.h"
 
 namespace xpp {
 namespace opt {

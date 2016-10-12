@@ -9,9 +9,9 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
 
 #include <xpp/utils/base_state.h>
-
 #include <xpp_msgs/GetStateLin3d.h>
 #include <xpp_msgs/StateLin3d.h>
+
 #include <keyboard/Key.h>
 #include <sensor_msgs/Joy.h>
 #include <ros/ros.h>
