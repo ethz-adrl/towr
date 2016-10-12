@@ -51,7 +51,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   CheckIfInDirectoyWithIpoptConfigFile();
 
-  whole_body_mapper_.SetParams(0.5, 0.15, 0.0);
+  whole_body_mapper_.SetParams(0.5, 0.15, 0.0, 1.0/200);
   ROS_INFO_STREAM("Initialization done, ready to optimize!...");
   ROS_INFO_STREAM("waiting for initial state...");
 }
@@ -95,10 +95,10 @@ NlpOptimizerNode::PublishTrajectory () const
 
   // sends this info the the walking controller
   auto trajectory_hyq_joints = whole_body_mapper_.BuildWholeBodyTrajectoryJoints();
-  auto msg_hyq_with_joints = xpp::ros::RosHelpers::XppToRosHyq(trajectory_hyq_joints);
+  auto msg_hyq_with_joints = xpp::ros::RosHelpers::XppToRos(trajectory_hyq_joints);
   trajectory_pub_hyqjoints_.publish(msg_hyq_with_joints);
 
-  HyqTrajRvizMsg msg_rviz = xpp::ros::RosHelpers::XppToRos(trajectory_hyq_joints);
+  HyqTrajRvizMsg msg_rviz = xpp::ros::RosHelpers::XppToRosRviz(trajectory_hyq_joints);
   trajectory_pub_rviz_.publish(msg_rviz);
 
   optimization_visualizer_->Visualize(); // sends out the footholds and com motion to rviz

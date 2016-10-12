@@ -48,23 +48,25 @@ public:
 
   using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
   typedef Spliner3d::Point Point;
-  using RobotStateTraj          = std::vector<HyqStateEE>;
-  using RobotStateTrajJoints    = std::vector<HyQStateJoints>;
+  using HyqStateEEVec     = std::vector<HyqStateEE>;
+  using HyqStateJointsVec = std::vector<HyqStateJoints>;
 
 
 public:
   HyqSpliner();
   virtual ~HyqSpliner();
 
-  void SetParams(double upswing, double lift_height, double outward_swing_distance);
+  void SetParams(double upswing, double lift_height,
+                 double outward_swing_distance,
+                 double discretization_time);
 
   void Init(const xpp::zmp::PhaseVec&,
             const VecPolyomials&,
             const VecFoothold&,
             double robot_height);
 
-  RobotStateTraj BuildWholeBodyTrajectory() const;
-  RobotStateTrajJoints BuildWholeBodyTrajectoryJoints() const;
+  HyqStateEEVec BuildWholeBodyTrajectory() const;
+  HyqStateJointsVec BuildWholeBodyTrajectoryJoints() const;
 
 
   /**
@@ -87,6 +89,7 @@ private:
   std::vector<LegDataMap< Spliner3d > > feet_spliner_up_, feet_spliner_down_;
   VecPolyomials optimized_xy_spline_;
 
+  double kDiscretizationTime;   // at what interval the continuous trajectory is sampled
   double kUpswingPercent;       // how long to swing up during swing
   double kLiftHeight;           // how high to lift the leg
   double kOutwardSwingDistance; // how far to swing leg outward (y-dir)

@@ -16,7 +16,7 @@ using namespace xpp::utils;
 
 HyqSpliner::HyqSpliner()
 {
-  SetParams(0.0, 0.0, 0.0);
+  SetParams(0.0, 0.0, 0.0, 0.0);
 }
 
 HyqSpliner::~HyqSpliner()
@@ -25,11 +25,13 @@ HyqSpliner::~HyqSpliner()
 
 void HyqSpliner::SetParams(double upswing,
                double lift_height,
-               double outward_swing_distance)
+               double outward_swing_distance,
+               double discretization_time)
 {
   kUpswingPercent = upswing;
   kLiftHeight = lift_height;
   kOutwardSwingDistance = outward_swing_distance;
+  kDiscretizationTime = discretization_time;
 }
 
 void
@@ -61,10 +63,10 @@ HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com
   optimized_xy_spline_ = com_spline;
 }
 
-HyqSpliner::RobotStateTraj
+HyqSpliner::HyqStateEEVec
 HyqSpliner::BuildWholeBodyTrajectory () const
 {
-  RobotStateTraj trajectory;
+  HyqStateEEVec trajectory;
 
   double controller_loop_interval = 0.004; // 250Hz SL task servo
 
@@ -85,18 +87,18 @@ HyqSpliner::BuildWholeBodyTrajectory () const
   return trajectory;
 }
 
-HyqSpliner::RobotStateTrajJoints
+HyqSpliner::HyqStateJointsVec
 HyqSpliner::BuildWholeBodyTrajectoryJoints () const
 {
   auto trajectory_ee = BuildWholeBodyTrajectory();
-  RobotStateTrajJoints trajectory_joints;
+  HyqStateJointsVec trajectory_joints;
   HyqInverseKinematics inv_kin;
 
-  HyQStateJoints hyq_j_prev;
+  HyqStateJoints hyq_j_prev;
   bool first_state = true;
   for (auto hyq : trajectory_ee) {
 
-    HyQStateJoints hyq_j;
+    HyqStateJoints hyq_j;
     hyq_j.base_     = hyq.base_;
     hyq_j.swingleg_ = hyq.swingleg_;
 
@@ -113,13 +115,8 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
 
     // joint velocity
     if (!first_state) { // to avoid jump in vel/acc in first state
-
-      // inv_kin somehow have this info in trajectory
-      const double kTaskLoopDuration = 1.0/200.0; // [s]
-      hyq_j.qd = (hyq_j.q - hyq_j_prev.q) / kTaskLoopDuration;
-
-      // joint acceleration
-      hyq_j.qdd = (hyq_j.qd - hyq_j_prev.qd) / kTaskLoopDuration;
+      hyq_j.qd  = (hyq_j.q  - hyq_j_prev.q)  / kDiscretizationTime;
+      hyq_j.qdd = (hyq_j.qd - hyq_j_prev.qd) / kDiscretizationTime;
     }
 
     trajectory_joints.push_back(hyq_j);
