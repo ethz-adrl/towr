@@ -8,7 +8,6 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZER_NODE_BASE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZER_NODE_BASE_H_
 
-#include <xpp/zmp/phase_info.h>
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/base_state.h>
 
@@ -16,6 +15,7 @@
 #include <xpp_msgs/StateLin3d.h>
 
 #include <ros/ros.h>
+#include "../opt/phase_info.h"
 
 namespace xpp {
 namespace ros {

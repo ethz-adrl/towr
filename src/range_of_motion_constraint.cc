@@ -5,12 +5,13 @@
  @brief   Declares various Range of Motion Constraint Classes
  */
 
-#include <xpp/zmp/range_of_motion_constraint.h>
+#include "../include/xpp/opt/range_of_motion_constraint.h"
+
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/com_motion.h>
-#include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/a_robot_interface.h>
 #include <xpp/utils/cartesian_declarations.h>
+#include "../include/xpp/opt/a_robot_interface.h"
+#include "../include/xpp/opt/com_motion.h"
+#include "../include/xpp/opt/optimization_variables.h"
 
 namespace xpp {
 namespace opt {

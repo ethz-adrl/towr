@@ -5,11 +5,13 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/constraint_container.h>
+#include "../../include/xpp/opt/constraint_container.h"
+
 #include <gtest/gtest.h>
-#include "../../include/xpp/zmp/com_spline4.h"
-#include "../../include/xpp/zmp/cost_constraint_factory.h"
+
+#include "../../include/xpp/opt/com_spline4.h"
+#include "../../include/xpp/opt/cost_constraint_factory.h"
+#include "../../include/xpp/opt/optimization_variables.h"
 
 namespace xpp {
 namespace opt {

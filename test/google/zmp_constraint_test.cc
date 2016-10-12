@@ -5,7 +5,7 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/zmp_constraint.h>
+#include "../../include/xpp/opt/zmp_constraint.h"
 
 namespace xpp {
 namespace opt {

@@ -5,7 +5,8 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/constraint_container.h>
+#include "../include/xpp/opt/constraint_container.h"
+
 #include <iostream>
 
 namespace xpp {

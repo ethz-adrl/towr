@@ -5,9 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/joint_angles_constraint.h>
-#include <xpp/zmp/optimization_variables.h>
-#include "../include/xpp/zmp/com_spline6.h"
+#include "../include/xpp/opt/joint_angles_constraint.h"
+
+#include "../include/xpp/opt/com_spline6.h"
+#include "../include/xpp/opt/optimization_variables.h"
 
 namespace xpp {
 namespace opt {

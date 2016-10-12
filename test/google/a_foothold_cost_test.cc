@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/a_foothold_cost.h>
+#include "../../include/xpp/opt/a_foothold_cost.h"
 
 namespace xpp {
 namespace opt {

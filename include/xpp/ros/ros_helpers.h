@@ -14,10 +14,10 @@
 #include <xpp_msgs/Contact.h>
 #include <xpp_msgs/Spline.h>
 
-#include <xpp/zmp/phase_info.h>
 #include <xpp/utils/polynomial_helpers.h>
 
 #include <xpp_msgs/ros_helpers.h>
+#include "../opt/phase_info.h"
 
 namespace cmo {
 namespace ros {

@@ -5,7 +5,7 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/range_of_motion_constraint.h>
+#include "../../include/xpp/opt/range_of_motion_constraint.h"
 
 namespace xpp {
 namespace opt {

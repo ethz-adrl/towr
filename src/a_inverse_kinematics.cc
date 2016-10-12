@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/a_inverse_kinematics.h>
+#include "../include/xpp/opt/a_inverse_kinematics.h"
 
 namespace xpp {
 namespace opt {

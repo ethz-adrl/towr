@@ -5,10 +5,11 @@
  @brief   Defines the MotionStructure class.
  */
 
-#include <xpp/zmp/motion_structure.h>
+#include "../include/xpp/opt/motion_structure.h"
+
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/phase_info.h>
 #include <algorithm>
+#include "../include/xpp/opt/phase_info.h"
 
 namespace xpp {
 namespace opt {

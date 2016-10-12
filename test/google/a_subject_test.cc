@@ -5,7 +5,7 @@
  *      Author: winklera
  */
 
-#include "a_subject.h"
+#include "../../include/xpp/opt/a_subject.h"
 
 namespace xpp
 {

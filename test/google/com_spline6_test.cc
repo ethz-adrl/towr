@@ -5,11 +5,12 @@
  *      Author: awinkler
  */
 
-#include "../../include/xpp/zmp/com_spline6.h"
+#include "../../include/xpp/opt/com_spline6.h"
 
 #include <gtest/gtest.h>
 #include <iostream>
-#include "../../include/xpp/zmp/com_spline4.h"
+
+#include "../../include/xpp/opt/com_spline4.h"
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 

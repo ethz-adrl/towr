@@ -5,18 +5,18 @@
 @brief  Dynamic Walking using Zero-Moment-Point (ZMP) Criteria
  */
 
-#include <xpp/zmp/qp_facade.h>
+#include "../include/xpp/opt/qp_facade.h"
 
-#include <xpp/zmp/motion_structure.h>
-#include <xpp/zmp/motion_factory.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/linear_spline_equations.h>
-#include <xpp/zmp/zmp_constraint_builder.h>
 #include <xpp/utils/eigen_quadprog-inl.h>
 #include <xpp/utils/cartesian_declarations.h>
 
 #include <cmath>      // std::numeric_limits
 #include <ctime>      // std::clock()
+#include "../include/xpp/opt/linear_spline_equations.h"
+#include "../include/xpp/opt/motion_factory.h"
+#include "../include/xpp/opt/motion_structure.h"
+#include "../include/xpp/opt/zmp_constraint_builder.h"
 
 namespace xpp {
 namespace opt {

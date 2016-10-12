@@ -5,11 +5,11 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/nlp_observer.h>
+#include "../include/xpp/opt/nlp_observer.h"
 
-#include <xpp/zmp/com_motion.h>
-#include <xpp/zmp/optimization_variables.h>
 #include <xpp/hyq/support_polygon_container.h>
+#include "../include/xpp/opt/com_motion.h"
+#include "../include/xpp/opt/optimization_variables.h"
 
 namespace xpp {
 namespace opt {

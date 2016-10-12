@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/a_robot_interface.h>
+#include "../include/xpp/opt/a_robot_interface.h"
 
 namespace xpp {
 namespace opt {

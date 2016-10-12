@@ -9,11 +9,11 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
 
 #include <xpp/ros/optimizer_node_base.h>
-#include <xpp/zmp/nlp_facade.h>
 #include <xpp/ros/optimization_visualizer.h>
 #include <xpp/hyq/hyq_spliner.h>
 
 #include <xpp_msgs/RequiredInfoNlp.h>        // receive
+#include "../opt/nlp_facade.h"
 
 namespace xpp {
 namespace ros {

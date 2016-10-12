@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/com_spline.h>
+#include "../include/xpp/opt/com_spline.h"
 
 namespace xpp {
 namespace opt {

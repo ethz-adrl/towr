@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "../../include/xpp/zmp/nlp_observer.h"
+#include "../../include/xpp/opt/nlp_observer.h"
 
 namespace xpp {
 namespace opt {

@@ -1,10 +1,9 @@
 #ifndef INVERSEKINEMATICS_H_
 #define INVERSEKINEMATICS_H_
 
-#include <xpp/zmp/a_inverse_kinematics.h>
-
 #include <cmath>
 #include <string>
+#include "../opt/a_inverse_kinematics.h"
 
 namespace xpp {
 namespace hyq {

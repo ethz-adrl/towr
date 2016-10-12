@@ -5,7 +5,8 @@
 @brief   Brief description
  */
 
-#include <xpp/zmp/ellipse.h>
+#include "../include/xpp/opt/ellipse.h"
+
 #include <cmath>
 
 namespace xpp {

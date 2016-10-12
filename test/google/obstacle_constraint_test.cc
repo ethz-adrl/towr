@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/obstacle_constraint.h>
+#include "../../include/xpp/opt/obstacle_constraint.h"
 
 namespace xpp {
 namespace opt {

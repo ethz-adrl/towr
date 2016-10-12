@@ -5,7 +5,8 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/a_subject.h>
+#include "../include/xpp/opt/a_subject.h"
+
 #include <iostream>
 
 namespace xpp {

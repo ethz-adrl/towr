@@ -5,7 +5,8 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/motion_structure.h>
+#include "../../include/xpp/opt/motion_structure.h"
+
 #include <xpp/hyq/foothold.h>
 #include <gtest/gtest.h>
 

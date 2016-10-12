@@ -5,9 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/motion_factory.h>
-#include <xpp/zmp/com_spline6.h> // the concrete classes
-#include <xpp/zmp/com_spline4.h> // the concrete classes
+#include "../include/xpp/opt/motion_factory.h"
+
+#include "../include/xpp/opt/com_spline4.h" // the concrete classes
+#include "../include/xpp/opt/com_spline6.h" // the concrete classes
 
 namespace xpp {
 namespace opt {

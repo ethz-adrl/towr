@@ -5,8 +5,9 @@
  *      Author: awinkler
  */
 
+#include "../../include/xpp/opt/zero_moment_point.h"
+
 #include <gtest/gtest.h>
-#include <xpp/zmp/zero_moment_point.h>
 #include <iostream>
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;

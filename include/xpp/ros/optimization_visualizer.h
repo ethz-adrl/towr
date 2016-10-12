@@ -8,10 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 
-#include <xpp/zmp/i_visualizer.h>
 #include <xpp/utils/base_state.h>
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
+#include "../opt/i_visualizer.h"
 
 namespace xpp {
 

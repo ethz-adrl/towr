@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_HYQ_HYQ_ROBOT_INTERFACE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_HYQ_HYQ_ROBOT_INTERFACE_H_
 
-#include <xpp/zmp/a_robot_interface.h>
+#include "../opt/a_robot_interface.h"
 
 namespace xpp {
 namespace hyq {

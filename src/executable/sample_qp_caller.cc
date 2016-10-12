@@ -6,13 +6,12 @@
  */
 
 #include <xpp/ros/ros_helpers.h>
-#include <xpp/zmp/com_spline6.h>
-#include <xpp/zmp/motion_structure.h>
-
 #include <xpp_msgs/RequiredInfoQp.h>          // send
 #include <xpp_msgs/OptimizedParametersQp.h>   // receive
 
 #include <xpp/ros/marker_array_builder.h>
+#include "../../include/xpp/opt/com_spline6.h"
+#include "../../include/xpp/opt/motion_structure.h"
 
 typedef xpp_msgs::RequiredInfoQp ReqInfoMsg;
 typedef xpp_msgs::OptimizedParametersQp OptimizedParametersMsg;

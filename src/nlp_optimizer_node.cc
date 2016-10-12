@@ -6,7 +6,6 @@
  */
 
 #include <xpp/ros/nlp_optimizer_node.h>
-#include <xpp/zmp/com_spline.h>
 #include <xpp/ros/ros_helpers.h>  // namespace cmo::ros
 
 #include <xpp_msgs/ros_helpers.h> // namespace xpp::ros
@@ -14,6 +13,7 @@
 #include <xpp_msgs/HyqStateJointsTrajectory.h>
 
 #include <hyqb_msgs/Trajectory.h>
+#include "../include/xpp/opt/com_spline.h"
 
 namespace xpp {
 namespace ros {

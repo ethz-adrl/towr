@@ -5,8 +5,9 @@
  @brief   Brief description
  */
 
+#include "../../include/xpp/opt/snopt_adapter.h"
+
 #include <gtest/gtest.h>
-#include <xpp/zmp/snopt_adapter.h>
 
 namespace xpp {
 namespace opt {

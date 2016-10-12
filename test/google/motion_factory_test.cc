@@ -5,7 +5,8 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/motion_factory.h>
+#include "../../include/xpp/opt/motion_factory.h"
+
 #include <gtest/gtest.h>
 
 namespace xpp {

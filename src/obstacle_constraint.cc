@@ -5,9 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/obstacle_constraint.h>
-#include <xpp/zmp/optimization_variables.h>
+#include "../include/xpp/opt/obstacle_constraint.h"
+
 #include <xpp/utils/cartesian_declarations.h> // X,Y,Z
+#include "../include/xpp/opt/optimization_variables.h"
 
 namespace xpp {
 namespace opt {

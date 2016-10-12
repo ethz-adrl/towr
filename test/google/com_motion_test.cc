@@ -5,7 +5,8 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/com_motion.h>
+#include "../../include/xpp/opt/com_motion.h"
+
 #include <gtest/gtest.h>
 
 namespace xpp {

@@ -5,13 +5,13 @@
  @brief   Defines test for spline jacobians
  */
 
-#include <xpp/zmp/linear_spline_equations.h>
-#include <xpp/zmp/motion_factory.h>
-#include <xpp/zmp/motion_structure.h>
-#include <xpp/hyq/foothold.h>
-#include <xpp/zmp/com_spline.h>
+#include "../../include/xpp/opt/linear_spline_equations.h"
 
+#include <xpp/hyq/foothold.h>
 #include <gtest/gtest.h>
+#include "../../include/xpp/opt/com_spline.h"
+#include "../../include/xpp/opt/motion_factory.h"
+#include "../../include/xpp/opt/motion_structure.h"
 
 namespace xpp {
 namespace opt {

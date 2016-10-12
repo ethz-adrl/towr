@@ -5,24 +5,22 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/nlp_facade.h>
+#include "../include/xpp/opt/nlp_facade.h"
 
-#include <xpp/zmp/motion_structure.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/constraint_container.h>
-#include <xpp/zmp/cost_container.h>
 #include <xpp/hyq/step_sequence_planner.h>
-#include <xpp/zmp/cost_constraint_factory.h>
-#include <xpp/zmp/motion_factory.h>
-//#include <xpp/zmp/com_spline.h>
-
-#include <xpp/zmp/nlp.h>
-#include <xpp/zmp/ipopt_adapter.h>
-#include <xpp/zmp/snopt_adapter.h>
-#include <xpp/zmp/nlp_observer.h>
-
+#include <xpp/opt/nlp.h>
 #include <iomanip>
+#include "../include/xpp/opt/constraint_container.h"
+#include "../include/xpp/opt/cost_constraint_factory.h"
+#include "../include/xpp/opt/cost_container.h"
+#include "../include/xpp/opt/ipopt_adapter.h"
+#include "../include/xpp/opt/motion_factory.h"
+#include "../include/xpp/opt/motion_structure.h"
+#include "../include/xpp/opt/nlp.h"
+#include "../include/xpp/opt/nlp_observer.h"
+#include "../include/xpp/opt/optimization_variables.h"
+#include "../include/xpp/opt/snopt_adapter.h"
 
 namespace xpp {
 namespace opt {
