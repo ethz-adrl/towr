@@ -53,9 +53,8 @@ public:
 
 
 public:
-  HyqSpliner() {};
-  virtual ~HyqSpliner() {};
-
+  HyqSpliner();
+  virtual ~HyqSpliner();
 
   void SetParams(double upswing, double lift_height, double outward_swing_distance);
 
@@ -66,8 +65,6 @@ public:
 
   RobotStateTraj BuildWholeBodyTrajectory() const;
   RobotStateTrajJoints BuildWholeBodyTrajectoryJoints() const;
-
-
 
 
   /**

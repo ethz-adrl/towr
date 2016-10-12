@@ -31,12 +31,6 @@ OptimizationVisualizer::~OptimizationVisualizer ()
 }
 
 void
-OptimizationVisualizer::ClearOptimizedMarkers () const
-{
-
-}
-
-void
 OptimizationVisualizer::SetObserver (const NlpObserverPtr& observer)
 {
   observer_ = observer;

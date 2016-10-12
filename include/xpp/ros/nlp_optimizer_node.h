@@ -50,7 +50,7 @@ private:
 
   ::ros::Subscriber current_info_sub_;
 //  ::ros::Publisher opt_params_pub_;
-  ::ros::Publisher trajectory_pub_;
+//  ::ros::Publisher trajectory_pub_;
   ::ros::Publisher trajectory_pub_rviz_;
   ::ros::Publisher trajectory_pub_hyqjoints_;
 

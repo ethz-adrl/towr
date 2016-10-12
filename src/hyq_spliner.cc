@@ -14,6 +14,15 @@ namespace hyq {
 
 using namespace xpp::utils;
 
+HyqSpliner::HyqSpliner()
+{
+  SetParams(0.0, 0.0, 0.0);
+}
+
+HyqSpliner::~HyqSpliner()
+{
+}
+
 void HyqSpliner::SetParams(double upswing,
                double lift_height,
                double outward_swing_distance)

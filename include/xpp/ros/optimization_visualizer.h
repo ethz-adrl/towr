@@ -37,7 +37,6 @@ public:
   virtual ~OptimizationVisualizer ();
 
   void SetObserver(const NlpObserverPtr&);
-  void ClearOptimizedMarkers() const;
 
   /** @brief Send a message with topic "optimization_variables" out to rviz */
   void Visualize() const override;
