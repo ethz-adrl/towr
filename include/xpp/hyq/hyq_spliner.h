@@ -20,10 +20,10 @@ struct SplineNode {
   typedef xpp::utils::BaseLin3d Point3d;
 
   SplineNode(){};
-  SplineNode(const HyqState& state, const Point3d& ori_rpy, double t_max)
+  SplineNode(const HyqStateEE& state, const Point3d& ori_rpy, double t_max)
       : state_(state), ori_rpy_(ori_rpy), T(t_max) {};
 
-  HyqState state_;
+  HyqStateEE state_;
   Point3d ori_rpy_; // fixme remove this and use quaternion orientation directly for interpolation
   double T;         // time to reach this state
 };
@@ -48,7 +48,7 @@ public:
 
   using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
   typedef Spliner3d::Point Point;
-  using RobotStateTraj          = std::vector<HyqState>;
+  using RobotStateTraj          = std::vector<HyqStateEE>;
   using RobotStateTrajJoints    = std::vector<HyQStateJoints>;
 
 
@@ -97,7 +97,7 @@ private:
   Vector3d GetCurrZState(double t_global) const;
 
   std::vector<SplineNode>
-  BuildPhaseSequence(const HyqState& P_init,
+  BuildPhaseSequence(const HyqStateEE& P_init,
                      const xpp::zmp::PhaseVec&,
                      const VecPolyomials& optimized_xy_spline,
                      const VecFoothold& footholds,
@@ -113,7 +113,7 @@ private:
          body position, body orientation, and feet position
   @param[in] time_to_reach how long the robot has to achieve this state
    */
-  static SplineNode BuildNode(const HyqState& state, double t_max);
+  static SplineNode BuildNode(const HyqStateEE& state, double t_max);
   friend class HyqSplinerTest_BuildNode_Test;
 
 

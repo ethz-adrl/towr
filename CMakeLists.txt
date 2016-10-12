@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   message_generation
   hyqb_msgs
-  kindr                # in hyq_spliner.cc
+  kindr               # in hyq_spliner.cc
   xpp_msgs            # defines the state to talk to the controller
 )
 

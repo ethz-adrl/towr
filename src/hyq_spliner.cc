@@ -44,7 +44,7 @@ HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com
   feet_spliner_down_.clear();
   feet_spliner_up_.clear();
 
-  HyqState x0;
+  HyqStateEE x0;
   x0.ZeroVelAcc();
   x0.base_.lin.p.topRows<kDim2d>() = ComPolynomialHelpers::GetCOM(0.0, com_spline).p;
   x0.base_.lin.v.topRows<kDim2d>() = ComPolynomialHelpers::GetCOM(0.0, com_spline).v;
@@ -71,7 +71,7 @@ HyqSpliner::BuildWholeBodyTrajectory () const
   double t=0.0;
   while (t<GetTotalTime()) {
 
-    HyqState state;
+    HyqStateEE state;
 
     state.base_.lin = GetCurrPosition(t);
     state.base_.ang = GetCurrOrientation(t);
@@ -99,7 +99,6 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
     HyQStateJoints hyq_j;
     hyq_j.base_     = hyq.base_;
     hyq_j.swingleg_ = hyq.swingleg_;
-    hyq_j.feet_     = hyq.feet_;
 
     // add joint position
     Eigen::Matrix3d P_R_B = hyq.base_.ang.q.normalized().toRotationMatrix();
@@ -132,7 +131,7 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
 }
 
 std::vector<SplineNode>
-HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
+HyqSpliner::BuildPhaseSequence(const HyqStateEE& P_init,
                                const xpp::zmp::PhaseVec& phase_info,
                                const VecPolyomials& optimized_xy_spline,
                                const VecFoothold& footholds,
@@ -146,7 +145,7 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
 
   /** Add state sequence based on footsteps **/
   // desired state after first 4 leg support phase
-  HyqState P_plan_prev = P_init;
+  HyqStateEE P_plan_prev = P_init;
   P_plan_prev.ZeroVelAcc(); // these aren't used anyway, overwritten by optimizer
   for (hyq::LegID l : hyq::LegIDArray) {
     P_plan_prev.feet_[l].p(Z) = 0.0;
@@ -157,7 +156,7 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
   for (const auto& curr_phase : phase_info)
   {
     // copy a few values from previous state
-    HyqState goal_node = P_plan_prev;
+    HyqStateEE goal_node = P_plan_prev;
 
     // current contact configuration during the phase
     VecFoothold contacts;
@@ -242,7 +241,7 @@ void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
 
 // fixme use quaternion in state directly, don't map to roll-pitch-yaw
 SplineNode
-HyqSpliner::BuildNode(const HyqState& state, double t_max)
+HyqSpliner::BuildNode(const HyqStateEE& state, double t_max)
 {
   Point ori_rpy(TransformQuatToRpy(state.base_.ang.q));
   return SplineNode(state, ori_rpy, t_max);

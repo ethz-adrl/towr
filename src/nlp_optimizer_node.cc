@@ -140,7 +140,7 @@ static bool CheckIfInDirectoyWithIpoptConfigFile()
   if (path.substr( path.length() - ipopt_config_dir.length() ) != ipopt_config_dir) {
     std::string error_msg;
     error_msg = "Not run in correct directory. ";
-    error_msg += "This executable has to be run from ./" + ipopt_config_dir;
+    error_msg += "This executable has to be run from xpp_opt/" + ipopt_config_dir;
     throw ::ros::Exception(error_msg);
     return false;
   }
