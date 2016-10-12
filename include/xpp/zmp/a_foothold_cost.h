@@ -12,7 +12,7 @@
 #include <xpp/hyq/support_polygon_container.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** Base class for Costs associated only with the foothold positions
   *

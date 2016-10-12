@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_VARIABLE_NAMES_H_
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** Common strings to use to name optimization variable sets. This is just to
   * avoid misspelling resulting in a set not being found.

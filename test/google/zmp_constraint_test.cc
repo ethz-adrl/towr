@@ -8,7 +8,7 @@
 #include <xpp/zmp/zmp_constraint.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 } /* namespace zmp */
 } /* namespace xpp */

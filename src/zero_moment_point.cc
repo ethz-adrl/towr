@@ -9,7 +9,7 @@
 #include <xpp/zmp/com_motion.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 ZeroMomentPoint::ZeroMomentPoint ()
 {

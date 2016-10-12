@@ -11,7 +11,7 @@
 #include "com_spline.h"
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** Represents the center of mass motion with 6 coefficients per polynomial
   *

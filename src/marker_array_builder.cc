@@ -256,7 +256,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
   {
     xpp::utils::BaseLin2d cog_state = com_motion.GetCom(t);
 
-    Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height);
+    Eigen::Vector2d zmp = xpp::opt::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height);
 
     auto phase = motion_structure.GetCurrentPhase(t);
 

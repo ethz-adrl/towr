@@ -10,7 +10,7 @@
 #include "../include/xpp/zmp/com_spline6.h"
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 JointAnglesConstraint::JointAnglesConstraint ()
 {

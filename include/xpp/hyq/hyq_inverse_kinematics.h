@@ -10,7 +10,7 @@ namespace xpp {
 namespace hyq {
 
 /** @brief The SL implementation of the inverse kinematics */
-class HyqInverseKinematics : public xpp::zmp::AInverseKinematics {
+class HyqInverseKinematics : public xpp::opt::AInverseKinematics {
 public:
 	HyqInverseKinematics();
 	virtual ~HyqInverseKinematics();

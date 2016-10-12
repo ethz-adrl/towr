@@ -14,7 +14,7 @@
 #include <xpp/hyq/foothold.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /**
 \class QpFacade

@@ -60,7 +60,7 @@ public:
                  double outward_swing_distance,
                  double discretization_time);
 
-  void Init(const xpp::zmp::PhaseVec&,
+  void Init(const xpp::opt::PhaseVec&,
             const VecPolyomials&,
             const VecFoothold&,
             double robot_height);
@@ -101,7 +101,7 @@ private:
 
   std::vector<SplineNode>
   BuildPhaseSequence(const HyqStateEE& P_init,
-                     const xpp::zmp::PhaseVec&,
+                     const xpp::opt::PhaseVec&,
                      const VecPolyomials& optimized_xy_spline,
                      const VecFoothold& footholds,
                      double robot_height);

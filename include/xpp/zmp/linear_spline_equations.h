@@ -13,7 +13,7 @@
 #include <memory>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 class ComMotion;
 class ComSpline; // at some point get rid of this

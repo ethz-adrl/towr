@@ -9,7 +9,7 @@
 #include <gtest/gtest.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 class OptimizationVariablesTest : public ::testing::Test {
 protected:

@@ -35,7 +35,7 @@ void HyqSpliner::SetParams(double upswing,
 }
 
 void
-HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com_spline,
+HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const VecPolyomials& com_spline,
                   const VecFoothold& contacts, double robot_height)
 {
   // get first state
@@ -129,7 +129,7 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
 
 std::vector<SplineNode>
 HyqSpliner::BuildPhaseSequence(const HyqStateEE& P_init,
-                               const xpp::zmp::PhaseVec& phase_info,
+                               const xpp::opt::PhaseVec& phase_info,
                                const VecPolyomials& optimized_xy_spline,
                                const VecFoothold& footholds,
                                double robot_height)

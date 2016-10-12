@@ -15,7 +15,7 @@
 
 namespace xpp {
 
-namespace zmp { class NlpObserver; }
+namespace opt { class NlpObserver; }
 namespace hyq { class Foothold; }
 
 namespace ros {
@@ -27,9 +27,9 @@ namespace ros {
   * is responsible for supplying the interpreted optimization variables and
   * \c msg_builder_ is responsible for the generation of the ROS messages.
   */
-class OptimizationVisualizer : public xpp::zmp::IVisualizer {
+class OptimizationVisualizer : public xpp::opt::IVisualizer {
 public:
-  typedef std::shared_ptr<xpp::zmp::NlpObserver> NlpObserverPtr;
+  typedef std::shared_ptr<xpp::opt::NlpObserver> NlpObserverPtr;
   using State = xpp::utils::BaseLin2d;
   using VecFoothold = std::vector<xpp::hyq::Foothold>;
 

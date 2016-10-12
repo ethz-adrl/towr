@@ -8,7 +8,7 @@
 #include <xpp/zmp/com_spline6.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils; // X,Y,Z
 

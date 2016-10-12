@@ -13,7 +13,7 @@
 #include <xpp/zmp/nlp.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief Converts the NLP defined in the xpp interface to the SNOPT interface.
   *

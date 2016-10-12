@@ -13,7 +13,7 @@
 #include <xpp/utils/cartesian_declarations.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils;
 

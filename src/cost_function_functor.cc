@@ -8,7 +8,7 @@
 #include <xpp/zmp/cost_function_functor.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 CostFunctionFunctor::CostFunctionFunctor ()
 {

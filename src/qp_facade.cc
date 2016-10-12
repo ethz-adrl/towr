@@ -19,7 +19,7 @@
 #include <ctime>      // std::clock()
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using MatrixXd = Eigen::MatrixXd;
 using VectorXd = Eigen::VectorXd;

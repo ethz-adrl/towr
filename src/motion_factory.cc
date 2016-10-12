@@ -10,7 +10,7 @@
 #include <xpp/zmp/com_spline4.h> // the concrete classes
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 MotionFactory::MotionFactory ()
 {

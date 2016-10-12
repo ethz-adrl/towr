@@ -19,7 +19,7 @@ namespace hyq {
 class Foothold;
 }
 
-namespace zmp {
+namespace opt {
 
 //class PhaseInfo;
 

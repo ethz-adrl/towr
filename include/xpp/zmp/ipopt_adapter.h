@@ -14,7 +14,7 @@
 #include <xpp/zmp/i_visualizer.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief Converts the NLP defined in the xpp interface to the IPOPT interface.
   *

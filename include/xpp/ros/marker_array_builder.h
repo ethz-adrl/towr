@@ -27,8 +27,8 @@ namespace ros {
 class MarkerArrayBuilder {
 public:
   using VecFoothold     = std::vector<xpp::hyq::Foothold>;
-  using ComMotion       = xpp::zmp::ComMotion;
-  using MotionStructure = xpp::zmp::MotionStructure;
+  using ComMotion       = xpp::opt::ComMotion;
+  using MotionStructure = xpp::opt::MotionStructure;
   using Vector2d        = Eigen::Vector2d;
   using Marker          = visualization_msgs::Marker ;
   using MarkerArray     = visualization_msgs::MarkerArray ;

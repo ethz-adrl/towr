@@ -8,7 +8,7 @@
 #include <xpp/zmp/a_constraint.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 const AConstraint::Bound AConstraint::kNoBound_                 = Bound(-1.0e20, +1.0e20);
 const AConstraint::Bound AConstraint::kEqualityBound_           = Bound(0.0, 0.0);

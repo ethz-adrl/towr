@@ -15,7 +15,7 @@
 #include <memory>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief Knows about all constraints and gives information about them.
   *

@@ -9,7 +9,7 @@
 #include <xpp/zmp/com_spline.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils;
 

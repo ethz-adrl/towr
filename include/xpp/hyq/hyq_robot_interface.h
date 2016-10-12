@@ -13,7 +13,7 @@
 namespace xpp {
 namespace hyq {
 
-class HyqRobotInterface : public xpp::zmp::ARobotInterface{
+class HyqRobotInterface : public xpp::opt::ARobotInterface{
 public:
   HyqRobotInterface ();
   virtual ~HyqRobotInterface ();

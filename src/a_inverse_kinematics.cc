@@ -8,7 +8,7 @@
 #include <xpp/zmp/a_inverse_kinematics.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 AInverseKinematics::AInverseKinematics ()
 {

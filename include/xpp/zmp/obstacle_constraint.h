@@ -14,7 +14,7 @@
 #include <xpp/zmp/ellipse.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 class ObstacleConstraint : public AConstraint {
 public:

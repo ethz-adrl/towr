@@ -8,7 +8,7 @@
 #include <xpp/zmp/cost_container.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 } /* namespace zmp */
 } /* namespace xpp */

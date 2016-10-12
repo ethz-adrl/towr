@@ -26,7 +26,7 @@ class StepSequencePlanner;
 }
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 class OptimizationVariables;
 class CostContainer;

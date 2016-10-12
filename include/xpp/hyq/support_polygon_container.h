@@ -15,7 +15,7 @@
 
 namespace xpp {
 
-namespace zmp {
+namespace opt {
 class PhaseInfo;
 }
 
@@ -33,7 +33,7 @@ public:
   typedef SupportPolygon::VecFoothold VecFoothold;
   typedef std::vector<xpp::hyq::LegID> VecLegID;
   typedef xpp::utils::StdVecEigen2d StdVecEigen2d;
-  typedef std::vector<xpp::zmp::PhaseInfo> PhaseInfoVec;
+  typedef std::vector<xpp::opt::PhaseInfo> PhaseInfoVec;
   typedef xpp::utils::Coords3D Coords;
   using PosXY = Eigen::Vector2d;
 

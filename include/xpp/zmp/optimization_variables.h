@@ -12,7 +12,7 @@
 #include <xpp/zmp/nlp_structure.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief Publishes the current value of the optimization variables.
   *

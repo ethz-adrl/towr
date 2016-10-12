@@ -31,8 +31,8 @@ struct RosHelpers {
 using VecComPoly   = std::vector<xpp::utils::ComPolynomial>;
 using SplineMsg    = xpp_msgs::Spline;
 
-using ContactXpp   = xpp::zmp::Contact;
-using PhaseInfoXpp = xpp::zmp::PhaseInfo;
+using ContactXpp   = xpp::opt::Contact;
+using PhaseInfoXpp = xpp::opt::PhaseInfo;
 
 using ContactMsg   = xpp_msgs::Contact;
 using PhaseInfoMsg = xpp_msgs::PhaseInfo;
@@ -54,7 +54,7 @@ RosToXpp(const ContactMsg& msg)
 {
   ContactXpp xpp;
   xpp.id = msg.id;
-  xpp.ee = static_cast<xpp::zmp::EndeffectorID>(msg.ee);
+  xpp.ee = static_cast<xpp::opt::EndeffectorID>(msg.ee);
 
   return xpp;
 }
@@ -110,7 +110,7 @@ RosToXpp(const std::vector<PhaseInfoMsg>& msg)
 static std::vector<SplineMsg>
 XppToRos(const VecComPoly& opt_splines)
 {
-  using namespace xpp::zmp;
+  using namespace xpp::opt;
 
   int n_splines = opt_splines.size();
   std::vector<SplineMsg> msgs(n_splines);
@@ -133,7 +133,7 @@ XppToRos(const VecComPoly& opt_splines)
 static VecComPoly
 RosToXpp(const std::vector<SplineMsg>& msgs)
 {
-  using namespace xpp::zmp;
+  using namespace xpp::opt;
 
   uint n_splines = msgs.size();
   VecComPoly xpp(n_splines);

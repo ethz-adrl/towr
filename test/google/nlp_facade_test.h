@@ -16,7 +16,7 @@
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** Test the NlpFacade by solving an optimization problem.
   *

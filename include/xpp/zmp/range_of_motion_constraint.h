@@ -19,7 +19,7 @@ class SupportPolygonContainer;
 class Foothold;
 }
 
-namespace zmp {
+namespace opt {
 
 class ComMotion;
 class ARobotInterface;

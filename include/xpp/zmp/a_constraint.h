@@ -13,7 +13,7 @@
 #include <Eigen/Dense>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 class OptimizationVariables;
 

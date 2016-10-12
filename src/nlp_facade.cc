@@ -25,7 +25,7 @@
 #include <iomanip>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using Contacts = xpp::hyq::SupportPolygonContainer;
 

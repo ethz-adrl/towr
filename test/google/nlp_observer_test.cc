@@ -8,7 +8,7 @@
 #include "../../include/xpp/zmp/nlp_observer.h"
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 } /* namespace zmp */
 } /* namespace xpp */

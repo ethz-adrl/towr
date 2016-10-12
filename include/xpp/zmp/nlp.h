@@ -16,7 +16,7 @@
 #include <memory>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief Nonlinear Programming problem definition
   *

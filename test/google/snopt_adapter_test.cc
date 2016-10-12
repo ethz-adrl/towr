@@ -9,7 +9,7 @@
 #include <xpp/zmp/snopt_adapter.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 TEST(SnoptAdapterTest, Sample) {
 //

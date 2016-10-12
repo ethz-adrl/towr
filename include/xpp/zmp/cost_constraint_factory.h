@@ -17,7 +17,7 @@ namespace hyq {
 class SupportPolygonContainer;
 }
 
-namespace zmp {
+namespace opt {
 
 class AConstraint;
 class ACost;

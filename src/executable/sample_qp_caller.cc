@@ -16,9 +16,9 @@
 
 typedef xpp_msgs::RequiredInfoQp ReqInfoMsg;
 typedef xpp_msgs::OptimizedParametersQp OptimizedParametersMsg;
-using MotionStructure = xpp::zmp::MotionStructure;
+using MotionStructure = xpp::opt::MotionStructure;
 
-xpp::zmp::ComSpline6::VecPolynomials splines;
+xpp::opt::ComSpline6::VecPolynomials splines;
 std::vector<xpp::hyq::Foothold> footholds;
 void OptParamsCallback(const OptimizedParametersMsg& msg)
 {

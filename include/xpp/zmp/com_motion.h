@@ -16,7 +16,7 @@
 #include <memory>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** Abstracts the Center of Mass (CoM) motion of any system.
   *

@@ -9,7 +9,7 @@
 #include <iostream>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 ConstraintContainer::ConstraintContainer (OptimizationVariables& subject)
     :IObserver(subject)

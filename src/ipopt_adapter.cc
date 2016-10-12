@@ -14,7 +14,7 @@
 //#include "IpOrigIpoptNLP.hpp"
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 
 IpoptAdapter::IpoptAdapter(NLP& nlp,

@@ -14,7 +14,7 @@
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils::coords_wrapper;
 

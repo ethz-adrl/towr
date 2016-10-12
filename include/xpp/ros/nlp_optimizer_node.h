@@ -20,7 +20,7 @@ namespace ros {
 
 class NlpOptimizerNode : public OptimizerNodeBase {
 public:
-  typedef xpp::zmp::NlpFacade NlpFacade;
+  typedef xpp::opt::NlpFacade NlpFacade;
   typedef xpp::hyq::LegID LegID;
   typedef xpp_msgs::RequiredInfoNlp ReqInfoMsg;
 

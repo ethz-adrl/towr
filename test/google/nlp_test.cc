@@ -12,7 +12,7 @@
 #include <gtest/gtest.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 typedef Eigen::VectorXd VectorXd;
 typedef ConstraintContainer::ConstraintPtr ConstraintPtr;

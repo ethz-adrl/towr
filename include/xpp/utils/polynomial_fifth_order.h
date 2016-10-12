@@ -12,7 +12,7 @@
 #include <Eigen/Dense>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 static const int kCoeffCount = 6;
 enum SplineCoeff { A=0, B, C, D, E, F };

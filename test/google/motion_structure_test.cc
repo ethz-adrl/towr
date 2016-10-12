@@ -10,7 +10,7 @@
 #include <gtest/gtest.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::hyq;
 

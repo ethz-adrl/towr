@@ -8,7 +8,7 @@
 #include <xpp/zmp/nlp_structure.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 VariableSet::VariableSet (int n_variables, std::string id)
 {

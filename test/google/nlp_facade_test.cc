@@ -9,7 +9,7 @@
 
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 // initializing the static member variables
 SplineTimes NlpFacadeTest::times_ = SplineTimes();

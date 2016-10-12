@@ -11,7 +11,7 @@
 #include <algorithm>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using Foothold = xpp::hyq::Foothold;
 

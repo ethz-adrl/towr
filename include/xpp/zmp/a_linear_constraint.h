@@ -12,7 +12,7 @@
 #include <xpp/utils/matrix_vector.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief Calculates the constraint violations for linear constraints.
   *

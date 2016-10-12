@@ -11,7 +11,7 @@
 #include <Eigen/Dense>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief An abstract class that every inverse dynamics class must conform with.
   *

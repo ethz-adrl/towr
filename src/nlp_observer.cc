@@ -12,7 +12,7 @@
 #include <xpp/hyq/support_polygon_container.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 NlpObserver::NlpObserver (OptimizationVariables& subject)
     :IObserver(subject)

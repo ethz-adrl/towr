@@ -11,7 +11,7 @@
 #include <array>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** Defines an ellipse with distances to its center and edges
   *

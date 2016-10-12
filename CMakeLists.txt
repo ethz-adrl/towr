@@ -7,7 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   message_generation
-  hyqb_msgs
+  hyqb_msgs           # for visualization of trajectory in rviz
   kindr               # in hyq_spliner.cc
   xpp_msgs            # defines the state to talk to the controller
 )

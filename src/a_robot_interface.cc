@@ -8,7 +8,7 @@
 #include <xpp/zmp/a_robot_interface.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 ARobotInterface::ARobotInterface ()
 {

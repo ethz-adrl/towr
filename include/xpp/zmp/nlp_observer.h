@@ -22,7 +22,7 @@ class SupportPolygonContainer;
 }
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 class ComMotion;
 class OptimizationVariables;

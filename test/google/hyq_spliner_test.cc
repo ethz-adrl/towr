@@ -17,7 +17,7 @@ namespace hyq {
 
 
 // uses the optimized spline created by the nlp optimizer
-class HyqSplinerTest : public xpp::zmp::NlpFacadeTest {
+class HyqSplinerTest : public xpp::opt::NlpFacadeTest {
 public:
   typedef xpp::utils::BaseLin2d Point2d;
   typedef xpp::utils::BaseLin3d Point3d;

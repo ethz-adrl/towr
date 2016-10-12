@@ -9,7 +9,7 @@
 #include <Eigen/LU>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils;
 

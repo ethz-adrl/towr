@@ -9,7 +9,7 @@
 
 namespace xpp
 {
-namespace zmp
+namespace opt
 {
 
 } /* namespace zmp */

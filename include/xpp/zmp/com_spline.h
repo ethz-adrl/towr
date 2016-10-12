@@ -13,7 +13,7 @@
 #include <memory>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** Represents the Center of Mass (CoM) motion as a Spline (sequence of polynomials).
   *

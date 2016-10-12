@@ -15,7 +15,7 @@
 #include <vector>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 struct Contact {
   Contact() {};

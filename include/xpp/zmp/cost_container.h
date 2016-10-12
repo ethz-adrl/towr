@@ -15,7 +15,7 @@
 #include <memory>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief Combines all the cost terms to a cost function and provides value.
   *

@@ -21,7 +21,7 @@ namespace ros {
 
 class QpOptimizerNode : public OptimizerNodeBase {
 public:
-  typedef xpp::zmp::QpFacade QpOptimizer;
+  typedef xpp::opt::QpFacade QpOptimizer;
   typedef xpp_msgs::RequiredInfoQp ReqInfoMsg;
   typedef xpp_msgs::OptimizedParametersQp OptParamMsg;
 

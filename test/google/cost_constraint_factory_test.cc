@@ -8,7 +8,7 @@
 #include "../../include/xpp/zmp/cost_constraint_factory.h"
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 } /* namespace zmp */
 } /* namespace xpp */

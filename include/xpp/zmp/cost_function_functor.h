@@ -13,7 +13,7 @@
 #include <xpp/zmp/optimization_variables.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief Calculates the derivatives of the cost function.
   *

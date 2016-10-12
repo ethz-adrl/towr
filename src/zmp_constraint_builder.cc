@@ -14,7 +14,7 @@
 #include <xpp/utils/line_equation.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using NodeConstraints = xpp::hyq::SupportPolygon::VecSuppLine;
 using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;

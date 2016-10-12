@@ -17,7 +17,7 @@
 #include "motion_structure.h"
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief Evaluates the implied joint angles for the current optimization values.
   *
@@ -27,7 +27,7 @@ namespace zmp {
 class JointAnglesConstraint : public AConstraint {
 public:
   typedef xpp::utils::StdVecEigen2d FootholdsXY;
-  typedef xpp::zmp::OptimizationVariablesInterpreter Interpreter;
+  typedef xpp::opt::OptimizationVariablesInterpreter Interpreter;
   typedef std::vector<xpp::hyq::Foothold> VecFoothold;
   typedef std::vector<ComPolynomial> VecSpline;
   typedef AInverseKinematics::JointAngles JointAngles;

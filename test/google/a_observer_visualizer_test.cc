@@ -8,7 +8,7 @@
 #include "../../include/xpp/zmp/a_observer_visualizer.h"
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 } /* namespace zmp */
 } /* namespace xpp */

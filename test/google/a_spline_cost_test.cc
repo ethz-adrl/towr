@@ -8,7 +8,7 @@
 #include "../../include/xpp/zmp/a_spline_cost.h"
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 } /* namespace zmp */
 } /* namespace xpp */

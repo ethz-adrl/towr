@@ -9,7 +9,7 @@
 #include <cmath>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 Ellipse::Ellipse ()
 {

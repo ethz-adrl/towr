@@ -12,7 +12,7 @@
 #include <xpp/zmp/i_observer.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 class ASubject {
 public:

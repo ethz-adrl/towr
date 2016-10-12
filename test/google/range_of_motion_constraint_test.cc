@@ -8,7 +8,7 @@
 #include <xpp/zmp/range_of_motion_constraint.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 } /* namespace zmp */
 } /* namespace xpp */

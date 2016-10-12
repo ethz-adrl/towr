@@ -11,7 +11,7 @@
 #include <memory>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief Interface to derive from to visualize the optimization results.
   *

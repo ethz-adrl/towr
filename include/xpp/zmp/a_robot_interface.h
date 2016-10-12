@@ -13,7 +13,7 @@
 #include <iostream>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 /** @brief Abstracts all robot specific values
   *
