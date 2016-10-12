@@ -53,6 +53,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   whole_body_mapper_.SetParams(0.5, 0.15, 0.0);
   ROS_INFO_STREAM("Initialization done, ready to optimize!...");
+  ROS_INFO_STREAM("waiting for initial state...");
 }
 
 void
@@ -92,6 +93,7 @@ NlpOptimizerNode::PublishTrajectory () const
 //  RobotStateTrajMsg msg = xpp::ros::RosHelpers::XppToRos(trajectory);
 //  trajectory_pub_.publish(msg);
 
+  // sends this info the the walking controller
   auto trajectory_hyq_joints = whole_body_mapper_.BuildWholeBodyTrajectoryJoints();
   auto msg_hyq_with_joints = xpp::ros::RosHelpers::XppToRosHyq(trajectory_hyq_joints);
   trajectory_pub_hyqjoints_.publish(msg_hyq_with_joints);

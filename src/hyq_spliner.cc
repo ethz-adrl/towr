@@ -71,12 +71,11 @@ HyqSpliner::BuildWholeBodyTrajectory () const
   double t=0.0;
   while (t<GetTotalTime()) {
 
-    HyqStateStamped state;
+    HyqState state;
 
     state.base_.lin = GetCurrPosition(t);
     state.base_.ang = GetCurrOrientation(t);
     FillCurrFeet(t, state.feet_, state.swingleg_);
-    state.t_ = t;
 
     trajectory.push_back(state);
 
