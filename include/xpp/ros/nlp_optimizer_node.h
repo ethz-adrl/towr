@@ -14,8 +14,6 @@
 #include <xpp/hyq/hyq_spliner.h>
 
 #include <xpp_msgs/RequiredInfoNlp.h>        // receive
-#include <xpp_msgs/OptimizedParametersNlp.h> // send
-#include <xpp_msgs/RobotStateTrajectoryCartesian.h> // send
 
 namespace xpp {
 namespace ros {
@@ -25,10 +23,8 @@ public:
   typedef xpp::zmp::NlpFacade NlpFacade;
   typedef xpp::hyq::LegID LegID;
   typedef xpp_msgs::RequiredInfoNlp ReqInfoMsg;
-  typedef xpp_msgs::OptimizedParametersNlp OptParamMsg;
 
   using WholeBodyMapper = xpp::hyq::HyqSpliner;
-  using RobotStateTrajMsg = xpp_msgs::RobotStateTrajectoryCartesian;
   using OptVisualizerPtr = std::shared_ptr<OptimizationVisualizer>;
 
 public:

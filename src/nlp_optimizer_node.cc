@@ -11,10 +11,9 @@
 
 #include <xpp_msgs/ros_helpers.h> // namespace xpp::ros
 #include <xpp_msgs/topic_names.h>
-#include <xpp_msgs/HyqStateTrajectory.h>
+#include <xpp_msgs/HyqStateJointsTrajectory.h>
 
 #include <hyqb_msgs/Trajectory.h>
-
 
 namespace xpp {
 namespace ros {
@@ -36,7 +35,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
   trajectory_pub_rviz_ = n_.advertise<HyqTrajRvizMsg>(trajectory_topic, 1);
 
 
-  trajectory_pub_hyqjoints_ = n_.advertise<xpp_msgs::HyqStateTrajectory>(
+  trajectory_pub_hyqjoints_ = n_.advertise<xpp_msgs::HyqStateJointsTrajectory>(
       xpp_msgs::robot_trajectory_joints, 1);
 
   supp_polygon_margins_ = xpp::hyq::SupportPolygon::GetDefaultMargins();
