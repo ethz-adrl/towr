@@ -30,10 +30,10 @@ NlpOptimizerNode::NlpOptimizerNode ()
 //  opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
   trajectory_pub_ = n_.advertise<RobotStateTrajMsg>(xpp_msgs::robot_trajectory, 1);
 
-  // inv_kin hardcode this or put in topic_names.h
-  std::string trajectoryTopic;
-  ::ros::param::param<std::string>("trajectory_topic", trajectoryTopic, std::string("/trajectory"));
-  trajectory_pub_rviz_ = n_.advertise<HyqTrajRvizMsg>(trajectoryTopic, 1);
+  // topic the urdf publisher subscribes to to send hyq trajectory to rviz
+  std::string trajectory_topic = RosHelpers::GetStringFromServer("/hyq_rviz_trajectory_topic");
+  trajectory_pub_rviz_ = n_.advertise<HyqTrajRvizMsg>(trajectory_topic, 1);
+
 
   trajectory_pub_hyqjoints_ = n_.advertise<xpp_msgs::HyqStateTrajectory>(
       xpp_msgs::robot_trajectory_joints, 1);
@@ -49,6 +49,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
   nlp_facade_.AttachVisualizer(optimization_visualizer_);
 
   whole_body_mapper_.SetParams(0.5, 0.15, 0.0);
+  ROS_INFO_STREAM("Initialization done, ready to optimize!...");
 }
 
 void
