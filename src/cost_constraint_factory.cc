@@ -91,9 +91,9 @@ CostConstraintFactory::CreateRangeOfMotionConstraint (const ComMotion& com_motio
 //CostConstraintFactory::CreateJointAngleConstraint (
 //    const OptimizationVariablesInterpreter& interpreter)
 //{
-//  auto inv_kin = std::make_shared<xpp::hyq::HyqInverseKinematics>();
+//  auto inv_kine = std::make_shared<xpp::hyq::HyqInverseKinematics>();
 //  auto constraint = std::make_shared<JointAnglesConstraint>();
-//  constraint->Init(interpreter, inv_kin);
+//  constraint->Init(interpreter, inv_kine);
 //  return constraint;
 //}
 

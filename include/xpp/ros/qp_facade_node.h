@@ -11,9 +11,9 @@
 #include <xpp/ros/optimizer_node_base.h>
 #include <xpp/zmp/qp_facade.h>
 
-#include <xpp_opt/RequiredInfoQp.h>        // receive
-#include <xpp_opt/OptimizedParametersQp.h> // send
-#include <xpp_opt/SolveQp.h>               // service
+#include <xpp_msgs/RequiredInfoQp.h>        // receive
+#include <xpp_msgs/OptimizedParametersQp.h> // send
+#include <xpp_msgs/SolveQp.h>               // service
 
 
 namespace xpp {
@@ -22,8 +22,8 @@ namespace ros {
 class QpOptimizerNode : public OptimizerNodeBase {
 public:
   typedef xpp::zmp::QpFacade QpOptimizer;
-  typedef xpp_opt::RequiredInfoQp ReqInfoMsg;
-  typedef xpp_opt::OptimizedParametersQp OptParamMsg;
+  typedef xpp_msgs::RequiredInfoQp ReqInfoMsg;
+  typedef xpp_msgs::OptimizedParametersQp OptParamMsg;
 
   QpOptimizerNode ();
   virtual ~QpOptimizerNode () {};

@@ -22,20 +22,12 @@ OptimizationVisualizer::OptimizationVisualizer ()
 
   ::ros::NodeHandle n;
   ros_publisher_optimized_ = n.advertise<visualization_msgs::MarkerArray>(xpp_msgs::rviz_optimized, 1);
-//  visual_tools_.reset(new rviz_visual_tools::RvizVisualTools("world", xpp_msgs::rviz_optimized));
-
   ros_publisher_fixed_     = n.advertise<visualization_msgs::MarkerArray>(xpp_msgs::rviz_fixed, 1);
 }
 
 OptimizationVisualizer::~OptimizationVisualizer ()
 {
 //  visual_tools_->deleteAllMarkers();
-}
-
-void
-OptimizationVisualizer::ClearOptimizedMarkers () const
-{
-
 }
 
 void
@@ -88,7 +80,6 @@ OptimizationVisualizer::Visualize () const
 //    msg.markers.at(i).color.a = 0.0;
 //  }
 
-//  visual_tools_->deleteAllMarkers();
   ros_publisher_optimized_.publish(msg);
 }
 

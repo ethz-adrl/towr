@@ -10,7 +10,6 @@
 
 #include <xpp/zmp/i_visualizer.h>
 #include <xpp/utils/base_state.h>
-//#include <rviz_visual_tools/rviz_visual_tools.h>
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 
@@ -38,7 +37,6 @@ public:
   virtual ~OptimizationVisualizer ();
 
   void SetObserver(const NlpObserverPtr&);
-  void ClearOptimizedMarkers() const;
 
   /** @brief Send a message with topic "optimization_variables" out to rviz */
   void Visualize() const override;
@@ -51,8 +49,6 @@ private:
   ::ros::Publisher ros_publisher_fixed_;
 
   NlpObserverPtr observer_;
-
-//  ::rviz_visual_tools::RvizVisualToolsPtr visual_tools_;
 };
 
 } /* namespace ros */

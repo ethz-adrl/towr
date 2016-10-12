@@ -13,9 +13,7 @@
 #include <xpp/ros/optimization_visualizer.h>
 #include <xpp/hyq/hyq_spliner.h>
 
-#include <xpp_opt/RequiredInfoNlp.h>        // receive
-#include <xpp_opt/OptimizedParametersNlp.h> // send
-#include <xpp_msgs/RobotStateTrajectoryCartesian.h> // send
+#include <xpp_msgs/RequiredInfoNlp.h>        // receive
 
 namespace xpp {
 namespace ros {
@@ -24,11 +22,9 @@ class NlpOptimizerNode : public OptimizerNodeBase {
 public:
   typedef xpp::zmp::NlpFacade NlpFacade;
   typedef xpp::hyq::LegID LegID;
-  typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
-  typedef xpp_opt::OptimizedParametersNlp OptParamMsg;
+  typedef xpp_msgs::RequiredInfoNlp ReqInfoMsg;
 
   using WholeBodyMapper = xpp::hyq::HyqSpliner;
-  using RobotStateTrajMsg = xpp_msgs::RobotStateTrajectoryCartesian;
   using OptVisualizerPtr = std::shared_ptr<OptimizationVisualizer>;
 
 public:
@@ -50,7 +46,9 @@ private:
 
   ::ros::Subscriber current_info_sub_;
 //  ::ros::Publisher opt_params_pub_;
-  ::ros::Publisher trajectory_pub_;
+//  ::ros::Publisher trajectory_pub_;
+  ::ros::Publisher trajectory_pub_rviz_;
+  ::ros::Publisher trajectory_pub_hyqjoints_;
 
   void CurrentInfoCallback(const ReqInfoMsg& msg);
 

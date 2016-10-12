@@ -7,13 +7,13 @@
 
 #include <xpp/ros/optimizer_node_base.h>
 #include <xpp/ros/ros_helpers.h>
-#include <xpp_opt/GetStateLin3d.h>
+#include <xpp_msgs/GetStateLin3d.h>
 #include <xpp_msgs/topic_names.h>
 
 namespace xpp {
 namespace ros {
 
-using GetStateSrv = xpp_opt::GetStateLin3d;
+using GetStateSrv = xpp_msgs::GetStateLin3d;
 
 OptimizerNodeBase::OptimizerNodeBase ()
 {

@@ -20,10 +20,10 @@ struct SplineNode {
   typedef xpp::utils::BaseLin3d Point3d;
 
   SplineNode(){};
-  SplineNode(const HyqState& state, const Point3d& ori_rpy, double t_max)
+  SplineNode(const HyqStateEE& state, const Point3d& ori_rpy, double t_max)
       : state_(state), ori_rpy_(ori_rpy), T(t_max) {};
 
-  HyqState state_;
+  HyqStateEE state_;
   Point3d ori_rpy_; // fixme remove this and use quaternion orientation directly for interpolation
   double T;         // time to reach this state
 };
@@ -48,23 +48,25 @@ public:
 
   using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
   typedef Spliner3d::Point Point;
-  using RobotStateTraj    = std::vector<HyqStateStamped>;
+  using HyqStateEEVec     = std::vector<HyqStateEE>;
+  using HyqStateJointsVec = std::vector<HyqStateJoints>;
 
 
 public:
-  HyqSpliner() {};
-  virtual ~HyqSpliner() {};
+  HyqSpliner();
+  virtual ~HyqSpliner();
 
-
-  void SetParams(double upswing, double lift_height, double outward_swing_distance);
+  void SetParams(double upswing, double lift_height,
+                 double outward_swing_distance,
+                 double discretization_time);
 
   void Init(const xpp::zmp::PhaseVec&,
             const VecPolyomials&,
             const VecFoothold&,
             double robot_height);
 
-  RobotStateTraj BuildWholeBodyTrajectory() const;
-
+  HyqStateEEVec BuildWholeBodyTrajectory() const;
+  HyqStateJointsVec BuildWholeBodyTrajectoryJoints() const;
 
 
   /**
@@ -87,6 +89,7 @@ private:
   std::vector<LegDataMap< Spliner3d > > feet_spliner_up_, feet_spliner_down_;
   VecPolyomials optimized_xy_spline_;
 
+  double kDiscretizationTime;   // at what interval the continuous trajectory is sampled
   double kUpswingPercent;       // how long to swing up during swing
   double kLiftHeight;           // how high to lift the leg
   double kOutwardSwingDistance; // how far to swing leg outward (y-dir)
@@ -97,7 +100,7 @@ private:
   Vector3d GetCurrZState(double t_global) const;
 
   std::vector<SplineNode>
-  BuildPhaseSequence(const HyqState& P_init,
+  BuildPhaseSequence(const HyqStateEE& P_init,
                      const xpp::zmp::PhaseVec&,
                      const VecPolyomials& optimized_xy_spline,
                      const VecFoothold& footholds,
@@ -113,7 +116,7 @@ private:
          body position, body orientation, and feet position
   @param[in] time_to_reach how long the robot has to achieve this state
    */
-  static SplineNode BuildNode(const HyqState& state, double t_max);
+  static SplineNode BuildNode(const HyqStateEE& state, double t_max);
   friend class HyqSplinerTest_BuildNode_Test;
 
 

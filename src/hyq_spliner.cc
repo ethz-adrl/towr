@@ -7,20 +7,31 @@
 
 #include <xpp/hyq/hyq_spliner.h>
 #include <kindr/rotations/RotationEigen.hpp>
+#include <xpp/hyq/hyq_inverse_kinematics.h>
 
 namespace xpp {
 namespace hyq {
 
 using namespace xpp::utils;
 
+HyqSpliner::HyqSpliner()
+{
+  SetParams(0.0, 0.0, 0.0, 0.0);
+}
+
+HyqSpliner::~HyqSpliner()
+{
+}
+
 void HyqSpliner::SetParams(double upswing,
                double lift_height,
-               double outward_swing_distance)
+               double outward_swing_distance,
+               double discretization_time)
 {
   kUpswingPercent = upswing;
   kLiftHeight = lift_height;
   kOutwardSwingDistance = outward_swing_distance;
-
+  kDiscretizationTime = discretization_time;
 }
 
 void
@@ -35,7 +46,7 @@ HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com
   feet_spliner_down_.clear();
   feet_spliner_up_.clear();
 
-  HyqState x0;
+  HyqStateEE x0;
   x0.ZeroVelAcc();
   x0.base_.lin.p.topRows<kDim2d>() = ComPolynomialHelpers::GetCOM(0.0, com_spline).p;
   x0.base_.lin.v.topRows<kDim2d>() = ComPolynomialHelpers::GetCOM(0.0, com_spline).v;
@@ -52,22 +63,21 @@ HyqSpliner::Init (const xpp::zmp::PhaseVec& phase_info, const VecPolyomials& com
   optimized_xy_spline_ = com_spline;
 }
 
-HyqSpliner::RobotStateTraj
+HyqSpliner::HyqStateEEVec
 HyqSpliner::BuildWholeBodyTrajectory () const
 {
-  RobotStateTraj trajectory;
+  HyqStateEEVec trajectory;
 
   double controller_loop_interval = 0.004; // 250Hz SL task servo
 
   double t=0.0;
   while (t<GetTotalTime()) {
 
-    HyqStateStamped state;
+    HyqStateEE state;
 
     state.base_.lin = GetCurrPosition(t);
     state.base_.ang = GetCurrOrientation(t);
     FillCurrFeet(t, state.feet_, state.swingleg_);
-    state.t_ = t;
 
     trajectory.push_back(state);
 
@@ -77,8 +87,48 @@ HyqSpliner::BuildWholeBodyTrajectory () const
   return trajectory;
 }
 
+HyqSpliner::HyqStateJointsVec
+HyqSpliner::BuildWholeBodyTrajectoryJoints () const
+{
+  auto trajectory_ee = BuildWholeBodyTrajectory();
+  HyqStateJointsVec trajectory_joints;
+  HyqInverseKinematics inv_kin;
+
+  HyqStateJoints hyq_j_prev;
+  bool first_state = true;
+  for (auto hyq : trajectory_ee) {
+
+    HyqStateJoints hyq_j;
+    hyq_j.base_     = hyq.base_;
+    hyq_j.swingleg_ = hyq.swingleg_;
+
+    // add joint position
+    Eigen::Matrix3d P_R_B = hyq.base_.ang.q.normalized().toRotationMatrix();
+    for (size_t ee=0; ee<xpp::hyq::_LEGS_COUNT; ee++) {
+      // Transform global into local feet position
+      Eigen::Vector3d P_base = hyq.base_.lin.p;
+      Eigen::Vector3d P_foot = hyq.GetFeetPosOnly()[ee];
+      Eigen::Vector3d B_foot = P_R_B.transpose() * (P_foot - P_base);
+
+      hyq_j.q.segment<3>(3*ee) = inv_kin.GetJointAngles(B_foot, ee);
+    }
+
+    // joint velocity
+    if (!first_state) { // to avoid jump in vel/acc in first state
+      hyq_j.qd  = (hyq_j.q  - hyq_j_prev.q)  / kDiscretizationTime;
+      hyq_j.qdd = (hyq_j.qd - hyq_j_prev.qd) / kDiscretizationTime;
+    }
+
+    trajectory_joints.push_back(hyq_j);
+    hyq_j_prev = hyq_j;
+    first_state = false;
+  }
+
+  return trajectory_joints;
+}
+
 std::vector<SplineNode>
-HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
+HyqSpliner::BuildPhaseSequence(const HyqStateEE& P_init,
                                const xpp::zmp::PhaseVec& phase_info,
                                const VecPolyomials& optimized_xy_spline,
                                const VecFoothold& footholds,
@@ -92,7 +142,7 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
 
   /** Add state sequence based on footsteps **/
   // desired state after first 4 leg support phase
-  HyqState P_plan_prev = P_init;
+  HyqStateEE P_plan_prev = P_init;
   P_plan_prev.ZeroVelAcc(); // these aren't used anyway, overwritten by optimizer
   for (hyq::LegID l : hyq::LegIDArray) {
     P_plan_prev.feet_[l].p(Z) = 0.0;
@@ -103,7 +153,7 @@ HyqSpliner::BuildPhaseSequence(const HyqState& P_init,
   for (const auto& curr_phase : phase_info)
   {
     // copy a few values from previous state
-    HyqState goal_node = P_plan_prev;
+    HyqStateEE goal_node = P_plan_prev;
 
     // current contact configuration during the phase
     VecFoothold contacts;
@@ -188,7 +238,7 @@ void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
 
 // fixme use quaternion in state directly, don't map to roll-pitch-yaw
 SplineNode
-HyqSpliner::BuildNode(const HyqState& state, double t_max)
+HyqSpliner::BuildNode(const HyqStateEE& state, double t_max)
 {
   Point ori_rpy(TransformQuatToRpy(state.base_.ang.q));
   return SplineNode(state, ori_rpy, t_max);
@@ -356,6 +406,7 @@ HyqSpliner::FillCurrFeet(double t_global,
     swingleg[sl] = true;
   }
 }
+
 
 void HyqSpliner::BuildOneSegment(const SplineNode& from, const SplineNode& to,
                                  Spliner3d& pos, Spliner3d& ori,
