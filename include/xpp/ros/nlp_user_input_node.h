@@ -10,7 +10,7 @@
 
 #include <xpp/utils/base_state.h>
 
-#include <xpp_opt/GetStateLin3d.h>
+#include <xpp_msgs/GetStateLin3d.h>
 #include <xpp_msgs/StateLin3d.h>
 #include <keyboard/Key.h>
 #include <sensor_msgs/Joy.h>
@@ -30,7 +30,7 @@ public:
   using StateMsg = xpp_msgs::StateLin3d;
   using KeyboardMsg = keyboard::Key;
   using JoyMsg = sensor_msgs::Joy;
-  using GoalSrv = xpp_opt::GetStateLin3d;
+  using GoalSrv = xpp_msgs::GetStateLin3d;
 
   enum class Command { kSetGoal, kStartWalking, kNoCommand } command_ = Command::kNoCommand;
 

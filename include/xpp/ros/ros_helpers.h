@@ -10,9 +10,9 @@
 
 #include <ros/ros.h>
 
-#include <xpp_opt/PhaseInfo.h>
-#include <xpp_opt/Contact.h>
-#include <xpp_opt/Spline.h>
+#include <xpp_msgs/PhaseInfo.h>
+#include <xpp_msgs/Contact.h>
+#include <xpp_msgs/Spline.h>
 
 #include <xpp/zmp/phase_info.h>
 #include <xpp/utils/polynomial_helpers.h>
@@ -29,13 +29,13 @@ namespace ros {
 struct RosHelpers {
 
 using VecComPoly   = std::vector<xpp::utils::ComPolynomial>;
-using SplineMsg    = xpp_opt::Spline;
+using SplineMsg    = xpp_msgs::Spline;
 
 using ContactXpp   = xpp::zmp::Contact;
 using PhaseInfoXpp = xpp::zmp::PhaseInfo;
 
-using ContactMsg   = xpp_opt::Contact;
-using PhaseInfoMsg = xpp_opt::PhaseInfo;
+using ContactMsg   = xpp_msgs::Contact;
+using PhaseInfoMsg = xpp_msgs::PhaseInfo;
 
 using Polynomial   = xpp::utils::Polynomial;
 

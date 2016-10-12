@@ -1,4 +1,0 @@
-# Returns the already optimized spline trajectory and footholds
-
----
-xpp_msgs/StateLin3d state

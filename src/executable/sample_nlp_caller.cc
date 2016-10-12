@@ -11,13 +11,13 @@
 
 //#include <xpp/zmp/com_spline6.h>
 
-#include <xpp_opt/RequiredInfoNlp.h>         // send
-//#include <xpp_opt/OptimizedParametersNlp.h> // receive
+#include <xpp_msgs/RequiredInfoNlp.h>         // send
+//#include <xpp_msgs/OptimizedParametersNlp.h> // receive
 
 #include <xpp/ros/marker_array_builder.h>
 
 
-typedef xpp_opt::RequiredInfoNlp ReqInfoMsg;
+typedef xpp_msgs::RequiredInfoNlp ReqInfoMsg;
 //typedef xpp_opt::OptimizedParametersNlp OptimizedParametersMsg;
 
 

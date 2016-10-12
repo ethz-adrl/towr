@@ -40,29 +40,22 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
 set(LIB_NAME xpp_opt)
 
 # Generate added messages with any dependencies listed here
-add_message_files(
-  FILES
-  Contact.msg
-  Spline.msg
-  PhaseInfo.msg
-  RequiredInfoNlp.msg
-  OptimizedParametersNlp.msg
-  RequiredInfoQp.msg
-  OptimizedParametersQp.msg
-)
-add_service_files(
-  FILES
-  SolveQp.srv
-  GetStateLin3d.srv
-  ReturnOptSplines.srv
-  ReturnOptFootholds.srv
-)
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  geometry_msgs
-  xpp_msgs      # Foothold.msg
-)
+#add_message_files(
+#  FILES
+#)
+#add_service_files(
+#  FILES
+#  SolveQp.srv
+#  GetStateLin3d.srv
+#  ReturnOptSplines.srv
+#  ReturnOptFootholds.srv
+#)
+#generate_messages(
+#  DEPENDENCIES
+#  std_msgs
+#  geometry_msgs
+#  xpp_msgs      # Foothold.msg
+#)
 
 ###################################
 ## catkin specific configuration ##
@@ -76,7 +69,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
   LIBRARIES ${LIB_NAME} ${IPOPT_LIBS} ${SNOPT_LIBS}
-  CATKIN_DEPENDS message_runtime
+  CATKIN_DEPENDS
   DEPENDS
 )
 

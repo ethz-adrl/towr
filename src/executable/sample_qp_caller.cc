@@ -9,13 +9,13 @@
 #include <xpp/zmp/com_spline6.h>
 #include <xpp/zmp/motion_structure.h>
 
-#include <xpp_opt/RequiredInfoQp.h>          // send
-#include <xpp_opt/OptimizedParametersQp.h>   // receive
+#include <xpp_msgs/RequiredInfoQp.h>          // send
+#include <xpp_msgs/OptimizedParametersQp.h>   // receive
 
 #include <xpp/ros/marker_array_builder.h>
 
-typedef xpp_opt::RequiredInfoQp ReqInfoMsg;
-typedef xpp_opt::OptimizedParametersQp OptimizedParametersMsg;
+typedef xpp_msgs::RequiredInfoQp ReqInfoMsg;
+typedef xpp_msgs::OptimizedParametersQp OptimizedParametersMsg;
 using MotionStructure = xpp::zmp::MotionStructure;
 
 xpp::zmp::ComSpline6::VecPolynomials splines;
