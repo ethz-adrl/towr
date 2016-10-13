@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 
-#include "phase_info.h"
+#include <xpp/opt/phase_info.h>
 #include <xpp/utils/matrix_vector.h>
 #include <xpp/utils/base_state.h>
 #include <Eigen/Sparse>

@@ -12,7 +12,7 @@
 #include <xpp/utils/base_state.h>
 #include <xpp/hyq/support_polygon.h>
 #include "i_visualizer.h"
-#include "phase_info.h"
+#include <xpp/opt/phase_info.h>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>

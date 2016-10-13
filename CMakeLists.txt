@@ -4,7 +4,8 @@ project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
   kindr               # in hyq_spliner.cc
-  xpp_msgs            # remove, but needed for cartesian declarations and stuff            
+  xpp_msgs            # remove, but needed for cartesian declarations and stuff 
+  xpp_common           
 )
 
 find_package(Eigen3 REQUIRED)
@@ -62,7 +63,7 @@ set(LIB_NAME xpp_opt)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
+  INCLUDE_DIRS include ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
   LIBRARIES ${LIB_NAME} ${IPOPT_LIBS} ${SNOPT_LIBS}
   CATKIN_DEPENDS
   DEPENDS
@@ -79,20 +80,10 @@ include_directories(
 set(SOURCES
   src/ellipse.cc
   src/qp_facade.cc
-  src/polynomial.cc
-  src/polynomial_helpers.cc
   src/zero_moment_point.cc
   src/motion_structure.cc
+  # hyq
   src/step_sequence_planner.cc
-  src/line_equation.cc
-  src/a_inverse_kinematics.cc
-  src/a_robot_interface.cc
-  #hyq
-  src/hyq_inverse_kinematics.cc
-  src/hyq_robot_interface
-  src/support_polygon.cc
-  src/supp_polygon_container.cc
-  src/hyq_spliner.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
@@ -118,7 +109,6 @@ set(SOURCES
   src/constraint_container.cc
   src/zmp_constraint.cc
   src/range_of_motion_constraint.cc
-#  src/joint_angles_constraint.cc
   src/obstacle_constraint.cc
   # costs
   src/a_spline_cost.cc

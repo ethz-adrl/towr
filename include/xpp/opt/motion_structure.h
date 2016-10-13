@@ -8,7 +8,7 @@
 #ifndef XPP_OPT_INCLUDE_XPP_ZMP_MOTION_STRUCTURE_H_
 #define XPP_OPT_INCLUDE_XPP_ZMP_MOTION_STRUCTURE_H_
 
-#include "phase_info.h"
+#include <xpp/opt/phase_info.h>
 #include <xpp/hyq/leg_data_map.h>
 #include <vector>
 
