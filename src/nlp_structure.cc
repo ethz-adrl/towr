@@ -5,10 +5,10 @@
  @brief   Defines the class functions in NlpStructure
  */
 
-#include <xpp/zmp/nlp_structure.h>
+#include <xpp/opt/nlp_structure.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 VariableSet::VariableSet (int n_variables, std::string id)
 {

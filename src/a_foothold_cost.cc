@@ -5,11 +5,11 @@
  @brief   Defines an abstract FootholdCost class and one concrete derivation.
  */
 
-#include <xpp/zmp/a_foothold_cost.h>
-#include <xpp/zmp/optimization_variables.h>
+#include <xpp/opt/a_foothold_cost.h>
+#include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 AFootholdCost::AFootholdCost ()
 {

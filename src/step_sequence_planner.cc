@@ -7,11 +7,9 @@
 
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/hyq/support_polygon.h>
-#include <xpp/zmp/zmp_constraint_builder.h>
-#include <xpp/zmp/zero_moment_point.h>
-#include <xpp/zmp/range_of_motion_constraint.h>
-
-#include <cassert>
+#include <xpp/opt/range_of_motion_constraint.h>
+#include <xpp/opt/zero_moment_point.h>
+#include <xpp/opt/zmp_constraint_builder.h>
 
 namespace xpp {
 namespace hyq {
@@ -194,7 +192,7 @@ StepSequencePlanner::IsZmpInsideFirstStep (LegID first_step) const
 //  margins.at(DIAG)/=2.;
   hyq::SupportPolygon supp(first_stance, margins);
 
-  Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(curr_state_.Make3D(), robot_height_);
+  Eigen::Vector2d zmp = xpp::opt::ZeroMomentPoint::CalcZmp(curr_state_.Make3D(), robot_height_);
   return supp.IsPointInside(zmp);
 }
 
@@ -222,7 +220,7 @@ StepSequencePlanner::IsGoalOutsideSupportPolygon () const
 bool
 StepSequencePlanner::IsGoalOutsideRangeOfMotion () const
 {
-  bool goal_inside = xpp::zmp::RangeOfMotionBox::IsPositionInsideRangeOfMotion
+  bool goal_inside = xpp::opt::RangeOfMotionBox::IsPositionInsideRangeOfMotion
   (
     goal_state_.p,
     start_stance_,

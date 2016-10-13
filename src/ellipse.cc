@@ -5,11 +5,12 @@
 @brief   Brief description
  */
 
-#include <xpp/zmp/ellipse.h>
+#include <xpp/opt/ellipse.h>
+
 #include <cmath>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 Ellipse::Ellipse ()
 {

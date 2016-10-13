@@ -5,16 +5,16 @@
  *      Author: awinkler
  */
 
-#include "../../include/xpp/zmp/com_spline6.h"
+#include <xpp/opt/com_spline6.h>
+#include <xpp/opt/com_spline4.h>
 
 #include <gtest/gtest.h>
 #include <iostream>
-#include "../../include/xpp/zmp/com_spline4.h"
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils::coords_wrapper;
 

@@ -5,10 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/nlp.h>
+#include <xpp/opt/nlp.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 NLP::NLP ()
     :cost_derivative_(std::numeric_limits<double>::epsilon())

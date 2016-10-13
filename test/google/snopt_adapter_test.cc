@@ -5,11 +5,12 @@
  @brief   Brief description
  */
 
+#include <xpp/opt/snopt_adapter.h>
+
 #include <gtest/gtest.h>
-#include <xpp/zmp/snopt_adapter.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 TEST(SnoptAdapterTest, Sample) {
 //

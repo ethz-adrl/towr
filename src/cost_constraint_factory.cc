@@ -5,24 +5,22 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/cost_constraint_factory.h>
+#include <xpp/opt/cost_constraint_factory.h>
 
-#include <xpp/zmp/com_motion.h>
-
-#include <xpp/zmp/linear_spline_equations.h>
-#include <xpp/zmp/a_linear_constraint.h>
-#include <xpp/zmp/zmp_constraint.h>
-#include <xpp/zmp/range_of_motion_constraint.h>
-//#include <xpp/zmp/joint_angles_constraint.h>
 #include <xpp/hyq/hyq_inverse_kinematics.h>
-#include <xpp/zmp/obstacle_constraint.h>
 #include <xpp/hyq/hyq_robot_interface.h>
 
-#include <xpp/zmp/a_foothold_cost.h>
-#include <xpp/zmp/a_spline_cost.h>
+#include <xpp/opt/a_foothold_cost.h>
+#include <xpp/opt/a_linear_constraint.h>
+#include <xpp/opt/a_spline_cost.h>
+#include <xpp/opt/com_motion.h>
+#include <xpp/opt/linear_spline_equations.h>
+#include <xpp/opt/obstacle_constraint.h>
+#include <xpp/opt/range_of_motion_constraint.h>
+#include <xpp/opt/zmp_constraint.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils;
 

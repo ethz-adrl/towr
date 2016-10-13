@@ -5,13 +5,14 @@
  @brief   Defines the MotionStructure class.
  */
 
-#include <xpp/zmp/motion_structure.h>
+#include <xpp/opt/motion_structure.h>
+#include <xpp/opt/phase_info.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/phase_info.h>
+
 #include <algorithm>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using Foothold = xpp::hyq::Foothold;
 

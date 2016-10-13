@@ -5,11 +5,12 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/optimization_variables.h>
+#include <xpp/opt/optimization_variables.h>
+
 #include <gtest/gtest.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 class OptimizationVariablesTest : public ::testing::Test {
 protected:

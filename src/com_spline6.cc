@@ -5,10 +5,10 @@
 @brief   Defines ComSpline6, which realizes a ComSpline
  */
 
-#include <xpp/zmp/com_spline6.h>
+#include <xpp/opt/com_spline6.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils; // X,Y,Z
 

@@ -5,15 +5,15 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/motion_factory.h>
-#include <xpp/zmp/motion_structure.h>
-#include <xpp/zmp/com_spline.h>
+#include <xpp/opt/com_spline.h>
+#include <xpp/opt/motion_factory.h>
+#include <xpp/opt/motion_structure.h>
 #include <xpp/hyq/foothold.h>
 
 #include <gtest/gtest.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace Eigen;
 

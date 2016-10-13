@@ -5,10 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/cost_container.h>
+#include <xpp/opt/cost_container.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 CostContainer::CostContainer (OptimizationVariables& subject)
     :IObserver(subject)

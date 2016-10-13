@@ -5,16 +5,14 @@
  @brief   Defines the ZmpConstraintBuilder class
  */
 
-#include <xpp/zmp/zmp_constraint_builder.h>
-
-#include <xpp/zmp/com_motion.h>
+#include <xpp/opt/zmp_constraint_builder.h>
+#include <xpp/opt/com_motion.h>
+#include <xpp/opt/zero_moment_point.h>
 #include <xpp/hyq/support_polygon_container.h>
-
-#include <xpp/zmp/zero_moment_point.h>
 #include <xpp/utils/line_equation.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using NodeConstraints = xpp::hyq::SupportPolygon::VecSuppLine;
 using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;

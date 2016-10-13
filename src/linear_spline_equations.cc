@@ -5,11 +5,12 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/linear_spline_equations.h>
-#include <xpp/zmp/com_spline.h>
+#include "../include/xpp/opt/linear_spline_equations.h"
+
+#include "../include/xpp/opt/com_spline.h"
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils;
 

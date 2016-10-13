@@ -5,10 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/com_motion.h>
+#include <xpp/opt/com_motion.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils;
 

@@ -5,10 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/snopt_adapter.h>
+#include <xpp/opt/snopt_adapter.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 SnoptAdapter::SelfPtr SnoptAdapter::instance_ = nullptr;
 

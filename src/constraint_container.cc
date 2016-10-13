@@ -5,11 +5,11 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/constraint_container.h>
+#include <xpp/opt/constraint_container.h>
 #include <iostream>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 ConstraintContainer::ConstraintContainer (OptimizationVariables& subject)
     :IObserver(subject)

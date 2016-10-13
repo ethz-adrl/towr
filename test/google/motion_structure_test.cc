@@ -5,12 +5,13 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/motion_structure.h>
+#include <xpp/opt/motion_structure.h>
 #include <xpp/hyq/foothold.h>
+
 #include <gtest/gtest.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::hyq;
 
