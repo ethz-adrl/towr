@@ -3,13 +3,8 @@ cmake_minimum_required(VERSION 2.8)
 project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  std_msgs
-  geometry_msgs
-  message_generation
-  hyqb_msgs           # for visualization of trajectory in rviz
   kindr               # in hyq_spliner.cc
-  xpp_msgs            # defines the state to talk to the controller
+  xpp_msgs            # remove, but needed for cartesian declarations and stuff            
 )
 
 find_package(Eigen3 REQUIRED)
@@ -130,13 +125,6 @@ set(SOURCES
   src/cost_container.cc
   src/cost_function_functor.cc
   src/a_foothold_cost.cc
-  # ros
-  src/optimizer_node_base.cc
-  src/nlp_optimizer_node.cc
-  src/qp_optimizer_node.cc
-  src/marker_array_builder.cc
-  src/optimization_visualizer.cc
-  src/nlp_user_input_node.cc
 )
              
 # Add the shared library
@@ -147,59 +135,6 @@ target_link_libraries(${LIB_NAME}
   ${catkin_LIBRARIES}
   ${IPOPT_LIBS}
   ${SNOPT_LIBS}
-)  
-# makes sure messages are built before the package
-add_dependencies(${LIB_NAME} 
-  ${LIB_NAME}_generate_messages_cpp
-)
-
-add_executable(nlp_optimizer_node 
-  src/executable/nlp_optimizer_node_exe.cc
-)
-target_link_libraries(nlp_optimizer_node 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
-)   
-
-
-add_executable(qp_optimizer_node 
-  src/executable/qp_optimizer_node_exe.cc
-)
-target_link_libraries(qp_optimizer_node 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
-)  
-
-add_executable(goal_state_pub 
-  src/executable/goal_state_publisher.cc
-)
-target_link_libraries(goal_state_pub 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
-)                 
-                                      
-add_executable(sample_nlp_caller 
-    src/executable/sample_nlp_caller.cc
-)
-target_link_libraries(sample_nlp_caller 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
-)
-
-add_executable(sample_qp_caller 
-    src/executable/sample_qp_caller.cc
-)
-target_link_libraries(sample_qp_caller 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
-)
-
-add_executable(nlp_user_input_node
-    src/executable/nlp_user_input_node_exe.cc
-)
-target_link_libraries(nlp_user_input_node 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
 )
   
 # Some example executables if turned "ON"
