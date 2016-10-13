@@ -4,11 +4,11 @@ project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
   kindr               # in hyq_spliner.cc
-  xpp_msgs            # remove, but needed for cartesian declarations and stuff 
   xpp_common           
 )
 
 find_package(Eigen3 REQUIRED)
+find_package(GTest REQUIRED)
 
 # NLP solvers (adapt global path accordingly)
 set(IPOPT_SRC_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4")
@@ -65,7 +65,7 @@ set(LIB_NAME xpp_opt)
 catkin_package(
   INCLUDE_DIRS include ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
   LIBRARIES ${LIB_NAME} ${IPOPT_LIBS} ${SNOPT_LIBS}
-  CATKIN_DEPENDS
+  CATKIN_DEPENDS xpp_common
   DEPENDS
 )
 
@@ -84,6 +84,7 @@ set(SOURCES
   src/motion_structure.cc
   # hyq
   src/step_sequence_planner.cc
+  src/hyq_spliner.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
@@ -141,28 +142,28 @@ if(BUILD_TESTS)
     set(MY_GTEST_UNITS  test/google/gtest_main.cc 
 #                        test/google/spliner_test.cc
                          test/google/point2d_manipulations_test.cc
-                         test/google/supp_polygon_test.cc
-                         test/google/supp_polygon_container_test.cc
-                         test/google/helpers.cc
+             #            test/google/supp_polygon_test.cc
+             #            test/google/supp_polygon_container_test.cc
+            #             test/google/helpers.cc
 #                        test/google/zero_moment_point_test.cc
 ##                        test/google/hyq_spliner_test.cc
 #                        test/google/optimization_variables_test.cc
 #                        test/google/nlp_observer_test.cc
 #                        test/google/optimization_visualizer_test.cc
 #                        test/google/step_sequence_planner_test.cc
-                         test/google/line_equation_test.cc
+           #              test/google/line_equation_test.cc
                          # hyq
 #                        # com
-                         test/google/motion_structure_test.cc
+          #               test/google/motion_structure_test.cc
 #                        test/google/com_motion_test.cc
-                         test/google/com_spline_test.cc
-                         test/google/polynomial_test.cc
+         #                test/google/com_spline_test.cc
+         #                test/google/polynomial_test.cc
 #                        test/google/spline_container_test.cc
 #                        #constraints
 #                        test/google/zmp_constraint_test.cc
 #                        test/google/constraint_factory_test.cc
-                         test/google/zmp_constraint_builder_test.cc
-                         test/google/linear_spline_equations_test.cc
+         #                test/google/zmp_constraint_builder_test.cc
+   #                      test/google/linear_spline_equations_test.cc
 #                        test/google/joint_angles_constraint_test.cc
 #                        test/google/constraint_container_test.cc
 #                        test/google/range_of_motion_constraint_test.cc
@@ -185,7 +186,9 @@ if(BUILD_TESTS)
     
     target_link_libraries(googleTest 
                           ${LIB_NAME}
-                          ${GTEST_LIBRARIES})
+                          ${GTEST_LIBRARIES}
+                          pthread
+                          )
   endif(GTEST_FOUND)
 endif()
 
