@@ -43,11 +43,9 @@
   
   <build_depend>xpp_opt</build_depend>
   <build_depend>xpp_msgs</build_depend>
-  <build_depend>hyqb_msgs</build_depend>
   
   <run_depend>xpp_opt</run_depend>
   <run_depend>xpp_msgs</run_depend>
-  <run_depend>hyqb_msgs</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

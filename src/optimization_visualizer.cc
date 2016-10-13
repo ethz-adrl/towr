@@ -8,7 +8,7 @@
 #include <xpp/ros/optimization_visualizer.h>
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/marker_array_builder.h>
-#include <xpp_msgs/topic_names.h>
+#include <xpp/ros/topic_names.h>
 #include <xpp/opt/nlp_observer.h>
 
 namespace xpp {

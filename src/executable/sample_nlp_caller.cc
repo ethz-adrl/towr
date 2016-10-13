@@ -5,9 +5,8 @@
  * \brief  sends out a sample current state to the NLP server
  */
 
-#include <xpp/ros/ros_helpers.h>  // xpp::cmo
-#include <xpp_msgs/ros_helpers.h> // xpp::ros
-#include <xpp_msgs/topic_names.h>
+#include <xpp/ros/ros_helpers.h>
+#include <xpp/ros/topic_names.h>
 
 #include <xpp_msgs/RequiredInfoNlp.h>
 #include <xpp/ros/marker_array_builder.h>

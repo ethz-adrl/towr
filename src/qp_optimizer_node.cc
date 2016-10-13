@@ -42,7 +42,7 @@ void
 QpOptimizerNode::PublishOptimizedValues() const
 {
   OptParamMsg msg_out;
-  msg_out.splines = xpp::ros::opt::RosHelpers::XppToRos(opt_splines_);
+  msg_out.splines = RosHelpers::XppToRos(opt_splines_);
   opt_params_pub_.publish(msg_out);
 }
 

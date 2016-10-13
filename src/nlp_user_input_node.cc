@@ -10,7 +10,7 @@
 #include <xpp/ros/marker_array_builder.h>
 
 #include <std_msgs/Empty.h>
-#include <xpp_msgs/topic_names.h>
+#include <xpp/ros/topic_names.h>
 
 namespace xpp {
 namespace ros {

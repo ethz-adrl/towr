@@ -8,7 +8,6 @@ find_package(catkin REQUIRED
   roscpp
   xpp_opt
   xpp_msgs
-  hyqb_msgs
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11") 
@@ -107,7 +106,7 @@ set(LIB_NAME xpp_ros)
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ${LIB_NAME}
-#  CATKIN_DEPENDS other_catkin_pkg
+   CATKIN_DEPENDS xpp_msgs
 #  DEPENDS system_lib
 )
 
