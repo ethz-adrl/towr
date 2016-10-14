@@ -19,11 +19,9 @@ namespace opt {
   */
 class CostAdapter : public ACost {
 public:
-  // inv_kin think about making unique to not interfere with constraint
   using ConstraintPtr = std::shared_ptr<AConstraint>;
   using VectorXd = Eigen::VectorXd;
 
-  CostAdapter ();
   CostAdapter (const ConstraintPtr& constraint);
   virtual ~CostAdapter ();
 

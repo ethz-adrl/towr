@@ -52,6 +52,9 @@ public:
                                            double walking_height);
   static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&,
                                                      const MotionStructure&);
+  static CostPtr CreateRangeOfMotionCost(const ComMotion&, const Contacts&,
+                                                     const MotionStructure&);
+
 //  static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateObstacleConstraint(const Contacts&);
 

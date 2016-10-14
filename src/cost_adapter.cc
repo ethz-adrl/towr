@@ -10,11 +10,6 @@
 namespace xpp {
 namespace opt {
 
-CostAdapter::CostAdapter ()
-{
-  constraint_ = nullptr;
-}
-
 CostAdapter::~CostAdapter ()
 {
   // TODO Auto-generated destructor stub

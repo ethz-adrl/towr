@@ -18,6 +18,7 @@
 #include <xpp/opt/obstacle_constraint.h>
 #include <xpp/opt/range_of_motion_constraint.h>
 #include <xpp/opt/zmp_constraint.h>
+#include <xpp/opt/cost_adapter.h>
 
 namespace xpp {
 namespace opt {
@@ -83,6 +84,16 @@ CostConstraintFactory::CreateRangeOfMotionConstraint (const ComMotion& com_motio
 
   constraint->Init(com_motion, contacts, motion_structure, std::move(hyq));
   return constraint;
+}
+
+CostConstraintFactory::CostPtr
+CostConstraintFactory::CreateRangeOfMotionCost (const ComMotion& com_motion,
+                                                const Contacts& contacts,
+                                                const MotionStructure& motion_structure)
+{
+  auto rom_constraint = CreateRangeOfMotionConstraint(com_motion, contacts, motion_structure);
+  auto rom_cost = std::make_shared<CostAdapter>(rom_constraint);
+  return rom_cost;
 }
 
 //CostConstraintFactory::ConstraintPtr
