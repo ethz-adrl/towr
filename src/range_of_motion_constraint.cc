@@ -96,15 +96,17 @@ RangeOfMotionBox::EvaluateConstraint () const
 
     for (const auto& c : node.phase_.free_contacts_) {
 
-      PosXY contact_pos = PosXY::Zero();
+      PosXY contact_pos_W = PosXY::Zero();
 
       if(c.id != xpp::hyq::Foothold::kFixedByStart) {
         auto footholds_W = contacts_->GetFootholdsInWorld();
-        contact_pos = footholds_W.at(c.id).p.topRows(kDim2d);
+        contact_pos_W = footholds_W.at(c.id).p.topRows(kDim2d);
       }
 
-      for (auto dim : {X,Y})
-        g_vec.push_back(contact_pos(dim) - com_pos(dim));
+      for (auto dim : {X,Y}) {
+        double contact_pos_B = contact_pos_W(dim) - com_pos(dim);
+        g_vec.push_back(contact_pos_B);
+      }
 
     }
   }

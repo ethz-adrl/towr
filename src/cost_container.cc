@@ -37,6 +37,18 @@ CostContainer::Update ()
 {
 }
 
+double
+CostContainer::EvaluateTotalCost () const
+{
+  double total_cost = 0.0;
+  for (const auto& cost : costs_) {
+    cost->UpdateVariables(subject_);
+    total_cost += cost->EvaluateCost();
+  }
+
+  return total_cost;
+}
+
 CostContainer::VectorXd
 CostContainer::EvaluateGradient () const
 {
@@ -62,17 +74,6 @@ CostContainer::EvaluateGradient () const
   return gradient;
 }
 
-double
-CostContainer::EvaluateTotalCost () const
-{
-  double total_cost = 0.0;
-  for (const auto& cost : costs_) {
-    cost->UpdateVariables(subject_);
-    total_cost += cost->EvaluateCost();
-  }
-
-  return total_cost;
-}
 
 bool
 CostContainer::IsEmpty () const

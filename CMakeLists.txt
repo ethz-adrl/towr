@@ -116,6 +116,7 @@ set(SOURCES
   src/cost_container.cc
   src/cost_function_functor.cc
   src/a_foothold_cost.cc
+  src/cost_adapter.cc
 )
              
 # Add the shared library
@@ -173,6 +174,7 @@ if(BUILD_TESTS)
 #                        test/google/cost_function_functor_test.cc
 #                        test/google/cost_container_test.cc
 #                        test/google/a_foothold_cost_test.cc
+                         test/google/cost_adapter_test.cc
 #                        # nlp optimizers
 #                        test/google/nlp_test.cc
 #                        test/google/snopt_test.cc
