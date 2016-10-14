@@ -24,8 +24,10 @@ public:
   using VectorXd = Eigen::VectorXd;
 
   CostAdapter ();
-  CostAdapter (const ConstraintPtr& constraint, const VectorXd& weights);
+  CostAdapter (const ConstraintPtr& constraint);
   virtual ~CostAdapter ();
+
+  void SetWeights(const VectorXd& weights);
 
   virtual double EvaluateCost () const;
   virtual void UpdateVariables(const OptimizationVariables*);

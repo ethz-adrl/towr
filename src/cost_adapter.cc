@@ -15,33 +15,45 @@ CostAdapter::CostAdapter ()
   constraint_ = nullptr;
 }
 
-CostAdapter::CostAdapter (const ConstraintPtr& constraint,
-                          const VectorXd& weights)
-{
-}
-
 CostAdapter::~CostAdapter ()
 {
   // TODO Auto-generated destructor stub
 }
 
-double
-CostAdapter::EvaluateCost () const
+CostAdapter::CostAdapter (const ConstraintPtr& constraint)
 {
-  double cost = 0.0;
-  return cost;
+  constraint_ = constraint;
+  int n_constraints = constraint->GetNumberOfConstraints();
+
+  // treat all constraints equally by default
+  weights_.resize(n_constraints);
+  weights_.setOnes();
 }
 
 void
-CostAdapter::UpdateVariables (const OptimizationVariables*)
+CostAdapter::SetWeights (const VectorXd& weights)
 {
+  weights_ = weights;
+}
+
+void
+CostAdapter::UpdateVariables (const OptimizationVariables* x)
+{
+  constraint_->UpdateVariables(x);
+}
+
+double
+CostAdapter::EvaluateCost () const
+{
+  VectorXd g = constraint_->EvaluateConstraint();
+  return weights_.transpose()*g;
 }
 
 CostAdapter::VectorXd
 CostAdapter::EvaluateGradientWrt (std::string var_set)
 {
-  VectorXd grad;
-  return grad;
+  AConstraint::Jacobian jac = constraint_->GetJacobianWithRespectTo(var_set);
+  return jac.transpose()*weights_;
 }
 
 } /* namespace opt */
