@@ -26,7 +26,7 @@ public:
 
   virtual double EvaluateCost () const = 0;
   virtual void UpdateVariables(const OptimizationVariables*) = 0;
-  virtual VectorXd EvaluateGradientWrt(std::string var_set) { assert(false); };// motion_ref remove default implementation
+  virtual VectorXd EvaluateGradientWrt(std::string var_set) = 0;
 };
 
 } /* namespace zmp */

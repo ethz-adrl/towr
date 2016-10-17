@@ -88,7 +88,7 @@ MotionStructure::Init (const StartStance& start_stance,
     }
 
     phase.id_++;
-    phase.duration_ = 0.05;
+    phase.duration_ = 1.05;
     phases_.push_back(phase);
   }
 

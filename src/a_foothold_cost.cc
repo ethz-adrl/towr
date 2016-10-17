@@ -45,9 +45,41 @@ FootholdGoalCost::Init (const Vector2d& goal_xy,
 double
 FootholdGoalCost::EvaluateCost () const
 {
-  Vector2d center_final_stance = supp_polygon_container_.GetCenterOfFinalStance();
-  double cost = (goal_xy_ - center_final_stance).norm();
-  return cost;
+  Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
+  Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
+  return 1000*distance_to_center.transpose() * distance_to_center;
+}
+
+FootholdGoalCost::VectorXd
+FootholdGoalCost::EvaluateGradientWrt (std::string var_set)
+{
+  VectorXd grad;
+  using namespace xpp::utils;
+
+  if (var_set == VariableNames::kFootholds) {
+
+    int n_foothold_opt_vars = supp_polygon_container_.GetTotalFreeCoeff();
+    grad = VectorXd::Zero(n_foothold_opt_vars);
+
+    Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
+    Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
+
+    std::cout << "distance center to goal: " << distance_to_center.transpose() << std::endl;
+
+    auto final_stance = supp_polygon_container_.GetFinalFootholds();
+    for (auto f : final_stance) {
+      if (!f.FixedByStart()) {
+        for (auto dim : {X,Y}) {
+          int idx = SupportPolygonContainer::Index(f.id,dim);
+          grad[idx] =  1000*2*distance_to_center[dim]*(-1.0/final_stance.size());
+        }
+      }
+    }
+  }
+  // inv_kin something is still off here...
+  // or just the constraint of 3 legs on ground is prevening this
+  std::cout << "grad of " << var_set << ": " << grad.transpose() << std::endl;
+  return grad;
 }
 
 } /* namespace zmp */

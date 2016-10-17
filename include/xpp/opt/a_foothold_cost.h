@@ -44,6 +44,7 @@ public:
 
   void Init(const Vector2d& goal_xy, const SupportPolygonContainer&);
   double EvaluateCost () const override;
+  virtual VectorXd EvaluateGradientWrt(std::string var_set);
 
 private:
   Vector2d goal_xy_;
