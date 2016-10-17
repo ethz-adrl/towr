@@ -112,6 +112,7 @@ set(SOURCES
   src/range_of_motion_constraint.cc
   src/obstacle_constraint.cc
   # costs
+  src/a_cost.cc
   src/a_spline_cost.cc
   src/cost_container.cc
   src/cost_function_functor.cc

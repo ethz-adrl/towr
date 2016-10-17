@@ -26,7 +26,6 @@ public:
   virtual ~CostAdapter ();
 
   void SetWeights(const VectorXd& weights);
-  void SetWeights(double weights);
 
   virtual double EvaluateCost () const;
   virtual void UpdateVariables(const OptimizationVariables*);
