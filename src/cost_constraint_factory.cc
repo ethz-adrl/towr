@@ -10,7 +10,6 @@
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/hyq/hyq_robot_interface.h>
 
-#include <xpp/opt/a_foothold_cost.h>
 #include <xpp/opt/a_linear_constraint.h>
 #include <xpp/opt/a_spline_cost.h>
 #include <xpp/opt/com_motion.h>
@@ -19,6 +18,7 @@
 #include <xpp/opt/range_of_motion_constraint.h>
 #include <xpp/opt/zmp_constraint.h>
 #include <xpp/opt/cost_adapter.h>
+#include "../include/xpp/opt/a_foothold_constraint.h"
 
 namespace xpp {
 namespace opt {
@@ -103,6 +103,7 @@ CostConstraintFactory::CreateFinalStanceCost (
 {
   auto final_stance_constraint = CreateFinalStanceConstraint(goal_xy, contacts);
   auto final_stance_cost = std::make_shared<CostAdapter>(final_stance_constraint);
+  final_stance_cost->SetWeights(1000);
   return final_stance_cost;
 }
 
@@ -110,7 +111,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateFinalStanceConstraint (const Vector2d& goal_xy,
                                                     const Contacts& contacts)
 {
-  auto final_stance_constraint = std::make_shared<FootholdGoalCost>(goal_xy, contacts);
+  auto final_stance_constraint = std::make_shared<FootholdFinalStanceConstraint>(goal_xy, contacts);
   return final_stance_constraint;
 }
 

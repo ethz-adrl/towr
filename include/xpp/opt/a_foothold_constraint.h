@@ -20,13 +20,12 @@ namespace opt {
   * in order to then calculate costs based on these (move towards goal, avoid
   * obstacles, ...).
   */
-// inv_kin rename this to constraint
-class AFootholdCost : public AConstraint {
+class AFootholdConstraint : public AConstraint {
 public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
 
-  AFootholdCost ();
-  virtual ~AFootholdCost ();
+  AFootholdConstraint ();
+  virtual ~AFootholdConstraint ();
 
   void UpdateVariables(const OptimizationVariables*) override;
 
@@ -39,12 +38,12 @@ protected:
 /** This class assigns a cost if the center of the final footholds is far
   * away from the desired goal position.
   */
-class FootholdGoalCost : public AFootholdCost {
+class FootholdFinalStanceConstraint : public AFootholdConstraint {
 public:
   typedef Eigen::Vector2d Vector2d;
 
-  FootholdGoalCost(const Vector2d& goal_xy, const SupportPolygonContainer&);
-  virtual ~FootholdGoalCost();
+  FootholdFinalStanceConstraint(const Vector2d& goal_xy, const SupportPolygonContainer&);
+  virtual ~FootholdFinalStanceConstraint();
 
   virtual VectorXd EvaluateConstraint () const override;
   virtual Jacobian GetJacobianWithRespectTo(std::string var_set) const override;

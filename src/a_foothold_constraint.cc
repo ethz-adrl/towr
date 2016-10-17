@@ -5,48 +5,49 @@
  @brief   Defines an abstract FootholdCost class and one concrete derivation.
  */
 
-#include <xpp/opt/a_foothold_cost.h>
+#include "../include/xpp/opt/a_foothold_constraint.h"
+
 #include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
 namespace opt {
 
-AFootholdCost::AFootholdCost ()
+AFootholdConstraint::AFootholdConstraint ()
 {
   // TODO Auto-generated constructor stub
 }
 
-AFootholdCost::~AFootholdCost ()
+AFootholdConstraint::~AFootholdConstraint ()
 {
   // TODO Auto-generated destructor stub
 }
 
 void
-AFootholdCost::Init (const SupportPolygonContainer& supp_polygon_container)
+AFootholdConstraint::Init (const SupportPolygonContainer& supp_polygon_container)
 {
   supp_polygon_container_ = supp_polygon_container;
 }
 
 void
-AFootholdCost::UpdateVariables (const OptimizationVariables* opt_var)
+AFootholdConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
   Eigen::VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
   supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
-FootholdGoalCost::FootholdGoalCost (const Vector2d& goal_xy,
+FootholdFinalStanceConstraint::FootholdFinalStanceConstraint (const Vector2d& goal_xy,
                                     const SupportPolygonContainer& supp_poly)
 {
   Init(supp_poly);
   goal_xy_ = goal_xy;
 }
 
-FootholdGoalCost::~FootholdGoalCost ()
+FootholdFinalStanceConstraint::~FootholdFinalStanceConstraint ()
 {
 }
 
-FootholdGoalCost::VectorXd
-FootholdGoalCost::EvaluateConstraint () const
+FootholdFinalStanceConstraint::VectorXd
+FootholdFinalStanceConstraint::EvaluateConstraint () const
 {
   VectorXd g;
   Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
@@ -55,8 +56,8 @@ FootholdGoalCost::EvaluateConstraint () const
   return g; // so far 1-dimensional, so scalar
 }
 
-FootholdGoalCost::Jacobian
-FootholdGoalCost::GetJacobianWithRespectTo (std::string var_set) const
+FootholdFinalStanceConstraint::Jacobian
+FootholdFinalStanceConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac;
   using namespace xpp::utils;
@@ -85,8 +86,8 @@ FootholdGoalCost::GetJacobianWithRespectTo (std::string var_set) const
   return jac;
 }
 
-FootholdGoalCost::VecBound
-FootholdGoalCost::GetBounds () const
+FootholdFinalStanceConstraint::VecBound
+FootholdFinalStanceConstraint::GetBounds () const
 {
   int n_constraints = EvaluateConstraint().rows();
   VecBound bounds(n_constraints);

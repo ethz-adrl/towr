@@ -32,6 +32,12 @@ CostAdapter::SetWeights (const VectorXd& weights)
 }
 
 void
+xpp::opt::CostAdapter::SetWeights (double weights)
+{
+  weights_.fill(weights);
+}
+
+void
 CostAdapter::UpdateVariables (const OptimizationVariables* x)
 {
   constraint_->UpdateVariables(x);

@@ -115,7 +115,7 @@ set(SOURCES
   src/a_spline_cost.cc
   src/cost_container.cc
   src/cost_function_functor.cc
-  src/a_foothold_cost.cc
+  src/a_foothold_constraint.cc
   src/cost_adapter.cc
 )
              
