@@ -96,6 +96,24 @@ CostConstraintFactory::CreateRangeOfMotionCost (const ComMotion& com_motion,
   return rom_cost;
 }
 
+CostConstraintFactory::CostPtr
+CostConstraintFactory::CreateFinalStanceCost (
+    const Vector2d& goal_xy,
+    const Contacts& contacts)
+{
+  auto final_stance_constraint = CreateFinalStanceConstraint(goal_xy, contacts);
+  auto final_stance_cost = std::make_shared<CostAdapter>(final_stance_constraint);
+  return final_stance_cost;
+}
+
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::CreateFinalStanceConstraint (const Vector2d& goal_xy,
+                                                    const Contacts& contacts)
+{
+  auto final_stance_constraint = std::make_shared<FootholdGoalCost>(goal_xy, contacts);
+  return final_stance_constraint;
+}
+
 //CostConstraintFactory::ConstraintPtr
 //CostConstraintFactory::CreateJointAngleConstraint (
 //    const OptimizationVariablesInterpreter& interpreter)
@@ -144,16 +162,6 @@ CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
   LinearSplineEquations eq(motion);
   auto cost = std::make_shared<SquaredSplineCost>();
   cost->Init(eq.MakeFinal(final_state_xy, {kPos, kVel, kAcc}));
-  return cost;
-}
-
-CostConstraintFactory::CostPtr
-CostConstraintFactory::CreateFinalStanceCost (
-    const Vector2d& goal_xy,
-    const Contacts& contacts)
-{
-  auto cost = std::make_shared<FootholdGoalCost>();
-  cost->Init(goal_xy, contacts);
   return cost;
 }
 

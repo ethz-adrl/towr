@@ -34,32 +34,38 @@ AFootholdCost::UpdateVariables (const OptimizationVariables* opt_var)
   supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
-void
-FootholdGoalCost::Init (const Vector2d& goal_xy,
-                        const SupportPolygonContainer& supp_polygon_container)
+FootholdGoalCost::FootholdGoalCost (const Vector2d& goal_xy,
+                                    const SupportPolygonContainer& supp_poly)
 {
-  AFootholdCost::Init(supp_polygon_container);
+  Init(supp_poly);
   goal_xy_ = goal_xy;
 }
 
-double
-FootholdGoalCost::EvaluateCost () const
+FootholdGoalCost::~FootholdGoalCost ()
 {
-  Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
-  Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
-  return 1000*distance_to_center.transpose() * distance_to_center;
 }
 
 FootholdGoalCost::VectorXd
-FootholdGoalCost::EvaluateGradientWrt (std::string var_set)
+FootholdGoalCost::EvaluateConstraint () const
 {
-  VectorXd grad;
+  VectorXd g;
+  Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
+  Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
+  g = distance_to_center.transpose() * distance_to_center;
+  return g; // so far 1-dimensional, so scalar
+}
+
+FootholdGoalCost::Jacobian
+FootholdGoalCost::GetJacobianWithRespectTo (std::string var_set) const
+{
+  Jacobian jac;
   using namespace xpp::utils;
 
   if (var_set == VariableNames::kFootholds) {
 
     int n_foothold_opt_vars = supp_polygon_container_.GetTotalFreeCoeff();
-    grad = VectorXd::Zero(n_foothold_opt_vars);
+    int n_constraints = GetNumberOfConstraints();
+    jac = Jacobian(n_constraints, n_foothold_opt_vars);
 
     Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
     Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
@@ -71,15 +77,23 @@ FootholdGoalCost::EvaluateGradientWrt (std::string var_set)
       if (!f.FixedByStart()) {
         for (auto dim : {X,Y}) {
           int idx = SupportPolygonContainer::Index(f.id,dim);
-          grad[idx] =  1000*2*distance_to_center[dim]*(-1.0/final_stance.size());
+          jac.insert(0,idx) =  2*distance_to_center[dim]*(-1.0/final_stance.size());
         }
       }
     }
   }
-  // inv_kin something is still off here...
-  // or just the constraint of 3 legs on ground is prevening this
-  std::cout << "grad of " << var_set << ": " << grad.transpose() << std::endl;
-  return grad;
+  return jac;
+}
+
+FootholdGoalCost::VecBound
+FootholdGoalCost::GetBounds () const
+{
+  int n_constraints = EvaluateConstraint().rows();
+  VecBound bounds(n_constraints);
+  for (auto& bound : bounds)
+    bound = kEqualityBound_;
+
+  return bounds;
 }
 
 } /* namespace zmp */

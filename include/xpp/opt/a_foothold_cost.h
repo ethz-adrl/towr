@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_FOOTHOLD_COST_H_
 
 #include <xpp/hyq/support_polygon_container.h>
-#include "a_cost.h"
+#include "a_constraint.h"
 
 namespace xpp {
 namespace opt {
@@ -20,7 +20,8 @@ namespace opt {
   * in order to then calculate costs based on these (move towards goal, avoid
   * obstacles, ...).
   */
-class AFootholdCost : public ACost {
+// inv_kin rename this to constraint
+class AFootholdCost : public AConstraint {
 public:
   typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
 
@@ -42,9 +43,12 @@ class FootholdGoalCost : public AFootholdCost {
 public:
   typedef Eigen::Vector2d Vector2d;
 
-  void Init(const Vector2d& goal_xy, const SupportPolygonContainer&);
-  double EvaluateCost () const override;
-  virtual VectorXd EvaluateGradientWrt(std::string var_set);
+  FootholdGoalCost(const Vector2d& goal_xy, const SupportPolygonContainer&);
+  virtual ~FootholdGoalCost();
+
+  virtual VectorXd EvaluateConstraint () const override;
+  virtual Jacobian GetJacobianWithRespectTo(std::string var_set) const override;
+  virtual VecBound GetBounds() const override;
 
 private:
   Vector2d goal_xy_;
