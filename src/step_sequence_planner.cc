@@ -53,9 +53,9 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     // based on distance to cover
-    const double length_per_step = 0.25;
-    const double width_per_step = 0.15111;
-    Eigen::Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
+    const double length_per_step = 0.311;
+    const double width_per_step = 0.21;
+    Eigen::Vector2d start_to_goal = goal_state_.p.topRows(kDim2d) - curr_state_.p.topRows(kDim2d);
     int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/length_per_step);
     int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
     int req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);

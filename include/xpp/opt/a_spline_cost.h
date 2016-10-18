@@ -55,6 +55,8 @@ class SquaredSplineCost : public ASplineCost {
     *  cost = sqrt(g^T*g)
     */
   double EvaluateCost () const override;
+  virtual VectorXd EvaluateGradientWrt(std::string var_set) final { assert(false); };
+
 };
 
 } /* namespace zmp */

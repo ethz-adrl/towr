@@ -16,17 +16,26 @@ namespace opt {
 
 class OptimizationVariables;
 
-/** @brief Common interface to define a cost, which simply returns a scalar value */
+/** @brief Common interface to define a cost, which simply returns a scalar value
+  */
 class ACost {
 public:
   using VectorXd = Eigen::VectorXd;
 
-  ACost () {};
-  virtual ~ACost () {}
+  ACost ();
+  virtual ~ACost ();
 
-  virtual double EvaluateCost () const = 0;
   virtual void UpdateVariables(const OptimizationVariables*) = 0;
-  virtual VectorXd EvaluateGradientWrt(std::string var_set) { assert(false); };// motion_ref remove default implementation
+  double EvaluateWeightedCost () const;
+  VectorXd EvaluateWeightedGradientWrt (std::string var_set);
+  void SetWeight(double weight);
+
+protected:
+  virtual double EvaluateCost () const = 0;
+  virtual VectorXd EvaluateGradientWrt(std::string var_set) = 0;
+
+private:
+  double weight_;
 };
 
 } /* namespace zmp */

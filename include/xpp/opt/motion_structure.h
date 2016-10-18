@@ -13,14 +13,7 @@
 #include <vector>
 
 namespace xpp {
-
-namespace hyq {
-class Foothold;
-}
-
 namespace opt {
-
-//class PhaseInfo;
 
 /** @brief Holds all the information about the fixed aspects of the motion.
   *
@@ -32,16 +25,8 @@ namespace opt {
   */
 class MotionStructure {
 public:
-  struct MotionInfo {
-
-    MotionInfo() {};
-    double time_;
-    PhaseInfo phase_;
-  };
 
   using LegIDVec      = std::vector<xpp::hyq::LegID>;
-  using PhaseVec      = std::vector<PhaseInfo>;
-  using MotionInfoVec = std::vector<MotionInfo>;
   using StartStance   = std::vector<xpp::hyq::Foothold>;
 
   MotionStructure ();
@@ -78,7 +63,7 @@ public:
     *
     * @param dt   The discretization time for the motion.
     */
-  MotionInfoVec GetContactInfoVec() const;
+  PhaseStampedVec GetPhaseStampedVec() const;
 
   void SetDisretization(double dt);
   int GetTotalNumberOfDiscreteContacts() const;
@@ -89,13 +74,10 @@ private:
   PhaseVec phases_;
   double dt_; ///< discretization interval [s]
 
-//  PhaseVec BuildPhases(int steps, double t_swing, double t_stance,
-//                       bool insert_init, bool insert_final) const;
-
   // the values don't really define the structure of the class -> mutable
-  MotionInfoVec CalcContactInfoVec() const;
+  PhaseStampedVec CalcPhaseStampedVec() const;
   mutable bool cache_needs_updating_;
-  mutable MotionInfoVec cached_motion_vector_;
+  mutable PhaseStampedVec cached_motion_vector_;
 };
 
 } /* namespace zmp */

@@ -199,12 +199,12 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
 //      std::cout << f_from.id << "->" << f_to.id << "  ,  ";
 
       // only if line is not fixed by start stance does it go into the jacobian
-      if (f_from.id != hyq::Foothold::kFixedByStart) {
+      if (!f_from.IsFixedByStart()) {
         jac_line_wrt_contacts.insert(contacts_->Index(f_from.id, X)) = jac_line(0);
         jac_line_wrt_contacts.insert(contacts_->Index(f_from.id, Y)) = jac_line(1);
       }
 
-      if (f_to.id != hyq::Foothold::kFixedByStart) {
+      if (!f_to.IsFixedByStart()) {
         jac_line_wrt_contacts.insert(contacts_->Index(f_to.id, X))   = jac_line(2);
         jac_line_wrt_contacts.insert(contacts_->Index(f_to.id, Y))   = jac_line(3);
       }

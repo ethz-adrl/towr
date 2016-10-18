@@ -6,10 +6,12 @@
  */
 
 #include <xpp/opt/motion_structure.h>
-#include <xpp/opt/phase_info.h>
-#include <xpp/hyq/support_polygon_container.h>
 
+#include <sys/types.h>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <iterator>
 
 namespace xpp {
 namespace opt {
@@ -33,7 +35,6 @@ MotionStructure::Init (const StartStance& start_stance,
                        bool insert_initial_stance,
                        bool insert_final_stance)
 {
-
   PhaseInfo initial_stance_phase;
   initial_stance_phase.id_ = 0;
   initial_stance_phase.duration_ = t_stance;
@@ -55,7 +56,6 @@ MotionStructure::Init (const StartStance& start_stance,
 
     if (it_fixed != phase.fixed_contacts_.end()) // step found in initial stance
       phase.fixed_contacts_.erase(it_fixed);     // remove contact, because now swinging leg
-
 
 
     // remove current swingleg from last free contacts
@@ -88,7 +88,7 @@ MotionStructure::Init (const StartStance& start_stance,
     }
 
     phase.id_++;
-    phase.duration_ = 0.05;
+    phase.duration_ = 1.05;
     phases_.push_back(phase);
   }
 
@@ -121,40 +121,32 @@ MotionStructure::GetTotalTime() const
 }
 
 
-MotionStructure::MotionInfoVec
-MotionStructure::GetContactInfoVec () const
+PhaseStampedVec
+MotionStructure::GetPhaseStampedVec () const
 {
   if (cache_needs_updating_) {
-    cached_motion_vector_ = CalcContactInfoVec();
+    cached_motion_vector_ = CalcPhaseStampedVec();
     cache_needs_updating_ = false;
   }
 
   return cached_motion_vector_;
 }
 
-MotionStructure::MotionInfoVec
-MotionStructure::CalcContactInfoVec () const
+PhaseStampedVec
+MotionStructure::CalcPhaseStampedVec () const
 {
-  xpp::hyq::SupportPolygonContainer foothold_container;
-  foothold_container.Init(start_stance_, steps_);
-  auto supp = foothold_container.AssignSupportPolygonsToPhases(phases_);
-
-  MotionInfoVec info;
+  PhaseStampedVec info;
 
   double t_global = 0;
   for (auto phase : phases_) {
-
-    auto stance_feet = supp.at(phase.id_).GetFootholds();
 
     int nodes_in_phase = std::floor(phase.duration_/dt_);
 
     for (int k=0; k<nodes_in_phase; ++k ) {
 
-      MotionInfo contact_info;
-      contact_info.time_ = t_global+k*dt_;
-
-      for (const auto& f : stance_feet)
-        contact_info.phase_.free_contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
+      PhaseInfoStamped contact_info;
+      contact_info.phase_ = phase;
+      contact_info.time_  = t_global+k*dt_;
 
       info.push_back(contact_info);
     }
@@ -162,22 +154,13 @@ MotionStructure::CalcContactInfoVec () const
     t_global += phase.duration_;
   }
 
-  // even though the last footstep doesn't create a support polygon, still include
-  // this last time instance with contact configuration
-  MotionInfo final_contacts;
-  final_contacts.time_ = t_global;
-  for (const auto& f : foothold_container.GetFinalFootholds())
-    final_contacts.phase_.free_contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
-
-  info.push_back(final_contacts);
-
   return info;
 }
 
 int
 MotionStructure::GetTotalNumberOfDiscreteContacts () const
 {
-  auto contact_info_vec = GetContactInfoVec();
+  auto contact_info_vec = GetPhaseStampedVec();
 
   int i = 0;
   for (auto node : contact_info_vec)
@@ -186,7 +169,7 @@ MotionStructure::GetTotalNumberOfDiscreteContacts () const
   return i;
 }
 
-MotionStructure::PhaseVec
+PhaseVec
 MotionStructure::GetPhases () const
 {
   return phases_;

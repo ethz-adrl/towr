@@ -52,12 +52,17 @@ public:
                                            double walking_height);
   static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&,
                                                      const MotionStructure&);
+  static CostPtr CreateRangeOfMotionCost(const ComMotion&, const Contacts&,
+                                                     const MotionStructure&);
+
 //  static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
   static ConstraintPtr CreateObstacleConstraint(const Contacts&);
 
   static CostPtr CreateMotionCost(const ComMotion&, const xpp::utils::MotionDerivative);
   static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComMotion&);
+
   static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const Contacts&);
+  static ConstraintPtr CreateFinalStanceConstraint(const Vector2d& goal_xy, const Contacts&);
 };
 
 } /* namespace zmp */
