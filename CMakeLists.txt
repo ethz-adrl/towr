@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Eigen3 REQUIRED)
-find_package(GTest REQUIRED)
+find_package(GTest)
 
 # NLP solvers (adapt global path accordingly)
 set(IPOPT_SRC_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4")
@@ -138,7 +138,6 @@ if(BUILD_TESTS)
   # FIXME use catkins macro to build the unit test
   # http://wiki.ros.org/catkin/CMakeLists.txt#msgs_srvs_actions
   # catkin_add_gtest(myUnitTest test/utest.cpp)
-  find_package(GTest)  
   message(STATUS "GTEST_FOUND " ${GTEST_FOUND})
   if(GTEST_FOUND)
     set(MY_GTEST_UNITS  test/google/gtest_main.cc 
