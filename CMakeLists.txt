@@ -15,9 +15,12 @@ set(IPOPT_SRC_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4")
 set(IPOPT_INCLUDE_DIRS ${IPOPT_SRC_DIR}/build/include/coin)
 set(IPOPT_LIBS         ${IPOPT_SRC_DIR}/build/lib/libipopt.so) # must be absolute path
 
-SET(SNOPT_SRC_DIR "/home/winklera/3rd_party_software/snopt_lib")
-set(SNOPT_INCLUDE_DIRS ${SNOPT_SRC_DIR}/include)
-set(SNOPT_LIBS ${SNOPT_SRC_DIR}/lib/libsnopt7_cpp.so ${SNOPT_SRC_DIR}/lib/libsnopt7.so) # must be absolute path
+option(BUILD_SNOPT "Build problem to solve with snopt nlp solver" OFF)
+if(BUILD_SNOPT)
+  set(SNOPT_SRC_DIR "/home/winklera/3rd_party_software/snopt_lib")
+  set(SNOPT_INCLUDE_DIRS ${SNOPT_SRC_DIR}/include)
+  set(SNOPT_LIBS ${SNOPT_SRC_DIR}/lib/libsnopt7_cpp.so ${SNOPT_SRC_DIR}/lib/libsnopt7.so) # must be absolute path
+endif(BUILD_SNOPT)
 
 
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
@@ -100,7 +103,6 @@ set(SOURCES
   src/nlp_observer.cc
   src/nlp.cc
   src/ipopt_adapter.cc
-  src/snopt_adapter.cc
   # constraints
   src/a_constraint.cc
   src/cost_constraint_factory.cc
@@ -119,6 +121,10 @@ set(SOURCES
   src/a_foothold_constraint.cc
   src/cost_adapter.cc
 )
+
+if(BUILD_SNOPT)
+  set(SOURCES ${SOURCES} src/snopt_adapter.cc)
+endif(BUILD_SNOPT)
              
 # Add the shared library
 add_library(${LIB_NAME}

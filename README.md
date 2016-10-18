@@ -17,11 +17,6 @@ For further questions contact <winklera@ethz.ch>.
 - Eigen
 
         $ sudo apt-get install libeigen3-dev
-
-- Apache logging library log4cxx
-
-        $ sudo apt-get install liblog4cxx10       # libs
-        $ sudo apt-get install liblog4cxx10-dev   # headers
     
 - (Optional) Google unit test framework
 
@@ -31,19 +26,9 @@ For further questions contact <winklera@ethz.ch>.
         $ sudo make                               # build library        
         $ sudo cp *.a /usr/lib                    # copy libgtest.a and libgtest_main.a to your /usr/lib folder
           
-          
-### Install 
-- Once dependencies are installed, go to the top-level directory of xpp and type the
-following commands:
+- Ipopt/Snopt. For this it's best to see the appropriate repos:
 
-        $ mkdir build
-        $ cd build
-        $ cmake ..    
-        $ make
-    
-- If you want to install the library `xpp` and header files globally in `/usr/local` run
-
-        $ sudo make install    
+         $ git clone https://bitbucket.org/adrlab/ipopt.git
 
 
 ### Documentation

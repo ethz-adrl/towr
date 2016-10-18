@@ -19,7 +19,7 @@
 #include <xpp/opt/nlp.h>
 #include <xpp/opt/nlp_observer.h>
 #include <xpp/opt/optimization_variables.h>
-#include <xpp/opt/snopt_adapter.h>
+//#include <xpp/opt/snopt_adapter.h>
 
 #include <iomanip>
 
