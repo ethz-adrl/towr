@@ -103,7 +103,7 @@ CostConstraintFactory::CreateFinalStanceCost (
 {
   auto final_stance_constraint = CreateFinalStanceConstraint(goal_xy, contacts);
   auto final_stance_cost = std::make_shared<CostAdapter>(final_stance_constraint);
-  final_stance_cost->SetWeight(1000);
+  final_stance_cost->SetWeight(100);
   return final_stance_cost;
 }
 

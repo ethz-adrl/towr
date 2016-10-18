@@ -5,11 +5,16 @@
  @brief   Defines the MotionStructure class.
  */
 
-#include <xpp/opt/motion_structure.h>
-#include <xpp/opt/phase_info.h>
-#include <xpp/hyq/support_polygon_container.h>
+#include "../include/xpp/opt/motion_structure.h"
 
+#include <sys/types.h>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <iterator>
+
+#include "../../xpp_common/include/xpp/hyq/support_polygon_container.h"
+#include "../../xpp_common/include/xpp/opt/a_robot_interface.h"
 
 namespace xpp {
 namespace opt {
@@ -55,7 +60,6 @@ MotionStructure::Init (const StartStance& start_stance,
 
     if (it_fixed != phase.fixed_contacts_.end()) // step found in initial stance
       phase.fixed_contacts_.erase(it_fixed);     // remove contact, because now swinging leg
-
 
 
     // remove current swingleg from last free contacts
@@ -137,24 +141,32 @@ MotionStructure::CalcContactInfoVec () const
 {
   xpp::hyq::SupportPolygonContainer foothold_container;
   foothold_container.Init(start_stance_, steps_);
-  auto supp = foothold_container.AssignSupportPolygonsToPhases(phases_);
+
+
+  // inv_kin do i even still need this?
+//  auto supp = foothold_container.AssignSupportPolygonsToPhases(phases_);
 
   MotionInfoVec info;
 
   double t_global = 0;
   for (auto phase : phases_) {
 
-    auto stance_feet = supp.at(phase.id_).GetFootholds();
+
+// this somehow takes care of the counterclockwise sorting of the footholds
+//    auto stance_feet = supp.at(phase.id_).GetFootholds();
 
     int nodes_in_phase = std::floor(phase.duration_/dt_);
 
     for (int k=0; k<nodes_in_phase; ++k ) {
 
       MotionInfo contact_info;
-      contact_info.time_ = t_global+k*dt_;
+      contact_info.phase_ = phase;
+      contact_info.time_  = t_global+k*dt_;
 
-      for (const auto& f : stance_feet)
-        contact_info.phase_.free_contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
+//      for (const auto& f : stance_feet) {
+//        if (!f.IsFixedByStart())
+//          contact_info.phase_.free_contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
+//      }
 
       info.push_back(contact_info);
     }
@@ -166,8 +178,9 @@ MotionStructure::CalcContactInfoVec () const
   // this last time instance with contact configuration
   MotionInfo final_contacts;
   final_contacts.time_ = t_global;
-  for (const auto& f : foothold_container.GetFinalFootholds())
-    final_contacts.phase_.free_contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
+  final_contacts.phase_ = phases_.back();
+//  for (const auto& f : foothold_container.GetFinalFootholds())
+//    final_contacts.phase_.free_contacts_.push_back(Contact(f.id, static_cast<EndeffectorID>(f.leg)));
 
   info.push_back(final_contacts);
 

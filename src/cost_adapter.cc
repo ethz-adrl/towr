@@ -29,6 +29,7 @@ void
 CostAdapter::SetWeights (const VectorXd& weights)
 {
   weights_ = weights;
+  weights_.normalize();
 }
 
 void

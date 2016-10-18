@@ -16,7 +16,8 @@ namespace opt {
 
 class OptimizationVariables;
 
-/** @brief Common interface to define a cost, which simply returns a scalar value */
+/** @brief Common interface to define a cost, which simply returns a scalar value
+  */
 class ACost {
 public:
   using VectorXd = Eigen::VectorXd;

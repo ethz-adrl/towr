@@ -32,6 +32,7 @@ namespace opt {
   */
 class MotionStructure {
 public:
+  // inv_kin rename to PhaseInfoStamped and move to Phase Info
   struct MotionInfo {
 
     MotionInfo() {};
@@ -41,6 +42,7 @@ public:
 
   using LegIDVec      = std::vector<xpp::hyq::LegID>;
   using PhaseVec      = std::vector<PhaseInfo>;
+  // inv_kin rename to PhaseInfoStampedVec
   using MotionInfoVec = std::vector<MotionInfo>;
   using StartStance   = std::vector<xpp::hyq::Foothold>;
 

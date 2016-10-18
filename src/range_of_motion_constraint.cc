@@ -98,10 +98,11 @@ RangeOfMotionBox::EvaluateConstraint () const
 
       PosXY contact_pos_W = PosXY::Zero();
 
-      if(c.id != xpp::hyq::Foothold::kFixedByStart) {
+      // inv_kin aren't these already free as they are in "free_contacts?"
+//      if(c.id != xpp::hyq::Foothold::kFixedByStart) {
         auto footholds_W = contacts_->GetFootholdsInWorld();
         contact_pos_W = footholds_W.at(c.id).p.topRows(kDim2d);
-      }
+//      }
 
       for (auto dim : {X,Y}) {
         double contact_pos_B = contact_pos_W(dim) - com_pos(dim);
@@ -124,10 +125,10 @@ RangeOfMotionBox::GetBounds () const
 
     for (auto c : node.phase_.free_contacts_) {
 
-      PosXY start_offset = PosXY::Zero();
-
-      if (c.id == xpp::hyq::Foothold::kFixedByStart)
-        start_offset = contacts_->GetStartFoothold(static_cast<xpp::hyq::LegID>(c.ee)).p.topRows(kDim2d);
+//      PosXY start_offset = PosXY::Zero();
+//
+////      if (c.id == xpp::hyq::Foothold::kFixedByStart)
+//        start_offset = contacts_->GetStartFoothold(static_cast<xpp::hyq::LegID>(c.ee)).p.topRows(kDim2d);
 
       // bug the constraint compares footholds in world with bounds expressed in base
       PosXY pos_nom_B = robot_->GetNominalStanceInBase(static_cast<xpp::hyq::LegID>(c.ee));
@@ -135,7 +136,7 @@ RangeOfMotionBox::GetBounds () const
         Bound b;
         b.upper_ = pos_nom_B(dim) + max_deviation.at(dim);
         b.lower_ = pos_nom_B(dim) - max_deviation.at(dim);
-        b -= start_offset(dim);
+//        b -= start_offset(dim);
         bounds.push_back(b);
       }
     }
@@ -151,14 +152,15 @@ RangeOfMotionBox::SetJacobianWrtContacts (Jacobian& jac_wrt_contacts) const
   jac_wrt_contacts = Jacobian(m_constraints, n_contacts);
 
   int row=0;
-  for (const auto& node : motion_structure_.GetContactInfoVec())
+  for (const auto& node : motion_structure_.GetContactInfoVec()) {
     for (auto c : node.phase_.free_contacts_) {
-      if (c.id != xpp::hyq::Foothold::kFixedByStart)
-        for (auto dim : {X,Y})
-          jac_wrt_contacts.insert(row+dim, Contacts::Index(c.id,dim)) = 1.0;
+      //      if (c.id != xpp::hyq::Foothold::kFixedByStart)
+      for (auto dim : {X,Y})
+        jac_wrt_contacts.insert(row+dim, Contacts::Index(c.id,dim)) = 1.0;
 
       row += kDim2d;
     }
+  }
 }
 
 void

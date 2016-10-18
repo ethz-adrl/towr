@@ -75,7 +75,7 @@ FootholdFinalStanceConstraint::GetJacobianWithRespectTo (std::string var_set) co
 
     auto final_stance = supp_polygon_container_.GetFinalFootholds();
     for (auto f : final_stance) {
-      if (!f.FixedByStart()) {
+      if (!f.IsFixedByStart()) {
         for (auto dim : {X,Y}) {
           int idx = SupportPolygonContainer::Index(f.id,dim);
           jac.insert(0,idx) =  2*distance_to_center[dim]*(-1.0/final_stance.size());
