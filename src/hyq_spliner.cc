@@ -6,7 +6,7 @@
  */
 
 #include <xpp/hyq/hyq_spliner.h>
-#include <kindr/rotations/RotationEigen.hpp>
+#include <kindr/rotations/Rotation.hpp>
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 
 namespace xpp {
@@ -188,12 +188,12 @@ HyqSpliner::BuildPhaseSequence(const HyqStateEE& P_init,
     double roll_gain = 0.0;
     double pitch_gain = 0.0;
     // Quaternion is the same for angle += i*pi
-    kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB(
+    kindr::EulerAnglesXyzPD yprIB(
         roll_gain*i_roll,
         pitch_gain*i_pitch,
         0.0); // P_yaw_des.at(s.step_));
 
-    kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
+    kindr::RotationQuaternionPD qIB(yprIB);
     goal_node.base_.ang.q = qIB.toImplementation();
 
     // adjust global z position of body depending on footholds
@@ -249,9 +249,9 @@ Eigen::Vector3d
 HyqSpliner::TransformQuatToRpy(const Eigen::Quaterniond& q)
 {
   // wrap orientation
-  kindr::rotations::eigen_impl::RotationQuaternionPD qIB(q);
+  kindr::RotationQuaternionPD qIB(q);
 
-  kindr::rotations::eigen_impl::EulerAnglesXyzPD rpyIB(qIB);
+  kindr::EulerAnglesXyzPD rpyIB(qIB);
   rpyIB.setUnique(); // wrap euler angles yaw from -pi..pi
 
   // if yaw jumped over range from -pi..pi
@@ -268,7 +268,7 @@ HyqSpliner::TransformQuatToRpy(const Eigen::Quaterniond& q)
   yaw_prev = rpyIB.yaw();
 
   // contains information that orientation went 360deg around
-  kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB_full = rpyIB;
+  kindr::EulerAnglesXyzPD yprIB_full = rpyIB;
   yprIB_full.setYaw(rpyIB.yaw() + counter360*2*M_PI);
 
   return yprIB_full.toImplementation();
@@ -371,8 +371,8 @@ HyqSpliner::GetCurrOrientation(double t_global) const
 
   // transform to orientation with quaternion
   xpp::utils::BaseAng3d ori;
-  kindr::rotations::eigen_impl::EulerAnglesXyzPD yprIB(ori_rpy.p);
-  kindr::rotations::eigen_impl::RotationQuaternionPD qIB(yprIB);
+  kindr::EulerAnglesXyzPD yprIB(ori_rpy.p);
+  kindr::RotationQuaternionPD qIB(yprIB);
   ori.q = qIB.toImplementation();
   ori.v = ori_rpy.v;
   ori.a = ori_rpy.a;
