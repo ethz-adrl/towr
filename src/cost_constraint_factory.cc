@@ -7,9 +7,6 @@
 
 #include <xpp/opt/cost_constraint_factory.h>
 
-#include <xpp/hyq/hyq_inverse_kinematics.h>
-#include <xpp/hyq/hyq_robot_interface.h>
-
 #include <xpp/opt/a_linear_constraint.h>
 #include <xpp/opt/a_spline_cost.h>
 #include <xpp/opt/com_motion.h>
@@ -18,7 +15,10 @@
 #include <xpp/opt/range_of_motion_constraint.h>
 #include <xpp/opt/zmp_constraint.h>
 #include <xpp/opt/cost_adapter.h>
-#include "../include/xpp/opt/a_foothold_constraint.h"
+#include <xpp/opt/a_foothold_constraint.h>
+
+#include <xpp/hyq/hyq_inverse_kinematics.h>
+#include <xpp/hyq/hyq_robot_interface.h>
 
 namespace xpp {
 namespace opt {

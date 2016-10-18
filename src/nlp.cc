@@ -66,7 +66,7 @@ NLP::EvaluateCostFunctionGradient (const Number* x) const
   // analytical (if implemented in costs)
   VectorXd grad = costs_->EvaluateGradient();
 
-  // inv_kin move numerical calculation of cost to cost_container class,
+  // refactor move numerical calculation of cost to cost_container class,
   // so some can be implemented analytical, others using numerical differentiaton.
 
 //  // motion_ref don't forget bout this

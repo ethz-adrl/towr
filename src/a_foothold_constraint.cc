@@ -5,8 +5,7 @@
  @brief   Defines an abstract FootholdCost class and one concrete derivation.
  */
 
-#include "../include/xpp/opt/a_foothold_constraint.h"
-
+#include <xpp/opt/a_foothold_constraint.h>
 #include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
@@ -70,8 +69,6 @@ FootholdFinalStanceConstraint::GetJacobianWithRespectTo (std::string var_set) co
 
     Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
     Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
-
-    std::cout << "distance center to goal: " << distance_to_center.transpose() << std::endl;
 
     auto final_stance = supp_polygon_container_.GetFinalFootholds();
     for (auto f : final_stance) {
