@@ -18,19 +18,24 @@ using namespace xpp::hyq;
 int main(int argc, char **argv)
 {
   using namespace xpp::ros;
-  if (argc!=7) {
+  ros::init(argc, argv, "sample_nlp_caller");
+
+  // remove ros remapping arguments
+  std::vector<std::string> argv_out;
+  ros::removeROSArgs(argc, argv, argv_out);
+
+  if (argv_out.size() != 7) {
     ROS_FATAL("Please specify current xy-pos/vel/acc.");
     return false;
   }
 
-  ros::init(argc, argv, "sample_nlp_caller");
   ros::NodeHandle n;
   ros::Publisher current_info_pub = n.advertise<ReqInfoMsg>(xpp_msgs::req_info_nlp, 1);
 //  ros::Subscriber opt_params_sub = n.subscribe("optimized_parameters_nlp", 1, OptParamsCallback);
 
   // give publisher and subscriber time to register with master
   ros::Rate poll_rate(100);
-  while(ros::ok() && /*opt_params_sub.getNumPublishers() == 0 || */current_info_pub.getNumSubscribers() == 0) {
+  while(ros::ok() && current_info_pub.getNumSubscribers() == 0/*opt_params_sub.getNumPublishers() == 0 || */) {
     poll_rate.sleep(); // so node has time to connect
   }
 
@@ -38,13 +43,12 @@ int main(int argc, char **argv)
 
 
   ReqInfoMsg msg;
-  msg.curr_state.pos.x = atof(argv[1]);
-  msg.curr_state.pos.y = atof(argv[2]);
-  msg.curr_state.vel.x = atof(argv[3]);
-  msg.curr_state.vel.y = atof(argv[4]);
-  msg.curr_state.acc.x = atof(argv[5]); // constraint
-  msg.curr_state.acc.y = atof(argv[6]); // constraint
-//  msg.curr_state.acc.y = 1.0;
+  msg.curr_state.pos.x = atof(argv_out[1].c_str());
+  msg.curr_state.pos.y = atof(argv_out[2].c_str());
+  msg.curr_state.vel.x = atof(argv_out[3].c_str());
+  msg.curr_state.vel.y = atof(argv_out[4].c_str());
+  msg.curr_state.acc.x = atof(argv_out[5].c_str()); // constraint
+  msg.curr_state.acc.y = atof(argv_out[6].c_str()); // constraint
 
   auto start_stance = { Foothold( 0.359692 + msg.curr_state.pos.x,   0.327653, 0.0, LF),
                         Foothold( 0.359694 + msg.curr_state.pos.x,  -0.327644, 0.0, RF),

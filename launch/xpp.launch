@@ -1,0 +1,12 @@
+<launch>
+  <include file="$(find xpp_ros)/launch/upload_xpp_params.launch"></include>
+  
+  <!-- for visualizing in rviz -->
+  <include file="$(find hyqb_visualizer_low_dep)/launch/hyqb_vis.launch"></include>
+  <node name="rviz" pkg="rviz" type="rviz">  </node>
+ 
+  <!-- for commanding goal position and user input -->
+  <node name="nlp_user_input_node" pkg="xpp_ros" type="nlp_user_input_node" output="screen" cwd="node" >  </node>
+  <node name="keyboard" pkg="keyboard" type="keyboard" output="screen" cwd="node" >  </node>
+  <node name="joy" pkg="joy" type="joy_node" output="screen" cwd="node" >  </node> 
+</launch>

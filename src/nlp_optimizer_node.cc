@@ -6,7 +6,6 @@
  */
 
 #include <xpp/ros/nlp_optimizer_node.h>
-#include <xpp/ros/ros_helpers.h>  // namespace cmo::ros
 #include <xpp/opt/com_spline.h>
 
 #include <xpp/ros/ros_helpers.h> // namespace xpp::ros
@@ -57,15 +56,6 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
 void
 NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
-{
-  UpdateCurrentState(msg);
-//  OptimizeTrajectory();
-//  PublishOptimizedValues();
-//  optimization_visualizer_->Visualize();
-}
-
-void
-NlpOptimizerNode::UpdateCurrentState(const ReqInfoMsg& msg)
 {
   curr_cog_      = RosHelpers::RosToXpp(msg.curr_state);
   curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);

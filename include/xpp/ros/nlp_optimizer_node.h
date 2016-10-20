@@ -37,7 +37,7 @@ private:
   virtual void OptimizeTrajectory() override final;
 //  virtual void PublishOptimizedValues() const override final;
   virtual void PublishTrajectory() const override final;
-  void UpdateCurrentState(const ReqInfoMsg& msg);
+  void CurrentInfoCallback(const ReqInfoMsg& msg);
 
   double max_cpu_time_; ///< maximum allowable time to spend on solving the NLP
   int curr_swingleg_;
@@ -49,7 +49,6 @@ private:
   ::ros::Publisher trajectory_pub_rviz_;
   ::ros::Publisher trajectory_pub_hyqjoints_;
 
-  void CurrentInfoCallback(const ReqInfoMsg& msg);
 
   OptVisualizerPtr optimization_visualizer_;
 };
