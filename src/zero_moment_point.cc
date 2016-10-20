@@ -5,11 +5,11 @@
  @brief   Defines the ZeroMomentPoint class
  */
 
-#include <xpp/zmp/zero_moment_point.h>
-#include <xpp/zmp/com_motion.h>
+#include <xpp/opt/zero_moment_point.h>
+#include <xpp/opt/com_motion.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 ZeroMomentPoint::ZeroMomentPoint ()
 {

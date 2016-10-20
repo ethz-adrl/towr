@@ -5,10 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/cost_container.h>
+#include <xpp/opt/cost_container.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 CostContainer::CostContainer (OptimizationVariables& subject)
     :IObserver(subject)
@@ -37,6 +37,18 @@ CostContainer::Update ()
 {
 }
 
+double
+CostContainer::EvaluateTotalCost () const
+{
+  double total_cost = 0.0;
+  for (const auto& cost : costs_) {
+    cost->UpdateVariables(subject_);
+    total_cost += cost->EvaluateWeightedCost();
+  }
+
+  return total_cost;
+}
+
 CostContainer::VectorXd
 CostContainer::EvaluateGradient () const
 {
@@ -49,7 +61,7 @@ CostContainer::EvaluateGradient () const
     for (const auto& set : subject_->GetVarSets()) {
 
       int n_set = set->GetVariables().rows();
-      VectorXd grad_set = cost->EvaluateGradientWrt(set->GetId());
+      VectorXd grad_set = cost->EvaluateWeightedGradientWrt(set->GetId());
 
       if (grad_set.rows() != 0) {
         gradient.middleRows(row, n_set) += grad_set;
@@ -62,17 +74,6 @@ CostContainer::EvaluateGradient () const
   return gradient;
 }
 
-double
-CostContainer::EvaluateTotalCost () const
-{
-  double total_cost = 0.0;
-  for (const auto& cost : costs_) {
-    cost->UpdateVariables(subject_);
-    total_cost += cost->EvaluateCost();
-  }
-
-  return total_cost;
-}
 
 bool
 CostContainer::IsEmpty () const

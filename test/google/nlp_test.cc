@@ -5,14 +5,14 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/nlp.h>
-#include <xpp/zmp/ipopt_adapter.h>
+#include <xpp/opt/nlp.h>
+#include <xpp/opt/ipopt_adapter.h>
 #include <IpIpoptApplication.hpp>
 
 #include <gtest/gtest.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 typedef Eigen::VectorXd VectorXd;
 typedef ConstraintContainer::ConstraintPtr ConstraintPtr;

@@ -5,7 +5,7 @@
  @brief   Defines the IPOPT adapter
  */
 
-#include <xpp/zmp/ipopt_adapter.h>
+#include <xpp/opt/ipopt_adapter.h>
 
 // only to get the optimization variables in the intermediate callback
 //#include "IpIpoptCalculatedQuantities.hpp"
@@ -14,11 +14,11 @@
 //#include "IpOrigIpoptNLP.hpp"
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 
 IpoptAdapter::IpoptAdapter(NLP& nlp,
-                           IVisualizer& visualizer)
+                           VisualizerPtr visualizer)
     :nlp_(nlp),
      visualizer_(visualizer)
 {
@@ -183,7 +183,7 @@ bool IpoptAdapter::intermediate_callback(Ipopt::AlgorithmMode mode,
 //
 //      opt_variables_.SetVariables(x);
 
-  visualizer_.Visualize();
+  visualizer_->Visualize();
 	return true;
 }
 

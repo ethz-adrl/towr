@@ -32,7 +32,7 @@ TEST(SuppPolygonContainerRefactor, FootholdID)
   hyq::SupportPolygonContainer supp_polygons;
   supp_polygons.Init(start_stance, steps_zero, SupportPolygon::GetDefaultMargins());
 
-  auto footholds = supp_polygons.GetFootholds();
+  auto footholds = supp_polygons.GetFootholdsInWorld();
 
   for (const auto& f : footholds)
     std::cout << f.id << std::endl;

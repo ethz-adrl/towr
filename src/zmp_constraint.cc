@@ -5,14 +5,11 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/zmp_constraint.h>
-#include <xpp/zmp/optimization_variables.h>
+#include <xpp/opt/zmp_constraint.h>
+#include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
-namespace zmp {
-
-using MatVecVec = xpp::utils::MatVecVec;
-using MatVec = xpp::utils::MatVec;
+namespace opt {
 
 ZmpConstraint::ZmpConstraint ()
 {

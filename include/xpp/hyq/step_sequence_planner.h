@@ -10,7 +10,7 @@
 
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/hyq/foothold.h>
-#include <xpp/utils/geometric_structs.h>
+#include <xpp/utils/base_state.h>
 #include <xpp/hyq/support_polygon.h>
 #include <xpp/hyq/hyq_robot_interface.h>
 
@@ -28,7 +28,7 @@ class StepSequencePlanner {
 public:
   typedef std::vector<LegID> LegIDVec;
   typedef std::vector<Foothold> VecFoothold;
-  typedef xpp::utils::Point2d State;
+  typedef xpp::utils::BaseLin2d State;
   typedef Eigen::Vector2d Vector2d;
 
   StepSequencePlanner ();

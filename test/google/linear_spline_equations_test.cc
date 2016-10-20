@@ -5,18 +5,18 @@
  @brief   Defines test for spline jacobians
  */
 
-#include <xpp/zmp/linear_spline_equations.h>
-#include <xpp/zmp/motion_factory.h>
-#include <xpp/zmp/motion_structure.h>
+#include <xpp/opt/linear_spline_equations.h>
+#include <xpp/opt/com_spline.h>
+#include <xpp/opt/motion_factory.h>
+#include <xpp/opt/motion_structure.h>
 #include <xpp/hyq/foothold.h>
-#include <xpp/zmp/com_spline.h>
 
 #include <gtest/gtest.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
-using namespace xpp::utils::coords_wrapper;
+using namespace xpp::utils;
 
 using Coeff = Eigen::VectorXd;
 using JacobianRow = ComMotion::JacobianRow;
@@ -33,7 +33,6 @@ TEST(LinearSplineEquations, AccelerationCostTest)
   LinearSplineEquations eq(*com_motion);
 
   auto M = eq.MakeAcceleration(1.0, 1.0);
-
 }
 
 TEST(LinearSplineEquations, JunctionTestPosition)
@@ -64,8 +63,8 @@ TEST(LinearSplineEquations, JunctionTestPosition)
   // now set coefficients so the junction at position is equal
   Coeff u = com_spline->GetCoeffients(); // zero
   double v0 = 1.0; // initial velocity
-  u(com_spline->Index(0,X,E)) = v0;
-  u(com_spline->Index(1,X,F)) = v0*T; // prediction where this spline will end up after T
+  u(com_spline->Index(0,X,Polynomial::PolynomialCoeff::E)) = v0;
+  u(com_spline->Index(1,X,Polynomial::PolynomialCoeff::F)) = v0*T; // prediction where this spline will end up after T
 
   // double check if linear approximation yields same results
   double xT_at_u = (jac_T*u)[0]  + xT_at_0;

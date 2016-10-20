@@ -5,11 +5,11 @@
  @brief   Definition of the ASplineCost, QuadraticSplineCost, SquaredSplineCost
  */
 
-#include <xpp/zmp/a_spline_cost.h>
-#include <xpp/zmp/optimization_variables.h>
+#include <xpp/opt/a_spline_cost.h>
+#include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 ASplineCost::ASplineCost ()
 {

@@ -5,15 +5,16 @@
  *      Author: awinkler
  */
 
+#include <xpp/opt/zero_moment_point.h>
+
 #include <gtest/gtest.h>
-#include <xpp/zmp/zero_moment_point.h>
 #include <iostream>
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils::coords_wrapper;
 
@@ -116,7 +117,7 @@ TEST_F(ZeroMomentPointTest, GetLinearApproxWrtMotionCoeff)
   int n = 0;
   for (double t : cont_spline_container_.GetDiscretizedGlobalTimes())
   {
-    xpp::utils::Point2d cog_xy = ComSpline4::GetCOGxy(t, splines);
+    xpp::utils::BaseLin2d cog_xy = ComSpline4::GetCOGxy(t, splines);
     Eigen::Vector2d zmp_true = ZeroMomentPoint::CalcZmp(cog_xy.Make3D(), walking_height);
 
     SCOPED_TRACE("n = " + std::to_string(n));

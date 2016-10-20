@@ -5,12 +5,12 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/joint_angles_constraint.h>
-#include <xpp/zmp/optimization_variables.h>
-#include "../include/xpp/zmp/com_spline6.h"
+#include <xpp/opt/joint_angles_constraint.h>
+#include <xpp/opt/com_spline6.h>
+#include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 JointAnglesConstraint::JointAnglesConstraint ()
 {

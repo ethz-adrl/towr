@@ -1,6 +1,0 @@
-# Optimizes the trajectory and footholds to reach a given goal state
-
-StateLin3d curr_state
-Foothold[] curr_stance 
-Foothold[] steps
----

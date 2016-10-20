@@ -5,21 +5,19 @@
  @brief   Defines the ZmpConstraintBuilder class
  */
 
-#include <xpp/zmp/zmp_constraint_builder.h>
-
-#include <xpp/zmp/com_motion.h>
+#include <xpp/opt/zmp_constraint_builder.h>
+#include <xpp/opt/com_motion.h>
+#include <xpp/opt/zero_moment_point.h>
 #include <xpp/hyq/support_polygon_container.h>
-
-#include <xpp/zmp/zero_moment_point.h>
 #include <xpp/utils/line_equation.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using NodeConstraints = xpp::hyq::SupportPolygon::VecSuppLine;
 using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
-using namespace xpp::utils::coords_wrapper; // X, Y
+using namespace xpp::utils;
 
 ZmpConstraintBuilder::ZmpConstraintBuilder()
 {
@@ -75,7 +73,7 @@ ZmpConstraintBuilder::GetTimesDisjointSwitches () const
   double t_global = 0;
 
   auto phases = motion_structure_.GetPhases();
-  for(int i=0; i<phases.size()-1; ++i) {
+  for(auto i=0; i<phases.size()-1; ++i) {
 
     auto phase = phases.at(i);
     t_global += phase.duration_;
@@ -201,12 +199,12 @@ ZmpConstraintBuilder::UpdateJacobians (Jacobian& jac_motion,
 //      std::cout << f_from.id << "->" << f_to.id << "  ,  ";
 
       // only if line is not fixed by start stance does it go into the jacobian
-      if (f_from.id != hyq::Foothold::kFixedByStart) {
+      if (!f_from.IsFixedByStart()) {
         jac_line_wrt_contacts.insert(contacts_->Index(f_from.id, X)) = jac_line(0);
         jac_line_wrt_contacts.insert(contacts_->Index(f_from.id, Y)) = jac_line(1);
       }
 
-      if (f_to.id != hyq::Foothold::kFixedByStart) {
+      if (!f_to.IsFixedByStart()) {
         jac_line_wrt_contacts.insert(contacts_->Index(f_to.id, X))   = jac_line(2);
         jac_line_wrt_contacts.insert(contacts_->Index(f_to.id, Y))   = jac_line(3);
       }

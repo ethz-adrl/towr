@@ -1,36 +1,35 @@
-/*
- * nlp_optimizer.cpp
- *
- *  Created on: Mar 18, 2016
- *      Author: winklera
+/**
+ @file    nlp_facade.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Jul 1, 2016
+ @brief   Defines the class NlpFacade implementing the Facade Pattern.
  */
 
-#include <xpp/zmp/nlp_facade.h>
+#include <xpp/opt/nlp_facade.h>
 
-#include <xpp/zmp/motion_structure.h>
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/zmp/optimization_variables.h>
-#include <xpp/zmp/constraint_container.h>
-#include <xpp/zmp/cost_container.h>
 #include <xpp/hyq/step_sequence_planner.h>
-#include <xpp/zmp/cost_constraint_factory.h>
-#include <xpp/zmp/motion_factory.h>
-//#include <xpp/zmp/com_spline.h>
-
-#include <xpp/zmp/nlp.h>
-#include <xpp/zmp/ipopt_adapter.h>
-#include <xpp/zmp/snopt_adapter.h>
-#include <xpp/zmp/nlp_observer.h>
+#include <xpp/opt/nlp.h>
+#include <xpp/opt/constraint_container.h>
+#include <xpp/opt/cost_constraint_factory.h>
+#include <xpp/opt/cost_container.h>
+#include <xpp/opt/ipopt_adapter.h>
+#include <xpp/opt/motion_factory.h>
+#include <xpp/opt/motion_structure.h>
+#include <xpp/opt/nlp.h>
+#include <xpp/opt/nlp_observer.h>
+#include <xpp/opt/optimization_variables.h>
+//#include <xpp/opt/snopt_adapter.h>
 
 #include <iomanip>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using Contacts = xpp::hyq::SupportPolygonContainer;
 
-NlpFacade::NlpFacade (IVisualizer& visualizer)
-     :visualizer_(&visualizer)
+NlpFacade::NlpFacade (VisualizerPtr visualizer)
+     :visualizer_(visualizer)
 {
   // create corresponding heap object for each of the member pointers
   opt_variables_         = std::make_shared<OptimizationVariables>();
@@ -41,10 +40,11 @@ NlpFacade::NlpFacade (IVisualizer& visualizer)
 
 
   // initialize the ipopt solver
-  ipopt_solver_.RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
+  ipopt_app_ = new Ipopt::IpoptApplication();
+  ipopt_app_->RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
 
 
-  status_ = ipopt_solver_.Initialize();
+  status_ = ipopt_app_->Initialize();
   if (status_ != Ipopt::Solve_Succeeded) {
     std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
     throw std::length_error("Ipopt could not initialize correctly");
@@ -94,18 +94,18 @@ NlpFacade::SolveNlp(const State& initial_state,
                                                                          contacts,
                                                                          robot_height));
   constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts, motion_structure));
+//  constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, contacts));
 //  constraints_->AddConstraint(CostConstraintFactory::CreateObstacleConstraint(contacts));
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 
   costs_->ClearCosts();
   costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion, utils::kAcc));
+  costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion, contacts, motion_structure));
+  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, contacts));
   // careful: these are not quite debugged yet
-//  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, supp_polygon_container));
 //  costs_->AddCost(CostConstraintFactory::CreateFinalComCost(final_state, spline_structure));
 //  costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(interpreter));
 
-  std::unique_ptr<NLP> nlp(new NLP);
-  nlp->Init(opt_variables_, costs_, constraints_);
 
 
 
@@ -130,6 +130,9 @@ NlpFacade::SolveNlp(const State& initial_state,
 
 
 
+//  NLP nlp;
+  std::unique_ptr<NLP> nlp(new NLP);
+  nlp->Init(opt_variables_, costs_, constraints_);
 
 
 //  // Snopt solving
@@ -142,7 +145,7 @@ NlpFacade::SolveNlp(const State& initial_state,
 //  snopt_problem->SolveSQP(Cold);
 
   // Ipopt solving
-  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, *visualizer_); // just so it can poll the PublishMsg() method
+  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, visualizer_); // just so it can poll the PublishMsg() method
   SolveIpopt(nlp_ptr, max_cpu_time);
 }
 
@@ -150,15 +153,20 @@ void
 NlpFacade::SolveIpopt (const IpoptPtr& nlp, double max_cpu_time)
 {
   // some options to change on the fly
-  ipopt_solver_.Options()->SetNumericValue("max_cpu_time", max_cpu_time);
+//  ipopt_solver_->Options()->SetNumericValue("max_cpu_time", max_cpu_time);
+  status_ = ipopt_app_->Initialize();
+  if (status_ != Ipopt::Solve_Succeeded) {
+    std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
+    throw std::length_error("Ipopt could not initialize correctly");
+  }
 
-  status_ = ipopt_solver_.OptimizeTNLP(nlp);
+  status_ = ipopt_app_->OptimizeTNLP(nlp);
   if (status_ == Ipopt::Solve_Succeeded) {
     // Retrieve some statistics about the solve
-    Ipopt::Index iter_count = ipopt_solver_.Statistics()->IterationCount();
+    Ipopt::Index iter_count = ipopt_app_->Statistics()->IterationCount();
     std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
 
-    Ipopt::Number final_obj = ipopt_solver_.Statistics()->FinalObjective();
+    Ipopt::Number final_obj = ipopt_app_->Statistics()->FinalObjective();
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
   }
 
@@ -174,9 +182,9 @@ NlpFacade::GetObserver () const
 }
 
 void
-NlpFacade::AttachVisualizer (IVisualizer& visualizer)
+NlpFacade::AttachVisualizer (VisualizerPtr visualizer)
 {
-  visualizer_ = &visualizer;
+  visualizer_ = visualizer;
 }
 
 NlpFacade::VecFoothold

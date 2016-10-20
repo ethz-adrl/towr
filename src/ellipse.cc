@@ -5,14 +5,12 @@
 @brief   Brief description
  */
 
-#include <xpp/zmp/ellipse.h>
-#include <xpp/utils/geometric_structs.h>
+#include <xpp/opt/ellipse.h>
+
 #include <cmath>
 
 namespace xpp {
-namespace zmp {
-
-using namespace xpp::utils::coords_wrapper;
+namespace opt {
 
 Ellipse::Ellipse ()
 {
@@ -58,6 +56,8 @@ Ellipse::GetConstant () const
 Ellipse::JacobianRow
 Ellipse::GetJacobianWrtXY (double i_rx_p, double i_ry_p) const
 {
+  int X = 0;
+  int Y = 1;
   JacobianRow jac;
   jac.at(X) = 8./std::pow(x_axis_length_,2)*(i_rx_p - i_rx_m_);
   jac.at(Y) = 8./std::pow(y_axis_length_,2)*(i_ry_p - i_ry_m_);

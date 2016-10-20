@@ -5,11 +5,12 @@
  *      Author: winklera
  */
 
-#include <xpp/zmp/a_subject.h>
+#include <xpp/opt/a_subject.h>
+
 #include <iostream>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 ASubject::ASubject ()
 {

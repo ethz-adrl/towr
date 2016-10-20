@@ -5,11 +5,11 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/a_linear_constraint.h>
-#include <xpp/zmp/optimization_variables.h>
+#include <xpp/opt/a_linear_constraint.h>
+#include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 ALinearConstraint::ALinearConstraint ()
 {

@@ -5,12 +5,12 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/motion_factory.h>
-#include <xpp/zmp/com_spline6.h> // the concrete classes
-#include <xpp/zmp/com_spline4.h> // the concrete classes
+#include <xpp/opt/motion_factory.h>
+#include <xpp/opt/com_spline4.h>
+#include <xpp/opt/com_spline6.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 MotionFactory::MotionFactory ()
 {
@@ -42,6 +42,6 @@ MotionFactory::CreateComMotion (const PhaseVec& phases,
   return com_spline;
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 

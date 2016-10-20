@@ -7,16 +7,14 @@
 
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/hyq/support_polygon.h>
-#include <xpp/zmp/zmp_constraint_builder.h>
-#include <xpp/zmp/zero_moment_point.h>
-#include <xpp/zmp/range_of_motion_constraint.h>
-
-#include <cassert>
+#include <xpp/opt/range_of_motion_constraint.h>
+#include <xpp/opt/zero_moment_point.h>
+#include <xpp/opt/zmp_constraint_builder.h>
 
 namespace xpp {
 namespace hyq {
 
-using namespace xpp::utils::coords_wrapper; // X,Y
+using namespace xpp::utils; // X,Y
 
 StepSequencePlanner::StepSequencePlanner ()
 {
@@ -55,9 +53,9 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     // based on distance to cover
-    const double length_per_step = 0.25;
-    const double width_per_step = 0.15111;
-    Eigen::Vector2d start_to_goal = goal_state_.p.segment<2>(0) - curr_state_.p.segment<2>(0);
+    const double length_per_step = 0.311;
+    const double width_per_step = 0.21;
+    Eigen::Vector2d start_to_goal = goal_state_.p.topRows(kDim2d) - curr_state_.p.topRows(kDim2d);
     int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/length_per_step);
     int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
     int req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);
@@ -194,7 +192,7 @@ StepSequencePlanner::IsZmpInsideFirstStep (LegID first_step) const
 //  margins.at(DIAG)/=2.;
   hyq::SupportPolygon supp(first_stance, margins);
 
-  Eigen::Vector2d zmp = xpp::zmp::ZeroMomentPoint::CalcZmp(curr_state_.Make3D(), robot_height_);
+  Eigen::Vector2d zmp = xpp::opt::ZeroMomentPoint::CalcZmp(curr_state_.Make3D(), robot_height_);
   return supp.IsPointInside(zmp);
 }
 
@@ -222,7 +220,7 @@ StepSequencePlanner::IsGoalOutsideSupportPolygon () const
 bool
 StepSequencePlanner::IsGoalOutsideRangeOfMotion () const
 {
-  bool goal_inside = xpp::zmp::RangeOfMotionBox::IsPositionInsideRangeOfMotion
+  bool goal_inside = xpp::opt::RangeOfMotionBox::IsPositionInsideRangeOfMotion
   (
     goal_state_.p,
     start_stance_,

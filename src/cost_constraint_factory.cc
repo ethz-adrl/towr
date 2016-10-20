@@ -5,26 +5,25 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/cost_constraint_factory.h>
+#include <xpp/opt/cost_constraint_factory.h>
 
-#include <xpp/zmp/com_motion.h>
+#include <xpp/opt/a_linear_constraint.h>
+#include <xpp/opt/a_spline_cost.h>
+#include <xpp/opt/com_motion.h>
+#include <xpp/opt/linear_spline_equations.h>
+#include <xpp/opt/obstacle_constraint.h>
+#include <xpp/opt/range_of_motion_constraint.h>
+#include <xpp/opt/zmp_constraint.h>
+#include <xpp/opt/cost_adapter.h>
+#include <xpp/opt/a_foothold_constraint.h>
 
-#include <xpp/zmp/linear_spline_equations.h>
-#include <xpp/zmp/a_linear_constraint.h>
-#include <xpp/zmp/zmp_constraint.h>
-#include <xpp/zmp/range_of_motion_constraint.h>
-//#include <xpp/zmp/joint_angles_constraint.h>
 #include <xpp/hyq/hyq_inverse_kinematics.h>
-#include <xpp/zmp/obstacle_constraint.h>
 #include <xpp/hyq/hyq_robot_interface.h>
 
-#include <xpp/zmp/a_foothold_cost.h>
-#include <xpp/zmp/a_spline_cost.h>
-
 namespace xpp {
-namespace zmp {
+namespace opt {
 
-using namespace xpp::utils::coords_wrapper;
+using namespace xpp::utils;
 
 CostConstraintFactory::CostConstraintFactory ()
 {
@@ -87,13 +86,42 @@ CostConstraintFactory::CreateRangeOfMotionConstraint (const ComMotion& com_motio
   return constraint;
 }
 
+CostConstraintFactory::CostPtr
+CostConstraintFactory::CreateRangeOfMotionCost (const ComMotion& com_motion,
+                                                const Contacts& contacts,
+                                                const MotionStructure& motion_structure)
+{
+  auto rom_constraint = CreateRangeOfMotionConstraint(com_motion, contacts, motion_structure);
+  auto rom_cost = std::make_shared<CostAdapter>(rom_constraint);
+  return rom_cost;
+}
+
+CostConstraintFactory::CostPtr
+CostConstraintFactory::CreateFinalStanceCost (
+    const Vector2d& goal_xy,
+    const Contacts& contacts)
+{
+  auto final_stance_constraint = CreateFinalStanceConstraint(goal_xy, contacts);
+  auto final_stance_cost = std::make_shared<CostAdapter>(final_stance_constraint);
+  final_stance_cost->SetWeight(100);
+  return final_stance_cost;
+}
+
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::CreateFinalStanceConstraint (const Vector2d& goal_xy,
+                                                    const Contacts& contacts)
+{
+  auto final_stance_constraint = std::make_shared<FootholdFinalStanceConstraint>(goal_xy, contacts);
+  return final_stance_constraint;
+}
+
 //CostConstraintFactory::ConstraintPtr
 //CostConstraintFactory::CreateJointAngleConstraint (
 //    const OptimizationVariablesInterpreter& interpreter)
 //{
-//  auto inv_kin = std::make_shared<xpp::hyq::HyqInverseKinematics>();
+//  auto inv_kine = std::make_shared<xpp::hyq::HyqInverseKinematics>();
 //  auto constraint = std::make_shared<JointAnglesConstraint>();
-//  constraint->Init(interpreter, inv_kin);
+//  constraint->Init(interpreter, inv_kine);
 //  return constraint;
 //}
 
@@ -135,16 +163,6 @@ CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
   LinearSplineEquations eq(motion);
   auto cost = std::make_shared<SquaredSplineCost>();
   cost->Init(eq.MakeFinal(final_state_xy, {kPos, kVel, kAcc}));
-  return cost;
-}
-
-CostConstraintFactory::CostPtr
-CostConstraintFactory::CreateFinalStanceCost (
-    const Vector2d& goal_xy,
-    const Contacts& contacts)
-{
-  auto cost = std::make_shared<FootholdGoalCost>();
-  cost->Init(goal_xy, contacts);
   return cost;
 }
 

@@ -5,14 +5,14 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/linear_spline_equations.h>
-#include <xpp/zmp/com_spline.h>
+#include "../include/xpp/opt/linear_spline_equations.h"
+
+#include "../include/xpp/opt/com_spline.h"
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 using namespace xpp::utils;
-using namespace xpp::utils::coords_wrapper; //kPos,kVel,kAcc,kJerk
 
 LinearSplineEquations::LinearSplineEquations (const ComMotion& com_motion )
 {
@@ -126,13 +126,13 @@ LinearSplineEquations::MakeAcceleration (double weight_x, double weight_y) const
 
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
   for (const ComPolynomial& p : com_spline_->GetPolynomials()) {
-    std::array<double,8> t_span = utils::cache_exponents<8>(p.GetDuration());
+    std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
-      const int a = com_spline_->Index(p.GetId(), dim, A);
-      const int b = com_spline_->Index(p.GetId(), dim, B);
-      const int c = com_spline_->Index(p.GetId(), dim, C);
-      const int d = com_spline_->Index(p.GetId(), dim, D);
+      const int a = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::A);
+      const int b = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::B);
+      const int c = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::C);
+      const int d = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::D);
 
       // for explanation of values see M.Kalakrishnan et al., page 248
       // "Learning, Planning and Control for Quadruped Robots over challenging
@@ -168,12 +168,12 @@ LinearSplineEquations::MakeJerk (double weight_x, double weight_y) const
 
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
   for (const ComPolynomial& p : com_spline_->GetPolynomials()) {
-    std::array<double,8> t_span = utils::cache_exponents<8>(p.GetDuration());
+    std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
-      const int a = com_spline_->Index(p.GetId(), dim, A);
-      const int b = com_spline_->Index(p.GetId(), dim, B);
-      const int c = com_spline_->Index(p.GetId(), dim, C);
+      const int a = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::A);
+      const int b = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::B);
+      const int c = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::C);
 
       M(a, a) = 60.*60. / 5.      * t_span[5] * weight[dim];
       M(a, b) = 60.*24. / 4.      * t_span[4] * weight[dim];

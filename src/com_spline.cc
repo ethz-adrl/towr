@@ -5,13 +5,12 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/com_spline.h>
+#include <xpp/opt/com_spline.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
-static int kDim2d = xpp::utils::kDim2d;
-using namespace xpp::utils::coords_wrapper;
+using namespace xpp::utils;
 
 ComSpline::ComSpline ()
 {
@@ -50,7 +49,7 @@ ComSpline::Init (const PhaseVec& phases)
 }
 
 int
-ComSpline::Index (int poly, Coords3D dim, SplineCoeff coeff) const
+ComSpline::Index (int poly, Coords3D dim, PolyCoeff coeff) const
 {
   return NumFreeCoeffPerSpline() * kDim2d * poly + NumFreeCoeffPerSpline() * dim + coeff;
 }
@@ -64,7 +63,6 @@ ComSpline::GetTotalFreeCoeff () const
 ComSpline::VectorXd
 ComSpline::GetCoeffients () const
 {
-  using namespace xpp::utils::coords_wrapper;
   VectorXd x_abcd(GetTotalFreeCoeff());
 
   for (const auto& s : polynomials_)

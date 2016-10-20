@@ -9,21 +9,21 @@
 #define _XPP_HYQ_SPLINER_H_
 
 #include <xpp/hyq/hyq_state.h>
-#include <xpp/utils/spliner_3d.h>
-#include <xpp/zmp/phase_info.h>
-#include <xpp/zmp/com_polynomial.h>
+#include <xpp/utils/polynomial_helpers.h>
+#include <xpp/utils/polynomial_xd.h>
+#include <xpp/opt/phase_info.h>
 
 namespace xpp {
 namespace hyq {
 
 struct SplineNode {
-  typedef xpp::utils::Point3d Point3d;
+  typedef xpp::utils::BaseLin3d Point3d;
 
   SplineNode(){};
-  SplineNode(const HyqState& state, const Point3d& ori_rpy, double t_max)
+  SplineNode(const HyqStateEE& state, const Point3d& ori_rpy, double t_max)
       : state_(state), ori_rpy_(ori_rpy), T(t_max) {};
 
-  HyqState state_;
+  HyqStateEE state_;
   Point3d ori_rpy_; // fixme remove this and use quaternion orientation directly for interpolation
   double T;         // time to reach this state
 };
@@ -37,30 +37,43 @@ frame values omega (rollPitchYawToEar)
  */
 class HyqSpliner {
 public:
-  typedef std::vector<xpp::zmp::ComPolynomial> VecPolyomials;
+
+  typedef std::vector<xpp::utils::ComPolynomial> VecPolyomials;
   typedef Eigen::Vector3d Vector3d;
   typedef Foothold::VecFoothold VecFoothold;
-  typedef ::xpp::utils::QuinticSpliner Spliner;
-  typedef ::xpp::utils::Spliner3d< Spliner > Spliner3d;
+  typedef ::xpp::utils::QuinticPolynomial Spliner;
+  using Spliner3d = ::xpp::utils::PolynomialXd< ::xpp::utils::QuinticPolynomial,
+                                                ::xpp::utils::kDim3d,
+                                                ::xpp::utils::BaseLin3d>;
+
+  using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
   typedef Spliner3d::Point Point;
+  using HyqStateEEVec     = std::vector<HyqStateEE>;
+  using HyqStateJointsVec = std::vector<HyqStateJoints>;
+
 
 public:
-  HyqSpliner() {};
-  virtual ~HyqSpliner() {};
+  HyqSpliner();
+  virtual ~HyqSpliner();
 
+  void SetParams(double upswing, double lift_height,
+                 double outward_swing_distance,
+                 double discretization_time);
 
-  void SetParams(double upswing, double lift_height, double outward_swing_distance);
-  void Init(const HyqState& P_init,
-            const xpp::zmp::PhaseVec&,
+  void Init(const xpp::opt::PhaseVec&,
             const VecPolyomials&,
             const VecFoothold&,
             double robot_height);
+
+  HyqStateEEVec BuildWholeBodyTrajectory() const;
+  HyqStateJointsVec BuildWholeBodyTrajectoryJoints() const;
+
 
   /**
    * These function access the intermediate splined states fo the robot
    */
   Point GetCurrPosition(double t_global) const;
-  xpp::utils::Ori GetCurrOrientation(double t_global) const;
+  xpp::utils::BaseAng3d GetCurrOrientation(double t_global) const;
   void FillCurrFeet(double t_global, LegDataMap<Point>& feet, LegDataMap<bool>& swingleg) const;
 
 
@@ -76,6 +89,7 @@ private:
   std::vector<LegDataMap< Spliner3d > > feet_spliner_up_, feet_spliner_down_;
   VecPolyomials optimized_xy_spline_;
 
+  double kDiscretizationTime;   // at what interval the continuous trajectory is sampled
   double kUpswingPercent;       // how long to swing up during swing
   double kLiftHeight;           // how high to lift the leg
   double kOutwardSwingDistance; // how far to swing leg outward (y-dir)
@@ -86,8 +100,8 @@ private:
   Vector3d GetCurrZState(double t_global) const;
 
   std::vector<SplineNode>
-  BuildPhaseSequence(const HyqState& P_init,
-                     const xpp::zmp::PhaseVec&,
+  BuildPhaseSequence(const HyqStateEE& P_init,
+                     const xpp::opt::PhaseVec&,
                      const VecPolyomials& optimized_xy_spline,
                      const VecFoothold& footholds,
                      double robot_height);
@@ -102,7 +116,7 @@ private:
          body position, body orientation, and feet position
   @param[in] time_to_reach how long the robot has to achieve this state
    */
-  static SplineNode BuildNode(const HyqState& state, double t_max);
+  static SplineNode BuildNode(const HyqStateEE& state, double t_max);
   friend class HyqSplinerTest_BuildNode_Test;
 
 

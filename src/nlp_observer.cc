@@ -5,14 +5,13 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/nlp_observer.h>
-
-#include <xpp/zmp/com_motion.h>
-#include <xpp/zmp/optimization_variables.h>
+#include <xpp/opt/nlp_observer.h>
+#include <xpp/opt/com_motion.h>
+#include <xpp/opt/optimization_variables.h>
 #include <xpp/hyq/support_polygon_container.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 NlpObserver::NlpObserver (OptimizationVariables& subject)
     :IObserver(subject)
@@ -63,7 +62,7 @@ NlpObserver::GetStructure() const
 NlpObserver::VecFoothold
 NlpObserver::GetFootholds () const
 {
-  return contacts_->GetFootholds();
+  return contacts_->GetFootholdsInWorld();
 }
 
 NlpObserver::VecFoothold

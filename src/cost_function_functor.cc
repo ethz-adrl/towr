@@ -5,10 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/zmp/cost_function_functor.h>
+#include <xpp/opt/cost_function_functor.h>
 
 namespace xpp {
-namespace zmp {
+namespace opt {
 
 CostFunctionFunctor::CostFunctionFunctor ()
 {
