@@ -7,6 +7,7 @@ source ~/.bashrc
 # Ipopt config files is stored.
 roscd xpp_opt/config
 export ROS_HOME=`pwd`
+export ROS_LOG_DIR=~/.ros/log
 
 roslaunch xpp_ros optimizer.launch
 unset ROS_HOME
