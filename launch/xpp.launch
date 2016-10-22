@@ -1,12 +1,20 @@
 <launch>
-  <include file="$(find xpp_ros)/launch/upload_xpp_params.launch"></include>
+  <include file="$(find xpp_ros)/launch/xpp_params.launch"></include>
   
   <!-- for visualizing in rviz -->
   <include file="$(find hyqb_visualizer_low_dep)/launch/hyqb_vis.launch"></include>
-  <node name="rviz" pkg="rviz" type="rviz">  </node>
+  <!-- <node name="rviz" pkg="rviz" type="rviz">  </node>   -->
  
   <!-- for commanding goal position and user input -->
   <node name="nlp_user_input_node" pkg="xpp_ros" type="nlp_user_input_node" output="screen" cwd="node" >  </node>
   <node name="keyboard" pkg="keyboard" type="keyboard" output="screen" cwd="node" >  </node>
-  <node name="joy" pkg="joy" type="joy_node" output="screen" cwd="node" >  </node> 
+  <!--  <node name="joy" pkg="joy" type="joy_node" output="screen" cwd="node" >  </node>  -->
+  
+  <!-- specifies the initial position of the robot. Only neccessary
+  if SL is not sending it. -->
+  <node name="sample_nlp_caller" pkg="xpp_ros" type="sample_nlp_caller" args="0 0 0 0 0 0" output="screen" cwd="node" >  </node>
+  
+  <!-- launches the actual nlp server -->
+  <include file="$(find xpp_ros)/launch/optimizer.launch"></include>
+  
 </launch>

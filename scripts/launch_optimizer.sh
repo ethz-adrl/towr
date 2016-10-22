@@ -9,5 +9,6 @@ roscd xpp_opt/config
 export ROS_HOME=`pwd`
 export ROS_LOG_DIR=~/.ros/log
 
-roslaunch xpp_ros optimizer.launch
+roslaunch xpp_ros xpp.launch
+
 unset ROS_HOME

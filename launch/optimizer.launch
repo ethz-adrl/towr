@@ -1,7 +1,4 @@
-<launch>
-  <!-- specifies the initial position of the robot -->
-  <node name="sample_nlp_caller" pkg="xpp_ros" type="sample_nlp_caller" args="0 0 0 0 0 0" output="screen" cwd="node" >  </node>
-  
+<launch>  
   <!--  launches the actuall optimizer -->
    <node name="nlp_optimizer_node" pkg="xpp_ros" type="nlp_optimizer_node" output="screen">  </node>
 </launch>
