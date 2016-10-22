@@ -11,10 +11,8 @@ find_package(Eigen3 REQUIRED)
 find_package(GTest)
 
 # NLP solvers (adapt global path accordingly)
-set(IPOPT_SRC_DIR "/home/winklera/3rd_party_software/Ipopt-3.12.4")
-set(IPOPT_INCLUDE_DIRS ${IPOPT_SRC_DIR}/build/include/coin)
-set(IPOPT_LIBS         ${IPOPT_SRC_DIR}/build/lib/libipopt.so) # must be absolute path
-
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+find_package(IPOPT REQUIRED)
 option(BUILD_SNOPT "Build problem to solve with snopt nlp solver" OFF)
 if(BUILD_SNOPT)
   set(SNOPT_SRC_DIR "/home/winklera/3rd_party_software/snopt_lib")
@@ -67,7 +65,7 @@ set(LIB_NAME xpp_opt)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
-  LIBRARIES ${LIB_NAME} ${IPOPT_LIBS} ${SNOPT_LIBS}
+  LIBRARIES ${LIB_NAME} ${IPOPT_LIBRARIES} ${SNOPT_LIBS}
   CATKIN_DEPENDS xpp_common
   DEPENDS
 )
@@ -132,7 +130,7 @@ add_library(${LIB_NAME}
 )
 target_link_libraries(${LIB_NAME}
   ${catkin_LIBRARIES}
-  ${IPOPT_LIBS}
+  ${IPOPT_LIBRARIES}
   ${SNOPT_LIBS}
 )
   
