@@ -7,7 +7,7 @@
  
   <!-- for commanding goal position and user input -->
   <node name="nlp_user_input_node" pkg="xpp_ros" type="nlp_user_input_node" output="screen" cwd="node" >  </node>
-  <node name="keyboard" pkg="keyboard" type="keyboard" output="screen" cwd="node" >  </node>
+  <!-- <node name="keyboard" pkg="keyboard" type="keyboard" output="screen" cwd="node" >  </node> -->
   <!--  <node name="joy" pkg="joy" type="joy_node" output="screen" cwd="node" >  </node>  -->
   
   <!-- specifies the initial position of the robot. Only neccessary

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# terminate script on first error
+set -e
+
 # assumes the ros workspaces setup.bash is sources here.
 source ~/.bashrc
 
