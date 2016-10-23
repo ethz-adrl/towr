@@ -33,6 +33,7 @@ StepSequencePlanner::~StepSequencePlanner ()
 void
 StepSequencePlanner::Init (const State& curr, const State& goal,
                            const VecFoothold& start_stance, double robot_height,
+                           double max_step_length,
                            int swingleg_of_last_spline,
                            MarginValues margins)
 {
@@ -40,6 +41,7 @@ StepSequencePlanner::Init (const State& curr, const State& goal,
   goal_state_ = goal;
   start_stance_ = start_stance;
   robot_height_ = robot_height;
+  max_step_length_ = max_step_length;
   swingleg_of_last_spline_ = swingleg_of_last_spline;
   margins_ = margins;
 }
@@ -53,10 +55,9 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     // based on distance to cover
-    const double length_per_step = 0.311;
     const double width_per_step = 0.21;
     Eigen::Vector2d start_to_goal = goal_state_.p.topRows(kDim2d) - curr_state_.p.topRows(kDim2d);
-    int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/length_per_step);
+    int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/max_step_length_);
     int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
     int req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);
     int n_steps = 4*req_steps_per_leg;

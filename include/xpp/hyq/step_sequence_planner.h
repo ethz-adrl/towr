@@ -43,6 +43,7 @@ public:
     */
   void Init(const State& curr, const State& goal,
             const VecFoothold& start_stance, double robot_height,
+            double max_step_lenght_,
             int swingleg_of_last_spline,
             MarginValues margins);
 
@@ -79,6 +80,7 @@ private:
   State goal_state_;
   VecFoothold start_stance_;
   double robot_height_;
+  double max_step_length_;
   MarginValues margins_;
 
   HyqRobotInterface robot_;

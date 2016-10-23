@@ -8,7 +8,6 @@
 #include <xpp/opt/nlp_facade.h>
 
 #include <xpp/hyq/support_polygon_container.h>
-#include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/opt/nlp.h>
 #include <xpp/opt/constraint_container.h>
 #include <xpp/opt/cost_constraint_factory.h>
@@ -36,7 +35,6 @@ NlpFacade::NlpFacade (VisualizerPtr visualizer)
   costs_                 = std::make_shared<CostContainer>(*opt_variables_);
   constraints_           = std::make_shared<ConstraintContainer>(*opt_variables_);
   nlp_observer_ = std::make_shared<NlpObserver>(*opt_variables_);
-  step_sequence_planner_ = std::make_shared<xpp::hyq::StepSequencePlanner>();
 
 
   // initialize the ipopt solver
@@ -54,24 +52,10 @@ NlpFacade::NlpFacade (VisualizerPtr visualizer)
 void
 NlpFacade::SolveNlp(const State& initial_state,
                     const State& final_state,
-                    int curr_swing_leg,
                     double robot_height,
-                    VecFoothold curr_stance,
-                    xpp::hyq::MarginValues margins,
-                    double t_swing, double t_stance,
-                    double max_cpu_time)
+                    const MotionStructure& motion_structure,
+                    const Contacts& contacts)
 {
-  step_sequence_planner_->Init(initial_state, final_state, curr_stance, robot_height, curr_swing_leg, margins);
-  auto step_sequence        = step_sequence_planner_->DetermineStepSequence();
-  bool start_with_com_shift = step_sequence_planner_->StartWithStancePhase();
-
-  // create the fixed motion structure
-  MotionStructure motion_structure;
-  motion_structure.Init(curr_stance, step_sequence, t_swing, t_stance, start_with_com_shift, true);
-
-  Contacts contacts;
-  contacts.Init(curr_stance, step_sequence, margins);
-
   // insight: this spline might be better for MPC, as it always matches the initial
   // position and velocity, avoiding jumps in state. For the other spline this is
   // a constraint, that might not be fulfilled.
@@ -114,7 +98,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   std::cout << "goal_state: " << final_state << std::endl;
 
   std::cout << "\nstart_stance: \n";
-  for (auto f : curr_stance)
+  for (auto f : contacts.GetStartStance())
     std::cout << f << std::endl;
 
   std::cout << "\nphases:\n";
@@ -146,11 +130,11 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   // Ipopt solving
   IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, visualizer_); // just so it can poll the PublishMsg() method
-  SolveIpopt(nlp_ptr, max_cpu_time);
+  SolveIpopt(nlp_ptr);
 }
 
 void
-NlpFacade::SolveIpopt (const IpoptPtr& nlp, double max_cpu_time)
+NlpFacade::SolveIpopt (const IpoptPtr& nlp)
 {
   // some options to change on the fly
 //  ipopt_solver_->Options()->SetNumericValue("max_cpu_time", max_cpu_time);

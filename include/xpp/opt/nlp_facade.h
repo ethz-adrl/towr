@@ -21,7 +21,7 @@
 namespace xpp {
 namespace hyq {
 class Foothold;
-class StepSequencePlanner;
+class SupportPolygonContainer;
 }
 }
 
@@ -35,6 +35,7 @@ class OptimizationVariablesInterpreter;
 class NlpObserver;
 class ComPolynomial;
 class ComMotion;
+class MotionStructure;
 
 /** @brief Simplified interface to setup and solve a Nonlinear-Program.
   *
@@ -54,10 +55,10 @@ public:
   typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
   typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
-  typedef std::shared_ptr<xpp::hyq::StepSequencePlanner> StepSequencePlannerPtr;
   typedef std::shared_ptr<IVisualizer> VisualizerPtr;
 
   using ComMotionPtrS = std::shared_ptr<ComMotion>;
+  using Contacts = xpp::hyq::SupportPolygonContainer;
 
 
   NlpFacade (VisualizerPtr visualizer = do_nothing_visualizer);
@@ -72,16 +73,12 @@ public:
     *
     * @param initial_acc initial acceleration of the CoG
     * @param final_state desired final position, velocity and acceleration of the CoG
-    * @param interpreter holds information about what the opt. variables represent
     */
-  void SolveNlp(const State& curr_cog_,
+  void SolveNlp(const State& initial_state,
                 const State& final_state,
-                int curr_swing_leg,
-                double robot_height_,
-                VecFoothold curr_stance,
-                xpp::hyq::MarginValues margins,
-                double t_swing, double t_stance,
-                double max_cpu_time = 1e20);
+                double robot_height,
+                const MotionStructure& motion_structure,
+                const Contacts& contacts);
 
   void AttachVisualizer(VisualizerPtr visualizer);
   NlpObserverPtr GetObserver() const;
@@ -91,17 +88,13 @@ public:
   PhaseVec GetPhases() const;
 
 private:
-  void SolveIpopt(const IpoptPtr& nlp, double max_cpu_time);
-
-  StepSequencePlannerPtr step_sequence_planner_;
+  void SolveIpopt(const IpoptPtr& nlp);
 
   OptimizationVariablesPtr opt_variables_;
   CostContainerPtr costs_;
   ConstraintContainerPtr constraints_;
 
-
   NlpObserverPtr nlp_observer_;
-  // cmo make this a shared pointer and don't dereference!
   VisualizerPtr visualizer_;
 
   IpoptApplicationPtr ipopt_app_;
