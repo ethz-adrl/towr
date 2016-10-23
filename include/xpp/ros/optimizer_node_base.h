@@ -45,14 +45,12 @@ protected:
   PhaseVec motion_phases_;
 
   double t_swing_;
-  double t_stance_;
+  double t_stance_initial_;
   double robot_height_;
 
 private:
   ::ros::Subscriber goal_state_sub_;
-  ::ros::ServiceClient goal_state_client_;
   void GoalStateCallback(const StateMsg& msg);
-  bool CallService();
 };
 
 } /* namespace ros */

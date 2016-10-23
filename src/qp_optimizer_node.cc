@@ -53,7 +53,7 @@ QpOptimizerNode::OptimizeTrajectory()
                                        goal_cog_.Get2D(),
                                        curr_stance_,
                                        footholds_,
-                                       t_swing_, t_stance_,
+                                       t_swing_, t_stance_initial_,
                                        start_with_com_shift_,
                                        robot_height_);
 }

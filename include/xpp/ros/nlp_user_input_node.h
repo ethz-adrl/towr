@@ -46,7 +46,6 @@ private:
   void CallbackJoy(const JoyMsg& msg);
 
   void ModifyGoalJoy();
-  bool GetGoalService(GoalSrv::Request& req, GoalSrv::Response& res);
 
   State goal_cog_;
   State goal_prev_;
@@ -58,7 +57,6 @@ private:
   ::ros::Publisher  goal_state_pub_;
   ::ros::Publisher  walk_command_pub_; // tells the robot to start walking
   ::ros::Publisher  rviz_publisher_;
-  ::ros::ServiceServer get_goal_srv_;
 };
 
 } /* namespace ros */

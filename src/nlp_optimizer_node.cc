@@ -44,7 +44,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
   supp_polygon_margins_ = xpp::hyq::SupportPolygon::GetDefaultMargins();
   supp_polygon_margins_[hyq::DIAG] = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");
 
-  max_cpu_time_ = RosHelpers::GetDoubleFromServer("/xpp/max_cpu_time");
+  max_step_length_ = RosHelpers::GetDoubleFromServer("/xpp/max_step_length");
+
 
   // get current optimization values from the optimizer
   optimization_visualizer_ = std::make_shared<OptimizationVisualizer>();
@@ -101,15 +102,14 @@ void
 NlpOptimizerNode::OptimizeTrajectory()
 {
   // create the fixed motion structure
-  double max_step_lenght = 0.25;
   step_sequence_planner_.Init(curr_cog_.Get2D(), goal_cog_.Get2D(), curr_stance_,
-                              robot_height_, max_step_lenght,
+                              robot_height_, max_step_length_,
                               curr_swingleg_, supp_polygon_margins_);
   auto step_sequence        = step_sequence_planner_.DetermineStepSequence();
   bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
 
   MotionStructure motion_structure;
-  motion_structure.Init(curr_stance_, step_sequence, t_swing_, t_stance_,
+  motion_structure.Init(curr_stance_, step_sequence, t_swing_, t_stance_initial_,
                         start_with_com_shift, true);
 
   Contacts contacts;

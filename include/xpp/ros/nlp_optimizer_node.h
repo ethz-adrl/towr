@@ -42,7 +42,7 @@ private:
   virtual void PublishTrajectory() const override final;
   void CurrentInfoCallback(const ReqInfoMsg& msg);
 
-  double max_cpu_time_; ///< maximum allowable time to spend on solving the NLP
+  double max_step_length_;
   int curr_swingleg_;
   xpp::hyq::MarginValues supp_polygon_margins_;
 

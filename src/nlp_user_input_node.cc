@@ -27,13 +27,9 @@ NlpUserInputNode::NlpUserInputNode ()
   walk_command_pub_ = n.advertise<std_msgs::Empty>(xpp_msgs::start_walking_topic,1);
 
   rviz_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_fixed", 1);
-  get_goal_srv_   = n.advertiseService("get_goal_state", &NlpUserInputNode::GetGoalService, this);
-
-  // Get Starting goal state from server
-  goal_cog_.p.x() = RosHelpers::GetDoubleFromServer("/xpp/goal_state_x");
-  goal_cog_.p.y() = RosHelpers::GetDoubleFromServer("/xpp/goal_state_y");
 
   // publish values once initially
+  goal_cog_.p.setZero();
   goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
 }
 
@@ -152,12 +148,6 @@ NlpUserInputNode::PublishRviz () const
   rviz_publisher_.publish(msg_rviz);
 }
 
-bool
-NlpUserInputNode::GetGoalService (GoalSrv::Request& req, GoalSrv::Response& res)
-{
-  res.state = RosHelpers::XppToRos(goal_cog_);
-  return true;
-}
 
 } /* namespace ros */
 } /* namespace xpp */
