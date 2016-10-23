@@ -83,9 +83,15 @@ set(SOURCES
   src/qp_facade.cc
   src/zero_moment_point.cc
   src/motion_structure.cc
+  src/a_robot_interface.cc
+  src/a_inverse_kinematics.cc
   # hyq
   src/step_sequence_planner.cc
   src/hyq_spliner.cc
+  src/hyq_inverse_kinematics.cc
+  src/support_polygon.cc
+  src/supp_polygon_container.cc
+  src/hyq_robot_interface.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
