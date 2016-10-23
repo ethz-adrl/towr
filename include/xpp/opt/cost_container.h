@@ -30,6 +30,7 @@ public:
   virtual ~CostContainer ();
 
   void Update () override;
+  void SetWeights(const std::vector<double>&);
 
   void ClearCosts ();
   void AddCost(CostPtr cost);

@@ -31,13 +31,13 @@ MotionStructure::~MotionStructure ()
 void
 MotionStructure::Init (const StartStance& start_stance,
                        const LegIDVec& step_legs,
-                       double t_swing, double t_stance,
+                       double t_swing, double t_stance_initial,
                        bool insert_initial_stance,
                        bool insert_final_stance)
 {
   PhaseInfo initial_stance_phase;
   initial_stance_phase.id_ = 0;
-  initial_stance_phase.duration_ = t_stance;
+  initial_stance_phase.duration_ = t_stance_initial;
   initial_stance_phase.fixed_contacts_ = start_stance;
   initial_stance_phase.n_completed_steps_ = 0;
 

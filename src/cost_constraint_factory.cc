@@ -103,7 +103,6 @@ CostConstraintFactory::CreateFinalStanceCost (
 {
   auto final_stance_constraint = CreateFinalStanceConstraint(goal_xy, contacts);
   auto final_stance_cost = std::make_shared<CostAdapter>(final_stance_constraint);
-  final_stance_cost->SetWeight(100);
   return final_stance_cost;
 }
 
@@ -143,7 +142,7 @@ CostConstraintFactory::CreateMotionCost (const ComMotion& motion,
   Eigen::MatrixXd term;
 
   switch (dxdt) {
-    case kAcc:  term = eq.MakeAcceleration(1.0,2.0); break;
+    case kAcc:  term = eq.MakeAcceleration(1.0,4.0); break;
     case kJerk: term = eq.MakeJerk(1.0,2.0); break;
     default: assert(false); break; // this cost is not implemented
   }

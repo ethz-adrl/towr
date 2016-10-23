@@ -37,6 +37,16 @@ CostContainer::Update ()
 {
 }
 
+void
+CostContainer::SetWeights (const std::vector<double>& weights)
+{
+  assert(weights.size() == costs_.size());
+
+  int i=0;
+  for (auto& cost : costs_)
+    cost->SetWeight(weights.at(i++));
+}
+
 double
 CostContainer::EvaluateTotalCost () const
 {
@@ -83,4 +93,3 @@ CostContainer::IsEmpty () const
 
 } /* namespace zmp */
 } /* namespace xpp */
-
