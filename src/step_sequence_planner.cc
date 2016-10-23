@@ -75,9 +75,15 @@ StepSequencePlanner::DetermineStepSequence ()
     }
 
 
+
+    bool walking_forward = goal_state_.p.x() >= curr_state_.p.x();
     LegIDVec step_sequence;
     for (int step=0; step<n_steps; ++step) {
-      step_sequence.push_back(NextSwingLeg(last_swingleg));
+      if (walking_forward)
+        step_sequence.push_back(NextSwingLeg(last_swingleg));
+      else
+        step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
+
       last_swingleg = step_sequence.back();
     }
 
