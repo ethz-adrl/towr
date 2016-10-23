@@ -7,8 +7,10 @@
 
 #include <xpp/ros/nlp_optimizer_node.h>
 #include <xpp/opt/com_spline.h>
+#include <xpp/opt/motion_structure.h>
+#include <xpp/hyq/support_polygon_container.h>
 
-#include <xpp/ros/ros_helpers.h> // namespace xpp::ros
+#include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
 #include <xpp_msgs/HyqStateJointsTrajectory.h>
 
@@ -17,7 +19,9 @@
 namespace xpp {
 namespace ros {
 
-using HyqTrajRvizMsg = hyqb_msgs::Trajectory;
+using HyqTrajRvizMsg  = hyqb_msgs::Trajectory;
+using MotionStructure = xpp::opt::MotionStructure;
+using Contacts        = xpp::hyq::SupportPolygonContainer;
 static bool CheckIfInDirectoyWithIpoptConfigFile();
 
 NlpOptimizerNode::NlpOptimizerNode ()
@@ -96,15 +100,26 @@ NlpOptimizerNode::PublishTrajectory () const
 void
 NlpOptimizerNode::OptimizeTrajectory()
 {
-  // cmo pull the "phase planner" out of the nlp facade
+  // create the fixed motion structure
+  double max_step_lenght = 0.25;
+  step_sequence_planner_.Init(curr_cog_.Get2D(), goal_cog_.Get2D(), curr_stance_,
+                              robot_height_, max_step_lenght,
+                              curr_swingleg_, supp_polygon_margins_);
+  auto step_sequence        = step_sequence_planner_.DetermineStepSequence();
+  bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
+
+  MotionStructure motion_structure;
+  motion_structure.Init(curr_stance_, step_sequence, t_swing_, t_stance_,
+                        start_with_com_shift, true);
+
+  Contacts contacts;
+  contacts.Init(curr_stance_, step_sequence, supp_polygon_margins_);
+
   nlp_facade_.SolveNlp(curr_cog_.Get2D(),
                        goal_cog_.Get2D(),
-                       curr_swingleg_,
                        robot_height_,
-                       curr_stance_,
-                       supp_polygon_margins_,
-                       t_swing_, t_stance_,
-                       max_cpu_time_);
+                       motion_structure,
+                       contacts);
 
   auto& com_spline = dynamic_cast<xpp::opt::ComSpline&>(*nlp_facade_.GetMotion());
   opt_splines_   = com_spline.GetPolynomials();
