@@ -37,7 +37,7 @@ RangeOfMotionConstraint::Init (const ComMotion& com_motion,
   motion_structure_ = motion_structure;
   robot_            = std::move(p_robot);
 
-  motion_structure_.SetDisretization(0.3);
+  motion_structure_.SetDisretization(0.1);
 
   SetJacobianWrtContacts(jac_wrt_contacts_);
   SetJacobianWrtMotion(jac_wrt_motion_);

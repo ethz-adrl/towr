@@ -55,7 +55,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     // based on distance to cover
-    const double width_per_step = 0.21;
+    const double width_per_step = 0.15;
     Eigen::Vector2d start_to_goal = goal_state_.p.topRows(kDim2d) - curr_state_.p.topRows(kDim2d);
     int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/max_step_length_);
     int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
@@ -75,14 +75,37 @@ StepSequencePlanner::DetermineStepSequence ()
     }
 
 
-
+    bool moving_mainly_in_x = std::fabs(start_to_goal.x()) > std::fabs(2*start_to_goal.y());
     bool walking_forward = goal_state_.p.x() >= curr_state_.p.x();
+    bool walking_left    = goal_state_.p.y() >= curr_state_.p.y();
+
+
+    if (moving_mainly_in_x) {
+      if (walking_forward)
+        last_swingleg = RF;
+      else
+        last_swingleg = LH;
+    } else { // moving mainly in y
+      if (walking_left)
+        last_swingleg = RF;
+      else
+        last_swingleg = LH;
+    }
+
+
     LegIDVec step_sequence;
     for (int step=0; step<n_steps; ++step) {
-      if (walking_forward)
-        step_sequence.push_back(NextSwingLeg(last_swingleg));
-      else
-        step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
+      if (moving_mainly_in_x) {
+        if (walking_forward)
+          step_sequence.push_back(NextSwingLeg(last_swingleg));
+        else
+          step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
+      } else { // moving mainly in y
+        if (walking_left)
+          step_sequence.push_back(NextSwingLeg(last_swingleg));
+        else
+          step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
+      }
 
       last_swingleg = step_sequence.back();
     }

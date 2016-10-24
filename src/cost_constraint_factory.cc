@@ -142,7 +142,7 @@ CostConstraintFactory::CreateMotionCost (const ComMotion& motion,
   Eigen::MatrixXd term;
 
   switch (dxdt) {
-    case kAcc:  term = eq.MakeAcceleration(1.0,4.0); break;
+    case kAcc:  term = eq.MakeAcceleration(1.0,3.0); break;
     case kJerk: term = eq.MakeJerk(1.0,2.0); break;
     default: assert(false); break; // this cost is not implemented
   }
