@@ -6,6 +6,10 @@ set -e
 # assumes the ros workspaces setup.bash is sources here.
 source ~/.bashrc
 
+# specify logging output format etc...
+roscd xpp_ros/scripts
+source ./ros_config.sh
+
 # this is the location where a rosnode is started from. Must be where the 
 # Ipopt config files is stored.
 roscd xpp_opt/config

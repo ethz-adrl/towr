@@ -55,8 +55,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
   CheckIfInDirectoyWithIpoptConfigFile();
 
   whole_body_mapper_.SetParams(0.5, 0.15, 0.0, 1.0/200);
-  ROS_INFO_STREAM("Initialization done, ready to optimize!...");
-  ROS_INFO_STREAM("waiting for initial state...");
+  ROS_INFO_STREAM("Initialization done, waiting for current state...");
 }
 
 void

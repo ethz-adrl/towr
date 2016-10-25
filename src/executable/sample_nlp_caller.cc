@@ -34,12 +34,15 @@ int main(int argc, char **argv)
 //  ros::Subscriber opt_params_sub = n.subscribe("optimized_parameters_nlp", 1, OptParamsCallback);
 
   // give publisher and subscriber time to register with master
-  ros::Rate poll_rate(100);
+  ros::Rate poll_rate(1000);
+  ROS_INFO_STREAM("Waiting for Subscriber...");
   while(ros::ok() && current_info_pub.getNumSubscribers() == 0/*opt_params_sub.getNumPublishers() == 0 || */) {
     poll_rate.sleep(); // so node has time to connect
   }
+  ROS_INFO_STREAM("Subscriber to initial state connected");
 
-  ROS_INFO_STREAM("Subscriber connected");
+  sleep(0.5); // sleep another 0.5s to give subscriber time to listen
+
 
 
   ReqInfoMsg msg;
@@ -61,10 +64,7 @@ int main(int argc, char **argv)
 
   msg.curr_swingleg = xpp::hyq::NO_SWING_LEG;
 
-  // publish message 4 times just to make sure nlp_optimizer gets it
-  current_info_pub.publish(msg);
-  current_info_pub.publish(msg);
-  current_info_pub.publish(msg);
+  ROS_INFO_STREAM("Publishing current state...");
   current_info_pub.publish(msg);
 }
 
