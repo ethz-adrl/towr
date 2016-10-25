@@ -21,8 +21,6 @@ CostAdapter::CostAdapter (const ConstraintPtr& constraint)
   constraint_ = constraint;
   int n_constraints = constraint_->GetNumberOfConstraints();
 
-  std::cout << "n_constraints: " << n_constraints << std::endl;
-
   // treat all constraints equally by default
   weights_.resize(n_constraints);
   weights_.setOnes();
@@ -44,19 +42,11 @@ CostAdapter::EvaluateCost () const
 CostAdapter::VectorXd
 CostAdapter::EvaluateGradientWrt (std::string var_set)
 {
-  VectorXd grad;
-
-  std::cout << var_set << ": \n";
   AConstraint::Jacobian jac = constraint_->GetJacobianWithRespectTo(var_set);
 
+  VectorXd grad;
   if (jac.rows() != 0)
     grad = jac.transpose()*weights_;
-
-  std::cout << "jac.rows() = " << jac.rows() << std::endl;
-  std::cout << "jac.cols() = " << jac.cols() << std::endl;
-  std::cout << "weights_.rows() = " << weights_.rows() << std::endl;
-
-
 
   return grad;
 }

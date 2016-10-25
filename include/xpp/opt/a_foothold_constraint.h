@@ -40,7 +40,7 @@ protected:
 };
 
 
-/** This class assigns a cost if the center of the final footholds is far
+/** This class assigns a cost if the final footholds are far
   * away from the desired goal position.
   */
 class FootholdFinalStanceConstraint : public AFootholdConstraint {

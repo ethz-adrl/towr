@@ -57,33 +57,16 @@ FootholdFinalStanceConstraint::EvaluateConstraint () const
   auto final_stance = supp_polygon_container_.GetFinalFootholds();
 
   VectorXd g(final_stance.size()*kDim2d);
-  std::cout << "vector g.rows() : " << g.rows() << std::endl;
-
-  std::cout << "final_stance.size(): " << final_stance.size() << std::endl;
 
   int c=0;
   for (auto f : final_stance) {
     if (!f.IsFixedByStart()) {
 
       Vector2d foot_to_nominal_W = GetFootToNominalInWorld(f);
-
-      for (auto dim : {X,Y}) {
-//        Vector2d goal_to_nom_B = robot_->GetNominalStanceInBase(f.id);
-//        Eigen::Matrix2d W_R_B = Eigen::Matrix2d::Identity(); // attention: assumes no rotation world to base
-//        Vector2d goal_to_nom_W = W_R_B * goal_to_nom_B;
-//
-//        double foot_to_goal_W = goal_xy_(dim) - f.p(dim);
-//        double foot_to_nominal_W = foot_to_goal_W(dim) + goal_to_nom_W(dim);
-
+      for (auto dim : {X,Y})
         g(c++) = std::pow(foot_to_nominal_W(dim),2);
-      }
     }
   }
-
-//  Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
-//  Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
-//  g = distance_to_center.transpose() * distance_to_center;
-
 
   return g;
 }
@@ -111,9 +94,6 @@ FootholdFinalStanceConstraint::GetJacobianWithRespectTo (std::string var_set) co
     int n_foothold_opt_vars = supp_polygon_container_.GetTotalFreeCoeff();
     int n_constraints = GetNumberOfConstraints();
     jac = Jacobian(n_constraints, n_foothold_opt_vars);
-
-//    Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
-//    Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
 
     auto final_stance = supp_polygon_container_.GetFinalFootholds();
     int c=0;
