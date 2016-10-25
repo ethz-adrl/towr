@@ -7,6 +7,7 @@
 
 #include <xpp/opt/a_foothold_constraint.h>
 #include <xpp/opt/optimization_variables.h>
+#include <xpp/opt/a_robot_interface.h>
 
 namespace xpp {
 namespace opt {
@@ -38,10 +39,12 @@ AFootholdConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 
 FootholdFinalStanceConstraint::FootholdFinalStanceConstraint (
                                     const Vector2d& goal_xy,
-                                    const SupportPolygonContainer& supp_poly)
+                                    const SupportPolygonContainer& supp_poly,
+                                    RobotPtrU robot)
 {
   Init(supp_poly);
   goal_xy_ = goal_xy;
+  robot_ = std::move(robot);
 }
 
 FootholdFinalStanceConstraint::~FootholdFinalStanceConstraint ()
@@ -53,7 +56,7 @@ FootholdFinalStanceConstraint::EvaluateConstraint () const
 {
   auto final_stance = supp_polygon_container_.GetFinalFootholds();
 
-  VectorXd g(/*final_stance.size()*/4*kDim2d);
+  VectorXd g(final_stance.size()*kDim2d);
   std::cout << "vector g.rows() : " << g.rows() << std::endl;
 
   std::cout << "final_stance.size(): " << final_stance.size() << std::endl;
@@ -61,9 +64,18 @@ FootholdFinalStanceConstraint::EvaluateConstraint () const
   int c=0;
   for (auto f : final_stance) {
     if (!f.IsFixedByStart()) {
+
+      Vector2d foot_to_nominal_W = GetFootToNominalInWorld(f);
+
       for (auto dim : {X,Y}) {
-        double distance = goal_xy_(dim) - f.p(dim);
-        g(c++) = std::pow(distance,2);
+//        Vector2d goal_to_nom_B = robot_->GetNominalStanceInBase(f.id);
+//        Eigen::Matrix2d W_R_B = Eigen::Matrix2d::Identity(); // attention: assumes no rotation world to base
+//        Vector2d goal_to_nom_W = W_R_B * goal_to_nom_B;
+//
+//        double foot_to_goal_W = goal_xy_(dim) - f.p(dim);
+//        double foot_to_nominal_W = foot_to_goal_W(dim) + goal_to_nom_W(dim);
+
+        g(c++) = std::pow(foot_to_nominal_W(dim),2);
       }
     }
   }
@@ -74,6 +86,19 @@ FootholdFinalStanceConstraint::EvaluateConstraint () const
 
 
   return g;
+}
+
+FootholdFinalStanceConstraint::Vector2d
+FootholdFinalStanceConstraint::GetFootToNominalInWorld ( const hyq::Foothold& foot_W) const
+{
+  Vector2d goal_to_nom_B = robot_->GetNominalStanceInBase(foot_W.leg);
+  Eigen::Matrix2d W_R_B = Eigen::Matrix2d::Identity(); // attention: assumes no rotation world to base
+  Vector2d goal_to_nom_W = W_R_B * goal_to_nom_B;
+
+  Vector2d foot_to_goal_W    = goal_xy_ - foot_W.p.topRows(utils::kDim2d);
+  Vector2d foot_to_nominal_W = foot_to_goal_W + goal_to_nom_W;
+
+  return foot_to_nominal_W;
 }
 
 FootholdFinalStanceConstraint::Jacobian
@@ -94,9 +119,10 @@ FootholdFinalStanceConstraint::GetJacobianWithRespectTo (std::string var_set) co
     int c=0;
     for (auto f : final_stance) {
       if (!f.IsFixedByStart()) {
+        Vector2d foot_to_nominal_W = GetFootToNominalInWorld(f);
         for (auto dim : {X,Y}) {
           int idx = SupportPolygonContainer::Index(f.id,dim);
-          jac.insert(c++,idx) =  2*(goal_xy_(dim) - f.p(dim))*(-1);
+          jac.insert(c++,idx) =  2*foot_to_nominal_W(dim)*(-1); // -1 from inner derivative of g = (-x)^2
         }
       }
     }
@@ -114,6 +140,7 @@ FootholdFinalStanceConstraint::GetBounds () const
 
   return bounds;
 }
+
 
 } /* namespace zmp */
 } /* namespace xpp */
