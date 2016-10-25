@@ -15,7 +15,13 @@
 namespace xpp {
 namespace opt {
 
-/** Converts a constraint to a cost by weighing the violations and Jacobians.
+/** Converts a constraint to a cost by weighing the quadratic violations.
+  *
+  * Let constraint g(x) \in R^m.
+  * And it's derivative dg(x)/dx = J(x).
+  * Define a cost as c(x) = 0.5 * g^T * W * g, where W = diag(w1,...,wm).
+  * Then the gradient of the cost is defined as:
+  * dc(x)/dx = (g(x)^T * W * J)^T = J^T * W * g(x).
   */
 class CostAdapter : public ACost {
 public:
@@ -24,8 +30,6 @@ public:
 
   CostAdapter (const ConstraintPtr& constraint);
   virtual ~CostAdapter ();
-
-  void SetWeights(const VectorXd& weights);
 
   virtual double EvaluateCost () const;
   virtual void UpdateVariables(const OptimizationVariables*);

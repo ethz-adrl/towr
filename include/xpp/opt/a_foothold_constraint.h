@@ -10,9 +10,14 @@
 
 #include <xpp/hyq/support_polygon_container.h>
 #include "a_constraint.h"
+#include <xpp/hyq/foothold.h>
+#include <memory>
 
 namespace xpp {
 namespace opt {
+
+class ARobotInterface;
+
 
 /** Base class for Costs associated only with the foothold positions
   *
@@ -35,14 +40,16 @@ protected:
 };
 
 
-/** This class assigns a cost if the center of the final footholds is far
+/** This class assigns a cost if the final footholds are far
   * away from the desired goal position.
   */
 class FootholdFinalStanceConstraint : public AFootholdConstraint {
 public:
   typedef Eigen::Vector2d Vector2d;
+  using RobotPtrU = std::unique_ptr<ARobotInterface>;
 
-  FootholdFinalStanceConstraint(const Vector2d& goal_xy, const SupportPolygonContainer&);
+  FootholdFinalStanceConstraint(const Vector2d& goal_xy, const SupportPolygonContainer&,
+                                RobotPtrU);
   virtual ~FootholdFinalStanceConstraint();
 
   virtual VectorXd EvaluateConstraint () const override;
@@ -50,7 +57,10 @@ public:
   virtual VecBound GetBounds() const override;
 
 private:
+  Vector2d GetFootToNominalInWorld(const hyq::Foothold& foot_W) const;
+
   Vector2d goal_xy_;
+  RobotPtrU robot_;
 };
 
 } /* namespace zmp */

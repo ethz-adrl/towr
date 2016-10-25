@@ -110,19 +110,10 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateFinalStanceConstraint (const Vector2d& goal_xy,
                                                     const Contacts& contacts)
 {
-  auto final_stance_constraint = std::make_shared<FootholdFinalStanceConstraint>(goal_xy, contacts);
+  auto hyq = std::unique_ptr<ARobotInterface>(new xpp::hyq::HyqRobotInterface());
+  auto final_stance_constraint = std::make_shared<FootholdFinalStanceConstraint>(goal_xy, contacts, std::move(hyq));
   return final_stance_constraint;
 }
-
-//CostConstraintFactory::ConstraintPtr
-//CostConstraintFactory::CreateJointAngleConstraint (
-//    const OptimizationVariablesInterpreter& interpreter)
-//{
-//  auto inv_kine = std::make_shared<xpp::hyq::HyqInverseKinematics>();
-//  auto constraint = std::make_shared<JointAnglesConstraint>();
-//  constraint->Init(interpreter, inv_kine);
-//  return constraint;
-//}
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateObstacleConstraint (const Contacts& contacts)
@@ -164,6 +155,16 @@ CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
   cost->Init(eq.MakeFinal(final_state_xy, {kPos, kVel, kAcc}));
   return cost;
 }
+
+//CostConstraintFactory::ConstraintPtr
+//CostConstraintFactory::CreateJointAngleConstraint (
+//    const OptimizationVariablesInterpreter& interpreter)
+//{
+//  auto inv_kine = std::make_shared<xpp::hyq::HyqInverseKinematics>();
+//  auto constraint = std::make_shared<JointAnglesConstraint>();
+//  constraint->Init(interpreter, inv_kine);
+//  return constraint;
+//}
 
 } /* namespace zmp */
 } /* namespace xpp */

@@ -6,6 +6,7 @@
  */
 
 #include <xpp/opt/cost_adapter.h>
+#include <iostream>
 
 namespace xpp {
 namespace opt {
@@ -18,18 +19,11 @@ CostAdapter::~CostAdapter ()
 CostAdapter::CostAdapter (const ConstraintPtr& constraint)
 {
   constraint_ = constraint;
-  int n_constraints = constraint->GetNumberOfConstraints();
+  int n_constraints = constraint_->GetNumberOfConstraints();
 
   // treat all constraints equally by default
   weights_.resize(n_constraints);
   weights_.setOnes();
-}
-
-void
-CostAdapter::SetWeights (const VectorXd& weights)
-{
-  weights_ = weights;
-  weights_.normalize();
 }
 
 void
@@ -42,14 +36,20 @@ double
 CostAdapter::EvaluateCost () const
 {
   VectorXd g = constraint_->EvaluateConstraint();
-  return weights_.transpose()*g;
+  return 1/2.*g.transpose()*weights_.asDiagonal()*g;
 }
 
 CostAdapter::VectorXd
 CostAdapter::EvaluateGradientWrt (std::string var_set)
 {
+  VectorXd g = constraint_->EvaluateConstraint();
   AConstraint::Jacobian jac = constraint_->GetJacobianWithRespectTo(var_set);
-  return jac.transpose()*weights_;
+
+  VectorXd grad;
+  if (jac.rows() != 0)
+    grad = jac.transpose()*weights_.asDiagonal()*g;
+
+  return grad;
 }
 
 } /* namespace opt */
