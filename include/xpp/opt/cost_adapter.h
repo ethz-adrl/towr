@@ -16,6 +16,8 @@ namespace xpp {
 namespace opt {
 
 /** Converts a constraint to a cost by weighing the violations and Jacobians.
+  *
+  * refactor careful, only makes sense for purely positive costs. Do squaring here.
   */
 class CostAdapter : public ACost {
 public:
@@ -24,8 +26,6 @@ public:
 
   CostAdapter (const ConstraintPtr& constraint);
   virtual ~CostAdapter ();
-
-  void SetWeights(const VectorXd& weights);
 
   virtual double EvaluateCost () const;
   virtual void UpdateVariables(const OptimizationVariables*);

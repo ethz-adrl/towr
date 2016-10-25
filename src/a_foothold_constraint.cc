@@ -11,6 +11,8 @@
 namespace xpp {
 namespace opt {
 
+using namespace xpp::utils; // X, Y
+
 AFootholdConstraint::AFootholdConstraint ()
 {
   // TODO Auto-generated constructor stub
@@ -34,7 +36,8 @@ AFootholdConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   supp_polygon_container_.SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
-FootholdFinalStanceConstraint::FootholdFinalStanceConstraint (const Vector2d& goal_xy,
+FootholdFinalStanceConstraint::FootholdFinalStanceConstraint (
+                                    const Vector2d& goal_xy,
                                     const SupportPolygonContainer& supp_poly)
 {
   Init(supp_poly);
@@ -48,18 +51,35 @@ FootholdFinalStanceConstraint::~FootholdFinalStanceConstraint ()
 FootholdFinalStanceConstraint::VectorXd
 FootholdFinalStanceConstraint::EvaluateConstraint () const
 {
-  VectorXd g;
-  Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
-  Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
-  g = distance_to_center.transpose() * distance_to_center;
-  return g; // so far 1-dimensional, so scalar
+  auto final_stance = supp_polygon_container_.GetFinalFootholds();
+
+  VectorXd g(/*final_stance.size()*/4*kDim2d);
+  std::cout << "vector g.rows() : " << g.rows() << std::endl;
+
+  std::cout << "final_stance.size(): " << final_stance.size() << std::endl;
+
+  int c=0;
+  for (auto f : final_stance) {
+    if (!f.IsFixedByStart()) {
+      for (auto dim : {X,Y}) {
+        double distance = goal_xy_(dim) - f.p(dim);
+        g(c++) = std::pow(distance,2);
+      }
+    }
+  }
+
+//  Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
+//  Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
+//  g = distance_to_center.transpose() * distance_to_center;
+
+
+  return g;
 }
 
 FootholdFinalStanceConstraint::Jacobian
 FootholdFinalStanceConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac;
-  using namespace xpp::utils;
 
   if (var_set == VariableNames::kFootholds) {
 
@@ -67,15 +87,16 @@ FootholdFinalStanceConstraint::GetJacobianWithRespectTo (std::string var_set) co
     int n_constraints = GetNumberOfConstraints();
     jac = Jacobian(n_constraints, n_foothold_opt_vars);
 
-    Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
-    Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
+//    Vector2d center_final_stance_W = supp_polygon_container_.GetCenterOfFinalStance();
+//    Vector2d distance_to_center = goal_xy_ - center_final_stance_W;
 
     auto final_stance = supp_polygon_container_.GetFinalFootholds();
+    int c=0;
     for (auto f : final_stance) {
       if (!f.IsFixedByStart()) {
         for (auto dim : {X,Y}) {
           int idx = SupportPolygonContainer::Index(f.id,dim);
-          jac.insert(0,idx) =  2*distance_to_center[dim]*(-1.0/final_stance.size());
+          jac.insert(c++,idx) =  2*(goal_xy_(dim) - f.p(dim))*(-1);
         }
       }
     }
