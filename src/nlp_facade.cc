@@ -86,7 +86,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion, utils::kAcc));
   costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion, contacts, motion_structure));
 //  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, contacts));
-  costs_->SetWeights({10.0, 3.0});
+  costs_->SetWeights({10.0, 1.0});
   // careful: these are not quite debugged yet
 //  costs_->AddCost(CostConstraintFactory::CreateFinalComCost(final_state, spline_structure));
 //  costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(interpreter));

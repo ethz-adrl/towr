@@ -135,6 +135,18 @@ SupportPolygonContainer::GetFinalFootholds() const
   return GetStanceAfter(footholds_I_.size());
 }
 
+SupportPolygonContainer::VecFoothold
+SupportPolygonContainer::GetFinalFreeFootholds() const
+{
+  auto footholds = GetFinalFootholds();
+  VecFoothold free_footholds;
+  for (auto f : footholds)
+    if (!f.IsFixedByStart())
+      free_footholds.push_back(f);
+
+  return free_footholds;
+}
+
 SupportPolygonContainer::VecSupportPolygon
 SupportPolygonContainer::CreateSupportPolygons(const VecFoothold& footholds) const
 {

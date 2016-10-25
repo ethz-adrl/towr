@@ -84,6 +84,10 @@ public:
   SupportPolygon GetFinalPolygon() const;
   VecFoothold GetFinalFootholds() const ;
 
+  /** Only those footholds that are not the start stance
+   */
+  VecFoothold GetFinalFreeFootholds() const ;
+
   int GetNumberOfSteps() const { return footholds_I_.size(); };
   void SetFootholdsXY(const StdVecEigen2d& footholds_xy);
 

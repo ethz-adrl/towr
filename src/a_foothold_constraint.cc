@@ -54,18 +54,15 @@ FootholdFinalStanceConstraint::~FootholdFinalStanceConstraint ()
 FootholdFinalStanceConstraint::VectorXd
 FootholdFinalStanceConstraint::EvaluateConstraint () const
 {
-  auto final_stance = supp_polygon_container_.GetFinalFootholds();
+  auto final_stance = supp_polygon_container_.GetFinalFreeFootholds();
 
   VectorXd g(final_stance.size()*kDim2d);
 
   int c=0;
   for (auto f : final_stance) {
-    if (!f.IsFixedByStart()) {
-
-      Vector2d foot_to_nominal_W = GetFootToNominalInWorld(f);
-      for (auto dim : {X,Y})
-        g(c++) = std::pow(foot_to_nominal_W(dim),2);
-    }
+    Vector2d foot_to_nominal_W = GetFootToNominalInWorld(f);
+    for (auto dim : {X,Y})
+      g(c++) = std::pow(foot_to_nominal_W(dim),2);
   }
 
   return g;
@@ -95,15 +92,13 @@ FootholdFinalStanceConstraint::GetJacobianWithRespectTo (std::string var_set) co
     int n_constraints = GetNumberOfConstraints();
     jac = Jacobian(n_constraints, n_foothold_opt_vars);
 
-    auto final_stance = supp_polygon_container_.GetFinalFootholds();
+    auto final_stance = supp_polygon_container_.GetFinalFreeFootholds();
     int c=0;
     for (auto f : final_stance) {
-      if (!f.IsFixedByStart()) {
-        Vector2d foot_to_nominal_W = GetFootToNominalInWorld(f);
-        for (auto dim : {X,Y}) {
-          int idx = SupportPolygonContainer::Index(f.id,dim);
-          jac.insert(c++,idx) =  2*foot_to_nominal_W(dim)*(-1); // -1 from inner derivative of g = (-x)^2
-        }
+      Vector2d foot_to_nominal_W = GetFootToNominalInWorld(f);
+      for (auto dim : {X,Y}) {
+        int idx = SupportPolygonContainer::Index(f.id,dim);
+        jac.insert(c++,idx) =  2*foot_to_nominal_W(dim)*(-1); // -1 from inner derivative of g = (-x)^2
       }
     }
   }
