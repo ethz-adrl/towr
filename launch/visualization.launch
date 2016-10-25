@@ -1,0 +1,6 @@
+<launch>
+  <!-- for visualizing in rviz -->
+  <include file="$(find hyqb_visualizer_low_dep)/launch/hyqb_vis.launch"></include>
+  <node name="rviz" pkg="rviz" type="rviz"  args="-d $(find xpp_ros)/rviz/xpp.rviz">
+  </node>
+</launch>
