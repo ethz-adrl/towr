@@ -62,7 +62,7 @@ FootholdFinalStanceConstraint::EvaluateConstraint () const
   for (auto f : final_stance) {
     Vector2d foot_to_nominal_W = GetFootToNominalInWorld(f);
     for (auto dim : {X,Y})
-      g(c++) = std::pow(foot_to_nominal_W(dim),2);
+      g(c++) = foot_to_nominal_W(dim);
   }
 
   return g;
@@ -98,7 +98,7 @@ FootholdFinalStanceConstraint::GetJacobianWithRespectTo (std::string var_set) co
       Vector2d foot_to_nominal_W = GetFootToNominalInWorld(f);
       for (auto dim : {X,Y}) {
         int idx = SupportPolygonContainer::Index(f.id,dim);
-        jac.insert(c++,idx) =  2*foot_to_nominal_W(dim)*(-1); // -1 from inner derivative of g = (-x)^2
+        jac.insert(c++,idx) =  -1;
       }
     }
   }

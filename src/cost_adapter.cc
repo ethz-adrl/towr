@@ -36,17 +36,18 @@ double
 CostAdapter::EvaluateCost () const
 {
   VectorXd g = constraint_->EvaluateConstraint();
-  return weights_.transpose()*g;
+  return 1/2.*g.transpose()*weights_.asDiagonal()*g;
 }
 
 CostAdapter::VectorXd
 CostAdapter::EvaluateGradientWrt (std::string var_set)
 {
+  VectorXd g = constraint_->EvaluateConstraint();
   AConstraint::Jacobian jac = constraint_->GetJacobianWithRespectTo(var_set);
 
   VectorXd grad;
   if (jac.rows() != 0)
-    grad = jac.transpose()*weights_;
+    grad = jac.transpose()*weights_.asDiagonal()*g;
 
   return grad;
 }
