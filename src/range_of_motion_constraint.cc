@@ -99,9 +99,14 @@ RangeOfMotionBox::EvaluateConstraint () const
       auto footholds_W = contacts_->GetFootholdsInWorld();
       PosXY contact_pos_W = footholds_W.at(c.id).p.topRows(kDim2d);
 
+      // refactor this is actually constant, but moved here from bounds
+      // so I can make a meaningful cost out of this constraint
+      PosXY pos_nom_B = robot_->GetNominalStanceInBase(static_cast<xpp::hyq::LegID>(c.ee));
+
       for (auto dim : {X,Y}) {
         double contact_pos_B = contact_pos_W(dim) - com_pos(dim);
-        g_vec.push_back(contact_pos_B);
+        double distance_to_nom = contact_pos_B - pos_nom_B(dim);
+        g_vec.push_back(distance_to_nom /*contact_pos_B*/);
       }
 
     }
@@ -120,11 +125,11 @@ RangeOfMotionBox::GetBounds () const
 
     for (auto c : node.phase_.free_contacts_) {
 
-      PosXY pos_nom_B = robot_->GetNominalStanceInBase(static_cast<xpp::hyq::LegID>(c.ee));
+//      PosXY pos_nom_B = robot_->GetNominalStanceInBase(static_cast<xpp::hyq::LegID>(c.ee));
       for (auto dim : {X,Y}) {
         Bound b;
-        b.upper_ = pos_nom_B(dim) + max_deviation.at(dim);
-        b.lower_ = pos_nom_B(dim) - max_deviation.at(dim);
+        b.upper_ = /*pos_nom_B(dim)*/ + max_deviation.at(dim);
+        b.lower_ = /*pos_nom_B(dim)*/ - max_deviation.at(dim);
         bounds.push_back(b);
       }
     }
