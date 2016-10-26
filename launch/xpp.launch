@@ -2,7 +2,6 @@
   <include file="$(find xpp_ros)/launch/xpp_params.launch"></include>
   
   <!-- so the logging print the node name -->
-  <env name="HIHIHIHI" value="EAT_THIS" />
   <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${node}]: ${message}" />
 
   <!-- for commanding goal position and user input -->
@@ -20,7 +19,7 @@
   <!-- if rviz visualization is desired -->
   <arg name="vis" default="false"/>
   <group if="$(arg vis)">
-    <include file="$(find xpp_ros)/launch/visualization.launch"></include>
+    <include file="$(find hyqb_visualizer_low_dep)/launch/xpp_visualization.launch"></include>
   </group>
   
 </launch>
