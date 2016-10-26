@@ -75,11 +75,12 @@ StepSequencePlanner::DetermineStepSequence ()
     }
 
 
-    bool moving_mainly_in_x = std::fabs(start_to_goal.x()) > std::fabs(2*start_to_goal.y());
+    bool moving_mainly_in_x = std::fabs(start_to_goal.x()) > std::fabs(0.5*start_to_goal.y());
     bool walking_forward = goal_state_.p.x() >= curr_state_.p.x();
     bool walking_left    = goal_state_.p.y() >= curr_state_.p.y();
 
 
+    // refactor this is ugly
     if (moving_mainly_in_x) {
       if (walking_forward)
         last_swingleg = RF;
