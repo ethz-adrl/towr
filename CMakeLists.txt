@@ -6,6 +6,8 @@ project(xpp_ros)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED
   roscpp
+  keyboard
+  joy
   xpp_opt
   xpp_msgs
 )

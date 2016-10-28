@@ -38,7 +38,6 @@ private:
   WholeBodyMapper whole_body_mapper_;
 
   virtual void OptimizeTrajectory() override final;
-//  virtual void PublishOptimizedValues() const override final;
   virtual void PublishTrajectory() const override final;
   void CurrentInfoCallback(const ReqInfoMsg& msg);
 
@@ -47,13 +46,11 @@ private:
   xpp::hyq::MarginValues supp_polygon_margins_;
 
   ::ros::Subscriber current_info_sub_;
-//  ::ros::Publisher opt_params_pub_;
-//  ::ros::Publisher trajectory_pub_;
-  ::ros::Publisher trajectory_pub_rviz_;
   ::ros::Publisher trajectory_pub_hyqjoints_;
 
 
   OptVisualizerPtr optimization_visualizer_;
+//  virtual void PublishOptimizedValues() const override final;
 };
 
 } /* namespace ros */

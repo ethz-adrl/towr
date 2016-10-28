@@ -14,12 +14,9 @@
 #include <xpp/ros/topic_names.h>
 #include <xpp_msgs/HyqStateJointsTrajectory.h>
 
-#include <hyqb_msgs/Trajectory.h>
-
 namespace xpp {
 namespace ros {
 
-using HyqTrajRvizMsg  = hyqb_msgs::Trajectory;
 using MotionStructure = xpp::opt::MotionStructure;
 using Contacts        = xpp::hyq::SupportPolygonContainer;
 static bool CheckIfInDirectoyWithIpoptConfigFile();
@@ -29,14 +26,6 @@ NlpOptimizerNode::NlpOptimizerNode ()
   current_info_sub_ = n_.subscribe(xpp_msgs::req_info_nlp,
                                    1, // take only the most recent information
                                    &NlpOptimizerNode::CurrentInfoCallback, this);
-
-// opt_params_pub_ = n_.advertise<OptParamMsg>("optimized_parameters_nlp", 1);
-// trajectory_pub_ = n_.advertise<RobotStateTrajMsg>(xpp_msgs::robot_trajectory, 1);
-
-  // topic the urdf publisher subscribes to to send hyq trajectory to rviz
-  std::string trajectory_topic = RosHelpers::GetStringFromServer("/hyq_rviz_trajectory_topic");
-  trajectory_pub_rviz_ = n_.advertise<HyqTrajRvizMsg>(trajectory_topic, 1);
-
 
   trajectory_pub_hyqjoints_ = n_.advertise<xpp_msgs::HyqStateJointsTrajectory>(
       xpp_msgs::robot_trajectory_joints, 1);
@@ -82,17 +71,10 @@ NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
 void
 NlpOptimizerNode::PublishTrajectory () const
 {
-//  auto trajectory = whole_body_mapper_.BuildWholeBodyTrajectory();
-//  RobotStateTrajMsg msg = xpp::ros::RosHelpers::XppToRos(trajectory);
-//  trajectory_pub_.publish(msg);
-
   // sends this info the the walking controller
   auto trajectory_hyq_joints = whole_body_mapper_.BuildWholeBodyTrajectoryJoints();
   auto msg_hyq_with_joints = xpp::ros::RosHelpers::XppToRos(trajectory_hyq_joints);
   trajectory_pub_hyqjoints_.publish(msg_hyq_with_joints);
-
-  HyqTrajRvizMsg msg_rviz = xpp::ros::RosHelpers::XppToRosRviz(trajectory_hyq_joints);
-  trajectory_pub_rviz_.publish(msg_rviz);
 
   optimization_visualizer_->Visualize(); // sends out the footholds and com motion to rviz
 }
