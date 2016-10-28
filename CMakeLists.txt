@@ -9,7 +9,7 @@ find_package(catkin REQUIRED
   keyboard
   joy
   xpp_opt
-  xpp_msgs
+  xpp_conversions
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11") 
@@ -108,7 +108,7 @@ set(LIB_NAME xpp_ros)
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ${LIB_NAME}
-   CATKIN_DEPENDS xpp_msgs
+#  CATKIN_DEPENDS
 #  DEPENDS system_lib
 )
 
