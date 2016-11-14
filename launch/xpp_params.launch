@@ -1,17 +1,17 @@
 <launch>
-  <!-- zmp optimization paramters -->
+  <!-- zmp optimization parameters -->
   <group ns="xpp">  
-    <param name="swing_time"          value="0.6"  type="double"/>	
-    <param name="robot_height"        value="0.58" type="double"/> 
-    <param name="stance_time_initial" value="0.6"  type="double"/>
-    <param name="margin_diag"         value="0.06" type="double"/>
-    <param name="max_step_length"     value="0.25" type="double"/>
+    <param name="swing_time"             value="0.6"  type="double"/>	
+    <param name="robot_height"           value="0.58" type="double"/> 
+    <param name="stance_time_initial"    value="0.6"  type="double"/>
+    <param name="margin_diag"            value="0.06" type="double"/>
+    <param name="max_step_length"        value="0.25" type="double"/>
+    <!-- for building the discretized trajectory -->
+    <param name="lift_height"            value="0.15"  type="double"/> 
+    <param name="outward_swing_distance" value="0.25"  type="double"/> 
+    <param name="trajectory_dt"          value="0.004" type="double"/>   <!-- equal to 1/TaskServoHz -->    	
   </group>
   <group ns="exec">
-    <param name="use_virtual_model"      value="true"  type="bool"/>
-    <param name="ff_spline_duration"     value="0.2"   type="double"/>
-    <param name="lift_height"            value="0.15"  type="double"/> 
-    <param name="outward_swing_distance" value="0.25"  type="double"/>   	
   </group>
   <group ns="joy_node">
     <param name="dev"                  value="/dev/input/js0"  type="string"/>  

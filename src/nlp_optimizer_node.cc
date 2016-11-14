@@ -43,7 +43,10 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   CheckIfInDirectoyWithIpoptConfigFile();
 
-  whole_body_mapper_.SetParams(0.5, 0.15, 0.0, 1.0/200);
+  double lift_height   = RosHelpers::GetDoubleFromServer("/xpp/lift_height");
+  double outward_swing = RosHelpers::GetDoubleFromServer("/xpp/outward_swing_distance");
+  double trajectory_dt = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
+  whole_body_mapper_.SetParams(0.5, lift_height, outward_swing, trajectory_dt);
   ROS_INFO_STREAM("Initialization done, waiting for current state...");
 }
 
