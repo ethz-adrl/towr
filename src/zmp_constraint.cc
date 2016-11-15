@@ -19,9 +19,9 @@ void
 ZmpConstraint::Init (const MotionStructure& structure,
                      const ComMotion& com_motion,
                      const Contacts& contacts,
-                     double walking_height)
+                     double walking_height,
+                     double dt)
 {
-  double dt = 0.2; // discretization interval
   zmp_constraint_builder_.Init(structure, com_motion, contacts, walking_height, dt);
 }
 

@@ -67,10 +67,11 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateZmpConstraint (const MotionStructure& motion_structure,
                                             const ComMotion& com_motion,
                                             const Contacts& contacts,
-                                            double walking_height)
+                                            double walking_height,
+                                            double dt_zmp)
 {
   auto constraint = std::make_shared<ZmpConstraint>();
-  constraint->Init(motion_structure, com_motion, contacts, walking_height);
+  constraint->Init(motion_structure, com_motion, contacts, walking_height, dt_zmp);
   return constraint;
 }
 

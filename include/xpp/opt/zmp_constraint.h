@@ -27,7 +27,8 @@ public:
   ZmpConstraint ();
   virtual ~ZmpConstraint () {};
 
-  void Init(const MotionStructure&, const ComMotion&, const Contacts&, double walking_height);
+  void Init(const MotionStructure&, const ComMotion&, const Contacts&,
+            double walking_height, double dt);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;

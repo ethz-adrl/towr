@@ -49,7 +49,8 @@ public:
   static ConstraintPtr CreateZmpConstraint(const MotionStructure&,
                                            const ComMotion&,
                                            const Contacts&,
-                                           double walking_height);
+                                           double walking_height,
+                                           double dt_zmp);
   static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&,
                                                      const MotionStructure&);
   static CostPtr CreateRangeOfMotionCost(const ComMotion&, const Contacts&,

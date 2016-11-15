@@ -54,7 +54,8 @@ NlpFacade::SolveNlp(const State& initial_state,
                     const State& final_state,
                     double robot_height,
                     const MotionStructure& motion_structure,
-                    const Contacts& contacts)
+                    const Contacts& contacts,
+                    double dt_zmp)
 {
   // insight: this spline might be better for MPC, as it always matches the initial
   // position and velocity, avoiding jumps in state. For the other spline this is
@@ -76,7 +77,8 @@ NlpFacade::SolveNlp(const State& initial_state,
   constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(motion_structure,
                                                                          *com_motion,
                                                                          contacts,
-                                                                         robot_height));
+                                                                         robot_height,
+                                                                         dt_zmp));
   constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts, motion_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, contacts));
 
