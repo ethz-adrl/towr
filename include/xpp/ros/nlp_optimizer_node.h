@@ -43,6 +43,7 @@ private:
 
   double max_step_length_;
   int curr_swingleg_;
+  double dt_zmp_;
   xpp::hyq::MarginValues supp_polygon_margins_;
 
   ::ros::Subscriber current_info_sub_;

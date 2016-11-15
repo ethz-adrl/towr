@@ -34,6 +34,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
   supp_polygon_margins_[hyq::DIAG] = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");
 
   max_step_length_ = RosHelpers::GetDoubleFromServer("/xpp/max_step_length");
+  dt_zmp_ = RosHelpers::GetDoubleFromServer("/xpp/dt_zmp");
 
 
   // get current optimization values from the optimizer
@@ -103,7 +104,8 @@ NlpOptimizerNode::OptimizeTrajectory()
                        goal_cog_.Get2D(),
                        robot_height_,
                        motion_structure,
-                       contacts);
+                       contacts,
+                       dt_zmp_);
 
   auto& com_spline = dynamic_cast<xpp::opt::ComSpline&>(*nlp_facade_.GetMotion());
   opt_splines_   = com_spline.GetPolynomials();
