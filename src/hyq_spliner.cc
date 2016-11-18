@@ -36,7 +36,8 @@ void HyqSpliner::SetParams(double upswing,
 
 void
 HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const VecPolyomials& com_spline,
-                  const VecFoothold& contacts, double robot_height)
+                  const VecFoothold& contacts, double des_height,
+                  const HyqStateEE& curr_state)
 {
   // get first state
   nodes_.clear();
@@ -46,19 +47,7 @@ HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const VecPolyomials& com
   feet_spliner_down_.clear();
   feet_spliner_up_.clear();
 
-  HyqStateEE x0;
-  x0.ZeroVelAcc();
-  x0.base_.lin.p.topRows<kDim2d>() = ComPolynomialHelpers::GetCOM(0.0, com_spline).p;
-  x0.base_.lin.v.topRows<kDim2d>() = ComPolynomialHelpers::GetCOM(0.0, com_spline).v;
-  x0.base_.lin.a.topRows<kDim2d>() = ComPolynomialHelpers::GetCOM(0.0, com_spline).a;
-  x0.base_.lin.p.z() = robot_height;
-
-  for (auto f : phase_info.at(0).fixed_contacts_) {
-    x0.feet_[f.leg].p = f.p;
-    x0.swingleg_[f.leg] = false;
-  }
-
-  nodes_ = BuildPhaseSequence(x0, phase_info, com_spline, contacts, robot_height);
+  nodes_ = BuildPhaseSequence(curr_state, phase_info, com_spline, contacts, des_height);
   CreateAllSplines(nodes_);
   optimized_xy_spline_ = com_spline;
 }
@@ -132,7 +121,7 @@ HyqSpliner::BuildPhaseSequence(const HyqStateEE& P_init,
                                const xpp::opt::PhaseVec& phase_info,
                                const VecPolyomials& optimized_xy_spline,
                                const VecFoothold& footholds,
-                               double robot_height)
+                               double des_robot_height)
 {
   std::vector<SplineNode> nodes;
 
@@ -143,11 +132,6 @@ HyqSpliner::BuildPhaseSequence(const HyqStateEE& P_init,
   /** Add state sequence based on footsteps **/
   // desired state after first 4 leg support phase
   HyqStateEE P_plan_prev = P_init;
-  P_plan_prev.ZeroVelAcc(); // these aren't used anyway, overwritten by optimizer
-  for (hyq::LegID l : hyq::LegIDArray) {
-    P_plan_prev.feet_[l].p(Z) = 0.0;
-  }
-  P_plan_prev.base_.lin.p(Z) = robot_height + P_plan_prev.GetZAvg(); // height of footholds
 
   double t_global = 0.0;
   for (const auto& curr_phase : phase_info)
@@ -197,7 +181,7 @@ HyqSpliner::BuildPhaseSequence(const HyqStateEE& P_init,
     goal_node.base_.ang.q = qIB.toImplementation();
 
     // adjust global z position of body depending on footholds
-    goal_node.base_.lin.p(Z) = robot_height + goal_node.GetZAvg(); // height of footholds
+    goal_node.base_.lin.p(Z) = des_robot_height + goal_node.GetZAvg(); // height of footholds
 
     // fill in x-y position, although overwritten anyway later
     double t_phase = curr_phase.duration_;

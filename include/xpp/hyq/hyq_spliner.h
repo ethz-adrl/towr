@@ -63,7 +63,8 @@ public:
   void Init(const xpp::opt::PhaseVec&,
             const VecPolyomials&,
             const VecFoothold&,
-            double robot_height);
+            double des_height,
+            const HyqStateEE& curr_state);
 
   HyqStateEEVec BuildWholeBodyTrajectory() const;
   HyqStateJointsVec BuildWholeBodyTrajectoryJoints() const;
