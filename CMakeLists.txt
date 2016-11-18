@@ -127,7 +127,7 @@ include_directories(
 add_library(${LIB_NAME}
   src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
-  src/qp_optimizer_node.cc
+#  src/qp_optimizer_node.cc
   src/marker_array_builder.cc
   src/optimization_visualizer.cc
   src/nlp_user_input_node.cc
@@ -141,17 +141,10 @@ target_link_libraries(nlp_optimizer_node
   ${catkin_LIBRARIES}
 )   
 
-add_executable(qp_optimizer_node 
-  src/executable/qp_optimizer_node_exe.cc
-)
-target_link_libraries(qp_optimizer_node 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
-)  
-
 add_executable(goal_state_pub 
   src/executable/goal_state_publisher.cc
 )
+
 target_link_libraries(goal_state_pub 
   ${LIB_NAME}
   ${catkin_LIBRARIES}
@@ -165,14 +158,6 @@ target_link_libraries(sample_nlp_caller
   ${catkin_LIBRARIES}
 )
 
-add_executable(sample_qp_caller 
-    src/executable/sample_qp_caller.cc
-)
-target_link_libraries(sample_qp_caller 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
-)
-
 add_executable(nlp_user_input_node
     src/executable/nlp_user_input_node_exe.cc
 )
@@ -180,6 +165,24 @@ target_link_libraries(nlp_user_input_node
   ${LIB_NAME}
   ${catkin_LIBRARIES}
 )
+
+#add_executable(qp_optimizer_node 
+#  src/executable/qp_optimizer_node_exe.cc
+#)
+#
+#target_link_libraries(qp_optimizer_node 
+#  ${LIB_NAME}
+#  ${catkin_LIBRARIES}
+#)  
+#
+#add_executable(sample_qp_caller 
+#    src/executable/sample_qp_caller.cc
+#)
+#target_link_libraries(sample_qp_caller 
+#  ${LIB_NAME}
+#  ${catkin_LIBRARIES}
+#)
+
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

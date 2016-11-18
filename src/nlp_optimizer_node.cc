@@ -23,9 +23,13 @@ static bool CheckIfInDirectoyWithIpoptConfigFile();
 
 NlpOptimizerNode::NlpOptimizerNode ()
 {
-  current_info_sub_ = n_.subscribe(xpp_msgs::req_info_nlp,
-                                   1, // take only the most recent information
-                                   &NlpOptimizerNode::CurrentInfoCallback, this);
+//  current_info_sub_ = n_.subscribe(xpp_msgs::req_info_nlp,
+//                                   1, // take only the most recent information
+//                                   &NlpOptimizerNode::CurrentInfoCallback, this);
+
+  current_state_sub_ = n_.subscribe(xpp_msgs::curr_robot_state,
+                                    1, // take only the most recent information
+                                    &NlpOptimizerNode::CurrentStateCallback, this);
 
   trajectory_pub_hyqjoints_ = n_.advertise<xpp_msgs::HyqStateJointsTrajectory>(
       xpp_msgs::robot_trajectory_joints, 1);
@@ -51,25 +55,34 @@ NlpOptimizerNode::NlpOptimizerNode ()
   ROS_INFO_STREAM("Initialization done, waiting for current state...");
 }
 
+//// inv_dyn remove this
+//void
+//NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
+//{
+//  curr_cog_      = RosHelpers::RosToXpp(msg.curr_state);
+//  curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
+//  curr_swingleg_ = msg.curr_swingleg;
+//
+//  static bool first_update = true;
+//  if (first_update) {
+//    ROS_INFO_STREAM("Updated Current State: " << curr_cog_);
+//    ROS_INFO_STREAM("Updated Current Footholds: ");
+//    for (auto f : curr_stance_) {
+//      ROS_INFO_STREAM(f);
+//    }
+//    ROS_INFO_STREAM("Updated curr_swingleg: " << curr_swingleg_);
+//    first_update = false;
+//  }
+//
+//  optimization_visualizer_->VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
+//}
+
 void
-NlpOptimizerNode::CurrentInfoCallback(const ReqInfoMsg& msg)
+NlpOptimizerNode::CurrentStateCallback (const HyqStateJointsMsg& msg)
 {
-  curr_cog_      = RosHelpers::RosToXpp(msg.curr_state);
-  curr_stance_   = RosHelpers::RosToXpp(msg.curr_stance);
-  curr_swingleg_ = msg.curr_swingleg;
-
-  static bool first_update = true;
-  if (first_update) {
-    ROS_INFO_STREAM("Updated Current State: " << curr_cog_);
-    ROS_INFO_STREAM("Updated Current Footholds: ");
-    for (auto f : curr_stance_) {
-      ROS_INFO_STREAM(f);
-    }
-    ROS_INFO_STREAM("Updated curr_swingleg: " << curr_swingleg_);
-    first_update = false;
-  }
-
-  optimization_visualizer_->VisualizeCurrentState(curr_cog_.Get2D(), curr_stance_);
+  curr_state_ = RosHelpers::RosToXpp(msg);
+  optimization_visualizer_->VisualizeCurrentState(curr_state_.base_.lin.Get2D(),
+                                                  curr_state_.GetStanceLegsInWorld());
 }
 
 void
@@ -87,20 +100,21 @@ void
 NlpOptimizerNode::OptimizeTrajectory()
 {
   // create the fixed motion structure
-  step_sequence_planner_.Init(curr_cog_.Get2D(), goal_cog_.Get2D(), curr_stance_,
+  step_sequence_planner_.Init(curr_state_.base_.lin.Get2D(), goal_cog_.Get2D(),
+                              curr_state_.GetStanceLegsInWorld(),
                               robot_height_, max_step_length_,
-                              curr_swingleg_, supp_polygon_margins_);
+                              curr_state_.SwinglegID(), supp_polygon_margins_);
   auto step_sequence        = step_sequence_planner_.DetermineStepSequence();
   bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
 
   MotionStructure motion_structure;
-  motion_structure.Init(curr_stance_, step_sequence, t_swing_, t_stance_initial_,
+  motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, t_swing_, t_stance_initial_,
                         start_with_com_shift, true);
 
   Contacts contacts;
-  contacts.Init(curr_stance_, step_sequence, supp_polygon_margins_);
+  contacts.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, supp_polygon_margins_);
 
-  nlp_facade_.SolveNlp(curr_cog_.Get2D(),
+  nlp_facade_.SolveNlp(curr_state_.base_.lin.Get2D(),
                        goal_cog_.Get2D(),
                        robot_height_,
                        motion_structure,
@@ -112,8 +126,24 @@ NlpOptimizerNode::OptimizeTrajectory()
   footholds_     = nlp_facade_.GetFootholds();
   motion_phases_ = nlp_facade_.GetPhases();
 
-  // convert to full body state
-  whole_body_mapper_.Init(motion_phases_,opt_splines_,footholds_, robot_height_);
+//  // convert to full body state
+//  // inv_dyn maybe send this directly, instead off all separate
+//  hyq::HyqStateEE curr;
+//  curr.base_.lin = curr_cog_;
+//  curr.swingleg_ = false;
+//
+//  std::cout << "curr_cog: " << curr_cog_;
+//
+//  if (curr_swingleg_ != hyq::NO_SWING_LEG)
+//    curr.swingleg_[curr_swingleg_] = true;
+//
+//
+//  for (auto f : curr_stance_)
+//    curr.feet_[f.leg].p = f.p;
+
+
+  whole_body_mapper_.Init(motion_phases_,opt_splines_,footholds_,
+                          robot_height_, curr_state_);
 }
 
 
@@ -149,6 +179,7 @@ static bool CheckIfInDirectoyWithIpoptConfigFile()
 //  opt_params_pub_.publish(msg_out);
 //  ROS_INFO_STREAM("Publishing optimized values");
 //}
+
 
 } /* namespace ros */
 } /* namespace xpp */

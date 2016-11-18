@@ -19,6 +19,7 @@
 namespace xpp {
 namespace ros {
 
+// inv_dyn possibly remove entire node
 class OptimizerNodeBase {
 public:
   using State = xpp::utils::BaseLin3d;
@@ -37,8 +38,10 @@ public:
 protected:
   ::ros::NodeHandle n_;
   State goal_cog_;
-  State curr_cog_;
-  VecFoothold curr_stance_;
+
+  // inv_dyn remove these or replace with hyq state
+//  State curr_cog_;
+//  VecFoothold curr_stance_;
 
   VecSpline opt_splines_;
   VecFoothold footholds_;

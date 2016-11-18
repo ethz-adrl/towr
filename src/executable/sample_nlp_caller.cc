@@ -48,6 +48,7 @@ int main(int argc, char **argv)
   ReqInfoMsg msg;
   msg.curr_state.pos.x = atof(argv_out[1].c_str());
   msg.curr_state.pos.y = atof(argv_out[2].c_str());
+  msg.curr_state.pos.z = 0.57;
   msg.curr_state.vel.x = atof(argv_out[3].c_str());
   msg.curr_state.vel.y = atof(argv_out[4].c_str());
   msg.curr_state.acc.x = atof(argv_out[5].c_str()); // constraint
