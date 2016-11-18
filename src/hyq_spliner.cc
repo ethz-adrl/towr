@@ -206,7 +206,6 @@ void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
 
   Spliner3d pos, ori;
   LegDataMap< Spliner3d > feet_up, feet_down;
-  std::cout << "nodes.size(): " << nodes.size() << std::endl;
   for (int n=1; n<nodes_.size(); ++n) {
     SplineNode from = nodes.at(n-1);
     SplineNode to   = nodes.at(n);
