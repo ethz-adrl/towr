@@ -16,6 +16,29 @@
 namespace xpp {
 namespace hyq {
 
+
+class HyqStateEE : public HyqState {
+public:
+  HyqStateEE() {};
+  HyqStateEE(const HyqStateJoints&);
+
+  using Vector3d = Eigen::Vector3d;
+  using VecFoothold = std::vector<Foothold>;
+  using BaseLin3d = xpp::utils::BaseLin3d;
+
+  LegDataMap<BaseLin3d> feet_;
+
+  LegDataMap< Foothold > FeetToFootholds() const;
+  Foothold FootToFoothold(LegID leg) const;
+  VecFoothold GetStanceLegs() const;
+  const LegDataMap<Vector3d> GetFeetPosOnly();
+  std::array<Vector3d, kNumSides> GetAvgSides() const;
+  double GetZAvg() const;
+
+};
+
+
+// inv_dyn merge this with HyqStateEE
 struct SplineNode {
   typedef xpp::utils::BaseLin3d Point3d;
 
@@ -24,7 +47,7 @@ struct SplineNode {
       : state_(state), ori_rpy_(ori_rpy), T(t_max) {};
 
   HyqStateEE state_;
-  Point3d ori_rpy_; // fixme remove this and use quaternion orientation directly for interpolation
+  Point3d ori_rpy_; // inv_dyn remove this and use quaternion orientation directly for interpolation
   double T;         // time to reach this state
 };
 
@@ -64,7 +87,7 @@ public:
             const VecPolyomials&,
             const VecFoothold&,
             double des_height,
-            const HyqStateEE& curr_state);
+            const HyqStateJoints& curr_state);
 
   HyqStateEEVec BuildWholeBodyTrajectory() const;
   HyqStateJointsVec BuildWholeBodyTrajectoryJoints() const;
@@ -101,7 +124,7 @@ private:
   Vector3d GetCurrZState(double t_global) const;
 
   std::vector<SplineNode>
-  BuildPhaseSequence(const HyqStateEE& P_init,
+  BuildPhaseSequence(const HyqStateJoints& P_init,
                      const xpp::opt::PhaseVec&,
                      const VecPolyomials& optimized_xy_spline,
                      const VecFoothold& footholds,

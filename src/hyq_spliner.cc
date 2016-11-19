@@ -37,7 +37,7 @@ void HyqSpliner::SetParams(double upswing,
 void
 HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const VecPolyomials& com_spline,
                   const VecFoothold& contacts, double des_height,
-                  const HyqStateEE& curr_state)
+                  const HyqStateJoints& curr_state)
 {
   // get first state
   nodes_.clear();
@@ -92,15 +92,8 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
     hyq_j.swingleg_ = hyq.swingleg_;
 
     // add joint position
-    Eigen::Matrix3d P_R_B = hyq.base_.ang.q.normalized().toRotationMatrix();
-    for (size_t ee=0; ee<xpp::hyq::_LEGS_COUNT; ee++) {
-      // Transform global into local feet position
-      Eigen::Vector3d P_base = hyq.base_.lin.p;
-      Eigen::Vector3d P_foot = hyq.GetFeetPosOnly()[ee];
-      Eigen::Vector3d B_foot = P_R_B.transpose() * (P_foot - P_base);
-
-      hyq_j.q.segment<3>(3*ee) = inv_kin.GetJointAngles(B_foot, ee);
-    }
+    HyqStateJoints::PosEE ee_W = {hyq.feet_[LF].p, hyq.feet_[RF].p, hyq.feet_[LH].p, hyq.feet_[RH].p};
+    hyq_j.SetJointAngles(ee_W);
 
     // joint velocity
     if (!first_state) { // to avoid jump in vel/acc in first state
@@ -117,7 +110,7 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
 }
 
 std::vector<SplineNode>
-HyqSpliner::BuildPhaseSequence(const HyqStateEE& P_init,
+HyqSpliner::BuildPhaseSequence(const HyqStateJoints& P_init,
                                const xpp::opt::PhaseVec& phase_info,
                                const VecPolyomials& optimized_xy_spline,
                                const VecFoothold& footholds,
@@ -174,7 +167,7 @@ HyqSpliner::BuildPhaseSequence(const HyqStateEE& P_init,
     // Quaternion is the same for angle += i*pi
     kindr::EulerAnglesXyzPD yprIB(
         roll_gain*i_roll,
-        pitch_gain*i_pitch,
+        0.3,//pitch_gain*i_pitch,
         0.0); // P_yaw_des.at(s.step_));
 
     kindr::RotationQuaternionPD qIB(yprIB);
@@ -470,6 +463,89 @@ HyqSpliner::BuildFootstepSplineDown(const LegDataMap<Point>& feet_at_switch,
   }
 
   return feet_down;
+}
+
+HyqStateEE::HyqStateEE (const HyqStateJoints& state_joints)
+{
+  swingleg_ = state_joints.swingleg_;
+  base_ = state_joints.base_;
+
+  // inv_dyn clean this up
+  LegDataMap<BaseLin3d> feet;
+  auto ee_W = state_joints.GetEEInWorld();
+
+  for (int leg=0; leg<ee_W.size(); ++leg){
+    feet_[leg].p = ee_W[leg];
+    feet_[leg].v.setZero(); //inv_dyn use joint velocity to get this
+    feet_[leg].a.setZero();
+  }
+}
+
+const LegDataMap<Eigen::Vector3d> HyqStateEE::GetFeetPosOnly()
+{
+  static LegDataMap<Eigen::Vector3d> feet_pos;
+  for (LegID leg : LegIDArray)
+    feet_pos[leg] = feet_[leg].p;
+  return feet_pos;
+}
+
+std::array<Eigen::Vector3d, kNumSides> HyqStateEE::GetAvgSides() const
+{
+  typedef std::pair <Side,Side> LegSide;
+  static LegDataMap<LegSide> leg_sides;
+
+  leg_sides[LF] = LegSide( LEFT_SIDE, FRONT_SIDE);
+  leg_sides[RF] = LegSide(RIGHT_SIDE, FRONT_SIDE);
+  leg_sides[LH] = LegSide( LEFT_SIDE,  HIND_SIDE);
+  leg_sides[RH] = LegSide(RIGHT_SIDE,  HIND_SIDE);
+
+  std::array<Vector3d, kNumSides> pos_avg;
+  for (Side s : SideArray) pos_avg[s] = Vector3d::Zero(); // zero values
+
+  for (LegID leg : LegIDArray)
+  {
+    pos_avg[leg_sides[leg].first]  += feet_[leg].p;
+    pos_avg[leg_sides[leg].second] += feet_[leg].p;
+  }
+
+  for (Side s : SideArray)
+    pos_avg[s] /= std::tuple_size<LegSide>::value; // 2 feet per side
+  return pos_avg;
+}
+
+double HyqStateEE::GetZAvg() const
+{
+  std::array<Vector3d, kNumSides> avg = GetAvgSides();
+  return (avg[FRONT_SIDE](Z) + avg[HIND_SIDE](Z)) / 2;
+}
+
+
+LegDataMap<Foothold> HyqStateEE::FeetToFootholds() const
+{
+  LegDataMap<Foothold> footholds;
+  for (LegID leg : LegIDArray)
+    footholds[leg] = FootToFoothold(leg);
+  return footholds;
+}
+
+HyqStateEE::VecFoothold
+HyqStateEE::GetStanceLegs() const
+{
+  VecFoothold stance_legs;
+  for (LegID leg : LegIDArray)
+    if (!swingleg_[leg])
+      stance_legs.push_back(FootToFoothold(leg));
+
+  return stance_legs;
+}
+
+Foothold HyqStateEE::FootToFoothold(LegID leg) const
+{
+  Foothold foothold;
+  foothold.p = feet_[leg].p;
+  foothold.leg = leg;
+
+  return foothold;
 }
 
 } // namespace hyq
