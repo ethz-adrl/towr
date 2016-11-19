@@ -37,7 +37,7 @@ void HyqSpliner::SetParams(double upswing,
 void
 HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComSpline& com_spline,
                   const VecFoothold& contacts, double des_height,
-                  const HyqStateJoints& curr_state)
+                  const HyqState& curr_state)
 {
   nodes_.clear();
   pos_spliner_.clear();
@@ -52,7 +52,7 @@ HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComSpline& com_spl
 }
 
 std::vector<SplineNode>
-HyqSpliner::BuildNodeSequence(const HyqStateJoints& P_init,
+HyqSpliner::BuildNodeSequence(const HyqState& P_init,
                               const xpp::opt::PhaseVec& phase_info,
                               const VecFoothold& footholds,
                               double des_robot_height)
@@ -204,17 +204,18 @@ HyqSpliner::FillCurrFeet(double t_global,
 
   feet = nodes_.at(goal_node).feet_W_;
 
-  int sl = nodes_.at(goal_node).SwinglegID();
-  if (sl != NO_SWING_LEG) // only spline foot of swingleg
-  {
-    double t_upswing = nodes_.at(goal_node).T * kUpswingPercent;
+  for (int leg=0; leg<4; ++leg) {
+    if(nodes_.at(goal_node).swingleg_[leg]) { // only spline swinglegs
 
-    if ( t_local < t_upswing) // leg swinging up
-      feet_spliner_up_.at(spline)[sl].GetPoint(t_local, feet[sl]);
-    else // leg swinging down
-      feet_spliner_down_.at(spline)[sl].GetPoint(t_local - t_upswing, feet[sl]);
+      double t_upswing = nodes_.at(goal_node).T * kUpswingPercent;
 
-    swingleg[sl] = true;
+      if ( t_local < t_upswing) // leg swinging up
+        feet_spliner_up_.at(spline)[leg].GetPoint(t_local, feet[leg]);
+      else // leg swinging down
+        feet_spliner_down_.at(spline)[leg].GetPoint(t_local - t_upswing, feet[leg]);
+
+      swingleg[leg] = true;
+    }
   }
 }
 
@@ -337,7 +338,7 @@ int HyqSpliner::GetSplineID(double t) const
   return -1;
 }
 
-SplineNode::SplineNode (const HyqStateJoints& state_joints, double t_max)
+SplineNode::SplineNode (const HyqState& state_joints, double t_max)
 {
   swingleg_ = state_joints.swingleg_;
   base_ = state_joints.base_;
@@ -414,16 +415,16 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
   HyqStateVec trajectory_joints;
   HyqInverseKinematics inv_kin;
 
-  HyqStateJoints hyq_j_prev;
+  HyqState hyq_j_prev;
   bool first_state = true;
   for (auto hyq : trajectory_ee) {
 
-    HyqStateJoints hyq_j;
+    HyqState hyq_j;
     hyq_j.base_     = hyq.base_;
     hyq_j.swingleg_ = hyq.swingleg_;
 
     // add joint position
-    HyqStateJoints::PosEE ee_W = {hyq.feet_W_[LF].p, hyq.feet_W_[RF].p, hyq.feet_W_[LH].p, hyq.feet_W_[RH].p};
+    HyqState::PosEE ee_W = {hyq.feet_W_[LF].p, hyq.feet_W_[RF].p, hyq.feet_W_[LH].p, hyq.feet_W_[RH].p};
     hyq_j.SetJointAngles(ee_W);
 
     // joint velocity

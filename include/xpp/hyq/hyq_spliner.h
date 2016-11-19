@@ -16,15 +16,18 @@
 namespace xpp {
 namespace hyq {
 
-class SplineNode : public HyqState {
+class SplineNode  {
 public:
+  using BaseState = xpp::utils::BaseState;
   using BaseLin3d = xpp::utils::BaseLin3d;
   using Vector3d  = Eigen::Vector3d;
 
   SplineNode(){};
-  SplineNode(const HyqStateJoints& state_joints, double t_max);
+  SplineNode(const HyqState& state_joints, double t_max);
 
   LegDataMap<BaseLin3d> feet_W_; ///< contacts expressed in world frame
+  LegDataMap< bool > swingleg_;
+  BaseState base_;
   double T;                      ///< time to reach this state
 
   std::array<Vector3d, kNumSides> GetAvgSides() const;
@@ -35,13 +38,13 @@ public:
   */
 class HyqSpliner {
 public:
-  using ComSpline = std::vector<xpp::utils::ComPolynomial>;
-  using Vector3d = Eigen::Vector3d;
-  using VecFoothold = Foothold::VecFoothold;
-  using Point         = ::xpp::utils::BaseLin3d;
+  using ComSpline     = std::vector<xpp::utils::ComPolynomial>;
+  using Vector3d      = Eigen::Vector3d;
+  using VecFoothold   = Foothold::VecFoothold;
+  using Point         = xpp::utils::BaseLin3d;
   using SplineNodeVec = std::vector<SplineNode>;
-  using HyqStateVec   = std::vector<HyqStateJoints>;
-  using Spliner3d = ::xpp::utils::PolynomialXd< ::xpp::utils::QuinticPolynomial,::xpp::utils::kDim3d, ::xpp::utils::BaseLin3d>;
+  using HyqStateVec   = std::vector<HyqState>;
+  using Spliner3d     = xpp::utils::PolynomialXd< ::xpp::utils::QuinticPolynomial,::xpp::utils::kDim3d, ::xpp::utils::BaseLin3d>;
 
 public:
   HyqSpliner();
@@ -55,7 +58,7 @@ public:
             const ComSpline&,
             const VecFoothold&,
             double des_height,
-            const HyqStateJoints& curr_state);
+            const HyqState& curr_state);
 
   HyqStateVec BuildWholeBodyTrajectoryJoints() const;
 
@@ -70,7 +73,7 @@ private:
   double kLiftHeight;           // how high to lift the leg
   double kOutwardSwingDistance; // how far to swing leg outward (y-dir)
 
-  std::vector<SplineNode> BuildNodeSequence(const HyqStateJoints& P_init,
+  std::vector<SplineNode> BuildNodeSequence(const HyqState& P_init,
                                             const xpp::opt::PhaseVec&,
                                             const VecFoothold& footholds,
                                             double des_robot_height);
