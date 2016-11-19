@@ -17,16 +17,30 @@ namespace xpp {
 namespace hyq {
 
 
-class HyqStateEE : public HyqState {
-public:
-  HyqStateEE() {};
-  HyqStateEE(const HyqStateJoints&);
+//class HyqStateEE : public HyqState {
+//public:
+//  HyqStateEE() {};
+//  HyqStateEE(const HyqStateJoints&);
+//
+//
+//
+//
+//};
 
+
+// inv_dyn merge this with HyqStateEE
+struct SplineNode : public HyqState {
+  typedef xpp::utils::BaseLin3d Point3d;
   using Vector3d = Eigen::Vector3d;
   using VecFoothold = std::vector<Foothold>;
   using BaseLin3d = xpp::utils::BaseLin3d;
 
+  SplineNode(){};
+  SplineNode(const HyqStateJoints& state_joints, double t_max);
+
   LegDataMap<BaseLin3d> feet_;
+  double T;         // time to reach this state
+
 
   LegDataMap< Foothold > FeetToFootholds() const;
   Foothold FootToFoothold(LegID leg) const;
@@ -35,20 +49,6 @@ public:
   std::array<Vector3d, kNumSides> GetAvgSides() const;
   double GetZAvg() const;
 
-};
-
-
-// inv_dyn merge this with HyqStateEE
-struct SplineNode {
-  typedef xpp::utils::BaseLin3d Point3d;
-
-  SplineNode(){};
-  SplineNode(const HyqStateEE& state, const Point3d& ori_rpy, double t_max)
-      : state_(state), ori_rpy_(ori_rpy), T(t_max) {};
-
-  HyqStateEE state_;
-  Point3d ori_rpy_; // inv_dyn remove this and use quaternion orientation directly for interpolation
-  double T;         // time to reach this state
 };
 
 /**
@@ -71,11 +71,12 @@ public:
 
   using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
   typedef Spliner3d::Point Point;
-  using HyqStateEEVec     = std::vector<HyqStateEE>;
+  using HyqStateEEVec     = std::vector<SplineNode>;
   using HyqStateJointsVec = std::vector<HyqStateJoints>;
 
 
 public:
+  static Eigen::Vector3d TransformQuatToRpy(const Eigen::Quaterniond& q);
   HyqSpliner();
   virtual ~HyqSpliner();
 
@@ -131,18 +132,6 @@ private:
                      double robot_height);
 
   void CreateAllSplines(const std::vector<SplineNode>& nodes);
-
-
-  static Eigen::Vector3d TransformQuatToRpy(const Eigen::Quaterniond& q);
-
-  /**
-  @brief transforms a HyqState into a collection of Points, including
-         body position, body orientation, and feet position
-  @param[in] time_to_reach how long the robot has to achieve this state
-   */
-  static SplineNode BuildNode(const HyqStateEE& state, double t_max);
-  friend class HyqSplinerTest_BuildNode_Test;
-
 
   Spliner3d BuildPositionSpline(const SplineNode& from, const SplineNode& to) const;
   Spliner3d BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const;
