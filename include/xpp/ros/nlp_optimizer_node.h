@@ -15,7 +15,6 @@
 #include <xpp/hyq/hyq_state.h>
 #include <xpp/opt/nlp_facade.h>
 
-#include <xpp_msgs/RequiredInfoNlp.h>        // receive inv_dyn remove
 #include <xpp_msgs/HyqStateJoints.h>         // receive
 
 namespace xpp {
@@ -24,13 +23,11 @@ namespace ros {
 class NlpOptimizerNode : public OptimizerNodeBase {
 public:
   typedef xpp::opt::NlpFacade NlpFacade;
-  typedef xpp::hyq::LegID LegID;
-  typedef xpp_msgs::RequiredInfoNlp ReqInfoMsg;
 
   using WholeBodyMapper = xpp::hyq::HyqSpliner;
   using OptVisualizerPtr = std::shared_ptr<OptimizationVisualizer>;
   using StepSequencePlanner = xpp::hyq::StepSequencePlanner;
-  using HyqStateJoints = xpp::hyq::HyqStateJoints;
+  using HyqStateJoints = xpp::hyq::HyqState;
   using HyqStateJointsMsg = xpp_msgs::HyqStateJoints;
 
 public:
@@ -46,24 +43,18 @@ private:
   HyqStateJoints curr_state_;
 
 
-
   virtual void OptimizeTrajectory() override final;
   virtual void PublishTrajectory() const override final;
-  void CurrentInfoCallback(const ReqInfoMsg& msg);
   void CurrentStateCallback(const HyqStateJointsMsg& msg);
 
   double max_step_length_;
-//  int curr_swingleg_;
   double dt_zmp_;
   xpp::hyq::MarginValues supp_polygon_margins_;
 
-//  ::ros::Subscriber current_info_sub_;
   ::ros::Subscriber current_state_sub_;
   ::ros::Publisher trajectory_pub_hyqjoints_;
 
-
   OptVisualizerPtr optimization_visualizer_;
-//  virtual void PublishOptimizedValues() const override final;
 };
 
 } /* namespace ros */

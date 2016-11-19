@@ -55,7 +55,7 @@ QpOptimizerNode::OptimizeTrajectory()
                                        footholds_,
                                        t_swing_, t_stance_initial_,
                                        start_with_com_shift_,
-                                       robot_height_);
+                                       des_robot_height_);
 }
 
 } /* namespace ros */

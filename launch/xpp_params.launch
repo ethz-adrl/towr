@@ -2,7 +2,7 @@
   <!-- zmp optimization parameters -->
   <group ns="xpp">  
     <param name="swing_time"             value="0.6"  type="double"/>	
-    <param name="robot_height"           value="0.58" type="double"/> 
+    <param name="robot_height"           value="0.62" type="double"/> 
     <param name="stance_time_initial"    value="0.6"  type="double"/>
     <param name="margin_diag"            value="0.06" type="double"/>
     <param name="max_step_length"        value="0.25" type="double"/>

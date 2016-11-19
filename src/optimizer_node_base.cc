@@ -23,7 +23,7 @@ OptimizerNodeBase::OptimizerNodeBase ()
   t_swing_   = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
   t_stance_initial_   = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
 
-  robot_height_ = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
+  des_robot_height_ = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 }
 
 OptimizerNodeBase::~OptimizerNodeBase ()

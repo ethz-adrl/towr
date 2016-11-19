@@ -49,7 +49,7 @@ protected:
 
   double t_swing_;
   double t_stance_initial_;
-  double robot_height_;
+  double des_robot_height_;
 
 private:
   ::ros::Subscriber goal_state_sub_;
