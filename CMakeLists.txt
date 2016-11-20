@@ -97,6 +97,7 @@ set(SOURCES
   src/com_spline4.cc
   src/motion_factory.cc
   # nlp
+  src/motion_optimizer_facade.cc
   src/a_subject.cc
   src/nlp_structure.cc
   src/optimization_variables.cc
@@ -184,6 +185,7 @@ if(BUILD_TESTS)
 #                        test/google/a_foothold_cost_test.cc
                          test/google/cost_adapter_test.cc
 #                        # nlp optimizers
+                         test/google/motion_optimizer_facade_test.cc
 #                        test/google/nlp_test.cc
 #                        test/google/snopt_test.cc
 #                        test/google/snopt_adapter_test.cc
