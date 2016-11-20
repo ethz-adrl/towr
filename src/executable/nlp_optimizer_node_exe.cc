@@ -5,6 +5,7 @@
 @brief   Start the nlp foothold optimization server
  */
 
+#include <ros/ros.h>
 #include <xpp/ros/nlp_optimizer_node.h>
 
 

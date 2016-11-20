@@ -36,16 +36,8 @@ public:
   virtual void PublishTrajectory() const = 0;
 
 protected:
-  ::ros::NodeHandle n_;
+//  ::ros::NodeHandle n_;
   State goal_cog_;
-
-  // inv_dyn remove these or replace with hyq state
-//  State curr_cog_;
-//  VecFoothold curr_stance_;
-
-  VecSpline opt_splines_;
-  VecFoothold footholds_;
-  PhaseVec motion_phases_;
 
   double t_swing_;
   double t_stance_initial_;

@@ -7,11 +7,11 @@
 
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
-#include <xpp_msgs/HyqStateJoints.h>
+#include <xpp_msgs/HyqState.h>
 
-using HyqStateJoints    = xpp::hyq::HyqState;
-using HyqStateJointsMsg = xpp_msgs::HyqStateJoints;
-using Vector3d          = Eigen::Vector3d;
+using HyqState    = xpp::hyq::HyqState;
+using HyqStateMsg = xpp_msgs::HyqState;
+using Vector3d    = Eigen::Vector3d;
 
 int main(int argc, char **argv)
 {
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
   }
 
   ros::NodeHandle n;
-  ros::Publisher current_info_pub = n.advertise<HyqStateJointsMsg>(xpp_msgs::curr_robot_state, 1);
+  ros::Publisher current_info_pub = n.advertise<HyqStateMsg>(xpp_msgs::curr_robot_state, 1);
 
   // give publisher and subscriber time to register with master
   ros::Rate poll_rate(1000);
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
   sleep(0.5); // sleep another 0.5s to give subscriber time to listen
 
-  HyqStateJoints start_state;
+  HyqState start_state;
   start_state.base_.lin.p.x() = atof(argv_out[1].c_str());
   start_state.base_.lin.p.y() = atof(argv_out[2].c_str());
   start_state.base_.lin.p.z() = 0.57;
@@ -48,13 +48,13 @@ int main(int argc, char **argv)
   start_state.base_.lin.a.x() = atof(argv_out[5].c_str()); // constraint
   start_state.base_.lin.a.y() = atof(argv_out[6].c_str()); // constraint
 
-  HyqStateJoints::PosEE start_stance_W = { Vector3d( 0.359692,   0.327653, 0.0), // LF
+  HyqState::PosEE start_stance_W = { Vector3d( 0.359692,   0.327653, 0.0), // LF
                                            Vector3d( 0.359694,  -0.327644, 0.0), // RF
                                            Vector3d(-0.358797,   0.327698, 0.0), // LH
                                            Vector3d(-0.358802,  -0.327695, 0.0)};// RH
 
   start_state.SetJointAngles(start_stance_W);
-  HyqStateJointsMsg msg_hyq = xpp::ros::RosHelpers::XppToRos(start_state);
+  HyqStateMsg msg_hyq = xpp::ros::RosHelpers::XppToRos(start_state);
   ROS_INFO_STREAM("Publishing current state...");
   current_info_pub.publish(msg_hyq);
 }
