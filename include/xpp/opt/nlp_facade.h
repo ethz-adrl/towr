@@ -81,8 +81,7 @@ public:
                 const Contacts& contacts,
                 double dt_zmp);
 
-  void AttachVisualizer(VisualizerPtr visualizer);
-  NlpObserverPtr GetObserver() const;
+  void AttachNlpObserver(VisualizerPtr& visualizer);
 
   VecFoothold GetFootholds() const;
   ComMotionPtrS GetMotion() const;

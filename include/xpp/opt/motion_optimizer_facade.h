@@ -28,6 +28,7 @@ public:
   using WholeBodyMapper     = xpp::hyq::HyqSpliner;
   using HyqStateVec         = WholeBodyMapper::HyqStateVec;
   using HyqState            = xpp::hyq::HyqState;
+  using VisualizerPtr       = std::shared_ptr<IVisualizer>;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
@@ -40,20 +41,18 @@ public:
             double des_walking_height,
             double lift_height,
             double outward_swing,
-            double trajectory_dt);
+            double trajectory_dt,
+            VisualizerPtr visualizer);
 
   void OptimizeMotion();
   HyqStateVec GetTrajectory() const;
 
-
   HyqState curr_state_;
   State goal_cog_;
 
-
-  NlpFacade nlp_facade_; // because of observer/visualizer
-
 private:
-  WholeBodyMapper whole_body_mapper_; // because of init
+  WholeBodyMapper whole_body_mapper_;
+  NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;
 
   double max_step_length_;
@@ -61,7 +60,7 @@ private:
   xpp::hyq::MarginValues supp_polygon_margins_;
   double t_swing_;
   double t_stance_initial_;
-  double des_robot_height_;
+  double des_walking_height_;
 };
 
 } /* namespace opt */

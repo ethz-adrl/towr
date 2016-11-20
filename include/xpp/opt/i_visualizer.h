@@ -23,11 +23,14 @@ class IVisualizer {
 public:
   using NlpObserverPtr = std::shared_ptr<xpp::opt::NlpObserver>;
 
-  IVisualizer() {};
+  IVisualizer() { observer_ = nullptr; };
   virtual ~IVisualizer () {};
 
   virtual void Visualize() const = 0;
-  virtual void SetObserver(const NlpObserverPtr&) {};
+  virtual void SetObserver(const NlpObserverPtr& observer) { observer_ = observer;};
+
+protected:
+  NlpObserverPtr observer_;
 };
 
 class DoNothingVisualizer : public IVisualizer {

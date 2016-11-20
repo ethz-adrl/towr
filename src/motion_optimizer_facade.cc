@@ -27,13 +27,14 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 }
 
 void
-xpp::opt::MotionOptimizerFacade::Init (double max_step_length, double dt_zmp,
-                                       double diag_supp_poly_margin,
-                                       double t_swing, double t_stance_initial,
-                                       double des_walking_height,
-                                       double lift_height,
-                                       double outward_swing,
-                                       double trajectory_dt)
+MotionOptimizerFacade::Init (double max_step_length, double dt_zmp,
+                             double diag_supp_poly_margin,
+                             double t_swing, double t_stance_initial,
+                             double des_walking_height,
+                             double lift_height,
+                             double outward_swing,
+                             double trajectory_dt,
+                             VisualizerPtr visualizer)
 {
   max_step_length_ = max_step_length;
   dt_zmp_ = dt_zmp;
@@ -41,9 +42,11 @@ xpp::opt::MotionOptimizerFacade::Init (double max_step_length, double dt_zmp,
   supp_polygon_margins_[hyq::DIAG] =  diag_supp_poly_margin;
   t_swing_ = t_swing;
   t_stance_initial_ = t_stance_initial;
-  des_robot_height_ = des_walking_height;
+  des_walking_height_ = des_walking_height;
 
   whole_body_mapper_.SetParams(0.5, lift_height, outward_swing, trajectory_dt);
+
+  nlp_facade_.AttachNlpObserver(visualizer);
 }
 
 void
@@ -52,7 +55,7 @@ MotionOptimizerFacade::OptimizeMotion ()
   // create the fixed motion structure
   step_sequence_planner_.Init(curr_state_.base_.lin.Get2D(), goal_cog_.Get2D(),
                               curr_state_.GetStanceLegsInWorld(),
-                              des_robot_height_, max_step_length_,
+                              des_walking_height_, max_step_length_,
                               curr_state_.SwinglegID(), supp_polygon_margins_);
 
   auto step_sequence        = step_sequence_planner_.DetermineStepSequence();
@@ -67,7 +70,7 @@ MotionOptimizerFacade::OptimizeMotion ()
 
   nlp_facade_.SolveNlp(curr_state_.base_.lin.Get2D(),
                        goal_cog_.Get2D(),
-                       des_robot_height_,
+                       des_walking_height_,
                        motion_structure,
                        contacts,
                        dt_zmp_);
@@ -77,7 +80,7 @@ MotionOptimizerFacade::OptimizeMotion ()
   whole_body_mapper_.Init(nlp_facade_.GetPhases(),
                           com_spline.GetPolynomials(),
                           nlp_facade_.GetFootholds(),
-                          des_robot_height_,
+                          des_walking_height_,
                           curr_state_);
 }
 

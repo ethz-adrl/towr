@@ -164,19 +164,11 @@ NlpFacade::SolveIpopt (const IpoptPtr& nlp)
   }
 }
 
-// inv_dyn remove this
-NlpFacade::NlpObserverPtr
-NlpFacade::GetObserver () const
-{
-  return nlp_observer_;
-}
-
 void
-NlpFacade::AttachVisualizer (VisualizerPtr visualizer)
+NlpFacade::AttachNlpObserver (VisualizerPtr& visualizer)
 {
-//  visualizer_->SetObserver(nlp_observer_);
-  visualizer_ = visualizer;
-  visualizer_->SetObserver(nlp_observer_);
+  visualizer->SetObserver(nlp_observer_); // current values of optimization variables
+  visualizer_ = visualizer;               // handle so ipopt can poll publish() method
 }
 
 NlpFacade::VecFoothold
