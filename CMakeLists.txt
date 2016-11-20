@@ -125,11 +125,9 @@ include_directories(
 
 # Declare a C++ library
 add_library(${LIB_NAME}
-  src/optimizer_node_base.cc
   src/nlp_optimizer_node.cc
-#  src/qp_optimizer_node.cc
   src/marker_array_builder.cc
-  src/optimization_visualizer.cc
+  src/ros_visualizer.cc
   src/nlp_user_input_node.cc
 )
 

@@ -28,28 +28,21 @@ namespace ros {
   * is responsible for supplying the interpreted optimization variables and
   * \c msg_builder_ is responsible for the generation of the ROS messages.
   */
-class OptimizationVisualizer : public xpp::opt::IVisualizer {
+class RosVisualizer : public xpp::opt::IVisualizer {
 public:
-  typedef std::shared_ptr<xpp::opt::NlpObserver> NlpObserverPtr;
   using State = xpp::utils::BaseLin2d;
   using VecFoothold = std::vector<xpp::hyq::Foothold>;
 
-  OptimizationVisualizer();
-  virtual ~OptimizationVisualizer ();
-
-  void SetObserver(const NlpObserverPtr&);
+  RosVisualizer();
+  virtual ~RosVisualizer ();
 
   /** @brief Send a message with topic "optimization_variables" out to rviz */
   void Visualize() const override;
-
-
   void VisualizeCurrentState(const State& curr, const VecFoothold& start_stance) const;
 
 private:
   ::ros::Publisher ros_publisher_optimized_;
   ::ros::Publisher ros_publisher_fixed_;
-
-  NlpObserverPtr observer_;
 };
 
 } /* namespace ros */

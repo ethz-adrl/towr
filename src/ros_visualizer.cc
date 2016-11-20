@@ -5,7 +5,8 @@
  @brief   Brief description
  */
 
-#include <xpp/ros/optimization_visualizer.h>
+#include "../include/xpp/ros/ros_visualizer.h"
+
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/marker_array_builder.h>
 #include <xpp/ros/topic_names.h>
@@ -16,7 +17,7 @@ namespace ros {
 
 using VectorXd = Eigen::VectorXd;
 
-OptimizationVisualizer::OptimizationVisualizer ()
+RosVisualizer::RosVisualizer ()
 {
   observer_ = nullptr;
 
@@ -25,19 +26,13 @@ OptimizationVisualizer::OptimizationVisualizer ()
   ros_publisher_fixed_     = n.advertise<visualization_msgs::MarkerArray>(xpp_msgs::rviz_fixed, 1);
 }
 
-OptimizationVisualizer::~OptimizationVisualizer ()
+RosVisualizer::~RosVisualizer ()
 {
 //  visual_tools_->deleteAllMarkers();
 }
 
 void
-OptimizationVisualizer::SetObserver (const NlpObserverPtr& observer)
-{
-  observer_ = observer;
-}
-
-void
-OptimizationVisualizer::VisualizeCurrentState (const State& curr,
+RosVisualizer::VisualizeCurrentState (const State& curr,
                                                const VecFoothold& start_stance) const
 {
   visualization_msgs::MarkerArray msg;
@@ -50,7 +45,7 @@ OptimizationVisualizer::VisualizeCurrentState (const State& curr,
 }
 
 void
-OptimizationVisualizer::Visualize () const
+RosVisualizer::Visualize () const
 {
   double walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
 
