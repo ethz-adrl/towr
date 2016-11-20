@@ -17,6 +17,10 @@
 namespace xpp {
 namespace opt {
 
+/** Simplified interface to the complete motion optimization framework
+  *
+  * This is ROS independent.
+  */
 class MotionOptimizerFacade {
 public:
   using State               = xpp::utils::BaseLin3d;
@@ -28,29 +32,36 @@ public:
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
 
+  void Init(double max_step_length,
+            double dt_zmp,
+            double diag_supp_poly_margin,
+            double t_swing,
+            double t_stance_initial,
+            double des_walking_height,
+            double lift_height,
+            double outward_swing,
+            double trajectory_dt);
 
-  // inv_dyn write init function
   void OptimizeMotion();
   HyqStateVec GetTrajectory() const;
 
 
-
-
   HyqState curr_state_;
   State goal_cog_;
+
+
+  NlpFacade nlp_facade_; // because of observer/visualizer
+
+private:
+  WholeBodyMapper whole_body_mapper_; // because of init
+  StepSequencePlanner step_sequence_planner_;
+
   double max_step_length_;
   double dt_zmp_;
   xpp::hyq::MarginValues supp_polygon_margins_;
   double t_swing_;
   double t_stance_initial_;
   double des_robot_height_;
-  WholeBodyMapper whole_body_mapper_; // because of init
-  NlpFacade nlp_facade_; // because of observer
-
-
-private:
-  StepSequencePlanner step_sequence_planner_;
-
 };
 
 } /* namespace opt */

@@ -13,16 +13,21 @@
 namespace xpp {
 namespace opt {
 
+class NlpObserver;
+
 /** @brief Interface to derive from to visualize the optimization results.
   *
   * "Program to an interface, not an implementation"
   */
 class IVisualizer {
 public:
+  using NlpObserverPtr = std::shared_ptr<xpp::opt::NlpObserver>;
+
   IVisualizer() {};
   virtual ~IVisualizer () {};
 
   virtual void Visualize() const = 0;
+  virtual void SetObserver(const NlpObserverPtr&) {};
 };
 
 class DoNothingVisualizer : public IVisualizer {

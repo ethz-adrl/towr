@@ -27,6 +27,26 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 }
 
 void
+xpp::opt::MotionOptimizerFacade::Init (double max_step_length, double dt_zmp,
+                                       double diag_supp_poly_margin,
+                                       double t_swing, double t_stance_initial,
+                                       double des_walking_height,
+                                       double lift_height,
+                                       double outward_swing,
+                                       double trajectory_dt)
+{
+  max_step_length_ = max_step_length;
+  dt_zmp_ = dt_zmp;
+  supp_polygon_margins_ = xpp::hyq::SupportPolygon::GetDefaultMargins();
+  supp_polygon_margins_[hyq::DIAG] =  diag_supp_poly_margin;
+  t_swing_ = t_swing;
+  t_stance_initial_ = t_stance_initial;
+  des_robot_height_ = des_walking_height;
+
+  whole_body_mapper_.SetParams(0.5, lift_height, outward_swing, trajectory_dt);
+}
+
+void
 MotionOptimizerFacade::OptimizeMotion ()
 {
   // create the fixed motion structure
@@ -69,3 +89,5 @@ MotionOptimizerFacade::GetTrajectory () const
 
 } /* namespace opt */
 } /* namespace xpp */
+
+
