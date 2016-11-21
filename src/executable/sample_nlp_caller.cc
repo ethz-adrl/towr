@@ -30,7 +30,7 @@ int main(int argc, char **argv)
   ros::Publisher current_info_pub = n.advertise<HyqStateMsg>(xpp_msgs::curr_robot_state, 1);
 
   // give publisher and subscriber time to register with master
-  ros::Rate poll_rate(1000);
+  ros::Rate poll_rate(100);
   ROS_INFO_STREAM("Waiting for Subscriber...");
   while(ros::ok() && current_info_pub.getNumSubscribers() == 0/*opt_params_sub.getNumPublishers() == 0 || */) {
     poll_rate.sleep(); // so node has time to connect
@@ -49,9 +49,9 @@ int main(int argc, char **argv)
   start_state.base_.lin.a.y() = atof(argv_out[6].c_str()); // constraint
 
   HyqState::PosEE start_stance_W = { Vector3d( 0.359692,   0.327653, 0.0), // LF
-                                           Vector3d( 0.359694,  -0.327644, 0.0), // RF
-                                           Vector3d(-0.358797,   0.327698, 0.0), // LH
-                                           Vector3d(-0.358802,  -0.327695, 0.0)};// RH
+                                     Vector3d( 0.359694,  -0.327644, 0.0), // RF
+                                     Vector3d(-0.358797,   0.327698, 0.0), // LH
+                                     Vector3d(-0.358802,  -0.327695, 0.0)};// RH
 
   start_state.SetJointAngles(start_stance_W);
   HyqStateMsg msg_hyq = xpp::ros::RosHelpers::XppToRos(start_state);

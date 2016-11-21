@@ -1,5 +1,5 @@
 /**
-@file    Main.cpp
+@file    nlp_optimizer_node.cpp
 @author  Alexander W. Winkler (winklera@ethz.ch)
 @date    4.03.2016
 @brief   Start the nlp foothold optimization server

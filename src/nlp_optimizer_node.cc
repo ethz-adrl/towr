@@ -31,12 +31,12 @@ NlpOptimizerNode::NlpOptimizerNode ()
       xpp_msgs::robot_trajectory_joints, 1);
 
 
+  double max_step_length    = RosHelpers::GetDoubleFromServer("/xpp/max_step_length");
+  double dt_zmp             = RosHelpers::GetDoubleFromServer("/xpp/dt_zmp");
+  double supp_margins_diag  = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");
   double t_swing            = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
   double t_stance_initial   = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
   double des_walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
-  double supp_margins_diag  = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");
-  double max_step_length    = RosHelpers::GetDoubleFromServer("/xpp/max_step_length");
-  double dt_zmp             = RosHelpers::GetDoubleFromServer("/xpp/dt_zmp");
   double lift_height        = RosHelpers::GetDoubleFromServer("/xpp/lift_height");
   double outward_swing      = RosHelpers::GetDoubleFromServer("/xpp/outward_swing_distance");
   double trajectory_dt      = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
@@ -58,7 +58,6 @@ NlpOptimizerNode::CurrentStateCallback (const HyqStateMsg& msg)
 {
   auto curr_state = RosHelpers::RosToXpp(msg);
   motion_optimizer_.curr_state_ = curr_state;
-  // inv_dyn visualize hyq in rviz
   ros_visualizer_->VisualizeCurrentState(curr_state.base_.lin.Get2D(),
                                          curr_state.GetStanceLegsInWorld());
 }
@@ -78,12 +77,9 @@ NlpOptimizerNode::PublishTrajectory () const
 {
   // sends this info the the walking controller
   auto hyq_trajectory = motion_optimizer_.GetTrajectory();
-  auto hyq_trajectory_msg = xpp::ros::RosHelpers::XppToRos(hyq_trajectory);
+  auto hyq_trajectory_msg = RosHelpers::XppToRos(hyq_trajectory);
   trajectory_pub_.publish(hyq_trajectory_msg);
-
-  ros_visualizer_->Visualize(); // sends out the footholds and com motion to rviz
 }
-
 
 /** Checks if this executable is run from where the config files for the
   * solvers are.
