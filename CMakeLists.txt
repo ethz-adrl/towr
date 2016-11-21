@@ -84,11 +84,9 @@ set(SOURCES
   src/zero_moment_point.cc
   src/motion_structure.cc
   src/a_robot_interface.cc
-  src/a_inverse_kinematics.cc
   # hyq
   src/step_sequence_planner.cc
   src/hyq_spliner.cc
-  src/hyq_inverse_kinematics.cc
   src/support_polygon.cc
   src/supp_polygon_container.cc
   src/hyq_robot_interface.cc
@@ -99,6 +97,7 @@ set(SOURCES
   src/com_spline4.cc
   src/motion_factory.cc
   # nlp
+  src/motion_optimizer_facade.cc
   src/a_subject.cc
   src/nlp_structure.cc
   src/optimization_variables.cc
@@ -186,6 +185,7 @@ if(BUILD_TESTS)
 #                        test/google/a_foothold_cost_test.cc
                          test/google/cost_adapter_test.cc
 #                        # nlp optimizers
+                         test/google/motion_optimizer_facade_test.cc
 #                        test/google/nlp_test.cc
 #                        test/google/snopt_test.cc
 #                        test/google/snopt_adapter_test.cc

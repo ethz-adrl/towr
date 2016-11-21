@@ -16,41 +16,35 @@
 namespace xpp {
 namespace hyq {
 
-struct SplineNode {
-  typedef xpp::utils::BaseLin3d Point3d;
+class SplineNode  {
+public:
+  using BaseState = xpp::utils::BaseState;
+  using BaseLin3d = xpp::utils::BaseLin3d;
+  using Vector3d  = Eigen::Vector3d;
 
   SplineNode(){};
-  SplineNode(const HyqStateEE& state, const Point3d& ori_rpy, double t_max)
-      : state_(state), ori_rpy_(ori_rpy), T(t_max) {};
+  SplineNode(const HyqState& state_joints, double t_max);
 
-  HyqStateEE state_;
-  Point3d ori_rpy_; // fixme remove this and use quaternion orientation directly for interpolation
-  double T;         // time to reach this state
+  LegDataMap<BaseLin3d> feet_W_; ///< contacts expressed in world frame
+  LegDataMap< bool > swingleg_;
+  BaseState base_;
+  double T;                      ///< time to reach this state
+
+  std::array<Vector3d, kNumSides> GetAvgSides() const;
+  double GetZAvg() const;
 };
 
-/**
-@brief Splines the base pose (only z-position + orientation).
-
-No velocity and accelerations of orientation, only roll, pitch, yaw.
-For that transfer roll, pitch yaw velocities and accelerations into fixed global
-frame values omega (rollPitchYawToEar)
- */
+/** @brief Splines the base pose (only z-position + orientation).
+  */
 class HyqSpliner {
 public:
-
-  typedef std::vector<xpp::utils::ComPolynomial> VecPolyomials;
-  typedef Eigen::Vector3d Vector3d;
-  typedef Foothold::VecFoothold VecFoothold;
-  typedef ::xpp::utils::QuinticPolynomial Spliner;
-  using Spliner3d = ::xpp::utils::PolynomialXd< ::xpp::utils::QuinticPolynomial,
-                                                ::xpp::utils::kDim3d,
-                                                ::xpp::utils::BaseLin3d>;
-
-  using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
-  typedef Spliner3d::Point Point;
-  using HyqStateEEVec     = std::vector<HyqStateEE>;
-  using HyqStateJointsVec = std::vector<HyqStateJoints>;
-
+  using ComSpline     = std::vector<xpp::utils::ComPolynomial>;
+  using Vector3d      = Eigen::Vector3d;
+  using VecFoothold   = Foothold::VecFoothold;
+  using Point         = xpp::utils::BaseLin3d;
+  using SplineNodeVec = std::vector<SplineNode>;
+  using HyqStateVec   = std::vector<HyqState>;
+  using Spliner3d     = xpp::utils::PolynomialXd< ::xpp::utils::QuinticPolynomial,::xpp::utils::kDim3d, ::xpp::utils::BaseLin3d>;
 
 public:
   HyqSpliner();
@@ -61,83 +55,54 @@ public:
                  double discretization_time);
 
   void Init(const xpp::opt::PhaseVec&,
-            const VecPolyomials&,
+            const ComSpline&,
             const VecFoothold&,
-            double robot_height);
+            double des_height,
+            const HyqState& curr_state);
 
-  HyqStateEEVec BuildWholeBodyTrajectory() const;
-  HyqStateJointsVec BuildWholeBodyTrajectoryJoints() const;
-
-
-  /**
-   * These function access the intermediate splined states fo the robot
-   */
-  Point GetCurrPosition(double t_global) const;
-  xpp::utils::BaseAng3d GetCurrOrientation(double t_global) const;
-  void FillCurrFeet(double t_global, LegDataMap<Point>& feet, LegDataMap<bool>& swingleg) const;
-
-
-  double GetTotalTime() const;
-  SplineNode GetGoalNode(double t_global) const;
-  SplineNode GetNode(int node) const { return nodes_.at(node); };
-  SplineNode GetLastNode() const { return nodes_.back(); };
-  bool HasNodes() const { return !nodes_.empty(); };
+  HyqStateVec BuildWholeBodyTrajectoryJoints() const;
 
 private:
   std::vector<SplineNode> nodes_; // the discrete states to spline through
   std::vector<Spliner3d> pos_spliner_, ori_spliner_;
   std::vector<LegDataMap< Spliner3d > > feet_spliner_up_, feet_spliner_down_;
-  VecPolyomials optimized_xy_spline_;
+  ComSpline optimized_xy_spline_;
 
   double kDiscretizationTime;   // at what interval the continuous trajectory is sampled
   double kUpswingPercent;       // how long to swing up during swing
   double kLiftHeight;           // how high to lift the leg
   double kOutwardSwingDistance; // how far to swing leg outward (y-dir)
 
-  /** Transform global time to local spline time dt */
-  double GetLocalSplineTime(double t_global) const;
-
-  Vector3d GetCurrZState(double t_global) const;
-
-  std::vector<SplineNode>
-  BuildPhaseSequence(const HyqStateEE& P_init,
-                     const xpp::opt::PhaseVec&,
-                     const VecPolyomials& optimized_xy_spline,
-                     const VecFoothold& footholds,
-                     double robot_height);
+  std::vector<SplineNode> BuildNodeSequence(const HyqState& P_init,
+                                            const xpp::opt::PhaseVec&,
+                                            const VecFoothold& footholds,
+                                            double des_robot_height);
 
   void CreateAllSplines(const std::vector<SplineNode>& nodes);
 
-
-  static Eigen::Vector3d TransformQuatToRpy(const Eigen::Quaterniond& q);
-
-  /**
-  @brief transforms a HyqState into a collection of Points, including
-         body position, body orientation, and feet position
-  @param[in] time_to_reach how long the robot has to achieve this state
-   */
-  static SplineNode BuildNode(const HyqStateEE& state, double t_max);
-  friend class HyqSplinerTest_BuildNode_Test;
-
+  SplineNodeVec GetInterpolatedNodes() const;
+  Point GetCurrPosition(double t_global) const;
+  xpp::utils::BaseAng3d GetCurrOrientation(double t_global) const;
+  void FillCurrFeet(double t_global, LegDataMap<Point>& feet, LegDataMap<bool>& swingleg) const;
+  void FillZState(double t_global, Point& pos) const;
 
   Spliner3d BuildPositionSpline(const SplineNode& from, const SplineNode& to) const;
   Spliner3d BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const;
   LegDataMap<Spliner3d> BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const;
-  LegDataMap<Spliner3d> BuildFootstepSplineDown(const LegDataMap<Point>& feet_at_switch,
-                                                const SplineNode& to) const;
-
-
-
-  int GetSplineID(double t_global) const;
-  friend class HyqSplinerTest_GetSplineID_Test;
+  LegDataMap<Spliner3d> BuildFootstepSplineDown(const LegDataMap<Point>& feet_at_switch,const SplineNode& to) const;
 
   void BuildOneSegment(const SplineNode& from, const SplineNode& to,
-                   Spliner3d& pos, Spliner3d& ori,
-                   LegDataMap< Spliner3d >& feet_up,
-                   LegDataMap< Spliner3d >& feet_down) const;
+                       Spliner3d& pos, Spliner3d& ori,
+                       LegDataMap< Spliner3d >& feet_up,
+                       LegDataMap< Spliner3d >& feet_down) const;
 
+  static Vector3d TransformQuatToRpy(const Eigen::Quaterniond& q);
+  int GetSplineID(double t_global) const;
+  double GetLocalSplineTime(double t_global) const;
+  double GetTotalTime() const;
 };
 
 } // namespace hyq
 } // namespace xpp
+
 #endif // _XPP_HYQ_SPLINER_H_

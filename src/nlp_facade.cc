@@ -31,10 +31,10 @@ NlpFacade::NlpFacade (VisualizerPtr visualizer)
      :visualizer_(visualizer)
 {
   // create corresponding heap object for each of the member pointers
-  opt_variables_         = std::make_shared<OptimizationVariables>();
-  costs_                 = std::make_shared<CostContainer>(*opt_variables_);
-  constraints_           = std::make_shared<ConstraintContainer>(*opt_variables_);
-  nlp_observer_ = std::make_shared<NlpObserver>(*opt_variables_);
+  opt_variables_ = std::make_shared<OptimizationVariables>();
+  costs_         = std::make_shared<CostContainer>(*opt_variables_);
+  constraints_   = std::make_shared<ConstraintContainer>(*opt_variables_);
+  nlp_observer_  = std::make_shared<NlpObserver>(*opt_variables_);
 
 
   // initialize the ipopt solver
@@ -164,16 +164,11 @@ NlpFacade::SolveIpopt (const IpoptPtr& nlp)
   }
 }
 
-NlpFacade::NlpObserverPtr
-NlpFacade::GetObserver () const
-{
-  return nlp_observer_;
-}
-
 void
-NlpFacade::AttachVisualizer (VisualizerPtr visualizer)
+NlpFacade::AttachNlpObserver (VisualizerPtr& visualizer)
 {
-  visualizer_ = visualizer;
+  visualizer->SetObserver(nlp_observer_); // current values of optimization variables
+  visualizer_ = visualizer;               // handle so ipopt can poll publish() method
 }
 
 NlpFacade::VecFoothold
