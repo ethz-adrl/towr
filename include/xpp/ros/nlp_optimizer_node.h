@@ -8,50 +8,38 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
 
-#include <xpp/ros/optimizer_node_base.h>
-#include <xpp/ros/optimization_visualizer.h>
-#include <xpp/hyq/step_sequence_planner.h>
-#include <xpp/hyq/hyq_spliner.h>
-#include <xpp/opt/nlp_facade.h>
-#include <xpp_msgs/RequiredInfoNlp.h>        // receive
+#include <xpp/opt/motion_optimizer_facade.h>
+
+#include <xpp_msgs/HyqState.h>         // receive
+#include <xpp_msgs/StateLin3d.h>       // receive
+#include "ros_visualizer.h"
 
 namespace xpp {
 namespace ros {
 
-class NlpOptimizerNode : public OptimizerNodeBase {
+class NlpOptimizerNode {
 public:
-  typedef xpp::opt::NlpFacade NlpFacade;
-  typedef xpp::hyq::LegID LegID;
-  typedef xpp_msgs::RequiredInfoNlp ReqInfoMsg;
+  using OptVisualizerPtr = std::shared_ptr<RosVisualizer>;
+  using HyqStateMsg      = xpp_msgs::HyqState;
+  using StateMsg         = xpp_msgs::StateLin3d;
 
-  using WholeBodyMapper = xpp::hyq::HyqSpliner;
-  using OptVisualizerPtr = std::shared_ptr<OptimizationVisualizer>;
-  using StepSequencePlanner = xpp::hyq::StepSequencePlanner;
+  using MotionOptimizer  = xpp::opt::MotionOptimizerFacade;
 
 public:
   NlpOptimizerNode ();
   virtual ~NlpOptimizerNode () {};
 
 private:
-  StepSequencePlanner step_sequence_planner_;
-  NlpFacade nlp_facade_;
-  WholeBodyMapper whole_body_mapper_;
+  void PublishTrajectory() const;
+  void CurrentStateCallback(const HyqStateMsg& msg);
+  void GoalStateCallback(const StateMsg& msg);
 
-  virtual void OptimizeTrajectory() override final;
-  virtual void PublishTrajectory() const override final;
-  void CurrentInfoCallback(const ReqInfoMsg& msg);
+  ::ros::Subscriber goal_state_sub_;
+  ::ros::Subscriber current_state_sub_;
+  ::ros::Publisher trajectory_pub_;
 
-  double max_step_length_;
-  int curr_swingleg_;
-  double dt_zmp_;
-  xpp::hyq::MarginValues supp_polygon_margins_;
-
-  ::ros::Subscriber current_info_sub_;
-  ::ros::Publisher trajectory_pub_hyqjoints_;
-
-
-  OptVisualizerPtr optimization_visualizer_;
-//  virtual void PublishOptimizedValues() const override final;
+  OptVisualizerPtr ros_visualizer_;
+  MotionOptimizer motion_optimizer_;
 };
 
 } /* namespace ros */
