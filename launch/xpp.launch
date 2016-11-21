@@ -19,7 +19,7 @@
   <!-- if rviz visualization is desired -->
   <arg name="vis" default="false"/>
   <group if="$(arg vis)">
-    <include file="$(find hyqb_visualizer_low_dep)/launch/xpp_visualization.launch"></include>
+    <include file="$(find xpp_vis)/launch/xpp_visualization.launch"></include>
   </group>
   
 </launch>
