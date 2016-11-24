@@ -18,9 +18,9 @@ namespace hyq {
 
 class SplineNode  {
 public:
-  using BaseLin3d = xpp::utils::BaseLin3d;
-  using BaseAng3d = xpp::utils::BaseAng3d;
-  using BaseLin1d = xpp::utils::BaseLin1d;
+  using BaseLin3d = xpp::utils::StateLin3d;
+  using BaseAng3d = xpp::utils::StateAng3d;
+  using BaseLin1d = xpp::utils::StateLin1d;
   using Vector3d  = Eigen::Vector3d;
 
   SplineNode(){};
@@ -44,7 +44,7 @@ public:
   using ComSpline     = std::vector<xpp::utils::ComPolynomial>;
   using Vector3d      = Eigen::Vector3d;
   using VecFoothold   = Foothold::VecFoothold;
-  using State1d       = xpp::utils::BaseLin3d;
+  using State1d       = xpp::utils::StateLin3d;
   using HyqStateVec   = std::vector<HyqState>;
   using SplinerOri    = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State1d>;
   using ZPolynomial   = xpp::utils::QuinticPolynomial;
@@ -86,7 +86,7 @@ private:
 
 //  SplineNodeVec GetInterpolatedNodes() const;
   State1d GetCurrPosition(double t_global) const;
-  xpp::utils::BaseAng3d GetCurrOrientation(double t_global) const;
+  xpp::utils::StateAng3d GetCurrOrientation(double t_global) const;
   void FillCurrFeet(double t_global, LegDataMap<State1d>& feet, LegDataMap<bool>& swingleg) const;
   void FillZState(double t_global, State1d& pos) const;
 

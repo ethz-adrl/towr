@@ -23,7 +23,7 @@ namespace opt {
   */
 class MotionOptimizerFacade {
 public:
-  using State               = xpp::utils::BaseLin3d;
+  using State               = xpp::utils::StateLin3d;
   using StepSequencePlanner = xpp::hyq::StepSequencePlanner;
   using WholeBodyMapper     = xpp::hyq::HyqSpliner;
   using HyqStateVec         = WholeBodyMapper::HyqStateVec;

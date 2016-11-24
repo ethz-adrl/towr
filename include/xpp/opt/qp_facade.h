@@ -29,7 +29,7 @@ class QpFacade {
 public:
   typedef std::vector<xpp::utils::ComPolynomial> VecSpline;
   typedef xpp::utils::MatVec MatVec;
-  typedef xpp::utils::BaseLin2d State;
+  typedef xpp::utils::StateLin2d State;
   typedef xpp::hyq::Foothold Foothold;
   typedef std::vector<Foothold> VecFoothold;
 

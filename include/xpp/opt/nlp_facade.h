@@ -9,10 +9,10 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
 
 
-#include <xpp/utils/base_state.h>
 #include <xpp/hyq/support_polygon.h>
 #include "i_visualizer.h"
 #include <xpp/opt/phase_info.h>
+#include <xpp/utils/state.h>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
@@ -45,7 +45,7 @@ class MotionStructure;
   */
 class NlpFacade {
 public:
-  typedef xpp::utils::BaseLin2d State;
+  typedef xpp::utils::StateLin2d State;
   typedef std::shared_ptr<OptimizationVariablesInterpreter> InterpreterPtr;
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
   typedef Ipopt::SmartPtr<Ipopt::IpoptApplication> IpoptApplicationPtr;

@@ -10,7 +10,8 @@
 
 #include <xpp/opt/phase_info.h>
 #include <xpp/utils/matrix_vector.h>
-#include <xpp/utils/base_state.h>
+#include <xpp/utils/state.h>
+
 #include <Eigen/Sparse>
 #include <memory>
 
@@ -26,7 +27,7 @@ namespace opt {
 class ComMotion {
 public:
   typedef Eigen::VectorXd VectorXd;
-  typedef xpp::utils::BaseLin2d Point2d;
+  typedef xpp::utils::StateLin2d Point2d;
   typedef xpp::utils::VecScalar VecScalar;
   typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
   typedef std::shared_ptr<ComMotion> PtrS;

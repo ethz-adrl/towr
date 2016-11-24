@@ -8,9 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_STEP_SEQUENCE_PLANNER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_STEP_SEQUENCE_PLANNER_H_
 
+#include <xpp/utils/state.h>
+
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/hyq/foothold.h>
-#include <xpp/utils/base_state.h>
 #include <xpp/hyq/support_polygon.h>
 #include <xpp/hyq/hyq_robot_interface.h>
 
@@ -28,7 +29,7 @@ class StepSequencePlanner {
 public:
   typedef std::vector<LegID> LegIDVec;
   typedef std::vector<Foothold> VecFoothold;
-  typedef xpp::utils::BaseLin2d State;
+  typedef xpp::utils::StateLin2d State;
   typedef Eigen::Vector2d Vector2d;
 
   StepSequencePlanner ();

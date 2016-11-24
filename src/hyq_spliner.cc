@@ -143,7 +143,7 @@ HyqSpliner::FillZState(double t_global, State1d& pos) const
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
 
-  utils::BaseLin1d z_splined;
+  utils::StateLin1d z_splined;
   z_spliner_.at(spline).GetPoint(t_local, z_splined);
   pos.SetDimension(z_splined, Z);
 }
@@ -153,7 +153,7 @@ HyqSpliner::GetCurrPosition(double t_global) const
 {
   State1d pos;
 
-  xpp::utils::BaseLin2d xy_optimized = ComPolynomialHelpers::GetCOM(t_global, optimized_xy_spline_);
+  xpp::utils::StateLin2d xy_optimized = ComPolynomialHelpers::GetCOM(t_global, optimized_xy_spline_);
   pos.p.topRows(kDim2d) = xy_optimized.p;
   pos.v.topRows(kDim2d) = xy_optimized.v;
   pos.a.topRows(kDim2d) = xy_optimized.a;
@@ -162,7 +162,7 @@ HyqSpliner::GetCurrPosition(double t_global) const
   return pos;
 }
 
-xpp::utils::BaseAng3d
+xpp::utils::StateAng3d
 HyqSpliner::GetCurrOrientation(double t_global) const
 {
   double t_local = GetLocalSplineTime(t_global);
@@ -171,7 +171,7 @@ HyqSpliner::GetCurrOrientation(double t_global) const
   State1d ori_rpy;
   ori_spliner_.at(spline).GetPoint(t_local, ori_rpy);
 
-  xpp::utils::BaseAng3d ori;
+  xpp::utils::StateAng3d ori;
   kindr::EulerAnglesXyzPD yprIB(ori_rpy.p);
   kindr::RotationQuaternionPD qIB(yprIB);
   ori.q = qIB.toImplementation();
@@ -232,7 +232,7 @@ void HyqSpliner::BuildOneSegment(const SplineNode& from, const SplineNode& to,
 HyqSpliner::SplinerOri
 HyqSpliner::BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const
 {
-  xpp::utils::BaseLin3d rpy_from, rpy_to;
+  xpp::utils::StateLin3d rpy_from, rpy_to;
   rpy_from.p = TransformQuatToRpy(from.base_ang_.q);
   rpy_to.p   = TransformQuatToRpy(to.base_ang_.q);
 
@@ -384,7 +384,7 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
     hyq_j.base_.lin     = GetCurrPosition(t);
     hyq_j.base_.ang     = GetCurrOrientation(t);
 
-    LegDataMap<BaseLin3d> feet_W_;
+    LegDataMap<StateLin3d> feet_W_;
     FillCurrFeet(t, feet_W_, hyq_j.swingleg_);
     HyqState::PosEE ee_W = {feet_W_[LF].p, feet_W_[RF].p, feet_W_[LH].p, feet_W_[RH].p};
 

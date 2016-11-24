@@ -22,7 +22,7 @@ class SplineContainerTest : public ::testing::Test {
 
 public:
   typedef ComSpline6::VecPolynomials VecSpline;
-  typedef xpp::utils::BaseLin2d Point2d;
+  typedef xpp::utils::StateLin2d Point2d;
   typedef Eigen::Vector2d Vector2d;
 
 protected:

@@ -19,7 +19,7 @@ namespace utils {
 // A start and an end position for the splines. checking only boundary conditions
 class SplineTest : public ::testing::Test {
 public:
-  using Point = BaseLin1d;
+  using Point = StateLin1d;
 
 protected:
   static void SetUpTestCase() // this is now only done one for all test in this test case

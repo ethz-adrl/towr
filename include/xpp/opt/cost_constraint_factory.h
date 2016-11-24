@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 
-#include <xpp/utils/base_state.h>
+#include <xpp/utils/state.h>
 #include <memory>
 
 namespace xpp {
@@ -37,7 +37,7 @@ public:
   typedef std::shared_ptr<AConstraint> ConstraintPtr;
   typedef std::shared_ptr<ACost> CostPtr;
   typedef Eigen::Vector2d Vector2d;
-  typedef xpp::utils::BaseLin2d State2d;
+  typedef xpp::utils::StateLin2d State2d;
   using Contacts = xpp::hyq::SupportPolygonContainer;
 
   CostConstraintFactory ();
