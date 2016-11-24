@@ -49,6 +49,7 @@ public:
 
   HyqState curr_state_;
   State goal_cog_;
+  double t_left_; // time to reach goal
 
 private:
   WholeBodyMapper whole_body_mapper_;

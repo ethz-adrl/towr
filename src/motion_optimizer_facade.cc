@@ -62,7 +62,11 @@ MotionOptimizerFacade::OptimizeMotion ()
   bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
 
   MotionStructure motion_structure;
-  motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, t_swing_, t_stance_initial_,
+  // mpc for only body shift, this changes based on current time
+  double t_stance_initial = t_left_;
+  std::cout << "time_left: " << t_left_ << std::endl;
+
+  motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, t_swing_, t_stance_initial,
                         start_with_com_shift, true);
 
   Contacts contacts;
