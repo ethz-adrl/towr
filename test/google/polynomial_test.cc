@@ -24,13 +24,13 @@ public:
 protected:
   static void SetUpTestCase() // this is now only done one for all test in this test case
   {
-    start.x   =  5.0;
-    start.xd  = -1.0;
-    start.xdd =  3.0;
+    start.p   =  5.0;
+    start.v  = -1.0;
+    start.a =  3.0;
 
-    end.x   =  4.0;
-    end.xd  =  2.0;
-    end.xdd =  2.2;
+    end.p   =  4.0;
+    end.v  =  2.0;
+    end.a =  2.2;
 
     T = 3.2;
   }
@@ -55,13 +55,13 @@ TEST_F(SplineTest, LinearPolynomial)
   s.GetPoint(T, p1);
 
   // pos
-  EXPECT_FLOAT_EQ(start.x, p0.x);
-  EXPECT_FLOAT_EQ(end.x, p1.x);
+  EXPECT_FLOAT_EQ(start.p, p0.p);
+  EXPECT_FLOAT_EQ(end.p, p1.p);
   // vel
-  EXPECT_FLOAT_EQ(p0.xd, p1.xd);
+  EXPECT_FLOAT_EQ(p0.v, p1.v);
   // acc
-  EXPECT_FLOAT_EQ(0.0, p0.xdd);
-  EXPECT_FLOAT_EQ(0.0, p1.xdd);
+  EXPECT_FLOAT_EQ(0.0, p0.a);
+  EXPECT_FLOAT_EQ(0.0, p1.a);
 }
 
 
@@ -75,11 +75,11 @@ TEST_F(SplineTest, CubicPolynomial)
   s.GetPoint(T, p1);
 
   // pos
-  EXPECT_FLOAT_EQ(start.x, p0.x);
-  EXPECT_FLOAT_EQ(end.x, p1.x);
+  EXPECT_FLOAT_EQ(start.p, p0.p);
+  EXPECT_FLOAT_EQ(end.p, p1.p);
   // vel
-  EXPECT_FLOAT_EQ(start.xd, p0.xd);
-  EXPECT_FLOAT_EQ(end.xd, p1.xd);
+  EXPECT_FLOAT_EQ(start.v, p0.v);
+  EXPECT_FLOAT_EQ(end.v, p1.v);
 }
 
 
@@ -93,14 +93,14 @@ TEST_F(SplineTest, FifthOrderSpliner)
   s.GetPoint(T, p1);
 
   // pos
-  EXPECT_FLOAT_EQ(start.x, p0.x);
-  EXPECT_FLOAT_EQ(end.x, p1.x);
+  EXPECT_FLOAT_EQ(start.p, p0.p);
+  EXPECT_FLOAT_EQ(end.p, p1.p);
   // vel
-  EXPECT_FLOAT_EQ(start.xd, p0.xd);
-  EXPECT_FLOAT_EQ(end.xd, p1.xd);
+  EXPECT_FLOAT_EQ(start.v, p0.v);
+  EXPECT_FLOAT_EQ(end.v, p1.v);
   // acc
-  EXPECT_FLOAT_EQ(start.xdd, p0.xdd);
-  EXPECT_FLOAT_EQ(end.xdd, p1.xdd);
+  EXPECT_FLOAT_EQ(start.a, p0.a);
+  EXPECT_FLOAT_EQ(end.a, p1.a);
 }
 
 
@@ -109,14 +109,14 @@ TEST_F(SplineTest, FifthOrderSplinerSameStartGoal)
   QuinticPolynomial s;
 
   Point p;
-  p.x   = 2.0;
-  p.xd  = 2.0;
-  p.xdd = 2.0;
+  p.p   = 2.0;
+  p.v  = 2.0;
+  p.a = 2.0;
 
   Point pg;
-  pg.x   = 2.0;
-  pg.xd  = 2.0;
-  pg.xdd = 2.0;
+  pg.p   = 2.0;
+  pg.v  = 2.0;
+  pg.a = 2.0;
 
   double t = 0.001;
   s.SetBoundary(t, p, pg);
@@ -126,14 +126,14 @@ TEST_F(SplineTest, FifthOrderSplinerSameStartGoal)
   s.GetPoint(t,     p2);
 
   // pos
-  EXPECT_FLOAT_EQ(2.0, p0.x);
-  EXPECT_FLOAT_EQ(2.0, p2.x);
+  EXPECT_FLOAT_EQ(2.0, p0.p);
+  EXPECT_FLOAT_EQ(2.0, p2.p);
   // vel
-  EXPECT_FLOAT_EQ(2.0, p0.xd);
-  EXPECT_FLOAT_EQ(2.0, p2.xd);
+  EXPECT_FLOAT_EQ(2.0, p0.v);
+  EXPECT_FLOAT_EQ(2.0, p2.v);
   // acc
-  EXPECT_FLOAT_EQ(2.0, p0.xdd);
-  EXPECT_FLOAT_EQ(2.0, p2.xdd);
+  EXPECT_FLOAT_EQ(2.0, p0.a);
+  EXPECT_FLOAT_EQ(2.0, p2.a);
 }
 
 

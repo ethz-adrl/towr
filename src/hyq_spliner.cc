@@ -7,7 +7,6 @@
 
 #include <xpp/hyq/hyq_spliner.h>
 #include <kindr/rotations/Rotation.hpp>
-#include <xpp/hyq/hyq_inverse_kinematics.h>
 
 namespace xpp {
 namespace hyq {
@@ -39,13 +38,6 @@ HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComSpline& com_spl
                   const VecFoothold& contacts, double des_height,
                   const HyqState& curr_state)
 {
-  nodes_.clear();
-//  pos_spliner_.clear();
-  ori_spliner_.clear();
-  optimized_xy_spline_.clear();
-  feet_spliner_down_.clear();
-  feet_spliner_up_.clear();
-
   nodes_ = BuildNodeSequence(curr_state, phase_info, contacts, des_height);
   CreateAllSplines(nodes_);
   optimized_xy_spline_ = com_spline;
@@ -82,8 +74,7 @@ HyqSpliner::BuildNodeSequence(const HyqState& P_init,
     goal_node.base_ang_.q = qIB.toImplementation();
 
     // adjust global z position of body depending on footholds
-    goal_node.base_z_.x = des_robot_height + goal_node.GetZAvg();
-//    goal_node.base_.lin.p(Z) = des_robot_height + goal_node.GetZAvg(); // height of footholds
+    goal_node.base_z_.p = des_robot_height + goal_node.GetZAvg();
 
     goal_node.T = curr_phase.duration_; // time to reach this node
 
@@ -96,23 +87,21 @@ HyqSpliner::BuildNodeSequence(const HyqState& P_init,
 
 void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
 {
-//  pos_spliner_.clear();
+  z_spliner_.clear();
   ori_spliner_.clear();
   feet_spliner_up_.clear();
   feet_spliner_down_.clear();
 
-//  Spliner3d pos;
-  Spliner3d ori;
+  SplinerOri ori;
   ZPolynomial z_height;
 
-  LegDataMap< Spliner3d > feet_up, feet_down;
+  LegDataMap< SplinerOri > feet_up, feet_down;
   for (int n=1; n<nodes_.size(); ++n) {
     SplineNode from = nodes.at(n-1);
     SplineNode to   = nodes.at(n);
 
     BuildOneSegment(from, to, z_height, ori, feet_up, feet_down);
-//    pos_spliner_.push_back(pos);
-    z_spline_.push_back(z_height);
+    z_spliner_.push_back(z_height);
     ori_spliner_.push_back(ori);
     feet_spliner_up_.push_back(feet_up);
     feet_spliner_down_.push_back(feet_down);
@@ -149,24 +138,20 @@ HyqSpliner::TransformQuatToRpy(const Eigen::Quaterniond& q)
 }
 
 void
-HyqSpliner::FillZState(double t_global, Point& pos) const
+HyqSpliner::FillZState(double t_global, State1d& pos) const
 {
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
 
   utils::BaseLin1d z_splined;
-  z_spline_.at(spline).GetPoint(t_local, z_splined);
-  pos.SetDimension(z_splined, utils::Z);
-
-//  pos.p.z() = pos_splined.p.z();
-//  pos.v.z() = pos_splined.v.z();
-//  pos.a.z() = pos_splined.a.z();
+  z_spliner_.at(spline).GetPoint(t_local, z_splined);
+  pos.SetDimension(z_splined, Z);
 }
 
-HyqSpliner::Point
+HyqSpliner::State1d
 HyqSpliner::GetCurrPosition(double t_global) const
 {
-  Point pos;
+  State1d pos;
 
   xpp::utils::BaseLin2d xy_optimized = ComPolynomialHelpers::GetCOM(t_global, optimized_xy_spline_);
   pos.p.topRows(kDim2d) = xy_optimized.p;
@@ -183,7 +168,7 @@ HyqSpliner::GetCurrOrientation(double t_global) const
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
 
-  Point ori_rpy;
+  State1d ori_rpy;
   ori_spliner_.at(spline).GetPoint(t_local, ori_rpy);
 
   xpp::utils::BaseAng3d ori;
@@ -198,7 +183,7 @@ HyqSpliner::GetCurrOrientation(double t_global) const
 
 void
 HyqSpliner::FillCurrFeet(double t_global,
-                        LegDataMap<Point>& feet,
+                        LegDataMap<State1d>& feet,
                         LegDataMap<bool>& swingleg) const
 {
   double t_local = GetLocalSplineTime(t_global);
@@ -209,7 +194,7 @@ HyqSpliner::FillCurrFeet(double t_global,
 
   feet = nodes_.at(goal_node).feet_W_;
 
-  for (int leg=0; leg<4; ++leg) {
+  for (auto leg : {LF, RF, LH, RH}) {
     if(nodes_.at(goal_node).swingleg_[leg]) { // only spline swinglegs
 
       double t_upswing = nodes_.at(goal_node).T * kUpswingPercent;
@@ -226,20 +211,16 @@ HyqSpliner::FillCurrFeet(double t_global,
 
 void HyqSpliner::BuildOneSegment(const SplineNode& from, const SplineNode& to,
                                  ZPolynomial& z_poly,
-                                 Spliner3d& ori,
-                                 LegDataMap< Spliner3d >& feet_up,
-                                 LegDataMap< Spliner3d >& feet_down) const
+                                 SplinerOri& ori,
+                                 LegDataMap< SplinerOri >& feet_up,
+                                 LegDataMap< SplinerOri >& feet_down) const
 {
-//  pos = BuildPositionSpline(from, to);
-
   z_poly.SetBoundary(to.T, from.base_z_, to.base_z_);
-
-
   ori = BuildOrientationRpySpline(from, to);
   feet_up = BuildFootstepSplineUp(from, to);
 
   // this is the outter/upper-most point the foot swings to
-  LegDataMap<Point> f_switch;
+  LegDataMap<State1d> f_switch;
   double t_switch = to.T * kUpswingPercent;
   for (LegID leg : LegIDArray) {
      feet_up[leg].GetPoint(t_switch, f_switch[leg]);
@@ -248,37 +229,29 @@ void HyqSpliner::BuildOneSegment(const SplineNode& from, const SplineNode& to,
   feet_down = BuildFootstepSplineDown(f_switch, to);
 }
 
-//HyqSpliner::Spliner3d
-//HyqSpliner::BuildPositionSpline(const SplineNode& from, const SplineNode& to) const
-//{
-//  Spliner3d pos;
-//  pos.SetBoundary(to.T, from.base_.lin, to.base_.lin);
-//  return pos;
-//}
-
-HyqSpliner::Spliner3d
+HyqSpliner::SplinerOri
 HyqSpliner::BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const
 {
   xpp::utils::BaseLin3d rpy_from, rpy_to;
   rpy_from.p = TransformQuatToRpy(from.base_ang_.q);
   rpy_to.p   = TransformQuatToRpy(to.base_ang_.q);
 
-  Spliner3d ori;
+  SplinerOri ori;
   ori.SetBoundary(to.T, rpy_from, rpy_to);
   return ori;
 }
 
-xpp::hyq::LegDataMap<HyqSpliner::Spliner3d>
+xpp::hyq::LegDataMap<HyqSpliner::SplinerOri>
 HyqSpliner::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const
 {
-  LegDataMap< Spliner3d > feet_up;
+  LegDataMap< SplinerOri > feet_up;
 
   // Feet spliner for all legs, even if might be stance legs
   for (LegID leg : LegIDArray) {
 
     // raise intermediate foothold dependant on foothold difference
     double delta_z = std::abs(to.feet_W_[leg].p.z() - from.feet_W_[leg].p.z());
-    Point foot_raised = to.feet_W_[leg];
+    State1d foot_raised = to.feet_W_[leg];
     foot_raised.p.z() += kLiftHeight + delta_z;
 
     // move outward only if footholds significantly differ in height
@@ -295,11 +268,11 @@ HyqSpliner::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) 
   return feet_up;
 }
 
-xpp::hyq::LegDataMap<HyqSpliner::Spliner3d>
-HyqSpliner::BuildFootstepSplineDown(const LegDataMap<Point>& feet_at_switch,
+xpp::hyq::LegDataMap<HyqSpliner::SplinerOri>
+HyqSpliner::BuildFootstepSplineDown(const LegDataMap<State1d>& feet_at_switch,
                                     const SplineNode& to) const
 {
-  LegDataMap< Spliner3d > feet_down;
+  LegDataMap< SplinerOri > feet_down;
 
   // Feet spliner for all legs, even if might be stance legs
   for (LegID leg : LegIDArray) {
@@ -351,9 +324,8 @@ int HyqSpliner::GetSplineID(double t) const
 SplineNode::SplineNode (const HyqState& state, double t_max)
 {
   swingleg_ = state.swingleg_;
-//  base_ = state_joints.base_;
   base_ang_ = state.base_.ang;
-  base_z_ = state.base_.lin.Get1D(utils::Z);
+  base_z_ = state.base_.lin.Get1D(Z);
 
   LegDataMap<BaseLin3d> feet;
   auto ee_W = state.GetEEInWorld();
@@ -398,34 +370,10 @@ double SplineNode::GetZAvg() const
   return (avg[FRONT_SIDE](Z) + avg[HIND_SIDE](Z)) / 2;
 }
 
-//HyqSpliner::SplineNodeVec
-//HyqSpliner::GetInterpolatedNodes () const
-//{
-//  SplineNodeVec trajectory;
-//
-//  double t=0.0;
-//  while (t<GetTotalTime()) {
-//
-//    SplineNode state;
-//
-//    state.base_.lin = GetCurrPosition(t);
-//    state.base_.ang = GetCurrOrientation(t);
-//    FillCurrFeet(t, state.feet_W_, state.swingleg_);
-//
-//    trajectory.push_back(state);
-//
-//    t += kDiscretizationTime;
-//  }
-//
-//  return trajectory;
-//}
-
 HyqSpliner::HyqStateVec
 HyqSpliner::BuildWholeBodyTrajectoryJoints () const
 {
-//  auto trajectory_ee = GetInterpolatedNodes();
   HyqStateVec trajectory_joints;
-  HyqInverseKinematics inv_kin;
 
   HyqState hyq_j_prev;
   bool first_state = true;
@@ -436,14 +384,11 @@ HyqSpliner::BuildWholeBodyTrajectoryJoints () const
     hyq_j.base_.lin     = GetCurrPosition(t);
     hyq_j.base_.ang     = GetCurrOrientation(t);
 
-
     LegDataMap<BaseLin3d> feet_W_;
-    // mpc make return vector PosEE
     FillCurrFeet(t, feet_W_, hyq_j.swingleg_);
-
-
-    // add joint position
     HyqState::PosEE ee_W = {feet_W_[LF].p, feet_W_[RF].p, feet_W_[LH].p, feet_W_[RH].p};
+
+    // joint position through inverse kinematics
     hyq_j.SetJointAngles(ee_W);
 
     // joint velocity
