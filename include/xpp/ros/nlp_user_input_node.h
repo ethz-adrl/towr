@@ -8,8 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
 
-#include <xpp/utils/base_state.h>
 #include <xpp_msgs/GetStateLin3d.h>
+#include <xpp/utils/state.h>
 
 #include <keyboard/Key.h>
 #include <sensor_msgs/Joy.h>
@@ -25,7 +25,7 @@ namespace ros {
   */
 class NlpUserInputNode {
 public:
-  using State       = xpp::utils::BaseLin3d;
+  using State       = xpp::utils::StateLin3d;
   using KeyboardMsg = keyboard::Key;
   using JoyMsg      = sensor_msgs::Joy;
   using GoalSrv     = xpp_msgs::GetStateLin3d;
