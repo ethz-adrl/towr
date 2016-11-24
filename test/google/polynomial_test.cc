@@ -19,7 +19,7 @@ namespace utils {
 // A start and an end position for the splines. checking only boundary conditions
 class SplineTest : public ::testing::Test {
 public:
-  typedef Polynomial::Point1d Point;
+  using Point = BaseLin1d;
 
 protected:
   static void SetUpTestCase() // this is now only done one for all test in this test case
@@ -35,13 +35,13 @@ protected:
     T = 3.2;
   }
 
-  static Polynomial::Point1d start;
-  static Polynomial::Point1d end;
+  static Point start;
+  static Point end;
   static double T;
 };
 
-Polynomial::Point1d SplineTest::start = Point();
-Polynomial::Point1d SplineTest::end = Point();
+SplineTest::Point SplineTest::start = Point();
+SplineTest::Point SplineTest::end = Point();
 double SplineTest::T = 0.0;
 
 
@@ -50,7 +50,7 @@ TEST_F(SplineTest, LinearPolynomial)
   LinearPolynomial s;
   s.SetBoundary(T, start, end);
 
-  Polynomial::Point1d p0, p1;
+  Point p0, p1;
   s.GetPoint(0.0, p0);
   s.GetPoint(T, p1);
 
@@ -70,7 +70,7 @@ TEST_F(SplineTest, CubicPolynomial)
   CubicPolynomial s;
   s.SetBoundary(T, start, end);
 
-  Polynomial::Point1d p0, p1;
+  Point p0, p1;
   s.GetPoint(0.0, p0);
   s.GetPoint(T, p1);
 
@@ -88,7 +88,7 @@ TEST_F(SplineTest, FifthOrderSpliner)
   QuinticPolynomial s;
   s.SetBoundary(T, start, end);
 
-  Polynomial::Point1d p0, p1;
+  Point p0, p1;
   s.GetPoint(0.0, p0);
   s.GetPoint(T, p1);
 
@@ -121,7 +121,7 @@ TEST_F(SplineTest, FifthOrderSplinerSameStartGoal)
   double t = 0.001;
   s.SetBoundary(t, p, pg);
 
-  Polynomial::Point1d p0,p2;
+  Point p0,p2;
   s.GetPoint(0.0,   p0);
   s.GetPoint(t,     p2);
 
