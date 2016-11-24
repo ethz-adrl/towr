@@ -14,6 +14,8 @@
 namespace xpp {
 namespace ros {
 
+using TrajectoryMsg = xpp_msgs::HyqStateTrajectory;
+
 static bool CheckIfInDirectoyWithIpoptConfigFile();
 
 NlpOptimizerNode::NlpOptimizerNode ()
@@ -54,31 +56,35 @@ NlpOptimizerNode::NlpOptimizerNode ()
 }
 
 void
-NlpOptimizerNode::CurrentStateCallback (const HyqStateMsg& msg)
+NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
 {
-  auto curr_state = RosHelpers::RosToXpp(msg);
+  auto curr_state = RosHelpers::RosToXpp(msg.state);
+  // mpc: possibly add time to current state or remove completely
   motion_optimizer_.curr_state_ = curr_state;
+
   ros_visualizer_->VisualizeCurrentState(curr_state.base_.lin.Get2D(),
                                          curr_state.GetStanceLegsInWorld());
-}
-
-void
-NlpOptimizerNode::GoalStateCallback(const StateMsg& msg)
-{
-  motion_optimizer_.goal_cog_ = RosHelpers::RosToXpp(msg);
-  ROS_INFO_STREAM("Goal state set to:\n" << motion_optimizer_.goal_cog_);
 
   motion_optimizer_.OptimizeMotion();
   PublishTrajectory();
 }
 
 void
+NlpOptimizerNode::GoalStateCallback(const UserCommandMsg& msg)
+{
+  motion_optimizer_.goal_cog_ = RosHelpers::RosToXpp(msg.goal);
+  motion_optimizer_.t_left_   = msg.t_left;
+//  ROS_INFO_STREAM("Goal state set to:\n" << motion_optimizer_.goal_cog_);
+//  ROS_INFO_STREAM("Time left:" << msg.t_left);
+}
+
+void
 NlpOptimizerNode::PublishTrajectory () const
 {
   // sends this info the the walking controller
-  auto hyq_trajectory = motion_optimizer_.GetTrajectory();
-  auto hyq_trajectory_msg = RosHelpers::XppToRos(hyq_trajectory);
-  trajectory_pub_.publish(hyq_trajectory_msg);
+  TrajectoryMsg msg;
+  msg = RosHelpers::XppToRos(motion_optimizer_.GetTrajectory());
+  trajectory_pub_.publish(msg);
 }
 
 /** Checks if this executable is run from where the config files for the

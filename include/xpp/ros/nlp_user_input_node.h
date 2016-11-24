@@ -10,7 +10,6 @@
 
 #include <xpp/utils/base_state.h>
 #include <xpp_msgs/GetStateLin3d.h>
-#include <xpp_msgs/StateLin3d.h>
 
 #include <keyboard/Key.h>
 #include <sensor_msgs/Joy.h>
@@ -26,20 +25,20 @@ namespace ros {
   */
 class NlpUserInputNode {
 public:
-  using State = xpp::utils::BaseLin3d;
-  using StateMsg = xpp_msgs::StateLin3d;
+  using State       = xpp::utils::BaseLin3d;
   using KeyboardMsg = keyboard::Key;
-  using JoyMsg = sensor_msgs::Joy;
-  using GoalSrv = xpp_msgs::GetStateLin3d;
+  using JoyMsg      = sensor_msgs::Joy;
+  using GoalSrv     = xpp_msgs::GetStateLin3d;
 
   enum class Command { kSetGoal, kStartWalking, kNoCommand } command_ = Command::kNoCommand;
 
   NlpUserInputNode ();
   virtual ~NlpUserInputNode ();
   void PublishCommand();
-  void PublishRviz() const;
+  void PublishRviz() const; // mpc move to xpp_vis
 
   const int kLoopRate_ = 30; ///< frequency for sending out control commands
+  double t_left_;
 
 private:
   void CallbackKeyboard(const KeyboardMsg& msg);
@@ -48,13 +47,13 @@ private:
   void ModifyGoalJoy();
 
   State goal_cog_;
-  State goal_prev_;
+  State goal_cog_prev_;
 
   ::ros::Subscriber key_sub_;
   ::ros::Subscriber joy_sub_;
   JoyMsg joy_msg_;
 
-  ::ros::Publisher  goal_state_pub_;
+  ::ros::Publisher  user_command_pub_;
   ::ros::Publisher  walk_command_pub_; // tells the robot to start walking
   ::ros::Publisher  rviz_publisher_;
 };

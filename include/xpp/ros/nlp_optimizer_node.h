@@ -10,8 +10,8 @@
 
 #include <xpp/opt/motion_optimizer_facade.h>
 
-#include <xpp_msgs/HyqState.h>         // receive
-#include <xpp_msgs/StateLin3d.h>       // receive
+#include <xpp_msgs/CurrentInfo.h>      // receive
+#include <xpp_msgs/UserCommand.h>       // receive
 #include "ros_visualizer.h"
 
 namespace xpp {
@@ -20,9 +20,8 @@ namespace ros {
 class NlpOptimizerNode {
 public:
   using OptVisualizerPtr = std::shared_ptr<RosVisualizer>;
-  using HyqStateMsg      = xpp_msgs::HyqState;
-  using StateMsg         = xpp_msgs::StateLin3d;
-
+  using CurrentInfoMsg   = xpp_msgs::CurrentInfo;
+  using UserCommandMsg   = xpp_msgs::UserCommand;
   using MotionOptimizer  = xpp::opt::MotionOptimizerFacade;
 
 public:
@@ -31,8 +30,8 @@ public:
 
 private:
   void PublishTrajectory() const;
-  void CurrentStateCallback(const HyqStateMsg& msg);
-  void GoalStateCallback(const StateMsg& msg);
+  void CurrentStateCallback(const CurrentInfoMsg& msg);
+  void GoalStateCallback(const UserCommandMsg& msg);
 
   ::ros::Subscriber goal_state_sub_;
   ::ros::Subscriber current_state_sub_;

@@ -8,12 +8,16 @@
 #include <xpp/ros/nlp_user_input_node.h>
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/marker_array_builder.h>
-
-#include <std_msgs/Empty.h>
 #include <xpp/ros/topic_names.h>
+#include <xpp/ros/ros_helpers.h>
+
+#include <std_msgs/Empty.h>         // send to trigger walking
+#include <xpp_msgs/UserCommand.h>   // send to optimizer node
 
 namespace xpp {
 namespace ros {
+
+using UserCommandMsg = xpp_msgs::UserCommand;
 
 NlpUserInputNode::NlpUserInputNode ()
 {
@@ -21,16 +25,21 @@ NlpUserInputNode::NlpUserInputNode ()
   key_sub_ = n.subscribe("/keyboard/keydown", 1, &NlpUserInputNode::CallbackKeyboard, this);
   joy_sub_ = n.subscribe("/joy", 1, &NlpUserInputNode::CallbackJoy, this);
 
-  goal_state_pub_ = n.advertise<StateMsg>(xpp_msgs::goal_state_topic, 1);
+  user_command_pub_ = n.advertise<UserCommandMsg>(xpp_msgs::goal_state_topic, 1);
 
   // start walking command
   walk_command_pub_ = n.advertise<std_msgs::Empty>(xpp_msgs::start_walking_topic,1);
 
   rviz_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_fixed", 1);
 
-  // publish values once initially
+
+  // publish goal zero initially
+  t_left_ = RosHelpers::GetDoubleFromServer("xpp/stance_time_initial");
   goal_cog_.p.setZero();
-  goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
+  UserCommandMsg msg;
+  msg.t_left = t_left_;
+  msg.goal = RosHelpers::XppToRos(goal_cog_);
+  user_command_pub_.publish(msg);
 }
 
 NlpUserInputNode::~NlpUserInputNode ()
@@ -117,25 +126,29 @@ void NlpUserInputNode::PublishCommand()
   if (!joy_msg_.axes.empty())
     ModifyGoalJoy();
 
+  if (goal_cog_.p != goal_cog_prev_.p)
+    t_left_ = RosHelpers::GetDoubleFromServer("xpp/stance_time_initial");
 
-  // send out goal state only if changed w.r.t previous
-  if (goal_cog_.p != goal_prev_.p) {
-    goal_state_pub_.publish(RosHelpers::XppToRos(goal_cog_));
-  }
-  goal_prev_ = goal_cog_;
+  UserCommandMsg msg;
+  msg.t_left = t_left_;
+  msg.goal = RosHelpers::XppToRos(goal_cog_);
+  user_command_pub_.publish(msg);
 
   switch (command_) {
-    case Command::kSetGoal:
+    case Command::kSetGoal: {
       ROS_INFO_STREAM("Sending out desired goal state");
       break;
-    case Command::kStartWalking:
+    }
+    case Command::kStartWalking: {
       ROS_INFO_STREAM("Sending out walking command");
       walk_command_pub_.publish(std_msgs::Empty());
       break;
+    }
     default: // no command
       break;
   }
 
+  goal_cog_prev_ = goal_cog_;
   command_ = Command::kNoCommand;
 }
 

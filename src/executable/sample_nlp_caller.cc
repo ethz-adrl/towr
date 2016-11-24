@@ -7,11 +7,11 @@
 
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
-#include <xpp_msgs/HyqState.h>
+#include <xpp_msgs/CurrentInfo.h>
 
-using HyqState    = xpp::hyq::HyqState;
-using HyqStateMsg = xpp_msgs::HyqState;
-using Vector3d    = Eigen::Vector3d;
+using HyqState       = xpp::hyq::HyqState;
+using CurrentInfoMsg = xpp_msgs::CurrentInfo;
+using Vector3d       = Eigen::Vector3d;
 
 int main(int argc, char **argv)
 {
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
   }
 
   ros::NodeHandle n;
-  ros::Publisher current_info_pub = n.advertise<HyqStateMsg>(xpp_msgs::curr_robot_state, 1);
+  ros::Publisher current_info_pub = n.advertise<CurrentInfoMsg>(xpp_msgs::curr_robot_state, 1);
 
   // give publisher and subscriber time to register with master
   ros::Rate poll_rate(100);
@@ -54,8 +54,10 @@ int main(int argc, char **argv)
                                      Vector3d(-0.358802,  -0.327695, 0.0)};// RH
 
   start_state.SetJointAngles(start_stance_W);
-  HyqStateMsg msg_hyq = xpp::ros::RosHelpers::XppToRos(start_state);
+  CurrentInfoMsg msg;
+  msg.state = xpp::ros::RosHelpers::XppToRos(start_state);
+  msg.time = 0.0;
   ROS_INFO_STREAM("Publishing current state...");
-  current_info_pub.publish(msg_hyq);
+  current_info_pub.publish(msg);
 }
 
