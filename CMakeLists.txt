@@ -142,7 +142,6 @@ target_link_libraries(nlp_optimizer_node
 add_executable(goal_state_pub 
   src/executable/goal_state_publisher.cc
 )
-
 target_link_libraries(goal_state_pub 
   ${LIB_NAME}
   ${catkin_LIBRARIES}
@@ -160,6 +159,14 @@ add_executable(nlp_user_input_node
     src/executable/nlp_user_input_node_exe.cc
 )
 target_link_libraries(nlp_user_input_node 
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)
+
+add_executable(goal_visualizer_node
+    src/executable/goal_visualizer_node_exe.cc
+)
+target_link_libraries(goal_visualizer_node 
   ${LIB_NAME}
   ${catkin_LIBRARIES}
 )

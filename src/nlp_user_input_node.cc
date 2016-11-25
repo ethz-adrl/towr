@@ -11,7 +11,7 @@
 #include <xpp/ros/topic_names.h>
 #include <xpp/ros/ros_helpers.h>
 
-#include <std_msgs/Empty.h>         // send to trigger walking
+//#include <std_msgs/Empty.h>         // send to trigger walking
 #include <xpp_msgs/UserCommand.h>   // send to optimizer node
 
 namespace xpp {
@@ -27,12 +27,6 @@ NlpUserInputNode::NlpUserInputNode ()
 
   user_command_pub_ = n.advertise<UserCommandMsg>(xpp_msgs::goal_state_topic, 1);
 
-  // start walking command
-  walk_command_pub_ = n.advertise<std_msgs::Empty>(xpp_msgs::start_walking_topic,1);
-
-  rviz_publisher_ = n.advertise<visualization_msgs::MarkerArray>("optimization_fixed", 1);
-
-
   // publish goal zero initially
   t_left_ = RosHelpers::GetDoubleFromServer("xpp/stance_time_initial");
   goal_cog_.p.setZero();
@@ -40,6 +34,9 @@ NlpUserInputNode::NlpUserInputNode ()
   msg.t_left = t_left_;
   msg.goal = RosHelpers::XppToRos(goal_cog_);
   user_command_pub_.publish(msg);
+
+  // start walking command
+//  walk_command_pub_ = n.advertise<std_msgs::Empty>(xpp_msgs::start_walking_topic,1);
 }
 
 NlpUserInputNode::~NlpUserInputNode ()
@@ -126,7 +123,7 @@ void NlpUserInputNode::PublishCommand()
   if (!joy_msg_.axes.empty())
     ModifyGoalJoy();
 
-  if (goal_cog_.p != goal_cog_prev_.p)
+  if (goal_cog_ != goal_cog_prev_)
     t_left_ = RosHelpers::GetDoubleFromServer("xpp/stance_time_initial");
 
   UserCommandMsg msg;
@@ -134,33 +131,23 @@ void NlpUserInputNode::PublishCommand()
   msg.goal = RosHelpers::XppToRos(goal_cog_);
   user_command_pub_.publish(msg);
 
-  switch (command_) {
-    case Command::kSetGoal: {
-      ROS_INFO_STREAM("Sending out desired goal state");
-      break;
-    }
-    case Command::kStartWalking: {
-      ROS_INFO_STREAM("Sending out walking command");
-      walk_command_pub_.publish(std_msgs::Empty());
-      break;
-    }
-    default: // no command
-      break;
-  }
+//  switch (command_) {
+//    case Command::kSetGoal: {
+//      ROS_INFO_STREAM("Sending out desired goal state");
+//      break;
+//    }
+//    case Command::kStartWalking: {
+//      ROS_INFO_STREAM("Sending out walking command");
+//      walk_command_pub_.publish(std_msgs::Empty());
+//      break;
+//    }
+//    default: // no command
+//      break;
+//  }
 
   goal_cog_prev_ = goal_cog_;
   command_ = Command::kNoCommand;
 }
-
-void
-NlpUserInputNode::PublishRviz () const
-{
-  visualization_msgs::MarkerArray msg_rviz;
-  MarkerArrayBuilder msg_builder_;
-  msg_builder_.AddPoint(msg_rviz, goal_cog_.Get2D().p, "goal",visualization_msgs::Marker::CUBE);
-  rviz_publisher_.publish(msg_rviz);
-}
-
 
 } /* namespace ros */
 } /* namespace xpp */

@@ -56,7 +56,7 @@ int main(int argc, char **argv)
   start_state.SetJointAngles(start_stance_W);
   CurrentInfoMsg msg;
   msg.state = xpp::ros::RosHelpers::XppToRos(start_state);
-  msg.time = 0.0;
+  msg.reoptimize = true;
   ROS_INFO_STREAM("Publishing current state...");
   current_info_pub.publish(msg);
 }

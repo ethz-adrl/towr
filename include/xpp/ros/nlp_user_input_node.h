@@ -35,7 +35,6 @@ public:
   NlpUserInputNode ();
   virtual ~NlpUserInputNode ();
   void PublishCommand();
-  void PublishRviz() const; // mpc move to xpp_vis
 
   const int kLoopRate_ = 30; ///< frequency for sending out control commands
   double t_left_;
@@ -54,8 +53,7 @@ private:
   JoyMsg joy_msg_;
 
   ::ros::Publisher  user_command_pub_;
-  ::ros::Publisher  walk_command_pub_; // tells the robot to start walking
-  ::ros::Publisher  rviz_publisher_;
+//  ::ros::Publisher  walk_command_pub_; // tells the robot to start walking
 };
 
 } /* namespace ros */

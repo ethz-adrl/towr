@@ -59,31 +59,36 @@ void
 NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
 {
   auto curr_state = RosHelpers::RosToXpp(msg.state);
-  // mpc: possibly add time to current state or remove completely
-  motion_optimizer_.curr_state_ = curr_state;
-
   ros_visualizer_->VisualizeCurrentState(curr_state.base_.lin.Get2D(),
                                          curr_state.GetStanceLegsInWorld());
 
-  motion_optimizer_.OptimizeMotion();
-  PublishTrajectory();
+  motion_optimizer_.SetCurrent(curr_state);
+
+  if (msg.reoptimize) // only re-optimize if robot signalizes to be off track
+    OptimizeAndPublishTrajectory();
 }
 
 void
 NlpOptimizerNode::GoalStateCallback(const UserCommandMsg& msg)
 {
+  auto goal_prev = motion_optimizer_.goal_cog_;
   motion_optimizer_.goal_cog_ = RosHelpers::RosToXpp(msg.goal);
   motion_optimizer_.t_left_   = msg.t_left;
+
+  if (goal_prev != motion_optimizer_.goal_cog_) // only reoptimize if new goal position
+    OptimizeAndPublishTrajectory();
+
 //  ROS_INFO_STREAM("Goal state set to:\n" << motion_optimizer_.goal_cog_);
 //  ROS_INFO_STREAM("Time left:" << msg.t_left);
 }
 
 void
-NlpOptimizerNode::PublishTrajectory () const
+NlpOptimizerNode::OptimizeAndPublishTrajectory ()
 {
+  motion_optimizer_.OptimizeMotion();
+
   // sends this info the the walking controller
-  TrajectoryMsg msg;
-  msg = RosHelpers::XppToRos(motion_optimizer_.GetTrajectory());
+  auto msg = RosHelpers::XppToRos(motion_optimizer_.GetTrajectory());
   trajectory_pub_.publish(msg);
 }
 
