@@ -27,8 +27,8 @@ NlpObserver::~NlpObserver ()
 
 void
 NlpObserver::Init(const MotionStructure& structure,
-                           const ComMotion& com_motion,
-                           const Contacts& contacts)
+                  const ComMotion& com_motion,
+                  const Contacts& contacts)
 {
   com_motion_       = com_motion.clone();
   contacts_         = ContactsPtrU(new Contacts(contacts));

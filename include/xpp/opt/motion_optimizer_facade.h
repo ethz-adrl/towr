@@ -47,11 +47,13 @@ public:
   void OptimizeMotion();
   HyqStateVec GetTrajectory() const;
 
-  HyqState curr_state_;
+  void SetCurrent(const HyqState& curr);
+
   State goal_cog_;
   double t_left_; // time to reach goal
 
 private:
+  HyqState curr_state_;
   WholeBodyMapper whole_body_mapper_;
   NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;
@@ -62,6 +64,8 @@ private:
   double t_swing_;
   double t_stance_initial_;
   double des_walking_height_;
+
+  HyqStateVec optimized_trajectory_;
 };
 
 } /* namespace opt */

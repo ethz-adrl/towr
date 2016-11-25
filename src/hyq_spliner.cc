@@ -325,7 +325,7 @@ SplineNode::SplineNode (const HyqState& state, double t_max)
 {
   swingleg_ = state.swingleg_;
   base_ang_ = state.base_.ang;
-  base_z_ = state.base_.lin.Get1D(Z);
+  base_z_ = state.base_.lin.Get1d(Z);
 
   LegDataMap<BaseLin3d> feet;
   auto ee_W = state.GetEEInWorld();

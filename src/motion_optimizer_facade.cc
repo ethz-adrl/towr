@@ -62,9 +62,7 @@ MotionOptimizerFacade::OptimizeMotion ()
   bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
 
   MotionStructure motion_structure;
-  // mpc for only body shift, this changes based on current time
-  double t_stance_initial = t_left_;
-  std::cout << "time_left: " << t_left_ << std::endl;
+  double t_stance_initial = t_left_; // mpc for only body shift, this changes by goal publisher
 
   motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, t_swing_, t_stance_initial,
                         start_with_com_shift, true);
@@ -86,12 +84,20 @@ MotionOptimizerFacade::OptimizeMotion ()
                           nlp_facade_.GetFootholds(),
                           des_walking_height_,
                           curr_state_);
+
+  optimized_trajectory_ = whole_body_mapper_.BuildWholeBodyTrajectoryJoints();
 }
 
 MotionOptimizerFacade::HyqStateVec
 MotionOptimizerFacade::GetTrajectory () const
 {
-  return whole_body_mapper_.BuildWholeBodyTrajectoryJoints();
+  return optimized_trajectory_;
+}
+
+void
+MotionOptimizerFacade::SetCurrent (const HyqState& curr)
+{
+  curr_state_ = curr;
 }
 
 } /* namespace opt */

@@ -47,7 +47,7 @@ public:
   using State1d       = xpp::utils::StateLin3d;
   using HyqStateVec   = std::vector<HyqState>;
   using SplinerOri    = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State1d>;
-  using ZPolynomial   = xpp::utils::QuinticPolynomial;
+  using ZPolynomial   = xpp::utils::LinearPolynomial;
 
 public:
   HyqSpliner();
