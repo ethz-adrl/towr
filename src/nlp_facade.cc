@@ -18,6 +18,8 @@
 #include <xpp/opt/nlp.h>
 #include <xpp/opt/nlp_observer.h>
 #include <xpp/opt/optimization_variables.h>
+
+#include <xpp/hyq/hyq_robot_interface.h>
 //#include <xpp/opt/snopt_adapter.h>
 
 #include <iomanip>
@@ -65,9 +67,23 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   nlp_observer_->Init(motion_structure, *com_motion, contacts);
 
+  // provide the initial values of the optimization problem
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
-  opt_variables_->AddVariableSet(VariableNames::kFootholds, contacts.GetFootholdsInitializedToStart());
+
+  // mpc move this to appropriate class, this here should be hyq independent
+  hyq::HyqRobotInterface hyq;
+  utils::StdVecEigen2d footholds;
+  for (auto f : contacts.footholds_I_)
+  {
+    Eigen::Vector2d nominal_B = hyq.GetNominalStanceInBase(f.leg);
+    footholds.push_back(Eigen::Vector2d(nominal_B.x()+initial_state.p.x(),
+                                        nominal_B.y()+initial_state.p.y()));
+  }
+
+
+
+  opt_variables_->AddVariableSet(VariableNames::kFootholds, utils::ConvertStdToEig(footholds));
 
 
   constraints_->ClearConstraints();
@@ -80,7 +96,7 @@ NlpFacade::SolveNlp(const State& initial_state,
                                                                          robot_height,
                                                                          dt_zmp));
   constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts, motion_structure));
-  constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, contacts));
+//  constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, contacts));
 
    // careful: these are not quite debugged yet
 //  constraints_->AddConstraint(CostConstraintFactory::CreateObstacleConstraint(contacts));

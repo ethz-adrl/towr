@@ -58,14 +58,17 @@ MotionOptimizerFacade::OptimizeMotion ()
                               des_walking_height_, max_step_length_,
                               curr_state_.SwinglegID(), supp_polygon_margins_);
 
-  auto step_sequence        = step_sequence_planner_.DetermineStepSequence();
-  bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
+//  auto step_sequence        = step_sequence_planner_.DetermineStepSequence();
+//  bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
+  std::vector<xpp::hyq::LegID> step_sequence = {hyq::LH};
+  bool start_with_com_shift = true;
+  bool insert_final_stance = true;
 
   MotionStructure motion_structure;
   double t_stance_initial = t_left_; // mpc for only body shift, this changes by goal publisher
 
   motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, t_swing_, t_stance_initial,
-                        start_with_com_shift, true);
+                        start_with_com_shift, insert_final_stance);
 
   Contacts contacts;
   contacts.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, supp_polygon_margins_);

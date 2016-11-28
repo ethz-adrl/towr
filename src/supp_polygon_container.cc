@@ -70,9 +70,15 @@ SupportPolygonContainer::GetFootholdsInitializedToStart() const
 {
   StdVecEigen2d footholds_xy(footholds_I_.size());
 
+//  VecFoothold nominal_stance_hyq_B = { Foothold( 0.359692,   0.327653, 0.0, hyq::LF), // LF
+//                                       Foothold( 0.359694,  -0.327644, 0.0, hyq::RF), // RF
+//                                       Foothold(-0.358797,   0.327698, 0.0, hyq::LH), // LH
+//                                       Foothold(-0.358802,  -0.327695, 0.0, hyq::RH)};// RH
+
   for (uint step=0; step<footholds_I_.size(); ++step) {
     xpp::hyq::LegID leg = footholds_I_.at(step).leg;
     footholds_xy.at(step) = GetStartFoothold(leg).GetXy();
+//    Foothold::GetLastFoothold(leg, nominal_stance_hyq)
   }
 
   return utils::ConvertStdToEig(footholds_xy);
