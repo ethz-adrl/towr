@@ -105,7 +105,7 @@ public:
 
   /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */
   // mpc remove this function
-  Eigen::VectorXd GetFootholdsInitializedToStart() const;
+//  Eigen::VectorXd GetFootholdsInitializedToStart() const;
 
   static bool DisJointSupportPolygons(LegID prev, LegID next);
   VecFoothold footholds_I_; // mpc make private again

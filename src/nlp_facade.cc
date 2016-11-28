@@ -59,6 +59,8 @@ NlpFacade::SolveNlp(const State& initial_state,
                     const Contacts& contacts,
                     double dt_zmp)
 {
+  std::cout << "SolveNlp()..." << std::endl;
+
   // insight: this spline might be better for model pred. control, as it always matches the initial
   // position and velocity, avoiding jumps in state. For the other spline this is
   // a constraint, that might not be fulfilled.
@@ -73,30 +75,36 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   // mpc move this to appropriate class, this here should be hyq independent
   hyq::HyqRobotInterface hyq;
-  utils::StdVecEigen2d footholds;
+  utils::StdVecEigen2d footholds_W;
   for (auto f : contacts.footholds_I_)
   {
     Eigen::Vector2d nominal_B = hyq.GetNominalStanceInBase(f.leg);
-    footholds.push_back(Eigen::Vector2d(nominal_B.x()+initial_state.p.x(),
-                                        nominal_B.y()+initial_state.p.y()));
+    footholds_W.push_back(nominal_B + initial_state.p); // express in world
   }
 
 
 
-  opt_variables_->AddVariableSet(VariableNames::kFootholds, utils::ConvertStdToEig(footholds));
+  opt_variables_->AddVariableSet(VariableNames::kFootholds, utils::ConvertStdToEig(footholds_W));
 
+
+  std::cout << "Finished setting initial value." << std::endl;
 
   constraints_->ClearConstraints();
   constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, *com_motion));
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, *com_motion));
   constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(*com_motion));
+
+  std::cout << "Finished adding half of constraints." << std::endl;
+
   constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(motion_structure,
                                                                          *com_motion,
                                                                          contacts,
                                                                          robot_height,
                                                                          dt_zmp));
   constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts, motion_structure));
-//  constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, contacts));
+  constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, contacts));
+
+  std::cout << "Finished adding constraints." << std::endl;
 
    // careful: these are not quite debugged yet
 //  constraints_->AddConstraint(CostConstraintFactory::CreateObstacleConstraint(contacts));

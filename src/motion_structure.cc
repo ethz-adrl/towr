@@ -28,6 +28,7 @@ MotionStructure::~MotionStructure ()
   // TODO Auto-generated destructor stub
 }
 
+// mpc clean this up, messy code
 void
 MotionStructure::Init (const StartStance& start_stance,
                        const LegIDVec& step_legs,
@@ -56,7 +57,6 @@ MotionStructure::Init (const StartStance& start_stance,
     PhaseInfo phase;
     phase.free_contacts_  = prev_phase.free_contacts_;
     phase.fixed_contacts_ = prev_phase.fixed_contacts_;
-//    PhaseInfo phase = i==0 ? initial_stance_phase : phases_.back();
 
     // remove current swingleg from list of active contacts
     auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),

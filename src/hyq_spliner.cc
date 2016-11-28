@@ -95,7 +95,7 @@ void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
   SplinerOri ori;
   ZPolynomial z_height;
 
-  LegDataMap< SplinerOri > feet_up, feet_down;
+  LegDataMap< SplinerFeet > feet_up, feet_down;
   for (int n=1; n<nodes_.size(); ++n) {
     SplineNode from = nodes.at(n-1);
     SplineNode to   = nodes.at(n);
@@ -212,8 +212,8 @@ HyqSpliner::FillCurrFeet(double t_global,
 void HyqSpliner::BuildOneSegment(const SplineNode& from, const SplineNode& to,
                                  ZPolynomial& z_poly,
                                  SplinerOri& ori,
-                                 LegDataMap< SplinerOri >& feet_up,
-                                 LegDataMap< SplinerOri >& feet_down) const
+                                 LegDataMap< SplinerFeet >& feet_up,
+                                 LegDataMap< SplinerFeet >& feet_down) const
 {
   z_poly.SetBoundary(to.T, from.base_z_, to.base_z_);
   ori = BuildOrientationRpySpline(from, to);
@@ -241,10 +241,10 @@ HyqSpliner::BuildOrientationRpySpline(const SplineNode& from, const SplineNode& 
   return ori;
 }
 
-xpp::hyq::LegDataMap<HyqSpliner::SplinerOri>
+xpp::hyq::LegDataMap<HyqSpliner::SplinerFeet>
 HyqSpliner::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const
 {
-  LegDataMap< SplinerOri > feet_up;
+  LegDataMap< SplinerFeet > feet_up;
 
   // Feet spliner for all legs, even if might be stance legs
   for (LegID leg : LegIDArray) {
@@ -268,11 +268,11 @@ HyqSpliner::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) 
   return feet_up;
 }
 
-xpp::hyq::LegDataMap<HyqSpliner::SplinerOri>
+xpp::hyq::LegDataMap<HyqSpliner::SplinerFeet>
 HyqSpliner::BuildFootstepSplineDown(const LegDataMap<State1d>& feet_at_switch,
                                     const SplineNode& to) const
 {
-  LegDataMap< SplinerOri > feet_down;
+  LegDataMap< SplinerFeet > feet_down;
 
   // Feet spliner for all legs, even if might be stance legs
   for (LegID leg : LegIDArray) {
@@ -328,12 +328,13 @@ SplineNode::SplineNode (const HyqState& state, double t_max)
   base_z_ = state.base_.lin.Get1d(Z);
 
   LegDataMap<BaseLin3d> feet;
-  auto ee_W = state.GetEEInWorld();
+  auto W_p_ee = state.GetEEInWorld();
+  auto W_v_ee = state.GetEEInVelWorld();
 
-  for (int leg=0; leg<ee_W.size(); ++leg){
-    feet_W_[leg].p = ee_W[leg];
-    feet_W_[leg].v.setZero();
-    feet_W_[leg].a.setZero();
+  for (int leg=0; leg<W_p_ee.size(); ++leg){
+    feet_W_[leg].p = W_p_ee[leg];
+    feet_W_[leg].v = W_v_ee[leg];
+    feet_W_[leg].a.setZero(); // mpc fill this at some point as well
   }
 
   T = t_max;

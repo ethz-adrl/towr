@@ -34,7 +34,7 @@ public:
   virtual ~MotionStructure ();
 
   void Init(const StartStance& start_stance, const LegIDVec& step_legs,
-            double t_swing, double t_stance, bool insert_initial_stance,
+            double t_swing, double t_first_phase, bool insert_initial_stance,
             bool insert_final_stance);
 
 
