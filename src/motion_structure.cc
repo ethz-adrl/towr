@@ -35,20 +35,27 @@ MotionStructure::Init (const StartStance& start_stance,
                        bool insert_initial_stance,
                        bool insert_final_stance)
 {
-  PhaseInfo initial_stance_phase;
-  initial_stance_phase.id_ = 0;
-  initial_stance_phase.duration_ = t_stance_initial;
-  initial_stance_phase.fixed_contacts_ = start_stance;
-  initial_stance_phase.n_completed_steps_ = 0;
+  int id = -1;
+
 
   if (insert_initial_stance) {
+    PhaseInfo initial_stance_phase;
+    initial_stance_phase.id_ = ++id;
+    initial_stance_phase.duration_ = t_stance_initial;
+    initial_stance_phase.fixed_contacts_ = start_stance;
+    initial_stance_phase.n_completed_steps_ = 0;
     phases_.push_back(initial_stance_phase);
   }
 
+  PhaseInfo prev_phase;
+  prev_phase.fixed_contacts_ = start_stance;
   // the steps
   for (uint i=0; i<step_legs.size(); ++i) {
 
-    PhaseInfo phase = i==0 ? initial_stance_phase : phases_.back();
+    PhaseInfo phase;
+    phase.free_contacts_  = prev_phase.free_contacts_;
+    phase.fixed_contacts_ = prev_phase.fixed_contacts_;
+//    PhaseInfo phase = i==0 ? initial_stance_phase : phases_.back();
 
     // remove current swingleg from list of active contacts
     auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
@@ -71,10 +78,12 @@ MotionStructure::Init (const StartStance& start_stance,
     if (i > 0)
       phase.free_contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(step_legs.at(i-1))));
 
-    phase.id_++;
+    phase.id_ = ++id;
     phase.duration_ = t_swing;
     phase.n_completed_steps_ = i;
     phases_.push_back(phase);
+
+    prev_phase = phase;
   }
 
   // the final stance
@@ -87,7 +96,7 @@ MotionStructure::Init (const StartStance& start_stance,
       phase.n_completed_steps_++;
     }
 
-    phase.id_++;
+    phase.id_ = ++id;
     phase.duration_ = 1.05;
     phases_.push_back(phase);
   }
