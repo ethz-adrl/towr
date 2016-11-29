@@ -46,9 +46,10 @@ public:
   using VecFoothold   = Foothold::VecFoothold;
   using State1d       = xpp::utils::StateLin3d;
   using HyqStateVec   = std::vector<HyqState>;
-  using SplinerOri    = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State1d>;
-  using SplinerFeet   = xpp::utils::PolynomialXd< utils::CubicPolynomial, State1d>;
-  using ZPolynomial   = xpp::utils::LinearPolynomial;
+  // mpc don't forget about the spliner order
+  using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State1d>;
+  using SplinerFeet   = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State1d>;
+  using ZPolynomial   = xpp::utils::CubicPolynomial;
 
 public:
   HyqSpliner();

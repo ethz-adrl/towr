@@ -7,8 +7,8 @@
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/utils/cartesian_declarations.h>
-//#include <xpp/opt/motion_structure.h>
 #include <xpp/opt/phase_info.h>
+#include <xpp/hyq/hyq_robot_interface.h>
 
 namespace xpp {
 namespace hyq {
@@ -57,6 +57,20 @@ SupportPolygonContainer::Init (const VecLegID& start_legs,
   Init(start_stance, step_sequence, margins);
 }
 
+Eigen::VectorXd
+SupportPolygonContainer::GetFootholdsInitializedToNominal(const Eigen::Vector2d& base) const
+{
+  HyqRobotInterface hyq;
+  utils::StdVecEigen2d footholds_W;
+  for (auto f : GetFootholdsInWorld())
+  {
+    Eigen::Vector2d nominal_B = hyq.GetNominalStanceInBase(f.leg);
+    footholds_W.push_back(nominal_B + base); // express in world
+  }
+
+  return utils::ConvertStdToEig(footholds_W);
+}
+
 void
 SupportPolygonContainer::SetFootholdsXY(const StdVecEigen2d& footholds_xy)
 {
@@ -64,25 +78,6 @@ SupportPolygonContainer::SetFootholdsXY(const StdVecEigen2d& footholds_xy)
   Foothold::SetXy(footholds_xy, footholds_I_);
   support_polygons_ = CreateSupportPolygons(footholds_I_); //update support polygons as well
 }
-
-//Eigen::VectorXd
-//SupportPolygonContainer::GetFootholdsInitializedToStart() const
-//{
-//  StdVecEigen2d footholds_xy(footholds_I_.size());
-//
-////  VecFoothold nominal_stance_hyq_B = { Foothold( 0.359692,   0.327653, 0.0, hyq::LF), // LF
-////                                       Foothold( 0.359694,  -0.327644, 0.0, hyq::RF), // RF
-////                                       Foothold(-0.358797,   0.327698, 0.0, hyq::LH), // LH
-////                                       Foothold(-0.358802,  -0.327695, 0.0, hyq::RH)};// RH
-//
-//  for (uint step=0; step<footholds_I_.size(); ++step) {
-//    xpp::hyq::LegID leg = footholds_I_.at(step).leg;
-//    footholds_xy.at(step) = GetStartFoothold(leg).GetXy();
-////    Foothold::GetLastFoothold(leg, nominal_stance_hyq)
-//  }
-//
-//  return utils::ConvertStdToEig(footholds_xy);
-//}
 
 SupportPolygon SupportPolygonContainer::GetStancePolygon(const VecFoothold& footholds) const
 {

@@ -29,7 +29,7 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 void
 MotionOptimizerFacade::Init (double max_step_length, double dt_zmp,
                              double diag_supp_poly_margin,
-                             double t_swing, double t_stance_initial,
+                             double t_swing, double t_first_phase,
                              double des_walking_height,
                              double lift_height,
                              double outward_swing,
@@ -41,7 +41,7 @@ MotionOptimizerFacade::Init (double max_step_length, double dt_zmp,
   supp_polygon_margins_ = xpp::hyq::SupportPolygon::GetDefaultMargins();
   supp_polygon_margins_[hyq::DIAG] =  diag_supp_poly_margin;
   t_swing_ = t_swing;
-  t_stance_initial_ = t_stance_initial;
+  t_first_phase_ = t_first_phase;
   des_walking_height_ = des_walking_height;
 
   whole_body_mapper_.SetParams(0.5, lift_height, outward_swing, trajectory_dt);
@@ -58,14 +58,12 @@ MotionOptimizerFacade::OptimizeMotion ()
                               des_walking_height_, max_step_length_,
                               curr_state_.SwinglegID(), supp_polygon_margins_);
 
-//  auto step_sequence        = step_sequence_planner_.DetermineStepSequence();
-//  bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
-  std::vector<xpp::hyq::LegID> step_sequence = {hyq::LH};
-  bool start_with_com_shift = false;
+  auto step_sequence = step_sequence_planner_.DetermineStepSequence();
+  bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
   bool insert_final_stance = true;
 
   MotionStructure motion_structure;
-  double t_first_phase = t_stance_initial_;//t_left_; // mpc for only body shift, this changes by goal publisher
+  double t_first_phase = t_first_phase_;//t_left_; // mpc this changes by goal publisher
 
   motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, t_swing_, t_first_phase,
                         start_with_com_shift, insert_final_stance);

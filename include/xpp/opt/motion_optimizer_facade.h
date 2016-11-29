@@ -37,7 +37,7 @@ public:
             double dt_zmp,
             double diag_supp_poly_margin,
             double t_swing,
-            double t_stance_initial,
+            double t_first_phase,
             double des_walking_height,
             double lift_height,
             double outward_swing,
@@ -62,7 +62,7 @@ private:
   double dt_zmp_;
   xpp::hyq::MarginValues supp_polygon_margins_;
   double t_swing_;
-  double t_stance_initial_;
+  double t_first_phase_;
   double des_walking_height_;
 
   HyqStateVec optimized_trajectory_;

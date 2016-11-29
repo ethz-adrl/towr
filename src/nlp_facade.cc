@@ -59,8 +59,6 @@ NlpFacade::SolveNlp(const State& initial_state,
                     const Contacts& contacts,
                     double dt_zmp)
 {
-  std::cout << "SolveNlp()..." << std::endl;
-
   // insight: this spline might be better for model pred. control, as it always matches the initial
   // position and velocity, avoiding jumps in state. For the other spline this is
   // a constraint, that might not be fulfilled.
@@ -72,30 +70,13 @@ NlpFacade::SolveNlp(const State& initial_state,
   // provide the initial values of the optimization problem
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
-
-  // mpc move this to appropriate class, this here should be hyq independent
-  hyq::HyqRobotInterface hyq;
-  utils::StdVecEigen2d footholds_W;
-  for (auto f : contacts.footholds_I_)
-  {
-    Eigen::Vector2d nominal_B = hyq.GetNominalStanceInBase(f.leg);
-    footholds_W.push_back(nominal_B + initial_state.p); // express in world
-  }
-
-
-
-  opt_variables_->AddVariableSet(VariableNames::kFootholds, utils::ConvertStdToEig(footholds_W));
-
-
-  std::cout << "Finished setting initial value." << std::endl;
+  opt_variables_->AddVariableSet(VariableNames::kFootholds,
+                                 contacts.GetFootholdsInitializedToNominal(initial_state.p));
 
   constraints_->ClearConstraints();
   constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, *com_motion));
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, *com_motion));
   constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(*com_motion));
-
-  std::cout << "Finished adding half of constraints." << std::endl;
-
   constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(motion_structure,
                                                                          *com_motion,
                                                                          contacts,
@@ -103,8 +84,6 @@ NlpFacade::SolveNlp(const State& initial_state,
                                                                          dt_zmp));
   constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts, motion_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, contacts));
-
-  std::cout << "Finished adding constraints." << std::endl;
 
    // careful: these are not quite debugged yet
 //  constraints_->AddConstraint(CostConstraintFactory::CreateObstacleConstraint(contacts));

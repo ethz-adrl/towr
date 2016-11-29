@@ -75,8 +75,6 @@ private:
   bool IsGoalOutsideSupportPolygon() const;
   bool IsGoalOutsideRangeOfMotion() const;
 
-//  bool step_already_executed = false;
-
   State curr_state_;
   State goal_state_;
   VecFoothold start_stance_;
@@ -86,8 +84,7 @@ private:
 
   HyqRobotInterface robot_;
 
-  int swingleg_of_last_spline_; // this could also be no swingleg (stance phase)
-  LegID prev_swing_leg_; // this is always a swingleg
+  int curr_swingleg_; // this could also be no swingleg (stance phase)
 };
 
 } /* namespace hyq */
