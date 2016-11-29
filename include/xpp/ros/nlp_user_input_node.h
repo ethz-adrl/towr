@@ -38,6 +38,7 @@ public:
 
   const int kLoopRate_ = 30; ///< frequency for sending out control commands
   double t_left_;
+  const double t_max_left_;
 
 private:
   void CallbackKeyboard(const KeyboardMsg& msg);
@@ -53,7 +54,7 @@ private:
   JoyMsg joy_msg_;
 
   ::ros::Publisher  user_command_pub_;
-//  ::ros::Publisher  walk_command_pub_; // tells the robot to start walking
+  ::ros::Publisher  walk_command_pub_; // tells the robot to start walking
 };
 
 } /* namespace ros */

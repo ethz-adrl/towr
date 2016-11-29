@@ -36,8 +36,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
   double max_step_length    = RosHelpers::GetDoubleFromServer("/xpp/max_step_length");
   double dt_zmp             = RosHelpers::GetDoubleFromServer("/xpp/dt_zmp");
   double supp_margins_diag  = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");
-  double t_swing            = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
-  double t_stance_initial   = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
+  double t_swing            = RosHelpers::GetDoubleFromServer("/xpp/t_swing");
+  double t_first_phase      = t_swing;
   double des_walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
   double lift_height        = RosHelpers::GetDoubleFromServer("/xpp/lift_height");
   double outward_swing      = RosHelpers::GetDoubleFromServer("/xpp/outward_swing_distance");
@@ -46,7 +46,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
   ros_visualizer_ = std::make_shared<RosVisualizer>();
 
   motion_optimizer_.Init(max_step_length,dt_zmp,supp_margins_diag,
-                         t_swing, t_stance_initial,des_walking_height,
+                         t_swing, t_first_phase,des_walking_height,
                          lift_height, outward_swing, trajectory_dt,
                          ros_visualizer_);
 
@@ -64,8 +64,8 @@ NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
 
   motion_optimizer_.SetCurrent(curr_state);
 
-  if (msg.reoptimize) // only re-optimize if robot signalizes to be off track
-    OptimizeAndPublishTrajectory();
+//  if (msg.reoptimize) // only re-optimize if robot signalizes to be off track
+//    OptimizeAndPublishTrajectory();
 }
 
 void
