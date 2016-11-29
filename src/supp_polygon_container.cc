@@ -7,8 +7,8 @@
 
 #include <xpp/hyq/support_polygon_container.h>
 #include <xpp/utils/cartesian_declarations.h>
-//#include <xpp/opt/motion_structure.h>
 #include <xpp/opt/phase_info.h>
+#include <xpp/hyq/hyq_robot_interface.h>
 
 namespace xpp {
 namespace hyq {
@@ -22,7 +22,7 @@ void SupportPolygonContainer::Init(const VecFoothold& start_stance,
   margins_       = margins;
 
   ModifyFootholds(start_stance_, [](Foothold& f, int i) {f.SetFixedId();} );
-  ModifyFootholds(footholds_I_,    [](Foothold& f, int i) {f.id = i;} );
+  ModifyFootholds(footholds_I_,  [](Foothold& f, int i) {f.id = i;} );
 
   support_polygons_ = CreateSupportPolygons(footholds_I_);
 }
@@ -57,25 +57,26 @@ SupportPolygonContainer::Init (const VecLegID& start_legs,
   Init(start_stance, step_sequence, margins);
 }
 
+Eigen::VectorXd
+SupportPolygonContainer::GetFootholdsInitializedToNominal(const Eigen::Vector2d& base) const
+{
+  HyqRobotInterface hyq;
+  utils::StdVecEigen2d footholds_W;
+  for (auto f : GetFootholdsInWorld())
+  {
+    Eigen::Vector2d nominal_B = hyq.GetNominalStanceInBase(f.leg);
+    footholds_W.push_back(nominal_B + base); // express in world
+  }
+
+  return utils::ConvertStdToEig(footholds_W);
+}
+
 void
 SupportPolygonContainer::SetFootholdsXY(const StdVecEigen2d& footholds_xy)
 {
   assert(footholds_xy.size() == footholds_I_.size());
   Foothold::SetXy(footholds_xy, footholds_I_);
   support_polygons_ = CreateSupportPolygons(footholds_I_); //update support polygons as well
-}
-
-Eigen::VectorXd
-SupportPolygonContainer::GetFootholdsInitializedToStart() const
-{
-  StdVecEigen2d footholds_xy(footholds_I_.size());
-
-  for (uint step=0; step<footholds_I_.size(); ++step) {
-    xpp::hyq::LegID leg = footholds_I_.at(step).leg;
-    footholds_xy.at(step) = GetStartFoothold(leg).GetXy();
-  }
-
-  return utils::ConvertStdToEig(footholds_xy);
 }
 
 SupportPolygon SupportPolygonContainer::GetStancePolygon(const VecFoothold& footholds) const

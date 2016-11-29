@@ -18,8 +18,9 @@ namespace hyq {
 
 class SplineNode  {
 public:
-  using BaseState = xpp::utils::BaseState;
-  using BaseLin3d = xpp::utils::BaseLin3d;
+  using BaseLin3d = xpp::utils::StateLin3d;
+  using BaseAng3d = xpp::utils::StateAng3d;
+  using BaseLin1d = xpp::utils::StateLin1d;
   using Vector3d  = Eigen::Vector3d;
 
   SplineNode(){};
@@ -27,7 +28,9 @@ public:
 
   LegDataMap<BaseLin3d> feet_W_; ///< contacts expressed in world frame
   LegDataMap< bool > swingleg_;
-  BaseState base_;
+  BaseAng3d base_ang_;
+  BaseLin1d base_z_;
+
   double T;                      ///< time to reach this state
 
   std::array<Vector3d, kNumSides> GetAvgSides() const;
@@ -41,10 +44,12 @@ public:
   using ComSpline     = std::vector<xpp::utils::ComPolynomial>;
   using Vector3d      = Eigen::Vector3d;
   using VecFoothold   = Foothold::VecFoothold;
-  using Point         = xpp::utils::BaseLin3d;
-  using SplineNodeVec = std::vector<SplineNode>;
+  using State1d       = xpp::utils::StateLin3d;
   using HyqStateVec   = std::vector<HyqState>;
-  using Spliner3d     = xpp::utils::PolynomialXd< ::xpp::utils::QuinticPolynomial,::xpp::utils::kDim3d, ::xpp::utils::BaseLin3d>;
+  // mpc don't forget about the spliner order
+  using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State1d>;
+  using SplinerFeet   = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State1d>;
+  using ZPolynomial   = xpp::utils::CubicPolynomial;
 
 public:
   HyqSpliner();
@@ -64,8 +69,9 @@ public:
 
 private:
   std::vector<SplineNode> nodes_; // the discrete states to spline through
-  std::vector<Spliner3d> pos_spliner_, ori_spliner_;
-  std::vector<LegDataMap< Spliner3d > > feet_spliner_up_, feet_spliner_down_;
+  std::vector<ZPolynomial> z_spliner_;
+  std::vector<SplinerOri> ori_spliner_;
+  std::vector<LegDataMap< SplinerFeet > > feet_spliner_up_, feet_spliner_down_;
   ComSpline optimized_xy_spline_;
 
   double kDiscretizationTime;   // at what interval the continuous trajectory is sampled
@@ -80,21 +86,22 @@ private:
 
   void CreateAllSplines(const std::vector<SplineNode>& nodes);
 
-  SplineNodeVec GetInterpolatedNodes() const;
-  Point GetCurrPosition(double t_global) const;
-  xpp::utils::BaseAng3d GetCurrOrientation(double t_global) const;
-  void FillCurrFeet(double t_global, LegDataMap<Point>& feet, LegDataMap<bool>& swingleg) const;
-  void FillZState(double t_global, Point& pos) const;
+//  SplineNodeVec GetInterpolatedNodes() const;
+  State1d GetCurrPosition(double t_global) const;
+  xpp::utils::StateAng3d GetCurrOrientation(double t_global) const;
+  void FillCurrFeet(double t_global, LegDataMap<State1d>& feet, LegDataMap<bool>& swingleg) const;
+  void FillZState(double t_global, State1d& pos) const;
 
-  Spliner3d BuildPositionSpline(const SplineNode& from, const SplineNode& to) const;
-  Spliner3d BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const;
-  LegDataMap<Spliner3d> BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const;
-  LegDataMap<Spliner3d> BuildFootstepSplineDown(const LegDataMap<Point>& feet_at_switch,const SplineNode& to) const;
+//  Spliner3d BuildPositionSpline(const SplineNode& from, const SplineNode& to) const;
+  SplinerOri BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const;
+  LegDataMap<SplinerFeet> BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const;
+  LegDataMap<SplinerFeet> BuildFootstepSplineDown(const LegDataMap<State1d>& feet_at_switch,const SplineNode& to) const;
 
   void BuildOneSegment(const SplineNode& from, const SplineNode& to,
-                       Spliner3d& pos, Spliner3d& ori,
-                       LegDataMap< Spliner3d >& feet_up,
-                       LegDataMap< Spliner3d >& feet_down) const;
+                       ZPolynomial& z_poly,
+                       SplinerOri& ori,
+                       LegDataMap< SplinerFeet >& feet_up,
+                       LegDataMap< SplinerFeet >& feet_down) const;
 
   static Vector3d TransformQuatToRpy(const Eigen::Quaterniond& q);
   int GetSplineID(double t_global) const;

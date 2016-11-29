@@ -18,10 +18,6 @@ using namespace xpp::utils; // X,Y
 
 StepSequencePlanner::StepSequencePlanner ()
 {
-  // must still initialize current and goal state
-  prev_swing_leg_ = RF;
-//  prev_swing_leg_ = LH;
-
   robot_ = HyqRobotInterface();
 }
 
@@ -34,7 +30,7 @@ void
 StepSequencePlanner::Init (const State& curr, const State& goal,
                            const VecFoothold& start_stance, double robot_height,
                            double max_step_length,
-                           int swingleg_of_last_spline,
+                           int curr_swingleg,
                            MarginValues margins)
 {
   curr_state_ = curr;
@@ -42,7 +38,7 @@ StepSequencePlanner::Init (const State& curr, const State& goal,
   start_stance_ = start_stance;
   robot_height_ = robot_height;
   max_step_length_ = max_step_length;
-  swingleg_of_last_spline_ = swingleg_of_last_spline;
+  curr_swingleg_ = curr_swingleg;
   margins_ = margins;
 }
 
@@ -67,11 +63,13 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     LegID last_swingleg;
-    if (swingleg_of_last_spline_ == hyq::NO_SWING_LEG)
-      last_swingleg = prev_swing_leg_;
-    else {
-      last_swingleg = static_cast<LegID>(swingleg_of_last_spline_);
-      prev_swing_leg_ = last_swingleg;
+    LegIDVec step_sequence;
+    if (curr_swingleg_ == hyq::NO_SWING_LEG) {
+//      step_sequence.push_back(LF); // start with LF if none previously
+      last_swingleg = LF;          //prev_swing_leg_;
+    } else {
+      last_swingleg = static_cast<LegID>(curr_swingleg_);
+//      step_sequence.push_back(last_swingleg);
     }
 
 
@@ -94,7 +92,7 @@ StepSequencePlanner::DetermineStepSequence ()
     }
 
 
-    LegIDVec step_sequence;
+
     for (int step=0; step<n_steps; ++step) {
       if (moving_mainly_in_x) {
         if (walking_forward)
@@ -124,9 +122,11 @@ StepSequencePlanner::StartWithStancePhase () const
 
   return true;
 
-//  if (curr_state_.v.norm() > 0.1) {
+//  if (curr_state_.v.norm() > 0.05) {
 //    return false;
-//  } else
+//  } else {
+//    return true;
+//  }
 
 
 

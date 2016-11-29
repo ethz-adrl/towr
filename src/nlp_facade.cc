@@ -18,6 +18,8 @@
 #include <xpp/opt/nlp.h>
 #include <xpp/opt/nlp_observer.h>
 #include <xpp/opt/optimization_variables.h>
+
+#include <xpp/hyq/hyq_robot_interface.h>
 //#include <xpp/opt/snopt_adapter.h>
 
 #include <iomanip>
@@ -57,7 +59,7 @@ NlpFacade::SolveNlp(const State& initial_state,
                     const Contacts& contacts,
                     double dt_zmp)
 {
-  // insight: this spline might be better for MPC, as it always matches the initial
+  // insight: this spline might be better for model pred. control, as it always matches the initial
   // position and velocity, avoiding jumps in state. For the other spline this is
   // a constraint, that might not be fulfilled.
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
@@ -65,10 +67,11 @@ NlpFacade::SolveNlp(const State& initial_state,
 
   nlp_observer_->Init(motion_structure, *com_motion, contacts);
 
+  // provide the initial values of the optimization problem
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
-  opt_variables_->AddVariableSet(VariableNames::kFootholds, contacts.GetFootholdsInitializedToStart());
-
+  opt_variables_->AddVariableSet(VariableNames::kFootholds,
+                                 contacts.GetFootholdsInitializedToNominal(initial_state.p));
 
   constraints_->ClearConstraints();
   constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, *com_motion));

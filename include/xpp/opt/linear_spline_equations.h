@@ -8,15 +8,15 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 
-#include <xpp/utils/base_state.h>
 #include <xpp/utils/matrix_vector.h>
+#include <xpp/utils/state.h>
 #include <memory>
 
 namespace xpp {
 namespace opt {
 
 class ComMotion;
-class ComSpline; // at some point get rid of this
+class ComSpline;
 
 /** Produces linear equations related to CoM spline motion coefficients x.
   *
@@ -29,7 +29,7 @@ class ComSpline; // at some point get rid of this
 class LinearSplineEquations {
 public:
   using MatVec            = xpp::utils::MatVec;
-  using State2d           = xpp::utils::BaseLin2d;
+  using State2d           = xpp::utils::StateLin2d;
   using MotionDerivatives = std::vector<xpp::utils::MotionDerivative>;
   using ComSplinePtrU     = std::unique_ptr<ComSpline>;
 

@@ -103,12 +103,10 @@ public:
   VecSupportPolygon AssignSupportPolygonsToPhases(const PhaseInfoVec&) const;
 
 
-  /** @brief returns the foothold sequence, but each leg is initialized to start stance xy */
-  Eigen::VectorXd GetFootholdsInitializedToStart() const;
+  Eigen::VectorXd GetFootholdsInitializedToNominal(const Eigen::Vector2d& base) const;
 
   static bool DisJointSupportPolygons(LegID prev, LegID next);
 private:
-
   VecFoothold footholds_I_;
   VecSupportPolygon support_polygons_;
   MarginValues margins_;

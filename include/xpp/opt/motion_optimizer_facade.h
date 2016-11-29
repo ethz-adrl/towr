@@ -23,7 +23,7 @@ namespace opt {
   */
 class MotionOptimizerFacade {
 public:
-  using State               = xpp::utils::BaseLin3d;
+  using State               = xpp::utils::StateLin3d;
   using StepSequencePlanner = xpp::hyq::StepSequencePlanner;
   using WholeBodyMapper     = xpp::hyq::HyqSpliner;
   using HyqStateVec         = WholeBodyMapper::HyqStateVec;
@@ -37,7 +37,7 @@ public:
             double dt_zmp,
             double diag_supp_poly_margin,
             double t_swing,
-            double t_stance_initial,
+            double t_first_phase,
             double des_walking_height,
             double lift_height,
             double outward_swing,
@@ -47,10 +47,13 @@ public:
   void OptimizeMotion();
   HyqStateVec GetTrajectory() const;
 
-  HyqState curr_state_;
+  void SetCurrent(const HyqState& curr);
+
   State goal_cog_;
+  double t_left_; // time to reach goal
 
 private:
+  HyqState curr_state_;
   WholeBodyMapper whole_body_mapper_;
   NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;
@@ -59,8 +62,10 @@ private:
   double dt_zmp_;
   xpp::hyq::MarginValues supp_polygon_margins_;
   double t_swing_;
-  double t_stance_initial_;
+  double t_first_phase_;
   double des_walking_height_;
+
+  HyqStateVec optimized_trajectory_;
 };
 
 } /* namespace opt */
