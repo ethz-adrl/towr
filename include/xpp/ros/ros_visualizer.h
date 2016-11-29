@@ -8,8 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZATION_VISUALIZER_H_
 
-#include <xpp/utils/base_state.h>
 #include <xpp/opt/i_visualizer.h>
+#include <xpp/utils/state.h>
 
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
@@ -30,7 +30,7 @@ namespace ros {
   */
 class RosVisualizer : public xpp::opt::IVisualizer {
 public:
-  using State = xpp::utils::BaseLin2d;
+  using State = xpp::utils::StateLin2d;
   using VecFoothold = std::vector<xpp::hyq::Foothold>;
 
   RosVisualizer();

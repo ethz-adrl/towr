@@ -14,10 +14,13 @@ int main(int argc, char *argv[])
   xpp::ros::NlpUserInputNode nlp_user_input_node;
   ros::Rate loop_rate(nlp_user_input_node.kLoopRate_);
 
+  static double t_left_min = 0.2; // to avoid step inputs, always leave little time to reach goal
   while (ros::ok())
   {
     nlp_user_input_node.PublishCommand();
-    nlp_user_input_node.PublishRviz();
+
+    double t_left = nlp_user_input_node.t_left_ - 1./nlp_user_input_node.kLoopRate_;
+    nlp_user_input_node.t_left_ = t_left > t_left_min ? t_left : t_left_min;
 
     ros::spinOnce();
     loop_rate.sleep();

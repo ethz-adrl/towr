@@ -14,6 +14,8 @@
 namespace xpp {
 namespace ros {
 
+using TrajectoryMsg = xpp_msgs::HyqStateTrajectory;
+
 static bool CheckIfInDirectoyWithIpoptConfigFile();
 
 NlpOptimizerNode::NlpOptimizerNode ()
@@ -34,8 +36,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
   double max_step_length    = RosHelpers::GetDoubleFromServer("/xpp/max_step_length");
   double dt_zmp             = RosHelpers::GetDoubleFromServer("/xpp/dt_zmp");
   double supp_margins_diag  = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");
-  double t_swing            = RosHelpers::GetDoubleFromServer("/xpp/swing_time");
-  double t_stance_initial   = RosHelpers::GetDoubleFromServer("/xpp/stance_time_initial");
+  double t_swing            = RosHelpers::GetDoubleFromServer("/xpp/t_swing");
+  double t_first_phase      = t_swing;
   double des_walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
   double lift_height        = RosHelpers::GetDoubleFromServer("/xpp/lift_height");
   double outward_swing      = RosHelpers::GetDoubleFromServer("/xpp/outward_swing_distance");
@@ -44,7 +46,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
   ros_visualizer_ = std::make_shared<RosVisualizer>();
 
   motion_optimizer_.Init(max_step_length,dt_zmp,supp_margins_diag,
-                         t_swing, t_stance_initial,des_walking_height,
+                         t_swing, t_first_phase,des_walking_height,
                          lift_height, outward_swing, trajectory_dt,
                          ros_visualizer_);
 
@@ -54,31 +56,40 @@ NlpOptimizerNode::NlpOptimizerNode ()
 }
 
 void
-NlpOptimizerNode::CurrentStateCallback (const HyqStateMsg& msg)
+NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
 {
-  auto curr_state = RosHelpers::RosToXpp(msg);
-  motion_optimizer_.curr_state_ = curr_state;
+  auto curr_state = RosHelpers::RosToXpp(msg.state);
   ros_visualizer_->VisualizeCurrentState(curr_state.base_.lin.Get2D(),
                                          curr_state.GetStanceLegsInWorld());
+
+  motion_optimizer_.SetCurrent(curr_state);
+
+//  if (msg.reoptimize) // only re-optimize if robot signalizes to be off track
+//    OptimizeAndPublishTrajectory();
 }
 
 void
-NlpOptimizerNode::GoalStateCallback(const StateMsg& msg)
+NlpOptimizerNode::GoalStateCallback(const UserCommandMsg& msg)
 {
-  motion_optimizer_.goal_cog_ = RosHelpers::RosToXpp(msg);
-  ROS_INFO_STREAM("Goal state set to:\n" << motion_optimizer_.goal_cog_);
+  auto goal_prev = motion_optimizer_.goal_cog_;
+  motion_optimizer_.goal_cog_ = RosHelpers::RosToXpp(msg.goal);
+  motion_optimizer_.t_left_   = msg.t_left;
 
+  if (goal_prev != motion_optimizer_.goal_cog_) // only reoptimize if new goal position
+    OptimizeAndPublishTrajectory();
+
+//  ROS_INFO_STREAM("Goal state set to:\n" << motion_optimizer_.goal_cog_);
+//  ROS_INFO_STREAM("Time left:" << msg.t_left);
+}
+
+void
+NlpOptimizerNode::OptimizeAndPublishTrajectory ()
+{
   motion_optimizer_.OptimizeMotion();
-  PublishTrajectory();
-}
 
-void
-NlpOptimizerNode::PublishTrajectory () const
-{
   // sends this info the the walking controller
-  auto hyq_trajectory = motion_optimizer_.GetTrajectory();
-  auto hyq_trajectory_msg = RosHelpers::XppToRos(hyq_trajectory);
-  trajectory_pub_.publish(hyq_trajectory_msg);
+  auto msg = RosHelpers::XppToRos(motion_optimizer_.GetTrajectory());
+  trajectory_pub_.publish(msg);
 }
 
 /** Checks if this executable is run from where the config files for the

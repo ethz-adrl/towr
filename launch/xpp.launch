@@ -4,8 +4,13 @@
   <!-- so the logging print the node name -->
   <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${node}]: ${message}" />
 
+  <!-- launches the actual nlp server -->
+  <include file="$(find xpp_ros)/launch/optimizer.launch"></include>
+  
+  
   <!-- for commanding goal position and user input -->
   <node name="nlp_user_input_node" pkg="xpp_ros" type="nlp_user_input_node" output="screen" cwd="node" >  </node>
+  <node name="goal_visualizer"     pkg="xpp_ros" type="goal_visualizer_node" output="screen" cwd="node" >  </node>
   <!-- <node name="keyboard" pkg="keyboard" type="keyboard" output="screen" cwd="node" >  </node> -->
   <!--  <node name="joy" pkg="joy" type="joy_node" output="screen" cwd="node" >  </node>  -->
   
@@ -13,8 +18,6 @@
   if SL is not sending it. -->
   <node name="sample_nlp_caller" pkg="xpp_ros" type="sample_nlp_caller" args="0 0 0 0 0 0" output="screen" cwd="node" >  </node>
   
-  <!-- launches the actual nlp server -->
-  <include file="$(find xpp_ros)/launch/optimizer.launch"></include>
   
   <!-- if rviz visualization is desired -->
   <arg name="vis" default="false"/>

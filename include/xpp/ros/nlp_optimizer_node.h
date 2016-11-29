@@ -2,16 +2,16 @@
  @file    nlp_optimizer_node.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jul 21, 2016
- @brief   Declares the interface to the ROS node that initializes/calls the NLP optimizer.
+ @brief   Declares the ROS interface to motion optimizer.
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
+#ifndef XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
+#define XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
 
 #include <xpp/opt/motion_optimizer_facade.h>
 
-#include <xpp_msgs/HyqState.h>         // receive
-#include <xpp_msgs/StateLin3d.h>       // receive
+#include <xpp_msgs/CurrentInfo.h>  // receive from robot
+#include <xpp_msgs/UserCommand.h>  // receive from user
 #include "ros_visualizer.h"
 
 namespace xpp {
@@ -20,9 +20,8 @@ namespace ros {
 class NlpOptimizerNode {
 public:
   using OptVisualizerPtr = std::shared_ptr<RosVisualizer>;
-  using HyqStateMsg      = xpp_msgs::HyqState;
-  using StateMsg         = xpp_msgs::StateLin3d;
-
+  using CurrentInfoMsg   = xpp_msgs::CurrentInfo;
+  using UserCommandMsg   = xpp_msgs::UserCommand;
   using MotionOptimizer  = xpp::opt::MotionOptimizerFacade;
 
 public:
@@ -30,9 +29,9 @@ public:
   virtual ~NlpOptimizerNode () {};
 
 private:
-  void PublishTrajectory() const;
-  void CurrentStateCallback(const HyqStateMsg& msg);
-  void GoalStateCallback(const StateMsg& msg);
+  void OptimizeAndPublishTrajectory();
+  void CurrentStateCallback(const CurrentInfoMsg& msg);
+  void GoalStateCallback(const UserCommandMsg& msg);
 
   ::ros::Subscriber goal_state_sub_;
   ::ros::Subscriber current_state_sub_;
@@ -45,4 +44,4 @@ private:
 } /* namespace ros */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZER_NODE_H_ */
+#endif /* XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZER_NODE_H_ */
