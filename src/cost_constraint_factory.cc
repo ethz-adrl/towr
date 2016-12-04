@@ -16,6 +16,7 @@
 #include <xpp/opt/zmp_constraint.h>
 #include <xpp/opt/cost_adapter.h>
 #include <xpp/opt/a_foothold_constraint.h>
+#include <xpp/opt/convexity_constraint.h>
 
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/hyq/hyq_robot_interface.h>
@@ -74,6 +75,15 @@ CostConstraintFactory::CreateZmpConstraint (const MotionStructure& motion_struct
   constraint->Init(motion_structure, com_motion, contacts, walking_height, dt_zmp);
   return constraint;
 }
+
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::CreateConvexityContraint (const MotionStructure& motion_structure)
+{
+  auto constraint = std::make_shared<ConvexityConstraint>();
+  constraint->Init(motion_structure);
+  return constraint;
+}
+
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateRangeOfMotionConstraint (const ComMotion& com_motion,
@@ -169,4 +179,3 @@ CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
 
 } /* namespace zmp */
 } /* namespace xpp */
-
