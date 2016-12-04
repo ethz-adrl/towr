@@ -117,6 +117,7 @@ set(SOURCES
   src/range_of_motion_constraint.cc
   src/obstacle_constraint.cc
   src/dynamic_constraint.cc
+  src/convexity_constraint.cc
   # costs
   src/a_cost.cc
   src/a_spline_cost.cc
