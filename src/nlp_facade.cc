@@ -71,7 +71,9 @@ NlpFacade::SolveNlp(const State& initial_state,
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
   opt_variables_->AddVariableSet(VariableNames::kFootholds, contacts.GetFootholdsInitializedToNominal(initial_state.p));
-  opt_variables_->AddVariableSet(VariableNames::kConvexity, Eigen::VectorXd(motion_structure.GetTotalNumberOfNodeContacts()).setZero());
+  opt_variables_->AddVariableSet(VariableNames::kConvexity,
+                                 Eigen::VectorXd(motion_structure.GetTotalNumberOfNodeContacts()).setZero(),
+                                 AConstraint::kInequalityBoundPositive_);
 
 
   constraints_->ClearConstraints();

@@ -10,10 +10,10 @@
 namespace xpp {
 namespace opt {
 
-VariableSet::VariableSet (int n_variables, std::string id)
+VariableSet::VariableSet (int n_variables, std::string id, const VarBound& bound)
 {
   x_ = Eigen::VectorXd::Zero(n_variables);
-  bounds_.assign(n_variables, AConstraint::kNoBound_);
+  bounds_.assign(n_variables, bound);
   id_ = id;
 }
 
@@ -55,9 +55,10 @@ NlpStructure::~NlpStructure ()
 }
 
 void
-NlpStructure::AddVariableSet (std::string id, int n_variables)
+NlpStructure::AddVariableSet (std::string id, int n_variables,
+                              const VarBound& bound)
 {
-  auto new_set = std::make_shared<VariableSet>(n_variables, id);
+  auto new_set = std::make_shared<VariableSet>(n_variables, id, bound);
   assert(GetSet(id) == nullptr); // make sure doesn't exist yet, otherwise call ClearVariables()
   variable_sets_.push_back(new_set);
 }

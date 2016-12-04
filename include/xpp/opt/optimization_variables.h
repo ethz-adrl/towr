@@ -29,6 +29,7 @@ class OptimizationVariables : public ASubject {
 public:
   typedef Eigen::VectorXd VectorXd;
   typedef NlpStructure::VecBound VecBound;
+  using VarBound = NlpStructure::VarBound;
 
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
@@ -41,7 +42,8 @@ public:
   int GetOptimizationVariableCount() const;
   NlpStructure::VariableSetVector GetVarSets() const;
 
-  void AddVariableSet(std::string id, const VectorXd& values);
+  void AddVariableSet(std::string id, const VectorXd& values,
+                      const VarBound& bound  = AConstraint::kNoBound_);
   void SetVariables(const VectorXd& x);
 
 private:

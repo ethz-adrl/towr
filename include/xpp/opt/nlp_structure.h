@@ -30,6 +30,7 @@ public:
   typedef std::shared_ptr<VariableSet> VariableSetPtr;
   typedef std::vector<VariableSetPtr> VariableSetVector;
   typedef AConstraint::VecBound VecBound;
+  using VarBound = AConstraint::Bound;
 
   NlpStructure();
   virtual ~NlpStructure();
@@ -39,7 +40,7 @@ public:
     * @param idx The index (order) of this variable set compared to the others.
     * @param n_variables The number of variables.
     */
-  void AddVariableSet(std::string id, int n_variables);
+  void AddVariableSet(std::string id, int n_variables, const VarBound& bound);
 
   int GetOptimizationVariableCount() const;
   VectorXd GetAllOptimizationVariables() const;
@@ -64,8 +65,9 @@ class VariableSet {
 public:
   typedef Eigen::VectorXd VectorXd;
   typedef AConstraint::VecBound VecBound;
+  using VarBound = NlpStructure::VarBound;
 
-  VariableSet(int n_variables, std::string id);
+  VariableSet(int n_variables, std::string id, const VarBound&);
   virtual ~VariableSet();
 
   VectorXd GetVariables() const;

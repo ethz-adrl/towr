@@ -43,9 +43,9 @@ OptimizationVariables::GetVarSets () const
 }
 
 void
-OptimizationVariables::AddVariableSet (std::string id, const VectorXd& values)
+OptimizationVariables::AddVariableSet (std::string id, const VectorXd& values, const VarBound& bound)
 {
-  nlp_structure_.AddVariableSet(id, values.rows());
+  nlp_structure_.AddVariableSet(id, values.rows(), bound);
   SetVariables(id, values);
 }
 
