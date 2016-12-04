@@ -66,6 +66,9 @@ public:
   static ConstraintPtr CreateFinalStanceConstraint(const Vector2d& goal_xy, const Contacts&);
 
   static ConstraintPtr CreateConvexityContraint(const MotionStructure&);
+  static ConstraintPtr CreateDynamicConstraint(const MotionStructure&,
+                                               const ComMotion&,
+                                               const Contacts&);
 };
 
 } /* namespace zmp */

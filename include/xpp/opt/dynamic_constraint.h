@@ -43,6 +43,13 @@ private:
   ComMotionPtrU com_motion_;
   ContactPtrU contacts_;
   MotionStructure motion_structure_;
+  Eigen::VectorXd lambdas_;
+
+  static constexpr double kWalkingHeight = 0.58; //zmp_ make parameter
+
+  Jacobian GetJacobianWithRespectToLambdas() const;
+  Jacobian GetJacobianWithRespectToContacts() const;
+  Jacobian GetJacobianWithRespectToComMotion() const;
 };
 
 } /* namespace opt */

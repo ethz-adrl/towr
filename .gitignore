@@ -2,3 +2,4 @@
 /build/*
 /doc/html/*
 *.out
+/config/rospack_cache_*

@@ -93,6 +93,7 @@ public:
 
   VecFoothold GetStartStance() const {return start_stance_;};
   Foothold GetStartFoothold(LegID leg) const;
+  Foothold GetFoothold(int id) const { return footholds_I_.at(id); };
 
 
   /** @brief First step is considered step=0. */

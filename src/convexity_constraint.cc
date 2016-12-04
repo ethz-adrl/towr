@@ -63,7 +63,7 @@ ConvexityConstraint::EvaluateConstraint () const
     int contacts_free = node.phase_.free_contacts_.size();
     int n_contacts = contacts_fixed + contacts_free;
 
-    g_vec.push_back(lambdas_.middleRows(idx, n_contacts).sum());
+    g_vec.push_back(lambdas_.middleRows(idx, n_contacts).sum()); // sum equal to 1
     idx += n_contacts;
 
   }
@@ -76,7 +76,7 @@ ConvexityConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
   for (const auto& node : motion_structure_.GetPhaseStampedVec())
-    bounds.push_back(Bound(1.0, 1.0));
+    bounds.push_back(Bound(1.0, 1.0)); // sum of lambda's should equal one
 
   return bounds;
 }

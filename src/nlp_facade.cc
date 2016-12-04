@@ -73,7 +73,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   opt_variables_->AddVariableSet(VariableNames::kFootholds, contacts.GetFootholdsInitializedToNominal(initial_state.p));
   opt_variables_->AddVariableSet(VariableNames::kConvexity,
                                  Eigen::VectorXd(motion_structure.GetTotalNumberOfNodeContacts()).setZero(),
-                                 AConstraint::kInequalityBoundPositive_);
+                                 AConstraint::Bound(0.1, 1.0e20));
 
 
   constraints_->ClearConstraints();
@@ -82,12 +82,15 @@ NlpFacade::SolveNlp(const State& initial_state,
   constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(*com_motion));
 
 
-  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(motion_structure,
-                                                                         *com_motion,
-                                                                         contacts,
-                                                                         robot_height,
-                                                                         dt_zmp));
+//  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(motion_structure,
+//                                                                         *com_motion,
+//                                                                         contacts,
+//                                                                         robot_height,
+//                                                                         dt_zmp));
 
+  constraints_->AddConstraint(CostConstraintFactory::CreateDynamicConstraint(motion_structure,
+                                                                             *com_motion,
+                                                                             contacts));
   constraints_->AddConstraint(CostConstraintFactory::CreateConvexityContraint(motion_structure));
 
 

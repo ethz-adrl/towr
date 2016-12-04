@@ -43,6 +43,7 @@ ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
   return zmp;
 }
 
+// zmp_ possibly remove this function/reuse code from one below (DRY)
 ZeroMomentPoint::Jacobian
 ZeroMomentPoint::GetJacobianWrtCoeff (Coords dim) const
 {
@@ -64,7 +65,18 @@ ZeroMomentPoint::GetJacobianWrtCoeff (Coords dim) const
   return jac_zmp;
 }
 
+ZeroMomentPoint::Jacobian
+ZeroMomentPoint::GetJacobianWrtCoeff (const ComMotion& com_motion, Coords dim,
+                                      double height, double t)
+{
+  JacobianRow jac_pos_t = com_motion.GetJacobian(t, utils::kPos, dim);
+  JacobianRow jac_acc_t = com_motion.GetJacobian(t, utils::kAcc, dim);
+
+  JacobianRow jac_zmp_t = CalcZmp(jac_pos_t, jac_acc_t, height);
+  return jac_zmp_t;
+}
+
+
 } /* namespace zmp */
 } /* namespace xpp */
-
 
