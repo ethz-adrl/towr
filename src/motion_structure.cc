@@ -108,6 +108,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
   start_stance_ = start_stance;
   steps_ = step_legs;
+  dt_ = 0.1;
   cache_needs_updating_ = true;
 }
 
@@ -171,7 +172,7 @@ MotionStructure::CalcPhaseStampedVec () const
 }
 
 int
-MotionStructure::GetTotalNumberOfDiscreteContacts () const
+MotionStructure::GetTotalNumberOfFreeNodeContacts () const
 {
   auto contact_info_vec = GetPhaseStampedVec();
 
@@ -182,18 +183,33 @@ MotionStructure::GetTotalNumberOfDiscreteContacts () const
   return i;
 }
 
+int
+MotionStructure::GetTotalNumberOfNodeContacts () const
+{
+  auto contact_info_vec = GetPhaseStampedVec();
+
+  int i = 0;
+  for (auto node : contact_info_vec) {
+    i += node.phase_.free_contacts_.size();
+    i += node.phase_.fixed_contacts_.size();
+  }
+
+  return i;
+}
+
 PhaseVec
 MotionStructure::GetPhases () const
 {
   return phases_;
 }
 
-void
-MotionStructure::SetDisretization (double dt)
-{
-  dt_ = dt;
-  cache_needs_updating_ = true;
-}
+// zmp_ remove this
+//void
+//MotionStructure::SetDisretization (double dt)
+//{
+//  dt_ = dt;
+//  cache_needs_updating_ = true;
+//}
 
 } /* namespace zmp */
 } /* namespace xpp */

@@ -18,6 +18,7 @@ struct VariableNames
 {
   static constexpr const char* kSplineCoeff = "spline_coeff";
   static constexpr const char* kFootholds   = "footholds";
+  static constexpr const char* kConvexity   = "convexity_lambdas";
 };
 
 } /* namespace zmp */

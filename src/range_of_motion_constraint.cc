@@ -37,7 +37,7 @@ RangeOfMotionConstraint::Init (const ComMotion& com_motion,
   motion_structure_ = motion_structure;
   robot_            = std::move(p_robot);
 
-  motion_structure_.SetDisretization(0.1);
+//  motion_structure_.SetDisretization(0.1); // zmp_ remove
 
   SetJacobianWrtContacts(jac_wrt_contacts_);
   SetJacobianWrtMotion(jac_wrt_motion_);
@@ -141,7 +141,7 @@ void
 RangeOfMotionBox::SetJacobianWrtContacts (Jacobian& jac_wrt_contacts) const
 {
   int n_contacts = contacts_->GetTotalFreeCoeff();
-  int m_constraints = motion_structure_.GetTotalNumberOfDiscreteContacts() * kDim2d;
+  int m_constraints = motion_structure_.GetTotalNumberOfFreeNodeContacts() * kDim2d;
   jac_wrt_contacts = Jacobian(m_constraints, n_contacts);
 
   int row=0;
@@ -159,7 +159,7 @@ void
 RangeOfMotionBox::SetJacobianWrtMotion (Jacobian& jac_wrt_motion) const
 {
   int n_motion   = com_motion_->GetTotalFreeCoeff();
-  int m_constraints = motion_structure_.GetTotalNumberOfDiscreteContacts() * kDim2d;
+  int m_constraints = motion_structure_.GetTotalNumberOfFreeNodeContacts() * kDim2d;
   jac_wrt_motion = Jacobian(m_constraints, n_motion);
 
   int row=0;

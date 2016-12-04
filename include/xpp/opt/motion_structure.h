@@ -65,8 +65,10 @@ public:
     */
   PhaseStampedVec GetPhaseStampedVec() const;
 
-  void SetDisretization(double dt);
-  int GetTotalNumberOfDiscreteContacts() const;
+//  void SetDisretization(double dt); // zmp_ think about removing/privating this for consistency
+  double GetDiscretization() const { return dt_; };
+  int GetTotalNumberOfFreeNodeContacts() const;
+  int GetTotalNumberOfNodeContacts() const;
 
 private:
   StartStance start_stance_;

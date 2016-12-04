@@ -37,7 +37,7 @@ ZmpConstraintBuilder::Init(const MotionStructure& structure,
                            double dt)
 {
   motion_structure_ = structure;
-  motion_structure_.SetDisretization(dt);
+//  motion_structure_.SetDisretization(dt); // zmp_ remove this as well
   com_motion_ = com_motion.clone();
   contacts_ = SuppPolygonPtrU(new SupportPolygonContainer(supp));
   support_polygon_per_phase_ = contacts_->AssignSupportPolygonsToPhases(motion_structure_.GetPhases());
@@ -46,7 +46,7 @@ ZmpConstraintBuilder::Init(const MotionStructure& structure,
   double t_switch = 0.1; // the timeframe at which the constraint is relaxed
 
   // refactor remove this, all info contained in motion_info_
-  times_ = GetTimesForConstraitEvaluation(dt, t_switch);
+  times_ = GetTimesForConstraitEvaluation(motion_structure_.GetDiscretization(), t_switch);
 
   // set coefficients to zero, since that is where I am approximating the function
   //around. can only do this in initialization, because ZMP is linear, so

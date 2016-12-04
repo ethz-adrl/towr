@@ -9,11 +9,10 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONVEXITY_CONSTRAINT_H_
 
 #include "a_constraint.h"
+#include "motion_structure.h"
 
 namespace xpp {
 namespace opt {
-
-class MotionStructure;
 
 class ConvexityConstraint : public AConstraint {
 public:
@@ -27,6 +26,11 @@ public:
   VecBound GetBounds () const override;
 
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
+
+private:
+  MotionStructure motion_structure_;
+  VectorXd lambdas_;
+  Jacobian jac_;
 };
 
 } /* namespace opt */
