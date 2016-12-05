@@ -5,6 +5,7 @@
  @brief   Brief description
  */
 
+#include <xpp/opt/com_motion.h>
 #include <xpp/opt/linear_inverted_pendulum.h>
 
 namespace xpp {
@@ -36,12 +37,31 @@ LinearInvertedPendulum::GetDerivative (const Cop& p) const
 {
   Eigen::Array2d k1 = (pos_-p)/h_;
   Eigen::Array2d k2 = 2*h_/(h_*h_ + (pos_-p).array().square());
-  ComAcc acc = k1*(k2*vel_.array().square() + kGravity);
 
-  double k2_approx = 2./h_;
-  ComAcc acc_zmp = k1*kGravity;
+  ComAcc acc        = k1*(k2   *vel_.array().square() + kGravity);
+  ComAcc acc_approx = k1*(2./h_*vel_.array().square() + kGravity);
+  ComAcc acc_zmp    = k1*kGravity;
 
-  return acc_zmp; // zmp_ this is ignoring velocity
+  return acc_approx;
+}
+
+LinearInvertedPendulum::JacobianRow
+LinearInvertedPendulum::GetJacobianApproxWrtSplineCoeff (
+    const ComMotion& com_motion, double t,
+    utils::Coords3D dim, const Cop& p) const
+{
+  JacobianRow pos     = com_motion.GetJacobian(t, utils::kPos, dim);
+  JacobianRow vel2    = com_motion.GetJacobianVelSquared(t,dim);
+  JacobianRow posvel2 = com_motion.GetJacobianPosVelSquared(t, dim);
+
+  return 1./h_*(kGravity*pos + 2./h_*posvel2 - 2./h_*p(dim)*vel2);
+}
+
+double
+LinearInvertedPendulum::GetJacobianApproxWrtCop (utils::Coords3D dim) const
+{
+  double vel2    = std::pow(vel_(dim),2);
+  return 1./h_*(-kGravity -2./h_*vel2);
 }
 
 } /* namespace opt */

@@ -65,6 +65,9 @@ public:
   virtual JacobianRow GetJacobian(double t_global, utils::MotionDerivative dxdt,
                                                    utils::Coords3D dim) const = 0;
 
+  virtual JacobianRow GetJacobianVelSquared(double t_global, utils::Coords3D dim) const = 0;
+  virtual JacobianRow GetJacobianPosVelSquared(double t_global, utils::Coords3D dim) const = 0;
+
   /** @brief Creates a linear approximation of the motion at the current coefficients.
     *
     * Given some general nonlinear function x(u) = ... that represents the motion

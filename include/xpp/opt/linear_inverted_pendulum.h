@@ -8,13 +8,19 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_INVERTED_PENDULUM_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_INVERTED_PENDULUM_H_
 
+#include <xpp/utils/cartesian_declarations.h>
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 namespace xpp {
 namespace opt {
 
+class ComMotion;
+
 class LinearInvertedPendulum {
 public:
+  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
+
   using ComPos = Eigen::Vector2d;
   using ComVel = Eigen::Vector2d;
   using ComAcc = Eigen::Vector2d;
@@ -25,6 +31,14 @@ public:
 
   void SetCurrent(const ComPos&, const ComVel&, double height);
   ComAcc GetDerivative(const Cop& p) const;
+
+  /** Approximates the acceleration with small angle assumption and calculates
+    * Jacobian w.r.t. spline coefficients.
+    */
+  JacobianRow GetJacobianApproxWrtSplineCoeff(const ComMotion&, double t_global,
+                                   utils::Coords3D dim, const Cop& p) const;
+
+  double GetJacobianApproxWrtCop(utils::Coords3D dim) const;
 
 private:
   ComPos pos_;

@@ -13,6 +13,7 @@ namespace xpp {
 namespace opt {
 
 using namespace xpp::utils;
+using Vector2d = Eigen::Vector2d;
 using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
 DynamicConstraint::DynamicConstraint ()
@@ -56,7 +57,7 @@ DynamicConstraint::EvaluateConstraint () const
     model_.SetCurrent(com.p, com.v, kHeight_);
 
     // acceleration as predefined by physics
-    Eigen::Vector2d acc_physics = model_.GetDerivative(cop_.middleRows<kDim2d>(kDim2d*n));
+    Vector2d acc_physics = model_.GetDerivative(cop_.middleRows<kDim2d>(kDim2d*n));
     g.middleRows<kDim2d>(kDim2d*n) = acc_physics - com.a;
     n++;
   }
@@ -80,31 +81,42 @@ DynamicConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 
-  // zmp_ these are only accurate if LIP modeled ZMP way
-
   if (var_set == VariableNames::kCenterOfPressure) {
     int m = GetNumberOfConstraints();
-    int n   = cop_.rows();
-    jac = Jacobian(m, n);
-    jac.setIdentity();
-    jac = -kGravity/kHeight_*jac;
-  }
-
-  if (var_set == VariableNames::kSplineCoeff) {
-    int m = GetNumberOfConstraints();
-    int n   = com_motion_->GetTotalFreeCoeff();
-    jac = Jacobian(m, n);
+    jac = Jacobian(m, cop_.rows());
 
     int row=0;
     for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
+      auto com = com_motion_->GetCom(node.time_);
+      model_.SetCurrent(com.p, com.v, kHeight_);
+
+      for (auto dim : {X, Y})
+        jac.insert(row+dim,row+dim) = model_.GetJacobianApproxWrtCop(dim);
+
+      row += kDim2d;
+    }
+  }
+
+  if (var_set == VariableNames::kSplineCoeff) {
+    int m = GetNumberOfConstraints();
+    jac = Jacobian(m, com_motion_->GetTotalFreeCoeff());
+
+    int n=0;
+    for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+
       double t = node.time_;
+      auto com = com_motion_->GetCom(node.time_);
+      model_.SetCurrent(com.p, com.v, kHeight_);
+      Vector2d cop = cop_.middleRows<kDim2d>(kDim2d*n);
 
       for (auto dim : {X, Y}) {
-        JacobianRow jac_pos_t = com_motion_->GetJacobian(t, utils::kPos, dim);
-        JacobianRow jac_acc_t = com_motion_->GetJacobian(t, utils::kAcc, dim);
-        jac.row(row++) = kGravity/kHeight_*jac_pos_t - jac_acc_t;
+        Jacobian jac_acc     = com_motion_->GetJacobian(t,kAcc,dim);
+        Jacobian jac_physics = model_.GetJacobianApproxWrtSplineCoeff(*com_motion_, t, dim, cop);
+        jac.row(kDim2d*n + dim) = jac_physics - jac_acc;
       }
+
+      n++;
     }
   }
 

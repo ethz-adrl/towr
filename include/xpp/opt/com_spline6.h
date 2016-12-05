@@ -49,6 +49,13 @@ private:
             Polynomial::PolynomialCoeff::E,
             Polynomial::PolynomialCoeff::F};
   };
+
+
+
+  void GetJacobianVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const;
+  void GetJacobianPosVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const;
+
+
 };
 
 

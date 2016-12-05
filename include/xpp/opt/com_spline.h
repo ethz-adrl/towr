@@ -90,6 +90,12 @@ private:
   virtual void GetJacobianAcc (double t_poly, int id, Coords3D dim, JacobianRow&) const = 0;
   virtual void GetJacobianJerk(double t_poly, int id, Coords3D dim, JacobianRow&) const = 0;
 
+  virtual JacobianRow GetJacobianVelSquared(double t_global, utils::Coords3D dim) const override;
+  virtual JacobianRow GetJacobianPosVelSquared(double t_global, utils::Coords3D dim) const override;
+  // only implemented for com_spline_6, throw error otherwise
+  virtual void GetJacobianVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const { assert(false); };
+  virtual void GetJacobianPosVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const { assert(false); };
+
   virtual int NumFreeCoeffPerSpline() const = 0;
   virtual std::vector<PolyCoeff> GetFreeCoeffPerSpline() const = 0;
 
