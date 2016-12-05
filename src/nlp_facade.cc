@@ -70,10 +70,12 @@ NlpFacade::SolveNlp(const State& initial_state,
   // provide the initial values of the optimization problem
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
-  opt_variables_->AddVariableSet(VariableNames::kFootholds, contacts.GetFootholdsInitializedToNominal(initial_state.p));
-  opt_variables_->AddVariableSet(VariableNames::kConvexity,
-                                 Eigen::VectorXd(motion_structure.GetTotalNumberOfNodeContacts()).setZero(),
-                                 AConstraint::Bound(0.1, 1.0e20));
+  opt_variables_->AddVariableSet(VariableNames::kFootholds,
+                                 contacts.GetFootholdsInitializedToNominal(initial_state.p),
+                                 AConstraint::Bound(-10, 10));
+  Eigen::VectorXd lambdas(motion_structure.GetTotalNumberOfNodeContacts());
+  lambdas.fill(0.33);
+  opt_variables_->AddVariableSet(VariableNames::kConvexity, lambdas, AConstraint::Bound(0.12, 1.0));
 
 
   constraints_->ClearConstraints();

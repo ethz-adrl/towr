@@ -15,6 +15,10 @@
 namespace xpp {
 namespace opt {
 
+using namespace xpp::utils;
+using Vector2d = Eigen::Vector2d;
+using Vector3d = Eigen::Vector3d;
+
 DynamicConstraint::DynamicConstraint ()
 {
   // TODO Auto-generated constructor stub
@@ -49,7 +53,7 @@ DynamicConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 DynamicConstraint::VectorXd
 DynamicConstraint::EvaluateConstraint () const
 {
-  int m = motion_structure_.GetPhaseStampedVec().size() * utils::kDim2d;
+  int m = motion_structure_.GetPhaseStampedVec().size() * kDim2d;
   Eigen::VectorXd g(m);
 
   int idx_lambda = 0;
@@ -57,26 +61,30 @@ DynamicConstraint::EvaluateConstraint () const
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
     auto com = com_motion_->GetCom(node.time_);
-    auto zmp = ZeroMomentPoint::CalcZmp(com.Make3D(), kWalkingHeight);
+    Vector2d zmp = ZeroMomentPoint::CalcZmp(com.Make3D(), kWalkingHeight);
 
-    Eigen::Vector2d convex_contacts;
+
+
+//    double n_contacts = node.phase_.free_contacts_.size() + node.phase_.fixed_contacts_.size();
+
+    Vector2d convex_contacts;
     convex_contacts.setZero();
-    for (int i=0; i<node.phase_.free_contacts_.size(); ++i) {
-//      int idx_x = Contacts::Index(node.phase_.free_contacts_.at(i).id, utils::X);
-      auto p = contacts_->GetFoothold(node.phase_.free_contacts_.at(i).id).p;
+    for (auto contact : node.phase_.free_contacts_) {
+      Vector2d p = contacts_->GetFoothold(contact.id).p.topRows<kDim2d>();
       double lamdba = lambdas_(idx_lambda++);
-      // multiply with correct lamdbda
-      convex_contacts += lamdba*p.topRows<utils::kDim2d>();
+      convex_contacts += lamdba*p;
+//      convex_contacts += 1./n_contacts*p;
     }
 
-    for (int i=0; i<node.phase_.fixed_contacts_.size(); ++i) {
-      auto p = node.phase_.fixed_contacts_.at(i).p;
-      double lamdba = lambdas_(idx_lambda++);
 
-      convex_contacts += lamdba*p.topRows<utils::kDim2d>(); // zmp_ DRY, put these together somehow
+    for (auto contact : node.phase_.fixed_contacts_) {
+      Vector2d p = contact.p.topRows<kDim2d>();
+      double lamdba = lambdas_(idx_lambda++);
+      convex_contacts += lamdba*p; // zmp_ DRY, put these together somehow
+//      convex_contacts += 1./n_contacts*p; // zmp_ DRY, put these together somehow
     }
 
-    g.middleRows<utils::kDim2d>(utils::kDim2d*n++) = convex_contacts - zmp;
+    g.middleRows<kDim2d>(kDim2d*n++) = convex_contacts - zmp;
 
   }
 
@@ -95,7 +103,7 @@ DynamicConstraint::GetBounds () const
   return bounds;
 }
 
-// zmp_ almost exactly the same as in convexity contstraint->merge!
+// zmp_ almost exactly the same as in convexity constraint->merge!
 DynamicConstraint::Jacobian
 DynamicConstraint::GetJacobianWithRespectToLambdas() const
 {
@@ -110,23 +118,21 @@ DynamicConstraint::GetJacobianWithRespectToLambdas() const
     int contacts_fixed = node.phase_.fixed_contacts_.size();
 
     for (int i=0; i<contacts_free; ++i) {
-      auto p = contacts_->GetFoothold(node.phase_.free_contacts_.at(i).id).p;
-      for (auto dim : {utils::X, utils::Y}) {
+      Vector3d p = contacts_->GetFoothold(node.phase_.free_contacts_.at(i).id).p;
+      for (auto dim : {X, Y})
         jac_.insert(row_idx+dim,col_idx + i) = p(dim);
-      }
     }
 
     col_idx += contacts_free;
 
     for (int i=0; i<contacts_fixed; ++i) {
-      auto p = node.phase_.fixed_contacts_.at(i).p;
-      for (auto dim : {utils::X, utils::Y}) {
+      Vector3d p = node.phase_.fixed_contacts_.at(i).p;
+      for (auto dim : {X, Y})
         jac_.insert(row_idx+dim,col_idx + i) = p(dim);
-      }
     }
 
     col_idx += contacts_fixed;
-    row_idx += utils::kDim2d;
+    row_idx += kDim2d;
   }
 
   return jac_;
@@ -140,19 +146,28 @@ DynamicConstraint::GetJacobianWithRespectToContacts () const
   int n = contacts_->GetTotalFreeCoeff();
   Jacobian jac_(m, n);
 
-  int idx_lambda = 0;
+
+
+
+  int idx_lambdas = 0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
-    for (int i=0; i<node.phase_.free_contacts_.size(); ++i) {
-      for (auto dim : {utils::X, utils::Y}) {
-        int idx_contact = Contacts::Index(node.phase_.free_contacts_.at(i).id, dim);
-        jac_.insert(row_idx+dim, idx_contact) = lambdas_(idx_lambda+i);
+
+//    double n_contacts = node.phase_.free_contacts_.size() + node.phase_.fixed_contacts_.size();
+
+    for (auto contact : node.phase_.free_contacts_) {
+      for (auto dim : {X, Y}) {
+        int idx_contact = Contacts::Index(contact.id, dim);
+        jac_.insert(row_idx+dim, idx_contact) = lambdas_(idx_lambdas); //1./n_contacts;
       }
+      idx_lambdas++;
     }
 
-    // zmp_ this is bad, depends on order free->fixed with function above...
-    idx_lambda += node.phase_.free_contacts_.size() + node.phase_.fixed_contacts_.size();
-    row_idx    += utils::kDim2d;
+    for (auto contact : node.phase_.fixed_contacts_) {
+      idx_lambdas++; // zmp_ this is bad, depends on order free->fixed with function above...
+    }
+
+    row_idx    += kDim2d;
   }
 
   return jac_;
@@ -167,13 +182,10 @@ DynamicConstraint::GetJacobianWithRespectToComMotion () const
 
   int row=0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-    for (auto dim : {utils::X,utils::Y}) {// zmp_ remove utils namespace
-      jac_.row(row+dim) = -1*ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_,
-                                                                  dim,
-                                                                  kWalkingHeight,
-                                                                  node.time_);
-    }
-    row += utils::kDim2d;
+
+    jac_.row(row++) = -1*ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, X, kWalkingHeight, node.time_);
+    jac_.row(row++) = -1*ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, Y ,kWalkingHeight, node.time_);
+
   }
 
   return jac_;
