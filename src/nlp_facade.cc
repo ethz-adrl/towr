@@ -62,8 +62,8 @@ NlpFacade::SolveNlp(const State& initial_state,
   // insight: this spline might be better for model pred. control, as it always matches the initial
   // position and velocity, avoiding jumps in state. For the other spline this is
   // a constraint, that might not be fulfilled.
-  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
-//  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
+//  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
+  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
 
   nlp_observer_->Init(motion_structure, *com_motion, contacts);
 

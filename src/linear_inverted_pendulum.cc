@@ -36,8 +36,12 @@ LinearInvertedPendulum::GetDerivative (const Cop& p) const
 {
   Eigen::Array2d k1 = (pos_-p)/h_;
   Eigen::Array2d k2 = 2*h_/(h_*h_ + (pos_-p).array().square());
+  ComAcc acc = k1*(k2*vel_.array().square() + kGravity);
 
-  return k1*(k2*vel_.array().square() + kGravity);
+  double k2_approx = 2./h_;
+  ComAcc acc_zmp = k1*kGravity;
+
+  return acc_zmp; // zmp_ this is ignoring velocity
 }
 
 } /* namespace opt */

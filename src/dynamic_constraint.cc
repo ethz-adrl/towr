@@ -57,13 +57,7 @@ DynamicConstraint::EvaluateConstraint () const
 
     // acceleration as predefined by physics
     Eigen::Vector2d acc_physics = model_.GetDerivative(cop_.middleRows<kDim2d>(kDim2d*n));
-
-    // acceleration if using ZMP model (equivalent to setting velocity zero)
-    com.v.setZero();
-    model_.SetCurrent(com.p, com.v, kHeight_);
-    Eigen::Vector2d acc_zmp = model_.GetDerivative(cop_.middleRows<kDim2d>(kDim2d*n));
-
-    g.middleRows<kDim2d>(kDim2d*n) = acc_zmp - com.a;
+    g.middleRows<kDim2d>(kDim2d*n) = acc_physics - com.a;
     n++;
   }
 
@@ -85,6 +79,8 @@ DynamicConstraint::Jacobian
 DynamicConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
+
+  // zmp_ these are only accurate if LIP modeled ZMP way
 
   if (var_set == VariableNames::kCenterOfPressure) {
     int m = GetNumberOfConstraints();
