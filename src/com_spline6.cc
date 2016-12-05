@@ -31,13 +31,13 @@ ComSpline6::clone () const
 ComSpline6::Derivatives
 ComSpline6::GetInitialFreeMotions () const
 {
-  return {kPos, kVel, kAcc};
+  return {kPos, kVel};
 }
 
 ComSpline6::Derivatives
 ComSpline6::GetJunctionFreeMotions () const
 {
-  return {kPos, kVel, kAcc, kJerk};
+  return {kPos, kVel, kAcc};
 }
 
 void

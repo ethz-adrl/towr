@@ -50,13 +50,13 @@ ComSpline4::SetStartPosVel (const Vector2d& start_cog_p, const Vector2d& start_c
 ComSpline4::Derivatives
 ComSpline4::GetInitialFreeMotions () const
 {
-  return {kAcc};
+  return {}; //kAcc
 }
 
 ComSpline4::Derivatives
 ComSpline4::GetJunctionFreeMotions () const
 {
-  return {kAcc, kJerk};
+  return {kAcc};
 //  return {kAcc /*, kJerk*/}; // jerk doesn't seem to work properly in spline junction
 }
 
