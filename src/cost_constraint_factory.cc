@@ -19,7 +19,8 @@
 #include <xpp/opt/convexity_constraint.h>
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/hyq/hyq_robot_interface.h>
-#include "../include/xpp/opt/support_area_constraint.h"
+#include <xpp/opt/support_area_constraint.h>
+#include <xpp/opt/dynamic_constraint.h>
 
 namespace xpp {
 namespace opt {
@@ -51,7 +52,7 @@ CostConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
 {
   LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeFinal(final_state_xy, {kPos, kVel, kAcc}));
+  constraint->Init(eq.MakeFinal(final_state_xy, {kPos, kVel}));
   return constraint;
 }
 
@@ -73,6 +74,15 @@ CostConstraintFactory::CreateZmpConstraint (const MotionStructure& motion_struct
 {
   auto constraint = std::make_shared<ZmpConstraint>();
   constraint->Init(motion_structure, com_motion, contacts, walking_height, dt_zmp);
+  return constraint;
+}
+
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::CreateDynamicConstraint (const ComMotion& com_motion,
+                                                const MotionStructure& motion_structure)
+{
+  auto constraint = std::make_shared<DynamicConstraint>();
+  constraint->Init(com_motion, motion_structure);
   return constraint;
 }
 

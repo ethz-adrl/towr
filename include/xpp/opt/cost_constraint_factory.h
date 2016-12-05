@@ -67,6 +67,7 @@ public:
 
   static ConstraintPtr CreateConvexityContraint(const MotionStructure&);
   static ConstraintPtr CreateSupportAreaConstraint(const MotionStructure&, const Contacts&);
+  static ConstraintPtr CreateDynamicConstraint(const ComMotion&, const MotionStructure&);
 };
 
 } /* namespace zmp */
