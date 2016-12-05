@@ -5,7 +5,8 @@
  @brief   Defines the DynamicConstraint class
  */
 
-#include <xpp/opt/dynamic_constraint.h>
+#include "../include/xpp/opt/support_area_constraint.h"
+
 #include <xpp/opt/com_motion.h>
 #include <xpp/opt/optimization_variables.h>
 #include <xpp/opt/zero_moment_point.h>
@@ -19,18 +20,18 @@ using namespace xpp::utils;
 using Vector2d = Eigen::Vector2d;
 using Vector3d = Eigen::Vector3d;
 
-DynamicConstraint::DynamicConstraint ()
+SupportAreaConstraint::SupportAreaConstraint ()
 {
   // TODO Auto-generated constructor stub
 }
 
-DynamicConstraint::~DynamicConstraint ()
+SupportAreaConstraint::~SupportAreaConstraint ()
 {
   // TODO Auto-generated destructor stub
 }
 
 void
-DynamicConstraint::Init (const ComMotion& com_motion,
+SupportAreaConstraint::Init (const ComMotion& com_motion,
                          const Contacts& contacts,
                          const MotionStructure& motion_structure)
 {
@@ -40,7 +41,7 @@ DynamicConstraint::Init (const ComMotion& com_motion,
 }
 
 void
-DynamicConstraint::UpdateVariables (const OptimizationVariables* opt_var)
+SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
   VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
@@ -50,8 +51,8 @@ DynamicConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   contacts_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
-DynamicConstraint::VectorXd
-DynamicConstraint::EvaluateConstraint () const
+SupportAreaConstraint::VectorXd
+SupportAreaConstraint::EvaluateConstraint () const
 {
   int m = motion_structure_.GetPhaseStampedVec().size() * kDim2d;
   Eigen::VectorXd g(m);
@@ -91,8 +92,8 @@ DynamicConstraint::EvaluateConstraint () const
   return g;
 }
 
-DynamicConstraint::VecBound
-DynamicConstraint::GetBounds () const
+SupportAreaConstraint::VecBound
+SupportAreaConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
   int m = EvaluateConstraint().rows();
@@ -104,8 +105,8 @@ DynamicConstraint::GetBounds () const
 }
 
 // zmp_ almost exactly the same as in convexity constraint->merge!
-DynamicConstraint::Jacobian
-DynamicConstraint::GetJacobianWithRespectToLambdas() const
+SupportAreaConstraint::Jacobian
+SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
 {
   int col_idx = 0;
   int row_idx = 0;
@@ -138,8 +139,8 @@ DynamicConstraint::GetJacobianWithRespectToLambdas() const
   return jac_;
 }
 
-DynamicConstraint::Jacobian
-DynamicConstraint::GetJacobianWithRespectToContacts () const
+SupportAreaConstraint::Jacobian
+SupportAreaConstraint::GetJacobianWithRespectToContacts () const
 {
   int row_idx = 0;
   int m = GetNumberOfConstraints();
@@ -173,8 +174,8 @@ DynamicConstraint::GetJacobianWithRespectToContacts () const
   return jac_;
 }
 
-DynamicConstraint::Jacobian
-DynamicConstraint::GetJacobianWithRespectToComMotion () const
+SupportAreaConstraint::Jacobian
+SupportAreaConstraint::GetJacobianWithRespectToComMotion () const
 {
   int m = GetNumberOfConstraints();
   int n   = com_motion_->GetTotalFreeCoeff();
@@ -191,8 +192,8 @@ DynamicConstraint::GetJacobianWithRespectToComMotion () const
   return jac_;
 }
 
-DynamicConstraint::Jacobian
-DynamicConstraint::GetJacobianWithRespectTo (std::string var_set) const
+SupportAreaConstraint::Jacobian
+SupportAreaConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 

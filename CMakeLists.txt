@@ -117,7 +117,7 @@ set(SOURCES
   src/zmp_constraint.cc
   src/range_of_motion_constraint.cc
   src/obstacle_constraint.cc
-  src/dynamic_constraint.cc
+  src/support_area_constraint.cc
   src/convexity_constraint.cc
   # costs
   src/a_cost.cc

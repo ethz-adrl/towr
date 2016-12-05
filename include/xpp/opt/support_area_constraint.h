@@ -5,8 +5,8 @@
  @brief   Declares the DynamicConstraint class
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_DYNAMIC_CONSTRAINT_H_
-#define XPP_XPP_OPT_INCLUDE_XPP_OPT_DYNAMIC_CONSTRAINT_H_
+#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
+#define XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 
 #include "a_constraint.h"
 #include "motion_structure.h"
@@ -22,14 +22,14 @@ class ComMotion;
 
 /** Ensures physical feasibility of the motion
   */
-class DynamicConstraint : public AConstraint {
+class SupportAreaConstraint : public AConstraint {
 public:
   using Contacts      = xpp::hyq::SupportPolygonContainer;
   using ComMotionPtrU = std::unique_ptr<ComMotion>;
   using ContactPtrU   = std::unique_ptr<Contacts>;
 
-  DynamicConstraint ();
-  virtual ~DynamicConstraint ();
+  SupportAreaConstraint ();
+  virtual ~SupportAreaConstraint ();
 
   void Init(const ComMotion&, const Contacts&, const MotionStructure&);
 
@@ -55,4 +55,4 @@ private:
 } /* namespace opt */
 } /* namespace xpp */
 
-#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_DYNAMIC_CONSTRAINT_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_ */

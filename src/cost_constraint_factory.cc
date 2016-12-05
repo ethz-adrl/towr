@@ -17,10 +17,9 @@
 #include <xpp/opt/cost_adapter.h>
 #include <xpp/opt/a_foothold_constraint.h>
 #include <xpp/opt/convexity_constraint.h>
-#include <xpp/opt/dynamic_constraint.h>
-
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/hyq/hyq_robot_interface.h>
+#include "../include/xpp/opt/support_area_constraint.h"
 
 namespace xpp {
 namespace opt {
@@ -82,7 +81,7 @@ CostConstraintFactory::CreateDynamicConstraint (const MotionStructure& motion_st
                                                 const ComMotion& com_motion,
                                                 const Contacts& contacts)
 {
-  auto constraint = std::make_shared<DynamicConstraint>();
+  auto constraint = std::make_shared<SupportAreaConstraint>();
   constraint->Init(com_motion, contacts, motion_structure);
   return constraint;
 }
