@@ -38,6 +38,10 @@ private:
   ComMotionPtrU com_motion_;
   Eigen::VectorXd cop_;
   mutable LinearInvertedPendulum model_;
+
+  static constexpr double kHeight_ = 0.58;
+  static constexpr double kGravity = 9.80665; // gravity acceleration [m\s^2]
+
 };
 
 } /* namespace opt */

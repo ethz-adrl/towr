@@ -108,7 +108,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
   start_stance_ = start_stance;
   steps_ = step_legs;
-  dt_ = 0.2;
+  dt_ = 0.1;
   cache_needs_updating_ = true;
 }
 

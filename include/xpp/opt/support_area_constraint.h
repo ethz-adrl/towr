@@ -46,7 +46,7 @@ private:
   Eigen::VectorXd lambdas_;
   Eigen::VectorXd cop_;
 
-  static constexpr double kWalkingHeight = 0.58; //zmp_ make parameter
+//  static constexpr double kWalkingHeight = 0.58; //zmp_ make parameter
 
   Jacobian GetJacobianWithRespectToLambdas() const;
   Jacobian GetJacobianWithRespectToContacts() const;

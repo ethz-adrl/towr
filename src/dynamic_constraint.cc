@@ -13,6 +13,7 @@ namespace xpp {
 namespace opt {
 
 using namespace xpp::utils;
+using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
 DynamicConstraint::DynamicConstraint ()
 {
@@ -47,18 +48,22 @@ DynamicConstraint::EvaluateConstraint () const
   int m = cop_.size();
   Eigen::VectorXd g(m);
 
-  static const double height = 0.58; // zmp_ make parameter
+
   int n = 0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
     auto com = com_motion_->GetCom(node.time_);
-//    com.v.setZero(); // zmp_ now it should be the same as zmp constraint
-    model_.SetCurrent(com.p, com.v, height);
+    model_.SetCurrent(com.p, com.v, kHeight_);
 
     // acceleration as predefined by physics
     Eigen::Vector2d acc_physics = model_.GetDerivative(cop_.middleRows<kDim2d>(kDim2d*n));
 
-    g.middleRows<kDim2d>(kDim2d*n) = acc_physics - com.a;
+    // acceleration if using ZMP model (equivalent to setting velocity zero)
+    com.v.setZero();
+    model_.SetCurrent(com.p, com.v, kHeight_);
+    Eigen::Vector2d acc_zmp = model_.GetDerivative(cop_.middleRows<kDim2d>(kDim2d*n));
+
+    g.middleRows<kDim2d>(kDim2d*n) = acc_zmp - com.a;
     n++;
   }
 
@@ -73,7 +78,6 @@ DynamicConstraint::GetBounds () const
   for (int i=0; i<m; ++i)
     bounds.push_back(kEqualityBound_);
 
-
   return bounds;
 }
 
@@ -83,11 +87,29 @@ DynamicConstraint::GetJacobianWithRespectTo (std::string var_set) const
   Jacobian jac; // empty matrix
 
   if (var_set == VariableNames::kCenterOfPressure) {
-//    jac = GetJacobianWithRespectToCop();
+    int m = GetNumberOfConstraints();
+    int n   = cop_.rows();
+    jac = Jacobian(m, n);
+    jac.setIdentity();
+    jac = -kGravity/kHeight_*jac;
   }
 
   if (var_set == VariableNames::kSplineCoeff) {
-//    jac = GetJacobianWithRespectToContacts();
+    int m = GetNumberOfConstraints();
+    int n   = com_motion_->GetTotalFreeCoeff();
+    jac = Jacobian(m, n);
+
+    int row=0;
+    for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+
+      double t = node.time_;
+
+      for (auto dim : {X, Y}) {
+        JacobianRow jac_pos_t = com_motion_->GetJacobian(t, utils::kPos, dim);
+        JacobianRow jac_acc_t = com_motion_->GetJacobian(t, utils::kAcc, dim);
+        jac.row(row++) = kGravity/kHeight_*jac_pos_t - jac_acc_t;
+      }
+    }
   }
 
   return jac;
