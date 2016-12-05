@@ -5,9 +5,9 @@
  @brief   Defines the DynamicConstraint class
  */
 
-#include "../include/xpp/opt/support_area_constraint.h"
+#include <xpp/opt/support_area_constraint.h>
 
-#include <xpp/opt/com_motion.h>
+//#include <xpp/opt/com_motion.h>
 #include <xpp/opt/optimization_variables.h>
 #include <xpp/opt/zero_moment_point.h>
 
@@ -31,11 +31,10 @@ SupportAreaConstraint::~SupportAreaConstraint ()
 }
 
 void
-SupportAreaConstraint::Init (const ComMotion& com_motion,
-                         const Contacts& contacts,
+SupportAreaConstraint::Init (const Contacts& contacts,
                          const MotionStructure& motion_structure)
 {
-  com_motion_       = com_motion.clone();
+//  com_motion_       = com_motion.clone();
   contacts_         = ContactPtrU(new Contacts(contacts));
   motion_structure_ = motion_structure;
 }
@@ -43,11 +42,12 @@ SupportAreaConstraint::Init (const ComMotion& com_motion,
 void
 SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
+//  VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
   lambdas_ = opt_var->GetVariables(VariableNames::kConvexity);
+  cop_     = opt_var->GetVariables(VariableNames::kCenterOfPressure);
 
-  com_motion_->SetCoefficients(x_coeff);
+//  com_motion_->SetCoefficients(x_coeff);
   contacts_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
 }
 
@@ -61,8 +61,8 @@ SupportAreaConstraint::EvaluateConstraint () const
   int n = 0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
-    auto com = com_motion_->GetCom(node.time_);
-    Vector2d zmp = ZeroMomentPoint::CalcZmp(com.Make3D(), kWalkingHeight);
+//    auto com = com_motion_->GetCom(node.time_);
+//    Vector2d zmp = ZeroMomentPoint::CalcZmp(com.Make3D(), kWalkingHeight);
 
 
 
@@ -85,7 +85,8 @@ SupportAreaConstraint::EvaluateConstraint () const
 //      convex_contacts += 1./n_contacts*p; // zmp_ DRY, put these together somehow
     }
 
-    g.middleRows<kDim2d>(kDim2d*n++) = convex_contacts - zmp;
+    g.middleRows<kDim2d>(kDim2d*n) = convex_contacts - cop_.middleRows<kDim2d>(kDim2d*n);
+    n++;
 
   }
 
@@ -174,31 +175,14 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
   return jac_;
 }
 
-SupportAreaConstraint::Jacobian
-SupportAreaConstraint::GetJacobianWithRespectToComMotion () const
-{
-  int m = GetNumberOfConstraints();
-  int n   = com_motion_->GetTotalFreeCoeff();
-  Jacobian jac_(m, n);
-
-  int row=0;
-  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-
-    jac_.row(row++) = -1*ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, X, kWalkingHeight, node.time_);
-    jac_.row(row++) = -1*ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, Y ,kWalkingHeight, node.time_);
-
-  }
-
-  return jac_;
-}
 
 SupportAreaConstraint::Jacobian
 SupportAreaConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 
-  if (var_set == VariableNames::kSplineCoeff) {
-    jac = GetJacobianWithRespectToComMotion();
+  if (var_set == VariableNames::kCenterOfPressure) {
+    jac = GetJacobianWithRespectToCop();
   }
 
   if (var_set == VariableNames::kFootholds) {
@@ -211,6 +195,38 @@ SupportAreaConstraint::GetJacobianWithRespectTo (std::string var_set) const
 
   return jac;
 }
+
+SupportAreaConstraint::Jacobian
+SupportAreaConstraint::GetJacobianWithRespectToCop () const
+{
+    int m = GetNumberOfConstraints();
+    int n   = cop_.rows();
+    Jacobian jac_(m, n);
+    jac_.setIdentity();
+    jac_ = -1*jac_;
+
+    return jac_;
+}
+
+//SupportAreaConstraint::Jacobian
+//SupportAreaConstraint::GetJacobianWithRespectToComMotion () const
+//{
+//  int m = GetNumberOfConstraints();
+//  int n   = com_motion_->GetTotalFreeCoeff();
+//  Jacobian jac_(m, n);
+//
+//  int row=0;
+//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+//
+//    jac_.row(row++) = -1*ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, X, kWalkingHeight, node.time_);
+//    jac_.row(row++) = -1*ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, Y ,kWalkingHeight, node.time_);
+//
+//  }
+//
+//  return jac_;
+//}
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

@@ -20,18 +20,18 @@ namespace opt {
 
 class ComMotion;
 
-/** Ensures physical feasibility of the motion
+/** Ensures constraints related to the area created by the contact points
   */
 class SupportAreaConstraint : public AConstraint {
 public:
   using Contacts      = xpp::hyq::SupportPolygonContainer;
-  using ComMotionPtrU = std::unique_ptr<ComMotion>;
+//  using ComMotionPtrU = std::unique_ptr<ComMotion>;
   using ContactPtrU   = std::unique_ptr<Contacts>;
 
   SupportAreaConstraint ();
   virtual ~SupportAreaConstraint ();
 
-  void Init(const ComMotion&, const Contacts&, const MotionStructure&);
+  void Init(const Contacts&, const MotionStructure&);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
@@ -40,16 +40,18 @@ public:
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
-  ComMotionPtrU com_motion_;
+//  ComMotionPtrU com_motion_;
   ContactPtrU contacts_;
   MotionStructure motion_structure_;
   Eigen::VectorXd lambdas_;
+  Eigen::VectorXd cop_;
 
   static constexpr double kWalkingHeight = 0.58; //zmp_ make parameter
 
   Jacobian GetJacobianWithRespectToLambdas() const;
   Jacobian GetJacobianWithRespectToContacts() const;
-  Jacobian GetJacobianWithRespectToComMotion() const;
+//  Jacobian GetJacobianWithRespectToComMotion() const;
+  Jacobian GetJacobianWithRespectToCop() const;
 };
 
 } /* namespace opt */
