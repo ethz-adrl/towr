@@ -77,6 +77,15 @@ NlpFacade::SolveNlp(const State& initial_state,
   lambdas.fill(0.33);
   opt_variables_->AddVariableSet(VariableNames::kConvexity, lambdas, AConstraint::Bound(0.12, 1.0));
 
+  // center of pressure x,y (input) at every node (changes system dynamics)
+  int n = motion_structure.GetPhaseStampedVec().size() * utils::kDim2d;
+  Eigen::VectorXd cop(n);
+  cop.setZero();
+  opt_variables_->AddVariableSet(VariableNames::kCenterOfPressure, cop, AConstraint::Bound(-10, 10));
+
+
+
+
 
   constraints_->ClearConstraints();
   constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, *com_motion));

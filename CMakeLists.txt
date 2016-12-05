@@ -82,6 +82,7 @@ set(SOURCES
   src/ellipse.cc
   src/qp_facade.cc
   src/zero_moment_point.cc
+  src/linear_inverted_pendulum.cc
   src/motion_structure.cc
   src/a_robot_interface.cc
   # hyq
@@ -157,6 +158,7 @@ if(BUILD_TESTS)
                          test/google/supp_polygon_test.cc
                          test/google/supp_polygon_container_test.cc
                          test/google/helpers.cc
+                         test/google/linear_inverted_pendulum_test.cc
 #                        test/google/zero_moment_point_test.cc
 ##                        test/google/hyq_spliner_test.cc
 #                        test/google/optimization_variables_test.cc

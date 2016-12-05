@@ -16,9 +16,10 @@ namespace opt {
   */
 struct VariableNames
 {
-  static constexpr const char* kSplineCoeff = "spline_coeff";
-  static constexpr const char* kFootholds   = "footholds";
-  static constexpr const char* kConvexity   = "convexity_lambdas";
+  static constexpr const char* kSplineCoeff        = "spline_coeff";
+  static constexpr const char* kFootholds          = "footholds";
+  static constexpr const char* kConvexity          = "convexity_lambdas";
+  static constexpr const char* kCenterOfPressure   = "center_of_pressure";
 };
 
 } /* namespace zmp */
