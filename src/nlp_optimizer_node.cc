@@ -34,8 +34,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
 
   double max_step_length    = RosHelpers::GetDoubleFromServer("/xpp/max_step_length");
-  double dt_zmp             = RosHelpers::GetDoubleFromServer("/xpp/dt_zmp");
-  double supp_margins_diag  = RosHelpers::GetDoubleFromServer("/xpp/margin_diag");
+  double dt_nodes           = RosHelpers::GetDoubleFromServer("/xpp/dt_nodes");
   double t_swing            = RosHelpers::GetDoubleFromServer("/xpp/t_swing");
   double t_first_phase      = t_swing;
   double des_walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
@@ -45,7 +44,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   ros_visualizer_ = std::make_shared<RosVisualizer>();
 
-  motion_optimizer_.Init(max_step_length,dt_zmp,supp_margins_diag,
+  motion_optimizer_.Init(max_step_length,dt_nodes,
                          t_swing, t_first_phase,des_walking_height,
                          lift_height, outward_swing, trajectory_dt,
                          ros_visualizer_);
