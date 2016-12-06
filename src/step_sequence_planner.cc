@@ -249,12 +249,21 @@ StepSequencePlanner::IsCapturePointInsideStance () const
 bool
 StepSequencePlanner::IsGoalOutsideRangeOfMotion () const
 {
-  bool goal_inside = xpp::opt::RangeOfMotionBox::IsPositionInsideRangeOfMotion
-  (
-    goal_state_.p,
-    start_stance_,
-    robot_
-  );
+  bool goal_inside = true;
+  auto max_deviation = robot_.GetMaxDeviationXYFromNominal();
+
+  for (auto f : start_stance_) {
+    auto p_nominal = robot_.GetNominalStanceInBase(f.leg);
+
+    for (auto dim : {X,Y}) {
+
+      double distance_to_foot = f.p(dim) - goal_state_.p(dim);
+      double distance_to_nom  = distance_to_foot - p_nominal(dim);
+
+      if (std::abs(distance_to_nom) > max_deviation.at(dim))
+        goal_inside = false;
+    }
+  }
 
   return !goal_inside;
 }

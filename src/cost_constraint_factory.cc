@@ -107,22 +107,20 @@ CostConstraintFactory::CreateConvexityContraint (const MotionStructure& motion_s
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateRangeOfMotionConstraint (const ComMotion& com_motion,
-                                                      const Contacts& contacts,
                                                       const MotionStructure& motion_structure)
 {
   auto constraint = std::make_shared<RangeOfMotionBox>();
   auto hyq = std::unique_ptr<ARobotInterface>(new xpp::hyq::HyqRobotInterface());
 
-  constraint->Init(com_motion, contacts, motion_structure, std::move(hyq));
+  constraint->Init(com_motion, motion_structure, std::move(hyq));
   return constraint;
 }
 
 CostConstraintFactory::CostPtr
 CostConstraintFactory::CreateRangeOfMotionCost (const ComMotion& com_motion,
-                                                const Contacts& contacts,
                                                 const MotionStructure& motion_structure)
 {
-  auto rom_constraint = CreateRangeOfMotionConstraint(com_motion, contacts, motion_structure);
+  auto rom_constraint = CreateRangeOfMotionConstraint(com_motion, motion_structure);
   auto rom_cost = std::make_shared<CostAdapter>(rom_constraint);
   return rom_cost;
 }
