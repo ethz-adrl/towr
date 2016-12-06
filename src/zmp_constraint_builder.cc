@@ -46,7 +46,8 @@ ZmpConstraintBuilder::Init(const MotionStructure& structure,
   double t_switch = 0.1; // the timeframe at which the constraint is relaxed
 
   // refactor remove this, all info contained in motion_info_
-  times_ = GetTimesForConstraitEvaluation(motion_structure_.GetDiscretization(), t_switch);
+  double dt_zmp = 0.1;
+  times_ = GetTimesForConstraitEvaluation(dt_zmp, t_switch);
 
   // set coefficients to zero, since that is where I am approximating the function
   //around. can only do this in initialization, because ZMP is linear, so

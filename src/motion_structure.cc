@@ -20,7 +20,6 @@ using Foothold = xpp::hyq::Foothold;
 
 MotionStructure::MotionStructure ()
 {
-  dt_ = 0.2; //standart discretization
 }
 
 MotionStructure::~MotionStructure ()
@@ -108,7 +107,6 @@ MotionStructure::Init (const StartStance& start_stance,
 
   start_stance_ = start_stance;
   steps_ = step_legs;
-  dt_ = 0.05;
   cache_needs_updating_ = true;
 }
 
@@ -150,20 +148,36 @@ PhaseStampedVec
 MotionStructure::CalcPhaseStampedVec () const
 {
   PhaseStampedVec info;
+  static const double dt = 0.1; ///< discretization interval [s]
 
   double t_global = 0;
   for (auto phase : phases_) {
 
-    int nodes_in_phase = std::floor(phase.duration_/dt_);
+    int nodes_in_phase = std::floor(phase.duration_/dt);
+
+
+
+    // add one phase right after phase switch
+    PhaseInfoStamped contact_info;
+    contact_info.phase_ = phase;
+    contact_info.time_  = t_global+dt/3;
+    info.push_back(contact_info);
+
 
     for (int k=0; k<nodes_in_phase; ++k ) {
-
       PhaseInfoStamped contact_info;
       contact_info.phase_ = phase;
-      contact_info.time_  = t_global+k*dt_;
-
+      contact_info.time_  = t_global+k*dt;
       info.push_back(contact_info);
     }
+
+
+    // add one node right before phase switch
+    // this somehow removes the jittering of hyq picking up the back legs
+    contact_info.phase_ = phase;
+    contact_info.time_  = t_global+phase.duration_-dt/3;
+    info.push_back(contact_info);
+
 
     t_global += phase.duration_;
   }
@@ -202,14 +216,6 @@ MotionStructure::GetPhases () const
 {
   return phases_;
 }
-
-// zmp_ remove this
-//void
-//MotionStructure::SetDisretization (double dt)
-//{
-//  dt_ = dt;
-//  cache_needs_updating_ = true;
-//}
 
 } /* namespace zmp */
 } /* namespace xpp */
