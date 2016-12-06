@@ -21,6 +21,7 @@
 #include <xpp/hyq/hyq_robot_interface.h>
 #include <xpp/opt/support_area_constraint.h>
 #include <xpp/opt/dynamic_constraint.h>
+#include <xpp/opt/polygon_center_constraint.h>
 
 namespace xpp {
 namespace opt {
@@ -127,6 +128,15 @@ CostConstraintFactory::CreateRangeOfMotionCost (const ComMotion& com_motion,
 }
 
 CostConstraintFactory::CostPtr
+CostConstraintFactory::CreatePolygonCenterCost (const MotionStructure& motion_structure)
+{
+  auto constraint = std::make_shared<PolygonCenterConstraint>();
+  constraint->Init(motion_structure);
+  auto cost = std::make_shared<CostAdapter>(constraint);
+  return cost;
+}
+
+CostConstraintFactory::CostPtr
 CostConstraintFactory::CreateFinalStanceCost (
     const Vector2d& goal_xy,
     const Contacts& contacts)
@@ -195,6 +205,8 @@ CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
 //  constraint->Init(interpreter, inv_kine);
 //  return constraint;
 //}
+
+
 
 } /* namespace zmp */
 } /* namespace xpp */

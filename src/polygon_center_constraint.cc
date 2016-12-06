@@ -30,22 +30,6 @@ PolygonCenterConstraint::Init (const MotionStructure& motion_structure)
     int contacts_free = node.phase_.free_contacts_.size();
     n_contacts_per_node_.push_back(contacts_fixed + contacts_free);
   }
-
-  // build constant jacobian w.r.t lambdas
-  int col_idx = 0;
-  int row_idx = 0;
-  int m = n_contacts_per_node_.size();
-  int n = motion_structure.GetTotalNumberOfNodeContacts();
-  jac_ = Jacobian(m, n);
-
-
-  for (int n_contacts : n_contacts_per_node_) {
-    for (int col=0; col<n_contacts; col++)
-      jac_.insert(row_idx,col_idx + col) = 1.0;
-
-    col_idx += n_contacts;
-    row_idx++;
-  }
 }
 
 void
@@ -61,9 +45,17 @@ PolygonCenterConstraint::EvaluateConstraint () const
 
   int idx = 0;
 
-  for (int n_contacts : n_contacts_per_node_) {
-    g_vec.push_back(lambdas_.middleRows(idx, n_contacts).sum()); // sum equal to 1
-    idx += n_contacts;
+  for (int m : n_contacts_per_node_) {
+
+    double g_node = 0;
+    for (int j=0; j<m; ++j) {
+      double lamb_j = lambdas_(idx+j);
+      g_node += std::pow(lamb_j,2) - 2./m*lamb_j;
+    }
+    g_node += 1./m; // should lie in center
+
+    g_vec.push_back(g_node);
+    idx += m;
   }
 
   return Eigen::Map<VectorXd>(&g_vec[0], g_vec.size());
@@ -74,7 +66,7 @@ PolygonCenterConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
   for (int n_contacts : n_contacts_per_node_)
-    bounds.push_back(Bound(1.0, 1.0)); // sum of lambda's should equal one
+    bounds.push_back(kEqualityBound_); // constant already put in g
 
   return bounds;
 }
@@ -85,7 +77,19 @@ PolygonCenterConstraint::GetJacobianWithRespectTo (std::string var_set) const
   Jacobian jac; // empy matrix
 
   if (var_set == VariableNames::kConvexity) {
-    jac = jac_;
+    int col_idx = 0;
+    int row_idx = 0;
+    jac = Jacobian(n_contacts_per_node_.size(), lambdas_.rows());
+
+    for (int m : n_contacts_per_node_) {
+      for (int j=0; j<m; j++) {
+        double idx = col_idx+j;
+        jac.insert(row_idx,idx) = 2*(lambdas_(idx)-1./m);
+      }
+
+      col_idx += m;
+      row_idx++;
+    }
   }
 
   return jac;
