@@ -137,19 +137,21 @@ CostConstraintFactory::CreatePolygonCenterCost (const MotionStructure& motion_st
 CostConstraintFactory::CostPtr
 CostConstraintFactory::CreateFinalStanceCost (
     const Vector2d& goal_xy,
-    const Contacts& contacts)
+    const MotionStructure& motion_structure)
 {
-  auto final_stance_constraint = CreateFinalStanceConstraint(goal_xy, contacts);
+  auto final_stance_constraint = CreateFinalStanceConstraint(goal_xy, motion_structure);
   auto final_stance_cost = std::make_shared<CostAdapter>(final_stance_constraint);
   return final_stance_cost;
 }
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateFinalStanceConstraint (const Vector2d& goal_xy,
-                                                    const Contacts& contacts)
+                                                    const MotionStructure& motion_structure)
 {
   auto hyq = std::unique_ptr<ARobotInterface>(new xpp::hyq::HyqRobotInterface());
-  auto final_stance_constraint = std::make_shared<FootholdFinalStanceConstraint>(goal_xy, contacts, std::move(hyq));
+  auto final_stance_constraint = std::make_shared<FootholdFinalStanceConstraint>(motion_structure,
+                                                                                 goal_xy,
+                                                                                 std::move(hyq));
   return final_stance_constraint;
 }
 

@@ -60,8 +60,8 @@ public:
   static CostPtr CreateMotionCost(const ComMotion&, const xpp::utils::MotionDerivative);
   static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComMotion&);
 
-  static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const Contacts&);
-  static ConstraintPtr CreateFinalStanceConstraint(const Vector2d& goal_xy, const Contacts&);
+  static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const MotionStructure&);
+  static ConstraintPtr CreateFinalStanceConstraint(const Vector2d& goal_xy, const MotionStructure&);
 
   static ConstraintPtr CreateConvexityContraint(const MotionStructure&);
   static ConstraintPtr CreateSupportAreaConstraint(const MotionStructure&);

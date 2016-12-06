@@ -1,16 +1,16 @@
 /**
- @file    a_foothold_cost.h
+ @file    a_foothold_constraint.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Aug 8, 2016
- @brief   Declares an abstract FootholdCost class and one concrete derivation.
+ @brief   Declares an abstract FootholdConstraint class and one concrete derivation.
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_FOOTHOLD_COST_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_FOOTHOLD_COST_H_
+#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_A_FOOTHOLD_CONSTRAINT_H_
+#define XPP_XPP_OPT_INCLUDE_XPP_OPT_A_FOOTHOLD_CONSTRAINT_H_
 
-#include <xpp/hyq/support_polygon_container.h>
 #include "a_constraint.h"
-#include <xpp/hyq/foothold.h>
+#include "motion_structure.h"
+#include <xpp/utils/eigen_std_conversions.h>
 #include <memory>
 
 namespace xpp {
@@ -19,7 +19,7 @@ namespace opt {
 class ARobotInterface;
 
 
-/** Base class for Costs associated only with the foothold positions
+/** Base class for constraints associated only with the foothold positions
   *
   * This class is responsible for updating the current position of the footholds
   * in order to then calculate costs based on these (move towards goal, avoid
@@ -27,29 +27,27 @@ class ARobotInterface;
   */
 class AFootholdConstraint : public AConstraint {
 public:
-  typedef xpp::hyq::SupportPolygonContainer SupportPolygonContainer;
-
   AFootholdConstraint ();
   virtual ~AFootholdConstraint ();
-
   void UpdateVariables(const OptimizationVariables*) override;
 
 protected:
-  void Init(const SupportPolygonContainer&);
-  SupportPolygonContainer supp_polygon_container_;
+  void Init(const MotionStructure&);
+
+  utils::StdVecEigen2d footholds_;
+  MotionStructure motion_structure_;
 };
 
 
-/** This class assigns a cost if the final footholds are far
-  * away from the desired goal position.
+/** This class constrains the final footholds to be at the nominal stance
   */
 class FootholdFinalStanceConstraint : public AFootholdConstraint {
 public:
   typedef Eigen::Vector2d Vector2d;
   using RobotPtrU = std::unique_ptr<ARobotInterface>;
 
-  FootholdFinalStanceConstraint(const Vector2d& goal_xy, const SupportPolygonContainer&,
-                                RobotPtrU);
+  FootholdFinalStanceConstraint(const MotionStructure& motion_structure,
+                                const Vector2d& goal_xy, RobotPtrU);
   virtual ~FootholdFinalStanceConstraint();
 
   virtual VectorXd EvaluateConstraint () const override;
@@ -57,13 +55,14 @@ public:
   virtual VecBound GetBounds() const override;
 
 private:
-  Vector2d GetFootToNominalInWorld(const hyq::Foothold& foot_W) const;
+  Vector2d GetContactToNominalInWorld(const Vector2d& conctact_W, int leg) const;
 
   Vector2d goal_xy_;
   RobotPtrU robot_;
+  std::vector<Contact> final_free_contacts_;
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_FOOTHOLD_COST_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_A_FOOTHOLD_CONSTRAINT_H_ */

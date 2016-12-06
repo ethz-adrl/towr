@@ -89,7 +89,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   constraints_->AddConstraint(CostConstraintFactory::CreateSupportAreaConstraint(motion_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateConvexityContraint(motion_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, motion_structure));
-  constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, contacts));
+  constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, motion_structure));
 
 
   costs_->ClearCosts();
