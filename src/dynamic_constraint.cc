@@ -50,7 +50,6 @@ DynamicConstraint::EvaluateConstraint () const
   int m = cop_.size();
   Eigen::VectorXd g(m);
 
-
   int n = 0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
@@ -78,47 +77,63 @@ DynamicConstraint::GetBounds () const
 }
 
 DynamicConstraint::Jacobian
+DynamicConstraint::GetJacobianWrtCop () const
+{
+  int m = GetNumberOfConstraints();
+  Jacobian jac(m, cop_.rows());
+
+  int row=0;
+  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+
+    auto com = com_motion_->GetCom(node.time_);
+    model_.SetCurrent(com.p, com.v, kHeight_);
+
+    for (auto dim : {X, Y})
+      jac.insert(row+dim,row+dim) = model_.GetJacobianApproxWrtCop(dim);
+
+    row += kDim2d;
+  }
+
+  return jac;
+}
+
+DynamicConstraint::Jacobian
+DynamicConstraint::GetJacobianWrtCom () const
+{
+  int m = GetNumberOfConstraints();
+  Jacobian jac(m, com_motion_->GetTotalFreeCoeff());
+
+  int n=0;
+  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+
+    double t = node.time_;
+    auto com = com_motion_->GetCom(node.time_);
+    model_.SetCurrent(com.p, com.v, kHeight_);
+    Vector2d cop = cop_.middleRows<kDim2d>(kDim2d*n);
+
+    for (auto dim : {X, Y}) {
+      Jacobian jac_acc     = com_motion_->GetJacobian(t,kAcc,dim);
+      Jacobian jac_physics = model_.GetJacobianApproxWrtSplineCoeff(*com_motion_, t, dim, cop);
+      jac.row(kDim2d*n + dim) = jac_physics - jac_acc;
+    }
+
+    n++;
+  }
+
+  return jac;
+}
+
+DynamicConstraint::Jacobian
 DynamicConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 
   if (var_set == VariableNames::kCenterOfPressure) {
-    int m = GetNumberOfConstraints();
-    jac = Jacobian(m, cop_.rows());
-
-    int row=0;
-    for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-
-      auto com = com_motion_->GetCom(node.time_);
-      model_.SetCurrent(com.p, com.v, kHeight_);
-
-      for (auto dim : {X, Y})
-        jac.insert(row+dim,row+dim) = model_.GetJacobianApproxWrtCop(dim);
-
-      row += kDim2d;
-    }
+    jac = GetJacobianWrtCop();
   }
 
   if (var_set == VariableNames::kSplineCoeff) {
-    int m = GetNumberOfConstraints();
-    jac = Jacobian(m, com_motion_->GetTotalFreeCoeff());
-
-    int n=0;
-    for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-
-      double t = node.time_;
-      auto com = com_motion_->GetCom(node.time_);
-      model_.SetCurrent(com.p, com.v, kHeight_);
-      Vector2d cop = cop_.middleRows<kDim2d>(kDim2d*n);
-
-      for (auto dim : {X, Y}) {
-        Jacobian jac_acc     = com_motion_->GetJacobian(t,kAcc,dim);
-        Jacobian jac_physics = model_.GetJacobianApproxWrtSplineCoeff(*com_motion_, t, dim, cop);
-        jac.row(kDim2d*n + dim) = jac_physics - jac_acc;
-      }
-
-      n++;
-    }
+    jac = GetJacobianWrtCom();
   }
 
   return jac;

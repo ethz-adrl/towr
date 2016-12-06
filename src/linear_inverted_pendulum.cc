@@ -36,10 +36,10 @@ LinearInvertedPendulum::ComAcc
 LinearInvertedPendulum::GetDerivative (const Cop& p) const
 {
   Eigen::Array2d k1 = (pos_-p)/h_;
-  Eigen::Array2d k2 = 2*h_/(h_*h_ + (pos_-p).array().square());
-
-  ComAcc acc        = k1*(k2   *vel_.array().square() + kGravity);
-  ComAcc acc_approx = k1*(2./h_*vel_.array().square() + kGravity);
+//  Eigen::Array2d k2 = 2*h_/(h_*h_ + (pos_-p).array().square());
+//
+//  ComAcc acc        = k1*(k2   *vel_.array().square() + kGravity);
+//  ComAcc acc_approx = k1*(2./h_*vel_.array().square() + kGravity);
   ComAcc acc_zmp    = k1*(                            + kGravity);
 
   return acc_zmp;
@@ -51,10 +51,11 @@ LinearInvertedPendulum::GetJacobianApproxWrtSplineCoeff (
     utils::Coords3D dim, const Cop& p) const
 {
   JacobianRow pos     = com_motion.GetJacobian(t, utils::kPos, dim);
-  JacobianRow vel2    = com_motion.GetJacobianVelSquared(t,dim);
-  JacobianRow posvel2 = com_motion.GetJacobianPosVelSquared(t, dim);
 
-  JacobianRow jac_approx = 1./h_*(kGravity*pos + 2./h_*posvel2 - 2./h_*p(dim)*vel2);
+//  JacobianRow vel2    = com_motion.GetJacobianVelSquared(t,dim);
+//  JacobianRow posvel2 = com_motion.GetJacobianPosVelSquared(t, dim);
+//  JacobianRow jac_approx = 1./h_*(kGravity*pos + 2./h_*posvel2 - 2./h_*p(dim)*vel2);
+
   JacobianRow jac_zmp    = 1./h_*(kGravity*pos);
 
   return jac_zmp;
@@ -63,9 +64,9 @@ LinearInvertedPendulum::GetJacobianApproxWrtSplineCoeff (
 double
 LinearInvertedPendulum::GetJacobianApproxWrtCop (utils::Coords3D dim) const
 {
-  double vel2    = std::pow(vel_(dim),2);
+//  double vel2    = std::pow(vel_(dim),2);
+//  double jac_approx = 1./h_*(-kGravity -2./h_*vel2);
 
-  double jac_approx = 1./h_*(-kGravity -2./h_*vel2);
   double jac_zmp    = 1./h_*(-kGravity);
 
   return jac_zmp;

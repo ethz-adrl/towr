@@ -101,7 +101,7 @@ MotionStructure::Init (const StartStance& start_stance,
     }
 
     phase.id_ = ++id;
-    phase.duration_ = 1.1;
+    phase.duration_ = 0.5;
     phases_.push_back(phase);
   }
 
@@ -148,7 +148,7 @@ PhaseStampedVec
 MotionStructure::CalcPhaseStampedVec () const
 {
   PhaseStampedVec info;
-  static const double dt = 0.1; ///< discretization interval [s]
+  static const double dt = 0.02; ///< discretization interval [s]
 
   double t_global = 0;
   for (auto phase : phases_) {

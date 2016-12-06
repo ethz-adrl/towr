@@ -39,6 +39,8 @@ private:
   Eigen::VectorXd cop_;
   mutable LinearInvertedPendulum model_;
 
+  Jacobian GetJacobianWrtCop() const;
+  Jacobian GetJacobianWrtCom() const;
   double kHeight_;
 };
 
