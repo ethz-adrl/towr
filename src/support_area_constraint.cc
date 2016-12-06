@@ -6,12 +6,7 @@
  */
 
 #include <xpp/opt/support_area_constraint.h>
-
-//#include <xpp/opt/com_motion.h>
 #include <xpp/opt/optimization_variables.h>
-#include <xpp/opt/zero_moment_point.h>
-
-#include <xpp/hyq/support_polygon_container.h>
 
 namespace xpp {
 namespace opt {
@@ -31,24 +26,18 @@ SupportAreaConstraint::~SupportAreaConstraint ()
 }
 
 void
-SupportAreaConstraint::Init (const Contacts& contacts,
-                         const MotionStructure& motion_structure)
+SupportAreaConstraint::Init (const MotionStructure& motion_structure)
 {
-//  com_motion_       = com_motion.clone();
-  contacts_         = ContactPtrU(new Contacts(contacts));
   motion_structure_ = motion_structure;
 }
 
 void
 SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-//  VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
-  VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
-  lambdas_ = opt_var->GetVariables(VariableNames::kConvexity);
-  cop_     = opt_var->GetVariables(VariableNames::kCenterOfPressure);
-
-//  com_motion_->SetCoefficients(x_coeff);
-  contacts_->SetFootholdsXY(utils::ConvertEigToStd(footholds));
+  lambdas_   = opt_var->GetVariables(VariableNames::kConvexity);
+  cop_       = opt_var->GetVariables(VariableNames::kCenterOfPressure);
+  Eigen::VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
+  footholds_ = utils::ConvertEigToStd(footholds);
 }
 
 SupportAreaConstraint::VectorXd
@@ -58,36 +47,25 @@ SupportAreaConstraint::EvaluateConstraint () const
   Eigen::VectorXd g(m);
 
   int idx_lambda = 0;
-  int n = 0;
+  int k = 0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-
-//    auto com = com_motion_->GetCom(node.time_);
-//    Vector2d zmp = ZeroMomentPoint::CalcZmp(com.Make3D(), kWalkingHeight);
-
-
-
-//    double n_contacts = node.phase_.free_contacts_.size() + node.phase_.fixed_contacts_.size();
 
     Vector2d convex_contacts;
     convex_contacts.setZero();
     for (auto contact : node.phase_.free_contacts_) {
-      Vector2d p = contacts_->GetFoothold(contact.id).p.topRows<kDim2d>();
+      Vector2d p = footholds_.at(contact.id);
       double lamdba = lambdas_(idx_lambda++);
       convex_contacts += lamdba*p;
-//      convex_contacts += 1./n_contacts*p;
     }
-
 
     for (auto contact : node.phase_.fixed_contacts_) {
       Vector2d p = contact.p.topRows<kDim2d>();
       double lamdba = lambdas_(idx_lambda++);
-      convex_contacts += lamdba*p; // zmp_ DRY, put these together somehow
-//      convex_contacts += 1./n_contacts*p; // zmp_ DRY, put these together somehow
+      convex_contacts += lamdba*p;
     }
 
-    g.middleRows<kDim2d>(kDim2d*n) = convex_contacts - cop_.middleRows<kDim2d>(kDim2d*n);
-    n++;
-
+    g.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop_.middleRows<kDim2d>(kDim2d*k);
+    k++;
   }
 
   return g;
@@ -100,7 +78,6 @@ SupportAreaConstraint::GetBounds () const
   int m = EvaluateConstraint().rows();
   for (int i=0; i<m; ++i)
     bounds.push_back(kEqualityBound_);
-
 
   return bounds;
 }
@@ -120,7 +97,7 @@ SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
     int contacts_fixed = node.phase_.fixed_contacts_.size();
 
     for (int i=0; i<contacts_free; ++i) {
-      Vector3d p = contacts_->GetFoothold(node.phase_.free_contacts_.at(i).id).p;
+      Vector2d p = footholds_.at(node.phase_.free_contacts_.at(i).id);
       for (auto dim : {X, Y})
         jac_.insert(row_idx+dim,col_idx + i) = p(dim);
     }
@@ -145,22 +122,17 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
 {
   int row_idx = 0;
   int m = GetNumberOfConstraints();
-  int n = contacts_->GetTotalFreeCoeff();
+  int n = footholds_.size() * kDim2d;
   Jacobian jac_(m, n);
-
-
-
 
   int idx_lambdas = 0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
 
-//    double n_contacts = node.phase_.free_contacts_.size() + node.phase_.fixed_contacts_.size();
-
     for (auto contact : node.phase_.free_contacts_) {
       for (auto dim : {X, Y}) {
-        int idx_contact = Contacts::Index(contact.id, dim);
-        jac_.insert(row_idx+dim, idx_contact) = lambdas_(idx_lambdas); //1./n_contacts;
+        int idx_contact = ContactVars::Index(contact.id, dim);
+        jac_.insert(row_idx+dim, idx_contact) = lambdas_(idx_lambdas);
       }
       idx_lambdas++;
     }
@@ -207,26 +179,6 @@ SupportAreaConstraint::GetJacobianWithRespectToCop () const
 
     return jac_;
 }
-
-//SupportAreaConstraint::Jacobian
-//SupportAreaConstraint::GetJacobianWithRespectToComMotion () const
-//{
-//  int m = GetNumberOfConstraints();
-//  int n   = com_motion_->GetTotalFreeCoeff();
-//  Jacobian jac_(m, n);
-//
-//  int row=0;
-//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-//
-//    jac_.row(row++) = -1*ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, X, kWalkingHeight, node.time_);
-//    jac_.row(row++) = -1*ZeroMomentPoint::GetJacobianWrtCoeff(*com_motion_, Y ,kWalkingHeight, node.time_);
-//
-//  }
-//
-//  return jac_;
-//}
-
-
 
 } /* namespace opt */
 } /* namespace xpp */

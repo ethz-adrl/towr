@@ -89,11 +89,10 @@ CostConstraintFactory::CreateDynamicConstraint (const ComMotion& com_motion,
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateSupportAreaConstraint (const MotionStructure& motion_structure,
-                                                    const Contacts& contacts)
+CostConstraintFactory::CreateSupportAreaConstraint (const MotionStructure& motion_structure)
 {
   auto constraint = std::make_shared<SupportAreaConstraint>();
-  constraint->Init(contacts, motion_structure);
+  constraint->Init(motion_structure);
   return constraint;
 }
 

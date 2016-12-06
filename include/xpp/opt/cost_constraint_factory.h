@@ -66,7 +66,7 @@ public:
   static ConstraintPtr CreateFinalStanceConstraint(const Vector2d& goal_xy, const Contacts&);
 
   static ConstraintPtr CreateConvexityContraint(const MotionStructure&);
-  static ConstraintPtr CreateSupportAreaConstraint(const MotionStructure&, const Contacts&);
+  static ConstraintPtr CreateSupportAreaConstraint(const MotionStructure&);
   static ConstraintPtr CreateDynamicConstraint(const ComMotion&, const MotionStructure&,
                                                double robot_height);
 
