@@ -25,7 +25,7 @@ public:
   DynamicConstraint ();
   virtual ~DynamicConstraint ();
 
-  void Init(const ComMotion&, const MotionStructure&);
+  void Init(const ComMotion&, const MotionStructure&, double com_height);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
@@ -39,9 +39,7 @@ private:
   Eigen::VectorXd cop_;
   mutable LinearInvertedPendulum model_;
 
-  static constexpr double kHeight_ = 0.58;
-  static constexpr double kGravity = 9.80665; // gravity acceleration [m\s^2]
-
+  double kHeight_;
 };
 
 } /* namespace opt */

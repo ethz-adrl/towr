@@ -67,7 +67,7 @@ public:
 
   static ConstraintPtr CreateConvexityContraint(const MotionStructure&);
   static ConstraintPtr CreateSupportAreaConstraint(const MotionStructure&, const Contacts&);
-  static ConstraintPtr CreateDynamicConstraint(const ComMotion&, const MotionStructure&);
+  static ConstraintPtr CreateDynamicConstraint(const ComMotion&, const MotionStructure&, double robot_height);
 
   static CostPtr CreatePolygonCenterCost(const MotionStructure&);
 };

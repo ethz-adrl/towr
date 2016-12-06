@@ -80,10 +80,11 @@ CostConstraintFactory::CreateZmpConstraint (const MotionStructure& motion_struct
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateDynamicConstraint (const ComMotion& com_motion,
-                                                const MotionStructure& motion_structure)
+                                                const MotionStructure& motion_structure,
+                                                double robot_height)
 {
   auto constraint = std::make_shared<DynamicConstraint>();
-  constraint->Init(com_motion, motion_structure);
+  constraint->Init(com_motion, motion_structure, robot_height);
   return constraint;
 }
 

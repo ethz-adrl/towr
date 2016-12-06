@@ -99,7 +99,7 @@ NlpFacade::SolveNlp(const State& initial_state,
 //                                                                         robot_height,
 //                                                                         dt_zmp));
 
-  constraints_->AddConstraint(CostConstraintFactory::CreateDynamicConstraint(*com_motion, motion_structure));
+  constraints_->AddConstraint(CostConstraintFactory::CreateDynamicConstraint(*com_motion, motion_structure, robot_height));
   constraints_->AddConstraint(CostConstraintFactory::CreateSupportAreaConstraint(motion_structure, contacts));
   constraints_->AddConstraint(CostConstraintFactory::CreateConvexityContraint(motion_structure));
 

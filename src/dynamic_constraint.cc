@@ -19,7 +19,6 @@ using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 DynamicConstraint::DynamicConstraint ()
 {
   // TODO Auto-generated constructor stub
-
 }
 
 DynamicConstraint::~DynamicConstraint ()
@@ -29,10 +28,12 @@ DynamicConstraint::~DynamicConstraint ()
 
 void
 DynamicConstraint::Init (const ComMotion& com_motion,
-                         const MotionStructure& motion_structure)
+                         const MotionStructure& motion_structure,
+                         double com_height)
 {
   com_motion_ = com_motion.clone();
   motion_structure_ = motion_structure;
+  kHeight_ = com_height;
 }
 
 void
