@@ -75,7 +75,7 @@ NlpFacade::SolveNlp(const State& initial_state,
                                  AConstraint::Bound(-50, 50));
   Eigen::VectorXd lambdas(motion_structure.GetTotalNumberOfNodeContacts());
   lambdas.fill(0.33);
-  opt_variables_->AddVariableSet(VariableNames::kConvexity, lambdas, AConstraint::Bound(0.15, 1.0));
+  opt_variables_->AddVariableSet(VariableNames::kConvexity, lambdas, AConstraint::Bound(0.1, 1.0));
 
   // center of pressure x,y (input) at every node (changes system dynamics)
   int n = motion_structure.GetPhaseStampedVec().size() * utils::kDim2d;
@@ -108,18 +108,23 @@ NlpFacade::SolveNlp(const State& initial_state,
   constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts, motion_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, contacts));
 
-   // careful: these are not quite debugged yet
-//  constraints_->AddConstraint(CostConstraintFactory::CreateObstacleConstraint(contacts));
-//  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
+
 
   costs_->ClearCosts();
   costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion, utils::kAcc));
   costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion, contacts, motion_structure));
-//  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, contacts));
   costs_->SetWeights({1.0, 1.0});
+
+
+
+
+//  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, contacts));
+
   // careful: these are not quite debugged yet
+//  constraints_->AddConstraint(CostConstraintFactory::CreateObstacleConstraint(contacts));
+//  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 //  costs_->AddCost(CostConstraintFactory::CreateFinalComCost(final_state, spline_structure));
-//  costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(interpreter));
+
 
 
 
