@@ -27,8 +27,7 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 }
 
 void
-MotionOptimizerFacade::Init (double max_step_length, double dt_zmp,
-                             double diag_supp_poly_margin,
+MotionOptimizerFacade::Init (double max_step_length, double dt_nodes,
                              double t_swing, double t_first_phase,
                              double des_walking_height,
                              double lift_height,
@@ -37,9 +36,7 @@ MotionOptimizerFacade::Init (double max_step_length, double dt_zmp,
                              VisualizerPtr visualizer)
 {
   max_step_length_ = max_step_length;
-  dt_zmp_ = dt_zmp;
-  supp_polygon_margins_ = xpp::hyq::SupportPolygon::GetDefaultMargins();
-  supp_polygon_margins_[hyq::DIAG] =  diag_supp_poly_margin;
+  dt_nodes_ = dt_nodes;
   t_swing_ = t_swing;
   t_first_phase_ = t_first_phase;
   des_walking_height_ = des_walking_height;
@@ -56,7 +53,7 @@ MotionOptimizerFacade::OptimizeMotion ()
   step_sequence_planner_.Init(curr_state_.base_.lin.Get2D(), goal_cog_.Get2D(),
                               curr_state_.GetStanceLegsInWorld(),
                               des_walking_height_, max_step_length_,
-                              curr_state_.SwinglegID(), supp_polygon_margins_);
+                              curr_state_.SwinglegID());
 
   auto step_sequence = step_sequence_planner_.DetermineStepSequence();
   bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
@@ -66,19 +63,16 @@ MotionOptimizerFacade::OptimizeMotion ()
   double t_first_phase = t_first_phase_;//t_left_; // mpc this changes by goal publisher
 
   motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, t_swing_, t_first_phase,
-                        start_with_com_shift, insert_final_stance);
+                        start_with_com_shift, insert_final_stance, dt_nodes_ );
 
   Contacts contacts;
-  contacts.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, supp_polygon_margins_);
-
-  std::cout << "contacts initialized successfully" << std::endl;
+  contacts.Init(curr_state_.GetStanceLegsInWorld(), step_sequence);
 
   nlp_facade_.SolveNlp(curr_state_.base_.lin.Get2D(),
                        goal_cog_.Get2D(),
                        des_walking_height_,
                        motion_structure,
-                       contacts,
-                       dt_zmp_);
+                       contacts);
 
   auto& com_spline = dynamic_cast<xpp::opt::ComSpline&>(*nlp_facade_.GetMotion());
 

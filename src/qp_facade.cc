@@ -43,7 +43,8 @@ QpFacade::SolveQp(const State& initial_state,
 
   // create the fixed motion structure
   MotionStructure motion_structure;
-  motion_structure.Init(start_stance, step_sequence, t_swing, t_stance, start_with_com_shift, true);
+  double dt = 0.1;
+  motion_structure.Init(start_stance, step_sequence, t_swing, t_stance, start_with_com_shift, true, dt);
 
   // remember to comment in regularization when using this type of spline representation
 //  auto com_spline = MotionFactory::CreateComMotion(motion_structure.GetPhases(),

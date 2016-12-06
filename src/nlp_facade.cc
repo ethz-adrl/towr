@@ -28,6 +28,7 @@ namespace xpp {
 namespace opt {
 
 using Contacts = xpp::hyq::SupportPolygonContainer;
+using namespace xpp::utils;
 
 NlpFacade::NlpFacade (VisualizerPtr visualizer)
      :visualizer_(visualizer)
@@ -56,58 +57,39 @@ NlpFacade::SolveNlp(const State& initial_state,
                     const State& final_state,
                     double robot_height,
                     const MotionStructure& motion_structure,
-                    const Contacts& contacts,
-                    double dt_zmp)
+                    const Contacts& contacts)
 {
-  // insight: this spline might be better for model pred. control, as it always matches the initial
-  // position and velocity, avoiding jumps in state. For the other spline this is
-  // a constraint, that might not be fulfilled.
 //  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
 
   nlp_observer_->Init(motion_structure, *com_motion, contacts);
-
-  // provide the initial values of the optimization problem
   opt_variables_->ClearVariables();
+
+  // polynomial coefficients that describe the CoM motion
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
+
+  // contact locations (x,y) of each step
   opt_variables_->AddVariableSet(VariableNames::kFootholds,
-                                 contacts.GetFootholdsInitializedToNominal(initial_state.p),
-                                 AConstraint::Bound(-50, 50));
-  Eigen::VectorXd lambdas(motion_structure.GetTotalNumberOfNodeContacts());
-  lambdas.fill(0.33);
+                                 contacts.GetFootholdsInitializedToNominal(initial_state.p));
+
+  // scalars in [0,1] that describe a convex polygon (where CoP has to be in)
+  Eigen::VectorXd lambdas(motion_structure.GetTotalNumberOfNodeContacts()); lambdas.fill(0.33);
   opt_variables_->AddVariableSet(VariableNames::kConvexity, lambdas, AConstraint::Bound(0.0, 1.0));
 
   // center of pressure x,y (input) at every node (changes system dynamics)
-  int n = motion_structure.GetPhaseStampedVec().size() * utils::kDim2d;
-  Eigen::VectorXd cop(n);
-  cop.setZero();
-  opt_variables_->AddVariableSet(VariableNames::kCenterOfPressure, cop);
-
-
-
+  int n_nodes = motion_structure.GetPhaseStampedVec().size();
+  opt_variables_->AddVariableSet(VariableNames::kCenterOfPressure, Eigen::VectorXd(n_nodes*kDim2d).setZero());
 
 
   constraints_->ClearConstraints();
   constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, *com_motion));
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, *com_motion));
   constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(*com_motion));
-
-
-//  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(motion_structure,
-//                                                                         *com_motion,
-//                                                                         contacts,
-//                                                                         robot_height,
-//                                                                         dt_zmp));
-
   constraints_->AddConstraint(CostConstraintFactory::CreateDynamicConstraint(*com_motion, motion_structure, robot_height));
   constraints_->AddConstraint(CostConstraintFactory::CreateSupportAreaConstraint(motion_structure, contacts));
   constraints_->AddConstraint(CostConstraintFactory::CreateConvexityContraint(motion_structure));
-
-
-
   constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, contacts, motion_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, contacts));
-
 
 
   costs_->ClearCosts();
@@ -119,9 +101,10 @@ NlpFacade::SolveNlp(const State& initial_state,
 
 
 
+// legacy constraints/costs
 //  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, contacts));
-
-  // careful: these are not quite debugged yet
+//  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(motion_structure,*com_motion,contacts,robot_height,dt_zmp));
+//  // careful: these are not quite debugged yet
 //  constraints_->AddConstraint(CostConstraintFactory::CreateObstacleConstraint(contacts));
 //  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
 //  costs_->AddCost(CostConstraintFactory::CreateFinalComCost(final_state, spline_structure));

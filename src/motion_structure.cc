@@ -33,7 +33,8 @@ MotionStructure::Init (const StartStance& start_stance,
                        const LegIDVec& step_legs,
                        double t_swing, double t_first_phase,
                        bool insert_initial_stance,
-                       bool insert_final_stance)
+                       bool insert_final_stance,
+                       double dt)
 {
   int id = -1;
 
@@ -107,6 +108,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
   start_stance_ = start_stance;
   steps_ = step_legs;
+  dt_ = dt;
   cache_needs_updating_ = true;
 }
 
@@ -148,26 +150,23 @@ PhaseStampedVec
 MotionStructure::CalcPhaseStampedVec () const
 {
   PhaseStampedVec info;
-  static const double dt = 0.02; ///< discretization interval [s]
 
   double t_global = 0;
   for (auto phase : phases_) {
 
-    int nodes_in_phase = std::floor(phase.duration_/dt);
-
-
+    int nodes_in_phase = std::floor(phase.duration_/dt_);
 
     // add one phase right after phase switch
     PhaseInfoStamped contact_info;
     contact_info.phase_ = phase;
-    contact_info.time_  = t_global+dt/3;
+    contact_info.time_  = t_global+dt_/3;
     info.push_back(contact_info);
 
 
     for (int k=0; k<nodes_in_phase; ++k ) {
       PhaseInfoStamped contact_info;
       contact_info.phase_ = phase;
-      contact_info.time_  = t_global+k*dt;
+      contact_info.time_  = t_global+k*dt_;
       info.push_back(contact_info);
     }
 
@@ -175,7 +174,7 @@ MotionStructure::CalcPhaseStampedVec () const
     // add one node right before phase switch
     // this somehow removes the jittering of hyq picking up the back legs
     contact_info.phase_ = phase;
-    contact_info.time_  = t_global+phase.duration_-dt/3;
+    contact_info.time_  = t_global+phase.duration_-dt_/3;
     info.push_back(contact_info);
 
 

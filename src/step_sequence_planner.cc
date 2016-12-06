@@ -30,8 +30,7 @@ void
 StepSequencePlanner::Init (const State& curr, const State& goal,
                            const VecFoothold& start_stance, double robot_height,
                            double max_step_length,
-                           int curr_swingleg,
-                           MarginValues margins)
+                           int curr_swingleg)
 {
   curr_state_ = curr;
   goal_state_ = goal;
@@ -39,7 +38,6 @@ StepSequencePlanner::Init (const State& curr, const State& goal,
   robot_height_ = robot_height;
   max_step_length_ = max_step_length;
   curr_swingleg_ = curr_swingleg;
-  margins_ = margins;
 }
 
 StepSequencePlanner::LegIDVec
@@ -167,7 +165,7 @@ StepSequencePlanner::IsStepNecessary () const
   bool step_necessary =
 //                      distance_large_enough ||
 //                      !x_capture_inside ||
-                        IsGoalOutsideSupportPolygon() ||
+//                        IsGoalOutsideSupportPolygon() ||
                         IsGoalOutsideRangeOfMotion()
 //                      (curr_state_.v.norm() > 0.1 )
                      ;
@@ -241,12 +239,12 @@ StepSequencePlanner::IsCapturePointInsideStance () const
   return supp.IsPointInside(x_capture_I);
 }
 
-bool
-StepSequencePlanner::IsGoalOutsideSupportPolygon () const
-{
-  hyq::SupportPolygon supp(start_stance_, margins_);
-  return !supp.IsPointInside(goal_state_.p);
-}
+//bool
+//StepSequencePlanner::IsGoalOutsideSupportPolygon () const
+//{
+//  hyq::SupportPolygon supp(start_stance_, margins_);
+//  return !supp.IsPointInside(goal_state_.p);
+//}
 
 bool
 StepSequencePlanner::IsGoalOutsideRangeOfMotion () const

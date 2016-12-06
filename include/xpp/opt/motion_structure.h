@@ -35,7 +35,7 @@ public:
 
   void Init(const StartStance& start_stance, const LegIDVec& step_legs,
             double t_swing, double t_first_phase, bool insert_initial_stance,
-            bool insert_final_stance);
+            bool insert_final_stance, double dt);
 
 
   double GetTotalTime() const;
@@ -72,6 +72,8 @@ private:
   StartStance start_stance_;
   LegIDVec steps_;
   PhaseVec phases_;
+
+  double dt_; ///< discretization interval [s]
 
   // the values don't really define the structure of the class -> mutable
   PhaseStampedVec CalcPhaseStampedVec() const;

@@ -26,7 +26,8 @@ TEST(MotionStructureTest, BuildPhasesWithContact)
 
   // create the fixed motion structure
   MotionStructure motion_structure;
-  motion_structure.Init(start_stance, steps, 0.3, 0.2, true, true);
+  double dt_nodes = 0.1;
+  motion_structure.Init(start_stance, steps, 0.3, 0.2, true, true, dt_nodes);
 
   auto phases = motion_structure.GetPhases();
 

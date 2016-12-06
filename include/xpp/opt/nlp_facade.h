@@ -78,8 +78,7 @@ public:
                 const State& final_state,
                 double robot_height,
                 const MotionStructure& motion_structure,
-                const Contacts& contacts,
-                double dt_zmp);
+                const Contacts& contacts);
 
   void AttachNlpObserver(VisualizerPtr& visualizer);
 
