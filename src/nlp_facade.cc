@@ -69,8 +69,15 @@ NlpFacade::SolveNlp(const State& initial_state,
   opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
 
   // contact locations (x,y) of each step
-  opt_variables_->AddVariableSet(VariableNames::kFootholds,
-                                 contacts.GetFootholdsInitializedToNominal(initial_state.p));
+  hyq::HyqRobotInterface hyq;
+  utils::StdVecEigen2d footholds_W;
+  for (auto leg : motion_structure.GetContactIds())
+  {
+    Eigen::Vector2d nominal_B = hyq.GetNominalStanceInBase(leg);
+    footholds_W.push_back(nominal_B + initial_state.p); // express in world
+  }
+
+  opt_variables_->AddVariableSet(VariableNames::kFootholds, utils::ConvertStdToEig(footholds_W));
 
   // scalars in [0,1] that describe a convex polygon (where CoP has to be in)
   Eigen::VectorXd lambdas(motion_structure.GetTotalNumberOfNodeContacts()); lambdas.fill(0.33);

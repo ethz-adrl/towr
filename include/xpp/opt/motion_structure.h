@@ -68,9 +68,11 @@ public:
   int GetTotalNumberOfFreeNodeContacts() const;
   int GetTotalNumberOfNodeContacts() const;
 
+  LegIDVec GetContactIds() const { return contact_ids_; };
+
 private:
   StartStance start_stance_;
-  LegIDVec steps_;
+  LegIDVec contact_ids_;
   PhaseVec phases_;
 
   double dt_; ///< discretization interval [s]
