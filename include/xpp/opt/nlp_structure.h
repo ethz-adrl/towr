@@ -16,56 +16,58 @@
 namespace xpp {
 namespace opt {
 
-class VariableSet;
-
-/** @brief Holds the optimization variables.
-  *
-  * This class is responsible for holding the current values of the optimization
-  * variables and providing a name what each variable represents. It
-  * returns only exactly those values.
-  */
-class NlpStructure {
-public:
-  typedef Eigen::VectorXd VectorXd;
-  typedef std::shared_ptr<VariableSet> VariableSetPtr;
-  typedef std::vector<VariableSetPtr> VariableSetVector;
-  typedef AConstraint::VecBound VecBound;
-  using VarBound = AConstraint::Bound;
-
-  NlpStructure();
-  virtual ~NlpStructure();
-
-  /** A variable set is a block of variables with some semantic information.
-    *
-    * @param idx The index (order) of this variable set compared to the others.
-    * @param n_variables The number of variables.
-    */
-  void AddVariableSet(std::string id, int n_variables, const VarBound& bound);
-
-  int GetOptimizationVariableCount() const;
-  VectorXd GetAllOptimizationVariables() const;
-  VecBound GetAllBounds () const;
-
-  void SetAllVariables(const VectorXd& x_all);
-  void SetVariables(std::string id, const VectorXd& values);
-  VectorXd GetVariables(std::string id) const;
-
-  const VariableSetVector GetVariableSets() const;
-
-  void Reset();
-
-
-private:
-  VariableSetVector variable_sets_;
-  VariableSetPtr GetSet(std::string id) const;
-};
+//class VariableSet;
+//
+///** @brief Holds the optimization variables.
+//  *
+//  * This class is responsible for holding the current values of the optimization
+//  * variables and providing a name what each variable represents. It
+//  * returns only exactly those values.
+//  */
+//class NlpStructure {
+//public:
+//  typedef Eigen::VectorXd VectorXd;
+////  typedef std::shared_ptr<VariableSet> VariableSetPtr;
+//  typedef std::vector<VariableSet> VariableSetVector;
+//  typedef AConstraint::VecBound VecBound;
+//  using VarBound = AConstraint::Bound;
+//
+//  NlpStructure();
+//  virtual ~NlpStructure();
+//
+//  /** A variable set is a block of variables with some semantic information.
+//    *
+//    * @param idx The index (order) of this variable set compared to the others.
+//    * @param n_variables The number of variables.
+//    */
+//  void AddVariableSet(std::string id, int n_variables, const VarBound& bound);
+////  void AddVariableSet(const VariableSet& set);
+//
+//  int GetOptimizationVariableCount() const;
+//  VectorXd GetAllOptimizationVariables() const;
+//  VecBound GetAllBounds () const;
+//
+//  void SetAllVariables(const VectorXd& x_all);
+//  void SetVariables(std::string id, const VectorXd& values);
+//  VectorXd GetVariables(std::string id) const;
+//
+//  const VariableSetVector GetVariableSets() const;
+//
+//  void Reset();
+//
+//
+//private:
+//  VariableSetVector variable_sets_;
+//  VariableSet& GetSet(std::string id);
+//  const VariableSet& GetSet(std::string id) const;
+//};
 
 
 class VariableSet {
 public:
   typedef Eigen::VectorXd VectorXd;
   typedef AConstraint::VecBound VecBound;
-  using VarBound = NlpStructure::VarBound;
+  using VarBound = AConstraint::Bound;
 
   VariableSet(int n_variables, std::string id, const VarBound&);
   virtual ~VariableSet();

@@ -14,6 +14,7 @@
 namespace xpp {
 namespace opt {
 
+
 /** @brief Publishes the current value of the optimization variables.
   *
   * This class is responsible for publishing the up-to-date values of the
@@ -27,9 +28,10 @@ namespace opt {
   */
 class OptimizationVariables : public ASubject {
 public:
-  typedef Eigen::VectorXd VectorXd;
-  typedef NlpStructure::VecBound VecBound;
-  using VarBound = NlpStructure::VarBound;
+  using VectorXd = Eigen::VectorXd;
+  using VecBound = VariableSet::VecBound;
+  using VarBound = VariableSet::VarBound;
+  using VariableSetVector = std::vector<VariableSet>;
 
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
@@ -40,15 +42,19 @@ public:
   VectorXd GetOptimizationVariables() const;
   VecBound GetOptimizationVariableBounds() const;
   int GetOptimizationVariableCount() const;
-  NlpStructure::VariableSetVector GetVarSets() const;
+  VariableSetVector GetVarSets() const;
 
   void AddVariableSet(std::string id, const VectorXd& values,
                       const VarBound& bound  = AConstraint::kNoBound_);
   void SetVariables(const VectorXd& x);
 
 private:
-  NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
-  void SetVariables(std::string id, const VectorXd& values);
+  VariableSetVector variable_sets_;
+//  NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
+
+  VariableSet& GetSet(std::string id);
+  const VariableSet& GetSet(std::string id) const;
+
 };
 
 
