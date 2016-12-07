@@ -7,7 +7,6 @@
 
 #include <xpp/opt/nlp_facade.h>
 
-#include <xpp/hyq/support_polygon_container.h>
 #include <xpp/opt/nlp.h>
 #include <xpp/opt/constraint_container.h>
 #include <xpp/opt/cost_constraint_factory.h>
@@ -16,18 +15,13 @@
 #include <xpp/opt/motion_factory.h>
 #include <xpp/opt/motion_structure.h>
 #include <xpp/opt/nlp.h>
-#include <xpp/opt/nlp_observer.h>
 #include <xpp/opt/optimization_variables.h>
 
 //#include <xpp/opt/snopt_adapter.h>
 
-#include <iomanip>
-
 namespace xpp {
 namespace opt {
 
-using Contacts = xpp::hyq::SupportPolygonContainer;
-using namespace xpp::utils;
 
 NlpFacade::NlpFacade (VisualizerPtr visualizer)
      :visualizer_(visualizer)
@@ -36,13 +30,10 @@ NlpFacade::NlpFacade (VisualizerPtr visualizer)
   opt_variables_ = std::make_shared<OptimizationVariables>();
   costs_         = std::make_shared<CostContainer>(*opt_variables_);
   constraints_   = std::make_shared<ConstraintContainer>(*opt_variables_);
-  nlp_observer_  = std::make_shared<NlpObserver>(*opt_variables_);
-
 
   // initialize the ipopt solver
   ipopt_app_ = new Ipopt::IpoptApplication();
   ipopt_app_->RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
-
 
   status_ = ipopt_app_->Initialize();
   if (status_ != Ipopt::Solve_Succeeded) {
@@ -55,13 +46,10 @@ void
 NlpFacade::SolveNlp(const State& initial_state,
                     const State& final_state,
                     double robot_height,
-                    const MotionStructure& motion_structure,
-                    const Contacts& contacts)
+                    const MotionStructure& motion_structure)
 {
 //  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
   com_motion_ = MotionFactory::CreateComMotion(motion_structure.GetPhases());
-
-  nlp_observer_->Init(motion_structure, *com_motion_, contacts); // zmp_ delete this
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(CostConstraintFactory::CreateSplineCoeffVariables(*com_motion_));
@@ -88,29 +76,10 @@ NlpFacade::SolveNlp(const State& initial_state,
   costs_->SetWeights({1.0, 1.0, 10.0});
 
 
+  visualizer_->opt_variables_    = opt_variables_;
+  visualizer_->com_motion_       = com_motion_;
+  visualizer_->motion_structure_ = motion_structure;
 
-  std::cout << std::setprecision(2) << std::fixed;
-  std::cout << "start_state: " << initial_state << std::endl;
-  std::cout << "goal_state: " << final_state << std::endl;
-
-  std::cout << "\nstart_stance: \n";
-  for (auto f : contacts.GetStartStance())
-    std::cout << f << std::endl;
-
-  std::cout << "\nphases:\n";
-  for (auto phase : motion_structure.GetPhases()) {
-    std::cout << phase << std::endl;
-  }
-
-//  std::cout << "\npolynomials:\n";
-//  auto com_spline = std::dynamic_pointer_cast<ComSpline> (com_motion);
-//  for (auto poly : com_spline->GetPolynomials()) {
-//    std::cout << poly << std::endl;
-//  }
-
-
-
-//  NLP nlp;
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);
 
@@ -127,6 +96,27 @@ NlpFacade::SolveNlp(const State& initial_state,
   // Ipopt solving
   IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, visualizer_); // just so it can poll the PublishMsg() method
   SolveIpopt(nlp_ptr);
+}
+
+void
+NlpFacade::AttachNlpObserver (VisualizerPtr& visualizer)
+{
+  visualizer_ = visualizer;  // handle so ipopt can poll publish() method
+}
+
+NlpFacade::VecFoothold
+NlpFacade::GetFootholds () const
+{
+  Eigen::VectorXd footholds = opt_variables_->GetVariables(VariableNames::kFootholds);
+  return utils::ConvertEigToStd(footholds);
+}
+
+const NlpFacade::ComMotionPtrS
+NlpFacade::GetComMotion() const
+{
+  Eigen::VectorXd x_motion = opt_variables_->GetVariables(VariableNames::kSplineCoeff);
+  com_motion_->SetCoefficients(x_motion);
+  return com_motion_;
 }
 
 void
@@ -155,35 +145,6 @@ NlpFacade::SolveIpopt (const IpoptPtr& nlp)
   }
 }
 
-void
-NlpFacade::AttachNlpObserver (VisualizerPtr& visualizer)
-{
-  visualizer->SetObserver(nlp_observer_); // current values of optimization variables
-  visualizer_ = visualizer;               // handle so ipopt can poll publish() method
-}
-
-NlpFacade::VecFoothold
-NlpFacade::GetFootholds () const
-{
-  return utils::ConvertEigToStd(opt_variables_->GetVariables(VariableNames::kFootholds));
-}
-
-NlpFacade::ComMotionPtrS
-NlpFacade::GetComMotion() const
-{
-  Eigen::VectorXd x_motion = opt_variables_->GetVariables(VariableNames::kSplineCoeff);
-  com_motion_->SetCoefficients(x_motion);
-  return com_motion_;
-//  auto& com_spline = dynamic_cast<xpp::opt::ComSpline&>(*com_motion_);
-//  return com_spline.GetPolynomials();
-}
-
-//PhaseVec
-//NlpFacade::GetPhases () const
-//{
-//  return nlp_observer_->GetStructure().GetPhases();
-//}
-
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 

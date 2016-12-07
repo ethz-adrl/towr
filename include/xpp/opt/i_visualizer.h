@@ -1,19 +1,21 @@
-/*
- * zmp_publisher.h
- *
- *  Created on: Apr 5, 2016
- *      Author: winklera
+/**
+ @file    i_visualizer.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 31, 2016
+ @brief   Declares the base class IVisualizer
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_SRC_IVISUALIZER_H_
-#define USER_TASK_DEPENDS_XPP_OPT_SRC_IVISUALIZER_H_
+#ifndef XPP_XPP_OPT_SRC_IVISUALIZER_H_
+#define XPP_XPP_OPT_SRC_IVISUALIZER_H_
 
+#include "motion_structure.h"
 #include <memory>
 
 namespace xpp {
 namespace opt {
 
-class NlpObserver;
+class ComMotion;
+class OptimizationVariables;
 
 /** @brief Interface to derive from to visualize the optimization results.
   *
@@ -21,16 +23,20 @@ class NlpObserver;
   */
 class IVisualizer {
 public:
-  using NlpObserverPtr = std::shared_ptr<xpp::opt::NlpObserver>;
+  using MotionPtrS               = std::shared_ptr<ComMotion>;
+  using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariables>;
 
-  IVisualizer() { observer_ = nullptr; };
-  virtual ~IVisualizer () {};
+  IVisualizer();
+  virtual ~IVisualizer ();
 
+  /** This method can be used by derived class to visualize in ROS.
+    */
   virtual void Visualize() const = 0;
-  virtual void SetObserver(const NlpObserverPtr& observer) { observer_ = observer;};
 
-protected:
-  NlpObserverPtr observer_;
+  // zmp_ make privat
+  OptimizationVariablesPtr opt_variables_;
+  MotionPtrS com_motion_;
+  MotionStructure motion_structure_;
 };
 
 class DoNothingVisualizer : public IVisualizer {
@@ -42,7 +48,7 @@ class DoNothingVisualizer : public IVisualizer {
 typedef std::shared_ptr<IVisualizer> VisualizerPtr;
 static VisualizerPtr do_nothing_visualizer = std::make_shared< DoNothingVisualizer>();
 
-} /* namespace ros */
-} /* namespace zmp */
+} /* namespace opt */
+} /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_SRC_IVISUALIZER_H_ */
+#endif /* XPP_XPP_OPT_SRC_IVISUALIZER_H_ */

@@ -98,6 +98,7 @@ set(SOURCES
   src/com_spline4.cc
   src/motion_factory.cc
   # nlp
+  src/i_visualizer.cc
   src/motion_optimizer_facade.cc
   src/a_subject.cc
   src/variable_set.cc

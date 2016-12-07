@@ -66,14 +66,10 @@ MotionOptimizerFacade::OptimizeMotion ()
   motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, t_swing_, t_first_phase,
                         start_with_com_shift, insert_final_stance, dt_nodes_ );
 
-  Contacts contacts;
-  contacts.Init(curr_state_.GetStanceLegsInWorld(), step_sequence);
-
   nlp_facade_.SolveNlp(curr_state_.base_.lin.Get2D(),
                        goal_cog_.Get2D(),
                        des_walking_height_,
-                       motion_structure,
-                       contacts);
+                       motion_structure);
 
   whole_body_mapper_.Init(motion_structure.GetPhases(),
                           nlp_facade_.GetComMotion(),

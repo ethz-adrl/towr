@@ -1,15 +1,13 @@
-/*
- * nlp_optimizer.h
- *
- *  Created on: Mar 18, 2016
- *      Author: winklera
+/**
+ @file    nlp_facade.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Jul 1, 2016
+ @brief   Declares the class NlpFacade implementing the Facade Pattern.
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
+#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
+#define XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
 
-
-#include <xpp/hyq/support_polygon.h>
 #include "i_visualizer.h"
 #include <xpp/opt/phase_info.h>
 #include <xpp/utils/state.h>
@@ -20,21 +18,11 @@
 #include <memory>
 
 namespace xpp {
-namespace hyq {
-class Foothold;
-class SupportPolygonContainer;
-}
-}
-
-namespace xpp {
 namespace opt {
 
 class OptimizationVariables;
 class CostContainer;
 class ConstraintContainer;
-class OptimizationVariablesInterpreter;
-class NlpObserver;
-class ComPolynomial;
 class ComMotion;
 class MotionStructure;
 
@@ -46,22 +34,16 @@ class MotionStructure;
   */
 class NlpFacade {
 public:
-  typedef xpp::utils::StateLin2d State;
-  typedef std::shared_ptr<OptimizationVariablesInterpreter> InterpreterPtr;
-  typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
-  typedef Ipopt::SmartPtr<Ipopt::IpoptApplication> IpoptApplicationPtr;
-  typedef std::shared_ptr<NlpObserver> NlpObserverPtr;
-  typedef utils::StdVecEigen2d VecFoothold;
+  using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariables>;
+  using CostContainerPtr         = std::shared_ptr<CostContainer>;
+  using ConstraintContainerPtr   = std::shared_ptr<ConstraintContainer>;
 
-  typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
-  typedef std::shared_ptr<CostContainer> CostContainerPtr;
-  typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
-  typedef std::shared_ptr<IVisualizer> VisualizerPtr;
-
-  using ComMotionPtrS = std::shared_ptr<ComMotion>;
-  using Contacts = xpp::hyq::SupportPolygonContainer;
-  typedef std::vector<ComPolynomial> VecComPolynomials;
-
+  using VisualizerPtr            = std::shared_ptr<IVisualizer>;
+  using ComMotionPtrS            = std::shared_ptr<ComMotion>;
+  using State                    = xpp::utils::StateLin2d;
+  using IpoptPtr                 = Ipopt::SmartPtr<Ipopt::TNLP>;
+  using IpoptApplicationPtr      = Ipopt::SmartPtr<Ipopt::IpoptApplication>;
+  using VecFoothold              = utils::StdVecEigen2d;
 
   NlpFacade (VisualizerPtr visualizer = do_nothing_visualizer);
   virtual ~NlpFacade () {};
@@ -79,15 +61,11 @@ public:
   void SolveNlp(const State& initial_state,
                 const State& final_state,
                 double robot_height,
-                const MotionStructure& motion_structure,
-                const Contacts& contacts);
+                const MotionStructure& motion_structure);
 
   void AttachNlpObserver(VisualizerPtr& visualizer);
-
   VecFoothold GetFootholds() const;
-  ComMotionPtrS GetComMotion() const;
-//  PhaseVec GetPhases() const;
-
+  const ComMotionPtrS GetComMotion() const;
 
 private:
   void SolveIpopt(const IpoptPtr& nlp);
@@ -97,16 +75,13 @@ private:
   ConstraintContainerPtr constraints_;
 
   ComMotionPtrS com_motion_;
-
-
-  NlpObserverPtr nlp_observer_;
   VisualizerPtr visualizer_;
 
   IpoptApplicationPtr ipopt_app_;
   Ipopt::ApplicationReturnStatus status_;
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_ */
