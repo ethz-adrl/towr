@@ -165,7 +165,8 @@ NlpFacade::AttachNlpObserver (VisualizerPtr& visualizer)
 NlpFacade::VecFoothold
 NlpFacade::GetFootholds () const
 {
-  return nlp_observer_->GetFootholds();
+  return utils::ConvertEigToStd(opt_variables_->GetVariables(VariableNames::kFootholds));
+//  return nlp_observer_->GetFootholds();
 }
 
 NlpFacade::ComMotionPtrS
@@ -174,11 +175,11 @@ NlpFacade::GetMotion () const
   return nlp_observer_->GetComMotion();
 }
 
-PhaseVec
-NlpFacade::GetPhases () const
-{
-  return nlp_observer_->GetStructure().GetPhases();
-}
+//PhaseVec
+//NlpFacade::GetPhases () const
+//{
+//  return nlp_observer_->GetStructure().GetPhases();
+//}
 
 } /* namespace zmp */
 } /* namespace xpp */

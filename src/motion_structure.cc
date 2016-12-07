@@ -59,6 +59,13 @@ MotionStructure::Init (const StartStance& start_stance,
     phase.free_contacts_  = prev_phase.free_contacts_;
     phase.fixed_contacts_ = prev_phase.fixed_contacts_;
 
+
+    // this contact is swinging during this phase
+    // amazing idea! (pats back)
+    Contact goal_contact(i, static_cast<EndeffectorID>(contact_ids.at(i)));
+    phase.swing_goal_contacts_.push_back(goal_contact);
+
+
     // remove current swingleg from list of active contacts
     auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
                            [&](const Foothold& f) {return f.leg == contact_ids.at(i);});

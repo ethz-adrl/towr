@@ -35,10 +35,10 @@ void HyqSpliner::SetParams(double upswing,
 
 void
 HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComSpline& com_spline,
-                  const VecFoothold& contacts, double des_height,
+                  const VecFoothold& footholds, double des_height,
                   const HyqState& curr_state)
 {
-  nodes_ = BuildNodeSequence(curr_state, phase_info, contacts, des_height);
+  nodes_ = BuildNodeSequence(curr_state, phase_info, footholds, des_height);
   CreateAllSplines(nodes_);
   optimized_xy_spline_ = com_spline;
 }
@@ -46,7 +46,7 @@ HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComSpline& com_spl
 std::vector<SplineNode>
 HyqSpliner::BuildNodeSequence(const HyqState& P_init,
                               const xpp::opt::PhaseVec& phase_info,
-                              const VecFoothold& footholds,
+                              const VecFoothold& footholds, // zmp_ make this only std::vec2d
                               double des_robot_height)
 {
   std::vector<SplineNode> nodes;
@@ -56,16 +56,16 @@ HyqSpliner::BuildNodeSequence(const HyqState& P_init,
 
   for (const auto& curr_phase : phase_info)
   {
-    // copy a few values from previous state
+    // starting point is previous state
     SplineNode goal_node = prev_node;
     goal_node.swingleg_ = false;
 
-    // add the desired foothold after swinging if this is a step phase
-    if (curr_phase.IsStep()) {
-      int step = curr_phase.n_completed_steps_;
-      LegID step_leg = footholds.at(step).leg;
-      goal_node.feet_W_[step_leg].p   = footholds.at(step).p;
-      goal_node.swingleg_[step_leg] = true;
+    for (auto c : curr_phase.swing_goal_contacts_) {
+      LegID ee = static_cast<LegID>(c.ee);
+      goal_node.feet_W_[ee].p.x() = footholds.at(c.id).x();
+      goal_node.feet_W_[ee].p.y() = footholds.at(c.id).y();
+      goal_node.feet_W_[ee].p.z() = 0.0;
+      goal_node.swingleg_[ee] = true;
     }
 
     // adjust roll, pitch, yaw depending on footholds

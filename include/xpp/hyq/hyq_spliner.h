@@ -12,6 +12,7 @@
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/polynomial_xd.h>
 #include <xpp/opt/phase_info.h>
+#include <xpp/utils/eigen_std_conversions.h>
 
 namespace xpp {
 namespace hyq {
@@ -43,7 +44,7 @@ class HyqSpliner {
 public:
   using ComSpline     = std::vector<xpp::utils::ComPolynomial>;
   using Vector3d      = Eigen::Vector3d;
-  using VecFoothold   = Foothold::VecFoothold;
+  using VecFoothold   = utils::StdVecEigen2d;
   using State1d       = xpp::utils::StateLin3d;
   using HyqStateVec   = std::vector<HyqState>;
   // mpc don't forget about the spliner order

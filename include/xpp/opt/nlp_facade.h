@@ -13,6 +13,7 @@
 #include "i_visualizer.h"
 #include <xpp/opt/phase_info.h>
 #include <xpp/utils/state.h>
+#include <xpp/utils/eigen_std_conversions.h>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
@@ -50,7 +51,7 @@ public:
   typedef Ipopt::SmartPtr<Ipopt::TNLP> IpoptPtr;
   typedef Ipopt::SmartPtr<Ipopt::IpoptApplication> IpoptApplicationPtr;
   typedef std::shared_ptr<NlpObserver> NlpObserverPtr;
-  typedef std::vector<xpp::hyq::Foothold> VecFoothold;
+  typedef utils::StdVecEigen2d VecFoothold;
 
   typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
@@ -84,7 +85,7 @@ public:
 
   VecFoothold GetFootholds() const;
   ComMotionPtrS GetMotion() const;
-  PhaseVec GetPhases() const;
+//  PhaseVec GetPhases() const;
 
 private:
   void SolveIpopt(const IpoptPtr& nlp);

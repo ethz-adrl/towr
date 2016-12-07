@@ -34,6 +34,7 @@ inline std::ostream& operator<<(std::ostream& out, const Contact& c)
 class PhaseInfo {
 public:
   std::vector<Contact> free_contacts_; // all the stance legs currently in contact but not fixed by start
+  std::vector<Contact> swing_goal_contacts_; // what contacts the current swinglegs are swinging towards
   std::vector<xpp::hyq::Foothold> fixed_contacts_;
   int id_ = 0;
   double duration_ = 0.0;

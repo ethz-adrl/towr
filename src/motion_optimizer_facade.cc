@@ -76,7 +76,7 @@ MotionOptimizerFacade::OptimizeMotion ()
 
   auto& com_spline = dynamic_cast<xpp::opt::ComSpline&>(*nlp_facade_.GetMotion());
 
-  whole_body_mapper_.Init(nlp_facade_.GetPhases(),
+  whole_body_mapper_.Init(motion_structure.GetPhases(),
                           com_spline.GetPolynomials(),
                           nlp_facade_.GetFootholds(),
                           des_walking_height_,
