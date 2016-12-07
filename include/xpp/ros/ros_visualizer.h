@@ -16,7 +16,6 @@
 
 namespace xpp {
 
-namespace opt { class NlpObserver; }
 namespace hyq { class Foothold; }
 
 namespace ros {

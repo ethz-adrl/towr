@@ -5,12 +5,11 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/ros/ros_visualizer.h"
+#include <xpp/ros/ros_visualizer.h>
 
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/marker_array_builder.h>
 #include <xpp/ros/topic_names.h>
-#include <xpp/opt/nlp_observer.h>
 
 namespace xpp {
 namespace ros {
@@ -44,23 +43,35 @@ RosVisualizer::VisualizeCurrentState (const State& curr,
 void
 RosVisualizer::Visualize () const
 {
-  auto start_stance = observer_->GetStartStance();
-  auto com_motion   = observer_->GetComMotion();
-  auto footholds    = observer_->GetFootholds();
-  auto structure    = observer_->GetStructure();
+  const auto com_motion = GetComMotion();
+  auto structure        = GetMotionStructure();
+  auto contacts         = GetContacts();
+  auto leg_ids          = structure.GetContactIds();
+  auto start_stance     = structure.GetStartStance();
+
+  std::vector<hyq::Foothold> footholds;
+  for (int i=0; i<contacts.size(); ++i) {
+    hyq::Foothold f;
+    f.leg = leg_ids.at(i);
+    f.p.x() = contacts.at(i).x();
+    f.p.y() = contacts.at(i).y();
+    footholds.push_back(f);
+  }
+
 
   visualization_msgs::MarkerArray msg;
   MarkerArrayBuilder msg_builder_;
-//  msg_builder_.AddStartStance(msg, start_stance);
   msg_builder_.AddFootholds(msg, footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
   msg_builder_.AddCogTrajectory(msg, *com_motion, structure, footholds, "cog", 1.0);
   msg_builder_.AddZmpTrajectory(msg, *com_motion, structure, 0.58, footholds, "zmp_4ls", 0.2);
   msg_builder_.AddSupportPolygons(msg, start_stance, footholds);
-//  msg_builder_.AddGoal(msg, goal_cog_.Get2D().p);
-  double gap_center_x = 0.45;
-  double gap_width_x = 0.2;
-  double ellipse_width = 1.0;
+  msg_builder_.AddStartStance(msg, start_stance);
 
+
+
+//  double gap_center_x = 0.45;
+//  double gap_width_x = 0.2;
+//  double ellipse_width = 1.0;
 //  msg_builder_.AddLineStrip(msg, gap_center_x, gap_width_x, "gap");
 //  msg_builder_.AddEllipse(msg, gap_center_x, 0.0, gap_width_x, ellipse_width, "ellipse");
 
