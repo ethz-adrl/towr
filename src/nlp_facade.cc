@@ -76,9 +76,9 @@ NlpFacade::SolveNlp(const State& initial_state,
   costs_->SetWeights({1.0, 1.0, 10.0});
 
 
-  visualizer_->opt_variables_    = opt_variables_;
-  visualizer_->com_motion_       = com_motion_;
-  visualizer_->motion_structure_ = motion_structure;
+  visualizer_->SetOptimizationVariables(opt_variables_);
+  visualizer_->SetComMotion(com_motion_);
+  visualizer_->SetMotionStructure(motion_structure);
 
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);

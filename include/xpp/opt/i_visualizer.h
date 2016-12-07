@@ -9,6 +9,7 @@
 #define XPP_XPP_OPT_SRC_IVISUALIZER_H_
 
 #include "motion_structure.h"
+#include <xpp/utils/eigen_std_conversions.h>
 #include <memory>
 
 namespace xpp {
@@ -25,6 +26,7 @@ class IVisualizer {
 public:
   using MotionPtrS               = std::shared_ptr<ComMotion>;
   using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariables>;
+  using VecFoothold              = utils::StdVecEigen2d;
 
   IVisualizer();
   virtual ~IVisualizer ();
@@ -33,7 +35,16 @@ public:
     */
   virtual void Visualize() const = 0;
 
-  // zmp_ make privat
+  void SetMotionStructure(const MotionStructure&);
+  void SetComMotion(const MotionPtrS&);
+  void SetOptimizationVariables(const OptimizationVariablesPtr&);
+
+protected:
+  const MotionPtrS GetComMotion() const;
+  MotionStructure GetMotionStructure() const;
+  VecFoothold GetContacts() const;
+
+private:
   OptimizationVariablesPtr opt_variables_;
   MotionPtrS com_motion_;
   MotionStructure motion_structure_;

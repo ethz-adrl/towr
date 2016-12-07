@@ -46,7 +46,7 @@ HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComSpline& com_spl
 std::vector<SplineNode>
 HyqSpliner::BuildNodeSequence(const HyqState& P_init,
                               const xpp::opt::PhaseVec& phase_info,
-                              const VecFoothold& footholds, // zmp_ make this only std::vec2d
+                              const VecFoothold& footholds,
                               double des_robot_height)
 {
   std::vector<SplineNode> nodes;

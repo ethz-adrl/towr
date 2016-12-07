@@ -11,7 +11,6 @@
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/opt/nlp_facade.h>
 #include <xpp/hyq/hyq_spliner.h>
-
 #include <xpp/hyq/hyq_state.h>
 
 namespace xpp {

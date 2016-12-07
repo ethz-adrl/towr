@@ -7,15 +7,12 @@
 
 #include <xpp/opt/motion_optimizer_facade.h>
 #include <xpp/opt/motion_structure.h>
-#include <xpp/opt/com_spline.h>
-#include <xpp/hyq/support_polygon_container.h>
 #include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
 namespace opt {
 
 using MotionStructure = xpp::opt::MotionStructure;
-using Contacts        = xpp::hyq::SupportPolygonContainer;
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {

@@ -20,6 +20,45 @@ IVisualizer::~IVisualizer()
 {
 }
 
+const IVisualizer::MotionPtrS
+IVisualizer::GetComMotion () const
+{
+  Eigen::VectorXd x_motion = opt_variables_->GetVariables(VariableNames::kSplineCoeff);
+  com_motion_->SetCoefficients(x_motion);
+  return com_motion_;
+}
+
+void
+IVisualizer::SetMotionStructure (const MotionStructure& motion_structure)
+{
+  motion_structure_ = motion_structure;
+}
+
+void
+IVisualizer::SetComMotion (const MotionPtrS& com_motion)
+{
+  com_motion_ = com_motion;
+}
+
+void
+IVisualizer::SetOptimizationVariables (const OptimizationVariablesPtr& opt_variables)
+{
+  opt_variables_ = opt_variables;
+}
+
+MotionStructure
+IVisualizer::GetMotionStructure () const
+{
+  return motion_structure_;
+}
+
+IVisualizer::VecFoothold
+IVisualizer::GetContacts () const
+{
+  Eigen::VectorXd footholds = opt_variables_->GetVariables(VariableNames::kFootholds);
+  return utils::ConvertEigToStd(footholds);
+}
+
 } // namespace opt
 } // namespace xpp
 

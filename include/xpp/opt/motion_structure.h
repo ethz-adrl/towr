@@ -70,6 +70,8 @@ public:
 
   LegIDVec GetContactIds() const { return contact_ids_; };
 
+  StartStance GetStartStance() const { return start_stance_;};
+
 private:
   StartStance start_stance_;
   LegIDVec contact_ids_;
