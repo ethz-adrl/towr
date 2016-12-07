@@ -53,7 +53,7 @@ NLP::GetStartingValues () const
 double
 NLP::EvaluateCostFunction (const Number* x) const
 {
-  opt_variables_->SetVariables(ConvertToEigen(x));
+  opt_variables_->SetAllVariables(ConvertToEigen(x));
   return costs_->EvaluateTotalCost();
 }
 
@@ -61,7 +61,7 @@ NLP::VectorXd
 NLP::EvaluateCostFunctionGradient (const Number* x) const
 {
   // motion_ref use matrix acceleration jacobian for this
-  opt_variables_->SetVariables(ConvertToEigen(x));
+  opt_variables_->SetAllVariables(ConvertToEigen(x));
 
   // analytical (if implemented in costs)
   VectorXd grad = costs_->EvaluateGradient();
@@ -97,14 +97,14 @@ NLP::GetNumberOfConstraints () const
 NLP::VectorXd
 NLP::EvaluateConstraints (const Number* x) const
 {
-  opt_variables_->SetVariables(ConvertToEigen(x));
+  opt_variables_->SetAllVariables(ConvertToEigen(x));
   return constraints_->EvaluateConstraints();
 }
 
 void
 NLP::SetVariables (const Number* x)
 {
-  opt_variables_->SetVariables(ConvertToEigen(x));
+  opt_variables_->SetAllVariables(ConvertToEigen(x));
 }
 
 bool
@@ -116,7 +116,7 @@ NLP::HasCostTerms () const
 void
 NLP::EvalNonzerosOfJacobian (const Number* x, Number* values) const
 {
-  opt_variables_->SetVariables(ConvertToEigen(x));
+  opt_variables_->SetAllVariables(ConvertToEigen(x));
   JacobianPtr jac = GetJacobianOfConstraints();
 
   jac->makeCompressed(); // so the valuePtr() is dense and accurate
@@ -129,7 +129,7 @@ NLP::GetJacobianOfConstraints () const
   // use full default jacobian if not estimated, to make sure all the
   // elements are estimated by numerical differences.
   // refactor this is something I will for sure forget, remove
-  bool jacobians_defined = true;
+  bool jacobians_defined = true; // zmp_ turn this back on
 
   if (jacobians_defined)
     return constraints_->GetJacobian();

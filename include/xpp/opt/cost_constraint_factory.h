@@ -5,24 +5,19 @@
  @brief   Declares factory class to build constraints.
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
+#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
+#define XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 
 #include <xpp/utils/state.h>
+#include "variable_set.h"
 #include <memory>
 
 namespace xpp {
-
-namespace hyq {
-class SupportPolygonContainer;
-}
-
 namespace opt {
 
 class AConstraint;
 class ACost;
 class ComMotion;
-class OptimizationVariablesInterpreter;
 class MotionStructure;
 
 /** Builds all types of constraints/costs for the user.
@@ -34,39 +29,43 @@ class MotionStructure;
   */
 class CostConstraintFactory {
 public:
-  typedef std::shared_ptr<AConstraint> ConstraintPtr;
-  typedef std::shared_ptr<ACost> CostPtr;
-  typedef Eigen::Vector2d Vector2d;
-  typedef xpp::utils::StateLin2d State2d;
-  using Contacts = xpp::hyq::SupportPolygonContainer;
+  using ConstraintPtr = std::shared_ptr<AConstraint>;
+  using CostPtr       = std::shared_ptr<ACost>;
+  using Vector2d      = Eigen::Vector2d;
+  using State2d       = xpp::utils::StateLin2d;
 
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();
 
+
+  // optimization variables with initial values
+  static VariableSet CreateSplineCoeffVariables(const ComMotion&);
+  static VariableSet CreateContactVariables(const MotionStructure&,const Vector2d initial_pos);
+  static VariableSet CreateConvexityVariables(const MotionStructure&);
+  static VariableSet CreateCopVariables(const MotionStructure&);
+
+
+  // constraints
   static ConstraintPtr CreateInitialConstraint(const State2d& init, const ComMotion&);
   static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ComMotion&);
   static ConstraintPtr CreateJunctionConstraint(const ComMotion&);
-  static ConstraintPtr CreateZmpConstraint(const MotionStructure&,
-                                           const ComMotion&,
-                                           const Contacts&,
-                                           double walking_height,
-                                           double dt_zmp);
-  static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const Contacts&,
-                                                     const MotionStructure&);
-  static CostPtr CreateRangeOfMotionCost(const ComMotion&, const Contacts&,
-                                                     const MotionStructure&);
+  static ConstraintPtr CreateConvexityContraint(const MotionStructure&);
+  static ConstraintPtr CreateSupportAreaConstraint(const MotionStructure&);
+  static ConstraintPtr CreateDynamicConstraint(const ComMotion&, const MotionStructure&,double robot_height);
+  static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const MotionStructure&);
+  static ConstraintPtr CreateFinalStanceConstraint(const Vector2d& goal_xy, const MotionStructure&);
+  static ConstraintPtr CreateObstacleConstraint();
 
-//  static ConstraintPtr CreateJointAngleConstraint(const OptimizationVariablesInterpreter&);
-  static ConstraintPtr CreateObstacleConstraint(const Contacts&);
 
+  // costs
   static CostPtr CreateMotionCost(const ComMotion&, const xpp::utils::MotionDerivative);
+  static CostPtr CreateRangeOfMotionCost(const ComMotion&, const MotionStructure&);
+  static CostPtr CreatePolygonCenterCost(const MotionStructure&);
   static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComMotion&);
-
-  static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const Contacts&);
-  static ConstraintPtr CreateFinalStanceConstraint(const Vector2d& goal_xy, const Contacts&);
+  static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const MotionStructure&);
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_ */

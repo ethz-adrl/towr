@@ -52,6 +52,11 @@ public:
     */
   Jacobian GetJacobianWrtCoeff(Coords dimension) const;
 
+  static Jacobian GetJacobianWrtCoeff (const ComMotion& x,
+                                        Coords dim,
+                                        double height,
+                                        double t);
+
   static Vector2d  CalcZmp(const State3d& cog, double height);
   template <typename T>
   static T CalcZmp(const T& pos, const T& acc, double height);

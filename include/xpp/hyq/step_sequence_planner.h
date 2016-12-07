@@ -12,7 +12,6 @@
 
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/hyq/foothold.h>
-#include <xpp/hyq/support_polygon.h>
 #include <xpp/hyq/hyq_robot_interface.h>
 
 namespace xpp {
@@ -45,8 +44,7 @@ public:
   void Init(const State& curr, const State& goal,
             const VecFoothold& start_stance, double robot_height,
             double max_step_lenght_,
-            int swingleg_of_last_spline,
-            MarginValues margins);
+            int swingleg_of_last_spline);
 
   /** Determines whether an initial stance phase is inserted.
     *
@@ -70,9 +68,6 @@ private:
   LegID NextSwingLeg(LegID curr) const;
   LegID NextSwingLegBackwards(LegID curr) const;
 
-  bool IsZmpInsideFirstStep(LegID first_step) const;
-  bool IsCapturePointInsideStance() const;
-  bool IsGoalOutsideSupportPolygon() const;
   bool IsGoalOutsideRangeOfMotion() const;
 
   State curr_state_;
@@ -80,7 +75,6 @@ private:
   VecFoothold start_stance_;
   double robot_height_;
   double max_step_length_;
-  MarginValues margins_;
 
   HyqRobotInterface robot_;
 

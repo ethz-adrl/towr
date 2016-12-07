@@ -35,7 +35,7 @@ public:
 
   void Init(const StartStance& start_stance, const LegIDVec& step_legs,
             double t_swing, double t_first_phase, bool insert_initial_stance,
-            bool insert_final_stance);
+            bool insert_final_stance, double dt);
 
 
   double GetTotalTime() const;
@@ -65,13 +65,18 @@ public:
     */
   PhaseStampedVec GetPhaseStampedVec() const;
 
-  void SetDisretization(double dt);
-  int GetTotalNumberOfDiscreteContacts() const;
+  int GetTotalNumberOfFreeNodeContacts() const;
+  int GetTotalNumberOfNodeContacts() const;
+
+  LegIDVec GetContactIds() const { return contact_ids_; };
+
+  StartStance GetStartStance() const { return start_stance_;};
 
 private:
   StartStance start_stance_;
-  LegIDVec steps_;
+  LegIDVec contact_ids_;
   PhaseVec phases_;
+
   double dt_; ///< discretization interval [s]
 
   // the values don't really define the structure of the class -> mutable

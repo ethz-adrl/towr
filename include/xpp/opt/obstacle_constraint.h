@@ -11,7 +11,6 @@
 #include "a_constraint.h"
 #include "ellipse.h"
 #include <xpp/utils/eigen_std_conversions.h>
-#include <xpp/hyq/support_polygon_container.h>
 
 namespace xpp {
 namespace opt {
@@ -19,17 +18,14 @@ namespace opt {
 class ObstacleConstraint : public AConstraint {
 public:
   using FootholdsXY = xpp::utils::StdVecEigen2d;
-  using Contacts = xpp::hyq::SupportPolygonContainer;
 
   ObstacleConstraint ();
   virtual ~ObstacleConstraint ();
 
-  void Init(const Contacts&);
   virtual void UpdateVariables(const OptimizationVariables*) override final;
 
 protected:
   FootholdsXY footholds_;
-  Contacts contacts_;
   const double gap_center_x_ = 0.45; //m
   const double gap_width_x_ = 0.15; //m
 };

@@ -10,15 +10,10 @@
 
 #include "a_constraint.h"
 #include "motion_structure.h"
+#include <xpp/utils/eigen_std_conversions.h>
 #include <memory>
 
 namespace xpp {
-
-namespace hyq {
-class SupportPolygonContainer;
-class Foothold;
-}
-
 namespace opt {
 
 class ComMotion;
@@ -33,25 +28,23 @@ class ARobotInterface;
   */
 class RangeOfMotionConstraint : public AConstraint {
 public:
-  using Contacts      = xpp::hyq::SupportPolygonContainer;
   using ComMotionPtrU = std::unique_ptr<ComMotion>;
-  using ContactPtrU   = std::unique_ptr<Contacts>;
   using RobotPtrU     = std::unique_ptr<ARobotInterface>;
   using PosXY         = Eigen::Vector2d;
-  using Stance        = std::vector<xpp::hyq::Foothold>;
 
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint ();
 
-  void Init(const ComMotion&, const Contacts&, const MotionStructure&, RobotPtrU);
+  void Init(const ComMotion&, const MotionStructure&, RobotPtrU);
   void UpdateVariables(const OptimizationVariables*) final;
   Jacobian GetJacobianWithRespectTo (std::string var_set) const final;
 
 protected:
-  ContactPtrU contacts_;
+  utils::StdVecEigen2d footholds_;
   ComMotionPtrU com_motion_;
   MotionStructure motion_structure_;
   RobotPtrU robot_;
+  bool first_update_ = true;
 
 private:
   Jacobian jac_wrt_contacts_;
@@ -72,33 +65,30 @@ public:
   virtual VectorXd EvaluateConstraint () const final;
   virtual VecBound GetBounds () const final;
 
-  static bool IsPositionInsideRangeOfMotion(const PosXY&, const Stance&,
-                                            const ARobotInterface&);
-
 private:
   virtual void SetJacobianWrtContacts(Jacobian&) const final;
   virtual void SetJacobianWrtMotion(Jacobian&) const final;
 };
 
-/** @brief Constrains the contact to lie at a fixed position in world frame.
-  *
-  * This constraint places the footholds at predefined positions with no
-  * margin. It is mainly useful for debugging when other features of the optimizer
-  * are being tested.
-  */
-class RangeOfMotionFixed : public RangeOfMotionConstraint {
-public:
-  virtual VectorXd EvaluateConstraint () const final;
-  virtual VecBound GetBounds () const final;
+///** @brief Constrains the contact to lie at a fixed position in world frame.
+//  *
+//  * This constraint places the footholds at predefined positions with no
+//  * margin. It is mainly useful for debugging when other features of the optimizer
+//  * are being tested.
+//  */
+//class RangeOfMotionFixed : public RangeOfMotionConstraint {
+//public:
+//  virtual VectorXd EvaluateConstraint () const final;
+//  virtual VecBound GetBounds () const final;
+//
+//private:
+//  const double kStepLength_ = 0.15;
+//  virtual void SetJacobianWrtContacts(Jacobian&) const final;
+//  virtual void SetJacobianWrtMotion(Jacobian&) const final;
+//};
 
-private:
-  const double kStepLength_ = 0.15;
-  virtual void SetJacobianWrtContacts(Jacobian&) const final;
-  virtual void SetJacobianWrtMotion(Jacobian&) const final;
-};
 
-
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_ */

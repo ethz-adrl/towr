@@ -20,7 +20,6 @@ using Foothold = xpp::hyq::Foothold;
 
 MotionStructure::MotionStructure ()
 {
-  dt_ = 0.2; //standart discretization
 }
 
 MotionStructure::~MotionStructure ()
@@ -31,10 +30,11 @@ MotionStructure::~MotionStructure ()
 // mpc clean this up, messy code
 void
 MotionStructure::Init (const StartStance& start_stance,
-                       const LegIDVec& step_legs,
+                       const LegIDVec& contact_ids,
                        double t_swing, double t_first_phase,
                        bool insert_initial_stance,
-                       bool insert_final_stance)
+                       bool insert_final_stance,
+                       double dt)
 {
   int id = -1;
 
@@ -53,15 +53,22 @@ MotionStructure::Init (const StartStance& start_stance,
   PhaseInfo prev_phase;
   prev_phase.fixed_contacts_ = start_stance;
   // the steps
-  for (uint i=0; i<step_legs.size(); ++i) {
+  for (uint i=0; i<contact_ids.size(); ++i) {
 
     PhaseInfo phase;
     phase.free_contacts_  = prev_phase.free_contacts_;
     phase.fixed_contacts_ = prev_phase.fixed_contacts_;
 
+
+    // this contact is swinging during this phase
+    // amazing idea! (pats back)
+    Contact goal_contact(i, static_cast<EndeffectorID>(contact_ids.at(i)));
+    phase.swing_goal_contacts_.push_back(goal_contact);
+
+
     // remove current swingleg from list of active contacts
     auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
-                           [&](const Foothold& f) {return f.leg == step_legs.at(i);});
+                           [&](const Foothold& f) {return f.leg == contact_ids.at(i);});
 
     if (it_fixed != phase.fixed_contacts_.end()) // step found in initial stance
       phase.fixed_contacts_.erase(it_fixed);     // remove contact, because now swinging leg
@@ -69,7 +76,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
     // remove current swingleg from last free contacts
     auto it_free = std::find_if(phase.free_contacts_.begin(), phase.free_contacts_.end(),
-                           [&](const Contact& c) {return c.ee == static_cast<EndeffectorID>(step_legs.at(i));});
+                           [&](const Contact& c) {return c.ee == static_cast<EndeffectorID>(contact_ids.at(i));});
 
     if (it_free != phase.free_contacts_.end()) // step found in current stance
       phase.free_contacts_.erase(it_free);     // remove contact, because now swinging leg
@@ -78,7 +85,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
     // add newly made contact of previous swing
     if (i > 0)
-      phase.free_contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(step_legs.at(i-1))));
+      phase.free_contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(contact_ids.at(i-1))));
 
     phase.id_ = ++id;
     phase.duration_ = phase.id_==0? t_first_phase : t_swing;
@@ -96,18 +103,19 @@ MotionStructure::Init (const StartStance& start_stance,
     phase.n_completed_steps_ = prev_phase.n_completed_steps_;
 
     if (prev_phase.IsStep()) {
-      int last_contact_id = step_legs.size()-1;
-      phase.free_contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(step_legs.back())));
+      int last_contact_id = contact_ids.size()-1;
+      phase.free_contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(contact_ids.back())));
       phase.n_completed_steps_++;
     }
 
     phase.id_ = ++id;
-    phase.duration_ = 1.1;
+    phase.duration_ = 0.5;
     phases_.push_back(phase);
   }
 
   start_stance_ = start_stance;
-  steps_ = step_legs;
+  contact_ids_ = contact_ids;
+  dt_ = dt;
   cache_needs_updating_ = true;
 }
 
@@ -155,14 +163,27 @@ MotionStructure::CalcPhaseStampedVec () const
 
     int nodes_in_phase = std::floor(phase.duration_/dt_);
 
-    for (int k=0; k<nodes_in_phase; ++k ) {
+    // add one phase right after phase switch
+    PhaseInfoStamped contact_info;
+    contact_info.phase_ = phase;
+    contact_info.time_  = t_global+dt_/3;
+    info.push_back(contact_info);
 
+
+    for (int k=0; k<nodes_in_phase; ++k ) {
       PhaseInfoStamped contact_info;
       contact_info.phase_ = phase;
       contact_info.time_  = t_global+k*dt_;
-
       info.push_back(contact_info);
     }
+
+
+    // add one node right before phase switch
+    // this somehow removes the jittering of hyq picking up the back legs
+    contact_info.phase_ = phase;
+    contact_info.time_  = t_global+phase.duration_-dt_/3;
+    info.push_back(contact_info);
+
 
     t_global += phase.duration_;
   }
@@ -171,7 +192,7 @@ MotionStructure::CalcPhaseStampedVec () const
 }
 
 int
-MotionStructure::GetTotalNumberOfDiscreteContacts () const
+MotionStructure::GetTotalNumberOfFreeNodeContacts () const
 {
   auto contact_info_vec = GetPhaseStampedVec();
 
@@ -182,17 +203,24 @@ MotionStructure::GetTotalNumberOfDiscreteContacts () const
   return i;
 }
 
+int
+MotionStructure::GetTotalNumberOfNodeContacts () const
+{
+  auto contact_info_vec = GetPhaseStampedVec();
+
+  int i = 0;
+  for (auto node : contact_info_vec) {
+    i += node.phase_.free_contacts_.size();
+    i += node.phase_.fixed_contacts_.size();
+  }
+
+  return i;
+}
+
 PhaseVec
 MotionStructure::GetPhases () const
 {
   return phases_;
-}
-
-void
-MotionStructure::SetDisretization (double dt)
-{
-  dt_ = dt;
-  cache_needs_updating_ = true;
 }
 
 } /* namespace zmp */

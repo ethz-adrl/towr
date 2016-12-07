@@ -5,16 +5,17 @@
  @brief   Declares a class to publish the current optimization variables.
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
+#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
+#define XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
 
 #include "a_subject.h"
-#include "nlp_structure.h"
+#include "variable_set.h"
 
 namespace xpp {
 namespace opt {
 
-/** @brief Publishes the current value of the optimization variables.
+
+/** @brief Holds and publishes the current value of the optimization variables.
   *
   * This class is responsible for publishing the up-to-date values of the
   * optimization variables to all the observers (cost function,
@@ -27,30 +28,30 @@ namespace opt {
   */
 class OptimizationVariables : public ASubject {
 public:
-  typedef Eigen::VectorXd VectorXd;
-  typedef NlpStructure::VecBound VecBound;
+  using VectorXd = Eigen::VectorXd;
+  using VecBound = VariableSet::VecBound;
+  using Bound    = VariableSet::Bound;
+  using VariableSetVector = std::vector<VariableSet>;
 
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
 
   void ClearVariables();
+  void AddVariableSet(const VariableSet&);
+  void SetAllVariables(const VectorXd& x);
 
   VectorXd GetVariables(std::string id) const;
   VectorXd GetOptimizationVariables() const;
   VecBound GetOptimizationVariableBounds() const;
   int GetOptimizationVariableCount() const;
-  NlpStructure::VariableSetVector GetVarSets() const;
-
-  void AddVariableSet(std::string id, const VectorXd& values);
-  void SetVariables(const VectorXd& x);
+  VariableSetVector GetVarSets() const;
 
 private:
-  NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
-  void SetVariables(std::string id, const VectorXd& values);
+  VariableSetVector variable_sets_;
+  bool SetExists(std::string id) const;
 };
 
-
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_ */

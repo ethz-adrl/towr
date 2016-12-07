@@ -11,7 +11,6 @@
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/opt/nlp_facade.h>
 #include <xpp/hyq/hyq_spliner.h>
-
 #include <xpp/hyq/hyq_state.h>
 
 namespace xpp {
@@ -34,8 +33,7 @@ public:
   virtual ~MotionOptimizerFacade ();
 
   void Init(double max_step_length,
-            double dt_zmp,
-            double diag_supp_poly_margin,
+            double dt_nodes,
             double t_swing,
             double t_first_phase,
             double des_walking_height,
@@ -59,8 +57,7 @@ private:
   StepSequencePlanner step_sequence_planner_;
 
   double max_step_length_;
-  double dt_zmp_;
-  xpp::hyq::MarginValues supp_polygon_margins_;
+  double dt_nodes_;
   double t_swing_;
   double t_first_phase_;
   double des_walking_height_;

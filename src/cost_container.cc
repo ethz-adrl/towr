@@ -70,8 +70,8 @@ CostContainer::EvaluateGradient () const
     int row = 0;
     for (const auto& set : subject_->GetVarSets()) {
 
-      int n_set = set->GetVariables().rows();
-      VectorXd grad_set = cost->EvaluateWeightedGradientWrt(set->GetId());
+      int n_set = set.GetVariables().rows();
+      VectorXd grad_set = cost->EvaluateWeightedGradientWrt(set.GetId());
 
       if (grad_set.rows() != 0) {
         gradient.middleRows(row, n_set) += grad_set;

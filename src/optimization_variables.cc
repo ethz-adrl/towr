@@ -6,6 +6,7 @@
  */
 
 #include <xpp/opt/optimization_variables.h>
+#include <algorithm> // find_if
 
 namespace xpp {
 namespace opt {
@@ -21,58 +22,88 @@ OptimizationVariables::~OptimizationVariables ()
 void
 OptimizationVariables::ClearVariables ()
 {
-  nlp_structure_.Reset();
+  variable_sets_.clear();
 }
 
 OptimizationVariables::VectorXd
 OptimizationVariables::GetVariables (std::string id) const
 {
-  return nlp_structure_.GetVariables(id);
+  assert(SetExists(id));
+
+  for (const auto& set : variable_sets_)
+    if (set.GetId() == id)
+      return set.GetVariables();
 }
 
-void
-OptimizationVariables::SetVariables (std::string id, const VectorXd& values)
-{
-  nlp_structure_.SetVariables(id, values);
-}
-
-NlpStructure::VariableSetVector
+OptimizationVariables::VariableSetVector
 OptimizationVariables::GetVarSets () const
 {
-  return nlp_structure_.GetVariableSets();
+  return variable_sets_;
 }
 
 void
-OptimizationVariables::AddVariableSet (std::string id, const VectorXd& values)
+OptimizationVariables::AddVariableSet (const VariableSet& set)
 {
-  nlp_structure_.AddVariableSet(id, values.rows());
-  SetVariables(id, values);
+  assert(!SetExists(set.GetId())); // ensure that set with this id does not exist yet
+  variable_sets_.push_back(set);
 }
 
 void
-OptimizationVariables::SetVariables(const VectorXd& x)
+OptimizationVariables::SetAllVariables(const VectorXd& x)
 {
-  nlp_structure_.SetAllVariables(x);
+  int c = 0;
+  for (auto& set : variable_sets_) {
+    int n_var = set.GetVariables().rows();
+    set.SetVariables(x.middleRows(c,n_var));
+    c += n_var;
+  }
+
   NotifyObservers();
 }
 
 OptimizationVariables::VectorXd
 OptimizationVariables::GetOptimizationVariables () const
 {
-  return nlp_structure_.GetAllOptimizationVariables();
+  Eigen::VectorXd x(GetOptimizationVariableCount());
+  int j = 0;
+  for (const auto& set : variable_sets_) {
+    const VectorXd& var = set.GetVariables();
+    x.middleRows(j, var.rows()) = var;
+    j += var.rows();
+  }
+
+  return x;
 }
 
 OptimizationVariables::VecBound
 OptimizationVariables::GetOptimizationVariableBounds () const
 {
-  return nlp_structure_.GetAllBounds();
+  VecBound bounds_;
+  for (const auto& set : variable_sets_) {
+    const VecBound& b = set.GetBounds();
+    bounds_.insert(std::end(bounds_), std::begin(b), std::end(b));
+  }
+
+  return bounds_;
 }
 
 int
 OptimizationVariables::GetOptimizationVariableCount () const
 {
-  return nlp_structure_.GetOptimizationVariableCount();
+  int n=0;
+  for (const auto& set : variable_sets_)
+    n += set.GetVariables().rows();
+
+  return n;
 }
 
-} /* namespace zmp */
+bool
+OptimizationVariables::SetExists (std::string id) const
+{
+  auto it = std::find_if(variable_sets_.begin(), variable_sets_.end(),
+                         [id](const VariableSet& set) { return set.GetId() == id; });
+  return it != variable_sets_.end();
+}
+
+} /* namespace opt */
 } /* namespace xpp */

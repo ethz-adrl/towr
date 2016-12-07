@@ -38,7 +38,7 @@ CostFunctionFunctor::operator () (const InputType& x,
                                   ValueType& obj_value) const
 {
   assert(costs_added_ && inputs()!= 0 && values()!=0);
-  subject_->SetVariables(x);
+  subject_->SetAllVariables(x);
   obj_value(0) = cost_container_->EvaluateTotalCost();
   return 1;
 }
