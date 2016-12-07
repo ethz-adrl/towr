@@ -11,17 +11,17 @@
 #include <xpp/opt/a_spline_cost.h>
 #include <xpp/opt/com_motion.h>
 #include <xpp/opt/linear_spline_equations.h>
-#include <xpp/opt/obstacle_constraint.h>
 #include <xpp/opt/range_of_motion_constraint.h>
-#include <xpp/opt/zmp_constraint.h>
 #include <xpp/opt/cost_adapter.h>
+#include <xpp/opt/obstacle_constraint.h>
 #include <xpp/opt/a_foothold_constraint.h>
 #include <xpp/opt/convexity_constraint.h>
-#include <xpp/hyq/hyq_inverse_kinematics.h>
-#include <xpp/hyq/hyq_robot_interface.h>
 #include <xpp/opt/support_area_constraint.h>
 #include <xpp/opt/dynamic_constraint.h>
 #include <xpp/opt/polygon_center_constraint.h>
+
+#include <xpp/hyq/hyq_inverse_kinematics.h>
+#include <xpp/hyq/hyq_robot_interface.h>
 
 namespace xpp {
 namespace opt {
@@ -146,6 +146,29 @@ CostConstraintFactory::CreateRangeOfMotionConstraint (const ComMotion& com_motio
   return constraint;
 }
 
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::CreateFinalStanceConstraint (const Vector2d& goal_xy,
+                                                    const MotionStructure& motion_structure)
+{
+  auto hyq = std::unique_ptr<ARobotInterface>(new xpp::hyq::HyqRobotInterface());
+  auto final_stance_constraint = std::make_shared<FootholdFinalStanceConstraint>(motion_structure,
+                                                                                 goal_xy,
+                                                                                 std::move(hyq));
+  return final_stance_constraint;
+}
+
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::CreateObstacleConstraint ()
+{
+  auto constraint = std::make_shared<ObstacleLineStrip>();
+  return constraint;
+}
+
+
+
+
+
+
 CostConstraintFactory::CostPtr
 CostConstraintFactory::CreateRangeOfMotionCost (const ComMotion& com_motion,
                                                 const MotionStructure& motion_structure)
@@ -173,18 +196,6 @@ CostConstraintFactory::CreateFinalStanceCost (
   auto final_stance_cost = std::make_shared<CostAdapter>(final_stance_constraint);
   return final_stance_cost;
 }
-
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateFinalStanceConstraint (const Vector2d& goal_xy,
-                                                    const MotionStructure& motion_structure)
-{
-  auto hyq = std::unique_ptr<ARobotInterface>(new xpp::hyq::HyqRobotInterface());
-  auto final_stance_constraint = std::make_shared<FootholdFinalStanceConstraint>(motion_structure,
-                                                                                 goal_xy,
-                                                                                 std::move(hyq));
-  return final_stance_constraint;
-}
-
 
 CostConstraintFactory::CostPtr
 CostConstraintFactory::CreateMotionCost (const ComMotion& motion,
@@ -218,16 +229,6 @@ CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
   cost->Init(eq.MakeFinal(final_state_xy, {kPos, kVel, kAcc}));
   return cost;
 }
-
-
-
-//CostConstraintFactory::ConstraintPtr
-//CostConstraintFactory::CreateObstacleConstraint (const Contacts& contacts)
-//{
-//  auto constraint = std::make_shared<ObstacleLineStrip>();
-//  constraint->Init(contacts);
-//  return constraint;
-//}
 
 
 } /* namespace opt */

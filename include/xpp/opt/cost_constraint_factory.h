@@ -54,7 +54,7 @@ public:
   static ConstraintPtr CreateDynamicConstraint(const ComMotion&, const MotionStructure&,double robot_height);
   static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const MotionStructure&);
   static ConstraintPtr CreateFinalStanceConstraint(const Vector2d& goal_xy, const MotionStructure&);
-//  static ConstraintPtr CreateObstacleConstraint(const Contacts&);
+  static ConstraintPtr CreateObstacleConstraint();
 
 
   // costs

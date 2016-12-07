@@ -12,7 +12,6 @@
 
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/hyq/foothold.h>
-#include <xpp/hyq/support_polygon.h>
 #include <xpp/hyq/hyq_robot_interface.h>
 
 namespace xpp {
@@ -69,9 +68,6 @@ private:
   LegID NextSwingLeg(LegID curr) const;
   LegID NextSwingLegBackwards(LegID curr) const;
 
-  bool IsZmpInsideFirstStep(LegID first_step) const;
-  bool IsCapturePointInsideStance() const;
-  bool IsGoalOutsideSupportPolygon() const;
   bool IsGoalOutsideRangeOfMotion() const;
 
   State curr_state_;

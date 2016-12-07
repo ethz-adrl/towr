@@ -25,12 +25,6 @@ ObstacleConstraint::~ObstacleConstraint ()
 }
 
 void
-ObstacleConstraint::Init(const Contacts& contacts)
-{
-  contacts_ = contacts;
-}
-
-void
 ObstacleConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
@@ -82,7 +76,7 @@ ObstacleLineStrip::GetJacobianWithRespectTo (std::string var_set) const
     jac = Jacobian(n_constraints, n_contact_variables);
 
     for (int row=0; row<n_constraints; ++row) {
-      int idx = Contacts::Index(row, X);
+      int idx = ContactVars::Index(row, X);
       jac.insert(row, idx) = 2*(footholds_.at(row).x() - gap_center_x_);
     }
   }
@@ -139,7 +133,7 @@ ObstacleEllipse::GetJacobianWithRespectTo (std::string var_set) const
       Eigen::Vector2d f = footholds_.at(row);
       auto jac_ellipse = ellipse_.GetJacobianWrtXY(f.x(), f.y());
       for (auto dim : {X,Y}) {
-        int idx = Contacts::Index(row, dim);
+        int idx = ContactVars::Index(row, dim);
         jac.insert(row, idx) = jac_ellipse.at(dim);
       }
     }

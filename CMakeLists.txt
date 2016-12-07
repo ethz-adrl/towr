@@ -80,7 +80,6 @@ include_directories(
 
 set(SOURCES
   src/ellipse.cc
-  src/qp_facade.cc
   src/zero_moment_point.cc
   src/linear_inverted_pendulum.cc
   src/motion_structure.cc
@@ -88,8 +87,6 @@ set(SOURCES
   # hyq
   src/step_sequence_planner.cc
   src/hyq_spliner.cc
-  src/support_polygon.cc
-  src/supp_polygon_container.cc
   src/hyq_robot_interface.cc
   # com
   src/com_motion.cc
@@ -105,17 +102,14 @@ set(SOURCES
   src/optimization_variables.cc
   src/i_observer.cc
   src/nlp_facade.cc
-  src/nlp_observer.cc
   src/nlp.cc
   src/ipopt_adapter.cc
   # constraints
   src/a_constraint.cc
   src/cost_constraint_factory.cc
   src/a_linear_constraint.cc
-  src/zmp_constraint_builder.cc
   src/linear_spline_equations.cc
   src/constraint_container.cc
-  src/zmp_constraint.cc
   src/range_of_motion_constraint.cc
   src/obstacle_constraint.cc
   src/support_area_constraint.cc
@@ -146,7 +140,7 @@ target_link_libraries(${LIB_NAME}
 )
   
 # Some example executables if turned "ON"
-option(BUILD_TESTS "Build some testing executables" ON) 
+option(BUILD_TESTS "Build some testing executables" OFF) 
 if(BUILD_TESTS)
   
   # enable_testing()
@@ -158,8 +152,8 @@ if(BUILD_TESTS)
     set(MY_GTEST_UNITS  test/google/gtest_main.cc 
 #                        test/google/spliner_test.cc
                          test/google/point2d_manipulations_test.cc
-                         test/google/supp_polygon_test.cc
-                         test/google/supp_polygon_container_test.cc
+#                         test/google/supp_polygon_test.cc
+#                         test/google/supp_polygon_container_test.cc
                          test/google/helpers.cc
                          test/google/linear_inverted_pendulum_test.cc
 #                        test/google/zero_moment_point_test.cc
@@ -179,7 +173,7 @@ if(BUILD_TESTS)
 #                        #constraints
 #                        test/google/zmp_constraint_test.cc
 #                        test/google/constraint_factory_test.cc
-                         test/google/zmp_constraint_builder_test.cc
+#                         test/google/zmp_constraint_builder_test.cc
                          test/google/linear_spline_equations_test.cc
                          test/google/dynamic_constraint_test.cc
 #                        test/google/joint_angles_constraint_test.cc

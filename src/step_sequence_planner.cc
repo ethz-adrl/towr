@@ -6,10 +6,8 @@
  */
 
 #include <xpp/hyq/step_sequence_planner.h>
-#include <xpp/hyq/support_polygon.h>
 #include <xpp/opt/range_of_motion_constraint.h>
 #include <xpp/opt/zero_moment_point.h>
-#include <xpp/opt/zmp_constraint_builder.h>
 
 namespace xpp {
 namespace hyq {
@@ -206,45 +204,6 @@ StepSequencePlanner::NextSwingLegBackwards (LegID curr) const
     default: assert(false); // this should never happen
   };
 }
-
-bool
-StepSequencePlanner::IsZmpInsideFirstStep (LegID first_step) const
-{
-  // remove first swingleg from current stance
-  VecFoothold first_stance = start_stance_;
-  int idx_swingleg = Foothold::GetLastIndex(first_step, first_stance);
-  first_stance.erase(first_stance.begin() + idx_swingleg);
-
-  // fixme zero margins, since i actually allow violation of zmp constraint
-  // don't want 4ls to be inserted there
-  MarginValues margins = hyq::SupportPolygon::GetDefaultMargins();
-//  margins.at(DIAG)/=2.;
-  hyq::SupportPolygon supp(first_stance, margins);
-
-  Eigen::Vector2d zmp = xpp::opt::ZeroMomentPoint::CalcZmp(curr_state_.Make3D(), robot_height_);
-  return supp.IsPointInside(zmp);
-}
-
-bool
-StepSequencePlanner::IsCapturePointInsideStance () const
-{
-  // Jerry Pratt et al. : "Capture point: A step toward humanoid push recovery"
-  static const double g = 9.80665; // gravity acceleration [m\s^2]
-  // Defined in frame C located at contact point of inverted pendulum
-  Vector2d x_capture_C = curr_state_.v.segment<2>(0)*std::sqrt(robot_height_/g);
-  Vector2d x_capture_I = x_capture_C + curr_state_.p.segment<2>(0);
-
-  MarginValues margins = hyq::SupportPolygon::GetDefaultMargins();
-  hyq::SupportPolygon supp(start_stance_, margins);
-  return supp.IsPointInside(x_capture_I);
-}
-
-//bool
-//StepSequencePlanner::IsGoalOutsideSupportPolygon () const
-//{
-//  hyq::SupportPolygon supp(start_stance_, margins_);
-//  return !supp.IsPointInside(goal_state_.p);
-//}
 
 bool
 StepSequencePlanner::IsGoalOutsideRangeOfMotion () const
