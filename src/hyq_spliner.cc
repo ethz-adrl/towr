@@ -153,7 +153,7 @@ HyqSpliner::GetCurrPosition(double t_global) const
 {
   State1d pos;
 
-  xpp::utils::StateLin2d xy_optimized = ComPolynomialHelpers::GetCOM(t_global, optimized_xy_spline_);
+  xpp::utils::StateLin2d xy_optimized = optimized_xy_spline_->GetCom(t_global);
   pos.p.topRows(kDim2d) = xy_optimized.p;
   pos.v.topRows(kDim2d) = xy_optimized.v;
   pos.a.topRows(kDim2d) = xy_optimized.a;

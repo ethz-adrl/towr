@@ -9,6 +9,7 @@
 #include <xpp/opt/motion_structure.h>
 #include <xpp/opt/com_spline.h>
 #include <xpp/hyq/support_polygon_container.h>
+#include <xpp/opt/optimization_variables.h>
 
 namespace xpp {
 namespace opt {
@@ -74,10 +75,8 @@ MotionOptimizerFacade::OptimizeMotion ()
                        motion_structure,
                        contacts);
 
-  auto& com_spline = dynamic_cast<xpp::opt::ComSpline&>(*nlp_facade_.GetMotion());
-
   whole_body_mapper_.Init(motion_structure.GetPhases(),
-                          com_spline.GetPolynomials(),
+                          nlp_facade_.GetComMotion(),
                           nlp_facade_.GetFootholds(),
                           des_walking_height_,
                           curr_state_);

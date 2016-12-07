@@ -59,31 +59,31 @@ NlpFacade::SolveNlp(const State& initial_state,
                     const Contacts& contacts)
 {
 //  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
-  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
+  com_motion_ = MotionFactory::CreateComMotion(motion_structure.GetPhases());
 
-  nlp_observer_->Init(motion_structure, *com_motion, contacts);
+  nlp_observer_->Init(motion_structure, *com_motion_, contacts); // zmp_ delete this
 
   opt_variables_->ClearVariables();
-  opt_variables_->AddVariableSet(CostConstraintFactory::CreateSplineCoeffVariables(*com_motion));
+  opt_variables_->AddVariableSet(CostConstraintFactory::CreateSplineCoeffVariables(*com_motion_));
   opt_variables_->AddVariableSet(CostConstraintFactory::CreateContactVariables(motion_structure, initial_state.p));
   opt_variables_->AddVariableSet(CostConstraintFactory::CreateConvexityVariables(motion_structure));
   opt_variables_->AddVariableSet(CostConstraintFactory::CreateCopVariables(motion_structure));
 
 
   constraints_->ClearConstraints();
-  constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, *com_motion));
-  constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, *com_motion));
-  constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(*com_motion));
-  constraints_->AddConstraint(CostConstraintFactory::CreateDynamicConstraint(*com_motion, motion_structure, robot_height));
+  constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, *com_motion_));
+  constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, *com_motion_));
+  constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(*com_motion_));
+  constraints_->AddConstraint(CostConstraintFactory::CreateDynamicConstraint(*com_motion_, motion_structure, robot_height));
   constraints_->AddConstraint(CostConstraintFactory::CreateSupportAreaConstraint(motion_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateConvexityContraint(motion_structure));
-  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion, motion_structure));
+  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion_, motion_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, motion_structure));
 
 
   costs_->ClearCosts();
-  costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion, utils::kAcc));
-  costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion, motion_structure));
+  costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion_, utils::kAcc));
+  costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion_, motion_structure));
   costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure));
   costs_->SetWeights({1.0, 1.0, 10.0});
 
@@ -166,13 +166,16 @@ NlpFacade::VecFoothold
 NlpFacade::GetFootholds () const
 {
   return utils::ConvertEigToStd(opt_variables_->GetVariables(VariableNames::kFootholds));
-//  return nlp_observer_->GetFootholds();
 }
 
 NlpFacade::ComMotionPtrS
-NlpFacade::GetMotion () const
+NlpFacade::GetComMotion() const
 {
-  return nlp_observer_->GetComMotion();
+  Eigen::VectorXd x_motion = opt_variables_->GetVariables(VariableNames::kSplineCoeff);
+  com_motion_->SetCoefficients(x_motion);
+  return com_motion_;
+//  auto& com_spline = dynamic_cast<xpp::opt::ComSpline&>(*com_motion_);
+//  return com_spline.GetPolynomials();
 }
 
 //PhaseVec

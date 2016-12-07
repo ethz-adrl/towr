@@ -60,6 +60,7 @@ public:
 
   using ComMotionPtrS = std::shared_ptr<ComMotion>;
   using Contacts = xpp::hyq::SupportPolygonContainer;
+  typedef std::vector<ComPolynomial> VecComPolynomials;
 
 
   NlpFacade (VisualizerPtr visualizer = do_nothing_visualizer);
@@ -84,8 +85,9 @@ public:
   void AttachNlpObserver(VisualizerPtr& visualizer);
 
   VecFoothold GetFootholds() const;
-  ComMotionPtrS GetMotion() const;
+  ComMotionPtrS GetComMotion() const;
 //  PhaseVec GetPhases() const;
+
 
 private:
   void SolveIpopt(const IpoptPtr& nlp);
@@ -93,6 +95,9 @@ private:
   OptimizationVariablesPtr opt_variables_;
   CostContainerPtr costs_;
   ConstraintContainerPtr constraints_;
+
+  ComMotionPtrS com_motion_;
+
 
   NlpObserverPtr nlp_observer_;
   VisualizerPtr visualizer_;
