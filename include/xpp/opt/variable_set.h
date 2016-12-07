@@ -21,9 +21,9 @@ class VariableSet {
 public:
   using VectorXd = Eigen::VectorXd;
   using VecBound = AConstraint::VecBound;
-  using VarBound = AConstraint::Bound;
+  using Bound    = AConstraint::Bound;
 
-  VariableSet(int n_variables, std::string id, const VarBound&);
+  VariableSet(const VectorXd& values, std::string id, const Bound& = AConstraint::kNoBound_);
   virtual ~VariableSet();
 
   VectorXd GetVariables() const;
@@ -31,6 +31,7 @@ public:
   std::string GetId() const;
 
   void SetVariables(const VectorXd& x);
+
 private:
   VectorXd x_;
   VecBound bounds_;

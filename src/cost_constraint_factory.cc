@@ -37,6 +37,48 @@ CostConstraintFactory::~CostConstraintFactory ()
   // TODO Auto-generated destructor stub
 }
 
+VariableSet
+CostConstraintFactory::CreateSplineCoeffVariables (const ComMotion& com_motion)
+{
+  return VariableSet(com_motion.GetCoeffients(), VariableNames::kSplineCoeff);
+}
+
+VariableSet
+CostConstraintFactory::CreateContactVariables (const MotionStructure& motion_structure,
+                                               const Vector2d initial_pos)
+{
+  // contact locations (x,y) of each step
+  hyq::HyqRobotInterface hyq;
+  utils::StdVecEigen2d footholds_W;
+  for (auto leg : motion_structure.GetContactIds())
+  {
+    Eigen::Vector2d nominal_B = hyq.GetNominalStanceInBase(leg);
+    footholds_W.push_back(nominal_B + initial_pos); // express in world
+  }
+
+  return VariableSet(utils::ConvertStdToEig(footholds_W), VariableNames::kFootholds);
+}
+
+VariableSet
+CostConstraintFactory::CreateConvexityVariables (const MotionStructure& motion_structure)
+{
+  Eigen::VectorXd lambdas(motion_structure.GetTotalNumberOfNodeContacts());
+  lambdas.fill(0.33); // sort of in the middle for 3 contacts per node
+  return VariableSet(lambdas, VariableNames::kConvexity, AConstraint::Bound(0.0, 1.0));
+}
+
+VariableSet
+CostConstraintFactory::CreateCopVariables (const MotionStructure& motion_structure)
+{
+  int n_nodes = motion_structure.GetPhaseStampedVec().size();
+  Eigen::VectorXd cop(n_nodes*kDim2d);
+  cop.setZero();
+  return VariableSet(cop, VariableNames::kCenterOfPressure);
+}
+
+
+
+
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::CreateInitialConstraint (const State2d& init,
                                                 const ComMotion& motion)
@@ -63,18 +105,6 @@ CostConstraintFactory::CreateJunctionConstraint (const ComMotion& motion)
   LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.MakeJunction());
-  return constraint;
-}
-
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateZmpConstraint (const MotionStructure& motion_structure,
-                                            const ComMotion& com_motion,
-                                            const Contacts& contacts,
-                                            double walking_height,
-                                            double dt_zmp)
-{
-  auto constraint = std::make_shared<ZmpConstraint>();
-  constraint->Init(motion_structure, com_motion, contacts, walking_height, dt_zmp);
   return constraint;
 }
 
@@ -155,13 +185,6 @@ CostConstraintFactory::CreateFinalStanceConstraint (const Vector2d& goal_xy,
   return final_stance_constraint;
 }
 
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateObstacleConstraint (const Contacts& contacts)
-{
-  auto constraint = std::make_shared<ObstacleLineStrip>();
-  constraint->Init(contacts);
-  return constraint;
-}
 
 CostConstraintFactory::CostPtr
 CostConstraintFactory::CreateMotionCost (const ComMotion& motion,
@@ -196,17 +219,17 @@ CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy,
   return cost;
 }
 
+
+
 //CostConstraintFactory::ConstraintPtr
-//CostConstraintFactory::CreateJointAngleConstraint (
-//    const OptimizationVariablesInterpreter& interpreter)
+//CostConstraintFactory::CreateObstacleConstraint (const Contacts& contacts)
 //{
-//  auto inv_kine = std::make_shared<xpp::hyq::HyqInverseKinematics>();
-//  auto constraint = std::make_shared<JointAnglesConstraint>();
-//  constraint->Init(interpreter, inv_kine);
+//  auto constraint = std::make_shared<ObstacleLineStrip>();
+//  constraint->Init(contacts);
 //  return constraint;
 //}
 
 
-
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
+

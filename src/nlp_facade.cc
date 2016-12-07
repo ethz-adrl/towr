@@ -19,7 +19,6 @@
 #include <xpp/opt/nlp_observer.h>
 #include <xpp/opt/optimization_variables.h>
 
-#include <xpp/hyq/hyq_robot_interface.h>
 //#include <xpp/opt/snopt_adapter.h>
 
 #include <iomanip>
@@ -63,29 +62,12 @@ NlpFacade::SolveNlp(const State& initial_state,
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
 
   nlp_observer_->Init(motion_structure, *com_motion, contacts);
+
   opt_variables_->ClearVariables();
-
-  // polynomial coefficients that describe the CoM motion
-  opt_variables_->AddVariableSet(VariableNames::kSplineCoeff, com_motion->GetCoeffients());
-
-  // contact locations (x,y) of each step
-  hyq::HyqRobotInterface hyq;
-  utils::StdVecEigen2d footholds_W;
-  for (auto leg : motion_structure.GetContactIds())
-  {
-    Eigen::Vector2d nominal_B = hyq.GetNominalStanceInBase(leg);
-    footholds_W.push_back(nominal_B + initial_state.p); // express in world
-  }
-
-  opt_variables_->AddVariableSet(VariableNames::kFootholds, utils::ConvertStdToEig(footholds_W));
-
-  // scalars in [0,1] that describe a convex polygon (where CoP has to be in)
-  Eigen::VectorXd lambdas(motion_structure.GetTotalNumberOfNodeContacts()); lambdas.fill(0.33);
-  opt_variables_->AddVariableSet(VariableNames::kConvexity, lambdas, AConstraint::Bound(0.0, 1.0));
-
-  // center of pressure x,y (input) at every node (changes system dynamics)
-  int n_nodes = motion_structure.GetPhaseStampedVec().size();
-  opt_variables_->AddVariableSet(VariableNames::kCenterOfPressure, Eigen::VectorXd(n_nodes*kDim2d).setZero());
+  opt_variables_->AddVariableSet(CostConstraintFactory::CreateSplineCoeffVariables(*com_motion));
+  opt_variables_->AddVariableSet(CostConstraintFactory::CreateContactVariables(motion_structure, initial_state.p));
+  opt_variables_->AddVariableSet(CostConstraintFactory::CreateConvexityVariables(motion_structure));
+  opt_variables_->AddVariableSet(CostConstraintFactory::CreateCopVariables(motion_structure));
 
 
   constraints_->ClearConstraints();
@@ -104,19 +86,6 @@ NlpFacade::SolveNlp(const State& initial_state,
   costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion, motion_structure));
   costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure));
   costs_->SetWeights({1.0, 1.0, 10.0});
-
-
-
-
-// legacy constraints/costs
-//  costs_->AddCost(CostConstraintFactory::CreateFinalStanceCost(final_state.p, contacts));
-//  constraints_->AddConstraint(CostConstraintFactory::CreateZmpConstraint(motion_structure,*com_motion,contacts,robot_height,dt_zmp));
-//  // careful: these are not quite debugged yet
-//  constraints_->AddConstraint(CostConstraintFactory::CreateObstacleConstraint(contacts));
-//  constraints_->AddConstraint(ConstraintFactory::CreateJointAngleConstraint(*interpreter_ptr));
-//  costs_->AddCost(CostConstraintFactory::CreateFinalComCost(final_state, spline_structure));
-
-
 
 
 

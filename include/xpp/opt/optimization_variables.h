@@ -30,23 +30,21 @@ class OptimizationVariables : public ASubject {
 public:
   using VectorXd = Eigen::VectorXd;
   using VecBound = VariableSet::VecBound;
-  using VarBound = VariableSet::VarBound;
+  using Bound    = VariableSet::Bound;
   using VariableSetVector = std::vector<VariableSet>;
 
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
 
   void ClearVariables();
+  void AddVariableSet(const VariableSet&);
+  void SetAllVariables(const VectorXd& x);
 
   VectorXd GetVariables(std::string id) const;
   VectorXd GetOptimizationVariables() const;
   VecBound GetOptimizationVariableBounds() const;
   int GetOptimizationVariableCount() const;
   VariableSetVector GetVarSets() const;
-
-  void AddVariableSet(std::string id, const VectorXd& values,
-                      const VarBound& bound  = AConstraint::kNoBound_);
-  void SetAllVariables(const VectorXd& x);
 
 private:
   VariableSetVector variable_sets_;

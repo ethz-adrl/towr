@@ -10,10 +10,11 @@
 namespace xpp {
 namespace opt {
 
-VariableSet::VariableSet (int n_variables, std::string id, const VarBound& bound)
+xpp::opt::VariableSet::VariableSet (const VectorXd& values, std::string id,
+                                    const Bound& bound)
 {
-  x_ = Eigen::VectorXd::Zero(n_variables);
-  bounds_.assign(n_variables, bound);
+  x_ = values;
+  bounds_.assign(values.rows(), bound);
   id_ = id;
 }
 
@@ -47,5 +48,3 @@ VariableSet::SetVariables (const VectorXd& x)
 
 } // namespace opt
 } // namespace xpp
-
-

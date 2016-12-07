@@ -42,15 +42,10 @@ OptimizationVariables::GetVarSets () const
 }
 
 void
-OptimizationVariables::AddVariableSet (std::string id, const VectorXd& values, const VarBound& bound)
+OptimizationVariables::AddVariableSet (const VariableSet& set)
 {
-  assert(!SetExists(id)); // ensure that set with this id does not exist yet
-
-  variable_sets_.push_back(VariableSet(values.rows(), id, bound));
-
-  for (auto& set : variable_sets_)
-    if (set.GetId() == id)
-      set.SetVariables(values);
+  assert(!SetExists(set.GetId())); // ensure that set with this id does not exist yet
+  variable_sets_.push_back(set);
 }
 
 void
