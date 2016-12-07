@@ -44,7 +44,7 @@ public:
   */
 class HyqSpliner {
 public:
-  using ComSpline     = std::shared_ptr<xpp::opt::ComMotion>; // zmp_ rename this to com_Motion
+  using ComMotionS     = std::shared_ptr<xpp::opt::ComMotion>;
   using Vector3d      = Eigen::Vector3d;
   using VecFoothold   = utils::StdVecEigen2d;
   using State1d       = xpp::utils::StateLin3d;
@@ -63,7 +63,7 @@ public:
                  double discretization_time);
 
   void Init(const xpp::opt::PhaseVec&,
-            const ComSpline&,
+            const ComMotionS&,
             const VecFoothold&,
             double des_height,
             const HyqState& curr_state);
@@ -75,7 +75,7 @@ private:
   std::vector<ZPolynomial> z_spliner_;
   std::vector<SplinerOri> ori_spliner_;
   std::vector<LegDataMap< SplinerFeet > > feet_spliner_up_, feet_spliner_down_;
-  ComSpline optimized_xy_spline_; // zmp_ rename this to motion
+  ComMotionS com_motion_;
 
   double kDiscretizationTime;   // at what interval the continuous trajectory is sampled
   double kUpswingPercent;       // how long to swing up during swing

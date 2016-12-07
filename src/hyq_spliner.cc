@@ -34,13 +34,13 @@ void HyqSpliner::SetParams(double upswing,
 }
 
 void
-HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComSpline& com_spline,
+HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComMotionS& com_spline,
                   const VecFoothold& footholds, double des_height,
                   const HyqState& curr_state)
 {
   nodes_ = BuildNodeSequence(curr_state, phase_info, footholds, des_height);
   CreateAllSplines(nodes_);
-  optimized_xy_spline_ = com_spline;
+  com_motion_ = com_spline;
 }
 
 std::vector<SplineNode>
@@ -153,7 +153,7 @@ HyqSpliner::GetCurrPosition(double t_global) const
 {
   State1d pos;
 
-  xpp::utils::StateLin2d xy_optimized = optimized_xy_spline_->GetCom(t_global);
+  xpp::utils::StateLin2d xy_optimized = com_motion_->GetCom(t_global);
   pos.p.topRows(kDim2d) = xy_optimized.p;
   pos.v.topRows(kDim2d) = xy_optimized.v;
   pos.a.topRows(kDim2d) = xy_optimized.a;

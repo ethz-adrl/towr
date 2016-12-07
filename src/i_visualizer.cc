@@ -20,13 +20,6 @@ IVisualizer::~IVisualizer()
 {
 }
 
-const IVisualizer::MotionPtrS
-IVisualizer::GetComMotion () const
-{
-  Eigen::VectorXd x_motion = opt_variables_->GetVariables(VariableNames::kSplineCoeff);
-  com_motion_->SetCoefficients(x_motion);
-  return com_motion_;
-}
 
 void
 IVisualizer::SetMotionStructure (const MotionStructure& motion_structure)
@@ -50,6 +43,14 @@ MotionStructure
 IVisualizer::GetMotionStructure () const
 {
   return motion_structure_;
+}
+
+const IVisualizer::MotionPtrS
+IVisualizer::GetComMotion () const
+{
+  Eigen::VectorXd x_motion = opt_variables_->GetVariables(VariableNames::kSplineCoeff);
+  com_motion_->SetCoefficients(x_motion);
+  return com_motion_;
 }
 
 IVisualizer::VecFoothold
