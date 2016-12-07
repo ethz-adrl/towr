@@ -5,17 +5,17 @@
  @brief   Declares a class to publish the current optimization variables.
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
+#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
+#define XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
 
 #include "a_subject.h"
-#include "nlp_structure.h"
+#include "variable_set.h"
 
 namespace xpp {
 namespace opt {
 
 
-/** @brief Publishes the current value of the optimization variables.
+/** @brief Holds and publishes the current value of the optimization variables.
   *
   * This class is responsible for publishing the up-to-date values of the
   * optimization variables to all the observers (cost function,
@@ -46,19 +46,14 @@ public:
 
   void AddVariableSet(std::string id, const VectorXd& values,
                       const VarBound& bound  = AConstraint::kNoBound_);
-  void SetVariables(const VectorXd& x);
+  void SetAllVariables(const VectorXd& x);
 
 private:
   VariableSetVector variable_sets_;
-//  NlpStructure nlp_structure_; ///< this class holds all the structural information of the NLP
-
-  VariableSet& GetSet(std::string id);
-  const VariableSet& GetSet(std::string id) const;
-
+  bool SetExists(std::string id) const;
 };
 
-
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_ */

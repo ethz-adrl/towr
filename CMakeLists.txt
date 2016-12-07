@@ -100,7 +100,7 @@ set(SOURCES
   # nlp
   src/motion_optimizer_facade.cc
   src/a_subject.cc
-  src/nlp_structure.cc
+  src/variable_set.cc
   src/optimization_variables.cc
   src/i_observer.cc
   src/nlp_facade.cc
