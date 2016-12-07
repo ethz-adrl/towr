@@ -44,7 +44,7 @@ public:
                int marker_type);
 
   void AddSupportPolygons(MarkerArray& msg,
-                          const VecFoothold& start_stance,
+                          const MotionStructure&,
                           const VecFoothold& footholds) const;
   void BuildSupportPolygon(MarkerArray& msg,
                            const VecFoothold& stance_legs,

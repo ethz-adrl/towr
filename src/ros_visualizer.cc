@@ -64,7 +64,7 @@ RosVisualizer::Visualize () const
   msg_builder_.AddFootholds(msg, footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
   msg_builder_.AddCogTrajectory(msg, *com_motion, structure, footholds, "cog", 1.0);
   msg_builder_.AddZmpTrajectory(msg, *com_motion, structure, 0.58, footholds, "zmp_4ls", 0.2);
-  msg_builder_.AddSupportPolygons(msg, start_stance, footholds);
+  msg_builder_.AddSupportPolygons(msg, structure, footholds);
   msg_builder_.AddStartStance(msg, start_stance);
 
 
