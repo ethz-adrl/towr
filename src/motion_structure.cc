@@ -215,6 +215,48 @@ MotionStructure::GetTotalNumberOfNodeContacts () const
   }
 
   return i;
+
+// zmp_ DRY use function below
+//  return GetDiscreteContactsUntil(contact_info_vec.size());
+}
+
+int
+MotionStructure::GetDiscreteContactsUntil (int node_k) const
+{
+  auto contact_info_vec = GetPhaseStampedVec();
+
+  int count = 0;
+  for (int k=0; k<node_k; ++k) {
+    count += contact_info_vec.at(k).phase_.free_contacts_.size();
+    count += contact_info_vec.at(k).phase_.fixed_contacts_.size();
+  }
+
+  return count;
+}
+
+int
+MotionStructure::GetLambdaIndex (int node_k, int contact_j)
+{
+  int contacts_util_k = GetDiscreteContactsUntil(node_k);
+  return contacts_util_k + contact_j;
+//
+//
+//  using LambdaIndices = std::vector< std::vector<int> >;
+//  LambdaIndices indices;
+//
+//  auto contact_info_vec = GetPhaseStampedVec();
+//  int i = 0;
+//  for (auto node : contact_info_vec) {
+//
+//
+//    indices.
+//
+//
+//    i += node.phase_.free_contacts_.size();
+//    i += node.phase_.fixed_contacts_.size();
+//  }
+
+
 }
 
 PhaseVec

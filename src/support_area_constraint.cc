@@ -52,17 +52,24 @@ SupportAreaConstraint::EvaluateConstraint () const
 
     Vector2d convex_contacts;
     convex_contacts.setZero();
-    for (auto contact : node.phase_.free_contacts_) {
-      Vector2d p = footholds_.at(contact.id);
+
+    for (auto f : node.phase_.GetAllContacts(footholds_)) {
+//      Vector2d p = footholds_.at(contact.id);
       double lamdba = lambdas_(idx_lambda++);
-      convex_contacts += lamdba*p;
+      convex_contacts += lamdba*f.p.topRows<kDim2d>();
     }
 
-    for (auto contact : node.phase_.fixed_contacts_) {
-      Vector2d p = contact.p.topRows<kDim2d>();
-      double lamdba = lambdas_(idx_lambda++);
-      convex_contacts += lamdba*p;
-    }
+//    for (auto contact : node.phase_.free_contacts_) {
+//      Vector2d p = footholds_.at(contact.id);
+//      double lamdba = lambdas_(idx_lambda++);
+//      convex_contacts += lamdba*p;
+//    }
+//
+//    for (auto contact : node.phase_.fixed_contacts_) {
+//      Vector2d p = contact.p.topRows<kDim2d>();
+//      double lamdba = lambdas_(idx_lambda++);
+//      convex_contacts += lamdba*p;
+//    }
 
     g.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop_.middleRows<kDim2d>(kDim2d*k);
     k++;
@@ -82,35 +89,42 @@ SupportAreaConstraint::GetBounds () const
   return bounds;
 }
 
-// zmp_ almost exactly the same as in convexity constraint->merge!
 SupportAreaConstraint::Jacobian
 SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
 {
-  int col_idx = 0;
-  int row_idx = 0;
   int m = GetNumberOfConstraints();
   int n = motion_structure_.GetTotalNumberOfNodeContacts();
   Jacobian jac_(m, n);
 
+  int row_idx = 0;
+  int col_idx = 0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-    int contacts_free = node.phase_.free_contacts_.size();
-    int contacts_fixed = node.phase_.fixed_contacts_.size();
+//    int contacts_free = node.phase_.free_contacts_.size();
+//    int contacts_fixed = node.phase_.fixed_contacts_.size();
 
-    for (int i=0; i<contacts_free; ++i) {
-      Vector2d p = footholds_.at(node.phase_.free_contacts_.at(i).id);
+
+    for (auto f : node.phase_.GetAllContacts(footholds_)) {
       for (auto dim : {X, Y})
-        jac_.insert(row_idx+dim,col_idx + i) = p(dim);
+        jac_.insert(row_idx+dim,col_idx) = f.p(dim);
+
+      col_idx++;
     }
 
-    col_idx += contacts_free;
 
-    for (int i=0; i<contacts_fixed; ++i) {
-      Vector3d p = node.phase_.fixed_contacts_.at(i).p;
-      for (auto dim : {X, Y})
-        jac_.insert(row_idx+dim,col_idx + i) = p(dim);
-    }
-
-    col_idx += contacts_fixed;
+//    for (int i=0; i<contacts_free; ++i) {
+//      Vector2d p = footholds_.at(node.phase_.free_contacts_.at(i).id);
+//      for (auto dim : {X, Y})
+//        jac_.insert(row_idx+dim,col_idx + i) = p(dim);
+//    }
+//
+//    col_idx += contacts_free;
+//
+//    for (int i=0; i<contacts_fixed; ++i) {
+//      Vector3d p = node.phase_.fixed_contacts_.at(i).p;
+//      for (auto dim : {X, Y})
+//        jac_.insert(row_idx+dim,col_idx + i) = p(dim);
+//    }
+//
     row_idx += kDim2d;
   }
 
@@ -128,18 +142,28 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
   int idx_lambdas = 0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
-
-    for (auto contact : node.phase_.free_contacts_) {
-      for (auto dim : {X, Y}) {
-        int idx_contact = ContactVars::Index(contact.id, dim);
-        jac_.insert(row_idx+dim, idx_contact) = lambdas_(idx_lambdas);
+    for (auto c: node.phase_.GetAllContacts()) {
+      if (c.id != -1) { // contact not fixed by start
+        for (auto dim : {X, Y}) {
+          int idx_contact = ContactVars::Index(c.id, dim);
+          jac_.insert(row_idx+dim, idx_contact) = lambdas_(idx_lambdas);
+        }
       }
       idx_lambdas++;
     }
 
-    for (auto contact : node.phase_.fixed_contacts_) {
-      idx_lambdas++; // zmp_ this is bad, depends on order free->fixed with function above...
-    }
+
+//    for (auto contact : node.phase_.free_contacts_) {
+//      for (auto dim : {X, Y}) {
+//        int idx_contact = ContactVars::Index(contact.id, dim);
+//        jac_.insert(row_idx+dim, idx_contact) = lambdas_(idx_lambdas);
+//      }
+//      idx_lambdas++;
+//    }
+//
+//    for (auto contact : node.phase_.fixed_contacts_) {
+//      idx_lambdas++; // zmp_ this is bad, depends on order free->fixed with function above...
+//    }
 
     row_idx    += kDim2d;
   }
@@ -147,6 +171,17 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
   return jac_;
 }
 
+SupportAreaConstraint::Jacobian
+SupportAreaConstraint::GetJacobianWithRespectToCop () const
+{
+    int m = GetNumberOfConstraints();
+    int n   = cop_.rows();
+    Jacobian jac_(m, n);
+    jac_.setIdentity();
+    jac_ = -1*jac_;
+
+    return jac_;
+}
 
 SupportAreaConstraint::Jacobian
 SupportAreaConstraint::GetJacobianWithRespectTo (std::string var_set) const
@@ -168,17 +203,6 @@ SupportAreaConstraint::GetJacobianWithRespectTo (std::string var_set) const
   return jac;
 }
 
-SupportAreaConstraint::Jacobian
-SupportAreaConstraint::GetJacobianWithRespectToCop () const
-{
-    int m = GetNumberOfConstraints();
-    int n   = cop_.rows();
-    Jacobian jac_(m, n);
-    jac_.setIdentity();
-    jac_ = -1*jac_;
-
-    return jac_;
-}
 
 } /* namespace opt */
 } /* namespace xpp */

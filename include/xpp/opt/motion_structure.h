@@ -71,6 +71,9 @@ public:
   LegIDVec GetContactIds() const { return contact_ids_; };
 
   StartStance GetStartStance() const { return start_stance_;};
+  // zmp_ remove these, not solving problem
+  int GetLambdaIndex(int node_k, int contact_j);
+  int GetDiscreteContactsUntil(int node_k) const;
 
 private:
   StartStance start_stance_;

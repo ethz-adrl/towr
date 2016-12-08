@@ -10,6 +10,7 @@
 
 #include "a_robot_interface.h"
 #include <xpp/hyq/foothold.h>
+#include <xpp/utils/eigen_std_conversions.h>
 #include <iostream>
 #include <vector>
 
@@ -33,9 +34,14 @@ inline std::ostream& operator<<(std::ostream& out, const Contact& c)
   */
 class PhaseInfo {
 public:
-  std::vector<Contact> free_contacts_; // all the stance legs currently in contact but not fixed by start
-  std::vector<Contact> swing_goal_contacts_; // what contacts the current swinglegs are swinging towards
-  std::vector<xpp::hyq::Foothold> fixed_contacts_;
+  using Foothold    = xpp::hyq::Foothold;
+  using Vector2d    = Eigen::Vector2d;
+  using FootholdVec = std::vector<Foothold>;
+  using ContactVec  = std::vector<Contact>;
+
+  ContactVec free_contacts_; // all the stance legs currently in contact but not fixed by start
+  ContactVec swing_goal_contacts_; // what contacts the current swinglegs are swinging towards
+  FootholdVec fixed_contacts_;
   int id_ = 0;
   double duration_ = 0.0;
   int n_completed_steps_ = 0; // this is redundant, implicitly in the contacts ids
@@ -50,6 +56,39 @@ public:
 
   // for hyq 4 legs means stance
   bool IsStep() const { return (free_contacts_.size() + fixed_contacts_.size()) != 4;  }
+
+
+  ContactVec GetAllContacts() const
+  {
+    ContactVec contacts;
+    for (const auto& c_free : free_contacts_) {
+      contacts.push_back(c_free);
+    }
+
+    for (const auto& c_fixed : fixed_contacts_) {
+      contacts.push_back(Contact(-1, static_cast<EndeffectorID>(c_fixed.leg)));
+    }
+
+    return contacts;
+  }
+
+  FootholdVec GetAllContacts(const utils::StdVecEigen2d& contacts_xy) const
+  {
+    FootholdVec contacts;
+
+    for (const auto& c_free : free_contacts_) {
+      Vector2d p = contacts_xy.at(c_free.id);
+      double z = 0.0;
+      contacts.push_back(Foothold(p.x(), p.y(), z, static_cast<hyq::LegID>(c_free.ee)));
+    }
+
+    for (const auto& c_fixed : fixed_contacts_) {
+      contacts.push_back(c_fixed);
+    }
+
+    return contacts;
+  }
+
 };
 
 inline std::ostream& operator<<(std::ostream& out, const PhaseInfo& p)
