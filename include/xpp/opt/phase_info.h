@@ -58,6 +58,7 @@ public:
   bool IsStep() const { return (free_contacts_.size() + fixed_contacts_.size()) != 4;  }
 
 
+  // these should be ordered same as below (free before fixed)
   ContactVec GetAllContacts() const
   {
     ContactVec contacts;
