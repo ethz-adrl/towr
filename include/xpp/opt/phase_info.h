@@ -18,9 +18,12 @@ namespace xpp {
 namespace opt {
 
 struct Contact {
+
+  static int constexpr kFixedByStartStance = -1;
+
   Contact() {};
   Contact(int _id, EndeffectorID _ee) : id(_id), ee(_ee) {}
-  int id = -1; ///< a unique identifier for each contact, -1 if fixed by start
+  int id = kFixedByStartStance; ///< a unique identifier for each contact,
   EndeffectorID ee = EndeffectorID::E0;
 };
 
@@ -73,6 +76,7 @@ public:
     return contacts;
   }
 
+  // zmp_ think about caching this in CalcPhaseStampedVec for all nodes
   FootholdVec GetAllContacts(const utils::StdVecEigen2d& contacts_xy) const
   {
     FootholdVec contacts;
