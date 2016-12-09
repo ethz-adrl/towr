@@ -231,8 +231,7 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
     if ( !phase.IsStep() ) {
       marker.color.r = marker.color.g = marker.color.b = 1.0;
     } else {
-      int step = phase.n_completed_steps_;
-      xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
+      auto swing_leg = static_cast<hyq::LegID>(phase.swing_goal_contacts_.front().ee);
       marker.color = GetLegColor(swing_leg);
     }
 
@@ -281,8 +280,8 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     if ( !phase.IsStep() ) {
       marker.color.r = marker.color.g = marker.color.g = 0.1;
     } else {
-      int step = phase.n_completed_steps_;
-      xpp::hyq::LegID swing_leg = H_footholds.at(step).leg;
+      // take color of first swingleg
+      auto swing_leg = static_cast<hyq::LegID>(phase.swing_goal_contacts_.front().ee);
       marker.ns = "leg " + std::to_string(swing_leg);
       marker.color = GetLegColor(swing_leg);
     }
