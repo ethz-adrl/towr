@@ -13,8 +13,8 @@
 #include <xpp/utils/polynomial_xd.h>
 
 #include <xpp/opt/com_motion.h>
-#include <xpp/opt/phase_info.h>
 #include <xpp/utils/eigen_std_conversions.h>
+#include "../opt/phase.h"
 
 namespace xpp {
 namespace hyq {

@@ -17,7 +17,7 @@ namespace opt {
 
 using namespace Eigen;
 
-TEST(ComSplineTest, PhaseInfo) {
+TEST(ComSplineTest, Phase) {
 
   // create the fixed motion structure
   MotionStructure motion_structure;

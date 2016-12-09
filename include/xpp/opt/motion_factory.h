@@ -16,7 +16,7 @@ namespace xpp {
 namespace opt {
 
 class ComMotion;
-class PhaseInfo;
+class Phase;
 
 /** Creates different types of motions based on the input arguments.
   *
@@ -28,7 +28,7 @@ class MotionFactory {
 public:
   typedef std::shared_ptr<ComMotion> ComMotionPtrS;
   typedef Eigen::Vector2d Vector2d;
-  using PhaseVec = std::vector<PhaseInfo>;
+  using PhaseVec = std::vector<Phase>;
 
   MotionFactory ();
   virtual ~MotionFactory ();

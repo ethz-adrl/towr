@@ -41,7 +41,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
   // doesn't have to be 4 legs on the ground
   if (insert_initial_stance) {
-    PhaseInfo initial_stance_phase;
+    Phase initial_stance_phase;
     initial_stance_phase.id_ = ++id;
     initial_stance_phase.duration_ = t_first_phase;
     initial_stance_phase.fixed_contacts_ = start_stance;
@@ -50,12 +50,12 @@ MotionStructure::Init (const StartStance& start_stance,
   }
 
 
-  PhaseInfo prev_phase;
+  Phase prev_phase;
   prev_phase.fixed_contacts_ = start_stance;
   // the steps
   for (uint i=0; i<contact_ids.size(); ++i) {
 
-    PhaseInfo phase;
+    Phase phase;
     phase.free_contacts_  = prev_phase.free_contacts_;
     phase.fixed_contacts_ = prev_phase.fixed_contacts_;
 
@@ -97,7 +97,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
   // the final stance
   if (insert_final_stance) {
-    PhaseInfo phase;
+    Phase phase;
     phase.free_contacts_     = prev_phase.free_contacts_;
     phase.fixed_contacts_    = prev_phase.fixed_contacts_;
     phase.n_completed_steps_ = prev_phase.n_completed_steps_;
@@ -119,7 +119,7 @@ MotionStructure::Init (const StartStance& start_stance,
   cache_needs_updating_ = true;
 }
 
-PhaseInfo
+Phase
 MotionStructure::GetCurrentPhase (double t_global) const
 {
   double t = 0;

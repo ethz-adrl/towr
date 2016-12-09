@@ -53,11 +53,12 @@ MotionOptimizerFacade::OptimizeMotion ()
                               des_walking_height_, max_step_length_,
                               curr_state_.SwinglegID());
 
+  MotionStructure motion_structure;
+
   auto step_sequence = step_sequence_planner_.DetermineStepSequence();
   bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
   bool insert_final_stance = true;
 
-  MotionStructure motion_structure;
   double t_first_phase = t_first_phase_;//t_left_; // mpc this changes by goal publisher
 
   motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, t_swing_, t_first_phase,

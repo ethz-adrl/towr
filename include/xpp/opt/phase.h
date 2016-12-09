@@ -35,7 +35,7 @@ inline std::ostream& operator<<(std::ostream& out, const Contact& c)
 
 /** Information to represent different types of motion.
   */
-class PhaseInfo {
+class Phase {
 public:
   using Foothold    = xpp::hyq::Foothold;
   using Vector2d    = Eigen::Vector2d;
@@ -49,7 +49,7 @@ public:
   double duration_ = 0.0;
   int n_completed_steps_ = 0; // this is redundant, implicitly in the contacts ids
 
-  PhaseInfo() {};
+  Phase() {};
 
   /** @param type     Whether this is a stance, step of flight phase.
     * @param n_completed_steps how many steps completed by the previous phases.
@@ -96,7 +96,7 @@ public:
 
 };
 
-inline std::ostream& operator<<(std::ostream& out, const PhaseInfo& p)
+inline std::ostream& operator<<(std::ostream& out, const Phase& p)
 {
   out << "id: " << p.id_
       << "\t duration: " << p.duration_
@@ -117,10 +117,10 @@ struct PhaseInfoStamped {
 
   PhaseInfoStamped() : time_(0.0) {};
   double time_;
-  PhaseInfo phase_;
+  Phase phase_;
 };
 
-using PhaseVec = std::vector<PhaseInfo>;
+using PhaseVec = std::vector<Phase>;
 using PhaseStampedVec = std::vector<PhaseInfoStamped>;
 
 } /* namespace opt */

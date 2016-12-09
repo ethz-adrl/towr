@@ -8,9 +8,9 @@
 #ifndef XPP_OPT_INCLUDE_XPP_ZMP_MOTION_STRUCTURE_H_
 #define XPP_OPT_INCLUDE_XPP_ZMP_MOTION_STRUCTURE_H_
 
-#include <xpp/opt/phase_info.h>
 #include <xpp/hyq/leg_data_map.h>
 #include <vector>
+#include "phase.h"
 
 namespace xpp {
 namespace opt {
@@ -46,7 +46,7 @@ public:
     * and support polygon. A phase is a motion during which the dynamics are
     * continuous (stance, swing, flight).
     */
-  PhaseInfo GetCurrentPhase(double t_global) const;
+  Phase GetCurrentPhase(double t_global) const;
 
   /** @brief Returns a vector of phases, where no phase is duplicated.
     *
