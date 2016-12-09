@@ -22,9 +22,9 @@ hessian_approximation limited-memory
 
 tol 0.05
 #dual_inf_tol 1e-1
-#constr_viol_tol 1e-4
+#constr_viol_tol 1e-3
 #compl_inf_tol 1e-4
-max_cpu_time 15.5   #careful: overwrites ros parameter, but controller doesn't know
+max_cpu_time 4.5   #careful: overwrites ros parameter, but controller doesn't know
 #max_iter 1
 #bound_frac 0.5
 

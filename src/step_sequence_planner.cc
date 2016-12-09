@@ -79,28 +79,29 @@ StepSequencePlanner::DetermineStepSequence ()
       if (walking_forward)
         last_swingleg = RF;
       else
-        last_swingleg = LH;
+        last_swingleg = RF;//LH;
     } else { // moving mainly in y
       if (walking_left)
         last_swingleg = RF;
       else
-        last_swingleg = LH;
+        last_swingleg = RF;//LH;
     }
 
 
 
     for (int step=0; step<n_steps; ++step) {
-      if (moving_mainly_in_x) {
-        if (walking_forward)
-          step_sequence.push_back(NextSwingLeg(last_swingleg));
-        else
-          step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
-      } else { // moving mainly in y
-        if (walking_left)
-          step_sequence.push_back(NextSwingLeg(last_swingleg));
-        else
-          step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
-      }
+      step_sequence.push_back(NextSwingLegTrott(last_swingleg));
+//      if (moving_mainly_in_x) {
+//        if (walking_forward)
+//          step_sequence.push_back(NextSwingLeg(last_swingleg));
+//        else
+//          step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
+//      } else { // moving mainly in y
+//        if (walking_left)
+//          step_sequence.push_back(NextSwingLeg(last_swingleg));
+//        else
+//          step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
+//      }
 
       last_swingleg = step_sequence.back();
     }
@@ -189,6 +190,18 @@ StepSequencePlanner::NextSwingLeg (LegID curr) const
     case LF: return RH;
     case RH: return RF;
     case RF: return LH;
+    default: assert(false); // this should never happen
+  };
+}
+
+LegID
+StepSequencePlanner::NextSwingLegTrott (LegID curr) const
+{
+  switch (curr) {
+    case LH: return RF;
+    case RF: return LF;
+    case LF: return RH;
+    case RH: return LH;
     default: assert(false); // this should never happen
   };
 }

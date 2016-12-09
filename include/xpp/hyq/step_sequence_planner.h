@@ -67,6 +67,7 @@ private:
   bool IsStepNecessary() const;
   LegID NextSwingLeg(LegID curr) const;
   LegID NextSwingLegBackwards(LegID curr) const;
+  LegID NextSwingLegTrott(LegID curr) const;
 
   bool IsGoalOutsideRangeOfMotion() const;
 

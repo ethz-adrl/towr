@@ -44,43 +44,67 @@ MotionStructure::Init (const StartStance& start_stance,
     phases_.push_back(initial_stance_phase);
   }
 
+  std::vector<Contact> all_free_contacts;
+  int j = 0;
+  for (auto leg : contact_ids) {
+    all_free_contacts.push_back(Contact(j++, static_cast<EndeffectorID>(leg)));
+  }
+
 
   Phase prev_phase;
   prev_phase.fixed_contacts_ = start_stance;
+  int n_swinglegs = 2; // per phase
+  int n_phases = contact_ids.size()/n_swinglegs;
+
   // the steps
-  for (uint i=0; i<contact_ids.size(); ++i) {
+  for (uint i=0; i<n_phases; ++i) {
 
     Phase phase;
-    phase.free_contacts_  = prev_phase.free_contacts_;
     phase.fixed_contacts_ = prev_phase.fixed_contacts_;
-
-
-    // this contact is swinging during this phase
-    // amazing idea! (pats back)
-    Contact goal_contact(i, static_cast<EndeffectorID>(contact_ids.at(i)));
-    phase.swing_goal_contacts_.push_back(goal_contact);
-
-
-    // remove current swingleg from list of active contacts
-    auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
-                           [&](const Foothold& f) {return f.leg == contact_ids.at(i);});
-
-    if (it_fixed != phase.fixed_contacts_.end()) // step found in initial stance
-      phase.fixed_contacts_.erase(it_fixed);     // remove contact, because now swinging leg
-
-
-    // remove current swingleg from last free contacts
-    auto it_free = std::find_if(phase.free_contacts_.begin(), phase.free_contacts_.end(),
-                           [&](const Contact& c) {return c.ee == static_cast<EndeffectorID>(contact_ids.at(i));});
-
-    if (it_free != phase.free_contacts_.end()) // step found in current stance
-      phase.free_contacts_.erase(it_free);     // remove contact, because now swinging leg
-
-
-
+    phase.free_contacts_  = prev_phase.free_contacts_;
     // add newly made contact of previous swing
-    if (i > 0)
-      phase.free_contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(contact_ids.at(i-1))));
+    phase.free_contacts_.insert(phase.free_contacts_.end(), prev_phase.swing_goal_contacts_.begin(),
+                                                            prev_phase.swing_goal_contacts_.end());
+
+
+//    // zmp_ remove either LegID or EndeffectorID
+    std::vector<Contact> swinglegs = {all_free_contacts.at(n_swinglegs*i),
+                                      all_free_contacts.at(n_swinglegs*i+1) };
+//    std::vector<Contact> swinglegs = {all_free_contacts.at(i)};
+
+
+
+    for (const auto& sl : swinglegs) {
+
+      // this contact is swinging during this phase
+      // amazing idea! (pats back)
+//      Contact goal_contact(i, sl_contact);
+      phase.swing_goal_contacts_.push_back(sl);
+
+
+      // remove current swinglegs from list of active contacts
+      auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
+                                   [&](const Foothold& f) {return f.leg == static_cast<hyq::LegID>(sl.ee);});
+
+      if (it_fixed != phase.fixed_contacts_.end()) // step found in initial stance
+        phase.fixed_contacts_.erase(it_fixed);     // remove contact, because now swinging leg
+
+
+      // remove current swingles from last free contacts
+      auto it_free = std::find_if(phase.free_contacts_.begin(), phase.free_contacts_.end(),
+                                  [&](const Contact& c) {return c.ee == sl.ee;});
+
+      if (it_free != phase.free_contacts_.end()) // step found in current stance
+        phase.free_contacts_.erase(it_free);     // remove contact, because now swinging leg
+
+
+
+//      // add newly made contact of previous swing
+//      if (i > 0)
+//        phase.free_contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(contact_ids.at(i-1))));
+
+    }
+
 
     phase.duration_ = phases_.empty() ? t_first_phase : t_swing;
     phases_.push_back(phase);
@@ -91,17 +115,18 @@ MotionStructure::Init (const StartStance& start_stance,
   // the final stance
   if (insert_final_stance) {
     Phase phase;
-    phase.free_contacts_     = prev_phase.free_contacts_;
     phase.fixed_contacts_    = prev_phase.fixed_contacts_;
-
-    if (prev_phase.IsStep()) {
-      int last_contact_id = contact_ids.size()-1;
-      phase.free_contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(contact_ids.back())));
-    }
-
+    phase.free_contacts_     = prev_phase.free_contacts_;
+    phase.free_contacts_.insert(phase.free_contacts_.end(), prev_phase.swing_goal_contacts_.begin(), prev_phase.swing_goal_contacts_.end());
     phase.duration_ = 0.5;
     phases_.push_back(phase);
   }
+
+
+  for (auto p : phases_) {
+    std::cout << p << std::endl << std::endl;;
+  }
+
 
   start_stance_ = start_stance;
   contact_ids_ = contact_ids;

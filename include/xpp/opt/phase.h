@@ -106,6 +106,10 @@ inline std::ostream& operator<<(std::ostream& out, const Phase& p)
   for (auto c : p.fixed_contacts_)
     out << c << ";    ";
 
+  out << "\n swing goal contacts: ";
+  for (auto c : p.swing_goal_contacts_)
+    out << c << ";    ";
+
   return out;
 }
 
