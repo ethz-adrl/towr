@@ -55,7 +55,6 @@ public:
   void AddCogTrajectory(MarkerArray& msg,
                         const ComMotion&,
                         const MotionStructure&,
-                        const VecFoothold&,
                         const std::string& rviz_namespace,
                         double alpha = 1.0) const;
 
@@ -63,7 +62,6 @@ public:
                       const ComMotion&,
                       const MotionStructure&,
                       double walking_height,
-                      const VecFoothold&,
                       const std::string& rviz_namespace,
                       double alpha = 1.0) const;
 

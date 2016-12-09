@@ -85,6 +85,7 @@ void
 NlpOptimizerNode::OptimizeAndPublishTrajectory ()
 {
   motion_optimizer_.OptimizeMotion();
+  ros_visualizer_->Visualize();
 
   // sends this info the the walking controller
   auto msg = RosHelpers::XppToRos(motion_optimizer_.GetTrajectory());

@@ -109,9 +109,9 @@ void MarkerArrayBuilder::AddPoint(
 
   Marker marker;
   marker.id = i;
-  marker = GenerateMarker(goal, marker_type, 0.03);
+  marker = GenerateMarker(goal, marker_type, 0.01);
   marker.ns = rviz_namespace;
-  marker.scale.z = 0.1;
+  marker.scale.z = 0.04;
   marker.color.a = 1.0;
   marker.color.r = 1.0;
   marker.color.g = 1.0;
@@ -203,16 +203,18 @@ void
 MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
                             const ComMotion& com_motion,
                             const MotionStructure& motion_structure,
-                            const std::vector<xpp::hyq::Foothold>& H_footholds,
                             const std::string& rviz_namespace,
                             double alpha) const
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
 
-  for (double t(0.0); t < com_motion.GetTotalTime(); t+= 0.02)
+//  for (const auto& node : motion_structure.GetPhaseStampedVec())
+//  {
+  double dt = 0.01;
+  for (double t(0.0); t < com_motion.GetTotalTime(); t+= dt)
   {
     auto cog_state = com_motion.GetCom(t);
-    auto phase = motion_structure.GetCurrentPhase(t);
+    auto phase = motion_structure.GetCurrentPhase(t);//node.phase_;
 
     visualization_msgs::Marker marker;
     marker = GenerateMarker(cog_state.p.segment<2>(0),
@@ -233,7 +235,7 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
   }
 
   // delete the other markers
-  for (double t=com_motion.GetTotalTime(); t < 30.0; t+= 0.02)
+  for (double t=com_motion.GetTotalTime(); t < 10.0; t+= dt)
   {
     visualization_msgs::Marker marker;
 
@@ -249,12 +251,16 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
                                      const ComMotion& com_motion,
                                      const MotionStructure& motion_structure,
                                      double walking_height,
-                                     const std::vector<xpp::hyq::Foothold>& H_footholds,
                                      const std::string& rviz_namespace,
                                      double alpha) const
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
-  for (double t(0.0); t < com_motion.GetTotalTime(); t+= 0.01)
+
+
+//  for (const auto& node : motion_structure.GetPhaseStampedVec())
+//  {
+  double dt = 0.01;
+  for (double t(0.0); t < com_motion.GetTotalTime(); t+= dt)
   {
     xpp::utils::StateLin2d cog_state = com_motion.GetCom(t);
 
@@ -275,7 +281,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     } else {
       // take color of first swingleg
       auto swing_leg = static_cast<hyq::LegID>(phase.swing_goal_contacts_.front().ee);
-      marker.ns = "leg " + std::to_string(swing_leg);
+//      marker.ns = "leg " + std::to_string(swing_leg);
       marker.color = GetLegColor(swing_leg);
     }
 
@@ -284,7 +290,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
   }
 
   // delete the other markers
-  for (double t=com_motion.GetTotalTime(); t < 30.0; t+= 0.02)
+  for (double t=com_motion.GetTotalTime(); t < 10.0; t+= dt)
   {
     visualization_msgs::Marker marker;
 
