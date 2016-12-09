@@ -54,7 +54,7 @@ MotionStructure::Init (const StartStance& start_stance,
   Phase prev_phase;
   prev_phase.fixed_contacts_ = start_stance;
   int n_swinglegs = 2; // per phase
-  int n_phases = contact_ids.size()/n_swinglegs;
+  int n_phases = std::floor(contact_ids.size()/n_swinglegs);
 
   // the steps
   for (uint i=0; i<n_phases; ++i) {
@@ -123,9 +123,9 @@ MotionStructure::Init (const StartStance& start_stance,
   }
 
 
-  for (auto p : phases_) {
-    std::cout << p << std::endl << std::endl;;
-  }
+//  for (auto p : phases_) {
+//    std::cout << p << std::endl << std::endl;;
+//  }
 
 
   start_stance_ = start_stance;

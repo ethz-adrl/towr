@@ -56,7 +56,7 @@ public:
     */
 
   // for hyq 4 legs means stance
-  bool IsStep() const { return (free_contacts_.size() + fixed_contacts_.size()) != 4;  }
+  bool IsStep() const { return !swing_goal_contacts_.empty();  }
 
 
   // these should be ordered same as below (free before fixed)
