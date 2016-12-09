@@ -45,7 +45,6 @@ public:
   ContactVec free_contacts_; // all the stance legs currently in contact but not fixed by start
   ContactVec swing_goal_contacts_; // what contacts the current swinglegs are swinging towards
   FootholdVec fixed_contacts_;
-  int id_ = 0;
   double duration_ = 0.0;
 
   Phase() {};
@@ -97,8 +96,7 @@ public:
 
 inline std::ostream& operator<<(std::ostream& out, const Phase& p)
 {
-  out << "id: " << p.id_
-      << "\t duration: " << p.duration_
+  out << "\t duration: " << p.duration_
       << "\n free contacts: ";
 
   for (auto c : p.free_contacts_)

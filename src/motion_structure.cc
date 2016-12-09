@@ -36,13 +36,9 @@ MotionStructure::Init (const StartStance& start_stance,
                        bool insert_final_stance,
                        double dt)
 {
-  int id = -1;
-
-
   // doesn't have to be 4 legs on the ground
   if (insert_initial_stance) {
     Phase initial_stance_phase;
-    initial_stance_phase.id_ = ++id;
     initial_stance_phase.duration_ = t_first_phase;
     initial_stance_phase.fixed_contacts_ = start_stance;
     phases_.push_back(initial_stance_phase);
@@ -86,8 +82,7 @@ MotionStructure::Init (const StartStance& start_stance,
     if (i > 0)
       phase.free_contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(contact_ids.at(i-1))));
 
-    phase.id_ = ++id;
-    phase.duration_ = phase.id_==0? t_first_phase : t_swing;
+    phase.duration_ = phases_.empty() ? t_first_phase : t_swing;
     phases_.push_back(phase);
 
     prev_phase = phase;
@@ -104,7 +99,6 @@ MotionStructure::Init (const StartStance& start_stance,
       phase.free_contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(contact_ids.back())));
     }
 
-    phase.id_ = ++id;
     phase.duration_ = 0.5;
     phases_.push_back(phase);
   }
