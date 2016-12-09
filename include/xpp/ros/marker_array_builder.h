@@ -12,6 +12,7 @@
 #include <xpp/opt/motion_structure.h>
 #include <xpp/hyq/foothold.h>
 #include <visualization_msgs/MarkerArray.h>
+#include <xpp/utils/eigen_std_conversions.h>
 #include <Eigen/Dense>
 
 namespace xpp {
@@ -25,6 +26,7 @@ namespace ros {
   */
 class MarkerArrayBuilder {
 public:
+  using VecFootholdEig  = utils::StdVecEigen2d;
   using VecFoothold     = std::vector<xpp::hyq::Foothold>;
   using ComMotion       = xpp::opt::ComMotion;
   using MotionStructure = xpp::opt::MotionStructure;
@@ -45,7 +47,7 @@ public:
 
   void AddSupportPolygons(MarkerArray& msg,
                           const MotionStructure&,
-                          const VecFoothold& footholds) const;
+                          const VecFootholdEig& footholds) const;
   void BuildSupportPolygon(MarkerArray& msg,
                            const VecFoothold& stance_legs,
                            xpp::hyq::LegID leg_id) const;

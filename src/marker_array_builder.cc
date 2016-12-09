@@ -25,25 +25,15 @@ void MarkerArrayBuilder::AddStartStance(visualization_msgs::MarkerArray& msg,
 
 void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
                                       const MotionStructure& motion_structure,
-                                      const VecFoothold& footholds) const
+                                      const VecFootholdEig& footholds) const
 {
   for (auto phase : motion_structure.GetPhases()) {
 
-    VecFoothold footholds_phase;
-    for (auto f : phase.fixed_contacts_) {
-      footholds_phase.push_back(f);
-    }
 
-    for (auto c : phase.free_contacts_) {
-      hyq::Foothold f;
-      f.leg = static_cast<hyq::LegID>(c.ee);
-      f.p = footholds.at(c.id).p;
-      footholds_phase.push_back(f);
-    }
 
-    if (!phase.swing_goal_contacts_.empty()) {
+    if (phase.IsStep()) {
       hyq::LegID swingleg = static_cast<hyq::LegID>(phase.swing_goal_contacts_.front().ee);
-      BuildSupportPolygon(msg, footholds_phase, swingleg);
+      BuildSupportPolygon(msg, phase.GetAllContacts(footholds), swingleg);
     }
 
   }
@@ -51,7 +41,7 @@ void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg
 
   // delete the other markers, maximum of 30 support polygons.
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
-  for (uint j=motion_structure.GetPhases().size(); j<60; ++j) {
+  for (uint j=motion_structure.GetPhases().size(); j<30; ++j) {
     visualization_msgs::Marker marker;
     marker.id = i++;
     marker.ns = supp_tr_topic;
@@ -94,16 +84,19 @@ MarkerArrayBuilder::BuildSupportPolygon(
     marker.points.push_back(p1);
   }
 
+  // if only two contact points exist, draw line
+  if (marker.points.size() == 2) {
+    marker.type = visualization_msgs::Marker::LINE_STRIP;
+    marker.scale.x = 0.02;
+  }
+
+  // if only one contact points exist, draw point
+  if (marker.points.size() == 1) {
+    assert(false); // not yet implemented
+  }
+
   msg.markers.push_back(marker);
 
-//  geometry_msgs::Point32 p1;
-//  for (size_t i=0; i<footholds.size(); ++i) {
-//    p1.x = footholds.at(i).p.x();
-//    p1.y = footholds.at(i).p.y();
-//    p1.z = footholds.at(i).p.z();
-//    polygon_msg.polygon.points.push_back(p1);
-//  }
-//  ros__publisher_.publish(polygon_msg);
 }
 
 void MarkerArrayBuilder::AddPoint(
@@ -289,6 +282,19 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     marker.color.a = alpha;
     msg.markers.push_back(marker);
   }
+
+  // delete the other markers
+  for (double t=com_motion.GetTotalTime(); t < 30.0; t+= 0.02)
+  {
+    visualization_msgs::Marker marker;
+
+    marker.id = i++;
+    marker.ns = rviz_namespace;
+    marker.action = visualization_msgs::Marker::DELETE;
+    msg.markers.push_back(marker);
+  }
+
+
 }
 
 void MarkerArrayBuilder::AddFootholds(
