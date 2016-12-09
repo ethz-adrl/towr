@@ -47,7 +47,6 @@ public:
   FootholdVec fixed_contacts_;
   int id_ = 0;
   double duration_ = 0.0;
-  int n_completed_steps_ = 0; // this is redundant, implicitly in the contacts ids
 
   Phase() {};
 

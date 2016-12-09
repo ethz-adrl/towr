@@ -45,7 +45,6 @@ MotionStructure::Init (const StartStance& start_stance,
     initial_stance_phase.id_ = ++id;
     initial_stance_phase.duration_ = t_first_phase;
     initial_stance_phase.fixed_contacts_ = start_stance;
-    initial_stance_phase.n_completed_steps_ = 0;
     phases_.push_back(initial_stance_phase);
   }
 
@@ -89,7 +88,6 @@ MotionStructure::Init (const StartStance& start_stance,
 
     phase.id_ = ++id;
     phase.duration_ = phase.id_==0? t_first_phase : t_swing;
-    phase.n_completed_steps_ = i;
     phases_.push_back(phase);
 
     prev_phase = phase;
@@ -100,12 +98,10 @@ MotionStructure::Init (const StartStance& start_stance,
     Phase phase;
     phase.free_contacts_     = prev_phase.free_contacts_;
     phase.fixed_contacts_    = prev_phase.fixed_contacts_;
-    phase.n_completed_steps_ = prev_phase.n_completed_steps_;
 
     if (prev_phase.IsStep()) {
       int last_contact_id = contact_ids.size()-1;
       phase.free_contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(contact_ids.back())));
-      phase.n_completed_steps_++;
     }
 
     phase.id_ = ++id;
