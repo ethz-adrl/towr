@@ -56,7 +56,7 @@ MotionOptimizerFacade::OptimizeMotion ()
   MotionStructure motion_structure;
 
   auto step_sequence = step_sequence_planner_.DetermineStepSequence();
-  bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
+  bool start_with_com_shift = true;//step_sequence_planner_.StartWithStancePhase();
   bool insert_final_stance = true;
 
   double t_first_phase = t_first_phase_;//t_left_; // mpc this changes by goal publisher

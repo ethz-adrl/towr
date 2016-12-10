@@ -72,8 +72,8 @@ NlpFacade::SolveNlp(const State& initial_state,
   costs_->ClearCosts();
   costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion_, utils::kAcc));
   costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion_, motion_structure));
-  costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure));
-  costs_->SetWeights({1.0, 100.0, 10.0});
+//  costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure));
+  costs_->SetWeights({1.0, 1.0/*, 1.0*/});
 
 
   visualizer_->SetOptimizationVariables(opt_variables_);
