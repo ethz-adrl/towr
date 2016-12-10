@@ -14,7 +14,7 @@ namespace opt {
 
 ConvexityConstraint::ConvexityConstraint ()
 {
-  // TODO Auto-generated constructor stub
+  name_ = "Convexity";
 }
 
 ConvexityConstraint::~ConvexityConstraint ()

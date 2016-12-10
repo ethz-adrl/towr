@@ -84,6 +84,15 @@ ConstraintContainer::GetJacobian () const
 }
 
 void
+xpp::opt::ConstraintContainer::PrintStatus (double tol) const
+{
+  std::cout << "Constraint violation indices for tol=" << tol << ":\n";
+  for (const auto& constraint : constraints_) {
+    constraint->PrintStatus(tol);
+  }
+}
+
+void
 ConstraintContainer::RefreshBounds ()
 {
   bounds_.clear();
@@ -104,5 +113,5 @@ ConstraintContainer::GetBounds () const
   return bounds_;
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */

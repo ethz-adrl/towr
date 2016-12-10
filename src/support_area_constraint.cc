@@ -17,7 +17,7 @@ using Vector3d = Eigen::Vector3d;
 
 SupportAreaConstraint::SupportAreaConstraint ()
 {
-  // TODO Auto-generated constructor stub
+  name_ = "Support Area";
 }
 
 SupportAreaConstraint::~SupportAreaConstraint ()

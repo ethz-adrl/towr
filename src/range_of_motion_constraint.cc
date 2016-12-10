@@ -17,6 +17,7 @@ using namespace xpp::utils;
 
 RangeOfMotionConstraint::RangeOfMotionConstraint ()
 {
+  name_ = "Range of Motion";
 }
 
 RangeOfMotionConstraint::~RangeOfMotionConstraint ()
@@ -71,8 +72,6 @@ RangeOfMotionBox::EvaluateConstraint () const
 
     for (const auto& f_W : node.phase_.GetAllContacts(footholds_)) {
 
-      // zmp_ remove this
-//      PosXY contact_pos_W = footholds_.at(c.id);
       PosXY contact_pos_B = f_W.p.topRows<kDim2d>() - com_pos;
 
       // this is actually constant, but moved here from bounds

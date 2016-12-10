@@ -5,8 +5,8 @@
  @brief   Abstract class representing a constraint for the NLP problem.
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_
+#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_
+#define XPP_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_
 
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
@@ -58,9 +58,14 @@ public:
   static const Bound kNoBound_;
   static const Bound kEqualityBound_;
   static const Bound kInequalityBoundPositive_;
+
+  void PrintStatus(double tol) const;
+
+protected:
+  std::string name_;
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_ */

@@ -6,6 +6,8 @@
  */
 
 #include <xpp/opt/a_constraint.h>
+#include <iostream>
+#include <iomanip>
 
 namespace xpp {
 namespace opt {
@@ -17,7 +19,7 @@ const AConstraint::Bound AConstraint::kInequalityBoundPositive_ = Bound(0.0, 1.0
 
 AConstraint::AConstraint ()
 {
-  // TODO Auto-generated constructor stub
+  name_ = "NoName";
 }
 
 AConstraint::~AConstraint ()
@@ -31,5 +33,28 @@ AConstraint::GetNumberOfConstraints () const
   return GetBounds().size();
 }
 
-} /* namespace zmp */
+void
+xpp::opt::AConstraint::PrintStatus (double tol) const
+{
+  auto bounds = GetBounds();
+  auto g = EvaluateConstraint();
+
+  std::cout << std::setw(17) << std::left << name_;
+  std::cout << "[" << std::setw(3) << std::right << g.rows() << "]:  ";
+
+  int i=0;
+  for (auto b : bounds) {
+    bool g_too_small = g(i) < b.lower_ - tol;
+    bool g_too_large = g(i) > b.upper_ + tol;
+
+    if (g_too_small || g_too_large)
+      std::cout << i << ",";
+    i++;
+  }
+
+  std::cout << std::endl;
+}
+
+} /* namespace opt */
 } /* namespace xpp */
+

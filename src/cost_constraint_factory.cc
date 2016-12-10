@@ -85,7 +85,7 @@ CostConstraintFactory::CreateInitialConstraint (const State2d& init,
 {
   LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeInitial(init));
+  constraint->Init(eq.MakeInitial(init), "Initial XY");
   return constraint;
 }
 
@@ -95,7 +95,7 @@ CostConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
 {
   LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeFinal(final_state_xy, {kPos, kVel}));
+  constraint->Init(eq.MakeFinal(final_state_xy, {kPos, kVel}), "Final XY");
   return constraint;
 }
 
@@ -104,7 +104,7 @@ CostConstraintFactory::CreateJunctionConstraint (const ComMotion& motion)
 {
   LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeJunction());
+  constraint->Init(eq.MakeJunction(), "Junction");
   return constraint;
 }
 

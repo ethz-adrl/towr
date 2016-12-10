@@ -183,7 +183,7 @@ bool IpoptAdapter::intermediate_callback(Ipopt::AlgorithmMode mode,
 //
 //      opt_variables_.SetVariables(x);
 
-  visualizer_->Visualize();
+//  visualizer_->Visualize();
 	return true;
 }
 
@@ -197,8 +197,15 @@ void IpoptAdapter::finalize_solution(Ipopt::SolverReturn status,
 			                        Ipopt::IpoptCalculatedQuantities* ip_cq)
 {
 
-
   nlp_.SetVariables(x);
+
+  double tol1 = 1e-3;
+  nlp_.PrintStatusOfConstraints(tol1);
+
+  double tol2 = 1e-5;
+  nlp_.PrintStatusOfConstraints(tol2);
+
+
 //  opt_variables_.spline_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);
 //  opt_variables_.footholds_ = nlp_structure_.ExtractFootholds(x);
 

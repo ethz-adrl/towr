@@ -129,13 +129,17 @@ NLP::GetJacobianOfConstraints () const
   return constraints_->GetJacobian();
 }
 
+void
+NLP::PrintStatusOfConstraints (double tol) const
+{
+  return constraints_->PrintStatus(tol);
+}
+
 NLP::VectorXd
 NLP::ConvertToEigen(const Number* x) const
 {
   return Eigen::Map<const VectorXd>(x,GetNumberOfOptimizationVariables());
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
-
-

@@ -18,7 +18,8 @@ using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
 DynamicConstraint::DynamicConstraint ()
 {
-  // TODO Auto-generated constructor stub
+  kHeight_ = 0.0;
+  name_ = "Dynamic";
 }
 
 DynamicConstraint::~DynamicConstraint ()

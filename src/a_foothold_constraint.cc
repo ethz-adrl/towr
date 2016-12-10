@@ -43,6 +43,7 @@ FootholdFinalStanceConstraint::FootholdFinalStanceConstraint (
                                     RobotPtrU robot)
 {
   Init(motion_structure);
+  name_ = "Final Stance";
   goal_xy_ = goal_xy;
   robot_ = std::move(robot);
   final_free_contacts_ = motion_structure.GetPhases().back().free_contacts_;
