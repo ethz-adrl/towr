@@ -79,9 +79,20 @@ RangeOfMotionBox::EvaluateConstraint () const
 //      PosXY f_nom_B = robot_->GetNominalStanceInBase(f_W.leg);
 //      PosXY distance_to_nom = contact_pos_B - f_nom_B;
 
+      // contact position expressed in base frame
+      PosXY g;
+//      if (false)
+      if (f_W.id == Contact::kFixedByStartStance)
+        g = -com_W;
+      else
+        g = f_W.p.topRows<kDim2d>() - com_W;
+
+
+
 
       for (auto dim : {X,Y})
-        g_vec.push_back(f_W.p(dim) - com_W(dim));
+        g_vec.push_back(g(dim));//f_W.p(dim) - com_W(dim));
+
     }
   }
 
@@ -95,16 +106,33 @@ RangeOfMotionBox::GetBounds () const
 
   std::vector<Bound> bounds;
   for (auto node : motion_structure_.GetPhaseStampedVec()) {
-    // zmp_ shouldn't need footholds_ here
     for (auto c : node.phase_.GetAllContacts()) {
 
-      PosXY f_nom_B = robot_->GetNominalStanceInBase(static_cast<hyq::LegID>(c.ee));
+      auto leg = static_cast<hyq::LegID>(c.ee);
+      PosXY f_nom_B = robot_->GetNominalStanceInBase(leg);
       for (auto dim : {X,Y}) {
         Bound b;
 //        b.upper_ = /*f_nom_B(dim)*/   + max_deviation.at(dim);
 //        b.lower_ = /*f_nom_B(dim) */  - max_deviation.at(dim);
-        b.upper_ = f_nom_B(dim)  + max_deviation.at(dim);
-        b.lower_ = f_nom_B(dim)  - max_deviation.at(dim);
+        b += f_nom_B(dim);
+        b.upper_ += max_deviation.at(dim);
+        b.lower_ -= max_deviation.at(dim);
+
+//        if (false) {
+        if (c.id == Contact::kFixedByStartStance) {
+
+          for (auto f : node.phase_.fixed_contacts_) {
+            if (f.leg == leg) {
+              b -= f.p(dim);
+            }
+          }
+
+
+//          hyq::Foothold foot = hyq::Foothold::GetLastFoothold(leg, node.phase_.fixed_contacts_);
+////          std::cout << "f: " << f << std::endl;
+//          b -= foot.p(dim);
+        }
+
         bounds.push_back(b);
       }
     }

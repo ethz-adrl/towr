@@ -53,7 +53,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
   Phase prev_phase;
   prev_phase.fixed_contacts_ = start_stance;
-  int n_swinglegs = 2; // per phase
+  int n_swinglegs = 1; // per phase
   int n_phases = std::floor(contact_ids.size()/n_swinglegs);
 
   // the steps
@@ -68,8 +68,12 @@ MotionStructure::Init (const StartStance& start_stance,
 
 
 //    // zmp_ remove either LegID or EndeffectorID
-    std::vector<Contact> swinglegs = {all_free_contacts.at(n_swinglegs*i),
-                                      all_free_contacts.at(n_swinglegs*i+1) };
+    std::vector<Contact> swinglegs;
+    for (int l=0; l<n_swinglegs; ++l) {
+      swinglegs.push_back(all_free_contacts.at(i*n_swinglegs+l));
+    }
+//    std::vector<Contact> swinglegs = {all_free_contacts.at(n_swinglegs*i),
+//                                      all_free_contacts.at(n_swinglegs*i+1) };
 //    std::vector<Contact> swinglegs = {all_free_contacts.at(i)};
 
 
@@ -123,9 +127,9 @@ MotionStructure::Init (const StartStance& start_stance,
   }
 
 
-//  for (auto p : phases_) {
-//    std::cout << p << std::endl << std::endl;;
-//  }
+  for (auto p : phases_) {
+    std::cout << p << std::endl << std::endl;;
+  }
 
 
   start_stance_ = start_stance;
@@ -180,6 +184,9 @@ MotionStructure::CalcPhaseStampedVec () const
 
 
     // zmp_ forgive but don't forget
+    // zmp_ make sure they are always evenly spaced! dt is the same also between nodes
+
+
 //    // add one phase right after phase switch
 //    PhaseInfoStamped contact_info;
 //    contact_info.phase_ = phase;

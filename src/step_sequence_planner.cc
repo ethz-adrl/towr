@@ -90,18 +90,22 @@ StepSequencePlanner::DetermineStepSequence ()
 
 
     for (int step=0; step<n_steps; ++step) {
-      step_sequence.push_back(NextSwingLegTrott(last_swingleg));
-//      if (moving_mainly_in_x) {
-//        if (walking_forward)
-//          step_sequence.push_back(NextSwingLeg(last_swingleg));
-//        else
-//          step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
-//      } else { // moving mainly in y
-//        if (walking_left)
-//          step_sequence.push_back(NextSwingLeg(last_swingleg));
-//        else
-//          step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
-//      }
+
+      // for trotting
+//      step_sequence.push_back(NextSwingLegTrott(last_swingleg));
+
+      // for walking
+      if (moving_mainly_in_x) {
+        if (walking_forward)
+          step_sequence.push_back(NextSwingLeg(last_swingleg));
+        else
+          step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
+      } else { // moving mainly in y
+        if (walking_left)
+          step_sequence.push_back(NextSwingLeg(last_swingleg));
+        else
+          step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
+      }
 
       last_swingleg = step_sequence.back();
     }

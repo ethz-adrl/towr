@@ -27,6 +27,11 @@ public:
     double lower_;
     double upper_;
 
+    void operator+=(double scalar) {
+      lower_ += scalar;
+      upper_ += scalar;
+    }
+
     void operator-=(double scalar) {
       lower_ -= scalar;
       upper_ -= scalar;
