@@ -1,12 +1,12 @@
 /**
- @file    nlp_ipopt_zmp.h
+ @file    ipopt_adapter.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jan 10, 2016
  @brief   Defines the Adapter class to interact with the Ipopt Library.
  */
 
-#ifndef XXPP_ZMP_NLP_IPOPT_ZMP_H_
-#define XXPP_ZMP_NLP_IPOPT_ZMP_H_
+#ifndef XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_
+#define XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_
 
 #include <IpTNLP.hpp>
 
@@ -16,21 +16,20 @@
 namespace xpp {
 namespace opt {
 
-/** @brief Converts the NLP defined in the xpp interface to the IPOPT interface.
+/** @brief Converts the NLP defined in the XPP to the IPOPT interface.
+  *
+  * https://projects.coin-or.org/Ipopt
   *
   * This implements the Adapter pattern. This class should not add any functionality,
   * but merely delegate it to the Adaptee (the nlp class).
   */
 class IpoptAdapter : public Ipopt::TNLP {
-
 public:
-  typedef Eigen::VectorXd VectorXd;
-  typedef Ipopt::Index Index;
-  typedef Ipopt::Number Number;
-  typedef std::shared_ptr<IVisualizer> VisualizerPtr;
+  using Index         = Ipopt::Index;
+  using Number        = Ipopt::Number;
+  using VisualizerPtr = std::shared_ptr<IVisualizer>;
 
-	IpoptAdapter(NLP& nlp,
-	             VisualizerPtr visualizer = do_nothing_visualizer);
+	IpoptAdapter(NLP& nlp, VisualizerPtr visualizer = do_nothing_visualizer);
 
   /** default destructor */
   virtual ~IpoptAdapter() {};
@@ -107,7 +106,7 @@ private:
   VisualizerPtr visualizer_;
 };
 
-} // namespace zmp
+} // namespace opt
 } // namespace xpp
 
-#endif /* XXPP_ZMP_NLP_IPOPT_ZMP_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_ */

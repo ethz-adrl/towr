@@ -139,8 +139,8 @@ SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
 
 
   if ( *needG > 0 ) {
-
     int i=0;
+
     // the jacobian of the first row (cost function)
     if (instance_->nlp_->HasCostTerms()) {
       Eigen::VectorXd grad = instance_->nlp_->EvaluateCostFunctionGradient(x);

@@ -228,6 +228,6 @@ RangeOfMotionBox::SetJacobianWrtMotion (Jacobian& jac_wrt_motion) const
 //}
 
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 

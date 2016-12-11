@@ -14,7 +14,9 @@
 namespace xpp {
 namespace opt {
 
-/** @brief Converts the NLP defined in the xpp interface to the SNOPT interface.
+/** @brief Converts the NLP defined in XPP to the SNOPT interface.
+  *
+  * http://web.stanford.edu/group/SOL/guides/sndoc7.pdf
   *
   * This implements the Adapter pattern. This class should not add any functionality,
   * but merely delegate it to the Adaptee (the NLP class).
@@ -40,8 +42,8 @@ public:
                                         int    *needF,  int *neF,  double F[],
                                         int    *needG,  int *neG,  double G[],
                                         char      *cu,  int *lencu,
-                                        int    iu[],    int *leniu,
-                                        double ru[],    int *lenru);
+                                        int      iu[],  int *leniu,
+                                        double   ru[],  int *lenru);
 
   void SolveSQP(int start_type);
 
