@@ -30,8 +30,9 @@ void
 SnoptAdapter::Init ()
 {
   n    = nlp_->GetNumberOfOptimizationVariables(); // number of optimization variables
-  neF  = nlp_->GetNumberOfConstraints();
-  if (nlp_->HasCostTerms()) neF++;
+
+  int m = nlp_->GetNumberOfConstraints();
+  neF   = nlp_->HasCostTerms()? m+1 : m;
 
   x      = new double[n];
   xlow   = new double[n];
@@ -76,6 +77,58 @@ SnoptAdapter::Init ()
   ObjRow  = nlp_->HasCostTerms()? 0 : -1; // the row in user function that corresponds to the objective function
   ObjAdd  = 0.0;                          // the constant to be added to the objective function
 
+
+  // specify the sparsity pattern of the jacobian
+  // specify the row/colum of the nonzero nonlinear gradients that must be estimated
+//  int neG = 0;
+//  iGfun[neG] = 1;
+//  jGvar[neG] = 0;
+//  neG++;
+
+  // linear derivatives
+//  int     lenA, lenG, neA, neG;
+//  int    *iAfun, *jAvar, *iGfun, *jGvar;
+  lenA = 0;
+  neA = 0;
+  iAfun = nullptr;
+  jAvar = nullptr;
+  A = nullptr;
+
+
+
+
+  // derivatives of nonlinear part
+  // maximum number of non-zero nonlinear elements in F
+  // conservative guess: take all
+  lenG  = neF*n;//nlp_->GetJacobianOfConstraints()->nonZeros();
+  iGfun = new int[lenG];
+  jGvar = new int[lenG];
+
+
+  // the gradient terms of the cost function
+  neG=0; // nonzero cells in jacobian
+
+  if(nlp_->HasCostTerms()) {
+    for (int var=0; var<n; ++var) {
+      iGfun[neG] = 0;
+      jGvar[neG] = var;
+      neG++;
+    }
+  }
+
+
+  // the derivative of the constraints
+  int row_start = nlp_->HasCostTerms()? 1 : 0;
+  auto jac = nlp_->GetJacobianOfConstraints();
+  for (int k=0; k<jac->outerSize(); ++k) {
+    for (NLP::Jacobian::InnerIterator it(*jac,k); it; ++it) {
+      iGfun[neG] = it.row() + row_start;
+      jGvar[neG] = it.col();
+      neG++;
+    }
+  }
+
+
   setProbName   ( "snopt" );
   setSpecsFile  ( "snopt.spc" );
 //  setPrintFile  ( "snopt.out" ); // appends the file
@@ -84,10 +137,12 @@ SnoptAdapter::Init ()
   setObjective  ( ObjRow, ObjAdd );
   setX          ( x, xlow, xupp, xmul, xstate );
   setF          ( F, Flow, Fupp, Fmul, Fstate );
+  setA          ( lenA, neA, iAfun, jAvar, A);
+  setG          ( lenG, neG, iGfun, jGvar );
   setUserFun    (&SnoptAdapter::ObjectiveAndConstraintFct);
 
-  setIntParameter( "Derivative option", 0 ); // let snopt estimate derivatives
-  setIntParameter( "Verify level ", 3 );
+  setIntParameter( "Derivative option", 1 ); // 1 = snopt will not calculate missing derivatives
+//  setIntParameter( "Verify level ", 3 );
 }
 
 void
@@ -108,15 +163,41 @@ SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
                                          char* cu, int* lencu, int iu[],
                                          int* leniu, double ru[], int* lenru)
 {
-  int c=0;
-  if (instance_->nlp_->HasCostTerms())
-    F[c++] = instance_->nlp_->EvaluateCostFunction(x);
+  if ( *needF > 0 ) {
+    int c=0;
+    if (instance_->nlp_->HasCostTerms())
+      F[c++] = instance_->nlp_->EvaluateCostFunction(x);
 
-  VectorXd g_eig = instance_->nlp_->EvaluateConstraints(x);
+    VectorXd g_eig = instance_->nlp_->EvaluateConstraints(x);
+    //  Eigen::Map<VectorXd>(g,m) = g_eig;
 
-//  Eigen::Map<VectorXd>(F+c, g_eig.rows()) = g_eig; // should work as well
-  for (int i=0; i<g_eig.rows(); ++i) {
-    F[c++] = g_eig[i];
+    // use this way
+    //  Eigen::Map<VectorXd>(F+c, g_eig.rows()) = g_eig; // should work as well
+    for (int i=0; i<g_eig.rows(); ++i) {
+      F[c++] = g_eig[i];
+    }
+  }
+
+
+  if ( *needG > 0 ) {
+
+    int c = 0;
+    if (instance_->nlp_->HasCostTerms()) {
+      Eigen::VectorXd grad = instance_->nlp_->EvaluateCostFunctionGradient(x);
+      for (int i=0; i<grad.rows(); ++i) {
+        G[c++] = grad[i];
+      }
+    }
+
+    instance_->nlp_->EvalNonzerosOfJacobian(x, G+c);
+
+//    double dg[*neG];
+//    instance_->nlp_->EvalNonzerosOfJacobian(x, dg);
+//
+//    for (int j=0; j<*neG; ++j) {
+//      G[c++] = dg[j];
+//    }
+
   }
 
 // example

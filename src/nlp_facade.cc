@@ -72,8 +72,13 @@ NlpFacade::SolveNlp(const State& initial_state,
   costs_->ClearCosts();
   costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion_, utils::kAcc));
   costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion_, motion_structure));
-//  costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure));
-  costs_->SetWeights({1.0, 1.0/*, 1.0*/});
+  costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure));
+
+  // normalize the costs
+  int n_nodes = motion_structure.GetPhaseStampedVec().size();
+  int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();
+  int t_total = motion_structure.GetTotalTime();
+  costs_->SetWeights({1.0/t_total, 30.0/n_discrete_contacts, 100.0/n_nodes});
 //  costs_->SetWeights({1.0});
 
 
@@ -85,18 +90,18 @@ NlpFacade::SolveNlp(const State& initial_state,
   nlp->Init(opt_variables_, costs_, constraints_);
 
 
-//  // Snopt solving
-//  // fixme some constraints are still linear and have constant terms in its
-//  // values, so this wont work
-//  auto snopt_problem = SnoptAdapter::GetInstance();
-//  snopt_problem->SetNLP(nlp);
-//  snopt_problem->Init();
-//  int Cold = 0, Basis = 1, Warm = 2;
-//  snopt_problem->SolveSQP(Cold);
+  // Snopt solving
+  // fixme some constraints are still linear and have constant terms in its
+  // values, so this wont work
+  auto snopt_problem = SnoptAdapter::GetInstance();
+  snopt_problem->SetNLP(nlp);
+  snopt_problem->Init();
+  int Cold = 0, Basis = 1, Warm = 2;
+  snopt_problem->SolveSQP(Cold);
 
-  // Ipopt solving
-  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, visualizer_); // just so it can poll the PublishMsg() method
-  SolveIpopt(nlp_ptr);
+//  // Ipopt solving
+//  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, visualizer_); // just so it can poll the PublishMsg() method
+//  SolveIpopt(nlp_ptr);
 }
 
 void
