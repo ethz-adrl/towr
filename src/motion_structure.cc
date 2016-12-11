@@ -178,11 +178,13 @@ MotionStructure::CalcPhaseStampedVec () const
 
     int nodes_in_phase = std::floor(phase.duration_/dt_);
 
-    // add one phase right after phase switch
-    PhaseInfoStamped contact_info;
-    contact_info.phase_ = phase;
-    contact_info.time_  = t_global+dt_/3;
-    info.push_back(contact_info);
+
+    // zmp_ forgive but don't forget
+//    // add one phase right after phase switch
+//    PhaseInfoStamped contact_info;
+//    contact_info.phase_ = phase;
+//    contact_info.time_  = t_global+dt_/3;
+//    info.push_back(contact_info);
 
 
     for (int k=0; k<nodes_in_phase; ++k ) {
@@ -193,11 +195,11 @@ MotionStructure::CalcPhaseStampedVec () const
     }
 
 
-    // add one node right before phase switch
-    // this somehow removes the jittering of hyq picking up the back legs
-    contact_info.phase_ = phase;
-    contact_info.time_  = t_global+phase.duration_-dt_/3;
-    info.push_back(contact_info);
+//    // add one node right before phase switch
+//    // this somehow removes the jittering of hyq picking up the back legs
+//    contact_info.phase_ = phase;
+//    contact_info.time_  = t_global+phase.duration_-dt_/3;
+//    info.push_back(contact_info);
 
 
     t_global += phase.duration_;

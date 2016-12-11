@@ -20,11 +20,13 @@ hessian_approximation limited-memory
 #derivative_test first-order
 #derivative_test second-order
 
-tol 0.05
-#dual_inf_tol 1e-1
+tol 0.01
 #constr_viol_tol 1e-3
-#bound_relax_factor 1e-7
-#compl_inf_tol 1e-4
+#dual_inf_tol 1e10
+#compl_inf_tol 1e10
+
+
+#bound_relax_factor 0.01
 max_cpu_time 4.5   #careful: overwrites ros parameter, but controller doesn't know
 #max_iter 1
 #bound_frac 0.5
@@ -36,7 +38,7 @@ max_cpu_time 4.5   #careful: overwrites ros parameter, but controller doesn't kn
 
 # Some scaling stuff so the obj + constraints are normalized
 #obj_scaling_factor 10
-#obj_scaling_factor  1
+#obj_scaling_factor  0.001
 
 #nlp_scaling_method none
 #nlp_scaling_method equilibration-based
@@ -45,5 +47,5 @@ max_cpu_time 4.5   #careful: overwrites ros parameter, but controller doesn't kn
 
 
 print_level 5
-print_user_options no #yes
+print_user_options yes
 print_timing_statistics no

@@ -68,19 +68,20 @@ RangeOfMotionBox::EvaluateConstraint () const
   std::vector<double> g_vec;
 
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-    PosXY com_pos = com_motion_->GetCom(node.time_).p;
+    PosXY com_W = com_motion_->GetCom(node.time_).p;
 
     for (const auto& f_W : node.phase_.GetAllContacts(footholds_)) {
 
-      PosXY contact_pos_B = f_W.p.topRows<kDim2d>() - com_pos;
+//      PosXY contact_pos_B = f_W.p.topRows<kDim2d>() - com_W;
 
-      // this is actually constant, but moved here from bounds
-      // so I can make a meaningful cost out of this constraint
-      PosXY pos_nom_B = robot_->GetNominalStanceInBase(f_W.leg);
-      PosXY distance_to_nom = contact_pos_B - pos_nom_B;
+//      // this is actually constant, but moved here from bounds
+//      // so I can make a meaningful cost out of this constraint
+//      PosXY f_nom_B = robot_->GetNominalStanceInBase(f_W.leg);
+//      PosXY distance_to_nom = contact_pos_B - f_nom_B;
+
 
       for (auto dim : {X,Y})
-        g_vec.push_back(distance_to_nom(dim));
+        g_vec.push_back(f_W.p(dim) - com_W(dim));
     }
   }
 
@@ -94,11 +95,16 @@ RangeOfMotionBox::GetBounds () const
 
   std::vector<Bound> bounds;
   for (auto node : motion_structure_.GetPhaseStampedVec()) {
+    // zmp_ shouldn't need footholds_ here
     for (auto c : node.phase_.GetAllContacts()) {
+
+      PosXY f_nom_B = robot_->GetNominalStanceInBase(static_cast<hyq::LegID>(c.ee));
       for (auto dim : {X,Y}) {
         Bound b;
-        b.upper_ = + max_deviation.at(dim);
-        b.lower_ = - max_deviation.at(dim);
+//        b.upper_ = /*f_nom_B(dim)*/   + max_deviation.at(dim);
+//        b.lower_ = /*f_nom_B(dim) */  - max_deviation.at(dim);
+        b.upper_ = f_nom_B(dim)  + max_deviation.at(dim);
+        b.lower_ = f_nom_B(dim)  - max_deviation.at(dim);
         bounds.push_back(b);
       }
     }

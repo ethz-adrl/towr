@@ -18,8 +18,17 @@ CostAdapter::~CostAdapter ()
 
 CostAdapter::CostAdapter (const ConstraintPtr& constraint)
 {
+  // zmp_ here the ROM cost is probably not correctly initialized yet...
   constraint_ = constraint;
   int n_constraints = constraint_->GetNumberOfConstraints();
+
+  // zmp_ is constant, move to constructor
+  // average value of each upper and lower bound
+  b_ = VectorXd(n_constraints);
+  int i=0;
+  for (auto b : constraint_->GetBounds()) {
+    b_(i++) = (b.upper_ + b.lower_)/2.;
+  }
 
   // treat all constraints equally by default
   weights_.resize(n_constraints);
@@ -36,7 +45,7 @@ double
 CostAdapter::EvaluateCost () const
 {
   VectorXd g = constraint_->EvaluateConstraint();
-  return 1/2.*g.transpose()*weights_.asDiagonal()*g;
+  return 0.5*(g-b_).transpose()*weights_.asDiagonal()*(g-b_);
 }
 
 CostAdapter::VectorXd
@@ -47,7 +56,7 @@ CostAdapter::EvaluateGradientWrt (std::string var_set)
 
   VectorXd grad;
   if (jac.rows() != 0)
-    grad = jac.transpose()*weights_.asDiagonal()*g;
+    grad = jac.transpose()*weights_.asDiagonal()*(g-b_);
 
   return grad;
 }

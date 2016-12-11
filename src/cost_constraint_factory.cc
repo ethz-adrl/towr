@@ -202,8 +202,6 @@ CostConstraintFactory::CreateMotionCost (const ComMotion& motion,
                                          const xpp::utils::MotionDerivative dxdt)
 {
   LinearSplineEquations eq(motion);
-  auto cost = std::make_shared<QuadraticSplineCost>();
-
   Eigen::MatrixXd term;
 
   switch (dxdt) {
@@ -216,6 +214,7 @@ CostConstraintFactory::CreateMotionCost (const ComMotion& motion,
   mv.M = term;
   mv.v.setZero();
 
+  auto cost = std::make_shared<QuadraticSplineCost>();
   cost->Init(mv);
   return cost;
 }

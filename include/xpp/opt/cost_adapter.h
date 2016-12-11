@@ -17,12 +17,14 @@ namespace opt {
 
 /** Converts a constraint to a cost by weighing the quadratic violations.
   *
-  * Let constraint g(x) \in R^m.
-  * And it's derivative dg(x)/dx = J(x).
-  * Define a cost as c(x) = 0.5 * g^T * W * g, where W = diag(w1,...,wm).
+  * Let constraint g(x) \in R^m with upper bound b_u and lower boud b_l.
+  * Let g'(x) = g(x) - 0.5(b_u+b_l) = g(x) - b
+  * And it's derivative dg'(x)/dx = J(x).
+  * Define a cost as c(x) = 0.5 * g'^T * W * g', where W = diag(w1,...,wm).
   * Then the gradient of the cost is defined as:
-  * dc(x)/dx = (g(x)^T * W * J)^T = J^T * W * g(x).
+  * dc(x)/dx = (g'(x)^T * W * J)^T = J^T * W * (g(x)-b).
   */
+// zmp_ rename to soft constraint
 class CostAdapter : public ACost {
 public:
   using ConstraintPtr = std::shared_ptr<AConstraint>;
@@ -38,6 +40,7 @@ public:
 private:
   ConstraintPtr constraint_;
   VectorXd weights_; ///< How each constraint violation contributes to cost
+  VectorXd b_;       /// average value of each upper and lower bound
 };
 
 } /* namespace opt */

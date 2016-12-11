@@ -51,16 +51,16 @@ DynamicConstraint::EvaluateConstraint () const
   int m = cop_.size();
   Eigen::VectorXd g(m);
 
-  int n = 0;
+  int k = 0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
     auto com = com_motion_->GetCom(node.time_);
     model_.SetCurrent(com.p, com.v, kHeight_);
 
     // acceleration as predefined by physics
-    Vector2d acc_physics = model_.GetDerivative(cop_.middleRows<kDim2d>(kDim2d*n));
-    g.middleRows<kDim2d>(kDim2d*n) = acc_physics - com.a;
-    n++;
+    Vector2d acc_physics = model_.GetDerivative(cop_.middleRows<kDim2d>(kDim2d*k));
+    g.middleRows<kDim2d>(kDim2d*k) = acc_physics - com.a;
+    k++;
   }
 
   return g;

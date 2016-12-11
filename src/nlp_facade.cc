@@ -17,7 +17,7 @@
 #include <xpp/opt/nlp.h>
 #include <xpp/opt/optimization_variables.h>
 
-//#include <xpp/opt/snopt_adapter.h>
+#include <xpp/opt/snopt_adapter.h>
 
 namespace xpp {
 namespace opt {
@@ -74,6 +74,7 @@ NlpFacade::SolveNlp(const State& initial_state,
   costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion_, motion_structure));
 //  costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure));
   costs_->SetWeights({1.0, 1.0/*, 1.0*/});
+//  costs_->SetWeights({1.0});
 
 
   visualizer_->SetOptimizationVariables(opt_variables_);
