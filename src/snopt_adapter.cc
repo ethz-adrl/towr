@@ -2,7 +2,7 @@
  @file    snopt_adapter.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jul 4, 2016
- @brief   Brief description
+ @brief   Defines the SnoptAdapter class
  */
 
 #include <xpp/opt/snopt_adapter.h>
@@ -29,10 +29,9 @@ SnoptAdapter::SetNLP (NLPPtr& nlp)
 void
 SnoptAdapter::Init ()
 {
-  n    = nlp_->GetNumberOfOptimizationVariables(); // number of optimization variables
-
-  int m = nlp_->GetNumberOfConstraints();
-  neF   = nlp_->HasCostTerms()? m+1 : m;
+  int obj_count = nlp_->HasCostTerms()? 1 : 0;
+  n    = nlp_->GetNumberOfOptimizationVariables();
+  neF   = nlp_->GetNumberOfConstraints() + obj_count;
 
   x      = new double[n];
   xlow   = new double[n];
@@ -73,41 +72,25 @@ SnoptAdapter::Init ()
   VectorXd x_all = nlp_->GetStartingValues();
   Eigen::Map<VectorXd>(&x[0], x_all.rows()) = x_all;
 
-
   ObjRow  = nlp_->HasCostTerms()? 0 : -1; // the row in user function that corresponds to the objective function
   ObjAdd  = 0.0;                          // the constant to be added to the objective function
 
-
-  // specify the sparsity pattern of the jacobian
-  // specify the row/colum of the nonzero nonlinear gradients that must be estimated
-//  int neG = 0;
-//  iGfun[neG] = 1;
-//  jGvar[neG] = 0;
-//  neG++;
-
-  // linear derivatives
-//  int     lenA, lenG, neA, neG;
-//  int    *iAfun, *jAvar, *iGfun, *jGvar;
+  // no linear derivatives/just assume all are nonlinear
   lenA = 0;
   neA = 0;
   iAfun = nullptr;
   jAvar = nullptr;
   A = nullptr;
 
-
-
-
   // derivatives of nonlinear part
-  // maximum number of non-zero nonlinear elements in F
-  // conservative guess: take all
-  lenG  = neF*n;//nlp_->GetJacobianOfConstraints()->nonZeros();
+  lenG  = obj_count*n + nlp_->GetJacobianOfConstraints()->nonZeros();
   iGfun = new int[lenG];
   jGvar = new int[lenG];
 
-
   // the gradient terms of the cost function
-  neG=0; // nonzero cells in jacobian
+  neG=0; // nonzero cells in jacobian of Cost Function AND Constraints
 
+  // the nonzero elements of cost function (assume all)
   if(nlp_->HasCostTerms()) {
     for (int var=0; var<n; ++var) {
       iGfun[neG] = 0;
@@ -116,33 +99,66 @@ SnoptAdapter::Init ()
     }
   }
 
-
-  // the derivative of the constraints
-  int row_start = nlp_->HasCostTerms()? 1 : 0;
+  // the nonzero elements of constraints (assume all)
   auto jac = nlp_->GetJacobianOfConstraints();
   for (int k=0; k<jac->outerSize(); ++k) {
     for (NLP::Jacobian::InnerIterator it(*jac,k); it; ++it) {
-      iGfun[neG] = it.row() + row_start;
+      iGfun[neG] = it.row() + obj_count;
       jGvar[neG] = it.col();
       neG++;
     }
   }
 
-
   setProbName   ( "snopt" );
   setSpecsFile  ( "snopt.spc" );
 //  setPrintFile  ( "snopt.out" ); // appends the file
 
-  setProblemSize( n, neF );
-  setObjective  ( ObjRow, ObjAdd );
-  setX          ( x, xlow, xupp, xmul, xstate );
-  setF          ( F, Flow, Fupp, Fmul, Fstate );
-  setA          ( lenA, neA, iAfun, jAvar, A);
-  setG          ( lenG, neG, iGfun, jGvar );
   setUserFun    (&SnoptAdapter::ObjectiveAndConstraintFct);
-
   setIntParameter( "Derivative option", 1 ); // 1 = snopt will not calculate missing derivatives
 //  setIntParameter( "Verify level ", 3 );
+}
+
+void
+SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
+                                         int* needF, int* neF, double F[],
+                                         int* needG, int* neG, double G[],
+                                         char* cu, int* lencu, int iu[],
+                                         int* leniu, double ru[], int* lenru)
+{
+  if ( *needF > 0 ) {
+    int i=0;
+
+    // the scalar objective function value
+    if (instance_->nlp_->HasCostTerms())
+      F[i++] = instance_->nlp_->EvaluateCostFunction(x);
+
+    // the vector of constraint values
+    VectorXd g_eig = instance_->nlp_->EvaluateConstraints(x);
+    Eigen::Map<VectorXd>(F+i, g_eig.rows()) = g_eig; // should work as well
+  }
+
+
+  if ( *needG > 0 ) {
+
+    int i=0;
+    // the jacobian of the first row (cost function)
+    if (instance_->nlp_->HasCostTerms()) {
+      Eigen::VectorXd grad = instance_->nlp_->EvaluateCostFunctionGradient(x);
+      i = grad.rows();
+      Eigen::Map<VectorXd>(G, i) = grad;
+    }
+
+    // the jacobian of all the constraints
+    instance_->nlp_->EvalNonzerosOfJacobian(x, G+i);
+  }
+}
+
+SnoptAdapter::SnoptAdapter ()
+{
+}
+
+SnoptAdapter::~SnoptAdapter ()
+{
 }
 
 void
@@ -156,65 +172,6 @@ SnoptAdapter::SolveSQP (int start_type)
   instance_ = nullptr;
 }
 
-void
-SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
-                                         int* needF, int* neF, double F[],
-                                         int* needG, int* neG, double G[],
-                                         char* cu, int* lencu, int iu[],
-                                         int* leniu, double ru[], int* lenru)
-{
-  if ( *needF > 0 ) {
-    int c=0;
-    if (instance_->nlp_->HasCostTerms())
-      F[c++] = instance_->nlp_->EvaluateCostFunction(x);
-
-    VectorXd g_eig = instance_->nlp_->EvaluateConstraints(x);
-    //  Eigen::Map<VectorXd>(g,m) = g_eig;
-
-    // use this way
-    //  Eigen::Map<VectorXd>(F+c, g_eig.rows()) = g_eig; // should work as well
-    for (int i=0; i<g_eig.rows(); ++i) {
-      F[c++] = g_eig[i];
-    }
-  }
-
-
-  if ( *needG > 0 ) {
-
-    int c = 0;
-    if (instance_->nlp_->HasCostTerms()) {
-      Eigen::VectorXd grad = instance_->nlp_->EvaluateCostFunctionGradient(x);
-      for (int i=0; i<grad.rows(); ++i) {
-        G[c++] = grad[i];
-      }
-    }
-
-    instance_->nlp_->EvalNonzerosOfJacobian(x, G+c);
-
-//    double dg[*neG];
-//    instance_->nlp_->EvalNonzerosOfJacobian(x, dg);
-//
-//    for (int j=0; j<*neG; ++j) {
-//      G[c++] = dg[j];
-//    }
-
-  }
-
-// example
-//  F[0] =  x[1];
-//  F[1] =  x[0]*x[0] + 4*x[1]*x[1];
-//  F[2] = (x[0] - 2)*(x[0] - 2) + x[1]*x[1];
-}
-
-SnoptAdapter::SnoptAdapter ()
-{
-}
-
-SnoptAdapter::~SnoptAdapter ()
-{
-  // TODO Auto-generated destructor stub
-}
-
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 

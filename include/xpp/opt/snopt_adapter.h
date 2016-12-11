@@ -2,11 +2,11 @@
  @file    snopt_adapter.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jul 4, 2016
- @brief   Brief description
+ @brief   Declares the SnoptAdapter class
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_
+#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_
+#define XPP_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_
 
 #include "nlp.h"
 #include <snoptProblem.hpp>
@@ -17,7 +17,7 @@ namespace opt {
 /** @brief Converts the NLP defined in the xpp interface to the SNOPT interface.
   *
   * This implements the Adapter pattern. This class should not add any functionality,
-  * but merely delegate it to the Adaptee (the nlp class).
+  * but merely delegate it to the Adaptee (the NLP class).
   */
 class SnoptAdapter : public snoptProblemA {
 public:
@@ -51,7 +51,7 @@ private:
   static SelfPtr instance_; ///< to access member variables in static function
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_ */
