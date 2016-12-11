@@ -2,11 +2,11 @@
  @file    cost_adapter.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Oct 14, 2016
- @brief   Declares the class CostAdapter
+ @brief   Declares the class SoftConstraint
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_ADAPTER_H_
-#define XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_ADAPTER_H_
+#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
+#define XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
 
 #include "a_cost.h"
 #include "a_constraint.h"
@@ -24,17 +24,21 @@ namespace opt {
   * Then the gradient of the cost is defined as:
   * dc(x)/dx = (g'(x)^T * W * J)^T = J^T * W * (g(x)-b).
   */
-// zmp_ rename to soft constraint
-class CostAdapter : public ACost {
+class SoftConstraint : public ACost {
 public:
   using ConstraintPtr = std::shared_ptr<AConstraint>;
   using VectorXd = Eigen::VectorXd;
 
-  CostAdapter (const ConstraintPtr& constraint);
-  virtual ~CostAdapter ();
-
-  virtual double EvaluateCost () const;
+  SoftConstraint (const ConstraintPtr& constraint);
+  virtual ~SoftConstraint ();
   virtual void UpdateVariables(const OptimizationVariables*);
+
+  /** c(x) = 0.5 * (g-b)^T * W * (g-b)
+    */
+  virtual double EvaluateCost () const;
+
+  /** dc(x)/dx = J^T * W * (g-b)
+    */
   virtual VectorXd EvaluateGradientWrt(std::string var_set);
 
 private:
@@ -46,4 +50,4 @@ private:
 } /* namespace opt */
 } /* namespace xpp */
 
-#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_ADAPTER_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_ */

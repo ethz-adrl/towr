@@ -2,27 +2,19 @@
  @file    cost_adapter.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Oct 14, 2016
- @brief   Defines the class CostAdapter
+ @brief   Defines the class SoftConstraint
  */
 
-#include <xpp/opt/cost_adapter.h>
-#include <iostream>
+#include <xpp/opt/soft_constraint.h>
 
 namespace xpp {
 namespace opt {
 
-CostAdapter::~CostAdapter ()
+SoftConstraint::SoftConstraint (const ConstraintPtr& constraint)
 {
-  // TODO Auto-generated destructor stub
-}
-
-CostAdapter::CostAdapter (const ConstraintPtr& constraint)
-{
-  // zmp_ here the ROM cost is probably not correctly initialized yet...
   constraint_ = constraint;
   int n_constraints = constraint_->GetNumberOfConstraints();
 
-  // zmp_ is constant, move to constructor
   // average value of each upper and lower bound
   b_ = VectorXd(n_constraints);
   int i=0;
@@ -35,21 +27,26 @@ CostAdapter::CostAdapter (const ConstraintPtr& constraint)
   weights_.setOnes();
 }
 
+SoftConstraint::~SoftConstraint ()
+{
+  // TODO Auto-generated destructor stub
+}
+
 void
-CostAdapter::UpdateVariables (const OptimizationVariables* x)
+SoftConstraint::UpdateVariables (const OptimizationVariables* x)
 {
   constraint_->UpdateVariables(x);
 }
 
 double
-CostAdapter::EvaluateCost () const
+SoftConstraint::EvaluateCost () const
 {
   VectorXd g = constraint_->EvaluateConstraint();
   return 0.5*(g-b_).transpose()*weights_.asDiagonal()*(g-b_);
 }
 
-CostAdapter::VectorXd
-CostAdapter::EvaluateGradientWrt (std::string var_set)
+SoftConstraint::VectorXd
+SoftConstraint::EvaluateGradientWrt (std::string var_set)
 {
   VectorXd g = constraint_->EvaluateConstraint();
   AConstraint::Jacobian jac = constraint_->GetJacobianWithRespectTo(var_set);

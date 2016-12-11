@@ -6,7 +6,8 @@
  */
 
 
-#include <xpp/opt/cost_adapter.h>
+#include "../../include/xpp/opt/soft_constraint.h"
+
 #include <gtest/gtest.h>
 
 namespace xpp {

@@ -122,7 +122,7 @@ set(SOURCES
   src/cost_container.cc
   src/cost_function_functor.cc
   src/a_foothold_constraint.cc
-  src/cost_adapter.cc
+  src/soft_constraint.cc
 )
 
 if(BUILD_SNOPT)

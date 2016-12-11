@@ -12,13 +12,13 @@
 #include <xpp/opt/com_motion.h>
 #include <xpp/opt/linear_spline_equations.h>
 #include <xpp/opt/range_of_motion_constraint.h>
-#include <xpp/opt/cost_adapter.h>
 #include <xpp/opt/obstacle_constraint.h>
 #include <xpp/opt/a_foothold_constraint.h>
 #include <xpp/opt/convexity_constraint.h>
 #include <xpp/opt/support_area_constraint.h>
 #include <xpp/opt/dynamic_constraint.h>
 #include <xpp/opt/polygon_center_constraint.h>
+#include <xpp/opt/soft_constraint.h>
 
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/hyq/hyq_robot_interface.h>
@@ -174,7 +174,7 @@ CostConstraintFactory::CreateRangeOfMotionCost (const ComMotion& com_motion,
                                                 const MotionStructure& motion_structure)
 {
   auto rom_constraint = CreateRangeOfMotionConstraint(com_motion, motion_structure);
-  auto rom_cost = std::make_shared<CostAdapter>(rom_constraint);
+  auto rom_cost = std::make_shared<SoftConstraint>(rom_constraint);
   return rom_cost;
 }
 
@@ -183,7 +183,7 @@ CostConstraintFactory::CreatePolygonCenterCost (const MotionStructure& motion_st
 {
   auto constraint = std::make_shared<PolygonCenterConstraint>();
   constraint->Init(motion_structure);
-  auto cost = std::make_shared<CostAdapter>(constraint);
+  auto cost = std::make_shared<SoftConstraint>(constraint);
   return cost;
 }
 
@@ -193,7 +193,7 @@ CostConstraintFactory::CreateFinalStanceCost (
     const MotionStructure& motion_structure)
 {
   auto final_stance_constraint = CreateFinalStanceConstraint(goal_xy, motion_structure);
-  auto final_stance_cost = std::make_shared<CostAdapter>(final_stance_constraint);
+  auto final_stance_cost = std::make_shared<SoftConstraint>(final_stance_constraint);
   return final_stance_cost;
 }
 
