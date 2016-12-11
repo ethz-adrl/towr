@@ -19,7 +19,8 @@ namespace opt {
 
 struct Contact {
 
-  static int constexpr kFixedByStartStance = -1;
+  // zmp_ same as defined in foothold, remove on of these
+  static const int kFixedByStartStance = -1;
 
   Contact() {};
   Contact(int _id, EndeffectorID _ee) : id(_id), ee(_ee) {}
@@ -68,7 +69,7 @@ public:
     }
 
     for (const auto& c_fixed : fixed_contacts_) {
-      contacts.push_back(Contact(-1, static_cast<EndeffectorID>(c_fixed.leg)));
+      contacts.push_back(Contact(Contact::kFixedByStartStance, static_cast<EndeffectorID>(c_fixed.leg)));
     }
 
     return contacts;
@@ -82,7 +83,10 @@ public:
     for (const auto& c_free : free_contacts_) {
       Vector2d p = contacts_xy.at(c_free.id);
       double z = 0.0;
-      contacts.push_back(Foothold(p.x(), p.y(), z, static_cast<hyq::LegID>(c_free.ee)));
+      Foothold f(p.x(), p.y(), z, static_cast<hyq::LegID>(c_free.ee));
+      // zmp_ cleanup and let his never happen again
+      f.id = c_free.id;
+      contacts.push_back(f);
     }
 
     for (const auto& c_fixed : fixed_contacts_) {
@@ -128,4 +132,4 @@ using PhaseStampedVec = std::vector<PhaseInfoStamped>;
 } /* namespace xpp */
 
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_PHASE_INFO_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_PHASE_INFO_H_ */
