@@ -9,15 +9,16 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_HYQ_HYQ_JOINT_MAPPER_H_
 
 #include <xpp/hyq/hyq_state.h>
-#include <xpp/hyq/hyq_spliner.h> //zmp_, possibly remove dependecy on hyq_spliner
+#include <xpp/opt/wb_traj_generator.h> //zmp_, possibly remove dependecy on hyq_spliner
 
 namespace xpp {
 namespace hyq {
 
 class HyqJointMapper {
 public:
-  using HyqStateVec   = std::vector<HyqState>;
-  using ArtiRobVec    = xpp::hyq::HyqSpliner::ArtiRobVec;
+  using HyqStateVec = std::vector<HyqState>;
+  using ArtiRobVec  = xpp::opt::WBTrajGenerator::ArtiRobVec;
+  using SplineNode  = xpp::opt::SplineNode;
 
   HyqJointMapper ();
   virtual ~HyqJointMapper ();

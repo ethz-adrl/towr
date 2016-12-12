@@ -1,14 +1,13 @@
 /**
-@file    hyq_spliner.cpp
+@file    wb_traj_generator.cpp
 @author  Alexander Winkler (winklera@ethz.ch)
-@date    Oct 21, 2014
-@brief   Splines body position, orientation and swing leg
+@date    Oct 21, 2016
+@brief   Defines the class WholeBody Trajectory Generator
  */
 
-#ifndef _XPP_XPP_OPT_HYQ_SPLINER_H_
-#define _XPP_XPP_OPT_HYQ_SPLINER_H_
+#ifndef _XPP_XPP_OPT_WB_TRAJ_GENERATOR_H_
+#define _XPP_XPP_OPT_WB_TRAJ_GENERATOR_H_
 
-//#include <xpp/hyq/hyq_state.h>
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/polynomial_xd.h>
 
@@ -17,7 +16,7 @@
 #include <xpp/utils/eigen_std_conversions.h>
 
 namespace xpp {
-namespace hyq {
+namespace opt {
 
 // zmp_ embed this at a smart place
 static constexpr int kNee = 4; // number of endeffectors
@@ -54,9 +53,9 @@ public:
   double t_;
 };
 
-/** @brief Splines the base pose (only z-position + orientation).
+/** @brief Whole-Body Trajectory Generator
   */
-class HyqSpliner {
+class WBTrajGenerator {
 public:
   using ComMotionS     = std::shared_ptr<xpp::opt::ComMotion>;
   using Vector3d      = Eigen::Vector3d;
@@ -73,8 +72,8 @@ public:
   using FeetSplinerArray = std::array<SplinerFeet, kNee>;
 
 public:
-  HyqSpliner();
-  virtual ~HyqSpliner();
+  WBTrajGenerator();
+  virtual ~WBTrajGenerator();
 
   void SetParams(double upswing, double lift_height,
                  double outward_swing_distance,
@@ -130,7 +129,7 @@ private:
   double GetTotalTime() const;
 };
 
-} // namespace hyq
+} // namespace opt
 } // namespace xpp
 
-#endif // _XPP_XPP_OPT_HYQ_SPLINER_H_
+#endif // _XPP_XPP_OPT_WB_TRAJ_GENERATOR_H_

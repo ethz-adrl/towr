@@ -10,9 +10,8 @@
 
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/opt/nlp_facade.h>
-#include <xpp/hyq/hyq_spliner.h>
+#include <xpp/opt/wb_traj_generator.h>
 #include <xpp/hyq/hyq_state.h>
-#include <xpp/hyq/hyq_joint_mapper.h>
 
 namespace xpp {
 namespace opt {
@@ -25,8 +24,7 @@ class MotionOptimizerFacade {
 public:
   using State               = xpp::utils::StateLin3d;
   using StepSequencePlanner = xpp::hyq::StepSequencePlanner;
-  using HyqSpliner          = xpp::hyq::HyqSpliner;
-  using HyqStateVec         = xpp::hyq::HyqJointMapper::HyqStateVec;
+  using HyqStateVec         = std::vector<xpp::hyq::HyqState>;
   using HyqState            = xpp::hyq::HyqState;
   using VisualizerPtr       = std::shared_ptr<IVisualizer>;
 
@@ -53,7 +51,7 @@ public:
 
 private:
   HyqState curr_state_;
-  HyqSpliner whole_body_mapper_;
+  WBTrajGenerator whole_body_mapper_;
   NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;
 

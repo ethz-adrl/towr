@@ -20,7 +20,7 @@ HyqJointMapper::~HyqJointMapper ()
   // TODO Auto-generated destructor stub
 }
 
-SplineNode
+HyqJointMapper::SplineNode
 HyqJointMapper::BuildSplineNode (const HyqState& state) const
 {
   SplineNode node;

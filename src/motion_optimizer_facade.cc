@@ -8,6 +8,7 @@
 #include <xpp/opt/motion_optimizer_facade.h>
 #include <xpp/opt/motion_structure.h>
 #include <xpp/opt/optimization_variables.h>
+#include <xpp/hyq/hyq_joint_mapper.h>
 
 namespace xpp {
 namespace opt {

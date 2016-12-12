@@ -5,24 +5,24 @@
 @brief   Splines body position, orientation and swing leg
  */
 
-#include <xpp/hyq/hyq_spliner.h>
+#include <xpp/opt/wb_traj_generator.h>
 #include <kindr/rotations/Rotation.hpp>
 
 namespace xpp {
-namespace hyq {
+namespace opt {
 
 using namespace xpp::utils;
 
-HyqSpliner::HyqSpliner()
+WBTrajGenerator::WBTrajGenerator()
 {
   SetParams(0.0, 0.0, 0.0, 0.0);
 }
 
-HyqSpliner::~HyqSpliner()
+WBTrajGenerator::~WBTrajGenerator()
 {
 }
 
-void HyqSpliner::SetParams(double upswing,
+void WBTrajGenerator::SetParams(double upswing,
                double lift_height,
                double outward_swing_distance,
                double discretization_time)
@@ -34,7 +34,7 @@ void HyqSpliner::SetParams(double upswing,
 }
 
 void
-HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComMotionS& com_spline,
+WBTrajGenerator::Init (const xpp::opt::PhaseVec& phase_info, const ComMotionS& com_spline,
                   const VecFoothold& footholds, double des_height,
                   const SplineNode& curr_state)
 {
@@ -44,7 +44,7 @@ HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComMotionS& com_sp
 }
 
 std::vector<SplineNode>
-HyqSpliner::BuildNodeSequence(const SplineNode& P_init,
+WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
                               const xpp::opt::PhaseVec& phase_info,
                               const VecFoothold& footholds,
                               double des_robot_height)
@@ -85,7 +85,7 @@ HyqSpliner::BuildNodeSequence(const SplineNode& P_init,
   return nodes;
 }
 
-void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
+void WBTrajGenerator::CreateAllSplines(const std::vector<SplineNode>& nodes)
 {
   z_spliner_.clear();
   ori_spliner_.clear();
@@ -109,7 +109,7 @@ void HyqSpliner::CreateAllSplines(const std::vector<SplineNode>& nodes)
 }
 
 Eigen::Vector3d
-HyqSpliner::TransformQuatToRpy(const Eigen::Quaterniond& q)
+WBTrajGenerator::TransformQuatToRpy(const Eigen::Quaterniond& q)
 {
   // wrap orientation
   kindr::RotationQuaternionPD qIB(q);
@@ -138,7 +138,7 @@ HyqSpliner::TransformQuatToRpy(const Eigen::Quaterniond& q)
 }
 
 void
-HyqSpliner::FillZState(double t_global, State3d& pos) const
+WBTrajGenerator::FillZState(double t_global, State3d& pos) const
 {
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
@@ -148,8 +148,8 @@ HyqSpliner::FillZState(double t_global, State3d& pos) const
   pos.SetDimension(z_splined, Z);
 }
 
-HyqSpliner::State3d
-HyqSpliner::GetCurrPosition(double t_global) const
+WBTrajGenerator::State3d
+WBTrajGenerator::GetCurrPosition(double t_global) const
 {
   State3d pos;
 
@@ -163,7 +163,7 @@ HyqSpliner::GetCurrPosition(double t_global) const
 }
 
 xpp::utils::StateAng3d
-HyqSpliner::GetCurrOrientation(double t_global) const
+WBTrajGenerator::GetCurrOrientation(double t_global) const
 {
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
@@ -182,7 +182,7 @@ HyqSpliner::GetCurrOrientation(double t_global) const
 }
 
 void
-HyqSpliner::FillCurrFeet(double t_global,
+WBTrajGenerator::FillCurrFeet(double t_global,
                          FeetArray& feet,
                          ContactArray& swingleg) const
 {
@@ -212,7 +212,7 @@ HyqSpliner::FillCurrFeet(double t_global,
   }
 }
 
-void HyqSpliner::BuildOneSegment(const SplineNode& from, const SplineNode& to,
+void WBTrajGenerator::BuildOneSegment(const SplineNode& from, const SplineNode& to,
                                  ZPolynomial& z_poly,
                                  SplinerOri& ori,
                                  FeetSplinerArray& feet_up,
@@ -232,8 +232,8 @@ void HyqSpliner::BuildOneSegment(const SplineNode& from, const SplineNode& to,
   feet_down = BuildFootstepSplineDown(f_switch, to);
 }
 
-HyqSpliner::SplinerOri
-HyqSpliner::BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const
+WBTrajGenerator::SplinerOri
+WBTrajGenerator::BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const
 {
   xpp::utils::StateLin3d rpy_from, rpy_to;
   rpy_from.p = TransformQuatToRpy(from.base_ang_.q);
@@ -244,8 +244,8 @@ HyqSpliner::BuildOrientationRpySpline(const SplineNode& from, const SplineNode& 
   return ori;
 }
 
-HyqSpliner::FeetSplinerArray
-HyqSpliner::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const
+WBTrajGenerator::FeetSplinerArray
+WBTrajGenerator::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const
 {
   FeetSplinerArray feet_up;
 
@@ -271,8 +271,8 @@ HyqSpliner::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) 
   return feet_up;
 }
 
-HyqSpliner::FeetSplinerArray
-HyqSpliner::BuildFootstepSplineDown(const FeetArray& feet_at_switch,
+WBTrajGenerator::FeetSplinerArray
+WBTrajGenerator::BuildFootstepSplineDown(const FeetArray& feet_at_switch,
                                     const SplineNode& to) const
 {
   FeetSplinerArray feet_down;
@@ -288,7 +288,7 @@ HyqSpliner::BuildFootstepSplineDown(const FeetArray& feet_at_switch,
   return feet_down;
 }
 
-double HyqSpliner::GetTotalTime() const
+double WBTrajGenerator::GetTotalTime() const
 {
   double T = 0.0;
   for (uint n = 1; n < nodes_.size(); n++) {
@@ -297,7 +297,7 @@ double HyqSpliner::GetTotalTime() const
   return T;
 }
 
-double HyqSpliner::GetLocalSplineTime(double t_global) const
+double WBTrajGenerator::GetLocalSplineTime(double t_global) const
 {
   int spline = GetSplineID(t_global);
   int goal_node = spline+1;
@@ -309,7 +309,7 @@ double HyqSpliner::GetLocalSplineTime(double t_global) const
   return t_local;
 }
 
-int HyqSpliner::GetSplineID(double t) const
+int WBTrajGenerator::GetSplineID(double t) const
 {
   assert(t <= GetTotalTime()); // time inside the time frame
 
@@ -334,8 +334,8 @@ double SplineNode::GetZAvg() const
   return z_avg;
 }
 
-HyqSpliner::ArtiRobVec
-HyqSpliner::BuildWholeBodyTrajectory () const
+WBTrajGenerator::ArtiRobVec
+WBTrajGenerator::BuildWholeBodyTrajectory () const
 {
   ArtiRobVec trajectory;
 
@@ -355,5 +355,5 @@ HyqSpliner::BuildWholeBodyTrajectory () const
   return trajectory;
 }
 
-} // namespace hyq
+} // namespace opt
 } // namespace xpp
