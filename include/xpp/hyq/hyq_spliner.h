@@ -8,7 +8,7 @@
 #ifndef _XPP_XPP_OPT_HYQ_SPLINER_H_
 #define _XPP_XPP_OPT_HYQ_SPLINER_H_
 
-#include <xpp/hyq/hyq_state.h>
+//#include <xpp/hyq/hyq_state.h>
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/polynomial_xd.h>
 
@@ -32,19 +32,13 @@ public:
   using ContactArray = std::array<bool, kNee>;
 
   SplineNode(){};
-  SplineNode(const HyqState& state_joints, double t_max);
 
   FeetArray feet_W_;
   ContactArray swingleg_;
-
-//  LegDataMap<BaseLin3d> feet_W_; ///< contacts expressed in world frame
-//  LegDataMap< bool > swingleg_;
   BaseAng3d base_ang_;
   BaseLin1d base_z_;
+  double T; ///< time to reach this state
 
-  double T;                      ///< time to reach this state
-
-  std::array<Vector3d, kNumSides> GetAvgSides() const;
   double GetZAvg() const;
 };
 
@@ -69,13 +63,14 @@ public:
   using VecFoothold   = utils::StdVecEigen2d;
   using State3d       = xpp::utils::StateLin3d;
   using ArtiRobVec    = std::vector<ArticulatedRobotState>;
-  // mpc don't forget about the spliner order
   using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State3d>;
   using SplinerFeet   = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State3d>;
   using ZPolynomial   = xpp::utils::CubicPolynomial;
 
   using FeetArray     = SplineNode::FeetArray;
   using ContactArray  = SplineNode::ContactArray;
+
+  using FeetSplinerArray = std::array<SplinerFeet, kNee>;
 
 public:
   HyqSpliner();
@@ -97,7 +92,7 @@ private:
   std::vector<SplineNode> nodes_; // the discrete states to spline through
   std::vector<ZPolynomial> z_spliner_;
   std::vector<SplinerOri> ori_spliner_;
-  std::vector<LegDataMap< SplinerFeet > > feet_spliner_up_, feet_spliner_down_;
+  std::vector<FeetSplinerArray> feet_spliner_up_, feet_spliner_down_;
   ComMotionS com_motion_;
 
   double kDiscretizationTime;   // at what interval the continuous trajectory is sampled
@@ -120,14 +115,14 @@ private:
 
 //  Spliner3d BuildPositionSpline(const SplineNode& from, const SplineNode& to) const;
   SplinerOri BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const;
-  LegDataMap<SplinerFeet> BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const;
-  LegDataMap<SplinerFeet> BuildFootstepSplineDown(const FeetArray& feet_at_switch,const SplineNode& to) const;
+  FeetSplinerArray BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const;
+  FeetSplinerArray BuildFootstepSplineDown(const FeetArray& feet_at_switch,const SplineNode& to) const;
 
   void BuildOneSegment(const SplineNode& from, const SplineNode& to,
                        ZPolynomial& z_poly,
                        SplinerOri& ori,
-                       LegDataMap< SplinerFeet >& feet_up,
-                       LegDataMap< SplinerFeet >& feet_down) const;
+                       FeetSplinerArray& feet_up,
+                       FeetSplinerArray& feet_down) const;
 
   static Vector3d TransformQuatToRpy(const Eigen::Quaterniond& q);
   int GetSplineID(double t_global) const;
