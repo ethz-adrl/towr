@@ -108,8 +108,8 @@ RangeOfMotionBox::GetBounds () const
   for (auto node : motion_structure_.GetPhaseStampedVec()) {
     for (auto c : node.phase_.GetAllContacts()) {
 
-      auto leg = static_cast<hyq::LegID>(c.ee);
-      PosXY f_nom_B = robot_->GetNominalStanceInBase(leg);
+//      auto leg = static_cast<hyq::LegID>(c.ee);
+      PosXY f_nom_B = robot_->GetNominalStanceInBase(c.ee);
       for (auto dim : {X,Y}) {
         Bound b;
 //        b.upper_ = /*f_nom_B(dim)*/   + max_deviation.at(dim);

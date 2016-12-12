@@ -14,7 +14,6 @@ namespace hyq {
 HyqRobotInterface::HyqRobotInterface ()
 {
   // TODO Auto-generated constructor stub
-
 }
 
 HyqRobotInterface::~HyqRobotInterface ()
@@ -23,7 +22,7 @@ HyqRobotInterface::~HyqRobotInterface ()
 }
 
 HyqRobotInterface::PosXY
-HyqRobotInterface::GetNominalStanceInBase (int leg_id) const
+HyqRobotInterface::GetNominalStanceInBase (xpp::opt::EndeffectorID leg_id) const
 {
   const double x_nominal_b = 0.34; // 0.4
   const double y_nominal_b = 0.34; // 0.4
@@ -45,5 +44,5 @@ HyqRobotInterface::GetMaxDeviationXYFromNominal () const
   return {0.25, 0.15};
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */

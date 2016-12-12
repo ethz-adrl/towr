@@ -55,7 +55,7 @@ public:
   virtual VecBound GetBounds() const override;
 
 private:
-  Vector2d GetContactToNominalInWorld(const Vector2d& conctact_W, int leg) const;
+  Vector2d GetContactToNominalInWorld(const Vector2d& conctact_W, EndeffectorID leg) const;
 
   Vector2d goal_xy_;
   RobotPtrU robot_;

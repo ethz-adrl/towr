@@ -9,8 +9,6 @@
 #define XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
 
 #include "phase.h"
-
-#include <xpp/hyq/leg_data_map.h>
 #include <vector>
 
 namespace xpp {
@@ -27,7 +25,7 @@ namespace opt {
 class MotionStructure {
 public:
 
-  using LegIDVec      = std::vector<xpp::hyq::LegID>;
+  using LegIDVec      = std::vector<EndeffectorID>;
   using StartStance   = std::vector<ContactDerived>;
 
   MotionStructure ();

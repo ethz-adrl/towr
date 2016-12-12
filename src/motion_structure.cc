@@ -40,7 +40,7 @@ MotionStructure::Init (const StartStance& start_stance,
   std::vector<Contact> all_free_contacts;
   int j = 0;
   for (auto leg : contact_ids) {
-    all_free_contacts.push_back(Contact(j++, static_cast<EndeffectorID>(leg)));
+    all_free_contacts.push_back(Contact(j++, leg));
   }
 
 
@@ -240,6 +240,6 @@ MotionStructure::GetPhases () const
   return phases_;
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 

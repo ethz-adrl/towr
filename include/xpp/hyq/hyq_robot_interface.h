@@ -18,11 +18,11 @@ public:
   HyqRobotInterface ();
   virtual ~HyqRobotInterface ();
 
-  virtual PosXY GetNominalStanceInBase(int leg_id) const final;
+  virtual PosXY GetNominalStanceInBase(xpp::opt::EndeffectorID leg_id) const final;
   virtual MaxDevXY GetMaxDeviationXYFromNominal() const final;
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_HYQ_HYQ_ROBOT_INTERFACE_H_ */

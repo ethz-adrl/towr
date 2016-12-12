@@ -73,8 +73,13 @@ MotionOptimizerFacade::OptimizeMotion ()
     contacts_initial.push_back(c);
   }
 
+  std::vector<EndeffectorID> step_sequence_generic;
+  for (auto ee : step_sequence) {
+    step_sequence_generic.push_back(static_cast<EndeffectorID>(ee));
+  }
 
-  motion_structure.Init(contacts_initial, step_sequence, t_swing_, t_first_phase,
+
+  motion_structure.Init(contacts_initial, step_sequence_generic, t_swing_, t_first_phase,
                         start_with_com_shift, insert_final_stance, dt_nodes_ );
 
   nlp_facade_.SolveNlp(curr_state_.base_.lin.Get2D(),

@@ -22,6 +22,7 @@
 
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/hyq/hyq_robot_interface.h>
+#include <xpp/hyq/leg_data_map.h>
 
 namespace xpp {
 namespace opt {
