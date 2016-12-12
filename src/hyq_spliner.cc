@@ -36,7 +36,7 @@ void HyqSpliner::SetParams(double upswing,
 void
 HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComMotionS& com_spline,
                   const VecFoothold& footholds, double des_height,
-                  const HyqState& curr_state)
+                  const SplineNode& curr_state)
 {
   nodes_ = BuildNodeSequence(curr_state, phase_info, footholds, des_height);
   CreateAllSplines(nodes_);
@@ -44,14 +44,14 @@ HyqSpliner::Init (const xpp::opt::PhaseVec& phase_info, const ComMotionS& com_sp
 }
 
 std::vector<SplineNode>
-HyqSpliner::BuildNodeSequence(const HyqState& P_init,
+HyqSpliner::BuildNodeSequence(const SplineNode& P_init,
                               const xpp::opt::PhaseVec& phase_info,
                               const VecFoothold& footholds,
                               double des_robot_height)
 {
   std::vector<SplineNode> nodes;
 
-  SplineNode prev_node(P_init, 0.0); // this node has to be reached instantly (t=0)
+  SplineNode prev_node = P_init;
   nodes.push_back(prev_node);
 
   for (const auto& curr_phase : phase_info)
@@ -326,7 +326,7 @@ SplineNode::SplineNode (const HyqState& state, double t_max)
 {
   swingleg_ = state.swingleg_;
   base_ang_ = state.base_.ang;
-  base_z_ = state.base_.lin.Get1d(Z);
+  base_z_   = state.base_.lin.Get1d(Z);
 
 //  LegDataMap<BaseLin3d> feet;
   auto W_p_ee = state.GetEEInWorld();
@@ -372,36 +372,40 @@ double SplineNode::GetZAvg() const
   return (avg[FRONT_SIDE](Z) + avg[HIND_SIDE](Z)) / 2;
 }
 
-HyqSpliner::HyqStateVec
-HyqSpliner::BuildWholeBodyTrajectoryJoints () const
+HyqSpliner::ArtiRobVec
+HyqSpliner::BuildWholeBodyTrajectory () const
 {
-  HyqStateVec trajectory_joints;
+  ArtiRobVec trajectory_joints;
 
-  HyqState hyq_j_prev;
-  bool first_state = true;
+//  ArticulatedRobotState hyq_j_prev;
+//  bool first_state = true;
   double t=0.0;
   while (t<GetTotalTime()) {
 
-    HyqState hyq_j;
+    ArticulatedRobotState hyq_j;
     hyq_j.base_.lin     = GetCurrPosition(t);
     hyq_j.base_.ang     = GetCurrOrientation(t);
 
-    FeetArray feet_W_;
-    FillCurrFeet(t, feet_W_, hyq_j.swingleg_);
-    HyqState::PosEE ee_W = {feet_W_[LF].p, feet_W_[RF].p, feet_W_[LH].p, feet_W_[RH].p};
+//    FeetArray feet_W_;
+    FillCurrFeet(t, hyq_j.feet_W_, hyq_j.swingleg_);
 
-    // joint position through inverse kinematics
-    hyq_j.SetJointAngles(ee_W);
+    hyq_j.t_ = t;
 
-    // joint velocity
-    if (!first_state) { // to avoid jump in vel/acc in first state
-      hyq_j.qd  = (hyq_j.q  - hyq_j_prev.q)  / kDiscretizationTime;
-      hyq_j.qdd = (hyq_j.qd - hyq_j_prev.qd) / kDiscretizationTime;
-    }
+
+//    HyqState::PosEE ee_W = {feet_W_[LF].p, feet_W_[RF].p, feet_W_[LH].p, feet_W_[RH].p};
+//
+//    // joint position through inverse kinematics
+//    hyq_j.SetJointAngles(ee_W);
+//
+//    // joint velocity
+//    if (!first_state) { // to avoid jump in vel/acc in first state
+//      hyq_j.qd  = (hyq_j.q  - hyq_j_prev.q)  / kDiscretizationTime;
+//      hyq_j.qdd = (hyq_j.qd - hyq_j_prev.qd) / kDiscretizationTime;
+//    }
 
     trajectory_joints.push_back(hyq_j);
-    hyq_j_prev = hyq_j;
-    first_state = false;
+//    hyq_j_prev = hyq_j;
+//    first_state = false;
     t += kDiscretizationTime;
   }
 

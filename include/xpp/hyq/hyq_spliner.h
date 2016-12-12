@@ -48,6 +48,18 @@ public:
   double GetZAvg() const;
 };
 
+class ArticulatedRobotState {
+public:
+  using BaseState     = xpp::utils::State3d;
+  using FeetArray     = SplineNode::FeetArray;
+  using ContactArray  = SplineNode::ContactArray;
+
+  BaseState base_;
+  FeetArray feet_W_;
+  ContactArray swingleg_;
+  double t_;
+};
+
 /** @brief Splines the base pose (only z-position + orientation).
   */
 class HyqSpliner {
@@ -56,7 +68,7 @@ public:
   using Vector3d      = Eigen::Vector3d;
   using VecFoothold   = utils::StdVecEigen2d;
   using State3d       = xpp::utils::StateLin3d;
-  using HyqStateVec   = std::vector<HyqState>;
+  using ArtiRobVec    = std::vector<ArticulatedRobotState>;
   // mpc don't forget about the spliner order
   using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State3d>;
   using SplinerFeet   = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State3d>;
@@ -77,9 +89,9 @@ public:
             const ComMotionS&,
             const VecFoothold&,
             double des_height,
-            const HyqState& curr_state);
+            const SplineNode& curr_state);
 
-  HyqStateVec BuildWholeBodyTrajectoryJoints() const;
+  ArtiRobVec BuildWholeBodyTrajectory() const;
 
 private:
   std::vector<SplineNode> nodes_; // the discrete states to spline through
@@ -93,7 +105,7 @@ private:
   double kLiftHeight;           // how high to lift the leg
   double kOutwardSwingDistance; // how far to swing leg outward (y-dir)
 
-  std::vector<SplineNode> BuildNodeSequence(const HyqState& P_init,
+  std::vector<SplineNode> BuildNodeSequence(const SplineNode& P_init,
                                             const xpp::opt::PhaseVec&,
                                             const VecFoothold& footholds,
                                             double des_robot_height);
