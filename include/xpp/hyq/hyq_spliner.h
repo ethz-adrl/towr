@@ -19,18 +19,26 @@
 namespace xpp {
 namespace hyq {
 
+// zmp_ embed this at a smart place
+static constexpr int kNee = 4; // number of endeffectors
+
 class SplineNode  {
 public:
-  using BaseLin3d = xpp::utils::StateLin3d;
-  using BaseAng3d = xpp::utils::StateAng3d;
-  using BaseLin1d = xpp::utils::StateLin1d;
-  using Vector3d  = Eigen::Vector3d;
+  using BaseLin3d    = xpp::utils::StateLin3d;
+  using BaseAng3d    = xpp::utils::StateAng3d;
+  using BaseLin1d    = xpp::utils::StateLin1d;
+  using Vector3d     = Eigen::Vector3d;
+  using FeetArray    = std::array<BaseLin3d, kNee>;
+  using ContactArray = std::array<bool, kNee>;
 
   SplineNode(){};
   SplineNode(const HyqState& state_joints, double t_max);
 
-  LegDataMap<BaseLin3d> feet_W_; ///< contacts expressed in world frame
-  LegDataMap< bool > swingleg_;
+  FeetArray feet_W_;
+  ContactArray swingleg_;
+
+//  LegDataMap<BaseLin3d> feet_W_; ///< contacts expressed in world frame
+//  LegDataMap< bool > swingleg_;
   BaseAng3d base_ang_;
   BaseLin1d base_z_;
 
@@ -53,6 +61,9 @@ public:
   using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State3d>;
   using SplinerFeet   = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State3d>;
   using ZPolynomial   = xpp::utils::CubicPolynomial;
+
+  using FeetArray     = SplineNode::FeetArray;
+  using ContactArray  = SplineNode::ContactArray;
 
 public:
   HyqSpliner();
@@ -92,13 +103,13 @@ private:
 //  SplineNodeVec GetInterpolatedNodes() const;
   State3d GetCurrPosition(double t_global) const;
   xpp::utils::StateAng3d GetCurrOrientation(double t_global) const;
-  void FillCurrFeet(double t_global, LegDataMap<State3d>& feet, LegDataMap<bool>& swingleg) const;
+  void FillCurrFeet(double t_global, FeetArray& feet, ContactArray& swingleg) const;
   void FillZState(double t_global, State3d& pos) const;
 
 //  Spliner3d BuildPositionSpline(const SplineNode& from, const SplineNode& to) const;
   SplinerOri BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const;
   LegDataMap<SplinerFeet> BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const;
-  LegDataMap<SplinerFeet> BuildFootstepSplineDown(const LegDataMap<State3d>& feet_at_switch,const SplineNode& to) const;
+  LegDataMap<SplinerFeet> BuildFootstepSplineDown(const FeetArray& feet_at_switch,const SplineNode& to) const;
 
   void BuildOneSegment(const SplineNode& from, const SplineNode& to,
                        ZPolynomial& z_poly,
