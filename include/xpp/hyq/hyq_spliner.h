@@ -5,16 +5,16 @@
 @brief   Splines body position, orientation and swing leg
  */
 
-#ifndef _XPP_HYQ_SPLINER_H_
-#define _XPP_HYQ_SPLINER_H_
+#ifndef _XPP_XPP_OPT_HYQ_SPLINER_H_
+#define _XPP_XPP_OPT_HYQ_SPLINER_H_
 
 #include <xpp/hyq/hyq_state.h>
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/polynomial_xd.h>
 
+#include <xpp/opt/phase.h>
 #include <xpp/opt/com_motion.h>
 #include <xpp/utils/eigen_std_conversions.h>
-#include "../opt/phase.h"
 
 namespace xpp {
 namespace hyq {
@@ -47,11 +47,11 @@ public:
   using ComMotionS     = std::shared_ptr<xpp::opt::ComMotion>;
   using Vector3d      = Eigen::Vector3d;
   using VecFoothold   = utils::StdVecEigen2d;
-  using State1d       = xpp::utils::StateLin3d;
+  using State3d       = xpp::utils::StateLin3d;
   using HyqStateVec   = std::vector<HyqState>;
   // mpc don't forget about the spliner order
-  using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State1d>;
-  using SplinerFeet   = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State1d>;
+  using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State3d>;
+  using SplinerFeet   = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State3d>;
   using ZPolynomial   = xpp::utils::CubicPolynomial;
 
 public:
@@ -90,15 +90,15 @@ private:
   void CreateAllSplines(const std::vector<SplineNode>& nodes);
 
 //  SplineNodeVec GetInterpolatedNodes() const;
-  State1d GetCurrPosition(double t_global) const;
+  State3d GetCurrPosition(double t_global) const;
   xpp::utils::StateAng3d GetCurrOrientation(double t_global) const;
-  void FillCurrFeet(double t_global, LegDataMap<State1d>& feet, LegDataMap<bool>& swingleg) const;
-  void FillZState(double t_global, State1d& pos) const;
+  void FillCurrFeet(double t_global, LegDataMap<State3d>& feet, LegDataMap<bool>& swingleg) const;
+  void FillZState(double t_global, State3d& pos) const;
 
 //  Spliner3d BuildPositionSpline(const SplineNode& from, const SplineNode& to) const;
   SplinerOri BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const;
   LegDataMap<SplinerFeet> BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const;
-  LegDataMap<SplinerFeet> BuildFootstepSplineDown(const LegDataMap<State1d>& feet_at_switch,const SplineNode& to) const;
+  LegDataMap<SplinerFeet> BuildFootstepSplineDown(const LegDataMap<State3d>& feet_at_switch,const SplineNode& to) const;
 
   void BuildOneSegment(const SplineNode& from, const SplineNode& to,
                        ZPolynomial& z_poly,
@@ -115,4 +115,4 @@ private:
 } // namespace hyq
 } // namespace xpp
 
-#endif // _XPP_HYQ_SPLINER_H_
+#endif // _XPP_XPP_OPT_HYQ_SPLINER_H_

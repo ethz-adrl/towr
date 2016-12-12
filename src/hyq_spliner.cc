@@ -138,7 +138,7 @@ HyqSpliner::TransformQuatToRpy(const Eigen::Quaterniond& q)
 }
 
 void
-HyqSpliner::FillZState(double t_global, State1d& pos) const
+HyqSpliner::FillZState(double t_global, State3d& pos) const
 {
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
@@ -148,10 +148,10 @@ HyqSpliner::FillZState(double t_global, State1d& pos) const
   pos.SetDimension(z_splined, Z);
 }
 
-HyqSpliner::State1d
+HyqSpliner::State3d
 HyqSpliner::GetCurrPosition(double t_global) const
 {
-  State1d pos;
+  State3d pos;
 
   xpp::utils::StateLin2d xy_optimized = com_motion_->GetCom(t_global);
   pos.p.topRows(kDim2d) = xy_optimized.p;
@@ -168,7 +168,7 @@ HyqSpliner::GetCurrOrientation(double t_global) const
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
 
-  State1d ori_rpy;
+  State3d ori_rpy;
   ori_spliner_.at(spline).GetPoint(t_local, ori_rpy);
 
   xpp::utils::StateAng3d ori;
@@ -183,7 +183,7 @@ HyqSpliner::GetCurrOrientation(double t_global) const
 
 void
 HyqSpliner::FillCurrFeet(double t_global,
-                        LegDataMap<State1d>& feet,
+                        LegDataMap<State3d>& feet,
                         LegDataMap<bool>& swingleg) const
 {
   double t_local = GetLocalSplineTime(t_global);
@@ -220,7 +220,7 @@ void HyqSpliner::BuildOneSegment(const SplineNode& from, const SplineNode& to,
   feet_up = BuildFootstepSplineUp(from, to);
 
   // this is the outter/upper-most point the foot swings to
-  LegDataMap<State1d> f_switch;
+  LegDataMap<State3d> f_switch;
   double t_switch = to.T * kUpswingPercent;
   for (LegID leg : LegIDArray) {
      feet_up[leg].GetPoint(t_switch, f_switch[leg]);
@@ -251,7 +251,7 @@ HyqSpliner::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) 
 
     // raise intermediate foothold dependant on foothold difference
     double delta_z = std::abs(to.feet_W_[leg].p.z() - from.feet_W_[leg].p.z());
-    State1d foot_raised = to.feet_W_[leg];
+    State3d foot_raised = to.feet_W_[leg];
     foot_raised.p.z() += kLiftHeight + delta_z;
 
     // move outward only if footholds significantly differ in height
@@ -269,7 +269,7 @@ HyqSpliner::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) 
 }
 
 xpp::hyq::LegDataMap<HyqSpliner::SplinerFeet>
-HyqSpliner::BuildFootstepSplineDown(const LegDataMap<State1d>& feet_at_switch,
+HyqSpliner::BuildFootstepSplineDown(const LegDataMap<State3d>& feet_at_switch,
                                     const SplineNode& to) const
 {
   LegDataMap< SplinerFeet > feet_down;

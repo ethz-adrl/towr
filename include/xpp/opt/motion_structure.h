@@ -5,12 +5,13 @@
  @brief   Declares the MotionStructure class.
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_ZMP_MOTION_STRUCTURE_H_
-#define XPP_OPT_INCLUDE_XPP_ZMP_MOTION_STRUCTURE_H_
+#ifndef XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
+#define XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
+
+#include "phase.h"
 
 #include <xpp/hyq/leg_data_map.h>
 #include <vector>
-#include "phase.h"
 
 namespace xpp {
 namespace opt {
@@ -27,7 +28,7 @@ class MotionStructure {
 public:
 
   using LegIDVec      = std::vector<xpp::hyq::LegID>;
-  using StartStance   = std::vector<xpp::hyq::Foothold>;
+  using StartStance   = std::vector<ContactDerived>;
 
   MotionStructure ();
 
@@ -84,7 +85,7 @@ private:
   mutable PhaseStampedVec cached_motion_vector_;
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
-#endif /* XPP_OPT_INCLUDE_XPP_ZMP_MOTION_STRUCTURE_H_ */
+#endif /* XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_ */

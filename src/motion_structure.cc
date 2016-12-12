@@ -6,17 +6,10 @@
  */
 
 #include <xpp/opt/motion_structure.h>
-
-#include <sys/types.h>
 #include <algorithm>
-#include <cassert>
-#include <cmath>
-#include <iterator>
 
 namespace xpp {
 namespace opt {
-
-using Foothold = xpp::hyq::Foothold;
 
 MotionStructure::MotionStructure ()
 {
@@ -88,7 +81,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
       // remove current swinglegs from list of active contacts
       auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
-                                   [&](const Foothold& f) {return f.leg == static_cast<hyq::LegID>(sl.ee);});
+                                   [&](const ContactDerived& f) {return f.ee == sl.ee;});
 
       if (it_fixed != phase.fixed_contacts_.end()) // step found in initial stance
         phase.fixed_contacts_.erase(it_fixed);     // remove contact, because now swinging leg

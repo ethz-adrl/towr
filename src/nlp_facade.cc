@@ -90,18 +90,16 @@ NlpFacade::SolveNlp(const State& initial_state,
   nlp->Init(opt_variables_, costs_, constraints_);
 
 
-  // Snopt solving
-  // fixme some constraints are still linear and have constant terms in its
-  // values, so this wont work
-  auto snopt_problem = SnoptAdapter::GetInstance();
-  snopt_problem->SetNLP(nlp);
-  snopt_problem->Init();
-  int Cold = 0, Basis = 1, Warm = 2;
-  snopt_problem->SolveSQP(Cold);
+//  // Snopt solving
+//  auto snopt_problem = SnoptAdapter::GetInstance();
+//  snopt_problem->SetNLP(nlp);
+//  snopt_problem->Init();
+//  int Cold = 0, Basis = 1, Warm = 2;
+//  snopt_problem->SolveSQP(Cold);
 
-//  // Ipopt solving
-//  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, visualizer_); // just so it can poll the PublishMsg() method
-//  SolveIpopt(nlp_ptr);
+  // Ipopt solving
+  IpoptPtr nlp_ptr = new IpoptAdapter(*nlp, visualizer_); // just so it can poll the PublishMsg() method
+  SolveIpopt(nlp_ptr);
 }
 
 void

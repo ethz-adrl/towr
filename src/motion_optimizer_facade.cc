@@ -61,7 +61,20 @@ MotionOptimizerFacade::OptimizeMotion ()
 
   double t_first_phase = t_first_phase_;//t_left_; // mpc this changes by goal publisher
 
-  motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, t_swing_, t_first_phase,
+  // zmp_ see if i can eliminate these somehow
+  auto stance = curr_state_.GetStanceLegsInWorld();
+  std::vector<ContactDerived> contacts_initial;
+  for (auto f : stance) {
+    ContactDerived c;
+    c.ee = static_cast<EndeffectorID>(f.leg);
+    c.id = f.id;
+    c.p = f.p;
+
+    contacts_initial.push_back(c);
+  }
+
+
+  motion_structure.Init(contacts_initial, step_sequence, t_swing_, t_first_phase,
                         start_with_com_shift, insert_final_stance, dt_nodes_ );
 
   nlp_facade_.SolveNlp(curr_state_.base_.lin.Get2D(),

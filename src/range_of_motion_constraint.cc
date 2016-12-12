@@ -122,7 +122,7 @@ RangeOfMotionBox::GetBounds () const
         if (c.id == Contact::kFixedByStartStance) {
 
           for (auto f : node.phase_.fixed_contacts_) {
-            if (f.leg == leg) {
+            if (f.ee == c.ee) {
               b -= f.p(dim);
             }
           }

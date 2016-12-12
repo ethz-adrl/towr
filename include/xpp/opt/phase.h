@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_PHASE_INFO_H_
 
 #include "a_robot_interface.h"
-#include <xpp/hyq/foothold.h>
+//#include <xpp/hyq/foothold.h>
 #include <xpp/utils/eigen_std_conversions.h>
 #include <iostream>
 #include <vector>
@@ -17,7 +17,9 @@
 namespace xpp {
 namespace opt {
 
-struct Contact {
+// zmp_ move this to own class, fundamental part of this code
+class Contact {
+public:
 
   // zmp_ same as defined in foothold, remove on of these
   static const int kFixedByStartStance = -1;
@@ -34,13 +36,21 @@ inline std::ostream& operator<<(std::ostream& out, const Contact& c)
   return out;
 }
 
+// zmp_ move this to own class, fundamental part of this code
+class ContactDerived : public Contact {
+public:
+  ContactDerived() {};
+  ContactDerived(const Contact& base) : Contact(base) {};
+  Eigen::Vector3d p;
+};
+
 /** Information to represent different types of motion.
   */
 class Phase {
 public:
-  using Foothold    = xpp::hyq::Foothold;
+//  using Foothold    = xpp::hyq::Foothold;
   using Vector2d    = Eigen::Vector2d;
-  using FootholdVec = std::vector<Foothold>;
+  using FootholdVec = std::vector<ContactDerived>;
   using ContactVec  = std::vector<Contact>;
 
   ContactVec free_contacts_; // all the stance legs currently in contact but not fixed by start
@@ -69,7 +79,8 @@ public:
     }
 
     for (const auto& c_fixed : fixed_contacts_) {
-      contacts.push_back(Contact(Contact::kFixedByStartStance, static_cast<EndeffectorID>(c_fixed.leg)));
+//      contacts.push_back(Contact(Contact::kFixedByStartStance, static_cast<EndeffectorID>(c_fixed.leg)));
+      contacts.push_back(c_fixed); // strips away child info
     }
 
     return contacts;
@@ -81,12 +92,18 @@ public:
     FootholdVec contacts;
 
     for (const auto& c_free : free_contacts_) {
-      Vector2d p = contacts_xy.at(c_free.id);
-      double z = 0.0;
-      Foothold f(p.x(), p.y(), z, static_cast<hyq::LegID>(c_free.ee));
-      // zmp_ cleanup and let his never happen again
-      f.id = c_free.id;
-      contacts.push_back(f);
+//      Vector2d p = contacts_xy.at(c_free.id);
+//      double z = 0.0;
+
+      ContactDerived contact(c_free);
+      contact.p.x() = contacts_xy.at(c_free.id).x();
+      contact.p.y() = contacts_xy.at(c_free.id).y();
+      contact.p.z() = 0.0;
+
+//      Foothold f(p.x(), p.y(), z, static_cast<hyq::LegID>(c_free.ee));
+//      // zmp_ cleanup and let his never happen again
+//      f.id = c_free.id;
+      contacts.push_back(contact);
     }
 
     for (const auto& c_fixed : fixed_contacts_) {
