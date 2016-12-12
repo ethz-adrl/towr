@@ -6,6 +6,7 @@
  */
 
 #include <xpp/ros/ros_visualizer.h>
+#include <xpp/opt/phase.h>
 
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/marker_array_builder.h>
@@ -29,13 +30,27 @@ RosVisualizer::~RosVisualizer ()
 
 void
 RosVisualizer::VisualizeCurrentState (const State& curr,
-                                               const VecFoothold& start_stance) const
+                                      const VecFoothold& start_stance) const
 {
   visualization_msgs::MarkerArray msg;
   MarkerArrayBuilder msg_builder;
 
   msg_builder.AddPoint(msg, curr.p, "current", visualization_msgs::Marker::CYLINDER);
-  msg_builder.AddStartStance(msg, start_stance);
+
+
+  // zmp_ see if i can eliminate these somehow
+  std::vector<xpp::opt::ContactDerived> contacts_initial;
+  for (auto f : start_stance) {
+    xpp::opt::ContactDerived c;
+    c.ee = static_cast<xpp::opt::EndeffectorID>(f.leg);
+    c.id = f.id;
+    c.p = f.p;
+
+    contacts_initial.push_back(c);
+  }
+
+
+  msg_builder.AddStartStance(msg, contacts_initial);
 
   ros_publisher_fixed_.publish(msg);
 }
@@ -49,14 +64,16 @@ RosVisualizer::Visualize () const
   auto leg_ids          = structure.GetContactIds();
   auto start_stance     = structure.GetStartStance();
 
-  std::vector<hyq::Foothold> footholds;
+  std::vector<xpp::opt::ContactDerived> footholds;
   for (int i=0; i<contacts.size(); ++i) {
-    hyq::Foothold f;
-    f.leg = leg_ids.at(i);
+    xpp::opt::ContactDerived f;
+    f.ee    = static_cast<xpp::opt::EndeffectorID>(leg_ids.at(i));
     f.p.x() = contacts.at(i).x();
     f.p.y() = contacts.at(i).y();
+    f.p.z() = 0.0;
     footholds.push_back(f);
   }
+
 
 
 

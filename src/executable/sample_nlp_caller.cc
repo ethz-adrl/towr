@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 
   HyqState::PosEE endeffector_W = { Vector3d( 0.359692,   0.327653, 0.0), // LF
                                     Vector3d( 0.359694,  -0.327644, 0.0), // RF
-                                    Vector3d(-0.358797,   0.327698, 0.0), // LH
+                                    Vector3d(-0.258797,   0.327698, 0.0), // LH
                                     Vector3d(-0.358802,  -0.327695, 0.0)};// RH
 
   start_state.SetJointAngles(endeffector_W);

@@ -305,7 +305,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
 
 void MarkerArrayBuilder::AddFootholds(
     visualization_msgs::MarkerArray& msg,
-    const std::vector<xpp::hyq::Foothold>& H_footholds,
+    const VecFoothold& H_footholds,
     const std::string& rviz_namespace,
     int32_t type,
     double alpha) const
@@ -360,7 +360,7 @@ void MarkerArrayBuilder::AddFootholds(
     marker_msg.scale.z = 0.05;
 
 
-    marker_msg.color = GetLegColor(H_footholds.at(j).leg);
+    marker_msg.color = GetLegColor(static_cast<xpp::hyq::LegID>(H_footholds.at(j).ee));
     marker_msg.color.a = alpha;
 
     msg.markers.push_back(marker_msg);
