@@ -27,7 +27,7 @@ namespace ros {
 class MarkerArrayBuilder {
 public:
   using VecFootholdEig  = utils::StdVecEigen2d;
-  using VecFoothold     = std::vector<xpp::opt::ContactDerived>;
+  using VecFoothold     = std::vector<xpp::opt::Contact>;
   using ComMotion       = xpp::opt::ComMotion;
   using MotionStructure = xpp::opt::MotionStructure;
   using Vector2d        = Eigen::Vector2d;

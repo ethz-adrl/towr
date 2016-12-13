@@ -30,27 +30,13 @@ RosVisualizer::~RosVisualizer ()
 
 void
 RosVisualizer::VisualizeCurrentState (const State& curr,
-                                      const VecFoothold& start_stance) const
+                                      const VecContacts& start_stance) const
 {
   visualization_msgs::MarkerArray msg;
   MarkerArrayBuilder msg_builder;
 
   msg_builder.AddPoint(msg, curr.p, "current", visualization_msgs::Marker::CYLINDER);
-
-
-  // zmp_ see if i can eliminate these somehow
-  std::vector<xpp::opt::ContactDerived> contacts_initial;
-  for (auto f : start_stance) {
-    xpp::opt::ContactDerived c;
-    c.ee = static_cast<xpp::opt::EndeffectorID>(f.leg);
-    c.id = f.id;
-    c.p = f.p;
-
-    contacts_initial.push_back(c);
-  }
-
-
-  msg_builder.AddStartStance(msg, contacts_initial);
+  msg_builder.AddStartStance(msg, start_stance);
 
   ros_publisher_fixed_.publish(msg);
 }
@@ -64,9 +50,9 @@ RosVisualizer::Visualize () const
   auto leg_ids          = structure.GetContactIds();
   auto start_stance     = structure.GetStartStance();
 
-  std::vector<xpp::opt::ContactDerived> footholds;
+  VecContacts footholds;
   for (int i=0; i<contacts.size(); ++i) {
-    xpp::opt::ContactDerived f;
+    xpp::opt::Contact f;
     f.ee    = static_cast<xpp::opt::EndeffectorID>(leg_ids.at(i));
     f.p.x() = contacts.at(i).x();
     f.p.y() = contacts.at(i).y();

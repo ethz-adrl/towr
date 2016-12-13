@@ -10,14 +10,12 @@
 
 #include <xpp/opt/i_visualizer.h>
 #include <xpp/utils/state.h>
+#include <xpp/opt/contact.h>
 
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 
 namespace xpp {
-
-namespace hyq { class Foothold; }
-
 namespace ros {
 
 /** @brief Visualizes the current values of the optimization variables.
@@ -29,15 +27,15 @@ namespace ros {
   */
 class RosVisualizer : public xpp::opt::IVisualizer {
 public:
-  using State = xpp::utils::StateLin2d;
-  using VecFoothold = std::vector<xpp::hyq::Foothold>;
+  using State       = xpp::utils::StateLin2d;
+  using VecContacts = std::vector<xpp::opt::Contact>;
 
   RosVisualizer();
   virtual ~RosVisualizer ();
 
   /** @brief Send a message with topic "optimization_variables" out to rviz */
   void Visualize() const override;
-  void VisualizeCurrentState(const State& curr, const VecFoothold& start_stance) const;
+  void VisualizeCurrentState(const State& curr, const VecContacts& start_stance) const;
 
 private:
   ::ros::Publisher ros_publisher_optimized_;
