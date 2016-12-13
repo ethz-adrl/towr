@@ -64,9 +64,9 @@ MotionOptimizerFacade::OptimizeMotion ()
 
   // zmp_ see if i can eliminate these somehow
   auto stance = curr_state_.GetStanceLegsInWorld();
-  std::vector<ContactDerived> contacts_initial;
+  std::vector<Contact> contacts_initial;
   for (auto f : stance) {
-    ContactDerived c;
+    Contact c;
     c.ee = static_cast<EndeffectorID>(f.leg);
     c.id = f.id;
     c.p = f.p;

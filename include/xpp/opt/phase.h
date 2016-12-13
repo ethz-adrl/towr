@@ -37,10 +37,10 @@ inline std::ostream& operator<<(std::ostream& out, const ContactBase& c)
 }
 
 // zmp_ move this to own class, fundamental part of this code
-class ContactDerived : public ContactBase {
+class Contact : public ContactBase {
 public:
-  ContactDerived() {};
-  ContactDerived(const ContactBase& base) : ContactBase(base) {};
+  Contact() {};
+  Contact(const ContactBase& base) : ContactBase(base) {};
   Eigen::Vector3d p;
 };
 
@@ -50,7 +50,7 @@ class Phase {
 public:
 //  using Foothold    = xpp::hyq::Foothold;
   using Vector2d    = Eigen::Vector2d;
-  using FootholdVec = std::vector<ContactDerived>;
+  using FootholdVec = std::vector<Contact>;
   using ContactVec  = std::vector<ContactBase>;
 
   ContactVec free_contacts_; // all the stance legs currently in contact but not fixed by start
@@ -95,7 +95,7 @@ public:
 //      Vector2d p = contacts_xy.at(c_free.id);
 //      double z = 0.0;
 
-      ContactDerived contact(c_free);
+      Contact contact(c_free);
       contact.p.x() = contacts_xy.at(c_free.id).x();
       contact.p.y() = contacts_xy.at(c_free.id).y();
       contact.p.z() = 0.0;

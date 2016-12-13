@@ -26,7 +26,7 @@ class MotionStructure {
 public:
 
   using LegIDVec      = std::vector<EndeffectorID>;
-  using StartStance   = std::vector<ContactDerived>;
+  using StartStance   = std::vector<Contact>;
 
   MotionStructure ();
 

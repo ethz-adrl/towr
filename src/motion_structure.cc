@@ -81,7 +81,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
       // remove current swinglegs from list of active contacts
       auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
-                                   [&](const ContactDerived& f) {return f.ee == sl.ee;});
+                                   [&](const Contact& f) {return f.ee == sl.ee;});
 
       if (it_fixed != phase.fixed_contacts_.end()) // step found in initial stance
         phase.fixed_contacts_.erase(it_fixed);     // remove contact, because now swinging leg
