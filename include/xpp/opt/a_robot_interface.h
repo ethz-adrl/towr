@@ -56,9 +56,6 @@ public:
     * Used by RangeOfMotionConstraint.
     */
   virtual MaxDevXY GetMaxDeviationXYFromNominal() const = 0;
-
-  virtual int GetNumberOfEndeffectors() const = 0;
-
 };
 
 } /* namespace opt */

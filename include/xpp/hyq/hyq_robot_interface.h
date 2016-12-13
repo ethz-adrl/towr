@@ -20,7 +20,6 @@ public:
 
   virtual PosXY GetNominalStanceInBase(xpp::opt::EndeffectorID leg_id) const final;
   virtual MaxDevXY GetMaxDeviationXYFromNominal() const final;
-  int GetNumberOfEndeffectors() const { return 4; };
 };
 
 } /* namespace opt */

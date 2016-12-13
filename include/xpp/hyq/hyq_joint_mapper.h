@@ -28,7 +28,6 @@ public:
   HyqStateVec BuildWholeBodyTrajectoryJoints(const ArtiRobVec&) const;
 
   SplineNode BuildSplineNode(const HyqState& hyq) const;
-
 };
 
 } /* namespace hyq */

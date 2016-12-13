@@ -40,7 +40,7 @@ MotionOptimizerFacade::Init (double max_step_length, double dt_nodes,
   t_first_phase_ = t_first_phase;
   des_walking_height_ = des_walking_height;
 
-  whole_body_mapper_.SetParams(0.5, lift_height, outward_swing, trajectory_dt);
+  wb_traj_gen4_.SetParams(0.5, lift_height, outward_swing, trajectory_dt);
 
   nlp_facade_.AttachNlpObserver(visualizer);
 }
@@ -91,13 +91,13 @@ MotionOptimizerFacade::OptimizeMotion ()
   xpp::hyq::HyqJointMapper joint_mapper;
   auto init_node  = joint_mapper.BuildSplineNode(curr_state_);
 
-  whole_body_mapper_.Init(motion_structure.GetPhases(),
-                          nlp_facade_.GetComMotion(),
-                          nlp_facade_.GetFootholds(),
-                          des_walking_height_,
-                          init_node);
+  wb_traj_gen4_.Init(motion_structure.GetPhases(),
+                     nlp_facade_.GetComMotion(),
+                     nlp_facade_.GetFootholds(),
+                     des_walking_height_,
+                     init_node);
 
-  auto art_rob_vec = whole_body_mapper_.BuildWholeBodyTrajectory();
+  auto art_rob_vec = wb_traj_gen4_.BuildWholeBodyTrajectory();
   optimized_trajectory_ = joint_mapper.BuildWholeBodyTrajectoryJoints(art_rob_vec);
 }
 

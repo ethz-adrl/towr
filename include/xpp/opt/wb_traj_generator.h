@@ -18,10 +18,6 @@
 namespace xpp {
 namespace opt {
 
-// zmp_ embed this at a smart place
-
-static constexpr int kNee = 4; // number of endeffectors
-
 template<size_t N_EE>
 class Node  {
 public:

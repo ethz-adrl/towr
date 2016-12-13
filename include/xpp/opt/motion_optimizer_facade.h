@@ -22,11 +22,14 @@ namespace opt {
   */
 class MotionOptimizerFacade {
 public:
+  static constexpr int kNee = 4;
+
   using State               = xpp::utils::StateLin3d;
-  using StepSequencePlanner = xpp::hyq::StepSequencePlanner;
-  using HyqStateVec         = std::vector<xpp::hyq::HyqState>;
-  using HyqState            = xpp::hyq::HyqState;
   using VisualizerPtr       = std::shared_ptr<IVisualizer>;
+  using WBTrajGen4EE        = WBTrajGenerator<kNee>;
+  using StepSequencePlanner = xpp::hyq::StepSequencePlanner;
+  using HyqState            = xpp::hyq::HyqState;
+  using HyqStateVec         = std::vector<HyqState>;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
@@ -51,7 +54,7 @@ public:
 
 private:
   HyqState curr_state_;
-  WBTrajGenerator<4> whole_body_mapper_; // zmp_ use hyq_robot_class for this
+  WBTrajGen4EE wb_traj_gen4_;
   NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;
 
