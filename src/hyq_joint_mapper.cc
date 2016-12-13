@@ -6,6 +6,7 @@
  */
 
 #include <xpp/hyq/hyq_joint_mapper.h>
+#include <xpp/hyq/hyq_endeffectors.h>
 
 namespace xpp {
 namespace hyq {
@@ -24,7 +25,7 @@ HyqJointMapper::SplineNode
 HyqJointMapper::BuildSplineNode (const HyqState& state) const
 {
   SplineNode node;
-  node.swingleg_ = state.swingleg_;
+//  node.swingleg_ = state.swingleg_;
   node.base_ang_ = state.base_.ang;
   node.base_z_   = state.base_.lin.Get1d(utils::Z);
 
@@ -32,10 +33,15 @@ HyqJointMapper::BuildSplineNode (const HyqState& state) const
   auto W_p_ee = state.GetEEInWorld();
   auto W_v_ee = state.GetEEInVelWorld();
 
-  for (int leg=0; leg<W_p_ee.size(); ++leg){
-    node.feet_W_[leg].p = W_p_ee[leg];
-    node.feet_W_[leg].v = W_v_ee[leg];
-    node.feet_W_[leg].a.setZero(); // mpc fill this at some point as well
+  // zmp_ clean this
+//  for (int leg=0; leg<W_p_ee.size(); ++leg) {
+  for (auto leg : LegIDArray) {
+//    opt::EndeffectorID ee = static_cast<opt::EndeffectorID>(leg); // assume there are ordered like this
+    opt::EndeffectorID ee = kMapHyqToOpt.at(leg);
+    node.feet_W_.at(ee).p = W_p_ee.at(leg);
+    node.swingleg_.at(ee) = state.swingleg_.at(leg);
+//    node.feet_W_.at(ee).v = W_v_ee[leg];
+//    node.feet_W_.at(ee).a.setZero(); // mpc fill this at some point as well
   }
 
   node.T = 0.0;
@@ -54,14 +60,14 @@ HyqJointMapper::BuildWholeBodyTrajectoryJoints (const ArtiRobVec& robot_vec) con
 
     HyqState hyq_j;
     hyq_j.base_     = state.base_;
-    hyq_j.swingleg_ = state.swingleg_;
 
-
-    // extract only positions
+    // convert generic endeffectors to hyq and extract only positions
     HyqState::PosEE pose_ee_W;
-    int i=0;
-    for (auto ee : state.feet_W_) {
-      pose_ee_W.at(i++) = ee.p;
+    for (int i=0; i<state.feet_W_.size(); ++i) {
+      auto ee  = static_cast<opt::EndeffectorID>(i); // assume there are ordered like this
+      auto leg = kMapOptToHyq.at(ee);
+      pose_ee_W.at(leg)       = state.feet_W_.at(ee).p;
+      hyq_j.swingleg_.at(leg) = state.swingleg_.at(ee);
     }
 
     // joint position through inverse kinematics
@@ -79,39 +85,6 @@ HyqJointMapper::BuildWholeBodyTrajectoryJoints (const ArtiRobVec& robot_vec) con
     t_prev = state.t_;
     first_state = false;
   }
-
-
-
-
-
-
-//  HyqState hyq_j_prev;
-//  bool first_state = true;
-//  double t=0.0;
-//  while (t<GetTotalTime()) {
-//
-//    HyqState hyq_j;
-//    hyq_j.base_.lin     = GetCurrPosition(t);
-//    hyq_j.base_.ang     = GetCurrOrientation(t);
-//
-//    FeetArray feet_W_;
-//    FillCurrFeet(t, feet_W_, hyq_j.swingleg_);
-//    HyqState::PosEE ee_W = {feet_W_[LF].p, feet_W_[RF].p, feet_W_[LH].p, feet_W_[RH].p};
-//
-//    // joint position through inverse kinematics
-//    hyq_j.SetJointAngles(ee_W);
-//
-//    // joint velocity
-//    if (!first_state) { // to avoid jump in vel/acc in first state
-//      hyq_j.qd  = (hyq_j.q  - hyq_j_prev.q)  / kDiscretizationTime;
-//      hyq_j.qdd = (hyq_j.qd - hyq_j_prev.qd) / kDiscretizationTime;
-//    }
-//
-//    trajectory_joints.push_back(hyq_j);
-//    hyq_j_prev = hyq_j;
-//    first_state = false;
-//    t += kDiscretizationTime;
-//  }
 
   return trajectory_joints;
 }

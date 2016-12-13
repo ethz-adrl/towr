@@ -6,7 +6,7 @@
  */
 
 #include <xpp/hyq/hyq_robot_interface.h>
-#include <xpp/hyq/leg_data_map.h>
+#include <xpp/hyq/hyq_endeffectors.h>
 
 namespace xpp {
 namespace hyq {
@@ -27,9 +27,7 @@ HyqRobotInterface::GetNominalStanceInBase (xpp::opt::EndeffectorID leg_id) const
   const double x_nominal_b = 0.34; // 0.4
   const double y_nominal_b = 0.34; // 0.4
 
-  assert(LF <= leg_id && leg_id <= RH); // leg with this ID exists
-
-  switch (static_cast<LegID>(leg_id)) {
+  switch (kMapOptToHyq.at(leg_id)) {
     case LF: return PosXY( x_nominal_b,   y_nominal_b); break;
     case RF: return PosXY( x_nominal_b,  -y_nominal_b); break;
     case LH: return PosXY(-x_nominal_b,   y_nominal_b); break;

@@ -8,6 +8,7 @@
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/opt/range_of_motion_constraint.h>
 #include <xpp/opt/zero_moment_point.h>
+#include <xpp/hyq/hyq_endeffectors.h>
 
 namespace xpp {
 namespace hyq {

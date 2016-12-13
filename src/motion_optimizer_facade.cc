@@ -76,7 +76,8 @@ MotionOptimizerFacade::OptimizeMotion ()
 
   std::vector<EndeffectorID> step_sequence_generic;
   for (auto ee : step_sequence) {
-    step_sequence_generic.push_back(static_cast<EndeffectorID>(ee));
+
+    step_sequence_generic.push_back(hyq::kMapHyqToOpt.at(ee));
   }
 
 
