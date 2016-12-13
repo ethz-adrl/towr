@@ -8,6 +8,7 @@
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
 #include <xpp_msgs/CurrentInfo.h>
+#include <xpp/hyq/hyq_endeffectors.h>
 
 using HyqState       = xpp::hyq::HyqState;
 using CurrentInfoMsg = xpp_msgs::CurrentInfo;

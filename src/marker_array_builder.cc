@@ -393,16 +393,16 @@ std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(EEID leg) const
 
   std_msgs::ColorRGBA color_leg;
   switch (leg) {
-    case EEID::E0: // LF
+    case EEID::E1: // LF
       color_leg = red;
       break;
-    case EEID::E1: // RF
+    case EEID::E3: // RF
       color_leg = green;
       break;
-    case EEID::E2: //LH:
+    case EEID::E0: //LH:
       color_leg = blue;
       break;
-    case EEID::E3: // RH
+    case EEID::E2: // RH
       color_leg = yellow;
       break;
     default:

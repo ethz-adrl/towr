@@ -6,8 +6,6 @@
  */
 
 #include <xpp/ros/ros_visualizer.h>
-#include <xpp/opt/phase.h>
-
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/marker_array_builder.h>
 #include <xpp/ros/topic_names.h>
@@ -16,12 +14,13 @@ namespace xpp {
 namespace ros {
 
 using VectorXd = Eigen::VectorXd;
+using MarkerArray = visualization_msgs::MarkerArray;
 
 RosVisualizer::RosVisualizer ()
 {
   ::ros::NodeHandle n;
-  ros_publisher_optimized_ = n.advertise<visualization_msgs::MarkerArray>(xpp_msgs::rviz_optimized, 1);
-  ros_publisher_fixed_     = n.advertise<visualization_msgs::MarkerArray>(xpp_msgs::rviz_fixed, 1);
+  ros_publisher_optimized_ = n.advertise<MarkerArray>(xpp_msgs::rviz_optimized, 1);
+  ros_publisher_fixed_     = n.advertise<MarkerArray>(xpp_msgs::rviz_fixed, 1);
 }
 
 RosVisualizer::~RosVisualizer ()
@@ -32,7 +31,7 @@ void
 RosVisualizer::VisualizeCurrentState (const State& curr,
                                       const VecContacts& start_stance) const
 {
-  visualization_msgs::MarkerArray msg;
+  MarkerArray msg;
   MarkerArrayBuilder msg_builder;
 
   msg_builder.AddPoint(msg, curr.p, "current", visualization_msgs::Marker::CYLINDER);
@@ -64,7 +63,7 @@ RosVisualizer::Visualize () const
 
 
 
-  visualization_msgs::MarkerArray msg;
+  MarkerArray msg;
   MarkerArrayBuilder msg_builder_;
   msg_builder_.AddStartStance(msg, start_stance);
   msg_builder_.AddFootholds(msg, footholds, "footholds", visualization_msgs::Marker::CUBE, 1.0);
