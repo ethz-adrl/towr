@@ -10,7 +10,6 @@
 
 #include <xpp/opt/com_motion.h>
 #include <xpp/opt/motion_structure.h>
-#include <xpp/hyq/foothold.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <xpp/utils/eigen_std_conversions.h>
 #include <Eigen/Dense>
@@ -33,6 +32,7 @@ public:
   using Vector2d        = Eigen::Vector2d;
   using Marker          = visualization_msgs::Marker ;
   using MarkerArray     = visualization_msgs::MarkerArray ;
+  using EEID            = xpp::opt::EndeffectorID;
 
 public:
   MarkerArrayBuilder();
@@ -50,7 +50,7 @@ public:
                           const VecFootholdEig& footholds) const;
   void BuildSupportPolygon(MarkerArray& msg,
                            const VecFoothold& stance_legs,
-                           xpp::hyq::LegID leg_id) const;
+                           EEID leg_id) const;
 
   void AddCogTrajectory(MarkerArray& msg,
                         const ComMotion&,
@@ -81,7 +81,7 @@ public:
                   const std::string& rviz_namespace) const;
 private:
   Marker GenerateMarker(Vector2d pos, int32_t type, double size) const;
-  std_msgs::ColorRGBA GetLegColor(xpp::hyq::LegID leg) const;
+  std_msgs::ColorRGBA GetLegColor(EEID leg) const;
   const std::string frame_id_ = "world";
 };
 

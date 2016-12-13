@@ -32,7 +32,7 @@ void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg
 
 
     if (phase.IsStep()) {
-      hyq::LegID swingleg = static_cast<hyq::LegID>(phase.swing_goal_contacts_.front().ee);
+      EEID swingleg = phase.swing_goal_contacts_.front().ee;
       BuildSupportPolygon(msg, phase.GetAllContacts(footholds), swingleg);
     }
 
@@ -55,7 +55,7 @@ void
 MarkerArrayBuilder::BuildSupportPolygon(
     visualization_msgs::MarkerArray& msg,
     const VecFoothold& stance,
-    xpp::hyq::LegID leg_id) const
+    EEID leg_id) const
 {
 //  static int i=0;
 //  geometry_msgs::PolygonStamped polygon_msg;
@@ -226,7 +226,7 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
     if ( !phase.IsStep() ) {
       marker.color.r = marker.color.g = marker.color.b = 1.0;
     } else {
-      auto swing_leg = static_cast<hyq::LegID>(phase.swing_goal_contacts_.front().ee);
+      auto swing_leg = phase.swing_goal_contacts_.front().ee;
       marker.color = GetLegColor(swing_leg);
     }
 
@@ -280,7 +280,7 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
       marker.color.r = marker.color.g = marker.color.g = 0.1;
     } else {
       // take color of first swingleg
-      auto swing_leg = static_cast<hyq::LegID>(phase.swing_goal_contacts_.front().ee);
+      auto swing_leg = phase.swing_goal_contacts_.front().ee;
 //      marker.ns = "leg " + std::to_string(swing_leg);
       marker.color = GetLegColor(swing_leg);
     }
@@ -360,7 +360,7 @@ void MarkerArrayBuilder::AddFootholds(
     marker_msg.scale.z = 0.05;
 
 
-    marker_msg.color = GetLegColor(static_cast<xpp::hyq::LegID>(H_footholds.at(j).ee));
+    marker_msg.color = GetLegColor(H_footholds.at(j).ee);
     marker_msg.color.a = alpha;
 
     msg.markers.push_back(marker_msg);
@@ -378,7 +378,7 @@ void MarkerArrayBuilder::AddFootholds(
   }
 }
 
-std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(xpp::hyq::LegID leg) const
+std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(EEID leg) const
 {
   // define a few colors
   std_msgs::ColorRGBA red, green, blue, yellow, white;
@@ -393,16 +393,16 @@ std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(xpp::hyq::LegID leg) const
 
   std_msgs::ColorRGBA color_leg;
   switch (leg) {
-    case xpp::hyq::LF:
+    case EEID::E0: // LF
       color_leg = red;
       break;
-    case xpp::hyq::RF:
+    case EEID::E1: // RF
       color_leg = green;
       break;
-    case xpp::hyq::LH:
+    case EEID::E2: //LH:
       color_leg = blue;
       break;
-    case xpp::hyq::RH:
+    case EEID::E3: // RH
       color_leg = yellow;
       break;
     default:
