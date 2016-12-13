@@ -13,16 +13,20 @@ namespace opt {
 
 using namespace xpp::utils;
 
-WBTrajGenerator::WBTrajGenerator()
+
+template<size_t N_EE>
+WBTrajGenerator<N_EE>::WBTrajGenerator()
 {
   SetParams(0.0, 0.0, 0.0, 0.0);
 }
 
-WBTrajGenerator::~WBTrajGenerator()
+template<size_t N_EE>
+WBTrajGenerator<N_EE>::~WBTrajGenerator()
 {
 }
 
-void WBTrajGenerator::SetParams(double upswing,
+template<size_t N_EE>
+void WBTrajGenerator<N_EE>::SetParams(double upswing,
                double lift_height,
                double outward_swing_distance,
                double discretization_time)
@@ -33,18 +37,27 @@ void WBTrajGenerator::SetParams(double upswing,
   kDiscretizationTime = discretization_time;
 }
 
+template<size_t N_EE>
 void
-WBTrajGenerator::Init (const xpp::opt::PhaseVec& phase_info, const ComMotionS& com_spline,
+WBTrajGenerator<N_EE>::Init (const xpp::opt::PhaseVec& phase_info, const ComMotionS& com_spline,
                   const VecFoothold& footholds, double des_height,
                   const SplineNode& curr_state)
 {
+  // get endeffector size from current node
+  int n_endeffectors = curr_state.feet_W_.size();
+  feet_spliner_up_.resize(n_endeffectors);
+  feet_spliner_down_.resize(n_endeffectors);
+
+
+
   nodes_ = BuildNodeSequence(curr_state, phase_info, footholds, des_height);
   CreateAllSplines(nodes_);
   com_motion_ = com_spline;
 }
 
-std::vector<SplineNode>
-WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
+template<size_t N_EE>
+std::vector<Node<N_EE>>
+WBTrajGenerator<N_EE>::BuildNodeSequence(const SplineNode& P_init,
                               const xpp::opt::PhaseVec& phase_info,
                               const VecFoothold& footholds,
                               double des_robot_height)
@@ -85,7 +98,8 @@ WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
   return nodes;
 }
 
-void WBTrajGenerator::CreateAllSplines(const std::vector<SplineNode>& nodes)
+template<size_t N_EE>
+void WBTrajGenerator<N_EE>::CreateAllSplines(const std::vector<SplineNode>& nodes)
 {
   z_spliner_.clear();
   ori_spliner_.clear();
@@ -108,8 +122,9 @@ void WBTrajGenerator::CreateAllSplines(const std::vector<SplineNode>& nodes)
   }
 }
 
+template<size_t N_EE>
 Eigen::Vector3d
-WBTrajGenerator::TransformQuatToRpy(const Eigen::Quaterniond& q)
+WBTrajGenerator<N_EE>::TransformQuatToRpy(const Eigen::Quaterniond& q)
 {
   // wrap orientation
   kindr::RotationQuaternionPD qIB(q);
@@ -137,8 +152,9 @@ WBTrajGenerator::TransformQuatToRpy(const Eigen::Quaterniond& q)
   return yprIB_full.toImplementation();
 }
 
+template<size_t N_EE>
 void
-WBTrajGenerator::FillZState(double t_global, State3d& pos) const
+WBTrajGenerator<N_EE>::FillZState(double t_global, State3d& pos) const
 {
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
@@ -148,8 +164,9 @@ WBTrajGenerator::FillZState(double t_global, State3d& pos) const
   pos.SetDimension(z_splined, Z);
 }
 
-WBTrajGenerator::State3d
-WBTrajGenerator::GetCurrPosition(double t_global) const
+template<size_t N_EE>
+typename WBTrajGenerator<N_EE>::State3d
+WBTrajGenerator<N_EE>::GetCurrPosition(double t_global) const
 {
   State3d pos;
 
@@ -162,8 +179,9 @@ WBTrajGenerator::GetCurrPosition(double t_global) const
   return pos;
 }
 
+template<size_t N_EE>
 xpp::utils::StateAng3d
-WBTrajGenerator::GetCurrOrientation(double t_global) const
+WBTrajGenerator<N_EE>::GetCurrOrientation(double t_global) const
 {
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
@@ -181,8 +199,10 @@ WBTrajGenerator::GetCurrOrientation(double t_global) const
   return ori;
 }
 
+// zmp_ split into two functions
+template<size_t N_EE>
 void
-WBTrajGenerator::FillCurrFeet(double t_global,
+WBTrajGenerator<N_EE>::FillCurrFeet(double t_global,
                          FeetArray& feet,
                          ContactArray& swingleg) const
 {
@@ -195,7 +215,7 @@ WBTrajGenerator::FillCurrFeet(double t_global,
   feet = nodes_.at(goal_node).feet_W_;
 
 //  for (auto leg : {LF, RF, LH, RH}) {
-  for (int leg=0; leg<kNee; ++leg) {
+  for (int leg=0; leg<feet.size(); ++leg) {
 
 
     if(nodes_.at(goal_node).swingleg_[leg]) { // only spline swinglegs
@@ -212,7 +232,8 @@ WBTrajGenerator::FillCurrFeet(double t_global,
   }
 }
 
-void WBTrajGenerator::BuildOneSegment(const SplineNode& from, const SplineNode& to,
+template<size_t N_EE>
+void WBTrajGenerator<N_EE>::BuildOneSegment(const SplineNode& from, const SplineNode& to,
                                  ZPolynomial& z_poly,
                                  SplinerOri& ori,
                                  FeetSplinerArray& feet_up,
@@ -225,15 +246,16 @@ void WBTrajGenerator::BuildOneSegment(const SplineNode& from, const SplineNode& 
   // this is the outter/upper-most point the foot swings to
   FeetArray f_switch;
   double t_switch = to.T * kUpswingPercent;
-  for (int leg=0; leg<kNee; ++leg) {
+  for (int leg=0; leg<feet_up.size(); ++leg) {
      feet_up[leg].GetPoint(t_switch, f_switch[leg]);
   }
 
   feet_down = BuildFootstepSplineDown(f_switch, to);
 }
 
-WBTrajGenerator::SplinerOri
-WBTrajGenerator::BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const
+template<size_t N_EE>
+typename WBTrajGenerator<N_EE>::SplinerOri
+WBTrajGenerator<N_EE>::BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const
 {
   xpp::utils::StateLin3d rpy_from, rpy_to;
   rpy_from.p = TransformQuatToRpy(from.base_ang_.q);
@@ -244,13 +266,14 @@ WBTrajGenerator::BuildOrientationRpySpline(const SplineNode& from, const SplineN
   return ori;
 }
 
-WBTrajGenerator::FeetSplinerArray
-WBTrajGenerator::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const
+template<size_t N_EE>
+typename WBTrajGenerator<N_EE>::FeetSplinerArray
+WBTrajGenerator<N_EE>::BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const
 {
   FeetSplinerArray feet_up;
 
   // Feet spliner for all legs, even if might be stance legs
-  for (int leg=0; leg<kNee; ++leg) {
+  for (int leg=0; leg<from.feet_W_.size(); ++leg) {
 
     // raise intermediate foothold dependant on foothold difference
     double delta_z = std::abs(to.feet_W_[leg].p.z() - from.feet_W_[leg].p.z());
@@ -271,14 +294,15 @@ WBTrajGenerator::BuildFootstepSplineUp(const SplineNode& from, const SplineNode&
   return feet_up;
 }
 
-WBTrajGenerator::FeetSplinerArray
-WBTrajGenerator::BuildFootstepSplineDown(const FeetArray& feet_at_switch,
+template<size_t N_EE>
+typename WBTrajGenerator<N_EE>::FeetSplinerArray
+WBTrajGenerator<N_EE>::BuildFootstepSplineDown(const FeetArray& feet_at_switch,
                                     const SplineNode& to) const
 {
   FeetSplinerArray feet_down;
 
   // Feet spliner for all legs, even if might be stance legs
-  for (int leg=0; leg<kNee; ++leg) {
+  for (int leg=0; leg<to.feet_W_.size(); ++leg) {
 
     // downward swing from the foothold at switch state to original
     double duration = to.T * (1.0-kUpswingPercent);
@@ -288,7 +312,8 @@ WBTrajGenerator::BuildFootstepSplineDown(const FeetArray& feet_at_switch,
   return feet_down;
 }
 
-double WBTrajGenerator::GetTotalTime() const
+template<size_t N_EE>
+double WBTrajGenerator<N_EE>::GetTotalTime() const
 {
   double T = 0.0;
   for (uint n = 1; n < nodes_.size(); n++) {
@@ -297,7 +322,8 @@ double WBTrajGenerator::GetTotalTime() const
   return T;
 }
 
-double WBTrajGenerator::GetLocalSplineTime(double t_global) const
+template<size_t N_EE>
+double WBTrajGenerator<N_EE>::GetLocalSplineTime(double t_global) const
 {
   int spline = GetSplineID(t_global);
   int goal_node = spline+1;
@@ -309,7 +335,8 @@ double WBTrajGenerator::GetLocalSplineTime(double t_global) const
   return t_local;
 }
 
-int WBTrajGenerator::GetSplineID(double t) const
+template<size_t N_EE>
+int WBTrajGenerator<N_EE>::GetSplineID(double t) const
 {
   assert(t <= GetTotalTime()); // time inside the time frame
 
@@ -324,25 +351,16 @@ int WBTrajGenerator::GetSplineID(double t) const
   return -1;
 }
 
-double SplineNode::GetZAvg() const
-{
-  double z_avg = 0.0;
-  for (auto f : feet_W_) {
-    z_avg += (f.p.z()/kNee);
-  }
-
-  return z_avg;
-}
-
-WBTrajGenerator::ArtiRobVec
-WBTrajGenerator::BuildWholeBodyTrajectory () const
+template<size_t N_EE>
+typename WBTrajGenerator<N_EE>::ArtiRobVec
+WBTrajGenerator<N_EE>::BuildWholeBodyTrajectory () const
 {
   ArtiRobVec trajectory;
 
   double t=0.0;
   while (t<GetTotalTime()) {
 
-    ArticulatedRobotState state;
+    ArticulatedRobotState<N_EE> state;
     state.base_.lin     = GetCurrPosition(t);
     state.base_.ang     = GetCurrOrientation(t);
     FillCurrFeet(t, state.feet_W_, state.swingleg_);

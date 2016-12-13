@@ -51,7 +51,7 @@ public:
 
 private:
   HyqState curr_state_;
-  WBTrajGenerator whole_body_mapper_;
+  WBTrajGenerator<4> whole_body_mapper_; // zmp_ use hyq_robot_class for this
   NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;
 

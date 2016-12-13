@@ -86,7 +86,6 @@ set(SOURCES
   src/a_robot_interface.cc
   # hyq
   src/step_sequence_planner.cc
-  src/wb_traj_generator.cc
   src/hyq_robot_interface.cc
   src/hyq_joint_mapper.cc
   # com

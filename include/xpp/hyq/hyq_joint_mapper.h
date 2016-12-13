@@ -16,9 +16,11 @@ namespace hyq {
 
 class HyqJointMapper {
 public:
+  static constexpr int kNee = 4;
+
   using HyqStateVec = std::vector<HyqState>;
-  using ArtiRobVec  = xpp::opt::WBTrajGenerator::ArtiRobVec;
-  using SplineNode  = xpp::opt::SplineNode;
+  using SplineNode  = xpp::opt::Node<kNee>;
+  using ArtiRobVec  = typename xpp::opt::WBTrajGenerator<kNee>::ArtiRobVec;
 
   HyqJointMapper ();
   virtual ~HyqJointMapper ();

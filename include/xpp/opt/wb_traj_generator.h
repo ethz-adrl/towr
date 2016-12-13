@@ -19,18 +19,20 @@ namespace xpp {
 namespace opt {
 
 // zmp_ embed this at a smart place
+
 static constexpr int kNee = 4; // number of endeffectors
 
-class SplineNode  {
+template<size_t N_EE>
+class Node  {
 public:
   using BaseLin3d    = xpp::utils::StateLin3d;
   using BaseAng3d    = xpp::utils::StateAng3d;
   using BaseLin1d    = xpp::utils::StateLin1d;
   using Vector3d     = Eigen::Vector3d;
-  using FeetArray    = std::array<BaseLin3d, kNee>;
-  using ContactArray = std::array<bool, kNee>;
+  using FeetArray    = std::array<BaseLin3d, N_EE>;
+  using ContactArray = std::array<bool, N_EE>;
 
-  SplineNode(){};
+  static const int kNee = N_EE;
 
   FeetArray feet_W_;
   ContactArray swingleg_;
@@ -38,14 +40,25 @@ public:
   BaseLin1d base_z_;
   double T; ///< time to reach this state
 
-  double GetZAvg() const;
+  double GetZAvg() const
+  {
+    double z_avg = 0.0;
+    for (auto f : feet_W_) {
+      z_avg += (f.p.z()/kNee);
+    }
+
+    return z_avg;
+  }
 };
 
+
+template<size_t N_EE>
 class ArticulatedRobotState {
 public:
   using BaseState     = xpp::utils::State3d;
-  using FeetArray     = SplineNode::FeetArray;
-  using ContactArray  = SplineNode::ContactArray;
+  using SplineNode    = Node<N_EE>;
+  using FeetArray     = typename SplineNode::FeetArray;
+  using ContactArray  = typename SplineNode::ContactArray;
 
   BaseState base_;
   FeetArray feet_W_;
@@ -54,22 +67,30 @@ public:
 };
 
 /** @brief Whole-Body Trajectory Generator
+  *
+  * This class is responsible for taking the optimized trajectory and
+  * filling in the remaining DoF to produce a discretized whole body trajectory.
+  * The DoF that are calculated by this class include:
+  *   - Body height
+  *   - Angular pos/vel/acc
+  *   - Swingleg trajectories.
   */
+template<size_t N_EE>
 class WBTrajGenerator {
 public:
   using ComMotionS     = std::shared_ptr<xpp::opt::ComMotion>;
   using Vector3d      = Eigen::Vector3d;
   using VecFoothold   = utils::StdVecEigen2d;
   using State3d       = xpp::utils::StateLin3d;
-  using ArtiRobVec    = std::vector<ArticulatedRobotState>;
   using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State3d>;
   using SplinerFeet   = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State3d>;
   using ZPolynomial   = xpp::utils::CubicPolynomial;
 
-  using FeetArray     = SplineNode::FeetArray;
-  using ContactArray  = SplineNode::ContactArray;
-
-  using FeetSplinerArray = std::array<SplinerFeet, kNee>;
+  using SplineNode    = Node<N_EE>;
+  using FeetArray     = typename SplineNode::FeetArray;
+  using ContactArray  = typename SplineNode::ContactArray;
+  using ArtiRobVec    = std::vector<ArticulatedRobotState<N_EE> >;
+  using FeetSplinerArray = std::array<SplinerFeet, N_EE>;
 
 public:
   WBTrajGenerator();
@@ -131,5 +152,7 @@ private:
 
 } // namespace opt
 } // namespace xpp
+
+#include "implementation/wb_traj_generator-impl.h"
 
 #endif // _XPP_XPP_OPT_WB_TRAJ_GENERATOR_H_
