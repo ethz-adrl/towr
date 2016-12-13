@@ -111,7 +111,7 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
     for (auto c: node.phase_.GetAllContacts()) {
-      if (c.id != Contact::kFixedByStartStance) {
+      if (c.id != ContactBase::kFixedByStartStance) {
         for (auto dim : {X, Y}) {
           int idx_contact = ContactVars::Index(c.id, dim);
           jac_.insert(row_idx+dim, idx_contact) = lambdas_(idx_lambdas);

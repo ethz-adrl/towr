@@ -37,10 +37,10 @@ MotionStructure::Init (const StartStance& start_stance,
     phases_.push_back(initial_stance_phase);
   }
 
-  std::vector<Contact> all_free_contacts;
+  std::vector<ContactBase> all_free_contacts;
   int j = 0;
   for (auto leg : contact_ids) {
-    all_free_contacts.push_back(Contact(j++, leg));
+    all_free_contacts.push_back(ContactBase(j++, leg));
   }
 
 
@@ -61,7 +61,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
 
 //    // zmp_ remove either LegID or EndeffectorID
-    std::vector<Contact> swinglegs;
+    std::vector<ContactBase> swinglegs;
     for (int l=0; l<n_swinglegs; ++l) {
       swinglegs.push_back(all_free_contacts.at(i*n_swinglegs+l));
     }
@@ -89,7 +89,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
       // remove current swingles from last free contacts
       auto it_free = std::find_if(phase.free_contacts_.begin(), phase.free_contacts_.end(),
-                                  [&](const Contact& c) {return c.ee == sl.ee;});
+                                  [&](const ContactBase& c) {return c.ee == sl.ee;});
 
       if (it_free != phase.free_contacts_.end()) // step found in current stance
         phase.free_contacts_.erase(it_free);     // remove contact, because now swinging leg

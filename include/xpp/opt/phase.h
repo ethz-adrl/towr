@@ -18,29 +18,29 @@ namespace xpp {
 namespace opt {
 
 // zmp_ move this to own class, fundamental part of this code
-class Contact {
+class ContactBase {
 public:
 
   // zmp_ same as defined in foothold, remove on of these
   static const int kFixedByStartStance = -1;
 
-  Contact() {};
-  Contact(int _id, EndeffectorID _ee) : id(_id), ee(_ee) {}
+  ContactBase() {};
+  ContactBase(int _id, EndeffectorID _ee) : id(_id), ee(_ee) {}
   int id = kFixedByStartStance; ///< a unique identifier for each contact,
   EndeffectorID ee = EndeffectorID::E0;
 };
 
-inline std::ostream& operator<<(std::ostream& out, const Contact& c)
+inline std::ostream& operator<<(std::ostream& out, const ContactBase& c)
 {
   out  << c.ee << ": id: " << c.id;
   return out;
 }
 
 // zmp_ move this to own class, fundamental part of this code
-class ContactDerived : public Contact {
+class ContactDerived : public ContactBase {
 public:
   ContactDerived() {};
-  ContactDerived(const Contact& base) : Contact(base) {};
+  ContactDerived(const ContactBase& base) : ContactBase(base) {};
   Eigen::Vector3d p;
 };
 
@@ -51,7 +51,7 @@ public:
 //  using Foothold    = xpp::hyq::Foothold;
   using Vector2d    = Eigen::Vector2d;
   using FootholdVec = std::vector<ContactDerived>;
-  using ContactVec  = std::vector<Contact>;
+  using ContactVec  = std::vector<ContactBase>;
 
   ContactVec free_contacts_; // all the stance legs currently in contact but not fixed by start
   ContactVec swing_goal_contacts_; // what contacts the current swinglegs are swinging towards

@@ -59,7 +59,7 @@ private:
 
   Vector2d goal_xy_;
   RobotPtrU robot_;
-  std::vector<Contact> final_free_contacts_;
+  std::vector<ContactBase> final_free_contacts_;
 };
 
 } /* namespace opt */

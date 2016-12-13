@@ -82,7 +82,7 @@ RangeOfMotionBox::EvaluateConstraint () const
       // contact position expressed in base frame
       PosXY g;
 //      if (false)
-      if (f_W.id == Contact::kFixedByStartStance)
+      if (f_W.id == ContactBase::kFixedByStartStance)
         g = -com_W;
       else
         g = f_W.p.topRows<kDim2d>() - com_W;
@@ -119,7 +119,7 @@ RangeOfMotionBox::GetBounds () const
         b.lower_ -= max_deviation.at(dim);
 
 //        if (false) {
-        if (c.id == Contact::kFixedByStartStance) {
+        if (c.id == ContactBase::kFixedByStartStance) {
 
           for (auto f : node.phase_.fixed_contacts_) {
             if (f.ee == c.ee) {
@@ -150,7 +150,7 @@ RangeOfMotionBox::SetJacobianWrtContacts (Jacobian& jac_wrt_contacts) const
   int row=0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
     for (auto c : node.phase_.GetAllContacts()) {
-      if (c.id != Contact::kFixedByStartStance) {
+      if (c.id != ContactBase::kFixedByStartStance) {
         for (auto dim : {X,Y})
           jac_wrt_contacts.insert(row+dim, ContactVars::Index(c.id,dim)) = 1.0;
       }
