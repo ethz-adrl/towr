@@ -199,25 +199,19 @@ WBTrajGenerator<N_EE>::GetCurrOrientation(double t_global) const
   return ori;
 }
 
-// zmp_ split into two functions
 template<size_t N_EE>
-void
-WBTrajGenerator<N_EE>::FillCurrFeet(double t_global,
-                         FeetArray& feet,
-                         ContactArray& swingleg) const
+typename WBTrajGenerator<N_EE>::FeetArray
+WBTrajGenerator<N_EE>::GetCurrEndeffectors (double t_global) const
 {
+  FeetArray feet;
+
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
   int  goal_node = spline+1;
 
-  swingleg.fill(false);
-
   feet = nodes_.at(goal_node).feet_W_;
 
-//  for (auto leg : {LF, RF, LH, RH}) {
   for (int leg=0; leg<feet.size(); ++leg) {
-
-
     if(nodes_.at(goal_node).swingleg_[leg]) { // only spline swinglegs
 
       double t_upswing = nodes_.at(goal_node).T * kUpswingPercent;
@@ -226,10 +220,21 @@ WBTrajGenerator<N_EE>::FillCurrFeet(double t_global,
         feet_spliner_up_.at(spline)[leg].GetPoint(t_local, feet[leg]);
       else // leg swinging down
         feet_spliner_down_.at(spline)[leg].GetPoint(t_local - t_upswing, feet[leg]);
-
-      swingleg[leg] = true;
     }
   }
+
+  return feet;
+}
+
+template<size_t N_EE>
+typename WBTrajGenerator<N_EE>::ContactArray
+WBTrajGenerator<N_EE>::GetCurrContactState (double t_global) const
+{
+  double t_local = GetLocalSplineTime(t_global);
+  int  spline    = GetSplineID(t_global);
+  int  goal_node = spline+1;
+
+  return nodes_.at(goal_node).swingleg_;
 }
 
 template<size_t N_EE>
@@ -363,7 +368,8 @@ WBTrajGenerator<N_EE>::BuildWholeBodyTrajectory () const
     ArticulatedRobotState<N_EE> state;
     state.base_.lin     = GetCurrPosition(t);
     state.base_.ang     = GetCurrOrientation(t);
-    FillCurrFeet(t, state.feet_W_, state.swingleg_);
+    state.feet_W_       = GetCurrEndeffectors(t);
+    state.swingleg_     = GetCurrContactState(t);
     state.t_ = t;
     trajectory.push_back(state);
 

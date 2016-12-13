@@ -25,16 +25,16 @@ namespace opt {
 class MotionStructure {
 public:
 
-  using LegIDVec        = std::vector<EndeffectorID>;
+  using EEIDVec         = std::vector<EndeffectorID>;
   using StartStance     = std::vector<Contact>;
   using PhaseVec        = std::vector<MotionPhase>;
-  using PhaseStampedVec = std::vector<MotionPhaseStamped>;
+  using PhaseStampedVec = std::vector<MotionNode>;
 
   MotionStructure ();
 
   virtual ~MotionStructure ();
 
-  void Init(const StartStance& start_stance, const LegIDVec& step_legs,
+  void Init(const StartStance& start_stance, const EEIDVec& step_legs,
             double t_swing, double t_first_phase, bool insert_initial_stance,
             bool insert_final_stance, double dt);
 
@@ -69,12 +69,12 @@ public:
   int GetTotalNumberOfFreeNodeContacts() const;
   int GetTotalNumberOfNodeContacts() const;
 
-  LegIDVec GetContactIds() const { return contact_ids_; };
+  EEIDVec GetContactIds() const { return contact_ids_; };
   StartStance GetStartStance() const { return start_stance_;};
 
 private:
   StartStance start_stance_;
-  LegIDVec contact_ids_;
+  EEIDVec contact_ids_;
   PhaseVec phases_;
 
   double dt_; ///< discretization interval [s]

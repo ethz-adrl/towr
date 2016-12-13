@@ -8,11 +8,12 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_HYQ_HYQ_JOINT_MAPPER_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_HYQ_HYQ_JOINT_MAPPER_H_
 
-#include <xpp/hyq/hyq_state.h>
-#include <xpp/opt/wb_traj_generator.h> //zmp_, possibly remove dependecy on hyq_spliner
+#include <xpp/opt/wb_traj_in_out.h> //SplineNode, ArticulatedRobotState
 
 namespace xpp {
 namespace hyq {
+
+class HyqState;
 
 class HyqJointMapper {
 public:
@@ -20,7 +21,7 @@ public:
 
   using HyqStateVec = std::vector<HyqState>;
   using SplineNode  = xpp::opt::Node<kNee>;
-  using ArtiRobVec  = typename xpp::opt::WBTrajGenerator<kNee>::ArtiRobVec;
+  using ArtiRobVec  = std::vector<xpp::opt::ArticulatedRobotState<kNee>>;
 
   HyqJointMapper ();
   virtual ~HyqJointMapper ();

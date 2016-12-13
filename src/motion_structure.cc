@@ -23,7 +23,7 @@ MotionStructure::~MotionStructure ()
 // mpc clean this up, messy code
 void
 MotionStructure::Init (const StartStance& start_stance,
-                       const LegIDVec& contact_ids,
+                       const EEIDVec& contact_ids,
                        double t_swing, double t_first_phase,
                        bool insert_initial_stance,
                        bool insert_final_stance,
@@ -60,16 +60,10 @@ MotionStructure::Init (const StartStance& start_stance,
                                                             prev_phase.swing_goal_contacts_.end());
 
 
-//    // zmp_ remove either LegID or EndeffectorID
     std::vector<ContactBase> swinglegs;
     for (int l=0; l<n_swinglegs; ++l) {
       swinglegs.push_back(all_free_contacts.at(i*n_swinglegs+l));
     }
-//    std::vector<Contact> swinglegs = {all_free_contacts.at(n_swinglegs*i),
-//                                      all_free_contacts.at(n_swinglegs*i+1) };
-//    std::vector<Contact> swinglegs = {all_free_contacts.at(i)};
-
-
 
     for (const auto& sl : swinglegs) {
 
@@ -93,12 +87,6 @@ MotionStructure::Init (const StartStance& start_stance,
 
       if (it_free != phase.free_contacts_.end()) // step found in current stance
         phase.free_contacts_.erase(it_free);     // remove contact, because now swinging leg
-
-
-
-//      // add newly made contact of previous swing
-//      if (i > 0)
-//        phase.free_contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(contact_ids.at(i-1))));
 
     }
 
@@ -175,32 +163,13 @@ MotionStructure::CalcPhaseStampedVec () const
 
     int nodes_in_phase = std::floor(phase.duration_/dt_);
 
-
-    // zmp_ forgive but don't forget
     // zmp_ make sure they are always evenly spaced! dt is the same also between nodes
-
-
-//    // add one phase right after phase switch
-//    PhaseInfoStamped contact_info;
-//    contact_info.phase_ = phase;
-//    contact_info.time_  = t_global+dt_/3;
-//    info.push_back(contact_info);
-
-
     for (int k=0; k<nodes_in_phase; ++k ) {
-      MotionPhaseStamped contact_info;
+      MotionNode contact_info;
       contact_info = phase;
       contact_info.time_  = t_global+k*dt_;
       info.push_back(contact_info);
     }
-
-
-//    // add one node right before phase switch
-//    // this somehow removes the jittering of hyq picking up the back legs
-//    contact_info.phase_ = phase;
-//    contact_info.time_  = t_global+phase.duration_-dt_/3;
-//    info.push_back(contact_info);
-
 
     t_global += phase.duration_;
   }

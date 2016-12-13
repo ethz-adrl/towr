@@ -32,14 +32,19 @@ public:
   bool IsStep() const { return !swing_goal_contacts_.empty();  }
 
 
+  /** @returns fixed and free current contacts without xyz-positions.
+    */
   ContactVec GetAllContacts() const;
+
+  /** @returns fixed and free current contacts including xyz-positions.
+    */
   FootholdVec GetAllContacts(const utils::StdVecEigen2d& contacts_xy) const;
 };
 
-class MotionPhaseStamped : public MotionPhase {
+class MotionNode : public MotionPhase {
 public:
-  MotionPhaseStamped(const MotionPhase& base) : MotionPhase(base) {};
-  MotionPhaseStamped() : time_(0.0) {};
+  MotionNode(const MotionPhase& base) : MotionPhase(base) {};
+  MotionNode() : time_(0.0) {};
   double time_ = 0.0;
 };
 

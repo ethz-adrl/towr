@@ -56,30 +56,15 @@ MotionOptimizerFacade::OptimizeMotion ()
 
   MotionStructure motion_structure;
 
-  auto step_sequence = step_sequence_planner_.DetermineStepSequence();
+  auto step_sequence_hyq = step_sequence_planner_.DetermineStepSequence();
   bool start_with_com_shift = true;//step_sequence_planner_.StartWithStancePhase();
   bool insert_final_stance = true;
 
   double t_first_phase = t_first_phase_;//t_left_; // mpc this changes by goal publisher
 
-//  // zmp_ see if i can eliminate these somehow
-//  auto stance = curr_state_.GetStanceLegsInWorld();
-//  std::vector<Contact> contacts_initial;
-//  for (auto f : stance) {
-//    Contact c;
-//    c.ee = static_cast<EndeffectorID>(f.leg);
-//    c.id = f.id;
-//    c.p = f.p;
-//
-//    contacts_initial.push_back(c);
-//  }
-
   std::vector<EndeffectorID> step_sequence_generic;
-  for (auto ee : step_sequence) {
-
+  for (auto ee : step_sequence_hyq)
     step_sequence_generic.push_back(hyq::kMapHyqToOpt.at(ee));
-  }
-
 
   motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence_generic, t_swing_, t_first_phase,
                         start_with_com_shift, insert_final_stance, dt_nodes_ );

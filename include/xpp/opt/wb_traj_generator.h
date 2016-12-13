@@ -8,59 +8,17 @@
 #ifndef _XPP_XPP_OPT_WB_TRAJ_GENERATOR_H_
 #define _XPP_XPP_OPT_WB_TRAJ_GENERATOR_H_
 
+#include "com_motion.h"
+#include "motion_phase.h"
+#include "wb_traj_in_out.h"
+
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/polynomial_xd.h>
-
-#include <xpp/opt/com_motion.h>
 #include <xpp/utils/eigen_std_conversions.h>
-#include "motion_phase.h"
 
 namespace xpp {
 namespace opt {
 
-template<size_t N_EE>
-class Node  {
-public:
-  using BaseLin3d    = xpp::utils::StateLin3d;
-  using BaseAng3d    = xpp::utils::StateAng3d;
-  using BaseLin1d    = xpp::utils::StateLin1d;
-  using Vector3d     = Eigen::Vector3d;
-  using FeetArray    = std::array<BaseLin3d, N_EE>;
-  using ContactArray = std::array<bool, N_EE>;
-
-  static const int kNee = N_EE;
-
-  FeetArray feet_W_;
-  ContactArray swingleg_;
-  BaseAng3d base_ang_;
-  BaseLin1d base_z_;
-  double T; ///< time to reach this state
-
-  double GetZAvg() const
-  {
-    double z_avg = 0.0;
-    for (auto f : feet_W_) {
-      z_avg += (f.p.z()/kNee);
-    }
-
-    return z_avg;
-  }
-};
-
-
-template<size_t N_EE>
-class ArticulatedRobotState {
-public:
-  using BaseState     = xpp::utils::State3d;
-  using SplineNode    = Node<N_EE>;
-  using FeetArray     = typename SplineNode::FeetArray;
-  using ContactArray  = typename SplineNode::ContactArray;
-
-  BaseState base_;
-  FeetArray feet_W_;
-  ContactArray swingleg_;
-  double t_;
-};
 
 /** @brief Whole-Body Trajectory Generator
   *
@@ -74,7 +32,7 @@ public:
 template<size_t N_EE>
 class WBTrajGenerator {
 public:
-  using ComMotionS     = std::shared_ptr<xpp::opt::ComMotion>;
+  using ComMotionS    = std::shared_ptr<xpp::opt::ComMotion>;
   using Vector3d      = Eigen::Vector3d;
   using VecFoothold   = utils::StdVecEigen2d;
   using State3d       = xpp::utils::StateLin3d;
@@ -124,13 +82,13 @@ private:
 
   void CreateAllSplines(const std::vector<SplineNode>& nodes);
 
-//  SplineNodeVec GetInterpolatedNodes() const;
   State3d GetCurrPosition(double t_global) const;
   xpp::utils::StateAng3d GetCurrOrientation(double t_global) const;
-  void FillCurrFeet(double t_global, FeetArray& feet, ContactArray& swingleg) const;
+  FeetArray GetCurrEndeffectors(double t_global) const;
+  ContactArray GetCurrContactState(double t_gloal) const;
+
   void FillZState(double t_global, State3d& pos) const;
 
-//  Spliner3d BuildPositionSpline(const SplineNode& from, const SplineNode& to) const;
   SplinerOri BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const;
   FeetSplinerArray BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const;
   FeetSplinerArray BuildFootstepSplineDown(const FeetArray& feet_at_switch,const SplineNode& to) const;

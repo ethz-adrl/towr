@@ -7,6 +7,7 @@
 
 #include <xpp/hyq/hyq_joint_mapper.h>
 #include <xpp/hyq/hyq_endeffectors.h>
+#include <xpp/hyq/hyq_state.h>
 
 namespace xpp {
 namespace hyq {
@@ -29,19 +30,15 @@ HyqJointMapper::BuildSplineNode (const HyqState& state) const
   node.base_ang_ = state.base_.ang;
   node.base_z_   = state.base_.lin.Get1d(utils::Z);
 
-//  LegDataMap<BaseLin3d> feet;
   auto W_p_ee = state.GetEEInWorld();
   auto W_v_ee = state.GetEEInVelWorld();
 
-  // zmp_ clean this
-//  for (int leg=0; leg<W_p_ee.size(); ++leg) {
   for (auto leg : LegIDArray) {
-//    opt::EndeffectorID ee = static_cast<opt::EndeffectorID>(leg); // assume there are ordered like this
     opt::EndeffectorID ee = kMapHyqToOpt.at(leg);
     node.feet_W_.at(ee).p = W_p_ee.at(leg);
     node.swingleg_.at(ee) = state.swingleg_.at(leg);
-//    node.feet_W_.at(ee).v = W_v_ee[leg];
-//    node.feet_W_.at(ee).a.setZero(); // mpc fill this at some point as well
+    node.feet_W_.at(ee).v = W_v_ee[leg];
+    node.feet_W_.at(ee).a.setZero(); // mpc fill this at some point as well
   }
 
   node.T = 0.0;
