@@ -12,7 +12,6 @@
 #include <xpp/opt/contact.h>
 
 #include <xpp/hyq/leg_data_map.h>
-#include <xpp/hyq/foothold.h>
 #include <xpp/hyq/hyq_robot_interface.h>
 
 namespace xpp {
