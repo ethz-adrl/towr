@@ -229,7 +229,7 @@ StepSequencePlanner::IsGoalOutsideRangeOfMotion () const
   auto max_deviation = robot_.GetMaxDeviationXYFromNominal();
 
   for (auto f : start_stance_) {
-    auto p_nominal = robot_.GetNominalStanceInBase(static_cast<xpp::opt::EndeffectorID>(f.leg));
+    auto p_nominal = robot_.GetNominalStanceInBase(f.ee);
 
     for (auto dim : {X,Y}) {
 

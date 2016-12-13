@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_STEP_SEQUENCE_PLANNER_H_
 
 #include <xpp/utils/state.h>
+#include <xpp/opt/contact.h>
 
 #include <xpp/hyq/leg_data_map.h>
 #include <xpp/hyq/foothold.h>
@@ -27,7 +28,7 @@ namespace hyq {
 class StepSequencePlanner {
 public:
   typedef std::vector<LegID> LegIDVec;
-  typedef std::vector<Foothold> VecFoothold;
+  typedef std::vector<xpp::opt::Contact> VecFoothold;
   typedef xpp::utils::StateLin2d State;
   typedef Eigen::Vector2d Vector2d;
 

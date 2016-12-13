@@ -8,50 +8,23 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_PHASE_INFO_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_PHASE_INFO_H_
 
-#include "a_robot_interface.h"
-//#include <xpp/hyq/foothold.h>
 #include <xpp/utils/eigen_std_conversions.h>
-#include <iostream>
+#include <xpp/opt/contact.h>
 #include <vector>
 
 namespace xpp {
 namespace opt {
 
-// zmp_ move this to own class, fundamental part of this code
-class ContactBase {
-public:
-
-  // zmp_ same as defined in foothold, remove on of these
-  static const int kFixedByStartStance = -1;
-
-  ContactBase() {};
-  ContactBase(int _id, EndeffectorID _ee) : id(_id), ee(_ee) {}
-  int id = kFixedByStartStance; ///< a unique identifier for each contact,
-  EndeffectorID ee = EndeffectorID::E0;
-};
-
-inline std::ostream& operator<<(std::ostream& out, const ContactBase& c)
-{
-  out  << c.ee << ": id: " << c.id;
-  return out;
-}
-
-// zmp_ move this to own class, fundamental part of this code
-class Contact : public ContactBase {
-public:
-  Contact() {};
-  Contact(const ContactBase& base) : ContactBase(base) {};
-  Eigen::Vector3d p;
-};
-
 /** Information to represent different types of motion.
   */
 class Phase {
 public:
-//  using Foothold    = xpp::hyq::Foothold;
-  using Vector2d    = Eigen::Vector2d;
-  using FootholdVec = std::vector<Contact>;
-  using ContactVec  = std::vector<ContactBase>;
+  using Vector2d     = Eigen::Vector2d;
+  using ContactT     = Contact;
+  using ContactBaseT = ContactBase;
+
+  using FootholdVec = std::vector<ContactT>;
+  using ContactVec  = std::vector<ContactBaseT>;
 
   ContactVec free_contacts_; // all the stance legs currently in contact but not fixed by start
   ContactVec swing_goal_contacts_; // what contacts the current swinglegs are swinging towards
@@ -95,7 +68,7 @@ public:
 //      Vector2d p = contacts_xy.at(c_free.id);
 //      double z = 0.0;
 
-      Contact contact(c_free);
+      ContactT contact(c_free);
       contact.p.x() = contacts_xy.at(c_free.id).x();
       contact.p.y() = contacts_xy.at(c_free.id).y();
       contact.p.z() = 0.0;

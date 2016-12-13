@@ -11,12 +11,12 @@
 #include <xpp/opt/constraint_container.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/cost_container.h>
-#include <xpp/opt/ipopt_adapter.h>
 #include <xpp/opt/motion_factory.h>
 #include <xpp/opt/motion_structure.h>
 #include <xpp/opt/nlp.h>
 #include <xpp/opt/optimization_variables.h>
 
+#include <xpp/opt/ipopt_adapter.h>
 #include <xpp/opt/snopt_adapter.h>
 
 namespace xpp {

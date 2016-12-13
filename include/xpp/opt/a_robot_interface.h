@@ -8,29 +8,12 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_A_ROBOT_INTERFACE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_A_ROBOT_INTERFACE_H_
 
+#include <xpp/opt/contact.h>
 #include <Eigen/Dense>
-#include <map>
-#include <iostream>
+#include <array>
 
 namespace xpp {
 namespace opt {
-
-// refactor generalize all LegIDs with this
-enum class EndeffectorID { E0, E1, E2, E3, E4, E5 };
-
-inline std::ostream& operator<<(std::ostream& out, const EndeffectorID& e)
-{
-  std::map<EndeffectorID, std::string> map {
-    { EndeffectorID::E0, "LF" },
-    { EndeffectorID::E1, "RF" },
-    { EndeffectorID::E2, "LH" },
-    { EndeffectorID::E3, "RH" }
-  };
-
-  out << map[e];
-  return out;
-}
-
 
 /** @brief Abstracts all robot specific values
   *
@@ -40,11 +23,11 @@ inline std::ostream& operator<<(std::ostream& out, const EndeffectorID& e)
   */
 class ARobotInterface {
 public:
-  using PosXY = Eigen::Vector2d;
+  using PosXY    = Eigen::Vector2d;
   using MaxDevXY = std::array<double,2>;
 
-  ARobotInterface ();
-  virtual ~ARobotInterface ();
+  ARobotInterface () {};
+  virtual ~ARobotInterface () {};
 
   /** @brief default contact position of the endeffectors
     */

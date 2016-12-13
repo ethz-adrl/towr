@@ -57,10 +57,15 @@ HyqJointMapper::BuildWholeBodyTrajectoryJoints (const ArtiRobVec& robot_vec) con
     hyq_j.swingleg_ = state.swingleg_;
 
 
-    HyqState::PosEE ee_W = {state.feet_W_[LF].p, state.feet_W_[RF].p, state.feet_W_[LH].p, state.feet_W_[RH].p};
+    // extract only positions
+    HyqState::PosEE pose_ee_W;
+    int i=0;
+    for (auto ee : state.feet_W_) {
+      pose_ee_W.at(i++) = ee.p;
+    }
 
     // joint position through inverse kinematics
-    hyq_j.SetJointAngles(ee_W);
+    hyq_j.SetJointAngles(pose_ee_W);
 
     // joint velocity
     if (!first_state) { // to avoid jump in vel/acc in first state
