@@ -53,7 +53,7 @@ SupportAreaConstraint::EvaluateConstraint () const
     Vector2d convex_contacts;
     convex_contacts.setZero();
 
-    for (auto f : node.phase_.GetAllContacts(footholds_)) {
+    for (auto f : node.GetAllContacts(footholds_)) {
       double lamdba = lambdas_(idx_lambda++);
       convex_contacts += lamdba*f.p.topRows<kDim2d>();
     }
@@ -86,7 +86,7 @@ SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
   int row_idx = 0;
   int col_idx = 0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-    for (auto f : node.phase_.GetAllContacts(footholds_)) {
+    for (auto f : node.GetAllContacts(footholds_)) {
       for (auto dim : {X, Y})
         jac_.insert(row_idx+dim,col_idx) = f.p(dim);
 
@@ -110,7 +110,7 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
   int idx_lambdas = 0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
-    for (auto c: node.phase_.GetAllContacts()) {
+    for (auto c: node.GetAllContacts()) {
       if (c.id != ContactBase::kFixedByStartStance) {
         for (auto dim : {X, Y}) {
           int idx_contact = ContactVars::Index(c.id, dim);

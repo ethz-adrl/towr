@@ -8,8 +8,8 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
 
-#include "phase.h"
 #include <vector>
+#include "motion_phase.h"
 
 namespace xpp {
 namespace opt {
@@ -25,8 +25,10 @@ namespace opt {
 class MotionStructure {
 public:
 
-  using LegIDVec      = std::vector<EndeffectorID>;
-  using StartStance   = std::vector<Contact>;
+  using LegIDVec        = std::vector<EndeffectorID>;
+  using StartStance     = std::vector<Contact>;
+  using PhaseVec        = std::vector<MotionPhase>;
+  using PhaseStampedVec = std::vector<MotionPhaseStamped>;
 
   MotionStructure ();
 
@@ -45,7 +47,7 @@ public:
     * and support polygon. A phase is a motion during which the dynamics are
     * continuous (stance, swing, flight).
     */
-  Phase GetCurrentPhase(double t_global) const;
+  MotionPhase GetCurrentPhase(double t_global) const;
 
   /** @brief Returns a vector of phases, where no phase is duplicated.
     *

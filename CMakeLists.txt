@@ -83,6 +83,7 @@ set(SOURCES
   src/zero_moment_point.cc
   src/linear_inverted_pendulum.cc
   src/motion_structure.cc
+  src/motion_phase.cc
   # hyq
   src/step_sequence_planner.cc
   src/hyq_robot_interface.cc

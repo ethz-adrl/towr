@@ -70,7 +70,7 @@ RangeOfMotionBox::EvaluateConstraint () const
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
     PosXY com_W = com_motion_->GetCom(node.time_).p;
 
-    for (const auto& f_W : node.phase_.GetAllContacts(footholds_)) {
+    for (const auto& f_W : node.GetAllContacts(footholds_)) {
 
 //      PosXY contact_pos_B = f_W.p.topRows<kDim2d>() - com_W;
 
@@ -106,7 +106,7 @@ RangeOfMotionBox::GetBounds () const
 
   std::vector<Bound> bounds;
   for (auto node : motion_structure_.GetPhaseStampedVec()) {
-    for (auto c : node.phase_.GetAllContacts()) {
+    for (auto c : node.GetAllContacts()) {
 
 //      auto leg = static_cast<hyq::LegID>(c.ee);
       PosXY f_nom_B = robot_->GetNominalStanceInBase(c.ee);
@@ -121,7 +121,7 @@ RangeOfMotionBox::GetBounds () const
 //        if (false) {
         if (c.id == ContactBase::kFixedByStartStance) {
 
-          for (auto f : node.phase_.fixed_contacts_) {
+          for (auto f : node.fixed_contacts_) {
             if (f.ee == c.ee) {
               b -= f.p(dim);
             }
@@ -149,7 +149,7 @@ RangeOfMotionBox::SetJacobianWrtContacts (Jacobian& jac_wrt_contacts) const
 
   int row=0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-    for (auto c : node.phase_.GetAllContacts()) {
+    for (auto c : node.GetAllContacts()) {
       if (c.id != ContactBase::kFixedByStartStance) {
         for (auto dim : {X,Y})
           jac_wrt_contacts.insert(row+dim, ContactVars::Index(c.id,dim)) = 1.0;
@@ -169,7 +169,7 @@ RangeOfMotionBox::SetJacobianWrtMotion (Jacobian& jac_wrt_motion) const
 
   int row=0;
   for (const auto& node : motion_structure_.GetPhaseStampedVec())
-    for (const auto c : node.phase_.GetAllContacts())
+    for (const auto c : node.GetAllContacts())
       for (auto dim : {X,Y})
         jac_wrt_motion.row(row++) = -1*com_motion_->GetJacobian(node.time_, kPos, dim);
 }

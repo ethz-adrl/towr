@@ -31,7 +31,7 @@ MotionStructure::Init (const StartStance& start_stance,
 {
   // doesn't have to be 4 legs on the ground
   if (insert_initial_stance) {
-    Phase initial_stance_phase;
+    MotionPhase initial_stance_phase;
     initial_stance_phase.duration_ = t_first_phase;
     initial_stance_phase.fixed_contacts_ = start_stance;
     phases_.push_back(initial_stance_phase);
@@ -44,7 +44,7 @@ MotionStructure::Init (const StartStance& start_stance,
   }
 
 
-  Phase prev_phase;
+  MotionPhase prev_phase;
   prev_phase.fixed_contacts_ = start_stance;
   int n_swinglegs = 1; // per phase
   int n_phases = std::floor(contact_ids.size()/n_swinglegs);
@@ -52,7 +52,7 @@ MotionStructure::Init (const StartStance& start_stance,
   // the steps
   for (uint i=0; i<n_phases; ++i) {
 
-    Phase phase;
+    MotionPhase phase;
     phase.fixed_contacts_ = prev_phase.fixed_contacts_;
     phase.free_contacts_  = prev_phase.free_contacts_;
     // add newly made contact of previous swing
@@ -111,7 +111,7 @@ MotionStructure::Init (const StartStance& start_stance,
 
   // the final stance
   if (insert_final_stance) {
-    Phase phase;
+    MotionPhase phase;
     phase.fixed_contacts_    = prev_phase.fixed_contacts_;
     phase.free_contacts_     = prev_phase.free_contacts_;
     phase.free_contacts_.insert(phase.free_contacts_.end(), prev_phase.swing_goal_contacts_.begin(), prev_phase.swing_goal_contacts_.end());
@@ -131,7 +131,7 @@ MotionStructure::Init (const StartStance& start_stance,
   cache_needs_updating_ = true;
 }
 
-Phase
+MotionPhase
 MotionStructure::GetCurrentPhase (double t_global) const
 {
   double t = 0;
@@ -154,7 +154,7 @@ MotionStructure::GetTotalTime() const
 }
 
 
-PhaseStampedVec
+MotionStructure::PhaseStampedVec
 MotionStructure::GetPhaseStampedVec () const
 {
   if (cache_needs_updating_) {
@@ -165,7 +165,7 @@ MotionStructure::GetPhaseStampedVec () const
   return cached_motion_vector_;
 }
 
-PhaseStampedVec
+MotionStructure::PhaseStampedVec
 MotionStructure::CalcPhaseStampedVec () const
 {
   PhaseStampedVec info;
@@ -188,8 +188,8 @@ MotionStructure::CalcPhaseStampedVec () const
 
 
     for (int k=0; k<nodes_in_phase; ++k ) {
-      PhaseInfoStamped contact_info;
-      contact_info.phase_ = phase;
+      MotionPhaseStamped contact_info;
+      contact_info = phase;
       contact_info.time_  = t_global+k*dt_;
       info.push_back(contact_info);
     }
@@ -215,7 +215,7 @@ MotionStructure::GetTotalNumberOfFreeNodeContacts () const
 
   int i = 0;
   for (auto node : contact_info_vec)
-    i += node.phase_.free_contacts_.size();
+    i += node.free_contacts_.size();
 
   return i;
 }
@@ -227,14 +227,14 @@ MotionStructure::GetTotalNumberOfNodeContacts () const
 
   int i = 0;
   for (auto node : contact_info_vec) {
-    i += node.phase_.free_contacts_.size();
-    i += node.phase_.fixed_contacts_.size();
+    i += node.free_contacts_.size();
+    i += node.fixed_contacts_.size();
   }
 
   return i;
 }
 
-PhaseVec
+MotionStructure::PhaseVec
 MotionStructure::GetPhases () const
 {
   return phases_;

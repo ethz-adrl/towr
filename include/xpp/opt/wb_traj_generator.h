@@ -11,9 +11,9 @@
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/polynomial_xd.h>
 
-#include <xpp/opt/phase.h>
 #include <xpp/opt/com_motion.h>
 #include <xpp/utils/eigen_std_conversions.h>
+#include "motion_phase.h"
 
 namespace xpp {
 namespace opt {
@@ -81,6 +81,7 @@ public:
   using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State3d>;
   using SplinerFeet   = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State3d>;
   using ZPolynomial   = xpp::utils::CubicPolynomial;
+  using PhaseVec      = std::vector<MotionPhase>;
 
   using SplineNode    = Node<N_EE>;
   using FeetArray     = typename SplineNode::FeetArray;
@@ -96,7 +97,7 @@ public:
                  double outward_swing_distance,
                  double discretization_time);
 
-  void Init(const xpp::opt::PhaseVec&,
+  void Init(const PhaseVec&,
             const ComMotionS&,
             const VecFoothold&,
             double des_height,
@@ -117,7 +118,7 @@ private:
   double kOutwardSwingDistance; // how far to swing leg outward (y-dir)
 
   std::vector<SplineNode> BuildNodeSequence(const SplineNode& P_init,
-                                            const xpp::opt::PhaseVec&,
+                                            const PhaseVec&,
                                             const VecFoothold& footholds,
                                             double des_robot_height);
 

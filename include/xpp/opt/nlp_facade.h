@@ -15,7 +15,8 @@
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
 #include <memory>
-#include "phase.h"
+
+#include "motion_phase.h"
 
 namespace xpp {
 namespace opt {

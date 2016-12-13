@@ -39,9 +39,9 @@ void WBTrajGenerator<N_EE>::SetParams(double upswing,
 
 template<size_t N_EE>
 void
-WBTrajGenerator<N_EE>::Init (const xpp::opt::PhaseVec& phase_info, const ComMotionS& com_spline,
-                  const VecFoothold& footholds, double des_height,
-                  const SplineNode& curr_state)
+WBTrajGenerator<N_EE>::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
+                             const VecFoothold& footholds, double des_height,
+                             const SplineNode& curr_state)
 {
   // get endeffector size from current node
   int n_endeffectors = curr_state.feet_W_.size();
@@ -58,9 +58,9 @@ WBTrajGenerator<N_EE>::Init (const xpp::opt::PhaseVec& phase_info, const ComMoti
 template<size_t N_EE>
 std::vector<Node<N_EE>>
 WBTrajGenerator<N_EE>::BuildNodeSequence(const SplineNode& P_init,
-                              const xpp::opt::PhaseVec& phase_info,
-                              const VecFoothold& footholds,
-                              double des_robot_height)
+                                         const PhaseVec& phase_info,
+                                         const VecFoothold& footholds,
+                                         double des_robot_height)
 {
   std::vector<SplineNode> nodes;
 
