@@ -92,7 +92,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
     for (int step=0; step<n_steps; ++step) {
 
-      // for trotting
+//      // for trotting
 //      step_sequence.push_back(NextSwingLegTrott(last_swingleg));
 
       // for walking
@@ -107,6 +107,8 @@ StepSequencePlanner::DetermineStepSequence ()
         else
           step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
       }
+
+
 
       last_swingleg = step_sequence.back();
     }

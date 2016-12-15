@@ -63,8 +63,8 @@ MotionOptimizerFacade::OptimizeMotion ()
   double t_first_phase = t_first_phase_;//t_left_; // mpc this changes by goal publisher
 
   std::vector<EndeffectorID> step_sequence_generic;
-  for (auto ee : step_sequence_hyq)
-    step_sequence_generic.push_back(hyq::kMapHyqToOpt.at(ee));
+  for (auto leg : step_sequence_hyq)
+    step_sequence_generic.push_back(hyq::kMapHyqToOpt.at(leg));
 
   motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence_generic, t_swing_, t_first_phase,
                         start_with_com_shift, insert_final_stance, dt_nodes_ );

@@ -71,27 +71,15 @@ RangeOfMotionBox::EvaluateConstraint () const
     PosXY com_W = com_motion_->GetCom(node.time_).p;
 
     for (const auto& f_W : node.GetAllContacts(footholds_)) {
-
-//      PosXY contact_pos_B = f_W.p.topRows<kDim2d>() - com_W;
-
-//      // this is actually constant, but moved here from bounds
-//      // so I can make a meaningful cost out of this constraint
-//      PosXY f_nom_B = robot_->GetNominalStanceInBase(f_W.leg);
-//      PosXY distance_to_nom = contact_pos_B - f_nom_B;
-
       // contact position expressed in base frame
       PosXY g;
-//      if (false)
       if (f_W.id == ContactBase::kFixedByStartStance)
         g = -com_W;
       else
         g = f_W.p.topRows<kDim2d>() - com_W;
 
-
-
-
       for (auto dim : {X,Y})
-        g_vec.push_back(g(dim));//f_W.p(dim) - com_W(dim));
+        g_vec.push_back(g(dim));
 
     }
   }
@@ -108,30 +96,17 @@ RangeOfMotionBox::GetBounds () const
   for (auto node : motion_structure_.GetPhaseStampedVec()) {
     for (auto c : node.GetAllContacts()) {
 
-//      auto leg = static_cast<hyq::LegID>(c.ee);
       PosXY f_nom_B = robot_->GetNominalStanceInBase(c.ee);
       for (auto dim : {X,Y}) {
         Bound b;
-//        b.upper_ = /*f_nom_B(dim)*/   + max_deviation.at(dim);
-//        b.lower_ = /*f_nom_B(dim) */  - max_deviation.at(dim);
         b += f_nom_B(dim);
         b.upper_ += max_deviation.at(dim);
         b.lower_ -= max_deviation.at(dim);
 
-//        if (false) {
-        if (c.id == ContactBase::kFixedByStartStance) {
-
-          for (auto f : node.fixed_contacts_) {
-            if (f.ee == c.ee) {
+        if (c.id == ContactBase::kFixedByStartStance)
+          for (auto f : node.fixed_contacts_)
+            if (f.ee == c.ee)
               b -= f.p(dim);
-            }
-          }
-
-
-//          hyq::Foothold foot = hyq::Foothold::GetLastFoothold(leg, node.phase_.fixed_contacts_);
-////          std::cout << "f: " << f << std::endl;
-//          b -= foot.p(dim);
-        }
 
         bounds.push_back(b);
       }
