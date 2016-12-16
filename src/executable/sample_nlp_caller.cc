@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 
 
   using namespace xpp::hyq;
-  HyqState::PosEE endeffector_W;
+  HyqState::PosEE endeffector_W(4);
   endeffector_W.at(kMapHyqToOpt.at(LF)) = Vector3d( 0.359692,   0.327653, 0.0);
   endeffector_W.at(kMapHyqToOpt.at(RF)) = Vector3d( 0.359694,  -0.327644, 0.0);
   endeffector_W.at(kMapHyqToOpt.at(LH)) = Vector3d(-0.258797,   0.327698, 0.0);
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 
   start_state.SetJointAngles(endeffector_W);
 //  start_state.qd[iit::HyQ::LH_KFE] = -10;
-  start_state.swingleg_.fill(false);
+//  start_state.swingleg_.fill(false);
   start_state.swingleg_[kMapHyqToOpt.at(LH)] = false; // this should then also be different
   CurrentInfoMsg msg;
   msg.state = xpp::ros::RosHelpers::XppToRos(start_state);
