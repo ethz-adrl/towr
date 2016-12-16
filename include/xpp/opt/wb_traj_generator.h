@@ -10,7 +10,7 @@
 
 #include "com_motion.h"
 #include "motion_phase.h"
-#include "wb_traj_in_out.h"
+#include <xpp/opt/articulated_robot_state.h>
 
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/polynomial_xd.h>
@@ -29,23 +29,23 @@ namespace opt {
   *   - Angular pos/vel/acc
   *   - Swingleg trajectories.
   */
-template<size_t N_EE>
 class WBTrajGenerator {
 public:
   using ComMotionS    = std::shared_ptr<xpp::opt::ComMotion>;
   using Vector3d      = Eigen::Vector3d;
   using VecFoothold   = utils::StdVecEigen2d;
   using State3d       = xpp::utils::StateLin3d;
+  using StateAng3d    = xpp::utils::StateAng3d;
   using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State3d>;
   using SplinerFeet   = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State3d>;
   using ZPolynomial   = xpp::utils::CubicPolynomial;
   using PhaseVec      = std::vector<MotionPhase>;
 
-  using SplineNode    = Node<N_EE>;
+  using SplineNode    = ArticulatedRobotStateC;
   using FeetArray     = typename SplineNode::FeetArray;
-  using ContactArray  = typename SplineNode::ContactArray;
-  using ArtiRobVec    = std::vector<ArticulatedRobotState<N_EE> >;
-  using FeetSplinerArray = std::array<SplinerFeet, N_EE>;
+  using ContactArray  = typename SplineNode::ContactState;
+  using ArtiRobVec    = std::vector<SplineNode>;
+  using FeetSplinerArray = std::vector<SplinerFeet>;
 
 public:
   WBTrajGenerator();
@@ -64,6 +64,8 @@ public:
   ArtiRobVec BuildWholeBodyTrajectory() const;
 
 private:
+  int kNEE;
+
   std::vector<SplineNode> nodes_; // the discrete states to spline through
   std::vector<ZPolynomial> z_spliner_;
   std::vector<SplinerOri> ori_spliner_;
@@ -83,7 +85,7 @@ private:
   void CreateAllSplines(const std::vector<SplineNode>& nodes);
 
   State3d GetCurrPosition(double t_global) const;
-  xpp::utils::StateAng3d GetCurrOrientation(double t_global) const;
+  StateAng3d GetCurrOrientation(double t_global) const;
   FeetArray GetCurrEndeffectors(double t_global) const;
   ContactArray GetCurrContactState(double t_gloal) const;
 

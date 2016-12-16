@@ -61,7 +61,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
     LegID last_swingleg;
     LegIDVec step_sequence;
-    if (curr_swingleg_ == hyq::NO_SWING_LEG) {
+    if (curr_swingleg_ == opt::NO_SWING_LEG) {
 //      step_sequence.push_back(LF); // start with LF if none previously
       last_swingleg = LF;          //prev_swing_leg_;
     } else {

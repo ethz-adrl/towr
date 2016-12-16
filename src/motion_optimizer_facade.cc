@@ -8,7 +8,6 @@
 #include <xpp/opt/motion_optimizer_facade.h>
 #include <xpp/opt/motion_structure.h>
 #include <xpp/opt/optimization_variables.h>
-#include <xpp/hyq/hyq_joint_mapper.h>
 
 namespace xpp {
 namespace opt {
@@ -74,17 +73,15 @@ MotionOptimizerFacade::OptimizeMotion ()
                        des_walking_height_,
                        motion_structure);
 
-  xpp::hyq::HyqJointMapper joint_mapper;
-  auto init_node  = joint_mapper.BuildSplineNode(curr_state_);
-
   wb_traj_gen4_.Init(motion_structure.GetPhases(),
                      nlp_facade_.GetComMotion(),
                      nlp_facade_.GetFootholds(),
                      des_walking_height_,
-                     init_node);
+                     curr_state_.ConvertToCartesian());
 
   auto art_rob_vec = wb_traj_gen4_.BuildWholeBodyTrajectory();
-  optimized_trajectory_ = joint_mapper.BuildWholeBodyTrajectoryJoints(art_rob_vec);
+
+  optimized_trajectory_ = curr_state_.BuildWholeBodyTrajectory(art_rob_vec);
 }
 
 MotionOptimizerFacade::HyqStateVec

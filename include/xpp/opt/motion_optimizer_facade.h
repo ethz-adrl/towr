@@ -26,10 +26,10 @@ public:
 
   using State               = xpp::utils::StateLin3d;
   using VisualizerPtr       = std::shared_ptr<IVisualizer>;
-  using WBTrajGen4EE        = WBTrajGenerator<kNee>;
+  using WBTrajGen4EE        = WBTrajGenerator;
   using StepSequencePlanner = xpp::hyq::StepSequencePlanner;
   using HyqState            = xpp::hyq::HyqState;
-  using HyqStateVec         = std::vector<HyqState>;
+  using HyqStateVec         = HyqState::StateJVec;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();

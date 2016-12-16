@@ -87,7 +87,6 @@ set(SOURCES
   # hyq
   src/step_sequence_planner.cc
   src/hyq_robot_interface.cc
-  src/hyq_joint_mapper.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
