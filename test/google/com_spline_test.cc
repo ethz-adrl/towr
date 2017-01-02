@@ -8,7 +8,6 @@
 #include <xpp/opt/com_spline.h>
 #include <xpp/opt/motion_factory.h>
 #include <xpp/opt/motion_structure.h>
-#include <xpp/hyq/foothold.h>
 
 #include <gtest/gtest.h>
 
@@ -21,7 +20,7 @@ TEST(ComSplineTest, MotionPhase) {
 
   // create the fixed motion structure
   MotionStructure motion_structure;
-  motion_structure.Init({}, {hyq::LH, hyq::LF}, 0.7, 0.4, true, true, 0.1);
+  motion_structure.Init({}, {EndeffectorID::E0, EndeffectorID::E1}, 0.7, 0.4, true, true, 0.1);
 
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(),
                                                    Vector2d(0.0,0.0), // pos

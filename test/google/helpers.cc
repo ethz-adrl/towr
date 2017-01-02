@@ -7,9 +7,6 @@
 
 #include <gtest/gtest.h>
 
-#include <xpp/hyq/leg_data_map.h>
-#include <xpp/hyq/foothold.h>
-
 #include <Eigen/Sparse>
 #include <functional>
 
@@ -122,29 +119,6 @@ TEST(HelpersTest, DiagonalMatrix)
 
   for (int row=0; row<3; ++row)
     H.row(row).middleCols(3*row, 3) = v;
-}
-
-TEST(HelpersTest, LegDataMapToVector)
-{
-  LegDataMap<Foothold> ldm;
-
-  Foothold f_lh(-0.3, -0.3, 0.0, LH);
-  Foothold f_lf(-0.3,  0.3, 0.0, LF);
-  Foothold f_rh( 0.3, -0.3, 0.0, RH);
-  Foothold f_rf( 0.3,  0.3, 0.0, RF);
-
-  ldm[LH] = f_lh;
-  ldm[LF] = f_lf;
-  ldm[RH] = f_rh;
-  ldm[RF] = f_rf;
-
-  std::vector<Foothold> vec = ldm.ToVector();
-
-  // always ordered lf, rf, lh, rh
-  EXPECT_EQ(f_lf, vec.at(0));
-  EXPECT_EQ(f_rf, vec.at(1));
-  EXPECT_EQ(f_lh, vec.at(2));
-  EXPECT_EQ(f_rh, vec.at(3));
 }
 
 

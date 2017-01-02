@@ -139,7 +139,7 @@ target_link_libraries(${LIB_NAME}
 )
   
 # Some example executables if turned "ON"
-option(BUILD_TESTS "Build some testing executables" OFF) 
+option(BUILD_TESTS "Build some testing executables" ON) 
 if(BUILD_TESTS)
   
   # enable_testing()
@@ -164,7 +164,7 @@ if(BUILD_TESTS)
                          test/google/line_equation_test.cc
                          # hyq
 #                        # com
-                         test/google/motion_structure_test.cc
+#                         test/google/motion_structure_test.cc
 #                        test/google/com_motion_test.cc
                          test/google/com_spline_test.cc
                          test/google/polynomial_test.cc
@@ -173,7 +173,7 @@ if(BUILD_TESTS)
 #                        test/google/zmp_constraint_test.cc
 #                        test/google/constraint_factory_test.cc
 #                         test/google/zmp_constraint_builder_test.cc
-                         test/google/linear_spline_equations_test.cc
+#                         test/google/linear_spline_equations_test.cc
                          test/google/dynamic_constraint_test.cc
 #                        test/google/joint_angles_constraint_test.cc
 #                        test/google/constraint_container_test.cc
@@ -184,7 +184,7 @@ if(BUILD_TESTS)
 #                        test/google/cost_function_functor_test.cc
 #                        test/google/cost_container_test.cc
 #                        test/google/a_foothold_cost_test.cc
-                         test/google/cost_adapter_test.cc
+                         test/google/soft_constraint_test.cc
 #                        # nlp optimizers
                          test/google/motion_optimizer_facade_test.cc
 #                        test/google/nlp_test.cc
@@ -193,6 +193,7 @@ if(BUILD_TESTS)
 #                        test/google/ipopt_test.cc
 #                        # general
 #                        test/google/sparse_matrix_test.cc
+                         test/google/joint_angles_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})
