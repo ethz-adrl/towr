@@ -8,7 +8,7 @@
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
 #include <xpp_msgs/CurrentInfo.h>
-#include <xpp/hyq/hyq_endeffectors.h>
+#include <xpp/hyq/ee_hyq.h>
 
 using HyqState       = xpp::hyq::HyqState;
 using CurrentInfoMsg = xpp_msgs::CurrentInfo;
@@ -51,16 +51,24 @@ int main(int argc, char **argv)
 
 
   using namespace xpp::hyq;
-  HyqState::PosEE endeffector_W(4);
-  endeffector_W.at(kMapHyqToOpt.at(LF)) = Vector3d( 0.359692,   0.327653, 0.0);
-  endeffector_W.at(kMapHyqToOpt.at(RF)) = Vector3d( 0.359694,  -0.327644, 0.0);
-  endeffector_W.at(kMapHyqToOpt.at(LH)) = Vector3d(-0.258797,   0.327698, 0.0);
-  endeffector_W.at(kMapHyqToOpt.at(RH)) = Vector3d(-0.358802,  -0.327695, 0.0);
+  EEHyq<Vector3d> hyq_ee(4);
+  hyq_ee.At(LF) = Vector3d( 0.359692,   0.327653, 0.0);
+  hyq_ee.At(RF) = Vector3d( 0.359694,  -0.327644, 0.0);
+  hyq_ee.At(LH) = Vector3d(-0.258797,   0.327698, 0.0);
+  hyq_ee.At(RH) = Vector3d(-0.358802,  -0.327695, 0.0);
 
-  start_state.SetJointAngles(endeffector_W);
+
+
+//  HyqState::PosEE endeffector_W(4);
+//  endeffector_W.at(kMapHyqToOpt.at(LF)) = Vector3d( 0.359692,   0.327653, 0.0);
+//  endeffector_W.at(kMapHyqToOpt.at(RF)) = Vector3d( 0.359694,  -0.327644, 0.0);
+//  endeffector_W.at(kMapHyqToOpt.at(LH)) = Vector3d(-0.258797,   0.327698, 0.0);
+//  endeffector_W.at(kMapHyqToOpt.at(RH)) = Vector3d(-0.358802,  -0.327695, 0.0);
+
+  start_state.SetJointAngles(hyq_ee.ToXpp());//endeffector_W);
 //  start_state.qd[iit::HyQ::LH_KFE] = -10;
 //  start_state.swingleg_.fill(false);
-  start_state.swingleg_[kMapHyqToOpt.at(LH)] = false; // this should then also be different
+  start_state.swingleg_[1] = false; // this should then also be different
   CurrentInfoMsg msg;
   msg.state = xpp::ros::RosHelpers::XppToRos(start_state);
   msg.reoptimize = true;
