@@ -32,7 +32,7 @@ public:
   using Vector2d        = Eigen::Vector2d;
   using Marker          = visualization_msgs::Marker ;
   using MarkerArray     = visualization_msgs::MarkerArray ;
-  using EEID            = xpp::opt::EndeffectorID;
+  using EEID            = xpp::utils::EndeffectorID;
 
 public:
   MarkerArrayBuilder();
