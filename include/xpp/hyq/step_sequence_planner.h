@@ -11,7 +11,6 @@
 #include <xpp/utils/state.h>
 #include <xpp/opt/contact.h>
 #include <xpp/hyq/hyq_robot_interface.h>
-#include <xpp/hyq/hyq_endeffectors.h>
 
 namespace xpp {
 namespace hyq {
