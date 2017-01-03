@@ -15,6 +15,7 @@ namespace xpp {
 namespace opt {
 
 using namespace Eigen;
+using EndeffectorID = utils::EndeffectorID;
 
 TEST(ComSplineTest, MotionPhase) {
 

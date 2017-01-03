@@ -8,7 +8,7 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_A_ROBOT_INTERFACE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_A_ROBOT_INTERFACE_H_
 
-#include <xpp/opt/contact.h>
+#include <xpp/utils/endeffectors.h>
 #include <Eigen/Dense>
 #include <array>
 
@@ -25,6 +25,7 @@ class ARobotInterface {
 public:
   using PosXY    = Eigen::Vector2d;
   using MaxDevXY = std::array<double,2>;
+  using EndeffectorID = xpp::utils::EndeffectorID;
 
   ARobotInterface () {};
   virtual ~ARobotInterface () {};

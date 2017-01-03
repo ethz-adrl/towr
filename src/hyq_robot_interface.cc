@@ -21,7 +21,7 @@ HyqRobotInterface::~HyqRobotInterface ()
 }
 
 HyqRobotInterface::PosXY
-HyqRobotInterface::GetNominalStanceInBase (xpp::opt::EndeffectorID leg_id) const
+HyqRobotInterface::GetNominalStanceInBase (EndeffectorID leg_id) const
 {
   const double x_nominal_b = 0.34; // 0.4
   const double y_nominal_b = 0.34; // 0.4

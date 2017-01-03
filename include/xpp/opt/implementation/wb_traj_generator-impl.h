@@ -43,7 +43,7 @@ WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
                              const SplineNode& curr_state)
 {
   // get endeffector size from current node
-  kNEE = curr_state.feet_W_.size();
+  kNEE = curr_state.feet_W_.GetCount();
   feet_spliner_up_.resize(kNEE);
   feet_spliner_down_.resize(kNEE);
 
@@ -70,14 +70,14 @@ WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
   {
     // starting point is previous state
     SplineNode goal_node = prev_node;
-    std::fill(goal_node.swingleg_.begin(), goal_node.swingleg_.end(), false);
+    goal_node.swingleg_.SetAll(false);
 
     for (auto c : curr_phase.swing_goal_contacts_) {
       int ee = static_cast<int>(c.ee);
-      goal_node.feet_W_.at(ee).p.x() = footholds.at(c.id).x();
-      goal_node.feet_W_.at(ee).p.y() = footholds.at(c.id).y();
-      goal_node.feet_W_.at(ee).p.z() = 0.0;
-      goal_node.swingleg_[ee] = true;
+      goal_node.feet_W_.At(ee).p.x() = footholds.at(c.id).x();
+      goal_node.feet_W_.At(ee).p.y() = footholds.at(c.id).y();
+      goal_node.feet_W_.At(ee).p.z() = 0.0;
+      goal_node.swingleg_.At(ee) = true;
     }
 
     // adjust roll, pitch, yaw depending on footholds
@@ -198,23 +198,21 @@ WBTrajGenerator::GetCurrOrientation(double t_global) const
 WBTrajGenerator::FeetArray
 WBTrajGenerator::GetCurrEndeffectors (double t_global) const
 {
-  FeetArray feet;
-
   double t_local = GetLocalSplineTime(t_global);
   int  spline    = GetSplineID(t_global);
   int  goal_node = spline+1;
 
-  feet = nodes_.at(goal_node).feet_W_;
+  FeetArray feet = nodes_.at(goal_node).feet_W_;
 
-  for (int leg=0; leg<feet.size(); ++leg) {
-    if(nodes_.at(goal_node).swingleg_[leg]) { // only spline swinglegs
+  for (int leg=0; leg<feet.GetCount(); ++leg) {
+    if(nodes_.at(goal_node).swingleg_.At(leg)) { // only spline swinglegs
 
       double t_upswing = nodes_.at(goal_node).T * kUpswingPercent;
 
       if ( t_local < t_upswing) // leg swinging up
-        feet_spliner_up_.at(spline)[leg].GetPoint(t_local, feet[leg]);
+        feet_spliner_up_.at(spline)[leg].GetPoint(t_local, feet.At(leg));
       else // leg swinging down
-        feet_spliner_down_.at(spline)[leg].GetPoint(t_local - t_upswing, feet[leg]);
+        feet_spliner_down_.at(spline)[leg].GetPoint(t_local - t_upswing, feet.At(leg));
     }
   }
 
@@ -246,7 +244,7 @@ WBTrajGenerator::BuildOneSegment(const SplineNode& from, const SplineNode& to,
   FeetArray f_switch(kNEE);
   double t_switch = to.T * kUpswingPercent;
   for (int leg=0; leg<feet_up.size(); ++leg) {
-     feet_up[leg].GetPoint(t_switch, f_switch[leg]);
+     feet_up[leg].GetPoint(t_switch, f_switch.At(leg));
   }
 
   feet_down = BuildFootstepSplineDown(f_switch, to);
@@ -270,11 +268,11 @@ WBTrajGenerator::BuildFootstepSplineUp(const SplineNode& from, const SplineNode&
   FeetSplinerArray feet_up(kNEE);
 
   // Feet spliner for all legs, even if might be stance legs
-  for (int leg=0; leg<from.feet_W_.size(); ++leg) {
+  for (int leg=0; leg<from.feet_W_.GetCount(); ++leg) {
 
     // raise intermediate foothold dependant on foothold difference
-    double delta_z = std::abs(to.feet_W_[leg].p.z() - from.feet_W_[leg].p.z());
-    State3d foot_raised = to.feet_W_[leg];
+    double delta_z = std::abs(to.feet_W_.At(leg).p.z() - from.feet_W_.At(leg).p.z());
+    State3d foot_raised = to.feet_W_.At(leg);
     foot_raised.p.z() += kLiftHeight + delta_z;
 
     // move outward only if footholds significantly differ in height
@@ -285,7 +283,7 @@ WBTrajGenerator::BuildFootstepSplineUp(const SplineNode& from, const SplineNode&
 
     // upward swing
     double swing_time = to.T;
-    feet_up[leg].SetBoundary(swing_time, from.feet_W_[leg], foot_raised);
+    feet_up[leg].SetBoundary(swing_time, from.feet_W_.At(leg), foot_raised);
   }
 
   return feet_up;
@@ -298,11 +296,11 @@ WBTrajGenerator::BuildFootstepSplineDown(const FeetArray& feet_at_switch,
   FeetSplinerArray feet_down(kNEE);
 
   // Feet spliner for all legs, even if might be stance legs
-  for (int leg=0; leg<to.feet_W_.size(); ++leg) {
+  for (int leg=0; leg<to.feet_W_.GetCount(); ++leg) {
 
     // downward swing from the foothold at switch state to original
     double duration = to.T * (1.0-kUpswingPercent);
-    feet_down[leg].SetBoundary(duration, feet_at_switch[leg], to.feet_W_[leg]);
+    feet_down[leg].SetBoundary(duration, feet_at_switch.At(leg), to.feet_W_.At(leg));
   }
 
   return feet_down;

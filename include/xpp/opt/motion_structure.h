@@ -25,7 +25,7 @@ namespace opt {
 class MotionStructure {
 public:
 
-  using EEIDVec         = std::vector<EndeffectorID>;
+  using EEIDVec         = std::vector<utils::EndeffectorID>;
   using StartStance     = std::vector<Contact>;
   using PhaseVec        = std::vector<MotionPhase>;
   using PhaseStampedVec = std::vector<MotionNode>;

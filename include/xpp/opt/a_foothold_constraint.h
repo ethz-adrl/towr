@@ -43,8 +43,9 @@ protected:
   */
 class FootholdFinalStanceConstraint : public AFootholdConstraint {
 public:
-  typedef Eigen::Vector2d Vector2d;
+  using Vector2d = Eigen::Vector2d;
   using RobotPtrU = std::unique_ptr<ARobotInterface>;
+  using EndeffectorID = utils::EndeffectorID;
 
   FootholdFinalStanceConstraint(const MotionStructure& motion_structure,
                                 const Vector2d& goal_xy, RobotPtrU);

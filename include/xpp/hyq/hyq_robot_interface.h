@@ -19,7 +19,7 @@ public:
   HyqRobotInterface ();
   virtual ~HyqRobotInterface ();
 
-  virtual PosXY GetNominalStanceInBase(xpp::opt::EndeffectorID leg_id) const final;
+  virtual PosXY GetNominalStanceInBase(EndeffectorID leg_id) const final;
   virtual MaxDevXY GetMaxDeviationXYFromNominal() const final;
 };
 
