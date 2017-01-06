@@ -68,7 +68,7 @@ int main(int argc, char **argv)
   start_state.SetJointAngles(hyq_ee.ToXpp());//endeffector_W);
 //  start_state.qd[iit::HyQ::LH_KFE] = -10;
 //  start_state.swingleg_.fill(false);
-  start_state.swingleg_.At(1) = false; // this should then also be different
+  start_state.swingleg_.At(xpp::utils::E1) = false; // this should then also be different
   CurrentInfoMsg msg;
   msg.state = xpp::ros::RosHelpers::XppToRos(start_state);
   msg.reoptimize = true;
