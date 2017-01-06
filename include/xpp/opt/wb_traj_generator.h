@@ -46,6 +46,7 @@ public:
   using ContactArray  = typename SplineNode::ContactState;
   using ArtiRobVec    = std::vector<SplineNode>;
   using FeetSplinerArray = std::vector<SplinerFeet>;
+  using EEID          = xpp::utils::EndeffectorID;
 
 public:
   WBTrajGenerator();

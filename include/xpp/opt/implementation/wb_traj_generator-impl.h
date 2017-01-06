@@ -19,11 +19,9 @@ WBTrajGenerator::WBTrajGenerator()
   SetParams(0.0, 0.0, 0.0, 0.0);
 }
 
-
 WBTrajGenerator::~WBTrajGenerator()
 {
 }
-
 
 void WBTrajGenerator::SetParams(double upswing,
                double lift_height,
@@ -35,7 +33,6 @@ void WBTrajGenerator::SetParams(double upswing,
   kOutwardSwingDistance = outward_swing_distance;
   kDiscretizationTime = discretization_time;
 }
-
 
 void
 WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
@@ -53,7 +50,6 @@ WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
   CreateAllSplines(nodes_);
   com_motion_ = com_spline;
 }
-
 
  WBTrajGenerator::ArtiRobVec
 WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
@@ -73,11 +69,10 @@ WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
     goal_node.swingleg_.SetAll(false);
 
     for (auto c : curr_phase.swing_goal_contacts_) {
-      int ee = static_cast<int>(c.ee);
-      goal_node.feet_W_.At(ee).p.x() = footholds.at(c.id).x();
-      goal_node.feet_W_.At(ee).p.y() = footholds.at(c.id).y();
-      goal_node.feet_W_.At(ee).p.z() = 0.0;
-      goal_node.swingleg_.At(ee) = true;
+      goal_node.feet_W_.At(c.ee).p.x() = footholds.at(c.id).x();
+      goal_node.feet_W_.At(c.ee).p.y() = footholds.at(c.id).y();
+      goal_node.feet_W_.At(c.ee).p.z() = 0.0;
+      goal_node.swingleg_.At(c.ee) = true;
     }
 
     // adjust roll, pitch, yaw depending on footholds
@@ -96,7 +91,6 @@ WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
 
   return nodes;
 }
-
 
 void WBTrajGenerator::CreateAllSplines(const std::vector<SplineNode>& nodes)
 {
@@ -120,7 +114,6 @@ void WBTrajGenerator::CreateAllSplines(const std::vector<SplineNode>& nodes)
     feet_spliner_down_.push_back(feet_down);
   }
 }
-
 
 Eigen::Vector3d
 WBTrajGenerator::TransformQuatToRpy(const Eigen::Quaterniond& q)
@@ -204,7 +197,7 @@ WBTrajGenerator::GetCurrEndeffectors (double t_global) const
 
   FeetArray feet = nodes_.at(goal_node).feet_W_;
 
-  for (int leg=0; leg<feet.GetCount(); ++leg) {
+  for (EEID leg : feet.GetAllEE()) {
     if(nodes_.at(goal_node).swingleg_.At(leg)) { // only spline swinglegs
 
       double t_upswing = nodes_.at(goal_node).T * kUpswingPercent;
@@ -243,9 +236,8 @@ WBTrajGenerator::BuildOneSegment(const SplineNode& from, const SplineNode& to,
   // this is the outter/upper-most point the foot swings to
   FeetArray f_switch(kNEE);
   double t_switch = to.T * kUpswingPercent;
-  for (int leg=0; leg<feet_up.size(); ++leg) {
+  for (EEID leg : f_switch.GetAllEE())
      feet_up[leg].GetPoint(t_switch, f_switch.At(leg));
-  }
 
   feet_down = BuildFootstepSplineDown(f_switch, to);
 }
@@ -268,7 +260,7 @@ WBTrajGenerator::BuildFootstepSplineUp(const SplineNode& from, const SplineNode&
   FeetSplinerArray feet_up(kNEE);
 
   // Feet spliner for all legs, even if might be stance legs
-  for (int leg=0; leg<from.feet_W_.GetCount(); ++leg) {
+  for (EEID leg : from.feet_W_.GetAllEE()) {
 
     // raise intermediate foothold dependant on foothold difference
     double delta_z = std::abs(to.feet_W_.At(leg).p.z() - from.feet_W_.At(leg).p.z());
@@ -296,7 +288,7 @@ WBTrajGenerator::BuildFootstepSplineDown(const FeetArray& feet_at_switch,
   FeetSplinerArray feet_down(kNEE);
 
   // Feet spliner for all legs, even if might be stance legs
-  for (int leg=0; leg<to.feet_W_.GetCount(); ++leg) {
+  for (EEID leg : to.feet_W_.GetAllEE()) {
 
     // downward swing from the foothold at switch state to original
     double duration = to.T * (1.0-kUpswingPercent);
