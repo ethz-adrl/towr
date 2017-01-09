@@ -41,12 +41,12 @@ public:
   using ZPolynomial   = xpp::utils::CubicPolynomial;
   using PhaseVec      = std::vector<MotionPhase>;
 
-  using SplineNode    = ArticulatedRobotStateC;
-  using FeetArray     = typename SplineNode::FeetArray;
-  using ContactArray  = typename SplineNode::ContactState;
-  using ArtiRobVec    = std::vector<SplineNode>;
-  using FeetSplinerArray = std::vector<SplinerFeet>;
-  using EEID          = xpp::utils::EndeffectorID;
+  using SplineNode       = ArticulatedRobotStateC;
+  using FeetArray        = typename SplineNode::FeetArray;
+  using ContactArray     = typename SplineNode::ContactState;
+  using ArtiRobVec       = std::vector<SplineNode>;
+  using FeetSplinerArray = xpp::utils::Endeffectors<SplinerFeet>;//std::vector<SplinerFeet>;
+  using EEID             = xpp::utils::EndeffectorID;
 
 public:
   WBTrajGenerator();
