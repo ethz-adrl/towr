@@ -60,7 +60,7 @@ protected:
 
     Eigen::Vector3d step;
     step << 0.25, 0.05, 0.0;
-    for (LegID leg : LegIDArray) {
+    for (LegID leg : kHyqLegOrder) {
       final_stance_[leg] = start_stance_[leg];
       final_stance_[leg].p += step;
     }

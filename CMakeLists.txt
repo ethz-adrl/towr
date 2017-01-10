@@ -195,7 +195,6 @@ if(BUILD_TESTS)
 #                        test/google/sparse_matrix_test.cc
                          test/google/joint_angles_test.cc
                          test/google/endeffectors_test.cc
-                         test/google/q_hyq_codegen_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

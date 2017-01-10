@@ -33,7 +33,7 @@ protected:
     init_.base_.lin.v.z() = 0.8;
     init_.base_.lin.a.z() = 0.9;
 
-    for (LegID leg : LegIDArray) {
+    for (LegID leg : kHyqLegOrder) {
       init_.feet_[leg].p = Foothold::GetLastFoothold(leg, start_stance_).p;
     }
 

@@ -10,7 +10,7 @@
 
 #include "com_motion.h"
 #include "motion_phase.h"
-#include <xpp/opt/articulated_robot_state.h>
+#include <xpp/opt/articulated_robot_state_cartesian.h>
 
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/polynomial_xd.h>
@@ -41,7 +41,7 @@ public:
   using ZPolynomial   = xpp::utils::CubicPolynomial;
   using PhaseVec      = std::vector<MotionPhase>;
 
-  using SplineNode       = ArticulatedRobotStateC;
+  using SplineNode       = ArticulatedRobotStateCartesian;
   using FeetArray        = typename SplineNode::FeetArray;
   using ContactArray     = typename SplineNode::ContactState;
   using ArtiRobVec       = std::vector<SplineNode>;
