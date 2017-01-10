@@ -126,21 +126,13 @@ NLP::EvalNonzerosOfJacobian (const Number* x, Number* values) const
 NLP::JacobianPtr
 NLP::GetJacobianOfConstraints () const
 {
-  // use full default jacobian if not estimated, to make sure all the
-  // elements are estimated by numerical differences.
-  // refactor this is something I will for sure forget, remove
-  bool jacobians_defined = true; // zmp_ turn this back on
+  return constraints_->GetJacobian();
+}
 
-  if (jacobians_defined)
-    return constraints_->GetJacobian();
-  else {
-    int n = GetNumberOfOptimizationVariables();
-    int m = GetNumberOfConstraints();
-    Eigen::MatrixXd jac_default(m,n);
-    jac_default.setOnes(); // to make sure every element is respected
-    JacobianPtr ptr = std::make_shared<Jacobian>(jac_default.sparseView());
-    return ptr;
-  }
+void
+NLP::PrintStatusOfConstraints (double tol) const
+{
+  return constraints_->PrintStatus(tol);
 }
 
 NLP::VectorXd
@@ -149,7 +141,5 @@ NLP::ConvertToEigen(const Number* x) const
   return Eigen::Map<const VectorXd>(x,GetNumberOfOptimizationVariables());
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
-
-

@@ -11,13 +11,13 @@
 #include <xpp/opt/constraint_container.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/cost_container.h>
-#include <xpp/opt/ipopt_adapter.h>
 #include <xpp/opt/motion_factory.h>
 #include <xpp/opt/motion_structure.h>
 #include <xpp/opt/nlp.h>
 #include <xpp/opt/optimization_variables.h>
 
-//#include <xpp/opt/snopt_adapter.h>
+#include <xpp/opt/ipopt_adapter.h>
+#include <xpp/opt/snopt_adapter.h>
 
 namespace xpp {
 namespace opt {
@@ -73,7 +73,13 @@ NlpFacade::SolveNlp(const State& initial_state,
   costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion_, utils::kAcc));
   costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion_, motion_structure));
   costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure));
-  costs_->SetWeights({1.0, 1.0, 10.0});
+
+  // normalize the costs
+  int n_nodes = motion_structure.GetPhaseStampedVec().size();
+  int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();
+  int t_total = motion_structure.GetTotalTime();
+  costs_->SetWeights({1.0/t_total, 30.0/n_discrete_contacts, 100.0/n_nodes});
+//  costs_->SetWeights({1.0});
 
 
   visualizer_->SetOptimizationVariables(opt_variables_);
@@ -85,8 +91,6 @@ NlpFacade::SolveNlp(const State& initial_state,
 
 
 //  // Snopt solving
-//  // fixme some constraints are still linear and have constant terms in its
-//  // values, so this wont work
 //  auto snopt_problem = SnoptAdapter::GetInstance();
 //  snopt_problem->SetNLP(nlp);
 //  snopt_problem->Init();

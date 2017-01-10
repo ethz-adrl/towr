@@ -9,9 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_STEP_SEQUENCE_PLANNER_H_
 
 #include <xpp/utils/state.h>
-
-#include <xpp/hyq/leg_data_map.h>
-#include <xpp/hyq/foothold.h>
+#include <xpp/opt/contact.h>
 #include <xpp/hyq/hyq_robot_interface.h>
 
 namespace xpp {
@@ -27,7 +25,7 @@ namespace hyq {
 class StepSequencePlanner {
 public:
   typedef std::vector<LegID> LegIDVec;
-  typedef std::vector<Foothold> VecFoothold;
+  typedef std::vector<xpp::opt::Contact> VecFoothold;
   typedef xpp::utils::StateLin2d State;
   typedef Eigen::Vector2d Vector2d;
 
@@ -67,6 +65,7 @@ private:
   bool IsStepNecessary() const;
   LegID NextSwingLeg(LegID curr) const;
   LegID NextSwingLegBackwards(LegID curr) const;
+  LegID NextSwingLegTrott(LegID curr) const;
 
   bool IsGoalOutsideRangeOfMotion() const;
 

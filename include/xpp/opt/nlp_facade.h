@@ -9,13 +9,14 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
 
 #include "i_visualizer.h"
-#include <xpp/opt/phase_info.h>
 #include <xpp/utils/state.h>
 #include <xpp/utils/eigen_std_conversions.h>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
 #include <memory>
+
+#include "motion_phase.h"
 
 namespace xpp {
 namespace opt {

@@ -39,7 +39,7 @@ MotionOptimizerFacade::Init (double max_step_length, double dt_nodes,
   t_first_phase_ = t_first_phase;
   des_walking_height_ = des_walking_height;
 
-  whole_body_mapper_.SetParams(0.5, lift_height, outward_swing, trajectory_dt);
+  wb_traj_gen4_.SetParams(0.5, lift_height, outward_swing, trajectory_dt);
 
   nlp_facade_.AttachNlpObserver(visualizer);
 }
@@ -53,14 +53,21 @@ MotionOptimizerFacade::OptimizeMotion ()
                               des_walking_height_, max_step_length_,
                               curr_state_.SwinglegID());
 
-  auto step_sequence = step_sequence_planner_.DetermineStepSequence();
-  bool start_with_com_shift = step_sequence_planner_.StartWithStancePhase();
+  MotionStructure motion_structure;
+
+  auto step_sequence_hyq = step_sequence_planner_.DetermineStepSequence();
+  bool start_with_com_shift = true;//step_sequence_planner_.StartWithStancePhase();
   bool insert_final_stance = true;
 
-  MotionStructure motion_structure;
   double t_first_phase = t_first_phase_;//t_left_; // mpc this changes by goal publisher
 
-  motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence, t_swing_, t_first_phase,
+  std::vector<EndeffectorID> step_sequence_generic;
+  for (auto leg : step_sequence_hyq) {
+    auto ee = hyq::kMapHyqToOpt.at(leg);
+    step_sequence_generic.push_back(ee);
+  }
+
+  motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence_generic, t_swing_, t_first_phase,
                         start_with_com_shift, insert_final_stance, dt_nodes_ );
 
   nlp_facade_.SolveNlp(curr_state_.base_.lin.Get2D(),
@@ -68,13 +75,15 @@ MotionOptimizerFacade::OptimizeMotion ()
                        des_walking_height_,
                        motion_structure);
 
-  whole_body_mapper_.Init(motion_structure.GetPhases(),
-                          nlp_facade_.GetComMotion(),
-                          nlp_facade_.GetFootholds(),
-                          des_walking_height_,
-                          curr_state_);
+  wb_traj_gen4_.Init(motion_structure.GetPhases(),
+                     nlp_facade_.GetComMotion(),
+                     nlp_facade_.GetFootholds(),
+                     des_walking_height_,
+                     curr_state_.ConvertToCartesian());
 
-  optimized_trajectory_ = whole_body_mapper_.BuildWholeBodyTrajectoryJoints();
+  auto art_rob_vec = wb_traj_gen4_.BuildWholeBodyTrajectory();
+
+  optimized_trajectory_ = curr_state_.BuildWholeBodyTrajectory(art_rob_vec);
 }
 
 MotionOptimizerFacade::HyqStateVec

@@ -60,6 +60,8 @@ public:
   void EvalNonzerosOfJacobian(const Number* x, Number* values) const;
   JacobianPtr GetJacobianOfConstraints() const;
 
+  void PrintStatusOfConstraints(double tol) const;
+
 private:
   OptimizationVariablesPtr opt_variables_;
   CostContainerPtr costs_;

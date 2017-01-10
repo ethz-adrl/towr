@@ -8,9 +8,9 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 
-#include <xpp/opt/phase_info.h>
 #include <xpp/utils/matrix_vector.h>
 #include <xpp/utils/state.h>
+#include "motion_phase.h"
 
 #include <Eigen/Sparse>
 #include <memory>
@@ -26,12 +26,13 @@ namespace opt {
   */
 class ComMotion {
 public:
-  typedef Eigen::VectorXd VectorXd;
-  typedef xpp::utils::StateLin2d Point2d;
-  typedef xpp::utils::VecScalar VecScalar;
-  typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
-  typedef std::shared_ptr<ComMotion> PtrS;
-  typedef std::unique_ptr<ComMotion> PtrU;
+  using VectorXd    = Eigen::VectorXd ;
+  using Point2d     = xpp::utils::StateLin2d ;
+  using VecScalar   = xpp::utils::VecScalar ;
+  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor> ;
+  using PtrS        = std::shared_ptr<ComMotion> ;
+  using PtrU        = std::unique_ptr<ComMotion> ;
+  using PhaseVec    = std::vector<MotionPhase>;
 
   ComMotion ();
   virtual ~ComMotion ();

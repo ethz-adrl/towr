@@ -5,12 +5,11 @@
  @brief   Declares the MotionStructure class.
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_ZMP_MOTION_STRUCTURE_H_
-#define XPP_OPT_INCLUDE_XPP_ZMP_MOTION_STRUCTURE_H_
+#ifndef XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
+#define XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
 
-#include <xpp/opt/phase_info.h>
-#include <xpp/hyq/leg_data_map.h>
 #include <vector>
+#include "motion_phase.h"
 
 namespace xpp {
 namespace opt {
@@ -26,14 +25,16 @@ namespace opt {
 class MotionStructure {
 public:
 
-  using LegIDVec      = std::vector<xpp::hyq::LegID>;
-  using StartStance   = std::vector<xpp::hyq::Foothold>;
+  using EEIDVec         = std::vector<utils::EndeffectorID>;
+  using StartStance     = std::vector<Contact>;
+  using PhaseVec        = std::vector<MotionPhase>;
+  using PhaseStampedVec = std::vector<MotionNode>;
 
   MotionStructure ();
 
   virtual ~MotionStructure ();
 
-  void Init(const StartStance& start_stance, const LegIDVec& step_legs,
+  void Init(const StartStance& start_stance, const EEIDVec& step_legs,
             double t_swing, double t_first_phase, bool insert_initial_stance,
             bool insert_final_stance, double dt);
 
@@ -46,7 +47,7 @@ public:
     * and support polygon. A phase is a motion during which the dynamics are
     * continuous (stance, swing, flight).
     */
-  PhaseInfo GetCurrentPhase(double t_global) const;
+  MotionPhase GetCurrentPhase(double t_global) const;
 
   /** @brief Returns a vector of phases, where no phase is duplicated.
     *
@@ -68,13 +69,12 @@ public:
   int GetTotalNumberOfFreeNodeContacts() const;
   int GetTotalNumberOfNodeContacts() const;
 
-  LegIDVec GetContactIds() const { return contact_ids_; };
-
+  EEIDVec GetContactIds() const { return contact_ids_; };
   StartStance GetStartStance() const { return start_stance_;};
 
 private:
   StartStance start_stance_;
-  LegIDVec contact_ids_;
+  EEIDVec contact_ids_;
   PhaseVec phases_;
 
   double dt_; ///< discretization interval [s]
@@ -85,7 +85,7 @@ private:
   mutable PhaseStampedVec cached_motion_vector_;
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
-#endif /* XPP_OPT_INCLUDE_XPP_ZMP_MOTION_STRUCTURE_H_ */
+#endif /* XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_ */

@@ -6,7 +6,6 @@
  */
 
 #include <xpp/hyq/hyq_robot_interface.h>
-#include <xpp/hyq/leg_data_map.h>
 
 namespace xpp {
 namespace hyq {
@@ -14,7 +13,6 @@ namespace hyq {
 HyqRobotInterface::HyqRobotInterface ()
 {
   // TODO Auto-generated constructor stub
-
 }
 
 HyqRobotInterface::~HyqRobotInterface ()
@@ -23,14 +21,12 @@ HyqRobotInterface::~HyqRobotInterface ()
 }
 
 HyqRobotInterface::PosXY
-HyqRobotInterface::GetNominalStanceInBase (int leg_id) const
+HyqRobotInterface::GetNominalStanceInBase (EndeffectorID leg_id) const
 {
   const double x_nominal_b = 0.34; // 0.4
   const double y_nominal_b = 0.34; // 0.4
 
-  assert(LF <= leg_id && leg_id <= RH); // leg with this ID exists
-
-  switch (static_cast<LegID>(leg_id)) {
+  switch (kMapOptToHyq.at(leg_id)) {
     case LF: return PosXY( x_nominal_b,   y_nominal_b); break;
     case RF: return PosXY( x_nominal_b,  -y_nominal_b); break;
     case LH: return PosXY(-x_nominal_b,   y_nominal_b); break;
@@ -42,8 +38,8 @@ HyqRobotInterface::GetNominalStanceInBase (int leg_id) const
 HyqRobotInterface::MaxDevXY
 HyqRobotInterface::GetMaxDeviationXYFromNominal () const
 {
-  return {0.18, 0.15};
+  return {0.25, 0.15};
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */

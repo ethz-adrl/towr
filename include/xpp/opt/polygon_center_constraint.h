@@ -18,7 +18,7 @@ class MotionStructure;
 /** Ensures that vector represented by lambdas lies in center
   *
   * g(lambda) = (lambda_1-1/m)^2 + ... + (lambda_m-1/m)^2 = 0
-  *          =>  lambda_1^2 - 2/m*lambda_1 + ... + lambda_m^2 - 2/m*lambda_m + 1/m = 0
+  *          =>  lambda_1^2 - 2/m*lambda_1 + ... + lambda_m^2 - 2/m*lambda_m  = -1/m
   *
   * where m = number of contacts at each discrete node
   */

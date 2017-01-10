@@ -14,7 +14,7 @@ namespace opt {
 
 ConvexityConstraint::ConvexityConstraint ()
 {
-  // TODO Auto-generated constructor stub
+  name_ = "Convexity";
 }
 
 ConvexityConstraint::~ConvexityConstraint ()
@@ -26,8 +26,8 @@ void
 ConvexityConstraint::Init (const MotionStructure& motion_structure)
 {
   for (const auto& node : motion_structure.GetPhaseStampedVec()) {
-    int contacts_fixed = node.phase_.fixed_contacts_.size();
-    int contacts_free = node.phase_.free_contacts_.size();
+    int contacts_fixed = node.fixed_contacts_.size();
+    int contacts_free = node.free_contacts_.size();
     n_contacts_per_node_.push_back(contacts_fixed + contacts_free);
   }
 

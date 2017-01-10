@@ -13,7 +13,7 @@ find_package(GTest)
 # NLP solvers (adapt global path accordingly)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 find_package(IPOPT REQUIRED)
-option(BUILD_SNOPT "Build problem to solve with snopt nlp solver" OFF)
+option(BUILD_SNOPT "Build problem to solve with snopt nlp solver" ON)
 if(BUILD_SNOPT)
   set(SNOPT_SRC_DIR "/home/winklera/3rd_party_software/snopt_lib")
   set(SNOPT_INCLUDE_DIRS ${SNOPT_SRC_DIR}/include)
@@ -83,10 +83,9 @@ set(SOURCES
   src/zero_moment_point.cc
   src/linear_inverted_pendulum.cc
   src/motion_structure.cc
-  src/a_robot_interface.cc
+  src/motion_phase.cc
   # hyq
   src/step_sequence_planner.cc
-  src/hyq_spliner.cc
   src/hyq_robot_interface.cc
   # com
   src/com_motion.cc
@@ -122,7 +121,7 @@ set(SOURCES
   src/cost_container.cc
   src/cost_function_functor.cc
   src/a_foothold_constraint.cc
-  src/cost_adapter.cc
+  src/soft_constraint.cc
 )
 
 if(BUILD_SNOPT)
@@ -140,7 +139,7 @@ target_link_libraries(${LIB_NAME}
 )
   
 # Some example executables if turned "ON"
-option(BUILD_TESTS "Build some testing executables" OFF) 
+option(BUILD_TESTS "Build some testing executables" ON) 
 if(BUILD_TESTS)
   
   # enable_testing()
@@ -165,7 +164,7 @@ if(BUILD_TESTS)
                          test/google/line_equation_test.cc
                          # hyq
 #                        # com
-                         test/google/motion_structure_test.cc
+#                         test/google/motion_structure_test.cc
 #                        test/google/com_motion_test.cc
                          test/google/com_spline_test.cc
                          test/google/polynomial_test.cc
@@ -174,7 +173,7 @@ if(BUILD_TESTS)
 #                        test/google/zmp_constraint_test.cc
 #                        test/google/constraint_factory_test.cc
 #                         test/google/zmp_constraint_builder_test.cc
-                         test/google/linear_spline_equations_test.cc
+#                         test/google/linear_spline_equations_test.cc
                          test/google/dynamic_constraint_test.cc
 #                        test/google/joint_angles_constraint_test.cc
 #                        test/google/constraint_container_test.cc
@@ -185,7 +184,7 @@ if(BUILD_TESTS)
 #                        test/google/cost_function_functor_test.cc
 #                        test/google/cost_container_test.cc
 #                        test/google/a_foothold_cost_test.cc
-                         test/google/cost_adapter_test.cc
+                         test/google/soft_constraint_test.cc
 #                        # nlp optimizers
                          test/google/motion_optimizer_facade_test.cc
 #                        test/google/nlp_test.cc
@@ -194,6 +193,8 @@ if(BUILD_TESTS)
 #                        test/google/ipopt_test.cc
 #                        # general
 #                        test/google/sparse_matrix_test.cc
+                         test/google/joint_angles_test.cc
+                         test/google/endeffectors_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

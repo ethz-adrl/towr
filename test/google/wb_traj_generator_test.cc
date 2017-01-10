@@ -5,8 +5,9 @@
  *      Author: awinkler
  */
 
+#include "../../include/xpp/hyq/wb_traj_generator.h"
+
 #include <gtest/gtest.h>
-#include <xpp/hyq/hyq_spliner.h>
 #include <iostream>
 #include "nlp_facade_test.h"
 
@@ -32,7 +33,7 @@ protected:
     init_.base_.lin.v.z() = 0.8;
     init_.base_.lin.a.z() = 0.9;
 
-    for (LegID leg : LegIDArray) {
+    for (LegID leg : kHyqLegOrder) {
       init_.feet_[leg].p = Foothold::GetLastFoothold(leg, start_stance_).p;
     }
 
@@ -44,7 +45,7 @@ protected:
   }
 
   HyqState init_;
-  HyqSpliner spliner_;
+  WBTrajGenerator spliner_;
 };
 
 TEST_F(HyqSplinerTest, GetTotalTime)
@@ -73,13 +74,13 @@ TEST_F(HyqSplinerTest, GetGoalNode)
 TEST_F(HyqSplinerTest, BuildNode)
 {
   double t = 1.5;
-  SplineNode node = HyqSpliner::BuildNode(init_, 1.5);
+  SplineNode node = WBTrajGenerator::BuildNode(init_, 1.5);
 
   EXPECT_DOUBLE_EQ(node.T, t);
   EXPECT_EQ(node.state_.base_.lin.p, init_.base_.lin.p);
   EXPECT_EQ(node.state_.base_.lin.v, init_.base_.lin.v);
   EXPECT_EQ(node.state_.base_.lin.a, init_.base_.lin.a);
-  EXPECT_EQ(node.ori_rpy_.p, HyqSpliner::TransformQuatToRpy(init_.base_.ang.q));
+  EXPECT_EQ(node.ori_rpy_.p, WBTrajGenerator::TransformQuatToRpy(init_.base_.ang.q));
 }
 
 TEST_F(HyqSplinerTest, GetCurrPositionInit)

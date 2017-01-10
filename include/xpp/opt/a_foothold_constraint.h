@@ -43,8 +43,9 @@ protected:
   */
 class FootholdFinalStanceConstraint : public AFootholdConstraint {
 public:
-  typedef Eigen::Vector2d Vector2d;
+  using Vector2d = Eigen::Vector2d;
   using RobotPtrU = std::unique_ptr<ARobotInterface>;
+  using EndeffectorID = utils::EndeffectorID;
 
   FootholdFinalStanceConstraint(const MotionStructure& motion_structure,
                                 const Vector2d& goal_xy, RobotPtrU);
@@ -55,11 +56,11 @@ public:
   virtual VecBound GetBounds() const override;
 
 private:
-  Vector2d GetContactToNominalInWorld(const Vector2d& conctact_W, int leg) const;
+  Vector2d GetContactToNominalInWorld(const Vector2d& conctact_W, EndeffectorID leg) const;
 
   Vector2d goal_xy_;
   RobotPtrU robot_;
-  std::vector<Contact> final_free_contacts_;
+  std::vector<ContactBase> final_free_contacts_;
 };
 
 } /* namespace opt */

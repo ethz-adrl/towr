@@ -1,5 +1,5 @@
 /**
- @file    nlp_ipopt_zmp.cc
+ @file    ipopt_adapter.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jan 10, 2016
  @brief   Defines the IPOPT adapter
@@ -16,14 +16,13 @@
 namespace xpp {
 namespace opt {
 
+using VectorXd = Eigen::VectorXd;
 
-IpoptAdapter::IpoptAdapter(NLP& nlp,
-                           VisualizerPtr visualizer)
+IpoptAdapter::IpoptAdapter(NLP& nlp, VisualizerPtr visualizer)
     :nlp_(nlp),
      visualizer_(visualizer)
 {
 }
-
 
 bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
@@ -31,7 +30,6 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   n = nlp_.GetNumberOfOptimizationVariables();
   m = nlp_.GetNumberOfConstraints();
   nnz_jac_g = nlp_.GetJacobianOfConstraints()->nonZeros();
-//  nnz_jac_g = m * n; // fixme all constraints depend on all inputs
 
   std::cout << n << " variables\n";
   std::cout << m << " constraints\n";
@@ -115,25 +113,8 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
                        Index m, Index nele_jac, Index* iRow, Index *jCol,
                        Number* values)
 {
-//  assert(nele_jac == n*m); // number of elements in jacobian
-
-
-  // FIXME exploit sparsity structure more.
-	// say at which positions the nonzero elements of the jacobian are
+	// defines the positions of the nonzero elements of the jacobian
   if (values == NULL) {
-
-
-//    // return the structure of the jacobian of the constraints - i.e. specify positions of non-zero elements.
-//  	int c_nonzero = 0;
-//    for (int row=0; row<m; ++row) {
-//      for (int col=0; col<n; ++col) {
-//  			iRow[c_nonzero] = row;
-//  			jCol[c_nonzero] = col;
-//  			c_nonzero++;
-//  		}
-//  	}
-
-
 
     auto jac = nlp_.GetJacobianOfConstraints();
     int nele=0; // nonzero cells in jacobian
@@ -144,11 +125,9 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
         nele++;
       }
     }
-
-
   }
   else {
-  // only gets used if "jacobian_approximation finite-difference-values" is not set
+    // only gets used if "jacobian_approximation finite-difference-values" is not set
     nlp_.EvalNonzerosOfJacobian(x, values);
   }
 
@@ -183,7 +162,7 @@ bool IpoptAdapter::intermediate_callback(Ipopt::AlgorithmMode mode,
 //
 //      opt_variables_.SetVariables(x);
 
-  visualizer_->Visualize();
+//  visualizer_->Visualize();
 	return true;
 }
 
@@ -197,8 +176,18 @@ void IpoptAdapter::finalize_solution(Ipopt::SolverReturn status,
 			                        Ipopt::IpoptCalculatedQuantities* ip_cq)
 {
 
-
   nlp_.SetVariables(x);
+
+  double tol0 = 1e-2;
+  nlp_.PrintStatusOfConstraints(tol0);
+
+  double tol1 = 1e-3;
+  nlp_.PrintStatusOfConstraints(tol1);
+
+  double tol2 = 1e-5;
+  nlp_.PrintStatusOfConstraints(tol2);
+
+
 //  opt_variables_.spline_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);
 //  opt_variables_.footholds_ = nlp_structure_.ExtractFootholds(x);
 
@@ -216,9 +205,6 @@ void IpoptAdapter::finalize_solution(Ipopt::SolverReturn status,
   //  xmlarchive(cereal::make_nvp("U", opt_u), cereal::make_nvp("X", opt_x));
 }
 
-
-
-} // namespace zmp
+} // namespace opt
 } // namespace xpp
-
 

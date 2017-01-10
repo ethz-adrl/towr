@@ -16,7 +16,10 @@
 namespace xpp {
 namespace opt {
 
-/** Ensures constraints related to the area created by the contact points
+/** Ensures that the CoP lies within convex hull of contact points p
+  *
+  * At every discrete node k:
+  * g_k = lambda_1*p1 + ... lambda_m*p_m - cop = 0
   */
 class SupportAreaConstraint : public AConstraint {
 public:

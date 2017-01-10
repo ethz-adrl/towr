@@ -43,7 +43,6 @@ ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
   return zmp;
 }
 
-// zmp_ possibly remove this function/reuse code from one below (DRY)
 ZeroMomentPoint::Jacobian
 ZeroMomentPoint::GetJacobianWrtCoeff (Coords dim) const
 {
@@ -53,13 +52,8 @@ ZeroMomentPoint::GetJacobianWrtCoeff (Coords dim) const
 
   int n = 0; // node counter
   for (double t_global : times_)
-  {
-    JacobianRow jac_pos_t = com_motion_->GetJacobian(t_global, utils::kPos, dim);
-    JacobianRow jac_acc_t = com_motion_->GetJacobian(t_global, utils::kAcc, dim);
+    jac_zmp.row(n++) = GetJacobianWrtCoeff(*com_motion_, dim, height_, t_global);;
 
-    JacobianRow zmp_t = CalcZmp(jac_pos_t, jac_acc_t, height_);
-    jac_zmp.row(n++) = zmp_t;
-  }
 
   assert(n<=times_.size()); // check that Eigen matrix didn't overflow
   return jac_zmp;

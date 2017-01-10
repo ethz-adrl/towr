@@ -8,6 +8,7 @@
 #include <xpp/hyq/step_sequence_planner.h>
 #include <xpp/opt/range_of_motion_constraint.h>
 #include <xpp/opt/zero_moment_point.h>
+#include <xpp/hyq/ee_hyq.h>
 
 namespace xpp {
 namespace hyq {
@@ -60,7 +61,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
     LegID last_swingleg;
     LegIDVec step_sequence;
-    if (curr_swingleg_ == hyq::NO_SWING_LEG) {
+    if (curr_swingleg_ == opt::NO_SWING_LEG) {
 //      step_sequence.push_back(LF); // start with LF if none previously
       last_swingleg = LF;          //prev_swing_leg_;
     } else {
@@ -79,17 +80,22 @@ StepSequencePlanner::DetermineStepSequence ()
       if (walking_forward)
         last_swingleg = RF;
       else
-        last_swingleg = LH;
+        last_swingleg = RF;//LH;
     } else { // moving mainly in y
       if (walking_left)
         last_swingleg = RF;
       else
-        last_swingleg = LH;
+        last_swingleg = RF;//LH;
     }
 
 
 
     for (int step=0; step<n_steps; ++step) {
+
+//      // for trotting
+//      step_sequence.push_back(NextSwingLegTrott(last_swingleg));
+
+      // for walking
       if (moving_mainly_in_x) {
         if (walking_forward)
           step_sequence.push_back(NextSwingLeg(last_swingleg));
@@ -101,6 +107,8 @@ StepSequencePlanner::DetermineStepSequence ()
         else
           step_sequence.push_back(NextSwingLegBackwards(last_swingleg));
       }
+
+
 
       last_swingleg = step_sequence.back();
     }
@@ -194,6 +202,18 @@ StepSequencePlanner::NextSwingLeg (LegID curr) const
 }
 
 LegID
+StepSequencePlanner::NextSwingLegTrott (LegID curr) const
+{
+  switch (curr) {
+    case LH: return RF;
+    case RF: return LF;
+    case LF: return RH;
+    case RH: return LH;
+    default: assert(false); // this should never happen
+  };
+}
+
+LegID
 StepSequencePlanner::NextSwingLegBackwards (LegID curr) const
 {
   switch (curr) {
@@ -212,7 +232,7 @@ StepSequencePlanner::IsGoalOutsideRangeOfMotion () const
   auto max_deviation = robot_.GetMaxDeviationXYFromNominal();
 
   for (auto f : start_stance_) {
-    auto p_nominal = robot_.GetNominalStanceInBase(f.leg);
+    auto p_nominal = robot_.GetNominalStanceInBase(f.ee);
 
     for (auto dim : {X,Y}) {
 

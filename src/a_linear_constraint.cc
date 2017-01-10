@@ -16,9 +16,10 @@ ALinearConstraint::ALinearConstraint ()
 }
 
 void
-ALinearConstraint::Init (const MatVec& linear_equation)
+ALinearConstraint::Init (const MatVec& linear_equation, const std::string& name)
 {
   linear_equation_ = linear_equation;
+  name_ = name;
 }
 
 ALinearConstraint::VectorXd

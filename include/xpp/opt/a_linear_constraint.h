@@ -28,7 +28,7 @@ public:
     *
     * @param linear_equation the matrix M and vector v.
     */
-  void Init(const MatVec& linear_equation);
+  void Init(const MatVec& linear_equation, const std::string& name);
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd EvaluateConstraint () const override;

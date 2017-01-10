@@ -26,8 +26,8 @@ void
 PolygonCenterConstraint::Init (const MotionStructure& motion_structure)
 {
   for (const auto& node : motion_structure.GetPhaseStampedVec()) {
-    int contacts_fixed = node.phase_.fixed_contacts_.size();
-    int contacts_free = node.phase_.free_contacts_.size();
+    int contacts_fixed = node.fixed_contacts_.size();
+    int contacts_free = node.free_contacts_.size();
     n_contacts_per_node_.push_back(contacts_fixed + contacts_free);
   }
 }
@@ -52,7 +52,6 @@ PolygonCenterConstraint::EvaluateConstraint () const
       double lamb_j = lambdas_(idx+j);
       g_node += std::pow(lamb_j,2) - 2./m*lamb_j;
     }
-    g_node += 1./m; // should lie in center
 
     g_vec.push_back(g_node);
     idx += m;
@@ -65,8 +64,8 @@ PolygonCenterConstraint::VecBound
 PolygonCenterConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
-  for (int n_contacts : n_contacts_per_node_)
-    bounds.push_back(kEqualityBound_); // constant already put in g
+  for (int m : n_contacts_per_node_)
+    bounds.push_back(Bound(-1./m, -1./m)); // should lie in center of polygon
 
   return bounds;
 }

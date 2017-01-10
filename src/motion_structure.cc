@@ -6,17 +6,10 @@
  */
 
 #include <xpp/opt/motion_structure.h>
-
-#include <sys/types.h>
 #include <algorithm>
-#include <cassert>
-#include <cmath>
-#include <iterator>
 
 namespace xpp {
 namespace opt {
-
-using Foothold = xpp::hyq::Foothold;
 
 MotionStructure::MotionStructure ()
 {
@@ -30,66 +23,75 @@ MotionStructure::~MotionStructure ()
 // mpc clean this up, messy code
 void
 MotionStructure::Init (const StartStance& start_stance,
-                       const LegIDVec& contact_ids,
+                       const EEIDVec& contact_ids,
                        double t_swing, double t_first_phase,
                        bool insert_initial_stance,
                        bool insert_final_stance,
                        double dt)
 {
-  int id = -1;
-
-
   // doesn't have to be 4 legs on the ground
   if (insert_initial_stance) {
-    PhaseInfo initial_stance_phase;
-    initial_stance_phase.id_ = ++id;
+    MotionPhase initial_stance_phase;
     initial_stance_phase.duration_ = t_first_phase;
     initial_stance_phase.fixed_contacts_ = start_stance;
-    initial_stance_phase.n_completed_steps_ = 0;
     phases_.push_back(initial_stance_phase);
   }
 
+  std::vector<ContactBase> all_free_contacts;
+  int j = 0;
+  for (auto leg : contact_ids) {
+    all_free_contacts.push_back(ContactBase(j++, leg));
+  }
 
-  PhaseInfo prev_phase;
+
+  MotionPhase prev_phase;
   prev_phase.fixed_contacts_ = start_stance;
+  int n_swinglegs = 1; // per phase
+  int n_phases = std::floor(contact_ids.size()/n_swinglegs);
+
   // the steps
-  for (uint i=0; i<contact_ids.size(); ++i) {
+  for (uint i=0; i<n_phases; ++i) {
 
-    PhaseInfo phase;
-    phase.free_contacts_  = prev_phase.free_contacts_;
+    MotionPhase phase;
     phase.fixed_contacts_ = prev_phase.fixed_contacts_;
-
-
-    // this contact is swinging during this phase
-    // amazing idea! (pats back)
-    Contact goal_contact(i, static_cast<EndeffectorID>(contact_ids.at(i)));
-    phase.swing_goal_contacts_.push_back(goal_contact);
-
-
-    // remove current swingleg from list of active contacts
-    auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
-                           [&](const Foothold& f) {return f.leg == contact_ids.at(i);});
-
-    if (it_fixed != phase.fixed_contacts_.end()) // step found in initial stance
-      phase.fixed_contacts_.erase(it_fixed);     // remove contact, because now swinging leg
-
-
-    // remove current swingleg from last free contacts
-    auto it_free = std::find_if(phase.free_contacts_.begin(), phase.free_contacts_.end(),
-                           [&](const Contact& c) {return c.ee == static_cast<EndeffectorID>(contact_ids.at(i));});
-
-    if (it_free != phase.free_contacts_.end()) // step found in current stance
-      phase.free_contacts_.erase(it_free);     // remove contact, because now swinging leg
-
-
-
+    phase.free_contacts_  = prev_phase.free_contacts_;
     // add newly made contact of previous swing
-    if (i > 0)
-      phase.free_contacts_.push_back(Contact(i-1, static_cast<EndeffectorID>(contact_ids.at(i-1))));
+    phase.free_contacts_.insert(phase.free_contacts_.end(), prev_phase.swing_goal_contacts_.begin(),
+                                                            prev_phase.swing_goal_contacts_.end());
 
-    phase.id_ = ++id;
-    phase.duration_ = phase.id_==0? t_first_phase : t_swing;
-    phase.n_completed_steps_ = i;
+
+    std::vector<ContactBase> swinglegs;
+    for (int l=0; l<n_swinglegs; ++l) {
+      swinglegs.push_back(all_free_contacts.at(i*n_swinglegs+l));
+    }
+
+    for (const auto& sl : swinglegs) {
+
+      // this contact is swinging during this phase
+      // amazing idea! (pats back)
+//      Contact goal_contact(i, sl_contact);
+      phase.swing_goal_contacts_.push_back(sl);
+
+
+      // remove current swinglegs from list of active contacts
+      auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
+                                   [&](const Contact& f) {return f.ee == sl.ee;});
+
+      if (it_fixed != phase.fixed_contacts_.end()) // step found in initial stance
+        phase.fixed_contacts_.erase(it_fixed);     // remove contact, because now swinging leg
+
+
+      // remove current swingles from last free contacts
+      auto it_free = std::find_if(phase.free_contacts_.begin(), phase.free_contacts_.end(),
+                                  [&](const ContactBase& c) {return c.ee == sl.ee;});
+
+      if (it_free != phase.free_contacts_.end()) // step found in current stance
+        phase.free_contacts_.erase(it_free);     // remove contact, because now swinging leg
+
+    }
+
+
+    phase.duration_ = phases_.empty() ? t_first_phase : t_swing;
     phases_.push_back(phase);
 
     prev_phase = phase;
@@ -97,21 +99,19 @@ MotionStructure::Init (const StartStance& start_stance,
 
   // the final stance
   if (insert_final_stance) {
-    PhaseInfo phase;
-    phase.free_contacts_     = prev_phase.free_contacts_;
+    MotionPhase phase;
     phase.fixed_contacts_    = prev_phase.fixed_contacts_;
-    phase.n_completed_steps_ = prev_phase.n_completed_steps_;
-
-    if (prev_phase.IsStep()) {
-      int last_contact_id = contact_ids.size()-1;
-      phase.free_contacts_.push_back(Contact(last_contact_id, static_cast<EndeffectorID>(contact_ids.back())));
-      phase.n_completed_steps_++;
-    }
-
-    phase.id_ = ++id;
+    phase.free_contacts_     = prev_phase.free_contacts_;
+    phase.free_contacts_.insert(phase.free_contacts_.end(), prev_phase.swing_goal_contacts_.begin(), prev_phase.swing_goal_contacts_.end());
     phase.duration_ = 0.5;
     phases_.push_back(phase);
   }
+
+
+  for (auto p : phases_) {
+    std::cout << p << std::endl << std::endl;;
+  }
+
 
   start_stance_ = start_stance;
   contact_ids_ = contact_ids;
@@ -119,7 +119,7 @@ MotionStructure::Init (const StartStance& start_stance,
   cache_needs_updating_ = true;
 }
 
-PhaseInfo
+MotionPhase
 MotionStructure::GetCurrentPhase (double t_global) const
 {
   double t = 0;
@@ -142,7 +142,7 @@ MotionStructure::GetTotalTime() const
 }
 
 
-PhaseStampedVec
+MotionStructure::PhaseStampedVec
 MotionStructure::GetPhaseStampedVec () const
 {
   if (cache_needs_updating_) {
@@ -153,7 +153,7 @@ MotionStructure::GetPhaseStampedVec () const
   return cached_motion_vector_;
 }
 
-PhaseStampedVec
+MotionStructure::PhaseStampedVec
 MotionStructure::CalcPhaseStampedVec () const
 {
   PhaseStampedVec info;
@@ -163,27 +163,13 @@ MotionStructure::CalcPhaseStampedVec () const
 
     int nodes_in_phase = std::floor(phase.duration_/dt_);
 
-    // add one phase right after phase switch
-    PhaseInfoStamped contact_info;
-    contact_info.phase_ = phase;
-    contact_info.time_  = t_global+dt_/3;
-    info.push_back(contact_info);
-
-
+    // zmp_ make sure they are always evenly spaced! dt is the same also between nodes
     for (int k=0; k<nodes_in_phase; ++k ) {
-      PhaseInfoStamped contact_info;
-      contact_info.phase_ = phase;
+      MotionNode contact_info;
+      contact_info = phase;
       contact_info.time_  = t_global+k*dt_;
       info.push_back(contact_info);
     }
-
-
-    // add one node right before phase switch
-    // this somehow removes the jittering of hyq picking up the back legs
-    contact_info.phase_ = phase;
-    contact_info.time_  = t_global+phase.duration_-dt_/3;
-    info.push_back(contact_info);
-
 
     t_global += phase.duration_;
   }
@@ -198,7 +184,7 @@ MotionStructure::GetTotalNumberOfFreeNodeContacts () const
 
   int i = 0;
   for (auto node : contact_info_vec)
-    i += node.phase_.free_contacts_.size();
+    i += node.free_contacts_.size();
 
   return i;
 }
@@ -210,19 +196,19 @@ MotionStructure::GetTotalNumberOfNodeContacts () const
 
   int i = 0;
   for (auto node : contact_info_vec) {
-    i += node.phase_.free_contacts_.size();
-    i += node.phase_.fixed_contacts_.size();
+    i += node.free_contacts_.size();
+    i += node.fixed_contacts_.size();
   }
 
   return i;
 }
 
-PhaseVec
+MotionStructure::PhaseVec
 MotionStructure::GetPhases () const
 {
   return phases_;
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 

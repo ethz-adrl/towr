@@ -12,13 +12,13 @@
 #include <xpp/opt/com_motion.h>
 #include <xpp/opt/linear_spline_equations.h>
 #include <xpp/opt/range_of_motion_constraint.h>
-#include <xpp/opt/cost_adapter.h>
 #include <xpp/opt/obstacle_constraint.h>
 #include <xpp/opt/a_foothold_constraint.h>
 #include <xpp/opt/convexity_constraint.h>
 #include <xpp/opt/support_area_constraint.h>
 #include <xpp/opt/dynamic_constraint.h>
 #include <xpp/opt/polygon_center_constraint.h>
+#include <xpp/opt/soft_constraint.h>
 
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/hyq/hyq_robot_interface.h>
@@ -85,7 +85,7 @@ CostConstraintFactory::CreateInitialConstraint (const State2d& init,
 {
   LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeInitial(init));
+  constraint->Init(eq.MakeInitial(init), "Initial XY");
   return constraint;
 }
 
@@ -95,7 +95,7 @@ CostConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
 {
   LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeFinal(final_state_xy, {kPos, kVel}));
+  constraint->Init(eq.MakeFinal(final_state_xy, {kPos, kVel}), "Final XY");
   return constraint;
 }
 
@@ -104,7 +104,7 @@ CostConstraintFactory::CreateJunctionConstraint (const ComMotion& motion)
 {
   LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeJunction());
+  constraint->Init(eq.MakeJunction(), "Junction");
   return constraint;
 }
 
@@ -174,7 +174,7 @@ CostConstraintFactory::CreateRangeOfMotionCost (const ComMotion& com_motion,
                                                 const MotionStructure& motion_structure)
 {
   auto rom_constraint = CreateRangeOfMotionConstraint(com_motion, motion_structure);
-  auto rom_cost = std::make_shared<CostAdapter>(rom_constraint);
+  auto rom_cost = std::make_shared<SoftConstraint>(rom_constraint);
   return rom_cost;
 }
 
@@ -183,7 +183,7 @@ CostConstraintFactory::CreatePolygonCenterCost (const MotionStructure& motion_st
 {
   auto constraint = std::make_shared<PolygonCenterConstraint>();
   constraint->Init(motion_structure);
-  auto cost = std::make_shared<CostAdapter>(constraint);
+  auto cost = std::make_shared<SoftConstraint>(constraint);
   return cost;
 }
 
@@ -193,7 +193,7 @@ CostConstraintFactory::CreateFinalStanceCost (
     const MotionStructure& motion_structure)
 {
   auto final_stance_constraint = CreateFinalStanceConstraint(goal_xy, motion_structure);
-  auto final_stance_cost = std::make_shared<CostAdapter>(final_stance_constraint);
+  auto final_stance_cost = std::make_shared<SoftConstraint>(final_stance_constraint);
   return final_stance_cost;
 }
 
@@ -202,8 +202,6 @@ CostConstraintFactory::CreateMotionCost (const ComMotion& motion,
                                          const xpp::utils::MotionDerivative dxdt)
 {
   LinearSplineEquations eq(motion);
-  auto cost = std::make_shared<QuadraticSplineCost>();
-
   Eigen::MatrixXd term;
 
   switch (dxdt) {
@@ -216,6 +214,7 @@ CostConstraintFactory::CreateMotionCost (const ComMotion& motion,
   mv.M = term;
   mv.v.setZero();
 
+  auto cost = std::make_shared<QuadraticSplineCost>();
   cost->Init(mv);
   return cost;
 }

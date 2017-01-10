@@ -43,6 +43,7 @@ FootholdFinalStanceConstraint::FootholdFinalStanceConstraint (
                                     RobotPtrU robot)
 {
   Init(motion_structure);
+  name_ = "Final Stance";
   goal_xy_ = goal_xy;
   robot_ = std::move(robot);
   final_free_contacts_ = motion_structure.GetPhases().back().free_contacts_;
@@ -60,7 +61,7 @@ FootholdFinalStanceConstraint::EvaluateConstraint () const
   int row=0;
   for (auto c : final_free_contacts_) {
     Vector2d p = footholds_.at(c.id);
-    Vector2d foot_to_nominal_W = GetContactToNominalInWorld(p, static_cast<int>(c.ee));
+    Vector2d foot_to_nominal_W = GetContactToNominalInWorld(p, c.ee);
     for (auto dim : {X,Y})
       g(row++) = foot_to_nominal_W(dim);
   }
@@ -69,7 +70,7 @@ FootholdFinalStanceConstraint::EvaluateConstraint () const
 }
 
 FootholdFinalStanceConstraint::Vector2d
-FootholdFinalStanceConstraint::GetContactToNominalInWorld (const Vector2d& foot_W, int leg) const
+FootholdFinalStanceConstraint::GetContactToNominalInWorld (const Vector2d& foot_W, EndeffectorID leg) const
 {
   Vector2d goal_to_nom_B = robot_->GetNominalStanceInBase(leg);
   Eigen::Matrix2d W_R_B = Eigen::Matrix2d::Identity(); // attention: assumes no rotation world to base
