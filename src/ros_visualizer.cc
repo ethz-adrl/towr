@@ -15,6 +15,7 @@ namespace ros {
 
 using VectorXd = Eigen::VectorXd;
 using MarkerArray = visualization_msgs::MarkerArray;
+using EndeffectorID = xpp::utils::EndeffectorID;
 
 RosVisualizer::RosVisualizer ()
 {
@@ -52,7 +53,7 @@ RosVisualizer::Visualize () const
   VecContacts footholds;
   for (int i=0; i<contacts.size(); ++i) {
     xpp::opt::Contact f;
-    f.ee    = static_cast<xpp::opt::EndeffectorID>(leg_ids.at(i));
+    f.ee    = static_cast<EndeffectorID>(leg_ids.at(i));
     f.p.x() = contacts.at(i).x();
     f.p.y() = contacts.at(i).y();
     f.p.z() = 0.0;

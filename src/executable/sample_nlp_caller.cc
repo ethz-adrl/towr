@@ -8,7 +8,7 @@
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
 #include <xpp_msgs/CurrentInfo.h>
-#include <xpp/hyq/hyq_endeffectors.h>
+#include <xpp/hyq/ee_hyq.h>
 
 using HyqState       = xpp::hyq::HyqState;
 using CurrentInfoMsg = xpp_msgs::CurrentInfo;
@@ -49,15 +49,26 @@ int main(int argc, char **argv)
   start_state.base_.lin.a.x() = atof(argv_out[5].c_str()); // constraint
   start_state.base_.lin.a.y() = atof(argv_out[6].c_str()); // constraint
 
-  HyqState::PosEE endeffector_W = { Vector3d( 0.359692,   0.327653, 0.0), // LF
-                                    Vector3d( 0.359694,  -0.327644, 0.0), // RF
-                                    Vector3d(-0.258797,   0.327698, 0.0), // LH
-                                    Vector3d(-0.358802,  -0.327695, 0.0)};// RH
 
-  start_state.SetJointAngles(endeffector_W);
+  using namespace xpp;
+  utils::EEXppPos hyq_ee(4);
+  hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LF)) = Vector3d( 0.359692,   0.327653, 0.0);
+  hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RF)) = Vector3d( 0.359694,  -0.327644, 0.0);
+  hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LH)) = Vector3d(-0.258797,   0.327698, 0.0);
+  hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RH)) = Vector3d(-0.358802,  -0.327695, 0.0);
+
+
+
+//  HyqState::PosEE endeffector_W(4);
+//  endeffector_W.at(kMapHyqToOpt.at(LF)) = Vector3d( 0.359692,   0.327653, 0.0);
+//  endeffector_W.at(kMapHyqToOpt.at(RF)) = Vector3d( 0.359694,  -0.327644, 0.0);
+//  endeffector_W.at(kMapHyqToOpt.at(LH)) = Vector3d(-0.258797,   0.327698, 0.0);
+//  endeffector_W.at(kMapHyqToOpt.at(RH)) = Vector3d(-0.358802,  -0.327695, 0.0);
+
+  start_state.SetJointAngles(hyq_ee);//endeffector_W);
 //  start_state.qd[iit::HyQ::LH_KFE] = -10;
-  start_state.swingleg_.fill(false);
-  start_state.swingleg_[xpp::hyq::LH] = false;
+//  start_state.swingleg_.fill(false);
+  start_state.swingleg_.At(hyq::kMapHyqToOpt.at(hyq::LF)) = false; // this should then also be different
   CurrentInfoMsg msg;
   msg.state = xpp::ros::RosHelpers::XppToRos(start_state);
   msg.reoptimize = true;
