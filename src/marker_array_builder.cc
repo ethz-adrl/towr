@@ -7,6 +7,7 @@
 
 #include <xpp/ros/marker_array_builder.h>
 #include <xpp/opt/zero_moment_point.h>
+#include <xpp/hyq/ee_hyq.h>
 
 namespace xpp {
 namespace ros {
@@ -378,7 +379,7 @@ void MarkerArrayBuilder::AddFootholds(
   }
 }
 
-std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(EEID leg) const
+std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(EEID ee) const
 {
   // define a few colors
   std_msgs::ColorRGBA red, green, blue, yellow, white;
@@ -392,17 +393,18 @@ std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(EEID leg) const
 
 
   std_msgs::ColorRGBA color_leg;
-  switch (leg) {
-    case EEID::E1: // LF
+  using namespace xpp::hyq;
+  switch (kMapOptToHyq.at(ee)) {
+    case LF:
       color_leg = red;
       break;
-    case EEID::E3: // RF
+    case RF:
       color_leg = green;
       break;
-    case EEID::E0: //LH:
+    case LH:
       color_leg = blue;
       break;
-    case EEID::E2: // RH
+    case RH:
       color_leg = yellow;
       break;
     default:
