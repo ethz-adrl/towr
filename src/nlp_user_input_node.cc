@@ -30,6 +30,7 @@ NlpUserInputNode::NlpUserInputNode ()
 
   // publish goal zero initially
   goal_cog_.p.setZero();
+  motion_type_ = opt::WalkID;
   UserCommandMsg msg;
   msg.t_left = t_max_left_;
   msg.goal = RosHelpers::XppToRos(goal_cog_);
@@ -63,22 +64,24 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
     case msg.KEY_DOWN:
       goal_cog_.p.y() += dy;
       break;
+    case msg.KEY_RETURN:
+      command_ = Command::kSetGoal;
+      break;
+    case msg.KEY_g:
+      ROS_INFO_STREAM("Start Walking command sent to controller");
+      command_ = Command::kStartWalking;
+      break;
+    case msg.KEY_w:
+      ROS_INFO_STREAM("Motion type set to Walking");
+      motion_type_ = opt::WalkID;
+      break;
+    case msg.KEY_t:
+      ROS_INFO_STREAM("Motion type set to Trotting");
+      motion_type_ = opt::TrottID;
+      break;
     default:
       break;
   }
-
-  ROS_INFO_STREAM("Set goal state to " << goal_cog_.Get2D().p.transpose() << "?");
-
-  static std::map<uint, NlpUserInputNode::Command> keyboard_command_map_ =
-  {
-    {NlpUserInputNode::KeyboardMsg::KEY_RETURN, NlpUserInputNode::Command::kSetGoal,    },
-    {NlpUserInputNode::KeyboardMsg::KEY_w     , NlpUserInputNode::Command::kStartWalking}
-  };
-
-  bool key_in_map = keyboard_command_map_.find(msg.code) != keyboard_command_map_.end();
-  if (key_in_map)
-    command_ = keyboard_command_map_.at(msg.code);
-
 }
 
 void
@@ -129,6 +132,7 @@ void NlpUserInputNode::PublishCommand()
   UserCommandMsg msg;
   msg.t_left = t_left_;
   msg.goal = RosHelpers::XppToRos(goal_cog_);
+  msg.motion_type = motion_type_;
   user_command_pub_.publish(msg);
 
   switch (command_) {

@@ -10,6 +10,7 @@
 
 #include <xpp_msgs/GetStateLin3d.h>
 #include <xpp/utils/state.h>
+#include <xpp/opt/motion_type.h>
 
 #include <keyboard/Key.h>
 #include <sensor_msgs/Joy.h>
@@ -29,6 +30,7 @@ public:
   using KeyboardMsg = keyboard::Key;
   using JoyMsg      = sensor_msgs::Joy;
   using GoalSrv     = xpp_msgs::GetStateLin3d;
+  using MotionType  = xpp::opt::MotionTypeID;
 
   enum class Command { kSetGoal, kStartWalking, kNoCommand } command_ = Command::kNoCommand;
 
@@ -48,6 +50,8 @@ private:
 
   State goal_cog_;
   State goal_cog_prev_;
+
+  MotionType motion_type_;
 
   ::ros::Subscriber key_sub_;
   ::ros::Subscriber joy_sub_;

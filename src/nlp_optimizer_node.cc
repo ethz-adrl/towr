@@ -33,10 +33,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
       xpp_msgs::robot_trajectory_joints, 1);
 
 
-  double max_step_length    = RosHelpers::GetDoubleFromServer("/xpp/max_step_length");
   double dt_nodes           = RosHelpers::GetDoubleFromServer("/xpp/dt_nodes");
-  double t_swing            = RosHelpers::GetDoubleFromServer("/xpp/t_swing");
-  double t_first_phase      = t_swing;
   double des_walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
   double lift_height        = RosHelpers::GetDoubleFromServer("/xpp/lift_height");
   double outward_swing      = RosHelpers::GetDoubleFromServer("/xpp/outward_swing_distance");
@@ -44,8 +41,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   ros_visualizer_ = std::make_shared<RosVisualizer>();
 
-  motion_optimizer_.Init(max_step_length,dt_nodes,
-                         t_swing, t_first_phase,des_walking_height,
+  motion_optimizer_.Init(dt_nodes ,des_walking_height,
                          lift_height, outward_swing, trajectory_dt,
                          ros_visualizer_);
 
@@ -73,6 +69,15 @@ NlpOptimizerNode::GoalStateCallback(const UserCommandMsg& msg)
   auto goal_prev = motion_optimizer_.goal_cog_;
   motion_optimizer_.goal_cog_ = RosHelpers::RosToXpp(msg.goal);
   motion_optimizer_.t_left_   = msg.t_left;
+
+  switch (msg.motion_type) {
+    case opt::WalkID:
+      motion_optimizer_.motion_type_ =  std::make_shared<opt::Walk>();
+      break;
+    case opt::TrottID:
+      motion_optimizer_.motion_type_ =  std::make_shared<opt::Trott>();
+      break;
+  }
 
   if (goal_prev != motion_optimizer_.goal_cog_) // only reoptimize if new goal position
     OptimizeAndPublishTrajectory();
