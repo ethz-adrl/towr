@@ -33,7 +33,7 @@ public:
   void SetWeights(const std::vector<double>&);
 
   void ClearCosts ();
-  void AddCost(CostPtr cost);
+  void AddCost(CostPtr cost, double weight = 1.0);
   double EvaluateTotalCost () const;
   bool IsEmpty() const;
   VectorXd EvaluateGradient() const;

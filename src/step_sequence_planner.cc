@@ -12,8 +12,7 @@ namespace xpp {
 namespace hyq {
 
 using namespace xpp::utils; // X,Y
-enum MotionType { Walk, Trott };
-std::map<MotionType, int> steps_per_phase = { {Walk, 1}, {Trott, 2} };
+
 
 StepSequencePlanner::StepSequencePlanner ()
 {
@@ -28,24 +27,22 @@ StepSequencePlanner::~StepSequencePlanner ()
 void
 StepSequencePlanner::Init (const State& curr, const State& goal,
                            const StartStance& start_stance, double robot_height,
-                           double max_step_length,
                            int curr_swingleg)
 {
   curr_state_ = curr;
   goal_state_ = goal;
   start_stance_ = start_stance;
   robot_height_ = robot_height;
-  max_step_length_ = max_step_length;
   curr_swingleg_ = curr_swingleg;
 }
 
 StepSequencePlanner::AllPhaseSwingLegs
-StepSequencePlanner::DetermineStepSequence ()
+StepSequencePlanner::DetermineStepSequence (const MotionType& motion_type)
 {
   // based on distance to cover
-  const double width_per_step = 0.15;
+  const double width_per_step = 0.13;
   Eigen::Vector2d start_to_goal = goal_state_.p.topRows(kDim2d) - curr_state_.p.topRows(kDim2d);
-  int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/max_step_length_);
+  int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/motion_type->max_step_length_);
   int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
   int req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);
   int n_steps = 4*req_steps_per_leg;
@@ -56,14 +53,13 @@ StepSequencePlanner::DetermineStepSequence ()
   bool walking_forward = goal_state_.p.x() >= curr_state_.p.x();
   bool walking_left    = goal_state_.p.y() >= curr_state_.p.y();
 
-  MotionType motion_type = Walk;
-  int n_phases = n_steps/steps_per_phase.at(motion_type);
+  int n_phases = n_steps/motion_type->swinglegs_per_phase_;
 
   std::vector<LegIDVec> step_sequence;
   for (int phase=0; phase<n_phases; ++phase) {
 
-    switch (motion_type) {
-      case Trott: {
+    switch (motion_type->id_) {
+      case opt::TrottID: {
         LegIDVec swinglegs_lf = {LF, RH};
         LegIDVec swinglegs_rf = {RF, LH};
 
@@ -74,7 +70,7 @@ StepSequencePlanner::DetermineStepSequence ()
 
         break;
       }
-      case Walk: {
+      case opt::WalkID: {
         if (moving_mainly_in_x) {
           if (walking_forward)
             step_sequence.push_back({NextSwingLeg(last_swingleg)});

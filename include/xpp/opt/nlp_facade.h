@@ -17,6 +17,7 @@
 #include <memory>
 
 #include "motion_phase.h"
+#include "motion_type.h"
 
 namespace xpp {
 namespace opt {
@@ -38,6 +39,7 @@ public:
   using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariables>;
   using CostContainerPtr         = std::shared_ptr<CostContainer>;
   using ConstraintContainerPtr   = std::shared_ptr<ConstraintContainer>;
+  using MotionTypePtr            = std::shared_ptr<MotionType>;
 
   using VisualizerPtr            = std::shared_ptr<IVisualizer>;
   using ComMotionPtrS            = std::shared_ptr<ComMotion>;
@@ -62,7 +64,8 @@ public:
   void SolveNlp(const State& initial_state,
                 const State& final_state,
                 double robot_height,
-                const MotionStructure& motion_structure);
+                const MotionStructure& motion_structure,
+                const MotionTypePtr&);
 
   void AttachNlpObserver(VisualizerPtr& visualizer);
   VecFoothold GetFootholds() const;

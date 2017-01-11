@@ -11,6 +11,8 @@
 #include <xpp/utils/state.h>
 #include <xpp/opt/contact.h>
 #include <xpp/hyq/ee_hyq.h>  // LegID
+#include <xpp/opt/motion_type.h>
+#include <memory>
 
 namespace xpp {
 namespace hyq {
@@ -28,7 +30,8 @@ public:
   using SwingLegsInPhase  = std::vector<utils::EndeffectorID>;
   using AllPhaseSwingLegs = std::vector<SwingLegsInPhase>;
   using StartStance       = std::vector<xpp::opt::Contact>;
-  using State             = xpp::utils::StateLin2d ;
+  using State             = xpp::utils::StateLin2d;
+  using MotionType        = std::shared_ptr<xpp::opt::MotionType>;
 
   StepSequencePlanner ();
   virtual ~StepSequencePlanner ();
@@ -42,12 +45,11 @@ public:
     */
   void Init(const State& curr, const State& goal,
             const StartStance& start_stance, double robot_height,
-            double max_step_lenght_,
             int swingleg_of_last_spline);
 
   /** Defines the endeffectors in swing for each motion phase
     */
-  AllPhaseSwingLegs DetermineStepSequence();
+  AllPhaseSwingLegs DetermineStepSequence(const MotionType&);
 
 private:
   AllPhaseSwingLegs ConvertToEE(const std::vector<LegIDVec>&);

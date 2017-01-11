@@ -46,7 +46,8 @@ void
 NlpFacade::SolveNlp(const State& initial_state,
                     const State& final_state,
                     double robot_height,
-                    const MotionStructure& motion_structure)
+                    const MotionStructure& motion_structure,
+                    const MotionTypePtr& motion_type)
 {
 //  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
   com_motion_ = MotionFactory::CreateComMotion(motion_structure.GetPhases());
@@ -68,20 +69,30 @@ NlpFacade::SolveNlp(const State& initial_state,
   constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion_, motion_structure));
   constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, motion_structure));
 
-
   costs_->ClearCosts();
-  costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion_, utils::kAcc));
-  costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion_, motion_structure));
-//  costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure));
+  switch (motion_type->id_) {
+    case WalkID: {
+      int n_nodes = motion_structure.GetPhaseStampedVec().size();
+      int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();
+      int t_total = motion_structure.GetTotalTime();
 
-  // normalize the costs
-  int n_nodes = motion_structure.GetPhaseStampedVec().size();
-  int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();
-  int t_total = motion_structure.GetTotalTime();
-//  costs_->SetWeights({1.0/t_total, 30.0/n_discrete_contacts, 100.0/n_nodes});
-  costs_->SetWeights({1.0,10.0});
-//  costs_->SetWeights({1.0});
+      double weight_motion  =  1;  //   1.0/t_total;
+      double weight_range   =  1;  //30.0/n_discrete_contacts;
+      double weight_polygon =  10; //100.0/n_nodes;
 
+      costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion_, utils::kAcc), weight_motion);
+      costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion_, motion_structure), weight_range);
+      costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure), weight_polygon);
+      break;
+    }
+    case TrottID: {
+      double weight_motion = 1.0;
+      double weight_range  = 10.0;
+      costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion_, utils::kAcc), weight_motion);
+      costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion_, motion_structure), weight_range);
+      break;
+    }
+  }
 
   visualizer_->SetOptimizationVariables(opt_variables_);
   visualizer_->SetComMotion(com_motion_);

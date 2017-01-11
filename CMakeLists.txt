@@ -103,6 +103,7 @@ set(SOURCES
   src/nlp_facade.cc
   src/nlp.cc
   src/ipopt_adapter.cc
+  src/motion_type.cc
   # constraints
   src/a_constraint.cc
   src/cost_constraint_factory.cc

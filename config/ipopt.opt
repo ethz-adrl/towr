@@ -13,7 +13,7 @@ linear_solver ma57
 #linear_solver ma86
 #linear_solver ma97
 
-#jacobian_approximation finite-difference-values #rember to set flag in NLP class
+#jacobian_approximation finite-difference-values
 hessian_approximation limited-memory
 
 
@@ -46,6 +46,6 @@ max_cpu_time 4.5
 
 
 
-print_level 1
+print_level 5
 print_user_options no
 print_timing_statistics no

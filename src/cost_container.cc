@@ -27,8 +27,9 @@ CostContainer::ClearCosts ()
 }
 
 void
-CostContainer::AddCost (CostPtr cost)
+CostContainer::AddCost (CostPtr cost, double weight)
 {
+  cost->SetWeight(weight);
   costs_.push_back(cost);
 }
 

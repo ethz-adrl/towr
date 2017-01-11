@@ -12,6 +12,7 @@
 #include <xpp/opt/nlp_facade.h>
 #include <xpp/opt/wb_traj_generator.h>
 #include <xpp/hyq/hyq_state.h>
+#include <xpp/opt/motion_type.h>
 
 namespace xpp {
 namespace opt {
@@ -22,22 +23,18 @@ namespace opt {
   */
 class MotionOptimizerFacade {
 public:
-  static constexpr int kNee = 4;
-
   using State               = xpp::utils::StateLin3d;
   using VisualizerPtr       = std::shared_ptr<IVisualizer>;
   using WBTrajGen4EE        = WBTrajGenerator;
   using StepSequencePlanner = xpp::hyq::StepSequencePlanner;
   using HyqState            = xpp::hyq::HyqState;
   using HyqStateVec         = HyqState::StateJVec;
+  using MotionTypePtr       = std::shared_ptr<MotionType>;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
 
-  void Init(double max_step_length,
-            double dt_nodes,
-            double t_swing,
-            double t_first_phase,
+  void Init(double dt_nodes,
             double des_walking_height,
             double lift_height,
             double outward_swing,
@@ -51,6 +48,8 @@ public:
 
   State goal_cog_;
   double t_left_; // time to reach goal
+  MotionTypePtr motion_type_;
+
 
 private:
   HyqState curr_state_;
@@ -58,10 +57,7 @@ private:
   NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;
 
-  double max_step_length_;
   double dt_nodes_;
-  double t_swing_;
-  double t_first_phase_;
   double des_walking_height_;
 
   HyqStateVec optimized_trajectory_;
