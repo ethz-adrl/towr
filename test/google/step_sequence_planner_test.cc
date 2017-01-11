@@ -15,7 +15,7 @@ class StepSequencePlannerTest : public ::testing::Test {
 public:
   typedef StepSequencePlanner::State State;
   typedef StepSequencePlanner::LegIDVec LegIDVec;
-  typedef StepSequencePlanner::VecFoothold VecFoothold;
+  typedef StepSequencePlanner::StartStance VecFoothold;
 
 protected:
   virtual void SetUp() {

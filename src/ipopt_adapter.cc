@@ -178,11 +178,11 @@ void IpoptAdapter::finalize_solution(Ipopt::SolverReturn status,
 
   nlp_.SetVariables(x);
 
-  double tol0 = 1e-2;
-  nlp_.PrintStatusOfConstraints(tol0);
-
-  double tol1 = 1e-3;
-  nlp_.PrintStatusOfConstraints(tol1);
+//  double tol0 = 1e-2;
+//  nlp_.PrintStatusOfConstraints(tol0);
+//
+//  double tol1 = 1e-3;
+//  nlp_.PrintStatusOfConstraints(tol1);
 
   double tol2 = 1e-5;
   nlp_.PrintStatusOfConstraints(tol2);

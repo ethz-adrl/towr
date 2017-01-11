@@ -53,21 +53,13 @@ MotionOptimizerFacade::OptimizeMotion ()
                               des_walking_height_, max_step_length_,
                               curr_state_.SwinglegID());
 
-  MotionStructure motion_structure;
-
-  auto step_sequence_hyq = step_sequence_planner_.DetermineStepSequence();
-  bool start_with_com_shift = true;//step_sequence_planner_.StartWithStancePhase();
+  auto phase_swinglegs = step_sequence_planner_.DetermineStepSequence();
+  bool start_with_com_shift = true;
   bool insert_final_stance = true;
-
   double t_first_phase = t_first_phase_;//t_left_; // mpc this changes by goal publisher
 
-  std::vector<EndeffectorID> step_sequence_generic;
-  for (auto leg : step_sequence_hyq) {
-    auto ee = hyq::kMapHyqToOpt.at(leg);
-    step_sequence_generic.push_back(ee);
-  }
-
-  motion_structure.Init(curr_state_.GetStanceLegsInWorld(), step_sequence_generic, t_swing_, t_first_phase,
+  MotionStructure motion_structure;
+  motion_structure.Init(curr_state_.GetStanceLegsInWorld(), phase_swinglegs, t_swing_, t_first_phase,
                         start_with_com_shift, insert_final_stance, dt_nodes_ );
 
   nlp_facade_.SolveNlp(curr_state_.base_.lin.Get2D(),

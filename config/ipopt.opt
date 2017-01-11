@@ -27,7 +27,7 @@ tol 0.01
 
 
 #bound_relax_factor 0.01
-max_cpu_time 4.5   #careful: overwrites ros parameter, but controller doesn't know
+max_cpu_time 4.5  
 #max_iter 1
 #bound_frac 0.5
 
@@ -46,6 +46,6 @@ max_cpu_time 4.5   #careful: overwrites ros parameter, but controller doesn't kn
 
 
 
-print_level 5
-print_user_options yes
+print_level 1
+print_user_options no
 print_timing_statistics no

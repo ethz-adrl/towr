@@ -72,13 +72,14 @@ NlpFacade::SolveNlp(const State& initial_state,
   costs_->ClearCosts();
   costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion_, utils::kAcc));
   costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion_, motion_structure));
-  costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure));
+//  costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure));
 
   // normalize the costs
   int n_nodes = motion_structure.GetPhaseStampedVec().size();
   int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();
   int t_total = motion_structure.GetTotalTime();
-  costs_->SetWeights({1.0/t_total, 30.0/n_discrete_contacts, 100.0/n_nodes});
+//  costs_->SetWeights({1.0/t_total, 30.0/n_discrete_contacts, 100.0/n_nodes});
+  costs_->SetWeights({1.0,10.0});
 //  costs_->SetWeights({1.0});
 
 

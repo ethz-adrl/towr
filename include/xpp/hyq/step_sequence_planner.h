@@ -10,11 +10,10 @@
 
 #include <xpp/utils/state.h>
 #include <xpp/opt/contact.h>
-#include <xpp/hyq/hyq_robot_interface.h>
+#include <xpp/hyq/ee_hyq.h>  // LegID
 
 namespace xpp {
 namespace hyq {
-
 
 /** Plans the sequence of steps (LH, LF, ...) for a given optimization problem.
   *
@@ -24,10 +23,12 @@ namespace hyq {
   */
 class StepSequencePlanner {
 public:
-  typedef std::vector<LegID> LegIDVec;
-  typedef std::vector<xpp::opt::Contact> VecFoothold;
-  typedef xpp::utils::StateLin2d State;
-  typedef Eigen::Vector2d Vector2d;
+
+  using LegIDVec          = std::vector<LegID>;
+  using SwingLegsInPhase  = std::vector<utils::EndeffectorID>;
+  using AllPhaseSwingLegs = std::vector<SwingLegsInPhase>;
+  using StartStance       = std::vector<xpp::opt::Contact>;
+  using State             = xpp::utils::StateLin2d ;
 
   StepSequencePlanner ();
   virtual ~StepSequencePlanner ();
@@ -40,43 +41,24 @@ public:
     * @param robot_height the walking height [m] of the robot.
     */
   void Init(const State& curr, const State& goal,
-            const VecFoothold& start_stance, double robot_height,
+            const StartStance& start_stance, double robot_height,
             double max_step_lenght_,
             int swingleg_of_last_spline);
 
-  /** Determines whether an initial stance phase is inserted.
-    *
-    * This is necessary, if the initial ZMP is outside the area of support
-    * of the first step, so the optimizer would not be able to find a solution.
-    *
-    * @param step sequence the order of swing legs.
-    * @return true if stance phase must be inserted.
+  /** Defines the endeffectors in swing for each motion phase
     */
-  bool StartWithStancePhase() const;
-
-  /** Determines the sequence of steps (LH, LF, ...) to take.
-    *
-    * @param swingleg_of_last_spline The leg of the last spline that was completed. Could also be a stance spline.
-    * @return vector of swinglegs.
-    */
-  LegIDVec DetermineStepSequence();
+  AllPhaseSwingLegs DetermineStepSequence();
 
 private:
-  bool IsStepNecessary() const;
+  AllPhaseSwingLegs ConvertToEE(const std::vector<LegIDVec>&);
   LegID NextSwingLeg(LegID curr) const;
   LegID NextSwingLegBackwards(LegID curr) const;
-  LegID NextSwingLegTrott(LegID curr) const;
-
-  bool IsGoalOutsideRangeOfMotion() const;
 
   State curr_state_;
   State goal_state_;
-  VecFoothold start_stance_;
+  StartStance start_stance_;
   double robot_height_;
   double max_step_length_;
-
-  HyqRobotInterface robot_;
-
   int curr_swingleg_; // this could also be no swingleg (stance phase)
 };
 

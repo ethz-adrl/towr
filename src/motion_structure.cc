@@ -23,13 +23,12 @@ MotionStructure::~MotionStructure ()
 // mpc clean this up, messy code
 void
 MotionStructure::Init (const StartStance& start_stance,
-                       const EEIDVec& contact_ids,
-                       double t_swing, double t_first_phase,
+                       const AllPhaseSwingLegs& phase_swinglegs,
+                       double t_phase, double t_first_phase,
                        bool insert_initial_stance,
                        bool insert_final_stance,
                        double dt)
 {
-  // doesn't have to be 4 legs on the ground
   if (insert_initial_stance) {
     MotionPhase initial_stance_phase;
     initial_stance_phase.duration_ = t_first_phase;
@@ -37,20 +36,10 @@ MotionStructure::Init (const StartStance& start_stance,
     phases_.push_back(initial_stance_phase);
   }
 
-  std::vector<ContactBase> all_free_contacts;
-  int j = 0;
-  for (auto leg : contact_ids) {
-    all_free_contacts.push_back(ContactBase(j++, leg));
-  }
-
-
+  int contact_id = 0;
   MotionPhase prev_phase;
   prev_phase.fixed_contacts_ = start_stance;
-  int n_swinglegs = 1; // per phase
-  int n_phases = std::floor(contact_ids.size()/n_swinglegs);
-
-  // the steps
-  for (uint i=0; i<n_phases; ++i) {
+  for (uint i=0; i<phase_swinglegs.size(); ++i) {
 
     MotionPhase phase;
     phase.fixed_contacts_ = prev_phase.fixed_contacts_;
@@ -59,19 +48,9 @@ MotionStructure::Init (const StartStance& start_stance,
     phase.free_contacts_.insert(phase.free_contacts_.end(), prev_phase.swing_goal_contacts_.begin(),
                                                             prev_phase.swing_goal_contacts_.end());
 
-
-    std::vector<ContactBase> swinglegs;
-    for (int l=0; l<n_swinglegs; ++l) {
-      swinglegs.push_back(all_free_contacts.at(i*n_swinglegs+l));
-    }
-
-    for (const auto& sl : swinglegs) {
-
-      // this contact is swinging during this phase
-      // amazing idea! (pats back)
-//      Contact goal_contact(i, sl_contact);
+    for (const auto& ee : phase_swinglegs.at(i)) {
+      ContactBase sl(contact_id++, ee);
       phase.swing_goal_contacts_.push_back(sl);
-
 
       // remove current swinglegs from list of active contacts
       auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
@@ -91,7 +70,7 @@ MotionStructure::Init (const StartStance& start_stance,
     }
 
 
-    phase.duration_ = phases_.empty() ? t_first_phase : t_swing;
+    phase.duration_ = phases_.empty() ? t_first_phase : t_phase;
     phases_.push_back(phase);
 
     prev_phase = phase;
@@ -108,13 +87,13 @@ MotionStructure::Init (const StartStance& start_stance,
   }
 
 
+  std::cout << "Motion Phases:\n";
   for (auto p : phases_) {
     std::cout << p << std::endl << std::endl;;
   }
 
-
   start_stance_ = start_stance;
-  contact_ids_ = contact_ids;
+  phase_swing_ee_ = phase_swinglegs;
   dt_ = dt;
   cache_needs_updating_ = true;
 }
@@ -151,6 +130,17 @@ MotionStructure::GetPhaseStampedVec () const
   }
 
   return cached_motion_vector_;
+}
+
+std::vector<MotionStructure::EEID>
+MotionStructure::GetContactIds () const
+{
+  std::vector<EEID> all_ee;
+  for (auto phase_contact : phase_swing_ee_)
+    for(auto ee : phase_contact)
+      all_ee.push_back(ee);
+
+  return all_ee;
 }
 
 MotionStructure::PhaseStampedVec

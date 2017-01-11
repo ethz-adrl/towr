@@ -51,7 +51,7 @@ public:
 
 inline std::ostream& operator<<(std::ostream& out, const MotionPhase& p)
 {
-  out << "\t duration: " << p.duration_
+  out << " duration: " << p.duration_
       << "\n free contacts: ";
 
   for (auto c : p.free_contacts_)

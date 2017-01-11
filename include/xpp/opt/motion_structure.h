@@ -8,8 +8,8 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
 
-#include <vector>
 #include "motion_phase.h"
+#include <vector>
 
 namespace xpp {
 namespace opt {
@@ -20,32 +20,41 @@ namespace opt {
   * how long each of the phases lasts. The free variables are then the actual
   * position of the legs and the movement of the body. This class specifies
   * the general structure of the motion.
-  *
   */
 class MotionStructure {
 public:
-
-  using EEIDVec         = std::vector<utils::EndeffectorID>;
-  using StartStance     = std::vector<Contact>;
-  using PhaseVec        = std::vector<MotionPhase>;
-  using PhaseStampedVec = std::vector<MotionNode>;
+  using EEID              = utils::EndeffectorID;
+  using SwingLegsInPhase  = std::vector<EEID>;
+  using AllPhaseSwingLegs = std::vector<SwingLegsInPhase>;
+  using StartStance       = std::vector<Contact>;
+  using PhaseVec          = std::vector<MotionPhase>;
+  using PhaseStampedVec   = std::vector<MotionNode>;
 
   MotionStructure ();
 
   virtual ~MotionStructure ();
 
-  void Init(const StartStance& start_stance, const EEIDVec& step_legs,
-            double t_swing, double t_first_phase, bool insert_initial_stance,
-            bool insert_final_stance, double dt);
-
+  /** Sets all relevant information to build a sequence of phases.
+    *
+    * @param start_stance    The initial endeffectors in contact.
+    * @param phase_swing_ee  The endeffectors not in contact at each phase.
+    * @param t_phase         The time/duration [s] for each phase.
+    * @param t_first_phase   The time/duration [s] or the first phase.
+    * @param init_stance     True if all endeffectors remain in contact in first phase.
+    * @param final_stance    True if all endeffectors remain in contact in last phase.
+    * @param dt              Time discretization [s] between nodes.
+    */
+  void Init(const StartStance& start_stance, const AllPhaseSwingLegs& phase_swing_ee,
+            double t_phase, double t_first_phase, bool init_stance,
+            bool final_stance, double dt);
 
   double GetTotalTime() const;
 
   /** @brief Gets the phase (stance, swing) at this current instance of time.
     *
-    * This allows to pair the current instance with the correct footholds
-    * and support polygon. A phase is a motion during which the dynamics are
-    * continuous (stance, swing, flight).
+    * This allows to pair the current instance with the correct endeffectors.
+    * A phase is a motion during which the dynamics are continuous
+    * (stance, swing, flight).
     */
   MotionPhase GetCurrentPhase(double t_global) const;
 
@@ -69,12 +78,12 @@ public:
   int GetTotalNumberOfFreeNodeContacts() const;
   int GetTotalNumberOfNodeContacts() const;
 
-  EEIDVec GetContactIds() const { return contact_ids_; };
+  std::vector<EEID> GetContactIds() const;
   StartStance GetStartStance() const { return start_stance_;};
 
 private:
   StartStance start_stance_;
-  EEIDVec contact_ids_;
+  AllPhaseSwingLegs phase_swing_ee_;
   PhaseVec phases_;
 
   double dt_; ///< discretization interval [s]
