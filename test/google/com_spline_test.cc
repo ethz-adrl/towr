@@ -25,8 +25,8 @@ TEST(ComSplineTest, MotionPhase) {
 
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(),
                                                    Vector2d(0.0,0.0), // pos
-                                                   Vector2d(0.0,0.2) // vel
-                                                   );
+                                                   Vector2d(0.0,0.2), // vel
+                                                   1);
 
   std::cout << "phases:\n";
   for (auto phase : motion_structure.GetPhases()) {

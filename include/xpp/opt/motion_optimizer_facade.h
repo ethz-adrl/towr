@@ -12,7 +12,7 @@
 #include <xpp/opt/nlp_facade.h>
 #include <xpp/opt/wb_traj_generator.h>
 #include <xpp/hyq/hyq_state.h>
-#include <xpp/opt/motion_type.h>
+#include "motion_parameters.h"
 
 namespace xpp {
 namespace opt {
@@ -28,13 +28,12 @@ public:
   using WBTrajGen4EE        = WBTrajGenerator;
   using HyqState            = xpp::hyq::HyqState;
   using HyqStateVec         = HyqState::StateJVec;
-  using MotionTypePtr       = std::shared_ptr<MotionType>;
+  using MotionTypePtr       = std::shared_ptr<MotionParameters>;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
 
-  void Init(double dt_nodes,
-            double des_walking_height,
+  void Init(double des_walking_height,
             double lift_height,
             double outward_swing,
             double trajectory_dt,
@@ -58,9 +57,7 @@ private:
   StepSequencePlanner step_sequence_planner_;
   MotionTypePtr motion_type_;
 
-  double dt_nodes_;
   double des_walking_height_;
-
   HyqStateVec optimized_trajectory_;
 };
 

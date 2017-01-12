@@ -84,9 +84,7 @@ set(SOURCES
   src/linear_inverted_pendulum.cc
   src/motion_structure.cc
   src/motion_phase.cc
-  # hyq
   src/step_sequence_planner.cc
-  src/hyq_robot_interface.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
@@ -123,6 +121,8 @@ set(SOURCES
   src/cost_function_functor.cc
   src/a_foothold_constraint.cc
   src/soft_constraint.cc
+  # hyq
+  src/hyq_motion_params.cc
 )
 
 if(BUILD_SNOPT)

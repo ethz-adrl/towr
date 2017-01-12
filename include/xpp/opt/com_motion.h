@@ -10,7 +10,6 @@
 
 #include <xpp/utils/matrix_vector.h>
 #include <xpp/utils/state.h>
-#include "motion_phase.h"
 
 #include <Eigen/Sparse>
 #include <memory>
@@ -32,12 +31,9 @@ public:
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor> ;
   using PtrS        = std::shared_ptr<ComMotion> ;
   using PtrU        = std::unique_ptr<ComMotion> ;
-  using PhaseVec    = std::vector<MotionPhase>;
 
   ComMotion ();
   virtual ~ComMotion ();
-
-  virtual void Init(const PhaseVec& phases) = 0;
 
   /** @returns the Center of Mass position, velocity and acceleration in 2D.
     *

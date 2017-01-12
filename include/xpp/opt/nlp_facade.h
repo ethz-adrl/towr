@@ -17,7 +17,7 @@
 #include <memory>
 
 #include "motion_phase.h"
-#include "motion_type.h"
+#include "motion_parameters.h"
 
 namespace xpp {
 namespace opt {
@@ -27,6 +27,9 @@ class CostContainer;
 class ConstraintContainer;
 class ComMotion;
 class MotionStructure;
+class NLP;
+
+enum NlpSolver { Ipopt, Snopt };
 
 /** @brief Simplified interface to setup and solve a Nonlinear-Program.
   *
@@ -39,7 +42,7 @@ public:
   using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariables>;
   using CostContainerPtr         = std::shared_ptr<CostContainer>;
   using ConstraintContainerPtr   = std::shared_ptr<ConstraintContainer>;
-  using MotionTypePtr            = std::shared_ptr<MotionType>;
+  using MotionparamsPtr          = std::shared_ptr<MotionParameters>;
 
   using VisualizerPtr            = std::shared_ptr<IVisualizer>;
   using ComMotionPtrS            = std::shared_ptr<ComMotion>;
@@ -47,6 +50,7 @@ public:
   using IpoptPtr                 = Ipopt::SmartPtr<Ipopt::TNLP>;
   using IpoptApplicationPtr      = Ipopt::SmartPtr<Ipopt::IpoptApplication>;
   using VecFoothold              = utils::StdVecEigen2d;
+  using NLPPtr                   = std::shared_ptr<NLP>;
 
   NlpFacade (VisualizerPtr visualizer = do_nothing_visualizer);
   virtual ~NlpFacade () {};
@@ -61,18 +65,22 @@ public:
     * @param initial_acc initial acceleration of the CoG
     * @param final_state desired final position, velocity and acceleration of the CoG
     */
-  void SolveNlp(const State& initial_state,
+  void BuildNlp(const State& initial_state,
                 const State& final_state,
                 double robot_height,
                 const MotionStructure& motion_structure,
-                const MotionTypePtr&);
+                const MotionparamsPtr&);
+
+  void SolveNlp(NlpSolver solver);
 
   void AttachNlpObserver(VisualizerPtr& visualizer);
   VecFoothold GetFootholds() const;
   const ComMotionPtrS GetComMotion() const;
 
 private:
-  void SolveIpopt(const IpoptPtr& nlp);
+  void SolveIpopt();
+  void SolveSnopt();
+  NLPPtr nlp_;
 
   OptimizationVariablesPtr opt_variables_;
   CostContainerPtr costs_;

@@ -10,6 +10,8 @@
 namespace xpp {
 namespace opt {
 
+using VectorXd = Eigen::VectorXd;
+
 SnoptAdapter::SelfPtr SnoptAdapter::instance_ = nullptr;
 
 SnoptAdapter::SelfPtr
@@ -23,7 +25,7 @@ SnoptAdapter::GetInstance ()
 void
 SnoptAdapter::SetNLP (NLPPtr& nlp)
 {
-  nlp_ = std::move(nlp);
+  nlp_ = nlp;
 }
 
 void
@@ -134,7 +136,7 @@ SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
 
     // the vector of constraint values
     VectorXd g_eig = instance_->nlp_->EvaluateConstraints(x);
-    Eigen::Map<VectorXd>(F+i, g_eig.rows()) = g_eig; // should work as well
+    Eigen::Map<VectorXd>(F+i, g_eig.rows()) = g_eig;
   }
 
 

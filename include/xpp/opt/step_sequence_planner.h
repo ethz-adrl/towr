@@ -10,7 +10,7 @@
 
 #include <xpp/utils/state.h>
 #include <xpp/opt/contact.h>
-#include <xpp/opt/motion_type.h>
+#include <xpp/opt/motion_parameters.h>
 #include <memory>
 
 namespace xpp {
@@ -24,11 +24,11 @@ namespace opt {
   */
 class StepSequencePlanner {
 public:
-  using SwingLegsInPhase  = MotionType::Swinglegs;
+  using SwingLegsInPhase  = MotionParameters::Swinglegs;
   using AllPhaseSwingLegs = std::vector<SwingLegsInPhase>;
   using StartStance       = std::vector<xpp::opt::Contact>;
   using State             = xpp::utils::StateLin2d;
-  using MotionTypePtr     = std::shared_ptr<MotionType>;
+  using MotionParamsPtr   = std::shared_ptr<MotionParameters>;
 
   StepSequencePlanner ();
   virtual ~StepSequencePlanner ();
@@ -46,7 +46,7 @@ public:
 
   /** Defines the endeffectors in swing for each motion phase
     */
-  AllPhaseSwingLegs DetermineStepSequence(const MotionTypePtr&);
+  AllPhaseSwingLegs DetermineStepSequence(const MotionParamsPtr&);
 
 private:
   State curr_state_;

@@ -23,7 +23,7 @@ ComSpline::~ComSpline ()
 }
 
 void
-ComSpline::Init (const PhaseVec& phases)
+ComSpline::Init (const PhaseVec& phases, int polynomials_per_phase)
 {
   int id = 0;
 
@@ -37,10 +37,8 @@ ComSpline::Init (const PhaseVec& phases)
       polynomials_.push_back(ComPolynomial(id++, phase.duration_));
     } else
     {
-      // zmp_ this could also be important, make part of motion_type
-      int n_splines_per_step = 1;
-      for (int i=0; i<n_splines_per_step; ++i) {
-        ComPolynomial polynomial(id++, phase.duration_/n_splines_per_step);
+      for (int i=0; i<polynomials_per_phase; ++i) {
+        ComPolynomial polynomial(id++, phase.duration_/polynomials_per_phase);
         polynomials_.push_back(polynomial);
       }
     }

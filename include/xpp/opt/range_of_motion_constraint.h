@@ -17,7 +17,6 @@ namespace xpp {
 namespace opt {
 
 class ComMotion;
-class ARobotInterface;
 
 /** @brief Base class for a constraint between contacts and CoM position.
   *
@@ -29,13 +28,12 @@ class ARobotInterface;
 class RangeOfMotionConstraint : public AConstraint {
 public:
   using ComMotionPtrU = std::unique_ptr<ComMotion>;
-  using RobotPtrU     = std::unique_ptr<ARobotInterface>;
   using PosXY         = Eigen::Vector2d;
 
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint ();
 
-  void Init(const ComMotion&, const MotionStructure&, RobotPtrU);
+  void Init(const ComMotion&, const MotionStructure&);
   void UpdateVariables(const OptimizationVariables*) final;
   Jacobian GetJacobianWithRespectTo (std::string var_set) const final;
 
@@ -43,7 +41,6 @@ protected:
   utils::StdVecEigen2d footholds_;
   ComMotionPtrU com_motion_;
   MotionStructure motion_structure_;
-  RobotPtrU robot_;
   bool first_update_ = true;
 
 private:
@@ -62,12 +59,23 @@ private:
   */
 class RangeOfMotionBox : public RangeOfMotionConstraint {
 public:
+  using MaxDevXY       = std::array<double,2>;
+  using NominalStance  = std::map<utils::EndeffectorID, Eigen::Vector2d>;
+
+  /** @param dev  How much the endeffector can deviate from the default (x,y)
+    * position while still remaining in the range of motion.
+    */
+  RangeOfMotionBox(const MaxDevXY& dev, const NominalStance& nom);
+
   virtual VectorXd EvaluateConstraint () const final;
   virtual VecBound GetBounds () const final;
 
 private:
   virtual void SetJacobianWrtContacts(Jacobian&) const final;
   virtual void SetJacobianWrtMotion(Jacobian&) const final;
+
+  MaxDevXY max_deviation_from_nominal_;
+  NominalStance nominal_stance_;
 };
 
 ///** @brief Constrains the contact to lie at a fixed position in world frame.

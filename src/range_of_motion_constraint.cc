@@ -6,7 +6,6 @@
  */
 
 #include <xpp/opt/range_of_motion_constraint.h>
-#include <xpp/opt/a_robot_interface.h>
 #include <xpp/opt/com_motion.h>
 #include <xpp/opt/optimization_variables.h>
 
@@ -26,12 +25,10 @@ RangeOfMotionConstraint::~RangeOfMotionConstraint ()
 
 void
 RangeOfMotionConstraint::Init (const ComMotion& com_motion,
-                               const MotionStructure& motion_structure,
-                               RobotPtrU p_robot)
+                               const MotionStructure& motion_structure)
 {
   com_motion_       = com_motion.clone();
   motion_structure_ = motion_structure;
-  robot_            = std::move(p_robot);
 }
 
 void
@@ -62,6 +59,12 @@ RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
     return Jacobian();
 }
 
+RangeOfMotionBox::RangeOfMotionBox (const MaxDevXY& dev, const NominalStance& nom)
+{
+  max_deviation_from_nominal_ = dev;
+  nominal_stance_ = nom;
+}
+
 RangeOfMotionBox::VectorXd
 RangeOfMotionBox::EvaluateConstraint () const
 {
@@ -90,18 +93,16 @@ RangeOfMotionBox::EvaluateConstraint () const
 RangeOfMotionBox::VecBound
 RangeOfMotionBox::GetBounds () const
 {
-  auto max_deviation = robot_->GetMaxDeviationXYFromNominal();
-
   std::vector<Bound> bounds;
   for (auto node : motion_structure_.GetPhaseStampedVec()) {
     for (auto c : node.GetAllContacts()) {
 
-      PosXY f_nom_B = robot_->GetNominalStanceInBase(c.ee);
+      PosXY f_nom_B = nominal_stance_.at(c.ee);
       for (auto dim : {X,Y}) {
         Bound b;
         b += f_nom_B(dim);
-        b.upper_ += max_deviation.at(dim);
-        b.lower_ -= max_deviation.at(dim);
+        b.upper_ += max_deviation_from_nominal_.at(dim);
+        b.lower_ -= max_deviation_from_nominal_.at(dim);
 
         if (c.id == ContactBase::kFixedByStartStance)
           for (auto f : node.fixed_contacts_)

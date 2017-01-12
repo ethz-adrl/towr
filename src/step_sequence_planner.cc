@@ -35,7 +35,7 @@ StepSequencePlanner::Init (const State& curr, const State& goal,
 }
 
 StepSequencePlanner::AllPhaseSwingLegs
-StepSequencePlanner::DetermineStepSequence (const MotionTypePtr& motion_type)
+StepSequencePlanner::DetermineStepSequence (const MotionParamsPtr& motion_type)
 {
   // based on distance to cover
   const double width_per_step = 0.13;

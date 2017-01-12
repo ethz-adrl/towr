@@ -16,8 +16,6 @@
 namespace xpp {
 namespace opt {
 
-class ARobotInterface;
-
 
 /** Base class for constraints associated only with the foothold positions
   *
@@ -43,12 +41,12 @@ protected:
   */
 class FootholdFinalStanceConstraint : public AFootholdConstraint {
 public:
-  using Vector2d = Eigen::Vector2d;
-  using RobotPtrU = std::unique_ptr<ARobotInterface>;
-  using EndeffectorID = utils::EndeffectorID;
+  using Vector2d       = Eigen::Vector2d;
+  using EndeffectorID  = utils::EndeffectorID;
+  using NominalStance  = std::map<EndeffectorID, Eigen::Vector2d>;
 
   FootholdFinalStanceConstraint(const MotionStructure& motion_structure,
-                                const Vector2d& goal_xy, RobotPtrU);
+                                const Vector2d& goal_xy, const NominalStance&);
   virtual ~FootholdFinalStanceConstraint();
 
   virtual VectorXd EvaluateConstraint () const override;
@@ -59,7 +57,7 @@ private:
   Vector2d GetContactToNominalInWorld(const Vector2d& conctact_W, EndeffectorID leg) const;
 
   Vector2d goal_xy_;
-  RobotPtrU robot_;
+  NominalStance nominal_stance_;
   std::vector<ContactBase> final_free_contacts_;
 };
 

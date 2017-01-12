@@ -28,8 +28,9 @@ public:
   using Index         = Ipopt::Index;
   using Number        = Ipopt::Number;
   using VisualizerPtr = std::shared_ptr<IVisualizer>;
+  using NLPPtr        = std::shared_ptr<NLP>;
 
-	IpoptAdapter(NLP& nlp, VisualizerPtr visualizer = do_nothing_visualizer);
+	IpoptAdapter(NLPPtr& nlp, VisualizerPtr visualizer = do_nothing_visualizer);
 
   /** default destructor */
   virtual ~IpoptAdapter() {};
@@ -102,7 +103,7 @@ public:
   //@}
 
 private:
-  NLP& nlp_;
+  NLPPtr nlp_;
   VisualizerPtr visualizer_;
 };
 

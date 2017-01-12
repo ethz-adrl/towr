@@ -33,13 +33,6 @@ public:
   /** @brief default contact position of the endeffectors
     */
   virtual PosXY GetNominalStanceInBase(EndeffectorID leg_id) const = 0;
-
-  /** How much the Endeffector can deviate from the default (x,y) position
-    * while still remaining in the range of motion.
-    *
-    * Used by RangeOfMotionConstraint.
-    */
-  virtual MaxDevXY GetMaxDeviationXYFromNominal() const = 0;
 };
 
 } /* namespace opt */

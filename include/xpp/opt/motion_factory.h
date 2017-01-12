@@ -35,14 +35,15 @@ public:
 
   /** Creates a spline where all polynomial coefficients are free.
     */
-  static ComMotionPtrS CreateComMotion(const PhaseVec&);
+  static ComMotionPtrS CreateComMotion(const PhaseVec&, int polynomials_per_phase);
 
   /** Creates a spline where the initial position and velocity and the
     * position and velocity at the polynomial junctions are fixed.
     */
   static ComMotionPtrS CreateComMotion(const PhaseVec&,
                                       const Vector2d& start_cog_p,
-                                      const Vector2d& start_cog_v);
+                                      const Vector2d& start_cog_v,
+                                      int polynomials_per_phase);
 };
 
 } /* namespace zmp */

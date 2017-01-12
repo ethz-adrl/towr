@@ -23,9 +23,8 @@ namespace opt {
   */
 class SnoptAdapter : public snoptProblemA {
 public:
-  typedef Eigen::VectorXd VectorXd;
-  typedef SnoptAdapter* SelfPtr;
-  typedef std::unique_ptr<NLP> NLPPtr;
+  using SelfPtr = SnoptAdapter*;
+  using NLPPtr  = std::shared_ptr<NLP>;
 
   /** Only way to get an instance of this class.
     *
@@ -36,6 +35,9 @@ public:
   virtual ~SnoptAdapter ();
 
 
+  /** Assign SNOPT to a Nonlinear Program. Keeps reference to this NLP and
+    *  modifies it!.
+    */
   void SetNLP(NLPPtr&);
   void Init();
   static void ObjectiveAndConstraintFct(int    *Status, int *n,    double x[],

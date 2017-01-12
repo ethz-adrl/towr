@@ -7,7 +7,6 @@
 
 #include <xpp/opt/a_foothold_constraint.h>
 #include <xpp/opt/optimization_variables.h>
-#include <xpp/opt/a_robot_interface.h>
 
 namespace xpp {
 namespace opt {
@@ -40,12 +39,12 @@ AFootholdConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 FootholdFinalStanceConstraint::FootholdFinalStanceConstraint (
                                     const MotionStructure& motion_structure,
                                     const Vector2d& goal_xy,
-                                    RobotPtrU robot)
+                                    const NominalStance& nom)
 {
   Init(motion_structure);
   name_ = "Final Stance";
   goal_xy_ = goal_xy;
-  robot_ = std::move(robot);
+  nominal_stance_ = nom;
   final_free_contacts_ = motion_structure.GetPhases().back().free_contacts_;
 }
 
@@ -70,9 +69,9 @@ FootholdFinalStanceConstraint::EvaluateConstraint () const
 }
 
 FootholdFinalStanceConstraint::Vector2d
-FootholdFinalStanceConstraint::GetContactToNominalInWorld (const Vector2d& foot_W, EndeffectorID leg) const
+FootholdFinalStanceConstraint::GetContactToNominalInWorld (const Vector2d& foot_W, EndeffectorID ee) const
 {
-  Vector2d goal_to_nom_B = robot_->GetNominalStanceInBase(leg);
+  Vector2d goal_to_nom_B = nominal_stance_.at(ee);
   Eigen::Matrix2d W_R_B = Eigen::Matrix2d::Identity(); // attention: assumes no rotation world to base
   Vector2d goal_to_nom_W = W_R_B * goal_to_nom_B;
 

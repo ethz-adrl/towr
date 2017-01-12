@@ -8,9 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 
+#include "com_motion.h"
+#include "motion_phase.h"
 #include <xpp/utils/polynomial_helpers.h>
 #include <memory>
-#include "com_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -22,28 +23,29 @@ namespace opt {
   */
 class ComSpline : public ComMotion {
 public:
-  typedef xpp::utils::Polynomial Polynomial;
-  typedef xpp::utils::ComPolynomial ComPolynomial;
-  typedef std::vector<ComPolynomial> VecPolynomials;
-  typedef xpp::utils::MotionDerivative MotionDerivative;
-  typedef xpp::utils::VecScalar VecScalar;
-  typedef xpp::utils::StateLin2d Point2d;
-  typedef xpp::utils::Coords3D Coords3D;
-  typedef std::vector<MotionDerivative> Derivatives;
-  typedef std::shared_ptr<ComSpline> PtrS;
-  typedef std::unique_ptr<ComSpline> PtrU;
-  using PolyCoeff = Polynomial::PolynomialCoeff;
-  using ComPolynomialHelpers = xpp::utils::ComPolynomialHelpers;
+  using Polynomial       = xpp::utils::Polynomial;
+  using ComPolynomial    = xpp::utils::ComPolynomial ;
+  using VecPolynomials   = std::vector<ComPolynomial> ;
+  using MotionDerivative = xpp::utils::MotionDerivative ;
+  using VecScalar        = xpp::utils::VecScalar ;
+  using Point2d          = xpp::utils::StateLin2d ;
+  using Coords3D         = xpp::utils::Coords3D ;
+  using Derivatives      = std::vector<MotionDerivative> ;
+  using PtrS             = std::shared_ptr<ComSpline> ;
+  using PtrU             = std::unique_ptr<ComSpline> ;
+  using PolyCoeff        = Polynomial::PolynomialCoeff;
+  using PolyHelpers      = xpp::utils::ComPolynomialHelpers;
+  using PhaseVec         = std::vector<MotionPhase>;
 
 
   ComSpline ();
   virtual ~ComSpline ();
 
-  virtual void Init(const PhaseVec& phases) final;
+  virtual void Init(const PhaseVec& phases, int polynomials_per_phase) final;
 
   // implements these functions from parent class, now specific for splines
-  Point2d GetCom(double t_global) const override { return ComPolynomialHelpers::GetCOM(t_global, polynomials_); }
-  double GetTotalTime() const override { return ComPolynomialHelpers::GetTotalTime(polynomials_); }
+  Point2d GetCom(double t_global) const override { return PolyHelpers::GetCOM(t_global, polynomials_); }
+  double GetTotalTime() const override { return PolyHelpers::GetTotalTime(polynomials_); }
   int GetTotalFreeCoeff() const override;
   VectorXd GetCoeffients () const override;
 
@@ -57,8 +59,8 @@ public:
   virtual Derivatives GetInitialFreeMotions()  const = 0;
   virtual Derivatives GetJunctionFreeMotions() const = 0;
 
-  int GetPolynomialID(double t_global)  const { return ComPolynomialHelpers::GetPolynomialID(t_global, polynomials_); }
-  double GetLocalTime(double t_global)  const { return ComPolynomialHelpers::GetLocalTime(t_global, polynomials_); };
+  int GetPolynomialID(double t_global)  const { return PolyHelpers::GetPolynomialID(t_global, polynomials_); }
+  double GetLocalTime(double t_global)  const { return PolyHelpers::GetLocalTime(t_global, polynomials_); };
   VecPolynomials GetPolynomials()       const { return polynomials_; }
   ComPolynomial GetPolynomial(size_t i) const { return polynomials_.at(i); }
   ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
@@ -73,7 +75,7 @@ public:
     */
   JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt, double t_poly, int id, Coords3D dim) const;
 
-  Point2d GetCOGxyAtPolynomial(int id, double t_local) {return ComPolynomialHelpers::GetCOGxyAtPolynomial(id, t_local, polynomials_); };
+  Point2d GetCOGxyAtPolynomial(int id, double t_local) {return PolyHelpers::GetCOGxyAtPolynomial(id, t_local, polynomials_); };
 
 
 

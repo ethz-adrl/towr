@@ -16,7 +16,7 @@ using MotionStructure = xpp::opt::MotionStructure;
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  // TODO Auto-generated constructor stub
+  SetMotionType(WalkID);
 }
 
 MotionOptimizerFacade::~MotionOptimizerFacade ()
@@ -25,14 +25,12 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 }
 
 void
-MotionOptimizerFacade::Init (double dt_nodes,
-                             double des_walking_height,
+MotionOptimizerFacade::Init (double des_walking_height,
                              double lift_height,
                              double outward_swing,
                              double trajectory_dt,
                              VisualizerPtr visualizer)
 {
-  dt_nodes_ = dt_nodes;
   des_walking_height_ = des_walking_height;
   wb_traj_gen4_.SetParams(0.5, lift_height, outward_swing, trajectory_dt);
   nlp_facade_.AttachNlpObserver(visualizer);
@@ -48,19 +46,20 @@ MotionOptimizerFacade::OptimizeMotion ()
                               curr_state_.SwinglegID());
 
   auto phase_swinglegs = step_sequence_planner_.DetermineStepSequence(motion_type_);
-  bool start_with_com_shift = true;
   bool insert_final_stance = true;
 
   MotionStructure motion_structure;
   motion_structure.Init(curr_state_.GetStanceLegsInWorld(), phase_swinglegs,
                         motion_type_->t_phase_, motion_type_->t_phase_,
-                        start_with_com_shift, insert_final_stance, dt_nodes_ );
+                        motion_type_->start_with_stance_, insert_final_stance, motion_type_->dt_nodes_ );
 
-  nlp_facade_.SolveNlp(curr_state_.base_.lin.Get2D(),
+  nlp_facade_.BuildNlp(curr_state_.base_.lin.Get2D(),
                        goal_cog_.Get2D(),
                        des_walking_height_,
                        motion_structure,
                        motion_type_);
+
+  nlp_facade_.SolveNlp(Snopt);
 
   wb_traj_gen4_.Init(motion_structure.GetPhases(),
                      nlp_facade_.GetComMotion(),
@@ -88,7 +87,7 @@ MotionOptimizerFacade::SetCurrent (const HyqState& curr)
 void
 MotionOptimizerFacade::SetMotionType (MotionTypeID id)
 {
-  motion_type_ = MotionType::MakeMotion(id);
+  motion_type_ = MotionParameters::MakeMotion(id);
 }
 
 } /* namespace opt */
