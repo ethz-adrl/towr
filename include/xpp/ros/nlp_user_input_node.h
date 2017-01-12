@@ -10,11 +10,10 @@
 
 #include <xpp_msgs/GetStateLin3d.h>
 #include <xpp/utils/state.h>
-#include <xpp/opt/motion_type.h>
-
 #include <keyboard/Key.h>
 #include <sensor_msgs/Joy.h>
 #include <ros/ros.h>
+#include "../../../../xpp_opt/include/xpp/opt/motion_parameters.h"
 
 namespace xpp {
 namespace ros {
@@ -52,6 +51,7 @@ private:
   State goal_cog_prev_;
 
   MotionType motion_type_;
+  bool replay_trajectory_;
 
   ::ros::Subscriber key_sub_;
   ::ros::Subscriber joy_sub_;

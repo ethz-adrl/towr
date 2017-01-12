@@ -30,7 +30,8 @@ NlpUserInputNode::NlpUserInputNode ()
 
   // publish goal zero initially
   goal_cog_.p.setZero();
-  motion_type_ = opt::WalkID;
+  motion_type_ = opt::TrottID;
+  replay_trajectory_ = false;
   UserCommandMsg msg;
   msg.t_left = t_max_left_;
   msg.goal = RosHelpers::XppToRos(goal_cog_);
@@ -87,6 +88,10 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       ROS_INFO_STREAM("Motion type set to Camel");
       motion_type_ = opt::CamelID;
       break;
+    case msg.KEY_p:
+      ROS_INFO_STREAM("Replaying already optimized trajectory");
+      replay_trajectory_ = true;
+      break;
     default:
       break;
   }
@@ -138,9 +143,10 @@ void NlpUserInputNode::PublishCommand()
     t_left_ = t_max_left_;
 
   UserCommandMsg msg;
-  msg.t_left = t_left_;
-  msg.goal = RosHelpers::XppToRos(goal_cog_);
-  msg.motion_type = motion_type_;
+  msg.t_left            = t_left_;
+  msg.goal              = RosHelpers::XppToRos(goal_cog_);
+  msg.motion_type       = motion_type_;
+  msg.replay_trajectory = replay_trajectory_;
   user_command_pub_.publish(msg);
 
   switch (command_) {
@@ -159,6 +165,7 @@ void NlpUserInputNode::PublishCommand()
 
   goal_cog_prev_ = goal_cog_;
   command_ = Command::kNoCommand;
+  replay_trajectory_ = false;
 }
 
 } /* namespace ros */

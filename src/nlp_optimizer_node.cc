@@ -22,8 +22,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
 {
   ::ros::NodeHandle n;
 
-  goal_state_sub_ = n.subscribe(xpp_msgs::goal_state_topic, 1,
-                                &NlpOptimizerNode::GoalStateCallback, this);
+  user_command_sub_ = n.subscribe(xpp_msgs::goal_state_topic, 1,
+                                &NlpOptimizerNode::UserCommandCallback, this);
 
   current_state_sub_ = n.subscribe(xpp_msgs::curr_robot_state,
                                     1, // take only the most recent information
@@ -32,18 +32,15 @@ NlpOptimizerNode::NlpOptimizerNode ()
   trajectory_pub_ = n.advertise<xpp_msgs::HyqStateTrajectory>(
       xpp_msgs::robot_trajectory_joints, 1);
 
-
-  double dt_nodes           = RosHelpers::GetDoubleFromServer("/xpp/dt_nodes");
   double des_walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
   double lift_height        = RosHelpers::GetDoubleFromServer("/xpp/lift_height");
   double outward_swing      = RosHelpers::GetDoubleFromServer("/xpp/outward_swing_distance");
   double trajectory_dt      = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
 
-  ros_visualizer_ = std::make_shared<RosVisualizer>();
+  ros_marker_visualizer_ = std::make_shared<RosVisualizer>();
 
-  motion_optimizer_.Init(dt_nodes ,des_walking_height,
-                         lift_height, outward_swing, trajectory_dt,
-                         ros_visualizer_);
+  motion_optimizer_.Init(des_walking_height, lift_height, outward_swing,
+                         trajectory_dt, ros_marker_visualizer_);
 
   CheckIfInDirectoyWithIpoptConfigFile();
 
@@ -54,17 +51,18 @@ void
 NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
 {
   auto curr_state = RosHelpers::RosToXpp(msg.state);
-  ros_visualizer_->VisualizeCurrentState(curr_state.base_.lin.Get2D(),
-                                         curr_state.GetStanceLegsInWorld());
-
   motion_optimizer_.SetCurrent(curr_state);
 
+  ros_marker_visualizer_->VisualizeCurrentState(curr_state.base_.lin.Get2D(),
+                                                curr_state.GetStanceLegsInWorld());
+
 //  if (msg.reoptimize) // only re-optimize if robot signalizes to be off track
-//    OptimizeAndPublishTrajectory();
+//    motion_optimizer_.OptimizeMotion();
+//    PublishTrajectory();
 }
 
 void
-NlpOptimizerNode::GoalStateCallback(const UserCommandMsg& msg)
+NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 {
   auto goal_prev = motion_optimizer_.goal_cog_;
   motion_optimizer_.goal_cog_ = RosHelpers::RosToXpp(msg.goal);
@@ -72,18 +70,21 @@ NlpOptimizerNode::GoalStateCallback(const UserCommandMsg& msg)
   motion_optimizer_.SetMotionType(static_cast<opt::MotionTypeID>(msg.motion_type));
 
 
-  if (goal_prev != motion_optimizer_.goal_cog_) // only reoptimize if new goal position
-    OptimizeAndPublishTrajectory();
+  if (goal_prev != motion_optimizer_.goal_cog_) {// only reoptimize if new goal position
+    motion_optimizer_.OptimizeMotion();
+    PublishTrajectory();
+  }
 
+  if (msg.replay_trajectory)
+    PublishTrajectory();
 //  ROS_INFO_STREAM("Goal state set to:\n" << motion_optimizer_.goal_cog_);
 //  ROS_INFO_STREAM("Time left:" << msg.t_left);
 }
 
 void
-NlpOptimizerNode::OptimizeAndPublishTrajectory ()
+NlpOptimizerNode::PublishTrajectory ()
 {
-  motion_optimizer_.OptimizeMotion();
-  ros_visualizer_->Visualize();
+  ros_marker_visualizer_->Visualize();
 
   // sends this info the the walking controller
   auto msg = RosHelpers::XppToRos(motion_optimizer_.GetTrajectory());

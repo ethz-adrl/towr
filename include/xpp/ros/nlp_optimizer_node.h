@@ -29,15 +29,15 @@ public:
   virtual ~NlpOptimizerNode () {};
 
 private:
-  void OptimizeAndPublishTrajectory();
+  void PublishTrajectory();
   void CurrentStateCallback(const CurrentInfoMsg& msg);
-  void GoalStateCallback(const UserCommandMsg& msg);
+  void UserCommandCallback(const UserCommandMsg& msg);
 
-  ::ros::Subscriber goal_state_sub_;
+  ::ros::Subscriber user_command_sub_;
   ::ros::Subscriber current_state_sub_;
   ::ros::Publisher trajectory_pub_;
 
-  OptVisualizerPtr ros_visualizer_;
+  OptVisualizerPtr ros_marker_visualizer_;
   MotionOptimizer motion_optimizer_;
 };
 
