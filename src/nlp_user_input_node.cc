@@ -79,6 +79,14 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       ROS_INFO_STREAM("Motion type set to Trotting");
       motion_type_ = opt::TrottID;
       break;
+    case msg.KEY_b:
+      ROS_INFO_STREAM("Motion type set to Bounding");
+      motion_type_ = opt::BoundID;
+      break;
+    case msg.KEY_c:
+      ROS_INFO_STREAM("Motion type set to Camel");
+      motion_type_ = opt::CamelID;
+      break;
     default:
       break;
   }

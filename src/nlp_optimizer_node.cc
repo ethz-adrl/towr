@@ -69,15 +69,8 @@ NlpOptimizerNode::GoalStateCallback(const UserCommandMsg& msg)
   auto goal_prev = motion_optimizer_.goal_cog_;
   motion_optimizer_.goal_cog_ = RosHelpers::RosToXpp(msg.goal);
   motion_optimizer_.t_left_   = msg.t_left;
+  motion_optimizer_.SetMotionType(static_cast<opt::MotionTypeID>(msg.motion_type));
 
-  switch (msg.motion_type) {
-    case opt::WalkID:
-      motion_optimizer_.motion_type_ =  std::make_shared<opt::Walk>();
-      break;
-    case opt::TrottID:
-      motion_optimizer_.motion_type_ =  std::make_shared<opt::Trott>();
-      break;
-  }
 
   if (goal_prev != motion_optimizer_.goal_cog_) // only reoptimize if new goal position
     OptimizeAndPublishTrajectory();
