@@ -39,28 +39,28 @@ public:
 
 
   // optimization variables with initial values
-  static VariableSet CreateSplineCoeffVariables(const ComMotion&);
-  static VariableSet CreateContactVariables(const MotionStructure&,const Vector2d initial_pos);
-  static VariableSet CreateConvexityVariables(const MotionStructure&);
-  static VariableSet CreateCopVariables(const MotionStructure&);
+  static VariableSet SplineCoeffVariables(const ComMotion&);
+  static VariableSet ContactVariables(const MotionStructure&,const Vector2d initial_pos);
+  static VariableSet ConvexityVariables(const MotionStructure&);
+  static VariableSet CopVariables(const MotionStructure&);
 
 
   // constraints
-  static ConstraintPtr CreateInitialConstraint(const State2d& init, const ComMotion&);
-  static ConstraintPtr CreateFinalConstraint(const State2d& final_state_xy, const ComMotion&);
-  static ConstraintPtr CreateJunctionConstraint(const ComMotion&);
-  static ConstraintPtr CreateConvexityContraint(const MotionStructure&);
-  static ConstraintPtr CreateSupportAreaConstraint(const MotionStructure&);
-  static ConstraintPtr CreateDynamicConstraint(const ComMotion&, const MotionStructure&,double robot_height);
-  static ConstraintPtr CreateRangeOfMotionConstraint(const ComMotion&, const MotionStructure&);
-  static ConstraintPtr CreateFinalStanceConstraint(const Vector2d& goal_xy, const MotionStructure&);
-  static ConstraintPtr CreateObstacleConstraint();
+  static ConstraintPtr InitialConstraint_(const State2d& init, const ComMotion&);
+  static ConstraintPtr FinalConstraint_(const State2d& final_state_xy, const ComMotion&);
+  static ConstraintPtr JunctionConstraint_(const ComMotion&);
+  static ConstraintPtr ConvexityConstraint_(const MotionStructure&);
+  static ConstraintPtr SupportAreaConstraint_(const MotionStructure&);
+  static ConstraintPtr DynamicConstraint_(const ComMotion&, const MotionStructure&,double robot_height);
+  static ConstraintPtr RangeOfMotionBoxConstraint_(const ComMotion&, const MotionStructure&);
+  static ConstraintPtr FinalStanceConstraint_(const Vector2d& goal_xy, const MotionStructure&);
+  static ConstraintPtr ObstacleConstraint_();
 
 
   // costs
-  static CostPtr CreateMotionCost(const ComMotion&, const xpp::utils::MotionDerivative);
-  static CostPtr CreateRangeOfMotionCost(const ComMotion&, const MotionStructure&);
-  static CostPtr CreatePolygonCenterCost(const MotionStructure&);
+  static CostPtr ComMotionCost_(const ComMotion&, const xpp::utils::MotionDerivative);
+  static CostPtr RangeOfMotionCost_(const ComMotion&, const MotionStructure&);
+  static CostPtr PolygonCenterCost_(const MotionStructure&);
   static CostPtr CreateFinalComCost(const State2d& final_state_xy, const ComMotion&);
   static CostPtr CreateFinalStanceCost(const Vector2d& goal_xy, const MotionStructure&);
 };

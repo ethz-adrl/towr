@@ -5,14 +5,12 @@
  @brief   Brief description
  */
 
-#include <xpp/hyq/step_sequence_planner.h>
-#include <xpp/hyq/ee_hyq.h>
+#include <xpp/opt/step_sequence_planner.h>
 
 namespace xpp {
-namespace hyq {
+namespace opt {
 
 using namespace xpp::utils; // X,Y
-
 
 StepSequencePlanner::StepSequencePlanner ()
 {
@@ -37,7 +35,7 @@ StepSequencePlanner::Init (const State& curr, const State& goal,
 }
 
 StepSequencePlanner::AllPhaseSwingLegs
-StepSequencePlanner::DetermineStepSequence (const MotionType& motion_type)
+StepSequencePlanner::DetermineStepSequence (const MotionTypePtr& motion_type)
 {
   // based on distance to cover
   const double width_per_step = 0.13;
@@ -45,92 +43,24 @@ StepSequencePlanner::DetermineStepSequence (const MotionType& motion_type)
   int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/motion_type->max_step_length_);
   int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);
   int req_steps_per_leg = std::max(req_steps_by_length,req_steps_by_width);
-  int n_steps = 4*req_steps_per_leg;
-
-  LegID last_swingleg = RF;
 
   bool moving_mainly_in_x = std::fabs(start_to_goal.x()) > std::fabs(0.5*start_to_goal.y());
-  bool walking_forward = goal_state_.p.x() >= curr_state_.p.x();
-  bool walking_left    = goal_state_.p.y() >= curr_state_.p.y();
+  bool walking_back       = goal_state_.p.x() <= curr_state_.p.x();
+  bool walking_right      = goal_state_.p.y() <= curr_state_.p.y();
 
-  int n_phases = n_steps/motion_type->swinglegs_per_phase_;
+  AllPhaseSwingLegs step_sequence;
+  for (int cycle = 0; cycle<req_steps_per_leg; ++cycle)
+    for (auto phase : motion_type->GetOneCycle())
+      step_sequence.push_back(phase);
 
-  std::vector<LegIDVec> step_sequence;
-  for (int phase=0; phase<n_phases; ++phase) {
+  // reserve walking order if walking backwards or to the right
+  if (motion_type->id_ == opt::WalkID)
+    if ((moving_mainly_in_x && walking_back) || (!moving_mainly_in_x && walking_right))
+      std::reverse(step_sequence.begin(),step_sequence.end());
 
-    switch (motion_type->id_) {
-      case opt::TrottID: {
-        LegIDVec swinglegs_lf = {LF, RH};
-        LegIDVec swinglegs_rf = {RF, LH};
-
-        if (phase%2==0)
-          step_sequence.push_back(swinglegs_lf);
-        else
-          step_sequence.push_back(swinglegs_rf);
-
-        break;
-      }
-      case opt::WalkID: {
-        if (moving_mainly_in_x) {
-          if (walking_forward)
-            step_sequence.push_back({NextSwingLeg(last_swingleg)});
-          else
-            step_sequence.push_back({NextSwingLegBackwards(last_swingleg)});
-        } else { // moving mainly in y
-          if (walking_left)
-            step_sequence.push_back({NextSwingLeg(last_swingleg)});
-          else
-            step_sequence.push_back({NextSwingLegBackwards(last_swingleg)});
-        }
-        last_swingleg = step_sequence.back().back();
-        break;
-      }
-    }
-  }
-
-  return ConvertToEE(step_sequence);
+  return step_sequence;
 }
 
-LegID
-StepSequencePlanner::NextSwingLeg (LegID curr) const
-{
-  switch (curr) {
-    case LH: return LF;
-    case LF: return RH;
-    case RH: return RF;
-    case RF: return LH;
-    default: assert(false); // this should never happen
-  };
-}
-
-LegID
-StepSequencePlanner::NextSwingLegBackwards (LegID curr) const
-{
-  switch (curr) {
-    case LH: return RF;
-    case RF: return RH;
-    case RH: return LF;
-    case LF: return LH;
-    default: assert(false); // this should never happen
-  };
-}
-
-StepSequencePlanner::AllPhaseSwingLegs
-StepSequencePlanner::ConvertToEE (const std::vector<LegIDVec>& hyq)
-{
-  std::vector<SwingLegsInPhase> xpp;
-
-  for (auto hyq_swinglegs : hyq) {
-    SwingLegsInPhase swinglegs_in_phase;
-    for (auto leg : hyq_swinglegs)
-      swinglegs_in_phase.push_back(kMapHyqToOpt.at(leg));
-
-    xpp.push_back(swinglegs_in_phase);
-  }
-
-  return xpp;
-}
-
-} /* namespace hyq */
+} /* namespace opt */
 } /* namespace xpp */
 

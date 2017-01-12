@@ -22,6 +22,7 @@
 namespace xpp {
 namespace opt {
 
+using Fac = CostConstraintFactory;
 
 NlpFacade::NlpFacade (VisualizerPtr visualizer)
      :visualizer_(visualizer)
@@ -46,57 +47,45 @@ void
 NlpFacade::SolveNlp(const State& initial_state,
                     const State& final_state,
                     double robot_height,
-                    const MotionStructure& motion_structure,
+                    const MotionStructure& ms,
                     const MotionTypePtr& motion_type)
 {
 //  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
-  com_motion_ = MotionFactory::CreateComMotion(motion_structure.GetPhases());
+  com_motion_ = MotionFactory::CreateComMotion(ms.GetPhases());
 
   opt_variables_->ClearVariables();
-  opt_variables_->AddVariableSet(CostConstraintFactory::CreateSplineCoeffVariables(*com_motion_));
-  opt_variables_->AddVariableSet(CostConstraintFactory::CreateContactVariables(motion_structure, initial_state.p));
-  opt_variables_->AddVariableSet(CostConstraintFactory::CreateConvexityVariables(motion_structure));
-  opt_variables_->AddVariableSet(CostConstraintFactory::CreateCopVariables(motion_structure));
+  opt_variables_->AddVariableSet(Fac::SplineCoeffVariables(*com_motion_));
+  opt_variables_->AddVariableSet(Fac::ContactVariables(ms, initial_state.p));
+  opt_variables_->AddVariableSet(Fac::ConvexityVariables(ms));
+  opt_variables_->AddVariableSet(Fac::CopVariables(ms));
 
 
   constraints_->ClearConstraints();
-  constraints_->AddConstraint(CostConstraintFactory::CreateInitialConstraint(initial_state, *com_motion_));
-  constraints_->AddConstraint(CostConstraintFactory::CreateFinalConstraint(final_state, *com_motion_));
-  constraints_->AddConstraint(CostConstraintFactory::CreateJunctionConstraint(*com_motion_));
-  constraints_->AddConstraint(CostConstraintFactory::CreateDynamicConstraint(*com_motion_, motion_structure, robot_height));
-  constraints_->AddConstraint(CostConstraintFactory::CreateSupportAreaConstraint(motion_structure));
-  constraints_->AddConstraint(CostConstraintFactory::CreateConvexityContraint(motion_structure));
-  constraints_->AddConstraint(CostConstraintFactory::CreateRangeOfMotionConstraint(*com_motion_, motion_structure));
-  constraints_->AddConstraint(CostConstraintFactory::CreateFinalStanceConstraint(final_state.p, motion_structure));
+  constraints_->AddConstraint(Fac::InitialConstraint_(initial_state, *com_motion_));
+  constraints_->AddConstraint(Fac::FinalConstraint_(final_state, *com_motion_));
+  constraints_->AddConstraint(Fac::JunctionConstraint_(*com_motion_));
+  constraints_->AddConstraint(Fac::DynamicConstraint_(*com_motion_, ms, robot_height));
+  constraints_->AddConstraint(Fac::SupportAreaConstraint_(ms));
+  constraints_->AddConstraint(Fac::ConvexityConstraint_(ms));
+  constraints_->AddConstraint(Fac::RangeOfMotionBoxConstraint_(*com_motion_, ms));
+  constraints_->AddConstraint(Fac::FinalStanceConstraint_(final_state.p, ms));
 
   costs_->ClearCosts();
-  switch (motion_type->id_) {
-    case WalkID: {
-      int n_nodes = motion_structure.GetPhaseStampedVec().size();
-      int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();
-      int t_total = motion_structure.GetTotalTime();
+  costs_->AddCost(Fac::ComMotionCost_(*com_motion_, utils::kAcc),motion_type->weight_com_motion_cost_);
+  costs_->AddCost(Fac::RangeOfMotionCost_(*com_motion_, ms),     motion_type->weight_range_of_motion_cost_);
+  costs_->AddCost(Fac::PolygonCenterCost_(ms),                   motion_type->weight_polygon_center_cost_);
 
-      double weight_motion  =  1;  //   1.0/t_total;
-      double weight_range   =  1;  //30.0/n_discrete_contacts;
-      double weight_polygon =  10; //100.0/n_nodes;
+//  int n_nodes = motion_structure.GetPhaseStampedVec().size();
+//  int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();
+//  int t_total = motion_structure.GetTotalTime();
+//  double weight_motion  =  1.0/t_total;
+//  double weight_range   =  30.0/n_discrete_contacts;
+//  double weight_polygon =  100.0/n_nodes;
 
-      costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion_, utils::kAcc), weight_motion);
-      costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion_, motion_structure), weight_range);
-      costs_->AddCost(CostConstraintFactory::CreatePolygonCenterCost(motion_structure), weight_polygon);
-      break;
-    }
-    case TrottID: {
-      double weight_motion = 1.0;
-      double weight_range  = 10.0;
-      costs_->AddCost(CostConstraintFactory::CreateMotionCost(*com_motion_, utils::kAcc), weight_motion);
-      costs_->AddCost(CostConstraintFactory::CreateRangeOfMotionCost(*com_motion_, motion_structure), weight_range);
-      break;
-    }
-  }
 
   visualizer_->SetOptimizationVariables(opt_variables_);
   visualizer_->SetComMotion(com_motion_);
-  visualizer_->SetMotionStructure(motion_structure);
+  visualizer_->SetMotionStructure(ms);
 
   std::unique_ptr<NLP> nlp(new NLP);
   nlp->Init(opt_variables_, costs_, constraints_);

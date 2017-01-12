@@ -10,12 +10,11 @@
 
 #include <xpp/utils/state.h>
 #include <xpp/opt/contact.h>
-#include <xpp/hyq/ee_hyq.h>  // LegID
 #include <xpp/opt/motion_type.h>
 #include <memory>
 
 namespace xpp {
-namespace hyq {
+namespace opt {
 
 /** Plans the sequence of steps (LH, LF, ...) for a given optimization problem.
   *
@@ -25,13 +24,11 @@ namespace hyq {
   */
 class StepSequencePlanner {
 public:
-
-  using LegIDVec          = std::vector<LegID>;
-  using SwingLegsInPhase  = std::vector<utils::EndeffectorID>;
+  using SwingLegsInPhase  = MotionType::Swinglegs;
   using AllPhaseSwingLegs = std::vector<SwingLegsInPhase>;
   using StartStance       = std::vector<xpp::opt::Contact>;
   using State             = xpp::utils::StateLin2d;
-  using MotionType        = std::shared_ptr<xpp::opt::MotionType>;
+  using MotionTypePtr     = std::shared_ptr<MotionType>;
 
   StepSequencePlanner ();
   virtual ~StepSequencePlanner ();
@@ -49,13 +46,9 @@ public:
 
   /** Defines the endeffectors in swing for each motion phase
     */
-  AllPhaseSwingLegs DetermineStepSequence(const MotionType&);
+  AllPhaseSwingLegs DetermineStepSequence(const MotionTypePtr&);
 
 private:
-  AllPhaseSwingLegs ConvertToEE(const std::vector<LegIDVec>&);
-  LegID NextSwingLeg(LegID curr) const;
-  LegID NextSwingLegBackwards(LegID curr) const;
-
   State curr_state_;
   State goal_state_;
   StartStance start_stance_;
@@ -64,7 +57,7 @@ private:
   int curr_swingleg_; // this could also be no swingleg (stance phase)
 };
 
-} /* namespace hyq */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_STEP_SEQUENCE_PLANNER_H_ */

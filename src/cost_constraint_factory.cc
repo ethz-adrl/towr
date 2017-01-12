@@ -38,13 +38,13 @@ CostConstraintFactory::~CostConstraintFactory ()
 }
 
 VariableSet
-CostConstraintFactory::CreateSplineCoeffVariables (const ComMotion& com_motion)
+CostConstraintFactory::SplineCoeffVariables (const ComMotion& com_motion)
 {
   return VariableSet(com_motion.GetCoeffients(), VariableNames::kSplineCoeff);
 }
 
 VariableSet
-CostConstraintFactory::CreateContactVariables (const MotionStructure& motion_structure,
+CostConstraintFactory::ContactVariables (const MotionStructure& motion_structure,
                                                const Vector2d initial_pos)
 {
   // contact locations (x,y) of each step
@@ -60,7 +60,7 @@ CostConstraintFactory::CreateContactVariables (const MotionStructure& motion_str
 }
 
 VariableSet
-CostConstraintFactory::CreateConvexityVariables (const MotionStructure& motion_structure)
+CostConstraintFactory::ConvexityVariables (const MotionStructure& motion_structure)
 {
   Eigen::VectorXd lambdas(motion_structure.GetTotalNumberOfNodeContacts());
   lambdas.fill(0.33); // sort of in the middle for 3 contacts per node
@@ -68,7 +68,7 @@ CostConstraintFactory::CreateConvexityVariables (const MotionStructure& motion_s
 }
 
 VariableSet
-CostConstraintFactory::CreateCopVariables (const MotionStructure& motion_structure)
+CostConstraintFactory::CopVariables (const MotionStructure& motion_structure)
 {
   int n_nodes = motion_structure.GetPhaseStampedVec().size();
   Eigen::VectorXd cop(n_nodes*kDim2d);
@@ -80,7 +80,7 @@ CostConstraintFactory::CreateCopVariables (const MotionStructure& motion_structu
 
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateInitialConstraint (const State2d& init,
+CostConstraintFactory::InitialConstraint_ (const State2d& init,
                                                 const ComMotion& motion)
 {
   LinearSplineEquations eq(motion);
@@ -90,7 +90,7 @@ CostConstraintFactory::CreateInitialConstraint (const State2d& init,
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
+CostConstraintFactory::FinalConstraint_ (const State2d& final_state_xy,
                                               const ComMotion& motion)
 {
   LinearSplineEquations eq(motion);
@@ -100,7 +100,7 @@ CostConstraintFactory::CreateFinalConstraint (const State2d& final_state_xy,
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateJunctionConstraint (const ComMotion& motion)
+CostConstraintFactory::JunctionConstraint_ (const ComMotion& motion)
 {
   LinearSplineEquations eq(motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
@@ -109,9 +109,9 @@ CostConstraintFactory::CreateJunctionConstraint (const ComMotion& motion)
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateDynamicConstraint (const ComMotion& com_motion,
-                                                const MotionStructure& motion_structure,
-                                                double robot_height)
+CostConstraintFactory::DynamicConstraint_(const ComMotion& com_motion,
+                                          const MotionStructure& motion_structure,
+                                          double robot_height)
 {
   auto constraint = std::make_shared<DynamicConstraint>();
   constraint->Init(com_motion, motion_structure, robot_height);
@@ -119,7 +119,7 @@ CostConstraintFactory::CreateDynamicConstraint (const ComMotion& com_motion,
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateSupportAreaConstraint (const MotionStructure& motion_structure)
+CostConstraintFactory::SupportAreaConstraint_ (const MotionStructure& motion_structure)
 {
   auto constraint = std::make_shared<SupportAreaConstraint>();
   constraint->Init(motion_structure);
@@ -127,7 +127,7 @@ CostConstraintFactory::CreateSupportAreaConstraint (const MotionStructure& motio
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateConvexityContraint (const MotionStructure& motion_structure)
+CostConstraintFactory::ConvexityConstraint_ (const MotionStructure& motion_structure)
 {
   auto constraint = std::make_shared<ConvexityConstraint>();
   constraint->Init(motion_structure);
@@ -136,8 +136,8 @@ CostConstraintFactory::CreateConvexityContraint (const MotionStructure& motion_s
 
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateRangeOfMotionConstraint (const ComMotion& com_motion,
-                                                      const MotionStructure& motion_structure)
+CostConstraintFactory::RangeOfMotionBoxConstraint_ (const ComMotion& com_motion,
+                                                    const MotionStructure& motion_structure)
 {
   auto constraint = std::make_shared<RangeOfMotionBox>();
   auto hyq = std::unique_ptr<ARobotInterface>(new xpp::hyq::HyqRobotInterface());
@@ -147,8 +147,8 @@ CostConstraintFactory::CreateRangeOfMotionConstraint (const ComMotion& com_motio
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateFinalStanceConstraint (const Vector2d& goal_xy,
-                                                    const MotionStructure& motion_structure)
+CostConstraintFactory::FinalStanceConstraint_ (const Vector2d& goal_xy,
+                                               const MotionStructure& motion_structure)
 {
   auto hyq = std::unique_ptr<ARobotInterface>(new xpp::hyq::HyqRobotInterface());
   auto final_stance_constraint = std::make_shared<FootholdFinalStanceConstraint>(motion_structure,
@@ -158,7 +158,7 @@ CostConstraintFactory::CreateFinalStanceConstraint (const Vector2d& goal_xy,
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::CreateObstacleConstraint ()
+CostConstraintFactory::ObstacleConstraint_ ()
 {
   auto constraint = std::make_shared<ObstacleLineStrip>();
   return constraint;
@@ -170,16 +170,16 @@ CostConstraintFactory::CreateObstacleConstraint ()
 
 
 CostConstraintFactory::CostPtr
-CostConstraintFactory::CreateRangeOfMotionCost (const ComMotion& com_motion,
+CostConstraintFactory::RangeOfMotionCost_ (const ComMotion& com_motion,
                                                 const MotionStructure& motion_structure)
 {
-  auto rom_constraint = CreateRangeOfMotionConstraint(com_motion, motion_structure);
+  auto rom_constraint = RangeOfMotionBoxConstraint_(com_motion, motion_structure);
   auto rom_cost = std::make_shared<SoftConstraint>(rom_constraint);
   return rom_cost;
 }
 
 CostConstraintFactory::CostPtr
-CostConstraintFactory::CreatePolygonCenterCost (const MotionStructure& motion_structure)
+CostConstraintFactory::PolygonCenterCost_ (const MotionStructure& motion_structure)
 {
   auto constraint = std::make_shared<PolygonCenterConstraint>();
   constraint->Init(motion_structure);
@@ -192,13 +192,13 @@ CostConstraintFactory::CreateFinalStanceCost (
     const Vector2d& goal_xy,
     const MotionStructure& motion_structure)
 {
-  auto final_stance_constraint = CreateFinalStanceConstraint(goal_xy, motion_structure);
+  auto final_stance_constraint = FinalStanceConstraint_(goal_xy, motion_structure);
   auto final_stance_cost = std::make_shared<SoftConstraint>(final_stance_constraint);
   return final_stance_cost;
 }
 
 CostConstraintFactory::CostPtr
-CostConstraintFactory::CreateMotionCost (const ComMotion& motion,
+CostConstraintFactory::ComMotionCost_ (const ComMotion& motion,
                                          const xpp::utils::MotionDerivative dxdt)
 {
   LinearSplineEquations eq(motion);

@@ -85,6 +85,12 @@ MotionOptimizerFacade::SetCurrent (const HyqState& curr)
   curr_state_ = curr;
 }
 
+void
+MotionOptimizerFacade::SetMotionType (MotionTypeID id)
+{
+  motion_type_ = MotionType::MakeMotion(id);
+}
+
 } /* namespace opt */
 } /* namespace xpp */
 
