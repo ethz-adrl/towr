@@ -33,6 +33,13 @@ public:
   virtual SwingLegCycle GetOneCycle() const;
 };
 
+class PushRecovery : public HyqMotionParameters {
+public:
+  PushRecovery();
+
+  virtual SwingLegCycle GetOneCycle() const;
+};
+
 class Camel : public HyqMotionParameters {
 public:
   Camel();
@@ -46,6 +53,7 @@ public:
 
   virtual SwingLegCycle GetOneCycle() const;
 };
+
 
 } // namespace opt
 } // namespace hyq

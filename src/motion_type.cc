@@ -38,5 +38,12 @@ MotionParameters::GetMaximumDeviationFromNominal () const
   return max_dev_xy_;
 }
 
+MotionParameters::CostWeights
+MotionParameters::GetCostWeights () const
+{
+  return cost_weights_;
+}
+
 } // namespace opt
 } // namespace xpp
+

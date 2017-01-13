@@ -163,6 +163,16 @@ CostConstraintFactory::ObstacleConstraint_ ()
 
 
 
+CostConstraintFactory::CostPtr
+CostConstraintFactory::GetCost(CostName name)
+{
+  switch (name) {
+    case ComCostID:          return ComMotionCost_(); break;
+    case RangOfMotionCostID: return RangeOfMotionCost_(); break;
+    case PolyCenterCostID:   return PolygonCenterCost_(); break;
+    default: throw std::runtime_error("cost not defined!"); break;
+  }
+}
 
 CostConstraintFactory::CostPtr
 CostConstraintFactory::RangeOfMotionCost_ ()
@@ -190,10 +200,12 @@ CostConstraintFactory::CreateFinalStanceCost (const Vector2d& goal_xy)
 }
 
 CostConstraintFactory::CostPtr
-CostConstraintFactory::ComMotionCost_(const xpp::utils::MotionDerivative dxdt)
+CostConstraintFactory::ComMotionCost_()
 {
   LinearSplineEquations eq(*com_motion);
   Eigen::MatrixXd term;
+
+  utils::MotionDerivative dxdt = utils::kAcc;
 
   switch (dxdt) {
     case kAcc:  term = eq.MakeAcceleration(params->weight_com_motion_xy_); break;

@@ -41,9 +41,9 @@ Walk::Walk()
   dt_nodes_ = 0.05;
   polynomials_per_phase_ = 1;
 
-  weight_com_motion_cost_      = 1.0;
-  weight_range_of_motion_cost_ = 1.0;
-  weight_polygon_center_cost_  = 10.0;
+  cost_weights_[opt::ComCostID]          = 1.0;
+  cost_weights_[opt::RangOfMotionCostID] = 1.0;
+  cost_weights_[opt::PolyCenterCostID]   = 10.0;
 }
 
 Trott::Trott()
@@ -54,9 +54,23 @@ Trott::Trott()
   dt_nodes_ = 0.05;
   polynomials_per_phase_ = 1;
 
-  weight_com_motion_cost_      = 1.0;
-  weight_range_of_motion_cost_ = 10.0;
-  weight_polygon_center_cost_  = 0.0;
+  cost_weights_[opt::ComCostID]          = 1.0;
+  cost_weights_[opt::RangOfMotionCostID] = 10.0;
+//  cost_weights_[opt::PolyCenterCostID]   = 0.0;
+}
+
+PushRecovery::PushRecovery ()
+{
+  id_ = opt::PushRecID;
+  start_with_stance_ = false;
+  t_phase_ = 0.2;
+  max_step_length_ = 0.35;
+  dt_nodes_ = 0.05;
+  polynomials_per_phase_ = 1;
+
+  cost_weights_[opt::ComCostID]          = 1.0;
+  cost_weights_[opt::RangOfMotionCostID] = 10.0;
+//  cost_weights_[opt::PolyCenterCostID]   = 0.0;
 }
 
 Camel::Camel()
@@ -67,9 +81,9 @@ Camel::Camel()
   dt_nodes_ = 0.03;
   polynomials_per_phase_ = 3;
 
-  weight_com_motion_cost_      = 1.0;
-  weight_range_of_motion_cost_ = 10.0;
-  weight_polygon_center_cost_  = 1.0;
+  cost_weights_[opt::ComCostID]          = 1.0;
+  cost_weights_[opt::RangOfMotionCostID] = 10.0;
+//  cost_weights_[opt::PolyCenterCostID]   = 0.0;
 }
 
 Bound::Bound()
@@ -80,9 +94,9 @@ Bound::Bound()
   dt_nodes_ = 0.04;
   polynomials_per_phase_ = 2;
 
-  weight_com_motion_cost_      = 1.0;
-  weight_range_of_motion_cost_ = 100.0;
-  weight_polygon_center_cost_  = 0.0;
+  cost_weights_[opt::ComCostID]          = 1.0;
+  cost_weights_[opt::RangOfMotionCostID] = 100.0;
+//  cost_weights_[opt::PolyCenterCostID]   = 0.0;
 }
 
 Walk::SwingLegCycle
@@ -98,6 +112,15 @@ Walk::GetOneCycle () const
 
 Trott::SwingLegCycle
 Trott::GetOneCycle () const
+{
+  SwingLegCycle cycle;
+  cycle.push_back({kMapHyqToOpt.at(LF), kMapHyqToOpt.at(RH)});
+  cycle.push_back({kMapHyqToOpt.at(RF), kMapHyqToOpt.at(LH)});
+  return cycle;
+}
+
+PushRecovery::SwingLegCycle
+PushRecovery::GetOneCycle () const
 {
   SwingLegCycle cycle;
   cycle.push_back({kMapHyqToOpt.at(LF), kMapHyqToOpt.at(RH)});
@@ -125,3 +148,6 @@ Bound::GetOneCycle () const
 
 } // namespace hyq
 } // namespace xpp
+
+
+

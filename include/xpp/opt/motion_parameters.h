@@ -15,7 +15,8 @@
 namespace xpp {
 namespace opt {
 
-enum MotionTypeID { WalkID, TrottID, CamelID, BoundID };
+enum MotionTypeID { WalkID, TrottID, CamelID, BoundID, PushRecID };
+enum CostName { ComCostID, RangOfMotionCostID, PolyCenterCostID};
 
 /** This class holds all the hardcoded values describing a motion.
   * This is specific to the robot and the type of motion desired.
@@ -29,12 +30,14 @@ public:
   using PosXY          = Eigen::Vector2d;
   using NominalStance  = std::map<EEID, PosXY>;
   using ValXY          = std::array<double,2>;
+  using CostWeights    = std::map<CostName, double>;
 
   virtual ~MotionParameters();
 
   virtual SwingLegCycle GetOneCycle() const = 0;
   virtual NominalStance GetNominalStanceInBase() const = 0;
   ValXY GetMaximumDeviationFromNominal() const;
+  CostWeights GetCostWeights() const;
 
   MotionTypeID id_;
   double t_phase_;
@@ -44,14 +47,13 @@ public:
   bool start_with_stance_;
   ValXY weight_com_motion_xy_;
 
-  double weight_com_motion_cost_;
-  double weight_range_of_motion_cost_;
-  double weight_polygon_center_cost_;
 
   static MotionTypePtr MakeMotion(MotionTypeID);
 
 protected:
   ValXY max_dev_xy_;
+
+  CostWeights cost_weights_;
 };
 
 } // namespace opt

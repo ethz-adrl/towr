@@ -60,9 +60,7 @@ public:
   ConstraintPtr ObstacleConstraint_();
 
   // costs
-  CostPtr ComMotionCost_(const xpp::utils::MotionDerivative);
-  CostPtr RangeOfMotionCost_();
-  CostPtr PolygonCenterCost_();
+  CostPtr GetCost(CostName name);
   CostPtr CreateFinalComCost(const State2d& final_state_xy);
   CostPtr CreateFinalStanceCost(const Vector2d& goal_xy);
 
@@ -70,6 +68,10 @@ private:
   MotionStructure motion_structure;
   MotionTypePtr params;
   ComMotionPtr com_motion;
+
+  CostPtr ComMotionCost_();
+  CostPtr RangeOfMotionCost_();
+  CostPtr PolygonCenterCost_();
 };
 
 } /* namespace opt */

@@ -81,9 +81,11 @@ NlpFacade::BuildNlp(const State& initial_state,
   constraints_->AddConstraint(factory.RangeOfMotionBoxConstraint_());
 
   costs_->ClearCosts();
-  costs_->AddCost(factory.ComMotionCost_(utils::kAcc), motion_params->weight_com_motion_cost_);
-  costs_->AddCost(factory.RangeOfMotionCost_(),        motion_params->weight_range_of_motion_cost_);
-  costs_->AddCost(factory.PolygonCenterCost_(),        motion_params->weight_polygon_center_cost_);
+  for (const auto& pair : motion_params->GetCostWeights()) {
+    CostName name = pair.first;
+    double weight = pair.second;
+    costs_->AddCost(factory.GetCost(name), weight);
+  }
 
 //  int n_nodes = motion_structure.GetPhaseStampedVec().size();
 //  int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();
