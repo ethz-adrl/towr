@@ -67,7 +67,6 @@ public:
     */
   void BuildNlp(const State& initial_state,
                 const State& final_state,
-                double robot_height,
                 const MotionStructure& motion_structure,
                 const MotionparamsPtr&);
 

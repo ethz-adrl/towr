@@ -12,8 +12,8 @@
 #include "variable_set.h"
 #include "motion_structure.h"
 #include "com_motion.h"
-#include <memory>
 #include "motion_parameters.h"
+#include <memory>
 
 namespace xpp {
 namespace opt {
@@ -40,38 +40,42 @@ public:
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();
 
-  void Init(const ComMotionPtr&, const MotionStructure&, const MotionTypePtr& params);
+  void Init(const ComMotionPtr&, const MotionStructure&,
+            const MotionTypePtr& params, const State2d& initial_state,
+            const State2d& final_state);
 
   // optimization variables with initial values
- VariableSet SplineCoeffVariables();
- VariableSet ContactVariables(const Vector2d initial_pos);
- VariableSet ConvexityVariables();
- VariableSet CopVariables();
+  VariableSet SplineCoeffVariables();
+  VariableSet ContactVariables(const Vector2d initial_pos);
+  VariableSet ConvexityVariables();
+  VariableSet CopVariables();
 
-  // constraints
-  ConstraintPtr InitialConstraint_(const State2d& init);
-  ConstraintPtr FinalConstraint_(const State2d& final_state_xy);
-  ConstraintPtr JunctionConstraint_();
-  ConstraintPtr ConvexityConstraint_();
-  ConstraintPtr SupportAreaConstraint_();
-  ConstraintPtr DynamicConstraint_(double robot_height);
-  ConstraintPtr RangeOfMotionBoxConstraint_();
-  ConstraintPtr FinalStanceConstraint_(const Vector2d& goal_xy);
-  ConstraintPtr ObstacleConstraint_();
-
-  // costs
   CostPtr GetCost(CostName name);
-  CostPtr CreateFinalComCost(const State2d& final_state_xy);
-  CostPtr CreateFinalStanceCost(const Vector2d& goal_xy);
+  ConstraintPtr GetConstraint(ConstraintName name);
 
 private:
   MotionStructure motion_structure;
   MotionTypePtr params;
   ComMotionPtr com_motion;
+  State2d initial_state_;
+  State2d final_state_;
 
+  // constraints
+  ConstraintPtr MakeInitialConstraint();
+  ConstraintPtr MakeFinalConstraint();
+  ConstraintPtr MakeJunctionConstraint();
+  ConstraintPtr MakeConvexityConstraint();
+  ConstraintPtr MakeSupportAreaConstraint();
+  ConstraintPtr MakeDynamicConstraint();
+  ConstraintPtr MakeRangeOfMotionBoxConstraint();
+  ConstraintPtr MakeFinalStanceConstraint();
+  ConstraintPtr MakeObstacleConstraint();
+  ConstraintPtr MakePolygonCenterConstraint();
+
+  // costs
   CostPtr ComMotionCost_();
-  CostPtr RangeOfMotionCost_();
-  CostPtr PolygonCenterCost_();
+
+  CostPtr ToCost(const ConstraintPtr& constraint);
 };
 
 } /* namespace opt */

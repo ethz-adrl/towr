@@ -33,8 +33,7 @@ public:
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
 
-  void Init(double des_walking_height,
-            double lift_height,
+  void Init(double lift_height,
             double outward_swing,
             double trajectory_dt,
             VisualizerPtr visualizer);
@@ -57,7 +56,6 @@ private:
   StepSequencePlanner step_sequence_planner_;
   MotionTypePtr motion_type_;
 
-  double des_walking_height_;
   HyqStateVec optimized_trajectory_;
 };
 

@@ -25,13 +25,11 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 }
 
 void
-MotionOptimizerFacade::Init (double des_walking_height,
-                             double lift_height,
+MotionOptimizerFacade::Init (double lift_height,
                              double outward_swing,
                              double trajectory_dt,
                              VisualizerPtr visualizer)
 {
-  des_walking_height_ = des_walking_height;
   wb_traj_gen4_.SetParams(0.5, lift_height, outward_swing, trajectory_dt);
   nlp_facade_.AttachNlpObserver(visualizer);
 }
@@ -42,7 +40,7 @@ MotionOptimizerFacade::OptimizeMotion ()
   // create the fixed motion structure
   step_sequence_planner_.Init(curr_state_.base_.lin.Get2D(), goal_cog_.Get2D(),
                               curr_state_.GetStanceLegsInWorld(),
-                              des_walking_height_,
+                              motion_type_->walking_height_,
                               curr_state_.SwinglegID());
 
   auto phase_swinglegs = step_sequence_planner_.DetermineStepSequence(motion_type_);
@@ -55,7 +53,6 @@ MotionOptimizerFacade::OptimizeMotion ()
 
   nlp_facade_.BuildNlp(curr_state_.base_.lin.Get2D(),
                        goal_cog_.Get2D(),
-                       des_walking_height_,
                        motion_structure,
                        motion_type_);
 
@@ -64,7 +61,7 @@ MotionOptimizerFacade::OptimizeMotion ()
   wb_traj_gen4_.Init(motion_structure.GetPhases(),
                      nlp_facade_.GetComMotion(),
                      nlp_facade_.GetFootholds(),
-                     des_walking_height_,
+                     motion_type_->walking_height_,
                      curr_state_.ConvertToCartesian());
 
   auto art_rob_vec = wb_traj_gen4_.BuildWholeBodyTrajectory();

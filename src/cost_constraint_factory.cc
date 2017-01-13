@@ -35,11 +35,44 @@ CostConstraintFactory::~CostConstraintFactory ()
 
 void
 CostConstraintFactory::Init (const ComMotionPtr& com, const MotionStructure& ms,
-                             const MotionTypePtr& _params)
+                             const MotionTypePtr& _params, const State2d& initial_state,
+                             const State2d& final_state)
 {
   com_motion = com;
   motion_structure = ms;
   params = _params;
+  initial_state_ = initial_state;
+  final_state_ = final_state;
+}
+
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::GetConstraint (ConstraintName name)
+{
+  switch (name) {
+    case InitCom:     return MakeInitialConstraint();
+    case FinalCom:    return MakeFinalConstraint();
+    case JunctionCom: return MakeJunctionConstraint();
+    case Convexity:   return MakeConvexityConstraint();
+    case SuppArea:    return MakeSupportAreaConstraint();
+    case Dynamic:     return MakeDynamicConstraint();
+    case RomBox:      return MakeRangeOfMotionBoxConstraint();
+    case FinalStance: return MakeFinalStanceConstraint();
+    case Obstacle:    return MakeObstacleConstraint();
+    default: throw std::runtime_error("constraint not defined!");
+  }
+}
+
+CostConstraintFactory::CostPtr
+CostConstraintFactory::GetCost(CostName name)
+{
+  switch (name) {
+    case ComCostID:          return ComMotionCost_();
+    case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint());
+    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint());
+    case FinalComCostID:     return ToCost(MakeFinalConstraint());
+    case FinalStanceCostID:  return ToCost(MakeFinalStanceConstraint());
+    default: throw std::runtime_error("cost not defined!");
+  }
 }
 
 VariableSet
@@ -82,25 +115,25 @@ CostConstraintFactory::CopVariables ()
 
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::InitialConstraint_ (const State2d& init)
+CostConstraintFactory::MakeInitialConstraint ()
 {
   LinearSplineEquations eq(*com_motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeInitial(init), "Initial XY");
+  constraint->Init(eq.MakeInitial(initial_state_), "Initial XY");
   return constraint;
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::FinalConstraint_ (const State2d& final_state_xy)
+CostConstraintFactory::MakeFinalConstraint ()
 {
   LinearSplineEquations eq(*com_motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeFinal(final_state_xy, {kPos, kVel}), "Final XY");
+  constraint->Init(eq.MakeFinal(final_state_, {kPos, kVel}), "Final XY");
   return constraint;
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::JunctionConstraint_ ()
+CostConstraintFactory::MakeJunctionConstraint ()
 {
   LinearSplineEquations eq(*com_motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
@@ -109,15 +142,15 @@ CostConstraintFactory::JunctionConstraint_ ()
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::DynamicConstraint_(double robot_height)
+CostConstraintFactory::MakeDynamicConstraint()
 {
   auto constraint = std::make_shared<DynamicConstraint>();
-  constraint->Init(*com_motion, motion_structure, robot_height);
+  constraint->Init(*com_motion, motion_structure, params->walking_height_);
   return constraint;
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::SupportAreaConstraint_()
+CostConstraintFactory::MakeSupportAreaConstraint()
 {
   auto constraint = std::make_shared<SupportAreaConstraint>();
   constraint->Init(motion_structure);
@@ -125,7 +158,7 @@ CostConstraintFactory::SupportAreaConstraint_()
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::ConvexityConstraint_()
+CostConstraintFactory::MakeConvexityConstraint()
 {
   auto constraint = std::make_shared<ConvexityConstraint>();
   constraint->Init(motion_structure);
@@ -134,7 +167,7 @@ CostConstraintFactory::ConvexityConstraint_()
 
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::RangeOfMotionBoxConstraint_ ()
+CostConstraintFactory::MakeRangeOfMotionBoxConstraint ()
 {
   auto constraint = std::make_shared<RangeOfMotionBox>(
       params->GetMaximumDeviationFromNominal(),
@@ -146,57 +179,28 @@ CostConstraintFactory::RangeOfMotionBoxConstraint_ ()
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::FinalStanceConstraint_ (const Vector2d& goal_xy)
+CostConstraintFactory::MakeFinalStanceConstraint ()
 {
-  auto constr = std::make_shared<FootholdFinalStanceConstraint>(motion_structure,
-                goal_xy, params->GetNominalStanceInBase());
+  auto constr = std::make_shared<FootholdFinalStanceConstraint>(
+      motion_structure,
+      final_state_.p,
+      params->GetNominalStanceInBase());
   return constr;
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::ObstacleConstraint_ ()
+CostConstraintFactory::MakeObstacleConstraint ()
 {
   auto constraint = std::make_shared<ObstacleLineStrip>();
   return constraint;
 }
 
-
-
-
-CostConstraintFactory::CostPtr
-CostConstraintFactory::GetCost(CostName name)
-{
-  switch (name) {
-    case ComCostID:          return ComMotionCost_(); break;
-    case RangOfMotionCostID: return RangeOfMotionCost_(); break;
-    case PolyCenterCostID:   return PolygonCenterCost_(); break;
-    default: throw std::runtime_error("cost not defined!"); break;
-  }
-}
-
-CostConstraintFactory::CostPtr
-CostConstraintFactory::RangeOfMotionCost_ ()
-{
-  auto rom_constraint = RangeOfMotionBoxConstraint_();
-  auto rom_cost = std::make_shared<SoftConstraint>(rom_constraint);
-  return rom_cost;
-}
-
-CostConstraintFactory::CostPtr
-CostConstraintFactory::PolygonCenterCost_ ()
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::MakePolygonCenterConstraint ()
 {
   auto constraint = std::make_shared<PolygonCenterConstraint>();
   constraint->Init(motion_structure);
-  auto cost = std::make_shared<SoftConstraint>(constraint);
-  return cost;
-}
-
-CostConstraintFactory::CostPtr
-CostConstraintFactory::CreateFinalStanceCost (const Vector2d& goal_xy)
-{
-  auto final_stance_constraint = FinalStanceConstraint_(goal_xy);
-  auto final_stance_cost = std::make_shared<SoftConstraint>(final_stance_constraint);
-  return final_stance_cost;
+  return constraint;
 }
 
 CostConstraintFactory::CostPtr
@@ -223,14 +227,10 @@ CostConstraintFactory::ComMotionCost_()
 }
 
 CostConstraintFactory::CostPtr
-CostConstraintFactory::CreateFinalComCost (const State2d& final_state_xy)
+CostConstraintFactory::ToCost (const ConstraintPtr& constraint)
 {
-  LinearSplineEquations eq(*com_motion);
-  auto cost = std::make_shared<SquaredSplineCost>();
-  cost->Init(eq.MakeFinal(final_state_xy, {kPos, kVel, kAcc}));
-  return cost;
+  return std::make_shared<SoftConstraint>(constraint);
 }
-
 
 } /* namespace opt */
 } /* namespace xpp */

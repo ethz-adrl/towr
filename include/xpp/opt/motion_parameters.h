@@ -15,28 +15,34 @@
 namespace xpp {
 namespace opt {
 
-enum MotionTypeID { WalkID, TrottID, CamelID, BoundID, PushRecID };
-enum CostName { ComCostID, RangOfMotionCostID, PolyCenterCostID};
+enum MotionTypeID    { WalkID, TrottID, CamelID, BoundID, PushRecID };
+enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
+                       FinalComCostID, FinalStanceCostID };
+enum ConstraintName  { InitCom, FinalCom, JunctionCom, Convexity, SuppArea,
+                       Dynamic, RomBox, FinalStance, Obstacle };
 
 /** This class holds all the hardcoded values describing a motion.
   * This is specific to the robot and the type of motion desired.
   */
 class MotionParameters {
 public:
-  using MotionTypePtr  = std::shared_ptr<MotionParameters>;
-  using EEID           = xpp::utils::EndeffectorID;
-  using Swinglegs      = std::vector<EEID>;
-  using SwingLegCycle  = std::vector<Swinglegs>;
-  using PosXY          = Eigen::Vector2d;
-  using NominalStance  = std::map<EEID, PosXY>;
-  using ValXY          = std::array<double,2>;
-  using CostWeights    = std::map<CostName, double>;
+  using MotionTypePtr   = std::shared_ptr<MotionParameters>;
+  using EEID            = xpp::utils::EndeffectorID;
+  using Swinglegs       = std::vector<EEID>;
+  using SwingLegCycle   = std::vector<Swinglegs>;
+  using PosXY           = Eigen::Vector2d;
+  using NominalStance   = std::map<EEID, PosXY>;
+  using ValXY           = std::array<double,2>;
+  using CostWeights     = std::map<CostName, double>;
+  using UsedConstraints = std::vector<ConstraintName>;
 
   virtual ~MotionParameters();
 
   virtual SwingLegCycle GetOneCycle() const = 0;
   virtual NominalStance GetNominalStanceInBase() const = 0;
   ValXY GetMaximumDeviationFromNominal() const;
+
+  UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
 
   MotionTypeID id_;
@@ -46,6 +52,7 @@ public:
   int polynomials_per_phase_;
   bool start_with_stance_;
   ValXY weight_com_motion_xy_;
+  double walking_height_;
 
 
   static MotionTypePtr MakeMotion(MotionTypeID);
@@ -53,6 +60,7 @@ public:
 protected:
   ValXY max_dev_xy_;
 
+  UsedConstraints constraints_;
   CostWeights cost_weights_;
 };
 

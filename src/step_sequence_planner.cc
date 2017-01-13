@@ -48,15 +48,25 @@ StepSequencePlanner::DetermineStepSequence (const MotionParamsPtr& motion_type)
   bool walking_back       = goal_state_.p.x() <= curr_state_.p.x();
   bool walking_right      = goal_state_.p.y() <= curr_state_.p.y();
 
+  int n_cycles;
+  if (motion_type->id_ == PushRecID) {
+    n_cycles = 2;
+  } else {
+    n_cycles = req_steps_per_leg;
+  }
+
   AllPhaseSwingLegs step_sequence;
-  for (int cycle = 0; cycle<req_steps_per_leg; ++cycle)
+  for (int cycle = 0; cycle<n_cycles; ++cycle)
     for (auto phase : motion_type->GetOneCycle())
       step_sequence.push_back(phase);
 
   // reserve walking order if walking backwards or to the right
-  if (motion_type->id_ == opt::WalkID)
+  if (motion_type->id_ == WalkID)
     if ((moving_mainly_in_x && walking_back) || (!moving_mainly_in_x && walking_right))
       std::reverse(step_sequence.begin(),step_sequence.end());
+
+
+
 
   return step_sequence;
 }

@@ -53,7 +53,6 @@ NlpFacade::AttachNlpObserver (VisualizerPtr& visualizer)
 void
 NlpFacade::BuildNlp(const State& initial_state,
                     const State& final_state,
-                    double robot_height,
                     const MotionStructure& motion_structure,
                     const MotionparamsPtr& motion_params)
 {
@@ -61,7 +60,7 @@ NlpFacade::BuildNlp(const State& initial_state,
   com_motion_ = MotionFactory::CreateComMotion(motion_structure.GetPhases(), motion_params->polynomials_per_phase_);
 
   CostConstraintFactory factory;
-  factory.Init(com_motion_, motion_structure, motion_params);
+  factory.Init(com_motion_, motion_structure, motion_params, initial_state, final_state);
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(factory.SplineCoeffVariables());
@@ -71,14 +70,9 @@ NlpFacade::BuildNlp(const State& initial_state,
 
 
   constraints_->ClearConstraints();
-  constraints_->AddConstraint(factory.InitialConstraint_(initial_state));
-  constraints_->AddConstraint(factory.FinalConstraint_(final_state));
-  constraints_->AddConstraint(factory.FinalStanceConstraint_(final_state.p));
-  constraints_->AddConstraint(factory.JunctionConstraint_());
-  constraints_->AddConstraint(factory.DynamicConstraint_(robot_height));
-  constraints_->AddConstraint(factory.SupportAreaConstraint_());
-  constraints_->AddConstraint(factory.ConvexityConstraint_());
-  constraints_->AddConstraint(factory.RangeOfMotionBoxConstraint_());
+  for (ConstraintName name : motion_params->GetUsedConstraints()) {
+    constraints_->AddConstraint(factory.GetConstraint(name));
+  }
 
   costs_->ClearCosts();
   for (const auto& pair : motion_params->GetCostWeights()) {

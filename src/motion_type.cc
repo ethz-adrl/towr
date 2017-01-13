@@ -27,6 +27,8 @@ MotionParameters::MakeMotion (MotionTypeID id)
       return std::make_shared<hyq::Bound>();
     case CamelID:
       return std::make_shared<hyq::Camel>();
+    case PushRecID:
+      return std::make_shared<hyq::PushRecovery>();
     default:
       throw std::runtime_error("MotionTypeID not defined");
   }
@@ -42,6 +44,12 @@ MotionParameters::CostWeights
 MotionParameters::GetCostWeights () const
 {
   return cost_weights_;
+}
+
+MotionParameters::UsedConstraints
+MotionParameters::GetUsedConstraints () const
+{
+  return constraints_;
 }
 
 } // namespace opt

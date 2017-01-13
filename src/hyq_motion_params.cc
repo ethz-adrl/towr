@@ -7,15 +7,30 @@
 
 #include <xpp/hyq/hyq_motion_params.h>
 #include <xpp/hyq/ee_hyq.h>
+#include <algorithm>
 
 namespace xpp {
 namespace hyq {
+
+using namespace xpp::opt;
 
 HyqMotionParameters::HyqMotionParameters ()
 {
   max_dev_xy_ = {0.15, 0.15};
   weight_com_motion_xy_ = {1.0, 1.0};
   start_with_stance_ = true;
+  walking_height_ = 0.58;
+
+  constraints_ = { InitCom,
+//                   FinalCom,
+//                   FinalStance,
+                   JunctionCom,
+                   Convexity,
+                   SuppArea,
+                   Dynamic,
+                   RomBox};
+
+  cost_weights_[FinalComCostID] = 100.0;
 }
 
 HyqMotionParameters::NominalStance
@@ -41,9 +56,9 @@ Walk::Walk()
   dt_nodes_ = 0.05;
   polynomials_per_phase_ = 1;
 
-  cost_weights_[opt::ComCostID]          = 1.0;
-  cost_weights_[opt::RangOfMotionCostID] = 1.0;
-  cost_weights_[opt::PolyCenterCostID]   = 10.0;
+  cost_weights_[ComCostID]          = 1.0;
+  cost_weights_[RangOfMotionCostID] = 1.0;
+  cost_weights_[PolyCenterCostID]   = 10.0;
 }
 
 Trott::Trott()
@@ -54,9 +69,9 @@ Trott::Trott()
   dt_nodes_ = 0.05;
   polynomials_per_phase_ = 1;
 
-  cost_weights_[opt::ComCostID]          = 1.0;
-  cost_weights_[opt::RangOfMotionCostID] = 10.0;
-//  cost_weights_[opt::PolyCenterCostID]   = 0.0;
+  cost_weights_[ComCostID]          = 1.0;
+  cost_weights_[RangOfMotionCostID] = 10.0;
+//  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
 PushRecovery::PushRecovery ()
@@ -68,9 +83,13 @@ PushRecovery::PushRecovery ()
   dt_nodes_ = 0.05;
   polynomials_per_phase_ = 1;
 
-  cost_weights_[opt::ComCostID]          = 1.0;
-  cost_weights_[opt::RangOfMotionCostID] = 10.0;
-//  cost_weights_[opt::PolyCenterCostID]   = 0.0;
+  auto &v = constraints_;
+  v.erase(std::remove(v.begin(), v.end(), FinalCom), v.end());
+  v.erase(std::remove(v.begin(), v.end(), FinalStance), v.end());
+
+  cost_weights_[ComCostID]          = 1.0;
+  cost_weights_[RangOfMotionCostID] = 10.0;
+//  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
 Camel::Camel()
@@ -81,9 +100,9 @@ Camel::Camel()
   dt_nodes_ = 0.03;
   polynomials_per_phase_ = 3;
 
-  cost_weights_[opt::ComCostID]          = 1.0;
-  cost_weights_[opt::RangOfMotionCostID] = 10.0;
-//  cost_weights_[opt::PolyCenterCostID]   = 0.0;
+  cost_weights_[ComCostID]          = 1.0;
+  cost_weights_[RangOfMotionCostID] = 10.0;
+//  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
 Bound::Bound()
@@ -94,9 +113,9 @@ Bound::Bound()
   dt_nodes_ = 0.04;
   polynomials_per_phase_ = 2;
 
-  cost_weights_[opt::ComCostID]          = 1.0;
-  cost_weights_[opt::RangOfMotionCostID] = 100.0;
-//  cost_weights_[opt::PolyCenterCostID]   = 0.0;
+  cost_weights_[ComCostID]          = 1.0;
+  cost_weights_[RangOfMotionCostID] = 100.0;
+//  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
 Walk::SwingLegCycle
