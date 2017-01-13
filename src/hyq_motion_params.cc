@@ -14,6 +14,7 @@ namespace hyq {
 HyqMotionParameters::HyqMotionParameters ()
 {
   max_dev_xy_ = {0.15, 0.15};
+  weight_com_motion_xy_ = {1.0, 1.0};
   start_with_stance_ = true;
 }
 
@@ -49,7 +50,7 @@ Trott::Trott()
 {
   id_ = opt::TrottID;
   t_phase_ = 0.3;
-  max_step_length_ = 0.15;
+  max_step_length_ = 0.35;
   dt_nodes_ = 0.05;
   polynomials_per_phase_ = 1;
 
@@ -62,22 +63,22 @@ Camel::Camel()
 {
   id_ = opt::CamelID;
   t_phase_ = 0.3;
-  max_step_length_ = 0.15;
-  dt_nodes_ = 0.05;
-  polynomials_per_phase_ = 1;
+  max_step_length_ = 0.25;
+  dt_nodes_ = 0.03;
+  polynomials_per_phase_ = 3;
 
   weight_com_motion_cost_      = 1.0;
-  weight_range_of_motion_cost_ = 100.0;
-  weight_polygon_center_cost_  = 0.0;
+  weight_range_of_motion_cost_ = 10.0;
+  weight_polygon_center_cost_  = 1.0;
 }
 
 Bound::Bound()
 {
   id_ = opt::BoundID;
   t_phase_ = 0.3;
-  max_step_length_ = 0.15;
-  dt_nodes_ = 0.05;
-  polynomials_per_phase_ = 1;
+  max_step_length_ = 0.4;
+  dt_nodes_ = 0.04;
+  polynomials_per_phase_ = 2;
 
   weight_com_motion_cost_      = 1.0;
   weight_range_of_motion_cost_ = 100.0;

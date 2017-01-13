@@ -60,30 +60,30 @@ NlpFacade::BuildNlp(const State& initial_state,
 //  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
   com_motion_ = MotionFactory::CreateComMotion(motion_structure.GetPhases(), motion_params->polynomials_per_phase_);
 
-  CostConstraintFactory fac;
-  fac.Init(com_motion_, motion_structure, motion_params);
+  CostConstraintFactory factory;
+  factory.Init(com_motion_, motion_structure, motion_params);
 
   opt_variables_->ClearVariables();
-  opt_variables_->AddVariableSet(fac.SplineCoeffVariables());
-  opt_variables_->AddVariableSet(fac.ContactVariables(initial_state.p));
-  opt_variables_->AddVariableSet(fac.ConvexityVariables());
-  opt_variables_->AddVariableSet(fac.CopVariables());
+  opt_variables_->AddVariableSet(factory.SplineCoeffVariables());
+  opt_variables_->AddVariableSet(factory.ContactVariables(initial_state.p));
+  opt_variables_->AddVariableSet(factory.ConvexityVariables());
+  opt_variables_->AddVariableSet(factory.CopVariables());
 
 
   constraints_->ClearConstraints();
-  constraints_->AddConstraint(fac.InitialConstraint_(initial_state));
-  constraints_->AddConstraint(fac.FinalConstraint_(final_state));
-  constraints_->AddConstraint(fac.FinalStanceConstraint_(final_state.p));
-  constraints_->AddConstraint(fac.JunctionConstraint_());
-  constraints_->AddConstraint(fac.DynamicConstraint_(robot_height));
-  constraints_->AddConstraint(fac.SupportAreaConstraint_());
-  constraints_->AddConstraint(fac.ConvexityConstraint_());
-  constraints_->AddConstraint(fac.RangeOfMotionBoxConstraint_());
+  constraints_->AddConstraint(factory.InitialConstraint_(initial_state));
+  constraints_->AddConstraint(factory.FinalConstraint_(final_state));
+  constraints_->AddConstraint(factory.FinalStanceConstraint_(final_state.p));
+  constraints_->AddConstraint(factory.JunctionConstraint_());
+  constraints_->AddConstraint(factory.DynamicConstraint_(robot_height));
+  constraints_->AddConstraint(factory.SupportAreaConstraint_());
+  constraints_->AddConstraint(factory.ConvexityConstraint_());
+  constraints_->AddConstraint(factory.RangeOfMotionBoxConstraint_());
 
   costs_->ClearCosts();
-  costs_->AddCost(fac.ComMotionCost_(utils::kAcc), motion_params->weight_com_motion_cost_);
-  costs_->AddCost(fac.RangeOfMotionCost_(),        motion_params->weight_range_of_motion_cost_);
-  costs_->AddCost(fac.PolygonCenterCost_(),        motion_params->weight_polygon_center_cost_);
+  costs_->AddCost(factory.ComMotionCost_(utils::kAcc), motion_params->weight_com_motion_cost_);
+  costs_->AddCost(factory.RangeOfMotionCost_(),        motion_params->weight_range_of_motion_cost_);
+  costs_->AddCost(factory.PolygonCenterCost_(),        motion_params->weight_polygon_center_cost_);
 
 //  int n_nodes = motion_structure.GetPhaseStampedVec().size();
 //  int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();

@@ -196,8 +196,8 @@ CostConstraintFactory::ComMotionCost_(const xpp::utils::MotionDerivative dxdt)
   Eigen::MatrixXd term;
 
   switch (dxdt) {
-    case kAcc:  term = eq.MakeAcceleration(1.0,3.0); break;
-    case kJerk: term = eq.MakeJerk(1.0,2.0); break;
+    case kAcc:  term = eq.MakeAcceleration(params->weight_com_motion_xy_); break;
+    case kJerk: term = eq.MakeJerk(params->weight_com_motion_xy_); break;
     default: assert(false); break; // this cost is not implemented
   }
 

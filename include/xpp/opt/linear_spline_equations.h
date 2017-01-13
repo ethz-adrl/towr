@@ -10,6 +10,7 @@
 
 #include <xpp/utils/matrix_vector.h>
 #include <xpp/utils/state.h>
+#include <array>
 #include <memory>
 
 namespace xpp {
@@ -32,6 +33,7 @@ public:
   using State2d           = xpp::utils::StateLin2d;
   using MotionDerivatives = std::vector<xpp::utils::MotionDerivative>;
   using ComSplinePtrU     = std::unique_ptr<ComSpline>;
+  using ValXY             = std::array<double,2>;
 
   /** @attention ComMotion is downcast to ComSpline.
     */
@@ -65,11 +67,10 @@ public:
     * directions (x,y). Usually lateral motions are penalized more (bigger weight)
     * than forward backwards motions.
     *
-    * @param weight_x larger value produces larger cost for x motion.
-    * @param weight_y larger value produces larger cost for y motion.
+    * @param weight_xy larger value produces larger cost for x motion.
     */
-  Eigen::MatrixXd MakeAcceleration(double weight_x, double weight_y) const;
-  Eigen::MatrixXd MakeJerk(double weight_x, double weight_y) const;
+  Eigen::MatrixXd MakeAcceleration(const ValXY& weight_xy) const;
+  Eigen::MatrixXd MakeJerk(const ValXY& weight_xy) const;
 
 private:
   ComSplinePtrU com_spline_;

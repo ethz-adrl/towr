@@ -38,7 +38,7 @@ StepSequencePlanner::AllPhaseSwingLegs
 StepSequencePlanner::DetermineStepSequence (const MotionParamsPtr& motion_type)
 {
   // based on distance to cover
-  const double width_per_step = 0.13;
+  const double width_per_step = 0.6*motion_type->max_step_length_;
   Eigen::Vector2d start_to_goal = goal_state_.p.topRows(kDim2d) - curr_state_.p.topRows(kDim2d);
   int req_steps_by_length = std::ceil(std::fabs(start_to_goal.x())/motion_type->max_step_length_);
   int req_steps_by_width  = std::ceil(std::fabs(start_to_goal.y())/width_per_step);

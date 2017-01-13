@@ -32,7 +32,7 @@ MotionParameters::MakeMotion (MotionTypeID id)
   }
 }
 
-MotionParameters::MaxDevXy
+MotionParameters::ValXY
 MotionParameters::GetMaximumDeviationFromNominal () const
 {
   return max_dev_xy_;

@@ -117,10 +117,8 @@ LinearSplineEquations::MakeJunction () const
 }
 
 Eigen::MatrixXd
-LinearSplineEquations::MakeAcceleration (double weight_x, double weight_y) const
+LinearSplineEquations::MakeAcceleration (const ValXY& weight) const
 {
-  std::array<double,2> weight = {weight_x, weight_y}; // weight in x and y direction [1,3]
-
   // total number of coefficients to be optimized
   int n_coeff = com_spline_->GetTotalFreeCoeff();
 
@@ -159,10 +157,8 @@ LinearSplineEquations::MakeAcceleration (double weight_x, double weight_y) const
 }
 
 Eigen::MatrixXd
-LinearSplineEquations::MakeJerk (double weight_x, double weight_y) const
+LinearSplineEquations::MakeJerk (const ValXY& weight) const
 {
-  std::array<double,2> weight = {weight_x, weight_y}; // weight in x and y direction [1,3]
-
   // total number of coefficients to be optimized
   int n_coeff = com_spline_->GetTotalFreeCoeff();
 

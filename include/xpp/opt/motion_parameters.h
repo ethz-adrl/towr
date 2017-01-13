@@ -28,13 +28,13 @@ public:
   using SwingLegCycle  = std::vector<Swinglegs>;
   using PosXY          = Eigen::Vector2d;
   using NominalStance  = std::map<EEID, PosXY>;
-  using MaxDevXy       = std::array<double,2>;
+  using ValXY          = std::array<double,2>;
 
   virtual ~MotionParameters();
 
   virtual SwingLegCycle GetOneCycle() const = 0;
   virtual NominalStance GetNominalStanceInBase() const = 0;
-  MaxDevXy GetMaximumDeviationFromNominal() const;
+  ValXY GetMaximumDeviationFromNominal() const;
 
   MotionTypeID id_;
   double t_phase_;
@@ -42,6 +42,7 @@ public:
   double dt_nodes_; ///< time discretization of trajectory for constraints/costs
   int polynomials_per_phase_;
   bool start_with_stance_;
+  ValXY weight_com_motion_xy_;
 
   double weight_com_motion_cost_;
   double weight_range_of_motion_cost_;
@@ -50,7 +51,7 @@ public:
   static MotionTypePtr MakeMotion(MotionTypeID);
 
 protected:
-  MaxDevXy max_dev_xy_;
+  ValXY max_dev_xy_;
 };
 
 } // namespace opt
