@@ -21,24 +21,10 @@ RosVisualizer::RosVisualizer ()
 {
   ::ros::NodeHandle n;
   ros_publisher_optimized_ = n.advertise<MarkerArray>(xpp_msgs::rviz_optimized, 1);
-  ros_publisher_fixed_     = n.advertise<MarkerArray>(xpp_msgs::rviz_fixed, 1);
 }
 
 RosVisualizer::~RosVisualizer ()
 {
-}
-
-void
-RosVisualizer::VisualizeCurrentState (const State& curr,
-                                      const VecContacts& start_stance) const
-{
-  MarkerArray msg;
-  MarkerArrayBuilder msg_builder;
-
-  msg_builder.AddPoint(msg, curr.p, "current", visualization_msgs::Marker::CYLINDER);
-  msg_builder.AddStartStance(msg, start_stance);
-
-  ros_publisher_fixed_.publish(msg);
 }
 
 void

@@ -12,17 +12,18 @@
 
 #include <xpp_msgs/CurrentInfo.h>  // receive from robot
 #include <xpp_msgs/UserCommand.h>  // receive from user
-#include "ros_visualizer.h"
+
+#include <ros/ros.h>
 
 namespace xpp {
 namespace ros {
 
 class NlpOptimizerNode {
 public:
-  using OptVisualizerPtr = std::shared_ptr<RosVisualizer>;
   using CurrentInfoMsg   = xpp_msgs::CurrentInfo;
   using UserCommandMsg   = xpp_msgs::UserCommand;
   using MotionOptimizer  = xpp::opt::MotionOptimizerFacade;
+  using NlpSolver        = xpp::opt::NlpSolver;
 
 public:
   NlpOptimizerNode ();
@@ -37,8 +38,11 @@ private:
   ::ros::Subscriber current_state_sub_;
   ::ros::Publisher trajectory_pub_;
 
-  OptVisualizerPtr ros_marker_visualizer_;
   MotionOptimizer motion_optimizer_;
+  double dt_; ///< discretization of output trajectory (1/TaskServoHz)
+  NlpSolver solver_type_;
+
+
 };
 
 } /* namespace ros */

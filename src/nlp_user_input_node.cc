@@ -30,8 +30,9 @@ NlpUserInputNode::NlpUserInputNode ()
 
   // publish goal zero initially
   goal_cog_.p.setZero();
-  motion_type_ = opt::TrottID;
+  motion_type_ = opt::PushRecID;
   replay_trajectory_ = false;
+  use_solver_snopt_ = true;
   UserCommandMsg msg;
   msg.t_left = t_max_left_;
   msg.goal = RosHelpers::XppToRos(goal_cog_);
@@ -91,6 +92,10 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       ROS_INFO_STREAM("Motion type set to Camel");
       motion_type_ = opt::CamelID;
       motion_type_change_ = true;
+      break;
+    case msg.KEY_s:
+      ROS_INFO_STREAM("Toggled NLP solver type");
+      use_solver_snopt_ = !use_solver_snopt_;
       break;
     case msg.KEY_p:
       ROS_INFO_STREAM("Motion type set to Push Recovery");
@@ -157,6 +162,7 @@ void NlpUserInputNode::PublishCommand()
   msg.motion_type        = motion_type_;
   msg.motion_type_change = motion_type_change_;
   msg.replay_trajectory  = replay_trajectory_;
+  msg.use_solver_snopt   = use_solver_snopt_;
   user_command_pub_.publish(msg);
 
   switch (command_) {

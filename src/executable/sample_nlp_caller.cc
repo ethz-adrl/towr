@@ -71,7 +71,7 @@ int main(int argc, char **argv)
   start_state.swingleg_.At(hyq::kMapHyqToOpt.at(hyq::LF)) = false; // this should then also be different
   CurrentInfoMsg msg;
   msg.state = xpp::ros::RosHelpers::XppToRos(start_state);
-  msg.reoptimize = true;
+  msg.reoptimize = false;
   ROS_INFO_STREAM("Publishing current state...");
   current_info_pub.publish(msg);
 }

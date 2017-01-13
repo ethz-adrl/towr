@@ -8,12 +8,12 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
 
+#include <xpp/opt/motion_parameters.h>
 #include <xpp_msgs/GetStateLin3d.h>
 #include <xpp/utils/state.h>
 #include <keyboard/Key.h>
 #include <sensor_msgs/Joy.h>
 #include <ros/ros.h>
-#include "../../../../xpp_opt/include/xpp/opt/motion_parameters.h"
 
 namespace xpp {
 namespace ros {
@@ -53,6 +53,7 @@ private:
   MotionType motion_type_;
   bool motion_type_change_; ///< if it changed from the previous message
   bool replay_trajectory_;
+  bool use_solver_snopt_;
 
   ::ros::Subscriber key_sub_;
   ::ros::Subscriber joy_sub_;

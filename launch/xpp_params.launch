@@ -2,8 +2,6 @@
   <!-- zmp optimization parameters -->
   <group ns="xpp">
     <!-- for building the discretized trajectory -->
-    <param name="lift_height"            value="0.12"  type="double"/> 
-    <param name="outward_swing_distance" value="0.0"  type="double"/> 
     <param name="trajectory_dt"          value="0.004" type="double"/>   <!-- equal to 1/TaskServoHz -->    	
   </group>
   <group ns="exec">

@@ -35,11 +35,9 @@ public:
 
   /** @brief Send a message with topic "optimization_variables" out to rviz */
   void Visualize() const override;
-  void VisualizeCurrentState(const State& curr, const VecContacts& start_stance) const;
 
 private:
   ::ros::Publisher ros_publisher_optimized_;
-  ::ros::Publisher ros_publisher_fixed_;
 };
 
 } /* namespace ros */
