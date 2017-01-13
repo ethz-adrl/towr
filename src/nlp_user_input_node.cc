@@ -75,20 +75,29 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
     case msg.KEY_w:
       ROS_INFO_STREAM("Motion type set to Walking");
       motion_type_ = opt::WalkID;
+      motion_type_change_ = true;
       break;
     case msg.KEY_t:
       ROS_INFO_STREAM("Motion type set to Trotting");
       motion_type_ = opt::TrottID;
+      motion_type_change_ = true;
       break;
     case msg.KEY_b:
       ROS_INFO_STREAM("Motion type set to Bounding");
       motion_type_ = opt::BoundID;
+      motion_type_change_ = true;
       break;
     case msg.KEY_c:
       ROS_INFO_STREAM("Motion type set to Camel");
       motion_type_ = opt::CamelID;
+      motion_type_change_ = true;
       break;
     case msg.KEY_p:
+      ROS_INFO_STREAM("Motion type set to Push Recovery");
+      motion_type_ = opt::PushRecID;
+      motion_type_change_ = true;
+      break;
+    case msg.KEY_r:
       ROS_INFO_STREAM("Replaying already optimized trajectory");
       replay_trajectory_ = true;
       break;
@@ -143,10 +152,11 @@ void NlpUserInputNode::PublishCommand()
     t_left_ = t_max_left_;
 
   UserCommandMsg msg;
-  msg.t_left            = t_left_;
-  msg.goal              = RosHelpers::XppToRos(goal_cog_);
-  msg.motion_type       = motion_type_;
-  msg.replay_trajectory = replay_trajectory_;
+  msg.t_left             = t_left_;
+  msg.goal               = RosHelpers::XppToRos(goal_cog_);
+  msg.motion_type        = motion_type_;
+  msg.motion_type_change = motion_type_change_;
+  msg.replay_trajectory  = replay_trajectory_;
   user_command_pub_.publish(msg);
 
   switch (command_) {
@@ -165,7 +175,8 @@ void NlpUserInputNode::PublishCommand()
 
   goal_cog_prev_ = goal_cog_;
   command_ = Command::kNoCommand;
-  replay_trajectory_ = false;
+  replay_trajectory_  = false;
+  motion_type_change_ = false;
 }
 
 } /* namespace ros */

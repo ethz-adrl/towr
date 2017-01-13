@@ -51,6 +51,7 @@ private:
   State goal_cog_prev_;
 
   MotionType motion_type_;
+  bool motion_type_change_; ///< if it changed from the previous message
   bool replay_trajectory_;
 
   ::ros::Subscriber key_sub_;

@@ -1,7 +1,6 @@
 <launch>
   <!-- zmp optimization parameters -->
-  <group ns="xpp">  
-    <param name="robot_height"           value="0.58" type="double"/>
+  <group ns="xpp">
     <!-- for building the discretized trajectory -->
     <param name="lift_height"            value="0.12"  type="double"/> 
     <param name="outward_swing_distance" value="0.0"  type="double"/> 

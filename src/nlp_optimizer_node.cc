@@ -32,15 +32,13 @@ NlpOptimizerNode::NlpOptimizerNode ()
   trajectory_pub_ = n.advertise<xpp_msgs::HyqStateTrajectory>(
       xpp_msgs::robot_trajectory_joints, 1);
 
-  double des_walking_height = RosHelpers::GetDoubleFromServer("/xpp/robot_height");
   double lift_height        = RosHelpers::GetDoubleFromServer("/xpp/lift_height");
   double outward_swing      = RosHelpers::GetDoubleFromServer("/xpp/outward_swing_distance");
   double trajectory_dt      = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
 
   ros_marker_visualizer_ = std::make_shared<RosVisualizer>();
 
-  motion_optimizer_.Init(des_walking_height, lift_height, outward_swing,
-                         trajectory_dt, ros_marker_visualizer_);
+  motion_optimizer_.Init(lift_height, outward_swing,trajectory_dt, ros_marker_visualizer_);
 
   CheckIfInDirectoyWithIpoptConfigFile();
 
@@ -70,7 +68,7 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
   motion_optimizer_.SetMotionType(static_cast<opt::MotionTypeID>(msg.motion_type));
 
 
-  if (goal_prev != motion_optimizer_.goal_cog_) {// only reoptimize if new goal position
+  if (goal_prev != motion_optimizer_.goal_cog_ || msg.motion_type_change) {
     motion_optimizer_.OptimizeMotion();
     PublishTrajectory();
   }
