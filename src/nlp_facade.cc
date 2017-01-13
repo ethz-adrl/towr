@@ -19,8 +19,12 @@
 #include <xpp/opt/ipopt_adapter.h>
 #include <xpp/opt/snopt_adapter.h>
 
+#include <IpIpoptApplication.hpp>
+#include <IpSolveStatistics.hpp>
+
 namespace xpp {
 namespace opt {
+
 
 NlpFacade::NlpFacade (VisualizerPtr visualizer)
      :visualizer_(visualizer)
@@ -32,20 +36,10 @@ NlpFacade::NlpFacade (VisualizerPtr visualizer)
 
   nlp_ = std::make_shared<NLP>();
   nlp_->Init(opt_variables_, costs_, constraints_);
-
-  // initialize the ipopt solver
-  ipopt_app_ = new Ipopt::IpoptApplication();
-  ipopt_app_->RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
-
-  status_ = ipopt_app_->Initialize();
-  if (status_ != Ipopt::Solve_Succeeded) {
-    std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
-    throw std::length_error("Ipopt could not initialize correctly");
-  }
 }
 
 void
-NlpFacade::AttachNlpObserver (VisualizerPtr& visualizer)
+NlpFacade::SetVisualizer (VisualizerPtr& visualizer)
 {
   visualizer_ = visualizer;  // handle so ipopt can poll publish() method
 }
@@ -109,6 +103,12 @@ NlpFacade::SolveNlp (NlpSolver solver)
 }
 
 void
+NlpFacade::VisualizeSolution () const
+{
+  visualizer_->Visualize();
+}
+
+void
 NlpFacade::SolveSnopt ()
 {
   auto snopt_problem = SnoptAdapter::GetInstance();
@@ -121,27 +121,34 @@ NlpFacade::SolveSnopt ()
 void
 NlpFacade::SolveIpopt ()
 {
-  IpoptPtr nlp_ptr = new IpoptAdapter(nlp_, visualizer_); // just so it can poll the PublishMsg() method
+  using namespace Ipopt;
+  using IpoptPtr            = SmartPtr<TNLP>;
+  using IpoptApplicationPtr = SmartPtr<IpoptApplication>;
 
-  // some options to change on the fly
-//  ipopt_solver_->Options()->SetNumericValue("max_cpu_time", max_cpu_time);
-  status_ = ipopt_app_->Initialize();
-  if (status_ != Ipopt::Solve_Succeeded) {
+  // initialize the ipopt solver
+  IpoptApplicationPtr ipopt_app_ = new IpoptApplication();
+  ipopt_app_->RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
+
+  //  ipopt_solver_->Options()->SetNumericValue("max_cpu_time", max_cpu_time);
+  ApplicationReturnStatus status_ = ipopt_app_->Initialize();
+  if (status_ != Solve_Succeeded) {
     std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
     throw std::length_error("Ipopt could not initialize correctly");
   }
 
+  // Convert the NLP problem to Ipopt
+  IpoptPtr nlp_ptr = new IpoptAdapter(nlp_, visualizer_); // just so it can poll the PublishMsg() method
   status_ = ipopt_app_->OptimizeTNLP(nlp_ptr);
-  if (status_ == Ipopt::Solve_Succeeded) {
+  if (status_ == Solve_Succeeded) {
     // Retrieve some statistics about the solve
-    Ipopt::Index iter_count = ipopt_app_->Statistics()->IterationCount();
+    Index iter_count = ipopt_app_->Statistics()->IterationCount();
     std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
 
-    Ipopt::Number final_obj = ipopt_app_->Statistics()->FinalObjective();
+    Number final_obj = ipopt_app_->Statistics()->FinalObjective();
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
   }
 
-  if (status_ == Ipopt::Infeasible_Problem_Detected) {
+  if (status_ == Infeasible_Problem_Detected) {
     std::cout << "Problem/Constraints infeasible; run again?";
   }
 }

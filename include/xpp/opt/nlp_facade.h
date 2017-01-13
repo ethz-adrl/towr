@@ -9,15 +9,12 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
 
 #include "i_visualizer.h"
+#include "motion_phase.h"
+#include "motion_parameters.h"
 #include <xpp/utils/state.h>
 #include <xpp/utils/eigen_std_conversions.h>
 
-#include <IpIpoptApplication.hpp>
-#include <IpSolveStatistics.hpp>
 #include <memory>
-
-#include "motion_phase.h"
-#include "motion_parameters.h"
 
 namespace xpp {
 namespace opt {
@@ -47,8 +44,6 @@ public:
   using VisualizerPtr            = std::shared_ptr<IVisualizer>;
   using ComMotionPtrS            = std::shared_ptr<ComMotion>;
   using State                    = xpp::utils::StateLin2d;
-  using IpoptPtr                 = Ipopt::SmartPtr<Ipopt::TNLP>;
-  using IpoptApplicationPtr      = Ipopt::SmartPtr<Ipopt::IpoptApplication>;
   using VecFoothold              = utils::StdVecEigen2d;
   using NLPPtr                   = std::shared_ptr<NLP>;
 
@@ -71,8 +66,9 @@ public:
                 const MotionparamsPtr&);
 
   void SolveNlp(NlpSolver solver);
+  void VisualizeSolution() const;
 
-  void AttachNlpObserver(VisualizerPtr& visualizer);
+  void SetVisualizer(VisualizerPtr& visualizer);
   VecFoothold GetFootholds() const;
   const ComMotionPtrS GetComMotion() const;
 
@@ -87,9 +83,6 @@ private:
 
   ComMotionPtrS com_motion_;
   VisualizerPtr visualizer_;
-
-  IpoptApplicationPtr ipopt_app_;
-  Ipopt::ApplicationReturnStatus status_;
 };
 
 } /* namespace opt */

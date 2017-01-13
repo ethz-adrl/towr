@@ -16,31 +16,23 @@ using namespace xpp::utils;
 
 WBTrajGenerator::WBTrajGenerator()
 {
-  SetParams(0.0, 0.0, 0.0, 0.0);
+  upswing_percent_ = 0.5;
+  leg_lift_height_ = 0.0;
 }
 
 WBTrajGenerator::~WBTrajGenerator()
 {
 }
 
-void WBTrajGenerator::SetParams(double upswing,
-               double lift_height,
-               double outward_swing_distance,
-               double discretization_time)
-{
-  kUpswingPercent = upswing;
-  kLiftHeight = lift_height;
-  kOutwardSwingDistance = outward_swing_distance;
-  kDiscretizationTime = discretization_time;
-}
-
 void
 WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
                        const VecFoothold& footholds, double des_height,
-                       const SplineNode& curr_state)
+                       const SplineNode& curr_state, double lift_height)
 {
   // get endeffector size from current node
   kNEE = curr_state.feet_W_.GetEECount();
+  leg_lift_height_ = lift_height;
+
   nodes_ = BuildNodeSequence(curr_state, phase_info, footholds, des_height);
   CreateAllSplines(nodes_);
   com_motion_ = com_spline;
@@ -48,9 +40,9 @@ WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
 
  WBTrajGenerator::ArtiRobVec
 WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
-                                         const PhaseVec& phase_info,
-                                         const VecFoothold& footholds,
-                                         double des_robot_height)
+                                   const PhaseVec& phase_info,
+                                   const VecFoothold& footholds,
+                                   double des_robot_height)
 {
   std::vector<SplineNode> nodes;
 
@@ -195,7 +187,7 @@ WBTrajGenerator::GetCurrEndeffectors (double t_global) const
   for (EEID ee : feet.GetEEsOrdered()) {
     if(nodes_.at(goal_node).swingleg_.At(ee)) { // only spline swinglegs
 
-      double t_upswing = nodes_.at(goal_node).T * kUpswingPercent;
+      double t_upswing = nodes_.at(goal_node).T * upswing_percent_;
 
       if ( t_local < t_upswing) // leg swinging up
         feet_spliner_up_.at(spline).At(ee).GetPoint(t_local, feet.At(ee));
@@ -230,7 +222,7 @@ WBTrajGenerator::BuildOneSegment(const SplineNode& from, const SplineNode& to,
 
   // this is the outter/upper-most point the foot swings to
   FeetArray f_switch(kNEE);
-  double t_switch = to.T * kUpswingPercent;
+  double t_switch = to.T * upswing_percent_;
   for (EEID ee : f_switch.GetEEsOrdered())
      feet_up.At(ee).GetPoint(t_switch, f_switch.At(ee));
 
@@ -260,12 +252,13 @@ WBTrajGenerator::BuildFootstepSplineUp(const SplineNode& from, const SplineNode&
     // raise intermediate foothold dependant on foothold difference
     double delta_z = std::abs(to.feet_W_.At(ee).p.z() - from.feet_W_.At(ee).p.z());
     State3d foot_raised = to.feet_W_.At(ee);
-    foot_raised.p.z() += kLiftHeight + delta_z;
+    foot_raised.p.z() += leg_lift_height_ + delta_z;
 
     // move outward only if footholds significantly differ in height
+    static const double outward_swing_distance = 0.0;
     if (delta_z > 0.01) {
       int sign = (ee == 0 || ee == 2) ? 1 : -1;
-      foot_raised.p.y() += sign * kOutwardSwingDistance;
+      foot_raised.p.y() += sign * outward_swing_distance;
     }
 
     // upward swing
@@ -286,7 +279,7 @@ WBTrajGenerator::BuildFootstepSplineDown(const FeetArray& feet_at_switch,
   for (EEID ee : to.feet_W_.GetEEsOrdered()) {
 
     // downward swing from the foothold at switch state to original
-    double duration = to.T * (1.0-kUpswingPercent);
+    double duration = to.T * (1.0-upswing_percent_);
     feet_down.At(ee).SetBoundary(duration, feet_at_switch.At(ee), to.feet_W_.At(ee));
   }
 
@@ -330,7 +323,7 @@ int WBTrajGenerator::GetSplineID(double t) const
 }
 
 WBTrajGenerator::ArtiRobVec
-WBTrajGenerator::BuildWholeBodyTrajectory () const
+WBTrajGenerator::BuildWholeBodyTrajectory (double dt) const
 {
   ArtiRobVec trajectory;
 
@@ -345,7 +338,7 @@ WBTrajGenerator::BuildWholeBodyTrajectory () const
     state.T = t;
     trajectory.push_back(state);
 
-    t += kDiscretizationTime;
+    t += dt;
   }
 
   return trajectory;

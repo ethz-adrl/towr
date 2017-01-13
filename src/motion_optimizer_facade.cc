@@ -8,6 +8,7 @@
 #include <xpp/opt/motion_optimizer_facade.h>
 #include <xpp/opt/motion_structure.h>
 #include <xpp/opt/optimization_variables.h>
+#include <xpp/opt/wb_traj_generator.h>
 
 namespace xpp {
 namespace opt {
@@ -25,17 +26,13 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 }
 
 void
-MotionOptimizerFacade::Init (double lift_height,
-                             double outward_swing,
-                             double trajectory_dt,
-                             VisualizerPtr visualizer)
+MotionOptimizerFacade::SetVisualizer (VisualizerPtr visualizer)
 {
-  wb_traj_gen4_.SetParams(0.5, lift_height, outward_swing, trajectory_dt);
-  nlp_facade_.AttachNlpObserver(visualizer);
+  nlp_facade_.SetVisualizer(visualizer);
 }
 
 void
-MotionOptimizerFacade::OptimizeMotion ()
+MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 {
   // create the fixed motion structure
   step_sequence_planner_.Init(curr_state_.base_.lin.Get2D(), goal_cog_.Get2D(),
@@ -56,23 +53,24 @@ MotionOptimizerFacade::OptimizeMotion ()
                        motion_structure,
                        motion_type_);
 
-  nlp_facade_.SolveNlp(Snopt);
-
-  wb_traj_gen4_.Init(motion_structure.GetPhases(),
-                     nlp_facade_.GetComMotion(),
-                     nlp_facade_.GetFootholds(),
-                     motion_type_->walking_height_,
-                     curr_state_.ConvertToCartesian());
-
-  auto art_rob_vec = wb_traj_gen4_.BuildWholeBodyTrajectory();
-
-  optimized_trajectory_ = curr_state_.BuildWholeBodyTrajectory(art_rob_vec);
+  nlp_facade_.SolveNlp(solver);
+  motion_phases_ = motion_structure.GetPhases();
+  nlp_facade_.VisualizeSolution();
 }
 
 MotionOptimizerFacade::HyqStateVec
-MotionOptimizerFacade::GetTrajectory () const
+MotionOptimizerFacade::GetTrajectory (double dt) const
 {
-  return optimized_trajectory_;
+  WBTrajGenerator wb_traj_gen4_;
+  wb_traj_gen4_.Init(motion_phases_,
+                     nlp_facade_.GetComMotion(),
+                     nlp_facade_.GetFootholds(),
+                     motion_type_->walking_height_,
+                     curr_state_.ConvertToCartesian(),
+                     motion_type_->lift_height_);
+
+  auto art_rob_vec = wb_traj_gen4_.BuildWholeBodyTrajectory(dt);
+  return curr_state_.BuildWholeBodyTrajectory(art_rob_vec);
 }
 
 void

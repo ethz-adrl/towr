@@ -20,6 +20,7 @@ HyqMotionParameters::HyqMotionParameters ()
   weight_com_motion_xy_ = {1.0, 1.0};
   start_with_stance_ = true;
   walking_height_ = 0.58;
+  lift_height_ = 0.12;
 
   constraints_ = { InitCom,
 //                   FinalCom,
@@ -82,6 +83,8 @@ PushRecovery::PushRecovery ()
   max_step_length_ = 0.35;
   dt_nodes_ = 0.05;
   polynomials_per_phase_ = 1;
+  walking_height_ = 0.55;
+  lift_height_ = 0.08;
 
   auto &v = constraints_;
   v.erase(std::remove(v.begin(), v.end(), FinalCom), v.end());

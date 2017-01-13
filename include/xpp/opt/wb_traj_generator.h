@@ -60,9 +60,10 @@ public:
             const ComMotionS&,
             const VecFoothold&,
             double des_height,
-            const SplineNode& curr_state);
+            const SplineNode& curr_state,
+            double lift_height);
 
-  ArtiRobVec BuildWholeBodyTrajectory() const;
+  ArtiRobVec BuildWholeBodyTrajectory(double dt) const;
 
 private:
   int kNEE;
@@ -73,10 +74,8 @@ private:
   std::vector<FeetSplinerArray> feet_spliner_up_, feet_spliner_down_;
   ComMotionS com_motion_;
 
-  double kDiscretizationTime;   // at what interval the continuous trajectory is sampled
-  double kUpswingPercent;       // how long to swing up during swing
-  double kLiftHeight;           // how high to lift the leg
-  double kOutwardSwingDistance; // how far to swing leg outward (y-dir)
+  double upswing_percent_;  ///< how long to swing up during swing
+  double leg_lift_height_;  ///< how high to lift the leg
 
   std::vector<SplineNode> BuildNodeSequence(const SplineNode& P_init,
                                             const PhaseVec&,

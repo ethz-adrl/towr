@@ -50,7 +50,7 @@ StepSequencePlanner::DetermineStepSequence (const MotionParamsPtr& motion_type)
 
   int n_cycles;
   if (motion_type->id_ == PushRecID) {
-    n_cycles = 2;
+    n_cycles = 1;
   } else {
     n_cycles = req_steps_per_leg;
   }

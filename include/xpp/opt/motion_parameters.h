@@ -53,6 +53,7 @@ public:
   bool start_with_stance_;
   ValXY weight_com_motion_xy_;
   double walking_height_;
+  double lift_height_;
 
 
   static MotionTypePtr MakeMotion(MotionTypeID);
