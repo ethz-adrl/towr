@@ -81,7 +81,7 @@ PushRecovery::PushRecovery ()
   start_with_stance_ = false;
   t_phase_ = 0.2;
   max_step_length_ = 0.35;
-  dt_nodes_ = 0.05;
+  dt_nodes_ = 0.1;
   polynomials_per_phase_ = 1;
   walking_height_ = 0.55;
   lift_height_ = 0.08;

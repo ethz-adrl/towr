@@ -11,6 +11,7 @@
 #include "com_motion.h"
 #include "motion_phase.h"
 #include <xpp/opt/articulated_robot_state_cartesian.h>
+#include <xpp/opt/ee_polynomial.h>
 
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/polynomial_xd.h>
@@ -37,7 +38,7 @@ public:
   using State3d       = xpp::utils::StateLin3d;
   using StateAng3d    = xpp::utils::StateAng3d;
   using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State3d>;
-  using SplinerFeet   = xpp::utils::PolynomialXd< utils::QuinticPolynomial, State3d>;
+  using SplinerFeet   = EEPolynomial;
   using ZPolynomial   = xpp::utils::CubicPolynomial;
   using PhaseVec      = std::vector<MotionPhase>;
 
@@ -45,7 +46,7 @@ public:
   using FeetArray        = typename SplineNode::FeetArray;
   using ContactArray     = typename SplineNode::ContactState;
   using ArtiRobVec       = std::vector<SplineNode>;
-  using FeetSplinerArray = xpp::utils::Endeffectors<SplinerFeet>;//std::vector<SplinerFeet>;
+  using EESplinerArray = xpp::utils::Endeffectors<SplinerFeet>;//std::vector<SplinerFeet>;
   using EEID             = xpp::utils::EndeffectorID;
 
 public:
@@ -71,10 +72,9 @@ private:
   std::vector<SplineNode> nodes_; // the discrete states to spline through
   std::vector<ZPolynomial> z_spliner_;
   std::vector<SplinerOri> ori_spliner_;
-  std::vector<FeetSplinerArray> feet_spliner_up_, feet_spliner_down_;
+  std::vector<EESplinerArray> ee_spliner_;
   ComMotionS com_motion_;
 
-  double upswing_percent_;  ///< how long to swing up during swing
   double leg_lift_height_;  ///< how high to lift the leg
 
   std::vector<SplineNode> BuildNodeSequence(const SplineNode& P_init,
@@ -92,14 +92,12 @@ private:
   void FillZState(double t_global, State3d& pos) const;
 
   SplinerOri BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const;
-  FeetSplinerArray BuildFootstepSplineUp(const SplineNode& from, const SplineNode& to) const;
-  FeetSplinerArray BuildFootstepSplineDown(const FeetArray& feet_at_switch,const SplineNode& to) const;
+  EESplinerArray BuildEESpline(const SplineNode& from, const SplineNode& to) const;
 
   void BuildOneSegment(const SplineNode& from, const SplineNode& to,
                        ZPolynomial& z_poly,
                        SplinerOri& ori,
-                       FeetSplinerArray& feet_up,
-                       FeetSplinerArray& feet_down) const;
+                       EESplinerArray& feet) const;
 
   static Vector3d TransformQuatToRpy(const Eigen::Quaterniond& q);
   int GetSplineID(double t_global) const;

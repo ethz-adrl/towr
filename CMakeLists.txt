@@ -85,6 +85,7 @@ set(SOURCES
   src/motion_structure.cc
   src/motion_phase.cc
   src/step_sequence_planner.cc
+  src/ee_polynomial.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
@@ -196,6 +197,7 @@ if(BUILD_TESTS)
 #                        test/google/sparse_matrix_test.cc
                          test/google/joint_angles_test.cc
                          test/google/endeffectors_test.cc
+                         test/google/ee_polynomial_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})
