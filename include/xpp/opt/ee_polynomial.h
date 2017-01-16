@@ -26,13 +26,21 @@ public:
   EEPolynomial ();
   virtual ~EEPolynomial ();
 
-  void SetParams(const XYState& start, const XYState& end, double z_max, double t_swing);
+
+  void SetDuration(double T);
+
+  // zmp_ assume these values don't change, otherwise second fct wrong
+  void SetZParams(double percent_done, double z_max);
+  void SetXYParams(const XYState& start, const XYState& end);
 
   XYZState GetState(double t_local) const;
 
 private:
   PolyZ poly_z_;
   PolyXY poly_xy_;
+
+  double t_start_z_;
+  double duration_;
 };
 
 } /* namespace opt */

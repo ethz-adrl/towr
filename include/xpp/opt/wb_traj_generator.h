@@ -53,16 +53,13 @@ public:
   WBTrajGenerator();
   virtual ~WBTrajGenerator();
 
-  void SetParams(double upswing, double lift_height,
-                 double outward_swing_distance,
-                 double discretization_time);
-
   void Init(const PhaseVec&,
             const ComMotionS&,
             const VecFoothold&,
             double des_height,
             const SplineNode& curr_state,
-            double lift_height);
+            double lift_height,
+            double percent_swing);
 
   ArtiRobVec BuildWholeBodyTrajectory(double dt) const;
 
@@ -82,7 +79,7 @@ private:
                                             const VecFoothold& footholds,
                                             double des_robot_height);
 
-  void CreateAllSplines(const std::vector<SplineNode>& nodes);
+  void CreateAllSplines(double percent_swing);
 
   State3d GetCurrPosition(double t_global) const;
   StateAng3d GetCurrOrientation(double t_global) const;
@@ -90,9 +87,6 @@ private:
   ContactArray GetCurrContactState(double t_gloal) const;
 
   void FillZState(double t_global, State3d& pos) const;
-
-  SplinerOri BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const;
-  EESplinerArray BuildEESpline(const SplineNode& from, const SplineNode& to) const;
 
   void BuildOneSegment(const SplineNode& from, const SplineNode& to,
                        ZPolynomial& z_poly,

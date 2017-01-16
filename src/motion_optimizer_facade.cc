@@ -62,12 +62,14 @@ MotionOptimizerFacade::HyqStateVec
 MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   WBTrajGenerator wb_traj_gen4_;
+  double percent_swing = 0.0; // zmp_ make this part of current state
   wb_traj_gen4_.Init(motion_phases_,
                      nlp_facade_.GetComMotion(),
                      nlp_facade_.GetFootholds(),
                      motion_type_->walking_height_,
                      curr_state_.ConvertToCartesian(),
-                     motion_type_->lift_height_);
+                     motion_type_->lift_height_,
+                     percent_swing);
 
   auto art_rob_vec = wb_traj_gen4_.BuildWholeBodyTrajectory(dt);
   return curr_state_.BuildWholeBodyTrajectory(art_rob_vec);

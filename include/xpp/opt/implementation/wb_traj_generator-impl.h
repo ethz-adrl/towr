@@ -26,15 +26,16 @@ WBTrajGenerator::~WBTrajGenerator()
 void
 WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
                        const VecFoothold& footholds, double des_height,
-                       const SplineNode& curr_state, double lift_height)
+                       const SplineNode& curr_state, double lift_height,
+                       double percent_swing)
 {
   // get endeffector size from current node
   kNEE = curr_state.feet_W_.GetEECount();
   leg_lift_height_ = lift_height;
+  com_motion_ = com_spline;
 
   nodes_ = BuildNodeSequence(curr_state, phase_info, footholds, des_height);
-  CreateAllSplines(nodes_);
-  com_motion_ = com_spline;
+  CreateAllSplines(percent_swing);
 }
 
  WBTrajGenerator::ArtiRobVec
@@ -78,7 +79,7 @@ WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
   return nodes;
 }
 
-void WBTrajGenerator::CreateAllSplines(const std::vector<SplineNode>& nodes)
+void WBTrajGenerator::CreateAllSplines(double percent_swing)
 {
   z_spliner_.clear();
   ori_spliner_.clear();
@@ -86,17 +87,43 @@ void WBTrajGenerator::CreateAllSplines(const std::vector<SplineNode>& nodes)
 
   SplinerOri ori;
   ZPolynomial z_height;
-  EESplinerArray feet_up(kNEE);
+  EESplinerArray feet(kNEE);
 
   for (int n=1; n<nodes_.size(); ++n) {
-    SplineNode from = nodes.at(n-1);
-    SplineNode to   = nodes.at(n);
+    SplineNode from = nodes_.at(n-1);
+    SplineNode to   = nodes_.at(n);
 
-    BuildOneSegment(from, to, z_height, ori, feet_up);
+    BuildOneSegment(from, to, z_height, ori, feet);
 
     z_spliner_.push_back(z_height);
     ori_spliner_.push_back(ori);
-    ee_spliner_.push_back(feet_up);
+
+    if (n==1) // in first polynomial, swing might be in air
+      for (EEID ee : from.feet_W_.GetEEsOrdered())
+        feet.At(ee).SetZParams(percent_swing, leg_lift_height_);
+
+    ee_spliner_.push_back(feet);
+  }
+}
+
+void
+WBTrajGenerator::BuildOneSegment(const SplineNode& from, const SplineNode& to,
+                                 ZPolynomial& z_poly,
+                                 SplinerOri& ori,
+                                 EESplinerArray& feet) const
+{
+  z_poly.SetBoundary(to.T, from.base_.lin.Get1d(Z), to.base_.lin.Get1d(Z));
+
+  xpp::utils::StateLin3d rpy_from, rpy_to;
+  rpy_from.p = TransformQuatToRpy(from.base_.ang.q);
+  rpy_to.p   = TransformQuatToRpy(to.base_.ang.q);
+  ori.SetBoundary(to.T, rpy_from, rpy_to);
+
+
+  for (EEID ee : from.feet_W_.GetEEsOrdered()) {
+    feet.At(ee).SetDuration(to.T);
+    feet.At(ee).SetXYParams(from.feet_W_.At(ee).Get2D(), to.feet_W_.At(ee).Get2D());
+    feet.At(ee).SetZParams(0.0, leg_lift_height_);
   }
 }
 
@@ -197,41 +224,6 @@ WBTrajGenerator::GetCurrContactState (double t_global) const
   int  goal_node = spline+1;
 
   return nodes_.at(goal_node).swingleg_;
-}
-
-void
-WBTrajGenerator::BuildOneSegment(const SplineNode& from, const SplineNode& to,
-                                 ZPolynomial& z_poly,
-                                 SplinerOri& ori,
-                                 EESplinerArray& feet_up) const
-{
-  z_poly.SetBoundary(to.T, from.base_.lin.Get1d(Z), to.base_.lin.Get1d(Z));
-  ori = BuildOrientationRpySpline(from, to);
-  feet_up = BuildEESpline(from, to);
-}
-
-WBTrajGenerator::SplinerOri
-WBTrajGenerator::BuildOrientationRpySpline(const SplineNode& from, const SplineNode& to) const
-{
-  xpp::utils::StateLin3d rpy_from, rpy_to;
-  rpy_from.p = TransformQuatToRpy(from.base_.ang.q);
-  rpy_to.p   = TransformQuatToRpy(to.base_.ang.q);
-
-  SplinerOri ori;
-  ori.SetBoundary(to.T, rpy_from, rpy_to);
-  return ori;
-}
-
-WBTrajGenerator::EESplinerArray
-WBTrajGenerator::BuildEESpline(const SplineNode& from, const SplineNode& to) const
-{
-  EESplinerArray ee_spliner(kNEE);
-
-  // Feet spliner for all legs, even if might be stance legs
-  for (EEID ee : from.feet_W_.GetEEsOrdered())
-    ee_spliner.At(ee).SetParams(from.feet_W_.At(ee).Get2D(), to.feet_W_.At(ee).Get2D(), leg_lift_height_, to.T);
-
-  return ee_spliner;
 }
 
 double WBTrajGenerator::GetTotalTime() const

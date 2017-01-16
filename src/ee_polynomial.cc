@@ -12,6 +12,7 @@ namespace opt {
 
 EEPolynomial::EEPolynomial ()
 {
+  duration_ = 0.0;
 }
 
 EEPolynomial::~EEPolynomial ()
@@ -20,30 +21,42 @@ EEPolynomial::~EEPolynomial ()
 }
 
 void
-EEPolynomial::SetParams (const XYState& start, const XYState& end,
-                                double z_max, double t_swing)
+EEPolynomial::SetZParams (double p, double z_max)
 {
+  double t_z_total = duration_/(1-p);
   // Setting 6 constraints:
   // initial pos/vel is zero
   // pos,vel at halftime is z_max and zero
   // pos,vel at t_step is zero
   // see matlab script "matlab_z_height.m" for generation of these values
   poly_z_.c[utils::Polynomial::A] = 0;
-  poly_z_.c[utils::Polynomial::B] =  16*z_max /std::pow(t_swing,4);
-  poly_z_.c[utils::Polynomial::C] = -32*z_max /std::pow(t_swing,3);
-  poly_z_.c[utils::Polynomial::D] =  16*z_max /std::pow(t_swing,2);
+  poly_z_.c[utils::Polynomial::B] =  16*z_max /std::pow(t_z_total,4);
+  poly_z_.c[utils::Polynomial::C] = -32*z_max /std::pow(t_z_total,3);
+  poly_z_.c[utils::Polynomial::D] =  16*z_max /std::pow(t_z_total,2);
   poly_z_.c[utils::Polynomial::E] = 0;
   poly_z_.c[utils::Polynomial::F] = 0;
-  poly_z_.duration = t_swing;
+  poly_z_.duration = t_z_total;
 
-  poly_xy_.SetBoundary(t_swing, start, end);
+  t_start_z_ = t_z_total - duration_;
+}
+
+void
+EEPolynomial::SetXYParams (const XYState& start, const XYState& end)
+{
+  poly_xy_.SetBoundary(duration_, start, end);
+}
+
+void
+EEPolynomial::SetDuration (double T)
+{
+  duration_ = T;
 }
 
 EEPolynomial::XYZState
 EEPolynomial::GetState (double t_local) const
 {
   ZState z;
-  poly_z_.GetPoint(t_local, z);
+  poly_z_.GetPoint(t_start_z_ + t_local, z);
 
   XYState xy;
   poly_xy_.GetPoint(t_local, xy);
