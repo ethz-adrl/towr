@@ -10,8 +10,7 @@
 
 #include <xpp/opt/step_sequence_planner.h>
 #include <xpp/opt/nlp_facade.h>
-#include <xpp/opt/articulated_robot_state.h>
-#include <xpp/hyq/hyq_state.h>
+#include <xpp/opt/articulated_robot_state_cartesian.h>
 #include "motion_parameters.h"
 
 namespace xpp {
@@ -25,8 +24,8 @@ class MotionOptimizerFacade {
 public:
   using State         = xpp::utils::StateLin3d;
   using VisualizerPtr = std::shared_ptr<IVisualizer>;
-  using RobotState    = xpp::opt::ArticulatedRobotState; //xpp::hyq::HyqState;//
-  using HyqStateVec   = RobotState::StateJVec;
+  using RobotState    = xpp::opt::ArticulatedRobotStateCartesian; //xpp::hyq::HyqState;//
+  using RobotStateVec = std::vector<RobotState>;
   using MotionTypePtr = std::shared_ptr<MotionParameters>;
   using PhaseVec      = std::vector<MotionPhase>;
 
@@ -36,7 +35,7 @@ public:
   void SetVisualizer(VisualizerPtr visualizer);
 
   void OptimizeMotion(NlpSolver solver);
-  HyqStateVec GetTrajectory(double dt) const;
+  RobotStateVec GetTrajectory(double dt) const;
 
   void SetCurrent(const RobotState& curr);
 

@@ -54,13 +54,14 @@ WBTrajGenerator::BuildNodeSequence(const SplineNode& current_state,
   {
     // starting point is previous state
     SplineNode goal_node = prev_node;
-    goal_node.swingleg_.SetAll(false);
+    goal_node.is_contact_.SetAll(true);
 
     for (auto c : curr_phase.swing_goal_contacts_) {
       goal_node.feet_W_.At(c.ee).p.x() = footholds.at(c.id).x();
       goal_node.feet_W_.At(c.ee).p.y() = footholds.at(c.id).y();
       goal_node.feet_W_.At(c.ee).p.z() = 0.0;
-      goal_node.swingleg_.At(c.ee) = true;
+      goal_node.is_contact_.At(c.ee) = false;
+      // vel, acc of endeffector always zero at nodes
     }
 
     // adjust roll, pitch, yaw depending on footholds
@@ -214,7 +215,7 @@ WBTrajGenerator::GetCurrEndeffectors (double t_global) const
   FeetArray feet = nodes_.at(goal_node).feet_W_;
 
   for (EEID ee : feet.GetEEsOrdered())
-    if(nodes_.at(goal_node).swingleg_.At(ee)) // only spline swinglegs
+    if(!nodes_.at(goal_node).is_contact_.At(ee)) // only spline swinglegs
       feet.At(ee) = ee_spliner_.at(spline).At(ee).GetState(t_local);
 
   return feet;
@@ -226,7 +227,7 @@ WBTrajGenerator::GetCurrContactState (double t_global) const
   int  spline    = GetPhaseID(t_global);
   int  goal_node = spline+1;
 
-  return nodes_.at(goal_node).swingleg_;
+  return nodes_.at(goal_node).is_contact_;
 }
 
 double WBTrajGenerator::GetTotalTime() const
@@ -262,7 +263,7 @@ WBTrajGenerator::BuildWholeBodyTrajectory (double dt) const
     state.base_.lin     = GetCurrPosition(t);
     state.base_.ang     = GetCurrOrientation(t);
     state.feet_W_       = GetCurrEndeffectors(t);
-    state.swingleg_     = GetCurrContactState(t);
+    state.is_contact_   = GetCurrContactState(t);
     state.percent_phase_= GetPercentOfPhase(t);
     state.t_global_     = t;
     trajectory.push_back(state);

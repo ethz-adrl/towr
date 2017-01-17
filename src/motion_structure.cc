@@ -29,6 +29,8 @@ MotionStructure::Init (const StartStance& start_stance,
                        bool insert_final_stance,
                        double dt)
 {
+
+
   if (insert_initial_stance) {
     MotionPhase initial_stance_phase;
     initial_stance_phase.duration_ = t_first_phase;

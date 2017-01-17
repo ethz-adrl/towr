@@ -23,15 +23,10 @@ StepSequencePlanner::~StepSequencePlanner ()
 }
 
 void
-StepSequencePlanner::Init (const State& curr, const State& goal,
-                           const StartStance& start_stance, double robot_height,
-                           int curr_swingleg)
+StepSequencePlanner::Init (const State& curr, const State& goal)
 {
   curr_state_ = curr;
   goal_state_ = goal;
-  start_stance_ = start_stance;
-  robot_height_ = robot_height;
-  curr_swingleg_ = curr_swingleg;
 }
 
 StepSequencePlanner::AllPhaseSwingLegs

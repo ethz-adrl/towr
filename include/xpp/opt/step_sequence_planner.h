@@ -37,12 +37,8 @@ public:
     *
     * @param the current pos/vel/acc of the robot.
     * @param the desired pos/vel/acc that the robot should achieve.
-    * @param start_stance the 4 footholds right before swinging the first leg.
-    * @param robot_height the walking height [m] of the robot.
     */
-  void Init(const State& curr, const State& goal,
-            const StartStance& start_stance, double robot_height,
-            int swingleg_of_last_spline);
+  void Init(const State& curr, const State& goal);
 
   /** Defines the endeffectors in swing for each motion phase
     */
