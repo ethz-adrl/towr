@@ -13,6 +13,7 @@ namespace opt {
 EEPolynomial::EEPolynomial ()
 {
   duration_ = 0.0;
+  t_start_z_ = 0.0;
 }
 
 EEPolynomial::~EEPolynomial ()

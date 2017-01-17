@@ -10,6 +10,7 @@
 
 #include <xpp/opt/step_sequence_planner.h>
 #include <xpp/opt/nlp_facade.h>
+#include <xpp/opt/articulated_robot_state.h>
 #include <xpp/hyq/hyq_state.h>
 #include "motion_parameters.h"
 
@@ -24,8 +25,8 @@ class MotionOptimizerFacade {
 public:
   using State         = xpp::utils::StateLin3d;
   using VisualizerPtr = std::shared_ptr<IVisualizer>;
-  using HyqState      = xpp::hyq::HyqState;
-  using HyqStateVec   = HyqState::StateJVec;
+  using RobotState    = xpp::opt::ArticulatedRobotState; //xpp::hyq::HyqState;//
+  using HyqStateVec   = RobotState::StateJVec;
   using MotionTypePtr = std::shared_ptr<MotionParameters>;
   using PhaseVec      = std::vector<MotionPhase>;
 
@@ -37,7 +38,7 @@ public:
   void OptimizeMotion(NlpSolver solver);
   HyqStateVec GetTrajectory(double dt) const;
 
-  void SetCurrent(const HyqState& curr);
+  void SetCurrent(const RobotState& curr);
 
   State goal_cog_;
   double t_left_; // time to reach goal
@@ -46,7 +47,7 @@ public:
 
 
 private:
-  HyqState curr_state_;
+  RobotState curr_state_; // zmp_ make this a pointer?
   NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;
   MotionTypePtr motion_type_;

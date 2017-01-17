@@ -26,8 +26,7 @@ WBTrajGenerator::~WBTrajGenerator()
 void
 WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
                        const VecFoothold& footholds, double des_height,
-                       const SplineNode& curr_state, double lift_height,
-                       double percent_swing)
+                       const SplineNode& curr_state, double lift_height)
 {
   // get endeffector size from current node
   kNEE = curr_state.feet_W_.GetEECount();
@@ -35,18 +34,20 @@ WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
   com_motion_ = com_spline;
 
   nodes_ = BuildNodeSequence(curr_state, phase_info, footholds, des_height);
-  CreateAllSplines(percent_swing);
+
+  CreateAllSplines();
 }
 
  WBTrajGenerator::ArtiRobVec
-WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
+WBTrajGenerator::BuildNodeSequence(const SplineNode& current_state,
                                    const PhaseVec& phase_info,
                                    const VecFoothold& footholds,
                                    double des_robot_height)
 {
   std::vector<SplineNode> nodes;
 
-  SplineNode prev_node = P_init;
+  SplineNode prev_node = current_state;
+  prev_node.t_global_ = 0.0; // always reset time to start at t=0
   nodes.push_back(prev_node);
 
   for (const auto& curr_phase : phase_info)
@@ -70,7 +71,8 @@ WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
     // adjust global z position of body depending on footholds
     goal_node.base_.lin.p.z() = des_robot_height + goal_node.GetZAvg();
 
-    goal_node.T = curr_phase.duration_; // time to reach this node
+    goal_node.t_global_ += curr_phase.duration_; // time to reach this node
+    goal_node.percent_phase_ = 0.0;
 
     nodes.push_back(goal_node);
     prev_node = goal_node;
@@ -79,7 +81,7 @@ WBTrajGenerator::BuildNodeSequence(const SplineNode& P_init,
   return nodes;
 }
 
-void WBTrajGenerator::CreateAllSplines(double percent_swing)
+void WBTrajGenerator::CreateAllSplines()
 {
   z_spliner_.clear();
   ori_spliner_.clear();
@@ -93,37 +95,39 @@ void WBTrajGenerator::CreateAllSplines(double percent_swing)
     SplineNode from = nodes_.at(n-1);
     SplineNode to   = nodes_.at(n);
 
-    BuildOneSegment(from, to, z_height, ori, feet);
+    BuildPhase(from, to, z_height, ori, feet);
 
     z_spliner_.push_back(z_height);
     ori_spliner_.push_back(ori);
 
-    if (n==1) // in first polynomial, swing might be in air
-      for (EEID ee : from.feet_W_.GetEEsOrdered())
-        feet.At(ee).SetZParams(percent_swing, leg_lift_height_);
-
+    // zmp_ remove this
+//    if (n==1) // in first polynomial, swing might be in air
+//      for (EEID ee : from.feet_W_.GetEEsOrdered())
+//        feet.At(ee).SetZParams(percent_swing, leg_lift_height_);
+//
     ee_spliner_.push_back(feet);
   }
 }
 
 void
-WBTrajGenerator::BuildOneSegment(const SplineNode& from, const SplineNode& to,
+WBTrajGenerator::BuildPhase(const SplineNode& from, const SplineNode& to,
                                  ZPolynomial& z_poly,
                                  SplinerOri& ori,
                                  EESplinerArray& feet) const
 {
-  z_poly.SetBoundary(to.T, from.base_.lin.Get1d(Z), to.base_.lin.Get1d(Z));
+  double t_phase = to.t_global_ - from.t_global_;
+  z_poly.SetBoundary(t_phase, from.base_.lin.Get1d(Z), to.base_.lin.Get1d(Z));
 
   xpp::utils::StateLin3d rpy_from, rpy_to;
   rpy_from.p = TransformQuatToRpy(from.base_.ang.q);
   rpy_to.p   = TransformQuatToRpy(to.base_.ang.q);
-  ori.SetBoundary(to.T, rpy_from, rpy_to);
+  ori.SetBoundary(t_phase, rpy_from, rpy_to);
 
 
   for (EEID ee : from.feet_W_.GetEEsOrdered()) {
-    feet.At(ee).SetDuration(to.T);
+    feet.At(ee).SetDuration(t_phase);
     feet.At(ee).SetXYParams(from.feet_W_.At(ee).Get2D(), to.feet_W_.At(ee).Get2D());
-    feet.At(ee).SetZParams(0.0, leg_lift_height_);
+    feet.At(ee).SetZParams(from.percent_phase_, leg_lift_height_);
   }
 }
 
@@ -159,8 +163,8 @@ WBTrajGenerator::TransformQuatToRpy(const Eigen::Quaterniond& q)
 void
 WBTrajGenerator::FillZState(double t_global, State3d& pos) const
 {
-  double t_local = GetLocalSplineTime(t_global);
-  int  spline    = GetSplineID(t_global);
+  double t_local = GetLocalPhaseTime(t_global);
+  int  spline    = GetPhaseID(t_global);
 
   utils::StateLin1d z_splined;
   z_spliner_.at(spline).GetPoint(t_local, z_splined);
@@ -184,8 +188,8 @@ WBTrajGenerator::GetCurrPosition(double t_global) const
 WBTrajGenerator::StateAng3d
 WBTrajGenerator::GetCurrOrientation(double t_global) const
 {
-  double t_local = GetLocalSplineTime(t_global);
-  int  spline    = GetSplineID(t_global);
+  double t_local = GetLocalPhaseTime(t_global);
+  int  spline    = GetPhaseID(t_global);
 
   State3d ori_rpy;
   ori_spliner_.at(spline).GetPoint(t_local, ori_rpy);
@@ -203,8 +207,8 @@ WBTrajGenerator::GetCurrOrientation(double t_global) const
 WBTrajGenerator::FeetArray
 WBTrajGenerator::GetCurrEndeffectors (double t_global) const
 {
-  double t_local = GetLocalSplineTime(t_global);
-  int  spline    = GetSplineID(t_global);
+  double t_local = GetLocalPhaseTime(t_global);
+  int  spline    = GetPhaseID(t_global);
   int  goal_node = spline+1;
 
   FeetArray feet = nodes_.at(goal_node).feet_W_;
@@ -219,8 +223,7 @@ WBTrajGenerator::GetCurrEndeffectors (double t_global) const
 WBTrajGenerator::ContactArray
 WBTrajGenerator::GetCurrContactState (double t_global) const
 {
-  double t_local = GetLocalSplineTime(t_global);
-  int  spline    = GetSplineID(t_global);
+  int  spline    = GetPhaseID(t_global);
   int  goal_node = spline+1;
 
   return nodes_.at(goal_node).swingleg_;
@@ -228,38 +231,23 @@ WBTrajGenerator::GetCurrContactState (double t_global) const
 
 double WBTrajGenerator::GetTotalTime() const
 {
-  double T = 0.0;
-  for (uint n = 1; n < nodes_.size(); n++) {
-    T += nodes_.at(n).T;
-  }
-  return T;
+  return nodes_.back().t_global_;
 }
 
-double WBTrajGenerator::GetLocalSplineTime(double t_global) const
+double WBTrajGenerator::GetLocalPhaseTime(double t_global) const
 {
-  int spline = GetSplineID(t_global);
-  int goal_node = spline+1;
-
-  double t_local = t_global;
-  for (int n = 1; n < goal_node; n++) {
-    t_local -= nodes_.at(n).T;
-  }
-  return t_local;
+  for (int i=0; i<nodes_.size(); ++i)
+    if (nodes_.at(i).t_global_ > t_global)
+      return t_global - nodes_.at(i-1).t_global_;
 }
 
-int WBTrajGenerator::GetSplineID(double t) const
+int WBTrajGenerator::GetPhaseID(double t_global) const
 {
-  assert(t <= GetTotalTime()); // time inside the time frame
+  assert(t_global <= GetTotalTime()); // time inside the time frame
 
-  double t_junction = 0.0;
-  for (int n=1; n<nodes_.size(); ++n) {
-    t_junction += nodes_.at(n).T;
-
-    if (t <= t_junction + 1e-4) // so at "equal", previous spline is returned
-      return n-1; // since first spline connects node 0 and 1
-  }
-  assert(false); // this should never be reached
-  return -1;
+  for (int i=0; i<nodes_.size(); ++i)
+    if (nodes_.at(i).t_global_ > t_global)
+      return i-1;
 }
 
 WBTrajGenerator::ArtiRobVec
@@ -275,13 +263,25 @@ WBTrajGenerator::BuildWholeBodyTrajectory (double dt) const
     state.base_.ang     = GetCurrOrientation(t);
     state.feet_W_       = GetCurrEndeffectors(t);
     state.swingleg_     = GetCurrContactState(t);
-    state.T = t;
+    state.percent_phase_= GetPercentOfPhase(t);
+    state.t_global_     = t;
     trajectory.push_back(state);
 
     t += dt;
   }
 
   return trajectory;
+}
+
+double
+WBTrajGenerator::GetPercentOfPhase (double t_global) const
+{
+  double t_local = GetLocalPhaseTime(t_global);
+  int phase      = GetPhaseID(t_global);
+  int goal_node  = phase+1;
+  double t_phase = nodes_.at(goal_node).t_global_ - nodes_.at(goal_node-1).t_global_;
+
+  return t_local/t_phase;
 }
 
 } // namespace opt

@@ -58,15 +58,14 @@ public:
             const VecFoothold&,
             double des_height,
             const SplineNode& curr_state,
-            double lift_height,
-            double percent_swing);
+            double lift_height);
 
   ArtiRobVec BuildWholeBodyTrajectory(double dt) const;
 
 private:
   int kNEE;
 
-  std::vector<SplineNode> nodes_; // the discrete states to spline through
+  std::vector<SplineNode> nodes_; // zmp_ remove these the discrete states to spline through
   std::vector<ZPolynomial> z_spliner_;
   std::vector<SplinerOri> ori_spliner_;
   std::vector<EESplinerArray> ee_spliner_;
@@ -79,7 +78,7 @@ private:
                                             const VecFoothold& footholds,
                                             double des_robot_height);
 
-  void CreateAllSplines(double percent_swing);
+  void CreateAllSplines();
 
   State3d GetCurrPosition(double t_global) const;
   StateAng3d GetCurrOrientation(double t_global) const;
@@ -88,15 +87,16 @@ private:
 
   void FillZState(double t_global, State3d& pos) const;
 
-  void BuildOneSegment(const SplineNode& from, const SplineNode& to,
+  void BuildPhase(const SplineNode& from, const SplineNode& to,
                        ZPolynomial& z_poly,
                        SplinerOri& ori,
                        EESplinerArray& feet) const;
 
   static Vector3d TransformQuatToRpy(const Eigen::Quaterniond& q);
-  int GetSplineID(double t_global) const;
-  double GetLocalSplineTime(double t_global) const;
+  int GetPhaseID(double t_global) const;
+  double GetLocalPhaseTime(double t_global) const;
   double GetTotalTime() const;
+  double GetPercentOfPhase(double t_global) const;
 };
 
 } // namespace opt

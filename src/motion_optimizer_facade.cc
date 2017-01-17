@@ -10,13 +10,22 @@
 #include <xpp/opt/optimization_variables.h>
 #include <xpp/opt/wb_traj_generator.h>
 
+#include <xpp/hyq/codegen/hyq_kinematics.h>
+#include <xpp/hyq/hyq_inverse_kinematics.h>
+#include <xpp/hyq/joints_hyq.h>
+
 namespace xpp {
 namespace opt {
 
 using MotionStructure = xpp::opt::MotionStructure;
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
+    :curr_state_(hyq::kNumEE, hyq::kNumJointsPerLeg) // zmp_ remove this
 {
+  // zmp_ remove this here as well
+  curr_state_.inv_kinematics_ = std::make_shared<hyq::HyqInverseKinematics>();
+  curr_state_.for_kinematics_ = std::make_shared<hyq::codegen::HyQKinematics>();
+
   SetMotionType(WalkID);
 }
 
@@ -62,23 +71,28 @@ MotionOptimizerFacade::HyqStateVec
 MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   WBTrajGenerator wb_traj_gen4_;
-  double percent_swing = 0.0; // zmp_ make this part of current state
   wb_traj_gen4_.Init(motion_phases_,
                      nlp_facade_.GetComMotion(),
                      nlp_facade_.GetFootholds(),
                      motion_type_->walking_height_,
                      curr_state_.ConvertToCartesian(),
-                     motion_type_->lift_height_,
-                     percent_swing);
+                     motion_type_->lift_height_);
 
   auto art_rob_vec = wb_traj_gen4_.BuildWholeBodyTrajectory(dt);
-  return curr_state_.BuildWholeBodyTrajectory(art_rob_vec);
+
+  // !!!!zmp_ this is where the segfault is, IK not defined here
+  // move to IK class possibly?
+  hyq::HyqState hyq;
+  return hyq.BuildWholeBodyTrajectory(art_rob_vec);
 }
 
 void
-MotionOptimizerFacade::SetCurrent (const HyqState& curr)
+MotionOptimizerFacade::SetCurrent (const RobotState& curr)
 {
+  // zmp_ this obviously also doesn't belong here
   curr_state_ = curr;
+  curr_state_.inv_kinematics_ = std::make_shared<hyq::HyqInverseKinematics>();
+  curr_state_.for_kinematics_ = std::make_shared<hyq::codegen::HyQKinematics>();
 }
 
 void

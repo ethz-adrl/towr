@@ -20,7 +20,7 @@ HyqMotionParameters::HyqMotionParameters ()
   weight_com_motion_xy_ = {1.0, 1.0};
   start_with_stance_ = true;
   walking_height_ = 0.58;
-  lift_height_ = 0.12;
+  lift_height_ = 0.08;
 
   constraints_ = { InitCom,
 //                   FinalCom,
@@ -31,7 +31,7 @@ HyqMotionParameters::HyqMotionParameters ()
                    Dynamic,
                    RomBox};
 
-  cost_weights_[FinalComCostID] = 100.0;
+  cost_weights_[FinalComCostID] = 1000.0;
 }
 
 HyqMotionParameters::NominalStance
