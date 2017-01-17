@@ -30,6 +30,8 @@ public:
   virtual ~NlpOptimizerNode () {};
 
 private:
+
+  /** sends this info the the walking controller **/
   void PublishTrajectory();
   void CurrentStateCallback(const CurrentInfoMsg& msg);
   void UserCommandCallback(const UserCommandMsg& msg);

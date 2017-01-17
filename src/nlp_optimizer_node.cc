@@ -10,12 +10,16 @@
 #include <xpp/ros/ros_visualizer.h>
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
-#include <xpp_msgs/HyqStateTrajectory.h> // publish
+#include <xpp_msgs/RobotStateTrajectory.h> // publish
+
+#include <xpp/hyq/codegen/hyq_kinematics.h>
+#include <xpp/hyq/hyq_inverse_kinematics.h>
 
 namespace xpp {
 namespace ros {
 
-using TrajectoryMsg = xpp_msgs::HyqStateTrajectory;
+using TrajectoryMsg = xpp_msgs::RobotStateTrajectory;
+using RobotState = xpp::opt::ArticulatedRobotState;
 
 static bool CheckIfInDirectoyWithIpoptConfigFile();
 
@@ -30,8 +34,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                     1, // take only the most recent information
                                     &NlpOptimizerNode::CurrentStateCallback, this);
 
-  trajectory_pub_ = n.advertise<xpp_msgs::HyqStateTrajectory>(
-      xpp_msgs::robot_trajectory_joints, 1);
+  trajectory_pub_ = n.advertise<TrajectoryMsg>(xpp_msgs::robot_trajectory_joints, 1);
 
   dt_ = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
   solver_type_ = opt::Snopt;
@@ -47,7 +50,9 @@ void
 NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
 {
   auto curr_state = RosHelpers::RosToXpp(msg.state);
-  motion_optimizer_.SetCurrent(curr_state);
+  auto fk = std::make_shared<hyq::codegen::HyQKinematics>();
+
+  motion_optimizer_.SetCurrent(curr_state.ConvertToCartesian(fk));
 
   if (msg.reoptimize) {// only re-optimize if robot signalizes to be off track
     ROS_INFO_STREAM("Robot off track. Current State:\n" << curr_state.base_);
@@ -80,8 +85,13 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 void
 NlpOptimizerNode::PublishTrajectory ()
 {
-  // sends this info the the walking controller
-  auto msg = RosHelpers::XppToRos(motion_optimizer_.GetTrajectory(dt_));
+  auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
+
+  // convert to joint angles
+  auto opt_traj_joints = RobotState::BuildWholeBodyTrajectory(opt_traj_cartesian,
+                                  std::make_shared<hyq::HyqInverseKinematics>());
+
+  auto msg = RosHelpers::XppToRos(opt_traj_joints);
   trajectory_pub_.publish(msg);
 }
 

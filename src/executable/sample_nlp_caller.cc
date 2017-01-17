@@ -8,9 +8,15 @@
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
 #include <xpp_msgs/CurrentInfo.h>
-#include <xpp/hyq/ee_hyq.h>
 
-using HyqState       = xpp::hyq::HyqState;
+#include <xpp/opt/articulated_robot_state.h>
+#include <xpp/hyq/ee_hyq.h>
+#include <xpp/hyq/joints_hyq.h>
+
+#include <xpp/hyq/hyq_inverse_kinematics.h>
+#include <xpp/hyq/codegen/hyq_kinematics.h>
+
+using RobotState     = xpp::opt::ArticulatedRobotState;
 using CurrentInfoMsg = xpp_msgs::CurrentInfo;
 using Vector3d       = Eigen::Vector3d;
 
@@ -40,7 +46,7 @@ int main(int argc, char **argv)
 
   sleep(0.5); // sleep another 0.5s to give subscriber time to listen
 
-  HyqState start_state;
+  RobotState start_state(xpp::hyq::kNumEE, xpp::hyq::kNumJointsPerLeg);
   start_state.base_.lin.p.x() = atof(argv_out[1].c_str());
   start_state.base_.lin.p.y() = atof(argv_out[2].c_str());
   start_state.base_.lin.p.z() = 0.57;
@@ -49,26 +55,30 @@ int main(int argc, char **argv)
   start_state.base_.lin.a.x() = atof(argv_out[5].c_str()); // constraint
   start_state.base_.lin.a.y() = atof(argv_out[6].c_str()); // constraint
 
+  auto hyq_ik = std::make_shared<xpp::hyq::HyqInverseKinematics>();
+  auto hyq_fk = std::make_shared<xpp::hyq::codegen::HyQKinematics>();
 
-  using namespace xpp;
-  utils::EEXppPos hyq_ee(4);
-  hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LF)) = Vector3d( 0.359692,   0.327653, 0.0);
-  hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RF)) = Vector3d( 0.359694,  -0.327644, 0.0);
-  hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LH)) = Vector3d(-0.258797,   0.327698, 0.0);
-  hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RH)) = Vector3d(-0.358802,  -0.327695, 0.0);
+  if (true) {
+    using namespace xpp;
+    utils::EEXppPos hyq_ee(xpp::hyq::kNumEE);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LF)) = Vector3d( 0.359692,   0.327653, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RF)) = Vector3d( 0.359694,  -0.327644, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LH)) = Vector3d(-0.258797,   0.327698, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RH)) = Vector3d(-0.358802,  -0.327695, 0.0);
+    start_state.SetJointAngles(hyq_ee, hyq_ik);//endeffector_W);
+  } else {
+    using namespace xpp;
+    utils::EEXppPos hyq_ee(xpp::hyq::kNumEE);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LF)) = Vector3d( 0.359692,   0.327653, 0.06);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RF)) = Vector3d( 0.359694,  -0.327644, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LH)) = Vector3d(-0.258797,   0.327698, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RH)) = Vector3d(-0.358802,  -0.327695, 0.06);
+    start_state.SetJointAngles(hyq_ee, hyq_ik);//endeffector_W);
 
+    start_state.is_contact_.At(hyq::kMapHyqToOpt.at(hyq::LF)) = false;
+    start_state.is_contact_.At(hyq::kMapHyqToOpt.at(hyq::RH)) = false;
 
-
-//  HyqState::PosEE endeffector_W(4);
-//  endeffector_W.at(kMapHyqToOpt.at(LF)) = Vector3d( 0.359692,   0.327653, 0.0);
-//  endeffector_W.at(kMapHyqToOpt.at(RF)) = Vector3d( 0.359694,  -0.327644, 0.0);
-//  endeffector_W.at(kMapHyqToOpt.at(LH)) = Vector3d(-0.258797,   0.327698, 0.0);
-//  endeffector_W.at(kMapHyqToOpt.at(RH)) = Vector3d(-0.358802,  -0.327695, 0.0);
-
-  start_state.SetJointAngles(hyq_ee);//endeffector_W);
-//  start_state.qd[iit::HyQ::LH_KFE] = -10;
-//  start_state.swingleg_.fill(false);
-  start_state.swingleg_.At(hyq::kMapHyqToOpt.at(hyq::LF)) = false; // this should then also be different
+  }
   CurrentInfoMsg msg;
   msg.state = xpp::ros::RosHelpers::XppToRos(start_state);
   msg.reoptimize = false;
