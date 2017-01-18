@@ -24,20 +24,9 @@ MotionStructure::~MotionStructure ()
 void
 MotionStructure::Init (const StartStance& start_stance,
                        const AllPhaseSwingLegs& phase_swinglegs,
-                       double t_phase, double t_first_phase,
-                       bool insert_initial_stance,
-                       bool insert_final_stance,
+                       double t_phase,
                        double dt)
 {
-
-
-  if (insert_initial_stance) {
-    MotionPhase initial_stance_phase;
-    initial_stance_phase.duration_ = t_first_phase;
-    initial_stance_phase.fixed_contacts_ = start_stance;
-    phases_.push_back(initial_stance_phase);
-  }
-
   int contact_id = 0;
   MotionPhase prev_phase;
   prev_phase.fixed_contacts_ = start_stance;
@@ -72,22 +61,11 @@ MotionStructure::Init (const StartStance& start_stance,
     }
 
 
-    phase.duration_ = phases_.empty() ? t_first_phase : t_phase;
+    phase.duration_ = t_phase;
     phases_.push_back(phase);
 
     prev_phase = phase;
   }
-
-  // the final stance
-  if (insert_final_stance) {
-    MotionPhase phase;
-    phase.fixed_contacts_    = prev_phase.fixed_contacts_;
-    phase.free_contacts_     = prev_phase.free_contacts_;
-    phase.free_contacts_.insert(phase.free_contacts_.end(), prev_phase.swing_goal_contacts_.begin(), prev_phase.swing_goal_contacts_.end());
-    phase.duration_ = 0.5;
-    phases_.push_back(phase);
-  }
-
 
   std::cout << "Motion Phases:\n";
   for (auto p : phases_) {

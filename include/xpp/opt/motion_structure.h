@@ -39,14 +39,10 @@ public:
     * @param start_stance    The initial endeffectors in contact.
     * @param phase_swing_ee  The endeffectors not in contact at each phase.
     * @param t_phase         The time/duration [s] for each phase.
-    * @param t_first_phase   The time/duration [s] or the first phase.
-    * @param init_stance     True if all endeffectors remain in contact in first phase.
-    * @param final_stance    True if all endeffectors remain in contact in last phase.
     * @param dt              Time discretization [s] between nodes.
     */
   void Init(const StartStance& start_stance, const AllPhaseSwingLegs& phase_swing_ee,
-            double t_phase, double t_first_phase, bool init_stance,
-            bool final_stance, double dt);
+            double t_phase, double dt);
 
   double GetTotalTime() const;
 
@@ -84,6 +80,7 @@ public:
 private:
   StartStance start_stance_;
   AllPhaseSwingLegs phase_swing_ee_;
+
   PhaseVec phases_;
 
   double dt_; ///< discretization interval [s]
