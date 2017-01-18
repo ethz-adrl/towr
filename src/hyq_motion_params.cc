@@ -65,6 +65,7 @@ Walk::Walk()
 Trott::Trott()
 {
   id_ = opt::TrottID;
+  start_with_stance_ = false;
   t_phase_ = 0.3;
   max_step_length_ = 0.35;
   dt_nodes_ = 0.05;
@@ -132,40 +133,43 @@ Walk::GetOneCycle () const
   return cycle;
 }
 
+// naming convention:, where the circle is is a swingleg.
+// so LF and RH swinging is (bP):  o x
+//                                 x o
+static const MotionParameters::Swinglegs II = {};
+static const MotionParameters::Swinglegs PI = {kMapHyqToOpt.at(LH)};
+static const MotionParameters::Swinglegs bI = {kMapHyqToOpt.at(RH)};
+static const MotionParameters::Swinglegs IP = {kMapHyqToOpt.at(LF)};
+static const MotionParameters::Swinglegs Ib = {kMapHyqToOpt.at(RF)};
+static const MotionParameters::Swinglegs Pb = {kMapHyqToOpt.at(LH), kMapHyqToOpt.at(RF)};
+static const MotionParameters::Swinglegs bP = {kMapHyqToOpt.at(RH), kMapHyqToOpt.at(LF)};
+static const MotionParameters::Swinglegs BI = {kMapHyqToOpt.at(LH), kMapHyqToOpt.at(RH)};
+static const MotionParameters::Swinglegs IB = {kMapHyqToOpt.at(LF), kMapHyqToOpt.at(RF)};
+static const MotionParameters::Swinglegs PP = {kMapHyqToOpt.at(LH), kMapHyqToOpt.at(LF)};
+static const MotionParameters::Swinglegs bb = {kMapHyqToOpt.at(RH), kMapHyqToOpt.at(RF)};
+
 Trott::SwingLegCycle
 Trott::GetOneCycle () const
 {
-  SwingLegCycle cycle;
-  cycle.push_back({kMapHyqToOpt.at(LF), kMapHyqToOpt.at(RH)});
-  cycle.push_back({kMapHyqToOpt.at(RF), kMapHyqToOpt.at(LH)});
-  return cycle;
+  return {bP, Pb};
 }
 
 PushRecovery::SwingLegCycle
 PushRecovery::GetOneCycle () const
 {
-  SwingLegCycle cycle;
-  cycle.push_back({kMapHyqToOpt.at(LF), kMapHyqToOpt.at(RH)});
-  cycle.push_back({kMapHyqToOpt.at(RF), kMapHyqToOpt.at(LH)});
-  return cycle;
+  return {bP, Pb};
 }
 
 Camel::SwingLegCycle
 Camel::GetOneCycle () const
 {
-  SwingLegCycle cycle;
-  cycle.push_back({kMapHyqToOpt.at(LH), kMapHyqToOpt.at(LF)});
-  cycle.push_back({kMapHyqToOpt.at(RH), kMapHyqToOpt.at(RF)});
-  return cycle;
+  return {PP, bb};
 }
 
 Bound::SwingLegCycle
 Bound::GetOneCycle () const
 {
-  SwingLegCycle cycle;
-  cycle.push_back({kMapHyqToOpt.at(LF), kMapHyqToOpt.at(RF)});
-  cycle.push_back({kMapHyqToOpt.at(LH), kMapHyqToOpt.at(RH)});
-  return cycle;
+  return {BI, IB};
 }
 
 } // namespace hyq
