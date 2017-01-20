@@ -30,7 +30,7 @@ NlpUserInputNode::NlpUserInputNode ()
 
   // publish goal zero initially
   goal_cog_.p.setZero();
-  motion_type_ = opt::PushRecID;
+  motion_type_ = opt::TrottID;
   replay_trajectory_ = false;
   use_solver_snopt_ = true;
   UserCommandMsg msg;

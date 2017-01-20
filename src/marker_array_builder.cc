@@ -36,7 +36,6 @@ void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg
       EEID swingleg = phase.swing_goal_contacts_.front().ee;
       BuildSupportPolygon(msg, phase.GetAllContacts(footholds), swingleg);
     }
-
   }
 
 
@@ -70,34 +69,40 @@ MarkerArrayBuilder::BuildSupportPolygon(
   marker.header.frame_id = frame_id_;
   marker.header.stamp = ::ros::Time();
   marker.ns = supp_tr_topic; //"leg " + std::to_string(leg_id);
-  marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
   marker.action = visualization_msgs::Marker::MODIFY;
  //    marker.lifetime = ros::Duration(10);
   marker.scale.x = marker.scale.y = marker.scale.z = 1.0;
   marker.color = GetLegColor(leg_id);
   marker.color.a = 0.1;
 
-  geometry_msgs::Point p1;
-  for (size_t i=0; i<stance.size(); ++i) {
-    p1.x = stance.at(i).p.x();
-    p1.y = stance.at(i).p.y();
-    p1.z = stance.at(i).p.z();
-    marker.points.push_back(p1);
+  static const int points_per_triangle =3;
+  if (marker.points.size() == points_per_triangle) {
+    marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
+    for (size_t i=0; i<points_per_triangle; ++i) {
+      geometry_msgs::Point point;
+      point.x = stance.at(i).p.x();
+      point.y = stance.at(i).p.y();
+      point.z = stance.at(i).p.z();
+      marker.points.push_back(point);
+    }
+    msg.markers.push_back(marker);
   }
 
   // if only two contact points exist, draw line
-  if (marker.points.size() == 2) {
+  static const int points_per_line = 2;
+  if (marker.points.size() == points_per_line) {
     marker.type = visualization_msgs::Marker::LINE_STRIP;
     marker.scale.x = 0.02;
+
+    for (size_t i=0; i<points_per_line; ++i) {
+      geometry_msgs::Point point;
+      point.x = stance.at(i).p.x();
+      point.y = stance.at(i).p.y();
+      point.z = stance.at(i).p.z();
+      marker.points.push_back(point);
+    }
+    msg.markers.push_back(marker);
   }
-
-  // if only one contact points exist, draw point
-  if (marker.points.size() == 1) {
-    assert(false); // not yet implemented
-  }
-
-  msg.markers.push_back(marker);
-
 }
 
 void MarkerArrayBuilder::AddPoint(

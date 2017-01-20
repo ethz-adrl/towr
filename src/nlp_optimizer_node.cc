@@ -19,7 +19,7 @@ namespace xpp {
 namespace ros {
 
 using TrajectoryMsg = xpp_msgs::RobotStateTrajectory;
-using RobotState = xpp::opt::ArticulatedRobotState;
+using RobotState = xpp::opt::RobotStateJoints;
 
 static bool CheckIfInDirectoyWithIpoptConfigFile();
 
@@ -55,7 +55,12 @@ NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
   motion_optimizer_.SetCurrent(curr_state.ConvertToCartesian(fk));
 
   if (msg.reoptimize) {// only re-optimize if robot signalizes to be off track
-    ROS_INFO_STREAM("Robot off track. Current State:\n" << curr_state.base_);
+    ROS_INFO_STREAM("Robot off track. Current State:\n" << curr_state.GetBase());
+    ROS_INFO_STREAM("phase_percent:\n" << curr_state.GetPercentPhase());
+    ROS_INFO_STREAM("is_contact:\n");
+    ROS_INFO_STREAM(curr_state.GetContactState());
+
+
     motion_optimizer_.OptimizeMotion(solver_type_);
     PublishTrajectory();
   }
