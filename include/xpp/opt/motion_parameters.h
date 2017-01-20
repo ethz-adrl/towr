@@ -49,7 +49,7 @@ public:
   double t_phase_;
   double max_step_length_;
   double dt_nodes_; ///< time discretization of trajectory for constraints/costs
-  int polynomials_per_phase_;
+  int polynomials_per_second_;
   bool start_with_stance_;
   ValXY weight_com_motion_xy_;
   double walking_height_;

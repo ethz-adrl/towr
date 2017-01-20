@@ -8,15 +8,15 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_MOTION_FACTORY_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_MOTION_FACTORY_H_
 
+#include "com_motion.h"
+#include "motion_structure.h"
 #include <Eigen/Dense>
 #include <memory>
-#include "com_motion.h"
 
 namespace xpp {
 namespace opt {
 
 class ComMotion;
-class MotionPhase;
 
 /** Creates different types of motions based on the input arguments.
   *
@@ -26,24 +26,22 @@ class MotionPhase;
   */
 class MotionFactory {
 public:
-  typedef std::shared_ptr<ComMotion> ComMotionPtrS;
-  typedef Eigen::Vector2d Vector2d;
-  using PhaseVec = std::vector<MotionPhase>;
+  using ComMotionPtrS = std::shared_ptr<ComMotion>;
+  using PosXY         = Eigen::Vector2d;
 
   MotionFactory ();
   virtual ~MotionFactory ();
 
   /** Creates a spline where all polynomial coefficients are free.
     */
-  static ComMotionPtrS CreateComMotion(const PhaseVec&, int polynomials_per_phase);
+  static ComMotionPtrS CreateComMotion(const MotionStructure&, int polynomials_per_second);
 
   /** Creates a spline where the initial position and velocity and the
     * position and velocity at the polynomial junctions are fixed.
     */
-  static ComMotionPtrS CreateComMotion(const PhaseVec&,
-                                      const Vector2d& start_cog_p,
-                                      const Vector2d& start_cog_v,
-                                      int polynomials_per_phase);
+  static ComMotionPtrS CreateComMotion(double t_global, int polynomials_per_second,
+                                       const PosXY& start_cog_p,
+                                       const PosXY& start_cog_v);
 };
 
 } /* namespace zmp */

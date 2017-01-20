@@ -23,26 +23,26 @@ ComSpline::~ComSpline ()
 }
 
 void
-ComSpline::Init (const PhaseVec& phases, int polynomials_per_phase)
+ComSpline::Init (const MotionPhases& phases, int polynomials_per_second)
 {
-  int id = 0;
-
+  int id=0;
   for (const auto& phase : phases) {
-
-    if (!phase.IsStep())
-    {
-//      double t_reaction = 0.15;
-//      polynomials_.push_back(ComPolynomial(id++, t_reaction));
-//      polynomials_.push_back(ComPolynomial(id++, phase.duration_-t_reaction));
-      polynomials_.push_back(ComPolynomial(id++, phase.duration_));
-    } else
-    {
-      for (int i=0; i<polynomials_per_phase; ++i) {
-        ComPolynomial polynomial(id++, phase.duration_/polynomials_per_phase);
-        polynomials_.push_back(polynomial);
-      }
-    }
+    double T = phase.duration_;
+    int polys_per_phase = std::ceil(T*polynomials_per_second);
+    for (int i=0; i<polys_per_phase; ++i)
+      polynomials_.push_back(ComPolynomial(id++, T/polys_per_phase));
   }
+
+  splines_initialized_ = true;
+}
+
+void
+ComSpline::Init (double t_global, int polynomials_per_second)
+{
+  int n_polyomials = std::ceil(t_global*polynomials_per_second);
+
+  for (int i=0; i<n_polyomials; ++i)
+    polynomials_.push_back(ComPolynomial(i, t_global/n_polyomials));
 
   splines_initialized_ = true;
 }
@@ -105,7 +105,8 @@ ComSpline::GetJacobianPosVelSquared (double t_global, utils::Coords3D dim) const
 }
 
 ComSpline::JacobianRow
-ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t_local, int id,
+ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t_local,
+                                            int id,
                                             Coords3D dim) const
 {
   assert(0 <= id && id <= polynomials_.back().GetId());

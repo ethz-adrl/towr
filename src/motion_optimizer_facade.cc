@@ -34,28 +34,95 @@ MotionOptimizerFacade::SetVisualizer (VisualizerPtr visualizer)
   nlp_facade_.SetVisualizer(visualizer);
 }
 
+
 void
 MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 {
-  // create the fixed motion structure
-  step_sequence_planner_.Init(curr_state_.base_.lin.Get2D(), goal_cog_.Get2D());
+//  // create the fixed motion structure
+//  // zmp_ can't use current state here
+//  step_sequence_planner_.Init(curr_state_.GetBase().lin.Get2D(), goal_cog_.Get2D());
+//  auto phase_swinglegs = step_sequence_planner_.DetermineStepSequence(motion_type_);
 
-  auto phase_swinglegs = step_sequence_planner_.DetermineStepSequence(motion_type_);
-  bool insert_final_stance = true;
 
+
+
+  // get current phase
+  int current_phase = 0;
+  double t_global;
+  for (int i=0; i<motion_phases_.size(); ++i) {
+    t_global += motion_phases_.at(i).duration_;
+    if (t_global > curr_state_.GetTime()) {
+      current_phase = i; break;
+    }
+  }
+
+
+  int n_phases_per_cycle = motion_type_->GetOneCycle().size();
+
+
+
+
+
+
+
+
+  using SwingLegsInPhase  = std::vector<EndeffectorID>;
+  using AllPhaseSwingLegs = std::vector<SwingLegsInPhase>;
+  int n_cycles = 2;
+  AllPhaseSwingLegs step_sequence;
+//  step_sequence.push_back({}); // empty vector = initial four leg support phase
+  for (int cycle = 0; cycle<n_cycles; ++cycle)
+    for (auto phase : motion_type_->GetOneCycle())
+      step_sequence.push_back(phase);
+
+  step_sequence.push_back({}); // empty vector = final four leg support phase also for contacts at end
+
+
+
+//  step_sequence.erase (step_sequence.begin(),step_sequence.begin()+current_phase);
+
+
+
+  // zmp_ this must be adapted somehow
   MotionStructure motion_structure;
-  motion_structure.Init(curr_state_.GetContacts(), phase_swinglegs,
-                        motion_type_->t_phase_, motion_type_->t_phase_,
-                        motion_type_->start_with_stance_, insert_final_stance, motion_type_->dt_nodes_ );
+  motion_structure.Init(curr_state_.GetContacts(), step_sequence,
+                        motion_type_->t_phase_,
+                        curr_state_.GetPercentPhase(),
+                        motion_type_->dt_nodes_ );
+  motion_phases_ = motion_structure.GetPhases();
 
-  nlp_facade_.BuildNlp(curr_state_.base_.lin.Get2D(),
+  // strips away completed phase since time has already passed
+//  UpdateMotionPhases(curr_state_.t_global_);
+
+  nlp_facade_.BuildNlp(curr_state_.GetBase().lin.Get2D(),
                        goal_cog_.Get2D(),
                        motion_structure,
                        motion_type_);
 
   nlp_facade_.SolveNlp(solver);
-  motion_phases_ = motion_structure.GetPhases();
   nlp_facade_.VisualizeSolution();
+}
+
+void
+MotionOptimizerFacade::UpdateMotionPhases (double t_elapsed)
+{
+  // get current phase
+  int current_phase = 0;
+  double t_global;
+  for (int i=0; i<motion_phases_.size(); ++i) {
+    t_global += motion_phases_.at(i).duration_;
+    if (t_global > t_elapsed) {
+      current_phase = i; break;
+    }
+  }
+
+  // remove all phases up to current phase
+  motion_phases_.erase (motion_phases_.begin(),motion_phases_.begin()+current_phase);
+
+  // reduce duration of now first phase
+//  motion_phases_.front().duration_ *= (1-curr_state_.percent_phase_);
+
+  // change contacts? zmp_
 }
 
 MotionOptimizerFacade::RobotStateVec

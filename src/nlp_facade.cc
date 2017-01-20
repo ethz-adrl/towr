@@ -50,8 +50,12 @@ NlpFacade::BuildNlp(const State& initial_state,
                     const MotionStructure& motion_structure,
                     const MotionparamsPtr& motion_params)
 {
-//  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases(), initial_state.p, initial_state.v);
-  com_motion_ = MotionFactory::CreateComMotion(motion_structure.GetPhases(), motion_params->polynomials_per_phase_);
+
+//  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetTotalTime(),
+//                                                   motion_params->polynomials_per_second_,
+//                                                   initial_state.p, initial_state.v);
+  com_motion_ = MotionFactory::CreateComMotion(motion_structure,
+                                               motion_params->polynomials_per_second_);
 
   CostConstraintFactory factory;
   factory.Init(com_motion_, motion_structure, motion_params, initial_state, final_state);

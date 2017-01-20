@@ -23,15 +23,13 @@ HyqMotionParameters::HyqMotionParameters ()
   lift_height_ = 0.08;
 
   constraints_ = { InitCom,
-//                   FinalCom,
-//                   FinalStance,
+                   FinalCom,
+                   FinalStance,
                    JunctionCom,
                    Convexity,
                    SuppArea,
                    Dynamic,
                    RomBox};
-
-  cost_weights_[FinalComCostID] = 1000.0;
 }
 
 HyqMotionParameters::NominalStance
@@ -55,7 +53,7 @@ Walk::Walk()
   t_phase_ = 0.5;
   max_step_length_ = 0.21;
   dt_nodes_ = 0.05;
-  polynomials_per_phase_ = 1;
+  polynomials_per_second_ = 2;
 
   cost_weights_[ComCostID]          = 1.0;
   cost_weights_[RangOfMotionCostID] = 1.0;
@@ -69,10 +67,15 @@ Trott::Trott()
   t_phase_ = 0.3;
   max_step_length_ = 0.35;
   dt_nodes_ = 0.05;
-  polynomials_per_phase_ = 1;
+  polynomials_per_second_ = 3;
+
+  auto &v = constraints_;
+  v.erase(std::remove(v.begin(), v.end(), FinalCom), v.end());
+  v.erase(std::remove(v.begin(), v.end(), FinalStance), v.end());
 
   cost_weights_[ComCostID]          = 1.0;
   cost_weights_[RangOfMotionCostID] = 10.0;
+  cost_weights_[FinalComCostID] = 1000.0;
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
@@ -83,7 +86,7 @@ PushRecovery::PushRecovery ()
   t_phase_ = 0.2;
   max_step_length_ = 0.35;
   dt_nodes_ = 0.1;
-  polynomials_per_phase_ = 1;
+  polynomials_per_second_ = 5;
   walking_height_ = 0.55;
   lift_height_ = 0.08;
 
@@ -93,6 +96,7 @@ PushRecovery::PushRecovery ()
 
   cost_weights_[ComCostID]          = 1.0;
   cost_weights_[RangOfMotionCostID] = 10.0;
+  cost_weights_[FinalComCostID] = 1000.0;
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
@@ -102,7 +106,10 @@ Camel::Camel()
   t_phase_ = 0.3;
   max_step_length_ = 0.25;
   dt_nodes_ = 0.03;
-  polynomials_per_phase_ = 3;
+  polynomials_per_second_ = 10;
+
+  auto &v = constraints_;
+  v.erase(std::remove(v.begin(), v.end(), FinalStance), v.end());
 
   cost_weights_[ComCostID]          = 1.0;
   cost_weights_[RangOfMotionCostID] = 10.0;
@@ -114,26 +121,19 @@ Bound::Bound()
   id_ = opt::BoundID;
   t_phase_ = 0.3;
   max_step_length_ = 0.4;
-  dt_nodes_ = 0.04;
-  polynomials_per_phase_ = 2;
+  dt_nodes_ = 0.03;
+  polynomials_per_second_ = 10;
+
+
+  auto &v = constraints_;
+  v.erase(std::remove(v.begin(), v.end(), FinalStance), v.end());
 
   cost_weights_[ComCostID]          = 1.0;
   cost_weights_[RangOfMotionCostID] = 100.0;
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
-Walk::SwingLegCycle
-Walk::GetOneCycle () const
-{
-  SwingLegCycle cycle;
-  cycle.push_back({kMapHyqToOpt.at(LH)});
-  cycle.push_back({kMapHyqToOpt.at(LF)});
-  cycle.push_back({kMapHyqToOpt.at(RH)});
-  cycle.push_back({kMapHyqToOpt.at(RF)});
-  return cycle;
-}
-
-// naming convention:, where the circle is is a swingleg.
+// naming convention:, where the circle is is a swingleg, front is right ->.
 // so LF and RH swinging is (bP):  o x
 //                                 x o
 static const MotionParameters::Swinglegs II = {};
@@ -147,6 +147,14 @@ static const MotionParameters::Swinglegs BI = {kMapHyqToOpt.at(LH), kMapHyqToOpt
 static const MotionParameters::Swinglegs IB = {kMapHyqToOpt.at(LF), kMapHyqToOpt.at(RF)};
 static const MotionParameters::Swinglegs PP = {kMapHyqToOpt.at(LH), kMapHyqToOpt.at(LF)};
 static const MotionParameters::Swinglegs bb = {kMapHyqToOpt.at(RH), kMapHyqToOpt.at(RF)};
+static const MotionParameters::Swinglegs Bb = {kMapHyqToOpt.at(LH), kMapHyqToOpt.at(RH), kMapHyqToOpt.at(RF)};
+
+
+Walk::SwingLegCycle
+Walk::GetOneCycle () const
+{
+  return {PI, IP, bI, Ib};
+}
 
 Trott::SwingLegCycle
 Trott::GetOneCycle () const

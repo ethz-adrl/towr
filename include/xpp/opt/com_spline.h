@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 
 #include "com_motion.h"
-#include "motion_phase.h"
+#include "motion_phase.h" // zmp_ this shouldn't be here
 #include <xpp/utils/polynomial_helpers.h>
 #include <memory>
 
@@ -35,13 +35,16 @@ public:
   using PtrU             = std::unique_ptr<ComSpline> ;
   using PolyCoeff        = Polynomial::PolynomialCoeff;
   using PolyHelpers      = xpp::utils::ComPolynomialHelpers;
-  using PhaseVec         = std::vector<MotionPhase>;
+  using MotionPhases     = std::vector<MotionPhase>;
 
 
   ComSpline ();
   virtual ~ComSpline ();
 
-  virtual void Init(const PhaseVec& phases, int polynomials_per_phase) final;
+  void Init(double t_global, int polynomials_per_second);
+
+  // zmp_ remove this and the depdendency on motion phases
+  void Init(const MotionPhases&, int polynomials_per_second);
 
   // implements these functions from parent class, now specific for splines
   Point2d GetCom(double t_global) const override { return PolyHelpers::GetCOM(t_global, polynomials_); }

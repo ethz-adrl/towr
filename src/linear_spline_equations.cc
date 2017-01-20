@@ -5,9 +5,8 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/linear_spline_equations.h"
-
-#include "../include/xpp/opt/com_spline.h"
+#include <xpp/opt/linear_spline_equations.h>
+#include <xpp/opt/com_spline.h>
 
 namespace xpp {
 namespace opt {
@@ -102,7 +101,7 @@ LinearSplineEquations::MakeJunction () const
         VecScalar curr, next;
 
         // coefficients are all set to zero
-        curr.s = com_spline_->GetCOGxyAtPolynomial(T, id).GetByIndex(dxdt, dim);
+        curr.s = com_spline_->GetCOGxyAtPolynomial(T,   id  ).GetByIndex(dxdt, dim);
         next.s = com_spline_->GetCOGxyAtPolynomial(0.0, id+1).GetByIndex(dxdt, dim);
 
         curr.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);

@@ -23,21 +23,22 @@ MotionFactory::~MotionFactory ()
 }
 
 MotionFactory::ComMotionPtrS
-MotionFactory::CreateComMotion (const PhaseVec& phases, int polynomials_per_phase)
+MotionFactory::CreateComMotion (const MotionStructure& motion_structure, int polynomials_per_second)
 {
   auto com_spline = std::make_shared<ComSpline6>();
-  com_spline->Init(phases, polynomials_per_phase);
+
+  com_spline->Init(motion_structure.GetTotalTime(), polynomials_per_second);
+//  com_spline->Init(motion_structure.GetPhases(), polynomials_per_second);
   return com_spline;
 }
 
 MotionFactory::ComMotionPtrS
-MotionFactory::CreateComMotion (const PhaseVec& phases,
-                                const Vector2d& start_cog_p,
-                                const Vector2d& start_cog_v,
-                                int polynomials_per_phase)
+MotionFactory::CreateComMotion (double t_global, int polynomials_per_second,
+                                const PosXY& start_cog_p,
+                                const PosXY& start_cog_v)
 {
   auto com_spline = std::make_shared<ComSpline4>();
-  com_spline->Init(phases, polynomials_per_phase);
+  com_spline->Init(t_global, polynomials_per_second);
   com_spline->SetStartPosVel(start_cog_p, start_cog_v);
   com_spline->SetEndAtStart();
   return com_spline;

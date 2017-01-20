@@ -42,7 +42,7 @@ public:
     * @param dt              Time discretization [s] between nodes.
     */
   void Init(const StartStance& start_stance, const AllPhaseSwingLegs& phase_swing_ee,
-            double t_phase, double dt);
+            double t_phase, double percent_first_phase, double dt);
 
   double GetTotalTime() const;
 

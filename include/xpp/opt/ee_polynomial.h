@@ -29,7 +29,7 @@ public:
 
   void SetDuration(double T);
 
-  // zmp_ assume these values don't change, otherwise second fct wrong
+  // assume these values don't change, otherwise second function wrong
   void SetZParams(double percent_done, double z_max);
   void SetXYParams(const XYState& start, const XYState& end);
 

@@ -10,7 +10,7 @@
 
 #include <xpp/opt/step_sequence_planner.h>
 #include <xpp/opt/nlp_facade.h>
-#include <xpp/opt/articulated_robot_state_cartesian.h>
+#include "../../../../xpp_common/include/xpp/opt/robot_state_cartesian.h"
 #include "motion_parameters.h"
 
 namespace xpp {
@@ -24,7 +24,7 @@ class MotionOptimizerFacade {
 public:
   using State         = xpp::utils::StateLin3d;
   using VisualizerPtr = std::shared_ptr<IVisualizer>;
-  using RobotState    = xpp::opt::ArticulatedRobotStateCartesian; //xpp::hyq::HyqState;//
+  using RobotState    = xpp::opt::RobotStateCartesian; //xpp::hyq::HyqState;//
   using RobotStateVec = std::vector<RobotState>;
   using MotionTypePtr = std::shared_ptr<MotionParameters>;
   using PhaseVec      = std::vector<MotionPhase>;
@@ -46,12 +46,15 @@ public:
 
 
 private:
-  RobotState curr_state_; // zmp_ make this a pointer?
+  RobotState curr_state_;
   NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;
   MotionTypePtr motion_type_;
 
   PhaseVec motion_phases_;
+
+  // zmp_ write this function
+  void UpdateMotionPhases(double t_elapsed);
 };
 
 } /* namespace opt */

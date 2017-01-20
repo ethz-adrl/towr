@@ -25,6 +25,7 @@ void
 MotionStructure::Init (const StartStance& start_stance,
                        const AllPhaseSwingLegs& phase_swinglegs,
                        double t_phase,
+                       double percent_first_phase,
                        double dt)
 {
   int contact_id = 0;
@@ -60,8 +61,8 @@ MotionStructure::Init (const StartStance& start_stance,
 
     }
 
-
-    phase.duration_ = t_phase;
+    // first phase can have shorter duration
+    phase.duration_ = phases_.empty()? (1-percent_first_phase)*t_phase : t_phase;
     phases_.push_back(phase);
 
     prev_phase = phase;
