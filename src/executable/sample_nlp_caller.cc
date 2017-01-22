@@ -64,29 +64,29 @@ int main(int argc, char **argv)
   if (false) {
     using namespace xpp;
     utils::EEXppPos hyq_ee(xpp::hyq::kNumEE);
-    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LF)) = Vector3d( 0.359692,   0.327653, 0.0);
-    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RF)) = Vector3d( 0.359694,  -0.327644, 0.0);
-    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LH)) = Vector3d(-0.258797,   0.327698, 0.0);
-    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RH)) = Vector3d(-0.358802,  -0.327695, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LF)) = Vector3d(base.lin.p.x() +0.359692,  base.lin.p.y() +0.327653, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RF)) = Vector3d(base.lin.p.x() +0.359694,  base.lin.p.y() -0.327644, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LH)) = Vector3d(base.lin.p.x() -0.258797,  base.lin.p.y() +0.327698, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RH)) = Vector3d(base.lin.p.x() -0.358802,  base.lin.p.y() -0.327695, 0.0);
     start_state.SetJointAngles(hyq_ee, hyq_ik);//endeffector_W);
   } else {
     using namespace xpp;
     utils::EEXppPos hyq_ee(xpp::hyq::kNumEE);
-    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LF)) = Vector3d( 0.359692,   0.327653, 0.0);
-    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RF)) = Vector3d( 0.359694,  -0.327644, 0.0);
-    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LH)) = Vector3d(-0.258797,   0.327698, 0.0);
-    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RH)) = Vector3d(-0.358802,  -0.327695, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LF)) = Vector3d(base.lin.p.x() +0.359692,  base.lin.p.y() +0.327653, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RF)) = Vector3d(base.lin.p.x() +0.359694,  base.lin.p.y() -0.327644, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::LH)) = Vector3d(base.lin.p.x() -0.258797,  base.lin.p.y() +0.327698, 0.0);
+    hyq_ee.At(hyq::kMapHyqToOpt.at(hyq::RH)) = Vector3d(base.lin.p.x() -0.358802,  base.lin.p.y() -0.327695, 0.0);
     start_state.SetJointAngles(hyq_ee, hyq_ik);//endeffector_W);
 
     RobotState::ContactState contacts(xpp::hyq::kNumEE);
-    contacts.At(hyq::kMapHyqToOpt.at(hyq::LF)) = false;
-    contacts.At(hyq::kMapHyqToOpt.at(hyq::RH)) = false;
+    contacts.At(hyq::kMapHyqToOpt.at(hyq::LF)) = true;
+    contacts.At(hyq::kMapHyqToOpt.at(hyq::RH)) = true;
     contacts.At(hyq::kMapHyqToOpt.at(hyq::RF)) = true;
     contacts.At(hyq::kMapHyqToOpt.at(hyq::LH)) = true;
     start_state.SetContactState(contacts);
   }
 
-  start_state.SetPercentPhase(0.5);
+  start_state.SetPercentPhase(0.0);
   start_state.SetTime(0.0);
 
   CurrentInfoMsg msg;

@@ -52,7 +52,7 @@ NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
   auto curr_state = RosHelpers::RosToXpp(msg.state);
   auto fk = std::make_shared<hyq::codegen::HyQKinematics>();
 
-  motion_optimizer_.SetCurrent(curr_state.ConvertToCartesian(fk));
+  motion_optimizer_.BuildOptimizationStartState(curr_state.ConvertToCartesian(fk));
 
   if (msg.reoptimize) {// only re-optimize if robot signalizes to be off track
     ROS_INFO_STREAM("Robot off track. Current State:\n" << curr_state.GetBase());

@@ -76,7 +76,7 @@ MarkerArrayBuilder::BuildSupportPolygon(
   marker.color.a = 0.1;
 
   static const int points_per_triangle =3;
-  if (marker.points.size() == points_per_triangle) {
+  if (stance.size() == points_per_triangle) {
     marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
     for (size_t i=0; i<points_per_triangle; ++i) {
       geometry_msgs::Point point;
@@ -90,7 +90,7 @@ MarkerArrayBuilder::BuildSupportPolygon(
 
   // if only two contact points exist, draw line
   static const int points_per_line = 2;
-  if (marker.points.size() == points_per_line) {
+  if (stance.size() == points_per_line) {
     marker.type = visualization_msgs::Marker::LINE_STRIP;
     marker.scale.x = 0.02;
 
