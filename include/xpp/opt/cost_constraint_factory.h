@@ -45,13 +45,13 @@ public:
             const State2d& final_state);
 
   // optimization variables with initial values
-  VariableSet SplineCoeffVariables();
-  VariableSet ContactVariables(const Vector2d initial_pos);
-  VariableSet ConvexityVariables();
-  VariableSet CopVariables();
+  VariableSet SplineCoeffVariables() const;
+  VariableSet ContactVariables(const Vector2d initial_pos) const;
+  VariableSet ConvexityVariables() const;
+  VariableSet CopVariables() const;
 
-  CostPtr GetCost(CostName name);
-  ConstraintPtr GetConstraint(ConstraintName name);
+  CostPtr GetCost(CostName name) const;
+  ConstraintPtr GetConstraint(ConstraintName name) const;
 
 private:
   MotionStructure motion_structure;
@@ -61,21 +61,21 @@ private:
   State2d final_state_;
 
   // constraints
-  ConstraintPtr MakeInitialConstraint();
-  ConstraintPtr MakeFinalConstraint();
-  ConstraintPtr MakeJunctionConstraint();
-  ConstraintPtr MakeConvexityConstraint();
-  ConstraintPtr MakeSupportAreaConstraint();
-  ConstraintPtr MakeDynamicConstraint();
-  ConstraintPtr MakeRangeOfMotionBoxConstraint();
-  ConstraintPtr MakeFinalStanceConstraint();
-  ConstraintPtr MakeObstacleConstraint();
-  ConstraintPtr MakePolygonCenterConstraint();
+  ConstraintPtr MakeInitialConstraint() const;
+  ConstraintPtr MakeFinalConstraint() const;
+  ConstraintPtr MakeJunctionConstraint() const;
+  ConstraintPtr MakeConvexityConstraint() const;
+  ConstraintPtr MakeSupportAreaConstraint() const;
+  ConstraintPtr MakeDynamicConstraint() const;
+  ConstraintPtr MakeRangeOfMotionBoxConstraint() const;
+  ConstraintPtr MakeFinalStanceConstraint() const;
+  ConstraintPtr MakeObstacleConstraint() const;
+  ConstraintPtr MakePolygonCenterConstraint() const;
 
   // costs
-  CostPtr ComMotionCost_();
+  CostPtr MakeMotionCost() const;
 
-  CostPtr ToCost(const ConstraintPtr& constraint);
+  CostPtr ToCost(const ConstraintPtr& constraint) const;
 };
 
 } /* namespace opt */

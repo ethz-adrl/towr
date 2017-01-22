@@ -79,7 +79,8 @@ Trott::Trott()
                    Convexity,
                    SuppArea,
                    Dynamic,
-                   RomBox};
+                   RomBox
+                   };
 
   // remove all costs hugely speeds up the optimization problem
 //  cost_weights_[ComCostID]      = 1.0;

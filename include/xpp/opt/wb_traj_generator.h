@@ -102,6 +102,8 @@ private:
   double GetLocalPhaseTime(double t_global) const;
   double GetTotalTime() const;
   double GetPercentOfPhase(double t_global) const;
+
+  SplineNode GetRobotState(double t_global) const;
 };
 
 } // namespace opt

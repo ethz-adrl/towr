@@ -271,31 +271,25 @@ WBTrajGenerator::BuildWholeBodyTrajectory (double dt) const
   double t=0.0;
   double T = GetTotalTime();
   while (t<T) {
-
-    SplineNode state(kNEE);
-    state.SetBase(GetCurrentBase(t));
-    state.SetEEState(GetCurrEndeffectors(t));
-    state.SetContactState(GetCurrContactState(t));
-    state.SetPercentPhase(GetPercentOfPhase(t));
-    state.SetTime(t_start_ + t); // keep track of global time
-    state.SetCurrentPhase(phase_start_ + 1 + GetPhaseID(t));
-    trajectory.push_back(state);
-
+    trajectory.push_back(GetRobotState(t));
     t += dt;
   }
-
-//  // add final node
-//  SplineNode state(kNEE);
-//  state.SetBase(GetCurrentBase(T));
-//  state.SetEEState(GetCurrEndeffectors(T));
-//  state.SetContactState(GetCurrContactState(T));
-//  state.SetPercentPhase(GetPercentOfPhase(T));
-//  state.SetTime(t_start_ + T); // keep track of global time
-//  state.SetCurrentPhase(GetPhaseID(T));
-//  trajectory.push_back(state);
-
+  trajectory.push_back(GetRobotState(T-1e-10)); // add final state
 
   return trajectory;
+}
+
+WBTrajGenerator::SplineNode
+WBTrajGenerator::GetRobotState (double t) const
+{
+  SplineNode state(kNEE);
+  state.SetBase(GetCurrentBase(t));
+  state.SetEEState(GetCurrEndeffectors(t));
+  state.SetContactState(GetCurrContactState(t));
+  state.SetPercentPhase(GetPercentOfPhase(t));
+  state.SetTime(t_start_ + t); // keep track of global time
+  state.SetCurrentPhase(phase_start_  + 1 + GetPhaseID(t));
+  return state;
 }
 
 double
