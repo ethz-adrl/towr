@@ -33,6 +33,7 @@ private:
 
   /** sends this info the the walking controller **/
   void PublishTrajectory();
+  void OptimizeMotion();
   void CurrentStateCallback(const CurrentInfoMsg& msg);
   void UserCommandCallback(const UserCommandMsg& msg);
 

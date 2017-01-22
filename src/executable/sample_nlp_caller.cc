@@ -91,7 +91,6 @@ int main(int argc, char **argv)
 
   CurrentInfoMsg msg;
   msg.state = xpp::ros::RosHelpers::XppToRos(start_state);
-  msg.reoptimize = true;
   ROS_INFO_STREAM("Publishing current state...");
   current_info_pub.publish(msg);
 }

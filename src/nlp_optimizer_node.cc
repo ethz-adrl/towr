@@ -54,15 +54,22 @@ NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
 
   motion_optimizer_.BuildOptimizationStartState(curr_state.ConvertToCartesian(fk));
 
-  if (msg.reoptimize) {// only re-optimize if robot signalizes to be off track
-    ROS_INFO_STREAM("Robot off track. Current State:\n" << curr_state.GetBase());
-    ROS_INFO_STREAM("phase_percent:\n" << curr_state.GetPercentPhase());
-    ROS_INFO_STREAM("is_contact:\n");
-    ROS_INFO_STREAM(curr_state.GetContactState());
+  ROS_INFO_STREAM("Robot off track. Current State:\n" << curr_state.GetBase());
+  ROS_INFO_STREAM("phase_percent:\n" << curr_state.GetPercentPhase());
+  ROS_INFO_STREAM("is_contact:\n");
+  ROS_INFO_STREAM(curr_state.GetContactState());
 
+  OptimizeMotion();
+}
 
+void
+NlpOptimizerNode::OptimizeMotion ()
+{
+  try {
     motion_optimizer_.OptimizeMotion(solver_type_);
-    PublishTrajectory();
+    PublishTrajectory ();
+  } catch (const std::runtime_error& e) {
+    ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
   }
 }
 
@@ -77,8 +84,7 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 
 
   if (goal_prev != motion_optimizer_.goal_cog_ || msg.motion_type_change) {
-    motion_optimizer_.OptimizeMotion(solver_type_);
-    PublishTrajectory();
+    OptimizeMotion();
   }
 
   if (msg.replay_trajectory)
