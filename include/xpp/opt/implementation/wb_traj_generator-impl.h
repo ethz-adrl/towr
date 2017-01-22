@@ -77,8 +77,7 @@ WBTrajGenerator::BuildNodeSequence(const PhaseVec& phase_info,
     kindr::RotationQuaternionPD qIB(yprIB);
     base.ang.q = qIB.toImplementation();
 
-    // adjust global z position of body depending on footholds
-    base.lin.p.z() = des_robot_height + goal_node.GetZAvg();
+    base.lin.p.z() = des_robot_height;// + goal_node.GetZAvg();
     goal_node.SetBase(base);
 
     goal_node.SetTime(prev_node.GetTime() + curr_phase.duration_); // time to reach this node
@@ -178,7 +177,8 @@ WBTrajGenerator::GetCurrentBase (double t_global) const
 {
   BaseState base;
   base.lin = GetCurrPosition(t_global);
-  base.ang = xpp::utils::StateAng3d();// zmp_ just zero everything GetCurrOrientation(t_global);
+  base.ang = GetCurrOrientation(t_global);
+//  base.ang = xpp::utils::StateAng3d();// zmp_ just zero everything
   return base;
 }
 
@@ -192,8 +192,8 @@ WBTrajGenerator::GetCurrPosition(double t_global) const
   pos.v.topRows(kDim2d) = xy_optimized.v;
   pos.a.topRows(kDim2d) = xy_optimized.a;
 
-  pos.p.z() = walking_height_; // zmp_ constant height
-//  FillZState(t_global, pos);
+//  pos.p.z() = walking_height_; // zmp_ constant height
+  FillZState(t_global, pos);
   return pos;
 }
 

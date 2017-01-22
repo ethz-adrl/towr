@@ -21,15 +21,6 @@ HyqMotionParameters::HyqMotionParameters ()
   start_with_stance_ = true;
   walking_height_ = 0.58;
   lift_height_ = 0.08;
-
-  constraints_ = { InitCom,
-                   FinalCom,
-                   FinalStance,
-                   JunctionCom,
-                   Convexity,
-                   SuppArea,
-                   Dynamic,
-                   RomBox};
 }
 
 HyqMotionParameters::NominalStance
@@ -50,14 +41,26 @@ HyqMotionParameters::GetNominalStanceInBase () const
 Walk::Walk()
 {
   id_ = opt::WalkID;
-  t_phase_ = 0.5;
+  t_phase_ = 0.4;
   max_step_length_ = 0.21;
   dt_nodes_ = 0.05;
-  polynomials_per_second_ = 2;
+  polynomials_per_second_ = 3;
+
+
+  constraints_ = { InitCom,
+                   FinalCom,
+//                   FinalStance,
+                   JunctionCom,
+                   Convexity,
+                   SuppArea,
+                   Dynamic,
+                   RomBox};
+
 
   cost_weights_[ComCostID]          = 1.0;
   cost_weights_[RangOfMotionCostID] = 1.0;
   cost_weights_[PolyCenterCostID]   = 10.0;
+//  cost_weights_[FinalComCostID] = 1000.0;
 }
 
 Trott::Trott()
@@ -69,9 +72,14 @@ Trott::Trott()
   dt_nodes_ = 0.05;
   polynomials_per_second_ = 3;
 
-  auto &v = constraints_;
-//  v.erase(std::remove(v.begin(), v.end(), FinalCom), v.end());
-  v.erase(std::remove(v.begin(), v.end(), FinalStance), v.end());
+  constraints_ = { InitCom,
+                   FinalCom,
+//                   FinalStance,
+                   JunctionCom,
+                   Convexity,
+                   SuppArea,
+                   Dynamic,
+                   RomBox};
 
   // remove all costs hugely speeds up the optimization problem
 //  cost_weights_[ComCostID]      = 1.0;
@@ -91,9 +99,14 @@ PushRecovery::PushRecovery ()
   walking_height_ = 0.55;
   lift_height_ = 0.08;
 
-  auto &v = constraints_;
-  v.erase(std::remove(v.begin(), v.end(), FinalCom), v.end());
-  v.erase(std::remove(v.begin(), v.end(), FinalStance), v.end());
+  constraints_ = { InitCom,
+                   FinalCom,
+//                   FinalStance,
+                   JunctionCom,
+                   Convexity,
+                   SuppArea,
+                   Dynamic,
+                   RomBox};
 
 //  cost_weights_[ComCostID]          = 1.0;
 //  cost_weights_[RangOfMotionCostID] = 10.0;
@@ -109,8 +122,14 @@ Camel::Camel()
   dt_nodes_ = 0.03;
   polynomials_per_second_ = 10;
 
-  auto &v = constraints_;
-  v.erase(std::remove(v.begin(), v.end(), FinalStance), v.end());
+  constraints_ = { InitCom,
+                   FinalCom,
+//                   FinalStance,
+                   JunctionCom,
+                   Convexity,
+                   SuppArea,
+                   Dynamic,
+                   RomBox};
 
   cost_weights_[ComCostID]          = 1.0;
   cost_weights_[RangOfMotionCostID] = 10.0;
@@ -126,8 +145,14 @@ Bound::Bound()
   polynomials_per_second_ = 10;
 
 
-  auto &v = constraints_;
-  v.erase(std::remove(v.begin(), v.end(), FinalStance), v.end());
+  constraints_ = { InitCom,
+                   FinalCom,
+//                   FinalStance,
+                   JunctionCom,
+                   Convexity,
+                   SuppArea,
+                   Dynamic,
+                   RomBox};
 
   cost_weights_[ComCostID]          = 1.0;
   cost_weights_[RangOfMotionCostID] = 100.0;

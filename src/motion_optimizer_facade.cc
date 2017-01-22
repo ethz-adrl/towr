@@ -76,12 +76,18 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 
   std::cout << "curr_phase: " << curr_phase << std::endl;
 
-  int cycle_part = curr_phase%2; // either 1 or 0
+  int phases_in_cycle = motion_type_->GetOneCycle().size();
+  int phase = curr_phase%phases_in_cycle; // either 1 or 0
 //  step_sequence.push_back(motion_type_->GetOneCycle().at(cycle_part));
 
-  for (int cycle = 0; cycle<1; ++cycle) {
-    step_sequence.push_back(motion_type_->GetOneCycle().at(cycle_part));
-    step_sequence.push_back(motion_type_->GetOneCycle().at(1-cycle_part));
+
+  for (int i = 0; i<phases_in_cycle; ++i) {
+
+    step_sequence.push_back(motion_type_->GetOneCycle().at(phase));
+
+    phase++;
+    if (phase == phases_in_cycle)
+      phase = 0;
   }
   step_sequence.push_back({}); // empty vector = final four leg support phase also for contacts at end
 //  step_sequence.push_back({}); // empty vector = final four leg support phase also for contacts at end
