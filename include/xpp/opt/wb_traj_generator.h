@@ -63,9 +63,13 @@ public:
 
   ArtiRobVec BuildWholeBodyTrajectory(double dt) const;
 
+  SplineNode GetNodeSecondPhase() const { return nodes_.at(1); };
+
 private:
   int kNEE;
   double t_start_;
+  int phase_start_;
+  double walking_height_;
 
   std::vector<SplineNode> nodes_;
   std::vector<ZPolynomial> z_spliner_;

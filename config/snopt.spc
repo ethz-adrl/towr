@@ -8,9 +8,9 @@ Begin  TO NLP problem
 * A complete list of options can be found in the snopt user guide:
 * https://web.stanford.edu/group/SOL/guides/sndoc7.pdf
 
-   Major Print level           000001
-   Minor print level                1
-   Solution                       yes
+    Major Print level           000001
+    Minor print level                1
+    Solution                       yes
    
 * Some options that terminate snopt early   
 *  Major iterations limit           6

@@ -17,7 +17,7 @@ namespace opt {
 
 /** Converts a constraint to a cost by weighing the quadratic violations.
   *
-  * Let constraint g(x) \in R^m with upper bound b_u and lower boud b_l.
+  * Let constraint g(x) \in R^m with upper bound b_u and lower bound b_l.
   * Let g'(x) = g(x) - 0.5(b_u+b_l) = g(x) - b
   * And it's derivative dg'(x)/dx = J(x).
   * Define a cost as c(x) = 0.5 * g'^T * W * g', where W = diag(w1,...,wm).

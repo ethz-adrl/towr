@@ -26,6 +26,7 @@ LinearSplineEquations::LinearSplineEquations (const ComMotion& com_motion )
     com_spline_.reset(tmp);
   }
 
+  // zmp_ !!!!could it be that I must change this according to initial values
   com_spline_->SetCoefficientsZero(); // the values my motion function approximation is around
 }
 
@@ -69,8 +70,7 @@ LinearSplineEquations::MakeFinal (const State2d& final_state,
   double T = com_spline_->GetTotalTime();
   for (const Coords3D dim : {X,Y})
   {
-    for (auto dxdt :  derivatives)
-    {
+    for (auto dxdt :  derivatives) {
       VecScalar diff_dxdt = com_spline_->GetLinearApproxWrtCoeff(T, dxdt, dim);
       diff_dxdt.s -= final_state.GetByIndex(dxdt, dim);
       M.WriteRow(diff_dxdt, c++);

@@ -32,8 +32,10 @@ WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
   kNEE = curr_state.GetEECount();
   leg_lift_height_ = lift_height;
   com_motion_ = com_spline;
+  walking_height_ = des_height;
 
   t_start_ = curr_state.GetTime();
+  phase_start_ = curr_state.GetCurrentPhase();
   nodes_.push_back(curr_state);
   nodes_.back().SetTime(0.0); // internally, the motion starts at t=0
 
@@ -176,7 +178,7 @@ WBTrajGenerator::GetCurrentBase (double t_global) const
 {
   BaseState base;
   base.lin = GetCurrPosition(t_global);
-  base.ang = GetCurrOrientation(t_global);
+  base.ang = xpp::utils::StateAng3d();// zmp_ just zero everything GetCurrOrientation(t_global);
   return base;
 }
 
@@ -190,7 +192,8 @@ WBTrajGenerator::GetCurrPosition(double t_global) const
   pos.v.topRows(kDim2d) = xy_optimized.v;
   pos.a.topRows(kDim2d) = xy_optimized.a;
 
-  FillZState(t_global, pos);
+  pos.p.z() = walking_height_; // zmp_ constant height
+//  FillZState(t_global, pos);
   return pos;
 }
 
@@ -275,7 +278,7 @@ WBTrajGenerator::BuildWholeBodyTrajectory (double dt) const
     state.SetContactState(GetCurrContactState(t));
     state.SetPercentPhase(GetPercentOfPhase(t));
     state.SetTime(t_start_ + t); // keep track of global time
-    state.SetCurrentPhase(GetPhaseID(t));
+    state.SetCurrentPhase(phase_start_ + 1 + GetPhaseID(t));
     trajectory.push_back(state);
 
     t += dt;

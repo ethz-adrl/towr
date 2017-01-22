@@ -22,7 +22,7 @@ MotionStructure::~MotionStructure ()
 
 // mpc clean this up, messy code
 void
-MotionStructure::Init (const StartStance& start_stance,
+MotionStructure::Init (const StartStance& ee_pos,
                        const AllPhaseSwingLegs& phase_swinglegs,
                        double t_phase,
                        double percent_first_phase,
@@ -30,7 +30,14 @@ MotionStructure::Init (const StartStance& start_stance,
 {
   int contact_id = 0;
   MotionPhase prev_phase;
-  prev_phase.fixed_contacts_ = start_stance;
+
+  for (EEID ee : ee_pos.GetEEsOrdered()) {
+    Contact c;
+    c.ee = ee;
+    c.p = ee_pos.At(ee);
+    prev_phase.fixed_contacts_.push_back(c);
+  }
+
   for (uint i=0; i<phase_swinglegs.size(); ++i) {
 
     MotionPhase phase;
@@ -62,7 +69,7 @@ MotionStructure::Init (const StartStance& start_stance,
     }
 
     // first phase can have shorter duration
-    phase.duration_ = phases_.empty()? (1-percent_first_phase)*t_phase : t_phase;
+    phase.duration_ = t_phase; // zmp_ add back phases_.empty()? (1-percent_first_phase)*t_phase : t_phase;
     phases_.push_back(phase);
 
     prev_phase = phase;
@@ -73,7 +80,6 @@ MotionStructure::Init (const StartStance& start_stance,
     std::cout << p << std::endl << std::endl;;
   }
 
-  start_stance_ = start_stance;
   phase_swing_ee_ = phase_swinglegs;
   dt_ = dt;
   cache_needs_updating_ = true;

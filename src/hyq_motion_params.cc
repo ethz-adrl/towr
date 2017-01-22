@@ -70,12 +70,13 @@ Trott::Trott()
   polynomials_per_second_ = 3;
 
   auto &v = constraints_;
-  v.erase(std::remove(v.begin(), v.end(), FinalCom), v.end());
+//  v.erase(std::remove(v.begin(), v.end(), FinalCom), v.end());
   v.erase(std::remove(v.begin(), v.end(), FinalStance), v.end());
 
-  cost_weights_[ComCostID]          = 1.0;
-  cost_weights_[RangOfMotionCostID] = 10.0;
-  cost_weights_[FinalComCostID] = 1000.0;
+  // remove all costs hugely speeds up the optimization problem
+//  cost_weights_[ComCostID]      = 1.0;
+//  cost_weights_[FinalComCostID] = 1000.0;
+//  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
@@ -94,9 +95,9 @@ PushRecovery::PushRecovery ()
   v.erase(std::remove(v.begin(), v.end(), FinalCom), v.end());
   v.erase(std::remove(v.begin(), v.end(), FinalStance), v.end());
 
-  cost_weights_[ComCostID]          = 1.0;
-  cost_weights_[RangOfMotionCostID] = 10.0;
-  cost_weights_[FinalComCostID] = 1000.0;
+//  cost_weights_[ComCostID]          = 1.0;
+//  cost_weights_[RangOfMotionCostID] = 10.0;
+//  cost_weights_[FinalComCostID] = 1000.0;
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 

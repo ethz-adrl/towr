@@ -35,9 +35,9 @@ public:
   void SetVisualizer(VisualizerPtr visualizer);
 
   void OptimizeMotion(NlpSolver solver);
-  RobotStateVec GetTrajectory(double dt) const;
+  RobotStateVec GetTrajectory(double dt);
 
-  void SetCurrent(const RobotState& curr);
+  void BuildOptimizationStartState(const RobotState& curr);
 
   State goal_cog_;
   double t_left_; // time to reach goal
@@ -46,15 +46,13 @@ public:
 
 
 private:
-  RobotState curr_state_;
+  RobotState opt_start_state_;
+  RobotState state_second_phase_; ///< the current goal to reach
+
   NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;
   MotionTypePtr motion_type_;
-
   PhaseVec motion_phases_;
-
-  // zmp_ write this function
-  void UpdateMotionPhases(double t_elapsed);
 };
 
 } /* namespace opt */

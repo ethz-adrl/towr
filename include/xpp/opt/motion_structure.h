@@ -9,6 +9,7 @@
 #define XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
 
 #include "motion_phase.h"
+#include <xpp/utils/endeffectors.h>
 #include <vector>
 
 namespace xpp {
@@ -26,7 +27,7 @@ public:
   using EEID              = utils::EndeffectorID;
   using SwingLegsInPhase  = std::vector<EEID>;
   using AllPhaseSwingLegs = std::vector<SwingLegsInPhase>;
-  using StartStance       = std::vector<Contact>;
+  using StartStance       = xpp::utils::EEXppPos;
   using PhaseVec          = std::vector<MotionPhase>;
   using PhaseStampedVec   = std::vector<MotionNode>;
 
@@ -41,7 +42,7 @@ public:
     * @param t_phase         The time/duration [s] for each phase.
     * @param dt              Time discretization [s] between nodes.
     */
-  void Init(const StartStance& start_stance, const AllPhaseSwingLegs& phase_swing_ee,
+  void Init(const StartStance& ee_pos, const AllPhaseSwingLegs& phase_swing_ee,
             double t_phase, double percent_first_phase, double dt);
 
   double GetTotalTime() const;
@@ -75,10 +76,9 @@ public:
   int GetTotalNumberOfNodeContacts() const;
 
   std::vector<EEID> GetContactIds() const;
-  StartStance GetStartStance() const { return start_stance_;};
+  std::vector<Contact> GetStartStance() const { return phases_.front().fixed_contacts_;};
 
 private:
-  StartStance start_stance_;
   AllPhaseSwingLegs phase_swing_ee_;
 
   PhaseVec phases_;
