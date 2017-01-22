@@ -27,7 +27,7 @@ tol 0.01
 
 
 #bound_relax_factor 0.01
-max_cpu_time 0.03  
+#max_cpu_time 0.1  
 #max_iter 1
 #bound_frac 0.5
 
@@ -47,5 +47,5 @@ max_cpu_time 0.03
 
 
 print_level 5
-print_user_options no
+print_user_options yes
 print_timing_statistics no

@@ -166,7 +166,15 @@ SnoptAdapter::~SnoptAdapter ()
 void
 SnoptAdapter::SolveSQP (int start_type)
 {
-  snoptProblemA::solve(start_type);
+  // error codes as given in the manual.
+  int INFO = snoptProblemA::solve(start_type);
+  int EXIT = INFO - INFO%10; // change least significant digit to zero
+
+  if (EXIT != 0) {
+    std::string msg = "Snopt failed to find a solution. EXIT:" + std::to_string(EXIT) + ", INFO:" + std::to_string(INFO);
+    throw std::runtime_error(msg);
+  }
+
   nlp_->SetVariables(x);
 
   // this seems to be necessary, to create a new snopt problem for every run

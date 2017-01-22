@@ -155,6 +155,13 @@ NlpFacade::SolveIpopt ()
   if (status_ == Infeasible_Problem_Detected) {
     std::cout << "Problem/Constraints infeasible; run again?";
   }
+
+  bool solve_succeeded = status_ == Solve_Succeeded;
+
+  if (!solve_succeeded) {
+    std::string msg = "Ipopt failed to find a solution. ReturnCode: " + std::to_string(status_);
+    throw std::runtime_error(msg);
+  }
 }
 
 NlpFacade::VecFoothold
