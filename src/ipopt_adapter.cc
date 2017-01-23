@@ -31,10 +31,6 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   m = nlp_->GetNumberOfConstraints();
   nnz_jac_g = nlp_->GetJacobianOfConstraints()->nonZeros();
 
-  std::cout << n << " variables\n";
-  std::cout << m << " constraints\n";
-  std::cout << nnz_jac_g << " nonzeros in the jacobian\n";
-
   // nonzeros in the hessian of the lagrangian
   // (one in the hessian of the objective for x2,
   //  and one in the hessian of the constraints for x1)
@@ -183,9 +179,8 @@ void IpoptAdapter::finalize_solution(Ipopt::SolverReturn status,
 //
 //  double tol1 = 1e-3;
 //  nlp_->PrintStatusOfConstraints(tol1);
-
-  double tol2 = 1e-5;
-  nlp_->PrintStatusOfConstraints(tol2);
+//  double tol2 = 1e-5;
+//  nlp_->PrintStatusOfConstraints(tol2);
 
 
 //  opt_variables_.spline_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);

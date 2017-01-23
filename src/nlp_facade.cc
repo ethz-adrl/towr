@@ -143,22 +143,20 @@ NlpFacade::SolveIpopt ()
   // Convert the NLP problem to Ipopt
   IpoptPtr nlp_ptr = new IpoptAdapter(nlp_, visualizer_); // just so it can poll the PublishMsg() method
   status_ = ipopt_app_->OptimizeTNLP(nlp_ptr);
-  if (status_ == Solve_Succeeded) {
-    // Retrieve some statistics about the solve
-    Index iter_count = ipopt_app_->Statistics()->IterationCount();
-    std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
+//  if (status_ == Solve_Succeeded) {
+//    // Retrieve some statistics about the solve
+//    Index iter_count = ipopt_app_->Statistics()->IterationCount();
+//    std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
+//
+//    Number final_obj = ipopt_app_->Statistics()->FinalObjective();
+//    std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
+//  }
+//
+//  if (status_ == Infeasible_Problem_Detected) {
+//    std::cout << "Problem/Constraints infeasible; run again?";
+//  }
 
-    Number final_obj = ipopt_app_->Statistics()->FinalObjective();
-    std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
-  }
-
-  if (status_ == Infeasible_Problem_Detected) {
-    std::cout << "Problem/Constraints infeasible; run again?";
-  }
-
-  bool solve_succeeded = status_ == Solve_Succeeded;
-
-  if (!solve_succeeded) {
+  if (status_ != Solve_Succeeded) {
     std::string msg = "Ipopt failed to find a solution. ReturnCode: " + std::to_string(status_);
     throw std::runtime_error(msg);
   }

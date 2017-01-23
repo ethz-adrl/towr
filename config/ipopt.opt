@@ -20,14 +20,14 @@ hessian_approximation limited-memory
 #derivative_test first-order
 #derivative_test second-order
 
-tol 0.01
+tol 0.01   # usually 0.01
 #constr_viol_tol 1e-3
 #dual_inf_tol 1e10
 #compl_inf_tol 1e10
 
 
 #bound_relax_factor 0.01
-#max_cpu_time 0.1  
+max_cpu_time 1.0  
 #max_iter 1
 #bound_frac 0.5
 
@@ -46,6 +46,6 @@ tol 0.01
 
 
 
-print_level 5
-print_user_options yes
+print_level 0   #5=default
+print_user_options no
 print_timing_statistics no

@@ -16,7 +16,7 @@ using namespace xpp::opt;
 
 HyqMotionParameters::HyqMotionParameters ()
 {
-  max_dev_xy_ = {0.15, 0.15};
+  lambda_deviation_percent_ = 1.0; // 100 percent
   weight_com_motion_xy_ = {1.0, 1.0};
   start_with_stance_ = true;
   walking_height_ = 0.58;
@@ -40,10 +40,12 @@ HyqMotionParameters::GetNominalStanceInBase () const
 
 Walk::Walk()
 {
+  opt_horizon_in_phases_ = 12;
+  max_dev_xy_ = {0.15, 0.15};
   id_ = opt::WalkID;
   t_phase_ = 0.4;
   max_step_length_ = 0.21;
-  dt_nodes_ = 0.05;
+  dt_nodes_ = 0.1;
   polynomials_per_second_ = 3;
 
 
@@ -65,6 +67,9 @@ Walk::Walk()
 
 Trott::Trott()
 {
+  opt_horizon_in_phases_ = 2;
+  max_dev_xy_ = {0.15, 0.15};
+  lambda_deviation_percent_ = 0.6;
   id_ = opt::TrottID;
   start_with_stance_ = false;
   t_phase_ = 0.3;
@@ -84,13 +89,16 @@ Trott::Trott()
 
   // remove all costs hugely speeds up the optimization problem
 //  cost_weights_[ComCostID]      = 1.0;
-//  cost_weights_[FinalComCostID] = 1000.0;
+//  cost_weights_[FinalComCostID] = 1.0;
 //  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
 PushRecovery::PushRecovery ()
 {
+  opt_horizon_in_phases_ = 2;
+  max_dev_xy_ = {0.15, 0.15};
+  lambda_deviation_percent_ = 0.8;
   id_ = opt::PushRecID;
   start_with_stance_ = false;
   t_phase_ = 0.2;
@@ -101,7 +109,7 @@ PushRecovery::PushRecovery ()
   lift_height_ = 0.08;
 
   constraints_ = { InitCom,
-                   FinalCom,
+//                   FinalCom,
 //                   FinalStance,
                    JunctionCom,
                    Convexity,
@@ -117,6 +125,8 @@ PushRecovery::PushRecovery ()
 
 Camel::Camel()
 {
+  opt_horizon_in_phases_ = 2;
+  max_dev_xy_ = {0.15, 0.15};
   id_ = opt::CamelID;
   t_phase_ = 0.3;
   max_step_length_ = 0.25;
@@ -139,6 +149,7 @@ Camel::Camel()
 
 Bound::Bound()
 {
+  max_dev_xy_ = {0.15, 0.15};
   id_ = opt::BoundID;
   t_phase_ = 0.3;
   max_step_length_ = 0.4;

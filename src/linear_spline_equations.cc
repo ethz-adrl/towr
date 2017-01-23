@@ -26,7 +26,6 @@ LinearSplineEquations::LinearSplineEquations (const ComMotion& com_motion )
     com_spline_.reset(tmp);
   }
 
-  // zmp_ !!!!could it be that I must change this according to initial values
   com_spline_->SetCoefficientsZero(); // the values my motion function approximation is around
 }
 

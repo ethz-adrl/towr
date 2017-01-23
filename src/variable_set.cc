@@ -10,11 +10,18 @@
 namespace xpp {
 namespace opt {
 
-xpp::opt::VariableSet::VariableSet (const VectorXd& values, std::string id,
-                                    const Bound& bound)
+// zmp_ delegate to other constructor
+VariableSet::VariableSet (const VectorXd& values, std::string id, const Bound& bound)
 {
   x_ = values;
   bounds_.assign(values.rows(), bound);
+  id_ = id;
+}
+
+VariableSet::VariableSet (const VectorXd& values, std::string id, const VecBound& bounds)
+{
+  x_ = values;
+  bounds_  = bounds;
   id_ = id;
 }
 

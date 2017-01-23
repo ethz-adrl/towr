@@ -75,10 +75,10 @@ MotionStructure::Init (const StartStance& ee_pos,
     prev_phase = phase;
   }
 
-  std::cout << "Motion Phases:\n";
-  for (auto p : phases_) {
-    std::cout << p << std::endl << std::endl;;
-  }
+//  std::cout << "Motion Phases:\n";
+//  for (auto p : phases_) {
+//    std::cout << p << std::endl << std::endl;;
+//  }
 
   phase_swing_ee_ = phase_swinglegs;
   dt_ = dt;

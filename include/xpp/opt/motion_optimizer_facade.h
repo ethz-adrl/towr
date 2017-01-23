@@ -10,7 +10,7 @@
 
 #include <xpp/opt/step_sequence_planner.h>
 #include <xpp/opt/nlp_facade.h>
-#include "../../../../xpp_common/include/xpp/opt/robot_state_cartesian.h"
+#include <xpp/opt/robot_state_cartesian.h>
 #include "motion_parameters.h"
 
 namespace xpp {

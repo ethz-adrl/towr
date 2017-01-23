@@ -24,6 +24,7 @@ public:
   using Bound    = AConstraint::Bound;
 
   VariableSet(const VectorXd& values, std::string id, const Bound& = AConstraint::kNoBound_);
+  VariableSet(const VectorXd& values, std::string id, const VecBound& bounds);
   virtual ~VariableSet();
 
   VectorXd GetVariables() const;

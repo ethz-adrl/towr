@@ -97,9 +97,25 @@ CostConstraintFactory::ContactVariables (const Vector2d initial_pos) const
 VariableSet
 CostConstraintFactory::ConvexityVariables () const
 {
-  Eigen::VectorXd lambdas(motion_structure.GetTotalNumberOfNodeContacts());
-  lambdas.fill(0.33); // sort of in the middle for 3 contacts per node
-  return VariableSet(lambdas, VariableNames::kConvexity, AConstraint::Bound(0.0, 1.0));
+  // zmp_ clean this up
+  int n_lambdas = motion_structure.GetTotalNumberOfNodeContacts();
+  VariableSet::VecBound bounds;
+  Eigen::VectorXd lambdas(n_lambdas);
+  int k=0;
+  for (auto node : motion_structure.GetPhaseStampedVec()) {
+    int n_contacts_at_node = node.GetAllContacts().size();
+    double avg = 1./n_contacts_at_node;
+    double min = avg - avg*params->lambda_deviation_percent_;
+    double max = 1-min;
+    for (int j=0; j<n_contacts_at_node; ++j) {
+      lambdas(k++) = avg;
+      bounds.push_back(AConstraint::Bound(min, max));
+    }
+  }
+
+//  lambdas.fill(0.5); // sort of in the middle for 3 contacts per node
+//  return VariableSet(lambdas, VariableNames::kConvexity, AConstraint::Bound(0.0, 1.0));
+  return VariableSet(lambdas, VariableNames::kConvexity, bounds);
 }
 
 VariableSet

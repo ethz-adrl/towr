@@ -54,6 +54,8 @@ public:
   ValXY weight_com_motion_xy_;
   double walking_height_;
   double lift_height_;
+  double lambda_deviation_percent_;
+  int opt_horizon_in_phases_;
 
 
   static MotionTypePtr MakeMotion(MotionTypeID);
