@@ -32,7 +32,7 @@ NlpUserInputNode::NlpUserInputNode ()
   goal_cog_.p.setZero();
   motion_type_ = opt::TrottID;
   replay_trajectory_ = false;
-  use_solver_snopt_ = true;
+  use_solver_snopt_ = false;
   UserCommandMsg msg;
   msg.t_left = t_max_left_;
   msg.goal = RosHelpers::XppToRos(goal_cog_);
@@ -50,7 +50,7 @@ NlpUserInputNode::~NlpUserInputNode ()
 void
 NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
 {
-  const static double dx = 0.1;
+  const static double dx = 0.05;
   const static double dy = 0.05;
 
   switch (msg.code) {

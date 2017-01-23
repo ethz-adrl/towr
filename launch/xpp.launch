@@ -3,6 +3,7 @@
   
   <!-- so the logging print the node name -->
   <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${node}]: ${message}" />
+  <env name="ROSCONSOLE_CONFIG_FILE" value="$(find xpp_ros)/config/xpp.conf"/>
 
   <!-- launches the actual nlp server -->
   <include file="$(find xpp_ros)/launch/optimizer.launch"></include>

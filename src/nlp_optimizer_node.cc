@@ -37,7 +37,6 @@ NlpOptimizerNode::NlpOptimizerNode ()
   trajectory_pub_ = n.advertise<TrajectoryMsg>(xpp_msgs::robot_trajectory_joints, 1);
 
   dt_ = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
-  solver_type_ = opt::Snopt;
 
   motion_optimizer_.SetVisualizer(std::make_shared<RosVisualizer>());
 
@@ -53,12 +52,7 @@ NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
   auto fk = std::make_shared<hyq::codegen::HyQKinematics>();
 
   motion_optimizer_.BuildOptimizationStartState(curr_state.ConvertToCartesian(fk));
-
-  ROS_INFO_STREAM("Robot off track. Current State:\n" << curr_state.GetBase());
-  ROS_INFO_STREAM("phase_percent:\n" << curr_state.GetPercentPhase());
-  ROS_INFO_STREAM("is_contact:\n");
-  ROS_INFO_STREAM(curr_state.GetContactState());
-
+  ROS_INFO_STREAM("Received Current State");
   OptimizeMotion();
 }
 
