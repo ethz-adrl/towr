@@ -15,7 +15,7 @@
 #include <xpp/utils/polynomial_helpers.h>
 #include <xpp/utils/polynomial_xd.h>
 #include <xpp/utils/eigen_std_conversions.h>
-#include "../../../../xpp_common/include/xpp/opt/robot_state_cartesian.h"
+#include <xpp/opt/robot_state_cartesian.h>
 
 namespace xpp {
 namespace opt {
@@ -59,7 +59,8 @@ public:
             const VecFoothold&,
             double des_height,
             const SplineNode& curr_state,
-            double lift_height);
+            double lift_height,
+            const Vector3d& com_offset);
 
   ArtiRobVec BuildWholeBodyTrajectory(double dt) const;
 
@@ -69,7 +70,8 @@ private:
   int kNEE;
   double t_start_;
   int phase_start_;
-  double walking_height_;
+  double geom_walking_height_;
+  Vector3d offset_geom_to_com_; ///< difference between com and geometric center
 
   std::vector<SplineNode> nodes_;
   std::vector<ZPolynomial> z_spliner_;

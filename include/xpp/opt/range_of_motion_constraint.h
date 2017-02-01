@@ -65,7 +65,7 @@ public:
   /** @param dev  How much the endeffector can deviate from the default (x,y)
     * position while still remaining in the range of motion.
     */
-  RangeOfMotionBox(const MaxDevXY& dev, const NominalStance& nom);
+  RangeOfMotionBox(const MaxDevXY& dev, const NominalStance& nom, const PosXY& offset_geom_to_com);
 
   virtual VectorXd EvaluateConstraint () const final;
   virtual VecBound GetBounds () const final;
@@ -76,6 +76,7 @@ private:
 
   MaxDevXY max_deviation_from_nominal_;
   NominalStance nominal_stance_;
+  PosXY offset_geom_to_com_;
 };
 
 ///** @brief Constrains the contact to lie at a fixed position in world frame.

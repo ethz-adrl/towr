@@ -25,21 +25,23 @@ WBTrajGenerator::~WBTrajGenerator()
 
 void
 WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
-                       const VecFoothold& footholds, double des_height,
-                       const SplineNode& curr_state, double lift_height)
+                       const VecFoothold& footholds, double geom_height,
+                       const SplineNode& curr_state, double lift_height,
+                       const Vector3d& com_offset)
 {
   // get endeffector size from current node
   kNEE = curr_state.GetEECount();
   leg_lift_height_ = lift_height;
   com_motion_ = com_spline;
-  walking_height_ = des_height;
+  geom_walking_height_ = geom_height;
+  offset_geom_to_com_ = com_offset;
 
   t_start_ = curr_state.GetTime();
   phase_start_ = curr_state.GetCurrentPhase();
   nodes_.push_back(curr_state);
   nodes_.back().SetTime(0.0); // internally, the motion starts at t=0
 
-  BuildNodeSequence(phase_info, footholds, des_height);
+  BuildNodeSequence(phase_info, footholds, geom_height);
 
   CreateAllSplines();
 }
@@ -47,7 +49,7 @@ WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
 void
 WBTrajGenerator::BuildNodeSequence(const PhaseVec& phase_info,
                                    const VecFoothold& footholds,
-                                   double des_robot_height)
+                                   double geom_robot_height)
 {
   int phase_id = 0;
   for (const auto& curr_phase : phase_info) {
@@ -77,7 +79,7 @@ WBTrajGenerator::BuildNodeSequence(const PhaseVec& phase_info,
     kindr::RotationQuaternionPD qIB(yprIB);
     base.ang.q = qIB.toImplementation();
 
-    base.lin.p.z() = des_robot_height;// + goal_node.GetZAvg();
+    base.lin.p.z() = geom_robot_height;// + goal_node.GetZAvg();
     goal_node.SetBase(base);
 
     goal_node.SetTime(prev_node.GetTime() + curr_phase.duration_); // time to reach this node
@@ -186,14 +188,16 @@ WBTrajGenerator::State3d
 WBTrajGenerator::GetCurrPosition(double t_global) const
 {
   State3d pos;
-
-  xpp::utils::StateLin2d xy_optimized = com_motion_->GetCom(t_global);
-  pos.p.topRows(kDim2d) = xy_optimized.p;
-  pos.v.topRows(kDim2d) = xy_optimized.v;
-  pos.a.topRows(kDim2d) = xy_optimized.a;
-
 //  pos.p.z() = walking_height_; // zmp_ constant height
   FillZState(t_global, pos);
+
+  xpp::utils::StateLin2d com_xy = com_motion_->GetCom(t_global);
+
+  // since the optimized motion is for the CoM and not the geometric center
+  pos.p.topRows(kDim2d) = com_xy.p - offset_geom_to_com_.topRows<kDim2d>();
+  pos.v.topRows(kDim2d) = com_xy.v;
+  pos.a.topRows(kDim2d) = com_xy.a;
+
   return pos;
 }
 

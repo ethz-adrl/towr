@@ -31,6 +31,7 @@ public:
   using Swinglegs       = std::vector<EEID>;
   using SwingLegCycle   = std::vector<Swinglegs>;
   using PosXY           = Eigen::Vector2d;
+  using PosXYZ          = Eigen::Vector3d;
   using NominalStance   = std::map<EEID, PosXY>;
   using ValXY           = std::array<double,2>;
   using CostWeights     = std::map<CostName, double>;
@@ -52,10 +53,12 @@ public:
   int polynomials_per_second_;
   bool start_with_stance_;
   ValXY weight_com_motion_xy_;
-  double walking_height_;
+  double geom_walking_height_;
   double lift_height_;
   double lambda_deviation_percent_;
   int opt_horizon_in_phases_;
+  PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
+
 
 
   static MotionTypePtr MakeMotion(MotionTypeID);

@@ -57,8 +57,8 @@ private:
   MotionStructure motion_structure;
   MotionTypePtr params;
   ComMotionPtr com_motion;
-  State2d initial_state_;
-  State2d final_state_;
+  State2d initial_geom_state_;
+  State2d final_geom_state_;
 
   // constraints
   ConstraintPtr MakeInitialConstraint() const;

@@ -26,7 +26,7 @@ namespace opt {
 class ComMotion {
 public:
   using VectorXd    = Eigen::VectorXd ;
-  using Point2d     = xpp::utils::StateLin2d ;
+  using StateLin2d  = xpp::utils::StateLin2d ;
   using VecScalar   = xpp::utils::VecScalar ;
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor> ;
   using PtrS        = std::shared_ptr<ComMotion> ;
@@ -39,7 +39,7 @@ public:
     *
     * @param t_global current time
     */
-  virtual Point2d GetCom(double t_global) const = 0;
+  virtual StateLin2d GetCom(double t_global) const = 0;
   virtual double GetTotalTime() const = 0;
 
   /** Set all coefficients to fully describe the CoM motion.

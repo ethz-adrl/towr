@@ -78,11 +78,12 @@ MotionOptimizerFacade::GetTrajectory (double dt)
 {
   WBTrajGenerator wb_traj_generator;
   wb_traj_generator.Init(motion_phases_,
-                     nlp_facade_.GetComMotion(),
-                     nlp_facade_.GetFootholds(),
-                     motion_type_->walking_height_,
-                     opt_start_state_,
-                     motion_type_->lift_height_);
+                         nlp_facade_.GetComMotion(),
+                         nlp_facade_.GetFootholds(),
+                         motion_type_->geom_walking_height_,
+                         opt_start_state_,
+                         motion_type_->lift_height_,
+                         motion_type_->offset_geom_to_com_);
 
   state_second_phase_ = wb_traj_generator.GetNodeSecondPhase();
 

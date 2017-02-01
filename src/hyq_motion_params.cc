@@ -19,8 +19,9 @@ HyqMotionParameters::HyqMotionParameters ()
   lambda_deviation_percent_ = 1.0; // 100 percent
   weight_com_motion_xy_ = {1.0, 1.0};
   start_with_stance_ = true;
-  walking_height_ = 0.58;
+  geom_walking_height_ = 0.58;
   lift_height_ = 0.08;
+  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
 }
 
 HyqMotionParameters::NominalStance
@@ -105,7 +106,7 @@ PushRecovery::PushRecovery ()
   max_step_length_ = 0.35;
   dt_nodes_ = 0.1;
   polynomials_per_second_ = 5;
-  walking_height_ = 0.55;
+  geom_walking_height_ = 0.55;
   lift_height_ = 0.08;
 
   constraints_ = { InitCom,

@@ -41,8 +41,8 @@ CostConstraintFactory::Init (const ComMotionPtr& com, const MotionStructure& ms,
   com_motion = com;
   motion_structure = ms;
   params = _params;
-  initial_state_ = initial_state;
-  final_state_ = final_state;
+  initial_geom_state_ = initial_state;
+  final_geom_state_ = final_state;
 }
 
 CostConstraintFactory::ConstraintPtr
@@ -135,7 +135,11 @@ CostConstraintFactory::MakeInitialConstraint () const
 {
   LinearSplineEquations eq(*com_motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeInitial(initial_state_), "Initial XY");
+
+  State2d initial_com_state = initial_geom_state_;
+  initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
+
+  constraint->Init(eq.MakeInitial(initial_com_state), "Initial XY");
   return constraint;
 }
 
@@ -144,7 +148,11 @@ CostConstraintFactory::MakeFinalConstraint () const
 {
   LinearSplineEquations eq(*com_motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
-  constraint->Init(eq.MakeFinal(final_state_, {kPos, kVel, kAcc}), "Final XY");
+
+  State2d final_com_state = final_geom_state_;
+  final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
+
+  constraint->Init(eq.MakeFinal(final_geom_state_, {kPos, kVel, kAcc}), "Final XY");
   return constraint;
 }
 
@@ -161,7 +169,8 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   auto constraint = std::make_shared<DynamicConstraint>();
-  constraint->Init(*com_motion, motion_structure, params->walking_height_);
+  double com_height = params->geom_walking_height_ + params->offset_geom_to_com_.z();
+  constraint->Init(*com_motion, motion_structure, com_height);
   return constraint;
 }
 
@@ -187,7 +196,8 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
   auto constraint = std::make_shared<RangeOfMotionBox>(
       params->GetMaximumDeviationFromNominal(),
-      params->GetNominalStanceInBase()
+      params->GetNominalStanceInBase(),
+      params->offset_geom_to_com_.topRows<kDim2d>()
       );
 
   constraint->Init(*com_motion, motion_structure);
@@ -199,7 +209,7 @@ CostConstraintFactory::MakeFinalStanceConstraint () const
 {
   auto constr = std::make_shared<FootholdFinalStanceConstraint>(
       motion_structure,
-      final_state_.p,
+      final_geom_state_.p,
       params->GetNominalStanceInBase());
   return constr;
 }
