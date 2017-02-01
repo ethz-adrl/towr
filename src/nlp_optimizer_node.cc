@@ -32,7 +32,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   current_state_sub_ = n.subscribe(xpp_msgs::curr_robot_state,
                                     1, // take only the most recent information
-                                    &NlpOptimizerNode::CurrentStateCallback, this);
+                                    &NlpOptimizerNode::CurrentStateCallback, this,
+                                    ::ros::TransportHints().tcpNoDelay());
 
   trajectory_pub_ = n.advertise<TrajectoryMsg>(xpp_msgs::robot_trajectory_joints, 1);
 
