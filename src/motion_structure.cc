@@ -24,7 +24,6 @@ MotionStructure::~MotionStructure ()
 void
 MotionStructure::Init (const StartStance& ee_pos,
                        const AllPhaseSwingLegs& phase_swinglegs,
-                       double t_phase,
                        double percent_first_phase,
                        double dt)
 {
@@ -47,7 +46,7 @@ MotionStructure::Init (const StartStance& ee_pos,
     phase.free_contacts_.insert(phase.free_contacts_.end(), prev_phase.swing_goal_contacts_.begin(),
                                                             prev_phase.swing_goal_contacts_.end());
 
-    for (const auto& ee : phase_swinglegs.at(i)) {
+    for (const auto& ee : phase_swinglegs.at(i).first) {
       ContactBase sl(contact_id++, ee);
       phase.swing_goal_contacts_.push_back(sl);
 
@@ -69,7 +68,7 @@ MotionStructure::Init (const StartStance& ee_pos,
     }
 
     // first phase can have shorter duration
-    phase.duration_ = t_phase; // zmp_ add back phases_.empty()? (1-percent_first_phase)*t_phase : t_phase;
+    phase.duration_ = phase_swinglegs.at(i).second;
     phases_.push_back(phase);
 
     prev_phase = phase;
@@ -124,7 +123,7 @@ MotionStructure::GetContactIds () const
 {
   std::vector<EEID> all_ee;
   for (auto phase_contact : phase_swing_ee_)
-    for(auto ee : phase_contact)
+    for(auto ee : phase_contact.first)
       all_ee.push_back(ee);
 
   return all_ee;

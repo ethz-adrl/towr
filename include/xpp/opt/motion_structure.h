@@ -9,6 +9,7 @@
 #define XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
 
 #include "motion_phase.h"
+#include "motion_parameters.h"
 #include <xpp/utils/endeffectors.h>
 #include <vector>
 
@@ -25,8 +26,7 @@ namespace opt {
 class MotionStructure {
 public:
   using EEID              = utils::EndeffectorID;
-  using SwingLegsInPhase  = std::vector<EEID>;
-  using AllPhaseSwingLegs = std::vector<SwingLegsInPhase>;
+  using AllPhaseSwingLegs = MotionParameters::SwinglegPhaseVec;
   using StartStance       = xpp::utils::EEXppPos;
   using PhaseVec          = std::vector<MotionPhase>;
   using PhaseStampedVec   = std::vector<MotionNode>;
@@ -43,7 +43,7 @@ public:
     * @param dt              Time discretization [s] between nodes.
     */
   void Init(const StartStance& ee_pos, const AllPhaseSwingLegs& phase_swing_ee,
-            double t_phase, double percent_first_phase, double dt);
+            double percent_first_phase, double dt);
 
   double GetTotalTime() const;
 

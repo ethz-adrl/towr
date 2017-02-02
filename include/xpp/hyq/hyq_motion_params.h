@@ -16,42 +16,31 @@ namespace hyq {
 class HyqMotionParameters : public opt::MotionParameters {
 public:
   HyqMotionParameters();
-  virtual NominalStance GetNominalStanceInBase() const override;
 };
 
 class Walk : public HyqMotionParameters {
 public:
   Walk();
-
-  virtual SwingLegCycle GetOneCycle() const;
 };
 
 class Trott : public HyqMotionParameters {
 public:
   Trott();
-
-  virtual SwingLegCycle GetOneCycle() const;
 };
 
 class PushRecovery : public HyqMotionParameters {
 public:
   PushRecovery();
-
-  virtual SwingLegCycle GetOneCycle() const;
 };
 
 class Camel : public HyqMotionParameters {
 public:
   Camel();
-
-  virtual SwingLegCycle GetOneCycle() const;
 };
 
 class Bound : public HyqMotionParameters {
 public:
   Bound();
-
-  virtual SwingLegCycle GetOneCycle() const;
 };
 
 

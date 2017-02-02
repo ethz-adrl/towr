@@ -43,23 +43,21 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
   int phases_in_cycle = motion_type_->GetOneCycle().size();
   int phase = curr_phase%phases_in_cycle;
 
-  using SwingLegsInPhase  = std::vector<EndeffectorID>;
-  using AllPhaseSwingLegs = std::vector<SwingLegsInPhase>;
-  AllPhaseSwingLegs step_sequence;
+  MotionParameters::SwinglegPhaseVec phase_specs;
   for (int i = 0; i<motion_type_->opt_horizon_in_phases_; ++i) {
 
-    step_sequence.push_back(motion_type_->GetOneCycle().at(phase));
+    phase_specs.push_back(motion_type_->GetOneCycle().at(phase));
 
     phase++;
     if (phase == phases_in_cycle)
       phase = 0;
   }
-  step_sequence.push_back({}); // empty vector = final four leg support phase also for contacts at end
+  phase_specs.push_back({{}, 0.3}); // empty vector = final four leg support phase also for contacts at end
 
 
   MotionStructure motion_structure;
-  motion_structure.Init(opt_start_state_.GetEEPos(), step_sequence,
-                        motion_type_->t_phase_,
+  motion_structure.Init(opt_start_state_.GetEEPos(),
+                        phase_specs,
                         opt_start_state_.GetPercentPhase(),
                         motion_type_->dt_nodes_ );
   motion_phases_ = motion_structure.GetPhases();

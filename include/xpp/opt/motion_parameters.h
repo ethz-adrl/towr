@@ -26,38 +26,46 @@ enum ConstraintName  { InitCom, FinalCom, JunctionCom, Convexity, SuppArea,
   */
 class MotionParameters {
 public:
-  using MotionTypePtr   = std::shared_ptr<MotionParameters>;
-  using EEID            = xpp::utils::EndeffectorID;
-  using Swinglegs       = std::vector<EEID>;
-  using SwingLegCycle   = std::vector<Swinglegs>;
-  using PosXY           = Eigen::Vector2d;
-  using PosXYZ          = Eigen::Vector3d;
-  using NominalStance   = std::map<EEID, PosXY>;
-  using ValXY           = std::array<double,2>;
-  using CostWeights     = std::map<CostName, double>;
-  using UsedConstraints = std::vector<ConstraintName>;
+  using MotionTypePtr    = std::shared_ptr<MotionParameters>;
+  using EEID             = xpp::utils::EndeffectorID;
+  using EEIDVec          = std::vector<EEID>;
+  using EECycleVec       = std::vector<EEIDVec>;
+  using PhaseTimings     = std::vector<double>;
+
+  using SwinglegPhase    = std::pair<EEIDVec, double>;
+  using SwinglegPhaseVec = std::vector<SwinglegPhase>;
+  using PosXY            = Eigen::Vector2d;
+  using PosXYZ           = Eigen::Vector3d;
+  using NominalStance    = std::map<EEID, PosXY>;
+  using ValXY            = std::array<double,2>;
+  using CostWeights      = std::map<CostName, double>;
+  using UsedConstraints  = std::vector<ConstraintName>;
 
   virtual ~MotionParameters();
 
-  virtual SwingLegCycle GetOneCycle() const = 0;
-  virtual NominalStance GetNominalStanceInBase() const = 0;
+
+  NominalStance GetNominalStanceInBase() const { return nominal_stance_; };
+  SwinglegPhaseVec GetOneCycle() const;
   ValXY GetMaximumDeviationFromNominal() const;
 
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
 
   MotionTypeID id_;
-  double t_phase_;
   double max_step_length_;
   double dt_nodes_; ///< time discretization of trajectory for constraints/costs
   int polynomials_per_second_;
-  bool start_with_stance_;
   ValXY weight_com_motion_xy_;
   double geom_walking_height_;
   double lift_height_;
   double lambda_deviation_percent_;
   int opt_horizon_in_phases_;
   PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
+
+  NominalStance nominal_stance_;
+  EECycleVec ee_cycle_;
+  PhaseTimings timings_;
+
 
 
 

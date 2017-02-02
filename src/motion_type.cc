@@ -34,6 +34,16 @@ MotionParameters::MakeMotion (MotionTypeID id)
   }
 }
 
+MotionParameters::SwinglegPhaseVec
+MotionParameters::GetOneCycle () const
+{
+  SwinglegPhaseVec phases;
+  for (int i=0; i<ee_cycle_.size(); ++i)
+    phases.push_back(SwinglegPhase(ee_cycle_.at(i), timings_.at(i)));
+
+  return phases;
+}
+
 MotionParameters::ValXY
 MotionParameters::GetMaximumDeviationFromNominal () const
 {
