@@ -55,14 +55,14 @@ HyqMotionParameters::HyqMotionParameters ()
 Walk::Walk()
 {
 //  opt_horizon_in_phases_ = 4*1.5;
-  opt_horizon_in_phases_ = 8;
+  opt_horizon_in_phases_ = 16;
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::WalkID;
   max_step_length_ = 0.21;
   dt_nodes_ = 0.1;
   polynomials_per_second_ = 3;
 
-  double t_phase = 0.7;
+  double t_phase = 0.4;
   timings_ = {t_phase, t_phase, t_phase, t_phase};
   ee_cycle_ = {PI, IP, bI, Ib};
 
@@ -90,7 +90,7 @@ Walk::Walk()
 
 Trott::Trott()
 {
-  opt_horizon_in_phases_ = 2*3;//2*2;
+  opt_horizon_in_phases_ = 2*5;//2*2;
   max_dev_xy_ = {0.15, 0.15};
 //  lambda_deviation_percent_ = 0.6;
   id_ = opt::TrottID;
