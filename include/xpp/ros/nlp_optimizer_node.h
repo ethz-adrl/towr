@@ -13,6 +13,8 @@
 #include <xpp_msgs/CurrentInfo.h>  // receive from robot
 #include <xpp_msgs/UserCommand.h>  // receive from user
 
+#include <geometry_msgs/PoseStamped.h>
+
 #include <ros/ros.h>
 
 namespace xpp {
@@ -25,6 +27,8 @@ public:
   using MotionOptimizer  = xpp::opt::MotionOptimizerFacade;
   using NlpSolver        = xpp::opt::NlpSolver;
 
+  using PoseMsg        = geometry_msgs::PoseStamped;
+
 public:
   NlpOptimizerNode ();
   virtual ~NlpOptimizerNode () {};
@@ -32,7 +36,7 @@ public:
 private:
 
   /** sends this info the the walking controller **/
-  void PublishTrajectory();
+  void PublishTrajectory(bool use_new_goal_as_start=false);
   void OptimizeMotion();
   void CurrentStateCallback(const CurrentInfoMsg& msg);
   void UserCommandCallback(const UserCommandMsg& msg);
@@ -45,6 +49,9 @@ private:
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
   NlpSolver solver_type_;
 
+
+  // zmp_ remove again after paper
+  ::ros::Publisher  pub_;
 
 };
 

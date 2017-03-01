@@ -35,6 +35,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                     &NlpOptimizerNode::CurrentStateCallback, this,
                                     ::ros::TransportHints().tcpNoDelay());
 
+  pub_ = n.advertise<PoseMsg>(xpp_msgs::curr_base_pose, 1);
+
   trajectory_pub_ = n.advertise<TrajectoryMsg>(xpp_msgs::robot_trajectory_joints, 1);
 
   dt_ = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
@@ -55,6 +57,7 @@ NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
   motion_optimizer_.BuildOptimizationStartState(curr_state.ConvertToCartesian(fk));
   ROS_INFO_STREAM("Received Current State");
   OptimizeMotion();
+  PublishTrajectory(true);
 }
 
 void
@@ -62,7 +65,7 @@ NlpOptimizerNode::OptimizeMotion ()
 {
   try {
     motion_optimizer_.OptimizeMotion(solver_type_);
-    PublishTrajectory ();
+//    PublishTrajectory ();
   } catch (const std::runtime_error& e) {
     ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
   }
@@ -71,25 +74,70 @@ NlpOptimizerNode::OptimizeMotion ()
 void
 NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 {
-  auto goal_prev = motion_optimizer_.goal_cog_;
-  motion_optimizer_.goal_cog_ = RosHelpers::RosToXpp(msg.goal);
-  motion_optimizer_.t_left_   = msg.t_left;
+  auto goal_prev = motion_optimizer_.goal_geom_;
+  motion_optimizer_.goal_geom_ = RosHelpers::RosToXpp(msg.goal);
   motion_optimizer_.SetMotionType(static_cast<opt::MotionTypeID>(msg.motion_type));
   solver_type_ = msg.use_solver_snopt ? opt::Snopt : opt::Ipopt;
 
-
-  if (goal_prev != motion_optimizer_.goal_cog_ || msg.motion_type_change) {
+  if (goal_prev != motion_optimizer_.goal_geom_ || msg.motion_type_change) {
     OptimizeMotion();
   }
 
-  if (msg.replay_trajectory)
-    PublishTrajectory();
+
+
+
+  // the forces generated for RA-L paper.
+  if (msg.replay_trajectory) {
+
+    static int i=0;
+
+    std::vector<double> x_vel = { 1.3,   1.4,  0.1,  -1.4, -0.8,  0.8,  1.9   };
+    std::vector<double> y_vel = { -0.4,  0.05, 1.5,   0.0, -1.5,  1.5,  0.0   };
+
+    auto base = motion_optimizer_.opt_start_state_.GetBase();
+    base.lin.v.x() = x_vel.at(i);//1.7;
+    base.lin.v.y() = y_vel.at(i);//1.7;
+    i++;
+
+    if (i>x_vel.size()-1) {
+      i = 0;
+    }
+
+    motion_optimizer_.opt_start_state_.SetBase(base);
+    OptimizeMotion();
+    PublishTrajectory(true);
+
+
+    // receiving complete body state
+    PoseMsg hyq_pose_msg_;
+    hyq_pose_msg_.header.frame_id = "world";
+
+    auto msg_body = RosHelpers::XppToRos(base);
+
+    hyq_pose_msg_.pose = msg_body.pose;
+    double alpha = atan2( base.lin.v.y(),base.lin.v.x());
+
+
+    hyq_pose_msg_.pose.position.x -= cos(alpha)*0.8;
+    hyq_pose_msg_.pose.position.y -= sin(alpha)*0.8;
+
+    hyq_pose_msg_.pose.orientation.x = 0;
+    hyq_pose_msg_.pose.orientation.y = 0;
+    hyq_pose_msg_.pose.orientation.z = sin(alpha/2);
+    hyq_pose_msg_.pose.orientation.w = cos(alpha/2);
+
+
+    // publishing only the pose part
+    pub_.publish(hyq_pose_msg_);
+
+
 //  ROS_INFO_STREAM("Goal state set to:\n" << motion_optimizer_.goal_cog_);
 //  ROS_INFO_STREAM("Time left:" << msg.t_left);
+  }
 }
 
 void
-NlpOptimizerNode::PublishTrajectory ()
+NlpOptimizerNode::PublishTrajectory (bool use_new_goal_as_start)
 {
   auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
 
@@ -99,6 +147,11 @@ NlpOptimizerNode::PublishTrajectory ()
 
   auto msg = RosHelpers::XppToRos(opt_traj_joints);
   trajectory_pub_.publish(msg);
+
+  if (use_new_goal_as_start) {
+    auto fk = std::make_shared<hyq::codegen::HyQKinematics>();
+    motion_optimizer_.BuildOptimizationStartState(opt_traj_joints.back().ConvertToCartesian(fk));
+  }
 }
 
 /** Checks if this executable is run from where the config files for the
