@@ -55,9 +55,9 @@ NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
   auto fk = std::make_shared<hyq::codegen::HyQKinematics>();
 
   motion_optimizer_.BuildOptimizationStartState(curr_state.ConvertToCartesian(fk));
-  ROS_INFO_STREAM("Received Current State");
-  OptimizeMotion();
-  PublishTrajectory(true);
+  ROS_DEBUG_STREAM("Received Current State");
+//  OptimizeMotion();
+//  PublishTrajectory(true);
 }
 
 void
@@ -65,7 +65,7 @@ NlpOptimizerNode::OptimizeMotion ()
 {
   try {
     motion_optimizer_.OptimizeMotion(solver_type_);
-//    PublishTrajectory ();
+    PublishTrajectory ();
   } catch (const std::runtime_error& e) {
     ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
   }

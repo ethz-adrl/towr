@@ -32,7 +32,7 @@ void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg
   int phase_min = 4;
   int phase_max = 5;
   for (auto phase : motion_structure.GetPhases()) {
-    bool phase_in_range = phase_min<=phase_id && phase_id <=phase_max;
+    bool phase_in_range = true;//phase_min<=phase_id && phase_id <=phase_max;
     if (phase.IsStep() && phase_in_range) {
       EEID swingleg = phase.swinglegs_.front().ee;
       BuildSupportPolygon(msg, phase.GetAllContacts(footholds), swingleg);

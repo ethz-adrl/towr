@@ -32,7 +32,7 @@ NlpUserInputNode::NlpUserInputNode ()
   goal_geom_.p.setZero();
 //  goal_cog_.p << 1.05, 0.15, 0.0; // used for RA-L paper
 //  goal_cog_.p << 0.2, 0, 0.0;
-  motion_type_ = opt::TrottID;
+  motion_type_ = opt::WalkID;
   replay_trajectory_ = false;
   use_solver_snopt_ = false;
   UserCommandMsg msg;
@@ -57,16 +57,16 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
 
   switch (msg.code) {
     case msg.KEY_RIGHT:
-      goal_geom_.p.x() += dx;
-      break;
-    case msg.KEY_LEFT:
       goal_geom_.p.x() -= dx;
       break;
+    case msg.KEY_LEFT:
+      goal_geom_.p.x() += dx;
+      break;
     case msg.KEY_DOWN:
-      goal_geom_.p.y() -= dy;
+      goal_geom_.p.y() += dy;
       break;
     case msg.KEY_UP:
-      goal_geom_.p.y() += dy;
+      goal_geom_.p.y() -= dy;
       break;
     case msg.KEY_RETURN:
       command_ = Command::kSetGoal;
