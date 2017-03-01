@@ -39,6 +39,12 @@ IVisualizer::SetOptimizationVariables (const OptimizationVariablesPtr& opt_varia
   opt_variables_ = opt_variables;
 }
 
+void
+IVisualizer::SetMotionParameters (const MotionParamsPtr& params)
+{
+  motion_params_ = params;
+}
+
 MotionStructure
 IVisualizer::GetMotionStructure () const
 {

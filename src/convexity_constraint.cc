@@ -26,8 +26,8 @@ void
 ConvexityConstraint::Init (const MotionStructure& motion_structure)
 {
   for (const auto& node : motion_structure.GetPhaseStampedVec()) {
-    int contacts_fixed = node.fixed_contacts_.size();
-    int contacts_free = node.free_contacts_.size();
+    int contacts_fixed = node.contacts_fixed_.size();
+    int contacts_free = node.contacts_opt_.size();
     n_contacts_per_node_.push_back(contacts_fixed + contacts_free);
   }
 

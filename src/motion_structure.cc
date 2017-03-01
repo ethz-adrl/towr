@@ -22,7 +22,8 @@ MotionStructure::~MotionStructure ()
 
 // mpc clean this up, messy code
 void
-MotionStructure::Init (const StartStance& ee_pos,
+MotionStructure::Init (const EEIDVec& all_robot_ee,
+                       const StartStance& ee_pos,
                        const AllPhaseSwingLegs& phase_swinglegs,
                        double percent_first_phase,
                        double dt)
@@ -34,38 +35,36 @@ MotionStructure::Init (const StartStance& ee_pos,
     Contact c;
     c.ee = ee;
     c.p = ee_pos.At(ee);
-    prev_phase.fixed_contacts_.push_back(c);
+    prev_phase.contacts_fixed_.push_back(c);
   }
 
   for (uint i=0; i<phase_swinglegs.size(); ++i) {
 
-    MotionPhase phase;
-    phase.fixed_contacts_ = prev_phase.fixed_contacts_;
-    phase.free_contacts_  = prev_phase.free_contacts_;
-    // add newly made contact of previous swing
-    phase.free_contacts_.insert(phase.free_contacts_.end(), prev_phase.swing_goal_contacts_.begin(),
-                                                            prev_phase.swing_goal_contacts_.end());
+    MotionPhase phase = prev_phase;
 
-    for (const auto& ee : phase_swinglegs.at(i).first) {
-      ContactBase sl(contact_id++, ee);
-      phase.swing_goal_contacts_.push_back(sl);
-
-      // remove current swinglegs from list of active contacts
-      auto it_fixed = std::find_if(phase.fixed_contacts_.begin(), phase.fixed_contacts_.end(),
-                                   [&](const Contact& f) {return f.ee == sl.ee;});
-
-      if (it_fixed != phase.fixed_contacts_.end()) // step found in initial stance
-        phase.fixed_contacts_.erase(it_fixed);     // remove contact, because now swinging leg
-
-
-      // remove current swingles from last free contacts
-      auto it_free = std::find_if(phase.free_contacts_.begin(), phase.free_contacts_.end(),
-                                  [&](const ContactBase& c) {return c.ee == sl.ee;});
-
-      if (it_free != phase.free_contacts_.end()) // step found in current stance
-        phase.free_contacts_.erase(it_free);     // remove contact, because now swinging leg
-
+    EEIDVec stancelegs;
+    for (const auto& ee : all_robot_ee) {
+      auto& v = phase_swinglegs.at(i).first; //alias
+      auto it = std::find_if(v.begin(), v.end(), [&](const EEID& leg) {return leg == ee;});
+      if (it == v.end()) // endeffector not in swinglegs
+        stancelegs.push_back(ee);
     }
+
+    // stance to swing
+    for (const auto& ee : stancelegs)
+      if (prev_phase.IsInSwinglegs(ee))
+          phase.ShiftSwingToStance(ee);
+
+    // stance to swing
+    for (const auto& ee : phase_swinglegs.at(i).first) {
+      if (!prev_phase.IsInSwinglegs(ee)) {
+
+        ContactBase sl(contact_id++, ee);
+        phase.swinglegs_.push_back(sl);
+        phase.RemoveContact(ee); // because phase is now swingleg
+      }
+    }
+
 
     // first phase can have shorter duration
     phase.duration_ = phase_swinglegs.at(i).second;
@@ -74,10 +73,10 @@ MotionStructure::Init (const StartStance& ee_pos,
     prev_phase = phase;
   }
 
-//  std::cout << "Motion Phases:\n";
-//  for (auto p : phases_) {
-//    std::cout << p << std::endl << std::endl;;
-//  }
+  std::cout << "Motion Phases:\n";
+  for (auto p : phases_) {
+    std::cout << p << std::endl << std::endl;;
+  }
 
   phase_swing_ee_ = phase_swinglegs;
   dt_ = dt;
@@ -160,7 +159,7 @@ MotionStructure::GetTotalNumberOfFreeNodeContacts () const
 
   int i = 0;
   for (auto node : contact_info_vec)
-    i += node.free_contacts_.size();
+    i += node.contacts_opt_.size();
 
   return i;
 }
@@ -172,8 +171,8 @@ MotionStructure::GetTotalNumberOfNodeContacts () const
 
   int i = 0;
   for (auto node : contact_info_vec) {
-    i += node.free_contacts_.size();
-    i += node.fixed_contacts_.size();
+    i += node.contacts_opt_.size();
+    i += node.contacts_fixed_.size();
   }
 
   return i;

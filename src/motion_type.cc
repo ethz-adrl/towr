@@ -25,8 +25,8 @@ MotionParameters::MakeMotion (MotionTypeID id)
       return std::make_shared<hyq::Trott>();
     case BoundID:
       return std::make_shared<hyq::Bound>();
-    case CamelID:
-      return std::make_shared<hyq::Camel>();
+    case PaceID:
+      return std::make_shared<hyq::Pace>();
     case PushRecID:
       return std::make_shared<hyq::PushRecovery>();
     default:

@@ -39,15 +39,14 @@ public:
 
   void BuildOptimizationStartState(const RobotState& curr);
 
-  State goal_cog_;
+  State goal_geom_;
   double t_left_; // time to reach goal
 
   void SetMotionType(MotionTypeID);
 
 
-private:
   RobotState opt_start_state_;
-  RobotState state_second_phase_; ///< the current goal to reach
+private:
 
   NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;

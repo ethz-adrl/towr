@@ -17,6 +17,7 @@ namespace opt {
 
 class ComMotion;
 class OptimizationVariables;
+class MotionParameters;
 
 /** @brief Interface to derive from to visualize the optimization results.
   *
@@ -27,6 +28,7 @@ public:
   using MotionPtrS               = std::shared_ptr<ComMotion>;
   using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariables>;
   using VecFoothold              = utils::StdVecEigen2d;
+  using MotionParamsPtr          = std::shared_ptr<MotionParameters>;
 
   IVisualizer();
   virtual ~IVisualizer ();
@@ -39,10 +41,14 @@ public:
   void SetComMotion(const MotionPtrS&);
   void SetOptimizationVariables(const OptimizationVariablesPtr&);
 
+  void SetMotionParameters(const MotionParamsPtr& params);
+
 protected:
   const MotionPtrS GetComMotion() const;
   MotionStructure GetMotionStructure() const;
   VecFoothold GetContacts() const;
+
+  MotionParamsPtr motion_params_;
 
 private:
   OptimizationVariablesPtr opt_variables_;

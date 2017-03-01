@@ -48,6 +48,8 @@ public:
   using ContactArray   = typename SplineNode::ContactState;
   using ArtiRobVec     = std::vector<SplineNode>;
   using EESplinerArray = xpp::utils::Endeffectors<SplinerFeet>;//std::vector<SplinerFeet>;
+  using EESpliner      = xpp::utils::Endeffectors<std::vector<SplinerFeet>>;
+  using EESplinerPtr   = std::shared_ptr<EESpliner>;
   using EEID           = xpp::utils::EndeffectorID;
 
 public:
@@ -57,7 +59,6 @@ public:
   void Init(const PhaseVec&,
             const ComMotionS&,
             const VecFoothold&,
-            double des_height,
             const SplineNode& curr_state,
             double lift_height,
             const Vector3d& com_offset);
@@ -70,19 +71,17 @@ private:
   int kNEE;
   double t_start_;
   int phase_start_;
-  double geom_walking_height_;
   Vector3d offset_geom_to_com_; ///< difference between com and geometric center
 
   std::vector<SplineNode> nodes_;
   std::vector<ZPolynomial> z_spliner_;
   std::vector<SplinerOri> ori_spliner_;
-  std::vector<EESplinerArray> ee_spliner_;
+  EESplinerPtr ee_spliner_;
   ComMotionS com_motion_;
 
   double leg_lift_height_;  ///< how high to lift the leg
 
-  void BuildNodeSequence(const PhaseVec&, const VecFoothold& footholds,
-                         double des_robot_height);
+  void BuildNodeSequence(const PhaseVec&, const VecFoothold& footholds);
 
   void CreateAllSplines();
 

@@ -109,7 +109,7 @@ RangeOfMotionBox::GetBounds () const
         b.lower_ -= max_deviation_from_nominal_.at(dim);
 
         if (c.id == ContactBase::kFixedByStartStance)
-          for (auto f : node.fixed_contacts_)
+          for (auto f : node.contacts_fixed_)
             if (f.ee == c.ee)
               b -= f.p(dim);
 

@@ -169,8 +169,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   auto constraint = std::make_shared<DynamicConstraint>();
-  double com_height = params->geom_walking_height_ + params->offset_geom_to_com_.z();
-  constraint->Init(*com_motion, motion_structure, com_height);
+  constraint->Init(*com_motion, motion_structure);
   return constraint;
 }
 

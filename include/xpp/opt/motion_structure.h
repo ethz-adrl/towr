@@ -23,9 +23,11 @@ namespace opt {
   * position of the legs and the movement of the body. This class specifies
   * the general structure of the motion.
   */
+//zmp_ rename to ee motion parametrization
 class MotionStructure {
 public:
   using EEID              = utils::EndeffectorID;
+  using EEIDVec           = std::vector<EEID>;
   using AllPhaseSwingLegs = MotionParameters::SwinglegPhaseVec;
   using StartStance       = xpp::utils::EEXppPos;
   using PhaseVec          = std::vector<MotionPhase>;
@@ -42,10 +44,13 @@ public:
     * @param t_phase         The time/duration [s] for each phase.
     * @param dt              Time discretization [s] between nodes.
     */
-  void Init(const StartStance& ee_pos, const AllPhaseSwingLegs& phase_swing_ee,
+  void Init(const EEIDVec& all_robot_ee_,
+            const StartStance& ee_pos, const AllPhaseSwingLegs& phase_swing_ee,
             double percent_first_phase, double dt);
 
   double GetTotalTime() const;
+
+
 
   /** @brief Gets the phase (stance, swing) at this current instance of time.
     *
@@ -76,7 +81,7 @@ public:
   int GetTotalNumberOfNodeContacts() const;
 
   std::vector<EEID> GetContactIds() const;
-  std::vector<Contact> GetStartStance() const { return phases_.front().fixed_contacts_;};
+  std::vector<Contact> GetStartStance() const { return phases_.front().contacts_fixed_;};
 
 private:
   AllPhaseSwingLegs phase_swing_ee_;

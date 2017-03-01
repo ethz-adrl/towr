@@ -29,12 +29,11 @@ DynamicConstraint::~DynamicConstraint ()
 
 void
 DynamicConstraint::Init (const ComMotion& com_motion,
-                         const MotionStructure& motion_structure,
-                         double com_height)
+                         const MotionStructure& motion_structure)
 {
   com_motion_ = com_motion.clone();
   motion_structure_ = motion_structure;
-  kHeight_ = com_height;
+  kHeight_ = com_motion.GetZHeight();
 }
 
 void

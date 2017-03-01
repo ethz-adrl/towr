@@ -23,13 +23,18 @@ class MotionPhase {
 public:
   using FootholdVec = std::vector<Contact>;
   using ContactVec  = std::vector<ContactBase>;
+  using EEID        = utils::EndeffectorID;
 
-  ContactVec free_contacts_;       ///< all the ee currently in contact but not fixed by start stance
-  ContactVec swing_goal_contacts_; ///< the contacts the current swinglegs are swinging towards
-  FootholdVec fixed_contacts_;     ///< the contacts fixed by start stance
+  ContactVec contacts_opt_;       ///< all the ee currently in contact but not fixed by start stance
+  ContactVec swinglegs_; ///< the contacts the current swinglegs are swinging towards
+  FootholdVec contacts_fixed_;     ///< the contacts fixed by start stance
   double duration_ = 0.0;          ///< how long [s] this phase lasts
 
-  bool IsStep() const { return !swing_goal_contacts_.empty();  }
+  bool IsStep() const { return !swinglegs_.empty();  }
+
+  void RemoveContact(EEID ee);
+  void ShiftSwingToStance(EEID ee);
+  bool IsInSwinglegs(EEID ee);
 
 
   /** @returns fixed and free current contacts without xyz-positions.
@@ -54,15 +59,15 @@ inline std::ostream& operator<<(std::ostream& out, const MotionPhase& p)
   out << " duration: " << p.duration_
       << "\n free contacts: ";
 
-  for (auto c : p.free_contacts_)
+  for (auto c : p.contacts_opt_)
     out << c << ";    ";
 
   out << "\n fixed contacts: ";
-  for (auto c : p.fixed_contacts_)
+  for (auto c : p.contacts_fixed_)
     out << c << ";    ";
 
   out << "\n swing goal contacts: ";
-  for (auto c : p.swing_goal_contacts_)
+  for (auto c : p.swinglegs_)
     out << c << ";    ";
 
   return out;

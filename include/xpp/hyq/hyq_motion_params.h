@@ -28,14 +28,9 @@ public:
   Trott();
 };
 
-class PushRecovery : public HyqMotionParameters {
+class Pace : public HyqMotionParameters {
 public:
-  PushRecovery();
-};
-
-class Camel : public HyqMotionParameters {
-public:
-  Camel();
+  Pace();
 };
 
 class Bound : public HyqMotionParameters {
@@ -43,6 +38,10 @@ public:
   Bound();
 };
 
+class PushRecovery : public HyqMotionParameters {
+public:
+  PushRecovery();
+};
 
 } // namespace opt
 } // namespace hyq

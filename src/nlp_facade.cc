@@ -55,7 +55,8 @@ NlpFacade::BuildNlp(const State& initial_state,
 //                                                   motion_params->polynomials_per_second_,
 //                                                   initial_state.p, initial_state.v);
   com_motion_ = MotionFactory::CreateComMotion(motion_structure,
-                                               motion_params->polynomials_per_second_);
+                                               motion_params->polynomials_per_second_,
+                                               motion_params->geom_walking_height_ + motion_params->offset_geom_to_com_.z());
 
   CostConstraintFactory factory;
   factory.Init(com_motion_, motion_structure, motion_params, initial_state, final_state);
@@ -89,6 +90,7 @@ NlpFacade::BuildNlp(const State& initial_state,
   visualizer_->SetOptimizationVariables(opt_variables_);
   visualizer_->SetComMotion(com_motion_);
   visualizer_->SetMotionStructure(motion_structure);
+  visualizer_->SetMotionParameters(motion_params);
 }
 
 void

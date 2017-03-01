@@ -15,7 +15,7 @@
 namespace xpp {
 namespace opt {
 
-enum MotionTypeID    { WalkID, TrottID, CamelID, BoundID, PushRecID };
+enum MotionTypeID    { WalkID, TrottID, PaceID, BoundID, PushRecID };
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
                        FinalComCostID, FinalStanceCostID };
 enum ConstraintName  { InitCom, FinalCom, JunctionCom, Convexity, SuppArea,
@@ -65,6 +65,7 @@ public:
   NominalStance nominal_stance_;
   EECycleVec ee_cycle_;
   PhaseTimings timings_;
+  EEIDVec robot_ee_;
 
 
 

@@ -45,7 +45,7 @@ FootholdFinalStanceConstraint::FootholdFinalStanceConstraint (
   name_ = "Final Stance";
   goal_xy_ = goal_xy;
   nominal_stance_ = nom;
-  final_free_contacts_ = motion_structure.GetPhases().back().free_contacts_;
+  final_free_contacts_ = motion_structure.GetPhases().back().contacts_opt_;
 }
 
 FootholdFinalStanceConstraint::~FootholdFinalStanceConstraint ()
