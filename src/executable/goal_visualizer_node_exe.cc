@@ -20,7 +20,7 @@ void CallbackGoal(const xpp_msgs::UserCommand& msg)
 
   visualization_msgs::MarkerArray msg_rviz;
   xpp::ros::MarkerArrayBuilder msg_builder_;
-  msg_builder_.AddPoint(msg_rviz, goal.Get2D().p, "goal", visualization_msgs::Marker::CUBE);
+  msg_builder_.AddPoint(msg_rviz, goal.Get2D().p, "goal", visualization_msgs::Marker::CYLINDER);
   rviz_pub.publish(msg_rviz);
 }
 

@@ -38,6 +38,7 @@ public:
 
 private:
   ::ros::Publisher ros_publisher_optimized_;
+  ::ros::Publisher ros_publisher_optimized_single_;
 };
 
 } /* namespace ros */

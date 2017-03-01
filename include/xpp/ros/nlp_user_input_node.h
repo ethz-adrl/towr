@@ -47,7 +47,7 @@ private:
 
   void ModifyGoalJoy();
 
-  State goal_cog_;
+  State goal_geom_;
   State goal_cog_prev_;
 
   MotionType motion_type_;

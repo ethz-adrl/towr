@@ -29,13 +29,15 @@ NlpUserInputNode::NlpUserInputNode ()
   user_command_pub_ = n.advertise<UserCommandMsg>(xpp_msgs::goal_state_topic, 1);
 
   // publish goal zero initially
-  goal_cog_.p.setZero();
+  goal_geom_.p.setZero();
+//  goal_cog_.p << 1.05, 0.15, 0.0; // used for RA-L paper
+//  goal_cog_.p << 0.2, 0, 0.0;
   motion_type_ = opt::TrottID;
   replay_trajectory_ = false;
   use_solver_snopt_ = false;
   UserCommandMsg msg;
   msg.t_left = t_max_left_;
-  msg.goal = RosHelpers::XppToRos(goal_cog_);
+  msg.goal = RosHelpers::XppToRos(goal_geom_);
   user_command_pub_.publish(msg);
 
   // start walking command
@@ -54,17 +56,17 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
   const static double dy = 0.05;
 
   switch (msg.code) {
-    case msg.KEY_LEFT:
-      goal_cog_.p.x() += dx;
-      break;
     case msg.KEY_RIGHT:
-      goal_cog_.p.x() -= dx;
+      goal_geom_.p.x() += dx;
       break;
-    case msg.KEY_UP:
-      goal_cog_.p.y() -= dy;
+    case msg.KEY_LEFT:
+      goal_geom_.p.x() -= dx;
       break;
     case msg.KEY_DOWN:
-      goal_cog_.p.y() += dy;
+      goal_geom_.p.y() -= dy;
+      break;
+    case msg.KEY_UP:
+      goal_geom_.p.y() += dy;
       break;
     case msg.KEY_RETURN:
       command_ = Command::kSetGoal;
@@ -90,7 +92,7 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       break;
     case msg.KEY_c:
       ROS_INFO_STREAM("Motion type set to Camel");
-      motion_type_ = opt::CamelID;
+      motion_type_ = opt::PaceID;
       motion_type_change_ = true;
       break;
     case msg.KEY_s:
@@ -117,20 +119,36 @@ NlpUserInputNode::CallbackJoy (const JoyMsg& msg)
   joy_msg_ = msg;
 
   enum JoyButtons {X=0, A, B, Y};
-  static std::map<JoyButtons, NlpUserInputNode::Command> joy_command_map_
-  {
-    {JoyButtons::X, NlpUserInputNode::Command::kSetGoal},
-    {JoyButtons::A, NlpUserInputNode::Command::kSetGoal},
-    {JoyButtons::B, NlpUserInputNode::Command::kSetGoal},
-    {JoyButtons::Y, NlpUserInputNode::Command::kStartWalking},
-  };
+//  static std::map<JoyButtons, NlpUserInputNode::Command> joy_command_map_
+//  {
+//    {JoyButtons::X, NlpUserInputNode::Command::kSetGoal},
+//    {JoyButtons::A, NlpUserInputNode::Command::kSetGoal},
+//    {JoyButtons::B, NlpUserInputNode::Command::kSetGoal},
+//    {JoyButtons::Y, NlpUserInputNode::Command::kStartWalking},
+//  };
+//
+//  // the last pushed button
+//  for (auto i : {X,A,B,Y})
+//    if (joy_msg_.buttons[i] == 1)
+//      command_ = joy_command_map_.at(i);
 
-  // the last pushed button
-  for (auto i : {X,A,B,Y})
-    if (joy_msg_.buttons[i] == 1)
-      command_ = joy_command_map_.at(i);
+  if (joy_msg_.buttons[Y] == 1) {
+    command_ = Command::kStartWalking;
+    replay_trajectory_ = true;
+  }
 
-  ROS_INFO_STREAM("Current goal set to " << goal_cog_.Get2D().p.transpose() << ".");
+  if (joy_msg_.buttons[A] == 1) {
+    motion_type_ = opt::WalkID;
+    motion_type_change_ = true;
+  }
+
+  if (joy_msg_.buttons[X] == 1) {
+    motion_type_ = opt::TrottID;
+    motion_type_change_ = true;
+  }
+
+
+  ROS_INFO_STREAM("Current goal set to " << goal_geom_.Get2D().p.transpose() << ".");
 }
 
 void
@@ -138,14 +156,14 @@ NlpUserInputNode::ModifyGoalJoy ()
 {
   enum Axis {L_LEFT = 0, L_FORWARD, R_LEFT, R_FORWARD};
 
-  double max_vel = 0.5; // [m/s]
+  double max_vel = 2.5; // [m/s]
 
-  double vel_x = max_vel*joy_msg_.axes[L_FORWARD];
-  double vel_y = max_vel*joy_msg_.axes[L_LEFT];
+  double vel_y = -max_vel*joy_msg_.axes[L_FORWARD];
+  double vel_x = max_vel*joy_msg_.axes[L_LEFT];
 
   // integrate velocity
-  goal_cog_.p.x() += vel_x * 1.0/kLoopRate_;
-  goal_cog_.p.y() += vel_y * 1.0/kLoopRate_;
+  goal_geom_.p.x() += vel_x * 1.0/kLoopRate_;
+  goal_geom_.p.y() += vel_y * 1.0/kLoopRate_;
 }
 
 void NlpUserInputNode::PublishCommand()
@@ -153,12 +171,12 @@ void NlpUserInputNode::PublishCommand()
   if (!joy_msg_.axes.empty())
     ModifyGoalJoy();
 
-  if (goal_cog_ != goal_cog_prev_)
+  if (goal_geom_ != goal_cog_prev_)
     t_left_ = t_max_left_;
 
   UserCommandMsg msg;
   msg.t_left             = t_left_;
-  msg.goal               = RosHelpers::XppToRos(goal_cog_);
+  msg.goal               = RosHelpers::XppToRos(goal_geom_);
   msg.motion_type        = motion_type_;
   msg.motion_type_change = motion_type_change_;
   msg.replay_trajectory  = replay_trajectory_;
@@ -179,7 +197,7 @@ void NlpUserInputNode::PublishCommand()
       break;
   }
 
-  goal_cog_prev_ = goal_cog_;
+  goal_cog_prev_ = goal_geom_;
   command_ = Command::kNoCommand;
   replay_trajectory_  = false;
   motion_type_change_ = false;

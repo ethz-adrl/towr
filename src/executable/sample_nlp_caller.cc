@@ -14,7 +14,7 @@
 
 #include <xpp/hyq/hyq_inverse_kinematics.h>
 #include <xpp/hyq/codegen/hyq_kinematics.h>
-#include "../../../xpp_common/include/xpp/opt/robot_state_joints.h"
+#include <xpp/opt/robot_state_joints.h>
 
 using RobotState     = xpp::opt::RobotStateJoints;
 using CurrentInfoMsg = xpp_msgs::CurrentInfo;

@@ -30,9 +30,11 @@ public:
   using ComMotion       = xpp::opt::ComMotion;
   using MotionStructure = xpp::opt::MotionStructure;
   using Vector2d        = Eigen::Vector2d;
+  using PosXYZ          = Eigen::Vector3d;
   using Marker          = visualization_msgs::Marker ;
   using MarkerArray     = visualization_msgs::MarkerArray ;
   using EEID            = xpp::utils::EndeffectorID;
+
 
 public:
   MarkerArrayBuilder();
@@ -52,8 +54,9 @@ public:
                            const VecFoothold& stance_legs,
                            EEID leg_id) const;
 
-  void AddCogTrajectory(MarkerArray& msg,
+  void AddBodyTrajectory(MarkerArray& msg,
                         const ComMotion&,
+                        const PosXYZ offset_geom_to_com,
                         const MotionStructure&,
                         const std::string& rviz_namespace,
                         double alpha = 1.0) const;
@@ -62,8 +65,14 @@ public:
                       const ComMotion&,
                       const MotionStructure&,
                       double walking_height,
-                      const std::string& rviz_namespace,
-                      double alpha = 1.0) const;
+                      const std::string& rviz_namespace) const;
+
+  void AddPendulum(MarkerArray& msg,
+                   const ComMotion&,
+                   const MotionStructure&,
+                   double walking_height,
+                   const std::string& rviz_namespace,
+                   double alpha = 1.0) const;
 
   void AddFootholds(MarkerArray& msg,
                     const VecFoothold& H_footholds,

@@ -21,21 +21,23 @@ MarkerArrayBuilder::MarkerArrayBuilder()
 void MarkerArrayBuilder::AddStartStance(visualization_msgs::MarkerArray& msg,
                                         const VecFoothold& start_stance) const
 {
-  AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::SPHERE, 0.7);
+  AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::CUBE, 1.0);
 }
 
 void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
                                       const MotionStructure& motion_structure,
                                       const VecFootholdEig& footholds) const
 {
+  int phase_id = 0;
+  int phase_min = 4;
+  int phase_max = 5;
   for (auto phase : motion_structure.GetPhases()) {
-
-
-
-    if (phase.IsStep()) {
-      EEID swingleg = phase.swing_goal_contacts_.front().ee;
+    bool phase_in_range = phase_min<=phase_id && phase_id <=phase_max;
+    if (phase.IsStep() && phase_in_range) {
+      EEID swingleg = phase.swinglegs_.front().ee;
       BuildSupportPolygon(msg, phase.GetAllContacts(footholds), swingleg);
     }
+    phase_id++;
   }
 
 
@@ -73,7 +75,7 @@ MarkerArrayBuilder::BuildSupportPolygon(
  //    marker.lifetime = ros::Duration(10);
   marker.scale.x = marker.scale.y = marker.scale.z = 1.0;
   marker.color = GetLegColor(leg_id);
-  marker.color.a = 0.1;
+  marker.color.a = 0.15;
 
   static const int points_per_triangle =3;
   if (stance.size() == points_per_triangle) {
@@ -115,13 +117,13 @@ void MarkerArrayBuilder::AddPoint(
 
   Marker marker;
   marker.id = i;
-  marker = GenerateMarker(goal, marker_type, 0.01);
+  marker = GenerateMarker(goal, marker_type, 0.02);
   marker.ns = rviz_namespace;
   marker.scale.z = 0.04;
   marker.color.a = 1.0;
-  marker.color.r = 1.0;
-  marker.color.g = 1.0;
-  marker.color.b = 1.0;
+  marker.color.r = 0.0;
+  marker.color.g = 0.0;
+  marker.color.b = 0.0;
   msg.markers.push_back(marker);
 }
 
@@ -206,8 +208,9 @@ MarkerArrayBuilder::AddEllipse(visualization_msgs::MarkerArray& msg,
 }
 
 void
-MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
+MarkerArrayBuilder::AddBodyTrajectory(visualization_msgs::MarkerArray& msg,
                             const ComMotion& com_motion,
+                            const PosXYZ offset_geom_to_com,
                             const MotionStructure& motion_structure,
                             const std::string& rviz_namespace,
                             double alpha) const
@@ -216,23 +219,24 @@ MarkerArrayBuilder::AddCogTrajectory(visualization_msgs::MarkerArray& msg,
 
 //  for (const auto& node : motion_structure.GetPhaseStampedVec())
 //  {
-  double dt = 0.01;
+  double dt = 0.01;  // for RA-L plots 0.002
   for (double t(0.0); t < com_motion.GetTotalTime(); t+= dt)
   {
-    auto cog_state = com_motion.GetCom(t);
-    auto phase = motion_structure.GetCurrentPhase(t);//node.phase_;
+    auto com_state = com_motion.GetCom(t);
+    Vector2d body_state = com_state.p - offset_geom_to_com.segment<2>(0);
 
     visualization_msgs::Marker marker;
-    marker = GenerateMarker(cog_state.p.segment<2>(0),
+    marker = GenerateMarker(body_state,
                             visualization_msgs::Marker::SPHERE,
-                            0.005);
+                            0.011);
     marker.id = i++;
     marker.ns = rviz_namespace;
 
+    auto phase = motion_structure.GetCurrentPhase(t);
     if ( !phase.IsStep() ) {
-      marker.color.r = marker.color.g = marker.color.b = 1.0;
+      marker.color.r = marker.color.g = marker.color.b = 0.5;
     } else {
-      auto swing_leg = phase.swing_goal_contacts_.front().ee;
+      auto swing_leg = phase.swinglegs_.front().ee;
       marker.color = GetLegColor(swing_leg);
     }
 
@@ -257,41 +261,41 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
                                      const ComMotion& com_motion,
                                      const MotionStructure& motion_structure,
                                      double walking_height,
-                                     const std::string& rviz_namespace,
-                                     double alpha) const
+                                     const std::string& rviz_namespace) const
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
 
 
 //  for (const auto& node : motion_structure.GetPhaseStampedVec())
 //  {
-  double dt = 0.01;
+  double dt = 0.23;
   for (double t(0.0); t < com_motion.GetTotalTime(); t+= dt)
   {
-    xpp::utils::StateLin2d cog_state = com_motion.GetCom(t);
+    auto com = com_motion.GetCom(t);
 
-    Eigen::Vector2d zmp = xpp::opt::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height);
-
+    Eigen::Vector2d zmp = xpp::opt::ZeroMomentPoint::CalcZmp(com.Make3D(), walking_height);
     auto phase = motion_structure.GetCurrentPhase(t);
 
     visualization_msgs::Marker marker;
     marker = GenerateMarker(zmp,
-                            visualization_msgs::Marker::CUBE,
-                            0.005);
+                            visualization_msgs::Marker::SPHERE,
+                            0.011);
 
     marker.ns = rviz_namespace;
     marker.id = i++;
 
     if ( !phase.IsStep() ) {
-      marker.color.r = marker.color.g = marker.color.g = 0.1;
+      marker.color.r = marker.color.g = marker.color.b = 0.5;
+      marker.color.a = 0.2;
     } else {
       // take color of first swingleg
-      auto swing_leg = phase.swing_goal_contacts_.front().ee;
+      auto swing_leg = phase.swinglegs_.front().ee;
 //      marker.ns = "leg " + std::to_string(swing_leg);
-      marker.color = GetLegColor(swing_leg);
+//      marker.color = GetLegColor(swing_leg);
+      marker.color.r = 1.0; marker.color.g = 0.0; marker.color.b = 0.0;
+      marker.color.a = 1.0;
     }
 
-    marker.color.a = alpha;
     msg.markers.push_back(marker);
   }
 
@@ -305,8 +309,72 @@ MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
     marker.action = visualization_msgs::Marker::DELETE;
     msg.markers.push_back(marker);
   }
+}
+
+void
+MarkerArrayBuilder::AddPendulum(visualization_msgs::MarkerArray& msg,
+                                const ComMotion& com_motion,
+                                const MotionStructure& motion_structure,
+                                double walking_height,
+                                const std::string& rviz_namespace,
+                                double alpha) const
+{
+
+  int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
+
+  visualization_msgs::Marker marker;
+  marker.header.frame_id = frame_id_;
+  marker.header.stamp = ::ros::Time::now();
+  marker.action = visualization_msgs::Marker::MODIFY;
+  marker.type = visualization_msgs::Marker::LINE_STRIP;
+  marker.scale.x = 0.01; // thinkness of pendulum pole
+  marker.color.a = alpha;
+
+  // everything sent here will be overwritten
+  marker.ns = rviz_namespace;
+  marker.id = 0;
+
+  double dt = 0.01;
+  for (double t(0.0); t < com_motion.GetTotalTime(); t+= dt)
+  {
+    marker.points.clear();
+    xpp::utils::StateLin2d cog_state = com_motion.GetCom(t);
+    geometry_msgs::Point point;
+    point.x = cog_state.p.x();
+    point.y = cog_state.p.y();
+    point.z = walking_height;
+    marker.points.push_back(point);
+
+    Eigen::Vector2d zmp = xpp::opt::ZeroMomentPoint::CalcZmp(cog_state.Make3D(), walking_height);
+    point.x = zmp.x();
+    point.y = zmp.y();
+    point.z = 0.0;
+    marker.points.push_back(point);
 
 
+    auto phase = motion_structure.GetCurrentPhase(t);
+    if ( !phase.IsStep() ) {
+      marker.color.r = marker.color.g = marker.color.b = 0.1;
+    } else {
+      // take color of first swingleg
+      auto swing_leg = phase.swinglegs_.front().ee;
+      marker.color = GetLegColor(swing_leg);
+
+    }
+
+    msg.markers.push_back(marker);
+  }
+
+//  // delete the other markers
+//  for (double t=com_motion.GetTotalTime(); t < 10.0; t+= dt)
+//  {
+//    visualization_msgs::Marker marker;
+//
+//    marker.id = i++;
+//    marker.ns = rviz_namespace;
+//    marker.action = visualization_msgs::Marker::DELETE;
+//    msg.markers.push_back(marker);
+//  }
 }
 
 void MarkerArrayBuilder::AddFootholds(
@@ -361,9 +429,9 @@ void MarkerArrayBuilder::AddFootholds(
     marker_msg.ns = rviz_namespace;
     marker_msg.id = i++;
 //    marker_msg.lifetime = ros::Duration(10);
-    marker_msg.scale.x = 0.05;
-    marker_msg.scale.y = 0.05;
-    marker_msg.scale.z = 0.05;
+    marker_msg.scale.x = 0.04;
+    marker_msg.scale.y = 0.04;
+    marker_msg.scale.z = 0.04;
 
 
     marker_msg.color = GetLegColor(H_footholds.at(j).ee);
@@ -387,21 +455,24 @@ void MarkerArrayBuilder::AddFootholds(
 std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(EEID ee) const
 {
   // define a few colors
-  std_msgs::ColorRGBA red, green, blue, yellow, white;
-  red.a = green.a = blue.a = yellow.a = white.a = 1.0;
+  std_msgs::ColorRGBA red, green, blue, white, brown, yellow, purple;
+  red.a = green.a = blue.a = white.a = brown.a = yellow.a = purple.a = 1.0;
 
-  red.r = 1.0;
-  green.g = 1.0;
-  blue.b = 1.0;
-  yellow.r = yellow.g = 1.0;
+  red.r = 1.0; red.g = 0.0; red.b = 0.0;
+  green.r = 0.0; green.g = 150./255; green.b = 76./255;
+  blue.r = 0.0; blue.g = 102./255; blue.b = 204./255;
+  brown.r = 122./255; brown.g = 61./255; brown.b = 0.0;
   white.b = white.g = white.r = 1.0;
+  yellow.r = 204./255; yellow.g = 204./255; yellow.b = 0.0;
+//  purple.r = 123./255; purple.g = 104./255; purple.b = 238./255;
+  purple.r = 72./255; purple.g = 61./255; purple.b = 139./255;
 
 
   std_msgs::ColorRGBA color_leg;
   using namespace xpp::hyq;
   switch (kMapOptToHyq.at(ee)) {
     case LF:
-      color_leg = red;
+      color_leg = purple;
       break;
     case RF:
       color_leg = green;
@@ -410,7 +481,7 @@ std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(EEID ee) const
       color_leg = blue;
       break;
     case RH:
-      color_leg = yellow;
+      color_leg = brown;
       break;
     default:
       break;
