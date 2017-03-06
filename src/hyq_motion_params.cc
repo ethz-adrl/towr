@@ -152,7 +152,7 @@ PushRecovery::PushRecovery ()
 
 Pace::Pace()
 {
-  opt_horizon_in_phases_ = 4*1;
+  opt_horizon_in_phases_ = 4*4;
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::PaceID;
   max_step_length_ = 0.25;
@@ -163,8 +163,8 @@ Pace::Pace()
   ee_cycle_ = {II, PP, II, bb};
 
   constraints_ = { InitCom,
-//                   FinalCom,
-//                   FinalStance,
+                   FinalCom,
+                   FinalStance,
                    JunctionCom,
                    Convexity,
                    SuppArea,
@@ -178,7 +178,7 @@ Pace::Pace()
 
 Bound::Bound()
 {
-  opt_horizon_in_phases_ = 4*1;
+  opt_horizon_in_phases_ = 4*4;
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::BoundID;
   max_step_length_ = 0.4;
@@ -190,8 +190,8 @@ Bound::Bound()
 
 
   constraints_ = { InitCom,
-//                   FinalCom,
-//                   FinalStance,
+                   FinalCom,
+                   FinalStance,
                    JunctionCom,
                    Convexity,
                    SuppArea,

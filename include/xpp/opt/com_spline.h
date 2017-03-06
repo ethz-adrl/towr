@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 
 #include "com_motion.h"
-#include "motion_phase.h" // zmp_ this shouldn't be here
+#include "motion_phase.h" // spring_clean_ this shouldn't be here
 #include <xpp/utils/polynomial_helpers.h>
 #include <memory>
 

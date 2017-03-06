@@ -72,7 +72,7 @@ private:
   VectorXd ConvertToEigen(const Number* x) const;
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_H_ */
