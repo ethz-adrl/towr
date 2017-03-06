@@ -50,7 +50,8 @@ private:
   NlpSolver solver_type_;
 
 
-  // zmp_ remove again after paper
+  // spring_clean_ remove again after paper
+  // generally separate important data from visualization!
   ::ros::Publisher  pub_;
 
 };
