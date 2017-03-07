@@ -65,8 +65,6 @@ public:
 
   ArtiRobVec BuildWholeBodyTrajectory(double dt) const;
 
-  SplineNode GetNodeSecondPhase() const { return nodes_.at(1); };
-
 private:
   int kNEE;
   double t_start_;

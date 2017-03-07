@@ -18,7 +18,7 @@ namespace opt {
 using MotionStructure = xpp::opt::MotionStructure;
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
-    :opt_start_state_(hyq::kNumEndeffectors)
+    :start_geom_(hyq::kNumEndeffectors)
 {
   SetMotionType(WalkID);
 }
@@ -38,7 +38,7 @@ MotionOptimizerFacade::SetVisualizer (VisualizerPtr visualizer)
 void
 MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 {
-  int curr_phase = opt_start_state_.GetCurrentPhase();
+  int curr_phase = start_geom_.GetCurrentPhase();
   int phases_in_cycle = motion_type_->GetOneCycle().size();
   int phase = curr_phase%phases_in_cycle;
 
@@ -57,15 +57,15 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 
   MotionStructure motion_structure;
   motion_structure.Init(motion_type_->robot_ee_,
-                        opt_start_state_.GetEEPos(),
+                        start_geom_.GetEEPos(),
                         phase_specs,
-                        opt_start_state_.GetPercentPhase(),
+                        start_geom_.GetPercentPhase(),
                         motion_type_->dt_nodes_ );
   motion_phases_ = motion_structure.GetPhases();
 
   State goal_com = goal_geom_;
   goal_com.p += motion_type_->offset_geom_to_com_;
-  nlp_facade_.BuildNlp(opt_start_state_.GetBase().lin.Get2D(),
+  nlp_facade_.BuildNlp(start_geom_.GetBase().lin.Get2D(),
                        goal_com.Get2D(),
                        motion_structure,
                        motion_type_);
@@ -81,7 +81,7 @@ MotionOptimizerFacade::GetTrajectory (double dt)
   wb_traj_generator.Init(motion_phases_,
                          nlp_facade_.GetComMotion(),
                          nlp_facade_.GetFootholds(),
-                         opt_start_state_,
+                         start_geom_,
                          motion_type_->lift_height_,
                          motion_type_->offset_geom_to_com_);
 
@@ -91,21 +91,13 @@ MotionOptimizerFacade::GetTrajectory (double dt)
 void
 MotionOptimizerFacade::BuildOptimizationStartState (const RobotState& curr)
 {
-  // zmp_ !!!!this is HUGE! very important
   auto feet_zero_z_W = curr.GetEEState();
   for (auto ee : feet_zero_z_W.GetEEsOrdered())
     feet_zero_z_W.At(ee).p.z() = 0.0;
 
-//  static bool first_time = true;
-//  if (first_time) {
-//    state_second_phase_ = curr;
-//    state_second_phase_.SetEEState(feet_zero_z_W);
-//    first_time = false;
-//  }
-
-  opt_start_state_ = curr;
-  opt_start_state_.SetPercentPhase(0.0);
-  opt_start_state_.SetEEState(feet_zero_z_W/*state_second_phase_.GetEEState()*/);
+  start_geom_ = curr;
+  start_geom_.SetPercentPhase(0.0);
+  start_geom_.SetEEState(feet_zero_z_W);
 }
 
 void

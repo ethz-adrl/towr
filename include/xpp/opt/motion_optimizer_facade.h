@@ -37,15 +37,13 @@ public:
   void OptimizeMotion(NlpSolver solver);
   RobotStateVec GetTrajectory(double dt);
 
-  void BuildOptimizationStartState(const RobotState& curr);
+  void BuildOptimizationStartState(const RobotState& curr_geom);
 
+  RobotState start_geom_;
   State goal_geom_;
-  double t_left_; // time to reach goal
 
   void SetMotionType(MotionTypeID);
 
-
-  RobotState opt_start_state_;
 private:
 
   NlpFacade nlp_facade_;
