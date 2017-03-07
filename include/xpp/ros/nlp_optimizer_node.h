@@ -36,7 +36,7 @@ public:
 private:
 
   /** sends this info the the walking controller **/
-  void PublishTrajectory(bool use_new_goal_as_start=false);
+  void PublishTrajectory();
   void OptimizeMotion();
   void CurrentStateCallback(const CurrentInfoMsg& msg);
   void UserCommandCallback(const UserCommandMsg& msg);
@@ -48,11 +48,6 @@ private:
   MotionOptimizer motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
   NlpSolver solver_type_;
-
-
-  // spring_clean_ remove again after paper
-  // generally separate important data from visualization!
-  ::ros::Publisher  pub_;
 
 };
 

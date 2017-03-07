@@ -30,16 +30,13 @@ public:
   using JoyMsg      = sensor_msgs::Joy;
   using GoalSrv     = xpp_msgs::GetStateLin3d;
   using MotionType  = xpp::opt::MotionTypeID;
+  using InitVel     = geometry_msgs::Vector3;
 
   enum class Command { kSetGoal, kStartWalking, kNoCommand } command_ = Command::kNoCommand;
 
   NlpUserInputNode ();
   virtual ~NlpUserInputNode ();
   void PublishCommand();
-
-  const int kLoopRate_ = 30; ///< frequency for sending out control commands
-  double t_left_;
-  const double t_max_left_;
 
 private:
   void CallbackKeyboard(const KeyboardMsg& msg);
@@ -48,12 +45,11 @@ private:
   void ModifyGoalJoy();
 
   State goal_geom_;
-  State goal_cog_prev_;
 
   MotionType motion_type_;
-  bool motion_type_change_; ///< if it changed from the previous message
   bool replay_trajectory_;
   bool use_solver_snopt_;
+  InitVel velocity_disturbance_;
 
   ::ros::Subscriber key_sub_;
   ::ros::Subscriber joy_sub_;
