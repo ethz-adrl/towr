@@ -28,6 +28,7 @@ public:
   using RobotStateVec = std::vector<RobotState>;
   using MotionTypePtr = std::shared_ptr<MotionParameters>;
   using PhaseVec      = std::vector<MotionPhase>;
+  using ContactVec    = NlpFacade::ContactVec;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
@@ -36,6 +37,10 @@ public:
 
   void OptimizeMotion(NlpSolver solver);
   RobotStateVec GetTrajectory(double dt);
+  ContactVec GetContactVec();
+
+
+
 
   void BuildOptimizationStartState(const RobotState& curr_geom);
 

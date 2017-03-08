@@ -47,6 +47,8 @@ public:
   using VecFoothold              = utils::StdVecEigen2d;
   using NLPPtr                   = std::shared_ptr<NLP>;
 
+  using ContactVec               = std::vector<Contact>;
+
   NlpFacade (VisualizerPtr visualizer = do_nothing_visualizer);
   virtual ~NlpFacade () {};
 
@@ -68,8 +70,12 @@ public:
   void SolveNlp(NlpSolver solver);
   void VisualizeSolution() const;
 
+  // spring_clean_ remove all these functions
   void SetVisualizer(VisualizerPtr& visualizer);
   VecFoothold GetFootholds() const;
+
+  ContactVec GetContacts();
+
   const ComMotionPtrS GetComMotion() const;
 
 private:
@@ -82,6 +88,9 @@ private:
   ConstraintContainerPtr constraints_;
 
   ComMotionPtrS com_motion_;
+  ContactVec contacts_;
+
+  // spring_clean_ think about removing visualizer from here
   VisualizerPtr visualizer_;
 };
 

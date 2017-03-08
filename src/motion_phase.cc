@@ -12,10 +12,10 @@ namespace opt {
 
 
 // these should be ordered same as below (free before fixed)
-MotionPhase::ContactVec
+MotionPhase::ContactBaseVec
 MotionPhase::GetAllContacts() const
 {
-  ContactVec contacts;
+  ContactBaseVec contacts;
   for (const auto& c_free : contacts_opt_)
     contacts.push_back(c_free);
 
@@ -26,10 +26,10 @@ MotionPhase::GetAllContacts() const
 }
 
 // think about caching this in CalcPhaseStampedVec for all nodes
-MotionPhase::FootholdVec
-MotionPhase::GetAllContacts(const utils::StdVecEigen2d& contacts_xy) const
+MotionPhase::ContactVec
+MotionPhase::GetAllContacts(const XYPositions& contacts_xy) const
 {
-  FootholdVec contacts;
+  ContactVec contacts;
 
   for (const auto& c_free : contacts_opt_) {
     Contact contact(c_free);

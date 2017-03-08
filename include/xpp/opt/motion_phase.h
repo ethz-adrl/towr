@@ -21,14 +21,15 @@ namespace opt {
   */
 class MotionPhase {
 public:
-  using FootholdVec = std::vector<Contact>;
-  using ContactVec  = std::vector<ContactBase>;
-  using EEID        = utils::EndeffectorID;
+  using ContactVec     = std::vector<Contact>;
+  using ContactBaseVec = std::vector<ContactBase>;
+  using XYPositions    = utils::StdVecEigen2d;
+  using EEID           = utils::EndeffectorID;
 
-  ContactVec contacts_opt_;       ///< all the ee currently in contact but not fixed by start stance
-  ContactVec swinglegs_; ///< the contacts the current swinglegs are swinging towards
-  FootholdVec contacts_fixed_;     ///< the contacts fixed by start stance
-  double duration_ = 0.0;          ///< how long [s] this phase lasts
+  ContactBaseVec contacts_opt_;    ///< all the ee currently in contact but not fixed by start stance
+  ContactBaseVec swinglegs_;       ///< the contacts the current swinglegs are swinging towards
+  ContactVec contacts_fixed_; ///< the contacts fixed by start stance
+  double duration_ = 0.0;      ///< how long [s] this phase lasts
 
   bool IsStep() const { return !swinglegs_.empty();  }
 
@@ -39,11 +40,11 @@ public:
 
   /** @returns fixed and free current contacts without xyz-positions.
     */
-  ContactVec GetAllContacts() const;
+  ContactBaseVec GetAllContacts() const;
 
   /** @returns fixed and free current contacts including xyz-positions.
     */
-  FootholdVec GetAllContacts(const utils::StdVecEigen2d& contacts_xy) const;
+  ContactVec GetAllContacts(const XYPositions& contacts_xy) const;
 };
 
 class MotionNode : public MotionPhase {

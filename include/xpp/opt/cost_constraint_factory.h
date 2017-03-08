@@ -46,7 +46,7 @@ public:
 
   // optimization variables with initial values
   VariableSet SplineCoeffVariables() const;
-  VariableSet ContactVariables(const Vector2d initial_pos) const;
+  VariableSet ContactVariables(const Vector2d initial_pos, std::vector<Contact>&) const;
   VariableSet ConvexityVariables() const;
   VariableSet CopVariables() const;
 

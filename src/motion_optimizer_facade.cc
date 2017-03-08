@@ -28,6 +28,7 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
   // TODO Auto-generated destructor stub
 }
 
+// spring_clean_ consider if want to keep this function
 void
 MotionOptimizerFacade::SetVisualizer (VisualizerPtr visualizer)
 {
@@ -88,6 +89,7 @@ MotionOptimizerFacade::GetTrajectory (double dt)
   return wb_traj_generator.BuildWholeBodyTrajectory(dt);
 }
 
+
 void
 MotionOptimizerFacade::BuildOptimizationStartState (const RobotState& curr)
 {
@@ -98,6 +100,12 @@ MotionOptimizerFacade::BuildOptimizationStartState (const RobotState& curr)
   start_geom_ = curr;
   start_geom_.SetPercentPhase(0.0);
   start_geom_.SetEEState(feet_zero_z_W);
+}
+
+MotionOptimizerFacade::ContactVec
+MotionOptimizerFacade::GetContactVec ()
+{
+  return nlp_facade_.GetContacts();
 }
 
 void

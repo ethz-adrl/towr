@@ -82,13 +82,21 @@ CostConstraintFactory::SplineCoeffVariables () const
 }
 
 VariableSet
-CostConstraintFactory::ContactVariables (const Vector2d initial_pos) const
+CostConstraintFactory::ContactVariables (const Vector2d initial_pos,
+                                         std::vector<Contact>& contacts) const
 {
+  contacts.clear();
+
   // contact locations (x,y) of each step
   utils::StdVecEigen2d footholds_W;
   for (auto ee : motion_structure.GetContactIds()) {
     Eigen::Vector2d nominal_B = params->GetNominalStanceInBase().at(ee);
     footholds_W.push_back(nominal_B + initial_pos); // express in world
+
+    ContactBase c;
+    c.ee = ee;
+    c.id = contacts.size();
+    contacts.push_back(c);
   }
 
   return VariableSet(utils::ConvertStdToEig(footholds_W), VariableNames::kFootholds);

@@ -63,7 +63,7 @@ NlpFacade::BuildNlp(const State& initial_state,
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(factory.SplineCoeffVariables());
-  opt_variables_->AddVariableSet(factory.ContactVariables(initial_state.p));
+  opt_variables_->AddVariableSet(factory.ContactVariables(initial_state.p, contacts_));
   opt_variables_->AddVariableSet(factory.ConvexityVariables());
   opt_variables_->AddVariableSet(factory.CopVariables());
 
@@ -169,6 +169,20 @@ NlpFacade::GetFootholds () const
 {
   Eigen::VectorXd footholds = opt_variables_->GetVariables(VariableNames::kFootholds);
   return utils::ConvertEigToStd(footholds);
+}
+
+NlpFacade::ContactVec
+NlpFacade::GetContacts ()
+{
+  Eigen::VectorXd xy = opt_variables_->GetVariables(VariableNames::kFootholds);
+  VecFoothold xy_eigen = utils::ConvertEigToStd(xy);
+
+  for (int i=0; i<contacts_.size(); ++i) {
+    contacts_.at(i).p.topRows<2>() = xy_eigen.at(i);
+    contacts_.at(i).p.z() = 0.0;
+  }
+
+  return contacts_;
 }
 
 const NlpFacade::ComMotionPtrS
