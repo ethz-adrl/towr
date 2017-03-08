@@ -7,7 +7,7 @@
 
 #include <xpp/ros/ros_visualizer.h>
 #include <xpp/ros/ros_helpers.h>
-#include <xpp/ros/marker_array_builder.h>
+
 #include <xpp/ros/topic_names.h>
 
 namespace xpp {
@@ -21,12 +21,48 @@ using EndeffectorID = xpp::utils::EndeffectorID;
 RosVisualizer::RosVisualizer ()
 {
   ::ros::NodeHandle n;
+
+  sub_  = n.subscribe(xpp_msgs::robot_trajectory_joints, 1,
+                      &RosVisualizer::TrajectoryCallback, this);
+
+  contacts_sub_ = n.subscribe(xpp_msgs::contact_vector, 1,
+                              &RosVisualizer::ContactsCallback, this);
+
+
   ros_publisher_optimized_ = n.advertise<MarkerArrayMsg>(xpp_msgs::rviz_optimized, 1);
   ros_publisher_optimized_single_ = n.advertise<MarkerMsg>(xpp_msgs::rviz_optimized_single, 1);
 }
 
 RosVisualizer::~RosVisualizer ()
 {
+}
+
+void
+RosVisualizer::TrajectoryCallback (const TrajMsg::ConstPtr& traj_msg)
+{
+  msg_builder_.robot_traj_ = traj_msg;
+  ROS_INFO_STREAM("Received new robot trajectory");
+
+
+  MarkerArrayMsg msg;
+  msg_builder_.AddBodyTrajectory(msg);
+  msg_builder_.AddZmpTrajectory(msg);
+
+  Eigen::Vector3d start = RosHelpers::RosToXpp(traj_msg->states.front().base.pose.position);
+  msg_builder_.AddPoint(msg, start.topRows<2>(), "start", visualization_msgs::Marker::CYLINDER);
+
+
+  ros_publisher_optimized_.publish(msg);
+}
+
+void
+RosVisualizer::ContactsCallback (const ContactVecMsg& contact_msg)
+{
+  VecContacts contacts = RosHelpers::RosToXpp(contact_msg);
+  MarkerArrayMsg msg;
+  msg_builder_.AddFootholds(msg, contacts, "footholds", visualization_msgs::Marker::SPHERE, 1.0);
+
+  ros_publisher_optimized_.publish(msg);
 }
 
 void
@@ -61,14 +97,13 @@ RosVisualizer::Visualize () const
 
 
   MarkerArrayMsg msg;
-  MarkerArrayBuilder msg_builder_;
-  msg_builder_.AddPoint(msg, com_motion->GetCom(0.0).p - motion_params_->offset_geom_to_com_.segment<2>(0),
-                        "start", visualization_msgs::Marker::CYLINDER);
+//  msg_builder_.AddPoint(msg, com_motion->GetCom(0.0).p - motion_params_->offset_geom_to_com_.segment<2>(0),
+//                        "start", visualization_msgs::Marker::CYLINDER);
   msg_builder_.AddStartStance(msg, start_stance);
-  msg_builder_.AddFootholds(msg, footholds, "footholds", visualization_msgs::Marker::SPHERE, 1.0);
+//  msg_builder_.AddFootholds(msg, footholds, "footholds", visualization_msgs::Marker::SPHERE, 1.0);
   msg_builder_.AddSupportPolygons(msg, structure, contacts);
-  msg_builder_.AddBodyTrajectory(msg, *com_motion, motion_params_->offset_geom_to_com_, structure, "body", 1.0);
-  msg_builder_.AddZmpTrajectory(msg, *com_motion, structure, com_height, "zmp_4ls");
+//  msg_builder_.AddBodyTrajectory(msg, *com_motion, motion_params_->offset_geom_to_com_, structure, "body", 1.0);
+//  msg_builder_.AddZmpTrajectory(msg, *com_motion, structure, com_height, "zmp_4ls");
 
 
 //  msg_builder_.AddPendulum(msg, *com_motion, structure, com_height, "pendulum", 1.0);

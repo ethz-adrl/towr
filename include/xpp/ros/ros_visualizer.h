@@ -15,6 +15,10 @@
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 
+#include <xpp/ros/marker_array_builder.h>
+#include <xpp_msgs/RobotStateJointsTrajectory.h>
+#include <xpp_msgs/ContactVector.h>
+
 namespace xpp {
 namespace ros {
 
@@ -25,10 +29,14 @@ namespace ros {
   * is responsible for supplying the interpreted optimization variables and
   * \c msg_builder_ is responsible for the generation of the ROS messages.
   */
+// spring_clean_ move to xpp_vis repo
 class RosVisualizer : public xpp::opt::IVisualizer {
 public:
   using State       = xpp::utils::StateLin2d;
   using VecContacts = std::vector<xpp::opt::Contact>;
+
+  using TrajMsg         = xpp_msgs::RobotStateJointsTrajectory;
+  using ContactVecMsg   = xpp_msgs::ContactVector;
 
   RosVisualizer();
   virtual ~RosVisualizer ();
@@ -39,6 +47,15 @@ public:
 private:
   ::ros::Publisher ros_publisher_optimized_;
   ::ros::Publisher ros_publisher_optimized_single_;
+
+  MarkerArrayBuilder msg_builder_;
+
+  TrajMsg::ConstPtr robot_traj_;
+  ::ros::Subscriber sub_;
+  void TrajectoryCallback (const TrajMsg::ConstPtr& traj_msg);
+
+  ::ros::Subscriber contacts_sub_;
+  void ContactsCallback (const ContactVecMsg& msg);
 };
 
 } /* namespace ros */

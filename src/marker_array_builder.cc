@@ -9,6 +9,9 @@
 #include <xpp/opt/zero_moment_point.h>
 #include <xpp/hyq/ee_hyq.h>
 
+#include <xpp/ros/topic_names.h>
+#include <xpp/ros/ros_helpers.h>
+
 namespace xpp {
 namespace ros {
 
@@ -19,14 +22,14 @@ MarkerArrayBuilder::MarkerArrayBuilder()
 }
 
 void MarkerArrayBuilder::AddStartStance(visualization_msgs::MarkerArray& msg,
-                                        const VecFoothold& start_stance) const
+                                        const ContactVec& start_stance) const
 {
   AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::CUBE, 1.0);
 }
 
 void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
                                       const MotionStructure& motion_structure,
-                                      const VecFootholdEig& footholds) const
+                                      const XyPositions& footholds) const
 {
   int phase_id = 0;
   int phase_min = 4;
@@ -56,7 +59,7 @@ void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg
 void
 MarkerArrayBuilder::BuildSupportPolygon(
     visualization_msgs::MarkerArray& msg,
-    const VecFoothold& stance,
+    const ContactVec& stance,
     EEID leg_id) const
 {
 //  static int i=0;
@@ -111,7 +114,7 @@ void MarkerArrayBuilder::AddPoint(
     visualization_msgs::MarkerArray& msg,
     const Eigen::Vector2d& goal,
     std::string rviz_namespace,
-    int marker_type)
+    int marker_type) const
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
 
@@ -220,6 +223,10 @@ MarkerArrayBuilder::AddBodyTrajectory(visualization_msgs::MarkerArray& msg,
 //  for (const auto& node : motion_structure.GetPhaseStampedVec())
 //  {
   double dt = 0.01;  // for RA-L plots 0.002
+
+//  double T = robot_traj_->states.back().t_global;
+//  std::cout << "!!!!!!!!!!!T!!!!!!!! " << T << std::endl;
+
   for (double t(0.0); t < com_motion.GetTotalTime(); t+= dt)
   {
     auto com_state = com_motion.GetCom(t);
@@ -255,6 +262,78 @@ MarkerArrayBuilder::AddBodyTrajectory(visualization_msgs::MarkerArray& msg,
     msg.markers.push_back(marker);
   }
 }
+
+//static Eigen::Vector2d Get2dValue(const utils::StateLin3d& base) {
+//  return base.Get2D().p;
+//}
+
+void
+MarkerArrayBuilder::AddBodyTrajectory (MarkerArray& msg) const
+{
+  double dt = 0.01;
+  double marker_size = 0.011;
+  AddTrajectory(msg, "body", dt, marker_size,
+                [](const utils::StateLin3d& base){return base.Get2D().p;}
+  );
+}
+
+void
+MarkerArrayBuilder::AddZmpTrajectory (MarkerArray& msg) const
+{
+  double dt = 0.1;
+  double marker_size = 0.011;
+  AddTrajectory(msg, "zmp", dt, marker_size,
+                [](const utils::StateLin3d& base)
+                {return xpp::opt::ZeroMomentPoint::CalcZmp(base, base.p.z());}
+  );
+}
+
+void
+MarkerArrayBuilder::AddTrajectory(visualization_msgs::MarkerArray& msg,
+                                  const std::string& rviz_namespace,
+                                  double dt,
+                                  double marker_size,
+                                  const FctPtr& Get2dValue) const
+{
+  int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
+
+  double T = robot_traj_->states.back().t_global - robot_traj_->t_start;
+  double traj_dt = T/robot_traj_->states.size();
+
+  for (double t(0.0); t < T; t+= dt) {
+    visualization_msgs::Marker marker;
+    auto state = RosHelpers::RosToXpp(robot_traj_->states.at(floor(t/traj_dt)));
+
+
+    marker = GenerateMarker(Get2dValue(state.GetBase().lin),
+                            visualization_msgs::Marker::SPHERE,
+                            marker_size);
+
+    marker.id = i++;
+    marker.ns = rviz_namespace;
+
+    // plot in color of last swingleg
+    marker.color.r = marker.color.g = marker.color.b = 0.5; // no swingleg
+    marker.color.a = 1.0;
+    for (auto ee : state.GetEndeffectors())
+      if (!state.GetContactState().At(ee))
+        marker.color = GetLegColor(ee);
+
+    msg.markers.push_back(marker);
+  }
+
+  // delete the other markers
+  for (double t=T; t < 10.0; t+= dt)
+  {
+    visualization_msgs::Marker marker;
+
+    marker.id = i++;
+    marker.ns = rviz_namespace;
+    marker.action = visualization_msgs::Marker::DELETE;
+    msg.markers.push_back(marker);
+  }
+}
+
 
 void
 MarkerArrayBuilder::AddZmpTrajectory(visualization_msgs::MarkerArray& msg,
@@ -379,7 +458,7 @@ MarkerArrayBuilder::AddPendulum(visualization_msgs::MarkerArray& msg,
 
 void MarkerArrayBuilder::AddFootholds(
     visualization_msgs::MarkerArray& msg,
-    const VecFoothold& H_footholds,
+    const ContactVec& H_footholds,
     const std::string& rviz_namespace,
     int32_t type,
     double alpha) const
@@ -452,6 +531,7 @@ void MarkerArrayBuilder::AddFootholds(
   }
 }
 
+
 std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(EEID ee) const
 {
   // define a few colors
@@ -489,7 +569,6 @@ std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(EEID ee) const
 
   return color_leg;
 }
-
 
 } /* namespace ros */
 } /* namespace xpp */

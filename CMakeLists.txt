@@ -108,7 +108,7 @@ set(LIB_NAME xpp_ros)
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ${LIB_NAME}
-#  CATKIN_DEPENDS
+   CATKIN_DEPENDS xpp_opt
 #  DEPENDS system_lib
 )
 
