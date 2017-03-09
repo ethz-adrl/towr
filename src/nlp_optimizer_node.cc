@@ -7,7 +7,6 @@
 
 #include <xpp/ros/nlp_optimizer_node.h>
 
-#include <xpp/ros/ros_visualizer.h>
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
 
@@ -17,6 +16,7 @@
 
 #include <xpp/hyq/codegen/hyq_kinematics.h>
 #include <xpp/hyq/hyq_inverse_kinematics.h>
+#include <xpp/hyq/hyq_motion_params.h>
 
 namespace xpp {
 namespace ros {
@@ -49,8 +49,6 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   dt_ = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
 
-  motion_optimizer_.SetVisualizer(std::make_shared<RosVisualizer>());
-
   ROS_INFO_STREAM("Initialization done, waiting for current state...");
 }
 
@@ -81,7 +79,13 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 {
   auto goal_prev = motion_optimizer_.goal_geom_;
   motion_optimizer_.goal_geom_ = RosHelpers::RosToXpp(msg.goal);
-  motion_optimizer_.SetMotionType(static_cast<opt::MotionTypeID>(msg.motion_type));
+
+  auto motion_id = static_cast<opt::MotionTypeID>(msg.motion_type);
+  auto motion_type = hyq::HyqMotionParameters::MakeMotion(motion_id);
+  motion_optimizer_.SetMotionType(motion_type);
+
+
+
   solver_type_ = msg.use_solver_snopt ? opt::Snopt : opt::Ipopt;
 
   Eigen::Vector3d vel_dis(msg.vel_disturbance.x, msg.vel_disturbance.y, msg.vel_disturbance.z);
@@ -105,12 +109,12 @@ NlpOptimizerNode::PublishTrajectory ()
   // convert to joint angles
   // spring_clean_ think about moving this to walking controller
   auto opt_traj_joints = RobotStateJoints::BuildWholeBodyTrajectory(opt_traj_cartesian,
-                                  std::make_shared<hyq::HyqInverseKinematics>());
+                                        std::make_shared<hyq::HyqInverseKinematics>());
 
   auto joint_traj_msg = RosHelpers::XppToRosJoints(opt_traj_joints);
   joint_trajectory_pub_.publish(joint_traj_msg);
 
-  // publish also the optimized footholds
+  // publish also directly the optimized footholds
   auto contacts = motion_optimizer_.GetContactVec();
   contacts_pub_.publish(RosHelpers::XppToRos(contacts));
 }

@@ -10,6 +10,7 @@ find_package(catkin REQUIRED
   joy
   xpp_opt
   xpp_conversions
+  xpp_hyq
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11") 
@@ -126,8 +127,6 @@ include_directories(
 # Declare a C++ library
 add_library(${LIB_NAME}
   src/nlp_optimizer_node.cc
-  src/marker_array_builder.cc
-  src/ros_visualizer.cc
   src/nlp_user_input_node.cc
 )
 
@@ -138,15 +137,7 @@ target_link_libraries(nlp_optimizer_node
   ${LIB_NAME}
   ${catkin_LIBRARIES}
 )   
-
-add_executable(goal_state_pub 
-  src/executable/goal_state_publisher.cc
-)
-target_link_libraries(goal_state_pub 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
-)                 
-                                      
+                                                  
 add_executable(sample_nlp_caller 
     src/executable/sample_nlp_caller.cc
 )
@@ -159,14 +150,6 @@ add_executable(nlp_user_input_node
     src/executable/nlp_user_input_node_exe.cc
 )
 target_link_libraries(nlp_user_input_node 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
-)
-
-add_executable(goal_visualizer_node
-    src/executable/goal_visualizer_node_exe.cc
-)
-target_link_libraries(goal_visualizer_node 
   ${LIB_NAME}
   ${catkin_LIBRARIES}
 )
