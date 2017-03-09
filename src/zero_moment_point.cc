@@ -35,14 +35,6 @@ ZeroMomentPoint::Init (const ComMotion& x, const std::vector<double>& times,
   times_ = times;
 }
 
-ZeroMomentPoint::Vector2d
-ZeroMomentPoint::CalcZmp(const State3d& cog, double height)
-{
-  double z_acc = cog.a.z(); // TODO: calculate z_acc based on foothold height
-  Vector2d zmp = cog.Get2D().p - height/(kGravity+z_acc) * cog.Get2D().a;
-  return zmp;
-}
-
 ZeroMomentPoint::Jacobian
 ZeroMomentPoint::GetJacobianWrtCoeff (Coords dim) const
 {

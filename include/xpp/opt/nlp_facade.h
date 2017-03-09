@@ -8,9 +8,8 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
 
-#include "i_visualizer.h"
 #include "motion_phase.h"
-#include "motion_parameters.h"
+#include <xpp/opt/motion_parameters.h>
 #include <xpp/utils/state.h>
 #include <xpp/utils/eigen_std_conversions.h>
 
@@ -40,17 +39,14 @@ public:
   using CostContainerPtr         = std::shared_ptr<CostContainer>;
   using ConstraintContainerPtr   = std::shared_ptr<ConstraintContainer>;
   using MotionparamsPtr          = std::shared_ptr<MotionParameters>;
-
-  using VisualizerPtr            = std::shared_ptr<IVisualizer>;
   using ComMotionPtrS            = std::shared_ptr<ComMotion>;
   using State                    = xpp::utils::StateLin2d;
   using VecFoothold              = utils::StdVecEigen2d;
   using NLPPtr                   = std::shared_ptr<NLP>;
-
   using ContactVec               = std::vector<Contact>;
 
-  NlpFacade (VisualizerPtr visualizer = do_nothing_visualizer);
-  virtual ~NlpFacade () {};
+  NlpFacade ();
+  virtual ~NlpFacade ();
 
   /** @brief Solves the nonlinear program (NLP) of moving the CoG from an initial to a
     * final state while keeping the Zero-Moment-Point (ZMP) inside the support
@@ -64,18 +60,13 @@ public:
     */
   void BuildNlp(const State& initial_state,
                 const State& final_state,
-                const MotionStructure& motion_structure,
+                const MotionStructure&,
                 const MotionparamsPtr&);
 
   void SolveNlp(NlpSolver solver);
-  void VisualizeSolution() const;
 
-  // spring_clean_ remove all these functions
-  void SetVisualizer(VisualizerPtr& visualizer);
   VecFoothold GetFootholds() const;
-
   ContactVec GetContacts();
-
   const ComMotionPtrS GetComMotion() const;
 
 private:
@@ -89,9 +80,6 @@ private:
 
   ComMotionPtrS com_motion_;
   ContactVec contacts_;
-
-  // spring_clean_ think about removing visualizer from here
-  VisualizerPtr visualizer_;
 };
 
 } /* namespace opt */

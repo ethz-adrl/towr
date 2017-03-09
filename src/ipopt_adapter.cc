@@ -7,20 +7,13 @@
 
 #include <xpp/opt/ipopt_adapter.h>
 
-// only to get the optimization variables in the intermediate callback
-//#include "IpIpoptCalculatedQuantities.hpp"
-//#include "IpIpoptData.hpp"
-//#include "IpTNLPAdapter.hpp"
-//#include "IpOrigIpoptNLP.hpp"
-
 namespace xpp {
 namespace opt {
 
 using VectorXd = Eigen::VectorXd;
 
-IpoptAdapter::IpoptAdapter(NLPPtr& nlp, VisualizerPtr visualizer)
-    :nlp_(nlp),
-     visualizer_(visualizer)
+IpoptAdapter::IpoptAdapter(NLPPtr& nlp)
+    :nlp_(nlp)
 {
 }
 
@@ -144,21 +137,8 @@ bool IpoptAdapter::intermediate_callback(Ipopt::AlgorithmMode mode,
 {
 //   std::cout << "Press Enter to continue...";
 //   std::cin.get(); // use to pause after every iteration
-
-//  // Get the current value of the optimization variable:
-//  Ipopt::TNLPAdapter* tnlp_adapter = NULL;
-//  if( ip_cq != NULL )
-//  {
-//    Ipopt::OrigIpoptNLP* orignlp;
-//    orignlp = dynamic_cast<OrigIpoptNLP*>(GetRawPtr(ip_cq->GetIpoptNLP()));
-//    if( orignlp != NULL ) {
-//      tnlp_adapter = dynamic_cast<TNLPAdapter*>(GetRawPtr(orignlp->nlp()));
-//      double* x = new double[opt_variables_.GetOptimizationVariableCount()];
-//      tnlp_adapter->ResortX(*ip_data->curr()->x(), x);
-//
-//      opt_variables_.SetVariables(x);
-
 //  visualizer_->Visualize();
+//  nlp_.SendOutCurrentValues();
 	return true;
 }
 
@@ -174,18 +154,14 @@ void IpoptAdapter::finalize_solution(Ipopt::SolverReturn status,
 
   nlp_->SetVariables(x);
 
-//  double tol0 = 1e-2;
-//  nlp_->PrintStatusOfConstraints(tol0);
-//
-//  double tol1 = 1e-3;
-//  nlp_->PrintStatusOfConstraints(tol1);
-//  double tol2 = 1e-5;
-//  nlp_->PrintStatusOfConstraints(tol2);
-
-
-//  opt_variables_.spline_coeff_ = nlp_structure_.ExtractSplineCoefficients(x);
-//  opt_variables_.footholds_ = nlp_structure_.ExtractFootholds(x);
-
+  //  double tol0 = 1e-2;
+  //  nlp_->PrintStatusOfConstraints(tol0);
+  //
+  //  double tol1 = 1e-3;
+  //  nlp_->PrintStatusOfConstraints(tol1);
+  //  double tol2 = 1e-5;
+  //  nlp_->PrintStatusOfConstraints(tol2);
+  //
   //  // write data to xml file
   //	Eigen::MatrixXd opt_u(1,n);
   //	for (int i=0; i<n; ++i)

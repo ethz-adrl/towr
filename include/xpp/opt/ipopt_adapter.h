@@ -9,8 +9,6 @@
 #define XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_
 
 #include <IpTNLP.hpp>
-
-#include "i_visualizer.h"
 #include "nlp.h"
 
 namespace xpp {
@@ -27,10 +25,9 @@ class IpoptAdapter : public Ipopt::TNLP {
 public:
   using Index         = Ipopt::Index;
   using Number        = Ipopt::Number;
-  using VisualizerPtr = std::shared_ptr<IVisualizer>;
   using NLPPtr        = std::shared_ptr<NLP>;
 
-	IpoptAdapter(NLPPtr& nlp, VisualizerPtr visualizer = do_nothing_visualizer);
+	IpoptAdapter(NLPPtr& nlp);
 
   /** default destructor */
   virtual ~IpoptAdapter() {};
@@ -104,7 +101,6 @@ public:
 
 private:
   NLPPtr nlp_;
-  VisualizerPtr visualizer_;
 };
 
 } // namespace opt

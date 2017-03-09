@@ -26,8 +26,7 @@ namespace xpp {
 namespace opt {
 
 
-NlpFacade::NlpFacade (VisualizerPtr visualizer)
-     :visualizer_(visualizer)
+NlpFacade::NlpFacade ()
 {
   // create corresponding heap object for each of the member pointers
   opt_variables_ = std::make_shared<OptimizationVariables>();
@@ -38,10 +37,8 @@ NlpFacade::NlpFacade (VisualizerPtr visualizer)
   nlp_->Init(opt_variables_, costs_, constraints_);
 }
 
-void
-NlpFacade::SetVisualizer (VisualizerPtr& visualizer)
+NlpFacade::~NlpFacade ()
 {
-  visualizer_ = visualizer;  // handle so ipopt can poll publish() method
 }
 
 void
@@ -86,11 +83,6 @@ NlpFacade::BuildNlp(const State& initial_state,
 //  double weight_motion  =  1.0/t_total;
 //  double weight_range   =  30.0/n_discrete_contacts;
 //  double weight_polygon =  100.0/n_nodes;
-
-  visualizer_->SetOptimizationVariables(opt_variables_);
-  visualizer_->SetComMotion(com_motion_);
-  visualizer_->SetMotionStructure(motion_structure);
-  visualizer_->SetMotionParameters(motion_params);
 }
 
 void
@@ -106,12 +98,6 @@ NlpFacade::SolveNlp (NlpSolver solver)
     default:
       throw std::runtime_error("solver not implemented");
   }
-}
-
-void
-NlpFacade::VisualizeSolution () const
-{
-  visualizer_->Visualize();
 }
 
 void
@@ -143,7 +129,7 @@ NlpFacade::SolveIpopt ()
   }
 
   // Convert the NLP problem to Ipopt
-  IpoptPtr nlp_ptr = new IpoptAdapter(nlp_, visualizer_); // just so it can poll the PublishMsg() method
+  IpoptPtr nlp_ptr = new IpoptAdapter(nlp_);
   status_ = ipopt_app_->OptimizeTNLP(nlp_ptr);
 //  if (status_ == Solve_Succeeded) {
 //    // Retrieve some statistics about the solve

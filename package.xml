@@ -46,6 +46,9 @@
   
   <build_depend>xpp_common</build_depend>
   <run_depend>xpp_common</run_depend>
+  
+  <build_depend>xpp_hyq</build_depend>
+  <run_depend>xpp_hyq</run_depend>
 
   
 </package>

@@ -4,7 +4,8 @@ project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
   kindr               # in hyq_spliner.cc
-  xpp_common           
+  xpp_common       
+  xpp_hyq    
 )
 
 find_package(Eigen3 REQUIRED)
@@ -93,7 +94,6 @@ set(SOURCES
   src/com_spline4.cc
   src/motion_factory.cc
   # nlp
-  src/i_visualizer.cc
   src/motion_optimizer_facade.cc
   src/a_subject.cc
   src/variable_set.cc
@@ -102,7 +102,7 @@ set(SOURCES
   src/nlp_facade.cc
   src/nlp.cc
   src/ipopt_adapter.cc
-  src/motion_type.cc
+  src/snopt_adapter.cc
   # constraints
   src/a_constraint.cc
   src/cost_constraint_factory.cc
@@ -122,14 +122,9 @@ set(SOURCES
   src/cost_function_functor.cc
   src/a_foothold_constraint.cc
   src/soft_constraint.cc
-  # hyq
-  src/hyq_motion_params.cc
 )
 
-if(BUILD_SNOPT)
-  set(SOURCES ${SOURCES} src/snopt_adapter.cc)
-endif(BUILD_SNOPT)
-             
+          
 # Add the shared library
 add_library(${LIB_NAME}
    ${SOURCES}
@@ -195,7 +190,6 @@ if(BUILD_TESTS)
 #                        test/google/ipopt_test.cc
 #                        # general
 #                        test/google/sparse_matrix_test.cc
-                         test/google/joint_angles_test.cc
                          test/google/endeffectors_test.cc
                          test/google/ee_polynomial_test.cc
                         )

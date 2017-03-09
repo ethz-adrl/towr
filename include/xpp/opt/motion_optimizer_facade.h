@@ -11,7 +11,7 @@
 #include <xpp/opt/step_sequence_planner.h>
 #include <xpp/opt/nlp_facade.h>
 #include <xpp/opt/robot_state_cartesian.h>
-#include "motion_parameters.h"
+#include <xpp/opt/motion_parameters.h>
 
 namespace xpp {
 namespace opt {
@@ -23,7 +23,6 @@ namespace opt {
 class MotionOptimizerFacade {
 public:
   using State         = xpp::utils::StateLin3d;
-  using VisualizerPtr = std::shared_ptr<IVisualizer>;
   using RobotState    = xpp::opt::RobotStateCartesian; //xpp::hyq::HyqState;//
   using RobotStateVec = std::vector<RobotState>;
   using MotionTypePtr = std::shared_ptr<MotionParameters>;
@@ -33,21 +32,16 @@ public:
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
 
-  void SetVisualizer(VisualizerPtr visualizer);
-
   void OptimizeMotion(NlpSolver solver);
   RobotStateVec GetTrajectory(double dt);
   ContactVec GetContactVec();
-
-
-
 
   void BuildOptimizationStartState(const RobotState& curr_geom);
 
   RobotState start_geom_;
   State goal_geom_;
 
-  void SetMotionType(MotionTypeID);
+  void SetMotionType(const MotionTypePtr& motion_type);
 
 private:
 
@@ -55,6 +49,7 @@ private:
   StepSequencePlanner step_sequence_planner_;
   MotionTypePtr motion_type_;
   PhaseVec motion_phases_;
+
 };
 
 } /* namespace opt */

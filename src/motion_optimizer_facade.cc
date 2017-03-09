@@ -10,7 +10,7 @@
 #include <xpp/opt/optimization_variables.h>
 #include <xpp/opt/wb_traj_generator.h>
 
-#include <xpp/hyq/ee_hyq.h>
+#include <xpp/hyq/ee_hyq.h> // spring_clean_ remove hyq dependency
 
 namespace xpp {
 namespace opt {
@@ -20,21 +20,12 @@ using MotionStructure = xpp::opt::MotionStructure;
 MotionOptimizerFacade::MotionOptimizerFacade ()
     :start_geom_(hyq::kNumEndeffectors)
 {
-  SetMotionType(WalkID);
 }
 
 MotionOptimizerFacade::~MotionOptimizerFacade ()
 {
   // TODO Auto-generated destructor stub
 }
-
-// spring_clean_ consider if want to keep this function
-void
-MotionOptimizerFacade::SetVisualizer (VisualizerPtr visualizer)
-{
-  nlp_facade_.SetVisualizer(visualizer);
-}
-
 
 void
 MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
@@ -72,7 +63,6 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
                        motion_type_);
 
   nlp_facade_.SolveNlp(solver);
-  nlp_facade_.VisualizeSolution();
 }
 
 MotionOptimizerFacade::RobotStateVec
@@ -109,9 +99,10 @@ MotionOptimizerFacade::GetContactVec ()
 }
 
 void
-MotionOptimizerFacade::SetMotionType (MotionTypeID id)
+MotionOptimizerFacade::SetMotionType (const MotionTypePtr& motion_type)
 {
-  motion_type_ = MotionParameters::MakeMotion(id);
+  motion_type_ = motion_type;
+//  motion_type_ = MotionParameters::MakeMotion(id);
 }
 
 } /* namespace opt */

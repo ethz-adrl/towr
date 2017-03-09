@@ -12,7 +12,7 @@
 #include "variable_set.h"
 #include "motion_structure.h"
 #include "com_motion.h"
-#include "motion_parameters.h"
+#include <xpp/opt/motion_parameters.h>
 #include <memory>
 
 namespace xpp {

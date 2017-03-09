@@ -9,7 +9,7 @@
 #define XPP_OPT_INCLUDE_XPP_OPT_MOTION_STRUCTURE_H_
 
 #include "motion_phase.h"
-#include "motion_parameters.h"
+#include <xpp/opt/motion_parameters.h>
 #include <xpp/utils/endeffectors.h>
 #include <vector>
 
