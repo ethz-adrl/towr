@@ -11,8 +11,9 @@
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
 
-#include <xpp_msgs/RobotStateTrajectory.h> // publish
-#include <xpp_msgs/ContactVector.h>        // publish
+#include <xpp_msgs/RobotStateJointsTrajectory.h>    // publish
+#include <xpp_msgs/RobotStateCartesianTrajectory.h> // publish
+#include <xpp_msgs/ContactVector.h>                 // publish
 
 #include <xpp/hyq/codegen/hyq_kinematics.h>
 #include <xpp/hyq/hyq_inverse_kinematics.h>
@@ -20,9 +21,13 @@
 namespace xpp {
 namespace ros {
 
-using TrajectoryMsg    = xpp_msgs::RobotStateTrajectory;
-using RobotState       = xpp::opt::RobotStateJoints;
-using ContactvectorMsg = xpp_msgs::ContactVector;
+using RobotStateJoints = xpp::opt::RobotStateJoints;
+using TrajectoryJoints = std::vector<RobotStateJoints>;
+using TrajectoryCart   = std::vector<opt::RobotStateCartesian>;
+
+using TrajectoryJointsMsg = xpp_msgs::RobotStateJointsTrajectory;
+using TrajectoryCartMsg   = xpp_msgs::RobotStateCartesianTrajectory;
+using ContactvectorMsg    = xpp_msgs::ContactVector;
 
 static bool CheckIfInDirectoyWithIpoptConfigFile();
 
@@ -38,8 +43,9 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                     &NlpOptimizerNode::CurrentStateCallback, this,
                                     ::ros::TransportHints().tcpNoDelay());
 
-  trajectory_pub_ = n.advertise<TrajectoryMsg>(xpp_msgs::robot_trajectory_joints, 1);
-  contacts_pub_   = n.advertise<ContactvectorMsg>(xpp_msgs::contact_vector, 1);
+  joint_trajectory_pub_ = n.advertise<TrajectoryJointsMsg>(xpp_msgs::robot_trajectory_joints, 1);
+  cart_trajectory_pub_  = n.advertise<TrajectoryCartMsg>(xpp_msgs::robot_trajectory_cart, 1);
+  contacts_pub_         = n.advertise<ContactvectorMsg>(xpp_msgs::contact_vector, 1);
 
   dt_ = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
 
@@ -93,15 +99,16 @@ NlpOptimizerNode::PublishTrajectory ()
   auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
 
   // publish the cartesian trajectory as well
-
-
+  auto cart_traj_msg = RosHelpers::XppToRosCart(opt_traj_cartesian);
+  cart_trajectory_pub_.publish(cart_traj_msg);
 
   // convert to joint angles
-  auto opt_traj_joints = RobotState::BuildWholeBodyTrajectory(opt_traj_cartesian,
+  // spring_clean_ think about moving this to walking controller
+  auto opt_traj_joints = RobotStateJoints::BuildWholeBodyTrajectory(opt_traj_cartesian,
                                   std::make_shared<hyq::HyqInverseKinematics>());
 
-  trajectory_pub_.publish(RosHelpers::XppToRos(opt_traj_joints));
-
+  auto joint_traj_msg = RosHelpers::XppToRosJoints(opt_traj_joints);
+  joint_trajectory_pub_.publish(joint_traj_msg);
 
   // publish also the optimized footholds
   auto contacts = motion_optimizer_.GetContactVec();

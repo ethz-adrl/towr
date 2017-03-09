@@ -10,6 +10,8 @@
 
 #include <xpp/opt/com_motion.h>
 #include <xpp/opt/motion_structure.h>
+#include <xpp/opt/robot_state_cartesian.h>
+
 #include <visualization_msgs/MarkerArray.h>
 #include <xpp/utils/eigen_std_conversions.h>
 #include <Eigen/Dense>
@@ -17,7 +19,7 @@
 #include <functional> //std::function
 
 #include <ros/ros.h>
-#include <xpp_msgs/RobotStateJointsTrajectory.h>
+#include <xpp_msgs/RobotStateCartesianTrajectory.h>
 
 namespace xpp {
 namespace ros {
@@ -42,7 +44,8 @@ public:
   using MarkerArray     = visualization_msgs::MarkerArray ;
   using EEID            = xpp::utils::EndeffectorID;
 
-  using TrajMsg         = xpp_msgs::RobotStateJointsTrajectory;
+  using TrajMsg         = xpp_msgs::RobotStateCartesianTrajectory;
+  using RobotCartTraj   = std::vector<opt::RobotStateCartesian>;
   using FctPtr          = const std::function<Eigen::Vector2d(const utils::StateLin3d&)>;
 
 
@@ -51,11 +54,13 @@ public:
   virtual ~MarkerArrayBuilder () {};
 
 public:
-  TrajMsg::ConstPtr robot_traj_;
+  RobotCartTraj robot_traj_;
 
 
+  // spring_clean_ remove this
   void AddStartStance(MarkerArray& msg,
                       const ContactVec& start_stance) const;
+
   void AddPoint(MarkerArray& msg,
                const Vector2d& goal,
                std::string rviz_namespace,
@@ -67,6 +72,10 @@ public:
   void BuildSupportPolygon(MarkerArray& msg,
                            const ContactVec& stance_legs,
                            EEID leg_id) const;
+
+  // only use the robot_traj for information
+  void AddStartStance(MarkerArray& msg) const;
+  void AddSupportPolygons(MarkerArray& msg) const;
 
   // spring_clean_ remove this
   void AddBodyTrajectory(MarkerArray& msg,
@@ -96,6 +105,14 @@ public:
   void AddZmpTrajectory(MarkerArray& msg) const;
 
 
+  void AddFootholds(MarkerArray& msg,
+                    const ContactVec& H_footholds,
+                    const std::string& rviz_namespace,
+                    int32_t type = visualization_msgs::Marker::SPHERE,
+                    double alpha = 1.0) const;
+
+  void AddFootholds(MarkerArray& msg) const;
+
 
 
   void AddPendulum(MarkerArray& msg,
@@ -105,11 +122,6 @@ public:
                    const std::string& rviz_namespace,
                    double alpha = 1.0) const;
 
-  void AddFootholds(MarkerArray& msg,
-                    const ContactVec& H_footholds,
-                    const std::string& rviz_namespace,
-                    int32_t type = visualization_msgs::Marker::SPHERE,
-                    double alpha = 1.0) const;
 
   void AddLineStrip(MarkerArray& msg,
                     double center_x, double width_x,

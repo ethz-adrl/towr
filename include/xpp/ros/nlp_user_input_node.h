@@ -9,8 +9,9 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
 
 #include <xpp/opt/motion_parameters.h>
-#include <xpp_msgs/GetStateLin3d.h>
 #include <xpp/utils/state.h>
+
+#include <geometry_msgs/Vector3.h>
 #include <keyboard/Key.h>
 #include <sensor_msgs/Joy.h>
 #include <ros/ros.h>
@@ -28,7 +29,6 @@ public:
   using State       = xpp::utils::StateLin3d;
   using KeyboardMsg = keyboard::Key;
   using JoyMsg      = sensor_msgs::Joy;
-  using GoalSrv     = xpp_msgs::GetStateLin3d;
   using MotionType  = xpp::opt::MotionTypeID;
   using InitVel     = geometry_msgs::Vector3;
 

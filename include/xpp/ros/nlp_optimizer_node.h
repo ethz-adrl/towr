@@ -43,7 +43,8 @@ private:
 
   ::ros::Subscriber user_command_sub_;
   ::ros::Subscriber current_state_sub_;
-  ::ros::Publisher trajectory_pub_;
+  ::ros::Publisher joint_trajectory_pub_;
+  ::ros::Publisher cart_trajectory_pub_;
   ::ros::Publisher contacts_pub_;
 
   MotionOptimizer motion_optimizer_;

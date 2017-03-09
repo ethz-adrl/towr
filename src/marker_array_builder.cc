@@ -27,6 +27,57 @@ void MarkerArrayBuilder::AddStartStance(visualization_msgs::MarkerArray& msg,
   AddFootholds(msg, start_stance, "start_stance", visualization_msgs::Marker::CUBE, 1.0);
 }
 
+void
+MarkerArrayBuilder::AddStartStance (MarkerArray& msg) const
+{
+  AddFootholds(msg, robot_traj_.front().GetContacts(), "start_stance", visualization_msgs::Marker::CUBE, 1.0);
+}
+
+void
+MarkerArrayBuilder::AddSupportPolygons (MarkerArray& msg) const
+{
+  int prev_phase = -1;
+  for (const auto& state : robot_traj_) {
+
+    if (state.GetCurrentPhase() != prev_phase) {
+
+      // plot in color of last swingleg
+      EEID swingleg = EEID::E0;
+      for (auto ee : state.GetEndeffectors())
+        if (!state.GetContactState().At(ee))
+          swingleg = ee;
+
+      BuildSupportPolygon(msg, state.GetContacts(), swingleg);
+      prev_phase = state.GetCurrentPhase();
+    }
+  }
+
+  // delete the other markers, maximum of 30 support polygons.
+  int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
+  for (uint j=prev_phase; j<30; ++j) {
+    visualization_msgs::Marker marker;
+    marker.id = i++;
+    marker.ns = supp_tr_topic;
+    marker.action = visualization_msgs::Marker::DELETE;
+    msg.markers.push_back(marker);
+  }
+}
+
+void
+MarkerArrayBuilder::AddFootholds (MarkerArray& msg) const
+{
+  int prev_phase = -1;
+  ContactVec contacts;
+  for (const auto& state : robot_traj_)
+    if (state.GetCurrentPhase() != prev_phase) {
+      for (auto c : state.GetContacts())
+        contacts.push_back(c);
+      prev_phase = state.GetCurrentPhase();
+    }
+
+  AddFootholds(msg, contacts, "footholds", visualization_msgs::Marker::SPHERE, 1.0);
+}
+
 void MarkerArrayBuilder::AddSupportPolygons(visualization_msgs::MarkerArray& msg,
                                       const MotionStructure& motion_structure,
                                       const XyPositions& footholds) const
@@ -297,13 +348,12 @@ MarkerArrayBuilder::AddTrajectory(visualization_msgs::MarkerArray& msg,
 {
   int i = (msg.markers.size() == 0)? 0 : msg.markers.back().id + 1;
 
-  double T = robot_traj_->states.back().t_global - robot_traj_->t_start;
-  double traj_dt = T/robot_traj_->states.size();
+  double T = robot_traj_.back().GetTime() - robot_traj_.front().GetTime();
+  double traj_dt = T/robot_traj_.size();
 
   for (double t(0.0); t < T; t+= dt) {
     visualization_msgs::Marker marker;
-    auto state = RosHelpers::RosToXpp(robot_traj_->states.at(floor(t/traj_dt)));
-
+    auto state = robot_traj_.at(floor(t/traj_dt));
 
     marker = GenerateMarker(Get2dValue(state.GetBase().lin),
                             visualization_msgs::Marker::SPHERE,
@@ -530,7 +580,6 @@ void MarkerArrayBuilder::AddFootholds(
     msg.markers.push_back(marker);
   }
 }
-
 
 std_msgs::ColorRGBA MarkerArrayBuilder::GetLegColor(EEID ee) const
 {

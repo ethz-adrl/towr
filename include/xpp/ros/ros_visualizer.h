@@ -16,7 +16,6 @@
 #include <ros/subscriber.h>
 
 #include <xpp/ros/marker_array_builder.h>
-#include <xpp_msgs/RobotStateJointsTrajectory.h>
 #include <xpp_msgs/ContactVector.h>
 
 namespace xpp {
@@ -35,7 +34,7 @@ public:
   using State       = xpp::utils::StateLin2d;
   using VecContacts = std::vector<xpp::opt::Contact>;
 
-  using TrajMsg         = xpp_msgs::RobotStateJointsTrajectory;
+  using TrajMsg         = MarkerArrayBuilder::TrajMsg;
   using ContactVecMsg   = xpp_msgs::ContactVector;
 
   RosVisualizer();
