@@ -10,15 +10,13 @@
 #include <xpp/opt/optimization_variables.h>
 #include <xpp/opt/wb_traj_generator.h>
 
-#include <xpp/hyq/ee_hyq.h> // spring_clean_ remove hyq dependency
-
 namespace xpp {
 namespace opt {
 
-using MotionStructure = xpp::opt::MotionStructure;
+static const int num_endeffectors = 4; // just for first state
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
-    :start_geom_(hyq::kNumEndeffectors)
+    :start_geom_(num_endeffectors)
 {
 }
 
@@ -55,7 +53,7 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
                         motion_type_->dt_nodes_ );
   motion_phases_ = motion_structure.GetPhases();
 
-  State goal_com = goal_geom_;
+  auto goal_com = goal_geom_;
   goal_com.p += motion_type_->offset_geom_to_com_;
   nlp_facade_.BuildNlp(start_geom_.GetBase().lin.Get2D(),
                        goal_com.Get2D(),
@@ -71,7 +69,7 @@ MotionOptimizerFacade::GetTrajectory (double dt)
   WBTrajGenerator wb_traj_generator;
   wb_traj_generator.Init(motion_phases_,
                          nlp_facade_.GetComMotion(),
-                         nlp_facade_.GetFootholds(),
+                         nlp_facade_.GetContacts(),
                          start_geom_,
                          motion_type_->lift_height_,
                          motion_type_->offset_geom_to_com_);
@@ -81,7 +79,7 @@ MotionOptimizerFacade::GetTrajectory (double dt)
 
 
 void
-MotionOptimizerFacade::BuildOptimizationStartState (const RobotState& curr)
+MotionOptimizerFacade::BuildOptimizationStartState (const RobotStateCartesian& curr)
 {
   auto feet_zero_z_W = curr.GetEEState();
   for (auto ee : feet_zero_z_W.GetEEsOrdered())

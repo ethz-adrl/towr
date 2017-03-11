@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_ZERO_MOMENT_POINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_ZERO_MOMENT_POINT_H_
 
-#include <xpp/utils/state.h>
+#include <xpp/cartesian_declarations.h>
 #include <Eigen/Sparse>
 #include <memory>
 
@@ -25,8 +25,7 @@ class ComMotion;
 class ZeroMomentPoint {
 public:
   typedef Eigen::Vector2d Vector2d;
-  typedef xpp::utils::StateLin3d State3d;
-  typedef xpp::utils::Coords3D Coords;
+  typedef Coords3D Coords;
   typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
   typedef Eigen::SparseMatrix<double, Eigen::RowMajor> Jacobian;
   typedef std::unique_ptr<ComMotion> ComMotionPtr;

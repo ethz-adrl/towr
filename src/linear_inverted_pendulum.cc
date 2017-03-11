@@ -48,9 +48,9 @@ LinearInvertedPendulum::GetDerivative (const Cop& p) const
 LinearInvertedPendulum::JacobianRow
 LinearInvertedPendulum::GetJacobianApproxWrtSplineCoeff (
     const ComMotion& com_motion, double t,
-    utils::Coords3D dim, const Cop& p) const
+    Coords3D dim, const Cop& p) const
 {
-  JacobianRow pos     = com_motion.GetJacobian(t, utils::kPos, dim);
+  JacobianRow pos     = com_motion.GetJacobian(t, kPos, dim);
 
 //  JacobianRow vel2    = com_motion.GetJacobianVelSquared(t,dim);
 //  JacobianRow posvel2 = com_motion.GetJacobianPosVelSquared(t, dim);
@@ -62,7 +62,7 @@ LinearInvertedPendulum::GetJacobianApproxWrtSplineCoeff (
 }
 
 double
-LinearInvertedPendulum::GetJacobianApproxWrtCop (utils::Coords3D dim) const
+LinearInvertedPendulum::GetJacobianApproxWrtCop (Coords3D dim) const
 {
 //  double vel2    = std::pow(vel_(dim),2);
 //  double jac_approx = 1./h_*(-kGravity -2./h_*vel2);

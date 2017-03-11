@@ -217,7 +217,7 @@ ComSpline4::CalcJacobianFWrtABCD (Coords3D dim) const
 void
 ComSpline4::SetEndAtStart ()
 {
-  const Vector2d& start_com_v = polynomials_.front().GetState(xpp::utils::kVel,0.0);
+  const Vector2d& start_com_v = polynomials_.front().GetState(kVel,0.0);
   double T = polynomials_.front().GetDuration();
 
   Eigen::Matrix2d A; A << 3*T*T, 2*T, // velocity equal to zero

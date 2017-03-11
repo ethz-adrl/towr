@@ -8,7 +8,7 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_INVERTED_PENDULUM_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_INVERTED_PENDULUM_H_
 
-#include <xpp/utils/cartesian_declarations.h>
+#include <xpp/cartesian_declarations.h>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
@@ -36,9 +36,9 @@ public:
     * Jacobian w.r.t. spline coefficients.
     */
   JacobianRow GetJacobianApproxWrtSplineCoeff(const ComMotion&, double t_global,
-                                   utils::Coords3D dim, const Cop& p) const;
+                                   Coords3D dim, const Cop& p) const;
 
-  double GetJacobianApproxWrtCop(utils::Coords3D dim) const;
+  double GetJacobianApproxWrtCop(Coords3D dim) const;
 
 private:
   ComPos pos_;

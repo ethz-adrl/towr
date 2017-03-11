@@ -10,12 +10,11 @@
 
 #include "com_motion.h"
 #include "motion_phase.h"
-#include <xpp/opt/ee_polynomial.h>
+#include "ee_polynomial.h"
+#include "polynomial_helpers.h"
+#include "polynomial_xd.h"
 
-#include <xpp/utils/polynomial_helpers.h>
-#include <xpp/utils/polynomial_xd.h>
-#include <xpp/utils/eigen_std_conversions.h>
-#include <xpp/opt/robot_state_cartesian.h>
+#include <xpp/robot_state_cartesian.h>
 
 namespace xpp {
 namespace opt {
@@ -34,23 +33,20 @@ class WBTrajGenerator {
 public:
   using ComMotionS    = std::shared_ptr<xpp::opt::ComMotion>;
   using Vector3d      = Eigen::Vector3d;
-  using VecFoothold   = utils::StdVecEigen2d;
-  using State3d       = xpp::utils::StateLin3d;
-  using StateAng3d    = xpp::utils::StateAng3d;
-  using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, State3d>;
+  using VecFoothold   = std::vector<Contact>;
+  using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, StateLin3d>;
   using SplinerFeet   = EEPolynomial;
   using ZPolynomial   = xpp::utils::LinearPolynomial;
   using PhaseVec      = std::vector<MotionPhase>;
 
   using SplineNode     = RobotStateCartesian;
-  using BaseState      = SplineNode::BaseState;
   using FeetArray      = typename SplineNode::FeetArray;
   using ContactArray   = typename SplineNode::ContactState;
   using ArtiRobVec     = std::vector<SplineNode>;
-  using EESplinerArray = xpp::utils::Endeffectors<SplinerFeet>;//std::vector<SplinerFeet>;
-  using EESpliner      = xpp::utils::Endeffectors<std::vector<SplinerFeet>>;
+  using EESplinerArray = Endeffectors<SplinerFeet>;
+  using EESpliner      = Endeffectors<std::vector<SplinerFeet>>;
   using EESplinerPtr   = std::shared_ptr<EESpliner>;
-  using EEID           = xpp::utils::EndeffectorID;
+  using EEID           = EndeffectorID;
 
 public:
   WBTrajGenerator();
@@ -83,13 +79,13 @@ private:
 
   void CreateAllSplines();
 
-  State3d GetCurrPosition(double t_global) const;
+  StateLin3d GetCurrPosition(double t_global) const;
   StateAng3d GetCurrOrientation(double t_global) const;
-  BaseState GetCurrentBase(double t_global) const;
+  State3d GetCurrentBase(double t_global) const;
   FeetArray GetCurrEndeffectors(double t_global) const;
   ContactArray GetCurrContactState(double t_gloal) const;
 
-  void FillZState(double t_global, State3d& pos) const;
+  void FillZState(double t_global, StateLin3d& pos) const;
 
   void BuildPhase(const SplineNode& from, const SplineNode& to,
                        ZPolynomial& z_poly,
@@ -108,6 +104,6 @@ private:
 } // namespace opt
 } // namespace xpp
 
-#include "implementation/wb_traj_generator-impl.h"
+#include "impl/wb_traj_generator-impl.h"
 
 #endif // _XPP_XPP_OPT_WB_TRAJ_GENERATOR_H_

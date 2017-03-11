@@ -42,8 +42,8 @@ NlpFacade::~NlpFacade ()
 }
 
 void
-NlpFacade::BuildNlp(const State& initial_state,
-                    const State& final_state,
+NlpFacade::BuildNlp(const StateLin2d& initial_state,
+                    const StateLin2d& final_state,
                     const MotionStructure& motion_structure,
                     const MotionparamsPtr& motion_params)
 {
@@ -150,21 +150,15 @@ NlpFacade::SolveIpopt ()
   }
 }
 
-NlpFacade::VecFoothold
-NlpFacade::GetFootholds () const
-{
-  Eigen::VectorXd footholds = opt_variables_->GetVariables(VariableNames::kFootholds);
-  return utils::ConvertEigToStd(footholds);
-}
-
 NlpFacade::ContactVec
 NlpFacade::GetContacts ()
 {
   Eigen::VectorXd xy = opt_variables_->GetVariables(VariableNames::kFootholds);
-  VecFoothold xy_eigen = utils::ConvertEigToStd(xy);
 
+  int k=0;
   for (int i=0; i<contacts_.size(); ++i) {
-    contacts_.at(i).p.topRows<2>() = xy_eigen.at(i);
+    contacts_.at(i).p.x() = xy(k++);
+    contacts_.at(i).p.y() = xy(k++);
     contacts_.at(i).p.z() = 0.0;
   }
 

@@ -66,8 +66,8 @@ private:
 
   JacobianEFWrtABCD CalcJacobianEWrtABCD(Coords3D) const;
   JacobianEFWrtABCD CalcJacobianFWrtABCD(Coords3D) const;
-  std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_e_wrt_abcd_;
-  std::array<JacobianEFWrtABCD, xpp::utils::kDim2d> jac_f_wrt_abcd_;
+  std::array<JacobianEFWrtABCD, kDim2d> jac_e_wrt_abcd_;
+  std::array<JacobianEFWrtABCD, kDim2d> jac_f_wrt_abcd_;
 
   Vector2d start_cog_p_;
   Vector2d start_cog_v_;

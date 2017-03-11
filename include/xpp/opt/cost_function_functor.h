@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_FUNCTION_FUNCTOR_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_FUNCTION_FUNCTOR_H_
 
-#include <xpp/utils/eigen_num_diff_functor.h>
+#include "eigen_num_diff_functor.h"
 #include "cost_container.h"
 #include "optimization_variables.h"
 

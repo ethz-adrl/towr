@@ -35,7 +35,7 @@ LinearSplineEquations::~LinearSplineEquations ()
 }
 
 LinearSplineEquations::MatVec
-LinearSplineEquations::MakeInitial (const State2d& init) const
+LinearSplineEquations::MakeInitial (const StateLin2d& init) const
 {
   auto derivatives = com_spline_->GetInitialFreeMotions();
 
@@ -58,7 +58,7 @@ LinearSplineEquations::MakeInitial (const State2d& init) const
 }
 
 LinearSplineEquations::MatVec
-LinearSplineEquations::MakeFinal (const State2d& final_state,
+LinearSplineEquations::MakeFinal (const StateLin2d& final_state,
                                   const MotionDerivatives& derivatives) const
 {
   int n_constraints = derivatives.size()*kDim2d;
@@ -186,6 +186,6 @@ LinearSplineEquations::MakeJerk (const ValXY& weight) const
   return M;
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 

@@ -8,7 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_VARIABLE_NAMES_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_VARIABLE_NAMES_H_
 
-#include <xpp/utils/cartesian_declarations.h>
+#include <xpp/cartesian_declarations.h>
+#include <assert.h>
 
 namespace xpp {
 namespace opt {
@@ -25,10 +26,10 @@ struct VariableNames
 };
 
 struct ContactVars {
-  static int Index (int id, xpp::utils::Coords3D dim)
+  static int Index (int id, Coords3D dim)
   {
     assert(id >= 0); // footholds fixed by start can't be optimized over, so have no index
-    return id*xpp::utils::kDim2d + dim;
+    return id*kDim2d + dim;
   }
 };
 

@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_SPLINE_COST_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_SPLINE_COST_H_
 
-#include <xpp/utils/matrix_vector.h>
+#include "matrix_vector.h"
 #include "a_cost.h"
 
 namespace xpp {

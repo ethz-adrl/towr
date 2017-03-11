@@ -10,9 +10,7 @@
 
 #include "motion_phase.h"
 #include <xpp/opt/motion_parameters.h>
-#include <xpp/utils/state.h>
-#include <xpp/utils/eigen_std_conversions.h>
-
+#include <xpp/state.h>
 #include <memory>
 
 namespace xpp {
@@ -40,8 +38,6 @@ public:
   using ConstraintContainerPtr   = std::shared_ptr<ConstraintContainer>;
   using MotionparamsPtr          = std::shared_ptr<MotionParameters>;
   using ComMotionPtrS            = std::shared_ptr<ComMotion>;
-  using State                    = xpp::utils::StateLin2d;
-  using VecFoothold              = utils::StdVecEigen2d;
   using NLPPtr                   = std::shared_ptr<NLP>;
   using ContactVec               = std::vector<Contact>;
 
@@ -58,14 +54,13 @@ public:
     * @param initial_acc initial acceleration of the CoG
     * @param final_state desired final position, velocity and acceleration of the CoG
     */
-  void BuildNlp(const State& initial_state,
-                const State& final_state,
+  void BuildNlp(const StateLin2d& initial_state,
+                const StateLin2d& final_state,
                 const MotionStructure&,
                 const MotionparamsPtr&);
 
   void SolveNlp(NlpSolver solver);
 
-  VecFoothold GetFootholds() const;
   ContactVec GetContacts();
   const ComMotionPtrS GetComMotion() const;
 

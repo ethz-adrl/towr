@@ -8,9 +8,11 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_
 
+#include "variable_names.h"
+#include "matrix_vector.h"
+
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
-#include "variable_names.h"
 
 namespace xpp {
 namespace opt {

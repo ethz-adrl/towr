@@ -8,18 +8,18 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_POLYNOMIAL_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_POLYNOMIAL_H_
 
-#include <xpp/utils/state.h>
-#include <xpp/utils/polynomial_xd.h>
-#include <xpp/utils/polynomial.h>
+#include "polynomial_xd.h"
+#include "polynomial.h"
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {
 
 class EEPolynomial {
 public:
-  using ZState     = xpp::utils::StateLin1d;
-  using XYState    = xpp::utils::StateLin2d;
-  using XYZState   = xpp::utils::StateLin3d;
+  using ZState     = StateLin1d;
+  using XYState    = StateLin2d;
+  using XYZState   = StateLin3d;
   using PolyXY     = xpp::utils::PolynomialXd< utils::CubicPolynomial, XYState>;
   using PolyZ      = xpp::utils::QuinticPolynomial;
 

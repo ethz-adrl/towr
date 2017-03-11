@@ -10,7 +10,6 @@
 namespace xpp {
 namespace opt {
 
-using namespace xpp::utils; // X,Y
 
 StepSequencePlanner::StepSequencePlanner ()
 {

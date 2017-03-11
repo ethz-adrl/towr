@@ -8,8 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_STEP_SEQUENCE_PLANNER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_STEP_SEQUENCE_PLANNER_H_
 
-#include <xpp/utils/state.h>
-#include <xpp/opt/contact.h>
+#include <xpp/state.h>
+#include <xpp/contact.h>
 #include <xpp/opt/motion_parameters.h>
 #include <memory>
 
@@ -26,8 +26,8 @@ class StepSequencePlanner {
 public:
   using SwingLegsInPhase  = MotionParameters::SwinglegPhase;
   using AllPhaseSwingLegs = std::vector<SwingLegsInPhase>;
-  using StartStance       = std::vector<xpp::opt::Contact>;
-  using State             = xpp::utils::StateLin2d;
+  using StartStance       = std::vector<Contact>;
+  using State             = StateLin2d;
   using MotionParamsPtr   = std::shared_ptr<MotionParameters>;
 
   StepSequencePlanner ();

@@ -8,8 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 
-#include <xpp/utils/matrix_vector.h>
-#include <xpp/utils/state.h>
+#include "matrix_vector.h"
+#include <xpp/state.h>
 
 #include <Eigen/Sparse>
 #include <memory>
@@ -25,9 +25,8 @@ namespace opt {
   */
 class ComMotion {
 public:
-  using VectorXd    = Eigen::VectorXd ;
-  using StateLin2d  = xpp::utils::StateLin2d ;
-  using VecScalar   = xpp::utils::VecScalar ;
+  using VectorXd    = Eigen::VectorXd;
+  using VecScalar   = xpp::utils::VecScalar;
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor> ;
   using PtrS        = std::shared_ptr<ComMotion> ;
   using PtrU        = std::unique_ptr<ComMotion> ;
@@ -59,11 +58,11 @@ public:
     * @param dxdt wheather Jacobian for position, velocity, acceleration or jerk is desired
     * @param dim which motion dimension (x,y) the jacobian represents.
     */
-  virtual JacobianRow GetJacobian(double t_global, utils::MotionDerivative dxdt,
-                                                   utils::Coords3D dim) const = 0;
+  virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt,
+                                                   Coords3D dim) const = 0;
 
-  virtual JacobianRow GetJacobianVelSquared(double t_global, utils::Coords3D dim) const = 0;
-  virtual JacobianRow GetJacobianPosVelSquared(double t_global, utils::Coords3D dim) const = 0;
+  virtual JacobianRow GetJacobianVelSquared(double t_global, Coords3D dim) const = 0;
+  virtual JacobianRow GetJacobianPosVelSquared(double t_global, Coords3D dim) const = 0;
 
   /** @brief Creates a linear approximation of the motion at the current coefficients.
     *
@@ -76,8 +75,8 @@ public:
     *
     * @return The Jacobian J(u*) evaluated at u* and the corresponding offset x(u*).
     */
-  VecScalar GetLinearApproxWrtCoeff(double t_global, utils::MotionDerivative,
-                                                     utils::Coords3D dim) const;
+  VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative,
+                                                     Coords3D dim) const;
 
   /** @brief Copies the derived class in the heap and returns a pointer to it.
     */

@@ -4,8 +4,7 @@ project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
   kindr               # in hyq_spliner.cc
-  xpp_common       
-  xpp_hyq    
+  xpp_states   
 )
 
 find_package(Eigen3 REQUIRED)
@@ -67,7 +66,7 @@ set(LIB_NAME xpp_opt)
 catkin_package(
   INCLUDE_DIRS include ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
   LIBRARIES ${LIB_NAME} ${IPOPT_LIBRARIES} ${SNOPT_LIBS}
-  CATKIN_DEPENDS xpp_common
+  CATKIN_DEPENDS
   DEPENDS
 )
 
@@ -87,6 +86,10 @@ set(SOURCES
   src/motion_phase.cc
   src/step_sequence_planner.cc
   src/ee_polynomial.cc
+  src/line_equation.cc
+  src/polynomial.cc
+  src/polynomial_fifth_order.cc
+  src/polynomial_helpers.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
@@ -122,6 +125,9 @@ set(SOURCES
   src/cost_function_functor.cc
   src/a_foothold_constraint.cc
   src/soft_constraint.cc
+  # robot specific info
+  src/motion_parameters.cc
+  src/quadruped_motion_parameters.cc
 )
 
           
@@ -163,7 +169,6 @@ if(BUILD_TESTS)
 #                        # com
 #                         test/google/motion_structure_test.cc
 #                        test/google/com_motion_test.cc
-                         test/google/com_spline_test.cc
                          test/google/polynomial_test.cc
 #                        test/google/spline_container_test.cc
 #                        #constraints
@@ -190,7 +195,6 @@ if(BUILD_TESTS)
 #                        test/google/ipopt_test.cc
 #                        # general
 #                        test/google/sparse_matrix_test.cc
-                         test/google/endeffectors_test.cc
                          test/google/ee_polynomial_test.cc
                         )
                

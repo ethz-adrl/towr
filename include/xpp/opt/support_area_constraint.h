@@ -10,7 +10,7 @@
 
 #include "a_constraint.h"
 #include "motion_structure.h"
-#include <xpp/utils/eigen_std_conversions.h>
+#include "eigen_std_conversions.h"
 #include <memory>
 
 namespace xpp {

@@ -83,7 +83,7 @@ ComSpline::GetJacobian (double t_global, MotionDerivative posVelAcc,
 }
 
 ComSpline::JacobianRow
-ComSpline::GetJacobianVelSquared (double t_global, utils::Coords3D dim) const
+ComSpline::GetJacobianVelSquared (double t_global, Coords3D dim) const
 {
   int id = GetPolynomialID(t_global);
   double t_local = GetLocalTime(t_global);
@@ -94,7 +94,7 @@ ComSpline::GetJacobianVelSquared (double t_global, utils::Coords3D dim) const
 }
 
 ComSpline::JacobianRow
-ComSpline::GetJacobianPosVelSquared (double t_global, utils::Coords3D dim) const
+ComSpline::GetJacobianPosVelSquared (double t_global, Coords3D dim) const
 {
   int id = GetPolynomialID(t_global);
   double t_local = GetLocalTime(t_global);

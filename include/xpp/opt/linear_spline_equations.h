@@ -8,8 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 
-#include <xpp/utils/matrix_vector.h>
-#include <xpp/utils/state.h>
+#include "matrix_vector.h"
+#include <xpp/state.h>
 #include <array>
 #include <memory>
 
@@ -30,8 +30,7 @@ class ComSpline;
 class LinearSplineEquations {
 public:
   using MatVec            = xpp::utils::MatVec;
-  using State2d           = xpp::utils::StateLin2d;
-  using MotionDerivatives = std::vector<xpp::utils::MotionDerivative>;
+  using MotionDerivatives = std::vector<MotionDerivative>;
   using ComSplinePtrU     = std::unique_ptr<ComSpline>;
   using ValXY             = std::array<double,2>;
 
@@ -45,13 +44,13 @@ public:
     *
     * @param init desired initial position, velocity and acceleration.
     */
-  MatVec MakeInitial(const State2d& init) const;
+  MatVec MakeInitial(const StateLin2d& init) const;
 
   /** M*x + v gives the difference to the desired final state
     *
     * @param final desired final position, velocity and acceleration.
     */
-  MatVec MakeFinal(const State2d& final, const MotionDerivatives& ) const;
+  MatVec MakeFinal(const StateLin2d& final, const MotionDerivatives& ) const;
 
   /** M*x + v gives the difference at the polynomial junctions of the spline
     *

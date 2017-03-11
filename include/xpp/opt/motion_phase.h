@@ -8,9 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_PHASE_INFO_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_PHASE_INFO_H_
 
-#include <xpp/utils/eigen_std_conversions.h>
-#include <xpp/opt/contact.h>
-#include <vector>
+#include "eigen_std_conversions.h"
+#include <xpp/contact.h>
 
 namespace xpp {
 namespace opt {
@@ -24,7 +23,7 @@ public:
   using ContactVec     = std::vector<Contact>;
   using ContactBaseVec = std::vector<ContactBase>;
   using XYPositions    = utils::StdVecEigen2d;
-  using EEID           = utils::EndeffectorID;
+  using EEID           = EndeffectorID;
 
   ContactBaseVec contacts_opt_;    ///< all the ee currently in contact but not fixed by start stance
   ContactBaseVec swinglegs_;       ///< the contacts the current swinglegs are swinging towards

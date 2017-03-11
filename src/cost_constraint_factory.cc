@@ -35,8 +35,8 @@ CostConstraintFactory::~CostConstraintFactory ()
 
 void
 CostConstraintFactory::Init (const ComMotionPtr& com, const MotionStructure& ms,
-                             const MotionTypePtr& _params, const State2d& initial_state,
-                             const State2d& final_state)
+                             const MotionTypePtr& _params, const StateLin2d& initial_state,
+                             const StateLin2d& final_state)
 {
   com_motion = com;
   motion_structure = ms;
@@ -144,7 +144,7 @@ CostConstraintFactory::MakeInitialConstraint () const
   LinearSplineEquations eq(*com_motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
 
-  State2d initial_com_state = initial_geom_state_;
+  StateLin2d initial_com_state = initial_geom_state_;
   initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
 
   constraint->Init(eq.MakeInitial(initial_com_state), "Initial XY");
@@ -157,7 +157,7 @@ CostConstraintFactory::MakeFinalConstraint () const
   LinearSplineEquations eq(*com_motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
 
-  State2d final_com_state = final_geom_state_;
+  StateLin2d final_com_state = final_geom_state_;
   final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
 
   constraint->Init(eq.MakeFinal(final_geom_state_, {kPos, kVel, kAcc}), "Final XY");
@@ -242,7 +242,7 @@ CostConstraintFactory::MakeMotionCost() const
   LinearSplineEquations eq(*com_motion);
   Eigen::MatrixXd term;
 
-  utils::MotionDerivative dxdt = utils::kAcc;
+  MotionDerivative dxdt = kAcc;
 
   switch (dxdt) {
     case kAcc:  term = eq.MakeAcceleration(params->weight_com_motion_xy_); break;

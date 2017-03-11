@@ -58,9 +58,9 @@ WBTrajGenerator::BuildNodeSequence(const PhaseVec& phase_info,
 
     EEXppPos pos_W = prev_node.GetEEPos();
     for (auto c : curr_phase.swinglegs_) {
-      pos_W.At(c.ee).x() = footholds.at(c.id).x();
-      pos_W.At(c.ee).y() = footholds.at(c.id).y();
-      pos_W.At(c.ee).z() = 0.0;
+      pos_W.At(c.ee).x() = footholds.at(c.id).p.x();
+      pos_W.At(c.ee).y() = footholds.at(c.id).p.y();
+      pos_W.At(c.ee).z() = footholds.at(c.id).p.z();
     }
 
     SplineNode::ContactState contact_state(prev_node.GetEECount());
@@ -68,12 +68,12 @@ WBTrajGenerator::BuildNodeSequence(const PhaseVec& phase_info,
     for (auto c : curr_phase.GetAllContacts())
       contact_state.At(c.ee) = true;
 
-    goal_node.SetEEState(utils::kPos, pos_W);
+    goal_node.SetEEState(kPos, pos_W);
     goal_node.SetContactState(contact_state);
     // vel, acc of endeffector always zero at nodes
 
     // adjust roll, pitch, yaw depending on footholds
-    BaseState base = prev_node.GetBase();
+    State3d base = prev_node.GetBase();
     kindr::EulerAnglesXyzPD yprIB(0.0, 0.0, 0.0);
     kindr::RotationQuaternionPD qIB(yprIB);
     base.ang.q = qIB.toImplementation();
@@ -126,7 +126,7 @@ WBTrajGenerator::BuildPhase(const SplineNode& from, const SplineNode& to,
   double t_phase = to.GetTime() - from.GetTime();
   z_poly.SetBoundary(t_phase, from.GetBase().lin.Get1d(Z), to.GetBase().lin.Get1d(Z));
 
-  xpp::utils::StateLin3d rpy_from, rpy_to;
+  StateLin3d rpy_from, rpy_to;
   rpy_from.p = TransformQuatToRpy(from.GetBase().ang.q);
   rpy_to.p   = TransformQuatToRpy(to.GetBase().ang.q);
   ori.SetBoundary(t_phase, rpy_from, rpy_to);
@@ -169,34 +169,34 @@ WBTrajGenerator::TransformQuatToRpy(const Eigen::Quaterniond& q)
 }
 
 void
-WBTrajGenerator::FillZState(double t_global, State3d& pos) const
+WBTrajGenerator::FillZState(double t_global, StateLin3d& pos) const
 {
   double t_local = GetLocalPhaseTime(t_global);
   int  spline    = GetPhaseID(t_global);
 
-  utils::StateLin1d z_splined;
+  StateLin1d z_splined;
   z_spliner_.at(spline).GetPoint(t_local, z_splined);
   pos.SetDimension(z_splined, Z);
 }
 
-WBTrajGenerator::BaseState
+State3d
 WBTrajGenerator::GetCurrentBase (double t_global) const
 {
-  BaseState base;
+  State3d base;
   base.lin = GetCurrPosition(t_global);
   base.ang = GetCurrOrientation(t_global);
 //  base.ang = xpp::utils::StateAng3d();// zmp_ just zero everything
   return base;
 }
 
-WBTrajGenerator::State3d
+StateLin3d
 WBTrajGenerator::GetCurrPosition(double t_global) const
 {
-  State3d pos;
+  StateLin3d pos;
 //  pos.p.z() = walking_height_; // zmp_ constant height
   FillZState(t_global, pos);
 
-  xpp::utils::StateLin2d com_xy = com_motion_->GetCom(t_global);
+  StateLin2d com_xy = com_motion_->GetCom(t_global);
 
   // since the optimized motion is for the CoM and not the geometric center
   pos.p.topRows(kDim2d) = com_xy.p - offset_geom_to_com_.topRows<kDim2d>();
@@ -206,16 +206,16 @@ WBTrajGenerator::GetCurrPosition(double t_global) const
   return pos;
 }
 
-WBTrajGenerator::StateAng3d
+StateAng3d
 WBTrajGenerator::GetCurrOrientation(double t_global) const
 {
   double t_local = GetLocalPhaseTime(t_global);
   int  spline    = GetPhaseID(t_global);
 
-  State3d ori_rpy;
+  StateLin3d ori_rpy;
   ori_spliner_.at(spline).GetPoint(t_local, ori_rpy);
 
-  xpp::utils::StateAng3d ori;
+  StateAng3d ori;
   kindr::EulerAnglesXyzPD yprIB(ori_rpy.p);
   kindr::RotationQuaternionPD qIB(yprIB);
   ori.q = qIB.toImplementation();

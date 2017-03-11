@@ -10,7 +10,7 @@
 
 #include "a_constraint.h"
 #include "motion_structure.h"
-#include <xpp/utils/eigen_std_conversions.h>
+#include "eigen_std_conversions.h"
 #include <memory>
 
 namespace xpp {
@@ -42,7 +42,6 @@ protected:
 class FootholdFinalStanceConstraint : public AFootholdConstraint {
 public:
   using Vector2d       = Eigen::Vector2d;
-  using EndeffectorID  = utils::EndeffectorID;
   using NominalStance  = std::map<EndeffectorID, Eigen::Vector2d>;
 
   FootholdFinalStanceConstraint(const MotionStructure& motion_structure,

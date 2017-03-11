@@ -6,7 +6,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <xpp/utils/point2d_manipulations.h>
+#include <xpp/opt/point2d_manipulations.h>
 #include <iostream>
 
 #define prt(x) std::cout << #x << " = " << x << std::endl;

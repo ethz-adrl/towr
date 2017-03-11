@@ -63,9 +63,9 @@ EEPolynomial::GetState (double t_local) const
   poly_xy_.GetPoint(t_local, xy);
 
   XYZState ee;
-  ee.SetDimension(xy.Get1d(utils::X), utils::X);
-  ee.SetDimension(xy.Get1d(utils::Y), utils::Y);
-  ee.SetDimension(z, utils::Z);
+  ee.SetDimension(xy.Get1d(X), X);
+  ee.SetDimension(xy.Get1d(Y), Y);
+  ee.SetDimension(z, Z);
 
   return ee;
 }

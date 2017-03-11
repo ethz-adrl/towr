@@ -10,7 +10,7 @@
 
 #include "motion_phase.h"
 #include <xpp/opt/motion_parameters.h>
-#include <xpp/utils/endeffectors.h>
+#include <xpp/endeffectors.h>
 #include <vector>
 
 namespace xpp {
@@ -26,10 +26,10 @@ namespace opt {
 //zmp_ rename to ee motion parametrization
 class MotionStructure {
 public:
-  using EEID              = utils::EndeffectorID;
+  using EEID              = EndeffectorID;
   using EEIDVec           = std::vector<EEID>;
   using AllPhaseSwingLegs = MotionParameters::SwinglegPhaseVec;
-  using StartStance       = xpp::utils::EEXppPos;
+  using StartStance       = EEXppPos;
   using PhaseVec          = std::vector<MotionPhase>;
   using PhaseStampedVec   = std::vector<MotionNode>;
 

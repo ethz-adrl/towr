@@ -10,7 +10,7 @@
 
 #include "a_constraint.h"
 #include "motion_structure.h"
-#include <xpp/utils/eigen_std_conversions.h>
+#include "eigen_std_conversions.h"
 #include <memory>
 
 namespace xpp {
@@ -60,7 +60,7 @@ private:
 class RangeOfMotionBox : public RangeOfMotionConstraint {
 public:
   using MaxDevXY       = std::array<double,2>;
-  using NominalStance  = std::map<utils::EndeffectorID, Eigen::Vector2d>;
+  using NominalStance  = std::map<EndeffectorID, Eigen::Vector2d>;
 
   /** @param dev  How much the endeffector can deviate from the default (x,y)
     * position while still remaining in the range of motion.

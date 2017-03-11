@@ -8,7 +8,6 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_LINEAR_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_LINEAR_CONSTRAINT_H_
 
-#include <xpp/utils/matrix_vector.h>
 #include "a_constraint.h"
 
 namespace xpp {
