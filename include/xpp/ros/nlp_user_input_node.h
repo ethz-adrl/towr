@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
 
 #include <xpp/opt/motion_parameters.h>
-#include <xpp/utils/state.h>
+#include <xpp/state.h>
 
 #include <geometry_msgs/Vector3.h>
 #include <keyboard/Key.h>
@@ -26,7 +26,6 @@ namespace ros {
   */
 class NlpUserInputNode {
 public:
-  using State       = xpp::utils::StateLin3d;
   using KeyboardMsg = keyboard::Key;
   using JoyMsg      = sensor_msgs::Joy;
   using MotionType  = xpp::opt::MotionTypeID;
@@ -44,7 +43,7 @@ private:
 
   void ModifyGoalJoy();
 
-  State goal_geom_;
+  StateLin3d goal_geom_;
 
   MotionType motion_type_;
   bool replay_trajectory_;

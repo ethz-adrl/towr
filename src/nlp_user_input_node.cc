@@ -7,7 +7,6 @@
 
 #include <xpp/ros/nlp_user_input_node.h>
 #include <xpp/ros/ros_helpers.h>
-//#include <xpp/ros/marker_array_builder.h>
 #include <xpp/ros/topic_names.h>
 
 #include <std_msgs/Empty.h>         // send to trigger walking

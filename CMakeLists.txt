@@ -8,9 +8,8 @@ find_package(catkin REQUIRED
   roscpp
   keyboard
   joy
+  xpp_msgs
   xpp_opt
-  xpp_conversions
-  xpp_hyq
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11") 
@@ -136,8 +135,8 @@ add_executable(nlp_optimizer_node
 target_link_libraries(nlp_optimizer_node 
   ${LIB_NAME}
   ${catkin_LIBRARIES}
-)   
-                                                  
+)  
+                                                 
 add_executable(sample_nlp_caller 
     src/executable/sample_nlp_caller.cc
 )
