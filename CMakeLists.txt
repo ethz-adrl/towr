@@ -17,7 +17,7 @@ option(BUILD_SNOPT "Build problem to solve with snopt nlp solver" ON)
 if(BUILD_SNOPT)
   set(SNOPT_SRC_DIR "/home/winklera/3rd_party_software/snopt_lib")
   set(SNOPT_INCLUDE_DIRS ${SNOPT_SRC_DIR}/include)
-  set(SNOPT_LIBS ${SNOPT_SRC_DIR}/lib/libsnopt7_cpp.so ${SNOPT_SRC_DIR}/lib/libsnopt7.so) # must be absolute path
+  set(SNOPT_LIBRARIES ${SNOPT_SRC_DIR}/lib/libsnopt7_cpp.so ${SNOPT_SRC_DIR}/lib/libsnopt7.so) # must be absolute path
 endif(BUILD_SNOPT)
 
 
@@ -64,8 +64,8 @@ set(LIB_NAME xpp_opt)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
-  LIBRARIES ${LIB_NAME} ${IPOPT_LIBRARIES} ${SNOPT_LIBS}
+  INCLUDE_DIRS include
+  LIBRARIES ${LIB_NAME} ${IPOPT_LIBRARIES}
   CATKIN_DEPENDS
   DEPENDS
 )
@@ -95,6 +95,11 @@ add_library(${SOLVER_LIB}
   src/cost_container.cc
   src/cost_function_functor.cc
   src/soft_constraint.cc
+)
+target_link_libraries(${SOLVER_LIB}
+  ${catkin_LIBRARIES}
+  ${IPOPT_LIBRARIES}
+  ${SNOPT_LIBRARIES}
 )
 
 # the specific motion optimization problem for legged robots
@@ -137,8 +142,6 @@ add_library(${LIB_NAME}
 target_link_libraries(${LIB_NAME}
   ${catkin_LIBRARIES}
   ${SOLVER_LIB}
-  ${IPOPT_LIBRARIES}
-  ${SNOPT_LIBS}
 )
   
 # Some example executables if turned "ON"
