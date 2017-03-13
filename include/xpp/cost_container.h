@@ -10,7 +10,6 @@
 
 #include "a_cost.h"
 #include "i_observer.h"
-#include "optimization_variables.h"
 #include <memory>
 
 namespace xpp {
@@ -23,8 +22,8 @@ namespace opt {
   */
 class CostContainer : public IObserver {
 public:
-  typedef std::shared_ptr<ACost> CostPtr;
-  typedef AConstraint::VectorXd VectorXd;
+  using CostPtr = std::shared_ptr<ACost>;
+  using VectorXd = Eigen::VectorXd;
 
   CostContainer (OptimizationVariables& subject);
   virtual ~CostContainer ();
@@ -42,7 +41,7 @@ private:
   std::vector<CostPtr > costs_;
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONTAINER_H_ */

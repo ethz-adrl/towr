@@ -26,13 +26,10 @@ namespace opt {
   */
 class NLP {
 public:
-  typedef AConstraint::Bound Bound;
   typedef AConstraint::Jacobian Jacobian;
   typedef double Number;
   typedef Eigen::VectorXd VectorXd;
-  typedef std::vector<Bound> BoundVec;
   typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
-
 
   typedef std::shared_ptr<Jacobian> JacobianPtr;
   typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
@@ -47,14 +44,14 @@ public:
 
   int GetNumberOfOptimizationVariables() const;
   bool HasCostTerms() const;
-  BoundVec GetBoundsOnOptimizationVariables() const;
+  VecBound GetBoundsOnOptimizationVariables() const;
   VectorXd GetStartingValues() const;
 
   double EvaluateCostFunction(const Number* x) const;
   VectorXd EvaluateCostFunctionGradient(const Number* x) const;
 
   int GetNumberOfConstraints() const;
-  BoundVec GetBoundsOnConstraints() const;
+  VecBound GetBoundsOnConstraints() const;
   VectorXd EvaluateConstraints(const Number* x) const;
 
   void EvalNonzerosOfJacobian(const Number* x, Number* values) const;

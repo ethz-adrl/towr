@@ -6,13 +6,11 @@
  */
 
 #include <xpp/opt/obstacle_constraint.h>
-#include <xpp/opt/optimization_variables.h>
+#include <xpp/opt/variable_names.h>
 #include <xpp/cartesian_declarations.h> // X,Y,Z
 
 namespace xpp {
 namespace opt {
-
-using namespace xpp::utils;
 
 ObstacleConstraint::ObstacleConstraint ()
 {
@@ -28,7 +26,7 @@ void
 ObstacleConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
-  footholds_ = utils::ConvertEigToStd(footholds);
+  footholds_ = ConvertEigToStd(footholds);
 }
 
 ObstacleLineStrip::ObstacleLineStrip ()
@@ -51,7 +49,7 @@ ObstacleLineStrip::EvaluateConstraint () const
   return g;
 }
 
-ObstacleLineStrip::VecBound
+VecBound
 ObstacleLineStrip::GetBounds () const
 {
   VecBound bounds(EvaluateConstraint().rows());
@@ -105,7 +103,7 @@ ObstacleEllipse::EvaluateConstraint () const
   return g;
 }
 
-ObstacleEllipse::VecBound
+VecBound
 ObstacleEllipse::GetBounds () const
 {
   VecBound bounds(EvaluateConstraint().rows());
@@ -142,5 +140,5 @@ ObstacleEllipse::GetJacobianWithRespectTo (std::string var_set) const
   return jac;
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */

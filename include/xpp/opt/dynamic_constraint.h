@@ -8,9 +8,10 @@
 #ifndef XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
 #define XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
 
-#include "a_constraint.h"
 #include "motion_structure.h"
 #include "linear_inverted_pendulum.h"
+
+#include <xpp/a_constraint.h>
 #include <memory>
 
 namespace xpp {

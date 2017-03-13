@@ -9,7 +9,6 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 
 #include "com_motion.h"
-#include "motion_phase.h" // spring_clean_ this shouldn't be here
 #include "polynomial_helpers.h"
 #include <memory>
 
@@ -23,29 +22,20 @@ namespace opt {
   */
 class ComSpline : public ComMotion {
 public:
-  using Polynomial       = xpp::utils::Polynomial;
-  using ComPolynomial    = xpp::utils::ComPolynomial;
   using VecPolynomials   = std::vector<ComPolynomial>;
-  using VecScalar        = xpp::utils::VecScalar;
   using Derivatives      = std::vector<MotionDerivative>;
   using PtrS             = std::shared_ptr<ComSpline>;
   using PtrU             = std::unique_ptr<ComSpline>;
   using PolyCoeff        = Polynomial::PolynomialCoeff;
-  using PolyHelpers      = xpp::utils::ComPolynomialHelpers;
-  using MotionPhases     = std::vector<MotionPhase>;
-
 
   ComSpline ();
   virtual ~ComSpline ();
 
   void Init(double t_global, int polynomials_per_second);
 
-  // zmp_ remove this and the depdendency on motion phases
-  void Init(const MotionPhases&, int polynomials_per_second);
-
   // implements these functions from parent class, now specific for splines
-  StateLin2d GetCom(double t_global) const override { return PolyHelpers::GetCOM(t_global, polynomials_); }
-  double GetTotalTime() const override { return PolyHelpers::GetTotalTime(polynomials_); }
+  StateLin2d GetCom(double t_global) const override { return ComPolynomialHelpers::GetCOM(t_global, polynomials_); }
+  double GetTotalTime() const override { return ComPolynomialHelpers::GetTotalTime(polynomials_); }
   int GetTotalFreeCoeff() const override;
   VectorXd GetCoeffients () const override;
 
@@ -59,8 +49,8 @@ public:
   virtual Derivatives GetInitialFreeMotions()  const = 0;
   virtual Derivatives GetJunctionFreeMotions() const = 0;
 
-  int GetPolynomialID(double t_global)  const { return PolyHelpers::GetPolynomialID(t_global, polynomials_); }
-  double GetLocalTime(double t_global)  const { return PolyHelpers::GetLocalTime(t_global, polynomials_); };
+  int GetPolynomialID(double t_global)  const { return ComPolynomialHelpers::GetPolynomialID(t_global, polynomials_); }
+  double GetLocalTime(double t_global)  const { return ComPolynomialHelpers::GetLocalTime(t_global, polynomials_); };
   VecPolynomials GetPolynomials()       const { return polynomials_; }
   ComPolynomial GetPolynomial(size_t i) const { return polynomials_.at(i); }
   ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
@@ -75,7 +65,7 @@ public:
     */
   JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt, double t_poly, int id, Coords3D dim) const;
 
-  StateLin2d GetCOGxyAtPolynomial(int id, double t_local) {return PolyHelpers::GetCOGxyAtPolynomial(id, t_local, polynomials_); };
+  StateLin2d GetCOGxyAtPolynomial(int id, double t_local) {return ComPolynomialHelpers::GetCOGxyAtPolynomial(id, t_local, polynomials_); };
 
 
 

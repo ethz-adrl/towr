@@ -5,8 +5,8 @@
  *      Author: winklera
  */
 
-#include <xpp/opt/i_observer.h>
-#include <xpp/opt/optimization_variables.h>
+#include <xpp/i_observer.h>
+#include <xpp/optimization_variables.h>
 
 namespace xpp {
 namespace opt {

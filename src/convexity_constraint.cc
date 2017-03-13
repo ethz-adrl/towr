@@ -7,7 +7,7 @@
 
 #include <xpp/opt/convexity_constraint.h>
 #include <xpp/opt/motion_structure.h>
-#include <xpp/opt/optimization_variables.h>
+#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -69,7 +69,7 @@ ConvexityConstraint::EvaluateConstraint () const
   return Eigen::Map<VectorXd>(&g_vec[0], g_vec.size());
 }
 
-ConvexityConstraint::VecBound
+VecBound
 ConvexityConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;

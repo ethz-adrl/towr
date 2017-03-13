@@ -8,9 +8,10 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 
-#include "a_constraint.h"
 #include "motion_structure.h"
 #include "eigen_std_conversions.h"
+
+#include <xpp/a_constraint.h>
 #include <memory>
 
 namespace xpp {
@@ -38,7 +39,7 @@ private:
   MotionStructure motion_structure_;
   Eigen::VectorXd lambdas_;
   Eigen::VectorXd cop_;
-  utils::StdVecEigen2d footholds_;
+  StdVecEigen2d footholds_;
 
   Jacobian GetJacobianWithRespectToLambdas() const;
   Jacobian GetJacobianWithRespectToContacts() const;

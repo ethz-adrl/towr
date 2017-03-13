@@ -7,12 +7,10 @@
 
 #include <xpp/opt/range_of_motion_constraint.h>
 #include <xpp/opt/com_motion.h>
-#include <xpp/opt/optimization_variables.h>
+#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
-
-using namespace xpp::utils;
 
 RangeOfMotionConstraint::RangeOfMotionConstraint ()
 {
@@ -38,7 +36,7 @@ RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   com_motion_->SetCoefficients(x_coeff);
 
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
-  footholds_ = utils::ConvertEigToStd(footholds);
+  footholds_ = ConvertEigToStd(footholds);
 
   // jacobians are constant, only need to be set once
   if (first_update_) {
@@ -94,7 +92,7 @@ RangeOfMotionBox::EvaluateConstraint () const
   return Eigen::Map<VectorXd>(&g_vec[0], g_vec.size());
 }
 
-RangeOfMotionBox::VecBound
+VecBound
 RangeOfMotionBox::GetBounds () const
 {
   std::vector<Bound> bounds;

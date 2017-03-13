@@ -12,8 +12,6 @@
 namespace xpp {
 namespace opt {
 
-using namespace xpp::utils;
-
 ComSpline4::ComSpline4 ()
 {
   // TODO Auto-generated constructor stub

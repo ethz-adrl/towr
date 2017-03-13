@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/cost_container.h>
+#include <xpp/cost_container.h>
 
 namespace xpp {
 namespace opt {
@@ -92,5 +92,5 @@ CostContainer::IsEmpty () const
   return costs_.empty();
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */

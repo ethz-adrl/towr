@@ -8,9 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include "a_constraint.h"
 #include "motion_structure.h"
 #include "eigen_std_conversions.h"
+
+#include <xpp/a_constraint.h>
 #include <memory>
 
 namespace xpp {
@@ -38,7 +39,7 @@ public:
   Jacobian GetJacobianWithRespectTo (std::string var_set) const final;
 
 protected:
-  utils::StdVecEigen2d footholds_;
+  StdVecEigen2d footholds_;
   ComMotionPtrU com_motion_;
   MotionStructure motion_structure_;
   bool first_update_ = true;

@@ -42,12 +42,12 @@ private:
   int NumFreeCoeffPerSpline() const override { return 6; };
   std::vector<PolyCoeff> GetFreeCoeffPerSpline() const override
   {
-    return {Polynomial::PolynomialCoeff::A,
-            Polynomial::PolynomialCoeff::B,
-            Polynomial::PolynomialCoeff::C,
-            Polynomial::PolynomialCoeff::D,
-            Polynomial::PolynomialCoeff::E,
-            Polynomial::PolynomialCoeff::F};
+    return {PolyCoeff::A,
+            PolyCoeff::B,
+            PolyCoeff::C,
+            PolyCoeff::D,
+            PolyCoeff::E,
+            PolyCoeff::F};
   };
 
 

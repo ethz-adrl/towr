@@ -11,9 +11,6 @@
 namespace xpp {
 namespace opt {
 
-using namespace xpp::utils;
-
-
 WBTrajGenerator::WBTrajGenerator()
 {
   leg_lift_height_ = 0.0;
@@ -185,7 +182,7 @@ WBTrajGenerator::GetCurrentBase (double t_global) const
   State3d base;
   base.lin = GetCurrPosition(t_global);
   base.ang = GetCurrOrientation(t_global);
-//  base.ang = xpp::utils::StateAng3d();// zmp_ just zero everything
+//  base.ang = xpp::utils::StateAng3d();
   return base;
 }
 
@@ -193,7 +190,7 @@ StateLin3d
 WBTrajGenerator::GetCurrPosition(double t_global) const
 {
   StateLin3d pos;
-//  pos.p.z() = walking_height_; // zmp_ constant height
+//  pos.p.z() = walking_height_;
   FillZState(t_global, pos);
 
   StateLin2d com_xy = com_motion_->GetCom(t_global);

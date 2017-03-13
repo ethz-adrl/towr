@@ -5,8 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/a_linear_constraint.h>
-#include <xpp/opt/optimization_variables.h>
+#include <xpp/a_linear_constraint.h>
 
 namespace xpp {
 namespace opt {
@@ -28,7 +27,7 @@ ALinearConstraint::EvaluateConstraint () const
   return linear_equation_.M*x_; // linear part respected in bounds
 }
 
-LinearEqualityConstraint::VecBound
+VecBound
 LinearEqualityConstraint::GetBounds () const
 {
   VecBound bounds;
@@ -39,7 +38,7 @@ LinearEqualityConstraint::GetBounds () const
   return bounds;
 }
 
-LinearInequalityConstraint::VecBound
+VecBound
 LinearInequalityConstraint::GetBounds () const
 {
   VecBound bounds;
@@ -50,26 +49,6 @@ LinearInequalityConstraint::GetBounds () const
   return bounds;
 }
 
-void
-LinearSplineEqualityConstraint::UpdateVariables (const OptimizationVariables* opt_var)
-{
-  x_ = opt_var->GetVariables(VariableNames::kSplineCoeff);
-}
-
-LinearSplineEqualityConstraint::Jacobian
-LinearSplineEqualityConstraint::GetJacobianWithRespectTo (std::string var_set) const
-{
-  Jacobian jac; // empy matrix
-
-  if (var_set == VariableNames::kSplineCoeff) {
-    // careful, .sparseView is only valid when the Jacobian is constant, e.g.
-    // the constraints are all linear w.r.t. the decision variables.
-    jac = linear_equation_.M.sparseView();
-  }
-
-  return jac;
-}
-
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 

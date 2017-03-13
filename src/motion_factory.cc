@@ -6,7 +6,6 @@
  */
 
 #include <xpp/opt/motion_factory.h>
-#include <xpp/opt/com_spline4.h>
 #include <xpp/opt/com_spline6.h>
 
 namespace xpp {
@@ -23,30 +22,14 @@ MotionFactory::~MotionFactory ()
 }
 
 MotionFactory::ComMotionPtrS
-MotionFactory::CreateComMotion (const MotionStructure& motion_structure,
+MotionFactory::CreateComMotion (double t_total,
                                 int polynomials_per_second,
                                 double height)
 {
   auto com_spline = std::make_shared<ComSpline6>();
   com_spline->SetConstantHeight(height);
 
-//  com_spline->Init(motion_structure.GetTotalTime(), polynomials_per_second);
-  com_spline->Init(motion_structure.GetPhases(), polynomials_per_second);
-  return com_spline;
-}
-
-MotionFactory::ComMotionPtrS
-MotionFactory::CreateComMotion (double t_global, int polynomials_per_second,
-                                const PosXY& start_cog_p,
-                                const PosXY& start_cog_v,
-                                double height)
-{
-  auto com_spline = std::make_shared<ComSpline4>();
-  com_spline->SetConstantHeight(height);
-
-  com_spline->Init(t_global, polynomials_per_second);
-  com_spline->SetStartPosVel(start_cog_p, start_cog_v);
-  com_spline->SetEndAtStart();
+  com_spline->Init(t_total, polynomials_per_second);
   return com_spline;
 }
 

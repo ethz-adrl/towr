@@ -5,7 +5,7 @@
  @brief   Defines the class SoftConstraint
  */
 
-#include <xpp/opt/soft_constraint.h>
+#include <xpp/soft_constraint.h>
 
 namespace xpp {
 namespace opt {

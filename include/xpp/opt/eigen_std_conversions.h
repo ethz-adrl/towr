@@ -12,7 +12,7 @@
 #include <Eigen/StdVector> // for std::eigen vector
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 typedef std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > StdVecEigen2d;
 Eigen::VectorXd ConvertStdToEig(const StdVecEigen2d& vec_std_2d);
@@ -46,8 +46,7 @@ ConvertEigToStd (const Eigen::VectorXd& vec_eig)
   return fooothold_vec;
 }
 
-
-}
-}
+} // namespace opt
+} // namespace xpp
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_UTILS_EIGEN_STD_CONVERSIONS_H_ */

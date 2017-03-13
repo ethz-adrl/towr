@@ -7,20 +7,14 @@
 
 #include <xpp/opt/nlp_facade.h>
 
-#include <xpp/opt/nlp.h>
-#include <xpp/opt/constraint_container.h>
+#include <xpp/nlp.h>
+#include <xpp/ipopt_adapter.h>
+#include <xpp/snopt_adapter.h>
+
 #include <xpp/opt/cost_constraint_factory.h>
-#include <xpp/opt/cost_container.h>
 #include <xpp/opt/motion_factory.h>
 #include <xpp/opt/motion_structure.h>
-#include <xpp/opt/nlp.h>
-#include <xpp/opt/optimization_variables.h>
-
-#include <xpp/opt/ipopt_adapter.h>
-#include <xpp/opt/snopt_adapter.h>
-
-#include <IpIpoptApplication.hpp>
-#include <IpSolveStatistics.hpp>
+#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -47,13 +41,10 @@ NlpFacade::BuildNlp(const StateLin2d& initial_state,
                     const MotionStructure& motion_structure,
                     const MotionparamsPtr& motion_params)
 {
-
-//  auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetTotalTime(),
-//                                                   motion_params->polynomials_per_second_,
-//                                                   initial_state.p, initial_state.v);
-  com_motion_ = MotionFactory::CreateComMotion(motion_structure,
+  double com_height = motion_params->geom_walking_height_ + motion_params->offset_geom_to_com_.z();
+  com_motion_ = MotionFactory::CreateComMotion(motion_structure.GetTotalTime(),
                                                motion_params->polynomials_per_second_,
-                                               motion_params->geom_walking_height_ + motion_params->offset_geom_to_com_.z());
+                                               com_height);
 
   CostConstraintFactory factory;
   factory.Init(com_motion_, motion_structure, motion_params, initial_state, final_state);

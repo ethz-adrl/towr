@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/cost_function_functor.h>
+#include <xpp/cost_function_functor.h>
 
 namespace xpp {
 namespace opt {

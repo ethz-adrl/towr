@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/ee_polynomial.h"
+#include <xpp/opt/ee_polynomial.h>
 
 namespace xpp {
 namespace opt {
@@ -30,12 +30,12 @@ EEPolynomial::SetZParams (double p, double z_max)
   // pos,vel at halftime is z_max and zero
   // pos,vel at t_step is zero
   // see matlab script "matlab_z_height.m" for generation of these values
-  poly_z_.c[utils::Polynomial::A] = 0;
-  poly_z_.c[utils::Polynomial::B] =  16*z_max /std::pow(t_z_total,4);
-  poly_z_.c[utils::Polynomial::C] = -32*z_max /std::pow(t_z_total,3);
-  poly_z_.c[utils::Polynomial::D] =  16*z_max /std::pow(t_z_total,2);
-  poly_z_.c[utils::Polynomial::E] = 0;
-  poly_z_.c[utils::Polynomial::F] = 0;
+  poly_z_.c[Polynomial::A] = 0;
+  poly_z_.c[Polynomial::B] =  16*z_max /std::pow(t_z_total,4);
+  poly_z_.c[Polynomial::C] = -32*z_max /std::pow(t_z_total,3);
+  poly_z_.c[Polynomial::D] =  16*z_max /std::pow(t_z_total,2);
+  poly_z_.c[Polynomial::E] = 0;
+  poly_z_.c[Polynomial::F] = 0;
   poly_z_.duration = t_z_total;
 
   t_start_z_ = t_z_total - duration_;

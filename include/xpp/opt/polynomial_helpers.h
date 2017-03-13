@@ -11,7 +11,7 @@
 #include "polynomial_xd.h"
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 // for now a 2d polynomial
 using ComPolynomial = PolynomialXd<QuinticPolynomial, StateLin2d>;
@@ -30,7 +30,7 @@ public:
 };
 
 
-} // namespace utils
+} // namespace opt
 } // namespace xpp
 
 #endif // _XPP_ZMP_COM_POLYNOMIAL_H_

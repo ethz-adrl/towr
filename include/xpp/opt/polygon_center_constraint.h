@@ -8,7 +8,7 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 
-#include "a_constraint.h"
+#include <xpp/a_constraint.h>
 
 namespace xpp {
 namespace opt {

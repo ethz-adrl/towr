@@ -26,10 +26,9 @@ namespace opt {
 class ConstraintContainer : public IObserver {
 public:
   typedef AConstraint::VectorXd VectorXd;
-  typedef AConstraint::VecBound VecBound;
   typedef AConstraint::Jacobian Jacobian;
   typedef std::shared_ptr<AConstraint> ConstraintPtr;
-  typedef std::shared_ptr<Jacobian> JacobianPtr;;
+  typedef std::shared_ptr<Jacobian> JacobianPtr;
 
   ConstraintContainer (OptimizationVariables& subject);
   virtual ~ConstraintContainer ();

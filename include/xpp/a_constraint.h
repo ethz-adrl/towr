@@ -8,40 +8,17 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_
 
-#include "variable_names.h"
-#include "matrix_vector.h"
-
+#include "optimization_variables.h"
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 
 namespace xpp {
 namespace opt {
 
-class OptimizationVariables;
-
 class AConstraint {
 public:
-  struct Bound {
-    Bound(double lower = 0.0, double upper = 0.0) {
-      lower_ = lower;
-      upper_ = upper;
-    }
-    double lower_;
-    double upper_;
-
-    void operator+=(double scalar) {
-      lower_ += scalar;
-      upper_ += scalar;
-    }
-
-    void operator-=(double scalar) {
-      lower_ -= scalar;
-      upper_ -= scalar;
-    }
-  };
-  typedef Eigen::VectorXd VectorXd;
-  typedef std::vector<Bound> VecBound;
-  typedef Eigen::SparseMatrix<double, Eigen::RowMajor> Jacobian;
+  using VectorXd = Eigen::VectorXd;
+  using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
   AConstraint ();
   virtual ~AConstraint ();
@@ -61,10 +38,6 @@ public:
   virtual VecBound GetBounds () const = 0;
 
   int GetNumberOfConstraints() const;
-
-  static const Bound kNoBound_;
-  static const Bound kEqualityBound_;
-  static const Bound kInequalityBoundPositive_;
 
   void PrintStatus(double tol) const;
 

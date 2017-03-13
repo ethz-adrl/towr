@@ -8,11 +8,12 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 
-#include <xpp/state.h>
-#include "variable_set.h"
 #include "motion_structure.h"
 #include "com_motion.h"
-#include <xpp/opt/motion_parameters.h>
+#include "motion_parameters.h"
+
+#include <xpp/state.h>
+#include <xpp/variable_set.h>
 #include <memory>
 
 namespace xpp {

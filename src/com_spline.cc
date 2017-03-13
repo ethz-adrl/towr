@@ -10,8 +10,6 @@
 namespace xpp {
 namespace opt {
 
-using namespace xpp::utils;
-
 ComSpline::ComSpline ()
 {
   // TODO Auto-generated constructor stub
@@ -20,20 +18,6 @@ ComSpline::ComSpline ()
 ComSpline::~ComSpline ()
 {
   // TODO Auto-generated destructor stub
-}
-
-void
-ComSpline::Init (const MotionPhases& phases, int polynomials_per_second)
-{
-  int id=0;
-  for (const auto& phase : phases) {
-    double T = phase.duration_;
-    int polys_per_phase = std::ceil(T*polynomials_per_second);
-    for (int i=0; i<polys_per_phase; ++i)
-      polynomials_.push_back(ComPolynomial(id++, T/polys_per_phase));
-  }
-
-  splines_initialized_ = true;
 }
 
 void
@@ -46,6 +30,20 @@ ComSpline::Init (double t_global, int polynomials_per_second)
 
   splines_initialized_ = true;
 }
+
+//void
+//ComSpline::Init (const MotionPhases& phases, int polynomials_per_second)
+//{
+//  int id=0;
+//  for (const auto& phase : phases) {
+//    double T = phase.duration_;
+//    int polys_per_phase = std::ceil(T*polynomials_per_second);
+//    for (int i=0; i<polys_per_phase; ++i)
+//      polynomials_.push_back(ComPolynomial(id++, T/polys_per_phase));
+//  }
+//
+//  splines_initialized_ = true;
+//}
 
 int
 ComSpline::Index (int poly, Coords3D dim, PolyCoeff coeff) const

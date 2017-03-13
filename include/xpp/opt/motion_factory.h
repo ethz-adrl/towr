@@ -9,7 +9,6 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_MOTION_FACTORY_H_
 
 #include "com_motion.h"
-#include "motion_structure.h"
 #include <Eigen/Dense>
 #include <memory>
 
@@ -32,22 +31,14 @@ public:
   MotionFactory ();
   virtual ~MotionFactory ();
 
-  /** Creates a spline where all polynomial coefficients are free.
+  /** Creates a 5th-order spline where all polynomial coefficients are free.
     */
-  static ComMotionPtrS CreateComMotion(const MotionStructure&,
+  static ComMotionPtrS CreateComMotion(double t_total,
                                        int polynomials_per_second,
-                                       double height);
-
-  /** Creates a spline where the initial position and velocity and the
-    * position and velocity at the polynomial junctions are fixed.
-    */
-  static ComMotionPtrS CreateComMotion(double t_global, int polynomials_per_second,
-                                       const PosXY& start_cog_p,
-                                       const PosXY& start_cog_v,
                                        double height);
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_MOTION_FACTORY_H_ */

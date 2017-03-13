@@ -11,7 +11,7 @@
 #include <Eigen/Dense>
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 struct VecScalar {
   Eigen::RowVectorXd v;
@@ -76,7 +76,7 @@ inline void MatVec::WriteRow(const VecScalar& val, size_t row)
   v[row]     = val.s;
 }
 
-} // namespace utils
+} // namespace opt
 } // namespace xpp
 
 #endif /* XPP_OPT_INCLUDE_XPP_UTILS_MATRIX_VECTOR_H_ */

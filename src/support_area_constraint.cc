@@ -6,12 +6,11 @@
  */
 
 #include <xpp/opt/support_area_constraint.h>
-#include <xpp/opt/optimization_variables.h>
+#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
 
-using namespace xpp::utils;
 using Vector2d = Eigen::Vector2d;
 using Vector3d = Eigen::Vector3d;
 
@@ -37,7 +36,7 @@ SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   lambdas_   = opt_var->GetVariables(VariableNames::kConvexity);
   cop_       = opt_var->GetVariables(VariableNames::kCenterOfPressure);
   Eigen::VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
-  footholds_ = utils::ConvertEigToStd(footholds);
+  footholds_ = ConvertEigToStd(footholds);
 }
 
 SupportAreaConstraint::VectorXd
@@ -65,7 +64,7 @@ SupportAreaConstraint::EvaluateConstraint () const
   return g;
 }
 
-SupportAreaConstraint::VecBound
+VecBound
 SupportAreaConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;

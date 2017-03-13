@@ -5,7 +5,7 @@
  @brief   Defines a class to hold the value of the optimization variables.
  */
 
-#include <xpp/opt/optimization_variables.h>
+#include <xpp/optimization_variables.h>
 #include <algorithm> // find_if
 
 namespace xpp {
@@ -75,7 +75,7 @@ OptimizationVariables::GetOptimizationVariables () const
   return x;
 }
 
-OptimizationVariables::VecBound
+VecBound
 OptimizationVariables::GetOptimizationVariableBounds () const
 {
   VecBound bounds_;

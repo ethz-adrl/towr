@@ -11,7 +11,7 @@
 #include <Eigen/Dense>
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 /** p*x + q*y + r = 0 */
 struct LineCoeff2d {
@@ -81,7 +81,7 @@ private:
 };
 
 
-} /* namespace utils */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_LINE_EQUATION_H_ */

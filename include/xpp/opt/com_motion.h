@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 
-#include "matrix_vector.h"
+#include <xpp/matrix_vector.h>
 #include <xpp/state.h>
 
 #include <Eigen/Sparse>
@@ -26,7 +26,6 @@ namespace opt {
 class ComMotion {
 public:
   using VectorXd    = Eigen::VectorXd;
-  using VecScalar   = xpp::utils::VecScalar;
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor> ;
   using PtrS        = std::shared_ptr<ComMotion> ;
   using PtrU        = std::unique_ptr<ComMotion> ;

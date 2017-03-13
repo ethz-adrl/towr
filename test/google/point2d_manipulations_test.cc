@@ -12,7 +12,7 @@
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 
 class Point2dManipulationsTest : public ::testing::Test {
@@ -33,7 +33,7 @@ TEST_F(Point2dManipulationsTest, SortIndexesLeftToRight)
   C << 1, 1;
   D << 0, 1;
 
-  Point2dManip::StdVectorEig2d points(4);
+  StdVecEigen2d points(4);
   points.at(0) = A;
   points.at(1) = B;
   points.at(2) = C;
@@ -66,7 +66,7 @@ TEST_F(Point2dManipulationsTest, 3PointsSorted)
   B << 1, 0;
   C << 1, 1;
 
-  Point2dManip::StdVectorEig2d points(3);
+  StdVecEigen2d points(3);
   points.at(0) = A;
   points.at(1) = B;
   points.at(2) = C;
@@ -84,7 +84,7 @@ TEST_F(Point2dManipulationsTest, 3PointsUnsorted1)
   B << 1, 0;
   C << 1, 1;
 
-  Point2dManip::StdVectorEig2d points(3);
+  StdVecEigen2d points(3);
   points.at(0) = B;
   points.at(1) = C;
   points.at(2) = A;
@@ -104,7 +104,7 @@ TEST_F(Point2dManipulationsTest, 3PointsUnsorted2)
   B << 1, 0;
   C << 1, 1;
 
-  Point2dManip::StdVectorEig2d points(3);
+  StdVecEigen2d points(3);
   points.at(0) = C;
   points.at(1) = A;
   points.at(2) = B;
@@ -125,7 +125,7 @@ TEST_F(Point2dManipulationsTest, 4PointsConvexSorted)
   C << 1, 1;
   D << 0, 1;
 
-  Point2dManip::StdVectorEig2d points(4);
+  StdVecEigen2d points(4);
   points.at(0) = A;
   points.at(1) = B;
   points.at(2) = C;
@@ -147,7 +147,7 @@ TEST_F(Point2dManipulationsTest, 4PointsConvexUnsorted)
   C << 1, 1;
   D << 0, 1;
 
-  Point2dManip::StdVectorEig2d points(4);
+  StdVecEigen2d points(4);
   points.at(0) = B;
   points.at(1) = D;
   points.at(2) = C;
@@ -169,7 +169,7 @@ TEST_F(Point2dManipulationsTest, 4PointsNonConvex)
   C << -0.1,  0.1;
   D <<  0.0, -0.5;  // this point lies inside the convex hull of the others
 
-  Point2dManip::StdVectorEig2d points(4);
+  StdVecEigen2d points(4);
   points.at(0) = A;
   points.at(1) = B;
   points.at(2) = C;
@@ -187,7 +187,7 @@ TEST_F(Point2dManipulationsTest, 4PointsEqual)
 {
   A << -1.0, -1.0;
 
-  Point2dManip::StdVectorEig2d points(4);
+  StdVecEigen2d points(4);
   points.at(0) = A;
   points.at(1) = A;
   points.at(2) = A;
@@ -199,5 +199,5 @@ TEST_F(Point2dManipulationsTest, 4PointsEqual)
 }
 
 
-} // namespace utils
+} // namespace opt
 } // namespace xpp

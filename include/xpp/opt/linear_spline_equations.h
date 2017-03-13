@@ -8,7 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 
-#include "matrix_vector.h"
+#include <xpp/matrix_vector.h>
 #include <xpp/state.h>
 #include <array>
 #include <memory>
@@ -29,7 +29,6 @@ class ComSpline;
   */
 class LinearSplineEquations {
 public:
-  using MatVec            = xpp::utils::MatVec;
   using MotionDerivatives = std::vector<MotionDerivative>;
   using ComSplinePtrU     = std::unique_ptr<ComSpline>;
   using ValXY             = std::array<double,2>;

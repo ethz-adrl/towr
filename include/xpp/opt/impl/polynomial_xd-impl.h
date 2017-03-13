@@ -8,7 +8,7 @@
 #include <xpp/opt/polynomial_xd.h>
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 template<typename PolynomialType, typename PointType>
 PolynomialXd<PolynomialType, PointType>::PolynomialXd (int id,
@@ -90,5 +90,5 @@ bool PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt,
 }
 
 
-} // namespace utils
+} // namespace opt
 } // namespace xpp

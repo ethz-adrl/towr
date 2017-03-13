@@ -9,7 +9,7 @@
 #include <gtest/gtest.h>
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 using Point = LineEquation::Point;
 
@@ -200,5 +200,5 @@ TEST_F(LineEquationTest, LineCoefficientsDistanceValue)
 }
 
 
-} /* namespace utils */
+} /* namespace opt */
 } /* namespace xpp */

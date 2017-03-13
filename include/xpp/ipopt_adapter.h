@@ -8,8 +8,11 @@
 #ifndef XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_
 #define XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_
 
-#include <IpTNLP.hpp>
 #include "nlp.h"
+
+#include <IpTNLP.hpp>
+#include <IpIpoptApplication.hpp>
+#include <IpSolveStatistics.hpp>
 
 namespace xpp {
 namespace opt {

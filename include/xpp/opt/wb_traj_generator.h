@@ -34,9 +34,9 @@ public:
   using ComMotionS    = std::shared_ptr<xpp::opt::ComMotion>;
   using Vector3d      = Eigen::Vector3d;
   using VecFoothold   = std::vector<Contact>;
-  using SplinerOri    = xpp::utils::PolynomialXd< utils::CubicPolynomial, StateLin3d>;
+  using SplinerOri    = PolynomialXd< CubicPolynomial, StateLin3d>;
   using SplinerFeet   = EEPolynomial;
-  using ZPolynomial   = xpp::utils::LinearPolynomial;
+  using ZPolynomial   = LinearPolynomial;
   using PhaseVec      = std::vector<MotionPhase>;
 
   using SplineNode     = RobotStateCartesian;

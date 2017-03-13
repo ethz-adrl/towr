@@ -7,9 +7,9 @@
 
 #include <xpp/opt/cost_constraint_factory.h>
 
-#include <xpp/opt/a_linear_constraint.h>
 #include <xpp/opt/a_spline_cost.h>
 #include <xpp/opt/linear_spline_equations.h>
+#include <xpp/opt/linear_spline_equality_constraint.h>
 #include <xpp/opt/range_of_motion_constraint.h>
 #include <xpp/opt/obstacle_constraint.h>
 #include <xpp/opt/a_foothold_constraint.h>
@@ -17,12 +17,12 @@
 #include <xpp/opt/support_area_constraint.h>
 #include <xpp/opt/dynamic_constraint.h>
 #include <xpp/opt/polygon_center_constraint.h>
-#include <xpp/opt/soft_constraint.h>
+#include <xpp/opt/variable_names.h>
+
+#include <xpp/soft_constraint.h>
 
 namespace xpp {
 namespace opt {
-
-using namespace xpp::utils;
 
 CostConstraintFactory::CostConstraintFactory ()
 {
@@ -88,7 +88,7 @@ CostConstraintFactory::ContactVariables (const Vector2d initial_pos,
   contacts.clear();
 
   // contact locations (x,y) of each step
-  utils::StdVecEigen2d footholds_W;
+  StdVecEigen2d footholds_W;
   for (auto ee : motion_structure.GetContactIds()) {
     Eigen::Vector2d nominal_B = params->GetNominalStanceInBase().at(ee);
     footholds_W.push_back(nominal_B + initial_pos); // express in world
@@ -99,31 +99,36 @@ CostConstraintFactory::ContactVariables (const Vector2d initial_pos,
     contacts.push_back(c);
   }
 
-  return VariableSet(utils::ConvertStdToEig(footholds_W), VariableNames::kFootholds);
+  return VariableSet(ConvertStdToEig(footholds_W), VariableNames::kFootholds);
 }
 
 VariableSet
 CostConstraintFactory::ConvexityVariables () const
 {
-  // zmp_ clean this up
   int n_lambdas = motion_structure.GetTotalNumberOfNodeContacts();
-  VariableSet::VecBound bounds;
   Eigen::VectorXd lambdas(n_lambdas);
-  int k=0;
-  for (auto node : motion_structure.GetPhaseStampedVec()) {
-    int n_contacts_at_node = node.GetAllContacts().size();
-    double avg = 1./n_contacts_at_node;
-    double min = avg - avg*params->lambda_deviation_percent_;
-    double max = 1-min;
-    for (int j=0; j<n_contacts_at_node; ++j) {
-      lambdas(k++) = avg;
-      bounds.push_back(AConstraint::Bound(min, max));
-    }
-  }
 
-//  lambdas.fill(0.5); // sort of in the middle for 3 contacts per node
-//  return VariableSet(lambdas, VariableNames::kConvexity, AConstraint::Bound(0.0, 1.0));
-  return VariableSet(lambdas, VariableNames::kConvexity, bounds);
+  // initialize load values as if each leg is carrying half of total load
+  lambdas.fill(1./2);
+  return VariableSet(lambdas, VariableNames::kConvexity, Bound(0.0, 1.0));
+
+// this would initializate the load parameters to equal distribution depending
+// on how many contacts in that phase. This also depends on how much each contact
+// is allowed to be unloaded
+//  double lambda_deviation_percent = 1.0; // 100 percent
+//  VariableSet::VecBound bounds;
+//  int k=0;
+//  for (auto node : motion_structure.GetPhaseStampedVec()) {
+//    int n_contacts_at_node = node.GetAllContacts().size();
+//    double avg = 1./n_contacts_at_node;
+//    double min = avg - avg*lambda_deviation_percent;
+//    double max = 1-min;
+//    for (int j=0; j<n_contacts_at_node; ++j) {
+//      lambdas(k++) = avg;
+//      bounds.push_back(AConstraint::Bound(min, max));
+//    }
+//  }
+//  return VariableSet(lambdas, VariableNames::kConvexity, bounds);
 }
 
 VariableSet
@@ -250,7 +255,7 @@ CostConstraintFactory::MakeMotionCost() const
     default: assert(false); break; // this cost is not implemented
   }
 
-  xpp::utils::MatVec mv(term.rows(), term.cols());
+  MatVec mv(term.rows(), term.cols());
   mv.M = term;
   mv.v.setZero();
 

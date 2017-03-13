@@ -58,7 +58,6 @@ public:
   ValXY weight_com_motion_xy_;
   double geom_walking_height_;
   double lift_height_;
-  double lambda_deviation_percent_;
   int opt_horizon_in_phases_;
   PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
 

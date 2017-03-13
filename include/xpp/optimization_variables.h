@@ -29,8 +29,6 @@ namespace opt {
 class OptimizationVariables : public ASubject {
 public:
   using VectorXd = Eigen::VectorXd;
-  using VecBound = VariableSet::VecBound;
-  using Bound    = VariableSet::Bound;
   using VariableSetVector = std::vector<VariableSet>;
 
   OptimizationVariables ();

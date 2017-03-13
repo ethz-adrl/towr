@@ -20,7 +20,7 @@ Polynomials ready to use:
 #include <array>  // std::array
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 /** Constructs a polynomial given start and end states.
   *
@@ -123,7 +123,7 @@ private:
 };
 /** @} */
 
-} // namespace utils
+} // namespace opt
 } // namespace xpp
 
 #endif // XPP_UTILS_Polynomial_H_

@@ -14,7 +14,7 @@ Spliners ready to use:
 #include <xpp/opt/polynomial.h>
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 constexpr std::array<Polynomial::PolynomialCoeff, 6> Polynomial::AllSplineCoeff;
 
@@ -81,5 +81,5 @@ void QuinticPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& st
   c[A] = -( 12*start.p - 12*end.p + T1*(   start.a*T1 -   end.a*T1 +  6*(start.v +    end.v))) / (2*T5);
 }
 
-} // namespace utils
+} // namespace opt
 } // namespace xpp

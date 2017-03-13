@@ -5,24 +5,24 @@
  @brief   Defines the class VariableSet
  */
 
-#include <xpp/opt/variable_set.h>
+#include <xpp/variable_set.h>
 
 namespace xpp {
 namespace opt {
 
-// zmp_ delegate to other constructor
-VariableSet::VariableSet (const VectorXd& values, std::string id, const Bound& bound)
-{
-  x_ = values;
-  bounds_.assign(values.rows(), bound);
-  id_ = id;
-}
 
 VariableSet::VariableSet (const VectorXd& values, std::string id, const VecBound& bounds)
 {
   x_ = values;
   bounds_  = bounds;
   id_ = id;
+}
+
+VariableSet::VariableSet (const VectorXd& values, std::string id, const Bound& bound)
+    :VariableSet(values,
+                 id,
+                 VecBound(values.rows(), bound)) // delegate to top c'tor
+{
 }
 
 VariableSet::~VariableSet ()
@@ -41,7 +41,7 @@ VariableSet::GetVariables () const
   return x_;
 }
 
-VariableSet::VecBound
+VecBound
 VariableSet::GetBounds () const
 {
   return bounds_;

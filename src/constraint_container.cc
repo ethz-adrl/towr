@@ -5,7 +5,7 @@
  *      Author: winklera
  */
 
-#include <xpp/opt/constraint_container.h>
+#include <xpp/constraint_container.h>
 #include <iostream>
 
 namespace xpp {
@@ -107,7 +107,7 @@ ConstraintContainer::RefreshBounds ()
   jacobian_ = std::make_shared<Jacobian>(n_constraints, n_variables);
 }
 
-ConstraintContainer::VecBound
+VecBound
 ConstraintContainer::GetBounds () const
 {
   return bounds_;

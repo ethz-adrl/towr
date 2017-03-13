@@ -9,7 +9,7 @@
 #include <xpp/opt/polynomial_helpers.h>
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 double
 ComPolynomialHelpers::GetTotalTime(const VecPolynomials& splines)
@@ -46,7 +46,6 @@ StateLin2d
 ComPolynomialHelpers::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& splines)
 {
   StateLin2d cog_xy;
-  using namespace xpp::utils;
   cog_xy.p = splines[id].GetState(kPos, t_local);
   cog_xy.v = splines[id].GetState(kVel, t_local);
   cog_xy.a = splines[id].GetState(kAcc, t_local);
@@ -71,6 +70,6 @@ ComPolynomialHelpers::GetPolynomialID(double t_global, const VecPolynomials& spl
    assert(false); // this should never be reached
 }
 
-} // namespace utils
+} // namespace opt
 } // namespace xpp
 

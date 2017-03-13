@@ -30,7 +30,6 @@ static const MotionParameters::EEIDVec Bb = {kMapQuadToOpt.at(LH), kMapQuadToOpt
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  lambda_deviation_percent_ = 1.0; // 100 percent
   weight_com_motion_xy_ = {1.0, 1.0};
   geom_walking_height_ = 0.58;
   lift_height_ = 0.08;
@@ -139,7 +138,6 @@ PushRecovery::PushRecovery ()
 {
   opt_horizon_in_phases_ = 2*3;
   max_dev_xy_ = {0.15, 0.15};
-  lambda_deviation_percent_ = 0.8;
   id_ = opt::PushRecID;
   max_step_length_ = 0.35;
   dt_nodes_ = 0.1;

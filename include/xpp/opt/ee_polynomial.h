@@ -20,8 +20,8 @@ public:
   using ZState     = StateLin1d;
   using XYState    = StateLin2d;
   using XYZState   = StateLin3d;
-  using PolyXY     = xpp::utils::PolynomialXd< utils::CubicPolynomial, XYState>;
-  using PolyZ      = xpp::utils::QuinticPolynomial;
+  using PolyXY     = PolynomialXd<CubicPolynomial, XYState>;
+  using PolyZ      = QuinticPolynomial;
 
   EEPolynomial ();
   virtual ~EEPolynomial ();

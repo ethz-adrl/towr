@@ -22,7 +22,7 @@ class MotionPhase {
 public:
   using ContactVec     = std::vector<Contact>;
   using ContactBaseVec = std::vector<ContactBase>;
-  using XYPositions    = utils::StdVecEigen2d;
+  using XYPositions    = StdVecEigen2d;
   using EEID           = EndeffectorID;
 
   ContactBaseVec contacts_opt_;    ///< all the ee currently in contact but not fixed by start stance

@@ -10,8 +10,6 @@
 namespace xpp {
 namespace opt {
 
-using namespace xpp::utils;
-
 ComMotion::ComMotion ()
 {
   // TODO Auto-generated constructor stub
@@ -29,7 +27,7 @@ ComMotion::SetCoefficientsZero ()
   SetCoefficients(coeff.setZero());
 }
 
-ComMotion::VecScalar
+VecScalar
 ComMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coords3D dim) const
 {
   VecScalar linear_approx; // at current coefficient values

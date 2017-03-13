@@ -14,7 +14,7 @@
 #include <Eigen/Dense>
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 
 template<typename PolynomialType, typename PointType>
@@ -49,7 +49,7 @@ private:
   uint id_; // to identify the order relative to other polynomials
 };
 
-} // namespace utils
+} // namespace opt
 } // namespace xpp
 
 #include "impl/polynomial_xd-impl.h"

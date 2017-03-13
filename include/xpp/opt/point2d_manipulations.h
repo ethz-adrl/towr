@@ -18,14 +18,13 @@
 
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 /**
 @brief Some utilities for manipulating 2 dimensional points, distances, lines.
  */
 struct Point2dManip {
 public:
-  using StdVectorEig2d = xpp::utils::StdVecEigen2d;
   using Vec2d = Eigen::Vector2d;
 
   //  Checks if B is on the right side of line OA
@@ -59,7 +58,7 @@ public:
    * @return the sorted indexes so the value, e.g. i=idx[0] corresponds to point p[i]
    * @link http://stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
    */
-  static std::vector<size_t> SortIndexesLeftToRight(const StdVectorEig2d& p)
+  static std::vector<size_t> SortIndexesLeftToRight(const StdVecEigen2d& p)
       {
     // index vector where the number corresponds to the point at that index  in p
     std::vector<size_t> idx(p.size());
@@ -80,7 +79,7 @@ public:
    * @link https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
    */
   static std::vector<size_t>
-  BuildConvexHullCounterClockwise(const StdVectorEig2d& p)
+  BuildConvexHullCounterClockwise(const StdVecEigen2d& p)
   {
     std::vector<size_t> idx;
 
@@ -119,7 +118,7 @@ public:
 };
 
 
-} // namespace utils
+} // namespace opt
 } // namespace xpp
 
 #endif // _XPP_UTILS_POINT2D_MANIPULATOR_H_

@@ -78,65 +78,65 @@ include_directories(
   ${SNOPT_INCLUDE_DIRS}
 )
 
-set(SOURCES
+# A general nlp solving framework for Eigen, Ipopt, Snopt
+set(SOLVER_LIB xpp_solve)
+add_library(${SOLVER_LIB}
+  src/a_subject.cc
+  src/variable_set.cc
+  src/optimization_variables.cc
+  src/i_observer.cc
+  src/nlp.cc
+  src/ipopt_adapter.cc
+  src/snopt_adapter.cc
+  src/a_constraint.cc
+  src/constraint_container.cc
+  src/a_linear_constraint.cc
+  src/a_cost.cc
+  src/cost_container.cc
+  src/cost_function_functor.cc
+  src/soft_constraint.cc
+)
+
+# the specific motion optimization problem for legged robots
+add_library(${LIB_NAME}
   src/ellipse.cc
   src/zero_moment_point.cc
   src/linear_inverted_pendulum.cc
   src/motion_structure.cc
   src/motion_phase.cc
-  src/step_sequence_planner.cc
   src/ee_polynomial.cc
   src/line_equation.cc
   src/polynomial.cc
   src/polynomial_fifth_order.cc
   src/polynomial_helpers.cc
+  src/motion_optimizer_facade.cc
+  src/nlp_facade.cc
   # com
   src/com_motion.cc
   src/com_spline.cc
   src/com_spline6.cc    
   src/com_spline4.cc
   src/motion_factory.cc
-  # nlp
-  src/motion_optimizer_facade.cc
-  src/a_subject.cc
-  src/variable_set.cc
-  src/optimization_variables.cc
-  src/i_observer.cc
-  src/nlp_facade.cc
-  src/nlp.cc
-  src/ipopt_adapter.cc
-  src/snopt_adapter.cc
-  # constraints
-  src/a_constraint.cc
-  src/cost_constraint_factory.cc
-  src/a_linear_constraint.cc
   src/linear_spline_equations.cc
-  src/constraint_container.cc
+  # constraints and costs
+  src/cost_constraint_factory.cc
+  src/linear_spline_equality_constraint.cc
   src/range_of_motion_constraint.cc
   src/obstacle_constraint.cc
   src/support_area_constraint.cc
   src/convexity_constraint.cc
   src/polygon_center_constraint.cc
   src/dynamic_constraint.cc
-  # costs
-  src/a_cost.cc
-  src/a_spline_cost.cc
-  src/cost_container.cc
-  src/cost_function_functor.cc
   src/a_foothold_constraint.cc
-  src/soft_constraint.cc
+  src/a_spline_cost.cc
   # robot specific info
+  src/step_sequence_planner.cc
   src/motion_parameters.cc
   src/quadruped_motion_parameters.cc
-)
-
-          
-# Add the shared library
-add_library(${LIB_NAME}
-   ${SOURCES}
-)
+)   
 target_link_libraries(${LIB_NAME}
   ${catkin_LIBRARIES}
+  ${SOLVER_LIB}
   ${IPOPT_LIBRARIES}
   ${SNOPT_LIBS}
 )
@@ -186,7 +186,7 @@ if(BUILD_TESTS)
 #                        test/google/cost_function_functor_test.cc
 #                        test/google/cost_container_test.cc
 #                        test/google/a_foothold_cost_test.cc
-                         test/google/soft_constraint_test.cc
+#                         test/google/soft_constraint_test.cc
 #                        # nlp optimizers
                          test/google/motion_optimizer_facade_test.cc
 #                        test/google/nlp_test.cc
@@ -201,6 +201,7 @@ if(BUILD_TESTS)
     add_executable(googleTest ${MY_GTEST_UNITS})
     
     target_link_libraries(googleTest 
+                          ${SOLVER_LIB}
                           ${LIB_NAME}
                           ${GTEST_LIBRARIES}
                           pthread

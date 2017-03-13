@@ -11,8 +11,6 @@
 namespace xpp {
 namespace opt {
 
-using namespace xpp::utils;
-
 LinearSplineEquations::LinearSplineEquations (const ComMotion& com_motion )
 {
   // cast com motion to spline, because i need some specific features of that
@@ -34,7 +32,7 @@ LinearSplineEquations::~LinearSplineEquations ()
   // TODO Auto-generated destructor stub
 }
 
-LinearSplineEquations::MatVec
+MatVec
 LinearSplineEquations::MakeInitial (const StateLin2d& init) const
 {
   auto derivatives = com_spline_->GetInitialFreeMotions();
@@ -57,7 +55,7 @@ LinearSplineEquations::MakeInitial (const StateLin2d& init) const
   return M;
 }
 
-LinearSplineEquations::MatVec
+MatVec
 LinearSplineEquations::MakeFinal (const StateLin2d& final_state,
                                   const MotionDerivatives& derivatives) const
 {
@@ -80,7 +78,7 @@ LinearSplineEquations::MakeFinal (const StateLin2d& final_state,
   return M;
 }
 
-LinearSplineEquations::MatVec
+MatVec
 LinearSplineEquations::MakeJunction () const
 {
   auto derivatives = com_spline_->GetJunctionFreeMotions();

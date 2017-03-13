@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/nlp.h>
+#include <xpp/nlp.h>
 
 namespace xpp {
 namespace opt {
@@ -38,7 +38,7 @@ NLP::GetNumberOfOptimizationVariables () const
   return opt_variables_->GetOptimizationVariableCount();
 }
 
-NLP::BoundVec
+VecBound
 NLP::GetBoundsOnOptimizationVariables () const
 {
   return opt_variables_->GetOptimizationVariableBounds();
@@ -82,7 +82,7 @@ NLP::EvaluateCostFunctionGradient (const Number* x) const
   return grad;
 }
 
-NLP::BoundVec
+VecBound
 NLP::GetBoundsOnConstraints () const
 {
   return constraints_->GetBounds();

@@ -12,7 +12,7 @@
 #include <iostream>
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 template<typename _Scalar, int NX = Eigen::Dynamic, int NY = Eigen::Dynamic>
 class EigenNumDiffFunctor {
@@ -42,7 +42,7 @@ private:
   int m_inputs, m_values;
 };
 
-} /* namespace utils */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_EIGEN_NUM_DIFF_FUNCTOR_H_ */

@@ -8,13 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_COST_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_COST_H_
 
-#include <Eigen/Dense>
-#include "variable_names.h"
+#include <xpp/optimization_variables.h>
 
 namespace xpp {
 namespace opt {
-
-class OptimizationVariables;
 
 /** @brief Common interface to define a cost, which simply returns a scalar value
   */
@@ -38,7 +35,7 @@ private:
   double weight_;
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_COST_H_ */

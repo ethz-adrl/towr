@@ -7,7 +7,7 @@
 
 #include <xpp/opt/polygon_center_constraint.h>
 #include <xpp/opt/motion_structure.h>
-#include <xpp/opt/optimization_variables.h>
+#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -60,7 +60,7 @@ PolygonCenterConstraint::EvaluateConstraint () const
   return Eigen::Map<VectorXd>(&g_vec[0], g_vec.size());
 }
 
-PolygonCenterConstraint::VecBound
+VecBound
 PolygonCenterConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;

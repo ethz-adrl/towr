@@ -8,7 +8,7 @@
 #include <xpp/opt/line_equation.h>
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 LineEquation::~LineEquation ()
 {
@@ -94,6 +94,6 @@ LineEquation::GetJacobianDistanceWrtPoints (const Point& pt) const
   return point.transpose()*jac_coeff;
 }
 
-} /* namespace utils */
+} /* namespace opt */
 } /* namespace xpp */
 

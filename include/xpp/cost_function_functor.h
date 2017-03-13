@@ -21,9 +21,9 @@ namespace opt {
   * evaluated for the current value of the optimization variables. This
   * operator() is then used with Eigen/NumericalDiff to calculate the derivatives.
   */
-class CostFunctionFunctor : public utils::EigenNumDiffFunctor<double> {
+class CostFunctionFunctor : public EigenNumDiffFunctor<double> {
 public:
-  typedef utils::EigenNumDiffFunctor<double> Base;
+  using Base = EigenNumDiffFunctor<double>;
 
   CostFunctionFunctor ();
   virtual ~CostFunctionFunctor ();

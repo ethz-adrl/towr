@@ -6,7 +6,7 @@
  */
 
 #include <xpp/opt/a_spline_cost.h>
-#include <xpp/opt/optimization_variables.h>
+#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -55,5 +55,5 @@ SquaredSplineCost::EvaluateCost () const
   return (matrix_vector_.M*spline_coeff_ + matrix_vector_.v).norm();
 }
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */

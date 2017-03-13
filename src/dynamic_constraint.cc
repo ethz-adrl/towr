@@ -6,13 +6,12 @@
  */
 
 #include <xpp/opt/dynamic_constraint.h>
-#include <xpp/opt/optimization_variables.h>
 #include <xpp/opt/com_motion.h>
+#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
 
-using namespace xpp::utils;
 using Vector2d = Eigen::Vector2d;
 using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
@@ -65,7 +64,7 @@ DynamicConstraint::EvaluateConstraint () const
   return g;
 }
 
-DynamicConstraint::VecBound
+VecBound
 DynamicConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;

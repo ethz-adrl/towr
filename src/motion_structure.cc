@@ -138,7 +138,6 @@ MotionStructure::CalcPhaseStampedVec () const
 
     int nodes_in_phase = std::floor(phase.duration_/dt_);
 
-    // zmp_ make sure they are always evenly spaced! dt is the same also between nodes
     for (int k=0; k<nodes_in_phase; ++k ) {
       MotionNode contact_info;
       contact_info = phase;

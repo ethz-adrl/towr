@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_LINEAR_CONSTRAINT_H_
 
 #include "a_constraint.h"
+#include "matrix_vector.h"
 
 namespace xpp {
 namespace opt {
@@ -21,8 +22,6 @@ namespace opt {
   */
 class ALinearConstraint : public AConstraint {
 public:
-  typedef xpp::utils::MatVec MatVec;
-
   /** @brief Defines the elements of the linear constraint as g = Mx+v.
     *
     * @param linear_equation the matrix M and vector v.
@@ -47,26 +46,13 @@ public:
   VecBound GetBounds () const override;
 };
 
-// smell rename to "LinearEqualityGreaterThan"
 class LinearInequalityConstraint : public ALinearConstraint {
 public:
   /** @brief Returns an upper and lower bound for each constraint violation. */
   VecBound GetBounds () const override;
 };
 
-
-class LinearSplineEqualityConstraint : public LinearEqualityConstraint {
-public:
-  /** @brief Updates the values of the optimization variables. */
-  void UpdateVariables(const OptimizationVariables*) override;
-  /** @brief Returns the Jacobian Matrix of this constraint. */
-  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
-};
-
-
-
-
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_LINEAR_CONSTRAINT_H_ */

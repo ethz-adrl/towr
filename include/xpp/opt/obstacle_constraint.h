@@ -8,7 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OBSTACLE_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OBSTACLE_CONSTRAINT_H_
 
-#include "a_constraint.h"
+#include <xpp/a_constraint.h>
+
 #include "ellipse.h"
 #include "eigen_std_conversions.h"
 
@@ -17,15 +18,13 @@ namespace opt {
 
 class ObstacleConstraint : public AConstraint {
 public:
-  using FootholdsXY = xpp::utils::StdVecEigen2d;
-
   ObstacleConstraint ();
   virtual ~ObstacleConstraint ();
 
   virtual void UpdateVariables(const OptimizationVariables*) override final;
 
 protected:
-  FootholdsXY footholds_;
+  StdVecEigen2d footholds_;
   const double gap_center_x_ = 0.45; //m
   const double gap_width_x_ = 0.15; //m
 };

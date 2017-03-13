@@ -8,7 +8,7 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_VARIABLE_SET_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_VARIABLE_SET_H_
 
-#include "a_constraint.h" // Bound
+#include "bound.h"
 #include <Eigen/Dense>
 #include <vector>
 
@@ -20,10 +20,8 @@ namespace opt {
 class VariableSet {
 public:
   using VectorXd = Eigen::VectorXd;
-  using VecBound = AConstraint::VecBound;
-  using Bound    = AConstraint::Bound;
 
-  VariableSet(const VectorXd& values, std::string id, const Bound& = AConstraint::kNoBound_);
+  VariableSet(const VectorXd& values, std::string id, const Bound& = kNoBound_);
   VariableSet(const VectorXd& values, std::string id, const VecBound& bounds);
   virtual ~VariableSet();
 

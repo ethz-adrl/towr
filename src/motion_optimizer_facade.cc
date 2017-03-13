@@ -5,9 +5,9 @@
  @brief   Brief description
  */
 
+#include <xpp/optimization_variables.h>
 #include <xpp/opt/motion_optimizer_facade.h>
 #include <xpp/opt/motion_structure.h>
-#include <xpp/opt/optimization_variables.h>
 #include <xpp/opt/wb_traj_generator.h>
 
 namespace xpp {

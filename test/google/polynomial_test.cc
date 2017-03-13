@@ -13,7 +13,7 @@
 #define prt(x) std::cout << #x << " = " << x << std::endl;
 
 namespace xpp {
-namespace utils {
+namespace opt {
 
 
 // A start and an end position for the splines. checking only boundary conditions
@@ -137,5 +137,5 @@ TEST_F(SplineTest, FifthOrderSplinerSameStartGoal)
 }
 
 
-} // namespace utils
+} // namespace opt
 } // namespace xpp

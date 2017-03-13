@@ -6,12 +6,10 @@
  */
 
 #include <xpp/opt/a_foothold_constraint.h>
-#include <xpp/opt/optimization_variables.h>
+#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
-
-using namespace xpp::utils; // X, Y
 
 AFootholdConstraint::AFootholdConstraint ()
 {
@@ -33,7 +31,7 @@ void
 AFootholdConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
-  footholds_ = utils::ConvertEigToStd(footholds);
+  footholds_ = ConvertEigToStd(footholds);
 }
 
 FootholdFinalStanceConstraint::FootholdFinalStanceConstraint (
@@ -103,7 +101,7 @@ FootholdFinalStanceConstraint::GetJacobianWithRespectTo (std::string var_set) co
   return jac;
 }
 
-FootholdFinalStanceConstraint::VecBound
+VecBound
 FootholdFinalStanceConstraint::GetBounds () const
 {
   int n_constraints = final_free_contacts_.size() * kDim2d;
