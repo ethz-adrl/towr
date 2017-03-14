@@ -20,10 +20,17 @@ EEMotion::~EEMotion ()
   // TODO Auto-generated destructor stub
 }
 
+// zmp_ have a temporal dependency here on AddStace/Swing phase, maybe save all
+// in vector first and then generate splines?
 void
 EEMotion::SetInitialPos (const Vector3d& pos)
 {
-  contacts_.push_front(pos);
+  // zmp_ then also don't clear this
+  is_contact_phase_.clear();
+  contacts_.clear();
+  phase_motion_.clear();
+
+  contacts_.push_back(pos);
 }
 
 void

@@ -9,7 +9,7 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_MOTION_H_
 
 #include <xpp/opt/ee_swing_motion.h>
-#include <deque>
+#include <vector>
 
 namespace xpp {
 namespace opt {
@@ -32,7 +32,7 @@ private:
   int GetPhase(double t_global) const;
   void AddPhase(double t, const Vector3d& goal, double lift_height = 0.03);
 
-  std::deque<Vector3d> contacts_;
+  std::vector<Vector3d> contacts_;
   std::vector<bool> is_contact_phase_;
   std::vector<EESwingMotion> phase_motion_;
 };

@@ -12,7 +12,6 @@ namespace xpp {
 namespace opt {
 
 WBTrajGenerator::WBTrajGenerator()
-    :ee_spliner_(0)
 {
   leg_lift_height_ = 0.0;
 }
@@ -29,7 +28,6 @@ WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
 {
   // get endeffector size from current node
   kNEE = curr_state.GetEECount();
-  ee_spliner_ = EESpliner(kNEE);
   leg_lift_height_ = lift_height;
   com_motion_ = com_spline;
   offset_geom_to_com_ = com_offset;
@@ -95,8 +93,7 @@ void WBTrajGenerator::CreateAllSplines()
   SplinerOri ori;
   ZPolynomial z_height;
 
-  for (auto& ee : ee_spliner_.GetEEsOrdered())
-    ee_spliner_.At(ee).SetInitialPos(nodes_.front().GetEEPos().At(ee));
+  ee_spliner_.SetInitialPos(nodes_.front().GetEEPos());
 
   for (int n=1; n<nodes_.size(); ++n) {
     SplineNode from = nodes_.at(n-1);
@@ -107,13 +104,13 @@ void WBTrajGenerator::CreateAllSplines()
     z_spliner_.push_back(z_height);
     ori_spliner_.push_back(ori);
 
-    for (auto& ee : ee_spliner_.GetEEsOrdered()) {
+    for (auto& ee : nodes_.front().GetEEPos().GetEEsOrdered()) {
 
       double t_local = to.GetTime() - from.GetTime();
       if (to.GetContactState().At(ee)) // endeffector in contact
-        ee_spliner_.At(ee).AddStancePhase(t_local);
+        ee_spliner_.GetMotion(ee).AddStancePhase(t_local);
       else
-        ee_spliner_.At(ee).AddSwingPhase(t_local, to.GetEEPos().At(ee));
+        ee_spliner_.GetMotion(ee).AddSwingPhase(t_local, to.GetEEPos().At(ee));
     }
   }
 
@@ -219,17 +216,6 @@ WBTrajGenerator::GetCurrOrientation(double t_global) const
   return ori;
 }
 
-WBTrajGenerator::FeetArray
-WBTrajGenerator::GetCurrEndeffectors (double t_global) const
-{
-  FeetArray feet(kNEE);
-
-  for (EEID ee : ee_spliner_.GetEEsOrdered())
-    feet.At(ee) = ee_spliner_.At(ee).GetState(t_global);
-
-  return feet;
-}
-
 WBTrajGenerator::ContactArray
 WBTrajGenerator::GetCurrContactState (double t_global) const
 {
@@ -281,7 +267,7 @@ WBTrajGenerator::GetRobotState (double t) const
 {
   SplineNode state(kNEE);
   state.SetBase(GetCurrentBase(t));
-  state.SetEEState(GetCurrEndeffectors(t));
+  state.SetEEState(ee_spliner_.GetEndeffectors(t));
   state.SetContactState(GetCurrContactState(t));
   state.SetPercentPhase(GetPercentOfPhase(t));
   state.SetTime(t_start_ + t); // keep track of global time

@@ -13,10 +13,7 @@
 namespace xpp {
 namespace opt {
 
-static const int num_endeffectors = 4; // just for first state
-
 MotionOptimizerFacade::MotionOptimizerFacade ()
-    :start_geom_(num_endeffectors)
 {
 }
 

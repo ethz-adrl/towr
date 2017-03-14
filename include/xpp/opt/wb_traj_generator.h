@@ -12,7 +12,7 @@
 #include "motion_phase.h"
 #include "polynomial_xd.h"
 #include "com_polynomial_helpers.h"
-#include "ee_motion.h"
+#include "endeffectors_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -40,7 +40,6 @@ public:
   using FeetArray      = typename SplineNode::FeetArray;
   using ContactArray   = typename SplineNode::ContactState;
   using ArtiRobVec     = std::vector<SplineNode>;
-  using EESpliner      = Endeffectors<EEMotion>;
   using EEID           = EndeffectorID;
 
 public:
@@ -65,7 +64,7 @@ private:
   std::vector<SplineNode> nodes_;
   std::vector<ZPolynomial> z_spliner_;
   std::vector<SplinerOri> ori_spliner_;
-  EESpliner ee_spliner_;
+  EndeffectorsMotion ee_spliner_;
   ComMotionS com_motion_;
 
   double leg_lift_height_;  ///< how high to lift the leg
@@ -77,7 +76,6 @@ private:
   StateLin3d GetCurrPosition(double t_global) const;
   StateAng3d GetCurrOrientation(double t_global) const;
   State3d GetCurrentBase(double t_global) const;
-  FeetArray GetCurrEndeffectors(double t_global) const;
   ContactArray GetCurrContactState(double t_gloal) const;
 
   void FillZState(double t_global, StateLin3d& pos) const;
