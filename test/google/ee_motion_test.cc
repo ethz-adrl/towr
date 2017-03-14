@@ -15,22 +15,15 @@ namespace opt {
 
 TEST(EEMotionTest, GetState) {
 
-
-  EEMotion::Timings timings;
-  timings.push_back({0.1, 0.3}); // stance, swing
-  timings.push_back({0.1, 0.3}); // stance, swing
-
-  EEMotion::Contacts contacts;
-  contacts.push_back(Vector3d(0.0, 0.0, 0.0));
-  contacts.push_back(Vector3d(0.5, 0.0, 0.0));
-  contacts.push_back(Vector3d(0.6, 0.0, 0.0));
-
   EEMotion motion;
-  motion.SetParameters(timings, contacts);
-
+  motion.SetInitialPos(Vector3d(0.0, 0.0, 0.0));
+  motion.AddStancePhase(0.1);
+  motion.AddSwingPhase(0.3, Vector3d(0.5, 0.0, 0.0));
+  motion.AddStancePhase(0.3);
+  motion.AddSwingPhase(0.6, Vector3d(0.3, 0.0, 0.0));
 
   double t = 0.0;
-  while (t < 0.8) {
+  while (t < 1.3) {
     std::cout << std::setprecision(2) << std::fixed;
     std::cout << motion.GetState(t) << std::endl;
     std::cout << motion.IsInContact(t) << std::endl;

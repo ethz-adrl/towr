@@ -9,6 +9,7 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_MOTION_H_
 
 #include <xpp/opt/ee_swing_motion.h>
+#include <deque>
 
 namespace xpp {
 namespace opt {
@@ -17,26 +18,26 @@ namespace opt {
   */
 class EEMotion {
 public:
-  struct Tlocal { double stance; double swing; };
-
-  using Timings  = std::vector<Tlocal>;
-  using Contacts = std::vector<Vector3d>;
+  using Contacts = std::deque<Vector3d>;
 
 public:
   EEMotion ();
   virtual ~EEMotion ();
 
+  void SetInitialPos(const Vector3d& pos);
+  void AddStancePhase(double t);
+  void AddSwingPhase(double t, const Vector3d& goal);
+
   StateLin3d GetState(double t_global) const;
   bool IsInContact(double t_global) const;
 
-  void SetParameters(const Timings&, const Contacts&);
-
 private:
+  int GetPhase(double t_global) const;
+  void AddPhase(double t, const Vector3d& goal, double lift_height = 0.03);
 
-  // these are the parameters that fully describe the motion
-  Timings timings_;
   Contacts contacts_;
-  std::vector<EESwingMotion> swing_motions_;
+  std::vector<bool> is_contact_phase_;
+  std::vector<EESwingMotion> phase_motion_;
 };
 
 } /* namespace opt */

@@ -20,57 +20,63 @@ EEMotion::~EEMotion ()
   // TODO Auto-generated destructor stub
 }
 
+void
+EEMotion::SetInitialPos (const Vector3d& pos)
+{
+  contacts_.push_front(pos);
+}
+
+void
+EEMotion::AddStancePhase (double t)
+{
+  AddPhase(t, contacts_.back(), 0.0); // stay at same position and don't lift leg
+  is_contact_phase_.push_back(true);
+}
+
+void
+EEMotion::AddSwingPhase (double t, const Vector3d& goal)
+{
+  AddPhase(t, goal);
+  contacts_.push_back(goal);
+  is_contact_phase_.push_back(false);
+}
+
 StateLin3d
 EEMotion::GetState (double t_global) const
 {
-  // zmp_ continue here, DRY with function below, find smart way to do this
-  double t = 0;
-  for (int i=0; i<contacts_.size(); ++i) {
+  int phase = GetPhase(t_global);
+  double t_local = t_global;
+  for (int i=0; i<phase; ++i)
+    t_local -= phase_motion_.at(i).GetDuration();
 
-    t += timings_.at(i).stance;
-    if (t >= t_global)
-      return StateLin3d(contacts_.at(i));
-
-    double t_local = t_global - t;
-    t += timings_.at(i).swing;
-    if (t >= t_global) {
-      return swing_motions_.at(i).GetState(t_local);
-    }
-  }
+  return phase_motion_.at(phase).GetState(t_local);
 }
 
 bool
 EEMotion::IsInContact (double t_global) const
 {
-  double t = 0;
-  for (Tlocal t_local : timings_) {
+  return is_contact_phase_.at(GetPhase(t_global));
+}
 
-    t += t_local.stance;
+int
+EEMotion::GetPhase (double t_global) const
+{
+  double t = 0.0;
+  for (int i=0; i<phase_motion_.size(); ++i) {
+    t += phase_motion_.at(i).GetDuration();
     if (t >= t_global)
-      return true;
-
-    t += t_local.swing;
-    if (t >= t_global)
-      return false;
+      return i;
   }
 }
 
 void
-EEMotion::SetParameters (const Timings& timings, const Contacts& contacts)
+EEMotion::AddPhase (double t, const Vector3d& goal, double lift_height)
 {
-  contacts_ = contacts;
-  timings_ = timings;
-
-  for (int i=0; i<contacts.size()-1; ++i) {
-    Vector3d contact = contacts.at(i);
-    Tlocal   t_local = timings.at(i);
-
-    EESwingMotion swing_motion;
-    swing_motion.SetDuration(timings.at(i).swing);
-    swing_motion.SetContacts(contacts.at(i), contacts.at(i+1));
-
-    swing_motions_.push_back(swing_motion);
-  }
+  EESwingMotion swing_motion;
+  swing_motion.SetDuration(t);
+  swing_motion.lift_height_ = lift_height;
+  swing_motion.SetContacts(contacts_.back(), goal);
+  phase_motion_.push_back(swing_motion);
 }
 
 } /* namespace opt */

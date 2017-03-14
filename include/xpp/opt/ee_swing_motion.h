@@ -35,6 +35,9 @@ public:
 
   StateLin3d GetState(double t_local) const;
 
+  double GetDuration() const;
+
+  double lift_height_ = 0.03; // only proportional to actual lift height
 private:
   PolyZ poly_z_;
   PolyXY poly_xy_;

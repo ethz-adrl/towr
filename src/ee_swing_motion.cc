@@ -78,7 +78,7 @@ EESwingMotion::SetContacts (const Vector3d& start_pos, const Vector3d& end_pos)
 
 
   // zmp_ clean this up
-  double h = 0.03; //m
+  double h = lift_height_; //m
   int n=6; // match height h at 1/9*t_step and 8/9*step
   double t_step = duration_;
   double z_start = start_pos.z();
@@ -128,5 +128,12 @@ EESwingMotion::GetState (double t_local) const
   return ee;
 }
 
+double
+EESwingMotion::GetDuration () const
+{
+  return duration_;
+}
+
 } /* namespace opt */
 } /* namespace xpp */
+
