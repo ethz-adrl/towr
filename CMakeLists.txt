@@ -34,7 +34,7 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11") 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
 
-set(LIB_NAME xpp_opt)
+set(MOTION_OPT_LIB xpp_opt)
 
 # Generate added messages with any dependencies listed here
 #add_message_files(
@@ -65,7 +65,7 @@ set(LIB_NAME xpp_opt)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES ${LIB_NAME} ${IPOPT_LIBRARIES}
+  LIBRARIES ${MOTION_OPT_LIB} ${IPOPT_LIBRARIES}
   CATKIN_DEPENDS
   DEPENDS
 )
@@ -103,26 +103,28 @@ target_link_libraries(${SOLVER_LIB}
 )
 
 # the specific motion optimization problem for legged robots
-add_library(${LIB_NAME}
+add_library(${MOTION_OPT_LIB}
   src/ellipse.cc
   src/zero_moment_point.cc
   src/linear_inverted_pendulum.cc
-  src/motion_structure.cc
-  src/motion_phase.cc
-  src/ee_polynomial.cc
   src/line_equation.cc
-  src/polynomial.cc
-  src/polynomial_fifth_order.cc
-  src/polynomial_helpers.cc
   src/motion_optimizer_facade.cc
   src/nlp_facade.cc
+  src/polynomial.cc
+  src/polynomial_fifth_order.cc
   # com
+  src/com_polynomial_helpers.cc
   src/com_motion.cc
   src/com_spline.cc
   src/com_spline6.cc    
   src/com_spline4.cc
   src/motion_factory.cc
   src/linear_spline_equations.cc
+  # endeffector
+  src/motion_structure.cc
+  src/motion_phase.cc
+  src/ee_swing_motion.cc
+  src/ee_motion.cc
   # constraints and costs
   src/cost_constraint_factory.cc
   src/linear_spline_equality_constraint.cc
@@ -139,7 +141,7 @@ add_library(${LIB_NAME}
   src/motion_parameters.cc
   src/quadruped_motion_parameters.cc
 )   
-target_link_libraries(${LIB_NAME}
+target_link_libraries(${MOTION_OPT_LIB}
   ${catkin_LIBRARIES}
   ${SOLVER_LIB}
 )
@@ -198,14 +200,15 @@ if(BUILD_TESTS)
 #                        test/google/ipopt_test.cc
 #                        # general
 #                        test/google/sparse_matrix_test.cc
-                         test/google/ee_polynomial_test.cc
+                         test/google/ee_swing_motion_test.cc
+                         test/google/ee_motion_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})
     
     target_link_libraries(googleTest 
                           ${SOLVER_LIB}
-                          ${LIB_NAME}
+                          ${MOTION_OPT_LIB}
                           ${GTEST_LIBRARIES}
                           pthread
                           )

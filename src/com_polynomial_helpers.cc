@@ -1,12 +1,11 @@
 /**
-@file   com_polynomial.cc
+@file   com_polynomial_helpers.cc
 @author Alexander Winkler (winklera@ethz.ch)
 @date   Oct 21,  2015
 @brief  Defines CoeffValues, PolynomialFifthOrder and ComPolynomial
  */
 
-#include <iostream>
-#include <xpp/opt/polynomial_helpers.h>
+#include <xpp/opt/com_polynomial_helpers.h>
 
 namespace xpp {
 namespace opt {

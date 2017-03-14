@@ -10,11 +10,11 @@
 
 #include "com_motion.h"
 #include "motion_phase.h"
-#include "ee_polynomial.h"
-#include "polynomial_helpers.h"
 #include "polynomial_xd.h"
 
 #include <xpp/robot_state_cartesian.h>
+#include "com_polynomial_helpers.h"
+#include "ee_swing_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -35,7 +35,7 @@ public:
   using Vector3d      = Eigen::Vector3d;
   using VecFoothold   = std::vector<Contact>;
   using SplinerOri    = PolynomialXd< CubicPolynomial, StateLin3d>;
-  using SplinerFeet   = EEPolynomial;
+  using SplinerFeet   = EESwingMotion;
   using ZPolynomial   = LinearPolynomial;
   using PhaseVec      = std::vector<MotionPhase>;
 

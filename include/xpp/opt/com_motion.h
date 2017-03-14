@@ -20,7 +20,7 @@ namespace opt {
 /** Abstracts the Center of Mass (CoM) motion of any system.
   *
   * This class is responsible for providing a common interface to represent
-  * the motion of a system. Specific implementation can for example use
+  * the motion of a system. Specific parametrizations can for example use
   * splines or solutions of the Equation of Motion as representation.
   */
 class ComMotion {

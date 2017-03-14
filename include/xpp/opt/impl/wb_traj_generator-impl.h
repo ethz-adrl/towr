@@ -131,8 +131,8 @@ WBTrajGenerator::BuildPhase(const SplineNode& from, const SplineNode& to,
 
   for (EEID ee : from.GetEndeffectors()) {
     feet.At(ee).SetDuration(t_phase);
-    feet.At(ee).SetXYParams(from.GetEEState().At(ee).Get2D(), to.GetEEState().At(ee).Get2D());
-    feet.At(ee).SetZParams(from.GetPercentPhase(), leg_lift_height_);
+    feet.At(ee).SetContacts(from.GetEEState().At(ee).p, to.GetEEState().At(ee).p);
+//    feet.At(ee).SetZParams(from.GetPercentPhase(), leg_lift_height_); // zmp_ remove
   }
 }
 
