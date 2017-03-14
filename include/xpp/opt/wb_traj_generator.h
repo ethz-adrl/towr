@@ -11,10 +11,8 @@
 #include "com_motion.h"
 #include "motion_phase.h"
 #include "polynomial_xd.h"
-
-#include <xpp/robot_state_cartesian.h>
 #include "com_polynomial_helpers.h"
-#include "ee_swing_motion.h"
+#include "ee_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -35,7 +33,6 @@ public:
   using Vector3d      = Eigen::Vector3d;
   using VecFoothold   = std::vector<Contact>;
   using SplinerOri    = PolynomialXd< CubicPolynomial, StateLin3d>;
-  using SplinerFeet   = EESwingMotion;
   using ZPolynomial   = LinearPolynomial;
   using PhaseVec      = std::vector<MotionPhase>;
 
@@ -43,9 +40,7 @@ public:
   using FeetArray      = typename SplineNode::FeetArray;
   using ContactArray   = typename SplineNode::ContactState;
   using ArtiRobVec     = std::vector<SplineNode>;
-  using EESplinerArray = Endeffectors<SplinerFeet>;
-  using EESpliner      = Endeffectors<std::vector<SplinerFeet>>;
-  using EESplinerPtr   = std::shared_ptr<EESpliner>;
+  using EESpliner      = Endeffectors<EEMotion>;
   using EEID           = EndeffectorID;
 
 public:
@@ -70,7 +65,7 @@ private:
   std::vector<SplineNode> nodes_;
   std::vector<ZPolynomial> z_spliner_;
   std::vector<SplinerOri> ori_spliner_;
-  EESplinerPtr ee_spliner_;
+  EESpliner ee_spliner_;
   ComMotionS com_motion_;
 
   double leg_lift_height_;  ///< how high to lift the leg
@@ -89,8 +84,7 @@ private:
 
   void BuildPhase(const SplineNode& from, const SplineNode& to,
                        ZPolynomial& z_poly,
-                       SplinerOri& ori,
-                       EESplinerArray& feet) const;
+                       SplinerOri& ori) const;
 
   static Vector3d TransformQuatToRpy(const Eigen::Quaterniond& q);
   int GetPhaseID(double t_global) const;

@@ -18,7 +18,7 @@ TEST(EEMotionTest, GetState) {
   EEMotion motion;
   motion.SetInitialPos(Vector3d(0.0, 0.0, 0.0));
   motion.AddStancePhase(0.1);
-  motion.AddSwingPhase(0.3, Vector3d(0.5, 0.0, 0.0));
+  motion.AddSwingPhase(0.3, Vector3d(0.5, 0.0, 0.4));
   motion.AddStancePhase(0.3);
   motion.AddSwingPhase(0.6, Vector3d(0.3, 0.0, 0.0));
 

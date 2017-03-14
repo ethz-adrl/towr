@@ -18,9 +18,6 @@ namespace opt {
   */
 class EEMotion {
 public:
-  using Contacts = std::deque<Vector3d>;
-
-public:
   EEMotion ();
   virtual ~EEMotion ();
 
@@ -35,7 +32,7 @@ private:
   int GetPhase(double t_global) const;
   void AddPhase(double t, const Vector3d& goal, double lift_height = 0.03);
 
-  Contacts contacts_;
+  std::deque<Vector3d> contacts_;
   std::vector<bool> is_contact_phase_;
   std::vector<EESwingMotion> phase_motion_;
 };

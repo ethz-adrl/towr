@@ -12,6 +12,7 @@ namespace xpp {
 namespace opt {
 
 WBTrajGenerator::WBTrajGenerator()
+    :ee_spliner_(0)
 {
   leg_lift_height_ = 0.0;
 }
@@ -28,7 +29,7 @@ WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
 {
   // get endeffector size from current node
   kNEE = curr_state.GetEECount();
-  ee_spliner_ = std::make_shared<EESpliner>(kNEE);
+  ee_spliner_ = EESpliner(kNEE);
   leg_lift_height_ = lift_height;
   com_motion_ = com_spline;
   offset_geom_to_com_ = com_offset;
@@ -90,35 +91,38 @@ void WBTrajGenerator::CreateAllSplines()
 {
   z_spliner_.clear();
   ori_spliner_.clear();
-//  ee_spliner->clear();
 
   SplinerOri ori;
   ZPolynomial z_height;
-  EESplinerArray feet(kNEE);
+
+  for (auto& ee : ee_spliner_.GetEEsOrdered())
+    ee_spliner_.At(ee).SetInitialPos(nodes_.front().GetEEPos().At(ee));
 
   for (int n=1; n<nodes_.size(); ++n) {
     SplineNode from = nodes_.at(n-1);
     SplineNode to   = nodes_.at(n);
 
-    BuildPhase(from, to, z_height, ori, feet);
+    BuildPhase(from, to, z_height, ori);
 
     z_spliner_.push_back(z_height);
     ori_spliner_.push_back(ori);
 
-    for (auto& ee : ee_spliner_->GetEEsOrdered()) {
-      ee_spliner_->At(ee).push_back(feet.At(ee));
-    }
-//    ee_spliner->push_back(feet);
-  }
+    for (auto& ee : ee_spliner_.GetEEsOrdered()) {
 
+      double t_local = to.GetTime() - from.GetTime();
+      if (to.GetContactState().At(ee)) // endeffector in contact
+        ee_spliner_.At(ee).AddStancePhase(t_local);
+      else
+        ee_spliner_.At(ee).AddSwingPhase(t_local, to.GetEEPos().At(ee));
+    }
+  }
 
 }
 
 void
 WBTrajGenerator::BuildPhase(const SplineNode& from, const SplineNode& to,
                                  ZPolynomial& z_poly,
-                                 SplinerOri& ori,
-                                 EESplinerArray& feet) const
+                                 SplinerOri& ori) const
 {
   double t_phase = to.GetTime() - from.GetTime();
   z_poly.SetBoundary(t_phase, from.GetBase().lin.Get1d(Z), to.GetBase().lin.Get1d(Z));
@@ -127,13 +131,6 @@ WBTrajGenerator::BuildPhase(const SplineNode& from, const SplineNode& to,
   rpy_from.p = TransformQuatToRpy(from.GetBase().ang.q);
   rpy_to.p   = TransformQuatToRpy(to.GetBase().ang.q);
   ori.SetBoundary(t_phase, rpy_from, rpy_to);
-
-
-  for (EEID ee : from.GetEndeffectors()) {
-    feet.At(ee).SetDuration(t_phase);
-    feet.At(ee).SetContacts(from.GetEEState().At(ee).p, to.GetEEState().At(ee).p);
-//    feet.At(ee).SetZParams(from.GetPercentPhase(), leg_lift_height_); // zmp_ remove
-  }
 }
 
 Eigen::Vector3d
@@ -225,18 +222,10 @@ WBTrajGenerator::GetCurrOrientation(double t_global) const
 WBTrajGenerator::FeetArray
 WBTrajGenerator::GetCurrEndeffectors (double t_global) const
 {
-  double t_local = GetLocalPhaseTime(t_global);
-  int  spline    = GetPhaseID(t_global);
-  int  goal_node = spline+1;
+  FeetArray feet(kNEE);
 
-  FeetArray feet = nodes_.at(goal_node).GetEEState();
-
-  auto ee_in_contact = GetCurrContactState(t_global);
-  for (EEID ee : ee_spliner_->GetEEsOrdered()) {
-    if (!ee_in_contact.At(ee)) {// only lift swinglegs
-      feet.At(ee) = ee_spliner_->At(ee).at(spline).GetState(t_local);
-    }
-  }
+  for (EEID ee : ee_spliner_.GetEEsOrdered())
+    feet.At(ee) = ee_spliner_.At(ee).GetState(t_global);
 
   return feet;
 }
