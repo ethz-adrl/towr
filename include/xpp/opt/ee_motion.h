@@ -18,6 +18,8 @@ namespace opt {
   */
 class EEMotion {
 public:
+  using ContactPositions = std::vector<Vector3d>;
+
   EEMotion ();
   virtual ~EEMotion ();
 
@@ -25,14 +27,23 @@ public:
   void AddStancePhase(double t);
   void AddSwingPhase(double t, const Vector3d& goal);
 
+
+  void SetContactPosition(int foothold_of_leg, const Vector3d& pos);
+
+
   StateLin3d GetState(double t_global) const;
   bool IsInContact(double t_global) const;
+
+  /** Those not fixed by the start stance
+    */
+  ContactPositions GetFreeContactPositions() const;
+
 
 private:
   int GetPhase(double t_global) const;
   void AddPhase(double t, const Vector3d& goal, double lift_height = 0.03);
 
-  std::vector<Vector3d> contacts_;
+  ContactPositions contacts_;
   std::vector<bool> is_contact_phase_;
   std::vector<EESwingMotion> phase_motion_;
 };

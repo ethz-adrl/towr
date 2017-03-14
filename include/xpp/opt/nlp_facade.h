@@ -20,6 +20,7 @@ class OptimizationVariables;
 class CostContainer;
 class ConstraintContainer;
 class ComMotion;
+class EndeffectorsMotion;
 class MotionStructure;
 class NLP;
 
@@ -38,6 +39,7 @@ public:
   using ConstraintContainerPtr   = std::shared_ptr<ConstraintContainer>;
   using MotionparamsPtr          = std::shared_ptr<MotionParameters>;
   using ComMotionPtrS            = std::shared_ptr<ComMotion>;
+  using EEMotionPtrS             = std::shared_ptr<EndeffectorsMotion>;
   using NLPPtr                   = std::shared_ptr<NLP>;
   using ContactVec               = std::vector<Contact>;
 
@@ -56,12 +58,13 @@ public:
     */
   void BuildNlp(const StateLin2d& initial_state,
                 const StateLin2d& final_state,
+                EEMotionPtrS& ee_motion,
                 const MotionStructure&,
                 const MotionparamsPtr&);
 
   void SolveNlp(NlpSolver solver);
 
-  ContactVec GetContacts();
+//  ContactVec GetContacts();
   const ComMotionPtrS GetComMotion() const;
 
 private:
@@ -74,7 +77,8 @@ private:
   ConstraintContainerPtr constraints_;
 
   ComMotionPtrS com_motion_;
-  ContactVec contacts_;
+  EEMotionPtrS ee_motion_;
+//  ContactVec contacts_;
 };
 
 } /* namespace opt */

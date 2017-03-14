@@ -105,7 +105,7 @@ Walk::Walk()
 
 Trott::Trott()
 {
-  opt_horizon_in_phases_ = 2*5;//2*2;
+  opt_horizon_in_phases_ = 2*2;
   max_dev_xy_ = {0.15, 0.15};
 //  lambda_deviation_percent_ = 0.6;
   id_ = opt::TrottID;

@@ -38,6 +38,7 @@ NlpFacade::~NlpFacade ()
 void
 NlpFacade::BuildNlp(const StateLin2d& initial_state,
                     const StateLin2d& final_state,
+                    EEMotionPtrS& ee_motion,
                     const MotionStructure& motion_structure,
                     const MotionparamsPtr& motion_params)
 {
@@ -46,12 +47,16 @@ NlpFacade::BuildNlp(const StateLin2d& initial_state,
                                                motion_params->polynomials_per_second_,
                                                com_height);
 
+  ee_motion_ = ee_motion;
+
   CostConstraintFactory factory;
-  factory.Init(com_motion_, motion_structure, motion_params, initial_state, final_state);
+  factory.Init(com_motion_,
+               ee_motion,
+               motion_structure, motion_params, initial_state, final_state);
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(factory.SplineCoeffVariables());
-  opt_variables_->AddVariableSet(factory.ContactVariables(initial_state.p, contacts_));
+  opt_variables_->AddVariableSet(factory.ContactVariables(initial_state.p));
   opt_variables_->AddVariableSet(factory.ConvexityVariables());
   opt_variables_->AddVariableSet(factory.CopVariables());
 
@@ -67,6 +72,7 @@ NlpFacade::BuildNlp(const StateLin2d& initial_state,
     double weight = pair.second;
     costs_->AddCost(factory.GetCost(name), weight);
   }
+
 
 //  int n_nodes = motion_structure.GetPhaseStampedVec().size();
 //  int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();
@@ -89,6 +95,11 @@ NlpFacade::SolveNlp (NlpSolver solver)
     default:
       throw std::runtime_error("solver not implemented");
   }
+
+
+  // zmp_ have this only until ee_motion fully integrated
+  Eigen::VectorXd xy = opt_variables_->GetVariables(VariableNames::kFootholds);
+  ee_motion_->SetOptimizationParameters(xy);
 }
 
 void
@@ -141,21 +152,22 @@ NlpFacade::SolveIpopt ()
   }
 }
 
-NlpFacade::ContactVec
-NlpFacade::GetContacts ()
-{
-  Eigen::VectorXd xy = opt_variables_->GetVariables(VariableNames::kFootholds);
+//NlpFacade::ContactVec
+//NlpFacade::GetContacts ()
+//{
+//  Eigen::VectorXd xy = opt_variables_->GetVariables(VariableNames::kFootholds);
+//
+//  int k=0;
+//  for (int i=0; i<contacts_.size(); ++i) {
+//    contacts_.at(i).p.x() = xy(k++);
+//    contacts_.at(i).p.y() = xy(k++);
+//    contacts_.at(i).p.z() = 0.0;
+//  }
+//
+//  return contacts_;
+//}
 
-  int k=0;
-  for (int i=0; i<contacts_.size(); ++i) {
-    contacts_.at(i).p.x() = xy(k++);
-    contacts_.at(i).p.y() = xy(k++);
-    contacts_.at(i).p.z() = 0.0;
-  }
-
-  return contacts_;
-}
-
+// zmp_ also pass this in just like endeffector to remove this function
 const NlpFacade::ComMotionPtrS
 NlpFacade::GetComMotion() const
 {

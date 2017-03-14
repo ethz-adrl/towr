@@ -11,15 +11,21 @@
 #include <xpp/opt/ee_motion.h>
 #include <xpp/state.h>
 #include <xpp/endeffectors.h>
+#include <xpp/contact.h>
 
 namespace xpp {
 namespace opt {
 
-/** Represents the motion of all the endeffectors (feet, hands) of a system
+/** Represents the motion of all the endeffectors (feet, hands) of a system.
+  *
+  * This class is responsible for transforming the scalar parameters into
+  * the position, velocity and acceleration of the endeffectors.
   */
 class EndeffectorsMotion {
 public:
-  using EEState = Endeffectors<StateLin3d>;
+  using EEState  = Endeffectors<StateLin3d>;
+  using VectorXd = Eigen::VectorXd;
+  using Contacts = std::vector<Contact>;
 
   EndeffectorsMotion ();
   virtual ~EndeffectorsMotion ();
@@ -33,7 +39,23 @@ public:
 
   EEState GetEndeffectors(double t_global) const;
 
-  // something about contact state, see how most used
+
+  Contacts GetAllFreeContacts() const;
+
+  // zmp_ shouldn't be here, later generate these motions dynamically
+  void Set2StepTrott();
+
+  void SetContactPositions(const Contacts& contact);
+
+
+
+  // the ones actually determined by the NLP
+  // so far only x-y position of contacts, but contact state and timings
+  // can be added.
+  VectorXd GetOptimizationParameters() const;
+  void SetOptimizationParameters(const VectorXd&);
+  // zmp_ something about contact state, see how most used
+
 
 private:
   Endeffectors<EEMotion> endeffectors_;

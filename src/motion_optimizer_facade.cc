@@ -10,6 +10,8 @@
 #include <xpp/opt/motion_structure.h>
 #include <xpp/opt/wb_traj_generator.h>
 
+#include <xpp/opt/endeffectors_motion.h>
+
 namespace xpp {
 namespace opt {
 
@@ -52,8 +54,27 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 
   auto goal_com = goal_geom_;
   goal_com.p += motion_type_->offset_geom_to_com_;
+
+
+  // initialize the ee_motion with the fixed parameters
+  ee_motion_ = std::make_shared<EndeffectorsMotion>();
+  ee_motion_->SetInitialPos(start_geom_.GetEEPos());
+  // zmp_ maybe start by just taking two trott 4 steps and hardcode
+  ee_motion_->Set2StepTrott();
+
+
+
+
+
+
+
+
+
+
+
   nlp_facade_.BuildNlp(start_geom_.GetBase().lin.Get2D(),
                        goal_com.Get2D(),
+                       ee_motion_,
                        motion_structure,
                        motion_type_);
 
@@ -63,10 +84,12 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 MotionOptimizerFacade::RobotStateVec
 MotionOptimizerFacade::GetTrajectory (double dt)
 {
+  // zmp_ this should implicitly be in the com and endeffector motion
+  // so remove entire class
   WBTrajGenerator wb_traj_generator;
   wb_traj_generator.Init(motion_phases_,
                          nlp_facade_.GetComMotion(),
-                         nlp_facade_.GetContacts(),
+                         ee_motion_->GetAllFreeContacts(),
                          start_geom_,
                          motion_type_->lift_height_,
                          motion_type_->offset_geom_to_com_);
@@ -87,11 +110,11 @@ MotionOptimizerFacade::BuildOptimizationStartState (const RobotStateCartesian& c
   start_geom_.SetEEState(feet_zero_z_W);
 }
 
-MotionOptimizerFacade::ContactVec
-MotionOptimizerFacade::GetContactVec ()
-{
-  return nlp_facade_.GetContacts();
-}
+//MotionOptimizerFacade::ContactVec
+//MotionOptimizerFacade::GetContactVec ()
+//{
+//  return nlp_facade_.GetContacts();
+//}
 
 void
 MotionOptimizerFacade::SetMotionType (const MotionTypePtr& motion_type)

@@ -10,6 +10,8 @@
 
 #include "motion_structure.h"
 #include "com_motion.h"
+#include "endeffectors_motion.h"
+
 #include "motion_parameters.h"
 
 #include <xpp/state.h>
@@ -36,17 +38,18 @@ public:
   using Vector2d      = Eigen::Vector2d;
   using MotionTypePtr = std::shared_ptr<MotionParameters>;
   using ComMotionPtr  = std::shared_ptr<ComMotion>;
+  using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
 
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();
 
-  void Init(const ComMotionPtr&, const MotionStructure&,
+  void Init(const ComMotionPtr&, const EEMotionPtr&, const MotionStructure&,
             const MotionTypePtr& params, const StateLin2d& initial_state,
             const StateLin2d& final_state);
 
   // optimization variables with initial values
   VariableSet SplineCoeffVariables() const;
-  VariableSet ContactVariables(const Vector2d initial_pos, std::vector<Contact>&) const;
+  VariableSet ContactVariables(const Vector2d initial_pos) const;
   VariableSet ConvexityVariables() const;
   VariableSet CopVariables() const;
 
@@ -56,7 +59,10 @@ public:
 private:
   MotionStructure motion_structure;
   MotionTypePtr params;
+
   ComMotionPtr com_motion;
+  EEMotionPtr ee_motion;
+
   StateLin2d initial_geom_state_;
   StateLin2d final_geom_state_;
 

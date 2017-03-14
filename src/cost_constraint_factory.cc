@@ -34,11 +34,15 @@ CostConstraintFactory::~CostConstraintFactory ()
 }
 
 void
-CostConstraintFactory::Init (const ComMotionPtr& com, const MotionStructure& ms,
+CostConstraintFactory::Init (const ComMotionPtr& com,
+                             const EEMotionPtr& endeffectors,
+                             const MotionStructure& ms,
                              const MotionTypePtr& _params, const StateLin2d& initial_state,
                              const StateLin2d& final_state)
 {
   com_motion = com;
+  ee_motion = endeffectors;
+
   motion_structure = ms;
   params = _params;
   initial_geom_state_ = initial_state;
@@ -82,10 +86,10 @@ CostConstraintFactory::SplineCoeffVariables () const
 }
 
 VariableSet
-CostConstraintFactory::ContactVariables (const Vector2d initial_pos,
-                                         std::vector<Contact>& contacts) const
+CostConstraintFactory::ContactVariables (const Vector2d initial_pos) const
 {
-  contacts.clear();
+//  contacts.clear();
+  auto contacts = ee_motion->GetAllFreeContacts();
 
   // contact locations (x,y) of each step
   StdVecEigen2d footholds_W;

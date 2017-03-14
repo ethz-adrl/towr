@@ -86,5 +86,19 @@ EEMotion::AddPhase (double t, const Vector3d& goal, double lift_height)
   phase_motion_.push_back(swing_motion);
 }
 
+EEMotion::ContactPositions
+EEMotion::GetFreeContactPositions () const
+{
+  // return all but first contact fixed by the start stance
+  return ContactPositions(contacts_.begin()+1, contacts_.end());
+}
+
+void
+EEMotion::SetContactPosition (int foothold_of_leg, const Vector3d& pos)
+{
+  contacts_.at(foothold_of_leg) = pos;
+}
+
 } /* namespace opt */
 } /* namespace xpp */
+

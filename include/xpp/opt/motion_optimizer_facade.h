@@ -12,6 +12,7 @@
 #include <xpp/opt/nlp_facade.h>
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/opt/motion_parameters.h>
+#include <xpp/opt/endeffectors_motion.h>
 
 namespace xpp {
 namespace opt {
@@ -20,6 +21,7 @@ namespace opt {
   *
   * This is ROS independent.
   */
+// zmp_ possibly merge with NLP facade
 class MotionOptimizerFacade {
 public:
   using RobotStateVec = std::vector<RobotStateCartesian>;
@@ -27,22 +29,24 @@ public:
   using PhaseVec      = std::vector<MotionPhase>;
   using ContactVec    = NlpFacade::ContactVec;
 
+  using EEMotionPtrS = std::shared_ptr<EndeffectorsMotion>;
+
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
 
   void OptimizeMotion(NlpSolver solver);
   RobotStateVec GetTrajectory(double dt);
-  ContactVec GetContactVec();
+//  ContactVec GetContactVec(); // zmp_ remove this and in source
 
   void BuildOptimizationStartState(const RobotStateCartesian& curr_geom);
 
   RobotStateCartesian start_geom_;
   StateLin3d goal_geom_;
+  EEMotionPtrS ee_motion_;
 
   void SetMotionType(const MotionTypePtr& motion_type);
 
 private:
-
   NlpFacade nlp_facade_;
   StepSequencePlanner step_sequence_planner_;
   MotionTypePtr motion_type_;
