@@ -134,19 +134,39 @@ MotionStructure::CalcPhaseStampedVec () const
   PhaseStampedVec info;
 
   double t_global = 0;
-  for (auto phase : phases_) {
+  for (int i=0; i<GetTotalTime()/dt_; ++i) {
+    MotionNode contact_info;
 
-    int nodes_in_phase = std::floor(phase.duration_/dt_);
 
-    for (int k=0; k<nodes_in_phase; ++k ) {
-      MotionNode contact_info;
-      contact_info = phase;
-      contact_info.time_  = t_global+k*dt_;
-      info.push_back(contact_info);
+    // get the current phase
+    double t = 0;
+    for (auto phase : phases_) {
+      t += phase.duration_;
+      if (t > t_global) {
+        contact_info = phase;
+        break;
+      }
     }
 
-    t_global += phase.duration_;
+    contact_info.time_  = t_global;
+    info.push_back(contact_info);
+    t_global += dt_;
   }
+
+
+//  for (auto phase : phases_) {
+//
+//    int nodes_in_phase = std::floor(phase.duration_/dt_);
+//
+//    for (int k=0; k<nodes_in_phase; ++k ) {
+//      MotionNode contact_info;
+//      contact_info = phase;
+//      contact_info.time_  = t_global+k*dt_;
+//      info.push_back(contact_info);
+//    }
+//
+//    t_global += phase.duration_;
+//  }
 
   return info;
 }

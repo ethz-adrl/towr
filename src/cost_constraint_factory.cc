@@ -88,22 +88,26 @@ CostConstraintFactory::SplineCoeffVariables () const
 VariableSet
 CostConstraintFactory::ContactVariables (const Vector2d initial_pos) const
 {
-//  contacts.clear();
-  auto contacts = ee_motion->GetAllFreeContacts();
+////  contacts.clear();
+//  auto contacts = ee_motion->GetAllFreeContacts();
+//
+//  // contact locations (x,y) of each step
+//  StdVecEigen2d footholds_W;
+//  for (auto ee : motion_structure.GetContactIds()) {
+//    Eigen::Vector2d nominal_B = params->GetNominalStanceInBase().at(ee);
+//    footholds_W.push_back(nominal_B + initial_pos); // express in world
+//
+//    ContactBase c;
+//    c.ee = ee;
+//    c.id = contacts.size();
+//    contacts.push_back(c);
+//  }
 
-  // contact locations (x,y) of each step
-  StdVecEigen2d footholds_W;
-  for (auto ee : motion_structure.GetContactIds()) {
-    Eigen::Vector2d nominal_B = params->GetNominalStanceInBase().at(ee);
-    footholds_W.push_back(nominal_B + initial_pos); // express in world
+  return VariableSet(ee_motion->GetOptimizationParameters(), VariableNames::kFootholds);
 
-    ContactBase c;
-    c.ee = ee;
-    c.id = contacts.size();
-    contacts.push_back(c);
-  }
 
-  return VariableSet(ConvertStdToEig(footholds_W), VariableNames::kFootholds);
+
+//  return VariableSet(ConvertStdToEig(footholds_W), VariableNames::kFootholds);
 }
 
 VariableSet
@@ -138,6 +142,7 @@ CostConstraintFactory::ConvexityVariables () const
 VariableSet
 CostConstraintFactory::CopVariables () const
 {
+  // zmp_ use parametrization class to represent this as well
   int n_nodes = motion_structure.GetPhaseStampedVec().size();
   Eigen::VectorXd cop(n_nodes*kDim2d);
   cop.setZero();
@@ -186,7 +191,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   auto constraint = std::make_shared<DynamicConstraint>();
-  constraint->Init(*com_motion, motion_structure);
+  constraint->Init(*com_motion, motion_structure.dt_);
   return constraint;
 }
 

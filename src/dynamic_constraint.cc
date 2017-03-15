@@ -27,12 +27,17 @@ DynamicConstraint::~DynamicConstraint ()
 }
 
 void
-DynamicConstraint::Init (const ComMotion& com_motion,
-                         const MotionStructure& motion_structure)
+DynamicConstraint::Init (const ComMotion& com_motion, double dt)
 {
   com_motion_ = com_motion.clone();
-  motion_structure_ = motion_structure;
   kHeight_ = com_motion.GetZHeight();
+
+  double t = 0;
+  dts_.clear();
+  for (int i=0; i<com_motion.GetTotalTime()/dt; ++i) {
+    dts_.push_back(t);
+    t += dt;
+  }
 }
 
 void
@@ -49,16 +54,18 @@ DynamicConstraint::EvaluateConstraint () const
   int m = cop_.size();
   Eigen::VectorXd g(m);
 
-  int k = 0;
-  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+//  int k = 0;
+//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+  for (int k=0; k<dts_.size(); ++k) {
 
-    auto com = com_motion_->GetCom(node.time_);
+    auto com = com_motion_->GetCom(dts_.at(k));
     model_.SetCurrent(com.p, com.v, kHeight_);
 
     // acceleration as predefined by physics
+    // zmp_ create class for CoP as well
     Vector2d acc_physics = model_.GetDerivative(cop_.middleRows<kDim2d>(kDim2d*k));
     g.middleRows<kDim2d>(kDim2d*k) = acc_physics - com.a;
-    k++;
+//    k++; //zmp_ clean up
   }
 
   return g;
@@ -82,9 +89,10 @@ DynamicConstraint::GetJacobianWrtCop () const
   Jacobian jac(m, cop_.rows());
 
   int row=0;
-  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+  for (double t : dts_) {
+//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
-    auto com = com_motion_->GetCom(node.time_);
+    auto com = com_motion_->GetCom(t);
     model_.SetCurrent(com.p, com.v, kHeight_);
 
     for (auto dim : {X, Y})
@@ -103,10 +111,11 @@ DynamicConstraint::GetJacobianWrtCom () const
   Jacobian jac(m, com_motion_->GetTotalFreeCoeff());
 
   int n=0;
-  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+  for (double t : dts_) {
 
-    double t = node.time_;
-    auto com = com_motion_->GetCom(node.time_);
+//    double t = node.time_;
+    auto com = com_motion_->GetCom(t);
     model_.SetCurrent(com.p, com.v, kHeight_);
     Vector2d cop = cop_.middleRows<kDim2d>(kDim2d*n);
 

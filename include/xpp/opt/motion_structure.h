@@ -83,12 +83,12 @@ public:
   std::vector<EEID> GetContactIds() const;
   std::vector<Contact> GetStartStance() const { return phases_.front().contacts_fixed_;};
 
+  double dt_; ///< discretization interval [s]
 private:
   AllPhaseSwingLegs phase_swing_ee_;
 
   PhaseVec phases_;
 
-  double dt_; ///< discretization interval [s]
 
   // the values don't really define the structure of the class -> mutable
   PhaseStampedVec CalcPhaseStampedVec() const;
