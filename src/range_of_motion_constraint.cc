@@ -44,7 +44,6 @@ RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   com_motion_->SetCoefficients(x_coeff);
 
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
-
   ee_motion_.SetOptimizationParameters(footholds);
 
   // jacobians are constant, only need to be set once

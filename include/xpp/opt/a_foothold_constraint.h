@@ -9,8 +9,6 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_A_FOOTHOLD_CONSTRAINT_H_
 
 #include <xpp/a_constraint.h>
-#include "motion_structure.h"
-#include "eigen_std_conversions.h"
 #include "endeffectors_motion.h"
 #include <memory>
 
@@ -31,10 +29,9 @@ public:
   void UpdateVariables(const OptimizationVariables*) override;
 
 protected:
-  void Init(const MotionStructure&);
+  void Init(const EndeffectorsMotion& ee_motion);
 
-  StdVecEigen2d footholds_;
-  MotionStructure motion_structure_;
+  EndeffectorsMotion ee_motion_;
 };
 
 
@@ -45,7 +42,7 @@ public:
   using Vector2d       = Eigen::Vector2d;
   using NominalStance  = std::map<EndeffectorID, Eigen::Vector2d>;
 
-  FootholdFinalStanceConstraint(const MotionStructure& motion_structure,
+  FootholdFinalStanceConstraint(const EndeffectorsMotion& ee_motion,
                                 const Vector2d& goal_xy, const NominalStance&);
   virtual ~FootholdFinalStanceConstraint();
 

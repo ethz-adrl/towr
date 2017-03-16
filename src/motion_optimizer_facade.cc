@@ -8,12 +8,8 @@
 #include <xpp/optimization_variables.h>
 #include <xpp/opt/motion_optimizer_facade.h>
 #include <xpp/opt/com_motion.h>
-//#include <xpp/opt/motion_structure.h>
-//#include <xpp/opt/wb_traj_generator.h>
-
 #include <xpp/opt/endeffectors_motion.h>
 
-#include <xpp/opt/motion_structure.h>
 
 namespace xpp {
 namespace opt {
@@ -45,19 +41,10 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 //      phase = 0;
 //  }
 //  phase_specs.push_back({{}, 0.8}); // empty vector = final four leg support phase also for contacts at end
-//
-//
-//  MotionStructure motion_structure;
-//  motion_structure.Init(motion_type_->robot_ee_,
-//                        start_geom_.GetEEPos(),
-//                        phase_specs,
-//                        start_geom_.GetPercentPhase(),
-//                        motion_type_->dt_nodes_ );
-//  motion_phases_ = motion_structure.GetPhases();
+
 
   auto goal_com = goal_geom_;
-  goal_com.p += motion_type_->offset_geom_to_com_;
-
+  goal_com.p += motion_parameters_->offset_geom_to_com_;
 
   // initialize the ee_motion with the fixed parameters
   ee_motion_ = std::make_shared<EndeffectorsMotion>();
@@ -65,20 +52,10 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
   // zmp_ maybe start by just taking two trott 4 steps and hardcode
   ee_motion_->Set2StepTrott();
 
-
-
-
-
-
-
-
-
-
-
   nlp_facade_.BuildNlp(start_geom_.GetBase().lin.Get2D(),
                        goal_com.Get2D(),
                        ee_motion_,
-                       motion_type_);
+                       motion_parameters_);
 
   nlp_facade_.SolveNlp(solver);
 }
@@ -86,22 +63,10 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 MotionOptimizerFacade::RobotStateVec
 MotionOptimizerFacade::GetTrajectory (double dt)
 {
-//  // zmp_ this should implicitly be in the com and endeffector motion
-//  // so remove entire class
-//  WBTrajGenerator wb_traj_generator;
-//  wb_traj_generator.Init(motion_phases_,
-//                         nlp_facade_.GetComMotion(),
-//                         ee_motion_->GetAllFreeContacts(),
-//                         ee_motion_,
-//                         start_geom_,
-//                         motion_type_->offset_geom_to_com_);
-//
-//  return wb_traj_generator.BuildWholeBodyTrajectory(dt);
-//
   RobotStateVec trajectory;
 
   double t=0.0;
-  double T = motion_type_->GetTotalTime();
+  double T = motion_parameters_->GetTotalTime();
   while (t<T) {
 
     RobotStateCartesian state(start_geom_.GetEEPos().GetEECount());
@@ -126,21 +91,13 @@ MotionOptimizerFacade::BuildOptimizationStartState (const RobotStateCartesian& c
     feet_zero_z_W.At(ee).p.z() = 0.0;
 
   start_geom_ = curr;
-//  start_geom_.SetPercentPhase(0.0);
   start_geom_.SetEEState(feet_zero_z_W);
 }
 
-//MotionOptimizerFacade::ContactVec
-//MotionOptimizerFacade::GetContactVec ()
-//{
-//  return nlp_facade_.GetContacts();
-//}
-
 void
-MotionOptimizerFacade::SetMotionType (const MotionTypePtr& motion_type)
+MotionOptimizerFacade::SetMotionParameters (const MotionParametersPtr& motion_type)
 {
-  motion_type_ = motion_type;
-//  motion_type_ = MotionParameters::MakeMotion(id);
+  motion_parameters_ = motion_type;
 }
 
 } /* namespace opt */

@@ -11,12 +11,12 @@
 #include <xpp/opt/linear_spline_equations.h>
 #include <xpp/opt/linear_spline_equality_constraint.h>
 #include <xpp/opt/range_of_motion_constraint.h>
-#include <xpp/opt/obstacle_constraint.h>
-#include <xpp/opt/a_foothold_constraint.h>
 #include <xpp/opt/convexity_constraint.h>
 #include <xpp/opt/support_area_constraint.h>
 #include <xpp/opt/dynamic_constraint.h>
 #include <xpp/opt/polygon_center_constraint.h>
+//#include <xpp/opt/obstacle_constraint.h>
+//#include <xpp/opt/a_foothold_constraint.h>
 #include <xpp/opt/variable_names.h>
 
 #include <xpp/soft_constraint.h>
@@ -90,26 +90,7 @@ CostConstraintFactory::SplineCoeffVariables () const
 VariableSet
 CostConstraintFactory::ContactVariables (const Vector2d initial_pos) const
 {
-////  contacts.clear();
-//  auto contacts = ee_motion->GetAllFreeContacts();
-//
-//  // contact locations (x,y) of each step
-//  StdVecEigen2d footholds_W;
-//  for (auto ee : motion_structure.GetContactIds()) {
-//    Eigen::Vector2d nominal_B = params->GetNominalStanceInBase().at(ee);
-//    footholds_W.push_back(nominal_B + initial_pos); // express in world
-//
-//    ContactBase c;
-//    c.ee = ee;
-//    c.id = contacts.size();
-//    contacts.push_back(c);
-//  }
-
   return VariableSet(ee_motion->GetOptimizationParameters(), VariableNames::kFootholds);
-
-
-
-//  return VariableSet(ConvertStdToEig(footholds_W), VariableNames::kFootholds);
 }
 
 VariableSet
@@ -143,15 +124,6 @@ CostConstraintFactory::ConvexityVariables () const
 VariableSet
 CostConstraintFactory::CopVariables () const
 {
-//  // zmp_ use parametrization class to represent this as well
-//  int n_nodes = motion_structure.GetPhaseStampedVec().size();
-//  Eigen::VectorXd local_cop(n_nodes*kDim2d);
-//  local_cop.setZero();
-//
-////  kkkk
-//  std::cout << "local: " << local_cop.rows() << std::endl;
-//  std::cout << "mine: "  << cop->GetOptimizationVariables().rows() << std::endl;
-
   return VariableSet(cop->GetOptimizationVariables(), VariableNames::kCenterOfPressure);
 }
 

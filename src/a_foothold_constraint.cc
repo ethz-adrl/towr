@@ -22,20 +22,20 @@ AFootholdConstraint::~AFootholdConstraint ()
 }
 
 void
-AFootholdConstraint::Init (const MotionStructure& motion_structure)
+AFootholdConstraint::Init (const EndeffectorsMotion& ee_motion)
 {
-  motion_structure_ = motion_structure;
+  ee_motion_ = ee_motion;
 }
 
 void
 AFootholdConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
-  footholds_ = ConvertEigToStd(footholds);
+  ee_motion_.SetOptimizationParameters(footholds);
 }
 
 FootholdFinalStanceConstraint::FootholdFinalStanceConstraint (
-                                    const MotionStructure& motion_structure,
+                                    const EndeffectorsMotion& ee_motion,
                                     const Vector2d& goal_xy,
                                     const NominalStance& nom)
 {

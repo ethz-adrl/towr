@@ -121,8 +121,6 @@ add_library(${MOTION_OPT_LIB}
   src/motion_factory.cc
   src/linear_spline_equations.cc
   # endeffector
-  src/motion_structure.cc
-  src/motion_phase.cc
   src/ee_swing_motion.cc
   src/ee_motion.cc
   src/endeffectors_motion.cc
