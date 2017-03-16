@@ -40,20 +40,22 @@ NlpFacade::BuildNlp(const StateLin2d& initial_state,
                     const EEMotionPtrS& ee_motion,
                     const MotionparamsPtr& motion_params)
 {
+  ee_motion_ = ee_motion;
+
+
   double com_height = motion_params->geom_walking_height_ + motion_params->offset_geom_to_com_.z();
-  com_motion_ = MotionFactory::CreateComMotion(motion_params->GetTotalTime(),
+  com_motion_ = MotionFactory::CreateComMotion(ee_motion->GetTotalTime(),
                                                motion_params->polynomials_per_second_,
                                                com_height);
   com_motion_->SetOffsetGeomToCom(motion_params->offset_geom_to_com_);
 
-  ee_motion_ = ee_motion;
 
   auto ee_load = std::make_shared<EndeffectorLoad>();
   double dt = motion_params->dt_nodes_;
-  ee_load->Init(*ee_motion_, dt, com_motion_->GetTotalTime());
+  ee_load->Init(*ee_motion_, dt, ee_motion->GetTotalTime());
 
   auto cop = std::make_shared<CenterOfPressure>();
-  cop->Init(dt, com_motion_->GetTotalTime());
+  cop->Init(dt, ee_motion->GetTotalTime());
 
   CostConstraintFactory factory;
   factory.Init(com_motion_,

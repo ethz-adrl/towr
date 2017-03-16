@@ -50,7 +50,6 @@ public:
 
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
-  double GetTotalTime() const;
 
   MotionTypeID id_;
   double max_step_length_;

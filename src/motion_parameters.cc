@@ -42,21 +42,6 @@ MotionParameters::GetUsedConstraints () const
   return constraints_;
 }
 
-// zmp_ use this instead of com->GetTotalTime()
-double
-MotionParameters::GetTotalTime () const
-{
-  double T = 0.0;
-  for (int i = 0; i<opt_horizon_in_phases_; ++i) {
-    int k = i%ee_cycle_.size();
-    T += timings_.at(k);
-  }
-
-  T += 0.4 + 0.8; // zmp_ HORRIBLE! remove, initial and final stance
-
-  return T;
-}
-
 } // namespace opt
 } // namespace xpp
 

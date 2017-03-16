@@ -50,7 +50,9 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
   ee_motion_ = std::make_shared<EndeffectorsMotion>();
   ee_motion_->SetInitialPos(start_geom_.GetEEPos());
   // zmp_ maybe start by just taking two trott 4 steps and hardcode
-  ee_motion_->Set2StepTrott();
+
+  ee_motion_->SetPhaseSequence(motion_parameters_->GetOneCycle());
+//  ee_motion_->Set2StepTrott();
 
   nlp_facade_.BuildNlp(start_geom_.GetBase().lin.Get2D(),
                        goal_com.Get2D(),
@@ -66,7 +68,7 @@ MotionOptimizerFacade::GetTrajectory (double dt)
   RobotStateVec trajectory;
 
   double t=0.0;
-  double T = motion_parameters_->GetTotalTime();
+  double T = ee_motion_->GetTotalTime();
   while (t<T) {
 
     RobotStateCartesian state(start_geom_.GetEEPos().GetEECount());

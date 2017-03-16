@@ -123,6 +123,76 @@ EndeffectorsMotion::Index (EndeffectorID ee, int id, Coords3D coords3D) const
   return kDim2d*id_total + coords3D;
 }
 
+bool
+EndeffectorsMotion::Contains (const EEVec& v, EndeffectorID ee) const
+{
+  return std::find(v.begin(), v.end(), ee) != v.end();
+}
+
+double
+EndeffectorsMotion::GetTotalTime () const
+{
+   return endeffectors_.At(E0).GetTotalTime();
+}
+
+EndeffectorsMotion::EEVec
+EndeffectorsMotion::GetStanceLegs (const EEVec& swinglegs) const
+{
+  EEVec stance_legs;
+  for (auto ee : endeffectors_.GetEEsOrdered())
+    if (!Contains(swinglegs, ee)) // endeffector currently in stance phase
+      stance_legs.push_back(ee);
+
+  return stance_legs;
+}
+
+
+
+void
+EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
+{
+  Vector3d start = Vector3d::Zero(); // initialized with this value
+
+  Endeffectors<double> durations(endeffectors_.GetEECount());
+  durations.SetAll(0.0);
+
+
+  for (int i=0; i<phases.size()-1; ++i) {
+
+    EEVec swinglegs       = phases.at(i).first;
+    EEVec next_swinglegs  = phases.at(i+1).first;
+    double phase_duration = phases.at(i).second;
+
+    // stance phases
+    for (auto ee : GetStanceLegs(swinglegs)) {
+      durations.At(ee) += phase_duration;
+      if(Contains(next_swinglegs,ee)) {  // leg swingwing in next phase or last phase
+        endeffectors_.At(ee).AddStancePhase(durations.At(ee));
+        durations.At(ee) = 0.0; // reset
+      }
+    }
+
+    // swing phases
+    for (auto ee : swinglegs) {
+      durations.At(ee) += phase_duration;
+      if(!Contains(next_swinglegs, ee)) {  //next swinglegs do not contain endeffector
+        endeffectors_.At(ee).AddSwingPhase(durations.At(ee), start);
+        durations.At(ee) = 0.0; // reset
+      }
+    }
+  }
+
+
+  // last phase always must be added
+  EEVec swinglegs = phases.back().first;
+  double T        = phases.back().second;
+  for (auto ee : swinglegs)
+    endeffectors_.At(ee).AddSwingPhase(durations.At(ee) + T, start);
+  for (auto ee : GetStanceLegs(swinglegs))
+    endeffectors_.At(ee).AddStancePhase(durations.At(ee)+T);
+
+}
+
 // zmp_ this shouldn't be here
 void
 EndeffectorsMotion::Set2StepTrott ()

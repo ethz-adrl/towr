@@ -38,6 +38,8 @@ public:
   /** Empty vector is no contact at that time */
   ContactPositions GetContact(double t_global) const;
 
+  double GetTotalTime() const;
+
 
   /** Those not fixed by the start stance
     */

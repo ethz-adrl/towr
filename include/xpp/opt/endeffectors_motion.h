@@ -29,6 +29,10 @@ public:
   using VectorXd = Eigen::VectorXd;
   using Contacts = std::vector<Contact>;
 
+  using EEVec     = std::vector<EndeffectorID>;
+  using Phase     = std::pair<EEVec, double>; // swinglegs and time
+  using PhaseVec  = std::vector<Phase>;
+
   EndeffectorsMotion ();
   virtual ~EndeffectorsMotion ();
 
@@ -36,6 +40,8 @@ public:
   void SetInitialPos(const EEXppPos& initial_pos);
 
   EEMotion& GetMotion(EndeffectorID ee);
+
+  void SetPhaseSequence(const PhaseVec& phases);
 
 
   EEState GetEndeffectors(double t_global) const;
@@ -50,6 +56,8 @@ public:
   void Set2StepTrott();
 
   void SetContactPositions(const Contacts& contact);
+
+  double GetTotalTime() const;
 
 
 
@@ -67,6 +75,10 @@ public:
 private:
   Endeffectors<EEMotion> endeffectors_;
   mutable std::map<EndeffectorID, int> map_ee_to_first_step_idx_;   //zmp_ make unmutable again
+
+
+  bool Contains(const EEVec& vec, EndeffectorID ee) const;
+  EEVec GetStanceLegs(const EEVec& swinglegs) const;
 };
 
 } /* namespace opt */

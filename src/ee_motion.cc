@@ -137,6 +137,17 @@ EEMotion::SetContactPosition (int foothold_of_leg, const Vector3d& pos)
   UpdateSwingMotions();
 }
 
+double
+EEMotion::GetTotalTime () const
+{
+  double T = 0.0;
+  for (auto p : phase_motion_) {
+    T += p.GetDuration();
+  }
+
+  return T;
+}
+
 } /* namespace opt */
 } /* namespace xpp */
 

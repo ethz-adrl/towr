@@ -180,7 +180,7 @@ CostConstraintFactory::MakeSupportAreaConstraint() const
   constraint->Init(*ee_motion,
                    *ee_load,
                    *cop,
-                   com_motion->GetTotalTime(),
+                   ee_motion->GetTotalTime(),
                    params->dt_nodes_);
   return constraint;
 }
