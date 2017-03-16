@@ -13,6 +13,7 @@
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/opt/motion_parameters.h>
 #include <xpp/opt/endeffectors_motion.h>
+#include <xpp/opt/motion_phase.h>
 
 namespace xpp {
 namespace opt {
@@ -27,7 +28,7 @@ public:
   using RobotStateVec = std::vector<RobotStateCartesian>;
   using MotionTypePtr = std::shared_ptr<MotionParameters>;
   using PhaseVec      = std::vector<MotionPhase>;
-  using ContactVec    = NlpFacade::ContactVec;
+//  using ContactVec    = NlpFacade::ContactVec;
 
   using EEMotionPtrS = std::shared_ptr<EndeffectorsMotion>;
 

@@ -57,7 +57,7 @@ ComSpline::GetTotalFreeCoeff () const
   return polynomials_.size() * NumFreeCoeffPerSpline() * kDim2d;
 }
 
-ComSpline::VectorXd
+VectorXd
 ComSpline::GetCoeffients () const
 {
   VectorXd x_abcd(GetTotalFreeCoeff());

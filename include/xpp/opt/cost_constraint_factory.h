@@ -8,7 +8,6 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 
-#include "motion_structure.h"
 #include "com_motion.h"
 #include "endeffectors_motion.h"
 #include "endeffector_load.h"
@@ -50,7 +49,6 @@ public:
   // zmp_ consider wrapping all Optimization Variables into once class
   void Init(const ComMotionPtr&, const EEMotionPtr&,
             const EELoadPtr&, const CopPtr&,
-            const MotionStructure&,
             const MotionTypePtr& params, const StateLin2d& initial_state,
             const StateLin2d& final_state);
 
@@ -64,7 +62,6 @@ public:
   ConstraintPtr GetConstraint(ConstraintName name) const;
 
 private:
-  MotionStructure motion_structure;
   MotionTypePtr params;
 
   ComMotionPtr com_motion;

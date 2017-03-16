@@ -25,13 +25,16 @@ namespace opt {
   */
 class ComMotion {
 public:
-  using VectorXd    = Eigen::VectorXd;
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor> ;
   using PtrS        = std::shared_ptr<ComMotion> ;
   using PtrU        = std::unique_ptr<ComMotion> ;
 
   ComMotion ();
   virtual ~ComMotion ();
+
+
+  void SetOffsetGeomToCom(const Vector3d& offset);
+  State3d GetBase(double t_global) const;
 
   /** @returns the Center of Mass position, velocity and acceleration in 2D.
     *
@@ -86,6 +89,7 @@ public:
 
 private:
   double z_height_;
+  Vector3d offset_geom_to_com_;
 };
 
 } /* namespace zmp */

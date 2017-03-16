@@ -52,7 +52,6 @@ public:
             const VecFoothold&,
             const EEPtr&,
             const SplineNode& curr_state,
-            double lift_height,
             const Vector3d& com_offset);
 
   ArtiRobVec BuildWholeBodyTrajectory(double dt) const;
@@ -69,7 +68,6 @@ private:
   EEPtr ee_spliner_;
   ComMotionS com_motion_;
 
-  double leg_lift_height_;  ///< how high to lift the leg
 
   void BuildNodeSequence(const PhaseVec&, const VecFoothold& footholds);
 

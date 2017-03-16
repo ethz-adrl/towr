@@ -74,6 +74,17 @@ EndeffectorsMotion::GetContacts (double t) const
   return contacts;
 }
 
+EEXppBool
+EndeffectorsMotion::GetContactState (double t_global) const
+{
+  EEXppBool contact_state(endeffectors_.GetEECount());
+
+  for (auto ee : endeffectors_.ToImpl())
+    contact_state.At(ee.ee_) = ee.IsInContact(t_global);
+
+  return contact_state;
+}
+
 void
 EndeffectorsMotion::SetContactPositions (const Contacts& contacts)
 {

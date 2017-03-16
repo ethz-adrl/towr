@@ -8,7 +8,6 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
 
-#include "motion_phase.h"
 #include <xpp/opt/motion_parameters.h>
 #include <xpp/state.h>
 #include <memory>
@@ -21,7 +20,6 @@ class CostContainer;
 class ConstraintContainer;
 class ComMotion;
 class EndeffectorsMotion;
-class MotionStructure;
 class NLP;
 
 enum NlpSolver { Ipopt, Snopt };
@@ -41,7 +39,7 @@ public:
   using ComMotionPtrS            = std::shared_ptr<ComMotion>;
   using EEMotionPtrS             = std::shared_ptr<EndeffectorsMotion>;
   using NLPPtr                   = std::shared_ptr<NLP>;
-  using ContactVec               = std::vector<Contact>;
+//  using ContactVec               = std::vector<Contact>;
 
   NlpFacade ();
   virtual ~NlpFacade ();
@@ -59,7 +57,6 @@ public:
   void BuildNlp(const StateLin2d& initial_state,
                 const StateLin2d& final_state,
                 const EEMotionPtrS& ee_motion,
-                const MotionStructure&,
                 const MotionparamsPtr&);
 
   void SolveNlp(NlpSolver solver);

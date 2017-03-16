@@ -12,6 +12,8 @@
 
 #include <xpp/opt/endeffectors_motion.h>
 
+#include <xpp/opt/motion_structure.h>
+
 namespace xpp {
 namespace opt {
 
@@ -75,7 +77,6 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
   nlp_facade_.BuildNlp(start_geom_.GetBase().lin.Get2D(),
                        goal_com.Get2D(),
                        ee_motion_,
-                       motion_structure,
                        motion_type_);
 
   nlp_facade_.SolveNlp(solver);
@@ -84,18 +85,35 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 MotionOptimizerFacade::RobotStateVec
 MotionOptimizerFacade::GetTrajectory (double dt)
 {
-  // zmp_ this should implicitly be in the com and endeffector motion
-  // so remove entire class
-  WBTrajGenerator wb_traj_generator;
-  wb_traj_generator.Init(motion_phases_,
-                         nlp_facade_.GetComMotion(),
-                         ee_motion_->GetAllFreeContacts(),
-                         ee_motion_,
-                         start_geom_,
-                         motion_type_->lift_height_,
-                         motion_type_->offset_geom_to_com_);
+//  // zmp_ this should implicitly be in the com and endeffector motion
+//  // so remove entire class
+//  WBTrajGenerator wb_traj_generator;
+//  wb_traj_generator.Init(motion_phases_,
+//                         nlp_facade_.GetComMotion(),
+//                         ee_motion_->GetAllFreeContacts(),
+//                         ee_motion_,
+//                         start_geom_,
+//                         motion_type_->offset_geom_to_com_);
+//
+//  return wb_traj_generator.BuildWholeBodyTrajectory(dt);
+//
+  RobotStateVec trajectory;
 
-  return wb_traj_generator.BuildWholeBodyTrajectory(dt);
+  double t=0.0;
+  double T = motion_type_->GetTotalTime();
+  while (t<T) {
+
+    RobotStateCartesian state(start_geom_.GetEEPos().GetEECount());
+    state.SetBase(nlp_facade_.GetComMotion()->GetBase(t));
+    state.SetEEState(ee_motion_->GetEndeffectors(t));
+    state.SetContactState(ee_motion_->GetContactState(t));
+    state.SetTime(t);
+
+    trajectory.push_back(state);
+    t += dt;
+  }
+
+  return trajectory;
 }
 
 

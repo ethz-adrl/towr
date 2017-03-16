@@ -13,7 +13,6 @@
 
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/motion_factory.h>
-#include <xpp/opt/motion_structure.h>
 #include <xpp/opt/variable_names.h>
 
 namespace xpp {
@@ -39,28 +38,31 @@ void
 NlpFacade::BuildNlp(const StateLin2d& initial_state,
                     const StateLin2d& final_state,
                     const EEMotionPtrS& ee_motion,
-                    const MotionStructure& motion_structure,
                     const MotionparamsPtr& motion_params)
 {
   double com_height = motion_params->geom_walking_height_ + motion_params->offset_geom_to_com_.z();
-  com_motion_ = MotionFactory::CreateComMotion(motion_structure.GetTotalTime(),
+  com_motion_ = MotionFactory::CreateComMotion(motion_params->GetTotalTime(),
                                                motion_params->polynomials_per_second_,
                                                com_height);
+  com_motion_->SetOffsetGeomToCom(motion_params->offset_geom_to_com_);
 
   ee_motion_ = ee_motion;
 
   auto ee_load = std::make_shared<EndeffectorLoad>();
-  ee_load->Init(*ee_motion_, motion_structure.dt_, com_motion_->GetTotalTime());
+  double dt = motion_params->dt_nodes_;
+  ee_load->Init(*ee_motion_, dt, com_motion_->GetTotalTime());
 
   auto cop = std::make_shared<CenterOfPressure>();
-  cop->Init(motion_structure.dt_, com_motion_->GetTotalTime());
+  cop->Init(dt, com_motion_->GetTotalTime());
 
   CostConstraintFactory factory;
   factory.Init(com_motion_,
                ee_motion_,
                ee_load,
                cop,
-               motion_structure, motion_params, initial_state, final_state);
+               motion_params,
+               initial_state,
+               final_state);
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(factory.SplineCoeffVariables());

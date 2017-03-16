@@ -38,7 +38,6 @@ CostConstraintFactory::Init (const ComMotionPtr& com,
                              const EEMotionPtr& _ee_motion,
                              const EELoadPtr& _ee_load,
                              const CopPtr& _cop,
-                             const MotionStructure& ms,
                              const MotionTypePtr& _params, const StateLin2d& initial_state,
                              const StateLin2d& final_state)
 {
@@ -47,7 +46,6 @@ CostConstraintFactory::Init (const ComMotionPtr& com,
   ee_load = _ee_load;
   cop = _cop;
 
-  motion_structure = ms;
   params = _params;
   initial_geom_state_ = initial_state;
   final_geom_state_ = final_state;
@@ -145,14 +143,14 @@ CostConstraintFactory::ConvexityVariables () const
 VariableSet
 CostConstraintFactory::CopVariables () const
 {
-  // zmp_ use parametrization class to represent this as well
-  int n_nodes = motion_structure.GetPhaseStampedVec().size();
-  Eigen::VectorXd local_cop(n_nodes*kDim2d);
-  local_cop.setZero();
-
-//  kkkk
-  std::cout << "local: " << local_cop.rows() << std::endl;
-  std::cout << "mine: "  << cop->GetOptimizationVariables().rows() << std::endl;
+//  // zmp_ use parametrization class to represent this as well
+//  int n_nodes = motion_structure.GetPhaseStampedVec().size();
+//  Eigen::VectorXd local_cop(n_nodes*kDim2d);
+//  local_cop.setZero();
+//
+////  kkkk
+//  std::cout << "local: " << local_cop.rows() << std::endl;
+//  std::cout << "mine: "  << cop->GetOptimizationVariables().rows() << std::endl;
 
   return VariableSet(cop->GetOptimizationVariables(), VariableNames::kCenterOfPressure);
 }
@@ -199,7 +197,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   auto constraint = std::make_shared<DynamicConstraint>();
-  constraint->Init(*com_motion, *cop, motion_structure.dt_);
+  constraint->Init(*com_motion, *cop, params->dt_nodes_);
   return constraint;
 }
 
@@ -211,7 +209,20 @@ CostConstraintFactory::MakeSupportAreaConstraint() const
                    *ee_load,
                    *cop,
                    com_motion->GetTotalTime(),
-                   motion_structure.dt_);
+                   params->dt_nodes_);
+  return constraint;
+}
+
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
+{
+  auto constraint = std::make_shared<RangeOfMotionBox>(
+      params->GetMaximumDeviationFromNominal(),
+      params->GetNominalStanceInBase(),
+      params->offset_geom_to_com_.topRows<kDim2d>()
+      );
+
+  constraint->Init(*com_motion, *ee_motion, params->dt_nodes_);
   return constraint;
 }
 
@@ -223,19 +234,6 @@ CostConstraintFactory::MakeConvexityConstraint() const
   return constraint;
 }
 
-
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
-{
-  auto constraint = std::make_shared<RangeOfMotionBox>(
-      params->GetMaximumDeviationFromNominal(),
-      params->GetNominalStanceInBase(),
-      params->offset_geom_to_com_.topRows<kDim2d>()
-      );
-
-  constraint->Init(*com_motion, *ee_motion, motion_structure.dt_);
-  return constraint;
-}
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeFinalStanceConstraint () const

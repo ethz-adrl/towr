@@ -38,6 +38,29 @@ ComMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coor
   return linear_approx;
 }
 
+void
+ComMotion::SetOffsetGeomToCom (const Vector3d& offset)
+{
+  offset_geom_to_com_ = offset;
+}
+
+State3d
+ComMotion::GetBase (double t_global) const
+{
+  State3d base; // z and orientation all at zero
+
+  StateLin2d com_xy = GetCom(t_global);
+
+  // since the optimized motion is for the CoM and not the geometric center
+  base.lin.p.topRows(kDim2d) = com_xy.p - offset_geom_to_com_.topRows<kDim2d>();
+  base.lin.p.z() = z_height_;
+
+  base.lin.v.topRows(kDim2d) = com_xy.v;
+  base.lin.a.topRows(kDim2d) = com_xy.a;
+
+  return base;
+}
+
 } /* namespace zmp */
 } /* namespace xpp */
 

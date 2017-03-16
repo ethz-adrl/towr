@@ -42,12 +42,15 @@ public:
 
   Contacts GetContacts(double t_global) const;
 
+  EEXppBool GetContactState(double t_global) const;
+
   Contacts GetAllFreeContacts() const;
 
   // zmp_ shouldn't be here, later generate these motions dynamically
   void Set2StepTrott();
 
   void SetContactPositions(const Contacts& contact);
+
 
 
   // the ones actually determined by the NLP

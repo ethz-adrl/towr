@@ -13,7 +13,6 @@ namespace opt {
 
 WBTrajGenerator::WBTrajGenerator()
 {
-  leg_lift_height_ = 0.0;
 }
 
 WBTrajGenerator::~WBTrajGenerator()
@@ -23,12 +22,11 @@ WBTrajGenerator::~WBTrajGenerator()
 void
 WBTrajGenerator::Init (const PhaseVec& phase_info, const ComMotionS& com_spline,
                        const VecFoothold& footholds, const EEPtr& ee_motion,
-                       const SplineNode& curr_state, double lift_height,
+                       const SplineNode& curr_state,
                        const Vector3d& com_offset)
 {
   // get endeffector size from current node
   kNEE = curr_state.GetEECount();
-  leg_lift_height_ = lift_height;
   com_motion_ = com_spline;
   offset_geom_to_com_ = com_offset;
   ee_spliner_ = ee_motion;
@@ -266,12 +264,12 @@ WBTrajGenerator::SplineNode
 WBTrajGenerator::GetRobotState (double t) const
 {
   SplineNode state(kNEE);
-  state.SetBase(GetCurrentBase(t));
+  state.SetBase(com_motion_->GetBase(t));
   state.SetEEState(ee_spliner_->GetEndeffectors(t));
-  state.SetContactState(GetCurrContactState(t));
-  state.SetPercentPhase(GetPercentOfPhase(t));
+  state.SetContactState(ee_spliner_->GetContactState(t));
   state.SetTime(t_start_ + t); // keep track of global time
-  state.SetCurrentPhase(phase_start_  + 1 + GetPhaseID(t));
+//  state.SetPercentPhase(GetPercentOfPhase(t));
+//  state.SetCurrentPhase(phase_start_  + 1 + GetPhaseID(t));
   return state;
 }
 

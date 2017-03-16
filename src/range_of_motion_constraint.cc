@@ -85,13 +85,13 @@ RangeOfMotionBox::EvaluateConstraint () const
     PosXY com_W = com_motion_->GetCom(t).p;
     PosXY geom_W = com_W - offset_geom_to_com_;
 
-    for (const auto& f_W : ee_motion_.GetContacts(t)) {
+    for (const auto& c : ee_motion_.GetContacts(t)) {
       // contact position expressed in base frame
       PosXY g;
-      if (f_W.id == ContactBase::kFixedByStartStance)
+      if (c.id == ContactBase::kFixedByStartStance)
         g = -geom_W;
       else
-        g = f_W.p.topRows<kDim2d>() - geom_W;
+        g = c.p.topRows<kDim2d>() - geom_W;
 
       for (auto dim : {X,Y})
         g_vec.push_back(g(dim));
