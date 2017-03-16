@@ -8,8 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include "motion_structure.h"
-#include "eigen_std_conversions.h"
+#include "endeffectors_motion.h"
+#include "eigen_std_conversions.h" //zmp_ remove
 
 #include <xpp/a_constraint.h>
 #include <memory>
@@ -34,15 +34,18 @@ public:
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint ();
 
-  void Init(const ComMotion&, const MotionStructure&);
+  void Init(const ComMotion& com_motion,
+            const EndeffectorsMotion& ee_motion,
+            double dt);
   void UpdateVariables(const OptimizationVariables*) final;
   Jacobian GetJacobianWithRespectTo (std::string var_set) const final;
 
 protected:
-  StdVecEigen2d footholds_;
   ComMotionPtrU com_motion_;
-  MotionStructure motion_structure_;
   bool first_update_ = true;
+
+  EndeffectorsMotion ee_motion_;
+  std::vector<double> dts_; ///< discretization of constraint
 
 private:
   Jacobian jac_wrt_contacts_;

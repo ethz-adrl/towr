@@ -90,6 +90,7 @@ MotionOptimizerFacade::GetTrajectory (double dt)
   wb_traj_generator.Init(motion_phases_,
                          nlp_facade_.GetComMotion(),
                          ee_motion_->GetAllFreeContacts(),
+                         ee_motion_,
                          start_geom_,
                          motion_type_->lift_height_,
                          motion_type_->offset_geom_to_com_);

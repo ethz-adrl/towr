@@ -12,6 +12,7 @@
 
 #include "ellipse.h"
 #include "eigen_std_conversions.h"
+#include "endeffectors_motion.h"
 
 namespace xpp {
 namespace opt {

@@ -13,6 +13,8 @@
 #include <xpp/endeffectors.h>
 #include <xpp/contact.h>
 
+#include <map>
+
 namespace xpp {
 namespace opt {
 
@@ -33,12 +35,12 @@ public:
 
   void SetInitialPos(const EEXppPos& initial_pos);
 
-
   EEMotion& GetMotion(EndeffectorID ee);
 
 
   EEState GetEndeffectors(double t_global) const;
 
+  Contacts GetContacts(double t_global) const;
 
   Contacts GetAllFreeContacts() const;
 
@@ -48,17 +50,20 @@ public:
   void SetContactPositions(const Contacts& contact);
 
 
-
   // the ones actually determined by the NLP
   // so far only x-y position of contacts, but contact state and timings
   // can be added.
+  // zmp_ somehow combine this with Index function below, DRY
   VectorXd GetOptimizationParameters() const;
   void SetOptimizationParameters(const VectorXd&);
   // zmp_ something about contact state, see how most used
 
+  // order at which the contact position of this endeffector is stored
+  int Index(EndeffectorID ee, int id, Coords3D) const;
 
 private:
   Endeffectors<EEMotion> endeffectors_;
+  mutable std::map<EndeffectorID, int> map_ee_to_first_step_idx_;   //zmp_ make unmutable again
 };
 
 } /* namespace opt */

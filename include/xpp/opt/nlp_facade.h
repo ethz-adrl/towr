@@ -58,7 +58,7 @@ public:
     */
   void BuildNlp(const StateLin2d& initial_state,
                 const StateLin2d& final_state,
-                EEMotionPtrS& ee_motion,
+                const EEMotionPtrS& ee_motion,
                 const MotionStructure&,
                 const MotionparamsPtr&);
 

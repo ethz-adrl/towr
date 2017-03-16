@@ -9,6 +9,7 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 
 #include "motion_structure.h"
+#include "endeffectors_motion.h"
 #include "eigen_std_conversions.h"
 
 #include <xpp/a_constraint.h>
@@ -27,7 +28,8 @@ public:
   SupportAreaConstraint ();
   virtual ~SupportAreaConstraint ();
 
-  void Init(const MotionStructure&);
+  void Init(const MotionStructure&, const EndeffectorsMotion&,
+            double T, double dt);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
@@ -39,7 +41,9 @@ private:
   MotionStructure motion_structure_;
   Eigen::VectorXd lambdas_;
   Eigen::VectorXd cop_;
-  StdVecEigen2d footholds_;
+
+  EndeffectorsMotion ee_motion_;
+  std::vector<double> dts_; ///< discretization of constraint
 
   Jacobian GetJacobianWithRespectToLambdas() const;
   Jacobian GetJacobianWithRespectToContacts() const;

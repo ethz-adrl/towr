@@ -38,7 +38,7 @@ NlpFacade::~NlpFacade ()
 void
 NlpFacade::BuildNlp(const StateLin2d& initial_state,
                     const StateLin2d& final_state,
-                    EEMotionPtrS& ee_motion,
+                    const EEMotionPtrS& ee_motion,
                     const MotionStructure& motion_structure,
                     const MotionparamsPtr& motion_params)
 {
@@ -51,7 +51,7 @@ NlpFacade::BuildNlp(const StateLin2d& initial_state,
 
   CostConstraintFactory factory;
   factory.Init(com_motion_,
-               ee_motion,
+               ee_motion_,
                motion_structure, motion_params, initial_state, final_state);
 
   opt_variables_->ClearVariables();

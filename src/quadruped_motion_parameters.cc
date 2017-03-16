@@ -119,18 +119,18 @@ Trott::Trott()
 
   constraints_ = { InitCom,
                    FinalCom,
-                   FinalStance,
+//                   FinalStance,
                    JunctionCom,
-                   Convexity,
-                   SuppArea,
                    Dynamic,
+                   SuppArea,
+                   Convexity,
                    RomBox
                    };
+  cost_weights_[RangOfMotionCostID] = 10.0;
 
   // remove all costs hugely speeds up the optimization problem
 //  cost_weights_[ComCostID]      = 1.0;
 //  cost_weights_[FinalComCostID] = 1.0;
-  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 

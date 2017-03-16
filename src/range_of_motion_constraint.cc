@@ -23,10 +23,18 @@ RangeOfMotionConstraint::~RangeOfMotionConstraint ()
 
 void
 RangeOfMotionConstraint::Init (const ComMotion& com_motion,
-                               const MotionStructure& motion_structure)
+                               const EndeffectorsMotion& ee_motion,
+                               double dt)
 {
   com_motion_       = com_motion.clone();
-  motion_structure_ = motion_structure;
+  ee_motion_        = ee_motion;
+
+  dts_.clear();
+  double t = 0.0;
+  for (int i=0; i<com_motion_->GetTotalTime()/dt; ++i) {
+    dts_.push_back(t);
+    t += dt;
+  }
 }
 
 void
@@ -36,7 +44,8 @@ RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   com_motion_->SetCoefficients(x_coeff);
 
   VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
-  footholds_ = ConvertEigToStd(footholds);
+
+  ee_motion_.SetOptimizationParameters(footholds);
 
   // jacobians are constant, only need to be set once
   if (first_update_) {
@@ -71,11 +80,12 @@ RangeOfMotionBox::EvaluateConstraint () const
 {
   std::vector<double> g_vec;
 
-  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-    PosXY com_W = com_motion_->GetCom(node.time_).p;
+  for (double t : dts_) {
+//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+    PosXY com_W = com_motion_->GetCom(t).p;
     PosXY geom_W = com_W - offset_geom_to_com_;
 
-    for (const auto& f_W : node.GetAllContacts(footholds_)) {
+    for (const auto& f_W : ee_motion_.GetContacts(t)) {
       // contact position expressed in base frame
       PosXY g;
       if (f_W.id == ContactBase::kFixedByStartStance)
@@ -96,8 +106,9 @@ VecBound
 RangeOfMotionBox::GetBounds () const
 {
   std::vector<Bound> bounds;
-  for (auto node : motion_structure_.GetPhaseStampedVec()) {
-    for (auto c : node.GetAllContacts()) {
+  for (double t : dts_) {
+//  for (auto node : motion_structure_.GetPhaseStampedVec()) {
+    for (auto c : ee_motion_.GetContacts(t)) {
 
       PosXY f_nom_B = nominal_stance_.at(c.ee);
       for (auto dim : {X,Y}) {
@@ -107,9 +118,10 @@ RangeOfMotionBox::GetBounds () const
         b.lower_ -= max_deviation_from_nominal_.at(dim);
 
         if (c.id == ContactBase::kFixedByStartStance)
-          for (auto f : node.contacts_fixed_)
-            if (f.ee == c.ee)
-              b -= f.p(dim);
+          b -= c.p(dim);
+//          for (auto f : node.contacts_fixed_)
+//            if (f.ee == c.ee)
+//              b -= f.p(dim);
 
         bounds.push_back(b);
       }
@@ -121,16 +133,17 @@ RangeOfMotionBox::GetBounds () const
 void
 RangeOfMotionBox::SetJacobianWrtContacts (Jacobian& jac_wrt_contacts) const
 {
-  int n_contacts = footholds_.size() * kDim2d;
+  int n_contacts = ee_motion_.GetAllFreeContacts().size() * kDim2d;//footholds_.size() * kDim2d;
   int m_constraints = GetNumberOfConstraints();
   jac_wrt_contacts = Jacobian(m_constraints, n_contacts);
 
   int row=0;
-  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-    for (auto c : node.GetAllContacts()) {
+  for (double t : dts_) {
+//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+    for (auto c : ee_motion_.GetContacts(t)) {
       if (c.id != ContactBase::kFixedByStartStance) {
         for (auto dim : {X,Y})
-          jac_wrt_contacts.insert(row+dim, ContactVars::Index(c.id,dim)) = 1.0;
+          jac_wrt_contacts.insert(row+dim, ee_motion_.Index(c.ee,c.id,dim)) = 1.0;
       }
 
       row += kDim2d;
@@ -146,10 +159,11 @@ RangeOfMotionBox::SetJacobianWrtMotion (Jacobian& jac_wrt_motion) const
   jac_wrt_motion = Jacobian(m_constraints, n_motion);
 
   int row=0;
-  for (const auto& node : motion_structure_.GetPhaseStampedVec())
-    for (const auto c : node.GetAllContacts())
+//  for (const auto& node : motion_structure_.GetPhaseStampedVec())
+  for (double t : dts_)
+    for (const auto c : ee_motion_.GetContacts(t))
       for (auto dim : {X,Y})
-        jac_wrt_motion.row(row++) = -1*com_motion_->GetJacobian(node.time_, kPos, dim);
+        jac_wrt_motion.row(row++) = -1*com_motion_->GetJacobian(t, kPos, dim);
 }
 
 

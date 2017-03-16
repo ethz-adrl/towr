@@ -25,37 +25,56 @@ SupportAreaConstraint::~SupportAreaConstraint ()
 }
 
 void
-SupportAreaConstraint::Init (const MotionStructure& motion_structure)
+SupportAreaConstraint::Init (const MotionStructure& motion_structure,
+                             const EndeffectorsMotion& ee_motion,
+                             double T,
+                             double dt)
 {
-  motion_structure_ = motion_structure;
+  motion_structure_ = motion_structure; // zmp_ remove this
+  ee_motion_ = ee_motion;
+
+  double t = 0;
+  dts_.clear();
+  for (int i=0; i<T/dt; ++i) {
+    dts_.push_back(t);
+    t += dt;
+  }
 }
 
 void
 SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
+  // zmp_ (smell) these are still dependent on discretization in motion_structure
   lambdas_   = opt_var->GetVariables(VariableNames::kConvexity);
   cop_       = opt_var->GetVariables(VariableNames::kCenterOfPressure);
   Eigen::VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
-  footholds_ = ConvertEigToStd(footholds);
+
+  ee_motion_.SetOptimizationParameters(footholds);
 }
 
 SupportAreaConstraint::VectorXd
 SupportAreaConstraint::EvaluateConstraint () const
 {
-  int m = motion_structure_.GetPhaseStampedVec().size() * kDim2d;
+//  int m = motion_structure_.GetPhaseStampedVec().size() * kDim2d;
+  int m = dts_.size() * kDim2d;
   Eigen::VectorXd g(m);
 
   int idx_lambda = 0;
   int k = 0;
-  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+  for (double t : dts_) {
+//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
     Vector2d convex_contacts;
     convex_contacts.setZero();
 
-    for (auto f : node.GetAllContacts(footholds_)) {
+    for (auto f : ee_motion_.GetContacts(t)) {
       double lamdba = lambdas_(idx_lambda++);
       convex_contacts += lamdba*f.p.topRows<kDim2d>();
     }
+//    for (auto f : node.GetAllContacts(footholds_)) {
+//      double lamdba = lambdas_(idx_lambda++);
+//      convex_contacts += lamdba*f.p.topRows<kDim2d>();
+//    }
 
     g.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop_.middleRows<kDim2d>(kDim2d*k);
     k++;
@@ -84,8 +103,10 @@ SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
 
   int row_idx = 0;
   int col_idx = 0;
-  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-    for (auto f : node.GetAllContacts(footholds_)) {
+  for (double t : dts_) {
+//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+    for (auto f : ee_motion_.GetContacts(t)) {
+//    for (auto f : node.GetAllContacts(footholds_)) {
       for (auto dim : {X, Y})
         jac_.insert(row_idx+dim,col_idx) = f.p(dim);
 
@@ -103,16 +124,21 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
 {
   int row_idx = 0;
   int m = GetNumberOfConstraints();
-  int n = footholds_.size() * kDim2d;
+//  int n = footholds_.size() * kDim2d;
+  int n = ee_motion_.GetAllFreeContacts().size() *kDim2d;
+
   Jacobian jac_(m, n);
 
   int idx_lambdas = 0;
-  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
-    for (auto c: node.GetAllContacts()) {
+  for (double t : dts_) {
+//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
+
+    for (auto c : ee_motion_.GetContacts(t)) {
+//    for (auto c: node.GetAllContacts()) {
       if (c.id != ContactBase::kFixedByStartStance) {
         for (auto dim : {X, Y}) {
-          int idx_contact = ContactVars::Index(c.id, dim);
+          int idx_contact = ee_motion_.Index(c.ee, c.id, dim);
           jac_.insert(row_idx+dim, idx_contact) = lambdas_(idx_lambdas);
         }
       }

@@ -11,6 +11,7 @@
 #include <xpp/a_constraint.h>
 #include "motion_structure.h"
 #include "eigen_std_conversions.h"
+#include "endeffectors_motion.h"
 #include <memory>
 
 namespace xpp {

@@ -137,17 +137,7 @@ MotionStructure::CalcPhaseStampedVec () const
   for (int i=0; i<GetTotalTime()/dt_; ++i) {
     MotionNode contact_info;
 
-
-    // get the current phase
-    double t = 0;
-    for (auto phase : phases_) {
-      t += phase.duration_;
-      if (t > t_global) {
-        contact_info = phase;
-        break;
-      }
-    }
-
+    contact_info = GetCurrentPhase(t_global);
     contact_info.time_  = t_global;
     info.push_back(contact_info);
     t_global += dt_;

@@ -130,12 +130,12 @@ add_library(${MOTION_OPT_LIB}
   src/cost_constraint_factory.cc
   src/linear_spline_equality_constraint.cc
   src/range_of_motion_constraint.cc
-  src/obstacle_constraint.cc
   src/support_area_constraint.cc
   src/convexity_constraint.cc
   src/polygon_center_constraint.cc
   src/dynamic_constraint.cc
-  src/a_foothold_constraint.cc
+#  src/a_foothold_constraint.cc
+#  src/obstacle_constraint.cc
   src/a_spline_cost.cc
   # robot specific info
   src/step_sequence_planner.cc

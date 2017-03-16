@@ -25,15 +25,6 @@ struct VariableNames
   static constexpr const char* kCenterOfPressure   = "center_of_pressure";
 };
 
-struct ContactVars {
-  static int Index (int id, Coords3D dim)
-  {
-    assert(id >= 0); // footholds fixed by start can't be optimized over, so have no index
-    return id*kDim2d + dim;
-  }
-};
-
-
 } /* namespace opt */
 } /* namespace xpp */
 

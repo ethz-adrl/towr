@@ -35,13 +35,13 @@ CostConstraintFactory::~CostConstraintFactory ()
 
 void
 CostConstraintFactory::Init (const ComMotionPtr& com,
-                             const EEMotionPtr& endeffectors,
+                             const EEMotionPtr& _ee_motion,
                              const MotionStructure& ms,
                              const MotionTypePtr& _params, const StateLin2d& initial_state,
                              const StateLin2d& final_state)
 {
   com_motion = com;
-  ee_motion = endeffectors;
+  ee_motion = _ee_motion;
 
   motion_structure = ms;
   params = _params;
@@ -199,7 +199,10 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeSupportAreaConstraint() const
 {
   auto constraint = std::make_shared<SupportAreaConstraint>();
-  constraint->Init(motion_structure);
+  constraint->Init(motion_structure,
+                   *ee_motion,
+                   com_motion->GetTotalTime(),
+                   motion_structure.dt_);
   return constraint;
 }
 
@@ -221,25 +224,25 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
       params->offset_geom_to_com_.topRows<kDim2d>()
       );
 
-  constraint->Init(*com_motion, motion_structure);
+  constraint->Init(*com_motion, *ee_motion, motion_structure.dt_);
   return constraint;
 }
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeFinalStanceConstraint () const
 {
-  auto constr = std::make_shared<FootholdFinalStanceConstraint>(
-      motion_structure,
-      final_geom_state_.p,
-      params->GetNominalStanceInBase());
-  return constr;
+//  auto constr = std::make_shared<FootholdFinalStanceConstraint>(
+//      motion_structure,
+//      final_geom_state_.p,
+//      params->GetNominalStanceInBase());
+//  return constr;
 }
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeObstacleConstraint () const
 {
-  auto constraint = std::make_shared<ObstacleLineStrip>();
-  return constraint;
+//  auto constraint = std::make_shared<ObstacleLineStrip>();
+//  return constraint;
 }
 
 CostConstraintFactory::ConstraintPtr

@@ -41,6 +41,7 @@ public:
   using ContactArray   = typename SplineNode::ContactState;
   using ArtiRobVec     = std::vector<SplineNode>;
   using EEID           = EndeffectorID;
+  using EEPtr          = std::shared_ptr<EndeffectorsMotion>;
 
 public:
   WBTrajGenerator();
@@ -49,6 +50,7 @@ public:
   void Init(const PhaseVec&,
             const ComMotionS&,
             const VecFoothold&,
+            const EEPtr&,
             const SplineNode& curr_state,
             double lift_height,
             const Vector3d& com_offset);
@@ -64,7 +66,7 @@ private:
   std::vector<SplineNode> nodes_;
   std::vector<ZPolynomial> z_spliner_;
   std::vector<SplinerOri> ori_spliner_;
-  EndeffectorsMotion ee_spliner_;
+  EEPtr ee_spliner_;
   ComMotionS com_motion_;
 
   double leg_lift_height_;  ///< how high to lift the leg
