@@ -49,9 +49,14 @@ NlpFacade::BuildNlp(const StateLin2d& initial_state,
 
   ee_motion_ = ee_motion;
 
+  auto ee_load = std::make_shared<EndeffectorLoad>();
+  ee_load->Init(*ee_motion_, motion_structure.dt_, com_motion_->GetTotalTime());
+
+
   CostConstraintFactory factory;
   factory.Init(com_motion_,
                ee_motion_,
+               ee_load,
                motion_structure, motion_params, initial_state, final_state);
 
   opt_variables_->ClearVariables();

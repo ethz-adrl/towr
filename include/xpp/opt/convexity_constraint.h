@@ -9,18 +9,28 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONVEXITY_CONSTRAINT_H_
 
 #include <xpp/a_constraint.h>
+#include <xpp/opt/endeffector_load.h>
 
 namespace xpp {
 namespace opt {
 
-class MotionStructure;
-
+/** Enforces that the sum of all lambda variables at every discrete time = 1.
+  *
+  * This is a part of the constraints to represent a convex hull.
+  * E.g. for a quadruped:
+  * g[t_k] = lambda_LF + lambda_RF + lambda_LH + lambda_RF = 1.
+  */
+// zmp_ possibly better to put in same file/merge with
+// PolygonCenterConstraint
+// Support Area Constraint? What's even the difference
 class ConvexityConstraint : public AConstraint {
 public:
   ConvexityConstraint ();
   virtual ~ConvexityConstraint ();
 
-  void Init(const MotionStructure&);
+  /** Parametrize load by piecewise constant load values
+   */
+  void Init(const EndeffectorLoad&);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
@@ -29,8 +39,7 @@ public:
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
-  std::vector<int> n_contacts_per_node_;
-  VectorXd lambdas_;
+  EndeffectorLoad ee_load_;
   Jacobian jac_;
 };
 

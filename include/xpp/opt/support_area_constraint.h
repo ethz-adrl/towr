@@ -8,9 +8,8 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 
-#include "motion_structure.h"
 #include "endeffectors_motion.h"
-#include "eigen_std_conversions.h"
+#include "endeffector_load.h"
 
 #include <xpp/a_constraint.h>
 #include <memory>
@@ -28,7 +27,8 @@ public:
   SupportAreaConstraint ();
   virtual ~SupportAreaConstraint ();
 
-  void Init(const MotionStructure&, const EndeffectorsMotion&,
+  void Init(const EndeffectorsMotion&,
+            const EndeffectorLoad& ee_load,
             double T, double dt);
 
   void UpdateVariables (const OptimizationVariables*) override;
@@ -38,11 +38,10 @@ public:
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
-  MotionStructure motion_structure_;
-  Eigen::VectorXd lambdas_;
+  EndeffectorsMotion ee_motion_;
+  EndeffectorLoad ee_load_;
   Eigen::VectorXd cop_;
 
-  EndeffectorsMotion ee_motion_;
   std::vector<double> dts_; ///< discretization of constraint
 
   Jacobian GetJacobianWithRespectToLambdas() const;

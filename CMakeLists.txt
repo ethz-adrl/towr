@@ -126,6 +126,7 @@ add_library(${MOTION_OPT_LIB}
   src/ee_swing_motion.cc
   src/ee_motion.cc
   src/endeffectors_motion.cc
+  src/endeffector_load.cc
   # constraints and costs
   src/cost_constraint_factory.cc
   src/linear_spline_equality_constraint.cc

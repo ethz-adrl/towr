@@ -6,7 +6,6 @@
  */
 
 #include <xpp/opt/convexity_constraint.h>
-#include <xpp/opt/motion_structure.h>
 #include <xpp/opt/variable_names.h>
 
 namespace xpp {
@@ -23,23 +22,25 @@ ConvexityConstraint::~ConvexityConstraint ()
 }
 
 void
-ConvexityConstraint::Init (const MotionStructure& motion_structure)
+ConvexityConstraint::Init (const EndeffectorLoad& ee_load)
 {
-  for (const auto& node : motion_structure.GetPhaseStampedVec()) {
-    int contacts_fixed = node.contacts_fixed_.size();
-    int contacts_free = node.contacts_opt_.size();
-    n_contacts_per_node_.push_back(contacts_fixed + contacts_free);
-  }
+//  for (const auto& node : motion_structure.GetPhaseStampedVec()) {
+//    int contacts_fixed = node.contacts_fixed_.size();
+//    int contacts_free = node.contacts_opt_.size();
+//    n_contacts_per_node_.push_back(contacts_fixed + contacts_free);
+//  }
+
+  ee_load_ = ee_load;
 
   // build constant jacobian w.r.t lambdas
   int col_idx = 0;
   int row_idx = 0;
-  int m = n_contacts_per_node_.size();
-  int n = motion_structure.GetTotalNumberOfNodeContacts();
+  int m = ee_load_.GetContactsPerNode().size();
+  int n = ee_load_.GetOptimizationVariables().rows();
   jac_ = Jacobian(m, n);
 
 
-  for (int n_contacts : n_contacts_per_node_) {
+  for (int n_contacts : ee_load_.GetContactsPerNode()) {
     for (int col=0; col<n_contacts; col++)
       jac_.insert(row_idx,col_idx + col) = 1.0;
 
@@ -51,7 +52,8 @@ ConvexityConstraint::Init (const MotionStructure& motion_structure)
 void
 ConvexityConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  lambdas_ = opt_var->GetVariables(VariableNames::kConvexity);
+  VectorXd lambdas = opt_var->GetVariables(VariableNames::kConvexity);
+  ee_load_.SetOptimizationVariables(lambdas);
 }
 
 ConvexityConstraint::VectorXd
@@ -61,8 +63,8 @@ ConvexityConstraint::EvaluateConstraint () const
 
   int idx = 0;
 
-  for (int n_contacts : n_contacts_per_node_) {
-    g_vec.push_back(lambdas_.middleRows(idx, n_contacts).sum()); // sum equal to 1
+  for (int n_contacts : ee_load_.GetContactsPerNode()) {
+    g_vec.push_back(ee_load_.GetOptimizationVariables().middleRows(idx, n_contacts).sum()); // sum equal to 1
     idx += n_contacts;
   }
 
@@ -73,7 +75,7 @@ VecBound
 ConvexityConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
-  for (int n_contacts : n_contacts_per_node_)
+  for (int n_contacts : ee_load_.GetContactsPerNode())
     bounds.push_back(Bound(1.0, 1.0)); // sum of lambda's should equal one
 
   return bounds;

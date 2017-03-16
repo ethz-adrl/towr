@@ -6,7 +6,6 @@
  */
 
 #include <xpp/opt/polygon_center_constraint.h>
-#include <xpp/opt/motion_structure.h>
 #include <xpp/opt/variable_names.h>
 
 namespace xpp {
@@ -23,12 +22,12 @@ PolygonCenterConstraint::~PolygonCenterConstraint ()
 }
 
 void
-PolygonCenterConstraint::Init (const MotionStructure& motion_structure)
+PolygonCenterConstraint::Init (const EndeffectorsMotion& ee_motion, double dt, double T)
 {
-  for (const auto& node : motion_structure.GetPhaseStampedVec()) {
-    int contacts_fixed = node.contacts_fixed_.size();
-    int contacts_free = node.contacts_opt_.size();
-    n_contacts_per_node_.push_back(contacts_fixed + contacts_free);
+  double t = 0.0;
+  for (int i=0; i<T/dt; ++i) {
+    n_contacts_per_node_.push_back(ee_motion.GetContacts(t).size());
+    t += dt;
   }
 }
 

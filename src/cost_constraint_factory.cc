@@ -36,12 +36,14 @@ CostConstraintFactory::~CostConstraintFactory ()
 void
 CostConstraintFactory::Init (const ComMotionPtr& com,
                              const EEMotionPtr& _ee_motion,
+                             const EELoadPtr& _ee_load,
                              const MotionStructure& ms,
                              const MotionTypePtr& _params, const StateLin2d& initial_state,
                              const StateLin2d& final_state)
 {
   com_motion = com;
   ee_motion = _ee_motion;
+  ee_load = _ee_load;
 
   motion_structure = ms;
   params = _params;
@@ -199,8 +201,8 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeSupportAreaConstraint() const
 {
   auto constraint = std::make_shared<SupportAreaConstraint>();
-  constraint->Init(motion_structure,
-                   *ee_motion,
+  constraint->Init(*ee_motion,
+                   *ee_load,
                    com_motion->GetTotalTime(),
                    motion_structure.dt_);
   return constraint;
@@ -210,7 +212,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeConvexityConstraint() const
 {
   auto constraint = std::make_shared<ConvexityConstraint>();
-  constraint->Init(motion_structure);
+  constraint->Init(*ee_load);
   return constraint;
 }
 
@@ -249,7 +251,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakePolygonCenterConstraint () const
 {
   auto constraint = std::make_shared<PolygonCenterConstraint>();
-  constraint->Init(motion_structure);
+  constraint->Init(*ee_motion, motion_structure.dt_, com_motion->GetTotalTime());
   return constraint;
 }
 

@@ -11,9 +11,6 @@
 namespace xpp {
 namespace opt {
 
-using Vector2d = Eigen::Vector2d;
-using Vector3d = Eigen::Vector3d;
-
 SupportAreaConstraint::SupportAreaConstraint ()
 {
   name_ = "Support Area";
@@ -25,13 +22,13 @@ SupportAreaConstraint::~SupportAreaConstraint ()
 }
 
 void
-SupportAreaConstraint::Init (const MotionStructure& motion_structure,
-                             const EndeffectorsMotion& ee_motion,
+SupportAreaConstraint::Init (const EndeffectorsMotion& ee_motion,
+                             const EndeffectorLoad& ee_load,
                              double T,
                              double dt)
 {
-  motion_structure_ = motion_structure; // zmp_ remove this
   ee_motion_ = ee_motion;
+  ee_load_ = ee_load;
 
   double t = 0;
   dts_.clear();
@@ -44,12 +41,14 @@ SupportAreaConstraint::Init (const MotionStructure& motion_structure,
 void
 SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  // zmp_ (smell) these are still dependent on discretization in motion_structure
-  lambdas_   = opt_var->GetVariables(VariableNames::kConvexity);
-  cop_       = opt_var->GetVariables(VariableNames::kCenterOfPressure);
+  Eigen::VectorXd lambdas   = opt_var->GetVariables(VariableNames::kConvexity);
   Eigen::VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
 
   ee_motion_.SetOptimizationParameters(footholds);
+  ee_load_.SetOptimizationVariables(lambdas);
+
+  // zmp_ (smell) these are still dependent on discretization in motion_structure
+  cop_       = opt_var->GetVariables(VariableNames::kCenterOfPressure);
 }
 
 SupportAreaConstraint::VectorXd
@@ -68,7 +67,7 @@ SupportAreaConstraint::EvaluateConstraint () const
     convex_contacts.setZero();
 
     for (auto f : ee_motion_.GetContacts(t)) {
-      double lamdba = lambdas_(idx_lambda++);
+      double lamdba = ee_load_.GetOptimizationVariables()(idx_lambda++);
       convex_contacts += lamdba*f.p.topRows<kDim2d>();
     }
 //    for (auto f : node.GetAllContacts(footholds_)) {
@@ -98,7 +97,7 @@ SupportAreaConstraint::Jacobian
 SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
 {
   int m = GetNumberOfConstraints();
-  int n = motion_structure_.GetTotalNumberOfNodeContacts();
+  int n = ee_load_.GetOptimizationVariables().size();
   Jacobian jac_(m, n);
 
   int row_idx = 0;
@@ -139,7 +138,7 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
       if (c.id != ContactBase::kFixedByStartStance) {
         for (auto dim : {X, Y}) {
           int idx_contact = ee_motion_.Index(c.ee, c.id, dim);
-          jac_.insert(row_idx+dim, idx_contact) = lambdas_(idx_lambdas);
+          jac_.insert(row_idx+dim, idx_contact) = ee_load_.GetOptimizationVariables()(idx_lambdas);
         }
       }
 

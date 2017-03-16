@@ -9,11 +9,10 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 
 #include <xpp/a_constraint.h>
+#include <xpp/opt/endeffectors_motion.h>
 
 namespace xpp {
 namespace opt {
-
-class MotionStructure;
 
 /** Ensures that vector represented by lambdas lies in center
   *
@@ -24,10 +23,12 @@ class MotionStructure;
   */
 class PolygonCenterConstraint : public AConstraint {
 public:
+
   PolygonCenterConstraint ();
   virtual ~PolygonCenterConstraint ();
 
-  void Init(const MotionStructure&);
+  // zmp_ dt at this point must be same discretization as lambda variables
+  void Init(const EndeffectorsMotion&, double dt_lambda, double Ttotal);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
