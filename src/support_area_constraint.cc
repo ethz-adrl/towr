@@ -24,15 +24,17 @@ SupportAreaConstraint::~SupportAreaConstraint ()
 void
 SupportAreaConstraint::Init (const EndeffectorsMotion& ee_motion,
                              const EndeffectorLoad& ee_load,
+                             const CenterOfPressure& cop,
                              double T,
                              double dt)
 {
   ee_motion_ = ee_motion;
   ee_load_ = ee_load;
+  cop_ = cop;
 
   double t = 0;
   dts_.clear();
-  for (int i=0; i<T/dt; ++i) {
+  for (int i=0; i<floor(T/dt); ++i) {
     dts_.push_back(t);
     t += dt;
   }
@@ -41,14 +43,13 @@ SupportAreaConstraint::Init (const EndeffectorsMotion& ee_motion,
 void
 SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  Eigen::VectorXd lambdas   = opt_var->GetVariables(VariableNames::kConvexity);
-  Eigen::VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
+  VectorXd lambdas   = opt_var->GetVariables(VariableNames::kConvexity);
+  VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
+  VectorXd cop = opt_var->GetVariables(VariableNames::kCenterOfPressure);
 
   ee_motion_.SetOptimizationParameters(footholds);
   ee_load_.SetOptimizationVariables(lambdas);
-
-  // zmp_ (smell) these are still dependent on discretization in motion_structure
-  cop_       = opt_var->GetVariables(VariableNames::kCenterOfPressure);
+  cop_.SetOptimizationVariables(cop);
 }
 
 SupportAreaConstraint::VectorXd
@@ -75,7 +76,7 @@ SupportAreaConstraint::EvaluateConstraint () const
 //      convex_contacts += lamdba*f.p.topRows<kDim2d>();
 //    }
 
-    g.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop_.middleRows<kDim2d>(kDim2d*k);
+    g.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop_.GetOptimizationVariables().middleRows<kDim2d>(kDim2d*k);
     k++;
   }
 
@@ -155,7 +156,7 @@ SupportAreaConstraint::Jacobian
 SupportAreaConstraint::GetJacobianWithRespectToCop () const
 {
     int m = GetNumberOfConstraints();
-    int n   = cop_.rows();
+    int n   = cop_.GetOptimizationVariables().rows();
     Jacobian jac_(m, n);
     jac_.setIdentity();
     jac_ = -1*jac_;

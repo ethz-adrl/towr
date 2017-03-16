@@ -22,19 +22,16 @@ PolygonCenterConstraint::~PolygonCenterConstraint ()
 }
 
 void
-PolygonCenterConstraint::Init (const EndeffectorsMotion& ee_motion, double dt, double T)
+PolygonCenterConstraint::Init (const EndeffectorLoad& ee_load)
 {
-  double t = 0.0;
-  for (int i=0; i<T/dt; ++i) {
-    n_contacts_per_node_.push_back(ee_motion.GetContacts(t).size());
-    t += dt;
-  }
+  ee_load_ = ee_load;
 }
 
 void
 PolygonCenterConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  lambdas_ = opt_var->GetVariables(VariableNames::kConvexity);
+  Eigen::VectorXd lambdas = opt_var->GetVariables(VariableNames::kConvexity);
+  ee_load_.SetOptimizationVariables(lambdas);
 }
 
 PolygonCenterConstraint::VectorXd
@@ -44,11 +41,11 @@ PolygonCenterConstraint::EvaluateConstraint () const
 
   int idx = 0;
 
-  for (int m : n_contacts_per_node_) {
+  for (int m : ee_load_.GetContactsPerNode()) {
 
     double g_node = 0;
     for (int j=0; j<m; ++j) {
-      double lamb_j = lambdas_(idx+j);
+      double lamb_j = ee_load_.GetOptimizationVariables()(idx+j);
       g_node += std::pow(lamb_j,2) - 2./m*lamb_j;
     }
 
@@ -63,7 +60,7 @@ VecBound
 PolygonCenterConstraint::GetBounds () const
 {
   std::vector<Bound> bounds;
-  for (int m : n_contacts_per_node_)
+  for (int m : ee_load_.GetContactsPerNode())
     bounds.push_back(Bound(-1./m, -1./m)); // should lie in center of polygon
 
   return bounds;
@@ -77,12 +74,14 @@ PolygonCenterConstraint::GetJacobianWithRespectTo (std::string var_set) const
   if (var_set == VariableNames::kConvexity) {
     int col_idx = 0;
     int row_idx = 0;
-    jac = Jacobian(n_contacts_per_node_.size(), lambdas_.rows());
+    int m = ee_load_.GetContactsPerNode().size();
+    int n = ee_load_.GetOptimizationVariables().rows();
+    jac = Jacobian(m, n);
 
-    for (int m : n_contacts_per_node_) {
+    for (int m : ee_load_.GetContactsPerNode()) {
       for (int j=0; j<m; j++) {
         double idx = col_idx+j;
-        jac.insert(row_idx,idx) = 2*(lambdas_(idx)-1./m);
+        jac.insert(row_idx,idx) = 2*(ee_load_.GetOptimizationVariables()(idx)-1./m);
       }
 
       col_idx += m;

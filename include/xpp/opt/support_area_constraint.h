@@ -10,6 +10,7 @@
 
 #include "endeffectors_motion.h"
 #include "endeffector_load.h"
+#include "center_of_pressure.h"
 
 #include <xpp/a_constraint.h>
 #include <memory>
@@ -29,6 +30,7 @@ public:
 
   void Init(const EndeffectorsMotion&,
             const EndeffectorLoad& ee_load,
+            const CenterOfPressure& cop,
             double T, double dt);
 
   void UpdateVariables (const OptimizationVariables*) override;
@@ -40,7 +42,7 @@ public:
 private:
   EndeffectorsMotion ee_motion_;
   EndeffectorLoad ee_load_;
-  Eigen::VectorXd cop_;
+  CenterOfPressure cop_;
 
   std::vector<double> dts_; ///< discretization of constraint
 

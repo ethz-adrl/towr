@@ -12,6 +12,7 @@
 #include "com_motion.h"
 #include "endeffectors_motion.h"
 #include "endeffector_load.h"
+#include "center_of_pressure.h"
 
 #include "motion_parameters.h"
 
@@ -41,13 +42,14 @@ public:
   using ComMotionPtr  = std::shared_ptr<ComMotion>;
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
   using EELoadPtr     = std::shared_ptr<EndeffectorLoad>;
+  using CopPtr        = std::shared_ptr<CenterOfPressure>;
 
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();
 
   // zmp_ consider wrapping all Optimization Variables into once class
   void Init(const ComMotionPtr&, const EEMotionPtr&,
-            const EELoadPtr&,
+            const EELoadPtr&, const CopPtr&,
             const MotionStructure&,
             const MotionTypePtr& params, const StateLin2d& initial_state,
             const StateLin2d& final_state);
@@ -68,6 +70,7 @@ private:
   ComMotionPtr com_motion;
   EEMotionPtr ee_motion;
   EELoadPtr ee_load;
+  CopPtr cop;
 
   StateLin2d initial_geom_state_;
   StateLin2d final_geom_state_;

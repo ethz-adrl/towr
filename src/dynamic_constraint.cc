@@ -27,14 +27,16 @@ DynamicConstraint::~DynamicConstraint ()
 }
 
 void
-DynamicConstraint::Init (const ComMotion& com_motion, double dt)
+DynamicConstraint::Init (const ComMotion& com_motion,
+                         const CenterOfPressure& cop, double dt)
 {
   com_motion_ = com_motion.clone();
   kHeight_ = com_motion.GetZHeight();
+  cop_ = cop;
 
-  double t = 0;
+  double t = 0.0;
   dts_.clear();
-  for (int i=0; i<com_motion.GetTotalTime()/dt; ++i) {
+  for (int i=0; i<floor(com_motion.GetTotalTime()/dt); ++i) {
     dts_.push_back(t);
     t += dt;
   }
@@ -45,13 +47,15 @@ DynamicConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
   VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
   com_motion_->SetCoefficients(x_coeff);
-  cop_     = opt_var->GetVariables(VariableNames::kCenterOfPressure);
+
+  VectorXd cop = opt_var->GetVariables(VariableNames::kCenterOfPressure);
+  cop_.SetOptimizationVariables(cop);
 }
 
 DynamicConstraint::VectorXd
 DynamicConstraint::EvaluateConstraint () const
 {
-  int m = cop_.size();
+  int m = cop_.GetOptimizationVariables().size();
   Eigen::VectorXd g(m);
 
 //  int k = 0;
@@ -63,7 +67,7 @@ DynamicConstraint::EvaluateConstraint () const
 
     // acceleration as predefined by physics
     // zmp_ create class for CoP as well
-    Vector2d acc_physics = model_.GetDerivative(cop_.middleRows<kDim2d>(kDim2d*k));
+    Vector2d acc_physics = model_.GetDerivative(cop_.GetOptimizationVariables().middleRows<kDim2d>(kDim2d*k));
     g.middleRows<kDim2d>(kDim2d*k) = acc_physics - com.a;
 //    k++; //zmp_ clean up
   }
@@ -86,7 +90,7 @@ DynamicConstraint::Jacobian
 DynamicConstraint::GetJacobianWrtCop () const
 {
   int m = GetNumberOfConstraints();
-  Jacobian jac(m, cop_.rows());
+  Jacobian jac(m, cop_.GetOptimizationVariables().rows());
 
   int row=0;
   for (double t : dts_) {
@@ -117,7 +121,7 @@ DynamicConstraint::GetJacobianWrtCom () const
 //    double t = node.time_;
     auto com = com_motion_->GetCom(t);
     model_.SetCurrent(com.p, com.v, kHeight_);
-    Vector2d cop = cop_.middleRows<kDim2d>(kDim2d*n);
+    Vector2d cop = cop_.GetOptimizationVariables().middleRows<kDim2d>(kDim2d*n);
 
     for (auto dim : {X, Y}) {
       Jacobian jac_acc     = com_motion_->GetJacobian(t,kAcc,dim);

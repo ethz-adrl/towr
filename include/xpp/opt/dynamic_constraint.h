@@ -9,6 +9,7 @@
 #define XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
 
 #include "linear_inverted_pendulum.h"
+#include "center_of_pressure.h"
 #include <xpp/a_constraint.h>
 #include <memory>
 
@@ -24,7 +25,7 @@ public:
   DynamicConstraint ();
   virtual ~DynamicConstraint ();
 
-  void Init(const ComMotion&, double dt);
+  void Init(const ComMotion&, const CenterOfPressure&, double dt);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
@@ -34,10 +35,9 @@ public:
 
 private:
   ComMotionPtrU com_motion_;
-  Eigen::VectorXd cop_;
+  CenterOfPressure cop_;
   mutable LinearInvertedPendulum model_;
 
-//  double dt_;
   std::vector<double> dts_;
 
   Jacobian GetJacobianWrtCop() const;

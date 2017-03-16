@@ -26,14 +26,14 @@ EndeffectorLoad::Init (const EndeffectorsMotion ee_motion, double dt, double T)
   n_contacts_per_node_.clear();
   double t = 0.0;
   int n = 0; // total number of discrete contacts
-  for (int i=0; i<T/dt; ++i) {
+  for (int i=0; i<floor(T/dt); ++i) {
     int n_contacts_node = ee_motion.GetContacts(t).size();
     n_contacts_per_node_.push_back(n_contacts_node);
     n += n_contacts_node;
     t += dt;
   }
 
-  lambdas_ = VectorXd(n);
+  lambdas_ = VectorXd::Zero(n);
 }
 
 void

@@ -31,7 +31,7 @@ RangeOfMotionConstraint::Init (const ComMotion& com_motion,
 
   dts_.clear();
   double t = 0.0;
-  for (int i=0; i<com_motion_->GetTotalTime()/dt; ++i) {
+  for (int i=0; i<floor(com_motion_->GetTotalTime()/dt); ++i) {
     dts_.push_back(t);
     t += dt;
   }

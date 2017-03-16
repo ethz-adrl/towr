@@ -9,7 +9,7 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 
 #include <xpp/a_constraint.h>
-#include <xpp/opt/endeffectors_motion.h>
+#include <xpp/opt/endeffector_load.h>
 
 namespace xpp {
 namespace opt {
@@ -28,7 +28,7 @@ public:
   virtual ~PolygonCenterConstraint ();
 
   // zmp_ dt at this point must be same discretization as lambda variables
-  void Init(const EndeffectorsMotion&, double dt_lambda, double Ttotal);
+  void Init(const EndeffectorLoad&);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
@@ -37,8 +37,7 @@ public:
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
-  std::vector<int> n_contacts_per_node_;
-  VectorXd lambdas_;
+  EndeffectorLoad ee_load_;
 };
 
 } /* namespace opt */

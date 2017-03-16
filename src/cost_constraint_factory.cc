@@ -37,6 +37,7 @@ void
 CostConstraintFactory::Init (const ComMotionPtr& com,
                              const EEMotionPtr& _ee_motion,
                              const EELoadPtr& _ee_load,
+                             const CopPtr& _cop,
                              const MotionStructure& ms,
                              const MotionTypePtr& _params, const StateLin2d& initial_state,
                              const StateLin2d& final_state)
@@ -44,6 +45,7 @@ CostConstraintFactory::Init (const ComMotionPtr& com,
   com_motion = com;
   ee_motion = _ee_motion;
   ee_load = _ee_load;
+  cop = _cop;
 
   motion_structure = ms;
   params = _params;
@@ -115,12 +117,11 @@ CostConstraintFactory::ContactVariables (const Vector2d initial_pos) const
 VariableSet
 CostConstraintFactory::ConvexityVariables () const
 {
-  int n_lambdas = motion_structure.GetTotalNumberOfNodeContacts();
-  Eigen::VectorXd lambdas(n_lambdas);
-
   // initialize load values as if each leg is carrying half of total load
+  Eigen::VectorXd lambdas = ee_load->GetOptimizationVariables();
   lambdas.fill(1./2);
   return VariableSet(lambdas, VariableNames::kConvexity, Bound(0.0, 1.0));
+
 
 // this would initializate the load parameters to equal distribution depending
 // on how many contacts in that phase. This also depends on how much each contact
@@ -146,9 +147,14 @@ CostConstraintFactory::CopVariables () const
 {
   // zmp_ use parametrization class to represent this as well
   int n_nodes = motion_structure.GetPhaseStampedVec().size();
-  Eigen::VectorXd cop(n_nodes*kDim2d);
-  cop.setZero();
-  return VariableSet(cop, VariableNames::kCenterOfPressure);
+  Eigen::VectorXd local_cop(n_nodes*kDim2d);
+  local_cop.setZero();
+
+//  kkkk
+  std::cout << "local: " << local_cop.rows() << std::endl;
+  std::cout << "mine: "  << cop->GetOptimizationVariables().rows() << std::endl;
+
+  return VariableSet(cop->GetOptimizationVariables(), VariableNames::kCenterOfPressure);
 }
 
 
@@ -193,7 +199,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   auto constraint = std::make_shared<DynamicConstraint>();
-  constraint->Init(*com_motion, motion_structure.dt_);
+  constraint->Init(*com_motion, *cop, motion_structure.dt_);
   return constraint;
 }
 
@@ -203,6 +209,7 @@ CostConstraintFactory::MakeSupportAreaConstraint() const
   auto constraint = std::make_shared<SupportAreaConstraint>();
   constraint->Init(*ee_motion,
                    *ee_load,
+                   *cop,
                    com_motion->GetTotalTime(),
                    motion_structure.dt_);
   return constraint;
@@ -251,7 +258,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakePolygonCenterConstraint () const
 {
   auto constraint = std::make_shared<PolygonCenterConstraint>();
-  constraint->Init(*ee_motion, motion_structure.dt_, com_motion->GetTotalTime());
+  constraint->Init(*ee_load);
   return constraint;
 }
 
