@@ -12,14 +12,12 @@
 #include <xpp/opt/quadruped_motion_parameters.h>
 
 #include <xpp_msgs/RobotStateCartesianTrajectory.h> // publish
-#include <xpp_msgs/ContactVector.h>                 // publish
 
 namespace xpp {
 namespace ros {
 
 using TrajectoryCart      = std::vector<RobotStateCartesian>;
 using TrajectoryCartMsg   = xpp_msgs::RobotStateCartesianTrajectory;
-using ContactvectorMsg    = xpp_msgs::ContactVector;
 
 NlpOptimizerNode::NlpOptimizerNode ()
 {
@@ -34,18 +32,18 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                     ::ros::TransportHints().tcpNoDelay());
 
   cart_trajectory_pub_  = n.advertise<TrajectoryCartMsg>(xpp_msgs::robot_trajectory_cart, 1);
-  contacts_pub_         = n.advertise<ContactvectorMsg>(xpp_msgs::contact_vector, 1);
+
+  motion_optimizer_.BuildDefaultStartStance(opt::QuadrupedMotionParameters());
 
   dt_ = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
-  ROS_INFO_STREAM("Initialization done, waiting for current state...");
 }
 
 void
 NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
 {
   auto curr_state = RosHelpers::RosToXpp(msg.state);
-  motion_optimizer_.BuildOptimizationStartState(curr_state);
-  ROS_DEBUG_STREAM("Received Current State");
+  motion_optimizer_.start_geom_ = curr_state;
+  ROS_INFO_STREAM("Received Current State");
 
 //  OptimizeMotion();
 //  PublishTrajectory();
@@ -68,8 +66,8 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
   motion_optimizer_.goal_geom_ = RosHelpers::RosToXpp(msg.goal);
 
   auto motion_id = static_cast<opt::MotionTypeID>(msg.motion_type);
-  auto motion_type = opt::QuadrupedMotionParameters::MakeMotion(motion_id);
-  motion_optimizer_.SetMotionType(motion_type);
+  auto params = opt::QuadrupedMotionParameters::MakeMotion(motion_id);
+  motion_optimizer_.SetMotionParameters(params);
 
   solver_type_ = msg.use_solver_snopt ? opt::Snopt : opt::Ipopt;
 
@@ -88,10 +86,6 @@ NlpOptimizerNode::PublishTrajectory ()
   auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
   auto cart_traj_msg = RosHelpers::XppToRosCart(opt_traj_cartesian);
   cart_trajectory_pub_.publish(cart_traj_msg);
-
-  // publish also directly the optimized footholds
-  auto contacts = motion_optimizer_.GetContactVec();
-  contacts_pub_.publish(RosHelpers::XppToRos(contacts));
 }
 
 } /* namespace ros */

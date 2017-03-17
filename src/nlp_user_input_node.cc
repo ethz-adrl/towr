@@ -29,7 +29,7 @@ NlpUserInputNode::NlpUserInputNode ()
   goal_geom_.p.setZero();
 //  goal_cog_.p << 1.05, 0.15, 0.0; // used for RA-L paper
 //  goal_cog_.p << 0.2, 0, 0.0;
-  motion_type_ = opt::WalkID;
+  motion_type_ = opt::TrottID;
   replay_trajectory_ = false;
   use_solver_snopt_ = false;
   UserCommandMsg msg;

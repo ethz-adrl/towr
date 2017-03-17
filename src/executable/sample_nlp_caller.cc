@@ -33,7 +33,7 @@ int main(int argc, char **argv)
   }
 
   ::ros::NodeHandle n;
-  ::ros::Publisher current_info_pub = n.advertise<CurrentInfoMsg>(xpp_msgs::curr_robot_state, 1);
+  ::ros::Publisher current_info_pub = n.advertise<CurrentInfoMsg>(xpp_msgs::curr_robot_state, 10);
 
   // give publisher and subscriber time to register with master
   ::ros::Rate poll_rate(100);
@@ -70,12 +70,17 @@ int main(int argc, char **argv)
   contacts.At(kMapQuadToOpt.at(LH)) = true;
   start_state_cart.SetContactState(contacts);
 
-  start_state_cart.SetPercentPhase(0.0);
   start_state_cart.SetTime(0.0);
 
   CurrentInfoMsg msg;
   msg.state = xpp::ros::RosHelpers::XppToRos(start_state_cart);
   ROS_INFO_STREAM("Publishing current state...");
+  current_info_pub.publish(msg);
+  current_info_pub.publish(msg);
+  current_info_pub.publish(msg);
+  current_info_pub.publish(msg);
+  current_info_pub.publish(msg);
+  current_info_pub.publish(msg);
   current_info_pub.publish(msg);
 }
 

@@ -16,7 +16,7 @@
   
   <!-- specifies the initial position of the robot. Only neccessary
   if SL is not sending it. -->
-  <node name="sample_nlp_caller" pkg="xpp_ros" type="sample_nlp_caller" args="0 0 0 0 0 0" output="screen" cwd="node" >  </node>
+<!--   <node name="sample_nlp_caller" pkg="xpp_ros" type="sample_nlp_caller" args="0 0 0 0 0 0" output="screen" cwd="node" >  </node> -->
   
   
   <!-- if rviz visualization is desired -->
