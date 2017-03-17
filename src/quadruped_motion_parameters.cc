@@ -41,11 +41,11 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 
   const double x_nominal_b = 0.34;
   const double y_nominal_b = 0.34;
-  NominalStance nominal;
-  nominal_stance_[kMapQuadToOpt.at(LF)] = PosXY( x_nominal_b,   y_nominal_b);
-  nominal_stance_[kMapQuadToOpt.at(RF)] = PosXY( x_nominal_b,  -y_nominal_b);
-  nominal_stance_[kMapQuadToOpt.at(LH)] = PosXY(-x_nominal_b,   y_nominal_b);
-  nominal_stance_[kMapQuadToOpt.at(RH)] = PosXY(-x_nominal_b,  -y_nominal_b);
+  nominal_stance_.SetCount(robot_ee_.size());
+  nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, 0.0);
+  nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, 0.0);
+  nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, 0.0);
+  nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, 0.0);
 }
 
 QuadrupedMotionParameters::MotionTypePtr

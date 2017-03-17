@@ -34,13 +34,12 @@ public:
   void OptimizeMotion(NlpSolver solver);
   RobotStateVec GetTrajectory(double dt);
 
-  void BuildOptimizationStartState(const RobotStateCartesian& curr_geom);
-
   RobotStateCartesian start_geom_;
   StateLin3d goal_geom_;
   EEMotionPtrS ee_motion_;
 
-  void SetMotionParameters(const MotionParametersPtr& motion_type);
+  void SetMotionParameters(const MotionParametersPtr& params);
+  void BuildDefaultStartStance(const MotionParameters& params);
 
 private:
   NlpFacade nlp_facade_;

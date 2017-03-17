@@ -64,7 +64,7 @@ private:
 class RangeOfMotionBox : public RangeOfMotionConstraint {
 public:
   using MaxDevXY       = std::array<double,2>;
-  using NominalStance  = std::map<EndeffectorID, Eigen::Vector2d>;
+  using NominalStance  = EEXppPos;
 
   /** @param dev  How much the endeffector can deviate from the default (x,y)
     * position while still remaining in the range of motion.

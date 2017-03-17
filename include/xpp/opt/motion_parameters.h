@@ -36,7 +36,7 @@ public:
   using SwinglegPhaseVec = std::vector<SwinglegPhase>;
   using PosXY            = Eigen::Vector2d;
   using PosXYZ           = Eigen::Vector3d;
-  using NominalStance    = std::map<EEID, PosXY>;
+  using NominalStance    = EEXppPos;
   using ValXY            = std::array<double,2>;
   using CostWeights      = std::map<CostName, double>;
   using UsedConstraints  = std::vector<ConstraintName>;

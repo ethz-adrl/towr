@@ -109,7 +109,7 @@ RangeOfMotionBox::GetBounds () const
 //  for (auto node : motion_structure_.GetPhaseStampedVec()) {
     for (auto c : ee_motion_.GetContacts(t)) {
 
-      PosXY f_nom_B = nominal_stance_.at(c.ee);
+      Vector3d f_nom_B = nominal_stance_.At(c.ee);
       for (auto dim : {X,Y}) {
         Bound b;
         b += f_nom_B(dim);
