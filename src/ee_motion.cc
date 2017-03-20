@@ -81,18 +81,25 @@ EEMotion::GetPhase (double t_global) const
   }
 }
 
+bool
+EEMotion::IsInContact (double t_global) const
+{
+  int phase = GetPhase(t_global);
+  return is_contact_phase_.at(phase);
+}
+
 EEMotion::ContactPositions
 EEMotion::GetContact (double t) const
 {
   ContactPositions contact;
   if (IsInContact(t)) {
 
-    // add up all contact phases until then
-    int c = 0;
+    // add up all swing phases until then
+    int previous_swing_phases = 0;
     for (int p=0; p<GetPhase(t); ++p)
-      c += is_contact_phase_.at(p);
+      previous_swing_phases += !is_contact_phase_.at(p);
 
-    contact.push_back(contacts_.at(c));
+    contact.push_back(contacts_.at(previous_swing_phases));
   }
 
   return contact;
