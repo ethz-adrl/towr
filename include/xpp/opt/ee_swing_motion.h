@@ -15,6 +15,11 @@
 namespace xpp {
 namespace opt {
 
+/** Parametrizes the motion from one 3D point to another.
+  *
+  * This can be used to generate the swingleg motion given two footholds.
+  * See xpp_opt/matlab/swingleg_z_height.m for the generation of these values.
+  */
 class EESwingMotion {
 public:
   using PolyXY     = PolynomialXd<CubicPolynomial, StateLin2d>;
@@ -23,27 +28,36 @@ public:
   EESwingMotion ();
   virtual ~EESwingMotion ();
 
-
+  /** The duration[s] of the motion.
+    */
   void SetDuration(double T);
 
-  // assume these values don't change, otherwise second function wrong
+  /** Determines how high the leg is lifted between contact points.
+    *
+    * This is not the height exactly between the contact points, but the height
+    * that the swingleg has as 1/n_*T and (n-1)/n*T, e.g. shortly after lift-off
+    * and right before touchdown. The lift-height in the center is higher.
+    */
+  void SetLiftHeight(double h);
 
-  // zmp_ remove this "percent_done", seems antique
-  //zmp_ this should also allow 3D foothold
-//  void SetZParams(double percent_done, double z_max);
+  /** @param start The xyz starting location.
+    * @param end The goal of the motion reached after T.
+    */
   void SetContacts(const Vector3d& start, const Vector3d& end);
 
+  /** Returns the 3D position, velocity and acceleration at any time during
+    * the motion.
+    */
   StateLin3d GetState(double t_local) const;
-
   double GetDuration() const;
 
-  double lift_height_ = 0.03; // only proportional to actual lift height
 private:
   PolyZ poly_z_;
   PolyXY poly_xy_;
 
-//  double t_start_z_; // zmp_ remove this crap
-  double duration_;
+  double T_;        ///< the duration [s] of the motion
+  double h_ = 0.03; ///< proportional to the lift height between contacts
+  int n_ = 6;       ///< determines the shape of the swing motion
 };
 
 } /* namespace opt */

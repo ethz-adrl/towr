@@ -25,11 +25,6 @@ EEMotion::~EEMotion ()
 void
 EEMotion::SetInitialPos (const Vector3d& pos, EndeffectorID ee)
 {
-  // zmp_ then also don't clear this
-  is_contact_phase_.clear();
-  contacts_.clear();
-  phase_motion_.clear();
-
   ee_ = ee;
   contacts_.push_front(Contact(ContactBase::kFixedByStartStance, ee_, pos));
   UpdateSwingMotions();
@@ -119,7 +114,7 @@ EEMotion::AddPhase (double t, const Vector3d& goal, double lift_height)
 {
   EESwingMotion motion;
   motion.SetDuration(t);
-  motion.lift_height_ = lift_height;
+  motion.SetLiftHeight(lift_height);
   motion.SetContacts(contacts_.back().p, goal);
   phase_motion_.push_back(motion);
 }
