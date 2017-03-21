@@ -10,21 +10,18 @@
 namespace xpp {
 namespace opt {
 
-EndeffectorsMotion::EndeffectorsMotion ()
+EndeffectorsMotion::EndeffectorsMotion (int n_ee)
 {
-//  endeffectors_.SetCount(n_ee);
+  endeffectors_.SetCount(n_ee);
 }
 
 EndeffectorsMotion::~EndeffectorsMotion ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
 EndeffectorsMotion::SetInitialPos (const EEXppPos& initial_pos)
 {
-  endeffectors_.SetCount(initial_pos.GetEECount());
-
   for (auto ee : initial_pos.GetEEsOrdered())
     endeffectors_.At(ee).SetInitialPos(initial_pos.At(ee), ee);
 }
@@ -49,15 +46,10 @@ EndeffectorsMotion::GetEndeffectors (double t_global) const
 EndeffectorsMotion::Contacts
 EndeffectorsMotion::GetAllFreeContacts () const
 {
-  int idx = 0; // zmp_ function doing two things, ugly
   Contacts contacts;
-  for (auto ee : endeffectors_.ToImpl()) {
-    map_ee_to_first_step_idx_[ee.ee_] = idx;
-    for (auto c : ee.GetFreeContacts()) {
+  for (auto ee : endeffectors_.ToImpl())
+    for (auto c : ee.GetFreeContacts())
       contacts.push_back(c);
-      idx++;
-    }
-  }
 
   return contacts;
 }
@@ -79,7 +71,7 @@ EndeffectorsMotion::GetContactState (double t_global) const
   EEXppBool contact_state(endeffectors_.GetEECount());
 
   for (auto ee : endeffectors_.ToImpl())
-    contact_state.At(ee.ee_) = ee.IsInContact(t_global);
+    contact_state.At(ee.GetEE()) = ee.IsInContact(t_global);
 
   return contact_state;
 }
@@ -88,7 +80,7 @@ void
 EndeffectorsMotion::SetContactPositions (const Contacts& contacts)
 {
   for (auto c : contacts)
-    endeffectors_.At(c.ee).SetContactPosition(c.id,c.p);
+    endeffectors_.At(c.ee).UpdateContactPosition(c.id,c.p);
 }
 
 EndeffectorsMotion::VectorXd
@@ -96,7 +88,7 @@ EndeffectorsMotion::GetOptimizationParameters () const
 {
   VectorXd x(GetAllFreeContacts().size() * kDim2d);
   for (auto c : GetAllFreeContacts())
-    for (auto dim : {X,Y})
+    for (auto dim : d2::AllDimensions)
       x(Index(c.ee, c.id, dim)) = c.p(dim);
 
   return x;
@@ -107,7 +99,7 @@ void
 EndeffectorsMotion::SetOptimizationParameters (const VectorXd& x)
 {
   for (auto c : GetAllFreeContacts()) {
-    for (auto dim : {X,Y})
+    for (auto dim : d2::AllDimensions)
       c.p(dim) = x(Index(c.ee, c.id, dim));
 
     SetContactPositions({c});
@@ -115,11 +107,21 @@ EndeffectorsMotion::SetOptimizationParameters (const VectorXd& x)
 }
 
 int
-EndeffectorsMotion::Index (EndeffectorID ee, int id, Coords3D coords3D) const
+EndeffectorsMotion::Index (EndeffectorID _ee, int id, d2::Coords dimension) const
 {
-  // the position of this contact in the overall vector
-  int id_total = map_ee_to_first_step_idx_.at(ee) + (id-1);
-  return kDim2d*id_total + coords3D;
+  // stored like this in vector, initial contacts not optimized over
+  // (E0_0), E0_1, E0_2, ...
+  // (E1_0), E1_1, E1_1, ...
+  // (E2_0), E2_1, E2_1, ...
+
+  int position_in_vector = id-1; // -1 because first contact not optimized over
+
+  for (auto ee : endeffectors_.GetEEsOrdered()) {
+    if (ee == _ee) break;
+    position_in_vector +=  endeffectors_.At(ee).GetFreeContacts().size();
+  }
+
+  return position_in_vector*kDim2d + dimension;
 }
 
 bool

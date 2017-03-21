@@ -34,7 +34,7 @@ ComSpline4::SetStartPosVel (const Vector2d& start_cog_p, const Vector2d& start_c
  start_cog_p_ = start_cog_p;
  start_cog_v_ = start_cog_v;
 
- for (const Coords3D dim : Coords2DArray) {
+ for (auto dim : {X,Y}) {
    jac_e_wrt_abcd_.at(dim) = CalcJacobianEWrtABCD(dim);
    jac_f_wrt_abcd_.at(dim) = CalcJacobianFWrtABCD(dim);
  }
@@ -67,7 +67,7 @@ ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
   Vector2d prev_pos = start_cog_p_;
 
   for (size_t k=0; k<polynomials_.size(); ++k) {
-    for (const Coords3D dim : Coords2DArray) {
+    for (auto dim : {X,Y}) {
       double cv[ComPolynomial::GetNumCoeff()];
 
       // fill in only first 4 optimized coefficients

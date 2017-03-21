@@ -58,8 +58,6 @@ DynamicConstraint::EvaluateConstraint () const
   int m = cop_.GetOptimizationVariables().size();
   Eigen::VectorXd g(m);
 
-//  int k = 0;
-//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
   for (int k=0; k<dts_.size(); ++k) {
 
     auto com = com_motion_->GetCom(dts_.at(k));
@@ -69,7 +67,6 @@ DynamicConstraint::EvaluateConstraint () const
     // zmp_ create class for CoP as well
     Vector2d acc_physics = model_.GetDerivative(cop_.GetOptimizationVariables().middleRows<kDim2d>(kDim2d*k));
     g.middleRows<kDim2d>(kDim2d*k) = acc_physics - com.a;
-//    k++; //zmp_ clean up
   }
 
   return g;
@@ -94,7 +91,6 @@ DynamicConstraint::GetJacobianWrtCop () const
 
   int row=0;
   for (double t : dts_) {
-//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
     auto com = com_motion_->GetCom(t);
     model_.SetCurrent(com.p, com.v, kHeight_);
@@ -115,10 +111,8 @@ DynamicConstraint::GetJacobianWrtCom () const
   Jacobian jac(m, com_motion_->GetTotalFreeCoeff());
 
   int n=0;
-//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
   for (double t : dts_) {
 
-//    double t = node.time_;
     auto com = com_motion_->GetCom(t);
     model_.SetCurrent(com.p, com.v, kHeight_);
     Vector2d cop = cop_.GetOptimizationVariables().middleRows<kDim2d>(kDim2d*n);
@@ -140,13 +134,11 @@ DynamicConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 
-  if (var_set == VariableNames::kCenterOfPressure) {
+  if (var_set == VariableNames::kCenterOfPressure)
     jac = GetJacobianWrtCop();
-  }
 
-  if (var_set == VariableNames::kSplineCoeff) {
+  if (var_set == VariableNames::kSplineCoeff)
     jac = GetJacobianWrtCom();
-  }
 
   return jac;
 }

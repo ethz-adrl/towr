@@ -42,9 +42,9 @@ public:
 
 protected:
   ComMotionPtrU com_motion_;
-  bool first_update_ = true;
-
   EndeffectorsMotion ee_motion_;
+
+  bool first_update_ = true;
   std::vector<double> dts_; ///< discretization of constraint
 
 private:

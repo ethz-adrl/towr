@@ -45,7 +45,7 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
   goal_com.p += motion_parameters_->offset_geom_to_com_;
 
   // initialize the ee_motion with the fixed parameters
-  ee_motion_ = std::make_shared<EndeffectorsMotion>();
+  ee_motion_ = std::make_shared<EndeffectorsMotion>(motion_parameters_->GetEECount());
   ee_motion_->SetInitialPos(start_geom_.GetEEPos());
   ee_motion_->SetPhaseSequence(motion_parameters_->GetOneCycle());
 

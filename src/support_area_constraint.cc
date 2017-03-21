@@ -104,10 +104,8 @@ SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
   int row_idx = 0;
   int col_idx = 0;
   for (double t : dts_) {
-//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
     for (auto f : ee_motion_.GetContacts(t)) {
-//    for (auto f : node.GetAllContacts(footholds_)) {
-      for (auto dim : {X, Y})
+      for (auto dim : d2::AllDimensions)
         jac_.insert(row_idx+dim,col_idx) = f.p(dim);
 
       col_idx++;
@@ -132,12 +130,9 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
   int idx_lambdas = 0;
 
   for (double t : dts_) {
-//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-
     for (auto c : ee_motion_.GetContacts(t)) {
-//    for (auto c: node.GetAllContacts()) {
       if (c.id != ContactBase::kFixedByStartStance) {
-        for (auto dim : {X, Y}) {
+        for (auto dim : d2::AllDimensions) {
           int idx_contact = ee_motion_.Index(c.ee, c.id, dim);
           jac_.insert(row_idx+dim, idx_contact) = ee_load_.GetOptimizationVariables()(idx_lambdas);
         }

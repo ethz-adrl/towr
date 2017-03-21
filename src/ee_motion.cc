@@ -16,11 +16,7 @@ EEMotion::EEMotion ()
 
 EEMotion::~EEMotion ()
 {
-  // TODO Auto-generated destructor stub
 }
-
-// zmp_ have a temporal dependency here on AddStace/Swing phase, maybe save all
-// in vector first and then generate splines?
 
 void
 EEMotion::SetInitialPos (const Vector3d& pos, EndeffectorID ee)
@@ -41,10 +37,19 @@ void
 EEMotion::AddSwingPhase (double t, const Vector3d& goal)
 {
   AddPhase(t, goal);
-//  int contact_nr = contacts_.size() + ContactBase::kFixedByStartStance;
   Contact c(contacts_.back().id +1 , ee_, goal);
   contacts_.push_back(c);
   is_contact_phase_.push_back(false);
+}
+
+void
+EEMotion::AddPhase (double t, const Vector3d& goal, double lift_height)
+{
+  assert(!contacts_.empty()); // SetInitialPos() must be called before
+
+  EESwingMotion motion;
+  motion.Init(t, lift_height, contacts_.back().p, goal);
+  phase_motion_.push_back(motion);
 }
 
 StateLin3d
@@ -93,6 +98,12 @@ EEMotion::GetContact (double t) const
   return contact;
 }
 
+EndeffectorID
+EEMotion::GetEE () const
+{
+  return ee_;
+}
+
 void
 EEMotion::UpdateSwingMotions ()
 {
@@ -109,16 +120,6 @@ EEMotion::UpdateSwingMotions ()
   }
 }
 
-void
-EEMotion::AddPhase (double t, const Vector3d& goal, double lift_height)
-{
-  EESwingMotion motion;
-  motion.SetDuration(t);
-  motion.SetLiftHeight(lift_height);
-  motion.SetContacts(contacts_.back().p, goal);
-  phase_motion_.push_back(motion);
-}
-
 EEMotion::ContactPositions
 EEMotion::GetFreeContacts () const
 {
@@ -126,7 +127,7 @@ EEMotion::GetFreeContacts () const
 }
 
 void
-EEMotion::SetContactPosition (int foothold_of_leg, const Vector3d& pos)
+EEMotion::UpdateContactPosition (int foothold_of_leg, const Vector3d& pos)
 {
   contacts_.at(foothold_of_leg).p = pos;
   UpdateSwingMotions();

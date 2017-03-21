@@ -28,32 +28,27 @@ public:
   void SetInitialPos(const Vector3d& pos, EndeffectorID);
   void AddStancePhase(double t);
   void AddSwingPhase(double t, const Vector3d& goal);
-
-
-  void SetContactPosition(int foothold_of_leg, const Vector3d& pos);
+  void UpdateContactPosition(int foothold_of_leg, const Vector3d& pos);
 
 
   StateLin3d GetState(double t_global) const;
   bool IsInContact(double t_global) const;
   /** Empty vector is no contact at that time */
   ContactPositions GetContact(double t_global) const;
-
   double GetTotalTime() const;
-
-
   /** Those not fixed by the start stance
     */
   ContactPositions GetFreeContacts() const;
+  EndeffectorID GetEE() const;
 
 
-  // zmp_ make private
-  EndeffectorID ee_;
 private:
   int GetPhase(double t_global) const;
   void AddPhase(double t, const Vector3d& goal, double lift_height = 0.03);
 
   void UpdateSwingMotions();
 
+  EndeffectorID ee_;
   ContactPositions contacts_;
   std::deque<bool> is_contact_phase_;
   std::vector<EESwingMotion> phase_motion_;

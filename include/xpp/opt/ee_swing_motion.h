@@ -28,17 +28,18 @@ public:
   EESwingMotion ();
   virtual ~EESwingMotion ();
 
-  /** The duration[s] of the motion.
-    */
-  void SetDuration(double T);
-
-  /** Determines how high the leg is lifted between contact points.
+  /** Completely parametrizes the motion.
     *
-    * This is not the height exactly between the contact points, but the height
+    * H is not the exact height between the contact points, but the height
     * that the swingleg has as 1/n_*T and (n-1)/n*T, e.g. shortly after lift-off
     * and right before touchdown. The lift-height in the center is higher.
+    *
+    * @param T The duration[s] of the motion.
+    * @param h Determines how high the leg is lifted between contact points.
+    * @param start The xyz starting location.
+    * @param end The goal of the motion reached after T.
     */
-  void SetLiftHeight(double h);
+  void Init(double T, double h, const Vector3d& start, const Vector3d& end);
 
   /** @param start The xyz starting location.
     * @param end The goal of the motion reached after T.
@@ -55,9 +56,9 @@ private:
   PolyZ poly_z_;
   PolyXY poly_xy_;
 
-  double T_;        ///< the duration [s] of the motion
-  double h_ = 0.03; ///< proportional to the lift height between contacts
-  int n_ = 6;       ///< determines the shape of the swing motion
+  double T_ = 0.0;   ///< the duration [s] of the motion
+  double h_ = 0.03;  ///< proportional to the lift height between contacts
+  int n_    = 6;     ///< determines the shape of the swing motion
 };
 
 } /* namespace opt */

@@ -12,30 +12,25 @@ namespace opt {
 
 EESwingMotion::EESwingMotion ()
 {
-  T_ = 0.0;
 }
 
 EESwingMotion::~EESwingMotion ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
-EESwingMotion::SetLiftHeight (double h)
+EESwingMotion::Init (double T, double h, const Vector3d& start,
+                     const Vector3d& end)
 {
+  T_ = T;
   h_ = h;
+  SetContacts(start, end);
 }
 
 double
 EESwingMotion::GetDuration () const
 {
   return T_;
-}
-
-void
-EESwingMotion::SetDuration (double T)
-{
-  T_ = T;
 }
 
 void
@@ -86,4 +81,3 @@ EESwingMotion::GetState (double t_local) const
 
 } /* namespace opt */
 } /* namespace xpp */
-

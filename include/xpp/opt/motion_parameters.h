@@ -43,6 +43,7 @@ public:
 
   virtual ~MotionParameters();
 
+  int GetEECount() const { return robot_ee_.size(); };
 
   NominalStance GetNominalStanceInBase() const { return nominal_stance_; };
   SwinglegPhaseVec GetOneCycle() const;

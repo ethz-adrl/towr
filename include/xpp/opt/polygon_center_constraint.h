@@ -27,7 +27,6 @@ public:
   PolygonCenterConstraint ();
   virtual ~PolygonCenterConstraint ();
 
-  // zmp_ dt at this point must be same discretization as lambda variables
   void Init(const EndeffectorLoad&);
 
   void UpdateVariables (const OptimizationVariables*) override;

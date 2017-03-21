@@ -79,11 +79,8 @@ RangeOfMotionBox::EvaluateConstraint () const
   std::vector<double> g_vec;
 
   for (double t : dts_) {
-//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
     PosXY geom_W = com_motion_->GetBase(t).lin.p.topRows<kDim2d>();
 
-
-//    for (const auto& c : ee_motion_.GetEndeffectors(t).ToImpl()) {
     for (const auto& c : ee_motion_.GetContacts(t)) {
       // contact position expressed in base frame
       PosXY g;
@@ -106,7 +103,6 @@ RangeOfMotionBox::GetBounds () const
 {
   std::vector<Bound> bounds;
   for (double t : dts_) {
-//  for (auto node : motion_structure_.GetPhaseStampedVec()) {
     for (auto c : ee_motion_.GetContacts(t)) {
 
       Vector3d f_nom_B = nominal_stance_.At(c.ee);
@@ -118,9 +114,6 @@ RangeOfMotionBox::GetBounds () const
 
         if (c.id == ContactBase::kFixedByStartStance)
           b -= c.p(dim);
-//          for (auto f : node.contacts_fixed_)
-//            if (f.ee == c.ee)
-//              b -= f.p(dim);
 
         bounds.push_back(b);
       }
@@ -132,16 +125,15 @@ RangeOfMotionBox::GetBounds () const
 void
 RangeOfMotionBox::SetJacobianWrtContacts (Jacobian& jac_wrt_contacts) const
 {
-  int n_contacts = ee_motion_.GetAllFreeContacts().size() * kDim2d;//footholds_.size() * kDim2d;
+  int n_contacts = ee_motion_.GetAllFreeContacts().size() * kDim2d;
   int m_constraints = GetNumberOfConstraints();
   jac_wrt_contacts = Jacobian(m_constraints, n_contacts);
 
   int row=0;
   for (double t : dts_) {
-//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
     for (auto c : ee_motion_.GetContacts(t)) {
       if (c.id != ContactBase::kFixedByStartStance) {
-        for (auto dim : {X,Y})
+        for (auto dim : d2::AllDimensions)
           jac_wrt_contacts.insert(row+dim, ee_motion_.Index(c.ee,c.id,dim)) = 1.0;
       }
 
@@ -158,7 +150,6 @@ RangeOfMotionBox::SetJacobianWrtMotion (Jacobian& jac_wrt_motion) const
   jac_wrt_motion = Jacobian(m_constraints, n_motion);
 
   int row=0;
-//  for (const auto& node : motion_structure_.GetPhaseStampedVec())
   for (double t : dts_)
     for (const auto c : ee_motion_.GetContacts(t))
       for (auto dim : {X,Y})
