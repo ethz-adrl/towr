@@ -52,9 +52,6 @@ public:
 
   Contacts GetAllFreeContacts() const;
 
-  // zmp_ shouldn't be here, later generate these motions dynamically
-  void Set2StepTrott();
-
   void SetContactPositions(const Contacts& contact);
 
   double GetTotalTime() const;

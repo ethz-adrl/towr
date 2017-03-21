@@ -12,7 +12,6 @@
 #include <xpp/snopt_adapter.h>
 
 #include <xpp/opt/cost_constraint_factory.h>
-#include <xpp/opt/motion_factory.h>
 #include <xpp/opt/variable_names.h>
 
 namespace xpp {
@@ -35,31 +34,24 @@ NlpFacade::~NlpFacade ()
 }
 
 void
-NlpFacade::BuildNlp(const StateLin2d& initial_state,
+NlpFacade::OptimizeMotion(const StateLin2d& initial_state,
                     const StateLin2d& final_state,
                     const EEMotionPtrS& ee_motion,
-                    const MotionparamsPtr& motion_params)
+                    const ComMotionPtrS& com_motion,
+                    const MotionparamsPtr& motion_params,
+                    NlpSolver solver)
 {
-  ee_motion_ = ee_motion;
-
-
-  double com_height = motion_params->geom_walking_height_ + motion_params->offset_geom_to_com_.z();
-  com_motion_ = MotionFactory::CreateComMotion(ee_motion->GetTotalTime(),
-                                               motion_params->polynomials_per_second_,
-                                               com_height);
-  com_motion_->SetOffsetGeomToCom(motion_params->offset_geom_to_com_);
-
-
+  // internal optimization variables
   auto ee_load = std::make_shared<EndeffectorLoad>();
   double dt = motion_params->dt_nodes_;
-  ee_load->Init(*ee_motion_, dt, ee_motion->GetTotalTime());
+  ee_load->Init(*ee_motion, dt, ee_motion->GetTotalTime());
 
   auto cop = std::make_shared<CenterOfPressure>();
   cop->Init(dt, ee_motion->GetTotalTime());
 
   CostConstraintFactory factory;
-  factory.Init(com_motion_,
-               ee_motion_,
+  factory.Init(com_motion,
+               ee_motion,
                ee_load,
                cop,
                motion_params,
@@ -86,6 +78,15 @@ NlpFacade::BuildNlp(const StateLin2d& initial_state,
   }
 
 
+  SolveNlp(solver);
+
+  Eigen::VectorXd xy = opt_variables_->GetVariables(VariableNames::kFootholds);
+  ee_motion->SetOptimizationParameters(xy);
+
+  Eigen::VectorXd x_motion = opt_variables_->GetVariables(VariableNames::kSplineCoeff);
+  com_motion->SetCoefficients(x_motion);
+
+
 //  int n_nodes = motion_structure.GetPhaseStampedVec().size();
 //  int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();
 //  int t_total = motion_structure.GetTotalTime();
@@ -107,11 +108,6 @@ NlpFacade::SolveNlp (NlpSolver solver)
     default:
       throw std::runtime_error("solver not implemented");
   }
-
-
-  // zmp_ have this only until ee_motion fully integrated
-  Eigen::VectorXd xy = opt_variables_->GetVariables(VariableNames::kFootholds);
-  ee_motion_->SetOptimizationParameters(xy);
 }
 
 void
@@ -178,15 +174,6 @@ NlpFacade::SolveIpopt ()
 //
 //  return contacts_;
 //}
-
-// zmp_ also pass this in just like endeffector to remove this function
-const NlpFacade::ComMotionPtrS
-NlpFacade::GetComMotion() const
-{
-  Eigen::VectorXd x_motion = opt_variables_->GetVariables(VariableNames::kSplineCoeff);
-  com_motion_->SetCoefficients(x_motion);
-  return com_motion_;
-}
 
 } /* namespace opt */
 } /* namespace xpp */

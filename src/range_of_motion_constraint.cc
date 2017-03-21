@@ -31,10 +31,11 @@ RangeOfMotionConstraint::Init (const ComMotion& com_motion,
 
   dts_.clear();
   double t = 0.0;
-  for (int i=0; i<floor(com_motion_->GetTotalTime()/dt); ++i) {
+  for (int i=0; i<floor(ee_motion_.GetTotalTime()/dt); ++i) {
     dts_.push_back(t);
     t += dt;
   }
+  dts_.push_back(ee_motion.GetTotalTime());
 }
 
 void
@@ -66,12 +67,10 @@ RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
 }
 
 RangeOfMotionBox::RangeOfMotionBox (const MaxDevXY& dev,
-                                    const NominalStance& nom,
-                                    const PosXY& offset_geom_to_com)
+                                    const NominalStance& nom)
 {
   max_deviation_from_nominal_ = dev;
   nominal_stance_ = nom;
-  offset_geom_to_com_ = offset_geom_to_com;
 }
 
 RangeOfMotionBox::VectorXd
@@ -81,9 +80,10 @@ RangeOfMotionBox::EvaluateConstraint () const
 
   for (double t : dts_) {
 //  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
-    PosXY com_W = com_motion_->GetCom(t).p;
-    PosXY geom_W = com_W - offset_geom_to_com_;
+    PosXY geom_W = com_motion_->GetBase(t).lin.p.topRows<kDim2d>();
 
+
+//    for (const auto& c : ee_motion_.GetEndeffectors(t).ToImpl()) {
     for (const auto& c : ee_motion_.GetContacts(t)) {
       // contact position expressed in base frame
       PosXY g;

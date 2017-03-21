@@ -47,7 +47,7 @@ EEMotion::AddSwingPhase (double t, const Vector3d& goal)
 {
   AddPhase(t, goal);
 //  int contact_nr = contacts_.size() + ContactBase::kFixedByStartStance;
-  Contact c(contacts_.size(), ee_, goal);
+  Contact c(contacts_.back().id +1 , ee_, goal);
   contacts_.push_back(c);
   is_contact_phase_.push_back(false);
 }
@@ -61,13 +61,6 @@ EEMotion::GetState (double t_global) const
     t_local -= phase_motion_.at(i).GetDuration();
 
   return phase_motion_.at(phase).GetState(t_local);
-}
-
-bool
-EEMotion::IsInContact (double t_global) const
-{
-  int phase = GetPhase(t_global);
-  return is_contact_phase_.at(phase);
 }
 
 int
@@ -124,11 +117,11 @@ EEMotion::UpdateSwingMotions ()
 void
 EEMotion::AddPhase (double t, const Vector3d& goal, double lift_height)
 {
-  EESwingMotion swing_motion;
-  swing_motion.SetDuration(t);
-  swing_motion.lift_height_ = lift_height;
-  swing_motion.SetContacts(contacts_.back().p, goal);
-  phase_motion_.push_back(swing_motion);
+  EESwingMotion motion;
+  motion.SetDuration(t);
+  motion.lift_height_ = lift_height;
+  motion.SetContacts(contacts_.back().p, goal);
+  phase_motion_.push_back(motion);
 }
 
 EEMotion::ContactPositions

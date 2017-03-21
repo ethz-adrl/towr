@@ -54,17 +54,19 @@ public:
     * @param initial_acc initial acceleration of the CoG
     * @param final_state desired final position, velocity and acceleration of the CoG
     */
-  void BuildNlp(const StateLin2d& initial_state,
+  void OptimizeMotion(const StateLin2d& initial_state,
                 const StateLin2d& final_state,
                 const EEMotionPtrS& ee_motion,
-                const MotionparamsPtr&);
+                const ComMotionPtrS& com_motion,
+                const MotionparamsPtr&,
+                NlpSolver solver);
 
-  void SolveNlp(NlpSolver solver);
 
 //  ContactVec GetContacts();
-  const ComMotionPtrS GetComMotion() const;
+//  const ComMotionPtrS GetComMotion() const;
 
 private:
+  void SolveNlp(NlpSolver solver);
   void SolveIpopt();
   void SolveSnopt();
   NLPPtr nlp_;
@@ -73,8 +75,8 @@ private:
   CostContainerPtr costs_;
   ConstraintContainerPtr constraints_;
 
-  ComMotionPtrS com_motion_;
-  EEMotionPtrS ee_motion_;
+//  ComMotionPtrS com_motion_;
+//  EEMotionPtrS ee_motion_;
 //  ContactVec contacts_;
 };
 

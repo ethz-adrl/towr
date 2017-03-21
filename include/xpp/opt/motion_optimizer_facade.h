@@ -13,6 +13,7 @@
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/opt/motion_parameters.h>
 #include <xpp/opt/endeffectors_motion.h>
+#include <xpp/opt/com_motion.h>
 
 namespace xpp {
 namespace opt {
@@ -26,7 +27,8 @@ class MotionOptimizerFacade {
 public:
   using RobotStateVec = std::vector<RobotStateCartesian>;
   using MotionParametersPtr = std::shared_ptr<MotionParameters>;
-  using EEMotionPtrS = std::shared_ptr<EndeffectorsMotion>;
+  using EEMotionPtrS  = std::shared_ptr<EndeffectorsMotion>;
+  using ComMotionPtrS = std::shared_ptr<ComMotion>;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
@@ -36,7 +38,9 @@ public:
 
   RobotStateCartesian start_geom_;
   StateLin3d goal_geom_;
+
   EEMotionPtrS ee_motion_;
+  ComMotionPtrS com_motion_;
 
   void SetMotionParameters(const MotionParametersPtr& params);
   void BuildDefaultStartStance(const MotionParameters& params);

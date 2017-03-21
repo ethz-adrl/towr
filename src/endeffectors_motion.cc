@@ -6,7 +6,6 @@
  */
 
 #include <xpp/opt/endeffectors_motion.h>
-#include <xpp/endeffectors4.h> // zmp_ this shouldn't be here
 
 namespace xpp {
 namespace opt {
@@ -68,7 +67,7 @@ EndeffectorsMotion::GetContacts (double t) const
 {
   Contacts contacts;
   for (auto ee : endeffectors_.ToImpl())
-    for (auto c : ee.GetContact(t)) // can be one or none (if swinging)
+    for (Contact c : ee.GetContact(t)) // can be one or none (if swinging)
       contacts.push_back(c);
 
   return contacts;
@@ -146,8 +145,6 @@ EndeffectorsMotion::GetStanceLegs (const EEVec& swinglegs) const
   return stance_legs;
 }
 
-
-
 void
 EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
 {
@@ -166,7 +163,7 @@ EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
     // stance phases
     for (auto ee : GetStanceLegs(swinglegs)) {
       durations.At(ee) += phase_duration;
-      if(Contains(next_swinglegs,ee)) {  // leg swingwing in next phase or last phase
+      if(Contains(next_swinglegs,ee)) {  // leg swingwing in next phase
         endeffectors_.At(ee).AddStancePhase(durations.At(ee));
         durations.At(ee) = 0.0; // reset
       }
@@ -191,45 +188,13 @@ EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
   for (auto ee : GetStanceLegs(swinglegs))
     endeffectors_.At(ee).AddStancePhase(durations.At(ee)+T);
 
-}
 
-// zmp_ this shouldn't be here
-void
-EndeffectorsMotion::Set2StepTrott ()
-{
-  Vector3d start = Vector3d::Zero(); // initialized with this value
-
-  // initial stance
-  endeffectors_.At(kMapQuadToOpt.at(LF)).AddStancePhase(0.4);
-  endeffectors_.At(kMapQuadToOpt.at(RH)).AddStancePhase(0.4);
-  endeffectors_.At(kMapQuadToOpt.at(RF)).AddStancePhase(0.7);
-  endeffectors_.At(kMapQuadToOpt.at(LH)).AddStancePhase(0.7);
-  // first step
-  endeffectors_.At(kMapQuadToOpt.at(LF)).AddSwingPhase(0.3, start);
-  endeffectors_.At(kMapQuadToOpt.at(RH)).AddSwingPhase(0.3, start);
-//  endeffectors_.At(kMapQuadToOpt.at(RF)).AddStancePhase(0.3);
-//  endeffectors_.At(kMapQuadToOpt.at(LH)).AddStancePhase(0.3);
-  // second step
-  endeffectors_.At(kMapQuadToOpt.at(LF)).AddStancePhase(0.3);
-  endeffectors_.At(kMapQuadToOpt.at(RH)).AddStancePhase(0.3);
-  endeffectors_.At(kMapQuadToOpt.at(RF)).AddSwingPhase(0.3, start);
-  endeffectors_.At(kMapQuadToOpt.at(LH)).AddSwingPhase(0.3, start);
-
-  // third step
-  endeffectors_.At(kMapQuadToOpt.at(LF)).AddSwingPhase(0.3, start);
-  endeffectors_.At(kMapQuadToOpt.at(RH)).AddSwingPhase(0.3, start);
-  endeffectors_.At(kMapQuadToOpt.at(RF)).AddStancePhase(0.3);
-  endeffectors_.At(kMapQuadToOpt.at(LH)).AddStancePhase(0.3);
-  // fourth step
-  endeffectors_.At(kMapQuadToOpt.at(LF)).AddStancePhase(1.1);
-  endeffectors_.At(kMapQuadToOpt.at(RH)).AddStancePhase(1.1);
-  endeffectors_.At(kMapQuadToOpt.at(RF)).AddSwingPhase(0.3, start);
-  endeffectors_.At(kMapQuadToOpt.at(LH)).AddSwingPhase(0.3, start);
-  // final stance of 0.8s
-//  endeffectors_.At(kMapQuadToOpt.at(LF)).AddStancePhase(0.8);
-//  endeffectors_.At(kMapQuadToOpt.at(RH)).AddStancePhase(0.8);
-  endeffectors_.At(kMapQuadToOpt.at(RF)).AddStancePhase(0.8);
-  endeffectors_.At(kMapQuadToOpt.at(LH)).AddStancePhase(0.8);
+  std::cout << "contacts: " << std::endl;
+  for (auto ee : endeffectors_.ToImpl()) {
+    for (auto c :ee.GetFreeContacts())
+      std::cout << c << std::endl;
+    std::cout << std::endl;
+  }
 }
 
 } /* namespace opt */

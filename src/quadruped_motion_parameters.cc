@@ -79,8 +79,22 @@ Walk::Walk()
 
   double t_phase = 0.2;
   double t_trans = 0.1;
-  timings_ = {0.4, t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, 0.8};
-  ee_cycle_ = {II, PI, PP, IP, bI, bb, Ib, II};
+  timings_ =
+  {
+      0.4,
+      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+      0.01,
+  };
+  ee_cycle_ =
+  {
+      II,
+      PI, PP, IP, bI, bb, Ib,
+      PI, PP, IP, bI, bb, Ib,
+      PI, PP, IP, bI, bb, Ib,
+      II,
+  };
 
 //  double swing = 0.4;
 //  double trans = 0.1;
@@ -115,8 +129,25 @@ Trott::Trott()
   polynomials_per_second_ = 3;
 
   double t_phase = 0.3;
-  timings_ = {0.4, t_phase, t_phase, t_phase, t_phase, 0.8};
-  ee_cycle_ = {II, bP, Pb, bP, Pb, II};
+  double t_trans = 0.1;
+
+  timings_ =
+  {   0.3,
+//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+      t_phase, t_phase, t_phase, t_phase,
+      0.01
+  };
+  ee_cycle_ =
+  {
+      II,
+//      PI, PP, IP, bI, bb, Ib, // walk
+      bP, Pb, bP, Pb,
+      II
+  };
+//    timings_ = {t_phase, t_phase, 0.8 };
+//    ee_cycle_ = {bP, Pb, II};
+//  timings_ = {0.4,t_phase, t_phase, t_phase, t_phase};
+//  ee_cycle_ = {II, bP, Pb, bP, Pb};
 
   constraints_ = { InitCom,
                    FinalCom,
@@ -132,7 +163,7 @@ Trott::Trott()
   // remove all costs hugely speeds up the optimization problem
 //  cost_weights_[ComCostID]      = 1.0;
 //  cost_weights_[FinalComCostID] = 1.0;
-//  cost_weights_[PolyCenterCostID]   = 0.0;
+//  cost_weights_[PolyCenterCostID]   = 50.0;
 }
 
 PushRecovery::PushRecovery ()

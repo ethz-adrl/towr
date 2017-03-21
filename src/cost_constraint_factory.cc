@@ -190,8 +190,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
   auto constraint = std::make_shared<RangeOfMotionBox>(
       params->GetMaximumDeviationFromNominal(),
-      params->GetNominalStanceInBase(),
-      params->offset_geom_to_com_.topRows<kDim2d>()
+      params->GetNominalStanceInBase()
       );
 
   constraint->Init(*com_motion, *ee_motion, params->dt_nodes_);

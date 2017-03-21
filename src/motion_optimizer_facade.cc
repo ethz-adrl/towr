@@ -9,6 +9,7 @@
 #include <xpp/opt/motion_optimizer_facade.h>
 #include <xpp/opt/com_motion.h>
 #include <xpp/opt/endeffectors_motion.h>
+#include <xpp/opt/motion_factory.h>
 
 
 namespace xpp {
@@ -46,16 +47,23 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
   // initialize the ee_motion with the fixed parameters
   ee_motion_ = std::make_shared<EndeffectorsMotion>();
   ee_motion_->SetInitialPos(start_geom_.GetEEPos());
-
   ee_motion_->SetPhaseSequence(motion_parameters_->GetOneCycle());
-//  ee_motion_->Set2StepTrott();
 
-  nlp_facade_.BuildNlp(start_geom_.GetBase().lin.Get2D(),
+
+  double com_height = motion_parameters_->geom_walking_height_
+                    + motion_parameters_->offset_geom_to_com_.z();
+  com_motion_ = MotionFactory::CreateComMotion(ee_motion_->GetTotalTime(),
+                                               motion_parameters_->polynomials_per_second_,
+                                               com_height);
+  com_motion_->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
+
+
+  nlp_facade_.OptimizeMotion(start_geom_.GetBase().lin.Get2D(),
                        goal_com.Get2D(),
                        ee_motion_,
-                       motion_parameters_);
-
-  nlp_facade_.SolveNlp(solver);
+                       com_motion_,
+                       motion_parameters_,
+                       solver);
 }
 
 MotionOptimizerFacade::RobotStateVec
@@ -68,7 +76,7 @@ MotionOptimizerFacade::GetTrajectory (double dt)
   while (t<T) {
 
     RobotStateCartesian state(start_geom_.GetEEPos().GetEECount());
-    state.SetBase(nlp_facade_.GetComMotion()->GetBase(t));
+    state.SetBase(com_motion_->GetBase(t));
     state.SetEEState(ee_motion_->GetEndeffectors(t));
     state.SetContactState(ee_motion_->GetContactState(t));
     state.SetTime(t);
