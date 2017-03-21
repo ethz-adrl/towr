@@ -54,6 +54,9 @@ public:
   virtual int GetTotalFreeCoeff() const = 0;
   virtual VectorXd GetCoeffients() const = 0;
 
+  /** The string used to identify the variable set inside the NLP */
+  static constexpr const char* ID = "spline_coeff";
+
   /** @brief Calculates the Jacobian J of the motion with respect to the current coefficients.
     *
     * @param t_global the time of the motion to evaluate the Jacobian

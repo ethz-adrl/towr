@@ -28,6 +28,7 @@ public:
 
   void SetOptimizationVariables(const VectorXd& x);
   VectorXd GetOptimizationVariables() const;
+  static constexpr const char* ID = "convexity_lambdas";
 
 
   std::vector<int> GetContactsPerNode() const;

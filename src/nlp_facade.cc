@@ -12,7 +12,6 @@
 #include <xpp/snopt_adapter.h>
 
 #include <xpp/opt/cost_constraint_factory.h>
-#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -35,11 +34,11 @@ NlpFacade::~NlpFacade ()
 
 void
 NlpFacade::OptimizeMotion(const StateLin2d& initial_state,
-                    const StateLin2d& final_state,
-                    const EEMotionPtrS& ee_motion,
-                    const ComMotionPtrS& com_motion,
-                    const MotionparamsPtr& motion_params,
-                    NlpSolver solver)
+                          const StateLin2d& final_state,
+                          const EEMotionPtrS& ee_motion,
+                          const ComMotionPtrS& com_motion,
+                          const MotionparamsPtr& motion_params,
+                          NlpSolver solver)
 {
   // internal optimization variables
   auto ee_load = std::make_shared<EndeffectorLoad>();
@@ -80,10 +79,10 @@ NlpFacade::OptimizeMotion(const StateLin2d& initial_state,
 
   SolveNlp(solver);
 
-  Eigen::VectorXd xy = opt_variables_->GetVariables(VariableNames::kFootholds);
+  Eigen::VectorXd xy = opt_variables_->GetVariables(EndeffectorsMotion::ID);
   ee_motion->SetOptimizationParameters(xy);
 
-  Eigen::VectorXd x_motion = opt_variables_->GetVariables(VariableNames::kSplineCoeff);
+  Eigen::VectorXd x_motion = opt_variables_->GetVariables(ComMotion::ID);
   com_motion->SetCoefficients(x_motion);
 
 

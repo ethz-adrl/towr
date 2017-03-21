@@ -7,7 +7,6 @@
 
 #include <xpp/opt/range_of_motion_constraint.h>
 #include <xpp/opt/com_motion.h>
-#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -35,16 +34,16 @@ RangeOfMotionConstraint::Init (const ComMotion& com_motion,
     dts_.push_back(t);
     t += dt;
   }
-  dts_.push_back(ee_motion.GetTotalTime());
+  dts_.push_back(ee_motion.GetTotalTime()); // so final stance constrained as well
 }
 
 void
 RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
+  VectorXd x_coeff   = opt_var->GetVariables(ComMotion::ID);
   com_motion_->SetCoefficients(x_coeff);
 
-  VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
+  VectorXd footholds = opt_var->GetVariables(EndeffectorsMotion::ID);
   ee_motion_.SetOptimizationParameters(footholds);
 
   // jacobians are constant, only need to be set once
@@ -58,9 +57,9 @@ RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 RangeOfMotionConstraint::Jacobian
 RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
-  if (var_set == VariableNames::kFootholds)
+  if (var_set == EndeffectorsMotion::ID)
     return jac_wrt_contacts_;
-  else if (var_set == VariableNames::kSplineCoeff)
+  else if (var_set == ComMotion::ID)
     return jac_wrt_motion_;
   else
     return Jacobian();

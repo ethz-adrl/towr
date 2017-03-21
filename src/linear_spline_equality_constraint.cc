@@ -6,7 +6,7 @@
  */
 
 #include <xpp/opt/linear_spline_equality_constraint.h>
-#include <xpp/opt/variable_names.h>
+#include <xpp/opt/com_motion.h>
 #include <xpp/optimization_variables.h>
 
 namespace xpp {
@@ -25,7 +25,7 @@ LinearSplineEqualityConstraint::~LinearSplineEqualityConstraint ()
 void
 LinearSplineEqualityConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  x_ = opt_var->GetVariables(VariableNames::kSplineCoeff);
+  x_ = opt_var->GetVariables(ComMotion::ID);
 }
 
 LinearSplineEqualityConstraint::Jacobian
@@ -33,7 +33,7 @@ LinearSplineEqualityConstraint::GetJacobianWithRespectTo (std::string var_set) c
 {
   Jacobian jac; // empy matrix
 
-  if (var_set == VariableNames::kSplineCoeff) {
+  if (var_set == ComMotion::ID) {
     // careful, .sparseView is only valid when the Jacobian is constant, e.g.
     // the constraints are all linear w.r.t. the decision variables.
     jac = linear_equation_.M.sparseView();

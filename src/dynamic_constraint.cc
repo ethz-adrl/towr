@@ -7,7 +7,6 @@
 
 #include <xpp/opt/dynamic_constraint.h>
 #include <xpp/opt/com_motion.h>
-#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -45,10 +44,10 @@ DynamicConstraint::Init (const ComMotion& com_motion,
 void
 DynamicConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd x_coeff   = opt_var->GetVariables(VariableNames::kSplineCoeff);
+  VectorXd x_coeff   = opt_var->GetVariables(ComMotion::ID);
   com_motion_->SetCoefficients(x_coeff);
 
-  VectorXd cop = opt_var->GetVariables(VariableNames::kCenterOfPressure);
+  VectorXd cop = opt_var->GetVariables(CenterOfPressure::ID);
   cop_.SetOptimizationVariables(cop);
 }
 
@@ -134,10 +133,10 @@ DynamicConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 
-  if (var_set == VariableNames::kCenterOfPressure)
+  if (var_set == CenterOfPressure::ID)
     jac = GetJacobianWrtCop();
 
-  if (var_set == VariableNames::kSplineCoeff)
+  if (var_set == ComMotion::ID)
     jac = GetJacobianWrtCom();
 
   return jac;

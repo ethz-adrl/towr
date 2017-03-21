@@ -6,7 +6,7 @@
  */
 
 #include <xpp/opt/a_spline_cost.h>
-#include <xpp/opt/variable_names.h>
+#include <xpp/opt/com_motion.h>
 
 namespace xpp {
 namespace opt {
@@ -24,7 +24,7 @@ ASplineCost::Init (const MatVec& mat_vec)
 void
 ASplineCost::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  spline_coeff_ = opt_var->GetVariables(VariableNames::kSplineCoeff);
+  spline_coeff_ = opt_var->GetVariables(ComMotion::ID);
 }
 
 double
@@ -43,7 +43,7 @@ QuadraticSplineCost::EvaluateGradientWrt(std::string var_set)
 {
   VectorXd grad;
 
-  if (var_set == VariableNames::kSplineCoeff)
+  if (var_set == ComMotion::ID)
     grad =  2.0 * matrix_vector_.M * spline_coeff_;
 
   return grad;

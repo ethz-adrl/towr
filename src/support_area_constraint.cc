@@ -6,7 +6,6 @@
  */
 
 #include <xpp/opt/support_area_constraint.h>
-#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -43,9 +42,9 @@ SupportAreaConstraint::Init (const EndeffectorsMotion& ee_motion,
 void
 SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd lambdas   = opt_var->GetVariables(VariableNames::kConvexity);
-  VectorXd footholds = opt_var->GetVariables(VariableNames::kFootholds);
-  VectorXd cop = opt_var->GetVariables(VariableNames::kCenterOfPressure);
+  VectorXd lambdas   = opt_var->GetVariables(EndeffectorLoad::ID);
+  VectorXd footholds = opt_var->GetVariables(EndeffectorsMotion::ID);
+  VectorXd cop = opt_var->GetVariables(CenterOfPressure::ID);
 
   ee_motion_.SetOptimizationParameters(footholds);
   ee_load_.SetOptimizationVariables(lambdas);
@@ -164,15 +163,15 @@ SupportAreaConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 
-  if (var_set == VariableNames::kCenterOfPressure) {
+  if (var_set == CenterOfPressure::ID) {
     jac = GetJacobianWithRespectToCop();
   }
 
-  if (var_set == VariableNames::kFootholds) {
+  if (var_set == EndeffectorsMotion::ID) {
     jac = GetJacobianWithRespectToContacts();
   }
 
-  if (var_set == VariableNames::kConvexity) {
+  if (var_set == EndeffectorLoad::ID) {
     jac = GetJacobianWithRespectToLambdas();
   }
 

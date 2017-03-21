@@ -9,8 +9,6 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
 #include "endeffectors_motion.h"
-#include "eigen_std_conversions.h" //zmp_ remove
-
 #include <xpp/a_constraint.h>
 #include <memory>
 

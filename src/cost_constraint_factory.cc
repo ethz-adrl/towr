@@ -17,7 +17,6 @@
 #include <xpp/opt/polygon_center_constraint.h>
 //#include <xpp/opt/obstacle_constraint.h>
 //#include <xpp/opt/a_foothold_constraint.h>
-#include <xpp/opt/variable_names.h>
 
 #include <xpp/soft_constraint.h>
 
@@ -84,13 +83,13 @@ CostConstraintFactory::GetCost(CostName name) const
 VariableSet
 CostConstraintFactory::SplineCoeffVariables () const
 {
-  return VariableSet(com_motion->GetCoeffients(), VariableNames::kSplineCoeff);
+  return VariableSet(com_motion->GetCoeffients(), ComMotion::ID);
 }
 
 VariableSet
 CostConstraintFactory::ContactVariables (const Vector2d initial_pos) const
 {
-  return VariableSet(ee_motion->GetOptimizationParameters(), VariableNames::kFootholds);
+  return VariableSet(ee_motion->GetOptimizationParameters(), EndeffectorsMotion::ID);
 }
 
 VariableSet
@@ -99,7 +98,7 @@ CostConstraintFactory::ConvexityVariables () const
   // initialize load values as if each leg is carrying half of total load
   Eigen::VectorXd lambdas = ee_load->GetOptimizationVariables();
   lambdas.fill(1./2);
-  return VariableSet(lambdas, VariableNames::kConvexity, Bound(0.0, 1.0));
+  return VariableSet(lambdas, EndeffectorLoad::ID, Bound(0.0, 1.0));
 
 
 // this would initializate the load parameters to equal distribution depending
@@ -124,7 +123,7 @@ CostConstraintFactory::ConvexityVariables () const
 VariableSet
 CostConstraintFactory::CopVariables () const
 {
-  return VariableSet(cop->GetOptimizationVariables(), VariableNames::kCenterOfPressure);
+  return VariableSet(cop->GetOptimizationVariables(), CenterOfPressure::ID);
 }
 
 

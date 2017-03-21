@@ -6,7 +6,6 @@
  */
 
 #include <xpp/opt/polygon_center_constraint.h>
-#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -30,7 +29,7 @@ PolygonCenterConstraint::Init (const EndeffectorLoad& ee_load)
 void
 PolygonCenterConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  Eigen::VectorXd lambdas = opt_var->GetVariables(VariableNames::kConvexity);
+  Eigen::VectorXd lambdas = opt_var->GetVariables(EndeffectorLoad::ID);
   ee_load_.SetOptimizationVariables(lambdas);
 }
 
@@ -69,9 +68,9 @@ PolygonCenterConstraint::GetBounds () const
 PolygonCenterConstraint::Jacobian
 PolygonCenterConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
-  Jacobian jac; // empy matrix
+  Jacobian jac; // empty matrix
 
-  if (var_set == VariableNames::kConvexity) {
+  if (var_set == EndeffectorLoad::ID) {
     int col_idx = 0;
     int row_idx = 0;
     int m = ee_load_.GetContactsPerNode().size();

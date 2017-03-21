@@ -6,7 +6,6 @@
  */
 
 #include <xpp/opt/convexity_constraint.h>
-#include <xpp/opt/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -52,7 +51,7 @@ ConvexityConstraint::Init (const EndeffectorLoad& ee_load)
 void
 ConvexityConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd lambdas = opt_var->GetVariables(VariableNames::kConvexity);
+  VectorXd lambdas = opt_var->GetVariables(EndeffectorLoad::ID);
   ee_load_.SetOptimizationVariables(lambdas);
 }
 
@@ -86,7 +85,7 @@ ConvexityConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empy matrix
 
-  if (var_set == VariableNames::kConvexity) {
+  if (var_set == EndeffectorLoad::ID) {
     jac = jac_;
   }
 

@@ -59,11 +59,11 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 
 
   nlp_facade_.OptimizeMotion(start_geom_.GetBase().lin.Get2D(),
-                       goal_com.Get2D(),
-                       ee_motion_,
-                       com_motion_,
-                       motion_parameters_,
-                       solver);
+                             goal_com.Get2D(),
+                             ee_motion_,
+                             com_motion_,
+                             motion_parameters_,
+                             solver);
 }
 
 MotionOptimizerFacade::RobotStateVec
