@@ -110,7 +110,7 @@ EndeffectorLoad::GetContactsPerNode () const
 int
 EndeffectorLoad::GetNode (double t) const
 {
-  return floor(t/dt_);
+  return round(t/dt_);
 }
 
 } /* namespace opt */

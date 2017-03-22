@@ -45,6 +45,8 @@ public:
 private:
   VectorXd cop_;
   double dt_;
+
+  int GetNode (double t) const;
 };
 
 } /* namespace opt */

@@ -135,7 +135,7 @@ Trott::Trott()
   {   0.3,
 //      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
       t_phase, t_phase, t_phase, t_phase,
-      0.01
+      0.3
   };
   ee_cycle_ =
   {

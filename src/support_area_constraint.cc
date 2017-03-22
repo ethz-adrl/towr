@@ -70,7 +70,13 @@ SupportAreaConstraint::EvaluateConstraint () const
 
     int c = 0; // DRY number of contact
     // zmp_ DRY with these two functions, super ugly... :-(
+
+
     auto lambda_k = ee_load_.GetLoadValues(t);
+//    std::cout << "t: " << t << std::endl;
+//    std::cout << "load(): " << lambda_k.size() << "\t";
+//    std::cout << ",contacts(): " << ee_motion_.GetContacts(t).size() << std::endl;
+
     for (auto f : ee_motion_.GetContacts(t)) {
 //      double lamdba = ee_load_.GetOptimizationVariables()(idx_lambda++);
       convex_contacts += lambda_k.at(c++)*f.p.topRows<kDim2d>();
