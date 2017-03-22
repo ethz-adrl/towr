@@ -74,7 +74,7 @@ PolygonCenterConstraint::GetJacobianWithRespectTo (std::string var_set) const
     int col_idx = 0;
     int row_idx = 0;
     int m = ee_load_.GetContactsPerNode().size();
-    int n = ee_load_.GetOptimizationVariables().rows();
+    int n = ee_load_.GetOptVarCount();
     jac = Jacobian(m, n);
 
     for (int m : ee_load_.GetContactsPerNode()) {

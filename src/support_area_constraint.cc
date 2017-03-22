@@ -102,7 +102,7 @@ SupportAreaConstraint::Jacobian
 SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
 {
   int m = GetNumberOfConstraints();
-  int n = ee_load_.GetOptimizationVariables().size();
+  int n = ee_load_.GetOptVarCount();
   Jacobian jac_(m, n);
 
   int row_idx = 0;
