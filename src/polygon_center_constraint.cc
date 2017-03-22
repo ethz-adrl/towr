@@ -12,12 +12,10 @@ namespace opt {
 
 PolygonCenterConstraint::PolygonCenterConstraint ()
 {
-  // TODO Auto-generated constructor stub
 }
 
 PolygonCenterConstraint::~PolygonCenterConstraint ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
@@ -36,23 +34,18 @@ PolygonCenterConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 PolygonCenterConstraint::VectorXd
 PolygonCenterConstraint::EvaluateConstraint () const
 {
-  std::vector<double> g_vec;
+  VectorXd g(ee_load_.GetNumberOfNodes());
 
-  int idx = 0;
+  for (int k=0; k<g.rows(); ++k) {
+    double g_node = 0.0;
+    auto lambda_k = ee_load_.GetLoadValuesIdx(k);
+    for (auto lambda : lambda_k)
+      g_node += std::pow(lambda,2) - 2./lambda_k.size()*lambda;
 
-  for (int m : ee_load_.GetContactsPerNode()) {
-
-    double g_node = 0;
-    for (int j=0; j<m; ++j) {
-      double lamb_j = ee_load_.GetOptimizationVariables()(idx+j);
-      g_node += std::pow(lamb_j,2) - 2./m*lamb_j;
-    }
-
-    g_vec.push_back(g_node);
-    idx += m;
+    g(k) = g_node;
   }
 
-  return Eigen::Map<VectorXd>(&g_vec[0], g_vec.size());
+  return g;
 }
 
 VecBound
@@ -71,20 +64,17 @@ PolygonCenterConstraint::GetJacobianWithRespectTo (std::string var_set) const
   Jacobian jac; // empty matrix
 
   if (var_set == EndeffectorLoad::ID) {
-    int col_idx = 0;
-    int row_idx = 0;
-    int m = ee_load_.GetContactsPerNode().size();
+
+    int m = ee_load_.GetNumberOfNodes();
     int n = ee_load_.GetOptVarCount();
     jac = Jacobian(m, n);
 
-    for (int m : ee_load_.GetContactsPerNode()) {
-      for (int j=0; j<m; j++) {
-        double idx = col_idx+j;
-        jac.insert(row_idx,idx) = 2*(ee_load_.GetOptimizationVariables()(idx)-1./m);
+    for (int k=0; k<m; ++k) {
+      auto lambda_k = ee_load_.GetLoadValuesIdx(k);
+      for (int c=0; c<lambda_k.size(); ++c) {
+        int idx = ee_load_.Index(k,c);
+        jac.insert(k,idx) = 2*(lambda_k.at(c) - 1./lambda_k.size());
       }
-
-      col_idx += m;
-      row_idx++;
     }
   }
 
