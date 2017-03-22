@@ -127,8 +127,6 @@ CostConstraintFactory::CopVariables () const
 }
 
 
-
-
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeInitialConstraint () const
 {
@@ -168,7 +166,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   auto constraint = std::make_shared<DynamicConstraint>();
-  constraint->Init(*com_motion, *cop, params->dt_nodes_);
+  constraint->Init(*com_motion, *cop, ee_motion->GetTotalTime(), params->dt_nodes_);
   return constraint;
 }
 

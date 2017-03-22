@@ -11,8 +11,6 @@
 namespace xpp {
 namespace opt {
 
-static constexpr double kGravity = 9.80665; // gravity acceleration [m\s^2]
-
 LinearInvertedPendulum::LinearInvertedPendulum ()
 {
   // TODO Auto-generated constructor stub
@@ -62,7 +60,7 @@ LinearInvertedPendulum::GetJacobianApproxWrtSplineCoeff (
 }
 
 double
-LinearInvertedPendulum::GetJacobianApproxWrtCop (Coords3D dim) const
+LinearInvertedPendulum::GetJacobianApproxWrtCop (d2::Coords dim) const
 {
 //  double vel2    = std::pow(vel_(dim),2);
 //  double jac_approx = 1./h_*(-kGravity -2./h_*vel2);

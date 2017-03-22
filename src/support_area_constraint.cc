@@ -31,7 +31,7 @@ SupportAreaConstraint::Init (const EndeffectorsMotion& ee_motion,
   ee_load_ = ee_load;
   cop_ = cop;
 
-  double t = 0;
+  double t = 0.0;//+1e-5; // zmp_ ugly hack
   dts_.clear();
   for (int i=0; i<floor(T/dt); ++i) {
     dts_.push_back(t);
@@ -42,9 +42,10 @@ SupportAreaConstraint::Init (const EndeffectorsMotion& ee_motion,
 void
 SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
+  // zmp_ automate with base class...
   VectorXd lambdas   = opt_var->GetVariables(EndeffectorLoad::ID);
   VectorXd footholds = opt_var->GetVariables(EndeffectorsMotion::ID);
-  VectorXd cop = opt_var->GetVariables(CenterOfPressure::ID);
+  VectorXd cop       = opt_var->GetVariables(CenterOfPressure::ID);
 
   ee_motion_.SetOptimizationParameters(footholds);
   ee_load_.SetOptimizationVariables(lambdas);
@@ -61,6 +62,7 @@ SupportAreaConstraint::EvaluateConstraint () const
   int idx_lambda = 0;
   int k = 0;
   for (double t : dts_) {
+    // zmp_ remove all comments here
 //  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
     Vector2d convex_contacts;
@@ -70,12 +72,15 @@ SupportAreaConstraint::EvaluateConstraint () const
       double lamdba = ee_load_.GetOptimizationVariables()(idx_lambda++);
       convex_contacts += lamdba*f.p.topRows<kDim2d>();
     }
+    // zmp_ remove this as well
 //    for (auto f : node.GetAllContacts(footholds_)) {
 //      double lamdba = lambdas_(idx_lambda++);
 //      convex_contacts += lamdba*f.p.topRows<kDim2d>();
 //    }
 
-    g.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop_.GetOptimizationVariables().middleRows<kDim2d>(kDim2d*k);
+//    Vector2d cop = cop_.GetOptimizationVariables().middleRows<kDim2d>(kDim2d*k); //.GetCop(t)
+    Vector2d cop = cop_.GetCop(t);
+    g.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop;
     k++;
   }
 
@@ -150,12 +155,18 @@ SupportAreaConstraint::Jacobian
 SupportAreaConstraint::GetJacobianWithRespectToCop () const
 {
     int m = GetNumberOfConstraints();
-    int n   = cop_.GetOptimizationVariables().rows();
-    Jacobian jac_(m, n);
-    jac_.setIdentity();
-    jac_ = -1*jac_;
+    int n   = cop_.GetOptVarCount();
+    Jacobian jac(m, n);
 
-    return jac_;
+    int row = 0;
+    for (double t : dts_)
+      for (auto dim : d2::AllDimensions)
+        jac.row(row++) = -1 * cop_.GetJacobianWrtCop(t,dim);
+
+// zmp_ remove this
+//    jac.setIdentity();
+//    jac = -1*jac;
+    return jac;
 }
 
 SupportAreaConstraint::Jacobian
@@ -163,6 +174,7 @@ SupportAreaConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 
+  // zmp_ automate this with base class as well
   if (var_set == CenterOfPressure::ID) {
     jac = GetJacobianWithRespectToCop();
   }

@@ -38,7 +38,7 @@ public:
   JacobianRow GetJacobianApproxWrtSplineCoeff(const ComMotion&, double t_global,
                                    Coords3D dim, const Cop& p) const;
 
-  double GetJacobianApproxWrtCop(Coords3D dim) const;
+  double GetJacobianApproxWrtCop(d2::Coords dim) const;
 
 private:
   ComPos pos_;

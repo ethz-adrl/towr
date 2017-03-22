@@ -25,7 +25,7 @@ public:
   DynamicConstraint ();
   virtual ~DynamicConstraint ();
 
-  void Init(const ComMotion&, const CenterOfPressure&, double dt);
+  void Init(const ComMotion&, const CenterOfPressure&, double T, double dt);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;

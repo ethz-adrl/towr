@@ -27,15 +27,18 @@ DynamicConstraint::~DynamicConstraint ()
 
 void
 DynamicConstraint::Init (const ComMotion& com_motion,
-                         const CenterOfPressure& cop, double dt)
+                         const CenterOfPressure& cop,
+                         double T,
+                         double dt)
 {
   com_motion_ = com_motion.clone();
   kHeight_ = com_motion.GetZHeight();
   cop_ = cop;
 
+  // zmp_ DRY with other constraints?
   double t = 0.0;
   dts_.clear();
-  for (int i=0; i<floor(com_motion.GetTotalTime()/dt); ++i) {
+  for (int i=0; i<floor(T/dt); ++i) {
     dts_.push_back(t);
     t += dt;
   }
@@ -54,18 +57,20 @@ DynamicConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 DynamicConstraint::VectorXd
 DynamicConstraint::EvaluateConstraint () const
 {
-  int m = cop_.GetOptimizationVariables().size();
+  int m = cop_.GetOptVarCount();
   Eigen::VectorXd g(m);
 
-  for (int k=0; k<dts_.size(); ++k) {
+  int k = 0;
+  for (double t : dts_) {
 
-    auto com = com_motion_->GetCom(dts_.at(k));
+    auto com = com_motion_->GetCom(t);
     model_.SetCurrent(com.p, com.v, kHeight_);
 
     // acceleration as predefined by physics
-    // zmp_ create class for CoP as well
-    Vector2d acc_physics = model_.GetDerivative(cop_.GetOptimizationVariables().middleRows<kDim2d>(kDim2d*k));
+    Vector2d acc_physics = model_.GetDerivative(cop_.GetCop(t));
     g.middleRows<kDim2d>(kDim2d*k) = acc_physics - com.a;
+
+    k++;
   }
 
   return g;
@@ -86,7 +91,7 @@ DynamicConstraint::Jacobian
 DynamicConstraint::GetJacobianWrtCop () const
 {
   int m = GetNumberOfConstraints();
-  Jacobian jac(m, cop_.GetOptimizationVariables().rows());
+  Jacobian jac(m, cop_.GetOptVarCount());
 
   int row=0;
   for (double t : dts_) {
@@ -94,10 +99,8 @@ DynamicConstraint::GetJacobianWrtCop () const
     auto com = com_motion_->GetCom(t);
     model_.SetCurrent(com.p, com.v, kHeight_);
 
-    for (auto dim : {X, Y})
-      jac.insert(row+dim,row+dim) = model_.GetJacobianApproxWrtCop(dim);
-
-    row += kDim2d;
+    for (auto dim : d2::AllDimensions)
+      jac.row(row++) = model_.GetJacobianApproxWrtCop(dim)*cop_.GetJacobianWrtCop(t,dim);
   }
 
   return jac;
@@ -114,7 +117,7 @@ DynamicConstraint::GetJacobianWrtCom () const
 
     auto com = com_motion_->GetCom(t);
     model_.SetCurrent(com.p, com.v, kHeight_);
-    Vector2d cop = cop_.GetOptimizationVariables().middleRows<kDim2d>(kDim2d*n);
+    Vector2d cop = cop_.GetCop(t);
 
     for (auto dim : {X, Y}) {
       Jacobian jac_acc     = com_motion_->GetJacobian(t,kAcc,dim);

@@ -9,6 +9,8 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CENTER_OF_PRESSURE_H_
 
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
+#include <xpp/cartesian_declarations.h>
 
 namespace xpp {
 namespace opt {
@@ -20,19 +22,29 @@ namespace opt {
 class CenterOfPressure {
 public:
   using VectorXd = Eigen::VectorXd;
+  using Vector2d = Eigen::Vector2d;
+  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
   CenterOfPressure ();
   virtual ~CenterOfPressure ();
 
   void Init(double dt, double T);
 
+  Vector2d GetCop(double t) const;
+
   void SetOptimizationVariables(const VectorXd& x);
   VectorXd GetOptimizationVariables() const;
   static constexpr const char* ID   = "center_of_pressure";
 
+  int GetOptVarCount() const;
+
+  int Index(double t, d2::Coords dimension) const;
+
+  JacobianRow GetJacobianWrtCop(double t, d2::Coords dim) const;
 
 private:
   VectorXd cop_;
+  double dt_;
 };
 
 } /* namespace opt */
