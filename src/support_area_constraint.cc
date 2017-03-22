@@ -59,7 +59,7 @@ SupportAreaConstraint::EvaluateConstraint () const
   int m = dts_.size() * kDim2d;
   Eigen::VectorXd g(m);
 
-  int idx_lambda = 0;
+//  int idx_lambda = 0;
   int k = 0;
   for (double t : dts_) {
     // zmp_ remove all comments here
@@ -68,9 +68,12 @@ SupportAreaConstraint::EvaluateConstraint () const
     Vector2d convex_contacts;
     convex_contacts.setZero();
 
+    int c = 0; // DRY number of contact
+    // zmp_ DRY with these two functions, super ugly... :-(
+    auto lambda_k = ee_load_.GetLoadValues(t);
     for (auto f : ee_motion_.GetContacts(t)) {
-      double lamdba = ee_load_.GetOptimizationVariables()(idx_lambda++);
-      convex_contacts += lamdba*f.p.topRows<kDim2d>();
+//      double lamdba = ee_load_.GetOptimizationVariables()(idx_lambda++);
+      convex_contacts += lambda_k.at(c++)*f.p.topRows<kDim2d>();
     }
     // zmp_ remove this as well
 //    for (auto f : node.GetAllContacts(footholds_)) {
@@ -90,12 +93,7 @@ SupportAreaConstraint::EvaluateConstraint () const
 VecBound
 SupportAreaConstraint::GetBounds () const
 {
-  std::vector<Bound> bounds;
-  int m = EvaluateConstraint().rows();
-  for (int i=0; i<m; ++i)
-    bounds.push_back(kEqualityBound_);
-
-  return bounds;
+  return VecBound(dts_.size()*kDim2d, kEqualityBound_);
 }
 
 SupportAreaConstraint::Jacobian
@@ -106,15 +104,17 @@ SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
   Jacobian jac_(m, n);
 
   int row_idx = 0;
-  int col_idx = 0;
   for (double t : dts_) {
+
+    int c = 0; // // DRY number of contact
     for (auto f : ee_motion_.GetContacts(t)) {
-      for (auto dim : d2::AllDimensions)
-        jac_.insert(row_idx+dim,col_idx) = f.p(dim);
 
-      col_idx++;
+      for (auto dim : d2::AllDimensions) {
+        int idx = ee_load_.Index(t,c);
+        jac_.insert(row_idx+dim,idx) = f.p(dim);
+      }
+      c++;
     }
-
     row_idx += kDim2d;
   }
 
@@ -126,26 +126,25 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
 {
   int row_idx = 0;
   int m = GetNumberOfConstraints();
-//  int n = footholds_.size() * kDim2d;
-  int n = ee_motion_.GetAllFreeContacts().size() *kDim2d;
+  int n = ee_motion_.GetOptVarCount();
 
   Jacobian jac_(m, n);
 
-  int idx_lambdas = 0;
-
   for (double t : dts_) {
-    for (auto c : ee_motion_.GetContacts(t)) {
-      if (c.id != ContactBase::kFixedByStartStance) {
+
+    int c = 0; // // DRY number of contact
+    auto lambda_k = ee_load_.GetLoadValues(t);
+    for (auto f : ee_motion_.GetContacts(t)) {
+      if (f.id != ContactBase::kFixedByStartStance) {
         for (auto dim : d2::AllDimensions) {
-          int idx_contact = ee_motion_.Index(c.ee, c.id, dim);
-          jac_.insert(row_idx+dim, idx_contact) = ee_load_.GetOptimizationVariables()(idx_lambdas);
+          int idx_contact = ee_motion_.Index(f.ee, f.id, dim);
+          jac_.insert(row_idx+dim, idx_contact) = lambda_k.at(c);
         }
       }
-
-      idx_lambdas++;
+      c++;
     }
 
-    row_idx    += kDim2d;
+    row_idx += kDim2d;
   }
 
   return jac_;
@@ -154,19 +153,16 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
 SupportAreaConstraint::Jacobian
 SupportAreaConstraint::GetJacobianWithRespectToCop () const
 {
-    int m = GetNumberOfConstraints();
-    int n   = cop_.GetOptVarCount();
-    Jacobian jac(m, n);
+  int m = GetNumberOfConstraints();
+  int n   = cop_.GetOptVarCount();
+  Jacobian jac(m, n);
 
-    int row = 0;
-    for (double t : dts_)
-      for (auto dim : d2::AllDimensions)
-        jac.row(row++) = -1 * cop_.GetJacobianWrtCop(t,dim);
+  int row = 0;
+  for (double t : dts_)
+    for (auto dim : d2::AllDimensions)
+      jac.row(row++) = -1 * cop_.GetJacobianWrtCop(t,dim);
 
-// zmp_ remove this
-//    jac.setIdentity();
-//    jac = -1*jac;
-    return jac;
+  return jac;
 }
 
 SupportAreaConstraint::Jacobian

@@ -49,9 +49,12 @@ public:
   Contacts GetAllFreeContacts() const;
   double GetTotalTime() const;
 
+  int GetOptVarCount() const;
   VectorXd GetOptimizationParameters() const;
   void SetOptimizationParameters(const VectorXd&);
   static constexpr const char* ID  = "footholds";
+
+
 
   // order at which the contact position of this endeffector is stored
   int Index(EndeffectorID ee, int id, d2::Coords) const;

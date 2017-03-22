@@ -32,7 +32,7 @@ ConvexityConstraint::Init (const EndeffectorLoad& ee_load)
 
   for (int k=0; k<m; ++k) {
     for (int c=0; c<ee_load_.GetNumberOfContacts(k); c++) {
-      int idx = ee_load_.Index(k,c);
+      int idx = ee_load_.IndexDiscrete(k,c);
       jac_.insert(k, idx) = 1.0;
     }
   }

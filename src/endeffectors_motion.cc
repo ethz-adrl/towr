@@ -107,6 +107,13 @@ EndeffectorsMotion::SetOptimizationParameters (const VectorXd& x)
 }
 
 int
+EndeffectorsMotion::GetOptVarCount () const
+{
+  // zmp_ DRY can be summarized in base class
+  return GetOptimizationParameters().rows();
+}
+
+int
 EndeffectorsMotion::Index (EndeffectorID _ee, int id, d2::Coords dimension) const
 {
   // stored like this in vector, initial contacts not optimized over
@@ -201,4 +208,3 @@ EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
 
 } /* namespace opt */
 } /* namespace xpp */
-

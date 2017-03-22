@@ -45,7 +45,9 @@ public:
     * @param contact which contacts 0,...,ee we are interested in.
     * @returns the index in the optimization vector where this value is stored
     */
-  int Index(int k, int contact) const;
+  // zmp_ this is too error prone having two functions, remove one
+  int IndexDiscrete(int k, int contact) const;
+  int Index(double t, int contact) const;
 
 
 
@@ -56,6 +58,8 @@ private:
   std::vector<int> n_contacts_per_node_;
   VectorXd lambdas_;
   double dt_;
+
+  int GetNode(double t) const;
 };
 
 } /* namespace opt */

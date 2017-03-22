@@ -72,7 +72,7 @@ PolygonCenterConstraint::GetJacobianWithRespectTo (std::string var_set) const
     for (int k=0; k<m; ++k) {
       auto lambda_k = ee_load_.GetLoadValuesIdx(k);
       for (int c=0; c<lambda_k.size(); ++c) {
-        int idx = ee_load_.Index(k,c);
+        int idx = ee_load_.IndexDiscrete(k,c);
         jac.insert(k,idx) = 2*(lambda_k.at(c) - 1./lambda_k.size());
       }
     }
