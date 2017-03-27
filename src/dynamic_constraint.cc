@@ -57,7 +57,7 @@ DynamicConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 DynamicConstraint::VectorXd
 DynamicConstraint::EvaluateConstraint () const
 {
-  int m = cop_.GetOptVarCount();
+  int m = dts_.size()*kDim2d;
   Eigen::VectorXd g(m);
 
   int k = 0;
