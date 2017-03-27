@@ -33,6 +33,7 @@ public:
 
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
+  Jacobian GetJacobianWrtCop() const;
 private:
   ComMotionPtrU com_motion_;
   CenterOfPressure cop_;
@@ -40,7 +41,6 @@ private:
 
   std::vector<double> dts_;
 
-  Jacobian GetJacobianWrtCop() const;
   Jacobian GetJacobianWrtCom() const;
   double kHeight_;
 };

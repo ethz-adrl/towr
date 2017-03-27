@@ -135,7 +135,7 @@ Trott::Trott()
   {   0.3,
 //      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
       t_phase, t_phase, t_phase, t_phase,
-      0.3
+      0.01
   };
   ee_cycle_ =
   {
@@ -158,7 +158,7 @@ Trott::Trott()
                    Convexity,
                    RomBox
                    };
-  cost_weights_[RangOfMotionCostID] = 10.0;
+//  cost_weights_[RangOfMotionCostID] = 10.0;
 
   // remove all costs hugely speeds up the optimization problem
 //  cost_weights_[ComCostID]      = 1.0;

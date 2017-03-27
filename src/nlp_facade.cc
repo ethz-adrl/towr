@@ -42,11 +42,13 @@ NlpFacade::OptimizeMotion(const StateLin2d& initial_state,
 {
   // internal optimization variables
   auto ee_load = std::make_shared<EndeffectorLoad>();
-  double dt = motion_params->dt_nodes_;
-  ee_load->Init(*ee_motion, dt, ee_motion->GetTotalTime());
+
+  // zmp_ a this should work  also with a different value
+  double parameter_dt = 0.05;//motion_params->dt_nodes_;
+  ee_load->Init(*ee_motion, parameter_dt, ee_motion->GetTotalTime());
 
   auto cop = std::make_shared<CenterOfPressure>();
-  cop->Init(dt, ee_motion->GetTotalTime());
+  cop->Init(parameter_dt, ee_motion->GetTotalTime());
 
   CostConstraintFactory factory;
   factory.Init(com_motion,

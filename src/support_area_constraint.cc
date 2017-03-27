@@ -17,7 +17,6 @@ SupportAreaConstraint::SupportAreaConstraint ()
 
 SupportAreaConstraint::~SupportAreaConstraint ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
@@ -31,7 +30,7 @@ SupportAreaConstraint::Init (const EndeffectorsMotion& ee_motion,
   ee_load_ = ee_load;
   cop_ = cop;
 
-  double t = 0.0;//+1e-5; // zmp_ ugly hack
+  double t = 0.0;
   dts_.clear();
   for (int i=0; i<floor(T/dt); ++i) {
     dts_.push_back(t);
@@ -55,39 +54,28 @@ SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 SupportAreaConstraint::VectorXd
 SupportAreaConstraint::EvaluateConstraint () const
 {
-//  int m = motion_structure_.GetPhaseStampedVec().size() * kDim2d;
-  int m = dts_.size() * kDim2d;
+  int m = dts_.size() * kDim2d; // DRY with dynamic constraint
   Eigen::VectorXd g(m);
 
-//  int idx_lambda = 0;
   int k = 0;
   for (double t : dts_) {
-    // zmp_ remove all comments here
-//  for (const auto& node : motion_structure_.GetPhaseStampedVec()) {
 
     Vector2d convex_contacts;
     convex_contacts.setZero();
 
     int c = 0; // DRY number of contact
-    // zmp_ DRY with these two functions, super ugly... :-(
 
+    std::cout << "t: " << t << std::endl;
 
+    // spring_clean_ DRY with these two functions, super ugly... :-(
     auto lambda_k = ee_load_.GetLoadValues(t);
-//    std::cout << "t: " << t << std::endl;
-//    std::cout << "load(): " << lambda_k.size() << "\t";
-//    std::cout << ",contacts(): " << ee_motion_.GetContacts(t).size() << std::endl;
 
-    for (auto f : ee_motion_.GetContacts(t)) {
-//      double lamdba = ee_load_.GetOptimizationVariables()(idx_lambda++);
+    std::cout << "lambda_k.size(): " << lambda_k.size() << std::endl;
+    std::cout << "ee_motion_.size(): " <<  ee_motion_.GetContacts(t).size() << std::endl;
+
+    for (auto f : ee_motion_.GetContacts(t))
       convex_contacts += lambda_k.at(c++)*f.p.topRows<kDim2d>();
-    }
-    // zmp_ remove this as well
-//    for (auto f : node.GetAllContacts(footholds_)) {
-//      double lamdba = lambdas_(idx_lambda++);
-//      convex_contacts += lamdba*f.p.topRows<kDim2d>();
-//    }
 
-//    Vector2d cop = cop_.GetOptimizationVariables().middleRows<kDim2d>(kDim2d*k); //.GetCop(t)
     Vector2d cop = cop_.GetCop(t);
     g.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop;
     k++;
@@ -112,7 +100,7 @@ SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
   int row_idx = 0;
   for (double t : dts_) {
 
-    int c = 0; // // DRY number of contact
+    int c = 0; // DRY number of contact
     for (auto f : ee_motion_.GetContacts(t)) {
 
       for (auto dim : d2::AllDimensions) {
@@ -138,7 +126,7 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
 
   for (double t : dts_) {
 
-    int c = 0; // // DRY number of contact
+    int c = 0; // DRY number of contact
     auto lambda_k = ee_load_.GetLoadValues(t);
     for (auto f : ee_motion_.GetContacts(t)) {
       if (f.id != ContactBase::kFixedByStartStance) {

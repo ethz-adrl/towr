@@ -183,7 +183,6 @@ if(BUILD_TESTS)
 #                        test/google/constraint_factory_test.cc
 #                         test/google/zmp_constraint_builder_test.cc
 #                         test/google/linear_spline_equations_test.cc
-                         test/google/dynamic_constraint_test.cc
 #                        test/google/joint_angles_constraint_test.cc
 #                        test/google/constraint_container_test.cc
 #                        test/google/range_of_motion_constraint_test.cc
@@ -204,6 +203,9 @@ if(BUILD_TESTS)
 #                        test/google/sparse_matrix_test.cc
                          test/google/ee_swing_motion_test.cc
                          test/google/ee_motion_test.cc
+                         ## these should be kept well maintained
+                         test/dynamic_constraint_test.cc
+                         test/center_of_pressure_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})
