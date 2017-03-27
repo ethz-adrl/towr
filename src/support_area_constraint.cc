@@ -61,17 +61,7 @@ SupportAreaConstraint::EvaluateConstraint () const
   for (double t : dts_) {
 
     Vector2d convex_contacts = Vector2d::Zero();
-
-//    int c = 0; // DRY number of contact
-
-//    std::cout << "t: " << t << std::endl;
-
-    // spring_clean_ DRY with these two functions, super ugly... :-(
     auto lambda_k = ee_load_.GetLoadValues(t);
-
-//    std::cout << "lambda_k.size(): " << lambda_k.size() << std::endl;
-//    std::cout << "ee_motion_.size(): " <<  ee_motion_.GetContacts(t).size() << std::endl;
-
 
     // spring_clean_ could actually also be all the endeffectors, then contact flags would only
     // be in other constraint
@@ -102,14 +92,11 @@ SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
   int row_idx = 0;
   for (double t : dts_) {
 
-//    int c = 0; // DRY number of contact
     for (auto f : ee_motion_.GetContacts(t)) {
-
       for (auto dim : d2::AllDimensions) {
         int idx = ee_load_.Index(t,f.ee);
         jac_.insert(row_idx+dim,idx) = f.p(dim);
       }
-//      c++;
     }
     row_idx += kDim2d;
   }
@@ -128,7 +115,6 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
 
   for (double t : dts_) {
 
-//    int c = 0; // DRY number of contact
     auto lambda_k = ee_load_.GetLoadValues(t);
     for (auto f : ee_motion_.GetContacts(t)) {
       if (f.id != ContactBase::kFixedByStartStance) {
@@ -137,7 +123,6 @@ SupportAreaConstraint::GetJacobianWithRespectToContacts () const
           jac_.insert(row_idx+dim, idx_contact) = lambda_k.At(f.ee);
         }
       }
-//      c++;
     }
 
     row_idx += kDim2d;

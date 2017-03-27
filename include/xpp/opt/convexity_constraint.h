@@ -20,9 +20,6 @@ namespace opt {
   * E.g. for a quadruped:
   * g[t_k] = lambda_LF + lambda_RF + lambda_LH + lambda_RF = 1.
   */
-// zmp_ possibly better to put in same file/merge with
-// PolygonCenterConstraint
-// Support Area Constraint? What's even the difference
 class ConvexityConstraint : public AConstraint {
 public:
   ConvexityConstraint ();
