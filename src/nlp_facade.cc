@@ -44,7 +44,7 @@ NlpFacade::OptimizeMotion(const StateLin2d& initial_state,
   auto ee_load = std::make_shared<EndeffectorLoad>();
 
   // zmp_ a this should work  also with a different value
-  double parameter_dt = 0.05;//motion_params->dt_nodes_;
+  double parameter_dt = motion_params->dt_nodes_;
   ee_load->Init(*ee_motion, parameter_dt, ee_motion->GetTotalTime());
 
   auto cop = std::make_shared<CenterOfPressure>();

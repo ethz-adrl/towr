@@ -104,11 +104,12 @@ Walk::Walk()
 
   constraints_ = { InitCom,
                    FinalCom,
-//                   FinalStance,
                    JunctionCom,
                    Convexity,
                    Dynamic,
-                   RomBox};
+                   RomBox
+//                 FinalStance,
+  };
 
 
   cost_weights_[ComCostID]          = 1.0;
@@ -150,11 +151,11 @@ Trott::Trott()
 
   constraints_ = { InitCom,
                    FinalCom,
-//                   FinalStance,
                    JunctionCom,
                    Dynamic,
                    Convexity,
                    RomBox
+//                   FinalStance,
                    };
 //  cost_weights_[RangOfMotionCostID] = 10.0;
 

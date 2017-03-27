@@ -132,7 +132,7 @@ EndeffectorLoad::GetTStart (int node) const
 int
 EndeffectorLoad::GetSegment (double t) const
 {
-  return round(t/dt_);
+  return floor(t/dt_);
 }
 
 } /* namespace opt */

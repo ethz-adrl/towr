@@ -71,7 +71,7 @@ CenterOfPressure::GetJacobianWrtCop (double t, d2::Coords dim) const
 int
 CenterOfPressure::GetSegment (double t) const
 {
-  return round(t/dt_);
+  return floor(t/dt_);
 }
 
 } /* namespace opt */
