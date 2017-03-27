@@ -42,6 +42,7 @@ public:
   void SetContactPositions(const Contacts& contact);
 
 
+  int GetNumberOfEndeffectors() const;
   EEMotion& GetMotion(EndeffectorID ee);
   EEState GetEndeffectors(double t_global) const;
   Contacts GetContacts(double t_global) const;

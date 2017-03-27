@@ -9,7 +9,8 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 
 #include <xpp/a_constraint.h>
-#include <xpp/opt/endeffector_load.h>
+#include "endeffector_load.h"
+#include "endeffectors_motion.h" // only for contact state
 
 namespace xpp {
 namespace opt {
@@ -27,7 +28,7 @@ public:
   PolygonCenterConstraint ();
   virtual ~PolygonCenterConstraint ();
 
-  void Init(const EndeffectorLoad&);
+  void Init(const EndeffectorLoad&, const EndeffectorsMotion&);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
@@ -37,6 +38,7 @@ public:
 
 private:
   EndeffectorLoad ee_load_;
+  EndeffectorsMotion ee_motion_; // only for contact state
 };
 
 } /* namespace opt */

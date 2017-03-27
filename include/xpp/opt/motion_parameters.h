@@ -18,7 +18,7 @@ namespace opt {
 enum MotionTypeID    { WalkID, TrottID, PaceID, BoundID, PushRecID };
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
                        FinalComCostID, FinalStanceCostID };
-enum ConstraintName  { InitCom, FinalCom, JunctionCom, Convexity, SuppArea,
+enum ConstraintName  { InitCom, FinalCom, JunctionCom, Convexity,
                        Dynamic, RomBox, FinalStance, Obstacle };
 
 /** This class holds all the hardcoded values describing a motion.

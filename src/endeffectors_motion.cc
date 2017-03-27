@@ -143,6 +143,12 @@ EndeffectorsMotion::GetTotalTime () const
    return endeffectors_.At(E0).GetTotalTime();
 }
 
+int
+EndeffectorsMotion::GetNumberOfEndeffectors () const
+{
+  return endeffectors_.GetEECount();
+}
+
 EndeffectorsMotion::EEVec
 EndeffectorsMotion::GetStanceLegs (const EEVec& swinglegs) const
 {

@@ -34,7 +34,8 @@ class ACost;
   */
 class CostConstraintFactory {
 public:
-  using ConstraintPtr = std::shared_ptr<AConstraint>;
+  using ConstraintPtr    = std::shared_ptr<AConstraint>;
+  using ConstraintPtrVec = std::vector<ConstraintPtr>;
   using CostPtr       = std::shared_ptr<ACost>;
   using Vector2d      = Eigen::Vector2d;
   using MotionTypePtr = std::shared_ptr<MotionParameters>;
@@ -59,7 +60,7 @@ public:
   VariableSet CopVariables() const;
 
   CostPtr GetCost(CostName name) const;
-  ConstraintPtr GetConstraint(ConstraintName name) const;
+  ConstraintPtrVec GetConstraint(ConstraintName name) const;
 
 private:
   MotionTypePtr params;
@@ -73,16 +74,15 @@ private:
   StateLin2d final_geom_state_;
 
   // constraints
-  ConstraintPtr MakeInitialConstraint() const;
-  ConstraintPtr MakeFinalConstraint() const;
-  ConstraintPtr MakeJunctionConstraint() const;
-  ConstraintPtr MakeConvexityConstraint() const;
-  ConstraintPtr MakeSupportAreaConstraint() const;
-  ConstraintPtr MakeDynamicConstraint() const;
-  ConstraintPtr MakeRangeOfMotionBoxConstraint() const;
-  ConstraintPtr MakeFinalStanceConstraint() const;
-  ConstraintPtr MakeObstacleConstraint() const;
-  ConstraintPtr MakePolygonCenterConstraint() const;
+  ConstraintPtrVec MakeInitialConstraint() const;
+  ConstraintPtrVec MakeFinalConstraint() const;
+  ConstraintPtrVec MakeJunctionConstraint() const;
+  ConstraintPtrVec MakeConvexityConstraint() const;
+  ConstraintPtrVec MakeDynamicConstraint() const;
+  ConstraintPtrVec MakeRangeOfMotionBoxConstraint() const;
+  ConstraintPtrVec MakeFinalStanceConstraint() const;
+  ConstraintPtrVec MakeObstacleConstraint() const;
+  ConstraintPtrVec MakePolygonCenterConstraint() const;
 
   // costs
   CostPtr MakeMotionCost() const;

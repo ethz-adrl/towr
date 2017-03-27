@@ -107,7 +107,6 @@ Walk::Walk()
 //                   FinalStance,
                    JunctionCom,
                    Convexity,
-                   SuppArea,
                    Dynamic,
                    RomBox};
 
@@ -154,7 +153,6 @@ Trott::Trott()
 //                   FinalStance,
                    JunctionCom,
                    Dynamic,
-                   SuppArea,
                    Convexity,
                    RomBox
                    };
@@ -186,7 +184,6 @@ PushRecovery::PushRecovery ()
 //                   FinalStance,
                    JunctionCom,
                    Convexity,
-                   SuppArea,
                    Dynamic,
                    RomBox};
 
@@ -213,7 +210,6 @@ Pace::Pace()
                    FinalStance,
                    JunctionCom,
                    Convexity,
-                   SuppArea,
                    Dynamic,
                    RomBox};
 
@@ -240,7 +236,6 @@ Bound::Bound()
                    FinalStance,
                    JunctionCom,
                    Convexity,
-                   SuppArea,
                    Dynamic,
                    RomBox};
 

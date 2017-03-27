@@ -27,8 +27,9 @@ class ConstraintContainer : public IObserver {
 public:
   typedef AConstraint::VectorXd VectorXd;
   typedef AConstraint::Jacobian Jacobian;
-  typedef std::shared_ptr<AConstraint> ConstraintPtr;
   typedef std::shared_ptr<Jacobian> JacobianPtr;
+  typedef std::shared_ptr<AConstraint> ConstraintPtr;
+  using ConstraitPtrVec = std::vector<ConstraintPtr>;
 
   ConstraintContainer (OptimizationVariables& subject);
   virtual ~ConstraintContainer ();
@@ -36,7 +37,7 @@ public:
   void Update () override;
   void ClearConstraints();
 
-  void AddConstraint (ConstraintPtr constraint);
+  void AddConstraint (ConstraitPtrVec constraint);
 
   VectorXd EvaluateConstraints () const;
   JacobianPtr GetJacobian () const;

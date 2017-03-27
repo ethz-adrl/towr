@@ -26,7 +26,7 @@ void
 CenterOfPressure::Init (double dt, double T)
 {
   dt_ = dt;
-  int N = GetNode(T);
+  int N = GetSegment(T);
   cop_ = VectorXd::Zero(N*kDim2d);
 }
 
@@ -39,7 +39,7 @@ CenterOfPressure::GetCop (double t) const
 int
 CenterOfPressure::Index (double t, d2::Coords dimension) const
 {
-  return kDim2d*GetNode(t) + dimension;
+  return kDim2d*GetSegment(t) + dimension;
 }
 
 void
@@ -69,7 +69,7 @@ CenterOfPressure::GetJacobianWrtCop (double t, d2::Coords dim) const
 }
 
 int
-CenterOfPressure::GetNode (double t) const
+CenterOfPressure::GetSegment (double t) const
 {
   return round(t/dt_);
 }

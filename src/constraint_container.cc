@@ -35,9 +35,10 @@ ConstraintContainer::ClearConstraints ()
 }
 
 void
-ConstraintContainer::AddConstraint (ConstraintPtr constraint)
+ConstraintContainer::AddConstraint (ConstraitPtrVec constraints)
 {
-  constraints_.push_back(constraint);
+  for (auto& c : constraints)
+    constraints_.push_back(c);
   RefreshBounds ();
 }
 

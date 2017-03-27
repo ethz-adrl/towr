@@ -46,7 +46,7 @@ private:
   VectorXd cop_;
   double dt_;
 
-  int GetNode (double t) const;
+  int GetSegment (double t) const;
 };
 
 } /* namespace opt */

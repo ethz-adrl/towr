@@ -135,6 +135,7 @@ add_library(${MOTION_OPT_LIB}
   src/convexity_constraint.cc
   src/polygon_center_constraint.cc
   src/dynamic_constraint.cc
+  src/contact_load_constraint.cc
 #  src/a_foothold_constraint.cc
 #  src/obstacle_constraint.cc
   src/a_spline_cost.cc

@@ -26,13 +26,13 @@ ConvexityConstraint::Init (const EndeffectorLoad& ee_load)
   ee_load_ = ee_load;
 
   // build constant jacobian w.r.t lambdas
-  int m = ee_load_.GetNumberOfNodes();
+  int m = ee_load_.GetNumberOfSegments();
   int n = ee_load_.GetOptVarCount();
   jac_ = Jacobian(m, n);
 
   for (int k=0; k<m; ++k) {
-    for (int c=0; c<ee_load_.GetNumberOfContacts(k); c++) {
-      int idx = ee_load_.IndexDiscrete(k,c);
+    for (auto ee : ee_load_.GetLoadValuesIdx(k).GetEEsOrdered()) {
+      int idx = ee_load_.IndexDiscrete(k,ee);
       jac_.insert(k, idx) = 1.0;
     }
   }
@@ -48,12 +48,12 @@ ConvexityConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 ConvexityConstraint::VectorXd
 ConvexityConstraint::EvaluateConstraint () const
 {
-  VectorXd g(ee_load_.GetNumberOfNodes());
+  VectorXd g(jac_.rows());
 
   for (int k=0; k<g.rows(); ++k) {
 
     double sum_k = 0.0;
-    for (auto lambda : ee_load_.GetLoadValuesIdx(k))
+    for (auto lambda : ee_load_.GetLoadValuesIdx(k).ToImpl())
       sum_k += lambda;
 
     g(k) = sum_k; // sum equal to 1
@@ -65,7 +65,7 @@ ConvexityConstraint::EvaluateConstraint () const
 VecBound
 ConvexityConstraint::GetBounds () const
 {
-  return VecBound(ee_load_.GetNumberOfNodes(), Bound(1.0, 1.0));
+  return VecBound(jac_.rows(), Bound(1.0, 1.0));
 }
 
 ConvexityConstraint::Jacobian

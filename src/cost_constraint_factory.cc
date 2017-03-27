@@ -15,6 +15,7 @@
 #include <xpp/opt/support_area_constraint.h>
 #include <xpp/opt/dynamic_constraint.h>
 #include <xpp/opt/polygon_center_constraint.h>
+#include <xpp/opt/contact_load_constraint.h>
 //#include <xpp/opt/obstacle_constraint.h>
 //#include <xpp/opt/a_foothold_constraint.h>
 
@@ -50,7 +51,7 @@ CostConstraintFactory::Init (const ComMotionPtr& com,
   final_geom_state_ = final_state;
 }
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::GetConstraint (ConstraintName name) const
 {
   switch (name) {
@@ -58,7 +59,6 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
     case FinalCom:    return MakeFinalConstraint();
     case JunctionCom: return MakeJunctionConstraint();
     case Convexity:   return MakeConvexityConstraint();
-    case SuppArea:    return MakeSupportAreaConstraint();
     case Dynamic:     return MakeDynamicConstraint();
     case RomBox:      return MakeRangeOfMotionBoxConstraint();
     case FinalStance: return MakeFinalStanceConstraint();
@@ -72,10 +72,10 @@ CostConstraintFactory::GetCost(CostName name) const
 {
   switch (name) {
     case ComCostID:          return MakeMotionCost();
-    case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint());
-    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint());
-    case FinalComCostID:     return ToCost(MakeFinalConstraint());
-    case FinalStanceCostID:  return ToCost(MakeFinalStanceConstraint());
+    case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint().front());
+    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint().front());
+    case FinalComCostID:     return ToCost(MakeFinalConstraint().front());
+    case FinalStanceCostID:  return ToCost(MakeFinalStanceConstraint().front());
     default: throw std::runtime_error("cost not defined!");
   }
 }
@@ -127,7 +127,7 @@ CostConstraintFactory::CopVariables () const
 }
 
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeInitialConstraint () const
 {
   LinearSplineEquations eq(*com_motion);
@@ -137,10 +137,10 @@ CostConstraintFactory::MakeInitialConstraint () const
   initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
 
   constraint->Init(eq.MakeInitial(initial_com_state), "Initial XY");
-  return constraint;
+  return {constraint};
 }
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeFinalConstraint () const
 {
   LinearSplineEquations eq(*com_motion);
@@ -150,40 +150,28 @@ CostConstraintFactory::MakeFinalConstraint () const
   final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
 
   constraint->Init(eq.MakeFinal(final_geom_state_, {kPos, kVel, kAcc}), "Final XY");
-  return constraint;
+  return {constraint};
 }
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeJunctionConstraint () const
 {
   LinearSplineEquations eq(*com_motion);
   auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
   constraint->Init(eq.MakeJunction(), "Junction");
-  return constraint;
+  return {constraint};
 }
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   auto constraint = std::make_shared<DynamicConstraint>();
   constraint->Init(*com_motion, *cop, ee_motion->GetTotalTime(),
                    params->dt_nodes_);
-  return constraint;
+  return {constraint};
 }
 
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::MakeSupportAreaConstraint() const
-{
-  auto constraint = std::make_shared<SupportAreaConstraint>();
-  constraint->Init(*ee_motion,
-                   *ee_load,
-                   *cop,
-                   ee_motion->GetTotalTime(),
-                   params->dt_nodes_);
-  return constraint;
-}
-
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
   auto constraint = std::make_shared<RangeOfMotionBox>(
@@ -192,19 +180,30 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
       );
 
   constraint->Init(*com_motion, *ee_motion, params->dt_nodes_);
-  return constraint;
+  return {constraint};
 }
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeConvexityConstraint() const
 {
-  auto constraint = std::make_shared<ConvexityConstraint>();
-  constraint->Init(*ee_load);
-  return constraint;
+  auto cop_constrait = std::make_shared<SupportAreaConstraint>();
+  cop_constrait->Init(*ee_motion,
+                   *ee_load,
+                   *cop,
+                   ee_motion->GetTotalTime(),
+                   params->dt_nodes_);
+
+  auto convexity = std::make_shared<ConvexityConstraint>();
+  convexity->Init(*ee_load);
+
+  auto contact_load = std::make_shared<ContactLoadConstraint>();
+  contact_load->Init(*ee_motion, *ee_load);
+
+  return {cop_constrait, convexity, contact_load};
 }
 
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeFinalStanceConstraint () const
 {
 //  auto constr = std::make_shared<FootholdFinalStanceConstraint>(
@@ -214,19 +213,19 @@ CostConstraintFactory::MakeFinalStanceConstraint () const
 //  return constr;
 }
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeObstacleConstraint () const
 {
 //  auto constraint = std::make_shared<ObstacleLineStrip>();
 //  return constraint;
 }
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakePolygonCenterConstraint () const
 {
   auto constraint = std::make_shared<PolygonCenterConstraint>();
-  constraint->Init(*ee_load);
-  return constraint;
+  constraint->Init(*ee_load, *ee_motion);
+  return {constraint};
 }
 
 CostConstraintFactory::CostPtr

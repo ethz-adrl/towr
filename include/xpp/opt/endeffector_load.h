@@ -20,7 +20,7 @@ namespace opt {
 class EndeffectorLoad {
 public:
   using VectorXd = Eigen::VectorXd;
-  using LoadParams = std::vector<double>;
+  using LoadParams = Endeffectors<double>;//std::vector<double>;
 
   EndeffectorLoad ();
   virtual ~EndeffectorLoad ();
@@ -31,35 +31,40 @@ public:
   VectorXd GetOptimizationVariables() const;
   static constexpr const char* ID = "convexity_lambdas";
 
+
   int GetOptVarCount() const;
 
   LoadParams GetLoadValues(double t) const;
 
   LoadParams GetLoadValuesIdx(int k) const;
 
-  int GetNumberOfNodes() const;
 
-  int GetNumberOfContacts(int k) const;
+  int GetNumberOfSegments() const;
+//  int GetNumberOfContacts(int k) const;
 
   /** @param k the number of discretized node with lambda parameters.
     * @param contact which contacts 0,...,ee we are interested in.
     * @returns the index in the optimization vector where this value is stored
     */
   // zmp_ this is too error prone having two functions, remove one
-  int IndexDiscrete(int k, int contact) const;
-  int Index(double t, int contact) const;
+  int IndexDiscrete(int k, EndeffectorID ee) const;
+  int Index(double t, EndeffectorID ee) const;
 
+  double GetTStart(int node) const;
 
 
 
   std::vector<int> GetContactsPerNode() const;
 
 private:
-  std::vector<int> n_contacts_per_node_;
-  VectorXd lambdas_;
+//  VectorXd lambdas_; // spring_clean_ remove
+//  std::vector<int> n_contacts_per_node_;
+
+  int n_ee_; ///< number of endeffectors
+  VectorXd lambdas_new_;
   double dt_;
 
-  int GetNode(double t) const;
+  int GetSegment(double t) const;
 };
 
 } /* namespace opt */
