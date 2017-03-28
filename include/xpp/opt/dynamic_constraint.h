@@ -20,28 +20,26 @@ class BaseMotion;
 
 class DynamicConstraint : public AConstraint {
 public:
-  using ComMotionPtrU = std::unique_ptr<BaseMotion>;
+  using BaseMotionPtr = std::shared_ptr<BaseMotion>;
+  using CopPtr        = std::shared_ptr<CenterOfPressure>;
 
   DynamicConstraint ();
   virtual ~DynamicConstraint ();
 
-  void Init(const BaseMotion&, const CenterOfPressure&, double T, double dt);
-
-  void UpdateVariables (const OptimizationVariables*) override;
+  void Init(const BaseMotionPtr&, const CopPtr&, double T, double dt);
   VectorXd EvaluateConstraint () const override;
   VecBound GetBounds () const override;
 
-  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
-
-  Jacobian GetJacobianWrtCop() const;
 private:
-  ComMotionPtrU com_motion_;
-  CenterOfPressure cop_;
+  BaseMotionPtr com_motion_;
+  CopPtr cop_;
   mutable LinearInvertedPendulum model_;
 
   std::vector<double> dts_;
 
-  Jacobian GetJacobianWrtCom() const;
+  void UpdateJacobians() override;
+  void UpdateJacobianWrtCop();
+  void UpdateJacobianWrtCom();
   double kHeight_;
 };
 

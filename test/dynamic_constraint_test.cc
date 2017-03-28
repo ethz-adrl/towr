@@ -21,19 +21,19 @@ TEST(DynamicConstraintTest, EvaluateConstraint)
   com->SetConstantHeight(0.58);
   com->Init(T, 3);
 
-  CenterOfPressure cop;
+  auto cop = std::make_shared<CenterOfPressure>();
   double dt_cop = 0.02;
-  cop.Init(dt_cop, T);
+  cop->Init(dt_cop, T);
 
   DynamicConstraint constraint;
   double dt_constraint = 0.05;
-  constraint.Init(*com, cop, T, dt_constraint);
+  constraint.Init(com, cop, T, dt_constraint);
 
   std::cout << "count: " << constraint.GetNumberOfConstraints() << std::endl;
 
   std::cout << constraint.EvaluateConstraint().transpose() << std::endl;
 
-  std::cout << constraint.GetJacobianWrtCop() << std::endl << std::endl;
+//  std::cout << constraint.GetJacobianWrtCop() << std::endl << std::endl;
 }
 
 

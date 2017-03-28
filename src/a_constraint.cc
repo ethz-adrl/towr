@@ -32,7 +32,6 @@ AConstraint::GetNumberOfConstraints () const
 void
 AConstraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars, int num_constraints)
 {
-//  variables_ = vars;
   num_constraints_ = num_constraints;
   g_ = VectorXd(num_constraints);
   bounds_ = VecBound(num_constraints);
@@ -40,15 +39,8 @@ AConstraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars,
 
   for (auto& v : vars) {
     int n = v->GetOptVarCount();
-    num_variables_ += v->GetOptVarCount();
-
     Jacobian jac(num_constraints, n);
-
-
     variables_.push_back({v, jac});
-
-
-//    jacobians_.push_back(jac);
   }
 }
 
@@ -59,6 +51,8 @@ AConstraint::UpdateVariables (const OptimizationVariables* opt_var)
     VectorXd x = opt_var->GetVariables(var.first->GetID());
     var.first->SetOptimizationParameters(x);
   }
+
+  UpdateJacobians();
 }
 
 AConstraint::Jacobian
@@ -103,7 +97,6 @@ xpp::opt::AConstraint::PrintStatus (double tol) const
 
   std::cout << std::endl;
 }
-
 
 
 } /* namespace opt */

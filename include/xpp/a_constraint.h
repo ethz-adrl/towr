@@ -54,18 +54,16 @@ public:
 protected:
   void SetDependentVariables(const std::vector<ParametrizationPtr>&, int num_constraints);
 
+  /** Implement in derived class if Jacobians change with opt. variables */
+  virtual void UpdateJacobians() {};
+
   std::string name_;
 
-//  Jacobian& GetJacobian(std::string var_set);
 
-
-//  std::vector<Jacobian> jacobians_;
   mutable std::vector<VarPair> variables_;
   mutable VectorXd g_;
   mutable VecBound bounds_;
-
   int num_constraints_ = 0;
-  int num_variables_ = 0;
 };
 
 } /* namespace opt */

@@ -23,17 +23,16 @@ DynamicConstraint::DynamicConstraint ()
 
 DynamicConstraint::~DynamicConstraint ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
-DynamicConstraint::Init (const BaseMotion& com_motion,
-                         const CenterOfPressure& cop,
+DynamicConstraint::Init (const BaseMotionPtr& com_motion,
+                         const CopPtr& cop,
                          double T,
                          double dt)
 {
-  com_motion_ = com_motion.clone();
-  kHeight_ = com_motion.GetZHeight();
+  com_motion_ = com_motion;
+  kHeight_ = com_motion->GetZHeight();
   cop_ = cop;
 
   // zmp_ DRY with other constraints?
@@ -43,24 +42,14 @@ DynamicConstraint::Init (const BaseMotion& com_motion,
     dts_.push_back(t);
     t += dt;
   }
-}
 
-void
-DynamicConstraint::UpdateVariables (const OptimizationVariables* opt_var)
-{
-  VectorXd x_coeff   = opt_var->GetVariables(com_motion_->GetID());
-  com_motion_->SetOptimizationParameters(x_coeff);
-
-  VectorXd cop = opt_var->GetVariables(cop_.GetID());
-  cop_.SetOptimizationParameters(cop);
+  int num_constraints = dts_.size()*kDim2d;
+  SetDependentVariables({com_motion, cop}, num_constraints);
 }
 
 DynamicConstraint::VectorXd
 DynamicConstraint::EvaluateConstraint () const
 {
-  int m = dts_.size()*kDim2d;
-  Eigen::VectorXd g(m);
-
   int k = 0;
   for (double t : dts_) {
 
@@ -68,31 +57,26 @@ DynamicConstraint::EvaluateConstraint () const
     model_.SetCurrent(com.p, com.v, kHeight_);
 
     // acceleration as predefined by physics
-    Vector2d acc_physics = model_.GetDerivative(cop_.GetCop(t));
-    g.middleRows<kDim2d>(kDim2d*k) = acc_physics - com.a;
+    Vector2d acc_physics = model_.GetDerivative(cop_->GetCop(t));
+    g_.middleRows<kDim2d>(kDim2d*k) = acc_physics - com.a;
 
     k++;
   }
 
-  return g;
+  return g_;
 }
 
 VecBound
 DynamicConstraint::GetBounds () const
 {
-  std::vector<Bound> bounds;
-  int m = EvaluateConstraint().rows();
-  for (int i=0; i<m; ++i)
-    bounds.push_back(kEqualityBound_);
-
-  return bounds;
+  std::fill(bounds_.begin(), bounds_.end(), kEqualityBound_);
+  return bounds_;
 }
 
-DynamicConstraint::Jacobian
-DynamicConstraint::GetJacobianWrtCop () const
+void
+DynamicConstraint::UpdateJacobianWrtCop ()
 {
-  int m = GetNumberOfConstraints();
-  Jacobian jac(m, cop_.GetOptVarCount());
+  Jacobian& jac = GetJacobianRefWithRespectTo(cop_->GetID());
 
   int row=0;
   for (double t : dts_) {
@@ -101,24 +85,28 @@ DynamicConstraint::GetJacobianWrtCop () const
     model_.SetCurrent(com.p, com.v, kHeight_);
 
     for (auto dim : d2::AllDimensions)
-      jac.row(row++) = model_.GetJacobianApproxWrtCop(dim)*cop_.GetJacobianWrtCop(t,dim);
+      jac.row(row++) = model_.GetJacobianApproxWrtCop(dim)*cop_->GetJacobianWrtCop(t,dim);
   }
-
-  return jac;
 }
 
-DynamicConstraint::Jacobian
-DynamicConstraint::GetJacobianWrtCom () const
+void
+DynamicConstraint::UpdateJacobians ()
 {
-  int m = GetNumberOfConstraints();
-  Jacobian jac(m, com_motion_->GetOptVarCount());
+  UpdateJacobianWrtCop();
+  UpdateJacobianWrtCom();
+}
+
+void
+DynamicConstraint::UpdateJacobianWrtCom ()
+{
+  Jacobian& jac = GetJacobianRefWithRespectTo(com_motion_->GetID());
 
   int n=0;
   for (double t : dts_) {
 
     auto com = com_motion_->GetCom(t);
     model_.SetCurrent(com.p, com.v, kHeight_);
-    Vector2d cop = cop_.GetCop(t);
+    Vector2d cop = cop_->GetCop(t);
 
     for (auto dim : {X, Y}) {
       Jacobian jac_acc     = com_motion_->GetJacobian(t,kAcc,dim);
@@ -128,23 +116,8 @@ DynamicConstraint::GetJacobianWrtCom () const
 
     n++;
   }
-
-  return jac;
 }
 
-DynamicConstraint::Jacobian
-DynamicConstraint::GetJacobianWithRespectTo (std::string var_set) const
-{
-  Jacobian jac; // empty matrix
-
-  if (var_set == cop_.GetID())
-    jac = GetJacobianWrtCop();
-
-  if (var_set == com_motion_->GetID())
-    jac = GetJacobianWrtCom();
-
-  return jac;
-}
 
 } /* namespace opt */
 } /* namespace xpp */
