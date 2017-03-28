@@ -1,12 +1,12 @@
 /**
- @file    motion_structure.h
+ @file    range_of_motion_constraint.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jun 6, 2016
- @brief   Declares various Range of Motion Constraint Classes
+ @brief   Declares various Range of Motion Constraint classes
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
+#ifndef XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
+#define XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
 #include "endeffectors_motion.h"
 #include <xpp/a_constraint.h>
@@ -26,31 +26,25 @@ class BaseMotion;
   */
 class RangeOfMotionConstraint : public AConstraint {
 public:
-  using ComMotionPtrU = std::unique_ptr<BaseMotion>;
+  using ComMotionPtrU = std::shared_ptr<BaseMotion>;
+  using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
   using PosXY         = Eigen::Vector2d;
 
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint ();
 
-  void Init(const BaseMotion& com_motion,
-            const EndeffectorsMotion& ee_motion,
+  void Init(const ComMotionPtrU& com_motion,
+            const EEMotionPtr& ee_motion,
             double dt);
-  void UpdateVariables(const OptimizationVariables*) final;
-  Jacobian GetJacobianWithRespectTo (std::string var_set) const final;
+
 
 protected:
   ComMotionPtrU com_motion_;
-  EndeffectorsMotion ee_motion_;
-
-  bool first_update_ = true;
+  EEMotionPtr ee_motion_;
   std::vector<double> dts_; ///< discretization of constraint
 
 private:
-  Jacobian jac_wrt_contacts_;
-  Jacobian jac_wrt_motion_;
-
-  virtual void SetJacobianWrtContacts(Jacobian&) const = 0;
-  virtual void SetJacobianWrtMotion(Jacobian&) const = 0;
+  virtual void InitializeConstantJacobians() = 0;
 };
 
 /** @brief Constrains the contact to lie in a box around the nominal stance
@@ -72,9 +66,11 @@ public:
   virtual VectorXd EvaluateConstraint () const final;
   virtual VecBound GetBounds () const final;
 
+
 private:
-  virtual void SetJacobianWrtContacts(Jacobian&) const final;
-  virtual void SetJacobianWrtMotion(Jacobian&) const final;
+  void InitializeConstantJacobians() override;
+  void UpdateJacobianWrtEndeffectors();
+  void UpdateJacobianWrtBase();
 
   MaxDevXY max_deviation_from_nominal_;
   NominalStance nominal_stance_;
@@ -101,4 +97,4 @@ private:
 } /* namespace opt */
 } /* namespace xpp */
 
-#endif /* XPP_XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_ */
+#endif /* XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_ */

@@ -180,7 +180,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
       params->GetNominalStanceInBase()
       );
 
-  constraint->Init(*com_motion, *ee_motion, params->dt_nodes_);
+  constraint->Init(com_motion, ee_motion, params->dt_nodes_);
   return {constraint};
 }
 
