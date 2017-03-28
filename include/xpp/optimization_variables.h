@@ -19,7 +19,7 @@ namespace opt {
   *
   * This class is responsible for publishing the up-to-date values of the
   * optimization variables to all the observers (cost function,
-  * constraints, visualizers,...) that registered to this. This class should
+  * constraints,...) that registered to this. This class should
   * fit all types of optimization problems and does not have a specific set
   * of variables. The only problem specific information this class holds is the
   * std::string id of what the variables represent.

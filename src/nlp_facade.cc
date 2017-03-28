@@ -81,7 +81,7 @@ NlpFacade::OptimizeMotion(const StateLin2d& initial_state,
 
   SolveNlp(solver);
 
-  Eigen::VectorXd xy = opt_variables_->GetVariables(EndeffectorsMotion::ID);
+  Eigen::VectorXd xy = opt_variables_->GetVariables(ee_motion->GetID());
   ee_motion->SetOptimizationParameters(xy);
 
   Eigen::VectorXd x_motion = opt_variables_->GetVariables(ComMotion::ID);

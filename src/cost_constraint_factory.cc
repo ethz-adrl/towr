@@ -89,7 +89,7 @@ CostConstraintFactory::SplineCoeffVariables () const
 VariableSet
 CostConstraintFactory::ContactVariables (const Vector2d initial_pos) const
 {
-  return VariableSet(ee_motion->GetOptimizationParameters(), EndeffectorsMotion::ID);
+  return VariableSet(ee_motion->GetOptimizationParameters(), ee_motion->GetID());
 }
 
 VariableSet

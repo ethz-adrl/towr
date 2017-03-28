@@ -32,7 +32,6 @@ public:
   ComMotion ();
   virtual ~ComMotion ();
 
-
   void SetOffsetGeomToCom(const Vector3d& offset);
   State3d GetBase(double t_global) const;
 

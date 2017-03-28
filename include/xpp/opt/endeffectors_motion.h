@@ -12,6 +12,7 @@
 #include <xpp/state.h>
 #include <xpp/endeffectors.h>
 #include <xpp/contact.h>
+#include <xpp/parametrization.h>
 
 #include <map>
 
@@ -23,7 +24,7 @@ namespace opt {
   * This class is responsible for transforming the scalar parameters into
   * the position, velocity and acceleration of the endeffectors.
   */
-class EndeffectorsMotion {
+class EndeffectorsMotion : public Parametrization {
 public:
   using EEState  = Endeffectors<StateLin3d>;
   using VectorXd = Eigen::VectorXd;
@@ -35,6 +36,13 @@ public:
 
   EndeffectorsMotion (int n_ee = 0);
   virtual ~EndeffectorsMotion ();
+
+
+  VectorXd GetOptimizationParameters() const override;
+  void SetOptimizationParameters(const VectorXd&) override;
+  // order at which the contact position of this endeffector is stored
+  int Index(EndeffectorID ee, int id, d2::Coords) const;
+
 
 
   void SetInitialPos(const EEXppPos& initial_pos);
@@ -50,15 +58,6 @@ public:
   Contacts GetAllFreeContacts() const;
   double GetTotalTime() const;
 
-  int GetOptVarCount() const;
-  VectorXd GetOptimizationParameters() const;
-  void SetOptimizationParameters(const VectorXd&);
-  static constexpr const char* ID  = "footholds";
-
-
-
-  // order at which the contact position of this endeffector is stored
-  int Index(EndeffectorID ee, int id, d2::Coords) const;
 
 private:
   Endeffectors<EEMotion> endeffectors_;

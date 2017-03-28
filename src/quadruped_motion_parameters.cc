@@ -157,7 +157,7 @@ Trott::Trott()
                    RomBox
 //                   FinalStance,
                    };
-//  cost_weights_[RangOfMotionCostID] = 10.0;
+  cost_weights_[RangOfMotionCostID] = 10.0;
 
   // remove all costs hugely speeds up the optimization problem
 //  cost_weights_[ComCostID]      = 1.0;

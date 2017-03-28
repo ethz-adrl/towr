@@ -43,7 +43,7 @@ SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
   // zmp_ automate with base class...
   VectorXd lambdas   = opt_var->GetVariables(EndeffectorLoad::ID);
-  VectorXd footholds = opt_var->GetVariables(EndeffectorsMotion::ID);
+  VectorXd footholds = opt_var->GetVariables(ee_motion_.GetID());
   VectorXd cop       = opt_var->GetVariables(CenterOfPressure::ID);
 
   ee_motion_.SetOptimizationParameters(footholds);
@@ -156,7 +156,7 @@ SupportAreaConstraint::GetJacobianWithRespectTo (std::string var_set) const
     jac = GetJacobianWithRespectToCop();
   }
 
-  if (var_set == EndeffectorsMotion::ID) {
+  if (var_set == ee_motion_.GetID()) {
     jac = GetJacobianWithRespectToContacts();
   }
 

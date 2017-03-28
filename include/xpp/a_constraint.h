@@ -15,6 +15,7 @@
 namespace xpp {
 namespace opt {
 
+// zmp_ possibly remove the "A"
 class AConstraint {
 public:
   using VectorXd = Eigen::VectorXd;

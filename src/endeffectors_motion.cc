@@ -11,6 +11,7 @@ namespace xpp {
 namespace opt {
 
 EndeffectorsMotion::EndeffectorsMotion (int n_ee)
+    :Parametrization("footholds")
 {
   endeffectors_.SetCount(n_ee);
 }
@@ -104,13 +105,6 @@ EndeffectorsMotion::SetOptimizationParameters (const VectorXd& x)
 
     SetContactPositions({c});
   }
-}
-
-int
-EndeffectorsMotion::GetOptVarCount () const
-{
-  // zmp_ DRY can be summarized in base class
-  return GetOptimizationParameters().rows();
 }
 
 int
