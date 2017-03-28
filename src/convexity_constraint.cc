@@ -32,10 +32,12 @@ ConvexityConstraint::Init (const LoadPtr& ee_load)
   // build constant jacobian w.r.t lambdas
 //  jac_ = Jacobian(m, n);
 
+  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetID());
+
   for (int k=0; k<m; ++k) {
     for (auto ee : ee_load->GetLoadValuesIdx(k).GetEEsOrdered()) {
       int idx = ee_load->IndexDiscrete(k,ee);
-      variables_.front().second.insert(k, idx) = 1.0;
+      jac.insert(k, idx) = 1.0;
     }
   }
 }

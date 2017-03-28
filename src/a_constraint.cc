@@ -73,6 +73,14 @@ AConstraint::GetJacobianWithRespectTo (std::string var_set) const
   return jac;
 }
 
+AConstraint::Jacobian&
+AConstraint::GetJacobianRefWithRespectTo (std::string var_set)
+{
+  for (auto& var : variables_)
+    if (var.first->GetID() == var_set)
+      return var.second;
+}
+
 
 void
 xpp::opt::AConstraint::PrintStatus (double tol) const
@@ -95,6 +103,8 @@ xpp::opt::AConstraint::PrintStatus (double tol) const
 
   std::cout << std::endl;
 }
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

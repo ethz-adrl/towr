@@ -18,21 +18,19 @@ namespace opt {
 
 class ContactLoadConstraint : public AConstraint {
 public:
+  using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
+  using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
+
   ContactLoadConstraint ();
   virtual ~ContactLoadConstraint ();
 
-  void Init(const EndeffectorsMotion&, const EndeffectorLoad& ee_load);
-
-  void UpdateVariables (const OptimizationVariables*) override;
+  void Init(const EEMotionPtr&, const EELoadPtr& ee_load);
   VectorXd EvaluateConstraint () const override;
   VecBound GetBounds () const override;
 
-  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
-
-
 private:
-  EndeffectorLoad ee_load_;
-  EndeffectorsMotion ee_motion_;
+  EELoadPtr ee_load_;
+  EEMotionPtr ee_motion_;
 };
 
 } /* namespace opt */

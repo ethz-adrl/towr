@@ -35,7 +35,9 @@ public:
 
   /** The Jacobian of the constraints with respect to each decision variable set
     */
+  // zmp_ remove one of these
   virtual Jacobian GetJacobianWithRespectTo (std::string var_set) const;
+  virtual Jacobian& GetJacobianRefWithRespectTo (std::string var_set);
 
   /** A constraint always delivers a vector of constraint violations.
    */
@@ -54,6 +56,7 @@ protected:
 
   std::string name_;
 
+//  Jacobian& GetJacobian(std::string var_set);
 
 
 //  std::vector<Jacobian> jacobians_;
