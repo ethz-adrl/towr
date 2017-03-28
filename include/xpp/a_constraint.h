@@ -9,8 +9,12 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_
 
 #include "optimization_variables.h"
+#include "parametrization.h"
+
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
+
+#include <memory>
 
 namespace xpp {
 namespace opt {
@@ -20,19 +24,22 @@ class AConstraint {
 public:
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+  using ParametrizationPtr = std::shared_ptr<Parametrization>;
+  using VarPair = std::pair<ParametrizationPtr,Jacobian>;
 
   AConstraint ();
   virtual ~AConstraint ();
 
-  virtual void UpdateVariables(const OptimizationVariables*) = 0;
+
+  virtual void UpdateVariables(const OptimizationVariables*);
+
+  /** The Jacobian of the constraints with respect to each decision variable set
+    */
+  virtual Jacobian GetJacobianWithRespectTo (std::string var_set) const;
 
   /** A constraint always delivers a vector of constraint violations.
    */
   virtual VectorXd EvaluateConstraint () const = 0;
-
-  /** The Jacobian of the constraints with respect to each decision variable set
-    */
-  virtual Jacobian GetJacobianWithRespectTo (std::string var_set) const = 0;
 
   /** For each returned constraint an upper and lower bound is given.
    */
@@ -43,7 +50,19 @@ public:
   void PrintStatus(double tol) const;
 
 protected:
+  void SetDependentVariables(const std::vector<ParametrizationPtr>&, int num_constraints);
+
   std::string name_;
+
+
+
+//  std::vector<Jacobian> jacobians_;
+  mutable std::vector<VarPair> variables_;
+  mutable VectorXd g_;
+  mutable VecBound bounds_;
+
+  int num_constraints_ = 0;
+  int num_variables_ = 0;
 };
 
 } /* namespace opt */

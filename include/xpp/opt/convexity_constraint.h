@@ -11,6 +11,8 @@
 #include <xpp/a_constraint.h>
 #include <xpp/opt/endeffector_load.h>
 
+#include <memory>
+
 namespace xpp {
 namespace opt {
 
@@ -22,22 +24,24 @@ namespace opt {
   */
 class ConvexityConstraint : public AConstraint {
 public:
+  using LoadPtr = std::shared_ptr<EndeffectorLoad>;
+
   ConvexityConstraint ();
   virtual ~ConvexityConstraint ();
 
-  /** Parametrize load by piecewise constant load values
+  /** Parameterize load by piecewise constant load values
    */
-  void Init(const EndeffectorLoad&);
+  void Init(const LoadPtr&);
 
-  void UpdateVariables (const OptimizationVariables*) override;
+//  void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
   VecBound GetBounds () const override;
 
-  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
+//  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
-  EndeffectorLoad ee_load_;
-  Jacobian jac_;
+  LoadPtr ee_load_;
+//  Jacobian jac_;
 };
 
 } /* namespace opt */

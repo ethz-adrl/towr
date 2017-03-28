@@ -5,12 +5,12 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/base_motion.h"
+#include <xpp/opt/base_motion.h>
 
 namespace xpp {
 namespace opt {
 
-BaseMotion::BaseMotion () : Parametrization("spline_coeff")
+BaseMotion::BaseMotion () : Parametrization("base_motion")
 {
 }
 

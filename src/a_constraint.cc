@@ -14,7 +14,7 @@ namespace opt {
 
 AConstraint::AConstraint ()
 {
-  name_ = "NoName";
+  name_ = "GiveMeAName";
 }
 
 AConstraint::~AConstraint ()
@@ -25,8 +25,54 @@ AConstraint::~AConstraint ()
 int
 AConstraint::GetNumberOfConstraints () const
 {
+  // zmp_ DRY with num_constraints
   return GetBounds().size();
 }
+
+void
+AConstraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars, int num_constraints)
+{
+//  variables_ = vars;
+  num_constraints_ = num_constraints;
+  g_ = VectorXd(num_constraints);
+  bounds_ = VecBound(num_constraints);
+
+
+  for (auto& v : vars) {
+    int n = v->GetOptVarCount();
+    num_variables_ += v->GetOptVarCount();
+
+    Jacobian jac(num_constraints, n);
+
+
+    variables_.push_back({v, jac});
+
+
+//    jacobians_.push_back(jac);
+  }
+}
+
+void
+AConstraint::UpdateVariables (const OptimizationVariables* opt_var)
+{
+  for (auto& var : variables_) {
+    VectorXd x = opt_var->GetVariables(var.first->GetID());
+    var.first->SetOptimizationParameters(x);
+  }
+}
+
+AConstraint::Jacobian
+AConstraint::GetJacobianWithRespectTo (std::string var_set) const
+{
+  Jacobian jac; // empy matrix
+
+  for (const auto& var : variables_)
+    if (var.first->GetID() == var_set)
+      jac = var.second;
+
+  return jac;
+}
+
 
 void
 xpp::opt::AConstraint::PrintStatus (double tol) const

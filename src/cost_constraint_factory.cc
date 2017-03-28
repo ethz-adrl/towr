@@ -195,7 +195,8 @@ CostConstraintFactory::MakeConvexityConstraint() const
                    params->dt_nodes_);
 
   auto convexity = std::make_shared<ConvexityConstraint>();
-  convexity->Init(*ee_load);
+//  convexity->SetDependentVariables({ee_load});
+  convexity->Init(ee_load);
 
   auto contact_load = std::make_shared<ContactLoadConstraint>();
   contact_load->Init(*ee_motion, *ee_load);

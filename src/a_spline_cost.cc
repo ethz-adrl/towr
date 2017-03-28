@@ -30,7 +30,6 @@ ASplineCost::UpdateVariables (const OptimizationVariables* opt_var)
   spline_coeff_ = com_motion_->GetXYSplineCoeffients();
 }
 
-// zmp_ same as soft constraint?
 double
 QuadraticSplineCost::EvaluateCost () const
 {
