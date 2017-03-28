@@ -42,13 +42,13 @@ void
 SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
   // zmp_ automate with base class...
-  VectorXd lambdas   = opt_var->GetVariables(EndeffectorLoad::ID);
+  VectorXd lambdas   = opt_var->GetVariables(ee_load_.GetID());
   VectorXd footholds = opt_var->GetVariables(ee_motion_.GetID());
-  VectorXd cop       = opt_var->GetVariables(CenterOfPressure::ID);
+  VectorXd cop       = opt_var->GetVariables(cop_.GetID());
 
   ee_motion_.SetOptimizationParameters(footholds);
-  ee_load_.SetOptimizationVariables(lambdas);
-  cop_.SetOptimizationVariables(cop);
+  ee_load_.SetOptimizationParameters(lambdas);
+  cop_.SetOptimizationParameters(cop);
 }
 
 SupportAreaConstraint::VectorXd
@@ -152,7 +152,7 @@ SupportAreaConstraint::GetJacobianWithRespectTo (std::string var_set) const
   Jacobian jac; // empty matrix
 
   // zmp_ automate this with base class as well
-  if (var_set == CenterOfPressure::ID) {
+  if (var_set == cop_.GetID()) {
     jac = GetJacobianWithRespectToCop();
   }
 
@@ -160,7 +160,7 @@ SupportAreaConstraint::GetJacobianWithRespectTo (std::string var_set) const
     jac = GetJacobianWithRespectToContacts();
   }
 
-  if (var_set == EndeffectorLoad::ID) {
+  if (var_set == ee_load_.GetID()) {
     jac = GetJacobianWithRespectToLambdas();
   }
 

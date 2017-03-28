@@ -6,27 +6,31 @@
  */
 
 #include <xpp/opt/a_spline_cost.h>
-#include <xpp/opt/com_motion.h>
 
 namespace xpp {
 namespace opt {
+
 
 ASplineCost::ASplineCost ()
 {
 }
 
 void
-ASplineCost::Init (const MatVec& mat_vec)
+ASplineCost::Init (const MatVec& mat_vec, const ComMotion& com_motion)
 {
   matrix_vector_ = mat_vec;
+  com_motion_ = com_motion.clone();
 }
 
 void
 ASplineCost::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  spline_coeff_ = opt_var->GetVariables(ComMotion::ID);
+  VectorXd x = opt_var->GetVariables(com_motion_->GetID());
+  com_motion_->SetOptimizationParameters(x);
+  spline_coeff_ = com_motion_->GetCoeffients();
 }
 
+// zmp_ same as soft constraint?
 double
 QuadraticSplineCost::EvaluateCost () const
 {
@@ -43,7 +47,7 @@ QuadraticSplineCost::EvaluateGradientWrt(std::string var_set)
 {
   VectorXd grad;
 
-  if (var_set == ComMotion::ID)
+  if (var_set == com_motion_->GetID())
     grad =  2.0 * matrix_vector_.M * spline_coeff_;
 
   return grad;

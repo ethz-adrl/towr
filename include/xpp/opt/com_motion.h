@@ -10,6 +10,7 @@
 
 #include <xpp/matrix_vector.h>
 #include <xpp/state.h>
+#include <xpp/parametrization.h>
 
 #include <Eigen/Sparse>
 #include <memory>
@@ -23,7 +24,7 @@ namespace opt {
   * the motion of a system. Specific parametrizations can for example use
   * splines or solutions of the Equation of Motion as representation.
   */
-class ComMotion {
+class ComMotion : public Parametrization {
 public:
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor> ;
   using PtrS        = std::shared_ptr<ComMotion> ;
@@ -31,6 +32,16 @@ public:
 
   ComMotion ();
   virtual ~ComMotion ();
+
+
+  VectorXd GetOptimizationParameters() const override;
+  void SetOptimizationParameters(const VectorXd&) override;
+
+
+  // zmp_ remove this, replace with GetOptVar()
+  virtual int GetTotalFreeCoeff() const = 0;
+
+
 
   void SetOffsetGeomToCom(const Vector3d& offset);
   State3d GetBase(double t_global) const;
@@ -42,19 +53,7 @@ public:
   virtual StateLin2d GetCom(double t_global) const = 0;
   virtual double GetTotalTime() const = 0;
 
-  /** Set all coefficients to fully describe the CoM motion.
-    *
-    * These can be spline coefficients or coefficients from any type of equation
-    * that produce x(t) = ...
-    */
-  virtual void SetCoefficients(const VectorXd& coeff) = 0;
-  void SetCoefficientsZero();
 
-  virtual int GetTotalFreeCoeff() const = 0;
-  virtual VectorXd GetCoeffients() const = 0;
-
-  /** The string used to identify the variable set inside the NLP */
-  static constexpr const char* ID = "spline_coeff";
 
   /** @brief Calculates the Jacobian J of the motion with respect to the current coefficients.
     *
@@ -88,6 +87,19 @@ public:
 
   double GetZHeight() const { return z_height_; };
   void SetConstantHeight(double z) { z_height_ = z; };
+
+
+  /** Set all coefficients to fully describe the CoM motion.
+    *
+    * These can be spline coefficients or coefficients from any type of equation
+    * that produce x(t) = ...
+    */
+  // zmp_ rename to getXY spline coefficients
+  virtual VectorXd GetCoeffients() const = 0;
+
+protected:
+  virtual void SetSplineXYCoefficients(const VectorXd& coeff) = 0;
+
 
 private:
   double z_height_;

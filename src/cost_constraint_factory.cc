@@ -83,7 +83,7 @@ CostConstraintFactory::GetCost(CostName name) const
 VariableSet
 CostConstraintFactory::SplineCoeffVariables () const
 {
-  return VariableSet(com_motion->GetCoeffients(), ComMotion::ID);
+  return VariableSet(com_motion->GetOptimizationParameters(), com_motion->GetID());
 }
 
 VariableSet
@@ -96,9 +96,9 @@ VariableSet
 CostConstraintFactory::ConvexityVariables () const
 {
   // initialize load values as if each leg is carrying half of total load
-  Eigen::VectorXd lambdas = ee_load->GetOptimizationVariables();
+  Eigen::VectorXd lambdas = ee_load->GetOptimizationParameters();
   lambdas.fill(1./2);
-  return VariableSet(lambdas, EndeffectorLoad::ID, Bound(0.0, 1.0));
+  return VariableSet(lambdas, ee_load->GetID(), Bound(0.0, 1.0));
 
 
 // this would initializate the load parameters to equal distribution depending
@@ -123,7 +123,8 @@ CostConstraintFactory::ConvexityVariables () const
 VariableSet
 CostConstraintFactory::CopVariables () const
 {
-  return VariableSet(cop->GetOptimizationVariables(), CenterOfPressure::ID);
+  // could also be generalized
+  return VariableSet(cop->GetOptimizationParameters(), cop->GetID());
 }
 
 
@@ -131,7 +132,7 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeInitialConstraint () const
 {
   LinearSplineEquations eq(*com_motion);
-  auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
+  auto constraint = std::make_shared<LinearSplineEqualityConstraint>(*com_motion);
 
   StateLin2d initial_com_state = initial_geom_state_;
   initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
@@ -144,7 +145,7 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeFinalConstraint () const
 {
   LinearSplineEquations eq(*com_motion);
-  auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
+  auto constraint = std::make_shared<LinearSplineEqualityConstraint>(*com_motion);
 
   StateLin2d final_com_state = final_geom_state_;
   final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
@@ -157,7 +158,7 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeJunctionConstraint () const
 {
   LinearSplineEquations eq(*com_motion);
-  auto constraint = std::make_shared<LinearSplineEqualityConstraint>();
+  auto constraint = std::make_shared<LinearSplineEqualityConstraint>(*com_motion);
   constraint->Init(eq.MakeJunction(), "Junction");
   return {constraint};
 }
@@ -247,7 +248,7 @@ CostConstraintFactory::MakeMotionCost() const
   mv.v.setZero();
 
   auto cost = std::make_shared<QuadraticSplineCost>();
-  cost->Init(mv);
+  cost->Init(mv, *com_motion);
   return cost;
 }
 

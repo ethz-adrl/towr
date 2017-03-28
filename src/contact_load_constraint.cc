@@ -32,14 +32,14 @@ ContactLoadConstraint::Init (const EndeffectorsMotion& ee_motion,
 void
 ContactLoadConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd lambdas   = opt_var->GetVariables(EndeffectorLoad::ID);
-  ee_load_.SetOptimizationVariables(lambdas);
+  VectorXd lambdas   = opt_var->GetVariables(ee_load_.GetID());
+  ee_load_.SetOptimizationParameters(lambdas);
 }
 
 VectorXd
 ContactLoadConstraint::EvaluateConstraint () const
 {
-  return ee_load_.GetOptimizationVariables();
+  return ee_load_.GetOptimizationParameters();
 }
 
 VecBound
@@ -71,7 +71,7 @@ ContactLoadConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empy matrix
 
-  if (var_set == EndeffectorLoad::ID) {
+  if (var_set == ee_load_.GetID()) {
     int n = ee_load_.GetOptVarCount();
     jac = Jacobian(n,n);
     jac.setIdentity();

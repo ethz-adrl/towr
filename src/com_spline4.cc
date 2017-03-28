@@ -42,7 +42,7 @@ ComSpline4::SetStartPosVel (const Vector2d& start_cog_p, const Vector2d& start_c
  // initialize all other coefficients to zero
  Eigen::VectorXd abcd(GetTotalFreeCoeff());
  abcd.setZero();
- SetCoefficients(abcd);
+ SetSplineXYCoefficients(abcd);
 }
 
 ComSpline4::Derivatives
@@ -59,7 +59,7 @@ ComSpline4::GetJunctionFreeMotions () const
 }
 
 void
-ComSpline4::SetCoefficients(const VectorXd& optimized_coeff)
+ComSpline4::SetSplineXYCoefficients(const VectorXd& optimized_coeff)
 {
   CheckIfSplinesInitialized();
   assert(polynomials_.size() == GetTotalFreeCoeff()/kDim2d/4.0);
@@ -232,7 +232,7 @@ ComSpline4::SetEndAtStart ()
   abcd[Index(0,Y,Polynomial::PolynomialCoeff::C)] = c_and_d_y(0);
   abcd[Index(0,Y,Polynomial::PolynomialCoeff::D)] = c_and_d_y(1);
 
-  SetCoefficients(abcd);
+  SetSplineXYCoefficients(abcd);
 }
 
 } /* namespace zmp */

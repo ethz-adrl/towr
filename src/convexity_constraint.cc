@@ -41,8 +41,8 @@ ConvexityConstraint::Init (const EndeffectorLoad& ee_load)
 void
 ConvexityConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd lambdas = opt_var->GetVariables(EndeffectorLoad::ID);
-  ee_load_.SetOptimizationVariables(lambdas);
+  VectorXd lambdas = opt_var->GetVariables(ee_load_.GetID());
+  ee_load_.SetOptimizationParameters(lambdas);
 }
 
 ConvexityConstraint::VectorXd
@@ -73,7 +73,7 @@ ConvexityConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empy matrix
 
-  if (var_set == EndeffectorLoad::ID) {
+  if (var_set == ee_load_.GetID()) {
     jac = jac_;
   }
 

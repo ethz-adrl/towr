@@ -11,6 +11,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <xpp/cartesian_declarations.h>
+#include <xpp/parametrization.h>
 
 namespace xpp {
 namespace opt {
@@ -19,7 +20,7 @@ namespace opt {
   *
   * In this case we discretize and represent as piece-wise constant.
   */
-class CenterOfPressure {
+class CenterOfPressure : public Parametrization {
 public:
   using VectorXd = Eigen::VectorXd;
   using Vector2d = Eigen::Vector2d;
@@ -30,16 +31,11 @@ public:
 
   void Init(double dt, double T);
 
-  Vector2d GetCop(double t) const;
-
-  void SetOptimizationVariables(const VectorXd& x);
-  VectorXd GetOptimizationVariables() const;
-  static constexpr const char* ID   = "center_of_pressure";
-
-  int GetOptVarCount() const;
-
+  void SetOptimizationParameters(const VectorXd& x) override;
+  VectorXd GetOptimizationParameters() const override;
   int Index(double t, d2::Coords dimension) const;
 
+  Vector2d GetCop(double t) const;
   JacobianRow GetJacobianWrtCop(double t, d2::Coords dim) const;
 
 private:

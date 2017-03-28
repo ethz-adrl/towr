@@ -39,7 +39,7 @@ ComSpline6::GetJunctionFreeMotions () const
 }
 
 void
-ComSpline6::SetCoefficients (const VectorXd& optimized_coeff)
+ComSpline6::SetSplineXYCoefficients (const VectorXd& optimized_coeff)
 {
   CheckIfSplinesInitialized();
 

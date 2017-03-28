@@ -40,8 +40,8 @@ RangeOfMotionConstraint::Init (const ComMotion& com_motion,
 void
 RangeOfMotionConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd x_coeff   = opt_var->GetVariables(ComMotion::ID);
-  com_motion_->SetCoefficients(x_coeff);
+  VectorXd x_coeff   = opt_var->GetVariables(com_motion_->GetID());
+  com_motion_->SetOptimizationParameters(x_coeff);
 
   VectorXd footholds = opt_var->GetVariables(ee_motion_.GetID());
   ee_motion_.SetOptimizationParameters(footholds);
@@ -59,7 +59,7 @@ RangeOfMotionConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   if (var_set == ee_motion_.GetID())
     return jac_wrt_contacts_;
-  else if (var_set == ComMotion::ID)
+  else if (var_set == com_motion_->GetID())
     return jac_wrt_motion_;
   else
     return Jacobian();

@@ -29,8 +29,8 @@ PolygonCenterConstraint::Init (const EndeffectorLoad& ee_load,
 void
 PolygonCenterConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  Eigen::VectorXd lambdas = opt_var->GetVariables(EndeffectorLoad::ID);
-  ee_load_.SetOptimizationVariables(lambdas);
+  Eigen::VectorXd lambdas = opt_var->GetVariables(ee_load_.GetID());
+  ee_load_.SetOptimizationParameters(lambdas);
 }
 
 PolygonCenterConstraint::VectorXd
@@ -74,7 +74,7 @@ PolygonCenterConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 
-  if (var_set == EndeffectorLoad::ID) {
+  if (var_set == ee_load_.GetID()) {
 
     int m = ee_load_.GetNumberOfSegments();
     int n = ee_load_.GetOptVarCount();

@@ -68,6 +68,7 @@ public:
   StateLin2d GetCOGxyAtPolynomial(int id, double t_local) {return ComPolynomialHelpers::GetCOGxyAtPolynomial(id, t_local, polynomials_); };
 
 
+  void SetCoefficientsZero();
 
 protected:
   VecPolynomials polynomials_;

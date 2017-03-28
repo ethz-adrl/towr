@@ -317,7 +317,7 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
 
   // Describe the same spline with only abcd coefficients and the constraint that
   // the junctions should have equal position and velocity
-  splines_estimated_ef.SetCoefficients(abcd_coeff);
+  splines_estimated_ef.SetSplineXYCoefficients(abcd_coeff);
 
   for (int dim=X; dim<=Y; ++dim) {
     EXPECT_FLOAT_EQ(init_pos[dim], splines_estimated_ef.GetPolynomial(0).spline_coeff_[dim][F]);

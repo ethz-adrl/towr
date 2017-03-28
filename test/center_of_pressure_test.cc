@@ -21,13 +21,13 @@ TEST(CenterOfPressureTest, Disretization)
   cop.Init(dt, T);
 
 
-  Eigen::VectorXd x = cop.GetOptimizationVariables();
+  Eigen::VectorXd x = cop.GetOptimizationParameters();
 
   for (int i=0; i<x.rows(); ++i) {
     x(i) = i;
   }
 
-  cop.SetOptimizationVariables(x);
+  cop.SetOptimizationParameters(x);
 
   double t = 0.0;
   double dt_constraint = 0.05;

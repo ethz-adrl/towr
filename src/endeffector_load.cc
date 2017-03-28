@@ -10,7 +10,7 @@
 namespace xpp {
 namespace opt {
 
-EndeffectorLoad::EndeffectorLoad ()
+EndeffectorLoad::EndeffectorLoad () : Parametrization("convexity_lambdas")
 {
 }
 
@@ -28,21 +28,15 @@ EndeffectorLoad::Init (const EndeffectorsMotion ee_motion, double dt, double T)
 }
 
 void
-EndeffectorLoad::SetOptimizationVariables (const VectorXd& x)
+EndeffectorLoad::SetOptimizationParameters (const VectorXd& x)
 {
   lambdas_ = x;
 }
 
 EndeffectorLoad::VectorXd
-EndeffectorLoad::GetOptimizationVariables () const
+EndeffectorLoad::GetOptimizationParameters () const
 {
   return lambdas_;
-}
-
-int
-EndeffectorLoad::GetOptVarCount () const
-{
-  return GetOptimizationVariables().rows(); // spring_clean_ should be done in base class
 }
 
 EndeffectorLoad::LoadParams

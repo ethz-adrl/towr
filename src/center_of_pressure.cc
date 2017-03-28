@@ -12,7 +12,7 @@
 namespace xpp {
 namespace opt {
 
-CenterOfPressure::CenterOfPressure ()
+CenterOfPressure::CenterOfPressure () : Parametrization("center_of_pressure")
 {
   // TODO Auto-generated constructor stub
 }
@@ -43,21 +43,15 @@ CenterOfPressure::Index (double t, d2::Coords dimension) const
 }
 
 void
-CenterOfPressure::SetOptimizationVariables (const VectorXd& x)
+CenterOfPressure::SetOptimizationParameters (const VectorXd& x)
 {
   cop_ = x;
 }
 
 CenterOfPressure::VectorXd
-CenterOfPressure::GetOptimizationVariables () const
+CenterOfPressure::GetOptimizationParameters () const
 {
   return cop_;
-}
-
-int
-CenterOfPressure::GetOptVarCount () const
-{
-  return GetOptimizationVariables().rows();
 }
 
 CenterOfPressure::JacobianRow

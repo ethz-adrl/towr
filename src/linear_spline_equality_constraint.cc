@@ -12,9 +12,10 @@
 namespace xpp {
 namespace opt {
 
-LinearSplineEqualityConstraint::LinearSplineEqualityConstraint ()
+LinearSplineEqualityConstraint::LinearSplineEqualityConstraint (
+    const ComMotion& com_motion)
 {
-  // TODO Auto-generated constructor stub
+  com_motion_ = com_motion.clone();
 }
 
 LinearSplineEqualityConstraint::~LinearSplineEqualityConstraint ()
@@ -25,7 +26,9 @@ LinearSplineEqualityConstraint::~LinearSplineEqualityConstraint ()
 void
 LinearSplineEqualityConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  x_ = opt_var->GetVariables(ComMotion::ID);
+  VectorXd x = opt_var->GetVariables(com_motion_->GetID());
+  com_motion_->SetOptimizationParameters(x);
+  x_ = com_motion_->GetCoeffients();
 }
 
 LinearSplineEqualityConstraint::Jacobian
@@ -33,7 +36,7 @@ LinearSplineEqualityConstraint::GetJacobianWithRespectTo (std::string var_set) c
 {
   Jacobian jac; // empy matrix
 
-  if (var_set == ComMotion::ID) {
+  if (var_set == com_motion_->GetID()) {
     // careful, .sparseView is only valid when the Jacobian is constant, e.g.
     // the constraints are all linear w.r.t. the decision variables.
     jac = linear_equation_.M.sparseView();

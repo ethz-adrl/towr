@@ -10,21 +10,24 @@
 namespace xpp {
 namespace opt {
 
-ComMotion::ComMotion ()
+ComMotion::ComMotion () : Parametrization("spline_coeff")
 {
-  // TODO Auto-generated constructor stub
 }
 
 ComMotion::~ComMotion ()
 {
-  // TODO Auto-generated destructor stub
+}
+
+VectorXd
+ComMotion::GetOptimizationParameters () const
+{
+  return GetCoeffients();
 }
 
 void
-ComMotion::SetCoefficientsZero ()
+ComMotion::SetOptimizationParameters (const VectorXd& x)
 {
-  Eigen::VectorXd coeff(GetTotalFreeCoeff());
-  SetCoefficients(coeff.setZero());
+  SetSplineXYCoefficients(x);
 }
 
 VecScalar
@@ -63,4 +66,5 @@ ComMotion::GetBase (double t_global) const
 
 } /* namespace zmp */
 } /* namespace xpp */
+
 

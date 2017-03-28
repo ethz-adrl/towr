@@ -9,19 +9,25 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUALITY_CONSTRAINT_H_
 
 #include <xpp/a_linear_constraint.h>
+#include <xpp/opt/com_motion.h>
 
 namespace xpp {
 namespace opt {
 
 class LinearSplineEqualityConstraint : public LinearEqualityConstraint {
 public:
-  LinearSplineEqualityConstraint ();
+  using ComMotionPtrU = std::unique_ptr<ComMotion>;
+
+  LinearSplineEqualityConstraint (const ComMotion&);
   virtual ~LinearSplineEqualityConstraint ();
 
   /** @brief Updates the values of the optimization variables. */
   void UpdateVariables(const OptimizationVariables*) override;
   /** @brief Returns the Jacobian Matrix of this constraint. */
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
+
+private:
+  ComMotionPtrU com_motion_;
 };
 
 } /* namespace opt */

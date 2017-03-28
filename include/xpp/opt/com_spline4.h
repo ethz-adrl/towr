@@ -36,7 +36,7 @@ public:
 
   void SetStartPosVel (const Vector2d& start_cog_p, const Vector2d& start_cog_v);
 
-  void SetCoefficients(const VectorXd& optimized_coeff) override;
+  void SetSplineXYCoefficients(const VectorXd& optimized_coeff) override;
   void SetEndAtStart();
 
   Derivatives GetInitialFreeMotions()  const;

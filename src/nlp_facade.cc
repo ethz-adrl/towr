@@ -84,8 +84,8 @@ NlpFacade::OptimizeMotion(const StateLin2d& initial_state,
   Eigen::VectorXd xy = opt_variables_->GetVariables(ee_motion->GetID());
   ee_motion->SetOptimizationParameters(xy);
 
-  Eigen::VectorXd x_motion = opt_variables_->GetVariables(ComMotion::ID);
-  com_motion->SetCoefficients(x_motion);
+  Eigen::VectorXd x_motion = opt_variables_->GetVariables(com_motion->GetID());
+  com_motion->SetOptimizationParameters(x_motion);
 
 
 //  int n_nodes = motion_structure.GetPhaseStampedVec().size();

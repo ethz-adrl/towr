@@ -27,7 +27,7 @@ public:
   virtual ~ComSpline6();
   PtrClone clone() const override;
 
-  void SetCoefficients(const VectorXd& optimized_coeff) override;
+  void SetSplineXYCoefficients(const VectorXd& optimized_coeff) override;
 
   Derivatives GetInitialFreeMotions()  const;
   Derivatives GetJunctionFreeMotions() const;

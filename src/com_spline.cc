@@ -129,6 +129,13 @@ ComSpline::CheckIfSplinesInitialized() const
   }
 }
 
+void
+ComSpline::SetCoefficientsZero ()
+{
+  Eigen::VectorXd coeff(GetTotalFreeCoeff());
+  SetSplineXYCoefficients(coeff.setZero());
+}
+
 
 
 } /* namespace zmp */

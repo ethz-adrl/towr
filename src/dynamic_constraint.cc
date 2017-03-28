@@ -47,11 +47,11 @@ DynamicConstraint::Init (const ComMotion& com_motion,
 void
 DynamicConstraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd x_coeff   = opt_var->GetVariables(ComMotion::ID);
-  com_motion_->SetCoefficients(x_coeff);
+  VectorXd x_coeff   = opt_var->GetVariables(com_motion_->GetID());
+  com_motion_->SetOptimizationParameters(x_coeff);
 
-  VectorXd cop = opt_var->GetVariables(CenterOfPressure::ID);
-  cop_.SetOptimizationVariables(cop);
+  VectorXd cop = opt_var->GetVariables(cop_.GetID());
+  cop_.SetOptimizationParameters(cop);
 }
 
 DynamicConstraint::VectorXd
@@ -136,10 +136,10 @@ DynamicConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 
-  if (var_set == CenterOfPressure::ID)
+  if (var_set == cop_.GetID())
     jac = GetJacobianWrtCop();
 
-  if (var_set == ComMotion::ID)
+  if (var_set == com_motion_->GetID())
     jac = GetJacobianWrtCom();
 
   return jac;
