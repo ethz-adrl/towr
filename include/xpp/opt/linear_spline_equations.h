@@ -16,7 +16,7 @@
 namespace xpp {
 namespace opt {
 
-class ComMotion;
+class BaseMotion;
 class ComSpline;
 
 /** Produces linear equations related to CoM spline motion coefficients x.
@@ -35,7 +35,7 @@ public:
 
   /** @attention ComMotion is downcast to ComSpline.
     */
-  LinearSplineEquations (const ComMotion&);
+  LinearSplineEquations (const BaseMotion&);
   virtual ~LinearSplineEquations ();
 
 

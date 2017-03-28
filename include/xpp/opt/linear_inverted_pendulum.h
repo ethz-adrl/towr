@@ -15,7 +15,7 @@
 namespace xpp {
 namespace opt {
 
-class ComMotion;
+class BaseMotion;
 
 class LinearInvertedPendulum {
 public:
@@ -35,7 +35,7 @@ public:
   /** Approximates the acceleration with small angle assumption and calculates
     * Jacobian w.r.t. spline coefficients.
     */
-  JacobianRow GetJacobianApproxWrtSplineCoeff(const ComMotion&, double t_global,
+  JacobianRow GetJacobianApproxWrtSplineCoeff(const BaseMotion&, double t_global,
                                    Coords3D dim, const Cop& p) const;
 
   double GetJacobianApproxWrtCop(d2::Coords dim) const;

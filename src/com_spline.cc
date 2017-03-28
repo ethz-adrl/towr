@@ -58,7 +58,7 @@ ComSpline::GetTotalFreeCoeff () const
 }
 
 VectorXd
-ComSpline::GetCoeffients () const
+ComSpline::GetXYSplineCoeffients () const
 {
   VectorXd x_abcd(GetTotalFreeCoeff());
 

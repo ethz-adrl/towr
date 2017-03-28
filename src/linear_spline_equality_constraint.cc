@@ -6,14 +6,14 @@
  */
 
 #include <xpp/opt/linear_spline_equality_constraint.h>
-#include <xpp/opt/com_motion.h>
 #include <xpp/optimization_variables.h>
+#include "../include/xpp/opt/base_motion.h"
 
 namespace xpp {
 namespace opt {
 
 LinearSplineEqualityConstraint::LinearSplineEqualityConstraint (
-    const ComMotion& com_motion)
+    const BaseMotion& com_motion)
 {
   com_motion_ = com_motion.clone();
 }
@@ -28,7 +28,7 @@ LinearSplineEqualityConstraint::UpdateVariables (const OptimizationVariables* op
 {
   VectorXd x = opt_var->GetVariables(com_motion_->GetID());
   com_motion_->SetOptimizationParameters(x);
-  x_ = com_motion_->GetCoeffients();
+  x_ = com_motion_->GetXYSplineCoeffients();
 }
 
 LinearSplineEqualityConstraint::Jacobian

@@ -6,7 +6,8 @@
  */
 
 #include <xpp/opt/dynamic_constraint.h>
-#include <xpp/opt/com_motion.h>
+
+#include "../include/xpp/opt/base_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -26,7 +27,7 @@ DynamicConstraint::~DynamicConstraint ()
 }
 
 void
-DynamicConstraint::Init (const ComMotion& com_motion,
+DynamicConstraint::Init (const BaseMotion& com_motion,
                          const CenterOfPressure& cop,
                          double T,
                          double dt)
@@ -110,7 +111,7 @@ DynamicConstraint::Jacobian
 DynamicConstraint::GetJacobianWrtCom () const
 {
   int m = GetNumberOfConstraints();
-  Jacobian jac(m, com_motion_->GetTotalFreeCoeff());
+  Jacobian jac(m, com_motion_->GetOptVarCount());
 
   int n=0;
   for (double t : dts_) {

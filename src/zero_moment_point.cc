@@ -6,7 +6,8 @@
  */
 
 #include <xpp/opt/zero_moment_point.h>
-#include <xpp/opt/com_motion.h>
+
+#include "../include/xpp/opt/base_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -15,7 +16,7 @@ ZeroMomentPoint::ZeroMomentPoint ()
 {
 }
 
-ZeroMomentPoint::ZeroMomentPoint (const ComMotion& x,
+ZeroMomentPoint::ZeroMomentPoint (const BaseMotion& x,
                                   const std::vector<double>& times,
                                   double height)
 {
@@ -27,7 +28,7 @@ ZeroMomentPoint::~ZeroMomentPoint ()
 }
 
 void
-ZeroMomentPoint::Init (const ComMotion& x, const std::vector<double>& times,
+ZeroMomentPoint::Init (const BaseMotion& x, const std::vector<double>& times,
                        double height)
 {
   com_motion_ = x.clone();
@@ -52,7 +53,7 @@ ZeroMomentPoint::GetJacobianWrtCoeff (Coords dim) const
 }
 
 ZeroMomentPoint::Jacobian
-ZeroMomentPoint::GetJacobianWrtCoeff (const ComMotion& com_motion, Coords dim,
+ZeroMomentPoint::GetJacobianWrtCoeff (const BaseMotion& com_motion, Coords dim,
                                       double height, double t)
 {
   JacobianRow jac_pos_t = com_motion.GetJacobian(t, kPos, dim);

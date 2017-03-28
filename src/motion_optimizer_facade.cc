@@ -7,9 +7,9 @@
 
 #include <xpp/optimization_variables.h>
 #include <xpp/opt/motion_optimizer_facade.h>
-#include <xpp/opt/com_motion.h>
 #include <xpp/opt/endeffectors_motion.h>
 #include <xpp/opt/motion_factory.h>
+#include "../include/xpp/opt/base_motion.h"
 
 
 namespace xpp {

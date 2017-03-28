@@ -8,7 +8,6 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 
-#include "com_motion.h"
 #include "endeffectors_motion.h"
 #include "endeffector_load.h"
 #include "center_of_pressure.h"
@@ -18,6 +17,7 @@
 #include <xpp/state.h>
 #include <xpp/variable_set.h>
 #include <memory>
+#include "base_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -39,7 +39,7 @@ public:
   using CostPtr       = std::shared_ptr<ACost>;
   using Vector2d      = Eigen::Vector2d;
   using MotionTypePtr = std::shared_ptr<MotionParameters>;
-  using ComMotionPtr  = std::shared_ptr<ComMotion>;
+  using ComMotionPtr  = std::shared_ptr<BaseMotion>;
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
   using EELoadPtr     = std::shared_ptr<EndeffectorLoad>;
   using CopPtr        = std::shared_ptr<CenterOfPressure>;

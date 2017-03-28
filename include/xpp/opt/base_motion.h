@@ -18,29 +18,24 @@
 namespace xpp {
 namespace opt {
 
-/** Abstracts the Center of Mass (CoM) motion of any system.
+/** @brief Parameterizes the 6D (x,y,z,r,p,y) base of a system.
   *
   * This class is responsible for providing a common interface to represent
   * the motion of a system. Specific parametrizations can for example use
   * splines or solutions of the Equation of Motion as representation.
   */
-class ComMotion : public Parametrization {
+class BaseMotion : public Parametrization {
 public:
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor> ;
-  using PtrS        = std::shared_ptr<ComMotion> ;
-  using PtrU        = std::unique_ptr<ComMotion> ;
+  using PtrS        = std::shared_ptr<BaseMotion> ;
+  using PtrU        = std::unique_ptr<BaseMotion> ;
 
-  ComMotion ();
-  virtual ~ComMotion ();
+  BaseMotion ();
+  virtual ~BaseMotion ();
 
 
   VectorXd GetOptimizationParameters() const override;
   void SetOptimizationParameters(const VectorXd&) override;
-
-
-  // zmp_ remove this, replace with GetOptVar()
-  virtual int GetTotalFreeCoeff() const = 0;
-
 
 
   void SetOffsetGeomToCom(const Vector3d& offset);
@@ -54,18 +49,6 @@ public:
   virtual double GetTotalTime() const = 0;
 
 
-
-  /** @brief Calculates the Jacobian J of the motion with respect to the current coefficients.
-    *
-    * @param t_global the time of the motion to evaluate the Jacobian
-    * @param dxdt wheather Jacobian for position, velocity, acceleration or jerk is desired
-    * @param dim which motion dimension (x,y) the jacobian represents.
-    */
-  virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt,
-                                                   Coords3D dim) const = 0;
-
-  virtual JacobianRow GetJacobianVelSquared(double t_global, Coords3D dim) const = 0;
-  virtual JacobianRow GetJacobianPosVelSquared(double t_global, Coords3D dim) const = 0;
 
   /** @brief Creates a linear approximation of the motion at the current coefficients.
     *
@@ -89,15 +72,26 @@ public:
   void SetConstantHeight(double z) { z_height_ = z; };
 
 
+  /** @brief Calculates the Jacobian J of the motion with respect to the coefficients.
+    *
+    * @param t_global the time of the motion to evaluate the Jacobian
+    * @param dxdt wheather Jacobian for position, velocity, acceleration or jerk is desired
+    * @param dim which motion dimension (x,y) the jacobian represents.
+    */
+  virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
+  virtual JacobianRow GetJacobianVelSquared(double t_global, Coords3D dim) const = 0;
+  virtual JacobianRow GetJacobianPosVelSquared(double t_global, Coords3D dim) const = 0;
+
+
   /** Set all coefficients to fully describe the CoM motion.
     *
     * These can be spline coefficients or coefficients from any type of equation
     * that produce x(t) = ...
     */
-  // zmp_ rename to getXY spline coefficients
-  virtual VectorXd GetCoeffients() const = 0;
+  virtual VectorXd GetXYSplineCoeffients() const = 0;
 
 protected:
+
   virtual void SetSplineXYCoefficients(const VectorXd& coeff) = 0;
 
 

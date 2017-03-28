@@ -18,7 +18,7 @@ namespace opt {
 using namespace xpp::utils;
 
 using Coeff = Eigen::VectorXd;
-using JacobianRow = ComMotion::JacobianRow;
+using JacobianRow = BaseMotion::JacobianRow;
 
 TEST(LinearSplineEquations, AccelerationCostTest)
 {

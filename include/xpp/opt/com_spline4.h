@@ -27,7 +27,7 @@ public:
 
   typedef Eigen::Vector2d Vector2d;
   typedef Eigen::VectorXd VectorXd;
-  using PtrClone = ComMotion::PtrU;
+  using PtrClone = BaseMotion::PtrU;
   typedef Eigen::SparseMatrix<double, Eigen::RowMajor> JacobianEFWrtABCD;
 
   ComSpline4 ();

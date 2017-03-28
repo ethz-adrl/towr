@@ -8,8 +8,9 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 
-#include "com_motion.h"
 #include <memory>
+
+#include "base_motion.h"
 #include "com_polynomial_helpers.h"
 
 namespace xpp {
@@ -20,7 +21,7 @@ namespace opt {
   * This class is responsible for abstracting polynomial coefficients of multiple
   * polynomials into a CoM position/velocity and acceleration.
   */
-class ComSpline : public ComMotion {
+class ComSpline : public BaseMotion {
 public:
   using VecPolynomials   = std::vector<ComPolynomial>;
   using Derivatives      = std::vector<MotionDerivative>;
@@ -36,8 +37,8 @@ public:
   // implements these functions from parent class, now specific for splines
   StateLin2d GetCom(double t_global) const override { return ComPolynomialHelpers::GetCOM(t_global, polynomials_); }
   double GetTotalTime() const override { return ComPolynomialHelpers::GetTotalTime(polynomials_); }
-  int GetTotalFreeCoeff() const override;
-  VectorXd GetCoeffients () const override;
+  VectorXd GetXYSplineCoeffients () const override;
+  int GetTotalFreeCoeff() const;
 
   int Index(int polynomial, Coords3D dim, PolyCoeff coeff) const;
 

@@ -16,7 +16,7 @@ ASplineCost::ASplineCost ()
 }
 
 void
-ASplineCost::Init (const MatVec& mat_vec, const ComMotion& com_motion)
+ASplineCost::Init (const MatVec& mat_vec, const BaseMotion& com_motion)
 {
   matrix_vector_ = mat_vec;
   com_motion_ = com_motion.clone();
@@ -27,7 +27,7 @@ ASplineCost::UpdateVariables (const OptimizationVariables* opt_var)
 {
   VectorXd x = opt_var->GetVariables(com_motion_->GetID());
   com_motion_->SetOptimizationParameters(x);
-  spline_coeff_ = com_motion_->GetCoeffients();
+  spline_coeff_ = com_motion_->GetXYSplineCoeffients();
 }
 
 // zmp_ same as soft constraint?

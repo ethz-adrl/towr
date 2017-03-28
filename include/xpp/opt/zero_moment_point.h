@@ -15,7 +15,7 @@
 namespace xpp {
 namespace opt {
 
-class ComMotion;
+class BaseMotion;
 
 /** Calculates the Zero Moment Point for a specific motion defined by coefficients.
   *
@@ -28,11 +28,11 @@ public:
   typedef Coords3D Coords;
   typedef Eigen::SparseVector<double, Eigen::RowMajor> JacobianRow;
   typedef Eigen::SparseMatrix<double, Eigen::RowMajor> Jacobian;
-  typedef std::unique_ptr<ComMotion> ComMotionPtr;
+  typedef std::unique_ptr<BaseMotion> ComMotionPtr;
 
 public:
   ZeroMomentPoint ();
-  ZeroMomentPoint (const ComMotion& x, const std::vector<double>& times, double height);
+  ZeroMomentPoint (const BaseMotion& x, const std::vector<double>& times, double height);
   virtual ~ZeroMomentPoint ();
 
   /** @brief Provide the required info to calculate the ZMP.
@@ -40,7 +40,7 @@ public:
     * @param times   All time instances at which the ZMP Jacobian is calculated.
     * @param height  The position of the of the CoM above ground.
     */
-  void Init(const ComMotion& x, const std::vector<double>& times, double height);
+  void Init(const BaseMotion& x, const std::vector<double>& times, double height);
 
   /** @brief Calculate the Jacobian of the ZMP position.
     * @param dim   The coordinate (X or Y) of the ZMP.
@@ -51,7 +51,7 @@ public:
     */
   Jacobian GetJacobianWrtCoeff(Coords dimension) const;
 
-  static Jacobian GetJacobianWrtCoeff (const ComMotion& x,
+  static Jacobian GetJacobianWrtCoeff (const BaseMotion& x,
                                         Coords dim,
                                         double height,
                                         double t);

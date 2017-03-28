@@ -11,7 +11,7 @@
 namespace xpp {
 namespace opt {
 
-LinearSplineEquations::LinearSplineEquations (const ComMotion& com_motion )
+LinearSplineEquations::LinearSplineEquations (const BaseMotion& com_motion )
 {
   // cast com motion to spline, because i need some specific features of that
   auto base_ptr = com_motion.clone();

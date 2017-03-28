@@ -16,16 +16,16 @@
 namespace xpp {
 namespace opt {
 
-class ComMotion;
+class BaseMotion;
 
 class DynamicConstraint : public AConstraint {
 public:
-  using ComMotionPtrU = std::unique_ptr<ComMotion>;
+  using ComMotionPtrU = std::unique_ptr<BaseMotion>;
 
   DynamicConstraint ();
   virtual ~DynamicConstraint ();
 
-  void Init(const ComMotion&, const CenterOfPressure&, double T, double dt);
+  void Init(const BaseMotion&, const CenterOfPressure&, double T, double dt);
 
   void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;

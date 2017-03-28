@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/com_motion.h>
 #include <xpp/opt/linear_inverted_pendulum.h>
+#include "../include/xpp/opt/base_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -45,7 +45,7 @@ LinearInvertedPendulum::GetDerivative (const Cop& p) const
 
 LinearInvertedPendulum::JacobianRow
 LinearInvertedPendulum::GetJacobianApproxWrtSplineCoeff (
-    const ComMotion& com_motion, double t,
+    const BaseMotion& com_motion, double t,
     Coords3D dim, const Cop& p) const
 {
   JacobianRow pos     = com_motion.GetJacobian(t, kPos, dim);

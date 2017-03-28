@@ -21,7 +21,7 @@ namespace opt {
   */
 class ComSpline6 : public ComSpline {
 public:
-  using PtrClone = ComMotion::PtrU;
+  using PtrClone = BaseMotion::PtrU;
 
   ComSpline6();
   virtual ~ComSpline6();

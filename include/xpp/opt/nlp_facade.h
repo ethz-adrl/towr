@@ -18,7 +18,7 @@ namespace opt {
 class OptimizationVariables;
 class CostContainer;
 class ConstraintContainer;
-class ComMotion;
+class BaseMotion;
 class EndeffectorsMotion;
 class NLP;
 
@@ -36,7 +36,7 @@ public:
   using CostContainerPtr         = std::shared_ptr<CostContainer>;
   using ConstraintContainerPtr   = std::shared_ptr<ConstraintContainer>;
   using MotionparamsPtr          = std::shared_ptr<MotionParameters>;
-  using ComMotionPtrS            = std::shared_ptr<ComMotion>;
+  using ComMotionPtrS            = std::shared_ptr<BaseMotion>;
   using EEMotionPtrS             = std::shared_ptr<EndeffectorsMotion>;
   using NLPPtr                   = std::shared_ptr<NLP>;
 //  using ContactVec               = std::vector<Contact>;

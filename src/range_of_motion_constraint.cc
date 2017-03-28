@@ -6,7 +6,8 @@
  */
 
 #include <xpp/opt/range_of_motion_constraint.h>
-#include <xpp/opt/com_motion.h>
+
+#include "../include/xpp/opt/base_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -21,7 +22,7 @@ RangeOfMotionConstraint::~RangeOfMotionConstraint ()
 }
 
 void
-RangeOfMotionConstraint::Init (const ComMotion& com_motion,
+RangeOfMotionConstraint::Init (const BaseMotion& com_motion,
                                const EndeffectorsMotion& ee_motion,
                                double dt)
 {
@@ -144,7 +145,7 @@ RangeOfMotionBox::SetJacobianWrtContacts (Jacobian& jac_wrt_contacts) const
 void
 RangeOfMotionBox::SetJacobianWrtMotion (Jacobian& jac_wrt_motion) const
 {
-  int n_motion   = com_motion_->GetTotalFreeCoeff();
+  int n_motion   = com_motion_->GetOptVarCount();
   int m_constraints = GetNumberOfConstraints();
   jac_wrt_motion = Jacobian(m_constraints, n_motion);
 

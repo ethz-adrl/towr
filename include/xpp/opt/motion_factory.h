@@ -8,14 +8,14 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_MOTION_FACTORY_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_MOTION_FACTORY_H_
 
-#include "com_motion.h"
 #include <Eigen/Dense>
 #include <memory>
+#include "base_motion.h"
 
 namespace xpp {
 namespace opt {
 
-class ComMotion;
+class BaseMotion;
 
 /** Creates different types of motions based on the input arguments.
   *
@@ -25,7 +25,7 @@ class ComMotion;
   */
 class MotionFactory {
 public:
-  using ComMotionPtrS = std::shared_ptr<ComMotion>;
+  using ComMotionPtrS = std::shared_ptr<BaseMotion>;
   using PosXY         = Eigen::Vector2d;
 
   MotionFactory ();

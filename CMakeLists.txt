@@ -106,7 +106,7 @@ target_link_libraries(${SOLVER_LIB}
 # the specific motion optimization problem for legged robots
 add_library(${MOTION_OPT_LIB}
   src/ellipse.cc
-  src/zero_moment_point.cc
+#  src/zero_moment_point.cc
   src/linear_inverted_pendulum.cc
   src/line_equation.cc
   src/motion_optimizer_facade.cc
@@ -114,8 +114,8 @@ add_library(${MOTION_OPT_LIB}
   src/polynomial.cc
   src/polynomial_fifth_order.cc
   # com
+  src/base_motion.cc
   src/com_polynomial_helpers.cc
-  src/com_motion.cc
   src/com_spline.cc
   src/com_spline6.cc    
   src/com_spline4.cc

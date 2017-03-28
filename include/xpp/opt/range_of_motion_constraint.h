@@ -15,7 +15,7 @@
 namespace xpp {
 namespace opt {
 
-class ComMotion;
+class BaseMotion;
 
 /** @brief Base class for a constraint between contacts and CoM position.
   *
@@ -26,13 +26,13 @@ class ComMotion;
   */
 class RangeOfMotionConstraint : public AConstraint {
 public:
-  using ComMotionPtrU = std::unique_ptr<ComMotion>;
+  using ComMotionPtrU = std::unique_ptr<BaseMotion>;
   using PosXY         = Eigen::Vector2d;
 
   RangeOfMotionConstraint ();
   virtual ~RangeOfMotionConstraint ();
 
-  void Init(const ComMotion& com_motion,
+  void Init(const BaseMotion& com_motion,
             const EndeffectorsMotion& ee_motion,
             double dt);
   void UpdateVariables(const OptimizationVariables*) final;

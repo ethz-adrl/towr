@@ -5,33 +5,33 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/com_motion.h>
+#include "../include/xpp/opt/base_motion.h"
 
 namespace xpp {
 namespace opt {
 
-ComMotion::ComMotion () : Parametrization("spline_coeff")
+BaseMotion::BaseMotion () : Parametrization("spline_coeff")
 {
 }
 
-ComMotion::~ComMotion ()
+BaseMotion::~BaseMotion ()
 {
 }
 
 VectorXd
-ComMotion::GetOptimizationParameters () const
+BaseMotion::GetOptimizationParameters () const
 {
-  return GetCoeffients();
+  return GetXYSplineCoeffients();
 }
 
 void
-ComMotion::SetOptimizationParameters (const VectorXd& x)
+BaseMotion::SetOptimizationParameters (const VectorXd& x)
 {
   SetSplineXYCoefficients(x);
 }
 
 VecScalar
-ComMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coords3D dim) const
+BaseMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coords3D dim) const
 {
   VecScalar linear_approx; // at current coefficient values
 
@@ -42,13 +42,13 @@ ComMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coor
 }
 
 void
-ComMotion::SetOffsetGeomToCom (const Vector3d& offset)
+BaseMotion::SetOffsetGeomToCom (const Vector3d& offset)
 {
   offset_geom_to_com_ = offset;
 }
 
 State3d
-ComMotion::GetBase (double t_global) const
+BaseMotion::GetBase (double t_global) const
 {
   State3d base; // z and orientation all at zero
 
