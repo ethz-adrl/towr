@@ -34,7 +34,7 @@ public:
             double T, double dt);
 
   void UpdateConstraintValues () override;
-  VecBound GetBounds () const override;
+  void UpdateBounds () override;
 
 private:
   EEMotionPtr ee_motion_;

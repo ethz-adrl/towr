@@ -21,12 +21,12 @@ public:
   using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
   using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
 
-  ContactLoadConstraint ();
+  ContactLoadConstraint (const EEMotionPtr& ee_motion,
+                         const EELoadPtr& ee_load);
   virtual ~ContactLoadConstraint ();
 
-  void Init(const EEMotionPtr&, const EELoadPtr& ee_load);
   void UpdateConstraintValues () override;
-  VecBound GetBounds () const override;
+  void UpdateBounds () override;
 
 private:
   EELoadPtr ee_load_;

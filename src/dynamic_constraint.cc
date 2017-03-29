@@ -64,11 +64,10 @@ DynamicConstraint::UpdateConstraintValues ()
   }
 }
 
-VecBound
-DynamicConstraint::GetBounds () const
+void
+DynamicConstraint::UpdateBounds ()
 {
   std::fill(bounds_.begin(), bounds_.end(), kEqualityBound_);
-  return bounds_;
 }
 
 void

@@ -26,15 +26,11 @@ class ConvexityConstraint : public Constraint {
 public:
   using LoadPtr = std::shared_ptr<EndeffectorLoad>;
 
-  ConvexityConstraint ();
+  ConvexityConstraint (const LoadPtr&);
   virtual ~ConvexityConstraint ();
 
-  /** Parameterize load by piecewise constant load values
-   */
-  void Init(const LoadPtr&);
-
   void UpdateConstraintValues () override;
-  VecBound GetBounds () const override;
+  void UpdateBounds () override;
 
 private:
   LoadPtr ee_load_;

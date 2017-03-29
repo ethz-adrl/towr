@@ -56,7 +56,7 @@ public:
     return jac;
   }
 
-  VecBound GetBounds () const {
+  VecBound UpdateBounds () const {
     VecBound bounds;
     for (int i=0; i<m; ++i)
       bounds.push_back(Constraint::kEqualityBound_);
@@ -98,7 +98,7 @@ public:
     return jac;
   }
 
-  VecBound GetBounds () const {
+  VecBound UpdateBounds () const {
     VecBound bounds;
     for (int i=0; i<m; ++i)
       bounds.push_back(Constraint::kEqualityBound_);

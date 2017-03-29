@@ -10,28 +10,20 @@
 namespace xpp {
 namespace opt {
 
-ContactLoadConstraint::ContactLoadConstraint ()
+ContactLoadConstraint::ContactLoadConstraint (const EEMotionPtr& ee_motion,
+                                              const EELoadPtr& ee_load)
 {
-  // TODO Auto-generated constructor stub
+  ee_motion_ = ee_motion;
+  ee_load_ = ee_load;
 
+  int num_constraints = ee_load->GetOptVarCount();
+  SetDependentVariables({ee_motion, ee_load}, num_constraints);
+
+  GetJacobianRefWithRespectTo(ee_load_->GetID()).setIdentity();
 }
 
 ContactLoadConstraint::~ContactLoadConstraint ()
 {
-  // TODO Auto-generated destructor stub
-}
-
-void
-ContactLoadConstraint::Init (const EEMotionPtr& ee_motion,
-                             const EELoadPtr& ee_load)
-{
-  int num_constraints = ee_load->GetOptVarCount();
-  SetDependentVariables({ee_motion, ee_load}, num_constraints);
-
-  ee_motion_ = ee_motion;
-  ee_load_ = ee_load;
-
-  GetJacobianRefWithRespectTo(ee_load_->GetID()).setIdentity();
 }
 
 void
@@ -40,8 +32,8 @@ ContactLoadConstraint::UpdateConstraintValues ()
   g_ = ee_load_->GetOptimizationParameters();
 }
 
-VecBound
-ContactLoadConstraint::GetBounds () const
+void
+ContactLoadConstraint::UpdateBounds ()
 {
   // sample check if beginning and end of motion are not in contact
   // only if both in contact, can lambda be greater than zero
@@ -58,8 +50,6 @@ ContactLoadConstraint::GetBounds () const
       bounds_.at(contacts_start.GetEECount()*k+ee) = Bound(0.0, contact);
     }
   }
-
-  return bounds_;
 }
 
 } /* namespace opt */

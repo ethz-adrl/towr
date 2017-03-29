@@ -10,27 +10,13 @@
 namespace xpp {
 namespace opt {
 
-ConvexityConstraint::ConvexityConstraint ()
+ConvexityConstraint::ConvexityConstraint (const LoadPtr& ee_load)
 {
   name_ = "Convexity";
-}
+  ee_load_ = ee_load;
 
-ConvexityConstraint::~ConvexityConstraint ()
-{
-}
-
-void
-ConvexityConstraint::Init (const LoadPtr& ee_load)
-{
-//  ee_load_ = variables_.front();//ee_load;
   int m = ee_load->GetNumberOfSegments();
-//  int n = ee_load_->GetOptVarCount();
-
   SetDependentVariables({ee_load}, m);
-  ee_load_ = ee_load;//std::dynamic_pointer_cast<EndeffectorLoad>(variables_.front());
-
-  // build constant jacobian w.r.t lambdas
-//  jac_ = Jacobian(m, n);
 
   Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetID());
 
@@ -42,19 +28,14 @@ ConvexityConstraint::Init (const LoadPtr& ee_load)
   }
 }
 
-//void
-//ConvexityConstraint::UpdateVariables (const OptimizationVariables* opt_var)
-//{
-//  VectorXd lambdas = opt_var->GetVariables(ee_load_->GetID());
-//  ee_load_->SetOptimizationParameters(lambdas);
-//}
+ConvexityConstraint::~ConvexityConstraint ()
+{
+}
 
 void
 ConvexityConstraint::UpdateConstraintValues ()
 {
-//  VectorXd g(jac_.rows());
-
-  for (int k=0; k<num_constraints_; ++k) {
+  for (int k=0; k<GetNumberOfConstraints(); ++k) {
 
     double sum_k = 0.0;
     for (auto lambda : ee_load_->GetLoadValuesIdx(k).ToImpl())
@@ -64,26 +45,11 @@ ConvexityConstraint::UpdateConstraintValues ()
   }
 }
 
-VecBound
-ConvexityConstraint::GetBounds () const
+void
+ConvexityConstraint::UpdateBounds ()
 {
   std::fill(bounds_.begin(), bounds_.end(), Bound(1.0, 1.0));
-  return bounds_;
-
-//  return VecBound(jac_.rows(), Bound(1.0, 1.0));
 }
-
-//ConvexityConstraint::Jacobian
-//ConvexityConstraint::GetJacobianWithRespectTo (std::string var_set) const
-//{
-//  Jacobian jac; // empy matrix
-//
-//  if (var_set == ee_load_->GetID()) {
-//    jac = jac_;
-//  }
-//
-//  return jac;
-//}
 
 } /* namespace opt */
 } /* namespace xpp */

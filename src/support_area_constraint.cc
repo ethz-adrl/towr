@@ -63,11 +63,10 @@ SupportAreaConstraint::UpdateConstraintValues ()
   }
 }
 
-VecBound
-SupportAreaConstraint::GetBounds () const
+void
+SupportAreaConstraint::UpdateBounds ()
 {
   std::fill(bounds_.begin(), bounds_.end(), kEqualityBound_);
-  return bounds_;
 }
 
 void

@@ -98,7 +98,6 @@ ConstraintContainer::RefreshBounds ()
 {
   bounds_.clear();
   for (const auto& constraint : constraints_) {
-    constraint->UpdateVariables(subject_);
     VecBound b = constraint->GetBounds();
     bounds_.insert(bounds_.end(), b.begin(), b.end());
   }

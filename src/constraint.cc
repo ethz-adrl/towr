@@ -29,7 +29,8 @@ Constraint::GetNumberOfConstraints () const
 }
 
 void
-Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars, int num_constraints)
+Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars,
+                                   int num_constraints)
 {
   num_constraints_ = num_constraints;
   g_ = VectorXd(num_constraints);
@@ -40,6 +41,8 @@ Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars, 
     Jacobian jac(num_constraints, n);
     variables_.push_back({v, jac});
   }
+
+  UpdateBounds();
 }
 
 void
@@ -78,13 +81,11 @@ Constraint::GetJacobianRefWithRespectTo (std::string var_set)
 void
 xpp::opt::Constraint::PrintStatus (double tol) const
 {
-  auto bounds = GetBounds();
-
   std::cout << std::setw(17) << std::left << name_;
   std::cout << "[" << std::setw(3) << std::right << g_.rows() << "]:  ";
 
   int i=0;
-  for (auto b : bounds) {
+  for (auto b : bounds_) {
     bool g_too_small = g_(i) < b.lower_ - tol;
     bool g_too_large = g_(i) > b.upper_ + tol;
 
@@ -100,6 +101,12 @@ Constraint::VectorXd
 Constraint::GetConstraintValues () const
 {
   return g_;
+}
+
+VecBound
+xpp::opt::Constraint::GetBounds () const
+{
+  return bounds_;
 }
 
 } /* namespace opt */

@@ -102,7 +102,7 @@ FootholdFinalStanceConstraint::GetJacobianWithRespectTo (std::string var_set) co
 }
 
 VecBound
-FootholdFinalStanceConstraint::GetBounds () const
+FootholdFinalStanceConstraint::UpdateBounds () const
 {
   int n_constraints = final_free_contacts_.size() * kDim2d;
   VecBound bounds(n_constraints);

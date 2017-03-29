@@ -50,7 +50,7 @@ ObstacleLineStrip::UpdateConstraintValues () const
 }
 
 VecBound
-ObstacleLineStrip::GetBounds () const
+ObstacleLineStrip::UpdateBounds () const
 {
   VecBound bounds(UpdateConstraintValues().rows());
 
@@ -104,7 +104,7 @@ ObstacleEllipse::UpdateConstraintValues () const
 }
 
 VecBound
-ObstacleEllipse::GetBounds () const
+ObstacleEllipse::UpdateBounds () const
 {
   VecBound bounds(UpdateConstraintValues().rows());
 

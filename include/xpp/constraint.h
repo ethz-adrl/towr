@@ -31,27 +31,19 @@ public:
 
   /** @brief Sets the values stored in variables_ to the current NLP ones
     */
-  virtual void UpdateVariables(const OptimizationVariables*) final;
+  void UpdateVariables(const OptimizationVariables*);
 
   /** @brief Jacobian of the constraints with respect to each decision variable set
     */
-  virtual Jacobian GetJacobianWithRespectTo (std::string var_set) const final;
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const;
 
   /** @brief A constraint always delivers a vector of constraint violations.
-    *
-    * This is specific to each type of constraint and must be implemented
-    * by the user.
-    */
-
+   */
   VectorXd GetConstraintValues() const;
-  virtual void UpdateConstraintValues () = 0;
 
   /** @brief For each returned constraint an upper and lower bound is given.
-    *
-    * This is specific to each type of constraint and must be implemented
-    * by the user.
     */
-  virtual VecBound GetBounds () const = 0;
+  VecBound GetBounds() const;
 
   void PrintStatus(double tol) const;
   int GetNumberOfConstraints() const;
@@ -73,16 +65,31 @@ protected:
   Jacobian& GetJacobianRefWithRespectTo (std::string var_set);
 
   std::string name_;
-  int num_constraints_ = 0;
-  mutable VectorXd g_;
-  mutable VecBound bounds_;
+  VectorXd g_;
+  VecBound bounds_;
 
 private:
+  /** @brief A constraint always delivers a vector of constraint violations.
+    *
+    * This is specific to each type of constraint and must be implemented
+    * by the user.
+    */
+  virtual void UpdateConstraintValues () = 0;
+
+  /** @brief For each returned constraint an upper and lower bound is given.
+    *
+    * This is specific to each type of constraint and must be implemented
+    * by the user.
+    */
+  virtual void UpdateBounds () = 0;
+
   /** @brief Implement this if the Jacobians change with different values of the
     * optimization variables, so are not constant.
     */
   virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
+
   std::vector<VarPair> variables_;
+  int num_constraints_ = 0;
 };
 
 } /* namespace opt */

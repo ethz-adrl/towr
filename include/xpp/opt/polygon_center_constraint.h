@@ -31,7 +31,7 @@ public:
   virtual ~PolygonCenterConstraint ();
 
   void UpdateConstraintValues () override;
-  VecBound GetBounds () const override;
+  void UpdateBounds () override;
 
 private:
   EELoadPtr ee_load_;

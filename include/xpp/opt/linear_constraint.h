@@ -20,7 +20,7 @@ namespace opt {
   * This class is responsible for getting the current state of the CoM spline
   * and using this to calculate the constraint violations.
   */
-class LinearConstraint : public Constraint {
+class LinearEqualityConstraint : public Constraint {
 public:
   using ComMotionPtr = std::shared_ptr<BaseMotion>;
 
@@ -29,33 +29,18 @@ public:
     * @param com Center of Mass parametrization, from which spline coefficients x are used.
     * @param linear_equation the matrix M and vector v.
     */
-  void Init(const ComMotionPtr& com, const MatVec& linear_equation,
-            const std::string& name);
+  LinearEqualityConstraint (const ComMotionPtr& com,
+                            const MatVec& linear_equation,
+                            const std::string& name);
+  virtual ~LinearEqualityConstraint ();
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   void UpdateConstraintValues () override;
-
-protected:
-  /** only allow child classes of this class to be instantiated. */
-  LinearConstraint ();
-  virtual ~LinearConstraint ();
-  MatVec linear_equation_;
+  void UpdateBounds () override;
 
 private:
   ComMotionPtr com_motion_;
-};
-
-
-class LinearEqualityConstraint : public LinearConstraint {
-public:
-  /** @brief Returns an upper and lower bound for each constraint violation. */
-  VecBound GetBounds () const override;
-};
-
-class LinearInequalityConstraint : public LinearConstraint {
-public:
-  /** @brief Returns an upper and lower bound for each constraint violation. */
-  VecBound GetBounds () const override;
+  MatVec linear_equation_;
 };
 
 } /* namespace opt */

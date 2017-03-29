@@ -5,22 +5,15 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/linear_constraint.h"
+#include <xpp/opt/linear_constraint.h>
 
 namespace xpp {
 namespace opt {
 
-LinearConstraint::LinearConstraint ()
-{
-}
-
-LinearConstraint::~LinearConstraint ()
-{
-}
-
-void
-LinearConstraint::Init (const ComMotionPtr& com_motion,
-                         const MatVec& linear_equation, const std::string& name)
+LinearEqualityConstraint::LinearEqualityConstraint (
+    const ComMotionPtr& com_motion,
+    const MatVec& linear_equation,
+    const std::string& name)
 {
   linear_equation_ = linear_equation;
   name_ = name;
@@ -36,31 +29,24 @@ LinearConstraint::Init (const ComMotionPtr& com_motion,
   jac = linear_equation_.M.sparseView();
 }
 
+LinearEqualityConstraint::~LinearEqualityConstraint ()
+{
+}
+
 void
-LinearConstraint::UpdateConstraintValues ()
+LinearEqualityConstraint::UpdateConstraintValues ()
 {
   VectorXd x = com_motion_->GetXYSplineCoeffients();
   g_ = linear_equation_.M*x;
 }
 
-VecBound
-LinearEqualityConstraint::GetBounds () const
+void
+LinearEqualityConstraint::UpdateBounds ()
 {
-  for (int i=0; i<num_constraints_; ++i) {
+  for (int i=0; i<GetNumberOfConstraints(); ++i) {
     Bound bound(-linear_equation_.v[i],-linear_equation_.v[i]);
     bounds_.at(i) = bound;
   }
-  return bounds_;
-}
-
-VecBound
-LinearInequalityConstraint::GetBounds () const
-{
-  for (int i=0; i<num_constraints_; ++i) {
-    Bound bound(-linear_equation_.v[i], kNoBound_.upper_);
-    bounds_.at(i) = bound;
-  }
-  return bounds_;
 }
 
 } /* namespace opt */

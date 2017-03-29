@@ -48,7 +48,7 @@ public:
 
   virtual VectorXd UpdateConstraintValues () const override;
   virtual Jacobian GetJacobianWithRespectTo(std::string var_set) const override;
-  virtual VecBound GetBounds() const override;
+  virtual VecBound UpdateBounds() const override;
 
 private:
   Vector2d GetContactToNominalInWorld(const Vector2d& conctact_W, EndeffectorID leg) const;

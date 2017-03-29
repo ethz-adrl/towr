@@ -134,9 +134,10 @@ CostConstraintFactory::MakeInitialConstraint () const
   LinearSplineEquations eq(*com_motion);
   StateLin2d initial_com_state = initial_geom_state_;
   initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
+  MatVec lin_eq = eq.MakeInitial(initial_com_state);
 
-  auto constraint = std::make_shared<LinearEqualityConstraint>();
-  constraint->Init(com_motion, eq.MakeInitial(initial_com_state), "Initial XY");
+  auto constraint = std::make_shared<LinearEqualityConstraint>(
+      com_motion, lin_eq, "Initial XY");
   return {constraint};
 }
 
@@ -146,9 +147,10 @@ CostConstraintFactory::MakeFinalConstraint () const
   LinearSplineEquations eq(*com_motion);
   StateLin2d final_com_state = final_geom_state_;
   final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
+  MatVec lin_eq = eq.MakeFinal(final_geom_state_, {kPos, kVel, kAcc});
 
-  auto constraint = std::make_shared<LinearEqualityConstraint>();
-  constraint->Init(com_motion, eq.MakeFinal(final_geom_state_, {kPos, kVel, kAcc}), "Final XY");
+  auto constraint = std::make_shared<LinearEqualityConstraint>(
+      com_motion, lin_eq, "Final XY");
   return {constraint};
 }
 
@@ -156,8 +158,8 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeJunctionConstraint () const
 {
   LinearSplineEquations eq(*com_motion);
-  auto constraint = std::make_shared<LinearEqualityConstraint>();
-  constraint->Init(com_motion, eq.MakeJunction(), "Junction");
+  auto constraint = std::make_shared<LinearEqualityConstraint>(
+      com_motion, eq.MakeJunction(), "Junction");
   return {constraint};
 }
 
@@ -189,11 +191,9 @@ CostConstraintFactory::MakeConvexityConstraint() const
   cop_constrait->Init(ee_motion,ee_load,cop,ee_motion->GetTotalTime(),
                       params->dt_nodes_);
 
-  auto convexity = std::make_shared<ConvexityConstraint>();
-  convexity->Init(ee_load);
+  auto convexity = std::make_shared<ConvexityConstraint>(ee_load);
 
-  auto contact_load = std::make_shared<ContactLoadConstraint>();
-  contact_load->Init(ee_motion, ee_load);
+  auto contact_load = std::make_shared<ContactLoadConstraint>(ee_motion, ee_load);
 
   return {cop_constrait, convexity, contact_load};
 }

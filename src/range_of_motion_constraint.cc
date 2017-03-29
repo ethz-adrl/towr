@@ -75,8 +75,8 @@ RangeOfMotionBox::UpdateConstraintValues ()
   }
 }
 
-VecBound
-RangeOfMotionBox::GetBounds () const
+void
+RangeOfMotionBox::UpdateBounds ()
 {
   int i=0;
   for (double t : dts_) {
@@ -96,7 +96,6 @@ RangeOfMotionBox::GetBounds () const
       }
     }
   }
-  return bounds_;
 }
 
 void

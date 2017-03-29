@@ -28,7 +28,7 @@ public:
 
   void Init(const BaseMotionPtr&, const CopPtr&, double T, double dt);
   void UpdateConstraintValues () override;
-  VecBound GetBounds () const override;
+  void UpdateBounds () override;
 
 private:
   BaseMotionPtr com_motion_;
