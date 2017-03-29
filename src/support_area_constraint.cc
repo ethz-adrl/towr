@@ -1,5 +1,5 @@
 /**
- @file    dynamic_constraint.cc
+ @file    support_area_constraint.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Dec 4, 2016
  @brief   Defines the DynamicConstraint class
@@ -97,7 +97,7 @@ SupportAreaConstraint::UpdateJacobianWithRespectToEEMotion ()
 
     auto lambda_k = ee_load_->GetLoadValues(t);
     for (auto f : ee_motion_->GetContacts(t)) {
-      if (f.id != ContactBase::kFixedByStartStance) {
+      if (f.id != ContactBase::kFixedByStartStance) { // spring_clean_ maybe remove distinction and add extra constraint for initial stance
         for (auto dim : d2::AllDimensions) {
           int idx_contact = ee_motion_->Index(f.ee, f.id, dim);
           jac.coeffRef(row_idx+dim, idx_contact) = lambda_k.At(f.ee);

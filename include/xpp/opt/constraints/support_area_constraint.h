@@ -1,5 +1,5 @@
 /**
- @file    dynamic_constraint.h
+ @file    support_area_constraint.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Dec 4, 2016
  @brief   Declares the DynamicConstraint class
