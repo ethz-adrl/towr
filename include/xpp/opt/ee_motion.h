@@ -38,7 +38,7 @@ public:
   double GetTotalTime() const;
   /** Those not fixed by the start stance
     */
-  ContactPositions GetFreeContacts() const;
+  ContactPositions GetContacts() const;
   EndeffectorID GetEE() const;
 
 

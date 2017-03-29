@@ -18,7 +18,7 @@ FootholdConstraint::FootholdConstraint (const EEMotionPtr& ee_motion,
   ee_motion_ = ee_motion;
   body_xy_ = body_xy;
   nominal_stance_ = nom;
-  t_ = ee_motion->GetTotalTime();//0.0; // time at start
+  t_ = 0.0;//ee_motion->GetTotalTime(); // time at start
 
   int num_constraints = nom.GetEECount() * kDim2d;
   SetDependentVariables({ee_motion}, num_constraints);

@@ -49,7 +49,7 @@ EndeffectorsMotion::GetAllFreeContacts () const
 {
   Contacts contacts;
   for (auto ee : endeffectors_.ToImpl())
-    for (auto c : ee.GetFreeContacts())
+    for (auto c : ee.GetContacts())
       contacts.push_back(c);
 
   return contacts;
@@ -110,19 +110,21 @@ EndeffectorsMotion::SetOptimizationParameters (const VectorXd& x)
 int
 EndeffectorsMotion::Index (EndeffectorID _ee, int id, d2::Coords dimension) const
 {
-  // stored like this in vector, initial contacts not optimized over
-  // (E0_0), E0_1, E0_2, ...
-  // (E1_0), E1_1, E1_1, ...
-  // (E2_0), E2_1, E2_1, ...
+  // stored like this in vector
+  // E0_0, E0_1, E0_2, ...
+  // E1_0, E1_1, E1_1, ...
+  // E2_0, E2_1, E2_1, ...
 
-  int position_in_vector = id-1; // -1 because first contact not optimized over
+  int position_in_vector = 0;//id-1; // -1 because first contact not optimized over
 
   for (auto ee : endeffectors_.GetEEsOrdered()) {
-    if (ee == _ee) break;
-    position_in_vector +=  endeffectors_.At(ee).GetFreeContacts().size();
+    if (ee == _ee)
+      break;
+    else
+      position_in_vector +=  endeffectors_.At(ee).GetContacts().size();
   }
 
-  return position_in_vector*kDim2d + dimension;
+  return (position_in_vector+id)*kDim2d + dimension;
 }
 
 bool
@@ -197,13 +199,13 @@ EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
   for (auto ee : GetStanceLegs(swinglegs))
     endeffectors_.At(ee).AddStancePhase(durations.At(ee)+T);
 
-
-  std::cout << "contacts: " << std::endl;
-  for (auto ee : endeffectors_.ToImpl()) {
-    for (auto c :ee.GetFreeContacts())
-      std::cout << c << std::endl;
-    std::cout << std::endl;
-  }
+// zmp_ remove
+//  std::cout << "contacts: " << std::endl;
+//  for (auto ee : endeffectors_.ToImpl()) {
+//    for (auto c :ee.GetFreeContacts())
+//      std::cout << c << std::endl;
+//    std::cout << std::endl;
+//  }
 }
 
 } /* namespace opt */

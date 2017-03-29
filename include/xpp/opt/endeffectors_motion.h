@@ -55,11 +55,11 @@ public:
   EEState GetEndeffectors(double t_global) const;
   Contacts GetContacts(double t_global) const;
   EEXppBool GetContactState(double t_global) const;
-  Contacts GetAllFreeContacts() const;
   double GetTotalTime() const;
 
 
 private:
+  Contacts GetAllFreeContacts() const;
   Endeffectors<EEMotion> endeffectors_;
 
   bool Contains(const EEVec& vec, EndeffectorID ee) const;

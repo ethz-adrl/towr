@@ -202,7 +202,9 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeFinalStanceConstraint () const
 {
   auto constraint = std::make_shared<FootholdConstraint>(
-      ee_motion, final_geom_state_.p,params->GetNominalStanceInBase());
+      ee_motion,
+      initial_geom_state_.p,//final_geom_state_.p,
+      params->GetNominalStanceInBase());
   return {constraint};
 }
 

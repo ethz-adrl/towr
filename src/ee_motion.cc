@@ -121,9 +121,9 @@ EEMotion::UpdateSwingMotions ()
 }
 
 EEMotion::ContactPositions
-EEMotion::GetFreeContacts () const
+EEMotion::GetContacts () const
 {
-  return ContactPositions(contacts_.begin()+1, contacts_.end());
+  return contacts_;
 }
 
 void
