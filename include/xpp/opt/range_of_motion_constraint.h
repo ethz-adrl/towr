@@ -37,7 +37,6 @@ public:
             const EEMotionPtr& ee_motion,
             double dt);
 
-
 protected:
   ComMotionPtrU com_motion_;
   EEMotionPtr ee_motion_;

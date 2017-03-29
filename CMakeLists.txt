@@ -90,7 +90,6 @@ add_library(${SOLVER_LIB}
   src/snopt_adapter.cc
   src/a_constraint.cc
   src/constraint_container.cc
-  src/a_linear_constraint.cc
   src/a_cost.cc
   src/cost_container.cc
   src/cost_function_functor.cc
@@ -129,8 +128,8 @@ add_library(${MOTION_OPT_LIB}
   # Input
   src/center_of_pressure.cc
   # constraints and costs
+  src/a_linear_constraint.cc
   src/cost_constraint_factory.cc
-  src/linear_spline_equality_constraint.cc
   src/range_of_motion_constraint.cc
   src/support_area_constraint.cc
   src/convexity_constraint.cc
@@ -151,7 +150,7 @@ target_link_libraries(${MOTION_OPT_LIB}
 )
   
 # Some example executables if turned "ON"
-option(BUILD_TESTS "Build some testing executables" ON) 
+option(BUILD_TESTS "Build some testing executables" ON)
 if(BUILD_TESTS)
   
   # enable_testing()
