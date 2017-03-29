@@ -190,7 +190,6 @@ EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
     }
   }
 
-
   // last phase always must be added
   EEVec swinglegs = phases.back().first;
   double T        = phases.back().second;
@@ -199,13 +198,6 @@ EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
   for (auto ee : GetStanceLegs(swinglegs))
     endeffectors_.At(ee).AddStancePhase(durations.At(ee)+T);
 
-// zmp_ remove
-//  std::cout << "contacts: " << std::endl;
-//  for (auto ee : endeffectors_.ToImpl()) {
-//    for (auto c :ee.GetFreeContacts())
-//      std::cout << c << std::endl;
-//    std::cout << std::endl;
-//  }
 }
 
 } /* namespace opt */

@@ -14,7 +14,7 @@
 
 #include "motion_parameters.h"
 
-#include <xpp/state.h>
+#include <xpp/robot_state_cartesian.h>
 #include <xpp/variable_set.h>
 #include <memory>
 #include "base_motion.h"
@@ -50,12 +50,12 @@ public:
   // zmp_ consider wrapping all Optimization Variables into once class
   void Init(const ComMotionPtr&, const EEMotionPtr&,
             const EELoadPtr&, const CopPtr&,
-            const MotionTypePtr& params, const StateLin2d& initial_state,
+            const MotionTypePtr& params, const RobotStateCartesian& initial_state,
             const StateLin2d& final_state);
 
   // optimization variables with initial values
   VariableSet SplineCoeffVariables() const;
-  VariableSet ContactVariables(const Vector2d initial_pos) const;
+  VariableSet ContactVariables() const;
   VariableSet ConvexityVariables() const;
   VariableSet CopVariables() const;
 
@@ -70,7 +70,7 @@ private:
   EELoadPtr ee_load;
   CopPtr cop;
 
-  StateLin2d initial_geom_state_;
+  RobotStateCartesian initial_geom_state_;
   StateLin2d final_geom_state_;
 
   // constraints
@@ -80,7 +80,7 @@ private:
   ConstraintPtrVec MakeConvexityConstraint() const;
   ConstraintPtrVec MakeDynamicConstraint() const;
   ConstraintPtrVec MakeRangeOfMotionBoxConstraint() const;
-  ConstraintPtrVec MakeFinalStanceConstraint() const;
+  ConstraintPtrVec MakeStancesConstraints() const;
   ConstraintPtrVec MakeObstacleConstraint() const;
   ConstraintPtrVec MakePolygonCenterConstraint() const;
 

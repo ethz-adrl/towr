@@ -37,7 +37,8 @@ CostConstraintFactory::Init (const ComMotionPtr& com,
                              const EEMotionPtr& _ee_motion,
                              const EELoadPtr& _ee_load,
                              const CopPtr& _cop,
-                             const MotionTypePtr& _params, const StateLin2d& initial_state,
+                             const MotionTypePtr& _params,
+                             const RobotStateCartesian& initial_state,
                              const StateLin2d& final_state)
 {
   com_motion = com;
@@ -60,7 +61,7 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
     case Convexity:   return MakeConvexityConstraint();
     case Dynamic:     return MakeDynamicConstraint();
     case RomBox:      return MakeRangeOfMotionBoxConstraint();
-    case FinalStance: return MakeFinalStanceConstraint();
+    case Stance: return MakeStancesConstraints();
     case Obstacle:    return MakeObstacleConstraint();
     default: throw std::runtime_error("constraint not defined!");
   }
@@ -74,7 +75,7 @@ CostConstraintFactory::GetCost(CostName name) const
     case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint().front());
     case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint().front());
     case FinalComCostID:     return ToCost(MakeFinalConstraint().front());
-    case FinalStanceCostID:  return ToCost(MakeFinalStanceConstraint().front());
+    case FinalStanceCostID:  return ToCost(MakeStancesConstraints().front());
     default: throw std::runtime_error("cost not defined!");
   }
 }
@@ -86,7 +87,7 @@ CostConstraintFactory::SplineCoeffVariables () const
 }
 
 VariableSet
-CostConstraintFactory::ContactVariables (const Vector2d initial_pos) const
+CostConstraintFactory::ContactVariables () const
 {
   return VariableSet(ee_motion->GetOptimizationParameters(), ee_motion->GetID());
 }
@@ -131,7 +132,7 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeInitialConstraint () const
 {
   LinearSplineEquations eq(*com_motion);
-  StateLin2d initial_com_state = initial_geom_state_;
+  StateLin2d initial_com_state = initial_geom_state_.GetBase().lin.Get2D();
   initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
   MatVec lin_eq = eq.MakeInitial(initial_com_state);
 
@@ -199,13 +200,31 @@ CostConstraintFactory::MakeConvexityConstraint() const
 
 
 CostConstraintFactory::ConstraintPtrVec
-CostConstraintFactory::MakeFinalStanceConstraint () const
+CostConstraintFactory::MakeStancesConstraints () const
 {
-  auto constraint = std::make_shared<FootholdConstraint>(
-      ee_motion,
-      initial_geom_state_.p,//final_geom_state_.p,
-      params->GetNominalStanceInBase());
-  return {constraint};
+  ConstraintPtrVec stance_constraints;
+
+  // calculate initial position in world frame
+  auto constraint_initial = std::make_shared<FootholdConstraint>(
+      ee_motion, initial_geom_state_.GetEEPos(), 0.0);
+
+  stance_constraints.push_back(constraint_initial);
+
+  // calculate endeffector position in world frame
+  EEXppPos nominal_B = params->GetNominalStanceInBase();
+  EEXppPos endeffectors_final_W(nominal_B.GetEECount());
+  for (auto ee : endeffectors_final_W.GetEEsOrdered())
+    endeffectors_final_W.At(ee) = final_geom_state_.Make3D().p + nominal_B.At(ee);
+
+  double t = ee_motion->GetTotalTime();
+
+  auto constraint_final = std::make_shared<FootholdConstraint>(
+      ee_motion,endeffectors_final_W,t);
+
+  stance_constraints.push_back(constraint_final);
+
+
+  return stance_constraints;
 }
 
 CostConstraintFactory::ConstraintPtrVec

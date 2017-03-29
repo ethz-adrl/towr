@@ -96,15 +96,12 @@ SupportAreaConstraint::UpdateJacobianWithRespectToEEMotion ()
   for (double t : dts_) {
 
     auto lambda_k = ee_load_->GetLoadValues(t);
-    for (auto f : ee_motion_->GetContacts(t)) {
-      if (f.id != ContactBase::kFixedByStartStance) { // spring_clean_ maybe remove distinction and add extra constraint for initial stance
-        for (auto dim : d2::AllDimensions) {
-          int idx_contact = ee_motion_->Index(f.ee, f.id, dim);
-          jac.coeffRef(row_idx+dim, idx_contact) = lambda_k.At(f.ee);
-        }
+    for (auto c : ee_motion_->GetContacts(t)) {
+      for (auto dim : d2::AllDimensions) {
+        int idx_contact = ee_motion_->Index(c.ee, c.id, dim);
+        jac.coeffRef(row_idx+dim, idx_contact) = lambda_k.At(c.ee);
       }
     }
-
     row_idx += kDim2d;
   }
 }

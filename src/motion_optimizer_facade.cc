@@ -9,7 +9,7 @@
 #include <xpp/opt/motion_optimizer_facade.h>
 #include <xpp/opt/endeffectors_motion.h>
 #include <xpp/opt/motion_factory.h>
-#include "../include/xpp/opt/base_motion.h"
+#include <xpp/opt/base_motion.h>
 
 
 namespace xpp {
@@ -58,7 +58,7 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
   com_motion_->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
 
-  nlp_facade_.OptimizeMotion(start_geom_.GetBase().lin.Get2D(),
+  nlp_facade_.OptimizeMotion(start_geom_,
                              goal_com.Get2D(),
                              ee_motion_,
                              com_motion_,

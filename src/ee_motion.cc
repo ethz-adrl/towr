@@ -22,7 +22,7 @@ void
 EEMotion::SetInitialPos (const Vector3d& pos, EndeffectorID ee)
 {
   ee_ = ee;
-  contacts_.push_front(Contact(ContactBase::kFixedByStartStance, ee_, pos));
+  contacts_.push_front(Contact(0, ee_, pos));
   UpdateSwingMotions();
 }
 

@@ -33,7 +33,7 @@ NlpFacade::~NlpFacade ()
 }
 
 void
-NlpFacade::OptimizeMotion(const StateLin2d& initial_state,
+NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
                           const StateLin2d& final_state,
                           const EEMotionPtrS& ee_motion,
                           const ComMotionPtrS& com_motion,
@@ -61,7 +61,7 @@ NlpFacade::OptimizeMotion(const StateLin2d& initial_state,
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(factory.SplineCoeffVariables());
-  opt_variables_->AddVariableSet(factory.ContactVariables(initial_state.p));
+  opt_variables_->AddVariableSet(factory.ContactVariables());
   opt_variables_->AddVariableSet(factory.ConvexityVariables());
   opt_variables_->AddVariableSet(factory.CopVariables());
 

@@ -9,7 +9,7 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_NLP_FACADE_H_
 
 #include <xpp/opt/motion_parameters.h>
-#include <xpp/state.h>
+#include <xpp/robot_state_cartesian.h>
 #include <memory>
 
 namespace xpp {
@@ -54,12 +54,12 @@ public:
     * @param initial_acc initial acceleration of the CoG
     * @param final_state desired final position, velocity and acceleration of the CoG
     */
-  void OptimizeMotion(const StateLin2d& initial_state,
-                const StateLin2d& final_state,
-                const EEMotionPtrS& ee_motion,
-                const ComMotionPtrS& com_motion,
-                const MotionparamsPtr&,
-                NlpSolver solver);
+  void OptimizeMotion(const RobotStateCartesian& initial_state,
+                      const StateLin2d& final_state,
+                      const EEMotionPtrS& ee_motion,
+                      const ComMotionPtrS& com_motion,
+                      const MotionparamsPtr&,
+                      NlpSolver solver);
 
 
 //  ContactVec GetContacts();

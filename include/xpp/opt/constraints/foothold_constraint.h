@@ -25,8 +25,7 @@ public:
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
   using NominalStance = EEXppPos;
 
-  FootholdConstraint (const EEMotionPtr&,const Vector2d& body_pos,
-                      const NominalStance&);
+  FootholdConstraint (const EEMotionPtr&, const NominalStance&, double t);
   virtual ~FootholdConstraint ();
 
 private:
@@ -34,11 +33,8 @@ private:
   virtual void UpdateBounds() override;
 
   EEMotionPtr ee_motion_;
-  NominalStance nominal_stance_; // zmp_ express directly in world frame
-  Vector2d body_xy_;
+  NominalStance desired_ee_pos_W_;
   double t_;
-
-  Vector2d GetContactToNominalInWorld(const Vector2d& conctact_W, EndeffectorID leg) const;
 };
 
 } /* namespace opt */

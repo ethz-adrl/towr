@@ -59,15 +59,10 @@ RangeOfMotionBox::UpdateConstraintValues ()
 {
   int i = 0;
   for (double t : dts_) {
-    PosXY geom_W = com_motion_->GetBase(t).lin.Get2D().p;
+    Vector3d geom_W = com_motion_->GetBase(t).lin.p;
 
     for (const auto& c : ee_motion_->GetContacts(t)) {
-      // contact position expressed in base frame
-      PosXY pos_ee_B;
-      if (c.id == ContactBase::kFixedByStartStance)
-        pos_ee_B = -geom_W;
-      else
-        pos_ee_B = c.p.topRows<kDim2d>() - geom_W;
+      Vector3d pos_ee_B = c.p - geom_W;
 
       for (auto dim : {X,Y})
         g_(i++) = pos_ee_B(dim);
@@ -88,10 +83,6 @@ RangeOfMotionBox::UpdateBounds ()
         b += f_nom_B(dim);
         b.upper_ += max_deviation_from_nominal_.at(dim);
         b.lower_ -= max_deviation_from_nominal_.at(dim);
-
-        if (c.id == ContactBase::kFixedByStartStance)
-          b -= c.p(dim);
-
         bounds_.at(i++) = b;
       }
     }
@@ -111,16 +102,10 @@ RangeOfMotionBox::UpdateJacobianWrtEndeffectors ()
   Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetID());
 
   int row=0;
-  for (double t : dts_) {
-    for (auto c : ee_motion_->GetContacts(t)) {
-      if (c.id != ContactBase::kFixedByStartStance) {
-        for (auto dim : d2::AllDimensions)
-          jac.coeffRef(row+dim, ee_motion_->Index(c.ee,c.id,dim)) = 1.0;
-      }
-
-      row += kDim2d;
-    }
-  }
+  for (double t : dts_)
+    for (auto c : ee_motion_->GetContacts(t))
+      for (auto dim : d2::AllDimensions)
+        jac.coeffRef(row++, ee_motion_->Index(c.ee,c.id,dim)) = 1.0;
 }
 
 void

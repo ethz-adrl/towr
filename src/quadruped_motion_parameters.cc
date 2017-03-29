@@ -108,7 +108,7 @@ Walk::Walk()
                    Convexity,
                    Dynamic,
                    RomBox,
-                   FinalStance,
+                   Stance,
   };
 
 
@@ -155,7 +155,7 @@ Trott::Trott()
                    Dynamic,
                    Convexity,
                    RomBox,
-                   FinalStance,
+                   Stance,
                    };
   cost_weights_[RangOfMotionCostID] = 10.0;
 
@@ -208,7 +208,7 @@ Pace::Pace()
 
   constraints_ = { InitCom,
                    FinalCom,
-                   FinalStance,
+                   Stance,
                    JunctionCom,
                    Convexity,
                    Dynamic,
@@ -234,7 +234,7 @@ Bound::Bound()
 
   constraints_ = { InitCom,
                    FinalCom,
-                   FinalStance,
+                   Stance,
                    JunctionCom,
                    Convexity,
                    Dynamic,
