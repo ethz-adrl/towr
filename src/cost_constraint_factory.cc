@@ -186,14 +186,10 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeConvexityConstraint() const
 {
   auto cop_constrait = std::make_shared<SupportAreaConstraint>();
-  cop_constrait->Init(*ee_motion,
-                   *ee_load,
-                   *cop,
-                   ee_motion->GetTotalTime(),
-                   params->dt_nodes_);
+  cop_constrait->Init(ee_motion,ee_load,cop,ee_motion->GetTotalTime(),
+                      params->dt_nodes_);
 
   auto convexity = std::make_shared<ConvexityConstraint>();
-//  convexity->SetDependentVariables({ee_load});
   convexity->Init(ee_load);
 
   auto contact_load = std::make_shared<ContactLoadConstraint>();
@@ -223,9 +219,7 @@ CostConstraintFactory::MakeObstacleConstraint () const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakePolygonCenterConstraint () const
 {
-  auto constraint = std::make_shared<PolygonCenterConstraint>();
-  constraint->Init(*ee_load, *ee_motion);
-  return {constraint};
+  return {std::make_shared<PolygonCenterConstraint>(ee_load, ee_motion)};
 }
 
 CostConstraintFactory::CostPtr

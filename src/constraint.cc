@@ -1,12 +1,11 @@
-/*
- * a_constraint.cc
- *
- *  Created on: May 24, 2016
- *      Author: winklera
+/**
+ @file    constraint.h
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 30, 2016
+ @brief   Abstract class representing a constraint for the NLP problem.
  */
 
-#include "../include/xpp/constraint.h"
-
+#include <xpp/constraint.h>
 #include <iostream>
 #include <iomanip>
 
@@ -26,8 +25,7 @@ Constraint::~Constraint ()
 int
 Constraint::GetNumberOfConstraints () const
 {
-  // zmp_ DRY with num_constraints
-  return GetBounds().size();
+  return num_constraints_;
 }
 
 void
@@ -36,7 +34,6 @@ Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars, 
   num_constraints_ = num_constraints;
   g_ = VectorXd(num_constraints);
   bounds_ = VecBound(num_constraints);
-
 
   for (auto& v : vars) {
     int n = v->GetOptVarCount();

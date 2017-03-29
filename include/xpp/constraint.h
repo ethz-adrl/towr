@@ -1,24 +1,24 @@
 /**
- @file    a_constraint.h
+ @file    constraint.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    May 30, 2016
  @brief   Abstract class representing a constraint for the NLP problem.
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_
-#define XPP_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_
+#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_H_
+#define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_H_
 
 #include "optimization_variables.h"
 #include "parametrization.h"
 
-#include <Eigen/Sparse>
-#include <Eigen/Dense>
-
+#include <Eigen/Sparse> // for jacobians
 #include <memory>
 
 namespace xpp {
 namespace opt {
 
+/** Common interface providing constraint values and bounds.
+  */
 class Constraint {
 public:
   using VectorXd = Eigen::VectorXd;
@@ -29,43 +29,61 @@ public:
   Constraint ();
   virtual ~Constraint ();
 
-
-  virtual void UpdateVariables(const OptimizationVariables*);
-
-  /** The Jacobian of the constraints with respect to each decision variable set
+  /** @brief Sets the values stored in variables_ to the current NLP ones
     */
-  // zmp_ remove one of these
-  virtual Jacobian GetJacobianWithRespectTo (std::string var_set) const;
-  virtual Jacobian& GetJacobianRefWithRespectTo (std::string var_set);
+  virtual void UpdateVariables(const OptimizationVariables*) final;
 
-  /** A constraint always delivers a vector of constraint violations.
-   */
+  /** @brief Jacobian of the constraints with respect to each decision variable set
+    */
+  virtual Jacobian GetJacobianWithRespectTo (std::string var_set) const final;
+
+  /** @brief A constraint always delivers a vector of constraint violations.
+    *
+    * This is specific to each type of constraint and must be implemented
+    * by the user.
+    */
   virtual VectorXd EvaluateConstraint () const = 0;
 
-  /** For each returned constraint an upper and lower bound is given.
-   */
+  /** @brief For each returned constraint an upper and lower bound is given.
+    *
+    * This is specific to each type of constraint and must be implemented
+    * by the user.
+    */
   virtual VecBound GetBounds () const = 0;
 
+  void PrintStatus(double tol) const;
   int GetNumberOfConstraints() const;
 
-  void PrintStatus(double tol) const;
-
 protected:
-  void SetDependentVariables(const std::vector<ParametrizationPtr>&, int num_constraints);
+  /** @brief The values of these variables influence the constraint.
+    *
+    * Subscribes to these values and keeps them up-to-date to be used to
+    * calculate the constraints and bounds.
+    */
+  void SetDependentVariables(const std::vector<ParametrizationPtr>&,
+                             int num_constraints);
 
-  /** Implement in derived class if Jacobians change with opt. variables */
-  virtual void UpdateJacobians() {};
+  /** @returns a writable reference to modify the Jacobian of the constraint.
+    *
+    * @param var_set The differentiation of the constraint w.r.t these variables
+    *                produces this Jacobian.
+   */
+  Jacobian& GetJacobianRefWithRespectTo (std::string var_set);
 
   std::string name_;
-
-
-  mutable std::vector<VarPair> variables_;
+  int num_constraints_ = 0;
   mutable VectorXd g_;
   mutable VecBound bounds_;
-  int num_constraints_ = 0;
+
+private:
+  /** @brief Implement this if the Jacobians change with different values of the
+    * optimization variables, so are not constant.
+    */
+  virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
+  std::vector<VarPair> variables_;
 };
 
 } /* namespace opt */
 } /* namespace xpp */
 
-#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_A_CONSTRAINT_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_H_ */

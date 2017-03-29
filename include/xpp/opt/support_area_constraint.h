@@ -11,9 +11,7 @@
 #include "endeffectors_motion.h"
 #include "endeffector_load.h"
 #include "center_of_pressure.h"
-
-#include <memory>
-#include "../constraint.h"
+#include <xpp/constraint.h>
 
 namespace xpp {
 namespace opt {
@@ -25,30 +23,30 @@ namespace opt {
   */
 class SupportAreaConstraint : public Constraint {
 public:
+  using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
+  using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
+  using CopPtr      = std::shared_ptr<CenterOfPressure>;
+
   SupportAreaConstraint ();
   virtual ~SupportAreaConstraint ();
 
-  void Init(const EndeffectorsMotion&,
-            const EndeffectorLoad& ee_load,
-            const CenterOfPressure& cop,
+  void Init(const EEMotionPtr&, const EELoadPtr&, const CopPtr&,
             double T, double dt);
 
-  void UpdateVariables (const OptimizationVariables*) override;
   VectorXd EvaluateConstraint () const override;
   VecBound GetBounds () const override;
 
-  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
-
 private:
-  EndeffectorsMotion ee_motion_;
-  EndeffectorLoad ee_load_;
-  CenterOfPressure cop_;
+  EEMotionPtr ee_motion_;
+  EELoadPtr ee_load_;
+  CopPtr cop_;
 
   std::vector<double> dts_; ///< discretization of constraint
 
-  Jacobian GetJacobianWithRespectToLambdas() const;
-  Jacobian GetJacobianWithRespectToContacts() const;
-  Jacobian GetJacobianWithRespectToCop() const;
+  void UpdateJacobians() override;
+  void UpdateJacobianWithRespectToLoad();
+  void UpdateJacobianWithRespectToEEMotion();
+  void UpdateJacobianWithRespectToCop();
 };
 
 } /* namespace opt */

@@ -20,9 +20,9 @@ SupportAreaConstraint::~SupportAreaConstraint ()
 }
 
 void
-SupportAreaConstraint::Init (const EndeffectorsMotion& ee_motion,
-                             const EndeffectorLoad& ee_load,
-                             const CenterOfPressure& cop,
+SupportAreaConstraint::Init (const EEMotionPtr& ee_motion,
+                             const EELoadPtr& ee_load,
+                             const CopPtr& cop,
                              double T,
                              double dt)
 {
@@ -36,137 +36,102 @@ SupportAreaConstraint::Init (const EndeffectorsMotion& ee_motion,
     dts_.push_back(t);
     t += dt;
   }
-}
 
-void
-SupportAreaConstraint::UpdateVariables (const OptimizationVariables* opt_var)
-{
-  // zmp_ automate with base class...
-  VectorXd lambdas   = opt_var->GetVariables(ee_load_.GetID());
-  VectorXd footholds = opt_var->GetVariables(ee_motion_.GetID());
-  VectorXd cop       = opt_var->GetVariables(cop_.GetID());
+  int num_constraints = dts_.size()*kDim2d;
+  SetDependentVariables({ee_motion, ee_load, cop}, num_constraints);
 
-  ee_motion_.SetOptimizationParameters(footholds);
-  ee_load_.SetOptimizationParameters(lambdas);
-  cop_.SetOptimizationParameters(cop);
+  UpdateJacobianWithRespectToCop(); // constant, e.g. not depdent on opt. values
 }
 
 SupportAreaConstraint::VectorXd
 SupportAreaConstraint::EvaluateConstraint () const
 {
-  int m = dts_.size() * kDim2d; // DRY with dynamic constraint
-  Eigen::VectorXd g(m);
-
   int k = 0;
   for (double t : dts_) {
 
     Vector2d convex_contacts = Vector2d::Zero();
-    auto lambda_k = ee_load_.GetLoadValues(t);
+    auto lambda_k = ee_load_->GetLoadValues(t);
 
     // spring_clean_ could actually also be all the endeffectors, then contact flags would only
     // be in other constraint
-    for (auto f : ee_motion_.GetContacts(t))
+    for (auto f : ee_motion_->GetContacts(t))
       convex_contacts += lambda_k.At(f.ee)*f.p.topRows<kDim2d>();
 
-    Vector2d cop = cop_.GetCop(t);
-    g.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop;
+    Vector2d cop = cop_->GetCop(t);
+    g_.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop;
     k++;
   }
 
-  return g;
+  return g_;
 }
 
 VecBound
 SupportAreaConstraint::GetBounds () const
 {
-  return VecBound(dts_.size()*kDim2d, kEqualityBound_);
+  std::fill(bounds_.begin(), bounds_.end(), kEqualityBound_);
+  return bounds_;
 }
 
-SupportAreaConstraint::Jacobian
-SupportAreaConstraint::GetJacobianWithRespectToLambdas() const
+void
+SupportAreaConstraint::UpdateJacobianWithRespectToLoad()
 {
-  int m = GetNumberOfConstraints();
-  int n = ee_load_.GetOptVarCount();
-  Jacobian jac_(m, n);
+  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetID());
 
   int row_idx = 0;
   for (double t : dts_) {
 
-    for (auto f : ee_motion_.GetContacts(t)) {
+    for (auto f : ee_motion_->GetContacts(t)) {
       for (auto dim : d2::AllDimensions) {
-        int idx = ee_load_.Index(t,f.ee);
-        jac_.insert(row_idx+dim,idx) = f.p(dim);
+        int idx = ee_load_->Index(t,f.ee);
+        jac.coeffRef(row_idx+dim,idx) = f.p(dim);
       }
     }
     row_idx += kDim2d;
   }
-
-  return jac_;
 }
 
-SupportAreaConstraint::Jacobian
-SupportAreaConstraint::GetJacobianWithRespectToContacts () const
+void
+SupportAreaConstraint::UpdateJacobianWithRespectToEEMotion ()
 {
+  Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetID());
+
   int row_idx = 0;
-  int m = GetNumberOfConstraints();
-  int n = ee_motion_.GetOptVarCount();
-
-  Jacobian jac_(m, n);
-
   for (double t : dts_) {
 
-    auto lambda_k = ee_load_.GetLoadValues(t);
-    for (auto f : ee_motion_.GetContacts(t)) {
+    auto lambda_k = ee_load_->GetLoadValues(t);
+    for (auto f : ee_motion_->GetContacts(t)) {
       if (f.id != ContactBase::kFixedByStartStance) {
         for (auto dim : d2::AllDimensions) {
-          int idx_contact = ee_motion_.Index(f.ee, f.id, dim);
-          jac_.insert(row_idx+dim, idx_contact) = lambda_k.At(f.ee);
+          int idx_contact = ee_motion_->Index(f.ee, f.id, dim);
+          jac.coeffRef(row_idx+dim, idx_contact) = lambda_k.At(f.ee);
         }
       }
     }
 
     row_idx += kDim2d;
   }
-
-  return jac_;
 }
 
-SupportAreaConstraint::Jacobian
-SupportAreaConstraint::GetJacobianWithRespectToCop () const
+void
+SupportAreaConstraint::UpdateJacobianWithRespectToCop ()
 {
-  int m = GetNumberOfConstraints();
-  int n   = cop_.GetOptVarCount();
-  Jacobian jac(m, n);
+  Jacobian& jac = GetJacobianRefWithRespectTo(cop_->GetID());
 
   int row = 0;
   for (double t : dts_)
     for (auto dim : d2::AllDimensions)
-      jac.row(row++) = -1 * cop_.GetJacobianWrtCop(t,dim);
-
-  return jac;
+      jac.row(row++) = -1 * cop_->GetJacobianWrtCop(t,dim);
 }
 
-SupportAreaConstraint::Jacobian
-SupportAreaConstraint::GetJacobianWithRespectTo (std::string var_set) const
+void
+SupportAreaConstraint::UpdateJacobians ()
 {
-  Jacobian jac; // empty matrix
-
-  // zmp_ automate this with base class as well
-  if (var_set == cop_.GetID()) {
-    jac = GetJacobianWithRespectToCop();
-  }
-
-  if (var_set == ee_motion_.GetID()) {
-    jac = GetJacobianWithRespectToContacts();
-  }
-
-  if (var_set == ee_load_.GetID()) {
-    jac = GetJacobianWithRespectToLambdas();
-  }
-
-  return jac;
+  UpdateJacobianWithRespectToLoad();
+  UpdateJacobianWithRespectToEEMotion();
+//  UpdateJacobianWithRespectToCop(); // not dependent on opt. values
 }
 
 
 } /* namespace opt */
 } /* namespace xpp */
+
