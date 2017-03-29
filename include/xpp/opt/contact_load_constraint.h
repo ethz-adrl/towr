@@ -8,15 +8,15 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
 
+#include "../constraint.h"
 #include "endeffector_load.h"
 #include "endeffectors_motion.h"
 
-#include <xpp/a_constraint.h>
 
 namespace xpp {
 namespace opt {
 
-class ContactLoadConstraint : public AConstraint {
+class ContactLoadConstraint : public Constraint {
 public:
   using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
   using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;

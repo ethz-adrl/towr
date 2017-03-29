@@ -18,7 +18,7 @@ namespace opt {
 class ConstraintContainerTest : public ::testing::Test {
 public:
   typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
-  typedef std::shared_ptr<AConstraint> ConstraintPtr;
+  typedef std::shared_ptr<Constraint> ConstraintPtr;
 
 protected:
   virtual void SetUp()

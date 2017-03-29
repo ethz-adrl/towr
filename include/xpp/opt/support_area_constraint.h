@@ -12,8 +12,8 @@
 #include "endeffector_load.h"
 #include "center_of_pressure.h"
 
-#include <xpp/a_constraint.h>
 #include <memory>
+#include "../constraint.h"
 
 namespace xpp {
 namespace opt {
@@ -23,7 +23,7 @@ namespace opt {
   * At every discrete node k:
   * g_k = lambda_1*p1 + ... lambda_m*p_m - cop = 0
   */
-class SupportAreaConstraint : public AConstraint {
+class SupportAreaConstraint : public Constraint {
 public:
   SupportAreaConstraint ();
   virtual ~SupportAreaConstraint ();

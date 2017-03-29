@@ -9,8 +9,8 @@
 #define XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
 #include "endeffectors_motion.h"
-#include <xpp/a_constraint.h>
 #include <memory>
+#include "../constraint.h"
 
 namespace xpp {
 namespace opt {
@@ -24,7 +24,7 @@ class BaseMotion;
   * be defined in terms of joint limits or Cartesian estimates of the
   * reachability.
   */
-class RangeOfMotionConstraint : public AConstraint {
+class RangeOfMotionConstraint : public Constraint {
 public:
   using ComMotionPtrU = std::shared_ptr<BaseMotion>;
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;

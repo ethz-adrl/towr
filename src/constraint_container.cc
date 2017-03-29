@@ -12,7 +12,7 @@ namespace xpp {
 namespace opt {
 
 ConstraintContainer::ConstraintContainer (OptimizationVariables& subject)
-    :IObserver(subject)
+    :Observer(subject)
 {
 }
 

@@ -20,7 +20,7 @@ static const std::string set1 = "set1_variables";
 static const std::string set2 = "set2_variables";
 
 
-class FooConstraint : public AConstraint {
+class FooConstraint : public Constraint {
 public:
   void UpdateVariables(const OptimizationVariables* opt_var)
   {
@@ -59,7 +59,7 @@ public:
   VecBound GetBounds () const {
     VecBound bounds;
     for (int i=0; i<m; ++i)
-      bounds.push_back(AConstraint::kEqualityBound_);
+      bounds.push_back(Constraint::kEqualityBound_);
     return bounds;
   }
 
@@ -71,7 +71,7 @@ private:
 };
 
 
-class BarConstraint : public AConstraint {
+class BarConstraint : public Constraint {
 public:
   void UpdateVariables(const OptimizationVariables* opt_var)
   {
@@ -101,7 +101,7 @@ public:
   VecBound GetBounds () const {
     VecBound bounds;
     for (int i=0; i<m; ++i)
-      bounds.push_back(AConstraint::kEqualityBound_);
+      bounds.push_back(Constraint::kEqualityBound_);
     return bounds;
   }
 

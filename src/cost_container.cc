@@ -11,7 +11,7 @@ namespace xpp {
 namespace opt {
 
 CostContainer::CostContainer (OptimizationVariables& subject)
-    :IObserver(subject)
+    :Observer(subject)
 {
 }
 

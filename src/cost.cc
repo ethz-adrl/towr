@@ -5,34 +5,34 @@
 @brief   Defines Cost class
  */
 
-#include <xpp/a_cost.h>
+#include "../include/xpp/cost.h"
 
 namespace xpp {
 namespace opt {
 
-ACost::ACost ()
+Cost::Cost ()
 {
   weight_ = 1.0;
 }
 
-ACost::~ACost ()
+Cost::~Cost ()
 {
 }
 
 double
-ACost::EvaluateWeightedCost () const
+Cost::EvaluateWeightedCost () const
 {
   return weight_ * EvaluateCost();
 }
 
-ACost::VectorXd
-ACost::EvaluateWeightedGradientWrt (std::string var_set)
+Cost::VectorXd
+Cost::EvaluateWeightedGradientWrt (std::string var_set)
 {
   return weight_ * EvaluateGradientWrt(var_set);
 }
 
 void
-ACost::SetWeight (double weight)
+Cost::SetWeight (double weight)
 {
   weight_ = weight;
 }

@@ -5,21 +5,21 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/a_linear_constraint.h>
+#include "../include/xpp/opt/linear_constraint.h"
 
 namespace xpp {
 namespace opt {
 
-ALinearConstraint::ALinearConstraint ()
+LinearConstraint::LinearConstraint ()
 {
 }
 
-ALinearConstraint::~ALinearConstraint ()
+LinearConstraint::~LinearConstraint ()
 {
 }
 
 void
-ALinearConstraint::Init (const ComMotionPtr& com_motion,
+LinearConstraint::Init (const ComMotionPtr& com_motion,
                          const MatVec& linear_equation, const std::string& name)
 {
   linear_equation_ = linear_equation;
@@ -36,8 +36,8 @@ ALinearConstraint::Init (const ComMotionPtr& com_motion,
   jac = linear_equation_.M.sparseView();
 }
 
-ALinearConstraint::VectorXd
-ALinearConstraint::EvaluateConstraint () const
+LinearConstraint::VectorXd
+LinearConstraint::EvaluateConstraint () const
 {
   VectorXd x = com_motion_->GetXYSplineCoeffients();
   return linear_equation_.M*x; // linear part respected in bounds

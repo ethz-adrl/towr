@@ -8,9 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONTAINER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONTAINER_H_
 
-#include "a_cost.h"
-#include "i_observer.h"
 #include <memory>
+
+#include "cost.h"
+#include "observer.h"
 
 namespace xpp {
 namespace opt {
@@ -20,9 +21,9 @@ namespace opt {
   * This class is responsible for knowing about all the different cost terms
   * and delivering the total cost for specific optimization variables.
   */
-class CostContainer : public IObserver {
+class CostContainer : public Observer {
 public:
-  using CostPtr = std::shared_ptr<ACost>;
+  using CostPtr = std::shared_ptr<Cost>;
   using VectorXd = Eigen::VectorXd;
 
   CostContainer (OptimizationVariables& subject);

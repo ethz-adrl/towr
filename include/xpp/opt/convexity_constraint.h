@@ -8,10 +8,10 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONVEXITY_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONVEXITY_CONSTRAINT_H_
 
-#include <xpp/a_constraint.h>
 #include <xpp/opt/endeffector_load.h>
 
 #include <memory>
+#include "../constraint.h"
 
 namespace xpp {
 namespace opt {
@@ -22,7 +22,7 @@ namespace opt {
   * E.g. for a quadruped:
   * g[t_k] = lambda_LF + lambda_RF + lambda_LH + lambda_RF = 1.
   */
-class ConvexityConstraint : public AConstraint {
+class ConvexityConstraint : public Constraint {
 public:
   using LoadPtr = std::shared_ptr<EndeffectorLoad>;
 

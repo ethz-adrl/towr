@@ -9,31 +9,36 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_SUBJECT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_SUBJECT_H_
 
-#include "i_observer.h"
+#include "observer.h"
 
 namespace xpp {
 namespace opt {
 
-class ASubject {
+/** Holds and distributes information to the connected observers.
+  *
+  * See observer pattern:
+  * https://sourcemaking.com/design_patterns/observer/cpp/3
+  */
+class Subject {
 public:
-  ASubject ();
-  virtual ~ASubject ();
+  Subject ();
+  virtual ~Subject ();
 
-  void RegisterObserver(IObserver*);
-  void DeregisterObserver(IObserver* o);
+  void RegisterObserver(Observer*);
+  void DeregisterObserver(Observer* o);
   int GetObserverCount() const;
 
 protected:
   void NotifyObservers() const;
 
 private:
-  std::vector<IObserver*> observers_;
+  std::vector<Observer*> observers_;
   void RemoveObservers();
 
   // delete the copy and copy assignment operators, since that messes up the
   // observer pattern logic
-  ASubject(ASubject const&) = delete;
-  void operator=(ASubject const&)        = delete;
+  Subject(Subject const&) = delete;
+  void operator=(Subject const&)        = delete;
 };
 
 } /* namespace zmp */

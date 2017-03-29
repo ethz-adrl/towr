@@ -8,9 +8,9 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
 
-#include "a_cost.h"
-#include "a_constraint.h"
 #include <memory>
+#include "constraint.h"
+#include "cost.h"
 
 namespace xpp {
 namespace opt {
@@ -24,9 +24,9 @@ namespace opt {
   * Then the gradient of the cost is defined as:
   * dc(x)/dx = (g'(x)^T * W * J)^T = J^T * W * (g(x)-b).
   */
-class SoftConstraint : public ACost {
+class SoftConstraint : public Cost {
 public:
-  using ConstraintPtr = std::shared_ptr<AConstraint>;
+  using ConstraintPtr = std::shared_ptr<Constraint>;
   using VectorXd = Eigen::VectorXd;
 
   SoftConstraint (const ConstraintPtr& constraint);

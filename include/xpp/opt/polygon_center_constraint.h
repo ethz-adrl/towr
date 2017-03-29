@@ -8,7 +8,7 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 
-#include <xpp/a_constraint.h>
+#include "../constraint.h"
 #include "endeffector_load.h"
 #include "endeffectors_motion.h" // only for contact state
 
@@ -22,7 +22,7 @@ namespace opt {
   *
   * where m = number of contacts at each discrete node
   */
-class PolygonCenterConstraint : public AConstraint {
+class PolygonCenterConstraint : public Constraint {
 public:
 
   PolygonCenterConstraint ();

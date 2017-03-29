@@ -81,16 +81,16 @@ include_directories(
 # A general nlp solving framework for Eigen, Ipopt, Snopt
 set(SOLVER_LIB xpp_solve)
 add_library(${SOLVER_LIB}
-  src/a_subject.cc
+  src/subject.cc
   src/variable_set.cc
   src/optimization_variables.cc
-  src/i_observer.cc
+  src/observer.cc
   src/nlp.cc
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
-  src/a_constraint.cc
+  src/constraint.cc
   src/constraint_container.cc
-  src/a_cost.cc
+  src/cost.cc
   src/cost_container.cc
   src/cost_function_functor.cc
   src/soft_constraint.cc
@@ -128,7 +128,7 @@ add_library(${MOTION_OPT_LIB}
   # Input
   src/center_of_pressure.cc
   # constraints and costs
-  src/a_linear_constraint.cc
+  src/linear_constraint.cc
   src/cost_constraint_factory.cc
   src/range_of_motion_constraint.cc
   src/support_area_constraint.cc

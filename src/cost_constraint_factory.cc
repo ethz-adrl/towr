@@ -9,7 +9,6 @@
 
 #include <xpp/opt/a_spline_cost.h>
 #include <xpp/opt/linear_spline_equations.h>
-#include <xpp/opt/a_linear_constraint.h>
 #include <xpp/opt/range_of_motion_constraint.h>
 #include <xpp/opt/convexity_constraint.h>
 #include <xpp/opt/support_area_constraint.h>
@@ -20,6 +19,7 @@
 //#include <xpp/opt/a_foothold_constraint.h>
 
 #include <xpp/soft_constraint.h>
+#include "../include/xpp/opt/linear_constraint.h"
 
 namespace xpp {
 namespace opt {

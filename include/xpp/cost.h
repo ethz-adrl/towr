@@ -1,12 +1,12 @@
 /**
- @file    a_cost.h
+ @file    cost.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    May 30, 2016
  @brief   Abstract class representing a cost for the NLP problem.
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_COST_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_COST_H_
+#ifndef XPP_OPT_INCLUDE_XPP_OPT_COST_H_
+#define XPP_OPT_INCLUDE_XPP_OPT_COST_H_
 
 #include <xpp/optimization_variables.h>
 
@@ -15,12 +15,12 @@ namespace opt {
 
 /** @brief Common interface to define a cost, which simply returns a scalar value
   */
-class ACost {
+class Cost {
 public:
   using VectorXd = Eigen::VectorXd;
 
-  ACost ();
-  virtual ~ACost ();
+  Cost ();
+  virtual ~Cost ();
 
   virtual void UpdateVariables(const OptimizationVariables*) = 0;
   double EvaluateWeightedCost () const;
@@ -38,4 +38,4 @@ private:
 } /* namespace opt */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_COST_H_ */
+#endif /* XPP_OPT_INCLUDE_XPP_OPT_COST_H_ */

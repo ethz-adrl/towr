@@ -10,15 +10,15 @@
 
 #include "linear_inverted_pendulum.h"
 #include "center_of_pressure.h"
-#include <xpp/a_constraint.h>
 #include <memory>
+#include "../constraint.h"
 
 namespace xpp {
 namespace opt {
 
 class BaseMotion;
 
-class DynamicConstraint : public AConstraint {
+class DynamicConstraint : public Constraint {
 public:
   using BaseMotionPtr = std::shared_ptr<BaseMotion>;
   using CopPtr        = std::shared_ptr<CenterOfPressure>;

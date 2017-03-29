@@ -22,8 +22,8 @@
 namespace xpp {
 namespace opt {
 
-class AConstraint;
-class ACost;
+class Constraint;
+class Cost;
 
 /** Builds all types of constraints/costs for the user.
   *
@@ -34,9 +34,9 @@ class ACost;
   */
 class CostConstraintFactory {
 public:
-  using ConstraintPtr    = std::shared_ptr<AConstraint>;
+  using ConstraintPtr    = std::shared_ptr<Constraint>;
   using ConstraintPtrVec = std::vector<ConstraintPtr>;
-  using CostPtr       = std::shared_ptr<ACost>;
+  using CostPtr       = std::shared_ptr<Cost>;
   using Vector2d      = Eigen::Vector2d;
   using MotionTypePtr = std::shared_ptr<MotionParameters>;
   using ComMotionPtr  = std::shared_ptr<BaseMotion>;

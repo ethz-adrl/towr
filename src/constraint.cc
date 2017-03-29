@@ -5,32 +5,33 @@
  *      Author: winklera
  */
 
-#include <xpp/a_constraint.h>
+#include "../include/xpp/constraint.h"
+
 #include <iostream>
 #include <iomanip>
 
 namespace xpp {
 namespace opt {
 
-AConstraint::AConstraint ()
+Constraint::Constraint ()
 {
   name_ = "GiveMeAName";
 }
 
-AConstraint::~AConstraint ()
+Constraint::~Constraint ()
 {
   // TODO Auto-generated destructor stub
 }
 
 int
-AConstraint::GetNumberOfConstraints () const
+Constraint::GetNumberOfConstraints () const
 {
   // zmp_ DRY with num_constraints
   return GetBounds().size();
 }
 
 void
-AConstraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars, int num_constraints)
+Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars, int num_constraints)
 {
   num_constraints_ = num_constraints;
   g_ = VectorXd(num_constraints);
@@ -45,7 +46,7 @@ AConstraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars,
 }
 
 void
-AConstraint::UpdateVariables (const OptimizationVariables* opt_var)
+Constraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
   for (auto& var : variables_) {
     VectorXd x = opt_var->GetVariables(var.first->GetID());
@@ -55,8 +56,8 @@ AConstraint::UpdateVariables (const OptimizationVariables* opt_var)
   UpdateJacobians();
 }
 
-AConstraint::Jacobian
-AConstraint::GetJacobianWithRespectTo (std::string var_set) const
+Constraint::Jacobian
+Constraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empy matrix
 
@@ -67,8 +68,8 @@ AConstraint::GetJacobianWithRespectTo (std::string var_set) const
   return jac;
 }
 
-AConstraint::Jacobian&
-AConstraint::GetJacobianRefWithRespectTo (std::string var_set)
+Constraint::Jacobian&
+Constraint::GetJacobianRefWithRespectTo (std::string var_set)
 {
   for (auto& var : variables_)
     if (var.first->GetID() == var_set)
@@ -77,7 +78,7 @@ AConstraint::GetJacobianRefWithRespectTo (std::string var_set)
 
 
 void
-xpp::opt::AConstraint::PrintStatus (double tol) const
+xpp::opt::Constraint::PrintStatus (double tol) const
 {
   auto bounds = GetBounds();
   auto g = EvaluateConstraint();

@@ -19,16 +19,15 @@
 namespace xpp {
 namespace opt {
 
-// zmp_ possibly remove the "A"
-class AConstraint {
+class Constraint {
 public:
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
   using ParametrizationPtr = std::shared_ptr<Parametrization>;
   using VarPair = std::pair<ParametrizationPtr,Jacobian>;
 
-  AConstraint ();
-  virtual ~AConstraint ();
+  Constraint ();
+  virtual ~Constraint ();
 
 
   virtual void UpdateVariables(const OptimizationVariables*);

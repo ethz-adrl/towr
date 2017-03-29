@@ -5,37 +5,37 @@
  *      Author: winklera
  */
 
-#include <xpp/a_subject.h>
+#include "../include/xpp/subject.h"
 
 #include <iostream>
 
 namespace xpp {
 namespace opt {
 
-ASubject::ASubject ()
+Subject::Subject ()
 {
   // TODO Auto-generated constructor stub
 }
 
-ASubject::~ASubject ()
+Subject::~Subject ()
 {
   // TODO Auto-generated destructor stub
 }
 
 int
-ASubject::GetObserverCount () const
+Subject::GetObserverCount () const
 {
   return observers_.size();
 }
 
 void
-ASubject::RemoveObservers ()
+Subject::RemoveObservers ()
 {
   observers_.clear();
 }
 
 void
-ASubject::RegisterObserver(IObserver* o)
+Subject::RegisterObserver(Observer* o)
 {
   bool observer_already_registered = std::find(observers_.begin(), observers_.end(), o) != observers_.end();
   if (!observer_already_registered)
@@ -43,16 +43,16 @@ ASubject::RegisterObserver(IObserver* o)
 }
 
 void
-ASubject::DeregisterObserver(IObserver* o)
+Subject::DeregisterObserver(Observer* o)
 {
   auto it = std::find(observers_.begin(), observers_.end(), o);
   observers_.erase(it);
 }
 
 void
-ASubject::NotifyObservers () const
+Subject::NotifyObservers () const
 {
-  for (IObserver* const o : observers_)
+  for (Observer* const o : observers_)
     o->Update();
 }
 

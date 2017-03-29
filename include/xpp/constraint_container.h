@@ -8,10 +8,10 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 
-#include "a_constraint.h"
-#include "i_observer.h"
 #include "optimization_variables.h"
 #include <memory>
+#include "constraint.h"
+#include "observer.h"
 
 namespace xpp {
 namespace opt {
@@ -23,12 +23,12 @@ namespace opt {
   * connection to the optimization variables, and constantly keeps up-to-date
   * values of these (observer).
   */
-class ConstraintContainer : public IObserver {
+class ConstraintContainer : public Observer {
 public:
-  typedef AConstraint::VectorXd VectorXd;
-  typedef AConstraint::Jacobian Jacobian;
+  typedef Constraint::VectorXd VectorXd;
+  typedef Constraint::Jacobian Jacobian;
   typedef std::shared_ptr<Jacobian> JacobianPtr;
-  typedef std::shared_ptr<AConstraint> ConstraintPtr;
+  typedef std::shared_ptr<Constraint> ConstraintPtr;
   using ConstraitPtrVec = std::vector<ConstraintPtr>;
 
   ConstraintContainer (OptimizationVariables& subject);

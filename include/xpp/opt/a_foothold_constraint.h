@@ -8,9 +8,9 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_A_FOOTHOLD_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_A_FOOTHOLD_CONSTRAINT_H_
 
-#include <xpp/a_constraint.h>
 #include "endeffectors_motion.h"
 #include <memory>
+#include "../constraint.h"
 
 namespace xpp {
 namespace opt {
@@ -22,7 +22,7 @@ namespace opt {
   * in order to then calculate costs based on these (move towards goal, avoid
   * obstacles, ...).
   */
-class AFootholdConstraint : public AConstraint {
+class AFootholdConstraint : public Constraint {
 public:
   AFootholdConstraint ();
   virtual ~AFootholdConstraint ();

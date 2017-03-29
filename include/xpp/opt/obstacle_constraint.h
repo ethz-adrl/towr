@@ -8,8 +8,7 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OBSTACLE_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OBSTACLE_CONSTRAINT_H_
 
-#include <xpp/a_constraint.h>
-
+#include "../constraint.h"
 #include "ellipse.h"
 #include "eigen_std_conversions.h"
 #include "endeffectors_motion.h"
@@ -17,7 +16,7 @@
 namespace xpp {
 namespace opt {
 
-class ObstacleConstraint : public AConstraint {
+class ObstacleConstraint : public Constraint {
 public:
   ObstacleConstraint ();
   virtual ~ObstacleConstraint ();

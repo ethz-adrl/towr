@@ -50,7 +50,7 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
   constraint_container.AddConstraint(constraint);
 
   VectorXd q = constraint_container.EvaluateConstraints();
-  AConstraint::VecBound q_bounds = constraint_container.GetBounds();
+  Constraint::VecBound q_bounds = constraint_container.GetBounds();
 
   EXPECT_GT(q.rows(), 0);
   EXPECT_GT(q_bounds.size(), 0);

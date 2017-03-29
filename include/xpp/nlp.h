@@ -26,7 +26,7 @@ namespace opt {
   */
 class NLP {
 public:
-  typedef AConstraint::Jacobian Jacobian;
+  typedef Constraint::Jacobian Jacobian;
   typedef double Number;
   typedef Eigen::VectorXd VectorXd;
   typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;

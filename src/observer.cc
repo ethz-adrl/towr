@@ -5,19 +5,20 @@
  *      Author: winklera
  */
 
-#include <xpp/i_observer.h>
+#include "../include/xpp/observer.h"
+
 #include <xpp/optimization_variables.h>
 
 namespace xpp {
 namespace opt {
 
-IObserver::IObserver (OptimizationVariables& subject)
+Observer::Observer (OptimizationVariables& subject)
 {
   subject_ = &subject;
   subject_->RegisterObserver(this);
 }
 
-IObserver::~IObserver ()
+Observer::~Observer ()
 {
   subject_->DeregisterObserver(this);
 }

@@ -49,7 +49,7 @@ SoftConstraint::VectorXd
 SoftConstraint::EvaluateGradientWrt (std::string var_set)
 {
   VectorXd g = constraint_->EvaluateConstraint();
-  AConstraint::Jacobian jac = constraint_->GetJacobianWithRespectTo(var_set);
+  Constraint::Jacobian jac = constraint_->GetJacobianWithRespectTo(var_set);
 
   VectorXd grad;
   if (jac.rows() != 0)
