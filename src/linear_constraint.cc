@@ -36,11 +36,11 @@ LinearConstraint::Init (const ComMotionPtr& com_motion,
   jac = linear_equation_.M.sparseView();
 }
 
-LinearConstraint::VectorXd
-LinearConstraint::EvaluateConstraint () const
+void
+LinearConstraint::UpdateConstraintValues ()
 {
   VectorXd x = com_motion_->GetXYSplineCoeffients();
-  return linear_equation_.M*x; // linear part respected in bounds
+  g_ = linear_equation_.M*x;
 }
 
 VecBound

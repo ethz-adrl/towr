@@ -52,8 +52,8 @@ TEST_F(ConstraintContainerTest, EvaluateConstraintsInitialAcc)
   EXPECT_EQ(4, g.rows()); // two constraints in x and one in y
 
   // remember: constraints stored in std::map, so no ordering (e.g. not first added first out)
-  EXPECT_EQ(c_zeros_->EvaluateConstraint(), g.tail<2>()); // two constraints in x and one in y
-  EXPECT_EQ(c_ones_->EvaluateConstraint() , g.head<2>()); // two constraints in x and one in y
+  EXPECT_EQ(c_zeros_->GetConstraintValues(), g.tail<2>()); // two constraints in x and one in y
+  EXPECT_EQ(c_ones_->GetConstraintValues() , g.head<2>()); // two constraints in x and one in y
 }
 
 TEST_F(ConstraintContainerTest, GetBoundsInitialAcc)

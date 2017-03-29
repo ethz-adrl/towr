@@ -42,7 +42,9 @@ public:
     * This is specific to each type of constraint and must be implemented
     * by the user.
     */
-  virtual VectorXd EvaluateConstraint () const = 0;
+
+  VectorXd GetConstraintValues() const;
+  virtual void UpdateConstraintValues () = 0;
 
   /** @brief For each returned constraint an upper and lower bound is given.
     *

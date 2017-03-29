@@ -47,8 +47,8 @@ DynamicConstraint::Init (const BaseMotionPtr& com_motion,
   SetDependentVariables({com_motion, cop}, num_constraints);
 }
 
-DynamicConstraint::VectorXd
-DynamicConstraint::EvaluateConstraint () const
+void
+DynamicConstraint::UpdateConstraintValues ()
 {
   int k = 0;
   for (double t : dts_) {
@@ -62,8 +62,6 @@ DynamicConstraint::EvaluateConstraint () const
 
     k++;
   }
-
-  return g_;
 }
 
 VecBound

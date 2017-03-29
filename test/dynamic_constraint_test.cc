@@ -13,7 +13,7 @@ namespace xpp {
 namespace opt {
 
 
-TEST(DynamicConstraintTest, EvaluateConstraint)
+TEST(DynamicConstraintTest, UpdateConstraintValues)
 {
   double T = 0.5;
 
@@ -31,7 +31,7 @@ TEST(DynamicConstraintTest, EvaluateConstraint)
 
   std::cout << "count: " << constraint.GetNumberOfConstraints() << std::endl;
 
-  std::cout << constraint.EvaluateConstraint().transpose() << std::endl;
+  std::cout << constraint.GetConstraintValues().transpose() << std::endl;
 
 //  std::cout << constraint.GetJacobianWrtCop() << std::endl << std::endl;
 }

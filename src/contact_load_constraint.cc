@@ -34,11 +34,10 @@ ContactLoadConstraint::Init (const EEMotionPtr& ee_motion,
   GetJacobianRefWithRespectTo(ee_load_->GetID()).setIdentity();
 }
 
-VectorXd
-ContactLoadConstraint::EvaluateConstraint () const
+void
+ContactLoadConstraint::UpdateConstraintValues ()
 {
   g_ = ee_load_->GetOptimizationParameters();
-  return g_;
 }
 
 VecBound

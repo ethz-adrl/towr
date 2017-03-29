@@ -28,7 +28,7 @@ public:
     x_set2 = opt_var->GetVariables(set2);
   }
 
-  VectorXd EvaluateConstraint () const
+  VectorXd UpdateConstraintValues () const
   {
     // two constraints, where the second also depends on the second variable set
     VectorXd g(m);
@@ -78,7 +78,7 @@ public:
     x_set2 = opt_var->GetVariables(set2);
   }
 
-  VectorXd EvaluateConstraint () const
+  VectorXd UpdateConstraintValues () const
   {
     // two constraints, where the second also depends on the second variable set
     VectorXd g(m);

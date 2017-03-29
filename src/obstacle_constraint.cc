@@ -38,7 +38,7 @@ ObstacleLineStrip::~ObstacleLineStrip ()
 }
 
 ObstacleLineStrip::VectorXd
-ObstacleLineStrip::EvaluateConstraint () const
+ObstacleLineStrip::UpdateConstraintValues () const
 {
   VectorXd g(footholds_.size());
 
@@ -52,7 +52,7 @@ ObstacleLineStrip::EvaluateConstraint () const
 VecBound
 ObstacleLineStrip::GetBounds () const
 {
-  VecBound bounds(EvaluateConstraint().rows());
+  VecBound bounds(UpdateConstraintValues().rows());
 
   for (Bound& b : bounds) {
     b.lower_ = std::pow(gap_width_x_/2.0,2);
@@ -92,7 +92,7 @@ ObstacleEllipse::~ObstacleEllipse ()
 }
 
 ObstacleEllipse::VectorXd
-ObstacleEllipse::EvaluateConstraint () const
+ObstacleEllipse::UpdateConstraintValues () const
 {
   VectorXd g(footholds_.size());
 
@@ -106,7 +106,7 @@ ObstacleEllipse::EvaluateConstraint () const
 VecBound
 ObstacleEllipse::GetBounds () const
 {
-  VecBound bounds(EvaluateConstraint().rows());
+  VecBound bounds(UpdateConstraintValues().rows());
 
   for (Bound& b : bounds) {
     b.lower_ = -1 * ellipse_.GetConstant();

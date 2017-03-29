@@ -27,7 +27,7 @@ public:
   virtual ~DynamicConstraint ();
 
   void Init(const BaseMotionPtr&, const CopPtr&, double T, double dt);
-  VectorXd EvaluateConstraint () const override;
+  void UpdateConstraintValues () override;
   VecBound GetBounds () const override;
 
 private:

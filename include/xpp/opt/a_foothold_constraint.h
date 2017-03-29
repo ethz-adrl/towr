@@ -46,7 +46,7 @@ public:
                                 const Vector2d& goal_xy, const NominalStance&);
   virtual ~FootholdFinalStanceConstraint();
 
-  virtual VectorXd EvaluateConstraint () const override;
+  virtual VectorXd UpdateConstraintValues () const override;
   virtual Jacobian GetJacobianWithRespectTo(std::string var_set) const override;
   virtual VecBound GetBounds() const override;
 

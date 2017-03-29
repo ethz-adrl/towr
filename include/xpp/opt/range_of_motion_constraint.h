@@ -62,8 +62,8 @@ public:
     */
   RangeOfMotionBox(const MaxDevXY& dev, const NominalStance& nom);
 
-  virtual VectorXd EvaluateConstraint () const final;
-  virtual VecBound GetBounds () const final;
+  void UpdateConstraintValues () override;
+  virtual VecBound GetBounds () const override;
 
 
 private:

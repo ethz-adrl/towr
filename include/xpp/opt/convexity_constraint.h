@@ -33,15 +33,11 @@ public:
    */
   void Init(const LoadPtr&);
 
-//  void UpdateVariables (const OptimizationVariables*) override;
-  VectorXd EvaluateConstraint () const override;
+  void UpdateConstraintValues () override;
   VecBound GetBounds () const override;
-
-//  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
   LoadPtr ee_load_;
-//  Jacobian jac_;
 };
 
 } /* namespace opt */

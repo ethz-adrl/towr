@@ -43,8 +43,8 @@ SupportAreaConstraint::Init (const EEMotionPtr& ee_motion,
   UpdateJacobianWithRespectToCop(); // constant, e.g. not depdent on opt. values
 }
 
-SupportAreaConstraint::VectorXd
-SupportAreaConstraint::EvaluateConstraint () const
+void
+SupportAreaConstraint::UpdateConstraintValues ()
 {
   int k = 0;
   for (double t : dts_) {
@@ -61,8 +61,6 @@ SupportAreaConstraint::EvaluateConstraint () const
     g_.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop;
     k++;
   }
-
-  return g_;
 }
 
 VecBound

@@ -24,8 +24,8 @@ PolygonCenterConstraint::~PolygonCenterConstraint ()
 {
 }
 
-PolygonCenterConstraint::VectorXd
-PolygonCenterConstraint::EvaluateConstraint () const
+void
+PolygonCenterConstraint::UpdateConstraintValues ()
 {
   for (int k=0; k<num_constraints_; ++k) {
     double g_node = 0.0;
@@ -37,8 +37,6 @@ PolygonCenterConstraint::EvaluateConstraint () const
 
     g_(k) = g_node;
   }
-
-  return g_;
 }
 
 VecBound

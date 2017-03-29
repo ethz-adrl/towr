@@ -30,7 +30,7 @@ public:
   PolygonCenterConstraint (const EELoadPtr&, const EEMotionPtr&);
   virtual ~PolygonCenterConstraint ();
 
-  VectorXd EvaluateConstraint () const override;
+  void UpdateConstraintValues () override;
   VecBound GetBounds () const override;
 
 private:

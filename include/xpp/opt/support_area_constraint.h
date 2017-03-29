@@ -33,7 +33,7 @@ public:
   void Init(const EEMotionPtr&, const EELoadPtr&, const CopPtr&,
             double T, double dt);
 
-  VectorXd EvaluateConstraint () const override;
+  void UpdateConstraintValues () override;
   VecBound GetBounds () const override;
 
 private:

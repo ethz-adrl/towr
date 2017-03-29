@@ -33,7 +33,7 @@ public:
             const std::string& name);
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
-  VectorXd EvaluateConstraint () const override;
+  void UpdateConstraintValues () override;
 
 protected:
   /** only allow child classes of this class to be instantiated. */

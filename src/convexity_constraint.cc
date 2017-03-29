@@ -49,8 +49,8 @@ ConvexityConstraint::Init (const LoadPtr& ee_load)
 //  ee_load_->SetOptimizationParameters(lambdas);
 //}
 
-ConvexityConstraint::VectorXd
-ConvexityConstraint::EvaluateConstraint () const
+void
+ConvexityConstraint::UpdateConstraintValues ()
 {
 //  VectorXd g(jac_.rows());
 
@@ -62,8 +62,6 @@ ConvexityConstraint::EvaluateConstraint () const
 
     g_(k) = sum_k; // sum equal to 1
   }
-
-  return g_;
 }
 
 VecBound

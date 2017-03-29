@@ -54,8 +54,8 @@ RangeOfMotionBox::RangeOfMotionBox (const MaxDevXY& dev,
   nominal_stance_ = nom;
 }
 
-RangeOfMotionBox::VectorXd
-RangeOfMotionBox::EvaluateConstraint () const
+void
+RangeOfMotionBox::UpdateConstraintValues ()
 {
   int i = 0;
   for (double t : dts_) {
@@ -73,8 +73,6 @@ RangeOfMotionBox::EvaluateConstraint () const
         g_(i++) = pos_ee_B(dim);
     }
   }
-
-  return g_;
 }
 
 VecBound

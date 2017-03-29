@@ -41,14 +41,14 @@ SoftConstraint::UpdateVariables (const OptimizationVariables* x)
 double
 SoftConstraint::EvaluateCost () const
 {
-  VectorXd g = constraint_->EvaluateConstraint();
+  VectorXd g = constraint_->GetConstraintValues();
   return 0.5*(g-b_).transpose()*weights_.asDiagonal()*(g-b_);
 }
 
 SoftConstraint::VectorXd
 SoftConstraint::EvaluateGradientWrt (std::string var_set)
 {
-  VectorXd g = constraint_->EvaluateConstraint();
+  VectorXd g = constraint_->GetConstraintValues();
   Constraint::Jacobian jac = constraint_->GetJacobianWithRespectTo(var_set);
 
   VectorXd grad;

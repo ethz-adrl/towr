@@ -25,7 +25,7 @@ public:
   virtual ~ContactLoadConstraint ();
 
   void Init(const EEMotionPtr&, const EELoadPtr& ee_load);
-  VectorXd EvaluateConstraint () const override;
+  void UpdateConstraintValues () override;
   VecBound GetBounds () const override;
 
 private:

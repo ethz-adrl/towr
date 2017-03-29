@@ -50,7 +50,7 @@ ConstraintContainer::EvaluateConstraints () const
   int c = 0;
   for (const auto& constraint : constraints_) {
     constraint->UpdateVariables(subject_);
-    VectorXd g = constraint->EvaluateConstraint();
+    VectorXd g = constraint->GetConstraintValues();
     int c_new = g.rows();
     g_all.middleRows(c, c_new) = g;
     c += c_new;

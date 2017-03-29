@@ -51,7 +51,7 @@ FootholdFinalStanceConstraint::~FootholdFinalStanceConstraint ()
 }
 
 FootholdFinalStanceConstraint::VectorXd
-FootholdFinalStanceConstraint::EvaluateConstraint () const
+FootholdFinalStanceConstraint::UpdateConstraintValues () const
 {
   VectorXd g(final_free_contacts_.size()*kDim2d);
 

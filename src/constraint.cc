@@ -51,6 +51,7 @@ Constraint::UpdateVariables (const OptimizationVariables* opt_var)
   }
 
   UpdateJacobians();
+  UpdateConstraintValues();
 }
 
 Constraint::Jacobian
@@ -78,15 +79,14 @@ void
 xpp::opt::Constraint::PrintStatus (double tol) const
 {
   auto bounds = GetBounds();
-  auto g = EvaluateConstraint();
 
   std::cout << std::setw(17) << std::left << name_;
-  std::cout << "[" << std::setw(3) << std::right << g.rows() << "]:  ";
+  std::cout << "[" << std::setw(3) << std::right << g_.rows() << "]:  ";
 
   int i=0;
   for (auto b : bounds) {
-    bool g_too_small = g(i) < b.lower_ - tol;
-    bool g_too_large = g(i) > b.upper_ + tol;
+    bool g_too_small = g_(i) < b.lower_ - tol;
+    bool g_too_large = g_(i) > b.upper_ + tol;
 
     if (g_too_small || g_too_large)
       std::cout << i << ",";
@@ -96,6 +96,11 @@ xpp::opt::Constraint::PrintStatus (double tol) const
   std::cout << std::endl;
 }
 
+Constraint::VectorXd
+Constraint::GetConstraintValues () const
+{
+  return g_;
+}
 
 } /* namespace opt */
 } /* namespace xpp */

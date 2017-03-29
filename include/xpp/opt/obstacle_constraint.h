@@ -34,7 +34,7 @@ public:
   ObstacleLineStrip ();
   virtual ~ObstacleLineStrip ();
 
-  VectorXd EvaluateConstraint () const override;
+  VectorXd UpdateConstraintValues () const override;
   VecBound GetBounds () const override;
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 };
@@ -44,7 +44,7 @@ public:
   ObstacleEllipse ();
   virtual ~ObstacleEllipse ();
 
-  VectorXd EvaluateConstraint () const override;
+  VectorXd UpdateConstraintValues () const override;
   VecBound GetBounds () const override;
   Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
