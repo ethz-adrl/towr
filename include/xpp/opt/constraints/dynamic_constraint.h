@@ -8,10 +8,10 @@
 #ifndef XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
 #define XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
 
-#include "linear_inverted_pendulum.h"
-#include "center_of_pressure.h"
+#include <xpp/opt/linear_inverted_pendulum.h>
+#include <xpp/opt/center_of_pressure.h>
+#include <xpp/constraint.h>
 #include <memory>
-#include "../constraint.h"
 
 namespace xpp {
 namespace opt {

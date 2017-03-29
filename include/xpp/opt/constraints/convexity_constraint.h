@@ -9,9 +9,8 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONVEXITY_CONSTRAINT_H_
 
 #include <xpp/opt/endeffector_load.h>
-
+#include <xpp/constraint.h>
 #include <memory>
-#include "../constraint.h"
 
 namespace xpp {
 namespace opt {

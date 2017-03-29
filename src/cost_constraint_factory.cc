@@ -9,17 +9,17 @@
 
 #include <xpp/opt/a_spline_cost.h>
 #include <xpp/opt/linear_spline_equations.h>
-#include <xpp/opt/range_of_motion_constraint.h>
-#include <xpp/opt/convexity_constraint.h>
-#include <xpp/opt/support_area_constraint.h>
-#include <xpp/opt/dynamic_constraint.h>
-#include <xpp/opt/polygon_center_constraint.h>
-#include <xpp/opt/contact_load_constraint.h>
+#include <xpp/opt/constraints/range_of_motion_constraint.h>
+#include <xpp/opt/constraints/convexity_constraint.h>
+#include <xpp/opt/constraints/support_area_constraint.h>
+#include <xpp/opt/constraints/dynamic_constraint.h>
+#include <xpp/opt/constraints/polygon_center_constraint.h>
+#include <xpp/opt/constraints/contact_load_constraint.h>
+#include <xpp/opt/constraints/linear_constraint.h>
 //#include <xpp/opt/obstacle_constraint.h>
 //#include <xpp/opt/a_foothold_constraint.h>
 
 #include <xpp/soft_constraint.h>
-#include "../include/xpp/opt/linear_constraint.h"
 
 namespace xpp {
 namespace opt {

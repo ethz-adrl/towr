@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/dynamic_constraint.h>
+#include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/com_spline6.h>
 #include <gtest/gtest.h>
 

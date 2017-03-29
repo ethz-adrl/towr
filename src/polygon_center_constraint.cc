@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/polygon_center_constraint.h>
+#include <xpp/opt/constraints/polygon_center_constraint.h>
 
 namespace xpp {
 namespace opt {

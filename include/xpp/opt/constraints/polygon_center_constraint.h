@@ -9,8 +9,8 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 
 #include <xpp/constraint.h>
-#include "endeffector_load.h"
-#include "endeffectors_motion.h" // only for contact state
+#include <xpp/opt/endeffector_load.h>
+#include <xpp/opt/endeffectors_motion.h> // only for contact state
 
 namespace xpp {
 namespace opt {

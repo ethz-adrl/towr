@@ -10,7 +10,7 @@
 
 #include <xpp/matrix_vector.h>
 #include <xpp/constraint.h>
-#include "base_motion.h"
+#include <xpp/opt/base_motion.h>
 
 namespace xpp {
 namespace opt {

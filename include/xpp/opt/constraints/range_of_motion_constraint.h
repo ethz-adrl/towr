@@ -8,9 +8,9 @@
 #ifndef XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include "endeffectors_motion.h"
+#include <xpp/opt/endeffectors_motion.h>
+#include <xpp/constraint.h>
 #include <memory>
-#include "../constraint.h"
 
 namespace xpp {
 namespace opt {

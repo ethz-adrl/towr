@@ -5,9 +5,8 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/dynamic_constraint.h>
-
-#include "../include/xpp/opt/base_motion.h"
+#include <xpp/opt/constraints/dynamic_constraint.h>
+#include <xpp/opt/base_motion.h>
 
 namespace xpp {
 namespace opt {

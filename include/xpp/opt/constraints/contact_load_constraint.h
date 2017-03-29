@@ -8,9 +8,9 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
 
-#include "../constraint.h"
-#include "endeffector_load.h"
-#include "endeffectors_motion.h"
+#include <xpp/constraint.h>
+#include <xpp/opt/endeffector_load.h>
+#include <xpp/opt/endeffectors_motion.h>
 
 
 namespace xpp {

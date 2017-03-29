@@ -5,7 +5,7 @@
  @brief   Defines the DynamicConstraint class
  */
 
-#include <xpp/opt/support_area_constraint.h>
+#include <xpp/opt/constraints/support_area_constraint.h>
 
 namespace xpp {
 namespace opt {

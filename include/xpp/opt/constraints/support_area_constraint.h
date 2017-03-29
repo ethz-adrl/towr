@@ -8,9 +8,9 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 
-#include "endeffectors_motion.h"
-#include "endeffector_load.h"
-#include "center_of_pressure.h"
+#include <xpp/opt/endeffectors_motion.h>
+#include <xpp/opt/endeffector_load.h>
+#include <xpp/opt/center_of_pressure.h>
 #include <xpp/constraint.h>
 
 namespace xpp {

@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/contact_load_constraint.h>
+#include <xpp/opt/constraints/contact_load_constraint.h>
 
 namespace xpp {
 namespace opt {

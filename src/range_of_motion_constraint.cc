@@ -5,7 +5,7 @@
  @brief   Declares various Range of Motion Constraint Classes
  */
 
-#include <xpp/opt/range_of_motion_constraint.h>
+#include <xpp/opt/constraints/range_of_motion_constraint.h>
 #include <xpp/opt/base_motion.h>
 
 namespace xpp {
