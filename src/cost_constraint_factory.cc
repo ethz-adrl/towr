@@ -8,7 +8,9 @@
 #include <xpp/opt/cost_constraint_factory.h>
 
 #include <xpp/opt/a_spline_cost.h>
+#include <xpp/soft_constraint.h>
 #include <xpp/opt/linear_spline_equations.h>
+
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
 #include <xpp/opt/constraints/convexity_constraint.h>
 #include <xpp/opt/constraints/support_area_constraint.h>
@@ -16,10 +18,7 @@
 #include <xpp/opt/constraints/polygon_center_constraint.h>
 #include <xpp/opt/constraints/contact_load_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
-//#include <xpp/opt/obstacle_constraint.h>
-//#include <xpp/opt/a_foothold_constraint.h>
-
-#include <xpp/soft_constraint.h>
+#include <xpp/opt/constraints/foothold_constraint.h>
 
 namespace xpp {
 namespace opt {
@@ -202,11 +201,9 @@ CostConstraintFactory::MakeConvexityConstraint() const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeFinalStanceConstraint () const
 {
-//  auto constr = std::make_shared<FootholdFinalStanceConstraint>(
-//      motion_structure,
-//      final_geom_state_.p,
-//      params->GetNominalStanceInBase());
-//  return constr;
+  auto constraint = std::make_shared<FootholdConstraint>(
+      ee_motion, final_geom_state_.p,params->GetNominalStanceInBase());
+  return {constraint};
 }
 
 CostConstraintFactory::ConstraintPtrVec

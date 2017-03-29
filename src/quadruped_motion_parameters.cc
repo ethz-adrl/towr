@@ -107,8 +107,8 @@ Walk::Walk()
                    JunctionCom,
                    Convexity,
                    Dynamic,
-                   RomBox
-//                 FinalStance,
+                   RomBox,
+                   FinalStance,
   };
 
 
@@ -154,8 +154,8 @@ Trott::Trott()
                    JunctionCom,
                    Dynamic,
                    Convexity,
-                   RomBox
-//                   FinalStance,
+                   RomBox,
+                   FinalStance,
                    };
   cost_weights_[RangOfMotionCostID] = 10.0;
 
