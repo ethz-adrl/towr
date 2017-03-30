@@ -26,10 +26,8 @@ public:
   using Vector2d = Eigen::Vector2d;
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
-  CenterOfPressure ();
+  CenterOfPressure (double dt, double T);
   virtual ~CenterOfPressure ();
-
-  void Init(double dt, double T);
 
   void SetOptimizationParameters(const VectorXd& x) override;
   VectorXd GetOptimizationParameters() const override;

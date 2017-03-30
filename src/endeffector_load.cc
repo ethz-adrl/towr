@@ -10,24 +10,21 @@
 namespace xpp {
 namespace opt {
 
-EndeffectorLoad::EndeffectorLoad () : Parametrization("convexity_lambdas")
-{
-}
-
-EndeffectorLoad::~EndeffectorLoad ()
-{
-}
-
-void
-EndeffectorLoad::Init (const EndeffectorsMotion ee_motion, double dt, double T)
+EndeffectorLoad::EndeffectorLoad (const EndeffectorsMotion ee_motion,
+                                  double dt, double T)
+    : Parametrization("convexity_lambdas")
 {
   dt_ = dt;
   T_ = T;
   n_ee_ = ee_motion.GetNumberOfEndeffectors();
   int idx_segment = GetSegment(T);
-  int number_of_segments = idx_segment + 1;
-  int num_parameters = n_ee_ * number_of_segments;
+  num_segments_ = idx_segment + 1;
+  int num_parameters = n_ee_ * num_segments_;
   lambdas_ = VectorXd::Zero(num_parameters);
+}
+
+EndeffectorLoad::~EndeffectorLoad ()
+{
 }
 
 void
@@ -40,6 +37,12 @@ EndeffectorLoad::VectorXd
 EndeffectorLoad::GetOptimizationParameters () const
 {
   return lambdas_;
+}
+
+int
+EndeffectorLoad::GetSegment (double t) const
+{
+  return floor(t/dt_);
 }
 
 EndeffectorLoad::LoadParams
@@ -75,27 +78,20 @@ EndeffectorLoad::IndexDiscrete (int k_curr, EndeffectorID ee) const
 int
 EndeffectorLoad::GetNumberOfSegments () const
 {
-  return GetOptVarCount()/n_ee_;
+  return num_segments_;
 }
 
 double
-EndeffectorLoad::GetTStart (int segment_id) const
+EndeffectorLoad::GetTimeCenterSegment (int segment_id) const
 {
-  return segment_id*dt_;
+  double t_start = segment_id*dt_;
+
+  if (segment_id == num_segments_-1) // last segment might have different length
+    return (t_start + T_)/2.;
+  else
+    return t_start + dt_/2.;
 }
 
-double
-EndeffectorLoad::GetTEnd (int segment_id) const
-{
-  bool last_segment = GetSegment(T_) == segment_id;
-  return last_segment? T_ : GetTStart(segment_id) + dt_;
-}
-
-int
-EndeffectorLoad::GetSegment (double t) const
-{
-  return floor(t/dt_);
-}
 
 } /* namespace opt */
 } /* namespace xpp */

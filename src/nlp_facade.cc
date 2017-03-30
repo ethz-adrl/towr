@@ -40,15 +40,11 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
                           const MotionparamsPtr& motion_params,
                           NlpSolver solver)
 {
-  // internal optimization variables
-  auto ee_load = std::make_shared<EndeffectorLoad>();
-
   // zmp_ a this should work  also with a different value
+  double T = ee_motion->GetTotalTime();
   double parameter_dt = motion_params->dt_nodes_;
-  ee_load->Init(*ee_motion, parameter_dt, ee_motion->GetTotalTime());
-
-  auto cop = std::make_shared<CenterOfPressure>();
-  cop->Init(parameter_dt, ee_motion->GetTotalTime());
+  auto ee_load = std::make_shared<EndeffectorLoad>(*ee_motion, parameter_dt, T);
+  auto cop     = std::make_shared<CenterOfPressure>(parameter_dt,T);
 
   CostConstraintFactory factory;
   factory.Init(com_motion,

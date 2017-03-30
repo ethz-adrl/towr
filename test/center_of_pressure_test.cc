@@ -15,10 +15,9 @@ namespace opt {
 TEST(CenterOfPressureTest, Disretization)
 {
 
-  CenterOfPressure cop;
   double T = 0.5;
   double dt = 0.02;
-  cop.Init(dt, T);
+  CenterOfPressure cop(dt,T);
 
 
   Eigen::VectorXd x = cop.GetOptimizationParameters();

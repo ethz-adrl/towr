@@ -12,23 +12,23 @@
 namespace xpp {
 namespace opt {
 
-CenterOfPressure::CenterOfPressure () : Parametrization("center_of_pressure")
-{
-  // TODO Auto-generated constructor stub
-}
-
-CenterOfPressure::~CenterOfPressure ()
-{
-  // TODO Auto-generated destructor stub
-}
-
-void
-CenterOfPressure::Init (double dt, double T)
+CenterOfPressure::CenterOfPressure (double dt, double T)
+    : Parametrization("center_of_pressure")
 {
   dt_ = dt;
   int idx = GetSegment(T);
   int number_of_segments = idx + 1;
   cop_ = VectorXd::Zero(number_of_segments*kDim2d);
+}
+
+CenterOfPressure::~CenterOfPressure ()
+{
+}
+
+int
+CenterOfPressure::GetSegment (double t) const
+{
+  return floor(t/dt_);
 }
 
 CenterOfPressure::Vector2d
@@ -61,12 +61,6 @@ CenterOfPressure::GetJacobianWrtCop (double t, d2::Coords dim) const
   JacobianRow jac(GetOptVarCount());
   jac.insert(Index(t,dim)) = 1.0;
   return jac;
-}
-
-int
-CenterOfPressure::GetSegment (double t) const
-{
-  return floor(t/dt_);
 }
 
 } /* namespace opt */

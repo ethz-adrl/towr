@@ -21,9 +21,8 @@ TEST(DynamicConstraintTest, UpdateConstraintValues)
   com->SetConstantHeight(0.58);
   com->Init(T, 3);
 
-  auto cop = std::make_shared<CenterOfPressure>();
   double dt_cop = 0.02;
-  cop->Init(dt_cop, T);
+  auto cop = std::make_shared<CenterOfPressure>(dt_cop, T);
 
   double dt_constraint = 0.05;
   DynamicConstraint constraint(com, cop, T, dt_constraint);

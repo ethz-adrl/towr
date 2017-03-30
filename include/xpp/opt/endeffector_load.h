@@ -23,9 +23,8 @@ public:
   using VectorXd = Eigen::VectorXd;
   using LoadParams = Endeffectors<double>;//std::vector<double>;
 
-  EndeffectorLoad ();
+  EndeffectorLoad (const EndeffectorsMotion ee_motion, double dt, double T);
   virtual ~EndeffectorLoad ();
-  void Init(const EndeffectorsMotion ee_motion, double dt, double T);
 
   void SetOptimizationParameters(const VectorXd& x) override;
   VectorXd GetOptimizationParameters() const override;
@@ -42,14 +41,15 @@ public:
   int GetNumberOfSegments() const;
 
   /** Global time at beginning and end of segment */
-  double GetTStart(int segment_id) const;
-  double GetTEnd(int segment_id) const;
+  double GetTimeCenterSegment(int segment_id) const;
+//  double GetTEnd(int segment_id) const;
 
 private:
   int n_ee_; ///< number of endeffectors
   VectorXd lambdas_;
   double dt_; ///< disretization interval [s]
   double T_;  ///< total time [s]
+  int num_segments_;
 
   int GetSegment(double t) const;
 };
