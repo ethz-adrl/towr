@@ -11,7 +11,7 @@
 #include <xpp/opt/endeffectors_motion.h>
 #include <xpp/opt/endeffector_load.h>
 #include <xpp/opt/center_of_pressure.h>
-#include <xpp/constraint.h>
+#include <xpp/time_discretization_constraint.h>
 
 namespace xpp {
 namespace opt {
@@ -21,32 +21,29 @@ namespace opt {
   * At every discrete node k:
   * g_k = lambda_1*p1 + ... lambda_m*p_m - cop = 0
   */
-class SupportAreaConstraint : public Constraint {
+class SupportAreaConstraint : public TimeDiscretizationConstraint {
 public:
   using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
   using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
   using CopPtr      = std::shared_ptr<CenterOfPressure>;
 
-  SupportAreaConstraint ();
+  SupportAreaConstraint (const EEMotionPtr&, const EELoadPtr&, const CopPtr&,
+                         double dt);
   virtual ~SupportAreaConstraint ();
-
-  void Init(const EEMotionPtr&, const EELoadPtr&, const CopPtr&,
-            double T, double dt);
-
-  void UpdateConstraintValues () override;
-  void UpdateBounds () override;
 
 private:
   EEMotionPtr ee_motion_;
   EELoadPtr ee_load_;
   CopPtr cop_;
 
-  std::vector<double> dts_; ///< discretization of constraint
+  void UpdateConstraintAtInstance (double t, int k) override;
+  void UpdateBoundsAtInstance (double t, int k) override;
+  void UpdateJacobianAtInstance(double t, int k) override;
+  int GetRow(int node, int dimension) const;
 
-  void UpdateJacobians() override;
-  void UpdateJacobianWithRespectToLoad();
-  void UpdateJacobianWithRespectToEEMotion();
-  void UpdateJacobianWithRespectToCop();
+  void UpdateJacobianWithRespectToLoad(double t, int k);
+  void UpdateJacobianWithRespectToEEMotion(double t, int k);
+  void UpdateJacobianWithRespectToCop(double t, int k);
 };
 
 } /* namespace opt */

@@ -34,6 +34,8 @@ private:
   CopPtr cop_;
   LinearInvertedPendulum model_;
 
+  int GetRow(int node, int dimension) const;
+
   virtual void UpdateConstraintAtInstance(double t, int k) override;
   virtual void UpdateBoundsAtInstance(double t, int k) override;
   virtual void UpdateJacobianAtInstance(double t, int k) override;

@@ -40,14 +40,15 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k)
 
   // acceleration as predefined by physics
   Vector2d acc_physics = model_.GetDerivative(cop_->GetCop(t));
-  g_.middleRows<kDim2d>(kDim2d*k) = acc_physics - com.a;
+  for (auto dim : d2::AllDimensions)
+    g_(GetRow(k,dim)) = acc_physics(dim) - com.a(dim);
 }
 
 void
 DynamicConstraint::UpdateBoundsAtInstance(double t, int k)
 {
   for (auto dim : d2::AllDimensions)
-    bounds_.at(kDim2d*k + dim) = kEqualityBound_;
+    bounds_.at(GetRow(k,dim)) = kEqualityBound_;
 }
 
 void
@@ -61,7 +62,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k)
   Vector2d cop = cop_->GetCop(t);
 
   for (auto dim : d2::AllDimensions) {
-    int row = kDim2d*k + dim;
+    int row = GetRow(k,dim);
 
     double jac_model =  model_.GetJacobianApproxWrtCop(dim);
     jac_cop.row(row) = jac_model*cop_->GetJacobianWrtCop(t,dim);
@@ -71,6 +72,12 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k)
     Jacobian jac_physics = model_.GetJacobianApproxWrtSplineCoeff(*com_motion_, t, dim3d, cop);
     jac_com.row(row) = jac_physics - jac_acc;
   }
+}
+
+int
+DynamicConstraint::GetRow (int node, int dimension) const
+{
+  return kDim2d*node + dimension;
 }
 
 } /* namespace opt */

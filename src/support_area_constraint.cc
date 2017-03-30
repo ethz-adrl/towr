@@ -10,9 +10,19 @@
 namespace xpp {
 namespace opt {
 
-SupportAreaConstraint::SupportAreaConstraint ()
+SupportAreaConstraint::SupportAreaConstraint (const EEMotionPtr& ee_motion,
+                                              const EELoadPtr& ee_load,
+                                              const CopPtr& cop,
+                                              double dt)
+    :TimeDiscretizationConstraint(ee_motion->GetTotalTime(), dt)
 {
   name_ = "Support Area";
+  ee_motion_ = ee_motion;
+  ee_load_ = ee_load;
+  cop_ = cop;
+
+  int num_constraints = GetNumberOfNodes()*kDim2d;
+  SetDependentVariables({ee_motion, ee_load, cop}, num_constraints);
 }
 
 SupportAreaConstraint::~SupportAreaConstraint ()
@@ -20,112 +30,77 @@ SupportAreaConstraint::~SupportAreaConstraint ()
 }
 
 void
-SupportAreaConstraint::Init (const EEMotionPtr& ee_motion,
-                             const EELoadPtr& ee_load,
-                             const CopPtr& cop,
-                             double T,
-                             double dt)
+SupportAreaConstraint::UpdateConstraintAtInstance (double t, int k)
 {
-  ee_motion_ = ee_motion;
-  ee_load_ = ee_load;
-  cop_ = cop;
+  Vector2d convex_contacts = Vector2d::Zero();
+  auto lambda_k = ee_load_->GetLoadValues(t);
 
-  double t = 0.0;
-  dts_.clear();
-  for (int i=0; i<floor(T/dt); ++i) {
-    dts_.push_back(t);
-    t += dt;
-  }
+  // spring_clean_ could actually also be all the endeffectors, then contact flags would only
+  // be in other constraint
+  for (auto f : ee_motion_->GetContacts(t))
+    convex_contacts += lambda_k.At(f.ee)*f.p.topRows<kDim2d>();
 
-  int num_constraints = dts_.size()*kDim2d;
-  SetDependentVariables({ee_motion, ee_load, cop}, num_constraints);
-
-  UpdateJacobianWithRespectToCop(); // constant, e.g. not depdent on opt. values
+  Vector2d cop = cop_->GetCop(t);
+  for (auto dim : d2::AllDimensions)
+    g_(GetRow(k,dim)) = convex_contacts(dim) - cop(dim);
 }
 
 void
-SupportAreaConstraint::UpdateConstraintValues ()
+SupportAreaConstraint::UpdateBoundsAtInstance (double t, int k)
 {
-  int k = 0;
-  for (double t : dts_) {
-
-    Vector2d convex_contacts = Vector2d::Zero();
-    auto lambda_k = ee_load_->GetLoadValues(t);
-
-    // spring_clean_ could actually also be all the endeffectors, then contact flags would only
-    // be in other constraint
-    for (auto f : ee_motion_->GetContacts(t))
-      convex_contacts += lambda_k.At(f.ee)*f.p.topRows<kDim2d>();
-
-    Vector2d cop = cop_->GetCop(t);
-    g_.middleRows<kDim2d>(kDim2d*k) = convex_contacts - cop;
-    k++;
-  }
+  for (auto dim : d2::AllDimensions)
+    bounds_.at(GetRow(k,dim)) = kEqualityBound_;
 }
 
 void
-SupportAreaConstraint::UpdateBounds ()
+SupportAreaConstraint::UpdateJacobianAtInstance (double t, int k)
 {
-  std::fill(bounds_.begin(), bounds_.end(), kEqualityBound_);
+  UpdateJacobianWithRespectToLoad(t,k);
+  UpdateJacobianWithRespectToEEMotion(t,k);
+  UpdateJacobianWithRespectToCop(t,k); // actually constant, so doesn't have to be here
+}
+
+int
+SupportAreaConstraint::GetRow (int node, int dimension) const
+{
+  return node*kDim2d + dimension;
 }
 
 void
-SupportAreaConstraint::UpdateJacobianWithRespectToLoad()
+SupportAreaConstraint::UpdateJacobianWithRespectToLoad(double t, int k)
 {
   Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetID());
 
-  int row_idx = 0;
-  for (double t : dts_) {
-
-    for (auto f : ee_motion_->GetContacts(t)) {
-      for (auto dim : d2::AllDimensions) {
-        int idx = ee_load_->Index(t,f.ee);
-        jac.coeffRef(row_idx+dim,idx) = f.p(dim);
-      }
+  for (auto c : ee_motion_->GetContacts(t)) {
+    for (auto dim : d2::AllDimensions) {
+      int idx = ee_load_->Index(t,c.ee);
+      jac.coeffRef(GetRow(k,dim), idx) = c.p(dim);
     }
-    row_idx += kDim2d;
   }
 }
 
 void
-SupportAreaConstraint::UpdateJacobianWithRespectToEEMotion ()
+SupportAreaConstraint::UpdateJacobianWithRespectToEEMotion (double t, int k)
 {
   Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetID());
 
-  int row_idx = 0;
-  for (double t : dts_) {
-
-    auto lambda_k = ee_load_->GetLoadValues(t);
-    for (auto c : ee_motion_->GetContacts(t)) {
-      for (auto dim : d2::AllDimensions) {
-        int idx_contact = ee_motion_->Index(c.ee, c.id, dim);
-        jac.coeffRef(row_idx+dim, idx_contact) = lambda_k.At(c.ee);
-      }
+  auto lambda_k = ee_load_->GetLoadValues(t);
+  for (auto c : ee_motion_->GetContacts(t)) {
+    for (auto dim : d2::AllDimensions) {
+      int idx = ee_motion_->Index(c.ee, c.id, dim);
+      jac.coeffRef(GetRow(k,dim), idx) = lambda_k.At(c.ee);
     }
-    row_idx += kDim2d;
   }
 }
 
 void
-SupportAreaConstraint::UpdateJacobianWithRespectToCop ()
+SupportAreaConstraint::UpdateJacobianWithRespectToCop (double t, int k)
 {
   Jacobian& jac = GetJacobianRefWithRespectTo(cop_->GetID());
 
-  int row = 0;
-  for (double t : dts_)
-    for (auto dim : d2::AllDimensions)
-      jac.row(row++) = -1 * cop_->GetJacobianWrtCop(t,dim);
+  for (auto dim : d2::AllDimensions)
+    jac.row(GetRow(k,dim)) = -1 * cop_->GetJacobianWrtCop(t,dim);
 }
-
-void
-SupportAreaConstraint::UpdateJacobians ()
-{
-  UpdateJacobianWithRespectToLoad();
-  UpdateJacobianWithRespectToEEMotion();
-//  UpdateJacobianWithRespectToCop(); // not dependent on opt. values
-}
-
 
 } /* namespace opt */
 } /* namespace xpp */
-
