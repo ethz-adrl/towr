@@ -95,6 +95,7 @@ add_library(${SOLVER_LIB}
   src/cost_function_functor.cc
   src/soft_constraint.cc
   src/parametrization.cc
+  src/time_discretization_constraint.cc
 )
 target_link_libraries(${SOLVER_LIB}
   ${catkin_LIBRARIES}

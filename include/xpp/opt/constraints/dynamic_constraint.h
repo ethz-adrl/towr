@@ -10,7 +10,7 @@
 
 #include <xpp/opt/linear_inverted_pendulum.h>
 #include <xpp/opt/center_of_pressure.h>
-#include <xpp/constraint.h>
+#include <xpp/time_discretization_constraint.h>
 #include <memory>
 
 namespace xpp {
@@ -18,28 +18,26 @@ namespace opt {
 
 class BaseMotion;
 
-class DynamicConstraint : public Constraint {
+class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using BaseMotionPtr = std::shared_ptr<BaseMotion>;
   using CopPtr        = std::shared_ptr<CenterOfPressure>;
 
-  DynamicConstraint ();
+  DynamicConstraint (const BaseMotionPtr& com_motion,
+                     const CopPtr& cop,
+                     double T,
+                     double dt);
   virtual ~DynamicConstraint ();
-
-  void Init(const BaseMotionPtr&, const CopPtr&, double T, double dt);
-  void UpdateConstraintValues () override;
-  void UpdateBounds () override;
 
 private:
   BaseMotionPtr com_motion_;
   CopPtr cop_;
-  mutable LinearInvertedPendulum model_;
+  LinearInvertedPendulum model_;
 
-  std::vector<double> dts_;
+  virtual void UpdateConstraintAtInstance(double t, int k) override;
+  virtual void UpdateBoundsAtInstance(double t, int k) override;
+  virtual void UpdateJacobianAtInstance(double t, int k) override;
 
-  void UpdateJacobians() override;
-  void UpdateJacobianWrtCop();
-  void UpdateJacobianWrtCom();
   double kHeight_;
 };
 

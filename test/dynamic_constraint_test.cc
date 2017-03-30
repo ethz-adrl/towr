@@ -25,9 +25,9 @@ TEST(DynamicConstraintTest, UpdateConstraintValues)
   double dt_cop = 0.02;
   cop->Init(dt_cop, T);
 
-  DynamicConstraint constraint;
   double dt_constraint = 0.05;
-  constraint.Init(com, cop, T, dt_constraint);
+  DynamicConstraint constraint(com, cop, T, dt_constraint);
+
 
   std::cout << "count: " << constraint.GetNumberOfConstraints() << std::endl;
 

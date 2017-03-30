@@ -23,7 +23,9 @@ EndeffectorLoad::Init (const EndeffectorsMotion ee_motion, double dt, double T)
 {
   dt_ = dt;
   n_ee_ = ee_motion.GetNumberOfEndeffectors();
-  int num_parameters = n_ee_ * GetSegment(T);
+  int idx_segment = GetSegment(T);
+  int number_of_segments = idx_segment + 1;
+  int num_parameters = n_ee_ * number_of_segments;
   lambdas_ = VectorXd::Zero(num_parameters);
 }
 

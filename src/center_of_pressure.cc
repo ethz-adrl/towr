@@ -26,8 +26,9 @@ void
 CenterOfPressure::Init (double dt, double T)
 {
   dt_ = dt;
-  int N = GetSegment(T);
-  cop_ = VectorXd::Zero(N*kDim2d);
+  int idx = GetSegment(T);
+  int number_of_segments = idx + 1;
+  cop_ = VectorXd::Zero(number_of_segments*kDim2d);
 }
 
 CenterOfPressure::Vector2d
