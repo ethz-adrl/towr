@@ -66,10 +66,11 @@ EEMotion::GetState (double t_global) const
 int
 EEMotion::GetPhase (double t_global) const
 {
+  double eps = 1e-10; // to ensure that last phases is returned at T
   double t = 0.0;
   for (int i=0; i<phase_motion_.size(); ++i) {
     t += phase_motion_.at(i).GetDuration();
-    if (t >= t_global)
+    if (t+eps >= t_global)
       return i;
   }
 

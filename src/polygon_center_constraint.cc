@@ -29,7 +29,7 @@ PolygonCenterConstraint::UpdateConstraintValues ()
 {
   for (int k=0; k<GetNumberOfConstraints(); ++k) {
     double g_node = 0.0;
-    double t = ee_load_->GetTStart(k);
+    double t = ee_load_->GetTimeCenterSegment(k);
     int num_contacts = ee_motion_->GetContacts(t).size();
 
     for (auto lambda : ee_load_->GetLoadValuesIdx(k).ToImpl())
@@ -43,7 +43,7 @@ void
 PolygonCenterConstraint::UpdateBounds ()
 {
   for (int k=0; k<GetNumberOfConstraints(); ++k) {
-    double t = ee_load_->GetTStart(k);
+    double t = ee_load_->GetTimeCenterSegment(k);
     int m = ee_motion_->GetContacts(t).size();
     bounds_.at(k) = Bound(-1./m, -1./m); // should lie in center of polygon
   }
@@ -56,7 +56,7 @@ PolygonCenterConstraint::UpdateJacobians ()
   Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetID());
 
   for (int k=0; k<GetNumberOfConstraints(); ++k) {
-    double t = ee_load_->GetTStart(k);
+    double t = ee_load_->GetTimeCenterSegment(k);
     int num_contacts = ee_motion_->GetContacts(t).size();
 
     auto lambda_k = ee_load_->GetLoadValuesIdx(k);

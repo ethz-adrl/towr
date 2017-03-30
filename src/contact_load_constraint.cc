@@ -39,19 +39,15 @@ ContactLoadConstraint::UpdateBounds ()
   // spring_clean_ the load discretization should be more tightly
   // coupled to the endeffector motion
 
-  // sample check if beginning and end of motion are not in contact
-  // only if both in contact, can lambda be greater than zero
+  // sample check if endeffectors are in contact at center of discretization
+  // inverval.
   for (int segment=0; segment<ee_load_->GetNumberOfSegments(); ++segment) {
-    double t_start = ee_load_->GetTStart(segment);
-    double t_end   = ee_load_->GetTEnd(segment)-1e-5;
+    double t_center = ee_load_->GetTimeCenterSegment(segment);
+    auto contacts_center = ee_motion_->GetContactState(t_center);
 
-    auto contacts_start = ee_motion_->GetContactState(t_start);
-    auto contacts_end   = ee_motion_->GetContactState(t_end);
-
-    for (auto ee : contacts_start.GetEEsOrdered()) {
-
-      bool contact = contacts_start.At(ee) && contacts_end.At(ee);
-      bounds_.at(contacts_start.GetEECount()*segment+ee) = Bound(0.0, contact);
+    for (auto ee : contacts_center.GetEEsOrdered()) {
+      auto contact = static_cast<double>(contacts_center.At(ee));
+      bounds_.at(contacts_center.GetEECount()*segment+ee) = Bound(0.0, contact);
     }
   }
 }

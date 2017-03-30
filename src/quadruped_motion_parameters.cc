@@ -126,7 +126,7 @@ Trott::Trott()
   id_ = opt::TrottID;
   max_step_length_ = 0.35;
   dt_nodes_ = 0.05;
-  polynomials_per_second_ = 30;
+  polynomials_per_second_ = 15;
 
   double t_phase = 0.3;
   double t_trans = 0.1;
@@ -160,7 +160,7 @@ Trott::Trott()
   cost_weights_[RangOfMotionCostID] = 10.0;
 
   // remove all costs hugely speeds up the optimization problem
-//  cost_weights_[ComCostID]      = 1.0;
+  cost_weights_[ComCostID]      = 1.0;
 //  cost_weights_[FinalComCostID] = 1.0;
 //  cost_weights_[PolyCenterCostID]   = 50.0;
 }
