@@ -54,6 +54,7 @@ NlpOptimizerNode::OptimizeMotion ()
 {
   try {
     motion_optimizer_.OptimizeMotion(solver_type_);
+    PublishTrajectory();
   } catch (const std::runtime_error& e) {
     ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
   }
@@ -76,8 +77,6 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 
   if (!msg.replay_trajectory)
     OptimizeMotion();
-
-  PublishTrajectory();
 }
 
 void
