@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
-  kindr               # in hyq_spliner.cc
   xpp_states   
 )
 
@@ -21,38 +20,10 @@ if(BUILD_SNOPT)
 endif(BUILD_SNOPT)
 
 
-option(BUILD_SHARED_LIBS "Build shared libraries." ON)
-# specify compiler flags. Default: Release
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release CACHE STRING
-      "Choose the type of build, options are: Debug, Release(EIGEN_NO_DEBUG)." FORCE)
-endif()
-
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x -fopenmp -O3")
-#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG -fopenmp -O3")
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11") 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
 
 set(MOTION_OPT_LIB xpp_opt)
-
-# Generate added messages with any dependencies listed here
-#add_message_files(
-#  FILES
-#)
-#add_service_files(
-#  FILES
-#  SolveQp.srv
-#  GetStateLin3d.srv
-#  ReturnOptSplines.srv
-#  ReturnOptFootholds.srv
-#)
-#generate_messages(
-#  DEPENDENCIES
-#  std_msgs
-#  geometry_msgs
-#  xpp_msgs      # Foothold.msg
-#)
+set(SOLVER_LIB xpp_solve)
 
 ###################################
 ## catkin specific configuration ##
@@ -79,7 +50,6 @@ include_directories(
 )
 
 # A general nlp solving framework for Eigen, Ipopt, Snopt
-set(SOLVER_LIB xpp_solve)
 add_library(${SOLVER_LIB}
   src/subject.cc
   src/variable_set.cc
@@ -220,23 +190,4 @@ if(BUILD_TESTS)
                           )
   endif(GTEST_FOUND)
 endif()
-
-# To install and link to the library globally
-# Install (ie copy) the header files
-#set(HEADER_INSTALL_ROOT /usr/local/include/ CACHE PATH "Where to install the headers")
-#set(LIB_INSTALL_ROOT /usr/local/lib/ CACHE PATH "Where to install the shared library")
-#
-#install(
-#  DIRECTORY include/ 
-#  DESTINATION ${HEADER_INSTALL_ROOT} 
-#  PATTERN *~ EXCLUDE
-#  )
-#install(
-#  TARGETS ${LIB_NAME}
-#  ARCHIVE DESTINATION ${LIB_INSTALL_ROOT}
-#  LIBRARY DESTINATION ${LIB_INSTALL_ROOT}
-#)
-
-
-
 

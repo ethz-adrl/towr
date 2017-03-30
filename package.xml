@@ -2,7 +2,7 @@
 <package>
   <name>xpp_opt</name>
   <version>0.0.0</version>
-  <description>dynamic motion planning based on the zero moment point</description>
+  <description>Optimizing motions for floating base systems</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -39,11 +39,7 @@
   <!--   <run_depend>message_runtime</run_depend> -->
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
-  <buildtool_depend>catkin</buildtool_depend>
-  
-  <build_depend>kindr</build_depend>
-  <run_depend>kindr</run_depend>
-  
+  <buildtool_depend>catkin</buildtool_depend>  
   <build_depend>xpp_states</build_depend>
   <run_depend>xpp_states</run_depend>
     
