@@ -126,7 +126,7 @@ Trott::Trott()
   id_ = opt::TrottID;
   max_step_length_ = 0.35;
   dt_nodes_ = 0.05;
-  polynomials_per_second_ = 3;
+  polynomials_per_second_ = 30;
 
   double t_phase = 0.3;
   double t_trans = 0.1;

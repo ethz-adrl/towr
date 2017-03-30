@@ -127,7 +127,6 @@ CostConstraintFactory::CopVariables () const
   return VariableSet(cop->GetOptimizationParameters(), cop->GetID());
 }
 
-
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeInitialConstraint () const
 {
@@ -176,11 +175,12 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
   auto constraint = std::make_shared<RangeOfMotionBox>(
+      com_motion, ee_motion,
+      params->dt_nodes_,
       params->GetMaximumDeviationFromNominal(),
       params->GetNominalStanceInBase()
       );
 
-  constraint->Init(com_motion, ee_motion, params->dt_nodes_);
   return {constraint};
 }
 

@@ -33,7 +33,7 @@ Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars,
                                    int num_constraints)
 {
   num_constraints_ = num_constraints;
-  g_ = VectorXd(num_constraints);
+  g_ = VectorXd::Zero(num_constraints);
   bounds_ = VecBound(num_constraints);
 
   for (auto& v : vars) {
@@ -41,8 +41,6 @@ Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars,
     Jacobian jac(num_constraints, n);
     variables_.push_back({v, jac});
   }
-
-  UpdateBounds();
 }
 
 void
@@ -60,7 +58,7 @@ Constraint::UpdateVariables (const OptimizationVariables* opt_var)
 Constraint::Jacobian
 Constraint::GetJacobianWithRespectTo (std::string var_set) const
 {
-  Jacobian jac; // empy matrix
+  Jacobian jac; // empty matrix
 
   for (const auto& var : variables_)
     if (var.first->GetID() == var_set)
@@ -75,6 +73,8 @@ Constraint::GetJacobianRefWithRespectTo (std::string var_set)
   for (auto& var : variables_)
     if (var.first->GetID() == var_set)
       return var.second;
+
+  assert(false); // Jacobian does not exist
 }
 
 
@@ -104,8 +104,9 @@ Constraint::GetConstraintValues () const
 }
 
 VecBound
-xpp::opt::Constraint::GetBounds () const
+xpp::opt::Constraint::GetBounds ()
 {
+  UpdateBounds();
   return bounds_;
 }
 

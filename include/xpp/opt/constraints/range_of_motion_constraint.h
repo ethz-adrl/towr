@@ -9,7 +9,7 @@
 #define XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
 #include <xpp/opt/endeffectors_motion.h>
-#include <xpp/constraint.h>
+#include <xpp/time_discretization_constraint.h>
 #include <memory>
 
 namespace xpp {
@@ -17,81 +17,48 @@ namespace opt {
 
 class BaseMotion;
 
-/** @brief Base class for a constraint between contacts and CoM position.
+/** @brief Constrains the contact to lie in a box around the nominal stance
   *
   * These constraints are necessary to avoid choosing contact locations
   * that are outside the kinematic reach of the robot. The constraint can
   * be defined in terms of joint limits or Cartesian estimates of the
   * reachability.
-  */
-class RangeOfMotionConstraint : public Constraint {
-public:
-  using ComMotionPtrU = std::shared_ptr<BaseMotion>;
-  using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
-  using PosXY         = Eigen::Vector2d;
-
-  RangeOfMotionConstraint ();
-  virtual ~RangeOfMotionConstraint ();
-
-  void Init(const ComMotionPtrU& com_motion,
-            const EEMotionPtr& ee_motion,
-            double dt);
-
-protected:
-  ComMotionPtrU com_motion_;
-  EEMotionPtr ee_motion_;
-  std::vector<double> dts_; ///< discretization of constraint
-
-private:
-  virtual void InitializeConstantJacobians() = 0;
-};
-
-/** @brief Constrains the contact to lie in a box around the nominal stance
   *
   * This constraint calculates the position of of the contact expressed in the
   * current CoM frame and constrains it to lie in a box around the nominal/
   * natural contact position for that leg.
   */
-class RangeOfMotionBox : public RangeOfMotionConstraint {
+class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
+  using ComMotionPtr  = std::shared_ptr<BaseMotion>;
+  using EEMotionPtr    = std::shared_ptr<EndeffectorsMotion>;
   using MaxDevXY       = std::array<double,2>;
   using NominalStance  = EEXppPos;
 
-  /** @param dev  How much the endeffector can deviate from the default (x,y)
-    * position while still remaining in the range of motion.
-    */
-  RangeOfMotionBox(const MaxDevXY& dev, const NominalStance& nom);
-
-  void UpdateConstraintValues () override;
-  void UpdateBounds () override;
-
+  /**
+   * @param dt discretization interval [s] when to check this constraint.
+   * @param deviation_xy allowed endeffector deviation from the default (x,y).
+   * @param nom nominal endeffector position in base frame.
+   */
+  RangeOfMotionBox(const ComMotionPtr& com_motion,
+                   const EEMotionPtr& ee_motion,
+                   double dt,
+                   const MaxDevXY& deviation_xy,
+                   const NominalStance& nom);
+  virtual ~RangeOfMotionBox();
 
 private:
-  void InitializeConstantJacobians() override;
-  void UpdateJacobianWrtEndeffectors();
-  void UpdateJacobianWrtBase();
+  void UpdateConstraintAtInstance (double t, int k) override;
+  void UpdateBoundsAtInstance (double t, int k) override;
+  void UpdateJacobianAtInstance(double t, int k) override;
+
+  int GetRow(int node, EndeffectorID ee, int dimension) const;
 
   MaxDevXY max_deviation_from_nominal_;
   NominalStance nominal_stance_;
+  ComMotionPtr com_motion_;
+  EEMotionPtr ee_motion_;
 };
-
-///** @brief Constrains the contact to lie at a fixed position in world frame.
-//  *
-//  * This constraint places the footholds at predefined positions with no
-//  * margin. It is mainly useful for debugging when other features of the optimizer
-//  * are being tested.
-//  */
-//class RangeOfMotionFixed : public RangeOfMotionConstraint {
-//public:
-//  virtual VectorXd EvaluateConstraint () const final;
-//  virtual VecBound GetBounds () const final;
-//
-//private:
-//  const double kStepLength_ = 0.15;
-//  virtual void SetJacobianWrtContacts(Jacobian&) const final;
-//  virtual void SetJacobianWrtMotion(Jacobian&) const final;
-//};
-
 
 } /* namespace opt */
 } /* namespace xpp */

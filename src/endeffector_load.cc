@@ -22,6 +22,7 @@ void
 EndeffectorLoad::Init (const EndeffectorsMotion ee_motion, double dt, double T)
 {
   dt_ = dt;
+  T_ = T;
   n_ee_ = ee_motion.GetNumberOfEndeffectors();
   int idx_segment = GetSegment(T);
   int number_of_segments = idx_segment + 1;
@@ -78,9 +79,16 @@ EndeffectorLoad::GetNumberOfSegments () const
 }
 
 double
-EndeffectorLoad::GetTStart (int node) const
+EndeffectorLoad::GetTStart (int segment_id) const
 {
-  return node*dt_;
+  return segment_id*dt_;
+}
+
+double
+EndeffectorLoad::GetTEnd (int segment_id) const
+{
+  bool last_segment = GetSegment(T_) == segment_id;
+  return last_segment? T_ : GetTStart(segment_id) + dt_;
 }
 
 int

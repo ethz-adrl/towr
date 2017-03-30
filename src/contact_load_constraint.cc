@@ -13,11 +13,12 @@ namespace opt {
 ContactLoadConstraint::ContactLoadConstraint (const EEMotionPtr& ee_motion,
                                               const EELoadPtr& ee_load)
 {
-  ee_motion_ = ee_motion;
-  ee_load_ = ee_load;
 
   int num_constraints = ee_load->GetOptVarCount();
   SetDependentVariables({ee_motion, ee_load}, num_constraints);
+
+  ee_motion_ = ee_motion;
+  ee_load_ = ee_load;
 
   GetJacobianRefWithRespectTo(ee_load_->GetID()).setIdentity();
 }
@@ -35,19 +36,22 @@ ContactLoadConstraint::UpdateConstraintValues ()
 void
 ContactLoadConstraint::UpdateBounds ()
 {
+  // spring_clean_ the load discretization should be more tightly
+  // coupled to the endeffector motion
+
   // sample check if beginning and end of motion are not in contact
   // only if both in contact, can lambda be greater than zero
-  for (int k=0; k<ee_load_->GetNumberOfSegments(); ++k) {
-    double t_start = ee_load_->GetTStart(k);
-    double t_end   = ee_load_->GetTStart(k+1) - 1e-5;
+  for (int segment=0; segment<ee_load_->GetNumberOfSegments(); ++segment) {
+    double t_start = ee_load_->GetTStart(segment);
+    double t_end   = ee_load_->GetTEnd(segment)-1e-5;
 
     auto contacts_start = ee_motion_->GetContactState(t_start);
-    auto contacts_end = ee_motion_->GetContactState(t_end);
+    auto contacts_end   = ee_motion_->GetContactState(t_end);
 
     for (auto ee : contacts_start.GetEEsOrdered()) {
 
       bool contact = contacts_start.At(ee) && contacts_end.At(ee);
-      bounds_.at(contacts_start.GetEECount()*k+ee) = Bound(0.0, contact);
+      bounds_.at(contacts_start.GetEECount()*segment+ee) = Bound(0.0, contact);
     }
   }
 }

@@ -20,7 +20,9 @@ hessian_approximation limited-memory
 #derivative_test first-order
 #derivative_test second-order
 
-tol 0.1   # usually 0.01
+#fixed_variable_treatment relax-bounds
+
+tol 0.01   # usually 0.01
 #constr_viol_tol 1e-3
 #dual_inf_tol 1e10
 #compl_inf_tol 1e10

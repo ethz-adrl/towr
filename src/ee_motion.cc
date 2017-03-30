@@ -72,6 +72,8 @@ EEMotion::GetPhase (double t_global) const
     if (t >= t_global)
       return i;
   }
+
+  assert(false); // t_global is longer than trajectory lasts
 }
 
 bool

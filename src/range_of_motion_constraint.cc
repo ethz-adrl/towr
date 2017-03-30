@@ -11,169 +11,78 @@
 namespace xpp {
 namespace opt {
 
-RangeOfMotionConstraint::RangeOfMotionConstraint ()
+RangeOfMotionBox::RangeOfMotionBox (const ComMotionPtr& com_motion,
+                                    const EEMotionPtr& ee_motion,
+                                    double dt,
+                                    const MaxDevXY& dev,
+                                    const NominalStance& nom)
+    :TimeDiscretizationConstraint(ee_motion->GetTotalTime(), dt)
 {
   name_ = "Range of Motion";
-}
-
-RangeOfMotionConstraint::~RangeOfMotionConstraint ()
-{
-}
-
-void
-RangeOfMotionConstraint::Init (const ComMotionPtrU& com_motion,
-                               const EEMotionPtr& ee_motion,
-                               double dt)
-{
   com_motion_       = com_motion;
   ee_motion_        = ee_motion;
-
-  dts_.clear();
-  double t = 0.0;
-  for (int i=0; i<floor(ee_motion->GetTotalTime()/dt); ++i) {
-    dts_.push_back(t);
-    t += dt;
-  }
-  dts_.push_back(ee_motion->GetTotalTime()); // so final stance constrained as well
-
-
-  int num_constraints = 0;
-  for (double t : dts_) {
-    int num_contacts = ee_motion_->GetContacts(t).size();
-    num_constraints += kDim2d*num_contacts;
-  }
-
-  SetDependentVariables({com_motion, ee_motion}, num_constraints);
-  InitializeConstantJacobians();
-}
-
-RangeOfMotionBox::RangeOfMotionBox (const MaxDevXY& dev,
-                                    const NominalStance& nom)
-{
   max_deviation_from_nominal_ = dev;
   nominal_stance_ = nom;
+
+  // reserve space for every endeffector, but so far only fill constraints/bounds
+  // for the ones in contacts, the others read 0 < g=0 < 0.
+  int num_constraints = GetNumberOfNodes()*ee_motion_->GetNumberOfEndeffectors()*kDim2d;
+  SetDependentVariables({com_motion, ee_motion}, num_constraints);
+}
+
+RangeOfMotionBox::~RangeOfMotionBox ()
+{
+}
+
+int
+RangeOfMotionBox::GetRow (int node, EndeffectorID ee, int dim) const
+{
+  return (node*ee_motion_->GetNumberOfEndeffectors() + ee) * kDim2d + dim;
 }
 
 void
-RangeOfMotionBox::UpdateConstraintValues ()
+RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k)
 {
-  int i = 0;
-  for (double t : dts_) {
-    Vector3d geom_W = com_motion_->GetBase(t).lin.p;
+  Vector3d geom_W = com_motion_->GetBase(t).lin.p;
 
-    for (const auto& c : ee_motion_->GetContacts(t)) {
-      Vector3d pos_ee_B = c.p - geom_W;
+  for (const auto& c : ee_motion_->GetContacts(t)) {
+    Vector3d pos_ee_B = c.p - geom_W;
 
-      for (auto dim : {X,Y})
-        g_(i++) = pos_ee_B(dim);
+    for (auto dim : {X,Y})
+      g_(GetRow(k,c.ee,dim)) = pos_ee_B(dim);
+  }
+}
+
+void
+RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k)
+{
+  for (auto c : ee_motion_->GetContacts(t)) {
+
+    Vector3d f_nom_B = nominal_stance_.At(c.ee);
+    for (auto dim : {X,Y}) {
+      Bound b;
+      b += f_nom_B(dim);
+      b.upper_ += max_deviation_from_nominal_.at(dim);
+      b.lower_ -= max_deviation_from_nominal_.at(dim);
+      bounds_.at(GetRow(k,c.ee,dim)) = b;
     }
   }
 }
 
 void
-RangeOfMotionBox::UpdateBounds ()
+RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k)
 {
-  int i=0;
-  for (double t : dts_) {
-    for (auto c : ee_motion_->GetContacts(t)) {
+  Jacobian& jac_ee   = GetJacobianRefWithRespectTo(ee_motion_->GetID());
+  Jacobian& jac_base = GetJacobianRefWithRespectTo(com_motion_->GetID());
 
-      Vector3d f_nom_B = nominal_stance_.At(c.ee);
-      for (auto dim : {X,Y}) {
-        Bound b;
-        b += f_nom_B(dim);
-        b.upper_ += max_deviation_from_nominal_.at(dim);
-        b.lower_ -= max_deviation_from_nominal_.at(dim);
-        bounds_.at(i++) = b;
-      }
+  for (auto c : ee_motion_->GetContacts(t)) {
+    for (auto dim : d2::AllDimensions) {
+      int row = GetRow(k,c.ee,dim);
+      jac_ee.coeffRef(row, ee_motion_->Index(c.ee,c.id,dim)) = 1.0;
+      jac_base.row(row) = -1*com_motion_->GetJacobian(t, kPos, static_cast<Coords3D>(dim));
     }
   }
 }
-
-void
-RangeOfMotionBox::InitializeConstantJacobians ()
-{
-  UpdateJacobianWrtEndeffectors();
-  UpdateJacobianWrtBase();
-}
-
-void
-RangeOfMotionBox::UpdateJacobianWrtEndeffectors ()
-{
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetID());
-
-  int row=0;
-  for (double t : dts_)
-    for (auto c : ee_motion_->GetContacts(t))
-      for (auto dim : d2::AllDimensions)
-        jac.coeffRef(row++, ee_motion_->Index(c.ee,c.id,dim)) = 1.0;
-}
-
-void
-RangeOfMotionBox::UpdateJacobianWrtBase ()
-{
-  Jacobian& jac = GetJacobianRefWithRespectTo(com_motion_->GetID());
-
-  int row=0;
-  for (double t : dts_)
-    for (const auto c : ee_motion_->GetContacts(t))
-      for (auto dim : {X,Y})
-        jac.row(row++) = -1*com_motion_->GetJacobian(t, kPos, dim);
-}
-
-
-//RangeOfMotionFixed::VectorXd
-//RangeOfMotionFixed::EvaluateConstraint () const
-//{
-//  std::vector<double> g_vec;
-//
-//  auto feet = contacts_->GetFootholdsInWorld();
-//  for (const auto& f : feet) {
-//    g_vec.push_back(f.p.x());
-//    g_vec.push_back(f.p.y());
-//  }
-//
-//  return Eigen::Map<VectorXd>(&g_vec[0], g_vec.size());
-//}
-//
-//RangeOfMotionFixed::VecBound
-//RangeOfMotionFixed::GetBounds () const
-//{
-//  std::vector<Bound> bounds;
-//
-//  auto start_stance = contacts_->GetStartStance();
-//  auto steps = contacts_->GetFootholdsInWorld();
-//
-//  for (const auto& s : steps) {
-//    auto leg = s.leg;
-//    auto start_foothold = hyq::Foothold::GetLastFoothold(leg, start_stance);
-//
-//    bounds.push_back(Bound(start_foothold.p.x() + kStepLength_,
-//                           start_foothold.p.x() + kStepLength_));
-//    bounds.push_back(Bound(start_foothold.p.y(), start_foothold.p.y()));
-//  }
-//
-//  return bounds;
-//}
-//
-//void
-//RangeOfMotionFixed::SetJacobianWrtContacts (Jacobian& jac_wrt_contacts) const
-//{
-//  int n_contacts = contacts_->GetTotalFreeCoeff();
-//  int m_constraints = n_contacts;
-//  jac_wrt_contacts = Jacobian(m_constraints, n_contacts);
-//  jac_wrt_contacts.setIdentity();
-//}
-//
-//void
-//RangeOfMotionFixed::SetJacobianWrtMotion (Jacobian& jac_wrt_motion) const
-//{
-//  // empty jacobian
-//  int n_contacts = contacts_->GetTotalFreeCoeff();
-//  int m_constraints = n_contacts;
-//  jac_wrt_motion = Jacobian(m_constraints, n_contacts);
-//}
-
 
 } /* namespace opt */
 } /* namespace xpp */
-

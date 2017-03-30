@@ -43,7 +43,7 @@ public:
 
   /** @brief For each returned constraint an upper and lower bound is given.
     */
-  VecBound GetBounds() const;
+  VecBound GetBounds();
 
   void PrintStatus(double tol) const;
   int GetNumberOfConstraints() const;
