@@ -29,6 +29,12 @@ SupportAreaConstraint::~SupportAreaConstraint ()
 {
 }
 
+int
+SupportAreaConstraint::GetRow (int node, int dimension) const
+{
+  return node*kDim2d + dimension;
+}
+
 void
 SupportAreaConstraint::UpdateConstraintAtInstance (double t, int k)
 {
@@ -37,6 +43,10 @@ SupportAreaConstraint::UpdateConstraintAtInstance (double t, int k)
 
   // spring_clean_ could actually also be all the endeffectors, then contact flags would only
   // be in other constraint
+//  auto ee_state = ee_motion_->GetEndeffectors(t);
+//  for (auto ee : ee_state.GetEEsOrdered())
+//    convex_contacts += lambda_k.At(ee)*ee_state.At(ee).Get2D().p;
+
   for (auto f : ee_motion_->GetContacts(t))
     convex_contacts += lambda_k.At(f.ee)*f.p.topRows<kDim2d>();
 
@@ -60,12 +70,6 @@ SupportAreaConstraint::UpdateJacobianAtInstance (double t, int k)
   UpdateJacobianWithRespectToCop(t,k); // actually constant, so doesn't have to be here
 }
 
-int
-SupportAreaConstraint::GetRow (int node, int dimension) const
-{
-  return node*kDim2d + dimension;
-}
-
 void
 SupportAreaConstraint::UpdateJacobianWithRespectToLoad(double t, int k)
 {
@@ -85,6 +89,16 @@ SupportAreaConstraint::UpdateJacobianWithRespectToEEMotion (double t, int k)
   Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetID());
 
   auto lambda_k = ee_load_->GetLoadValues(t);
+
+  // zmp_ use this instead of below
+//  auto ee_state = ee_motion_->GetEndeffectors(t);
+//  for (auto ee : ee_state.GetEEsOrdered()) {
+//    for (auto dim : d2::AllDimensions) {
+//      int idx = ee_motion_->Index(ee, c.id, dim);
+//      jac.coeffRef(GetRow(k,dim), idx) = lambda_k.At(ee);
+//    }
+//  }
+
   for (auto c : ee_motion_->GetContacts(t)) {
     for (auto dim : d2::AllDimensions) {
       int idx = ee_motion_->Index(c.ee, c.id, dim);

@@ -41,8 +41,7 @@ public:
   VectorXd GetOptimizationParameters() const override;
   void SetOptimizationParameters(const VectorXd&) override;
   // order at which the contact position of this endeffector is stored
-  int Index(EndeffectorID ee, int id, d2::Coords) const;
-
+  int Index(EndeffectorID ee, int id, d2::Coords) const; // zmp_ remove the id?
 
 
   void SetInitialPos(const EEXppPos& initial_pos);

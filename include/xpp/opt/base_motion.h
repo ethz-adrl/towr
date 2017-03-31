@@ -26,9 +26,9 @@ namespace opt {
   */
 class BaseMotion : public Parametrization {
 public:
-  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor> ;
-  using PtrS        = std::shared_ptr<BaseMotion> ;
-  using PtrU        = std::unique_ptr<BaseMotion> ;
+  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
+  using PtrS        = std::shared_ptr<BaseMotion>;
+  using PtrU        = std::unique_ptr<BaseMotion>;
 
   BaseMotion ();
   virtual ~BaseMotion ();

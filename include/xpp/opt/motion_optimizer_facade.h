@@ -1,5 +1,5 @@
 /**
- @file    motion_optimizer.h
+ @file    motion_optimizer_facade.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Nov 20, 2016
  @brief   The facade for the motion optimization, ROS independent

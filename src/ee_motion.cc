@@ -10,7 +10,7 @@
 namespace xpp {
 namespace opt {
 
-EEMotion::EEMotion ()
+EEMotion::EEMotion () : Parametrization("ee_motion_single")
 {
 }
 
@@ -107,6 +107,22 @@ EEMotion::GetEE () const
   return ee_;
 }
 
+VectorXd
+EEMotion::GetOptimizationParameters () const
+{
+}
+
+void
+EEMotion::SetOptimizationParameters (const VectorXd& matrix)
+{
+}
+
+EEMotion::JacobianRow
+EEMotion::GetJacobian (double t, int dimension) const
+{
+
+}
+
 void
 EEMotion::UpdateSwingMotions ()
 {
@@ -149,4 +165,3 @@ EEMotion::GetTotalTime () const
 
 } /* namespace opt */
 } /* namespace xpp */
-

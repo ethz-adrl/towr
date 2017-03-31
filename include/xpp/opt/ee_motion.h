@@ -10,6 +10,9 @@
 
 #include <xpp/opt/ee_swing_motion.h>
 #include <xpp/contact.h>
+#include <xpp/parametrization.h>
+
+#include <Eigen/Sparse>
 #include <deque>
 
 namespace xpp {
@@ -17,9 +20,10 @@ namespace opt {
 
 /** Parametrizes the motion of one(!) endeffector swinging multiple times.
   */
-class EEMotion {
+class EEMotion : public Parametrization {
 public:
   using ContactPositions = std::deque<Contact>;
+  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
   EEMotion ();
   virtual ~EEMotion ();
@@ -38,8 +42,17 @@ public:
   double GetTotalTime() const;
   /** Those not fixed by the start stance
     */
+
+  VectorXd GetOptimizationParameters() const override;
+  void SetOptimizationParameters(const VectorXd&) override;
+  // zmp_ make dimension a Coords type
+  JacobianRow GetJacobian(double t, int dimension) const;
+
+
+
   ContactPositions GetContacts() const;
   EndeffectorID GetEE() const;
+
 
 
 private:
@@ -50,7 +63,7 @@ private:
 
   EndeffectorID ee_;
   ContactPositions contacts_;
-  std::deque<bool> is_contact_phase_;
+  std::deque<bool> is_contact_phase_; // zmp_ this deserves a separate class
   std::vector<EESwingMotion> phase_motion_;
 
 };
