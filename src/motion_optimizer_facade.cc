@@ -75,7 +75,7 @@ MotionOptimizerFacade::GetTrajectory (double dt)
   double T = ee_motion_->GetTotalTime();
   while (t<T) {
 
-    RobotStateCartesian state(start_geom_.GetEEPos().GetEECount());
+    RobotStateCartesian state(start_geom_.GetEECount());
     state.SetBase(com_motion_->GetBase(t));
     state.SetEEState(ee_motion_->GetEndeffectors(t));
     state.SetContactState(ee_motion_->GetContactState(t));

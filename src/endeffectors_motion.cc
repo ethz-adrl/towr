@@ -36,7 +36,7 @@ EndeffectorsMotion::GetMotion (EndeffectorID ee)
 EndeffectorsMotion::EEState
 EndeffectorsMotion::GetEndeffectors (double t_global) const
 {
-  EEState ee_state(endeffectors_.GetEECount());
+  EEState ee_state(GetNumberOfEndeffectors());
 
   for (auto ee : endeffectors_.GetEEsOrdered())
     ee_state.At(ee) = endeffectors_.At(ee).GetState(t_global);
@@ -44,6 +44,7 @@ EndeffectorsMotion::GetEndeffectors (double t_global) const
   return ee_state;
 }
 
+// zmp_ probably don't need this
 EndeffectorsMotion::Contacts
 EndeffectorsMotion::GetAllFreeContacts () const
 {
@@ -69,7 +70,7 @@ EndeffectorsMotion::GetContacts (double t) const
 EEXppBool
 EndeffectorsMotion::GetContactState (double t_global) const
 {
-  EEXppBool contact_state(endeffectors_.GetEECount());
+  EEXppBool contact_state(GetNumberOfEndeffectors());
 
   for (auto ee : endeffectors_.ToImpl())
     contact_state.At(ee.GetEE()) = ee.IsInContact(t_global);
@@ -77,6 +78,7 @@ EndeffectorsMotion::GetContactState (double t_global) const
   return contact_state;
 }
 
+// zmp_ remove
 void
 EndeffectorsMotion::SetContactPositions (const Contacts& contacts)
 {
@@ -87,10 +89,25 @@ EndeffectorsMotion::SetContactPositions (const Contacts& contacts)
 EndeffectorsMotion::VectorXd
 EndeffectorsMotion::GetOptimizationParameters () const
 {
-  VectorXd x(GetAllFreeContacts().size() * kDim2d);
-  for (auto c : GetAllFreeContacts())
-    for (auto dim : d2::AllDimensions)
-      x(Index(c.ee, c.id, dim)) = c.p(dim);
+  // zmp_ do this only once
+  int num_opt_params = 0;
+  for (const auto& ee : endeffectors_.ToImpl()) {
+    num_opt_params += ee.GetOptVarCount();
+  }
+
+  VectorXd x(num_opt_params);
+
+  int row = 0;
+  for (const auto& ee : endeffectors_.ToImpl()) {
+    int n = ee.GetOptVarCount();
+    x.middleRows(row, n) = ee.GetOptimizationParameters();
+    row += n;
+  }
+
+//// zmp_ clean this up
+//  for (auto c : GetAllFreeContacts())
+//    for (auto dim : d2::AllDimensions)
+//      x(Index(c.ee, c.id, dim)) = c.p(dim);
 
   return x;
 }
@@ -99,14 +116,37 @@ EndeffectorsMotion::GetOptimizationParameters () const
 void
 EndeffectorsMotion::SetOptimizationParameters (const VectorXd& x)
 {
-  for (auto c : GetAllFreeContacts()) {
-    for (auto dim : d2::AllDimensions)
-      c.p(dim) = x(Index(c.ee, c.id, dim));
+  int row = 0;
 
-    SetContactPositions({c});
+  // zmp_ HUGE BUG: This doesn't actually obtain reference, but uses a copy somehow!
+  // otherwise it should work
+  for (auto ee : endeffectors_.GetEEsOrdered()) {
+//  for (EEMotion& ee : endeffectors_.ToImpl()) {
+    int n = endeffectors_.At(ee).GetOptVarCount();
+    endeffectors_.At(ee).SetOptimizationParameters(x.middleRows(row, n));
+    row += n;
   }
+
+
+  // .At() actually returns a valid refernce.
+//  for (auto ee : endeffectors_.GetEEsOrdered()) {
+//    auto& end_motion = endeffectors_.At(ee);
+//    int n = end_motion.GetOptVarCount();
+//    end_motion.SetOptimizationParameters(x.middleRows(row, n));
+//    row += n;
+//  }
+
+//  for (auto ee : endeffectors_.ToImpl()) {
+//    for (auto c : ee.GetContacts()) {
+//      for (auto dim : d2::AllDimensions)
+//        c.p(dim) = x(Index(c.ee, c.id, dim));
+//
+//      endeffectors_.At(c.ee).UpdateContactPosition(c.id,c.p);
+//    }
+//  }
 }
 
+// zmp_ remove this at some point (only used in support area constraint)
 int
 EndeffectorsMotion::Index (EndeffectorID _ee, int id, d2::Coords dimension) const
 {
@@ -142,7 +182,7 @@ EndeffectorsMotion::GetTotalTime () const
 int
 EndeffectorsMotion::GetNumberOfEndeffectors () const
 {
-  return endeffectors_.GetEECount();
+  return endeffectors_.GetCount();
 }
 
 EndeffectorsMotion::EEVec
@@ -161,7 +201,7 @@ EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
 {
   Vector3d start = Vector3d::Zero(); // initialized with this value
 
-  Endeffectors<double> durations(endeffectors_.GetEECount());
+  Endeffectors<double> durations(GetNumberOfEndeffectors());
   durations.SetAll(0.0);
 
 

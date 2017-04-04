@@ -45,8 +45,8 @@ public:
 
   VectorXd GetOptimizationParameters() const override;
   void SetOptimizationParameters(const VectorXd&) override;
-  // zmp_ make dimension a Coords type
-  JacobianRow GetJacobian(double t, int dimension) const;
+  JacobianRow GetJacobianPos(double t, d2::Coords dimension) const;
+  int Index(int id, d2::Coords dimension) const;
 
 
 

@@ -18,7 +18,7 @@ ConvexityConstraint::ConvexityConstraint (const LoadPtr& ee_load)
   int m = ee_load->GetNumberOfSegments();
   SetDependentVariables({ee_load}, m);
 
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetID());
+  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load->GetID());
 
   for (int k=0; k<m; ++k) {
     for (auto ee : ee_load->GetLoadValuesIdx(k).GetEEsOrdered()) {
@@ -38,7 +38,8 @@ ConvexityConstraint::UpdateConstraintValues ()
   for (int k=0; k<GetNumberOfConstraints(); ++k) {
 
     double sum_k = 0.0;
-    for (auto lambda : ee_load_->GetLoadValuesIdx(k).ToImpl())
+
+    for (double lambda : ee_load_->GetLoadValuesIdx(k).ToImpl())
       sum_k += lambda;
 
     g_(k) = sum_k; // sum equal to 1

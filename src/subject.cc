@@ -1,11 +1,11 @@
-/*
- * a_subject.cc
- *
- *  Created on: May 24, 2016
- *      Author: winklera
+/**
+ @file    dynamic_constraint_test.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    May 24, 2016
+ @brief   Implements the Subject in the Observer Pattern.
  */
 
-#include "../include/xpp/subject.h"
+#include <xpp/subject.h>
 
 #include <iostream>
 

@@ -178,6 +178,7 @@ if(BUILD_TESTS)
                          ## these should be kept well maintained
                          test/dynamic_constraint_test.cc
                          test/center_of_pressure_test.cc
+                         test/endeffectors_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

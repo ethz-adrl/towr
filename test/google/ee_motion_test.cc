@@ -17,7 +17,7 @@ namespace xpp {
 namespace opt {
 
 
-TEST(EEMotionTest, GetState)
+TEST(EEMotionTest, Params)
 {
   EEMotion motion;
   motion.SetInitialPos(Vector3d(0.0, 0.0, 0.0), EndeffectorID::E0);
@@ -26,12 +26,21 @@ TEST(EEMotionTest, GetState)
   motion.AddStancePhase(0.3);
   motion.AddSwingPhase(0.6, Vector3d(0.3, 0.0, 0.0));
 
+  std::cout << "x: " << motion.GetOptimizationParameters().transpose() << std::endl;
+  std::cout << "n: " << motion.GetOptVarCount() << std::endl;
+
+
+  VectorXd x(6); x << 0.1, 0.2, 0.3, 0.4, 0.5, 0.6;
+  motion.SetOptimizationParameters(x);
+  std::cout << "x_new: " << motion.GetOptimizationParameters().transpose() << std::endl;
+  std::cout << "n_new: " << motion.GetOptVarCount() << std::endl;
+
   double t = 0.0;
   while (t < 1.3) {
     std::cout << std::setprecision(2) << std::fixed;
     std::cout << motion.GetState(t).p.transpose() << std::endl;
 //    std::cout << motion.IsInContact(t) << std::endl;
-    t += 0.01;
+    t += 0.1;
   }
 }
 

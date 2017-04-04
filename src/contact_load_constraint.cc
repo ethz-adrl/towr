@@ -47,7 +47,7 @@ ContactLoadConstraint::UpdateBounds ()
 
     for (auto ee : contacts_center.GetEEsOrdered()) {
       auto contact = static_cast<double>(contacts_center.At(ee));
-      bounds_.at(contacts_center.GetEECount()*segment+ee) = Bound(0.0, contact);
+      bounds_.at(contacts_center.GetCount()*segment+ee) = Bound(0.0, contact);
     }
   }
 }

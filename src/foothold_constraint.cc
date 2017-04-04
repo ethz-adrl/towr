@@ -19,7 +19,7 @@ FootholdConstraint::FootholdConstraint (const EEMotionPtr& ee_motion,
   desired_ee_pos_W_ = nom_W;
   t_ = t;
 
-  int num_constraints = nom_W.GetEECount() * kDim2d;
+  int num_constraints = nom_W.GetCount() * kDim2d;
   SetDependentVariables({ee_motion}, num_constraints);
 
   // jacobian doesn't change with values of optimization variables

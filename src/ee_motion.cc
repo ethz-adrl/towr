@@ -110,17 +110,35 @@ EEMotion::GetEE () const
 VectorXd
 EEMotion::GetOptimizationParameters () const
 {
+  // only optimize over contact xy positions for now
+  VectorXd x(contacts_.size()*kDim2d);
+  for (const auto& c: contacts_)
+    for (auto dim : d2::AllDimensions)
+      x(Index(c.id,dim)) = c.p(dim);
+
+  return x;
 }
 
 void
-EEMotion::SetOptimizationParameters (const VectorXd& matrix)
+EEMotion::SetOptimizationParameters (const VectorXd& x)
 {
+  for (auto& c: contacts_)
+    for (auto dim : d2::AllDimensions)
+      c.p(dim) = x(Index(c.id,dim));
+
+  UpdateSwingMotions();
 }
 
 EEMotion::JacobianRow
-EEMotion::GetJacobian (double t, int dimension) const
+EEMotion::GetJacobianPos (double t, d2::Coords dimension) const
 {
+  assert(false); // implement
+}
 
+int
+EEMotion::Index (int id, d2::Coords dimension) const
+{
+  return id*kDim2d + dimension;
 }
 
 void
@@ -139,12 +157,14 @@ EEMotion::UpdateSwingMotions ()
   }
 }
 
+// zmp_ possibly don't need this either
 EEMotion::ContactPositions
 EEMotion::GetContacts () const
 {
   return contacts_;
 }
 
+// zmp_ remove
 void
 EEMotion::UpdateContactPosition (int foothold_of_leg, const Vector3d& pos)
 {
