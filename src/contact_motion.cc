@@ -49,8 +49,6 @@ SingleContactMotion::IsInContact (double t_global) const
   assert(false); // t_global longer than trajectory
 }
 
-
-
 ContactMotion::ContactMotion () : Parametrization("Contact Motion")
 {
 }
@@ -62,24 +60,70 @@ ContactMotion::~ContactMotion ()
 void
 ContactMotion::SetPhaseSequence (const PhaseVec& phases)
 {
+  int n_ee = phases.front().first.GetCount();
+  endeffectors_.SetCount(n_ee);
+  Endeffectors<double> durations(n_ee);
+  durations.SetAll(0.0);
 
-  for (auto ee : endeffectors_.GetEEsOrdered()) {
-//    for (auto phase : phases) {
-//
-//      bool swing = phase.first.
-//    }
+  SetInitialSwinglegs(phases.front().first);
+
+  for (int i=0; i<phases.size()-1; ++i) {
+
+    EndeffectorsBool is_swingleg      = phases.at(i).first;
+    EndeffectorsBool is_swingleg_next = phases.at(i+1).first;
+    double phase_duration             = phases.at(i).second;
+
+    for (auto ee : is_swingleg.GetEEsOrdered()) {
+
+      durations.At(ee) += phase_duration;
+
+      // check if next phase is different phase
+      bool next_different = is_swingleg.At(ee) != is_swingleg_next.At(ee);
+
+      if (next_different) {
+
+        if (!is_swingleg.At(ee)) { // stance leg to swing
+          endeffectors_.At(ee).AddPhase(durations.At(ee));
+          durations.At(ee) = 0.0; // reset
+
+        } else { // swinglegleg to stance
+          endeffectors_.At(ee).AddPhase(durations.At(ee));
+          durations.At(ee) = 0.0; // reset
+        }
+      }
+    }
   }
 
+  EndeffectorsBool swinglegs = phases.back().first;
+  double T                   = phases.back().second;
 
-
-
+  for (auto ee : swinglegs.GetEEsOrdered()) {
+    if (!swinglegs.At(ee)) // last phase is stance
+      endeffectors_.At(ee).AddPhase(durations.At(ee)+T);
+    else
+      endeffectors_.At(ee).AddPhase(durations.At(ee) + T);
+  }
 
 }
 
 EndeffectorsBool
 ContactMotion::IsInContact (double t_global) const
 {
+  EndeffectorsBool contacts(endeffectors_.GetCount());
 
+  for (auto ee :contacts.GetEEsOrdered())
+    contacts.At(ee) = endeffectors_.At(ee).IsInContact(t_global);
+
+  return contacts;
+}
+
+void
+ContactMotion::SetInitialSwinglegs (const EndeffectorsBool& swinglegs)
+{
+  for (auto ee :swinglegs.GetEEsOrdered()) {
+    bool is_in_contact = !swinglegs.At(ee);
+    endeffectors_.At(ee).SetFirstContactState(is_in_contact);
+  }
 }
 
 } /* namespace opt */

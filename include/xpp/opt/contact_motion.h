@@ -25,7 +25,7 @@ public:
   bool IsInContact(double t_global) const;
 
 private:
-  bool first_phase_in_contact_;
+  bool first_phase_in_contact_ = true;
   std::vector<double> t_phase_end_; ///< global time when the contact changes.
 };
 
@@ -37,8 +37,7 @@ private:
 class ContactMotion : public Parametrization {
 public:
   using EEContacts = Endeffectors<SingleContactMotion>;
-  using EEVec      = std::vector<EndeffectorID>;
-  using Phase      = std::pair<EEVec, double>; // swinglegs and time
+  using Phase      = std::pair<EndeffectorsBool, double>; // swinglegs and time
   using PhaseVec   = std::vector<Phase>;
 
   ContactMotion ();
@@ -48,6 +47,8 @@ public:
   EndeffectorsBool IsInContact(double t_global) const;
 
 private:
+  void SetInitialSwinglegs(const EndeffectorsBool&);
+
   EEContacts endeffectors_;
 };
 
