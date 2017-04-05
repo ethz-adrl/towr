@@ -52,10 +52,9 @@ public:
   int GetNumberOfEndeffectors() const;
   EEMotion& GetMotion(EndeffectorID ee);
   EEState GetEndeffectors(double t_global) const;
-  Contacts GetContacts(double t_global) const;
-  EndeffectorsBool GetContactState(double t_global) const;
   double GetTotalTime() const;
 
+  Contacts GetContacts(double t_global) const;
 
 private:
   Endeffectors<EEMotion> endeffectors_;

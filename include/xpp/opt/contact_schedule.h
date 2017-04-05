@@ -42,6 +42,7 @@ public:
 
   void SetPhaseSequence (const PhaseVec& phases);
   EndeffectorsBool IsInContact(double t_global) const;
+  int GetContactCount(double t_global) const;
 
 
   // so far not optimizing over these

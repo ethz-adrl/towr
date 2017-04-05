@@ -29,6 +29,7 @@ public:
   using MotionParametersPtr = std::shared_ptr<MotionParameters>;
   using EEMotionPtrS  = std::shared_ptr<EndeffectorsMotion>;
   using ComMotionPtrS = std::shared_ptr<BaseMotion>;
+  using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
@@ -41,6 +42,7 @@ public:
 
   EEMotionPtrS ee_motion_;
   ComMotionPtrS com_motion_;
+  ContactSchedulePtr contact_schedule_;
 
   void SetMotionParameters(const MotionParametersPtr& params);
   void BuildDefaultStartStance(const MotionParameters& params);

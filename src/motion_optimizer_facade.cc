@@ -47,9 +47,8 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 
 
   // initialize the contact schedule
-  auto contact_schedule = std::make_shared<ContactSchedule>();
-  contact_schedule->SetPhaseSequence(motion_parameters_->GetOneCycle());
-
+  contact_schedule_ = std::make_shared<ContactSchedule>();
+  contact_schedule_->SetPhaseSequence(motion_parameters_->GetOneCycle());
 
 
   // initialize the ee_motion with the fixed parameters
@@ -70,7 +69,7 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
                              goal_com.Get2D(),
                              ee_motion_,
                              com_motion_,
-                             contact_schedule,
+                             contact_schedule_,
                              motion_parameters_,
                              solver);
 }
@@ -87,7 +86,7 @@ MotionOptimizerFacade::GetTrajectory (double dt)
     RobotStateCartesian state(start_geom_.GetEECount());
     state.SetBase(com_motion_->GetBase(t));
     state.SetEEState(ee_motion_->GetEndeffectors(t));
-    state.SetContactState(ee_motion_->GetContactState(t));
+    state.SetContactState(contact_schedule_->IsInContact(t));
     state.SetTime(t);
 
     trajectory.push_back(state);

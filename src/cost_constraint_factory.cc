@@ -239,7 +239,7 @@ CostConstraintFactory::MakeObstacleConstraint () const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakePolygonCenterConstraint () const
 {
-  return {std::make_shared<PolygonCenterConstraint>(ee_load, ee_motion)};
+  return {std::make_shared<PolygonCenterConstraint>(ee_load, contact_schedule_)};
 }
 
 CostConstraintFactory::CostPtr

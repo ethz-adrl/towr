@@ -56,17 +56,6 @@ EndeffectorsMotion::GetContacts (double t) const
   return contacts;
 }
 
-EndeffectorsBool
-EndeffectorsMotion::GetContactState (double t_global) const
-{
-  EndeffectorsBool contact_state(GetNumberOfEndeffectors());
-
-  for (auto ee : endeffectors_.GetEEsOrdered())
-    contact_state.At(ee) = endeffectors_.At(ee).IsInContact(t_global);
-
-  return contact_state;
-}
-
 EndeffectorsMotion::VectorXd
 EndeffectorsMotion::GetOptimizationParameters () const
 {
@@ -123,6 +112,8 @@ EndeffectorsMotion::GetNumberOfEndeffectors () const
   return endeffectors_.GetCount();
 }
 
+
+// zmp_ !!! remove this, already in contact sequence
 void
 EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
 {

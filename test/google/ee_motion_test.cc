@@ -69,7 +69,7 @@ TEST(EEsMotionTest, GetState)
 //  std::cout << ee_motion_->GetOptimizationParameters().transpose() << std::endl;
 
 
-  auto prev_contact_state = ee_motion->GetContactState(1.0);
+//  auto prev_contact_state = ee_motion->GetContactState(1.0);
 
   std::cout << std::setprecision(2) << std::fixed;
   double t = 0.0;
@@ -82,15 +82,15 @@ TEST(EEsMotionTest, GetState)
 //    std::cout << "is_in_contact(3): " << ee_motion->GetMotion(E3).IsInContact(t) << std::endl;
 
 
-    auto current_contact_state = ee_motion->GetContactState(t);
-    if (current_contact_state != prev_contact_state) {
-      prev_contact_state = current_contact_state;
-      std::cout << "t: " << t << std::endl;
-
-      for (auto c : ee_motion->GetContacts(t)) {
-        std::cout << c << std::endl;
-      }
-    }
+//    auto current_contact_state = ee_motion->GetContactState(t);
+//    if (current_contact_state != prev_contact_state) {
+//      prev_contact_state = current_contact_state;
+//      std::cout << "t: " << t << std::endl;
+//
+//      for (auto c : ee_motion->GetContacts(t)) {
+//        std::cout << c << std::endl;
+//      }
+//    }
 
 //      auto e0 = ee_motion->GetEndeffectors(t).At(E0);
 //      auto e1 = ee_motion->GetEndeffectors(t).At(E1);

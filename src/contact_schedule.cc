@@ -126,6 +126,16 @@ ContactSchedule::SetInitialSwinglegs (const EndeffectorsBool& swinglegs)
   }
 }
 
+int
+ContactSchedule::GetContactCount (double t_global) const
+{
+  int num_contacts = 0;
+  for (bool is_contact : IsInContact(t_global).ToImpl())
+    num_contacts += is_contact;
+
+  return num_contacts;
+}
+
 } /* namespace opt */
 } /* namespace xpp */
 

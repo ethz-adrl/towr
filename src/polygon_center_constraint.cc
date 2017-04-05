@@ -10,14 +10,15 @@
 namespace xpp {
 namespace opt {
 
-PolygonCenterConstraint::PolygonCenterConstraint (const EELoadPtr& ee_load,
-                                                  const EEMotionPtr& ee_motion)
+PolygonCenterConstraint::PolygonCenterConstraint (
+    const EELoadPtr& ee_load,
+    const ContactSchedulePtr& contact_schedule)
 {
   ee_load_   = ee_load;
-  ee_motion_ = ee_motion;
+  contact_schedule_ = contact_schedule;
 
   int num_constraints = ee_load_->GetNumberOfSegments();
-  SetDependentVariables({ee_load, ee_motion}, num_constraints);
+  SetDependentVariables({ee_load, contact_schedule}, num_constraints);
 }
 
 PolygonCenterConstraint::~PolygonCenterConstraint ()
@@ -30,7 +31,7 @@ PolygonCenterConstraint::UpdateConstraintValues ()
   for (int k=0; k<GetNumberOfConstraints(); ++k) {
     double g_node = 0.0;
     double t = ee_load_->GetTimeCenterSegment(k);
-    int num_contacts = ee_motion_->GetContacts(t).size();
+    int num_contacts = contact_schedule_->GetContactCount(t);
 
     for (auto lambda : ee_load_->GetLoadValuesIdx(k).ToImpl())
       g_node += std::pow(lambda,2) - 2./num_contacts*lambda;
@@ -44,7 +45,7 @@ PolygonCenterConstraint::UpdateBounds ()
 {
   for (int k=0; k<GetNumberOfConstraints(); ++k) {
     double t = ee_load_->GetTimeCenterSegment(k);
-    int m = ee_motion_->GetContacts(t).size();
+    int m = contact_schedule_->GetContactCount(t);
     bounds_.at(k) = Bound(-1./m, -1./m); // should lie in center of polygon
   }
 }
@@ -57,7 +58,7 @@ PolygonCenterConstraint::UpdateJacobians ()
 
   for (int k=0; k<GetNumberOfConstraints(); ++k) {
     double t = ee_load_->GetTimeCenterSegment(k);
-    int num_contacts = ee_motion_->GetContacts(t).size();
+    int num_contacts = contact_schedule_->GetContactCount(t);
 
     auto lambda_k = ee_load_->GetLoadValuesIdx(k);
 

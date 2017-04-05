@@ -10,7 +10,7 @@
 
 #include <xpp/constraint.h>
 #include <xpp/opt/endeffector_load.h>
-#include <xpp/opt/endeffectors_motion.h> // only for contact state
+#include <xpp/opt/contact_schedule.h>
 
 namespace xpp {
 namespace opt {
@@ -24,10 +24,10 @@ namespace opt {
   */
 class PolygonCenterConstraint : public Constraint {
 public:
-  using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
-  using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
+  using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
+  using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
 
-  PolygonCenterConstraint (const EELoadPtr&, const EEMotionPtr&);
+  PolygonCenterConstraint (const EELoadPtr&, const ContactSchedulePtr&);
   virtual ~PolygonCenterConstraint ();
 
   void UpdateConstraintValues () override;
@@ -35,7 +35,7 @@ public:
 
 private:
   EELoadPtr ee_load_;
-  EEMotionPtr ee_motion_; // only for contact state
+  ContactSchedulePtr contact_schedule_;
 
   void UpdateJacobians() override;
 };
