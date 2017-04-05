@@ -35,12 +35,15 @@ public:
 
 
   StateLin3d GetState(double t_global) const;
+  double GetTotalTime() const;
+
+
+  // zmp_ remove both these function
   bool IsInContact(double t_global) const;
   /** Empty vector is no contact at that time */
   ContactPositions GetContact(double t_global) const;
-  double GetTotalTime() const;
-  /** Those not fixed by the start stance
-    */
+
+
 
   VectorXd GetOptimizationParameters() const override;
   void SetOptimizationParameters(const VectorXd&) override;
@@ -49,19 +52,11 @@ public:
   int Index(int id, d2::Coords dimension) const;
 
 
-
-  ContactPositions GetContacts() const;
-  EndeffectorID GetEE() const;
-
-
-
 private:
   int GetPhase(double t_global) const;
   void AddPhase(double t, const Vector3d& goal, double lift_height = 0.03);
-
   void UpdateSwingMotions();
 
-  EndeffectorID ee_;
   ContactPositions contacts_;
   std::deque<bool> is_contact_phase_; // zmp_ this deserves a separate class
   std::vector<EESwingMotion> phase_motion_;

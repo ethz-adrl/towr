@@ -21,8 +21,7 @@ EEMotion::~EEMotion ()
 void
 EEMotion::SetInitialPos (const Vector3d& pos, EndeffectorID ee)
 {
-  ee_ = ee;
-  contacts_.push_front(Contact(0, ee_, pos));
+  contacts_.push_front(Contact(0, ee, pos));
   UpdateSwingMotions();
 }
 
@@ -37,7 +36,7 @@ void
 EEMotion::AddSwingPhase (double t, const Vector3d& goal)
 {
   AddPhase(t, goal);
-  Contact c(contacts_.back().id +1 , ee_, goal);
+  Contact c(contacts_.back().id +1 , contacts_.back().ee, goal);
   contacts_.push_back(c);
   is_contact_phase_.push_back(false);
 }
@@ -107,12 +106,6 @@ EEMotion::GetContact (double t) const
   return contact;
 }
 
-EndeffectorID
-EEMotion::GetEE () const
-{
-  return ee_;
-}
-
 VectorXd
 EEMotion::GetOptimizationParameters () const
 {
@@ -155,13 +148,6 @@ EEMotion::UpdateSwingMotions ()
       k++;
     }
   }
-}
-
-// zmp_ possibly don't need this either
-EEMotion::ContactPositions
-EEMotion::GetContacts () const
-{
-  return contacts_;
 }
 
 double

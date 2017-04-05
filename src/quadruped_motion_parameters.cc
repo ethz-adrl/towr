@@ -11,22 +11,6 @@
 namespace xpp {
 namespace opt {
 
-// naming convention:, where the circle is is a swingleg, front is right ->.
-// so LF and RH swinging is (bP):  o x
-//                                 x o
-static const MotionParameters::EEIDVec II = {};
-static const MotionParameters::EEIDVec PI = {kMapQuadToOpt.at(LH)};
-static const MotionParameters::EEIDVec bI = {kMapQuadToOpt.at(RH)};
-static const MotionParameters::EEIDVec IP = {kMapQuadToOpt.at(LF)};
-static const MotionParameters::EEIDVec Ib = {kMapQuadToOpt.at(RF)};
-static const MotionParameters::EEIDVec Pb = {kMapQuadToOpt.at(LH), kMapQuadToOpt.at(RF)};
-static const MotionParameters::EEIDVec bP = {kMapQuadToOpt.at(RH), kMapQuadToOpt.at(LF)};
-static const MotionParameters::EEIDVec BI = {kMapQuadToOpt.at(LH), kMapQuadToOpt.at(RH)};
-static const MotionParameters::EEIDVec IB = {kMapQuadToOpt.at(LF), kMapQuadToOpt.at(RF)};
-static const MotionParameters::EEIDVec PP = {kMapQuadToOpt.at(LH), kMapQuadToOpt.at(LF)};
-static const MotionParameters::EEIDVec bb = {kMapQuadToOpt.at(RH), kMapQuadToOpt.at(RF)};
-static const MotionParameters::EEIDVec Bb = {kMapQuadToOpt.at(LH), kMapQuadToOpt.at(RH), kMapQuadToOpt.at(RF)};
-
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
@@ -38,7 +22,6 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   offset_geom_to_com_ << 0,0,0;
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
 
-
   const double x_nominal_b = 0.34;
   const double y_nominal_b = 0.34;
   nominal_stance_.SetCount(robot_ee_.size());
@@ -46,6 +29,31 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, 0.0);
   nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, 0.0);
   nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, 0.0);
+
+  II_.SetCount(robot_ee_.size()); II_.SetAll(false);
+  PI_.SetCount(robot_ee_.size()); PI_.SetAll(false);
+  bI_.SetCount(robot_ee_.size()); bI_.SetAll(false);
+  IP_.SetCount(robot_ee_.size()); IP_.SetAll(false);
+  Ib_.SetCount(robot_ee_.size()); Ib_.SetAll(false);
+  Pb_.SetCount(robot_ee_.size()); Pb_.SetAll(false);
+  bP_.SetCount(robot_ee_.size()); bP_.SetAll(false);
+  BI_.SetCount(robot_ee_.size()); BI_.SetAll(false);
+  IB_.SetCount(robot_ee_.size()); IB_.SetAll(false);
+  PP_.SetCount(robot_ee_.size()); PP_.SetAll(false);
+  bb_.SetCount(robot_ee_.size()); bb_.SetAll(false);
+  Bb_.SetCount(robot_ee_.size()); Bb_.SetAll(false);
+
+  PI_.At(kMapQuadToOpt.at(LH)) = true;
+  bI_.At(kMapQuadToOpt.at(RH)) = true;
+  IP_.At(kMapQuadToOpt.at(LF)) = true;
+  Ib_.At(kMapQuadToOpt.at(RF)) = true;
+  Pb_.At(kMapQuadToOpt.at(LH)) = true; Pb_.At(kMapQuadToOpt.at(RF)) = true;
+  bP_.At(kMapQuadToOpt.at(RH)) = true; bP_.At(kMapQuadToOpt.at(LF)) = true;
+  BI_.At(kMapQuadToOpt.at(LH)) = true; BI_.At(kMapQuadToOpt.at(RH)) = true;
+  IB_.At(kMapQuadToOpt.at(LF)) = true; IB_.At(kMapQuadToOpt.at(RF)) = true;
+  PP_.At(kMapQuadToOpt.at(LH)) = true; PP_.At(kMapQuadToOpt.at(LF)) = true;
+  bb_.At(kMapQuadToOpt.at(RH)) = true; bb_.At(kMapQuadToOpt.at(RF)) = true;
+  Bb_.At(kMapQuadToOpt.at(LH)) = true; Bb_.At(kMapQuadToOpt.at(RH)) = true;  Bb_.At(kMapQuadToOpt.at(RF))= true;
 }
 
 QuadrupedMotionParameters::MotionTypePtr
@@ -87,13 +95,13 @@ Walk::Walk()
       t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
       0.01,
   };
-  ee_cycle_ =
+  ee_cycle2_ =
   {
-      II,
-      PI, PP, IP, bI, bb, Ib,
-      PI, PP, IP, bI, bb, Ib,
-      PI, PP, IP, bI, bb, Ib,
-      II,
+      II_,
+      PI_, PP_, IP_, bI_, bb_, Ib_,
+      PI_, PP_, IP_, bI_, bb_, Ib_,
+      PI_, PP_, IP_, bI_, bb_, Ib_,
+      II_,
   };
 
 //  double swing = 0.4;
@@ -137,13 +145,16 @@ Trott::Trott()
       t_phase, t_phase, t_phase, t_phase,
       0.01
   };
-  ee_cycle_ =
+
+  ee_cycle2_ =
   {
-      II,
-//      PI, PP, IP, bI, bb, Ib, // walk
-      bP, Pb, bP, Pb,
-      II
+      II_,
+      //      PI, PP, IP, bI, bb, Ib, // walk
+      bP_, Pb_, bP_, Pb_,
+      II_
   };
+
+
 //    timings_ = {t_phase, t_phase, 0.8 };
 //    ee_cycle_ = {bP, Pb, II};
 //  timings_ = {0.4,t_phase, t_phase, t_phase, t_phase};
@@ -178,7 +189,7 @@ PushRecovery::PushRecovery ()
 
   double t_phase = 0.25;
   timings_ = {t_phase, t_phase};
-  ee_cycle_ = {bP, Pb};
+  ee_cycle2_ = {bP_, Pb_};
 
   constraints_ = { InitCom,
 //                   FinalCom,
@@ -204,7 +215,7 @@ Pace::Pace()
   polynomials_per_second_ = 20;
 
   timings_ = {0.1, 0.3, 0.1, 0.3};
-  ee_cycle_ = {II, PP, II, bb};
+  ee_cycle2_ = {II_, PP_, II_, bb_};
 
   constraints_ = { InitCom,
                    FinalCom,
@@ -229,7 +240,7 @@ Bound::Bound()
   polynomials_per_second_ = 20;
 
   timings_ = {0.1, 0.3, 0.1, 0.3};
-  ee_cycle_ = {II, BI, II, IB};
+  ee_cycle2_ = {II_, BI_, II_, IB_};
 
 
   constraints_ = { InitCom,

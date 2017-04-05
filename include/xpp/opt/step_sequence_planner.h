@@ -24,7 +24,7 @@ namespace opt {
   */
 class StepSequencePlanner {
 public:
-  using SwingLegsInPhase  = MotionParameters::SwinglegPhase;
+  using SwingLegsInPhase  = MotionParameters::Phase;
   using AllPhaseSwingLegs = std::vector<SwingLegsInPhase>;
   using StartStance       = std::vector<Contact>;
   using State             = StateLin2d;

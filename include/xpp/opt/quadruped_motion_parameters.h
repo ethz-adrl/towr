@@ -17,6 +17,23 @@ class QuadrupedMotionParameters : public MotionParameters {
 public:
   QuadrupedMotionParameters();
   static MotionTypePtr MakeMotion(opt::MotionTypeID);
+
+protected:
+  // naming convention:, where the circle is is a swingleg, front is right ->.
+  // so LF and RH swinging is (bP):  o x
+  //                                 x o
+  EndeffectorsBool II_;
+  EndeffectorsBool PI_;
+  EndeffectorsBool bI_;
+  EndeffectorsBool IP_;
+  EndeffectorsBool Ib_;
+  EndeffectorsBool Pb_;
+  EndeffectorsBool bP_;
+  EndeffectorsBool BI_;
+  EndeffectorsBool IB_;
+  EndeffectorsBool PP_;
+  EndeffectorsBool bb_;
+  EndeffectorsBool Bb_;
 };
 
 class Walk : public QuadrupedMotionParameters {

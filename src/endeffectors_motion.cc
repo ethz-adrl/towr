@@ -61,8 +61,8 @@ EndeffectorsMotion::GetContactState (double t_global) const
 {
   EndeffectorsBool contact_state(GetNumberOfEndeffectors());
 
-  for (auto ee : endeffectors_.ToImpl())
-    contact_state.At(ee.GetEE()) = ee.IsInContact(t_global);
+  for (auto ee : endeffectors_.GetEEsOrdered())
+    contact_state.At(ee) = endeffectors_.At(ee).IsInContact(t_global);
 
   return contact_state;
 }
@@ -99,11 +99,13 @@ int
 EndeffectorsMotion::Index (EndeffectorID ee, int id, d2::Coords dimension) const
 {
   int idx = 0;
-  for (const auto& ee_motion : endeffectors_.ToImpl()) {
-    if (ee_motion.GetEE() == ee)
-      return idx + ee_motion.Index(id, dimension);
 
-    idx += ee_motion.GetOptVarCount();
+  for (auto _ee : endeffectors_.GetEEsOrdered()) {
+    auto motion = endeffectors_.At(_ee);
+    if (_ee == ee)
+      return idx + motion.Index(id, dimension);
+
+    idx += motion.GetOptVarCount();
   }
 
   assert(false); // _ee does not exist
@@ -121,17 +123,6 @@ EndeffectorsMotion::GetNumberOfEndeffectors () const
   return endeffectors_.GetCount();
 }
 
-EndeffectorsMotion::EEVec
-EndeffectorsMotion::GetStanceLegs (const EEVec& swinglegs) const
-{
-  EEVec stance_legs;
-  for (auto ee : endeffectors_.GetEEsOrdered())
-    if (!Contains(swinglegs, ee)) // endeffector currently in stance phase
-      stance_legs.push_back(ee);
-
-  return stance_legs;
-}
-
 void
 EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
 {
@@ -140,39 +131,42 @@ EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
   Endeffectors<double> durations(GetNumberOfEndeffectors());
   durations.SetAll(0.0);
 
-
   for (int i=0; i<phases.size()-1; ++i) {
 
-    EEVec swinglegs       = phases.at(i).first;
-    EEVec next_swinglegs  = phases.at(i+1).first;
-    double phase_duration = phases.at(i).second;
+    EndeffectorsBool is_swingleg      = phases.at(i).first;
+    EndeffectorsBool is_swingleg_next = phases.at(i+1).first;
+    double phase_duration             = phases.at(i).second;
 
-    // stance phases
-    for (auto ee : GetStanceLegs(swinglegs)) {
-      durations.At(ee) += phase_duration;
-      if(Contains(next_swinglegs,ee)) {  // leg swingwing in next phase
-        endeffectors_.At(ee).AddStancePhase(durations.At(ee));
-        durations.At(ee) = 0.0; // reset
-      }
-    }
+    for (auto ee : is_swingleg.GetEEsOrdered()) {
 
-    // swing phases
-    for (auto ee : swinglegs) {
       durations.At(ee) += phase_duration;
-      if(!Contains(next_swinglegs, ee)) {  //next swinglegs do not contain endeffector
-        endeffectors_.At(ee).AddSwingPhase(durations.At(ee), start);
-        durations.At(ee) = 0.0; // reset
+
+      // check if next phase is different phase
+      bool next_different = is_swingleg.At(ee) != is_swingleg_next.At(ee);
+
+      if (next_different) {
+
+        if (!is_swingleg.At(ee)) { // stance leg to swing
+          endeffectors_.At(ee).AddStancePhase(durations.At(ee));
+          durations.At(ee) = 0.0; // reset
+
+        } else { // swinglegleg to stance
+          endeffectors_.At(ee).AddSwingPhase(durations.At(ee), start);
+          durations.At(ee) = 0.0; // reset
+        }
       }
     }
   }
 
-  // last phase always must be added
-  EEVec swinglegs = phases.back().first;
-  double T        = phases.back().second;
-  for (auto ee : swinglegs)
-    endeffectors_.At(ee).AddSwingPhase(durations.At(ee) + T, start);
-  for (auto ee : GetStanceLegs(swinglegs))
-    endeffectors_.At(ee).AddStancePhase(durations.At(ee)+T);
+  EndeffectorsBool swinglegs = phases.back().first;
+  double T                   = phases.back().second;
+
+  for (auto ee : swinglegs.GetEEsOrdered()) {
+    if (!swinglegs.At(ee)) // last phase is stance
+      endeffectors_.At(ee).AddStancePhase(durations.At(ee)+T);
+    else
+      endeffectors_.At(ee).AddSwingPhase(durations.At(ee) + T, start);
+  }
 
   // count number of optimization variables
   n_opt_params_ = 0;
@@ -180,12 +174,6 @@ EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
     n_opt_params_ += ee.GetOptVarCount();
   }
 
-}
-
-bool
-EndeffectorsMotion::Contains (const EEVec& v, EndeffectorID ee) const
-{
-  return std::find(v.begin(), v.end(), ee) != v.end();
 }
 
 } /* namespace opt */

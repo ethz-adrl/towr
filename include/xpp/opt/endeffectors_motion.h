@@ -9,6 +9,8 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTORS_MOTION_H_
 
 #include <xpp/opt/ee_motion.h>
+#include <xpp/opt/motion_parameters.h>
+
 #include <xpp/state.h>
 #include <xpp/endeffectors.h>
 #include <xpp/contact.h>
@@ -30,9 +32,8 @@ public:
   using VectorXd = Eigen::VectorXd;
   using Contacts = std::vector<Contact>;
 
-  using EEVec     = std::vector<EndeffectorID>;
-  using Phase     = std::pair<EEVec, double>; // swinglegs and time
-  using PhaseVec  = std::vector<Phase>;
+  using EEVec    = MotionParameters::EEVec;
+  using PhaseVec = MotionParameters::PhaseVec;
 
   EndeffectorsMotion (int n_ee = 0);
   virtual ~EndeffectorsMotion ();
@@ -41,7 +42,7 @@ public:
   VectorXd GetOptimizationParameters() const override;
   void SetOptimizationParameters(const VectorXd&) override;
   // order at which the contact position of this endeffector is stored
-  int Index(EndeffectorID ee, int id, d2::Coords) const; // zmp_ remove the id?
+  int Index(EndeffectorID ee, int id, d2::Coords) const;
 
 
   void SetInitialPos(const EndeffectorsPos& initial_pos);
@@ -59,9 +60,6 @@ public:
 private:
   Endeffectors<EEMotion> endeffectors_;
   int n_opt_params_ = 0;
-
-  bool Contains(const EEVec& vec, EndeffectorID ee) const;
-  EEVec GetStanceLegs(const EEVec& swinglegs) const;
 };
 
 } /* namespace opt */

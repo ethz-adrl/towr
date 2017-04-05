@@ -28,12 +28,13 @@ class MotionParameters {
 public:
   using MotionTypePtr    = std::shared_ptr<MotionParameters>;
   using EEID             = EndeffectorID;
-  using EEIDVec          = std::vector<EEID>;
-  using EECycleVec       = std::vector<EEIDVec>;
+  using EEVec            = std::vector<EEID>;
+  using EECycleVec2      = std::vector<EndeffectorsBool>;
   using PhaseTimings     = std::vector<double>;
+  using Phase            = std::pair<EndeffectorsBool, double>;
+  using PhaseVec         = std::vector<Phase>;
 
-  using SwinglegPhase    = std::pair<EEIDVec, double>;
-  using SwinglegPhaseVec = std::vector<SwinglegPhase>;
+
   using PosXY            = Eigen::Vector2d;
   using PosXYZ           = Eigen::Vector3d;
   using NominalStance    = EndeffectorsPos;
@@ -46,7 +47,8 @@ public:
   int GetEECount() const { return robot_ee_.size(); };
 
   NominalStance GetNominalStanceInBase() const { return nominal_stance_; };
-  SwinglegPhaseVec GetOneCycle() const;
+  PhaseVec GetOneCycle() const;
+
   ValXY GetMaximumDeviationFromNominal() const;
 
   UsedConstraints GetUsedConstraints() const;
@@ -63,9 +65,17 @@ public:
   PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
 
   NominalStance nominal_stance_;
-  EECycleVec ee_cycle_;
+
+
+
+  EECycleVec2 ee_cycle2_;
+
   PhaseTimings timings_;
-  EEIDVec robot_ee_;
+  EEVec robot_ee_;
+
+
+
+
 
 protected:
   ValXY max_dev_xy_;
