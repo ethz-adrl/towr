@@ -52,6 +52,15 @@ e = S.e
 f = S.f
 
 
+% now get the derivatives w.r.t. the start and end point
+jac_x = jacobian(zp, [z_start z_end])
+
+
+
+
+
+
+
 
 
 syms t

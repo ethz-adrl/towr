@@ -46,7 +46,6 @@ public:
 
   void SetInitialPos(const EEXppPos& initial_pos);
   void SetPhaseSequence(const PhaseVec& phases);
-  void SetContactPositions(const Contacts& contact);
 
 
   int GetNumberOfEndeffectors() const;
@@ -58,8 +57,8 @@ public:
 
 
 private:
-  Contacts GetAllFreeContacts() const;
   Endeffectors<EEMotion> endeffectors_;
+  int n_opt_params_ = 0;
 
   bool Contains(const EEVec& vec, EndeffectorID ee) const;
   EEVec GetStanceLegs(const EEVec& swinglegs) const;

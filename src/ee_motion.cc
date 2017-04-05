@@ -63,6 +63,12 @@ EEMotion::GetState (double t_global) const
   return phase_motion_.at(phase).GetState(t_local);
 }
 
+//EEMotion::JacobianRow
+//EEMotion::GetJacobianPos (double t, d2::Coords dimension) const
+//{
+//  assert(false); // implement
+//}
+
 int
 EEMotion::GetPhase (double t_global) const
 {
@@ -129,12 +135,6 @@ EEMotion::SetOptimizationParameters (const VectorXd& x)
   UpdateSwingMotions();
 }
 
-EEMotion::JacobianRow
-EEMotion::GetJacobianPos (double t, d2::Coords dimension) const
-{
-  assert(false); // implement
-}
-
 int
 EEMotion::Index (int id, d2::Coords dimension) const
 {
@@ -162,14 +162,6 @@ EEMotion::ContactPositions
 EEMotion::GetContacts () const
 {
   return contacts_;
-}
-
-// zmp_ remove
-void
-EEMotion::UpdateContactPosition (int foothold_of_leg, const Vector3d& pos)
-{
-  contacts_.at(foothold_of_leg).p = pos;
-  UpdateSwingMotions();
 }
 
 double

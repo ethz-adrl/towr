@@ -30,7 +30,7 @@ public:
 
   /** Completely parametrizes the motion.
     *
-    * H is not the exact height between the contact points, but the height
+    * h is not the exact height between the contact points, but the height
     * that the swingleg has as 1/n_*T and (n-1)/n*T, e.g. shortly after lift-off
     * and right before touchdown. The lift-height in the center is higher.
     *

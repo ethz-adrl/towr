@@ -44,17 +44,6 @@ EndeffectorsMotion::GetEndeffectors (double t_global) const
   return ee_state;
 }
 
-// zmp_ probably don't need this
-EndeffectorsMotion::Contacts
-EndeffectorsMotion::GetAllFreeContacts () const
-{
-  Contacts contacts;
-  for (auto ee : endeffectors_.ToImpl())
-    for (auto c : ee.GetContacts())
-      contacts.push_back(c);
-
-  return contacts;
-}
 
 EndeffectorsMotion::Contacts
 EndeffectorsMotion::GetContacts (double t) const
@@ -78,24 +67,10 @@ EndeffectorsMotion::GetContactState (double t_global) const
   return contact_state;
 }
 
-// zmp_ remove
-void
-EndeffectorsMotion::SetContactPositions (const Contacts& contacts)
-{
-  for (auto c : contacts)
-    endeffectors_.At(c.ee).UpdateContactPosition(c.id,c.p);
-}
-
 EndeffectorsMotion::VectorXd
 EndeffectorsMotion::GetOptimizationParameters () const
 {
-  // zmp_ do this only once
-  int num_opt_params = 0;
-  for (const auto& ee : endeffectors_.ToImpl()) {
-    num_opt_params += ee.GetOptVarCount();
-  }
-
-  VectorXd x(num_opt_params);
+  VectorXd x(n_opt_params_);
 
   int row = 0;
   for (const auto& ee : endeffectors_.ToImpl()) {
@@ -103,11 +78,6 @@ EndeffectorsMotion::GetOptimizationParameters () const
     x.middleRows(row, n) = ee.GetOptimizationParameters();
     row += n;
   }
-
-//// zmp_ clean this up
-//  for (auto c : GetAllFreeContacts())
-//    for (auto dim : d2::AllDimensions)
-//      x(Index(c.ee, c.id, dim)) = c.p(dim);
 
   return x;
 }
@@ -118,59 +88,25 @@ EndeffectorsMotion::SetOptimizationParameters (const VectorXd& x)
 {
   int row = 0;
 
-  // zmp_ HUGE BUG: This doesn't actually obtain reference, but uses a copy somehow!
-  // otherwise it should work
   for (auto ee : endeffectors_.GetEEsOrdered()) {
-//  for (EEMotion& ee : endeffectors_.ToImpl()) {
     int n = endeffectors_.At(ee).GetOptVarCount();
     endeffectors_.At(ee).SetOptimizationParameters(x.middleRows(row, n));
     row += n;
   }
-
-
-  // .At() actually returns a valid refernce.
-//  for (auto ee : endeffectors_.GetEEsOrdered()) {
-//    auto& end_motion = endeffectors_.At(ee);
-//    int n = end_motion.GetOptVarCount();
-//    end_motion.SetOptimizationParameters(x.middleRows(row, n));
-//    row += n;
-//  }
-
-//  for (auto ee : endeffectors_.ToImpl()) {
-//    for (auto c : ee.GetContacts()) {
-//      for (auto dim : d2::AllDimensions)
-//        c.p(dim) = x(Index(c.ee, c.id, dim));
-//
-//      endeffectors_.At(c.ee).UpdateContactPosition(c.id,c.p);
-//    }
-//  }
 }
 
-// zmp_ remove this at some point (only used in support area constraint)
 int
-EndeffectorsMotion::Index (EndeffectorID _ee, int id, d2::Coords dimension) const
+EndeffectorsMotion::Index (EndeffectorID ee, int id, d2::Coords dimension) const
 {
-  // stored like this in vector
-  // E0_0, E0_1, E0_2, ...
-  // E1_0, E1_1, E1_1, ...
-  // E2_0, E2_1, E2_1, ...
+  int idx = 0;
+  for (const auto& ee_motion : endeffectors_.ToImpl()) {
+    if (ee_motion.GetEE() == ee)
+      return idx + ee_motion.Index(id, dimension);
 
-  int position_in_vector = 0;//id-1; // -1 because first contact not optimized over
-
-  for (auto ee : endeffectors_.GetEEsOrdered()) {
-    if (ee == _ee)
-      break;
-    else
-      position_in_vector +=  endeffectors_.At(ee).GetContacts().size();
+    idx += ee_motion.GetOptVarCount();
   }
 
-  return (position_in_vector+id)*kDim2d + dimension;
-}
-
-bool
-EndeffectorsMotion::Contains (const EEVec& v, EndeffectorID ee) const
-{
-  return std::find(v.begin(), v.end(), ee) != v.end();
+  assert(false); // _ee does not exist
 }
 
 double
@@ -238,6 +174,18 @@ EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
   for (auto ee : GetStanceLegs(swinglegs))
     endeffectors_.At(ee).AddStancePhase(durations.At(ee)+T);
 
+  // count number of optimization variables
+  n_opt_params_ = 0;
+  for (const auto& ee : endeffectors_.ToImpl()) {
+    n_opt_params_ += ee.GetOptVarCount();
+  }
+
+}
+
+bool
+EndeffectorsMotion::Contains (const EEVec& v, EndeffectorID ee) const
+{
+  return std::find(v.begin(), v.end(), ee) != v.end();
 }
 
 } /* namespace opt */

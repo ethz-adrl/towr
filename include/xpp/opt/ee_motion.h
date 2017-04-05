@@ -32,7 +32,6 @@ public:
   void SetInitialPos(const Vector3d& pos, EndeffectorID);
   void AddStancePhase(double t);
   void AddSwingPhase(double t, const Vector3d& goal);
-  void UpdateContactPosition(int foothold_of_leg, const Vector3d& pos);
 
 
   StateLin3d GetState(double t_global) const;
@@ -45,7 +44,8 @@ public:
 
   VectorXd GetOptimizationParameters() const override;
   void SetOptimizationParameters(const VectorXd&) override;
-  JacobianRow GetJacobianPos(double t, d2::Coords dimension) const;
+  // haven't yet implemented the derivative during swing phase
+//  JacobianRow GetJacobianPos(double t, d2::Coords dimension) const;
   int Index(int id, d2::Coords dimension) const;
 
 

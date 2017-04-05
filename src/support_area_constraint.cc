@@ -67,7 +67,7 @@ SupportAreaConstraint::UpdateJacobianAtInstance (double t, int k)
 {
   UpdateJacobianWithRespectToLoad(t,k);
   UpdateJacobianWithRespectToEEMotion(t,k);
-  UpdateJacobianWithRespectToCop(t,k); // actually constant, so doesn't have to be here
+  UpdateJacobianWithRespectToCop(t,k); // zmp_ actually constant, so doesn't have to be here
 }
 
 void
