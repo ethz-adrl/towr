@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/contact_motion.h>
+#include "../include/xpp/opt/contact_schedule.h"
 
 namespace xpp {
 namespace opt {
@@ -49,16 +49,16 @@ SingleContactMotion::IsInContact (double t_global) const
   assert(false); // t_global longer than trajectory
 }
 
-ContactMotion::ContactMotion () : Parametrization("Contact Motion")
+ContactSchedule::ContactSchedule () : Parametrization("Contact Motion")
 {
 }
 
-ContactMotion::~ContactMotion ()
+ContactSchedule::~ContactSchedule ()
 {
 }
 
 void
-ContactMotion::SetPhaseSequence (const PhaseVec& phases)
+ContactSchedule::SetPhaseSequence (const PhaseVec& phases)
 {
   int n_ee = phases.front().first.GetCount();
   endeffectors_.SetCount(n_ee);
@@ -107,7 +107,7 @@ ContactMotion::SetPhaseSequence (const PhaseVec& phases)
 }
 
 EndeffectorsBool
-ContactMotion::IsInContact (double t_global) const
+ContactSchedule::IsInContact (double t_global) const
 {
   EndeffectorsBool contacts(endeffectors_.GetCount());
 
@@ -118,7 +118,7 @@ ContactMotion::IsInContact (double t_global) const
 }
 
 void
-ContactMotion::SetInitialSwinglegs (const EndeffectorsBool& swinglegs)
+ContactSchedule::SetInitialSwinglegs (const EndeffectorsBool& swinglegs)
 {
   for (auto ee :swinglegs.GetEEsOrdered()) {
     bool is_in_contact = !swinglegs.At(ee);

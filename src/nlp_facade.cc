@@ -37,6 +37,7 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
                           const StateLin2d& final_state,
                           const EEMotionPtrS& ee_motion,
                           const ComMotionPtrS& com_motion,
+                          const ContactSchedulePtr& contact_schedule,
                           const MotionparamsPtr& motion_params,
                           NlpSolver solver)
 {
@@ -49,6 +50,7 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
   CostConstraintFactory factory;
   factory.Init(com_motion,
                ee_motion,
+               contact_schedule,
                ee_load,
                cop,
                motion_params,
@@ -56,10 +58,14 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
                final_state);
 
   opt_variables_->ClearVariables();
+  // spring_clean_ this can be generalized
   opt_variables_->AddVariableSet(factory.SplineCoeffVariables());
   opt_variables_->AddVariableSet(factory.ContactVariables());
   opt_variables_->AddVariableSet(factory.ConvexityVariables());
   opt_variables_->AddVariableSet(factory.CopVariables());
+  opt_variables_->AddVariableSet(
+      VariableSet(contact_schedule->GetOptimizationParameters(), contact_schedule->GetID())
+      );
 
 
   constraints_->ClearConstraints();

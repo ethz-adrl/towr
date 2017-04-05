@@ -96,7 +96,7 @@ add_library(${MOTION_OPT_LIB}
   src/ee_motion.cc
   src/endeffectors_motion.cc
   src/endeffector_load.cc
-  src/contact_motion.cc
+  src/contact_schedule.cc
   # Input
   src/center_of_pressure.cc
   # constraints and costs
@@ -180,6 +180,7 @@ if(BUILD_TESTS)
                          test/dynamic_constraint_test.cc
                          test/center_of_pressure_test.cc
                          test/endeffectors_test.cc
+                         test/contact_schedule_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

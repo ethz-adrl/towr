@@ -35,6 +35,7 @@ CostConstraintFactory::~CostConstraintFactory ()
 void
 CostConstraintFactory::Init (const ComMotionPtr& com,
                              const EEMotionPtr& _ee_motion,
+                             const ContactSchedulePtr& contact_schedule,
                              const EELoadPtr& _ee_load,
                              const CopPtr& _cop,
                              const MotionTypePtr& _params,
@@ -43,6 +44,7 @@ CostConstraintFactory::Init (const ComMotionPtr& com,
 {
   com_motion = com;
   ee_motion = _ee_motion;
+  contact_schedule_ = contact_schedule;
   ee_load = _ee_load;
   cop = _cop;
 
@@ -192,7 +194,8 @@ CostConstraintFactory::MakeConvexityConstraint() const
 
   auto convexity = std::make_shared<ConvexityConstraint>(ee_load);
 
-  auto contact_load = std::make_shared<ContactLoadConstraint>(ee_motion, ee_load);
+  auto contact_load = std::make_shared<ContactLoadConstraint>(contact_schedule_,
+                                                              ee_load);
 
   return {cop_constrait, convexity, contact_load};
 }

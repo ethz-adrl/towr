@@ -1,19 +1,18 @@
 /**
- @file    contact_motion.h
+ @file    contact_schedule.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Apr 5, 2017
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_CONTACT_MOTION_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_CONTACT_MOTION_H_
+#ifndef XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
+#define XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
 
-#include <xpp/parametrization.h>
 #include <xpp/endeffectors.h>
+#include <xpp/parametrization.h>
 
 namespace xpp {
 namespace opt {
-
 
 class SingleContactMotion {
 public:
@@ -30,21 +29,25 @@ private:
 };
 
 
-
-
 /** @brief Knows which endeffectors are in contact at time t during trajectory.
  */
-class ContactMotion : public Parametrization {
+class ContactSchedule : public Parametrization {
 public:
   using EEContacts = Endeffectors<SingleContactMotion>;
   using Phase      = std::pair<EndeffectorsBool, double>; // swinglegs and time
   using PhaseVec   = std::vector<Phase>;
 
-  ContactMotion ();
-  virtual ~ContactMotion ();
+  ContactSchedule ();
+  virtual ~ContactSchedule ();
 
   void SetPhaseSequence (const PhaseVec& phases);
   EndeffectorsBool IsInContact(double t_global) const;
+
+
+  // so far not optimizing over these
+  VectorXd GetOptimizationParameters() const override { return VectorXd(); };
+  void SetOptimizationParameters(const VectorXd&) override {};
+
 
 private:
   void SetInitialSwinglegs(const EndeffectorsBool&);
@@ -56,4 +59,4 @@ private:
 } /* namespace opt */
 } /* namespace xpp */
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_CONTACT_MOTION_H_ */
+#endif /* XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_ */

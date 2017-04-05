@@ -11,6 +11,7 @@
 #include "endeffectors_motion.h"
 #include "endeffector_load.h"
 #include "center_of_pressure.h"
+#include "contact_schedule.h"
 
 #include "motion_parameters.h"
 
@@ -41,6 +42,7 @@ public:
   using MotionTypePtr = std::shared_ptr<MotionParameters>;
   using ComMotionPtr  = std::shared_ptr<BaseMotion>;
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
+  using ContactSchedulePtr   = std::shared_ptr<ContactSchedule>;
   using EELoadPtr     = std::shared_ptr<EndeffectorLoad>;
   using CopPtr        = std::shared_ptr<CenterOfPressure>;
 
@@ -48,7 +50,7 @@ public:
   virtual ~CostConstraintFactory ();
 
   // zmp_ consider wrapping all Optimization Variables into once class
-  void Init(const ComMotionPtr&, const EEMotionPtr&,
+  void Init(const ComMotionPtr&, const EEMotionPtr&, const ContactSchedulePtr&,
             const EELoadPtr&, const CopPtr&,
             const MotionTypePtr& params, const RobotStateCartesian& initial_state,
             const StateLin2d& final_state);
@@ -67,6 +69,7 @@ private:
 
   ComMotionPtr com_motion;
   EEMotionPtr ee_motion;
+  ContactSchedulePtr contact_schedule_;
   EELoadPtr ee_load;
   CopPtr cop;
 

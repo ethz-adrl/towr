@@ -10,6 +10,7 @@
 
 #include <Eigen/Dense>
 #include <string>
+#include <memory>
 
 namespace xpp {
 namespace opt {
@@ -20,9 +21,11 @@ namespace opt {
   * polynomials, piecewise-constant functions, through a finite number of
   * parameters.
   */
+// spring_clean_ not too different from "VariableSet"
 class Parametrization {
 public:
   using VectorXd = Eigen::VectorXd;
+  using Ptr      = std::shared_ptr<Parametrization>;
 
   /** @param the name of what these parameters represent.
    */
@@ -38,6 +41,19 @@ public:
 private:
   std::string id_;
 };
+
+
+
+//class ParametrizationContainer {
+//public:
+//
+//  Parametrization::Ptr GetParametrization(const std::string& id) const;
+//private:
+//  std::vector<Parametrization::Ptr> variables_;
+//};
+
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

@@ -54,7 +54,7 @@ TEST(EEsMotionTest, GetState)
   start_stance.At(E3) = Vector3d(-0.358802, -0.327695, 0.0);
 
 
-  Trott params;
+  Trot params;
   auto ee_motion = std::make_shared<EndeffectorsMotion>(params.GetEECount());
   ee_motion->SetInitialPos(start_stance);
   ee_motion->SetPhaseSequence(params.GetOneCycle());

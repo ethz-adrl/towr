@@ -10,15 +10,16 @@
 namespace xpp {
 namespace opt {
 
-ContactLoadConstraint::ContactLoadConstraint (const EEMotionPtr& ee_motion,
+ContactLoadConstraint::ContactLoadConstraint (const ContactSchedulePtr& contact_schedule,
                                               const EELoadPtr& ee_load)
 {
 
   int num_constraints = ee_load->GetOptVarCount();
-  SetDependentVariables({ee_motion, ee_load}, num_constraints);
+  SetDependentVariables({contact_schedule, ee_load}, num_constraints);
 
-  ee_motion_ = ee_motion;
+  contact_schedule_ = contact_schedule;
   ee_load_ = ee_load;
+  ee_ids_  = contact_schedule->IsInContact(0.0).GetEEsOrdered();
 
   GetJacobianRefWithRespectTo(ee_load_->GetID()).setIdentity();
 }
@@ -43,11 +44,11 @@ ContactLoadConstraint::UpdateBounds ()
   // inverval.
   for (int segment=0; segment<ee_load_->GetNumberOfSegments(); ++segment) {
     double t_center = ee_load_->GetTimeCenterSegment(segment);
-    auto contacts_center = ee_motion_->GetContactState(t_center);
+    EndeffectorsBool contacts_center = contact_schedule_->IsInContact(t_center);
 
-    for (auto ee : contacts_center.GetEEsOrdered()) {
+    for (auto ee : ee_ids_) {
       auto contact = static_cast<double>(contacts_center.At(ee));
-      bounds_.at(contacts_center.GetCount()*segment+ee) = Bound(0.0, contact);
+      bounds_.at(ee_ids_.size()*segment+ee) = Bound(0.0, contact);
     }
   }
 }

@@ -15,7 +15,7 @@
 namespace xpp {
 namespace opt {
 
-enum MotionTypeID    { WalkID, TrottID, PaceID, BoundID, PushRecID };
+enum MotionTypeID    { WalkID, TrotID, PaceID, BoundID, PushRecID };
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
                        FinalComCostID, FinalStanceCostID };
 enum ConstraintName  { InitCom, FinalCom, JunctionCom, Convexity,

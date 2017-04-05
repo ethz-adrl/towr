@@ -10,6 +10,7 @@
 
 #include <xpp/opt/motion_parameters.h>
 #include <xpp/robot_state_cartesian.h>
+#include <xpp/opt/contact_schedule.h>
 #include <memory>
 
 namespace xpp {
@@ -38,6 +39,7 @@ public:
   using MotionparamsPtr          = std::shared_ptr<MotionParameters>;
   using ComMotionPtrS            = std::shared_ptr<BaseMotion>;
   using EEMotionPtrS             = std::shared_ptr<EndeffectorsMotion>;
+  using ContactSchedulePtr       = std::shared_ptr<ContactSchedule>;
   using NLPPtr                   = std::shared_ptr<NLP>;
 //  using ContactVec               = std::vector<Contact>;
 
@@ -58,6 +60,7 @@ public:
                       const StateLin2d& final_state,
                       const EEMotionPtrS& ee_motion,
                       const ComMotionPtrS& com_motion,
+                      const ContactSchedulePtr& contact_schedule,
                       const MotionparamsPtr&,
                       NlpSolver solver);
 

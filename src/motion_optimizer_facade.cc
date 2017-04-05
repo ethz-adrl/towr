@@ -8,6 +8,7 @@
 #include <xpp/optimization_variables.h>
 #include <xpp/opt/motion_optimizer_facade.h>
 #include <xpp/opt/endeffectors_motion.h>
+#include <xpp/opt/contact_schedule.h>
 #include <xpp/opt/motion_factory.h>
 #include <xpp/opt/base_motion.h>
 
@@ -44,6 +45,13 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
   auto goal_com = goal_geom_;
   goal_com.p += motion_parameters_->offset_geom_to_com_;
 
+
+  // initialize the contact schedule
+  auto contact_schedule = std::make_shared<ContactSchedule>();
+  contact_schedule->SetPhaseSequence(motion_parameters_->GetOneCycle());
+
+
+
   // initialize the ee_motion with the fixed parameters
   ee_motion_ = std::make_shared<EndeffectorsMotion>(motion_parameters_->GetEECount());
   ee_motion_->SetInitialPos(start_geom_.GetEEPos());
@@ -62,6 +70,7 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
                              goal_com.Get2D(),
                              ee_motion_,
                              com_motion_,
+                             contact_schedule,
                              motion_parameters_,
                              solver);
 }

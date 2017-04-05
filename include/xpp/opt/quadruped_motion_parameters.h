@@ -41,9 +41,9 @@ public:
   Walk();
 };
 
-class Trott : public QuadrupedMotionParameters {
+class Trot : public QuadrupedMotionParameters {
 public:
-  Trott();
+  Trot();
 };
 
 class Pace : public QuadrupedMotionParameters {

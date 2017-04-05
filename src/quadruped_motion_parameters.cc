@@ -62,8 +62,8 @@ QuadrupedMotionParameters::MakeMotion (opt::MotionTypeID id)
   switch (id) {
     case WalkID:
       return std::make_shared<Walk>();
-    case TrottID:
-      return std::make_shared<Trott>();
+    case TrotID:
+      return std::make_shared<Trot>();
     case BoundID:
       return std::make_shared<Bound>();
     case PaceID:
@@ -126,12 +126,12 @@ Walk::Walk()
 //  cost_weights_[FinalComCostID] = 1000.0;
 }
 
-Trott::Trott()
+Trot::Trot()
 {
   opt_horizon_in_phases_ = 2*2;
   max_dev_xy_ = {0.15, 0.15};
 //  lambda_deviation_percent_ = 0.6;
-  id_ = opt::TrottID;
+  id_ = opt::TrotID;
   max_step_length_ = 0.35;
   dt_nodes_ = 0.05;
   polynomials_per_second_ = 15;
