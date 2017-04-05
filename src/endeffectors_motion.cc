@@ -21,7 +21,7 @@ EndeffectorsMotion::~EndeffectorsMotion ()
 }
 
 void
-EndeffectorsMotion::SetInitialPos (const EEXppPos& initial_pos)
+EndeffectorsMotion::SetInitialPos (const EndeffectorsPos& initial_pos)
 {
   for (auto ee : initial_pos.GetEEsOrdered())
     endeffectors_.At(ee).SetInitialPos(initial_pos.At(ee), ee);
@@ -56,10 +56,10 @@ EndeffectorsMotion::GetContacts (double t) const
   return contacts;
 }
 
-EEXppBool
+EndeffectorsBool
 EndeffectorsMotion::GetContactState (double t_global) const
 {
-  EEXppBool contact_state(GetNumberOfEndeffectors());
+  EndeffectorsBool contact_state(GetNumberOfEndeffectors());
 
   for (auto ee : endeffectors_.ToImpl())
     contact_state.At(ee.GetEE()) = ee.IsInContact(t_global);

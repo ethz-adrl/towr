@@ -47,7 +47,7 @@ TEST(EEMotionTest, Params)
 TEST(EEsMotionTest, GetState)
 {
 
-  EEXppPos start_stance(4);
+  EndeffectorsPos start_stance(4);
   start_stance.At(E0) = Vector3d(+0.359692, +0.327653, 0.0);
   start_stance.At(E1) = Vector3d(+0.359694, -0.327644, 0.0);
   start_stance.At(E2) = Vector3d(-0.358797, +0.327698, 0.0);

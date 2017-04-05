@@ -30,7 +30,7 @@ MotionOptimizerFacade::BuildDefaultStartStance (const MotionParameters& params)
   int n_ee = params.robot_ee_.size();
   State3d base;
   base.lin.p.z() = params.geom_walking_height_;
-  EEXppBool contact_state(params.robot_ee_.size());
+  EndeffectorsBool contact_state(params.robot_ee_.size());
   contact_state.SetAll(true);
 
   start_geom_.SetBase(base);

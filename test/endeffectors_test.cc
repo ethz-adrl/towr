@@ -14,7 +14,7 @@ namespace opt {
 
 TEST(EndeffectorsTest, ToImpl)
 {
-  EEXppPos ee_pos(2);
+  EndeffectorsPos ee_pos(2);
 
 
   for (auto& ee : ee_pos.ToImpl()) {

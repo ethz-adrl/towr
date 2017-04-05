@@ -210,8 +210,8 @@ CostConstraintFactory::MakeStancesConstraints () const
   stance_constraints.push_back(constraint_initial);
 
   // calculate endeffector position in world frame
-  EEXppPos nominal_B = params->GetNominalStanceInBase();
-  EEXppPos endeffectors_final_W(nominal_B.GetCount());
+  EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
+  EndeffectorsPos endeffectors_final_W(nominal_B.GetCount());
   for (auto ee : endeffectors_final_W.GetEEsOrdered())
     endeffectors_final_W.At(ee) = final_geom_state_.Make3D().p + nominal_B.At(ee);
 

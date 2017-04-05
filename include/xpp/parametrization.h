@@ -24,6 +24,8 @@ class Parametrization {
 public:
   using VectorXd = Eigen::VectorXd;
 
+  /** @param the name of what these parameters represent.
+   */
   Parametrization (const std::string& id);
   virtual ~Parametrization ();
 

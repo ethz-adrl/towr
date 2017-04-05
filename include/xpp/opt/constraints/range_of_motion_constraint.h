@@ -33,7 +33,7 @@ public:
   using ComMotionPtr  = std::shared_ptr<BaseMotion>;
   using EEMotionPtr    = std::shared_ptr<EndeffectorsMotion>;
   using MaxDevXY       = std::array<double,2>;
-  using NominalStance  = EEXppPos;
+  using NominalStance  = EndeffectorsPos;
 
   /**
    * @param dt discretization interval [s] when to check this constraint.

@@ -23,7 +23,7 @@ namespace opt {
 class FootholdConstraint : public Constraint {
 public:
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
-  using NominalStance = EEXppPos;
+  using NominalStance = EndeffectorsPos;
 
   FootholdConstraint (const EEMotionPtr&, const NominalStance&, double t);
   virtual ~FootholdConstraint ();

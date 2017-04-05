@@ -44,7 +44,7 @@ public:
   int Index(EndeffectorID ee, int id, d2::Coords) const; // zmp_ remove the id?
 
 
-  void SetInitialPos(const EEXppPos& initial_pos);
+  void SetInitialPos(const EndeffectorsPos& initial_pos);
   void SetPhaseSequence(const PhaseVec& phases);
 
 
@@ -52,7 +52,7 @@ public:
   EEMotion& GetMotion(EndeffectorID ee);
   EEState GetEndeffectors(double t_global) const;
   Contacts GetContacts(double t_global) const;
-  EEXppBool GetContactState(double t_global) const;
+  EndeffectorsBool GetContactState(double t_global) const;
   double GetTotalTime() const;
 
 
