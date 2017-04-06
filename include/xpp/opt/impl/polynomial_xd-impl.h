@@ -78,6 +78,12 @@ bool PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt,
   return true;
 }
 
+template<typename PolynomialType, typename PointType>
+PolynomialType
+PolynomialXd<PolynomialType, PointType>::GetDim (int dim) const
+{
+  return polynomials_.at(dim);
+}
 
 } // namespace opt
 } // namespace xpp

@@ -1,25 +1,25 @@
 /**
- @file    ee_swing_motion.cc
+ @file    ee_phase_motion.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jan 16, 2017
  @brief   Brief description
  */
 
-#include <xpp/opt/ee_swing_motion.h>
+#include <xpp/opt/ee_phase_motion.h>
 
 namespace xpp {
 namespace opt {
 
-EESwingMotion::EESwingMotion ()
+EEPhaseMotion::EEPhaseMotion ()
 {
 }
 
-EESwingMotion::~EESwingMotion ()
+EEPhaseMotion::~EEPhaseMotion ()
 {
 }
 
 void
-EESwingMotion::Init (double T, double h, const Vector3d& start,
+EEPhaseMotion::Init (double T, double h, const Vector3d& start,
                      const Vector3d& end)
 {
   T_ = T;
@@ -28,13 +28,13 @@ EESwingMotion::Init (double T, double h, const Vector3d& start,
 }
 
 double
-EESwingMotion::GetDuration () const
+EEPhaseMotion::GetDuration () const
 {
   return T_;
 }
 
 void
-EESwingMotion::SetContacts (const Vector3d& start_pos,
+EEPhaseMotion::SetContacts (const Vector3d& start_pos,
                             const Vector3d& end_pos)
 {
   StateLin3d start_state(start_pos);
@@ -44,7 +44,7 @@ EESwingMotion::SetContacts (const Vector3d& start_pos,
 }
 
 StateLin3d
-EESwingMotion::GetState (double t_local) const
+EEPhaseMotion::GetState (double t_local) const
 {
   StateLin1d z;
   poly_z_.GetPoint(t_local, z);
@@ -58,6 +58,13 @@ EESwingMotion::GetState (double t_local) const
   ee.SetDimension(z, Z);
 
   return ee;
+}
+
+double
+EEPhaseMotion::GetDerivativeOfPosWrtContactsXY (d2::Coords dim, double t_local,
+                                                Polynomial::PointType p) const
+{
+  return poly_xy_.GetDim(dim).GetDerivativeOfPosWrtPos(t_local, p);
 }
 
 } /* namespace opt */

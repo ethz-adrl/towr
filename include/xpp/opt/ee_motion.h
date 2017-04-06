@@ -8,12 +8,12 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_MOTION_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_MOTION_H_
 
-#include <xpp/opt/ee_swing_motion.h>
 #include <xpp/contact.h>
 #include <xpp/parametrization.h>
 
 #include <Eigen/Sparse>
 #include <deque>
+#include "ee_phase_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -23,11 +23,10 @@ namespace opt {
 class EEMotion : public Parametrization {
 public:
   using ContactPositions = std::deque<Contact>;
-  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
+  using PhaseContacts    = std::array<Contact, 2>;
 
   EEMotion ();
   virtual ~EEMotion ();
-
 
   void SetInitialPos(const Vector3d& pos, EndeffectorID);
   void AddStancePhase(double t);
@@ -44,22 +43,29 @@ public:
   ContactPositions GetContact(double t_global) const;
 
 
-
   VectorXd GetOptimizationParameters() const override;
   void SetOptimizationParameters(const VectorXd&) override;
   // haven't yet implemented the derivative during swing phase
-//  JacobianRow GetJacobianPos(double t, d2::Coords dimension) const;
+  JacobianRow GetJacobianPos(double t, d2::Coords dimension) const;
   int Index(int id, d2::Coords dimension) const;
 
 
 private:
   int GetPhase(double t_global) const;
-  void AddPhase(double t, const Vector3d& goal, double lift_height);
+  void AddPhase(double t, const Vector3d& goal, double lift_height, int id_goal);
   void UpdateSwingMotions();
+  double GetLocalTime(double t_global, int phase) const;
 
-  ContactPositions contacts_;
+  Contact GetLastContact() const;
+
+//  ContactPositions contacts_;
+  Contact first_contact_;
+  int n_steps = 0;
+
+  std::vector<PhaseContacts> phase_contacts_;
+
   std::deque<bool> is_contact_phase_; // zmp_ this deserves a separate class
-  std::vector<EESwingMotion> phase_motion_;
+  std::vector<EEPhaseMotion> phase_motion_;
 
 };
 

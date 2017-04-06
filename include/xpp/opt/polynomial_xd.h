@@ -36,12 +36,16 @@ public:
   double GetCoefficient(int dim, PolyCoeff coeff) const;
   void   SetCoefficients(int dim, PolyCoeff coeff, double value);
 
+
   static int GetNumCoeff() { return PolynomialType::GetNumCoeff(); };
 
   double GetDuration() const;
 
   uint GetId()            const { return id_; };
   void SetId(uint id)           { id_ = id;   };
+
+  PolynomialType GetDim(int dim) const;
+
 
 private:
   std::array<PolynomialType, kNumDim> polynomials_; ///< X,Y,Z dimensions

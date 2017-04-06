@@ -25,9 +25,9 @@ namespace opt {
 /** Constructs a polynomial given start and end states.
   *
   * The polynomial types are:
-  * Linear:  Ex + F;
-  * Cubic:   Dx^2 + Ex + F;
-  * Quintic: At^5 + Bt^4 + Ct^3 + Dt^2 + Et + f
+  * Linear:  Et + F;
+  * Cubic:   Ct^3 + Dt^2 + Et + F;
+  * Quintic: At^5 + Bt^4 + Ct^3 + Dt^2 + Et + F
   */
 class Polynomial {
 public:
@@ -35,6 +35,8 @@ public:
   // f = At^5 + Bt^4 + Ct^3 + Dt^2 + Et + f
   enum PolynomialCoeff { A=0, B, C, D, E, F };
   static constexpr std::array<PolynomialCoeff, 6> AllSplineCoeff = {{A,B,C,D,E,F}};
+
+  enum PointType {Start=0, Goal=1};
 
 public:
   Polynomial();
@@ -61,10 +63,10 @@ public:
   double GetDuration() const;
 
 protected:
+  double duration;
   std::array< double, AllSplineCoeff.size() > c; //!< coefficients of spline
 
 private:
-  double duration;
   /**
    * @brief Calculates all spline coeff of current spline.
    *
@@ -105,12 +107,18 @@ private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
 };
 
+/** @brief a polynomial of the form ct^3 + dt^2 + et + f.
+ * see matlab script "third_order_poly.m" for generation of these values.
+ */
 class CubicPolynomial : public Polynomial {
 public:
   CubicPolynomial() {};
   ~CubicPolynomial() {};
 
   static int GetNumCoeff() { return 4; }; //C,D,E,F
+
+  // spring_clean_ move up to base class?
+  double GetDerivativeOfPosWrtPos(double t, PointType p) const;
 
 private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);

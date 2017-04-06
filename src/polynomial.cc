@@ -74,10 +74,23 @@ void CubicPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& star
 
   c[F] = start.p;
   c[E] = start.v;
-  c[D] = - ((3 * c[F]) - (3 * end.p) + (2 * T1 * c[E]) + (T1 * end.v)) / T2;
-  c[C] =   ((2 * c[F]) - (2 * end.p) +      T1 * (c[E] +       end.v ))/ T3;
+  c[D] = -( 3*(start.p - end.p) +  T1*(2*start.v + end.v) ) / T2;
+  c[C] =  ( 2*(start.p - end.p) +  T1*(  start.v + end.v) ) / T3;
 
   c[B] = c[A] = 0.0;
+}
+
+double
+CubicPolynomial::GetDerivativeOfPosWrtPos (double t, PointType p) const
+{
+  double T2 = duration*duration;
+  double T3 = T2*duration;
+
+  switch (p) {
+    case Start: return (2*t*t*t)/T3 - (3*t*t)/T2 + 1;
+    case Goal:  return (3*t*t)/T2   - (2*t*t*t)/T3;
+    default: assert(false); // point type not defined
+  }
 }
 
 void QuinticPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end)
@@ -130,5 +143,3 @@ LiftHeightPolynomial::SetPolynomialCoefficients (
 
 } // namespace opt
 } // namespace xpp
-
-

@@ -1,5 +1,5 @@
 /**
- @file    ee_swing_motion.h
+ @file    ee_phase_motion.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jan 16, 2017
  @brief   Brief description
@@ -17,16 +17,16 @@ namespace opt {
 
 /** Parametrizes the motion from one 3D point to another.
   *
-  * This can be used to generate the swingleg motion given two footholds.
-  * See xpp_opt/matlab/swingleg_z_height.m for the generation of these values.
+  * This can be used to generate the swingleg motion given two footholds or
+  * represent a leg in stance ("movement" between the same start/goal).
   */
-class EESwingMotion {
+class EEPhaseMotion {
 public:
-  using PolyXY     = PolynomialXd<CubicPolynomial, StateLin2d>;
-  using PolyZ      = LiftHeightPolynomial;
+  using PolyXY      = PolynomialXd<CubicPolynomial, StateLin2d>;
+  using PolyZ       = LiftHeightPolynomial;
 
-  EESwingMotion ();
-  virtual ~EESwingMotion ();
+  EEPhaseMotion ();
+  virtual ~EEPhaseMotion ();
 
   /** Completely parametrizes the motion.
     *
@@ -51,6 +51,9 @@ public:
     */
   StateLin3d GetState(double t_local) const;
   double GetDuration() const;
+
+  double GetDerivativeOfPosWrtContactsXY(d2::Coords dim, double t_local,
+                                         Polynomial::PointType p) const;
 
 private:
   PolyZ poly_z_;

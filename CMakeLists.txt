@@ -92,7 +92,7 @@ add_library(${MOTION_OPT_LIB}
   src/motion_factory.cc
   src/linear_spline_equations.cc
   # endeffector
-  src/ee_swing_motion.cc
+  src/ee_phase_motion.cc
   src/ee_motion.cc
   src/endeffectors_motion.cc
   src/endeffector_load.cc
@@ -174,7 +174,7 @@ if(BUILD_TESTS)
 #                        test/google/ipopt_test.cc
 #                        # general
 #                        test/google/sparse_matrix_test.cc
-                         test/google/ee_swing_motion_test.cc
+                         test/google/ee_phase_motion_test.cc
                          test/google/ee_motion_test.cc
                          ## these should be kept well maintained
                          test/dynamic_constraint_test.cc
