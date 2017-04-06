@@ -43,6 +43,21 @@ bool Polynomial::GetPoint(const double dt, StateLin1d& out) const
   return true;
 }
 
+double Polynomial::GetCoefficient(PolynomialCoeff coeff) const
+{
+  return c[coeff];
+}
+
+void Polynomial::SetCoefficient(PolynomialCoeff coeff, double value)
+{
+  c[coeff] = value;
+}
+
+double Polynomial::GetDuration() const
+{
+  return duration;
+}
+
 void LinearPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end)
 {
   c[F] = start.p;

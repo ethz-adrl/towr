@@ -38,7 +38,6 @@ public:
 
   static int GetNumCoeff() { return PolynomialType::GetNumCoeff(); };
 
-  void SetDuration(double duration);
   double GetDuration() const;
 
   uint GetId()            const { return id_; };

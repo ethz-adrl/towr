@@ -55,9 +55,16 @@ public:
    */
   bool GetPoint(const double dt, StateLin1d& point) const;
 
+  double GetCoefficient(PolynomialCoeff coeff) const;
+  void SetCoefficient(PolynomialCoeff coeff, double value);
+
+  double GetDuration() const;
+
+protected:
   std::array< double, AllSplineCoeff.size() > c; //!< coefficients of spline
-  double duration;
+
 private:
+  double duration;
   /**
    * @brief Calculates all spline coeff of current spline.
    *
@@ -65,8 +72,6 @@ private:
    * This is the only function that must be implemented by the child classes.
    */
   virtual void SetPolynomialCoefficients(double T, const StateLin1d& start_p, const StateLin1d& end_p) = 0;
-
-protected:
 };
 
 inline Polynomial::Polynomial()
