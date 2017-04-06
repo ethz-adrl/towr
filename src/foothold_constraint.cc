@@ -22,12 +22,14 @@ FootholdConstraint::FootholdConstraint (const EEMotionPtr& ee_motion,
   int num_constraints = nom_W.GetCount() * kDim2d;
   SetDependentVariables({ee_motion}, num_constraints);
 
-  // jacobian doesn't change with values of optimization variables
+  // Jacobian doesn't change with values of optimization variables
+  // only holds if t is during stance phase, otherwise Jacobian
+  // dependent on time.
   Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetID());
   int k = 0;
-  for (auto c : ee_motion_->GetContacts(t))
+  for (const auto ee : nom_W.GetEEsOrdered())
     for (auto dim : d2::AllDimensions)
-      jac.row(k++) = ee_motion_->GetJacobianWrtOptParams(t,c.ee,dim);
+      jac.row(k++) = ee_motion_->GetJacobianWrtOptParams(t,ee,dim);
 }
 
 FootholdConstraint::~FootholdConstraint ()
@@ -38,9 +40,9 @@ void
 FootholdConstraint::UpdateConstraintValues ()
 {
   int k=0;
-  for (auto c : ee_motion_->GetContacts(t_))
+  for (const auto& ee_state : ee_motion_->GetEndeffectorsVec(t_))
     for (auto dim : d2::AllDimensions)
-      g_(k++) = c.p(dim);
+      g_(k++) = ee_state.p(dim);
 }
 
 void

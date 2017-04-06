@@ -53,6 +53,7 @@ public:
   int GetNumberOfEndeffectors() const;
   EEMotion& GetMotion(EndeffectorID ee);
   EEState GetEndeffectors(double t_global) const;
+  EEState::Container GetEndeffectorsVec(double t_global) const;
   double GetTotalTime() const;
 
   Contacts GetContacts(double t_global) const;

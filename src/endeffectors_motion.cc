@@ -181,5 +181,11 @@ EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
 
 }
 
+EndeffectorsMotion::EEState::Container
+EndeffectorsMotion::GetEndeffectorsVec (double t_global) const
+{
+  return GetEndeffectors(t_global).ToImpl();
+}
+
 } /* namespace opt */
 } /* namespace xpp */
