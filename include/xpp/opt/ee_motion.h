@@ -54,7 +54,7 @@ public:
 
 private:
   int GetPhase(double t_global) const;
-  void AddPhase(double t, const Vector3d& goal, double lift_height = 0.03);
+  void AddPhase(double t, const Vector3d& goal, double lift_height);
   void UpdateSwingMotions();
 
   ContactPositions contacts_;

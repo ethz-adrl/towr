@@ -121,6 +121,31 @@ public:
 private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
 };
+
+/** @brief Creates a smooth up and down motion for e.g. swinging a leg.
+ *
+ * see matlab script "swingleg_z_height.m" for generation of these values.
+ */
+class LiftHeightPolynomial : public Polynomial {
+public:
+  LiftHeightPolynomial() {};
+  ~LiftHeightPolynomial() {};
+
+  static int GetNumCoeff() { return 6; }; //A,B,C,D,E,F
+
+  /** Determines how quick the height rises/drops.
+   *
+   * h is not the exact height between the contact points, but the height
+   * that the swingleg has as 1/n_*T and (n-1)/n*T, e.g. shortly after lift-off
+   * and right before touchdown. The lift-height in the center is higher.
+   */
+  void SetShape(int n, double h);
+
+private:
+  int n_ = 6;        ///< determines the shape of the swing motion
+  double h_ = 0.03;  ///< proportional to the lift height between contacts
+  void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
+};
 /** @} */
 
 } // namespace opt

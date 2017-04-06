@@ -1,5 +1,5 @@
 /**
- @file    ee_height_z_polynomial.h
+ @file    ee_swing_motion.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jan 16, 2017
  @brief   Brief description
@@ -23,7 +23,7 @@ namespace opt {
 class EESwingMotion {
 public:
   using PolyXY     = PolynomialXd<CubicPolynomial, StateLin2d>;
-  using PolyZ      = QuinticPolynomial;
+  using PolyZ      = LiftHeightPolynomial;
 
   EESwingMotion ();
   virtual ~EESwingMotion ();
@@ -55,10 +55,7 @@ public:
 private:
   PolyZ poly_z_;
   PolyXY poly_xy_;
-
   double T_ = 0.0;   ///< the duration [s] of the motion
-  double h_ = 0.03;  ///< proportional to the lift height between contacts
-  int n_    = 6;     ///< determines the shape of the swing motion
 };
 
 } /* namespace opt */

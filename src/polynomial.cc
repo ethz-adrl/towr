@@ -36,9 +36,9 @@ bool Polynomial::GetPoint(const double dt, StateLin1d& out) const
   double dt5 = dt1 * dt4;
 
   out.p   = c[F] + c[E]*dt1 +   c[D]*dt2 +   c[C]*dt3 +    c[B]*dt4 +    c[A]*dt5;
-  out.v  =        c[E]     + 2*c[D]*dt1 + 3*c[C]*dt2 +  4*c[B]*dt3 +  5*c[A]*dt4;
-  out.a =                   2*c[D]     + 6*c[C]*dt1 + 12*c[B]*dt2 + 20*c[A]*dt3;
-  out.j=                                6*c[C]     + 24*c[B]*dt1 + 60*c[A]*dt2;
+  out.v  =         c[E]     + 2*c[D]*dt1 + 3*c[C]*dt2 +  4*c[B]*dt3 +  5*c[A]*dt4;
+  out.a =                     2*c[D]     + 6*c[C]*dt1 + 12*c[B]*dt2 + 20*c[A]*dt3;
+  out.j=                                   6*c[C]     + 24*c[B]*dt1 + 60*c[A]*dt2;
 
   return true;
 }
@@ -81,5 +81,39 @@ void QuinticPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& st
   c[A] = -( 12*start.p - 12*end.p + T1*(   start.a*T1 -   end.a*T1 +  6*(start.v +    end.v))) / (2*T5);
 }
 
+void
+LiftHeightPolynomial::SetShape (int n, double h)
+{
+  n_ = n;
+  h_ = h;
+}
+
+void
+LiftHeightPolynomial::SetPolynomialCoefficients (
+    double T, const StateLin1d& start, const StateLin1d& end)
+{
+  double n2 = std::pow(n_,2);
+  double n3 = std::pow(n_,3);
+  double n4 = std::pow(n_,4);
+  double n5 = std::pow(n_,5);
+
+  double T1 = T;
+  double T2 = T1 * T1;
+  double T3 = T1 * T2;
+  double T4 = T1 * T3;
+  double T5 = T1 * T4;
+
+  // see matlab script "swingleg_z_height.m" for generation of these values
+  c[A] = -(2*(2*n2*end.p - 3*n3*end.p - 2*n2*start.p + 3*n3*start.p))/(T5*(n_ - 2)*(n2 - 2*n_ + 1));
+  c[B] = -(2*h_*n4 - h_*n5 - 10*n2*end.p + 15*n3*end.p + 10*n2*start.p - 15*n3*start.p)/(T4*(n_ - 2)*(n2 - 2*n_ + 1));
+  c[C] =  (2*(2*end.p - 2*start.p - 5*n_*end.p + 5*n_*start.p + 2*h_*n4 - h_*n5 + 5*n3*end.p - 5*n3*start.p))/((n_ - 2)*(n2*T3 - 2*n_*T3 + T3));
+  c[D] =  (6*end.p - 6*start.p - 15*n_*end.p + 15*n_*start.p + 2*h_*n4 - h_*n5 + 10*n2*end.p - 10*n2*start.p)/(- n3*T2 + 4*n2*T2 - 5*n_*T2 + 2*T2);
+  c[E] =  0;
+  c[F] =  start.p;
+}
+
+
 } // namespace opt
 } // namespace xpp
+
+

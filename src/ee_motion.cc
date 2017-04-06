@@ -35,7 +35,8 @@ EEMotion::AddStancePhase (double t)
 void
 EEMotion::AddSwingPhase (double t, const Vector3d& goal)
 {
-  AddPhase(t, goal);
+  double light_height = 0.03;
+  AddPhase(t, goal, light_height);
   Contact c(contacts_.back().id +1 , contacts_.back().ee, goal);
   contacts_.push_back(c);
   is_contact_phase_.push_back(false);
