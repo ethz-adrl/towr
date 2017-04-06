@@ -25,12 +25,9 @@ FootholdConstraint::FootholdConstraint (const EEMotionPtr& ee_motion,
   // jacobian doesn't change with values of optimization variables
   Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetID());
   int k = 0;
-  for (auto c : ee_motion_->GetContacts(t)) {
-    for (auto dim : d2::AllDimensions) {
-      int idx = ee_motion_->Index(c.ee,c.id,dim);
-      jac.insert(k++,idx) = 1.0;
-    }
-  }
+  for (auto c : ee_motion_->GetContacts(t))
+    for (auto dim : d2::AllDimensions)
+      jac.row(k++) = ee_motion_->GetJacobianWrtOptParams(t,c.ee,dim);
 }
 
 FootholdConstraint::~FootholdConstraint ()

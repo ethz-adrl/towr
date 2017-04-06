@@ -112,6 +112,20 @@ EndeffectorsMotion::GetNumberOfEndeffectors () const
   return endeffectors_.GetCount();
 }
 
+JacobianRow
+EndeffectorsMotion::GetJacobianWrtOptParams (double t_global,
+                                             EndeffectorID ee,
+                                             d2::Coords dim) const
+{
+  JacobianRow jac_row(GetOptVarCount());
+  int col_start = Index(ee, 0, d2::X);
+  JacobianRow jac_ee = endeffectors_.At(ee).GetJacobianPos(t_global, dim);
+
+  for (JacobianRow::InnerIterator it(jac_ee); it; ++it)
+    jac_row.coeffRef(col_start+it.col()) = it.value();
+
+  return jac_row;
+}
 
 // zmp_ !!! remove this, already in contact sequence
 void

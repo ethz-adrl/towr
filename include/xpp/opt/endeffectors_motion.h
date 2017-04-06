@@ -43,6 +43,7 @@ public:
   void SetOptimizationParameters(const VectorXd&) override;
   // order at which the contact position of this endeffector is stored
   int Index(EndeffectorID ee, int id, d2::Coords) const;
+  JacobianRow GetJacobianWrtOptParams(double t_global, EndeffectorID ee, d2::Coords) const;
 
 
   void SetInitialPos(const EndeffectorsPos& initial_pos);

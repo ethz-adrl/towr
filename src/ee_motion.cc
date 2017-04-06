@@ -129,34 +129,23 @@ EEMotion::SetOptimizationParameters (const VectorXd& x)
 }
 
 JacobianRow
-EEMotion::GetJacobianPos (double t_global, d2::Coords dimension) const
+EEMotion::GetJacobianPos (double t_global, d2::Coords dim) const
 {
   JacobianRow jac(GetOptVarCount());
 
-  assert(false);
+  // figure out which contacts affect the motion
+  int phase      = GetPhase(t_global);
+  double t_local = GetLocalTime(t_global, phase);
 
-//  // figure out which contacts affect the motion
-//  int phase      = GetPhase(t_global);
-//  double t_local = GetLocalTime(t_global, phase);
-//  bool is_contact_phase = is_contact_phase_.at(phase);
-//
-//  ContactPositions relevant_contacts;
-//  if (is_contact_phase) {
-//    relevant_contacts.push_back(
-//  }
-//
-//
-//  for (auto dim : d2::AllDimensions) {
-//    // for a contact phase it's this (same start and goal, only one contact affects it all)
-//    double dpdc_start = phase_motion_.at(phase).GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Start);
-//
-//    // for a swingphase the goal position is also relevant
-//    double dpdc_goal  = phase_motion_.at(phase).GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Goal);
-//
-//    jac(Index(c.id,dim)) = ...
-//  }
+  // same id for stance phase
+  int idx_start = Index(phase_contacts_.at(phase).front().id, dim);
+  int idx_goal  = Index(phase_contacts_.at(phase).back().id, dim);
 
+  jac.insert(idx_start) = phase_motion_.at(phase).GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Start);
+  jac.insert(idx_goal)  = phase_motion_.at(phase).GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Goal);
 
+  if (idx_start == idx_goal)// in contact phase
+    jac.insert(idx_start) = 1.0;
 
   return jac;
 }
