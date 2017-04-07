@@ -10,6 +10,7 @@
 
 namespace xpp {
 namespace opt {
+namespace quad{
 
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
@@ -87,27 +88,40 @@ Walk::Walk()
 
   double t_phase = 0.2;
   double t_trans = 0.1;
+//  timings_ =
+//  {
+//      0.4,
+//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+//      0.01,
+//  };
+//  ee_cycle2_ =
+//  {
+//      II_,
+//      PI_, PP_, IP_, bI_, bb_, Ib_,
+//      PI_, PP_, IP_, bI_, bb_, Ib_,
+//      PI_, PP_, IP_, bI_, bb_, Ib_,
+//      II_,
+//  };
+
+
+  double t_step = 0.4;
   timings_ =
   {
       0.4,
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      0.01,
+      t_step, t_step,t_step,t_step,
+      t_step, t_step,t_step,t_step,
+      0.2,
   };
+
   ee_cycle2_ =
   {
       II_,
-      PI_, PP_, IP_, bI_, bb_, Ib_,
-      PI_, PP_, IP_, bI_, bb_, Ib_,
-      PI_, PP_, IP_, bI_, bb_, Ib_,
+      PI_, IP_, bI_, Ib_,
+      PI_, IP_, bI_, Ib_,
       II_,
   };
-
-//  double swing = 0.4;
-//  double trans = 0.1;
-//  timings_ = {swing, trans, swing, trans, swing, trans, swing, trans};
-//  ee_cycle_ = {PI, PP, IP, bP, bI, bb, Ib, Pb};
 
 
   constraints_ = { InitCom,
@@ -122,7 +136,7 @@ Walk::Walk()
 
   cost_weights_[ComCostID]          = 1.0;
   cost_weights_[RangOfMotionCostID] = 3.0;
-  cost_weights_[PolyCenterCostID]   = 50.0;
+  cost_weights_[PolyCenterCostID]   = 10.0;
 //  cost_weights_[FinalComCostID] = 1000.0;
 }
 
@@ -256,6 +270,7 @@ Bound::Bound()
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
+} // namespace quad
 } // namespace opt
 } // namespace xpp
 

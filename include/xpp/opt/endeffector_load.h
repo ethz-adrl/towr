@@ -14,7 +14,7 @@
 namespace xpp {
 namespace opt {
 
-/** Parametrizes the load/force each endeffector is holding during the motion.
+/** Parameterizes the load/force each endeffector is holding during the motion.
   *
   * The are the lambda values in the paper.
   */
@@ -26,8 +26,9 @@ public:
   EndeffectorLoad (const EndeffectorsMotion ee_motion, double dt, double T);
   virtual ~EndeffectorLoad ();
 
-  void SetOptimizationParameters(const VectorXd& x) override;
-  VectorXd GetOptimizationParameters() const override;
+  void SetVariables(const VectorXd& x) override;
+  VectorXd GetVariables() const override;
+
   /** @param k the number of discretized node with lambda parameters.
     * @param ee which endeffector we are interested in.
     * @returns the index in the optimization vector where this value is stored

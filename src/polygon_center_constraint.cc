@@ -31,10 +31,10 @@ PolygonCenterConstraint::UpdateConstraintValues ()
   for (int k=0; k<GetNumberOfConstraints(); ++k) {
     double g_node = 0.0;
     double t = ee_load_->GetTimeCenterSegment(k);
-    int num_contacts = contact_schedule_->GetContactCount(t);
+    int m = contact_schedule_->GetContactCount(t);
 
     for (auto lambda : ee_load_->GetLoadValuesIdx(k).ToImpl())
-      g_node += std::pow(lambda,2) - 2./num_contacts*lambda;
+      g_node += std::pow(lambda,2) - 2./m * lambda;
 
     g_(k) = g_node;
   }
@@ -50,21 +50,20 @@ PolygonCenterConstraint::UpdateBounds ()
   }
 }
 
-
 void
 PolygonCenterConstraint::UpdateJacobians ()
 {
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetID());
+  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetId());
 
   for (int k=0; k<GetNumberOfConstraints(); ++k) {
     double t = ee_load_->GetTimeCenterSegment(k);
-    int num_contacts = contact_schedule_->GetContactCount(t);
+    int m = contact_schedule_->GetContactCount(t);
 
     auto lambda_k = ee_load_->GetLoadValuesIdx(k);
 
     for (auto ee : lambda_k.GetEEsOrdered()) {
       int idx = ee_load_->IndexDiscrete(k,ee);
-      jac.coeffRef(k,idx) = 2*(lambda_k.At(ee) - 1./num_contacts);
+      jac.coeffRef(k,idx) = 2*(lambda_k.At(ee) - 1./m);
     }
   }
 }

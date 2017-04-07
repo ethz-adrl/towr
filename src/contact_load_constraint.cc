@@ -21,7 +21,7 @@ ContactLoadConstraint::ContactLoadConstraint (const ContactSchedulePtr& contact_
   ee_load_ = ee_load;
   ee_ids_  = contact_schedule->IsInContact(0.0).GetEEsOrdered();
 
-  GetJacobianRefWithRespectTo(ee_load_->GetID()).setIdentity();
+  GetJacobianRefWithRespectTo(ee_load_->GetId()).setIdentity();
 }
 
 ContactLoadConstraint::~ContactLoadConstraint ()
@@ -31,7 +31,7 @@ ContactLoadConstraint::~ContactLoadConstraint ()
 void
 ContactLoadConstraint::UpdateConstraintValues ()
 {
-  g_ = ee_load_->GetOptimizationParameters();
+  g_ = ee_load_->GetVariables();
 }
 
 void

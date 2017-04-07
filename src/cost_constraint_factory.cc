@@ -82,53 +82,6 @@ CostConstraintFactory::GetCost(CostName name) const
   }
 }
 
-VariableSet
-CostConstraintFactory::SplineCoeffVariables () const
-{
-  return VariableSet(com_motion->GetOptimizationParameters(), com_motion->GetID());
-}
-
-VariableSet
-CostConstraintFactory::ContactVariables () const
-{
-  return VariableSet(ee_motion->GetOptimizationParameters(), ee_motion->GetID());
-}
-
-VariableSet
-CostConstraintFactory::ConvexityVariables () const
-{
-  // initialize load values as if each leg is carrying half of total load
-  Eigen::VectorXd lambdas = ee_load->GetOptimizationParameters();
-  lambdas.fill(1./2);
-  return VariableSet(lambdas, ee_load->GetID(), Bound(0.0, 1.0));
-
-
-// this would initializate the load parameters to equal distribution depending
-// on how many contacts in that phase. This also depends on how much each contact
-// is allowed to be unloaded
-//  double lambda_deviation_percent = 1.0; // 100 percent
-//  VariableSet::VecBound bounds;
-//  int k=0;
-//  for (auto node : motion_structure.GetPhaseStampedVec()) {
-//    int n_contacts_at_node = node.GetAllContacts().size();
-//    double avg = 1./n_contacts_at_node;
-//    double min = avg - avg*lambda_deviation_percent;
-//    double max = 1-min;
-//    for (int j=0; j<n_contacts_at_node; ++j) {
-//      lambdas(k++) = avg;
-//      bounds.push_back(AConstraint::Bound(min, max));
-//    }
-//  }
-//  return VariableSet(lambdas, VariableNames::kConvexity, bounds);
-}
-
-VariableSet
-CostConstraintFactory::CopVariables () const
-{
-  // could also be generalized
-  return VariableSet(cop->GetOptimizationParameters(), cop->GetID());
-}
-
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeInitialConstraint () const
 {

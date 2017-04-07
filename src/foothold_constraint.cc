@@ -25,7 +25,7 @@ FootholdConstraint::FootholdConstraint (const EEMotionPtr& ee_motion,
   // Jacobian doesn't change with values of optimization variables
   // only holds if t is during stance phase, otherwise Jacobian
   // dependent on time.
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetID());
+  Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetId());
   int k = 0;
   for (const auto ee : nom_W.GetEEsOrdered())
     for (auto dim : d2::AllDimensions)

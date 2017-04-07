@@ -68,7 +68,7 @@ ConstraintContainer::GetJacobian () const
     int col = 0;
     for (const auto& set : subject_->GetVarSets()) {
 
-      Jacobian jac = constraint->GetJacobianWithRespectTo(set.GetId());
+      Jacobian jac = constraint->GetJacobianWithRespectTo(set->GetId());
 
       // insert the derivative in the correct position in the overall Jacobian
       for (int k=0; k<jac.outerSize(); ++k)
@@ -76,7 +76,7 @@ ConstraintContainer::GetJacobian () const
           jacobian_->coeffRef(row+it.row(), col+it.col()) = it.value();
 
 
-      col += set.GetVariables().rows();
+      col += set->GetVariables().rows();
     }
 
     row += constraint->GetNumberOfConstraints();

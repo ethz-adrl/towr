@@ -71,7 +71,7 @@ SupportAreaConstraint::UpdateJacobianAtInstance (double t, int k)
 void
 SupportAreaConstraint::UpdateJacobianWithRespectToLoad(double t, int k)
 {
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetID());
+  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetId());
 
   auto ee_state = ee_motion_->GetEndeffectors(t);
 
@@ -86,7 +86,7 @@ SupportAreaConstraint::UpdateJacobianWithRespectToLoad(double t, int k)
 void
 SupportAreaConstraint::UpdateJacobianWithRespectToEEMotion (double t, int k)
 {
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetID());
+  Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetId());
 
   auto lambda_k = ee_load_->GetLoadValues(t);
 
@@ -105,7 +105,7 @@ SupportAreaConstraint::UpdateJacobianWithRespectToEEMotion (double t, int k)
 void
 SupportAreaConstraint::UpdateJacobianWithRespectToCop (double t, int k)
 {
-  Jacobian& jac = GetJacobianRefWithRespectTo(cop_->GetID());
+  Jacobian& jac = GetJacobianRefWithRespectTo(cop_->GetId());
 
   for (auto dim : d2::AllDimensions)
     jac.row(GetConstraintNr(k,dim)) = -1 * cop_->GetJacobianWrtCop(t,dim);

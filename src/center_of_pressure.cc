@@ -44,13 +44,13 @@ CenterOfPressure::Index (double t, d2::Coords dimension) const
 }
 
 void
-CenterOfPressure::SetOptimizationParameters (const VectorXd& x)
+CenterOfPressure::SetVariables (const VectorXd& x)
 {
   cop_ = x;
 }
 
 CenterOfPressure::VectorXd
-CenterOfPressure::GetOptimizationParameters () const
+CenterOfPressure::GetVariables () const
 {
   return cop_;
 }

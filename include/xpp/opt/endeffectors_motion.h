@@ -28,8 +28,8 @@ public:
                       const ContactSchedule&);
   virtual ~EndeffectorsMotion ();
 
-  VectorXd GetOptimizationParameters() const override;
-  void SetOptimizationParameters(const VectorXd&) override;
+  VectorXd GetVariables() const override;
+  void SetVariables(const VectorXd&) override;
   // order at which the contact position of this endeffector is stored
   JacobianRow GetJacobianWrtOptParams(double t_global, EndeffectorID ee, d2::Coords) const;
 

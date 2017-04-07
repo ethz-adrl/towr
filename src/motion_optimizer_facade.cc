@@ -60,10 +60,19 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
   com_motion_->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
 
+
+  double T = ee_motion_->GetTotalTime();
+  double parameter_dt = motion_parameters_->dt_nodes_;
+  load_ = std::make_shared<EndeffectorLoad>(*ee_motion_, parameter_dt, T);
+  cop_  = std::make_shared<CenterOfPressure>(parameter_dt,T);
+
+
   nlp_facade_.OptimizeMotion(start_geom_,
                              goal_com.Get2D(),
                              ee_motion_,
                              com_motion_,
+                             load_,
+                             cop_,
                              contact_schedule_,
                              motion_parameters_,
                              solver);

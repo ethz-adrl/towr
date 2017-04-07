@@ -21,6 +21,8 @@ EndeffectorLoad::EndeffectorLoad (const EndeffectorsMotion ee_motion,
   num_segments_ = idx_segment + 1;
   int num_parameters = n_ee_ * num_segments_;
   lambdas_ = VectorXd::Zero(num_parameters);
+
+  SetAllBounds(Bound(0.0, 1.0));
 }
 
 EndeffectorLoad::~EndeffectorLoad ()
@@ -28,13 +30,13 @@ EndeffectorLoad::~EndeffectorLoad ()
 }
 
 void
-EndeffectorLoad::SetOptimizationParameters (const VectorXd& x)
+EndeffectorLoad::SetVariables (const VectorXd& x)
 {
   lambdas_ = x;
 }
 
 EndeffectorLoad::VectorXd
-EndeffectorLoad::GetOptimizationParameters () const
+EndeffectorLoad::GetVariables () const
 {
   return lambdas_;
 }

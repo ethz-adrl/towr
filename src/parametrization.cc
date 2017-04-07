@@ -22,14 +22,31 @@ Parametrization::~Parametrization ()
 int
 Parametrization::GetOptVarCount () const
 {
-  return GetOptimizationParameters().rows();
+  return GetVariables().rows();
 }
 
 std::string
-Parametrization::GetID () const
+Parametrization::GetId () const
 {
   return id_;
 }
 
+VecBound
+Parametrization::GetBounds () const
+{
+  // default value if user hasn't set anything
+  if (bounds_.empty())
+    SetAllBounds(kNoBound_);
+
+  return bounds_;
+}
+
+void
+Parametrization::SetAllBounds (const Bound& bound) const
+{
+  bounds_ = VecBound(GetOptVarCount(), bound);
+}
+
 } /* namespace opt */
 } /* namespace xpp */
+

@@ -16,7 +16,7 @@
 #include "motion_parameters.h"
 
 #include <xpp/robot_state_cartesian.h>
-#include <xpp/variable_set.h>
+
 #include <memory>
 #include "base_motion.h"
 
@@ -54,12 +54,6 @@ public:
             const EELoadPtr&, const CopPtr&,
             const MotionTypePtr& params, const RobotStateCartesian& initial_state,
             const StateLin2d& final_state);
-
-  // optimization variables with initial values
-  VariableSet SplineCoeffVariables() const;
-  VariableSet ContactVariables() const;
-  VariableSet ConvexityVariables() const;
-  VariableSet CopVariables() const;
 
   CostPtr GetCost(CostName name) const;
   ConstraintPtrVec GetConstraint(ConstraintName name) const;

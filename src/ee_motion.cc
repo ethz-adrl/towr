@@ -66,7 +66,7 @@ EEMotion::GetPhase (double t_global) const
 }
 
 VectorXd
-EEMotion::GetOptimizationParameters () const
+EEMotion::GetVariables () const
 {
   // Attention: remember to adapt GetJacobianPos() contact-phase part and Index()
   // when changing this...sorry.
@@ -90,7 +90,7 @@ EEMotion::GetOptimizationParameters () const
 }
 
 void
-EEMotion::SetOptimizationParameters (const VectorXd& x)
+EEMotion::SetVariables (const VectorXd& x)
 {
   for (PhaseContacts& phase: phase_contacts_)
     for (Contact& c : phase)

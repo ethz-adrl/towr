@@ -47,8 +47,8 @@ void
 Constraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
   for (auto& var : variables_) {
-    VectorXd x = opt_var->GetVariables(var.first->GetID());
-    var.first->SetOptimizationParameters(x);
+    VectorXd x = opt_var->GetVariables(var.first->GetId());
+    var.first->SetVariables(x);
   }
 
   UpdateJacobians();
@@ -61,7 +61,7 @@ Constraint::GetJacobianWithRespectTo (std::string var_set) const
   Jacobian jac; // empty matrix
 
   for (const auto& var : variables_)
-    if (var.first->GetID() == var_set)
+    if (var.first->GetId() == var_set)
       jac = var.second;
 
   return jac;
@@ -71,7 +71,7 @@ Constraint::Jacobian&
 Constraint::GetJacobianRefWithRespectTo (std::string var_set)
 {
   for (auto& var : variables_)
-    if (var.first->GetID() == var_set)
+    if (var.first->GetId() == var_set)
       return var.second;
 
   assert(false); // Jacobian does not exist

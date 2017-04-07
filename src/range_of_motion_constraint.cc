@@ -72,8 +72,8 @@ RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k)
 void
 RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k)
 {
-  Jacobian& jac_ee   = GetJacobianRefWithRespectTo(ee_motion_->GetID());
-  Jacobian& jac_base = GetJacobianRefWithRespectTo(com_motion_->GetID());
+  Jacobian& jac_ee   = GetJacobianRefWithRespectTo(ee_motion_->GetId());
+  Jacobian& jac_base = GetJacobianRefWithRespectTo(com_motion_->GetId());
 
   for (auto ee : nominal_stance_.GetEEsOrdered()) {
     for (auto dim : d2::AllDimensions) {

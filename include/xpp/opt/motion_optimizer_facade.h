@@ -13,6 +13,8 @@
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/opt/motion_parameters.h>
 #include <xpp/opt/endeffectors_motion.h>
+#include <xpp/opt/endeffector_load.h>
+#include <xpp/opt/center_of_pressure.h> // zmp_ remove from here
 #include "base_motion.h"
 
 namespace xpp {
@@ -30,6 +32,8 @@ public:
   using EEMotionPtrS  = std::shared_ptr<EndeffectorsMotion>;
   using ComMotionPtrS = std::shared_ptr<BaseMotion>;
   using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
+  using LoadPtr            = std::shared_ptr<EndeffectorLoad>;
+  using CopPtr             = std::shared_ptr<CenterOfPressure>;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
@@ -42,7 +46,10 @@ public:
 
   EEMotionPtrS ee_motion_;
   ComMotionPtrS com_motion_;
+  LoadPtr load_;
+  CopPtr cop_;
   ContactSchedulePtr contact_schedule_;
+
 
   void SetMotionParameters(const MotionParametersPtr& params);
   void BuildDefaultStartStance(const MotionParameters& params);

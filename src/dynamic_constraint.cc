@@ -54,8 +54,8 @@ DynamicConstraint::UpdateBoundsAtInstance(double t, int k)
 void
 DynamicConstraint::UpdateJacobianAtInstance(double t, int k)
 {
-  Jacobian& jac_cop = GetJacobianRefWithRespectTo(cop_->GetID());
-  Jacobian& jac_com = GetJacobianRefWithRespectTo(com_motion_->GetID());
+  Jacobian& jac_cop = GetJacobianRefWithRespectTo(cop_->GetId());
+  Jacobian& jac_com = GetJacobianRefWithRespectTo(com_motion_->GetId());
 
   auto com = com_motion_->GetCom(t);
   model_.SetCurrent(com.p, com.v, kHeight_);

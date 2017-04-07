@@ -11,6 +11,8 @@
 #include <xpp/opt/motion_parameters.h>
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/opt/contact_schedule.h>
+#include <xpp/opt/endeffector_load.h> // zmp_ remove from here
+#include <xpp/opt/center_of_pressure.h>
 #include <memory>
 
 namespace xpp {
@@ -41,6 +43,8 @@ public:
   using EEMotionPtrS             = std::shared_ptr<EndeffectorsMotion>;
   using ContactSchedulePtr       = std::shared_ptr<ContactSchedule>;
   using NLPPtr                   = std::shared_ptr<NLP>;
+  using LoadPtr                  = std::shared_ptr<EndeffectorLoad>;
+  using CopPtr                   = std::shared_ptr<CenterOfPressure>;
 //  using ContactVec               = std::vector<Contact>;
 
   NlpFacade ();
@@ -60,13 +64,11 @@ public:
                       const StateLin2d& final_state,
                       const EEMotionPtrS& ee_motion,
                       const ComMotionPtrS& com_motion,
+                      const LoadPtr&,
+                      const CopPtr&,
                       const ContactSchedulePtr& contact_schedule,
                       const MotionparamsPtr&,
                       NlpSolver solver);
-
-
-//  ContactVec GetContacts();
-//  const ComMotionPtrS GetComMotion() const;
 
 private:
   void SolveNlp(NlpSolver solver);
@@ -77,10 +79,6 @@ private:
   OptimizationVariablesPtr opt_variables_;
   CostContainerPtr costs_;
   ConstraintContainerPtr constraints_;
-
-//  ComMotionPtrS com_motion_;
-//  EEMotionPtrS ee_motion_;
-//  ContactVec contacts_;
 };
 
 } /* namespace opt */

@@ -52,8 +52,8 @@ public:
 
 
   // so far not optimizing over these
-  VectorXd GetOptimizationParameters() const override { return VectorXd(); };
-  void SetOptimizationParameters(const VectorXd&) override {};
+  VectorXd GetVariables() const override { return VectorXd(); };
+  void SetVariables(const VectorXd&) override {};
 
 
   SingleContactMotion::PhaseVec GetPhases(EndeffectorID) const;

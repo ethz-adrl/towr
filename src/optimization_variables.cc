@@ -31,8 +31,8 @@ OptimizationVariables::GetVariables (std::string id) const
   assert(SetExists(id));
 
   for (const auto& set : variable_sets_)
-    if (set.GetId() == id)
-      return set.GetVariables();
+    if (set->GetId() == id)
+      return set->GetVariables();
 }
 
 OptimizationVariables::VariableSetVector
@@ -42,9 +42,9 @@ OptimizationVariables::GetVarSets () const
 }
 
 void
-OptimizationVariables::AddVariableSet (const VariableSet& set)
+OptimizationVariables::AddVariableSet (const VariablePtr& set)
 {
-  assert(!SetExists(set.GetId())); // ensure that set with this id does not exist yet
+  assert(!SetExists(set->GetId())); // ensure that set with this id does not exist yet
   variable_sets_.push_back(set);
 }
 
@@ -53,8 +53,8 @@ OptimizationVariables::SetAllVariables(const VectorXd& x)
 {
   int c = 0;
   for (auto& set : variable_sets_) {
-    int n_var = set.GetVariables().rows();
-    set.SetVariables(x.middleRows(c,n_var));
+    int n_var = set->GetVariables().rows();
+    set->SetVariables(x.middleRows(c,n_var));
     c += n_var;
   }
 
@@ -67,7 +67,7 @@ OptimizationVariables::GetOptimizationVariables () const
   Eigen::VectorXd x(GetOptimizationVariableCount());
   int j = 0;
   for (const auto& set : variable_sets_) {
-    const VectorXd& var = set.GetVariables();
+    const VectorXd& var = set->GetVariables();
     x.middleRows(j, var.rows()) = var;
     j += var.rows();
   }
@@ -80,7 +80,7 @@ OptimizationVariables::GetOptimizationVariableBounds () const
 {
   VecBound bounds_;
   for (const auto& set : variable_sets_) {
-    const VecBound& b = set.GetBounds();
+    const VecBound& b = set->GetBounds();
     bounds_.insert(std::end(bounds_), std::begin(b), std::end(b));
   }
 
@@ -92,7 +92,7 @@ OptimizationVariables::GetOptimizationVariableCount () const
 {
   int n=0;
   for (const auto& set : variable_sets_)
-    n += set.GetVariables().rows();
+    n += set->GetVariables().rows();
 
   return n;
 }
@@ -101,7 +101,7 @@ bool
 OptimizationVariables::SetExists (std::string id) const
 {
   auto it = std::find_if(variable_sets_.begin(), variable_sets_.end(),
-                         [id](const VariableSet& set) { return set.GetId() == id; });
+                         [id](const VariablePtr& set) { return set->GetId() == id; });
   return it != variable_sets_.end();
 }
 

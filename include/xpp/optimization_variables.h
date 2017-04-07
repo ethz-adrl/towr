@@ -9,7 +9,7 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
 
 #include "subject.h"
-#include "variable_set.h"
+#include "parametrization.h"
 
 namespace xpp {
 namespace opt {
@@ -28,14 +28,15 @@ namespace opt {
   */
 class OptimizationVariables : public Subject {
 public:
-  using VectorXd = Eigen::VectorXd;
-  using VariableSetVector = std::vector<VariableSet>;
+  using VectorXd          = Eigen::VectorXd;
+  using VariablePtr       = Parametrization::Ptr;
+  using VariableSetVector = std::vector<VariablePtr>;
 
   OptimizationVariables ();
   virtual ~OptimizationVariables ();
 
   void ClearVariables();
-  void AddVariableSet(const VariableSet&);
+  void AddVariableSet(const VariablePtr&);
   void SetAllVariables(const VectorXd& x);
 
   VectorXd GetVariables(std::string id) const;

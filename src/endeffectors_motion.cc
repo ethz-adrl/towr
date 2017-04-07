@@ -63,14 +63,14 @@ EndeffectorsMotion::GetEndeffectors (double t_global) const
 }
 
 EndeffectorsMotion::VectorXd
-EndeffectorsMotion::GetOptimizationParameters () const
+EndeffectorsMotion::GetVariables () const
 {
   VectorXd x(n_opt_params_);
 
   int row = 0;
   for (const auto& ee : endeffectors_.ToImpl()) {
     int n = ee.GetOptVarCount();
-    x.middleRows(row, n) = ee.GetOptimizationParameters();
+    x.middleRows(row, n) = ee.GetVariables();
     row += n;
   }
 
@@ -79,13 +79,13 @@ EndeffectorsMotion::GetOptimizationParameters () const
 
 // must be analog to the above
 void
-EndeffectorsMotion::SetOptimizationParameters (const VectorXd& x)
+EndeffectorsMotion::SetVariables (const VectorXd& x)
 {
   int row = 0;
 
   for (auto ee : endeffectors_.GetEEsOrdered()) {
     int n = endeffectors_.At(ee).GetOptVarCount();
-    endeffectors_.At(ee).SetOptimizationParameters(x.middleRows(row, n));
+    endeffectors_.At(ee).SetVariables(x.middleRows(row, n));
     row += n;
   }
 }

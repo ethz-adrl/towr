@@ -8,6 +8,7 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_PARAMETRIZATION_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_PARAMETRIZATION_H_
 
+#include "bound.h"
 #include <Eigen/Dense>
 #include <string>
 #include <memory>
@@ -33,26 +34,20 @@ public:
   virtual ~Parametrization ();
 
   int GetOptVarCount() const;
-  std::string GetID() const;
+  std::string GetId() const;
 
-  virtual VectorXd GetOptimizationParameters() const = 0;
-  virtual void SetOptimizationParameters(const VectorXd&) = 0;
+  virtual VectorXd GetVariables() const = 0;
+  virtual void SetVariables(const VectorXd&) = 0;
+
+  VecBound GetBounds() const;
+
+protected:
+  void SetAllBounds(const Bound&) const;
+  mutable VecBound bounds_;
 
 private:
   std::string id_;
 };
-
-
-
-//class ParametrizationContainer {
-//public:
-//
-//  Parametrization::Ptr GetParametrization(const std::string& id) const;
-//private:
-//  std::vector<Parametrization::Ptr> variables_;
-//};
-
-
 
 
 } /* namespace opt */

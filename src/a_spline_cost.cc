@@ -25,8 +25,8 @@ ASplineCost::Init (const MatVec& mat_vec, const BaseMotion& com_motion)
 void
 ASplineCost::UpdateVariables (const OptimizationVariables* opt_var)
 {
-  VectorXd x = opt_var->GetVariables(com_motion_->GetID());
-  com_motion_->SetOptimizationParameters(x);
+  VectorXd x = opt_var->GetVariables(com_motion_->GetId());
+  com_motion_->SetVariables(x);
   spline_coeff_ = com_motion_->GetXYSplineCoeffients();
 }
 
@@ -46,7 +46,7 @@ QuadraticSplineCost::EvaluateGradientWrt(std::string var_set)
 {
   VectorXd grad;
 
-  if (var_set == com_motion_->GetID())
+  if (var_set == com_motion_->GetId())
     grad =  2.0 * matrix_vector_.M * spline_coeff_;
 
   return grad;

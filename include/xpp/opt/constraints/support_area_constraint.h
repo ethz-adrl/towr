@@ -21,6 +21,9 @@ namespace opt {
   * At every discrete node k:
   * g_k = lambda_1*p1 + ... lambda_m*p_m - cop = 0
   */
+
+// zmp_ not sure this should be discretized, better optimize over all
+// lambda's directly?
 class SupportAreaConstraint : public TimeDiscretizationConstraint {
 public:
   using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;

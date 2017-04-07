@@ -29,8 +29,8 @@ public:
   CenterOfPressure (double dt, double T);
   virtual ~CenterOfPressure ();
 
-  void SetOptimizationParameters(const VectorXd& x) override;
-  VectorXd GetOptimizationParameters() const override;
+  void SetVariables(const VectorXd& x) override;
+  VectorXd GetVariables() const override;
   int Index(double t, d2::Coords dimension) const;
 
   Vector2d GetCop(double t) const;

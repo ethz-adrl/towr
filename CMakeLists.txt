@@ -52,7 +52,6 @@ include_directories(
 # A general nlp solving framework for Eigen, Ipopt, Snopt
 add_library(${SOLVER_LIB}
   src/subject.cc
-  src/variable_set.cc
   src/optimization_variables.cc
   src/observer.cc
   src/nlp.cc

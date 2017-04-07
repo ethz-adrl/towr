@@ -23,7 +23,7 @@ LinearEqualityConstraint::LinearEqualityConstraint (
   int num_constraints = linear_equation_.v.rows();
   SetDependentVariables({com_motion}, num_constraints);
 
-  Jacobian& jac = GetJacobianRefWithRespectTo(com_motion->GetID());
+  Jacobian& jac = GetJacobianRefWithRespectTo(com_motion->GetId());
   // careful, .sparseView is only valid when the Jacobian is constant, e.g.
   // the constraints are all linear w.r.t. the decision variables.
   jac = linear_equation_.M.sparseView();

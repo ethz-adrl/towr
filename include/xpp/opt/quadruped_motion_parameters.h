@@ -12,6 +12,7 @@
 
 namespace xpp {
 namespace opt {
+namespace quad {
 
 class QuadrupedMotionParameters : public MotionParameters {
 public:
@@ -61,6 +62,7 @@ public:
   PushRecovery();
 };
 
+} // namespace quad
 } // namespace opt
 } // namespace xpp
 

@@ -37,16 +37,12 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
                           const StateLin2d& final_state,
                           const EEMotionPtrS& ee_motion,
                           const ComMotionPtrS& com_motion,
+                          const LoadPtr& ee_load,
+                          const CopPtr& cop,
                           const ContactSchedulePtr& contact_schedule,
                           const MotionparamsPtr& motion_params,
                           NlpSolver solver)
 {
-  // zmp_ a this should work  also with a different value
-  double T = ee_motion->GetTotalTime();
-  double parameter_dt = motion_params->dt_nodes_;
-  auto ee_load = std::make_shared<EndeffectorLoad>(*ee_motion, parameter_dt, T);
-  auto cop     = std::make_shared<CenterOfPressure>(parameter_dt,T);
-
   CostConstraintFactory factory;
   factory.Init(com_motion,
                ee_motion,
@@ -58,15 +54,11 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
                final_state);
 
   opt_variables_->ClearVariables();
-  // spring_clean_ this can be generalized
-  opt_variables_->AddVariableSet(factory.SplineCoeffVariables());
-  opt_variables_->AddVariableSet(factory.ContactVariables());
-  opt_variables_->AddVariableSet(factory.ConvexityVariables());
-  opt_variables_->AddVariableSet(factory.CopVariables());
-  opt_variables_->AddVariableSet(
-      VariableSet(contact_schedule->GetOptimizationParameters(), contact_schedule->GetID())
-      );
-
+  opt_variables_->AddVariableSet(com_motion);
+  opt_variables_->AddVariableSet(ee_motion);
+  opt_variables_->AddVariableSet(ee_load);
+  opt_variables_->AddVariableSet(cop);
+  opt_variables_->AddVariableSet(contact_schedule);
 
   constraints_->ClearConstraints();
   for (ConstraintName name : motion_params->GetUsedConstraints()) {
@@ -83,11 +75,11 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
 
   SolveNlp(solver);
 
-  Eigen::VectorXd xy = opt_variables_->GetVariables(ee_motion->GetID());
-  ee_motion->SetOptimizationParameters(xy);
-
-  Eigen::VectorXd x_motion = opt_variables_->GetVariables(com_motion->GetID());
-  com_motion->SetOptimizationParameters(x_motion);
+//  Eigen::VectorXd xy = opt_variables_->GetVariables(ee_motion->GetId());
+//  ee_motion->SetVariables(xy);
+//
+//  Eigen::VectorXd x_motion = opt_variables_->GetVariables(com_motion->GetId());
+//  com_motion->SetVariables(x_motion);
 
 
 //  int n_nodes = motion_structure.GetPhaseStampedVec().size();
