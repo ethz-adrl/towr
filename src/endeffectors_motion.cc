@@ -44,7 +44,7 @@ EndeffectorsMotion::GetEndeffectors (double t_global) const
   return ee_state;
 }
 
-
+// zmp_ remove this function
 EndeffectorsMotion::Contacts
 EndeffectorsMotion::GetContacts (double t) const
 {

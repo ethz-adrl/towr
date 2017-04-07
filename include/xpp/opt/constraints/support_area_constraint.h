@@ -39,7 +39,7 @@ private:
   void UpdateConstraintAtInstance (double t, int k) override;
   void UpdateBoundsAtInstance (double t, int k) override;
   void UpdateJacobianAtInstance(double t, int k) override;
-  int GetRow(int node, int dimension) const;
+  int GetConstraintNr(int node, int dimension) const;
 
   void UpdateJacobianWithRespectToLoad(double t, int k);
   void UpdateJacobianWithRespectToEEMotion(double t, int k);

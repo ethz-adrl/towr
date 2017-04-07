@@ -76,6 +76,12 @@ TEST(EEsMotionTest, GetState)
   while (t <= ee_motion->GetTotalTime()) {
 
 
+    std::cout << "t: " << t << std::endl;
+    std::cout << ee_motion->GetJacobianWrtOptParams(t, E0, d2::X).toDense() << "\n";
+    std::cout << ee_motion->GetJacobianWrtOptParams(t, E0, d2::Y).toDense() << "\n";
+//    std::cout << ee_motion->GetJacobianWrtOptParams(t, E2, d2::X).toDense() << "\n";
+//    std::cout << ee_motion->GetJacobianWrtOptParams(t, E3, d2::X).toDense() << "\n";
+//    std::cout << ee_motion->GetJacobianWrtOptParams(t, d2::X) << std::endl;
 //    std::cout << "is_in_contact(0): " << ee_motion->GetMotion(E0).IsInContact(t) << std::endl;
 //    std::cout << "is_in_contact(1): " << ee_motion->GetMotion(E1).IsInContact(t) << std::endl;
 //    std::cout << "is_in_contact(2): " << ee_motion->GetMotion(E2).IsInContact(t) << std::endl;

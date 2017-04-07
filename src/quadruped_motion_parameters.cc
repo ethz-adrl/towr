@@ -133,7 +133,7 @@ Trot::Trot()
 //  lambda_deviation_percent_ = 0.6;
   id_ = opt::TrotID;
   max_step_length_ = 0.35;
-  dt_nodes_ = 0.05;
+  dt_nodes_ = 0.02;
   polynomials_per_second_ = 15;
 
   double t_phase = 0.3;

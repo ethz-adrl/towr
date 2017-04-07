@@ -42,13 +42,10 @@ public:
   VectorXd GetOptimizationParameters() const override;
   void SetOptimizationParameters(const VectorXd&) override;
   // order at which the contact position of this endeffector is stored
-  int Index(EndeffectorID ee, int id, d2::Coords) const;
   JacobianRow GetJacobianWrtOptParams(double t_global, EndeffectorID ee, d2::Coords) const;
-
 
   void SetInitialPos(const EndeffectorsPos& initial_pos);
   void SetPhaseSequence(const PhaseVec& phases);
-
 
   int GetNumberOfEndeffectors() const;
   EEMotion& GetMotion(EndeffectorID ee);
@@ -56,8 +53,11 @@ public:
   EEState::Container GetEndeffectorsVec(double t_global) const;
   double GetTotalTime() const;
 
+  // zmp_ remove function
   Contacts GetContacts(double t_global) const;
 
+  // zmp_ make private
+  int Index(EndeffectorID ee, int id, d2::Coords) const;
 private:
   Endeffectors<EEMotion> endeffectors_;
   int n_opt_params_ = 0;
