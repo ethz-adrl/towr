@@ -10,14 +10,17 @@
 namespace xpp {
 namespace opt {
 
-EndeffectorsMotion::EndeffectorsMotion (int n_ee)
+EndeffectorsMotion::EndeffectorsMotion (const EndeffectorsPos& initial_pos,
+                                        const ContactSchedule& contact_schedule)
     :Parametrization("footholds")
 {
-  endeffectors_.SetCount(n_ee);
-}
+  endeffectors_.SetCount(initial_pos.GetCount());
 
-EndeffectorsMotion::~EndeffectorsMotion ()
-{
+  SetInitialPos(initial_pos);
+  SetParameterStructure(contact_schedule);
+
+  for (const auto& ee : endeffectors_.ToImpl())
+    n_opt_params_ += ee.GetOptVarCount();
 }
 
 void
@@ -27,10 +30,25 @@ EndeffectorsMotion::SetInitialPos (const EndeffectorsPos& initial_pos)
     endeffectors_.At(ee).SetInitialPos(initial_pos.At(ee), ee);
 }
 
-EEMotion&
-EndeffectorsMotion::GetMotion (EndeffectorID ee)
+void
+EndeffectorsMotion::SetParameterStructure (const ContactSchedule& contact_schedule)
 {
-  return endeffectors_.At(ee);
+  for (auto ee : endeffectors_.GetEEsOrdered()) {
+
+    for (auto phase : contact_schedule.GetPhases(ee)) {
+      auto is_contact = phase.first;
+      auto duration   = phase.second;
+
+      std::cout << "duration: " << duration << std::endl;
+
+      double lift_height = is_contact? 0.0 : 0.03;
+      endeffectors_.At(ee).AddPhase(duration, lift_height, is_contact);
+    }
+  }
+}
+
+EndeffectorsMotion::~EndeffectorsMotion ()
+{
 }
 
 EndeffectorsMotion::EEState
@@ -108,60 +126,6 @@ EndeffectorsMotion::IndexStart (EndeffectorID ee) const
     idx += endeffectors_.At(static_cast<EndeffectorID>(e)).GetOptVarCount();
 
   return idx;
-}
-
-// zmp_ !!! remove this, already in contact sequence
-void
-EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
-{
-  Vector3d start = Vector3d::Zero(); // initialized with this value
-
-  Endeffectors<double> durations(GetNumberOfEndeffectors());
-  durations.SetAll(0.0);
-
-  for (int i=0; i<phases.size()-1; ++i) {
-
-    EndeffectorsBool is_swingleg      = phases.at(i).first;
-    EndeffectorsBool is_swingleg_next = phases.at(i+1).first;
-    double phase_duration             = phases.at(i).second;
-
-    for (auto ee : is_swingleg.GetEEsOrdered()) {
-
-      durations.At(ee) += phase_duration;
-
-      // check if next phase is different phase
-      bool next_different = is_swingleg.At(ee) != is_swingleg_next.At(ee);
-
-      if (next_different) {
-
-        if (!is_swingleg.At(ee)) { // stance leg to swing
-          endeffectors_.At(ee).AddStancePhase(durations.At(ee));
-          durations.At(ee) = 0.0; // reset
-
-        } else { // swinglegleg to stance
-          endeffectors_.At(ee).AddSwingPhase(durations.At(ee), start);
-          durations.At(ee) = 0.0; // reset
-        }
-      }
-    }
-  }
-
-  EndeffectorsBool swinglegs = phases.back().first;
-  double T                   = phases.back().second;
-
-  for (auto ee : swinglegs.GetEEsOrdered()) {
-    if (!swinglegs.At(ee)) // last phase is stance
-      endeffectors_.At(ee).AddStancePhase(durations.At(ee)+T);
-    else
-      endeffectors_.At(ee).AddSwingPhase(durations.At(ee) + T, start);
-  }
-
-  // count number of optimization variables
-  n_opt_params_ = 0;
-  for (const auto& ee : endeffectors_.ToImpl()) {
-    n_opt_params_ += ee.GetOptVarCount();
-  }
-
 }
 
 EndeffectorsMotion::EEState::Container

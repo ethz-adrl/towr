@@ -5,8 +5,7 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/contact_schedule.h"
-
+#include <xpp/opt/contact_schedule.h>
 #include <xpp/opt/quadruped_motion_parameters.h>
 #include <gtest/gtest.h>
 
@@ -16,10 +15,8 @@ namespace opt {
 
 TEST(ContactMotionTest, IsInContact)
 {
-  ContactSchedule contact_motion;
   Trot trot;
-  contact_motion.SetPhaseSequence(trot.GetOneCycle());
-
+  ContactSchedule contact_motion(trot.GetOneCycle());
 
   double t = 0.0;
   double T = 1.1;

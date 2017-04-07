@@ -36,21 +36,49 @@ SingleContactMotion::SetFirstContactState (bool in_contact)
 bool
 SingleContactMotion::IsInContact (double t_global) const
 {
-  bool contact = first_phase_in_contact_;
   double eps = 1e-10;   // to ensure that last phases is returned at T
-  for (double t : t_phase_end_) {
 
-    if (t+eps >= t_global)
-      return contact;
-
-    contact = !contact; // stance and swing phase alternating
-  }
+  for (int p=0; p<t_phase_end_.size(); ++p)
+    if (t_phase_end_.at(p)+eps >= t_global)
+      return GetContact(p);
 
   assert(false); // t_global longer than trajectory
 }
 
-ContactSchedule::ContactSchedule () : Parametrization("Contact Motion")
+SingleContactMotion::PhaseVec
+ContactSchedule::GetPhases (EndeffectorID ee) const
 {
+  return endeffectors_.At(ee).GetPhases();
+}
+
+bool
+SingleContactMotion::GetContact (int phase) const
+{
+   // always alternating
+  if (phase%2==0)
+    return first_phase_in_contact_;
+  else
+    return !first_phase_in_contact_;
+}
+
+SingleContactMotion::PhaseVec
+SingleContactMotion::GetPhases () const
+{
+  PhaseVec phases;
+  double t_prev = 0.0;
+  for (int p=0; p<t_phase_end_.size(); ++p) {
+    double duration = t_phase_end_.at(p) - t_prev;
+    phases.push_back(Phase(GetContact(p),duration));
+    t_prev += duration;
+  }
+
+  return phases;
+}
+
+ContactSchedule::ContactSchedule (const PhaseVec& phases)
+    : Parametrization("Contact Motion")
+{
+  SetPhaseSequence(phases);
 }
 
 ContactSchedule::~ContactSchedule ()
@@ -103,7 +131,6 @@ ContactSchedule::SetPhaseSequence (const PhaseVec& phases)
     else
       endeffectors_.At(ee).AddPhase(durations.At(ee) + T);
   }
-
 }
 
 EndeffectorsBool

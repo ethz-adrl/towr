@@ -47,8 +47,8 @@ ContactLoadConstraint::UpdateBounds ()
     EndeffectorsBool contacts_center = contact_schedule_->IsInContact(t_center);
 
     for (auto ee : ee_ids_) {
-      auto contact = static_cast<double>(contacts_center.At(ee));
-      bounds_.at(ee_ids_.size()*segment+ee) = Bound(0.0, contact);
+      double bound = contacts_center.At(ee)? 1.0 : 0.0;
+      bounds_.at(ee_ids_.size()*segment+ee) = Bound(0.0, bound);
     }
   }
 }

@@ -9,14 +9,7 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTORS_MOTION_H_
 
 #include <xpp/opt/ee_motion.h>
-#include <xpp/opt/motion_parameters.h>
-
-#include <xpp/state.h>
-#include <xpp/endeffectors.h>
-#include <xpp/contact.h>
-#include <xpp/parametrization.h>
-
-#include <map>
+#include <xpp/opt/contact_schedule.h>
 
 namespace xpp {
 namespace opt {
@@ -30,25 +23,18 @@ class EndeffectorsMotion : public Parametrization {
 public:
   using EEState  = Endeffectors<StateLin3d>;
   using VectorXd = Eigen::VectorXd;
-  using Contacts = std::vector<Contact>;
 
-  using EEVec    = MotionParameters::EEVec;
-  using PhaseVec = MotionParameters::PhaseVec;
-
-  EndeffectorsMotion (int n_ee = 0);
+  EndeffectorsMotion (const EndeffectorsPos& initial_pos,
+                      const ContactSchedule&);
   virtual ~EndeffectorsMotion ();
-
 
   VectorXd GetOptimizationParameters() const override;
   void SetOptimizationParameters(const VectorXd&) override;
   // order at which the contact position of this endeffector is stored
   JacobianRow GetJacobianWrtOptParams(double t_global, EndeffectorID ee, d2::Coords) const;
 
-  void SetInitialPos(const EndeffectorsPos& initial_pos);
-  void SetPhaseSequence(const PhaseVec& phases);
 
   int GetNumberOfEndeffectors() const;
-  EEMotion& GetMotion(EndeffectorID ee);
   EEState GetEndeffectors(double t_global) const;
   EEState::Container GetEndeffectorsVec(double t_global) const;
   double GetTotalTime() const;
@@ -57,6 +43,9 @@ private:
   int IndexStart(EndeffectorID ee) const;
   Endeffectors<EEMotion> endeffectors_;
   int n_opt_params_ = 0;
+
+  void SetInitialPos(const EndeffectorsPos& initial_pos);
+  void SetParameterStructure(const ContactSchedule& contact_schedule);
 };
 
 } /* namespace opt */

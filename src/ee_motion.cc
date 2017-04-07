@@ -25,31 +25,19 @@ EEMotion::SetInitialPos (const Vector3d& pos, EndeffectorID ee)
 }
 
 void
-EEMotion::AddStancePhase (double t)
-{
-  Contact c_back = GetLastContact();
-  AddPhase(t, c_back.p, 0.0, c_back.id); // stay at same position and don't lift leg
-}
-
-void
-EEMotion::AddSwingPhase (double t, const Vector3d& goal)
-{
-  double light_height = 0.03;
-  AddPhase(t, goal, light_height, GetLastContact().id + 1);
-  n_steps++;
-}
-
-void
-EEMotion::AddPhase (double t, const Vector3d& goal, double lift_height, int id_goal)
+EEMotion::AddPhase (double t, double lift_height, bool is_contact)
 {
   Contact c_prev = GetLastContact();
+  Contact c_goal = c_prev;
+
+  // endeffector is only allowed to move during swing phase, so new ID.
+  if (!is_contact)
+    c_goal.id++;
 
   EEPhaseMotion motion;
-  motion.Init(t, lift_height, c_prev.p, goal);
+  motion.Init(t, lift_height, c_prev.p, c_goal.p);
   phase_motion_.push_back(motion);
 
-
-  Contact c_goal(id_goal, c_prev.ee, goal);
   PhaseContacts phase{c_prev, c_goal};
   phase_contacts_.push_back(phase);
 }
@@ -83,7 +71,9 @@ EEMotion::GetOptimizationParameters () const
   // Attention: remember to adapt GetJacobianPos() contact-phase part and Index()
   // when changing this...sorry.
   int id_prev = -1;
-  VectorXd x((1+n_steps)*kDim2d); // initial position plus goal steps-xy
+  int n_contact_ids = 1 + GetLastContact().id;
+
+  VectorXd x(n_contact_ids*kDim2d); // initial position plus goal steps-xy
 
   for (const PhaseContacts& contacts: phase_contacts_) {
     for (const Contact& c : contacts) { // only optimize over position at end of phase

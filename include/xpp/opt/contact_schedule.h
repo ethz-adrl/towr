@@ -16,6 +16,9 @@ namespace opt {
 
 class SingleContactMotion {
 public:
+  using Phase = std::pair<bool, double>; // contact state and duration
+  using PhaseVec = std::vector<Phase>;
+
   SingleContactMotion ();
   virtual ~SingleContactMotion ();
 
@@ -23,7 +26,11 @@ public:
   void AddPhase(double t_duration);
   bool IsInContact(double t_global) const;
 
+  PhaseVec GetPhases() const;
+
 private:
+  bool GetContact(int phase) const;
+
   bool first_phase_in_contact_ = true;
   std::vector<double> t_phase_end_; ///< global time when the contact changes.
 };
@@ -37,10 +44,9 @@ public:
   using Phase      = std::pair<EndeffectorsBool, double>; // swinglegs and time
   using PhaseVec   = std::vector<Phase>;
 
-  ContactSchedule ();
+  ContactSchedule (const PhaseVec& phases);
   virtual ~ContactSchedule ();
 
-  void SetPhaseSequence (const PhaseVec& phases);
   EndeffectorsBool IsInContact(double t_global) const;
   int GetContactCount(double t_global) const;
 
@@ -50,7 +56,10 @@ public:
   void SetOptimizationParameters(const VectorXd&) override {};
 
 
+  SingleContactMotion::PhaseVec GetPhases(EndeffectorID) const;
+
 private:
+  void SetPhaseSequence (const PhaseVec& phases);
   void SetInitialSwinglegs(const EndeffectorsBool&);
 
   EEContacts endeffectors_;

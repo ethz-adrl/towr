@@ -19,12 +19,13 @@ namespace opt {
 
 TEST(EEMotionTest, Params)
 {
+  double lift_height = 0.03;
   EEMotion motion;
   motion.SetInitialPos(Vector3d(0.0, 0.0, 0.0), EndeffectorID::E0);
-  motion.AddStancePhase(0.1);
-  motion.AddSwingPhase(0.3, Vector3d(0.5, 0.0, 0.4));
-  motion.AddStancePhase(0.3);
-  motion.AddSwingPhase(0.6, Vector3d(0.3, 0.0, 0.0));
+  motion.AddPhase(0.1, 0.0, true);
+  motion.AddPhase(0.3, lift_height, false);//, Vector3d(0.5, 0.0, 0.4));
+  motion.AddPhase(0.3, 0.0, true);
+  motion.AddPhase(0.6, lift_height, false);//, Vector3d(0.3, 0.0, 0.0));
 
   std::cout << "x: " << motion.GetOptimizationParameters().transpose() << std::endl;
   std::cout << "n: " << motion.GetOptVarCount() << std::endl;
@@ -54,10 +55,10 @@ TEST(EEsMotionTest, GetState)
   start_stance.At(E3) = Vector3d(-0.358802, -0.327695, 0.0);
 
 
-  Trot params;
-  auto ee_motion = std::make_shared<EndeffectorsMotion>(params.GetEECount());
-  ee_motion->SetInitialPos(start_stance);
-  ee_motion->SetPhaseSequence(params.GetOneCycle());
+//  Trot params;
+//  auto ee_motion = std::make_shared<EndeffectorsMotion>(start_stance);
+//  ee_motion->SetInitialPos(start_stance);
+//  ee_motion->SetPhaseSequence(params.GetOneCycle());
 
 
 //  Eigen::VectorXd x = ee_motion_->GetOptimizationParameters();
@@ -71,48 +72,31 @@ TEST(EEsMotionTest, GetState)
 
 //  auto prev_contact_state = ee_motion->GetContactState(1.0);
 
-  std::cout << std::setprecision(2) << std::fixed;
-  double t = 0.0;
-  while (t <= ee_motion->GetTotalTime()) {
-
-
-    std::cout << "t: " << t << std::endl;
-    std::cout << ee_motion->GetJacobianWrtOptParams(t, E0, d2::X).toDense() << "\n";
-    std::cout << ee_motion->GetJacobianWrtOptParams(t, E0, d2::Y).toDense() << "\n";
-//    std::cout << ee_motion->GetJacobianWrtOptParams(t, E2, d2::X).toDense() << "\n";
-//    std::cout << ee_motion->GetJacobianWrtOptParams(t, E3, d2::X).toDense() << "\n";
-//    std::cout << ee_motion->GetJacobianWrtOptParams(t, d2::X) << std::endl;
-//    std::cout << "is_in_contact(0): " << ee_motion->GetMotion(E0).IsInContact(t) << std::endl;
-//    std::cout << "is_in_contact(1): " << ee_motion->GetMotion(E1).IsInContact(t) << std::endl;
-//    std::cout << "is_in_contact(2): " << ee_motion->GetMotion(E2).IsInContact(t) << std::endl;
-//    std::cout << "is_in_contact(3): " << ee_motion->GetMotion(E3).IsInContact(t) << std::endl;
-
-
-//    auto current_contact_state = ee_motion->GetContactState(t);
-//    if (current_contact_state != prev_contact_state) {
-//      prev_contact_state = current_contact_state;
-//      std::cout << "t: " << t << std::endl;
+//  std::cout << std::setprecision(2) << std::fixed;
+//  double t = 0.0;
+//  while (t <= ee_motion->GetTotalTime()) {
 //
-//      for (auto c : ee_motion->GetContacts(t)) {
-//        std::cout << c << std::endl;
-//      }
-//    }
-
-//      auto e0 = ee_motion->GetEndeffectors(t).At(E0);
-//      auto e1 = ee_motion->GetEndeffectors(t).At(E1);
-//      auto e2 = ee_motion->GetEndeffectors(t).At(E2);
-//      auto e3 = ee_motion->GetEndeffectors(t).At(E3);
 //
-//      std::cout << e0.p.transpose() << std::endl;
-//      std::cout << e1.p.transpose() << std::endl;
-//      std::cout << e2.p.transpose() << std::endl;
-//      std::cout << e3.p.transpose() << std::endl;
-
-
-
-    std::cout << std::endl;
-    t += 0.1;
-  }
+//    std::cout << "t: " << t << std::endl;
+//    std::cout << ee_motion->GetJacobianWrtOptParams(t, E0, d2::X).toDense() << "\n";
+//    std::cout << ee_motion->GetJacobianWrtOptParams(t, E0, d2::Y).toDense() << "\n";
+////    std::cout << ee_motion->GetJacobianWrtOptParams(t, E2, d2::X).toDense() << "\n";
+//
+//
+////    auto current_contact_state = ee_motion->GetContactState(t);
+////    if (current_contact_state != prev_contact_state) {
+////      prev_contact_state = current_contact_state;
+////      std::cout << "t: " << t << std::endl;
+////
+////      for (auto c : ee_motion->GetContacts(t)) {
+////        std::cout << c << std::endl;
+////      }
+////    }
+//
+//
+//    std::cout << std::endl;
+//    t += 0.1;
+//  }
 }
 
 

@@ -28,7 +28,6 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 void
 MotionOptimizerFacade::BuildDefaultStartStance (const MotionParameters& params)
 {
-  int n_ee = params.robot_ee_.size();
   State3d base;
   base.lin.p.z() = params.geom_walking_height_;
   EndeffectorsBool contact_state(params.robot_ee_.size());
@@ -47,15 +46,11 @@ MotionOptimizerFacade::OptimizeMotion (NlpSolver solver)
 
 
   // initialize the contact schedule
-  contact_schedule_ = std::make_shared<ContactSchedule>();
-  contact_schedule_->SetPhaseSequence(motion_parameters_->GetOneCycle());
-
+  contact_schedule_ = std::make_shared<ContactSchedule>(motion_parameters_->GetOneCycle());
 
   // initialize the ee_motion with the fixed parameters
-  ee_motion_ = std::make_shared<EndeffectorsMotion>(motion_parameters_->GetEECount());
-  ee_motion_->SetInitialPos(start_geom_.GetEEPos());
-  ee_motion_->SetPhaseSequence(motion_parameters_->GetOneCycle());
-
+  ee_motion_ = std::make_shared<EndeffectorsMotion>(start_geom_.GetEEPos(),
+                                                    *contact_schedule_);
 
   double com_height = motion_parameters_->geom_walking_height_
                     + motion_parameters_->offset_geom_to_com_.z();

@@ -32,8 +32,7 @@ public:
   virtual ~EEMotion ();
 
   void SetInitialPos(const Vector3d& pos, EndeffectorID);
-  void AddStancePhase(double t);
-  void AddSwingPhase(double t, const Vector3d& goal);
+  void AddPhase(double t, double lift_height, bool is_contact);
 
   StateLin3d GetState(double t_global) const;
   double GetTotalTime() const;
@@ -44,7 +43,6 @@ public:
 
 private:
   int GetPhase(double t_global) const;
-  void AddPhase(double t, const Vector3d& goal, double lift_height, int id_goal);
   void UpdateSwingMotions();
   double GetLocalTime(double t_global, int phase) const;
   int Index(int id, d2::Coords dimension) const;
@@ -52,7 +50,6 @@ private:
   Contact GetLastContact() const;
 
   Contact first_contact_;
-  int n_steps = 0;
 
   std::vector<PhaseContacts> phase_contacts_;
   std::vector<EEPhaseMotion> phase_motion_;
