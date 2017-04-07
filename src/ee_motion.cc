@@ -29,7 +29,6 @@ EEMotion::AddStancePhase (double t)
 {
   Contact c_back = GetLastContact();
   AddPhase(t, c_back.p, 0.0, c_back.id); // stay at same position and don't lift leg
-  is_contact_phase_.push_back(true);
 }
 
 void
@@ -37,7 +36,6 @@ EEMotion::AddSwingPhase (double t, const Vector3d& goal)
 {
   double light_height = 0.03;
   AddPhase(t, goal, light_height, GetLastContact().id + 1);
-  is_contact_phase_.push_back(false);
   n_steps++;
 }
 
@@ -79,27 +77,11 @@ EEMotion::GetPhase (double t_global) const
   assert(false); // t_global is longer than trajectory lasts
 }
 
-bool
-EEMotion::IsInContact (double t_global) const
-{
-  int phase = GetPhase(t_global);
-  return is_contact_phase_.at(phase);
-}
-
-EEMotion::ContactPositions
-EEMotion::GetContact (double t) const
-{
-  ContactPositions contact;
-  int phase = GetPhase(t);
-  if (IsInContact(t))
-    contact.push_back(phase_contacts_.at(phase).front()); // .back() would also work, b/c stance phase
-
-  return contact;
-}
-
 VectorXd
 EEMotion::GetOptimizationParameters () const
 {
+  // Attention: remember to adapt GetJacobianPos() contact-phase part and Index()
+  // when changing this...sorry.
   int id_prev = -1;
   VectorXd x((1+n_steps)*kDim2d); // initial position plus goal steps-xy
 
@@ -144,7 +126,7 @@ EEMotion::GetJacobianPos (double t_global, d2::Coords dim) const
   jac.insert(idx_start) = phase_motion_.at(phase).GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Start);
   jac.insert(idx_goal)  = phase_motion_.at(phase).GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Goal);
 
-  if (idx_start == idx_goal)// in contact phase
+  if (idx_start == idx_goal)// in contact phase // zmp_ ugly
     jac.insert(idx_start) = 1.0;
 
   return jac;

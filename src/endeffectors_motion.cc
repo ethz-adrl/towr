@@ -44,18 +44,6 @@ EndeffectorsMotion::GetEndeffectors (double t_global) const
   return ee_state;
 }
 
-// zmp_ remove this function
-EndeffectorsMotion::Contacts
-EndeffectorsMotion::GetContacts (double t) const
-{
-  Contacts contacts;
-  for (auto ee : endeffectors_.ToImpl())
-    for (Contact c : ee.GetContact(t)) // can be one or none (if swinging)
-      contacts.push_back(c);
-
-  return contacts;
-}
-
 EndeffectorsMotion::VectorXd
 EndeffectorsMotion::GetOptimizationParameters () const
 {
@@ -84,22 +72,6 @@ EndeffectorsMotion::SetOptimizationParameters (const VectorXd& x)
   }
 }
 
-int
-EndeffectorsMotion::Index (EndeffectorID ee, int id, d2::Coords dimension) const
-{
-  int idx = 0;
-
-  for (auto _ee : endeffectors_.GetEEsOrdered()) {
-    auto motion = endeffectors_.At(_ee);
-    if (_ee == ee)
-      return idx + motion.Index(id, dimension);
-
-    idx += motion.GetOptVarCount();
-  }
-
-  assert(false); // _ee does not exist
-}
-
 double
 EndeffectorsMotion::GetTotalTime () const
 {
@@ -118,13 +90,24 @@ EndeffectorsMotion::GetJacobianWrtOptParams (double t_global,
                                              d2::Coords dim) const
 {
   JacobianRow jac_row(GetOptVarCount());
-  int col_start = Index(ee, 0, d2::X);
   JacobianRow jac_ee = endeffectors_.At(ee).GetJacobianPos(t_global, dim);
 
+  // insert single ee-Jacobian into Jacobian representing all endeffectors
   for (JacobianRow::InnerIterator it(jac_ee); it; ++it)
-    jac_row.coeffRef(col_start+it.col()) = it.value();
+    jac_row.coeffRef(IndexStart(ee)+it.col()) = it.value();
 
   return jac_row;
+}
+
+int
+EndeffectorsMotion::IndexStart (EndeffectorID ee) const
+{
+  int idx = 0;
+
+  for (int e=E0; e<ee; ++e)
+    idx += endeffectors_.At(static_cast<EndeffectorID>(e)).GetOptVarCount();
+
+  return idx;
 }
 
 // zmp_ !!! remove this, already in contact sequence

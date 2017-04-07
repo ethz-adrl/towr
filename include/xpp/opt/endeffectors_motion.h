@@ -53,12 +53,8 @@ public:
   EEState::Container GetEndeffectorsVec(double t_global) const;
   double GetTotalTime() const;
 
-  // zmp_ remove function
-  Contacts GetContacts(double t_global) const;
-
-  // zmp_ make private
-  int Index(EndeffectorID ee, int id, d2::Coords) const;
 private:
+  int IndexStart(EndeffectorID ee) const;
   Endeffectors<EEMotion> endeffectors_;
   int n_opt_params_ = 0;
 };
