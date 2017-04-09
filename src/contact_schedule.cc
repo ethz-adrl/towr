@@ -95,41 +95,30 @@ ContactSchedule::SetPhaseSequence (const PhaseVec& phases)
 
   SetInitialSwinglegs(phases.front().first);
 
-  for (int i=0; i<phases.size()-1; ++i) {
+  for (int i=0; i<phases.size(); ++i) {
 
     EndeffectorsBool is_swingleg      = phases.at(i).first;
-    EndeffectorsBool is_swingleg_next = phases.at(i+1).first;
-    double phase_duration             = phases.at(i).second;
+    EndeffectorsBool is_swingleg_next;
+
+    bool last_phase = (i==phases.size()-1);
+    if (last_phase)
+      is_swingleg_next = is_swingleg.Invert(); // to make sure last phase is always be added
+    else
+      is_swingleg_next = phases.at(i+1).first;
+
 
     for (auto ee : is_swingleg.GetEEsOrdered()) {
 
-      durations.At(ee) += phase_duration;
+      durations.At(ee) += phases.at(i).second;
 
       // check if next phase is different phase
       bool next_different = is_swingleg.At(ee) != is_swingleg_next.At(ee);
 
       if (next_different) {
-
-        if (!is_swingleg.At(ee)) { // stance leg to swing
-          endeffectors_.At(ee).AddPhase(durations.At(ee));
-          durations.At(ee) = 0.0; // reset
-
-        } else { // swinglegleg to stance
-          endeffectors_.At(ee).AddPhase(durations.At(ee));
-          durations.At(ee) = 0.0; // reset
-        }
+        endeffectors_.At(ee).AddPhase(durations.At(ee));
+        durations.At(ee) = 0.0; // reset
       }
     }
-  }
-
-  EndeffectorsBool swinglegs = phases.back().first;
-  double T                   = phases.back().second;
-
-  for (auto ee : swinglegs.GetEEsOrdered()) {
-    if (!swinglegs.At(ee)) // last phase is stance
-      endeffectors_.At(ee).AddPhase(durations.At(ee)+T);
-    else
-      endeffectors_.At(ee).AddPhase(durations.At(ee) + T);
   }
 }
 

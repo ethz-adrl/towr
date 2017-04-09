@@ -26,7 +26,7 @@ public:
   using PolyCoeff = typename PolynomialType::PolynomialCoeff;
 
 public:
-  explicit PolynomialXd() {};
+  explicit PolynomialXd();
   explicit PolynomialXd(int id, double duration);
   virtual ~PolynomialXd();
   void SetBoundary(double T, const Point& start, const Point& end);

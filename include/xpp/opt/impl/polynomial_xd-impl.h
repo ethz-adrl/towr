@@ -11,6 +11,12 @@ namespace xpp {
 namespace opt {
 
 template<typename PolynomialType, typename PointType>
+PolynomialXd<PolynomialType, PointType>::PolynomialXd ()
+{
+  id_ = 0;
+}
+
+template<typename PolynomialType, typename PointType>
 PolynomialXd<PolynomialType, PointType>::PolynomialXd (int id, double duration)
 {
   SetId(id);
@@ -65,8 +71,7 @@ void PolynomialXd<PolynomialType, PointType>::SetBoundary(double T,
 }
 
 template<typename PolynomialType, typename PointType>
-bool PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt,
-                                                              Point& p) const
+bool PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt, Point& p) const
 {
   StateLin1d point1d;
 
