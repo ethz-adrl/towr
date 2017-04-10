@@ -1,107 +1,52 @@
 /**
- @file    optimization_variables.h
+ @file    optimization_variables.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    May 23, 2016
- @brief   Defines a class to hold the value of the optimization variables.
+ @date    Mar 28, 2017
+ @brief   Brief description
  */
 
 #include <xpp/optimization_variables.h>
-#include <algorithm> // find_if
 
 namespace xpp {
 namespace opt {
 
-OptimizationVariables::OptimizationVariables ()
+OptimizationVariables::OptimizationVariables (const std::string& id)
 {
+  id_ = id;
 }
 
 OptimizationVariables::~OptimizationVariables ()
 {
 }
 
-void
-OptimizationVariables::ClearVariables ()
+int
+OptimizationVariables::GetOptVarCount () const
 {
-  variable_sets_.clear();
+  return GetVariables().rows();
 }
 
-OptimizationVariables::VectorXd
-OptimizationVariables::GetVariables (std::string id) const
+std::string
+OptimizationVariables::GetId () const
 {
-  assert(SetExists(id));
-
-  for (const auto& set : variable_sets_)
-    if (set->GetId() == id)
-      return set->GetVariables();
-}
-
-OptimizationVariables::VariableSetVector
-OptimizationVariables::GetVarSets () const
-{
-  return variable_sets_;
-}
-
-void
-OptimizationVariables::AddVariableSet (const VariablePtr& set)
-{
-  assert(!SetExists(set->GetId())); // ensure that set with this id does not exist yet
-  variable_sets_.push_back(set);
-}
-
-void
-OptimizationVariables::SetAllVariables(const VectorXd& x)
-{
-  int c = 0;
-  for (auto& set : variable_sets_) {
-    int n_var = set->GetVariables().rows();
-    set->SetVariables(x.middleRows(c,n_var));
-    c += n_var;
-  }
-}
-
-OptimizationVariables::VectorXd
-OptimizationVariables::GetOptimizationVariables () const
-{
-  Eigen::VectorXd x(GetOptimizationVariableCount());
-  int j = 0;
-  for (const auto& set : variable_sets_) {
-    const VectorXd& var = set->GetVariables();
-    x.middleRows(j, var.rows()) = var;
-    j += var.rows();
-  }
-
-  return x;
+  return id_;
 }
 
 VecBound
-OptimizationVariables::GetOptimizationVariableBounds () const
+OptimizationVariables::GetBounds () const
 {
-  VecBound bounds_;
-  for (const auto& set : variable_sets_) {
-    const VecBound& b = set->GetBounds();
-    bounds_.insert(std::end(bounds_), std::begin(b), std::end(b));
-  }
+  // default value if user hasn't set anything
+  if (bounds_.empty())
+    SetAllBounds(kNoBound_);
 
   return bounds_;
 }
 
-int
-OptimizationVariables::GetOptimizationVariableCount () const
+void
+OptimizationVariables::SetAllBounds (const Bound& bound) const
 {
-  int n=0;
-  for (const auto& set : variable_sets_)
-    n += set->GetVariables().rows();
-
-  return n;
-}
-
-bool
-OptimizationVariables::SetExists (std::string id) const
-{
-  auto it = std::find_if(variable_sets_.begin(), variable_sets_.end(),
-                         [id](const VariablePtr& set) { return set->GetId() == id; });
-  return it != variable_sets_.end();
+  bounds_ = VecBound(GetOptVarCount(), bound);
 }
 
 } /* namespace opt */
 } /* namespace xpp */
+

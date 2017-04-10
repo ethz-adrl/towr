@@ -12,7 +12,7 @@ namespace opt {
 
 EndeffectorLoad::EndeffectorLoad (const EndeffectorsMotion ee_motion,
                                   double dt, double T)
-    : Parametrization("convexity_lambdas")
+    : OptimizationVariables("convexity_lambdas")
 {
   dt_ = dt;
   T_ = T;

@@ -1,52 +1,55 @@
 /**
  @file    optimization_variables.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    May 23, 2016
- @brief   Declares a class to publish the current optimization variables.
+ @date    Mar 28, 2017
+ @brief   Brief description
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
-#define XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
+#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPTIMIZATION_VARIABLES_H_
+#define XPP_XPP_OPT_INCLUDE_XPP_OPTIMIZATION_VARIABLES_H_
 
-#include "parametrization.h"
+#include "bound.h"
+#include <Eigen/Dense>
+#include <string>
+#include <memory>
 
 namespace xpp {
 namespace opt {
 
-/** @brief Holds and supplies the current value of the optimization variables.
+/** @brief Assigns a meaning to pure numeric optimization variables.
   *
-  * This class is responsible for supplying the up-to-date values of the
-  * optimization variables to all the observers (cost function,
-  * constraints,...) that need these. This class should
-  * fit all types of optimization problems and does not have a specific set
-  * of variables. The only problem specific information this class holds is the
-  * std::string id of what the variables represent.
+  * This class serves as a base class to represent different constructs, e.g.
+  * polynomials, piecewise-constant functions, through a finite number of
+  * parameters.
   */
 class OptimizationVariables {
 public:
-  using VectorXd          = Eigen::VectorXd;
-  using VariablePtr       = Parametrization::Ptr;
-  using VariableSetVector = std::vector<VariablePtr>;
+  using VectorXd = Eigen::VectorXd;
+  using Ptr      = std::shared_ptr<OptimizationVariables>;
 
-  OptimizationVariables ();
+  /** @param the name of what these parameters represent.
+   */
+  OptimizationVariables (const std::string& id);
   virtual ~OptimizationVariables ();
 
-  void ClearVariables();
-  void AddVariableSet(const VariablePtr&);
-  void SetAllVariables(const VectorXd& x);
+  int GetOptVarCount() const;
+  std::string GetId() const;
 
-  VectorXd GetVariables(std::string id) const;
-  VectorXd GetOptimizationVariables() const;
-  VecBound GetOptimizationVariableBounds() const;
-  int GetOptimizationVariableCount() const;
-  VariableSetVector GetVarSets() const;
+  virtual VectorXd GetVariables() const = 0;
+  virtual void SetVariables(const VectorXd&) = 0;
+
+  VecBound GetBounds() const;
+
+protected:
+  void SetAllBounds(const Bound&) const;
+  mutable VecBound bounds_;
 
 private:
-  VariableSetVector variable_sets_;
-  bool SetExists(std::string id) const;
+  std::string id_;
 };
+
 
 } /* namespace opt */
 } /* namespace xpp */
 
-#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_ */
+#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPTIMIZATION_VARIABLES_H_ */

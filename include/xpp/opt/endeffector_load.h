@@ -9,7 +9,7 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTOR_LOAD_H_
 
 #include <xpp/opt/endeffectors_motion.h>
-#include <xpp/parametrization.h>
+#include "../optimization_variables.h"
 
 namespace xpp {
 namespace opt {
@@ -18,7 +18,7 @@ namespace opt {
   *
   * The are the lambda values in the paper.
   */
-class EndeffectorLoad : public Parametrization {
+class EndeffectorLoad : public OptimizationVariables {
 public:
   using VectorXd = Eigen::VectorXd;
   using LoadParams = Endeffectors<double>;//std::vector<double>;

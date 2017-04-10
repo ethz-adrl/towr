@@ -10,10 +10,9 @@
 
 #include <xpp/matrix_vector.h>
 #include <xpp/state.h>
-#include <xpp/parametrization.h>
-
 #include <Eigen/Sparse>
 #include <memory>
+#include "../optimization_variables.h"
 
 namespace xpp {
 namespace opt {
@@ -24,7 +23,7 @@ namespace opt {
   * the motion of a system. Specific parametrizations can for example use
   * splines or solutions of the Equation of Motion as representation.
   */
-class BaseMotion : public Parametrization {
+class BaseMotion : public OptimizationVariables {
 public:
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
   using PtrS        = std::shared_ptr<BaseMotion>;

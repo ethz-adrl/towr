@@ -10,7 +10,7 @@
 namespace xpp {
 namespace opt {
 
-EEMotion::EEMotion () : Parametrization("ee_motion_single")
+EEMotion::EEMotion () : OptimizationVariables("ee_motion_single")
 {
 }
 

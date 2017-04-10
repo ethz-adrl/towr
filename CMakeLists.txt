@@ -51,6 +51,7 @@ include_directories(
 
 # A general nlp solving framework for Eigen, Ipopt, Snopt
 add_library(${SOLVER_LIB}
+  src/optimization_variables_container.cc
   src/optimization_variables.cc
   src/nlp.cc
   src/ipopt_adapter.cc
@@ -61,7 +62,6 @@ add_library(${SOLVER_LIB}
   src/cost_container.cc
   src/cost_function_functor.cc
   src/soft_constraint.cc
-  src/parametrization.cc
   src/time_discretization_constraint.cc
 )
 target_link_libraries(${SOLVER_LIB}

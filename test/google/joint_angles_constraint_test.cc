@@ -43,7 +43,7 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
 
   // create the joint angle constraint and put into the container
   int n_splines = 1;
-  OptimizationVariables opt_variables;
+  OptimizationVariablesContainer opt_variables;
   opt_variables.AddVariableSet(0, Eigen::VectorXd(n_splines*kFreeCoeffPerSpline*2));
   ConstraintContainer constraint_container(opt_variables);
   auto constraint = CostConstraintFactory::CreateJointAngleConstraint(interpreter);

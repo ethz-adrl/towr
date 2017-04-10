@@ -22,7 +22,7 @@ CostFunctionFunctor::~CostFunctionFunctor ()
 }
 
 void
-CostFunctionFunctor::AddCosts (OptimizationVariables& subject,
+CostFunctionFunctor::AddCosts (OptimizationVariablesContainer& subject,
                                CostContainer& costs)
 {
   subject_        = &subject;

@@ -8,9 +8,9 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 
-#include "optimization_variables.h"
 #include "constraint.h"
 #include <memory>
+#include "optimization_variables_container.h"
 
 namespace xpp {
 namespace opt {
@@ -30,7 +30,7 @@ public:
   typedef std::shared_ptr<Constraint> ConstraintPtr;
   using ConstraitPtrVec = std::vector<ConstraintPtr>;
 
-  ConstraintContainer (OptimizationVariables& subject);
+  ConstraintContainer (OptimizationVariablesContainer& subject);
   virtual ~ConstraintContainer ();
 
   void ClearConstraints();
@@ -46,7 +46,7 @@ public:
   void PrintStatus(double tol) const;
 
 private:
-  OptimizationVariables* opt_variables_;
+  OptimizationVariablesContainer* opt_variables_;
   void RefreshBounds ();
   std::vector<ConstraintPtr> constraints_;
   VecBound bounds_;

@@ -10,7 +10,7 @@
 
 #include "eigen_num_diff_functor.h"
 #include "cost_container.h"
-#include "optimization_variables.h"
+#include "optimization_variables_container.h"
 
 namespace xpp {
 namespace opt {
@@ -28,13 +28,13 @@ public:
   CostFunctionFunctor ();
   virtual ~CostFunctionFunctor ();
 
-  void AddCosts(OptimizationVariables& subject, CostContainer& costs);
+  void AddCosts(OptimizationVariablesContainer& subject, CostContainer& costs);
 
 protected:
   int operator() (const InputType& x, ValueType& obj_value) const override;
 
 private:
-  OptimizationVariables* subject_;
+  OptimizationVariablesContainer* subject_;
   CostContainer* cost_container_;
 
   bool costs_added_ = false; // make sure this functor has been assigned a cost function

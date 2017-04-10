@@ -12,7 +12,7 @@ namespace opt {
 
 EndeffectorsMotion::EndeffectorsMotion (const EndeffectorsPos& initial_pos,
                                         const ContactSchedule& contact_schedule)
-    :Parametrization("footholds")
+    :OptimizationVariables("footholds")
 {
   endeffectors_.SetCount(initial_pos.GetCount());
 

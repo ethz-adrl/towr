@@ -18,7 +18,7 @@
 namespace xpp {
 namespace opt {
 
-class OptimizationVariables;
+class OptimizationVariablesContainer;
 class CostContainer;
 class ConstraintContainer;
 class BaseMotion;
@@ -35,7 +35,7 @@ enum NlpSolver { Ipopt, Snopt };
   */
 class NlpFacade {
 public:
-  using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariables>;
+  using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
   using CostContainerPtr         = std::shared_ptr<CostContainer>;
   using ConstraintContainerPtr   = std::shared_ptr<ConstraintContainer>;
   using MotionparamsPtr          = std::shared_ptr<MotionParameters>;

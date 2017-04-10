@@ -10,7 +10,7 @@
 namespace xpp {
 namespace opt {
 
-BaseMotion::BaseMotion () : Parametrization("base_motion")
+BaseMotion::BaseMotion () : OptimizationVariables("base_motion")
 {
 }
 

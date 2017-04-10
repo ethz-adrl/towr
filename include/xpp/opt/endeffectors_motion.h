@@ -19,7 +19,7 @@ namespace opt {
   * This class is responsible for transforming the scalar parameters into
   * the position, velocity and acceleration of the endeffectors.
   */
-class EndeffectorsMotion : public Parametrization {
+class EndeffectorsMotion : public OptimizationVariables {
 public:
   using EEState  = Endeffectors<StateLin3d>;
   using VectorXd = Eigen::VectorXd;

@@ -13,7 +13,7 @@ namespace xpp {
 namespace opt {
 
 CenterOfPressure::CenterOfPressure (double dt, double T)
-    : Parametrization("center_of_pressure")
+    : OptimizationVariables("center_of_pressure")
 {
   dt_ = dt;
   int idx = GetSegment(T);

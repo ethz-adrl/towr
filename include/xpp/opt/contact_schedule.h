@@ -9,7 +9,7 @@
 #define XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
 
 #include <xpp/endeffectors.h>
-#include <xpp/parametrization.h>
+#include "../optimization_variables.h"
 
 namespace xpp {
 namespace opt {
@@ -38,7 +38,7 @@ private:
 
 /** @brief Knows which endeffectors are in contact at time t during trajectory.
  */
-class ContactSchedule : public Parametrization {
+class ContactSchedule : public OptimizationVariables {
 public:
   using EEContacts = Endeffectors<SingleContactMotion>;
   using Phase      = std::pair<EndeffectorsBool, double>; // swinglegs and time

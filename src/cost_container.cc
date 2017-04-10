@@ -10,7 +10,7 @@
 namespace xpp {
 namespace opt {
 
-CostContainer::CostContainer (OptimizationVariables& subject)
+CostContainer::CostContainer (OptimizationVariablesContainer& subject)
 {
   // save only optimization variable count
   opt_variables_ = &subject;
@@ -63,10 +63,10 @@ CostContainer::EvaluateGradient () const
   for (const auto& cost : costs_) {
 
     int row = 0;
-    for (const auto& set : opt_variables_->GetVarSets()) {
+    for (const auto& var : opt_variables_->GetOptVarsVec()) {
 
-      int n_set = set->GetVariables().rows();
-      VectorXd grad_set = cost->EvaluateWeightedGradientWrt(set->GetId());
+      int n_set = var->GetVariables().rows();
+      VectorXd grad_set = cost->EvaluateWeightedGradientWrt(var->GetId());
 
       if (grad_set.rows() != 0) {
         gradient.middleRows(row, n_set) += grad_set;

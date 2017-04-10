@@ -11,8 +11,8 @@
 #include "constraint_container.h"
 #include "cost_container.h"
 #include "cost_function_functor.h"
-#include "optimization_variables.h"
 #include <memory>
+#include "optimization_variables_container.h"
 
 namespace xpp {
 namespace opt {
@@ -32,7 +32,7 @@ public:
   typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
 
   typedef std::shared_ptr<Jacobian> JacobianPtr;
-  typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
+  typedef std::shared_ptr<OptimizationVariablesContainer> OptimizationVariablesPtr;
   typedef std::shared_ptr<CostContainer> CostContainerPtr;
   typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
 

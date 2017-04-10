@@ -9,8 +9,8 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONTAINER_H_
 
 #include "cost.h"
-#include "optimization_variables.h"
 #include <memory>
+#include "optimization_variables_container.h"
 
 namespace xpp {
 namespace opt {
@@ -25,7 +25,7 @@ public:
   using CostPtr = std::shared_ptr<Cost>;
   using VectorXd = Eigen::VectorXd;
 
-  CostContainer (OptimizationVariables& subject);
+  CostContainer (OptimizationVariablesContainer& subject);
   virtual ~CostContainer ();
 
   void SetWeights(const std::vector<double>&);
@@ -39,7 +39,7 @@ public:
   void UpdateCosts();
 
 private:
-  OptimizationVariables* opt_variables_;
+  OptimizationVariablesContainer* opt_variables_;
   std::vector<CostPtr > costs_;
 };
 

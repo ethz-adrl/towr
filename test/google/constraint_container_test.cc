@@ -38,7 +38,7 @@ protected:
     constraints_->AddConstraint(c_ones_);
   }
 
-  OptimizationVariables opt_var_;
+  OptimizationVariablesContainer opt_var_;
   ConstraintPtr c_zeros_, c_ones_;
   ConstraintContainerPtr constraints_;
   ComSpline4 splines_;

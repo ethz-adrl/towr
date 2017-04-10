@@ -11,7 +11,7 @@
 namespace xpp {
 namespace opt {
 
-ConstraintContainer::ConstraintContainer (OptimizationVariables& subject)
+ConstraintContainer::ConstraintContainer (OptimizationVariablesContainer& subject)
 {
   opt_variables_ = &subject;
 }
@@ -44,9 +44,7 @@ ConstraintContainer::EvaluateConstraints () const
 
   int c = 0;
   for (const auto& constraint : constraints_) {
-    // zmp_ DRY this should be done once collectively
-//    constraint->UpdateVariables(opt_variables_);
-//    constraint->UpdateConstraintValues();
+
     VectorXd g = constraint->GetConstraintValues();
     int c_new = g.rows();
     g_all.middleRows(c, c_new) = g;
@@ -60,14 +58,11 @@ ConstraintContainer::GetJacobian () const
 {
   int row = 0;
   for (const auto& constraint : constraints_) {
-    // zmp_ DRY this should be done once collectively
-//    constraint->UpdateVariables(opt_variables_);
-//    constraint->UpdateJacobians();
 
     int col = 0;
-    for (const auto& set : opt_variables_->GetVarSets()) {
+    for (const auto& var : opt_variables_->GetOptVarsVec()) {
 
-      Jacobian jac = constraint->GetJacobianWithRespectTo(set->GetId());
+      Jacobian jac = constraint->GetJacobianWithRespectTo(var->GetId());
 
       // insert the derivative in the correct position in the overall Jacobian
       for (int k=0; k<jac.outerSize(); ++k)
@@ -75,7 +70,7 @@ ConstraintContainer::GetJacobian () const
           jacobian_->coeffRef(row+it.row(), col+it.col()) = it.value();
 
 
-      col += set->GetVariables().rows();
+      col += var->GetVariables().rows();
     }
 
     row += constraint->GetNumberOfConstraints();

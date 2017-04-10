@@ -21,7 +21,7 @@ NlpFacade::NlpFacade ()
 {
   // create corresponding heap object for each of the member pointers
   // zmp_ these should be normal objects owned by NLP.
-  opt_variables_ = std::make_shared<OptimizationVariables>();
+  opt_variables_ = std::make_shared<OptimizationVariablesContainer>();
   costs_         = std::make_shared<CostContainer>(*opt_variables_);
   constraints_   = std::make_shared<ConstraintContainer>(*opt_variables_);
 

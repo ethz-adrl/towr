@@ -8,11 +8,11 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_H_
 
-#include "optimization_variables.h"
-#include "parametrization.h"
-
 #include <Eigen/Sparse> // for jacobians
 #include <memory>
+
+#include "optimization_variables.h"
+#include "optimization_variables_container.h"
 
 namespace xpp {
 namespace opt {
@@ -23,7 +23,7 @@ class Constraint {
 public:
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-  using ParametrizationPtr = std::shared_ptr<Parametrization>;
+  using ParametrizationPtr = std::shared_ptr<OptimizationVariables>;
   using JacobianNamed = std::pair<std::string, Jacobian>;
 
   Constraint ();

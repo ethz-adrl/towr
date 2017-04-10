@@ -41,7 +41,6 @@ Constraint::SetDimensions (const std::vector<ParametrizationPtr>& vars,
     Jacobian jac(num_constraints, n);
     jacobians_.push_back({v->GetId(), jac});
   }
-
 }
 
 Constraint::Jacobian

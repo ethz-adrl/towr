@@ -9,10 +9,10 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_MOTION_H_
 
 #include <xpp/contact.h>
-#include <xpp/parametrization.h>
 #include <xpp/opt/ee_phase_motion.h>
 
 #include <deque>
+#include "../optimization_variables.h"
 
 namespace xpp {
 namespace opt {
@@ -22,7 +22,7 @@ namespace opt {
   * This class is purely responsible for the pos,vel,acc of the endeffectors
   * and should not know anything about the current contact state.
   */
-class EEMotion : public Parametrization {
+class EEMotion : public OptimizationVariables {
 public:
   using ContactPositions = std::deque<Contact>;
   /** contact at beginning and end of phase (same for stance phase) */
