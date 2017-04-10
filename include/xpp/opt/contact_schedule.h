@@ -9,7 +9,7 @@
 #define XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
 
 #include <xpp/endeffectors.h>
-#include "../optimization_variables.h"
+#include <xpp/optimization_variables.h>
 
 namespace xpp {
 namespace opt {

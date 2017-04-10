@@ -6,24 +6,24 @@
  */
 
 #include <xpp/opt/constraints/support_area_constraint.h>
+#include <xpp/opt/endeffectors_motion.h>
+#include <xpp/opt/endeffector_load.h>
+#include <xpp/opt/center_of_pressure.h>
 
 namespace xpp {
 namespace opt {
 
-SupportAreaConstraint::SupportAreaConstraint (const OptVarsPtr& opt_vars_container,
-                                              const EEMotionPtr& ee_motion,
-                                              const EELoadPtr& ee_load,
-                                              const CopPtr& cop,
-                                              double dt)
-    :TimeDiscretizationConstraint(ee_motion->GetTotalTime(), dt)
+SupportAreaConstraint::SupportAreaConstraint (const OptVarsPtr& opt_vars,
+                                              double dt, double T)
+    :TimeDiscretizationConstraint(T, dt)
 {
   name_ = "Support Area";
-  ee_motion_ = ee_motion;
-  ee_load_ = ee_load;
-  cop_ = cop;
+  ee_motion_ = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
+  ee_load_   = std::dynamic_pointer_cast<EndeffectorLoad>   (opt_vars->GetSet("endeffector_load"));
+  cop_       = std::dynamic_pointer_cast<CenterOfPressure>  (opt_vars->GetSet("center_of_pressure"));
 
   int num_constraints = GetNumberOfNodes()*kDim2d;
-  SetDimensions(opt_vars_container->GetOptVarsVec(), num_constraints);
+  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
 }
 
 SupportAreaConstraint::~SupportAreaConstraint ()

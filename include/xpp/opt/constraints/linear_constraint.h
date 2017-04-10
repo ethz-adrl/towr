@@ -10,10 +10,11 @@
 
 #include <xpp/matrix_vector.h>
 #include <xpp/constraint.h>
-#include <xpp/opt/base_motion.h>
 
 namespace xpp {
 namespace opt {
+
+class BaseMotion;
 
 /** @brief Calculates the constraint violations for linear constraints.
   *
@@ -30,7 +31,6 @@ public:
     * @param linear_equation the matrix M and vector v.
     */
   LinearEqualityConstraint (const OptVarsPtr& opt_vars_container,
-                            const ComMotionPtr& com,
                             const MatVec& linear_equation,
                             const std::string& name);
   virtual ~LinearEqualityConstraint ();

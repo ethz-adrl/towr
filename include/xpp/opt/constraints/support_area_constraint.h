@@ -8,13 +8,14 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 
-#include <xpp/opt/endeffectors_motion.h>
-#include <xpp/opt/endeffector_load.h>
-#include <xpp/opt/center_of_pressure.h>
 #include <xpp/time_discretization_constraint.h>
 
 namespace xpp {
 namespace opt {
+
+class EndeffectorsMotion;
+class EndeffectorLoad;
+class CenterOfPressure;
 
 /** Ensures that the CoP lies within convex hull of contact points p
   *
@@ -30,9 +31,7 @@ public:
   using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
   using CopPtr      = std::shared_ptr<CenterOfPressure>;
 
-  SupportAreaConstraint (const OptVarsPtr& opt_vars_container,
-                         const EEMotionPtr&, const EELoadPtr&, const CopPtr&,
-                         double dt);
+  SupportAreaConstraint (const OptVarsPtr&, double dt, double T);
   virtual ~SupportAreaConstraint ();
 
 private:

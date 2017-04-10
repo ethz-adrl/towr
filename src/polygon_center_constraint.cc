@@ -6,20 +6,19 @@
  */
 
 #include <xpp/opt/constraints/polygon_center_constraint.h>
+#include <xpp/opt/endeffector_load.h>
+#include <xpp/opt/contact_schedule.h>
 
 namespace xpp {
 namespace opt {
 
-PolygonCenterConstraint::PolygonCenterConstraint (
-    const OptVarsPtr& opt_vars_container,
-    const EELoadPtr& ee_load,
-    const ContactSchedulePtr& contact_schedule)
+PolygonCenterConstraint::PolygonCenterConstraint (const OptVarsPtr& opt_vars)
 {
-  ee_load_   = ee_load;
-  contact_schedule_ = contact_schedule;
+  contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetSet("contact_schedule"));
+  ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
   int num_constraints = ee_load_->GetNumberOfSegments();
-  SetDimensions(opt_vars_container->GetOptVarsVec(), num_constraints);
+  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
 }
 
 PolygonCenterConstraint::~PolygonCenterConstraint ()

@@ -9,11 +9,12 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 
 #include <xpp/constraint.h>
-#include <xpp/opt/endeffector_load.h>
-#include <xpp/opt/contact_schedule.h>
 
 namespace xpp {
 namespace opt {
+
+class EndeffectorLoad;
+class ContactSchedule;
 
 /** Ensures that vector represented by lambdas lies in center
   *
@@ -27,8 +28,7 @@ public:
   using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
   using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
 
-  PolygonCenterConstraint (const OptVarsPtr&,
-                           const EELoadPtr&, const ContactSchedulePtr&);
+  PolygonCenterConstraint (const OptVarsPtr&);
   virtual ~PolygonCenterConstraint ();
 
   void UpdateConstraintValues () override;

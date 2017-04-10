@@ -6,21 +6,21 @@
  */
 
 #include <xpp/opt/constraints/contact_load_constraint.h>
+#include <xpp/opt/endeffector_load.h>
+#include <xpp/opt/contact_schedule.h>
 
 namespace xpp {
 namespace opt {
 
-ContactLoadConstraint::ContactLoadConstraint (const OptVarsPtr& opt_vars_container,
-                                              const ContactSchedulePtr& contact_schedule,
-                                              const EELoadPtr& ee_load)
+ContactLoadConstraint::ContactLoadConstraint (const OptVarsPtr& opt_vars)
 {
+  contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetSet("contact_schedule"));
+  ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
-  int num_constraints = ee_load->GetOptVarCount();
-  SetDimensions(opt_vars_container->GetOptVarsVec(), num_constraints);
+  int num_constraints = ee_load_->GetOptVarCount();
+  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
 
-  contact_schedule_ = contact_schedule;
-  ee_load_ = ee_load;
-  ee_ids_  = contact_schedule->IsInContact(0.0).GetEEsOrdered();
+  ee_ids_  = contact_schedule_->IsInContact(0.0).GetEEsOrdered();
 
   GetJacobianRefWithRespectTo(ee_load_->GetId()).setIdentity();
 }

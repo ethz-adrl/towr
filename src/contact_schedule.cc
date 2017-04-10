@@ -76,7 +76,7 @@ SingleContactMotion::GetPhases () const
 }
 
 ContactSchedule::ContactSchedule (const PhaseVec& phases)
-    : OptimizationVariables("Contact Motion")
+    : OptimizationVariables("contact_schedule")
 {
   SetPhaseSequence(phases);
 }

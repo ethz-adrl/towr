@@ -9,7 +9,6 @@
 #define XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
 
 #include <xpp/opt/linear_inverted_pendulum.h>
-#include <xpp/opt/center_of_pressure.h>
 #include <xpp/time_discretization_constraint.h>
 #include <memory>
 
@@ -17,17 +16,14 @@ namespace xpp {
 namespace opt {
 
 class BaseMotion;
+class CenterOfPressure;
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using BaseMotionPtr = std::shared_ptr<BaseMotion>;
   using CopPtr        = std::shared_ptr<CenterOfPressure>;
 
-  DynamicConstraint (const OptVarsPtr& opt_vars,
-                     const BaseMotionPtr& com_motion,
-                     const CopPtr& cop,
-                     double T,
-                     double dt);
+  DynamicConstraint (const OptVarsPtr& opt_vars, double T, double dt);
   virtual ~DynamicConstraint ();
 
 private:

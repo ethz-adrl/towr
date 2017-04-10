@@ -8,11 +8,13 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_FOOTHOLD_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_FOOTHOLD_CONSTRAINT_H_
 
-#include <xpp/opt/endeffectors_motion.h>
 #include <xpp/constraint.h>
+#include <xpp/endeffectors.h>
 
 namespace xpp {
 namespace opt {
+
+class EndeffectorsMotion;
 
 /** Base class for constraints associated only with the foothold positions
   *
@@ -25,8 +27,7 @@ public:
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
   using NominalStance = EndeffectorsPos;
 
-  FootholdConstraint (const OptVarsPtr&,
-                      const EEMotionPtr&, const NominalStance&, double t);
+  FootholdConstraint (const OptVarsPtr&, const NominalStance&, double t);
   virtual ~FootholdConstraint ();
 
 private:

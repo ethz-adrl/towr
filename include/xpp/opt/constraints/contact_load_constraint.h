@@ -9,20 +9,20 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
 
 #include <xpp/constraint.h>
-#include <xpp/opt/endeffector_load.h>
-#include <xpp/opt/contact_schedule.h>
-
+#include <xpp/endeffectors.h>
 
 namespace xpp {
 namespace opt {
 
+class EndeffectorLoad;
+class ContactSchedule;
+
 class ContactLoadConstraint : public Constraint {
 public:
-  using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
+  using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
   using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
 
-  ContactLoadConstraint (const OptVarsPtr& opt_vars_container,
-                         const ContactSchedulePtr&, const EELoadPtr&);
+  ContactLoadConstraint (const OptVarsPtr& opt_vars_container);
   virtual ~ContactLoadConstraint ();
 
   void UpdateConstraintValues () override;

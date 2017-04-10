@@ -41,9 +41,12 @@ public:
   int GetOptimizationVariableCount() const;
   OptVarsVec GetOptVarsVec() const;
 
+  OptVarsPtr GetSet(std::string id) const;
+
 private:
   OptVarsVec opt_vars_vec_;
   bool SetExists(std::string id) const;
+
 };
 
 } /* namespace opt */

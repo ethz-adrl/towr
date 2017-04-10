@@ -8,12 +8,12 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONVEXITY_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONVEXITY_CONSTRAINT_H_
 
-#include <xpp/opt/endeffector_load.h>
 #include <xpp/constraint.h>
-#include <memory>
 
 namespace xpp {
 namespace opt {
+
+class EndeffectorLoad;
 
 /** Enforces that the sum of all lambda variables at every discrete time = 1.
   *
@@ -25,7 +25,7 @@ class ConvexityConstraint : public Constraint {
 public:
   using LoadPtr = std::shared_ptr<EndeffectorLoad>;
 
-  ConvexityConstraint (const OptVarsPtr& opt_vars_container, const LoadPtr&);
+  ConvexityConstraint (const OptVarsPtr& opt_vars_container);
   virtual ~ConvexityConstraint ();
 
   void UpdateConstraintValues () override;

@@ -6,24 +6,24 @@
  */
 
 #include <xpp/opt/constraints/convexity_constraint.h>
+#include <xpp/opt/endeffector_load.h>
 
 namespace xpp {
 namespace opt {
 
-ConvexityConstraint::ConvexityConstraint (const OptVarsPtr& opt_vars,
-                                          const LoadPtr& ee_load)
+ConvexityConstraint::ConvexityConstraint (const OptVarsPtr& opt_vars)
 {
   name_ = "Convexity";
-  ee_load_ = ee_load;
+  ee_load_ = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
-  int m = ee_load->GetNumberOfSegments();
+  int m = ee_load_->GetNumberOfSegments();
   SetDimensions(opt_vars->GetOptVarsVec(), m);
 
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load->GetId());
+  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetId());
 
   for (int k=0; k<m; ++k) {
-    for (auto ee : ee_load->GetLoadValuesIdx(k).GetEEsOrdered()) {
-      int idx = ee_load->IndexDiscrete(k,ee);
+    for (auto ee : ee_load_->GetLoadValuesIdx(k).GetEEsOrdered()) {
+      int idx = ee_load_->IndexDiscrete(k,ee);
       jac.insert(k, idx) = 1.0;
     }
   }

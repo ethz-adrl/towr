@@ -7,13 +7,12 @@
 
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/base_motion.h>
+#include <xpp/opt/center_of_pressure.h>
 
 namespace xpp {
 namespace opt {
 
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
-                                      const BaseMotionPtr& com_motion,
-                                      const CopPtr& cop,
                                       double T,
                                       double dt)
     :TimeDiscretizationConstraint(T,dt)
@@ -21,9 +20,9 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   kHeight_ = 0.0;
   name_ = "Dynamic";
 
-  com_motion_ = com_motion;
-  cop_ = cop;
-  kHeight_ = com_motion->GetZHeight();
+  com_motion_ = std::dynamic_pointer_cast<BaseMotion>      (opt_vars->GetSet("base_motion"));
+  cop_        = std::dynamic_pointer_cast<CenterOfPressure>(opt_vars->GetSet("center_of_pressure"));
+  kHeight_ = com_motion_->GetZHeight();
 
   int num_constraints = GetNumberOfNodes()*kDim2d;
   SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);

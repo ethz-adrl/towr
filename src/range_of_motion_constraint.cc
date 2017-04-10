@@ -6,29 +6,28 @@
  */
 
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
+#include <xpp/opt/endeffectors_motion.h>
 #include <xpp/opt/base_motion.h>
 
 namespace xpp {
 namespace opt {
 
-RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars_container,
-                                    const ComMotionPtr& com_motion,
-                                    const EEMotionPtr& ee_motion,
+RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
                                     double dt,
                                     const MaxDevXY& dev,
-                                    const NominalStance& nom)
-    :TimeDiscretizationConstraint(ee_motion->GetTotalTime(), dt)
+                                    const NominalStance& nom,
+                                    double T)
+    :TimeDiscretizationConstraint(T, dt)
 {
   name_ = "Range of Motion";
-  com_motion_       = com_motion; // zmp_ use dynamic cast from opt_vars_container
-  ee_motion_        = ee_motion;
   max_deviation_from_nominal_ = dev;
   nominal_stance_ = nom;
 
-  // reserve space for every endeffector, but so far only fill constraints/bounds
-  // for the ones in contacts, the others read 0 < g=0 < 0.
+  com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetSet("base_motion"));
+  ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
+
   int num_constraints = GetNumberOfNodes()*ee_motion_->GetNumberOfEndeffectors()*kDim2d;
-  SetDimensions(opt_vars_container->GetOptVarsVec(), num_constraints);
+  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
 }
 
 RangeOfMotionBox::~RangeOfMotionBox ()

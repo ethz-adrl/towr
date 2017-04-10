@@ -25,14 +25,20 @@ OptimizationVariablesContainer::ClearVariables ()
   opt_vars_vec_.clear();
 }
 
-OptimizationVariablesContainer::VectorXd
-OptimizationVariablesContainer::GetVariables (std::string id) const
+OptimizationVariablesContainer::OptVarsPtr
+OptimizationVariablesContainer::GetSet (std::string id) const
 {
   assert(SetExists(id));
 
   for (const auto& set : opt_vars_vec_)
     if (set->GetId() == id)
-      return set->GetVariables();
+      return set;
+}
+
+OptimizationVariablesContainer::VectorXd
+OptimizationVariablesContainer::GetVariables (std::string id) const
+{
+  return GetSet(id)->GetVariables();
 }
 
 OptimizationVariablesContainer::OptVarsVec
@@ -102,6 +108,8 @@ OptimizationVariablesContainer::SetExists (std::string id) const
                          [id](const OptVarsPtr& set) { return set->GetId() == id; });
   return it != opt_vars_vec_.end();
 }
+
+
 
 } /* namespace opt */
 } /* namespace xpp */
