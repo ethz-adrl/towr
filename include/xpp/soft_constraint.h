@@ -29,7 +29,7 @@ public:
   using ConstraintPtr = std::shared_ptr<Constraint>;
   using VectorXd = Eigen::VectorXd;
 
-  SoftConstraint (const ConstraintPtr& constraint);
+  SoftConstraint (const OptVarsPtr&, const ConstraintPtr& constraint);
   virtual ~SoftConstraint ();
 
   void Update() override;

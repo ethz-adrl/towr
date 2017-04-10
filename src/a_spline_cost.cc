@@ -11,7 +11,8 @@ namespace xpp {
 namespace opt {
 
 
-ASplineCost::ASplineCost ()
+ASplineCost::ASplineCost (const OptVarsPtr& opt_vars)
+    :Cost(opt_vars)
 {
 }
 
@@ -20,6 +21,18 @@ ASplineCost::Init (const MatVec& mat_vec, const ComMotionPtrS& com_motion)
 {
   matrix_vector_ = mat_vec;
   com_motion_ = com_motion;
+}
+
+QuadraticSplineCost::QuadraticSplineCost (const OptVarsPtr& opt_vars,
+                                          const MatVec& mat_vec,
+                                          const ComMotionPtrS& com_motion)
+    :ASplineCost(opt_vars)
+{
+  Init(mat_vec, com_motion);
+}
+
+QuadraticSplineCost::~QuadraticSplineCost ()
+{
 }
 
 double
@@ -34,6 +47,7 @@ QuadraticSplineCost::EvaluateCost () const
   return cost;
 }
 
+
 QuadraticSplineCost::VectorXd
 QuadraticSplineCost::EvaluateGradientWrt(std::string var_set)
 {
@@ -45,12 +59,12 @@ QuadraticSplineCost::EvaluateGradientWrt(std::string var_set)
   return grad;
 }
 
-double
-SquaredSplineCost::EvaluateCost () const
-{
-  return (matrix_vector_.M*com_motion_->GetXYSplineCoeffients()
-          + matrix_vector_.v).norm();
-}
+//double
+//SquaredSplineCost::EvaluateCost () const
+//{
+//  return (matrix_vector_.M*com_motion_->GetXYSplineCoeffients()
+//          + matrix_vector_.v).norm();
+//}
 
 } /* namespace opt */
 } /* namespace xpp */

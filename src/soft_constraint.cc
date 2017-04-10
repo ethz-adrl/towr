@@ -10,7 +10,9 @@
 namespace xpp {
 namespace opt {
 
-SoftConstraint::SoftConstraint (const ConstraintPtr& constraint)
+SoftConstraint::SoftConstraint (const OptVarsPtr& opt_vars_container,
+                                const ConstraintPtr& constraint)
+    :Cost(opt_vars_container)
 {
   constraint_ = constraint;
   int n_constraints = constraint_->GetNumberOfConstraints();

@@ -10,16 +10,12 @@
 namespace xpp {
 namespace opt {
 
-CostContainer::CostContainer (OptimizationVariablesContainer& subject)
+CostContainer::CostContainer ()
 {
-  // save only optimization variable count
-  // zmp_ this should be removed
-  opt_variables_ = &subject;
 }
 
 CostContainer::~CostContainer ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
@@ -59,23 +55,11 @@ CostContainer::EvaluateTotalCost () const
 CostContainer::VectorXd
 CostContainer::EvaluateGradient () const
 {
-  int n = opt_variables_->GetOptimizationVariableCount();
+  int n = costs_.front()->GetVariableCount();
   VectorXd gradient = VectorXd::Zero(n);
-  for (const auto& cost : costs_) {
 
-    int row = 0;
-    for (const auto& var : opt_variables_->GetOptVarsVec()) {
-
-      int n_set = var->GetOptVarCount();
-      VectorXd grad_set = cost->EvaluateWeightedGradientWrt(var->GetId());
-
-      if (grad_set.rows() != 0) {
-        gradient.middleRows(row, n_set) += grad_set;
-      }
-
-      row += n_set;
-    }
-  }
+  for (const auto& cost : costs_)
+    gradient += cost->EvaluateCompleteGradient();
 
   return gradient;
 }

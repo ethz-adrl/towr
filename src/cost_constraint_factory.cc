@@ -219,15 +219,13 @@ CostConstraintFactory::MakeMotionCost() const
   mv.M = term;
   mv.v.setZero();
 
-  auto cost = std::make_shared<QuadraticSplineCost>();
-  cost->Init(mv, com_motion);
-  return cost;
+  return std::make_shared<QuadraticSplineCost>(opt_vars_, mv, com_motion);
 }
 
 CostConstraintFactory::CostPtr
 CostConstraintFactory::ToCost (const ConstraintPtr& constraint) const
 {
-  return std::make_shared<SoftConstraint>(constraint);
+  return std::make_shared<SoftConstraint>(opt_vars_, constraint);
 }
 
 } /* namespace opt */

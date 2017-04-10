@@ -25,7 +25,7 @@ public:
   using VectorXd = Eigen::VectorXd;
   using ComMotionPtrS = std::shared_ptr<BaseMotion>;
 
-  ASplineCost ();
+  ASplineCost (const OptVarsPtr&);
   virtual ~ASplineCost (){};
 
   void Update() override { /*com_motion_ always up-to-date*/ };
@@ -42,7 +42,11 @@ protected:
 
 
 class QuadraticSplineCost : public ASplineCost {
+public:
+  QuadraticSplineCost(const OptVarsPtr&, const MatVec&, const ComMotionPtrS&);
+  virtual ~QuadraticSplineCost();
 
+private:
   /**  The cost is calculated as
     *  cost = x^T * M * x   +   v^T * x
     */
@@ -50,16 +54,16 @@ class QuadraticSplineCost : public ASplineCost {
   virtual VectorXd EvaluateGradientWrt(std::string var_set) final;
 };
 
-class SquaredSplineCost : public ASplineCost {
-
-  /**  The cost is calculated as:
-    *  g = M*x + v
-    *  cost = sqrt(g^T*g)
-    */
-  double EvaluateCost () const override;
-  virtual VectorXd EvaluateGradientWrt(std::string var_set) final { assert(false); };
-
-};
+//class SquaredSplineCost : public ASplineCost {
+//
+//  /**  The cost is calculated as:
+//    *  g = M*x + v
+//    *  cost = sqrt(g^T*g)
+//    */
+//  double EvaluateCost () const override;
+//  virtual VectorXd EvaluateGradientWrt(std::string var_set) final { assert(false); };
+//
+//};
 
 } /* namespace zmp */
 } /* namespace xpp */

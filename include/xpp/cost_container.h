@@ -10,7 +10,6 @@
 
 #include "cost.h"
 #include <memory>
-#include "optimization_variables_container.h"
 
 namespace xpp {
 namespace opt {
@@ -22,10 +21,10 @@ namespace opt {
   */
 class CostContainer {
 public:
-  using CostPtr = std::shared_ptr<Cost>;
   using VectorXd = Eigen::VectorXd;
+  using CostPtr = std::shared_ptr<Cost>;
 
-  CostContainer (OptimizationVariablesContainer& subject);
+  CostContainer ();
   virtual ~CostContainer ();
 
   void SetWeights(const std::vector<double>&);
@@ -39,7 +38,6 @@ public:
   void UpdateCosts();
 
 private:
-  OptimizationVariablesContainer* opt_variables_;
   std::vector<CostPtr > costs_;
 };
 
