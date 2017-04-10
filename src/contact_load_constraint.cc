@@ -15,7 +15,7 @@ ContactLoadConstraint::ContactLoadConstraint (const ContactSchedulePtr& contact_
 {
 
   int num_constraints = ee_load->GetOptVarCount();
-  SetDependentVariables({contact_schedule, ee_load}, num_constraints);
+  SetDimensions({contact_schedule, ee_load}, num_constraints);
 
   contact_schedule_ = contact_schedule;
   ee_load_ = ee_load;

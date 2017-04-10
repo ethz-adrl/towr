@@ -24,7 +24,7 @@ public:
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
   using ParametrizationPtr = std::shared_ptr<Parametrization>;
-  using VarPair = std::pair<ParametrizationPtr,Jacobian>;
+  using JacobianNamed = std::pair<std::string, Jacobian>;
 
   Constraint ();
   virtual ~Constraint ();
@@ -57,13 +57,9 @@ public:
   virtual void UpdateConstraintValues () = 0;
 
 protected:
-  /** @brief The values of these variables influence the constraint.
-    *
-    * Subscribes to these values and keeps them up-to-date to be used to
-    * calculate the constraints and bounds.
+  /** @brief Determines the size of constraints, bounds and jacobians.
     */
-  void SetDependentVariables(const std::vector<ParametrizationPtr>&,
-                             int num_constraints);
+  void SetDimensions(const std::vector<ParametrizationPtr>&, int num_constraints);
 
   /** @returns a writable reference to modify the Jacobian of the constraint.
     *
@@ -86,8 +82,7 @@ private:
   virtual void UpdateBounds () = 0;
 
 
-
-  std::vector<VarPair> variables_;
+  std::vector<JacobianNamed> jacobians_;
   int num_constraints_ = 0;
 };
 

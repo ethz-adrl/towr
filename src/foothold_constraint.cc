@@ -20,7 +20,7 @@ FootholdConstraint::FootholdConstraint (const EEMotionPtr& ee_motion,
   t_ = t;
 
   int num_constraints = nom_W.GetCount() * kDim2d;
-  SetDependentVariables({ee_motion}, num_constraints);
+  SetDimensions({ee_motion}, num_constraints);
 
   // Jacobian doesn't change with values of optimization variables
   // only holds if t is during stance phase, otherwise Jacobian

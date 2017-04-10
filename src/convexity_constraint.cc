@@ -16,7 +16,7 @@ ConvexityConstraint::ConvexityConstraint (const LoadPtr& ee_load)
   ee_load_ = ee_load;
 
   int m = ee_load->GetNumberOfSegments();
-  SetDependentVariables({ee_load}, m);
+  SetDimensions({ee_load}, m);
 
   Jacobian& jac = GetJacobianRefWithRespectTo(ee_load->GetId());
 

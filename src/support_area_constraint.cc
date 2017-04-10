@@ -22,7 +22,7 @@ SupportAreaConstraint::SupportAreaConstraint (const EEMotionPtr& ee_motion,
   cop_ = cop;
 
   int num_constraints = GetNumberOfNodes()*kDim2d;
-  SetDependentVariables({ee_motion, ee_load, cop}, num_constraints);
+  SetDimensions({ee_motion, ee_load, cop}, num_constraints);
 }
 
 SupportAreaConstraint::~SupportAreaConstraint ()

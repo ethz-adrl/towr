@@ -29,7 +29,7 @@ Constraint::GetNumberOfConstraints () const
 }
 
 void
-Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars,
+Constraint::SetDimensions (const std::vector<ParametrizationPtr>& vars,
                                    int num_constraints)
 {
   num_constraints_ = num_constraints;
@@ -39,34 +39,18 @@ Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars,
   for (auto& v : vars) {
     int n = v->GetOptVarCount();
     Jacobian jac(num_constraints, n);
-    variables_.push_back({v, jac});
+    jacobians_.push_back({v->GetId(), jac});
   }
 
-//  UpdateConstraintValues();
-//  UpdateJacobians();
 }
-
-// zmp_ remove these
-//void
-//Constraint::UpdateVariables (const OptimizationVariables* opt_var)
-//{
-//  // spring_clean_ !this is very similar to OptimizationVariables::SetAllVariabls() DRY
-//  for (auto& var : variables_) {
-//    VectorXd x = opt_var->GetVariables(var.first->GetId());
-//    var.first->SetVariables(x);
-//  }
-//
-//  UpdateJacobians();
-//  UpdateConstraintValues();
-//}
 
 Constraint::Jacobian
 Constraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 
-  for (const auto& var : variables_)
-    if (var.first->GetId() == var_set)
+  for (const auto& var : jacobians_)
+    if (var.first == var_set)
       jac = var.second;
 
   return jac;
@@ -75,13 +59,12 @@ Constraint::GetJacobianWithRespectTo (std::string var_set) const
 Constraint::Jacobian&
 Constraint::GetJacobianRefWithRespectTo (std::string var_set)
 {
-  for (auto& var : variables_)
-    if (var.first->GetId() == var_set)
+  for (auto& var : jacobians_)
+    if (var.first == var_set)
       return var.second;
 
   assert(false); // Jacobian does not exist
 }
-
 
 void
 xpp::opt::Constraint::PrintStatus (double tol) const
@@ -109,7 +92,7 @@ Constraint::GetConstraintValues () const
 }
 
 VecBound
-xpp::opt::Constraint::GetBounds ()
+Constraint::GetBounds ()
 {
   UpdateBounds();
   return bounds_;

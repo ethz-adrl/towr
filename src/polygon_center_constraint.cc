@@ -18,7 +18,7 @@ PolygonCenterConstraint::PolygonCenterConstraint (
   contact_schedule_ = contact_schedule;
 
   int num_constraints = ee_load_->GetNumberOfSegments();
-  SetDependentVariables({ee_load, contact_schedule}, num_constraints);
+  SetDimensions({ee_load, contact_schedule}, num_constraints);
 }
 
 PolygonCenterConstraint::~PolygonCenterConstraint ()

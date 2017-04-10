@@ -27,7 +27,7 @@ RangeOfMotionBox::RangeOfMotionBox (const ComMotionPtr& com_motion,
   // reserve space for every endeffector, but so far only fill constraints/bounds
   // for the ones in contacts, the others read 0 < g=0 < 0.
   int num_constraints = GetNumberOfNodes()*ee_motion_->GetNumberOfEndeffectors()*kDim2d;
-  SetDependentVariables({com_motion, ee_motion}, num_constraints);
+  SetDimensions({com_motion, ee_motion}, num_constraints);
 }
 
 RangeOfMotionBox::~RangeOfMotionBox ()

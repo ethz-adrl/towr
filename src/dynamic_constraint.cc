@@ -25,7 +25,7 @@ DynamicConstraint::DynamicConstraint (const BaseMotionPtr& com_motion,
   kHeight_ = com_motion->GetZHeight();
 
   int num_constraints = GetNumberOfNodes()*kDim2d;
-  SetDependentVariables({com_motion, cop}, num_constraints);
+  SetDimensions({com_motion, cop}, num_constraints);
 }
 
 DynamicConstraint::~DynamicConstraint ()
