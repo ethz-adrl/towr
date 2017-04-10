@@ -57,8 +57,6 @@ OptimizationVariables::SetAllVariables(const VectorXd& x)
     set->SetVariables(x.middleRows(c,n_var));
     c += n_var;
   }
-
-  NotifyObservers();
 }
 
 OptimizationVariables::VectorXd

@@ -8,12 +8,10 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_H_
 
-#include "subject.h"
 #include "parametrization.h"
 
 namespace xpp {
 namespace opt {
-
 
 /** @brief Holds and publishes the current value of the optimization variables.
   *
@@ -26,7 +24,7 @@ namespace opt {
   *
   * https://sourcemaking.com/design_patterns/observer
   */
-class OptimizationVariables : public Subject {
+class OptimizationVariables {
 public:
   using VectorXd          = Eigen::VectorXd;
   using VariablePtr       = Parametrization::Ptr;

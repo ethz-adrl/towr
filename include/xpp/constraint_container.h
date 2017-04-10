@@ -9,9 +9,8 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 
 #include "optimization_variables.h"
-#include <memory>
 #include "constraint.h"
-#include "observer.h"
+#include <memory>
 
 namespace xpp {
 namespace opt {
@@ -23,7 +22,7 @@ namespace opt {
   * connection to the optimization variables, and constantly keeps up-to-date
   * values of these (observer).
   */
-class ConstraintContainer : public Observer {
+class ConstraintContainer {
 public:
   typedef Constraint::VectorXd VectorXd;
   typedef Constraint::Jacobian Jacobian;
@@ -34,8 +33,6 @@ public:
   ConstraintContainer (OptimizationVariables& subject);
   virtual ~ConstraintContainer ();
 
-  // zmp_ remove this function as well
-  void Update () override;
   void ClearConstraints();
 
   void AddConstraint (ConstraitPtrVec constraint);
@@ -47,6 +44,7 @@ public:
   void PrintStatus(double tol) const;
 
 private:
+  OptimizationVariables* subject_;
   void RefreshBounds ();
   std::vector<ConstraintPtr> constraints_;
   VecBound bounds_;

@@ -12,21 +12,13 @@ namespace xpp {
 namespace opt {
 
 ConstraintContainer::ConstraintContainer (OptimizationVariables& subject)
-    :Observer(subject)
 {
+  subject_ = &subject;
 }
 
 ConstraintContainer::~ConstraintContainer ()
 {
   // TODO Auto-generated destructor stub
-}
-
-// zmp_ remove this function, legacy
-void
-ConstraintContainer::Update ()
-{
-  // optimization variables changed. "Observer" pull functionality implemented
-  // in the specific constraints, so here nothing to be done.
 }
 
 void
@@ -65,7 +57,7 @@ ConstraintContainer::GetJacobian () const
 {
   int row = 0;
   for (const auto& constraint : constraints_) {
-    // zmp_ this should be done one collectively
+    // zmp_ DRY this should be done once collectively
     constraint->UpdateVariables(subject_);
 
     int col = 0;

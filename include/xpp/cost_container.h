@@ -8,10 +8,8 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONTAINER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONTAINER_H_
 
-#include <memory>
-
 #include "cost.h"
-#include "observer.h"
+#include <memory>
 
 namespace xpp {
 namespace opt {
@@ -21,7 +19,7 @@ namespace opt {
   * This class is responsible for knowing about all the different cost terms
   * and delivering the total cost for specific optimization variables.
   */
-class CostContainer : public Observer {
+class CostContainer {
 public:
   using CostPtr = std::shared_ptr<Cost>;
   using VectorXd = Eigen::VectorXd;
@@ -29,7 +27,6 @@ public:
   CostContainer (OptimizationVariables& subject);
   virtual ~CostContainer ();
 
-  void Update () override;
   void SetWeights(const std::vector<double>&);
 
   void ClearCosts ();
@@ -39,6 +36,7 @@ public:
   VectorXd EvaluateGradient() const;
 
 private:
+  OptimizationVariables* subject_;
   std::vector<CostPtr > costs_;
 };
 

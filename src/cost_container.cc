@@ -11,8 +11,8 @@ namespace xpp {
 namespace opt {
 
 CostContainer::CostContainer (OptimizationVariables& subject)
-    :Observer(subject)
 {
+  subject_ = &subject;
 }
 
 CostContainer::~CostContainer ()
@@ -31,11 +31,6 @@ CostContainer::AddCost (CostPtr cost, double weight)
 {
   cost->SetWeight(weight);
   costs_.push_back(cost);
-}
-
-void
-CostContainer::Update ()
-{
 }
 
 void
