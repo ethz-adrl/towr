@@ -46,6 +46,7 @@ Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars,
 void
 Constraint::UpdateVariables (const OptimizationVariables* opt_var)
 {
+  // spring_clean_ !this is very similar to OptimizationVariables::SetAllVariabls() DRY
   for (auto& var : variables_) {
     VectorXd x = opt_var->GetVariables(var.first->GetId());
     var.first->SetVariables(x);

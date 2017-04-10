@@ -47,19 +47,20 @@ public:
   VecBound GetBoundsOnOptimizationVariables() const;
   VectorXd GetStartingValues() const;
 
-  double EvaluateCostFunction(const Number* x) const;
-  VectorXd EvaluateCostFunctionGradient(const Number* x) const;
+  double EvaluateCostFunction(const Number* x);
+  VectorXd EvaluateCostFunctionGradient(const Number* x);
 
   int GetNumberOfConstraints() const;
   VecBound GetBoundsOnConstraints() const;
-  VectorXd EvaluateConstraints(const Number* x) const;
+  VectorXd EvaluateConstraints(const Number* x);
 
-  void EvalNonzerosOfJacobian(const Number* x, Number* values) const;
+  void EvalNonzerosOfJacobian(const Number* x, Number* values);
   JacobianPtr GetJacobianOfConstraints() const;
 
   void PrintStatusOfConstraints(double tol) const;
 
 private:
+  // zmp_ make actual classes, ownership, composition.
   OptimizationVariablesPtr opt_variables_;
   CostContainerPtr costs_;
   ConstraintContainerPtr constraints_;

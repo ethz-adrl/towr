@@ -22,7 +22,6 @@ namespace opt {
   * polynomials, piecewise-constant functions, through a finite number of
   * parameters.
   */
-// spring_clean_ not too different from "VariableSet"
 class Parametrization {
 public:
   using VectorXd = Eigen::VectorXd;

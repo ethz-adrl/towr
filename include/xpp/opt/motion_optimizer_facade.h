@@ -27,6 +27,7 @@ namespace opt {
 // zmp_ possibly merge with NLP facade
 class MotionOptimizerFacade {
 public:
+  // zmp_ very ugly, generalize!
   using RobotStateVec = std::vector<RobotStateCartesian>;
   using MotionParametersPtr = std::shared_ptr<MotionParameters>;
   using EEMotionPtrS  = std::shared_ptr<EndeffectorsMotion>;

@@ -14,6 +14,8 @@
 namespace xpp {
 namespace opt {
 
+// zmp_ ! this is also unclean, that general observer knows about
+// optimization variables...
 class OptimizationVariables; // forward decl. to avoid circular dependencies
 
 /** Subscribes to the Subject to get up-to-date optimization variables.
@@ -39,7 +41,7 @@ private:
   Observer(const Observer&)            = delete;
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_OBSERVER_H_ */

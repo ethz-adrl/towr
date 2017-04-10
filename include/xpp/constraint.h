@@ -31,6 +31,8 @@ public:
 
   /** @brief Sets the values stored in variables_ to the current NLP ones
     */
+  // zmp_ remove this function, should just use up-to-date global
+  // version of optimization variables
   void UpdateVariables(const OptimizationVariables*);
 
   /** @brief Jacobian of the constraints with respect to each decision variable set

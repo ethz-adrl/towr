@@ -35,6 +35,8 @@ class Cost;
   */
 class CostConstraintFactory {
 public:
+  // zmp_ ! possibly make unique_ptr to emphasize that the client now has the
+  // Responsibility to delete the memory.
   using ConstraintPtr    = std::shared_ptr<Constraint>;
   using ConstraintPtrVec = std::vector<ConstraintPtr>;
   using CostPtr       = std::shared_ptr<Cost>;

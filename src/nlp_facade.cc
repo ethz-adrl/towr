@@ -24,6 +24,7 @@ NlpFacade::NlpFacade ()
   costs_         = std::make_shared<CostContainer>(*opt_variables_);
   constraints_   = std::make_shared<ConstraintContainer>(*opt_variables_);
 
+  // zmp_ doesn't have to be a pointer
   nlp_ = std::make_shared<NLP>();
   nlp_->Init(opt_variables_, costs_, constraints_);
 }
@@ -43,6 +44,15 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
                           const MotionparamsPtr& motion_params,
                           NlpSolver solver)
 {
+  // zmp_ reuse in cost constraint factory
+  opt_variables_->ClearVariables();
+  opt_variables_->AddVariableSet(com_motion);
+  opt_variables_->AddVariableSet(ee_motion);
+  opt_variables_->AddVariableSet(ee_load);
+  opt_variables_->AddVariableSet(cop);
+  opt_variables_->AddVariableSet(contact_schedule);
+
+
   CostConstraintFactory factory;
   factory.Init(com_motion,
                ee_motion,
@@ -52,13 +62,6 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
                motion_params,
                initial_state,
                final_state);
-
-  opt_variables_->ClearVariables();
-  opt_variables_->AddVariableSet(com_motion);
-  opt_variables_->AddVariableSet(ee_motion);
-  opt_variables_->AddVariableSet(ee_load);
-  opt_variables_->AddVariableSet(cop);
-  opt_variables_->AddVariableSet(contact_schedule);
 
   constraints_->ClearConstraints();
   for (ConstraintName name : motion_params->GetUsedConstraints()) {

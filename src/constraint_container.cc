@@ -21,6 +21,7 @@ ConstraintContainer::~ConstraintContainer ()
   // TODO Auto-generated destructor stub
 }
 
+// zmp_ remove this function, legacy
 void
 ConstraintContainer::Update ()
 {
@@ -49,6 +50,7 @@ ConstraintContainer::EvaluateConstraints () const
 
   int c = 0;
   for (const auto& constraint : constraints_) {
+    // zmp_ DRY this should be done once collectively
     constraint->UpdateVariables(subject_);
     VectorXd g = constraint->GetConstraintValues();
     int c_new = g.rows();
@@ -63,6 +65,7 @@ ConstraintContainer::GetJacobian () const
 {
   int row = 0;
   for (const auto& constraint : constraints_) {
+    // zmp_ this should be done one collectively
     constraint->UpdateVariables(subject_);
 
     int col = 0;
@@ -103,6 +106,7 @@ ConstraintContainer::RefreshBounds ()
   }
 
   int n_constraints = bounds_.size();
+  // zmp_ this is the only time the subject is neccessary
   int n_variables   = subject_->GetOptimizationVariableCount();
   jacobian_ = std::make_shared<Jacobian>(n_constraints, n_variables);
 }

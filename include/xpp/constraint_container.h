@@ -34,6 +34,7 @@ public:
   ConstraintContainer (OptimizationVariables& subject);
   virtual ~ConstraintContainer ();
 
+  // zmp_ remove this function as well
   void Update () override;
   void ClearConstraints();
 
