@@ -40,7 +40,8 @@ public:
    * @param deviation_xy allowed endeffector deviation from the default (x,y).
    * @param nom nominal endeffector position in base frame.
    */
-  RangeOfMotionBox(const ComMotionPtr& com_motion,
+  RangeOfMotionBox(const OptVarsPtr& opt_vars_container,
+                   const ComMotionPtr& com_motion,
                    const EEMotionPtr& ee_motion,
                    double dt,
                    const MaxDevXY& deviation_xy,

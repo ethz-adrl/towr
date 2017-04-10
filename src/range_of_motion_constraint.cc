@@ -11,7 +11,8 @@
 namespace xpp {
 namespace opt {
 
-RangeOfMotionBox::RangeOfMotionBox (const ComMotionPtr& com_motion,
+RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars_container,
+                                    const ComMotionPtr& com_motion,
                                     const EEMotionPtr& ee_motion,
                                     double dt,
                                     const MaxDevXY& dev,
@@ -19,7 +20,7 @@ RangeOfMotionBox::RangeOfMotionBox (const ComMotionPtr& com_motion,
     :TimeDiscretizationConstraint(ee_motion->GetTotalTime(), dt)
 {
   name_ = "Range of Motion";
-  com_motion_       = com_motion;
+  com_motion_       = com_motion; // zmp_ use dynamic cast from opt_vars_container
   ee_motion_        = ee_motion;
   max_deviation_from_nominal_ = dev;
   nominal_stance_ = nom;
@@ -27,7 +28,7 @@ RangeOfMotionBox::RangeOfMotionBox (const ComMotionPtr& com_motion,
   // reserve space for every endeffector, but so far only fill constraints/bounds
   // for the ones in contacts, the others read 0 < g=0 < 0.
   int num_constraints = GetNumberOfNodes()*ee_motion_->GetNumberOfEndeffectors()*kDim2d;
-  SetDimensions({com_motion, ee_motion}, num_constraints);
+  SetDimensions(opt_vars_container->GetOptVarsVec(), num_constraints);
 }
 
 RangeOfMotionBox::~RangeOfMotionBox ()

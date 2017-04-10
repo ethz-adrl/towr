@@ -1,8 +1,8 @@
-/*
- * constraint_container.cc
- *
- *  Created on: May 24, 2016
- *      Author: winklera
+/**
+ @file    constraint_container.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Jul 1, 2016
+ @brief   Defines the ConstraintContainer class.
  */
 
 #include <xpp/constraint_container.h>
@@ -11,14 +11,12 @@
 namespace xpp {
 namespace opt {
 
-ConstraintContainer::ConstraintContainer (OptimizationVariablesContainer& subject)
+ConstraintContainer::ConstraintContainer ()
 {
-  opt_variables_ = &subject;
 }
 
 ConstraintContainer::~ConstraintContainer ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
@@ -59,32 +57,14 @@ ConstraintContainer::GetJacobian () const
   int row = 0;
   for (const auto& constraint : constraints_) {
 
-    int col = 0;
-    for (const auto& var : opt_variables_->GetOptVarsVec()) {
-
-      Jacobian jac = constraint->GetJacobianWithRespectTo(var->GetId());
-
-      // insert the derivative in the correct position in the overall Jacobian
-      for (int k=0; k<jac.outerSize(); ++k)
-        for (Jacobian::InnerIterator it(jac,k); it; ++it)
-          jacobian_->coeffRef(row+it.row(), col+it.col()) = it.value();
-
-
-      col += var->GetVariables().rows();
-    }
+    const Jacobian& jac = constraint->GetConstraintJacobian();
+    for (int k=0; k<jac.outerSize(); ++k)
+      for (Jacobian::InnerIterator it(jac,k); it; ++it)
+        jacobian_->coeffRef(row+it.row(), it.col()) = it.value();
 
     row += constraint->GetNumberOfConstraints();
   }
   return jacobian_;
-}
-
-void
-xpp::opt::ConstraintContainer::PrintStatus (double tol) const
-{
-  std::cout << "Constraint violation indices for tol=" << tol << ":\n";
-  for (const auto& constraint : constraints_) {
-    constraint->PrintStatus(tol);
-  }
 }
 
 void
@@ -106,15 +86,23 @@ ConstraintContainer::RefreshBounds ()
   }
 
   int n_constraints = bounds_.size();
-  // zmp_ this is the only time the subject is neccessary
-  int n_variables   = opt_variables_->GetOptimizationVariableCount();
-  jacobian_ = std::make_shared<Jacobian>(n_constraints, n_variables);
+  int n_var = constraints_.front()->GetNumberOfOptVariables(); // all the same
+  jacobian_ = std::make_shared<Jacobian>(n_constraints, n_var);
 }
 
 VecBound
 ConstraintContainer::GetBounds () const
 {
   return bounds_;
+}
+
+void
+xpp::opt::ConstraintContainer::PrintStatus (double tol) const
+{
+  std::cout << "Constraint violation indices for tol=" << tol << ":\n";
+  for (const auto& constraint : constraints_) {
+    constraint->PrintStatus(tol);
+  }
 }
 
 } /* namespace opt */

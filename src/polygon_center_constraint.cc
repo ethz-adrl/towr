@@ -11,6 +11,7 @@ namespace xpp {
 namespace opt {
 
 PolygonCenterConstraint::PolygonCenterConstraint (
+    const OptVarsPtr& opt_vars_container,
     const EELoadPtr& ee_load,
     const ContactSchedulePtr& contact_schedule)
 {
@@ -18,7 +19,7 @@ PolygonCenterConstraint::PolygonCenterConstraint (
   contact_schedule_ = contact_schedule;
 
   int num_constraints = ee_load_->GetNumberOfSegments();
-  SetDimensions({ee_load, contact_schedule}, num_constraints);
+  SetDimensions(opt_vars_container->GetOptVarsVec(), num_constraints);
 }
 
 PolygonCenterConstraint::~PolygonCenterConstraint ()

@@ -25,7 +25,7 @@ class ConvexityConstraint : public Constraint {
 public:
   using LoadPtr = std::shared_ptr<EndeffectorLoad>;
 
-  ConvexityConstraint (const LoadPtr&);
+  ConvexityConstraint (const OptVarsPtr& opt_vars_container, const LoadPtr&);
   virtual ~ConvexityConstraint ();
 
   void UpdateConstraintValues () override;

@@ -11,6 +11,7 @@ namespace xpp {
 namespace opt {
 
 LinearEqualityConstraint::LinearEqualityConstraint (
+    const OptVarsPtr& opt_vars_container,
     const ComMotionPtr& com_motion,
     const MatVec& linear_equation,
     const std::string& name)
@@ -21,7 +22,7 @@ LinearEqualityConstraint::LinearEqualityConstraint (
   com_motion_ = com_motion;
 
   int num_constraints = linear_equation_.v.rows();
-  SetDimensions({com_motion}, num_constraints);
+  SetDimensions(opt_vars_container->GetOptVarsVec(), num_constraints);
 
   Jacobian& jac = GetJacobianRefWithRespectTo(com_motion->GetId());
   // careful, .sparseView is only valid when the Jacobian is constant, e.g.

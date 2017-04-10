@@ -19,28 +19,54 @@ Constraint::Constraint ()
 
 Constraint::~Constraint ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 int
 Constraint::GetNumberOfConstraints () const
 {
-  return num_constraints_;
+  return complete_jacobian_.rows();
+}
+
+int
+Constraint::GetNumberOfOptVariables () const
+{
+  return complete_jacobian_.cols();
 }
 
 void
-Constraint::SetDimensions (const std::vector<ParametrizationPtr>& vars,
-                                   int num_constraints)
+Constraint::SetDimensions (const std::vector<OptVarPtr>& vars,
+                           int num_constraints)
 {
-  num_constraints_ = num_constraints;
   g_ = VectorXd::Zero(num_constraints);
   bounds_ = VecBound(num_constraints);
 
+  int num_vars_ = 0;
   for (auto& v : vars) {
     int n = v->GetOptVarCount();
-    Jacobian jac(num_constraints, n);
+    Jacobian jac(num_constraints, n); // empty jacobians
     jacobians_.push_back({v->GetId(), jac});
+    num_vars_ += n;
   }
+
+  complete_jacobian_ = Jacobian(num_constraints, num_vars_);
+}
+
+Constraint::Jacobian
+Constraint::GetConstraintJacobian ()
+{
+  int col = 0;
+  for (const auto& v : jacobians_) {
+    const Jacobian& jac = v.second;
+
+    // insert the derivative in the correct position in the overall Jacobian
+    for (int k=0; k<jac.outerSize(); ++k)
+      for (Jacobian::InnerIterator it(jac,k); it; ++it)
+        complete_jacobian_.coeffRef(it.row(), col+it.col()) = it.value();
+
+    col += jac.cols();
+  }
+
+  return complete_jacobian_;
 }
 
 Constraint::Jacobian

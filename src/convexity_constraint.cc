@@ -10,13 +10,14 @@
 namespace xpp {
 namespace opt {
 
-ConvexityConstraint::ConvexityConstraint (const LoadPtr& ee_load)
+ConvexityConstraint::ConvexityConstraint (const OptVarsPtr& opt_vars,
+                                          const LoadPtr& ee_load)
 {
   name_ = "Convexity";
   ee_load_ = ee_load;
 
   int m = ee_load->GetNumberOfSegments();
-  SetDimensions({ee_load}, m);
+  SetDimensions(opt_vars->GetOptVarsVec(), m);
 
   Jacobian& jac = GetJacobianRefWithRespectTo(ee_load->GetId());
 

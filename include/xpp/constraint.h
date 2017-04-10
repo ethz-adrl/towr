@@ -23,11 +23,18 @@ class Constraint {
 public:
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-  using ParametrizationPtr = std::shared_ptr<OptimizationVariables>;
+  using OptVarPtr = std::shared_ptr<OptimizationVariables>;
   using JacobianNamed = std::pair<std::string, Jacobian>;
+  using OptVarsPtr = std::shared_ptr<OptimizationVariablesContainer>;
 
   Constraint ();
   virtual ~Constraint ();
+
+
+  int GetNumberOfOptVariables() const;
+
+  // zmp_ possibly make constant
+  Jacobian GetConstraintJacobian();
 
   /** @brief Jacobian of the constraints with respect to each decision variable set
     */
@@ -59,7 +66,7 @@ public:
 protected:
   /** @brief Determines the size of constraints, bounds and jacobians.
     */
-  void SetDimensions(const std::vector<ParametrizationPtr>&, int num_constraints);
+  void SetDimensions(const std::vector<OptVarPtr>&, int num_constraints);
 
   /** @returns a writable reference to modify the Jacobian of the constraint.
     *
@@ -83,7 +90,7 @@ private:
 
 
   std::vector<JacobianNamed> jacobians_;
-  int num_constraints_ = 0;
+  Jacobian complete_jacobian_;
 };
 
 } /* namespace opt */

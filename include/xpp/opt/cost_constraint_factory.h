@@ -16,6 +16,7 @@
 #include "motion_parameters.h"
 
 #include <xpp/robot_state_cartesian.h>
+#include <xpp/optimization_variables_container.h>
 
 #include <memory>
 #include "base_motion.h"
@@ -48,11 +49,14 @@ public:
   using EELoadPtr     = std::shared_ptr<EndeffectorLoad>;
   using CopPtr        = std::shared_ptr<CenterOfPressure>;
 
+  using OptVarsContainer = std::shared_ptr<OptimizationVariablesContainer>;
+
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();
 
   // zmp_ consider wrapping all Optimization Variables into once class
-  void Init(const ComMotionPtr&, const EEMotionPtr&, const ContactSchedulePtr&,
+  void Init(const OptVarsContainer&,
+            const ComMotionPtr&, const EEMotionPtr&, const ContactSchedulePtr&,
             const EELoadPtr&, const CopPtr&,
             const MotionTypePtr& params, const RobotStateCartesian& initial_state,
             const StateLin2d& final_state);
@@ -63,6 +67,7 @@ public:
 private:
   MotionTypePtr params;
 
+  OptVarsContainer opt_vars_;
   // zmp_ remove these!
   ComMotionPtr com_motion;
   EEMotionPtr ee_motion;

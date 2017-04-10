@@ -27,7 +27,8 @@ public:
   using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
   using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
 
-  PolygonCenterConstraint (const EELoadPtr&, const ContactSchedulePtr&);
+  PolygonCenterConstraint (const OptVarsPtr&,
+                           const EELoadPtr&, const ContactSchedulePtr&);
   virtual ~PolygonCenterConstraint ();
 
   void UpdateConstraintValues () override;

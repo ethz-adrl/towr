@@ -10,12 +10,13 @@
 namespace xpp {
 namespace opt {
 
-ContactLoadConstraint::ContactLoadConstraint (const ContactSchedulePtr& contact_schedule,
+ContactLoadConstraint::ContactLoadConstraint (const OptVarsPtr& opt_vars_container,
+                                              const ContactSchedulePtr& contact_schedule,
                                               const EELoadPtr& ee_load)
 {
 
   int num_constraints = ee_load->GetOptVarCount();
-  SetDimensions({contact_schedule, ee_load}, num_constraints);
+  SetDimensions(opt_vars_container->GetOptVarsVec(), num_constraints);
 
   contact_schedule_ = contact_schedule;
   ee_load_ = ee_load;

@@ -29,7 +29,8 @@ public:
     * @param com Center of Mass parametrization, from which spline coefficients x are used.
     * @param linear_equation the matrix M and vector v.
     */
-  LinearEqualityConstraint (const ComMotionPtr& com,
+  LinearEqualityConstraint (const OptVarsPtr& opt_vars_container,
+                            const ComMotionPtr& com,
                             const MatVec& linear_equation,
                             const std::string& name);
   virtual ~LinearEqualityConstraint ();

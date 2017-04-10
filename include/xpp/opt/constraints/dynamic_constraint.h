@@ -23,7 +23,8 @@ public:
   using BaseMotionPtr = std::shared_ptr<BaseMotion>;
   using CopPtr        = std::shared_ptr<CenterOfPressure>;
 
-  DynamicConstraint (const BaseMotionPtr& com_motion,
+  DynamicConstraint (const OptVarsPtr& opt_vars,
+                     const BaseMotionPtr& com_motion,
                      const CopPtr& cop,
                      double T,
                      double dt);

@@ -25,7 +25,8 @@ public:
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
   using NominalStance = EndeffectorsPos;
 
-  FootholdConstraint (const EEMotionPtr&, const NominalStance&, double t);
+  FootholdConstraint (const OptVarsPtr&,
+                      const EEMotionPtr&, const NominalStance&, double t);
   virtual ~FootholdConstraint ();
 
 private:

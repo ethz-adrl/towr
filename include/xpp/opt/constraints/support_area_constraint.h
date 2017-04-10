@@ -30,7 +30,8 @@ public:
   using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
   using CopPtr      = std::shared_ptr<CenterOfPressure>;
 
-  SupportAreaConstraint (const EEMotionPtr&, const EELoadPtr&, const CopPtr&,
+  SupportAreaConstraint (const OptVarsPtr& opt_vars_container,
+                         const EEMotionPtr&, const EELoadPtr&, const CopPtr&,
                          double dt);
   virtual ~SupportAreaConstraint ();
 

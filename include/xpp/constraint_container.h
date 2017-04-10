@@ -10,7 +10,6 @@
 
 #include "constraint.h"
 #include <memory>
-#include "optimization_variables_container.h"
 
 namespace xpp {
 namespace opt {
@@ -18,19 +17,17 @@ namespace opt {
 /** @brief Knows about all constraints and gives information about them.
   *
   * For every constraint that \c ConstraintContainer knows about, it will return
-  * the constraint violations and the acceptable bounds. It also maintains a
-  * connection to the optimization variables, and constantly keeps up-to-date
-  * values of these.
+  * the constraint violations and the acceptable bounds.
   */
 class ConstraintContainer {
 public:
-  typedef Constraint::VectorXd VectorXd;
-  typedef Constraint::Jacobian Jacobian;
-  typedef std::shared_ptr<Jacobian> JacobianPtr;
-  typedef std::shared_ptr<Constraint> ConstraintPtr;
+  using VectorXd = Eigen::VectorXd;
+  using Jacobian = Constraint::Jacobian;
+  using JacobianPtr = std::shared_ptr<Jacobian>;
+  using ConstraintPtr = std::shared_ptr<Constraint>;
   using ConstraitPtrVec = std::vector<ConstraintPtr>;
 
-  ConstraintContainer (OptimizationVariablesContainer& subject);
+  ConstraintContainer ();
   virtual ~ConstraintContainer ();
 
   void ClearConstraints();
@@ -46,9 +43,8 @@ public:
   void PrintStatus(double tol) const;
 
 private:
-  OptimizationVariablesContainer* opt_variables_;
   void RefreshBounds ();
-  std::vector<ConstraintPtr> constraints_;
+  ConstraitPtrVec constraints_;
   VecBound bounds_;
   JacobianPtr jacobian_;
 };

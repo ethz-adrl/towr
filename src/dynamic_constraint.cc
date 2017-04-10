@@ -11,7 +11,8 @@
 namespace xpp {
 namespace opt {
 
-DynamicConstraint::DynamicConstraint (const BaseMotionPtr& com_motion,
+DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
+                                      const BaseMotionPtr& com_motion,
                                       const CopPtr& cop,
                                       double T,
                                       double dt)
@@ -25,7 +26,7 @@ DynamicConstraint::DynamicConstraint (const BaseMotionPtr& com_motion,
   kHeight_ = com_motion->GetZHeight();
 
   int num_constraints = GetNumberOfNodes()*kDim2d;
-  SetDimensions({com_motion, cop}, num_constraints);
+  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
 }
 
 DynamicConstraint::~DynamicConstraint ()

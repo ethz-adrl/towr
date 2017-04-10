@@ -23,7 +23,7 @@ NlpFacade::NlpFacade ()
   // zmp_ these should be normal objects owned by NLP.
   opt_variables_ = std::make_shared<OptimizationVariablesContainer>();
   costs_         = std::make_shared<CostContainer>(*opt_variables_);
-  constraints_   = std::make_shared<ConstraintContainer>(*opt_variables_);
+  constraints_   = std::make_shared<ConstraintContainer>();
 
   // zmp_ doesn't have to be a pointer
   nlp_ = std::make_shared<NLP>();
@@ -55,7 +55,8 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
 
 
   CostConstraintFactory factory;
-  factory.Init(com_motion,
+  factory.Init(opt_variables_,
+               com_motion,
                ee_motion,
                contact_schedule,
                ee_load,

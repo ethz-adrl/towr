@@ -33,7 +33,8 @@ CostConstraintFactory::~CostConstraintFactory ()
 }
 
 void
-CostConstraintFactory::Init (const ComMotionPtr& com,
+CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
+                             const ComMotionPtr& com,
                              const EEMotionPtr& _ee_motion,
                              const ContactSchedulePtr& contact_schedule,
                              const EELoadPtr& _ee_load,
@@ -42,6 +43,8 @@ CostConstraintFactory::Init (const ComMotionPtr& com,
                              const RobotStateCartesian& initial_state,
                              const StateLin2d& final_state)
 {
+  opt_vars_ = opt_vars;
+
   com_motion = com;
   ee_motion = _ee_motion;
   contact_schedule_ = contact_schedule;
@@ -90,7 +93,7 @@ CostConstraintFactory::MakeInitialConstraint () const
   initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
   MatVec lin_eq = eq.MakeInitial(initial_com_state);
 
-  auto constraint = std::make_shared<LinearEqualityConstraint>(
+  auto constraint = std::make_shared<LinearEqualityConstraint>(opt_vars_,
       com_motion, lin_eq, "Initial XY");
   return {constraint};
 }
@@ -103,7 +106,7 @@ CostConstraintFactory::MakeFinalConstraint () const
   final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
   MatVec lin_eq = eq.MakeFinal(final_geom_state_, {kPos, kVel, kAcc});
 
-  auto constraint = std::make_shared<LinearEqualityConstraint>(
+  auto constraint = std::make_shared<LinearEqualityConstraint>(opt_vars_,
       com_motion, lin_eq, "Final XY");
   return {constraint};
 }
@@ -112,7 +115,7 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeJunctionConstraint () const
 {
   LinearSplineEquations eq(com_motion);
-  auto constraint = std::make_shared<LinearEqualityConstraint>(
+  auto constraint = std::make_shared<LinearEqualityConstraint>(opt_vars_,
       com_motion, eq.MakeJunction(), "Junction");
   return {constraint};
 }
@@ -121,7 +124,7 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   auto constraint = std::make_shared<DynamicConstraint>(
-      com_motion, cop, ee_motion->GetTotalTime(),
+      opt_vars_, com_motion, cop, ee_motion->GetTotalTime(),
                          params->dt_nodes_);
   return {constraint};
 }
@@ -130,6 +133,7 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
   auto constraint = std::make_shared<RangeOfMotionBox>(
+      opt_vars_,
       com_motion, ee_motion,
       params->dt_nodes_,
       params->GetMaximumDeviationFromNominal(),
@@ -143,11 +147,13 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeConvexityConstraint() const
 {
   auto cop_constrait = std::make_shared<SupportAreaConstraint>(
-      ee_motion, ee_load, cop, params->dt_nodes_);
+      opt_vars_, ee_motion, ee_load, cop, params->dt_nodes_);
 
-  auto convexity = std::make_shared<ConvexityConstraint>(ee_load);
+  auto convexity = std::make_shared<ConvexityConstraint>(opt_vars_,
+                                                         ee_load);
 
-  auto contact_load = std::make_shared<ContactLoadConstraint>(contact_schedule_,
+  auto contact_load = std::make_shared<ContactLoadConstraint>(opt_vars_,
+                                                              contact_schedule_,
                                                               ee_load);
 
   return {cop_constrait, convexity, contact_load};
@@ -160,7 +166,7 @@ CostConstraintFactory::MakeStancesConstraints () const
   ConstraintPtrVec stance_constraints;
 
   // calculate initial position in world frame
-  auto constraint_initial = std::make_shared<FootholdConstraint>(
+  auto constraint_initial = std::make_shared<FootholdConstraint>(opt_vars_,
       ee_motion, initial_geom_state_.GetEEPos(), 0.0);
 
   stance_constraints.push_back(constraint_initial);
@@ -173,7 +179,7 @@ CostConstraintFactory::MakeStancesConstraints () const
 
   double t = ee_motion->GetTotalTime();
 
-  auto constraint_final = std::make_shared<FootholdConstraint>(
+  auto constraint_final = std::make_shared<FootholdConstraint>(opt_vars_,
       ee_motion,endeffectors_final_W,t);
 
   stance_constraints.push_back(constraint_final);
@@ -192,7 +198,7 @@ CostConstraintFactory::MakeObstacleConstraint () const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakePolygonCenterConstraint () const
 {
-  return {std::make_shared<PolygonCenterConstraint>(ee_load, contact_schedule_)};
+  return {std::make_shared<PolygonCenterConstraint>(opt_vars_, ee_load, contact_schedule_)};
 }
 
 CostConstraintFactory::CostPtr

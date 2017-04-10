@@ -21,7 +21,8 @@ public:
   using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
   using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
 
-  ContactLoadConstraint (const ContactSchedulePtr&, const EELoadPtr&);
+  ContactLoadConstraint (const OptVarsPtr& opt_vars_container,
+                         const ContactSchedulePtr&, const EELoadPtr&);
   virtual ~ContactLoadConstraint ();
 
   void UpdateConstraintValues () override;

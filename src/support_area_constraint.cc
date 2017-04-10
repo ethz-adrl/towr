@@ -10,7 +10,8 @@
 namespace xpp {
 namespace opt {
 
-SupportAreaConstraint::SupportAreaConstraint (const EEMotionPtr& ee_motion,
+SupportAreaConstraint::SupportAreaConstraint (const OptVarsPtr& opt_vars_container,
+                                              const EEMotionPtr& ee_motion,
                                               const EELoadPtr& ee_load,
                                               const CopPtr& cop,
                                               double dt)
@@ -22,7 +23,7 @@ SupportAreaConstraint::SupportAreaConstraint (const EEMotionPtr& ee_motion,
   cop_ = cop;
 
   int num_constraints = GetNumberOfNodes()*kDim2d;
-  SetDimensions({ee_motion, ee_load, cop}, num_constraints);
+  SetDimensions(opt_vars_container->GetOptVarsVec(), num_constraints);
 }
 
 SupportAreaConstraint::~SupportAreaConstraint ()

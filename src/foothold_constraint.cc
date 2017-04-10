@@ -10,7 +10,8 @@
 namespace xpp {
 namespace opt {
 
-FootholdConstraint::FootholdConstraint (const EEMotionPtr& ee_motion,
+FootholdConstraint::FootholdConstraint (const OptVarsPtr& opt_vars_container,
+                                        const EEMotionPtr& ee_motion,
                                         const NominalStance& nom_W,
                                         double t)
 {
@@ -20,7 +21,7 @@ FootholdConstraint::FootholdConstraint (const EEMotionPtr& ee_motion,
   t_ = t;
 
   int num_constraints = nom_W.GetCount() * kDim2d;
-  SetDimensions({ee_motion}, num_constraints);
+  SetDimensions(opt_vars_container->GetOptVarsVec(), num_constraints);
 
   // Jacobian doesn't change with values of optimization variables
   // only holds if t is during stance phase, otherwise Jacobian
