@@ -10,10 +10,6 @@
 
 #include <xpp/opt/motion_parameters.h>
 #include <xpp/robot_state_cartesian.h>
-#include <xpp/opt/contact_schedule.h>
-#include <xpp/opt/base_motion.h>
-#include <xpp/opt/endeffector_load.h> // zmp_ remove from here
-#include <xpp/opt/center_of_pressure.h>
 #include <memory>
 
 namespace xpp {
@@ -22,8 +18,6 @@ namespace opt {
 class OptimizationVariablesContainer;
 class CostContainer;
 class ConstraintContainer;
-class BaseMotion;
-class EndeffectorsMotion;
 class NLP;
 
 enum NlpSolver { Ipopt, Snopt };
@@ -40,13 +34,7 @@ public:
   using CostContainerPtr         = std::shared_ptr<CostContainer>;
   using ConstraintContainerPtr   = std::shared_ptr<ConstraintContainer>;
   using MotionparamsPtr          = std::shared_ptr<MotionParameters>;
-  using ComMotionPtrS            = std::shared_ptr<BaseMotion>;
-  using EEMotionPtrS             = std::shared_ptr<EndeffectorsMotion>;
-  using ContactSchedulePtr       = std::shared_ptr<ContactSchedule>;
   using NLPPtr                   = std::shared_ptr<NLP>;
-  using LoadPtr                  = std::shared_ptr<EndeffectorLoad>;
-  using CopPtr                   = std::shared_ptr<CenterOfPressure>;
-//  using ContactVec               = std::vector<Contact>;
 
   NlpFacade ();
   virtual ~NlpFacade ();
@@ -63,11 +51,7 @@ public:
     */
   void OptimizeMotion(const RobotStateCartesian& initial_state,
                       const StateLin2d& final_state,
-                      const EEMotionPtrS& ee_motion,
-                      const ComMotionPtrS& com_motion,
-                      const LoadPtr&,
-                      const CopPtr&,
-                      const ContactSchedulePtr& contact_schedule,
+                      OptimizationVariablesPtr& opt_vars,
                       const MotionparamsPtr&,
                       NlpSolver solver);
 
@@ -75,9 +59,8 @@ private:
   void SolveNlp(NlpSolver solver);
   void SolveIpopt();
   void SolveSnopt();
-  NLPPtr nlp_;
 
-  OptimizationVariablesPtr opt_variables_;
+  NLPPtr nlp_;
   CostContainerPtr costs_;
   ConstraintContainerPtr constraints_;
 };

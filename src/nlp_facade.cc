@@ -21,13 +21,11 @@ NlpFacade::NlpFacade ()
 {
   // create corresponding heap object for each of the member pointers
   // zmp_ these should be normal objects owned by NLP.
-  opt_variables_ = std::make_shared<OptimizationVariablesContainer>();
   costs_         = std::make_shared<CostContainer>();
   constraints_   = std::make_shared<ConstraintContainer>();
 
   // zmp_ doesn't have to be a pointer
   nlp_ = std::make_shared<NLP>();
-  nlp_->Init(opt_variables_, costs_, constraints_);
 }
 
 NlpFacade::~NlpFacade ()
@@ -37,28 +35,12 @@ NlpFacade::~NlpFacade ()
 void
 NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
                           const StateLin2d& final_state,
-                          const EEMotionPtrS& ee_motion,
-                          const ComMotionPtrS& com_motion,
-                          const LoadPtr& ee_load,
-                          const CopPtr& cop,
-                          const ContactSchedulePtr& contact_schedule,
+                          OptimizationVariablesPtr& opt_vars,
                           const MotionparamsPtr& motion_params,
                           NlpSolver solver)
 {
-  // zmp_ reuse in cost constraint factory
-  opt_variables_->ClearVariables();
-  opt_variables_->AddVariableSet(com_motion);
-  opt_variables_->AddVariableSet(ee_motion);
-  opt_variables_->AddVariableSet(ee_load);
-  opt_variables_->AddVariableSet(cop);
-  opt_variables_->AddVariableSet(contact_schedule);
-
-
   CostConstraintFactory factory;
-  factory.Init(opt_variables_,
-               motion_params,
-               initial_state,
-               final_state);
+  factory.Init(opt_vars, motion_params, initial_state, final_state);
 
   constraints_->ClearConstraints();
   for (ConstraintName name : motion_params->GetUsedConstraints()) {
@@ -72,15 +54,9 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
     costs_->AddCost(factory.GetCost(name), weight);
   }
 
+  nlp_->Init(opt_vars, costs_, constraints_);
 
   SolveNlp(solver);
-
-//  Eigen::VectorXd xy = opt_variables_->GetVariables(ee_motion->GetId());
-//  ee_motion->SetVariables(xy);
-//
-//  Eigen::VectorXd x_motion = opt_variables_->GetVariables(com_motion->GetId());
-//  com_motion->SetVariables(x_motion);
-
 
 //  int n_nodes = motion_structure.GetPhaseStampedVec().size();
 //  int n_discrete_contacts = motion_structure.GetTotalNumberOfNodeContacts();

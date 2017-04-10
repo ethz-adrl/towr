@@ -8,14 +8,9 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
 
-#include <xpp/opt/step_sequence_planner.h>
 #include <xpp/opt/nlp_facade.h>
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/opt/motion_parameters.h>
-#include <xpp/opt/endeffectors_motion.h>
-#include <xpp/opt/endeffector_load.h>
-#include <xpp/opt/center_of_pressure.h> // zmp_ remove from here
-#include "base_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -27,14 +22,9 @@ namespace opt {
 // zmp_ possibly merge with NLP facade
 class MotionOptimizerFacade {
 public:
-  // zmp_ very ugly, generalize!
-  using RobotStateVec = std::vector<RobotStateCartesian>;
-  using MotionParametersPtr = std::shared_ptr<MotionParameters>;
-  using EEMotionPtrS  = std::shared_ptr<EndeffectorsMotion>;
-  using ComMotionPtrS = std::shared_ptr<BaseMotion>;
-  using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
-  using LoadPtr            = std::shared_ptr<EndeffectorLoad>;
-  using CopPtr             = std::shared_ptr<CenterOfPressure>;
+  using RobotStateVec            = std::vector<RobotStateCartesian>;
+  using MotionParametersPtr      = std::shared_ptr<MotionParameters>;
+  using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
@@ -45,19 +35,13 @@ public:
   RobotStateCartesian start_geom_;
   StateLin3d goal_geom_;
 
-  EEMotionPtrS ee_motion_;
-  ComMotionPtrS com_motion_;
-  LoadPtr load_;
-  CopPtr cop_;
-  ContactSchedulePtr contact_schedule_;
-
+  OptimizationVariablesPtr opt_variables_;
 
   void SetMotionParameters(const MotionParametersPtr& params);
   void BuildDefaultStartStance(const MotionParameters& params);
 
 private:
   NlpFacade nlp_facade_;
-  StepSequencePlanner step_sequence_planner_;
   MotionParametersPtr motion_parameters_;
 
 };
