@@ -56,11 +56,6 @@ NlpFacade::OptimizeMotion(const RobotStateCartesian& initial_state,
 
   CostConstraintFactory factory;
   factory.Init(opt_variables_,
-               com_motion,
-               ee_motion,
-               contact_schedule,
-               ee_load,
-               cop,
                motion_params,
                initial_state,
                final_state);

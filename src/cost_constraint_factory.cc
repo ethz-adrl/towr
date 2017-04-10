@@ -9,7 +9,6 @@
 
 #include <xpp/opt/a_spline_cost.h>
 #include <xpp/soft_constraint.h>
-#include <xpp/opt/linear_spline_equations.h>
 
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
 #include <xpp/opt/constraints/convexity_constraint.h>
@@ -19,6 +18,8 @@
 #include <xpp/opt/constraints/contact_load_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
 #include <xpp/opt/constraints/foothold_constraint.h>
+
+#include <xpp/opt/com_spline.h>
 
 namespace xpp {
 namespace opt {
@@ -34,22 +35,14 @@ CostConstraintFactory::~CostConstraintFactory ()
 
 void
 CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
-                             const ComMotionPtr& com,
-                             const EEMotionPtr& _ee_motion,
-                             const ContactSchedulePtr& contact_schedule,
-                             const EELoadPtr& _ee_load,
-                             const CopPtr& _cop,
-                             const MotionTypePtr& _params,
+                             const MotionParamsPtr& _params,
                              const RobotStateCartesian& initial_state,
                              const StateLin2d& final_state)
 {
   opt_vars_ = opt_vars;
 
-  com_motion = com;
-  ee_motion = _ee_motion;
-  contact_schedule_ = contact_schedule;
-  ee_load = _ee_load;
-  cop = _cop;
+  auto com_spline = std::dynamic_pointer_cast<ComSpline>(opt_vars->GetSet("base_motion"));
+  spline_eq_ = LinearSplineEquations(com_spline);
 
   params = _params;
   initial_geom_state_ = initial_state;
@@ -88,10 +81,9 @@ CostConstraintFactory::GetCost(CostName name) const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeInitialConstraint () const
 {
-  LinearSplineEquations eq(com_motion);
   StateLin2d initial_com_state = initial_geom_state_.GetBase().lin.Get2D();
   initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
-  MatVec lin_eq = eq.MakeInitial(initial_com_state);
+  MatVec lin_eq = spline_eq_.MakeInitial(initial_com_state);
 
   auto constraint = std::make_shared<LinearEqualityConstraint>(
       opt_vars_, lin_eq, "Initial XY");
@@ -101,10 +93,9 @@ CostConstraintFactory::MakeInitialConstraint () const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeFinalConstraint () const
 {
-  LinearSplineEquations eq(com_motion);
   StateLin2d final_com_state = final_geom_state_;
   final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
-  MatVec lin_eq = eq.MakeFinal(final_geom_state_, {kPos, kVel, kAcc});
+  MatVec lin_eq = spline_eq_.MakeFinal(final_geom_state_, {kPos, kVel, kAcc});
 
   auto constraint = std::make_shared<LinearEqualityConstraint>(
       opt_vars_, lin_eq, "Final XY");
@@ -114,9 +105,8 @@ CostConstraintFactory::MakeFinalConstraint () const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeJunctionConstraint () const
 {
-  LinearSplineEquations eq(com_motion);
   auto constraint = std::make_shared<LinearEqualityConstraint>(
-      opt_vars_, eq.MakeJunction(), "Junction");
+      opt_vars_, spline_eq_.MakeJunction(), "Junction");
   return {constraint};
 }
 
@@ -124,7 +114,7 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
-                                                        ee_motion->GetTotalTime(),
+                                                        params->GetTotalTime(),
                                                         params->dt_nodes_);
   return {constraint};
 }
@@ -137,7 +127,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
       params->dt_nodes_,
       params->GetMaximumDeviationFromNominal(),
       params->GetNominalStanceInBase(),
-      ee_motion->GetTotalTime()
+      params->GetTotalTime()
       );
 
   return {constraint};
@@ -147,7 +137,7 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeConvexityConstraint() const
 {
   auto cop_constrait = std::make_shared<SupportAreaConstraint>(
-      opt_vars_, params->dt_nodes_, ee_motion->GetTotalTime());
+      opt_vars_, params->dt_nodes_, params->GetTotalTime());
 
   auto convexity = std::make_shared<ConvexityConstraint>(opt_vars_);
 
@@ -174,10 +164,9 @@ CostConstraintFactory::MakeStancesConstraints () const
   for (auto ee : endeffectors_final_W.GetEEsOrdered())
     endeffectors_final_W.At(ee) = final_geom_state_.Make3D().p + nominal_B.At(ee);
 
-  double t = ee_motion->GetTotalTime();
 
   auto constraint_final = std::make_shared<FootholdConstraint>(
-      opt_vars_, endeffectors_final_W,t);
+      opt_vars_, endeffectors_final_W, params->GetTotalTime());
 
   stance_constraints.push_back(constraint_final);
 
@@ -201,14 +190,12 @@ CostConstraintFactory::MakePolygonCenterConstraint () const
 CostConstraintFactory::CostPtr
 CostConstraintFactory::MakeMotionCost() const
 {
-  LinearSplineEquations eq(com_motion);
   Eigen::MatrixXd term;
-
   MotionDerivative dxdt = kAcc;
 
   switch (dxdt) {
-    case kAcc:  term = eq.MakeAcceleration(params->weight_com_motion_xy_); break;
-    case kJerk: term = eq.MakeJerk(params->weight_com_motion_xy_); break;
+    case kAcc:  term = spline_eq_.MakeAcceleration(params->weight_com_motion_xy_); break;
+    case kJerk: term = spline_eq_.MakeJerk(params->weight_com_motion_xy_); break;
     default: assert(false); break; // this cost is not implemented
   }
 
@@ -216,7 +203,7 @@ CostConstraintFactory::MakeMotionCost() const
   mv.M = term;
   mv.v.setZero();
 
-  return std::make_shared<QuadraticSplineCost>(opt_vars_, mv, com_motion);
+  return std::make_shared<QuadraticSplineCost>(opt_vars_, mv);
 }
 
 CostConstraintFactory::CostPtr

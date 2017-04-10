@@ -42,6 +42,17 @@ MotionParameters::GetUsedConstraints () const
   return constraints_;
 }
 
+double
+MotionParameters::GetTotalTime () const
+{
+  double T = 0.0;
+  for (auto t : timings_)
+    T += t;
+
+  return T;
+
+}
+
 } // namespace opt
 } // namespace xpp
 

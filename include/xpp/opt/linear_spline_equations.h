@@ -30,13 +30,14 @@ class ComSpline;
 class LinearSplineEquations {
 public:
   using MotionDerivatives = std::vector<MotionDerivative>;
-  using ComSplinePtr     = std::shared_ptr<ComSpline>;
+  using ComSplinePtr      = std::shared_ptr<ComSpline>;
   using BaseMotionPtr     = std::shared_ptr<BaseMotion>;
   using ValXY             = std::array<double,2>;
 
   /** @attention ComMotion is downcast to ComSpline.
     */
-  LinearSplineEquations (const BaseMotionPtr&);
+  LinearSplineEquations();
+  LinearSplineEquations (const ComSplinePtr&);
   virtual ~LinearSplineEquations ();
 
 

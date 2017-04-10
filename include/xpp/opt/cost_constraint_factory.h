@@ -8,18 +8,12 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 
-#include "endeffectors_motion.h"
-#include "endeffector_load.h"
-#include "center_of_pressure.h"
-#include "contact_schedule.h"
-
 #include "motion_parameters.h"
 
+#include <xpp/optimization_variables_container.h>
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/optimization_variables_container.h>
-
-#include <memory>
-#include "base_motion.h"
+#include <xpp/opt/linear_spline_equations.h>
 
 namespace xpp {
 namespace opt {
@@ -40,43 +34,29 @@ public:
   // Responsibility to delete the memory.
   using ConstraintPtr    = std::shared_ptr<Constraint>;
   using ConstraintPtrVec = std::vector<ConstraintPtr>;
-  using CostPtr       = std::shared_ptr<Cost>;
-  using Vector2d      = Eigen::Vector2d;
-  using MotionTypePtr = std::shared_ptr<MotionParameters>;
-  using ComMotionPtr  = std::shared_ptr<BaseMotion>;
-  using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
-  using ContactSchedulePtr   = std::shared_ptr<ContactSchedule>;
-  using EELoadPtr     = std::shared_ptr<EndeffectorLoad>;
-  using CopPtr        = std::shared_ptr<CenterOfPressure>;
-
+  using CostPtr          = std::shared_ptr<Cost>;
+  using MotionParamsPtr  = std::shared_ptr<MotionParameters>;
   using OptVarsContainer = std::shared_ptr<OptimizationVariablesContainer>;
 
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();
 
-  // zmp_ consider wrapping all Optimization Variables into once class
   void Init(const OptVarsContainer&,
-            const ComMotionPtr&, const EEMotionPtr&, const ContactSchedulePtr&,
-            const EELoadPtr&, const CopPtr&,
-            const MotionTypePtr& params, const RobotStateCartesian& initial_state,
+            const MotionParamsPtr& params,
+            const RobotStateCartesian& initial_state,
             const StateLin2d& final_state);
 
   CostPtr GetCost(CostName name) const;
   ConstraintPtrVec GetConstraint(ConstraintName name) const;
 
 private:
-  MotionTypePtr params;
+  MotionParamsPtr params;
 
   OptVarsContainer opt_vars_;
-  // zmp_ remove these!
-  ComMotionPtr com_motion;
-  EEMotionPtr ee_motion;
-  ContactSchedulePtr contact_schedule_;
-  EELoadPtr ee_load;
-  CopPtr cop;
-
   RobotStateCartesian initial_geom_state_;
   StateLin2d final_geom_state_;
+
+  LinearSplineEquations spline_eq_;
 
   // constraints
   ConstraintPtrVec MakeInitialConstraint() const;
@@ -91,7 +71,6 @@ private:
 
   // costs
   CostPtr MakeMotionCost() const;
-
   CostPtr ToCost(const ConstraintPtr& constraint) const;
 };
 

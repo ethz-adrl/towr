@@ -54,6 +54,8 @@ public:
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
 
+  double GetTotalTime() const;
+
   MotionTypeID id_;
   double max_step_length_;
   double dt_nodes_; ///< time discretization of trajectory for constraints/costs

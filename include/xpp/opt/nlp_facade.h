@@ -11,6 +11,7 @@
 #include <xpp/opt/motion_parameters.h>
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/opt/contact_schedule.h>
+#include <xpp/opt/base_motion.h>
 #include <xpp/opt/endeffector_load.h> // zmp_ remove from here
 #include <xpp/opt/center_of_pressure.h>
 #include <memory>

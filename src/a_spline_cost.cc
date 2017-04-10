@@ -6,6 +6,7 @@
  */
 
 #include <xpp/opt/a_spline_cost.h>
+#include <xpp/opt/base_motion.h>
 
 namespace xpp {
 namespace opt {
@@ -16,19 +17,12 @@ ASplineCost::ASplineCost (const OptVarsPtr& opt_vars)
 {
 }
 
-void
-ASplineCost::Init (const MatVec& mat_vec, const ComMotionPtrS& com_motion)
-{
-  matrix_vector_ = mat_vec;
-  com_motion_ = com_motion;
-}
-
 QuadraticSplineCost::QuadraticSplineCost (const OptVarsPtr& opt_vars,
-                                          const MatVec& mat_vec,
-                                          const ComMotionPtrS& com_motion)
+                                          const MatVec& mat_vec)
     :ASplineCost(opt_vars)
 {
-  Init(mat_vec, com_motion);
+  matrix_vector_ = mat_vec;
+  com_motion_    = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));
 }
 
 QuadraticSplineCost::~QuadraticSplineCost ()

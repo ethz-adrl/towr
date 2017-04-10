@@ -10,10 +10,11 @@
 
 #include <xpp/matrix_vector.h>
 #include <xpp/cost.h>
-#include "base_motion.h"
 
 namespace xpp {
 namespace opt {
+
+class BaseMotion;
 
 /** @brief Calculates the scalar cost associated to spline coefficients.
   *
@@ -23,27 +24,22 @@ namespace opt {
 class ASplineCost : public Cost {
 public:
   using VectorXd = Eigen::VectorXd;
-  using ComMotionPtrS = std::shared_ptr<BaseMotion>;
+  using BaseMotionPtrS = std::shared_ptr<BaseMotion>;
 
   ASplineCost (const OptVarsPtr&);
   virtual ~ASplineCost (){};
 
   void Update() override { /*com_motion_ always up-to-date*/ };
 
-  /** @brief Defines the matrices and vectors that when multiplied by the
-    * spline coefficients determine the cost.
-    */
-  void Init(const MatVec&, const ComMotionPtrS&);
-
 protected:
-  ComMotionPtrS com_motion_;
+  BaseMotionPtrS com_motion_;
   MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
 };
 
 
 class QuadraticSplineCost : public ASplineCost {
 public:
-  QuadraticSplineCost(const OptVarsPtr&, const MatVec&, const ComMotionPtrS&);
+  QuadraticSplineCost(const OptVarsPtr&, const MatVec&);
   virtual ~QuadraticSplineCost();
 
 private:
