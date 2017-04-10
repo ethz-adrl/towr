@@ -13,16 +13,14 @@
 namespace xpp {
 namespace opt {
 
-/** @brief Holds and publishes the current value of the optimization variables.
+/** @brief Holds and supplies the current value of the optimization variables.
   *
-  * This class is responsible for publishing the up-to-date values of the
+  * This class is responsible for supplying the up-to-date values of the
   * optimization variables to all the observers (cost function,
-  * constraints,...) that registered to this. This class should
+  * constraints,...) that need these. This class should
   * fit all types of optimization problems and does not have a specific set
   * of variables. The only problem specific information this class holds is the
   * std::string id of what the variables represent.
-  *
-  * https://sourcemaking.com/design_patterns/observer
   */
 class OptimizationVariables {
 public:

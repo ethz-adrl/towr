@@ -22,12 +22,6 @@ ComSpline4::~ComSpline4 ()
   // TODO Auto-generated destructor stub
 }
 
-ComSpline4::PtrClone
-ComSpline4::clone () const
-{
-  return PtrClone(new ComSpline4(*this));
-}
-
 void
 ComSpline4::SetStartPosVel (const Vector2d& start_cog_p, const Vector2d& start_cog_v)
 {

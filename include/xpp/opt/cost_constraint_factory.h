@@ -63,6 +63,7 @@ public:
 private:
   MotionTypePtr params;
 
+  // zmp_ remove these!
   ComMotionPtr com_motion;
   EEMotionPtr ee_motion;
   ContactSchedulePtr contact_schedule_;

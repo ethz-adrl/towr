@@ -30,12 +30,13 @@ class ComSpline;
 class LinearSplineEquations {
 public:
   using MotionDerivatives = std::vector<MotionDerivative>;
-  using ComSplinePtrU     = std::unique_ptr<ComSpline>;
+  using ComSplinePtr     = std::shared_ptr<ComSpline>;
+  using BaseMotionPtr     = std::shared_ptr<BaseMotion>;
   using ValXY             = std::array<double,2>;
 
   /** @attention ComMotion is downcast to ComSpline.
     */
-  LinearSplineEquations (const BaseMotion&);
+  LinearSplineEquations (const BaseMotionPtr&);
   virtual ~LinearSplineEquations ();
 
 
@@ -71,7 +72,7 @@ public:
   Eigen::MatrixXd MakeJerk(const ValXY& weight_xy) const;
 
 private:
-  ComSplinePtrU com_spline_;
+  ComSplinePtr com_spline_;
 
   template<std::size_t N>
   std::array<double,N> CalcExponents(double t) const;

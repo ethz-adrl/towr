@@ -5,7 +5,7 @@
 @brief   Defines Cost class
  */
 
-#include "../include/xpp/cost.h"
+#include <xpp/cost.h>
 
 namespace xpp {
 namespace opt {

@@ -41,20 +41,24 @@ Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars,
     Jacobian jac(num_constraints, n);
     variables_.push_back({v, jac});
   }
+
+//  UpdateConstraintValues();
+//  UpdateJacobians();
 }
 
-void
-Constraint::UpdateVariables (const OptimizationVariables* opt_var)
-{
-  // spring_clean_ !this is very similar to OptimizationVariables::SetAllVariabls() DRY
-  for (auto& var : variables_) {
-    VectorXd x = opt_var->GetVariables(var.first->GetId());
-    var.first->SetVariables(x);
-  }
-
-  UpdateJacobians();
-  UpdateConstraintValues();
-}
+// zmp_ remove these
+//void
+//Constraint::UpdateVariables (const OptimizationVariables* opt_var)
+//{
+//  // spring_clean_ !this is very similar to OptimizationVariables::SetAllVariabls() DRY
+//  for (auto& var : variables_) {
+//    VectorXd x = opt_var->GetVariables(var.first->GetId());
+//    var.first->SetVariables(x);
+//  }
+//
+//  UpdateJacobians();
+//  UpdateConstraintValues();
+//}
 
 Constraint::Jacobian
 Constraint::GetJacobianWithRespectTo (std::string var_set) const

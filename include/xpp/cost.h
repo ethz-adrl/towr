@@ -8,7 +8,8 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_COST_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_COST_H_
 
-#include <xpp/optimization_variables.h>
+#include <Eigen/Dense>
+#include <string>
 
 namespace xpp {
 namespace opt {
@@ -22,7 +23,10 @@ public:
   Cost ();
   virtual ~Cost ();
 
-  virtual void UpdateVariables(const OptimizationVariables*) = 0;
+  /** @brief make sure the up-to-date optimization variables are used.
+   */
+  virtual void Update() = 0;
+
   double EvaluateWeightedCost () const;
   VectorXd EvaluateWeightedGradientWrt (std::string var_set);
   void SetWeight(double weight);

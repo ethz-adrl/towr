@@ -29,12 +29,6 @@ public:
   Constraint ();
   virtual ~Constraint ();
 
-  /** @brief Sets the values stored in variables_ to the current NLP ones
-    */
-  // zmp_ remove this function, should just use up-to-date global
-  // version of optimization variables
-  void UpdateVariables(const OptimizationVariables*);
-
   /** @brief Jacobian of the constraints with respect to each decision variable set
     */
   Jacobian GetJacobianWithRespectTo (std::string var_set) const;
@@ -49,6 +43,18 @@ public:
 
   void PrintStatus(double tol) const;
   int GetNumberOfConstraints() const;
+
+  /** @brief Implement this if the Jacobians change with different values of the
+    * optimization variables, so are not constant.
+    */
+  virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
+
+  /** @brief A constraint always delivers a vector of constraint violations.
+    *
+    * This is specific to each type of constraint and must be implemented
+    * by the user.
+    */
+  virtual void UpdateConstraintValues () = 0;
 
 protected:
   /** @brief The values of these variables influence the constraint.
@@ -71,12 +77,6 @@ protected:
   VecBound bounds_;
 
 private:
-  /** @brief A constraint always delivers a vector of constraint violations.
-    *
-    * This is specific to each type of constraint and must be implemented
-    * by the user.
-    */
-  virtual void UpdateConstraintValues () = 0;
 
   /** @brief For each returned constraint an upper and lower bound is given.
     *
@@ -85,10 +85,7 @@ private:
     */
   virtual void UpdateBounds () = 0;
 
-  /** @brief Implement this if the Jacobians change with different values of the
-    * optimization variables, so are not constant.
-    */
-  virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
+
 
   std::vector<VarPair> variables_;
   int num_constraints_ = 0;

@@ -9,6 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONTAINER_H_
 
 #include "cost.h"
+#include "optimization_variables.h"
 #include <memory>
 
 namespace xpp {
@@ -35,8 +36,10 @@ public:
   bool IsEmpty() const;
   VectorXd EvaluateGradient() const;
 
+  void UpdateCosts();
+
 private:
-  OptimizationVariables* subject_;
+  OptimizationVariables* opt_variables_;
   std::vector<CostPtr > costs_;
 };
 

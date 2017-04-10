@@ -31,7 +31,8 @@ public:
 
   SoftConstraint (const ConstraintPtr& constraint);
   virtual ~SoftConstraint ();
-  virtual void UpdateVariables(const OptimizationVariables*);
+
+  void Update() override;
 
   /** c(x) = 0.5 * (g-b)^T * W * (g-b)
     */

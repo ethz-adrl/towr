@@ -20,12 +20,6 @@ ComSpline6::~ComSpline6 ()
   // TODO Auto-generated destructor stub
 }
 
-ComSpline6::PtrClone
-ComSpline6::clone () const
-{
-  return PtrClone(new ComSpline6(*this));
-}
-
 ComSpline6::Derivatives
 ComSpline6::GetInitialFreeMotions () const
 {

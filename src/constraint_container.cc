@@ -13,7 +13,7 @@ namespace opt {
 
 ConstraintContainer::ConstraintContainer (OptimizationVariables& subject)
 {
-  subject_ = &subject;
+  opt_variables_ = &subject;
 }
 
 ConstraintContainer::~ConstraintContainer ()
@@ -32,6 +32,8 @@ ConstraintContainer::AddConstraint (ConstraitPtrVec constraints)
 {
   for (auto& c : constraints)
     constraints_.push_back(c);
+
+  UpdateConstraints();
   RefreshBounds ();
 }
 
@@ -43,7 +45,8 @@ ConstraintContainer::EvaluateConstraints () const
   int c = 0;
   for (const auto& constraint : constraints_) {
     // zmp_ DRY this should be done once collectively
-    constraint->UpdateVariables(subject_);
+//    constraint->UpdateVariables(opt_variables_);
+//    constraint->UpdateConstraintValues();
     VectorXd g = constraint->GetConstraintValues();
     int c_new = g.rows();
     g_all.middleRows(c, c_new) = g;
@@ -58,10 +61,11 @@ ConstraintContainer::GetJacobian () const
   int row = 0;
   for (const auto& constraint : constraints_) {
     // zmp_ DRY this should be done once collectively
-    constraint->UpdateVariables(subject_);
+//    constraint->UpdateVariables(opt_variables_);
+//    constraint->UpdateJacobians();
 
     int col = 0;
-    for (const auto& set : subject_->GetVarSets()) {
+    for (const auto& set : opt_variables_->GetVarSets()) {
 
       Jacobian jac = constraint->GetJacobianWithRespectTo(set->GetId());
 
@@ -89,6 +93,15 @@ xpp::opt::ConstraintContainer::PrintStatus (double tol) const
 }
 
 void
+ConstraintContainer::UpdateConstraints ()
+{
+  for (auto& constraint : constraints_) {
+    constraint->UpdateConstraintValues();
+    constraint->UpdateJacobians();
+  }
+}
+
+void
 ConstraintContainer::RefreshBounds ()
 {
   bounds_.clear();
@@ -99,7 +112,7 @@ ConstraintContainer::RefreshBounds ()
 
   int n_constraints = bounds_.size();
   // zmp_ this is the only time the subject is neccessary
-  int n_variables   = subject_->GetOptimizationVariableCount();
+  int n_variables   = opt_variables_->GetOptimizationVariableCount();
   jacobian_ = std::make_shared<Jacobian>(n_constraints, n_variables);
 }
 

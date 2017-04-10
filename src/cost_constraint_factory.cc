@@ -85,7 +85,7 @@ CostConstraintFactory::GetCost(CostName name) const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeInitialConstraint () const
 {
-  LinearSplineEquations eq(*com_motion);
+  LinearSplineEquations eq(com_motion);
   StateLin2d initial_com_state = initial_geom_state_.GetBase().lin.Get2D();
   initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
   MatVec lin_eq = eq.MakeInitial(initial_com_state);
@@ -98,7 +98,7 @@ CostConstraintFactory::MakeInitialConstraint () const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeFinalConstraint () const
 {
-  LinearSplineEquations eq(*com_motion);
+  LinearSplineEquations eq(com_motion);
   StateLin2d final_com_state = final_geom_state_;
   final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
   MatVec lin_eq = eq.MakeFinal(final_geom_state_, {kPos, kVel, kAcc});
@@ -111,7 +111,7 @@ CostConstraintFactory::MakeFinalConstraint () const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeJunctionConstraint () const
 {
-  LinearSplineEquations eq(*com_motion);
+  LinearSplineEquations eq(com_motion);
   auto constraint = std::make_shared<LinearEqualityConstraint>(
       com_motion, eq.MakeJunction(), "Junction");
   return {constraint};
@@ -198,7 +198,7 @@ CostConstraintFactory::MakePolygonCenterConstraint () const
 CostConstraintFactory::CostPtr
 CostConstraintFactory::MakeMotionCost() const
 {
-  LinearSplineEquations eq(*com_motion);
+  LinearSplineEquations eq(com_motion);
   Eigen::MatrixXd term;
 
   MotionDerivative dxdt = kAcc;
@@ -214,7 +214,7 @@ CostConstraintFactory::MakeMotionCost() const
   mv.v.setZero();
 
   auto cost = std::make_shared<QuadraticSplineCost>();
-  cost->Init(mv, *com_motion);
+  cost->Init(mv, com_motion);
   return cost;
 }
 

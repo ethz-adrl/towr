@@ -11,18 +11,25 @@
 namespace xpp {
 namespace opt {
 
-LinearSplineEquations::LinearSplineEquations (const BaseMotion& com_motion )
+LinearSplineEquations::LinearSplineEquations (const BaseMotionPtr& com_motion )
 {
-  // cast com motion to spline, because i need some specific features of that
-  auto base_ptr = com_motion.clone();
+  // zmp_ clean this up
+//  // cast com motion to spline, because i need some specific features of that
+//  auto base_ptr = com_motion.clone();
+//
+//  ComSpline *tmp = dynamic_cast<ComSpline*>(base_ptr.get());
+//
+//  if(tmp != nullptr)
+//  {
+//    base_ptr.release();
+//    com_spline_.reset(tmp);
+//  }
 
-  ComSpline *tmp = dynamic_cast<ComSpline*>(base_ptr.get());
 
-  if(tmp != nullptr)
-  {
-    base_ptr.release();
-    com_spline_.reset(tmp);
-  }
+  com_spline_ = std::dynamic_pointer_cast<ComSpline>(com_motion);
+
+  if (com_spline_ == nullptr)
+    assert(false); // object com_motion is not a base of ComSpline.
 
   com_spline_->SetCoefficientsZero(); // the values my motion function approximation is around
 }

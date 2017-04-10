@@ -9,7 +9,7 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_SPLINE_COST_H_
 
 #include <xpp/matrix_vector.h>
-#include "../cost.h"
+#include <xpp/cost.h>
 #include "base_motion.h"
 
 namespace xpp {
@@ -23,21 +23,20 @@ namespace opt {
 class ASplineCost : public Cost {
 public:
   using VectorXd = Eigen::VectorXd;
-  using ComMotionPtrU = std::unique_ptr<BaseMotion>;
+  using ComMotionPtrS = std::shared_ptr<BaseMotion>;
 
   ASplineCost ();
   virtual ~ASplineCost (){};
 
+  void Update() override { /*com_motion_ always up-to-date*/ };
+
   /** @brief Defines the matrices and vectors that when multiplied by the
     * spline coefficients determine the cost.
     */
-  void Init(const MatVec&, const BaseMotion&);
-  void UpdateVariables(const OptimizationVariables*) override;
+  void Init(const MatVec&, const ComMotionPtrS&);
 
 protected:
-
-  ComMotionPtrU com_motion_;
-  VectorXd spline_coeff_; ///< the current spline coefficients
+  ComMotionPtrS com_motion_;
   MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
 };
 

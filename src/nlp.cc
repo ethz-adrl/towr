@@ -54,6 +54,8 @@ void
 NLP::SetVariables (const Number* x)
 {
   opt_variables_->SetAllVariables(ConvertToEigen(x));
+  constraints_->UpdateConstraints();
+  costs_->UpdateCosts();
 }
 
 double

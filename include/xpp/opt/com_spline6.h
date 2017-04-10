@@ -25,7 +25,6 @@ public:
 
   ComSpline6();
   virtual ~ComSpline6();
-  PtrClone clone() const override;
 
   void SetSplineXYCoefficients(const VectorXd& optimized_coeff) override;
 

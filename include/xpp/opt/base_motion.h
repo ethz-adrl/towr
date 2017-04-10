@@ -64,10 +64,6 @@ public:
   VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative,
                                                      Coords3D dim) const;
 
-  /** @brief Copies the derived class in the heap and returns a pointer to it.
-    */
-  virtual PtrU clone() const = 0;
-
   double GetZHeight() const { return z_height_; };
   void SetConstantHeight(double z) { z_height_ = z; };
 

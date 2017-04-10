@@ -32,7 +32,6 @@ public:
 
   ComSpline4 ();
   virtual ~ComSpline4 ();
-  PtrClone clone() const override;
 
   void SetStartPosVel (const Vector2d& start_cog_p, const Vector2d& start_cog_v);
 

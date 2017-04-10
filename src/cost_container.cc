@@ -12,7 +12,8 @@ namespace opt {
 
 CostContainer::CostContainer (OptimizationVariables& subject)
 {
-  subject_ = &subject;
+  // save only optimization variable count
+  opt_variables_ = &subject;
 }
 
 CostContainer::~CostContainer ()
@@ -31,6 +32,7 @@ CostContainer::AddCost (CostPtr cost, double weight)
 {
   cost->SetWeight(weight);
   costs_.push_back(cost);
+  UpdateCosts();
 }
 
 void
@@ -47,10 +49,8 @@ double
 CostContainer::EvaluateTotalCost () const
 {
   double total_cost = 0.0;
-  for (const auto& cost : costs_) {
-    cost->UpdateVariables(subject_);
+  for (const auto& cost : costs_)
     total_cost += cost->EvaluateWeightedCost();
-  }
 
   return total_cost;
 }
@@ -58,13 +58,12 @@ CostContainer::EvaluateTotalCost () const
 CostContainer::VectorXd
 CostContainer::EvaluateGradient () const
 {
-  int n = subject_->GetOptimizationVariableCount();
+  int n = opt_variables_->GetOptimizationVariableCount();
   VectorXd gradient = VectorXd::Zero(n);
   for (const auto& cost : costs_) {
-    cost->UpdateVariables(subject_);
 
     int row = 0;
-    for (const auto& set : subject_->GetVarSets()) {
+    for (const auto& set : opt_variables_->GetVarSets()) {
 
       int n_set = set->GetVariables().rows();
       VectorXd grad_set = cost->EvaluateWeightedGradientWrt(set->GetId());
@@ -85,6 +84,13 @@ bool
 CostContainer::IsEmpty () const
 {
   return costs_.empty();
+}
+
+void
+CostContainer::UpdateCosts ()
+{
+  for (auto& cost : costs_)
+    cost->Update();
 }
 
 } /* namespace opt */

@@ -29,13 +29,13 @@ SoftConstraint::SoftConstraint (const ConstraintPtr& constraint)
 
 SoftConstraint::~SoftConstraint ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
-SoftConstraint::UpdateVariables (const OptimizationVariables* x)
+SoftConstraint::Update ()
 {
-  constraint_->UpdateVariables(x);
+  constraint_->UpdateConstraintValues();
+  constraint_->UpdateJacobians();
 }
 
 double
