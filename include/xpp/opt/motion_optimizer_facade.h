@@ -17,50 +17,32 @@ namespace opt {
 
 enum NlpSolver { Ipopt, Snopt };
 
-/** Simplified interface to the complete motion optimization framework
-  *
-  * This is ROS independent.
+/** Simplified interface to the complete motion optimization framework.
   */
-// zmp_ possibly merge with NLP facade
 class MotionOptimizerFacade {
 public:
   using RobotStateVec            = std::vector<RobotStateCartesian>;
   using MotionParametersPtr      = std::shared_ptr<MotionParameters>;
   using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
 
-  using CostContainerPtr         = std::shared_ptr<CostContainer>;
-  using ConstraintContainerPtr   = std::shared_ptr<ConstraintContainer>;
-  using NLPPtr                   = std::shared_ptr<NLP>;
-
-
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
 
-  void OptimizeMotion(NlpSolver solver);
+  void SolveProblem(NlpSolver solver);
   RobotStateVec GetTrajectory(double dt);
 
   RobotStateCartesian start_geom_;
   StateLin3d goal_geom_;
 
-  OptimizationVariablesPtr opt_variables_;
-
   void SetMotionParameters(const MotionParametersPtr& params);
   void BuildDefaultStartStance(const MotionParameters& params);
 
 private:
+  void BuildVariables();
 
-  void SolveProblem(NlpSolver solver);
-  void SolveNlp(NlpSolver solver);
-  void SolveIpopt();
-  void SolveSnopt();
-
-//  NlpFacade nlp_facade_;
+  OptimizationVariablesPtr opt_variables_;
   MotionParametersPtr motion_parameters_;
-
-
-  NLPPtr nlp_;
-  CostContainerPtr costs_;
-  ConstraintContainerPtr constraints_;
+  NLP nlp;
 };
 
 } /* namespace opt */

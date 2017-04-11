@@ -10,9 +10,8 @@
 
 #include "constraint_container.h"
 #include "cost_container.h"
-#include "cost_function_functor.h"
-#include <memory>
 #include "optimization_variables_container.h"
+#include <memory>
 
 namespace xpp {
 namespace opt {
@@ -29,17 +28,18 @@ public:
   typedef Constraint::Jacobian Jacobian;
   typedef double Number;
   typedef Eigen::VectorXd VectorXd;
-  typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
 
   typedef std::shared_ptr<Jacobian> JacobianPtr;
   typedef std::shared_ptr<OptimizationVariablesContainer> OptimizationVariablesPtr;
-  typedef std::shared_ptr<CostContainer> CostContainerPtr;
-  typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
+
+  using CostPtr = std::shared_ptr<Cost>;
+  using ConstraintPtr = std::shared_ptr<Constraint>;
+  using ConstraitPtrVec = std::vector<ConstraintPtr>;
 
   NLP ();
   virtual ~NLP ();
 
-  void Init(OptimizationVariablesPtr&, CostContainerPtr&, ConstraintContainerPtr&);
+  void Init(OptimizationVariablesPtr&);
   void SetVariables(const Number* x);
 
   int GetNumberOfOptimizationVariables() const;
@@ -59,13 +59,14 @@ public:
 
   void PrintStatusOfConstraints(double tol) const;
 
+  void AddCost(CostPtr cost, double weight);
+  void AddConstraint(ConstraitPtrVec constraints);
+
 private:
   // zmp_ make actual classes, ownership, composition.
   OptimizationVariablesPtr opt_variables_;
-  CostContainerPtr costs_;
-  ConstraintContainerPtr constraints_;
-
-  NumericalDiffFunctor cost_derivative_;
+  CostContainer costs_;
+  ConstraintContainer constraints_;
 
   VectorXd ConvertToEigen(const Number* x) const;
 };
