@@ -104,8 +104,6 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
   }
 }
 
-
-
 MotionOptimizerFacade::RobotStateVec
 MotionOptimizerFacade::GetTrajectory (double dt)
 {
