@@ -5,12 +5,12 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/base_motion.h>
+#include <xpp/opt/variables/base_motion.h>
 
 namespace xpp {
 namespace opt {
 
-BaseMotion::BaseMotion () : Parametrization("base_motion")
+BaseMotion::BaseMotion () : OptimizationVariables("base_motion")
 {
 }
 
@@ -19,13 +19,13 @@ BaseMotion::~BaseMotion ()
 }
 
 VectorXd
-BaseMotion::GetOptimizationParameters () const
+BaseMotion::GetVariables () const
 {
   return GetXYSplineCoeffients();
 }
 
 void
-BaseMotion::SetOptimizationParameters (const VectorXd& x)
+BaseMotion::SetVariables (const VectorXd& x)
 {
   SetSplineXYCoefficients(x);
 }

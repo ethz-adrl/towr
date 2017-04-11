@@ -8,7 +8,8 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_TIME_DISCRETIZATION_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_TIME_DISCRETIZATION_CONSTRAINT_H_
 
-#include <xpp/constraint.h>
+#include <vector>
+#include "constraint.h"
 
 namespace xpp {
 namespace opt {

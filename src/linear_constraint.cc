@@ -7,23 +7,30 @@
 
 #include <xpp/opt/constraints/linear_constraint.h>
 
+#include <vector>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/bound.h>
+#include <xpp/opt/variables/base_motion.h>
+
 namespace xpp {
 namespace opt {
 
 LinearEqualityConstraint::LinearEqualityConstraint (
-    const ComMotionPtr& com_motion,
+    const OptVarsPtr& opt_vars,
     const MatVec& linear_equation,
     const std::string& name)
 {
   linear_equation_ = linear_equation;
   name_ = name;
 
-  com_motion_ = com_motion;
+  com_motion_ = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));
 
   int num_constraints = linear_equation_.v.rows();
-  SetDependentVariables({com_motion}, num_constraints);
+  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
 
-  Jacobian& jac = GetJacobianRefWithRespectTo(com_motion->GetID());
+  Jacobian& jac = GetJacobianRefWithRespectTo(com_motion_->GetId());
   // careful, .sparseView is only valid when the Jacobian is constant, e.g.
   // the constraints are all linear w.r.t. the decision variables.
   jac = linear_equation_.M.sparseView();

@@ -8,12 +8,15 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 
+#include <memory>
+
 #include <xpp/constraint.h>
-#include <xpp/opt/endeffector_load.h>
-#include <xpp/opt/endeffectors_motion.h> // only for contact state
 
 namespace xpp {
 namespace opt {
+
+class EndeffectorLoad;
+class ContactSchedule;
 
 /** Ensures that vector represented by lambdas lies in center
   *
@@ -24,10 +27,10 @@ namespace opt {
   */
 class PolygonCenterConstraint : public Constraint {
 public:
-  using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
-  using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
+  using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
+  using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
 
-  PolygonCenterConstraint (const EELoadPtr&, const EEMotionPtr&);
+  PolygonCenterConstraint (const OptVarsPtr&);
   virtual ~PolygonCenterConstraint ();
 
   void UpdateConstraintValues () override;
@@ -35,7 +38,7 @@ public:
 
 private:
   EELoadPtr ee_load_;
-  EEMotionPtr ee_motion_; // only for contact state
+  ContactSchedulePtr contact_schedule_;
 
   void UpdateJacobians() override;
 };

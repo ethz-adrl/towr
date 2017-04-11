@@ -8,10 +8,17 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 
-#include <xpp/matrix_vector.h>
-#include <xpp/state.h>
 #include <array>
+#include <cstddef>
 #include <memory>
+#include <vector>
+#include <sys/types.h>
+#include <Eigen/Dense>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/state.h>
+
+#include <xpp/matrix_vector.h>
 
 namespace xpp {
 namespace opt {
@@ -30,12 +37,14 @@ class ComSpline;
 class LinearSplineEquations {
 public:
   using MotionDerivatives = std::vector<MotionDerivative>;
-  using ComSplinePtrU     = std::unique_ptr<ComSpline>;
+  using ComSplinePtr      = std::shared_ptr<ComSpline>;
+  using BaseMotionPtr     = std::shared_ptr<BaseMotion>;
   using ValXY             = std::array<double,2>;
 
   /** @attention ComMotion is downcast to ComSpline.
     */
-  LinearSplineEquations (const BaseMotion&);
+  LinearSplineEquations();
+  LinearSplineEquations (const ComSplinePtr&);
   virtual ~LinearSplineEquations ();
 
 
@@ -71,7 +80,7 @@ public:
   Eigen::MatrixXd MakeJerk(const ValXY& weight_xy) const;
 
 private:
-  ComSplinePtrU com_spline_;
+  ComSplinePtr com_spline_;
 
   template<std::size_t N>
   std::array<double,N> CalcExponents(double t) const;

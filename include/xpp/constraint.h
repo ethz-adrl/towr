@@ -8,11 +8,16 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_H_
 
-#include "optimization_variables.h"
-#include "parametrization.h"
-
-#include <Eigen/Sparse> // for jacobians
 #include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include "bound.h"
+#include "optimization_variables.h"
+#include "optimization_variables_container.h"
 
 namespace xpp {
 namespace opt {
@@ -21,17 +26,20 @@ namespace opt {
   */
 class Constraint {
 public:
-  using VectorXd = Eigen::VectorXd;
-  using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-  using ParametrizationPtr = std::shared_ptr<Parametrization>;
-  using VarPair = std::pair<ParametrizationPtr,Jacobian>;
+  using VectorXd      = Eigen::VectorXd;
+  using Jacobian      = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+  using OptVarPtr     = std::shared_ptr<OptimizationVariables>;
+  using JacobianNamed = std::pair<std::string, Jacobian>;
+  using OptVarsPtr    = std::shared_ptr<OptimizationVariablesContainer>;
 
   Constraint ();
   virtual ~Constraint ();
 
-  /** @brief Sets the values stored in variables_ to the current NLP ones
-    */
-  void UpdateVariables(const OptimizationVariables*);
+
+  int GetNumberOfOptVariables() const;
+
+  // zmp_ possibly make constant
+  Jacobian GetConstraintJacobian();
 
   /** @brief Jacobian of the constraints with respect to each decision variable set
     */
@@ -48,14 +56,22 @@ public:
   void PrintStatus(double tol) const;
   int GetNumberOfConstraints() const;
 
-protected:
-  /** @brief The values of these variables influence the constraint.
-    *
-    * Subscribes to these values and keeps them up-to-date to be used to
-    * calculate the constraints and bounds.
+  /** @brief Implement this if the Jacobians change with different values of the
+    * optimization variables, so are not constant.
     */
-  void SetDependentVariables(const std::vector<ParametrizationPtr>&,
-                             int num_constraints);
+  virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
+
+  /** @brief A constraint always delivers a vector of constraint violations.
+    *
+    * This is specific to each type of constraint and must be implemented
+    * by the user.
+    */
+  virtual void UpdateConstraintValues () = 0;
+
+protected:
+  /** @brief Determines the size of constraints, bounds and jacobians.
+    */
+  void SetDimensions(const std::vector<OptVarPtr>&, int num_constraints);
 
   /** @returns a writable reference to modify the Jacobian of the constraint.
     *
@@ -69,12 +85,6 @@ protected:
   VecBound bounds_;
 
 private:
-  /** @brief A constraint always delivers a vector of constraint violations.
-    *
-    * This is specific to each type of constraint and must be implemented
-    * by the user.
-    */
-  virtual void UpdateConstraintValues () = 0;
 
   /** @brief For each returned constraint an upper and lower bound is given.
     *
@@ -83,13 +93,9 @@ private:
     */
   virtual void UpdateBounds () = 0;
 
-  /** @brief Implement this if the Jacobians change with different values of the
-    * optimization variables, so are not constant.
-    */
-  virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
 
-  std::vector<VarPair> variables_;
-  int num_constraints_ = 0;
+  std::vector<JacobianNamed> jacobians_;
+  Jacobian complete_jacobian_;
 };
 
 } /* namespace opt */

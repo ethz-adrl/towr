@@ -51,10 +51,8 @@ include_directories(
 
 # A general nlp solving framework for Eigen, Ipopt, Snopt
 add_library(${SOLVER_LIB}
-  src/subject.cc
-  src/variable_set.cc
+  src/optimization_variables_container.cc
   src/optimization_variables.cc
-  src/observer.cc
   src/nlp.cc
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
@@ -62,9 +60,7 @@ add_library(${SOLVER_LIB}
   src/constraint_container.cc
   src/cost.cc
   src/cost_container.cc
-  src/cost_function_functor.cc
   src/soft_constraint.cc
-  src/parametrization.cc
   src/time_discretization_constraint.cc
 )
 target_link_libraries(${SOLVER_LIB}
@@ -76,26 +72,23 @@ target_link_libraries(${SOLVER_LIB}
 # the specific motion optimization problem for legged robots
 add_library(${MOTION_OPT_LIB}
   src/ellipse.cc
-#  src/zero_moment_point.cc
   src/linear_inverted_pendulum.cc
-  src/line_equation.cc
   src/motion_optimizer_facade.cc
-  src/nlp_facade.cc
   src/polynomial.cc
   src/polynomial_fifth_order.cc
-  # com
+  # base motion
   src/base_motion.cc
   src/com_polynomial_helpers.cc
   src/com_spline.cc
   src/com_spline6.cc    
   src/com_spline4.cc
-  src/motion_factory.cc
   src/linear_spline_equations.cc
   # endeffector
-  src/ee_swing_motion.cc
+  src/ee_phase_motion.cc
   src/ee_motion.cc
   src/endeffectors_motion.cc
   src/endeffector_load.cc
+  src/contact_schedule.cc
   # Input
   src/center_of_pressure.cc
   # constraints and costs
@@ -109,9 +102,8 @@ add_library(${MOTION_OPT_LIB}
   src/contact_load_constraint.cc
   src/foothold_constraint.cc
 #  src/obstacle_constraint.cc
-  src/a_spline_cost.cc
+  src/polynomial_cost.cc
   # robot specific info
-  src/step_sequence_planner.cc
   src/motion_parameters.cc
   src/quadruped_motion_parameters.cc
 )   
@@ -131,54 +123,16 @@ if(BUILD_TESTS)
   message(STATUS "GTEST_FOUND " ${GTEST_FOUND})
   if(GTEST_FOUND)
     set(MY_GTEST_UNITS  test/google/gtest_main.cc 
-#                        test/google/spliner_test.cc
-                         test/google/point2d_manipulations_test.cc
-#                         test/google/supp_polygon_test.cc
-#                         test/google/supp_polygon_container_test.cc
-                         test/google/helpers.cc
-                         test/google/linear_inverted_pendulum_test.cc
-#                        test/google/zero_moment_point_test.cc
-##                        test/google/hyq_spliner_test.cc
-#                        test/google/optimization_variables_test.cc
-#                        test/google/nlp_observer_test.cc
-#                        test/google/optimization_visualizer_test.cc
-#                        test/google/step_sequence_planner_test.cc
-                         test/google/line_equation_test.cc
-                         # hyq
-#                        # com
-#                         test/google/motion_structure_test.cc
-#                        test/google/com_motion_test.cc
-                         test/google/polynomial_test.cc
-#                        test/google/spline_container_test.cc
-#                        #constraints
-#                        test/google/zmp_constraint_test.cc
-#                        test/google/constraint_factory_test.cc
-#                         test/google/zmp_constraint_builder_test.cc
-#                         test/google/linear_spline_equations_test.cc
-#                        test/google/joint_angles_constraint_test.cc
-#                        test/google/constraint_container_test.cc
-#                        test/google/range_of_motion_constraint_test.cc
-#                        test/google/obstacle_constraint_test.cc
-#                        #equations
-#                        # costs
-#                        test/google/cost_function_functor_test.cc
-#                        test/google/cost_container_test.cc
-#                        test/google/a_foothold_cost_test.cc
-#                         test/google/soft_constraint_test.cc
-#                        # nlp optimizers
-                         test/google/motion_optimizer_facade_test.cc
-#                        test/google/nlp_test.cc
-#                        test/google/snopt_test.cc
-#                        test/google/snopt_adapter_test.cc
-#                        test/google/ipopt_test.cc
-#                        # general
-#                        test/google/sparse_matrix_test.cc
-                         test/google/ee_swing_motion_test.cc
-                         test/google/ee_motion_test.cc
-                         ## these should be kept well maintained
-                         test/dynamic_constraint_test.cc
-                         test/center_of_pressure_test.cc
-                         test/endeffectors_test.cc
+                        test/google/helpers.cc
+                        test/google/linear_inverted_pendulum_test.cc
+                        test/google/polynomial_test.cc
+                        test/google/motion_optimizer_facade_test.cc
+                        test/google/ee_phase_motion_test.cc
+                        test/google/ee_motion_test.cc
+                        test/dynamic_constraint_test.cc
+                        test/center_of_pressure_test.cc
+                        test/endeffectors_test.cc
+                        test/contact_schedule_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

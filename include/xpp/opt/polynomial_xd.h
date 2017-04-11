@@ -8,14 +8,14 @@
 #ifndef _XPP_UTILS_POLYNOMIALXD_H_
 #define _XPP_UTILS_POLYNOMIALXD_H_
 
-#include "polynomial.h"
-#include <xpp/cartesian_declarations.h>
-#include <xpp/state.h>
+#include <array>
+#include <sys/types.h>
 #include <Eigen/Dense>
+
+#include <xpp/cartesian_declarations.h>
 
 namespace xpp {
 namespace opt {
-
 
 template<typename PolynomialType, typename PointType>
 class PolynomialXd {
@@ -26,7 +26,7 @@ public:
   using PolyCoeff = typename PolynomialType::PolynomialCoeff;
 
 public:
-  explicit PolynomialXd() {};
+  explicit PolynomialXd();
   explicit PolynomialXd(int id, double duration);
   virtual ~PolynomialXd();
   void SetBoundary(double T, const Point& start, const Point& end);
@@ -36,13 +36,16 @@ public:
   double GetCoefficient(int dim, PolyCoeff coeff) const;
   void   SetCoefficients(int dim, PolyCoeff coeff, double value);
 
+
   static int GetNumCoeff() { return PolynomialType::GetNumCoeff(); };
 
-  void SetDuration(double duration);
   double GetDuration() const;
 
   uint GetId()            const { return id_; };
   void SetId(uint id)           { id_ = id;   };
+
+  PolynomialType GetDim(int dim) const;
+
 
 private:
   std::array<PolynomialType, kNumDim> polynomials_; ///< X,Y,Z dimensions
@@ -52,6 +55,6 @@ private:
 } // namespace opt
 } // namespace xpp
 
-#include "impl/polynomial_xd-impl.h"
+#include "polynomial_xd-impl.h"
 
 #endif // _XPP_UTILS_POLYNOMIALXD_H_

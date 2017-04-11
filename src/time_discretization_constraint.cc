@@ -6,6 +6,7 @@
  */
 
 #include <xpp/time_discretization_constraint.h>
+#include <cmath>
 
 namespace xpp {
 namespace opt {

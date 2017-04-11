@@ -7,11 +7,13 @@
 
 #include <xpp/nlp.h>
 
+#include <algorithm>
+#include <Eigen/Sparse>
+
 namespace xpp {
 namespace opt {
 
 NLP::NLP ()
-    :cost_derivative_(std::numeric_limits<double>::epsilon())
 {
 }
 
@@ -21,15 +23,9 @@ NLP::~NLP ()
 }
 
 void
-NLP::Init (OptimizationVariablesPtr& opt_variables,
-           CostContainerPtr& costs,
-           ConstraintContainerPtr& constraints)
+NLP::Init (OptimizationVariablesPtr& opt_variables)
 {
   opt_variables_ = /*std::move*/(opt_variables);
-  costs_         = /*std::move*/(costs);
-  constraints_   = /*std::move*/(constraints);
-
-  cost_derivative_.AddCosts(*opt_variables_, *costs_);
 }
 
 int
@@ -50,21 +46,28 @@ NLP::GetStartingValues () const
   return opt_variables_->GetOptimizationVariables();
 }
 
-double
-NLP::EvaluateCostFunction (const Number* x) const
+void
+NLP::SetVariables (const Number* x)
 {
   opt_variables_->SetAllVariables(ConvertToEigen(x));
-  return costs_->EvaluateTotalCost();
+  constraints_.UpdateConstraints();
+  costs_.UpdateCosts();
+}
+
+double
+NLP::EvaluateCostFunction (const Number* x)
+{
+  SetVariables(x);
+  return costs_.EvaluateTotalCost();
 }
 
 NLP::VectorXd
-NLP::EvaluateCostFunctionGradient (const Number* x) const
+NLP::EvaluateCostFunctionGradient (const Number* x)
 {
-  // motion_ref use matrix acceleration jacobian for this
-  opt_variables_->SetAllVariables(ConvertToEigen(x));
+  SetVariables(x);
 
   // analytical (if implemented in costs)
-  VectorXd grad = costs_->EvaluateGradient();
+  VectorXd grad = costs_.EvaluateGradient();
 
   // refactor move numerical calculation of cost to cost_container class,
   // so some can be implemented analytical, others using numerical differentiaton.
@@ -85,7 +88,7 @@ NLP::EvaluateCostFunctionGradient (const Number* x) const
 VecBound
 NLP::GetBoundsOnConstraints () const
 {
-  return constraints_->GetBounds();
+  return constraints_.GetBounds();
 }
 
 int
@@ -95,28 +98,22 @@ NLP::GetNumberOfConstraints () const
 }
 
 NLP::VectorXd
-NLP::EvaluateConstraints (const Number* x) const
+NLP::EvaluateConstraints (const Number* x)
 {
-  opt_variables_->SetAllVariables(ConvertToEigen(x));
-  return constraints_->EvaluateConstraints();
-}
-
-void
-NLP::SetVariables (const Number* x)
-{
-  opt_variables_->SetAllVariables(ConvertToEigen(x));
+  SetVariables(x);
+  return constraints_.EvaluateConstraints();
 }
 
 bool
 NLP::HasCostTerms () const
 {
-  return !costs_->IsEmpty();
+  return !costs_.IsEmpty();
 }
 
 void
-NLP::EvalNonzerosOfJacobian (const Number* x, Number* values) const
+NLP::EvalNonzerosOfJacobian (const Number* x, Number* values)
 {
-  opt_variables_->SetAllVariables(ConvertToEigen(x));
+  SetVariables(x);
   JacobianPtr jac = GetJacobianOfConstraints();
 
   jac->makeCompressed(); // so the valuePtr() is dense and accurate
@@ -126,13 +123,25 @@ NLP::EvalNonzerosOfJacobian (const Number* x, Number* values) const
 NLP::JacobianPtr
 NLP::GetJacobianOfConstraints () const
 {
-  return constraints_->GetJacobian();
+  return constraints_.GetJacobian();
 }
 
 void
 NLP::PrintStatusOfConstraints (double tol) const
 {
-  return constraints_->PrintStatus(tol);
+  return constraints_.PrintStatus(tol);
+}
+
+void
+NLP::AddCost (CostPtr cost, double weight)
+{
+  costs_.AddCost(cost, weight);
+}
+
+void
+NLP::AddConstraint (ConstraitPtrVec constraints)
+{
+  constraints_.AddConstraint(constraints);
 }
 
 NLP::VectorXd

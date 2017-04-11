@@ -8,10 +8,18 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
 
-#include <memory>
+#include "xpp/opt/variables/base_motion.h"
 
-#include "base_motion.h"
+#include <cassert>
+#include <memory>
+#include <vector>
+#include <stddef.h>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/state.h>
+
 #include "com_polynomial_helpers.h"
+#include "polynomial.h"
 
 namespace xpp {
 namespace opt {

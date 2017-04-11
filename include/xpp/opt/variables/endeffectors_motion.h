@@ -8,13 +8,14 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTORS_MOTION_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTORS_MOTION_H_
 
-#include <xpp/opt/ee_motion.h>
-#include <xpp/state.h>
-#include <xpp/endeffectors.h>
-#include <xpp/contact.h>
-#include <xpp/parametrization.h>
+#include <Eigen/Dense>
 
-#include <map>
+#include <xpp/cartesian_declarations.h>
+#include <xpp/endeffectors.h>
+#include <xpp/state.h>
+
+#include "contact_schedule.h"
+#include "ee_motion.h"
 
 namespace xpp {
 namespace opt {
@@ -24,44 +25,32 @@ namespace opt {
   * This class is responsible for transforming the scalar parameters into
   * the position, velocity and acceleration of the endeffectors.
   */
-class EndeffectorsMotion : public Parametrization {
+class EndeffectorsMotion : public OptimizationVariables {
 public:
   using EEState  = Endeffectors<StateLin3d>;
   using VectorXd = Eigen::VectorXd;
-  using Contacts = std::vector<Contact>;
 
-  using EEVec     = std::vector<EndeffectorID>;
-  using Phase     = std::pair<EEVec, double>; // swinglegs and time
-  using PhaseVec  = std::vector<Phase>;
-
-  EndeffectorsMotion (int n_ee = 0);
+  EndeffectorsMotion (const EndeffectorsPos& initial_pos, const ContactSchedule&);
   virtual ~EndeffectorsMotion ();
 
-
-  VectorXd GetOptimizationParameters() const override;
-  void SetOptimizationParameters(const VectorXd&) override;
+  VectorXd GetVariables() const override;
+  void SetVariables(const VectorXd&) override;
   // order at which the contact position of this endeffector is stored
-  int Index(EndeffectorID ee, int id, d2::Coords) const; // zmp_ remove the id?
-
-
-  void SetInitialPos(const EEXppPos& initial_pos);
-  void SetPhaseSequence(const PhaseVec& phases);
+  JacobianRow GetJacobianWrtOptParams(double t_global, EndeffectorID ee, d2::Coords) const;
 
 
   int GetNumberOfEndeffectors() const;
-  EEMotion& GetMotion(EndeffectorID ee);
   EEState GetEndeffectors(double t_global) const;
-  Contacts GetContacts(double t_global) const;
-  EEXppBool GetContactState(double t_global) const;
+  EEState::Container GetEndeffectorsVec(double t_global) const;
   double GetTotalTime() const;
 
-
 private:
+  int IndexStart(EndeffectorID ee) const;
   Endeffectors<EEMotion> endeffectors_;
   int n_opt_params_ = 0;
 
-  bool Contains(const EEVec& vec, EndeffectorID ee) const;
-  EEVec GetStanceLegs(const EEVec& swinglegs) const;
+  void SetInitialPos(const EndeffectorsPos& initial_pos);
+  void SetParameterStructure(const ContactSchedule& contact_schedule);
 };
 
 } /* namespace opt */

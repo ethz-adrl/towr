@@ -7,6 +7,12 @@
 
 #include <xpp/opt/com_spline.h>
 
+#include <cmath>
+#include <stdexcept>
+#include <Eigen/Dense>
+
+#include <xpp/opt/polynomial_xd.h>
+
 namespace xpp {
 namespace opt {
 

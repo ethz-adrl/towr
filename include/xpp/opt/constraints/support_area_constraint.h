@@ -8,27 +8,32 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 
-#include <xpp/opt/endeffectors_motion.h>
-#include <xpp/opt/endeffector_load.h>
-#include <xpp/opt/center_of_pressure.h>
+#include <memory>
+
 #include <xpp/time_discretization_constraint.h>
 
 namespace xpp {
 namespace opt {
+
+class EndeffectorsMotion;
+class EndeffectorLoad;
+class CenterOfPressure;
 
 /** Ensures that the CoP lies within convex hull of contact points p
   *
   * At every discrete node k:
   * g_k = lambda_1*p1 + ... lambda_m*p_m - cop = 0
   */
+
+// zmp_ not sure this should be discretized, better optimize over all
+// lambda's directly?
 class SupportAreaConstraint : public TimeDiscretizationConstraint {
 public:
   using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
   using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
   using CopPtr      = std::shared_ptr<CenterOfPressure>;
 
-  SupportAreaConstraint (const EEMotionPtr&, const EELoadPtr&, const CopPtr&,
-                         double dt);
+  SupportAreaConstraint (const OptVarsPtr&, double dt, double T);
   virtual ~SupportAreaConstraint ();
 
 private:
@@ -39,7 +44,7 @@ private:
   void UpdateConstraintAtInstance (double t, int k) override;
   void UpdateBoundsAtInstance (double t, int k) override;
   void UpdateJacobianAtInstance(double t, int k) override;
-  int GetRow(int node, int dimension) const;
+  int GetConstraintNr(int node, int dimension) const;
 
   void UpdateJacobianWithRespectToLoad(double t, int k);
   void UpdateJacobianWithRespectToEEMotion(double t, int k);

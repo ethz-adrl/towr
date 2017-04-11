@@ -8,6 +8,11 @@
 #ifndef _XPP_ZMP_COM_POLYNOMIAL_H_
 #define _XPP_ZMP_COM_POLYNOMIAL_H_
 
+#include <vector>
+
+#include <xpp/state.h>
+
+#include "polynomial.h"
 #include "polynomial_xd.h"
 
 namespace xpp {

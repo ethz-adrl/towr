@@ -8,11 +8,8 @@
 #ifndef XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_
 #define XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_
 
-#include "nlp.h"
-
 #include <IpTNLP.hpp>
-#include <IpIpoptApplication.hpp>
-#include <IpSolveStatistics.hpp>
+#include "nlp.h"
 
 namespace xpp {
 namespace opt {
@@ -28,15 +25,16 @@ class IpoptAdapter : public Ipopt::TNLP {
 public:
   using Index         = Ipopt::Index;
   using Number        = Ipopt::Number;
-  using NLPPtr        = std::shared_ptr<NLP>;
 
-	IpoptAdapter(NLPPtr& nlp);
+	/** @brief Builds an Ipopt NLP and solves it.
+	  * @param[in/out] nlp the nonlinear program to be modified.
+	  */
+	static void Solve(NLP& nlp);
 
-  /** default destructor */
-  virtual ~IpoptAdapter() {};
+private:
+	IpoptAdapter(NLP& nlp);
+  virtual ~IpoptAdapter();
 
-  /**@name Overloaded from TNLP */
-  //@{
   /** Method to return some info about the nlp */
   virtual bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                             Index& nnz_h_lag, IndexStyleEnum& index_style);
@@ -77,9 +75,6 @@ public:
 //                      bool new_lambda, Index nele_hess, Index* iRow,
 //                      Index* jCol, Number* values);
 
-  //@}
-
-
   virtual bool intermediate_callback(Ipopt::AlgorithmMode mode,
                                      Index iter, Number obj_value,
                                      Number inf_pr, Number inf_du,
@@ -90,20 +85,17 @@ public:
                                      const Ipopt::IpoptData* ip_data,
                                      Ipopt::IpoptCalculatedQuantities* ip_cq);
 
-
-  /** @name Solution Methods */
-  //@{
-  /** This method is called when the algorithm is complete so the TNLP can store/write the solution */
+  /** This method is called when the algorithm is complete so the TNLP can
+    * store/write the solution */
   virtual void finalize_solution(Ipopt::SolverReturn status,
                                  Index n, const Number* x, const Number* z_L, const Number* z_U,
                                  Index m, const Number* g, const Number* lambda,
                                  Number obj_value,
                                  const Ipopt::IpoptData* ip_data,
                                  Ipopt::IpoptCalculatedQuantities* ip_cq);
-  //@}
 
 private:
-  NLPPtr nlp_;
+  NLP nlp_;
 };
 
 } // namespace opt

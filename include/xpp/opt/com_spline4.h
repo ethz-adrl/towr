@@ -8,6 +8,13 @@
 #ifndef _XPP_ZMP_COMSPLINE4_H_
 #define _XPP_ZMP_COMSPLINE4_H_
 
+#include <array>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+#include <vector>
+
+#include <xpp/cartesian_declarations.h>
+
 #include "com_spline.h"
 
 namespace xpp {
@@ -32,7 +39,6 @@ public:
 
   ComSpline4 ();
   virtual ~ComSpline4 ();
-  PtrClone clone() const override;
 
   void SetStartPosVel (const Vector2d& start_cog_p, const Vector2d& start_cog_v);
 

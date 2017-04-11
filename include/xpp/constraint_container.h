@@ -8,10 +8,12 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 
-#include "optimization_variables.h"
+#include <Eigen/Dense>
 #include <memory>
+#include <vector>
+
+#include "bound.h"
 #include "constraint.h"
-#include "observer.h"
 
 namespace xpp {
 namespace opt {
@@ -19,22 +21,19 @@ namespace opt {
 /** @brief Knows about all constraints and gives information about them.
   *
   * For every constraint that \c ConstraintContainer knows about, it will return
-  * the constraint violations and the acceptable bounds. It also maintains a
-  * connection to the optimization variables, and constantly keeps up-to-date
-  * values of these (observer).
+  * the constraint violations and the acceptable bounds.
   */
-class ConstraintContainer : public Observer {
+class ConstraintContainer {
 public:
-  typedef Constraint::VectorXd VectorXd;
-  typedef Constraint::Jacobian Jacobian;
-  typedef std::shared_ptr<Jacobian> JacobianPtr;
-  typedef std::shared_ptr<Constraint> ConstraintPtr;
+  using VectorXd = Eigen::VectorXd;
+  using Jacobian = Constraint::Jacobian;
+  using JacobianPtr = std::shared_ptr<Jacobian>;
+  using ConstraintPtr = std::shared_ptr<Constraint>;
   using ConstraitPtrVec = std::vector<ConstraintPtr>;
 
-  ConstraintContainer (OptimizationVariables& subject);
+  ConstraintContainer ();
   virtual ~ConstraintContainer ();
 
-  void Update () override;
   void ClearConstraints();
 
   void AddConstraint (ConstraitPtrVec constraint);
@@ -43,11 +42,13 @@ public:
   JacobianPtr GetJacobian () const;
   VecBound GetBounds () const;
 
+  void UpdateConstraints();
+
   void PrintStatus(double tol) const;
 
 private:
   void RefreshBounds ();
-  std::vector<ConstraintPtr> constraints_;
+  ConstraitPtrVec constraints_;
   VecBound bounds_;
   JacobianPtr jacobian_;
 };

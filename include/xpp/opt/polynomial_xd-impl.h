@@ -5,31 +5,28 @@
 @brief   Creates 3 dimensional spline from start to end with duration T
  */
 
-#include <xpp/opt/polynomial_xd.h>
+#include <xpp/cartesian_declarations.h>
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {
 
 template<typename PolynomialType, typename PointType>
-PolynomialXd<PolynomialType, PointType>::PolynomialXd (int id,
-                                                              double duration)
+PolynomialXd<PolynomialType, PointType>::PolynomialXd ()
 {
-  SetDuration(duration);
+  id_ = 0;
+}
+
+template<typename PolynomialType, typename PointType>
+PolynomialXd<PolynomialType, PointType>::PolynomialXd (int id, double duration)
+{
   SetId(id);
+  SetBoundary(duration, Point(), Point());
 }
 
 template<typename PolynomialType, typename PointType>
 PolynomialXd<PolynomialType, PointType>::~PolynomialXd ()
 {
-  // TODO Auto-generated destructor stub
-}
-
-template<typename PolynomialType, typename PointType>
-void
-PolynomialXd<PolynomialType, PointType>::SetDuration (double _duration)
-{
-  for (int dim=X; dim<kNumDim; ++dim)
-    polynomials_.at(dim).duration = _duration;
 }
 
 template<typename PolynomialType, typename PointType>
@@ -37,7 +34,7 @@ double
 PolynomialXd<PolynomialType, PointType>::GetDuration () const
 {
   // all polynomials have same duration, so just return duration of X
-  return polynomials_.at(X).duration;
+  return polynomials_.at(X).GetDuration();
 }
 
 template<typename PolynomialType, typename PointType>
@@ -54,30 +51,28 @@ template<typename PolynomialType, typename PointType>
 double
 PolynomialXd<PolynomialType, PointType>::GetCoefficient (int dim, PolyCoeff coeff) const
 {
-  return polynomials_.at(dim).c[coeff];
+  return polynomials_.at(dim).GetCoefficient(coeff);
 }
 
 template<typename PolynomialType, typename PointType>
 void
-PolynomialXd<PolynomialType, PointType>::SetCoefficients (int dim,
-                                                                 PolyCoeff coeff,
-                                                                 double value)
+PolynomialXd<PolynomialType, PointType>::SetCoefficients (int dim, PolyCoeff coeff,
+                                                          double value)
 {
-  polynomials_.at(dim).c[coeff] = value;
+  polynomials_.at(dim).SetCoefficient(coeff,value);
 }
 
 template<typename PolynomialType, typename PointType>
 void PolynomialXd<PolynomialType, PointType>::SetBoundary(double T,
-                                                                 const Point& start,
-                                                                 const Point& end)
+                                                          const Point& start,
+                                                          const Point& end)
 {
   for (int dim=X; dim<kNumDim; ++dim)
     polynomials_.at(dim).SetBoundary(T, start.Get1d(dim), end.Get1d(dim));
 }
 
 template<typename PolynomialType, typename PointType>
-bool PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt,
-                                                              Point& p) const
+bool PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt, Point& p) const
 {
   StateLin1d point1d;
 
@@ -89,6 +84,12 @@ bool PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt,
   return true;
 }
 
+template<typename PolynomialType, typename PointType>
+PolynomialType
+PolynomialXd<PolynomialType, PointType>::GetDim (int dim) const
+{
+  return polynomials_.at(dim);
+}
 
 } // namespace opt
 } // namespace xpp

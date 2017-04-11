@@ -7,10 +7,16 @@
 
 #include <xpp/soft_constraint.h>
 
+#include <Eigen/Sparse>
+
+#include <xpp/bound.h>
+
 namespace xpp {
 namespace opt {
 
-SoftConstraint::SoftConstraint (const ConstraintPtr& constraint)
+SoftConstraint::SoftConstraint (const OptVarsPtr& opt_vars_container,
+                                const ConstraintPtr& constraint)
+    :Cost(opt_vars_container)
 {
   constraint_ = constraint;
   int n_constraints = constraint_->GetNumberOfConstraints();
@@ -29,13 +35,13 @@ SoftConstraint::SoftConstraint (const ConstraintPtr& constraint)
 
 SoftConstraint::~SoftConstraint ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
-SoftConstraint::UpdateVariables (const OptimizationVariables* x)
+SoftConstraint::Update ()
 {
-  constraint_->UpdateVariables(x);
+  constraint_->UpdateConstraintValues();
+  constraint_->UpdateJacobians();
 }
 
 double

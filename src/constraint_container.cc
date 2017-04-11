@@ -1,31 +1,24 @@
-/*
- * constraint_container.cc
- *
- *  Created on: May 24, 2016
- *      Author: winklera
+/**
+ @file    constraint_container.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Jul 1, 2016
+ @brief   Defines the ConstraintContainer class.
  */
 
 #include <xpp/constraint_container.h>
+
 #include <iostream>
+#include <Eigen/Sparse>
 
 namespace xpp {
 namespace opt {
 
-ConstraintContainer::ConstraintContainer (OptimizationVariables& subject)
-    :Observer(subject)
+ConstraintContainer::ConstraintContainer ()
 {
 }
 
 ConstraintContainer::~ConstraintContainer ()
 {
-  // TODO Auto-generated destructor stub
-}
-
-void
-ConstraintContainer::Update ()
-{
-  // optimization variables changed. "Observer" pull functionality implemented
-  // in the specific constraints, so here nothing to be done.
 }
 
 void
@@ -39,6 +32,8 @@ ConstraintContainer::AddConstraint (ConstraitPtrVec constraints)
 {
   for (auto& c : constraints)
     constraints_.push_back(c);
+
+  UpdateConstraints();
   RefreshBounds ();
 }
 
@@ -49,7 +44,7 @@ ConstraintContainer::EvaluateConstraints () const
 
   int c = 0;
   for (const auto& constraint : constraints_) {
-    constraint->UpdateVariables(subject_);
+
     VectorXd g = constraint->GetConstraintValues();
     int c_new = g.rows();
     g_all.middleRows(c, c_new) = g;
@@ -63,21 +58,11 @@ ConstraintContainer::GetJacobian () const
 {
   int row = 0;
   for (const auto& constraint : constraints_) {
-    constraint->UpdateVariables(subject_);
 
-    int col = 0;
-    for (const auto& set : subject_->GetVarSets()) {
-
-      Jacobian jac = constraint->GetJacobianWithRespectTo(set.GetId());
-
-      // insert the derivative in the correct position in the overall Jacobian
-      for (int k=0; k<jac.outerSize(); ++k)
-        for (Jacobian::InnerIterator it(jac,k); it; ++it)
-          jacobian_->coeffRef(row+it.row(), col+it.col()) = it.value();
-
-
-      col += set.GetVariables().rows();
-    }
+    const Jacobian& jac = constraint->GetConstraintJacobian();
+    for (int k=0; k<jac.outerSize(); ++k)
+      for (Jacobian::InnerIterator it(jac,k); it; ++it)
+        jacobian_->coeffRef(row+it.row(), it.col()) = it.value();
 
     row += constraint->GetNumberOfConstraints();
   }
@@ -85,11 +70,11 @@ ConstraintContainer::GetJacobian () const
 }
 
 void
-xpp::opt::ConstraintContainer::PrintStatus (double tol) const
+ConstraintContainer::UpdateConstraints ()
 {
-  std::cout << "Constraint violation indices for tol=" << tol << ":\n";
-  for (const auto& constraint : constraints_) {
-    constraint->PrintStatus(tol);
+  for (auto& constraint : constraints_) {
+    constraint->UpdateConstraintValues();
+    constraint->UpdateJacobians();
   }
 }
 
@@ -103,14 +88,23 @@ ConstraintContainer::RefreshBounds ()
   }
 
   int n_constraints = bounds_.size();
-  int n_variables   = subject_->GetOptimizationVariableCount();
-  jacobian_ = std::make_shared<Jacobian>(n_constraints, n_variables);
+  int n_var = constraints_.front()->GetNumberOfOptVariables(); // all the same
+  jacobian_ = std::make_shared<Jacobian>(n_constraints, n_var);
 }
 
 VecBound
 ConstraintContainer::GetBounds () const
 {
   return bounds_;
+}
+
+void
+xpp::opt::ConstraintContainer::PrintStatus (double tol) const
+{
+  std::cout << "Constraint violation indices for tol=" << tol << ":\n";
+  for (const auto& constraint : constraints_) {
+    constraint->PrintStatus(tol);
+  }
 }
 
 } /* namespace opt */

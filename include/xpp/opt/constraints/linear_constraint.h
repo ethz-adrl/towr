@@ -8,12 +8,16 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_LINEAR_CONSTRAINT_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_LINEAR_CONSTRAINT_H_
 
-#include <xpp/matrix_vector.h>
+#include <memory>
+#include <string>
+
 #include <xpp/constraint.h>
-#include <xpp/opt/base_motion.h>
+#include <xpp/matrix_vector.h>
 
 namespace xpp {
 namespace opt {
+
+class BaseMotion;
 
 /** @brief Calculates the constraint violations for linear constraints.
   *
@@ -29,7 +33,7 @@ public:
     * @param com Center of Mass parametrization, from which spline coefficients x are used.
     * @param linear_equation the matrix M and vector v.
     */
-  LinearEqualityConstraint (const ComMotionPtr& com,
+  LinearEqualityConstraint (const OptVarsPtr& opt_vars_container,
                             const MatVec& linear_equation,
                             const std::string& name);
   virtual ~LinearEqualityConstraint ();

@@ -14,12 +14,12 @@ MotionParameters::~MotionParameters ()
 {
 }
 
-MotionParameters::SwinglegPhaseVec
+MotionParameters::PhaseVec
 MotionParameters::GetOneCycle () const
 {
-  SwinglegPhaseVec phases;
-  for (int i=0; i<ee_cycle_.size(); ++i)
-    phases.push_back(SwinglegPhase(ee_cycle_.at(i), timings_.at(i)));
+  PhaseVec phases;
+  for (int i=0; i<ee_cycle2_.size(); ++i)
+    phases.push_back(Phase(ee_cycle2_.at(i), timings_.at(i)));
 
   return phases;
 }
@@ -40,6 +40,17 @@ MotionParameters::UsedConstraints
 MotionParameters::GetUsedConstraints () const
 {
   return constraints_;
+}
+
+double
+MotionParameters::GetTotalTime () const
+{
+  double T = 0.0;
+  for (auto t : timings_)
+    T += t;
+
+  return T;
+
 }
 
 } // namespace opt

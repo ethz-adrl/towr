@@ -7,22 +7,33 @@
 
 #include <xpp/opt/constraints/convexity_constraint.h>
 
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/endeffectors.h>
+
+#include <xpp/bound.h>
+#include <xpp/opt/variables/endeffector_load.h>
+
 namespace xpp {
 namespace opt {
 
-ConvexityConstraint::ConvexityConstraint (const LoadPtr& ee_load)
+ConvexityConstraint::ConvexityConstraint (const OptVarsPtr& opt_vars)
 {
   name_ = "Convexity";
-  ee_load_ = ee_load;
+  ee_load_ = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
-  int m = ee_load->GetNumberOfSegments();
-  SetDependentVariables({ee_load}, m);
+  int m = ee_load_->GetNumberOfSegments();
+  SetDimensions(opt_vars->GetOptVarsVec(), m);
 
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load->GetID());
+  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetId());
 
   for (int k=0; k<m; ++k) {
-    for (auto ee : ee_load->GetLoadValuesIdx(k).GetEEsOrdered()) {
-      int idx = ee_load->IndexDiscrete(k,ee);
+    for (auto ee : ee_load_->GetLoadValuesIdx(k).GetEEsOrdered()) {
+      int idx = ee_load_->IndexDiscrete(k,ee);
       jac.insert(k, idx) = 1.0;
     }
   }

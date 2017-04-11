@@ -7,25 +7,30 @@
 
 #include <xpp/snopt_adapter.h>
 
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include <sys/types.h>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/bound.h>
+
 namespace xpp {
 namespace opt {
 
+SnoptAdapter::NLPPtr SnoptAdapter::nlp_;
+
 using VectorXd = Eigen::VectorXd;
 
-SnoptAdapter::SelfPtr SnoptAdapter::instance_ = nullptr;
-
-SnoptAdapter::SelfPtr
-SnoptAdapter::GetInstance ()
+SnoptAdapter::SnoptAdapter (NLP& ref)
 {
-  if (!instance_)
-    instance_ = new SnoptAdapter();
-  return instance_;
+  nlp_ = &ref;
 }
 
-void
-SnoptAdapter::SetNLP (NLPPtr& nlp)
+SnoptAdapter::~SnoptAdapter ()
 {
-  nlp_ = nlp;
 }
 
 void
@@ -131,11 +136,11 @@ SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
     int i=0;
 
     // the scalar objective function value
-    if (instance_->nlp_->HasCostTerms())
-      F[i++] = instance_->nlp_->EvaluateCostFunction(x);
+    if (nlp_->HasCostTerms())
+      F[i++] = nlp_->EvaluateCostFunction(x);
 
     // the vector of constraint values
-    VectorXd g_eig = instance_->nlp_->EvaluateConstraints(x);
+    VectorXd g_eig = nlp_->EvaluateConstraints(x);
     Eigen::Map<VectorXd>(F+i, g_eig.rows()) = g_eig;
   }
 
@@ -144,30 +149,27 @@ SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
     int i=0;
 
     // the jacobian of the first row (cost function)
-    if (instance_->nlp_->HasCostTerms()) {
-      Eigen::VectorXd grad = instance_->nlp_->EvaluateCostFunctionGradient(x);
+    if (nlp_->HasCostTerms()) {
+      Eigen::VectorXd grad = nlp_->EvaluateCostFunctionGradient(x);
       i = grad.rows();
       Eigen::Map<VectorXd>(G, i) = grad;
     }
 
     // the jacobian of all the constraints
-    instance_->nlp_->EvalNonzerosOfJacobian(x, G+i);
+    nlp_->EvalNonzerosOfJacobian(x, G+i);
   }
 }
 
-SnoptAdapter::SnoptAdapter ()
-{
-}
-
-SnoptAdapter::~SnoptAdapter ()
-{
-}
-
 void
-SnoptAdapter::SolveSQP (int start_type)
+SnoptAdapter::Solve (NLP& ref)
 {
+  int Cold = 0, Basis = 1, Warm = 2;
+
+  SnoptAdapter snopt(ref);
+  snopt.Init();
+
   // error codes as given in the manual.
-  int INFO = snoptProblemA::solve(start_type);
+  int INFO = snopt.solve(Cold);
   int EXIT = INFO - INFO%10; // change least significant digit to zero
 
   if (EXIT != 0) {
@@ -175,11 +177,13 @@ SnoptAdapter::SolveSQP (int start_type)
     throw std::runtime_error(msg);
   }
 
-  nlp_->SetVariables(x);
+   snopt.SetVariables();
+}
 
-  // this seems to be necessary, to create a new snopt problem for every run
-  delete instance_;
-  instance_ = nullptr;
+void
+SnoptAdapter::SetVariables ()
+{
+  nlp_->SetVariables(x);
 }
 
 } /* namespace opt */

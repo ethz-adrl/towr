@@ -8,8 +8,8 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_
 
-#include "nlp.h"
 #include <snoptProblem.hpp>
+#include "nlp.h"
 
 namespace xpp {
 namespace opt {
@@ -23,36 +23,26 @@ namespace opt {
   */
 class SnoptAdapter : public snoptProblemA {
 public:
-  using SelfPtr = SnoptAdapter*;
-  using NLPPtr  = std::shared_ptr<NLP>;
+  using NLPPtr  = NLP*;
 
-  /** Only way to get an instance of this class.
-    *
-    * This implements the singleton pattern, to be sure that only one instance
-    * of this class exists at all times.
-    */
-  static SelfPtr GetInstance();
+  /** Keeps reference to this NLP and modifies it! */
+  SnoptAdapter (NLP& ref);
   virtual ~SnoptAdapter ();
 
-
-  /** Assign SNOPT to a Nonlinear Program. Keeps reference to this NLP and
-    *  modifies it!.
-    */
-  void SetNLP(NLPPtr&);
-  void Init();
-  static void ObjectiveAndConstraintFct(int    *Status, int *n,    double x[],
-                                        int    *needF,  int *neF,  double F[],
-                                        int    *needG,  int *neG,  double G[],
-                                        char      *cu,  int *lencu,
-                                        int      iu[],  int *leniu,
-                                        double   ru[],  int *lenru);
-
-  void SolveSQP(int start_type);
+  static void Solve(NLP& ref);
 
 private:
-  SnoptAdapter ();
-  NLPPtr nlp_;
-  static SelfPtr instance_; ///< to access member variables in static function
+  void Init();
+  static void ObjectiveAndConstraintFct(int   *Status, int *n,    double x[],
+                                        int   *needF,  int *neF,  double F[],
+                                        int   *needG,  int *neG,  double G[],
+                                        char     *cu,  int *lencu,
+                                        int     iu[],  int *leniu,
+                                        double  ru[],  int *lenru);
+
+  void SetVariables();
+
+  static NLPPtr nlp_; // use raw pointer as SnoptAdapter doesn't own the nlp.
 };
 
 } /* namespace opt */

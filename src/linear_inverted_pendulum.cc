@@ -6,7 +6,7 @@
  */
 
 #include <xpp/opt/linear_inverted_pendulum.h>
-#include "../include/xpp/opt/base_motion.h"
+#include <xpp/opt/variables/base_motion.h>
 
 namespace xpp {
 namespace opt {

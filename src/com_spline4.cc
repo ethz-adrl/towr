@@ -7,7 +7,14 @@
 
 #include <xpp/opt/com_spline4.h>
 
-#include <Eigen/LU>
+#include <cassert>
+#include <cmath>
+#include <stddef.h>
+#include <sys/types.h>
+#include <Eigen/Dense>
+
+#include <xpp/opt/com_polynomial_helpers.h>
+#include <xpp/opt/polynomial_xd.h>
 
 namespace xpp {
 namespace opt {
@@ -20,12 +27,6 @@ ComSpline4::ComSpline4 ()
 ComSpline4::~ComSpline4 ()
 {
   // TODO Auto-generated destructor stub
-}
-
-ComSpline4::PtrClone
-ComSpline4::clone () const
-{
-  return PtrClone(new ComSpline4(*this));
 }
 
 void

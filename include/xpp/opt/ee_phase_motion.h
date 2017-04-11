@@ -1,5 +1,5 @@
 /**
- @file    ee_height_z_polynomial.h
+ @file    ee_phase_motion.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jan 16, 2017
  @brief   Brief description
@@ -8,25 +8,27 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_SWING_MOTION_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_SWING_MOTION_H_
 
-#include "polynomial_xd.h"
-#include "polynomial.h"
+#include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
+
+#include "polynomial.h"
+#include "polynomial_xd.h"
 
 namespace xpp {
 namespace opt {
 
 /** Parametrizes the motion from one 3D point to another.
   *
-  * This can be used to generate the swingleg motion given two footholds.
-  * See xpp_opt/matlab/swingleg_z_height.m for the generation of these values.
+  * This can be used to generate the swingleg motion given two footholds or
+  * represent a leg in stance ("movement" between the same start/goal).
   */
-class EESwingMotion {
+class EEPhaseMotion {
 public:
-  using PolyXY     = PolynomialXd<CubicPolynomial, StateLin2d>;
-  using PolyZ      = QuinticPolynomial;
+  using PolyXY      = PolynomialXd<CubicPolynomial, StateLin2d>;
+  using PolyZ       = LiftHeightPolynomial;
 
-  EESwingMotion ();
-  virtual ~EESwingMotion ();
+  EEPhaseMotion ();
+  virtual ~EEPhaseMotion ();
 
   /** Completely parametrizes the motion.
     *
@@ -52,13 +54,13 @@ public:
   StateLin3d GetState(double t_local) const;
   double GetDuration() const;
 
+  double GetDerivativeOfPosWrtContactsXY(d2::Coords dim, double t_local,
+                                         Polynomial::PointType p) const;
+
 private:
   PolyZ poly_z_;
   PolyXY poly_xy_;
-
   double T_ = 0.0;   ///< the duration [s] of the motion
-  double h_ = 0.03;  ///< proportional to the lift height between contacts
-  int n_    = 6;     ///< determines the shape of the swing motion
 };
 
 } /* namespace opt */

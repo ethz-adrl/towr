@@ -22,7 +22,7 @@ static const std::string set2 = "set2_variables";
 
 class FooConstraint : public Constraint {
 public:
-  void UpdateVariables(const OptimizationVariables* opt_var)
+  void UpdateVariables(const OptimizationVariablesContainer* opt_var)
   {
     x_set1 = opt_var->GetVariables(set1);
     x_set2 = opt_var->GetVariables(set2);
@@ -73,7 +73,7 @@ private:
 
 class BarConstraint : public Constraint {
 public:
-  void UpdateVariables(const OptimizationVariables* opt_var)
+  void UpdateVariables(const OptimizationVariablesContainer* opt_var)
   {
     x_set2 = opt_var->GetVariables(set2);
   }
@@ -115,7 +115,7 @@ class NlpTest : public ::testing::Test {
 protected:
   virtual void SetUp()
   {
-    opt_variables_     = std::make_shared<OptimizationVariables>();
+    opt_variables_     = std::make_shared<OptimizationVariablesContainer>();
     auto costs         = std::make_shared<CostContainer>(*opt_variables_);
     auto constraints   = std::make_shared<ConstraintContainer>(*opt_variables_);
 
@@ -134,7 +134,7 @@ protected:
     nlp_.Init(opt_variables_, costs, constraints);
   }
 
-  std::shared_ptr<OptimizationVariables> opt_variables_;
+  std::shared_ptr<OptimizationVariablesContainer> opt_variables_;
   NLP nlp_;
 };
 

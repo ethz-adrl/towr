@@ -6,13 +6,23 @@
  */
 
 #include <xpp/opt/constraints/dynamic_constraint.h>
-#include <xpp/opt/base_motion.h>
+
+#include <Eigen/Dense>
+#include <string>
+#include <vector>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/state.h>
+
+#include <xpp/bound.h>
+#include <xpp/constraint.h>
+#include <xpp/opt/variables/base_motion.h>
+#include <xpp/opt/variables/center_of_pressure.h>
 
 namespace xpp {
 namespace opt {
 
-DynamicConstraint::DynamicConstraint (const BaseMotionPtr& com_motion,
-                                      const CopPtr& cop,
+DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double T,
                                       double dt)
     :TimeDiscretizationConstraint(T,dt)
@@ -20,12 +30,12 @@ DynamicConstraint::DynamicConstraint (const BaseMotionPtr& com_motion,
   kHeight_ = 0.0;
   name_ = "Dynamic";
 
-  com_motion_ = com_motion;
-  cop_ = cop;
-  kHeight_ = com_motion->GetZHeight();
+  com_motion_ = std::dynamic_pointer_cast<BaseMotion>      (opt_vars->GetSet("base_motion"));
+  cop_        = std::dynamic_pointer_cast<CenterOfPressure>(opt_vars->GetSet("center_of_pressure"));
+  kHeight_ = com_motion_->GetZHeight();
 
   int num_constraints = GetNumberOfNodes()*kDim2d;
-  SetDependentVariables({com_motion, cop}, num_constraints);
+  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
 }
 
 DynamicConstraint::~DynamicConstraint ()
@@ -54,8 +64,8 @@ DynamicConstraint::UpdateBoundsAtInstance(double t, int k)
 void
 DynamicConstraint::UpdateJacobianAtInstance(double t, int k)
 {
-  Jacobian& jac_cop = GetJacobianRefWithRespectTo(cop_->GetID());
-  Jacobian& jac_com = GetJacobianRefWithRespectTo(com_motion_->GetID());
+  Jacobian& jac_cop = GetJacobianRefWithRespectTo(cop_->GetId());
+  Jacobian& jac_com = GetJacobianRefWithRespectTo(com_motion_->GetId());
 
   auto com = com_motion_->GetCom(t);
   model_.SetCurrent(com.p, com.v, kHeight_);

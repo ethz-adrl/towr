@@ -9,6 +9,9 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
 
 #include <memory>
+#include <string>
+#include <Eigen/Dense>
+
 #include "constraint.h"
 #include "cost.h"
 
@@ -29,9 +32,10 @@ public:
   using ConstraintPtr = std::shared_ptr<Constraint>;
   using VectorXd = Eigen::VectorXd;
 
-  SoftConstraint (const ConstraintPtr& constraint);
+  SoftConstraint (const OptVarsPtr&, const ConstraintPtr& constraint);
   virtual ~SoftConstraint ();
-  virtual void UpdateVariables(const OptimizationVariables*);
+
+  void Update() override;
 
   /** c(x) = 0.5 * (g-b)^T * W * (g-b)
     */

@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/center_of_pressure.h>
+#include <xpp/opt/variables/center_of_pressure.h>
 #include <gtest/gtest.h>
 
 namespace xpp {
@@ -20,13 +20,13 @@ TEST(CenterOfPressureTest, Disretization)
   CenterOfPressure cop(dt,T);
 
 
-  Eigen::VectorXd x = cop.GetOptimizationParameters();
+  Eigen::VectorXd x = cop.GetVariables();
 
   for (int i=0; i<x.rows(); ++i) {
     x(i) = i;
   }
 
-  cop.SetOptimizationParameters(x);
+  cop.SetVariables(x);
 
   double t = 0.0;
   double dt_constraint = 0.05;

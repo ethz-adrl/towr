@@ -11,7 +11,6 @@
 namespace xpp {
 namespace opt {
 
-
 PolynomialFifthOrder::PolynomialFifthOrder()
 {
   for (int dim = 0; dim < kDim2d; ++dim)

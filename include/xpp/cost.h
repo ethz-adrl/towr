@@ -8,7 +8,12 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_COST_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_COST_H_
 
-#include <xpp/optimization_variables.h>
+#include <memory>
+#include <string>
+#include <vector>
+#include <Eigen/Dense>
+
+#include "optimization_variables_container.h"
 
 namespace xpp {
 namespace opt {
@@ -18,14 +23,22 @@ namespace opt {
 class Cost {
 public:
   using VectorXd = Eigen::VectorXd;
+  using OptVarsPtr = std::shared_ptr<OptimizationVariablesContainer>;
 
-  Cost ();
+  Cost (const OptVarsPtr& opt_vars_container);
   virtual ~Cost ();
 
-  virtual void UpdateVariables(const OptimizationVariables*) = 0;
+  /** @brief make sure the up-to-date optimization variables are used.
+   */
+  virtual void Update() = 0;
+
+
+  VectorXd EvaluateCompleteGradient();
+
   double EvaluateWeightedCost () const;
   VectorXd EvaluateWeightedGradientWrt (std::string var_set);
   void SetWeight(double weight);
+  int GetVariableCount() const;
 
 protected:
   virtual double EvaluateCost () const = 0;
@@ -33,6 +46,9 @@ protected:
 
 private:
   double weight_;
+
+  std::vector<std::string> all_variable_ids_;
+  int n_variables_;
 };
 
 } /* namespace opt */

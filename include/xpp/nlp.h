@@ -8,11 +8,16 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_H_
 
-#include "constraint_container.h"
-#include "cost_container.h"
-#include "cost_function_functor.h"
-#include "optimization_variables.h"
 #include <memory>
+#include <vector>
+#include <Eigen/Dense>
+
+#include "bound.h"
+#include "constraint.h"
+#include "constraint_container.h"
+#include "cost.h"
+#include "cost_container.h"
+#include "optimization_variables_container.h"
 
 namespace xpp {
 namespace opt {
@@ -29,17 +34,18 @@ public:
   typedef Constraint::Jacobian Jacobian;
   typedef double Number;
   typedef Eigen::VectorXd VectorXd;
-  typedef Eigen::NumericalDiff<CostFunctionFunctor> NumericalDiffFunctor;
 
   typedef std::shared_ptr<Jacobian> JacobianPtr;
-  typedef std::shared_ptr<OptimizationVariables> OptimizationVariablesPtr;
-  typedef std::shared_ptr<CostContainer> CostContainerPtr;
-  typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
+  typedef std::shared_ptr<OptimizationVariablesContainer> OptimizationVariablesPtr;
+
+  using CostPtr = std::shared_ptr<Cost>;
+  using ConstraintPtr = std::shared_ptr<Constraint>;
+  using ConstraitPtrVec = std::vector<ConstraintPtr>;
 
   NLP ();
   virtual ~NLP ();
 
-  void Init(OptimizationVariablesPtr&, CostContainerPtr&, ConstraintContainerPtr&);
+  void Init(OptimizationVariablesPtr&);
   void SetVariables(const Number* x);
 
   int GetNumberOfOptimizationVariables() const;
@@ -47,24 +53,25 @@ public:
   VecBound GetBoundsOnOptimizationVariables() const;
   VectorXd GetStartingValues() const;
 
-  double EvaluateCostFunction(const Number* x) const;
-  VectorXd EvaluateCostFunctionGradient(const Number* x) const;
+  double EvaluateCostFunction(const Number* x);
+  VectorXd EvaluateCostFunctionGradient(const Number* x);
 
   int GetNumberOfConstraints() const;
   VecBound GetBoundsOnConstraints() const;
-  VectorXd EvaluateConstraints(const Number* x) const;
+  VectorXd EvaluateConstraints(const Number* x);
 
-  void EvalNonzerosOfJacobian(const Number* x, Number* values) const;
+  void EvalNonzerosOfJacobian(const Number* x, Number* values);
   JacobianPtr GetJacobianOfConstraints() const;
 
   void PrintStatusOfConstraints(double tol) const;
 
+  void AddCost(CostPtr cost, double weight);
+  void AddConstraint(ConstraitPtrVec constraints);
+
 private:
   OptimizationVariablesPtr opt_variables_;
-  CostContainerPtr costs_;
-  ConstraintContainerPtr constraints_;
-
-  NumericalDiffFunctor cost_derivative_;
+  CostContainer costs_;
+  ConstraintContainer constraints_;
 
   VectorXd ConvertToEigen(const Number* x) const;
 };

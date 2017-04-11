@@ -8,6 +8,8 @@
 #ifndef _XPP_ZMP_COMSPLINE6_H_
 #define _XPP_ZMP_COMSPLINE6_H_
 
+#include <vector>
+#include <xpp/cartesian_declarations.h>
 #include "com_spline.h"
 
 namespace xpp {
@@ -25,7 +27,6 @@ public:
 
   ComSpline6();
   virtual ~ComSpline6();
-  PtrClone clone() const override;
 
   void SetSplineXYCoefficients(const VectorXd& optimized_coeff) override;
 

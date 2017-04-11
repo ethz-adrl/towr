@@ -8,48 +8,48 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
 
-#include <xpp/opt/step_sequence_planner.h>
-#include <xpp/opt/nlp_facade.h>
+#include <memory>
+#include <vector>
+
 #include <xpp/robot_state_cartesian.h>
-#include <xpp/opt/motion_parameters.h>
-#include <xpp/opt/endeffectors_motion.h>
-#include "base_motion.h"
+#include <xpp/state.h>
+
+#include <xpp/nlp.h>
+#include <xpp/optimization_variables_container.h>
+
+#include "motion_parameters.h"
 
 namespace xpp {
 namespace opt {
 
-/** Simplified interface to the complete motion optimization framework
-  *
-  * This is ROS independent.
+enum NlpSolver { Ipopt, Snopt };
+
+/** Simplified interface to the complete motion optimization framework.
   */
-// zmp_ possibly merge with NLP facade
 class MotionOptimizerFacade {
 public:
-  using RobotStateVec = std::vector<RobotStateCartesian>;
-  using MotionParametersPtr = std::shared_ptr<MotionParameters>;
-  using EEMotionPtrS  = std::shared_ptr<EndeffectorsMotion>;
-  using ComMotionPtrS = std::shared_ptr<BaseMotion>;
+  using RobotStateVec            = std::vector<RobotStateCartesian>;
+  using MotionParametersPtr      = std::shared_ptr<MotionParameters>;
+  using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
 
-  void OptimizeMotion(NlpSolver solver);
+  void SolveProblem(NlpSolver solver);
   RobotStateVec GetTrajectory(double dt);
 
   RobotStateCartesian start_geom_;
   StateLin3d goal_geom_;
 
-  EEMotionPtrS ee_motion_;
-  ComMotionPtrS com_motion_;
-
   void SetMotionParameters(const MotionParametersPtr& params);
   void BuildDefaultStartStance(const MotionParameters& params);
 
 private:
-  NlpFacade nlp_facade_;
-  StepSequencePlanner step_sequence_planner_;
-  MotionParametersPtr motion_parameters_;
+  void BuildVariables();
 
+  OptimizationVariablesPtr opt_variables_;
+  MotionParametersPtr motion_parameters_;
+  NLP nlp;
 };
 
 } /* namespace opt */

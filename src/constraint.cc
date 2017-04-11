@@ -6,8 +6,10 @@
  */
 
 #include <xpp/constraint.h>
-#include <iostream>
+
+#include <cassert>
 #include <iomanip>
+#include <iostream>
 
 namespace xpp {
 namespace opt {
@@ -19,40 +21,54 @@ Constraint::Constraint ()
 
 Constraint::~Constraint ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 int
 Constraint::GetNumberOfConstraints () const
 {
-  return num_constraints_;
+  return complete_jacobian_.rows();
+}
+
+int
+Constraint::GetNumberOfOptVariables () const
+{
+  return complete_jacobian_.cols();
 }
 
 void
-Constraint::SetDependentVariables (const std::vector<ParametrizationPtr>& vars,
-                                   int num_constraints)
+Constraint::SetDimensions (const std::vector<OptVarPtr>& vars,
+                           int num_constraints)
 {
-  num_constraints_ = num_constraints;
   g_ = VectorXd::Zero(num_constraints);
   bounds_ = VecBound(num_constraints);
 
+  int num_vars_ = 0;
   for (auto& v : vars) {
     int n = v->GetOptVarCount();
-    Jacobian jac(num_constraints, n);
-    variables_.push_back({v, jac});
+    Jacobian jac(num_constraints, n); // empty jacobians
+    jacobians_.push_back({v->GetId(), jac});
+    num_vars_ += n;
   }
+
+  complete_jacobian_ = Jacobian(num_constraints, num_vars_);
 }
 
-void
-Constraint::UpdateVariables (const OptimizationVariables* opt_var)
+Constraint::Jacobian
+Constraint::GetConstraintJacobian ()
 {
-  for (auto& var : variables_) {
-    VectorXd x = opt_var->GetVariables(var.first->GetID());
-    var.first->SetOptimizationParameters(x);
+  int col = 0;
+  for (const auto& v : jacobians_) {
+    const Jacobian& jac = v.second;
+
+    // insert the derivative in the correct position in the overall Jacobian
+    for (int k=0; k<jac.outerSize(); ++k)
+      for (Jacobian::InnerIterator it(jac,k); it; ++it)
+        complete_jacobian_.coeffRef(it.row(), col+it.col()) = it.value();
+
+    col += jac.cols();
   }
 
-  UpdateJacobians();
-  UpdateConstraintValues();
+  return complete_jacobian_;
 }
 
 Constraint::Jacobian
@@ -60,8 +76,8 @@ Constraint::GetJacobianWithRespectTo (std::string var_set) const
 {
   Jacobian jac; // empty matrix
 
-  for (const auto& var : variables_)
-    if (var.first->GetID() == var_set)
+  for (const auto& var : jacobians_)
+    if (var.first == var_set)
       jac = var.second;
 
   return jac;
@@ -70,13 +86,12 @@ Constraint::GetJacobianWithRespectTo (std::string var_set) const
 Constraint::Jacobian&
 Constraint::GetJacobianRefWithRespectTo (std::string var_set)
 {
-  for (auto& var : variables_)
-    if (var.first->GetID() == var_set)
+  for (auto& var : jacobians_)
+    if (var.first == var_set)
       return var.second;
 
   assert(false); // Jacobian does not exist
 }
-
 
 void
 xpp::opt::Constraint::PrintStatus (double tol) const
@@ -104,7 +119,7 @@ Constraint::GetConstraintValues () const
 }
 
 VecBound
-xpp::opt::Constraint::GetBounds ()
+Constraint::GetBounds ()
 {
   UpdateBounds();
   return bounds_;

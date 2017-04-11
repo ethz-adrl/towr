@@ -5,32 +5,54 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/endeffectors_motion.h>
+#include <xpp/opt/variables/endeffectors_motion.h>
+
+#include <iostream>
+#include <vector>
+#include <Eigen/Sparse>
 
 namespace xpp {
 namespace opt {
 
-EndeffectorsMotion::EndeffectorsMotion (int n_ee)
-    :Parametrization("footholds")
+EndeffectorsMotion::EndeffectorsMotion (const EndeffectorsPos& initial_pos,
+                                        const ContactSchedule& contact_schedule)
+    :OptimizationVariables("endeffectors_motion")
 {
-  endeffectors_.SetCount(n_ee);
-}
+  endeffectors_.SetCount(initial_pos.GetCount());
 
-EndeffectorsMotion::~EndeffectorsMotion ()
-{
+  SetInitialPos(initial_pos);
+  SetParameterStructure(contact_schedule);
+
+  for (const auto& ee : endeffectors_.ToImpl())
+    n_opt_params_ += ee.GetOptVarCount();
 }
 
 void
-EndeffectorsMotion::SetInitialPos (const EEXppPos& initial_pos)
+EndeffectorsMotion::SetInitialPos (const EndeffectorsPos& initial_pos)
 {
   for (auto ee : initial_pos.GetEEsOrdered())
     endeffectors_.At(ee).SetInitialPos(initial_pos.At(ee), ee);
 }
 
-EEMotion&
-EndeffectorsMotion::GetMotion (EndeffectorID ee)
+void
+EndeffectorsMotion::SetParameterStructure (const ContactSchedule& contact_schedule)
 {
-  return endeffectors_.At(ee);
+  for (auto ee : endeffectors_.GetEEsOrdered()) {
+
+    for (auto phase : contact_schedule.GetPhases(ee)) {
+      auto is_contact = phase.first;
+      auto duration   = phase.second;
+
+      std::cout << "duration: " << duration << std::endl;
+
+      double lift_height = is_contact? 0.0 : 0.03;
+      endeffectors_.At(ee).AddPhase(duration, lift_height, is_contact);
+    }
+  }
+}
+
+EndeffectorsMotion::~EndeffectorsMotion ()
+{
 }
 
 EndeffectorsMotion::EEState
@@ -44,38 +66,15 @@ EndeffectorsMotion::GetEndeffectors (double t_global) const
   return ee_state;
 }
 
-
-EndeffectorsMotion::Contacts
-EndeffectorsMotion::GetContacts (double t) const
-{
-  Contacts contacts;
-  for (auto ee : endeffectors_.ToImpl())
-    for (Contact c : ee.GetContact(t)) // can be one or none (if swinging)
-      contacts.push_back(c);
-
-  return contacts;
-}
-
-EEXppBool
-EndeffectorsMotion::GetContactState (double t_global) const
-{
-  EEXppBool contact_state(GetNumberOfEndeffectors());
-
-  for (auto ee : endeffectors_.ToImpl())
-    contact_state.At(ee.GetEE()) = ee.IsInContact(t_global);
-
-  return contact_state;
-}
-
 EndeffectorsMotion::VectorXd
-EndeffectorsMotion::GetOptimizationParameters () const
+EndeffectorsMotion::GetVariables () const
 {
   VectorXd x(n_opt_params_);
 
   int row = 0;
   for (const auto& ee : endeffectors_.ToImpl()) {
     int n = ee.GetOptVarCount();
-    x.middleRows(row, n) = ee.GetOptimizationParameters();
+    x.middleRows(row, n) = ee.GetVariables();
     row += n;
   }
 
@@ -84,29 +83,15 @@ EndeffectorsMotion::GetOptimizationParameters () const
 
 // must be analog to the above
 void
-EndeffectorsMotion::SetOptimizationParameters (const VectorXd& x)
+EndeffectorsMotion::SetVariables (const VectorXd& x)
 {
   int row = 0;
 
   for (auto ee : endeffectors_.GetEEsOrdered()) {
     int n = endeffectors_.At(ee).GetOptVarCount();
-    endeffectors_.At(ee).SetOptimizationParameters(x.middleRows(row, n));
+    endeffectors_.At(ee).SetVariables(x.middleRows(row, n));
     row += n;
   }
-}
-
-int
-EndeffectorsMotion::Index (EndeffectorID ee, int id, d2::Coords dimension) const
-{
-  int idx = 0;
-  for (const auto& ee_motion : endeffectors_.ToImpl()) {
-    if (ee_motion.GetEE() == ee)
-      return idx + ee_motion.Index(id, dimension);
-
-    idx += ee_motion.GetOptVarCount();
-  }
-
-  assert(false); // _ee does not exist
 }
 
 double
@@ -121,71 +106,36 @@ EndeffectorsMotion::GetNumberOfEndeffectors () const
   return endeffectors_.GetCount();
 }
 
-EndeffectorsMotion::EEVec
-EndeffectorsMotion::GetStanceLegs (const EEVec& swinglegs) const
+JacobianRow
+EndeffectorsMotion::GetJacobianWrtOptParams (double t_global,
+                                             EndeffectorID ee,
+                                             d2::Coords dim) const
 {
-  EEVec stance_legs;
-  for (auto ee : endeffectors_.GetEEsOrdered())
-    if (!Contains(swinglegs, ee)) // endeffector currently in stance phase
-      stance_legs.push_back(ee);
+  JacobianRow jac_row(GetOptVarCount());
+  JacobianRow jac_ee = endeffectors_.At(ee).GetJacobianPos(t_global, dim);
 
-  return stance_legs;
+  // insert single ee-Jacobian into Jacobian representing all endeffectors
+  for (JacobianRow::InnerIterator it(jac_ee); it; ++it)
+    jac_row.coeffRef(IndexStart(ee)+it.col()) = it.value();
+
+  return jac_row;
 }
 
-void
-EndeffectorsMotion::SetPhaseSequence (const PhaseVec& phases)
+int
+EndeffectorsMotion::IndexStart (EndeffectorID ee) const
 {
-  Vector3d start = Vector3d::Zero(); // initialized with this value
+  int idx = 0;
 
-  Endeffectors<double> durations(GetNumberOfEndeffectors());
-  durations.SetAll(0.0);
+  for (int e=E0; e<ee; ++e)
+    idx += endeffectors_.At(static_cast<EndeffectorID>(e)).GetOptVarCount();
 
-
-  for (int i=0; i<phases.size()-1; ++i) {
-
-    EEVec swinglegs       = phases.at(i).first;
-    EEVec next_swinglegs  = phases.at(i+1).first;
-    double phase_duration = phases.at(i).second;
-
-    // stance phases
-    for (auto ee : GetStanceLegs(swinglegs)) {
-      durations.At(ee) += phase_duration;
-      if(Contains(next_swinglegs,ee)) {  // leg swingwing in next phase
-        endeffectors_.At(ee).AddStancePhase(durations.At(ee));
-        durations.At(ee) = 0.0; // reset
-      }
-    }
-
-    // swing phases
-    for (auto ee : swinglegs) {
-      durations.At(ee) += phase_duration;
-      if(!Contains(next_swinglegs, ee)) {  //next swinglegs do not contain endeffector
-        endeffectors_.At(ee).AddSwingPhase(durations.At(ee), start);
-        durations.At(ee) = 0.0; // reset
-      }
-    }
-  }
-
-  // last phase always must be added
-  EEVec swinglegs = phases.back().first;
-  double T        = phases.back().second;
-  for (auto ee : swinglegs)
-    endeffectors_.At(ee).AddSwingPhase(durations.At(ee) + T, start);
-  for (auto ee : GetStanceLegs(swinglegs))
-    endeffectors_.At(ee).AddStancePhase(durations.At(ee)+T);
-
-  // count number of optimization variables
-  n_opt_params_ = 0;
-  for (const auto& ee : endeffectors_.ToImpl()) {
-    n_opt_params_ += ee.GetOptVarCount();
-  }
-
+  return idx;
 }
 
-bool
-EndeffectorsMotion::Contains (const EEVec& v, EndeffectorID ee) const
+EndeffectorsMotion::EEState::Container
+EndeffectorsMotion::GetEndeffectorsVec (double t_global) const
 {
-  return std::find(v.begin(), v.end(), ee) != v.end();
+  return GetEndeffectors(t_global).ToImpl();
 }
 
 } /* namespace opt */

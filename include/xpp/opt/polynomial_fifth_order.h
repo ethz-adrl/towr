@@ -8,8 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_UTILS_POLYNOMIAL_FIFTH_ORDER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_UTILS_POLYNOMIAL_FIFTH_ORDER_H_
 
-#include <xpp/cartesian_declarations.h>
+#include <cstdlib>
 #include <Eigen/Dense>
+
+#include <xpp/cartesian_declarations.h>
 
 namespace xpp {
 namespace opt {

@@ -5,22 +5,28 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/endeffector_load.h>
+#include <xpp/opt/variables/endeffector_load.h>
+
+#include <cmath>
+#include <vector>
+
+#include <xpp/bound.h>
 
 namespace xpp {
 namespace opt {
 
-EndeffectorLoad::EndeffectorLoad (const EndeffectorsMotion ee_motion,
-                                  double dt, double T)
-    : Parametrization("convexity_lambdas")
+EndeffectorLoad::EndeffectorLoad (int num_ee, double dt, double T)
+    : OptimizationVariables("endeffector_load")
 {
   dt_ = dt;
   T_ = T;
-  n_ee_ = ee_motion.GetNumberOfEndeffectors();
+  n_ee_ = num_ee;
   int idx_segment = GetSegment(T);
   num_segments_ = idx_segment + 1;
   int num_parameters = n_ee_ * num_segments_;
   lambdas_ = VectorXd::Zero(num_parameters);
+
+  SetAllBounds(Bound(0.0, 1.0));
 }
 
 EndeffectorLoad::~EndeffectorLoad ()
@@ -28,13 +34,13 @@ EndeffectorLoad::~EndeffectorLoad ()
 }
 
 void
-EndeffectorLoad::SetOptimizationParameters (const VectorXd& x)
+EndeffectorLoad::SetVariables (const VectorXd& x)
 {
   lambdas_ = x;
 }
 
 EndeffectorLoad::VectorXd
-EndeffectorLoad::GetOptimizationParameters () const
+EndeffectorLoad::GetVariables () const
 {
   return lambdas_;
 }

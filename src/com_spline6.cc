@@ -7,6 +7,12 @@
 
 #include <xpp/opt/com_spline6.h>
 
+#include <cmath>
+#include <stddef.h>
+#include <Eigen/Sparse>
+
+#include <xpp/opt/polynomial.h>
+
 namespace xpp {
 namespace opt {
 
@@ -18,12 +24,6 @@ ComSpline6::ComSpline6 ()
 ComSpline6::~ComSpline6 ()
 {
   // TODO Auto-generated destructor stub
-}
-
-ComSpline6::PtrClone
-ComSpline6::clone () const
-{
-  return PtrClone(new ComSpline6(*this));
 }
 
 ComSpline6::Derivatives

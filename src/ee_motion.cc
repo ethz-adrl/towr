@@ -5,12 +5,18 @@
  @brief   Defines the EEMotion class.
  */
 
-#include <xpp/opt/ee_motion.h>
+#include <xpp/opt/variables/ee_motion.h>
+
+#include <cassert>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/opt/polynomial.h>
 
 namespace xpp {
 namespace opt {
 
-EEMotion::EEMotion () : Parametrization("ee_motion_single")
+EEMotion::EEMotion () : OptimizationVariables("ee_motion_single")
 {
 }
 
@@ -21,53 +27,35 @@ EEMotion::~EEMotion ()
 void
 EEMotion::SetInitialPos (const Vector3d& pos, EndeffectorID ee)
 {
-  ee_ = ee;
-  contacts_.push_front(Contact(0, ee_, pos));
-  UpdateSwingMotions();
+  first_contact_ = Contact(0, ee, pos);
 }
 
 void
-EEMotion::AddStancePhase (double t)
+EEMotion::AddPhase (double t, double lift_height, bool is_contact)
 {
-  AddPhase(t, contacts_.back().p, 0.0); // stay at same position and don't lift leg
-  is_contact_phase_.push_back(true);
-}
+  Contact c_prev = GetLastContact();
+  Contact c_goal = c_prev;
 
-void
-EEMotion::AddSwingPhase (double t, const Vector3d& goal)
-{
-  AddPhase(t, goal);
-  Contact c(contacts_.back().id +1 , ee_, goal);
-  contacts_.push_back(c);
-  is_contact_phase_.push_back(false);
-}
+  // endeffector is only allowed to move during swing phase, so new ID.
+  if (!is_contact)
+    c_goal.id++;
 
-void
-EEMotion::AddPhase (double t, const Vector3d& goal, double lift_height)
-{
-  assert(!contacts_.empty()); // SetInitialPos() must be called before
-
-  EESwingMotion motion;
-  motion.Init(t, lift_height, contacts_.back().p, goal);
+  EEPhaseMotion motion;
+  motion.Init(t, lift_height, c_prev.p, c_goal.p);
   phase_motion_.push_back(motion);
+
+  PhaseContacts phase{c_prev, c_goal};
+  phase_contacts_.push_back(phase);
 }
 
 StateLin3d
 EEMotion::GetState (double t_global) const
 {
-  int phase = GetPhase(t_global);
-  double t_local = t_global;
-  for (int i=0; i<phase; ++i)
-    t_local -= phase_motion_.at(i).GetDuration();
+  int phase      = GetPhase(t_global);
+  double t_local = GetLocalTime(t_global, phase);
 
   return phase_motion_.at(phase).GetState(t_local);
 }
-
-//EEMotion::JacobianRow
-//EEMotion::GetJacobianPos (double t, d2::Coords dimension) const
-//{
-//  assert(false); // implement
-//}
 
 int
 EEMotion::GetPhase (double t_global) const
@@ -83,56 +71,61 @@ EEMotion::GetPhase (double t_global) const
   assert(false); // t_global is longer than trajectory lasts
 }
 
-bool
-EEMotion::IsInContact (double t_global) const
-{
-  int phase = GetPhase(t_global);
-  return is_contact_phase_.at(phase);
-}
-
-EEMotion::ContactPositions
-EEMotion::GetContact (double t) const
-{
-  ContactPositions contact;
-  if (IsInContact(t)) {
-
-    // add up all swing phases until then
-    int previous_swing_phases = 0;
-    for (int p=0; p<GetPhase(t); ++p)
-      previous_swing_phases += !is_contact_phase_.at(p);
-
-    contact.push_back(contacts_.at(previous_swing_phases));
-  }
-
-  return contact;
-}
-
-EndeffectorID
-EEMotion::GetEE () const
-{
-  return ee_;
-}
-
 VectorXd
-EEMotion::GetOptimizationParameters () const
+EEMotion::GetVariables () const
 {
-  // only optimize over contact xy positions for now
-  VectorXd x(contacts_.size()*kDim2d);
-  for (const auto& c: contacts_)
-    for (auto dim : d2::AllDimensions)
-      x(Index(c.id,dim)) = c.p(dim);
+  // Attention: remember to adapt GetJacobianPos() contact-phase part and Index()
+  // when changing this...sorry.
+  int id_prev = -1;
+  int n_contact_ids = 1 + GetLastContact().id;
+
+  VectorXd x(n_contact_ids*kDim2d); // initial position plus goal steps-xy
+
+  for (const PhaseContacts& contacts: phase_contacts_) {
+    for (const Contact& c : contacts) { // only optimize over position at end of phase
+      if (c.id != id_prev) {
+        for (auto dim : d2::AllDimensions) {
+          x(Index(c.id,dim)) = c.p(dim);
+        }
+      }
+      id_prev = c.id;
+    }
+  }
 
   return x;
 }
 
 void
-EEMotion::SetOptimizationParameters (const VectorXd& x)
+EEMotion::SetVariables (const VectorXd& x)
 {
-  for (auto& c: contacts_)
-    for (auto dim : d2::AllDimensions)
-      c.p(dim) = x(Index(c.id,dim));
+  for (PhaseContacts& phase: phase_contacts_)
+    for (Contact& c : phase)
+      for (auto dim : d2::AllDimensions)
+        c.p(dim) = x(Index(c.id,dim));
 
   UpdateSwingMotions();
+}
+
+JacobianRow
+EEMotion::GetJacobianPos (double t_global, d2::Coords dim) const
+{
+  JacobianRow jac(GetOptVarCount());
+
+  // figure out which contacts affect the motion
+  int phase      = GetPhase(t_global);
+  double t_local = GetLocalTime(t_global, phase);
+
+  // same id for stance phase
+  int idx_start = Index(phase_contacts_.at(phase).front().id, dim);
+  int idx_goal  = Index(phase_contacts_.at(phase).back().id, dim);
+
+  jac.insert(idx_start) = phase_motion_.at(phase).GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Start);
+  jac.insert(idx_goal)  = phase_motion_.at(phase).GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Goal);
+
+  if (idx_start == idx_goal)// in contact phase // zmp_ ugly
+    jac.insert(idx_start) = 1.0;
+
+  return jac;
 }
 
 int
@@ -144,35 +137,39 @@ EEMotion::Index (int id, d2::Coords dimension) const
 void
 EEMotion::UpdateSwingMotions ()
 {
-  int k=0; // contact
-  int i=0; // phase
-
-  for (auto& p : phase_motion_) {
-    if (is_contact_phase_.at(i++))
-      p.SetContacts(contacts_.at(k).p, contacts_.at(k).p);
-    else {
-      p.SetContacts(contacts_.at(k).p, contacts_.at(k+1).p);
-      k++;
-    }
+  int phase = 0;
+  for (auto& motion : phase_motion_) {
+    auto contacts = phase_contacts_.at(phase);
+    motion.SetContacts(contacts.front().p, contacts.back().p);
+    phase++;
   }
-}
-
-// zmp_ possibly don't need this either
-EEMotion::ContactPositions
-EEMotion::GetContacts () const
-{
-  return contacts_;
 }
 
 double
 EEMotion::GetTotalTime () const
 {
   double T = 0.0;
-  for (auto p : phase_motion_) {
+  for (auto p : phase_motion_)
     T += p.GetDuration();
-  }
 
   return T;
+}
+
+double
+EEMotion::GetLocalTime (double t_global, int phase) const
+{
+  double t_local = t_global;
+  for (int i=0; i<phase; ++i)
+    t_local -= phase_motion_.at(i).GetDuration();
+
+  return t_local;
+}
+
+Contact
+EEMotion::GetLastContact() const
+{
+  bool first_phase = phase_contacts_.empty();
+  return first_phase? first_contact_ : phase_contacts_.back().back();
 }
 
 } /* namespace opt */

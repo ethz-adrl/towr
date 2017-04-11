@@ -8,26 +8,30 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTOR_LOAD_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTOR_LOAD_H_
 
-#include <xpp/opt/endeffectors_motion.h>
-#include <xpp/parametrization.h>
+#include <Eigen/Dense>
+
+#include <xpp/endeffectors.h>
+
+#include <xpp/optimization_variables.h>
 
 namespace xpp {
 namespace opt {
 
-/** Parametrizes the load/force each endeffector is holding during the motion.
+/** Parameterizes the load/force each endeffector is holding during the motion.
   *
   * The are the lambda values in the paper.
   */
-class EndeffectorLoad : public Parametrization {
+class EndeffectorLoad : public OptimizationVariables {
 public:
-  using VectorXd = Eigen::VectorXd;
-  using LoadParams = Endeffectors<double>;//std::vector<double>;
+  using VectorXd   = Eigen::VectorXd;
+  using LoadParams = Endeffectors<double>;
 
-  EndeffectorLoad (const EndeffectorsMotion ee_motion, double dt, double T);
+  EndeffectorLoad (int num_ee, double dt, double T);
   virtual ~EndeffectorLoad ();
 
-  void SetOptimizationParameters(const VectorXd& x) override;
-  VectorXd GetOptimizationParameters() const override;
+  void SetVariables(const VectorXd& x) override;
+  VectorXd GetVariables() const override;
+
   /** @param k the number of discretized node with lambda parameters.
     * @param ee which endeffector we are interested in.
     * @returns the index in the optimization vector where this value is stored
@@ -42,7 +46,6 @@ public:
 
   /** Global time at beginning and end of segment */
   double GetTimeCenterSegment(int segment_id) const;
-//  double GetTEnd(int segment_id) const;
 
 private:
   int n_ee_; ///< number of endeffectors

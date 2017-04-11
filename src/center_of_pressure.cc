@@ -5,15 +5,15 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/center_of_pressure.h>
-#include <xpp/cartesian_declarations.h>
-#include <iostream>
+#include <xpp/opt/variables/center_of_pressure.h>
+
+#include <cmath>
 
 namespace xpp {
 namespace opt {
 
 CenterOfPressure::CenterOfPressure (double dt, double T)
-    : Parametrization("center_of_pressure")
+    : OptimizationVariables("center_of_pressure")
 {
   dt_ = dt;
   int idx = GetSegment(T);
@@ -44,13 +44,13 @@ CenterOfPressure::Index (double t, d2::Coords dimension) const
 }
 
 void
-CenterOfPressure::SetOptimizationParameters (const VectorXd& x)
+CenterOfPressure::SetVariables (const VectorXd& x)
 {
   cop_ = x;
 }
 
 CenterOfPressure::VectorXd
-CenterOfPressure::GetOptimizationParameters () const
+CenterOfPressure::GetVariables () const
 {
   return cop_;
 }

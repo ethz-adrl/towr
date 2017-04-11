@@ -7,20 +7,27 @@
 
 #include <xpp/opt/constraints/contact_load_constraint.h>
 
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/bound.h>
+#include <xpp/opt/variables/contact_schedule.h>
+#include <xpp/opt/variables/endeffector_load.h>
+
 namespace xpp {
 namespace opt {
 
-ContactLoadConstraint::ContactLoadConstraint (const EEMotionPtr& ee_motion,
-                                              const EELoadPtr& ee_load)
+ContactLoadConstraint::ContactLoadConstraint (const OptVarsPtr& opt_vars)
 {
+  contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetSet("contact_schedule"));
+  ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
-  int num_constraints = ee_load->GetOptVarCount();
-  SetDependentVariables({ee_motion, ee_load}, num_constraints);
+  int num_constraints = ee_load_->GetOptVarCount();
+  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
 
-  ee_motion_ = ee_motion;
-  ee_load_ = ee_load;
+  ee_ids_  = contact_schedule_->IsInContact(0.0).GetEEsOrdered();
 
-  GetJacobianRefWithRespectTo(ee_load_->GetID()).setIdentity();
+  GetJacobianRefWithRespectTo(ee_load_->GetId()).setIdentity();
 }
 
 ContactLoadConstraint::~ContactLoadConstraint ()
@@ -30,7 +37,7 @@ ContactLoadConstraint::~ContactLoadConstraint ()
 void
 ContactLoadConstraint::UpdateConstraintValues ()
 {
-  g_ = ee_load_->GetOptimizationParameters();
+  g_ = ee_load_->GetVariables();
 }
 
 void
@@ -43,11 +50,11 @@ ContactLoadConstraint::UpdateBounds ()
   // inverval.
   for (int segment=0; segment<ee_load_->GetNumberOfSegments(); ++segment) {
     double t_center = ee_load_->GetTimeCenterSegment(segment);
-    auto contacts_center = ee_motion_->GetContactState(t_center);
+    EndeffectorsBool contacts_center = contact_schedule_->IsInContact(t_center);
 
-    for (auto ee : contacts_center.GetEEsOrdered()) {
-      auto contact = static_cast<double>(contacts_center.At(ee));
-      bounds_.at(contacts_center.GetCount()*segment+ee) = Bound(0.0, contact);
+    for (auto ee : ee_ids_) {
+      double bound = contacts_center.At(ee)? 1.0 : 0.0;
+      bounds_.at(ee_ids_.size()*segment+ee) = Bound(0.0, bound);
     }
   }
 }

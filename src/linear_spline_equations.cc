@@ -6,30 +6,28 @@
  */
 
 #include <xpp/opt/linear_spline_equations.h>
+
+#include <cassert>
+
+#include <xpp/opt/com_polynomial_helpers.h>
 #include <xpp/opt/com_spline.h>
+#include <xpp/opt/polynomial_xd.h>
 
 namespace xpp {
 namespace opt {
 
-LinearSplineEquations::LinearSplineEquations (const BaseMotion& com_motion )
+LinearSplineEquations::LinearSplineEquations ()
 {
-  // cast com motion to spline, because i need some specific features of that
-  auto base_ptr = com_motion.clone();
+}
 
-  ComSpline *tmp = dynamic_cast<ComSpline*>(base_ptr.get());
-
-  if(tmp != nullptr)
-  {
-    base_ptr.release();
-    com_spline_.reset(tmp);
-  }
-
+LinearSplineEquations::LinearSplineEquations (const ComSplinePtr& com_spline )
+{
+  com_spline_ = com_spline;           //std::dynamic_pointer_cast<ComSpline>(com_motion);
   com_spline_->SetCoefficientsZero(); // the values my motion function approximation is around
 }
 
 LinearSplineEquations::~LinearSplineEquations ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 MatVec
@@ -186,4 +184,3 @@ LinearSplineEquations::MakeJerk (const ValXY& weight) const
 
 } /* namespace opt */
 } /* namespace xpp */
-

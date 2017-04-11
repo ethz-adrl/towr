@@ -8,21 +8,25 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
 
-#include <xpp/constraint.h>
-#include <xpp/opt/endeffector_load.h>
-#include <xpp/opt/endeffectors_motion.h>
+#include <memory>
+#include <vector>
 
+#include <xpp/endeffectors.h>
+
+#include <xpp/constraint.h>
 
 namespace xpp {
 namespace opt {
 
+class EndeffectorLoad;
+class ContactSchedule;
+
 class ContactLoadConstraint : public Constraint {
 public:
-  using EELoadPtr   = std::shared_ptr<EndeffectorLoad>;
-  using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
+  using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
+  using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
 
-  ContactLoadConstraint (const EEMotionPtr& ee_motion,
-                         const EELoadPtr& ee_load);
+  ContactLoadConstraint (const OptVarsPtr& opt_vars_container);
   virtual ~ContactLoadConstraint ();
 
   void UpdateConstraintValues () override;
@@ -30,7 +34,8 @@ public:
 
 private:
   EELoadPtr ee_load_;
-  EEMotionPtr ee_motion_;
+  ContactSchedulePtr contact_schedule_;
+  std::vector<EndeffectorID> ee_ids_;
 };
 
 } /* namespace opt */

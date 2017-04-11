@@ -8,12 +8,15 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 
-#include <xpp/matrix_vector.h>
-#include <xpp/state.h>
-#include <xpp/parametrization.h>
-
+#include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <memory>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/state.h>
+
+#include <xpp/matrix_vector.h>
+#include <xpp/optimization_variables.h>
 
 namespace xpp {
 namespace opt {
@@ -24,7 +27,7 @@ namespace opt {
   * the motion of a system. Specific parametrizations can for example use
   * splines or solutions of the Equation of Motion as representation.
   */
-class BaseMotion : public Parametrization {
+class BaseMotion : public OptimizationVariables {
 public:
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
   using PtrS        = std::shared_ptr<BaseMotion>;
@@ -34,8 +37,8 @@ public:
   virtual ~BaseMotion ();
 
 
-  VectorXd GetOptimizationParameters() const override;
-  void SetOptimizationParameters(const VectorXd&) override;
+  VectorXd GetVariables() const override;
+  void SetVariables(const VectorXd&) override;
 
 
   void SetOffsetGeomToCom(const Vector3d& offset);
@@ -63,10 +66,6 @@ public:
     */
   VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative,
                                                      Coords3D dim) const;
-
-  /** @brief Copies the derived class in the heap and returns a pointer to it.
-    */
-  virtual PtrU clone() const = 0;
 
   double GetZHeight() const { return z_height_; };
   void SetConstantHeight(double z) { z_height_ = z; };

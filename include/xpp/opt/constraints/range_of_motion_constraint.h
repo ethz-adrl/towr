@@ -8,14 +8,18 @@
 #ifndef XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include <xpp/opt/endeffectors_motion.h>
-#include <xpp/time_discretization_constraint.h>
+#include <array>
 #include <memory>
+
+#include <xpp/endeffectors.h>
+
+#include <xpp/time_discretization_constraint.h>
 
 namespace xpp {
 namespace opt {
 
 class BaseMotion;
+class EndeffectorsMotion;
 
 /** @brief Constrains the contact to lie in a box around the nominal stance
   *
@@ -33,18 +37,18 @@ public:
   using ComMotionPtr  = std::shared_ptr<BaseMotion>;
   using EEMotionPtr    = std::shared_ptr<EndeffectorsMotion>;
   using MaxDevXY       = std::array<double,2>;
-  using NominalStance  = EEXppPos;
+  using NominalStance  = EndeffectorsPos;
 
   /**
    * @param dt discretization interval [s] when to check this constraint.
    * @param deviation_xy allowed endeffector deviation from the default (x,y).
    * @param nom nominal endeffector position in base frame.
    */
-  RangeOfMotionBox(const ComMotionPtr& com_motion,
-                   const EEMotionPtr& ee_motion,
+  RangeOfMotionBox(const OptVarsPtr& opt_vars_container,
                    double dt,
                    const MaxDevXY& deviation_xy,
-                   const NominalStance& nom);
+                   const NominalStance& nom,
+                   double T);
   virtual ~RangeOfMotionBox();
 
 private:
