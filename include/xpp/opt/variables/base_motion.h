@@ -8,11 +8,11 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_
 
+#include <xpp/optimization_variables.h>
 #include <xpp/matrix_vector.h>
 #include <xpp/state.h>
 #include <Eigen/Sparse>
 #include <memory>
-#include "../optimization_variables.h"
 
 namespace xpp {
 namespace opt {

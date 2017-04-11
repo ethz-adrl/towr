@@ -5,18 +5,17 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/endeffector_load.h>
+#include <xpp/opt/variables/endeffector_load.h>
 
 namespace xpp {
 namespace opt {
 
-EndeffectorLoad::EndeffectorLoad (const EndeffectorsMotion ee_motion,
-                                  double dt, double T)
+EndeffectorLoad::EndeffectorLoad (int num_ee, double dt, double T)
     : OptimizationVariables("endeffector_load")
 {
   dt_ = dt;
   T_ = T;
-  n_ee_ = ee_motion.GetNumberOfEndeffectors();
+  n_ee_ = num_ee;
   int idx_segment = GetSegment(T);
   num_segments_ = idx_segment + 1;
   int num_parameters = n_ee_ * num_segments_;

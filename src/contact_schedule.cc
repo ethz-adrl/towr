@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include "../include/xpp/opt/contact_schedule.h"
+#include <xpp/opt/variables/contact_schedule.h>
 
 namespace xpp {
 namespace opt {

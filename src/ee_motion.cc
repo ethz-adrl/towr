@@ -5,7 +5,7 @@
  @brief   Defines the EEMotion class.
  */
 
-#include <xpp/opt/ee_motion.h>
+#include <xpp/opt/variables/ee_motion.h>
 
 namespace xpp {
 namespace opt {

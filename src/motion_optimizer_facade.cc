@@ -6,20 +6,20 @@
  */
 
 #include <xpp/opt/motion_optimizer_facade.h>
-#include <xpp/opt/endeffectors_motion.h>
-#include <xpp/opt/endeffector_load.h>
-#include <xpp/opt/center_of_pressure.h>
-#include <xpp/opt/contact_schedule.h>
+
 #include <xpp/opt/motion_factory.h>
-#include <xpp/opt/base_motion.h>
 #include <xpp/optimization_variables_container.h>
-
-
 #include <xpp/opt/cost_constraint_factory.h>
+
+#include <xpp/opt/variables/endeffectors_motion.h>
+#include <xpp/opt/variables/endeffector_load.h>
+#include <xpp/opt/variables/center_of_pressure.h>
+#include <xpp/opt/variables/contact_schedule.h>
+#include <xpp/opt/variables/base_motion.h>
+#include <xpp/opt/com_spline6.h>
 
 #include <xpp/ipopt_adapter.h>
 #include <xpp/snopt_adapter.h>
-
 
 namespace xpp {
 namespace opt {
@@ -58,14 +58,15 @@ MotionOptimizerFacade::BuildVariables ()
   double T = motion_parameters_->GetTotalTime();
   double com_height = motion_parameters_->geom_walking_height_
                     + motion_parameters_->offset_geom_to_com_.z();
-  auto com_motion = MotionFactory::CreateComMotion(T,
-                                                   motion_parameters_->polynomials_per_second_,
-                                                   com_height);
+
+  auto com_motion = std::make_shared<ComSpline6>();
+  com_motion->SetConstantHeight(com_height);
+  com_motion->Init(T, motion_parameters_->polynomials_per_second_);
+
   com_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
-
   double parameter_dt = motion_parameters_->dt_nodes_;
-  auto load = std::make_shared<EndeffectorLoad>(*ee_motion, parameter_dt, T);
+  auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(), parameter_dt, T);
   auto cop  = std::make_shared<CenterOfPressure>(parameter_dt,T);
 
   opt_variables_->ClearVariables();

@@ -8,8 +8,8 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTORS_MOTION_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTORS_MOTION_H_
 
-#include <xpp/opt/ee_motion.h>
-#include <xpp/opt/contact_schedule.h>
+#include <xpp/opt/variables/ee_motion.h>
+#include <xpp/opt/variables/contact_schedule.h>
 
 namespace xpp {
 namespace opt {
@@ -24,8 +24,7 @@ public:
   using EEState  = Endeffectors<StateLin3d>;
   using VectorXd = Eigen::VectorXd;
 
-  EndeffectorsMotion (const EndeffectorsPos& initial_pos,
-                      const ContactSchedule&);
+  EndeffectorsMotion (const EndeffectorsPos& initial_pos, const ContactSchedule&);
   virtual ~EndeffectorsMotion ();
 
   VectorXd GetVariables() const override;

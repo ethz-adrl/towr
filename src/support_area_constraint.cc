@@ -6,9 +6,9 @@
  */
 
 #include <xpp/opt/constraints/support_area_constraint.h>
-#include <xpp/opt/endeffectors_motion.h>
-#include <xpp/opt/endeffector_load.h>
-#include <xpp/opt/center_of_pressure.h>
+#include <xpp/opt/variables/endeffectors_motion.h>
+#include <xpp/opt/variables/endeffector_load.h>
+#include <xpp/opt/variables/center_of_pressure.h>
 
 namespace xpp {
 namespace opt {

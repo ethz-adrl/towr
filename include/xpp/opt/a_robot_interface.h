@@ -21,6 +21,7 @@ namespace opt {
   * To use a specific robot, derive from this class and pass that object to
   * the required costs/constraints.
   */
+// zmp_ remove this
 class ARobotInterface {
 public:
   using PosXY    = Eigen::Vector2d;

@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/endeffectors_motion.h>
+#include <xpp/opt/variables/endeffectors_motion.h>
 
 namespace xpp {
 namespace opt {

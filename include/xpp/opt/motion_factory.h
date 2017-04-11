@@ -10,7 +10,7 @@
 
 #include <Eigen/Dense>
 #include <memory>
-#include "base_motion.h"
+#include <xpp/opt/variables/base_motion.h>
 
 namespace xpp {
 namespace opt {
@@ -23,6 +23,8 @@ class BaseMotion;
   * exposes a general interface (loose coupling). This class implements the
   * Factory Method.
   */
+
+// zmp_ remove this class
 class MotionFactory {
 public:
   using ComMotionPtrS = std::shared_ptr<BaseMotion>;

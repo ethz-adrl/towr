@@ -8,8 +8,8 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTOR_LOAD_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTOR_LOAD_H_
 
-#include <xpp/opt/endeffectors_motion.h>
-#include "../optimization_variables.h"
+#include <xpp/endeffectors.h>
+#include <xpp/optimization_variables.h>
 
 namespace xpp {
 namespace opt {
@@ -20,10 +20,10 @@ namespace opt {
   */
 class EndeffectorLoad : public OptimizationVariables {
 public:
-  using VectorXd = Eigen::VectorXd;
-  using LoadParams = Endeffectors<double>;//std::vector<double>;
+  using VectorXd   = Eigen::VectorXd;
+  using LoadParams = Endeffectors<double>;
 
-  EndeffectorLoad (const EndeffectorsMotion ee_motion, double dt, double T);
+  EndeffectorLoad (int num_ee, double dt, double T);
   virtual ~EndeffectorLoad ();
 
   void SetVariables(const VectorXd& x) override;
@@ -43,7 +43,6 @@ public:
 
   /** Global time at beginning and end of segment */
   double GetTimeCenterSegment(int segment_id) const;
-//  double GetTEnd(int segment_id) const;
 
 private:
   int n_ee_; ///< number of endeffectors

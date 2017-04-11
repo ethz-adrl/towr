@@ -8,11 +8,11 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_MOTION_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_MOTION_H_
 
+#include <xpp/optimization_variables.h>
 #include <xpp/contact.h>
 #include <xpp/opt/ee_phase_motion.h>
 
 #include <deque>
-#include "../optimization_variables.h"
 
 namespace xpp {
 namespace opt {

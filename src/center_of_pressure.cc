@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/center_of_pressure.h>
+#include <xpp/opt/variables/center_of_pressure.h>
 #include <xpp/cartesian_declarations.h>
 #include <iostream>
 

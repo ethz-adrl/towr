@@ -6,8 +6,8 @@
  */
 
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
-#include <xpp/opt/endeffectors_motion.h>
-#include <xpp/opt/base_motion.h>
+#include <xpp/opt/variables/endeffectors_motion.h>
+#include <xpp/opt/variables/base_motion.h>
 
 namespace xpp {
 namespace opt {

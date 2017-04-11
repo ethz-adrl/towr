@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/contact_schedule.h>
+#include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/quadruped_motion_parameters.h>
 #include <gtest/gtest.h>
 

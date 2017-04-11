@@ -10,7 +10,7 @@
 
 #include <memory>
 
-#include "base_motion.h"
+#include <xpp/opt/variables/base_motion.h>
 #include "com_polynomial_helpers.h"
 
 namespace xpp {

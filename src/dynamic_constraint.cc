@@ -6,8 +6,8 @@
  */
 
 #include <xpp/opt/constraints/dynamic_constraint.h>
-#include <xpp/opt/base_motion.h>
-#include <xpp/opt/center_of_pressure.h>
+#include <xpp/opt/variables/base_motion.h>
+#include <xpp/opt/variables/center_of_pressure.h>
 
 namespace xpp {
 namespace opt {

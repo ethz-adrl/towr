@@ -63,7 +63,6 @@ public:
   void AddConstraint(ConstraitPtrVec constraints);
 
 private:
-  // zmp_ make actual classes, ownership, composition.
   OptimizationVariablesPtr opt_variables_;
   CostContainer costs_;
   ConstraintContainer constraints_;

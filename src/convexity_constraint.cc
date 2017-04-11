@@ -6,7 +6,7 @@
  */
 
 #include <xpp/opt/constraints/convexity_constraint.h>
-#include <xpp/opt/endeffector_load.h>
+#include <xpp/opt/variables/endeffector_load.h>
 
 namespace xpp {
 namespace opt {

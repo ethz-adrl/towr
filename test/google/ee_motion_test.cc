@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/ee_motion.h>
-#include <xpp/opt/endeffectors_motion.h>
+#include <xpp/opt/variables/ee_motion.h>
+#include <xpp/opt/variables/endeffectors_motion.h>
 #include <xpp/opt/quadruped_motion_parameters.h>
 
 #include <gtest/gtest.h>
