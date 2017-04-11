@@ -8,12 +8,14 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
 
-#include <xpp/opt/nlp_facade.h>
+#include <xpp/nlp.h>
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/opt/motion_parameters.h>
 
 namespace xpp {
 namespace opt {
+
+enum NlpSolver { Ipopt, Snopt };
 
 /** Simplified interface to the complete motion optimization framework
   *
@@ -25,6 +27,11 @@ public:
   using RobotStateVec            = std::vector<RobotStateCartesian>;
   using MotionParametersPtr      = std::shared_ptr<MotionParameters>;
   using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
+
+  using CostContainerPtr         = std::shared_ptr<CostContainer>;
+  using ConstraintContainerPtr   = std::shared_ptr<ConstraintContainer>;
+  using NLPPtr                   = std::shared_ptr<NLP>;
+
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
@@ -41,9 +48,19 @@ public:
   void BuildDefaultStartStance(const MotionParameters& params);
 
 private:
-  NlpFacade nlp_facade_;
+
+  void SolveProblem(NlpSolver solver);
+  void SolveNlp(NlpSolver solver);
+  void SolveIpopt();
+  void SolveSnopt();
+
+//  NlpFacade nlp_facade_;
   MotionParametersPtr motion_parameters_;
 
+
+  NLPPtr nlp_;
+  CostContainerPtr costs_;
+  ConstraintContainerPtr constraints_;
 };
 
 } /* namespace opt */

@@ -77,7 +77,6 @@ add_library(${MOTION_OPT_LIB}
   src/linear_inverted_pendulum.cc
   src/line_equation.cc
   src/motion_optimizer_facade.cc
-  src/nlp_facade.cc
   src/polynomial.cc
   src/polynomial_fifth_order.cc
   # com
