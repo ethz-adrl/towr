@@ -1,12 +1,12 @@
 /**
- @file    a_spline_cost.h
+ @file    polynomial_cost.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    May 30, 2016
  @brief   Declaration of ASplineCost, QuadraticSplineCost, SquaredSplineCost
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_SPLINE_COST_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_SPLINE_COST_H_
+#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
+#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 
 #include <xpp/matrix_vector.h>
 #include <xpp/cost.h>
@@ -21,13 +21,13 @@ class BaseMotion;
   * This class is responsible for getting the current value of the optimization
   * variables from the subject and calculating the scalar cost from these.
   */
-class ASplineCost : public Cost {
+class PolynomialCost : public Cost {
 public:
   using VectorXd = Eigen::VectorXd;
   using BaseMotionPtrS = std::shared_ptr<BaseMotion>;
 
-  ASplineCost (const OptVarsPtr&);
-  virtual ~ASplineCost (){};
+  PolynomialCost (const OptVarsPtr&);
+  virtual ~PolynomialCost (){};
 
   void Update() override { /*com_motion_ always up-to-date*/ };
 
@@ -36,11 +36,10 @@ protected:
   MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
 };
 
-
-class QuadraticSplineCost : public ASplineCost {
+class QuadraticPolynomialCost : public PolynomialCost {
 public:
-  QuadraticSplineCost(const OptVarsPtr&, const MatVec&);
-  virtual ~QuadraticSplineCost();
+  QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&);
+  virtual ~QuadraticPolynomialCost();
 
 private:
   /**  The cost is calculated as
@@ -64,4 +63,4 @@ private:
 } /* namespace zmp */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_A_SPLINE_COST_H_ */
+#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_ */

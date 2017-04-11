@@ -60,7 +60,6 @@ add_library(${SOLVER_LIB}
   src/constraint_container.cc
   src/cost.cc
   src/cost_container.cc
-  src/cost_function_functor.cc
   src/soft_constraint.cc
   src/time_discretization_constraint.cc
 )
@@ -79,13 +78,12 @@ add_library(${MOTION_OPT_LIB}
   src/motion_optimizer_facade.cc
   src/polynomial.cc
   src/polynomial_fifth_order.cc
-  # com
+  # base motion
   src/base_motion.cc
   src/com_polynomial_helpers.cc
   src/com_spline.cc
   src/com_spline6.cc    
   src/com_spline4.cc
-  src/motion_factory.cc
   src/linear_spline_equations.cc
   # endeffector
   src/ee_phase_motion.cc
@@ -106,9 +104,8 @@ add_library(${MOTION_OPT_LIB}
   src/contact_load_constraint.cc
   src/foothold_constraint.cc
 #  src/obstacle_constraint.cc
-  src/a_spline_cost.cc
+  src/polynomial_cost.cc
   # robot specific info
-  src/step_sequence_planner.cc
   src/motion_parameters.cc
   src/quadruped_motion_parameters.cc
 )   

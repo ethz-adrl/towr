@@ -7,7 +7,6 @@
 
 #include <xpp/opt/motion_optimizer_facade.h>
 
-#include <xpp/opt/motion_factory.h>
 #include <xpp/optimization_variables_container.h>
 #include <xpp/opt/cost_constraint_factory.h>
 

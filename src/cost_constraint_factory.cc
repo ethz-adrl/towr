@@ -7,7 +7,6 @@
 
 #include <xpp/opt/cost_constraint_factory.h>
 
-#include <xpp/opt/a_spline_cost.h>
 #include <xpp/soft_constraint.h>
 
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
@@ -20,6 +19,7 @@
 #include <xpp/opt/constraints/foothold_constraint.h>
 
 #include <xpp/opt/com_spline.h>
+#include "../include/xpp/opt/polynomial_cost.h"
 
 namespace xpp {
 namespace opt {
@@ -203,7 +203,7 @@ CostConstraintFactory::MakeMotionCost() const
   mv.M = term;
   mv.v.setZero();
 
-  return std::make_shared<QuadraticSplineCost>(opt_vars_, mv);
+  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv);
 }
 
 CostConstraintFactory::CostPtr
