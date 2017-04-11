@@ -8,9 +8,16 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
 
-#include <xpp/nlp.h>
+#include <memory>
+#include <vector>
+
 #include <xpp/robot_state_cartesian.h>
-#include <xpp/opt/motion_parameters.h>
+#include <xpp/state.h>
+
+#include <xpp/nlp.h>
+#include <xpp/optimization_variables_container.h>
+
+#include "motion_parameters.h"
 
 namespace xpp {
 namespace opt {

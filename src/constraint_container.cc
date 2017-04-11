@@ -6,7 +6,9 @@
  */
 
 #include <xpp/constraint_container.h>
+
 #include <iostream>
+#include <Eigen/Sparse>
 
 namespace xpp {
 namespace opt {

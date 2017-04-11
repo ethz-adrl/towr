@@ -6,14 +6,16 @@
  */
 
 #include <xpp/opt/polynomial_cost.h>
+
+#include <Eigen/Dense>
+
 #include <xpp/opt/variables/base_motion.h>
 
 namespace xpp {
 namespace opt {
 
 
-PolynomialCost::PolynomialCost (const OptVarsPtr& opt_vars)
-    :Cost(opt_vars)
+PolynomialCost::PolynomialCost (const OptVarsPtr& opt_vars) :Cost(opt_vars)
 {
 }
 

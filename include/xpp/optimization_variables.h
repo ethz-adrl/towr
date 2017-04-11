@@ -8,10 +8,11 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPTIMIZATION_VARIABLES_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPTIMIZATION_VARIABLES_H_
 
-#include "bound.h"
-#include <Eigen/Dense>
-#include <string>
 #include <memory>
+#include <string>
+#include <Eigen/Dense>
+
+#include "bound.h"
 
 namespace xpp {
 namespace opt {

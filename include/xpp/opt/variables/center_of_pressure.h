@@ -10,7 +10,9 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+
 #include <xpp/cartesian_declarations.h>
+
 #include <xpp/optimization_variables.h>
 
 namespace xpp {

@@ -13,6 +13,9 @@ Spliners ready to use:
 
 #include <xpp/opt/polynomial.h>
 
+#include <cassert>
+#include <cmath>
+
 namespace xpp {
 namespace opt {
 

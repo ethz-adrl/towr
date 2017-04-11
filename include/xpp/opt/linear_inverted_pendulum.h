@@ -8,9 +8,10 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_INVERTED_PENDULUM_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_INVERTED_PENDULUM_H_
 
-#include <xpp/cartesian_declarations.h>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+
+#include <xpp/cartesian_declarations.h>
 
 namespace xpp {
 namespace opt {

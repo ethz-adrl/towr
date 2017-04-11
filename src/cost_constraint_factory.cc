@@ -7,19 +7,25 @@
 
 #include <xpp/opt/cost_constraint_factory.h>
 
-#include <xpp/soft_constraint.h>
+#include <cassert>
+#include <stdexcept>
+#include <Eigen/Dense>
 
-#include <xpp/opt/constraints/range_of_motion_constraint.h>
-#include <xpp/opt/constraints/convexity_constraint.h>
-#include <xpp/opt/constraints/support_area_constraint.h>
-#include <xpp/opt/constraints/dynamic_constraint.h>
-#include <xpp/opt/constraints/polygon_center_constraint.h>
-#include <xpp/opt/constraints/contact_load_constraint.h>
-#include <xpp/opt/constraints/linear_constraint.h>
-#include <xpp/opt/constraints/foothold_constraint.h>
+#include <xpp/cartesian_declarations.h>
+#include <xpp/endeffectors.h>
 
+#include <xpp/matrix_vector.h>
 #include <xpp/opt/com_spline.h>
-#include "../include/xpp/opt/polynomial_cost.h"
+#include <xpp/opt/polynomial_cost.h>
+#include <xpp/soft_constraint.h>
+#include <xpp/opt/constraints/contact_load_constraint.h>
+#include <xpp/opt/constraints/convexity_constraint.h>
+#include <xpp/opt/constraints/dynamic_constraint.h>
+#include <xpp/opt/constraints/foothold_constraint.h>
+#include <xpp/opt/constraints/linear_constraint.h>
+#include <xpp/opt/constraints/polygon_center_constraint.h>
+#include <xpp/opt/constraints/range_of_motion_constraint.h>
+#include <xpp/opt/constraints/support_area_constraint.h>
 
 namespace xpp {
 namespace opt {

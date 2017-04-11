@@ -8,7 +8,12 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
 
+#include <Eigen/Dense>
+#include <utility>
+#include <vector>
+
 #include <xpp/endeffectors.h>
+
 #include <xpp/optimization_variables.h>
 
 namespace xpp {

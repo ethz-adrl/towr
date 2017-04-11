@@ -6,6 +6,7 @@
  */
 
 #include <xpp/opt/variables/contact_schedule.h>
+#include <cassert>
 
 namespace xpp {
 namespace opt {

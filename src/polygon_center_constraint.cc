@@ -6,8 +6,17 @@
  */
 
 #include <xpp/opt/constraints/polygon_center_constraint.h>
-#include <xpp/opt/variables/endeffector_load.h>
+
+#include <cmath>
+#include <vector>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/endeffectors.h>
+
+#include <xpp/bound.h>
 #include <xpp/opt/variables/contact_schedule.h>
+#include <xpp/opt/variables/endeffector_load.h>
 
 namespace xpp {
 namespace opt {

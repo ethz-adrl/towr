@@ -8,6 +8,8 @@
 #ifndef _XPP_ZMP_COMSPLINE6_H_
 #define _XPP_ZMP_COMSPLINE6_H_
 
+#include <vector>
+#include <xpp/cartesian_declarations.h>
 #include "com_spline.h"
 
 namespace xpp {

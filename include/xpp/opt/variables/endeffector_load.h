@@ -8,7 +8,10 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTOR_LOAD_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTOR_LOAD_H_
 
+#include <Eigen/Dense>
+
 #include <xpp/endeffectors.h>
+
 #include <xpp/optimization_variables.h>
 
 namespace xpp {

@@ -5,13 +5,20 @@
  @brief   Brief description
  */
 
-#include <xpp/endeffectors4.h>
 #include <xpp/opt/quadruped_motion_parameters.h>
+
+#include <initializer_list>
+#include <map>
+#include <memory>
+#include <stdexcept>
+#include <vector>
+#include <Eigen/Dense>
+
+#include <xpp/endeffectors4.h>
 
 namespace xpp {
 namespace opt {
 namespace quad{
-
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {

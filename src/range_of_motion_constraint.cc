@@ -6,8 +6,17 @@
  */
 
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
-#include <xpp/opt/variables/endeffectors_motion.h>
+
+#include <string>
+#include <vector>
+#include <Eigen/Dense>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/state.h>
+
+#include <xpp/bound.h>
 #include <xpp/opt/variables/base_motion.h>
+#include <xpp/opt/variables/endeffectors_motion.h>
 
 namespace xpp {
 namespace opt {

@@ -6,6 +6,16 @@
  */
 
 #include <xpp/opt/constraints/convexity_constraint.h>
+
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/endeffectors.h>
+
+#include <xpp/bound.h>
 #include <xpp/opt/variables/endeffector_load.h>
 
 namespace xpp {

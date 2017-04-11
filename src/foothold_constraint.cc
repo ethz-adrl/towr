@@ -6,6 +6,15 @@
  */
 
 #include <xpp/opt/constraints/foothold_constraint.h>
+
+#include <string>
+#include <vector>
+#include <Eigen/Dense>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/state.h>
+
+#include <xpp/bound.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
 
 namespace xpp {

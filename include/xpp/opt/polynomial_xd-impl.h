@@ -5,7 +5,8 @@
 @brief   Creates 3 dimensional spline from start to end with duration T
  */
 
-#include <xpp/opt/polynomial_xd.h>
+#include <xpp/cartesian_declarations.h>
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {

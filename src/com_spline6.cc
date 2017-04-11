@@ -7,6 +7,12 @@
 
 #include <xpp/opt/com_spline6.h>
 
+#include <cmath>
+#include <stddef.h>
+#include <Eigen/Sparse>
+
+#include <xpp/opt/polynomial.h>
+
 namespace xpp {
 namespace opt {
 

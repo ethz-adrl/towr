@@ -8,10 +8,13 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OBSTACLE_CONSTRAINT_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_OBSTACLE_CONSTRAINT_H_
 
-#include "../constraint.h"
-#include "ellipse.h"
+#include <string>
+
 #include "eigen_std_conversions.h"
-#include "endeffectors_motion.h"
+#include <xpp/bound.h>
+#include <xpp/constraint.h>
+#include <xpp/opt/ellipse.h>
+#include <xpp/optimization_variables.h>
 
 namespace xpp {
 namespace opt {

@@ -7,7 +7,8 @@
 
 #include <xpp/opt/obstacle_constraint.h>
 #include <xpp/opt/variable_names.h>
-#include <xpp/cartesian_declarations.h> // X,Y,Z
+
+#include <xpp/bound.h>
 
 namespace xpp {
 namespace opt {

@@ -6,6 +6,7 @@
  */
 
 #include <xpp/cost_container.h>
+#include <cassert>
 
 namespace xpp {
 namespace opt {

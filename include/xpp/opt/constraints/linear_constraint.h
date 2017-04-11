@@ -8,8 +8,11 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_LINEAR_CONSTRAINT_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_LINEAR_CONSTRAINT_H_
 
-#include <xpp/matrix_vector.h>
+#include <memory>
+#include <string>
+
 #include <xpp/constraint.h>
+#include <xpp/matrix_vector.h>
 
 namespace xpp {
 namespace opt {

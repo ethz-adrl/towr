@@ -8,12 +8,16 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 
-#include "motion_parameters.h"
+#include <memory>
+#include <vector>
+
+#include <xpp/robot_state_cartesian.h>
+#include <xpp/state.h>
 
 #include <xpp/optimization_variables_container.h>
-#include <xpp/robot_state_cartesian.h>
-#include <xpp/optimization_variables_container.h>
-#include <xpp/opt/linear_spline_equations.h>
+
+#include "linear_spline_equations.h"
+#include "motion_parameters.h"
 
 namespace xpp {
 namespace opt {

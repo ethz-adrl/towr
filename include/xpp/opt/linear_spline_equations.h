@@ -8,10 +8,17 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 
-#include <xpp/matrix_vector.h>
-#include <xpp/state.h>
 #include <array>
+#include <cstddef>
 #include <memory>
+#include <vector>
+#include <sys/types.h>
+#include <Eigen/Dense>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/state.h>
+
+#include <xpp/matrix_vector.h>
 
 namespace xpp {
 namespace opt {

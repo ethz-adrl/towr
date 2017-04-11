@@ -7,6 +7,11 @@
 
 #include <xpp/opt/variables/endeffector_load.h>
 
+#include <cmath>
+#include <vector>
+
+#include <xpp/bound.h>
+
 namespace xpp {
 namespace opt {
 

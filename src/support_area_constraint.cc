@@ -6,9 +6,20 @@
  */
 
 #include <xpp/opt/constraints/support_area_constraint.h>
-#include <xpp/opt/variables/endeffectors_motion.h>
-#include <xpp/opt/variables/endeffector_load.h>
+
+#include <string>
+#include <vector>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/endeffectors.h>
+#include <xpp/state.h>
+
+#include <xpp/bound.h>
 #include <xpp/opt/variables/center_of_pressure.h>
+#include <xpp/opt/variables/endeffector_load.h>
+#include <xpp/opt/variables/endeffectors_motion.h>
 
 namespace xpp {
 namespace opt {

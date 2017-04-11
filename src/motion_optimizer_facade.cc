@@ -7,16 +7,20 @@
 
 #include <xpp/opt/motion_optimizer_facade.h>
 
-#include <xpp/optimization_variables_container.h>
-#include <xpp/opt/cost_constraint_factory.h>
+#include <cassert>
+#include <utility>
+#include <Eigen/Dense>
 
-#include <xpp/opt/variables/endeffectors_motion.h>
-#include <xpp/opt/variables/endeffector_load.h>
+#include <xpp/cartesian_declarations.h>
+#include <xpp/endeffectors.h>
+
+#include <xpp/opt/com_spline6.h>
+#include <xpp/opt/cost_constraint_factory.h>
+#include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/center_of_pressure.h>
 #include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/base_motion.h>
-#include <xpp/opt/com_spline6.h>
-
+#include <xpp/opt/variables/endeffector_load.h>
+#include <xpp/opt/variables/endeffectors_motion.h>
 #include <xpp/ipopt_adapter.h>
 #include <xpp/snopt_adapter.h>
 

@@ -6,6 +6,16 @@
  */
 
 #include <xpp/opt/constraints/dynamic_constraint.h>
+
+#include <Eigen/Dense>
+#include <string>
+#include <vector>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/state.h>
+
+#include <xpp/bound.h>
+#include <xpp/constraint.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/center_of_pressure.h>
 

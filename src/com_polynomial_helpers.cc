@@ -7,6 +7,13 @@
 
 #include <xpp/opt/com_polynomial_helpers.h>
 
+#include <cassert>
+#include <Eigen/Dense>
+
+#include <xpp/cartesian_declarations.h>
+
+#include <xpp/opt/polynomial.h>
+
 namespace xpp {
 namespace opt {
 

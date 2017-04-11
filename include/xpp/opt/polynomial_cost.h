@@ -8,8 +8,12 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 
-#include <xpp/matrix_vector.h>
+#include <memory>
+#include <string>
+#include <Eigen/Dense>
+
 #include <xpp/cost.h>
+#include <xpp/matrix_vector.h>
 
 namespace xpp {
 namespace opt {

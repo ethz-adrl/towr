@@ -7,6 +7,10 @@
 
 #include <xpp/soft_constraint.h>
 
+#include <Eigen/Sparse>
+
+#include <xpp/bound.h>
+
 namespace xpp {
 namespace opt {
 

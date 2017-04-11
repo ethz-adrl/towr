@@ -7,6 +7,16 @@
 
 #include <xpp/snopt_adapter.h>
 
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include <sys/types.h>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/bound.h>
+
 namespace xpp {
 namespace opt {
 

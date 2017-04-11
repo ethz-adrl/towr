@@ -7,6 +7,10 @@
 
 #include <xpp/opt/variables/endeffectors_motion.h>
 
+#include <iostream>
+#include <vector>
+#include <Eigen/Sparse>
+
 namespace xpp {
 namespace opt {
 

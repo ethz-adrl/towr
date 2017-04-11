@@ -8,8 +8,12 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 
-#include "constraint.h"
+#include <Eigen/Dense>
 #include <memory>
+#include <vector>
+
+#include "bound.h"
+#include "constraint.h"
 
 namespace xpp {
 namespace opt {

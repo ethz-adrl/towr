@@ -6,7 +6,10 @@
  */
 
 #include <xpp/optimization_variables_container.h>
+
 #include <algorithm> // find_if
+#include <cassert>
+#include <iterator>
 
 namespace xpp {
 namespace opt {

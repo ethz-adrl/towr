@@ -8,6 +8,8 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 
+#include <memory>
+
 #include <xpp/constraint.h>
 
 namespace xpp {

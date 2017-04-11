@@ -8,6 +8,8 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_
 
+#include <memory>
+
 #include <xpp/time_discretization_constraint.h>
 
 namespace xpp {

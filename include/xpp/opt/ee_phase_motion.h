@@ -8,9 +8,11 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_SWING_MOTION_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_EE_SWING_MOTION_H_
 
-#include "polynomial_xd.h"
-#include "polynomial.h"
+#include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
+
+#include "polynomial.h"
+#include "polynomial_xd.h"
 
 namespace xpp {
 namespace opt {

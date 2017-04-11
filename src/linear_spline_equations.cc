@@ -6,7 +6,12 @@
  */
 
 #include <xpp/opt/linear_spline_equations.h>
+
+#include <cassert>
+
+#include <xpp/opt/com_polynomial_helpers.h>
 #include <xpp/opt/com_spline.h>
+#include <xpp/opt/polynomial_xd.h>
 
 namespace xpp {
 namespace opt {

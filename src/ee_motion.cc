@@ -7,6 +7,12 @@
 
 #include <xpp/opt/variables/ee_motion.h>
 
+#include <cassert>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/opt/polynomial.h>
+
 namespace xpp {
 namespace opt {
 

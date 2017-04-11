@@ -8,8 +8,14 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTORS_MOTION_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTORS_MOTION_H_
 
-#include <xpp/opt/variables/ee_motion.h>
-#include <xpp/opt/variables/contact_schedule.h>
+#include <Eigen/Dense>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/endeffectors.h>
+#include <xpp/state.h>
+
+#include "contact_schedule.h"
+#include "ee_motion.h"
 
 namespace xpp {
 namespace opt {

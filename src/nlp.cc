@@ -7,6 +7,9 @@
 
 #include <xpp/nlp.h>
 
+#include <algorithm>
+#include <Eigen/Sparse>
+
 namespace xpp {
 namespace opt {
 

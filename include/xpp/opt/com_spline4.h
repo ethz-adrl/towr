@@ -8,6 +8,13 @@
 #ifndef _XPP_ZMP_COMSPLINE4_H_
 #define _XPP_ZMP_COMSPLINE4_H_
 
+#include <array>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+#include <vector>
+
+#include <xpp/cartesian_declarations.h>
+
 #include "com_spline.h"
 
 namespace xpp {

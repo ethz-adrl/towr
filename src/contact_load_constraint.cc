@@ -6,8 +6,13 @@
  */
 
 #include <xpp/opt/constraints/contact_load_constraint.h>
-#include <xpp/opt/variables/endeffector_load.h>
+
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/bound.h>
 #include <xpp/opt/variables/contact_schedule.h>
+#include <xpp/opt/variables/endeffector_load.h>
 
 namespace xpp {
 namespace opt {

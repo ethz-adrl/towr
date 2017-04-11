@@ -8,8 +8,12 @@
 #ifndef XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include <xpp/time_discretization_constraint.h>
+#include <array>
+#include <memory>
+
 #include <xpp/endeffectors.h>
+
+#include <xpp/time_discretization_constraint.h>
 
 namespace xpp {
 namespace opt {

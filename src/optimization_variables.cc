@@ -6,6 +6,7 @@
  */
 
 #include <xpp/optimization_variables.h>
+#include <vector>
 
 namespace xpp {
 namespace opt {

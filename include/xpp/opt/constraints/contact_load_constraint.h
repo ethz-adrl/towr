@@ -8,8 +8,12 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
 
-#include <xpp/constraint.h>
+#include <memory>
+#include <vector>
+
 #include <xpp/endeffectors.h>
+
+#include <xpp/constraint.h>
 
 namespace xpp {
 namespace opt {

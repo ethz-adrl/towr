@@ -8,7 +8,8 @@
 #ifndef XPP_QUADRUPED_MOTION_PARAMETERS_H_
 #define XPP_QUADRUPED_MOTION_PARAMETERS_H_
 
-#include <xpp/opt/motion_parameters.h>
+#include <xpp/endeffectors.h>
+#include "motion_parameters.h"
 
 namespace xpp {
 namespace opt {

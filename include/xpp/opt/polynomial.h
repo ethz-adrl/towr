@@ -13,11 +13,10 @@ Polynomials ready to use:
 #ifndef _XPP_UTILS_Polynomial_H_
 #define _XPP_UTILS_Polynomial_H_
 
-#include <xpp/state.h>
-
-#include <stdexcept>
-#include <iostream>
 #include <array>  // std::array
+#include <stdexcept>
+
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {

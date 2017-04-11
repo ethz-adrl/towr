@@ -6,6 +6,7 @@
  */
 
 #include <xpp/opt/ee_phase_motion.h>
+#include <xpp/opt/polynomial_xd.h>
 
 namespace xpp {
 namespace opt {

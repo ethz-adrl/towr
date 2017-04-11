@@ -6,6 +6,17 @@
  */
 
 #include <xpp/ipopt_adapter.h>
+
+#include <cassert>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include <sys/types.h>
+
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
 

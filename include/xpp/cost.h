@@ -8,9 +8,12 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_COST_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_COST_H_
 
-#include "optimization_variables_container.h"
-#include <Eigen/Dense>
+#include <memory>
 #include <string>
+#include <vector>
+#include <Eigen/Dense>
+
+#include "optimization_variables_container.h"
 
 namespace xpp {
 namespace opt {

@@ -8,6 +8,11 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_CONTAINER_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_OPTIMIZATION_VARIABLES_CONTAINER_H_
 
+#include <string>
+#include <vector>
+#include <Eigen/Dense>
+
+#include "bound.h"
 #include "optimization_variables.h"
 
 namespace xpp {

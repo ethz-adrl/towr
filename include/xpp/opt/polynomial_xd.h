@@ -8,14 +8,14 @@
 #ifndef _XPP_UTILS_POLYNOMIALXD_H_
 #define _XPP_UTILS_POLYNOMIALXD_H_
 
-#include "polynomial.h"
-#include <xpp/cartesian_declarations.h>
-#include <xpp/state.h>
+#include <array>
+#include <sys/types.h>
 #include <Eigen/Dense>
+
+#include <xpp/cartesian_declarations.h>
 
 namespace xpp {
 namespace opt {
-
 
 template<typename PolynomialType, typename PointType>
 class PolynomialXd {
@@ -55,6 +55,6 @@ private:
 } // namespace opt
 } // namespace xpp
 
-#include "impl/polynomial_xd-impl.h"
+#include "polynomial_xd-impl.h"
 
 #endif // _XPP_UTILS_POLYNOMIALXD_H_

@@ -6,8 +6,10 @@
  */
 
 #include <xpp/constraint.h>
-#include <iostream>
+
+#include <cassert>
 #include <iomanip>
+#include <iostream>
 
 namespace xpp {
 namespace opt {

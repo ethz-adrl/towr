@@ -6,8 +6,8 @@
  */
 
 #include <xpp/opt/variables/center_of_pressure.h>
-#include <xpp/cartesian_declarations.h>
-#include <iostream>
+
+#include <cmath>
 
 namespace xpp {
 namespace opt {

@@ -6,6 +6,12 @@
  */
 
 #include <xpp/opt/constraints/linear_constraint.h>
+
+#include <vector>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/bound.h>
 #include <xpp/opt/variables/base_motion.h>
 
 namespace xpp {

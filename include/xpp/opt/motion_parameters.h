@@ -8,9 +8,14 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
 
-#include <xpp/endeffectors.h>
+#include <array>
 #include <map>
 #include <memory>
+#include <utility>
+#include <vector>
+#include <Eigen/Dense>
+
+#include <xpp/endeffectors.h>
 
 namespace xpp {
 namespace opt {

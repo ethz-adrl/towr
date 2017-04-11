@@ -8,8 +8,11 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONTAINER_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COST_CONTAINER_H_
 
-#include "cost.h"
+#include <Eigen/Dense>
 #include <memory>
+#include <vector>
+
+#include "cost.h"
 
 namespace xpp {
 namespace opt {
