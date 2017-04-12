@@ -85,7 +85,7 @@ Walk::Walk()
 {
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::WalkID;
-  polynomials_per_second_ = 3;
+  polynomials_per_second_ = 6;
 
   double t_phase = 0.2;
   double t_trans = 0.1;
@@ -145,7 +145,7 @@ Trot::Trot()
 {
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::TrotID;
-  polynomials_per_second_ = 15;
+  polynomials_per_second_ = 6;
 
   double t_phase = 0.3;
   double t_trans = 0.1;
@@ -187,6 +187,73 @@ Trot::Trot()
 //  cost_weights_[PolyCenterCostID]   = 50.0;
 }
 
+Pace::Pace()
+{
+  max_dev_xy_ = {0.20, 0.20};
+  id_ = opt::PaceID;
+  polynomials_per_second_ = 6;
+
+  contact_timings_ =
+  {
+      0.3,
+      0.3, 0.1, 0.3,
+      0.3
+  };
+  contact_sequence_ =
+  {
+      II_,
+      PP_, II_, bb_,
+      II_,
+  };
+
+  constraints_ = { InitCom,
+                   FinalCom,
+                   JunctionCom,
+                   Dynamic,
+                   Convexity,
+                   RomBox,
+                   Stance
+  };
+
+  cost_weights_[RangOfMotionCostID] = 10.0;
+  cost_weights_[ComCostID]          = 1.0;
+//  cost_weights_[PolyCenterCostID]   = 0.0;
+}
+
+Bound::Bound()
+{
+  max_dev_xy_ = {0.25, 0.25};
+  id_ = opt::BoundID;
+  polynomials_per_second_ = 6;
+
+  contact_timings_ =
+  {
+      0.3,
+      0.3, 0.1, 0.3,
+      0.3
+  };
+  contact_sequence_ =
+  {
+      II_,
+      BI_, II_, IB_,
+      II_
+  };
+
+
+  constraints_ = { InitCom,
+                   FinalCom,
+                   JunctionCom,
+                   Dynamic,
+                   Convexity,
+                   RomBox,
+                   Stance
+  };
+
+//  cost_weights_[RangOfMotionCostID] = 10.0;
+  cost_weights_[ComCostID]          = 1.0;
+//  cost_weights_[PolyCenterCostID]   = 0.0;
+}
+
 PushRecovery::PushRecovery ()
 {
   max_dev_xy_ = {0.15, 0.15};
@@ -208,51 +275,6 @@ PushRecovery::PushRecovery ()
   cost_weights_[ComCostID]          = 1.0;
   cost_weights_[RangOfMotionCostID] = 100.0;
 //  cost_weights_[FinalComCostID] = 1000.0;
-//  cost_weights_[PolyCenterCostID]   = 0.0;
-}
-
-Pace::Pace()
-{
-  max_dev_xy_ = {0.15, 0.15};
-  id_ = opt::PaceID;
-  polynomials_per_second_ = 20;
-
-  contact_timings_ = {0.1, 0.3, 0.1, 0.3};
-  contact_sequence_ = {II_, PP_, II_, bb_};
-
-  constraints_ = { InitCom,
-                   FinalCom,
-                   Stance,
-                   JunctionCom,
-                   Convexity,
-                   Dynamic,
-                   RomBox};
-
-  cost_weights_[ComCostID]          = 1.0;
-//  cost_weights_[RangOfMotionCostID] = 10.0;
-//  cost_weights_[PolyCenterCostID]   = 0.0;
-}
-
-Bound::Bound()
-{
-  max_dev_xy_ = {0.15, 0.15};
-  id_ = opt::BoundID;
-  polynomials_per_second_ = 20;
-
-  contact_timings_ = {0.1, 0.3, 0.1, 0.3};
-  contact_sequence_ = {II_, BI_, II_, IB_};
-
-
-  constraints_ = { InitCom,
-                   FinalCom,
-                   Stance,
-                   JunctionCom,
-                   Convexity,
-                   Dynamic,
-                   RomBox};
-
-  cost_weights_[ComCostID]          = 1.0;
-//  cost_weights_[RangOfMotionCostID] = 100.0;
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 

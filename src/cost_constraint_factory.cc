@@ -130,7 +130,7 @@ CostConstraintFactory::MakeDynamicConstraint() const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
-  double dt = 0.1;
+  double dt = 0.2;
 
   auto constraint = std::make_shared<RangeOfMotionBox>(
       opt_vars_,
