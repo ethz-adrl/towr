@@ -41,6 +41,8 @@ public:
 
   int GetNumberOfEndeffectors() const;
   EEState GetEndeffectors(double t_global) const;
+  EndeffectorsPos GetEndeffectorsPos(double t_global) const;
+
   EEState::Container GetEndeffectorsVec(double t_global) const;
   double GetTotalTime() const;
 

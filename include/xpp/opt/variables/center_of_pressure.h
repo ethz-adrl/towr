@@ -40,6 +40,9 @@ public:
   Vector2d GetCop(double t) const;
   JacobianRow GetJacobianWrtCop(double t, d2::Coords dim) const;
 
+  // zmp_ remove
+//  JacobianRow GetJacobianWrtEELoad(double t, d2::Coords dim) const;
+
 private:
   VectorXd cop_;
   double dt_;

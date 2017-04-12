@@ -12,6 +12,7 @@
 #include <Eigen/Sparse>
 
 #include <xpp/cartesian_declarations.h>
+#include <xpp/endeffectors.h>
 
 namespace xpp {
 namespace opt {
@@ -23,14 +24,18 @@ public:
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
   using ComPos = Eigen::Vector2d;
-  using ComVel = Eigen::Vector2d;
+//  using ComVel = Eigen::Vector2d;
   using ComAcc = Eigen::Vector2d;
   using Cop    = Eigen::Vector2d;
+
+  using EELoad = Endeffectors<double>;
+  using EEPos  = EndeffectorsPos;
 
   LinearInvertedPendulum ();
   virtual ~LinearInvertedPendulum ();
 
-  void SetCurrent(const ComPos&, const ComVel&, double height);
+  void SetCurrent(const ComPos&, double height, const EELoad&, const EEPos&);
+
   ComAcc GetDerivative(const Cop& p) const;
 
   /** Approximates the acceleration with small angle assumption and calculates
@@ -39,12 +44,16 @@ public:
   JacobianRow GetJacobianApproxWrtSplineCoeff(const BaseMotion&, double t_global,
                                    Coords3D dim, const Cop& p) const;
 
-  double GetJacobianApproxWrtCop(d2::Coords dim) const;
+  double GetDerivativeOfAccWrtCop(d2::Coords dim) const;
 
 private:
   ComPos pos_;
-  ComVel vel_;
+//  ComVel vel_;
   double h_;
+
+  Cop CalculateCop(const EELoad&, const EEPos&) const;
+
+  Cop cop_;
 };
 
 } /* namespace opt */

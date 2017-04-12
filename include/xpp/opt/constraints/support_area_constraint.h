@@ -25,8 +25,7 @@ class CenterOfPressure;
   * g_k = lambda_1*p1 + ... lambda_m*p_m - cop = 0
   */
 
-// zmp_ not sure this should be discretized, better optimize over all
-// lambda's directly?
+// zmp_ REMOVE  optimize over all lambda's directly?
 // Or remove explicit center of pressure optimization variables from
 // optimization and use lambda's directly
 class SupportAreaConstraint : public TimeDiscretizationConstraint {
