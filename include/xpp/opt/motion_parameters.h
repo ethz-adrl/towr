@@ -34,11 +34,10 @@ public:
   using MotionTypePtr    = std::shared_ptr<MotionParameters>;
   using EEID             = EndeffectorID;
   using EEVec            = std::vector<EEID>;
-  using EECycleVec2      = std::vector<EndeffectorsBool>;
-  using PhaseTimings     = std::vector<double>;
+  using ContactSequence  = std::vector<EndeffectorsBool>;
+  using ContactTimings   = std::vector<double>;
   using Phase            = std::pair<EndeffectorsBool, double>;
-  using PhaseVec         = std::vector<Phase>;
-
+  using ContactSchedule  = std::vector<Phase>;
 
   using PosXY            = Eigen::Vector2d;
   using PosXYZ           = Eigen::Vector3d;
@@ -50,43 +49,26 @@ public:
   virtual ~MotionParameters();
 
   int GetEECount() const { return robot_ee_.size(); };
-
   NominalStance GetNominalStanceInBase() const { return nominal_stance_; };
-  PhaseVec GetOneCycle() const;
-
+  ContactSchedule GetContactSchedule() const;
   ValXY GetMaximumDeviationFromNominal() const;
-
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
-
   double GetTotalTime() const;
 
+
   MotionTypeID id_;
-  double max_step_length_;
-  double dt_nodes_; ///< time discretization of trajectory for constraints/costs
   int polynomials_per_second_;
-  ValXY weight_com_motion_xy_;
   double geom_walking_height_;
-  double lift_height_;
-  int opt_horizon_in_phases_;
   PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
-
-  NominalStance nominal_stance_;
-
-
-
-  EECycleVec2 ee_cycle2_;
-
-  PhaseTimings timings_;
-  EEVec robot_ee_;
-
-
-
 
 
 protected:
+  EEVec robot_ee_;
   ValXY max_dev_xy_;
-
+  ContactSequence contact_sequence_;
+  NominalStance nominal_stance_;
+  ContactTimings contact_timings_;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
 };

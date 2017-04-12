@@ -22,9 +22,7 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  weight_com_motion_xy_ = {1.0, 1.0};
   geom_walking_height_ = 0.58;
-  lift_height_ = 0.08;
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
 //  offset_geom_to_com_ << -0.03, 0.02, 0.0;
   offset_geom_to_com_ << 0,0,0;
@@ -85,12 +83,8 @@ QuadrupedMotionParameters::MakeMotion (opt::MotionTypeID id)
 
 Walk::Walk()
 {
-//  opt_horizon_in_phases_ = 4*1.5;
-  opt_horizon_in_phases_ = 16;
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::WalkID;
-  max_step_length_ = 0.21;
-  dt_nodes_ = 0.1;
   polynomials_per_second_ = 3;
 
   double t_phase = 0.2;
@@ -114,7 +108,7 @@ Walk::Walk()
 
 
   double t_step = 0.4;
-  timings_ =
+  contact_timings_ =
   {
       0.4,
       t_step, t_step,t_step,t_step,
@@ -122,7 +116,7 @@ Walk::Walk()
       0.2,
   };
 
-  ee_cycle2_ =
+  contact_sequence_ =
   {
       II_,
       PI_, IP_, bI_, Ib_,
@@ -149,30 +143,26 @@ Walk::Walk()
 
 Trot::Trot()
 {
-  opt_horizon_in_phases_ = 2*2;
   max_dev_xy_ = {0.15, 0.15};
-//  lambda_deviation_percent_ = 0.6;
   id_ = opt::TrotID;
-  max_step_length_ = 0.35;
-  dt_nodes_ = 0.05;
   polynomials_per_second_ = 15;
 
   double t_phase = 0.3;
   double t_trans = 0.1;
 
-  timings_ =
+  contact_timings_ =
   {   0.3,
 //      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
       t_phase, t_phase, t_phase, t_phase,
-      0.01
+//      0.01
   };
 
-  ee_cycle2_ =
+  contact_sequence_ =
   {
       II_,
       //      PI, PP, IP, bI, bb, Ib, // walk
       bP_, Pb_, bP_, Pb_,
-      II_
+//      II_
   };
 
 
@@ -199,18 +189,13 @@ Trot::Trot()
 
 PushRecovery::PushRecovery ()
 {
-  opt_horizon_in_phases_ = 2*3;
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::PushRecID;
-  max_step_length_ = 0.35;
-  dt_nodes_ = 0.1;
   polynomials_per_second_ = 5;
-  geom_walking_height_ = 0.58;
-  lift_height_ = 0.08;
 
   double t_phase = 0.25;
-  timings_ = {t_phase, t_phase};
-  ee_cycle2_ = {bP_, Pb_};
+  contact_timings_ = {t_phase, t_phase};
+  contact_sequence_ = {bP_, Pb_};
 
   constraints_ = { InitCom,
 //                   FinalCom,
@@ -228,15 +213,12 @@ PushRecovery::PushRecovery ()
 
 Pace::Pace()
 {
-  opt_horizon_in_phases_ = 4*4;
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::PaceID;
-  max_step_length_ = 0.25;
-  dt_nodes_ = 0.02;
   polynomials_per_second_ = 20;
 
-  timings_ = {0.1, 0.3, 0.1, 0.3};
-  ee_cycle2_ = {II_, PP_, II_, bb_};
+  contact_timings_ = {0.1, 0.3, 0.1, 0.3};
+  contact_sequence_ = {II_, PP_, II_, bb_};
 
   constraints_ = { InitCom,
                    FinalCom,
@@ -253,15 +235,12 @@ Pace::Pace()
 
 Bound::Bound()
 {
-  opt_horizon_in_phases_ = 4*4;
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::BoundID;
-  max_step_length_ = 0.4;
-  dt_nodes_ = 0.02;
   polynomials_per_second_ = 20;
 
-  timings_ = {0.1, 0.3, 0.1, 0.3};
-  ee_cycle2_ = {II_, BI_, II_, IB_};
+  contact_timings_ = {0.1, 0.3, 0.1, 0.3};
+  contact_sequence_ = {II_, BI_, II_, IB_};
 
 
   constraints_ = { InitCom,

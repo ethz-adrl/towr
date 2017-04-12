@@ -36,7 +36,6 @@ CostConstraintFactory::CostConstraintFactory ()
 
 CostConstraintFactory::~CostConstraintFactory ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
@@ -119,18 +118,23 @@ CostConstraintFactory::MakeJunctionConstraint () const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeDynamicConstraint() const
 {
+  double dt = 0.05;
+
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         params->GetTotalTime(),
-                                                        params->dt_nodes_);
+                                                        dt
+                                                        );
   return {constraint};
 }
 
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
+  double dt = 0.1;
+
   auto constraint = std::make_shared<RangeOfMotionBox>(
       opt_vars_,
-      params->dt_nodes_,
+      dt,
       params->GetMaximumDeviationFromNominal(),
       params->GetNominalStanceInBase(),
       params->GetTotalTime()
@@ -142,8 +146,12 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeConvexityConstraint() const
 {
+  double dt = 0.05; // spring_clean_ this should not be discretized
+
   auto cop_constrait = std::make_shared<SupportAreaConstraint>(
-      opt_vars_, params->dt_nodes_, params->GetTotalTime());
+      opt_vars_,
+      dt,
+      params->GetTotalTime());
 
   auto convexity = std::make_shared<ConvexityConstraint>(opt_vars_);
 
@@ -199,9 +207,11 @@ CostConstraintFactory::MakeMotionCost() const
   Eigen::MatrixXd term;
   MotionDerivative dxdt = kAcc;
 
+  std::array<double,2> weight_xy = {1.0, 1.0};
+
   switch (dxdt) {
-    case kAcc:  term = spline_eq_.MakeAcceleration(params->weight_com_motion_xy_); break;
-    case kJerk: term = spline_eq_.MakeJerk(params->weight_com_motion_xy_); break;
+    case kAcc:  term = spline_eq_.MakeAcceleration(weight_xy); break;
+    case kJerk: term = spline_eq_.MakeJerk(weight_xy); break;
     default: assert(false); break; // this cost is not implemented
   }
 

@@ -2,7 +2,7 @@
  @file    support_area_constraint.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Dec 4, 2016
- @brief   Declares the DynamicConstraint class
+ @brief   Declares the SupportAreaConstraint class.
  */
 
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SUPPORT_AREA_CONSTRAINT_H_

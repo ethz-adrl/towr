@@ -16,7 +16,6 @@
 
 #include <xpp/nlp.h>
 #include <xpp/optimization_variables_container.h>
-
 #include "motion_parameters.h"
 
 namespace xpp {
@@ -28,21 +27,21 @@ enum NlpSolver { Ipopt, Snopt };
   */
 class MotionOptimizerFacade {
 public:
-  using RobotStateVec            = std::vector<RobotStateCartesian>;
   using MotionParametersPtr      = std::shared_ptr<MotionParameters>;
   using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
+  using RobotStateVec            = std::vector<RobotStateCartesian>;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
 
   void SolveProblem(NlpSolver solver);
-  RobotStateVec GetTrajectory(double dt);
+  RobotStateVec GetTrajectory(double dt) const;
 
   RobotStateCartesian start_geom_;
   StateLin3d goal_geom_;
 
   void SetMotionParameters(const MotionParametersPtr& params);
-  void BuildDefaultStartStance(const MotionParameters& params);
+  void BuildDefaultStartStance();
 
 private:
   void BuildVariables();

@@ -16,7 +16,7 @@ namespace opt {
 TEST(ContactMotionTest, IsInContact)
 {
   quad::Trot trot;
-  ContactSchedule contact_motion(trot.GetOneCycle());
+  ContactSchedule contact_motion(trot.GetContactSchedule());
 
   double t = 0.0;
   double T = 1.1;

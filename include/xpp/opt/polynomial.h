@@ -1,5 +1,5 @@
 /**
-@file   Polynomial.h
+@file   polynomial.h
 @author Alexander Winkler (winklera@ethz.ch)
 @date   29.07.2014
 
@@ -10,10 +10,10 @@ Polynomials ready to use:
         - Cubic Polynomial
         - Quintic Polynomial
 */
-#ifndef _XPP_UTILS_Polynomial_H_
-#define _XPP_UTILS_Polynomial_H_
+#ifndef _XPP_OPT_UTILS_POLYNOMIAL_H_
+#define _XPP_OPT_UTILS_POLYNOMIAL_H_
 
-#include <array>  // std::array
+#include <array>     // std::array
 #include <stdexcept>
 
 #include <xpp/state.h>
@@ -163,4 +163,4 @@ private:
 } // namespace opt
 } // namespace xpp
 
-#endif // XPP_UTILS_Polynomial_H_
+#endif // _XPP_OPT_UTILS_POLYNOMIAL_H_

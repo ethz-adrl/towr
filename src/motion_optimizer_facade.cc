@@ -37,23 +37,23 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 }
 
 void
-MotionOptimizerFacade::BuildDefaultStartStance (const MotionParameters& params)
+MotionOptimizerFacade::BuildDefaultStartStance ()
 {
   State3d base;
-  base.lin.p.z() = params.geom_walking_height_;
-  EndeffectorsBool contact_state(params.robot_ee_.size());
+  base.lin.p.z() = motion_parameters_->geom_walking_height_;
+  EndeffectorsBool contact_state(motion_parameters_->GetEECount());
   contact_state.SetAll(true);
 
   start_geom_.SetBase(base);
   start_geom_.SetContactState(contact_state);
-  start_geom_.SetEEState(kPos, params.GetNominalStanceInBase());
+  start_geom_.SetEEState(kPos, motion_parameters_->GetNominalStanceInBase());
 }
 
 void
 MotionOptimizerFacade::BuildVariables ()
 {
   // initialize the contact schedule
-  auto contact_schedule = std::make_shared<ContactSchedule>(motion_parameters_->GetOneCycle());
+  auto contact_schedule = std::make_shared<ContactSchedule>(motion_parameters_->GetContactSchedule());
 
   // initialize the ee_motion with the fixed parameters
   auto ee_motion = std::make_shared<EndeffectorsMotion>(start_geom_.GetEEPos(),*contact_schedule);
@@ -68,7 +68,7 @@ MotionOptimizerFacade::BuildVariables ()
 
   com_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
-  double parameter_dt = motion_parameters_->dt_nodes_;
+  double parameter_dt = 0.05;
   auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(), parameter_dt, T);
   auto cop  = std::make_shared<CenterOfPressure>(parameter_dt,T);
 
@@ -109,13 +109,13 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
 }
 
 MotionOptimizerFacade::RobotStateVec
-MotionOptimizerFacade::GetTrajectory (double dt)
+MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   RobotStateVec trajectory;
 
-  auto base_motion      = std::dynamic_pointer_cast<BaseMotion>(opt_variables_->GetSet("base_motion"));
+  auto base_motion      = std::dynamic_pointer_cast<BaseMotion>        (opt_variables_->GetSet("base_motion"));
   auto ee_motion        = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_variables_->GetSet("endeffectors_motion"));
-  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_variables_->GetSet("contact_schedule"));
+  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetSet("contact_schedule"));
 
   double t=0.0;
   double T = motion_parameters_->GetTotalTime();

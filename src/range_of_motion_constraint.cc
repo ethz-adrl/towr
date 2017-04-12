@@ -2,7 +2,7 @@
  @file    range_of_motion_constraint.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Jun 6, 2016
- @brief   Declares various Range of Motion Constraint Classes
+ @brief   Defines the RangeOfMotionBox class.
  */
 
 #include <xpp/opt/constraints/range_of_motion_constraint.h>

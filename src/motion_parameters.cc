@@ -14,12 +14,12 @@ MotionParameters::~MotionParameters ()
 {
 }
 
-MotionParameters::PhaseVec
-MotionParameters::GetOneCycle () const
+MotionParameters::ContactSchedule
+MotionParameters::GetContactSchedule () const
 {
-  PhaseVec phases;
-  for (int i=0; i<ee_cycle2_.size(); ++i)
-    phases.push_back(Phase(ee_cycle2_.at(i), timings_.at(i)));
+  ContactSchedule phases;
+  for (int i=0; i<contact_sequence_.size(); ++i)
+    phases.push_back(Phase(contact_sequence_.at(i), contact_timings_.at(i)));
 
   return phases;
 }
@@ -46,7 +46,7 @@ double
 MotionParameters::GetTotalTime () const
 {
   double T = 0.0;
-  for (auto t : timings_)
+  for (auto t : contact_timings_)
     T += t;
 
   return T;
