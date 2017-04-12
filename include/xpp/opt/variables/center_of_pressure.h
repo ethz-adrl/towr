@@ -22,6 +22,8 @@ namespace opt {
   *
   * In this case we discretize and represent as piece-wise constant.
   */
+// spring_clean_ this should not be an optimization variables,
+// can be explicity calculated from lambda values.
 class CenterOfPressure : public OptimizationVariables {
 public:
   using VectorXd = Eigen::VectorXd;

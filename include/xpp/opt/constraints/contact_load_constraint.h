@@ -21,6 +21,11 @@ namespace opt {
 class EndeffectorLoad;
 class ContactSchedule;
 
+/** @brief Makes sure only endeffectors in contact can carry load.
+ *
+ *  g = lambda_k < contac_flag_k, for all nodes k
+ *
+ */
 class ContactLoadConstraint : public Constraint {
 public:
   using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;

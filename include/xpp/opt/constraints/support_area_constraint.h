@@ -27,6 +27,8 @@ class CenterOfPressure;
 
 // zmp_ not sure this should be discretized, better optimize over all
 // lambda's directly?
+// Or remove explicit center of pressure optimization variables from
+// optimization and use lambda's directly
 class SupportAreaConstraint : public TimeDiscretizationConstraint {
 public:
   using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
