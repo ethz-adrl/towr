@@ -26,20 +26,21 @@ LinearInvertedPendulum::SetCurrent (const ComPos& pos,
                                     const EELoad& ee_load,
                                     const EEPos& ee_pos)
 {
-  pos_ = pos;
-  h_ = height;
+  pos_     = pos;
+  h_       = height;
   ee_load_ = ee_load;
-  ee_pos_ = ee_pos;
+  ee_pos_  = ee_pos;
 }
 
 LinearInvertedPendulum::Cop
-LinearInvertedPendulum::CalculateCop (const EELoad& ee_load,
-                                      const EEPos& ee_pos) const
+LinearInvertedPendulum::CalculateCop () const
 {
   Cop cop = Cop::Zero();
 
-  for (auto ee : ee_pos.GetEEsOrdered())
-    cop += ee_load.At(ee)*ee_pos.At(ee).topRows<kDim2d>();
+  for (auto ee : ee_pos_.GetEEsOrdered()) {
+    double load_percent = ee_load_.At(ee);
+    cop += load_percent*ee_pos_.At(ee).topRows<kDim2d>();
+  }
 
   return cop;
 }
@@ -47,7 +48,7 @@ LinearInvertedPendulum::CalculateCop (const EELoad& ee_load,
 LinearInvertedPendulum::ComAcc
 LinearInvertedPendulum::GetAcceleration () const
 {
-  Cop u = CalculateCop(ee_load_, ee_pos_);
+  Cop u = CalculateCop();
   ComAcc acc_zmp    = kGravity/h_*(pos_-u);
 
   return acc_zmp;
@@ -78,6 +79,15 @@ LinearInvertedPendulum::GetDerivativeOfAccWrtEEPos (EndeffectorID ee) const
   return kGravity/h_ * (-1* load);
 }
 
+double
+LinearInvertedPendulum::GetLoadTotal () const
+{
+  double force_z_total = 0.0;
+  for (auto ee : ee_pos_.GetEEsOrdered())
+    force_z_total += ee_load_.At(ee);
+
+  return force_z_total;
+}
+
 } /* namespace opt */
 } /* namespace xpp */
-

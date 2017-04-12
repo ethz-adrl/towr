@@ -118,7 +118,6 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   double dt = 0.05;
-
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         params->GetTotalTime(),
                                                         dt

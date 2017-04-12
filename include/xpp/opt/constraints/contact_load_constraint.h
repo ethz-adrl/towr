@@ -2,7 +2,7 @@
  @file    contact_load_constraint.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    Mar 27, 2017
- @brief   Brief description
+ @brief   Declares the ContactLoadConstraint class
  */
 
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
@@ -24,7 +24,6 @@ class ContactSchedule;
 /** @brief Makes sure only endeffectors in contact can carry load.
  *
  *  g = lambda_k < contac_flag_k, for all nodes k
- *
  */
 class ContactLoadConstraint : public Constraint {
 public:

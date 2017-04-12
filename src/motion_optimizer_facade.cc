@@ -67,8 +67,8 @@ MotionOptimizerFacade::BuildVariables ()
 
   com_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
-  double parameter_dt = 0.05;
-  auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(), parameter_dt, T);
+  double load_dt = 0.02;
+  auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(), load_dt, T);
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(com_motion);

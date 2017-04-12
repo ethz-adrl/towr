@@ -48,11 +48,11 @@ public:
 private:
   ComPos pos_;
   double h_;
-
-  Cop CalculateCop(const EELoad&, const EEPos&) const;
-
   EELoad ee_load_;
   EEPos ee_pos_;
+
+  Cop CalculateCop() const;
+  double GetLoadTotal() const;
 };
 
 } /* namespace opt */
