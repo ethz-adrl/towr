@@ -29,7 +29,8 @@ LinearInvertedPendulum::SetCurrent (const ComPos& pos,
 {
   pos_ = pos;
   h_ = height;
-  cop_ = CalculateCop(ee_load, ee_pos);
+  ee_load_ = ee_load;
+  ee_pos_ = ee_pos;
 }
 
 LinearInvertedPendulum::Cop
@@ -45,7 +46,7 @@ LinearInvertedPendulum::CalculateCop (const EELoad& ee_load,
 }
 
 LinearInvertedPendulum::ComAcc
-LinearInvertedPendulum::GetDerivative (const Cop& u) const
+LinearInvertedPendulum::GetAcceleration () const
 {
 //  Eigen::Array2d k1 = (pos_-u)/h_;
 //  Eigen::Array2d k2 = 2*h_/(h_*h_ + (pos_-u).array().square());
@@ -54,6 +55,7 @@ LinearInvertedPendulum::GetDerivative (const Cop& u) const
 //  ComAcc acc_approx = k1*(2./h_*vel_.array().square() + kGravity);
 //  ComAcc acc_zmp    = k1*(                            + kGravity);
 
+  Cop u = CalculateCop(ee_load_, ee_pos_);
   ComAcc acc_zmp    = kGravity/h_*(pos_-u);
 
   return acc_zmp;
@@ -61,8 +63,7 @@ LinearInvertedPendulum::GetDerivative (const Cop& u) const
 
 LinearInvertedPendulum::JacobianRow
 LinearInvertedPendulum::GetJacobianApproxWrtSplineCoeff (
-    const BaseMotion& com_motion, double t,
-    Coords3D dim, const Cop& u) const
+    const BaseMotion& com_motion, double t, Coords3D dim) const
 {
   JacobianRow jac_pos     = com_motion.GetJacobian(t, kPos, dim);
 
@@ -86,5 +87,21 @@ LinearInvertedPendulum::GetDerivativeOfAccWrtCop (d2::Coords dim) const
   return jac_zmp;
 }
 
+double
+LinearInvertedPendulum::GetDerivativeOfAccWrtLoad (EndeffectorID ee,
+                                                   d2::Coords dim) const
+{
+  double pos = ee_pos_.At(ee)(dim);
+  return kGravity/h_ * (-1* pos);
+}
+
+double
+LinearInvertedPendulum::GetDerivativeOfAccWrtEEPos (EndeffectorID ee) const
+{
+  double load = ee_load_.At(ee);
+  return kGravity/h_ * (-1* load);
+}
+
 } /* namespace opt */
 } /* namespace xpp */
+

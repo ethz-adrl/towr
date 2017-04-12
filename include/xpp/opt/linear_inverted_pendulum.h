@@ -36,15 +36,20 @@ public:
 
   void SetCurrent(const ComPos&, double height, const EELoad&, const EEPos&);
 
-  ComAcc GetDerivative(const Cop& p) const;
+  ComAcc GetAcceleration() const;
 
   /** Approximates the acceleration with small angle assumption and calculates
     * Jacobian w.r.t. spline coefficients.
     */
   JacobianRow GetJacobianApproxWrtSplineCoeff(const BaseMotion&, double t_global,
-                                   Coords3D dim, const Cop& p) const;
+                                              Coords3D dim) const;
 
+  // zmp_ remove this
   double GetDerivativeOfAccWrtCop(d2::Coords dim) const;
+
+
+  double GetDerivativeOfAccWrtLoad(EndeffectorID, d2::Coords dim) const;
+  double GetDerivativeOfAccWrtEEPos(EndeffectorID) const; // same for x and y direction
 
 private:
   ComPos pos_;
@@ -53,7 +58,8 @@ private:
 
   Cop CalculateCop(const EELoad&, const EEPos&) const;
 
-  Cop cop_;
+  EELoad ee_load_;
+  EEPos ee_pos_;
 };
 
 } /* namespace opt */

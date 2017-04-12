@@ -148,16 +148,16 @@ CostConstraintFactory::MakeConvexityConstraint() const
 {
   double dt = 0.05; // spring_clean_ this should not be discretized
 
-  auto cop_constrait = std::make_shared<SupportAreaConstraint>(
-      opt_vars_,
-      dt,
-      params->GetTotalTime());
+//  auto cop_constrait = std::make_shared<SupportAreaConstraint>(
+//      opt_vars_,
+//      dt,
+//      params->GetTotalTime());
 
   auto convexity = std::make_shared<ConvexityConstraint>(opt_vars_);
 
   auto contact_load = std::make_shared<ContactLoadConstraint>(opt_vars_);
 
-  return {cop_constrait, convexity, contact_load};
+  return {/*cop_constrait,*/  convexity, contact_load};
 }
 
 

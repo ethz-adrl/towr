@@ -17,7 +17,7 @@
 #include <xpp/opt/com_spline6.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/base_motion.h>
-#include <xpp/opt/variables/center_of_pressure.h>
+//#include <xpp/opt/variables/center_of_pressure.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/endeffector_load.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
@@ -70,13 +70,13 @@ MotionOptimizerFacade::BuildVariables ()
 
   double parameter_dt = 0.05;
   auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(), parameter_dt, T);
-  auto cop  = std::make_shared<CenterOfPressure>(parameter_dt,T);
+//  auto cop  = std::make_shared<CenterOfPressure>(parameter_dt,T);
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(com_motion);
   opt_variables_->AddVariableSet(ee_motion);
   opt_variables_->AddVariableSet(load);
-  opt_variables_->AddVariableSet(cop);
+//  opt_variables_->AddVariableSet(cop);
   opt_variables_->AddVariableSet(contact_schedule);
 }
 
