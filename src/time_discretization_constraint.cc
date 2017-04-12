@@ -19,7 +19,6 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt)
     dts_.push_back(t);
     t += dt;
   }
-  dts_.push_back(T); // messes up cop_.GetJacobian()
 }
 
 TimeDiscretizationConstraint::~TimeDiscretizationConstraint ()

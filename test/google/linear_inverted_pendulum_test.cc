@@ -17,13 +17,13 @@ TEST(LinearInvertedPendulumTest, GetDerivative)
 {
   LinearInvertedPendulum pendulum;
   Vector2d pos(0.0, 0.0);
-  Vector2d vel(1.0, 0.0);
+//  Vector2d vel(1.0, 0.0);
   double height = 0.58;
-  pendulum.SetCurrent(pos, vel, 0.58);
+//  pendulum.SetCurrent(pos, 0.58);
 
-  Vector2d input(0.58, -0.1);
-
-  std::cout << pendulum.GetDerivative(input);
+//  Vector2d input(0.58, -0.1);
+//
+//  std::cout << pendulum.GetDerivative(input);
 }
 
 

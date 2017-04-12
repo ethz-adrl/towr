@@ -66,6 +66,18 @@ EndeffectorsMotion::GetEndeffectors (double t_global) const
   return ee_state;
 }
 
+EndeffectorsPos
+EndeffectorsMotion::GetEndeffectorsPos (double t_global) const
+{
+  // zmp_ DRY with above -.-
+  EndeffectorsPos pos(GetNumberOfEndeffectors());
+
+  for (auto ee : endeffectors_.GetEEsOrdered())
+    pos.At(ee) = endeffectors_.At(ee).GetState(t_global).p;
+
+  return pos;
+}
+
 EndeffectorsMotion::VectorXd
 EndeffectorsMotion::GetVariables () const
 {

@@ -25,7 +25,6 @@
 #include <xpp/opt/constraints/linear_constraint.h>
 #include <xpp/opt/constraints/polygon_center_constraint.h>
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
-#include <xpp/opt/constraints/support_area_constraint.h>
 
 namespace xpp {
 namespace opt {
@@ -119,7 +118,6 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   double dt = 0.05;
-
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         params->GetTotalTime(),
                                                         dt
@@ -146,18 +144,11 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeConvexityConstraint() const
 {
-  double dt = 0.05; // spring_clean_ this should not be discretized
-
-  auto cop_constrait = std::make_shared<SupportAreaConstraint>(
-      opt_vars_,
-      dt,
-      params->GetTotalTime());
-
   auto convexity = std::make_shared<ConvexityConstraint>(opt_vars_);
 
   auto contact_load = std::make_shared<ContactLoadConstraint>(opt_vars_);
 
-  return {cop_constrait, convexity, contact_load};
+  return {convexity, contact_load};
 }
 
 
