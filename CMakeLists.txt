@@ -89,13 +89,10 @@ add_library(${MOTION_OPT_LIB}
   src/endeffectors_motion.cc
   src/endeffector_load.cc
   src/contact_schedule.cc
-  # Input
-  src/center_of_pressure.cc
   # constraints and costs
   src/linear_constraint.cc
   src/cost_constraint_factory.cc
   src/range_of_motion_constraint.cc
-  src/support_area_constraint.cc
   src/convexity_constraint.cc
   src/polygon_center_constraint.cc
   src/dynamic_constraint.cc
@@ -130,7 +127,6 @@ if(BUILD_TESTS)
                         test/google/ee_phase_motion_test.cc
                         test/google/ee_motion_test.cc
                         test/dynamic_constraint_test.cc
-                        test/center_of_pressure_test.cc
                         test/endeffectors_test.cc
                         test/contact_schedule_test.cc
                         )

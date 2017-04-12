@@ -24,7 +24,6 @@ public:
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
   using ComPos = Eigen::Vector2d;
-//  using ComVel = Eigen::Vector2d;
   using ComAcc = Eigen::Vector2d;
   using Cop    = Eigen::Vector2d;
 
@@ -41,19 +40,13 @@ public:
   /** Approximates the acceleration with small angle assumption and calculates
     * Jacobian w.r.t. spline coefficients.
     */
-  JacobianRow GetJacobianApproxWrtSplineCoeff(const BaseMotion&, double t_global,
-                                              Coords3D dim) const;
-
-  // zmp_ remove this
-  double GetDerivativeOfAccWrtCop(d2::Coords dim) const;
-
+  JacobianRow GetJacobianWrtBase(const BaseMotion&, double t_global, Coords3D dim) const;
 
   double GetDerivativeOfAccWrtLoad(EndeffectorID, d2::Coords dim) const;
   double GetDerivativeOfAccWrtEEPos(EndeffectorID) const; // same for x and y direction
 
 private:
   ComPos pos_;
-//  ComVel vel_;
   double h_;
 
   Cop CalculateCop(const EELoad&, const EEPos&) const;

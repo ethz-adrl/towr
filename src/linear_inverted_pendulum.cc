@@ -6,6 +6,7 @@
  */
 
 #include <xpp/opt/linear_inverted_pendulum.h>
+#include <vector>
 #include <xpp/opt/variables/base_motion.h>
 
 namespace xpp {
@@ -13,12 +14,10 @@ namespace opt {
 
 LinearInvertedPendulum::LinearInvertedPendulum ()
 {
-  // TODO Auto-generated constructor stub
 }
 
 LinearInvertedPendulum::~LinearInvertedPendulum ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
@@ -48,13 +47,6 @@ LinearInvertedPendulum::CalculateCop (const EELoad& ee_load,
 LinearInvertedPendulum::ComAcc
 LinearInvertedPendulum::GetAcceleration () const
 {
-//  Eigen::Array2d k1 = (pos_-u)/h_;
-//  Eigen::Array2d k2 = 2*h_/(h_*h_ + (pos_-u).array().square());
-//
-//  ComAcc acc        = k1*(k2   *vel_.array().square() + kGravity);
-//  ComAcc acc_approx = k1*(2./h_*vel_.array().square() + kGravity);
-//  ComAcc acc_zmp    = k1*(                            + kGravity);
-
   Cop u = CalculateCop(ee_load_, ee_pos_);
   ComAcc acc_zmp    = kGravity/h_*(pos_-u);
 
@@ -62,29 +54,13 @@ LinearInvertedPendulum::GetAcceleration () const
 }
 
 LinearInvertedPendulum::JacobianRow
-LinearInvertedPendulum::GetJacobianApproxWrtSplineCoeff (
+LinearInvertedPendulum::GetJacobianWrtBase (
     const BaseMotion& com_motion, double t, Coords3D dim) const
 {
-  JacobianRow jac_pos     = com_motion.GetJacobian(t, kPos, dim);
+  JacobianRow com_jac     = com_motion.GetJacobian(t, kPos, dim);
+  JacobianRow jac_wrt_com = kGravity/h_*com_jac;
 
-//  JacobianRow vel2    = com_motion.GetJacobianVelSquared(t,dim);
-//  JacobianRow posvel2 = com_motion.GetJacobianPosVelSquared(t, dim);
-//  JacobianRow jac_approx = 1./h_*(kGravity*pos + 2./h_*posvel2 - 2./h_*u(dim)*vel2);
-
-  JacobianRow jac_zmp    = kGravity/h_*jac_pos;
-
-  return jac_zmp;
-}
-
-double
-LinearInvertedPendulum::GetDerivativeOfAccWrtCop (d2::Coords dim) const
-{
-//  double vel2    = std::pow(vel_(dim),2);
-//  double jac_approx = 1./h_*(-kGravity -2./h_*vel2);
-
-  double jac_zmp    = kGravity/h_*(-1);
-
-  return jac_zmp;
+  return jac_wrt_com;
 }
 
 double

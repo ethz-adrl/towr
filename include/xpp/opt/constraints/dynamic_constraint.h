@@ -19,16 +19,12 @@ namespace opt {
 class BaseMotion;
 class EndeffectorLoad;
 class EndeffectorsMotion;
-//class CenterOfPressure; // zmp_ remove
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using BaseMotionPtr = std::shared_ptr<BaseMotion>;
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
   using EELoadPtr     = std::shared_ptr<EndeffectorLoad>;
-
-  // zmp_ remove
-//  using CopPtr        = std::shared_ptr<CenterOfPressure>;
 
   DynamicConstraint (const OptVarsPtr& opt_vars, double T, double dt);
   virtual ~DynamicConstraint ();
@@ -38,7 +34,6 @@ private:
   EEMotionPtr ee_motion_;
   EELoadPtr ee_load_;
 
-//  CopPtr cop_;
   LinearInvertedPendulum model_;
 
   int GetRow(int node, int dimension) const;
@@ -46,8 +41,6 @@ private:
   virtual void UpdateConstraintAtInstance(double t, int k) override;
   virtual void UpdateBoundsAtInstance(double t, int k) override;
   virtual void UpdateJacobianAtInstance(double t, int k) override;
-
-  double kHeight_;
 };
 
 } /* namespace opt */
