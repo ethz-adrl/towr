@@ -59,6 +59,7 @@ public:
   /** @brief Implement this if the Jacobians change with different values of the
     * optimization variables, so are not constant.
     */
+  // zmp_ not clear when this is called, make more functions private
   virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
 
   /** @brief A constraint always delivers a vector of constraint violations.
@@ -80,9 +81,9 @@ protected:
    */
   Jacobian& GetJacobianRefWithRespectTo (std::string var_set);
 
-  std::string name_;
   VectorXd g_;
   VecBound bounds_;
+  std::string name_; // zmp_ possiby remove, only used for printouts
 
 private:
 

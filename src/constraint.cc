@@ -83,6 +83,7 @@ Constraint::GetJacobianWithRespectTo (std::string var_set) const
   return jac;
 }
 
+// zmp_ DRY with above -.-
 Constraint::Jacobian&
 Constraint::GetJacobianRefWithRespectTo (std::string var_set)
 {
@@ -91,6 +92,19 @@ Constraint::GetJacobianRefWithRespectTo (std::string var_set)
       return var.second;
 
   assert(false); // Jacobian does not exist
+}
+
+Constraint::VectorXd
+Constraint::GetConstraintValues () const
+{
+  return g_;
+}
+
+VecBound
+Constraint::GetBounds ()
+{
+  UpdateBounds();
+  return bounds_;
 }
 
 void
@@ -111,20 +125,6 @@ xpp::opt::Constraint::PrintStatus (double tol) const
 
   std::cout << std::endl;
 }
-
-Constraint::VectorXd
-Constraint::GetConstraintValues () const
-{
-  return g_;
-}
-
-VecBound
-Constraint::GetBounds ()
-{
-  UpdateBounds();
-  return bounds_;
-}
-
 } /* namespace opt */
 } /* namespace xpp */
 

@@ -46,8 +46,8 @@ void
 DynamicConstraint::UpdateConstraintAtInstance(double t, int k)
 {
   auto com     = com_motion_->GetCom(t);
-  auto ee_load = ee_load_->GetLoadValues(t);
-  auto ee_pos  = ee_motion_->GetEndeffectorsPos(t);
+  auto ee_load = ee_load_   ->GetLoadValues(t);
+  auto ee_pos  = ee_motion_ ->GetEndeffectorsPos(t);
   model_.SetCurrent(com.p, com_motion_->GetZHeight(), ee_load, ee_pos);
 
   // acceleration as predefined by physics
@@ -70,9 +70,9 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k)
   Jacobian& jac_load = GetJacobianRefWithRespectTo(ee_load_->GetId());
   Jacobian& jac_ee   = GetJacobianRefWithRespectTo(ee_motion_->GetId());
 
-  auto com = com_motion_->GetCom(t);
-  auto ee_load = ee_load_->GetLoadValues(t);
-  auto ee_pos  = ee_motion_->GetEndeffectorsPos(t);
+  auto com     = com_motion_->GetCom(t);
+  auto ee_load = ee_load_   ->GetLoadValues(t);
+  auto ee_pos  = ee_motion_ ->GetEndeffectorsPos(t);
   model_.SetCurrent(com.p, com_motion_->GetZHeight(), ee_load, ee_pos);
 
   for (auto dim : d2::AllDimensions) {
@@ -87,6 +87,8 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k)
       // w.r.t endeffector position
       double deriv_ee = model_.GetDerivativeOfAccWrtEEPos(ee);
       // zmp_ this is ugly, DRY, fix!!!!
+      // Somehow generalize access to jacobians and clearly understand
+      // update sequence.
       if (ee == E0) // overwrite jacobian
         jac_ee.row(row) = deriv_ee* ee_motion_->GetJacobianWrtOptParams(t, ee, dim);
       else // append

@@ -20,6 +20,7 @@ namespace opt {
 
 /** @brief Common interface to define a cost, which simply returns a scalar value
   */
+// zmp_ specialization of cost?
 class Cost {
 public:
   using VectorXd = Eigen::VectorXd;

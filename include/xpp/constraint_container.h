@@ -23,6 +23,9 @@ namespace opt {
   * For every constraint that \c ConstraintContainer knows about, it will return
   * the constraint violations and the acceptable bounds.
   */
+// spring_clean_ should also be a component in a composite design pattern,
+// just like Constraint.
+// see https://sourcemaking.com/design_patterns/composite
 class ConstraintContainer {
 public:
   using VectorXd = Eigen::VectorXd;
