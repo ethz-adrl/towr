@@ -39,22 +39,13 @@ Cost::EvaluateCompleteGradient ()
   int row = 0;
   for (const auto& id : all_variable_ids_) {
 
-    VectorXd grad_set = EvaluateWeightedGradientWrt(id);
+    VectorXd grad_set = EvaluateGradientWrt(id);
     int n_set = grad_set.rows();
-
-    if (n_set != 0)
-      grad.middleRows(row, n_set) = grad_set;
-
+    grad.middleRows(row, n_set) = grad_set;
     row += n_set;
   }
 
-  return grad;
-}
-
-Cost::VectorXd
-Cost::EvaluateWeightedGradientWrt (std::string var_set)
-{
-  return weight_ * EvaluateGradientWrt(var_set);
+  return weight_ * grad;
 }
 
 void

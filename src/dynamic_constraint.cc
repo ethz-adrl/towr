@@ -28,7 +28,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double dt)
     :TimeDiscretizationConstraint(T,dt, kDim2d)
 {
-  name_ = "Dynamic";
+//  name_ = "Dynamic";
 
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetSet("base_motion"));
   ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
@@ -36,7 +36,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
 
   // zmp_ DRY with number of constraints in BaseClass constructor
   int num_constraints = GetNumberOfNodes()*kDim2d;
-  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
+  SetDimensions(opt_vars, num_constraints);
 }
 
 DynamicConstraint::~DynamicConstraint ()
@@ -65,11 +65,14 @@ DynamicConstraint::UpdateBoundsAtInstance(double t, int k) const
 }
 
 void
-DynamicConstraint::UpdateJacobianAtInstance(double t, int k)
+DynamicConstraint::UpdateJacobianAtInstance(double t, int k,
+                                            Jacobian& jac, std::string var_set) const
 {
-  Jacobian& jac_com  = GetJacobianRefWithRespectTo(com_motion_->GetId());
-  Jacobian& jac_load = GetJacobianRefWithRespectTo(ee_load_->GetId());
-  Jacobian& jac_ee   = GetJacobianRefWithRespectTo(ee_motion_->GetId());
+
+//
+//  Jacobian& jac_com  = GetJacobianRefWithRespectTo(com_motion_->GetId());
+//  Jacobian& jac_load = GetJacobianRefWithRespectTo(ee_load_->GetId());
+//  Jacobian& jac_ee   = GetJacobianRefWithRespectTo(ee_motion_->GetId());
 
   auto com     = com_motion_->GetCom(t);
   auto ee_load = ee_load_   ->GetLoadValues(t);
@@ -81,27 +84,35 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k)
 
     for (auto ee : ee_load.GetEEsOrdered()) {
 
-      // w.r.t endeffector load
-      double deriv_load = model_.GetDerivativeOfAccWrtLoad(ee, dim);
-      jac_load.coeffRef(row, ee_load_->Index(t,ee)) = deriv_load;
+      if (var_set == ee_load_->GetId()) {
+        double deriv_load = model_.GetDerivativeOfAccWrtLoad(ee, dim);
+        jac.coeffRef(row, ee_load_->Index(t,ee)) = deriv_load;
+      }
 
-      // w.r.t endeffector position
-      double deriv_ee = model_.GetDerivativeOfAccWrtEEPos(ee);
-      // zmp_ this is ugly, DRY, fix!!!!
-      // Somehow generalize access to jacobians and clearly understand
-      // update sequence.
-      if (ee == E0) // overwrite jacobian
-        jac_ee.row(row) = deriv_ee* ee_motion_->GetJacobianWrtOptParams(t, ee, dim);
-      else // append
-        jac_ee.row(row) += deriv_ee* ee_motion_->GetJacobianWrtOptParams(t, ee, dim);
+
+      if (var_set == ee_motion_->GetId()) {
+        double deriv_ee = model_.GetDerivativeOfAccWrtEEPos(ee);
+        jac.row(row) += deriv_ee* ee_motion_->GetJacobianWrtOptParams(t, ee, dim);
+        //      // zmp_ this is ugly, DRY, fix!!!!
+        //      // Somehow generalize access to jacobians and clearly understand
+        //      // update sequence.
+        //      if (ee == E0) // overwrite jacobian
+        //        jac_ee.row(row) = deriv_ee* ee_motion_->GetJacobianWrtOptParams(t, ee, dim);
+        //      else // append
+        //        jac_ee.row(row) += deriv_ee* ee_motion_->GetJacobianWrtOptParams(t, ee, dim);
+      }
+
     }
 
 
-    // w.r.t base motion
-    Coords3D dim3d = static_cast<Coords3D>(dim);
-    Jacobian jac_acc     = com_motion_->GetJacobian(t, kAcc, dim3d);
-    Jacobian jac_physics = model_.GetJacobianWrtBase(*com_motion_, t, dim3d);
-    jac_com.row(row) = jac_physics - jac_acc;
+    if (var_set == com_motion_->GetId()) {
+      // w.r.t base motion
+      Coords3D dim3d = static_cast<Coords3D>(dim);
+      Jacobian jac_acc     = com_motion_->GetJacobian(t, kAcc, dim3d);
+      Jacobian jac_physics = model_.GetJacobianWrtBase(*com_motion_, t, dim3d);
+      jac.row(row) = jac_physics - jac_acc;
+
+    }
   }
 }
 

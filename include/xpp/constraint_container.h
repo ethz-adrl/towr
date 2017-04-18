@@ -45,7 +45,9 @@ public:
   Jacobian GetConstraintJacobian () const;
 
   VecBound GetBounds () const;
-  void UpdateConstraints();
+
+
+//  void UpdateConstraints();
 
 //  void PrintStatus(double tol) const;
 

@@ -89,8 +89,7 @@ CostConstraintFactory::MakeInitialConstraint () const
   initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
   MatVec lin_eq = spline_eq_.MakeInitial(initial_com_state);
 
-  auto constraint = std::make_shared<LinearEqualityConstraint>(
-      opt_vars_, lin_eq, "Initial XY");
+  auto constraint = std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq);
   return {constraint};
 }
 
@@ -101,8 +100,7 @@ CostConstraintFactory::MakeFinalConstraint () const
   final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
   MatVec lin_eq = spline_eq_.MakeFinal(final_geom_state_, {kPos, kVel, kAcc});
 
-  auto constraint = std::make_shared<LinearEqualityConstraint>(
-      opt_vars_, lin_eq, "Final XY");
+  auto constraint = std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq);
   return {constraint};
 }
 
@@ -110,7 +108,7 @@ CostConstraintFactory::ConstraintPtrVec
 CostConstraintFactory::MakeJunctionConstraint () const
 {
   auto constraint = std::make_shared<LinearEqualityConstraint>(
-      opt_vars_, spline_eq_.MakeJunction(), "Junction");
+      opt_vars_, spline_eq_.MakeJunction());
   return {constraint};
 }
 

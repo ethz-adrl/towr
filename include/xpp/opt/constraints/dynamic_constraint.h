@@ -40,7 +40,7 @@ private:
 
   virtual void UpdateConstraintAtInstance(double t, int k) const override;
   virtual void UpdateBoundsAtInstance(double t, int k) const override;
-  virtual void UpdateJacobianAtInstance(double t, int k) override;
+  virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
 };
 
 } /* namespace opt */

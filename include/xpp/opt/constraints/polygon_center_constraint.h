@@ -35,12 +35,13 @@ public:
 
   VectorXd GetConstraintValues() const override;
   VecBound GetBounds() const override;
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
   EELoadPtr ee_load_;
   ContactSchedulePtr contact_schedule_;
 
-  void UpdateJacobians() override;
+//  void UpdateJacobians() override;
 };
 
 } /* namespace opt */

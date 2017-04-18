@@ -23,6 +23,7 @@ public:
 
 protected:
   int GetNumberOfNodes() const;
+  // zmp_ remove the "mutable"
   mutable VectorXd g_new_;
   mutable VecBound bounds_;
 
@@ -30,7 +31,10 @@ private:
   VectorXd GetConstraintValues() const override;
   VecBound GetBounds() const override;
 
-  virtual void UpdateJacobians() override;
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
+
+//  // zmp_ remove
+//  virtual void UpdateJacobians() override;
 
   /** Sets the constraint value a specific time t, corresponding to node k.
    */
@@ -42,7 +46,7 @@ private:
 
   /** Sets Jacobian rows at a specific time t, corresponding to node k.
    */
-  virtual void UpdateJacobianAtInstance(double t, int k) = 0;
+  virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const = 0;
 
   std::vector<double> dts_; ///< discretized times
 

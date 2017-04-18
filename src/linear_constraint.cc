@@ -19,21 +19,21 @@ namespace opt {
 
 LinearEqualityConstraint::LinearEqualityConstraint (
     const OptVarsPtr& opt_vars,
-    const MatVec& linear_equation,
-    const std::string& name)
+    const MatVec& linear_equation)
 {
   linear_equation_ = linear_equation;
-  name_ = name;
+//  name_ = name;
 
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));
+  opt_vars_ = opt_vars;
 
   int num_constraints = linear_equation_.v.rows();
-  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
+  SetDimensions(opt_vars, num_constraints);
 
-  Jacobian& jac = GetJacobianRefWithRespectTo(com_motion_->GetId());
-  // careful, .sparseView is only valid when the Jacobian is constant, e.g.
-  // the constraints are all linear w.r.t. the decision variables.
-  jac = linear_equation_.M.sparseView();
+  // zmp_ remove
+//  Jacobian& jac = GetJacobianRefWithRespectTo(com_motion_->GetId());
+//
+//  jac = linear_equation_.M.sparseView();
 }
 
 LinearEqualityConstraint::~LinearEqualityConstraint ()
@@ -58,6 +58,20 @@ LinearEqualityConstraint::GetBounds () const
   }
 
   return bounds;
+}
+
+LinearEqualityConstraint::Jacobian
+LinearEqualityConstraint::GetJacobianWithRespectTo (std::string var_set) const
+{
+  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
+  Jacobian jac = Jacobian(num_constraints_, n);
+
+  // the constraints are all linear w.r.t. the decision variables.
+  // careful, .sparseView is only valid when the Jacobian is constant, e.g.
+  if (var_set == com_motion_->GetId())
+    jac = linear_equation_.M.sparseView();
+
+  return jac;
 }
 
 } /* namespace opt */

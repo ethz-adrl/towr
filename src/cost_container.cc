@@ -30,7 +30,7 @@ CostContainer::AddCost (CostPtr cost, double weight)
 {
   cost->SetWeight(weight);
   costs_.push_back(cost);
-  UpdateCosts();
+//  UpdateCosts();
 }
 
 void
@@ -72,12 +72,12 @@ CostContainer::IsEmpty () const
   return costs_.empty();
 }
 
-void
-CostContainer::UpdateCosts ()
-{
-  for (auto& cost : costs_)
-    cost->Update();
-}
+//void
+//CostContainer::UpdateCosts ()
+//{
+//  for (auto& cost : costs_)
+//    cost->Update();
+//}
 
 } /* namespace opt */
 } /* namespace xpp */

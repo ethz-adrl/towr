@@ -24,6 +24,7 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
   int num_constraints = GetNumberOfNodes()*constraints_per_time;
   g_new_  = VectorXd(num_constraints);
   bounds_ = VecBound(num_constraints);
+
 }
 
 TimeDiscretizationConstraint::~TimeDiscretizationConstraint ()
@@ -56,13 +57,27 @@ TimeDiscretizationConstraint::GetBounds () const
   return bounds_;
 }
 
-void
-TimeDiscretizationConstraint::UpdateJacobians ()
+TimeDiscretizationConstraint::Jacobian
+TimeDiscretizationConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
+  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
+  Jacobian jac = Jacobian(num_constraints_, n);
+
   int k = 0;
   for (double t : dts_)
-    UpdateJacobianAtInstance(t, k++);
+    UpdateJacobianAtInstance(t, k++, jac, var_set);
+
+  return jac;
 }
+
+//void
+//TimeDiscretizationConstraint::UpdateJacobians ()
+//{
+//  // zmp_ remove
+////  int k = 0;
+////  for (double t : dts_)
+//////    UpdateJacobianAtInstance(t, k++);
+//}
 
 } /* namespace opt */
 } /* namespace xpp */

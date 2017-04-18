@@ -23,11 +23,11 @@ ContactLoadConstraint::ContactLoadConstraint (const OptVarsPtr& opt_vars)
   ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
   int num_constraints = ee_load_->GetOptVarCount();
-  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
+  SetDimensions(opt_vars, num_constraints);
 
   ee_ids_  = contact_schedule_->IsInContact(0.0).GetEEsOrdered();
 
-  GetJacobianRefWithRespectTo(ee_load_->GetId()).setIdentity();
+//  GetJacobianRefWithRespectTo(ee_load_->GetId()).setIdentity();
 }
 
 ContactLoadConstraint::~ContactLoadConstraint ()
@@ -60,6 +60,18 @@ ContactLoadConstraint::GetBounds () const
   }
 
   return bounds_;
+}
+
+ContactLoadConstraint::Jacobian
+ContactLoadConstraint::GetJacobianWithRespectTo (std::string var_set) const
+{
+  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
+  Jacobian jac = Jacobian(num_constraints_, n);
+
+  if (var_set == ee_load_->GetId())
+    jac.setIdentity();
+
+  return jac;
 }
 
 } /* namespace opt */

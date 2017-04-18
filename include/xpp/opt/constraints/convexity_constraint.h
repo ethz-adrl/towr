@@ -32,6 +32,7 @@ public:
 
   VectorXd GetConstraintValues() const override;
   VecBound GetBounds() const override;
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
   LoadPtr ee_load_;

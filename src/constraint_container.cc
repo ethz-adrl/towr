@@ -33,7 +33,7 @@ ConstraintContainer::AddConstraint (ConstraitPtrVec constraints)
   for (auto& c : constraints)
     constraints_.push_back(c);
 
-  UpdateConstraints();
+//  UpdateConstraints();
   RefreshBounds ();
 }
 
@@ -69,13 +69,13 @@ ConstraintContainer::GetConstraintJacobian () const
   return jacobian_;
 }
 
-void
-ConstraintContainer::UpdateConstraints ()
-{
-  for (auto& constraint : constraints_) {
-    constraint->Update();
-  }
-}
+//void
+//ConstraintContainer::UpdateConstraints ()
+//{
+//  for (auto& constraint : constraints_) {
+//    constraint->Update();
+//  }
+//}
 
 void
 ConstraintContainer::RefreshBounds ()

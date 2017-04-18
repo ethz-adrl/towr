@@ -38,7 +38,7 @@ public:
   bool IsEmpty() const;
   VectorXd EvaluateGradient() const;
 
-  void UpdateCosts();
+//  void UpdateCosts();
 
 private:
   std::vector<CostPtr > costs_;

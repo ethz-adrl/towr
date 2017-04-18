@@ -23,20 +23,20 @@ namespace opt {
 
 ConvexityConstraint::ConvexityConstraint (const OptVarsPtr& opt_vars)
 {
-  name_ = "Convexity";
+//  name_ = "Convexity";
   ee_load_ = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
   int m = ee_load_->GetNumberOfSegments();
-  SetDimensions(opt_vars->GetOptVarsVec(), m);
+  SetDimensions(opt_vars, m);
 
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetId());
-
-  for (int k=0; k<m; ++k) {
-    for (auto ee : ee_load_->GetLoadValuesIdx(k).GetEEsOrdered()) {
-      int idx = ee_load_->IndexDiscrete(k,ee);
-      jac.insert(k, idx) = 1.0;
-    }
-  }
+//  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetId());
+//
+//  for (int k=0; k<m; ++k) {
+//    for (auto ee : ee_load_->GetLoadValuesIdx(k).GetEEsOrdered()) {
+//      int idx = ee_load_->IndexDiscrete(k,ee);
+//      jac.insert(k, idx) = 1.0;
+//    }
+//  }
 }
 
 ConvexityConstraint::~ConvexityConstraint ()
@@ -68,6 +68,24 @@ ConvexityConstraint::GetBounds () const
   VecBound b(GetNumberOfConstraints());
   std::fill(b.begin(), b.end(), Bound(1.0, 1.0));
   return b;
+}
+
+ConvexityConstraint::Jacobian
+ConvexityConstraint::GetJacobianWithRespectTo (std::string var_set) const
+{
+  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
+  Jacobian jac = Jacobian(num_constraints_, n);
+
+  if (var_set == ee_load_->GetId()) {
+    for (int k=0; k<ee_load_->GetNumberOfSegments(); ++k) {
+      for (auto ee : ee_load_->GetLoadValuesIdx(k).GetEEsOrdered()) {
+        int idx = ee_load_->IndexDiscrete(k,ee);
+        jac.insert(k, idx) = 1.0;
+      }
+    }
+  }
+
+  return jac;
 }
 
 } /* namespace opt */

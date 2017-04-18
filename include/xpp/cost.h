@@ -29,14 +29,8 @@ public:
   Cost (const OptVarsPtr& opt_vars_container);
   virtual ~Cost ();
 
-  /** @brief make sure the up-to-date optimization variables are used.
-   */
-  virtual void Update() = 0;
-
-
   double EvaluateWeightedCost () const;
   VectorXd EvaluateCompleteGradient();
-  VectorXd EvaluateWeightedGradientWrt (std::string var_set);
 
   void SetWeight(double weight);
   int GetVariableCount() const;

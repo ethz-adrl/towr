@@ -42,12 +42,13 @@ public:
    */
   virtual VectorXd GetConstraintValues() const = 0;
 
-  // zmp_ possibly make constant
-  Jacobian GetConstraintJacobian();
-
   /** @brief For each returned constraint an upper and lower bound is given.
     */
   virtual VecBound GetBounds() const = 0;
+
+
+  // zmp_ possibly make constant
+  Jacobian GetConstraintJacobian();
 
 
 //  void PrintStatus(double tol) const;
@@ -55,44 +56,49 @@ public:
   int GetNumberOfOptVariables() const;
 
 
-  /** Updates members (constraints/jacobians) using newest opt. variables.
-    */
-  void Update();
+//  /** Updates members (constraints/Jacobians) using newest opt. variables.
+//    */
+//  void Update();
 
 
 protected:
   /** @brief Determines the size of constraints, bounds and jacobians.
     */
-  void SetDimensions(const std::vector<OptVarPtr>&, int num_constraints);
+  void SetDimensions(const OptVarsPtr&, int num_constraints);
 
-  /** @returns a writable reference to modify the Jacobian of the constraint.
-    *
-    * @param var_set The differentiation of the constraint w.r.t these variables
-    *                produces this Jacobian.
-   */
-  Jacobian& GetJacobianRefWithRespectTo (std::string var_set);
+//  /** @returns a writable reference to modify the Jacobian of the constraint.
+//    *
+//    * @param var_set The differentiation of the constraint w.r.t these variables
+//    *                produces this Jacobian.
+//   */
+//  Jacobian& GetJacobianRefWithRespectTo (std::string var_set);
 
-  std::string name_; // zmp_ possiby remove, only used for printouts
+//  std::string name_; // zmp_ possiby remove, only used for printouts
   int num_constraints_;
 
+//  std::vector<Jacobian> all_jacs_;
+
+  OptVarsPtr opt_vars_;
 private:
 
+//  std::vector<std::string> ids_;
 
   // zmp_ these values are only accessed by the soft constraint, refactor
   friend VectorXd SoftConstraint::EvaluateGradientWrt(std::string);
   /** @brief Jacobian of the constraints with respect to each decision variable set
     */
-  Jacobian GetJacobianWithRespectTo (std::string var_set) const;
+  virtual Jacobian GetJacobianWithRespectTo (std::string var_set) const = 0;
 
   /** @brief Implement this if the Jacobians change with different values of the
     * optimization variables, so are not constant.
     */
   // zmp_ not clear when this is called, make more functions private
-  virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
+//  virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
 
 
-  std::vector<JacobianNamed> jacobians_;
-  Jacobian complete_jacobian_;
+//  std::vector<JacobianNamed> jacobians_;
+//  Jacobian complete_jacobian_;
+
 };
 
 } /* namespace opt */

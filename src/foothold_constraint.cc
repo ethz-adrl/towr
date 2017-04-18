@@ -24,22 +24,22 @@ FootholdConstraint::FootholdConstraint (const OptVarsPtr& opt_vars,
                                         const NominalStance& nom_W,
                                         double t)
 {
-  name_ = "Foothold Constraint";
+//  name_ = "Foothold Constraint";
   ee_motion_ = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
   desired_ee_pos_W_ = nom_W;
   t_ = t;
 
   int num_constraints = nom_W.GetCount() * kDim2d;
-  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
+  SetDimensions(opt_vars, num_constraints);
 
-  // Jacobian doesn't change with values of optimization variables
-  // only holds if t is during stance phase, otherwise Jacobian
-  // dependent on time.
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetId());
-  int k = 0;
-  for (const auto ee : nom_W.GetEEsOrdered())
-    for (auto dim : d2::AllDimensions)
-      jac.row(k++) = ee_motion_->GetJacobianWrtOptParams(t,ee,dim);
+//  // Jacobian doesn't change with values of optimization variables
+//  // only holds if t is during stance phase, otherwise Jacobian
+//  // dependent on time.
+//  Jacobian& jac = GetJacobianRefWithRespectTo(ee_motion_->GetId());
+//  int k = 0;
+//  for (const auto ee : nom_W.GetEEsOrdered())
+//    for (auto dim : d2::AllDimensions)
+//      jac.row(k++) = ee_motion_->GetJacobianWrtOptParams(t,ee,dim);
 }
 
 FootholdConstraint::~FootholdConstraint ()
@@ -70,6 +70,22 @@ FootholdConstraint::GetBounds () const
   }
 
   return bounds;
+}
+
+FootholdConstraint::Jacobian
+FootholdConstraint::GetJacobianWithRespectTo (std::string var_set) const
+{
+  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
+  Jacobian jac = Jacobian(num_constraints_, n);
+
+  if (var_set == ee_motion_->GetId()) {
+    int k = 0;
+    for (const auto ee : desired_ee_pos_W_.GetEEsOrdered())
+      for (auto dim : d2::AllDimensions)
+        jac.row(k++) = ee_motion_->GetJacobianWrtOptParams(t_,ee,dim);
+  }
+
+  return jac;
 }
 
 } /* namespace opt */

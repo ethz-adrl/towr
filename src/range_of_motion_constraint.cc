@@ -28,7 +28,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
                                     double T)
     :TimeDiscretizationConstraint(T, dt, nom.GetCount()*kDim2d)
 {
-  name_ = "Range of Motion";
+//  name_ = "Range of Motion";
   max_deviation_from_nominal_ = dev;
   nominal_stance_ = nom;
 
@@ -37,7 +37,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
 
   // zmp_ DRY with number of constraints in base class constructor
   int num_constraints = GetNumberOfNodes()*ee_motion_->GetNumberOfEndeffectors()*kDim2d;
-  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
+  SetDimensions(opt_vars, num_constraints);
 }
 
 RangeOfMotionBox::~RangeOfMotionBox ()
@@ -80,16 +80,22 @@ RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k) const
 }
 
 void
-RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k)
+RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k,
+                                            Jacobian& jac, std::string var_set) const
 {
-  Jacobian& jac_ee   = GetJacobianRefWithRespectTo(ee_motion_->GetId());
-  Jacobian& jac_base = GetJacobianRefWithRespectTo(com_motion_->GetId());
+//  Jacobian& jac_ee   = GetJacobianRefWithRespectTo(ee_motion_->GetId());
+//  Jacobian& jac_base = GetJacobianRefWithRespectTo(com_motion_->GetId());
 
   for (auto ee : nominal_stance_.GetEEsOrdered()) {
     for (auto dim : d2::AllDimensions) {
       int row = GetRow(k,ee,dim);
-      jac_ee.row(row) = ee_motion_->GetJacobianWrtOptParams(t,ee,dim);
-      jac_base.row(row) = -1*com_motion_->GetJacobian(t, kPos, static_cast<Coords3D>(dim));
+
+      if (var_set == ee_motion_->GetId())
+        jac.row(row) = ee_motion_->GetJacobianWrtOptParams(t,ee,dim);
+
+      if (var_set == com_motion_->GetId())
+        jac.row(row) = -1*com_motion_->GetJacobian(t, kPos, static_cast<Coords3D>(dim));
+
     }
   }
 }

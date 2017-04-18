@@ -33,7 +33,7 @@ public:
   PolynomialCost (const OptVarsPtr&);
   virtual ~PolynomialCost (){};
 
-  void Update() override { /*com_motion_ always up-to-date*/ };
+//  void Update() override { /*com_motion_ always up-to-date*/ };
 
 protected:
   BaseMotionPtrS com_motion_;

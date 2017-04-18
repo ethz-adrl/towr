@@ -34,17 +34,18 @@ public:
     * @param linear_equation the matrix M and vector v.
     */
   LinearEqualityConstraint (const OptVarsPtr& opt_vars_container,
-                            const MatVec& linear_equation,
-                            const std::string& name);
+                            const MatVec& linear_equation);
   virtual ~LinearEqualityConstraint ();
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd GetConstraintValues() const override;
   VecBound GetBounds() const override;
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
 
 private:
   ComMotionPtr com_motion_;
   MatVec linear_equation_;
+  OptVarsPtr opt_vars_;
 };
 
 } /* namespace opt */

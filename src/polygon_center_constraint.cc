@@ -27,7 +27,7 @@ PolygonCenterConstraint::PolygonCenterConstraint (const OptVarsPtr& opt_vars)
   ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
   int num_constraints = ee_load_->GetNumberOfSegments();
-  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
+  SetDimensions(opt_vars, num_constraints);
 }
 
 PolygonCenterConstraint::~PolygonCenterConstraint ()
@@ -68,23 +68,47 @@ PolygonCenterConstraint::GetBounds () const
   return bounds;
 }
 
-void
-PolygonCenterConstraint::UpdateJacobians ()
+PolygonCenterConstraint::Jacobian
+PolygonCenterConstraint::GetJacobianWithRespectTo (std::string var_set) const
 {
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetId());
+  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
+  Jacobian jac = Jacobian(num_constraints_, n);
 
-  for (int k=0; k<GetNumberOfConstraints(); ++k) {
-    double t = ee_load_->GetTimeCenterSegment(k);
-    int m = contact_schedule_->GetContactCount(t);
+  if (var_set == ee_load_->GetId()) {
 
-    auto lambda_k = ee_load_->GetLoadValuesIdx(k);
+    for (int k=0; k<GetNumberOfConstraints(); ++k) {
+      double t = ee_load_->GetTimeCenterSegment(k);
+      int m = contact_schedule_->GetContactCount(t);
 
-    for (auto ee : lambda_k.GetEEsOrdered()) {
-      int idx = ee_load_->IndexDiscrete(k,ee);
-      jac.coeffRef(k,idx) = 2*(lambda_k.At(ee) - 1./m);
+      auto lambda_k = ee_load_->GetLoadValuesIdx(k);
+
+      for (auto ee : lambda_k.GetEEsOrdered()) {
+        int idx = ee_load_->IndexDiscrete(k,ee);
+        jac.coeffRef(k,idx) = 2*(lambda_k.At(ee) - 1./m);
+      }
     }
   }
+
+  return jac;
 }
+
+//void
+//PolygonCenterConstraint::UpdateJacobians ()
+//{
+//  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetId());
+//
+//  for (int k=0; k<GetNumberOfConstraints(); ++k) {
+//    double t = ee_load_->GetTimeCenterSegment(k);
+//    int m = contact_schedule_->GetContactCount(t);
+//
+//    auto lambda_k = ee_load_->GetLoadValuesIdx(k);
+//
+//    for (auto ee : lambda_k.GetEEsOrdered()) {
+//      int idx = ee_load_->IndexDiscrete(k,ee);
+//      jac.coeffRef(k,idx) = 2*(lambda_k.At(ee) - 1./m);
+//    }
+//  }
+//}
 
 } /* namespace opt */
 } /* namespace xpp */

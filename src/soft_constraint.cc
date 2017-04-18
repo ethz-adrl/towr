@@ -38,11 +38,11 @@ SoftConstraint::~SoftConstraint ()
 {
 }
 
-void
-SoftConstraint::Update ()
-{
-  constraint_->Update();
-}
+//void
+//SoftConstraint::Update ()
+//{
+//  constraint_->Update();
+//}
 
 double
 SoftConstraint::EvaluateCost () const
@@ -56,12 +56,7 @@ SoftConstraint::EvaluateGradientWrt (std::string var_set)
 {
   VectorXd g = constraint_->GetConstraintValues();
   Constraint::Jacobian jac = constraint_->GetJacobianWithRespectTo(var_set);
-
-  VectorXd grad;
-  if (jac.rows() != 0)
-    grad = jac.transpose()*weights_.asDiagonal()*(g-b_);
-
-  return grad;
+  return jac.transpose()*weights_.asDiagonal()*(g-b_);
 }
 
 } /* namespace opt */
