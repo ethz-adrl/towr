@@ -26,7 +26,7 @@ namespace opt {
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double T,
                                       double dt)
-    :TimeDiscretizationConstraint(T,dt)
+    :TimeDiscretizationConstraint(T,dt, kDim2d)
 {
   name_ = "Dynamic";
 
@@ -34,6 +34,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
   ee_load_    = std::dynamic_pointer_cast<EndeffectorLoad>   (opt_vars->GetSet("endeffector_load"));
 
+  // zmp_ DRY with number of constraints in BaseClass constructor
   int num_constraints = GetNumberOfNodes()*kDim2d;
   SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
 }
@@ -43,7 +44,7 @@ DynamicConstraint::~DynamicConstraint ()
 }
 
 void
-DynamicConstraint::UpdateConstraintAtInstance(double t, int k)
+DynamicConstraint::UpdateConstraintAtInstance(double t, int k) const
 {
   auto com     = com_motion_->GetCom(t);
   auto ee_load = ee_load_   ->GetLoadValues(t);
@@ -53,7 +54,7 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k)
   // acceleration as predefined by physics
   Vector2d acc_physics = model_.GetAcceleration();
   for (auto dim : d2::AllDimensions)
-    g_(GetRow(k,dim)) = acc_physics(dim) - com.a(dim);
+    g_new_(GetRow(k,dim)) = acc_physics(dim) - com.a(dim);
 }
 
 void

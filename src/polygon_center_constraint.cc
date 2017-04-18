@@ -34,10 +34,13 @@ PolygonCenterConstraint::~PolygonCenterConstraint ()
 {
 }
 
-void
-PolygonCenterConstraint::UpdateConstraintValues ()
+PolygonCenterConstraint::VectorXd
+PolygonCenterConstraint::GetConstraintValues () const
 {
-  for (int k=0; k<GetNumberOfConstraints(); ++k) {
+  int num_constraints = GetNumberOfConstraints();
+  VectorXd g(num_constraints);
+
+  for (int k=0; k<num_constraints; ++k) {
     double g_node = 0.0;
     double t = ee_load_->GetTimeCenterSegment(k);
     int m = contact_schedule_->GetContactCount(t);
@@ -45,8 +48,10 @@ PolygonCenterConstraint::UpdateConstraintValues ()
     for (auto lambda : ee_load_->GetLoadValuesIdx(k).ToImpl())
       g_node += std::pow(lambda,2) - 2./m * lambda;
 
-    g_(k) = g_node;
+    g(k) = g_node;
   }
+
+  return g;
 }
 
 void
@@ -79,4 +84,5 @@ PolygonCenterConstraint::UpdateJacobians ()
 
 } /* namespace opt */
 } /* namespace xpp */
+
 

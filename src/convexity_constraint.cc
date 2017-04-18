@@ -43,18 +43,23 @@ ConvexityConstraint::~ConvexityConstraint ()
 {
 }
 
-void
-ConvexityConstraint::UpdateConstraintValues ()
+ConvexityConstraint::VectorXd
+ConvexityConstraint::GetConstraintValues () const
 {
-  for (int k=0; k<GetNumberOfConstraints(); ++k) {
+  int m = GetNumberOfConstraints();
+  VectorXd g(m);
+
+  for (int k=0; k<m; ++k) {
 
     double sum_k = 0.0;
 
     for (double lambda : ee_load_->GetLoadValuesIdx(k).ToImpl())
       sum_k += lambda;
 
-    g_(k) = sum_k; // sum equal to 1
+    g(k) = sum_k; // sum equal to 1
   }
+
+  return g;
 }
 
 void

@@ -54,7 +54,7 @@ ConstraintContainer::GetConstraintValues () const
 }
 
 ConstraintContainer::Jacobian
-ConstraintContainer::GetJacobian () const
+ConstraintContainer::GetConstraintJacobian () const
 {
   int row = 0;
   for (const auto& constraint : constraints_) {
@@ -73,8 +73,7 @@ void
 ConstraintContainer::UpdateConstraints ()
 {
   for (auto& constraint : constraints_) {
-    constraint->UpdateConstraintValues();
-    constraint->UpdateJacobians();
+    constraint->Update();
   }
 }
 

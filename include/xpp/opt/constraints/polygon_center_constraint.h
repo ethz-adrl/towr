@@ -33,7 +33,7 @@ public:
   PolygonCenterConstraint (const OptVarsPtr&);
   virtual ~PolygonCenterConstraint ();
 
-  void UpdateConstraintValues () override;
+  VectorXd GetConstraintValues() const override;
   void UpdateBounds () override;
 
 private:

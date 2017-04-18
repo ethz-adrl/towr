@@ -33,7 +33,7 @@ public:
   ContactLoadConstraint (const OptVarsPtr& opt_vars_container);
   virtual ~ContactLoadConstraint ();
 
-  void UpdateConstraintValues () override;
+  VectorXd GetConstraintValues() const override;
   void UpdateBounds () override;
 
 private:

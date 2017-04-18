@@ -34,7 +34,7 @@ public:
   virtual ~FootholdConstraint ();
 
 private:
-  virtual void UpdateConstraintValues () override;
+  VectorXd GetConstraintValues() const override;
   virtual void UpdateBounds() override;
 
   EEMotionPtr ee_motion_;

@@ -11,7 +11,8 @@
 namespace xpp {
 namespace opt {
 
-TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt)
+TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
+                                                            int constraints_per_time)
 {
   dts_.clear();
   double t = 0.0;
@@ -19,6 +20,8 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt)
     dts_.push_back(t);
     t += dt;
   }
+
+  g_new_ = VectorXd(GetNumberOfNodes()*constraints_per_time);
 }
 
 TimeDiscretizationConstraint::~TimeDiscretizationConstraint ()
@@ -31,12 +34,14 @@ TimeDiscretizationConstraint::GetNumberOfNodes () const
   return dts_.size();
 }
 
-void
-TimeDiscretizationConstraint::UpdateConstraintValues ()
+TimeDiscretizationConstraint::VectorXd
+TimeDiscretizationConstraint::GetConstraintValues () const
 {
   int k = 0;
   for (double t : dts_)
     UpdateConstraintAtInstance(t, k++);
+
+  return g_new_;
 }
 
 void
@@ -57,3 +62,5 @@ TimeDiscretizationConstraint::UpdateJacobians ()
 
 } /* namespace opt */
 } /* namespace xpp */
+
+

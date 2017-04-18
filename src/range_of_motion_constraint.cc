@@ -26,7 +26,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
                                     const MaxDevXY& dev,
                                     const NominalStance& nom,
                                     double T)
-    :TimeDiscretizationConstraint(T, dt)
+    :TimeDiscretizationConstraint(T, dt, nom.GetCount()*kDim2d)
 {
   name_ = "Range of Motion";
   max_deviation_from_nominal_ = dev;
@@ -35,6 +35,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetSet("base_motion"));
   ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
 
+  // zmp_ DRY with number of constraints in base class constructor
   int num_constraints = GetNumberOfNodes()*ee_motion_->GetNumberOfEndeffectors()*kDim2d;
   SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
 }
@@ -50,7 +51,7 @@ RangeOfMotionBox::GetRow (int node, EndeffectorID ee, int dim) const
 }
 
 void
-RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k)
+RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k) const
 {
   Vector3d base_W = com_motion_->GetBase(t).lin.p;
 
@@ -60,7 +61,7 @@ RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k)
     Vector3d pos_ee_B = pos_ee_W.At(ee).p - base_W;
 
     for (auto dim : {X,Y})
-      g_(GetRow(k,ee,dim)) = pos_ee_B(dim);
+      g_new_(GetRow(k,ee,dim)) = pos_ee_B(dim);
   }
 }
 

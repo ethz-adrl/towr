@@ -42,7 +42,8 @@ public:
 
 
   VectorXd GetConstraintValues () const;
-  Jacobian GetJacobian () const;
+  Jacobian GetConstraintJacobian () const;
+
   VecBound GetBounds () const;
   void UpdateConstraints();
 

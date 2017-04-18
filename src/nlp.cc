@@ -123,7 +123,7 @@ NLP::EvalNonzerosOfJacobian (const Number* x, Number* values)
 NLP::Jacobian
 NLP::GetJacobianOfConstraints () const
 {
-  return constraints_.GetJacobian();
+  return constraints_.GetConstraintJacobian();
 }
 
 void

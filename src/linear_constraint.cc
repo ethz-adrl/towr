@@ -40,11 +40,11 @@ LinearEqualityConstraint::~LinearEqualityConstraint ()
 {
 }
 
-void
-LinearEqualityConstraint::UpdateConstraintValues ()
+LinearEqualityConstraint::VectorXd
+LinearEqualityConstraint::GetConstraintValues () const
 {
   VectorXd x = com_motion_->GetXYSplineCoeffients();
-  g_ = linear_equation_.M*x;
+  return linear_equation_.M*x;
 }
 
 void

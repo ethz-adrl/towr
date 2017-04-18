@@ -39,7 +39,7 @@ public:
   virtual ~LinearEqualityConstraint ();
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
-  void UpdateConstraintValues () override;
+  VectorXd GetConstraintValues() const override;
   void UpdateBounds () override;
 
 private:

@@ -34,10 +34,10 @@ ContactLoadConstraint::~ContactLoadConstraint ()
 {
 }
 
-void
-ContactLoadConstraint::UpdateConstraintValues ()
+ContactLoadConstraint::VectorXd
+ContactLoadConstraint::GetConstraintValues () const
 {
-  g_ = ee_load_->GetVariables();
+  return ee_load_->GetVariables();
 }
 
 void
@@ -61,3 +61,5 @@ ContactLoadConstraint::UpdateBounds ()
 
 } /* namespace opt */
 } /* namespace xpp */
+
+

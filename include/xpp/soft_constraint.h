@@ -12,11 +12,12 @@
 #include <string>
 #include <Eigen/Dense>
 
-#include "constraint.h"
 #include "cost.h"
 
 namespace xpp {
 namespace opt {
+
+class Constraint;
 
 /** Converts a constraint to a cost by weighing the quadratic violations.
   *
@@ -30,7 +31,7 @@ namespace opt {
 class SoftConstraint : public Cost {
 public:
   using ConstraintPtr = std::shared_ptr<Constraint>;
-  using VectorXd = Eigen::VectorXd;
+  using VectorXd      = Eigen::VectorXd;
 
   SoftConstraint (const OptVarsPtr&, const ConstraintPtr& constraint);
   virtual ~SoftConstraint ();

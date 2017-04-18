@@ -18,9 +18,11 @@
 #include "bound.h"
 #include "optimization_variables.h"
 #include "optimization_variables_container.h"
+#include "soft_constraint.h" // only for friend declaration
 
 namespace xpp {
 namespace opt {
+
 
 /** Common interface providing constraint values and bounds.
   */
@@ -36,38 +38,30 @@ public:
   virtual ~Constraint ();
 
 
-  int GetNumberOfOptVariables() const;
+  /** @brief A constraint always delivers a vector of constraint violations.
+   */
+  virtual VectorXd GetConstraintValues() const = 0;
 
   // zmp_ possibly make constant
   Jacobian GetConstraintJacobian();
-
-  /** @brief Jacobian of the constraints with respect to each decision variable set
-    */
-  Jacobian GetJacobianWithRespectTo (std::string var_set) const;
-
-  /** @brief A constraint always delivers a vector of constraint violations.
-   */
-  VectorXd GetConstraintValues() const;
 
   /** @brief For each returned constraint an upper and lower bound is given.
     */
   VecBound GetBounds();
 
+
 //  void PrintStatus(double tol) const;
   int GetNumberOfConstraints() const;
+  int GetNumberOfOptVariables() const;
 
-  /** @brief Implement this if the Jacobians change with different values of the
-    * optimization variables, so are not constant.
-    */
-  // zmp_ not clear when this is called, make more functions private
-  virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
 
-  /** @brief A constraint always delivers a vector of constraint violations.
-    *
-    * This is specific to each type of constraint and must be implemented
-    * by the user.
+  /** Updates members (constraints/jacobians) using newest opt. variables.
     */
-  virtual void UpdateConstraintValues () = 0;
+  void Update();
+
+
+
+
 
 protected:
   /** @brief Determines the size of constraints, bounds and jacobians.
@@ -81,9 +75,11 @@ protected:
    */
   Jacobian& GetJacobianRefWithRespectTo (std::string var_set);
 
-  VectorXd g_;
+  // zmp_ these should go to the leaf classes?
   VecBound bounds_;
   std::string name_; // zmp_ possiby remove, only used for printouts
+
+  int num_constraints_;
 
 private:
 
@@ -93,6 +89,22 @@ private:
     * by the user.
     */
   virtual void UpdateBounds () = 0;
+
+
+
+
+
+  // zmp_ these values are only accessed by the soft constraint, refactor
+  friend VectorXd SoftConstraint::EvaluateGradientWrt(std::string);
+  /** @brief Jacobian of the constraints with respect to each decision variable set
+    */
+  Jacobian GetJacobianWithRespectTo (std::string var_set) const;
+
+  /** @brief Implement this if the Jacobians change with different values of the
+    * optimization variables, so are not constant.
+    */
+  // zmp_ not clear when this is called, make more functions private
+  virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
 
 
   std::vector<JacobianNamed> jacobians_;

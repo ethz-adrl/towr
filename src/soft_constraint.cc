@@ -9,6 +9,7 @@
 
 #include <Eigen/Sparse>
 
+#include <xpp/constraint.h>
 #include <xpp/bound.h>
 
 namespace xpp {
@@ -40,8 +41,7 @@ SoftConstraint::~SoftConstraint ()
 void
 SoftConstraint::Update ()
 {
-  constraint_->UpdateConstraintValues();
-  constraint_->UpdateJacobians();
+  constraint_->Update();
 }
 
 double

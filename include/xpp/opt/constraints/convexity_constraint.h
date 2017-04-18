@@ -30,7 +30,7 @@ public:
   ConvexityConstraint (const OptVarsPtr& opt_vars_container);
   virtual ~ConvexityConstraint ();
 
-  void UpdateConstraintValues () override;
+  VectorXd GetConstraintValues() const override;
   void UpdateBounds () override;
 
 private:
