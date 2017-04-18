@@ -11,13 +11,12 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include <vector>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include "bound.h"
-#include "optimization_variables.h"
-#include "optimization_variables_container.h"
+#include <xpp/bound.h>
+#include <xpp/optimization_variables.h>
+#include <xpp/optimization_variables_container.h>
 
 namespace xpp {
 namespace opt {

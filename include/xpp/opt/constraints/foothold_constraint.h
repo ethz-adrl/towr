@@ -9,10 +9,13 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_FOOTHOLD_CONSTRAINT_H_
 
 #include <memory>
+#include <string>
 
 #include <xpp/endeffectors.h>
 
-#include <xpp/constraint.h>
+#include <xpp/bound.h>
+
+#include "constraint.h"
 
 namespace xpp {
 namespace opt {

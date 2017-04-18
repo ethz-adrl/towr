@@ -8,14 +8,15 @@
 #include <xpp/opt/constraints/dynamic_constraint.h>
 
 #include <Eigen/Dense>
-#include <string>
+#include <Eigen/Sparse>
 #include <vector>
 
 #include <xpp/cartesian_declarations.h>
+#include <xpp/endeffectors.h>
 #include <xpp/state.h>
 
 #include <xpp/bound.h>
-#include <xpp/constraint.h>
+#include <xpp/opt/constraints/constraint.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/endeffector_load.h>
 #include <xpp/opt/variables/endeffectors_motion.h>

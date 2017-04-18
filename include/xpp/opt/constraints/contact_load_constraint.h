@@ -9,11 +9,14 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <xpp/endeffectors.h>
 
-#include <xpp/constraint.h>
+#include <xpp/bound.h>
+
+#include "constraint.h"
 
 namespace xpp {
 namespace opt {

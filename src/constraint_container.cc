@@ -5,7 +5,7 @@
  @brief   Defines the ConstraintContainer class.
  */
 
-#include <xpp/constraint_container.h>
+#include <xpp/opt/constraints/constraint_container.h>
 
 #include <iostream>
 #include <Eigen/Sparse>

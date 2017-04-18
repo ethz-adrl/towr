@@ -9,9 +9,11 @@
 #define XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
 
 #include <memory>
+#include <string>
 
 #include <xpp/opt/linear_inverted_pendulum.h>
-#include <xpp/time_discretization_constraint.h>
+
+#include "time_discretization_constraint.h"
 
 namespace xpp {
 namespace opt {

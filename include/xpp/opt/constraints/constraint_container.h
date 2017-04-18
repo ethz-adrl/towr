@@ -12,7 +12,8 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include "bound.h"
+#include <xpp/bound.h>
+
 #include "constraint.h"
 
 namespace xpp {

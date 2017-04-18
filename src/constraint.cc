@@ -5,11 +5,7 @@
  @brief   Abstract class representing a constraint for the NLP problem.
  */
 
-#include <xpp/constraint.h>
-
-#include <cassert>
-#include <iomanip>
-#include <iostream>
+#include <xpp/opt/constraints/constraint.h>
 
 namespace xpp {
 namespace opt {

@@ -12,9 +12,10 @@
 #include <vector>
 #include <Eigen/Dense>
 
+#include <xpp/opt/constraints/constraint.h>
+#include <xpp/opt/constraints/constraint_container.h>
+
 #include "bound.h"
-#include "constraint.h"
-#include "constraint_container.h"
 #include "cost.h"
 #include "cost_container.h"
 #include "optimization_variables_container.h"

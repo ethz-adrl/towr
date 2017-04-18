@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/time_discretization_constraint.h>
+#include <xpp/opt/constraints/time_discretization_constraint.h>
 #include <cmath>
 
 namespace xpp {

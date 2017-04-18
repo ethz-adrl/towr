@@ -11,8 +11,10 @@
 #include <memory>
 #include <string>
 
-#include <xpp/constraint.h>
+#include <xpp/bound.h>
 #include <xpp/matrix_vector.h>
+
+#include "constraint.h"
 
 namespace xpp {
 namespace opt {

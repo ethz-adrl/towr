@@ -10,10 +10,11 @@
 
 #include <array>
 #include <memory>
+#include <string>
 
 #include <xpp/endeffectors.h>
 
-#include <xpp/time_discretization_constraint.h>
+#include "time_discretization_constraint.h"
 
 namespace xpp {
 namespace opt {

@@ -9,8 +9,8 @@
 
 #include <Eigen/Sparse>
 
-#include <xpp/constraint.h>
 #include <xpp/bound.h>
+#include <xpp/opt/constraints/constraint.h>
 
 namespace xpp {
 namespace opt {
