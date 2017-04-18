@@ -41,16 +41,9 @@ public:
   void ClearConstraints();
   void AddConstraint (ConstraitPtrVec constraint);
 
-
   VectorXd GetConstraintValues () const;
   Jacobian GetConstraintJacobian () const;
-
   VecBound GetBounds () const;
-
-
-//  void UpdateConstraints();
-
-//  void PrintStatus(double tol) const;
 
 private:
   void RefreshBounds ();

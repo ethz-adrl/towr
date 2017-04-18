@@ -32,9 +32,6 @@ private:
   VecBound GetBounds() const override;
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
-//  // zmp_ remove
-//  virtual void UpdateJacobians() override;
-
   /** Sets the constraint value a specific time t, corresponding to node k.
    */
   virtual void UpdateConstraintAtInstance(double t, int k) const = 0;

@@ -33,7 +33,6 @@ ConstraintContainer::AddConstraint (ConstraitPtrVec constraints)
   for (auto& c : constraints)
     constraints_.push_back(c);
 
-//  UpdateConstraints();
   RefreshBounds ();
 }
 
@@ -69,14 +68,6 @@ ConstraintContainer::GetConstraintJacobian () const
   return jacobian_;
 }
 
-//void
-//ConstraintContainer::UpdateConstraints ()
-//{
-//  for (auto& constraint : constraints_) {
-//    constraint->Update();
-//  }
-//}
-
 void
 ConstraintContainer::RefreshBounds ()
 {
@@ -96,15 +87,6 @@ ConstraintContainer::GetBounds () const
 {
   return bounds_;
 }
-
-//void
-//xpp::opt::ConstraintContainer::PrintStatus (double tol) const
-//{
-//  std::cout << "Constraint violation indices for tol=" << tol << ":\n";
-//  for (const auto& constraint : constraints_) {
-//    constraint->PrintStatus(tol);
-//  }
-//}
 
 } /* namespace opt */
 } /* namespace xpp */

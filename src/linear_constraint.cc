@@ -22,18 +22,12 @@ LinearEqualityConstraint::LinearEqualityConstraint (
     const MatVec& linear_equation)
 {
   linear_equation_ = linear_equation;
-//  name_ = name;
 
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));
   opt_vars_ = opt_vars;
 
   int num_constraints = linear_equation_.v.rows();
   SetDimensions(opt_vars, num_constraints);
-
-  // zmp_ remove
-//  Jacobian& jac = GetJacobianRefWithRespectTo(com_motion_->GetId());
-//
-//  jac = linear_equation_.M.sparseView();
 }
 
 LinearEqualityConstraint::~LinearEqualityConstraint ()

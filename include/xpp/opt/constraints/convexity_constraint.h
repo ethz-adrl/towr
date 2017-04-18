@@ -11,8 +11,6 @@
 #include <memory>
 #include <string>
 
-
-
 #include <xpp/bound.h>
 
 #include "constraint.h"

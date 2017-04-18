@@ -26,8 +26,6 @@ ContactLoadConstraint::ContactLoadConstraint (const OptVarsPtr& opt_vars)
   SetDimensions(opt_vars, num_constraints);
 
   ee_ids_  = contact_schedule_->IsInContact(0.0).GetEEsOrdered();
-
-//  GetJacobianRefWithRespectTo(ee_load_->GetId()).setIdentity();
 }
 
 ContactLoadConstraint::~ContactLoadConstraint ()

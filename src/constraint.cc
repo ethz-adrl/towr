@@ -39,7 +39,7 @@ Constraint::SetDimensions (const OptVarsPtr& vars,
 }
 
 Constraint::Jacobian
-Constraint::GetConstraintJacobian ()
+Constraint::GetConstraintJacobian () const
 {
   Jacobian jacobian(num_constraints_, GetNumberOfOptVariables());
 
@@ -61,26 +61,6 @@ Constraint::GetConstraintJacobian ()
 
   return jacobian;
 }
-
-//void
-//xpp::opt::Constraint::PrintStatus (double tol) const
-//{
-//  std::cout << std::setw(17) << std::left << name_;
-//  std::cout << "[" << std::setw(3) << std::right << g_.rows() << "]:  ";
-//
-//  int i=0;
-//  for (auto b : bounds_) {
-//    bool g_too_small = g_(i) < b.lower_ - tol;
-//    bool g_too_large = g_(i) > b.upper_ + tol;
-//
-//    if (g_too_small || g_too_large)
-//      std::cout << i << ",";
-//    i++;
-//  }
-//
-//  std::cout << std::endl;
-//}
-
 
 } /* namespace opt */
 } /* namespace xpp */

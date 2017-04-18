@@ -12,9 +12,7 @@
 #include <string>
 
 #include <xpp/endeffectors.h>
-
 #include <xpp/bound.h>
-
 #include "constraint.h"
 
 namespace xpp {
