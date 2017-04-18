@@ -53,7 +53,7 @@ public:
     */
   VecBound GetBounds();
 
-  void PrintStatus(double tol) const;
+//  void PrintStatus(double tol) const;
   int GetNumberOfConstraints() const;
 
   /** @brief Implement this if the Jacobians change with different values of the

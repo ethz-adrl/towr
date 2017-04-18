@@ -49,7 +49,7 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
   auto constraint = CostConstraintFactory::CreateJointAngleConstraint(interpreter);
   constraint_container.AddConstraint(constraint);
 
-  VectorXd q = constraint_container.EvaluateConstraints();
+  VectorXd q = constraint_container.GetConstraintValues();
   Constraint::VecBound q_bounds = constraint_container.GetBounds();
 
   EXPECT_GT(q.rows(), 0);

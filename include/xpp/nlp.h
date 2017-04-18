@@ -31,13 +31,10 @@ namespace opt {
   */
 class NLP {
 public:
-  typedef Constraint::Jacobian Jacobian;
-  typedef double Number;
-  typedef Eigen::VectorXd VectorXd;
-
-  typedef std::shared_ptr<Jacobian> JacobianPtr;
-  typedef std::shared_ptr<OptimizationVariablesContainer> OptimizationVariablesPtr;
-
+  using VectorXd = Eigen::VectorXd;
+  using Jacobian = Constraint::Jacobian;
+  using Number = double;
+  using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
   using CostPtr = std::shared_ptr<Cost>;
   using ConstraintPtr = std::shared_ptr<Constraint>;
   using ConstraitPtrVec = std::vector<ConstraintPtr>;
@@ -61,9 +58,9 @@ public:
   VectorXd EvaluateConstraints(const Number* x);
 
   void EvalNonzerosOfJacobian(const Number* x, Number* values);
-  JacobianPtr GetJacobianOfConstraints() const;
+  Jacobian GetJacobianOfConstraints() const;
 
-  void PrintStatusOfConstraints(double tol) const;
+//  void PrintStatusOfConstraints(double tol) const;
 
   void AddCost(CostPtr cost, double weight);
   void AddConstraint(ConstraitPtrVec constraints);

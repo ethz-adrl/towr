@@ -101,7 +101,7 @@ NLP::VectorXd
 NLP::EvaluateConstraints (const Number* x)
 {
   SetVariables(x);
-  return constraints_.EvaluateConstraints();
+  return constraints_.GetConstraintValues();
 }
 
 bool
@@ -114,22 +114,16 @@ void
 NLP::EvalNonzerosOfJacobian (const Number* x, Number* values)
 {
   SetVariables(x);
-  JacobianPtr jac = GetJacobianOfConstraints();
+  Jacobian jac = GetJacobianOfConstraints();
 
-  jac->makeCompressed(); // so the valuePtr() is dense and accurate
-  std::copy(jac->valuePtr(), jac->valuePtr() + jac->nonZeros(), values);
+  jac.makeCompressed(); // so the valuePtr() is dense and accurate
+  std::copy(jac.valuePtr(), jac.valuePtr() + jac.nonZeros(), values);
 }
 
-NLP::JacobianPtr
+NLP::Jacobian
 NLP::GetJacobianOfConstraints () const
 {
   return constraints_.GetJacobian();
-}
-
-void
-NLP::PrintStatusOfConstraints (double tol) const
-{
-  return constraints_.PrintStatus(tol);
 }
 
 void
@@ -149,6 +143,12 @@ NLP::ConvertToEigen(const Number* x) const
 {
   return Eigen::Map<const VectorXd>(x,GetNumberOfOptimizationVariables());
 }
+
+//void
+//NLP::PrintStatusOfConstraints (double tol) const
+//{
+//  return constraints_.PrintStatus(tol);
+//}
 
 } /* namespace opt */
 } /* namespace xpp */

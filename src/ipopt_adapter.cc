@@ -8,14 +8,14 @@
 #include <xpp/ipopt_adapter.h>
 
 #include <cassert>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
 #include <sys/types.h>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
@@ -38,7 +38,7 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 {
   n = nlp_.GetNumberOfOptimizationVariables();
   m = nlp_.GetNumberOfConstraints();
-  nnz_jac_g = nlp_.GetJacobianOfConstraints()->nonZeros();
+  nnz_jac_g = nlp_.GetJacobianOfConstraints().nonZeros();
 
   // nonzeros in the hessian of the lagrangian
   // (one in the hessian of the objective for x2,
@@ -123,8 +123,8 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
 
     auto jac = nlp_.GetJacobianOfConstraints();
     int nele=0; // nonzero cells in jacobian
-    for (int k=0; k<jac->outerSize(); ++k) {
-      for (NLP::Jacobian::InnerIterator it(*jac,k); it; ++it) {
+    for (int k=0; k<jac.outerSize(); ++k) {
+      for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
         iRow[nele] = it.row();
         jCol[nele] = it.col();
         nele++;

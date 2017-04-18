@@ -38,7 +38,7 @@ ConstraintContainer::AddConstraint (ConstraitPtrVec constraints)
 }
 
 ConstraintContainer::VectorXd
-ConstraintContainer::EvaluateConstraints () const
+ConstraintContainer::GetConstraintValues () const
 {
   VectorXd g_all(bounds_.size());
 
@@ -53,7 +53,7 @@ ConstraintContainer::EvaluateConstraints () const
   return g_all;
 }
 
-ConstraintContainer::JacobianPtr
+ConstraintContainer::Jacobian
 ConstraintContainer::GetJacobian () const
 {
   int row = 0;
@@ -62,7 +62,7 @@ ConstraintContainer::GetJacobian () const
     const Jacobian& jac = constraint->GetConstraintJacobian();
     for (int k=0; k<jac.outerSize(); ++k)
       for (Jacobian::InnerIterator it(jac,k); it; ++it)
-        jacobian_->coeffRef(row+it.row(), it.col()) = it.value();
+        jacobian_.coeffRef(row+it.row(), it.col()) = it.value();
 
     row += constraint->GetNumberOfConstraints();
   }
@@ -89,7 +89,7 @@ ConstraintContainer::RefreshBounds ()
 
   int n_constraints = bounds_.size();
   int n_var = constraints_.front()->GetNumberOfOptVariables(); // all the same
-  jacobian_ = std::make_shared<Jacobian>(n_constraints, n_var);
+  jacobian_ = Jacobian(n_constraints, n_var);
 }
 
 VecBound
@@ -98,14 +98,14 @@ ConstraintContainer::GetBounds () const
   return bounds_;
 }
 
-void
-xpp::opt::ConstraintContainer::PrintStatus (double tol) const
-{
-  std::cout << "Constraint violation indices for tol=" << tol << ":\n";
-  for (const auto& constraint : constraints_) {
-    constraint->PrintStatus(tol);
-  }
-}
+//void
+//xpp::opt::ConstraintContainer::PrintStatus (double tol) const
+//{
+//  std::cout << "Constraint violation indices for tol=" << tol << ":\n";
+//  for (const auto& constraint : constraints_) {
+//    constraint->PrintStatus(tol);
+//  }
+//}
 
 } /* namespace opt */
 } /* namespace xpp */

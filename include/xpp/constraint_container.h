@@ -8,9 +8,9 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINT_CONTAINER_H_
 
-#include <Eigen/Dense>
 #include <memory>
 #include <vector>
+#include <Eigen/Dense>
 
 #include "bound.h"
 #include "constraint.h"
@@ -26,11 +26,11 @@ namespace opt {
 // spring_clean_ should also be a component in a composite design pattern,
 // just like Constraint.
 // see https://sourcemaking.com/design_patterns/composite
+// zmp_ rename to composite
 class ConstraintContainer {
 public:
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Constraint::Jacobian;
-  using JacobianPtr = std::shared_ptr<Jacobian>;
   using ConstraintPtr = std::shared_ptr<Constraint>;
   using ConstraitPtrVec = std::vector<ConstraintPtr>;
 
@@ -38,22 +38,23 @@ public:
   virtual ~ConstraintContainer ();
 
   void ClearConstraints();
-
   void AddConstraint (ConstraitPtrVec constraint);
 
-  VectorXd EvaluateConstraints () const;
-  JacobianPtr GetJacobian () const;
-  VecBound GetBounds () const;
 
+  VectorXd GetConstraintValues () const;
+  Jacobian GetJacobian () const;
+  VecBound GetBounds () const;
   void UpdateConstraints();
 
-  void PrintStatus(double tol) const;
+//  void PrintStatus(double tol) const;
 
 private:
   void RefreshBounds ();
   ConstraitPtrVec constraints_;
+
+  // zmp_ these should probably only exist in the leaf/true constraints
   VecBound bounds_;
-  JacobianPtr jacobian_;
+  mutable Jacobian jacobian_; // zmp_ remove this mutable
 };
 
 } /* namespace opt */

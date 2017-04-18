@@ -20,7 +20,7 @@ namespace opt {
 
 /** @brief Common interface to define a cost, which simply returns a scalar value
   */
-// zmp_ specialization of cost?
+// zmp_ specialization of constraint with just one row?
 class Cost {
 public:
   using VectorXd = Eigen::VectorXd;
@@ -34,10 +34,10 @@ public:
   virtual void Update() = 0;
 
 
-  VectorXd EvaluateCompleteGradient();
-
   double EvaluateWeightedCost () const;
+  VectorXd EvaluateCompleteGradient();
   VectorXd EvaluateWeightedGradientWrt (std::string var_set);
+
   void SetWeight(double weight);
   int GetVariableCount() const;
 

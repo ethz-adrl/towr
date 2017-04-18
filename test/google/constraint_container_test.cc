@@ -46,7 +46,7 @@ protected:
 
 TEST_F(ConstraintContainerTest, EvaluateConstraintsInitialAcc)
 {
-  Eigen::VectorXd g = constraints_->EvaluateConstraints();
+  Eigen::VectorXd g = constraints_->GetConstraintValues();
   std::cout << "g: " << g.transpose() << std::endl;
 
   EXPECT_EQ(4, g.rows()); // two constraints in x and one in y
