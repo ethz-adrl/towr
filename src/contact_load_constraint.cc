@@ -62,16 +62,12 @@ ContactLoadConstraint::GetBounds () const
   return bounds_;
 }
 
-ContactLoadConstraint::Jacobian
-ContactLoadConstraint::GetJacobianWithRespectTo (std::string var_set) const
+void
+ContactLoadConstraint::FillJacobianWithRespectTo (std::string var_set,
+                                                 Jacobian& jac) const
 {
-  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
-  Jacobian jac = Jacobian(num_constraints_, n);
-
   if (var_set == ee_load_->GetId())
     jac.setIdentity();
-
-  return jac;
 }
 
 } /* namespace opt */

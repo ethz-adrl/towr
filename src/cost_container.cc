@@ -60,7 +60,7 @@ CostContainer::EvaluateGradient () const
   VectorXd gradient = VectorXd::Zero(n);
 
   for (const auto& cost : costs_)
-    gradient += cost->EvaluateCompleteGradient();
+    gradient += cost->EvaluateWeightedGradient();
 
   return gradient;
 }

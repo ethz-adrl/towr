@@ -36,7 +36,7 @@ public:
 private:
   VectorXd GetConstraintValues() const override;
   VecBound GetBounds() const override;
-  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
+  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 
   EEMotionPtr ee_motion_;

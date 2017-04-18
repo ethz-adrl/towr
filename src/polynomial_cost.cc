@@ -44,13 +44,27 @@ QuadraticPolynomialCost::EvaluateCost () const
 }
 
 
-QuadraticPolynomialCost::VectorXd
-QuadraticPolynomialCost::EvaluateGradientWrt(std::string var_set)
+void
+QuadraticPolynomialCost::FillGradientWrt(std::string var_set, VectorXd& grad)
 {
-  VectorXd grad;
-
   if (var_set == com_motion_->GetId())
     grad =  2.0 * matrix_vector_.M * com_motion_->GetXYSplineCoeffients();
+}
+
+VectorXd
+QuadraticPolynomialCost::EvaluateGradient ()
+{
+  VectorXd grad = VectorXd::Zero(GetVariableCount());
+
+  int row = 0;
+  for (const auto& vars : opt_vars_->GetOptVarsVec()) {
+
+    int n_set = vars->GetOptVarCount();
+    VectorXd grad_set = VectorXd::Zero(n_set); // default is not dependent
+    FillGradientWrt(vars->GetId(), grad_set);
+    grad.middleRows(row, n_set) = grad_set;
+    row += n_set;
+  }
 
   return grad;
 }
@@ -64,3 +78,4 @@ QuadraticPolynomialCost::EvaluateGradientWrt(std::string var_set)
 
 } /* namespace opt */
 } /* namespace xpp */
+

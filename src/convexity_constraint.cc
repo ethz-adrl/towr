@@ -70,12 +70,10 @@ ConvexityConstraint::GetBounds () const
   return b;
 }
 
-ConvexityConstraint::Jacobian
-ConvexityConstraint::GetJacobianWithRespectTo (std::string var_set) const
+void
+ConvexityConstraint::FillJacobianWithRespectTo (std::string var_set,
+                                               Jacobian& jac) const
 {
-  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
-  Jacobian jac = Jacobian(num_constraints_, n);
-
   if (var_set == ee_load_->GetId()) {
     for (int k=0; k<ee_load_->GetNumberOfSegments(); ++k) {
       for (auto ee : ee_load_->GetLoadValuesIdx(k).GetEEsOrdered()) {
@@ -84,8 +82,6 @@ ConvexityConstraint::GetJacobianWithRespectTo (std::string var_set) const
       }
     }
   }
-
-  return jac;
 }
 
 } /* namespace opt */

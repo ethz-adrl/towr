@@ -36,20 +36,19 @@ public:
   SoftConstraint (const OptVarsPtr&, const ConstraintPtr& constraint);
   virtual ~SoftConstraint ();
 
-//  void Update() override;
-
-  /** c(x) = 0.5 * (g-b)^T * W * (g-b)
-    */
-  virtual double EvaluateCost () const;
-
-  /** dc(x)/dx = J^T * W * (g-b)
-    */
-  virtual VectorXd EvaluateGradientWrt(std::string var_set);
 
 private:
   ConstraintPtr constraint_;
   VectorXd weights_; ///< How each constraint violation contributes to cost
   VectorXd b_;       /// average value of each upper and lower bound
+
+  virtual double EvaluateCost () const override;
+  /** c(x) = 0.5 * (g-b)^T * W * (g-b)
+    */
+
+  /** dc(x)/dx = J^T * W * (g-b)
+    */
+  virtual VectorXd EvaluateGradient() override;
 };
 
 } /* namespace opt */

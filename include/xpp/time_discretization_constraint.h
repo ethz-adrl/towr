@@ -30,8 +30,7 @@ protected:
 private:
   VectorXd GetConstraintValues() const override;
   VecBound GetBounds() const override;
-
-  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
+  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 //  // zmp_ remove
 //  virtual void UpdateJacobians() override;
@@ -49,9 +48,6 @@ private:
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const = 0;
 
   std::vector<double> dts_; ///< discretized times
-
-
-
 };
 
 } /* namespace opt */

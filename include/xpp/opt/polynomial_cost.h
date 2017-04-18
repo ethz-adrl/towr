@@ -33,8 +33,6 @@ public:
   PolynomialCost (const OptVarsPtr&);
   virtual ~PolynomialCost (){};
 
-//  void Update() override { /*com_motion_ always up-to-date*/ };
-
 protected:
   BaseMotionPtrS com_motion_;
   MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
@@ -45,12 +43,14 @@ public:
   QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&);
   virtual ~QuadraticPolynomialCost();
 
+  virtual VectorXd EvaluateGradient() override;
+
 private:
   /**  The cost is calculated as
     *  cost = x^T * M * x   +   v^T * x
     */
   double EvaluateCost () const override;
-  virtual VectorXd EvaluateGradientWrt(std::string var_set) final;
+  void FillGradientWrt(std::string var_set, VectorXd& grad);
 };
 
 //class SquaredSplineCost : public ASplineCost {

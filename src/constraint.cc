@@ -16,7 +16,6 @@ namespace opt {
 
 Constraint::Constraint ()
 {
-//  name_ = "GiveMeAName";
 }
 
 Constraint::~Constraint ()
@@ -27,14 +26,12 @@ int
 Constraint::GetNumberOfConstraints () const
 {
   return num_constraints_;
-//  return complete_jacobian_.rows();
 }
 
 int
 Constraint::GetNumberOfOptVariables () const
 {
   return opt_vars_->GetOptimizationVariableCount();
-//  return complete_jacobian_.cols();
 }
 
 void
@@ -42,22 +39,7 @@ Constraint::SetDimensions (const OptVarsPtr& vars,
                            int num_constraints)
 {
   num_constraints_ = num_constraints;
-
-//  g_ = VectorXd::Zero(num_constraints);
-//  bounds_ = VecBound(num_constraints);
-
-//  int num_vars_ = 0;
-//  for (auto& v : vars->GetOptVarsVec()) {
-//    int n = v->GetOptVarCount();
-//    Jacobian jac(num_constraints, n); // empty jacobians
-//    jacobians_.push_back({v->GetId(), jac});
-//    num_vars_ += n;
-////    all_jacs_.push_back(jac);
-//  }
-
   opt_vars_ = vars;
-
-//  complete_jacobian_ = Jacobian(num_constraints, num_vars_);
 }
 
 Constraint::Jacobian
@@ -67,7 +49,11 @@ Constraint::GetConstraintJacobian ()
 
   int col = 0;
   for (const auto& vars : opt_vars_->GetOptVarsVec()) {
-    const Jacobian& jac = GetJacobianWithRespectTo(vars->GetId());
+
+    int n = vars->GetOptVarCount();
+    Jacobian jac = Jacobian(num_constraints_, n);
+
+    FillJacobianWithRespectTo(vars->GetId(), jac);
 
     // insert the derivative in the correct position in the overall Jacobian
     for (int k=0; k<jac.outerSize(); ++k)
@@ -79,54 +65,6 @@ Constraint::GetConstraintJacobian ()
 
   return jacobian;
 }
-
-
-//Constraint::Jacobian
-//Constraint::GetConstraintJacobian ()
-//{
-//  int col = 0;
-//  for (const auto& v : jacobians_) {
-//    const Jacobian& jac = v.second;
-//
-//    // insert the derivative in the correct position in the overall Jacobian
-//    for (int k=0; k<jac.outerSize(); ++k)
-//      for (Jacobian::InnerIterator it(jac,k); it; ++it)
-//        complete_jacobian_.coeffRef(it.row(), col+it.col()) = it.value();
-//
-//    col += jac.cols();
-//  }
-//
-//  return complete_jacobian_;
-//}
-
-//Constraint::Jacobian
-//Constraint::GetJacobianWithRespectTo (std::string var_set) const
-//{
-//  Jacobian jac; // empty matrix
-//
-//  for (const auto& var : jacobians_)
-//    if (var.first == var_set)
-//      jac = var.second;
-//
-//  return jac;
-//}
-
-//// zmp_ DRY with above -.-
-//Constraint::Jacobian&
-//Constraint::GetJacobianRefWithRespectTo (std::string var_set)
-//{
-//  for (auto& var : jacobians_)
-//    if (var.first == var_set)
-//      return var.second;
-//
-//  assert(false); // Jacobian does not exist
-//}
-
-//void
-//Constraint::Update ()
-//{
-//  UpdateJacobians();
-//}
 
 //void
 //xpp::opt::Constraint::PrintStatus (double tol) const

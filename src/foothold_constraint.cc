@@ -72,20 +72,16 @@ FootholdConstraint::GetBounds () const
   return bounds;
 }
 
-FootholdConstraint::Jacobian
-FootholdConstraint::GetJacobianWithRespectTo (std::string var_set) const
+void
+FootholdConstraint::FillJacobianWithRespectTo (std::string var_set,
+                                              Jacobian& jac) const
 {
-  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
-  Jacobian jac = Jacobian(num_constraints_, n);
-
   if (var_set == ee_motion_->GetId()) {
     int k = 0;
     for (const auto ee : desired_ee_pos_W_.GetEEsOrdered())
       for (auto dim : d2::AllDimensions)
         jac.row(k++) = ee_motion_->GetJacobianWrtOptParams(t_,ee,dim);
   }
-
-  return jac;
 }
 
 } /* namespace opt */

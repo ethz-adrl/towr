@@ -13,12 +13,7 @@ namespace opt {
 Cost::Cost (const OptVarsPtr& opt_vars_container)
 {
   weight_ = 1.0;
-
-  n_variables_ = opt_vars_container->GetOptimizationVariableCount();
-
-  all_variable_ids_.clear();
-  for (const auto& var : opt_vars_container->GetOptVarsVec())
-    all_variable_ids_.push_back(var->GetId());
+  opt_vars_ = opt_vars_container;
 }
 
 Cost::~Cost ()
@@ -32,20 +27,9 @@ Cost::EvaluateWeightedCost () const
 }
 
 Cost::VectorXd
-Cost::EvaluateCompleteGradient ()
+Cost::EvaluateWeightedGradient ()
 {
-  VectorXd grad = VectorXd::Zero(GetVariableCount());
-
-  int row = 0;
-  for (const auto& id : all_variable_ids_) {
-
-    VectorXd grad_set = EvaluateGradientWrt(id);
-    int n_set = grad_set.rows();
-    grad.middleRows(row, n_set) = grad_set;
-    row += n_set;
-  }
-
-  return weight_ * grad;
+  return weight_ * EvaluateGradient();
 }
 
 void
@@ -57,7 +41,7 @@ Cost::SetWeight (double weight)
 int
 Cost::GetVariableCount () const
 {
-  return n_variables_;
+  return opt_vars_->GetOptimizationVariableCount();
 }
 
 } // namespace opt

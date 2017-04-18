@@ -40,7 +40,7 @@ public:
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd GetConstraintValues() const override;
   VecBound GetBounds() const override;
-  Jacobian GetJacobianWithRespectTo (std::string var_set) const override;
+  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
   ComMotionPtr com_motion_;

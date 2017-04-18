@@ -57,17 +57,13 @@ TimeDiscretizationConstraint::GetBounds () const
   return bounds_;
 }
 
-TimeDiscretizationConstraint::Jacobian
-TimeDiscretizationConstraint::GetJacobianWithRespectTo (std::string var_set) const
+void
+TimeDiscretizationConstraint::FillJacobianWithRespectTo (std::string var_set,
+                                                        Jacobian& jac) const
 {
-  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
-  Jacobian jac = Jacobian(num_constraints_, n);
-
   int k = 0;
   for (double t : dts_)
     UpdateJacobianAtInstance(t, k++, jac, var_set);
-
-  return jac;
 }
 
 //void

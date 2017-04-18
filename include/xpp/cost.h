@@ -30,20 +30,18 @@ public:
   virtual ~Cost ();
 
   double EvaluateWeightedCost () const;
-  VectorXd EvaluateCompleteGradient();
+  VectorXd EvaluateWeightedGradient();
 
   void SetWeight(double weight);
   int GetVariableCount() const;
 
 protected:
   virtual double EvaluateCost () const = 0;
-  virtual VectorXd EvaluateGradientWrt(std::string var_set) = 0;
+  virtual VectorXd EvaluateGradient() = 0;
+  OptVarsPtr opt_vars_;
 
 private:
   double weight_;
-
-  std::vector<std::string> all_variable_ids_;
-  int n_variables_;
 };
 
 } /* namespace opt */

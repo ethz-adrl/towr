@@ -68,12 +68,10 @@ PolygonCenterConstraint::GetBounds () const
   return bounds;
 }
 
-PolygonCenterConstraint::Jacobian
-PolygonCenterConstraint::GetJacobianWithRespectTo (std::string var_set) const
+void
+PolygonCenterConstraint::FillJacobianWithRespectTo (std::string var_set,
+                                                   Jacobian& jac) const
 {
-  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
-  Jacobian jac = Jacobian(num_constraints_, n);
-
   if (var_set == ee_load_->GetId()) {
 
     for (int k=0; k<GetNumberOfConstraints(); ++k) {
@@ -88,27 +86,7 @@ PolygonCenterConstraint::GetJacobianWithRespectTo (std::string var_set) const
       }
     }
   }
-
-  return jac;
 }
-
-//void
-//PolygonCenterConstraint::UpdateJacobians ()
-//{
-//  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetId());
-//
-//  for (int k=0; k<GetNumberOfConstraints(); ++k) {
-//    double t = ee_load_->GetTimeCenterSegment(k);
-//    int m = contact_schedule_->GetContactCount(t);
-//
-//    auto lambda_k = ee_load_->GetLoadValuesIdx(k);
-//
-//    for (auto ee : lambda_k.GetEEsOrdered()) {
-//      int idx = ee_load_->IndexDiscrete(k,ee);
-//      jac.coeffRef(k,idx) = 2*(lambda_k.At(ee) - 1./m);
-//    }
-//  }
-//}
 
 } /* namespace opt */
 } /* namespace xpp */

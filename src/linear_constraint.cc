@@ -60,18 +60,13 @@ LinearEqualityConstraint::GetBounds () const
   return bounds;
 }
 
-LinearEqualityConstraint::Jacobian
-LinearEqualityConstraint::GetJacobianWithRespectTo (std::string var_set) const
+void
+LinearEqualityConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
 {
-  int n = opt_vars_->GetSet(var_set)->GetOptVarCount();
-  Jacobian jac = Jacobian(num_constraints_, n);
-
   // the constraints are all linear w.r.t. the decision variables.
   // careful, .sparseView is only valid when the Jacobian is constant, e.g.
   if (var_set == com_motion_->GetId())
     jac = linear_equation_.M.sparseView();
-
-  return jac;
 }
 
 } /* namespace opt */

@@ -83,9 +83,6 @@ void
 RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k,
                                             Jacobian& jac, std::string var_set) const
 {
-//  Jacobian& jac_ee   = GetJacobianRefWithRespectTo(ee_motion_->GetId());
-//  Jacobian& jac_base = GetJacobianRefWithRespectTo(com_motion_->GetId());
-
   for (auto ee : nominal_stance_.GetEEsOrdered()) {
     for (auto dim : d2::AllDimensions) {
       int row = GetRow(k,ee,dim);
@@ -95,7 +92,6 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k,
 
       if (var_set == com_motion_->GetId())
         jac.row(row) = -1*com_motion_->GetJacobian(t, kPos, static_cast<Coords3D>(dim));
-
     }
   }
 }

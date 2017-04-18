@@ -18,7 +18,6 @@
 #include "bound.h"
 #include "optimization_variables.h"
 #include "optimization_variables_container.h"
-#include "soft_constraint.h" // only for friend declaration
 
 namespace xpp {
 namespace opt {
@@ -37,7 +36,6 @@ public:
   Constraint ();
   virtual ~Constraint ();
 
-
   /** @brief A constraint always delivers a vector of constraint violations.
    */
   virtual VectorXd GetConstraintValues() const = 0;
@@ -46,59 +44,23 @@ public:
     */
   virtual VecBound GetBounds() const = 0;
 
-
   // zmp_ possibly make constant
   Jacobian GetConstraintJacobian();
 
-
-//  void PrintStatus(double tol) const;
   int GetNumberOfConstraints() const;
   int GetNumberOfOptVariables() const;
-
-
-//  /** Updates members (constraints/Jacobians) using newest opt. variables.
-//    */
-//  void Update();
-
 
 protected:
   /** @brief Determines the size of constraints, bounds and jacobians.
     */
   void SetDimensions(const OptVarsPtr&, int num_constraints);
-
-//  /** @returns a writable reference to modify the Jacobian of the constraint.
-//    *
-//    * @param var_set The differentiation of the constraint w.r.t these variables
-//    *                produces this Jacobian.
-//   */
-//  Jacobian& GetJacobianRefWithRespectTo (std::string var_set);
-
-//  std::string name_; // zmp_ possiby remove, only used for printouts
   int num_constraints_;
-
-//  std::vector<Jacobian> all_jacs_;
-
   OptVarsPtr opt_vars_;
+
 private:
-
-//  std::vector<std::string> ids_;
-
-  // zmp_ these values are only accessed by the soft constraint, refactor
-  friend VectorXd SoftConstraint::EvaluateGradientWrt(std::string);
   /** @brief Jacobian of the constraints with respect to each decision variable set
     */
-  virtual Jacobian GetJacobianWithRespectTo (std::string var_set) const = 0;
-
-  /** @brief Implement this if the Jacobians change with different values of the
-    * optimization variables, so are not constant.
-    */
-  // zmp_ not clear when this is called, make more functions private
-//  virtual void UpdateJacobians() {/* do nothing assuming Jacobians constant */};
-
-
-//  std::vector<JacobianNamed> jacobians_;
-//  Jacobian complete_jacobian_;
-
+  virtual void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const = 0;
 };
 
 } /* namespace opt */
