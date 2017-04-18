@@ -31,7 +31,7 @@ public:
   virtual ~ConvexityConstraint ();
 
   VectorXd GetConstraintValues() const override;
-  void UpdateBounds () override;
+  VecBound GetBounds() const override;
 
 private:
   LoadPtr ee_load_;

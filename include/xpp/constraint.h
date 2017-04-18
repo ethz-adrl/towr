@@ -47,7 +47,7 @@ public:
 
   /** @brief For each returned constraint an upper and lower bound is given.
     */
-  VecBound GetBounds();
+  virtual VecBound GetBounds() const = 0;
 
 
 //  void PrintStatus(double tol) const;
@@ -58,9 +58,6 @@ public:
   /** Updates members (constraints/jacobians) using newest opt. variables.
     */
   void Update();
-
-
-
 
 
 protected:
@@ -75,23 +72,10 @@ protected:
    */
   Jacobian& GetJacobianRefWithRespectTo (std::string var_set);
 
-  // zmp_ these should go to the leaf classes?
-  VecBound bounds_;
   std::string name_; // zmp_ possiby remove, only used for printouts
-
   int num_constraints_;
 
 private:
-
-  /** @brief For each returned constraint an upper and lower bound is given.
-    *
-    * This is specific to each type of constraint and must be implemented
-    * by the user.
-    */
-  virtual void UpdateBounds () = 0;
-
-
-
 
 
   // zmp_ these values are only accessed by the soft constraint, refactor

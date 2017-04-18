@@ -35,7 +35,7 @@ public:
 
 private:
   VectorXd GetConstraintValues() const override;
-  virtual void UpdateBounds() override;
+  VecBound GetBounds() const override;
 
   EEMotionPtr ee_motion_;
   NominalStance desired_ee_pos_W_;

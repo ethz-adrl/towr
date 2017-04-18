@@ -34,7 +34,7 @@ public:
   virtual ~ContactLoadConstraint ();
 
   VectorXd GetConstraintValues() const override;
-  void UpdateBounds () override;
+  VecBound GetBounds() const override;
 
 private:
   EELoadPtr ee_load_;

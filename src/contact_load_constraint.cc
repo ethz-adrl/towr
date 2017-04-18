@@ -40,9 +40,10 @@ ContactLoadConstraint::GetConstraintValues () const
   return ee_load_->GetVariables();
 }
 
-void
-ContactLoadConstraint::UpdateBounds ()
+VecBound
+ContactLoadConstraint::GetBounds () const
 {
+  VecBound bounds_(GetNumberOfConstraints());
   // spring_clean_ the load discretization should be more tightly
   // coupled to the endeffector motion
 
@@ -57,6 +58,8 @@ ContactLoadConstraint::UpdateBounds ()
       bounds_.at(ee_ids_.size()*segment+ee) = Bound(0.0, bound);
     }
   }
+
+  return bounds_;
 }
 
 } /* namespace opt */

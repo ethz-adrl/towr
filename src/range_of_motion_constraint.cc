@@ -66,7 +66,7 @@ RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k) const
 }
 
 void
-RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k)
+RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k) const
 {
   for (auto ee : nominal_stance_.GetEEsOrdered()) {
     for (auto dim : d2::AllDimensions) {

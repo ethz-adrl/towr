@@ -58,15 +58,18 @@ FootholdConstraint::GetConstraintValues () const
   return g;
 }
 
-void
-FootholdConstraint::UpdateBounds ()
+VecBound
+FootholdConstraint::GetBounds () const
 {
-  int k=0;
+  VecBound bounds;
+
   for (auto ee : desired_ee_pos_W_.GetEEsOrdered()) {
     Vector3d ee_pos_W = desired_ee_pos_W_.At(ee);
     for (auto dim : d2::AllDimensions)
-      bounds_.at(k++) = Bound(ee_pos_W(dim), ee_pos_W(dim));
+      bounds.push_back(Bound(ee_pos_W(dim), ee_pos_W(dim)));
   }
+
+  return bounds;
 }
 
 } /* namespace opt */

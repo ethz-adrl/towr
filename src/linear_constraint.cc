@@ -47,13 +47,17 @@ LinearEqualityConstraint::GetConstraintValues () const
   return linear_equation_.M*x;
 }
 
-void
-LinearEqualityConstraint::UpdateBounds ()
+VecBound
+LinearEqualityConstraint::GetBounds () const
 {
+  VecBound bounds;
+
   for (int i=0; i<GetNumberOfConstraints(); ++i) {
     Bound bound(-linear_equation_.v[i],-linear_equation_.v[i]);
-    bounds_.at(i) = bound;
+    bounds.push_back(bound);
   }
+
+  return bounds;
 }
 
 } /* namespace opt */

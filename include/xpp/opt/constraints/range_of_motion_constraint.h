@@ -54,7 +54,7 @@ public:
 private:
   void UpdateConstraintAtInstance (double t, int k) const override;
 
-  void UpdateBoundsAtInstance (double t, int k) override;
+  void UpdateBoundsAtInstance (double t, int k) const override;
   void UpdateJacobianAtInstance(double t, int k) override;
 
   int GetRow(int node, EndeffectorID ee, int dimension) const;

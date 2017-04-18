@@ -24,12 +24,12 @@ public:
 protected:
   int GetNumberOfNodes() const;
   mutable VectorXd g_new_;
+  mutable VecBound bounds_;
 
 private:
   VectorXd GetConstraintValues() const override;
+  VecBound GetBounds() const override;
 
-
-  virtual void UpdateBounds () override;
   virtual void UpdateJacobians() override;
 
   /** Sets the constraint value a specific time t, corresponding to node k.
@@ -38,7 +38,7 @@ private:
 
   /** Sets upper/lower bound a specific time t, corresponding to node k.
    */
-  virtual void UpdateBoundsAtInstance(double t, int k) = 0;
+  virtual void UpdateBoundsAtInstance(double t, int k) const = 0;
 
   /** Sets Jacobian rows at a specific time t, corresponding to node k.
    */

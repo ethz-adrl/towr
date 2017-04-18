@@ -62,10 +62,12 @@ ConvexityConstraint::GetConstraintValues () const
   return g;
 }
 
-void
-ConvexityConstraint::UpdateBounds ()
+VecBound
+ConvexityConstraint::GetBounds () const
 {
-  std::fill(bounds_.begin(), bounds_.end(), Bound(1.0, 1.0));
+  VecBound b(GetNumberOfConstraints());
+  std::fill(b.begin(), b.end(), Bound(1.0, 1.0));
+  return b;
 }
 
 } /* namespace opt */

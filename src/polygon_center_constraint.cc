@@ -54,14 +54,18 @@ PolygonCenterConstraint::GetConstraintValues () const
   return g;
 }
 
-void
-PolygonCenterConstraint::UpdateBounds ()
+VecBound
+PolygonCenterConstraint::GetBounds () const
 {
+  VecBound bounds(GetNumberOfConstraints());
+
   for (int k=0; k<GetNumberOfConstraints(); ++k) {
     double t = ee_load_->GetTimeCenterSegment(k);
     int m = contact_schedule_->GetContactCount(t);
-    bounds_.at(k) = Bound(-1./m, -1./m); // should lie in center of polygon
+    bounds.at(k) = Bound(-1./m, -1./m); // should lie in center of polygon
   }
+
+  return bounds;
 }
 
 void

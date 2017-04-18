@@ -42,7 +42,7 @@ Constraint::SetDimensions (const std::vector<OptVarPtr>& vars,
   num_constraints_ = num_constraints;
 
 //  g_ = VectorXd::Zero(num_constraints);
-  bounds_ = VecBound(num_constraints);
+//  bounds_ = VecBound(num_constraints);
 
   int num_vars_ = 0;
   for (auto& v : vars) {
@@ -94,13 +94,6 @@ Constraint::GetJacobianRefWithRespectTo (std::string var_set)
       return var.second;
 
   assert(false); // Jacobian does not exist
-}
-
-VecBound
-Constraint::GetBounds ()
-{
-  UpdateBounds();
-  return bounds_;
 }
 
 void

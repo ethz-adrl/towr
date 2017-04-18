@@ -58,7 +58,7 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k) const
 }
 
 void
-DynamicConstraint::UpdateBoundsAtInstance(double t, int k)
+DynamicConstraint::UpdateBoundsAtInstance(double t, int k) const
 {
   for (auto dim : d2::AllDimensions)
     bounds_.at(GetRow(k,dim)) = kEqualityBound_;

@@ -40,7 +40,7 @@ public:
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd GetConstraintValues() const override;
-  void UpdateBounds () override;
+  VecBound GetBounds() const override;
 
 private:
   ComMotionPtr com_motion_;
