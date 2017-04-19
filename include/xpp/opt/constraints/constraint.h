@@ -66,7 +66,6 @@ public:
 
   virtual ~ConstraintLeaf() {};
 
-  Jacobian GetConstraintJacobian() const override;
 
 protected:
   /** @brief Determines the size of constraints, bounds and jacobians.
@@ -74,6 +73,7 @@ protected:
   void SetDimensions(const OptVarsPtr&, int num_constraints);
 
 private:
+  Jacobian GetConstraintJacobian() const override;
   /** @brief Jacobian of the constraints with respect to each decision variable set.
     */
   virtual void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const = 0;

@@ -18,33 +18,29 @@ namespace opt {
   */
 class TimeDiscretizationConstraint : public ConstraintLeaf {
 public:
-  TimeDiscretizationConstraint (double T, double dt, int constraints_per_time);
+  TimeDiscretizationConstraint (double T, double dt, int constraints_per_time,
+                                const OptVarsPtr& opt_vars);
   virtual ~TimeDiscretizationConstraint ();
 
-protected:
-  int GetNumberOfNodes() const;
-  // zmp_ remove the "mutable"
-  mutable VectorXd g_new_;
-  mutable VecBound bounds_;
-
-private:
   VectorXd GetConstraintValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
+private:
   /** Sets the constraint value a specific time t, corresponding to node k.
    */
-  virtual void UpdateConstraintAtInstance(double t, int k) const = 0;
+  virtual void UpdateConstraintAtInstance(double t, int k, VectorXd&) const = 0;
 
   /** Sets upper/lower bound a specific time t, corresponding to node k.
    */
-  virtual void UpdateBoundsAtInstance(double t, int k) const = 0;
+  virtual void UpdateBoundsAtInstance(double t, int k, VecBound&) const = 0;
 
   /** Sets Jacobian rows at a specific time t, corresponding to node k.
    */
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const = 0;
 
   std::vector<double> dts_; ///< discretized times
+  int GetNumberOfNodes() const;
 };
 
 } /* namespace opt */

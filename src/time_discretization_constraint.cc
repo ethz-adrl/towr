@@ -12,7 +12,8 @@ namespace xpp {
 namespace opt {
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
-                                                            int constraints_per_time)
+                                                            int constraints_per_time,
+                                                            const OptVarsPtr& opt_vars)
 {
   dts_.clear();
   double t = 0.0;
@@ -22,8 +23,7 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
   }
 
   int num_constraints = GetNumberOfNodes()*constraints_per_time;
-  g_new_  = VectorXd(num_constraints);
-  bounds_ = VecBound(num_constraints);
+  SetDimensions(opt_vars, num_constraints);
 }
 
 TimeDiscretizationConstraint::~TimeDiscretizationConstraint ()
@@ -39,21 +39,25 @@ TimeDiscretizationConstraint::GetNumberOfNodes () const
 TimeDiscretizationConstraint::VectorXd
 TimeDiscretizationConstraint::GetConstraintValues () const
 {
+  VectorXd g = VectorXd::Zero(GetNumberOfConstraints());
+
   int k = 0;
   for (double t : dts_)
-    UpdateConstraintAtInstance(t, k++);
+    UpdateConstraintAtInstance(t, k++, g);
 
-  return g_new_;
+  return g;
 }
 
 VecBound
 TimeDiscretizationConstraint::GetBounds () const
 {
+  VecBound bounds(GetNumberOfConstraints());
+
   int k = 0;
   for (double t : dts_)
-    UpdateBoundsAtInstance(t, k++);
+    UpdateBoundsAtInstance(t, k++, bounds);
 
-  return bounds_;
+  return bounds;
 }
 
 void

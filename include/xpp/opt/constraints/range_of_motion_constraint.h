@@ -53,9 +53,8 @@ public:
   virtual ~RangeOfMotionBox();
 
 private:
-  void UpdateConstraintAtInstance (double t, int k) const override;
-
-  void UpdateBoundsAtInstance (double t, int k) const override;
+  void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;
+  void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
 
   int GetRow(int node, EndeffectorID ee, int dimension) const;

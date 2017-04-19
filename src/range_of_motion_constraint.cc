@@ -26,18 +26,13 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
                                     const MaxDevXY& dev,
                                     const NominalStance& nom,
                                     double T)
-    :TimeDiscretizationConstraint(T, dt, nom.GetCount()*kDim2d)
+    :TimeDiscretizationConstraint(T, dt, nom.GetCount()*kDim2d, opt_vars)
 {
-//  name_ = "Range of Motion";
   max_deviation_from_nominal_ = dev;
   nominal_stance_ = nom;
 
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetSet("base_motion"));
   ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
-
-  // zmp_ DRY with number of constraints in base class constructor
-  int num_constraints = GetNumberOfNodes()*ee_motion_->GetNumberOfEndeffectors()*kDim2d;
-  SetDimensions(opt_vars, num_constraints);
 }
 
 RangeOfMotionBox::~RangeOfMotionBox ()
@@ -51,7 +46,7 @@ RangeOfMotionBox::GetRow (int node, EndeffectorID ee, int dim) const
 }
 
 void
-RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k) const
+RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
 {
   Vector3d base_W = com_motion_->GetBase(t).lin.p;
 
@@ -61,12 +56,12 @@ RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k) const
     Vector3d pos_ee_B = pos_ee_W.At(ee).p - base_W;
 
     for (auto dim : {X,Y})
-      g_new_(GetRow(k,ee,dim)) = pos_ee_B(dim);
+      g(GetRow(k,ee,dim)) = pos_ee_B(dim);
   }
 }
 
 void
-RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k) const
+RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k, VecBound& bounds) const
 {
   for (auto ee : nominal_stance_.GetEEsOrdered()) {
     for (auto dim : d2::AllDimensions) {
@@ -74,7 +69,7 @@ RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k) const
       b += nominal_stance_.At(ee)(dim);
       b.upper_ += max_deviation_from_nominal_.at(dim);
       b.lower_ -= max_deviation_from_nominal_.at(dim);
-      bounds_.at(GetRow(k,ee,dim)) = b;
+      bounds.at(GetRow(k,ee,dim)) = b;
     }
   }
 }

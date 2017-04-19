@@ -40,8 +40,8 @@ private:
 
   int GetRow(int node, int dimension) const;
 
-  virtual void UpdateConstraintAtInstance(double t, int k) const override;
-  virtual void UpdateBoundsAtInstance(double t, int k) const override;
+  virtual void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const override;
+  virtual void UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const override;
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
 };
 
