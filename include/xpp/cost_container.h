@@ -24,8 +24,9 @@ namespace opt {
   */
 class CostContainer {
 public:
-  using VectorXd = Eigen::VectorXd;
-  using CostPtr = std::shared_ptr<Cost>;
+  using VectorXd   = Eigen::VectorXd;
+  using Jacobian   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+  using CostPtr    = std::shared_ptr<Cost>;
 
   CostContainer ();
   virtual ~CostContainer ();
@@ -34,11 +35,10 @@ public:
 
   void ClearCosts ();
   void AddCost(CostPtr cost, double weight = 1.0);
-  double EvaluateTotalCost () const;
   bool IsEmpty() const;
-  VectorXd EvaluateGradient() const;
 
-//  void UpdateCosts();
+  VectorXd GetWeightedCost () const;
+  Jacobian GetWeightedJacobian() const;
 
 private:
   std::vector<CostPtr > costs_;

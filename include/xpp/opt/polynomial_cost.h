@@ -43,14 +43,14 @@ public:
   QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&);
   virtual ~QuadraticPolynomialCost();
 
-  virtual VectorXd EvaluateGradient() override;
+  virtual Jacobian GetJacobian() const override;
 
 private:
   /**  The cost is calculated as
     *  cost = x^T * M * x   +   v^T * x
     */
-  double EvaluateCost () const override;
-  void FillGradientWrt(std::string var_set, VectorXd& grad);
+  double GetCost () const override;
+  void FillGradientWrt(std::string var_set, Jacobian&) const;
 };
 
 //class SquaredSplineCost : public ASplineCost {

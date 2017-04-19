@@ -39,19 +39,19 @@ SoftConstraint::~SoftConstraint ()
 }
 
 double
-SoftConstraint::EvaluateCost () const
+SoftConstraint::GetCost () const
 {
   VectorXd g = constraint_->GetConstraintValues();
   return 0.5*(g-b_).transpose()*weights_.asDiagonal()*(g-b_);
 }
 
-SoftConstraint::VectorXd
-SoftConstraint::EvaluateGradient ()
+SoftConstraint::Jacobian
+SoftConstraint::GetJacobian () const
 {
-  VectorXd g = constraint_->GetConstraintValues();
-  auto jac = constraint_->GetConstraintJacobian();
+  VectorXd g   = constraint_->GetConstraintValues();
+  Jacobian jac = constraint_->GetConstraintJacobian();
   VectorXd grad = jac.transpose()*weights_.asDiagonal()*(g-b_);
-  return grad;
+  return grad.transpose().sparseView();
 }
 
 } /* namespace opt */

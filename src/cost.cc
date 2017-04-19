@@ -20,16 +20,18 @@ Cost::~Cost ()
 {
 }
 
-double
-Cost::EvaluateWeightedCost () const
+Cost::VectorXd
+Cost::GetWeightedCost () const
 {
-  return weight_ * EvaluateCost();
+  VectorXd cost(1);
+  cost(0) = weight_ * GetCost();
+  return cost;
 }
 
-Cost::VectorXd
-Cost::EvaluateWeightedGradient ()
+Cost::Jacobian
+Cost::GetWeightedJacobian ()
 {
-  return weight_ * EvaluateGradient();
+  return weight_ * GetJacobian();
 }
 
 void

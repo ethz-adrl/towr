@@ -32,7 +32,7 @@ QuadraticPolynomialCost::~QuadraticPolynomialCost ()
 }
 
 double
-QuadraticPolynomialCost::EvaluateCost () const
+QuadraticPolynomialCost::GetCost () const
 {
   double cost = 0.0;
   VectorXd spline_coeff_ = com_motion_->GetXYSplineCoeffients();
@@ -43,32 +43,37 @@ QuadraticPolynomialCost::EvaluateCost () const
   return cost;
 }
 
-
-void
-QuadraticPolynomialCost::FillGradientWrt(std::string var_set, VectorXd& grad)
+QuadraticPolynomialCost::Jacobian
+QuadraticPolynomialCost::GetJacobian () const
 {
-  if (var_set == com_motion_->GetId())
-    grad =  2.0 * matrix_vector_.M * com_motion_->GetXYSplineCoeffients();
-}
+  Jacobian grad(1,GetVariableCount());
 
-VectorXd
-QuadraticPolynomialCost::EvaluateGradient ()
-{
-  VectorXd grad = VectorXd::Zero(GetVariableCount());
-
-  int row = 0;
+  int col = 0;
   for (const auto& vars : opt_vars_->GetOptVarsVec()) {
 
     int n_set = vars->GetOptVarCount();
-    VectorXd grad_set = VectorXd::Zero(n_set); // default is not dependent
+    Jacobian grad_set = Jacobian(1,n_set);    // default is not dependent
     FillGradientWrt(vars->GetId(), grad_set);
-    grad.middleRows(row, n_set) = grad_set;
-    row += n_set;
+
+    // insert the derivative in the correct position in the overall Jacobian
+    for (int k=0; k<grad_set.outerSize(); ++k)
+      for (Jacobian::InnerIterator it(grad_set,k); it; ++it)
+        grad.coeffRef(it.row(), col+it.col()) = it.value();
+
+    col += n_set;
   }
 
   return grad;
 }
 
+void
+QuadraticPolynomialCost::FillGradientWrt(std::string var_set, Jacobian& jac) const
+{
+  if (var_set == com_motion_->GetId()) {
+    VectorXd grad = 2.0 * matrix_vector_.M * com_motion_->GetXYSplineCoeffients();
+    jac.row(0) =  grad.transpose().sparseView();
+  }
+}
 //double
 //SquaredSplineCost::EvaluateCost () const
 //{

@@ -24,7 +24,7 @@ namespace opt {
 
 /** @brief Interface providing constraint values, bounds and jacobians.
  *
- * Every individual constraint or composite of constraints follows this
+ * Every individual constraint (leaf) or composite of constraints follows this
  * interface and therefore they can be used interchangeably.
  *
  * see https://sourcemaking.com/design_patterns/composite
@@ -66,7 +66,6 @@ public:
 
   virtual ~ConstraintLeaf() {};
 
-
 protected:
   /** @brief Determines the size of constraints, bounds and jacobians.
     */
@@ -74,6 +73,7 @@ protected:
 
 private:
   Jacobian GetConstraintJacobian() const override;
+
   /** @brief Jacobian of the constraints with respect to each decision variable set.
     */
   virtual void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const = 0;

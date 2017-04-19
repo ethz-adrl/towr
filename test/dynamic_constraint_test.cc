@@ -11,39 +11,46 @@
 namespace xpp {
 namespace opt {
 
+using VectorXd = Eigen::VectorXd;
 
-TEST(DynamicConstraintTest, UpdateConstraintValues)
+
+//TEST(DynamicConstraintTest, UpdateConstraintValues)
+//{
+//  using Jacobian      = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+//
+//  Jacobian jac(3,2);
+//
+////  jac.coeffRef(0,0) = 1.1;
+////  jac.coeffRef(0,1) = 2.2;
+//  jac.coeffRef(1,1) = 3.3;
+//
+//
+//  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
+//  JacobianRow row(2);
+//  row.insert(1) = 5;
+//  jac.row(0) += row;
+//
+//
+////  jac.setZero();
+//
+//
+//  std::cout << "jac: " << jac << std::endl;
+//  double nnz = jac.nonZeros();
+//  std::cout << "nnz: " << nnz << std::endl;
+//
+//
+//  jac.makeCompressed();
+//  for (int i=0; i<nnz; ++i) {
+//    std::cout << "i=" << i << ":  " << jac.valuePtr()[i] << std::endl;
+//  }
+//}
+
+TEST(DynamicConstraintTest, EigenScalar)
 {
-  using Jacobian      = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+  VectorXd g(1);
+  g(0) = 0.5;
 
-  Jacobian jac(3,2);
-
-//  jac.coeffRef(0,0) = 1.1;
-//  jac.coeffRef(0,1) = 2.2;
-  jac.coeffRef(1,1) = 3.3;
-
-
-  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
-  JacobianRow row(2);
-  row.insert(1) = 5;
-  jac.row(0) += row;
-
-
-//  jac.setZero();
-
-
-  std::cout << "jac: " << jac << std::endl;
-  double nnz = jac.nonZeros();
-  std::cout << "nnz: " << nnz << std::endl;
-
-
-  jac.makeCompressed();
-  for (int i=0; i<nnz; ++i) {
-    std::cout << "i=" << i << ":  " << jac.valuePtr()[i] << std::endl;
-  }
-
-
-
+  std::cout << g << std::endl;
 }
 
 

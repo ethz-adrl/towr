@@ -42,26 +42,27 @@ CostContainer::SetWeights (const std::vector<double>& weights)
     cost->SetWeight(weights.at(i++));
 }
 
-double
-CostContainer::EvaluateTotalCost () const
+CostContainer::VectorXd
+CostContainer::GetWeightedCost () const
 {
-  double total_cost = 0.0;
+  VectorXd total_cost(1);
+  total_cost.setZero();
   for (const auto& cost : costs_)
-    total_cost += cost->EvaluateWeightedCost();
+    total_cost += cost->GetWeightedCost();
 
   return total_cost;
 }
 
-CostContainer::VectorXd
-CostContainer::EvaluateGradient () const
+CostContainer::Jacobian
+CostContainer::GetWeightedJacobian () const
 {
   int n = costs_.front()->GetVariableCount();
-  VectorXd gradient = VectorXd::Zero(n);
+  Jacobian jac(1,n);
 
   for (const auto& cost : costs_)
-    gradient += cost->EvaluateWeightedGradient();
+    jac += cost->GetWeightedJacobian();
 
-  return gradient;
+  return jac;
 }
 
 bool

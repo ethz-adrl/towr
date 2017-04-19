@@ -56,15 +56,18 @@ double
 NLP::EvaluateCostFunction (const Number* x)
 {
   SetVariables(x);
-  return costs_.EvaluateTotalCost();
+  VectorXd g = costs_.GetWeightedCost();
+  assert(g.rows() == 1);
+  return g(0);
 }
 
 NLP::VectorXd
 NLP::EvaluateCostFunctionGradient (const Number* x)
 {
   SetVariables(x);
-  VectorXd grad = costs_.EvaluateGradient();
-  return grad;
+  Jacobian jac = costs_.GetWeightedJacobian();
+  assert(jac.rows() == 1);
+  return jac.row(0).transpose();
 }
 
 VecBound
