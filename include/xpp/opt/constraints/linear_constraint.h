@@ -26,7 +26,7 @@ class BaseMotion;
   * This class is responsible for getting the current state of the CoM spline
   * and using this to calculate the constraint violations.
   */
-class LinearEqualityConstraint : public Constraint {
+class LinearEqualityConstraint : public ConstraintLeaf {
 public:
   using ComMotionPtr = std::shared_ptr<BaseMotion>;
 

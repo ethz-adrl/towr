@@ -31,11 +31,11 @@ namespace opt {
 class NLP {
 public:
   using VectorXd = Eigen::VectorXd;
-  using Jacobian = Constraint::Jacobian;
+  using Jacobian = ConstraintLeaf::Jacobian;
   using Number   = double;
   using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
   using CostPtr = std::shared_ptr<Cost>;
-  using ConstraintPtrU = std::unique_ptr<ConstraintBase>;
+  using ConstraintPtrU = std::unique_ptr<Constraint>;
 
   NLP ();
   virtual ~NLP ();

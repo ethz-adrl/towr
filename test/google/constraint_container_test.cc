@@ -17,8 +17,8 @@ namespace opt {
 
 class ConstraintContainerTest : public ::testing::Test {
 public:
-  typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
-  typedef std::shared_ptr<Constraint> ConstraintPtr;
+  typedef std::shared_ptr<ConstraintComposite> ConstraintContainerPtr;
+  typedef std::shared_ptr<ConstraintLeaf> ConstraintPtr;
 
 protected:
   virtual void SetUp()
@@ -28,7 +28,7 @@ protected:
     opt_var_.AddVariableSet("SplineCoff", Eigen::VectorXd(n_coeff_));
     opt_var_.AddVariableSet("Footholds", Eigen::VectorXd(n_steps_*2));
 
-    constraints_ = std::make_shared<ConstraintContainer>(opt_var_);
+    constraints_ = std::make_shared<ConstraintComposite>(opt_var_);
 
     int n_spline_coeff = opt_var_.GetVariables(VariableNames::kSplineCoeff).rows();
     c_zeros_ = CostConstraintFactory::CreateAccConstraint(Eigen::Vector2d::Zero(),splines_);
@@ -58,7 +58,7 @@ TEST_F(ConstraintContainerTest, EvaluateConstraintsInitialAcc)
 
 TEST_F(ConstraintContainerTest, GetBoundsInitialAcc)
 {
-  ConstraintContainer::VecBound bounds = constraints_->GetBounds();
+  ConstraintComposite::VecBound bounds = constraints_->GetBounds();
 
   EXPECT_EQ(4, bounds.size()); // two constraints in x and one in y
 

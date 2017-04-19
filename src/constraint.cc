@@ -10,37 +10,24 @@
 namespace xpp {
 namespace opt {
 
-ConstraintBase::ConstraintBase ()
-{
-}
-
-ConstraintBase::~ConstraintBase ()
-{
-}
-
 int
-ConstraintBase::GetNumberOfConstraints () const
+Constraint::GetNumberOfConstraints () const
 {
   return num_constraints_;
 }
 
-// zmp_ remove
-//int
-//Constraint::GetNumberOfOptVariables () const
-//{
-//  return opt_vars_->GetOptimizationVariableCount();
-//}
+
 
 void
-Constraint::SetDimensions (const OptVarsPtr& vars,
+ConstraintLeaf::SetDimensions (const OptVarsPtr& vars,
                            int num_constraints)
 {
   num_constraints_ = num_constraints;
   opt_vars_ = vars;
 }
 
-Constraint::Jacobian
-Constraint::GetConstraintJacobian () const
+ConstraintLeaf::Jacobian
+ConstraintLeaf::GetConstraintJacobian () const
 {
   Jacobian jacobian(num_constraints_, opt_vars_->GetOptimizationVariableCount());
 
@@ -58,6 +45,63 @@ Constraint::GetConstraintJacobian () const
         jacobian.coeffRef(it.row(), col+it.col()) = it.value();
 
     col += n;
+  }
+
+  return jacobian;
+}
+
+
+
+void
+ConstraintComposite::AddConstraint (const ConstraintPtr& constraint)
+{
+  constraints_.push_back(constraint);
+  num_constraints_ += constraint->GetNumberOfConstraints();
+}
+
+ConstraintComposite::VectorXd
+ConstraintComposite::GetConstraintValues () const
+{
+  VectorXd g_all(GetNumberOfConstraints());
+
+  int row = 0;
+  for (const auto& c : constraints_) {
+
+    VectorXd g = c->GetConstraintValues();
+    int n_rows = g.rows();
+    g_all.middleRows(row, n_rows) = g;
+    row += n_rows;
+  }
+  return g_all;
+}
+
+VecBound
+ConstraintComposite::GetBounds () const
+{
+  VecBound bounds_;
+  for (const auto& c : constraints_) {
+    VecBound b = c->GetBounds();
+    bounds_.insert(bounds_.end(), b.begin(), b.end());
+  }
+
+  return bounds_;
+}
+
+ConstraintComposite::Jacobian
+ConstraintComposite::GetConstraintJacobian () const
+{
+  int n_var = constraints_.front()->GetConstraintJacobian().cols();
+  Jacobian jacobian(num_constraints_, n_var);
+
+  int row = 0;
+  for (const auto& c : constraints_) {
+
+    const Jacobian& jac = c->GetConstraintJacobian();
+    for (int k=0; k<jac.outerSize(); ++k)
+      for (Jacobian::InnerIterator it(jac,k); it; ++it)
+        jacobian.coeffRef(row+it.row(), it.col()) = it.value();
+
+    row += c->GetNumberOfConstraints();
   }
 
   return jacobian;

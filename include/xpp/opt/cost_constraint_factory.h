@@ -9,7 +9,6 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 
 #include <memory>
-#include <vector>
 
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/state.h>
@@ -35,7 +34,6 @@ class Cost;
 class CostConstraintFactory {
 public:
   using ConstraintPtr    = std::shared_ptr<Constraint>;
-  using ConstraintPtrVec = std::vector<ConstraintPtr>;
   using CostPtr          = std::shared_ptr<Cost>;
   using MotionParamsPtr  = std::shared_ptr<MotionParameters>;
   using OptVarsContainer = std::shared_ptr<OptimizationVariablesContainer>;
@@ -49,7 +47,7 @@ public:
             const StateLin2d& final_state);
 
   CostPtr GetCost(CostName name) const;
-  ConstraintPtrVec GetConstraint(ConstraintName name) const;
+  ConstraintPtr GetConstraint(ConstraintName name) const;
 
 private:
   MotionParamsPtr params;
@@ -61,15 +59,15 @@ private:
   LinearSplineEquations spline_eq_;
 
   // constraints
-  ConstraintPtrVec MakeInitialConstraint() const;
-  ConstraintPtrVec MakeFinalConstraint() const;
-  ConstraintPtrVec MakeJunctionConstraint() const;
-  ConstraintPtrVec MakeConvexityConstraint() const;
-  ConstraintPtrVec MakeDynamicConstraint() const;
-  ConstraintPtrVec MakeRangeOfMotionBoxConstraint() const;
-  ConstraintPtrVec MakeStancesConstraints() const;
-  ConstraintPtrVec MakeObstacleConstraint() const;
-  ConstraintPtrVec MakePolygonCenterConstraint() const;
+  ConstraintPtr MakeInitialConstraint() const;
+  ConstraintPtr MakeFinalConstraint() const;
+  ConstraintPtr MakeJunctionConstraint() const;
+  ConstraintPtr MakeConvexityConstraint() const;
+  ConstraintPtr MakeDynamicConstraint() const;
+  ConstraintPtr MakeRangeOfMotionBoxConstraint() const;
+  ConstraintPtr MakeStancesConstraints() const;
+  ConstraintPtr MakeObstacleConstraint() const;
+  ConstraintPtr MakePolygonCenterConstraint() const;
 
   // costs
   CostPtr MakeMotionCost() const;

@@ -17,7 +17,6 @@
 
 #include <xpp/ipopt_adapter.h>
 #include <xpp/opt/com_spline6.h>
-#include <xpp/opt/constraints/constraint_container.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/contact_schedule.h>
@@ -90,7 +89,7 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
   nlp.Reset();
   nlp.Init(opt_variables_);
 
-  auto constraints = std::make_unique<ConstraintContainer>();
+  auto constraints = std::make_unique<ConstraintComposite>();
   for (ConstraintName name : motion_parameters_->GetUsedConstraints()) {
     constraints->AddConstraint(factory.GetConstraint(name));
   }

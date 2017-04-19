@@ -26,7 +26,7 @@ class EndeffectorsMotion;
   * in order to then calculate costs based on these (move towards goal, avoid
   * obstacles, ...).
   */
-class FootholdConstraint : public Constraint {
+class FootholdConstraint : public ConstraintLeaf {
 public:
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
   using NominalStance = EndeffectorsPos;

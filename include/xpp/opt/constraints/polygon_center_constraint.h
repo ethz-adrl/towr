@@ -28,7 +28,7 @@ class ContactSchedule;
   *
   * where m = number of contacts at each discrete node
   */
-class PolygonCenterConstraint : public Constraint {
+class PolygonCenterConstraint : public ConstraintLeaf {
 public:
   using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
   using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;

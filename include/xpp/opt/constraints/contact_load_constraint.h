@@ -28,7 +28,7 @@ class ContactSchedule;
  *
  *  g = lambda_k < contac_flag_k, for all nodes k
  */
-class ContactLoadConstraint : public Constraint {
+class ContactLoadConstraint : public ConstraintLeaf {
 public:
   using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
   using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;

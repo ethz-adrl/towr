@@ -26,7 +26,7 @@ class EndeffectorLoad;
   * E.g. for a quadruped:
   * g[t_k] = lambda_LF + lambda_RF + lambda_LH + lambda_RF = 1.
   */
-class ConvexityConstraint : public Constraint {
+class ConvexityConstraint : public ConstraintLeaf {
 public:
   using LoadPtr = std::shared_ptr<EndeffectorLoad>;
 

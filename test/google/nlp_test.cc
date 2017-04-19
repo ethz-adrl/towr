@@ -15,12 +15,12 @@ namespace xpp {
 namespace opt {
 
 typedef Eigen::VectorXd VectorXd;
-typedef ConstraintContainer::ConstraintPtr ConstraintPtr;
+typedef ConstraintComposite::ConstraintPtr ConstraintPtr;
 static const std::string set1 = "set1_variables";
 static const std::string set2 = "set2_variables";
 
 
-class FooConstraint : public Constraint {
+class FooConstraint : public ConstraintLeaf {
 public:
   void UpdateVariables(const OptimizationVariablesContainer* opt_var)
   {
@@ -59,7 +59,7 @@ public:
   VecBound UpdateBounds () const {
     VecBound bounds;
     for (int i=0; i<m; ++i)
-      bounds.push_back(Constraint::kEqualityBound_);
+      bounds.push_back(ConstraintLeaf::kEqualityBound_);
     return bounds;
   }
 
@@ -71,7 +71,7 @@ private:
 };
 
 
-class BarConstraint : public Constraint {
+class BarConstraint : public ConstraintLeaf {
 public:
   void UpdateVariables(const OptimizationVariablesContainer* opt_var)
   {
@@ -101,7 +101,7 @@ public:
   VecBound UpdateBounds () const {
     VecBound bounds;
     for (int i=0; i<m; ++i)
-      bounds.push_back(Constraint::kEqualityBound_);
+      bounds.push_back(ConstraintLeaf::kEqualityBound_);
     return bounds;
   }
 
@@ -117,7 +117,7 @@ protected:
   {
     opt_variables_     = std::make_shared<OptimizationVariablesContainer>();
     auto costs         = std::make_shared<CostContainer>(*opt_variables_);
-    auto constraints   = std::make_shared<ConstraintContainer>(*opt_variables_);
+    auto constraints   = std::make_shared<ConstraintComposite>(*opt_variables_);
 
     // different initial values might cause solver to end up in different local
     // minimum.

@@ -16,7 +16,7 @@ namespace opt {
 
 /** @brief Constraints evaluated at discretized times along a trajectory.
   */
-class TimeDiscretizationConstraint : public Constraint {
+class TimeDiscretizationConstraint : public ConstraintLeaf {
 public:
   TimeDiscretizationConstraint (double T, double dt, int constraints_per_time);
   virtual ~TimeDiscretizationConstraint ();
