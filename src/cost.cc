@@ -10,10 +10,10 @@
 namespace xpp {
 namespace opt {
 
-Cost::Cost (const OptVarsPtr& opt_vars_container)
+Cost::Cost ()
 {
   weight_ = 1.0;
-  opt_vars_ = opt_vars_container;
+  num_constraints_ = 1;
 }
 
 Cost::~Cost ()
@@ -21,7 +21,7 @@ Cost::~Cost ()
 }
 
 Cost::VectorXd
-Cost::GetWeightedCost () const
+Cost::GetConstraintValues () const
 {
   VectorXd cost(1);
   cost(0) = weight_ * GetCost();
@@ -29,7 +29,7 @@ Cost::GetWeightedCost () const
 }
 
 Cost::Jacobian
-Cost::GetWeightedJacobian ()
+Cost::GetConstraintJacobian () const
 {
   return weight_ * GetJacobian();
 }
@@ -38,12 +38,6 @@ void
 Cost::SetWeight (double weight)
 {
   weight_ = weight;
-}
-
-int
-Cost::GetVariableCount () const
-{
-  return opt_vars_->GetOptimizationVariableCount();
 }
 
 } // namespace opt

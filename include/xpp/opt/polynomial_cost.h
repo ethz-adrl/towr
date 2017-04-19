@@ -8,12 +8,13 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 
+#include <Eigen/Dense>
 #include <memory>
 #include <string>
-#include <Eigen/Dense>
 
 #include <xpp/cost.h>
 #include <xpp/matrix_vector.h>
+#include <xpp/optimization_variables_container.h>
 
 namespace xpp {
 namespace opt {
@@ -27,13 +28,15 @@ class BaseMotion;
   */
 class PolynomialCost : public Cost {
 public:
-  using VectorXd = Eigen::VectorXd;
+  using VectorXd       = Eigen::VectorXd;
   using BaseMotionPtrS = std::shared_ptr<BaseMotion>;
+  using OptVarsPtr     = std::shared_ptr<OptimizationVariablesContainer>;
 
-  PolynomialCost (const OptVarsPtr&);
+  PolynomialCost ();
   virtual ~PolynomialCost (){};
 
 protected:
+  OptVarsPtr opt_vars_;
   BaseMotionPtrS com_motion_;
   MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
 };
@@ -50,7 +53,7 @@ private:
     *  cost = x^T * M * x   +   v^T * x
     */
   double GetCost () const override;
-  void FillGradientWrt(std::string var_set, Jacobian&) const;
+  void FillJacobianWithRespectTo(std::string var_set, Jacobian&) const;
 };
 
 //class SquaredSplineCost : public ASplineCost {

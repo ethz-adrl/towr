@@ -104,6 +104,7 @@ public:
   VecBound GetBounds () const override;
 
 private:
+  bool represents_constraints = true;
   ConstraitPtrVec constraints_;
 };
 

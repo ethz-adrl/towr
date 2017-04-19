@@ -62,29 +62,19 @@ ConstraintComposite::AddConstraint (const ConstraintPtr& constraint)
 ConstraintComposite::VectorXd
 ConstraintComposite::GetConstraintValues () const
 {
-  VectorXd g_all(GetNumberOfConstraints());
+  VectorXd g_all = VectorXd::Zero(GetNumberOfConstraints());
 
   int row = 0;
   for (const auto& c : constraints_) {
 
     VectorXd g = c->GetConstraintValues();
     int n_rows = g.rows();
-    g_all.middleRows(row, n_rows) = g;
-    row += n_rows;
+    g_all.middleRows(row, n_rows) += g;
+
+    if (represents_constraints)
+      row += n_rows;
   }
   return g_all;
-}
-
-VecBound
-ConstraintComposite::GetBounds () const
-{
-  VecBound bounds_;
-  for (const auto& c : constraints_) {
-    VecBound b = c->GetBounds();
-    bounds_.insert(bounds_.end(), b.begin(), b.end());
-  }
-
-  return bounds_;
 }
 
 ConstraintComposite::Jacobian
@@ -99,14 +89,27 @@ ConstraintComposite::GetConstraintJacobian () const
     const Jacobian& jac = c->GetConstraintJacobian();
     for (int k=0; k<jac.outerSize(); ++k)
       for (Jacobian::InnerIterator it(jac,k); it; ++it)
-        jacobian.coeffRef(row+it.row(), it.col()) = it.value();
+        jacobian.coeffRef(row+it.row(), it.col()) += it.value();
 
-    row += c->GetNumberOfConstraints();
+    if (represents_constraints)
+      row += c->GetNumberOfConstraints();
   }
 
   return jacobian;
 }
 
+VecBound
+ConstraintComposite::GetBounds () const
+{
+  VecBound bounds_;
+  for (const auto& c : constraints_) {
+    VecBound b = c->GetBounds();
+    bounds_.insert(bounds_.end(), b.begin(), b.end());
+  }
+
+  return bounds_;
+}
+
+
 } /* namespace opt */
 } /* namespace xpp */
-

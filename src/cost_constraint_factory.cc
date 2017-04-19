@@ -212,7 +212,7 @@ CostConstraintFactory::MakeMotionCost() const
 CostConstraintFactory::CostPtr
 CostConstraintFactory::ToCost (const ConstraintPtr& constraint) const
 {
-  return std::make_shared<SoftConstraint>(opt_vars_, constraint);
+  return std::make_shared<SoftConstraint>(constraint);
 }
 
 } /* namespace opt */

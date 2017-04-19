@@ -31,8 +31,6 @@ public:
   CostContainer ();
   virtual ~CostContainer ();
 
-  void SetWeights(const std::vector<double>&);
-
   void ClearCosts ();
   void AddCost(CostPtr cost, double weight = 1.0);
   bool IsEmpty() const;

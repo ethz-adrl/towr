@@ -14,7 +14,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include "optimization_variables_container.h"
+#include <xpp/opt/constraints/constraint.h>
 
 namespace xpp {
 namespace opt {
@@ -22,25 +22,24 @@ namespace opt {
 /** @brief Common interface to define a cost, which simply returns a scalar value
   */
 // zmp_ specialization of constraint with just one row/constraint!
-class Cost {
+class Cost : public Constraint {
 public:
   using VectorXd   = Eigen::VectorXd;
   using Jacobian   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-  using OptVarsPtr = std::shared_ptr<OptimizationVariablesContainer>;
 
-  Cost (const OptVarsPtr& opt_vars_container);
+  Cost ();
   virtual ~Cost ();
 
-  VectorXd GetWeightedCost () const;
-  Jacobian GetWeightedJacobian();
+  // both vector and jacobian only have 1 row
+  VectorXd GetConstraintValues () const override;
+  Jacobian GetConstraintJacobian() const override;
+  VecBound GetBounds() const override { assert(false); /* costs don't have bounds */ };
 
   void SetWeight(double weight);
-  int GetVariableCount() const;
 
 protected:
   virtual double GetCost () const = 0;
   virtual Jacobian GetJacobian() const = 0;
-  OptVarsPtr opt_vars_;
 
 private:
   double weight_;

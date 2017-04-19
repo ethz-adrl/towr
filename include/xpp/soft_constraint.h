@@ -33,7 +33,7 @@ public:
   using ConstraintPtr = std::shared_ptr<Constraint>;
   using VectorXd      = Eigen::VectorXd;
 
-  SoftConstraint (const OptVarsPtr&, const ConstraintPtr& constraint);
+  SoftConstraint (const ConstraintPtr& constraint);
   virtual ~SoftConstraint ();
 
 private:
