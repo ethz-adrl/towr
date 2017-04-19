@@ -12,9 +12,9 @@
 #include <memory>
 #include <string>
 
-#include <xpp/cost.h>
 #include <xpp/matrix_vector.h>
 #include <xpp/optimization_variables_container.h>
+#include <xpp/opt/constraints/constraint.h>
 
 namespace xpp {
 namespace opt {
@@ -43,7 +43,7 @@ protected:
 
 class QuadraticPolynomialCost : public PolynomialCost {
 public:
-  QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&);
+  QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&, double weight);
   virtual ~QuadraticPolynomialCost();
 
   virtual Jacobian GetJacobian() const override;

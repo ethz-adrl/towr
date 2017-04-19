@@ -51,9 +51,32 @@ public:
   int GetNumberOfConstraints() const;
 
 protected:
-  int num_constraints_ = 0;
+  int num_rows_ = 0; // corresponds to number of constraints
 };
 
+
+/** @brief Common interface to define a cost, which simply returns a scalar value
+  */
+class Cost : public Constraint {
+public:
+  using VectorXd   = Eigen::VectorXd;
+  using Jacobian   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+
+  Cost (double weight);
+  virtual ~Cost ();
+
+  // both vector and jacobian only have 1 row
+  VectorXd GetConstraintValues () const override;
+  Jacobian GetConstraintJacobian() const override;
+  VecBound GetBounds() const override { assert(false); /* costs don't have bounds */ };
+
+protected:
+  virtual double GetCost () const = 0;
+  virtual Jacobian GetJacobian() const = 0;
+
+  double weight_;
+private:
+};
 
 
 /** @brief An specific constraint implementing the above interface.
@@ -93,6 +116,15 @@ public:
   using ConstraintPtr   = std::shared_ptr<Constraint>;
   using ConstraitPtrVec = std::vector<ConstraintPtr>;
 
+  /** @brief Determines weather composite represents cost or constraints.
+    *
+    * Constraints append individual constraint values and jacobian rows
+    * below one another, whereas costs are added to the same row (0) to
+    * always remain a single row.
+    *
+    * Default (true) represent constraints.
+    */
+  ConstraintComposite(bool append_components = true);
   virtual ~ConstraintComposite() {};
 
   /** @brief Adds a constraint to this collection.
@@ -104,7 +136,7 @@ public:
   VecBound GetBounds () const override;
 
 private:
-  bool represents_constraints = true;
+  bool append_components_;
   ConstraitPtrVec constraints_;
 };
 

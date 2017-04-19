@@ -70,8 +70,8 @@ private:
   ConstraintPtr MakePolygonCenterConstraint() const;
 
   // costs
-  CostPtr MakeMotionCost() const;
-  CostPtr ToCost(const ConstraintPtr& constraint) const;
+  CostPtr MakeMotionCost(double weight) const;
+  CostPtr ToCost(const ConstraintPtr& constraint, double weight) const;
 };
 
 } /* namespace opt */

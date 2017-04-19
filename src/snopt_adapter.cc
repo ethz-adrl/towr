@@ -37,7 +37,7 @@ void
 SnoptAdapter::Init ()
 {
   int obj_count = nlp_->HasCostTerms()? 1 : 0;
-  n    = nlp_->GetNumberOfOptimizationVariables();
+  n     = nlp_->GetNumberOfOptimizationVariables();
   neF   = nlp_->GetNumberOfConstraints() + obj_count;
 
   x      = new double[n];

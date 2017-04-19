@@ -86,20 +86,22 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
   CostConstraintFactory factory;
   factory.Init(opt_variables_, motion_parameters_, start_geom_, goal_geom_.Get2D());
 
-  nlp.Reset();
   nlp.Init(opt_variables_);
 
-  auto constraints = std::make_unique<ConstraintComposite>();
+  auto constraints = std::make_unique<ConstraintComposite>(true);
   for (ConstraintName name : motion_parameters_->GetUsedConstraints()) {
     constraints->AddConstraint(factory.GetConstraint(name));
   }
   nlp.AddConstraint(std::move(constraints));
 
+
+  auto costs = std::make_unique<ConstraintComposite>(false);
   for (const auto& pair : motion_parameters_->GetCostWeights()) {
     CostName name = pair.first;
-    double weight = pair.second;
-    nlp.AddCost(factory.GetCost(name), weight);
+    costs->AddConstraint(factory.GetCost(name));
   }
+  nlp.AddCost(std::move(costs));
+
 
   switch (solver) {
     case Ipopt:   IpoptAdapter::Solve(nlp); break;

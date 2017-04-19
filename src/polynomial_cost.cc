@@ -15,15 +15,18 @@ namespace xpp {
 namespace opt {
 
 
-PolynomialCost::PolynomialCost ()
+PolynomialCost::PolynomialCost () : Cost(1.0)
 {
 }
 
 QuadraticPolynomialCost::QuadraticPolynomialCost (const OptVarsPtr& opt_vars,
-                                                  const MatVec& mat_vec)
+                                                  const MatVec& mat_vec,
+                                                  double weight)
 {
   opt_vars_      = opt_vars;
   matrix_vector_ = mat_vec;
+  weight_ = weight;
+
   com_motion_    = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));
 }
 

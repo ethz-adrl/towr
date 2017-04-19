@@ -72,12 +72,14 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
 CostConstraintFactory::CostPtr
 CostConstraintFactory::GetCost(CostName name) const
 {
+  double weight = params->GetCostWeights().at(name);
+
   switch (name) {
-    case ComCostID:          return MakeMotionCost();
-    case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint());
-    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint());
-    case FinalComCostID:     return ToCost(MakeFinalConstraint());
-    case FinalStanceCostID:  return ToCost(MakeStancesConstraints());
+    case ComCostID:          return MakeMotionCost(weight);
+    case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint(), weight);
+    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint()   , weight);
+    case FinalComCostID:     return ToCost(MakeFinalConstraint()           , weight);
+    case FinalStanceCostID:  return ToCost(MakeStancesConstraints()        , weight);
     default: throw std::runtime_error("cost not defined!");
   }
 }
@@ -189,7 +191,7 @@ CostConstraintFactory::MakePolygonCenterConstraint () const
 }
 
 CostConstraintFactory::CostPtr
-CostConstraintFactory::MakeMotionCost() const
+CostConstraintFactory::MakeMotionCost(double weight) const
 {
   Eigen::MatrixXd term;
   MotionDerivative dxdt = kAcc;
@@ -206,13 +208,13 @@ CostConstraintFactory::MakeMotionCost() const
   mv.M = term;
   mv.v.setZero();
 
-  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv);
+  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, weight);
 }
 
 CostConstraintFactory::CostPtr
-CostConstraintFactory::ToCost (const ConstraintPtr& constraint) const
+CostConstraintFactory::ToCost (const ConstraintPtr& constraint, double weight) const
 {
-  return std::make_shared<SoftConstraint>(constraint);
+  return std::make_shared<SoftConstraint>(constraint, weight);
 }
 
 } /* namespace opt */

@@ -13,7 +13,7 @@ namespace opt {
 int
 Constraint::GetNumberOfConstraints () const
 {
-  return num_constraints_;
+  return num_rows_;
 }
 
 
@@ -22,20 +22,20 @@ void
 ConstraintLeaf::SetDimensions (const OptVarsPtr& vars,
                            int num_constraints)
 {
-  num_constraints_ = num_constraints;
+  num_rows_ = num_constraints;
   opt_vars_ = vars;
 }
 
 ConstraintLeaf::Jacobian
 ConstraintLeaf::GetConstraintJacobian () const
 {
-  Jacobian jacobian(num_constraints_, opt_vars_->GetOptimizationVariableCount());
+  Jacobian jacobian(num_rows_, opt_vars_->GetOptimizationVariableCount());
 
   int col = 0;
   for (const auto& vars : opt_vars_->GetOptVarsVec()) {
 
     int n = vars->GetOptVarCount();
-    Jacobian jac = Jacobian(num_constraints_, n);
+    Jacobian jac = Jacobian(num_rows_, n);
 
     FillJacobianWithRespectTo(vars->GetId(), jac);
 
@@ -52,11 +52,41 @@ ConstraintLeaf::GetConstraintJacobian () const
 
 
 
+Cost::Cost (double weight)
+{
+  weight_ = weight;
+  num_rows_ = 1;
+}
+
+Cost::~Cost ()
+{
+}
+
+Cost::VectorXd
+Cost::GetConstraintValues () const
+{
+  VectorXd cost(num_rows_);
+  cost(0) = weight_ * GetCost();
+  return cost;
+}
+
+Cost::Jacobian
+Cost::GetConstraintJacobian () const
+{
+  return weight_ * GetJacobian();
+}
+
+
+
 void
 ConstraintComposite::AddConstraint (const ConstraintPtr& constraint)
 {
   constraints_.push_back(constraint);
-  num_constraints_ += constraint->GetNumberOfConstraints();
+
+  if (append_components_)
+    num_rows_ += constraint->GetNumberOfConstraints();
+  else
+    num_rows_ = 1; // composite holds costs
 }
 
 ConstraintComposite::VectorXd
@@ -71,7 +101,7 @@ ConstraintComposite::GetConstraintValues () const
     int n_rows = g.rows();
     g_all.middleRows(row, n_rows) += g;
 
-    if (represents_constraints)
+    if (append_components_)
       row += n_rows;
   }
   return g_all;
@@ -81,7 +111,7 @@ ConstraintComposite::Jacobian
 ConstraintComposite::GetConstraintJacobian () const
 {
   int n_var = constraints_.front()->GetConstraintJacobian().cols();
-  Jacobian jacobian(num_constraints_, n_var);
+  Jacobian jacobian(num_rows_, n_var);
 
   int row = 0;
   for (const auto& c : constraints_) {
@@ -91,11 +121,16 @@ ConstraintComposite::GetConstraintJacobian () const
       for (Jacobian::InnerIterator it(jac,k); it; ++it)
         jacobian.coeffRef(row+it.row(), it.col()) += it.value();
 
-    if (represents_constraints)
+    if (append_components_)
       row += c->GetNumberOfConstraints();
   }
 
   return jacobian;
+}
+
+ConstraintComposite::ConstraintComposite (bool append_components)
+{
+  append_components_ = append_components;
 }
 
 VecBound

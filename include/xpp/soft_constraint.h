@@ -8,16 +8,13 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
 
-#include <memory>
-#include <string>
-#include <Eigen/Dense>
+#include <xpp/opt/constraints/constraint.h>
 
-#include "cost.h"
+#include <Eigen/Dense>
+#include <memory>
 
 namespace xpp {
 namespace opt {
-
-class Constraint;
 
 /** Converts a constraint to a cost by weighing the quadratic violations.
   *
@@ -33,7 +30,7 @@ public:
   using ConstraintPtr = std::shared_ptr<Constraint>;
   using VectorXd      = Eigen::VectorXd;
 
-  SoftConstraint (const ConstraintPtr& constraint);
+  SoftConstraint (const ConstraintPtr& constraint, double weight);
   virtual ~SoftConstraint ();
 
 private:

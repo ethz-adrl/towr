@@ -56,7 +56,7 @@ double
 NLP::EvaluateCostFunction (const Number* x)
 {
   SetVariables(x);
-  VectorXd g = costs_.GetWeightedCost();
+  VectorXd g = costs_->GetConstraintValues();
   assert(g.rows() == 1);
   return g(0);
 }
@@ -65,7 +65,7 @@ NLP::VectorXd
 NLP::EvaluateCostFunctionGradient (const Number* x)
 {
   SetVariables(x);
-  Jacobian jac = costs_.GetWeightedJacobian();
+  Jacobian jac = costs_->GetConstraintJacobian();
   assert(jac.rows() == 1);
   return jac.row(0).transpose();
 }
@@ -92,7 +92,7 @@ NLP::EvaluateConstraints (const Number* x)
 bool
 NLP::HasCostTerms () const
 {
-  return !costs_.IsEmpty();
+  return costs_->GetNumberOfConstraints()>0;
 }
 
 void
@@ -112,27 +112,21 @@ NLP::GetJacobianOfConstraints () const
 }
 
 void
-NLP::AddCost (CostPtr cost, double weight)
+NLP::AddCost (ConstraintPtrU cost)
 {
-  costs_.AddCost(cost, weight);
+  costs_ = std::move(cost);
 }
 
 void
-NLP::AddConstraint (ConstraintPtrU c)
+NLP::AddConstraint (ConstraintPtrU constraint)
 {
-  constraints_ = std::move(c);
+  constraints_ = std::move(constraint);
 }
 
 NLP::VectorXd
 NLP::ConvertToEigen(const Number* x) const
 {
   return Eigen::Map<const VectorXd>(x,GetNumberOfOptimizationVariables());
-}
-
-void
-NLP::Reset ()
-{
-  costs_.ClearCosts();
 }
 
 } /* namespace opt */

@@ -57,8 +57,6 @@ add_library(${SOLVER_LIB}
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
   src/constraint.cc
-  src/cost.cc
-  src/cost_container.cc
   src/soft_constraint.cc
   src/time_discretization_constraint.cc
 )

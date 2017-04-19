@@ -14,8 +14,6 @@
 
 #include <xpp/opt/constraints/constraint.h>
 #include "bound.h"
-#include "cost.h"
-#include "cost_container.h"
 #include "optimization_variables_container.h"
 
 namespace xpp {
@@ -25,7 +23,7 @@ namespace opt {
   *
   * This class is responsible for holding all the information of a
   * Nonlinear Program, which includes the optimization variables, their bounds,
-  * the cost function, the constraint function, constraint bounds  and possibly
+  * the cost function, the constraint function, constraint bounds and possibly
   * derivatives.
   */
 class NLP {
@@ -34,7 +32,6 @@ public:
   using Jacobian = ConstraintLeaf::Jacobian;
   using Number   = double;
   using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
-  using CostPtr = std::shared_ptr<Cost>;
   using ConstraintPtrU = std::unique_ptr<Constraint>;
 
   NLP ();
@@ -58,14 +55,13 @@ public:
   void EvalNonzerosOfJacobian(const Number* x, Number* values);
   Jacobian GetJacobianOfConstraints() const;
 
-  void Reset();
-  void AddCost(CostPtr cost, double weight);
+  void AddCost(ConstraintPtrU);
   void AddConstraint(ConstraintPtrU);
 
 private:
   ConstraintPtrU constraints_;
+  ConstraintPtrU costs_;
   OptimizationVariablesPtr opt_variables_;
-  CostContainer costs_;
 
   VectorXd ConvertToEigen(const Number* x) const;
 };

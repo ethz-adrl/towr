@@ -15,7 +15,8 @@
 namespace xpp {
 namespace opt {
 
-SoftConstraint::SoftConstraint (const ConstraintPtr& constraint)
+SoftConstraint::SoftConstraint (const ConstraintPtr& constraint, double weight)
+    :Cost(weight)
 {
   constraint_ = constraint;
   int n_constraints = constraint_->GetNumberOfConstraints();
