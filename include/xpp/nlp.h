@@ -13,8 +13,6 @@
 #include <Eigen/Dense>
 
 #include <xpp/opt/constraints/constraint.h>
-#include <xpp/opt/constraints/constraint_container.h>
-
 #include "bound.h"
 #include "cost.h"
 #include "cost_container.h"
@@ -34,11 +32,10 @@ class NLP {
 public:
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Constraint::Jacobian;
-  using Number = double;
+  using Number   = double;
   using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
   using CostPtr = std::shared_ptr<Cost>;
-  using ConstraintPtr = std::shared_ptr<Constraint>;
-  using ConstraitPtrVec = std::vector<ConstraintPtr>;
+  using ConstraintPtrU = std::unique_ptr<ConstraintBase>;
 
   NLP ();
   virtual ~NLP ();
@@ -61,15 +58,14 @@ public:
   void EvalNonzerosOfJacobian(const Number* x, Number* values);
   Jacobian GetJacobianOfConstraints() const;
 
-//  void PrintStatusOfConstraints(double tol) const;
-
+  void Reset();
   void AddCost(CostPtr cost, double weight);
-  void AddConstraint(ConstraitPtrVec constraints);
+  void AddConstraint(ConstraintPtrU);
 
 private:
+  ConstraintPtrU constraints_;
   OptimizationVariablesPtr opt_variables_;
   CostContainer costs_;
-  ConstraintContainer constraints_;
 
   VectorXd ConvertToEigen(const Number* x) const;
 };

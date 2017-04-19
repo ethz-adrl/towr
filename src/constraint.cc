@@ -10,25 +10,26 @@
 namespace xpp {
 namespace opt {
 
-Constraint::Constraint ()
+ConstraintBase::ConstraintBase ()
 {
 }
 
-Constraint::~Constraint ()
+ConstraintBase::~ConstraintBase ()
 {
 }
 
 int
-Constraint::GetNumberOfConstraints () const
+ConstraintBase::GetNumberOfConstraints () const
 {
   return num_constraints_;
 }
 
-int
-Constraint::GetNumberOfOptVariables () const
-{
-  return opt_vars_->GetOptimizationVariableCount();
-}
+// zmp_ remove
+//int
+//Constraint::GetNumberOfOptVariables () const
+//{
+//  return opt_vars_->GetOptimizationVariableCount();
+//}
 
 void
 Constraint::SetDimensions (const OptVarsPtr& vars,
@@ -41,7 +42,7 @@ Constraint::SetDimensions (const OptVarsPtr& vars,
 Constraint::Jacobian
 Constraint::GetConstraintJacobian () const
 {
-  Jacobian jacobian(num_constraints_, GetNumberOfOptVariables());
+  Jacobian jacobian(num_constraints_, opt_vars_->GetOptimizationVariableCount());
 
   int col = 0;
   for (const auto& vars : opt_vars_->GetOptVarsVec()) {
@@ -56,7 +57,7 @@ Constraint::GetConstraintJacobian () const
       for (Jacobian::InnerIterator it(jac,k); it; ++it)
         jacobian.coeffRef(it.row(), col+it.col()) = it.value();
 
-    col += vars->GetOptVarCount();
+    col += n;
   }
 
   return jacobian;

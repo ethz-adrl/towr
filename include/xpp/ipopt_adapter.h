@@ -95,7 +95,7 @@ private:
                                  Ipopt::IpoptCalculatedQuantities* ip_cq);
 
 private:
-  NLP nlp_;
+  NLP* nlp_;
 };
 
 } // namespace opt

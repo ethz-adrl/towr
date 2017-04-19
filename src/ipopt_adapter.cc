@@ -25,8 +25,9 @@ namespace opt {
 
 using VectorXd = Eigen::VectorXd;
 
-IpoptAdapter::IpoptAdapter(NLP& nlp) :nlp_(nlp)
+IpoptAdapter::IpoptAdapter(NLP& nlp)
 {
+  nlp_ = &nlp;
 }
 
 IpoptAdapter::~IpoptAdapter ()
@@ -36,9 +37,9 @@ IpoptAdapter::~IpoptAdapter ()
 bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
-  n = nlp_.GetNumberOfOptimizationVariables();
-  m = nlp_.GetNumberOfConstraints();
-  nnz_jac_g = nlp_.GetJacobianOfConstraints().nonZeros();
+  n = nlp_->GetNumberOfOptimizationVariables();
+  m = nlp_->GetNumberOfConstraints();
+  nnz_jac_g = nlp_->GetJacobianOfConstraints().nonZeros();
 
   // nonzeros in the hessian of the lagrangian
   // (one in the hessian of the objective for x2,
@@ -56,14 +57,14 @@ bool IpoptAdapter::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
 {
 
   // no bounds on the spline coefficients of footholds
-  auto bounds_x = nlp_.GetBoundsOnOptimizationVariables();
+  auto bounds_x = nlp_->GetBoundsOnOptimizationVariables();
   for (uint c=0; c<bounds_x.size(); ++c) {
     x_lower[c] = bounds_x.at(c).lower_;
     x_upper[c] = bounds_x.at(c).upper_;
   }
 
   // specific bounds depending on equality and inequality constraints
-  auto bounds_g = nlp_.GetBoundsOnConstraints();
+  auto bounds_g = nlp_->GetBoundsOnConstraints();
   for (uint c=0; c<bounds_g.size(); ++c) {
     g_l[c] = bounds_g.at(c).lower_;
     g_u[c] = bounds_g.at(c).upper_;
@@ -84,7 +85,7 @@ bool IpoptAdapter::get_starting_point(Index n, bool init_x, Number* x,
 	assert(init_z == false);
 	assert(init_lambda == false);
 
-  VectorXd x_all = nlp_.GetStartingValues();
+  VectorXd x_all = nlp_->GetStartingValues();
   Eigen::Map<VectorXd>(&x[0], x_all.rows()) = x_all;
 
   return true;
@@ -93,14 +94,14 @@ bool IpoptAdapter::get_starting_point(Index n, bool init_x, Number* x,
 
 bool IpoptAdapter::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
-  obj_value = nlp_.EvaluateCostFunction(x);
+  obj_value = nlp_->EvaluateCostFunction(x);
   return true;
 }
 
 
 bool IpoptAdapter::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
-  Eigen::VectorXd grad = nlp_.EvaluateCostFunctionGradient(x);
+  Eigen::VectorXd grad = nlp_->EvaluateCostFunctionGradient(x);
   Eigen::Map<Eigen::MatrixXd>(grad_f,n,1) = grad;
 	return true;
 }
@@ -108,7 +109,7 @@ bool IpoptAdapter::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 
 bool IpoptAdapter::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
-  VectorXd g_eig = nlp_.EvaluateConstraints(x);
+  VectorXd g_eig = nlp_->EvaluateConstraints(x);
   Eigen::Map<VectorXd>(g,m) = g_eig;
   return true;
 }
@@ -121,7 +122,7 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
 	// defines the positions of the nonzero elements of the jacobian
   if (values == NULL) {
 
-    auto jac = nlp_.GetJacobianOfConstraints();
+    auto jac = nlp_->GetJacobianOfConstraints();
     int nele=0; // nonzero cells in jacobian
     for (int k=0; k<jac.outerSize(); ++k) {
       for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
@@ -133,7 +134,7 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
   }
   else {
     // only gets used if "jacobian_approximation finite-difference-values" is not set
-    nlp_.EvalNonzerosOfJacobian(x, values);
+    nlp_->EvalNonzerosOfJacobian(x, values);
   }
 
   return true;
@@ -153,7 +154,7 @@ bool IpoptAdapter::intermediate_callback(Ipopt::AlgorithmMode mode,
 {
 //  std::cout << "Press Enter to continue...";
 //  std::cin.get(); // use to pause after every iteration
-//  nlp_.SendOutCurrentValues();
+//  nlp_->SendOutCurrentValues();
 	return true;
 }
 
@@ -165,7 +166,7 @@ void IpoptAdapter::finalize_solution(Ipopt::SolverReturn status,
 			                        Ipopt::IpoptCalculatedQuantities* ip_cq)
 {
 
-  nlp_.SetVariables(x);
+  nlp_->SetVariables(x);
 }
 
 void

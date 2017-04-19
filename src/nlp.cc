@@ -25,7 +25,7 @@ NLP::~NLP ()
 void
 NLP::Init (OptimizationVariablesPtr& opt_variables)
 {
-  opt_variables_ = /*std::move*/(opt_variables);
+  opt_variables_ = opt_variables;
 }
 
 int
@@ -50,8 +50,6 @@ void
 NLP::SetVariables (const Number* x)
 {
   opt_variables_->SetAllVariables(ConvertToEigen(x));
-//  constraints_.UpdateConstraints();
-//  costs_.UpdateCosts();
 }
 
 double
@@ -65,30 +63,14 @@ NLP::VectorXd
 NLP::EvaluateCostFunctionGradient (const Number* x)
 {
   SetVariables(x);
-
-  // analytical (if implemented in costs)
   VectorXd grad = costs_.EvaluateGradient();
-
-  // refactor move numerical calculation of cost to cost_container class,
-  // so some can be implemented analytical, others using numerical differentiaton.
-
-//  // motion_ref don't forget bout this
-//  // To just test for feasability
-//  VectorXd grad(opt_variables_->GetOptimizationVariableCount());
-//  grad.setZero();
-
-//  // numerical differentiation
-//  Eigen::MatrixXd jacobian(1, GetNumberOfOptimizationVariables());
-//  cost_derivative_.df(opt_variables_->GetOptimizationVariables(), jacobian);
-//  VectorXd grad = jacobian.transpose();
-
   return grad;
 }
 
 VecBound
 NLP::GetBoundsOnConstraints () const
 {
-  return constraints_.GetBounds();
+  return constraints_->GetBounds();
 }
 
 int
@@ -101,7 +83,7 @@ NLP::VectorXd
 NLP::EvaluateConstraints (const Number* x)
 {
   SetVariables(x);
-  return constraints_.GetConstraintValues();
+  return constraints_->GetConstraintValues();
 }
 
 bool
@@ -123,7 +105,7 @@ NLP::EvalNonzerosOfJacobian (const Number* x, Number* values)
 NLP::Jacobian
 NLP::GetJacobianOfConstraints () const
 {
-  return constraints_.GetConstraintJacobian();
+  return constraints_->GetConstraintJacobian();
 }
 
 void
@@ -133,9 +115,9 @@ NLP::AddCost (CostPtr cost, double weight)
 }
 
 void
-NLP::AddConstraint (ConstraitPtrVec constraints)
+NLP::AddConstraint (ConstraintPtrU c)
 {
-  constraints_.AddConstraint(constraints);
+  constraints_ = std::move(c);
 }
 
 NLP::VectorXd
@@ -144,11 +126,12 @@ NLP::ConvertToEigen(const Number* x) const
   return Eigen::Map<const VectorXd>(x,GetNumberOfOptimizationVariables());
 }
 
-//void
-//NLP::PrintStatusOfConstraints (double tol) const
-//{
-//  return constraints_.PrintStatus(tol);
-//}
+void
+NLP::Reset ()
+{
+  costs_.ClearCosts();
+}
 
 } /* namespace opt */
 } /* namespace xpp */
+

@@ -24,14 +24,15 @@ namespace opt {
 
 /** Common interface providing constraint values and bounds.
   */
-class Constraint {
+// zmp_ rename according to composite patterns (base, leaf, composite).
+class ConstraintBase {
 public:
-  using VectorXd      = Eigen::VectorXd;
-  using Jacobian      = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-  using OptVarsPtr    = std::shared_ptr<OptimizationVariablesContainer>;
+  using VectorXd   = Eigen::VectorXd;
+  using Jacobian   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+  using OptVarsPtr = std::shared_ptr<OptimizationVariablesContainer>;
 
-  Constraint ();
-  virtual ~Constraint ();
+  ConstraintBase ();
+  virtual ~ConstraintBase ();
 
   /** @brief A constraint always delivers a vector of constraint violations.
    */
@@ -40,23 +41,34 @@ public:
   /** @brief For each returned constraint an upper and lower bound is given.
     */
   virtual VecBound GetBounds() const = 0;
-  Jacobian GetConstraintJacobian() const;
+  virtual Jacobian GetConstraintJacobian() const = 0;
 
   int GetNumberOfConstraints() const;
-  int GetNumberOfOptVariables() const;
+//  int GetNumberOfOptVariables() const;
 
 protected:
   /** @brief Determines the size of constraints, bounds and jacobians.
     */
-  void SetDimensions(const OptVarsPtr&, int num_constraints);
-  int num_constraints_;
-  OptVarsPtr opt_vars_;
+  int num_constraints_ = 0;
+};
+
+
+class Constraint : public ConstraintBase {
+public:
+
+  Jacobian GetConstraintJacobian() const override;
+
+protected:
+  void SetDimensions(const OptVarsPtr&, int num_constraints); // zmp_ incorporate this into constructor
 
 private:
+  OptVarsPtr opt_vars_;
   /** @brief Jacobian of the constraints with respect to each decision variable set.
     */
   virtual void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const = 0;
 };
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

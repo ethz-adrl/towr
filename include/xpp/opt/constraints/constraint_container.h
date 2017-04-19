@@ -28,7 +28,7 @@ namespace opt {
 // just like Constraint.
 // see https://sourcemaking.com/design_patterns/composite
 // zmp_ rename to composite
-class ConstraintContainer {
+class ConstraintContainer : public ConstraintBase {
 public:
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Constraint::Jacobian;
@@ -41,17 +41,19 @@ public:
   void ClearConstraints();
   void AddConstraint (ConstraitPtrVec constraint);
 
-  VectorXd GetConstraintValues () const;
-  Jacobian GetConstraintJacobian () const;
-  VecBound GetBounds () const;
+  VectorXd GetConstraintValues () const override;
+  Jacobian GetConstraintJacobian () const override;
+  VecBound GetBounds () const override;
 
 private:
-  void RefreshBounds ();
+//  void RefreshBounds ();
   ConstraitPtrVec constraints_;
 
+//  void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const;
+
   // zmp_ these should probably only exist in the leaf/true constraints
-  VecBound bounds_;
-  mutable Jacobian jacobian_; // zmp_ remove this mutable
+//  VecBound bounds_;
+//  mutable Jacobian jacobian_; // zmp_ remove this mutable
 };
 
 } /* namespace opt */

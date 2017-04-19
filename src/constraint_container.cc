@@ -30,62 +30,90 @@ ConstraintContainer::ClearConstraints ()
 void
 ConstraintContainer::AddConstraint (ConstraitPtrVec constraints)
 {
-  for (auto& c : constraints)
+  for (auto& c : constraints) {
     constraints_.push_back(c);
-
-  RefreshBounds ();
+    num_constraints_ += c->GetNumberOfConstraints();
+//    opt_vars_ = c->opt_vars_; // assume all constraints use same variables
+  }
 }
 
 ConstraintContainer::VectorXd
 ConstraintContainer::GetConstraintValues () const
 {
-  VectorXd g_all(bounds_.size());
+  VectorXd g_all(GetNumberOfConstraints());
 
-  int c = 0;
-  for (const auto& constraint : constraints_) {
+  int row = 0;
+  for (const auto& c : constraints_) {
 
-    VectorXd g = constraint->GetConstraintValues();
-    int c_new = g.rows();
-    g_all.middleRows(c, c_new) = g;
-    c += c_new;
+    VectorXd g = c->GetConstraintValues();
+    int n_rows = g.rows();
+    g_all.middleRows(row, n_rows) = g;
+    row += n_rows;
   }
   return g_all;
+}
+
+//ConstraintContainer::Jacobian
+//ConstraintContainer::GetConstraintJacobian () const
+//{
+//  int row = 0;
+//  for (const auto& constraint : constraints_) {
+//
+//    const Jacobian& jac = constraint->GetConstraintJacobian();
+//    for (int k=0; k<jac.outerSize(); ++k)
+//      for (Jacobian::InnerIterator it(jac,k); it; ++it)
+//        jacobian_.coeffRef(row+it.row(), it.col()) = it.value();
+//
+//    row += constraint->GetNumberOfConstraints();
+//  }
+//  return jacobian_;
+//}
+
+//void
+//ConstraintContainer::RefreshBounds ()
+//{
+//  VecBound bounds_;
+//  bounds_.clear();
+//  for (const auto& constraint : constraints_) {
+//    VecBound b = constraint->GetBounds();
+//    bounds_.insert(bounds_.end(), b.begin(), b.end());
+//  }
+//
+////  int n_constraints = bounds_.size();
+////  int n_var = constraints_.front()->GetNumberOfOptVariables(); // all the same
+////  jacobian_ = Jacobian(n_constraints, n_var);
+//}
+
+VecBound
+ConstraintContainer::GetBounds () const
+{
+  VecBound bounds_;
+  for (const auto& c : constraints_) {
+    VecBound b = c->GetBounds();
+    bounds_.insert(bounds_.end(), b.begin(), b.end());
+  }
+
+  return bounds_;
 }
 
 ConstraintContainer::Jacobian
 ConstraintContainer::GetConstraintJacobian () const
 {
-  int row = 0;
-  for (const auto& constraint : constraints_) {
+  int n_var = constraints_.front()->GetConstraintJacobian().cols();
+  Jacobian jacobian(num_constraints_, n_var);
 
-    const Jacobian& jac = constraint->GetConstraintJacobian();
+  int row = 0;
+  for (const auto& c : constraints_) {
+
+    const Jacobian& jac = c->GetConstraintJacobian();
     for (int k=0; k<jac.outerSize(); ++k)
       for (Jacobian::InnerIterator it(jac,k); it; ++it)
-        jacobian_.coeffRef(row+it.row(), it.col()) = it.value();
+        jacobian.coeffRef(row+it.row(), it.col()) = it.value();
 
-    row += constraint->GetNumberOfConstraints();
-  }
-  return jacobian_;
-}
-
-void
-ConstraintContainer::RefreshBounds ()
-{
-  bounds_.clear();
-  for (const auto& constraint : constraints_) {
-    VecBound b = constraint->GetBounds();
-    bounds_.insert(bounds_.end(), b.begin(), b.end());
+    row += c->GetNumberOfConstraints();
   }
 
-  int n_constraints = bounds_.size();
-  int n_var = constraints_.front()->GetNumberOfOptVariables(); // all the same
-  jacobian_ = Jacobian(n_constraints, n_var);
-}
-
-VecBound
-ConstraintContainer::GetBounds () const
-{
-  return bounds_;
+  return jacobian;
 }
 
 } /* namespace opt */
