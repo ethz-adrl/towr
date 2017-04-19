@@ -69,7 +69,7 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
   }
 }
 
-CostConstraintFactory::CostPtr
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::GetCost(CostName name) const
 {
   double weight = params->GetCostWeights().at(name);
@@ -190,7 +190,7 @@ CostConstraintFactory::MakePolygonCenterConstraint () const
   return std::make_shared<PolygonCenterConstraint>(opt_vars_);
 }
 
-CostConstraintFactory::CostPtr
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeMotionCost(double weight) const
 {
   Eigen::MatrixXd term;
@@ -211,7 +211,7 @@ CostConstraintFactory::MakeMotionCost(double weight) const
   return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, weight);
 }
 
-CostConstraintFactory::CostPtr
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::ToCost (const ConstraintPtr& constraint, double weight) const
 {
   return std::make_shared<SoftConstraint>(constraint, weight);

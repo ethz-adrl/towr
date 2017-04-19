@@ -25,7 +25,7 @@ namespace opt {
   * Then the gradient of the cost is defined as:
   * dc(x)/dx = (g'(x)^T * W * J)^T = J^T * W * (g(x)-b).
   */
-class SoftConstraint : public Cost {
+class SoftConstraint : public Constraint {
 public:
   using ConstraintPtr = std::shared_ptr<Constraint>;
   using VectorXd      = Eigen::VectorXd;
@@ -40,11 +40,13 @@ private:
 
   /** c(x) = 0.5 * (g-b)^T * W * (g-b)
     */
-  virtual double GetCost () const override;
+  virtual VectorXd GetConstraintValues () const override;
 
   /** dc(x)/dx = J^T * W * (g-b)
     */
-  virtual Jacobian GetJacobian() const override;
+  virtual Jacobian GetConstraintJacobian() const override;
+
+  double weight_ = 1.0; ///< the weight relative to other costs
 };
 
 } /* namespace opt */

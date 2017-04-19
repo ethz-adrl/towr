@@ -10,6 +10,10 @@
 namespace xpp {
 namespace opt {
 
+Constraint::Constraint ()
+{
+}
+
 int
 Constraint::GetNumberOfConstraints () const
 {
@@ -19,10 +23,9 @@ Constraint::GetNumberOfConstraints () const
 
 
 void
-ConstraintLeaf::SetDimensions (const OptVarsPtr& vars,
-                           int num_constraints)
+ConstraintLeaf::SetDimensions (const OptVarsPtr& vars, int num_rows)
 {
-  num_rows_ = num_constraints;
+  num_rows_ = num_rows;
   opt_vars_ = vars;
 }
 
@@ -52,34 +55,8 @@ ConstraintLeaf::GetConstraintJacobian () const
 
 
 
-Cost::Cost (double weight)
-{
-  weight_ = weight;
-  num_rows_ = 1;
-}
-
-Cost::~Cost ()
-{
-}
-
-Cost::VectorXd
-Cost::GetConstraintValues () const
-{
-  VectorXd cost(num_rows_);
-  cost(0) = weight_ * GetCost();
-  return cost;
-}
-
-Cost::Jacobian
-Cost::GetConstraintJacobian () const
-{
-  return weight_ * GetJacobian();
-}
-
-
-
 void
-ConstraintComposite::AddConstraint (const ConstraintPtr& constraint)
+ConstraintComposite::AddConstraint (const BasePtr& constraint)
 {
   constraints_.push_back(constraint);
 
@@ -130,6 +107,7 @@ ConstraintComposite::GetConstraintJacobian () const
 
 ConstraintComposite::ConstraintComposite (bool append_components)
 {
+  num_rows_ = 0;
   append_components_ = append_components;
 }
 

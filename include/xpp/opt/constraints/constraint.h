@@ -31,51 +31,28 @@ namespace opt {
  */
 class Constraint {
 public:
-  using VectorXd   = Eigen::VectorXd;
-  using Jacobian   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+  using VectorXd = Eigen::VectorXd;
+  using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
+  Constraint();
   virtual ~Constraint() {};
 
   /** @returns A constraint always delivers a vector of constraint violations.
    */
   virtual VectorXd GetConstraintValues() const = 0;
 
-  /** @returns For each returned constraint an upper and lower bound is given.
-    */
-  virtual VecBound GetBounds() const = 0;
-
   /** @returns Derivatives of each constraint row w.r.t each decision variable.
     */
   virtual Jacobian GetConstraintJacobian() const = 0;
 
+  /** @returns For each returned constraint an upper and lower bound is given.
+    */
+  virtual VecBound GetBounds() const { assert(false); /* costs don't need to implement this */ };
+
   int GetNumberOfConstraints() const;
 
 protected:
-  int num_rows_ = 0; // corresponds to number of constraints
-};
-
-
-/** @brief Common interface to define a cost, which simply returns a scalar value
-  */
-class Cost : public Constraint {
-public:
-  using VectorXd   = Eigen::VectorXd;
-  using Jacobian   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-
-  Cost (double weight);
-  virtual ~Cost ();
-
-  // both vector and jacobian only have 1 row
-  VectorXd GetConstraintValues () const override;
-  Jacobian GetConstraintJacobian() const override;
-  VecBound GetBounds() const override { assert(false); /* costs don't have bounds */ };
-
-protected:
-  virtual double GetCost () const = 0;
-  virtual Jacobian GetJacobian() const = 0;
-
-  double weight_;
-private:
+  int num_rows_ = 1; // corresponds to number of constraints, default 1 for costs
 };
 
 
@@ -92,7 +69,7 @@ public:
 protected:
   /** @brief Determines the size of constraints, bounds and jacobians.
     */
-  void SetDimensions(const OptVarsPtr&, int num_constraints);
+  void SetDimensions(const OptVarsPtr&, int num_rows);
 
 private:
   Jacobian GetConstraintJacobian() const override;
@@ -113,8 +90,8 @@ private:
   */
 class ConstraintComposite : public Constraint {
 public:
-  using ConstraintPtr   = std::shared_ptr<Constraint>;
-  using ConstraitPtrVec = std::vector<ConstraintPtr>;
+  using BasePtr    = std::shared_ptr<Constraint>;
+  using BasePtrVec = std::vector<BasePtr>;
 
   /** @brief Determines weather composite represents cost or constraints.
     *
@@ -129,7 +106,7 @@ public:
 
   /** @brief Adds a constraint to this collection.
     */
-  void AddConstraint (const ConstraintPtr& constraint);
+  void AddConstraint (const BasePtr& constraint);
 
   VectorXd GetConstraintValues () const override;
   Jacobian GetConstraintJacobian () const override;
@@ -137,7 +114,7 @@ public:
 
 private:
   bool append_components_;
-  ConstraitPtrVec constraints_;
+  BasePtrVec constraints_;
 };
 
 

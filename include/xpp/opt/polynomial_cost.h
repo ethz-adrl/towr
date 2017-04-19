@@ -26,34 +26,25 @@ class BaseMotion;
   * This class is responsible for getting the current value of the optimization
   * variables from the subject and calculating the scalar cost from these.
   */
-class PolynomialCost : public Cost {
+class QuadraticPolynomialCost : public ConstraintLeaf {
 public:
-  using VectorXd       = Eigen::VectorXd;
   using BaseMotionPtrS = std::shared_ptr<BaseMotion>;
   using OptVarsPtr     = std::shared_ptr<OptimizationVariablesContainer>;
 
-  PolynomialCost ();
-  virtual ~PolynomialCost (){};
-
-protected:
-  OptVarsPtr opt_vars_;
-  BaseMotionPtrS com_motion_;
-  MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
-};
-
-class QuadraticPolynomialCost : public PolynomialCost {
-public:
   QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&, double weight);
   virtual ~QuadraticPolynomialCost();
 
-  virtual Jacobian GetJacobian() const override;
-
-private:
   /**  The cost is calculated as
     *  cost = x^T * M * x   +   v^T * x
     */
-  double GetCost () const override;
+  VectorXd GetConstraintValues () const override;
+
+private:
   void FillJacobianWithRespectTo(std::string var_set, Jacobian&) const;
+
+  double weight_ = 1.0;
+  BaseMotionPtrS com_motion_;
+  MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
 };
 
 //class SquaredSplineCost : public ASplineCost {

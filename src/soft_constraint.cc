@@ -16,7 +16,6 @@ namespace xpp {
 namespace opt {
 
 SoftConstraint::SoftConstraint (const ConstraintPtr& constraint, double weight)
-    :Cost(weight)
 {
   constraint_ = constraint;
   int n_constraints = constraint_->GetNumberOfConstraints();
@@ -31,25 +30,28 @@ SoftConstraint::SoftConstraint (const ConstraintPtr& constraint, double weight)
   // treat all constraints equally by default
   weights_.resize(n_constraints);
   weights_.setOnes();
+
+  weight_ = weight;
 }
 
 SoftConstraint::~SoftConstraint ()
 {
 }
 
-double
-SoftConstraint::GetCost () const
+SoftConstraint::VectorXd
+SoftConstraint::GetConstraintValues () const
 {
   VectorXd g = constraint_->GetConstraintValues();
-  return 0.5*(g-b_).transpose()*weights_.asDiagonal()*(g-b_);
+  VectorXd cost = 0.5*(g-b_).transpose()*weights_.asDiagonal()*(g-b_);
+  return weight_ * cost;
 }
 
 SoftConstraint::Jacobian
-SoftConstraint::GetJacobian () const
+SoftConstraint::GetConstraintJacobian () const
 {
   VectorXd g   = constraint_->GetConstraintValues();
   Jacobian jac = constraint_->GetConstraintJacobian();
-  VectorXd grad = jac.transpose()*weights_.asDiagonal()*(g-b_);
+  VectorXd grad = weight_*jac.transpose()*weights_.asDiagonal()*(g-b_);
   return grad.transpose().sparseView();
 }
 

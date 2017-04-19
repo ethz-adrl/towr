@@ -15,18 +15,14 @@ namespace xpp {
 namespace opt {
 
 
-PolynomialCost::PolynomialCost () : Cost(1.0)
-{
-}
-
 QuadraticPolynomialCost::QuadraticPolynomialCost (const OptVarsPtr& opt_vars,
                                                   const MatVec& mat_vec,
                                                   double weight)
 {
-  opt_vars_      = opt_vars;
   matrix_vector_ = mat_vec;
   weight_ = weight;
 
+  SetDimensions(opt_vars, 1);
   com_motion_    = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));
 }
 
@@ -34,39 +30,16 @@ QuadraticPolynomialCost::~QuadraticPolynomialCost ()
 {
 }
 
-double
-QuadraticPolynomialCost::GetCost () const
+QuadraticPolynomialCost::VectorXd
+QuadraticPolynomialCost::GetConstraintValues () const
 {
-  double cost = 0.0;
+  VectorXd cost = VectorXd(num_rows_);
   VectorXd spline_coeff_ = com_motion_->GetXYSplineCoeffients();
 
   cost += spline_coeff_.transpose() * matrix_vector_.M * spline_coeff_;
   cost += matrix_vector_.v.transpose() * spline_coeff_;
 
-  return cost;
-}
-
-QuadraticPolynomialCost::Jacobian
-QuadraticPolynomialCost::GetJacobian () const
-{
-  Jacobian jacobian(1, opt_vars_->GetOptimizationVariableCount());
-
-  int col = 0;
-  for (const auto& vars : opt_vars_->GetOptVarsVec()) {
-
-    int n_set = vars->GetOptVarCount();
-    Jacobian jac = Jacobian(1,n_set);    // default is not dependent
-    FillJacobianWithRespectTo(vars->GetId(), jac);
-
-    // insert the derivative in the correct position in the overall Jacobian
-    for (int k=0; k<jac.outerSize(); ++k)
-      for (Jacobian::InnerIterator it(jac,k); it; ++it)
-        jacobian.coeffRef(it.row(), col+it.col()) = it.value();
-
-    col += n_set;
-  }
-
-  return jacobian;
+  return weight_*cost;
 }
 
 void

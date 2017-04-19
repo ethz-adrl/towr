@@ -22,7 +22,6 @@ namespace xpp {
 namespace opt {
 
 class Constraint;
-class Cost;
 
 /** Builds all types of constraints/costs for the user.
   *
@@ -34,7 +33,6 @@ class Cost;
 class CostConstraintFactory {
 public:
   using ConstraintPtr    = std::shared_ptr<Constraint>;
-  using CostPtr          = std::shared_ptr<Cost>;
   using MotionParamsPtr  = std::shared_ptr<MotionParameters>;
   using OptVarsContainer = std::shared_ptr<OptimizationVariablesContainer>;
 
@@ -46,7 +44,7 @@ public:
             const RobotStateCartesian& initial_state,
             const StateLin2d& final_state);
 
-  CostPtr GetCost(CostName name) const;
+  ConstraintPtr GetCost(CostName name) const;
   ConstraintPtr GetConstraint(ConstraintName name) const;
 
 private:
@@ -70,8 +68,8 @@ private:
   ConstraintPtr MakePolygonCenterConstraint() const;
 
   // costs
-  CostPtr MakeMotionCost(double weight) const;
-  CostPtr ToCost(const ConstraintPtr& constraint, double weight) const;
+  ConstraintPtr MakeMotionCost(double weight) const;
+  ConstraintPtr ToCost(const ConstraintPtr& constraint, double weight) const;
 };
 
 } /* namespace opt */
