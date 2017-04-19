@@ -17,8 +17,8 @@ namespace opt {
 
 class ConstraintContainerTest : public ::testing::Test {
 public:
-  typedef std::shared_ptr<ConstraintContainer> ConstraintContainerPtr;
-  typedef std::shared_ptr<Constraint> ConstraintPtr;
+  typedef std::shared_ptr<Composite> ConstraintContainerPtr;
+  typedef std::shared_ptr<Primitive> ConstraintPtr;
 
 protected:
   virtual void SetUp()
@@ -28,14 +28,14 @@ protected:
     opt_var_.AddVariableSet("SplineCoff", Eigen::VectorXd(n_coeff_));
     opt_var_.AddVariableSet("Footholds", Eigen::VectorXd(n_steps_*2));
 
-    constraints_ = std::make_shared<ConstraintContainer>(opt_var_);
+    constraints_ = std::make_shared<Composite>(opt_var_);
 
     int n_spline_coeff = opt_var_.GetVariables(VariableNames::kSplineCoeff).rows();
     c_zeros_ = CostConstraintFactory::CreateAccConstraint(Eigen::Vector2d::Zero(),splines_);
     c_ones_  = CostConstraintFactory::CreateAccConstraint(Eigen::Vector2d::Ones(),splines_);
 
-    constraints_->AddConstraint(c_zeros_);
-    constraints_->AddConstraint(c_ones_);
+    constraints_->AddComponent(c_zeros_);
+    constraints_->AddComponent(c_ones_);
   }
 
   OptimizationVariablesContainer opt_var_;
@@ -46,19 +46,19 @@ protected:
 
 TEST_F(ConstraintContainerTest, EvaluateConstraintsInitialAcc)
 {
-  Eigen::VectorXd g = constraints_->EvaluateConstraints();
+  Eigen::VectorXd g = constraints_->GetValues();
   std::cout << "g: " << g.transpose() << std::endl;
 
   EXPECT_EQ(4, g.rows()); // two constraints in x and one in y
 
   // remember: constraints stored in std::map, so no ordering (e.g. not first added first out)
-  EXPECT_EQ(c_zeros_->GetConstraintValues(), g.tail<2>()); // two constraints in x and one in y
-  EXPECT_EQ(c_ones_->GetConstraintValues() , g.head<2>()); // two constraints in x and one in y
+  EXPECT_EQ(c_zeros_->GetValues(), g.tail<2>()); // two constraints in x and one in y
+  EXPECT_EQ(c_ones_->GetValues() , g.head<2>()); // two constraints in x and one in y
 }
 
 TEST_F(ConstraintContainerTest, GetBoundsInitialAcc)
 {
-  ConstraintContainer::VecBound bounds = constraints_->GetBounds();
+  Composite::VecBound bounds = constraints_->GetBounds();
 
   EXPECT_EQ(4, bounds.size()); // two constraints in x and one in y
 

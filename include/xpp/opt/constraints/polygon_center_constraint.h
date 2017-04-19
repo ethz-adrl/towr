@@ -9,8 +9,11 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_POLYGON_CENTER_CONSTRAINT_H_
 
 #include <memory>
+#include <string>
 
-#include <xpp/constraint.h>
+#include <xpp/bound.h>
+
+#include "composite.h"
 
 namespace xpp {
 namespace opt {
@@ -25,7 +28,7 @@ class ContactSchedule;
   *
   * where m = number of contacts at each discrete node
   */
-class PolygonCenterConstraint : public Constraint {
+class PolygonCenterConstraint : public Primitive {
 public:
   using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
   using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
@@ -33,14 +36,15 @@ public:
   PolygonCenterConstraint (const OptVarsPtr&);
   virtual ~PolygonCenterConstraint ();
 
-  void UpdateConstraintValues () override;
-  void UpdateBounds () override;
+  VectorXd GetValues() const override;
+  VecBound GetBounds() const override;
+  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
   EELoadPtr ee_load_;
   ContactSchedulePtr contact_schedule_;
 
-  void UpdateJacobians() override;
+//  void UpdateJacobians() override;
 };
 
 } /* namespace opt */

@@ -13,11 +13,8 @@
 #include <Eigen/Dense>
 
 #include "bound.h"
-#include "constraint.h"
-#include "constraint_container.h"
-#include "cost.h"
-#include "cost_container.h"
 #include "optimization_variables_container.h"
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -26,21 +23,16 @@ namespace opt {
   *
   * This class is responsible for holding all the information of a
   * Nonlinear Program, which includes the optimization variables, their bounds,
-  * the cost function, the constraint function, constraint bounds  and possibly
+  * the cost function, the constraint function, constraint bounds and possibly
   * derivatives.
   */
 class NLP {
 public:
-  typedef Constraint::Jacobian Jacobian;
-  typedef double Number;
-  typedef Eigen::VectorXd VectorXd;
-
-  typedef std::shared_ptr<Jacobian> JacobianPtr;
-  typedef std::shared_ptr<OptimizationVariablesContainer> OptimizationVariablesPtr;
-
-  using CostPtr = std::shared_ptr<Cost>;
-  using ConstraintPtr = std::shared_ptr<Constraint>;
-  using ConstraitPtrVec = std::vector<ConstraintPtr>;
+  using VectorXd = Eigen::VectorXd;
+  using Jacobian = Primitive::Jacobian;
+  using Number   = double;
+  using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
+  using ConstraintPtrU = std::unique_ptr<Component>;
 
   NLP ();
   virtual ~NLP ();
@@ -61,17 +53,15 @@ public:
   VectorXd EvaluateConstraints(const Number* x);
 
   void EvalNonzerosOfJacobian(const Number* x, Number* values);
-  JacobianPtr GetJacobianOfConstraints() const;
+  Jacobian GetJacobianOfConstraints() const;
 
-  void PrintStatusOfConstraints(double tol) const;
-
-  void AddCost(CostPtr cost, double weight);
-  void AddConstraint(ConstraitPtrVec constraints);
+  void AddCost(ConstraintPtrU);
+  void AddConstraint(ConstraintPtrU);
 
 private:
+  ConstraintPtrU constraints_;
+  ConstraintPtrU costs_;
   OptimizationVariablesPtr opt_variables_;
-  CostContainer costs_;
-  ConstraintContainer constraints_;
 
   VectorXd ConvertToEigen(const Number* x) const;
 };

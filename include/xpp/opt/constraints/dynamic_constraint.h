@@ -9,9 +9,11 @@
 #define XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
 
 #include <memory>
+#include <string>
 
 #include <xpp/opt/linear_inverted_pendulum.h>
-#include <xpp/time_discretization_constraint.h>
+
+#include "time_discretization_constraint.h"
 
 namespace xpp {
 namespace opt {
@@ -34,13 +36,13 @@ private:
   EEMotionPtr ee_motion_;
   EELoadPtr ee_load_;
 
-  LinearInvertedPendulum model_;
+  mutable LinearInvertedPendulum model_;
 
   int GetRow(int node, int dimension) const;
 
-  virtual void UpdateConstraintAtInstance(double t, int k) override;
-  virtual void UpdateBoundsAtInstance(double t, int k) override;
-  virtual void UpdateJacobianAtInstance(double t, int k) override;
+  virtual void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const override;
+  virtual void UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const override;
+  virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
 };
 
 } /* namespace opt */

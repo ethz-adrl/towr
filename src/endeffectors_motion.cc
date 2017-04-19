@@ -43,8 +43,6 @@ EndeffectorsMotion::SetParameterStructure (const ContactSchedule& contact_schedu
       auto is_contact = phase.first;
       auto duration   = phase.second;
 
-      std::cout << "duration: " << duration << std::endl;
-
       double lift_height = is_contact? 0.0 : 0.03;
       endeffectors_.At(ee).AddPhase(duration, lift_height, is_contact);
     }

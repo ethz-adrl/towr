@@ -15,15 +15,14 @@ namespace xpp {
 namespace opt {
 
 
-PolynomialCost::PolynomialCost (const OptVarsPtr& opt_vars) :Cost(opt_vars)
-{
-}
-
 QuadraticPolynomialCost::QuadraticPolynomialCost (const OptVarsPtr& opt_vars,
-                                          const MatVec& mat_vec)
-    :PolynomialCost(opt_vars)
+                                                  const MatVec& mat_vec,
+                                                  double weight)
 {
   matrix_vector_ = mat_vec;
+  weight_ = weight;
+
+  SetDimensions(opt_vars, 1);
   com_motion_    = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));
 }
 
@@ -31,36 +30,26 @@ QuadraticPolynomialCost::~QuadraticPolynomialCost ()
 {
 }
 
-double
-QuadraticPolynomialCost::EvaluateCost () const
+QuadraticPolynomialCost::VectorXd
+QuadraticPolynomialCost::GetValues () const
 {
-  double cost = 0.0;
+  VectorXd cost = VectorXd(num_rows_);
   VectorXd spline_coeff_ = com_motion_->GetXYSplineCoeffients();
 
   cost += spline_coeff_.transpose() * matrix_vector_.M * spline_coeff_;
   cost += matrix_vector_.v.transpose() * spline_coeff_;
 
-  return cost;
+  return weight_*cost;
 }
 
-
-QuadraticPolynomialCost::VectorXd
-QuadraticPolynomialCost::EvaluateGradientWrt(std::string var_set)
+void
+QuadraticPolynomialCost::FillJacobianWithRespectTo(std::string var_set, Jacobian& jac) const
 {
-  VectorXd grad;
-
-  if (var_set == com_motion_->GetId())
-    grad =  2.0 * matrix_vector_.M * com_motion_->GetXYSplineCoeffients();
-
-  return grad;
+  if (var_set == com_motion_->GetId()) {
+    VectorXd grad = 2.0 * matrix_vector_.M * com_motion_->GetXYSplineCoeffients();
+    jac.row(0) =  grad.transpose().sparseView();
+  }
 }
-
-//double
-//SquaredSplineCost::EvaluateCost () const
-//{
-//  return (matrix_vector_.M*com_motion_->GetXYSplineCoeffients()
-//          + matrix_vector_.v).norm();
-//}
 
 } /* namespace opt */
 } /* namespace xpp */

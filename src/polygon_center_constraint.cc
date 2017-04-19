@@ -27,17 +27,20 @@ PolygonCenterConstraint::PolygonCenterConstraint (const OptVarsPtr& opt_vars)
   ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
   int num_constraints = ee_load_->GetNumberOfSegments();
-  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
+  SetDimensions(opt_vars, num_constraints);
 }
 
 PolygonCenterConstraint::~PolygonCenterConstraint ()
 {
 }
 
-void
-PolygonCenterConstraint::UpdateConstraintValues ()
+PolygonCenterConstraint::VectorXd
+PolygonCenterConstraint::GetValues () const
 {
-  for (int k=0; k<GetNumberOfConstraints(); ++k) {
+  int num_constraints = GetRows();
+  VectorXd g(num_constraints);
+
+  for (int k=0; k<num_constraints; ++k) {
     double g_node = 0.0;
     double t = ee_load_->GetTimeCenterSegment(k);
     int m = contact_schedule_->GetContactCount(t);
@@ -45,38 +48,47 @@ PolygonCenterConstraint::UpdateConstraintValues ()
     for (auto lambda : ee_load_->GetLoadValuesIdx(k).ToImpl())
       g_node += std::pow(lambda,2) - 2./m * lambda;
 
-    g_(k) = g_node;
+    g(k) = g_node;
   }
+
+  return g;
+}
+
+VecBound
+PolygonCenterConstraint::GetBounds () const
+{
+  VecBound bounds(GetRows());
+
+  for (int k=0; k<GetRows(); ++k) {
+    double t = ee_load_->GetTimeCenterSegment(k);
+    int m = contact_schedule_->GetContactCount(t);
+    bounds.at(k) = Bound(-1./m, -1./m); // should lie in center of polygon
+  }
+
+  return bounds;
 }
 
 void
-PolygonCenterConstraint::UpdateBounds ()
+PolygonCenterConstraint::FillJacobianWithRespectTo (std::string var_set,
+                                                   Jacobian& jac) const
 {
-  for (int k=0; k<GetNumberOfConstraints(); ++k) {
-    double t = ee_load_->GetTimeCenterSegment(k);
-    int m = contact_schedule_->GetContactCount(t);
-    bounds_.at(k) = Bound(-1./m, -1./m); // should lie in center of polygon
-  }
-}
+  if (var_set == ee_load_->GetId()) {
 
-void
-PolygonCenterConstraint::UpdateJacobians ()
-{
-  Jacobian& jac = GetJacobianRefWithRespectTo(ee_load_->GetId());
+    for (int k=0; k<GetRows(); ++k) {
+      double t = ee_load_->GetTimeCenterSegment(k);
+      int m = contact_schedule_->GetContactCount(t);
 
-  for (int k=0; k<GetNumberOfConstraints(); ++k) {
-    double t = ee_load_->GetTimeCenterSegment(k);
-    int m = contact_schedule_->GetContactCount(t);
+      auto lambda_k = ee_load_->GetLoadValuesIdx(k);
 
-    auto lambda_k = ee_load_->GetLoadValuesIdx(k);
-
-    for (auto ee : lambda_k.GetEEsOrdered()) {
-      int idx = ee_load_->IndexDiscrete(k,ee);
-      jac.coeffRef(k,idx) = 2*(lambda_k.At(ee) - 1./m);
+      for (auto ee : lambda_k.GetEEsOrdered()) {
+        int idx = ee_load_->IndexDiscrete(k,ee);
+        jac.coeffRef(k,idx) = 2*(lambda_k.At(ee) - 1./m);
+      }
     }
   }
 }
 
 } /* namespace opt */
 } /* namespace xpp */
+
 

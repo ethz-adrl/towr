@@ -9,11 +9,14 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONTACT_LOAD_CONSTRAINT_H_
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <xpp/endeffectors.h>
 
-#include <xpp/constraint.h>
+#include <xpp/bound.h>
+
+#include "composite.h"
 
 namespace xpp {
 namespace opt {
@@ -25,7 +28,7 @@ class ContactSchedule;
  *
  *  g = lambda_k < contac_flag_k, for all nodes k
  */
-class ContactLoadConstraint : public Constraint {
+class ContactLoadConstraint : public Primitive {
 public:
   using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
   using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
@@ -33,8 +36,9 @@ public:
   ContactLoadConstraint (const OptVarsPtr& opt_vars_container);
   virtual ~ContactLoadConstraint ();
 
-  void UpdateConstraintValues () override;
-  void UpdateBounds () override;
+  VectorXd GetValues() const override;
+  VecBound GetBounds() const override;
+  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
   EELoadPtr ee_load_;

@@ -7,20 +7,21 @@
 
 #include <xpp/opt/motion_optimizer_facade.h>
 
+#include <algorithm>
 #include <cassert>
+#include <deque>
 #include <utility>
-#include <Eigen/Dense>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 
+#include <xpp/ipopt_adapter.h>
 #include <xpp/opt/com_spline6.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/endeffector_load.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
-#include <xpp/ipopt_adapter.h>
 #include <xpp/snopt_adapter.h>
 
 namespace xpp {
@@ -85,18 +86,22 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
   CostConstraintFactory factory;
   factory.Init(opt_variables_, motion_parameters_, start_geom_, goal_geom_.Get2D());
 
-  nlp = NLP(); // clear all if called multiple times
   nlp.Init(opt_variables_);
 
+  auto constraints = std::make_unique<Composite>(true);
   for (ConstraintName name : motion_parameters_->GetUsedConstraints()) {
-    nlp.AddConstraint(factory.GetConstraint(name));
+    constraints->AddComponent(factory.GetConstraint(name));
   }
+  nlp.AddConstraint(std::move(constraints));
 
+
+  auto costs = std::make_unique<Composite>(false);
   for (const auto& pair : motion_parameters_->GetCostWeights()) {
     CostName name = pair.first;
-    double weight = pair.second;
-    nlp.AddCost(factory.GetCost(name), weight);
+    costs->AddComponent(factory.GetCost(name));
   }
+  nlp.AddCost(std::move(costs));
+
 
   switch (solver) {
     case Ipopt:   IpoptAdapter::Solve(nlp); break;

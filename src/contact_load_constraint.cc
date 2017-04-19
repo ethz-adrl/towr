@@ -23,26 +23,25 @@ ContactLoadConstraint::ContactLoadConstraint (const OptVarsPtr& opt_vars)
   ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
   int num_constraints = ee_load_->GetOptVarCount();
-  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
+  SetDimensions(opt_vars, num_constraints);
 
   ee_ids_  = contact_schedule_->IsInContact(0.0).GetEEsOrdered();
-
-  GetJacobianRefWithRespectTo(ee_load_->GetId()).setIdentity();
 }
 
 ContactLoadConstraint::~ContactLoadConstraint ()
 {
 }
 
-void
-ContactLoadConstraint::UpdateConstraintValues ()
+ContactLoadConstraint::VectorXd
+ContactLoadConstraint::GetValues () const
 {
-  g_ = ee_load_->GetVariables();
+  return ee_load_->GetVariables();
 }
 
-void
-ContactLoadConstraint::UpdateBounds ()
+VecBound
+ContactLoadConstraint::GetBounds () const
 {
+  VecBound bounds_(GetRows());
   // spring_clean_ the load discretization should be more tightly
   // coupled to the endeffector motion
 
@@ -57,7 +56,19 @@ ContactLoadConstraint::UpdateBounds ()
       bounds_.at(ee_ids_.size()*segment+ee) = Bound(0.0, bound);
     }
   }
+
+  return bounds_;
+}
+
+void
+ContactLoadConstraint::FillJacobianWithRespectTo (std::string var_set,
+                                                 Jacobian& jac) const
+{
+  if (var_set == ee_load_->GetId())
+    jac.setIdentity();
 }
 
 } /* namespace opt */
 } /* namespace xpp */
+
+

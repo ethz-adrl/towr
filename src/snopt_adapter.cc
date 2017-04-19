@@ -37,7 +37,7 @@ void
 SnoptAdapter::Init ()
 {
   int obj_count = nlp_->HasCostTerms()? 1 : 0;
-  n    = nlp_->GetNumberOfOptimizationVariables();
+  n     = nlp_->GetNumberOfOptimizationVariables();
   neF   = nlp_->GetNumberOfConstraints() + obj_count;
 
   x      = new double[n];
@@ -90,7 +90,7 @@ SnoptAdapter::Init ()
   A = nullptr;
 
   // derivatives of nonlinear part
-  lenG  = obj_count*n + nlp_->GetJacobianOfConstraints()->nonZeros();
+  lenG  = obj_count*n + nlp_->GetJacobianOfConstraints().nonZeros();
   iGfun = new int[lenG];
   jGvar = new int[lenG];
 
@@ -108,8 +108,8 @@ SnoptAdapter::Init ()
 
   // the nonzero elements of constraints (assume all)
   auto jac = nlp_->GetJacobianOfConstraints();
-  for (int k=0; k<jac->outerSize(); ++k) {
-    for (NLP::Jacobian::InnerIterator it(*jac,k); it; ++it) {
+  for (int k=0; k<jac.outerSize(); ++k) {
+    for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
       iGfun[neG] = it.row() + obj_count;
       jGvar[neG] = it.col();
       neG++;

@@ -20,7 +20,7 @@ if(BUILD_SNOPT)
 endif(BUILD_SNOPT)
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14")
 
 set(MOTION_OPT_LIB xpp_opt)
 set(SOLVER_LIB xpp_solve)
@@ -56,10 +56,7 @@ add_library(${SOLVER_LIB}
   src/nlp.cc
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
-  src/constraint.cc
-  src/constraint_container.cc
-  src/cost.cc
-  src/cost_container.cc
+  src/composite.cc
   src/soft_constraint.cc
   src/time_discretization_constraint.cc
 )

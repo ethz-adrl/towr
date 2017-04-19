@@ -10,16 +10,15 @@
 #include <Eigen/Sparse>
 
 #include <xpp/bound.h>
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
 
-SoftConstraint::SoftConstraint (const OptVarsPtr& opt_vars_container,
-                                const ConstraintPtr& constraint)
-    :Cost(opt_vars_container)
+SoftConstraint::SoftConstraint (const ConstraintPtr& constraint, double weight)
 {
   constraint_ = constraint;
-  int n_constraints = constraint_->GetNumberOfConstraints();
+  int n_constraints = constraint_->GetRows();
 
   // average value of each upper and lower bound
   b_ = VectorXd(n_constraints);
@@ -31,37 +30,29 @@ SoftConstraint::SoftConstraint (const OptVarsPtr& opt_vars_container,
   // treat all constraints equally by default
   weights_.resize(n_constraints);
   weights_.setOnes();
+
+  weight_ = weight;
 }
 
 SoftConstraint::~SoftConstraint ()
 {
 }
 
-void
-SoftConstraint::Update ()
-{
-  constraint_->UpdateConstraintValues();
-  constraint_->UpdateJacobians();
-}
-
-double
-SoftConstraint::EvaluateCost () const
-{
-  VectorXd g = constraint_->GetConstraintValues();
-  return 0.5*(g-b_).transpose()*weights_.asDiagonal()*(g-b_);
-}
-
 SoftConstraint::VectorXd
-SoftConstraint::EvaluateGradientWrt (std::string var_set)
+SoftConstraint::GetValues () const
 {
-  VectorXd g = constraint_->GetConstraintValues();
-  Constraint::Jacobian jac = constraint_->GetJacobianWithRespectTo(var_set);
+  VectorXd g = constraint_->GetValues();
+  VectorXd cost = 0.5*(g-b_).transpose()*weights_.asDiagonal()*(g-b_);
+  return weight_ * cost;
+}
 
-  VectorXd grad;
-  if (jac.rows() != 0)
-    grad = jac.transpose()*weights_.asDiagonal()*(g-b_);
-
-  return grad;
+SoftConstraint::Jacobian
+SoftConstraint::GetJacobian () const
+{
+  VectorXd g   = constraint_->GetValues();
+  Jacobian jac = constraint_->GetJacobian();
+  VectorXd grad = weight_*jac.transpose()*weights_.asDiagonal()*(g-b_);
+  return grad.transpose().sparseView();
 }
 
 } /* namespace opt */

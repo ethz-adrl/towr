@@ -25,7 +25,7 @@ NLP::~NLP ()
 void
 NLP::Init (OptimizationVariablesPtr& opt_variables)
 {
-  opt_variables_ = /*std::move*/(opt_variables);
+  opt_variables_ = opt_variables;
 }
 
 int
@@ -50,45 +50,30 @@ void
 NLP::SetVariables (const Number* x)
 {
   opt_variables_->SetAllVariables(ConvertToEigen(x));
-  constraints_.UpdateConstraints();
-  costs_.UpdateCosts();
 }
 
 double
 NLP::EvaluateCostFunction (const Number* x)
 {
   SetVariables(x);
-  return costs_.EvaluateTotalCost();
+  VectorXd g = costs_->GetValues();
+  assert(g.rows() == 1);
+  return g(0);
 }
 
 NLP::VectorXd
 NLP::EvaluateCostFunctionGradient (const Number* x)
 {
   SetVariables(x);
-
-  // analytical (if implemented in costs)
-  VectorXd grad = costs_.EvaluateGradient();
-
-  // refactor move numerical calculation of cost to cost_container class,
-  // so some can be implemented analytical, others using numerical differentiaton.
-
-//  // motion_ref don't forget bout this
-//  // To just test for feasability
-//  VectorXd grad(opt_variables_->GetOptimizationVariableCount());
-//  grad.setZero();
-
-//  // numerical differentiation
-//  Eigen::MatrixXd jacobian(1, GetNumberOfOptimizationVariables());
-//  cost_derivative_.df(opt_variables_->GetOptimizationVariables(), jacobian);
-//  VectorXd grad = jacobian.transpose();
-
-  return grad;
+  Jacobian jac = costs_->GetJacobian();
+  assert(jac.rows() == 1);
+  return jac.row(0).transpose();
 }
 
 VecBound
 NLP::GetBoundsOnConstraints () const
 {
-  return constraints_.GetBounds();
+  return constraints_->GetBounds();
 }
 
 int
@@ -101,47 +86,41 @@ NLP::VectorXd
 NLP::EvaluateConstraints (const Number* x)
 {
   SetVariables(x);
-  return constraints_.EvaluateConstraints();
+  return constraints_->GetValues();
 }
 
 bool
 NLP::HasCostTerms () const
 {
-  return !costs_.IsEmpty();
+  return costs_->GetRows()>0;
 }
 
 void
 NLP::EvalNonzerosOfJacobian (const Number* x, Number* values)
 {
   SetVariables(x);
-  JacobianPtr jac = GetJacobianOfConstraints();
+  Jacobian jac = GetJacobianOfConstraints();
 
-  jac->makeCompressed(); // so the valuePtr() is dense and accurate
-  std::copy(jac->valuePtr(), jac->valuePtr() + jac->nonZeros(), values);
+  jac.makeCompressed(); // so the valuePtr() is dense and accurate
+  std::copy(jac.valuePtr(), jac.valuePtr() + jac.nonZeros(), values);
 }
 
-NLP::JacobianPtr
+NLP::Jacobian
 NLP::GetJacobianOfConstraints () const
 {
-  return constraints_.GetJacobian();
+  return constraints_->GetJacobian();
 }
 
 void
-NLP::PrintStatusOfConstraints (double tol) const
+NLP::AddCost (ConstraintPtrU cost)
 {
-  return constraints_.PrintStatus(tol);
+  costs_ = std::move(cost);
 }
 
 void
-NLP::AddCost (CostPtr cost, double weight)
+NLP::AddConstraint (ConstraintPtrU constraint)
 {
-  costs_.AddCost(cost, weight);
-}
-
-void
-NLP::AddConstraint (ConstraitPtrVec constraints)
-{
-  constraints_.AddConstraint(constraints);
+  constraints_ = std::move(constraint);
 }
 
 NLP::VectorXd
@@ -152,3 +131,4 @@ NLP::ConvertToEigen(const Number* x) const
 
 } /* namespace opt */
 } /* namespace xpp */
+

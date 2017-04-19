@@ -8,12 +8,13 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 
+#include <Eigen/Dense>
 #include <memory>
 #include <string>
-#include <Eigen/Dense>
 
-#include <xpp/cost.h>
 #include <xpp/matrix_vector.h>
+#include <xpp/optimization_variables_container.h>
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -25,32 +26,25 @@ class BaseMotion;
   * This class is responsible for getting the current value of the optimization
   * variables from the subject and calculating the scalar cost from these.
   */
-class PolynomialCost : public Cost {
+class QuadraticPolynomialCost : public Primitive {
 public:
-  using VectorXd = Eigen::VectorXd;
   using BaseMotionPtrS = std::shared_ptr<BaseMotion>;
+  using OptVarsPtr     = std::shared_ptr<OptimizationVariablesContainer>;
 
-  PolynomialCost (const OptVarsPtr&);
-  virtual ~PolynomialCost (){};
-
-  void Update() override { /*com_motion_ always up-to-date*/ };
-
-protected:
-  BaseMotionPtrS com_motion_;
-  MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
-};
-
-class QuadraticPolynomialCost : public PolynomialCost {
-public:
-  QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&);
+  QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&, double weight);
   virtual ~QuadraticPolynomialCost();
 
-private:
   /**  The cost is calculated as
     *  cost = x^T * M * x   +   v^T * x
     */
-  double EvaluateCost () const override;
-  virtual VectorXd EvaluateGradientWrt(std::string var_set) final;
+  VectorXd GetValues () const override;
+
+private:
+  void FillJacobianWithRespectTo(std::string var_set, Jacobian&) const;
+
+  double weight_ = 1.0;
+  BaseMotionPtrS com_motion_;
+  MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
 };
 
 //class SquaredSplineCost : public ASplineCost {

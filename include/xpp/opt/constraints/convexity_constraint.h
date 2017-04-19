@@ -9,8 +9,11 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_CONVEXITY_CONSTRAINT_H_
 
 #include <memory>
+#include <string>
 
-#include <xpp/constraint.h>
+#include <xpp/bound.h>
+
+#include "composite.h"
 
 namespace xpp {
 namespace opt {
@@ -23,15 +26,16 @@ class EndeffectorLoad;
   * E.g. for a quadruped:
   * g[t_k] = lambda_LF + lambda_RF + lambda_LH + lambda_RF = 1.
   */
-class ConvexityConstraint : public Constraint {
+class ConvexityConstraint : public Primitive {
 public:
   using LoadPtr = std::shared_ptr<EndeffectorLoad>;
 
   ConvexityConstraint (const OptVarsPtr& opt_vars_container);
   virtual ~ConvexityConstraint ();
 
-  void UpdateConstraintValues () override;
-  void UpdateBounds () override;
+  VectorXd GetValues() const override;
+  VecBound GetBounds() const override;
+  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
   LoadPtr ee_load_;

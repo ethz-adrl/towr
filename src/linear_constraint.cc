@@ -19,41 +19,48 @@ namespace opt {
 
 LinearEqualityConstraint::LinearEqualityConstraint (
     const OptVarsPtr& opt_vars,
-    const MatVec& linear_equation,
-    const std::string& name)
+    const MatVec& linear_equation)
 {
   linear_equation_ = linear_equation;
-  name_ = name;
 
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));
+  opt_vars_ = opt_vars;
 
   int num_constraints = linear_equation_.v.rows();
-  SetDimensions(opt_vars->GetOptVarsVec(), num_constraints);
-
-  Jacobian& jac = GetJacobianRefWithRespectTo(com_motion_->GetId());
-  // careful, .sparseView is only valid when the Jacobian is constant, e.g.
-  // the constraints are all linear w.r.t. the decision variables.
-  jac = linear_equation_.M.sparseView();
+  SetDimensions(opt_vars, num_constraints);
 }
 
 LinearEqualityConstraint::~LinearEqualityConstraint ()
 {
 }
 
-void
-LinearEqualityConstraint::UpdateConstraintValues ()
+LinearEqualityConstraint::VectorXd
+LinearEqualityConstraint::GetValues () const
 {
   VectorXd x = com_motion_->GetXYSplineCoeffients();
-  g_ = linear_equation_.M*x;
+  return linear_equation_.M*x;
+}
+
+VecBound
+LinearEqualityConstraint::GetBounds () const
+{
+  VecBound bounds;
+
+  for (int i=0; i<GetRows(); ++i) {
+    Bound bound(-linear_equation_.v[i],-linear_equation_.v[i]);
+    bounds.push_back(bound);
+  }
+
+  return bounds;
 }
 
 void
-LinearEqualityConstraint::UpdateBounds ()
+LinearEqualityConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
 {
-  for (int i=0; i<GetNumberOfConstraints(); ++i) {
-    Bound bound(-linear_equation_.v[i],-linear_equation_.v[i]);
-    bounds_.at(i) = bound;
-  }
+  // the constraints are all linear w.r.t. the decision variables.
+  // careful, .sparseView is only valid when the Jacobian is constant, e.g.
+  if (var_set == com_motion_->GetId())
+    jac = linear_equation_.M.sparseView();
 }
 
 } /* namespace opt */

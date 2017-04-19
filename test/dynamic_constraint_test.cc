@@ -5,34 +5,52 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/constraints/dynamic_constraint.h>
-#include <xpp/opt/com_spline6.h>
+#include <Eigen/Sparse>
 #include <gtest/gtest.h>
 
 namespace xpp {
 namespace opt {
 
+using VectorXd = Eigen::VectorXd;
 
-TEST(DynamicConstraintTest, UpdateConstraintValues)
+
+//TEST(DynamicConstraintTest, UpdateConstraintValues)
+//{
+//  using Jacobian      = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+//
+//  Jacobian jac(3,2);
+//
+////  jac.coeffRef(0,0) = 1.1;
+////  jac.coeffRef(0,1) = 2.2;
+//  jac.coeffRef(1,1) = 3.3;
+//
+//
+//  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
+//  JacobianRow row(2);
+//  row.insert(1) = 5;
+//  jac.row(0) += row;
+//
+//
+////  jac.setZero();
+//
+//
+//  std::cout << "jac: " << jac << std::endl;
+//  double nnz = jac.nonZeros();
+//  std::cout << "nnz: " << nnz << std::endl;
+//
+//
+//  jac.makeCompressed();
+//  for (int i=0; i<nnz; ++i) {
+//    std::cout << "i=" << i << ":  " << jac.valuePtr()[i] << std::endl;
+//  }
+//}
+
+TEST(DynamicConstraintTest, EigenScalar)
 {
-//  double T = 0.5;
-//
-//  auto com = std::make_shared<ComSpline6>();
-//  com->SetConstantHeight(0.58);
-//  com->Init(T, 3);
-//
-//  double dt_cop = 0.02;
-//  auto cop = std::make_shared<CenterOfPressure>(dt_cop, T);
+  VectorXd g(1);
+  g(0) = 0.5;
 
-//  double dt_constraint = 0.05;
-//  DynamicConstraint constraint(com, cop, T, dt_constraint);
-//
-//
-//  std::cout << "count: " << constraint.GetNumberOfConstraints() << std::endl;
-//
-//  std::cout << constraint.GetConstraintValues().transpose() << std::endl;
-
-//  std::cout << constraint.GetJacobianWrtCop() << std::endl << std::endl;
+  std::cout << g << std::endl;
 }
 
 

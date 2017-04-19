@@ -5,13 +5,15 @@
  @brief   Brief description
  */
 
-#include <xpp/time_discretization_constraint.h>
+#include <xpp/opt/constraints/time_discretization_constraint.h>
 #include <cmath>
 
 namespace xpp {
 namespace opt {
 
-TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt)
+TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
+                                                            int constraints_per_time,
+                                                            const OptVarsPtr& opt_vars)
 {
   dts_.clear();
   double t = 0.0;
@@ -19,6 +21,9 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt)
     dts_.push_back(t);
     t += dt;
   }
+
+  int num_constraints = GetNumberOfNodes()*constraints_per_time;
+  SetDimensions(opt_vars, num_constraints);
 }
 
 TimeDiscretizationConstraint::~TimeDiscretizationConstraint ()
@@ -31,29 +36,40 @@ TimeDiscretizationConstraint::GetNumberOfNodes () const
   return dts_.size();
 }
 
-void
-TimeDiscretizationConstraint::UpdateConstraintValues ()
+TimeDiscretizationConstraint::VectorXd
+TimeDiscretizationConstraint::GetValues () const
 {
+  VectorXd g = VectorXd::Zero(GetRows());
+
   int k = 0;
   for (double t : dts_)
-    UpdateConstraintAtInstance(t, k++);
+    UpdateConstraintAtInstance(t, k++, g);
+
+  return g;
+}
+
+VecBound
+TimeDiscretizationConstraint::GetBounds () const
+{
+  VecBound bounds(GetRows());
+
+  int k = 0;
+  for (double t : dts_)
+    UpdateBoundsAtInstance(t, k++, bounds);
+
+  return bounds;
 }
 
 void
-TimeDiscretizationConstraint::UpdateBounds ()
+TimeDiscretizationConstraint::FillJacobianWithRespectTo (std::string var_set,
+                                                        Jacobian& jac) const
 {
   int k = 0;
   for (double t : dts_)
-    UpdateBoundsAtInstance(t, k++);
-}
-
-void
-TimeDiscretizationConstraint::UpdateJacobians ()
-{
-  int k = 0;
-  for (double t : dts_)
-    UpdateJacobianAtInstance(t, k++);
+    UpdateJacobianAtInstance(t, k++, jac, var_set);
 }
 
 } /* namespace opt */
 } /* namespace xpp */
+
+

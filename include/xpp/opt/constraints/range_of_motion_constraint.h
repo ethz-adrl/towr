@@ -10,10 +10,11 @@
 
 #include <array>
 #include <memory>
+#include <string>
 
 #include <xpp/endeffectors.h>
 
-#include <xpp/time_discretization_constraint.h>
+#include "time_discretization_constraint.h"
 
 namespace xpp {
 namespace opt {
@@ -52,9 +53,9 @@ public:
   virtual ~RangeOfMotionBox();
 
 private:
-  void UpdateConstraintAtInstance (double t, int k) override;
-  void UpdateBoundsAtInstance (double t, int k) override;
-  void UpdateJacobianAtInstance(double t, int k) override;
+  void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;
+  void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;
+  virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
 
   int GetRow(int node, EndeffectorID ee, int dimension) const;
 

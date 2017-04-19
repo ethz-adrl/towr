@@ -53,7 +53,7 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
   final_geom_state_ = final_state;
 }
 
-CostConstraintFactory::ConstraintPtrVec
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::GetConstraint (ConstraintName name) const
 {
   switch (name) {
@@ -69,52 +69,50 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
   }
 }
 
-CostConstraintFactory::CostPtr
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::GetCost(CostName name) const
 {
+  double weight = params->GetCostWeights().at(name);
+
   switch (name) {
-    case ComCostID:          return MakeMotionCost();
-    case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint().front());
-    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint().front());
-    case FinalComCostID:     return ToCost(MakeFinalConstraint().front());
-    case FinalStanceCostID:  return ToCost(MakeStancesConstraints().front());
+    case ComCostID:          return MakeMotionCost(weight);
+    case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint(), weight);
+    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint()   , weight);
+    case FinalComCostID:     return ToCost(MakeFinalConstraint()           , weight);
+    case FinalStanceCostID:  return ToCost(MakeStancesConstraints()        , weight);
     default: throw std::runtime_error("cost not defined!");
   }
 }
 
-CostConstraintFactory::ConstraintPtrVec
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeInitialConstraint () const
 {
   StateLin2d initial_com_state = initial_geom_state_.GetBase().lin.Get2D();
   initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
   MatVec lin_eq = spline_eq_.MakeInitial(initial_com_state);
 
-  auto constraint = std::make_shared<LinearEqualityConstraint>(
-      opt_vars_, lin_eq, "Initial XY");
-  return {constraint};
+  return std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq);
 }
 
-CostConstraintFactory::ConstraintPtrVec
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeFinalConstraint () const
 {
   StateLin2d final_com_state = final_geom_state_;
   final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
   MatVec lin_eq = spline_eq_.MakeFinal(final_geom_state_, {kPos, kVel, kAcc});
 
-  auto constraint = std::make_shared<LinearEqualityConstraint>(
-      opt_vars_, lin_eq, "Final XY");
-  return {constraint};
+  return std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq);
 }
 
-CostConstraintFactory::ConstraintPtrVec
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeJunctionConstraint () const
 {
   auto constraint = std::make_shared<LinearEqualityConstraint>(
-      opt_vars_, spline_eq_.MakeJunction(), "Junction");
-  return {constraint};
+      opt_vars_, spline_eq_.MakeJunction());
+  return constraint;
 }
 
-CostConstraintFactory::ConstraintPtrVec
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
   double dt = 0.05;
@@ -122,10 +120,10 @@ CostConstraintFactory::MakeDynamicConstraint() const
                                                         params->GetTotalTime(),
                                                         dt
                                                         );
-  return {constraint};
+  return constraint;
 }
 
-CostConstraintFactory::ConstraintPtrVec
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
   double dt = 0.2;
@@ -138,30 +136,30 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
       params->GetTotalTime()
       );
 
-  return {constraint};
+  return constraint;
 }
 
-CostConstraintFactory::ConstraintPtrVec
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeConvexityConstraint() const
 {
-  auto convexity = std::make_shared<ConvexityConstraint>(opt_vars_);
+  auto constraint = std::make_shared<Composite>();
+  constraint->AddComponent(std::make_shared<ConvexityConstraint>(opt_vars_));
+  constraint->AddComponent(std::make_shared<ContactLoadConstraint>(opt_vars_));
 
-  auto contact_load = std::make_shared<ContactLoadConstraint>(opt_vars_);
-
-  return {convexity, contact_load};
+  return constraint;
 }
 
 
-CostConstraintFactory::ConstraintPtrVec
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeStancesConstraints () const
 {
-  ConstraintPtrVec stance_constraints;
+  auto stance_constraints = std::make_shared<Composite>();
 
   // calculate initial position in world frame
   auto constraint_initial = std::make_shared<FootholdConstraint>(
       opt_vars_, initial_geom_state_.GetEEPos(), 0.0);
 
-  stance_constraints.push_back(constraint_initial);
+  stance_constraints->AddComponent(constraint_initial);
 
   // calculate endeffector position in world frame
   EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
@@ -173,27 +171,27 @@ CostConstraintFactory::MakeStancesConstraints () const
   auto constraint_final = std::make_shared<FootholdConstraint>(
       opt_vars_, endeffectors_final_W, params->GetTotalTime());
 
-  stance_constraints.push_back(constraint_final);
+  stance_constraints->AddComponent(constraint_final);
 
 
   return stance_constraints;
 }
 
-CostConstraintFactory::ConstraintPtrVec
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeObstacleConstraint () const
 {
 //  auto constraint = std::make_shared<ObstacleLineStrip>();
 //  return constraint;
 }
 
-CostConstraintFactory::ConstraintPtrVec
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakePolygonCenterConstraint () const
 {
-  return {std::make_shared<PolygonCenterConstraint>(opt_vars_)};
+  return std::make_shared<PolygonCenterConstraint>(opt_vars_);
 }
 
-CostConstraintFactory::CostPtr
-CostConstraintFactory::MakeMotionCost() const
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::MakeMotionCost(double weight) const
 {
   Eigen::MatrixXd term;
   MotionDerivative dxdt = kAcc;
@@ -210,13 +208,13 @@ CostConstraintFactory::MakeMotionCost() const
   mv.M = term;
   mv.v.setZero();
 
-  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv);
+  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, weight);
 }
 
-CostConstraintFactory::CostPtr
-CostConstraintFactory::ToCost (const ConstraintPtr& constraint) const
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ToCost (const ConstraintPtr& constraint, double weight) const
 {
-  return std::make_shared<SoftConstraint>(opt_vars_, constraint);
+  return std::make_shared<SoftConstraint>(constraint, weight);
 }
 
 } /* namespace opt */

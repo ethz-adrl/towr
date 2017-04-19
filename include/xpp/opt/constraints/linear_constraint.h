@@ -11,8 +11,10 @@
 #include <memory>
 #include <string>
 
-#include <xpp/constraint.h>
+#include <xpp/bound.h>
 #include <xpp/matrix_vector.h>
+
+#include "composite.h"
 
 namespace xpp {
 namespace opt {
@@ -24,7 +26,7 @@ class BaseMotion;
   * This class is responsible for getting the current state of the CoM spline
   * and using this to calculate the constraint violations.
   */
-class LinearEqualityConstraint : public Constraint {
+class LinearEqualityConstraint : public Primitive {
 public:
   using ComMotionPtr = std::shared_ptr<BaseMotion>;
 
@@ -34,17 +36,18 @@ public:
     * @param linear_equation the matrix M and vector v.
     */
   LinearEqualityConstraint (const OptVarsPtr& opt_vars_container,
-                            const MatVec& linear_equation,
-                            const std::string& name);
+                            const MatVec& linear_equation);
   virtual ~LinearEqualityConstraint ();
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
-  void UpdateConstraintValues () override;
-  void UpdateBounds () override;
+  VectorXd GetValues() const override;
+  VecBound GetBounds() const override;
+  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
   ComMotionPtr com_motion_;
   MatVec linear_equation_;
+  OptVarsPtr opt_vars_;
 };
 
 } /* namespace opt */
