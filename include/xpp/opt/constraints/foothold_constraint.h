@@ -13,7 +13,8 @@
 
 #include <xpp/endeffectors.h>
 #include <xpp/bound.h>
-#include "constraint.h"
+
+#include "composite.h"
 
 namespace xpp {
 namespace opt {
@@ -26,7 +27,7 @@ class EndeffectorsMotion;
   * in order to then calculate costs based on these (move towards goal, avoid
   * obstacles, ...).
   */
-class FootholdConstraint : public ConstraintLeaf {
+class FootholdConstraint : public Primitive {
 public:
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
   using NominalStance = EndeffectorsPos;
@@ -35,7 +36,7 @@ public:
   virtual ~FootholdConstraint ();
 
 private:
-  VectorXd GetConstraintValues() const override;
+  VectorXd GetValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 

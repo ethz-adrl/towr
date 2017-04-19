@@ -37,9 +37,9 @@ TimeDiscretizationConstraint::GetNumberOfNodes () const
 }
 
 TimeDiscretizationConstraint::VectorXd
-TimeDiscretizationConstraint::GetConstraintValues () const
+TimeDiscretizationConstraint::GetValues () const
 {
-  VectorXd g = VectorXd::Zero(GetNumberOfConstraints());
+  VectorXd g = VectorXd::Zero(GetRows());
 
   int k = 0;
   for (double t : dts_)
@@ -51,7 +51,7 @@ TimeDiscretizationConstraint::GetConstraintValues () const
 VecBound
 TimeDiscretizationConstraint::GetBounds () const
 {
-  VecBound bounds(GetNumberOfConstraints());
+  VecBound bounds(GetRows());
 
   int k = 0;
   for (double t : dts_)

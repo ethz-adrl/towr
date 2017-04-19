@@ -34,9 +34,9 @@ ConvexityConstraint::~ConvexityConstraint ()
 }
 
 ConvexityConstraint::VectorXd
-ConvexityConstraint::GetConstraintValues () const
+ConvexityConstraint::GetValues () const
 {
-  int m = GetNumberOfConstraints();
+  int m = GetRows();
   VectorXd g(m);
 
   for (int k=0; k<m; ++k) {
@@ -55,7 +55,7 @@ ConvexityConstraint::GetConstraintValues () const
 VecBound
 ConvexityConstraint::GetBounds () const
 {
-  VecBound b(GetNumberOfConstraints());
+  VecBound b(GetRows());
   std::fill(b.begin(), b.end(), Bound(1.0, 1.0));
   return b;
 }

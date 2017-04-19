@@ -142,9 +142,9 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeConvexityConstraint() const
 {
-  auto constraint = std::make_shared<ConstraintComposite>();
-  constraint->AddConstraint(std::make_shared<ConvexityConstraint>(opt_vars_));
-  constraint->AddConstraint(std::make_shared<ContactLoadConstraint>(opt_vars_));
+  auto constraint = std::make_shared<Composite>();
+  constraint->AddComponent(std::make_shared<ConvexityConstraint>(opt_vars_));
+  constraint->AddComponent(std::make_shared<ContactLoadConstraint>(opt_vars_));
 
   return constraint;
 }
@@ -153,13 +153,13 @@ CostConstraintFactory::MakeConvexityConstraint() const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeStancesConstraints () const
 {
-  auto stance_constraints = std::make_shared<ConstraintComposite>();
+  auto stance_constraints = std::make_shared<Composite>();
 
   // calculate initial position in world frame
   auto constraint_initial = std::make_shared<FootholdConstraint>(
       opt_vars_, initial_geom_state_.GetEEPos(), 0.0);
 
-  stance_constraints->AddConstraint(constraint_initial);
+  stance_constraints->AddComponent(constraint_initial);
 
   // calculate endeffector position in world frame
   EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
@@ -171,7 +171,7 @@ CostConstraintFactory::MakeStancesConstraints () const
   auto constraint_final = std::make_shared<FootholdConstraint>(
       opt_vars_, endeffectors_final_W, params->GetTotalTime());
 
-  stance_constraints->AddConstraint(constraint_final);
+  stance_constraints->AddComponent(constraint_final);
 
 
   return stance_constraints;

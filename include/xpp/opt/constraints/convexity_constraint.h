@@ -13,7 +13,7 @@
 
 #include <xpp/bound.h>
 
-#include "constraint.h"
+#include "composite.h"
 
 namespace xpp {
 namespace opt {
@@ -26,14 +26,14 @@ class EndeffectorLoad;
   * E.g. for a quadruped:
   * g[t_k] = lambda_LF + lambda_RF + lambda_LH + lambda_RF = 1.
   */
-class ConvexityConstraint : public ConstraintLeaf {
+class ConvexityConstraint : public Primitive {
 public:
   using LoadPtr = std::shared_ptr<EndeffectorLoad>;
 
   ConvexityConstraint (const OptVarsPtr& opt_vars_container);
   virtual ~ConvexityConstraint ();
 
-  VectorXd GetConstraintValues() const override;
+  VectorXd GetValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 

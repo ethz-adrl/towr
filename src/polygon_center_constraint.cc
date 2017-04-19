@@ -35,9 +35,9 @@ PolygonCenterConstraint::~PolygonCenterConstraint ()
 }
 
 PolygonCenterConstraint::VectorXd
-PolygonCenterConstraint::GetConstraintValues () const
+PolygonCenterConstraint::GetValues () const
 {
-  int num_constraints = GetNumberOfConstraints();
+  int num_constraints = GetRows();
   VectorXd g(num_constraints);
 
   for (int k=0; k<num_constraints; ++k) {
@@ -57,9 +57,9 @@ PolygonCenterConstraint::GetConstraintValues () const
 VecBound
 PolygonCenterConstraint::GetBounds () const
 {
-  VecBound bounds(GetNumberOfConstraints());
+  VecBound bounds(GetRows());
 
-  for (int k=0; k<GetNumberOfConstraints(); ++k) {
+  for (int k=0; k<GetRows(); ++k) {
     double t = ee_load_->GetTimeCenterSegment(k);
     int m = contact_schedule_->GetContactCount(t);
     bounds.at(k) = Bound(-1./m, -1./m); // should lie in center of polygon
@@ -74,7 +74,7 @@ PolygonCenterConstraint::FillJacobianWithRespectTo (std::string var_set,
 {
   if (var_set == ee_load_->GetId()) {
 
-    for (int k=0; k<GetNumberOfConstraints(); ++k) {
+    for (int k=0; k<GetRows(); ++k) {
       double t = ee_load_->GetTimeCenterSegment(k);
       int m = contact_schedule_->GetContactCount(t);
 

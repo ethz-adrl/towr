@@ -45,12 +45,12 @@ TEST(JointAnglesContraintTest, StartStanceInLimits)
   int n_splines = 1;
   OptimizationVariablesContainer opt_variables;
   opt_variables.AddVariableSet(0, Eigen::VectorXd(n_splines*kFreeCoeffPerSpline*2));
-  ConstraintComposite constraint_container(opt_variables);
+  Composite constraint_container(opt_variables);
   auto constraint = CostConstraintFactory::CreateJointAngleConstraint(interpreter);
   constraint_container.AddConstraint(constraint);
 
-  VectorXd q = constraint_container.GetConstraintValues();
-  ConstraintLeaf::VecBound q_bounds = constraint_container.GetBounds();
+  VectorXd q = constraint_container.GetValues();
+  Primitive::VecBound q_bounds = constraint_container.GetBounds();
 
   EXPECT_GT(q.rows(), 0);
   EXPECT_GT(q_bounds.size(), 0);

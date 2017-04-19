@@ -8,10 +8,9 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
 
-#include <xpp/opt/constraints/constraint.h>
-
 #include <Eigen/Dense>
 #include <memory>
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -25,9 +24,9 @@ namespace opt {
   * Then the gradient of the cost is defined as:
   * dc(x)/dx = (g'(x)^T * W * J)^T = J^T * W * (g(x)-b).
   */
-class SoftConstraint : public Constraint {
+class SoftConstraint : public Component {
 public:
-  using ConstraintPtr = std::shared_ptr<Constraint>;
+  using ConstraintPtr = std::shared_ptr<Component>;
   using VectorXd      = Eigen::VectorXd;
 
   SoftConstraint (const ConstraintPtr& constraint, double weight);
@@ -40,11 +39,11 @@ private:
 
   /** c(x) = 0.5 * (g-b)^T * W * (g-b)
     */
-  virtual VectorXd GetConstraintValues () const override;
+  virtual VectorXd GetValues () const override;
 
   /** dc(x)/dx = J^T * W * (g-b)
     */
-  virtual Jacobian GetConstraintJacobian() const override;
+  virtual Jacobian GetJacobian() const override;
 
   double weight_ = 1.0; ///< the weight relative to other costs
 };

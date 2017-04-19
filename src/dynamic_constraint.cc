@@ -16,7 +16,7 @@
 #include <xpp/state.h>
 
 #include <xpp/bound.h>
-#include <xpp/opt/constraints/constraint.h>
+#include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/endeffector_load.h>
 #include <xpp/opt/variables/endeffectors_motion.h>

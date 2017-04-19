@@ -12,9 +12,9 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include <xpp/opt/constraints/constraint.h>
 #include "bound.h"
 #include "optimization_variables_container.h"
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -29,10 +29,10 @@ namespace opt {
 class NLP {
 public:
   using VectorXd = Eigen::VectorXd;
-  using Jacobian = ConstraintLeaf::Jacobian;
+  using Jacobian = Primitive::Jacobian;
   using Number   = double;
   using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
-  using ConstraintPtrU = std::unique_ptr<Constraint>;
+  using ConstraintPtrU = std::unique_ptr<Component>;
 
   NLP ();
   virtual ~NLP ();

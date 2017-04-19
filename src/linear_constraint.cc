@@ -35,7 +35,7 @@ LinearEqualityConstraint::~LinearEqualityConstraint ()
 }
 
 LinearEqualityConstraint::VectorXd
-LinearEqualityConstraint::GetConstraintValues () const
+LinearEqualityConstraint::GetValues () const
 {
   VectorXd x = com_motion_->GetXYSplineCoeffients();
   return linear_equation_.M*x;
@@ -46,7 +46,7 @@ LinearEqualityConstraint::GetBounds () const
 {
   VecBound bounds;
 
-  for (int i=0; i<GetNumberOfConstraints(); ++i) {
+  for (int i=0; i<GetRows(); ++i) {
     Bound bound(-linear_equation_.v[i],-linear_equation_.v[i]);
     bounds.push_back(bound);
   }

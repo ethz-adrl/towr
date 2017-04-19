@@ -1,36 +1,35 @@
 /**
- @file    constraint.h
+ @file    composite.h
  @author  Alexander W. Winkler (winklera@ethz.ch)
  @date    May 30, 2016
  @brief   Abstract class representing a constraint for the NLP problem.
  */
 
-#include <xpp/opt/constraints/constraint.h>
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
 
-Constraint::Constraint ()
+Component::Component ()
 {
 }
 
 int
-Constraint::GetNumberOfConstraints () const
+Component::GetRows () const
 {
   return num_rows_;
 }
 
 
-
 void
-ConstraintLeaf::SetDimensions (const OptVarsPtr& vars, int num_rows)
+Primitive::SetDimensions (const OptVarsPtr& vars, int num_rows)
 {
   num_rows_ = num_rows;
   opt_vars_ = vars;
 }
 
-ConstraintLeaf::Jacobian
-ConstraintLeaf::GetConstraintJacobian () const
+Primitive::Jacobian
+Primitive::GetJacobian () const
 {
   Jacobian jacobian(num_rows_, opt_vars_->GetOptimizationVariableCount());
 
@@ -54,27 +53,33 @@ ConstraintLeaf::GetConstraintJacobian () const
 }
 
 
+Composite::Composite (bool append_components)
+{
+  num_rows_ = 0; // "meat" can only be added by primitive components
+  append_components_ = append_components;
+}
+
 
 void
-ConstraintComposite::AddConstraint (const BasePtr& constraint)
+Composite::AddComponent (const ComponentPtr& constraint)
 {
-  constraints_.push_back(constraint);
+  components_.push_back(constraint);
 
   if (append_components_)
-    num_rows_ += constraint->GetNumberOfConstraints();
+    num_rows_ += constraint->GetRows();
   else
     num_rows_ = 1; // composite holds costs
 }
 
-ConstraintComposite::VectorXd
-ConstraintComposite::GetConstraintValues () const
+Composite::VectorXd
+Composite::GetValues () const
 {
-  VectorXd g_all = VectorXd::Zero(GetNumberOfConstraints());
+  VectorXd g_all = VectorXd::Zero(GetRows());
 
   int row = 0;
-  for (const auto& c : constraints_) {
+  for (const auto& c : components_) {
 
-    VectorXd g = c->GetConstraintValues();
+    VectorXd g = c->GetValues();
     int n_rows = g.rows();
     g_all.middleRows(row, n_rows) += g;
 
@@ -84,38 +89,32 @@ ConstraintComposite::GetConstraintValues () const
   return g_all;
 }
 
-ConstraintComposite::Jacobian
-ConstraintComposite::GetConstraintJacobian () const
+Composite::Jacobian
+Composite::GetJacobian () const
 {
-  int n_var = constraints_.front()->GetConstraintJacobian().cols();
+  int n_var = components_.front()->GetJacobian().cols();
   Jacobian jacobian(num_rows_, n_var);
 
   int row = 0;
-  for (const auto& c : constraints_) {
+  for (const auto& c : components_) {
 
-    const Jacobian& jac = c->GetConstraintJacobian();
+    const Jacobian& jac = c->GetJacobian();
     for (int k=0; k<jac.outerSize(); ++k)
       for (Jacobian::InnerIterator it(jac,k); it; ++it)
         jacobian.coeffRef(row+it.row(), it.col()) += it.value();
 
     if (append_components_)
-      row += c->GetNumberOfConstraints();
+      row += c->GetRows();
   }
 
   return jacobian;
 }
 
-ConstraintComposite::ConstraintComposite (bool append_components)
-{
-  num_rows_ = 0;
-  append_components_ = append_components;
-}
-
 VecBound
-ConstraintComposite::GetBounds () const
+Composite::GetBounds () const
 {
   VecBound bounds_;
-  for (const auto& c : constraints_) {
+  for (const auto& c : components_) {
     VecBound b = c->GetBounds();
     bounds_.insert(bounds_.end(), b.begin(), b.end());
   }

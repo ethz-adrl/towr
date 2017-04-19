@@ -33,7 +33,7 @@ ContactLoadConstraint::~ContactLoadConstraint ()
 }
 
 ContactLoadConstraint::VectorXd
-ContactLoadConstraint::GetConstraintValues () const
+ContactLoadConstraint::GetValues () const
 {
   return ee_load_->GetVariables();
 }
@@ -41,7 +41,7 @@ ContactLoadConstraint::GetConstraintValues () const
 VecBound
 ContactLoadConstraint::GetBounds () const
 {
-  VecBound bounds_(GetNumberOfConstraints());
+  VecBound bounds_(GetRows());
   // spring_clean_ the load discretization should be more tightly
   // coupled to the endeffector motion
 

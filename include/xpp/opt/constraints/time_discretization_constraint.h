@@ -9,20 +9,21 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_TIME_DISCRETIZATION_CONSTRAINT_H_
 
 #include <vector>
-#include "constraint.h"
+
+#include "composite.h"
 
 namespace xpp {
 namespace opt {
 
 /** @brief Constraints evaluated at discretized times along a trajectory.
   */
-class TimeDiscretizationConstraint : public ConstraintLeaf {
+class TimeDiscretizationConstraint : public Primitive {
 public:
   TimeDiscretizationConstraint (double T, double dt, int constraints_per_time,
                                 const OptVarsPtr& opt_vars);
   virtual ~TimeDiscretizationConstraint ();
 
-  VectorXd GetConstraintValues() const override;
+  VectorXd GetValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 

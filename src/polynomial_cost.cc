@@ -31,7 +31,7 @@ QuadraticPolynomialCost::~QuadraticPolynomialCost ()
 }
 
 QuadraticPolynomialCost::VectorXd
-QuadraticPolynomialCost::GetConstraintValues () const
+QuadraticPolynomialCost::GetValues () const
 {
   VectorXd cost = VectorXd(num_rows_);
   VectorXd spline_coeff_ = com_motion_->GetXYSplineCoeffients();
@@ -53,4 +53,3 @@ QuadraticPolynomialCost::FillJacobianWithRespectTo(std::string var_set, Jacobian
 
 } /* namespace opt */
 } /* namespace xpp */
-

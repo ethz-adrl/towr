@@ -14,7 +14,7 @@
 
 #include <xpp/matrix_vector.h>
 #include <xpp/optimization_variables_container.h>
-#include <xpp/opt/constraints/constraint.h>
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -26,7 +26,7 @@ class BaseMotion;
   * This class is responsible for getting the current value of the optimization
   * variables from the subject and calculating the scalar cost from these.
   */
-class QuadraticPolynomialCost : public ConstraintLeaf {
+class QuadraticPolynomialCost : public Primitive {
 public:
   using BaseMotionPtrS = std::shared_ptr<BaseMotion>;
   using OptVarsPtr     = std::shared_ptr<OptimizationVariablesContainer>;
@@ -37,7 +37,7 @@ public:
   /**  The cost is calculated as
     *  cost = x^T * M * x   +   v^T * x
     */
-  VectorXd GetConstraintValues () const override;
+  VectorXd GetValues () const override;
 
 private:
   void FillJacobianWithRespectTo(std::string var_set, Jacobian&) const;

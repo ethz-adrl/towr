@@ -16,7 +16,7 @@
 
 #include <xpp/bound.h>
 
-#include "constraint.h"
+#include "composite.h"
 
 namespace xpp {
 namespace opt {
@@ -28,7 +28,7 @@ class ContactSchedule;
  *
  *  g = lambda_k < contac_flag_k, for all nodes k
  */
-class ContactLoadConstraint : public ConstraintLeaf {
+class ContactLoadConstraint : public Primitive {
 public:
   using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
   using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
@@ -36,7 +36,7 @@ public:
   ContactLoadConstraint (const OptVarsPtr& opt_vars_container);
   virtual ~ContactLoadConstraint ();
 
-  VectorXd GetConstraintValues() const override;
+  VectorXd GetValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 

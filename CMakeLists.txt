@@ -56,7 +56,7 @@ add_library(${SOLVER_LIB}
   src/nlp.cc
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
-  src/constraint.cc
+  src/composite.cc
   src/soft_constraint.cc
   src/time_discretization_constraint.cc
 )

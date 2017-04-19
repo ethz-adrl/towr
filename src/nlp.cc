@@ -56,7 +56,7 @@ double
 NLP::EvaluateCostFunction (const Number* x)
 {
   SetVariables(x);
-  VectorXd g = costs_->GetConstraintValues();
+  VectorXd g = costs_->GetValues();
   assert(g.rows() == 1);
   return g(0);
 }
@@ -65,7 +65,7 @@ NLP::VectorXd
 NLP::EvaluateCostFunctionGradient (const Number* x)
 {
   SetVariables(x);
-  Jacobian jac = costs_->GetConstraintJacobian();
+  Jacobian jac = costs_->GetJacobian();
   assert(jac.rows() == 1);
   return jac.row(0).transpose();
 }
@@ -86,13 +86,13 @@ NLP::VectorXd
 NLP::EvaluateConstraints (const Number* x)
 {
   SetVariables(x);
-  return constraints_->GetConstraintValues();
+  return constraints_->GetValues();
 }
 
 bool
 NLP::HasCostTerms () const
 {
-  return costs_->GetNumberOfConstraints()>0;
+  return costs_->GetRows()>0;
 }
 
 void
@@ -108,7 +108,7 @@ NLP::EvalNonzerosOfJacobian (const Number* x, Number* values)
 NLP::Jacobian
 NLP::GetJacobianOfConstraints () const
 {
-  return constraints_->GetConstraintJacobian();
+  return constraints_->GetJacobian();
 }
 
 void

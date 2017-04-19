@@ -10,7 +10,7 @@
 #include <Eigen/Sparse>
 
 #include <xpp/bound.h>
-#include <xpp/opt/constraints/constraint.h>
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -18,7 +18,7 @@ namespace opt {
 SoftConstraint::SoftConstraint (const ConstraintPtr& constraint, double weight)
 {
   constraint_ = constraint;
-  int n_constraints = constraint_->GetNumberOfConstraints();
+  int n_constraints = constraint_->GetRows();
 
   // average value of each upper and lower bound
   b_ = VectorXd(n_constraints);
@@ -39,18 +39,18 @@ SoftConstraint::~SoftConstraint ()
 }
 
 SoftConstraint::VectorXd
-SoftConstraint::GetConstraintValues () const
+SoftConstraint::GetValues () const
 {
-  VectorXd g = constraint_->GetConstraintValues();
+  VectorXd g = constraint_->GetValues();
   VectorXd cost = 0.5*(g-b_).transpose()*weights_.asDiagonal()*(g-b_);
   return weight_ * cost;
 }
 
 SoftConstraint::Jacobian
-SoftConstraint::GetConstraintJacobian () const
+SoftConstraint::GetJacobian () const
 {
-  VectorXd g   = constraint_->GetConstraintValues();
-  Jacobian jac = constraint_->GetConstraintJacobian();
+  VectorXd g   = constraint_->GetValues();
+  Jacobian jac = constraint_->GetJacobian();
   VectorXd grad = weight_*jac.transpose()*weights_.asDiagonal()*(g-b_);
   return grad.transpose().sparseView();
 }

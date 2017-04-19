@@ -21,7 +21,7 @@
 namespace xpp {
 namespace opt {
 
-class Constraint;
+class Component;
 
 /** Builds all types of constraints/costs for the user.
   *
@@ -32,7 +32,7 @@ class Constraint;
   */
 class CostConstraintFactory {
 public:
-  using ConstraintPtr    = std::shared_ptr<Constraint>;
+  using ConstraintPtr    = std::shared_ptr<Component>;
   using MotionParamsPtr  = std::shared_ptr<MotionParameters>;
   using OptVarsContainer = std::shared_ptr<OptimizationVariablesContainer>;
 

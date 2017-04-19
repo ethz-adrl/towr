@@ -38,9 +38,9 @@ FootholdConstraint::~FootholdConstraint ()
 }
 
 VectorXd
-FootholdConstraint::GetConstraintValues () const
+FootholdConstraint::GetValues () const
 {
-  VectorXd g(GetNumberOfConstraints());
+  VectorXd g(GetRows());
   int k=0;
   for (const auto& ee_state : ee_motion_->GetEndeffectorsVec(t_))
     for (auto dim : d2::AllDimensions)

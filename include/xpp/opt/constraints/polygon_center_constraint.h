@@ -13,7 +13,7 @@
 
 #include <xpp/bound.h>
 
-#include "constraint.h"
+#include "composite.h"
 
 namespace xpp {
 namespace opt {
@@ -28,7 +28,7 @@ class ContactSchedule;
   *
   * where m = number of contacts at each discrete node
   */
-class PolygonCenterConstraint : public ConstraintLeaf {
+class PolygonCenterConstraint : public Primitive {
 public:
   using EELoadPtr          = std::shared_ptr<EndeffectorLoad>;
   using ContactSchedulePtr = std::shared_ptr<ContactSchedule>;
@@ -36,7 +36,7 @@ public:
   PolygonCenterConstraint (const OptVarsPtr&);
   virtual ~PolygonCenterConstraint ();
 
-  VectorXd GetConstraintValues() const override;
+  VectorXd GetValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
