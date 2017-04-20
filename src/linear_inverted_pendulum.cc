@@ -37,19 +37,55 @@ LinearInvertedPendulum::CalculateCop () const
 {
   Cop cop = Cop::Zero();
 
+  double sum = GetLoadSum();
+
   for (auto ee : ee_pos_.GetEEsOrdered()) {
-    double load_percent = ee_load_.At(ee);
+    double load_percent = ee_load_.At(ee)/sum;
     cop += load_percent*ee_pos_.At(ee).topRows<kDim2d>();
   }
 
   return cop;
 }
 
+LinearInvertedPendulum::Cop
+LinearInvertedPendulum::GetDerivativeOfCopWrtLoad (EndeffectorID this_ee) const
+{
+  // for normalized loads (->no denominator), the derivative is just
+  // the endeffector position.
+
+  Cop numerator = Cop::Zero();
+
+  double load_sum = GetLoadSum();
+  Vector2d p = ee_pos_.At(this_ee).topRows<kDim2d>();
+  numerator += load_sum * p;
+
+  for (auto ee : ee_pos_.GetEEsOrdered())
+    numerator -= ee_load_.At(ee)*ee_pos_.At(ee).topRows<kDim2d>();
+
+  return numerator/std::pow(load_sum, 2);
+}
+
+double
+LinearInvertedPendulum::GetDerivativeOfCopWrtEEPos (EndeffectorID ee) const
+{
+  return ee_load_.At(ee)/GetLoadSum();
+}
+
+double
+LinearInvertedPendulum::GetLoadSum () const
+{
+  double sum = 0.0;
+  for (auto load : ee_load_.ToImpl())
+    sum += load;
+
+  return sum;
+}
+
 LinearInvertedPendulum::ComAcc
 LinearInvertedPendulum::GetAcceleration () const
 {
   Cop u = CalculateCop();
-  ComAcc acc_zmp    = kGravity/h_*(pos_-u);
+  ComAcc acc_zmp    = kGravity/h_*(pos_- u);
 
   return acc_zmp;
 }
@@ -68,26 +104,17 @@ double
 LinearInvertedPendulum::GetDerivativeOfAccWrtLoad (EndeffectorID ee,
                                                    d2::Coords dim) const
 {
-  double pos = ee_pos_.At(ee)(dim);
-  return kGravity/h_ * (-1* pos);
+  double deriv_cop = GetDerivativeOfCopWrtLoad(ee)(dim);
+  return kGravity/h_ * (-1* deriv_cop);
 }
 
 double
 LinearInvertedPendulum::GetDerivativeOfAccWrtEEPos (EndeffectorID ee) const
 {
-  double load = ee_load_.At(ee);
-  return kGravity/h_ * (-1* load);
+  double deriv_cop = GetDerivativeOfCopWrtEEPos(ee);
+  return kGravity/h_ * (-1* deriv_cop);
 }
 
-double
-LinearInvertedPendulum::GetLoadTotal () const
-{
-  double force_z_total = 0.0;
-  for (auto ee : ee_pos_.GetEEsOrdered())
-    force_z_total += ee_load_.At(ee);
-
-  return force_z_total;
-}
 
 } /* namespace opt */
 } /* namespace xpp */

@@ -42,11 +42,8 @@ VecBound
 ContactLoadConstraint::GetBounds () const
 {
   VecBound bounds_(GetRows());
-  // spring_clean_ the load discretization should be more tightly
-  // coupled to the endeffector motion
-
   // sample check if endeffectors are in contact at center of discretization
-  // inverval.
+  // interval.
   for (int segment=0; segment<ee_load_->GetNumberOfSegments(); ++segment) {
     double t_center = ee_load_->GetTimeCenterSegment(segment);
     EndeffectorsBool contacts_center = contact_schedule_->IsInContact(t_center);
@@ -64,8 +61,15 @@ void
 ContactLoadConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                  Jacobian& jac) const
 {
-  if (var_set == ee_load_->GetId())
-    jac.setIdentity();
+  if (var_set == ee_load_->GetId()) {
+    int row = 0;
+    for (int k=0; k<ee_load_->GetNumberOfSegments(); ++k) {
+      for (auto ee : ee_ids_) {
+        int idx = ee_load_->IndexDiscrete(k,ee);
+        jac.insert(row++, idx) = 1.0;
+      }
+    }
+  }
 }
 
 } /* namespace opt */

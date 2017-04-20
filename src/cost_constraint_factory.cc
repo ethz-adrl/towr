@@ -143,7 +143,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeConvexityConstraint() const
 {
   auto constraint = std::make_shared<Composite>();
-  constraint->AddComponent(std::make_shared<ConvexityConstraint>(opt_vars_));
+//  constraint->AddComponent(std::make_shared<ConvexityConstraint>(opt_vars_));
   constraint->AddComponent(std::make_shared<ContactLoadConstraint>(opt_vars_));
 
   return constraint;

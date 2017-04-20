@@ -37,7 +37,7 @@ public:
   Component();
   virtual ~Component() {};
 
-  /** @returns A component delivers a vector of values.
+  /** @returns A vector of values for current cost or constraints.
     *
     * For constraints, each row represents one constraint.
     * For a cost, the vector has dimension 1, is scalar.
@@ -55,6 +55,8 @@ public:
     */
   virtual VecBound GetBounds() const { assert(false); /* costs don't need to implement this */ };
 
+  /** @returns 1 for cost and >1 for however many constraints.
+    */
   int GetRows() const;
 
 protected:
@@ -108,9 +110,9 @@ public:
   Composite(bool append_components = true);
   virtual ~Composite() {};
 
-  /** @brief Adds a component to this collection.
+  /** @brief Adds a component to this composite.
     */
-  void AddComponent (const ComponentPtr& constraint);
+  void AddComponent (const ComponentPtr&);
 
   VectorXd GetValues   () const override;
   Jacobian GetJacobian () const override;

@@ -52,7 +52,9 @@ private:
   EEPos ee_pos_;
 
   Cop CalculateCop() const;
-  double GetLoadTotal() const;
+  Cop GetDerivativeOfCopWrtLoad(EndeffectorID) const;
+  double GetDerivativeOfCopWrtEEPos(EndeffectorID) const;
+  double GetLoadSum() const;
 };
 
 } /* namespace opt */
