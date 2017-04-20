@@ -21,10 +21,13 @@ Begin  TO NLP problem
 *   Crash option       3
 *   Hessian updates    5
 
+* Derivative checking
+  Verify level 3     * cheap check on gradients
+
 * something about gradient approximation
 * Nonderivative linesearch
 
-* Convergence Tolerances 
+* Convergence Tolerances
   Major feasibility tolerance 1.0e-4  *target nonlinear constraint violation
   Minor feasibility tolerance 1.0e-4  *for satisfying the QP bounds
   Major optimality tolerance  1.0e-2  *target complementarity gap 
