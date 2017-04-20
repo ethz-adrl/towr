@@ -43,7 +43,9 @@ VecBound
 ContactLoadConstraint::GetBounds () const
 {
   VecBound bounds;
-  double max_load = 1.0;
+  double max_load = 1000.0; // [N] limited by robot actuator limits.
+  double min_load = 0.0;    // [N] cannot pull on ground (negative forces).
+
   // sample check if endeffectors are in contact at center of discretization
   // interval.
   for (int k=0; k<ee_load_->GetNumberOfSegments(); ++k) {
@@ -52,7 +54,7 @@ ContactLoadConstraint::GetBounds () const
 
     for (auto ee : ee_ids_) {
       double bound = contacts_center.At(ee)? max_load : 0.0;
-      bounds.push_back(Bound(0.0, bound));
+      bounds.push_back(Bound(min_load, bound));
     }
   }
 

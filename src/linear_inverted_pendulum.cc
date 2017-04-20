@@ -75,21 +75,6 @@ LinearInvertedPendulum::GetDerivativeOfCopWrtEEPos (EndeffectorID ee) const
 LinearInvertedPendulum::Cop
 LinearInvertedPendulum::GetDerivativeOfCopWrtLoad (EndeffectorID ee) const
 {
-  // zmp_ remove this
-  // for normalized loads (->no denominator), the derivative is just
-  // the endeffector position.
-
-//  Cop numerator = Cop::Zero();
-//
-//  double load_sum = GetLoadSum();
-//  Vector2d p = ee_pos_.At(this_ee).topRows<kDim2d>();
-//  numerator += load_sum * p;
-//
-//  for (auto ee : ee_pos_.GetEEsOrdered())
-//    numerator -= ee_load_.At(ee)*ee_pos_.At(ee).topRows<kDim2d>();
-//
-//  return numerator/std::pow(load_sum, 2);
-
   Vector2d p = ee_pos_.At(ee).topRows<kDim2d>();
   Vector2d u = CalculateCop();
 
@@ -117,6 +102,8 @@ LinearInvertedPendulum::GetLoadSum () const
   double sum = 0.0;
   for (double load : ee_load_.ToImpl())
     sum += load;
+
+  assert(sum > 0); // while using inverted pendulum, this must be the case.
 
   return sum;
 }
