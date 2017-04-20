@@ -8,14 +8,15 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_
 
+#include <cassert>
+#include <iostream>
 #include <memory>
 #include <string>
-#include <utility>
+#include <vector>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
 #include <xpp/bound.h>
-#include <xpp/optimization_variables.h>
 #include <xpp/optimization_variables_container.h>
 
 namespace xpp {
@@ -37,7 +38,7 @@ public:
   Component();
   virtual ~Component() {};
 
-  /** @returns A component delivers a vector of values.
+  /** @returns A vector of values for current cost or constraints.
     *
     * For constraints, each row represents one constraint.
     * For a cost, the vector has dimension 1, is scalar.
@@ -55,8 +56,13 @@ public:
     */
   virtual VecBound GetBounds() const { assert(false); /* costs don't need to implement this */ };
 
+  /** @returns 1 for cost and >1 for however many constraints.
+    */
   int GetRows() const;
 
+  virtual void Print() const;
+
+  std::string name_;
 protected:
   int num_rows_ = 1; // corresponds to number of constraints, default 1 for costs
 };
@@ -105,16 +111,18 @@ public:
     *
     * Default (true) represent constraints.
     */
-  Composite(bool append_components = true);
+  Composite(const std::string name, bool append_components = true);
   virtual ~Composite() {};
 
-  /** @brief Adds a component to this collection.
+  /** @brief Adds a component to this composite.
     */
-  void AddComponent (const ComponentPtr& constraint);
+  void AddComponent (const ComponentPtr&);
 
   VectorXd GetValues   () const override;
   Jacobian GetJacobian () const override;
   VecBound GetBounds   () const override;
+
+  void Print() const override;
 
 private:
   bool append_components_;

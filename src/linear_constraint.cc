@@ -21,6 +21,7 @@ LinearEqualityConstraint::LinearEqualityConstraint (
     const OptVarsPtr& opt_vars,
     const MatVec& linear_equation)
 {
+  name_ = "LinearEqualityConstraint";
   linear_equation_ = linear_equation;
 
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));

@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/constraints/convexity_constraint.h>
+#include <xpp/opt/constraints/depr/convexity_constraint.h>
 
 #include <algorithm>
 #include <string>
@@ -23,6 +23,7 @@ namespace opt {
 
 ConvexityConstraint::ConvexityConstraint (const OptVarsPtr& opt_vars)
 {
+  name_ = "ConvexityConstraint";
   ee_load_ = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
   int m = ee_load_->GetNumberOfSegments();

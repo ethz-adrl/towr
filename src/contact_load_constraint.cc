@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/constraints/contact_load_constraint.h>
+#include <xpp/opt/constraints/depr/contact_load_constraint.h>
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
@@ -19,6 +19,7 @@ namespace opt {
 
 ContactLoadConstraint::ContactLoadConstraint (const OptVarsPtr& opt_vars)
 {
+  name_ = "ContactLoadConstraint";
   contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetSet("contact_schedule"));
   ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
@@ -41,31 +42,38 @@ ContactLoadConstraint::GetValues () const
 VecBound
 ContactLoadConstraint::GetBounds () const
 {
-  VecBound bounds_(GetRows());
-  // spring_clean_ the load discretization should be more tightly
-  // coupled to the endeffector motion
+  VecBound bounds;
+  double max_load = 1000.0; // [N] limited by robot actuator limits.
+  double min_load = 0.0;    // [N] cannot pull on ground (negative forces).
 
   // sample check if endeffectors are in contact at center of discretization
-  // inverval.
-  for (int segment=0; segment<ee_load_->GetNumberOfSegments(); ++segment) {
-    double t_center = ee_load_->GetTimeCenterSegment(segment);
+  // interval.
+  for (int k=0; k<ee_load_->GetNumberOfSegments(); ++k) {
+    double t_center = ee_load_->GetTimeCenterSegment(k);
     EndeffectorsBool contacts_center = contact_schedule_->IsInContact(t_center);
 
     for (auto ee : ee_ids_) {
-      double bound = contacts_center.At(ee)? 1.0 : 0.0;
-      bounds_.at(ee_ids_.size()*segment+ee) = Bound(0.0, bound);
+      double bound = contacts_center.At(ee)? max_load : 0.0;
+      bounds.push_back(Bound(min_load, bound));
     }
   }
 
-  return bounds_;
+  return bounds;
 }
 
 void
 ContactLoadConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                  Jacobian& jac) const
 {
-  if (var_set == ee_load_->GetId())
-    jac.setIdentity();
+  if (var_set == ee_load_->GetId()) {
+    int row = 0;
+    for (int k=0; k<ee_load_->GetNumberOfSegments(); ++k) {
+      for (auto ee : ee_ids_) {
+        int idx = ee_load_->IndexDiscrete(k,ee);
+        jac.insert(row++, idx) = 1.0;
+      }
+    }
+  }
 }
 
 } /* namespace opt */

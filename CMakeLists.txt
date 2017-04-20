@@ -90,13 +90,13 @@ add_library(${MOTION_OPT_LIB}
   src/linear_constraint.cc
   src/cost_constraint_factory.cc
   src/range_of_motion_constraint.cc
-  src/convexity_constraint.cc
   src/polygon_center_constraint.cc
   src/dynamic_constraint.cc
-  src/contact_load_constraint.cc
   src/foothold_constraint.cc
-#  src/obstacle_constraint.cc
   src/polynomial_cost.cc
+#  src/convexity_constraint.cc
+#  src/contact_load_constraint.cc
+#  src/obstacle_constraint.cc
   # robot specific info
   src/motion_parameters.cc
   src/quadruped_motion_parameters.cc

@@ -12,7 +12,7 @@
 
 #include <xpp/endeffectors.h>
 
-#include <xpp/optimization_variables.h>
+#include "contact_schedule.h"
 
 namespace xpp {
 namespace opt {
@@ -26,7 +26,7 @@ public:
   using VectorXd   = Eigen::VectorXd;
   using LoadParams = Endeffectors<double>;
 
-  EndeffectorLoad (int num_ee, double dt, double T);
+  EndeffectorLoad (int num_ee, double dt, double T, const ContactSchedule&);
   virtual ~EndeffectorLoad ();
 
   void SetVariables(const VectorXd& x) override;

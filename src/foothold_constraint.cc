@@ -24,7 +24,7 @@ FootholdConstraint::FootholdConstraint (const OptVarsPtr& opt_vars,
                                         const NominalStance& nom_W,
                                         double t)
 {
-//  name_ = "Foothold Constraint";
+  name_ = "FootholdConstraint";
   ee_motion_ = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
   desired_ee_pos_W_ = nom_W;
   t_ = t;

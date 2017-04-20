@@ -27,11 +27,14 @@ namespace opt {
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double T,
                                       double dt)
-    :TimeDiscretizationConstraint(T,dt, kDim2d, opt_vars)
+    :TimeDiscretizationConstraint(T, dt, kDim2d, opt_vars)
 {
+  name_ = "DynamicConstraint";
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetSet("base_motion"));
   ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
   ee_load_    = std::dynamic_pointer_cast<EndeffectorLoad>   (opt_vars->GetSet("endeffector_load"));
+
+  ee_ids_  = ee_load_->GetLoadValues(0.0).GetEEsOrdered();
 }
 
 DynamicConstraint::~DynamicConstraint ()
@@ -41,15 +44,14 @@ DynamicConstraint::~DynamicConstraint ()
 void
 DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) const
 {
-  auto com     = com_motion_->GetCom(t);
-  auto ee_load = ee_load_   ->GetLoadValues(t);
-  auto ee_pos  = ee_motion_ ->GetEndeffectorsPos(t);
-  model_.SetCurrent(com.p, com_motion_->GetZHeight(), ee_load, ee_pos);
+  // acceleration the system should have given by physics
+  UpdateModel(t);
+  Vector2d acc_model = model_.GetAcceleration();
 
-  // acceleration as predefined by physics
-  Vector2d acc_physics = model_.GetAcceleration();
+  // current acceleration given by the optimization variables
+  Vector2d acc_opt = com_motion_->GetCom(t).a;
   for (auto dim : d2::AllDimensions)
-    g(GetRow(k,dim)) = acc_physics(dim) - com.a(dim);
+    g(GetRow(k,dim)) = acc_model(dim) - acc_opt(dim);
 }
 
 void
@@ -60,18 +62,15 @@ DynamicConstraint::UpdateBoundsAtInstance(double t, int k, VecBound& bounds) con
 }
 
 void
-DynamicConstraint::UpdateJacobianAtInstance(double t, int k,
-                                            Jacobian& jac, std::string var_set) const
+DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
+                                            std::string var_set) const
 {
-  auto com     = com_motion_->GetCom(t);
-  auto ee_load = ee_load_   ->GetLoadValues(t);
-  auto ee_pos  = ee_motion_ ->GetEndeffectorsPos(t);
-  model_.SetCurrent(com.p, com_motion_->GetZHeight(), ee_load, ee_pos);
+  UpdateModel(t);
 
   for (auto dim : d2::AllDimensions) {
     int row = GetRow(k,dim);
 
-    for (auto ee : ee_load.GetEEsOrdered()) {
+    for (auto ee : ee_ids_) {
 
       if (var_set == ee_load_->GetId()) {
         double deriv_load = model_.GetDerivativeOfAccWrtLoad(ee, dim);
@@ -87,12 +86,20 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k,
 
     if (var_set == com_motion_->GetId()) {
       Coords3D dim3d = static_cast<Coords3D>(dim);
-      Jacobian jac_acc     = com_motion_->GetJacobian(t, kAcc, dim3d);
-      Jacobian jac_physics = model_.GetJacobianWrtBase(*com_motion_, t, dim3d);
-      jac.row(row) = jac_physics - jac_acc;
+      Jacobian jac_model = model_.GetJacobianOfAccWrtBase(*com_motion_, t, dim3d);
+      Jacobian jac_opt   = com_motion_->GetJacobian(t, kAcc, dim3d);
+      jac.row(row) = jac_model - jac_opt;
     }
-
   }
+}
+
+void
+DynamicConstraint::UpdateModel (double t) const
+{
+  auto com     = com_motion_->GetCom(t);
+  auto ee_load = ee_load_   ->GetLoadValues(t);
+  auto ee_pos  = ee_motion_ ->GetEndeffectorsPos(t);
+  model_.SetCurrent(com.p, com_motion_->GetZHeight(), ee_load, ee_pos);
 }
 
 int
@@ -103,3 +110,4 @@ DynamicConstraint::GetRow (int node, int dimension) const
 
 } /* namespace opt */
 } /* namespace xpp */
+
