@@ -26,7 +26,8 @@ EndeffectorLoad::EndeffectorLoad (int num_ee, double dt, double T)
   int num_parameters = n_ee_ * num_segments_;
   lambdas_ = VectorXd::Zero(num_parameters);
 
-  SetAllBounds(Bound(0.0, 1.0));
+  // DRY: don't set bounds here, input limits enforced by ContactLoadConstraint.
+  SetAllBounds(kInequalityBoundPositive_); // forces can't pull on ground
 }
 
 EndeffectorLoad::~EndeffectorLoad ()

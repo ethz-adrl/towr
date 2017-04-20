@@ -19,6 +19,7 @@ QuadraticPolynomialCost::QuadraticPolynomialCost (const OptVarsPtr& opt_vars,
                                                   const MatVec& mat_vec,
                                                   double weight)
 {
+  name_ = "QuadraticPolynomialCost";
   matrix_vector_ = mat_vec;
   weight_ = weight;
 

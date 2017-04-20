@@ -40,8 +40,7 @@ public:
   /** Approximates the acceleration with small angle assumption and calculates
     * Jacobian w.r.t. spline coefficients.
     */
-  JacobianRow GetJacobianWrtBase(const BaseMotion&, double t_global, Coords3D dim) const;
-
+  JacobianRow GetJacobianOfAccWrtBase(const BaseMotion&, double t_global, Coords3D dim) const;
   double GetDerivativeOfAccWrtLoad(EndeffectorID, d2::Coords dim) const;
   double GetDerivativeOfAccWrtEEPos(EndeffectorID) const; // same for x and y direction
 

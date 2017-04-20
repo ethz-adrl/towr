@@ -32,6 +32,70 @@ LinearInvertedPendulum::SetCurrent (const ComPos& pos,
   ee_pos_  = ee_pos;
 }
 
+LinearInvertedPendulum::ComAcc
+LinearInvertedPendulum::GetAcceleration () const
+{
+  Cop u = CalculateCop();
+  ComAcc acc_zmp = kGravity/h_*(pos_- u);
+
+  return acc_zmp;
+}
+
+LinearInvertedPendulum::JacobianRow
+LinearInvertedPendulum::GetJacobianOfAccWrtBase (
+    const BaseMotion& com_motion, double t, Coords3D dim) const
+{
+  JacobianRow com_jac     = com_motion.GetJacobian(t, kPos, dim);
+  JacobianRow jac_wrt_com = kGravity/h_*com_jac;
+
+  return jac_wrt_com;
+}
+
+double
+LinearInvertedPendulum::GetDerivativeOfAccWrtLoad (EndeffectorID ee,
+                                                   d2::Coords dim) const
+{
+  double cop_wrt_load = GetDerivativeOfCopWrtLoad(ee)(dim);
+  return kGravity/h_ * (-1* cop_wrt_load);
+}
+
+double
+LinearInvertedPendulum::GetDerivativeOfAccWrtEEPos (EndeffectorID ee) const
+{
+  double cop_wrt_ee = GetDerivativeOfCopWrtEEPos(ee);
+  return kGravity/h_ * (-1* cop_wrt_ee);
+}
+
+double
+LinearInvertedPendulum::GetDerivativeOfCopWrtEEPos (EndeffectorID ee) const
+{
+  return ee_load_.At(ee)/GetLoadSum();
+}
+
+LinearInvertedPendulum::Cop
+LinearInvertedPendulum::GetDerivativeOfCopWrtLoad (EndeffectorID ee) const
+{
+  // zmp_ remove this
+  // for normalized loads (->no denominator), the derivative is just
+  // the endeffector position.
+
+//  Cop numerator = Cop::Zero();
+//
+//  double load_sum = GetLoadSum();
+//  Vector2d p = ee_pos_.At(this_ee).topRows<kDim2d>();
+//  numerator += load_sum * p;
+//
+//  for (auto ee : ee_pos_.GetEEsOrdered())
+//    numerator -= ee_load_.At(ee)*ee_pos_.At(ee).topRows<kDim2d>();
+//
+//  return numerator/std::pow(load_sum, 2);
+
+  Vector2d p = ee_pos_.At(ee).topRows<kDim2d>();
+  Vector2d u = CalculateCop();
+
+  return (p - u)/GetLoadSum();
+}
+
 LinearInvertedPendulum::Cop
 LinearInvertedPendulum::CalculateCop () const
 {
@@ -47,72 +111,14 @@ LinearInvertedPendulum::CalculateCop () const
   return cop;
 }
 
-LinearInvertedPendulum::Cop
-LinearInvertedPendulum::GetDerivativeOfCopWrtLoad (EndeffectorID this_ee) const
-{
-  // for normalized loads (->no denominator), the derivative is just
-  // the endeffector position.
-
-  Cop numerator = Cop::Zero();
-
-  double load_sum = GetLoadSum();
-  Vector2d p = ee_pos_.At(this_ee).topRows<kDim2d>();
-  numerator += load_sum * p;
-
-  for (auto ee : ee_pos_.GetEEsOrdered())
-    numerator -= ee_load_.At(ee)*ee_pos_.At(ee).topRows<kDim2d>();
-
-  return numerator/std::pow(load_sum, 2);
-}
-
-double
-LinearInvertedPendulum::GetDerivativeOfCopWrtEEPos (EndeffectorID ee) const
-{
-  return ee_load_.At(ee)/GetLoadSum();
-}
-
 double
 LinearInvertedPendulum::GetLoadSum () const
 {
   double sum = 0.0;
-  for (auto load : ee_load_.ToImpl())
+  for (double load : ee_load_.ToImpl())
     sum += load;
 
   return sum;
-}
-
-LinearInvertedPendulum::ComAcc
-LinearInvertedPendulum::GetAcceleration () const
-{
-  Cop u = CalculateCop();
-  ComAcc acc_zmp    = kGravity/h_*(pos_- u);
-
-  return acc_zmp;
-}
-
-LinearInvertedPendulum::JacobianRow
-LinearInvertedPendulum::GetJacobianWrtBase (
-    const BaseMotion& com_motion, double t, Coords3D dim) const
-{
-  JacobianRow com_jac     = com_motion.GetJacobian(t, kPos, dim);
-  JacobianRow jac_wrt_com = kGravity/h_*com_jac;
-
-  return jac_wrt_com;
-}
-
-double
-LinearInvertedPendulum::GetDerivativeOfAccWrtLoad (EndeffectorID ee,
-                                                   d2::Coords dim) const
-{
-  double deriv_cop = GetDerivativeOfCopWrtLoad(ee)(dim);
-  return kGravity/h_ * (-1* deriv_cop);
-}
-
-double
-LinearInvertedPendulum::GetDerivativeOfAccWrtEEPos (EndeffectorID ee) const
-{
-  double deriv_cop = GetDerivativeOfCopWrtEEPos(ee);
-  return kGravity/h_ * (-1* deriv_cop);
 }
 
 

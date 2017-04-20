@@ -28,6 +28,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
                                     double T)
     :TimeDiscretizationConstraint(T, dt, nom.GetCount()*kDim2d, opt_vars)
 {
+  name_ = "RangeOfMotionBox";
   max_deviation_from_nominal_ = dev;
   nominal_stance_ = nom;
 

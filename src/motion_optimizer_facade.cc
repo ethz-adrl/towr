@@ -69,7 +69,8 @@ MotionOptimizerFacade::BuildVariables ()
   com_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
   double load_dt = 0.02;
-  auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(), load_dt, T);
+  auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(),
+                                                load_dt, T);
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(com_motion);
@@ -88,18 +89,20 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
 
   nlp.Init(opt_variables_);
 
-  auto constraints = std::make_unique<Composite>(true);
+  auto constraints = std::make_unique<Composite>("constraints", true);
   for (ConstraintName name : motion_parameters_->GetUsedConstraints()) {
     constraints->AddComponent(factory.GetConstraint(name));
   }
+  constraints->Print();
   nlp.AddConstraint(std::move(constraints));
 
 
-  auto costs = std::make_unique<Composite>(false);
+  auto costs = std::make_unique<Composite>("costs", false);
   for (const auto& pair : motion_parameters_->GetCostWeights()) {
     CostName name = pair.first;
     costs->AddComponent(factory.GetCost(name));
   }
+  costs->Print();
   nlp.AddCost(std::move(costs));
 
 

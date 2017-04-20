@@ -36,7 +36,7 @@ struct Bound {
 
 static const Bound kNoBound_ = Bound(-1.0e20, +1.0e20);;
 static const Bound kEqualityBound_ = Bound(0.0, 0.0);
-static const Bound kInequalityBoundPositive_ = Bound(0.0, 1.0e20);
+static const Bound kInequalityBoundPositive_ = Bound(0.0, +1.0e20);
 
 using VecBound = std::vector<Bound>;
 

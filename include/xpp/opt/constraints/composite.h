@@ -8,14 +8,15 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_
 
+#include <cassert>
+#include <iostream>
 #include <memory>
 #include <string>
-#include <utility>
+#include <vector>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
 #include <xpp/bound.h>
-#include <xpp/optimization_variables.h>
 #include <xpp/optimization_variables_container.h>
 
 namespace xpp {
@@ -59,6 +60,9 @@ public:
     */
   int GetRows() const;
 
+  virtual void Print() const;
+
+  std::string name_;
 protected:
   int num_rows_ = 1; // corresponds to number of constraints, default 1 for costs
 };
@@ -107,7 +111,7 @@ public:
     *
     * Default (true) represent constraints.
     */
-  Composite(bool append_components = true);
+  Composite(const std::string name, bool append_components = true);
   virtual ~Composite() {};
 
   /** @brief Adds a component to this composite.
@@ -117,6 +121,8 @@ public:
   VectorXd GetValues   () const override;
   Jacobian GetJacobian () const override;
   VecBound GetBounds   () const override;
+
+  void Print() const override;
 
 private:
   bool append_components_;

@@ -142,7 +142,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeConvexityConstraint() const
 {
-  auto constraint = std::make_shared<Composite>();
+  auto constraint = std::make_shared<Composite>("Convexity Constraints");
 //  constraint->AddComponent(std::make_shared<ConvexityConstraint>(opt_vars_));
   constraint->AddComponent(std::make_shared<ContactLoadConstraint>(opt_vars_));
 
@@ -153,7 +153,7 @@ CostConstraintFactory::MakeConvexityConstraint() const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeStancesConstraints () const
 {
-  auto stance_constraints = std::make_shared<Composite>();
+  auto stance_constraints = std::make_shared<Composite>("Stance Constraints");
 
   // calculate initial position in world frame
   auto constraint_initial = std::make_shared<FootholdConstraint>(

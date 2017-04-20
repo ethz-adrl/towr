@@ -37,12 +37,15 @@ private:
   EELoadPtr ee_load_;
 
   mutable LinearInvertedPendulum model_;
+  std::vector<EndeffectorID> ee_ids_;
 
   int GetRow(int node, int dimension) const;
 
   virtual void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const override;
   virtual void UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const override;
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
+
+  void UpdateModel(double t) const;
 };
 
 } /* namespace opt */

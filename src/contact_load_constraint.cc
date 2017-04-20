@@ -19,6 +19,7 @@ namespace opt {
 
 ContactLoadConstraint::ContactLoadConstraint (const OptVarsPtr& opt_vars)
 {
+  name_ = "ContactLoadConstraint";
   contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetSet("contact_schedule"));
   ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
 
@@ -41,20 +42,21 @@ ContactLoadConstraint::GetValues () const
 VecBound
 ContactLoadConstraint::GetBounds () const
 {
-  VecBound bounds_(GetRows());
+  VecBound bounds;
+  double max_load = 1.0;
   // sample check if endeffectors are in contact at center of discretization
   // interval.
-  for (int segment=0; segment<ee_load_->GetNumberOfSegments(); ++segment) {
-    double t_center = ee_load_->GetTimeCenterSegment(segment);
+  for (int k=0; k<ee_load_->GetNumberOfSegments(); ++k) {
+    double t_center = ee_load_->GetTimeCenterSegment(k);
     EndeffectorsBool contacts_center = contact_schedule_->IsInContact(t_center);
 
     for (auto ee : ee_ids_) {
-      double bound = contacts_center.At(ee)? 1.0 : 0.0;
-      bounds_.at(ee_ids_.size()*segment+ee) = Bound(0.0, bound);
+      double bound = contacts_center.At(ee)? max_load : 0.0;
+      bounds.push_back(Bound(0.0, bound));
     }
   }
 
-  return bounds_;
+  return bounds;
 }
 
 void

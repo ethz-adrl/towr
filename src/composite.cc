@@ -20,6 +20,12 @@ Component::GetRows () const
   return num_rows_;
 }
 
+void
+Component::Print () const
+{
+  std::cout << num_rows_ << "\t(" << name_ << ")" << std::endl;
+}
+
 
 void
 Primitive::SetDimensions (const OptVarsPtr& vars, int num_rows)
@@ -53,10 +59,11 @@ Primitive::GetJacobian () const
 }
 
 
-Composite::Composite (bool append_components)
+Composite::Composite (const std::string name, bool append_components)
 {
   num_rows_ = 0; // "meat" can only be added by primitive components
   append_components_ = append_components;
+  name_ = "C-" + name;
 }
 
 
@@ -122,6 +129,16 @@ Composite::GetBounds () const
   return bounds_;
 }
 
+void
+Composite::Print () const
+{
+  std::cout << name_ << ":\n";
+  for (auto c : components_) {
+    std::cout << "    "; // indent components
+    c->Print();
+  }
+  std::cout << std::endl;
+}
 
 } /* namespace opt */
 } /* namespace xpp */
