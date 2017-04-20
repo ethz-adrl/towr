@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/constraints/contact_load_constraint.h>
+#include <xpp/opt/constraints/depr/contact_load_constraint.h>
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>

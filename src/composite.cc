@@ -61,7 +61,7 @@ Primitive::GetJacobian () const
 
 Composite::Composite (const std::string name, bool append_components)
 {
-  num_rows_ = 0; // "meat" can only be added by primitive components
+  num_rows_ = 0; // "meat" can only be added by Primitive components
   append_components_ = append_components;
   name_ = "C-" + name;
 }

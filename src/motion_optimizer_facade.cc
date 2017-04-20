@@ -70,7 +70,7 @@ MotionOptimizerFacade::BuildVariables ()
 
   double load_dt = 0.02;
   auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(),
-                                                load_dt, T);
+                                                load_dt, T, *contact_schedule);
 
   opt_variables_->ClearVariables();
   opt_variables_->AddVariableSet(com_motion);

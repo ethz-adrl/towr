@@ -12,8 +12,7 @@
 #include <string>
 
 #include <xpp/bound.h>
-
-#include "composite.h"
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {

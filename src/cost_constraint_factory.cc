@@ -18,8 +18,6 @@
 #include <xpp/opt/com_spline.h>
 #include <xpp/opt/polynomial_cost.h>
 #include <xpp/soft_constraint.h>
-#include <xpp/opt/constraints/contact_load_constraint.h>
-#include <xpp/opt/constraints/convexity_constraint.h>
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/foothold_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
@@ -60,11 +58,9 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
     case InitCom:     return MakeInitialConstraint();
     case FinalCom:    return MakeFinalConstraint();
     case JunctionCom: return MakeJunctionConstraint();
-    case Convexity:   return MakeConvexityConstraint();
     case Dynamic:     return MakeDynamicConstraint();
     case RomBox:      return MakeRangeOfMotionBoxConstraint();
-    case Stance: return MakeStancesConstraints();
-    case Obstacle:    return MakeObstacleConstraint();
+    case Stance:      return MakeStancesConstraints();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -140,17 +136,6 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::MakeConvexityConstraint() const
-{
-  auto constraint = std::make_shared<Composite>("Convexity Constraints");
-//  constraint->AddComponent(std::make_shared<ConvexityConstraint>(opt_vars_));
-  constraint->AddComponent(std::make_shared<ContactLoadConstraint>(opt_vars_));
-
-  return constraint;
-}
-
-
-CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeStancesConstraints () const
 {
   auto stance_constraints = std::make_shared<Composite>("Stance Constraints");
@@ -175,13 +160,6 @@ CostConstraintFactory::MakeStancesConstraints () const
 
 
   return stance_constraints;
-}
-
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::MakeObstacleConstraint () const
-{
-//  auto constraint = std::make_shared<ObstacleLineStrip>();
-//  return constraint;
 }
 
 CostConstraintFactory::ConstraintPtr

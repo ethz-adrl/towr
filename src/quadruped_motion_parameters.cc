@@ -89,46 +89,45 @@ Walk::Walk()
 
   double t_phase = 0.2;
   double t_trans = 0.1;
-//  timings_ =
-//  {
-//      0.4,
-//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-//      0.01,
-//  };
-//  ee_cycle2_ =
-//  {
-//      II_,
-//      PI_, PP_, IP_, bI_, bb_, Ib_,
-//      PI_, PP_, IP_, bI_, bb_, Ib_,
-//      PI_, PP_, IP_, bI_, bb_, Ib_,
-//      II_,
-//  };
-
-
-  double t_step = 0.4;
   contact_timings_ =
   {
       0.4,
-      t_step, t_step,t_step,t_step,
-      t_step, t_step,t_step,t_step,
-      0.2,
+      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+      0.01,
   };
-
   contact_sequence_ =
   {
       II_,
-      PI_, IP_, bI_, Ib_,
-      PI_, IP_, bI_, Ib_,
+      PI_, PP_, IP_, bI_, bb_, Ib_,
+      PI_, PP_, IP_, bI_, bb_, Ib_,
+      PI_, PP_, IP_, bI_, bb_, Ib_,
       II_,
   };
+
+
+//  double t_step = 0.4;
+//  contact_timings_ =
+//  {
+//      0.4,
+//      t_step, t_step,t_step,t_step,
+//      t_step, t_step,t_step,t_step,
+//      0.2,
+//  };
+//
+//  contact_sequence_ =
+//  {
+//      II_,
+//      PI_, IP_, bI_, Ib_,
+//      PI_, IP_, bI_, Ib_,
+//      II_,
+//  };
 
 
   constraints_ = { InitCom,
                    FinalCom,
                    JunctionCom,
-                   Convexity,
                    Dynamic,
                    RomBox,
                    Stance,
@@ -154,28 +153,22 @@ Trot::Trot()
   {   0.3,
 //      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
       t_phase, t_phase, t_phase, t_phase,
-//      0.01
+      0.2
   };
 
   contact_sequence_ =
   {
       II_,
-      //      PI, PP, IP, bI, bb, Ib, // walk
+//      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
       bP_, Pb_, bP_, Pb_,
-//      II_
+      II_
   };
 
-
-//    timings_ = {t_phase, t_phase, 0.8 };
-//    ee_cycle_ = {bP, Pb, II};
-//  timings_ = {0.4,t_phase, t_phase, t_phase, t_phase};
-//  ee_cycle_ = {II, bP, Pb, bP, Pb};
 
   constraints_ = { InitCom,
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   Convexity,
                    RomBox,
                    Stance,
                    };
@@ -210,7 +203,6 @@ Pace::Pace()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   Convexity,
                    RomBox,
                    Stance
   };
@@ -244,7 +236,6 @@ Bound::Bound()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   Convexity,
                    RomBox,
                    Stance
   };
@@ -268,7 +259,7 @@ PushRecovery::PushRecovery ()
 //                   FinalCom,
 //                   FinalStance,
                    JunctionCom,
-                   Convexity,
+//                   Convexity,
                    Dynamic,
                    RomBox};
 

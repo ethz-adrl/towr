@@ -15,7 +15,8 @@
 namespace xpp {
 namespace opt {
 
-EndeffectorLoad::EndeffectorLoad (int num_ee, double dt, double T)
+EndeffectorLoad::EndeffectorLoad (int num_ee, double dt, double T,
+                                  const ContactSchedule& contact_schedule_)
     : OptimizationVariables("endeffector_load")
 {
   dt_ = dt;
@@ -24,7 +25,24 @@ EndeffectorLoad::EndeffectorLoad (int num_ee, double dt, double T)
   int idx_segment = GetSegment(T);
   num_segments_ = idx_segment + 1;
   int num_parameters = n_ee_ * num_segments_;
-  lambdas_ = VectorXd::Ones(num_parameters);
+
+
+
+  double max_load = 5.0;    // [N] limited by robot actuator limits.
+  double min_load = 0.0;    // [N] cannot pull on ground (negative forces).
+  lambdas_ = VectorXd::Ones(num_parameters)*max_load/n_ee_;
+
+  // sample check if endeffectors are in contact at center of discretization
+  // interval.
+  for (int k=0; k<num_segments_; ++k) {
+    double t = GetTimeCenterSegment(k);
+    EndeffectorsBool contacts_state = contact_schedule_.IsInContact(t);
+
+    for (bool in_contact : contacts_state.ToImpl()) {
+      double upper_bound = in_contact? max_load : 0.0;
+      bounds_.push_back(Bound(min_load, upper_bound));
+    }
+  }
 }
 
 EndeffectorLoad::~EndeffectorLoad ()

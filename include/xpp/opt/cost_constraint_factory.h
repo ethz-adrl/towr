@@ -60,11 +60,9 @@ private:
   ConstraintPtr MakeInitialConstraint() const;
   ConstraintPtr MakeFinalConstraint() const;
   ConstraintPtr MakeJunctionConstraint() const;
-  ConstraintPtr MakeConvexityConstraint() const;
   ConstraintPtr MakeDynamicConstraint() const;
   ConstraintPtr MakeRangeOfMotionBoxConstraint() const;
   ConstraintPtr MakeStancesConstraints() const;
-  ConstraintPtr MakeObstacleConstraint() const;
   ConstraintPtr MakePolygonCenterConstraint() const;
 
   // costs

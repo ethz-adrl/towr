@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/constraints/convexity_constraint.h>
+#include <xpp/opt/constraints/depr/convexity_constraint.h>
 
 #include <algorithm>
 #include <string>
