@@ -24,7 +24,7 @@ namespace opt {
 ConvexityConstraint::ConvexityConstraint (const OptVarsPtr& opt_vars)
 {
   name_ = "ConvexityConstraint";
-  ee_load_ = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
+  ee_load_ = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetComponent("endeffector_load"));
 
   int m = ee_load_->GetNumberOfSegments();
   SetDimensions(opt_vars, m);
@@ -65,7 +65,7 @@ void
 ConvexityConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                Jacobian& jac) const
 {
-  if (var_set == ee_load_->GetId()) {
+  if (var_set == ee_load_->GetName()) {
     for (int k=0; k<ee_load_->GetNumberOfSegments(); ++k) {
       for (auto ee : ee_load_->GetLoadValuesIdx(k).GetEEsOrdered()) {
         int idx = ee_load_->IndexDiscrete(k,ee);

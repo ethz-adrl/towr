@@ -29,8 +29,9 @@ public:
   EndeffectorLoad (int num_ee, double dt, double T, const ContactSchedule&);
   virtual ~EndeffectorLoad ();
 
-  void SetVariables(const VectorXd& x) override;
-  VectorXd GetVariables() const override;
+  void SetValues(const VectorXd& x) override;
+  VectorXd GetValues() const override;
+  VecBound GetBounds() const override;
 
   /** @param k the number of discretized node with lambda parameters.
     * @param ee which endeffector we are interested in.
@@ -53,6 +54,9 @@ private:
   double dt_; ///< disretization interval [s]
   double T_;  ///< total time [s]
   int num_segments_;
+
+  void SetBounds(const ContactSchedule&, double max_load);
+  VecBound bounds_;
 
   int GetSegment(double t) const;
 };

@@ -37,8 +37,8 @@ public:
   virtual ~BaseMotion ();
 
 
-  VectorXd GetVariables() const override;
-  void SetVariables(const VectorXd&) override;
+  VectorXd GetValues() const override;
+  void SetValues(const VectorXd&) override;
 
 
   void SetOffsetGeomToCom(const Vector3d& offset);

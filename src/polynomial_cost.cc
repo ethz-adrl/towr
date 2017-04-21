@@ -19,12 +19,12 @@ QuadraticPolynomialCost::QuadraticPolynomialCost (const OptVarsPtr& opt_vars,
                                                   const MatVec& mat_vec,
                                                   double weight)
 {
-  name_ = "QuadraticPolynomialCost";
+  SetName("QuadraticPolynomialCost");
   matrix_vector_ = mat_vec;
   weight_ = weight;
 
   SetDimensions(opt_vars, 1);
-  com_motion_    = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));
+  com_motion_    = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
 }
 
 QuadraticPolynomialCost::~QuadraticPolynomialCost ()
@@ -46,7 +46,7 @@ QuadraticPolynomialCost::GetValues () const
 void
 QuadraticPolynomialCost::FillJacobianWithRespectTo(std::string var_set, Jacobian& jac) const
 {
-  if (var_set == com_motion_->GetId()) {
+  if (var_set == com_motion_->GetName()) {
     VectorXd grad = 2.0 * matrix_vector_.M * com_motion_->GetXYSplineCoeffients();
     jac.row(0) =  grad.transpose().sparseView();
   }

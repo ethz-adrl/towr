@@ -33,8 +33,8 @@ public:
   EndeffectorsMotion (const EndeffectorsPos& initial_pos, const ContactSchedule&);
   virtual ~EndeffectorsMotion ();
 
-  VectorXd GetVariables() const override;
-  void SetVariables(const VectorXd&) override;
+  VectorXd GetValues() const override;
+  void SetValues(const VectorXd&) override;
   // order at which the contact position of this endeffector is stored
   JacobianRow GetJacobianWrtOptParams(double t_global, EndeffectorID ee, d2::Coords) const;
 
@@ -44,7 +44,6 @@ public:
   EndeffectorsPos GetEndeffectorsPos(double t_global) const;
 
   EEState::Container GetEndeffectorsVec(double t_global) const;
-  double GetTotalTime() const;
 
 private:
   int IndexStart(EndeffectorID ee) const;

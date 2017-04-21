@@ -21,10 +21,10 @@ LinearEqualityConstraint::LinearEqualityConstraint (
     const OptVarsPtr& opt_vars,
     const MatVec& linear_equation)
 {
-  name_ = "LinearEqualityConstraint";
+  SetName("LinearEqualityConstraint");
   linear_equation_ = linear_equation;
 
-  com_motion_ = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));
+  com_motion_ = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
   opt_vars_ = opt_vars;
 
   int num_constraints = linear_equation_.v.rows();
@@ -60,7 +60,7 @@ LinearEqualityConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobi
 {
   // the constraints are all linear w.r.t. the decision variables.
   // careful, .sparseView is only valid when the Jacobian is constant, e.g.
-  if (var_set == com_motion_->GetId())
+  if (var_set == com_motion_->GetName())
     jac = linear_equation_.M.sparseView();
 }
 

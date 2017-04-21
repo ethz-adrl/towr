@@ -45,6 +45,9 @@ public:
     */
   virtual VectorXd GetValues() const = 0;
 
+  // only needed for optimization variables
+  virtual void SetValues(const VectorXd& x) { assert(false); };
+
   /** @returns Derivatives of each row w.r.t each decision variable.
     *
     * For a constraint this is a matrix, one row per constraint.
@@ -52,9 +55,9 @@ public:
     */
   virtual Jacobian GetJacobian() const = 0;
 
-  /** @returns For each constraint an upper and lower bound is given.
+  /** @returns For each row an upper and lower bound is given.
     */
-  virtual VecBound GetBounds() const { assert(false); /* costs don't need to implement this */ };
+  virtual VecBound GetBounds() const { return VecBound(GetRows(), kNoBound_); };
 
   /** @returns 1 for cost and >1 for however many constraints.
     */
@@ -62,9 +65,14 @@ public:
 
   virtual void Print() const;
 
-  std::string name_;
+  std::string GetName() const;
+
 protected:
+  void SetName(const std::string&);
   int num_rows_ = 1; // corresponds to number of constraints, default 1 for costs
+
+private:
+  std::string name_;
 };
 
 
@@ -102,6 +110,7 @@ private:
 class Composite : public Component {
 public:
   using ComponentPtr = std::shared_ptr<Component>;
+  using ComponentVec = std::vector<ComponentPtr>;
 
   /** @brief Determines weather composite represents cost or constraints.
     *
@@ -117,16 +126,21 @@ public:
   /** @brief Adds a component to this composite.
     */
   void AddComponent (const ComponentPtr&);
+  void ClearComponents();
+  ComponentVec GetComponents() const; // spring_clean_ this should be hidden from user
+  ComponentPtr GetComponent(std::string name) const;
 
   VectorXd GetValues   () const override;
   Jacobian GetJacobian () const override;
   VecBound GetBounds   () const override;
+  void SetValues(const VectorXd& x) override;
+
 
   void Print() const override;
 
 private:
   bool append_components_;
-  std::vector<ComponentPtr> components_;
+  ComponentVec components_;
 };
 
 } /* namespace opt */

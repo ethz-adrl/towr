@@ -17,7 +17,7 @@ namespace opt {
 
 SoftConstraint::SoftConstraint (const ConstraintPtr& constraint, double weight)
 {
-  name_ = "SoftConstraint-" + constraint->name_;
+  SetName("SoftConstraint-" + constraint->GetName());
   constraint_ = constraint;
   int n_constraints = constraint_->GetRows();
 

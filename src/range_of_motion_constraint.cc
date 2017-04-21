@@ -28,12 +28,12 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
                                     double T)
     :TimeDiscretizationConstraint(T, dt, nom.GetCount()*kDim2d, opt_vars)
 {
-  name_ = "RangeOfMotionBox";
+  SetName("RangeOfMotionBox");
   max_deviation_from_nominal_ = dev;
   nominal_stance_ = nom;
 
-  com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetSet("base_motion"));
-  ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
+  com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
+  ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
 }
 
 RangeOfMotionBox::~RangeOfMotionBox ()
@@ -83,10 +83,10 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k,
     for (auto dim : d2::AllDimensions) {
       int row = GetRow(k,ee,dim);
 
-      if (var_set == ee_motion_->GetId())
+      if (var_set == ee_motion_->GetName())
         jac.row(row) = ee_motion_->GetJacobianWrtOptParams(t,ee,dim);
 
-      if (var_set == com_motion_->GetId())
+      if (var_set == com_motion_->GetName())
         jac.row(row) = -1*com_motion_->GetJacobian(t, kPos, static_cast<Coords3D>(dim));
     }
   }

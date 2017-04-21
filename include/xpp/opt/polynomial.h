@@ -116,7 +116,7 @@ public:
 
   static int GetNumCoeff() { return 4; }; //C,D,E,F
 
-  // spring_clean_ move up to base class?
+  // zmp_ move up to base class?
   double GetDerivativeOfPosWrtPos(double t, PointType p) const;
 
 private:

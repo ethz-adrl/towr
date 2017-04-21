@@ -72,7 +72,7 @@ EEMotion::GetPhase (double t_global) const
 }
 
 VectorXd
-EEMotion::GetVariables () const
+EEMotion::GetValues () const
 {
   // Attention: remember to adapt GetJacobianPos() contact-phase part and Index()
   // when changing this...sorry.
@@ -96,7 +96,7 @@ EEMotion::GetVariables () const
 }
 
 void
-EEMotion::SetVariables (const VectorXd& x)
+EEMotion::SetValues (const VectorXd& x)
 {
   for (PhaseContacts& phase: phase_contacts_)
     for (Contact& c : phase)
@@ -109,7 +109,7 @@ EEMotion::SetVariables (const VectorXd& x)
 JacobianRow
 EEMotion::GetJacobianPos (double t_global, d2::Coords dim) const
 {
-  JacobianRow jac(GetOptVarCount());
+  JacobianRow jac(GetRows());
 
   // figure out which contacts affect the motion
   int phase      = GetPhase(t_global);

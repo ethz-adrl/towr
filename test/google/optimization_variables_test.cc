@@ -30,9 +30,9 @@ TEST_F(OptimizationVariablesTest, Constructor)
   EXPECT_EQ(0, subject_.GetObserverCount());
 }
 
-TEST_F(OptimizationVariablesTest, GetOptimizationVariableCount)
+TEST_F(OptimizationVariablesTest, GetRows)
 {
-  EXPECT_EQ(8, subject_.GetOptimizationVariableCount());
+  EXPECT_EQ(8, subject_.GetRows());
 }
 
 

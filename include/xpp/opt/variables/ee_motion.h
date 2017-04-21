@@ -43,8 +43,8 @@ public:
   StateLin3d GetState(double t_global) const;
   double GetTotalTime() const;
 
-  VectorXd GetVariables() const override;
-  void SetVariables(const VectorXd&) override;
+  VectorXd GetValues() const override;
+  void SetValues(const VectorXd&) override;
   JacobianRow GetJacobianPos(double t, d2::Coords dimension) const;
 
 private:

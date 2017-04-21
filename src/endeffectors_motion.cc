@@ -24,7 +24,7 @@ EndeffectorsMotion::EndeffectorsMotion (const EndeffectorsPos& initial_pos,
   SetParameterStructure(contact_schedule);
 
   for (const auto& ee : endeffectors_.ToImpl())
-    n_opt_params_ += ee.GetOptVarCount();
+    n_opt_params_ += ee.GetRows();
 }
 
 void
@@ -77,14 +77,14 @@ EndeffectorsMotion::GetEndeffectorsPos (double t_global) const
 }
 
 EndeffectorsMotion::VectorXd
-EndeffectorsMotion::GetVariables () const
+EndeffectorsMotion::GetValues () const
 {
   VectorXd x(n_opt_params_);
 
   int row = 0;
   for (const auto& ee : endeffectors_.ToImpl()) {
-    int n = ee.GetOptVarCount();
-    x.middleRows(row, n) = ee.GetVariables();
+    int n = ee.GetRows();
+    x.middleRows(row, n) = ee.GetValues();
     row += n;
   }
 
@@ -93,21 +93,15 @@ EndeffectorsMotion::GetVariables () const
 
 // must be analog to the above
 void
-EndeffectorsMotion::SetVariables (const VectorXd& x)
+EndeffectorsMotion::SetValues (const VectorXd& x)
 {
   int row = 0;
 
   for (auto ee : endeffectors_.GetEEsOrdered()) {
-    int n = endeffectors_.At(ee).GetOptVarCount();
-    endeffectors_.At(ee).SetVariables(x.middleRows(row, n));
+    int n = endeffectors_.At(ee).GetRows();
+    endeffectors_.At(ee).SetValues(x.middleRows(row, n));
     row += n;
   }
-}
-
-double
-EndeffectorsMotion::GetTotalTime () const
-{
-   return endeffectors_.At(E0).GetTotalTime();
 }
 
 int
@@ -121,7 +115,7 @@ EndeffectorsMotion::GetJacobianWrtOptParams (double t_global,
                                              EndeffectorID ee,
                                              d2::Coords dim) const
 {
-  JacobianRow jac_row(GetOptVarCount());
+  JacobianRow jac_row(GetRows());
   JacobianRow jac_ee = endeffectors_.At(ee).GetJacobianPos(t_global, dim);
 
   // insert single ee-Jacobian into Jacobian representing all endeffectors
@@ -137,7 +131,7 @@ EndeffectorsMotion::IndexStart (EndeffectorID ee) const
   int idx = 0;
 
   for (int e=E0; e<ee; ++e)
-    idx += endeffectors_.At(static_cast<EndeffectorID>(e)).GetOptVarCount();
+    idx += endeffectors_.At(static_cast<EndeffectorID>(e)).GetRows();
 
   return idx;
 }

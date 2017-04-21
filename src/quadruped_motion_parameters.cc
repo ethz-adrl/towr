@@ -135,7 +135,7 @@ Walk::Walk()
 
 
   cost_weights_[ComCostID]          = 1.0;
-  cost_weights_[RangOfMotionCostID] = 3.0;
+  cost_weights_[RangOfMotionCostID] = 30.0;
   cost_weights_[PolyCenterCostID]   = 10.0;
 //  cost_weights_[FinalComCostID] = 1000.0;
 }

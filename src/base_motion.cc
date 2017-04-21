@@ -19,13 +19,13 @@ BaseMotion::~BaseMotion ()
 }
 
 VectorXd
-BaseMotion::GetVariables () const
+BaseMotion::GetValues () const
 {
   return GetXYSplineCoeffients();
 }
 
 void
-BaseMotion::SetVariables (const VectorXd& x)
+BaseMotion::SetValues (const VectorXd& x)
 {
   SetSplineXYCoefficients(x);
 }

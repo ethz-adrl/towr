@@ -31,25 +31,25 @@ NLP::Init (OptimizationVariablesPtr& opt_variables)
 int
 NLP::GetNumberOfOptimizationVariables () const
 {
-  return opt_variables_->GetOptimizationVariableCount();
+  return opt_variables_->GetRows();
 }
 
 VecBound
 NLP::GetBoundsOnOptimizationVariables () const
 {
-  return opt_variables_->GetOptimizationVariableBounds();
+  return opt_variables_->GetBounds();
 }
 
 NLP::VectorXd
 NLP::GetStartingValues () const
 {
-  return opt_variables_->GetOptimizationVariables();
+  return opt_variables_->GetValues();
 }
 
 void
 NLP::SetVariables (const Number* x)
 {
-  opt_variables_->SetAllVariables(ConvertToEigen(x));
+  opt_variables_->SetValues(ConvertToEigen(x));
 }
 
 double

@@ -33,20 +33,21 @@ public:
   OptimizationVariables (const std::string& id);
   virtual ~OptimizationVariables ();
 
-  int GetOptVarCount() const;
-  std::string GetId() const;
+  // already present in component
+  virtual VectorXd GetValues() const = 0;
+  int GetRows() const;
+  virtual VecBound GetBounds() const;
+  std::string GetName() const;
 
-  virtual VectorXd GetVariables() const = 0;
-  virtual void SetVariables(const VectorXd&) = 0;
+  // optimization specific functions
+  virtual void SetValues(const VectorXd&) = 0;
 
-  VecBound GetBounds() const;
 
 protected:
-  void SetAllBounds(const Bound&) const;
-  mutable VecBound bounds_;
+//  void SetAllBounds(const Bound&) const;
 
 private:
-  std::string id_;
+  std::string name_;
 };
 
 

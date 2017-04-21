@@ -24,8 +24,8 @@ FootholdConstraint::FootholdConstraint (const OptVarsPtr& opt_vars,
                                         const NominalStance& nom_W,
                                         double t)
 {
-  name_ = "FootholdConstraint";
-  ee_motion_ = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
+  SetName("FootholdConstraint");
+  ee_motion_ = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
   desired_ee_pos_W_ = nom_W;
   t_ = t;
 
@@ -67,7 +67,7 @@ void
 FootholdConstraint::FillJacobianWithRespectTo (std::string var_set,
                                               Jacobian& jac) const
 {
-  if (var_set == ee_motion_->GetId()) {
+  if (var_set == ee_motion_->GetName()) {
     int k = 0;
     for (const auto ee : desired_ee_pos_W_.GetEEsOrdered())
       for (auto dim : d2::AllDimensions)
