@@ -25,20 +25,23 @@ namespace opt {
   * This class is responsible for transforming the scalar parameters into
   * the position, velocity and acceleration of the endeffectors.
   */
+// spring_clean_ make composite to not duplicate functionality
 class EndeffectorsMotion : public Component {
 public:
   using EEState  = Endeffectors<StateLin3d>;
   using VectorXd = Eigen::VectorXd;
+  using ComponentPtr = std::shared_ptr<EEMotion>;
+  using ComponentVec = std::vector<ComponentPtr>;
 
   EndeffectorsMotion (const EndeffectorsPos& initial_pos, const ContactSchedule&);
   virtual ~EndeffectorsMotion ();
 
   virtual VectorXd GetValues() const override;
   virtual void SetValues(const VectorXd&) override;
+
+
   // order at which the contact position of this endeffector is stored
   JacobianRow GetJacobianWrtOptParams(double t_global, EndeffectorID ee, d2::Coords) const;
-
-
   int GetNumberOfEndeffectors() const;
   EEState GetEndeffectors(double t_global) const;
   EndeffectorsPos GetEndeffectorsPos(double t_global) const;
@@ -47,7 +50,8 @@ public:
 
 private:
   int IndexStart(EndeffectorID ee) const;
-  Endeffectors<EEMotion> endeffectors_;
+  ComponentVec endeffectors_; // spring_clean_ this should be removed, already in base class
+  std::vector<EndeffectorID> ee_ordered_;
 
   void SetInitialPos(const EndeffectorsPos& initial_pos);
   void SetParameterStructure(const ContactSchedule& contact_schedule);

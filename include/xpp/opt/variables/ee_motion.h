@@ -29,7 +29,7 @@ namespace opt {
   * and should not know anything about the current contact state.
   */
 // spring_clean_ make this a component and add to composite "EndeffectorsMotion".
-class EEMotion  {
+class EEMotion : public Component {
 public:
   using ContactPositions = std::deque<Contact>;
   /** contact at beginning and end of phase (same for stance phase) */
@@ -44,10 +44,8 @@ public:
   StateLin3d GetState(double t_global) const;
   double GetTotalTime() const;
 
-  VectorXd GetValues() const;
-  void SetValues(const VectorXd&);
-  int GetRows() const;
-
+  virtual VectorXd GetValues() const override;
+  virtual void SetValues(const VectorXd&) override;
 
   JacobianRow GetJacobianPos(double t, d2::Coords dimension) const;
 

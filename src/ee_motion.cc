@@ -16,9 +16,8 @@
 namespace xpp {
 namespace opt {
 
-EEMotion::EEMotion ()
+EEMotion::EEMotion () : Component(-1, "ee_motion_single")
 {
-//  SetName("ee_motion_single");
 }
 
 EEMotion::~EEMotion ()
@@ -47,6 +46,9 @@ EEMotion::AddPhase (double t, double lift_height, bool is_contact)
 
   PhaseContacts phase{c_prev, c_goal};
   phase_contacts_.push_back(phase);
+
+  // spring_clean_ !!! very ugly that I can't do this in constructor
+  SetRows(GetValues().rows());
 }
 
 StateLin3d
@@ -105,12 +107,6 @@ EEMotion::SetValues (const VectorXd& x)
         c.p(dim) = x(Index(c.id,dim));
 
   UpdateSwingMotions();
-}
-
-int
-EEMotion::GetRows () const
-{
-  return GetValues().rows();
 }
 
 JacobianRow
