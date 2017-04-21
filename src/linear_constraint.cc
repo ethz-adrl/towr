@@ -21,14 +21,15 @@ LinearEqualityConstraint::LinearEqualityConstraint (
     const OptVarsPtr& opt_vars,
     const MatVec& linear_equation)
 {
-  SetName("LinearEqualityConstraint");
   linear_equation_ = linear_equation;
 
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
   opt_vars_ = opt_vars;
 
   int num_constraints = linear_equation_.v.rows();
-  AddComposite(opt_vars, num_constraints);
+  SetName("LinearEqualityConstraint");
+  SetRows(num_constraints);
+  AddComposite(opt_vars);
 }
 
 LinearEqualityConstraint::~LinearEqualityConstraint ()

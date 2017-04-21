@@ -24,13 +24,14 @@ FootholdConstraint::FootholdConstraint (const OptVarsPtr& opt_vars,
                                         const NominalStance& nom_W,
                                         double t)
 {
-  SetName("FootholdConstraint");
   ee_motion_ = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
   desired_ee_pos_W_ = nom_W;
   t_ = t;
 
   int num_constraints = nom_W.GetCount() * kDim2d;
-  AddComposite(opt_vars, num_constraints);
+  SetName("FootholdConstraint");
+  SetRows(num_constraints);
+  AddComposite(opt_vars);
 }
 
 FootholdConstraint::~FootholdConstraint ()

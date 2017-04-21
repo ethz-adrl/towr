@@ -23,12 +23,13 @@ namespace opt {
 
 PolygonCenterConstraint::PolygonCenterConstraint (const OptVarsPtr& opt_vars)
 {
-  SetName("PolygonCenterConstraint");
   contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent("contact_schedule"));
   ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetComponent("endeffector_load"));
 
   int num_constraints = ee_load_->GetNumberOfSegments();
-  AddComposite(opt_vars, num_constraints);
+  SetName("PolygonCenterConstraint");
+  SetRows(num_constraints);
+  AddComposite(opt_vars);
 }
 
 PolygonCenterConstraint::~PolygonCenterConstraint ()

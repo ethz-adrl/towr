@@ -47,15 +47,13 @@ Component::SetName (const std::string& name)
 }
 
 
-Primitive::Primitive () : Component(0, "Primitive")
+Primitive::Primitive () : Component(-1, "Primitive")
 {
 }
 
-// make these two different functions
 void
-Primitive::AddComposite (const OptVarsPtr& vars, int num_rows)
+Primitive::AddComposite (const OptVarsPtr& vars)
 {
-  SetRows(num_rows);
   opt_vars_ = vars;
 }
 

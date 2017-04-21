@@ -21,9 +21,11 @@ QuadraticPolynomialCost::QuadraticPolynomialCost (const OptVarsPtr& opt_vars,
 {
   matrix_vector_ = mat_vec;
   weight_ = weight;
-
-  AddComposite(opt_vars, 1);
   com_motion_    = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
+
+  SetName("Polynomial Cost");
+  SetRows(1); // because cost
+  AddComposite(opt_vars);
 }
 
 QuadraticPolynomialCost::~QuadraticPolynomialCost ()

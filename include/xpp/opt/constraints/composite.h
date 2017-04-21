@@ -59,19 +59,16 @@ public:
     */
   virtual VecBound GetBounds() const { return VecBound(GetRows(), kNoBound_); };
 
-  /** @returns 1 for cost and >1 for however many constraints.
+  /** @returns 1 for cost and >1 for however many constraints or opt-variables.
     */
   int GetRows() const;
+  std::string GetName() const;
 
   virtual void Print() const;
-
-  std::string GetName() const;
 
 protected:
   void SetRows(int num_rows);
   void SetName(const std::string&);
-
-  // spring_clean_ ensure through constructor, that this is always set!
 
 private:
   int num_rows_ = 0;
@@ -133,15 +130,12 @@ public:
   Primitive();
   virtual ~Primitive() {};
 
-protected:
-  /** @brief Determines the size of components, bounds and jacobians.
-    */
-  // spring_clean_ make pure virtual to force user to implement and think about?
-  void AddComposite(const OptVarsPtr&, int num_rows);
-
-private:
   Jacobian GetJacobian() const override;
 
+protected:
+  void AddComposite(const OptVarsPtr&);
+
+private:
   /** @brief Jacobian of the component with respect to each decision variable set.
     */
   virtual void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const = 0;
