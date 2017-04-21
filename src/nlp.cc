@@ -23,7 +23,7 @@ NLP::~NLP ()
 }
 
 void
-NLP::Init (OptimizationVariablesPtr& opt_variables)
+NLP::Init (const OptimizationVariablesPtr& opt_variables)
 {
   opt_variables_ = opt_variables;
 }

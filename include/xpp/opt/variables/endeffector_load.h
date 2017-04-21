@@ -12,6 +12,7 @@
 
 #include <xpp/endeffectors.h>
 
+#include <xpp/bound.h>
 #include "contact_schedule.h"
 
 namespace xpp {
@@ -21,7 +22,7 @@ namespace opt {
   *
   * The are the lambda values in the paper.
   */
-class EndeffectorLoad : public OptimizationVariables {
+class EndeffectorLoad : public Component {
 public:
   using VectorXd   = Eigen::VectorXd;
   using LoadParams = Endeffectors<double>;
@@ -29,9 +30,9 @@ public:
   EndeffectorLoad (int num_ee, double dt, double T, const ContactSchedule&);
   virtual ~EndeffectorLoad ();
 
-  void SetValues(const VectorXd& x) override;
-  VectorXd GetValues() const override;
-  VecBound GetBounds() const override;
+  virtual VectorXd GetValues() const override;
+  virtual void SetValues(const VectorXd& x) override;
+  virtual VecBound GetBounds() const override;
 
   /** @param k the number of discretized node with lambda parameters.
     * @param ee which endeffector we are interested in.

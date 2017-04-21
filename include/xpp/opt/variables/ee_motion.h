@@ -17,8 +17,8 @@
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
 
+#include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/ee_phase_motion.h>
-#include <xpp/optimization_variables.h>
 
 namespace xpp {
 namespace opt {
@@ -28,7 +28,8 @@ namespace opt {
   * This class is purely responsible for the pos,vel,acc of the endeffectors
   * and should not know anything about the current contact state.
   */
-class EEMotion : public OptimizationVariables {
+// spring_clean_ make this a component and add to composite "EndeffectorsMotion".
+class EEMotion  {
 public:
   using ContactPositions = std::deque<Contact>;
   /** contact at beginning and end of phase (same for stance phase) */
@@ -43,8 +44,11 @@ public:
   StateLin3d GetState(double t_global) const;
   double GetTotalTime() const;
 
-  VectorXd GetValues() const override;
-  void SetValues(const VectorXd&) override;
+  VectorXd GetValues() const;
+  void SetValues(const VectorXd&);
+  int GetRows() const;
+
+
   JacobianRow GetJacobianPos(double t, d2::Coords dimension) const;
 
 private:

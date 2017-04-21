@@ -5,8 +5,11 @@
  @brief   Brief description
  */
 
-#include <xpp/optimization_variables.h>
-#include <vector>
+#include <string>
+
+#include <xpp/opt/depr/optimization_variables.h>
+
+#include <xpp/bound.h>
 
 namespace xpp {
 namespace opt {
@@ -36,7 +39,6 @@ VecBound
 OptimizationVariables::GetBounds () const
 {
   // default if user hasn't set anything
-  // zmp_ move to base component class?
   return VecBound(GetRows(), kNoBound_);
 }
 

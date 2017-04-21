@@ -5,7 +5,7 @@
  @brief   Defines the class SoftConstraint
  */
 
-#include <xpp/soft_constraint.h>
+#include <xpp/opt/costs/soft_constraint.h>
 
 #include <Eigen/Sparse>
 
@@ -18,6 +18,7 @@ namespace opt {
 SoftConstraint::SoftConstraint (const ConstraintPtr& constraint, double weight)
 {
   SetName("SoftConstraint-" + constraint->GetName());
+  num_rows_ = 1;
   constraint_ = constraint;
   int n_constraints = constraint_->GetRows();
 

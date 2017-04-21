@@ -5,7 +5,7 @@
  @brief   Definition of the ASplineCost, QuadraticSplineCost, SquaredSplineCost
  */
 
-#include <xpp/opt/polynomial_cost.h>
+#include <xpp/opt/costs/polynomial_cost.h>
 
 #include <Eigen/Dense>
 

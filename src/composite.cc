@@ -80,14 +80,37 @@ Composite::Composite (const std::string name, bool append_components)
 
 
 void
-Composite::AddComponent (const ComponentPtr& constraint)
+Composite::AddComponent (const ComponentPtr& component)
 {
-  components_.push_back(constraint);
+  components_.push_back(component);
 
   if (append_components_)
-    num_rows_ += constraint->GetRows();
+    num_rows_ += component->GetRows();
   else
     num_rows_ = 1; // composite holds costs
+}
+
+void
+Composite::ClearComponents ()
+{
+  components_.clear();
+  num_rows_ = 0;
+}
+
+Composite::ComponentVec
+Composite::GetComponents () const
+{
+  return components_;
+}
+
+Composite::ComponentPtr
+Composite::GetComponent (std::string name) const
+{
+  for (const auto& c : components_)
+    if (c->GetName() == name)
+      return c;
+
+  assert(false); // component with name doesn't exist
 }
 
 Composite::VectorXd
@@ -99,7 +122,7 @@ Composite::GetValues () const
   for (const auto& c : components_) {
 
     VectorXd g = c->GetValues();
-    int n_rows = g.rows();
+    int n_rows = c->GetRows();
     g_all.middleRows(row, n_rows) += g;
 
     if (append_components_)
@@ -150,28 +173,6 @@ Composite::GetBounds () const
   }
 
   return bounds_;
-}
-
-void
-Composite::ClearComponents ()
-{
-  components_.clear();
-}
-
-Composite::ComponentVec
-Composite::GetComponents () const
-{
-  return components_;
-}
-
-Composite::ComponentPtr
-Composite::GetComponent (std::string name) const
-{
-  for (const auto& c : components_)
-    if (c->GetName() == name)
-      return c;
-
-  assert(false); // component with name doesn't exist
 }
 
 void

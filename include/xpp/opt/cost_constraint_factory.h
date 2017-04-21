@@ -13,10 +13,9 @@
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/state.h>
 
-#include <xpp/optimization_variables_container.h>
-
 #include "linear_spline_equations.h"
 #include "motion_parameters.h"
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -33,8 +32,8 @@ class Component;
 class CostConstraintFactory {
 public:
   using ConstraintPtr    = std::shared_ptr<Component>;
+  using OptVarsContainer = std::shared_ptr<Composite>;
   using MotionParamsPtr  = std::shared_ptr<MotionParameters>;
-  using OptVarsContainer = std::shared_ptr<OptimizationVariablesContainer>;
 
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();

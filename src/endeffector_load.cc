@@ -17,16 +17,17 @@ namespace opt {
 
 EndeffectorLoad::EndeffectorLoad (int num_ee, double dt, double T,
                                   const ContactSchedule& contact_schedule)
-    : OptimizationVariables("endeffector_load")
 {
+  SetName("endeffector_load");
   dt_ = dt;
   T_ = T;
   n_ee_ = num_ee;
   int idx_segment = GetSegment(T);
   num_segments_ = idx_segment + 1;
+  num_rows_ = n_ee_*num_segments_;
 
   double max_load = 5.0; // [N] limited by robot actuator limits.
-  lambdas_ = VectorXd::Ones(n_ee_*num_segments_)*max_load/n_ee_;
+  lambdas_ = VectorXd::Ones(num_rows_)*max_load/n_ee_;
   SetBounds(contact_schedule, max_load);
 }
 
@@ -39,7 +40,8 @@ EndeffectorLoad::GetBounds () const
 void
 EndeffectorLoad::SetBounds (const ContactSchedule& contact_schedule, double max_load)
 {
-  double min_load = 0.0;    // [N] cannot pull on ground (negative forces).
+  // just to avoid NaN when for now still calculating CoP from these
+  double min_load = 0.000001;    // [N] cannot pull on ground (negative forces).
 
   // sample check if endeffectors are in contact at center of discretization
   // interval.
@@ -48,7 +50,7 @@ EndeffectorLoad::SetBounds (const ContactSchedule& contact_schedule, double max_
     EndeffectorsBool contacts_state = contact_schedule.IsInContact(t);
 
     for (bool in_contact : contacts_state.ToImpl()) {
-      double upper_bound = in_contact? max_load : 0.0;
+      double upper_bound = in_contact? max_load : min_load;
       bounds_.push_back(Bound(min_load, upper_bound));
     }
   }

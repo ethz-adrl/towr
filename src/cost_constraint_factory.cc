@@ -16,8 +16,8 @@
 
 #include <xpp/matrix_vector.h>
 #include <xpp/opt/com_spline.h>
-#include <xpp/opt/polynomial_cost.h>
-#include <xpp/soft_constraint.h>
+#include <xpp/opt/costs/polynomial_cost.h>
+#include <xpp/opt/costs/soft_constraint.h>
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/foothold_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>

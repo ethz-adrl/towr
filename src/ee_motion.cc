@@ -16,8 +16,9 @@
 namespace xpp {
 namespace opt {
 
-EEMotion::EEMotion () : OptimizationVariables("ee_motion_single")
+EEMotion::EEMotion ()
 {
+//  SetName("ee_motion_single");
 }
 
 EEMotion::~EEMotion ()
@@ -104,6 +105,12 @@ EEMotion::SetValues (const VectorXd& x)
         c.p(dim) = x(Index(c.id,dim));
 
   UpdateSwingMotions();
+}
+
+int
+EEMotion::GetRows () const
+{
+  return GetValues().rows();
 }
 
 JacobianRow

@@ -29,7 +29,7 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  opt_variables_ = std::make_shared<OptimizationVariablesContainer>();
+  opt_variables_ = std::make_shared<Composite>("variables", true);
 }
 
 MotionOptimizerFacade::~MotionOptimizerFacade ()

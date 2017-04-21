@@ -25,7 +25,7 @@ namespace opt {
   * This class is responsible for transforming the scalar parameters into
   * the position, velocity and acceleration of the endeffectors.
   */
-class EndeffectorsMotion : public OptimizationVariables {
+class EndeffectorsMotion : public Component {
 public:
   using EEState  = Endeffectors<StateLin3d>;
   using VectorXd = Eigen::VectorXd;
@@ -33,8 +33,8 @@ public:
   EndeffectorsMotion (const EndeffectorsPos& initial_pos, const ContactSchedule&);
   virtual ~EndeffectorsMotion ();
 
-  VectorXd GetValues() const override;
-  void SetValues(const VectorXd&) override;
+  virtual VectorXd GetValues() const override;
+  virtual void SetValues(const VectorXd&) override;
   // order at which the contact position of this endeffector is stored
   JacobianRow GetJacobianWrtOptParams(double t_global, EndeffectorID ee, d2::Coords) const;
 
@@ -48,7 +48,6 @@ public:
 private:
   int IndexStart(EndeffectorID ee) const;
   Endeffectors<EEMotion> endeffectors_;
-  int n_opt_params_ = 0;
 
   void SetInitialPos(const EndeffectorsPos& initial_pos);
   void SetParameterStructure(const ContactSchedule& contact_schedule);

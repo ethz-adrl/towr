@@ -17,7 +17,6 @@
 #include <Eigen/Sparse>
 
 #include <xpp/bound.h>
-#include <xpp/optimization_variables_container.h>
 
 namespace xpp {
 namespace opt {
@@ -53,7 +52,8 @@ public:
     * For a constraint this is a matrix, one row per constraint.
     * For a cost only the first row is filled (gradient transpose).
     */
-  virtual Jacobian GetJacobian() const = 0;
+  // not needed for optimization variables
+  virtual Jacobian GetJacobian() const { assert(false); };
 
   /** @returns For each row an upper and lower bound is given.
     */
@@ -69,35 +69,12 @@ public:
 
 protected:
   void SetName(const std::string&);
-  int num_rows_ = 1; // corresponds to number of constraints, default 1 for costs
+
+  // spring_clean_ ensure through constructor, that this is always set!
+  int num_rows_ = 0; // corresponds to number of constraints, default 1 for costs
 
 private:
   std::string name_;
-};
-
-
-/** @brief An specific constraint implementing the above interface.
-  *
-  * Classes that derive from this represent the actual "meat".
-  */
-class Primitive : public Component {
-public:
-  using OptVarsPtr = std::shared_ptr<OptimizationVariablesContainer>;
-
-  virtual ~Primitive() {};
-
-protected:
-  /** @brief Determines the size of components, bounds and jacobians.
-    */
-  void SetDimensions(const OptVarsPtr&, int num_rows);
-
-private:
-  Jacobian GetJacobian() const override;
-
-  /** @brief Jacobian of the component with respect to each decision variable set.
-    */
-  virtual void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const = 0;
-  OptVarsPtr opt_vars_;
 };
 
 
@@ -135,13 +112,41 @@ public:
   VecBound GetBounds   () const override;
   void SetValues(const VectorXd& x) override;
 
-
   void Print() const override;
 
 private:
   bool append_components_;
   ComponentVec components_;
 };
+
+
+/** @brief An specific constraint implementing the above interface.
+  *
+  * Classes that derive from this represent the actual "meat".
+  */
+// spring_clean_ this is also somehow a composite of opt_vars
+class Primitive : public Component {
+public:
+  using OptVarsPtr = std::shared_ptr<Composite>;
+
+  virtual ~Primitive() {};
+
+protected:
+  /** @brief Determines the size of components, bounds and jacobians.
+    */
+  // spring_clean_ make pure virtual to force user to implement and think about?
+  void SetDimensions(const OptVarsPtr&, int num_rows);
+
+private:
+  Jacobian GetJacobian() const override;
+
+  /** @brief Jacobian of the component with respect to each decision variable set.
+    */
+  virtual void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const = 0;
+  OptVarsPtr opt_vars_;
+};
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

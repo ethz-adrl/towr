@@ -14,7 +14,7 @@
 
 #include <xpp/endeffectors.h>
 
-#include <xpp/optimization_variables.h>
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -43,7 +43,7 @@ private:
 
 /** @brief Knows which endeffectors are in contact at time t during trajectory.
  */
-class ContactSchedule : public OptimizationVariables {
+class ContactSchedule : public Component {
 public:
   using EEContacts = Endeffectors<SingleContactMotion>;
   using Phase      = std::pair<EndeffectorsBool, double>; // swinglegs and time
@@ -57,8 +57,8 @@ public:
 
 
   // so far not optimizing over these
-  VectorXd GetValues() const override { return VectorXd(); };
-  void SetValues(const VectorXd&) override {};
+  virtual VectorXd GetValues() const override { return VectorXd(); };
+  virtual void SetValues(const VectorXd&) override {};
 
 
   SingleContactMotion::PhaseVec GetPhases(EndeffectorID) const;
