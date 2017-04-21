@@ -77,9 +77,8 @@ SingleContactMotion::GetPhases () const
 }
 
 ContactSchedule::ContactSchedule (const PhaseVec& phases)
+    :Component(0, "contact_schedule")
 {
-  SetName("contact_schedule");
-  num_rows_ = GetValues().rows();
   SetPhaseSequence(phases);
 }
 

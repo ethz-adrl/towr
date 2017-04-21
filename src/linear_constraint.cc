@@ -28,7 +28,7 @@ LinearEqualityConstraint::LinearEqualityConstraint (
   opt_vars_ = opt_vars;
 
   int num_constraints = linear_equation_.v.rows();
-  SetDimensions(opt_vars, num_constraints);
+  AddComposite(opt_vars, num_constraints);
 }
 
 LinearEqualityConstraint::~LinearEqualityConstraint ()

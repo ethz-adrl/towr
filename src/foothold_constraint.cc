@@ -30,7 +30,7 @@ FootholdConstraint::FootholdConstraint (const OptVarsPtr& opt_vars,
   t_ = t;
 
   int num_constraints = nom_W.GetCount() * kDim2d;
-  SetDimensions(opt_vars, num_constraints);
+  AddComposite(opt_vars, num_constraints);
 }
 
 FootholdConstraint::~FootholdConstraint ()

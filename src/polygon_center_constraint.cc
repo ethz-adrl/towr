@@ -28,7 +28,7 @@ PolygonCenterConstraint::PolygonCenterConstraint (const OptVarsPtr& opt_vars)
   ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetComponent("endeffector_load"));
 
   int num_constraints = ee_load_->GetNumberOfSegments();
-  SetDimensions(opt_vars, num_constraints);
+  AddComposite(opt_vars, num_constraints);
 }
 
 PolygonCenterConstraint::~PolygonCenterConstraint ()

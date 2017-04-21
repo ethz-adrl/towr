@@ -17,17 +17,17 @@ namespace opt {
 
 EndeffectorLoad::EndeffectorLoad (int num_ee, double dt, double T,
                                   const ContactSchedule& contact_schedule)
+    :Component(-1, "endeffector_load")
 {
-  SetName("endeffector_load");
   dt_ = dt;
   T_ = T;
   n_ee_ = num_ee;
   int idx_segment = GetSegment(T);
   num_segments_ = idx_segment + 1;
-  num_rows_ = n_ee_*num_segments_;
+  SetRows(n_ee_*num_segments_);
 
   double max_load = 5.0; // [N] limited by robot actuator limits.
-  lambdas_ = VectorXd::Ones(num_rows_)*max_load/n_ee_;
+  lambdas_ = VectorXd::Ones(GetRows())*max_load/n_ee_;
   SetBounds(contact_schedule, max_load);
 }
 

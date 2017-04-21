@@ -19,11 +19,10 @@ QuadraticPolynomialCost::QuadraticPolynomialCost (const OptVarsPtr& opt_vars,
                                                   const MatVec& mat_vec,
                                                   double weight)
 {
-  SetName("QuadraticPolynomialCost");
   matrix_vector_ = mat_vec;
   weight_ = weight;
 
-  SetDimensions(opt_vars, 1);
+  AddComposite(opt_vars, 1);
   com_motion_    = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
 }
 
@@ -34,7 +33,7 @@ QuadraticPolynomialCost::~QuadraticPolynomialCost ()
 QuadraticPolynomialCost::VectorXd
 QuadraticPolynomialCost::GetValues () const
 {
-  VectorXd cost = VectorXd(num_rows_);
+  VectorXd cost = VectorXd(GetRows());
   VectorXd spline_coeff_ = com_motion_->GetXYSplineCoeffients();
 
   cost += spline_coeff_.transpose() * matrix_vector_.M * spline_coeff_;

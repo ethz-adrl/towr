@@ -10,14 +10,22 @@
 namespace xpp {
 namespace opt {
 
-Component::Component ()
+Component::Component (int num_rows, const std::string name)
 {
+  num_rows_ = num_rows;
+  name_ = name;
 }
 
 int
 Component::GetRows () const
 {
   return num_rows_;
+}
+
+void
+Component::SetRows (int num_rows)
+{
+  num_rows_ = num_rows;
 }
 
 void
@@ -39,23 +47,28 @@ Component::SetName (const std::string& name)
 }
 
 
-void
-Primitive::SetDimensions (const OptVarsPtr& vars, int num_rows)
+Primitive::Primitive () : Component(0, "Primitive")
 {
-  num_rows_ = num_rows;
+}
+
+// make these two different functions
+void
+Primitive::AddComposite (const OptVarsPtr& vars, int num_rows)
+{
+  SetRows(num_rows);
   opt_vars_ = vars;
 }
 
 Primitive::Jacobian
 Primitive::GetJacobian () const
 {
-  Jacobian jacobian(num_rows_, opt_vars_->GetRows());
+  Jacobian jacobian(GetRows(), opt_vars_->GetRows());
 
   int col = 0;
   for (const auto& vars : opt_vars_->GetComponents()) {
 
     int n = vars->GetRows();
-    Jacobian jac = Jacobian(num_rows_, n);
+    Jacobian jac = Jacobian(GetRows(), n);
 
     FillJacobianWithRespectTo(vars->GetName(), jac);
 
@@ -72,29 +85,29 @@ Primitive::GetJacobian () const
 
 
 Composite::Composite (const std::string name, bool append_components)
+    :Component(0, "C-" + name)
 {
-  num_rows_ = 0; // "meat" can only be added by Primitive components
   append_components_ = append_components;
   SetName("C-" + name);
 }
 
 
 void
-Composite::AddComponent (const ComponentPtr& component)
+Composite::AddComponent (const ComponentPtr& c)
 {
-  components_.push_back(component);
+  components_.push_back(c);
 
   if (append_components_)
-    num_rows_ += component->GetRows();
+    SetRows(GetRows()+ c->GetRows());
   else
-    num_rows_ = 1; // composite holds costs
+    SetRows(1); // composite holds costs
 }
 
 void
 Composite::ClearComponents ()
 {
   components_.clear();
-  num_rows_ = 0;
+  SetRows(0);
 }
 
 Composite::ComponentVec
@@ -146,7 +159,7 @@ Composite::Jacobian
 Composite::GetJacobian () const
 {
   int n_var = components_.front()->GetJacobian().cols();
-  Jacobian jacobian(num_rows_, n_var);
+  Jacobian jacobian(GetRows(), n_var);
 
   int row = 0;
   for (const auto& c : components_) {

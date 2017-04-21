@@ -10,15 +10,15 @@
 namespace xpp {
 namespace opt {
 
-BaseMotion::BaseMotion ()
+BaseMotion::BaseMotion () : Component(-1, "base_motion")
 {
-  SetName("base_motion");
+  // still don't know how many optimization variables
 }
 
 void
 BaseMotion::SetVariableCount ()
 {
-  num_rows_ = GetValues().rows();
+  SetRows(GetValues().rows());
 }
 
 BaseMotion::~BaseMotion ()

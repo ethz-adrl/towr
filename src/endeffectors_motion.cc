@@ -16,15 +16,18 @@ namespace opt {
 
 EndeffectorsMotion::EndeffectorsMotion (const EndeffectorsPos& initial_pos,
                                         const ContactSchedule& contact_schedule)
+    :Component(-1, "endeffectors_motion")
 {
-  SetName("endeffectors_motion");
   endeffectors_.SetCount(initial_pos.GetCount());
 
   SetInitialPos(initial_pos);
   SetParameterStructure(contact_schedule);
 
+  int count = 0;
   for (const auto& ee : endeffectors_.ToImpl())
-    num_rows_ += ee.GetRows();
+    count += ee.GetRows();
+
+  SetRows(count);
 }
 
 void
@@ -79,7 +82,7 @@ EndeffectorsMotion::GetEndeffectorsPos (double t_global) const
 EndeffectorsMotion::VectorXd
 EndeffectorsMotion::GetValues () const
 {
-  VectorXd x(num_rows_);
+  VectorXd x(GetRows());
 
   int row = 0;
   for (const auto& ee : endeffectors_.ToImpl()) {

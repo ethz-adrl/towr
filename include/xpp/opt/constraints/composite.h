@@ -34,7 +34,7 @@ public:
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
-  Component();
+  Component(int num_rows, const std::string name = "");
   virtual ~Component() {};
 
   /** @returns A vector of values for current cost or constraints.
@@ -68,12 +68,13 @@ public:
   std::string GetName() const;
 
 protected:
+  void SetRows(int num_rows);
   void SetName(const std::string&);
 
   // spring_clean_ ensure through constructor, that this is always set!
-  int num_rows_ = 0; // corresponds to number of constraints, default 1 for costs
 
 private:
+  int num_rows_ = 0;
   std::string name_;
 };
 
@@ -129,13 +130,14 @@ class Primitive : public Component {
 public:
   using OptVarsPtr = std::shared_ptr<Composite>;
 
+  Primitive();
   virtual ~Primitive() {};
 
 protected:
   /** @brief Determines the size of components, bounds and jacobians.
     */
   // spring_clean_ make pure virtual to force user to implement and think about?
-  void SetDimensions(const OptVarsPtr&, int num_rows);
+  void AddComposite(const OptVarsPtr&, int num_rows);
 
 private:
   Jacobian GetJacobian() const override;
