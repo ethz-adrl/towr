@@ -16,48 +16,48 @@ namespace opt {
 
 EndeffectorsMotion::EndeffectorsMotion (const EndeffectorsPos& initial_pos,
                                         const ContactSchedule& contact_schedule)
-    :Component(1, "endeffectors_motion")
+    :Composite("endeffectors_motion")
 {
-  // spring_clean_ replace by AddComponent(..)
-  for (int i=0; i<initial_pos.GetCount(); ++i)
-    endeffectors_.push_back(std::make_shared<EEMotion>());
-
+  auto ee = EndeffectorsMotion::BuildEndeffectors(initial_pos, contact_schedule);
+  AddEndffectors(ee);
   ee_ordered_ = initial_pos.GetEEsOrdered();
-
-  SetInitialPos(initial_pos);
-  SetParameterStructure(contact_schedule);
-
-  // spring_clean_ this should be taken care by Composite class
-  int count = 0;
-  for (const auto& ee : endeffectors_)
-    count += ee->GetRows();
-  SetRows(count);
 }
 
-void
-EndeffectorsMotion::SetInitialPos (const EndeffectorsPos& initial_pos)
+EndeffectorsMotion::~EndeffectorsMotion ()
 {
-  for (auto ee : initial_pos.GetEEsOrdered())
-    endeffectors_.at(ee)->SetInitialPos(initial_pos.At(ee), ee);
 }
 
-void
-EndeffectorsMotion::SetParameterStructure (const ContactSchedule& contact_schedule)
+EndeffectorsMotion::ComponentVec
+EndeffectorsMotion::BuildEndeffectors (const EndeffectorsPos& initial_pos,
+                                       const ContactSchedule& contact_schedule)
 {
-  for (auto ee : ee_ordered_) {
+  ComponentVec endeffectors;
+
+  for (auto ee : initial_pos.GetEEsOrdered()) {
+    auto endeffector = std::make_shared<EEMotion>();
+    endeffector->SetInitialPos(initial_pos.At(ee), ee);
 
     for (auto phase : contact_schedule.GetPhases(ee)) {
       auto is_contact = phase.first;
       auto duration   = phase.second;
 
       double lift_height = is_contact? 0.0 : 0.03;
-      endeffectors_.at(ee)->AddPhase(duration, lift_height, is_contact);
+      endeffector->AddPhase(duration, lift_height, is_contact);
     }
+    endeffectors.push_back(endeffector);
   }
+
+  return endeffectors;
 }
 
-EndeffectorsMotion::~EndeffectorsMotion ()
+void
+EndeffectorsMotion::AddEndffectors (const ComponentVec& endeffectors)
 {
+  for (auto& ee : endeffectors) {
+    AddComponent(ee);
+    // retain derived class pointer to access ee specific functions
+    endeffectors_.push_back(ee);
+  }
 }
 
 EndeffectorsMotion::EEState
@@ -71,50 +71,10 @@ EndeffectorsMotion::GetEndeffectors (double t_global) const
   return ee_state;
 }
 
-EndeffectorsPos
-EndeffectorsMotion::GetEndeffectorsPos (double t_global) const
-{
-  // zmp_ DRY with above -.-
-  EndeffectorsPos pos(GetNumberOfEndeffectors());
-
-  for (auto ee : ee_ordered_)
-    pos.At(ee) = endeffectors_.at(ee)->GetState(t_global).p;
-
-  return pos;
-}
-
-EndeffectorsMotion::VectorXd
-EndeffectorsMotion::GetValues () const
-{
-  VectorXd x = VectorXd::Zero(GetRows());
-
-  int row = 0;
-  for (const auto& ee : endeffectors_) {
-    int n = ee->GetRows();
-    x.middleRows(row, n) = ee->GetValues();
-    row += n;
-  }
-
-  return x;
-}
-
-// must be analog to the above
-void
-EndeffectorsMotion::SetValues (const VectorXd& x)
-{
-  int row = 0;
-
-  for (auto ee : ee_ordered_) {
-    int n = endeffectors_.at(ee)->GetRows();
-    endeffectors_.at(ee)->SetValues(x.middleRows(row, n));
-    row += n;
-  }
-}
-
 int
 EndeffectorsMotion::GetNumberOfEndeffectors () const
 {
-  return endeffectors_.size();
+  return GetComponentCount();
 }
 
 JacobianRow
@@ -143,11 +103,7 @@ EndeffectorsMotion::IndexStart (EndeffectorID ee) const
   return idx;
 }
 
-EndeffectorsMotion::EEState::Container
-EndeffectorsMotion::GetEndeffectorsVec (double t_global) const
-{
-  return GetEndeffectors(t_global).ToImpl();
-}
+
 
 } /* namespace opt */
 } /* namespace xpp */

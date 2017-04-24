@@ -47,8 +47,9 @@ EEMotion::AddPhase (double t, double lift_height, bool is_contact)
   PhaseContacts phase{c_prev, c_goal};
   phase_contacts_.push_back(phase);
 
-  // spring_clean_ !!! very ugly that I can't do this in constructor
-  SetRows(GetValues().rows());
+  // update optimization variable count b/c new phase has been added.
+  int n_contact_ids = 1 + c_goal.id;
+  SetRows(n_contact_ids*kDim2d);
 }
 
 StateLin3d
@@ -80,9 +81,7 @@ EEMotion::GetValues () const
   // Attention: remember to adapt GetJacobianPos() contact-phase part and Index()
   // when changing this...sorry.
   int id_prev = -1;
-  int n_contact_ids = 1 + GetLastContact().id;
-
-  VectorXd x(n_contact_ids*kDim2d); // initial position plus goal steps-xy
+  VectorXd x(GetRows()); // initial position plus goal steps-xy
 
   for (const PhaseContacts& contacts: phase_contacts_) {
     for (const Contact& c : contacts) { // only optimize over position at end of phase

@@ -104,6 +104,7 @@ public:
   void ClearComponents();
   ComponentVec GetComponents() const; // spring_clean_ this should be hidden from user
   ComponentPtr GetComponent(std::string name) const;
+  int GetComponentCount() const;
 
   VectorXd GetValues   () const override;
   Jacobian GetJacobian () const override;

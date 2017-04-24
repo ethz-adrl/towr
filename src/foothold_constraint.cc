@@ -43,7 +43,7 @@ FootholdConstraint::GetValues () const
 {
   VectorXd g(GetRows());
   int k=0;
-  for (const auto& ee_state : ee_motion_->GetEndeffectorsVec(t_))
+  for (const auto& ee_state : ee_motion_->GetEndeffectors(t_).ToImpl())
     for (auto dim : d2::AllDimensions)
       g(k++) = ee_state.p(dim);
 

@@ -28,7 +28,6 @@ namespace opt {
   * This class is purely responsible for the pos,vel,acc of the endeffectors
   * and should not know anything about the current contact state.
   */
-// spring_clean_ make this a component and add to composite "EndeffectorsMotion".
 class EEMotion : public Component {
 public:
   using ContactPositions = std::deque<Contact>;

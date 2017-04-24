@@ -98,7 +98,7 @@ DynamicConstraint::UpdateModel (double t) const
 {
   auto com     = com_motion_->GetCom(t);
   auto ee_load = ee_load_   ->GetLoadValues(t);
-  auto ee_pos  = ee_motion_ ->GetEndeffectorsPos(t);
+  auto ee_pos  = ee_motion_ ->GetEndeffectors(t).GetPos();
   model_.SetCurrent(com.p, com_motion_->GetZHeight(), ee_load, ee_pos);
 }
 

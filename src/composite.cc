@@ -83,10 +83,9 @@ Primitive::GetJacobian () const
 
 
 Composite::Composite (const std::string name, bool append_components)
-    :Component(0, "C-" + name)
+    :Component(0, name)
 {
   append_components_ = append_components;
-  SetName("C-" + name);
 }
 
 
@@ -184,6 +183,12 @@ Composite::GetBounds () const
   }
 
   return bounds_;
+}
+
+int
+Composite::GetComponentCount () const
+{
+  components_.size();
 }
 
 void
