@@ -30,7 +30,7 @@ public:
   explicit PolynomialXd(int id, double duration);
   virtual ~PolynomialXd();
   void SetBoundary(double T, const Point& start, const Point& end);
-  bool GetPoint(const double dt, Point& p) const;
+  PointType GetPoint(const double dt) const;
 
   Vector GetState(MotionDerivative pos_vel_acc_jerk, double t) const;
   double GetCoefficient(int dim, PolyCoeff coeff) const;

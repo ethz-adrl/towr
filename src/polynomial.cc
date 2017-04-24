@@ -19,15 +19,17 @@ Spliners ready to use:
 namespace xpp {
 namespace opt {
 
-constexpr std::array<Polynomial::PolynomialCoeff, 6> Polynomial::AllSplineCoeff;
+constexpr std::array<Polynomial::PolynomialCoeff, 6> Polynomial::kAllSplineCoeff;
 
 /**
  * The spliner always calculates the splines in the same way, but if the
  * spline coefficients are zero (as set by @ref Spliner()), the higher-order
  * terms have no effect
  */
-bool Polynomial::GetPoint(const double dt, StateLin1d& out) const
+StateLin1d Polynomial::GetPoint(const double dt) const
 {
+  StateLin1d out;
+
   // sanity checks
   if (dt < -1e-10)
     throw std::runtime_error("spliner.cc called with dt<0");
@@ -38,12 +40,27 @@ bool Polynomial::GetPoint(const double dt, StateLin1d& out) const
   double dt4 = dt1 * dt3;
   double dt5 = dt1 * dt4;
 
+  // spring_clean_ DRY with formulation in com_spline 6
+  double pos = 0.0;
+
+//  for (int i : kAllSplineCoeff) {
+//    pos += dt^i;
+//    vel
+//  }
+
+
   out.p   = c[F] + c[E]*dt1 +   c[D]*dt2 +   c[C]*dt3 +    c[B]*dt4 +    c[A]*dt5;
   out.v  =         c[E]     + 2*c[D]*dt1 + 3*c[C]*dt2 +  4*c[B]*dt3 +  5*c[A]*dt4;
   out.a =                     2*c[D]     + 6*c[C]*dt1 + 12*c[B]*dt2 + 20*c[A]*dt3;
   out.j=                                   6*c[C]     + 24*c[B]*dt1 + 60*c[A]*dt2;
 
-  return true;
+  return out;
+}
+
+double
+Polynomial::GetDerivative (MotionDerivative deriv, PolynomialCoeff coeff)
+{
+  assert(false);
 }
 
 double Polynomial::GetCoefficient(PolynomialCoeff coeff) const
@@ -55,6 +72,8 @@ void Polynomial::SetCoefficient(PolynomialCoeff coeff, double value)
 {
   c[coeff] = value;
 }
+
+
 
 double Polynomial::GetDuration() const
 {

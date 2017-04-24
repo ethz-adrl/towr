@@ -119,7 +119,7 @@ if(BUILD_TESTS)
     set(MY_GTEST_UNITS  test/google/gtest_main.cc 
                         test/google/helpers.cc
                         test/google/linear_inverted_pendulum_test.cc
-                        test/google/polynomial_test.cc
+#                        test/google/polynomial_test.cc
                         test/google/motion_optimizer_facade_test.cc
                         test/google/ee_phase_motion_test.cc
                         test/google/ee_motion_test.cc

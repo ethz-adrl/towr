@@ -40,10 +40,9 @@ PolynomialXd<PolynomialType, PointType>::GetDuration () const
 template<typename PolynomialType, typename PointType>
 typename PolynomialXd<PolynomialType, PointType>::Vector
 PolynomialXd<PolynomialType, PointType>::GetState (MotionDerivative pos_vel_acc_jerk,
-                                                          double t) const
+                                                   double t) const
 {
-  Point p;
-  GetPoint(t, p);
+  Point p = GetPoint(t);
   return p.GetByIndex(pos_vel_acc_jerk);
 }
 
@@ -72,16 +71,19 @@ void PolynomialXd<PolynomialType, PointType>::SetBoundary(double T,
 }
 
 template<typename PolynomialType, typename PointType>
-bool PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt, Point& p) const
+PointType
+PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt) const
 {
-  StateLin1d point1d;
+//  StateLin1d point1d;
 
+  Point p;
   for (int dim=X; dim<kNumDim; ++dim) {
-    polynomials_.at(dim).GetPoint(dt, point1d);
-    p.SetDimension(point1d, dim);
+    // zmp_ remove
+//    polynomials_.at(dim).GetPoint(dt, point1d);
+    p.SetDimension(polynomials_.at(dim).GetPoint(dt), dim);
   }
 
-  return true;
+  return p;
 }
 
 template<typename PolynomialType, typename PointType>

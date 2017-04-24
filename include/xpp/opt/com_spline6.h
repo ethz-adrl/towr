@@ -28,7 +28,7 @@ public:
   ComSpline6();
   virtual ~ComSpline6();
 
-  void SetSplineXYCoefficients(const VectorXd& optimized_coeff) override;
+//  void SetSplineXYCoefficients(const VectorXd& optimized_coeff) override;
 
 //  Derivatives GetInitialFreeMotions()  const;
 //  Derivatives GetJunctionFreeMotions() const;

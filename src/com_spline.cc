@@ -56,7 +56,9 @@ ComSpline::Init (double t_global, int polynomials_per_second)
 int
 ComSpline::Index (int poly, Coords3D dim, PolyCoeff coeff) const
 {
-  return NumFreeCoeffPerSpline() * kDim2d * poly + NumFreeCoeffPerSpline() * dim + coeff;
+  return NumFreeCoeffPerSpline() * kDim2d * poly
+       + NumFreeCoeffPerSpline() * dim
+       + coeff;
 }
 
 int
@@ -88,6 +90,25 @@ ComSpline::GetJacobian (double t_global, MotionDerivative posVelAcc,
   return GetJacobianWrtCoeffAtPolynomial(posVelAcc, t_local, id, dim);
 }
 
+ComSpline::JacobianRow
+ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t_local,
+                                            int id,
+                                            Coords3D dim) const
+{
+  assert(0 <= id && id <= polynomials_.back().GetId());
+
+  JacobianRow jac(1, GetTotalFreeCoeff());
+
+  switch (posVelAcc) {
+    case kPos: GetJacobianPos (t_local, id, dim, jac); break;
+    case kVel: GetJacobianVel (t_local, id, dim, jac); break;
+    case kAcc: GetJacobianAcc (t_local, id, dim, jac); break;
+    case kJerk:GetJacobianJerk(t_local, id, dim, jac); break;
+  }
+
+  return jac;
+}
+
 //ComSpline::JacobianRow
 //ComSpline::GetJacobianVelSquared (double t_global, Coords3D dim) const
 //{
@@ -110,31 +131,24 @@ ComSpline::GetJacobian (double t_global, MotionDerivative posVelAcc,
 //  return jac;
 //}
 
-ComSpline::JacobianRow
-ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t_local,
-                                            int id,
-                                            Coords3D dim) const
-{
-  assert(0 <= id && id <= polynomials_.back().GetId());
 
-  JacobianRow jac(1, GetTotalFreeCoeff());
-
-  switch (posVelAcc) {
-    case kPos: GetJacobianPos (t_local, id, dim, jac); break;
-    case kVel: GetJacobianVel (t_local, id, dim, jac); break;
-    case kAcc: GetJacobianAcc (t_local, id, dim, jac); break;
-    case kJerk:GetJacobianJerk(t_local, id, dim, jac); break;
-  }
-
-  return jac;
-}
+//void
+//ComSpline::CheckIfSplinesInitialized() const
+//{
+//  if (!splines_initialized_) {
+//    throw std::runtime_error("ComSpline.splines_ not initialized. Call Init() first");
+//  }
+//}
 
 void
-ComSpline::CheckIfSplinesInitialized() const
+ComSpline::SetSplineXYCoefficients (const VectorXd& optimized_coeff)
 {
-  if (!splines_initialized_) {
-    throw std::runtime_error("ComSpline.splines_ not initialized. Call Init() first");
-  }
+//  CheckIfSplinesInitialized();
+
+  for (size_t p=0; p<polynomials_.size(); ++p)
+    for (const Coords3D dim : {X,Y})
+      for (auto c : Polynomial::kAllSplineCoeff)
+        polynomials_.at(p).SetCoefficients(dim, c, optimized_coeff[Index(p,dim,c)]);
 }
 
 void

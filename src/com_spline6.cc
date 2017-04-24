@@ -38,16 +38,16 @@ ComSpline6::~ComSpline6 ()
 //  return {kPos, kVel/*, kAcc*/};
 //}
 
-void
-ComSpline6::SetSplineXYCoefficients (const VectorXd& optimized_coeff)
-{
-  CheckIfSplinesInitialized();
-
-  for (size_t p=0; p<polynomials_.size(); ++p)
-    for (const Coords3D dim : {X,Y})
-      for (auto c : Polynomial::AllSplineCoeff)
-        polynomials_.at(p).SetCoefficients(dim, c, optimized_coeff[Index(p,dim,c)]);
-}
+//void
+//ComSpline6::SetSplineXYCoefficients (const VectorXd& optimized_coeff)
+//{
+//  CheckIfSplinesInitialized();
+//
+//  for (size_t p=0; p<polynomials_.size(); ++p)
+//    for (const Coords3D dim : {X,Y})
+//      for (auto c : Polynomial::AllSplineCoeff)
+//        polynomials_.at(p).SetCoefficients(dim, c, optimized_coeff[Index(p,dim,c)]);
+//}
 
 void
 ComSpline6::GetJacobianPos (double t_poly, int id, Coords3D dim, JacobianRow& jac) const

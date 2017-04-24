@@ -77,6 +77,7 @@ public:
   StateLin2d GetCOGxyAtPolynomial(int id, double t_local) {return ComPolynomialHelpers::GetCOGxyAtPolynomial(id, t_local, polynomials_); };
 
 
+  void SetSplineXYCoefficients (const VectorXd& optimized_coeff) override;
   void SetCoefficientsZero();
 
 protected:

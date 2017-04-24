@@ -95,7 +95,7 @@ ComSpline4::SetSplineXYCoefficients(const VectorXd& optimized_coeff)
         cv[Polynomial::PolynomialCoeff::F] = (jac_f*optimized_coeff)[0] + prev_pos[dim];
       }
 
-      for (auto c : Polynomial::AllSplineCoeff) {
+      for (auto c : Polynomial::kAllSplineCoeff) {
         polynomials_.at(k).SetCoefficients(dim, c, cv[c]);
       }
 

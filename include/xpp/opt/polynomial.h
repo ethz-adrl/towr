@@ -32,8 +32,8 @@ class Polynomial {
 public:
 
   // f = At^5 + Bt^4 + Ct^3 + Dt^2 + Et + f
-  enum PolynomialCoeff { A=0, B, C, D, E, F };
-  static constexpr std::array<PolynomialCoeff, 6> AllSplineCoeff = {{A,B,C,D,E,F}};
+  enum PolynomialCoeff { F=0, E, D, C, B, A};
+  static constexpr std::array<PolynomialCoeff, 6> kAllSplineCoeff = {{F,E,D,C,B,A}};
 
   enum PointType {Start=0, Goal=1};
 
@@ -54,7 +54,8 @@ public:
    * @param dt current spline time.
    * @param point current position at time dt.
    */
-  bool GetPoint(const double dt, StateLin1d& point) const;
+  StateLin1d GetPoint(const double dt) const;
+  double GetDerivative(MotionDerivative deriv, PolynomialCoeff coeff);
 
   double GetCoefficient(PolynomialCoeff coeff) const;
   void SetCoefficient(PolynomialCoeff coeff, double value);
@@ -63,7 +64,7 @@ public:
 
 protected:
   double duration;
-  std::array< double, AllSplineCoeff.size() > c; //!< coefficients of spline
+  std::array< double, kAllSplineCoeff.size() > c; //!< coefficients of spline
 
 private:
   /**
