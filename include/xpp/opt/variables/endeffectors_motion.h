@@ -31,8 +31,7 @@ namespace opt {
   */
 class EndeffectorsMotion : public Composite {
 public:
-  using EEState  = EndeffectorsState;
-  using VectorXd = Eigen::VectorXd;
+  using EEState      = EndeffectorsState;
   using ComponentPtr = std::shared_ptr<EEMotion>;
   using ComponentVec = std::vector<ComponentPtr>;
 

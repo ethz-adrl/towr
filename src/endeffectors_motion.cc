@@ -79,8 +79,8 @@ EndeffectorsMotion::GetNumberOfEndeffectors () const
 
 JacobianRow
 EndeffectorsMotion::GetJacobianPos (double t_global,
-                                             EndeffectorID ee,
-                                             d2::Coords dim) const
+                                    EndeffectorID ee,
+                                    d2::Coords dim) const
 {
   JacobianRow jac_row(GetRows());
   JacobianRow jac_ee = endeffectors_.at(ee)->GetJacobianPos(t_global, dim);

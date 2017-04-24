@@ -46,48 +46,11 @@ Component::SetName (const std::string& name)
   name_ = name;
 }
 
-
-Primitive::Primitive () : Component(-1, "Primitive")
-{
-}
-
-void
-Primitive::AddComposite (const OptVarsPtr& vars)
-{
-  opt_vars_ = vars;
-}
-
-Primitive::Jacobian
-Primitive::GetJacobian () const
-{
-  Jacobian jacobian(GetRows(), opt_vars_->GetRows());
-
-  int col = 0;
-  for (const auto& vars : opt_vars_->GetComponents()) {
-
-    int n = vars->GetRows();
-    Jacobian jac = Jacobian(GetRows(), n);
-
-    FillJacobianWithRespectTo(vars->GetName(), jac);
-
-    // insert the derivative in the correct position in the overall Jacobian
-    for (int k=0; k<jac.outerSize(); ++k)
-      for (Jacobian::InnerIterator it(jac,k); it; ++it)
-        jacobian.coeffRef(it.row(), col+it.col()) = it.value();
-
-    col += n;
-  }
-
-  return jacobian;
-}
-
-
 Composite::Composite (const std::string name, bool append_components)
     :Component(0, name)
 {
   append_components_ = append_components;
 }
-
 
 void
 Composite::AddComponent (const ComponentPtr& c)
@@ -188,7 +151,7 @@ Composite::GetBounds () const
 int
 Composite::GetComponentCount () const
 {
-  components_.size();
+  return components_.size();
 }
 
 void
@@ -200,6 +163,40 @@ Composite::Print () const
     c->Print();
   }
   std::cout << std::endl;
+}
+
+Primitive::Primitive () : Component(-1, "Primitive")
+{
+}
+
+void
+Primitive::AddComposite (const OptVarsPtr& vars)
+{
+  opt_vars_ = vars;
+}
+
+Primitive::Jacobian
+Primitive::GetJacobian () const
+{
+  Jacobian jacobian(GetRows(), opt_vars_->GetRows());
+
+  int col = 0;
+  for (const auto& vars : opt_vars_->GetComponents()) {
+
+    int n = vars->GetRows();
+    Jacobian jac = Jacobian(GetRows(), n);
+
+    FillJacobianWithRespectTo(vars->GetName(), jac);
+
+    // insert the derivative in the correct position in the overall Jacobian
+    for (int k=0; k<jac.outerSize(); ++k)
+      for (Jacobian::InnerIterator it(jac,k); it; ++it)
+        jacobian.coeffRef(it.row(), col+it.col()) = it.value();
+
+    col += n;
+  }
+
+  return jacobian;
 }
 
 } /* namespace opt */
