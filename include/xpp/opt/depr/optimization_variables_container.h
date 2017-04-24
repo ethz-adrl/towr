@@ -27,9 +27,6 @@ namespace opt {
   * of variables. The only problem specific information this class holds is the
   * std::string id of what the variables represent.
   */
-// spring_clean_ should also be a component in a composite design pattern,
-// just like optimization_variables.
-// see https://sourcemaking.com/design_patterns/composite
 class OptimizationVariablesContainer {
 public:
   using VectorXd   = Eigen::VectorXd;
@@ -39,21 +36,23 @@ public:
   OptimizationVariablesContainer ();
   virtual ~OptimizationVariablesContainer ();
 
-  void ClearVariables();
-  void AddVariableSet(const OptVarsPtr&);
-  void SetAllVariables(const VectorXd& x);
+  // component specific functions
+  VectorXd GetValues() const;
+  VecBound GetBounds() const;
+  int GetRows() const;
 
-  VectorXd GetVariables(std::string id) const;
-  VectorXd GetOptimizationVariables() const;
-  VecBound GetOptimizationVariableBounds() const;
-  int GetOptimizationVariableCount() const;
-  OptVarsVec GetOptVarsVec() const;
+  // optimization specific functions
+  void SetValues(const VectorXd& x);
 
-  OptVarsPtr GetSet(std::string id) const;
+  // composite specific functions
+  void AddComponent(const OptVarsPtr&);
+  void ClearComponents();
+  OptVarsVec GetComponents() const;
+  OptVarsPtr GetComponent(std::string id) const;
 
 private:
-  OptVarsVec opt_vars_vec_;
-  bool SetExists(std::string id) const;
+  OptVarsVec components_;
+//  bool SetExists(std::string id) const;
 
 };
 

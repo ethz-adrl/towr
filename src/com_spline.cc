@@ -35,6 +35,8 @@ ComSpline::Init (double t_global, int polynomials_per_second)
     polynomials_.push_back(ComPolynomial(i, t_global/n_polyomials));
 
   splines_initialized_ = true;
+
+  SetVariableCount();
 }
 
 //void

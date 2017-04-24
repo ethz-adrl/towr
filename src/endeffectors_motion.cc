@@ -16,41 +16,48 @@ namespace opt {
 
 EndeffectorsMotion::EndeffectorsMotion (const EndeffectorsPos& initial_pos,
                                         const ContactSchedule& contact_schedule)
-    :OptimizationVariables("endeffectors_motion")
+    :Composite("endeffectors_motion", true)
 {
-  endeffectors_.SetCount(initial_pos.GetCount());
-
-  SetInitialPos(initial_pos);
-  SetParameterStructure(contact_schedule);
-
-  for (const auto& ee : endeffectors_.ToImpl())
-    n_opt_params_ += ee.GetOptVarCount();
+  auto ee = EndeffectorsMotion::BuildEndeffectors(initial_pos, contact_schedule);
+  AddEndffectors(ee);
+  ee_ordered_ = initial_pos.GetEEsOrdered();
 }
 
-void
-EndeffectorsMotion::SetInitialPos (const EndeffectorsPos& initial_pos)
+EndeffectorsMotion::~EndeffectorsMotion ()
 {
-  for (auto ee : initial_pos.GetEEsOrdered())
-    endeffectors_.At(ee).SetInitialPos(initial_pos.At(ee), ee);
 }
 
-void
-EndeffectorsMotion::SetParameterStructure (const ContactSchedule& contact_schedule)
+EndeffectorsMotion::ComponentVec
+EndeffectorsMotion::BuildEndeffectors (const EndeffectorsPos& initial_pos,
+                                       const ContactSchedule& contact_schedule)
 {
-  for (auto ee : endeffectors_.GetEEsOrdered()) {
+  ComponentVec endeffectors;
+
+  for (auto ee : initial_pos.GetEEsOrdered()) {
+    auto endeffector = std::make_shared<EEMotion>();
+    endeffector->SetInitialPos(initial_pos.At(ee), ee);
 
     for (auto phase : contact_schedule.GetPhases(ee)) {
       auto is_contact = phase.first;
       auto duration   = phase.second;
 
       double lift_height = is_contact? 0.0 : 0.03;
-      endeffectors_.At(ee).AddPhase(duration, lift_height, is_contact);
+      endeffector->AddPhase(duration, lift_height, is_contact);
     }
+    endeffectors.push_back(endeffector);
   }
+
+  return endeffectors;
 }
 
-EndeffectorsMotion::~EndeffectorsMotion ()
+void
+EndeffectorsMotion::AddEndffectors (const ComponentVec& endeffectors)
 {
+  for (auto& ee : endeffectors) {
+    AddComponent(ee);
+    // retain derived class pointer to access ee specific functions
+    endeffectors_.push_back(ee);
+  }
 }
 
 EndeffectorsMotion::EEState
@@ -58,71 +65,25 @@ EndeffectorsMotion::GetEndeffectors (double t_global) const
 {
   EEState ee_state(GetNumberOfEndeffectors());
 
-  for (auto ee : endeffectors_.GetEEsOrdered())
-    ee_state.At(ee) = endeffectors_.At(ee).GetState(t_global);
+  for (auto ee : ee_ordered_)
+    ee_state.At(ee) = endeffectors_.at(ee)->GetState(t_global);
 
   return ee_state;
-}
-
-EndeffectorsPos
-EndeffectorsMotion::GetEndeffectorsPos (double t_global) const
-{
-  // zmp_ DRY with above -.-
-  EndeffectorsPos pos(GetNumberOfEndeffectors());
-
-  for (auto ee : endeffectors_.GetEEsOrdered())
-    pos.At(ee) = endeffectors_.At(ee).GetState(t_global).p;
-
-  return pos;
-}
-
-EndeffectorsMotion::VectorXd
-EndeffectorsMotion::GetVariables () const
-{
-  VectorXd x(n_opt_params_);
-
-  int row = 0;
-  for (const auto& ee : endeffectors_.ToImpl()) {
-    int n = ee.GetOptVarCount();
-    x.middleRows(row, n) = ee.GetVariables();
-    row += n;
-  }
-
-  return x;
-}
-
-// must be analog to the above
-void
-EndeffectorsMotion::SetVariables (const VectorXd& x)
-{
-  int row = 0;
-
-  for (auto ee : endeffectors_.GetEEsOrdered()) {
-    int n = endeffectors_.At(ee).GetOptVarCount();
-    endeffectors_.At(ee).SetVariables(x.middleRows(row, n));
-    row += n;
-  }
-}
-
-double
-EndeffectorsMotion::GetTotalTime () const
-{
-   return endeffectors_.At(E0).GetTotalTime();
 }
 
 int
 EndeffectorsMotion::GetNumberOfEndeffectors () const
 {
-  return endeffectors_.GetCount();
+  return GetComponentCount();
 }
 
 JacobianRow
-EndeffectorsMotion::GetJacobianWrtOptParams (double t_global,
+EndeffectorsMotion::GetJacobianPos (double t_global,
                                              EndeffectorID ee,
                                              d2::Coords dim) const
 {
-  JacobianRow jac_row(GetOptVarCount());
-  JacobianRow jac_ee = endeffectors_.At(ee).GetJacobianPos(t_global, dim);
+  JacobianRow jac_row(GetRows());
+  JacobianRow jac_ee = endeffectors_.at(ee)->GetJacobianPos(t_global, dim);
 
   // insert single ee-Jacobian into Jacobian representing all endeffectors
   for (JacobianRow::InnerIterator it(jac_ee); it; ++it)
@@ -137,16 +98,12 @@ EndeffectorsMotion::IndexStart (EndeffectorID ee) const
   int idx = 0;
 
   for (int e=E0; e<ee; ++e)
-    idx += endeffectors_.At(static_cast<EndeffectorID>(e)).GetOptVarCount();
+    idx += endeffectors_.at(static_cast<EndeffectorID>(e))->GetRows();
 
   return idx;
 }
 
-EndeffectorsMotion::EEState::Container
-EndeffectorsMotion::GetEndeffectorsVec (double t_global) const
-{
-  return GetEndeffectors(t_global).ToImpl();
-}
+
 
 } /* namespace opt */
 } /* namespace xpp */

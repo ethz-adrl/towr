@@ -9,10 +9,14 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_ENDEFFECTORS_MOTION_H_
 
 #include <Eigen/Dense>
+#include <memory>
+#include <vector>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
+
+#include <xpp/opt/constraints/composite.h>
 
 #include "contact_schedule.h"
 #include "ee_motion.h"
@@ -25,34 +29,29 @@ namespace opt {
   * This class is responsible for transforming the scalar parameters into
   * the position, velocity and acceleration of the endeffectors.
   */
-class EndeffectorsMotion : public OptimizationVariables {
+class EndeffectorsMotion : public Composite {
 public:
-  using EEState  = Endeffectors<StateLin3d>;
+  using EEState  = EndeffectorsState;
   using VectorXd = Eigen::VectorXd;
+  using ComponentPtr = std::shared_ptr<EEMotion>;
+  using ComponentVec = std::vector<ComponentPtr>;
 
   EndeffectorsMotion (const EndeffectorsPos& initial_pos, const ContactSchedule&);
   virtual ~EndeffectorsMotion ();
 
-  VectorXd GetVariables() const override;
-  void SetVariables(const VectorXd&) override;
   // order at which the contact position of this endeffector is stored
-  JacobianRow GetJacobianWrtOptParams(double t_global, EndeffectorID ee, d2::Coords) const;
-
-
   int GetNumberOfEndeffectors() const;
   EEState GetEndeffectors(double t_global) const;
-  EndeffectorsPos GetEndeffectorsPos(double t_global) const;
-
-  EEState::Container GetEndeffectorsVec(double t_global) const;
-  double GetTotalTime() const;
+  JacobianRow GetJacobianPos(double t_global, EndeffectorID ee, d2::Coords) const;
 
 private:
   int IndexStart(EndeffectorID ee) const;
-  Endeffectors<EEMotion> endeffectors_;
-  int n_opt_params_ = 0;
+  ComponentVec endeffectors_; // derived class pointer to access ee specific functions
+  std::vector<EndeffectorID> ee_ordered_;
 
-  void SetInitialPos(const EndeffectorsPos& initial_pos);
-  void SetParameterStructure(const ContactSchedule& contact_schedule);
+  static ComponentVec BuildEndeffectors(const EndeffectorsPos& initial,
+                                        const ContactSchedule&);
+  void AddEndffectors(const ComponentVec&);
 };
 
 } /* namespace opt */

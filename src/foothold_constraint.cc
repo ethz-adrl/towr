@@ -24,13 +24,14 @@ FootholdConstraint::FootholdConstraint (const OptVarsPtr& opt_vars,
                                         const NominalStance& nom_W,
                                         double t)
 {
-  name_ = "FootholdConstraint";
-  ee_motion_ = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
+  ee_motion_ = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
   desired_ee_pos_W_ = nom_W;
   t_ = t;
 
   int num_constraints = nom_W.GetCount() * kDim2d;
-  SetDimensions(opt_vars, num_constraints);
+  SetName("FootholdConstraint");
+  SetRows(num_constraints);
+  AddComposite(opt_vars);
 }
 
 FootholdConstraint::~FootholdConstraint ()
@@ -42,7 +43,7 @@ FootholdConstraint::GetValues () const
 {
   VectorXd g(GetRows());
   int k=0;
-  for (const auto& ee_state : ee_motion_->GetEndeffectorsVec(t_))
+  for (const auto& ee_state : ee_motion_->GetEndeffectors(t_).ToImpl())
     for (auto dim : d2::AllDimensions)
       g(k++) = ee_state.p(dim);
 
@@ -67,11 +68,11 @@ void
 FootholdConstraint::FillJacobianWithRespectTo (std::string var_set,
                                               Jacobian& jac) const
 {
-  if (var_set == ee_motion_->GetId()) {
+  if (var_set == ee_motion_->GetName()) {
     int k = 0;
     for (const auto ee : desired_ee_pos_W_.GetEEsOrdered())
       for (auto dim : d2::AllDimensions)
-        jac.row(k++) = ee_motion_->GetJacobianWrtOptParams(t_,ee,dim);
+        jac.row(k++) = ee_motion_->GetJacobianPos(t_,ee,dim);
   }
 }
 

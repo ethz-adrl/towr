@@ -147,10 +147,10 @@ TEST_F(NlpTest, ApproximatingJacobian)
   solver.OptimizeTNLP(nlp_ipopt);
 
   double tol = 1e-1;
-  EXPECT_NEAR( 3.4641, opt_variables_->GetOptimizationVariables()[0], tol);
-  EXPECT_NEAR( 0.2679, opt_variables_->GetOptimizationVariables()[1], tol);
-  EXPECT_NEAR( 3.0,    opt_variables_->GetOptimizationVariables()[2], tol);
-  std::cout << opt_variables_->GetOptimizationVariables().transpose() << std::endl;
+  EXPECT_NEAR( 3.4641, opt_variables_->GetValues()[0], tol);
+  EXPECT_NEAR( 0.2679, opt_variables_->GetValues()[1], tol);
+  EXPECT_NEAR( 3.0,    opt_variables_->GetValues()[2], tol);
+  std::cout << opt_variables_->GetValues().transpose() << std::endl;
 }
 
 TEST_F(NlpTest, AnalyticalJacobian)
@@ -162,10 +162,10 @@ TEST_F(NlpTest, AnalyticalJacobian)
   solver.OptimizeTNLP(nlp_ipopt);
 
   double tol = 1e-1;
-  EXPECT_NEAR( 3.4641, opt_variables_->GetOptimizationVariables()[0], tol);
-  EXPECT_NEAR( 0.2679, opt_variables_->GetOptimizationVariables()[1], tol);
-  EXPECT_NEAR( 3.0,    opt_variables_->GetOptimizationVariables()[2], tol);
-  std::cout << opt_variables_->GetOptimizationVariables().transpose() << std::endl;
+  EXPECT_NEAR( 3.4641, opt_variables_->GetValues()[0], tol);
+  EXPECT_NEAR( 0.2679, opt_variables_->GetValues()[1], tol);
+  EXPECT_NEAR( 3.0,    opt_variables_->GetValues()[2], tol);
+  std::cout << opt_variables_->GetValues().transpose() << std::endl;
 }
 
 } /* namespace zmp */

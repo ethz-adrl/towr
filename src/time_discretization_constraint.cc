@@ -23,7 +23,8 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
   }
 
   int num_constraints = GetNumberOfNodes()*constraints_per_time;
-  SetDimensions(opt_vars, num_constraints);
+  SetRows(num_constraints);
+  AddComposite(opt_vars);
 }
 
 TimeDiscretizationConstraint::~TimeDiscretizationConstraint ()

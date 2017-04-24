@@ -51,8 +51,8 @@ include_directories(
 
 # A general nlp solving framework for Eigen, Ipopt, Snopt
 add_library(${SOLVER_LIB}
-  src/optimization_variables_container.cc
-  src/optimization_variables.cc
+#  src/optimization_variables_container.cc
+#  src/optimization_variables.cc
   src/nlp.cc
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
@@ -99,7 +99,7 @@ add_library(${MOTION_OPT_LIB}
 #  src/obstacle_constraint.cc
   # robot specific info
   src/motion_parameters.cc
-  src/quadruped_motion_parameters.cc
+  src/quadruped_motion_parameters.cc  
 )   
 target_link_libraries(${MOTION_OPT_LIB}
   ${catkin_LIBRARIES}

@@ -29,7 +29,7 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  opt_variables_ = std::make_shared<OptimizationVariablesContainer>();
+  opt_variables_ = std::make_shared<Composite>("variables", true);
 }
 
 MotionOptimizerFacade::~MotionOptimizerFacade ()
@@ -72,11 +72,11 @@ MotionOptimizerFacade::BuildVariables ()
   auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(),
                                                 load_dt, T, *contact_schedule);
 
-  opt_variables_->ClearVariables();
-  opt_variables_->AddVariableSet(com_motion);
-  opt_variables_->AddVariableSet(ee_motion);
-  opt_variables_->AddVariableSet(load);
-  opt_variables_->AddVariableSet(contact_schedule);
+  opt_variables_->ClearComponents();
+  opt_variables_->AddComponent(com_motion);
+  opt_variables_->AddComponent(ee_motion);
+  opt_variables_->AddComponent(load);
+  opt_variables_->AddComponent(contact_schedule);
 }
 
 void
@@ -118,9 +118,9 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   RobotStateVec trajectory;
 
-  auto base_motion      = std::dynamic_pointer_cast<BaseMotion>        (opt_variables_->GetSet("base_motion"));
-  auto ee_motion        = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_variables_->GetSet("endeffectors_motion"));
-  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetSet("contact_schedule"));
+  auto base_motion      = std::dynamic_pointer_cast<BaseMotion>        (opt_variables_->GetComponent("base_motion"));
+  auto ee_motion        = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_variables_->GetComponent("endeffectors_motion"));
+  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent("contact_schedule"));
 
   double t=0.0;
   double T = motion_parameters_->GetTotalTime();

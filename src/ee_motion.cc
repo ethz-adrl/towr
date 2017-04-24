@@ -16,7 +16,7 @@
 namespace xpp {
 namespace opt {
 
-EEMotion::EEMotion () : OptimizationVariables("ee_motion_single")
+EEMotion::EEMotion () : Component(-1, "ee_motion_single")
 {
 }
 
@@ -46,6 +46,10 @@ EEMotion::AddPhase (double t, double lift_height, bool is_contact)
 
   PhaseContacts phase{c_prev, c_goal};
   phase_contacts_.push_back(phase);
+
+  // update optimization variable count b/c new phase has been added.
+  int n_contact_ids = 1 + c_goal.id;
+  SetRows(n_contact_ids*kDim2d);
 }
 
 StateLin3d
@@ -72,14 +76,12 @@ EEMotion::GetPhase (double t_global) const
 }
 
 VectorXd
-EEMotion::GetVariables () const
+EEMotion::GetValues () const
 {
   // Attention: remember to adapt GetJacobianPos() contact-phase part and Index()
   // when changing this...sorry.
   int id_prev = -1;
-  int n_contact_ids = 1 + GetLastContact().id;
-
-  VectorXd x(n_contact_ids*kDim2d); // initial position plus goal steps-xy
+  VectorXd x(GetRows()); // initial position plus goal steps-xy
 
   for (const PhaseContacts& contacts: phase_contacts_) {
     for (const Contact& c : contacts) { // only optimize over position at end of phase
@@ -96,7 +98,7 @@ EEMotion::GetVariables () const
 }
 
 void
-EEMotion::SetVariables (const VectorXd& x)
+EEMotion::SetValues (const VectorXd& x)
 {
   for (PhaseContacts& phase: phase_contacts_)
     for (Contact& c : phase)
@@ -109,7 +111,7 @@ EEMotion::SetVariables (const VectorXd& x)
 JacobianRow
 EEMotion::GetJacobianPos (double t_global, d2::Coords dim) const
 {
-  JacobianRow jac(GetOptVarCount());
+  JacobianRow jac(GetRows());
 
   // figure out which contacts affect the motion
   int phase      = GetPhase(t_global);

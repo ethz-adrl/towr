@@ -23,58 +23,52 @@ OptimizationVariablesContainer::~OptimizationVariablesContainer ()
 }
 
 void
-OptimizationVariablesContainer::ClearVariables ()
+OptimizationVariablesContainer::ClearComponents ()
 {
-  opt_vars_vec_.clear();
+  components_.clear();
 }
 
 OptimizationVariablesContainer::OptVarsPtr
-OptimizationVariablesContainer::GetSet (std::string id) const
+OptimizationVariablesContainer::GetComponent (std::string id) const
 {
-  assert(SetExists(id));
+//  assert(SetExists(id));
 
-  for (const auto& set : opt_vars_vec_)
-    if (set->GetId() == id)
+  for (const auto& set : components_)
+    if (set->GetName() == id)
       return set;
 }
 
-OptimizationVariablesContainer::VectorXd
-OptimizationVariablesContainer::GetVariables (std::string id) const
-{
-  return GetSet(id)->GetVariables();
-}
-
 OptimizationVariablesContainer::OptVarsVec
-OptimizationVariablesContainer::GetOptVarsVec () const
+OptimizationVariablesContainer::GetComponents () const
 {
-  return opt_vars_vec_;
+  return components_;
 }
 
 void
-OptimizationVariablesContainer::AddVariableSet (const OptVarsPtr& set)
+OptimizationVariablesContainer::AddComponent (const OptVarsPtr& set)
 {
-  assert(!SetExists(set->GetId())); // ensure that set with this id does not exist yet
-  opt_vars_vec_.push_back(set);
+//  assert(!SetExists(set->GetName())); // ensure that set with this id does not exist yet
+  components_.push_back(set);
 }
 
 void
-OptimizationVariablesContainer::SetAllVariables(const VectorXd& x)
+OptimizationVariablesContainer::SetValues(const VectorXd& x)
 {
   int c = 0;
-  for (auto& set : opt_vars_vec_) {
-    int n_var = set->GetVariables().rows();
-    set->SetVariables(x.middleRows(c,n_var));
+  for (auto& set : components_) {
+    int n_var = set->GetValues().rows();
+    set->SetValues(x.middleRows(c,n_var));
     c += n_var;
   }
 }
 
 OptimizationVariablesContainer::VectorXd
-OptimizationVariablesContainer::GetOptimizationVariables () const
+OptimizationVariablesContainer::GetValues () const
 {
-  Eigen::VectorXd x(GetOptimizationVariableCount());
+  Eigen::VectorXd x(GetRows());
   int j = 0;
-  for (const auto& set : opt_vars_vec_) {
-    const VectorXd& var = set->GetVariables();
+  for (const auto& set : components_) {
+    const VectorXd& var = set->GetValues();
     x.middleRows(j, var.rows()) = var;
     j += var.rows();
   }
@@ -83,10 +77,10 @@ OptimizationVariablesContainer::GetOptimizationVariables () const
 }
 
 VecBound
-OptimizationVariablesContainer::GetOptimizationVariableBounds () const
+OptimizationVariablesContainer::GetBounds () const
 {
   VecBound bounds_;
-  for (const auto& set : opt_vars_vec_) {
+  for (const auto& set : components_) {
     const VecBound& b = set->GetBounds();
     bounds_.insert(std::end(bounds_), std::begin(b), std::end(b));
   }
@@ -95,22 +89,22 @@ OptimizationVariablesContainer::GetOptimizationVariableBounds () const
 }
 
 int
-OptimizationVariablesContainer::GetOptimizationVariableCount () const
+OptimizationVariablesContainer::GetRows () const
 {
   int n=0;
-  for (const auto& set : opt_vars_vec_)
-    n += set->GetVariables().rows();
+  for (const auto& set : components_)
+    n += set->GetValues().rows();
 
   return n;
 }
 
-bool
-OptimizationVariablesContainer::SetExists (std::string id) const
-{
-  auto it = std::find_if(opt_vars_vec_.begin(), opt_vars_vec_.end(),
-                         [id](const OptVarsPtr& set) { return set->GetId() == id; });
-  return it != opt_vars_vec_.end();
-}
+//bool
+//OptimizationVariablesContainer::SetExists (std::string id) const
+//{
+//  auto it = std::find_if(opt_vars_vec_.begin(), opt_vars_vec_.end(),
+//                         [id](const OptVarsPtr& set) { return set->GetName() == id; });
+//  return it != opt_vars_vec_.end();
+//}
 
 
 

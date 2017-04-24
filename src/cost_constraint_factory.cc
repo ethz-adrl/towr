@@ -16,8 +16,8 @@
 
 #include <xpp/matrix_vector.h>
 #include <xpp/opt/com_spline.h>
-#include <xpp/opt/polynomial_cost.h>
-#include <xpp/soft_constraint.h>
+#include <xpp/opt/costs/polynomial_cost.h>
+#include <xpp/opt/costs/soft_constraint.h>
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/foothold_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
@@ -43,7 +43,7 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
 {
   opt_vars_ = opt_vars;
 
-  auto com_spline = std::dynamic_pointer_cast<ComSpline>(opt_vars->GetSet("base_motion"));
+  auto com_spline = std::dynamic_pointer_cast<ComSpline>(opt_vars->GetComponent("base_motion"));
   spline_eq_ = LinearSplineEquations(com_spline);
 
   params = _params;
@@ -138,7 +138,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeStancesConstraints () const
 {
-  auto stance_constraints = std::make_shared<Composite>("Stance Constraints");
+  auto stance_constraints = std::make_shared<Composite>("Stance Constraints", true);
 
   // calculate initial position in world frame
   auto constraint_initial = std::make_shared<FootholdConstraint>(

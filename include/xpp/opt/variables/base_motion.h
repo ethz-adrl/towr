@@ -16,7 +16,7 @@
 #include <xpp/state.h>
 
 #include <xpp/matrix_vector.h>
-#include <xpp/optimization_variables.h>
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -27,7 +27,7 @@ namespace opt {
   * the motion of a system. Specific parametrizations can for example use
   * splines or solutions of the Equation of Motion as representation.
   */
-class BaseMotion : public OptimizationVariables {
+class BaseMotion : public Component {
 public:
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
   using PtrS        = std::shared_ptr<BaseMotion>;
@@ -36,9 +36,11 @@ public:
   BaseMotion ();
   virtual ~BaseMotion ();
 
+  // can't do in constructor, because using pure virtual functions
+  void SetVariableCount();
 
-  VectorXd GetVariables() const override;
-  void SetVariables(const VectorXd&) override;
+  virtual VectorXd GetValues() const override;
+  virtual void SetValues(const VectorXd&) override;
 
 
   void SetOffsetGeomToCom(const Vector3d& offset);
@@ -64,8 +66,7 @@ public:
     *
     * @return The Jacobian J(u*) evaluated at u* and the corresponding offset x(u*).
     */
-  VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative,
-                                                     Coords3D dim) const;
+  VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative, Coords3D dim) const;
 
   double GetZHeight() const { return z_height_; };
   void SetConstantHeight(double z) { z_height_ = z; };

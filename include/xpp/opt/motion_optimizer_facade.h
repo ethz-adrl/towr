@@ -15,7 +15,7 @@
 #include <xpp/state.h>
 
 #include <xpp/nlp.h>
-#include <xpp/optimization_variables_container.h>
+#include <xpp/opt/constraints/composite.h>
 #include "motion_parameters.h"
 
 namespace xpp {
@@ -28,7 +28,7 @@ enum NlpSolver { Ipopt, Snopt };
 class MotionOptimizerFacade {
 public:
   using MotionParametersPtr      = std::shared_ptr<MotionParameters>;
-  using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
+  using OptimizationVariablesPtr = std::shared_ptr<Composite>;
   using RobotStateVec            = std::vector<RobotStateCartesian>;
 
   MotionOptimizerFacade ();

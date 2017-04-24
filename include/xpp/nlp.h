@@ -13,7 +13,6 @@
 #include <Eigen/Dense>
 
 #include "bound.h"
-#include "optimization_variables_container.h"
 #include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
@@ -31,13 +30,13 @@ public:
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Primitive::Jacobian;
   using Number   = double;
-  using OptimizationVariablesPtr = std::shared_ptr<OptimizationVariablesContainer>;
+  using OptimizationVariablesPtr = std::shared_ptr<Component>;
   using ConstraintPtrU = std::unique_ptr<Component>;
 
   NLP ();
   virtual ~NLP ();
 
-  void Init(OptimizationVariablesPtr&);
+  void Init(const OptimizationVariablesPtr&);
   void SetVariables(const Number* x);
 
   int GetNumberOfOptimizationVariables() const;

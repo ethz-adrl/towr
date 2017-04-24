@@ -29,10 +29,10 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double dt)
     :TimeDiscretizationConstraint(T, dt, kDim2d, opt_vars)
 {
-  name_ = "DynamicConstraint";
-  com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetSet("base_motion"));
-  ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetSet("endeffectors_motion"));
-  ee_load_    = std::dynamic_pointer_cast<EndeffectorLoad>   (opt_vars->GetSet("endeffector_load"));
+  SetName("DynamicConstraint");
+  com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
+  ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
+  ee_load_    = std::dynamic_pointer_cast<EndeffectorLoad>   (opt_vars->GetComponent("endeffector_load"));
 
   ee_ids_  = ee_load_->GetLoadValues(0.0).GetEEsOrdered();
 }
@@ -72,19 +72,19 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 
     for (auto ee : ee_ids_) {
 
-      if (var_set == ee_load_->GetId()) {
+      if (var_set == ee_load_->GetName()) {
         double deriv_load = model_.GetDerivativeOfAccWrtLoad(ee, dim);
         jac.coeffRef(row, ee_load_->Index(t,ee)) = deriv_load;
       }
 
-      if (var_set == ee_motion_->GetId()) {
+      if (var_set == ee_motion_->GetName()) {
         double deriv_ee = model_.GetDerivativeOfAccWrtEEPos(ee);
-        jac.row(row) += deriv_ee* ee_motion_->GetJacobianWrtOptParams(t, ee, dim);
+        jac.row(row) += deriv_ee* ee_motion_->GetJacobianPos(t, ee, dim);
       }
     }
 
 
-    if (var_set == com_motion_->GetId()) {
+    if (var_set == com_motion_->GetName()) {
       Coords3D dim3d = static_cast<Coords3D>(dim);
       Jacobian jac_model = model_.GetJacobianOfAccWrtBase(*com_motion_, t, dim3d);
       Jacobian jac_opt   = com_motion_->GetJacobian(t, kAcc, dim3d);
@@ -98,7 +98,7 @@ DynamicConstraint::UpdateModel (double t) const
 {
   auto com     = com_motion_->GetCom(t);
   auto ee_load = ee_load_   ->GetLoadValues(t);
-  auto ee_pos  = ee_motion_ ->GetEndeffectorsPos(t);
+  auto ee_pos  = ee_motion_ ->GetEndeffectors(t).GetPos();
   model_.SetCurrent(com.p, com_motion_->GetZHeight(), ee_load, ee_pos);
 }
 

@@ -27,14 +27,14 @@ TEST(EEMotionTest, Params)
   motion.AddPhase(0.3, 0.0, true);
   motion.AddPhase(0.6, lift_height, false);//, Vector3d(0.3, 0.0, 0.0));
 
-  std::cout << "x: " << motion.GetVariables().transpose() << std::endl;
-  std::cout << "n: " << motion.GetOptVarCount() << std::endl;
+  std::cout << "x: " << motion.GetValues().transpose() << std::endl;
+  std::cout << "n: " << motion.GetRows() << std::endl;
 
 
   VectorXd x(6); x << 0.1, 0.2, 0.3, 0.4, 0.5, 0.6;
-  motion.SetVariables(x);
-  std::cout << "x_new: " << motion.GetVariables().transpose() << std::endl;
-  std::cout << "n_new: " << motion.GetOptVarCount() << std::endl;
+  motion.SetValues(x);
+  std::cout << "x_new: " << motion.GetValues().transpose() << std::endl;
+  std::cout << "n_new: " << motion.GetRows() << std::endl;
 
   double t = 0.0;
   while (t < 1.3) {

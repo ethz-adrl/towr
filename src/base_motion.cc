@@ -10,8 +10,15 @@
 namespace xpp {
 namespace opt {
 
-BaseMotion::BaseMotion () : OptimizationVariables("base_motion")
+BaseMotion::BaseMotion () : Component(-1, "base_motion")
 {
+  // still don't know how many optimization variables
+}
+
+void
+BaseMotion::SetVariableCount ()
+{
+  SetRows(GetValues().rows());
 }
 
 BaseMotion::~BaseMotion ()
@@ -19,13 +26,13 @@ BaseMotion::~BaseMotion ()
 }
 
 VectorXd
-BaseMotion::GetVariables () const
+BaseMotion::GetValues () const
 {
   return GetXYSplineCoeffients();
 }
 
 void
-BaseMotion::SetVariables (const VectorXd& x)
+BaseMotion::SetValues (const VectorXd& x)
 {
   SetSplineXYCoefficients(x);
 }

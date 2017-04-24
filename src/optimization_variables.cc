@@ -5,15 +5,18 @@
  @brief   Brief description
  */
 
-#include <xpp/optimization_variables.h>
-#include <vector>
+#include <string>
+
+#include <xpp/opt/depr/optimization_variables.h>
+
+#include <xpp/bound.h>
 
 namespace xpp {
 namespace opt {
 
 OptimizationVariables::OptimizationVariables (const std::string& id)
 {
-  id_ = id;
+  name_ = id;
 }
 
 OptimizationVariables::~OptimizationVariables ()
@@ -21,32 +24,29 @@ OptimizationVariables::~OptimizationVariables ()
 }
 
 int
-OptimizationVariables::GetOptVarCount () const
+OptimizationVariables::GetRows () const
 {
-  return GetVariables().rows();
+  return GetValues().rows();
 }
 
 std::string
-OptimizationVariables::GetId () const
+OptimizationVariables::GetName () const
 {
-  return id_;
+  return name_;
 }
 
 VecBound
 OptimizationVariables::GetBounds () const
 {
-  // default value if user hasn't set anything
-  if (bounds_.empty())
-    SetAllBounds(kNoBound_);
-
-  return bounds_;
+  // default if user hasn't set anything
+  return VecBound(GetRows(), kNoBound_);
 }
 
-void
-OptimizationVariables::SetAllBounds (const Bound& bound) const
-{
-  bounds_ = VecBound(GetOptVarCount(), bound);
-}
+//void
+//OptimizationVariables::SetAllBounds (const Bound& bound) const
+//{
+//  bounds_ = VecBound(GetRows(), bound);
+//}
 
 } /* namespace opt */
 } /* namespace xpp */

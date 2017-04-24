@@ -17,7 +17,6 @@
 #include <Eigen/Sparse>
 
 #include <xpp/bound.h>
-#include <xpp/optimization_variables_container.h>
 
 namespace xpp {
 namespace opt {
@@ -35,7 +34,7 @@ public:
   using VectorXd = Eigen::VectorXd;
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
-  Component();
+  Component(int num_rows, const std::string name = "");
   virtual ~Component() {};
 
   /** @returns A vector of values for current cost or constraints.
@@ -45,51 +44,35 @@ public:
     */
   virtual VectorXd GetValues() const = 0;
 
+  // only needed for optimization variables
+  virtual void SetValues(const VectorXd& x) { assert(false); };
+
   /** @returns Derivatives of each row w.r.t each decision variable.
     *
     * For a constraint this is a matrix, one row per constraint.
     * For a cost only the first row is filled (gradient transpose).
     */
-  virtual Jacobian GetJacobian() const = 0;
+  // not needed for optimization variables
+  virtual Jacobian GetJacobian() const { assert(false); };
 
-  /** @returns For each constraint an upper and lower bound is given.
+  /** @returns For each row an upper and lower bound is given.
     */
-  virtual VecBound GetBounds() const { assert(false); /* costs don't need to implement this */ };
+  virtual VecBound GetBounds() const { return VecBound(GetRows(), kNoBound_); };
 
-  /** @returns 1 for cost and >1 for however many constraints.
+  /** @returns 1 for cost and >1 for however many constraints or opt-variables.
     */
   int GetRows() const;
+  std::string GetName() const;
 
   virtual void Print() const;
 
-  std::string name_;
 protected:
-  int num_rows_ = 1; // corresponds to number of constraints, default 1 for costs
-};
-
-
-/** @brief An specific constraint implementing the above interface.
-  *
-  * Classes that derive from this represent the actual "meat".
-  */
-class Primitive : public Component {
-public:
-  using OptVarsPtr = std::shared_ptr<OptimizationVariablesContainer>;
-
-  virtual ~Primitive() {};
-
-protected:
-  /** @brief Determines the size of components, bounds and jacobians.
-    */
-  void SetDimensions(const OptVarsPtr&, int num_rows);
+  void SetRows(int num_rows);
+  void SetName(const std::string&);
 
 private:
-  Jacobian GetJacobian() const override;
-
-  /** @brief Jacobian of the component with respect to each decision variable set.
-    */
-  virtual void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const = 0;
-  OptVarsPtr opt_vars_;
+  int num_rows_ = 0;
+  std::string name_;
 };
 
 
@@ -102,6 +85,7 @@ private:
 class Composite : public Component {
 public:
   using ComponentPtr = std::shared_ptr<Component>;
+  using ComponentVec = std::vector<ComponentPtr>;
 
   /** @brief Determines weather composite represents cost or constraints.
     *
@@ -111,23 +95,55 @@ public:
     *
     * Default (true) represent constraints.
     */
-  Composite(const std::string name, bool append_components = true);
+  Composite(const std::string name, bool append_components);
   virtual ~Composite() {};
 
   /** @brief Adds a component to this composite.
     */
   void AddComponent (const ComponentPtr&);
+  void ClearComponents();
+  ComponentVec GetComponents() const; // spring_clean_ this should be hidden from user
+  ComponentPtr GetComponent(std::string name) const;
+  int GetComponentCount() const;
 
   VectorXd GetValues   () const override;
   Jacobian GetJacobian () const override;
   VecBound GetBounds   () const override;
+  void SetValues(const VectorXd& x) override;
 
   void Print() const override;
 
 private:
   bool append_components_;
-  std::vector<ComponentPtr> components_;
+  ComponentVec components_;
 };
+
+
+/** @brief An specific constraint implementing the above interface.
+  *
+  * Classes that derive from this represent the actual "meat".
+  */
+// spring_clean_ this is also somehow a composite of opt_vars
+class Primitive : public Component {
+public:
+  using OptVarsPtr = std::shared_ptr<Composite>;
+
+  Primitive();
+  virtual ~Primitive() {};
+
+  Jacobian GetJacobian() const override;
+
+protected:
+  void AddComposite(const OptVarsPtr&);
+
+private:
+  /** @brief Jacobian of the component with respect to each decision variable set.
+    */
+  virtual void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const = 0;
+  OptVarsPtr opt_vars_;
+};
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

@@ -13,7 +13,6 @@
 #include <string>
 
 #include <xpp/matrix_vector.h>
-#include <xpp/optimization_variables_container.h>
 #include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
@@ -29,7 +28,6 @@ class BaseMotion;
 class QuadraticPolynomialCost : public Primitive {
 public:
   using BaseMotionPtrS = std::shared_ptr<BaseMotion>;
-  using OptVarsPtr     = std::shared_ptr<OptimizationVariablesContainer>;
 
   QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&, double weight);
   virtual ~QuadraticPolynomialCost();

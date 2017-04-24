@@ -20,10 +20,10 @@ namespace opt {
 ContactLoadConstraint::ContactLoadConstraint (const OptVarsPtr& opt_vars)
 {
   name_ = "ContactLoadConstraint";
-  contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetSet("contact_schedule"));
-  ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
+  contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent("contact_schedule"));
+  ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetComponent("endeffector_load"));
 
-  int num_constraints = ee_load_->GetOptVarCount();
+  int num_constraints = ee_load_->GetRows();
   SetDimensions(opt_vars, num_constraints);
 
   ee_ids_  = contact_schedule_->IsInContact(0.0).GetEEsOrdered();
@@ -36,7 +36,7 @@ ContactLoadConstraint::~ContactLoadConstraint ()
 ContactLoadConstraint::VectorXd
 ContactLoadConstraint::GetValues () const
 {
-  return ee_load_->GetVariables();
+  return ee_load_->GetValues();
 }
 
 VecBound
@@ -65,7 +65,7 @@ void
 ContactLoadConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                  Jacobian& jac) const
 {
-  if (var_set == ee_load_->GetId()) {
+  if (var_set == ee_load_->GetName()) {
     int row = 0;
     for (int k=0; k<ee_load_->GetNumberOfSegments(); ++k) {
       for (auto ee : ee_ids_) {

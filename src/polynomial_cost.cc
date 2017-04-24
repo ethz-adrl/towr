@@ -5,7 +5,7 @@
  @brief   Definition of the ASplineCost, QuadraticSplineCost, SquaredSplineCost
  */
 
-#include <xpp/opt/polynomial_cost.h>
+#include <xpp/opt/costs/polynomial_cost.h>
 
 #include <Eigen/Dense>
 
@@ -19,12 +19,13 @@ QuadraticPolynomialCost::QuadraticPolynomialCost (const OptVarsPtr& opt_vars,
                                                   const MatVec& mat_vec,
                                                   double weight)
 {
-  name_ = "QuadraticPolynomialCost";
   matrix_vector_ = mat_vec;
   weight_ = weight;
+  com_motion_    = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
 
-  SetDimensions(opt_vars, 1);
-  com_motion_    = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetSet("base_motion"));
+  SetName("Polynomial Cost");
+  SetRows(1); // because cost
+  AddComposite(opt_vars);
 }
 
 QuadraticPolynomialCost::~QuadraticPolynomialCost ()
@@ -34,7 +35,7 @@ QuadraticPolynomialCost::~QuadraticPolynomialCost ()
 QuadraticPolynomialCost::VectorXd
 QuadraticPolynomialCost::GetValues () const
 {
-  VectorXd cost = VectorXd(num_rows_);
+  VectorXd cost = VectorXd(GetRows());
   VectorXd spline_coeff_ = com_motion_->GetXYSplineCoeffients();
 
   cost += spline_coeff_.transpose() * matrix_vector_.M * spline_coeff_;
@@ -46,7 +47,7 @@ QuadraticPolynomialCost::GetValues () const
 void
 QuadraticPolynomialCost::FillJacobianWithRespectTo(std::string var_set, Jacobian& jac) const
 {
-  if (var_set == com_motion_->GetId()) {
+  if (var_set == com_motion_->GetName()) {
     VectorXd grad = 2.0 * matrix_vector_.M * com_motion_->GetXYSplineCoeffients();
     jac.row(0) =  grad.transpose().sparseView();
   }

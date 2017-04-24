@@ -23,12 +23,13 @@ namespace opt {
 
 PolygonCenterConstraint::PolygonCenterConstraint (const OptVarsPtr& opt_vars)
 {
-  name_ = "PolygonCenterConstraint";
-  contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetSet("contact_schedule"));
-  ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetSet("endeffector_load"));
+  contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent("contact_schedule"));
+  ee_load_          = std::dynamic_pointer_cast<EndeffectorLoad>(opt_vars->GetComponent("endeffector_load"));
 
   int num_constraints = ee_load_->GetNumberOfSegments();
-  SetDimensions(opt_vars, num_constraints);
+  SetName("PolygonCenterConstraint");
+  SetRows(num_constraints);
+  AddComposite(opt_vars);
 }
 
 PolygonCenterConstraint::~PolygonCenterConstraint ()
@@ -73,7 +74,7 @@ void
 PolygonCenterConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                    Jacobian& jac) const
 {
-  if (var_set == ee_load_->GetId()) {
+  if (var_set == ee_load_->GetName()) {
 
     for (int k=0; k<GetRows(); ++k) {
       double t = ee_load_->GetTimeCenterSegment(k);
