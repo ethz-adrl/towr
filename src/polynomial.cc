@@ -26,41 +26,54 @@ constexpr std::array<Polynomial::PolynomialCoeff, 6> Polynomial::kAllSplineCoeff
  * spline coefficients are zero (as set by @ref Spliner()), the higher-order
  * terms have no effect
  */
-StateLin1d Polynomial::GetPoint(const double dt) const
+StateLin1d Polynomial::GetPoint(const double t) const
 {
-  StateLin1d out;
-
   // sanity checks
-  if (dt < -1e-10)
+  if (t < -1e-10)
     throw std::runtime_error("spliner.cc called with dt<0");
 
-  double dt1 = (dt > duration) ? duration : dt;
-  double dt2 = dt1 * dt1;
-  double dt3 = dt1 * dt2;
-  double dt4 = dt1 * dt3;
-  double dt5 = dt1 * dt4;
+//  double dt1 = (dt > duration) ? duration : dt;
+//  double dt2 = dt1 * dt1;
+//  double dt3 = dt1 * dt2;
+//  double dt4 = dt1 * dt3;
+//  double dt5 = dt1 * dt4;
 
   // spring_clean_ DRY with formulation in com_spline 6
-  double pos = 0.0;
+  StateLin1d out;
 
-//  for (int i : kAllSplineCoeff) {
-//    pos += dt^i;
-//    vel
+  for (PolynomialCoeff i : GetAllCoefficients()) {
+    for (auto d : {kPos, kVel, kAcc, kJerk}) {
+      double val = GetDerivativeWrtCoeff(d, i, t)*c[i];
+      out.AddValue(d, val);
+    }
+  }
+//    if (i>=0) out.p +=               c[i]*std::pow(dt,i);
+//    if (i>=1) out.v += i*            c[i]*std::pow(dt,i-1);
+//    if (i>=2) out.a += i*(i-1)*      c[i]*std::pow(dt,i-2);
+//    if (i>=3) out.j += i*(i-1)*(i-2)*c[i]*std::pow(dt,i-3);
 //  }
 
-
-  out.p   = c[F] + c[E]*dt1 +   c[D]*dt2 +   c[C]*dt3 +    c[B]*dt4 +    c[A]*dt5;
-  out.v  =         c[E]     + 2*c[D]*dt1 + 3*c[C]*dt2 +  4*c[B]*dt3 +  5*c[A]*dt4;
-  out.a =                     2*c[D]     + 6*c[C]*dt1 + 12*c[B]*dt2 + 20*c[A]*dt3;
-  out.j=                                   6*c[C]     + 24*c[B]*dt1 + 60*c[A]*dt2;
+  // spring_clean_ clean this up, delete
+//  out.p   = c[F] + c[E]*dt1 +   c[D]*dt2 +   c[C]*dt3 +    c[B]*dt4 +    c[A]*dt5;
+//  out.v  =         c[E]     + 2*c[D]*dt1 + 3*c[C]*dt2 +  4*c[B]*dt3 +  5*c[A]*dt4;
+//  out.a =                     2*c[D]     + 6*c[C]*dt1 + 12*c[B]*dt2 + 20*c[A]*dt3;
+//  out.j=                                   6*c[C]     + 24*c[B]*dt1 + 60*c[A]*dt2;
 
   return out;
 }
 
 double
-Polynomial::GetDerivative (MotionDerivative deriv, PolynomialCoeff coeff)
+Polynomial::GetDerivativeWrtCoeff (MotionDerivative deriv, PolynomialCoeff i, double t) const
 {
-  assert(false);
+  if (i<deriv)
+    return 0.0; // derivative not depended on this coefficient.
+
+  switch (deriv) {
+    case kPos:   return                 std::pow(t,i);   break;
+    case kVel:   return i*              std::pow(t,i-1); break;
+    case kAcc:   return i*(i-1)*        std::pow(t,i-2); break;
+    case kJerk:  return i*(i-1)*(i-2) * std::pow(t,i-3); break;
+  }
 }
 
 double Polynomial::GetCoefficient(PolynomialCoeff coeff) const

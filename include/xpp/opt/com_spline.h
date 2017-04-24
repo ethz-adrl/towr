@@ -64,14 +64,14 @@ public:
   ComPolynomial GetPolynomial(size_t i) const { return polynomials_.at(i); }
   ComPolynomial GetLastPolynomial()     const { return polynomials_.back(); };
 
-  /** Calculates the Jacobian at a specific time of the motion, but specified by
-    * a local time and a polynome id. This allows to create spline junction constraints
-    *
-    * @param dxdt whether position, velocity, acceleration or jerk Jacobian is desired
-    * @param t_poly the time at which the Jacobian is desired, expressed since current polynomial is active.
-    * @param id the ID of the current polynomial
-    * @param dim in which dimension (x,y) the Jacobian is desired.
-    */
+//  /** Calculates the Jacobian at a specific time of the motion, but specified by
+//    * a local time and a polynome id. This allows to create spline junction constraints
+//    *
+//    * @param dxdt whether position, velocity, acceleration or jerk Jacobian is desired
+//    * @param t_poly the time at which the Jacobian is desired, expressed since current polynomial is active.
+//    * @param id the ID of the current polynomial
+//    * @param dim in which dimension (x,y) the Jacobian is desired.
+//    */
   JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt, double t_poly, int id, Coords3D dim) const;
 
   StateLin2d GetCOGxyAtPolynomial(int id, double t_local) {return ComPolynomialHelpers::GetCOGxyAtPolynomial(id, t_local, polynomials_); };

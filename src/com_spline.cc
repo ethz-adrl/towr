@@ -81,30 +81,49 @@ ComSpline::GetXYSplineCoeffients () const
 }
 
 ComSpline::JacobianRow
-ComSpline::GetJacobian (double t_global, MotionDerivative posVelAcc,
+ComSpline::GetJacobian (double t_global, MotionDerivative deriv,
                         Coords3D dim) const
 {
-  int id = GetPolynomialID(t_global);
+  int id         = GetPolynomialID(t_global);
   double t_local = GetLocalTime(t_global);
 
-  return GetJacobianWrtCoeffAtPolynomial(posVelAcc, t_local, id, dim);
+//  JacobianRow jac(1, GetTotalFreeCoeff());
+//  auto polynomial = polynomials_.at(id).GetDim(dim);
+//
+//  for (auto coeff : polynomial.GetAllCoefficients()) {
+//    double val = polynomial.GetDerivativeWrtCoeff(deriv, coeff, t_local);
+//    int idx = Index(id,dim,coeff);
+//    jac.insert(idx) = val;
+//  }
+//
+//  return jac;
+
+
+
+  return GetJacobianWrtCoeffAtPolynomial(deriv, t_local, id, dim);
 }
 
 ComSpline::JacobianRow
-ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t_local,
-                                            int id,
-                                            Coords3D dim) const
+ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_local,
+                                            int id, Coords3D dim) const
 {
   assert(0 <= id && id <= polynomials_.back().GetId());
 
   JacobianRow jac(1, GetTotalFreeCoeff());
+  auto polynomial = polynomials_.at(id).GetDim(dim);
 
-  switch (posVelAcc) {
-    case kPos: GetJacobianPos (t_local, id, dim, jac); break;
-    case kVel: GetJacobianVel (t_local, id, dim, jac); break;
-    case kAcc: GetJacobianAcc (t_local, id, dim, jac); break;
-    case kJerk:GetJacobianJerk(t_local, id, dim, jac); break;
+  for (auto coeff : polynomial.GetAllCoefficients()) {
+    double val = polynomial.GetDerivativeWrtCoeff(deriv, coeff, t_local);
+    int idx = Index(id,dim,coeff);
+    jac.insert(idx) = val;
   }
+
+//  switch (deriv) {
+//    case kPos: GetJacobianPos (t_local, id, dim, jac); break;
+//    case kVel: GetJacobianVel (t_local, id, dim, jac); break;
+//    case kAcc: GetJacobianAcc (t_local, id, dim, jac); break;
+//    case kJerk:GetJacobianJerk(t_local, id, dim, jac); break;
+//  }
 
   return jac;
 }

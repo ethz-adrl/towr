@@ -33,7 +33,8 @@ public:
 
   // f = At^5 + Bt^4 + Ct^3 + Dt^2 + Et + f
   enum PolynomialCoeff { F=0, E, D, C, B, A};
-  static constexpr std::array<PolynomialCoeff, 6> kAllSplineCoeff = {{F,E,D,C,B,A}};
+  using CoeffVec = std::vector<PolynomialCoeff>;
+  static constexpr std::array<PolynomialCoeff,6> kAllSplineCoeff = {{F,E,D,C,B,A}};
 
   enum PointType {Start=0, Goal=1};
 
@@ -55,10 +56,14 @@ public:
    * @param point current position at time dt.
    */
   StateLin1d GetPoint(const double dt) const;
-  double GetDerivative(MotionDerivative deriv, PolynomialCoeff coeff);
+  double GetDerivativeWrtCoeff(MotionDerivative deriv,
+                               PolynomialCoeff coeff,
+                               double t) const;
 
   double GetCoefficient(PolynomialCoeff coeff) const;
   void SetCoefficient(PolynomialCoeff coeff, double value);
+
+  virtual CoeffVec GetAllCoefficients() const = 0;
 
   double GetDuration() const;
 
@@ -101,6 +106,8 @@ public:
   LinearPolynomial() {};
   ~LinearPolynomial() {};
 
+  virtual CoeffVec GetAllCoefficients() const override { return {F,E}; };
+  // spring_clean_ remove this function
   static int GetNumCoeff() { return 2; }; //E,F
 
 private:
@@ -115,6 +122,7 @@ public:
   CubicPolynomial() {};
   ~CubicPolynomial() {};
 
+  virtual CoeffVec GetAllCoefficients() const override { return {F,E,D,C}; };
   static int GetNumCoeff() { return 4; }; //C,D,E,F
 
   // zmp_ move up to base class?
@@ -129,6 +137,7 @@ public:
   QuinticPolynomial() {};
   ~QuinticPolynomial() {};
 
+  virtual CoeffVec GetAllCoefficients() const override { return {F,E,D,C,B,A}; };
   static int GetNumCoeff() { return 6; }; //A,B,C,D,E,F
 
 private:
@@ -144,6 +153,7 @@ public:
   LiftHeightPolynomial() {};
   ~LiftHeightPolynomial() {};
 
+  virtual CoeffVec GetAllCoefficients() const override { return {F,E,D,C,B,A}; };
   static int GetNumCoeff() { return 6; }; //A,B,C,D,E,F
 
   /** Determines how quick the height rises/drops.
