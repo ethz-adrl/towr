@@ -72,7 +72,7 @@ FootholdConstraint::FillJacobianWithRespectTo (std::string var_set,
     int k = 0;
     for (const auto ee : desired_ee_pos_W_.GetEEsOrdered())
       for (auto dim : d2::AllDimensions)
-        jac.row(k++) = ee_motion_->GetJacobianWrtOptParams(t_,ee,dim);
+        jac.row(k++) = ee_motion_->GetJacobianPos(t_,ee,dim);
   }
 }
 

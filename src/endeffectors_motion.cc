@@ -16,7 +16,7 @@ namespace opt {
 
 EndeffectorsMotion::EndeffectorsMotion (const EndeffectorsPos& initial_pos,
                                         const ContactSchedule& contact_schedule)
-    :Composite("endeffectors_motion")
+    :Composite("endeffectors_motion", true)
 {
   auto ee = EndeffectorsMotion::BuildEndeffectors(initial_pos, contact_schedule);
   AddEndffectors(ee);
@@ -78,7 +78,7 @@ EndeffectorsMotion::GetNumberOfEndeffectors () const
 }
 
 JacobianRow
-EndeffectorsMotion::GetJacobianWrtOptParams (double t_global,
+EndeffectorsMotion::GetJacobianPos (double t_global,
                                              EndeffectorID ee,
                                              d2::Coords dim) const
 {

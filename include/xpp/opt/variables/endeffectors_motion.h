@@ -42,14 +42,14 @@ public:
   // order at which the contact position of this endeffector is stored
   int GetNumberOfEndeffectors() const;
   EEState GetEndeffectors(double t_global) const;
-  JacobianRow GetJacobianWrtOptParams(double t_global, EndeffectorID ee, d2::Coords) const;
+  JacobianRow GetJacobianPos(double t_global, EndeffectorID ee, d2::Coords) const;
 
 private:
   int IndexStart(EndeffectorID ee) const;
   ComponentVec endeffectors_; // derived class pointer to access ee specific functions
   std::vector<EndeffectorID> ee_ordered_;
 
-  static ComponentVec BuildEndeffectors(const EndeffectorsPos& initial_pos,
+  static ComponentVec BuildEndeffectors(const EndeffectorsPos& initial,
                                         const ContactSchedule&);
   void AddEndffectors(const ComponentVec&);
 };

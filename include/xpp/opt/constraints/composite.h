@@ -95,7 +95,7 @@ public:
     *
     * Default (true) represent constraints.
     */
-  Composite(const std::string name, bool append_components = true);
+  Composite(const std::string name, bool append_components);
   virtual ~Composite() {};
 
   /** @brief Adds a component to this composite.

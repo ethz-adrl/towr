@@ -79,7 +79,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 
       if (var_set == ee_motion_->GetName()) {
         double deriv_ee = model_.GetDerivativeOfAccWrtEEPos(ee);
-        jac.row(row) += deriv_ee* ee_motion_->GetJacobianWrtOptParams(t, ee, dim);
+        jac.row(row) += deriv_ee* ee_motion_->GetJacobianPos(t, ee, dim);
       }
     }
 

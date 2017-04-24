@@ -138,7 +138,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeStancesConstraints () const
 {
-  auto stance_constraints = std::make_shared<Composite>("Stance Constraints");
+  auto stance_constraints = std::make_shared<Composite>("Stance Constraints", true);
 
   // calculate initial position in world frame
   auto constraint_initial = std::make_shared<FootholdConstraint>(

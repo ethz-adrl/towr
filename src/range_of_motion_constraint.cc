@@ -84,7 +84,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k,
       int row = GetRow(k,ee,dim);
 
       if (var_set == ee_motion_->GetName())
-        jac.row(row) = ee_motion_->GetJacobianWrtOptParams(t,ee,dim);
+        jac.row(row) = ee_motion_->GetJacobianPos(t,ee,dim);
 
       if (var_set == com_motion_->GetName())
         jac.row(row) = -1*com_motion_->GetJacobian(t, kPos, static_cast<Coords3D>(dim));
