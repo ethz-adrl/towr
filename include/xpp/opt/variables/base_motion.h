@@ -79,8 +79,8 @@ public:
     * @param dim which motion dimension (x,y) the jacobian represents.
     */
   virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
-  virtual JacobianRow GetJacobianVelSquared(double t_global, Coords3D dim) const = 0;
-  virtual JacobianRow GetJacobianPosVelSquared(double t_global, Coords3D dim) const = 0;
+//  virtual JacobianRow GetJacobianVelSquared(double t_global, Coords3D dim) const = 0;
+//  virtual JacobianRow GetJacobianPosVelSquared(double t_global, Coords3D dim) const = 0;
 
 
   /** Set all coefficients to fully describe the CoM motion.

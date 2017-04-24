@@ -5,7 +5,7 @@
 @brief   Defines ComSpline4, which realizes a ComSpline
  */
 
-#include <xpp/opt/com_spline4.h>
+#include <xpp/opt/depr/com_spline4.h>
 
 #include <cassert>
 #include <cmath>
@@ -46,18 +46,18 @@ ComSpline4::SetStartPosVel (const Vector2d& start_cog_p, const Vector2d& start_c
  SetSplineXYCoefficients(abcd);
 }
 
-ComSpline4::Derivatives
-ComSpline4::GetInitialFreeMotions () const
-{
-  return {}; //kAcc
-}
-
-ComSpline4::Derivatives
-ComSpline4::GetJunctionFreeMotions () const
-{
-  return {kAcc};
-//  return {kAcc /*, kJerk*/}; // jerk doesn't seem to work properly in spline junction
-}
+//ComSpline4::Derivatives
+//ComSpline4::GetInitialFreeMotions () const
+//{
+//  return {}; //kAcc
+//}
+//
+//ComSpline4::Derivatives
+//ComSpline4::GetJunctionFreeMotions () const
+//{
+//  return {kAcc};
+////  return {kAcc /*, kJerk*/}; // jerk doesn't seem to work properly in spline junction
+//}
 
 void
 ComSpline4::SetSplineXYCoefficients(const VectorXd& optimized_coeff)

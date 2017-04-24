@@ -51,12 +51,12 @@ public:
   int Index(int polynomial, Coords3D dim, PolyCoeff coeff) const;
 
 
-  /** The motions (pos,vel,acc) that are fixed by spline structure and cannot
-    * be modified through the coefficient values. These will be constrained
-    * in the nonlinear program.
-    */
-  virtual Derivatives GetInitialFreeMotions()  const = 0;
-  virtual Derivatives GetJunctionFreeMotions() const = 0;
+//  /** The motions (pos,vel,acc) that are fixed by spline structure and cannot
+//    * be modified through the coefficient values. These will be constrained
+//    * in the nonlinear program.
+//    */
+//  virtual Derivatives GetInitialFreeMotions()  const = 0;
+//  virtual Derivatives GetJunctionFreeMotions() const = 0;
 
   int GetPolynomialID(double t_global)  const { return ComPolynomialHelpers::GetPolynomialID(t_global, polynomials_); }
   double GetLocalTime(double t_global)  const { return ComPolynomialHelpers::GetLocalTime(t_global, polynomials_); };
@@ -92,11 +92,11 @@ private:
   virtual void GetJacobianAcc (double t_poly, int id, Coords3D dim, JacobianRow&) const = 0;
   virtual void GetJacobianJerk(double t_poly, int id, Coords3D dim, JacobianRow&) const = 0;
 
-  virtual JacobianRow GetJacobianVelSquared(double t_global, Coords3D dim) const override;
-  virtual JacobianRow GetJacobianPosVelSquared(double t_global, Coords3D dim) const override;
-  // only implemented for com_spline_6, throw error otherwise
-  virtual void GetJacobianVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const { assert(false); };
-  virtual void GetJacobianPosVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const { assert(false); };
+//  virtual JacobianRow GetJacobianVelSquared(double t_global, Coords3D dim) const override;
+//  virtual JacobianRow GetJacobianPosVelSquared(double t_global, Coords3D dim) const override;
+//  // only implemented for com_spline_6, throw error otherwise
+//  virtual void GetJacobianVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const { assert(false); };
+//  virtual void GetJacobianPosVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const { assert(false); };
 
   virtual int NumFreeCoeffPerSpline() const = 0;
   virtual std::vector<PolyCoeff> GetFreeCoeffPerSpline() const = 0;

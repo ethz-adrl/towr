@@ -68,7 +68,6 @@ target_link_libraries(${SOLVER_LIB}
 
 # the specific motion optimization problem for legged robots
 add_library(${MOTION_OPT_LIB}
-  src/ellipse.cc
   src/linear_inverted_pendulum.cc
   src/motion_optimizer_facade.cc
   src/polynomial.cc
@@ -78,7 +77,6 @@ add_library(${MOTION_OPT_LIB}
   src/com_polynomial_helpers.cc
   src/com_spline.cc
   src/com_spline6.cc    
-  src/com_spline4.cc
   src/linear_spline_equations.cc
   # endeffector
   src/ee_phase_motion.cc
@@ -94,6 +92,8 @@ add_library(${MOTION_OPT_LIB}
   src/dynamic_constraint.cc
   src/foothold_constraint.cc
   src/polynomial_cost.cc
+#  src/ellipse.cc
+#  src/com_spline4.cc
 #  src/convexity_constraint.cc
 #  src/contact_load_constraint.cc
 #  src/obstacle_constraint.cc

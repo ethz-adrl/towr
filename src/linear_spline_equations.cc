@@ -33,7 +33,8 @@ LinearSplineEquations::~LinearSplineEquations ()
 MatVec
 LinearSplineEquations::MakeInitial (const StateLin2d& init) const
 {
-  auto derivatives = com_spline_->GetInitialFreeMotions();
+  // zmp_ remove?
+  auto derivatives =  {kPos, kVel, kAcc};//= com_spline_->GetInitialFreeMotions();
 
   int n_constraints = kDim2d *derivatives.size();
   MatVec M(n_constraints, com_spline_->GetTotalFreeCoeff());
@@ -79,7 +80,8 @@ LinearSplineEquations::MakeFinal (const StateLin2d& final_state,
 MatVec
 LinearSplineEquations::MakeJunction () const
 {
-  auto derivatives = com_spline_->GetJunctionFreeMotions();
+  // zmp_ remove
+  auto derivatives = {kPos, kVel};//com_spline_->GetJunctionFreeMotions();
 
   int id_last = com_spline_->GetLastPolynomial().GetId();
   int n_constraints = derivatives.size() * id_last * kDim2d;

@@ -88,27 +88,27 @@ ComSpline::GetJacobian (double t_global, MotionDerivative posVelAcc,
   return GetJacobianWrtCoeffAtPolynomial(posVelAcc, t_local, id, dim);
 }
 
-ComSpline::JacobianRow
-ComSpline::GetJacobianVelSquared (double t_global, Coords3D dim) const
-{
-  int id = GetPolynomialID(t_global);
-  double t_local = GetLocalTime(t_global);
-
-  JacobianRow jac(1, GetTotalFreeCoeff());
-  GetJacobianVelSquaredImpl(t_local, id, dim, jac);
-  return jac;
-}
-
-ComSpline::JacobianRow
-ComSpline::GetJacobianPosVelSquared (double t_global, Coords3D dim) const
-{
-  int id = GetPolynomialID(t_global);
-  double t_local = GetLocalTime(t_global);
-
-  JacobianRow jac(1, GetTotalFreeCoeff());
-  GetJacobianPosVelSquaredImpl(t_local, id, dim, jac);
-  return jac;
-}
+//ComSpline::JacobianRow
+//ComSpline::GetJacobianVelSquared (double t_global, Coords3D dim) const
+//{
+//  int id = GetPolynomialID(t_global);
+//  double t_local = GetLocalTime(t_global);
+//
+//  JacobianRow jac(1, GetTotalFreeCoeff());
+//  GetJacobianVelSquaredImpl(t_local, id, dim, jac);
+//  return jac;
+//}
+//
+//ComSpline::JacobianRow
+//ComSpline::GetJacobianPosVelSquared (double t_global, Coords3D dim) const
+//{
+//  int id = GetPolynomialID(t_global);
+//  double t_local = GetLocalTime(t_global);
+//
+//  JacobianRow jac(1, GetTotalFreeCoeff());
+//  GetJacobianPosVelSquaredImpl(t_local, id, dim, jac);
+//  return jac;
+//}
 
 ComSpline::JacobianRow
 ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t_local,
