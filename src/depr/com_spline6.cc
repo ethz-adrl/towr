@@ -5,7 +5,7 @@
 @brief   Defines ComSpline6, which realizes a ComSpline
  */
 
-#include <xpp/opt/com_spline6.h>
+#include <xpp/opt/depr/com_spline6.h>
 
 #include <cmath>
 #include <stddef.h>
@@ -91,7 +91,6 @@ ComSpline6::GetJacobianJerk (double t_poly, int id, Coords3D dim, JacobianRow& j
   jac.insert(Index(id,dim,PolyCoeff::C))   = 6;
 }
 
-// zmp_ remove?
 //void
 //ComSpline6::GetJacobianVelSquaredImpl (double t_poly, int id, Coords3D dim,
 //                                       JacobianRow& jac) const

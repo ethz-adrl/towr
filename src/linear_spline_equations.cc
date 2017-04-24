@@ -33,8 +33,7 @@ LinearSplineEquations::~LinearSplineEquations ()
 MatVec
 LinearSplineEquations::MakeInitial (const StateLin2d& init) const
 {
-  // zmp_ remove?
-  auto derivatives =  {kPos, kVel, kAcc};//= com_spline_->GetInitialFreeMotions();
+  auto derivatives =  {kPos, kVel, kAcc};
 
   int n_constraints = kDim2d *derivatives.size();
   MatVec M(n_constraints, com_spline_->GetTotalFreeCoeff());
@@ -80,10 +79,11 @@ LinearSplineEquations::MakeFinal (const StateLin2d& final_state,
 MatVec
 LinearSplineEquations::MakeJunction () const
 {
-  // zmp_ remove
-  auto derivatives = {kPos, kVel};//com_spline_->GetJunctionFreeMotions();
+  auto derivatives = {kPos, kVel};
 
-  int id_last = com_spline_->GetLastPolynomial().GetId();
+  auto polynomials = com_spline_->GetPolynomials();
+
+  int id_last = polynomials.back().GetId();
   int n_constraints = derivatives.size() * id_last * kDim2d;
   int n_spline_coeff = com_spline_->GetTotalFreeCoeff();
   MatVec M(n_constraints, n_spline_coeff);
@@ -91,15 +91,15 @@ LinearSplineEquations::MakeJunction () const
   int i = 0; // constraint count
 
   for (int id = 0; id < id_last; ++id) {
-    double T = com_spline_->GetPolynomial(id).GetDuration();
+    double T = polynomials.at(id).GetDuration();
 
     for (auto dim : {X,Y}) {
       for (auto dxdt :  derivatives) {
         VecScalar curr, next;
 
         // coefficients are all set to zero
-        curr.s = com_spline_->GetCOGxyAtPolynomial(T,   id  ).GetByIndex(dxdt, dim);
-        next.s = com_spline_->GetCOGxyAtPolynomial(0.0, id+1).GetByIndex(dxdt, dim);
+        curr.s = ComPolynomialHelpers::GetCOGxyAtPolynomial(id,    T, polynomials).GetByIndex(dxdt, dim);
+        next.s = ComPolynomialHelpers::GetCOGxyAtPolynomial(id+1,0.0, polynomials).GetByIndex(dxdt, dim);
 
         curr.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);
         next.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt, 0.0, id+1, dim);

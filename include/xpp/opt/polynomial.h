@@ -78,7 +78,8 @@ private:
    * params are the same as @ref getPoint.
    * This is the only function that must be implemented by the child classes.
    */
-  virtual void SetPolynomialCoefficients(double T, const StateLin1d& start_p, const StateLin1d& end_p) = 0;
+  virtual void SetPolynomialCoefficients(double T, const StateLin1d& start_p,
+                                         const StateLin1d& end_p) = 0;
 };
 
 inline Polynomial::Polynomial()
@@ -107,8 +108,6 @@ public:
   ~LinearPolynomial() {};
 
   virtual CoeffVec GetAllCoefficients() const override { return {F,E}; };
-  // spring_clean_ remove this function
-  static int GetNumCoeff() { return 2; }; //E,F
 
 private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
@@ -123,7 +122,6 @@ public:
   ~CubicPolynomial() {};
 
   virtual CoeffVec GetAllCoefficients() const override { return {F,E,D,C}; };
-  static int GetNumCoeff() { return 4; }; //C,D,E,F
 
   // zmp_ move up to base class?
   double GetDerivativeOfPosWrtPos(double t, PointType p) const;
@@ -138,7 +136,6 @@ public:
   ~QuinticPolynomial() {};
 
   virtual CoeffVec GetAllCoefficients() const override { return {F,E,D,C,B,A}; };
-  static int GetNumCoeff() { return 6; }; //A,B,C,D,E,F
 
 private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
@@ -154,7 +151,6 @@ public:
   ~LiftHeightPolynomial() {};
 
   virtual CoeffVec GetAllCoefficients() const override { return {F,E,D,C,B,A}; };
-  static int GetNumCoeff() { return 6; }; //A,B,C,D,E,F
 
   /** Determines how quick the height rises/drops.
    *

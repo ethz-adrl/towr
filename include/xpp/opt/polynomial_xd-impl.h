@@ -74,14 +74,9 @@ template<typename PolynomialType, typename PointType>
 PointType
 PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt) const
 {
-//  StateLin1d point1d;
-
   Point p;
-  for (int dim=X; dim<kNumDim; ++dim) {
-    // zmp_ remove
-//    polynomials_.at(dim).GetPoint(dt, point1d);
+  for (int dim=X; dim<kNumDim; ++dim)
     p.SetDimension(polynomials_.at(dim).GetPoint(dt), dim);
-  }
 
   return p;
 }

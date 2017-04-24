@@ -16,7 +16,7 @@
 #include <xpp/endeffectors.h>
 
 #include <xpp/ipopt_adapter.h>
-#include <xpp/opt/com_spline6.h>
+#include <xpp/opt/com_spline.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/contact_schedule.h>
@@ -62,7 +62,7 @@ MotionOptimizerFacade::BuildVariables ()
   double com_height = motion_parameters_->geom_walking_height_
                     + motion_parameters_->offset_geom_to_com_.z();
 
-  auto com_motion = std::make_shared<ComSpline6>();
+  auto com_motion = std::make_shared<ComSpline>();
   com_motion->SetConstantHeight(com_height);
   com_motion->Init(T, motion_parameters_->polynomials_per_second_);
 

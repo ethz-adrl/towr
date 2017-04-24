@@ -32,6 +32,8 @@ public:
   static double GetTotalTime(const VecPolynomials& splines);
   static double GetLocalTime(double t_global, const VecPolynomials& splines);
   static StateLin2d GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
+  // to generate compiler error when user accidentally mixes up the order
+  static StateLin2d GetCOGxyAtPolynomial(double id, int t_local, const VecPolynomials& splines) = delete;
 };
 
 
