@@ -27,7 +27,7 @@ public:
 
 public:
   explicit PolynomialXd();
-  explicit PolynomialXd(int id, double duration);
+  explicit PolynomialXd(double duration);
   virtual ~PolynomialXd();
   void SetBoundary(double T, const Point& start, const Point& end);
   PointType GetPoint(const double dt) const;
@@ -36,20 +36,14 @@ public:
   double GetCoefficient(int dim, PolyCoeff coeff) const;
   void   SetCoefficients(int dim, PolyCoeff coeff, double value);
 
-
   static int GetNumCoeff() { return PolynomialType::GetNumCoeff(); };
 
   double GetDuration() const;
-
-  uint GetId()            const { return id_; };
-  void SetId(uint id)           { id_ = id;   };
-
   PolynomialType GetDim(int dim) const;
-
 
 private:
   std::array<PolynomialType, kNumDim> polynomials_; ///< X,Y,Z dimensions
-  uint id_; // to identify the order relative to other polynomials
+
 };
 
 } // namespace opt

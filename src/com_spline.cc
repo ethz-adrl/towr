@@ -33,7 +33,7 @@ ComSpline::Init (double t_global, int polynomials_per_second)
   int n_polyomials = std::ceil(t_global*polynomials_per_second);
 
   for (int i=0; i<n_polyomials; ++i)
-    polynomials_.push_back(ComPolynomial(i, t_global/n_polyomials));
+    polynomials_.push_back(ComPolynomial(t_global/n_polyomials));
 
   SetVariableCount();
 }
@@ -81,10 +81,13 @@ ComSpline::GetXYSplineCoeffients () const
 {
   VectorXd x_abcd(GetTotalFreeCoeff());
 
-  for (const auto& s : polynomials_)
+  int i=0;
+  for (const auto& s : polynomials_) {
     for (auto dim : { X, Y })
       for (auto coeff :  s.GetDim(dim).GetAllCoefficients())
-        x_abcd[Index(s.GetId(), dim, coeff)] = s.GetCoefficient(dim, coeff);
+        x_abcd[Index(i, dim, coeff)] = s.GetCoefficient(dim, coeff);
+    i++;
+  }
 
   return x_abcd;
 }
@@ -102,8 +105,6 @@ ComSpline::JacobianRow
 ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_local,
                                             int id, Coords3D dim) const
 {
-  assert(0 <= id && id <= polynomials_.back().GetId());
-
   JacobianRow jac(1, GetTotalFreeCoeff());
   auto polynomial = polynomials_.at(id).GetDim(dim);
 

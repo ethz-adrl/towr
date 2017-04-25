@@ -83,14 +83,14 @@ LinearSplineEquations::MakeJunction () const
 
   auto polynomials = com_spline_->GetPolynomials();
 
-  int id_last = polynomials.back().GetId();
-  int n_constraints = derivatives.size() * id_last * kDim2d;
+  int n_junctions = polynomials.size()-1; // because one less junction than poly's.
+  int n_constraints = derivatives.size() * n_junctions * kDim2d;
   int n_spline_coeff = com_spline_->GetTotalFreeCoeff();
   MatVec M(n_constraints, n_spline_coeff);
 
   int i = 0; // constraint count
 
-  for (int id = 0; id < id_last; ++id) {
+  for (int id = 0; id < n_junctions; ++id) {
     double T = polynomials.at(id).GetDuration();
 
     for (auto dim : {X,Y}) {
@@ -119,14 +119,15 @@ LinearSplineEquations::MakeAcceleration (const ValXY& weight) const
   int n_coeff = com_spline_->GetTotalFreeCoeff();
 
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
+  int i=0;
   for (const ComPolynomial& p : com_spline_->GetPolynomials()) {
     std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
-      const int f = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::F);
-      const int e = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::E);
-      const int d = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::D);
-      const int c = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::C);
+      const int f = com_spline_->Index(i, dim, ComSpline::PolyCoeff::F);
+      const int e = com_spline_->Index(i, dim, ComSpline::PolyCoeff::E);
+      const int d = com_spline_->Index(i, dim, ComSpline::PolyCoeff::D);
+      const int c = com_spline_->Index(i, dim, ComSpline::PolyCoeff::C);
 
       // for explanation of values see M.Kalakrishnan et al., page 248
       // "Learning, Planning and Control for Quadruped Robots over challenging
@@ -147,6 +148,7 @@ LinearSplineEquations::MakeAcceleration (const ValXY& weight) const
         for (int r = c + 1; r < M.rows(); ++r)
           M(r, c) = M(c, r);
     }
+    i++;
   }
 
   return M;
@@ -159,13 +161,14 @@ LinearSplineEquations::MakeJerk (const ValXY& weight) const
   int n_coeff = com_spline_->GetTotalFreeCoeff();
 
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
+  int i=0;
   for (const ComPolynomial& p : com_spline_->GetPolynomials()) {
     std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
-      const int f = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::F);
-      const int e = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::E);
-      const int d = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::D);
+      const int f = com_spline_->Index(i, dim, Polynomial::PolynomialCoeff::F);
+      const int e = com_spline_->Index(i, dim, Polynomial::PolynomialCoeff::E);
+      const int d = com_spline_->Index(i, dim, Polynomial::PolynomialCoeff::D);
 
       M(f, f) = 60.*60. / 5.      * t_span[5] * weight[dim];
       M(f, e) = 60.*24. / 4.      * t_span[4] * weight[dim];
@@ -179,6 +182,7 @@ LinearSplineEquations::MakeJerk (const ValXY& weight) const
         for (int r = c + 1; r < M.rows(); ++r)
           M(r, c) = M(c, r);
     }
+    i++;
   }
 
   return M;

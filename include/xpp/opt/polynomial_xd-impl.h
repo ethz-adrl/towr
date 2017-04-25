@@ -14,13 +14,11 @@ namespace opt {
 template<typename PolynomialType, typename PointType>
 PolynomialXd<PolynomialType, PointType>::PolynomialXd ()
 {
-  id_ = 0;
 }
 
 template<typename PolynomialType, typename PointType>
-PolynomialXd<PolynomialType, PointType>::PolynomialXd (int id, double duration)
+PolynomialXd<PolynomialType, PointType>::PolynomialXd (double duration)
 {
-  SetId(id);
   SetBoundary(duration, Point(), Point());
 }
 
