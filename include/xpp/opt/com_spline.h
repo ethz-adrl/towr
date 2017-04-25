@@ -19,6 +19,7 @@
 
 #include "polynomial.h"
 #include "polynomial_xd.h"
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -28,8 +29,7 @@ namespace opt {
   * This class is responsible for abstracting polynomial coefficients of multiple
   * polynomials into a CoM position/velocity and acceleration.
   */
-// zmp_ make this a member variable of base motion, not deriving from it!
-class ComSpline {
+class ComSpline : public Component {
 public:
   using Derivatives    = std::vector<MotionDerivative>;
   using PolyCoeff      = Polynomial::PolynomialCoeff;
@@ -43,10 +43,11 @@ public:
 
   void Init(double t_global, double duration_per_polynomial);
 
+  VectorXd GetValues () const override;
+  void SetValues (const VectorXd& optimized_coeff) override;
+
   StateLin2d GetCom(double t_global) const;
   double GetTotalTime() const;
-  VectorXd GetXYSplineCoeffients () const;
-  int GetTotalFreeCoeff() const;
 
   int Index(int polynomial, Coords3D dim, PolyCoeff coeff) const;
 
@@ -79,8 +80,6 @@ public:
                                               Coords3D dim) const = delete;
 
   VecPolynomials GetPolynomials() const { return polynomials_; }
-  void SetSplineXYCoefficients (const VectorXd& optimized_coeff);
-//  void SetCoefficientsZero();
 
   // zmp_ make private
   Vector3d offset_geom_to_com_;

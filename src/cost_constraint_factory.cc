@@ -46,8 +46,7 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
 {
   opt_vars_ = opt_vars;
   auto base_motion = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
-  if (base_motion == nullptr) assert(false); // dynamic cast failed
-  spline_eq_ = LinearSplineEquations(base_motion->com_spline_);
+  spline_eq_ = LinearSplineEquations(base_motion->GetComSpline());
 
   params = _params;
   initial_geom_state_ = initial_state;

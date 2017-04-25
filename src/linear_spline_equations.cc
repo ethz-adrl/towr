@@ -34,7 +34,7 @@ LinearSplineEquations::MakeInitial (const StateLin2d& init) const
   auto derivatives =  {kPos, kVel, kAcc};
 
   int n_constraints = kDim2d *derivatives.size();
-  MatVec M(n_constraints, com_spline_.GetTotalFreeCoeff());
+  MatVec M(n_constraints, com_spline_.GetRows());
 
   int i = 0; // constraint count
   double t_global = 0.0;
@@ -56,7 +56,7 @@ LinearSplineEquations::MakeFinal (const StateLin2d& final_state,
                                   const MotionDerivatives& derivatives) const
 {
   int n_constraints = derivatives.size()*kDim2d;
-  int n_spline_coeff = com_spline_.GetTotalFreeCoeff();
+  int n_spline_coeff = com_spline_.GetRows();
   MatVec M(n_constraints, n_spline_coeff);
 
   int c = 0; // constraint count
@@ -83,7 +83,7 @@ LinearSplineEquations::MakeJunction () const
 
   int n_junctions = polynomials.size()-1; // because one less junction than poly's.
   int n_constraints = derivatives.size() * n_junctions * kDim2d;
-  int n_spline_coeff = com_spline_.GetTotalFreeCoeff();
+  int n_spline_coeff = com_spline_.GetRows();
   MatVec M(n_constraints, n_spline_coeff);
 
   int i = 0; // constraint count
@@ -114,7 +114,7 @@ Eigen::MatrixXd
 LinearSplineEquations::MakeCostMatrix (const ValXY& weight, MotionDerivative deriv) const
 {
   // total number of coefficients to be optimized
-  int n_coeff = com_spline_.GetTotalFreeCoeff();
+  int n_coeff = com_spline_.GetRows();
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
   int i=0;
   for (const auto& p : com_spline_.GetPolynomials()) {

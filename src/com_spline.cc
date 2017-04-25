@@ -19,7 +19,7 @@
 namespace xpp {
 namespace opt {
 
-ComSpline::ComSpline ()
+ComSpline::ComSpline () : Component(-1, "com_spline")
 {
 }
 
@@ -38,6 +38,8 @@ ComSpline::Init (double t_global, double duration_polynomial)
 
   // final polynomial has different duration
   polynomials_.push_back(PolyXdT(t_left));
+
+  SetRows(polynomials_.size() * NumFreeCoeffPerSpline() * kDim2d);
 }
 
 StateLin2d ComSpline::GetCom(double t_global) const
@@ -58,16 +60,10 @@ ComSpline::Index (int poly, Coords3D dim, PolyCoeff coeff) const
        + coeff;
 }
 
-int
-ComSpline::GetTotalFreeCoeff () const
-{
-  return polynomials_.size() * NumFreeCoeffPerSpline() * kDim2d;
-}
-
 VectorXd
-ComSpline::GetXYSplineCoeffients () const
+ComSpline::GetValues () const
 {
-  VectorXd x_abcd(GetTotalFreeCoeff());
+  VectorXd x_abcd(GetRows());
 
   int i=0;
   for (const auto& s : polynomials_) {
@@ -104,7 +100,7 @@ ComSpline::JacobianRow
 ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_local,
                                             int id, Coords3D dim) const
 {
-  JacobianRow jac(1, GetTotalFreeCoeff());
+  JacobianRow jac(1, GetRows());
   auto polynomial = polynomials_.at(id).GetDim(dim);
 
   for (auto coeff : polynomial.GetCoeffIds()) {
@@ -117,7 +113,7 @@ ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_loc
 }
 
 void
-ComSpline::SetSplineXYCoefficients (const VectorXd& optimized_coeff)
+ComSpline::SetValues (const VectorXd& optimized_coeff)
 {
   for (size_t p=0; p<polynomials_.size(); ++p) {
     auto& poly = polynomials_.at(p);
@@ -126,13 +122,6 @@ ComSpline::SetSplineXYCoefficients (const VectorXd& optimized_coeff)
         poly.SetCoefficients(dim, c, optimized_coeff[Index(p,dim,c)]);
   }
 }
-
-//void
-//ComSpline::SetCoefficientsZero ()
-//{
-//  Eigen::VectorXd coeff(GetTotalFreeCoeff());
-//  SetSplineXYCoefficients(coeff.setZero());
-//}
 
 int
 ComSpline::NumFreeCoeffPerSpline () const
