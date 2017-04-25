@@ -18,6 +18,8 @@
 #include <xpp/matrix_vector.h>
 #include <xpp/opt/constraints/composite.h>
 
+#include <xpp/opt/com_spline.h>
+
 namespace xpp {
 namespace opt {
 
@@ -36,40 +38,25 @@ public:
   BaseMotion ();
   virtual ~BaseMotion ();
 
-  // can't do in constructor, because using pure virtual functions
-  void SetVariableCount();
+  void AddComSpline(const ComSpline&);
 
   virtual VectorXd GetValues() const override;
   virtual void SetValues(const VectorXd&) override;
 
 
-  void SetOffsetGeomToCom(const Vector3d& offset);
   State3d GetBase(double t_global) const;
 
   /** @returns the Center of Mass position, velocity and acceleration in 2D.
     *
     * @param t_global current time
     */
-  virtual StateLin2d GetCom(double t_global) const = 0;
-  virtual double GetTotalTime() const = 0;
+  StateLin2d GetCom(double t_global) const;
+  double GetTotalTime() const;
 
 
 
-  /** @brief Creates a linear approximation of the motion at the current coefficients.
-    *
-    * Given some general nonlinear function x(u) = ... that represents the motion
-    * of the system. A linear approximation of this function around specific
-    * coefficients u* can be found using the Jacobian J evaluated at that point and
-    * the value of the original function at *u:
-    *
-    * x(u) ~ J(u*)*(u-u*) + x(u*)
-    *
-    * @return The Jacobian J(u*) evaluated at u* and the corresponding offset x(u*).
-    */
-  VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative, Coords3D dim) const;
+  double GetZHeight() const { return com_spline_.z_height_; };
 
-  double GetZHeight() const { return z_height_; };
-  void SetConstantHeight(double z) { z_height_ = z; };
 
 
   /** @brief Calculates the Jacobian J of the motion with respect to the coefficients.
@@ -78,7 +65,7 @@ public:
     * @param dxdt wheather Jacobian for position, velocity, acceleration or jerk is desired
     * @param dim which motion dimension (x,y) the jacobian represents.
     */
-  virtual JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const = 0;
+  JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const;
 //  virtual JacobianRow GetJacobianVelSquared(double t_global, Coords3D dim) const = 0;
 //  virtual JacobianRow GetJacobianPosVelSquared(double t_global, Coords3D dim) const = 0;
 
@@ -88,19 +75,20 @@ public:
     * These can be spline coefficients or coefficients from any type of equation
     * that produce x(t) = ...
     */
-  virtual VectorXd GetXYSplineCoeffients() const = 0;
+//  virtual VectorXd GetXYSplineCoeffients() const = 0;
 
+  // zmp_ make private
+  ComSpline com_spline_;
 protected:
 
-  virtual void SetSplineXYCoefficients(const VectorXd& coeff) = 0;
+//  virtual void SetSplineXYCoefficients(const VectorXd& coeff) = 0;
 
 
 private:
-  double z_height_;
-  Vector3d offset_geom_to_com_;
+
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_COM_MOTION_H_ */

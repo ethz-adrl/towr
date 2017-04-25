@@ -62,18 +62,21 @@ MotionOptimizerFacade::BuildVariables ()
   double com_height = motion_parameters_->geom_walking_height_
                     + motion_parameters_->offset_geom_to_com_.z();
 
-  auto com_motion = std::make_shared<ComSpline>();
-  com_motion->SetConstantHeight(com_height);
-  com_motion->Init(T, motion_parameters_->duration_polynomial_);
+  ComSpline com_motion;
+//  auto com_motion = std::make_shared<ComSpline>();
+  com_motion.z_height_= com_height;
+  com_motion.offset_geom_to_com_ = motion_parameters_->offset_geom_to_com_;
+  com_motion.Init(T, motion_parameters_->duration_polynomial_);
+  auto base_motion = std::make_shared<BaseMotion>();
+  base_motion->AddComSpline(com_motion);
 
-  com_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
   double load_dt = 0.02;
   auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(),
                                                 load_dt, T, *contact_schedule);
 
   opt_variables_->ClearComponents();
-  opt_variables_->AddComponent(com_motion);
+  opt_variables_->AddComponent(base_motion);
   opt_variables_->AddComponent(ee_motion);
   opt_variables_->AddComponent(load);
   opt_variables_->AddComponent(contact_schedule);

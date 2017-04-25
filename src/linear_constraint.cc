@@ -39,7 +39,7 @@ LinearEqualityConstraint::~LinearEqualityConstraint ()
 LinearEqualityConstraint::VectorXd
 LinearEqualityConstraint::GetValues () const
 {
-  VectorXd x = com_motion_->GetXYSplineCoeffients();
+  VectorXd x = com_motion_->com_spline_.GetXYSplineCoeffients();
   return linear_equation_.M*x;
 }
 

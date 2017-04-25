@@ -9,16 +9,16 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 
 #include <array>
-#include <cstddef>
 #include <memory>
 #include <vector>
-#include <sys/types.h>
 #include <Eigen/Dense>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
 #include <xpp/matrix_vector.h>
+
+#include "com_spline.h"
 
 namespace xpp {
 namespace opt {
@@ -37,7 +37,6 @@ class ComSpline;
 class LinearSplineEquations {
 public:
   using MotionDerivatives = std::vector<MotionDerivative>;
-  using ComSplinePtr      = std::shared_ptr<ComSpline>;
   using BaseMotionPtr     = std::shared_ptr<BaseMotion>;
   using ValXY             = std::array<double,2>;
 
@@ -45,7 +44,7 @@ public:
   /** @attention ComMotion is downcast to ComSpline.
     */
   LinearSplineEquations();
-  LinearSplineEquations (const ComSplinePtr&);
+  LinearSplineEquations (const ComSpline&);
   virtual ~LinearSplineEquations ();
 
 
@@ -80,7 +79,7 @@ public:
   Eigen::MatrixXd MakeCostMatrix(const ValXY& weight_xy, MotionDerivative) const;
 
 private:
-  ComSplinePtr com_spline_;
+  ComSpline com_spline_;
 };
 
 } /* namespace opt */

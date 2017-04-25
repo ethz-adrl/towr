@@ -7,22 +7,25 @@
 
 #include <xpp/opt/cost_constraint_factory.h>
 
+#include <array>
 #include <cassert>
+#include <map>
 #include <stdexcept>
+#include <vector>
 #include <Eigen/Dense>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 
 #include <xpp/matrix_vector.h>
-#include <xpp/opt/com_spline.h>
-#include <xpp/opt/costs/polynomial_cost.h>
-#include <xpp/opt/costs/soft_constraint.h>
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/foothold_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
 #include <xpp/opt/constraints/polygon_center_constraint.h>
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
+#include <xpp/opt/costs/polynomial_cost.h>
+#include <xpp/opt/costs/soft_constraint.h>
+#include <xpp/opt/variables/base_motion.h>
 
 namespace xpp {
 namespace opt {
@@ -42,9 +45,9 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
                              const StateLin2d& final_state)
 {
   opt_vars_ = opt_vars;
-
-  auto com_spline = std::dynamic_pointer_cast<ComSpline>(opt_vars->GetComponent("base_motion"));
-  spline_eq_ = LinearSplineEquations(com_spline);
+  auto base_motion = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
+  if (base_motion == nullptr) assert(false); // dynamic cast failed
+  spline_eq_ = LinearSplineEquations(base_motion->com_spline_);
 
   params = _params;
   initial_geom_state_ = initial_state;
@@ -111,7 +114,8 @@ CostConstraintFactory::MakeJunctionConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
-  double dt = params->duration_polynomial_/2;
+  int n_constraints_per_poly = 2;
+  double dt = params->duration_polynomial_/n_constraints_per_poly;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         params->GetTotalTime(),
                                                         dt

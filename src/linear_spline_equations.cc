@@ -19,10 +19,9 @@ LinearSplineEquations::LinearSplineEquations ()
 {
 }
 
-LinearSplineEquations::LinearSplineEquations (const ComSplinePtr& com_spline )
+LinearSplineEquations::LinearSplineEquations (const ComSpline& com_spline)
 {
-  com_spline_ = com_spline;           //std::dynamic_pointer_cast<ComSpline>(com_motion);
-  com_spline_->SetCoefficientsZero(); // the values my motion function approximation is around
+  com_spline_ = com_spline;
 }
 
 LinearSplineEquations::~LinearSplineEquations ()
@@ -35,14 +34,14 @@ LinearSplineEquations::MakeInitial (const StateLin2d& init) const
   auto derivatives =  {kPos, kVel, kAcc};
 
   int n_constraints = kDim2d *derivatives.size();
-  MatVec M(n_constraints, com_spline_->GetTotalFreeCoeff());
+  MatVec M(n_constraints, com_spline_.GetTotalFreeCoeff());
 
   int i = 0; // constraint count
   double t_global = 0.0;
   for (const Coords3D dim : {X,Y})
   {
     for (auto dxdt :  derivatives) {
-      VecScalar diff_dxdt = com_spline_->GetLinearApproxWrtCoeff(t_global, dxdt, dim);
+      VecScalar diff_dxdt = com_spline_.GetLinearApproxWrtCoeff(t_global, dxdt, dim);
       diff_dxdt.s -= init.GetByIndex(dxdt, dim);
       M.WriteRow(diff_dxdt, i++);
     }
@@ -57,15 +56,15 @@ LinearSplineEquations::MakeFinal (const StateLin2d& final_state,
                                   const MotionDerivatives& derivatives) const
 {
   int n_constraints = derivatives.size()*kDim2d;
-  int n_spline_coeff = com_spline_->GetTotalFreeCoeff();
+  int n_spline_coeff = com_spline_.GetTotalFreeCoeff();
   MatVec M(n_constraints, n_spline_coeff);
 
   int c = 0; // constraint count
-  double T = com_spline_->GetTotalTime();
+  double T = com_spline_.GetTotalTime();
   for (const Coords3D dim : {X,Y})
   {
     for (auto dxdt :  derivatives) {
-      VecScalar diff_dxdt = com_spline_->GetLinearApproxWrtCoeff(T, dxdt, dim);
+      VecScalar diff_dxdt = com_spline_.GetLinearApproxWrtCoeff(T, dxdt, dim);
       diff_dxdt.s -= final_state.GetByIndex(dxdt, dim);
       M.WriteRow(diff_dxdt, c++);
     }
@@ -80,11 +79,11 @@ LinearSplineEquations::MakeJunction () const
 {
   auto derivatives = {kPos, kVel};
 
-  auto polynomials = com_spline_->GetPolynomials();
+  auto polynomials = com_spline_.GetPolynomials();
 
   int n_junctions = polynomials.size()-1; // because one less junction than poly's.
   int n_constraints = derivatives.size() * n_junctions * kDim2d;
-  int n_spline_coeff = com_spline_->GetTotalFreeCoeff();
+  int n_spline_coeff = com_spline_.GetTotalFreeCoeff();
   MatVec M(n_constraints, n_spline_coeff);
 
   int i = 0; // constraint count
@@ -100,8 +99,8 @@ LinearSplineEquations::MakeJunction () const
         curr.s = ComSpline::PolyHelpers::GetPoint(id,    T, polynomials).GetByIndex(dxdt, dim);
         next.s = ComSpline::PolyHelpers::GetPoint(id+1,0.0, polynomials).GetByIndex(dxdt, dim);
 
-        curr.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);
-        next.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt, 0.0, id+1, dim);
+        curr.v = com_spline_.GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);
+        next.v = com_spline_.GetJacobianWrtCoeffAtPolynomial(dxdt, 0.0, id+1, dim);
 
         M.WriteRow(curr-next, i++);
       }
@@ -115,10 +114,10 @@ Eigen::MatrixXd
 LinearSplineEquations::MakeCostMatrix (const ValXY& weight, MotionDerivative deriv) const
 {
   // total number of coefficients to be optimized
-  int n_coeff = com_spline_->GetTotalFreeCoeff();
+  int n_coeff = com_spline_.GetTotalFreeCoeff();
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
   int i=0;
-  for (const auto& p : com_spline_->GetPolynomials()) {
+  for (const auto& p : com_spline_.GetPolynomials()) {
 
     for (const Coords3D dim : {X,Y}) {
 
@@ -144,8 +143,8 @@ LinearSplineEquations::MakeCostMatrix (const ValXY& weight, MotionDerivative der
           double exponent_order = (c1-deriv)+(c2-deriv);
           double val =  (deriv_wrt_c1*deriv_wrt_c2)/(exponent_order+1); //+1 because of integration
 
-          const int idx_row = com_spline_->Index(i, dim, c1);
-          const int idx_col = com_spline_->Index(i, dim, c2);
+          const int idx_row = com_spline_.Index(i, dim, c1);
+          const int idx_col = com_spline_.Index(i, dim, c2);
           M(idx_row, idx_col) = val*weight[dim];
         }
       }

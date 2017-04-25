@@ -38,8 +38,6 @@ ComSpline::Init (double t_global, double duration_polynomial)
 
   // final polynomial has different duration
   polynomials_.push_back(PolyXdT(t_left));
-
-  SetVariableCount();
 }
 
 StateLin2d ComSpline::GetCom(double t_global) const
@@ -82,6 +80,17 @@ ComSpline::GetXYSplineCoeffients () const
   return x_abcd;
 }
 
+VecScalar
+ComSpline::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coords3D dim) const
+{
+  VecScalar linear_approx; // at current coefficient values
+
+  linear_approx.v = GetJacobian(t_global, dxdt, dim);
+  linear_approx.s = GetCom(t_global).GetByIndex(dxdt, dim);
+
+  return linear_approx;
+}
+
 ComSpline::JacobianRow
 ComSpline::GetJacobian (double t_global, MotionDerivative deriv, Coords3D dim) const
 {
@@ -118,12 +127,12 @@ ComSpline::SetSplineXYCoefficients (const VectorXd& optimized_coeff)
   }
 }
 
-void
-ComSpline::SetCoefficientsZero ()
-{
-  Eigen::VectorXd coeff(GetTotalFreeCoeff());
-  SetSplineXYCoefficients(coeff.setZero());
-}
+//void
+//ComSpline::SetCoefficientsZero ()
+//{
+//  Eigen::VectorXd coeff(GetTotalFreeCoeff());
+//  SetSplineXYCoefficients(coeff.setZero());
+//}
 
 int
 ComSpline::NumFreeCoeffPerSpline () const
