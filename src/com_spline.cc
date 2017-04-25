@@ -39,12 +39,23 @@ ComSpline::Init (double t_global, double duration_polynomial)
   // final polynomial has different duration
   polynomials_.push_back(PolyXdT(t_left));
 
-  SetRows(polynomials_.size() * NumFreeCoeffPerSpline() * kDim2d);
+  SetRows(polynomials_.size() * NumFreeCoeffPerSpline() * dim_.size());
+
+  // zmp_ remove
+//  z_height_ = height;
 }
 
-StateLin2d ComSpline::GetCom(double t_global) const
+StateLin3d ComSpline::GetCom(double t_global) const
 {
-  return PolyHelpers::GetPoint(t_global, polynomials_);
+  // zmp_ remove
+  StateLin3d com;
+
+  StateLin2d xy = PolyHelpers::GetPoint(t_global, polynomials_);
+  com.SetDimension(xy.Get1d(X),X);
+  com.SetDimension(xy.Get1d(Y),Y);
+  com.p.z() = z_height_;
+
+  return com;
 }
 
 double ComSpline::GetTotalTime() const
@@ -55,7 +66,7 @@ double ComSpline::GetTotalTime() const
 int
 ComSpline::Index (int poly, Coords3D dim, PolyCoeff coeff) const
 {
-  return NumFreeCoeffPerSpline() * kDim2d * poly
+  return NumFreeCoeffPerSpline() * dim_.size() * poly
        + NumFreeCoeffPerSpline() * dim
        + coeff;
 }
@@ -67,7 +78,7 @@ ComSpline::GetValues () const
 
   int i=0;
   for (const auto& s : polynomials_) {
-    for (auto dim : { X, Y })
+    for (auto dim : dim_)
       for (auto coeff :  s.GetDim(dim).GetCoeffIds())
         x_abcd[Index(i, dim, coeff)] = s.GetCoefficient(dim, coeff);
     i++;
@@ -117,7 +128,7 @@ ComSpline::SetValues (const VectorXd& optimized_coeff)
 {
   for (size_t p=0; p<polynomials_.size(); ++p) {
     auto& poly = polynomials_.at(p);
-    for (const Coords3D dim : {X,Y})
+    for (const Coords3D dim : dim_)
       for (auto c : poly.GetDim(dim).GetCoeffIds())
         poly.SetCoefficients(dim, c, optimized_coeff[Index(p,dim,c)]);
   }

@@ -42,7 +42,7 @@ void
 CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
                              const MotionParamsPtr& _params,
                              const RobotStateCartesian& initial_state,
-                             const StateLin2d& final_state)
+                             const StateLin3d& final_state)
 {
   opt_vars_ = opt_vars;
   auto base_motion = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
@@ -50,7 +50,7 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
 
   params = _params;
   initial_geom_state_ = initial_state;
-  final_geom_state_ = final_state;
+  final_geom_state_   = final_state;
 }
 
 CostConstraintFactory::ConstraintPtr
@@ -85,8 +85,8 @@ CostConstraintFactory::GetCost(CostName name) const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeInitialConstraint () const
 {
-  StateLin2d initial_com_state = initial_geom_state_.GetBase().lin.Get2D();
-  initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
+  auto initial_com_state = initial_geom_state_.GetBase().lin;
+  initial_com_state.p += params->offset_geom_to_com_;
   MatVec lin_eq = spline_eq_.MakeInitial(initial_com_state);
 
   return std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq);
@@ -95,8 +95,8 @@ CostConstraintFactory::MakeInitialConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeFinalConstraint () const
 {
-  StateLin2d final_com_state = final_geom_state_;
-  final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
+  auto final_com_state = final_geom_state_;
+  final_com_state.p += params->offset_geom_to_com_;
   MatVec lin_eq = spline_eq_.MakeFinal(final_geom_state_, {kPos, kVel, kAcc});
 
   return std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq);
@@ -153,7 +153,7 @@ CostConstraintFactory::MakeStancesConstraints () const
   EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
   EndeffectorsPos endeffectors_final_W(nominal_B.GetCount());
   for (auto ee : endeffectors_final_W.GetEEsOrdered())
-    endeffectors_final_W.At(ee) = final_geom_state_.Make3D().p + nominal_B.At(ee);
+    endeffectors_final_W.At(ee) = final_geom_state_.p + nominal_B.At(ee);
 
 
   auto constraint_final = std::make_shared<FootholdConstraint>(
@@ -175,7 +175,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeMotionCost(double weight) const
 {
   MotionDerivative dxdt = kAcc;
-  std::array<double,2> weight_xy = {1.0, 1.0};
+  std::array<double,3> weight_xy = {1.0, 1.0, 1.0};
   Eigen::MatrixXd term = spline_eq_.MakeCostMatrix(weight_xy, dxdt);
 
   MatVec mv(term.rows(), term.cols());

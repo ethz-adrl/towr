@@ -63,10 +63,9 @@ MotionOptimizerFacade::BuildVariables ()
                     + motion_parameters_->offset_geom_to_com_.z();
 
   auto com_motion = std::make_shared<ComSpline>();
-  com_motion->z_height_= com_height;
-  com_motion->offset_geom_to_com_ = motion_parameters_->offset_geom_to_com_;
   com_motion->Init(T, motion_parameters_->duration_polynomial_);
   auto base_motion = std::make_shared<BaseMotion>(com_motion);
+  base_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
 
   double load_dt = 0.02;
@@ -86,7 +85,7 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
   BuildVariables();
 
   CostConstraintFactory factory;
-  factory.Init(opt_variables_, motion_parameters_, start_geom_, goal_geom_.Get2D());
+  factory.Init(opt_variables_, motion_parameters_, start_geom_, goal_geom_);
 
   nlp.Init(opt_variables_);
 

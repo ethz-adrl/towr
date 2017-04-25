@@ -34,14 +34,14 @@ PolynomialXd<PolynomialType, PointType>::GetDuration () const
   return polynomials_.at(X).GetDuration();
 }
 
-template<typename PolynomialType, typename PointType>
-typename PolynomialXd<PolynomialType, PointType>::Vector
-PolynomialXd<PolynomialType, PointType>::GetState (MotionDerivative pos_vel_acc_jerk,
-                                                   double t) const
-{
-  PointT p = GetPoint(t);
-  return p.GetByIndex(pos_vel_acc_jerk);
-}
+//template<typename PolynomialType, typename PointType>
+//typename PolynomialXd<PolynomialType, PointType>::Vector
+//PolynomialXd<PolynomialType, PointType>::GetState (MotionDerivative pos_vel_acc_jerk,
+//                                                   double t) const
+//{
+//  PointT p = GetPoint(t);
+//  return p.GetByIndex(pos_vel_acc_jerk);
+//}
 
 template<typename PolynomialType, typename PointType>
 const double
@@ -121,22 +121,24 @@ PolyVecManipulation<TPolyXd>::GetPoint(
   int idx        = GetPolynomialID(t_global,splines);
   double t_local = GetLocalTime(t_global, splines);
 
-  return GetPoint(idx, t_local, splines);
+  return splines.at(idx).GetPoint(t_local);
+//  return GetPoint(idx, t_local, splines);
 }
 
-template<typename TPolyXd>
-typename PolyVecManipulation<TPolyXd>::PointType
-PolyVecManipulation<TPolyXd>::GetPoint (
-    int idx, double t_local, const VecPolynomials& splines)
-{
-  StateLin2d cog_xy;
-  cog_xy.p = splines[idx].GetState(kPos, t_local);
-  cog_xy.v = splines[idx].GetState(kVel, t_local);
-  cog_xy.a = splines[idx].GetState(kAcc, t_local);
-  cog_xy.j = splines[idx].GetState(kJerk, t_local);
-
-  return cog_xy;
-}
+// zmp_ remove
+//template<typename TPolyXd>
+//typename PolyVecManipulation<TPolyXd>::PointType
+//PolyVecManipulation<TPolyXd>::GetPoint (
+//    int idx, double t_local, const VecPolynomials& splines)
+//{
+//  PointType cog_xy = splines.at(idx).GetPoint(t_local);
+//  cog_xy.p = splines[idx].GetState(kPos, t_local);
+//  cog_xy.v = splines[idx].GetState(kVel, t_local);
+//  cog_xy.a = splines[idx].GetState(kAcc, t_local);
+//  cog_xy.j = splines[idx].GetState(kJerk, t_local);
+//
+//  return cog_xy;
+//}
 
 template<typename TPolyXd>
 int

@@ -29,16 +29,16 @@ LinearSplineEquations::~LinearSplineEquations ()
 }
 
 MatVec
-LinearSplineEquations::MakeInitial (const StateLin2d& init) const
+LinearSplineEquations::MakeInitial (const StateLin3d& init) const
 {
   auto derivatives =  {kPos, kVel, kAcc};
 
-  int n_constraints = kDim2d *derivatives.size();
+  int n_constraints = com_spline_.dim_.size() *derivatives.size();
   MatVec M(n_constraints, com_spline_.GetRows());
 
   int i = 0; // constraint count
   double t_global = 0.0;
-  for (const Coords3D dim : {X,Y})
+  for (const Coords3D dim : com_spline_.dim_)
   {
     for (auto dxdt :  derivatives) {
       VecScalar diff_dxdt = com_spline_.GetLinearApproxWrtCoeff(t_global, dxdt, dim);
@@ -52,16 +52,16 @@ LinearSplineEquations::MakeInitial (const StateLin2d& init) const
 }
 
 MatVec
-LinearSplineEquations::MakeFinal (const StateLin2d& final_state,
+LinearSplineEquations::MakeFinal (const StateLin3d& final_state,
                                   const MotionDerivatives& derivatives) const
 {
-  int n_constraints = derivatives.size()*kDim2d;
+  int n_constraints = derivatives.size()*com_spline_.dim_.size();
   int n_spline_coeff = com_spline_.GetRows();
   MatVec M(n_constraints, n_spline_coeff);
 
   int c = 0; // constraint count
   double T = com_spline_.GetTotalTime();
-  for (const Coords3D dim : {X,Y})
+  for (const Coords3D dim : com_spline_.dim_)
   {
     for (auto dxdt :  derivatives) {
       VecScalar diff_dxdt = com_spline_.GetLinearApproxWrtCoeff(T, dxdt, dim);
@@ -82,7 +82,7 @@ LinearSplineEquations::MakeJunction () const
   auto polynomials = com_spline_.GetPolynomials();
 
   int n_junctions = polynomials.size()-1; // because one less junction than poly's.
-  int n_constraints = derivatives.size() * n_junctions * kDim2d;
+  int n_constraints = derivatives.size() * n_junctions * com_spline_.dim_.size();
   int n_spline_coeff = com_spline_.GetRows();
   MatVec M(n_constraints, n_spline_coeff);
 
@@ -91,13 +91,13 @@ LinearSplineEquations::MakeJunction () const
   for (int id = 0; id < n_junctions; ++id) {
     double T = polynomials.at(id).GetDuration();
 
-    for (auto dim : {X,Y}) {
+    for (auto dim : com_spline_.dim_) {
       for (auto dxdt :  derivatives) {
         VecScalar curr, next;
 
         // coefficients are all set to zero
-        curr.s = ComSpline::PolyHelpers::GetPoint(id,    T, polynomials).GetByIndex(dxdt, dim);
-        next.s = ComSpline::PolyHelpers::GetPoint(id+1,0.0, polynomials).GetByIndex(dxdt, dim);
+        curr.s = polynomials.at(id).GetPoint(T).GetByIndex(dxdt, dim);
+        next.s = polynomials.at(id+1).GetPoint(0.0).GetByIndex(dxdt, dim);
 
         curr.v = com_spline_.GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);
         next.v = com_spline_.GetJacobianWrtCoeffAtPolynomial(dxdt, 0.0, id+1, dim);
@@ -119,7 +119,7 @@ LinearSplineEquations::MakeCostMatrix (const ValXY& weight, MotionDerivative der
   int i=0;
   for (const auto& p : com_spline_.GetPolynomials()) {
 
-    for (const Coords3D dim : {X,Y}) {
+    for (const Coords3D dim : com_spline_.dim_) {
 
       auto poly = p.GetDim(dim);
       double T = poly.GetDuration();

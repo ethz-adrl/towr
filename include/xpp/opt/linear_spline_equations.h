@@ -38,7 +38,7 @@ class LinearSplineEquations {
 public:
   using MotionDerivatives = std::vector<MotionDerivative>;
   using BaseMotionPtr     = std::shared_ptr<BaseMotion>;
-  using ValXY             = std::array<double,2>;
+  using ValXY             = std::array<double,3>;
 
 
   /** @attention ComMotion is downcast to ComSpline.
@@ -52,13 +52,13 @@ public:
     *
     * @param init desired initial position, velocity and acceleration.
     */
-  MatVec MakeInitial(const StateLin2d& init) const;
+  MatVec MakeInitial(const StateLin3d& init) const;
 
   /** M*x + v gives the difference to the desired final state
     *
     * @param final desired final position, velocity and acceleration.
     */
-  MatVec MakeFinal(const StateLin2d& final, const MotionDerivatives& ) const;
+  MatVec MakeFinal(const StateLin3d& final, const MotionDerivatives& ) const;
 
   /** M*x + v gives the difference at the polynomial junctions of the spline
     *

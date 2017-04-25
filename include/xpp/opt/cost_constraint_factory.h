@@ -41,7 +41,7 @@ public:
   void Init(const OptVarsContainer&,
             const MotionParamsPtr& params,
             const RobotStateCartesian& initial_state,
-            const StateLin2d& final_state);
+            const StateLin3d& final_state);
 
   ConstraintPtr GetCost(CostName name) const;
   ConstraintPtr GetConstraint(ConstraintName name) const;
@@ -51,7 +51,7 @@ private:
 
   OptVarsContainer opt_vars_;
   RobotStateCartesian initial_geom_state_;
-  StateLin2d final_geom_state_;
+  StateLin3d final_geom_state_;
 
   LinearSplineEquations spline_eq_;
 

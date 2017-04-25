@@ -31,11 +31,13 @@ namespace opt {
   */
 class ComSpline : public Component {
 public:
-  using Derivatives    = std::vector<MotionDerivative>;
-  using PolyCoeff      = Polynomial::PolynomialCoeff;
   using PolyXdT        = PolynomialXd<CubicPolynomial, StateLin2d>;
+  std::vector<Coords3D> dim_ = { X, Y };
   using PolyHelpers    = PolyVecManipulation<PolyXdT>;
   using VecPolynomials = PolyHelpers::VecPolynomials;
+
+  using Derivatives    = std::vector<MotionDerivative>;
+  using PolyCoeff      = Polynomial::PolynomialCoeff;
   using JacobianRow    = Eigen::SparseVector<double, Eigen::RowMajor>;
 
   ComSpline ();
@@ -46,7 +48,7 @@ public:
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
 
-  StateLin2d GetCom(double t_global) const;
+  StateLin3d GetCom(double t_global) const;
   double GetTotalTime() const;
 
   int Index(int polynomial, Coords3D dim, PolyCoeff coeff) const;
@@ -81,12 +83,11 @@ public:
 
   VecPolynomials GetPolynomials() const { return polynomials_; }
 
-  // zmp_ make private
-  Vector3d offset_geom_to_com_;
-  double z_height_ = 0.0;
   JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const;
+
 private:
   VecPolynomials polynomials_;
+  double z_height_ = 0.58;
 
   // careful: assumes all splines (X,Y,1,..,n) same type
   int NumFreeCoeffPerSpline() const;

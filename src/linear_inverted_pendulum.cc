@@ -21,13 +21,12 @@ LinearInvertedPendulum::~LinearInvertedPendulum ()
 }
 
 void
-LinearInvertedPendulum::SetCurrent (const ComPos& pos,
-                                    double height,
+LinearInvertedPendulum::SetCurrent (const Vector3d& com_pos,
                                     const EELoad& ee_load,
                                     const EEPos& ee_pos)
 {
-  pos_     = pos;
-  h_       = height;
+  pos_     = com_pos.topRows<kDim2d>();
+  h_       = com_pos.z();
   ee_load_ = ee_load;
   ee_pos_  = ee_pos;
 }

@@ -24,21 +24,16 @@ BaseMotion::~BaseMotion ()
 State3d
 BaseMotion::GetBase (double t_global) const
 {
-  State3d base; // z and orientation all at zero
+  State3d base; // positions and orientations set to zero
 
-  StateLin2d com_xy = GetCom(t_global);
-
-  // since the optimized motion is for the CoM and not the geometric center
-  base.lin.p.topRows(kDim2d) = com_xy.p - com_spline_->offset_geom_to_com_.topRows<kDim2d>();
-  base.lin.p.z() = com_spline_->z_height_;
-
-  base.lin.v.topRows(kDim2d) = com_xy.v;
-  base.lin.a.topRows(kDim2d) = com_xy.a;
+  StateLin3d com = GetCom(t_global);
+  com.p -= offset_geom_to_com_;
+  base.lin = com;
 
   return base;
 }
 
-StateLin2d
+StateLin3d
 BaseMotion::GetCom (double t_global) const
 {
   return com_spline_->GetCom(t_global);
@@ -60,6 +55,12 @@ ComSpline
 xpp::opt::BaseMotion::GetComSpline () const
 {
   return *com_spline_;
+}
+
+void
+BaseMotion::SetOffsetGeomToCom (const Vector3d& val)
+{
+  offset_geom_to_com_ = val;
 }
 
 } /* namespace opt */

@@ -44,14 +44,16 @@ public:
   JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const;
 
   State3d GetBase(double t_global) const;
-  StateLin2d GetCom(double t_global) const;
+  StateLin3d GetCom(double t_global) const;
 
   double GetTotalTime() const;
-  double GetZHeight() const { return com_spline_->z_height_; };
   ComSpline GetComSpline() const;
+
+  void SetOffsetGeomToCom(const Vector3d&);
 
 private:
   ComSplinePtr com_spline_; // to retain specific spline info
+  Vector3d offset_geom_to_com_;
 };
 
 } /* namespace opt */

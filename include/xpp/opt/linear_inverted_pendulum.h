@@ -33,7 +33,7 @@ public:
   LinearInvertedPendulum ();
   virtual ~LinearInvertedPendulum ();
 
-  void SetCurrent(const ComPos&, double height, const EELoad&, const EEPos&);
+  void SetCurrent(const Vector3d& com, const EELoad&, const EEPos&);
 
   ComAcc GetAcceleration() const;
 
