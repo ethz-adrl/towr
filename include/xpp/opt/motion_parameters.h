@@ -58,7 +58,7 @@ public:
 
 
   MotionTypeID id_;
-  int polynomials_per_second_;
+  double duration_polynomial_;
   double geom_walking_height_;
   PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
 

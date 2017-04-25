@@ -28,29 +28,19 @@ ComSpline::~ComSpline ()
 }
 
 void
-ComSpline::Init (double t_global, int polynomials_per_second)
+ComSpline::Init (double t_global, double duration_polynomial)
 {
-  int n_polyomials = std::ceil(t_global*polynomials_per_second);
+  double t_left = t_global;
+  while (t_left > duration_polynomial) {
+    polynomials_.push_back(PolyXdT(duration_polynomial));
+    t_left -= duration_polynomial;
+  }
 
-  for (int i=0; i<n_polyomials; ++i)
-    polynomials_.push_back(PolyXdT(t_global/n_polyomials));
+  // final polynomial has different duration
+  polynomials_.push_back(PolyXdT(t_left));
 
   SetVariableCount();
 }
-
-//void
-//ComSpline::Init (const MotionPhases& phases, int polynomials_per_second)
-//{
-//  int id=0;
-//  for (const auto& phase : phases) {
-//    double T = phase.duration_;
-//    int polys_per_phase = std::ceil(T*polynomials_per_second);
-//    for (int i=0; i<polys_per_phase; ++i)
-//      polynomials_.push_back(ComPolynomial(id++, T/polys_per_phase));
-//  }
-//
-//  splines_initialized_ = true;
-//}
 
 StateLin2d ComSpline::GetCom(double t_global) const
 {
@@ -84,7 +74,7 @@ ComSpline::GetXYSplineCoeffients () const
   int i=0;
   for (const auto& s : polynomials_) {
     for (auto dim : { X, Y })
-      for (auto coeff :  s.GetDim(dim).GetAllCoefficients())
+      for (auto coeff :  s.GetDim(dim).GetCoeffIds())
         x_abcd[Index(i, dim, coeff)] = s.GetCoefficient(dim, coeff);
     i++;
   }
@@ -108,7 +98,7 @@ ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_loc
   JacobianRow jac(1, GetTotalFreeCoeff());
   auto polynomial = polynomials_.at(id).GetDim(dim);
 
-  for (auto coeff : polynomial.GetAllCoefficients()) {
+  for (auto coeff : polynomial.GetCoeffIds()) {
     double val = polynomial.GetDerivativeWrtCoeff(deriv, coeff, t_local);
     int idx = Index(id,dim,coeff);
     jac.insert(idx) = val;
@@ -123,7 +113,7 @@ ComSpline::SetSplineXYCoefficients (const VectorXd& optimized_coeff)
   for (size_t p=0; p<polynomials_.size(); ++p) {
     auto& poly = polynomials_.at(p);
     for (const Coords3D dim : {X,Y})
-      for (auto c : poly.GetDim(dim).GetAllCoefficients())
+      for (auto c : poly.GetDim(dim).GetCoeffIds())
         poly.SetCoefficients(dim, c, optimized_coeff[Index(p,dim,c)]);
   }
 }
@@ -139,7 +129,7 @@ int
 ComSpline::NumFreeCoeffPerSpline () const
 {
   // careful: assuming all polynomials and dimensions are same polynomial.
-  return polynomials_.front().GetDim(X).GetAllCoefficients().size();
+  return polynomials_.front().GetDim(X).GetCoeffIds().size();
 }
 
 } /* namespace opt */

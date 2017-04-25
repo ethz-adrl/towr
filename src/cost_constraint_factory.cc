@@ -111,7 +111,7 @@ CostConstraintFactory::MakeJunctionConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
-  double dt = 0.05;
+  double dt = params->duration_polynomial_/2;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         params->GetTotalTime(),
                                                         dt

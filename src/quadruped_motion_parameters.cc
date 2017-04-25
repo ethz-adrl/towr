@@ -23,6 +23,7 @@ namespace quad{
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
   geom_walking_height_ = 0.58;
+  duration_polynomial_ = 0.15; //s
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
 //  offset_geom_to_com_ << -0.03, 0.02, 0.0;
   offset_geom_to_com_ << 0,0,0;
@@ -85,7 +86,6 @@ Walk::Walk()
 {
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::WalkID;
-  polynomials_per_second_ = 6;
 
   double t_phase = 0.2;
   double t_trans = 0.1;
@@ -135,7 +135,7 @@ Walk::Walk()
 
 
   cost_weights_[ComCostID]          = 1.0;
-  cost_weights_[RangOfMotionCostID] = 30.0;
+  cost_weights_[RangOfMotionCostID] = 100.0;
   cost_weights_[PolyCenterCostID]   = 10.0;
 //  cost_weights_[FinalComCostID] = 1000.0;
 }
@@ -144,7 +144,6 @@ Trot::Trot()
 {
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::TrotID;
-  polynomials_per_second_ = 6;
 
   double t_phase = 0.3;
   double t_trans = 0.1;
@@ -184,7 +183,6 @@ Pace::Pace()
 {
   max_dev_xy_ = {0.20, 0.20};
   id_ = opt::PaceID;
-  polynomials_per_second_ = 6;
 
   contact_timings_ =
   {
@@ -216,7 +214,6 @@ Bound::Bound()
 {
   max_dev_xy_ = {0.25, 0.25};
   id_ = opt::BoundID;
-  polynomials_per_second_ = 6;
 
   contact_timings_ =
   {
@@ -249,7 +246,6 @@ PushRecovery::PushRecovery ()
 {
   max_dev_xy_ = {0.15, 0.15};
   id_ = opt::PushRecID;
-  polynomials_per_second_ = 5;
 
   double t_phase = 0.25;
   contact_timings_ = {t_phase, t_phase};

@@ -35,7 +35,7 @@ public:
   enum PointType {Start=0, Goal=1};
 
 public:
-  Polynomial();
+  Polynomial(int order);
   virtual ~Polynomial() {};
 
   /**
@@ -59,14 +59,13 @@ public:
   double GetCoefficient(PolynomialCoeff coeff) const;
   void SetCoefficient(PolynomialCoeff coeff, double value);
 
-  virtual CoeffVec GetAllCoefficients() const = 0;
-
+  CoeffVec GetCoeffIds() const;
   double GetDuration() const;
 
 protected:
-  double duration;
-  // spring_clean_ make this vector of always appropriate size
-  std::array< double, 6 > coeff_; //!< coefficients of spline
+  double duration = 0.0;
+  std::vector< double> coeff_; //!< coefficients of spline
+  CoeffVec coeff_ids_;
 
 private:
   /**
@@ -80,17 +79,10 @@ private:
 };
 
 
-/**
- * @ingroup Polynomials
- * \anchor polynomials ready to use.
- * @{
- */
 class LinearPolynomial : public Polynomial {
 public:
-  LinearPolynomial() {};
+  LinearPolynomial() : Polynomial(1) {};
   ~LinearPolynomial() {};
-
-  virtual CoeffVec GetAllCoefficients() const override { return {A,B}; };
 
 private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
@@ -101,10 +93,8 @@ private:
  */
 class CubicPolynomial : public Polynomial {
 public:
-  CubicPolynomial() {};
+  CubicPolynomial() : Polynomial(3) {};
   ~CubicPolynomial() {};
-
-  virtual CoeffVec GetAllCoefficients() const override { return {A,B,C,D}; };
 
   // zmp_ move up to base class?
   double GetDerivativeOfPosWrtPos(double t, PointType p) const;
@@ -115,10 +105,8 @@ private:
 
 class QuinticPolynomial : public Polynomial {
 public:
-  QuinticPolynomial() {};
+  QuinticPolynomial() : Polynomial(5) {};
   ~QuinticPolynomial() {};
-
-  virtual CoeffVec GetAllCoefficients() const override { return {A,B,C,D,E,F}; };
 
 private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
@@ -130,10 +118,8 @@ private:
  */
 class LiftHeightPolynomial : public Polynomial {
 public:
-  LiftHeightPolynomial() {};
+  LiftHeightPolynomial() :Polynomial(5) {};
   ~LiftHeightPolynomial() {};
-
-  virtual CoeffVec GetAllCoefficients() const override { return {A,B,C,D,E,F}; };
 
   /** Determines how quick the height rises/drops.
    *

@@ -24,18 +24,19 @@ namespace opt {
   * This class is responsible for abstracting polynomial coefficients of multiple
   * polynomials into a CoM position/velocity and acceleration.
   */
+// zmp_ make this a member variable of base motion, not deriving from it!
 class ComSpline : public BaseMotion {
 public:
   using Derivatives    = std::vector<MotionDerivative>;
   using PolyCoeff      = Polynomial::PolynomialCoeff;
-  using PolyXdT        = PolynomialXd<QuinticPolynomial, StateLin2d>;
+  using PolyXdT        = PolynomialXd<CubicPolynomial, StateLin2d>;
   using PolyHelpers    = PolyVecManipulation<PolyXdT>;
   using VecPolynomials = PolyHelpers::VecPolynomials;
 
   ComSpline ();
   virtual ~ComSpline ();
 
-  void Init(double t_global, int polynomials_per_second);
+  void Init(double t_global, double duration_per_polynomial);
 
   StateLin2d GetCom(double t_global) const override;
   double GetTotalTime() const override;

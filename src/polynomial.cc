@@ -19,10 +19,13 @@ Spliners ready to use:
 namespace xpp {
 namespace opt {
 
-Polynomial::Polynomial()
+Polynomial::Polynomial (int order)
 {
-  for (double& _c : coeff_) _c = 0.0; /** set to zero so low-order Polynomials don't use. */
-  duration = 0.0;
+  int n_coeff = order+1;
+  for (int c=A; c<n_coeff; ++c) {
+    coeff_.push_back(0.0);
+    coeff_ids_.push_back(static_cast<PolynomialCoeff>(c));
+  }
 }
 
 void Polynomial::SetBoundary(double T, const StateLin1d& start_p, const StateLin1d& end_p)
@@ -37,7 +40,7 @@ void Polynomial::SetBoundary(double T, const StateLin1d& start_p, const StateLin
 /**
  * The spliner always calculates the splines in the same way, but if the
  * spline coefficients are zero (as set by @ref Spliner()), the higher-order
- * terms have no effect
+ * terms have no effect.
  */
 StateLin1d Polynomial::GetPoint(const double t) const
 {
@@ -48,7 +51,7 @@ StateLin1d Polynomial::GetPoint(const double t) const
   StateLin1d out;
 
   for (auto d : {kPos, kVel, kAcc, kJerk}) {
-    for (PolynomialCoeff c : GetAllCoefficients()) {
+    for (PolynomialCoeff c : GetCoeffIds()) {
       double val = GetDerivativeWrtCoeff(d, c, t)*coeff_[c];
       out.GetValue(d) += val;
     }
@@ -60,7 +63,7 @@ StateLin1d Polynomial::GetPoint(const double t) const
 double
 Polynomial::GetDerivativeWrtCoeff (MotionDerivative deriv, PolynomialCoeff c, double t) const
 {
-  if (c<deriv)
+  if (c<deriv)  // risky/ugly business...
     return 0.0; // derivative not depended on this coefficient.
 
   switch (deriv) {
@@ -79,6 +82,12 @@ double Polynomial::GetCoefficient(PolynomialCoeff coeff) const
 void Polynomial::SetCoefficient(PolynomialCoeff coeff, double value)
 {
   coeff_[coeff] = value;
+}
+
+Polynomial::CoeffVec
+Polynomial::GetCoeffIds () const
+{
+  return coeff_ids_;
 }
 
 double Polynomial::GetDuration() const
