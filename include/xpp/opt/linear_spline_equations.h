@@ -77,29 +77,13 @@ public:
     *
     * @param weight_xy larger value produces larger cost for x motion.
     */
-  Eigen::MatrixXd MakeAcceleration(const ValXY& weight_xy) const;
-  Eigen::MatrixXd MakeJerk(const ValXY& weight_xy) const;
+  Eigen::MatrixXd MakeCostMatrix(const ValXY& weight_xy, MotionDerivative) const;
 
 private:
   ComSplinePtr com_spline_;
-
-  template<std::size_t N>
-  std::array<double,N> CalcExponents(double t) const;
 };
 
-
-template<std::size_t N>
-std::array<double,N>
-LinearSplineEquations::CalcExponents(double t) const
-{
-  std::array<double,N> exp = {{ 1.0, t }};
-  for (uint e = 2; e < N; ++e)
-    exp[e] = exp[e-1] * t;
-  return exp;
-}
-
-
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_ */

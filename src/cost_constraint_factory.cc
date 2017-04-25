@@ -171,16 +171,9 @@ CostConstraintFactory::MakePolygonCenterConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeMotionCost(double weight) const
 {
-  Eigen::MatrixXd term;
   MotionDerivative dxdt = kAcc;
-
   std::array<double,2> weight_xy = {1.0, 1.0};
-
-  switch (dxdt) {
-    case kAcc:  term = spline_eq_.MakeAcceleration(weight_xy); break;
-    case kJerk: term = spline_eq_.MakeJerk(weight_xy); break;
-    default: assert(false); break; // this cost is not implemented
-  }
+  Eigen::MatrixXd term = spline_eq_.MakeCostMatrix(weight_xy, dxdt);
 
   MatVec mv(term.rows(), term.cols());
   mv.M = term;

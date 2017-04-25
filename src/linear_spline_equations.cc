@@ -112,96 +112,42 @@ LinearSplineEquations::MakeJunction () const
 }
 
 Eigen::MatrixXd
-LinearSplineEquations::MakeAcceleration (const ValXY& weight) const
+LinearSplineEquations::MakeCostMatrix (const ValXY& weight, MotionDerivative deriv) const
 {
   // total number of coefficients to be optimized
   int n_coeff = com_spline_->GetTotalFreeCoeff();
-
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
   int i=0;
   for (const auto& p : com_spline_->GetPolynomials()) {
-    std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
 
-      auto all_coeff = p.GetDim(dim).GetAllCoefficients();
-      for (auto c_row : all_coeff) {
-        for (auto c_col : all_coeff) {
+      auto poly = p.GetDim(dim);
+      double T = poly.GetDuration();
 
-          if (c_row < kAcc || c_col < kAcc)
-            continue;
-
-          double dAcc_dcrow = p.GetDim(dim).GetDerivativeWrtCoeff(kAcc,c_row,p.GetDuration());
-          double dAcc_dccol = p.GetDim(dim).GetDerivativeWrtCoeff(kAcc,c_col,p.GetDuration());
-          double numerator = (c_row-kAcc)+(c_col-kAcc)+1; //+1 because of integration
-
-          const int idx_row = com_spline_->Index(i, dim, c_row);
-          const int idx_col = com_spline_->Index(i, dim, c_col);
-          M(idx_row, idx_col) = (dAcc_dcrow*dAcc_dccol)/numerator;
-        }
+      // get only those coefficients that affect this derivative
+      auto all_coeff = poly.GetAllCoefficients();
+      Polynomial::CoeffVec coeff_vec;
+      for (auto c : all_coeff) {
+        if (c >= deriv) coeff_vec.push_back(c);
       }
 
-//      // for explanation of values see M.Kalakrishnan et al., page 248
-//      // "Learning, Planning and Control for Quadruped Robots over challenging
-//      // Terrain", IJRR, 2010
-//      const int f = com_spline_->Index(i, dim, ComSpline::PolyCoeff::F);
-//      const int e = com_spline_->Index(i, dim, ComSpline::PolyCoeff::E);
-//      const int d = com_spline_->Index(i, dim, ComSpline::PolyCoeff::D);
-//      const int c = com_spline_->Index(i, dim, ComSpline::PolyCoeff::C);
-//
-//      M(f, f) = 400.0 / 7.0      * t_span[7] * weight[dim];
-//      M(f, e) = 40.0             * t_span[6] * weight[dim];
-//      M(f, d) = 120.0 / 5.0      * t_span[5] * weight[dim];
-//      M(f, c) = 10.0             * t_span[4] * weight[dim];
-//
-//      M(e, e) = 144.0 / 5.0      * t_span[5] * weight[dim];
-//      M(e, d) = 18.0             * t_span[4] * weight[dim];
-//      M(e, c) = 8.0              * t_span[3] * weight[dim];
-//
-//      M(d, d) = 12.0             * t_span[3] * weight[dim];
-//      M(d, c) = 6.0              * t_span[2] * weight[dim];
-//
-//      M(c, c) = 4.0              * t_span[1] * weight[dim];
-//
-//      // mirrow values over diagonal to fill bottom left triangle
-//      for (int c = 0; c < M.cols(); ++c)
-//        for (int r = c + 1; r < M.rows(); ++r)
-//          M(r, c) = M(c, r);
+      for (auto c1 : coeff_vec) {
+        for (auto c2 : coeff_vec) {
 
-    }
-    i++;
-  }
+          // for explanation of values see M.Kalakrishnan et al., page 248
+          // "Learning, Planning and Control for Quadruped Robots over challenging
+          // Terrain", IJRR, 2010
+          double deriv_wrt_c1 = poly.GetDerivativeWrtCoeff(deriv,c1,T);
+          double deriv_wrt_c2 = poly.GetDerivativeWrtCoeff(deriv,c2,T);
+          double exponent_order = (c1-deriv)+(c2-deriv);
+          double val =  (deriv_wrt_c1*deriv_wrt_c2)/(exponent_order+1); //+1 because of integration
 
-  return M;
-}
-
-Eigen::MatrixXd
-LinearSplineEquations::MakeJerk (const ValXY& weight) const
-{
-  // total number of coefficients to be optimized
-  int n_coeff = com_spline_->GetTotalFreeCoeff();
-
-  Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
-  int i=0;
-  for (const auto& p : com_spline_->GetPolynomials()) {
-    std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
-
-    for (const Coords3D dim : {X,Y}) {
-      const int f = com_spline_->Index(i, dim, Polynomial::PolynomialCoeff::F);
-      const int e = com_spline_->Index(i, dim, Polynomial::PolynomialCoeff::E);
-      const int d = com_spline_->Index(i, dim, Polynomial::PolynomialCoeff::D);
-
-      M(f, f) = 60.*60. / 5.      * t_span[5] * weight[dim];
-      M(f, e) = 60.*24. / 4.      * t_span[4] * weight[dim];
-      M(f, d) = 60.* 6. / 3.      * t_span[3] * weight[dim];
-      M(e, e) = 24.*24. / 3.      * t_span[3] * weight[dim];
-      M(e, d) = 24.* 6. / 2.      * t_span[2] * weight[dim];
-      M(d, d) =  6.* 6. / 1.      * t_span[1] * weight[dim];
-
-      // mirrow values over diagonal to fill bottom left triangle
-      for (int c = 0; c < M.cols(); ++c)
-        for (int r = c + 1; r < M.rows(); ++r)
-          M(r, c) = M(c, r);
+          const int idx_row = com_spline_->Index(i, dim, c1);
+          const int idx_col = com_spline_->Index(i, dim, c2);
+          M(idx_row, idx_col) = val*weight[dim];
+        }
+      }
     }
     i++;
   }
