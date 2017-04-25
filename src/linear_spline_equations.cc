@@ -123,24 +123,24 @@ LinearSplineEquations::MakeAcceleration (const ValXY& weight) const
     std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
-      const int a = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::A);
-      const int b = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::B);
-      const int c = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::C);
+      const int f = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::F);
+      const int e = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::E);
       const int d = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::D);
+      const int c = com_spline_->Index(p.GetId(), dim, ComSpline::PolyCoeff::C);
 
       // for explanation of values see M.Kalakrishnan et al., page 248
       // "Learning, Planning and Control for Quadruped Robots over challenging
       // Terrain", IJRR, 2010
-      M(a, a) = 400.0 / 7.0      * t_span[7] * weight[dim];
-      M(a, b) = 40.0             * t_span[6] * weight[dim];
-      M(a, c) = 120.0 / 5.0      * t_span[5] * weight[dim];
-      M(a, d) = 10.0             * t_span[4] * weight[dim];
-      M(b, b) = 144.0 / 5.0      * t_span[5] * weight[dim];
-      M(b, c) = 18.0             * t_span[4] * weight[dim];
-      M(b, d) = 8.0              * t_span[3] * weight[dim];
-      M(c, c) = 12.0             * t_span[3] * weight[dim];
-      M(c, d) = 6.0              * t_span[2] * weight[dim];
-      M(d, d) = 4.0              * t_span[1] * weight[dim];
+      M(f, f) = 400.0 / 7.0      * t_span[7] * weight[dim];
+      M(f, e) = 40.0             * t_span[6] * weight[dim];
+      M(f, d) = 120.0 / 5.0      * t_span[5] * weight[dim];
+      M(f, c) = 10.0             * t_span[4] * weight[dim];
+      M(e, e) = 144.0 / 5.0      * t_span[5] * weight[dim];
+      M(e, d) = 18.0             * t_span[4] * weight[dim];
+      M(e, c) = 8.0              * t_span[3] * weight[dim];
+      M(d, d) = 12.0             * t_span[3] * weight[dim];
+      M(d, c) = 6.0              * t_span[2] * weight[dim];
+      M(c, c) = 4.0              * t_span[1] * weight[dim];
 
       // mirrow values over diagonal to fill bottom left triangle
       for (int c = 0; c < M.cols(); ++c)
@@ -163,16 +163,16 @@ LinearSplineEquations::MakeJerk (const ValXY& weight) const
     std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
-      const int a = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::A);
-      const int b = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::B);
-      const int c = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::C);
+      const int f = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::F);
+      const int e = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::E);
+      const int d = com_spline_->Index(p.GetId(), dim, Polynomial::PolynomialCoeff::D);
 
-      M(a, a) = 60.*60. / 5.      * t_span[5] * weight[dim];
-      M(a, b) = 60.*24. / 4.      * t_span[4] * weight[dim];
-      M(a, c) = 60.* 6. / 3.      * t_span[3] * weight[dim];
-      M(b, b) = 24.*24. / 3.      * t_span[3] * weight[dim];
-      M(b, c) = 24.* 6. / 2.      * t_span[2] * weight[dim];
-      M(c, c) =  6.* 6. / 1.      * t_span[1] * weight[dim];
+      M(f, f) = 60.*60. / 5.      * t_span[5] * weight[dim];
+      M(f, e) = 60.*24. / 4.      * t_span[4] * weight[dim];
+      M(f, d) = 60.* 6. / 3.      * t_span[3] * weight[dim];
+      M(e, e) = 24.*24. / 3.      * t_span[3] * weight[dim];
+      M(e, d) = 24.* 6. / 2.      * t_span[2] * weight[dim];
+      M(d, d) =  6.* 6. / 1.      * t_span[1] * weight[dim];
 
       // mirrow values over diagonal to fill bottom left triangle
       for (int c = 0; c < M.cols(); ++c)

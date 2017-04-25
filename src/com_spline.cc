@@ -119,10 +119,12 @@ ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_loc
 void
 ComSpline::SetSplineXYCoefficients (const VectorXd& optimized_coeff)
 {
-  for (size_t p=0; p<polynomials_.size(); ++p)
+  for (size_t p=0; p<polynomials_.size(); ++p) {
+    auto& poly = polynomials_.at(p);
     for (const Coords3D dim : {X,Y})
-      for (auto c : Polynomial::kAllSplineCoeff)
-        polynomials_.at(p).SetCoefficients(dim, c, optimized_coeff[Index(p,dim,c)]);
+      for (auto c : poly.GetDim(dim).GetAllCoefficients())
+        poly.SetCoefficients(dim, c, optimized_coeff[Index(p,dim,c)]);
+  }
 }
 
 void

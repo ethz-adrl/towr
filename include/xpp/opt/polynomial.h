@@ -21,20 +21,15 @@ Polynomials ready to use:
 namespace xpp {
 namespace opt {
 
-/** Constructs a polynomial given start and end states.
-  *
-  * The polynomial types are:
-  * Linear:  Et + F;
-  * Cubic:   Ct^3 + Dt^2 + Et + F;
-  * Quintic: At^5 + Bt^4 + Ct^3 + Dt^2 + Et + F
+/** @brief Constructs a polynomial given start and end states.
   */
 class Polynomial {
 public:
 
-  // f = At^5 + Bt^4 + Ct^3 + Dt^2 + Et + f
-  enum PolynomialCoeff { F=0, E, D, C, B, A};
+  // f = Ft^5 + Et^4 + Dt^3 + Ct^2 + Bt + A
+  enum PolynomialCoeff { A=0, B, C, D, E, F};
   using CoeffVec = std::vector<PolynomialCoeff>;
-  static constexpr std::array<PolynomialCoeff,6> kAllSplineCoeff = {{F,E,D,C,B,A}};
+  static constexpr std::array<PolynomialCoeff,6> kAllSplineCoeff = {{A,B,C,D,E,F}};
 
   enum PointType {Start=0, Goal=1};
 
@@ -69,7 +64,7 @@ public:
 
 protected:
   double duration;
-  std::array< double, kAllSplineCoeff.size() > c; //!< coefficients of spline
+  std::array< double, kAllSplineCoeff.size() > coeff_; //!< coefficients of spline
 
 private:
   /**
@@ -82,20 +77,6 @@ private:
                                          const StateLin1d& end_p) = 0;
 };
 
-inline Polynomial::Polynomial()
-{
-  for (double& _c : c) _c = 0.0; /** set to zero so low-order Polynomials don't use. */
-  duration = 0.0;
-}
-
-inline void Polynomial::SetBoundary(double T, const StateLin1d& start_p, const StateLin1d& end_p)
-{
-  if(T <= 0.0)
-    throw std::invalid_argument("Cannot create a Polynomial with zero or negative duration");
-
-  duration = T;
-  SetPolynomialCoefficients(T, start_p, end_p);
-}
 
 /**
  * @ingroup Polynomials
@@ -107,7 +88,7 @@ public:
   LinearPolynomial() {};
   ~LinearPolynomial() {};
 
-  virtual CoeffVec GetAllCoefficients() const override { return {F,E}; };
+  virtual CoeffVec GetAllCoefficients() const override { return {A,B}; };
 
 private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
@@ -121,7 +102,7 @@ public:
   CubicPolynomial() {};
   ~CubicPolynomial() {};
 
-  virtual CoeffVec GetAllCoefficients() const override { return {F,E,D,C}; };
+  virtual CoeffVec GetAllCoefficients() const override { return {A,B,C,D}; };
 
   // zmp_ move up to base class?
   double GetDerivativeOfPosWrtPos(double t, PointType p) const;
@@ -135,7 +116,7 @@ public:
   QuinticPolynomial() {};
   ~QuinticPolynomial() {};
 
-  virtual CoeffVec GetAllCoefficients() const override { return {F,E,D,C,B,A}; };
+  virtual CoeffVec GetAllCoefficients() const override { return {A,B,C,D,E,F}; };
 
 private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
@@ -150,7 +131,7 @@ public:
   LiftHeightPolynomial() {};
   ~LiftHeightPolynomial() {};
 
-  virtual CoeffVec GetAllCoefficients() const override { return {F,E,D,C,B,A}; };
+  virtual CoeffVec GetAllCoefficients() const override { return {A,B,C,D,E,F}; };
 
   /** Determines how quick the height rises/drops.
    *
