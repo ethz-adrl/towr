@@ -46,7 +46,7 @@ MotionOptimizerFacade::BuildDefaultStartStance ()
 
   start_geom_.SetBase(base);
   start_geom_.SetContactState(contact_state);
-  start_geom_.SetEEState(kPos, motion_parameters_->GetNominalStanceInBase());
+  start_geom_.SetEEStateInWorld(kPos, motion_parameters_->GetNominalStanceInBase());
 }
 
 void
@@ -128,7 +128,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 
     RobotStateCartesian state(start_geom_.GetEECount());
     state.SetBase(base_motion->GetBase(t));
-    state.SetEEState(ee_motion->GetEndeffectors(t));
+    state.SetEEStateInWorld(ee_motion->GetEndeffectors(t));
     state.SetContactState(contact_schedule->IsInContact(t));
     state.SetTime(t);
 

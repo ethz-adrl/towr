@@ -27,7 +27,7 @@ namespace opt {
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double T,
                                       double dt)
-    :TimeDiscretizationConstraint(T, dt, kDim2d, opt_vars)
+    :TimeDiscretizationConstraint(T, dt, opt_vars)
 {
   SetName("DynamicConstraint");
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
@@ -35,6 +35,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   ee_load_    = std::dynamic_pointer_cast<EndeffectorLoad>   (opt_vars->GetComponent("endeffector_load"));
 
   ee_ids_  = ee_load_->GetLoadValues(0.0).GetEEsOrdered();
+  SetRows(GetNumberOfNodes()*kDim2d);
 }
 
 DynamicConstraint::~DynamicConstraint ()

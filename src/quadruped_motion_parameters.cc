@@ -31,11 +31,13 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 
   const double x_nominal_b = 0.34;
   const double y_nominal_b = 0.34;
+  // zmp_ express this in base frame
+  const double z_nominal_b = 0.0;
   nominal_stance_.SetCount(robot_ee_.size());
-  nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, 0.0);
-  nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, 0.0);
-  nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, 0.0);
-  nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, 0.0);
+  nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, -z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, -z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, -z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, -z_nominal_b);
 
   II_.SetCount(robot_ee_.size()); II_.SetAll(false);
   PI_.SetCount(robot_ee_.size()); PI_.SetAll(false);
@@ -84,7 +86,7 @@ QuadrupedMotionParameters::MakeMotion (opt::MotionTypeID id)
 
 Walk::Walk()
 {
-  max_dev_xy_ = {0.15, 0.15};
+  max_dev_xy_ = {0.15, 0.15, 0.1};
   id_ = opt::WalkID;
 
   double t_phase = 0.2;
@@ -142,7 +144,7 @@ Walk::Walk()
 
 Trot::Trot()
 {
-  max_dev_xy_ = {0.15, 0.15};
+  max_dev_xy_ = {0.15, 0.15, 0.1};
   id_ = opt::TrotID;
 
   double t_phase = 0.3;
@@ -181,7 +183,7 @@ Trot::Trot()
 
 Pace::Pace()
 {
-  max_dev_xy_ = {0.20, 0.20};
+  max_dev_xy_ = {0.20, 0.20, 0.1};
   id_ = opt::PaceID;
 
   contact_timings_ =
@@ -212,7 +214,7 @@ Pace::Pace()
 
 Bound::Bound()
 {
-  max_dev_xy_ = {0.25, 0.25};
+  max_dev_xy_ = {0.25, 0.25, 0.1};
   id_ = opt::BoundID;
 
   contact_timings_ =
@@ -244,7 +246,7 @@ Bound::Bound()
 
 PushRecovery::PushRecovery ()
 {
-  max_dev_xy_ = {0.15, 0.15};
+  max_dev_xy_ = {0.15, 0.15, 0.1};
   id_ = opt::PushRecID;
 
   double t_phase = 0.25;

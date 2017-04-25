@@ -42,7 +42,8 @@ public:
   using PosXY            = Eigen::Vector2d;
   using PosXYZ           = Eigen::Vector3d;
   using NominalStance    = EndeffectorsPos;
-  using ValXY            = std::array<double,2>;
+  // zmp_ rename to value xyz
+  using ValXY            = std::array<double,3>;
   using CostWeights      = std::map<CostName, double>;
   using UsedConstraints  = std::vector<ConstraintName>;
 

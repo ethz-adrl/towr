@@ -37,7 +37,7 @@ class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
   using ComMotionPtr  = std::shared_ptr<BaseMotion>;
   using EEMotionPtr    = std::shared_ptr<EndeffectorsMotion>;
-  using MaxDevXY       = std::array<double,2>;
+  using MaxDevXY       = std::array<double,3>;
   using NominalStance  = EndeffectorsPos;
 
   /**
@@ -63,6 +63,8 @@ private:
   NominalStance nominal_stance_;
   ComMotionPtr com_motion_;
   EEMotionPtr ee_motion_;
+
+  std::vector<Coords3D> dim_;
 };
 
 } /* namespace opt */

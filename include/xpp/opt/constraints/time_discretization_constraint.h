@@ -19,13 +19,15 @@ namespace opt {
   */
 class TimeDiscretizationConstraint : public Primitive {
 public:
-  TimeDiscretizationConstraint (double T, double dt, int constraints_per_time,
-                                const OptVarsPtr& opt_vars);
+  TimeDiscretizationConstraint (double T, double dt, const OptVarsPtr& opt_vars);
   virtual ~TimeDiscretizationConstraint ();
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
+
+protected:
+  int GetNumberOfNodes() const;
 
 private:
   /** Sets the constraint value a specific time t, corresponding to node k.
@@ -41,7 +43,6 @@ private:
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const = 0;
 
   std::vector<double> dts_; ///< discretized times
-  int GetNumberOfNodes() const;
 };
 
 } /* namespace opt */

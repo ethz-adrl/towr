@@ -31,6 +31,7 @@ namespace opt {
   */
 class ComSpline : public Component {
 public:
+  // zmp_ DRY, make state templated
   using PolyXdT        = PolynomialXd<CubicPolynomial, StateLin2d>;
   std::vector<Coords3D> dim_ = { X, Y };
   using PolyHelpers    = PolyVecManipulation<PolyXdT>;
