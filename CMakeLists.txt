@@ -74,7 +74,7 @@ add_library(${MOTION_OPT_LIB}
   src/polynomial_fifth_order.cc
   # base motion
   src/base_motion.cc
-  src/com_polynomial_helpers.cc
+#  src/com_polynomial_helpers.cc
   src/com_spline.cc
   src/linear_spline_equations.cc
   # endeffector

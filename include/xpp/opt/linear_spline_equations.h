@@ -41,6 +41,7 @@ public:
   using BaseMotionPtr     = std::shared_ptr<BaseMotion>;
   using ValXY             = std::array<double,2>;
 
+
   /** @attention ComMotion is downcast to ComSpline.
     */
   LinearSplineEquations();

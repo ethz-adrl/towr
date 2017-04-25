@@ -13,8 +13,7 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include "com_polynomial_helpers.h"
-#include "polynomial.h"
+#include "polynomial_xd.h"
 #include <xpp/opt/variables/base_motion.h>
 
 namespace xpp {
@@ -27,9 +26,11 @@ namespace opt {
   */
 class ComSpline : public BaseMotion {
 public:
-  using VecPolynomials = std::vector<ComPolynomial>;
   using Derivatives    = std::vector<MotionDerivative>;
   using PolyCoeff      = Polynomial::PolynomialCoeff;
+  using PolyXdT         = PolynomialXd<QuinticPolynomial, StateLin2d>;
+  using VecPolynomials = std::vector<PolyXdT>;
+  using PolyHelpers    = ComPolynomialHelpers<PolyXdT>;
 
   ComSpline ();
   virtual ~ComSpline ();

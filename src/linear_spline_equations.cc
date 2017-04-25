@@ -9,7 +9,6 @@
 
 #include <cassert>
 
-#include <xpp/opt/com_polynomial_helpers.h>
 #include <xpp/opt/com_spline.h>
 #include <xpp/opt/polynomial_xd.h>
 
@@ -98,8 +97,8 @@ LinearSplineEquations::MakeJunction () const
         VecScalar curr, next;
 
         // coefficients are all set to zero
-        curr.s = ComPolynomialHelpers::GetCOGxyAtPolynomial(id,    T, polynomials).GetByIndex(dxdt, dim);
-        next.s = ComPolynomialHelpers::GetCOGxyAtPolynomial(id+1,0.0, polynomials).GetByIndex(dxdt, dim);
+        curr.s = ComSpline::PolyHelpers::GetCOGxyAtPolynomial(id,    T, polynomials).GetByIndex(dxdt, dim);
+        next.s = ComSpline::PolyHelpers::GetCOGxyAtPolynomial(id+1,0.0, polynomials).GetByIndex(dxdt, dim);
 
         curr.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);
         next.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt, 0.0, id+1, dim);
@@ -120,7 +119,7 @@ LinearSplineEquations::MakeAcceleration (const ValXY& weight) const
 
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
   int i=0;
-  for (const ComPolynomial& p : com_spline_->GetPolynomials()) {
+  for (const auto& p : com_spline_->GetPolynomials()) {
     std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
@@ -162,7 +161,7 @@ LinearSplineEquations::MakeJerk (const ValXY& weight) const
 
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
   int i=0;
-  for (const ComPolynomial& p : com_spline_->GetPolynomials()) {
+  for (const auto& p : com_spline_->GetPolynomials()) {
     std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
