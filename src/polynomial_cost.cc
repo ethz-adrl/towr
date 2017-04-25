@@ -35,7 +35,7 @@ QuadraticPolynomialCost::~QuadraticPolynomialCost ()
 QuadraticPolynomialCost::VectorXd
 QuadraticPolynomialCost::GetValues () const
 {
-  VectorXd cost = VectorXd(GetRows());
+  VectorXd cost = VectorXd::Zero(GetRows());
   VectorXd spline_coeff_ = com_motion_->GetXYSplineCoeffients();
 
   cost += spline_coeff_.transpose() * matrix_vector_.M * spline_coeff_;

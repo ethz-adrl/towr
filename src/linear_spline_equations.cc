@@ -97,8 +97,8 @@ LinearSplineEquations::MakeJunction () const
         VecScalar curr, next;
 
         // coefficients are all set to zero
-        curr.s = ComSpline::PolyHelpers::GetCOGxyAtPolynomial(id,    T, polynomials).GetByIndex(dxdt, dim);
-        next.s = ComSpline::PolyHelpers::GetCOGxyAtPolynomial(id+1,0.0, polynomials).GetByIndex(dxdt, dim);
+        curr.s = ComSpline::PolyHelpers::GetPoint(id,    T, polynomials).GetByIndex(dxdt, dim);
+        next.s = ComSpline::PolyHelpers::GetPoint(id+1,0.0, polynomials).GetByIndex(dxdt, dim);
 
         curr.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);
         next.v = com_spline_->GetJacobianWrtCoeffAtPolynomial(dxdt, 0.0, id+1, dim);
@@ -123,29 +123,51 @@ LinearSplineEquations::MakeAcceleration (const ValXY& weight) const
     std::array<double,8> t_span = CalcExponents<8>(p.GetDuration());
 
     for (const Coords3D dim : {X,Y}) {
-      const int f = com_spline_->Index(i, dim, ComSpline::PolyCoeff::F);
-      const int e = com_spline_->Index(i, dim, ComSpline::PolyCoeff::E);
-      const int d = com_spline_->Index(i, dim, ComSpline::PolyCoeff::D);
-      const int c = com_spline_->Index(i, dim, ComSpline::PolyCoeff::C);
 
-      // for explanation of values see M.Kalakrishnan et al., page 248
-      // "Learning, Planning and Control for Quadruped Robots over challenging
-      // Terrain", IJRR, 2010
-      M(f, f) = 400.0 / 7.0      * t_span[7] * weight[dim];
-      M(f, e) = 40.0             * t_span[6] * weight[dim];
-      M(f, d) = 120.0 / 5.0      * t_span[5] * weight[dim];
-      M(f, c) = 10.0             * t_span[4] * weight[dim];
-      M(e, e) = 144.0 / 5.0      * t_span[5] * weight[dim];
-      M(e, d) = 18.0             * t_span[4] * weight[dim];
-      M(e, c) = 8.0              * t_span[3] * weight[dim];
-      M(d, d) = 12.0             * t_span[3] * weight[dim];
-      M(d, c) = 6.0              * t_span[2] * weight[dim];
-      M(c, c) = 4.0              * t_span[1] * weight[dim];
+      auto all_coeff = p.GetDim(dim).GetAllCoefficients();
+      for (auto c_row : all_coeff) {
+        for (auto c_col : all_coeff) {
 
-      // mirrow values over diagonal to fill bottom left triangle
-      for (int c = 0; c < M.cols(); ++c)
-        for (int r = c + 1; r < M.rows(); ++r)
-          M(r, c) = M(c, r);
+          if (c_row < kAcc || c_col < kAcc)
+            continue;
+
+          double dAcc_dcrow = p.GetDim(dim).GetDerivativeWrtCoeff(kAcc,c_row,p.GetDuration());
+          double dAcc_dccol = p.GetDim(dim).GetDerivativeWrtCoeff(kAcc,c_col,p.GetDuration());
+          double numerator = (c_row-kAcc)+(c_col-kAcc)+1; //+1 because of integration
+
+          const int idx_row = com_spline_->Index(i, dim, c_row);
+          const int idx_col = com_spline_->Index(i, dim, c_col);
+          M(idx_row, idx_col) = (dAcc_dcrow*dAcc_dccol)/numerator;
+        }
+      }
+
+//      // for explanation of values see M.Kalakrishnan et al., page 248
+//      // "Learning, Planning and Control for Quadruped Robots over challenging
+//      // Terrain", IJRR, 2010
+//      const int f = com_spline_->Index(i, dim, ComSpline::PolyCoeff::F);
+//      const int e = com_spline_->Index(i, dim, ComSpline::PolyCoeff::E);
+//      const int d = com_spline_->Index(i, dim, ComSpline::PolyCoeff::D);
+//      const int c = com_spline_->Index(i, dim, ComSpline::PolyCoeff::C);
+//
+//      M(f, f) = 400.0 / 7.0      * t_span[7] * weight[dim];
+//      M(f, e) = 40.0             * t_span[6] * weight[dim];
+//      M(f, d) = 120.0 / 5.0      * t_span[5] * weight[dim];
+//      M(f, c) = 10.0             * t_span[4] * weight[dim];
+//
+//      M(e, e) = 144.0 / 5.0      * t_span[5] * weight[dim];
+//      M(e, d) = 18.0             * t_span[4] * weight[dim];
+//      M(e, c) = 8.0              * t_span[3] * weight[dim];
+//
+//      M(d, d) = 12.0             * t_span[3] * weight[dim];
+//      M(d, c) = 6.0              * t_span[2] * weight[dim];
+//
+//      M(c, c) = 4.0              * t_span[1] * weight[dim];
+//
+//      // mirrow values over diagonal to fill bottom left triangle
+//      for (int c = 0; c < M.cols(); ++c)
+//        for (int r = c + 1; r < M.rows(); ++r)
+//          M(r, c) = M(c, r);
+
     }
     i++;
   }

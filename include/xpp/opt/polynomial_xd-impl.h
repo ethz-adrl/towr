@@ -89,7 +89,7 @@ PolynomialXd<PolynomialType, PointType>::GetDim (int dim) const
 
 template<typename TPolyXd>
 double
-ComPolynomialHelpers<TPolyXd>::GetTotalTime(
+PolyVecManipulation<TPolyXd>::GetTotalTime(
     const VecPolynomials& splines)
 {
   double T = 0.0;
@@ -100,7 +100,7 @@ ComPolynomialHelpers<TPolyXd>::GetTotalTime(
 
 template<typename TPolyXd>
 double
-ComPolynomialHelpers<TPolyXd>::GetLocalTime(
+PolyVecManipulation<TPolyXd>::GetLocalTime(
     double t_global, const VecPolynomials& splines)
 {
   int id_spline = GetPolynomialID(t_global,splines);
@@ -114,19 +114,19 @@ ComPolynomialHelpers<TPolyXd>::GetLocalTime(
 }
 
 template<typename TPolyXd>
-typename ComPolynomialHelpers<TPolyXd>::PointType
-ComPolynomialHelpers<TPolyXd>::GetCOM(
+typename PolyVecManipulation<TPolyXd>::PointType
+PolyVecManipulation<TPolyXd>::GetPoint(
     double t_global, const VecPolynomials& splines)
 {
   int idx        = GetPolynomialID(t_global,splines);
   double t_local = GetLocalTime(t_global, splines);
 
-  return GetCOGxyAtPolynomial(idx, t_local, splines);
+  return GetPoint(idx, t_local, splines);
 }
 
 template<typename TPolyXd>
-typename ComPolynomialHelpers<TPolyXd>::PointType
-ComPolynomialHelpers<TPolyXd>::GetCOGxyAtPolynomial (
+typename PolyVecManipulation<TPolyXd>::PointType
+PolyVecManipulation<TPolyXd>::GetPoint (
     int idx, double t_local, const VecPolynomials& splines)
 {
   StateLin2d cog_xy;
@@ -140,7 +140,7 @@ ComPolynomialHelpers<TPolyXd>::GetCOGxyAtPolynomial (
 
 template<typename TPolyXd>
 int
-ComPolynomialHelpers<TPolyXd>::GetPolynomialID(
+PolyVecManipulation<TPolyXd>::GetPolynomialID(
     double t_global, const VecPolynomials& splines)
 {
   double eps = 1e-10; // double imprecision

@@ -26,10 +26,11 @@ namespace opt {
 class Polynomial {
 public:
 
-  // f = Ft^5 + Et^4 + Dt^3 + Ct^2 + Bt + A
+  // f =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
+  // f =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
+  // f = 20Ft^3 + 12Et^2 + 6Dt   + 2C
   enum PolynomialCoeff { A=0, B, C, D, E, F};
   using CoeffVec = std::vector<PolynomialCoeff>;
-  static constexpr std::array<PolynomialCoeff,6> kAllSplineCoeff = {{A,B,C,D,E,F}};
 
   enum PointType {Start=0, Goal=1};
 
@@ -64,7 +65,8 @@ public:
 
 protected:
   double duration;
-  std::array< double, kAllSplineCoeff.size() > coeff_; //!< coefficients of spline
+  // spring_clean_ make this vector of always appropriate size
+  std::array< double, 6 > coeff_; //!< coefficients of spline
 
 private:
   /**

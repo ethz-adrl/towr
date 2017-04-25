@@ -19,8 +19,6 @@ Spliners ready to use:
 namespace xpp {
 namespace opt {
 
-constexpr std::array<Polynomial::PolynomialCoeff, 6> Polynomial::kAllSplineCoeff;
-
 Polynomial::Polynomial()
 {
   for (double& _c : coeff_) _c = 0.0; /** set to zero so low-order Polynomials don't use. */

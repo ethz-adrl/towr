@@ -20,6 +20,8 @@
 namespace xpp {
 namespace opt {
 
+/** @brief Extends a 1-dimensional polynomial to multiple in e.g. (x,y,z).
+ */
 template<typename PolynomialType, typename PointType>
 class PolynomialXd {
 public:
@@ -48,20 +50,22 @@ private:
 };
 
 
+/** @brief For manipulation of multiple sequential polynomials ("spline").
+  */
 template<typename TPolyXd>
-class ComPolynomialHelpers {
+class PolyVecManipulation {
 public:
-  using PolynomialXdT = TPolyXd;
-  using PointType     = typename TPolyXd::PointT;
+  using PolynomialXdT  = TPolyXd;
+  using PointType      = typename TPolyXd::PointT;
   using VecPolynomials = std::vector<PolynomialXdT>;
 
-  static PointType GetCOM(double t_global, const VecPolynomials& splines);
+  static PointType GetPoint(double t_global, const VecPolynomials& splines);
+  static PointType GetPoint(int id, double t_local, const VecPolynomials& splines);
+  static PointType GetPoint(double id, int t_local, const VecPolynomials& splines) = delete;   // to generate compiler error when user accidentally mixes up the order
+
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
   static double GetTotalTime(const VecPolynomials& splines);
   static double GetLocalTime(double t_global, const VecPolynomials& splines);
-  static PointType GetCOGxyAtPolynomial(int id, double t_local, const VecPolynomials& splines);
-  // to generate compiler error when user accidentally mixes up the order
-  static PointType GetCOGxyAtPolynomial(double id, int t_local, const VecPolynomials& splines) = delete;
 };
 
 

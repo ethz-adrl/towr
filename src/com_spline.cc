@@ -54,7 +54,7 @@ ComSpline::Init (double t_global, int polynomials_per_second)
 
 StateLin2d ComSpline::GetCom(double t_global) const
 {
-  return PolyHelpers::GetCOM(t_global, polynomials_);
+  return PolyHelpers::GetPoint(t_global, polynomials_);
 }
 
 double ComSpline::GetTotalTime() const

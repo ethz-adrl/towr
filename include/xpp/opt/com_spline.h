@@ -28,9 +28,9 @@ class ComSpline : public BaseMotion {
 public:
   using Derivatives    = std::vector<MotionDerivative>;
   using PolyCoeff      = Polynomial::PolynomialCoeff;
-  using PolyXdT         = PolynomialXd<QuinticPolynomial, StateLin2d>;
-  using VecPolynomials = std::vector<PolyXdT>;
-  using PolyHelpers    = ComPolynomialHelpers<PolyXdT>;
+  using PolyXdT        = PolynomialXd<QuinticPolynomial, StateLin2d>;
+  using PolyHelpers    = PolyVecManipulation<PolyXdT>;
+  using VecPolynomials = PolyHelpers::VecPolynomials;
 
   ComSpline ();
   virtual ~ComSpline ();
