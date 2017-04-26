@@ -7,20 +7,16 @@
 
 #include <xpp/opt/com_spline.h>
 
-#include <array>
-#include <cassert>
-#include <cmath>
 #include <stddef.h>
-#include <Eigen/Dense>
+#include <string>
 #include <Eigen/Sparse>
-
-#include <xpp/opt/polynomial_xd.h>
 
 namespace xpp {
 namespace opt {
 
 ComSpline::ComSpline () : Component(-1, "com_spline")
 {
+  dim_ = StateType().GetDim();
 }
 
 ComSpline::~ComSpline ()
@@ -42,7 +38,8 @@ ComSpline::Init (double t_global, double duration_polynomial)
   SetRows(polynomials_.size() * NumFreeCoeffPerSpline() * dim_.size());
 }
 
-StateLin3d ComSpline::GetCom(double t_global) const
+ComSpline::StateType
+ComSpline::GetCom(double t_global) const
 {
   return PolyHelpers::GetPoint(t_global, polynomials_);
 }
@@ -76,7 +73,7 @@ ComSpline::GetValues () const
   return x_abcd;
 }
 
-ComSpline::JacobianRow
+JacobianRow
 ComSpline::GetJacobian (double t_global, MotionDerivative deriv, Coords3D dim) const
 {
   int id         = PolyHelpers::GetPolynomialID(t_global, polynomials_);
@@ -85,7 +82,7 @@ ComSpline::GetJacobian (double t_global, MotionDerivative deriv, Coords3D dim) c
   return GetJacobianWrtCoeffAtPolynomial(deriv, t_local, id, dim);
 }
 
-ComSpline::JacobianRow
+JacobianRow
 ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_local,
                                             int id, Coords3D dim) const
 {

@@ -109,7 +109,7 @@ SnoptAdapter::Init ()
   // the nonzero elements of constraints (assume all)
   auto jac = nlp_->GetJacobianOfConstraints();
   for (int k=0; k<jac.outerSize(); ++k) {
-    for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
+    for (Jacobian::InnerIterator it(jac,k); it; ++it) {
       iGfun[neG] = it.row() + obj_count;
       jGvar[neG] = it.col();
       neG++;

@@ -13,10 +13,7 @@ namespace opt {
 template<typename PolynomialType, typename PointType>
 PolynomialXd<PolynomialType, PointType>::PolynomialXd ()
 {
-  for (int i=0; i<PointT().kNumDim; ++i)
-    dim_.push_back(static_cast<Coords3D>(i));
-
-  polynomials_.resize(dim_.size());
+  polynomials_.resize(PointT().kNumDim);
 }
 
 template<typename PolynomialType, typename PointType>
@@ -59,7 +56,7 @@ void PolynomialXd<PolynomialType, PointType>::SetBoundary(double T,
                                                           const PointT& start,
                                                           const PointT& end)
 {
-  for (auto dim : dim_)
+  for (auto dim : start.GetDim())
     polynomials_.at(dim).SetBoundary(T, start.GetDimension(dim), end.GetDimension(dim));
 }
 
@@ -68,7 +65,7 @@ PointType
 PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt) const
 {
   PointT p;
-  for (auto dim : dim_)
+  for (auto dim : p.GetDim())
     p.SetDimension(dim, polynomials_.at(dim).GetPoint(dt));
 
   return p;

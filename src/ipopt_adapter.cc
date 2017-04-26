@@ -125,7 +125,7 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
     auto jac = nlp_->GetJacobianOfConstraints();
     int nele=0; // nonzero cells in jacobian
     for (int k=0; k<jac.outerSize(); ++k) {
-      for (NLP::Jacobian::InnerIterator it(jac,k); it; ++it) {
+      for (Jacobian::InnerIterator it(jac,k); it; ++it) {
         iRow[nele] = it.row();
         jCol[nele] = it.col();
         nele++;

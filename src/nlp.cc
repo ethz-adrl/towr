@@ -40,7 +40,7 @@ NLP::GetBoundsOnOptimizationVariables () const
   return opt_variables_->GetBounds();
 }
 
-NLP::VectorXd
+VectorXd
 NLP::GetStartingValues () const
 {
   return opt_variables_->GetValues();
@@ -63,7 +63,7 @@ NLP::EvaluateCostFunction (const Number* x)
   return g(0);
 }
 
-NLP::VectorXd
+VectorXd
 NLP::EvaluateCostFunctionGradient (const Number* x)
 {
   Jacobian jac = Jacobian(1,GetNumberOfOptimizationVariables());
@@ -87,7 +87,7 @@ NLP::GetNumberOfConstraints () const
   return GetBoundsOnConstraints().size();
 }
 
-NLP::VectorXd
+VectorXd
 NLP::EvaluateConstraints (const Number* x)
 {
   SetVariables(x);
@@ -110,7 +110,7 @@ NLP::EvalNonzerosOfJacobian (const Number* x, Number* values)
   std::copy(jac.valuePtr(), jac.valuePtr() + jac.nonZeros(), values);
 }
 
-NLP::Jacobian
+Jacobian
 NLP::GetJacobianOfConstraints () const
 {
   return constraints_->GetJacobian();
@@ -128,7 +128,7 @@ NLP::AddConstraint (ConstraintPtrU constraint)
   constraints_ = std::move(constraint);
 }
 
-NLP::VectorXd
+VectorXd
 NLP::ConvertToEigen(const Number* x) const
 {
   return Eigen::Map<const VectorXd>(x,GetNumberOfOptimizationVariables());

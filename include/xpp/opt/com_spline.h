@@ -9,8 +9,6 @@
 #define XPP_OPT_INCLUDE_XPP_OPT_COM_SPLINE_H_
 
 #include <vector>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
@@ -29,15 +27,11 @@ namespace opt {
   */
 class ComSpline : public Component {
 public:
-  // zmp_ DRY, make state templated
-  using PolyXdT        = PolynomialXd<CubicPolynomial, StateLin3d>;
-  std::vector<Coords3D> dim_ = { X, Y , Z };
+  using StateType      = StateLin3d;
+  using PolyXdT        = PolynomialXd<CubicPolynomial, StateType>;
   using PolyHelpers    = PolyVecManipulation<PolyXdT>;
   using VecPolynomials = PolyHelpers::VecPolynomials;
-
-  using Derivatives    = std::vector<MotionDerivative>;
   using PolyCoeff      = Polynomial::PolynomialCoeff;
-  using JacobianRow    = Eigen::SparseVector<double, Eigen::RowMajor>;
 
   ComSpline ();
   virtual ~ComSpline ();
@@ -47,7 +41,7 @@ public:
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
 
-  StateLin3d GetCom(double t_global) const;
+  StateType GetCom(double t_global) const;
   double GetTotalTime() const;
 
   int Index(int polynomial, Coords3D dim, PolyCoeff coeff) const;
@@ -73,6 +67,7 @@ public:
 
 private:
   VecPolynomials polynomials_;
+  std::vector<Coords3D> dim_;
   // careful: assumes all splines (X,Y,1,..,n) same type
   int NumFreeCoeffPerSpline() const;
 };

@@ -86,7 +86,7 @@ Composite::GetComponent (std::string name) const
   assert(false); // component with name doesn't exist
 }
 
-Composite::VectorXd
+VectorXd
 Composite::GetValues () const
 {
   VectorXd g_all = VectorXd::Zero(GetRows());
@@ -115,7 +115,7 @@ Composite::SetValues (const VectorXd& x)
   }
 }
 
-Composite::Jacobian
+Jacobian
 Composite::GetJacobian () const
 {
   int n_var = components_.front()->GetJacobian().cols();
@@ -175,7 +175,7 @@ Primitive::AddComposite (const OptVarsPtr& vars)
   opt_vars_ = vars;
 }
 
-Primitive::Jacobian
+Jacobian
 Primitive::GetJacobian () const
 {
   Jacobian jacobian(GetRows(), opt_vars_->GetRows());

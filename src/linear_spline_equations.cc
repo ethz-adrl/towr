@@ -32,12 +32,12 @@ MatVec
 LinearSplineEquations::MakeStateConstraint (const StateLin3d& state, double t,
                                             const MotionDerivatives& derivatives) const
 {
-  int n_constraints = derivatives.size()*com_spline_.dim_.size();
+  int n_constraints = derivatives.size()*state.kNumDim;
   int n_spline_coeff = com_spline_.GetRows();
   MatVec M(n_constraints, n_spline_coeff);
 
   int c = 0; // constraint count
-  for (const Coords3D dim : com_spline_.dim_)
+  for (const Coords3D dim : state.GetDim())
   {
     for (auto dxdt :  derivatives) {
       VecScalar diff_dxdt;
@@ -55,11 +55,12 @@ MatVec
 LinearSplineEquations::MakeJunction () const
 {
   auto derivatives = {kPos, kVel};
+  auto dimensions = com_spline_.GetCom(0.0).GetDim();
 
   auto polynomials = com_spline_.GetPolynomials();
 
   int n_junctions = polynomials.size()-1; // because one less junction than poly's.
-  int n_constraints = derivatives.size() * n_junctions * com_spline_.dim_.size();
+  int n_constraints = derivatives.size() * n_junctions * dimensions.size();
   int n_spline_coeff = com_spline_.GetRows();
   MatVec M(n_constraints, n_spline_coeff);
 
@@ -68,7 +69,7 @@ LinearSplineEquations::MakeJunction () const
   for (int id = 0; id < n_junctions; ++id) {
     double T = polynomials.at(id).GetDuration();
 
-    for (auto dim : com_spline_.dim_) {
+    for (auto dim : dimensions) {
       for (auto dxdt :  derivatives) {
         VecScalar curr, next;
 
@@ -96,7 +97,7 @@ LinearSplineEquations::MakeCostMatrix (const ValXY& weight, MotionDerivative der
   int i=0;
   for (const auto& p : com_spline_.GetPolynomials()) {
 
-    for (const Coords3D dim : com_spline_.dim_) {
+    for (const Coords3D dim : com_spline_.GetCom(0.0).GetDim()) {
 
       auto poly = p.GetDim(dim);
       double T = poly.GetDuration();

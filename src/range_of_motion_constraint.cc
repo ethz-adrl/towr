@@ -35,7 +35,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
   ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
 
-  dim_ =  com_motion_->GetComSpline().dim_;
+  dim_ =  {X, Y, Z};
   SetRows(GetNumberOfNodes()*nom.GetCount()*dim_.size());
 }
 
