@@ -40,7 +40,7 @@ void
 MotionOptimizerFacade::BuildDefaultStartStance ()
 {
   State3d base;
-  base.lin.p.z() = 0.58;
+  base.lin.p_.z() = 0.58;
   EndeffectorsBool contact_state(motion_parameters_->GetEECount());
   contact_state.SetAll(true);
 

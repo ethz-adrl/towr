@@ -46,7 +46,7 @@ FootholdConstraint::GetValues () const
   auto endeffectors = ee_motion_->GetEndeffectors(t_);
   for (const auto& ee_state : endeffectors.ToImpl())
     for (auto dim : d2::AllDimensions)
-      g(k++) = ee_state.p(dim);
+      g(k++) = ee_state.p_(dim);
 
   return g;
 }

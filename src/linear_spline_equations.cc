@@ -42,7 +42,7 @@ LinearSplineEquations::MakeStateConstraint (const StateLin3d& state, double t,
     for (auto dxdt :  derivatives) {
       VecScalar diff_dxdt;
       diff_dxdt.v = com_spline_.GetJacobian(t, dxdt, dim);
-      diff_dxdt.s = -1 * state.GetByIndex(dxdt, dim);
+      diff_dxdt.s = -1 * state.GetByIndex(dxdt)[dim];
       M.WriteRow(diff_dxdt, c++);
     }
   }
@@ -73,8 +73,8 @@ LinearSplineEquations::MakeJunction () const
         VecScalar curr, next;
 
         // coefficients are all set to zero
-        curr.s = polynomials.at(id).GetPoint(T).GetByIndex(dxdt, dim);
-        next.s = polynomials.at(id+1).GetPoint(0.0).GetByIndex(dxdt, dim);
+        curr.s = polynomials.at(id).GetPoint(T).GetByIndex(dxdt)[dim];
+        next.s = polynomials.at(id+1).GetPoint(0.0).GetByIndex(dxdt)[dim];
 
         curr.v = com_spline_.GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);
         next.v = com_spline_.GetJacobianWrtCoeffAtPolynomial(dxdt, 0.0, id+1, dim);

@@ -86,7 +86,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeInitialConstraint () const
 {
   auto initial_com_state = initial_geom_state_.GetBase().lin;
-  initial_com_state.p += params->offset_geom_to_com_;
+  initial_com_state.p_ += params->offset_geom_to_com_;
   double t = 0.0; // initial time
   MatVec lin_eq = spline_eq_.MakeStateConstraint(initial_com_state,
                                                  t,
@@ -99,7 +99,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeFinalConstraint () const
 {
   auto final_com_state = final_geom_state_;
-  final_com_state.p += params->offset_geom_to_com_;
+  final_com_state.p_ += params->offset_geom_to_com_;
   MatVec lin_eq = spline_eq_.MakeStateConstraint(final_geom_state_,
                                                  params->GetTotalTime(),
                                                  {kPos, kVel, kAcc});
@@ -158,7 +158,7 @@ CostConstraintFactory::MakeStancesConstraints () const
   EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
   EndeffectorsPos endeffectors_final_W(nominal_B.GetCount());
   for (auto ee : endeffectors_final_W.GetEEsOrdered())
-    endeffectors_final_W.At(ee) = final_geom_state_.p + nominal_B.At(ee);
+    endeffectors_final_W.At(ee) = final_geom_state_.p_ + nominal_B.At(ee);
 
 
   auto constraint_final = std::make_shared<FootholdConstraint>(

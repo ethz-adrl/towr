@@ -50,11 +50,9 @@ StateLin1d Polynomial::GetPoint(const double t) const
 
   StateLin1d out;
 
-  for (auto d : {kPos, kVel, kAcc, kJerk}) {
+  for (auto d : {kPos, kVel, kAcc}) {
     for (PolynomialCoeff c : GetCoeffIds()) {
-      VectorXd val_prev = out.GetByIndex(d);
-      val_prev(0)      += GetDerivativeWrtCoeff(d, c, t)*coeff_[c];
-      out.SetByIndex(d, val_prev);
+      out.GetByIndex(d)[0] += GetDerivativeWrtCoeff(d, c, t)*coeff_[c];
     }
   }
 

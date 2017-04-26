@@ -52,7 +52,7 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
   Vector2d acc_model = model_.GetAcceleration();
 
   // current acceleration given by the optimization variables
-  Vector3d acc_opt = com_motion_->GetCom(t).a;
+  Vector3d acc_opt = com_motion_->GetCom(t).a_;
   for (auto dim : dim_)
     g(GetRow(k,dim)) = acc_model(dim) - acc_opt(dim);
 }
@@ -102,7 +102,7 @@ DynamicConstraint::UpdateModel (double t) const
   auto com     = com_motion_->GetCom(t);
   auto ee_load = ee_load_   ->GetLoadValues(t);
   auto ee_pos  = ee_motion_ ->GetEndeffectors(t).GetPos();
-  model_.SetCurrent(com.p.topRows<kDim2d>(), ee_load, ee_pos);
+  model_.SetCurrent(com.p_.topRows<kDim2d>(), ee_load, ee_pos);
 }
 
 int
