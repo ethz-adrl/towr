@@ -21,6 +21,11 @@
 namespace xpp {
 namespace opt {
 
+// make sure all jacobians in code follow same storage order
+using Jacobian    = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
+using VectorXd    = Eigen::VectorXd;
+
 /** @brief Interface representing either costs or constraints.
  *
  * Every individual constraint (primitive) or composite of constraints follows
@@ -31,9 +36,6 @@ namespace opt {
  */
 class Component {
 public:
-  using VectorXd = Eigen::VectorXd;
-  using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-
   Component(int num_rows, const std::string name = "");
   virtual ~Component() {};
 

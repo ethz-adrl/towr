@@ -39,7 +39,7 @@ TEST(EEMotionTest, Params)
   double t = 0.0;
   while (t < 1.3) {
     std::cout << std::setprecision(2) << std::fixed;
-    std::cout << motion.GetState(t).p.transpose() << std::endl;
+    std::cout << motion.GetState(t).p_.transpose() << std::endl;
 //    std::cout << motion.IsInContact(t) << std::endl;
     t += 0.1;
   }

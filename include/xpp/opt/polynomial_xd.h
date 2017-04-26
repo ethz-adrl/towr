@@ -27,8 +27,6 @@ class PolynomialXd {
 public:
   using PointT = PointType;
   using PolyT  = PolynomialType;
-  static const int kNumDim = PointT::kNumDim;
-  using Vector = Eigen::Matrix<double,kNumDim,1>;
   using PolyCoeff = typename PolynomialType::PolynomialCoeff;
 
 public:
@@ -45,7 +43,7 @@ public:
   const PolynomialType GetDim(int dim) const;
 
 private:
-  std::array<PolynomialType, kNumDim> polynomials_; ///< X,Y,Z dimensions
+  std::vector<PolynomialType> polynomials_; ///< X,Y,Z dimensions
 };
 
 

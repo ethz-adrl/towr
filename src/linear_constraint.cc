@@ -36,7 +36,7 @@ LinearEqualityConstraint::~LinearEqualityConstraint ()
 {
 }
 
-LinearEqualityConstraint::VectorXd
+VectorXd
 LinearEqualityConstraint::GetValues () const
 {
   VectorXd x = com_motion_->GetComSpline().GetValues();

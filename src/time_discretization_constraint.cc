@@ -34,7 +34,7 @@ TimeDiscretizationConstraint::GetNumberOfNodes () const
   return dts_.size();
 }
 
-TimeDiscretizationConstraint::VectorXd
+VectorXd
 TimeDiscretizationConstraint::GetValues () const
 {
   VectorXd g = VectorXd::Zero(GetRows());

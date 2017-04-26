@@ -47,7 +47,7 @@ SoftConstraint::GetValues () const
   return weight_ * cost;
 }
 
-SoftConstraint::Jacobian
+Jacobian
 SoftConstraint::GetJacobian () const
 {
   VectorXd g   = constraint_->GetValues();

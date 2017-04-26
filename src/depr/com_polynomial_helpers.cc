@@ -52,7 +52,7 @@ StateLin2d
 ComPolynomialHelpers::GetCOGxyAtPolynomial (int idx, double t_local, const VecPolynomials& splines)
 {
   StateLin2d cog_xy;
-  cog_xy.p = splines[idx].GetState(kPos, t_local);
+  cog_xy.p_ = splines[idx].GetState(kPos, t_local);
   cog_xy.v = splines[idx].GetState(kVel, t_local);
   cog_xy.a = splines[idx].GetState(kAcc, t_local);
   cog_xy.j = splines[idx].GetState(kJerk, t_local);

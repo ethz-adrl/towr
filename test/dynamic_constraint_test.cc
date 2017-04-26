@@ -47,8 +47,7 @@ using VectorXd = Eigen::VectorXd;
 
 TEST(DynamicConstraintTest, EigenScalar)
 {
-  VectorXd g(1);
-  g(0) = 0.5;
+  VectorXd g(2.1);
 
   std::cout << g << std::endl;
 }

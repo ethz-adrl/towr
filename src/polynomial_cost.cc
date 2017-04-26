@@ -32,7 +32,7 @@ QuadraticPolynomialCost::~QuadraticPolynomialCost ()
 {
 }
 
-QuadraticPolynomialCost::VectorXd
+VectorXd
 QuadraticPolynomialCost::GetValues () const
 {
   VectorXd cost = VectorXd::Zero(GetRows());

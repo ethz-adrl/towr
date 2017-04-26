@@ -27,8 +27,6 @@ namespace opt {
   */
 class NLP {
 public:
-  using VectorXd = Eigen::VectorXd;
-  using Jacobian = Primitive::Jacobian;
   using Number   = double;
   using OptimizationVariablesPtr = std::shared_ptr<Component>;
   using ConstraintPtrU = std::unique_ptr<Component>;

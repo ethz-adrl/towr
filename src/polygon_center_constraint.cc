@@ -36,7 +36,7 @@ PolygonCenterConstraint::~PolygonCenterConstraint ()
 {
 }
 
-PolygonCenterConstraint::VectorXd
+VectorXd
 PolygonCenterConstraint::GetValues () const
 {
   int num_constraints = GetRows();

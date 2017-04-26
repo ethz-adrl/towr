@@ -35,7 +35,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
   ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
 
-  dim_ =  com_motion_->GetComSpline().dim_;
+  dim_ =  {X, Y, Z};
   SetRows(GetNumberOfNodes()*nom.GetCount()*dim_.size());
 }
 
@@ -52,16 +52,16 @@ RangeOfMotionBox::GetRow (int node, EndeffectorID ee, int dim) const
 void
 RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
 {
-  Vector3d base_W = com_motion_->GetBase(t).lin.p;
+  Vector3d base_W = com_motion_->GetBase(t).lin.p_;
 
   auto pos_ee_W = ee_motion_->GetEndeffectors(t);
 
   for (auto ee : nominal_stance_.GetEEsOrdered()) {
     // zmp_ for now don't take into account lifting the leg
     // because i don't have a jacobian for the swingleg motion yet?
-    pos_ee_W.At(ee).p.z() = 0.0;
+    pos_ee_W.At(ee).p_.z() = 0.0;
 
-    Vector3d pos_ee_B = pos_ee_W.At(ee).p - base_W;
+    Vector3d pos_ee_B = pos_ee_W.At(ee).p_ - base_W;
 
     for (auto dim : dim_)
       g(GetRow(k,ee,dim)) = pos_ee_B(dim);
