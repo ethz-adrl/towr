@@ -55,18 +55,23 @@ NLP::SetVariables (const Number* x)
 double
 NLP::EvaluateCostFunction (const Number* x)
 {
-  SetVariables(x);
-  VectorXd g = costs_->GetValues();
-  assert(g.rows() == 1);
+  VectorXd g = VectorXd::Zero(1);
+  if (HasCostTerms()) {
+    SetVariables(x);
+    g = costs_->GetValues();
+  }
   return g(0);
 }
 
 NLP::VectorXd
 NLP::EvaluateCostFunctionGradient (const Number* x)
 {
-  SetVariables(x);
-  Jacobian jac = costs_->GetJacobian();
-  assert(jac.rows() == 1);
+  Jacobian jac = Jacobian(1,GetNumberOfOptimizationVariables());
+  if (HasCostTerms()) {
+    SetVariables(x);
+    jac = costs_->GetJacobian();
+  }
+
   return jac.row(0).transpose();
 }
 

@@ -24,7 +24,7 @@ MotionParameters::GetContactSchedule () const
   return phases;
 }
 
-MotionParameters::ValXY
+MotionParameters::MaxDevXYZ
 MotionParameters::GetMaximumDeviationFromNominal () const
 {
   return max_dev_xy_;

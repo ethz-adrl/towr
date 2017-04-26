@@ -32,8 +32,8 @@ namespace opt {
 class ComSpline : public Component {
 public:
   // zmp_ DRY, make state templated
-  using PolyXdT        = PolynomialXd<CubicPolynomial, StateLin2d>;
-  std::vector<Coords3D> dim_ = { X, Y };
+  using PolyXdT        = PolynomialXd<CubicPolynomial, StateLin3d>;
+  std::vector<Coords3D> dim_ = { X, Y , Z };
   using PolyHelpers    = PolyVecManipulation<PolyXdT>;
   using VecPolynomials = PolyHelpers::VecPolynomials;
 
@@ -53,19 +53,6 @@ public:
   double GetTotalTime() const;
 
   int Index(int polynomial, Coords3D dim, PolyCoeff coeff) const;
-
-  /** @brief Creates a linear approximation of the motion at the current coefficients.
-    *
-    * Given some general nonlinear function x(u) = ... that represents the motion
-    * of the system. A linear approximation of this function around specific
-    * coefficients u* can be found using the Jacobian J evaluated at that point and
-    * the value of the original function at *u:
-    *
-    * x(u) ~ J(u*)*(u-u*) + x(u*)
-    *
-    * @return The Jacobian J(u*) evaluated at u* and the corresponding offset x(u*).
-    */
-  VecScalar GetLinearApproxWrtCoeff(double t_global, MotionDerivative, Coords3D dim) const;
 
   /** Calculates the Jacobian at a specific time of the motion, but specified by
     * a local time and a polynome id. This allows to create spline junction constraints
@@ -88,7 +75,7 @@ public:
 
 private:
   VecPolynomials polynomials_;
-  double z_height_ = 0.58;
+//  double z_height_ = 0.58;
 
   // careful: assumes all splines (X,Y,1,..,n) same type
   int NumFreeCoeffPerSpline() const;

@@ -38,8 +38,6 @@ public:
   void SetBoundary(double T, const PointT& start, const PointT& end);
   PointType GetPoint(const double dt) const;
 
-  // zmp_ remove
-//  Vector GetState(MotionDerivative pos_vel_acc_jerk, double t) const;
   const double GetCoefficient(int dim, PolyCoeff coeff) const;
   void SetCoefficients(int dim, PolyCoeff coeff, double value);
 
@@ -61,10 +59,6 @@ public:
   using VecPolynomials = std::vector<PolynomialXdT>;
 
   static PointType GetPoint(double t_global, const VecPolynomials& splines);
-  // zmp_ remove
-//  static PointType GetPoint(int id, double t_local, const VecPolynomials& splines);
-//  static PointType GetPoint(double id, int t_local, const VecPolynomials& splines) = delete;   // to generate compiler error when user accidentally mixes up the order
-
   static int GetPolynomialID(double t_global, const VecPolynomials& splines);
   static double GetTotalTime(const VecPolynomials& splines);
   static double GetLocalTime(double t_global, const VecPolynomials& splines);

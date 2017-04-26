@@ -42,8 +42,7 @@ public:
   using PosXY            = Eigen::Vector2d;
   using PosXYZ           = Eigen::Vector3d;
   using NominalStance    = EndeffectorsPos;
-  // zmp_ rename to value xyz
-  using ValXY            = std::array<double,3>;
+  using MaxDevXYZ        = std::array<double,3>;
   using CostWeights      = std::map<CostName, double>;
   using UsedConstraints  = std::vector<ConstraintName>;
 
@@ -52,7 +51,7 @@ public:
   int GetEECount() const { return robot_ee_.size(); };
   NominalStance GetNominalStanceInBase() const { return nominal_stance_; };
   ContactSchedule GetContactSchedule() const;
-  ValXY GetMaximumDeviationFromNominal() const;
+  MaxDevXYZ GetMaximumDeviationFromNominal() const;
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
   double GetTotalTime() const;
@@ -60,13 +59,12 @@ public:
 
   MotionTypeID id_;
   double duration_polynomial_;
-  double geom_walking_height_;
   PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
 
 
 protected:
   EEVec robot_ee_;
-  ValXY max_dev_xy_;
+  MaxDevXYZ max_dev_xy_;
   ContactSequence contact_sequence_;
   NominalStance nominal_stance_;
   ContactTimings contact_timings_;

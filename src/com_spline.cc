@@ -40,22 +40,20 @@ ComSpline::Init (double t_global, double duration_polynomial)
   polynomials_.push_back(PolyXdT(t_left));
 
   SetRows(polynomials_.size() * NumFreeCoeffPerSpline() * dim_.size());
-
-  // zmp_ remove
-//  z_height_ = height;
 }
 
 StateLin3d ComSpline::GetCom(double t_global) const
 {
-  // zmp_ remove
-  StateLin3d com;
-
-  StateLin2d xy = PolyHelpers::GetPoint(t_global, polynomials_);
-  com.SetDimension(xy.Get1d(X),X);
-  com.SetDimension(xy.Get1d(Y),Y);
-  com.p.z() = z_height_;
-
-  return com;
+//  // zmp_ keep in back of headremove
+//  StateLin3d com;
+//
+//  StateLin2d xy = PolyHelpers::GetPoint(t_global, polynomials_);
+//  com.SetDimension(xy.Get1d(X),X);
+//  com.SetDimension(xy.Get1d(Y),Y);
+//  com.p.z() = 0.58;
+//
+//  return com;
+  return PolyHelpers::GetPoint(t_global, polynomials_);
 }
 
 double ComSpline::GetTotalTime() const
@@ -85,17 +83,6 @@ ComSpline::GetValues () const
   }
 
   return x_abcd;
-}
-
-VecScalar
-ComSpline::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coords3D dim) const
-{
-  VecScalar linear_approx; // at current coefficient values
-
-  linear_approx.v = GetJacobian(t_global, dxdt, dim);
-  linear_approx.s = GetCom(t_global).GetByIndex(dxdt, dim);
-
-  return linear_approx;
 }
 
 ComSpline::JacobianRow

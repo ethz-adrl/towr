@@ -87,7 +87,10 @@ CostConstraintFactory::MakeInitialConstraint () const
 {
   auto initial_com_state = initial_geom_state_.GetBase().lin;
   initial_com_state.p += params->offset_geom_to_com_;
-  MatVec lin_eq = spline_eq_.MakeInitial(initial_com_state);
+  double t = 0.0; // initial time
+  MatVec lin_eq = spline_eq_.MakeStateConstraint(initial_com_state,
+                                                 t,
+                                                 {kPos, kVel, kAcc});
 
   return std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq);
 }
@@ -97,7 +100,9 @@ CostConstraintFactory::MakeFinalConstraint () const
 {
   auto final_com_state = final_geom_state_;
   final_com_state.p += params->offset_geom_to_com_;
-  MatVec lin_eq = spline_eq_.MakeFinal(final_geom_state_, {kPos, kVel, kAcc});
+  MatVec lin_eq = spline_eq_.MakeStateConstraint(final_geom_state_,
+                                                 params->GetTotalTime(),
+                                                 {kPos, kVel, kAcc});
 
   return std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq);
 }

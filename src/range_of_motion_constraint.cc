@@ -57,7 +57,7 @@ RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) cons
   auto pos_ee_W = ee_motion_->GetEndeffectors(t);
 
   for (auto ee : nominal_stance_.GetEEsOrdered()) {
-    pos_ee_W.At(ee).p.z() = 0.0; // for now don't take into account lifting the leg
+    pos_ee_W.At(ee).p.z() = 0.0; // zmp_ for now don't take into account lifting the leg
 
     Vector3d pos_ee_B = pos_ee_W.At(ee).p - base_W;
 

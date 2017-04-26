@@ -40,13 +40,19 @@ void
 MotionOptimizerFacade::BuildDefaultStartStance ()
 {
   State3d base;
-  base.lin.p.z() = motion_parameters_->geom_walking_height_;
+  base.lin.p.z() = 0.58;
   EndeffectorsBool contact_state(motion_parameters_->GetEECount());
   contact_state.SetAll(true);
 
   start_geom_.SetBase(base);
   start_geom_.SetContactState(contact_state);
-  start_geom_.SetEEStateInWorld(kPos, motion_parameters_->GetNominalStanceInBase());
+
+  // transform nominal stance to world frame
+  auto nom_world = motion_parameters_->GetNominalStanceInBase();
+  for (auto ee : nom_world.GetEEsOrdered()) {
+    nom_world.At(ee).z() += start_geom_.GetBase().lin.p.z();
+  }
+  start_geom_.SetEEStateInWorld(kPos, nom_world);
 }
 
 void
@@ -59,8 +65,6 @@ MotionOptimizerFacade::BuildVariables ()
   auto ee_motion = std::make_shared<EndeffectorsMotion>(start_geom_.GetEEPos(),*contact_schedule);
 
   double T = motion_parameters_->GetTotalTime();
-  double com_height = motion_parameters_->geom_walking_height_
-                    + motion_parameters_->offset_geom_to_com_.z();
 
   auto com_motion = std::make_shared<ComSpline>();
   com_motion->Init(T, motion_parameters_->duration_polynomial_);
@@ -128,6 +132,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 
     RobotStateCartesian state(start_geom_.GetEECount());
     state.SetBase(base_motion->GetBase(t));
+
     state.SetEEStateInWorld(ee_motion->GetEndeffectors(t));
     state.SetContactState(contact_schedule->IsInContact(t));
     state.SetTime(t);

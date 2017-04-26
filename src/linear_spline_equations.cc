@@ -29,43 +29,20 @@ LinearSplineEquations::~LinearSplineEquations ()
 }
 
 MatVec
-LinearSplineEquations::MakeInitial (const StateLin3d& init) const
-{
-  auto derivatives =  {kPos, kVel, kAcc};
-
-  int n_constraints = com_spline_.dim_.size() *derivatives.size();
-  MatVec M(n_constraints, com_spline_.GetRows());
-
-  int i = 0; // constraint count
-  double t_global = 0.0;
-  for (const Coords3D dim : com_spline_.dim_)
-  {
-    for (auto dxdt :  derivatives) {
-      VecScalar diff_dxdt = com_spline_.GetLinearApproxWrtCoeff(t_global, dxdt, dim);
-      diff_dxdt.s -= init.GetByIndex(dxdt, dim);
-      M.WriteRow(diff_dxdt, i++);
-    }
-  }
-
-  assert(i==n_constraints);
-  return M;
-}
-
-MatVec
-LinearSplineEquations::MakeFinal (const StateLin3d& final_state,
-                                  const MotionDerivatives& derivatives) const
+LinearSplineEquations::MakeStateConstraint (const StateLin3d& state, double t,
+                                            const MotionDerivatives& derivatives) const
 {
   int n_constraints = derivatives.size()*com_spline_.dim_.size();
   int n_spline_coeff = com_spline_.GetRows();
   MatVec M(n_constraints, n_spline_coeff);
 
   int c = 0; // constraint count
-  double T = com_spline_.GetTotalTime();
   for (const Coords3D dim : com_spline_.dim_)
   {
     for (auto dxdt :  derivatives) {
-      VecScalar diff_dxdt = com_spline_.GetLinearApproxWrtCoeff(T, dxdt, dim);
-      diff_dxdt.s -= final_state.GetByIndex(dxdt, dim);
+      VecScalar diff_dxdt;
+      diff_dxdt.v = com_spline_.GetJacobian(t, dxdt, dim);
+      diff_dxdt.s = -1 * state.GetByIndex(dxdt, dim);
       M.WriteRow(diff_dxdt, c++);
     }
   }

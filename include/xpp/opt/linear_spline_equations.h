@@ -23,7 +23,6 @@
 namespace xpp {
 namespace opt {
 
-class BaseMotion;
 class ComSpline;
 
 /** Produces linear equations related to CoM spline motion coefficients x.
@@ -37,33 +36,22 @@ class ComSpline;
 class LinearSplineEquations {
 public:
   using MotionDerivatives = std::vector<MotionDerivative>;
-  using BaseMotionPtr     = std::shared_ptr<BaseMotion>;
   using ValXY             = std::array<double,3>;
 
-
-  /** @attention ComMotion is downcast to ComSpline.
-    */
   LinearSplineEquations();
   LinearSplineEquations (const ComSpline&);
   virtual ~LinearSplineEquations ();
 
-
-  /** M*x + v gives the difference to the desired initial state
+  /** M*x + v gives the difference to the state
     *
-    * @param init desired initial position, velocity and acceleration.
+    * @param state desired position, velocity and acceleration.
     */
-  MatVec MakeInitial(const StateLin3d& init) const;
-
-  /** M*x + v gives the difference to the desired final state
-    *
-    * @param final desired final position, velocity and acceleration.
-    */
-  MatVec MakeFinal(const StateLin3d& final, const MotionDerivatives& ) const;
+  MatVec MakeStateConstraint(const StateLin3d& state, double t, const MotionDerivatives& ) const;
 
   /** M*x + v gives the difference at the polynomial junctions of the spline
     *
     * A spline made up of 3 polynomials has 2 junctions, and for each of these
-    * the position, velocity and acceleration difference in x-y is returned,
+    * the position and velocity difference in x-y is returned,
     * resulting in m = (number of splines-1) * 3 * 2
     */
   MatVec MakeJunction() const;
@@ -74,9 +62,9 @@ public:
     * directions (x,y). Usually lateral motions are penalized more (bigger weight)
     * than forward backwards motions.
     *
-    * @param weight_xy larger value produces larger cost for x motion.
+    * @param weight which acceleration to avoid (x,y,z)
     */
-  Eigen::MatrixXd MakeCostMatrix(const ValXY& weight_xy, MotionDerivative) const;
+  Eigen::MatrixXd MakeCostMatrix(const ValXY& weights, MotionDerivative) const;
 
 private:
   ComSpline com_spline_;
