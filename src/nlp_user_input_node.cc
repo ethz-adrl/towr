@@ -26,8 +26,8 @@ NlpUserInputNode::NlpUserInputNode ()
   user_command_pub_ = n.advertise<UserCommandMsg>(xpp_msgs::goal_state_topic, 1);
 
   // publish goal zero initially
-  goal_geom_.p.setZero();
-  goal_geom_.p.z() = 0.58;
+  goal_geom_.p_.setZero();
+  goal_geom_.p_.z() = 0.58;
 //  goal_cog_.p << 1.05, 0.15, 0.0; // used for RA-L paper
 //  goal_cog_.p << 0.2, 0, 0.0;
   motion_type_ = opt::TrotID;
@@ -54,16 +54,16 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
 
   switch (msg.code) {
     case msg.KEY_RIGHT:
-      goal_geom_.p.x() -= dx;
+      goal_geom_.p_.x() -= dx;
       break;
     case msg.KEY_LEFT:
-      goal_geom_.p.x() += dx;
+      goal_geom_.p_.x() += dx;
       break;
     case msg.KEY_DOWN:
-      goal_geom_.p.y() += dy;
+      goal_geom_.p_.y() += dy;
       break;
     case msg.KEY_UP:
-      goal_geom_.p.y() -= dy;
+      goal_geom_.p_.y() -= dy;
       break;
     case msg.KEY_RETURN:
       command_ = Command::kSetGoal;
@@ -157,8 +157,8 @@ NlpUserInputNode::ModifyGoalJoy ()
 
   // integrate velocity
   double joy_deadzone = 0.05;
-  goal_geom_.p.x() += vel_x * joy_deadzone;
-  goal_geom_.p.y() += vel_y * joy_deadzone;
+  goal_geom_.p_.x() += vel_x * joy_deadzone;
+  goal_geom_.p_.y() += vel_y * joy_deadzone;
 }
 
 void NlpUserInputNode::PublishCommand()

@@ -75,7 +75,7 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
   solver_type_ = msg.use_solver_snopt ? opt::Snopt : opt::Ipopt;
 
   Eigen::Vector3d vel_dis(msg.vel_disturbance.x, msg.vel_disturbance.y, msg.vel_disturbance.z);
-  motion_optimizer_.start_geom_.GetBase().lin.v += vel_dis;
+  motion_optimizer_.start_geom_.GetBase().lin.v_ += vel_dis;
 
   if (!msg.replay_trajectory)
     OptimizeMotion();

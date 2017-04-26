@@ -47,20 +47,20 @@ int main(int argc, char **argv)
 
   RobotStateCartesian start_state_cart(n_ee);
   State3d base;
-  base.lin.p.x() = atof(argv_out[1].c_str());
-  base.lin.p.y() = atof(argv_out[2].c_str());
-  base.lin.p.z() = 0.57;
-  base.lin.v.x() = atof(argv_out[3].c_str());
-  base.lin.v.y() = atof(argv_out[4].c_str());
-  base.lin.a.x() = atof(argv_out[5].c_str()); // constraint
-  base.lin.a.y() = atof(argv_out[6].c_str()); // constraint
+  base.lin.p_.x() = atof(argv_out[1].c_str());
+  base.lin.p_.y() = atof(argv_out[2].c_str());
+  base.lin.p_.z() = 0.57;
+  base.lin.v_.x() = atof(argv_out[3].c_str());
+  base.lin.v_.y() = atof(argv_out[4].c_str());
+  base.lin.a_.x() = atof(argv_out[5].c_str()); // constraint
+  base.lin.a_.y() = atof(argv_out[6].c_str()); // constraint
   start_state_cart.SetBase(base);
 
   EndeffectorsPos hyq_ee(n_ee);
-  hyq_ee.At(kMapQuadToOpt.at(LF)) = Vector3d(base.lin.p.x() +0.359692,  base.lin.p.y() +0.327653, 0.0);
-  hyq_ee.At(kMapQuadToOpt.at(RF)) = Vector3d(base.lin.p.x() +0.359694,  base.lin.p.y() -0.327644, 0.0);
-  hyq_ee.At(kMapQuadToOpt.at(LH)) = Vector3d(base.lin.p.x() -0.358797,  base.lin.p.y() +0.327698, 0.0);
-  hyq_ee.At(kMapQuadToOpt.at(RH)) = Vector3d(base.lin.p.x() -0.358802,  base.lin.p.y() -0.327695, 0.0);
+  hyq_ee.At(kMapQuadToOpt.at(LF)) = Vector3d(base.lin.p_.x() +0.359692,  base.lin.p_.y() +0.327653, 0.0);
+  hyq_ee.At(kMapQuadToOpt.at(RF)) = Vector3d(base.lin.p_.x() +0.359694,  base.lin.p_.y() -0.327644, 0.0);
+  hyq_ee.At(kMapQuadToOpt.at(LH)) = Vector3d(base.lin.p_.x() -0.358797,  base.lin.p_.y() +0.327698, 0.0);
+  hyq_ee.At(kMapQuadToOpt.at(RH)) = Vector3d(base.lin.p_.x() -0.358802,  base.lin.p_.y() -0.327695, 0.0);
   start_state_cart.SetEEStateInWorld(kPos, hyq_ee);
 
   RobotStateCartesian::ContactState contacts(n_ee);
