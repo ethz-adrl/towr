@@ -46,6 +46,7 @@ private:
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
 
   void UpdateModel(double t) const;
+  std::vector<d2::Coords> dim_;
 };
 
 } /* namespace opt */

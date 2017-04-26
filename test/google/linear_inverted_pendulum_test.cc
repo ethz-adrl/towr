@@ -15,17 +15,16 @@ using Vector2d = Eigen::Vector2d;
 
 TEST(LinearInvertedPendulumTest, GetDerivative)
 {
-  LinearInvertedPendulum pendulum;
+  double height = 0.58;
+  LinearInvertedPendulum pendulum(height);
   Vector2d pos(0.0, 0.0);
 //  Vector2d vel(1.0, 0.0);
-  double height = 0.58;
 //  pendulum.SetCurrent(pos, 0.58);
 
 //  Vector2d input(0.58, -0.1);
 //
 //  std::cout << pendulum.GetDerivative(input);
 }
-
 
 } // namespace opt
 } // namespace xpp

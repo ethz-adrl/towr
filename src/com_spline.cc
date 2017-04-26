@@ -44,15 +44,6 @@ ComSpline::Init (double t_global, double duration_polynomial)
 
 StateLin3d ComSpline::GetCom(double t_global) const
 {
-//  // zmp_ keep in back of headremove
-//  StateLin3d com;
-//
-//  StateLin2d xy = PolyHelpers::GetPoint(t_global, polynomials_);
-//  com.SetDimension(xy.Get1d(X),X);
-//  com.SetDimension(xy.Get1d(Y),Y);
-//  com.p.z() = 0.58;
-//
-//  return com;
   return PolyHelpers::GetPoint(t_global, polynomials_);
 }
 

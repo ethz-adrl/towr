@@ -27,15 +27,17 @@ namespace opt {
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double T,
                                       double dt)
-    :TimeDiscretizationConstraint(T, dt, opt_vars)
+    :TimeDiscretizationConstraint(T, dt, opt_vars),
+     model_(0.58) // constant walking height for model
 {
   SetName("DynamicConstraint");
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
   ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
   ee_load_    = std::dynamic_pointer_cast<EndeffectorLoad>   (opt_vars->GetComponent("endeffector_load"));
 
-  ee_ids_  = ee_load_->GetLoadValues(0.0).GetEEsOrdered();
-  SetRows(GetNumberOfNodes()*kDim2d);
+  ee_ids_ = ee_load_->GetLoadValues(0.0).GetEEsOrdered();
+  dim_    = {d2::X, d2::Y};//  com_motion_->GetComSpline().dim_;
+  SetRows(GetNumberOfNodes()*dim_.size());
 }
 
 DynamicConstraint::~DynamicConstraint ()
@@ -51,14 +53,14 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 
   // current acceleration given by the optimization variables
   Vector3d acc_opt = com_motion_->GetCom(t).a;
-  for (auto dim : d2::AllDimensions)
+  for (auto dim : dim_)
     g(GetRow(k,dim)) = acc_model(dim) - acc_opt(dim);
 }
 
 void
 DynamicConstraint::UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const
 {
-  for (auto dim : d2::AllDimensions)
+  for (auto dim : dim_)
     bounds.at(GetRow(k,dim)) = kEqualityBound_;
 }
 
@@ -68,7 +70,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 {
   UpdateModel(t);
 
-  for (auto dim : d2::AllDimensions) {
+  for (auto dim : dim_) {
     int row = GetRow(k,dim);
 
     for (auto ee : ee_ids_) {
@@ -100,13 +102,13 @@ DynamicConstraint::UpdateModel (double t) const
   auto com     = com_motion_->GetCom(t);
   auto ee_load = ee_load_   ->GetLoadValues(t);
   auto ee_pos  = ee_motion_ ->GetEndeffectors(t).GetPos();
-  model_.SetCurrent(com.p, ee_load, ee_pos);
+  model_.SetCurrent(com.p.topRows<kDim2d>(), ee_load, ee_pos);
 }
 
 int
 DynamicConstraint::GetRow (int node, int dimension) const
 {
-  return kDim2d*node + dimension;
+  return dim_.size()*node + dimension;
 }
 
 } /* namespace opt */

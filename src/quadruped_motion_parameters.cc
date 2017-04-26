@@ -30,8 +30,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 
   const double x_nominal_b = 0.34;
   const double y_nominal_b = 0.34;
-  // zmp_ express this in base frame
-  const double z_nominal_b = -0.58;
+  const double z_nominal_b = -0.55;
   nominal_stance_.SetCount(robot_ee_.size());
   nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, z_nominal_b);
@@ -130,7 +129,7 @@ Walk::Walk()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   RomBox,
+//                   RomBox,
                    Stance,
   };
 
@@ -169,7 +168,7 @@ Trot::Trot()
                    InitCom,
                    FinalCom,
                    JunctionCom,
-//                   Dynamic,
+                   Dynamic,
 //                   RomBox,
                    Stance,
                    };
@@ -203,7 +202,7 @@ Pace::Pace()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   RomBox,
+//                   RomBox,
                    Stance
   };
 
@@ -235,11 +234,11 @@ Bound::Bound()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   RomBox,
+//                   RomBox,
                    Stance
   };
 
-//  cost_weights_[RangOfMotionCostID] = 10.0;
+  cost_weights_[RangOfMotionCostID] = 10.0;
   cost_weights_[ComCostID]          = 1.0;
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }

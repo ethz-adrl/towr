@@ -5,17 +5,15 @@
  @brief   Declares the class ComSpline
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_
+#ifndef XPP_OPT_INCLUDE_XPP_OPT_COM_SPLINE_H_
+#define XPP_OPT_INCLUDE_XPP_OPT_COM_SPLINE_H_
 
+#include <vector>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
-#include <vector>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
-
-#include <xpp/matrix_vector.h>
 
 #include "polynomial.h"
 #include "polynomial_xd.h"
@@ -75,13 +73,11 @@ public:
 
 private:
   VecPolynomials polynomials_;
-//  double z_height_ = 0.58;
-
   // careful: assumes all splines (X,Y,1,..,n) same type
   int NumFreeCoeffPerSpline() const;
 };
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ZMP_COM_POLYNOMIAL_FIFTH_ORDER_H_ */
+#endif /* XPP_OPT_INCLUDE_XPP_OPT_COM_SPLINE_H_ */

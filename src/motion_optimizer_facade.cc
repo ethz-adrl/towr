@@ -47,12 +47,11 @@ MotionOptimizerFacade::BuildDefaultStartStance ()
   start_geom_.SetBase(base);
   start_geom_.SetContactState(contact_state);
 
-  // transform nominal stance to world frame
-  auto nom_world = motion_parameters_->GetNominalStanceInBase();
-  for (auto ee : nom_world.GetEEsOrdered()) {
-    nom_world.At(ee).z() += start_geom_.GetBase().lin.p.z();
+  auto ee_start_W = motion_parameters_->GetNominalStanceInBase();
+  for (auto ee : ee_start_W.GetEEsOrdered()) {
+    ee_start_W.At(ee).z() = 0.0;
   }
-  start_geom_.SetEEStateInWorld(kPos, nom_world);
+  start_geom_.SetEEStateInWorld(kPos, ee_start_W);
 }
 
 void
