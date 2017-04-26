@@ -56,12 +56,12 @@ int main(int argc, char **argv)
   base.lin.a.y() = atof(argv_out[6].c_str()); // constraint
   start_state_cart.SetBase(base);
 
-  EEXppPos hyq_ee(n_ee);
+  EndeffectorsPos hyq_ee(n_ee);
   hyq_ee.At(kMapQuadToOpt.at(LF)) = Vector3d(base.lin.p.x() +0.359692,  base.lin.p.y() +0.327653, 0.0);
   hyq_ee.At(kMapQuadToOpt.at(RF)) = Vector3d(base.lin.p.x() +0.359694,  base.lin.p.y() -0.327644, 0.0);
   hyq_ee.At(kMapQuadToOpt.at(LH)) = Vector3d(base.lin.p.x() -0.358797,  base.lin.p.y() +0.327698, 0.0);
   hyq_ee.At(kMapQuadToOpt.at(RH)) = Vector3d(base.lin.p.x() -0.358802,  base.lin.p.y() -0.327695, 0.0);
-  start_state_cart.SetEEState(kPos, hyq_ee);
+  start_state_cart.SetEEStateInWorld(kPos, hyq_ee);
 
   RobotStateCartesian::ContactState contacts(n_ee);
   contacts.At(kMapQuadToOpt.at(LF)) = true;

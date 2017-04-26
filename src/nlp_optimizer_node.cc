@@ -33,7 +33,9 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   cart_trajectory_pub_  = n.advertise<TrajectoryCartMsg>(xpp_msgs::robot_trajectory_cart, 1);
 
-  motion_optimizer_.BuildDefaultStartStance(opt::QuadrupedMotionParameters());
+  auto motion_params = std::make_shared<opt::quad::QuadrupedMotionParameters>();
+  motion_optimizer_.SetMotionParameters(motion_params);
+  motion_optimizer_.BuildDefaultStartStance();
 
   dt_ = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
 }
@@ -53,7 +55,7 @@ void
 NlpOptimizerNode::OptimizeMotion ()
 {
   try {
-    motion_optimizer_.OptimizeMotion(solver_type_);
+    motion_optimizer_.SolveProblem(solver_type_);
     PublishTrajectory();
   } catch (const std::runtime_error& e) {
     ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
@@ -63,11 +65,11 @@ NlpOptimizerNode::OptimizeMotion ()
 void
 NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 {
-  auto goal_prev = motion_optimizer_.goal_geom_;
+//  auto goal_prev = motion_optimizer_.goal_geom_;
   motion_optimizer_.goal_geom_ = RosHelpers::RosToXpp(msg.goal);
 
   auto motion_id = static_cast<opt::MotionTypeID>(msg.motion_type);
-  auto params = opt::QuadrupedMotionParameters::MakeMotion(motion_id);
+  auto params = opt::quad::QuadrupedMotionParameters::MakeMotion(motion_id);
   motion_optimizer_.SetMotionParameters(params);
 
   solver_type_ = msg.use_solver_snopt ? opt::Snopt : opt::Ipopt;

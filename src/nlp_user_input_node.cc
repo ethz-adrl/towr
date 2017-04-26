@@ -27,9 +27,10 @@ NlpUserInputNode::NlpUserInputNode ()
 
   // publish goal zero initially
   goal_geom_.p.setZero();
+  goal_geom_.p.z() = 0.58;
 //  goal_cog_.p << 1.05, 0.15, 0.0; // used for RA-L paper
 //  goal_cog_.p << 0.2, 0, 0.0;
-  motion_type_ = opt::TrottID;
+  motion_type_ = opt::TrotID;
   replay_trajectory_ = false;
   use_solver_snopt_ = false;
   UserCommandMsg msg;
@@ -77,7 +78,7 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       break;
     case msg.KEY_t:
       ROS_INFO_STREAM("Motion type set to Trotting");
-      motion_type_ = opt::TrottID;
+      motion_type_ = opt::TrotID;
       break;
     case msg.KEY_b:
       ROS_INFO_STREAM("Motion type set to Bounding");
@@ -138,7 +139,7 @@ NlpUserInputNode::CallbackJoy (const JoyMsg& msg)
   }
 
   if (joy_msg_.buttons[X] == 1) {
-    motion_type_ = opt::TrottID;
+    motion_type_ = opt::TrotID;
   }
 
   PublishCommand();
