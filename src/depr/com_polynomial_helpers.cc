@@ -42,20 +42,20 @@ ComPolynomialHelpers::GetLocalTime(double t_global, const VecPolynomials& spline
 StateLin2d
 ComPolynomialHelpers::GetCOM(double t_global, const VecPolynomials& splines)
 {
-  int id = GetPolynomialID(t_global,splines);
+  int idx        = GetPolynomialID(t_global,splines);
   double t_local = GetLocalTime(t_global, splines);
 
-  return GetCOGxyAtPolynomial(id, t_local, splines);
+  return GetCOGxyAtPolynomial(idx, t_local, splines);
 }
 
 StateLin2d
-ComPolynomialHelpers::GetCOGxyAtPolynomial (int id, double t_local, const VecPolynomials& splines)
+ComPolynomialHelpers::GetCOGxyAtPolynomial (int idx, double t_local, const VecPolynomials& splines)
 {
   StateLin2d cog_xy;
-  cog_xy.p = splines[id].GetState(kPos, t_local);
-  cog_xy.v = splines[id].GetState(kVel, t_local);
-  cog_xy.a = splines[id].GetState(kAcc, t_local);
-  cog_xy.j = splines[id].GetState(kJerk, t_local);
+  cog_xy.p = splines[idx].GetState(kPos, t_local);
+  cog_xy.v = splines[idx].GetState(kVel, t_local);
+  cog_xy.a = splines[idx].GetState(kAcc, t_local);
+  cog_xy.j = splines[idx].GetState(kJerk, t_local);
 
   return cog_xy;
 }
@@ -67,11 +67,14 @@ ComPolynomialHelpers::GetPolynomialID(double t_global, const VecPolynomials& spl
   assert(t_global<=GetTotalTime(splines)+eps); // machine precision
 
    double t = 0;
+   int i=0;
    for (const ComPolynomial& s: splines) {
      t += s.GetDuration();
 
      if (t >= t_global-eps) // at junctions, returns previous spline (=)
-       return s.GetId();
+       return i;
+
+     i++;
    }
    assert(false); // this should never be reached
 }

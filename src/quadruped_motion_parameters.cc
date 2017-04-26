@@ -22,7 +22,7 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  geom_walking_height_ = 0.58;
+  duration_polynomial_ = 0.15; //s
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
 //  offset_geom_to_com_ << -0.03, 0.02, 0.0;
   offset_geom_to_com_ << 0,0,0;
@@ -30,11 +30,12 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 
   const double x_nominal_b = 0.34;
   const double y_nominal_b = 0.34;
+  const double z_nominal_b = -0.55;
   nominal_stance_.SetCount(robot_ee_.size());
-  nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, 0.0);
-  nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, 0.0);
-  nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, 0.0);
-  nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, 0.0);
+  nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, z_nominal_b);
 
   II_.SetCount(robot_ee_.size()); II_.SetAll(false);
   PI_.SetCount(robot_ee_.size()); PI_.SetAll(false);
@@ -83,9 +84,8 @@ QuadrupedMotionParameters::MakeMotion (opt::MotionTypeID id)
 
 Walk::Walk()
 {
-  max_dev_xy_ = {0.15, 0.15};
+  max_dev_xy_ = {0.15, 0.15, 0.1};
   id_ = opt::WalkID;
-  polynomials_per_second_ = 6;
 
   double t_phase = 0.2;
   double t_trans = 0.1;
@@ -129,22 +129,21 @@ Walk::Walk()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   RomBox,
+//                   RomBox,
                    Stance,
   };
 
 
   cost_weights_[ComCostID]          = 1.0;
-  cost_weights_[RangOfMotionCostID] = 30.0;
+  cost_weights_[RangOfMotionCostID] = 100.0;
   cost_weights_[PolyCenterCostID]   = 10.0;
 //  cost_weights_[FinalComCostID] = 1000.0;
 }
 
 Trot::Trot()
 {
-  max_dev_xy_ = {0.15, 0.15};
+  max_dev_xy_ = {0.15, 0.15, 0.1};
   id_ = opt::TrotID;
-  polynomials_per_second_ = 6;
 
   double t_phase = 0.3;
   double t_trans = 0.1;
@@ -165,26 +164,26 @@ Trot::Trot()
   };
 
 
-  constraints_ = { InitCom,
+  constraints_ = {
+                   InitCom,
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   RomBox,
+//                   RomBox,
                    Stance,
                    };
-  cost_weights_[RangOfMotionCostID] = 10.0;
 
-  // remove all costs hugely speeds up the optimization problem
+  cost_weights_[RangOfMotionCostID] = 10.0;
   cost_weights_[ComCostID]      = 1.0;
+
 //  cost_weights_[FinalComCostID] = 1.0;
 //  cost_weights_[PolyCenterCostID]   = 50.0;
 }
 
 Pace::Pace()
 {
-  max_dev_xy_ = {0.20, 0.20};
+  max_dev_xy_ = {0.20, 0.20, 0.1};
   id_ = opt::PaceID;
-  polynomials_per_second_ = 6;
 
   contact_timings_ =
   {
@@ -203,7 +202,7 @@ Pace::Pace()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   RomBox,
+//                   RomBox,
                    Stance
   };
 
@@ -214,9 +213,8 @@ Pace::Pace()
 
 Bound::Bound()
 {
-  max_dev_xy_ = {0.25, 0.25};
+  max_dev_xy_ = {0.25, 0.25, 0.1};
   id_ = opt::BoundID;
-  polynomials_per_second_ = 6;
 
   contact_timings_ =
   {
@@ -236,20 +234,19 @@ Bound::Bound()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   RomBox,
+//                   RomBox,
                    Stance
   };
 
-//  cost_weights_[RangOfMotionCostID] = 10.0;
+  cost_weights_[RangOfMotionCostID] = 10.0;
   cost_weights_[ComCostID]          = 1.0;
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
 PushRecovery::PushRecovery ()
 {
-  max_dev_xy_ = {0.15, 0.15};
+  max_dev_xy_ = {0.15, 0.15, 0.1};
   id_ = opt::PushRecID;
-  polynomials_per_second_ = 5;
 
   double t_phase = 0.25;
   contact_timings_ = {t_phase, t_phase};

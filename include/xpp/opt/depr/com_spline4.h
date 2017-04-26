@@ -15,7 +15,7 @@
 
 #include <xpp/cartesian_declarations.h>
 
-#include "com_spline.h"
+#include <xpp/opt/com_spline.h>
 
 namespace xpp {
 namespace opt {
@@ -45,8 +45,8 @@ public:
   void SetSplineXYCoefficients(const VectorXd& optimized_coeff) override;
   void SetEndAtStart();
 
-  Derivatives GetInitialFreeMotions()  const;
-  Derivatives GetJunctionFreeMotions() const;
+//  Derivatives GetInitialFreeMotions()  const;
+//  Derivatives GetJunctionFreeMotions() const;
 
 private:
   int NumFreeCoeffPerSpline() const override { return 4; };

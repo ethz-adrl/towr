@@ -47,11 +47,8 @@ EEPhaseMotion::SetContacts (const Vector3d& start_pos,
 StateLin3d
 EEPhaseMotion::GetState (double t_local) const
 {
-  StateLin1d z;
-  poly_z_.GetPoint(t_local, z);
-
-  StateLin2d xy;
-  poly_xy_.GetPoint(t_local, xy);
+  StateLin1d z  = poly_z_.GetPoint(t_local);
+  StateLin2d xy = poly_xy_.GetPoint(t_local);
 
   StateLin3d ee;
   ee.SetDimension(xy.Get1d(X), X);

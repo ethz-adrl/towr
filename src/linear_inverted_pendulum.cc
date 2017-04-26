@@ -12,8 +12,9 @@
 namespace xpp {
 namespace opt {
 
-LinearInvertedPendulum::LinearInvertedPendulum ()
+LinearInvertedPendulum::LinearInvertedPendulum (double height)
 {
+  h_ = height;
 }
 
 LinearInvertedPendulum::~LinearInvertedPendulum ()
@@ -21,13 +22,11 @@ LinearInvertedPendulum::~LinearInvertedPendulum ()
 }
 
 void
-LinearInvertedPendulum::SetCurrent (const ComPos& pos,
-                                    double height,
+LinearInvertedPendulum::SetCurrent (const ComPos& com_pos,
                                     const EELoad& ee_load,
                                     const EEPos& ee_pos)
 {
-  pos_     = pos;
-  h_       = height;
+  pos_     = com_pos;
   ee_load_ = ee_load;
   ee_pos_  = ee_pos;
 }

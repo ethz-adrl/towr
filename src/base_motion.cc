@@ -10,68 +10,59 @@
 namespace xpp {
 namespace opt {
 
-BaseMotion::BaseMotion () : Component(-1, "base_motion")
+BaseMotion::BaseMotion (const ComSplinePtr& com_spline)
+  : Composite("base_motion", true)
 {
-  // still don't know how many optimization variables
-}
-
-void
-BaseMotion::SetVariableCount ()
-{
-  SetRows(GetValues().rows());
+  AddComponent(com_spline);
+  com_spline_ = com_spline; // retain pointer to keep specific info
 }
 
 BaseMotion::~BaseMotion ()
 {
 }
 
-VectorXd
-BaseMotion::GetValues () const
-{
-  return GetXYSplineCoeffients();
-}
-
-void
-BaseMotion::SetValues (const VectorXd& x)
-{
-  SetSplineXYCoefficients(x);
-}
-
-VecScalar
-BaseMotion::GetLinearApproxWrtCoeff (double t_global, MotionDerivative dxdt, Coords3D dim) const
-{
-  VecScalar linear_approx; // at current coefficient values
-
-  linear_approx.v = GetJacobian(t_global, dxdt, dim);
-  linear_approx.s = GetCom(t_global).GetByIndex(dxdt, dim);
-
-  return linear_approx;
-}
-
-void
-BaseMotion::SetOffsetGeomToCom (const Vector3d& offset)
-{
-  offset_geom_to_com_ = offset;
-}
-
 State3d
 BaseMotion::GetBase (double t_global) const
 {
-  State3d base; // z and orientation all at zero
+  State3d base; // positions and orientations set to zero
 
-  StateLin2d com_xy = GetCom(t_global);
-
-  // since the optimized motion is for the CoM and not the geometric center
-  base.lin.p.topRows(kDim2d) = com_xy.p - offset_geom_to_com_.topRows<kDim2d>();
-  base.lin.p.z() = z_height_;
-
-  base.lin.v.topRows(kDim2d) = com_xy.v;
-  base.lin.a.topRows(kDim2d) = com_xy.a;
+  StateLin3d com = GetCom(t_global);
+  com.p -= offset_geom_to_com_;
+  base.lin = com;
 
   return base;
 }
 
-} /* namespace zmp */
-} /* namespace xpp */
+StateLin3d
+BaseMotion::GetCom (double t_global) const
+{
+  return com_spline_->GetCom(t_global);
+}
 
+double
+BaseMotion::GetTotalTime () const
+{
+  return com_spline_->GetTotalTime();
+}
+
+BaseMotion::JacobianRow
+BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt, Coords3D dim) const
+{
+  return com_spline_->GetJacobian(t_global, dxdt, dim);
+}
+
+ComSpline
+xpp::opt::BaseMotion::GetComSpline () const
+{
+  return *com_spline_;
+}
+
+void
+BaseMotion::SetOffsetGeomToCom (const Vector3d& val)
+{
+  offset_geom_to_com_ = val;
+}
+
+} /* namespace opt */
+} /* namespace xpp */
 

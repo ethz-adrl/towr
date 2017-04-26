@@ -5,7 +5,7 @@
 @brief   Defines ComSpline4, which realizes a ComSpline
  */
 
-#include <xpp/opt/com_spline4.h>
+#include <xpp/opt/depr/com_spline4.h>
 
 #include <cassert>
 #include <cmath>
@@ -41,29 +41,29 @@ ComSpline4::SetStartPosVel (const Vector2d& start_cog_p, const Vector2d& start_c
  }
 
  // initialize all other coefficients to zero
- Eigen::VectorXd abcd(GetTotalFreeCoeff());
+ Eigen::VectorXd abcd(GetRows());
  abcd.setZero();
  SetSplineXYCoefficients(abcd);
 }
 
-ComSpline4::Derivatives
-ComSpline4::GetInitialFreeMotions () const
-{
-  return {}; //kAcc
-}
-
-ComSpline4::Derivatives
-ComSpline4::GetJunctionFreeMotions () const
-{
-  return {kAcc};
-//  return {kAcc /*, kJerk*/}; // jerk doesn't seem to work properly in spline junction
-}
+//ComSpline4::Derivatives
+//ComSpline4::GetInitialFreeMotions () const
+//{
+//  return {}; //kAcc
+//}
+//
+//ComSpline4::Derivatives
+//ComSpline4::GetJunctionFreeMotions () const
+//{
+//  return {kAcc};
+////  return {kAcc /*, kJerk*/}; // jerk doesn't seem to work properly in spline junction
+//}
 
 void
 ComSpline4::SetSplineXYCoefficients(const VectorXd& optimized_coeff)
 {
   CheckIfSplinesInitialized();
-  assert(polynomials_.size() == GetTotalFreeCoeff()/kDim2d/4.0);
+  assert(polynomials_.size() == GetRows()/kDim2d/4.0);
 
   Vector2d prev_pos = start_cog_p_;
 
@@ -95,7 +95,7 @@ ComSpline4::SetSplineXYCoefficients(const VectorXd& optimized_coeff)
         cv[Polynomial::PolynomialCoeff::F] = (jac_f*optimized_coeff)[0] + prev_pos[dim];
       }
 
-      for (auto c : Polynomial::AllSplineCoeff) {
+      for (auto c : Polynomial::kAllSplineCoeff) {
         polynomials_.at(k).SetCoefficients(dim, c, cv[c]);
       }
 
@@ -167,7 +167,7 @@ ComSpline4::GetJacobianF(int spline_id_k, Coords3D dim) const
 ComSpline4::JacobianEFWrtABCD
 ComSpline4::CalcJacobianEWrtABCD (Coords3D dim) const
 {
-  JacobianEFWrtABCD jac(polynomials_.size(), GetTotalFreeCoeff());
+  JacobianEFWrtABCD jac(polynomials_.size(), GetRows());
 
   for (uint k=1; k<polynomials_.size(); ++k)
   {
@@ -190,7 +190,7 @@ ComSpline4::CalcJacobianEWrtABCD (Coords3D dim) const
 ComSpline4::JacobianEFWrtABCD
 ComSpline4::CalcJacobianFWrtABCD (Coords3D dim) const
 {
-  JacobianEFWrtABCD jac(polynomials_.size(), GetTotalFreeCoeff());
+  JacobianEFWrtABCD jac(polynomials_.size(), GetRows());
   JacobianEFWrtABCD jac_e = CalcJacobianEWrtABCD(dim);
 
   for (uint k=1; k<polynomials_.size(); ++k)
@@ -226,7 +226,7 @@ ComSpline4::SetEndAtStart ()
   Vector2d c_and_d_x = A.lu().solve(-start_com_v.x()*b);
   Vector2d c_and_d_y = A.lu().solve(-start_com_v.y()*b);
 
-  Eigen::VectorXd abcd(GetTotalFreeCoeff());
+  Eigen::VectorXd abcd(GetRows());
   abcd.setZero();
   abcd[Index(0,X,Polynomial::PolynomialCoeff::C)] = c_and_d_x(0);
   abcd[Index(0,X,Polynomial::PolynomialCoeff::D)] = c_and_d_x(1);

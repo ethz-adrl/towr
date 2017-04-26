@@ -5,8 +5,7 @@
 @brief   Creates 3 dimensional spline from start to end with duration T
  */
 
-#include <xpp/cartesian_declarations.h>
-#include <xpp/state.h>
+#include <cassert>
 
 namespace xpp {
 namespace opt {
@@ -14,14 +13,12 @@ namespace opt {
 template<typename PolynomialType, typename PointType>
 PolynomialXd<PolynomialType, PointType>::PolynomialXd ()
 {
-  id_ = 0;
 }
 
 template<typename PolynomialType, typename PointType>
-PolynomialXd<PolynomialType, PointType>::PolynomialXd (int id, double duration)
+PolynomialXd<PolynomialType, PointType>::PolynomialXd (double duration)
 {
-  SetId(id);
-  SetBoundary(duration, Point(), Point());
+  SetBoundary(duration, PointT(), PointT());
 }
 
 template<typename PolynomialType, typename PointType>
@@ -30,7 +27,7 @@ PolynomialXd<PolynomialType, PointType>::~PolynomialXd ()
 }
 
 template<typename PolynomialType, typename PointType>
-double
+const double
 PolynomialXd<PolynomialType, PointType>::GetDuration () const
 {
   // all polynomials have same duration, so just return duration of X
@@ -38,17 +35,7 @@ PolynomialXd<PolynomialType, PointType>::GetDuration () const
 }
 
 template<typename PolynomialType, typename PointType>
-typename PolynomialXd<PolynomialType, PointType>::Vector
-PolynomialXd<PolynomialType, PointType>::GetState (MotionDerivative pos_vel_acc_jerk,
-                                                          double t) const
-{
-  Point p;
-  GetPoint(t, p);
-  return p.GetByIndex(pos_vel_acc_jerk);
-}
-
-template<typename PolynomialType, typename PointType>
-double
+const double
 PolynomialXd<PolynomialType, PointType>::GetCoefficient (int dim, PolyCoeff coeff) const
 {
   return polynomials_.at(dim).GetCoefficient(coeff);
@@ -64,31 +51,89 @@ PolynomialXd<PolynomialType, PointType>::SetCoefficients (int dim, PolyCoeff coe
 
 template<typename PolynomialType, typename PointType>
 void PolynomialXd<PolynomialType, PointType>::SetBoundary(double T,
-                                                          const Point& start,
-                                                          const Point& end)
+                                                          const PointT& start,
+                                                          const PointT& end)
 {
   for (int dim=X; dim<kNumDim; ++dim)
     polynomials_.at(dim).SetBoundary(T, start.Get1d(dim), end.Get1d(dim));
 }
 
 template<typename PolynomialType, typename PointType>
-bool PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt, Point& p) const
+PointType
+PolynomialXd<PolynomialType, PointType>::GetPoint(const double dt) const
 {
-  StateLin1d point1d;
+  PointT p;
+  for (int dim=X; dim<kNumDim; ++dim)
+    p.SetDimension(polynomials_.at(dim).GetPoint(dt), dim);
 
-  for (int dim=X; dim<kNumDim; ++dim) {
-    polynomials_.at(dim).GetPoint(dt, point1d);
-    p.SetDimension(point1d, dim);
-  }
-
-  return true;
+  return p;
 }
 
 template<typename PolynomialType, typename PointType>
-PolynomialType
+const PolynomialType
 PolynomialXd<PolynomialType, PointType>::GetDim (int dim) const
 {
   return polynomials_.at(dim);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+template<typename TPolyXd>
+double
+PolyVecManipulation<TPolyXd>::GetTotalTime(
+    const VecPolynomials& splines)
+{
+  double T = 0.0;
+  for (const auto& s: splines)
+    T += s.GetDuration();
+  return T;
+}
+
+template<typename TPolyXd>
+double
+PolyVecManipulation<TPolyXd>::GetLocalTime(
+    double t_global, const VecPolynomials& splines)
+{
+  int id_spline = GetPolynomialID(t_global,splines);
+
+  double t_local = t_global;
+  for (int id=0; id<id_spline; id++) {
+    t_local -= splines.at(id).GetDuration();
+  }
+
+  return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
+}
+
+template<typename TPolyXd>
+typename PolyVecManipulation<TPolyXd>::PointType
+PolyVecManipulation<TPolyXd>::GetPoint(
+    double t_global, const VecPolynomials& splines)
+{
+  int idx        = GetPolynomialID(t_global,splines);
+  double t_local = GetLocalTime(t_global, splines);
+
+  return splines.at(idx).GetPoint(t_local);
+}
+
+template<typename TPolyXd>
+int
+PolyVecManipulation<TPolyXd>::GetPolynomialID(
+    double t_global, const VecPolynomials& splines)
+{
+  double eps = 1e-10; // double imprecision
+  assert(t_global<=GetTotalTime(splines)+eps); // machine precision
+
+   double t = 0;
+   int i=0;
+   for (const auto& s: splines) {
+     t += s.GetDuration();
+
+     if (t >= t_global-eps) // at junctions, returns previous spline (=)
+       return i;
+
+     i++;
+   }
+   assert(false); // this should never be reached
 }
 
 } // namespace opt

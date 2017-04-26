@@ -9,10 +9,8 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 
 #include <array>
-#include <cstddef>
 #include <memory>
 #include <vector>
-#include <sys/types.h>
 #include <Eigen/Dense>
 
 #include <xpp/cartesian_declarations.h>
@@ -20,10 +18,11 @@
 
 #include <xpp/matrix_vector.h>
 
+#include "com_spline.h"
+
 namespace xpp {
 namespace opt {
 
-class BaseMotion;
 class ComSpline;
 
 /** Produces linear equations related to CoM spline motion coefficients x.
@@ -37,33 +36,22 @@ class ComSpline;
 class LinearSplineEquations {
 public:
   using MotionDerivatives = std::vector<MotionDerivative>;
-  using ComSplinePtr      = std::shared_ptr<ComSpline>;
-  using BaseMotionPtr     = std::shared_ptr<BaseMotion>;
-  using ValXY             = std::array<double,2>;
+  using ValXY             = std::array<double,3>;
 
-  /** @attention ComMotion is downcast to ComSpline.
-    */
   LinearSplineEquations();
-  LinearSplineEquations (const ComSplinePtr&);
+  LinearSplineEquations (const ComSpline&);
   virtual ~LinearSplineEquations ();
 
-
-  /** M*x + v gives the difference to the desired initial state
+  /** M*x + v gives the difference to the state
     *
-    * @param init desired initial position, velocity and acceleration.
+    * @param state desired position, velocity and acceleration.
     */
-  MatVec MakeInitial(const StateLin2d& init) const;
-
-  /** M*x + v gives the difference to the desired final state
-    *
-    * @param final desired final position, velocity and acceleration.
-    */
-  MatVec MakeFinal(const StateLin2d& final, const MotionDerivatives& ) const;
+  MatVec MakeStateConstraint(const StateLin3d& state, double t, const MotionDerivatives& ) const;
 
   /** M*x + v gives the difference at the polynomial junctions of the spline
     *
     * A spline made up of 3 polynomials has 2 junctions, and for each of these
-    * the position, velocity and acceleration difference in x-y is returned,
+    * the position and velocity difference in x-y is returned,
     * resulting in m = (number of splines-1) * 3 * 2
     */
   MatVec MakeJunction() const;
@@ -74,31 +62,15 @@ public:
     * directions (x,y). Usually lateral motions are penalized more (bigger weight)
     * than forward backwards motions.
     *
-    * @param weight_xy larger value produces larger cost for x motion.
+    * @param weight which acceleration to avoid (x,y,z)
     */
-  Eigen::MatrixXd MakeAcceleration(const ValXY& weight_xy) const;
-  Eigen::MatrixXd MakeJerk(const ValXY& weight_xy) const;
+  Eigen::MatrixXd MakeCostMatrix(const ValXY& weights, MotionDerivative) const;
 
 private:
-  ComSplinePtr com_spline_;
-
-  template<std::size_t N>
-  std::array<double,N> CalcExponents(double t) const;
+  ComSpline com_spline_;
 };
 
-
-template<std::size_t N>
-std::array<double,N>
-LinearSplineEquations::CalcExponents(double t) const
-{
-  std::array<double,N> exp = {{ 1.0, t }};
-  for (uint e = 2; e < N; ++e)
-    exp[e] = exp[e-1] * t;
-  return exp;
-}
-
-
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_ */

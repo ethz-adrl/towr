@@ -16,7 +16,7 @@
 #include <xpp/endeffectors.h>
 
 #include <xpp/ipopt_adapter.h>
-#include <xpp/opt/com_spline6.h>
+#include <xpp/opt/com_spline.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/contact_schedule.h>
@@ -40,13 +40,18 @@ void
 MotionOptimizerFacade::BuildDefaultStartStance ()
 {
   State3d base;
-  base.lin.p.z() = motion_parameters_->geom_walking_height_;
+  base.lin.p.z() = 0.58;
   EndeffectorsBool contact_state(motion_parameters_->GetEECount());
   contact_state.SetAll(true);
 
   start_geom_.SetBase(base);
   start_geom_.SetContactState(contact_state);
-  start_geom_.SetEEState(kPos, motion_parameters_->GetNominalStanceInBase());
+
+  auto ee_start_W = motion_parameters_->GetNominalStanceInBase();
+  for (auto ee : ee_start_W.GetEEsOrdered()) {
+    ee_start_W.At(ee).z() = 0.0;
+  }
+  start_geom_.SetEEStateInWorld(kPos, ee_start_W);
 }
 
 void
@@ -59,21 +64,19 @@ MotionOptimizerFacade::BuildVariables ()
   auto ee_motion = std::make_shared<EndeffectorsMotion>(start_geom_.GetEEPos(),*contact_schedule);
 
   double T = motion_parameters_->GetTotalTime();
-  double com_height = motion_parameters_->geom_walking_height_
-                    + motion_parameters_->offset_geom_to_com_.z();
 
-  auto com_motion = std::make_shared<ComSpline6>();
-  com_motion->SetConstantHeight(com_height);
-  com_motion->Init(T, motion_parameters_->polynomials_per_second_);
+  auto com_motion = std::make_shared<ComSpline>();
+  com_motion->Init(T, motion_parameters_->duration_polynomial_);
+  auto base_motion = std::make_shared<BaseMotion>(com_motion);
+  base_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
-  com_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
   double load_dt = 0.02;
   auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(),
                                                 load_dt, T, *contact_schedule);
 
   opt_variables_->ClearComponents();
-  opt_variables_->AddComponent(com_motion);
+  opt_variables_->AddComponent(base_motion);
   opt_variables_->AddComponent(ee_motion);
   opt_variables_->AddComponent(load);
   opt_variables_->AddComponent(contact_schedule);
@@ -85,7 +88,7 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
   BuildVariables();
 
   CostConstraintFactory factory;
-  factory.Init(opt_variables_, motion_parameters_, start_geom_, goal_geom_.Get2D());
+  factory.Init(opt_variables_, motion_parameters_, start_geom_, goal_geom_);
 
   nlp.Init(opt_variables_);
 
@@ -128,7 +131,8 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 
     RobotStateCartesian state(start_geom_.GetEECount());
     state.SetBase(base_motion->GetBase(t));
-    state.SetEEState(ee_motion->GetEndeffectors(t));
+
+    state.SetEEStateInWorld(ee_motion->GetEndeffectors(t));
     state.SetContactState(contact_schedule->IsInContact(t));
     state.SetTime(t);
 

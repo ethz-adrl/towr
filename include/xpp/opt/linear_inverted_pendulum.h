@@ -30,10 +30,10 @@ public:
   using EELoad = Endeffectors<double>;
   using EEPos  = EndeffectorsPos;
 
-  LinearInvertedPendulum ();
+  LinearInvertedPendulum (double height);
   virtual ~LinearInvertedPendulum ();
 
-  void SetCurrent(const ComPos&, double height, const EELoad&, const EEPos&);
+  void SetCurrent(const ComPos& com, const EELoad&, const EEPos&);
 
   ComAcc GetAcceleration() const;
 

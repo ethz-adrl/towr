@@ -7,144 +7,117 @@
 
 #include <xpp/opt/com_spline.h>
 
+#include <array>
+#include <cassert>
 #include <cmath>
-#include <stdexcept>
+#include <stddef.h>
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 #include <xpp/opt/polynomial_xd.h>
 
 namespace xpp {
 namespace opt {
 
-ComSpline::ComSpline ()
+ComSpline::ComSpline () : Component(-1, "com_spline")
 {
-  // TODO Auto-generated constructor stub
 }
 
 ComSpline::~ComSpline ()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void
-ComSpline::Init (double t_global, int polynomials_per_second)
+ComSpline::Init (double t_global, double duration_polynomial)
 {
-  int n_polyomials = std::ceil(t_global*polynomials_per_second);
+  double t_left = t_global;
+  while (t_left > duration_polynomial) {
+    polynomials_.push_back(PolyXdT(duration_polynomial));
+    t_left -= duration_polynomial;
+  }
 
-  for (int i=0; i<n_polyomials; ++i)
-    polynomials_.push_back(ComPolynomial(i, t_global/n_polyomials));
+  // final polynomial has different duration
+  polynomials_.push_back(PolyXdT(t_left));
 
-  splines_initialized_ = true;
-
-  SetVariableCount();
+  SetRows(polynomials_.size() * NumFreeCoeffPerSpline() * dim_.size());
 }
 
-//void
-//ComSpline::Init (const MotionPhases& phases, int polynomials_per_second)
-//{
-//  int id=0;
-//  for (const auto& phase : phases) {
-//    double T = phase.duration_;
-//    int polys_per_phase = std::ceil(T*polynomials_per_second);
-//    for (int i=0; i<polys_per_phase; ++i)
-//      polynomials_.push_back(ComPolynomial(id++, T/polys_per_phase));
-//  }
-//
-//  splines_initialized_ = true;
-//}
+StateLin3d ComSpline::GetCom(double t_global) const
+{
+  return PolyHelpers::GetPoint(t_global, polynomials_);
+}
+
+double ComSpline::GetTotalTime() const
+{
+  return PolyHelpers::GetTotalTime(polynomials_);
+}
 
 int
 ComSpline::Index (int poly, Coords3D dim, PolyCoeff coeff) const
 {
-  return NumFreeCoeffPerSpline() * kDim2d * poly + NumFreeCoeffPerSpline() * dim + coeff;
-}
-
-int
-ComSpline::GetTotalFreeCoeff () const
-{
-  return polynomials_.size() * NumFreeCoeffPerSpline() * kDim2d;
+  return NumFreeCoeffPerSpline() * dim_.size() * poly
+       + NumFreeCoeffPerSpline() * dim
+       + coeff;
 }
 
 VectorXd
-ComSpline::GetXYSplineCoeffients () const
+ComSpline::GetValues () const
 {
-  VectorXd x_abcd(GetTotalFreeCoeff());
+  VectorXd x_abcd(GetRows());
 
-  for (const auto& s : polynomials_)
-    for (auto dim : { X, Y })
-      for (auto coeff :  GetFreeCoeffPerSpline())
-        x_abcd[Index(s.GetId(), dim, coeff)] = s.GetCoefficient(dim, coeff);
+  int i=0;
+  for (const auto& s : polynomials_) {
+    for (auto dim : dim_)
+      for (auto coeff :  s.GetDim(dim).GetCoeffIds())
+        x_abcd[Index(i, dim, coeff)] = s.GetCoefficient(dim, coeff);
+    i++;
+  }
 
   return x_abcd;
 }
 
 ComSpline::JacobianRow
-ComSpline::GetJacobian (double t_global, MotionDerivative posVelAcc,
-                        Coords3D dim) const
+ComSpline::GetJacobian (double t_global, MotionDerivative deriv, Coords3D dim) const
 {
-  int id = GetPolynomialID(t_global);
-  double t_local = GetLocalTime(t_global);
+  int id         = PolyHelpers::GetPolynomialID(t_global, polynomials_);
+  double t_local = PolyHelpers::GetLocalTime(t_global, polynomials_);
 
-  return GetJacobianWrtCoeffAtPolynomial(posVelAcc, t_local, id, dim);
+  return GetJacobianWrtCoeffAtPolynomial(deriv, t_local, id, dim);
 }
 
 ComSpline::JacobianRow
-ComSpline::GetJacobianVelSquared (double t_global, Coords3D dim) const
+ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_local,
+                                            int id, Coords3D dim) const
 {
-  int id = GetPolynomialID(t_global);
-  double t_local = GetLocalTime(t_global);
+  JacobianRow jac(1, GetRows());
+  auto polynomial = polynomials_.at(id).GetDim(dim);
 
-  JacobianRow jac(1, GetTotalFreeCoeff());
-  GetJacobianVelSquaredImpl(t_local, id, dim, jac);
-  return jac;
-}
-
-ComSpline::JacobianRow
-ComSpline::GetJacobianPosVelSquared (double t_global, Coords3D dim) const
-{
-  int id = GetPolynomialID(t_global);
-  double t_local = GetLocalTime(t_global);
-
-  JacobianRow jac(1, GetTotalFreeCoeff());
-  GetJacobianPosVelSquaredImpl(t_local, id, dim, jac);
-  return jac;
-}
-
-ComSpline::JacobianRow
-ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative posVelAcc, double t_local,
-                                            int id,
-                                            Coords3D dim) const
-{
-  assert(0 <= id && id <= polynomials_.back().GetId());
-
-  JacobianRow jac(1, GetTotalFreeCoeff());
-
-  switch (posVelAcc) {
-    case kPos: GetJacobianPos (t_local, id, dim, jac); break;
-    case kVel: GetJacobianVel (t_local, id, dim, jac); break;
-    case kAcc: GetJacobianAcc (t_local, id, dim, jac); break;
-    case kJerk:GetJacobianJerk(t_local, id, dim, jac); break;
+  for (auto coeff : polynomial.GetCoeffIds()) {
+    double val = polynomial.GetDerivativeWrtCoeff(deriv, coeff, t_local);
+    int idx = Index(id,dim,coeff);
+    jac.insert(idx) = val;
   }
 
   return jac;
 }
 
 void
-ComSpline::CheckIfSplinesInitialized() const
+ComSpline::SetValues (const VectorXd& optimized_coeff)
 {
-  if (!splines_initialized_) {
-    throw std::runtime_error("ComSpline.splines_ not initialized. Call Init() first");
+  for (size_t p=0; p<polynomials_.size(); ++p) {
+    auto& poly = polynomials_.at(p);
+    for (const Coords3D dim : dim_)
+      for (auto c : poly.GetDim(dim).GetCoeffIds())
+        poly.SetCoefficients(dim, c, optimized_coeff[Index(p,dim,c)]);
   }
 }
 
-void
-ComSpline::SetCoefficientsZero ()
+int
+ComSpline::NumFreeCoeffPerSpline () const
 {
-  Eigen::VectorXd coeff(GetTotalFreeCoeff());
-  SetSplineXYCoefficients(coeff.setZero());
+  // careful: assuming all polynomials and dimensions are same polynomial.
+  return polynomials_.front().GetDim(X).GetCoeffIds().size();
 }
 
-
-
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */

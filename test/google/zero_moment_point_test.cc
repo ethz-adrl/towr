@@ -53,7 +53,7 @@ TEST_F(ZeroMomentPointTest, GetLinearApproxWrtMotionCoeff)
 {
   // create a random spline with pos, vel equal at spline juntions
   std::vector<ComPolynomial> splines = cont_spline_container_.GetPolynomials(); // get ids and durations
-  Eigen::VectorXd abcd(cont_spline_container_.GetTotalFreeCoeff());
+  Eigen::VectorXd abcd(cont_spline_container_.GetRows());
   CoeffValues coeff;
 
   // initialize first spline to match position and velocity

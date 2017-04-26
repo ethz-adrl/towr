@@ -28,10 +28,10 @@ public:
   ComSpline6();
   virtual ~ComSpline6();
 
-  void SetSplineXYCoefficients(const VectorXd& optimized_coeff) override;
+//  void SetSplineXYCoefficients(const VectorXd& optimized_coeff) override;
 
-  Derivatives GetInitialFreeMotions()  const;
-  Derivatives GetJunctionFreeMotions() const;
+//  Derivatives GetInitialFreeMotions()  const;
+//  Derivatives GetJunctionFreeMotions() const;
 
 
 private:
@@ -53,8 +53,8 @@ private:
 
 
 
-  void GetJacobianVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const;
-  void GetJacobianPosVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const;
+//  void GetJacobianVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const;
+//  void GetJacobianPosVelSquaredImpl (double t_poly, int id, Coords3D dim, JacobianRow&) const;
 
 
 };

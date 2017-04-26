@@ -7,22 +7,25 @@
 
 #include <xpp/opt/cost_constraint_factory.h>
 
+#include <array>
 #include <cassert>
+#include <map>
 #include <stdexcept>
+#include <vector>
 #include <Eigen/Dense>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 
 #include <xpp/matrix_vector.h>
-#include <xpp/opt/com_spline.h>
-#include <xpp/opt/costs/polynomial_cost.h>
-#include <xpp/opt/costs/soft_constraint.h>
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/foothold_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
 #include <xpp/opt/constraints/polygon_center_constraint.h>
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
+#include <xpp/opt/costs/polynomial_cost.h>
+#include <xpp/opt/costs/soft_constraint.h>
+#include <xpp/opt/variables/base_motion.h>
 
 namespace xpp {
 namespace opt {
@@ -39,16 +42,15 @@ void
 CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
                              const MotionParamsPtr& _params,
                              const RobotStateCartesian& initial_state,
-                             const StateLin2d& final_state)
+                             const StateLin3d& final_state)
 {
   opt_vars_ = opt_vars;
-
-  auto com_spline = std::dynamic_pointer_cast<ComSpline>(opt_vars->GetComponent("base_motion"));
-  spline_eq_ = LinearSplineEquations(com_spline);
+  auto base_motion = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
+  spline_eq_ = LinearSplineEquations(base_motion->GetComSpline());
 
   params = _params;
   initial_geom_state_ = initial_state;
-  final_geom_state_ = final_state;
+  final_geom_state_   = final_state;
 }
 
 CostConstraintFactory::ConstraintPtr
@@ -83,9 +85,12 @@ CostConstraintFactory::GetCost(CostName name) const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeInitialConstraint () const
 {
-  StateLin2d initial_com_state = initial_geom_state_.GetBase().lin.Get2D();
-  initial_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
-  MatVec lin_eq = spline_eq_.MakeInitial(initial_com_state);
+  auto initial_com_state = initial_geom_state_.GetBase().lin;
+  initial_com_state.p += params->offset_geom_to_com_;
+  double t = 0.0; // initial time
+  MatVec lin_eq = spline_eq_.MakeStateConstraint(initial_com_state,
+                                                 t,
+                                                 {kPos, kVel, kAcc});
 
   return std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq);
 }
@@ -93,9 +98,11 @@ CostConstraintFactory::MakeInitialConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeFinalConstraint () const
 {
-  StateLin2d final_com_state = final_geom_state_;
-  final_com_state.p += params->offset_geom_to_com_.topRows<kDim2d>();
-  MatVec lin_eq = spline_eq_.MakeFinal(final_geom_state_, {kPos, kVel, kAcc});
+  auto final_com_state = final_geom_state_;
+  final_com_state.p += params->offset_geom_to_com_;
+  MatVec lin_eq = spline_eq_.MakeStateConstraint(final_geom_state_,
+                                                 params->GetTotalTime(),
+                                                 {kPos, kVel, kAcc});
 
   return std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq);
 }
@@ -111,7 +118,8 @@ CostConstraintFactory::MakeJunctionConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
-  double dt = 0.05;
+  int n_constraints_per_poly = 2;
+  double dt = params->duration_polynomial_/n_constraints_per_poly;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         params->GetTotalTime(),
                                                         dt
@@ -150,7 +158,7 @@ CostConstraintFactory::MakeStancesConstraints () const
   EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
   EndeffectorsPos endeffectors_final_W(nominal_B.GetCount());
   for (auto ee : endeffectors_final_W.GetEEsOrdered())
-    endeffectors_final_W.At(ee) = final_geom_state_.Make3D().p + nominal_B.At(ee);
+    endeffectors_final_W.At(ee) = final_geom_state_.p + nominal_B.At(ee);
 
 
   auto constraint_final = std::make_shared<FootholdConstraint>(
@@ -171,16 +179,9 @@ CostConstraintFactory::MakePolygonCenterConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeMotionCost(double weight) const
 {
-  Eigen::MatrixXd term;
   MotionDerivative dxdt = kAcc;
-
-  std::array<double,2> weight_xy = {1.0, 1.0};
-
-  switch (dxdt) {
-    case kAcc:  term = spline_eq_.MakeAcceleration(weight_xy); break;
-    case kJerk: term = spline_eq_.MakeJerk(weight_xy); break;
-    default: assert(false); break; // this cost is not implemented
-  }
+  std::array<double,3> weight_xy = {1.0, 1.0, 1.0};
+  Eigen::MatrixXd term = spline_eq_.MakeCostMatrix(weight_xy, dxdt);
 
   MatVec mv(term.rows(), term.cols());
   mv.M = term;

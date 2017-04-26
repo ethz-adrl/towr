@@ -12,7 +12,6 @@ namespace xpp {
 namespace opt {
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
-                                                            int constraints_per_time,
                                                             const OptVarsPtr& opt_vars)
 {
   dts_.clear();
@@ -22,8 +21,6 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
     t += dt;
   }
 
-  int num_constraints = GetNumberOfNodes()*constraints_per_time;
-  SetRows(num_constraints);
   AddComposite(opt_vars);
 }
 

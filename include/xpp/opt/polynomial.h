@@ -21,24 +21,21 @@ Polynomials ready to use:
 namespace xpp {
 namespace opt {
 
-/** Constructs a polynomial given start and end states.
-  *
-  * The polynomial types are:
-  * Linear:  Et + F;
-  * Cubic:   Ct^3 + Dt^2 + Et + F;
-  * Quintic: At^5 + Bt^4 + Ct^3 + Dt^2 + Et + F
+/** @brief Constructs a polynomial given start and end states.
   */
 class Polynomial {
 public:
 
-  // f = At^5 + Bt^4 + Ct^3 + Dt^2 + Et + f
-  enum PolynomialCoeff { A=0, B, C, D, E, F };
-  static constexpr std::array<PolynomialCoeff, 6> AllSplineCoeff = {{A,B,C,D,E,F}};
+  // f =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
+  // f =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
+  // f = 20Ft^3 + 12Et^2 + 6Dt   + 2C
+  enum PolynomialCoeff { A=0, B, C, D, E, F};
+  using CoeffVec = std::vector<PolynomialCoeff>;
 
   enum PointType {Start=0, Goal=1};
 
 public:
-  Polynomial();
+  Polynomial(int order);
   virtual ~Polynomial() {};
 
   /**
@@ -54,16 +51,21 @@ public:
    * @param dt current spline time.
    * @param point current position at time dt.
    */
-  bool GetPoint(const double dt, StateLin1d& point) const;
+  StateLin1d GetPoint(const double dt) const;
+  double GetDerivativeWrtCoeff(MotionDerivative deriv,
+                               PolynomialCoeff coeff,
+                               double t) const;
 
   double GetCoefficient(PolynomialCoeff coeff) const;
   void SetCoefficient(PolynomialCoeff coeff, double value);
 
+  CoeffVec GetCoeffIds() const;
   double GetDuration() const;
 
 protected:
-  double duration;
-  std::array< double, AllSplineCoeff.size() > c; //!< coefficients of spline
+  double duration = 0.0;
+  std::vector< double> coeff_; //!< coefficients of spline
+  CoeffVec coeff_ids_;
 
 private:
   /**
@@ -72,35 +74,15 @@ private:
    * params are the same as @ref getPoint.
    * This is the only function that must be implemented by the child classes.
    */
-  virtual void SetPolynomialCoefficients(double T, const StateLin1d& start_p, const StateLin1d& end_p) = 0;
+  virtual void SetPolynomialCoefficients(double T, const StateLin1d& start_p,
+                                         const StateLin1d& end_p) = 0;
 };
 
-inline Polynomial::Polynomial()
-{
-  for (double& _c : c) _c = 0.0; /** set to zero so low-order Polynomials don't use. */
-  duration = 0.0;
-}
 
-inline void Polynomial::SetBoundary(double T, const StateLin1d& start_p, const StateLin1d& end_p)
-{
-  if(T <= 0.0)
-    throw std::invalid_argument("Cannot create a Polynomial with zero or negative duration");
-
-  duration = T;
-  SetPolynomialCoefficients(T, start_p, end_p);
-}
-
-/**
- * @ingroup Polynomials
- * \anchor polynomials ready to use.
- * @{
- */
 class LinearPolynomial : public Polynomial {
 public:
-  LinearPolynomial() {};
+  LinearPolynomial() : Polynomial(1) {};
   ~LinearPolynomial() {};
-
-  static int GetNumCoeff() { return 2; }; //E,F
 
 private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
@@ -111,10 +93,8 @@ private:
  */
 class CubicPolynomial : public Polynomial {
 public:
-  CubicPolynomial() {};
+  CubicPolynomial() : Polynomial(3) {};
   ~CubicPolynomial() {};
-
-  static int GetNumCoeff() { return 4; }; //C,D,E,F
 
   // zmp_ move up to base class?
   double GetDerivativeOfPosWrtPos(double t, PointType p) const;
@@ -125,10 +105,8 @@ private:
 
 class QuinticPolynomial : public Polynomial {
 public:
-  QuinticPolynomial() {};
+  QuinticPolynomial() : Polynomial(5) {};
   ~QuinticPolynomial() {};
-
-  static int GetNumCoeff() { return 6; }; //A,B,C,D,E,F
 
 private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
@@ -140,10 +118,8 @@ private:
  */
 class LiftHeightPolynomial : public Polynomial {
 public:
-  LiftHeightPolynomial() {};
+  LiftHeightPolynomial() :Polynomial(5) {};
   ~LiftHeightPolynomial() {};
-
-  static int GetNumCoeff() { return 6; }; //A,B,C,D,E,F
 
   /** Determines how quick the height rises/drops.
    *

@@ -117,11 +117,11 @@ TEST_F(SplineContainerTest, GetSplineCount)
   EXPECT_EQ(n_total, spline_container_4steps_.GetSplineCount());
 }
 
-TEST_F(SplineContainerTest, GetTotalFreeCoeff)
+TEST_F(SplineContainerTest, GetRows)
 {
   int n_splines = spline_container_4steps_.GetSplineCount();
   int n = n_splines * kFreeCoeffPerSpline * utils::kDim2d;
-  EXPECT_EQ(n, spline_container_4steps_.GetTotalFreeCoeff());
+  EXPECT_EQ(n, spline_container_4steps_.GetRows());
 }
 
 TEST_F(SplineContainerTest, GetTotalTime)
@@ -255,7 +255,7 @@ TEST_F(SplineContainerTest, EandFCoefficientTest)
   // Create a straight spline in x direction composed of 3 splines (4ls, step 1, 4ls)
   // that has equal position and velocity at junctions
   std::vector<ComPolynomial> splines_ref = splines_estimated_ef.GetPolynomials();
-  Eigen::VectorXd abcd_coeff(splines_estimated_ef.GetTotalFreeCoeff());
+  Eigen::VectorXd abcd_coeff(splines_estimated_ef.GetRows());
   abcd_coeff.setZero();
 
   Eigen::Vector2d f,e,d;
