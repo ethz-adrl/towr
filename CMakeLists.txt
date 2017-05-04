@@ -71,10 +71,7 @@ add_library(${MOTION_OPT_LIB}
   src/linear_inverted_pendulum.cc
   src/motion_optimizer_facade.cc
   src/polynomial.cc
-  src/polynomial_fifth_order.cc
-  # base motion
   src/base_motion.cc
-#  src/com_polynomial_helpers.cc
   src/com_spline.cc
   src/linear_spline_equations.cc
   # endeffector
@@ -91,12 +88,6 @@ add_library(${MOTION_OPT_LIB}
   src/dynamic_constraint.cc
   src/foothold_constraint.cc
   src/polynomial_cost.cc
-#  src/com_spline6.cc    
-#  src/ellipse.cc
-#  src/com_spline4.cc
-#  src/convexity_constraint.cc
-#  src/contact_load_constraint.cc
-#  src/obstacle_constraint.cc
   # robot specific info
   src/motion_parameters.cc
   src/quadruped_motion_parameters.cc  
