@@ -41,7 +41,7 @@ EndeffectorsMotion::BuildEndeffectors (const EndeffectorsPos& initial_pos,
       auto is_contact = phase.first;
       auto duration   = phase.second;
 
-      double lift_height = is_contact? 0.0 : 0.03;
+      double lift_height = is_contact? 0.0 : 0.03; // 0.3
       endeffector->AddPhase(duration, lift_height, is_contact);
     }
     endeffectors.push_back(endeffector);
