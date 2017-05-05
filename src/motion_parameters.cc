@@ -20,8 +20,8 @@ MotionParameters::GetContactSchedule () const
   ContactSchedule phases;
   for (int i=0; i<contact_sequence_.size(); ++i) {
     double duration = contact_timings_.at(i);
-    if (duration < 1e-10)
-      continue; // skip phases with zero duration
+//    if (duration < 1e-10)
+//      continue; // skip phases with zero duration
     phases.push_back(Phase(contact_sequence_.at(i), duration));
   }
 
