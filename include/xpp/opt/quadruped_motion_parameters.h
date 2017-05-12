@@ -29,13 +29,22 @@ protected:
   EndeffectorsBool bI_;
   EndeffectorsBool IP_;
   EndeffectorsBool Ib_;
+  // 2 swinglegs
   EndeffectorsBool Pb_;
   EndeffectorsBool bP_;
   EndeffectorsBool BI_;
   EndeffectorsBool IB_;
   EndeffectorsBool PP_;
   EndeffectorsBool bb_;
+  // 3 swinglegs
   EndeffectorsBool Bb_;
+  EndeffectorsBool BP_;
+  EndeffectorsBool bB_;
+  EndeffectorsBool PB_;
+
+
+  void SetContactSequence(double p_overlap_lateral,
+                          double p_overlap_opposite);
 };
 
 class Walk : public QuadrupedMotionParameters {

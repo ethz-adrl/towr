@@ -125,6 +125,21 @@ CubicPolynomial::GetDerivativeOfPosWrtPos (double t, PointType p) const
   }
 }
 
+void QuarticPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end)
+{
+  // only uses position, velocity and initial acceleration
+  double T1 = T;
+  double T2 = T1 * T1;
+  double T3 = T1 * T2;
+  double T4 = T1 * T3;
+
+  coeff_[A] = start.p();
+  coeff_[B] = start.v();
+  coeff_[C] = start.a()/2;
+  coeff_[D] = -(4*start.p() - 4*end.p() + 3*T1*start.v() +   T1*end.v() + T2*start.a())/T3;
+  coeff_[E] =  (6*start.p() - 6*end.p() + 4*T1*start.v() + 2*T1*end.v() + T2*start.a())/(2*T4);
+}
+
 void QuinticPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end)
 {
   double T1 = T;

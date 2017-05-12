@@ -54,7 +54,10 @@ LinearSplineEquations::MakeStateConstraint (const StateLin3d& state, double t,
 MatVec
 LinearSplineEquations::MakeJunction () const
 {
-  auto derivatives = {kPos, kVel};
+  // acceleration important b/b enforcing system dynamics only once at the
+  // junction, so make sure second polynomial also respect that by making
+  // it equal to the first.
+  auto derivatives = {kPos, kVel, kAcc};
   auto dimensions = com_spline_.GetCom(0.0).GetDim();
 
   auto polynomials = com_spline_.GetPolynomials();

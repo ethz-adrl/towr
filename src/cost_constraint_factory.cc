@@ -118,6 +118,8 @@ CostConstraintFactory::MakeJunctionConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
+  // enforce at beginning and middle. The end if always enforced
+  // due to acceleration continuity constraint.
   int n_constraints_per_poly = 2;
   double dt = params->duration_polynomial_/n_constraints_per_poly;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,

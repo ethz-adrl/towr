@@ -28,7 +28,7 @@ namespace opt {
 class ComSpline : public Component {
 public:
   using StateType      = StateLin3d;
-  using PolyXdT        = PolynomialXd<CubicPolynomial, StateType>;
+  using PolyXdT        = PolynomialXd<QuarticPolynomial, StateType>;
   using PolyHelpers    = PolyVecManipulation<PolyXdT>;
   using VecPolynomials = PolyHelpers::VecPolynomials;
   using PolyCoeff      = Polynomial::PolynomialCoeff;

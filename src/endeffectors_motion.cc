@@ -41,7 +41,12 @@ EndeffectorsMotion::BuildEndeffectors (const EndeffectorsPos& initial_pos,
       auto is_contact = phase.first;
       auto duration   = phase.second;
 
-      double lift_height = is_contact? 0.0 : 0.03;
+      double lift_height = is_contact? 0.0 : 0.03; // 0.03
+
+//      // zmp_ hack to nicely show limping
+//      if (!is_contact && (ee == E2  /*|| ee == E3*/  )) // LH=E0, RF=E3
+//        lift_height += 0.1;
+
       endeffector->AddPhase(duration, lift_height, is_contact);
     }
     endeffectors.push_back(endeffector);

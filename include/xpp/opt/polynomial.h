@@ -13,9 +13,9 @@ Polynomials ready to use:
 #ifndef _XPP_OPT_UTILS_POLYNOMIAL_H_
 #define _XPP_OPT_UTILS_POLYNOMIAL_H_
 
-#include <array>     // std::array
-#include <stdexcept>
+#include <vector>
 
+#include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
 namespace xpp {
@@ -111,6 +111,18 @@ public:
 private:
   void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
 };
+
+
+class QuarticPolynomial : public Polynomial {
+public:
+  QuarticPolynomial() : Polynomial(4) {};
+  ~QuarticPolynomial() {};
+
+private:
+  void SetPolynomialCoefficients(double T, const StateLin1d& start,
+                                 const StateLin1d& end);
+};
+
 
 /** @brief Creates a smooth up and down motion for e.g. swinging a leg.
  *
