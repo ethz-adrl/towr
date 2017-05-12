@@ -12,9 +12,9 @@
 namespace xpp {
 namespace opt {
 
-LinearInvertedPendulum::LinearInvertedPendulum (double height)
+LinearInvertedPendulum::LinearInvertedPendulum (double mass)
 {
-  h_ = height;
+  m_ = mass;
 }
 
 LinearInvertedPendulum::~LinearInvertedPendulum ()
@@ -27,6 +27,10 @@ LinearInvertedPendulum::SetCurrent (const ComPos& com_pos,
                                     const EEPos& ee_pos)
 {
   pos_     = com_pos;
+
+  // zmp_ for now keep constance, because derivative w.r.t com_acc_xy is then very tricky
+  // will loose dependency on com position anyway with new model :)
+  h_       = 0.58;//com_pos.z(); // assuming ee_pos are at zero
   ee_load_ = ee_load;
   ee_pos_  = ee_pos;
 }
@@ -35,9 +39,11 @@ LinearInvertedPendulum::ComAcc
 LinearInvertedPendulum::GetAcceleration () const
 {
   Cop u = CalculateCop();
-  ComAcc acc_zmp = kGravity/h_*(pos_- u);
+  ComAcc acc_com;
+  acc_com.topRows<kDim2d>() = kGravity/h_*(pos_.topRows<kDim2d>()- u); // inverted pendulum
+  acc_com.z()               = 1./m_*GetLoadSum() - kGravity;
 
-  return acc_zmp;
+  return acc_com;
 }
 
 LinearInvertedPendulum::JacobianRow
@@ -47,22 +53,43 @@ LinearInvertedPendulum::GetJacobianOfAccWrtBase (
   JacobianRow com_jac     = com_motion.GetJacobian(t, kPos, dim);
   JacobianRow jac_wrt_com = kGravity/h_*com_jac;
 
+  // z acceleration only depends on endeffector forces, not base
+  if (dim == Z)
+    jac_wrt_com.setZero();
+
   return jac_wrt_com;
 }
 
 double
 LinearInvertedPendulum::GetDerivativeOfAccWrtLoad (EndeffectorID ee,
-                                                   d2::Coords dim) const
+                                                   Coords3D dim) const
 {
-  double cop_wrt_load = GetDerivativeOfCopWrtLoad(ee)(dim);
-  return kGravity/h_ * (-1* cop_wrt_load);
+  double deriv = 0.0;
+
+  if (dim == X || dim == Y) {
+    double cop_wrt_load = GetDerivativeOfCopWrtLoad(ee)(dim);
+    deriv = kGravity/h_ * (-1* cop_wrt_load);
+  } else if  (dim == Z) {
+    deriv = 1./m_;
+  }
+
+  return deriv;
 }
 
 double
-LinearInvertedPendulum::GetDerivativeOfAccWrtEEPos (EndeffectorID ee) const
+LinearInvertedPendulum::GetDerivativeOfAccWrtEEPos (EndeffectorID ee,
+                                                    Coords3D dim) const
 {
-  double cop_wrt_ee = GetDerivativeOfCopWrtEEPos(ee);
-  return kGravity/h_ * (-1* cop_wrt_ee);
+  double deriv = 0.0;
+
+  if (dim == X || dim == Y) {
+    double cop_wrt_ee = GetDerivativeOfCopWrtEEPos(ee);
+    deriv = kGravity/h_ * (-1* cop_wrt_ee);
+  }
+
+  // no dependency on feet, as i am not yet concerned about the moment
+
+  return deriv;
 }
 
 double

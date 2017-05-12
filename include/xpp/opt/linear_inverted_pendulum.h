@@ -23,14 +23,14 @@ class LinearInvertedPendulum {
 public:
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
-  using ComPos = Eigen::Vector2d;
-  using ComAcc = Eigen::Vector2d;
+  using ComPos = Eigen::Vector3d;
+  using ComAcc = Eigen::Vector3d;
   using Cop    = Eigen::Vector2d;
 
   using EELoad = Endeffectors<double>;
   using EEPos  = EndeffectorsPos;
 
-  LinearInvertedPendulum (double height);
+  LinearInvertedPendulum (double mass);
   virtual ~LinearInvertedPendulum ();
 
   void SetCurrent(const ComPos& com, const EELoad&, const EEPos&);
@@ -41,12 +41,13 @@ public:
     * Jacobian w.r.t. spline coefficients.
     */
   JacobianRow GetJacobianOfAccWrtBase(const BaseMotion&, double t_global, Coords3D dim) const;
-  double GetDerivativeOfAccWrtLoad(EndeffectorID, d2::Coords dim) const;
-  double GetDerivativeOfAccWrtEEPos(EndeffectorID) const; // same for x and y direction
+  double GetDerivativeOfAccWrtLoad(EndeffectorID, Coords3D dim) const;
+  double GetDerivativeOfAccWrtEEPos(EndeffectorID, Coords3D dim) const; // same for x and y direction
 
 private:
   ComPos pos_;
   double h_;
+  double m_; /// mass of robot
   EELoad ee_load_;
   EEPos ee_pos_;
 

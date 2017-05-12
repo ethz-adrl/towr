@@ -28,7 +28,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double T,
                                       double dt)
     :TimeDiscretizationConstraint(T, dt, opt_vars),
-     model_(0.58) // constant walking height for model
+     model_(80) //  weight of robot is 80 [kg]
 {
   SetName("DynamicConstraint");
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
@@ -36,7 +36,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   ee_load_    = std::dynamic_pointer_cast<EndeffectorLoad>   (opt_vars->GetComponent("endeffector_load"));
 
   ee_ids_ = ee_load_->GetLoadValues(0.0).GetEEsOrdered();
-  dim_    = {d2::X, d2::Y};//  com_motion_->GetComSpline().dim_;
+  dim_    = {X,Y,Z}; // Z
   SetRows(GetNumberOfNodes()*dim_.size());
 }
 
@@ -49,7 +49,7 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 {
   // acceleration the system should have given by physics
   UpdateModel(t);
-  Vector2d acc_model = model_.GetAcceleration();
+  Vector3d acc_model = model_.GetAcceleration();
 
   // current acceleration given by the optimization variables
   Vector3d acc_opt = com_motion_->GetCom(t).a_;
@@ -81,16 +81,19 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
       }
 
       if (var_set == ee_motion_->GetName()) {
-        double deriv_ee = model_.GetDerivativeOfAccWrtEEPos(ee);
-        jac.row(row) += deriv_ee* ee_motion_->GetJacobianPos(t, ee, dim);
+        // no dependency of CoM acceleration on height of footholds yet
+        if (dim != Z) {
+          auto dim2d = static_cast<d2::Coords>(dim);
+          double deriv_ee = model_.GetDerivativeOfAccWrtEEPos(ee, dim);
+          jac.row(row) += deriv_ee* ee_motion_->GetJacobianPos(t, ee, dim2d);
+        }
       }
     }
 
 
     if (var_set == com_motion_->GetName()) {
-      Coords3D dim3d = static_cast<Coords3D>(dim);
-      Jacobian jac_model = model_.GetJacobianOfAccWrtBase(*com_motion_, t, dim3d);
-      Jacobian jac_opt   = com_motion_->GetJacobian(t, kAcc, dim3d);
+      Jacobian jac_model = model_.GetJacobianOfAccWrtBase(*com_motion_, t, dim);
+      Jacobian jac_opt   = com_motion_->GetJacobian(t, kAcc, dim);
       jac.row(row) = jac_model - jac_opt;
     }
   }
@@ -102,7 +105,7 @@ DynamicConstraint::UpdateModel (double t) const
   auto com     = com_motion_->GetCom(t);
   auto ee_load = ee_load_   ->GetLoadValues(t);
   auto ee_pos  = ee_motion_ ->GetEndeffectors(t).GetPos();
-  model_.SetCurrent(com.p_.topRows<kDim2d>(), ee_load, ee_pos);
+  model_.SetCurrent(com.p_, ee_load, ee_pos);
 }
 
 int

@@ -26,7 +26,7 @@ EndeffectorLoad::EndeffectorLoad (int num_ee, double dt, double T,
   num_segments_ = idx_segment + 1;
   SetRows(n_ee_*num_segments_);
 
-  double max_load = 5.0; // [N] limited by robot actuator limits.
+  double max_load = 2000.0; // [N] limited by robot actuator limits.
   lambdas_ = VectorXd::Ones(GetRows())*max_load/n_ee_;
   SetBounds(contact_schedule, max_load);
 }

@@ -22,12 +22,12 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  duration_polynomial_ = 0.1; //s
+  duration_polynomial_ = 0.05; //s
   load_dt_ = 0.01;
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
 //  offset_geom_to_com_ << -0.03, 0.02, 0.0;
   offset_geom_to_com_ << 0,0,0;
-  max_dev_xy_ = {0.25, 0.1, 0.001};
+  max_dev_xy_ = {0.1, 0.1, 0.2};
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
 
 
@@ -36,11 +36,11 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
                    JunctionCom,
                    Dynamic,
                    Stance,
-//                   RomBox, // usually enforced as soft-constraint/cost
+                   RomBox, // usually enforced as soft-constraint/cost
   };
 
-  cost_weights_[RangOfMotionCostID] = 100.0;
-  cost_weights_[ComCostID]          = 1.0;
+//  cost_weights_[RangOfMotionCostID] = 1.0;
+//  cost_weights_[ComCostID]          = 1.0;
 
   const double x_nominal_b = 0.28; //34
   const double y_nominal_b = 0.28;
@@ -68,6 +68,8 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   BP_.SetCount(robot_ee_.size()); BP_.SetAll(false);
   bB_.SetCount(robot_ee_.size()); bB_.SetAll(false);
   PB_.SetCount(robot_ee_.size()); PB_.SetAll(false);
+  // flight-phase
+  BB_.SetCount(robot_ee_.size()); BB_.SetAll(true);
 
   PI_.At(kMapQuadToOpt.at(LH)) = true;
   bI_.At(kMapQuadToOpt.at(RH)) = true;
@@ -111,14 +113,14 @@ Walk::Walk()
 //  max_dev_xy_ = {0.15, 0.15, 0.1};
   id_ = opt::WalkID;
 
-  double t_phase = 0.2;
+  double t_phase = 0.3;
   double t_trans = 0.1;
   contact_timings_ =
   {
       0.3,
       t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
       t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
       0.2,
   };
   contact_sequence_ =
@@ -126,7 +128,7 @@ Walk::Walk()
       II_,
       PI_, PP_, IP_, bI_, bb_, Ib_,
       PI_, PP_, IP_, bI_, bb_, Ib_,
-      PI_, PP_, IP_, bI_, bb_, Ib_,
+//      PI_, PP_, IP_, bI_, bb_, Ib_,
       II_,
   };
 
@@ -158,9 +160,9 @@ Walk::Walk()
 //  };
 //
 //
-  cost_weights_[ComCostID]          = 1.0;
-  cost_weights_[RangOfMotionCostID] = 100.0;
-  cost_weights_[PolyCenterCostID]   = 1.0;
+//  cost_weights_[ComCostID]          = 1.0;
+//  cost_weights_[RangOfMotionCostID] = 100.0;
+//  cost_weights_[PolyCenterCostID]   = 1.0;
 //  cost_weights_[FinalComCostID] = 1000.0;
 }
 
@@ -175,6 +177,7 @@ Trot::Trot()
   contact_timings_ =
   {   0.3,
       t_phase, t_phase, t_phase, t_phase, // trot
+      0.5, // flight_phase
 //      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
       t_phase, t_phase, t_phase, t_phase, // trot
       0.2
@@ -184,6 +187,7 @@ Trot::Trot()
   {
       II_,
       bP_, Pb_, bP_, Pb_, // trot
+      BB_, // flight-phase
 //      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
       bP_, Pb_, bP_, Pb_, // trot
       II_
@@ -264,13 +268,15 @@ Bound::Bound()
 
 
 
-  // biped walk
+
+
+    // sequence 3-1
   contact_sequence_ =
   {
       II_,
-      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
-      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
-      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
+      BP_, Ib_, BP_, Ib_,
+      BP_, Ib_, BP_, Ib_,
+      BP_, Ib_, BP_, Ib_,
       II_
   };
 
@@ -286,16 +292,17 @@ Bound::Bound()
   };
   */
 
-
-  // sequence 3-1
+  // biped walk
   contact_sequence_ =
   {
       II_,
-      BP_, Ib_, BP_, Ib_,
-      BP_, Ib_, BP_, Ib_,
-      BP_, Ib_, BP_, Ib_,
+      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
+      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
+      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
       II_
   };
+
+
 
 
   constraints_.push_back(RomBox);
