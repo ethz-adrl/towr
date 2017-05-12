@@ -70,10 +70,9 @@ MotionOptimizerFacade::BuildVariables ()
   auto base_motion = std::make_shared<BaseMotion>(com_motion);
   base_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
-
-  double load_dt = 0.01;
   auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(),
-                                                load_dt, T, *contact_schedule);
+                                                motion_parameters_->load_dt_, T,
+                                                *contact_schedule);
 
   opt_variables_->ClearComponents();
   opt_variables_->AddComponent(base_motion);

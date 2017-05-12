@@ -22,7 +22,8 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  duration_polynomial_ = 0.05; //s
+  duration_polynomial_ = 0.1; //s
+  load_dt_ = 0.01;
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
 //  offset_geom_to_com_ << -0.03, 0.02, 0.0;
   offset_geom_to_com_ << 0,0,0;
@@ -34,8 +35,8 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   Stance
-//                 RomBox, // usually enforced as soft-constraint/cost
+                   Stance,
+//                   RomBox, // usually enforced as soft-constraint/cost
   };
 
   cost_weights_[RangOfMotionCostID] = 100.0;
@@ -174,7 +175,7 @@ Trot::Trot()
   contact_timings_ =
   {   0.3,
       t_phase, t_phase, t_phase, t_phase, // trot
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
+//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
       t_phase, t_phase, t_phase, t_phase, // trot
       0.2
   };
@@ -183,7 +184,7 @@ Trot::Trot()
   {
       II_,
       bP_, Pb_, bP_, Pb_, // trot
-      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
+//      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
       bP_, Pb_, bP_, Pb_, // trot
       II_
   };
