@@ -13,8 +13,7 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include "polynomial.h"
-#include "polynomial_xd.h"
+#include "spline.h"
 #include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
@@ -27,16 +26,9 @@ namespace opt {
   */
 class ComSpline : public Component {
 public:
-  using StateType      = StateLin3d;
-  using PolyXdT        = QuarticPolynomial;
-//  using PolyXdT        = PolynomialXd<QuarticPolynomial, StateType>;
-  using PolyHelpers    = PolyVecManipulation<PolyXdT>;
+  using State          = StateLin3d;
   using PolyCoeff      = Polynomial::PolynomialCoeff;
-  using VecPolynomials = PolyHelpers::VecPolynomials;
-
-  // zmp_ refactored stuff
-//  using VecPolynomials = std::vector<PolyXdT>;
-
+  using VecPolynomials = Spline::VecPolynomials;
 
   ComSpline ();
   virtual ~ComSpline ();
@@ -46,7 +38,7 @@ public:
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
 
-  StateType GetCom(double t_global) const;
+  State GetCom(double t_global) const;
   double GetTotalTime() const;
 
   int Index(int polynomial, Coords3D dim, PolyCoeff coeff) const;
@@ -66,15 +58,13 @@ public:
                                               int id, double t_poly,
                                               Coords3D dim) const = delete;
 
-  VecPolynomials GetPolynomials() const { return polynomials_; }
+  VecPolynomials GetPolynomials() const { return spline_.GetImpl(); }
 
   JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const;
 
 private:
-  VecPolynomials polynomials_;
+  Spline spline_;
   std::vector<Coords3D> dim_;
-  // careful: assumes all splines (X,Y,1,..,n) same type
-  int NumFreeCoeffPerPolynomial() const;
 };
 
 } /* namespace opt */

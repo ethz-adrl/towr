@@ -11,8 +11,7 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include "polynomial.h"
-#include "polynomial_xd.h"
+#include "spline.h"
 
 namespace xpp {
 namespace opt {
