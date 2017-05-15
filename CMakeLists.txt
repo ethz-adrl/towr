@@ -78,7 +78,8 @@ add_library(${MOTION_OPT_LIB}
   src/ee_phase_motion.cc
   src/ee_motion.cc
   src/endeffectors_motion.cc
-  src/endeffector_load.cc
+  src/endeffectors_force.cc
+  src/ee_force.cc
   src/contact_schedule.cc
   # constraints and costs
   src/linear_constraint.cc

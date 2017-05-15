@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/variables/endeffector_load.h>
+#include <xpp/opt/variables/endeffectors_force.h>
 
 #include <cmath>
 #include <vector>
@@ -15,7 +15,7 @@
 namespace xpp {
 namespace opt {
 
-EndeffectorLoad::EndeffectorLoad (int num_ee, double dt, double T,
+EndeffectorsForce::EndeffectorsForce (int num_ee, double dt, double T,
                                   const ContactSchedule& contact_schedule)
     :Component(-1, "endeffector_load")
 {
@@ -32,13 +32,13 @@ EndeffectorLoad::EndeffectorLoad (int num_ee, double dt, double T,
 }
 
 VecBound
-EndeffectorLoad::GetBounds () const
+EndeffectorsForce::GetBounds () const
 {
   return bounds_;
 }
 
 void
-EndeffectorLoad::SetBounds (const ContactSchedule& contact_schedule, double max_load)
+EndeffectorsForce::SetBounds (const ContactSchedule& contact_schedule, double max_load)
 {
   // just to avoid NaN when for now still calculating CoP from these
   double min_load = 50.0;    // [N] cannot pull on ground (negative forces).
@@ -57,37 +57,37 @@ EndeffectorLoad::SetBounds (const ContactSchedule& contact_schedule, double max_
   }
 }
 
-EndeffectorLoad::~EndeffectorLoad ()
+EndeffectorsForce::~EndeffectorsForce ()
 {
 }
 
 void
-EndeffectorLoad::SetValues (const VectorXd& x)
+EndeffectorsForce::SetValues (const VectorXd& x)
 {
   lambdas_ = x;
 }
 
-EndeffectorLoad::VectorXd
-EndeffectorLoad::GetValues () const
+EndeffectorsForce::VectorXd
+EndeffectorsForce::GetValues () const
 {
   return lambdas_;
 }
 
 int
-EndeffectorLoad::GetSegment (double t) const
+EndeffectorsForce::GetSegment (double t) const
 {
   return floor(t/dt_);
 }
 
-EndeffectorLoad::LoadParams
-EndeffectorLoad::GetLoadValues (double t) const
+EndeffectorsForce::LoadParams
+EndeffectorsForce::GetLoadValues (double t) const
 {
   int k = GetSegment(t);
   return GetLoadValuesIdx(k);
 }
 
-EndeffectorLoad::LoadParams
-EndeffectorLoad::GetLoadValuesIdx (int k_curr) const
+EndeffectorsForce::LoadParams
+EndeffectorsForce::GetLoadValuesIdx (int k_curr) const
 {
   LoadParams load(n_ee_);
   for (auto ee : load.GetEEsOrdered())
@@ -97,26 +97,20 @@ EndeffectorLoad::GetLoadValuesIdx (int k_curr) const
 }
 
 int
-EndeffectorLoad::Index (double t, EndeffectorID ee) const
+EndeffectorsForce::Index (double t, EndeffectorID ee) const
 {
   int k = GetSegment(t);
   return IndexDiscrete(k, ee);
 }
 
 int
-EndeffectorLoad::IndexDiscrete (int k_curr, EndeffectorID ee) const
+EndeffectorsForce::IndexDiscrete (int k_curr, EndeffectorID ee) const
 {
   return n_ee_*k_curr + ee;
 }
 
-int
-EndeffectorLoad::GetNumberOfSegments () const
-{
-  return num_segments_;
-}
-
 double
-EndeffectorLoad::GetTimeCenterSegment (int segment_id) const
+EndeffectorsForce::GetTimeCenterSegment (int segment_id) const
 {
   double t_start = segment_id*dt_;
 
@@ -126,6 +120,11 @@ EndeffectorLoad::GetTimeCenterSegment (int segment_id) const
     return t_start + dt_/2.;
 }
 
+//int
+//EndeffectorLoad::GetNumberOfSegments () const
+//{
+//  return num_segments_;
+//}
 
 } /* namespace opt */
 } /* namespace xpp */

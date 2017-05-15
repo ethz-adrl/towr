@@ -18,7 +18,7 @@
 #include <xpp/bound.h>
 #include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/variables/base_motion.h>
-#include <xpp/opt/variables/endeffector_load.h>
+#include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
 
 namespace xpp {
@@ -33,7 +33,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   SetName("DynamicConstraint");
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
   ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
-  ee_load_    = std::dynamic_pointer_cast<EndeffectorLoad>   (opt_vars->GetComponent("endeffector_load"));
+  ee_load_    = std::dynamic_pointer_cast<EndeffectorsForce>   (opt_vars->GetComponent("endeffector_load"));
 
   ee_ids_ = ee_load_->GetLoadValues(0.0).GetEEsOrdered();
   dim_    = {X,Y,Z}; // Z

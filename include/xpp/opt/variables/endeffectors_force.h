@@ -22,32 +22,23 @@ namespace opt {
   *
   * The are the lambda values in the paper.
   */
-class EndeffectorLoad : public Component {
+class EndeffectorsForce : public Component {
 public:
   using VectorXd   = Eigen::VectorXd;
   using LoadParams = Endeffectors<double>;
 
-  EndeffectorLoad (int num_ee, double dt, double T, const ContactSchedule&);
-  virtual ~EndeffectorLoad ();
+  EndeffectorsForce (int num_ee, double dt, double T, const ContactSchedule&);
+  virtual ~EndeffectorsForce ();
 
   virtual VectorXd GetValues() const override;
   virtual void SetValues(const VectorXd& x) override;
   virtual VecBound GetBounds() const override;
 
-  /** @param k the number of discretized node with lambda parameters.
-    * @param ee which endeffector we are interested in.
-    * @returns the index in the optimization vector where this value is stored
-    */
-  int IndexDiscrete(int k, EndeffectorID ee) const;
   int Index(double t, EndeffectorID ee) const;
 
-
   LoadParams GetLoadValues(double t) const;
-  LoadParams GetLoadValuesIdx(int k) const;
-  int GetNumberOfSegments() const;
+//  int GetNumberOfSegments() const;
 
-  /** Global time at beginning and end of segment */
-  double GetTimeCenterSegment(int segment_id) const;
 
 private:
   int n_ee_; ///< number of endeffectors
@@ -56,10 +47,20 @@ private:
   double T_;  ///< total time [s]
   int num_segments_;
 
+  /** @param k the number of discretized node with lambda parameters.
+    * @param ee which endeffector we are interested in.
+    * @returns the index in the optimization vector where this value is stored
+    */
+  int IndexDiscrete(int k, EndeffectorID ee) const;
+  LoadParams GetLoadValuesIdx(int k) const;
+  int GetSegment(double t) const;
+
+  /** Global time at beginning and end of segment */
+  double GetTimeCenterSegment(int segment_id) const;
+
   void SetBounds(const ContactSchedule&, double max_load);
   VecBound bounds_;
 
-  int GetSegment(double t) const;
 };
 
 } /* namespace opt */

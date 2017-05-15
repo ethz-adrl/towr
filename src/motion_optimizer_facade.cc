@@ -20,7 +20,7 @@
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/endeffector_load.h>
+#include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
 #include <xpp/snopt_adapter.h>
 
@@ -70,7 +70,7 @@ MotionOptimizerFacade::BuildVariables ()
   auto base_motion = std::make_shared<BaseMotion>(com_motion);
   base_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
-  auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(),
+  auto load = std::make_shared<EndeffectorsForce>(motion_parameters_->GetEECount(),
                                                 motion_parameters_->load_dt_, T,
                                                 *contact_schedule);
 

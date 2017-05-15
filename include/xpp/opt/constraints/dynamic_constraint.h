@@ -19,14 +19,14 @@ namespace xpp {
 namespace opt {
 
 class BaseMotion;
-class EndeffectorLoad;
+class EndeffectorsForce;
 class EndeffectorsMotion;
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using BaseMotionPtr = std::shared_ptr<BaseMotion>;
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
-  using EELoadPtr     = std::shared_ptr<EndeffectorLoad>;
+  using EELoadPtr     = std::shared_ptr<EndeffectorsForce>;
 
   DynamicConstraint (const OptVarsPtr& opt_vars, double T, double dt);
   virtual ~DynamicConstraint ();
