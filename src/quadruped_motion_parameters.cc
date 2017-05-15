@@ -22,12 +22,18 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  duration_polynomial_ = 0.05; //s
-  load_dt_ = 0.01;
+  duration_polynomial_    = 0.05; //s 0.05
+  load_dt_                = duration_polynomial_/2.;
+  // enforce at beginning and middle. The end if always enforced
+  // due to acceleration continuity constraint.
+  n_constraints_per_poly_ = 2;
+
+
+
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
 //  offset_geom_to_com_ << -0.03, 0.02, 0.0;
   offset_geom_to_com_ << 0,0,0;
-  max_dev_xy_ = {0.1, 0.1, 0.2};
+  max_dev_xy_ = {0.2, 0.2, 0.0};
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
 
 
@@ -161,7 +167,7 @@ Walk::Walk()
 //
 //
 //  cost_weights_[ComCostID]          = 1.0;
-//  cost_weights_[RangOfMotionCostID] = 100.0;
+//  cost_weights_[RangOfMotionCostID] = 1.0;
 //  cost_weights_[PolyCenterCostID]   = 1.0;
 //  cost_weights_[FinalComCostID] = 1000.0;
 }
@@ -177,7 +183,7 @@ Trot::Trot()
   contact_timings_ =
   {   0.3,
       t_phase, t_phase, t_phase, t_phase, // trot
-      0.5, // flight_phase
+//      0.5, // flight_phase
 //      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
       t_phase, t_phase, t_phase, t_phase, // trot
       0.2
@@ -187,21 +193,20 @@ Trot::Trot()
   {
       II_,
       bP_, Pb_, bP_, Pb_, // trot
-      BB_, // flight-phase
+//      BB_, // flight-phase
 //      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
       bP_, Pb_, bP_, Pb_, // trot
       II_
   };
 
 
-//  constraints_ = {
-//                   InitCom,
-//                   FinalCom,
-//                   JunctionCom,
-//                   Dynamic,
-////                   RomBox,
-//                   Stance,
-//                   };
+  constraints_ = { InitCom,
+                   FinalCom,
+                   JunctionCom,
+                   Dynamic,
+                   Stance,
+                   RomBox, // usually enforced as soft-constraint/cost
+  };
 //
 //  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[ComCostID]      = 1.0;

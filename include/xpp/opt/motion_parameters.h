@@ -58,8 +58,11 @@ public:
 
 
   MotionTypeID id_;
+
   double duration_polynomial_;
   double load_dt_; /// duration of piecewise-constant ee_load
+  int n_constraints_per_poly_; /// how many times dynamics are enforced
+
   PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
 
 

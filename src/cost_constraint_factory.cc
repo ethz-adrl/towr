@@ -21,7 +21,7 @@
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/foothold_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
-#include <xpp/opt/constraints/polygon_center_constraint.h>
+//#include <xpp/opt/constraints/polygon_center_constraint.h>
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
 #include <xpp/opt/costs/polynomial_cost.h>
 #include <xpp/opt/costs/soft_constraint.h>
@@ -75,7 +75,7 @@ CostConstraintFactory::GetCost(CostName name) const
   switch (name) {
     case ComCostID:          return MakeMotionCost(weight);
     case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint(), weight);
-    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint()   , weight);
+//    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint()   , weight);
     case FinalComCostID:     return ToCost(MakeFinalConstraint()           , weight);
     case FinalStanceCostID:  return ToCost(MakeStancesConstraints()        , weight);
     default: throw std::runtime_error("cost not defined!");
@@ -118,10 +118,7 @@ CostConstraintFactory::MakeJunctionConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
-  // enforce at beginning and middle. The end if always enforced
-  // due to acceleration continuity constraint.
-  int n_constraints_per_poly = 2;
-  double dt = params->duration_polynomial_/n_constraints_per_poly;
+  double dt = params->duration_polynomial_/params->n_constraints_per_poly_;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         params->GetTotalTime(),
                                                         dt
@@ -132,7 +129,7 @@ CostConstraintFactory::MakeDynamicConstraint() const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
-  double dt = 0.1;
+  double dt = 0.05;
 
   auto constraint = std::make_shared<RangeOfMotionBox>(
       opt_vars_,
@@ -172,11 +169,11 @@ CostConstraintFactory::MakeStancesConstraints () const
   return stance_constraints;
 }
 
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::MakePolygonCenterConstraint () const
-{
-  return std::make_shared<PolygonCenterConstraint>(opt_vars_);
-}
+//CostConstraintFactory::ConstraintPtr
+//CostConstraintFactory::MakePolygonCenterConstraint () const
+//{
+//  return std::make_shared<PolygonCenterConstraint>(opt_vars_);
+//}
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeMotionCost(double weight) const

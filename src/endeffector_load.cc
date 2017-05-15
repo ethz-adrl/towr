@@ -41,7 +41,7 @@ void
 EndeffectorLoad::SetBounds (const ContactSchedule& contact_schedule, double max_load)
 {
   // just to avoid NaN when for now still calculating CoP from these
-  double min_load = 0.000001;    // [N] cannot pull on ground (negative forces).
+  double min_load = 50.0;    // [N] cannot pull on ground (negative forces).
 
   // sample check if endeffectors are in contact at center of discretization
   // interval.
@@ -51,7 +51,8 @@ EndeffectorLoad::SetBounds (const ContactSchedule& contact_schedule, double max_
 
     for (bool in_contact : contacts_state.ToImpl()) {
       double upper_bound = in_contact? max_load : min_load;
-      bounds_.push_back(Bound(min_load, upper_bound));
+      double lower_bound = in_contact? min_load : 1.0;
+      bounds_.push_back(Bound(lower_bound, upper_bound));
     }
   }
 }
