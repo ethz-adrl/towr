@@ -44,30 +44,30 @@ public:
    * @param start_p desired start position, velocity and acceleration.
    * @param end_p desired goal position, velocity and acceleration.
    */
-  void SetBoundary(double T, const StateLin1d& start, const StateLin1d& end);
+  void SetBoundary(double T, const StateLinXd& start, const StateLinXd& end);
 
   /**
    * @brief Sets the starting point of the spline and the end position.
    * @param dt current spline time.
    * @param point current position at time dt.
    */
-  StateLin1d GetPoint(const double dt) const;
+  StateLinXd GetPoint(const double dt) const;
   double GetDerivativeWrtCoeff(MotionDerivative deriv,
                                PolynomialCoeff coeff,
                                double t) const;
 
-  double GetCoefficient(PolynomialCoeff coeff) const;
-  void SetCoefficient(PolynomialCoeff coeff, double value);
+  double GetCoefficient(int dim, PolynomialCoeff coeff) const;
+  void SetCoefficient(int dim,   PolynomialCoeff coeff, double value);
 
   CoeffVec GetCoeffIds() const;
   double GetDuration() const;
 
   void UpdateCoefficients();
 
-  StateLin1d start_, end_;
+  StateLinXd start_, end_;
 protected:
   double duration = 0.0;
-  std::vector< double> coeff_; //!< coefficients of spline
+  std::vector<VectorXd> coeff_; //!< coefficients of spline
   CoeffVec coeff_ids_;
 
 private:
@@ -77,8 +77,9 @@ private:
    * params are the same as @ref getPoint.
    * This is the only function that must be implemented by the child classes.
    */
-  virtual void SetPolynomialCoefficients(double T, const StateLin1d& start_p,
-                                         const StateLin1d& end_p) = 0;
+  virtual void SetPolynomialCoefficients(double T,
+                                         const StateLinXd& start_p,
+                                         const StateLinXd& end_p) = 0;
 };
 
 /** Zero-order hold x(t) = A;
@@ -89,7 +90,7 @@ public:
   ~ConstantPolynomial() {};
 
 private:
-  void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
+  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
 };
 
 class LinearPolynomial : public Polynomial {
@@ -98,7 +99,7 @@ public:
   ~LinearPolynomial() {};
 
 private:
-  void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
+  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
 };
 
 /** @brief a polynomial of the form ct^3 + dt^2 + et + f.
@@ -113,7 +114,17 @@ public:
   double GetDerivativeOfPosWrtPos(double t, PointType p) const;
 
 private:
-  void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
+  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
+};
+
+class QuarticPolynomial : public Polynomial {
+public:
+  QuarticPolynomial() : Polynomial(4) {};
+  ~QuarticPolynomial() {};
+
+private:
+  void SetPolynomialCoefficients(double T, const StateLinXd& start,
+                                 const StateLinXd& end);
 };
 
 class QuinticPolynomial : public Polynomial {
@@ -122,18 +133,7 @@ public:
   ~QuinticPolynomial() {};
 
 private:
-  void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
-};
-
-
-class QuarticPolynomial : public Polynomial {
-public:
-  QuarticPolynomial() : Polynomial(4) {};
-  ~QuarticPolynomial() {};
-
-private:
-  void SetPolynomialCoefficients(double T, const StateLin1d& start,
-                                 const StateLin1d& end);
+  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
 };
 
 
@@ -156,10 +156,9 @@ public:
 
 private:
   int n_ = 6;        ///< determines the shape of the swing motion
-  double h_ = 0.03;  ///< proportional to the lift height between contacts
-  void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
+  double height_ = 0.03;  ///< proportional to the lift height between contacts
+  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
 };
-/** @} */
 
 } // namespace opt
 } // namespace xpp

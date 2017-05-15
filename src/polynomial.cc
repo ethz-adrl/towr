@@ -23,12 +23,12 @@ Polynomial::Polynomial (int order)
 {
   int n_coeff = order+1;
   for (int c=A; c<n_coeff; ++c) {
-    coeff_.push_back(0.0);
+    coeff_.push_back(VectorXd()); // empty vector, because don't know dimension yet
     coeff_ids_.push_back(static_cast<PolynomialCoeff>(c));
   }
 }
 
-void Polynomial::SetBoundary(double T, const StateLin1d& start, const StateLin1d& end)
+void Polynomial::SetBoundary(double T, const StateLinXd& start, const StateLinXd& end)
 {
   if(T <= 0.0)
     throw std::invalid_argument("Cannot create a Polynomial with zero or negative duration");
@@ -36,7 +36,13 @@ void Polynomial::SetBoundary(double T, const StateLin1d& start, const StateLin1d
   duration = T;
   start_   = start;
   end_     = end;
-  SetPolynomialCoefficients(T, start, end);
+
+  for (PolynomialCoeff c : GetCoeffIds()) {
+    int n_dim = start_.GetDim().size();
+    coeff_.at(c) = VectorXd::Zero(n_dim);
+  }
+
+  UpdateCoefficients ();
 }
 
 void
@@ -50,17 +56,17 @@ Polynomial::UpdateCoefficients ()
  * spline coefficients are zero (as set by @ref Spliner()), the higher-order
  * terms have no effect.
  */
-StateLin1d Polynomial::GetPoint(const double t) const
+StateLinXd Polynomial::GetPoint(const double t) const
 {
   // sanity checks
   if (t < 0.0)
     throw std::runtime_error("spliner.cc called with dt<0");
 
-  StateLin1d out;
+  StateLinXd out(start_.kNumDim);
 
   for (auto d : {kPos, kVel, kAcc}) {
     for (PolynomialCoeff c : GetCoeffIds()) {
-      out.GetByIndex(d)[0] += GetDerivativeWrtCoeff(d, c, t)*coeff_[c];
+      out.GetByIndex(d) += GetDerivativeWrtCoeff(d, c, t)*coeff_[c];
     }
   }
 
@@ -81,14 +87,14 @@ Polynomial::GetDerivativeWrtCoeff (MotionDerivative deriv, PolynomialCoeff c, do
   }
 }
 
-double Polynomial::GetCoefficient(PolynomialCoeff coeff) const
+double Polynomial::GetCoefficient(int dim, PolynomialCoeff coeff) const
 {
-  return coeff_[coeff];
+  return coeff_[coeff](dim);
 }
 
-void Polynomial::SetCoefficient(PolynomialCoeff coeff, double value)
+void Polynomial::SetCoefficient(int dim, PolynomialCoeff coeff, double value)
 {
-  coeff_[coeff] = value;
+  coeff_[coeff](dim) = value;
 }
 
 Polynomial::CoeffVec
@@ -104,28 +110,28 @@ double Polynomial::GetDuration() const
 
 void
 ConstantPolynomial::SetPolynomialCoefficients (double T,
-                                               const StateLin1d& start,
-                                               const StateLin1d& end)
+                                               const StateLinXd& start,
+                                               const StateLinXd& end)
 {
-  coeff_[A] = start.p();
+  coeff_[A] = start.p_;
 }
 
-void LinearPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end)
+void LinearPolynomial::SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end)
 {
-  coeff_[A] = start.p();
-  coeff_[B] = (end.p() - start.p()) / T;
+  coeff_[A] = start.p_;
+  coeff_[B] = (end.p_ - start.p_) / T;
 }
 
-void CubicPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end)
+void CubicPolynomial::SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end)
 {
   double T1 = T;
   double T2 = T1 * T1;
   double T3 = T1 * T2;
 
-  coeff_[A] = start.p();
-  coeff_[B] = start.v();
-  coeff_[C] = -( 3*(start.p() - end.p()) +  T1*(2*start.v() + end.v()) ) / T2;
-  coeff_[D] =  ( 2*(start.p() - end.p()) +  T1*(  start.v() + end.v()) ) / T3;
+  coeff_[A] = start.p_;
+  coeff_[B] = start.v_;
+  coeff_[C] = -( 3*(start.p_ - end.p_) +  T1*(2*start.v_ + end.v_) ) / T2;
+  coeff_[D] =  ( 2*(start.p_ - end.p_) +  T1*(  start.v_ + end.v_) ) / T3;
 }
 
 double
@@ -141,7 +147,7 @@ CubicPolynomial::GetDerivativeOfPosWrtPos (double t, PointType p) const
   }
 }
 
-void QuarticPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end)
+void QuarticPolynomial::SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end)
 {
   // only uses position, velocity and initial acceleration
   double T1 = T;
@@ -149,14 +155,14 @@ void QuarticPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& st
   double T3 = T1 * T2;
   double T4 = T1 * T3;
 
-  coeff_[A] = start.p();
-  coeff_[B] = start.v();
-  coeff_[C] = start.a()/2;
-  coeff_[D] = -(4*start.p() - 4*end.p() + 3*T1*start.v() +   T1*end.v() + T2*start.a())/T3;
-  coeff_[E] =  (6*start.p() - 6*end.p() + 4*T1*start.v() + 2*T1*end.v() + T2*start.a())/(2*T4);
+  coeff_[A] = start.p_;
+  coeff_[B] = start.v_;
+  coeff_[C] = start.a_/2;
+  coeff_[D] = -(4*start.p_ - 4*end.p_ + 3*T1*start.v_ +   T1*end.v_ + T2*start.a_)/T3;
+  coeff_[E] =  (6*start.p_ - 6*end.p_ + 4*T1*start.v_ + 2*T1*end.v_ + T2*start.a_)/(2*T4);
 }
 
-void QuinticPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end)
+void QuinticPolynomial::SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end)
 {
   double T1 = T;
   double T2 = T1 * T1;
@@ -164,25 +170,27 @@ void QuinticPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& st
   double T4 = T1 * T3;
   double T5 = T1 * T4;
 
-  coeff_[A] = start.p();
-  coeff_[B] = start.v();
-  coeff_[C] = start.a() / 2.;
-  coeff_[D] =  (-20*start.p() + 20*end.p() + T1*(-3*start.a()*T1 +   end.a()*T1 - 12* start.v() -  8*end.v()))  / (2*T3);
-  coeff_[E] =  ( 30*start.p() - 30*end.p() + T1*( 3*start.a()*T1 - 2*end.a()*T1 + 16* start.v() + 14*end.v()))  / (2*T4);
-  coeff_[F] = -( 12*start.p() - 12*end.p() + T1*(   start.a()*T1 -   end.a()*T1 +  6*(start.v() +    end.v()))) / (2*T5);
+  coeff_[A] = start.p_;
+  coeff_[B] = start.v_;
+  coeff_[C] = start.a_ / 2.;
+  coeff_[D] =  (-20*start.p_ + 20*end.p_ + T1*(-3*start.a_*T1 +   end.a_*T1 - 12* start.v_ -  8*end.v_))  / (2*T3);
+  coeff_[E] =  ( 30*start.p_ - 30*end.p_ + T1*( 3*start.a_*T1 - 2*end.a_*T1 + 16* start.v_ + 14*end.v_))  / (2*T4);
+  coeff_[F] = -( 12*start.p_ - 12*end.p_ + T1*(   start.a_*T1 -   end.a_*T1 +  6*(start.v_ +    end.v_))) / (2*T5);
 }
 
 void
 LiftHeightPolynomial::SetShape (int n, double h)
 {
-  n_ = n;
-  h_ = h;
+  n_      = n;
+  height_ = h;
 }
 
 void
 LiftHeightPolynomial::SetPolynomialCoefficients (
-    double T, const StateLin1d& start, const StateLin1d& end)
+    double T, const StateLinXd& start, const StateLinXd& end)
 {
+  VectorXd h_ = height_*VectorXd::Ones(start.GetDim().size());
+
   double n2 = std::pow(n_,2);
   double n3 = std::pow(n_,3);
   double n4 = std::pow(n_,4);
@@ -195,12 +203,12 @@ LiftHeightPolynomial::SetPolynomialCoefficients (
   double T5 = T1 * T4;
 
   // see matlab script "swingleg_z_height.m" for generation of these values
-  coeff_[A] =  start.p();
-  coeff_[B] =  0.0;
-  coeff_[C] =  (6*end.p() - 6*start.p() - 15*n_*end.p() + 15*n_*start.p() + 2*h_*n4 - h_*n5 + 10*n2*end.p() - 10*n2*start.p())/(- n3*T2 + 4*n2*T2 - 5*n_*T2 + 2*T2);
-  coeff_[D] =  (2*(2*end.p() - 2*start.p() - 5*n_*end.p() + 5*n_*start.p() + 2*h_*n4 - h_*n5 + 5*n3*end.p() - 5*n3*start.p()))/((n_ - 2)*(n2*T3 - 2*n_*T3 + T3));
-  coeff_[E] = -(2*h_*n4 - h_*n5 - 10*n2*end.p() + 15*n3*end.p() + 10*n2*start.p() - 15*n3*start.p())/(T4*(n_ - 2)*(n2 - 2*n_ + 1));
-  coeff_[F] = -(2*(2*n2*end.p() - 3*n3*end.p() - 2*n2*start.p() + 3*n3*start.p()))/(T5*(n_ - 2)*(n2 - 2*n_ + 1));
+  coeff_[A] =  start.p_;
+  coeff_[B].setZero();
+  coeff_[C] =  (6*end.p_ - 6*start.p_ - 15*n_*end.p_ + 15*n_*start.p_ + 2*h_*n4 - h_*n5 + 10*n2*end.p_ - 10*n2*start.p_)/(- n3*T2 + 4*n2*T2 - 5*n_*T2 + 2*T2);
+  coeff_[D] =  (2*(2*end.p_ - 2*start.p_ - 5*n_*end.p_ + 5*n_*start.p_ + 2*h_*n4 - h_*n5 + 5*n3*end.p_ - 5*n3*start.p_))/((n_ - 2)*(n2*T3 - 2*n_*T3 + T3));
+  coeff_[E] = -(2*h_*n4 - h_*n5 - 10*n2*end.p_ + 15*n3*end.p_ + 10*n2*start.p_ - 15*n3*start.p_)/(T4*(n_ - 2)*(n2 - 2*n_ + 1));
+  coeff_[F] = -(2*(2*n2*end.p_ - 3*n3*end.p_ - 2*n2*start.p_ + 3*n3*start.p_))/(T5*(n_ - 2)*(n2 - 2*n_ + 1));
 }
 
 

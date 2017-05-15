@@ -28,10 +28,15 @@ namespace opt {
 class ComSpline : public Component {
 public:
   using StateType      = StateLin3d;
-  using PolyXdT        = PolynomialXd<QuarticPolynomial, StateType>;
+  using PolyXdT        = QuarticPolynomial;
+//  using PolyXdT        = PolynomialXd<QuarticPolynomial, StateType>;
   using PolyHelpers    = PolyVecManipulation<PolyXdT>;
-  using VecPolynomials = PolyHelpers::VecPolynomials;
   using PolyCoeff      = Polynomial::PolynomialCoeff;
+  using VecPolynomials = PolyHelpers::VecPolynomials;
+
+  // zmp_ refactored stuff
+//  using VecPolynomials = std::vector<PolyXdT>;
+
 
   ComSpline ();
   virtual ~ComSpline ();
@@ -69,7 +74,7 @@ private:
   VecPolynomials polynomials_;
   std::vector<Coords3D> dim_;
   // careful: assumes all splines (X,Y,1,..,n) same type
-  int NumFreeCoeffPerSpline() const;
+  int NumFreeCoeffPerPolynomial() const;
 };
 
 } /* namespace opt */

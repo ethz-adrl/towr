@@ -47,13 +47,13 @@ EEPhaseMotion::SetContacts (const Vector3d& start_pos,
 StateLin3d
 EEPhaseMotion::GetState (double t_local) const
 {
-  StateLin1d z  = poly_z_.GetPoint(t_local);
-  StateLin2d xy = poly_xy_.GetPoint(t_local);
+  StateLinXd z  = poly_z_.GetPoint(t_local);
+  StateLinXd xy = poly_xy_.GetPoint(t_local);
 
   StateLin3d ee;
   ee.SetDimension(X, xy.GetDimension(X));
   ee.SetDimension(Y, xy.GetDimension(Y));
-  ee.SetDimension(Z, z);
+  ee.SetDimension(Z, z.GetDimension(X)); // zmp_ ugly get first index, which is z
 
   return ee;
 }
@@ -62,7 +62,7 @@ double
 EEPhaseMotion::GetDerivativeOfPosWrtContactsXY (d2::Coords dim, double t_local,
                                                 Polynomial::PointType p) const
 {
-  return poly_xy_.GetDim(dim).GetDerivativeOfPosWrtPos(t_local, p);
+  return poly_xy_.GetDerivativeOfPosWrtPos(t_local, p);
 }
 
 } /* namespace opt */

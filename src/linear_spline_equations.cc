@@ -102,11 +102,10 @@ LinearSplineEquations::MakeCostMatrix (const ValXY& weight, MotionDerivative der
 
     for (const Coords3D dim : com_spline_.GetCom(0.0).GetDim()) {
 
-      auto poly = p.GetDim(dim);
-      double T = poly.GetDuration();
+      double T = p.GetDuration();
 
       // get only those coefficients that affect this derivative
-      auto all_coeff = poly.GetCoeffIds();
+      auto all_coeff = p.GetCoeffIds();
       Polynomial::CoeffVec coeff_vec;
       for (auto c : all_coeff) {
         if (c >= deriv) coeff_vec.push_back(c);
@@ -119,8 +118,8 @@ LinearSplineEquations::MakeCostMatrix (const ValXY& weight, MotionDerivative der
           // "Learning, Planning and Control for Quadruped Robots over challenging
           // Terrain", IJRR, 2010
           // short: "square the values and integrate"
-          double deriv_wrt_c1 = poly.GetDerivativeWrtCoeff(deriv,c1,T);
-          double deriv_wrt_c2 = poly.GetDerivativeWrtCoeff(deriv,c2,T);
+          double deriv_wrt_c1 = p.GetDerivativeWrtCoeff(deriv,c1,T);
+          double deriv_wrt_c2 = p.GetDerivativeWrtCoeff(deriv,c2,T);
           double exponent_order = (c1-deriv)+(c2-deriv);
           double val =  (deriv_wrt_c1*deriv_wrt_c2)/(exponent_order+1); //+1 because of integration
 

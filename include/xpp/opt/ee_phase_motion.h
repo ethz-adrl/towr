@@ -24,7 +24,7 @@ namespace opt {
   */
 class EEPhaseMotion {
 public:
-  using PolyXY      = PolynomialXd<CubicPolynomial, StateLin2d>;
+  using PolyXY      = CubicPolynomial;//PolynomialXd<CubicPolynomial, StateLin2d>;
   using PolyZ       = LiftHeightPolynomial;
 
   EEPhaseMotion ();
