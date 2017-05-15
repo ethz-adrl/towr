@@ -28,13 +28,21 @@ Polynomial::Polynomial (int order)
   }
 }
 
-void Polynomial::SetBoundary(double T, const StateLin1d& start_p, const StateLin1d& end_p)
+void Polynomial::SetBoundary(double T, const StateLin1d& start, const StateLin1d& end)
 {
   if(T <= 0.0)
     throw std::invalid_argument("Cannot create a Polynomial with zero or negative duration");
 
   duration = T;
-  SetPolynomialCoefficients(T, start_p, end_p);
+  start_   = start;
+  end_     = end;
+  SetPolynomialCoefficients(T, start, end);
+}
+
+void
+Polynomial::UpdateCoefficients ()
+{
+  SetPolynomialCoefficients(duration, start_, end_);
 }
 
 /**
@@ -92,6 +100,14 @@ Polynomial::GetCoeffIds () const
 double Polynomial::GetDuration() const
 {
   return duration;
+}
+
+void
+ConstantPolynomial::SetPolynomialCoefficients (double T,
+                                               const StateLin1d& start,
+                                               const StateLin1d& end)
+{
+  coeff_[A] = start.p();
 }
 
 void LinearPolynomial::SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end)

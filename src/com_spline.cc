@@ -27,13 +27,11 @@ void
 ComSpline::Init (double t_global, double duration_polynomial)
 {
   double t_left = t_global;
-  while (t_left > duration_polynomial) {
+  while (t_left > 0.0) {
+    double duration = t_left>duration_polynomial?  duration_polynomial : t_left;
     polynomials_.push_back(PolyXdT(duration_polynomial));
     t_left -= duration_polynomial;
   }
-
-  // final polynomial has different duration
-  polynomials_.push_back(PolyXdT(t_left));
 
   SetRows(polynomials_.size() * NumFreeCoeffPerSpline() * dim_.size());
 }

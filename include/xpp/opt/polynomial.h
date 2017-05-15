@@ -62,6 +62,9 @@ public:
   CoeffVec GetCoeffIds() const;
   double GetDuration() const;
 
+  void UpdateCoefficients();
+
+  StateLin1d start_, end_;
 protected:
   double duration = 0.0;
   std::vector< double> coeff_; //!< coefficients of spline
@@ -78,6 +81,16 @@ private:
                                          const StateLin1d& end_p) = 0;
 };
 
+/** Zero-order hold x(t) = A;
+  */
+class ConstantPolynomial: public Polynomial {
+public:
+  ConstantPolynomial() : Polynomial(0) {};
+  ~ConstantPolynomial() {};
+
+private:
+  void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
+};
 
 class LinearPolynomial : public Polynomial {
 public:

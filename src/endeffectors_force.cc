@@ -50,8 +50,8 @@ EndeffectorsForce::SetBounds (const ContactSchedule& contact_schedule, double ma
     EndeffectorsBool contacts_state = contact_schedule.IsInContact(t);
 
     for (bool in_contact : contacts_state.ToImpl()) {
-      double upper_bound = in_contact? max_load : min_load;
-      double lower_bound = in_contact? min_load : 1.0;
+      double lower_bound = in_contact? min_load : 0.0;
+      double upper_bound = in_contact? max_load : 0.0;
       bounds_.push_back(Bound(lower_bound, upper_bound));
     }
   }
