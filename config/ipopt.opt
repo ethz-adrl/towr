@@ -22,7 +22,7 @@ hessian_approximation limited-memory
 
 #fixed_variable_treatment relax-bounds
 
-tol 0.01   # usually 0.01
+tol 0.0001   # usually 0.01
 #constr_viol_tol 1e-3
 #dual_inf_tol 1e10
 #compl_inf_tol 1e10

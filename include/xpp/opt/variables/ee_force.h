@@ -40,18 +40,17 @@ public:
   JacobianRow GetJacobian(Coords3D dim, double t_global) const;
 
   double GetForce(double t_global) const;
-  int Index(double t_global, Polynomial::PointType p, Coords3D dim) const;
 
-  // make private again
-  Spline spline_;
 private:
 
+  Spline spline_;
   VecPolynomials polynomials_;
   std::deque<bool> is_in_contact_;
 
   const double max_load_ = 2000.0;
   const double min_load_ = 50.0;
 
+  int Index(double t_global, Polynomial::PointType p, Coords3D dim) const;
   std::vector<Coords3D> dim_ = {X}; // only z force for now
 
   void AddContactPhase(double T, double dt);

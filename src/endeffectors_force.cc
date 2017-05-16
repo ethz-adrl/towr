@@ -49,19 +49,6 @@ EndeffectorsForce::GetLoadValues (double t) const
   return load;
 }
 
-int
-EndeffectorsForce::Index (double t, EndeffectorID ee) const
-{
-  // get number of previous optimization variables
-  int idx_start = 0;
-  for (int i=E0; i<ee; ++i)
-    idx_start += ee_forces_.at(i)->GetRows();
-
-  // zmp_ highly ugly and error prone...
-  // assumes only one optimization variable affects value at time t and endffector e
-  return idx_start + ee_forces_.at(ee)->Index(t, Polynomial::Start, X); // zmp_ is actually z
-}
-
 JacobianRow
 EndeffectorsForce::GetJacobian (double t, EndeffectorID ee, Coords3D dim) const
 {

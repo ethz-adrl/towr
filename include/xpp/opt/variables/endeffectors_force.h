@@ -28,16 +28,12 @@ class EndeffectorsForce : public Composite {
 public:
   using ComponentPtr = std::shared_ptr<EEForce>;
   using ComponentVec = std::vector<ComponentPtr>;
-  using LoadParams = Endeffectors<double>;
+  using LoadParams   = Endeffectors<double>;
 
   EndeffectorsForce(double dt, const ContactSchedule&);
   virtual ~EndeffectorsForce();
 
   LoadParams GetLoadValues(double t) const;
-
-  // zmp_ remove this
-  int Index(double t, EndeffectorID ee) const;
-
   JacobianRow GetJacobian (double t, EndeffectorID ee, Coords3D dim) const;
 
 private:

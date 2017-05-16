@@ -10,8 +10,6 @@
 namespace xpp {
 namespace opt {
 
-using PolynomialType = ConstantPolynomial;
-
 EEForce::EEForce () : Component(-1, "ee_force_single")
 {
 }
@@ -74,18 +72,19 @@ EEForce::GetBounds () const
   // first treat all legs as if they were in contact
   bounds.assign(GetRows(),Bound(min_load_, max_load_));
 
-  int i=0;
+  int idx=0;
   for (int s=0; s<polynomials_.size(); ++s) {
 
-    if (!is_in_contact_.at(s)) // swing phase
-      for (auto d : dim_) {
+    for (auto d : dim_) {
+
+      if (!is_in_contact_.at(s)) {// swing phase
         // forbid contact force at start and end of node
-        bounds.at(i) = Bound(0.1, 0.2); // [N]
-        // zmp_ for now only at start of node b/c using zero-order poly
-//        bounds.at(i+dim_.size()) = Bound(1.0, 2.0);
+        bounds.at(idx)             = Bound(0.1, 0.2); // [N]
+        bounds.at(idx+dim_.size()) = Bound(0.1, 0.2); // [N]
       }
 
-    i += dim_.size();
+      idx++;
+    }
   }
 
   return bounds;
@@ -150,7 +149,7 @@ EEForce::PolyPtr
 EEForce::MakePoly (double T) const
 {
   // initialize with nonzero values, to avoid CoP exception
-  auto p = std::make_shared<PolynomialType>();
+  auto p = std::make_shared<LinearPolynomial>();
   p->SetBoundary(T, StateLin1d(), StateLin1d());
   return p;
 }
