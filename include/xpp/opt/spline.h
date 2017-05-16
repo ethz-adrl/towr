@@ -13,34 +13,45 @@
 
 #include <xpp/state.h>
 
-#include "polynomial.h"
-
 namespace xpp {
 namespace opt {
 
-/** @brief For manipulation of multiple sequential polynomials ("spline").
+/** Spans over a time t0->T, so spline.cc can work with it.
+  */
+class Segment {
+public:
+  Segment() {};
+  virtual ~Segment() {};
+
+  virtual double GetDuration() const = 0;
+  virtual StateLinXd GetPoint(const double t_local) const = 0;
+};
+
+/** @brief For manipulation of multiple sequential segments ("spline").
   */
 class Spline {
 public:
-  using PointType      = StateLinXd;
-  using PolynomialPtr  = std::shared_ptr<Polynomial>;
-  using VecPolynomials = std::vector<PolynomialPtr>;
+  using SegmentPtr     = std::shared_ptr<Segment>;
+  using VecSegments    = std::vector<SegmentPtr>;
 
-  PointType GetPoint(double t_globals) const;
-  int GetPolynomialID(double t_global) const;
+  /**
+   * @brief Assigns the vector of segments to be used for calculations.
+   * @param vec This vector must inherit from class Segment.
+   */
+  template<class DerivedClass>
+  void SetSegmentsPtr(const std::vector<std::shared_ptr<DerivedClass> >& vec)
+  {
+    segments_ = VecSegments(vec.begin(), vec.end());
+  };
+
+  const StateLinXd GetPoint(double t_globals) const;
+  int GetSegmentID(double t_global) const;
   double GetLocalTime(double t_global) const;
   double GetTotalTime() const;
 
-  int GetFreeCoeffPerPoly() const;
-  int GetTotalFreeCoeff() const;
-
-  const VecPolynomials GetImpl() const { return polynomials_; };
-  VecPolynomials& GetImpl()            { return polynomials_; };
-
 private:
-  VecPolynomials polynomials_;
+  VecSegments segments_;
 };
-
 
 } // namespace opt
 } // namespace xpp

@@ -31,11 +31,12 @@ ComSpline::Init (double t_global, double dt)
     double duration = t_left>dt?  dt : t_left;
     auto p = std::make_shared<QuarticPolynomial>();
     p->SetBoundary(duration, State(), State());
-    spline_.GetImpl().push_back(p);
+    polynomials_.push_back(p);
     t_left -= dt;
   }
 
-  SetRows(spline_.GetTotalFreeCoeff());
+  spline_.SetSegmentsPtr(polynomials_);
+  SetRows(GetTotalFreeCoeff());
 }
 
 ComSpline::State
@@ -52,8 +53,8 @@ double ComSpline::GetTotalTime() const
 int
 ComSpline::Index (int poly, Coords3D dim, PolyCoeff coeff) const
 {
-  return spline_.GetFreeCoeffPerPoly() * dim_.size() * poly
-       + spline_.GetFreeCoeffPerPoly() * dim
+  return GetFreeCoeffPerPoly() * dim_.size() * poly
+       + GetFreeCoeffPerPoly() * dim
        + coeff;
 }
 
@@ -63,7 +64,7 @@ ComSpline::GetValues () const
   VectorXd x_abcd(GetRows());
 
   int i=0;
-  for (const auto& s : spline_.GetImpl()) {
+  for (const auto& s : polynomials_) {
     for (auto dim : dim_)
       for (auto coeff :  s->GetCoeffIds())
         x_abcd[Index(i, dim, coeff)] = s->GetCoefficient(dim, coeff);
@@ -76,7 +77,7 @@ ComSpline::GetValues () const
 JacobianRow
 ComSpline::GetJacobian (double t_global, MotionDerivative deriv, Coords3D dim) const
 {
-  int id         = spline_.GetPolynomialID(t_global);
+  int id         = spline_.GetSegmentID(t_global);
   double t_local = spline_.GetLocalTime(t_global);
 
   return GetJacobianWrtCoeffAtPolynomial(deriv, t_local, id, dim);
@@ -87,7 +88,7 @@ ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_loc
                                             int id, Coords3D dim) const
 {
   JacobianRow jac(1, GetRows());
-  auto polynomial = spline_.GetImpl().at(id);
+  auto polynomial = polynomials_.at(id);
 
   for (auto coeff : polynomial->GetCoeffIds()) {
     double val = polynomial->GetDerivativeWrtCoeff(deriv, coeff, t_local);
@@ -101,12 +102,27 @@ ComSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_loc
 void
 ComSpline::SetValues (const VectorXd& optimized_coeff)
 {
-  for (size_t p=0; p<spline_.GetImpl().size(); ++p) {
-    auto& poly = spline_.GetImpl().at(p);
+  for (size_t p=0; p<polynomials_.size(); ++p) {
+    auto& poly = polynomials_.at(p);
     for (const Coords3D dim : dim_)
       for (auto c : poly->GetCoeffIds())
         poly->SetCoefficient(dim, c, optimized_coeff[Index(p,dim,c)]);
   }
+}
+
+int
+ComSpline::GetFreeCoeffPerPoly () const
+{
+  return polynomials_.front()->GetCoeffIds().size();
+}
+
+int
+ComSpline::GetTotalFreeCoeff () const
+{
+  int n_polys = polynomials_.size();
+  int n_dim   = dim_.size();
+
+  return n_polys*GetFreeCoeffPerPoly()*n_dim;
 }
 
 } /* namespace opt */

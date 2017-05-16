@@ -10,6 +10,8 @@
 namespace xpp {
 namespace opt {
 
+using PolynomialType = ConstantPolynomial;
+
 EEForce::EEForce (double dt) : Component(-1, "ee_force_single")
 {
   dt_ = dt;
@@ -26,20 +28,22 @@ EEForce::AddPhase (double T, bool is_contact)
     AddContactPhase(T);
   else
     AddSwingPhase(T);
+
+  spline_.SetSegmentsPtr(polynomials_); // update spline here
 }
 
 VectorXd
 EEForce::GetValues () const
 {
   // get all the node values
-  int num_nodes = spline_.size()+1;
+  int num_nodes = polynomials_.size()+1;
   VectorXd x(num_nodes*dim_.size());
 
   int idx=0;
-  for (const auto& p : spline_)
+  for (const auto& p : polynomials_)
     for (auto d : dim_) {
-      x(idx)   = p.start_.p_(d);
-      x(++idx) = p.end_.p_(d);
+      x(idx)   = p->start_.p_(d);
+      x(++idx) = p->end_.p_(d);
     }
 
   return x;
@@ -49,11 +53,11 @@ void
 EEForce::SetValues (const VectorXd& x)
 {
   int idx=0;
-  for (auto& p : spline_) {
+  for (auto& p : polynomials_) {
     for (auto d : dim_) {
-      p.start_.p_(d) = x(idx);
-      p.end_.p_(d)   = x(++idx);
-      p.UpdateCoefficients();
+      p->start_.p_(d) = x(idx);
+      p->end_.p_(d)   = x(++idx);
+      p->UpdateCoefficients();
     }
   }
 }
@@ -66,7 +70,7 @@ EEForce::GetBounds () const
   bounds.assign(GetRows(),Bound(min_load_, max_load_));
 
   int i=0;
-  for (int s=0; s<spline_.size(); ++s) {
+  for (int s=0; s<polynomials_.size(); ++s) {
 
     if (!is_in_contact_.at(s)) // swing phase
       for (auto d : dim_)
@@ -76,38 +80,37 @@ EEForce::GetBounds () const
     i += dim_.size();
   }
 
-  return bounds_;
+  return bounds;
 }
 
 
 double
 EEForce::GetForce (double t_global) const
 {
-
+  return spline_.GetPoint(t_global).p_(0);
 }
 
 int
 EEForce::Index (double t_global) const
 {
+  // zmp_!!! implement this
+  int poly_id = spline_.GetSegmentID(t_global);
 
+
+  assert(false);
 }
 
 void
 EEForce::AddContactPhase (double T)
 {
-  PolynomialType p;
+  auto p = std::make_shared<PolynomialType>();
 
   double t_left = T;
   while (t_left > 0.0) {
     double duration = t_left>dt_?  dt_ : t_left;
-    p.SetBoundary(duration, StateLin1d(), StateLin1d());
-    spline_.push_back(p);
+    p->SetBoundary(duration, StateLin1d(), StateLin1d());
+    polynomials_.push_back(p);
     is_in_contact_.push_back(true);
-
-    for (auto d : dim_)
-      for (int i=0; i<2; ++i) // start and end values
-        bounds_.push_back(Bound(min_load_, max_load_)); // unilateral force
-
     t_left -= dt_;
   }
 }
@@ -116,14 +119,10 @@ void
 EEForce::AddSwingPhase (double T)
 {
   // one polynomials for entire swing-phase, with value zero
-  PolynomialType p;
-  p.SetBoundary(T, StateLin1d(), StateLin1d());
+  auto p = std::make_shared<PolynomialType>();
+  p->SetBoundary(T, StateLin1d(), StateLin1d());
 
-  for (auto d : dim_)
-    for (int i=0; i<2; ++i) // start and end values
-      bounds_.push_back(kEqualityBound_); // zero force
-
-  spline_.push_back(p);
+  polynomials_.push_back(p);
   is_in_contact_.push_back(true);
 }
 

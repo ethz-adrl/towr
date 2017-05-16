@@ -16,6 +16,7 @@
 #include <xpp/bound.h>
 #include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/polynomial.h>
+#include <xpp/opt/spline.h>
 
 namespace xpp {
 namespace opt {
@@ -24,11 +25,7 @@ namespace opt {
  */
 class EEForce : public Component {
 public:
-  // remember to adapt index function when changing this
-  using PolynomialType = ConstantPolynomial;
-//  using PolyXdT        = PolynomialXd<PolynomialType, StateLin1d>;
-//  using PolyHelpers    = PolyVecManipulation<PolyXdT>;
-//  using VecPolynomials = PolyHelpers::VecPolynomials;
+  using VecPolynomials = std::vector<std::shared_ptr<Polynomial> >;//Spline::VecSegments;
 
   EEForce (double dt);
   virtual ~EEForce ();
@@ -44,9 +41,9 @@ public:
 
 private:
   double dt_; ///< disretization interval of stance phase [s]
-  std::vector<PolynomialType> spline_;
+  Spline spline_;
+  VecPolynomials polynomials_;
   std::deque<bool> is_in_contact_;
-  VecBound bounds_;
 
   const double max_load_ = 2000.0;
   const double min_load_ = 50.0;

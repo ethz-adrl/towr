@@ -43,16 +43,15 @@ EEPhaseMotion::SetContacts (const Vector3d& start_pos,
   poly_z_.SetBoundary(T_,start_state.GetDimension(Z), end_state.GetDimension(Z));
 }
 
-StateLin3d
-EEPhaseMotion::GetState (double t_local) const
+StateLinXd
+EEPhaseMotion::GetPoint (double t_local) const
 {
-  StateLinXd z  = poly_z_.GetPoint(t_local);
   StateLinXd xy = poly_xy_.GetPoint(t_local);
 
   StateLin3d ee;
   ee.SetDimension(X, xy.GetDimension(X));
   ee.SetDimension(Y, xy.GetDimension(Y));
-  ee.SetDimension(Z, z.GetDimension(X)); // zmp_ ugly get first index, which is z
+  ee.SetDimension(Z, poly_z_.GetPoint(t_local)); // zmp_ ugly get first index, which is z
 
   return ee;
 }

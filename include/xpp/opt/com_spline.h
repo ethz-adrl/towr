@@ -8,11 +8,13 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_COM_SPLINE_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_COM_SPLINE_H_
 
+#include <memory>
 #include <vector>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
+#include "polynomial.h"
 #include "spline.h"
 #include <xpp/opt/constraints/composite.h>
 
@@ -28,7 +30,7 @@ class ComSpline : public Component {
 public:
   using State          = StateLin3d;
   using PolyCoeff      = Polynomial::PolynomialCoeff;
-  using VecPolynomials = Spline::VecPolynomials;
+  using VecPolynomials = std::vector<std::shared_ptr<Polynomial> >;
 
   ComSpline ();
   virtual ~ComSpline ();
@@ -58,13 +60,18 @@ public:
                                               int id, double t_poly,
                                               Coords3D dim) const = delete;
 
-  VecPolynomials GetPolynomials() const { return spline_.GetImpl(); }
+  VecPolynomials GetPolynomials() const { return polynomials_; }
 
   JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const;
 
 private:
   Spline spline_;
+  VecPolynomials polynomials_;
+
   std::vector<Coords3D> dim_;
+
+  int GetFreeCoeffPerPoly() const;
+  int GetTotalFreeCoeff() const;
 };
 
 } /* namespace opt */

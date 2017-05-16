@@ -17,7 +17,7 @@ double
 Spline::GetTotalTime() const
 {
   double T = 0.0;
-  for (const auto& s: polynomials_)
+  for (const auto& s: segments_)
     T += s->GetDuration();
   return T;
 }
@@ -25,34 +25,34 @@ Spline::GetTotalTime() const
 double
 Spline::GetLocalTime(double t_global) const
 {
-  int id_spline = GetPolynomialID(t_global);
+  int id_spline = GetSegmentID(t_global);
 
   double t_local = t_global;
   for (int id=0; id<id_spline; id++) {
-    t_local -= polynomials_.at(id)->GetDuration();
+    t_local -= segments_.at(id)->GetDuration();
   }
 
   return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
 }
 
-StateLinXd
+const StateLinXd
 Spline::GetPoint(double t_global) const
 {
-  int idx        = GetPolynomialID(t_global);
+  int idx        = GetSegmentID(t_global);
   double t_local = GetLocalTime(t_global);
 
-  return polynomials_.at(idx)->GetPoint(t_local);
+  return segments_.at(idx)->GetPoint(t_local);
 }
 
 int
-Spline::GetPolynomialID(double t_global) const
+Spline::GetSegmentID(double t_global) const
 {
   double eps = 1e-10; // double imprecision
   assert(t_global<=GetTotalTime()+eps); // machine precision
 
    double t = 0;
    int i=0;
-   for (const auto& s: polynomials_) {
+   for (const auto& s: segments_) {
      t += s->GetDuration();
 
      if (t >= t_global-eps) // at junctions, returns previous spline (=)
@@ -62,17 +62,6 @@ Spline::GetPolynomialID(double t_global) const
    }
    assert(false); // this should never be reached
 }
-
-int
-Spline::GetFreeCoeffPerPoly() const
-{
-  return polynomials_.front()->GetCoeffIds().size();
-}
-
-int
-Spline::GetTotalFreeCoeff() const {
-  return polynomials_.size()*GetFreeCoeffPerPoly()*polynomials_.front()->start_.kNumDim;
-};
 
 } // namespace opt
 } // namespace xpp

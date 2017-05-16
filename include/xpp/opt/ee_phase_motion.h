@@ -11,7 +11,7 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include "spline.h"
+#include "polynomial.h"
 
 namespace xpp {
 namespace opt {
@@ -21,10 +21,10 @@ namespace opt {
   * This can be used to generate the swingleg motion given two footholds or
   * represent a leg in stance ("movement" between the same start/goal).
   */
-class EEPhaseMotion {
+class EEPhaseMotion : public Segment {
 public:
-  using PolyXY      = CubicPolynomial;//PolynomialXd<CubicPolynomial, StateLin2d>;
-  using PolyZ       = LiftHeightPolynomial;
+  using PolyXY = CubicPolynomial;
+  using PolyZ  = LiftHeightPolynomial;
 
   EEPhaseMotion ();
   virtual ~EEPhaseMotion ();
@@ -50,7 +50,7 @@ public:
   /** Returns the 3D position, velocity and acceleration at any time during
     * the motion.
     */
-  StateLin3d GetState(double t_local) const;
+  StateLinXd GetPoint(double t_local) const;
   double GetDuration() const;
 
   double GetDerivativeOfPosWrtContactsXY(d2::Coords dim, double t_local,

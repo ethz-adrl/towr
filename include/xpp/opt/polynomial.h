@@ -18,17 +18,19 @@ Polynomials ready to use:
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
+#include "spline.h"
+
 namespace xpp {
 namespace opt {
 
 /** @brief Constructs a polynomial given start and end states.
   */
-class Polynomial {
+class Polynomial : public Segment {
 public:
 
-  // f =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
-  // f =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
-  // f = 20Ft^3 + 12Et^2 + 6Dt   + 2C
+  // x(t) =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
+  // x(t) =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
+  // x(t) = 20Ft^3 + 12Et^2 + 6Dt   + 2C
   enum PolynomialCoeff { A=0, B, C, D, E, F};
   using CoeffVec = std::vector<PolynomialCoeff>;
 
