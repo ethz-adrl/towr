@@ -106,8 +106,8 @@ EEMotion::GetJacobianPos (double t_global, d2::Coords dim) const
   int idx_start = Index(phase_contacts_.at(phase).front().id, dim);
   int idx_goal  = Index(phase_contacts_.at(phase).back().id, dim);
 
-  jac.insert(idx_start) = phase_motion_.at(phase)->GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Start);
-  jac.insert(idx_goal)  = phase_motion_.at(phase)->GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Goal);
+  jac.insert(idx_start) = phase_motion_.at(phase)->GetDerivativeOfPosWrtPos(t_local, Polynomial::Start);
+  jac.insert(idx_goal)  = phase_motion_.at(phase)->GetDerivativeOfPosWrtPos(t_local, Polynomial::Goal);
 
   if (idx_start == idx_goal)// in contact phase // zmp_ ugly
     jac.insert(idx_start) = 1.0;

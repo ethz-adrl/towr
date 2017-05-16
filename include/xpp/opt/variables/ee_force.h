@@ -37,8 +37,10 @@ public:
   virtual VecBound GetBounds() const override;
   virtual void     SetValues(const VectorXd& x) override;
 
+  JacobianRow GetJacobian(Coords3D dim, double t_global) const;
+
   double GetForce(double t_global) const;
-  int Index(double t_global) const;
+  int Index(double t_global, Polynomial::PointType p, Coords3D dim) const;
 
   // make private again
   Spline spline_;

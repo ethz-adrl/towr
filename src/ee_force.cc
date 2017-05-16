@@ -43,10 +43,12 @@ EEForce::GetValues () const
 
   int idx=0;
   for (const auto& p : polynomials_)
-    for (auto d : dim_) {
-      x(idx)   = p->start_.p_(d);
-      x(++idx) = p->end_.p_(d);
-    }
+    for (auto d : dim_)
+      x(idx++)   = p->start_.p_(d); // goal value is same as next start value
+
+  // add last node
+  for (auto d : dim_)
+    x(idx++)   = polynomials_.back()->end_.p_(d);
 
   return x;
 }
@@ -58,8 +60,9 @@ EEForce::SetValues (const VectorXd& x)
   for (auto& p : polynomials_) {
     for (auto d : dim_) {
       p->start_.p_(d) = x(idx);
-      p->end_.p_(d)   = x(++idx);
+      p->end_.p_(d)   = x(idx + dim_.size());
       p->UpdateCoefficients();
+      idx++;
     }
   }
 }
@@ -79,7 +82,7 @@ EEForce::GetBounds () const
         // forbid contact force at start and end of node
         bounds.at(i) = Bound(0.1, 0.2); // [N]
         // zmp_ for now only at start of node b/c using zero-order poly
-//        bounds.at(i+1) = Bound(1.0, 2.0);
+//        bounds.at(i+dim_.size()) = Bound(1.0, 2.0);
       }
 
     i += dim_.size();
@@ -95,13 +98,6 @@ EEForce::GetForce (double t_global) const
   return force_z;
 }
 
-int
-EEForce::Index (double t_global) const
-{
-  // this must be adapted/extended when changing the polynomial type
-  int poly_id = spline_.GetSegmentID(t_global);
-  return poly_id*dim_.size() /* + dim */ ; // add this for multiple dimensions
-}
 
 void
 EEForce::AddContactPhase (double T, double dt)
@@ -122,6 +118,32 @@ EEForce::AddSwingPhase (double T)
   // one polynomials for entire swing-phase, with value zero
   polynomials_.push_back(MakePoly(T));
   is_in_contact_.push_back(false);
+}
+
+int
+EEForce::Index (double t_global, Polynomial::PointType p, Coords3D dim) const
+{
+  // this must be adapted/extended when changing the polynomial type
+  int node_start = spline_.GetSegmentID(t_global);
+  return (node_start+p)*dim_.size() + dim; // adjacent node are stored next to each other
+}
+
+JacobianRow
+EEForce::GetJacobian (Coords3D dim, double t_global) const
+{
+  int idx_node_start = Index(t_global, Polynomial::Start, dim);
+  int idx_node_goal  = Index(t_global, Polynomial::Goal, dim);
+
+  // figure out which polynomial is active at the current time
+  int phase      = spline_.GetSegmentID(t_global);
+  auto poly      = polynomials_.at(phase);
+
+  JacobianRow jac(GetRows());
+  double t_local = spline_.GetLocalTime(t_global);
+  jac.insert(idx_node_start) = poly->GetDerivativeOfPosWrtPos(t_local, Polynomial::Start);
+  jac.insert(idx_node_goal)  = poly->GetDerivativeOfPosWrtPos(t_local, Polynomial::Goal);
+
+  return jac;
 }
 
 EEForce::PolyPtr

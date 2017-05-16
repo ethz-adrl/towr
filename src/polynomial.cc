@@ -108,6 +108,8 @@ double Polynomial::GetDuration() const
   return duration;
 }
 
+
+// specific polynomial implementations
 void
 ConstantPolynomial::SetPolynomialCoefficients (double T,
                                                const StateLinXd& start,
@@ -116,10 +118,30 @@ ConstantPolynomial::SetPolynomialCoefficients (double T,
   coeff_[A] = start.p_;
 }
 
+double
+ConstantPolynomial::GetDerivativeOfPosWrtPos (double t, PointType p) const
+{
+  switch (p) {
+    case Start: return 1.0;
+    case Goal:  return 0.0;
+    default: assert(false); // point type not defined
+  }
+}
+
 void LinearPolynomial::SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end)
 {
   coeff_[A] = start.p_;
   coeff_[B] = (end.p_ - start.p_) / T;
+}
+
+double
+LinearPolynomial::GetDerivativeOfPosWrtPos (double t, PointType p) const
+{
+  switch (p) {
+    case Start: return 1.0-t/duration;
+    case Goal:  return    +t/duration;
+    default: assert(false); // point type not defined
+  }
 }
 
 void CubicPolynomial::SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end)

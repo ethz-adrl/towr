@@ -53,12 +53,11 @@ public:
   StateLinXd GetPoint(double t_local) const;
   double GetDuration() const;
 
-  double GetDerivativeOfPosWrtContactsXY(d2::Coords dim, double t_local,
-                                         Polynomial::PointType p) const;
+  double GetDerivativeOfPosWrtPos(double t_local, Polynomial::PointType p) const;
 
+  PolyXY poly_xy_;
 private:
   PolyZ poly_z_;
-  PolyXY poly_xy_;
   double T_ = 0.0;   ///< the duration [s] of the motion
 };
 

@@ -57,8 +57,7 @@ EEPhaseMotion::GetPoint (double t_local) const
 }
 
 double
-EEPhaseMotion::GetDerivativeOfPosWrtContactsXY (d2::Coords dim, double t_local,
-                                                Polynomial::PointType p) const
+EEPhaseMotion::GetDerivativeOfPosWrtPos (double t_local, Polynomial::PointType p) const
 {
   return poly_xy_.GetDerivativeOfPosWrtPos(t_local, p);
 }

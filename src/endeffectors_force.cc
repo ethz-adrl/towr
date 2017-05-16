@@ -59,7 +59,24 @@ EndeffectorsForce::Index (double t, EndeffectorID ee) const
 
   // zmp_ highly ugly and error prone...
   // assumes only one optimization variable affects value at time t and endffector e
-  return idx_start + ee_forces_.at(ee)->Index(t);
+  return idx_start + ee_forces_.at(ee)->Index(t, Polynomial::Start, X); // zmp_ is actually z
+}
+
+JacobianRow
+EndeffectorsForce::GetJacobian (double t, EndeffectorID ee, Coords3D dim) const
+{
+  JacobianRow jac_row(GetRows());
+  JacobianRow jac_ee = ee_forces_.at(ee)->GetJacobian(dim, t);
+
+  int idx_start = 0;
+  for (int i=E0; i<ee; ++i)
+    idx_start += ee_forces_.at(i)->GetRows();
+
+  // insert single ee-Jacobian into Jacobian representing all endeffectors
+  for (JacobianRow::InnerIterator it(jac_ee); it; ++it)
+    jac_row.coeffRef(idx_start+it.col()) = it.value();
+
+  return jac_row;
 }
 
 } /* namespace opt */

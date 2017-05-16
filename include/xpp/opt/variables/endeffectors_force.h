@@ -34,7 +34,11 @@ public:
   virtual ~EndeffectorsForce();
 
   LoadParams GetLoadValues(double t) const;
+
+  // zmp_ remove this
   int Index(double t, EndeffectorID ee) const;
+
+  JacobianRow GetJacobian (double t, EndeffectorID ee, Coords3D dim) const;
 
 private:
   ComponentVec ee_forces_; // derived class pointer to access ee specific functions

@@ -57,6 +57,7 @@ public:
   double GetDerivativeWrtCoeff(MotionDerivative deriv,
                                PolynomialCoeff coeff,
                                double t) const;
+  virtual double GetDerivativeOfPosWrtPos(double t, PointType p) const { assert(false); };
 
   double GetCoefficient(int dim, PolynomialCoeff coeff) const;
   void SetCoefficient(int dim,   PolynomialCoeff coeff, double value);
@@ -91,6 +92,8 @@ public:
   ConstantPolynomial() : Polynomial(0) {};
   ~ConstantPolynomial() {};
 
+  double GetDerivativeOfPosWrtPos(double t, PointType p) const override;
+
 private:
   void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
 };
@@ -99,6 +102,8 @@ class LinearPolynomial : public Polynomial {
 public:
   LinearPolynomial() : Polynomial(1) {};
   ~LinearPolynomial() {};
+
+  double GetDerivativeOfPosWrtPos(double t, PointType p) const override;
 
 private:
   void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
@@ -112,8 +117,7 @@ public:
   CubicPolynomial() : Polynomial(3) {};
   ~CubicPolynomial() {};
 
-  // zmp_ move up to base class?
-  double GetDerivativeOfPosWrtPos(double t, PointType p) const;
+  double GetDerivativeOfPosWrtPos(double t, PointType p) const override;
 
 private:
   void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
