@@ -16,7 +16,7 @@
 
 #include <xpp/bound.h>
 #include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/endeffectors_force.h>
+#include <xpp/opt/variables/endeffectors_endeffectors_force.h>
 
 namespace xpp {
 namespace opt {

@@ -66,9 +66,8 @@ public:
 
   SingleContactMotion::PhaseVec GetPhases(EndeffectorID) const;
 
-  // zmp_ make private again
-  EEContacts endeffectors_;
 private:
+  EEContacts endeffectors_;
   void SetPhaseSequence (const PhaseVec& phases);
   void SetInitialSwinglegs(const EndeffectorsBool&);
 

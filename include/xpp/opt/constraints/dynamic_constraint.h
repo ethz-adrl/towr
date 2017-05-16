@@ -17,8 +17,6 @@
 
 #include <xpp/bound.h>
 #include <xpp/opt/linear_inverted_pendulum.h>
-#include <xpp/opt/variables/endeffectors_force.h>
-
 #include "composite.h"
 #include "time_discretization_constraint.h"
 
@@ -27,12 +25,13 @@ namespace opt {
 
 class BaseMotion;
 class EndeffectorsMotion;
+class EndeffectorsForce;
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using BaseMotionPtr = std::shared_ptr<BaseMotion>;
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
-  using EELoadPtr     = std::shared_ptr<Force>;
+  using EELoadPtr     = std::shared_ptr<EndeffectorsForce>;
 
   DynamicConstraint (const OptVarsPtr& opt_vars, double T, double dt);
   virtual ~DynamicConstraint ();

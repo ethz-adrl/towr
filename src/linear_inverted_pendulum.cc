@@ -28,7 +28,8 @@ LinearInvertedPendulum::SetCurrent (const ComPos& com_pos,
 {
   pos_     = com_pos;
 
-  // zmp_ for now keep constance, because derivative w.r.t com_acc_xy is then very tricky
+  // zmp_ for now keep constant, because derivative w.r.t com_acc_xy is
+  // then very tricky
   // will loose dependency on com position anyway with new model :)
   h_       = 0.58;//com_pos.z(); // assuming ee_pos are at zero
   ee_load_ = ee_load;
