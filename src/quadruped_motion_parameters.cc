@@ -33,7 +33,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
 //  offset_geom_to_com_ << -0.03, 0.02, 0.0;
   offset_geom_to_com_ << 0,0,0;
-  max_dev_xy_ = {0.2, 0.2, 0.0};
+  max_dev_xy_ = {0.2, 0.2, 0.1};
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
 
 
@@ -177,13 +177,13 @@ Trot::Trot()
 //  max_dev_xy_ = {0.15, 0.15, 0.1};
   id_ = opt::TrotID;
 
-  double t_phase = 0.3;
+  double t_phase = 0.31;
   double t_trans = 0.1;
 
   contact_timings_ =
   {   0.3,
       t_phase, t_phase, t_phase, t_phase, // trot
-//      0.5, // flight_phase
+      0.3, // flight_phase
 //      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
       t_phase, t_phase, t_phase, t_phase, // trot
       0.2
@@ -193,7 +193,7 @@ Trot::Trot()
   {
       II_,
       bP_, Pb_, bP_, Pb_, // trot
-//      BB_, // flight-phase
+      BB_, // flight-phase
 //      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
       bP_, Pb_, bP_, Pb_, // trot
       II_

@@ -51,7 +51,7 @@ EEPhaseMotion::GetPoint (double t_local) const
   StateLin3d ee;
   ee.SetDimension(X, xy.GetDimension(X));
   ee.SetDimension(Y, xy.GetDimension(Y));
-  ee.SetDimension(Z, poly_z_.GetPoint(t_local)); // zmp_ ugly get first index, which is z
+  ee.SetDimension(Z, poly_z_.GetPoint(t_local));
 
   return ee;
 }

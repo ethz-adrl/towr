@@ -17,8 +17,9 @@ double
 Spline::GetTotalTime() const
 {
   double T = 0.0;
-  for (const auto& s: segments_)
+  for (const auto& s: segments_) {
     T += s->GetDuration();
+  }
   return T;
 }
 

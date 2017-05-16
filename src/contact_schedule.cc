@@ -134,6 +134,13 @@ ContactSchedule::IsInContact (double t_global) const
   return contacts;
 }
 
+double
+ContactSchedule::GetTotalTime () const
+{
+  // all legs should have same duration
+  return endeffectors_.At(E0).GetTotalTime();
+}
+
 void
 ContactSchedule::SetInitialSwinglegs (const EndeffectorsBool& swinglegs)
 {

@@ -60,6 +60,11 @@ MotionOptimizerFacade::BuildVariables ()
   // initialize the contact schedule
   auto contact_schedule = std::make_shared<ContactSchedule>(motion_parameters_->GetContactSchedule());
 
+  // zmp_ remove this
+//  std::cout << "GetTotalTIme(): " << std::endl;
+//  for (auto ee : {E0, E1, E2, E3})
+//    std::cout << contact_schedule->endeffectors_.At(ee).GetTotalTime() << std::endl;
+
   // initialize the ee_motion with the fixed parameters
   auto ee_motion = std::make_shared<EndeffectorsMotion>(start_geom_.GetEEPos(),*contact_schedule);
 
@@ -70,9 +75,11 @@ MotionOptimizerFacade::BuildVariables ()
   auto base_motion = std::make_shared<BaseMotion>(com_motion);
   base_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
-  auto load = std::make_shared<EndeffectorsForce>(motion_parameters_->GetEECount(),
-                                                motion_parameters_->load_dt_, T,
-                                                *contact_schedule);
+//  auto load = std::make_shared<EndeffectorsForce>(motion_parameters_->GetEECount(),
+//                                                motion_parameters_->load_dt_,
+//                                                *contact_schedule);
+
+  auto load = std::make_shared<Force>(motion_parameters_->load_dt_,*contact_schedule);
 
   opt_variables_->ClearComponents();
   opt_variables_->AddComponent(base_motion);

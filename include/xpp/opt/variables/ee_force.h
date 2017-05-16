@@ -25,12 +25,13 @@ namespace opt {
  */
 class EEForce : public Component {
 public:
-  using VecPolynomials = std::vector<std::shared_ptr<Polynomial> >;//Spline::VecSegments;
+  using PolyPtr        = std::shared_ptr<Polynomial>;
+  using VecPolynomials = std::vector<PolyPtr>;
 
-  EEForce (double dt);
+  EEForce ();
   virtual ~EEForce ();
 
-  void AddPhase(double T, bool is_contact);
+  void AddPhase(double T, double dt, bool is_contact);
 
   virtual VectorXd GetValues() const override;
   virtual VecBound GetBounds() const override;
@@ -39,9 +40,10 @@ public:
   double GetForce(double t_global) const;
   int Index(double t_global) const;
 
-private:
-  double dt_; ///< disretization interval of stance phase [s]
+  // make private again
   Spline spline_;
+private:
+
   VecPolynomials polynomials_;
   std::deque<bool> is_in_contact_;
 
@@ -50,8 +52,10 @@ private:
 
   std::vector<Coords3D> dim_ = {X}; // only z force for now
 
-  void AddContactPhase(double T);
+  void AddContactPhase(double T, double dt);
   void AddSwingPhase(double T);
+
+  PolyPtr MakePoly(double T) const;
 };
 
 } /* namespace opt */

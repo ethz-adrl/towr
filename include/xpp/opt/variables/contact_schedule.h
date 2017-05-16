@@ -32,6 +32,7 @@ public:
   bool IsInContact(double t_global) const;
 
   PhaseVec GetPhases() const;
+  double GetTotalTime() const { return t_phase_end_.back(); };
 
 private:
   bool GetContact(int phase) const;
@@ -55,6 +56,8 @@ public:
   EndeffectorsBool IsInContact(double t_global) const;
   int GetContactCount(double t_global) const;
 
+  double GetTotalTime() const;
+
 
   // so far not optimizing over these
   virtual VectorXd GetValues() const override { return VectorXd(); };
@@ -63,11 +66,12 @@ public:
 
   SingleContactMotion::PhaseVec GetPhases(EndeffectorID) const;
 
+  // zmp_ make private again
+  EEContacts endeffectors_;
 private:
   void SetPhaseSequence (const PhaseVec& phases);
   void SetInitialSwinglegs(const EndeffectorsBool&);
 
-  EEContacts endeffectors_;
 };
 
 

@@ -10,23 +10,29 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
+#include <xpp/cartesian_declarations.h>
+#include <xpp/endeffectors.h>
+
+#include <xpp/bound.h>
 #include <xpp/opt/linear_inverted_pendulum.h>
+#include <xpp/opt/variables/endeffectors_force.h>
 
+#include "composite.h"
 #include "time_discretization_constraint.h"
 
 namespace xpp {
 namespace opt {
 
 class BaseMotion;
-class EndeffectorsForce;
 class EndeffectorsMotion;
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using BaseMotionPtr = std::shared_ptr<BaseMotion>;
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
-  using EELoadPtr     = std::shared_ptr<EndeffectorsForce>;
+  using EELoadPtr     = std::shared_ptr<Force>;
 
   DynamicConstraint (const OptVarsPtr& opt_vars, double T, double dt);
   virtual ~DynamicConstraint ();

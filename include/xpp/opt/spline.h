@@ -27,6 +27,7 @@ public:
   virtual StateLinXd GetPoint(const double t_local) const = 0;
 };
 
+
 /** @brief For manipulation of multiple sequential segments ("spline").
   */
 class Spline {
