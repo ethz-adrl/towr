@@ -124,6 +124,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   auto base_motion      = std::dynamic_pointer_cast<BaseMotion>        (opt_variables_->GetComponent("base_motion"));
   auto ee_motion        = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_variables_->GetComponent("endeffectors_motion"));
   auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent("contact_schedule"));
+  auto ee_forces        = std::dynamic_pointer_cast<EndeffectorsForce> (opt_variables_->GetComponent("endeffector_force"));
 
   double t=0.0;
   double T = motion_parameters_->GetTotalTime();
@@ -133,9 +134,10 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     state.SetBase(base_motion->GetBase(t));
 
     state.SetEEStateInWorld(ee_motion->GetEndeffectors(t));
+    state.SetEEForcesInWorld(ee_forces->GetLoadValues(t));
     state.SetContactState(contact_schedule->IsInContact(t));
-    state.SetTime(t);
 
+    state.SetTime(t);
     trajectory.push_back(state);
     t += dt;
   }

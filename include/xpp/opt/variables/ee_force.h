@@ -39,7 +39,7 @@ public:
 
   JacobianRow GetJacobian(Coords3D dim, double t_global) const;
 
-  double GetForce(double t_global) const;
+  Vector3d GetForce(double t_global) const;
 
 private:
 

@@ -84,19 +84,13 @@ LinearInvertedPendulum::GetDerivativeOfAccWrtEEPos (EndeffectorID ee,
   double deriv = 0.0;
 
   if (dim == X || dim == Y) {
-    double cop_wrt_ee = GetDerivativeOfCopWrtEEPos(ee);
+    double cop_wrt_ee = ee_load_.At(ee).z()/GetLoadSum();
     deriv = kGravity/h_ * (-1* cop_wrt_ee);
   }
 
   // no dependency on feet, as i am not yet concerned about the moment
 
   return deriv;
-}
-
-double
-LinearInvertedPendulum::GetDerivativeOfCopWrtEEPos (EndeffectorID ee) const
-{
-  return ee_load_.At(ee)/GetLoadSum();
 }
 
 LinearInvertedPendulum::Cop
@@ -116,7 +110,7 @@ LinearInvertedPendulum::CalculateCop () const
   double sum = GetLoadSum();
 
   for (auto ee : ee_pos_.GetEEsOrdered()) {
-    double load_percent = ee_load_.At(ee)/sum;
+    double load_percent = ee_load_.At(ee).z()/sum;
     cop += load_percent*ee_pos_.At(ee).topRows<kDim2d>();
   }
 
@@ -127,8 +121,8 @@ double
 LinearInvertedPendulum::GetLoadSum () const
 {
   double sum = 0.0;
-  for (double load : ee_load_.ToImpl())
-    sum += load;
+  for (Vector3d load : ee_load_.ToImpl())
+    sum += load.z();
 
   assert(sum > 0); // while using inverted pendulum, this must be the case.
 

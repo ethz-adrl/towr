@@ -90,13 +90,13 @@ EEForce::GetBounds () const
   return bounds;
 }
 
-double
+Vector3d
 EEForce::GetForce (double t_global) const
 {
-  double force_z = spline_.GetPoint(t_global).p_(0);
-  return force_z;
+  Vector3d force = Vector3d::Zero();
+  force.z() = spline_.GetPoint(t_global).p_(0);
+  return force;
 }
-
 
 void
 EEForce::AddContactPhase (double T, double dt)

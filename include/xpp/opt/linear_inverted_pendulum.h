@@ -27,7 +27,7 @@ public:
   using ComAcc = Eigen::Vector3d;
   using Cop    = Eigen::Vector2d;
 
-  using EELoad = Endeffectors<double>;
+  using EELoad = Endeffectors<Vector3d>;
   using EEPos  = EndeffectorsPos;
 
   LinearInvertedPendulum (double mass);
@@ -53,7 +53,7 @@ private:
 
   Cop CalculateCop() const;
   Cop GetDerivativeOfCopWrtLoad(EndeffectorID) const;
-  double GetDerivativeOfCopWrtEEPos(EndeffectorID) const;
+//  double GetDerivativeOfCopWrtEEPos(EndeffectorID) const;
   double GetLoadSum() const;
 };
 

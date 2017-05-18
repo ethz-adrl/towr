@@ -28,7 +28,7 @@ class EndeffectorsForce : public Composite {
 public:
   using ComponentPtr = std::shared_ptr<EEForce>;
   using ComponentVec = std::vector<ComponentPtr>;
-  using LoadParams   = Endeffectors<double>;
+  using LoadParams   = Endeffectors<Vector3d>;
 
   EndeffectorsForce(double dt, const ContactSchedule&);
   virtual ~EndeffectorsForce();
