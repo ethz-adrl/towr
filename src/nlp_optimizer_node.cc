@@ -16,8 +16,6 @@
 namespace xpp {
 namespace ros {
 
-using TrajectoryCart      = std::vector<RobotStateCartesian>;
-using TrajectoryCartMsg   = xpp_msgs::RobotStateCartesianTrajectory;
 
 NlpOptimizerNode::NlpOptimizerNode ()
 {
@@ -31,7 +29,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                     &NlpOptimizerNode::CurrentStateCallback, this,
                                     ::ros::TransportHints().tcpNoDelay());
 
-  cart_trajectory_pub_  = n.advertise<TrajectoryCartMsg>(xpp_msgs::robot_trajectory_cart, 1);
+  cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
+                                    (xpp_msgs::robot_trajectory_cart, 1);
 
   auto motion_params = std::make_shared<opt::quad::QuadrupedMotionParameters>();
   motion_optimizer_.SetMotionParameters(motion_params);
@@ -41,11 +40,11 @@ NlpOptimizerNode::NlpOptimizerNode ()
 }
 
 void
-NlpOptimizerNode::CurrentStateCallback (const CurrentInfoMsg& msg)
+NlpOptimizerNode::CurrentStateCallback (const StateMsg& msg)
 {
-  auto curr_state = RosHelpers::RosToXpp(msg.state);
-  motion_optimizer_.start_geom_ = curr_state;
-  ROS_INFO_STREAM("Received Current State");
+//  auto curr_state = RosHelpers::RosToXpp(msg);
+//  motion_optimizer_.start_geom_ = curr_state;
+//  ROS_INFO_STREAM("Received Current State");
 
 //  OptimizeMotion();
 //  PublishTrajectory();
@@ -56,7 +55,6 @@ NlpOptimizerNode::OptimizeMotion ()
 {
   try {
     motion_optimizer_.SolveProblem(solver_type_);
-    PublishTrajectory();
   } catch (const std::runtime_error& e) {
     ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
   }
@@ -79,6 +77,8 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 
   if (!msg.replay_trajectory)
     OptimizeMotion();
+
+  PublishTrajectory();
 }
 
 void
@@ -86,6 +86,7 @@ NlpOptimizerNode::PublishTrajectory ()
 {
   auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
   auto cart_traj_msg = RosHelpers::XppToRosCart(opt_traj_cartesian);
+
   cart_trajectory_pub_.publish(cart_traj_msg);
 }
 

@@ -7,12 +7,12 @@
 
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
-#include <xpp_msgs/CurrentInfo.h>
+#include <xpp_msgs/RobotStateCartesian.h>
 
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/endeffectors4.h>
 
-using CurrentInfoMsg = xpp_msgs::CurrentInfo;
+using CurrentInfoMsg = xpp_msgs::RobotStateCartesian;
 using Vector3d       = Eigen::Vector3d;
 
 static const int n_ee = 4; // number of endeffectors
@@ -57,10 +57,12 @@ int main(int argc, char **argv)
   start_state_cart.SetBase(base);
 
   EndeffectorsPos hyq_ee(n_ee);
-  hyq_ee.At(kMapQuadToOpt.at(LF)) = Vector3d(base.lin.p_.x() +0.359692,  base.lin.p_.y() +0.327653, 0.0);
-  hyq_ee.At(kMapQuadToOpt.at(RF)) = Vector3d(base.lin.p_.x() +0.359694,  base.lin.p_.y() -0.327644, 0.0);
-  hyq_ee.At(kMapQuadToOpt.at(LH)) = Vector3d(base.lin.p_.x() -0.358797,  base.lin.p_.y() +0.327698, 0.0);
-  hyq_ee.At(kMapQuadToOpt.at(RH)) = Vector3d(base.lin.p_.x() -0.358802,  base.lin.p_.y() -0.327695, 0.0);
+  double start_x = 0.28;
+  double start_y = 0.28;
+  hyq_ee.At(kMapQuadToOpt.at(LF)) = Vector3d(base.lin.p_.x() +start_x,  base.lin.p_.y() +start_y, 0.0);
+  hyq_ee.At(kMapQuadToOpt.at(RF)) = Vector3d(base.lin.p_.x() +start_x,  base.lin.p_.y() -start_y, 0.0);
+  hyq_ee.At(kMapQuadToOpt.at(LH)) = Vector3d(base.lin.p_.x() -start_x,  base.lin.p_.y() +start_y, 0.0);
+  hyq_ee.At(kMapQuadToOpt.at(RH)) = Vector3d(base.lin.p_.x() -start_x,  base.lin.p_.y() -start_y, 0.0);
   start_state_cart.SetEEStateInWorld(kPos, hyq_ee);
 
   RobotStateCartesian::ContactState contacts(n_ee);
@@ -72,8 +74,7 @@ int main(int argc, char **argv)
 
   start_state_cart.SetTime(0.0);
 
-  CurrentInfoMsg msg;
-  msg.state = xpp::ros::RosHelpers::XppToRos(start_state_cart);
+  CurrentInfoMsg msg = xpp::ros::RosHelpers::XppToRos(start_state_cart);
   ROS_INFO_STREAM("Publishing current state...");
   current_info_pub.publish(msg);
   current_info_pub.publish(msg);

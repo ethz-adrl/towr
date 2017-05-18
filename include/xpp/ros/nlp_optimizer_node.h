@@ -10,9 +10,8 @@
 
 #include <xpp/opt/motion_optimizer_facade.h>
 
-#include <xpp_msgs/CurrentInfo.h>  // receive from robot
-#include <xpp_msgs/UserCommand.h>  // receive from user
-#include <geometry_msgs/PoseStamped.h>
+#include <xpp_msgs/RobotStateCartesian.h>  // receive from robot
+#include <xpp_msgs/UserCommand.h>          // receive from user
 #include <ros/ros.h>
 
 namespace xpp {
@@ -20,11 +19,10 @@ namespace ros {
 
 class NlpOptimizerNode {
 public:
-  using CurrentInfoMsg   = xpp_msgs::CurrentInfo;
-  using UserCommandMsg   = xpp_msgs::UserCommand;
-  using MotionOptimizer  = xpp::opt::MotionOptimizerFacade;
-  using NlpSolver        = xpp::opt::NlpSolver;
-  using PoseMsg          = geometry_msgs::PoseStamped;
+  using StateMsg        = xpp_msgs::RobotStateCartesian;
+  using UserCommandMsg  = xpp_msgs::UserCommand;
+  using MotionOptimizer = xpp::opt::MotionOptimizerFacade;
+  using NlpSolver       = xpp::opt::NlpSolver;
 
 public:
   NlpOptimizerNode ();
@@ -33,7 +31,7 @@ public:
 private:
   void PublishTrajectory();
   void OptimizeMotion();
-  void CurrentStateCallback(const CurrentInfoMsg& msg);
+  void CurrentStateCallback(const StateMsg& msg);
   void UserCommandCallback(const UserCommandMsg& msg);
 
   ::ros::Subscriber user_command_sub_;
