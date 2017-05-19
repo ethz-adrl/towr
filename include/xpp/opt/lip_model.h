@@ -23,14 +23,15 @@
 namespace xpp {
 namespace opt {
 
-class BaseMotion;
-
-class LinearInvertedPendulum : public DynamicModel {
+/**
+ * @brief A Linear Inverted Pendulum to model the dynamics of the system.
+ */
+class LIPModel : public DynamicModel {
 public:
   using Cop = Vector2d;
 
-  LinearInvertedPendulum ();
-  virtual ~LinearInvertedPendulum ();
+  LIPModel();
+  virtual ~LIPModel();
 
   virtual BaseAcc GetBaseAcceleration() const override;
 

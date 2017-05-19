@@ -9,6 +9,7 @@
 #define XPP_OPT_INCLUDE_XPP_OPT_DYNAMIC_MODEL_H_
 
 #include <Eigen/Dense>
+#include <vector>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
@@ -32,10 +33,10 @@ public:
   DynamicModel ();
   virtual ~DynamicModel ();
 
-  using ComPos = Eigen::Vector3d;
-  using ComLinAcc = Eigen::Vector3d;
-  using ComAngAcc = Eigen::Vector3d;
-  using BaseAcc = Vector6d;
+  using ComPos    = Vector3d;
+  using ComLinAcc = Vector3d;
+  using ComAngAcc = Vector3d;
+  using BaseAcc   = Vector6d;
 
   using EELoad = Endeffectors<Vector3d>;
   using EEPos  = EndeffectorsPos;
@@ -44,11 +45,9 @@ public:
 
   virtual BaseAcc GetBaseAcceleration() const = 0;
 
-  // zmp_ possibly remove dimension and directly return all 3?
   virtual JacobianRow GetJacobianOfAccWrtBase(const BaseMotion&,
                                               double t,
                                               Coords6D dim) const = 0;
-
 
   virtual JacobianRow GetJacobianofAccWrtLoad(const EndeffectorsForce&,
                                               double t,

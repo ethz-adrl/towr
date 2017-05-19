@@ -87,7 +87,8 @@ add_library(${MOTION_OPT_LIB}
   src/contact_schedule.cc
   # system dynamics
   src/dynamic_model.cc
-  src/linear_inverted_pendulum.cc
+  src/lip_model.cc
+  src/centroidal_model.cc
   src/dynamic_constraint.cc
   # kinematic
   src/range_of_motion_constraint.cc
@@ -114,7 +115,7 @@ if(BUILD_TESTS)
   if(GTEST_FOUND)
     set(MY_GTEST_UNITS  test/google/gtest_main.cc 
                         test/google/helpers.cc
-                        test/google/linear_inverted_pendulum_test.cc
+                        test/google/lip_model_test.cc
 #                        test/google/polynomial_test.cc
                         test/google/motion_optimizer_facade_test.cc
                         test/google/ee_phase_motion_test.cc

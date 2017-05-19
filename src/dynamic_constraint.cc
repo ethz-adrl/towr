@@ -12,7 +12,7 @@
 
 #include <xpp/state.h>
 
-#include <xpp/opt/linear_inverted_pendulum.h>
+#include <xpp/opt/lip_model.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
@@ -25,7 +25,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double dt)
     :TimeDiscretizationConstraint(T, dt, opt_vars)
 {
-  model_ = std::make_shared<LinearInvertedPendulum>();
+  model_ = std::make_shared<LIPModel>();
 
   SetName("DynamicConstraint");
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
@@ -33,6 +33,12 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   ee_load_    = std::dynamic_pointer_cast<EndeffectorsForce> (opt_vars->GetComponent("endeffector_force"));
 
   SetRows(GetNumberOfNodes()*kDim6d);
+}
+
+int
+DynamicConstraint::GetRow (int node, Coords6D dimension) const
+{
+  return kDim6d*node + dimension;
 }
 
 DynamicConstraint::~DynamicConstraint ()
@@ -46,6 +52,7 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
   UpdateModel(t);
   Vector6d acc_model = model_->GetBaseAcceleration();
 
+  // acceleration base has with current values of optimization variables
   // angular acceleration fixed to zero for now
   Vector6d acc_parametrization = com_motion_->GetBase(t).Get6dAcc();
 
@@ -93,12 +100,6 @@ DynamicConstraint::UpdateModel (double t) const
   auto ee_load = ee_load_   ->GetLoadValues(t);
   auto ee_pos  = ee_motion_ ->GetEndeffectors(t).GetPos();
   model_->SetCurrent(com.p_, ee_load, ee_pos);
-}
-
-int
-DynamicConstraint::GetRow (int node, Coords6D dimension) const
-{
-  return kDim6d*node + dimension;
 }
 
 } /* namespace opt */

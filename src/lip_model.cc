@@ -5,23 +5,24 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/linear_inverted_pendulum.h>
+#include <xpp/opt/lip_model.h>
+
 #include <vector>
 #include <xpp/opt/variables/base_motion.h>
 
 namespace xpp {
 namespace opt {
 
-LinearInvertedPendulum::LinearInvertedPendulum ()
+LIPModel::LIPModel ()
 {
 }
 
-LinearInvertedPendulum::~LinearInvertedPendulum ()
+LIPModel::~LIPModel ()
 {
 }
 
-LinearInvertedPendulum::BaseAcc
-LinearInvertedPendulum::GetBaseAcceleration () const
+LIPModel::BaseAcc
+LIPModel::GetBaseAcceleration () const
 {
   BaseAcc acc;
   acc.segment(AX, 3).setZero();
@@ -30,8 +31,8 @@ LinearInvertedPendulum::GetBaseAcceleration () const
   return acc;
 }
 
-LinearInvertedPendulum::ComLinAcc
-LinearInvertedPendulum::GetLinearAcceleration () const
+LIPModel::ComLinAcc
+LIPModel::GetLinearAcceleration () const
 {
   Cop u = CalculateCop();
   ComLinAcc acc_com;
@@ -43,7 +44,7 @@ LinearInvertedPendulum::GetLinearAcceleration () const
 }
 
 JacobianRow
-LinearInvertedPendulum::GetJacobianOfAccWrtBase (
+LIPModel::GetJacobianOfAccWrtBase (
     const BaseMotion& com_motion, double t, Coords6D dim) const
 {
   JacobianRow jac_wrt_com(com_motion.GetRows());
@@ -57,7 +58,7 @@ LinearInvertedPendulum::GetJacobianOfAccWrtBase (
 }
 
 JacobianRow
-LinearInvertedPendulum::GetJacobianofAccWrtLoad (const EndeffectorsForce& ee_force,
+LIPModel::GetJacobianofAccWrtLoad (const EndeffectorsForce& ee_force,
                                                  double t,
                                                  EndeffectorID ee,
                                                  Coords6D dim) const
@@ -71,7 +72,7 @@ LinearInvertedPendulum::GetJacobianofAccWrtLoad (const EndeffectorsForce& ee_for
 }
 
 JacobianRow
-LinearInvertedPendulum::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion,
+LIPModel::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion,
                                                   double t_global,
                                                   EndeffectorID ee,
                                                   Coords6D dim) const
@@ -88,7 +89,7 @@ LinearInvertedPendulum::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_m
 }
 
 double
-LinearInvertedPendulum::GetDerivativeOfAccWrtLoad (EndeffectorID ee,
+LIPModel::GetDerivativeOfAccWrtLoad (EndeffectorID ee,
                                                    Coords3D dim) const
 {
   double deriv = 0.0;
@@ -104,7 +105,7 @@ LinearInvertedPendulum::GetDerivativeOfAccWrtLoad (EndeffectorID ee,
 }
 
 double
-LinearInvertedPendulum::GetDerivativeOfAccWrtEEPos (EndeffectorID ee,
+LIPModel::GetDerivativeOfAccWrtEEPos (EndeffectorID ee,
                                                     Coords3D dim) const
 {
   double deriv = 0.0;
@@ -119,8 +120,8 @@ LinearInvertedPendulum::GetDerivativeOfAccWrtEEPos (EndeffectorID ee,
   return deriv;
 }
 
-LinearInvertedPendulum::Cop
-LinearInvertedPendulum::GetDerivativeOfCopWrtLoad (EndeffectorID ee) const
+LIPModel::Cop
+LIPModel::GetDerivativeOfCopWrtLoad (EndeffectorID ee) const
 {
   Vector2d p = ee_pos_.At(ee).topRows<kDim2d>();
   Vector2d u = CalculateCop();
@@ -128,8 +129,8 @@ LinearInvertedPendulum::GetDerivativeOfCopWrtLoad (EndeffectorID ee) const
   return (p - u)/GetLoadSum();
 }
 
-LinearInvertedPendulum::Cop
-LinearInvertedPendulum::CalculateCop () const
+LIPModel::Cop
+LIPModel::CalculateCop () const
 {
   Cop cop = Cop::Zero();
 
@@ -144,7 +145,7 @@ LinearInvertedPendulum::CalculateCop () const
 }
 
 double
-LinearInvertedPendulum::GetLoadSum () const
+LIPModel::GetLoadSum () const
 {
   double sum = 0.0;
   for (Vector3d load : ee_load_.ToImpl())
