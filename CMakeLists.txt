@@ -68,28 +68,31 @@ target_link_libraries(${SOLVER_LIB}
 
 # the specific motion optimization problem for legged robots
 add_library(${MOTION_OPT_LIB}
-  src/linear_inverted_pendulum.cc
   src/motion_optimizer_facade.cc
+  src/linear_constraint.cc
+  src/cost_constraint_factory.cc
+  # body motion
   src/polynomial.cc
   src/spline.cc
   src/base_motion.cc
   src/com_spline.cc
   src/linear_spline_equations.cc
-  # endeffector
+  src/polynomial_cost.cc
+  # endeffector motion
   src/ee_phase_motion.cc
   src/ee_motion.cc
   src/endeffectors_motion.cc
   src/endeffectors_force.cc
   src/ee_force.cc
   src/contact_schedule.cc
-  # constraints and costs
-  src/linear_constraint.cc
-  src/cost_constraint_factory.cc
+  # system dynamics
+  src/dynamic_model.cc
+  src/linear_inverted_pendulum.cc
+  src/dynamic_constraint.cc
+  # kinematic
   src/range_of_motion_constraint.cc
 #  src/polygon_center_constraint.cc
-  src/dynamic_constraint.cc
   src/foothold_constraint.cc
-  src/polynomial_cost.cc
   # robot specific info
   src/motion_parameters.cc
   src/quadruped_motion_parameters.cc  

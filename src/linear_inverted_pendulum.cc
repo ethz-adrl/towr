@@ -12,53 +12,79 @@
 namespace xpp {
 namespace opt {
 
-LinearInvertedPendulum::LinearInvertedPendulum (double mass)
+LinearInvertedPendulum::LinearInvertedPendulum ()
 {
-  m_ = mass;
 }
 
 LinearInvertedPendulum::~LinearInvertedPendulum ()
 {
 }
 
-void
-LinearInvertedPendulum::SetCurrent (const ComPos& com_pos,
-                                    const EELoad& ee_load,
-                                    const EEPos& ee_pos)
+LinearInvertedPendulum::BaseAcc
+LinearInvertedPendulum::GetBaseAcceleration () const
 {
-  pos_     = com_pos;
+  BaseAcc acc;
+  acc.segment(AX, 3).setZero();
+  acc.segment(LX, 3) = GetLinearAcceleration();
 
-  // zmp_ for now keep constant, because derivative w.r.t com_acc_xy is
-  // then very tricky
-  // will loose dependency on com position anyway with new model :)
-  h_       = 0.58;//com_pos.z(); // assuming ee_pos are at zero
-  ee_load_ = ee_load;
-  ee_pos_  = ee_pos;
+  return acc;
 }
 
-LinearInvertedPendulum::ComAcc
-LinearInvertedPendulum::GetAcceleration () const
+LinearInvertedPendulum::ComLinAcc
+LinearInvertedPendulum::GetLinearAcceleration () const
 {
   Cop u = CalculateCop();
-  ComAcc acc_com;
+  ComLinAcc acc_com;
   acc_com.topRows<kDim2d>() = kGravity/h_*(pos_.topRows<kDim2d>()- u); // inverted pendulum
+  //zmp_ take gravity out, as this is constant and messes up SNOPT
   acc_com.z()               = 1./m_*GetLoadSum() - kGravity;
 
   return acc_com;
 }
 
-LinearInvertedPendulum::JacobianRow
+JacobianRow
 LinearInvertedPendulum::GetJacobianOfAccWrtBase (
-    const BaseMotion& com_motion, double t, Coords3D dim) const
+    const BaseMotion& com_motion, double t, Coords6D dim) const
 {
-  JacobianRow com_jac     = com_motion.GetJacobian(t, kPos, dim);
-  JacobianRow jac_wrt_com = kGravity/h_*com_jac;
+  JacobianRow jac_wrt_com(com_motion.GetRows());
 
-  // z acceleration only depends on endeffector forces, not base
-  if (dim == Z)
-    jac_wrt_com.setZero();
+  if (dim == LX || dim == LY) {
+    JacobianRow com_jac     = com_motion.GetJacobian(t, kPos, dim);
+    jac_wrt_com = kGravity/h_*com_jac;
+  }
 
   return jac_wrt_com;
+}
+
+JacobianRow
+LinearInvertedPendulum::GetJacobianofAccWrtLoad (const EndeffectorsForce& ee_force,
+                                                 double t,
+                                                 EndeffectorID ee,
+                                                 Coords6D dim) const
+{
+  JacobianRow jac(ee_force.GetRows());
+  // every dimension of dynamic model depends on z force
+  if (dim == LX || dim == LY || dim == LZ)
+    jac = GetDerivativeOfAccWrtLoad(ee, To3D(dim))*ee_force.GetJacobian(t, ee, Z);
+
+  return jac;
+}
+
+JacobianRow
+LinearInvertedPendulum::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion,
+                                                  double t_global,
+                                                  EndeffectorID ee,
+                                                  Coords6D dim) const
+{
+  JacobianRow jac(ee_motion.GetRows());
+
+  // no dependency of CoM acceleration on height of footholds yet
+  if (dim == LX || dim == LY) {
+    double deriv_ee = GetDerivativeOfAccWrtEEPos(ee, To3D(dim));
+    jac = deriv_ee* ee_motion.GetJacobianPos(t_global, ee, To2D(dim));
+  }
+
+  return jac;
 }
 
 double

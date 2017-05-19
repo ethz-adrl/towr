@@ -13,43 +13,49 @@
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
+#include <xpp/state.h>
+
+#include "dynamic_model.h"
+#include <xpp/opt/variables/base_motion.h>
+#include <xpp/opt/variables/endeffectors_force.h>
+#include <xpp/opt/variables/endeffectors_motion.h>
 
 namespace xpp {
 namespace opt {
 
 class BaseMotion;
 
-class LinearInvertedPendulum {
+class LinearInvertedPendulum : public DynamicModel {
 public:
-  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
+  using Cop = Vector2d;
 
-  using ComPos = Eigen::Vector3d;
-  using ComAcc = Eigen::Vector3d;
-  using Cop    = Eigen::Vector2d;
-
-  using EELoad = Endeffectors<Vector3d>;
-  using EEPos  = EndeffectorsPos;
-
-  LinearInvertedPendulum (double mass);
+  LinearInvertedPendulum ();
   virtual ~LinearInvertedPendulum ();
 
-  void SetCurrent(const ComPos& com, const EELoad&, const EEPos&);
+  virtual BaseAcc GetBaseAcceleration() const override;
 
-  ComAcc GetAcceleration() const;
+  virtual JacobianRow GetJacobianOfAccWrtBase(const BaseMotion&,
+                                              double t_global,
+                                              Coords6D dim) const override;
 
-  /** Approximates the acceleration with small angle assumption and calculates
-    * Jacobian w.r.t. spline coefficients.
-    */
-  JacobianRow GetJacobianOfAccWrtBase(const BaseMotion&, double t_global, Coords3D dim) const;
-  double GetDerivativeOfAccWrtLoad(EndeffectorID, Coords3D dim) const;
-  double GetDerivativeOfAccWrtEEPos(EndeffectorID, Coords3D dim) const; // same for x and y direction
+
+  virtual JacobianRow GetJacobianofAccWrtLoad(const EndeffectorsForce&,
+                                              double t_global,
+                                              EndeffectorID,
+                                              Coords6D dim) const override;
+
+  virtual JacobianRow GetJacobianofAccWrtEEPos(const EndeffectorsMotion&,
+                                               double t_global,
+                                               EndeffectorID,
+                                               Coords6D dim) const override;
 
 private:
-  ComPos pos_;
-  double h_;
-  double m_; /// mass of robot
-  EELoad ee_load_;
-  EEPos ee_pos_;
+  const double h_ = 0.58;
+  const double m_ = 80; /// mass of robot
+
+  ComLinAcc GetLinearAcceleration() const;
+  double GetDerivativeOfAccWrtLoad(EndeffectorID, Coords3D dim) const;
+  double GetDerivativeOfAccWrtEEPos(EndeffectorID, Coords3D dim) const; // same for x and y direction
 
   Cop CalculateCop() const;
   Cop GetDerivativeOfCopWrtLoad(EndeffectorID) const;

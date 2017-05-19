@@ -32,7 +32,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
 //  offset_geom_to_com_ << -0.03, 0.02, 0.0;
-  offset_geom_to_com_ << 0,0,0;
+//  offset_geom_to_com_ << 0,0,0;
   max_dev_xy_ = {0.2, 0.2, 0.1};
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
 

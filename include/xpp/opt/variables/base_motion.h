@@ -41,7 +41,7 @@ public:
     * @param dxdt wheather Jacobian for position, velocity, acceleration or jerk is desired
     * @param dim which motion dimension (x,y) the jacobian represents.
     */
-  JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const;
+  JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords6D dim) const;
 
   State3d GetBase(double t_global) const;
   StateLin3d GetCom(double t_global) const;
@@ -49,11 +49,11 @@ public:
   double GetTotalTime() const;
   ComSpline GetComSpline() const;
 
-  void SetOffsetGeomToCom(const Vector3d&);
+//  void SetOffsetGeomToCom(const Vector3d&);
 
 private:
   ComSplinePtr com_spline_; // to retain specific spline info
-  Vector3d offset_geom_to_com_;
+//  Vector3d offset_geom_to_com_;
 };
 
 } /* namespace opt */

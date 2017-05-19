@@ -10,13 +10,12 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 #include <xpp/cartesian_declarations.h>
-#include <xpp/endeffectors.h>
 
 #include <xpp/bound.h>
-#include <xpp/opt/linear_inverted_pendulum.h>
+#include <xpp/opt/dynamic_model.h>
+
 #include "composite.h"
 #include "time_discretization_constraint.h"
 
@@ -33,6 +32,8 @@ public:
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
   using EELoadPtr     = std::shared_ptr<EndeffectorsForce>;
 
+  using DynamicModelPtr  = std::shared_ptr<DynamicModel>;
+
   DynamicConstraint (const OptVarsPtr& opt_vars, double T, double dt);
   virtual ~DynamicConstraint ();
 
@@ -41,17 +42,15 @@ private:
   EEMotionPtr ee_motion_;
   EELoadPtr ee_load_;
 
-  mutable LinearInvertedPendulum model_;
-  std::vector<EndeffectorID> ee_ids_;
+  mutable DynamicModelPtr model_;
 
-  int GetRow(int node, int dimension) const;
+  int GetRow(int node, Coords6D dimension) const;
 
   virtual void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const override;
   virtual void UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const override;
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
 
   void UpdateModel(double t) const;
-  std::vector<Coords3D> dim_;
 };
 
 } /* namespace opt */
