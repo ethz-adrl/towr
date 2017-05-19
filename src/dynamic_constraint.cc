@@ -72,9 +72,10 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
     for (auto ee : ee_ids_) {
 
       if (var_set == ee_load_->GetName()) {
+
         double deriv_load = model_.GetDerivativeOfAccWrtLoad(ee, dim);
-        jac.row(row) += deriv_load* ee_load_->GetJacobian(t, ee, X); // zmp_ this is wrong
-        //          jac.coeffRef(row, ee_load_->Index(t,ee)) = deriv_load;
+        // every dimension of dynamic model can be derived onlyh from z force
+        jac.row(row) += deriv_load* ee_load_->GetJacobian(t, ee, Z);
       }
 
       if (var_set == ee_motion_->GetName()) {

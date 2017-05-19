@@ -51,7 +51,7 @@ private:
   const double min_load_ = 50.0;
 
   int Index(double t_global, Polynomial::PointType p, Coords3D dim) const;
-  std::vector<Coords3D> dim_ = {X}; // only z force for now
+  std::vector<Coords3D> dim_ = {X, Y, Z};
 
   void AddContactPhase(double T, double dt);
   void AddSwingPhase(double T);

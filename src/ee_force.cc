@@ -93,9 +93,7 @@ EEForce::GetBounds () const
 Vector3d
 EEForce::GetForce (double t_global) const
 {
-  Vector3d force = Vector3d::Zero();
-  force.z() = spline_.GetPoint(t_global).p_(0);
-  return force;
+  return spline_.GetPoint(t_global).p_;
 }
 
 void
@@ -150,7 +148,8 @@ EEForce::MakePoly (double T) const
 {
   // initialize with nonzero values, to avoid CoP exception
   auto p = std::make_shared<LinearPolynomial>();
-  p->SetBoundary(T, StateLin1d(), StateLin1d());
+  auto start_values = StateLinXd(dim_.size());
+  p->SetBoundary(T, start_values, start_values);
   return p;
 }
 
