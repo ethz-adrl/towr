@@ -40,46 +40,15 @@ CentroidalModel::GetBaseAcceleration () const
     f_lin += f;
   }
 
-  //zmp_ take gravity out, as this is constant and messes up SNOPT
-  static const Vector3d fg_W(0.0, 0.0, -m_*kGravity);
-  f_lin += fg_W;
+  // moved gravity to bounds, as this is constant and would mess up SNOPT
+  // static const Vector3d fg_W(0.0, 0.0, -m_*kGravity);
+  // f_lin += fg_W;
 
   BaseAcc acc;
   acc.segment(AX, 3) = I_inv_*ang;
-  acc.segment(LX, 3) = 1./m_  *f_lin;
+  acc.segment(LX, 3) = 1./m_ *f_lin;
 
   return acc;
-}
-
-JacobianRow
-CentroidalModel::GetJacobianOfAccWrtBase (const BaseMotion& base, double t,
-                                          Coords6D dim) const
-{
-  Jacobian jac_6d = GetJacobianOfAccWrtBase1(base, t);
-
-  return jac_6d.row(dim);
-}
-
-JacobianRow
-CentroidalModel::GetJacobianofAccWrtLoad (const EndeffectorsForce& ee_force,
-                                          double t,
-                                          EndeffectorID ee,
-                                          Coords6D dim) const
-{
-  Jacobian jac_6d = GetJacobianofAccWrtLoad1(ee_force, t, ee);
-
-  return jac_6d.row(dim);
-}
-
-JacobianRow
-CentroidalModel::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion,
-                                           double t,
-                                           EndeffectorID ee,
-                                           Coords6D dim) const
-{
-  // zmp_ eliminate this function
-  Jacobian jac_6d = GetJacobianofAccWrtEEPos1(ee_motion, t, ee);
-  return jac_6d.row(dim);
 }
 
 Jacobian

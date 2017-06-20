@@ -23,29 +23,14 @@ public:
 
   virtual BaseAcc GetBaseAcceleration() const override;
 
-  // zmp_ remove these
-  virtual JacobianRow GetJacobianOfAccWrtBase(const BaseMotion&,
-                                              double t_global,
-                                              Coords6D dim) const override;
-
-
-  virtual JacobianRow GetJacobianofAccWrtLoad(const EndeffectorsForce&,
-                                              double t_global,
-                                              EndeffectorID,
-                                              Coords6D dim) const override;
-
-  virtual JacobianRow GetJacobianofAccWrtEEPos(const EndeffectorsMotion&,
-                                               double t_global,
-                                               EndeffectorID,
-                                               Coords6D dim) const override;
-
-  virtual Jacobian GetJacobianOfAccWrtBase1(const BaseMotion&, double t_global) const override;
+  virtual Jacobian GetJacobianOfAccWrtBase1(const BaseMotion&,
+                                            double t_global) const override;
   virtual Jacobian GetJacobianofAccWrtLoad1(const EndeffectorsForce&,
-                                   double t_global,
-                                   EndeffectorID) const override;
-  virtual Jacobian GetJacobianofAccWrtEEPos1(const EndeffectorsMotion&, double t_global,
-                                    EndeffectorID) const override;
-
+                                            double t_global,
+                                            EndeffectorID) const override;
+  virtual Jacobian GetJacobianofAccWrtEEPos1(const EndeffectorsMotion&,
+                                             double t_global,
+                                             EndeffectorID) const override;
 private:
   double m_;          /// mass of robot
   Eigen::Matrix3d I_; /// inertia tensor of robot

@@ -75,11 +75,7 @@ EEForce::SetValues (const VectorXd& x)
 VecBound
 EEForce::GetBounds () const
 {
-  VecBound bounds;//(GetRows());
-  // zmp_ remove
-  // first treat all legs as if they were in contact
-//  bounds.assign(GetRows(),Bound(min_load_, max_load_));
-
+  VecBound bounds;
 
   for (int node=0; node<GetRows()/kDim3d; ++node) {
     bounds.push_back(Bound(-max_load_, max_load_)); // X

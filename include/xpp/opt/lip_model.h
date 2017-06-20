@@ -43,23 +43,6 @@ public:
   virtual Jacobian GetJacobianofAccWrtEEPos1(const EndeffectorsMotion&, double t_global,
                                     EndeffectorID) const override;
 
-
-
-  virtual JacobianRow GetJacobianOfAccWrtBase(const BaseMotion&,
-                                              double t_global,
-                                              Coords6D dim) const override;
-
-
-  virtual JacobianRow GetJacobianofAccWrtLoad(const EndeffectorsForce&,
-                                              double t_global,
-                                              EndeffectorID,
-                                              Coords6D dim) const override;
-
-  virtual JacobianRow GetJacobianofAccWrtEEPos(const EndeffectorsMotion&,
-                                               double t_global,
-                                               EndeffectorID,
-                                               Coords6D dim) const override;
-
 private:
   const double h_ = 0.58;
   const double m_ = 80; /// mass of robot

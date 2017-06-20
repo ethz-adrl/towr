@@ -37,24 +37,10 @@ LIPModel::GetLinearAcceleration () const
   Cop u = CalculateCop();
   ComLinAcc acc_com;
   acc_com.topRows<kDim2d>() = kGravity/h_*(com_pos_.topRows<kDim2d>()- u); // inverted pendulum
-  //zmp_ take gravity out, as this is constant and messes up SNOPT
-  acc_com.z()               = 1./m_*GetLoadSum() - kGravity;
+  // moved gravity to bounds, as this is constant and would mess up SNOPT
+  acc_com.z()               = 1./m_*GetLoadSum();// - kGravity;
 
   return acc_com;
-}
-
-JacobianRow
-LIPModel::GetJacobianOfAccWrtBase (
-    const BaseMotion& com_motion, double t, Coords6D dim) const
-{
-  JacobianRow jac_wrt_com(com_motion.GetRows());
-
-  if (dim == LX || dim == LY) {
-    JacobianRow com_jac     = com_motion.GetJacobian(t, kPos, dim);
-    jac_wrt_com = kGravity/h_*com_jac;
-  }
-
-  return jac_wrt_com;
 }
 
 
@@ -95,38 +81,6 @@ LIPModel::GetJacobianofAccWrtEEPos1 (const EndeffectorsMotion& ee_motion, double
   for (auto dim : {LX, LY}) {
     double deriv_ee = GetDerivativeOfAccWrtEEPos(ee, To3D(dim));
     jac.row(dim) = deriv_ee* ee_motion.GetJacobianPos(t_global, ee, To2D(dim));
-  }
-
-  return jac;
-}
-
-
-JacobianRow
-LIPModel::GetJacobianofAccWrtLoad (const EndeffectorsForce& ee_force,
-                                                 double t,
-                                                 EndeffectorID ee,
-                                                 Coords6D dim) const
-{
-  JacobianRow jac(ee_force.GetRows());
-  // every dimension of dynamic model depends on z force
-  if (dim == LX || dim == LY || dim == LZ)
-    jac = GetDerivativeOfAccWrtLoad(ee, To3D(dim))*ee_force.GetJacobian(t, ee, Z);
-
-  return jac;
-}
-
-JacobianRow
-LIPModel::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion,
-                                                  double t_global,
-                                                  EndeffectorID ee,
-                                                  Coords6D dim) const
-{
-  JacobianRow jac(ee_motion.GetRows());
-
-  // no dependency of CoM acceleration on height of footholds yet
-  if (dim == LX || dim == LY) {
-    double deriv_ee = GetDerivativeOfAccWrtEEPos(ee, To3D(dim));
-    jac = deriv_ee* ee_motion.GetJacobianPos(t_global, ee, To2D(dim));
   }
 
   return jac;

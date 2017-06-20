@@ -210,13 +210,25 @@ Pace::Pace()
   contact_timings_ =
   {
       0.3,
-      0.3, 0.3, 0.3, 0.3,
+      0.3,
+      0.2, // jump
+      0.3,
+      0.2, // jump
+      0.3,
+      0.2, // jump
+      0.3,
       0.3
   };
   contact_sequence_ =
   {
       II_,
-      PP_, bb_, PP_, bb_, // pace
+      PP_,
+      BB_, // jump
+      bb_,
+      BB_, // jump
+      PP_,
+      BB_, // jump
+      bb_,
       II_,
   };
 
@@ -236,61 +248,89 @@ Pace::Pace()
 
 Bound::Bound()
 {
-  max_dev_xy_ = {0.25, 0.21, 0.01};
+  max_dev_xy_ = {0.25, 0.21, 0.1};
   id_ = opt::BoundID;
 
-  contact_timings_ =
-  {
-      0.8,
-      0.4, 0.3, 0.4, 0.3,
-      0.4, 0.3, 0.4, 0.3,
-      0.4, 0.3, 0.4, 0.3,
-      0.3
-  };
-  /*
+
   // sequence for normal bound
   contact_sequence_ =
   {
       II_,
-      BI_, IB_, BI_, IB_, // bound
+      BI_, IB_,
+      BB_, // jump
+      BI_, IB_,
+      BB_, // jump
+      BI_, IB_,
       II_
   };
 
-
-
-
-
-    // sequence 3-1
-  contact_sequence_ =
+  contact_timings_ =
   {
-      II_,
-      BP_, Ib_, BP_, Ib_,
-      BP_, Ib_, BP_, Ib_,
-      BP_, Ib_, BP_, Ib_,
-      II_
+      0.8,
+      0.4, 0.3,
+      0.2, // jump
+      0.4, 0.3,
+      0.2, // jump
+      0.4, 0.3,
+      0.3
   };
 
+//  // sequence for normal bound
+//  contact_sequence_ =
+//  {
+//      II_,
+//      BB_,
+//      II_,
+//      BB_,
+//      II_,
+//      BB_,
+//      II_
+//  };
+//
+//  contact_timings_ =
+//  {
+//      0.3,
+//      0.3,
+//      0.3,
+//      0.3,
+//      0.3,
+//      0.3,
+//      0.3
+//  };
 
-  // sequence for limping, keeping left hind up all the time
-  contact_sequence_ =
-  {
-      II_,
-      Bb_, bP_, Bb_, bP_, // right hind leg stationary
-      Bb_, bP_, Bb_, bP_, // right hind leg stationary
-      Bb_, bP_, Bb_, bP_, // right hind leg stationary
-      II_
-  };
-  */
 
-  // biped walk
-  contact_sequence_ =
-  {
-      II_,
-      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
-      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
-      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
-      II_
-  };
+
+//    // sequence 3-1
+//  contact_sequence_ =
+//  {
+//      II_,
+//      BP_, Ib_, BP_, Ib_,
+//      BP_, Ib_, BP_, Ib_,
+//      BP_, Ib_, BP_, Ib_,
+//      II_
+//  };
+//
+//
+//  // sequence for limping, keeping left hind up all the time
+//  contact_sequence_ =
+//  {
+//      II_,
+//      Bb_, bP_, Bb_, bP_, // right hind leg stationary
+//      Bb_, bP_, Bb_, bP_, // right hind leg stationary
+//      Bb_, bP_, Bb_, bP_, // right hind leg stationary
+//      II_
+//  };
+//
+//
+//  // biped walk
+//  contact_sequence_ =
+//  {
+//      II_,
+//      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
+//      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
+//      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
+//      II_
+//  };
 
 
 

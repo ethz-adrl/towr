@@ -26,8 +26,8 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double dt)
     :TimeDiscretizationConstraint(T, dt, opt_vars)
 {
-//  model_ = std::make_shared<CentroidalModel>();
-  model_ = std::make_shared<LIPModel>();
+  model_ = std::make_shared<CentroidalModel>();
+//  model_ = std::make_shared<LIPModel>();
 
   SetName("DynamicConstraint");
   base_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
@@ -65,8 +65,12 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 void
 DynamicConstraint::UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const
 {
-  for (auto dim : AllDim6D)
-    bounds.at(GetRow(k,dim)) = kEqualityBound_;
+  for (auto dim : AllDim6D) {
+    if (dim == LZ)
+      bounds.at(GetRow(k,dim)) = Bound(kGravity, kGravity);
+    else
+      bounds.at(GetRow(k,dim)) = kEqualityBound_;
+  }
 }
 
 void

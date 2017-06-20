@@ -45,29 +45,14 @@ public:
 
   virtual BaseAcc GetBaseAcceleration() const = 0;
 
-  // zmp_ remove these
-  virtual JacobianRow GetJacobianOfAccWrtBase(const BaseMotion&,
-                                              double t,
-                                              Coords6D dim) const = 0;
-
-  virtual JacobianRow GetJacobianofAccWrtLoad(const EndeffectorsForce&,
-                                              double t,
-                                              EndeffectorID,
-                                              Coords6D dim) const = 0;
-
-  virtual JacobianRow GetJacobianofAccWrtEEPos(const EndeffectorsMotion&,
-                                               double t,
-                                               EndeffectorID,
-                                               Coords6D dim) const = 0;
-
-
-  virtual Jacobian GetJacobianOfAccWrtBase1(const BaseMotion&, double t_global) const {};
+  virtual Jacobian GetJacobianOfAccWrtBase1(const BaseMotion&,
+                                            double t_global) const = 0;
   virtual Jacobian GetJacobianofAccWrtLoad1(const EndeffectorsForce&,
-                                   double t_global,
-                                   EndeffectorID) const {};
-  virtual Jacobian GetJacobianofAccWrtEEPos1(const EndeffectorsMotion&, double t_global,
-                                    EndeffectorID) const {};
-
+                                            double t_global,
+                                            EndeffectorID) const = 0;
+  virtual Jacobian GetJacobianofAccWrtEEPos1(const EndeffectorsMotion&,
+                                             double t_global,
+                                             EndeffectorID) const = 0;
 
 
   std::vector<EndeffectorID> GetEEIDs() const;
