@@ -22,14 +22,14 @@ hessian_approximation limited-memory
 
 #fixed_variable_treatment relax-bounds
 
-tol 0.001   # usually 0.01
+tol 0.01   # usually 0.01
 #constr_viol_tol 1e-3
 #dual_inf_tol 1e10
 #compl_inf_tol 1e10
 
 
 #bound_relax_factor 0.01
-max_cpu_time 25.1  
+max_cpu_time 16.1  
 #max_iter 0
 #bound_frac 0.5
 

@@ -47,8 +47,7 @@ private:
   VecPolynomials polynomials_;
   std::deque<bool> is_in_contact_;
 
-  const double max_load_ = 2000.0;
-  const double min_load_ = 50.0;
+  const double max_load_ = 5000.0;
 
   int Index(double t_global, Polynomial::PointType p, Coords3D dim) const;
   std::vector<Coords3D> dim_ = {X, Y, Z};
