@@ -48,10 +48,19 @@ BaseMotion::GetTotalTime () const
 BaseMotion::JacobianRow
 BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt, Coords6D dim) const
 {
-  JacobianRow jac(GetRows());
+  return GetJacobian(t_global, dxdt).row(dim);
+}
 
-  if (LX==dim || dim==LY || dim==LZ)
-    jac = com_spline_->GetJacobian(t_global, dxdt, To3D(dim));
+Jacobian
+BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt) const
+{
+  Jacobian jac(kDim6d,GetRows());
+
+  // linear part
+  for (auto d : {LX, LY, LZ})
+    jac.row(d) = com_spline_->GetJacobian(t_global, dxdt, To3D(d));
+
+  // angular part zero
 
   return jac;
 }

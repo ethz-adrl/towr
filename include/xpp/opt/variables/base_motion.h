@@ -42,6 +42,7 @@ public:
     * @param dim which motion dimension (x,y) the jacobian represents.
     */
   JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords6D dim) const;
+  Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const;
 
   State3d GetBase(double t_global) const;
   StateLin3d GetCom(double t_global) const;

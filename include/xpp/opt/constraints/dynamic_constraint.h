@@ -38,7 +38,7 @@ public:
   virtual ~DynamicConstraint ();
 
 private:
-  BaseMotionPtr com_motion_;
+  BaseMotionPtr base_motion_;
   EEMotionPtr ee_motion_;
   EELoadPtr ee_load_;
 

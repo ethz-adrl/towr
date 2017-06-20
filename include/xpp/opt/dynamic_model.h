@@ -45,6 +45,7 @@ public:
 
   virtual BaseAcc GetBaseAcceleration() const = 0;
 
+  // zmp_ remove these
   virtual JacobianRow GetJacobianOfAccWrtBase(const BaseMotion&,
                                               double t,
                                               Coords6D dim) const = 0;

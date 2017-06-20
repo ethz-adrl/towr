@@ -23,6 +23,7 @@ public:
 
   virtual BaseAcc GetBaseAcceleration() const override;
 
+  // zmp_ remove these
   virtual JacobianRow GetJacobianOfAccWrtBase(const BaseMotion&,
                                               double t_global,
                                               Coords6D dim) const override;

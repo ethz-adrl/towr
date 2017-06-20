@@ -26,11 +26,11 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double dt)
     :TimeDiscretizationConstraint(T, dt, opt_vars)
 {
-  model_ = std::make_shared<CentroidalModel>();
-//  model_ = std::make_shared<LIPModel>();
+//  model_ = std::make_shared<CentroidalModel>();
+  model_ = std::make_shared<LIPModel>();
 
   SetName("DynamicConstraint");
-  com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
+  base_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
   ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
   ee_load_    = std::dynamic_pointer_cast<EndeffectorsForce> (opt_vars->GetComponent("endeffector_force"));
 
@@ -56,7 +56,7 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 
   // acceleration base has with current values of optimization variables
   // angular acceleration fixed to zero for now
-  Vector6d acc_parametrization = com_motion_->GetBase(t).Get6dAcc();
+  Vector6d acc_parametrization = base_motion_->GetBase(t).Get6dAcc();
 
   for (auto dim : AllDim6D)
     g(GetRow(k,dim)) = acc_model(dim) - acc_parametrization(dim);
@@ -75,30 +75,28 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 {
   UpdateModel(t);
 
-  for (auto dim : AllDim6D) {
-    int row = GetRow(k,dim);
+  int row = GetRow(k,AX);
 
-    for (auto ee : model_->GetEEIDs()) {
-      if (var_set == ee_load_->GetName())
-        jac.row(row) += model_->GetJacobianofAccWrtLoad(*ee_load_, t, ee, dim);
+  for (auto ee : model_->GetEEIDs()) {
+    if (var_set == ee_load_->GetName())
+      jac.middleRows(row, kDim6d) += model_->GetJacobianofAccWrtLoad1(*ee_load_, t, ee);
 
-      if (var_set == ee_motion_->GetName())
-        jac.row(row) += model_->GetJacobianofAccWrtEEPos(*ee_motion_, t, ee, dim);
-    }
+    if (var_set == ee_motion_->GetName())
+      jac.middleRows(row, kDim6d) += model_->GetJacobianofAccWrtEEPos1(*ee_motion_, t, ee);
+  }
 
-    if (var_set == com_motion_->GetName()) {
-      Jacobian jac_model           = model_->GetJacobianOfAccWrtBase(*com_motion_, t, dim);
-      Jacobian jac_parametrization = com_motion_->GetJacobian(t, kAcc, dim);
+  if (var_set == base_motion_->GetName()) {
+    Jacobian jac_model           = model_->GetJacobianOfAccWrtBase1(*base_motion_, t);
+    Jacobian jac_parametrization = base_motion_->GetJacobian(t, kAcc);
 
-      jac.row(row) = jac_model - jac_parametrization;
-    }
+    jac.middleRows(row, kDim6d) = jac_model - jac_parametrization;
   }
 }
 
 void
 DynamicConstraint::UpdateModel (double t) const
 {
-  auto com     = com_motion_->GetCom(t);
+  auto com     = base_motion_->GetCom(t);
   auto ee_load = ee_load_   ->GetLoadValues(t);
   auto ee_pos  = ee_motion_ ->GetEndeffectors(t).GetPos();
   model_->SetCurrent(com.p_, ee_load, ee_pos);

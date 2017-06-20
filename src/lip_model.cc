@@ -57,6 +57,50 @@ LIPModel::GetJacobianOfAccWrtBase (
   return jac_wrt_com;
 }
 
+
+Jacobian
+LIPModel::GetJacobianOfAccWrtBase1 (const BaseMotion& com_motion, double t) const
+{
+  Jacobian jac_wrt_com(kDim6d, com_motion.GetRows());
+
+  for (auto dim : {LX, LY}) {
+    JacobianRow com_jac     = com_motion.GetJacobian(t, kPos, dim);
+    jac_wrt_com.row(dim) = kGravity/h_*com_jac;
+  }
+
+  return jac_wrt_com;
+}
+
+Jacobian
+LIPModel::GetJacobianofAccWrtLoad1 (const EndeffectorsForce& ee_force, double t,
+                                    EndeffectorID ee) const
+{
+  Jacobian jac(kDim6d, ee_force.GetRows());
+
+  for (auto dim : {LX, LY, LZ}) {
+    double da_df = GetDerivativeOfAccWrtLoad(ee, To3D(dim));
+    jac.row(dim) = da_df*ee_force.GetJacobian(t, ee, Z);
+  }
+
+  return jac;
+}
+
+Jacobian
+LIPModel::GetJacobianofAccWrtEEPos1 (const EndeffectorsMotion& ee_motion, double t_global,
+                                     EndeffectorID ee) const
+{
+  Jacobian jac(kDim6d, ee_motion.GetRows());
+
+  // no dependency of CoM acceleration on height of footholds yet
+  for (auto dim : {LX, LY}) {
+    double deriv_ee = GetDerivativeOfAccWrtEEPos(ee, To3D(dim));
+    jac.row(dim) = deriv_ee* ee_motion.GetJacobianPos(t_global, ee, To2D(dim));
+  }
+
+  return jac;
+}
+
+
 JacobianRow
 LIPModel::GetJacobianofAccWrtLoad (const EndeffectorsForce& ee_force,
                                                  double t,
