@@ -68,12 +68,14 @@ MotionOptimizerFacade::BuildVariables ()
   double T = motion_parameters_->GetTotalTime();
 
   auto com_motion = std::make_shared<ComSpline>();
-  com_motion->Init(T, motion_parameters_->duration_polynomial_);
+  com_motion->Init(T, motion_parameters_->duration_polynomial_, start_geom_.GetBase().lin);
   auto base_motion = std::make_shared<BaseMotion>(com_motion);
 //  base_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
   auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
                                                    *contact_schedule);
+
+  std::cout << "load values: " << force->GetLoadValues(0.0) << std::endl;
 
   opt_variables_->ClearComponents();
   opt_variables_->AddComponent(base_motion);

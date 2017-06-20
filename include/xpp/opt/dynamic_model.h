@@ -62,9 +62,11 @@ public:
   std::vector<EndeffectorID> GetEEIDs() const;
 
 protected:
-  ComPos pos_;
+  ComPos com_pos_;
   EELoad ee_load_;
   EEPos ee_pos_;
+
+
 };
 
 } /* namespace opt */

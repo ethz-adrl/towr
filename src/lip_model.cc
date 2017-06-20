@@ -36,7 +36,7 @@ LIPModel::GetLinearAcceleration () const
 {
   Cop u = CalculateCop();
   ComLinAcc acc_com;
-  acc_com.topRows<kDim2d>() = kGravity/h_*(pos_.topRows<kDim2d>()- u); // inverted pendulum
+  acc_com.topRows<kDim2d>() = kGravity/h_*(com_pos_.topRows<kDim2d>()- u); // inverted pendulum
   //zmp_ take gravity out, as this is constant and messes up SNOPT
   acc_com.z()               = 1./m_*GetLoadSum() - kGravity;
 

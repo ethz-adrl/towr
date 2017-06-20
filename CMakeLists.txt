@@ -123,6 +123,7 @@ if(BUILD_TESTS)
                         test/dynamic_constraint_test.cc
                         test/endeffectors_test.cc
                         test/contact_schedule_test.cc
+                        test/centroidal_dynamics_test.cc
                         )
                
     add_executable(googleTest ${MY_GTEST_UNITS})

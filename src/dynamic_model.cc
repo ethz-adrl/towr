@@ -25,7 +25,7 @@ void
 DynamicModel::SetCurrent (const ComPos& com_pos, const EELoad& ee_load,
                           const EEPos& ee_pos)
 {
-  pos_     = com_pos;
+  com_pos_ = com_pos;
   ee_load_ = ee_load;
   ee_pos_  = ee_pos;
 }

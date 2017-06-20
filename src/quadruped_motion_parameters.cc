@@ -28,25 +28,12 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   // due to acceleration continuity constraint.
   n_constraints_per_poly_ = 2;
 
-
-
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
 //  offset_geom_to_com_ << -0.03, 0.02, 0.0;
 //  offset_geom_to_com_ << 0,0,0;
-  max_dev_xy_ = {0.2, 0.2, 0.1};
+//  max_dev_xy_ = {0.2, 0.2, 0.1};
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
 
-
-  constraints_ = { InitCom,
-                   FinalCom,
-                   JunctionCom,
-                   Dynamic,
-                   Stance,
-                   RomBox, // usually enforced as soft-constraint/cost
-  };
-
-//  cost_weights_[RangOfMotionCostID] = 1.0;
-//  cost_weights_[ComCostID]          = 1.0;
 
   const double x_nominal_b = 0.28; //34
   const double y_nominal_b = 0.28;
@@ -116,54 +103,54 @@ QuadrupedMotionParameters::MakeMotion (opt::MotionTypeID id)
 
 Walk::Walk()
 {
-//  max_dev_xy_ = {0.15, 0.15, 0.1};
+  max_dev_xy_ = {0.15, 0.15, 0.1};
   id_ = opt::WalkID;
 
-  double t_phase = 0.3;
-  double t_trans = 0.1;
-  contact_timings_ =
-  {
-      0.3,
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      0.2,
-  };
-  contact_sequence_ =
-  {
-      II_,
-      PI_, PP_, IP_, bI_, bb_, Ib_,
-      PI_, PP_, IP_, bI_, bb_, Ib_,
-//      PI_, PP_, IP_, bI_, bb_, Ib_,
-      II_,
-  };
-
-
-//  double t_step = 0.4;
+//  double t_phase = 0.3;
+//  double t_trans = 0.1;
 //  contact_timings_ =
 //  {
-//      0.4,
-//      t_step, t_step,t_step,t_step,
-//      t_step, t_step,t_step,t_step,
+//      0.3,
+//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+////      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
 //      0.2,
 //  };
-//
 //  contact_sequence_ =
 //  {
 //      II_,
-//      PI_, IP_, bI_, Ib_,
-//      PI_, IP_, bI_, Ib_,
+//      PI_, PP_, IP_, bI_, bb_, Ib_,
+//      PI_, PP_, IP_, bI_, bb_, Ib_,
+////      PI_, PP_, IP_, bI_, bb_, Ib_,
 //      II_,
 //  };
 
 
-//  constraints_ = { InitCom,
-//                   FinalCom,
-//                   JunctionCom,
-//                   Dynamic,
-////                   RomBox,
-//                   Stance,
-//  };
+  double t_step = 0.4;
+  contact_timings_ =
+  {
+      0.4,
+      t_step, t_step,t_step,t_step,
+      t_step, t_step,t_step,t_step,
+      0.2,
+  };
+
+  contact_sequence_ =
+  {
+      II_,
+      PI_, IP_, bI_, Ib_,
+      PI_, IP_, bI_, Ib_,
+      II_,
+  };
+
+
+  constraints_ = { InitCom,
+                   FinalCom,
+                   JunctionCom,
+                   Dynamic,
+                   Stance,
+                   RomBox, // usually enforced as soft-constraint/cost
+  };
 //
 //
 //  cost_weights_[ComCostID]          = 1.0;
@@ -174,18 +161,18 @@ Walk::Walk()
 
 Trot::Trot()
 {
-//  max_dev_xy_ = {0.15, 0.15, 0.1};
+  max_dev_xy_ = {0.2, 0.2, 0.1};
   id_ = opt::TrotID;
 
-  double t_phase = 0.31;
+  double t_phase = 0.3;
   double t_trans = 0.1;
 
   contact_timings_ =
   {   0.3,
       t_phase, t_phase, t_phase, t_phase, // trot
-      0.3, // flight_phase
+//      0.3, // flight_phase
 //      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
-      t_phase, t_phase, t_phase, t_phase, // trot
+//      t_phase, t_phase, t_phase, t_phase, // trot
       0.2
   };
 
@@ -193,9 +180,9 @@ Trot::Trot()
   {
       II_,
       bP_, Pb_, bP_, Pb_, // trot
-      BB_, // flight-phase
+//      BB_, // flight-phase
 //      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
-      bP_, Pb_, bP_, Pb_, // trot
+//      bP_, Pb_, bP_, Pb_, // trot
       II_
   };
 
@@ -217,7 +204,7 @@ Trot::Trot()
 
 Pace::Pace()
 {
-//  max_dev_xy_ = {0.20, 0.20, 0.1};
+  max_dev_xy_ = {0.2, 0.2, 0.1};
   id_ = opt::PaceID;
 
   contact_timings_ =
@@ -233,16 +220,14 @@ Pace::Pace()
       II_,
   };
 
-//  constraints_ = { InitCom,
-//                   FinalCom,
-//                   JunctionCom,
-//                   Dynamic,
-////                   RomBox,
-//                   Stance
-//  };
-//
-  constraints_.push_back(RomBox);
-  cost_weights_.clear();
+  constraints_ = { InitCom,
+                   FinalCom,
+                   JunctionCom,
+                   Dynamic,
+                   Stance,
+                   RomBox, // usually enforced as soft-constraint/cost
+  };
+
 //  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[ComCostID]          = 1.0;
 
@@ -310,8 +295,13 @@ Bound::Bound()
 
 
 
-  constraints_.push_back(RomBox);
-  cost_weights_.clear();
+  constraints_ = { InitCom,
+                   FinalCom,
+                   JunctionCom,
+                   Dynamic,
+                   Stance,
+                   RomBox, // usually enforced as soft-constraint/cost
+  };
 
 //  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[ComCostID]          = 1.0;
@@ -320,20 +310,17 @@ Bound::Bound()
 
 PushRecovery::PushRecovery ()
 {
-//  max_dev_xy_ = {0.15, 0.15, 0.1};
+  max_dev_xy_ = {0.2, 0.2, 0.1};
   id_ = opt::PushRecID;
 
   SetContactSequence(0.0, 0.0);
 
-  constraints_.push_back(RomBox);
-  cost_weights_.clear();
-//  cost_weights_[ComCostID] = 1.0;
-
-//  constraints_ = { InitCom,
-//                   Stance,
-//                   JunctionCom,
-//                   Dynamic,
-//  };
+  constraints_ = { InitCom,
+                   Stance,
+                   JunctionCom,
+                   Dynamic,
+                   RomBox,
+  };
 
 //  cost_weights_[ComCostID]          = 1.0;
 //  cost_weights_[RangOfMotionCostID] = 100.0;

@@ -24,13 +24,13 @@ ComSpline::~ComSpline ()
 }
 
 void
-ComSpline::Init (double t_global, double dt)
+ComSpline::Init (double t_global, double dt, const State& com_start)
 {
   double t_left = t_global;
   while (t_left > 0.0) {
     double duration = t_left>dt?  dt : t_left;
     auto p = std::make_shared<QuarticPolynomial>();
-    p->SetBoundary(duration, State(), State());
+    p->SetBoundary(duration, com_start, com_start);
     polynomials_.push_back(p);
     t_left -= dt;
   }

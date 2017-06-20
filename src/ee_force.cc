@@ -30,8 +30,15 @@ EEForce::AddPhase (double T, double dt, bool is_contact)
   int num_nodes = polynomials_.size()+1;
   SetRows(num_nodes*dim_.size());
 
+  VectorXd initial_forces(GetRows());
+  for (int node=0; node<num_nodes; ++node) {
+    initial_forces(kDim3d*node + X) = 0.0;
+    initial_forces(kDim3d*node + Y) = 0.0;
+    initial_forces(kDim3d*node + Z) = 200; // 1/4 of hyq weight
+  }
+
   // initial forces should be different from zero
-  SetValues(min_load_*VectorXd::Ones(GetRows()));
+  SetValues(initial_forces);
 }
 
 VectorXd
@@ -68,9 +75,17 @@ EEForce::SetValues (const VectorXd& x)
 VecBound
 EEForce::GetBounds () const
 {
-  VecBound bounds;
+  VecBound bounds;//(GetRows());
+  // zmp_ remove
   // first treat all legs as if they were in contact
-  bounds.assign(GetRows(),Bound(min_load_, max_load_));
+//  bounds.assign(GetRows(),Bound(min_load_, max_load_));
+
+
+  for (int node=0; node<GetRows()/kDim3d; ++node) {
+    bounds.push_back(Bound(-max_load_, max_load_)); // X
+    bounds.push_back(Bound(-max_load_, max_load_)); // Y
+    bounds.push_back(Bound(0.0, max_load_));        // Z, //unilateral contact forces
+  }
 
   int idx=0;
   for (int s=0; s<polynomials_.size(); ++s) {
@@ -79,8 +94,8 @@ EEForce::GetBounds () const
 
       if (!is_in_contact_.at(s)) {// swing phase
         // forbid contact force at start and end of node
-        bounds.at(idx)             = Bound(0.1, 0.2); // [N]
-        bounds.at(idx+dim_.size()) = Bound(0.1, 0.2); // [N]
+        bounds.at(idx)             = Bound(0.0, 0.0); // [N]
+        bounds.at(idx+dim_.size()) = Bound(0.0, 0.0); // [N]
       }
 
       idx++;

@@ -13,6 +13,7 @@
 #include <xpp/state.h>
 
 #include <xpp/opt/lip_model.h>
+#include <xpp/opt/centroidal_model.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
@@ -25,7 +26,8 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double dt)
     :TimeDiscretizationConstraint(T, dt, opt_vars)
 {
-  model_ = std::make_shared<LIPModel>();
+  model_ = std::make_shared<CentroidalModel>(); //zmp_ not working
+//  model_ = std::make_shared<LIPModel>();
 
   SetName("DynamicConstraint");
   com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));

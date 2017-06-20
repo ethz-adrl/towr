@@ -26,9 +26,9 @@ BaseMotion::GetBase (double t_global) const
 {
   State3d base; // positions and orientations set to zero
 
-  StateLin3d com = GetCom(t_global);
-//  com.p_ -= offset_geom_to_com_;
-  base.lin = com;
+//  StateLin3d com = GetCom(t_global);
+////  com.p_ -= offset_geom_to_com_;
+  base.lin = GetCom(t_global);
 
   return base;
 }
