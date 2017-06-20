@@ -59,6 +59,16 @@ public:
                                                EndeffectorID,
                                                Coords6D dim) const = 0;
 
+
+  virtual Jacobian GetJacobianOfAccWrtBase1(const BaseMotion&, double t_global) const {};
+  virtual Jacobian GetJacobianofAccWrtLoad1(const EndeffectorsForce&,
+                                   double t_global,
+                                   EndeffectorID) const {};
+  virtual Jacobian GetJacobianofAccWrtEEPos1(const EndeffectorsMotion&, double t_global,
+                                    EndeffectorID) const {};
+
+
+
   std::vector<EndeffectorID> GetEEIDs() const;
 
 protected:

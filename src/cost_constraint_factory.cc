@@ -100,6 +100,7 @@ CostConstraintFactory::MakeFinalConstraint () const
 {
 //  auto final_com_state = final_geom_state_;
 //  final_com_state.p_ += params->offset_geom_to_com_;
+
   MatVec lin_eq = spline_eq_.MakeStateConstraint(final_geom_state_,
                                                  params->GetTotalTime(),
                                                  {kPos, kVel, kAcc});
@@ -179,8 +180,8 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeMotionCost(double weight) const
 {
   MotionDerivative dxdt = kAcc;
-  std::array<double,3> weight_xy = {1.0, 1.0, 1.0};
-  Eigen::MatrixXd term = spline_eq_.MakeCostMatrix(weight_xy, dxdt);
+  std::array<double,3> weight_xyz = {1.0, 1.0, 1.0};
+  Eigen::MatrixXd term = spline_eq_.MakeCostMatrix(weight_xyz, dxdt);
 
   MatVec mv(term.rows(), term.cols());
   mv.M = term;

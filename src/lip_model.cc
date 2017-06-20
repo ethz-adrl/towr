@@ -134,7 +134,7 @@ LIPModel::CalculateCop () const
 {
   Cop cop = Cop::Zero();
 
-  double sum = GetLoadSum();
+  double sum = GetLoadSum(); // just in case all forces are zero (flight phase)
 
   for (auto ee : ee_pos_.GetEEsOrdered()) {
     double load_percent = ee_load_.At(ee).z()/sum;
@@ -151,8 +151,9 @@ LIPModel::GetLoadSum () const
   for (Vector3d load : ee_load_.ToImpl())
     sum += load.z();
 
-  assert(sum > 0); // while using inverted pendulum, this must be the case.
+  sum += 1e-5; // just in case all forces are zero (flight phase)
 
+  assert(sum > 0); // while using inverted pendulum, this must be the case.
   return sum;
 }
 

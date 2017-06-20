@@ -46,7 +46,6 @@ CentroidalModel::GetBaseAcceleration () const
 
   BaseAcc acc;
   acc.segment(AX, 3) = I_inv_*ang;
-//  acc.segment(AX, 3).setZero(); // zmp_ for now just testing the linear part
   acc.segment(LX, 3) = 1./m_  *f_lin;
 
   return acc;
@@ -57,11 +56,6 @@ CentroidalModel::GetJacobianOfAccWrtBase (const BaseMotion& base, double t,
                                           Coords6D dim) const
 {
   Jacobian jac_6d = GetJacobianOfAccWrtBase1(base, t);
-
-//  // zmp_ remove these again
-//  if (dim==AX || dim==AY || dim==AZ) {
-//    jac_6d.setZero();
-//  }
 
   return jac_6d.row(dim);
 }
@@ -74,11 +68,6 @@ CentroidalModel::GetJacobianofAccWrtLoad (const EndeffectorsForce& ee_force,
 {
   Jacobian jac_6d = GetJacobianofAccWrtLoad1(ee_force, t, ee);
 
-//  // zmp_ remove these again
-//  if (dim==AX || dim==AY || dim==AZ) {
-//    jac_6d.setZero();
-//  }
-
   return jac_6d.row(dim);
 }
 
@@ -90,12 +79,6 @@ CentroidalModel::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion,
 {
   // zmp_ eliminate this function
   Jacobian jac_6d = GetJacobianofAccWrtEEPos1(ee_motion, t, ee);
-
-//  // zmp_ remove these again
-//  if (dim==AX || dim==AY || dim==AZ) {
-//    jac_6d.setZero();
-//  }
-
   return jac_6d.row(dim);
 }
 

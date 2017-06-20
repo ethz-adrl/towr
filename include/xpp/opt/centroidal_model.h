@@ -38,17 +38,18 @@ public:
                                                EndeffectorID,
                                                Coords6D dim) const override;
 
+  virtual Jacobian GetJacobianOfAccWrtBase1(const BaseMotion&, double t_global) const override;
+  virtual Jacobian GetJacobianofAccWrtLoad1(const EndeffectorsForce&,
+                                   double t_global,
+                                   EndeffectorID) const override;
+  virtual Jacobian GetJacobianofAccWrtEEPos1(const EndeffectorsMotion&, double t_global,
+                                    EndeffectorID) const override;
+
 private:
   double m_;          /// mass of robot
   Eigen::Matrix3d I_; /// inertia tensor of robot
   Eigen::SparseMatrix<double, Eigen::RowMajor> I_inv_;
 
-  Jacobian GetJacobianOfAccWrtBase1(const BaseMotion&, double t_global) const;
-  Jacobian GetJacobianofAccWrtLoad1(const EndeffectorsForce&,
-                                   double t_global,
-                                   EndeffectorID) const;
-  Jacobian GetJacobianofAccWrtEEPos1(const EndeffectorsMotion&, double t_global,
-                                    EndeffectorID) const;
 
   static Jacobian
   BuildCrossProductMatrix(const Vector3d& in)

@@ -26,7 +26,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       double dt)
     :TimeDiscretizationConstraint(T, dt, opt_vars)
 {
-  model_ = std::make_shared<CentroidalModel>(); //zmp_ not working
+  model_ = std::make_shared<CentroidalModel>();
 //  model_ = std::make_shared<LIPModel>();
 
   SetName("DynamicConstraint");
