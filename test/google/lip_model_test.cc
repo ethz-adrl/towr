@@ -5,7 +5,8 @@
 @brief   Brief description
  */
 
-#include <xpp/opt/linear_inverted_pendulum.h>
+#include <xpp/opt/lip_model.h>
+
 #include <gtest/gtest.h>
 
 namespace xpp {
@@ -15,8 +16,8 @@ using Vector2d = Eigen::Vector2d;
 
 TEST(LinearInvertedPendulumTest, GetDerivative)
 {
-  double height = 0.58;
-  LinearInvertedPendulum pendulum(height);
+  double mass = 80;
+  LIPModel pendulum;
   Vector2d pos(0.0, 0.0);
 //  Vector2d vel(1.0, 0.0);
 //  pendulum.SetCurrent(pos, 0.58);

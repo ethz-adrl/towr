@@ -30,6 +30,7 @@ namespace opt {
   */
 class EEMotion : public Component {
 public:
+  using EEPhasePtr       = std::shared_ptr<EEPhaseMotion>;
   using ContactPositions = std::deque<Contact>;
   /** contact at beginning and end of phase (same for stance phase) */
   using PhaseContacts    = std::array<Contact, 2>;
@@ -41,7 +42,6 @@ public:
   void AddPhase(double t, double lift_height, bool is_contact);
 
   StateLin3d GetState(double t_global) const;
-  double GetTotalTime() const;
 
   virtual VectorXd GetValues() const override;
   virtual void SetValues(const VectorXd&) override;
@@ -49,9 +49,7 @@ public:
   JacobianRow GetJacobianPos(double t, d2::Coords dimension) const;
 
 private:
-  int GetPhase(double t_global) const;
   void UpdateSwingMotions();
-  double GetLocalTime(double t_global, int phase) const;
   int Index(int id, d2::Coords dimension) const;
 
   Contact GetLastContact() const;
@@ -59,7 +57,9 @@ private:
   Contact first_contact_;
 
   std::vector<PhaseContacts> phase_contacts_;
-  std::vector<EEPhaseMotion> phase_motion_;
+
+  std::vector<EEPhasePtr> phase_motion_;
+  Spline spline_;
 
 };
 

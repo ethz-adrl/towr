@@ -18,17 +18,19 @@ Polynomials ready to use:
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
+#include "spline.h"
+
 namespace xpp {
 namespace opt {
 
 /** @brief Constructs a polynomial given start and end states.
   */
-class Polynomial {
+class Polynomial : public Segment {
 public:
 
-  // f =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
-  // f =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
-  // f = 20Ft^3 + 12Et^2 + 6Dt   + 2C
+  // x(t) =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
+  // x(t) =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
+  // x(t) = 20Ft^3 + 12Et^2 + 6Dt   + 2C
   enum PolynomialCoeff { A=0, B, C, D, E, F};
   using CoeffVec = std::vector<PolynomialCoeff>;
 
@@ -44,27 +46,31 @@ public:
    * @param start_p desired start position, velocity and acceleration.
    * @param end_p desired goal position, velocity and acceleration.
    */
-  void SetBoundary(double T, const StateLin1d& start, const StateLin1d& end);
+  void SetBoundary(double T, const StateLinXd& start, const StateLinXd& end);
 
   /**
    * @brief Sets the starting point of the spline and the end position.
    * @param dt current spline time.
    * @param point current position at time dt.
    */
-  StateLin1d GetPoint(const double dt) const;
+  StateLinXd GetPoint(const double dt) const;
   double GetDerivativeWrtCoeff(MotionDerivative deriv,
                                PolynomialCoeff coeff,
                                double t) const;
+  virtual double GetDerivativeOfPosWrtPos(double t, PointType p) const { assert(false); };
 
-  double GetCoefficient(PolynomialCoeff coeff) const;
-  void SetCoefficient(PolynomialCoeff coeff, double value);
+  double GetCoefficient(int dim, PolynomialCoeff coeff) const;
+  void SetCoefficient(int dim,   PolynomialCoeff coeff, double value);
 
   CoeffVec GetCoeffIds() const;
   double GetDuration() const;
 
+  void UpdateCoefficients();
+
+  StateLinXd start_, end_;
 protected:
   double duration = 0.0;
-  std::vector< double> coeff_; //!< coefficients of spline
+  std::vector<VectorXd> coeff_; //!< coefficients of spline
   CoeffVec coeff_ids_;
 
 private:
@@ -74,18 +80,33 @@ private:
    * params are the same as @ref getPoint.
    * This is the only function that must be implemented by the child classes.
    */
-  virtual void SetPolynomialCoefficients(double T, const StateLin1d& start_p,
-                                         const StateLin1d& end_p) = 0;
+  virtual void SetPolynomialCoefficients(double T,
+                                         const StateLinXd& start_p,
+                                         const StateLinXd& end_p) = 0;
 };
 
+/** Zero-order hold x(t) = A;
+  */
+class ConstantPolynomial: public Polynomial {
+public:
+  ConstantPolynomial() : Polynomial(0) {};
+  ~ConstantPolynomial() {};
+
+  double GetDerivativeOfPosWrtPos(double t, PointType p) const override;
+
+private:
+  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
+};
 
 class LinearPolynomial : public Polynomial {
 public:
   LinearPolynomial() : Polynomial(1) {};
   ~LinearPolynomial() {};
 
+  double GetDerivativeOfPosWrtPos(double t, PointType p) const override;
+
 private:
-  void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
+  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
 };
 
 /** @brief a polynomial of the form ct^3 + dt^2 + et + f.
@@ -96,11 +117,20 @@ public:
   CubicPolynomial() : Polynomial(3) {};
   ~CubicPolynomial() {};
 
-  // zmp_ move up to base class?
-  double GetDerivativeOfPosWrtPos(double t, PointType p) const;
+  double GetDerivativeOfPosWrtPos(double t, PointType p) const override;
 
 private:
-  void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
+  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
+};
+
+class QuarticPolynomial : public Polynomial {
+public:
+  QuarticPolynomial() : Polynomial(4) {};
+  ~QuarticPolynomial() {};
+
+private:
+  void SetPolynomialCoefficients(double T, const StateLinXd& start,
+                                 const StateLinXd& end);
 };
 
 class QuinticPolynomial : public Polynomial {
@@ -109,18 +139,7 @@ public:
   ~QuinticPolynomial() {};
 
 private:
-  void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
-};
-
-
-class QuarticPolynomial : public Polynomial {
-public:
-  QuarticPolynomial() : Polynomial(4) {};
-  ~QuarticPolynomial() {};
-
-private:
-  void SetPolynomialCoefficients(double T, const StateLin1d& start,
-                                 const StateLin1d& end);
+  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
 };
 
 
@@ -143,10 +162,9 @@ public:
 
 private:
   int n_ = 6;        ///< determines the shape of the swing motion
-  double h_ = 0.03;  ///< proportional to the lift height between contacts
-  void SetPolynomialCoefficients(double T, const StateLin1d& start, const StateLin1d& end);
+  double height_ = 0.03;  ///< proportional to the lift height between contacts
+  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
 };
-/** @} */
 
 } // namespace opt
 } // namespace xpp

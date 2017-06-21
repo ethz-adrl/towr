@@ -104,7 +104,7 @@ public:
     */
   void AddComponent (const ComponentPtr&);
   void ClearComponents();
-  ComponentVec GetComponents() const; // spring_clean_ this should be hidden from user
+  ComponentVec GetComponents() const;
   ComponentPtr GetComponent(std::string name) const;
   int GetComponentCount() const;
 
@@ -124,8 +124,8 @@ private:
 /** @brief An specific constraint implementing the above interface.
   *
   * Classes that derive from this represent the actual "meat".
+  * But somehow also just a Composite of OptimizationVariables.
   */
-// spring_clean_ this is also somehow a composite of opt_vars
 class Primitive : public Component {
 public:
   using OptVarsPtr = std::shared_ptr<Composite>;

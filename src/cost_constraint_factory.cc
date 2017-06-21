@@ -21,7 +21,7 @@
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/foothold_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
-#include <xpp/opt/constraints/polygon_center_constraint.h>
+//#include <xpp/opt/constraints/polygon_center_constraint.h>
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
 #include <xpp/opt/costs/polynomial_cost.h>
 #include <xpp/opt/costs/soft_constraint.h>
@@ -75,7 +75,7 @@ CostConstraintFactory::GetCost(CostName name) const
   switch (name) {
     case ComCostID:          return MakeMotionCost(weight);
     case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint(), weight);
-    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint()   , weight);
+//    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint()   , weight);
     case FinalComCostID:     return ToCost(MakeFinalConstraint()           , weight);
     case FinalStanceCostID:  return ToCost(MakeStancesConstraints()        , weight);
     default: throw std::runtime_error("cost not defined!");
@@ -86,7 +86,6 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeInitialConstraint () const
 {
   auto initial_com_state = initial_geom_state_.GetBase().lin;
-  initial_com_state.p_ += params->offset_geom_to_com_;
   double t = 0.0; // initial time
   MatVec lin_eq = spline_eq_.MakeStateConstraint(initial_com_state,
                                                  t,
@@ -98,8 +97,6 @@ CostConstraintFactory::MakeInitialConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeFinalConstraint () const
 {
-  auto final_com_state = final_geom_state_;
-  final_com_state.p_ += params->offset_geom_to_com_;
   MatVec lin_eq = spline_eq_.MakeStateConstraint(final_geom_state_,
                                                  params->GetTotalTime(),
                                                  {kPos, kVel, kAcc});
@@ -118,10 +115,7 @@ CostConstraintFactory::MakeJunctionConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
-  // enforce at beginning and middle. The end if always enforced
-  // due to acceleration continuity constraint.
-  int n_constraints_per_poly = 2;
-  double dt = params->duration_polynomial_/n_constraints_per_poly;
+  double dt = params->duration_polynomial_/params->n_constraints_per_poly_;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         params->GetTotalTime(),
                                                         dt
@@ -132,7 +126,7 @@ CostConstraintFactory::MakeDynamicConstraint() const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
-  double dt = 0.2;
+  double dt = 0.10;
 
   auto constraint = std::make_shared<RangeOfMotionBox>(
       opt_vars_,
@@ -172,18 +166,18 @@ CostConstraintFactory::MakeStancesConstraints () const
   return stance_constraints;
 }
 
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::MakePolygonCenterConstraint () const
-{
-  return std::make_shared<PolygonCenterConstraint>(opt_vars_);
-}
+//CostConstraintFactory::ConstraintPtr
+//CostConstraintFactory::MakePolygonCenterConstraint () const
+//{
+//  return std::make_shared<PolygonCenterConstraint>(opt_vars_);
+//}
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeMotionCost(double weight) const
 {
   MotionDerivative dxdt = kAcc;
-  std::array<double,3> weight_xy = {1.0, 1.0, 1.0};
-  Eigen::MatrixXd term = spline_eq_.MakeCostMatrix(weight_xy, dxdt);
+  std::array<double,3> weight_xyz = {1.0, 1.0, 1.0};
+  Eigen::MatrixXd term = spline_eq_.MakeCostMatrix(weight_xyz, dxdt);
 
   MatVec mv(term.rows(), term.cols());
   mv.M = term;

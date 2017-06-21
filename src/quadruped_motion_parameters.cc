@@ -22,27 +22,20 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  duration_polynomial_ = 0.1; //s
-  load_dt_ = 0.01;
+  duration_polynomial_    = 0.1; //s 0.05
+  load_dt_                = 0.02;//duration_polynomial_/2.;
+  // enforce at beginning and middle. The end if always enforced
+  // due to acceleration continuity constraint.
+  n_constraints_per_poly_ = 2;
+
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
 //  offset_geom_to_com_ << -0.03, 0.02, 0.0;
-  offset_geom_to_com_ << 0,0,0;
-  max_dev_xy_ = {0.25, 0.1, 0.001};
+//  offset_geom_to_com_ << 0,0,0;
+//  max_dev_xy_ = {0.2, 0.2, 0.1};
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
 
 
-  constraints_ = { InitCom,
-                   FinalCom,
-                   JunctionCom,
-                   Dynamic,
-                   Stance,
-//                   RomBox, // usually enforced as soft-constraint/cost
-  };
-
-  cost_weights_[RangOfMotionCostID] = 100.0;
-  cost_weights_[ComCostID]          = 1.0;
-
-  const double x_nominal_b = 0.28; //34
+  const double x_nominal_b = 0.28;
   const double y_nominal_b = 0.28;
   const double z_nominal_b = -0.58;
   nominal_stance_.SetCount(robot_ee_.size());
@@ -68,6 +61,8 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   BP_.SetCount(robot_ee_.size()); BP_.SetAll(false);
   bB_.SetCount(robot_ee_.size()); bB_.SetAll(false);
   PB_.SetCount(robot_ee_.size()); PB_.SetAll(false);
+  // flight-phase
+  BB_.SetCount(robot_ee_.size()); BB_.SetAll(true);
 
   PI_.At(kMapQuadToOpt.at(LH)) = true;
   bI_.At(kMapQuadToOpt.at(RH)) = true;
@@ -108,65 +103,65 @@ QuadrupedMotionParameters::MakeMotion (opt::MotionTypeID id)
 
 Walk::Walk()
 {
-//  max_dev_xy_ = {0.15, 0.15, 0.1};
+  max_dev_xy_ = {0.15, 0.15, 0.1};
   id_ = opt::WalkID;
 
-  double t_phase = 0.2;
-  double t_trans = 0.1;
-  contact_timings_ =
-  {
-      0.3,
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      0.2,
-  };
-  contact_sequence_ =
-  {
-      II_,
-      PI_, PP_, IP_, bI_, bb_, Ib_,
-      PI_, PP_, IP_, bI_, bb_, Ib_,
-      PI_, PP_, IP_, bI_, bb_, Ib_,
-      II_,
-  };
-
-
-//  double t_step = 0.4;
+//  double t_phase = 0.3;
+//  double t_trans = 0.1;
 //  contact_timings_ =
 //  {
-//      0.4,
-//      t_step, t_step,t_step,t_step,
-//      t_step, t_step,t_step,t_step,
+//      0.3,
+//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+////      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
 //      0.2,
 //  };
-//
 //  contact_sequence_ =
 //  {
 //      II_,
-//      PI_, IP_, bI_, Ib_,
-//      PI_, IP_, bI_, Ib_,
+//      PI_, PP_, IP_, bI_, bb_, Ib_,
+//      PI_, PP_, IP_, bI_, bb_, Ib_,
+////      PI_, PP_, IP_, bI_, bb_, Ib_,
 //      II_,
 //  };
 
 
-//  constraints_ = { InitCom,
-//                   FinalCom,
-//                   JunctionCom,
-//                   Dynamic,
-////                   RomBox,
-//                   Stance,
-//  };
+  double t_step = 0.4;
+  contact_timings_ =
+  {
+      0.4,
+      t_step, t_step,t_step,t_step,
+      t_step, t_step,t_step,t_step,
+      0.2,
+  };
+
+  contact_sequence_ =
+  {
+      II_,
+      PI_, IP_, bI_, Ib_,
+      PI_, IP_, bI_, Ib_,
+      II_,
+  };
+
+
+  constraints_ = { InitCom,
+                   FinalCom,
+                   JunctionCom,
+                   Dynamic,
+                   Stance,
+                   RomBox, // usually enforced as soft-constraint/cost
+  };
 //
 //
-  cost_weights_[ComCostID]          = 1.0;
-  cost_weights_[RangOfMotionCostID] = 100.0;
-  cost_weights_[PolyCenterCostID]   = 1.0;
+//  cost_weights_[ComCostID]          = 1.0;
+//  cost_weights_[RangOfMotionCostID] = 1.0;
+//  cost_weights_[PolyCenterCostID]   = 1.0;
 //  cost_weights_[FinalComCostID] = 1000.0;
 }
 
 Trot::Trot()
 {
-//  max_dev_xy_ = {0.15, 0.15, 0.1};
+  max_dev_xy_ = {0.2, 0.2, 0.1};
   id_ = opt::TrotID;
 
   double t_phase = 0.3;
@@ -175,31 +170,32 @@ Trot::Trot()
   contact_timings_ =
   {   0.3,
       t_phase, t_phase, t_phase, t_phase, // trot
+      0.2, // flight_phase
 //      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
       t_phase, t_phase, t_phase, t_phase, // trot
-      0.2
+      0.3
   };
 
   contact_sequence_ =
   {
       II_,
       bP_, Pb_, bP_, Pb_, // trot
+      BB_, // flight-phase
 //      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
       bP_, Pb_, bP_, Pb_, // trot
       II_
   };
 
 
-//  constraints_ = {
-//                   InitCom,
-//                   FinalCom,
-//                   JunctionCom,
-//                   Dynamic,
-////                   RomBox,
-//                   Stance,
-//                   };
+  constraints_ = { InitCom,
+                   FinalCom,
+                   JunctionCom,
+                   Dynamic,
+                   Stance,
+                   RomBox, // usually enforced as soft-constraint/cost
+  };
 //
-//  cost_weights_[RangOfMotionCostID] = 10.0;
+  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[ComCostID]      = 1.0;
 
 //  cost_weights_[FinalComCostID] = 1.0;
@@ -208,32 +204,42 @@ Trot::Trot()
 
 Pace::Pace()
 {
-//  max_dev_xy_ = {0.20, 0.20, 0.1};
+  max_dev_xy_ = {0.2, 0.2, 0.2};
   id_ = opt::PaceID;
 
   contact_timings_ =
   {
       0.3,
-      0.3, 0.3, 0.3, 0.3,
+      0.3,
+      0.2, // jump
+      0.3,
+      0.2, // jump
+      0.3,
+      0.2, // jump
+      0.3,
       0.3
   };
   contact_sequence_ =
   {
       II_,
-      PP_, bb_, PP_, bb_, // pace
+      PP_,
+      BB_, // jump
+      bb_,
+      BB_, // jump
+      PP_,
+      BB_, // jump
+      bb_,
       II_,
   };
 
-//  constraints_ = { InitCom,
-//                   FinalCom,
-//                   JunctionCom,
-//                   Dynamic,
-////                   RomBox,
-//                   Stance
-//  };
-//
-  constraints_.push_back(RomBox);
-  cost_weights_.clear();
+  constraints_ = { InitCom,
+                   FinalCom,
+                   JunctionCom,
+                   Dynamic,
+                   Stance,
+                   RomBox, // usually enforced as soft-constraint/cost
+  };
+
 //  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[ComCostID]          = 1.0;
 
@@ -242,64 +248,124 @@ Pace::Pace()
 
 Bound::Bound()
 {
-  max_dev_xy_ = {0.25, 0.21, 0.01};
+  max_dev_xy_ = {0.25, 0.21, 0.1};
   id_ = opt::BoundID;
 
-  contact_timings_ =
-  {
-      0.8,
-      0.4, 0.3, 0.4, 0.3,
-      0.4, 0.3, 0.4, 0.3,
-      0.4, 0.3, 0.4, 0.3,
-      0.3
-  };
-  /*
+
   // sequence for normal bound
   contact_sequence_ =
   {
       II_,
-      BI_, IB_, BI_, IB_, // bound
+      BI_,
+      IB_,
+      BB_, // jump
+      BI_,
+      IB_,
+      BB_, // jump
+      BI_,
+      IB_,
       II_
   };
 
-
-
-  // biped walk
-  contact_sequence_ =
+  contact_timings_ =
   {
-      II_,
-      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
-      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
-      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
-      II_
+      0.8,
+      0.4,
+      0.3,
+      0.2, // jump
+      0.4,
+      0.3,
+      0.2, // jump
+      0.4,
+      0.3,
+      0.3
   };
 
+//  // sequence for 4 feet jumps
+//  contact_sequence_ =
+//  {
+//      II_,
+//      BB_,
+//      II_,
+//      BB_,
+//      II_,
+//      BB_,
+//      II_
+//  };
+//
+//  contact_timings_ =
+//  {
+//      0.3,
+//      0.3,
+//      0.3,
+//      0.3,
+//      0.3,
+//      0.3,
+//      0.3
+//  };
 
-  // sequence for limping, keeping left hind up all the time
-  contact_sequence_ =
-  {
-      II_,
-      Bb_, bP_, Bb_, bP_, // right hind leg stationary
-      Bb_, bP_, Bb_, bP_, // right hind leg stationary
-      Bb_, bP_, Bb_, bP_, // right hind leg stationary
-      II_
+
+
+//    // sequence 3-1
+//  contact_sequence_ =
+//  {
+//      II_,
+//      BP_, Ib_, BP_, Ib_,
+//      BP_, Ib_, BP_, Ib_,
+//      BP_, Ib_, BP_, Ib_,
+//      II_
+//  };
+//  contact_timings_ =
+//  {
+//      0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3
+//  };
+
+
+//  // sequence for limping, keeping left hind up all the time
+//  contact_sequence_ =
+//  {
+//      II_,
+//      Bb_, bP_, Bb_, bP_, // right hind leg stationary
+//      Bb_, bP_, Bb_, bP_, // right hind leg stationary
+//      Bb_, bP_, Bb_, bP_, // right hind leg stationary
+//      II_
+//  };
+//
+//
+
+
+//  // biped walk
+//  contact_sequence_ =
+//  {
+//      II_,
+//      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
+//      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
+//      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
+//      II_
+//  };
+//  contact_timings_ =
+//  {
+//      0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3
+//  };
+
+
+
+
+  constraints_ = { InitCom,
+                   FinalCom,
+                   JunctionCom,
+                   Dynamic,
+                   Stance,
+                   RomBox, // usually enforced as soft-constraint/cost
   };
-  */
-
-
-  // sequence 3-1
-  contact_sequence_ =
-  {
-      II_,
-      BP_, Ib_, BP_, Ib_,
-      BP_, Ib_, BP_, Ib_,
-      BP_, Ib_, BP_, Ib_,
-      II_
-  };
-
-
-  constraints_.push_back(RomBox);
-  cost_weights_.clear();
 
 //  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[ComCostID]          = 1.0;
@@ -308,20 +374,17 @@ Bound::Bound()
 
 PushRecovery::PushRecovery ()
 {
-//  max_dev_xy_ = {0.15, 0.15, 0.1};
+  max_dev_xy_ = {0.2, 0.2, 0.1};
   id_ = opt::PushRecID;
 
   SetContactSequence(0.0, 0.0);
 
-  constraints_.push_back(RomBox);
-  cost_weights_.clear();
-//  cost_weights_[ComCostID] = 1.0;
-
-//  constraints_ = { InitCom,
-//                   Stance,
-//                   JunctionCom,
-//                   Dynamic,
-//  };
+  constraints_ = { InitCom,
+                   Stance,
+                   JunctionCom,
+                   Dynamic,
+                   RomBox,
+  };
 
 //  cost_weights_[ComCostID]          = 1.0;
 //  cost_weights_[RangOfMotionCostID] = 100.0;

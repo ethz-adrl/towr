@@ -16,7 +16,7 @@
 #include <xpp/endeffectors.h>
 
 #include <xpp/bound.h>
-#include <xpp/opt/variables/endeffector_load.h>
+#include <xpp/opt/variables/endeffectors_endeffectors_force.h>
 
 namespace xpp {
 namespace opt {

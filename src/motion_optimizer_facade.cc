@@ -20,7 +20,7 @@
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/endeffector_load.h>
+#include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
 #include <xpp/snopt_adapter.h>
 
@@ -40,6 +40,10 @@ void
 MotionOptimizerFacade::BuildDefaultStartStance ()
 {
   State3d base;
+  double offset_x = 0.0;
+  base.lin.p_ << offset_x+0.000350114, -1.44379e-7, 0.573311;
+  base.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
+  base.lin.a_ << 0.000197966, -5.72241e-07, -5.13328e-06;
   base.lin.p_.z() = 0.58;
   EndeffectorsBool contact_state(motion_parameters_->GetEECount());
   contact_state.SetAll(true);
@@ -49,6 +53,7 @@ MotionOptimizerFacade::BuildDefaultStartStance ()
 
   auto ee_start_W = motion_parameters_->GetNominalStanceInBase();
   for (auto ee : ee_start_W.GetEEsOrdered()) {
+    ee_start_W.At(ee) += base.lin.p_;
     ee_start_W.At(ee).z() = 0.0;
   }
   start_geom_.SetEEStateInWorld(kPos, ee_start_W);
@@ -58,26 +63,26 @@ void
 MotionOptimizerFacade::BuildVariables ()
 {
   // initialize the contact schedule
-  auto contact_schedule = std::make_shared<ContactSchedule>(motion_parameters_->GetContactSchedule());
+  auto contact_schedule = std::make_shared<ContactSchedule>(
+      motion_parameters_->GetContactSchedule());
 
   // initialize the ee_motion with the fixed parameters
-  auto ee_motion = std::make_shared<EndeffectorsMotion>(start_geom_.GetEEPos(),*contact_schedule);
+  auto ee_motion = std::make_shared<EndeffectorsMotion>(start_geom_.GetEEPos(),
+                                                        *contact_schedule);
 
   double T = motion_parameters_->GetTotalTime();
 
   auto com_motion = std::make_shared<ComSpline>();
-  com_motion->Init(T, motion_parameters_->duration_polynomial_);
+  com_motion->Init(T, motion_parameters_->duration_polynomial_,
+                   start_geom_.GetBase().lin.p_);
   auto base_motion = std::make_shared<BaseMotion>(com_motion);
-  base_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
-  auto load = std::make_shared<EndeffectorLoad>(motion_parameters_->GetEECount(),
-                                                motion_parameters_->load_dt_, T,
-                                                *contact_schedule);
-
+  auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
+                                                   *contact_schedule);
   opt_variables_->ClearComponents();
   opt_variables_->AddComponent(base_motion);
   opt_variables_->AddComponent(ee_motion);
-  opt_variables_->AddComponent(load);
+  opt_variables_->AddComponent(force);
   opt_variables_->AddComponent(contact_schedule);
 }
 
@@ -123,18 +128,20 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   auto base_motion      = std::dynamic_pointer_cast<BaseMotion>        (opt_variables_->GetComponent("base_motion"));
   auto ee_motion        = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_variables_->GetComponent("endeffectors_motion"));
   auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent("contact_schedule"));
+  auto ee_forces        = std::dynamic_pointer_cast<EndeffectorsForce> (opt_variables_->GetComponent("endeffector_force"));
 
   double t=0.0;
   double T = motion_parameters_->GetTotalTime();
-  while (t<T) {
+  while (t<=T+1e-5) {
 
     RobotStateCartesian state(start_geom_.GetEECount());
     state.SetBase(base_motion->GetBase(t));
 
     state.SetEEStateInWorld(ee_motion->GetEndeffectors(t));
+    state.SetEEForcesInWorld(ee_forces->GetForce(t));
     state.SetContactState(contact_schedule->IsInContact(t));
-    state.SetTime(t);
 
+    state.SetTime(t);
     trajectory.push_back(state);
     t += dt;
   }

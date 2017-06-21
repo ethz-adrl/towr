@@ -38,10 +38,10 @@ EndeffectorsMotion::BuildEndeffectors (const EndeffectorsPos& initial_pos,
     endeffector->SetInitialPos(initial_pos.At(ee), ee);
 
     for (auto phase : contact_schedule.GetPhases(ee)) {
-      auto is_contact = phase.first;
-      auto duration   = phase.second;
+      bool is_contact = phase.first;
+      double duration = phase.second;
 
-      double lift_height = is_contact? 0.0 : 0.03; // 0.03
+      double lift_height = is_contact? 0.0 : 0.04; // 0.03
 
 //      // zmp_ hack to nicely show limping
 //      if (!is_contact && (ee == E2  /*|| ee == E3*/  )) // LH=E0, RF=E3
@@ -102,8 +102,8 @@ EndeffectorsMotion::IndexStart (EndeffectorID ee) const
 {
   int idx = 0;
 
-  for (int e=E0; e<ee; ++e)
-    idx += endeffectors_.at(static_cast<EndeffectorID>(e))->GetRows();
+  for (int i=E0; i<ee; ++i)
+    idx += endeffectors_.at(i)->GetRows();
 
   return idx;
 }

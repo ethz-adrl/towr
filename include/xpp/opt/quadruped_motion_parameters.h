@@ -41,6 +41,8 @@ protected:
   EndeffectorsBool BP_;
   EndeffectorsBool bB_;
   EndeffectorsBool PB_;
+  // flight-phase
+  EndeffectorsBool BB_;
 
 
   void SetContactSequence(double p_overlap_lateral,

@@ -62,7 +62,7 @@ private:
   ConstraintPtr MakeDynamicConstraint() const;
   ConstraintPtr MakeRangeOfMotionBoxConstraint() const;
   ConstraintPtr MakeStancesConstraints() const;
-  ConstraintPtr MakePolygonCenterConstraint() const;
+//  ConstraintPtr MakePolygonCenterConstraint() const;
 
   // costs
   ConstraintPtr MakeMotionCost(double weight) const;

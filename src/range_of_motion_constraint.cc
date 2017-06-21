@@ -98,7 +98,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
       }
 
       if (var_set == com_motion_->GetName())
-        jac.row(row) = -1*com_motion_->GetJacobian(t, kPos, dim);
+        jac.row(row) = -1*com_motion_->GetJacobian(t, kPos, To6D(dim));
     }
   }
 }

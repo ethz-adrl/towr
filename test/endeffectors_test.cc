@@ -27,10 +27,10 @@ TEST(EndeffectorPhaseMotion, Derivatives)
   while (t < T) {
 
     std::cout << "t: " << t << std::endl;
-    std::cout << motion.GetDerivativeOfPosWrtContactsXY(d2::X, t, Polynomial::Start) << "\t";
-    std::cout << motion.GetDerivativeOfPosWrtContactsXY(d2::Y, t, Polynomial::Start) << "\t";
-    std::cout << motion.GetDerivativeOfPosWrtContactsXY(d2::X, t, Polynomial::Goal)  << "\t";
-    std::cout << motion.GetDerivativeOfPosWrtContactsXY(d2::Y, t, Polynomial::Goal)  << "\t";
+    std::cout << motion.GetDerivativeOfPosWrtPos(t, Polynomial::Start) << "\t";
+    std::cout << motion.GetDerivativeOfPosWrtPos(t, Polynomial::Start) << "\t";
+    std::cout << motion.GetDerivativeOfPosWrtPos(t, Polynomial::Goal)  << "\t";
+    std::cout << motion.GetDerivativeOfPosWrtPos(t, Polynomial::Goal)  << "\t";
     std::cout << std::endl;
 
     t += 0.1;
@@ -52,10 +52,10 @@ TEST(EndeffectorMotion, Derivatives)
   while (t < T) {
 
     std::cout << "t: " << t << std::endl;
-    std::cout << motion.GetDerivativeOfPosWrtContactsXY(d2::X, t, Polynomial::Start) << "\t";
-    std::cout << motion.GetDerivativeOfPosWrtContactsXY(d2::Y, t, Polynomial::Start) << "\t";
-    std::cout << motion.GetDerivativeOfPosWrtContactsXY(d2::X, t, Polynomial::Goal)  << "\t";
-    std::cout << motion.GetDerivativeOfPosWrtContactsXY(d2::Y, t, Polynomial::Goal)  << "\t";
+    std::cout << motion.GetDerivativeOfPosWrtPos(t, Polynomial::Start) << "\t";
+    std::cout << motion.GetDerivativeOfPosWrtPos(t, Polynomial::Start) << "\t";
+    std::cout << motion.GetDerivativeOfPosWrtPos(t, Polynomial::Goal)  << "\t";
+    std::cout << motion.GetDerivativeOfPosWrtPos(t, Polynomial::Goal)  << "\t";
     std::cout << std::endl;
 
     t += 0.1;

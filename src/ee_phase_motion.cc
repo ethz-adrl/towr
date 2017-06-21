@@ -6,7 +6,6 @@
  */
 
 #include <xpp/opt/ee_phase_motion.h>
-#include <xpp/opt/polynomial_xd.h>
 
 namespace xpp {
 namespace opt {
@@ -44,25 +43,23 @@ EEPhaseMotion::SetContacts (const Vector3d& start_pos,
   poly_z_.SetBoundary(T_,start_state.GetDimension(Z), end_state.GetDimension(Z));
 }
 
-StateLin3d
-EEPhaseMotion::GetState (double t_local) const
+StateLinXd
+EEPhaseMotion::GetPoint (double t_local) const
 {
-  StateLin1d z  = poly_z_.GetPoint(t_local);
-  StateLin2d xy = poly_xy_.GetPoint(t_local);
+  StateLinXd xy = poly_xy_.GetPoint(t_local);
 
   StateLin3d ee;
   ee.SetDimension(X, xy.GetDimension(X));
   ee.SetDimension(Y, xy.GetDimension(Y));
-  ee.SetDimension(Z, z);
+  ee.SetDimension(Z, poly_z_.GetPoint(t_local));
 
   return ee;
 }
 
 double
-EEPhaseMotion::GetDerivativeOfPosWrtContactsXY (d2::Coords dim, double t_local,
-                                                Polynomial::PointType p) const
+EEPhaseMotion::GetDerivativeOfPosWrtPos (double t_local, Polynomial::PointType p) const
 {
-  return poly_xy_.GetDim(dim).GetDerivativeOfPosWrtPos(t_local, p);
+  return poly_xy_.GetDerivativeOfPosWrtPos(t_local, p);
 }
 
 } /* namespace opt */

@@ -26,9 +26,9 @@ BaseMotion::GetBase (double t_global) const
 {
   State3d base; // positions and orientations set to zero
 
-  StateLin3d com = GetCom(t_global);
-  com.p_ -= offset_geom_to_com_;
-  base.lin = com;
+//  StateLin3d com = GetCom(t_global);
+////  com.p_ -= offset_geom_to_com_;
+  base.lin = GetCom(t_global);
 
   return base;
 }
@@ -46,9 +46,23 @@ BaseMotion::GetTotalTime () const
 }
 
 BaseMotion::JacobianRow
-BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt, Coords3D dim) const
+BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt, Coords6D dim) const
 {
-  return com_spline_->GetJacobian(t_global, dxdt, dim);
+  return GetJacobian(t_global, dxdt).row(dim);
+}
+
+Jacobian
+BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt) const
+{
+  Jacobian jac(kDim6d,GetRows());
+
+  // linear part
+  for (auto d : {LX, LY, LZ})
+    jac.row(d) = com_spline_->GetJacobian(t_global, dxdt, To3D(d));
+
+  // angular part zero
+
+  return jac;
 }
 
 ComSpline
@@ -57,11 +71,11 @@ xpp::opt::BaseMotion::GetComSpline () const
   return *com_spline_;
 }
 
-void
-BaseMotion::SetOffsetGeomToCom (const Vector3d& val)
-{
-  offset_geom_to_com_ = val;
-}
+//void
+//BaseMotion::SetOffsetGeomToCom (const Vector3d& val)
+//{
+//  offset_geom_to_com_ = val;
+//}
 
 } /* namespace opt */
 } /* namespace xpp */

@@ -40,9 +40,10 @@ EEMotion::AddPhase (double t, double lift_height, bool is_contact)
   if (!is_contact)
     c_goal.id++;
 
-  EEPhaseMotion motion;
-  motion.Init(t, lift_height, c_prev.p, c_goal.p);
+  auto motion = std::make_shared<EEPhaseMotion>();
+  motion->Init(t, lift_height, c_prev.p, c_goal.p);
   phase_motion_.push_back(motion);
+  spline_.SetSegmentsPtr(phase_motion_);
 
   PhaseContacts phase{c_prev, c_goal};
   phase_contacts_.push_back(phase);
@@ -50,29 +51,13 @@ EEMotion::AddPhase (double t, double lift_height, bool is_contact)
   // update optimization variable count b/c new phase has been added.
   int n_contact_ids = 1 + c_goal.id;
   SetRows(n_contact_ids*kDim2d);
+
 }
 
 StateLin3d
 EEMotion::GetState (double t_global) const
 {
-  int phase      = GetPhase(t_global);
-  double t_local = GetLocalTime(t_global, phase);
-
-  return phase_motion_.at(phase).GetState(t_local);
-}
-
-int
-EEMotion::GetPhase (double t_global) const
-{
-  double eps = 1e-10; // to ensure that last phases is returned at T
-  double t = 0.0;
-  for (int i=0; i<phase_motion_.size(); ++i) {
-    t += phase_motion_.at(i).GetDuration();
-    if (t+eps >= t_global)
-      return i;
-  }
-
-  assert(false); // t_global is longer than trajectory lasts
+  return spline_.GetPoint(t_global);
 }
 
 VectorXd
@@ -114,15 +99,15 @@ EEMotion::GetJacobianPos (double t_global, d2::Coords dim) const
   JacobianRow jac(GetRows());
 
   // figure out which contacts affect the motion
-  int phase      = GetPhase(t_global);
-  double t_local = GetLocalTime(t_global, phase);
+  int phase      = spline_.GetSegmentID(t_global);
+  double t_local = spline_.GetLocalTime(t_global);
 
   // same id for stance phase
   int idx_start = Index(phase_contacts_.at(phase).front().id, dim);
   int idx_goal  = Index(phase_contacts_.at(phase).back().id, dim);
 
-  jac.insert(idx_start) = phase_motion_.at(phase).GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Start);
-  jac.insert(idx_goal)  = phase_motion_.at(phase).GetDerivativeOfPosWrtContactsXY(dim, t_local, Polynomial::Goal);
+  jac.insert(idx_start) = phase_motion_.at(phase)->GetDerivativeOfPosWrtPos(t_local, Polynomial::Start);
+  jac.insert(idx_goal)  = phase_motion_.at(phase)->GetDerivativeOfPosWrtPos(t_local, Polynomial::Goal);
 
   if (idx_start == idx_goal)// in contact phase // zmp_ ugly
     jac.insert(idx_start) = 1.0;
@@ -142,29 +127,9 @@ EEMotion::UpdateSwingMotions ()
   int phase = 0;
   for (auto& motion : phase_motion_) {
     auto contacts = phase_contacts_.at(phase);
-    motion.SetContacts(contacts.front().p, contacts.back().p);
+    motion->SetContacts(contacts.front().p, contacts.back().p);
     phase++;
   }
-}
-
-double
-EEMotion::GetTotalTime () const
-{
-  double T = 0.0;
-  for (auto p : phase_motion_)
-    T += p.GetDuration();
-
-  return T;
-}
-
-double
-EEMotion::GetLocalTime (double t_global, int phase) const
-{
-  double t_local = t_global;
-  for (int i=0; i<phase; ++i)
-    t_local -= phase_motion_.at(i).GetDuration();
-
-  return t_local;
 }
 
 Contact

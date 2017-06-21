@@ -14,12 +14,15 @@ namespace opt {
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
                                                             const OptVarsPtr& opt_vars)
 {
-  dts_.clear();
   double t = 0.0;
+  dts_ = {t};
+
   for (int i=0; i<floor(T/dt); ++i) {
-    dts_.push_back(t);
     t += dt;
+    dts_.push_back(t);
   }
+
+  dts_.push_back(T); // also ensure constraints at very last node/time.
 
   AddComposite(opt_vars);
 }

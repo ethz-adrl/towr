@@ -63,11 +63,11 @@ void
 ComSpline4::SetSplineXYCoefficients(const VectorXd& optimized_coeff)
 {
   CheckIfSplinesInitialized();
-  assert(polynomials_.size() == GetRows()/kDim2d/4.0);
+  assert(spline_.size() == GetRows()/kDim2d/4.0);
 
   Vector2d prev_pos = start_cog_p_;
 
-  for (size_t k=0; k<polynomials_.size(); ++k) {
+  for (size_t k=0; k<spline_.size(); ++k) {
     for (auto dim : {X,Y}) {
       double cv[ComPolynomial::GetNumCoeff()];
 
@@ -88,7 +88,7 @@ ComSpline4::SetSplineXYCoefficients(const VectorXd& optimized_coeff)
         // the value of the coefficients e and f for each spline comes from
         // a linear approximation around (a,b,c,d,a,...)=0 plus the initial
         // value of e and f for each spline k.
-        double Tprev  = polynomials_.at(k-1).GetDuration();
+        double Tprev  = spline_.at(k-1).GetDuration();
         prev_pos[dim] += start_cog_v_[dim]*Tprev;
 
         cv[Polynomial::PolynomialCoeff::E] = (jac_e*optimized_coeff)[0] + start_cog_v_[dim];
@@ -96,7 +96,7 @@ ComSpline4::SetSplineXYCoefficients(const VectorXd& optimized_coeff)
       }
 
       for (auto c : Polynomial::kAllSplineCoeff) {
-        polynomials_.at(k).SetCoefficients(dim, c, cv[c]);
+        spline_.at(k).SetCoefficients(dim, c, cv[c]);
       }
 
     } // dim:X..Y
@@ -167,9 +167,9 @@ ComSpline4::GetJacobianF(int spline_id_k, Coords3D dim) const
 ComSpline4::JacobianEFWrtABCD
 ComSpline4::CalcJacobianEWrtABCD (Coords3D dim) const
 {
-  JacobianEFWrtABCD jac(polynomials_.size(), GetRows());
+  JacobianEFWrtABCD jac(spline_.size(), GetRows());
 
-  for (uint k=1; k<polynomials_.size(); ++k)
+  for (uint k=1; k<spline_.size(); ++k)
   {
     int kprev = k-1;
 
@@ -177,7 +177,7 @@ ComSpline4::CalcJacobianEWrtABCD (Coords3D dim) const
     jac.row(k) = jac.row(kprev);
 
     // velocity change over previous spline due to a,b,c,d
-    double Tkprev = polynomials_.at(kprev).GetDuration();
+    double Tkprev = spline_.at(kprev).GetDuration();
     jac.coeffRef(k, Index(kprev,dim,Polynomial::PolynomialCoeff::A)) += 5*std::pow(Tkprev,4);
     jac.coeffRef(k, Index(kprev,dim,Polynomial::PolynomialCoeff::B)) += 4*std::pow(Tkprev,3);
     jac.coeffRef(k, Index(kprev,dim,Polynomial::PolynomialCoeff::C)) += 3*std::pow(Tkprev,2);
@@ -190,16 +190,16 @@ ComSpline4::CalcJacobianEWrtABCD (Coords3D dim) const
 ComSpline4::JacobianEFWrtABCD
 ComSpline4::CalcJacobianFWrtABCD (Coords3D dim) const
 {
-  JacobianEFWrtABCD jac(polynomials_.size(), GetRows());
+  JacobianEFWrtABCD jac(spline_.size(), GetRows());
   JacobianEFWrtABCD jac_e = CalcJacobianEWrtABCD(dim);
 
-  for (uint k=1; k<polynomials_.size(); ++k)
+  for (uint k=1; k<spline_.size(); ++k)
   {
     int kprev = k-1;
     // position at start of previous spline (=f_prev)
     jac.row(k) = jac.row(kprev);
 
-    double Tkprev = polynomials_.at(kprev).GetDuration();
+    double Tkprev = spline_.at(kprev).GetDuration();
 
     // position change over previous spline due to a,b,c,d
     jac.coeffRef(k, Index(kprev,dim,Polynomial::PolynomialCoeff::A)) += std::pow(Tkprev,5);
@@ -216,8 +216,8 @@ ComSpline4::CalcJacobianFWrtABCD (Coords3D dim) const
 void
 ComSpline4::SetEndAtStart ()
 {
-  const Vector2d& start_com_v = polynomials_.front().GetState(kVel,0.0);
-  double T = polynomials_.front().GetDuration();
+  const Vector2d& start_com_v = spline_.front().GetState(kVel,0.0);
+  double T = spline_.front().GetDuration();
 
   Eigen::Matrix2d A; A << 3*T*T, 2*T, // velocity equal to zero
                           T*T*T, T*T; // position equal to initial
