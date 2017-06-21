@@ -22,8 +22,8 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  duration_polynomial_    = 0.05; //s 0.05
-  load_dt_                = 0.03;//duration_polynomial_/2.;
+  duration_polynomial_    = 0.1; //s 0.05
+  load_dt_                = 0.02;//duration_polynomial_/2.;
   // enforce at beginning and middle. The end if always enforced
   // due to acceleration continuity constraint.
   n_constraints_per_poly_ = 2;
@@ -161,7 +161,7 @@ Walk::Walk()
 
 Trot::Trot()
 {
-  max_dev_xy_ = {0.2, 0.2, 0.2};
+  max_dev_xy_ = {0.2, 0.2, 0.1};
   id_ = opt::TrotID;
 
   double t_phase = 0.3;
@@ -195,7 +195,7 @@ Trot::Trot()
                    RomBox, // usually enforced as soft-constraint/cost
   };
 //
-//  cost_weights_[RangOfMotionCostID] = 10.0;
+  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[ComCostID]      = 1.0;
 
 //  cost_weights_[FinalComCostID] = 1.0;
@@ -248,7 +248,7 @@ Pace::Pace()
 
 Bound::Bound()
 {
-  max_dev_xy_ = {0.25, 0.21, 0.2};
+  max_dev_xy_ = {0.25, 0.21, 0.1};
   id_ = opt::BoundID;
 
 
@@ -256,26 +256,32 @@ Bound::Bound()
   contact_sequence_ =
   {
       II_,
-      BI_, IB_,
+      BI_,
+      IB_,
       BB_, // jump
-      BI_, IB_,
+      BI_,
+      IB_,
       BB_, // jump
-      BI_, IB_,
+      BI_,
+      IB_,
       II_
   };
 
   contact_timings_ =
   {
       0.8,
-      0.4, 0.3,
+      0.4,
+      0.3,
       0.2, // jump
-      0.4, 0.3,
+      0.4,
+      0.3,
       0.2, // jump
-      0.4, 0.3,
+      0.4,
+      0.3,
       0.3
   };
 
-//  // sequence for normal bound
+//  // sequence for 4 feet jumps
 //  contact_sequence_ =
 //  {
 //      II_,
@@ -309,8 +315,16 @@ Bound::Bound()
 //      BP_, Ib_, BP_, Ib_,
 //      II_
 //  };
-//
-//
+//  contact_timings_ =
+//  {
+//      0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3
+//  };
+
+
 //  // sequence for limping, keeping left hind up all the time
 //  contact_sequence_ =
 //  {
@@ -322,6 +336,8 @@ Bound::Bound()
 //  };
 //
 //
+
+
 //  // biped walk
 //  contact_sequence_ =
 //  {
@@ -330,6 +346,14 @@ Bound::Bound()
 //      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
 //      Bb_, PB_, Bb_, PB_, // left hind and right front stationary
 //      II_
+//  };
+//  contact_timings_ =
+//  {
+//      0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3,0.3,0.3,0.3,
+//      0.3
 //  };
 
 

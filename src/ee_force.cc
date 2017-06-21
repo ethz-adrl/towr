@@ -78,9 +78,9 @@ EEForce::GetBounds () const
   VecBound bounds;
 
   for (int node=0; node<GetRows()/kDim3d; ++node) {
-    bounds.push_back(Bound(-max_load_, max_load_)); // X
-    bounds.push_back(Bound(-max_load_, max_load_)); // Y
-    bounds.push_back(Bound(0.0, max_load_));        // Z, //unilateral contact forces
+    bounds.push_back(Bound(-max_force_, max_force_)); // X
+    bounds.push_back(Bound(-max_force_, max_force_)); // Y
+    bounds.push_back(Bound(0.0, max_force_));        // Z, //unilateral contact forces
   }
 
   int idx=0;

@@ -1,0 +1,7 @@
+Parameters that greatly affect solver behavious:
+
+QuadrupedMotionParameters::duration_polynomial
+QuadrupedMotionParameters::load_dt
+QuadrupedMotionParameters::n_constraints_per_poly
+ee_forces::max_force
+cost_constraint_factory::range_of_motion_dt
