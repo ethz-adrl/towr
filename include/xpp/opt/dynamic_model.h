@@ -45,12 +45,12 @@ public:
 
   virtual BaseAcc GetBaseAcceleration() const = 0;
 
-  virtual Jacobian GetJacobianOfAccWrtBase1(const BaseMotion&,
+  virtual Jacobian GetJacobianOfAccWrtBase(const BaseMotion&,
                                             double t_global) const = 0;
-  virtual Jacobian GetJacobianofAccWrtLoad1(const EndeffectorsForce&,
+  virtual Jacobian GetJacobianofAccWrtForce(const EndeffectorsForce&,
                                             double t_global,
                                             EndeffectorID) const = 0;
-  virtual Jacobian GetJacobianofAccWrtEEPos1(const EndeffectorsMotion&,
+  virtual Jacobian GetJacobianofAccWrtEEPos(const EndeffectorsMotion&,
                                              double t_global,
                                              EndeffectorID) const = 0;
 
@@ -59,7 +59,7 @@ public:
 
 protected:
   ComPos com_pos_;
-  EELoad ee_load_;
+  EELoad ee_force_;
   EEPos ee_pos_;
 
 

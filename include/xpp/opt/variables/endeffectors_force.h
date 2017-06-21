@@ -33,7 +33,7 @@ public:
   EndeffectorsForce(double dt, const ContactSchedule&);
   virtual ~EndeffectorsForce();
 
-  LoadParams GetLoadValues(double t) const;
+  LoadParams GetForce(double t) const;
   JacobianRow GetJacobian (double t, EndeffectorID ee, Coords3D dim) const;
 
 private:

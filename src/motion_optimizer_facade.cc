@@ -70,13 +70,9 @@ MotionOptimizerFacade::BuildVariables ()
   auto com_motion = std::make_shared<ComSpline>();
   com_motion->Init(T, motion_parameters_->duration_polynomial_, start_geom_.GetBase().lin);
   auto base_motion = std::make_shared<BaseMotion>(com_motion);
-//  base_motion->SetOffsetGeomToCom(motion_parameters_->offset_geom_to_com_);
 
   auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
                                                    *contact_schedule);
-
-  std::cout << "load values: " << force->GetLoadValues(0.0) << std::endl;
-
   opt_variables_->ClearComponents();
   opt_variables_->AddComponent(base_motion);
   opt_variables_->AddComponent(ee_motion);
@@ -130,13 +126,13 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 
   double t=0.0;
   double T = motion_parameters_->GetTotalTime();
-  while (t<T) {
+  while (t<=T+1e-5) {
 
     RobotStateCartesian state(start_geom_.GetEECount());
     state.SetBase(base_motion->GetBase(t));
 
     state.SetEEStateInWorld(ee_motion->GetEndeffectors(t));
-    state.SetEEForcesInWorld(ee_forces->GetLoadValues(t));
+    state.SetEEForcesInWorld(ee_forces->GetForce(t));
     state.SetContactState(contact_schedule->IsInContact(t));
 
     state.SetTime(t);

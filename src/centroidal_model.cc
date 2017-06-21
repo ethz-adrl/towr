@@ -35,7 +35,7 @@ CentroidalModel::GetBaseAcceleration () const
   Vector3d f_lin, ang; f_lin.setZero(); ang.setZero();
 
   for (auto ee : ee_pos_.GetEEsOrdered()) {
-    Vector3d f = ee_load_.At(ee);
+    Vector3d f = ee_force_.At(ee);
     ang += f.cross(com_pos_-ee_pos_.At(ee));
     f_lin += f;
   }
@@ -52,7 +52,7 @@ CentroidalModel::GetBaseAcceleration () const
 }
 
 Jacobian
-CentroidalModel::GetJacobianOfAccWrtBase1 (const BaseMotion& base,
+CentroidalModel::GetJacobianOfAccWrtBase (const BaseMotion& base,
                                           double t) const
 {
   // build the com jacobian
@@ -61,7 +61,7 @@ CentroidalModel::GetJacobianOfAccWrtBase1 (const BaseMotion& base,
     com_jac.row(dim) = base.GetJacobian(t, kPos, To6D(dim));
 
   Jacobian jac_ang(kDim3d, base.GetRows());
-  for (const Vector3d& f : ee_load_.ToImpl())
+  for (const Vector3d& f : ee_force_.ToImpl())
     jac_ang += BuildCrossProductMatrix(f)*com_jac;
 
   Jacobian jac(kDim6d, base.GetRows());
@@ -72,7 +72,7 @@ CentroidalModel::GetJacobianOfAccWrtBase1 (const BaseMotion& base,
 }
 
 Jacobian
-CentroidalModel::GetJacobianofAccWrtLoad1 (const EndeffectorsForce& ee_force,
+CentroidalModel::GetJacobianofAccWrtForce (const EndeffectorsForce& ee_force,
                                           double t,
                                           EndeffectorID ee) const
 {
@@ -95,7 +95,7 @@ CentroidalModel::GetJacobianofAccWrtLoad1 (const EndeffectorsForce& ee_force,
 }
 
 Jacobian
-CentroidalModel::GetJacobianofAccWrtEEPos1 (const EndeffectorsMotion& ee_motion,
+CentroidalModel::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion,
                                            double t_global,
                                            EndeffectorID ee) const
 {
@@ -106,7 +106,7 @@ CentroidalModel::GetJacobianofAccWrtEEPos1 (const EndeffectorsMotion& ee_motion,
   for (auto dim : {d2::X,d2::Y}) // zmp_ this is hacky, include z height
     jac_ee.row(dim) = ee_motion.GetJacobianPos(t_global, ee, dim);
 
-  Vector3d f = ee_load_.At(ee);
+  Vector3d f = ee_force_.At(ee);
   jac_ang = BuildCrossProductMatrix(f)*(-jac_ee);
 
   Jacobian jac(kDim6d, n);

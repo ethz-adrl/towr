@@ -45,7 +45,7 @@ LIPModel::GetLinearAcceleration () const
 
 
 Jacobian
-LIPModel::GetJacobianOfAccWrtBase1 (const BaseMotion& com_motion, double t) const
+LIPModel::GetJacobianOfAccWrtBase (const BaseMotion& com_motion, double t) const
 {
   Jacobian jac_wrt_com(kDim6d, com_motion.GetRows());
 
@@ -58,7 +58,7 @@ LIPModel::GetJacobianOfAccWrtBase1 (const BaseMotion& com_motion, double t) cons
 }
 
 Jacobian
-LIPModel::GetJacobianofAccWrtLoad1 (const EndeffectorsForce& ee_force, double t,
+LIPModel::GetJacobianofAccWrtForce (const EndeffectorsForce& ee_force, double t,
                                     EndeffectorID ee) const
 {
   Jacobian jac(kDim6d, ee_force.GetRows());
@@ -72,7 +72,7 @@ LIPModel::GetJacobianofAccWrtLoad1 (const EndeffectorsForce& ee_force, double t,
 }
 
 Jacobian
-LIPModel::GetJacobianofAccWrtEEPos1 (const EndeffectorsMotion& ee_motion, double t_global,
+LIPModel::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion, double t_global,
                                      EndeffectorID ee) const
 {
   Jacobian jac(kDim6d, ee_motion.GetRows());
@@ -109,7 +109,7 @@ LIPModel::GetDerivativeOfAccWrtEEPos (EndeffectorID ee,
   double deriv = 0.0;
 
   if (dim == X || dim == Y) {
-    double cop_wrt_ee = ee_load_.At(ee).z()/GetLoadSum();
+    double cop_wrt_ee = ee_force_.At(ee).z()/GetLoadSum();
     deriv = kGravity/h_ * (-1* cop_wrt_ee);
   }
 
@@ -135,7 +135,7 @@ LIPModel::CalculateCop () const
   double sum = GetLoadSum(); // just in case all forces are zero (flight phase)
 
   for (auto ee : ee_pos_.GetEEsOrdered()) {
-    double load_percent = ee_load_.At(ee).z()/sum;
+    double load_percent = ee_force_.At(ee).z()/sum;
     cop += load_percent*ee_pos_.At(ee).topRows<kDim2d>();
   }
 
@@ -146,7 +146,7 @@ double
 LIPModel::GetLoadSum () const
 {
   double sum = 0.0;
-  for (Vector3d load : ee_load_.ToImpl())
+  for (Vector3d load : ee_force_.ToImpl())
     sum += load.z();
 
   sum += 1e-5; // just in case all forces are zero (flight phase)

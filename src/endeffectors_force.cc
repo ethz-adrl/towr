@@ -40,7 +40,7 @@ EndeffectorsForce::~EndeffectorsForce ()
 }
 
 EndeffectorsForce::LoadParams
-EndeffectorsForce::GetLoadValues (double t) const
+EndeffectorsForce::GetForce (double t) const
 {
   LoadParams load(ee_ordered_.size());
   for (auto ee : ee_ordered_)

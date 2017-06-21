@@ -35,7 +35,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
 
 
-  const double x_nominal_b = 0.28; //34
+  const double x_nominal_b = 0.28;  //34
   const double y_nominal_b = 0.28;
   const double z_nominal_b = -0.58;
   nominal_stance_.SetCount(robot_ee_.size());
@@ -173,7 +173,7 @@ Trot::Trot()
       0.2, // flight_phase
 //      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
       t_phase, t_phase, t_phase, t_phase, // trot
-      0.2
+      0.3
   };
 
   contact_sequence_ =
@@ -204,7 +204,7 @@ Trot::Trot()
 
 Pace::Pace()
 {
-  max_dev_xy_ = {0.2, 0.2, 0.1};
+  max_dev_xy_ = {0.2, 0.2, 0.2};
   id_ = opt::PaceID;
 
   contact_timings_ =
@@ -248,7 +248,7 @@ Pace::Pace()
 
 Bound::Bound()
 {
-  max_dev_xy_ = {0.25, 0.21, 0.1};
+  max_dev_xy_ = {0.25, 0.21, 0.2};
   id_ = opt::BoundID;
 
 

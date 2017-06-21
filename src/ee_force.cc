@@ -49,11 +49,11 @@ EEForce::GetValues () const
   int idx=0;
   for (const auto& p : polynomials_)
     for (auto d : dim_)
-      x(idx++)   = p->start_.p_(d); // goal value is same as next start value
+      x(idx++) = p->start_.p_(d); // goal value is same as next start value
 
   // add last node
   for (auto d : dim_)
-    x(idx++)   = polynomials_.back()->end_.p_(d);
+    x(idx++) = polynomials_.back()->end_.p_(d);
 
   return x;
 }
@@ -157,7 +157,6 @@ EEForce::GetJacobian (Coords3D dim, double t_global) const
 EEForce::PolyPtr
 EEForce::MakePoly (double T) const
 {
-  // initialize with nonzero values, to avoid CoP exception
   auto p = std::make_shared<LinearPolynomial>();
   auto start_values = StateLinXd(dim_.size());
   p->SetBoundary(T, start_values, start_values);

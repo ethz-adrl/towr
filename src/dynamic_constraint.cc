@@ -83,14 +83,14 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 
   for (auto ee : model_->GetEEIDs()) {
     if (var_set == ee_load_->GetName())
-      jac.middleRows(row, kDim6d) += model_->GetJacobianofAccWrtLoad1(*ee_load_, t, ee);
+      jac.middleRows(row, kDim6d) += model_->GetJacobianofAccWrtForce(*ee_load_, t, ee);
 
     if (var_set == ee_motion_->GetName())
-      jac.middleRows(row, kDim6d) += model_->GetJacobianofAccWrtEEPos1(*ee_motion_, t, ee);
+      jac.middleRows(row, kDim6d) += model_->GetJacobianofAccWrtEEPos(*ee_motion_, t, ee);
   }
 
   if (var_set == base_motion_->GetName()) {
-    Jacobian jac_model           = model_->GetJacobianOfAccWrtBase1(*base_motion_, t);
+    Jacobian jac_model           = model_->GetJacobianOfAccWrtBase(*base_motion_, t);
     Jacobian jac_parametrization = base_motion_->GetJacobian(t, kAcc);
 
     jac.middleRows(row, kDim6d) = jac_model - jac_parametrization;
@@ -101,7 +101,7 @@ void
 DynamicConstraint::UpdateModel (double t) const
 {
   auto com     = base_motion_->GetCom(t);
-  auto ee_load = ee_load_   ->GetLoadValues(t);
+  auto ee_load = ee_load_   ->GetForce(t);
   auto ee_pos  = ee_motion_ ->GetEndeffectors(t).GetPos();
   model_->SetCurrent(com.p_, ee_load, ee_pos);
 }
