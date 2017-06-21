@@ -35,7 +35,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
 
 
-  const double x_nominal_b = 0.28;  //34
+  const double x_nominal_b = 0.28;
   const double y_nominal_b = 0.28;
   const double z_nominal_b = -0.58;
   nominal_stance_.SetCount(robot_ee_.size());

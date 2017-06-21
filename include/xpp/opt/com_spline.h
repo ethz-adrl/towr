@@ -35,7 +35,7 @@ public:
   ComSpline ();
   virtual ~ComSpline ();
 
-  void Init(double t_global, double duration_per_polynomial, const State& com_start);
+  void Init(double t_global, double duration_per_polynomial, const Vector3d& com_pos);
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;

@@ -40,6 +40,10 @@ void
 MotionOptimizerFacade::BuildDefaultStartStance ()
 {
   State3d base;
+  double offset_x = 0.0;
+  base.lin.p_ << offset_x+0.000350114, -1.44379e-7, 0.573311;
+  base.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
+  base.lin.a_ << 0.000197966, -5.72241e-07, -5.13328e-06;
   base.lin.p_.z() = 0.58;
   EndeffectorsBool contact_state(motion_parameters_->GetEECount());
   contact_state.SetAll(true);
@@ -49,6 +53,7 @@ MotionOptimizerFacade::BuildDefaultStartStance ()
 
   auto ee_start_W = motion_parameters_->GetNominalStanceInBase();
   for (auto ee : ee_start_W.GetEEsOrdered()) {
+    ee_start_W.At(ee) += base.lin.p_;
     ee_start_W.At(ee).z() = 0.0;
   }
   start_geom_.SetEEStateInWorld(kPos, ee_start_W);
@@ -68,7 +73,8 @@ MotionOptimizerFacade::BuildVariables ()
   double T = motion_parameters_->GetTotalTime();
 
   auto com_motion = std::make_shared<ComSpline>();
-  com_motion->Init(T, motion_parameters_->duration_polynomial_, start_geom_.GetBase().lin);
+  com_motion->Init(T, motion_parameters_->duration_polynomial_,
+                   start_geom_.GetBase().lin.p_);
   auto base_motion = std::make_shared<BaseMotion>(com_motion);
 
   auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,

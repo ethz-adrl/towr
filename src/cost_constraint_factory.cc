@@ -86,7 +86,6 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeInitialConstraint () const
 {
   auto initial_com_state = initial_geom_state_.GetBase().lin;
-//  initial_com_state.p_ += params->offset_geom_to_com_;
   double t = 0.0; // initial time
   MatVec lin_eq = spline_eq_.MakeStateConstraint(initial_com_state,
                                                  t,
@@ -98,9 +97,6 @@ CostConstraintFactory::MakeInitialConstraint () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeFinalConstraint () const
 {
-//  auto final_com_state = final_geom_state_;
-//  final_com_state.p_ += params->offset_geom_to_com_;
-
   MatVec lin_eq = spline_eq_.MakeStateConstraint(final_geom_state_,
                                                  params->GetTotalTime(),
                                                  {kPos, kVel, kAcc});
