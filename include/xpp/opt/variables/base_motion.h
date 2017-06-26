@@ -15,8 +15,8 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include <xpp/opt/com_spline.h>
 #include <xpp/opt/constraints/composite.h>
+#include <xpp/opt/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {
@@ -30,7 +30,7 @@ namespace opt {
 class BaseMotion : public Composite {
 public:
   using JacobianRow  = Eigen::SparseVector<double, Eigen::RowMajor>;
-  using ComSplinePtr = std::shared_ptr<ComSpline>;
+  using ComSplinePtr = std::shared_ptr<PolynomialSpline>;
 
   BaseMotion (const ComSplinePtr&);
   virtual ~BaseMotion ();
@@ -48,7 +48,7 @@ public:
   StateLin3d GetCom(double t_global) const;
 
   double GetTotalTime() const;
-  ComSpline GetComSpline() const;
+  PolynomialSpline GetComSpline() const;
 
 //  void SetOffsetGeomToCom(const Vector3d&);
 

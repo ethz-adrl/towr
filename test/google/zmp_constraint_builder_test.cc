@@ -6,12 +6,12 @@
  */
 
 #include <xpp/opt/zmp_constraint_builder.h>
-#include <xpp/opt/com_spline.h>
 #include <xpp/opt/motion_factory.h>
 #include <xpp/opt/motion_structure.h>
 #include <xpp/hyq/support_polygon_container.h>
 
 #include <gtest/gtest.h>
+#include <xpp/opt/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {

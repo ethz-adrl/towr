@@ -16,8 +16,8 @@
 #include <xpp/endeffectors.h>
 
 #include <xpp/ipopt_adapter.h>
-#include <xpp/opt/com_spline.h>
 #include <xpp/opt/cost_constraint_factory.h>
+#include <xpp/opt/polynomial_spline.h>
 #include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/endeffectors_force.h>
@@ -72,7 +72,7 @@ MotionOptimizerFacade::BuildVariables ()
 
   double T = motion_parameters_->GetTotalTime();
 
-  auto com_motion = std::make_shared<ComSpline>();
+  auto com_motion = std::make_shared<PolynomialSpline>("com_spline");
   com_motion->Init(T, motion_parameters_->duration_polynomial_,
                    start_geom_.GetBase().lin.p_);
   auto base_motion = std::make_shared<BaseMotion>(com_motion);

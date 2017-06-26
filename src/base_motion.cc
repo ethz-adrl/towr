@@ -36,7 +36,7 @@ BaseMotion::GetBase (double t_global) const
 StateLin3d
 BaseMotion::GetCom (double t_global) const
 {
-  return com_spline_->GetCom(t_global);
+  return com_spline_->GetPoint(t_global);
 }
 
 double
@@ -65,7 +65,7 @@ BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt) const
   return jac;
 }
 
-ComSpline
+PolynomialSpline
 xpp::opt::BaseMotion::GetComSpline () const
 {
   return *com_spline_;

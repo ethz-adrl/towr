@@ -75,7 +75,7 @@ add_library(${MOTION_OPT_LIB}
   src/polynomial.cc
   src/spline.cc
   src/base_motion.cc
-  src/com_spline.cc
+  src/polynomial_spline.cc
   src/linear_spline_equations.cc
   src/polynomial_cost.cc
   # endeffector motion

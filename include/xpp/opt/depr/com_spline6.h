@@ -10,7 +10,8 @@
 
 #include <vector>
 #include <xpp/cartesian_declarations.h>
-#include "com_spline.h"
+
+#include <xpp/opt/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {
@@ -21,7 +22,7 @@ namespace opt {
   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f with no constraint at the junction
   * between the polynomials.
   */
-class ComSpline6 : public ComSpline {
+class ComSpline6 : public PolynomialSpline {
 public:
   using PtrClone = BaseMotion::PtrU;
 

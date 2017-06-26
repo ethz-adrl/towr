@@ -5,8 +5,8 @@
  @brief   Declares the class ComSpline
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_COM_SPLINE_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_COM_SPLINE_H_
+#ifndef XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_SPLINE_H_
+#define XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_SPLINE_H_
 
 #include <memory>
 #include <vector>
@@ -26,24 +26,22 @@ namespace opt {
   * This class is responsible for abstracting polynomial coefficients of multiple
   * polynomials into a CoM position/velocity and acceleration.
   */
-class ComSpline : public Component {
+class PolynomialSpline : public Component, public Spline {
 public:
-  using State          = StateLin3d;
+  using State          = StateLinXd;
   using PolyCoeff      = Polynomial::PolynomialCoeff;
   using VecPolynomials = std::vector<std::shared_ptr<Polynomial> >;
 
-  ComSpline ();
-  virtual ~ComSpline ();
+  PolynomialSpline (const std::string& component_name = "poly_spline");
+  virtual ~PolynomialSpline ();
 
-  void Init(double t_global, double duration_per_polynomial, const Vector3d& com_pos);
+  void Init(double t_global, double duration_per_polynomial,
+            const VectorXd& initial_pos);
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
 
-  State GetCom(double t_global) const;
-  double GetTotalTime() const;
-
-  int Index(int polynomial, Coords3D dim, PolyCoeff coeff) const;
+  int Index(int polynomial, int dim, PolyCoeff coeff) const;
 
   /** Calculates the Jacobian at a specific time of the motion, but specified by
     * a local time and a polynome id. This allows to create spline junction constraints
@@ -65,10 +63,9 @@ public:
   JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const;
 
 private:
-  Spline spline_;
-  VecPolynomials polynomials_;
+  VecPolynomials polynomials_; ///< pointer to retain access to polynomial functions
 
-  std::vector<Coords3D> dim_;
+  int n_dim_;
 
   int GetFreeCoeffPerPoly() const;
   int GetTotalFreeCoeff() const;
@@ -77,4 +74,4 @@ private:
 } /* namespace opt */
 } /* namespace xpp */
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_COM_SPLINE_H_ */
+#endif /* XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_SPLINE_H_ */
