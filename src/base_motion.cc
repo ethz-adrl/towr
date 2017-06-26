@@ -10,11 +10,16 @@
 namespace xpp {
 namespace opt {
 
-BaseMotion::BaseMotion (const ComSplinePtr& com_spline)
+BaseMotion::BaseMotion (const PolySplinePtr& linear,
+                        const PolySplinePtr& angular)
   : Composite("base_motion", true)
 {
-  AddComponent(com_spline);
-  com_spline_ = com_spline; // retain pointer to keep specific info
+  AddComponent(linear);
+  AddComponent(angular);
+
+  // retain pointer to access derived class functions
+  linear_  = linear;
+  angular_ = angular;
 }
 
 BaseMotion::~BaseMotion ()
@@ -26,26 +31,24 @@ BaseMotion::GetBase (double t_global) const
 {
   State3d base; // positions and orientations set to zero
 
-//  StateLin3d com = GetCom(t_global);
-////  com.p_ -= offset_geom_to_com_;
-  base.lin = GetCom(t_global);
+  base.lin = GetLinear(t_global);
 
   return base;
 }
 
 StateLin3d
-BaseMotion::GetCom (double t_global) const
+BaseMotion::GetLinear (double t_global) const
 {
-  return com_spline_->GetPoint(t_global);
+  return linear_->GetPoint(t_global);
 }
 
 double
 BaseMotion::GetTotalTime () const
 {
-  return com_spline_->GetTotalTime();
+  return linear_->GetTotalTime();
 }
 
-BaseMotion::JacobianRow
+JacobianRow
 BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt, Coords6D dim) const
 {
   return GetJacobian(t_global, dxdt).row(dim);
@@ -58,7 +61,7 @@ BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt) const
 
   // linear part
   for (auto d : {LX, LY, LZ})
-    jac.row(d) = com_spline_->GetJacobian(t_global, dxdt, To3D(d));
+    jac.row(d) = linear_->GetJacobian(t_global, dxdt, To3D(d));
 
   // angular part zero
 
@@ -68,14 +71,8 @@ BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt) const
 PolynomialSpline
 xpp::opt::BaseMotion::GetComSpline () const
 {
-  return *com_spline_;
+  return *linear_;
 }
-
-//void
-//BaseMotion::SetOffsetGeomToCom (const Vector3d& val)
-//{
-//  offset_geom_to_com_ = val;
-//}
 
 } /* namespace opt */
 } /* namespace xpp */

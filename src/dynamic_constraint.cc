@@ -100,10 +100,10 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 void
 DynamicConstraint::UpdateModel (double t) const
 {
-  auto com     = base_motion_->GetCom(t);
+  auto com     = base_motion_->GetBase(t).lin.p_;
   auto ee_load = ee_load_   ->GetForce(t);
   auto ee_pos  = ee_motion_ ->GetEndeffectors(t).GetPos();
-  model_->SetCurrent(com.p_, ee_load, ee_pos);
+  model_->SetCurrent(com, ee_load, ee_pos);
 }
 
 } /* namespace opt */

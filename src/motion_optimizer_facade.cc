@@ -75,7 +75,12 @@ MotionOptimizerFacade::BuildVariables ()
   auto com_motion = std::make_shared<PolynomialSpline>("com_spline");
   com_motion->Init(T, motion_parameters_->duration_polynomial_,
                    start_geom_.GetBase().lin.p_);
-  auto base_motion = std::make_shared<BaseMotion>(com_motion);
+
+  auto base_orientation = std::make_shared<PolynomialSpline>("base_ori");
+  base_orientation->Init(T, motion_parameters_->duration_polynomial_,
+                         Vector3d::Zero(3));
+
+  auto base_motion = std::make_shared<BaseMotion>(com_motion, base_orientation);
 
   auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
                                                    *contact_schedule);

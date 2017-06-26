@@ -29,10 +29,9 @@ namespace opt {
   */
 class BaseMotion : public Composite {
 public:
-  using JacobianRow  = Eigen::SparseVector<double, Eigen::RowMajor>;
-  using ComSplinePtr = std::shared_ptr<PolynomialSpline>;
+  using PolySplinePtr = std::shared_ptr<PolynomialSpline>;
 
-  BaseMotion (const ComSplinePtr&);
+  BaseMotion (const PolySplinePtr& linear, const PolySplinePtr& angular);
   virtual ~BaseMotion ();
 
   /** @brief Calculates the Jacobian J of the motion with respect to the coefficients.
@@ -45,16 +44,15 @@ public:
   Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const;
 
   State3d GetBase(double t_global) const;
-  StateLin3d GetCom(double t_global) const;
 
   double GetTotalTime() const;
   PolynomialSpline GetComSpline() const;
 
-//  void SetOffsetGeomToCom(const Vector3d&);
-
 private:
-  ComSplinePtr com_spline_; // to retain specific spline info
-//  Vector3d offset_geom_to_com_;
+  PolySplinePtr linear_; // to retain specific spline info
+  PolySplinePtr angular_; // to retain specific spline info
+
+  StateLin3d GetLinear(double t_global) const;
 };
 
 } /* namespace opt */
