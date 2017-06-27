@@ -32,11 +32,14 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
 //  model_ = std::make_shared<LIPModel>();
 
   SetName("DynamicConstraint");
-  base_linear_ = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_linear));
-  ee_motion_   = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent(id::endeffectors_motion));
-  ee_load_     = std::dynamic_pointer_cast<EndeffectorsForce> (opt_vars->GetComponent(id::endeffector_force));
+  base_linear_  = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_linear));
+  base_angular_ = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_angular));
+  ee_motion_    = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent(id::endeffectors_motion));
+  ee_load_      = std::dynamic_pointer_cast<EndeffectorsForce> (opt_vars->GetComponent(id::endeffector_force));
 
   SetRows(GetNumberOfNodes()*kDim6d);
+
+  converter_ = AngularStateConverter(base_angular_);
 }
 
 int
@@ -58,8 +61,8 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 
   // acceleration base has with current values of optimization variables
   // angular acceleration fixed to zero for now
-  Vector6d acc_parametrization;
-  acc_parametrization.middleRows(AX, kDim3d).setZero();// zmp_ add from spline = base_angular_->GetPoint(t).a_;
+  Vector6d acc_parametrization = Vector6d::Zero();
+  acc_parametrization.middleRows(AX, kDim3d) = converter_.GetAngularAcceleration(t);
   acc_parametrization.middleRows(LX, kDim3d) = base_linear_->GetPoint(t).a_;
 
   for (auto dim : AllDim6D)
@@ -93,6 +96,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
       jac.middleRows(row, kDim6d) += model_->GetJacobianofAccWrtEEPos(*ee_motion_, t, ee);
   }
 
+
   if (var_set == base_linear_->GetName()) {
     Jacobian jac_model = model_->GetJacobianOfAccWrtBaseLin(*base_linear_, t);
 
@@ -102,13 +106,17 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
     jac.middleRows(row, kDim6d) = jac_model - jac_parametrization;
   }
 
-  // zmp_ add base angular
-//  if (var_set == base_angular_->GetName()) {
-//  }
 
+  // zmp_ DRY with above
+  if (var_set == base_angular_->GetName()) {
 
+    Jacobian jac_model = model_->GetJacobianOfAccWrtBaseAng(*base_angular_, t);
 
+    Jacobian jac_parametrization(kDim6d, base_angular_->GetRows());
+    jac_parametrization.middleRows(AX, kDim3d) = converter_.GetDerivOfAngAccWrtCoeff(t);
 
+    jac.middleRows(row, kDim6d) = jac_model - jac_parametrization;
+  }
 }
 
 void

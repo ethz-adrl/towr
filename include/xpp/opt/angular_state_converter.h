@@ -29,7 +29,7 @@ public:
   using EulerRates  = Vector3d;
   using AngularVel  = Vector3d;
   using AngularAcc  = Vector3d;
-  using Mapping     = Jacobian; //Eigen::Matrix3d;
+  using Mapping     = Jacobian;
 
   AngularStateConverter ();
   AngularStateConverter (const OrientationVariables&);

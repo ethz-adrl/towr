@@ -214,17 +214,40 @@ CostConstraintFactory::MakeStancesConstraints () const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeMotionCost(double weight) const
 {
+  auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", false);
+
   MotionDerivative dxdt = kAcc;
-  // careful, must match spline dimensions
+  // careful, must match spline dimension
   VectorXd weight_xyz(3); weight_xyz << 1.0, 1.0, 1.0;
+
+
   Eigen::MatrixXd term = base_lin_spline_eq_.MakeCostMatrix(weight_xyz, dxdt);
 
   MatVec mv(term.rows(), term.cols());
   mv.M = term;
   mv.v.setZero();
 
-  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, id::base_linear,
-                                                   weight);
+  auto base_lin = std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, id::base_linear,weight);
+  base_acc_cost->AddComponent(base_lin);
+
+
+
+
+  VectorXd weight_ypr(3); weight_ypr << 0.1, 0.1, 0.1;
+  Eigen::MatrixXd term2 = base_ang_spline_eq_.MakeCostMatrix(weight_ypr, dxdt);
+
+  MatVec mv2(term2.rows(), term2.cols());
+  mv2.M = term2;
+  mv2.v.setZero();
+
+  auto base_ang = std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv2, id::base_angular,weight);
+  base_acc_cost->AddComponent(base_ang);
+
+
+
+
+
+  return base_acc_cost;
 }
 
 CostConstraintFactory::ConstraintPtr

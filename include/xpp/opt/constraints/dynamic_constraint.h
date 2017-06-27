@@ -14,6 +14,7 @@
 #include <xpp/cartesian_declarations.h>
 
 #include <xpp/bound.h>
+#include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/dynamic_model.h>
 #include <xpp/opt/polynomial_spline.h>
 
@@ -30,6 +31,7 @@ class EndeffectorsForce;
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using BaseLinear  = std::shared_ptr<PolynomialSpline>;
+  using BaseAngular = std::shared_ptr<PolynomialSpline>;
   using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
   using EELoadPtr   = std::shared_ptr<EndeffectorsForce>;
 
@@ -40,10 +42,13 @@ public:
 
 private:
   BaseLinear base_linear_;
+  BaseAngular base_angular_;
   EEMotionPtr ee_motion_;
   EELoadPtr ee_load_;
 
   mutable DynamicModelPtr model_;
+
+  AngularStateConverter converter_;
 
   int GetRow(int node, Coords6D dimension) const;
 
