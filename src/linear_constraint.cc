@@ -56,7 +56,7 @@ void
 LinearEqualityConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
 {
   // the constraints are all linear w.r.t. the decision variables.
-  // careful, .sparseView is only valid when the Jacobian is constant, e.g.
+  // careful, .sparseView is only valid when the Jacobian is constant
   if (var_set == variable_name_)
     jac = linear_equation_.M.sparseView();
 }

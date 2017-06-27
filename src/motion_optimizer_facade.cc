@@ -47,7 +47,7 @@ MotionOptimizerFacade::BuildDefaultStartStance ()
   inital_base_.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
   inital_base_.lin.a_ << 0.000197966, -5.72241e-07, -5.13328e-06;
 
-  inital_base_.ang.p_ << 0.1, 0.2, 0.0; // r,p,y
+  inital_base_.ang.p_ << 0.5, 0.0, 0.0; // euler z,y,x (yaw, pitch, roll)
 
   initial_ee_W_ = motion_parameters_->GetNominalStanceInBase();
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
@@ -144,7 +144,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     State3d base; // positions and orientations set to zero
     base.lin = base_lin->GetPoint(t);
     StateLin3d rpy = base_ang->GetPoint(t);
-    kindr::EulerAnglesXyzD euler(rpy.p_);
+    kindr::EulerAnglesZyxD euler(rpy.p_);
     kindr::RotationQuaternionD quat(euler);
 
     // zmp_ add angular velocities and accelerations as well

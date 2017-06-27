@@ -32,6 +32,27 @@ TEST(CentroidalDynamicsTest, GetBaseAcceleration)
 TEST(CentroidalDynamicsTest, GetJacobianOfAccWrtBase)
 {
   CentroidalModel model;
+
+
+  Vector3d d1(1.1, 0.0, 0.0);
+  Vector3d d2(1.1, 2.2, 3.3);
+
+
+  JacobianRow s1 = d1.sparseView(1.0, -1.0);
+  JacobianRow s2 = d2.sparseView();
+  JacobianRow s3(3);
+  s3.coeffRef(0) = 0.0;
+  s3.coeffRef(1) = 0.0;
+  s3.coeffRef(2) = 0.0;
+
+  std::cout << s1 << ", nnz: " << s1.nonZeros() << std::endl;
+  std::cout << s2 << ", nnz: " << s2.nonZeros() << std::endl;
+  std::cout << s3 << ", nnz: " << s3.nonZeros() << std::endl;
+
+
+
+
+
 }
 
 
