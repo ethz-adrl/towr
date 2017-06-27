@@ -27,8 +27,8 @@ NlpUserInputNode::NlpUserInputNode ()
 
   // publish goal zero initially
   goal_geom_.p_.setZero();
-  goal_geom_.p_.z() = 0.58;
-//  goal_cog_.p << 1.05, 0.15, 0.0; // used for RA-L paper
+//  goal_geom_.p_.z() = 0.58;
+  goal_geom_.p_ << 0.5, 0.0, 0.58;
 //  goal_cog_.p << 0.2, 0, 0.0;
   motion_type_ = opt::TrotID; //opt::BoundID;//
   replay_trajectory_ = false;
@@ -49,8 +49,8 @@ NlpUserInputNode::~NlpUserInputNode ()
 void
 NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
 {
-  const static double dx = 0.25;
-  const static double dy = 0.25;
+  const static double dx = 0.1; // 0.25
+  const static double dy = 0.1; // 0.25
 
   switch (msg.code) {
     case msg.KEY_RIGHT:

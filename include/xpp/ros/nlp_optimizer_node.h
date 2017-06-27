@@ -19,10 +19,10 @@ namespace ros {
 
 class NlpOptimizerNode {
 public:
-  using StateMsg        = xpp_msgs::RobotStateCartesian;
-  using UserCommandMsg  = xpp_msgs::UserCommand;
-  using MotionOptimizer = xpp::opt::MotionOptimizerFacade;
-  using NlpSolver       = xpp::opt::NlpSolver;
+  using StateMsg              = xpp_msgs::RobotStateCartesian;
+  using UserCommandMsg        = xpp_msgs::UserCommand;
+  using MotionOptimizerFacade = xpp::opt::MotionOptimizerFacade;
+  using NlpSolver             = xpp::opt::NlpSolver;
 
 public:
   NlpOptimizerNode ();
@@ -38,7 +38,7 @@ private:
   ::ros::Subscriber current_state_sub_;
   ::ros::Publisher cart_trajectory_pub_;
 
-  MotionOptimizer motion_optimizer_;
+  MotionOptimizerFacade motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
   NlpSolver solver_type_;
 };

@@ -24,7 +24,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
   user_command_sub_ = n.subscribe(xpp_msgs::goal_state_topic, 1,
                                 &NlpOptimizerNode::UserCommandCallback, this);
 
-  current_state_sub_ = n.subscribe(xpp_msgs::curr_robot_state,
+  current_state_sub_ = n.subscribe(xpp_msgs::curr_robot_state_real,
                                     1, // take only the most recent information
                                     &NlpOptimizerNode::CurrentStateCallback, this,
                                     ::ros::TransportHints().tcpNoDelay());
@@ -42,9 +42,21 @@ NlpOptimizerNode::NlpOptimizerNode ()
 void
 NlpOptimizerNode::CurrentStateCallback (const StateMsg& msg)
 {
-//  auto curr_state = RosHelpers::RosToXpp(msg);
+  auto curr_state = RosHelpers::RosToXpp(msg);
+
+  // zmp_ add this back
 //  motion_optimizer_.start_geom_ = curr_state;
-//  ROS_INFO_STREAM("Received Current State");
+
+//  auto base = curr_state.GetBase();
+//  base.ang = StateAng3d(); // set zero
+//
+//  motion_optimizer_.start_geom_.SetBase(base);
+//  ROS_INFO_STREAM("Received Current Real State");
+//
+//  std::cout << curr_state.GetBase() << std::endl;
+//  for (auto p : curr_state.GetEEPos().ToImpl()) {
+//    std::cout << p << std::endl;
+//  }
 
 //  OptimizeMotion();
 //  PublishTrajectory();
@@ -64,7 +76,8 @@ void
 NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 {
 //  auto goal_prev = motion_optimizer_.goal_geom_;
-  motion_optimizer_.goal_geom_ = RosHelpers::RosToXpp(msg.goal);
+  motion_optimizer_.final_base_.lin = RosHelpers::RosToXpp(msg.goal);
+  motion_optimizer_.final_base_.ang.p_ << 0.0, 0.0, 0.0; // r,p,y
 
   auto motion_id = static_cast<opt::MotionTypeID>(msg.motion_type);
   auto params = opt::quad::QuadrupedMotionParameters::MakeMotion(motion_id);
@@ -73,7 +86,7 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
   solver_type_ = msg.use_solver_snopt ? opt::Snopt : opt::Ipopt;
 
   Eigen::Vector3d vel_dis(msg.vel_disturbance.x, msg.vel_disturbance.y, msg.vel_disturbance.z);
-  motion_optimizer_.start_geom_.GetBase().lin.v_ += vel_dis;
+  motion_optimizer_.inital_base_.lin.v_ += vel_dis;
 
   if (!msg.replay_trajectory)
     OptimizeMotion();
