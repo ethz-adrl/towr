@@ -39,8 +39,9 @@ CostConstraintFactory::~CostConstraintFactory ()
 void
 CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
                              const MotionParamsPtr& _params,
-                             const RobotStateCartesian& initial_state,
-                             const StateLin3d& final_state)
+                             const EndeffectorsPos& ee_pos,
+                             const State3dEuler& initial_base,
+                             const State3dEuler& final_base)
 {
   opt_vars_ = opt_vars;
   auto base_lin = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_linear));
@@ -50,8 +51,10 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
   base_ang_spline_eq_ = LinearSplineEquations(*base_ang);
 
   params = _params;
-  initial_geom_state_ = initial_state;
-  final_geom_state_   = final_state;
+
+  initial_ee_W_ = ee_pos;
+  initial_base_ = initial_base;
+  final_base_ = final_base;
 }
 
 CostConstraintFactory::ConstraintPtr
@@ -89,28 +92,19 @@ CostConstraintFactory::MakeInitialConstraint () const
   auto state_constraints = std::make_shared<Composite>("State Initial Constraints", true);
 
   double t = 0.0; // initial time
-  auto initial_com_state = initial_geom_state_.GetBase().lin;
-  MatVec lin_eq = base_lin_spline_eq_.MakeStateConstraint(initial_com_state,
+  MatVec lin_eq = base_lin_spline_eq_.MakeStateConstraint(initial_base_.lin,
                                                           t,
                                                           {kPos, kVel, kAcc});
   auto base_linear = std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq, id::base_linear);
   state_constraints->AddComponent(base_linear);
 
 
-//  StateLin3d initial_rpy_state;
-//  initial_rpy_state.p_ << 0.0, 0.0, 0.0;
-//
-//  std::cout << "initial state: " << initial_rpy_state << std::endl;
-//  MatVec ang_eq = base_ang_spline_eq_.MakeStateConstraint(initial_rpy_state,
-//                                                          t,
-//                                                          {kPos, kVel, kAcc});
-//
-//  std::cout << "ang_eq.M: " << ang_eq.M << std::endl;
-//  std::cout << "ang_eq.v: " << ang_eq.v << std::endl;
-//
-//  auto base_angular = std::make_shared<LinearEqualityConstraint>(opt_vars_, ang_eq);
-////  state_constraints->AddComponent(base_angular);
+  MatVec ang_eq = base_ang_spline_eq_.MakeStateConstraint(initial_base_.ang,
+                                                          t,
+                                                          {kPos, kVel, kAcc});
 
+  auto base_angular = std::make_shared<LinearEqualityConstraint>(opt_vars_, ang_eq, id::base_angular);
+  state_constraints->AddComponent(base_angular);
 
   return state_constraints;
 }
@@ -120,24 +114,19 @@ CostConstraintFactory::MakeFinalConstraint () const
 {
   auto state_constraints = std::make_shared<Composite>("State Final Constraints", true);
 
-  MatVec lin_eq_lin = base_lin_spline_eq_.MakeStateConstraint(final_geom_state_,
+  MatVec lin_eq_lin = base_lin_spline_eq_.MakeStateConstraint(final_base_.lin,
                                                    params->GetTotalTime(),
                                                    {kPos, kVel, kAcc});
 
   auto base_linear = std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq_lin, id::base_linear);
   state_constraints->AddComponent(base_linear);
 
-//  StateLin3d final_rpy_state;
-//  final_rpy_state.p_ << 0.0, 0.3, 0.0; // roll, pitch, yaw
-//
-//  std::cout << "final ori: " << final_rpy_state.p_ << std::endl;
-//
-//  MatVec lin_eq_ang = base_ang_spline_eq_.MakeStateConstraint(final_rpy_state,
-//                                                        params->GetTotalTime(),
-//                                                        {kPos, kVel, kAcc});
-//
-//  auto base_angular= std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq_ang);
-//  state_constraints->AddComponent(base_angular);
+  MatVec lin_eq_ang = base_ang_spline_eq_.MakeStateConstraint(final_base_.ang,
+                                                        params->GetTotalTime(),
+                                                        {kPos, kVel, kAcc});
+
+  auto base_angular= std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq_ang, id::base_angular);
+  state_constraints->AddComponent(base_angular);
 
   return state_constraints;
 }
@@ -148,12 +137,16 @@ CostConstraintFactory::MakeJunctionConstraint () const
   auto junction_constraints = std::make_shared<Composite>("Junctions Constraints", true);
 
   auto base_linear = std::make_shared<LinearEqualityConstraint>(
-      opt_vars_, base_lin_spline_eq_.MakeJunction(), id::base_linear);
+      opt_vars_,
+      base_lin_spline_eq_.MakeJunction(),
+      id::base_linear);
   junction_constraints->AddComponent(base_linear);
 
-//  auto base_angular = std::make_shared<LinearEqualityConstraint>(
-//      opt_vars_, base_ang_spline_eq_.MakeJunction());
-//  junction_constraints->AddComponent(base_angular);
+  auto base_angular = std::make_shared<LinearEqualityConstraint>(
+      opt_vars_,
+      base_ang_spline_eq_.MakeJunction(),
+      id::base_angular);
+  junction_constraints->AddComponent(base_angular);
 
   return junction_constraints;
 }
@@ -192,7 +185,7 @@ CostConstraintFactory::MakeStancesConstraints () const
 
   // calculate initial position in world frame
   auto constraint_initial = std::make_shared<FootholdConstraint>(
-      opt_vars_, initial_geom_state_.GetEEPos(), 0.0);
+      opt_vars_, initial_ee_W_, 0.0);
 
   stance_constraints->AddComponent(constraint_initial);
 
@@ -200,7 +193,7 @@ CostConstraintFactory::MakeStancesConstraints () const
   EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
   EndeffectorsPos endeffectors_final_W(nominal_B.GetCount());
   for (auto ee : endeffectors_final_W.GetEEsOrdered())
-    endeffectors_final_W.At(ee) = final_geom_state_.p_ + nominal_B.At(ee);
+    endeffectors_final_W.At(ee) = final_base_.lin.p_ + nominal_B.At(ee);
 
 
   auto constraint_final = std::make_shared<FootholdConstraint>(

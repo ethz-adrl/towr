@@ -39,9 +39,10 @@ public:
   virtual ~CostConstraintFactory ();
 
   void Init(const OptVarsContainer&,
-            const MotionParamsPtr& params,
-            const RobotStateCartesian& initial_state,
-            const StateLin3d& final_state);
+            const MotionParamsPtr&,
+            const EndeffectorsPos& ee_pos,
+            const State3dEuler& initial_base,
+            const State3dEuler& final_base);
 
   ConstraintPtr GetCost(CostName name) const;
   ConstraintPtr GetConstraint(ConstraintName name) const;
@@ -50,8 +51,10 @@ private:
   MotionParamsPtr params;
 
   OptVarsContainer opt_vars_;
-  RobotStateCartesian initial_geom_state_;
-  StateLin3d final_geom_state_;
+
+  EndeffectorsPos initial_ee_W_;
+  State3dEuler initial_base_;
+  State3dEuler final_base_;
 
   LinearSplineEquations base_lin_spline_eq_;
   LinearSplineEquations base_ang_spline_eq_;

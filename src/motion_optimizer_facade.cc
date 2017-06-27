@@ -31,7 +31,7 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  opt_variables_ = std::make_shared<Composite>("variables", true);
+  opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
 }
 
 MotionOptimizerFacade::~MotionOptimizerFacade ()
@@ -43,22 +43,17 @@ MotionOptimizerFacade::BuildDefaultStartStance ()
 {
   State3d base;
   double offset_x = 0.0;
-  base.lin.p_ << offset_x+0.000350114, -1.44379e-7, 0.573311;
-  base.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
-  base.lin.a_ << 0.000197966, -5.72241e-07, -5.13328e-06;
-  base.lin.p_.z() = 0.58;
-  EndeffectorsBool contact_state(motion_parameters_->GetEECount());
-  contact_state.SetAll(true);
+  inital_base_.lin.p_ << offset_x+0.000350114, -1.44379e-7, 0.573311;
+  inital_base_.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
+  inital_base_.lin.a_ << 0.000197966, -5.72241e-07, -5.13328e-06;
 
-  start_geom_.SetBase(base);
-  start_geom_.SetContactState(contact_state);
+  inital_base_.ang.p_ << 0.1, 0.2, 0.0; // r,p,y
 
-  auto ee_start_W = motion_parameters_->GetNominalStanceInBase();
-  for (auto ee : ee_start_W.GetEEsOrdered()) {
-    ee_start_W.At(ee) += base.lin.p_;
-    ee_start_W.At(ee).z() = 0.0;
+  initial_ee_W_ = motion_parameters_->GetNominalStanceInBase();
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+    initial_ee_W_.At(ee) += base.lin.p_;
+    initial_ee_W_.At(ee).z() = 0.0;
   }
-  start_geom_.SetEEStateInWorld(kPos, ee_start_W);
 }
 
 void
@@ -69,26 +64,22 @@ MotionOptimizerFacade::BuildVariables ()
       motion_parameters_->GetContactSchedule());
 
   // initialize the ee_motion with the fixed parameters
-  auto ee_motion = std::make_shared<EndeffectorsMotion>(start_geom_.GetEEPos(),
+  auto ee_motion = std::make_shared<EndeffectorsMotion>(initial_ee_W_,
                                                         *contact_schedule);
 
   double T = motion_parameters_->GetTotalTime();
 
   auto base_linear = std::make_shared<PolynomialSpline>(id::base_linear);
   base_linear->Init(T, motion_parameters_->duration_polynomial_,
-                   start_geom_.GetBase().lin.p_);
+                    inital_base_.lin.p_);
 
   auto base_angular = std::make_shared<PolynomialSpline>(id::base_angular);
-  Vector3d initial_rpy(0.0, 0.0, 0.0);
   base_angular->Init(T, motion_parameters_->duration_polynomial_,
-                         initial_rpy);
-
-//  auto base_motion = std::make_shared<BaseMotion>(base_linear, base_angular);
+                     inital_base_.ang.p_);
 
   auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
                                                    *contact_schedule);
   opt_variables_->ClearComponents();
-//  opt_variables_->AddComponent(base_motion);
   opt_variables_->AddComponent(base_angular);
   opt_variables_->AddComponent(base_linear);
   opt_variables_->AddComponent(ee_motion);
@@ -102,7 +93,8 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
   BuildVariables();
 
   CostConstraintFactory factory;
-  factory.Init(opt_variables_, motion_parameters_, start_geom_, goal_geom_);
+  factory.Init(opt_variables_, motion_parameters_,
+               initial_ee_W_, inital_base_, final_base_);
 
   nlp.Init(opt_variables_);
 
@@ -145,7 +137,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   double T = motion_parameters_->GetTotalTime();
   while (t<=T+1e-5) {
 
-    RobotStateCartesian state(start_geom_.GetEECount());
+    RobotStateCartesian state(initial_ee_W_.GetCount());
 
 
     // zmp_ move to own class
@@ -158,9 +150,6 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     // zmp_ add angular velocities and accelerations as well
     base.ang.q = quat.toImplementation();
     state.SetBase(base);
-
-
-
 
 
     state.SetEEStateInWorld(ee_motion->GetEndeffectors(t));

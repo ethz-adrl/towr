@@ -37,8 +37,12 @@ public:
   void SolveProblem(NlpSolver solver);
   RobotStateVec GetTrajectory(double dt) const;
 
-  RobotStateCartesian start_geom_;
-  StateLin3d goal_geom_;
+//  RobotStateCartesian start_geom_;
+//  StateLin3d goal_geom_;
+
+  EndeffectorsPos initial_ee_W_;
+  State3dEuler inital_base_;
+  State3dEuler final_base_;
 
   void SetMotionParameters(const MotionParametersPtr& params);
   void BuildDefaultStartStance();
