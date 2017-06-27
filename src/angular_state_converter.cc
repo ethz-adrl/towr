@@ -10,6 +10,9 @@
 namespace xpp {
 namespace opt {
 
+// zmp_ fix this, hacky!
+enum EulerCoords {EZ=0, EY=1, EX=2};
+
 AngularStateConverter::AngularStateConverter ()
 {
   // TODO Auto-generated constructor stub
@@ -62,7 +65,6 @@ AngularStateConverter::GetDerivOfAngAccWrtCoeff (double t) const
     Jacobian dMdot_du = GetDerivMdotwrtCoeff(t,dim);
     Jacobian dM_du    = GetDerivMwrtCoeff(t,dim);
 
-    // zmp_ not sure if this works, setting epsilon to -1
     jac.row(dim) =   vel * dMdot_du
                    + GetMdot(ori.p_, ori.v_).row(dim)*dVel_du
                    + acc * dM_du
@@ -77,8 +79,8 @@ AngularStateConverter::GetM (const EulerAngles& zyx) const
 {
   Mapping M(kDim3d, kDim3d);
 
-  double z = zyx(0);
-  double y = zyx(1);
+  double z = zyx(EZ);
+  double y = zyx(EY);
 
   // see http://docs.leggedrobotics.com/kindr/cheatsheet_latest.pdf
 //  M << 0, -sin(z), cos(y)*cos(z),
@@ -87,7 +89,7 @@ AngularStateConverter::GetM (const EulerAngles& zyx) const
 
   M.coeffRef(0,1) = -sin(z); M.coeffRef(0,2) =  cos(y)*cos(z);
   M.coeffRef(1,1) =  cos(z); M.coeffRef(1,2) =  cos(y)*sin(z);
-  M.coeffRef(2,0) = 1.0;     M.coeffRef(2,2) =  -sin(y);
+  M.coeffRef(2,0) =     1.0; M.coeffRef(2,2) =  -sin(y);
 
   return M;
 }
@@ -96,25 +98,21 @@ AngularStateConverter::Mapping
 AngularStateConverter::GetMdot (const EulerAngles& zyx,
                                 const EulerRates& zyx_d) const
 {
+
+  double z = zyx(EZ);
+  double y = zyx(EY);
+  double zd = zyx_d(EZ);
+  double yd = zyx_d(EY);
+
+//  Mdot <<  0, -cos(z)*zd,  -cos(z)*sin(y)*yd - cos(y)*sin(z)*zd,
+//           0, -sin(z)*zd,   cos(y)*cos(z)*zd - sin(y)*sin(z)*yd,
+//           0,         0,   -cos(y)*yd;
+
   Mapping Mdot(kDim3d, kDim3d);
 
-  double zd = zyx_d(0);
-  double yd = zyx_d(1);
-
-  double z = zyx(0);
-  double y = zyx(1);
-  double cos_z = cos(z);
-  double cos_y = sin(y);
-  double sin_z = cos(z);
-  double sin_y = sin(y);
-
-//  Mdot <<  0, -cos_z*zd,  -cos_z*sin_y*yd - cos_y*sin_z*zd,
-//           0, -sin_z*zd,   cos_y*cos_z*zd - sin_y*sin_z*yd,
-//           0,         0,  -cos_y*yd;
-
-  Mdot.coeffRef(0,1) = -cos_z*zd;  Mdot.coeffRef(0,2) =  -cos_z*sin_y*yd - cos_y*sin_z*zd;
-  Mdot.coeffRef(1,1) =  -sin_z*zd; Mdot.coeffRef(1,2) =   cos_y*cos_z*zd - sin_y*sin_z*yd;
-                                   Mdot.coeffRef(2,2) =  -cos_y*yd;
+  Mdot.coeffRef(0,1) = -cos(z)*zd; Mdot.coeffRef(0,2) =  -cos(z)*sin(y)*yd - cos(y)*sin(z)*zd;
+  Mdot.coeffRef(1,1) = -sin(z)*zd; Mdot.coeffRef(1,2) =   cos(y)*cos(z)*zd - sin(y)*sin(z)*yd;
+                                   Mdot.coeffRef(2,2) =  -cos(y)*yd;
 
  return Mdot;
 }
@@ -126,29 +124,24 @@ AngularStateConverter::GetDerivMwrtCoeff (double t,
   int n_coeff    = euler_->GetRows();
   StateLin3d ori = euler_->GetPoint(t);
 
-  double z = ori.p_(0);
-  double y = ori.p_(1);
-  double cos_z = cos(z);
-  double cos_y = sin(y);
-  double sin_z = cos(z);
-  double sin_y = sin(y);
-
-  JacobianRow jac_z = euler_->GetJacobian(t, kPos, Z);
-  JacobianRow jac_y = euler_->GetJacobian(t, kPos, Y);
+  double z = ori.p_(EZ);
+  double y = ori.p_(EY);
+  JacobianRow jac_z = euler_->GetJacobian(t, kPos, EZ);
+  JacobianRow jac_y = euler_->GetJacobian(t, kPos, EY);
 
   Jacobian jac(kDim3d,n_coeff);
 
   switch (ang_acc_dim) {
     case X: // basically derivative of top row (3 elements) of matrix M
-      jac.row(1) = -cos_z*jac_z;
-      jac.row(2) = -cos_z*sin_y*jac_y - cos_y*sin_z*jac_z;
+      jac.row(1) = -cos(z)*jac_z;
+      jac.row(2) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
       break;
     case Y: // middle row of M
-      jac.row(1) = -sin_z*jac_z;
-      jac.row(2) = cos_y*cos_z*jac_z - sin_y*sin_z*jac_y;
+      jac.row(1) = -sin(z)*jac_z;
+      jac.row(2) = cos(y)*cos(z)*jac_z - sin(y)*sin(z)*jac_y;
       break;
-    case Z: // bottom Row of M
-      jac.row(2) = -cos_y*jac_y;
+    case Z: // bottom row of M
+      jac.row(2) = -cos(y)*jac_y;
       break;
     default:
       assert(false);
@@ -164,32 +157,29 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) con
   int n_coeff    = euler_->GetRows();
   StateLin3d ori = euler_->GetPoint(t);
 
-  double z = ori.p_(0);
-  double y = ori.p_(1);
-  double zd = ori.v_(0);
-  double yd = ori.v_(1);
-  double cos_z = cos(z);
-  double cos_y = sin(y);
-  double sin_z = cos(z);
-  double sin_y = sin(y);
+  double z  = ori.p_(EZ);
+  double y  = ori.p_(EY);
+  double zd = ori.v_(EZ);
+  double yd = ori.v_(EY);
 
-  JacobianRow jac_z  = euler_->GetJacobian(t, kPos, Z);
-  JacobianRow jac_y  = euler_->GetJacobian(t, kPos, Y);
-  JacobianRow jac_zd = euler_->GetJacobian(t, kVel, Z);
-  JacobianRow jac_yd = euler_->GetJacobian(t, kVel, Y);
+  // zmp_ these indices are definetely wrong!!! Z is now at first position
+  JacobianRow jac_z  = euler_->GetJacobian(t, kPos, EZ);
+  JacobianRow jac_y  = euler_->GetJacobian(t, kPos, EY);
+  JacobianRow jac_zd = euler_->GetJacobian(t, kVel, EZ);
+  JacobianRow jac_yd = euler_->GetJacobian(t, kVel, EY);
 
   Jacobian jac(kDim3d,n_coeff);
   switch (ang_acc_dim) {
     case X: // basically derivative of top row (3 elements) of matrix M
-      jac.row(1) = sin_z*zd*jac_z - cos_z*jac_zd;
-      jac.row(2) = sin_y*sin_z*yd*jac_z - cos_y*sin_z*jac_zd - cos_y*cos_z*yd*jac_y - cos_y*cos_z*zd*jac_z - cos_z*sin_y*jac_yd + sin_y*sin_z*jac_y*zd;
+      jac.row(1) = sin(z)*zd*jac_z - cos(z)*jac_zd;
+      jac.row(2) = sin(y)*sin(z)*yd*jac_z - cos(y)*sin(z)*jac_zd - cos(y)*cos(z)*yd*jac_y - cos(y)*cos(z)*zd*jac_z - cos(z)*sin(y)*jac_yd + sin(y)*sin(z)*jac_y*zd;
       break;
     case Y: // middle row of M
-      jac.row(1) = - sin_z*jac_zd - cos_z*zd*jac_z;
-      jac.row(2) = cos_y*cos_z*jac_zd - sin_y*sin_z*jac_yd - cos_y*sin_z*yd*jac_y - cos_z*sin_y*yd*jac_z - cos_z*sin_y*jac_y*zd - cos_y*sin_z*zd*jac_z;
+      jac.row(1) = - sin(z)*jac_zd - cos(z)*zd*jac_z;
+      jac.row(2) = cos(y)*cos(z)*jac_zd - sin(y)*sin(z)*jac_yd - cos(y)*sin(z)*yd*jac_y - cos(z)*sin(y)*yd*jac_z - cos(z)*sin(y)*jac_y*zd - cos(y)*sin(z)*zd*jac_z;
       break;
     case Z: // bottom Row of M
-      jac.row(2) = sin_y*yd*jac_y - cos_y*jac_yd;
+      jac.row(2) = sin(y)*yd*jac_y - cos(y)*jac_yd;
       break;
     default:
       assert(false);
