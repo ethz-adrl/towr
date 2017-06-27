@@ -45,16 +45,23 @@ LIPModel::GetLinearAcceleration () const
 
 
 Jacobian
-LIPModel::GetJacobianOfAccWrtBase (const BaseMotion& com_motion, double t) const
+LIPModel::GetJacobianOfAccWrtBaseLin (const BaseLin& base_lin, double t) const
 {
-  Jacobian jac_wrt_com(kDim6d, com_motion.GetRows());
+  Jacobian jac_wrt_com(kDim6d, base_lin.GetRows());
 
   for (auto dim : {LX, LY}) {
-    JacobianRow com_jac     = com_motion.GetJacobian(t, kPos, dim);
+    JacobianRow com_jac  = base_lin.GetJacobian(t, kPos, To3D(dim));
     jac_wrt_com.row(dim) = kGravity/h_*com_jac;
   }
 
   return jac_wrt_com;
+}
+
+Jacobian
+LIPModel::GetJacobianOfAccWrtBaseAng (const BaseAng& base_ang, double t) const
+{
+  // base acceleration does not depend on base orientation
+  return Jacobian(kDim6d, base_ang.GetRows());
 }
 
 Jacobian

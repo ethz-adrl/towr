@@ -7,12 +7,12 @@
 
 #include <xpp/opt/constraints/linear_constraint.h>
 
-#include <vector>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include <vector>
 
-#include <xpp/bound.h>
-#include <xpp/opt/variables/base_motion.h>
+#include <xpp/opt/polynomial_spline.h>
+#include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -23,7 +23,8 @@ LinearEqualityConstraint::LinearEqualityConstraint (
 {
   linear_equation_ = linear_equation;
 
-  com_motion_ = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
+  // zmp_ make this more general
+  com_motion_ = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_linear));
   opt_vars_ = opt_vars;
 
   int num_constraints = linear_equation_.v.rows();
@@ -39,7 +40,7 @@ LinearEqualityConstraint::~LinearEqualityConstraint ()
 VectorXd
 LinearEqualityConstraint::GetValues () const
 {
-  VectorXd x = com_motion_->GetComSpline().GetValues();
+  VectorXd x = com_motion_->GetValues();
   return linear_equation_.M*x;
 }
 
@@ -61,8 +62,14 @@ LinearEqualityConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobi
 {
   // the constraints are all linear w.r.t. the decision variables.
   // careful, .sparseView is only valid when the Jacobian is constant, e.g.
-  if (var_set == com_motion_->GetName())
+
+  if (var_set == com_motion_->GetName()) {
+
+//    std::cout << "jac.cols(): " << jac.cols() << std::endl;
+//    std::cout << "linear_equation.cols(): " << linear_equation_.M.cols() << std::endl;
     jac = linear_equation_.M.sparseView();
+//    std::cout << "jac.cols()_after: " << jac.cols() << std::endl;
+  }
 }
 
 } /* namespace opt */

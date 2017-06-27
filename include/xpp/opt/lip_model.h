@@ -36,7 +36,8 @@ public:
   virtual BaseAcc GetBaseAcceleration() const override;
 
 
-  virtual Jacobian GetJacobianOfAccWrtBase(const BaseMotion&, double t_global) const override;
+  virtual Jacobian GetJacobianOfAccWrtBaseAng(const BaseLin&, double t_global) const override;
+  virtual Jacobian GetJacobianOfAccWrtBaseLin(const BaseAng&, double t_global) const override;
   virtual Jacobian GetJacobianofAccWrtForce(const EndeffectorsForce&,
                                    double t_global,
                                    EndeffectorID) const override;

@@ -8,8 +8,10 @@
 #include <xpp/opt/costs/polynomial_cost.h>
 
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 
-#include <xpp/opt/variables/base_motion.h>
+#include <xpp/opt/polynomial_spline.h>
+#include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -20,8 +22,8 @@ QuadraticPolynomialCost::QuadraticPolynomialCost (const OptVarsPtr& opt_vars,
                                                   double weight)
 {
   matrix_vector_ = mat_vec;
-  weight_ = weight;
-  com_motion_    = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
+  weight_        = weight;
+  polynomial_    = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_linear));
 
   SetName("Polynomial Cost");
   SetRows(1); // because cost
@@ -36,7 +38,7 @@ VectorXd
 QuadraticPolynomialCost::GetValues () const
 {
   VectorXd cost = VectorXd::Zero(GetRows());
-  VectorXd spline_coeff_ = com_motion_->GetLinearSpline().GetValues();
+  VectorXd spline_coeff_ = polynomial_->GetValues();
 
   cost += spline_coeff_.transpose() * matrix_vector_.M * spline_coeff_;
   cost += matrix_vector_.v.transpose() * spline_coeff_;
@@ -47,8 +49,8 @@ QuadraticPolynomialCost::GetValues () const
 void
 QuadraticPolynomialCost::FillJacobianWithRespectTo(std::string var_set, Jacobian& jac) const
 {
-  if (var_set == com_motion_->GetName()) {
-    VectorXd grad = 2.0 * matrix_vector_.M * com_motion_->GetLinearSpline().GetValues();
+  if (var_set == polynomial_->GetName()) {
+    VectorXd grad = 2.0 * matrix_vector_.M * polynomial_->GetValues();
     jac.row(0) =  grad.transpose().sparseView();
   }
 }

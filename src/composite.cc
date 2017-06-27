@@ -83,6 +83,7 @@ Composite::GetComponent (std::string name) const
     if (c->GetName() == name)
       return c;
 
+  std::cerr << "component \"" << name << "\" doesn't exist." << std::endl;
   assert(false); // component with name doesn't exist
 }
 

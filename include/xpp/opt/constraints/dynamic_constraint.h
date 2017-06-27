@@ -28,7 +28,7 @@ class EndeffectorsForce;
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
-  using BaseMotionPtr = std::shared_ptr<BaseMotion>;
+  using BaseLinear = std::shared_ptr<PolynomialSpline>;
   using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
   using EELoadPtr     = std::shared_ptr<EndeffectorsForce>;
 
@@ -38,7 +38,7 @@ public:
   virtual ~DynamicConstraint ();
 
 private:
-  BaseMotionPtr base_motion_;
+  BaseLinear base_linear_;
   EEMotionPtr ee_motion_;
   EELoadPtr ee_load_;
 

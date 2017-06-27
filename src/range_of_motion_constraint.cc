@@ -7,16 +7,18 @@
 
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
 
-#include <string>
-#include <vector>
 #include <Eigen/Dense>
+#include <initializer_list>
+#include <vector>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
 #include <xpp/bound.h>
-#include <xpp/opt/variables/base_motion.h>
+#include <xpp/opt/constraints/composite.h>
+#include <xpp/opt/polynomial_spline.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
+#include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -32,8 +34,8 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   max_deviation_from_nominal_ = dev;
   nominal_stance_ = nom;
 
-  base_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
-  ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
+  base_linear_ = std::dynamic_pointer_cast<PolynomialSpline>        (opt_vars->GetComponent(id::base_linear));
+  ee_motion_   = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent(id::endeffectors_motion));
 
   dim_ =  {X, Y, Z};
   SetRows(GetNumberOfNodes()*nom.GetCount()*dim_.size());
@@ -52,7 +54,7 @@ RangeOfMotionBox::GetRow (int node, EndeffectorID ee, int dim) const
 void
 RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
 {
-  Vector3d base_W = base_motion_->GetBase(t).lin.p_;
+  Vector3d base_W = base_linear_->GetPoint(t).p_;
 
   auto pos_ee_W = ee_motion_->GetEndeffectors(t);
 
@@ -97,8 +99,8 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
         }
       }
 
-      if (var_set == base_motion_->GetName())
-        jac.row(row) = -1*base_motion_->GetJacobian(t, kPos, To6D(dim));
+      if (var_set == base_linear_->GetName())
+        jac.row(row) = -1*base_linear_->GetJacobian(t, kPos, dim);
     }
   }
 }

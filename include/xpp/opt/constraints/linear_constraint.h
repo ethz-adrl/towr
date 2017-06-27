@@ -19,7 +19,7 @@
 namespace xpp {
 namespace opt {
 
-class BaseMotion;
+class PolynomialSpline;
 
 /** @brief Calculates the constraint violations for linear constraints.
   *
@@ -28,7 +28,7 @@ class BaseMotion;
   */
 class LinearEqualityConstraint : public Primitive {
 public:
-  using ComMotionPtr = std::shared_ptr<BaseMotion>;
+  using ComMotionPtr = std::shared_ptr<PolynomialSpline>;
 
   /** @brief Defines the elements of the linear constraint as g = Mx+v.
     *

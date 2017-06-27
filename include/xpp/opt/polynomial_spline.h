@@ -61,6 +61,7 @@ public:
                                               int dim) const = delete;
 
   JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, int dim) const;
+  Jacobian    GetJacobian(double t_global, MotionDerivative dxdt) const;
 
   VecPolynomials GetPolynomials() const { return polynomials_; }
   int GetNDim() const {return n_dim_; };

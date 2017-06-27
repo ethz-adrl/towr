@@ -7,12 +7,10 @@
 
 #include <xpp/opt/cost_constraint_factory.h>
 
-#include <array>
-#include <cassert>
+#include <Eigen/Dense>
 #include <map>
 #include <stdexcept>
 #include <vector>
-#include <Eigen/Dense>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
@@ -21,11 +19,11 @@
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/foothold_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
-//#include <xpp/opt/constraints/polygon_center_constraint.h>
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
 #include <xpp/opt/costs/polynomial_cost.h>
 #include <xpp/opt/costs/soft_constraint.h>
-#include <xpp/opt/variables/base_motion.h>
+#include <xpp/opt/polynomial_spline.h>
+#include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -45,9 +43,11 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
                              const StateLin3d& final_state)
 {
   opt_vars_ = opt_vars;
-  auto base_motion = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
-  base_lin_spline_eq_ = LinearSplineEquations(base_motion->GetLinearSpline());
-  base_ang_spline_eq_ = LinearSplineEquations(base_motion->GetAngularSpline());
+  auto base_lin = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_linear));
+  base_lin_spline_eq_ = LinearSplineEquations(*base_lin);
+
+  auto base_ang = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_angular));
+  base_ang_spline_eq_ = LinearSplineEquations(*base_ang);
 
   params = _params;
   initial_geom_state_ = initial_state;

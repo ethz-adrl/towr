@@ -22,7 +22,10 @@
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
+#include <xpp/opt/variables/variable_names.h>
 #include <xpp/snopt_adapter.h>
+
+#include <kindr/Core>
 
 namespace xpp {
 namespace opt {
@@ -72,21 +75,23 @@ MotionOptimizerFacade::BuildVariables ()
 
   double T = motion_parameters_->GetTotalTime();
 
-  auto base_linear = std::make_shared<PolynomialSpline>("com_spline");
+  auto base_linear = std::make_shared<PolynomialSpline>(id::base_linear);
   base_linear->Init(T, motion_parameters_->duration_polynomial_,
                    start_geom_.GetBase().lin.p_);
 
-  auto base_angular = std::make_shared<PolynomialSpline>("base_ori");
+  auto base_angular = std::make_shared<PolynomialSpline>(id::base_angular);
   Vector3d initial_rpy(0.0, 0.0, 0.0);
   base_angular->Init(T, motion_parameters_->duration_polynomial_,
                          initial_rpy);
 
-  auto base_motion = std::make_shared<BaseMotion>(base_linear, base_angular);
+//  auto base_motion = std::make_shared<BaseMotion>(base_linear, base_angular);
 
   auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
                                                    *contact_schedule);
   opt_variables_->ClearComponents();
-  opt_variables_->AddComponent(base_motion);
+//  opt_variables_->AddComponent(base_motion);
+  opt_variables_->AddComponent(base_linear);
+  opt_variables_->AddComponent(base_angular);
   opt_variables_->AddComponent(ee_motion);
   opt_variables_->AddComponent(force);
   opt_variables_->AddComponent(contact_schedule);
@@ -131,17 +136,36 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   RobotStateVec trajectory;
 
-  auto base_motion      = std::dynamic_pointer_cast<BaseMotion>        (opt_variables_->GetComponent("base_motion"));
-  auto ee_motion        = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_variables_->GetComponent("endeffectors_motion"));
-  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent("contact_schedule"));
-  auto ee_forces        = std::dynamic_pointer_cast<EndeffectorsForce> (opt_variables_->GetComponent("endeffector_force"));
+  // zmp_ make file with component names
+
+//  auto base_motion      = std::dynamic_pointer_cast<BaseMotion>        (opt_variables_->GetComponent("base_motion"));
+  auto base_lin         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_linear));
+  auto base_ang         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_angular));
+  auto ee_motion        = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_variables_->GetComponent(id::endeffectors_motion));
+  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent(id::contact_schedule));
+  auto ee_forces        = std::dynamic_pointer_cast<EndeffectorsForce> (opt_variables_->GetComponent(id::endeffector_force));
 
   double t=0.0;
   double T = motion_parameters_->GetTotalTime();
   while (t<=T+1e-5) {
 
     RobotStateCartesian state(start_geom_.GetEECount());
-    state.SetBase(base_motion->GetBase(t));
+
+
+    // zmp_ move to own class
+    State3d base; // positions and orientations set to zero
+    base.lin = base_lin->GetPoint(t);
+    StateLin3d rpy = base_ang->GetPoint(t);
+    kindr::EulerAnglesXyzD euler(rpy.p_);
+    kindr::RotationQuaternionD quat(euler);
+
+    // zmp_ add angular velocities and accelerations as well
+    base.ang.q = quat.toImplementation();
+    state.SetBase(base);
+
+
+
+
 
     state.SetEEStateInWorld(ee_motion->GetEndeffectors(t));
     state.SetEEForcesInWorld(ee_forces->GetForce(t));

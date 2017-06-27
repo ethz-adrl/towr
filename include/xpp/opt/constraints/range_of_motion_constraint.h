@@ -19,7 +19,7 @@
 namespace xpp {
 namespace opt {
 
-class BaseMotion;
+class PolynomialSpline;
 class EndeffectorsMotion;
 
 /** @brief Constrains the contact to lie in a box around the nominal stance
@@ -35,7 +35,7 @@ class EndeffectorsMotion;
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
-  using BaseMotionPtr  = std::shared_ptr<BaseMotion>;
+  using BaseLinear  = std::shared_ptr<PolynomialSpline>;
   using EEMotionPtr    = std::shared_ptr<EndeffectorsMotion>;
   using MaxDevXY       = std::array<double,3>;
   using NominalStance  = EndeffectorsPos;
@@ -61,7 +61,7 @@ private:
 
   MaxDevXY max_deviation_from_nominal_;
   NominalStance nominal_stance_;
-  BaseMotionPtr base_motion_;
+  BaseLinear base_linear_;
   EEMotionPtr ee_motion_;
 
   std::vector<Coords3D> dim_;

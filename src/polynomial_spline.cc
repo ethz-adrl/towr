@@ -79,6 +79,16 @@ PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, int dim)
   return GetJacobianWrtCoeffAtPolynomial(deriv, t_local, id, dim);
 }
 
+Jacobian
+PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
+{
+  Jacobian jac(n_dim_, GetRows());
+  for (int dim=0; dim<n_dim_; ++dim)
+    jac.row(dim) = GetJacobian(t_global, deriv, dim);
+
+  return jac;
+}
+
 JacobianRow
 PolynomialSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_local,
                                                    int id, int dim) const

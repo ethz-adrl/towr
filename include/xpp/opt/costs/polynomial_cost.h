@@ -8,7 +8,6 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 
-#include <Eigen/Dense>
 #include <memory>
 #include <string>
 
@@ -18,7 +17,7 @@
 namespace xpp {
 namespace opt {
 
-class BaseMotion;
+class PolynomialSpline;
 
 /** @brief Calculates the scalar cost associated to spline coefficients.
   *
@@ -27,7 +26,7 @@ class BaseMotion;
   */
 class QuadraticPolynomialCost : public Primitive {
 public:
-  using BaseMotionPtrS = std::shared_ptr<BaseMotion>;
+  using PolynomialPtr = std::shared_ptr<PolynomialSpline>;
 
   QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&, double weight);
   virtual ~QuadraticPolynomialCost();
@@ -41,7 +40,7 @@ private:
   void FillJacobianWithRespectTo(std::string var_set, Jacobian&) const;
 
   double weight_ = 1.0;
-  BaseMotionPtrS com_motion_;
+  PolynomialPtr polynomial_;
   MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
 };
 

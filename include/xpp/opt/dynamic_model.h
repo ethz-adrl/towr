@@ -38,15 +38,19 @@ public:
   using ComAngAcc = Vector3d;
   using BaseAcc   = Vector6d;
 
-  using EELoad = Endeffectors<Vector3d>;
-  using EEPos  = EndeffectorsPos;
+  using EELoad  = Endeffectors<Vector3d>;
+  using EEPos   = EndeffectorsPos;
+  using BaseLin = PolynomialSpline;
+  using BaseAng = PolynomialSpline;
 
   void SetCurrent(const ComPos& com, const EELoad&, const EEPos&);
 
   virtual BaseAcc GetBaseAcceleration() const = 0;
 
-  virtual Jacobian GetJacobianOfAccWrtBase(const BaseMotion&,
-                                            double t_global) const = 0;
+  virtual Jacobian GetJacobianOfAccWrtBaseLin(const BaseLin&,
+                                              double t_global) const = 0;
+  virtual Jacobian GetJacobianOfAccWrtBaseAng(const BaseAng&,
+                                              double t_global) const = 0;
   virtual Jacobian GetJacobianofAccWrtForce(const EndeffectorsForce&,
                                             double t_global,
                                             EndeffectorID) const = 0;

@@ -68,6 +68,7 @@ BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt) const
 //    jac.row(d) = angular_->GetJacobian(t_global, dxdt, To3D(d));
 
   // linear part
+  // zmp_ !!!!! the colum order is the fucked up part!!!!!
   for (auto d : {LX, LY, LZ})
     jac.row(d) = linear_->GetJacobian(t_global, dxdt, To3D(d));
 
