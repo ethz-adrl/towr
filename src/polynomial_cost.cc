@@ -36,7 +36,7 @@ VectorXd
 QuadraticPolynomialCost::GetValues () const
 {
   VectorXd cost = VectorXd::Zero(GetRows());
-  VectorXd spline_coeff_ = com_motion_->GetComSpline().GetValues();
+  VectorXd spline_coeff_ = com_motion_->GetLinearSpline().GetValues();
 
   cost += spline_coeff_.transpose() * matrix_vector_.M * spline_coeff_;
   cost += matrix_vector_.v.transpose() * spline_coeff_;
@@ -48,7 +48,7 @@ void
 QuadraticPolynomialCost::FillJacobianWithRespectTo(std::string var_set, Jacobian& jac) const
 {
   if (var_set == com_motion_->GetName()) {
-    VectorXd grad = 2.0 * matrix_vector_.M * com_motion_->GetComSpline().GetValues();
+    VectorXd grad = 2.0 * matrix_vector_.M * com_motion_->GetLinearSpline().GetValues();
     jac.row(0) =  grad.transpose().sparseView();
   }
 }

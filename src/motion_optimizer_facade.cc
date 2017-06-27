@@ -40,7 +40,7 @@ void
 MotionOptimizerFacade::BuildDefaultStartStance ()
 {
   State3d base;
-  double offset_x = 0.0;
+  double offset_x = 1.0;
   base.lin.p_ << offset_x+0.000350114, -1.44379e-7, 0.573311;
   base.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
   base.lin.a_ << 0.000197966, -5.72241e-07, -5.13328e-06;
@@ -72,15 +72,16 @@ MotionOptimizerFacade::BuildVariables ()
 
   double T = motion_parameters_->GetTotalTime();
 
-  auto com_motion = std::make_shared<PolynomialSpline>("com_spline");
-  com_motion->Init(T, motion_parameters_->duration_polynomial_,
+  auto base_linear = std::make_shared<PolynomialSpline>("com_spline");
+  base_linear->Init(T, motion_parameters_->duration_polynomial_,
                    start_geom_.GetBase().lin.p_);
 
-  auto base_orientation = std::make_shared<PolynomialSpline>("base_ori");
-  base_orientation->Init(T, motion_parameters_->duration_polynomial_,
-                         Vector3d::Zero(3));
+  auto base_angular = std::make_shared<PolynomialSpline>("base_ori");
+  Vector3d initial_rpy(0.0, 0.0, 0.0);
+  base_angular->Init(T, motion_parameters_->duration_polynomial_,
+                         initial_rpy);
 
-  auto base_motion = std::make_shared<BaseMotion>(com_motion, base_orientation);
+  auto base_motion = std::make_shared<BaseMotion>(base_linear, base_angular);
 
   auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
                                                    *contact_schedule);

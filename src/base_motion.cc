@@ -6,6 +6,7 @@
  */
 
 #include <xpp/opt/variables/base_motion.h>
+#include <kindr/Core>
 
 namespace xpp {
 namespace opt {
@@ -31,15 +32,18 @@ BaseMotion::GetBase (double t_global) const
 {
   State3d base; // positions and orientations set to zero
 
-  base.lin = GetLinear(t_global);
+  base.lin = linear_->GetPoint(t_global);
+
+  StateLin3d rpy = angular_->GetPoint(t_global);
+
+  kindr::EulerAnglesXyzD euler(rpy.p_);
+  kindr::RotationQuaternionD quat(euler);
+
+
+  // zmp_ add angular velocities and accelerations as well
+  base.ang.q = quat.toImplementation();
 
   return base;
-}
-
-StateLin3d
-BaseMotion::GetLinear (double t_global) const
-{
-  return linear_->GetPoint(t_global);
 }
 
 double
@@ -59,19 +63,27 @@ BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt) const
 {
   Jacobian jac(kDim6d,GetRows());
 
+//  // angular part zero
+//  for (auto d : {AX, AY, AZ})
+//    jac.row(d) = angular_->GetJacobian(t_global, dxdt, To3D(d));
+
   // linear part
   for (auto d : {LX, LY, LZ})
     jac.row(d) = linear_->GetJacobian(t_global, dxdt, To3D(d));
-
-  // angular part zero
 
   return jac;
 }
 
 PolynomialSpline
-xpp::opt::BaseMotion::GetComSpline () const
+xpp::opt::BaseMotion::GetLinearSpline () const
 {
   return *linear_;
+}
+
+PolynomialSpline
+xpp::opt::BaseMotion::GetAngularSpline () const
+{
+  return *angular_;
 }
 
 } /* namespace opt */

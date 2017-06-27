@@ -53,7 +53,8 @@ private:
   RobotStateCartesian initial_geom_state_;
   StateLin3d final_geom_state_;
 
-  LinearSplineEquations spline_eq_;
+  LinearSplineEquations base_lin_spline_eq_;
+  LinearSplineEquations base_ang_spline_eq_;
 
   // constraints
   ConstraintPtr MakeInitialConstraint() const;

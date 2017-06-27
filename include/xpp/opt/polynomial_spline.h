@@ -9,6 +9,7 @@
 #define XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_SPLINE_H_
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <xpp/cartesian_declarations.h>
@@ -21,6 +22,7 @@
 namespace xpp {
 namespace opt {
 
+// zmp_ update description
 /** Represents the Center of Mass (CoM) motion as a Spline (sequence of polynomials).
   *
   * This class is responsible for abstracting polynomial coefficients of multiple
@@ -53,18 +55,18 @@ public:
     */
   JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt,
                                               double t_poly, int id,
-                                              Coords3D dim) const;
+                                              int dim) const;
   JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt,
                                               int id, double t_poly,
-                                              Coords3D dim) const = delete;
+                                              int dim) const = delete;
+
+  JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, int dim) const;
 
   VecPolynomials GetPolynomials() const { return polynomials_; }
-
-  JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, Coords3D dim) const;
+  int GetNDim() const {return n_dim_; };
 
 private:
   VecPolynomials polynomials_; ///< pointer to retain access to polynomial functions
-
   int n_dim_;
 
   int GetFreeCoeffPerPoly() const;

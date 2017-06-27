@@ -35,7 +35,6 @@ class PolynomialSpline;
 class LinearSplineEquations {
 public:
   using MotionDerivatives = std::vector<MotionDerivative>;
-  using ValXYZ            = std::array<double,3>;
 
   LinearSplineEquations();
   LinearSplineEquations (const PolynomialSpline&);
@@ -45,7 +44,7 @@ public:
     *
     * @param state desired position, velocity and acceleration.
     */
-  MatVec MakeStateConstraint(const StateLin3d& state, double t, const MotionDerivatives& ) const;
+  MatVec MakeStateConstraint(const StateLinXd& state, double t, const MotionDerivatives& ) const;
 
   /** M*x + v gives the difference at the polynomial junctions of the spline
     *
@@ -63,7 +62,7 @@ public:
     *
     * @param weight which acceleration to avoid (x,y,z)
     */
-  Eigen::MatrixXd MakeCostMatrix(const ValXYZ& weights, MotionDerivative) const;
+  Eigen::MatrixXd MakeCostMatrix(const VectorXd& weights, MotionDerivative) const;
 
 private:
   PolynomialSpline poly_spline_;

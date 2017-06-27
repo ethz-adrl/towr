@@ -32,7 +32,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   max_deviation_from_nominal_ = dev;
   nominal_stance_ = nom;
 
-  com_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
+  base_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
   ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
 
   dim_ =  {X, Y, Z};
@@ -52,7 +52,7 @@ RangeOfMotionBox::GetRow (int node, EndeffectorID ee, int dim) const
 void
 RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
 {
-  Vector3d base_W = com_motion_->GetBase(t).lin.p_;
+  Vector3d base_W = base_motion_->GetBase(t).lin.p_;
 
   auto pos_ee_W = ee_motion_->GetEndeffectors(t);
 
@@ -97,8 +97,8 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
         }
       }
 
-      if (var_set == com_motion_->GetName())
-        jac.row(row) = -1*com_motion_->GetJacobian(t, kPos, To6D(dim));
+      if (var_set == base_motion_->GetName())
+        jac.row(row) = -1*base_motion_->GetJacobian(t, kPos, To6D(dim));
     }
   }
 }

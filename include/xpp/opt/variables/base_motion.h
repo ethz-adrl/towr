@@ -46,13 +46,12 @@ public:
   State3d GetBase(double t_global) const;
 
   double GetTotalTime() const;
-  PolynomialSpline GetComSpline() const;
+  PolynomialSpline GetLinearSpline() const;
+  PolynomialSpline GetAngularSpline() const;
 
 private:
-  PolySplinePtr linear_; // to retain specific spline info
-  PolySplinePtr angular_; // to retain specific spline info
-
-  StateLin3d GetLinear(double t_global) const;
+  PolySplinePtr linear_;  ///< Base x,y,z positions/velocity and acceleration
+  PolySplinePtr angular_; ///< Base yaw, pitch roll angle, first deriv, second deriv
 };
 
 } /* namespace opt */

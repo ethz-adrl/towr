@@ -69,8 +69,10 @@ PolynomialSpline::GetValues () const
 }
 
 JacobianRow
-PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, Coords3D dim) const
+PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, int dim) const
 {
+  assert(dim < n_dim_);
+
   int id         = GetSegmentID(t_global);
   double t_local = GetLocalTime(t_global);
 
@@ -79,7 +81,7 @@ PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, Coords3D
 
 JacobianRow
 PolynomialSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_local,
-                                            int id, Coords3D dim) const
+                                                   int id, int dim) const
 {
   JacobianRow jac(1, GetRows());
   auto polynomial = polynomials_.at(id);

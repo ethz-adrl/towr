@@ -38,7 +38,7 @@ void Polynomial::SetBoundary(double T, const StateLinXd& start, const StateLinXd
   end_     = end;
 
   for (PolynomialCoeff c : GetCoeffIds()) {
-    int n_dim = start_.GetDim().size();
+    int n_dim = start_.kNumDim;
     coeff_.at(c) = VectorXd::Zero(n_dim);
   }
 
@@ -211,7 +211,7 @@ void
 LiftHeightPolynomial::SetPolynomialCoefficients (
     double T, const StateLinXd& start, const StateLinXd& end)
 {
-  VectorXd h_ = height_*VectorXd::Ones(start.GetDim().size());
+  VectorXd h_ = height_*VectorXd::Ones(start.kNumDim);
 
   double n2 = std::pow(n_,2);
   double n3 = std::pow(n_,3);

@@ -31,8 +31,8 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
 
   SetName("DynamicConstraint");
   base_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
-  ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
-  ee_load_    = std::dynamic_pointer_cast<EndeffectorsForce> (opt_vars->GetComponent("endeffector_force"));
+  ee_motion_   = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
+  ee_load_     = std::dynamic_pointer_cast<EndeffectorsForce> (opt_vars->GetComponent("endeffector_force"));
 
   SetRows(GetNumberOfNodes()*kDim6d);
 }
