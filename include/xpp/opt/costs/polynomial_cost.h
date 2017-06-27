@@ -17,7 +17,7 @@
 namespace xpp {
 namespace opt {
 
-class PolynomialSpline;
+//class PolynomialSpline;
 
 /** @brief Calculates the scalar cost associated to spline coefficients.
   *
@@ -26,9 +26,10 @@ class PolynomialSpline;
   */
 class QuadraticPolynomialCost : public Primitive {
 public:
-  using PolynomialPtr = std::shared_ptr<PolynomialSpline>;
+//  using PolynomialPtr = std::shared_ptr<PolynomialSpline>;
 
-  QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&, double weight);
+  QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&,
+                          const std::string& variables, double weight);
   virtual ~QuadraticPolynomialCost();
 
   /**  The cost is calculated as
@@ -40,8 +41,9 @@ private:
   void FillJacobianWithRespectTo(std::string var_set, Jacobian&) const;
 
   double weight_ = 1.0;
-  PolynomialPtr polynomial_;
-  MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
+//  PolynomialPtr polynomial_;
+  MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar costst
+  std::string variables_;
 };
 
 //class SquaredSplineCost : public ASplineCost {

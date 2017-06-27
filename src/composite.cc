@@ -171,7 +171,7 @@ Primitive::Primitive () : Component(-1, "Primitive")
 }
 
 void
-Primitive::AddComposite (const OptVarsPtr& vars)
+Primitive::AddOptimizationVariables (const OptVarsPtr& vars)
 {
   opt_vars_ = vars;
 }

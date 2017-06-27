@@ -93,7 +93,7 @@ CostConstraintFactory::MakeInitialConstraint () const
   MatVec lin_eq = base_lin_spline_eq_.MakeStateConstraint(initial_com_state,
                                                           t,
                                                           {kPos, kVel, kAcc});
-  auto base_linear = std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq);
+  auto base_linear = std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq, id::base_linear);
   state_constraints->AddComponent(base_linear);
 
 
@@ -124,7 +124,7 @@ CostConstraintFactory::MakeFinalConstraint () const
                                                    params->GetTotalTime(),
                                                    {kPos, kVel, kAcc});
 
-  auto base_linear = std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq_lin);
+  auto base_linear = std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq_lin, id::base_linear);
   state_constraints->AddComponent(base_linear);
 
 //  StateLin3d final_rpy_state;
@@ -148,7 +148,7 @@ CostConstraintFactory::MakeJunctionConstraint () const
   auto junction_constraints = std::make_shared<Composite>("Junctions Constraints", true);
 
   auto base_linear = std::make_shared<LinearEqualityConstraint>(
-      opt_vars_, base_lin_spline_eq_.MakeJunction());
+      opt_vars_, base_lin_spline_eq_.MakeJunction(), id::base_linear);
   junction_constraints->AddComponent(base_linear);
 
 //  auto base_angular = std::make_shared<LinearEqualityConstraint>(
@@ -230,7 +230,8 @@ CostConstraintFactory::MakeMotionCost(double weight) const
   mv.M = term;
   mv.v.setZero();
 
-  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, weight);
+  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, id::base_linear,
+                                                   weight);
 }
 
 CostConstraintFactory::ConstraintPtr

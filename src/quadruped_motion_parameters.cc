@@ -191,7 +191,7 @@ Trot::Trot()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   Stance,
+//                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 //

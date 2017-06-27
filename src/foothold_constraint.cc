@@ -29,7 +29,7 @@ FootholdConstraint::FootholdConstraint (const OptVarsPtr& opt_vars,
   int num_constraints = nom_W.GetCount() * kDim2d;
   SetName("FootholdConstraint");
   SetRows(num_constraints);
-  AddComposite(opt_vars);
+  AddOptimizationVariables(opt_vars);
 }
 
 FootholdConstraint::~FootholdConstraint ()

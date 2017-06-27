@@ -136,7 +136,8 @@ public:
   Jacobian GetJacobian() const override;
 
 protected:
-  void AddComposite(const OptVarsPtr&);
+  void AddOptimizationVariables(const OptVarsPtr&);
+  const OptVarsPtr GetOptVars() const { return opt_vars_; };
 
 private:
   /** @brief Jacobian of the component with respect to each decision variable set.

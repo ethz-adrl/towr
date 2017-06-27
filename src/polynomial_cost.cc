@@ -19,15 +19,17 @@ namespace opt {
 
 QuadraticPolynomialCost::QuadraticPolynomialCost (const OptVarsPtr& opt_vars,
                                                   const MatVec& mat_vec,
+                                                  const std::string& variables,
                                                   double weight)
 {
   matrix_vector_ = mat_vec;
+  variables_     = variables;
   weight_        = weight;
-  polynomial_    = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_linear));
+//  polynomial_    = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_linear));
 
   SetName("Polynomial Cost");
   SetRows(1); // because cost
-  AddComposite(opt_vars);
+  AddOptimizationVariables(opt_vars);
 }
 
 QuadraticPolynomialCost::~QuadraticPolynomialCost ()
@@ -38,10 +40,10 @@ VectorXd
 QuadraticPolynomialCost::GetValues () const
 {
   VectorXd cost = VectorXd::Zero(GetRows());
-  VectorXd spline_coeff_ = polynomial_->GetValues();
+  VectorXd x    = GetOptVars()->GetComponent(variables_)->GetValues();     //polynomial_->GetValues();
 
-  cost += spline_coeff_.transpose() * matrix_vector_.M * spline_coeff_;
-  cost += matrix_vector_.v.transpose() * spline_coeff_;
+  cost += x.transpose() * matrix_vector_.M * x;
+  cost += matrix_vector_.v.transpose() * x;
 
   return weight_*cost;
 }
@@ -49,8 +51,11 @@ QuadraticPolynomialCost::GetValues () const
 void
 QuadraticPolynomialCost::FillJacobianWithRespectTo(std::string var_set, Jacobian& jac) const
 {
-  if (var_set == polynomial_->GetName()) {
-    VectorXd grad = 2.0 * matrix_vector_.M * polynomial_->GetValues();
+  if (var_set == variables_) {
+
+    VectorXd x = GetOptVars()->GetComponent(variables_)->GetValues();     //polynomial_->GetValues();
+
+    VectorXd grad = 2.0 * matrix_vector_.M * x;
     jac.row(0) =  grad.transpose().sparseView();
   }
 }

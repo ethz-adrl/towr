@@ -19,8 +19,6 @@
 namespace xpp {
 namespace opt {
 
-class PolynomialSpline;
-
 /** @brief Calculates the constraint violations for linear constraints.
   *
   * This class is responsible for getting the current state of the CoM spline
@@ -28,7 +26,6 @@ class PolynomialSpline;
   */
 class LinearEqualityConstraint : public Primitive {
 public:
-  using ComMotionPtr = std::shared_ptr<PolynomialSpline>;
 
   /** @brief Defines the elements of the linear constraint as g = Mx+v.
     *
@@ -36,7 +33,8 @@ public:
     * @param linear_equation the matrix M and vector v.
     */
   LinearEqualityConstraint (const OptVarsPtr& opt_vars_container,
-                            const MatVec& linear_equation);
+                            const MatVec& linear_equation,
+                            const std::string& variable_name);
   virtual ~LinearEqualityConstraint ();
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
@@ -45,9 +43,9 @@ public:
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
-  ComMotionPtr com_motion_;
   MatVec linear_equation_;
   OptVarsPtr opt_vars_;
+  std::string variable_name_;
 };
 
 } /* namespace opt */
