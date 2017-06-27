@@ -8,14 +8,13 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_DYNAMIC_MODEL_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_DYNAMIC_MODEL_H_
 
-#include <Eigen/Dense>
 #include <vector>
 
-#include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
+
+#include "polynomial_spline.h"
 #include <xpp/opt/constraints/composite.h>
-#include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
 

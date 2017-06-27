@@ -22,11 +22,10 @@
 namespace xpp {
 namespace opt {
 
-// zmp_ update description
-/** Represents the Center of Mass (CoM) motion as a Spline (sequence of polynomials).
+/** @brief Represents a sequence of polynomials with optimized coefficients.
   *
   * This class is responsible for abstracting polynomial coefficients of multiple
-  * polynomials into a CoM position/velocity and acceleration.
+  * polynomials into a spline with position/velocity and acceleration.
   */
 class PolynomialSpline : public Component, public Spline {
 public:

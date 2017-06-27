@@ -19,12 +19,11 @@ LinearEqualityConstraint::LinearEqualityConstraint (
     const MatVec& linear_equation,
     const std::string& variable_name)
 {
-  opt_vars_        = opt_vars;
+  SetName("LinearEqualityConstraint-" + variable_name);
   linear_equation_ = linear_equation;
   variable_name_   = variable_name;
 
   int num_constraints = linear_equation_.v.rows();
-  SetName("LinearEqualityConstraint");
   SetRows(num_constraints);
   AddOptimizationVariables(opt_vars);
 }
@@ -36,7 +35,7 @@ LinearEqualityConstraint::~LinearEqualityConstraint ()
 VectorXd
 LinearEqualityConstraint::GetValues () const
 {
-  VectorXd x = opt_vars_->GetComponent(variable_name_)->GetValues();
+  VectorXd x = GetOptVars()->GetComponent(variable_name_)->GetValues();
   return linear_equation_.M*x;
 }
 

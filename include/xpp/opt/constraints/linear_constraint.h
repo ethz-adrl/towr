@@ -29,10 +29,11 @@ public:
 
   /** @brief Defines the elements of the linear constraint as g = Mx+v.
     *
-    * @param com Center of Mass parametrization, from which spline coefficients x are used.
-    * @param linear_equation the matrix M and vector v.
+    * @param opt_vars_       This is where the vector x is taken from.
+    * @param linear_equation The matrix M and vector v.
+    * @param variable_name   The name of the variables x.
     */
-  LinearEqualityConstraint (const OptVarsPtr& opt_vars_container,
+  LinearEqualityConstraint (const OptVarsPtr& opt_vars_,
                             const MatVec& linear_equation,
                             const std::string& variable_name);
   virtual ~LinearEqualityConstraint ();
@@ -44,7 +45,6 @@ public:
 
 private:
   MatVec linear_equation_;
-  OptVarsPtr opt_vars_;
   std::string variable_name_;
 };
 

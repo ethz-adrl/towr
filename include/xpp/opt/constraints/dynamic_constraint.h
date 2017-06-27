@@ -15,6 +15,7 @@
 
 #include <xpp/bound.h>
 #include <xpp/opt/dynamic_model.h>
+#include <xpp/opt/polynomial_spline.h>
 
 #include "composite.h"
 #include "time_discretization_constraint.h"
@@ -28,9 +29,9 @@ class EndeffectorsForce;
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
-  using BaseLinear = std::shared_ptr<PolynomialSpline>;
-  using EEMotionPtr   = std::shared_ptr<EndeffectorsMotion>;
-  using EELoadPtr     = std::shared_ptr<EndeffectorsForce>;
+  using BaseLinear  = std::shared_ptr<PolynomialSpline>;
+  using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
+  using EELoadPtr   = std::shared_ptr<EndeffectorsForce>;
 
   using DynamicModelPtr  = std::shared_ptr<DynamicModel>;
 

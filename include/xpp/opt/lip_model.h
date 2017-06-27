@@ -16,7 +16,6 @@
 #include <xpp/state.h>
 
 #include "dynamic_model.h"
-#include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
 

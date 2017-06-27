@@ -17,16 +17,14 @@
 namespace xpp {
 namespace opt {
 
-//class PolynomialSpline;
 
-/** @brief Calculates the scalar cost associated to spline coefficients.
+/** @brief Calculates the scalar cost associated with a vector of variables.
   *
   * This class is responsible for getting the current value of the optimization
   * variables from the subject and calculating the scalar cost from these.
   */
 class QuadraticPolynomialCost : public Primitive {
 public:
-//  using PolynomialPtr = std::shared_ptr<PolynomialSpline>;
 
   QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&,
                           const std::string& variables, double weight);
@@ -41,7 +39,6 @@ private:
   void FillJacobianWithRespectTo(std::string var_set, Jacobian&) const;
 
   double weight_ = 1.0;
-//  PolynomialPtr polynomial_;
   MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar costst
   std::string variables_;
 };
@@ -57,7 +54,7 @@ private:
 //
 //};
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_ */

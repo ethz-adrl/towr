@@ -222,7 +222,7 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeMotionCost(double weight) const
 {
   MotionDerivative dxdt = kAcc;
-  // zmp_ careful, must match spline dimensions
+  // careful, must match spline dimensions
   VectorXd weight_xyz(3); weight_xyz << 1.0, 1.0, 1.0;
   Eigen::MatrixXd term = base_lin_spline_eq_.MakeCostMatrix(weight_xyz, dxdt);
 

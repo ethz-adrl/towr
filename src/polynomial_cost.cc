@@ -10,7 +10,6 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <xpp/opt/polynomial_spline.h>
 #include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
@@ -25,9 +24,8 @@ QuadraticPolynomialCost::QuadraticPolynomialCost (const OptVarsPtr& opt_vars,
   matrix_vector_ = mat_vec;
   variables_     = variables;
   weight_        = weight;
-//  polynomial_    = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_linear));
 
-  SetName("Polynomial Cost");
+  SetName("Quadratic Cost");
   SetRows(1); // because cost
   AddOptimizationVariables(opt_vars);
 }
@@ -40,7 +38,7 @@ VectorXd
 QuadraticPolynomialCost::GetValues () const
 {
   VectorXd cost = VectorXd::Zero(GetRows());
-  VectorXd x    = GetOptVars()->GetComponent(variables_)->GetValues();     //polynomial_->GetValues();
+  VectorXd x    = GetOptVars()->GetComponent(variables_)->GetValues();
 
   cost += x.transpose() * matrix_vector_.M * x;
   cost += matrix_vector_.v.transpose() * x;
@@ -52,8 +50,7 @@ void
 QuadraticPolynomialCost::FillJacobianWithRespectTo(std::string var_set, Jacobian& jac) const
 {
   if (var_set == variables_) {
-
-    VectorXd x = GetOptVars()->GetComponent(variables_)->GetValues();     //polynomial_->GetValues();
+    VectorXd x = GetOptVars()->GetComponent(variables_)->GetValues();
 
     VectorXd grad = 2.0 * matrix_vector_.M * x;
     jac.row(0) =  grad.transpose().sparseView();

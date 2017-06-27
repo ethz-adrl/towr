@@ -18,7 +18,6 @@
 #include <xpp/ipopt_adapter.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/polynomial_spline.h>
-#include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
@@ -43,7 +42,7 @@ void
 MotionOptimizerFacade::BuildDefaultStartStance ()
 {
   State3d base;
-  double offset_x = 1.0;
+  double offset_x = 0.0;
   base.lin.p_ << offset_x+0.000350114, -1.44379e-7, 0.573311;
   base.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
   base.lin.a_ << 0.000197966, -5.72241e-07, -5.13328e-06;
@@ -90,8 +89,8 @@ MotionOptimizerFacade::BuildVariables ()
                                                    *contact_schedule);
   opt_variables_->ClearComponents();
 //  opt_variables_->AddComponent(base_motion);
-  opt_variables_->AddComponent(base_linear);
   opt_variables_->AddComponent(base_angular);
+  opt_variables_->AddComponent(base_linear);
   opt_variables_->AddComponent(ee_motion);
   opt_variables_->AddComponent(force);
   opt_variables_->AddComponent(contact_schedule);
@@ -136,9 +135,6 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   RobotStateVec trajectory;
 
-  // zmp_ make file with component names
-
-//  auto base_motion      = std::dynamic_pointer_cast<BaseMotion>        (opt_variables_->GetComponent("base_motion"));
   auto base_lin         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_linear));
   auto base_ang         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_angular));
   auto ee_motion        = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_variables_->GetComponent(id::endeffectors_motion));

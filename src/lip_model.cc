@@ -7,8 +7,10 @@
 
 #include <xpp/opt/lip_model.h>
 
+#include <cassert>
 #include <vector>
-#include <xpp/opt/variables/base_motion.h>
+
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -47,14 +49,17 @@ LIPModel::GetLinearAcceleration () const
 Jacobian
 LIPModel::GetJacobianOfAccWrtBaseLin (const BaseLin& base_lin, double t) const
 {
-  Jacobian jac_wrt_com(kDim6d, base_lin.GetRows());
+  int n = base_lin.GetRows();
+  Jacobian jac_lin(kDim2d, n);
 
-  for (auto dim : {LX, LY}) {
-    JacobianRow com_jac  = base_lin.GetJacobian(t, kPos, To3D(dim));
-    jac_wrt_com.row(dim) = kGravity/h_*com_jac;
-  }
+  for (auto d : {X,Y})
+    jac_lin.row(d) =  kGravity/h_ * base_lin.GetJacobian(t, kPos, d);
 
-  return jac_wrt_com;
+  Jacobian jac(kDim6d, n);
+  jac.middleRows(LX, kDim2d) = jac_lin;
+  // angular acceleration not depended on com, b/c always zero
+
+  return jac;
 }
 
 Jacobian
