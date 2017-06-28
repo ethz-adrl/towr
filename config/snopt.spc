@@ -14,7 +14,7 @@ Begin  TO NLP problem
    
 * Some options that terminate snopt early   
 *  Major iterations limit           6
-  Iterations limit                 20000
+*  Iterations limit                 20000
    
 * These options strongly influce SNOPT based on the FAQ.snopt
 * file located in the downloaded source   

@@ -17,7 +17,7 @@ linear_solver ma57
 hessian_approximation limited-memory
 
 
-derivative_test first-order
+#derivative_test first-order
 #derivative_test second-order
 
 #fixed_variable_treatment relax-bounds

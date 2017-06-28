@@ -161,7 +161,7 @@ Walk::Walk()
 
 Trot::Trot()
 {
-  max_dev_xy_ = {0.2, 0.2, 0.1};
+  max_dev_xy_ = {0.1, 0.1, 0.1};
   id_ = opt::TrotID;
 
   double t_phase = 0.3;

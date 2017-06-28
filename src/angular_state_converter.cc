@@ -78,169 +78,6 @@ AngularStateConverter::GetDerivOfAngAccWrtCoeff (double t) const
 }
 
 MatrixSXd
-AngularStateConverter::GetRotationMatrixEulerZYX (double t) const
-{
-
-  StateLin3d ori = euler_->GetPoint(t);
-
-  double x = ori.p_(EX);
-  double y = ori.p_(EY);
-  double z = ori.p_(EZ);
-
-//  MatrixSXd M(kDim3d, kDim3d);
-
-  Eigen::Matrix3d M;
-  M << cos(y)*cos(z), cos(z)*sin(x)*sin(x) - cos(x)*sin(z), sin(x)*sin(z) + cos(x)*cos(z)*sin(x),
-       cos(y)*sin(z), cos(x)*cos(z) + sin(x)*sin(x)*sin(z), cos(x)*sin(x)*sin(z) - cos(z)*sin(x),
-             -sin(x),                        cos(y)*sin(x),                        cos(x)*cos(y);
-
-  return M.sparseView(1.0, -1.0);
-
-// zmp_ remove this
-////  Jacobian M(kDim3d, kDim3d);
-//  StateLin3d ori = euler_->GetPoint(t);
-//
-//  kindr::EulerAnglesZyxD euler(ori.p_.reverse());
-//  kindr::RotationMatrixD rot(euler);
-//
-////  M.setIdentity();
-//  return rot.toImplementation().sparseView(1.0, -1.0);
-}
-
-Jacobian
-AngularStateConverter::GetDerivativeOfRotationMatrixRowWrtCoeff (double t,
-                                                                 Coords3D row) const
-{
-  StateLin3d ori = euler_->GetPoint(t);
-  double x = ori.p_(EX);
-  double y = ori.p_(EY);
-  double z = ori.p_(EZ);
-
-  JacobianRow jac_x = euler_->GetJacobian(t, kPos, EX);
-  JacobianRow jac_y = euler_->GetJacobian(t, kPos, EY);
-  JacobianRow jac_z = euler_->GetJacobian(t, kPos, EZ);
-
-  int n_coeff    = euler_->GetRows();
-  Jacobian jac(kDim3d,n_coeff);
-
-  switch (row) {
-    case X: // basically derivative of top row (3 elements) of matrix R
-      jac.row(EX) = - cos(z)*sin(x)*jac_y - cos(y)*sin(z)*jac_z;
-      jac.row(EY) = sin(x)*sin(z)*jac_x - cos(x)*cos(z)*jac_z - sin(x)*sin(x)*sin(z)*jac_z + cos(x)*cos(z)*sin(x)*jac_x + cos(y)*cos(z)*sin(x)*jac_y;
-      jac.row(EZ) = cos(x)*sin(z)*jac_x + cos(z)*sin(x)*jac_z - cos(z)*sin(x)*sin(x)*jac_x - cos(x)*sin(x)*sin(z)*jac_z + cos(x)*cos(y)*cos(z)*jac_y;
-      break;
-    case Y: // middle row of R
-      jac.row(EX) = cos(y)*cos(z)*jac_z - sin(x)*sin(z)*jac_y;
-      jac.row(EY) = cos(x)*sin(x)*sin(z)*jac_x - cos(x)*sin(z)*jac_z - cos(z)*sin(x)*jac_x + cos(y)*sin(x)*sin(z)*jac_y + cos(z)*sin(x)*sin(x)*jac_z;
-      jac.row(EZ) = sin(x)*sin(z)*jac_z - cos(x)*cos(z)*jac_x - sin(x)*sin(x)*sin(z)*jac_x + cos(x)*cos(y)*sin(z)*jac_y + cos(x)*cos(z)*sin(x)*jac_z;
-      break;
-    case Z: // bottom row of R
-      jac.row(EX) = -cos(y)*jac_y;
-      jac.row(EY) = cos(x)*cos(y)*jac_x - sin(x)*sin(x)*jac_y;
-      jac.row(EZ) = -cos(y)*sin(x)*jac_x - cos(x)*sin(x)*jac_y;
-      break;
-    default:
-      assert(false);
-      break;
-  }
-
-  return jac;
-
-
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//  int n_coeff = euler_->GetRows();
-//
-//  Jacobian jac(kDim3d,n_coeff);
-//
-//  StateLin3d ori = euler_->GetPoint(t);
-//
-//
-//  Jacobian jac_p = euler_->GetJacobian(t, kPos);
-//
-//
-//
-//
-//
-//
-//
-////  for (int dim_deriv : {X,Y,Z}) {
-////
-////    JacobianRow jac_p = euler_->GetJacobian(t, kPos, dim_deriv);
-////
-////    for (int dim : {X,Y,Z}) {
-////
-////      if (dim == dim_deriv) {
-////
-////      }
-////
-////    }
-////
-////    if (
-////  }
-//
-//  MatrixSXd Rx = GetRotation(ori.p_(EX), X);
-//  MatrixSXd Ry = GetRotation(ori.p_(EY), Y);
-//  MatrixSXd Rz = GetRotation(ori.p_(EZ), Z);
-//
-//  MatrixSXd Rdx = GetRotationDot(ori.p_(EX), X);
-//  MatrixSXd Rdy = GetRotationDot(ori.p_(EY), Y);
-//  MatrixSXd Rdz = GetRotationDot(ori.p_(EZ), Z);
-//
-//
-//  JacobianRow term1 = Rdz*Ry *Rx;
-//  JacobianRow term2 = Rz *Rdy*Rx;
-//  JacobianRow term3 = Rz *Ry *Rdx;
-//
-//
-//  jac.row(EX) = term1*jac_p.row(EX);
-//  jac.row(EY) = term2*jac_p.row(EY);
-//  jac.row(EZ) = term3*jac_p.row(EZ);
-//
-//
-////  switch (row) {
-////      case X: // basically derivative of top row (3 elements) of matrix M
-//////        jac.row(EY) = -cos(z)*jac_z;
-//////        jac.row(EX) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
-//////        break;
-//////      case Y: // middle row of M
-//////        jac.row(EY) = -sin(z)*jac_z;
-//////        jac.row(EX) = cos(y)*cos(z)*jac_z - sin(y)*sin(z)*jac_y;
-//////        break;
-//////      case Z: // bottom row of M
-//////        jac.row(EX) = -cos(y)*jac_y;
-//////        break;
-////      default:
-////        assert(false);
-////        break;
-////
-////  }
-//
-//  return jac;
-
-}
-
-MatrixSXd
 AngularStateConverter::GetM (const EulerAngles& xyz) const
 {
   double z = xyz(EZ);
@@ -296,6 +133,63 @@ AngularStateConverter::GetDerivMwrtCoeff (double t, Coords3D ang_acc_dim) const
       break;
     case Z: // bottom row of M
       jac.row(EX) = -cos(y)*jac_y;
+      break;
+    default:
+      assert(false);
+      break;
+  }
+
+  return jac;
+}
+
+MatrixSXd
+AngularStateConverter::GetRotationMatrixEulerZYX (double t) const
+{
+  StateLin3d ori = euler_->GetPoint(t);
+
+  double x = ori.p_(EX);
+  double y = ori.p_(EY);
+  double z = ori.p_(EZ);
+
+  Eigen::Matrix3d M;
+  M << cos(y)*cos(z), cos(z)*sin(x)*sin(y) - cos(x)*sin(z), sin(x)*sin(z) + cos(x)*cos(z)*sin(y),
+      cos(y)*sin(z), cos(x)*cos(z) + sin(x)*sin(y)*sin(z), cos(x)*sin(y)*sin(z) - cos(z)*sin(x),
+            -sin(y),                        cos(y)*sin(x),                        cos(x)*cos(y);
+
+  return M.sparseView(1.0, -1.0);
+}
+
+Jacobian
+AngularStateConverter::GetDerivativeOfRotationMatrixRowWrtCoeff (double t,
+                                                                 Coords3D row) const
+{
+  StateLin3d ori = euler_->GetPoint(t);
+  double x = ori.p_(EX);
+  double y = ori.p_(EY);
+  double z = ori.p_(EZ);
+
+  JacobianRow jac_x = euler_->GetJacobian(t, kPos, EX);
+  JacobianRow jac_y = euler_->GetJacobian(t, kPos, EY);
+  JacobianRow jac_z = euler_->GetJacobian(t, kPos, EZ);
+
+  int n_coeff = euler_->GetRows();
+  Jacobian jac(kDim3d,n_coeff);
+
+  switch (row) {
+    case X: // basically derivative of top row (3 elements) of matrix R
+      jac.row(EX) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
+      jac.row(EY) = sin(x)*sin(z)*jac_x - cos(x)*cos(z)*jac_z - sin(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(z)*sin(y)*jac_x + cos(y)*cos(z)*sin(x)*jac_y;
+      jac.row(EZ) = cos(x)*sin(z)*jac_x + cos(z)*sin(x)*jac_z - cos(z)*sin(x)*sin(y)*jac_x - cos(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(y)*cos(z)*jac_y;
+      break;
+    case Y: // middle row of R
+      jac.row(EX) = cos(y)*cos(z)*jac_z - sin(y)*sin(z)*jac_y;
+      jac.row(EY) = cos(x)*sin(y)*sin(z)*jac_x - cos(x)*sin(z)*jac_z - cos(z)*sin(x)*jac_x + cos(y)*sin(x)*sin(z)*jac_y + cos(z)*sin(x)*sin(y)*jac_z;
+      jac.row(EZ) = sin(x)*sin(z)*jac_z - cos(x)*cos(z)*jac_x - sin(x)*sin(y)*sin(z)*jac_x + cos(x)*cos(y)*sin(z)*jac_y + cos(x)*cos(z)*sin(y)*jac_z;
+      break;
+    case Z: // bottom row of R
+      jac.row(EX) = -cos(y)*jac_y;
+      jac.row(EY) =  cos(x)*cos(y)*jac_x - sin(x)*sin(y)*jac_y;
+      jac.row(EZ) = - cos(y)*sin(x)*jac_x - cos(x)*sin(y)*jac_y;
       break;
     default:
       assert(false);
