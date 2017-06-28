@@ -10,8 +10,9 @@
 namespace xpp {
 namespace opt {
 
-// zmp_ fix this, hacky!
-enum EulerCoords {EZ=0, EY=1, EX=2};
+// Euler angles stored in roll, pitch, yaw order in vector
+// still using ZYX convention when applying them though.
+enum EulerCoords {EX=0, EY=1, EZ=2};
 
 AngularStateConverter::AngularStateConverter ()
 {
@@ -74,52 +75,40 @@ AngularStateConverter::GetDerivOfAngAccWrtCoeff (double t) const
   return jac;
 }
 
-AngularStateConverter::Mapping
-AngularStateConverter::GetM (const EulerAngles& zyx) const
+Jacobian
+AngularStateConverter::GetM (const EulerAngles& xyz) const
 {
-  Mapping M(kDim3d, kDim3d);
+  double z = xyz(EZ);
+  double y = xyz(EY);
+  Jacobian M(kDim3d, kDim3d);
 
-  double z = zyx(EZ);
-  double y = zyx(EY);
-
-  // see http://docs.leggedrobotics.com/kindr/cheatsheet_latest.pdf
-//  M << 0, -sin(z), cos(y)*cos(z),
-//       0,  cos(z), cos(y)*sin(z),
-//       1,      0,        -sin(y);
-
-  M.coeffRef(0,1) = -sin(z); M.coeffRef(0,2) =  cos(y)*cos(z);
-  M.coeffRef(1,1) =  cos(z); M.coeffRef(1,2) =  cos(y)*sin(z);
-  M.coeffRef(2,0) =     1.0; M.coeffRef(2,2) =  -sin(y);
+                          M.coeffRef(0,EY) = -sin(z);  M.coeffRef(0,EX) =  cos(y)*cos(z);
+                          M.coeffRef(1,EY) =  cos(z);  M.coeffRef(1,EX) =  cos(y)*sin(z);
+  M.coeffRef(2,EZ) = 1.0;                              M.coeffRef(2,EX) =  -sin(y);
 
   return M;
 }
 
-AngularStateConverter::Mapping
-AngularStateConverter::GetMdot (const EulerAngles& zyx,
-                                const EulerRates& zyx_d) const
+Jacobian
+AngularStateConverter::GetMdot (const EulerAngles& xyz,
+                                const EulerRates& xyz_d) const
 {
+  double z  = xyz(EZ);
+  double zd = xyz_d(EZ);
+  double y  = xyz(EY);
+  double yd = xyz_d(EY);
 
-  double z = zyx(EZ);
-  double y = zyx(EY);
-  double zd = zyx_d(EZ);
-  double yd = zyx_d(EY);
+  Jacobian Mdot(kDim3d, kDim3d);
 
-//  Mdot <<  0, -cos(z)*zd,  -cos(z)*sin(y)*yd - cos(y)*sin(z)*zd,
-//           0, -sin(z)*zd,   cos(y)*cos(z)*zd - sin(y)*sin(z)*yd,
-//           0,         0,   -cos(y)*yd;
-
-  Mapping Mdot(kDim3d, kDim3d);
-
-  Mdot.coeffRef(0,1) = -cos(z)*zd; Mdot.coeffRef(0,2) =  -cos(z)*sin(y)*yd - cos(y)*sin(z)*zd;
-  Mdot.coeffRef(1,1) = -sin(z)*zd; Mdot.coeffRef(1,2) =   cos(y)*cos(z)*zd - sin(y)*sin(z)*yd;
-                                   Mdot.coeffRef(2,2) =  -cos(y)*yd;
+  Mdot.coeffRef(0,EY) = -cos(z)*zd; Mdot.coeffRef(0,EX) = -cos(z)*sin(y)*yd - cos(y)*sin(z)*zd;
+  Mdot.coeffRef(1,EY) = -sin(z)*zd; Mdot.coeffRef(1,EX) =  cos(y)*cos(z)*zd - sin(y)*sin(z)*yd;
+                                    Mdot.coeffRef(2,EX) = -cos(y)*yd;
 
  return Mdot;
 }
 
 Jacobian
-AngularStateConverter::GetDerivMwrtCoeff (double t,
-                                          Coords3D ang_acc_dim) const
+AngularStateConverter::GetDerivMwrtCoeff (double t, Coords3D ang_acc_dim) const
 {
   int n_coeff    = euler_->GetRows();
   StateLin3d ori = euler_->GetPoint(t);
@@ -133,15 +122,15 @@ AngularStateConverter::GetDerivMwrtCoeff (double t,
 
   switch (ang_acc_dim) {
     case X: // basically derivative of top row (3 elements) of matrix M
-      jac.row(1) = -cos(z)*jac_z;
-      jac.row(2) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
+      jac.row(EY) = -cos(z)*jac_z;
+      jac.row(EX) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
       break;
     case Y: // middle row of M
-      jac.row(1) = -sin(z)*jac_z;
-      jac.row(2) = cos(y)*cos(z)*jac_z - sin(y)*sin(z)*jac_y;
+      jac.row(EY) = -sin(z)*jac_z;
+      jac.row(EX) = cos(y)*cos(z)*jac_z - sin(y)*sin(z)*jac_y;
       break;
     case Z: // bottom row of M
-      jac.row(2) = -cos(y)*jac_y;
+      jac.row(EX) = -cos(y)*jac_y;
       break;
     default:
       assert(false);
@@ -158,11 +147,10 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) con
   StateLin3d ori = euler_->GetPoint(t);
 
   double z  = ori.p_(EZ);
-  double y  = ori.p_(EY);
   double zd = ori.v_(EZ);
+  double y  = ori.p_(EY);
   double yd = ori.v_(EY);
 
-  // zmp_ these indices are definetely wrong!!! Z is now at first position
   JacobianRow jac_z  = euler_->GetJacobian(t, kPos, EZ);
   JacobianRow jac_y  = euler_->GetJacobian(t, kPos, EY);
   JacobianRow jac_zd = euler_->GetJacobian(t, kVel, EZ);
@@ -170,16 +158,16 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) con
 
   Jacobian jac(kDim3d,n_coeff);
   switch (ang_acc_dim) {
-    case X: // basically derivative of top row (3 elements) of matrix M
-      jac.row(1) = sin(z)*zd*jac_z - cos(z)*jac_zd;
-      jac.row(2) = sin(y)*sin(z)*yd*jac_z - cos(y)*sin(z)*jac_zd - cos(y)*cos(z)*yd*jac_y - cos(y)*cos(z)*zd*jac_z - cos(z)*sin(y)*jac_yd + sin(y)*sin(z)*jac_y*zd;
+    case X: // derivative of top row (3 elements) of matrix M-dot
+      jac.row(EY) = sin(z)*zd*jac_z - cos(z)*jac_zd;
+      jac.row(EX) = sin(y)*sin(z)*yd*jac_z - cos(y)*sin(z)*jac_zd - cos(y)*cos(z)*yd*jac_y - cos(y)*cos(z)*zd*jac_z - cos(z)*sin(y)*jac_yd + sin(y)*sin(z)*jac_y*zd;
       break;
     case Y: // middle row of M
-      jac.row(1) = - sin(z)*jac_zd - cos(z)*zd*jac_z;
-      jac.row(2) = cos(y)*cos(z)*jac_zd - sin(y)*sin(z)*jac_yd - cos(y)*sin(z)*yd*jac_y - cos(z)*sin(y)*yd*jac_z - cos(z)*sin(y)*jac_y*zd - cos(y)*sin(z)*zd*jac_z;
+      jac.row(EY) = - sin(z)*jac_zd - cos(z)*zd*jac_z;
+      jac.row(EX) = cos(y)*cos(z)*jac_zd - sin(y)*sin(z)*jac_yd - cos(y)*sin(z)*yd*jac_y - cos(z)*sin(y)*yd*jac_z - cos(z)*sin(y)*jac_y*zd - cos(y)*sin(z)*zd*jac_z;
       break;
     case Z: // bottom Row of M
-      jac.row(2) = sin(y)*yd*jac_y - cos(y)*jac_yd;
+      jac.row(EX) = sin(y)*yd*jac_y - cos(y)*jac_yd;
       break;
     default:
       assert(false);

@@ -15,10 +15,12 @@
 namespace xpp {
 namespace opt {
 
-/** @brief Enables conversions between euler angles and angular velocities.
+/** @brief Provides conversions between euler angles and angular velocities.
  *
  * Formulas taken from kindr:
  * http://docs.leggedrobotics.com/kindr/cheatsheet_latest.pdf
+ *
+ * Using Euler angles zyx convention (first rotate around yaw, then pitch, then roll).
  *
  * See matlab script "matlab/euler_angular_conversions.m" for derivation.
  */
@@ -29,12 +31,10 @@ public:
   using EulerRates  = Vector3d;
   using AngularVel  = Vector3d;
   using AngularAcc  = Vector3d;
-  using Mapping     = Jacobian;
 
   AngularStateConverter ();
   AngularStateConverter (const OrientationVariables&);
   virtual ~AngularStateConverter ();
-
 
   AngularVel GetAngularVelocity(double t) const;
   AngularAcc GetAngularAcceleration(double t) const;
@@ -44,14 +44,15 @@ public:
 private:
   OrientationVariables euler_;
 
-
   /** @brief maps euler rates zyx to angular velocities in world.
+   *
+   * Make sure euler rates are ordered roll-pitch-yaw.
    */
-  Mapping GetM(const EulerAngles& zyx) const;
+  Jacobian GetM(const EulerAngles& xyz) const;
 
   /** @brief time derivative of GetM()
    */
-  Mapping GetMdot(const EulerAngles& zyx, const EulerRates& zyx_d) const;
+  Jacobian GetMdot(const EulerAngles& xyz, const EulerRates& xyz_d) const;
 
   /** @brief Derivative of the @a dim row of matrix M with respect to
    *         the polynomial coefficients.
@@ -67,9 +68,6 @@ private:
    *  @param dim Which dimension of the angular acceleration is desired
    */
   Jacobian GetDerivMdotwrtCoeff(double t, Coords3D dim) const;
-
-
-  Mapping M_; ///< mapping between euler rates and angular velocities
 };
 
 } /* namespace opt */
