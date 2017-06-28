@@ -41,6 +41,9 @@ public:
 
   Jacobian GetDerivOfAngAccWrtCoeff(double t) const;
 
+  Jacobian GetRotationMatrix(double t) const;
+  Jacobian GetDerivativeOfRotationMatrixRowWrtCoeff(double t, Coords3D row) const;
+
 private:
   OrientationVariables euler_;
 
@@ -57,7 +60,9 @@ private:
   /** @brief Derivative of the @a dim row of matrix M with respect to
    *         the polynomial coefficients.
    *
-   *  @param dim Which dimension of the angular acceleration is desired
+   *  @param dim  Which dimension of the angular acceleration is desired.
+   *  @returns    the jacobians w.r.t the coefficients for each of the 3 rows
+   *              of the matrix stacked on top of each other.
    */
   Jacobian GetDerivMwrtCoeff(double t, Coords3D dim) const;
 

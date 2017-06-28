@@ -76,6 +76,44 @@ AngularStateConverter::GetDerivOfAngAccWrtCoeff (double t) const
 }
 
 Jacobian
+AngularStateConverter::GetRotationMatrix (double t) const
+{
+  Jacobian M(kDim3d, kDim3d);
+  M.setIdentity();
+  return M;
+}
+
+Jacobian
+AngularStateConverter::GetDerivativeOfRotationMatrixRowWrtCoeff (double t,
+                                                              Coords3D row) const
+{
+  int n_coeff = euler_->GetRows();
+
+  Jacobian jac(kDim3d,n_coeff);
+
+  switch (row) {
+      case X: // basically derivative of top row (3 elements) of matrix M
+//        jac.row(EY) = -cos(z)*jac_z;
+//        jac.row(EX) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
+//        break;
+//      case Y: // middle row of M
+//        jac.row(EY) = -sin(z)*jac_z;
+//        jac.row(EX) = cos(y)*cos(z)*jac_z - sin(y)*sin(z)*jac_y;
+//        break;
+//      case Z: // bottom row of M
+//        jac.row(EX) = -cos(y)*jac_y;
+//        break;
+      default:
+        assert(false);
+        break;
+
+  }
+
+  return jac;
+
+}
+
+Jacobian
 AngularStateConverter::GetM (const EulerAngles& xyz) const
 {
   double z = xyz(EZ);

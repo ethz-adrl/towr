@@ -22,7 +22,8 @@ namespace xpp {
 namespace opt {
 
 // make sure all jacobians in code follow same storage order
-using Jacobian    = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+using MatrixSXd   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+using Jacobian    = MatrixSXd;
 using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 using VectorXd    = Eigen::VectorXd;
 

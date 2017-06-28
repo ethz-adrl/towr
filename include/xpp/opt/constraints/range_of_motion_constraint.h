@@ -11,9 +11,15 @@
 #include <array>
 #include <memory>
 #include <string>
+#include <vector>
 
+#include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 
+#include <xpp/bound.h>
+#include <xpp/opt/angular_state_converter.h>
+
+#include "composite.h"
 #include "time_discretization_constraint.h"
 
 namespace xpp {
@@ -35,7 +41,8 @@ class EndeffectorsMotion;
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
-  using BaseLinear  = std::shared_ptr<PolynomialSpline>;
+  using BaseLinear     = std::shared_ptr<PolynomialSpline>;
+  using BaseAngular    = std::shared_ptr<PolynomialSpline>;
   using EEMotionPtr    = std::shared_ptr<EndeffectorsMotion>;
   using MaxDevXY       = std::array<double,3>;
   using NominalStance  = EndeffectorsPos;
@@ -62,7 +69,10 @@ private:
   MaxDevXY max_deviation_from_nominal_;
   NominalStance nominal_stance_;
   BaseLinear base_linear_;
+  BaseAngular base_angular_;
   EEMotionPtr ee_motion_;
+
+  AngularStateConverter converter_;
 
   std::vector<Coords3D> dim_;
 };

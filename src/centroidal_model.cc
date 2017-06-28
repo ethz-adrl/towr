@@ -109,7 +109,7 @@ CentroidalModel::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion,
   Jacobian jac_ang(kDim3d, n);
 
   Jacobian jac_ee(kDim3d, n);
-  for (auto dim : {d2::X,d2::Y}) // zmp_ this is hacky, include z height
+  for (auto dim : {d2::X,d2::Y}) // zmp_ this is wrong, include z height
     jac_ee.row(dim) = ee_motion.GetJacobianPos(t_global, ee, dim);
 
   Vector3d f = ee_force_.At(ee);
