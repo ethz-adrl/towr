@@ -7,15 +7,13 @@
 
 #include <xpp/opt/motion_optimizer_facade.h>
 
-#include <algorithm>
-#include <cassert>
-#include <deque>
-#include <utility>
+#include <Eigen/Dense>
+#include <kindr/Core>
 
-#include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 
 #include <xpp/ipopt_adapter.h>
+#include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/polynomial_spline.h>
 #include <xpp/opt/variables/contact_schedule.h>
@@ -23,8 +21,6 @@
 #include <xpp/opt/variables/endeffectors_motion.h>
 #include <xpp/opt/variables/variable_names.h>
 #include <xpp/snopt_adapter.h>
-
-#include <kindr/Core>
 
 namespace xpp {
 namespace opt {
@@ -133,12 +129,13 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent(id::contact_schedule));
   auto ee_forces        = std::dynamic_pointer_cast<EndeffectorsForce> (opt_variables_->GetComponent(id::endeffector_force));
 
+  AngularStateConverter converter(base_ang);
+
   double t=0.0;
   double T = motion_parameters_->GetTotalTime();
   while (t<=T+1e-5) {
 
     RobotStateCartesian state(initial_ee_W_.GetCount());
-
 
     // zmp_ move to own class
     State3d base; // positions and orientations set to zero
@@ -147,10 +144,10 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     kindr::EulerAnglesZyxD euler(rpy.p_.reverse());
     kindr::RotationQuaternionD quat(euler);
 
-    // zmp_ add angular velocities and accelerations as well
     base.ang.q = quat.toImplementation();
+    base.ang.v = converter.GetAngularVelocity(t);
+    base.ang.a = converter.GetAngularAcceleration(t);
     state.SetBase(base);
-
 
     state.SetEEStateInWorld(ee_motion->GetEndeffectors(t));
     state.SetEEForcesInWorld(ee_forces->GetForce(t));

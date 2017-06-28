@@ -190,13 +190,13 @@ Trot::Trot()
   constraints_ = { InitCom,
                    FinalCom,
                    JunctionCom,
-//                   Dynamic,
-//                   Stance,
+                   Dynamic,
+                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 //
 //  cost_weights_[RangOfMotionCostID] = 10.0;
-  cost_weights_[ComCostID]      = 1.0;
+//  cost_weights_[ComCostID]      = 1.0;
 
 //  cost_weights_[FinalComCostID] = 1.0;
 //  cost_weights_[PolyCenterCostID]   = 50.0;
