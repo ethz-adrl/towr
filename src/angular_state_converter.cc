@@ -143,13 +143,19 @@ AngularStateConverter::GetDerivMwrtCoeff (double t, Coords3D ang_acc_dim) const
 }
 
 MatrixSXd
-AngularStateConverter::GetRotationMatrixEulerZYX (double t) const
+AngularStateConverter::GetRotationMatrixWorldToBase (double t) const
 {
   StateLin3d ori = euler_->GetPoint(t);
+  return GetRotationMatrixWorldToBase(ori.p_);
+}
 
-  double x = ori.p_(EX);
-  double y = ori.p_(EY);
-  double z = ori.p_(EZ);
+MatrixSXd
+AngularStateConverter::GetRotationMatrixWorldToBase (const EulerAngles& xyz)
+{
+
+  double x = xyz(EX);
+  double y = xyz(EY);
+  double z = xyz(EZ);
 
   Eigen::Matrix3d M;
   M << cos(y)*cos(z), cos(z)*sin(x)*sin(y) - cos(x)*sin(z), sin(x)*sin(z) + cos(x)*cos(z)*sin(y),
@@ -235,48 +241,6 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) con
 
   return jac;
 }
-
-//MatrixSXd
-//AngularStateConverter::GetRotation (double x, Coords3D axis) const
-//{
-//  MatrixSXd M(kDim3d, kDim3d);
-//
-//  M.coeffRef(axis, axis) = 1.0;
-//
-//  std::vector<double> elements = {cos(x), -sin(x), sin(x), cos(x) };
-//  int i=0;
-//
-//  for (int row = X; row <= Z; ++row) {
-//    for (int col = X; col <= Z; ++col) {
-//      if (row==axis || col==axis)
-//        continue;
-//      else
-//        M.coeffRef(row,col) = elements.at(i++);
-//    }
-//  }
-//
-//  return M;
-//}
-//
-//MatrixSXd
-//AngularStateConverter::GetRotationDot (double x, Coords3D axis) const
-//{
-//  MatrixSXd M(kDim3d, kDim3d);
-//
-//  std::vector<double> elements = {-sin(x), -cos(x), cos(x), -sin(x) };
-//  int i=0;
-//
-//  for (int row = X; row <= Z; ++row) {
-//    for (int col = X; col <= Z; ++col) {
-//      if (row==axis || col==axis)
-//        continue;
-//      else
-//        M.coeffRef(row,col) = elements.at(i++);
-//    }
-//  }
-//
-//  return M;
-//}
 
 } /* namespace opt */
 } /* namespace xpp */

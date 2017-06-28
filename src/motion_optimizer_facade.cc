@@ -69,6 +69,9 @@ MotionOptimizerFacade::BuildVariables ()
   base_linear->Init(T, motion_parameters_->duration_polynomial_,
                     inital_base_.lin.p_);
 
+  // Represent roll, pitch and yaw by a spline each.
+  // These angles are to be interpreted as mapping a vector expressed in world
+  // frame to a base frame (not the other way around).
   auto base_angular = std::make_shared<PolynomialSpline>(id::base_angular);
   base_angular->Init(T, motion_parameters_->duration_polynomial_,
                      inital_base_.ang.p_);
@@ -144,7 +147,9 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     kindr::EulerAnglesZyxD euler(rpy.p_.reverse());
     kindr::RotationQuaternionD quat(euler);
 
-    base.ang.q = quat.toImplementation();
+    // because optimized euler angles represent world->base mapping,
+    // but quaternion expects mapping base->world
+    base.ang.q = quat.toImplementation().inverse();
     base.ang.v = converter.GetAngularVelocity(t);
     base.ang.a = converter.GetAngularAcceleration(t);
     state.SetBase(base);

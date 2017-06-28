@@ -56,7 +56,7 @@ void
 RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
 {
   Vector3d base_W = base_linear_->GetPoint(t).p_;
-  MatrixSXd b_R_w = converter_.GetRotationMatrixEulerZYX(t);
+  MatrixSXd b_R_w = converter_.GetRotationMatrixWorldToBase(t);
 
   auto pos_ee_W = ee_motion_->GetEndeffectors(t);
 
@@ -90,7 +90,7 @@ void
 RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
                                             std::string var_set) const
 {
-  MatrixSXd b_R_w = converter_.GetRotationMatrixEulerZYX(t);
+  MatrixSXd b_R_w = converter_.GetRotationMatrixWorldToBase(t);
 
   for (auto ee : nominal_stance_.GetEEsOrdered()) {
     int row_start = GetRow(k,ee,X);
