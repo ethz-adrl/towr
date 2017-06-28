@@ -41,8 +41,12 @@ public:
 
   Jacobian GetDerivOfAngAccWrtCoeff(double t) const;
 
-  Jacobian GetRotationMatrix(double t) const;
+  MatrixSXd GetRotationMatrixEulerZYX(double t) const;
   Jacobian GetDerivativeOfRotationMatrixRowWrtCoeff(double t, Coords3D row) const;
+
+//  // zmp_ make private
+//  MatrixSXd GetRotation(double radians, Coords3D axis)  const;
+//  MatrixSXd GetRotationDot(double radians, Coords3D axis)  const;
 
 private:
   OrientationVariables euler_;
@@ -51,11 +55,11 @@ private:
    *
    * Make sure euler rates are ordered roll-pitch-yaw.
    */
-  Jacobian GetM(const EulerAngles& xyz) const;
+  MatrixSXd GetM(const EulerAngles& xyz) const;
 
   /** @brief time derivative of GetM()
    */
-  Jacobian GetMdot(const EulerAngles& xyz, const EulerRates& xyz_d) const;
+  MatrixSXd GetMdot(const EulerAngles& xyz, const EulerRates& xyz_d) const;
 
   /** @brief Derivative of the @a dim row of matrix M with respect to
    *         the polynomial coefficients.
@@ -73,6 +77,10 @@ private:
    *  @param dim Which dimension of the angular acceleration is desired
    */
   Jacobian GetDerivMdotwrtCoeff(double t, Coords3D dim) const;
+
+
+
+
 };
 
 } /* namespace opt */

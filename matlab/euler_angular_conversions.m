@@ -58,5 +58,31 @@ dMd_du = diff(Md,u)
 % xd = 1;
 % w = M*[zd;yd;xd]
  
+%% derivative of rotation matrix
+% from kindr cheet sheet, using convention zyx
+
+R = [cos(y)*cos(z), cos(z)*sin(x)*sin(y) - cos(x)*sin(z), sin(x)*sin(z) + cos(x)*cos(z)*sin(y);
+     cos(y)*sin(z), cos(x)*cos(z) + sin(x)*sin(y)*sin(z), cos(x)*sin(y)*sin(z) - cos(z)*sin(x);
+           -sin(y),                        cos(y)*sin(x), cos(x)*cos(y)]
+       
+       
+dR_du = diff(R,u)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  
      

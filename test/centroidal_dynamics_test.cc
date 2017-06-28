@@ -5,8 +5,19 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/centroidal_model.h>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+#include <iostream>
+
 #include <gtest/gtest.h>
+#include <xpp/cartesian_declarations.h>
+#include <xpp/endeffectors.h>
+#include <xpp/state.h>
+
+#include <Eigen/src/Core/IO.h>
+#include <xpp/opt/angular_state_converter.h>
+#include <xpp/opt/centroidal_model.h>
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -49,9 +60,14 @@ TEST(CentroidalDynamicsTest, GetJacobianOfAccWrtBase)
   std::cout << s2 << ", nnz: " << s2.nonZeros() << std::endl;
   std::cout << s3 << ", nnz: " << s3.nonZeros() << std::endl;
 
+}
 
-
-
+TEST(CentroidalDynamicsTest, TestRotations)
+{
+  AngularStateConverter converter;
+//  std::cout << "X: " <<  converter.GetRotation(0.1, X) << std::endl;
+//  std::cout << "Y: " <<  converter.GetRotation(0.1, Y) << std::endl;
+//  std::cout << "Z: " <<  converter.GetRotation(0.1, Z) << std::endl;
 
 }
 

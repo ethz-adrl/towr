@@ -56,7 +56,7 @@ void
 RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
 {
   Vector3d base_W = base_linear_->GetPoint(t).p_;
-  MatrixSXd b_R_w  = converter_.GetRotationMatrix(t);
+  MatrixSXd b_R_w = converter_.GetRotationMatrixEulerZYX(t);
 
   auto pos_ee_W = ee_motion_->GetEndeffectors(t);
 
@@ -90,7 +90,7 @@ void
 RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
                                             std::string var_set) const
 {
-  MatrixSXd b_R_w = converter_.GetRotationMatrix(t);
+  MatrixSXd b_R_w = converter_.GetRotationMatrixEulerZYX(t);
 
   for (auto ee : nominal_stance_.GetEEsOrdered()) {
     int row_start = GetRow(k,ee,X);
@@ -98,7 +98,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
 
     if (var_set == ee_motion_->GetName()) {
       // zmp_ move somewhere else
-      // also, add jacobian of y
+      // also, add jacobian of z
       Jacobian jac_ee_pos(kDim3d, ee_motion_->GetRows());
       jac_ee_pos.row(X) = ee_motion_->GetJacobianPos(t,ee,d2::X);
       jac_ee_pos.row(Y) = ee_motion_->GetJacobianPos(t,ee,d2::Y);
@@ -116,11 +116,12 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
 
       Vector3d base_W   = base_linear_->GetPoint(t).p_;
       Vector3d ee_pos_W = ee_motion_->GetEndeffectors(t).At(ee).p_;
+      ee_pos_W.z() = 0.0; // zmp_ ugliest hack
       MatrixSXd base_to_ee_W = (ee_pos_W - base_W).sparseView(1.0, -1.0);
 
       for (auto dim : {X,Y,Z}) {
-        Jacobian jac_row = converter_.GetDerivativeOfRotationMatrixRowWrtCoeff(t,dim);
-        jac.row(GetRow(k,ee,dim)) = base_to_ee_W.transpose() * jac_row;
+        Jacobian jac_rotation_row = converter_.GetDerivativeOfRotationMatrixRowWrtCoeff(t,dim);
+        jac.row(GetRow(k,ee,dim)) = base_to_ee_W.transpose() * jac_rotation_row;
       }
 
     }

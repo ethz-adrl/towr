@@ -43,7 +43,7 @@ MotionOptimizerFacade::BuildDefaultStartStance ()
   inital_base_.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
   inital_base_.lin.a_ << 0.000197966, -5.72241e-07, -5.13328e-06;
 
-  inital_base_.ang.p_ << 0.0, 0.0, 0.4; // euler (roll, pitch, yaw)
+  inital_base_.ang.p_ << 0.0, 0.0, 0.2; // euler (roll, pitch, yaw)
 
   initial_ee_W_ = motion_parameters_->GetNominalStanceInBase();
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
