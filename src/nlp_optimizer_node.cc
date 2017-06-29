@@ -43,16 +43,9 @@ void
 NlpOptimizerNode::CurrentStateCallback (const StateMsg& msg)
 {
   auto curr_state = RosHelpers::RosToXpp(msg);
+  motion_optimizer_.SetInitialState(curr_state);
 
-  // zmp_ add this back
-//  motion_optimizer_.start_geom_ = curr_state;
-
-//  auto base = curr_state.GetBase();
-//  base.ang = StateAng3d(); // set zero
-//
-//  motion_optimizer_.start_geom_.SetBase(base);
 //  ROS_INFO_STREAM("Received Current Real State");
-//
 //  std::cout << curr_state.GetBase() << std::endl;
 //  for (auto p : curr_state.GetEEPos().ToImpl()) {
 //    std::cout << p << std::endl;
@@ -76,8 +69,8 @@ void
 NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 {
 //  auto goal_prev = motion_optimizer_.goal_geom_;
-  motion_optimizer_.final_base_.lin = RosHelpers::RosToXpp(msg.goal);
-  motion_optimizer_.final_base_.ang.p_ << 0.0, 0.0, 0.0; // r,p,y
+  motion_optimizer_.final_base_.lin = RosHelpers::RosToXpp(msg.goal_lin);
+  motion_optimizer_.final_base_.ang = RosHelpers::RosToXpp(msg.goal_ang);
 
   auto motion_id = static_cast<opt::MotionTypeID>(msg.motion_type);
   auto params = opt::quad::QuadrupedMotionParameters::MakeMotion(motion_id);

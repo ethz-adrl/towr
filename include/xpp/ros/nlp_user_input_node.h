@@ -43,7 +43,7 @@ private:
 
   void ModifyGoalJoy();
 
-  StateLin3d goal_geom_;
+  State3dEuler goal_geom_;
 
   MotionType motion_type_;
   bool replay_trajectory_;

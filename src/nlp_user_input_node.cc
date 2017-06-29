@@ -26,15 +26,15 @@ NlpUserInputNode::NlpUserInputNode ()
   user_command_pub_ = n.advertise<UserCommandMsg>(xpp_msgs::goal_state_topic, 1);
 
   // publish goal zero initially
-  goal_geom_.p_.setZero();
-//  goal_geom_.p_.z() = 0.58;
-  goal_geom_.p_ << 0.5, 0.0, 0.58;
-//  goal_cog_.p << 0.2, 0, 0.0;
-  motion_type_ = opt::TrotID; //opt::BoundID;//
+  goal_geom_.lin.p_.setZero();
+  goal_geom_.lin.p_ << 0.5, 0.0, 0.58;
+  goal_geom_.ang.p_ << 0.0, 0.0, 1.6;
+  motion_type_ = opt::TrotID;
   replay_trajectory_ = false;
   use_solver_snopt_ = false;
   UserCommandMsg msg;
-  msg.goal = RosHelpers::XppToRos(goal_geom_);
+  msg.goal_lin = RosHelpers::XppToRos(goal_geom_.lin);
+  msg.goal_ang = RosHelpers::XppToRos(goal_geom_.ang);
   user_command_pub_.publish(msg);
 
   // start walking command
@@ -49,22 +49,52 @@ NlpUserInputNode::~NlpUserInputNode ()
 void
 NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
 {
-  const static double dx = 0.1; // 0.25
-  const static double dy = 0.1; // 0.25
+  const static double d_lin = 0.1; // [m]
+  const static double d_ang = 0.1; // [rad]
 
   switch (msg.code) {
+    // desired goal positions
     case msg.KEY_RIGHT:
-      goal_geom_.p_.x() -= dx;
+      goal_geom_.lin.p_.x() -= d_lin;
       break;
     case msg.KEY_LEFT:
-      goal_geom_.p_.x() += dx;
+      goal_geom_.lin.p_.x() += d_lin;
       break;
     case msg.KEY_DOWN:
-      goal_geom_.p_.y() += dy;
+      goal_geom_.lin.p_.y() += d_lin;
       break;
     case msg.KEY_UP:
-      goal_geom_.p_.y() -= dy;
+      goal_geom_.lin.p_.y() -= d_lin;
       break;
+    case msg.KEY_PAGEUP:
+      goal_geom_.lin.p_.z() += 0.5*d_lin;
+      break;
+    case msg.KEY_PAGEDOWN:
+      goal_geom_.lin.p_.z() -= 0.5*d_lin;
+      break;
+
+    // desired goal orientations
+    case msg.KEY_KP4:
+      goal_geom_.ang.p_.x() -= d_ang; // roll-
+      break;
+    case msg.KEY_KP6:
+      goal_geom_.ang.p_.x() += d_ang; // roll+
+      break;
+    case msg.KEY_KP8:
+      goal_geom_.ang.p_.y() += d_ang; // pitch+
+      break;
+    case msg.KEY_KP2:
+      goal_geom_.ang.p_.y() -= d_ang; // pitch-
+      break;
+    case msg.KEY_KP1:
+      goal_geom_.ang.p_.z() += d_ang; // yaw+
+      break;
+    case msg.KEY_KP9:
+      goal_geom_.ang.p_.z() += d_ang; // yaw-
+      break;
+
+
+
     case msg.KEY_RETURN:
       command_ = Command::kSetGoal;
       break;
@@ -157,8 +187,8 @@ NlpUserInputNode::ModifyGoalJoy ()
 
   // integrate velocity
   double joy_deadzone = 0.05;
-  goal_geom_.p_.x() += vel_x * joy_deadzone;
-  goal_geom_.p_.y() += vel_y * joy_deadzone;
+  goal_geom_.lin.p_.x() += vel_x * joy_deadzone;
+  goal_geom_.lin.p_.y() += vel_y * joy_deadzone;
 }
 
 void NlpUserInputNode::PublishCommand()
@@ -167,11 +197,12 @@ void NlpUserInputNode::PublishCommand()
     ModifyGoalJoy();
 
   UserCommandMsg msg;
-  msg.goal               = RosHelpers::XppToRos(goal_geom_);
-  msg.motion_type        = motion_type_;
-  msg.replay_trajectory  = replay_trajectory_;
-  msg.use_solver_snopt   = use_solver_snopt_;
-  msg.vel_disturbance    = velocity_disturbance_;
+  msg.goal_lin          = RosHelpers::XppToRos(goal_geom_.lin);
+  msg.goal_ang          = RosHelpers::XppToRos(goal_geom_.ang);
+  msg.motion_type       = motion_type_;
+  msg.replay_trajectory = replay_trajectory_;
+  msg.use_solver_snopt  = use_solver_snopt_;
+  msg.vel_disturbance   = velocity_disturbance_;
   user_command_pub_.publish(msg);
 
   switch (command_) {
