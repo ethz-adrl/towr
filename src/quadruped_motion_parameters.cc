@@ -23,7 +23,7 @@ namespace quad{
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
   duration_polynomial_    = 0.1; //s 0.05
-  load_dt_                = 0.02;//duration_polynomial_/2.;
+  load_dt_                = 0.05;//duration_polynomial_/2.;
   // enforce at beginning and middle. The end if always enforced
   // due to acceleration continuity constraint.
   n_constraints_per_poly_ = 2;

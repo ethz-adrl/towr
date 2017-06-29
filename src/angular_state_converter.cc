@@ -149,6 +149,7 @@ AngularStateConverter::GetRotationMatrixWorldToBase (double t) const
   return GetRotationMatrixWorldToBase(ori.p_);
 }
 
+// zmp_ this is rotation mapping base to world!
 MatrixSXd
 AngularStateConverter::GetRotationMatrixWorldToBase (const EulerAngles& xyz)
 {
@@ -159,16 +160,86 @@ AngularStateConverter::GetRotationMatrixWorldToBase (const EulerAngles& xyz)
 
   Eigen::Matrix3d M;
   M << cos(y)*cos(z), cos(z)*sin(x)*sin(y) - cos(x)*sin(z), sin(x)*sin(z) + cos(x)*cos(z)*sin(y),
-      cos(y)*sin(z), cos(x)*cos(z) + sin(x)*sin(y)*sin(z), cos(x)*sin(y)*sin(z) - cos(z)*sin(x),
-            -sin(y),                        cos(y)*sin(x),                        cos(x)*cos(y);
+       cos(y)*sin(z), cos(x)*cos(z) + sin(x)*sin(y)*sin(z), cos(x)*sin(y)*sin(z) - cos(z)*sin(x),
+             -sin(y),                        cos(y)*sin(x),                        cos(x)*cos(y);
 
   return M.sparseView(1.0, -1.0);
 }
 
+// zmp_ since for rotations matrices, inverse = transpose, I can easily
+// caculate one from the other.
 Jacobian
 AngularStateConverter::GetDerivativeOfRotationMatrixRowWrtCoeff (double t,
                                                                  Coords3D row) const
 {
+  // zmp_ inefficient calculating all values for each row all the time...
+  JacRowMatrix all_derivs = GetDerivativeOfRotationMatrixWrtCoeff(t);
+
+  int n_coeff = euler_->GetRows();
+  Jacobian jac(kDim3d,n_coeff);
+
+  for (int col : {EX, EY, EZ})
+    jac.row(col) = all_derivs.at(row).at(col);
+
+  return jac;
+
+//  StateLin3d ori = euler_->GetPoint(t);
+//  double x = ori.p_(EX);
+//  double y = ori.p_(EY);
+//  double z = ori.p_(EZ);
+//
+//  JacobianRow jac_x = euler_->GetJacobian(t, kPos, EX);
+//  JacobianRow jac_y = euler_->GetJacobian(t, kPos, EY);
+//  JacobianRow jac_z = euler_->GetJacobian(t, kPos, EZ);
+//
+//  int n_coeff = euler_->GetRows();
+//  Jacobian jac(kDim3d,n_coeff);
+//
+//  switch (row) {
+//    case X: // basically derivative of top row (3 elements) of matrix R
+//      jac.row(EX) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
+//      jac.row(EY) = sin(x)*sin(z)*jac_x - cos(x)*cos(z)*jac_z - sin(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(z)*sin(y)*jac_x + cos(y)*cos(z)*sin(x)*jac_y;
+//      jac.row(EZ) = cos(x)*sin(z)*jac_x + cos(z)*sin(x)*jac_z - cos(z)*sin(x)*sin(y)*jac_x - cos(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(y)*cos(z)*jac_y;
+//      break;
+//    case Y: // middle row of R
+//      jac.row(EX) = cos(y)*cos(z)*jac_z - sin(y)*sin(z)*jac_y;
+//      jac.row(EY) = cos(x)*sin(y)*sin(z)*jac_x - cos(x)*sin(z)*jac_z - cos(z)*sin(x)*jac_x + cos(y)*sin(x)*sin(z)*jac_y + cos(z)*sin(x)*sin(y)*jac_z;
+//      jac.row(EZ) = sin(x)*sin(z)*jac_z - cos(x)*cos(z)*jac_x - sin(x)*sin(y)*sin(z)*jac_x + cos(x)*cos(y)*sin(z)*jac_y + cos(x)*cos(z)*sin(y)*jac_z;
+//      break;
+//    case Z: // bottom row of R
+//      jac.row(EX) = -cos(y)*jac_y;
+//      jac.row(EY) =  cos(x)*cos(y)*jac_x - sin(x)*sin(y)*jac_y;
+//      jac.row(EZ) = - cos(y)*sin(x)*jac_x - cos(x)*sin(y)*jac_y;
+//      break;
+//    default:
+//      assert(false);
+//      break;
+//  }
+//
+//  return jac;
+}
+
+Jacobian
+AngularStateConverter::GetDerivativeOfRotationMatrixInverseRowWrtCoeff (
+    double t, Coords3D row) const
+{
+  // zmp_ inefficient calculating all values for each row all the time...
+  JacRowMatrix all_derivs = GetDerivativeOfRotationMatrixWrtCoeff(t);
+
+  int n_coeff = euler_->GetRows();
+  Jacobian jac(kDim3d,n_coeff);
+
+  for (int col : {EX, EY, EZ})
+    jac.row(col) = all_derivs.at(col).at(row); // swapped rows and columns, since for rotations matrices inverse=transpose
+
+  return jac;
+}
+
+AngularStateConverter::JacRowMatrix
+AngularStateConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
+{
+  JacRowMatrix jac;
+
   StateLin3d ori = euler_->GetPoint(t);
   double x = ori.p_(EX);
   double y = ori.p_(EY);
@@ -178,29 +249,17 @@ AngularStateConverter::GetDerivativeOfRotationMatrixRowWrtCoeff (double t,
   JacobianRow jac_y = euler_->GetJacobian(t, kPos, EY);
   JacobianRow jac_z = euler_->GetJacobian(t, kPos, EZ);
 
-  int n_coeff = euler_->GetRows();
-  Jacobian jac(kDim3d,n_coeff);
+  jac.at(X).at(EX) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
+  jac.at(X).at(EY) = sin(x)*sin(z)*jac_x - cos(x)*cos(z)*jac_z - sin(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(z)*sin(y)*jac_x + cos(y)*cos(z)*sin(x)*jac_y;
+  jac.at(X).at(EZ) = cos(x)*sin(z)*jac_x + cos(z)*sin(x)*jac_z - cos(z)*sin(x)*sin(y)*jac_x - cos(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(y)*cos(z)*jac_y;
 
-  switch (row) {
-    case X: // basically derivative of top row (3 elements) of matrix R
-      jac.row(EX) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
-      jac.row(EY) = sin(x)*sin(z)*jac_x - cos(x)*cos(z)*jac_z - sin(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(z)*sin(y)*jac_x + cos(y)*cos(z)*sin(x)*jac_y;
-      jac.row(EZ) = cos(x)*sin(z)*jac_x + cos(z)*sin(x)*jac_z - cos(z)*sin(x)*sin(y)*jac_x - cos(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(y)*cos(z)*jac_y;
-      break;
-    case Y: // middle row of R
-      jac.row(EX) = cos(y)*cos(z)*jac_z - sin(y)*sin(z)*jac_y;
-      jac.row(EY) = cos(x)*sin(y)*sin(z)*jac_x - cos(x)*sin(z)*jac_z - cos(z)*sin(x)*jac_x + cos(y)*sin(x)*sin(z)*jac_y + cos(z)*sin(x)*sin(y)*jac_z;
-      jac.row(EZ) = sin(x)*sin(z)*jac_z - cos(x)*cos(z)*jac_x - sin(x)*sin(y)*sin(z)*jac_x + cos(x)*cos(y)*sin(z)*jac_y + cos(x)*cos(z)*sin(y)*jac_z;
-      break;
-    case Z: // bottom row of R
-      jac.row(EX) = -cos(y)*jac_y;
-      jac.row(EY) =  cos(x)*cos(y)*jac_x - sin(x)*sin(y)*jac_y;
-      jac.row(EZ) = - cos(y)*sin(x)*jac_x - cos(x)*sin(y)*jac_y;
-      break;
-    default:
-      assert(false);
-      break;
-  }
+  jac.at(Y).at(EX) = cos(y)*cos(z)*jac_z - sin(y)*sin(z)*jac_y;
+  jac.at(Y).at(EY) = cos(x)*sin(y)*sin(z)*jac_x - cos(x)*sin(z)*jac_z - cos(z)*sin(x)*jac_x + cos(y)*sin(x)*sin(z)*jac_y + cos(z)*sin(x)*sin(y)*jac_z;
+  jac.at(Y).at(EZ) = sin(x)*sin(z)*jac_z - cos(x)*cos(z)*jac_x - sin(x)*sin(y)*sin(z)*jac_x + cos(x)*cos(y)*sin(z)*jac_y + cos(x)*cos(z)*sin(y)*jac_z;
+
+  jac.at(Z).at(EX) = -cos(y)*jac_y;
+  jac.at(Z).at(EY) =  cos(x)*cos(y)*jac_x - sin(x)*sin(y)*jac_y;
+  jac.at(Z).at(EZ) = - cos(y)*sin(x)*jac_x - cos(x)*sin(y)*jac_y;
 
   return jac;
 }

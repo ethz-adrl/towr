@@ -42,6 +42,7 @@ public:
 
   Jacobian GetDerivOfAngAccWrtCoeff(double t) const;
 
+  // zmp_ this naming order if wrong
   /** @returns the rotations matrix that rotates a vector expressed
    *
    * This rotation matrix expresses a vector previously given in world frame
@@ -52,6 +53,12 @@ public:
   MatrixSXd GetRotationMatrixWorldToBase(double t) const;
 
   Jacobian GetDerivativeOfRotationMatrixRowWrtCoeff(double t, Coords3D row) const;
+
+  using JacRowMatrix = std::array<std::array<JacobianRow, 3>, 3>;
+  JacRowMatrix GetDerivativeOfRotationMatrixWrtCoeff(double t) const;
+
+  Jacobian GetDerivativeOfRotationMatrixInverseRowWrtCoeff(double t,
+                                                               Coords3D row) const;
 
 private:
   OrientationVariables euler_;

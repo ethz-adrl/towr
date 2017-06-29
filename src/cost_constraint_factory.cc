@@ -190,12 +190,12 @@ CostConstraintFactory::MakeStancesConstraints () const
   stance_constraints->AddComponent(constraint_initial);
 
   // calculate endeffector position in world frame
-  Eigen::Matrix3d b_R_w = AngularStateConverter::GetRotationMatrixWorldToBase(final_base_.ang.p_);
+  Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixWorldToBase(final_base_.ang.p_);
 
   EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
   EndeffectorsPos endeffectors_final_W(nominal_B.GetCount());
   for (auto ee : endeffectors_final_W.GetEEsOrdered())
-    endeffectors_final_W.At(ee) = final_base_.lin.p_ + b_R_w.inverse()*nominal_B.At(ee);
+    endeffectors_final_W.At(ee) = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
 
 
   auto constraint_final = std::make_shared<FootholdConstraint>(

@@ -144,12 +144,45 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     State3d base; // positions and orientations set to zero
     base.lin = base_lin->GetPoint(t);
     StateLin3d rpy = base_ang->GetPoint(t);
-    kindr::EulerAnglesZyxD euler(rpy.p_.reverse());
-    kindr::RotationQuaternionD quat(euler);
+
+//    std::cout << "rpy: " << rpy.p_.transpose() << std::endl;
+
+
+    double yaw = 1.6;                                     // angle around z-axis
+    double pitch = 0.0;                                   // angle around new y-axis
+    double roll = 0.3;                                    // angle around new x-axis
+//    kindr::EulerAnglesZyxD euler(yaw, pitch, roll);
+    kindr::EulerAnglesZyxD euler(rpy.p_(Z), rpy.p_(Y), rpy.p_(X));
+    kindr::RotationMatrixD mat(euler);
+    kindr::RotationMatrixPD matP(euler);
+
+//    std::cout << "mat_kindr_active:\n" << mat << std::endl;
+//    std::cout << "mat_kindr_passive:\n" << matP << std::endl;
 
     // because optimized euler angles represent world->base mapping,
     // but quaternion expects mapping base->world
-    base.ang.q = quat.toImplementation().inverse();
+
+    // zmp_ roll and pitch are swapped! why?
+    // because this is not world to base, but base to world
+    Eigen::Matrix3d b_R_w = converter.GetRotationMatrixWorldToBase(t).toDense();
+
+//    std::cout << "mat_own:\n" << b_R_w << std::endl;
+
+    kindr::RotationQuaternionD quat(mat);
+
+
+
+    Eigen::Matrix3d w_R_b = b_R_w.inverse();
+
+
+//    Eigen::Quaterniond w_q_b2(0.2, 0.0, 1.0, 0.0);
+
+    Eigen::Quaterniond w_q_b(b_R_w);
+
+//    std::cout << "quat_own: " << w_q_b.w() << ", " << w_q_b.vec().transpose() << std::endl;
+//    std::cout << "quat_kindr: " << quat << std::endl;
+
+    base.ang.q = w_q_b;//quat.toImplementation();//w_q_b.inverse();//quat.toImplementation().inverse();
     base.ang.v = converter.GetAngularVelocity(t);
     base.ang.a = converter.GetAngularAcceleration(t);
     state.SetBase(base);
@@ -162,6 +195,8 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     trajectory.push_back(state);
     t += dt;
   }
+
+
 
   return trajectory;
 }
