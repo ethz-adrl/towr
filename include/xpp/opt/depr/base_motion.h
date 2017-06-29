@@ -15,8 +15,8 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include <xpp/opt/com_spline.h>
 #include <xpp/opt/constraints/composite.h>
+#include <xpp/opt/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {
@@ -29,10 +29,9 @@ namespace opt {
   */
 class BaseMotion : public Composite {
 public:
-  using JacobianRow  = Eigen::SparseVector<double, Eigen::RowMajor>;
-  using ComSplinePtr = std::shared_ptr<ComSpline>;
+  using PolySplinePtr = std::shared_ptr<PolynomialSpline>;
 
-  BaseMotion (const ComSplinePtr&);
+  BaseMotion (const PolySplinePtr& linear, const PolySplinePtr& angular);
   virtual ~BaseMotion ();
 
   /** @brief Calculates the Jacobian J of the motion with respect to the coefficients.
@@ -45,16 +44,14 @@ public:
   Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const;
 
   State3d GetBase(double t_global) const;
-  StateLin3d GetCom(double t_global) const;
 
   double GetTotalTime() const;
-  ComSpline GetComSpline() const;
-
-//  void SetOffsetGeomToCom(const Vector3d&);
+  PolynomialSpline GetLinearSpline() const;
+  PolynomialSpline GetAngularSpline() const;
 
 private:
-  ComSplinePtr com_spline_; // to retain specific spline info
-//  Vector3d offset_geom_to_com_;
+  PolySplinePtr linear_;  ///< Base x,y,z positions/velocity and acceleration
+  PolySplinePtr angular_; ///< Base yaw, pitch roll angle, first deriv, second deriv
 };
 
 } /* namespace opt */

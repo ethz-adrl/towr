@@ -6,7 +6,11 @@
  */
 
 #include <xpp/opt/variables/contact_schedule.h>
+
 #include <cassert>
+#include <string>
+
+#include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -77,7 +81,7 @@ SingleContactMotion::GetPhases () const
 }
 
 ContactSchedule::ContactSchedule (const PhaseVec& phases)
-    :Component(0, "contact_schedule")
+    :Component(0, id::contact_schedule)
 {
   SetPhaseSequence(phases);
 }

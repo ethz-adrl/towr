@@ -7,17 +7,19 @@
 
 #include <xpp/opt/variables/endeffectors_force.h>
 
-#include <cmath>
-#include <vector>
+#include <Eigen/Sparse>
+#include <string>
 
-#include <xpp/bound.h>
+#include <xpp/cartesian_declarations.h>
+
+#include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
 
 
 EndeffectorsForce::EndeffectorsForce (double dt, const ContactSchedule& contact_schedule)
-    :Composite("endeffector_force", true)
+    :Composite(id::endeffector_force, true)
 {
   ee_ordered_ = contact_schedule.IsInContact(0.0).GetEEsOrdered();
 

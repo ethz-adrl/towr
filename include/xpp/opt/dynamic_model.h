@@ -8,14 +8,13 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_DYNAMIC_MODEL_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_DYNAMIC_MODEL_H_
 
-#include <Eigen/Dense>
 #include <vector>
 
-#include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
+
+#include "polynomial_spline.h"
 #include <xpp/opt/constraints/composite.h>
-#include <xpp/opt/variables/base_motion.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
 
@@ -38,15 +37,19 @@ public:
   using ComAngAcc = Vector3d;
   using BaseAcc   = Vector6d;
 
-  using EELoad = Endeffectors<Vector3d>;
-  using EEPos  = EndeffectorsPos;
+  using EELoad  = Endeffectors<Vector3d>;
+  using EEPos   = EndeffectorsPos;
+  using BaseLin = PolynomialSpline;
+  using BaseAng = PolynomialSpline;
 
   void SetCurrent(const ComPos& com, const EELoad&, const EEPos&);
 
   virtual BaseAcc GetBaseAcceleration() const = 0;
 
-  virtual Jacobian GetJacobianOfAccWrtBase(const BaseMotion&,
-                                            double t_global) const = 0;
+  virtual Jacobian GetJacobianOfAccWrtBaseLin(const BaseLin&,
+                                              double t_global) const = 0;
+  virtual Jacobian GetJacobianOfAccWrtBaseAng(const BaseAng&,
+                                              double t_global) const = 0;
   virtual Jacobian GetJacobianofAccWrtForce(const EndeffectorsForce&,
                                             double t_global,
                                             EndeffectorID) const = 0;

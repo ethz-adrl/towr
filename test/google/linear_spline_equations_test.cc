@@ -6,11 +6,11 @@
  */
 
 #include <xpp/opt/linear_spline_equations.h>
-#include <xpp/opt/com_spline.h>
 #include <xpp/opt/motion_factory.h>
 #include <xpp/opt/motion_structure.h>
 
 #include <gtest/gtest.h>
+#include <xpp/opt/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {
@@ -42,7 +42,7 @@ TEST(LinearSplineEquations, JunctionTestPosition)
 
   // create a spline made up of two fifth order polynomials
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
-  auto com_spline = std::dynamic_pointer_cast<ComSpline>(com_motion);
+  auto com_spline = std::dynamic_pointer_cast<PolynomialSpline>(com_motion);
 
   // duration of first polynomial
   double T = com_spline->GetPolynomial(0).GetDuration();

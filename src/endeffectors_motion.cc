@@ -7,16 +7,17 @@
 
 #include <xpp/opt/variables/endeffectors_motion.h>
 
-#include <iostream>
-#include <vector>
 #include <Eigen/Sparse>
+#include <string>
+
+#include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
 
 EndeffectorsMotion::EndeffectorsMotion (const EndeffectorsPos& initial_pos,
                                         const ContactSchedule& contact_schedule)
-    :Composite("endeffectors_motion", true)
+    :Composite(id::endeffectors_motion, true)
 {
   auto ee = EndeffectorsMotion::BuildEndeffectors(initial_pos, contact_schedule);
   AddEndffectors(ee);

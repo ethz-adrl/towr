@@ -7,29 +7,25 @@
 
 #include <xpp/opt/constraints/linear_constraint.h>
 
-#include <vector>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
-
-#include <xpp/bound.h>
-#include <xpp/opt/variables/base_motion.h>
+#include <vector>
 
 namespace xpp {
 namespace opt {
 
 LinearEqualityConstraint::LinearEqualityConstraint (
     const OptVarsPtr& opt_vars,
-    const MatVec& linear_equation)
+    const MatVec& linear_equation,
+    const std::string& variable_name)
 {
+  SetName("LinearEqualityConstraint-" + variable_name);
   linear_equation_ = linear_equation;
-
-  com_motion_ = std::dynamic_pointer_cast<BaseMotion>(opt_vars->GetComponent("base_motion"));
-  opt_vars_ = opt_vars;
+  variable_name_   = variable_name;
 
   int num_constraints = linear_equation_.v.rows();
-  SetName("LinearEqualityConstraint");
   SetRows(num_constraints);
-  AddComposite(opt_vars);
+  AddOptimizationVariables(opt_vars);
 }
 
 LinearEqualityConstraint::~LinearEqualityConstraint ()
@@ -39,7 +35,7 @@ LinearEqualityConstraint::~LinearEqualityConstraint ()
 VectorXd
 LinearEqualityConstraint::GetValues () const
 {
-  VectorXd x = com_motion_->GetComSpline().GetValues();
+  VectorXd x = GetOptVars()->GetComponent(variable_name_)->GetValues();
   return linear_equation_.M*x;
 }
 
@@ -60,8 +56,8 @@ void
 LinearEqualityConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
 {
   // the constraints are all linear w.r.t. the decision variables.
-  // careful, .sparseView is only valid when the Jacobian is constant, e.g.
-  if (var_set == com_motion_->GetName())
+  // careful, .sparseView is only valid when the Jacobian is constant
+  if (var_set == variable_name_)
     jac = linear_equation_.M.sparseView();
 }
 

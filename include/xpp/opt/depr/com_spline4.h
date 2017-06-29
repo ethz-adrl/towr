@@ -15,7 +15,7 @@
 
 #include <xpp/cartesian_declarations.h>
 
-#include <xpp/opt/com_spline.h>
+#include <xpp/opt/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {
@@ -28,7 +28,7 @@ namespace opt {
   * and f coefficients of all splines can be uniquely determined from the other
   * coefficients and the initial position/velocity.
   */
-class ComSpline4 : public ComSpline {
+class ComSpline4 : public PolynomialSpline {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 

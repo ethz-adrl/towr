@@ -8,7 +8,6 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 
-#include <Eigen/Dense>
 #include <memory>
 #include <string>
 
@@ -18,18 +17,17 @@
 namespace xpp {
 namespace opt {
 
-class BaseMotion;
 
-/** @brief Calculates the scalar cost associated to spline coefficients.
+/** @brief Calculates the scalar cost associated with a vector of variables.
   *
   * This class is responsible for getting the current value of the optimization
   * variables from the subject and calculating the scalar cost from these.
   */
 class QuadraticPolynomialCost : public Primitive {
 public:
-  using BaseMotionPtrS = std::shared_ptr<BaseMotion>;
 
-  QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&, double weight);
+  QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&,
+                          const std::string& variables, double weight);
   virtual ~QuadraticPolynomialCost();
 
   /**  The cost is calculated as
@@ -41,8 +39,8 @@ private:
   void FillJacobianWithRespectTo(std::string var_set, Jacobian&) const;
 
   double weight_ = 1.0;
-  BaseMotionPtrS com_motion_;
-  MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
+  MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar costst
+  std::string variables_;
 };
 
 //class SquaredSplineCost : public ASplineCost {
@@ -56,7 +54,7 @@ private:
 //
 //};
 
-} /* namespace zmp */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_ */

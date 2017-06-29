@@ -7,21 +7,19 @@
 
 #include <xpp/opt/motion_optimizer_facade.h>
 
-#include <algorithm>
-#include <cassert>
-#include <deque>
-#include <utility>
+#include <Eigen/Dense>
+#include <kindr/Core>
 
-#include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 
 #include <xpp/ipopt_adapter.h>
-#include <xpp/opt/com_spline.h>
+#include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/cost_constraint_factory.h>
-#include <xpp/opt/variables/base_motion.h>
+#include <xpp/opt/polynomial_spline.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
+#include <xpp/opt/variables/variable_names.h>
 #include <xpp/snopt_adapter.h>
 
 namespace xpp {
@@ -29,7 +27,7 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  opt_variables_ = std::make_shared<Composite>("variables", true);
+  opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
 }
 
 MotionOptimizerFacade::~MotionOptimizerFacade ()
@@ -39,24 +37,18 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 void
 MotionOptimizerFacade::BuildDefaultStartStance ()
 {
-  State3d base;
   double offset_x = 0.0;
-  base.lin.p_ << offset_x+0.000350114, -1.44379e-7, 0.573311;
-  base.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
-  base.lin.a_ << 0.000197966, -5.72241e-07, -5.13328e-06;
-  base.lin.p_.z() = 0.58;
-  EndeffectorsBool contact_state(motion_parameters_->GetEECount());
-  contact_state.SetAll(true);
+  inital_base_.lin.p_ << offset_x+0.000350114, -1.44379e-7, 0.573311;
+  inital_base_.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
+  inital_base_.lin.a_ << 0.000197966, -5.72241e-07, -5.13328e-06;
 
-  start_geom_.SetBase(base);
-  start_geom_.SetContactState(contact_state);
+  inital_base_.ang.p_ << 0.0, 0.0, 0.0; // euler (roll, pitch, yaw)
 
-  auto ee_start_W = motion_parameters_->GetNominalStanceInBase();
-  for (auto ee : ee_start_W.GetEEsOrdered()) {
-    ee_start_W.At(ee) += base.lin.p_;
-    ee_start_W.At(ee).z() = 0.0;
+  initial_ee_W_ = motion_parameters_->GetNominalStanceInBase();
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+    initial_ee_W_.At(ee) += inital_base_.lin.p_;
+    initial_ee_W_.At(ee).z() = 0.0;
   }
-  start_geom_.SetEEStateInWorld(kPos, ee_start_W);
 }
 
 void
@@ -67,20 +59,27 @@ MotionOptimizerFacade::BuildVariables ()
       motion_parameters_->GetContactSchedule());
 
   // initialize the ee_motion with the fixed parameters
-  auto ee_motion = std::make_shared<EndeffectorsMotion>(start_geom_.GetEEPos(),
+  auto ee_motion = std::make_shared<EndeffectorsMotion>(initial_ee_W_,
                                                         *contact_schedule);
 
   double T = motion_parameters_->GetTotalTime();
 
-  auto com_motion = std::make_shared<ComSpline>();
-  com_motion->Init(T, motion_parameters_->duration_polynomial_,
-                   start_geom_.GetBase().lin.p_);
-  auto base_motion = std::make_shared<BaseMotion>(com_motion);
+  auto base_linear = std::make_shared<PolynomialSpline>(id::base_linear);
+  base_linear->Init(T, motion_parameters_->duration_polynomial_,
+                    inital_base_.lin.p_);
+
+  // Represent roll, pitch and yaw by a spline each.
+  // These angles are to be interpreted as mapping a vector expressed in world
+  // frame to a base frame (not the other way around).
+  auto base_angular = std::make_shared<PolynomialSpline>(id::base_angular);
+  base_angular->Init(T, motion_parameters_->duration_polynomial_,
+                     inital_base_.ang.p_);
 
   auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
                                                    *contact_schedule);
   opt_variables_->ClearComponents();
-  opt_variables_->AddComponent(base_motion);
+  opt_variables_->AddComponent(base_angular);
+  opt_variables_->AddComponent(base_linear);
   opt_variables_->AddComponent(ee_motion);
   opt_variables_->AddComponent(force);
   opt_variables_->AddComponent(contact_schedule);
@@ -92,7 +91,8 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
   BuildVariables();
 
   CostConstraintFactory factory;
-  factory.Init(opt_variables_, motion_parameters_, start_geom_, goal_geom_);
+  factory.Init(opt_variables_, motion_parameters_,
+               initial_ee_W_, inital_base_, final_base_);
 
   nlp.Init(opt_variables_);
 
@@ -125,17 +125,22 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   RobotStateVec trajectory;
 
-  auto base_motion      = std::dynamic_pointer_cast<BaseMotion>        (opt_variables_->GetComponent("base_motion"));
-  auto ee_motion        = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_variables_->GetComponent("endeffectors_motion"));
-  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent("contact_schedule"));
-  auto ee_forces        = std::dynamic_pointer_cast<EndeffectorsForce> (opt_variables_->GetComponent("endeffector_force"));
+  auto base_lin         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_linear));
+  auto base_ang         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_angular));
+  auto ee_motion        = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_variables_->GetComponent(id::endeffectors_motion));
+  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent(id::contact_schedule));
+  auto ee_forces        = std::dynamic_pointer_cast<EndeffectorsForce> (opt_variables_->GetComponent(id::endeffector_force));
 
   double t=0.0;
   double T = motion_parameters_->GetTotalTime();
   while (t<=T+1e-5) {
 
-    RobotStateCartesian state(start_geom_.GetEECount());
-    state.SetBase(base_motion->GetBase(t));
+    RobotStateCartesian state(initial_ee_W_.GetCount());
+
+    State3d base; // positions and orientations set to zero
+    base.lin = base_lin->GetPoint(t);
+    base.ang = AngularStateConverter::GetState(base_ang->GetPoint(t));
+    state.SetBase(base);
 
     state.SetEEStateInWorld(ee_motion->GetEndeffectors(t));
     state.SetEEForcesInWorld(ee_forces->GetForce(t));
@@ -155,7 +160,23 @@ MotionOptimizerFacade::SetMotionParameters (const MotionParametersPtr& params)
   motion_parameters_ = params;
 }
 
+void
+MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& initial_state)
+{
+  initial_ee_W_       = initial_state.GetEEPos();
+
+
+  inital_base_ = State3dEuler(); // zero
+  inital_base_.lin    = initial_state.GetBase().lin;
+
+  kindr::RotationQuaternionD quat(initial_state.GetBase().ang.q);
+  kindr::EulerAnglesZyxD euler(quat);
+  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
+  inital_base_.ang.p_ = euler.toImplementation().reverse();
+  // assume zero euler rates and euler accelerations
+}
+
+
 } /* namespace opt */
 } /* namespace xpp */
-
 

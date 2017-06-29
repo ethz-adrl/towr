@@ -9,21 +9,20 @@
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 
 #include <array>
-#include <memory>
-#include <vector>
 #include <Eigen/Dense>
+#include <vector>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
 #include <xpp/matrix_vector.h>
 
-#include "com_spline.h"
+#include "polynomial_spline.h"
 
 namespace xpp {
 namespace opt {
 
-class ComSpline;
+class PolynomialSpline;
 
 /** Produces linear equations related to CoM spline motion coefficients x.
   *
@@ -36,17 +35,16 @@ class ComSpline;
 class LinearSplineEquations {
 public:
   using MotionDerivatives = std::vector<MotionDerivative>;
-  using ValXY             = std::array<double,3>;
 
   LinearSplineEquations();
-  LinearSplineEquations (const ComSpline&);
+  LinearSplineEquations (const PolynomialSpline&);
   virtual ~LinearSplineEquations ();
 
   /** M*x + v gives the difference to the state
     *
     * @param state desired position, velocity and acceleration.
     */
-  MatVec MakeStateConstraint(const StateLin3d& state, double t, const MotionDerivatives& ) const;
+  MatVec MakeStateConstraint(const StateLinXd& state, double t, const MotionDerivatives& ) const;
 
   /** M*x + v gives the difference at the polynomial junctions of the spline
     *
@@ -64,10 +62,10 @@ public:
     *
     * @param weight which acceleration to avoid (x,y,z)
     */
-  Eigen::MatrixXd MakeCostMatrix(const ValXY& weights, MotionDerivative) const;
+  Eigen::MatrixXd MakeCostMatrix(const VectorXd& weights, MotionDerivative) const;
 
 private:
-  ComSpline com_spline_;
+  PolynomialSpline poly_spline_;
 };
 
 } /* namespace opt */

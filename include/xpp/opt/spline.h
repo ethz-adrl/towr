@@ -29,6 +29,8 @@ public:
 
 
 /** @brief For manipulation of multiple sequential segments ("spline").
+  *
+  * These segments don't have to be polynomials.
   */
 class Spline {
 public:
@@ -50,7 +52,7 @@ public:
   double GetLocalTime(double t_global) const;
   double GetTotalTime() const;
 
-private:
+protected:
   VecSegments segments_;
 };
 

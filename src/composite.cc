@@ -83,6 +83,7 @@ Composite::GetComponent (std::string name) const
     if (c->GetName() == name)
       return c;
 
+  std::cerr << "component \"" << name << "\" doesn't exist." << std::endl;
   assert(false); // component with name doesn't exist
 }
 
@@ -170,7 +171,7 @@ Primitive::Primitive () : Component(-1, "Primitive")
 }
 
 void
-Primitive::AddComposite (const OptVarsPtr& vars)
+Primitive::AddOptimizationVariables (const OptVarsPtr& vars)
 {
   opt_vars_ = vars;
 }

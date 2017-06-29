@@ -51,7 +51,6 @@ EEMotion::AddPhase (double t, double lift_height, bool is_contact)
   // update optimization variable count b/c new phase has been added.
   int n_contact_ids = 1 + c_goal.id;
   SetRows(n_contact_ids*kDim2d);
-
 }
 
 StateLin3d

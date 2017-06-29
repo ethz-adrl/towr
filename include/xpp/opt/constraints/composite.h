@@ -22,7 +22,8 @@ namespace xpp {
 namespace opt {
 
 // make sure all jacobians in code follow same storage order
-using Jacobian    = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+using MatrixSXd   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+using Jacobian    = MatrixSXd;
 using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 using VectorXd    = Eigen::VectorXd;
 
@@ -136,7 +137,8 @@ public:
   Jacobian GetJacobian() const override;
 
 protected:
-  void AddComposite(const OptVarsPtr&);
+  void AddOptimizationVariables(const OptVarsPtr&);
+  const OptVarsPtr GetOptVars() const { return opt_vars_; };
 
 private:
   /** @brief Jacobian of the component with respect to each decision variable set.

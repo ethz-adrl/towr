@@ -10,13 +10,15 @@
 #include <Eigen/Dense>
 #include <vector>
 
+#include <xpp/endeffectors.h>
 #include <xpp/state.h>
 
-#include <xpp/opt/lip_model.h>
 #include <xpp/opt/centroidal_model.h>
-#include <xpp/opt/variables/base_motion.h>
+#include <xpp/opt/lip_model.h>
+#include <xpp/opt/polynomial_spline.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
+#include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -30,11 +32,14 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
 //  model_ = std::make_shared<LIPModel>();
 
   SetName("DynamicConstraint");
-  base_motion_ = std::dynamic_pointer_cast<BaseMotion>        (opt_vars->GetComponent("base_motion"));
-  ee_motion_  = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent("endeffectors_motion"));
-  ee_load_    = std::dynamic_pointer_cast<EndeffectorsForce> (opt_vars->GetComponent("endeffector_force"));
+  base_linear_  = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_linear));
+  base_angular_ = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_angular));
+  ee_motion_    = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent(id::endeffectors_motion));
+  ee_load_      = std::dynamic_pointer_cast<EndeffectorsForce> (opt_vars->GetComponent(id::endeffector_force));
 
   SetRows(GetNumberOfNodes()*kDim6d);
+
+  converter_ = AngularStateConverter(base_angular_);
 }
 
 int
@@ -56,7 +61,9 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 
   // acceleration base has with current values of optimization variables
   // angular acceleration fixed to zero for now
-  Vector6d acc_parametrization = base_motion_->GetBase(t).Get6dAcc();
+  Vector6d acc_parametrization = Vector6d::Zero();
+  acc_parametrization.middleRows(AX, kDim3d) = converter_.GetAngularAcceleration(t);
+  acc_parametrization.middleRows(LX, kDim3d) = base_linear_->GetPoint(t).a_;
 
   for (auto dim : AllDim6D)
     g(GetRow(k,dim)) = acc_model(dim) - acc_parametrization(dim);
@@ -89,9 +96,24 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
       jac.middleRows(row, kDim6d) += model_->GetJacobianofAccWrtEEPos(*ee_motion_, t, ee);
   }
 
-  if (var_set == base_motion_->GetName()) {
-    Jacobian jac_model           = model_->GetJacobianOfAccWrtBase(*base_motion_, t);
-    Jacobian jac_parametrization = base_motion_->GetJacobian(t, kAcc);
+
+  if (var_set == base_linear_->GetName()) {
+    Jacobian jac_model = model_->GetJacobianOfAccWrtBaseLin(*base_linear_, t);
+
+    Jacobian jac_parametrization(kDim6d, base_linear_->GetRows());
+    jac_parametrization.middleRows(LX, kDim3d) = base_linear_->GetJacobian(t,kAcc);
+
+    jac.middleRows(row, kDim6d) = jac_model - jac_parametrization;
+  }
+
+
+  // zmp_ DRY with above
+  if (var_set == base_angular_->GetName()) {
+
+    Jacobian jac_model = model_->GetJacobianOfAccWrtBaseAng(*base_angular_, t);
+
+    Jacobian jac_parametrization(kDim6d, base_angular_->GetRows());
+    jac_parametrization.middleRows(AX, kDim3d) = converter_.GetDerivOfAngAccWrtCoeff(t);
 
     jac.middleRows(row, kDim6d) = jac_model - jac_parametrization;
   }
@@ -100,10 +122,10 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 void
 DynamicConstraint::UpdateModel (double t) const
 {
-  auto com     = base_motion_->GetCom(t);
-  auto ee_load = ee_load_   ->GetForce(t);
-  auto ee_pos  = ee_motion_ ->GetEndeffectors(t).GetPos();
-  model_->SetCurrent(com.p_, ee_load, ee_pos);
+  auto com_pos = base_linear_->GetPoint(t).p_;
+  auto ee_load = ee_load_->GetForce(t);
+  auto ee_pos  = ee_motion_->GetEndeffectors(t).GetPos();
+  model_->SetCurrent(com_pos, ee_load, ee_pos);
 }
 
 } /* namespace opt */

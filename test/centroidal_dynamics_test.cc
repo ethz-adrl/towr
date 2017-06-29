@@ -5,8 +5,19 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/centroidal_model.h>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+#include <iostream>
+
 #include <gtest/gtest.h>
+#include <xpp/cartesian_declarations.h>
+#include <xpp/endeffectors.h>
+#include <xpp/state.h>
+
+#include <Eigen/src/Core/IO.h>
+#include <xpp/opt/angular_state_converter.h>
+#include <xpp/opt/centroidal_model.h>
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -32,6 +43,32 @@ TEST(CentroidalDynamicsTest, GetBaseAcceleration)
 TEST(CentroidalDynamicsTest, GetJacobianOfAccWrtBase)
 {
   CentroidalModel model;
+
+
+  Vector3d d1(1.1, 0.0, 0.0);
+  Vector3d d2(1.1, 2.2, 3.3);
+
+
+  JacobianRow s1 = d1.sparseView(1.0, -1.0);
+  JacobianRow s2 = d2.sparseView();
+  JacobianRow s3(3);
+  s3.coeffRef(0) = 0.0;
+  s3.coeffRef(1) = 0.0;
+  s3.coeffRef(2) = 0.0;
+
+  std::cout << s1 << ", nnz: " << s1.nonZeros() << std::endl;
+  std::cout << s2 << ", nnz: " << s2.nonZeros() << std::endl;
+  std::cout << s3 << ", nnz: " << s3.nonZeros() << std::endl;
+
+}
+
+TEST(CentroidalDynamicsTest, TestRotations)
+{
+  AngularStateConverter converter;
+//  std::cout << "X: " <<  converter.GetRotation(0.1, X) << std::endl;
+//  std::cout << "Y: " <<  converter.GetRotation(0.1, Y) << std::endl;
+//  std::cout << "Z: " <<  converter.GetRotation(0.1, Z) << std::endl;
+
 }
 
 

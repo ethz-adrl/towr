@@ -19,8 +19,6 @@
 namespace xpp {
 namespace opt {
 
-class BaseMotion;
-
 /** @brief Calculates the constraint violations for linear constraints.
   *
   * This class is responsible for getting the current state of the CoM spline
@@ -28,15 +26,16 @@ class BaseMotion;
   */
 class LinearEqualityConstraint : public Primitive {
 public:
-  using ComMotionPtr = std::shared_ptr<BaseMotion>;
 
   /** @brief Defines the elements of the linear constraint as g = Mx+v.
     *
-    * @param com Center of Mass parametrization, from which spline coefficients x are used.
-    * @param linear_equation the matrix M and vector v.
+    * @param opt_vars_       This is where the vector x is taken from.
+    * @param linear_equation The matrix M and vector v.
+    * @param variable_name   The name of the variables x.
     */
-  LinearEqualityConstraint (const OptVarsPtr& opt_vars_container,
-                            const MatVec& linear_equation);
+  LinearEqualityConstraint (const OptVarsPtr& opt_vars_,
+                            const MatVec& linear_equation,
+                            const std::string& variable_name);
   virtual ~LinearEqualityConstraint ();
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
@@ -45,9 +44,8 @@ public:
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
-  ComMotionPtr com_motion_;
   MatVec linear_equation_;
-  OptVarsPtr opt_vars_;
+  std::string variable_name_;
 };
 
 } /* namespace opt */

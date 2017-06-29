@@ -52,23 +52,29 @@ CentroidalModel::GetBaseAcceleration () const
 }
 
 Jacobian
-CentroidalModel::GetJacobianOfAccWrtBase (const BaseMotion& base,
-                                          double t) const
+CentroidalModel::GetJacobianOfAccWrtBaseLin (const BaseLin& base_lin,
+                                             double t) const
 {
   // build the com jacobian
-  Jacobian com_jac(kDim3d, base.GetRows());
-  for (auto dim : {X,Y,Z})
-    com_jac.row(dim) = base.GetJacobian(t, kPos, To6D(dim));
+  int n = base_lin.GetRows();
 
-  Jacobian jac_ang(kDim3d, base.GetRows());
+  Jacobian jac_ang(kDim3d, n);
   for (const Vector3d& f : ee_force_.ToImpl())
-    jac_ang += BuildCrossProductMatrix(f)*com_jac;
+    jac_ang += BuildCrossProductMatrix(f)*base_lin.GetJacobian(t, kPos);
 
-  Jacobian jac(kDim6d, base.GetRows());
+  Jacobian jac(kDim6d, n);
   jac.middleRows(AX, kDim3d) = I_inv_*jac_ang;
-  // linear acceleration does not depend on com position
 
+  // linear acceleration does not depend on base
   return jac;
+}
+
+Jacobian
+CentroidalModel::GetJacobianOfAccWrtBaseAng (const BaseAng& base_ang,
+                                             double t) const
+{
+  // the 6D base acceleration does not depend on base orientation
+  return Jacobian(kDim6d, base_ang.GetRows());
 }
 
 Jacobian
@@ -103,7 +109,7 @@ CentroidalModel::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion,
   Jacobian jac_ang(kDim3d, n);
 
   Jacobian jac_ee(kDim3d, n);
-  for (auto dim : {d2::X,d2::Y}) // zmp_ this is hacky, include z height
+  for (auto dim : {d2::X,d2::Y}) // zmp_ this is wrong, include z height
     jac_ee.row(dim) = ee_motion.GetJacobianPos(t_global, ee, dim);
 
   Vector3d f = ee_force_.At(ee);

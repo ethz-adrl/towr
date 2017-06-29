@@ -24,7 +24,7 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
 
   dts_.push_back(T); // also ensure constraints at very last node/time.
 
-  AddComposite(opt_vars);
+  AddOptimizationVariables(opt_vars);
 }
 
 TimeDiscretizationConstraint::~TimeDiscretizationConstraint ()
