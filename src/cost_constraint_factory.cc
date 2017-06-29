@@ -190,7 +190,7 @@ CostConstraintFactory::MakeStancesConstraints () const
   stance_constraints->AddComponent(constraint_initial);
 
   // calculate endeffector position in world frame
-  Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixWorldToBase(final_base_.ang.p_);
+  Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
 
   EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
   EndeffectorsPos endeffectors_final_W(nominal_B.GetCount());
@@ -219,10 +219,9 @@ CostConstraintFactory::MakeMotionCost(double weight) const
   auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", false);
 
   MotionDerivative dxdt = kAcc;
-  // careful, must match spline dimension
+
+  // base linear motion
   VectorXd weight_xyz(3); weight_xyz << 1.0, 1.0, 1.0;
-
-
   Eigen::MatrixXd term = base_lin_spline_eq_.MakeCostMatrix(weight_xyz, dxdt);
 
   MatVec mv(term.rows(), term.cols());
@@ -233,10 +232,9 @@ CostConstraintFactory::MakeMotionCost(double weight) const
   base_acc_cost->AddComponent(base_lin);
 
 
-
-
-  VectorXd weight_ypr(3); weight_ypr << 0.1, 0.1, 0.1;
-  Eigen::MatrixXd term2 = base_ang_spline_eq_.MakeCostMatrix(weight_ypr, dxdt);
+  // base angular motion
+  VectorXd weight_angular(3); weight_angular << 0.1, 0.1, 0.1; // x,y,z
+  Eigen::MatrixXd term2 = base_ang_spline_eq_.MakeCostMatrix(weight_angular, dxdt);
 
   MatVec mv2(term2.rows(), term2.cols());
   mv2.M = term2;
@@ -244,10 +242,6 @@ CostConstraintFactory::MakeMotionCost(double weight) const
 
   auto base_ang = std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv2, id::base_angular,weight);
   base_acc_cost->AddComponent(base_ang);
-
-
-
-
 
   return base_acc_cost;
 }

@@ -37,7 +37,6 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 void
 MotionOptimizerFacade::BuildDefaultStartStance ()
 {
-  State3d base;
   double offset_x = 0.0;
   inital_base_.lin.p_ << offset_x+0.000350114, -1.44379e-7, 0.573311;
   inital_base_.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
@@ -47,7 +46,7 @@ MotionOptimizerFacade::BuildDefaultStartStance ()
 
   initial_ee_W_ = motion_parameters_->GetNominalStanceInBase();
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-    initial_ee_W_.At(ee) += base.lin.p_;
+    initial_ee_W_.At(ee) += inital_base_.lin.p_;
     initial_ee_W_.At(ee).z() = 0.0;
   }
 }
@@ -132,59 +131,15 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent(id::contact_schedule));
   auto ee_forces        = std::dynamic_pointer_cast<EndeffectorsForce> (opt_variables_->GetComponent(id::endeffector_force));
 
-  AngularStateConverter converter(base_ang);
-
   double t=0.0;
   double T = motion_parameters_->GetTotalTime();
   while (t<=T+1e-5) {
 
     RobotStateCartesian state(initial_ee_W_.GetCount());
 
-    // zmp_ move to own class
     State3d base; // positions and orientations set to zero
     base.lin = base_lin->GetPoint(t);
-    StateLin3d rpy = base_ang->GetPoint(t);
-
-//    std::cout << "rpy: " << rpy.p_.transpose() << std::endl;
-
-
-    double yaw = 1.6;                                     // angle around z-axis
-    double pitch = 0.0;                                   // angle around new y-axis
-    double roll = 0.3;                                    // angle around new x-axis
-//    kindr::EulerAnglesZyxD euler(yaw, pitch, roll);
-    kindr::EulerAnglesZyxD euler(rpy.p_(Z), rpy.p_(Y), rpy.p_(X));
-    kindr::RotationMatrixD mat(euler);
-    kindr::RotationMatrixPD matP(euler);
-
-//    std::cout << "mat_kindr_active:\n" << mat << std::endl;
-//    std::cout << "mat_kindr_passive:\n" << matP << std::endl;
-
-    // because optimized euler angles represent world->base mapping,
-    // but quaternion expects mapping base->world
-
-    // zmp_ roll and pitch are swapped! why?
-    // because this is not world to base, but base to world
-    Eigen::Matrix3d b_R_w = converter.GetRotationMatrixWorldToBase(t).toDense();
-
-//    std::cout << "mat_own:\n" << b_R_w << std::endl;
-
-    kindr::RotationQuaternionD quat(mat);
-
-
-
-    Eigen::Matrix3d w_R_b = b_R_w.inverse();
-
-
-//    Eigen::Quaterniond w_q_b2(0.2, 0.0, 1.0, 0.0);
-
-    Eigen::Quaterniond w_q_b(b_R_w);
-
-//    std::cout << "quat_own: " << w_q_b.w() << ", " << w_q_b.vec().transpose() << std::endl;
-//    std::cout << "quat_kindr: " << quat << std::endl;
-
-    base.ang.q = w_q_b;//quat.toImplementation();//w_q_b.inverse();//quat.toImplementation().inverse();
-    base.ang.v = converter.GetAngularVelocity(t);
-    base.ang.a = converter.GetAngularAcceleration(t);
+    base.ang = AngularStateConverter::GetState(base_ang->GetPoint(t));
     state.SetBase(base);
 
     state.SetEEStateInWorld(ee_motion->GetEndeffectors(t));
@@ -196,8 +151,6 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     t += dt;
   }
 
-
-
   return trajectory;
 }
 
@@ -207,7 +160,23 @@ MotionOptimizerFacade::SetMotionParameters (const MotionParametersPtr& params)
   motion_parameters_ = params;
 }
 
+void
+MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& initial_state)
+{
+  initial_ee_W_       = initial_state.GetEEPos();
+
+
+  inital_base_ = State3dEuler(); // zero
+  inital_base_.lin    = initial_state.GetBase().lin;
+
+  kindr::RotationQuaternionD quat(initial_state.GetBase().ang.q);
+  kindr::EulerAnglesZyxD euler(quat);
+  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
+  inital_base_.ang.p_ = euler.toImplementation().reverse();
+  // assume zero euler rates and euler accelerations
+}
+
+
 } /* namespace opt */
 } /* namespace xpp */
-
 

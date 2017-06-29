@@ -37,28 +37,41 @@ public:
   AngularStateConverter (const OrientationVariables&);
   virtual ~AngularStateConverter ();
 
+  static StateAng3d GetState(const StateLin3d& euler);
+
+  static Eigen::Quaterniond GetOrientation(const EulerAngles& pos);
+
   AngularVel GetAngularVelocity(double t) const;
+  static AngularVel GetAngularVelocity(const EulerAngles& pos, const EulerAngles& vel);
+
+  static AngularAcc GetAngularAcceleration(StateLin3d euler);
   AngularAcc GetAngularAcceleration(double t) const;
 
   Jacobian GetDerivOfAngAccWrtCoeff(double t) const;
 
-  // zmp_ this naming order if wrong
-  /** @returns the rotations matrix that rotates a vector expressed
+
+  /** @returns the rotations matrix that rotates a vector
    *
-   * This rotation matrix expresses a vector previously given in world frame
-   * in the base frame. The euler angles are applied in the order zyx, but
-   * must still be given in the vector order (x,y,z)
+   * This rotation matrix expresses a vector previously given in base frame
+   * in the world frame. The euler angles are applied in the order zyx, but
+   * must still be passed in as vector (x,y,z).
    */
-  static MatrixSXd GetRotationMatrixWorldToBase(const EulerAngles& xyz);
-  MatrixSXd GetRotationMatrixWorldToBase(double t) const;
+  static MatrixSXd GetRotationMatrixBaseToWorld(const EulerAngles& xyz);
+  MatrixSXd GetRotationMatrixBaseToWorld(double t) const;
 
-  Jacobian GetDerivativeOfRotationMatrixRowWrtCoeff(double t, Coords3D row) const;
-
-  using JacRowMatrix = std::array<std::array<JacobianRow, 3>, 3>;
-  JacRowMatrix GetDerivativeOfRotationMatrixWrtCoeff(double t) const;
-
-  Jacobian GetDerivativeOfRotationMatrixInverseRowWrtCoeff(double t,
-                                                               Coords3D row) const;
+  /** @brief Returns the derivative of the linear equation M*v.
+   *
+   * M is the rotation matrix from base to world M_IB, and v a 3-dimensional
+   * vector expressed in the base frame.
+   *
+   * @param t        time at which the euler angles are evaluated.
+   * @param v        vector (e.g. relative position) expressed in base frame.
+   * @param inverse  if true, the derivative for M^(-1)*v is evaluated.
+   * @returns        3 x n dimensional matrix (n = number of spline parameters).
+   */
+  Jacobian GetDerivativeOfRotationMatrixRowWrtCoeff(double t,
+                                                    const Vector3d& v,
+                                                    bool inverse) const;
 
 private:
   OrientationVariables euler_;
@@ -72,11 +85,11 @@ private:
    * Make sure euler rates are ordered roll-pitch-yaw. They are however applied
    * in the order yaw-pitch-role to determine the angular velocities.
    */
-  MatrixSXd GetM(const EulerAngles& xyz) const;
+  static MatrixSXd GetM(const EulerAngles& xyz);
 
   /** @brief time derivative of GetM()
    */
-  MatrixSXd GetMdot(const EulerAngles& xyz, const EulerRates& xyz_d) const;
+  static MatrixSXd GetMdot(const EulerAngles& xyz, const EulerRates& xyz_d);
 
   /** @brief Derivative of the @a dim row of matrix M with respect to
    *         the polynomial coefficients.
@@ -93,6 +106,14 @@ private:
    *  @param dim Which dimension of the angular acceleration is desired
    */
   Jacobian GetDerivMdotwrtCoeff(double t, Coords3D dim) const;
+
+  using JacRowMatrix = std::array<std::array<JacobianRow, kDim3d>, kDim3d>;
+  /** @brief matrix of derivatives of each cell w.r.t spline coefficients
+   *
+   * This 2d-array has the same dimensions as the rotation matrix M_IB, but
+   * each cell if filled with a row vector.
+   */
+  JacRowMatrix GetDerivativeOfRotationMatrixWrtCoeff(double t) const;
 };
 
 } /* namespace opt */

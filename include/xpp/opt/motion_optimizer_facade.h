@@ -46,6 +46,7 @@ public:
 
   void SetMotionParameters(const MotionParametersPtr& params);
   void BuildDefaultStartStance();
+  void SetInitialState(const RobotStateCartesian& initial_state);
 
 private:
   void BuildVariables();
