@@ -22,7 +22,7 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  duration_polynomial_    = 0.1; //s 0.05
+  duration_polynomial_    = 0.2; //s 0.05
   load_dt_                = 0.05;//duration_polynomial_/2.;
   // enforce at beginning and middle. The end if always enforced
   // due to acceleration continuity constraint.
@@ -103,7 +103,7 @@ QuadrupedMotionParameters::MakeMotion (opt::MotionTypeID id)
 
 Walk::Walk()
 {
-  max_dev_xy_ = {0.15, 0.15, 0.1};
+  max_dev_xy_ << 0.15, 0.15, 0.1;
   id_ = opt::WalkID;
 
 //  double t_phase = 0.3;
@@ -132,12 +132,14 @@ Walk::Walk()
       0.4,
       t_step, t_step,t_step,t_step,
       t_step, t_step,t_step,t_step,
+      t_step, t_step,t_step,t_step,
       0.2,
   };
 
   contact_sequence_ =
   {
       II_,
+      PI_, IP_, bI_, Ib_,
       PI_, IP_, bI_, Ib_,
       PI_, IP_, bI_, Ib_,
       II_,
@@ -161,7 +163,7 @@ Walk::Walk()
 
 Trot::Trot()
 {
-  max_dev_xy_ = {0.2, 0.2, 0.1};
+  max_dev_xy_ << 0.2, 0.2, 0.1;
   id_ = opt::TrotID;
 
   double t_phase = 0.3;
@@ -204,7 +206,7 @@ Trot::Trot()
 
 Pace::Pace()
 {
-  max_dev_xy_ = {0.2, 0.2, 0.2};
+  max_dev_xy_ << 0.2, 0.2, 0.2;
   id_ = opt::PaceID;
 
   contact_timings_ =
@@ -248,7 +250,7 @@ Pace::Pace()
 
 Bound::Bound()
 {
-  max_dev_xy_ = {0.25, 0.21, 0.1};
+  max_dev_xy_ << 0.25, 0.21, 0.1;
   id_ = opt::BoundID;
 
 
@@ -374,7 +376,7 @@ Bound::Bound()
 
 PushRecovery::PushRecovery ()
 {
-  max_dev_xy_ = {0.2, 0.2, 0.1};
+  max_dev_xy_ << 0.2, 0.2, 0.1;
   id_ = opt::PushRecID;
 
   SetContactSequence(0.0, 0.0);

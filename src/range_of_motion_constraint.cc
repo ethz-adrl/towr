@@ -79,8 +79,8 @@ RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k, VecBound& bounds) con
     for (auto dim : dim_) {
       Bound b;
       b += nominal_stance_.At(ee)(dim);
-      b.upper_ += max_deviation_from_nominal_.at(dim);
-      b.lower_ -= max_deviation_from_nominal_.at(dim);
+      b.upper_ += max_deviation_from_nominal_(dim);
+      b.lower_ -= max_deviation_from_nominal_(dim);
       bounds.at(GetRow(k,ee,dim)) = b;
     }
   }

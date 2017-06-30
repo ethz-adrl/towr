@@ -39,10 +39,10 @@ public:
   using Phase            = std::pair<EndeffectorsBool, double>;
   using ContactSchedule  = std::vector<Phase>;
 
-  using PosXY            = Eigen::Vector2d;
-  using PosXYZ           = Eigen::Vector3d;
+  using PosXY            = Vector2d;
+  using PosXYZ           = Vector3d;
   using NominalStance    = EndeffectorsPos;
-  using MaxDevXYZ        = std::array<double,3>;
+  using MaxDevXYZ        = Vector3d;
   using CostWeights      = std::map<CostName, double>;
   using UsedConstraints  = std::vector<ConstraintName>;
 

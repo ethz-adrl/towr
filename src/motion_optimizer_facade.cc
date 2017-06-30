@@ -165,9 +165,8 @@ MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& initial_state
 {
   initial_ee_W_       = initial_state.GetEEPos();
 
-
   inital_base_ = State3dEuler(); // zero
-  inital_base_.lin    = initial_state.GetBase().lin;
+  inital_base_.lin = initial_state.GetBase().lin;
 
   kindr::RotationQuaternionD quat(initial_state.GetBase().ang.q);
   kindr::EulerAnglesZyxD euler(quat);

@@ -44,7 +44,7 @@ public:
   using BaseLinear     = std::shared_ptr<PolynomialSpline>;
   using BaseAngular    = std::shared_ptr<PolynomialSpline>;
   using EEMotionPtr    = std::shared_ptr<EndeffectorsMotion>;
-  using MaxDevXY       = std::array<double,3>;
+  using MaxDevXY       = Vector3d;
   using NominalStance  = EndeffectorsPos;
 
   /**
