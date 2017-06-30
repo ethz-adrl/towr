@@ -12,11 +12,10 @@
 
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
-
-#include "polynomial_spline.h"
 #include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
+#include <xpp/opt/variables/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {

@@ -16,7 +16,7 @@
 #include <xpp/bound.h>
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/dynamic_model.h>
-#include <xpp/opt/polynomial_spline.h>
+#include <xpp/opt/variables/polynomial_spline.h>
 
 #include "composite.h"
 #include "time_discretization_constraint.h"

@@ -8,7 +8,6 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 
-#include <array>
 #include <Eigen/Dense>
 #include <vector>
 
@@ -16,8 +15,8 @@
 #include <xpp/state.h>
 
 #include <xpp/matrix_vector.h>
-
-#include "polynomial_spline.h"
+#include <xpp/opt/constraints/composite.h>
+#include <xpp/opt/variables/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {

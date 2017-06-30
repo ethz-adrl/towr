@@ -9,14 +9,12 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include <initializer_list>
 
-#include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include <xpp/bound.h>
-#include <xpp/opt/constraints/composite.h>
-#include <xpp/opt/polynomial_spline.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
+#include <xpp/opt/variables/polynomial_spline.h>
 #include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {

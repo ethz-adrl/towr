@@ -15,9 +15,9 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include "polynomial.h"
-#include "spline.h"
 #include <xpp/opt/constraints/composite.h>
+#include <xpp/opt/polynomial.h>
+#include <xpp/opt/spline.h>
 
 namespace xpp {
 namespace opt {
@@ -73,6 +73,25 @@ private:
 
   int GetFreeCoeffPerPoly() const;
 };
+
+
+
+class EndeffectorSpline : public PolynomialSpline {
+public:
+  EndeffectorSpline(const std::string& id, bool first_phase_in_contact);
+  virtual ~EndeffectorSpline ();
+
+  VecBound GetBounds () const override;
+
+private:
+  bool first_phase_in_contact_;
+};
+
+
+
+
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

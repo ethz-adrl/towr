@@ -14,8 +14,6 @@
 #include <xpp/state.h>
 
 #include <xpp/opt/centroidal_model.h>
-#include <xpp/opt/lip_model.h>
-#include <xpp/opt/polynomial_spline.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
 #include <xpp/opt/variables/variable_names.h>

@@ -10,19 +10,21 @@
 #include <Eigen/Dense>
 #include <map>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 
 #include <xpp/matrix_vector.h>
+#include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/foothold_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
 #include <xpp/opt/costs/polynomial_cost.h>
 #include <xpp/opt/costs/soft_constraint.h>
-#include <xpp/opt/polynomial_spline.h>
+#include <xpp/opt/variables/polynomial_spline.h>
 #include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
@@ -99,6 +101,11 @@ CostConstraintFactory::MakeInitialConstraint () const
   state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_linear, initial_base_.lin, t));
   state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_angular, initial_base_.ang, t));
 
+//  for (auto ee : params->robot_ee_) {
+//    std::string id = id::endeffectors_motion+std::to_string(ee);
+//    state_constraints->AddComponent(MakePolynomialSplineConstraint(id, StateLin3d(initial_ee_W_.At(ee)), t));
+//  }
+
   return state_constraints;
 }
 
@@ -122,6 +129,11 @@ CostConstraintFactory::MakeJunctionConstraint () const
 
   junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id::base_linear));
   junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id::base_angular));
+
+//  for (auto ee : params->robot_ee_) {
+//    std::string id = id::endeffectors_motion+std::to_string(ee);
+//    junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id));
+//  }
 
   return junction_constraints;
 }
@@ -201,10 +213,10 @@ CostConstraintFactory::MakeMotionCost(double weight) const
 {
   auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", false);
 
-  VectorXd weight_xyz(3); weight_xyz << 1.0, 1.0, 1.0;
+  VectorXd weight_xyz(kDim3d); weight_xyz << 1.0, 1.0, 1.0;
   base_acc_cost->AddComponent(MakePolynomialCost(id::base_linear, weight_xyz, weight));
 
-  VectorXd weight_angular(3); weight_angular << 0.1, 0.1, 0.1;
+  VectorXd weight_angular(kDim3d); weight_angular << 0.1, 0.1, 0.1;
   base_acc_cost->AddComponent(MakePolynomialCost(id::base_angular, weight_angular, weight));
 
   return base_acc_cost;

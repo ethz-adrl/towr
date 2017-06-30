@@ -8,8 +8,9 @@
 #include <xpp/opt/linear_spline_equations.h>
 
 #include <cassert>
+#include <initializer_list>
 
-#include <xpp/opt/polynomial_spline.h>
+#include <xpp/opt/polynomial.h>
 
 namespace xpp {
 namespace opt {

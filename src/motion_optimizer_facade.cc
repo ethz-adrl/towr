@@ -7,6 +7,7 @@
 
 #include <xpp/opt/motion_optimizer_facade.h>
 
+#include <algorithm>
 #include <Eigen/Dense>
 #include <kindr/Core>
 
@@ -15,10 +16,10 @@
 #include <xpp/ipopt_adapter.h>
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/cost_constraint_factory.h>
-#include <xpp/opt/polynomial_spline.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
+#include <xpp/opt/variables/polynomial_spline.h>
 #include <xpp/opt/variables/variable_names.h>
 #include <xpp/snopt_adapter.h>
 
@@ -67,11 +68,13 @@ MotionOptimizerFacade::BuildVariables ()
                                                         *contact_schedule);
   opt_variables_->AddComponent(ee_motion);
 
-  for (auto ee : motion_parameters_->robot_ee_) {
-    auto ee_poly = std::make_shared<PolynomialSpline>(id::endeffectors_motion+std::to_string(ee));
-    ee_poly->Init(contact_schedule->GetTimePerPhase(ee), initial_ee_W_.At(ee));
-    opt_variables_->AddComponent(ee_poly);
-  }
+//  for (auto ee : motion_parameters_->robot_ee_) {
+//    std::string id = id::endeffectors_motion+std::to_string(ee);
+//    bool first_contact = contact_schedule->GetPhases(ee).front().first;
+//    auto ee_poly = std::make_shared<EndeffectorSpline>(id, first_contact);
+//    ee_poly->Init(contact_schedule->GetTimePerPhase(ee), initial_ee_W_.At(ee));
+//    opt_variables_->AddComponent(ee_poly);
+//  }
 
 
   double T = motion_parameters_->GetTotalTime();

@@ -5,11 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/polynomial_spline.h>
+#include <xpp/opt/variables/polynomial_spline.h>
 
-#include <stddef.h>
-#include <string>
-#include <Eigen/Sparse>
+#include <cassert>
+#include <Eigen/Dense>
 
 namespace xpp {
 namespace opt {
@@ -146,5 +145,39 @@ PolynomialSpline::GetFreeCoeffPerPoly () const
   return polynomials_.front()->GetCoeffIds().size();
 }
 
+EndeffectorSpline::EndeffectorSpline(const std::string& id, bool first_phase_in_contact)
+   : PolynomialSpline(id)
+{
+  first_phase_in_contact_ = first_phase_in_contact;
+}
+
+EndeffectorSpline::~EndeffectorSpline ()
+{
+}
+
+VecBound
+EndeffectorSpline::GetBounds () const
+{
+  VecBound bounds(GetRows());
+
+  bool is_contact = first_phase_in_contact_;
+
+  int i = 0;
+  for (const auto& p : GetPolynomials()) {
+    for (int d=0; d<GetNDim(); ++d)
+      for (auto coeff : p->GetCoeffIds())
+        if(is_contact && coeff != Polynomial::A)
+          bounds.at(Index(i,d,coeff)) = Bound(0.0, 0.0);
+
+    is_contact = !is_contact;
+    i++;
+  }
+
+
+  return bounds;
+}
+
+
 } /* namespace opt */
 } /* namespace xpp */
+
