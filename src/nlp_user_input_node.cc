@@ -28,7 +28,7 @@ NlpUserInputNode::NlpUserInputNode ()
   // publish goal zero initially
   goal_geom_.lin.p_.setZero();
   goal_geom_.lin.p_ << 0.5, 0.0, 0.58;
-  goal_geom_.ang.p_ << 0.0, 0.0, 1.6;
+  goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
   motion_type_ = opt::TrotID;
   replay_trajectory_ = false;
   use_solver_snopt_ = false;
@@ -90,7 +90,7 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       goal_geom_.ang.p_.z() += d_ang; // yaw+
       break;
     case msg.KEY_KP9:
-      goal_geom_.ang.p_.z() += d_ang; // yaw-
+      goal_geom_.ang.p_.z() -= d_ang; // yaw-
       break;
 
 

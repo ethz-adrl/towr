@@ -29,7 +29,9 @@ public:
   virtual ~NlpOptimizerNode () {};
 
 private:
-  void PublishTrajectory();
+  void PublishTrajectory() const;
+  void PublishOptParameters() const;
+
   void OptimizeMotion();
   void CurrentStateCallback(const StateMsg& msg);
   void UserCommandCallback(const UserCommandMsg& msg);
@@ -37,6 +39,7 @@ private:
   ::ros::Subscriber user_command_sub_;
   ::ros::Subscriber current_state_sub_;
   ::ros::Publisher cart_trajectory_pub_;
+  ::ros::Publisher opt_parameters_pub_;
 
   MotionOptimizerFacade motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)

@@ -12,6 +12,7 @@
 #include <xpp/opt/quadruped_motion_parameters.h>
 
 #include <xpp_msgs/RobotStateCartesianTrajectory.h> // publish
+#include <xpp_msgs/OptParameters.h> // publish
 
 namespace xpp {
 namespace ros {
@@ -31,6 +32,10 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
                                     (xpp_msgs::robot_trajectory_cart, 1);
+
+  opt_parameters_pub_  = n.advertise<xpp_msgs::OptParameters>
+                                    (xpp_msgs::opt_parameters, 1);
+
 
   auto motion_params = std::make_shared<opt::quad::QuadrupedMotionParameters>();
   motion_optimizer_.SetMotionParameters(motion_params);
@@ -81,6 +86,8 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
   Eigen::Vector3d vel_dis(msg.vel_disturbance.x, msg.vel_disturbance.y, msg.vel_disturbance.z);
   motion_optimizer_.inital_base_.lin.v_ += vel_dis;
 
+  PublishOptParameters();
+
   if (!msg.replay_trajectory)
     OptimizeMotion();
 
@@ -88,11 +95,27 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 }
 
 void
-NlpOptimizerNode::PublishTrajectory ()
+NlpOptimizerNode::PublishOptParameters() const
+{
+  xpp_msgs::OptParameters params_msg;
+  auto max_dev_xyz = motion_optimizer_.GetMotionParameters()->GetMaximumDeviationFromNominal();
+  params_msg.ee_max_dev = RosHelpers::XppToRos<geometry_msgs::Vector3>(max_dev_xyz);
+
+  auto nominal_B = motion_optimizer_.GetMotionParameters()->GetNominalStanceInBase();
+  for (auto ee : nominal_B.ToImpl())
+    params_msg.nominal_ee_pos.push_back(RosHelpers::XppToRos<geometry_msgs::Point>(ee));
+
+  params_msg.goal_lin = RosHelpers::XppToRos(motion_optimizer_.final_base_.lin);
+  params_msg.goal_ang = RosHelpers::XppToRos(motion_optimizer_.final_base_.ang);
+
+  opt_parameters_pub_.publish(params_msg);
+}
+
+void
+NlpOptimizerNode::PublishTrajectory () const
 {
   auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
   auto cart_traj_msg = RosHelpers::XppToRosCart(opt_traj_cartesian);
-
   cart_trajectory_pub_.publish(cart_traj_msg);
 }
 
