@@ -113,8 +113,8 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
     if (var_set == base_angular_->GetName()) {
       Vector3d base_W   = base_linear_->GetPoint(t).p_;
       Vector3d ee_pos_W = ee_motion_->GetEndeffectors(t).At(ee).p_;
-      Vector3d r_W = ee_pos_W - base_W;
       ee_pos_W.z() = 0.0; // zmp_ ugliest hack
+      Vector3d r_W = ee_pos_W - base_W;
       jac.middleRows(row_start, kDim3d) = converter_.GetDerivativeOfRotationMatrixRowWrtCoeff(t,r_W, true);
     }
 
