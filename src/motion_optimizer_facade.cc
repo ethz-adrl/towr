@@ -54,35 +54,49 @@ MotionOptimizerFacade::BuildDefaultStartStance ()
 void
 MotionOptimizerFacade::BuildVariables ()
 {
+  opt_variables_->ClearComponents();
+
   // initialize the contact schedule
   auto contact_schedule = std::make_shared<ContactSchedule>(
       motion_parameters_->GetContactSchedule());
+  opt_variables_->AddComponent(contact_schedule);
 
+  // zmp_ remove these
   // initialize the ee_motion with the fixed parameters
   auto ee_motion = std::make_shared<EndeffectorsMotion>(initial_ee_W_,
                                                         *contact_schedule);
+  opt_variables_->AddComponent(ee_motion);
+
+  for (auto ee : motion_parameters_->robot_ee_) {
+    auto ee_poly = std::make_shared<PolynomialSpline>(id::endeffectors_motion+std::to_string(ee));
+    ee_poly->Init(contact_schedule->GetTimePerPhase(ee), initial_ee_W_.At(ee));
+    opt_variables_->AddComponent(ee_poly);
+  }
+
 
   double T = motion_parameters_->GetTotalTime();
-
   auto base_linear = std::make_shared<PolynomialSpline>(id::base_linear);
   base_linear->Init(T, motion_parameters_->duration_polynomial_,
                     inital_base_.lin.p_);
+  opt_variables_->AddComponent(base_linear);
+
+
 
   // Represent roll, pitch and yaw by a spline each.
-  // These angles are to be interpreted as mapping a vector expressed in world
-  // frame to a base frame (not the other way around).
+  // These angles are to be interpreted as mapping a vector expressed in
+  // base frame to world frame.
   auto base_angular = std::make_shared<PolynomialSpline>(id::base_angular);
   base_angular->Init(T, motion_parameters_->duration_polynomial_,
                      inital_base_.ang.p_);
+  opt_variables_->AddComponent(base_angular);
+
+
 
   auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
                                                    *contact_schedule);
-  opt_variables_->ClearComponents();
-  opt_variables_->AddComponent(base_angular);
-  opt_variables_->AddComponent(base_linear);
-  opt_variables_->AddComponent(ee_motion);
   opt_variables_->AddComponent(force);
-  opt_variables_->AddComponent(contact_schedule);
+
+  opt_variables_->Print();
 }
 
 void

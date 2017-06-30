@@ -54,15 +54,15 @@ public:
     */
   MatVec MakeJunction() const;
 
-  /** xT*M*x + xT*v gives the scalar total acceleration cost with these x.
+  /** xT*M*x = scalar total acceleration cost with these polynomial coefficients x.
     *
     * To turn the motion derivatives into costs they are weighed according to the
-    * directions (x,y). Usually lateral motions are penalized more (bigger weight)
-    * than forward backwards motions.
+    * dimension.
     *
-    * @param weight which acceleration to avoid (x,y,z)
+    * @param weight   dimension should affect the total cost more e.g. (x,y,z)
+    * @param deriv    derivative (pos,vel,acc,...) that should be squared
     */
-  Eigen::MatrixXd MakeCostMatrix(const VectorXd& weights, MotionDerivative) const;
+  Eigen::MatrixXd MakeCostMatrix(const VectorXd& weights, MotionDerivative deriv) const;
 
 private:
   PolynomialSpline poly_spline_;

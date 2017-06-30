@@ -66,8 +66,8 @@ public:
 //  PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
 
 
-protected:
   EEVec robot_ee_;
+protected:
   MaxDevXYZ max_dev_xy_;
   ContactSequence contact_sequence_;
   NominalStance nominal_stance_;

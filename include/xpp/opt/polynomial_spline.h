@@ -37,7 +37,9 @@ public:
   virtual ~PolynomialSpline ();
 
   void Init(double t_global, double duration_per_polynomial,
-            const VectorXd& initial_pos);
+            const VectorXd& initial_val);
+
+  void Init(std::vector<double> T_polys, const VectorXd& initial_val);
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
@@ -70,7 +72,6 @@ private:
   int n_dim_;
 
   int GetFreeCoeffPerPoly() const;
-  int GetTotalFreeCoeff() const;
 };
 
 } /* namespace opt */

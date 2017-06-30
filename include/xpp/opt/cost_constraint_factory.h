@@ -56,8 +56,6 @@ private:
   State3dEuler initial_base_;
   State3dEuler final_base_;
 
-  LinearSplineEquations base_lin_spline_eq_;
-  LinearSplineEquations base_ang_spline_eq_;
 
   // constraints
   ConstraintPtr MakeInitialConstraint() const;
@@ -67,6 +65,17 @@ private:
   ConstraintPtr MakeRangeOfMotionBoxConstraint() const;
   ConstraintPtr MakeStancesConstraints() const;
 //  ConstraintPtr MakePolygonCenterConstraint() const;
+
+  ConstraintPtr MakePolynomialSplineConstraint(const std::string& poly_id,
+                                               const StateLin3d state,
+                                               double t) const;
+
+  ConstraintPtr MakePolynomialJunctionConstraint(const std::string& poly_id) const;
+
+  ConstraintPtr MakePolynomialCost(const std::string& poly_id,
+                                   const Vector3d& weight_dimensions,
+                                   double weight) const;
+
 
   // costs
   ConstraintPtr MakeMotionCost(double weight) const;

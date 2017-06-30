@@ -14,6 +14,8 @@
 namespace xpp {
 namespace opt {
 
+using PolynomialUsed = QuarticPolynomial;
+
 PolynomialSpline::PolynomialSpline (const std::string& component_name)
     : Component(-1, component_name)
 {
@@ -24,24 +26,46 @@ PolynomialSpline::~PolynomialSpline ()
 }
 
 void
-PolynomialSpline::Init (double t_global, double dt, const VectorXd& initial_pos)
+PolynomialSpline::Init (double t_global, double dt, const VectorXd& initial_value)
 {
   // initialize at com position with zero velocity & acceleration
-  n_dim_ = initial_pos.rows();
+  n_dim_ = initial_value.rows();
   State initial_state(n_dim_);
-  initial_state.p_ = initial_pos;
+  initial_state.p_ = initial_value;
 
   double t_left = t_global;
   while (t_left > 0.0) {
     double duration = t_left>dt?  dt : t_left;
-    auto p = std::make_shared<QuarticPolynomial>();
+    auto p = std::make_shared<PolynomialUsed>();
     p->SetBoundary(duration, initial_state, initial_state);
     polynomials_.push_back(p);
     t_left -= dt;
   }
 
   SetSegmentsPtr(polynomials_);
-  SetRows(GetTotalFreeCoeff());
+
+  int n_polys = polynomials_.size();
+  SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
+}
+
+void
+PolynomialSpline::Init (std::vector<double> T_polys, const VectorXd& initial_value)
+{
+  // initialize at com position with zero velocity & acceleration
+  n_dim_ = initial_value.rows();
+  State initial_state(n_dim_);
+  initial_state.p_ = initial_value;
+
+  for (double duration : T_polys) {
+    auto p = std::make_shared<PolynomialUsed>();
+    p->SetBoundary(duration, initial_state, initial_state);
+    polynomials_.push_back(p);
+  }
+
+  // DRY with above init
+  SetSegmentsPtr(polynomials_);
+  int n_polys = polynomials_.size();
+  SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
 }
 
 int
@@ -120,14 +144,6 @@ int
 PolynomialSpline::GetFreeCoeffPerPoly () const
 {
   return polynomials_.front()->GetCoeffIds().size();
-}
-
-int
-PolynomialSpline::GetTotalFreeCoeff () const
-{
-  int n_polys = polynomials_.size();
-
-  return n_polys*GetFreeCoeffPerPoly()*n_dim_;
 }
 
 } /* namespace opt */

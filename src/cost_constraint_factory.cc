@@ -44,12 +44,6 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
                              const State3dEuler& final_base)
 {
   opt_vars_ = opt_vars;
-  auto base_lin = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_linear));
-  base_lin_spline_eq_ = LinearSplineEquations(*base_lin);
-
-  auto base_ang = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_angular));
-  base_ang_spline_eq_ = LinearSplineEquations(*base_ang);
-
   params = _params;
 
   initial_ee_W_ = ee_pos;
@@ -87,24 +81,23 @@ CostConstraintFactory::GetCost(CostName name) const
 }
 
 CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::MakePolynomialSplineConstraint (
+    const std::string& poly_id, const StateLin3d state, double t) const
+{
+  auto spline = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars_->GetComponent(poly_id));
+  LinearSplineEquations equation_builder(*spline);
+  MatVec lin_eq = equation_builder.MakeStateConstraint(state,t, {kPos, kVel, kAcc});
+  return std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq, poly_id);
+}
+
+CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeInitialConstraint () const
 {
   auto state_constraints = std::make_shared<Composite>("State Initial Constraints", true);
 
   double t = 0.0; // initial time
-  MatVec lin_eq = base_lin_spline_eq_.MakeStateConstraint(initial_base_.lin,
-                                                          t,
-                                                          {kPos, kVel, kAcc});
-  auto base_linear = std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq, id::base_linear);
-  state_constraints->AddComponent(base_linear);
-
-
-  MatVec ang_eq = base_ang_spline_eq_.MakeStateConstraint(initial_base_.ang,
-                                                          t,
-                                                          {kPos, kVel, kAcc});
-
-  auto base_angular = std::make_shared<LinearEqualityConstraint>(opt_vars_, ang_eq, id::base_angular);
-  state_constraints->AddComponent(base_angular);
+  state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_linear, initial_base_.lin, t));
+  state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_angular, initial_base_.ang, t));
 
   return state_constraints;
 }
@@ -114,19 +107,10 @@ CostConstraintFactory::MakeFinalConstraint () const
 {
   auto state_constraints = std::make_shared<Composite>("State Final Constraints", true);
 
-  MatVec lin_eq_lin = base_lin_spline_eq_.MakeStateConstraint(final_base_.lin,
-                                                   params->GetTotalTime(),
-                                                   {kPos, kVel, kAcc});
+  double T = params->GetTotalTime();
 
-  auto base_linear = std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq_lin, id::base_linear);
-  state_constraints->AddComponent(base_linear);
-
-  MatVec lin_eq_ang = base_ang_spline_eq_.MakeStateConstraint(final_base_.ang,
-                                                        params->GetTotalTime(),
-                                                        {kPos, kVel, kAcc});
-
-  auto base_angular= std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq_ang, id::base_angular);
-  state_constraints->AddComponent(base_angular);
+  state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_linear, final_base_.lin, T));
+  state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_angular, final_base_.ang, T));
 
   return state_constraints;
 }
@@ -136,19 +120,18 @@ CostConstraintFactory::MakeJunctionConstraint () const
 {
   auto junction_constraints = std::make_shared<Composite>("Junctions Constraints", true);
 
-  auto base_linear = std::make_shared<LinearEqualityConstraint>(
-      opt_vars_,
-      base_lin_spline_eq_.MakeJunction(),
-      id::base_linear);
-  junction_constraints->AddComponent(base_linear);
-
-  auto base_angular = std::make_shared<LinearEqualityConstraint>(
-      opt_vars_,
-      base_ang_spline_eq_.MakeJunction(),
-      id::base_angular);
-  junction_constraints->AddComponent(base_angular);
+  junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id::base_linear));
+  junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id::base_angular));
 
   return junction_constraints;
+}
+
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::MakePolynomialJunctionConstraint (const std::string& poly_id) const
+{
+  auto poly = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars_->GetComponent(poly_id));
+  LinearSplineEquations equation_builder(*poly);
+  return std::make_shared<LinearEqualityConstraint>(opt_vars_, equation_builder.MakeJunction(), poly_id);
 }
 
 CostConstraintFactory::ConstraintPtr
@@ -218,32 +201,30 @@ CostConstraintFactory::MakeMotionCost(double weight) const
 {
   auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", false);
 
-  MotionDerivative dxdt = kAcc;
-
-  // base linear motion
   VectorXd weight_xyz(3); weight_xyz << 1.0, 1.0, 1.0;
-  Eigen::MatrixXd term = base_lin_spline_eq_.MakeCostMatrix(weight_xyz, dxdt);
+  base_acc_cost->AddComponent(MakePolynomialCost(id::base_linear, weight_xyz, weight));
+
+  VectorXd weight_angular(3); weight_angular << 0.1, 0.1, 0.1;
+  base_acc_cost->AddComponent(MakePolynomialCost(id::base_angular, weight_angular, weight));
+
+  return base_acc_cost;
+}
+
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::MakePolynomialCost (const std::string& poly_id,
+                                           const Vector3d& weight_dimensions,
+                                           double weight) const
+{
+  auto poly = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars_->GetComponent(poly_id));
+  LinearSplineEquations equation_builder(*poly);
+
+  Eigen::MatrixXd term = equation_builder.MakeCostMatrix(weight_dimensions, kAcc);
 
   MatVec mv(term.rows(), term.cols());
   mv.M = term;
   mv.v.setZero();
 
-  auto base_lin = std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, id::base_linear,weight);
-  base_acc_cost->AddComponent(base_lin);
-
-
-  // base angular motion
-  VectorXd weight_angular(3); weight_angular << 0.1, 0.1, 0.1; // x,y,z
-  Eigen::MatrixXd term2 = base_ang_spline_eq_.MakeCostMatrix(weight_angular, dxdt);
-
-  MatVec mv2(term2.rows(), term2.cols());
-  mv2.M = term2;
-  mv2.v.setZero();
-
-  auto base_ang = std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv2, id::base_angular,weight);
-  base_acc_cost->AddComponent(base_ang);
-
-  return base_acc_cost;
+  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, poly_id, weight);
 }
 
 CostConstraintFactory::ConstraintPtr
