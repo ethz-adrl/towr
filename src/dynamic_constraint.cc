@@ -13,7 +13,6 @@
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
 
-#include <xpp/opt/centroidal_model.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/endeffectors_motion.h>
 #include <xpp/opt/variables/variable_names.h>
@@ -32,8 +31,15 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   SetName("DynamicConstraint");
   base_linear_  = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_linear));
   base_angular_ = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_angular));
-  ee_motion_    = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent(id::endeffectors_motion));
+//  ee_motion_    = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent(id::endeffectors_motion));
   ee_load_      = std::dynamic_pointer_cast<EndeffectorsForce> (opt_vars->GetComponent(id::endeffector_force));
+
+  auto ee_ordered = ee_load_->GetForce(0.0).GetEEsOrdered();
+  for (auto ee :  ee_ordered) {
+    std::string id = id::endeffectors_motion+std::to_string(ee);
+    ee_splines_.push_back(std::dynamic_pointer_cast<EndeffectorSpline>(opt_vars->GetComponent(id)));
+  }
+
 
   SetRows(GetNumberOfNodes()*kDim6d);
 
@@ -90,8 +96,10 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
     if (var_set == ee_load_->GetName())
       jac.middleRows(row, kDim6d) += model_->GetJacobianofAccWrtForce(*ee_load_, t, ee);
 
-    if (var_set == ee_motion_->GetName())
-      jac.middleRows(row, kDim6d) += model_->GetJacobianofAccWrtEEPos(*ee_motion_, t, ee);
+    if (var_set == ee_splines_.at(ee)->GetName()) {
+      Jacobian jac_ee_pos = ee_splines_.at(ee)->GetJacobian(t,kPos);
+      jac.middleRows(row, kDim6d) = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
+    }
   }
 
 
@@ -122,7 +130,13 @@ DynamicConstraint::UpdateModel (double t) const
 {
   auto com_pos = base_linear_->GetPoint(t).p_;
   auto ee_load = ee_load_->GetForce(t);
-  auto ee_pos  = ee_motion_->GetEndeffectors(t).GetPos();
+
+  EndeffectorsPos ee_pos(ee_load.GetCount());
+  for (auto ee :  ee_pos.GetEEsOrdered()) {
+    ee_pos.At(ee) = ee_splines_.at(ee)->GetPoint(t).p_;
+  }
+
+//  auto ee_pos  = ee_motion_->GetEndeffectors(t).GetPos();
   model_->SetCurrent(com_pos, ee_load, ee_pos);
 }
 

@@ -44,6 +44,7 @@ public:
   using BaseLinear     = std::shared_ptr<PolynomialSpline>;
   using BaseAngular    = std::shared_ptr<PolynomialSpline>;
   using EEMotionPtr    = std::shared_ptr<EndeffectorsMotion>;
+  using EESplinePtr    = std::shared_ptr<EndeffectorSpline>;
   using MaxDevXY       = Vector3d;
   using NominalStance  = EndeffectorsPos;
 
@@ -70,7 +71,11 @@ private:
   NominalStance nominal_stance_;
   BaseLinear base_linear_;
   BaseAngular base_angular_;
-  EEMotionPtr ee_motion_;
+//  EEMotionPtr ee_motion_;
+
+  std::vector<EESplinePtr> ee_splines_;
+
+
 
   AngularStateConverter converter_;
 

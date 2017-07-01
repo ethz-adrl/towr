@@ -34,6 +34,7 @@ public:
   using ConstraintPtr    = std::shared_ptr<Component>;
   using OptVarsContainer = std::shared_ptr<Composite>;
   using MotionParamsPtr  = std::shared_ptr<MotionParameters>;
+  using Derivatives      = LinearSplineEquations::MotionDerivatives;
 
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();
@@ -70,15 +71,17 @@ private:
                                                const StateLin3d state,
                                                double t) const;
 
-  ConstraintPtr MakePolynomialJunctionConstraint(const std::string& poly_id) const;
+  ConstraintPtr MakePolynomialJunctionConstraint(const std::string& poly_id,
+                                                 const Derivatives&) const;
 
-  ConstraintPtr MakePolynomialCost(const std::string& poly_id,
-                                   const Vector3d& weight_dimensions,
-                                   double weight) const;
 
 
   // costs
   ConstraintPtr MakeMotionCost(double weight) const;
+  ConstraintPtr MakePolynomialCost(const std::string& poly_id,
+                                   const Vector3d& weight_dimensions,
+                                   double weight) const;
+
   ConstraintPtr ToCost(const ConstraintPtr& constraint, double weight) const;
 };
 

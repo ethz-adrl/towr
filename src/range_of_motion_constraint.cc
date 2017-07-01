@@ -33,7 +33,12 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
 
   base_linear_  = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_linear));
   base_angular_ = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_angular));
-  ee_motion_    = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent(id::endeffectors_motion));
+//  ee_motion_    = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent(id::endeffectors_motion));
+
+  for (auto ee : nominal_stance_.GetEEsOrdered()) {
+    std::string id = id::endeffectors_motion+std::to_string(ee);
+    ee_splines_.push_back(std::dynamic_pointer_cast<EndeffectorSpline>(opt_vars->GetComponent(id)));
+  }
 
   dim_ =  {X, Y, Z};
   SetRows(GetNumberOfNodes()*nom.GetCount()*dim_.size());
@@ -47,7 +52,7 @@ RangeOfMotionBox::~RangeOfMotionBox ()
 int
 RangeOfMotionBox::GetRow (int node, EndeffectorID ee, int dim) const
 {
-  return (node*ee_motion_->GetNumberOfEndeffectors() + ee) * dim_.size() + dim;
+  return (node*nominal_stance_.GetCount() + ee) * dim_.size() + dim;
 }
 
 void
@@ -56,14 +61,14 @@ RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) cons
   Vector3d base_W = base_linear_->GetPoint(t).p_;
   MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
 
-  auto pos_ee_W = ee_motion_->GetEndeffectors(t);
+//  auto pos_ee_W = ee_motion_->GetEndeffectors(t);
 
   for (auto ee : nominal_stance_.GetEEsOrdered()) {
     // zmp_ for now don't take into account lifting the leg
     // because i don't have a jacobian for the swingleg motion yet?
-    pos_ee_W.At(ee).p_.z() = 0.0;
+//    pos_ee_W.At(ee).p_.z() = 0.0;
 
-    Vector3d pos_ee_B = b_R_w*(pos_ee_W.At(ee).p_ - base_W);
+    Vector3d pos_ee_B = b_R_w*(ee_splines_.at(ee)->GetPoint(t).p_ - base_W);
 
     for (auto dim : dim_)
       g(GetRow(k,ee,dim)) = pos_ee_B(dim);
@@ -95,13 +100,13 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
     int row_start = GetRow(k,ee,X);
 
 
-    if (var_set == ee_motion_->GetName()) {
-      // zmp_ add jacobian of z
-      Jacobian jac_ee_pos(kDim3d, ee_motion_->GetRows());
-      jac_ee_pos.row(X) = ee_motion_->GetJacobianPos(t,ee,d2::X);
-      jac_ee_pos.row(Y) = ee_motion_->GetJacobianPos(t,ee,d2::Y);
+    if (var_set == ee_splines_.at(ee)->GetName()) {
+//      // zmp_ add jacobian of z
+//      Jacobian jac_ee_pos(kDim3d, ee_motion_->GetRows());
+//      jac_ee_pos.row(X) = ee_motion_->GetJacobianPos(t,ee,d2::X);
+//      jac_ee_pos.row(Y) = ee_motion_->GetJacobianPos(t,ee,d2::Y);
 
-      jac.middleRows(row_start, kDim3d) = b_R_w*jac_ee_pos;
+      jac.middleRows(row_start, kDim3d) = b_R_w*ee_splines_.at(ee)->GetJacobian(t,kPos);
     }
 
 
@@ -112,8 +117,8 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
 
     if (var_set == base_angular_->GetName()) {
       Vector3d base_W   = base_linear_->GetPoint(t).p_;
-      Vector3d ee_pos_W = ee_motion_->GetEndeffectors(t).At(ee).p_;
-      ee_pos_W.z() = 0.0; // zmp_ ugliest hack
+      Vector3d ee_pos_W = ee_splines_.at(ee)->GetPoint(t).p_;
+//      ee_pos_W.z() = 0.0; // zmp_ ugliest hack
       Vector3d r_W = ee_pos_W - base_W;
       jac.middleRows(row_start, kDim3d) = converter_.GetDerivativeOfRotationMatrixRowWrtCoeff(t,r_W, true);
     }

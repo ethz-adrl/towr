@@ -17,6 +17,7 @@
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/dynamic_model.h>
 #include <xpp/opt/variables/polynomial_spline.h>
+#include <xpp/opt/centroidal_model.h>
 
 #include "composite.h"
 #include "time_discretization_constraint.h"
@@ -34,8 +35,10 @@ public:
   using BaseAngular = std::shared_ptr<PolynomialSpline>;
   using EEMotionPtr = std::shared_ptr<EndeffectorsMotion>;
   using EELoadPtr   = std::shared_ptr<EndeffectorsForce>;
+  using EESplinePtr = std::shared_ptr<EndeffectorSpline>;
 
-  using DynamicModelPtr  = std::shared_ptr<DynamicModel>;
+  // zmp_ change back to general model to also use LIP
+  using DynamicModelPtr  = std::shared_ptr<CentroidalModel>;
 
   DynamicConstraint (const OptVarsPtr& opt_vars, double T, double dt);
   virtual ~DynamicConstraint ();
@@ -43,8 +46,10 @@ public:
 private:
   BaseLinear base_linear_;
   BaseAngular base_angular_;
-  EEMotionPtr ee_motion_;
+//  EEMotionPtr ee_motion_;
   EELoadPtr ee_load_;
+
+  std::vector<EESplinePtr> ee_splines_;
 
   mutable DynamicModelPtr model_;
 

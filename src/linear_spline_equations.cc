@@ -54,13 +54,8 @@ LinearSplineEquations::MakeStateConstraint (const StateLinXd& state, double t,
 }
 
 MatVec
-LinearSplineEquations::MakeJunction () const
+LinearSplineEquations::MakeJunction (const MotionDerivatives& derivatives) const
 {
-  // acceleration important b/c enforcing system dynamics only once at the
-  // junction, so make sure second polynomial also respect that by making
-  // its accelerations equal to the first.
-  auto derivatives = {kPos, kVel, kAcc};
-
   auto polynomials = poly_spline_.GetPolynomials();
 
   int n_dim = poly_spline_.GetNDim();

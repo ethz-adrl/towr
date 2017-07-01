@@ -150,7 +150,7 @@ Walk::Walk()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   Stance,
+//                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 //
@@ -171,31 +171,31 @@ Trot::Trot()
 
   contact_timings_ =
   {   0.3,
-      t_phase, t_phase, t_phase, t_phase, // trot
+//      t_phase, t_phase, t_phase, t_phase, // trot
       0.2, // flight_phase
-//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
-      t_phase, t_phase, t_phase, t_phase, // trot
-      0.3
+////      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
+//      t_phase, t_phase, t_phase, t_phase, // trot
+//      0.3
   };
 
   contact_sequence_ =
   {
       II_,
-      bP_, Pb_, bP_, Pb_, // trot
+//      bP_, Pb_, bP_, Pb_, // trot
       BB_, // flight-phase
-//      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
-      bP_, Pb_, bP_, Pb_, // trot
-      II_
+////      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
+//      bP_, Pb_, bP_, Pb_, // trot
+//      II_
   };
 
 
   constraints_ = {
-                   InitCom,
-                   FinalCom,
-                   JunctionCom,
+//                   InitCom,
+//                   FinalCom,
+//                   JunctionCom,
                    Dynamic,
-                   Stance,
-                   RomBox, // usually enforced as soft-constraint/cost
+//                   Stance,
+//                   RomBox, // usually enforced as soft-constraint/cost
   };
 //
 //  cost_weights_[RangOfMotionCostID] = 10.0;
@@ -207,18 +207,20 @@ Trot::Trot()
 
 Pace::Pace()
 {
-  max_dev_xy_ << 0.2, 0.2, 0.2;
+  max_dev_xy_ << 0.2, 0.2, 0.1;
   id_ = opt::PaceID;
+
+  double t_flight = 0.2;
 
   contact_timings_ =
   {
       0.3,
       0.3,
-      0.2, // jump
+      t_flight, // jump
       0.3,
-      0.2, // jump
+      t_flight, // jump
       0.3,
-      0.2, // jump
+      t_flight, // jump
       0.3,
       0.3
   };
@@ -239,7 +241,7 @@ Pace::Pace()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   Stance,
+//                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 
@@ -366,7 +368,7 @@ Bound::Bound()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   Stance,
+//                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 

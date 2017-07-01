@@ -101,10 +101,10 @@ CostConstraintFactory::MakeInitialConstraint () const
   state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_linear, initial_base_.lin, t));
   state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_angular, initial_base_.ang, t));
 
-//  for (auto ee : params->robot_ee_) {
-//    std::string id = id::endeffectors_motion+std::to_string(ee);
-//    state_constraints->AddComponent(MakePolynomialSplineConstraint(id, StateLin3d(initial_ee_W_.At(ee)), t));
-//  }
+  for (auto ee : params->robot_ee_) {
+    std::string id = id::endeffectors_motion+std::to_string(ee);
+    state_constraints->AddComponent(MakePolynomialSplineConstraint(id, StateLin3d(initial_ee_W_.At(ee)), t));
+  }
 
   return state_constraints;
 }
@@ -127,23 +127,30 @@ CostConstraintFactory::MakeJunctionConstraint () const
 {
   auto junction_constraints = std::make_shared<Composite>("Junctions Constraints", true);
 
-  junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id::base_linear));
-  junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id::base_angular));
+  // acceleration important b/c enforcing system dynamics only once at the
+  // junction, so make sure second polynomial also respect that by making
+  // its accelerations equal to the first.
+  auto derivatives = {kPos, kVel, kAcc};
+  junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id::base_linear, derivatives));
+  junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id::base_angular, derivatives));
 
-//  for (auto ee : params->robot_ee_) {
-//    std::string id = id::endeffectors_motion+std::to_string(ee);
-//    junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id));
-//  }
+  // allow lifting/placing of endeffector with nonzero acceleration
+  auto derivatives_ee = {kPos, kVel};
+  for (auto ee : params->robot_ee_) {
+    std::string id = id::endeffectors_motion+std::to_string(ee);
+    junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id, derivatives_ee));
+  }
 
   return junction_constraints;
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::MakePolynomialJunctionConstraint (const std::string& poly_id) const
+CostConstraintFactory::MakePolynomialJunctionConstraint (const std::string& poly_id,
+                                                         const Derivatives& derivatives) const
 {
   auto poly = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars_->GetComponent(poly_id));
   LinearSplineEquations equation_builder(*poly);
-  return std::make_shared<LinearEqualityConstraint>(opt_vars_, equation_builder.MakeJunction(), poly_id);
+  return std::make_shared<LinearEqualityConstraint>(opt_vars_, equation_builder.MakeJunction(derivatives), poly_id);
 }
 
 CostConstraintFactory::ConstraintPtr

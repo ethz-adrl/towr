@@ -51,7 +51,7 @@ public:
     * the position and velocity difference in x-y is returned,
     * resulting in m = (number of splines-1) * 3 * 2
     */
-  MatVec MakeJunction() const;
+  MatVec MakeJunction(const MotionDerivatives& derivatives) const;
 
   /** xT*M*x = scalar total acceleration cost with these polynomial coefficients x.
     *

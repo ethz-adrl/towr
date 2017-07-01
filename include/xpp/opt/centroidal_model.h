@@ -30,9 +30,13 @@ public:
   virtual Jacobian GetJacobianofAccWrtForce(const EndeffectorsForce&,
                                             double t_global,
                                             EndeffectorID) const override;
+  virtual Jacobian GetJacobianofAccWrtEEPos(const Jacobian& jac_ee_pos,
+                                            EndeffectorID) const;
+
+  // zmp_ remove again
   virtual Jacobian GetJacobianofAccWrtEEPos(const EndeffectorsMotion&,
                                              double t_global,
-                                             EndeffectorID) const override;
+                                             EndeffectorID) const {};
 private:
   double m_;          /// mass of robot
   Eigen::Matrix3d I_; /// inertia tensor of robot

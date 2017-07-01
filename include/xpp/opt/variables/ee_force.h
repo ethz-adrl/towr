@@ -47,6 +47,7 @@ private:
   VecPolynomials polynomials_;
   std::deque<bool> is_in_contact_;
 
+  // zmp_ move this parameter to motion parameters
   const double max_force_ = 2000.0; // [N]
 
   int Index(double t_global, Polynomial::PointType p, Coords3D dim) const;
