@@ -65,15 +65,34 @@ public:
 
 //  PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
 
+  Eigen::Matrix3d GetInertiaParameters() const {return interia_; };
+  double GetMass() const {return mass_; };
+  double GetForceLimit() const {return force_limit_; };
 
   EEVec robot_ee_;
 protected:
+  Eigen::Matrix3d interia_;
+  double mass_;
+  double force_limit_;
+
   MaxDevXYZ max_dev_xy_;
   ContactSequence contact_sequence_;
   NominalStance nominal_stance_;
   ContactTimings contact_timings_;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
+
+
+  static Eigen::Matrix3d buildInertiaTensor(
+          double Ixx, double Iyy, double Izz,
+          double Ixy, double Ixz, double Iyz)
+  {
+    Eigen::Matrix3d I;
+    I <<  Ixx, -Ixy, -Ixz,
+         -Ixy,  Iyy, -Iyz,
+         -Ixz, -Iyz,  Izz;
+    return I;
+  }
 };
 
 } // namespace opt

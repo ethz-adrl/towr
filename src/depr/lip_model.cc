@@ -15,7 +15,8 @@
 namespace xpp {
 namespace opt {
 
-LIPModel::LIPModel ()
+LIPModel::LIPModel (double mass, double height)
+    :m_(mass), h_(height)
 {
 }
 
@@ -84,15 +85,15 @@ LIPModel::GetJacobianofAccWrtForce (const EndeffectorsForce& ee_force, double t,
 }
 
 Jacobian
-LIPModel::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion, double t_global,
-                                     EndeffectorID ee) const
+LIPModel::GetJacobianofAccWrtEEPos (const Jacobian& jac_ee_pos,
+                                    EndeffectorID ee) const
 {
-  Jacobian jac(kDim6d, ee_motion.GetRows());
+  Jacobian jac(kDim6d, jac_ee_pos.cols());
 
   // no dependency of CoM acceleration on height of footholds yet
   for (auto dim : {LX, LY}) {
     double deriv_ee = GetDerivativeOfAccWrtEEPos(ee, To3D(dim));
-    jac.row(dim) = deriv_ee* ee_motion.GetJacobianPos(t_global, ee, To2D(dim));
+    jac.row(dim) = deriv_ee* jac_ee_pos;
   }
 
   return jac;

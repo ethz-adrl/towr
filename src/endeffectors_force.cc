@@ -18,7 +18,8 @@ namespace xpp {
 namespace opt {
 
 
-EndeffectorsForce::EndeffectorsForce (double dt, const ContactSchedule& contact_schedule)
+EndeffectorsForce::EndeffectorsForce (double dt, const ContactSchedule& contact_schedule,
+                                      double force_limit)
     :Composite(id::endeffector_force, true)
 {
   ee_ordered_ = contact_schedule.IsInContact(0.0).GetEEsOrdered();
@@ -31,6 +32,8 @@ EndeffectorsForce::EndeffectorsForce (double dt, const ContactSchedule& contact_
       double duration   = phase.second;
       ee_force->AddPhase(duration, dt, is_contact);
     }
+
+    ee_force->max_force_ = force_limit;
 
     AddComponent(ee_force);         // add to base class for general functionality
     ee_forces_.push_back(ee_force); // keep derived  for specific functionality

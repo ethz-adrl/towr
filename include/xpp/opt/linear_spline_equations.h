@@ -35,7 +35,6 @@ class LinearSplineEquations {
 public:
   using MotionDerivatives = std::vector<MotionDerivative>;
 
-  LinearSplineEquations();
   LinearSplineEquations (const PolynomialSpline&);
   virtual ~LinearSplineEquations ();
 

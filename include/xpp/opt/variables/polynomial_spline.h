@@ -31,10 +31,58 @@ class PolynomialSpline : public Component, public Spline {
 public:
   using State          = StateLinXd;
   using PolyCoeff      = Polynomial::PolynomialCoeff;
-  using VecPolynomials = std::vector<std::shared_ptr<Polynomial> >;
+  using PolyomialPtr   = std::shared_ptr<Polynomial>;
+  using VecPolynomials = std::vector<PolyomialPtr>;
 
-  PolynomialSpline (const std::string& component_name = "poly_spline");
+  PolynomialSpline (const std::string& component_name);
   virtual ~PolynomialSpline ();
+
+  template<typename PolyT>
+  void Init (double t_global, double dt, const VectorXd& initial_value)
+  {
+    // initialize at com position with zero velocity & acceleration
+    n_dim_ = initial_value.rows();
+    State initial_state(n_dim_);
+    initial_state.p_ = initial_value;
+
+    double t_left = t_global;
+    while (t_left > 0.0) {
+      double duration = t_left>dt?  dt : t_left;
+      auto p = std::make_shared<PolyT>();
+      p->SetBoundary(duration, initial_state, initial_state);
+      polynomials_.push_back(p);
+      t_left -= dt;
+    }
+
+    SetSegmentsPtr(polynomials_);
+
+    int n_polys = polynomials_.size();
+    SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
+  }
+
+
+  template<typename PolyT>
+  void Init (std::vector<double> T_polys, const VectorXd& initial_value)
+  {
+    // initialize at com position with zero velocity & acceleration
+    n_dim_ = initial_value.rows();
+    State initial_state(n_dim_);
+    initial_state.p_ = initial_value;
+
+    for (double duration : T_polys) {
+      auto p = std::make_shared<PolyT>();
+      p->SetBoundary(duration, initial_state, initial_state);
+      polynomials_.push_back(p);
+    }
+
+    // DRY with above init
+    SetSegmentsPtr(polynomials_);
+    int n_polys = polynomials_.size();
+    SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
+  }
+
+
+
 
   void Init(double t_global, double duration_per_polynomial,
             const VectorXd& initial_val);

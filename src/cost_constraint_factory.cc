@@ -19,13 +19,14 @@
 #include <xpp/matrix_vector.h>
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/constraints/dynamic_constraint.h>
-#include <xpp/opt/constraints/foothold_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
 #include <xpp/opt/costs/polynomial_cost.h>
 #include <xpp/opt/costs/soft_constraint.h>
 #include <xpp/opt/variables/polynomial_spline.h>
 #include <xpp/opt/variables/variable_names.h>
+
+#include <xpp/opt/centroidal_model.h>
 
 namespace xpp {
 namespace opt {
@@ -156,8 +157,13 @@ CostConstraintFactory::MakePolynomialJunctionConstraint (const std::string& poly
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
+//  model_ = std::make_shared<LIPModel>();
+  auto dynamic_model = std::make_shared<CentroidalModel>(params->GetMass(),
+                                                         params->GetInertiaParameters());
+
   double dt = params->duration_polynomial_/params->n_constraints_per_poly_;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
+                                                        dynamic_model,
                                                         params->GetTotalTime(),
                                                         dt
                                                         );
@@ -185,26 +191,21 @@ CostConstraintFactory::MakeStancesConstraints () const
 {
   auto stance_constraints = std::make_shared<Composite>("Stance Constraints", true);
 
-  // calculate initial position in world frame
-  auto constraint_initial = std::make_shared<FootholdConstraint>(
-      opt_vars_, initial_ee_W_, 0.0);
+  double t_start = 0.0;
+  double t_end   = params->GetTotalTime();
 
-  stance_constraints->AddComponent(constraint_initial);
-
-  // calculate endeffector position in world frame
   Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
-
   EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
-  EndeffectorsPos endeffectors_final_W(nominal_B.GetCount());
-  for (auto ee : endeffectors_final_W.GetEEsOrdered())
-    endeffectors_final_W.At(ee) = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
 
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+    std::string id = id::endeffectors_motion+std::to_string(ee);
+    stance_constraints->AddComponent(MakePolynomialSplineConstraint(id, StateLin3d(initial_ee_W_.At(ee)), t_start));
 
-  auto constraint_final = std::make_shared<FootholdConstraint>(
-      opt_vars_, endeffectors_final_W, params->GetTotalTime());
+    Endeffectors<StateLin3d> endeffectors_final_W(nominal_B.GetCount());
+    endeffectors_final_W.At(ee).p_ = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
 
-  stance_constraints->AddComponent(constraint_final);
-
+    stance_constraints->AddComponent(MakePolynomialSplineConstraint(id, StateLin3d(endeffectors_final_W.At(ee)), t_end));
+  }
 
   return stance_constraints;
 }

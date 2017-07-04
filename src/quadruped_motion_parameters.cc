@@ -20,6 +20,7 @@ namespace xpp {
 namespace opt {
 namespace quad{
 
+
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
   duration_polynomial_    = 0.2; //s 0.05
@@ -29,12 +30,16 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   n_constraints_per_poly_ = 2;
 
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
-//  offset_geom_to_com_ << -0.03, 0.02, 0.0;
-//  offset_geom_to_com_ << 0,0,0;
-//  max_dev_xy_ = {0.2, 0.2, 0.1};
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
 
 
+  // dynamic model for HyQ
+  mass_    = 80;
+  interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
+  force_limit_ = 20000.0; // [N]
+
+
+  // range of motion specifictions for HyQ
   const double x_nominal_b = 0.28;
   const double y_nominal_b = 0.28;
   const double z_nominal_b = -0.58;
@@ -241,19 +246,18 @@ Pace::Pace()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-//                   Stance,
+                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 
 //  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[ComCostID]          = 1.0;
-
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
 Bound::Bound()
 {
-  max_dev_xy_ << 0.25, 0.21, 0.2;
+  max_dev_xy_ << 0.25, 0.21, 0.18;
   id_ = opt::BoundID;
 
 

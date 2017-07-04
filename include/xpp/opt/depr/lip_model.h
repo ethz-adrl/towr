@@ -17,7 +17,6 @@
 
 #include "dynamic_model.h"
 #include <xpp/opt/variables/endeffectors_force.h>
-#include <xpp/opt/variables/endeffectors_motion.h>
 
 namespace xpp {
 namespace opt {
@@ -29,7 +28,7 @@ class LIPModel : public DynamicModel {
 public:
   using Cop = Vector2d;
 
-  LIPModel();
+  LIPModel(double mass, double height);
   virtual ~LIPModel();
 
   virtual BaseAcc GetBaseAcceleration() const override;
@@ -40,12 +39,13 @@ public:
   virtual Jacobian GetJacobianofAccWrtForce(const EndeffectorsForce&,
                                    double t_global,
                                    EndeffectorID) const override;
-  virtual Jacobian GetJacobianofAccWrtEEPos(const EndeffectorsMotion&, double t_global,
-                                    EndeffectorID) const override;
+
+  virtual Jacobian GetJacobianofAccWrtEEPos(const Jacobian& jac_ee_pos,
+                                            EndeffectorID) const override;
 
 private:
-  const double h_ = 0.58;
-  const double m_ = 80; /// mass of robot
+  const double h_; /// walking height of the robot
+  const double m_; /// mass of robot
 
   ComLinAcc GetLinearAcceleration() const;
   double GetDerivativeOfAccWrtLoad(EndeffectorID, Coords3D dim) const;

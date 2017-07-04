@@ -16,10 +16,6 @@ namespace xpp {
 namespace opt {
 
 
-LinearSplineEquations::LinearSplineEquations()
-{
-};
-
 LinearSplineEquations::LinearSplineEquations (const PolynomialSpline& poly_spline)
     :poly_spline_(poly_spline)
 {

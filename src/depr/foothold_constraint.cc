@@ -12,7 +12,6 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include <xpp/opt/variables/endeffectors_motion.h>
 #include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
@@ -23,6 +22,7 @@ FootholdConstraint::FootholdConstraint (const OptVarsPtr& opt_vars,
                                         double t)
 {
   ee_motion_ = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_vars->GetComponent(id::endeffectors_motion));
+
   desired_ee_pos_W_ = nom_W;
   t_ = t;
 

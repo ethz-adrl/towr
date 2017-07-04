@@ -10,18 +10,10 @@
 namespace xpp {
 namespace opt {
 
-CentroidalModel::CentroidalModel ()
+CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia)
 {
-  // rough values for hyq
-  m_ = 80;
-  I_ = buildInertiaTensor( 1.209488,
-                           5.5837,
-                           6.056973,
-                           0.00571,
-                           -0.190812,
-                           -0.012668);
-
-  I_inv_ = I_.inverse().sparseView(1.0, -1.0); // don't treat zeros as sparse
+  m_     = mass;
+  I_inv_ = inertia.inverse().sparseView(1.0, -1.0); // don't treat zeros as sparse
 }
 
 CentroidalModel::~CentroidalModel ()
@@ -34,7 +26,7 @@ CentroidalModel::GetBaseAcceleration () const
 {
   Vector3d f_lin, ang; f_lin.setZero(); ang.setZero();
 
-  for (auto ee : ee_pos_.GetEEsOrdered()) {
+  for (auto ee : GetEEIDs()) {
     Vector3d f = ee_force_.At(ee);
     ang += f.cross(com_pos_-ee_pos_.At(ee));
     f_lin += f;

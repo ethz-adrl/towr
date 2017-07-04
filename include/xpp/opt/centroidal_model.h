@@ -18,7 +18,7 @@ namespace opt {
  */
 class CentroidalModel : public DynamicModel {
 public:
-  CentroidalModel ();
+  CentroidalModel (double mass, const Eigen::Matrix3d& inertia);
   virtual ~CentroidalModel ();
 
   virtual BaseAcc GetBaseAcceleration() const override;
@@ -31,12 +31,8 @@ public:
                                             double t_global,
                                             EndeffectorID) const override;
   virtual Jacobian GetJacobianofAccWrtEEPos(const Jacobian& jac_ee_pos,
-                                            EndeffectorID) const;
+                                            EndeffectorID) const override;
 
-  // zmp_ remove again
-  virtual Jacobian GetJacobianofAccWrtEEPos(const EndeffectorsMotion&,
-                                             double t_global,
-                                             EndeffectorID) const {};
 private:
   double m_;          /// mass of robot
   Eigen::Matrix3d I_; /// inertia tensor of robot
@@ -53,17 +49,6 @@ private:
     out.coeffRef(2,0) = -in(1); out.coeffRef(2,1) =  in(0);
 
     return out;
-  }
-
-  static Eigen::Matrix3d buildInertiaTensor(
-          double Ixx, double Iyy, double Izz,
-          double Ixy, double Ixz, double Iyz)
-  {
-    Eigen::Matrix3d I;
-    I <<  Ixx, -Ixy, -Ixz,
-         -Ixy,  Iyy, -Iyz,
-         -Ixz, -Iyz,  Izz;
-    return I;
   }
 };
 

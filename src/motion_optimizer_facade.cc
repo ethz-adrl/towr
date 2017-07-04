@@ -69,14 +69,14 @@ MotionOptimizerFacade::BuildVariables ()
     std::string id = id::endeffectors_motion+std::to_string(ee);
     bool first_contact = contact_schedule->GetPhases(ee).front().first;
     auto ee_poly = std::make_shared<EndeffectorSpline>(id, first_contact);
-    ee_poly->Init(contact_schedule->GetTimePerPhase(ee), initial_ee_W_.At(ee));
+    ee_poly->Init<QuarticPolynomial>(contact_schedule->GetTimePerPhase(ee), initial_ee_W_.At(ee));
     opt_variables_->AddComponent(ee_poly);
   }
 
 
   double T = motion_parameters_->GetTotalTime();
   auto base_linear = std::make_shared<PolynomialSpline>(id::base_linear);
-  base_linear->Init(T, motion_parameters_->duration_polynomial_,
+  base_linear->Init<QuarticPolynomial>(T, motion_parameters_->duration_polynomial_,
                     inital_base_.lin.p_);
   opt_variables_->AddComponent(base_linear);
 
@@ -85,14 +85,15 @@ MotionOptimizerFacade::BuildVariables ()
   // These angles are to be interpreted as mapping a vector expressed in
   // base frame to world frame.
   auto base_angular = std::make_shared<PolynomialSpline>(id::base_angular);
-  base_angular->Init(T, motion_parameters_->duration_polynomial_,
+  base_angular->Init<QuarticPolynomial>(T, motion_parameters_->duration_polynomial_,
                      inital_base_.ang.p_);
   opt_variables_->AddComponent(base_angular);
 
 
 
   auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
-                                                   *contact_schedule);
+                                                   *contact_schedule,
+                                                   motion_parameters_->GetForceLimit());
   opt_variables_->AddComponent(force);
 
   opt_variables_->Print();

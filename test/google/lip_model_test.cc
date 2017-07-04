@@ -17,7 +17,7 @@ using Vector2d = Eigen::Vector2d;
 TEST(LinearInvertedPendulumTest, GetDerivative)
 {
   double mass = 80;
-  LIPModel pendulum;
+  LIPModel pendulum(mass, 0.58);
   Vector2d pos(0.0, 0.0);
 //  Vector2d vel(1.0, 0.0);
 //  pendulum.SetCurrent(pos, 0.58);

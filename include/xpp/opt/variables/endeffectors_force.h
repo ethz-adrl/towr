@@ -30,7 +30,7 @@ public:
   using ComponentVec = std::vector<ComponentPtr>;
   using LoadParams   = Endeffectors<Vector3d>;
 
-  EndeffectorsForce(double dt, const ContactSchedule&);
+  EndeffectorsForce(double dt, const ContactSchedule&, double force_limit);
   virtual ~EndeffectorsForce();
 
   LoadParams GetForce(double t) const;
