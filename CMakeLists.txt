@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
-  xpp_states
 )
 
 find_package(Eigen3 REQUIRED)
@@ -23,7 +22,8 @@ endif(BUILD_SNOPT)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14")
 
 set(MOTION_OPT_LIB xpp_opt)
-set(SOLVER_LIB xpp_solve)
+set(SOLVER_LIB xpp_solve)         # 
+set(STATES_LIB xpp_states)   # defines common interface robot states 
 
 ###################################
 ## catkin specific configuration ##
@@ -35,8 +35,8 @@ set(SOLVER_LIB xpp_solve)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ${MOTION_OPT_LIB} ${IPOPT_LIBRARIES}
+  INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}
+  LIBRARIES ${STATES_LIB} ${MOTION_OPT_LIB} ${IPOPT_LIBRARIES}
   CATKIN_DEPENDS
   DEPENDS
 )
@@ -49,16 +49,25 @@ include_directories(
   ${SNOPT_INCLUDE_DIRS}
 )
 
-# A general nlp solving framework for Eigen, Ipopt, Snopt
+## General library for robot state interfaces used by many packages
+## TODO: Find way to make other packages use this library without needing
+## to install IPOPT, SNOPT
+add_library(${STATES_LIB}
+  src/state.cc
+  src/robot_state_cartesian.cc
+)
+target_link_libraries(${STATES_LIB}
+  ${catkin_LIBRARIES}
+)
+
+
+# A nlp solving framework for Eigen, Ipopt, Snopt
+# to compile this the third-party solver libraries must be installed
 add_library(${SOLVER_LIB}
-#  src/optimization_variables_container.cc
-#  src/optimization_variables.cc
   src/nlp.cc
   src/ipopt_adapter.cc
   src/snopt_adapter.cc
   src/composite.cc
-  src/soft_constraint.cc
-  src/time_discretization_constraint.cc
 )
 target_link_libraries(${SOLVER_LIB}
   ${catkin_LIBRARIES}
@@ -66,11 +75,15 @@ target_link_libraries(${SOLVER_LIB}
   ${SNOPT_LIBRARIES}
 )
 
+
 # the specific motion optimization problem for legged robots
+# only packages that actually want to implement the optimization problem need this
 add_library(${MOTION_OPT_LIB}
   src/motion_optimizer_facade.cc
   src/linear_constraint.cc
   src/cost_constraint_factory.cc
+  src/soft_constraint.cc
+  src/time_discretization_constraint.cc
   # body motion
   src/polynomial.cc
   src/spline.cc
@@ -101,6 +114,7 @@ add_library(${MOTION_OPT_LIB}
 )   
 target_link_libraries(${MOTION_OPT_LIB}
   ${catkin_LIBRARIES}
+  ${STATES_LIB}
   ${SOLVER_LIB}
 )
   
