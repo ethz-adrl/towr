@@ -5,7 +5,6 @@
  @brief   Brief description
  */
 
-#include "../../include/xpp/opt/ee_phase_motion.h"
 
 #include <gtest/gtest.h>
 

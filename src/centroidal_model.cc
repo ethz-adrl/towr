@@ -10,18 +10,10 @@
 namespace xpp {
 namespace opt {
 
-CentroidalModel::CentroidalModel ()
+CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia)
 {
-  // rough values for hyq
-  m_ = 80;
-  I_ = buildInertiaTensor( 1.209488,
-                           5.5837,
-                           6.056973,
-                           0.00571,
-                           -0.190812,
-                           -0.012668);
-
-  I_inv_ = I_.inverse().sparseView();
+  m_     = mass;
+  I_inv_ = inertia.inverse().sparseView(1.0, -1.0); // don't treat zeros as sparse
 }
 
 CentroidalModel::~CentroidalModel ()
@@ -34,7 +26,7 @@ CentroidalModel::GetBaseAcceleration () const
 {
   Vector3d f_lin, ang; f_lin.setZero(); ang.setZero();
 
-  for (auto ee : ee_pos_.GetEEsOrdered()) {
+  for (auto ee : GetEEIDs()) {
     Vector3d f = ee_force_.At(ee);
     ang += f.cross(com_pos_-ee_pos_.At(ee));
     f_lin += f;
@@ -45,8 +37,8 @@ CentroidalModel::GetBaseAcceleration () const
   // f_lin += fg_W;
 
   BaseAcc acc;
-  acc.segment(AX, 3) = I_inv_*ang;
-  acc.segment(LX, 3) = 1./m_ *f_lin;
+  acc.segment(AX, kDim3d) = I_inv_*ang;
+  acc.segment(LX, kDim3d) = 1./m_ *f_lin;
 
   return acc;
 }
@@ -101,21 +93,13 @@ CentroidalModel::GetJacobianofAccWrtForce (const EndeffectorsForce& ee_force,
 }
 
 Jacobian
-CentroidalModel::GetJacobianofAccWrtEEPos (const EndeffectorsMotion& ee_motion,
-                                           double t_global,
+CentroidalModel::GetJacobianofAccWrtEEPos (const Jacobian& jac_ee_pos,
                                            EndeffectorID ee) const
 {
-  int n = ee_motion.GetRows();
-  Jacobian jac_ang(kDim3d, n);
-
-  Jacobian jac_ee(kDim3d, n);
-  for (auto dim : {d2::X,d2::Y}) // zmp_ this is wrong, include z height
-    jac_ee.row(dim) = ee_motion.GetJacobianPos(t_global, ee, dim);
-
   Vector3d f = ee_force_.At(ee);
-  jac_ang = BuildCrossProductMatrix(f)*(-jac_ee);
+  Jacobian jac_ang = BuildCrossProductMatrix(f)*(-jac_ee_pos);
 
-  Jacobian jac(kDim6d, n);
+  Jacobian jac(kDim6d, jac_ang.cols());
   jac.middleRows(AX, kDim3d) = I_inv_*jac_ang;
   // linear acceleration does not depend on endeffector position.
   return jac;

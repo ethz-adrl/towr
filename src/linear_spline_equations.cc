@@ -8,16 +8,13 @@
 #include <xpp/opt/linear_spline_equations.h>
 
 #include <cassert>
+#include <initializer_list>
 
-#include <xpp/opt/polynomial_spline.h>
+#include <xpp/opt/polynomial.h>
 
 namespace xpp {
 namespace opt {
 
-
-LinearSplineEquations::LinearSplineEquations()
-{
-};
 
 LinearSplineEquations::LinearSplineEquations (const PolynomialSpline& poly_spline)
     :poly_spline_(poly_spline)
@@ -53,13 +50,8 @@ LinearSplineEquations::MakeStateConstraint (const StateLinXd& state, double t,
 }
 
 MatVec
-LinearSplineEquations::MakeJunction () const
+LinearSplineEquations::MakeJunction (const MotionDerivatives& derivatives) const
 {
-  // acceleration important b/c enforcing system dynamics only once at the
-  // junction, so make sure second polynomial also respect that by making
-  // its accelerations equal to the first.
-  auto derivatives = {kPos, kVel, kAcc};
-
   auto polynomials = poly_spline_.GetPolynomials();
 
   int n_dim = poly_spline_.GetNDim();

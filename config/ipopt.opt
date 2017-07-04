@@ -18,6 +18,7 @@ hessian_approximation limited-memory
 
 
 #derivative_test first-order
+derivative_test_tol 1e-4   # deviations between provided and finite-difference approximated derivatives larger than this value are flagged.
 #derivative_test second-order
 
 #fixed_variable_treatment relax-bounds
@@ -30,7 +31,7 @@ tol 0.01   # usually 0.01
 
 #bound_relax_factor 0.01
 max_cpu_time 16.1  
-#max_iter 0
+#max_iter 1
 #bound_frac 0.5
 
 #acceptable_iter 10

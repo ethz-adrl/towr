@@ -32,6 +32,7 @@ public:
   bool IsInContact(double t_global) const;
 
   PhaseVec GetPhases() const;
+  std::vector<double> GetTimePerPhase() const;
   double GetTotalTime() const { return t_phase_end_.back(); };
 
 private:
@@ -57,6 +58,7 @@ public:
   int GetContactCount(double t_global) const;
 
   double GetTotalTime() const;
+  std::vector<double> GetTimePerPhase(EndeffectorID) const;
 
 
   // so far not optimizing over these

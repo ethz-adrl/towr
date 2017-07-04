@@ -8,7 +8,6 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_LINEAR_SPLINE_EQUATIONS_H_
 
-#include <array>
 #include <Eigen/Dense>
 #include <vector>
 
@@ -16,8 +15,8 @@
 #include <xpp/state.h>
 
 #include <xpp/matrix_vector.h>
-
-#include "polynomial_spline.h"
+#include <xpp/opt/constraints/composite.h>
+#include <xpp/opt/variables/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {
@@ -36,7 +35,6 @@ class LinearSplineEquations {
 public:
   using MotionDerivatives = std::vector<MotionDerivative>;
 
-  LinearSplineEquations();
   LinearSplineEquations (const PolynomialSpline&);
   virtual ~LinearSplineEquations ();
 
@@ -52,17 +50,17 @@ public:
     * the position and velocity difference in x-y is returned,
     * resulting in m = (number of splines-1) * 3 * 2
     */
-  MatVec MakeJunction() const;
+  MatVec MakeJunction(const MotionDerivatives& derivatives) const;
 
-  /** xT*M*x + xT*v gives the scalar total acceleration cost with these x.
+  /** xT*M*x = scalar total acceleration cost with these polynomial coefficients x.
     *
     * To turn the motion derivatives into costs they are weighed according to the
-    * directions (x,y). Usually lateral motions are penalized more (bigger weight)
-    * than forward backwards motions.
+    * dimension.
     *
-    * @param weight which acceleration to avoid (x,y,z)
+    * @param weight   dimension should affect the total cost more e.g. (x,y,z)
+    * @param deriv    derivative (pos,vel,acc,...) that should be squared
     */
-  Eigen::MatrixXd MakeCostMatrix(const VectorXd& weights, MotionDerivative) const;
+  Eigen::MatrixXd MakeCostMatrix(const VectorXd& weights, MotionDerivative deriv) const;
 
 private:
   PolynomialSpline poly_spline_;

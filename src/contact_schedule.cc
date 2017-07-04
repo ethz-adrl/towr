@@ -80,6 +80,18 @@ SingleContactMotion::GetPhases () const
   return phases;
 }
 
+std::vector<double>
+SingleContactMotion::GetTimePerPhase () const
+{
+  std::vector<double> T;
+
+  for (auto p : GetPhases())
+    T.push_back(p.second);
+
+  return T;
+}
+
+
 ContactSchedule::ContactSchedule (const PhaseVec& phases)
     :Component(0, id::contact_schedule)
 {
@@ -145,6 +157,13 @@ ContactSchedule::GetTotalTime () const
   return endeffectors_.At(E0).GetTotalTime();
 }
 
+std::vector<double>
+ContactSchedule::GetTimePerPhase (EndeffectorID ee) const
+{
+  return endeffectors_.At(ee).GetTimePerPhase();
+}
+
+
 void
 ContactSchedule::SetInitialSwinglegs (const EndeffectorsBool& swinglegs)
 {
@@ -166,4 +185,3 @@ ContactSchedule::GetContactCount (double t_global) const
 
 } /* namespace opt */
 } /* namespace xpp */
-

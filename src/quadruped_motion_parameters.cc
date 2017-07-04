@@ -20,6 +20,7 @@ namespace xpp {
 namespace opt {
 namespace quad{
 
+
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
   duration_polynomial_    = 0.2; //s 0.05
@@ -29,12 +30,16 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   n_constraints_per_poly_ = 2;
 
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
-//  offset_geom_to_com_ << -0.03, 0.02, 0.0;
-//  offset_geom_to_com_ << 0,0,0;
-//  max_dev_xy_ = {0.2, 0.2, 0.1};
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
 
 
+  // dynamic model for HyQ
+  mass_    = 80;
+  interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
+  force_limit_ = 20000.0; // [N]
+
+
+  // range of motion specifictions for HyQ
   const double x_nominal_b = 0.28;
   const double y_nominal_b = 0.28;
   const double z_nominal_b = -0.58;
@@ -150,7 +155,7 @@ Walk::Walk()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   Stance,
+//                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 //
@@ -172,9 +177,9 @@ Trot::Trot()
   contact_timings_ =
   {   0.3,
       t_phase, t_phase, t_phase, t_phase, // trot
-      0.2, // flight_phase
-//      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
-      t_phase, t_phase, t_phase, t_phase, // trot
+      0.3, // flight_phase
+////      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
+//      t_phase, t_phase, t_phase, t_phase, // trot
       0.3
   };
 
@@ -183,17 +188,18 @@ Trot::Trot()
       II_,
       bP_, Pb_, bP_, Pb_, // trot
       BB_, // flight-phase
-//      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
-      bP_, Pb_, bP_, Pb_, // trot
+////      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
+//      bP_, Pb_, bP_, Pb_, // trot
       II_
   };
 
 
-  constraints_ = { InitCom,
+  constraints_ = {
+                   InitCom,
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   Stance,
+//                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 //
@@ -206,18 +212,20 @@ Trot::Trot()
 
 Pace::Pace()
 {
-  max_dev_xy_ << 0.2, 0.2, 0.2;
+  max_dev_xy_ << 0.2, 0.2, 0.1;
   id_ = opt::PaceID;
+
+  double t_flight = 0.2;
 
   contact_timings_ =
   {
       0.3,
       0.3,
-      0.2, // jump
+      t_flight, // jump
       0.3,
-      0.2, // jump
+      t_flight, // jump
       0.3,
-      0.2, // jump
+      t_flight, // jump
       0.3,
       0.3
   };
@@ -244,67 +252,66 @@ Pace::Pace()
 
 //  cost_weights_[RangOfMotionCostID] = 10.0;
 //  cost_weights_[ComCostID]          = 1.0;
-
 //  cost_weights_[PolyCenterCostID]   = 0.0;
 }
 
 Bound::Bound()
 {
-  max_dev_xy_ << 0.25, 0.21, 0.1;
+  max_dev_xy_ << 0.25, 0.21, 0.18;
   id_ = opt::BoundID;
 
 
-  // sequence for normal bound
-  contact_sequence_ =
-  {
-      II_,
-      BI_,
-      IB_,
-      BB_, // jump
-      BI_,
-      IB_,
-      BB_, // jump
-      BI_,
-      IB_,
-      II_
-  };
-
-  contact_timings_ =
-  {
-      0.8,
-      0.4,
-      0.3,
-      0.2, // jump
-      0.4,
-      0.3,
-      0.2, // jump
-      0.4,
-      0.3,
-      0.3
-  };
-
-//  // sequence for 4 feet jumps
+//  // sequence for normal bound
 //  contact_sequence_ =
 //  {
 //      II_,
-//      BB_,
-//      II_,
-//      BB_,
-//      II_,
-//      BB_,
+//      BI_,
+//      IB_,
+//      BB_, // jump
+//      BI_,
+//      IB_,
+//      BB_, // jump
+//      BI_,
+//      IB_,
 //      II_
 //  };
 //
 //  contact_timings_ =
 //  {
+//      0.8,
+//      0.4,
 //      0.3,
+//      0.2, // jump
+//      0.4,
 //      0.3,
-//      0.3,
-//      0.3,
-//      0.3,
+//      0.2, // jump
+//      0.4,
 //      0.3,
 //      0.3
 //  };
+
+  // sequence for 4 feet jumps
+  contact_sequence_ =
+  {
+      II_,
+      BB_,
+      II_,
+      BB_,
+      II_,
+      BB_,
+      II_
+  };
+
+  contact_timings_ =
+  {
+      0.3,
+      0.3,
+      0.3,
+      0.6,
+      0.3,
+      0.3,
+      0.3
+  };
 
 
 
@@ -365,7 +372,7 @@ Bound::Bound()
                    FinalCom,
                    JunctionCom,
                    Dynamic,
-                   Stance,
+//                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 

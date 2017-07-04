@@ -45,7 +45,6 @@ public:
   const MotionParametersPtr GetMotionParameters() const { return motion_parameters_;};
 
   void BuildDefaultStartStance();
-  void SetInitialState(const RobotStateCartesian& initial_state);
 
 private:
   void BuildVariables();

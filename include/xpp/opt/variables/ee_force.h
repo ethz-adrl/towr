@@ -41,13 +41,14 @@ public:
 
   Vector3d GetForce(double t_global) const;
 
+  double max_force_;
+
 private:
 
   Spline spline_;
   VecPolynomials polynomials_;
   std::deque<bool> is_in_contact_;
 
-  const double max_force_ = 2000.0; // [N]
 
   int Index(double t_global, Polynomial::PointType p, Coords3D dim) const;
   std::vector<Coords3D> dim_ = {X, Y, Z};

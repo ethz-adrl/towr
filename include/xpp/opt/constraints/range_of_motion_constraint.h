@@ -31,9 +31,8 @@ class EndeffectorsMotion;
 /** @brief Constrains the contact to lie in a box around the nominal stance
   *
   * These constraints are necessary to avoid choosing contact locations
-  * that are outside the kinematic reach of the robot. The constraint can
-  * be defined in terms of joint limits or Cartesian estimates of the
-  * reachability.
+  * that are outside the kinematic reach of the robot. The constraint
+  * is defined by Cartesian estimates of the reachability of each endeffector.
   *
   * This constraint calculates the position of of the contact expressed in the
   * current CoM frame and constrains it to lie in a box around the nominal/
@@ -44,6 +43,7 @@ public:
   using BaseLinear     = std::shared_ptr<PolynomialSpline>;
   using BaseAngular    = std::shared_ptr<PolynomialSpline>;
   using EEMotionPtr    = std::shared_ptr<EndeffectorsMotion>;
+  using EESplinePtr    = std::shared_ptr<EndeffectorSpline>;
   using MaxDevXY       = Vector3d;
   using NominalStance  = EndeffectorsPos;
 
@@ -70,8 +70,8 @@ private:
   NominalStance nominal_stance_;
   BaseLinear base_linear_;
   BaseAngular base_angular_;
-  EEMotionPtr ee_motion_;
 
+  std::vector<EESplinePtr> ee_splines_;
   AngularStateConverter converter_;
 
   std::vector<Coords3D> dim_;

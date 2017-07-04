@@ -15,6 +15,7 @@
 namespace xpp {
 namespace opt {
 
+// zmp_ this class seems unneccessary
 EndeffectorsMotion::EndeffectorsMotion (const EndeffectorsPos& initial_pos,
                                         const ContactSchedule& contact_schedule)
     :Composite(id::endeffectors_motion, true)
@@ -92,6 +93,7 @@ EndeffectorsMotion::GetJacobianPos (double t_global,
   JacobianRow jac_ee = endeffectors_.at(ee)->GetJacobianPos(t_global, dim);
 
   // insert single ee-Jacobian into Jacobian representing all endeffectors
+  // zmp_ this could be avoided, by adding each endeffector separately
   for (JacobianRow::InnerIterator it(jac_ee); it; ++it)
     jac_row.coeffRef(IndexStart(ee)+it.col()) = it.value();
 

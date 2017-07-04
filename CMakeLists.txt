@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
-  xpp_states   
+  xpp_states
 )
 
 find_package(Eigen3 REQUIRED)
@@ -80,21 +80,21 @@ add_library(${MOTION_OPT_LIB}
   src/linear_spline_equations.cc
   src/polynomial_cost.cc
   # endeffector motion
-  src/ee_phase_motion.cc
-  src/ee_motion.cc
-  src/endeffectors_motion.cc
+  #src/ee_phase_motion.cc
+  #src/ee_motion.cc
+  #src/endeffectors_motion.cc
   src/endeffectors_force.cc
   src/ee_force.cc
   src/contact_schedule.cc
   # system dynamics
   src/dynamic_model.cc
-  src/lip_model.cc
+#  src/lip_model.cc
   src/centroidal_model.cc
   src/dynamic_constraint.cc
   # kinematic
   src/range_of_motion_constraint.cc
 #  src/polygon_center_constraint.cc
-  src/foothold_constraint.cc
+  #src/foothold_constraint.cc
   # robot specific info
   src/motion_parameters.cc
   src/quadruped_motion_parameters.cc  
@@ -116,13 +116,13 @@ if(BUILD_TESTS)
   if(GTEST_FOUND)
     set(MY_GTEST_UNITS  test/google/gtest_main.cc 
                         test/google/helpers.cc
-                        test/google/lip_model_test.cc
+#                        test/google/lip_model_test.cc
 #                        test/google/polynomial_test.cc
                         test/google/motion_optimizer_facade_test.cc
-                        test/google/ee_phase_motion_test.cc
-                        test/google/ee_motion_test.cc
+#                        test/google/ee_phase_motion_test.cc
+#                        test/google/ee_motion_test.cc
                         test/dynamic_constraint_test.cc
-                        test/endeffectors_test.cc
+#                        test/endeffectors_test.cc
                         test/contact_schedule_test.cc
                         test/centroidal_dynamics_test.cc
                         )

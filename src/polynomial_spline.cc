@@ -5,11 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/polynomial_spline.h>
+#include <xpp/opt/variables/polynomial_spline.h>
 
-#include <stddef.h>
-#include <string>
-#include <Eigen/Sparse>
+#include <cassert>
+#include <Eigen/Dense>
 
 namespace xpp {
 namespace opt {
@@ -21,27 +20,6 @@ PolynomialSpline::PolynomialSpline (const std::string& component_name)
 
 PolynomialSpline::~PolynomialSpline ()
 {
-}
-
-void
-PolynomialSpline::Init (double t_global, double dt, const VectorXd& initial_pos)
-{
-  // initialize at com position with zero velocity & acceleration
-  n_dim_ = initial_pos.rows();
-  State initial_state(n_dim_);
-  initial_state.p_ = initial_pos;
-
-  double t_left = t_global;
-  while (t_left > 0.0) {
-    double duration = t_left>dt?  dt : t_left;
-    auto p = std::make_shared<QuarticPolynomial>();
-    p->SetBoundary(duration, initial_state, initial_state);
-    polynomials_.push_back(p);
-    t_left -= dt;
-  }
-
-  SetSegmentsPtr(polynomials_);
-  SetRows(GetTotalFreeCoeff());
 }
 
 int
@@ -122,13 +100,48 @@ PolynomialSpline::GetFreeCoeffPerPoly () const
   return polynomials_.front()->GetCoeffIds().size();
 }
 
-int
-PolynomialSpline::GetTotalFreeCoeff () const
-{
-  int n_polys = polynomials_.size();
 
-  return n_polys*GetFreeCoeffPerPoly()*n_dim_;
+EndeffectorSpline::EndeffectorSpline(const std::string& id, bool first_phase_in_contact)
+   : PolynomialSpline(id)
+{
+  first_phase_in_contact_ = first_phase_in_contact;
 }
+
+EndeffectorSpline::~EndeffectorSpline ()
+{
+}
+
+VecBound
+EndeffectorSpline::GetBounds () const
+{
+  VecBound bounds(GetRows());
+  std::fill(bounds.begin(), bounds.end(), kNoBound_);
+
+  bool is_contact = first_phase_in_contact_;
+
+  int i = 0;
+  for (const auto& p : GetPolynomials()) {
+    for (int dim=0; dim<GetNDim(); ++dim)
+      for (auto coeff : p->GetCoeffIds()) {
+
+        if(is_contact && (coeff != Polynomial::A)) {
+          bounds.at(Index(i,dim,coeff)) = kEqualityBound_; // allow slight movement for numerics
+        }
+
+        if(is_contact && dim==Z) {
+          bounds.at(Index(i,dim,coeff)) = kEqualityBound_; // allow slight movement for numerics
+        }
+      }
+
+    is_contact = !is_contact;
+    i++;
+  }
+
+
+  return bounds;
+}
+
 
 } /* namespace opt */
 } /* namespace xpp */
+

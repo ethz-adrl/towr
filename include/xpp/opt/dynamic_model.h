@@ -12,11 +12,9 @@
 
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
-
-#include "polynomial_spline.h"
 #include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/variables/endeffectors_force.h>
-#include <xpp/opt/variables/endeffectors_motion.h>
+#include <xpp/opt/variables/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {
@@ -53,10 +51,8 @@ public:
   virtual Jacobian GetJacobianofAccWrtForce(const EndeffectorsForce&,
                                             double t_global,
                                             EndeffectorID) const = 0;
-  virtual Jacobian GetJacobianofAccWrtEEPos(const EndeffectorsMotion&,
-                                             double t_global,
-                                             EndeffectorID) const = 0;
-
+  virtual Jacobian GetJacobianofAccWrtEEPos(const Jacobian&,
+                                            EndeffectorID) const = 0;
 
   std::vector<EndeffectorID> GetEEIDs() const;
 

@@ -8,9 +8,14 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_ANGULAR_STATE_CONVERTER_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_ANGULAR_STATE_CONVERTER_H_
 
+#include <array>
 #include <memory>
 
-#include "polynomial_spline.h"
+#include <xpp/cartesian_declarations.h>
+#include <xpp/state.h>
+
+#include <xpp/opt/constraints/composite.h>
+#include <xpp/opt/variables/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {
