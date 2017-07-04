@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
-  xpp_states   
+  xpp_states
 )
 
 find_package(Eigen3 REQUIRED)

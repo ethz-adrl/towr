@@ -167,12 +167,16 @@ EndeffectorSpline::GetBounds () const
   int i = 0;
   for (const auto& p : GetPolynomials()) {
     for (int dim=0; dim<GetNDim(); ++dim)
-      for (auto coeff : p->GetCoeffIds())
-        if(is_contact && (coeff != Polynomial::A || dim==Z)) {
+      for (auto coeff : p->GetCoeffIds()) {
+
+        if(is_contact && (coeff != Polynomial::A)) {
           bounds.at(Index(i,dim,coeff)) = kEqualityBound_; // allow slight movement for numerics
-          // zmp_ remove
-//          std::cout << "setting bounds zero for p: " << i << ",dim: " << dim << ", coeff: " << coeff << std::endl;
         }
+
+        if(is_contact && dim==Z) {
+          bounds.at(Index(i,dim,coeff)) = kEqualityBound_; // allow slight movement for numerics
+        }
+      }
 
     is_contact = !is_contact;
     i++;

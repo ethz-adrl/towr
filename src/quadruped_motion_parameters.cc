@@ -171,31 +171,31 @@ Trot::Trot()
 
   contact_timings_ =
   {   0.3,
-//      t_phase, t_phase, t_phase, t_phase, // trot
-      0.2, // flight_phase
+      t_phase, t_phase, t_phase, t_phase, // trot
+      0.3, // flight_phase
 ////      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
 //      t_phase, t_phase, t_phase, t_phase, // trot
-//      0.3
+      0.3
   };
 
   contact_sequence_ =
   {
       II_,
-//      bP_, Pb_, bP_, Pb_, // trot
+      bP_, Pb_, bP_, Pb_, // trot
       BB_, // flight-phase
 ////      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
 //      bP_, Pb_, bP_, Pb_, // trot
-//      II_
+      II_
   };
 
 
   constraints_ = {
-//                   InitCom,
-//                   FinalCom,
-//                   JunctionCom,
+                   InitCom,
+                   FinalCom,
+                   JunctionCom,
                    Dynamic,
 //                   Stance,
-//                   RomBox, // usually enforced as soft-constraint/cost
+                   RomBox, // usually enforced as soft-constraint/cost
   };
 //
 //  cost_weights_[RangOfMotionCostID] = 10.0;
@@ -253,61 +253,61 @@ Pace::Pace()
 
 Bound::Bound()
 {
-  max_dev_xy_ << 0.25, 0.21, 0.1;
+  max_dev_xy_ << 0.25, 0.21, 0.2;
   id_ = opt::BoundID;
 
 
-  // sequence for normal bound
-  contact_sequence_ =
-  {
-      II_,
-      BI_,
-      IB_,
-      BB_, // jump
-      BI_,
-      IB_,
-      BB_, // jump
-      BI_,
-      IB_,
-      II_
-  };
-
-  contact_timings_ =
-  {
-      0.8,
-      0.4,
-      0.3,
-      0.2, // jump
-      0.4,
-      0.3,
-      0.2, // jump
-      0.4,
-      0.3,
-      0.3
-  };
-
-//  // sequence for 4 feet jumps
+//  // sequence for normal bound
 //  contact_sequence_ =
 //  {
 //      II_,
-//      BB_,
-//      II_,
-//      BB_,
-//      II_,
-//      BB_,
+//      BI_,
+//      IB_,
+//      BB_, // jump
+//      BI_,
+//      IB_,
+//      BB_, // jump
+//      BI_,
+//      IB_,
 //      II_
 //  };
 //
 //  contact_timings_ =
 //  {
+//      0.8,
+//      0.4,
 //      0.3,
+//      0.2, // jump
+//      0.4,
 //      0.3,
-//      0.3,
-//      0.3,
-//      0.3,
+//      0.2, // jump
+//      0.4,
 //      0.3,
 //      0.3
 //  };
+
+  // sequence for 4 feet jumps
+  contact_sequence_ =
+  {
+      II_,
+      BB_,
+      II_,
+      BB_,
+      II_,
+      BB_,
+      II_
+  };
+
+  contact_timings_ =
+  {
+      0.3,
+      0.3,
+      0.3,
+      0.6,
+      0.3,
+      0.3,
+      0.3
+  };
 
 
 

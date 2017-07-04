@@ -104,14 +104,6 @@ Jacobian
 CentroidalModel::GetJacobianofAccWrtEEPos (const Jacobian& jac_ee_pos,
                                            EndeffectorID ee) const
 {
-  // zmp_ remove this stuff
-//  int n = ee_motion.GetRows();
-//  Jacobian jac_ang(kDim3d, n);
-
-//  Jacobian jac_ee(kDim3d, n);
-//  for (auto dim : {d2::X,d2::Y}) // zmp_ this is wrong, include z height
-//    jac_ee.row(dim) = ee_motion.GetJacobianPos(t_global, ee, dim);
-
   Vector3d f = ee_force_.At(ee);
   Jacobian jac_ang = BuildCrossProductMatrix(f)*(-jac_ee_pos);
 

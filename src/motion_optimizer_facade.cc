@@ -8,8 +8,11 @@
 #include <xpp/opt/motion_optimizer_facade.h>
 
 #include <algorithm>
+#include <cassert>
+#include <deque>
 #include <Eigen/Dense>
-#include <kindr/Core>
+#include <string>
+#include <utility>
 
 #include <xpp/endeffectors.h>
 
@@ -18,7 +21,6 @@
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/endeffectors_force.h>
-#include <xpp/opt/variables/endeffectors_motion.h>
 #include <xpp/opt/variables/polynomial_spline.h>
 #include <xpp/opt/variables/variable_names.h>
 #include <xpp/snopt_adapter.h>
@@ -62,11 +64,6 @@ MotionOptimizerFacade::BuildVariables ()
       motion_parameters_->GetContactSchedule());
   opt_variables_->AddComponent(contact_schedule);
 
-//  // zmp_ remove these
-//  // initialize the ee_motion with the fixed parameters
-//  auto ee_motion = std::make_shared<EndeffectorsMotion>(initial_ee_W_,
-//                                                        *contact_schedule);
-//  opt_variables_->AddComponent(ee_motion);
 
   for (auto ee : motion_parameters_->robot_ee_) {
     std::string id = id::endeffectors_motion+std::to_string(ee);
@@ -82,7 +79,6 @@ MotionOptimizerFacade::BuildVariables ()
   base_linear->Init(T, motion_parameters_->duration_polynomial_,
                     inital_base_.lin.p_);
   opt_variables_->AddComponent(base_linear);
-
 
 
   // Represent roll, pitch and yaw by a spline each.
@@ -144,7 +140,6 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 
   auto base_lin         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_linear));
   auto base_ang         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_angular));
-//  auto ee_motion        = std::dynamic_pointer_cast<EndeffectorsMotion>(opt_variables_->GetComponent(id::endeffectors_motion));
   auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent(id::contact_schedule));
   auto ee_forces        = std::dynamic_pointer_cast<EndeffectorsForce> (opt_variables_->GetComponent(id::endeffector_force));
 
@@ -192,21 +187,6 @@ void
 MotionOptimizerFacade::SetMotionParameters (const MotionParametersPtr& params)
 {
   motion_parameters_ = params;
-}
-
-void
-MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& initial_state)
-{
-  initial_ee_W_       = initial_state.GetEEPos();
-
-  inital_base_ = State3dEuler(); // zero
-  inital_base_.lin = initial_state.GetBase().lin;
-
-  kindr::RotationQuaternionD quat(initial_state.GetBase().ang.q);
-  kindr::EulerAnglesZyxD euler(quat);
-  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
-  inital_base_.ang.p_ = euler.toImplementation().reverse();
-  // assume zero euler rates and euler accelerations
 }
 
 
