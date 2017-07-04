@@ -11,8 +11,7 @@
 #include <memory>
 #include <string>
 
-#include <xpp/bound.h>
-#include <xpp/matrix_vector.h>
+#include <xpp/opt/matrix_vector.h>
 
 #include "composite.h"
 

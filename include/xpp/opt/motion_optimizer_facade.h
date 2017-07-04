@@ -14,7 +14,7 @@
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/state.h>
 
-#include <xpp/nlp.h>
+#include <xpp/opt/nlp.h>
 #include <xpp/opt/constraints/composite.h>
 #include "motion_parameters.h"
 

@@ -5,7 +5,7 @@
  @brief   Defines the SnoptAdapter class
  */
 
-#include <xpp/snopt_adapter.h>
+#include <xpp/opt/snopt_adapter.h>
 
 #include <memory>
 #include <stdexcept>
@@ -15,7 +15,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <xpp/bound.h>
+#include <xpp/opt/bound.h>
 
 namespace xpp {
 namespace opt {

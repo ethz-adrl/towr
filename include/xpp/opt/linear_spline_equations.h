@@ -14,7 +14,7 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include <xpp/matrix_vector.h>
+#include <xpp/opt/matrix_vector.h>
 #include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/variables/polynomial_spline.h>
 

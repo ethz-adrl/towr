@@ -16,14 +16,15 @@
 
 #include <xpp/endeffectors.h>
 
-#include <xpp/ipopt_adapter.h>
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/polynomial_spline.h>
 #include <xpp/opt/variables/variable_names.h>
-#include <xpp/snopt_adapter.h>
+
+#include <xpp/opt/ipopt_adapter.h>
+#include <xpp/opt/snopt_adapter.h>
 
 namespace xpp {
 namespace opt {

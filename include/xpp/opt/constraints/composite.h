@@ -16,7 +16,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <xpp/bound.h>
+#include <xpp/opt/bound.h>
 
 namespace xpp {
 namespace opt {

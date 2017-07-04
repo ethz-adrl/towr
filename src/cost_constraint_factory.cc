@@ -16,7 +16,6 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 
-#include <xpp/matrix_vector.h>
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>

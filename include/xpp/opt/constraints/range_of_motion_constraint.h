@@ -16,7 +16,6 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 
-#include <xpp/bound.h>
 #include <xpp/opt/angular_state_converter.h>
 
 #include "composite.h"

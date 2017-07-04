@@ -14,7 +14,6 @@
 
 #include <xpp/endeffectors.h>
 
-#include <xpp/bound.h>
 #include <xpp/opt/constraints/composite.h>
 
 #include "contact_schedule.h"

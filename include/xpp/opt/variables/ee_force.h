@@ -13,7 +13,6 @@
 
 #include <xpp/cartesian_declarations.h>
 
-#include <xpp/bound.h>
 #include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/polynomial.h>
 #include <xpp/opt/spline.h>

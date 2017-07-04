@@ -7,9 +7,6 @@
 
 #include <xpp/opt/costs/soft_constraint.h>
 
-#include <Eigen/Sparse>
-
-#include <xpp/bound.h>
 #include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
