@@ -179,7 +179,7 @@ Trot::Trot()
       t_phase, t_phase, t_phase, t_phase, // trot
       0.3, // flight_phase
 ////      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
-//      t_phase, t_phase, t_phase, t_phase, // trot
+      t_phase, t_phase, t_phase, t_phase, // trot
       0.3
   };
 
@@ -189,7 +189,7 @@ Trot::Trot()
       bP_, Pb_, bP_, Pb_, // trot
       BB_, // flight-phase
 ////      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
-//      bP_, Pb_, bP_, Pb_, // trot
+      bP_, Pb_, bP_, Pb_, // trot
       II_
   };
 

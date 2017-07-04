@@ -15,7 +15,6 @@
 namespace xpp {
 namespace opt {
 
-// zmp_ this class seems unneccessary
 EndeffectorsMotion::EndeffectorsMotion (const EndeffectorsPos& initial_pos,
                                         const ContactSchedule& contact_schedule)
     :Composite(id::endeffectors_motion, true)
@@ -45,7 +44,7 @@ EndeffectorsMotion::BuildEndeffectors (const EndeffectorsPos& initial_pos,
 
       double lift_height = is_contact? 0.0 : 0.04; // 0.03
 
-//      // zmp_ hack to nicely show limping
+//      // hack to nicely show limping
 //      if (!is_contact && (ee == E2  /*|| ee == E3*/  )) // LH=E0, RF=E3
 //        lift_height += 0.1;
 
@@ -93,7 +92,7 @@ EndeffectorsMotion::GetJacobianPos (double t_global,
   JacobianRow jac_ee = endeffectors_.at(ee)->GetJacobianPos(t_global, dim);
 
   // insert single ee-Jacobian into Jacobian representing all endeffectors
-  // zmp_ this could be avoided, by adding each endeffector separately
+  // this was avoided, by adding each endeffector separately
   for (JacobianRow::InnerIterator it(jac_ee); it; ++it)
     jac_row.coeffRef(IndexStart(ee)+it.col()) = it.value();
 

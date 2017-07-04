@@ -87,39 +87,31 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 {
   UpdateModel(t);
 
-  int row = GetRow(k,AX);
+  int n = jac.cols();
+  Jacobian jac_model(kDim6d,n);
+  Jacobian jac_parametrization(kDim6d,n);
 
   for (auto ee : model_->GetEEIDs()) {
     if (var_set == ee_load_->GetName())
-      jac.middleRows(row, kDim6d) += model_->GetJacobianofAccWrtForce(*ee_load_, t, ee);
+      jac_model += model_->GetJacobianofAccWrtForce(*ee_load_, t, ee);
 
     if (var_set == ee_splines_.at(ee)->GetName()) {
       Jacobian jac_ee_pos = ee_splines_.at(ee)->GetJacobian(t,kPos);
-      jac.middleRows(row, kDim6d) = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
+      jac_model = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
     }
   }
 
-
   if (var_set == base_linear_->GetName()) {
-    Jacobian jac_model = model_->GetJacobianOfAccWrtBaseLin(*base_linear_, t);
-
-    Jacobian jac_parametrization(kDim6d, base_linear_->GetRows());
+    jac_model = model_->GetJacobianOfAccWrtBaseLin(*base_linear_, t);
     jac_parametrization.middleRows(LX, kDim3d) = base_linear_->GetJacobian(t,kAcc);
-
-    jac.middleRows(row, kDim6d) = jac_model - jac_parametrization;
   }
 
-
-  // zmp_ DRY with above
   if (var_set == base_angular_->GetName()) {
-
-    Jacobian jac_model = model_->GetJacobianOfAccWrtBaseAng(*base_angular_, t);
-
-    Jacobian jac_parametrization(kDim6d, base_angular_->GetRows());
+    jac_model = model_->GetJacobianOfAccWrtBaseAng(*base_angular_, t);
     jac_parametrization.middleRows(AX, kDim3d) = converter_.GetDerivOfAngAccWrtCoeff(t);
-
-    jac.middleRows(row, kDim6d) = jac_model - jac_parametrization;
   }
+
+  jac.middleRows(GetRow(k,AX), kDim6d) = jac_model - jac_parametrization;
 }
 
 void
@@ -133,7 +125,6 @@ DynamicConstraint::UpdateModel (double t) const
     ee_pos.At(ee) = ee_splines_.at(ee)->GetPoint(t).p_;
   }
 
-//  auto ee_pos  = ee_motion_->GetEndeffectors(t).GetPos();
   model_->SetCurrent(com_pos, ee_load, ee_pos);
 }
 
