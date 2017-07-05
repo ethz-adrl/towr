@@ -125,15 +125,17 @@ EndeffectorSpline::GetBounds () const
       for (auto coeff : p->GetCoeffIds()) {
 
         if(is_contact && (coeff != Polynomial::A)) {
-          bounds.at(Index(i,dim,coeff)) = kEqualityBound_; // allow slight movement for numerics
+          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
         }
 
+        // zmp_ this one should depend on x,y -> formulate as constraint
+        // that will allow rough terrain.
         if(is_contact && dim==Z) {
-          bounds.at(Index(i,dim,coeff)) = kEqualityBound_; // allow slight movement for numerics
+          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
         }
       }
 
-    is_contact = !is_contact;
+    is_contact = !is_contact; // after contact phase MUST come a swingphase (by definition).
     i++;
   }
 
