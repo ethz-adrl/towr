@@ -93,6 +93,8 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
 
     if (var_set == ee_splines_.at(ee)->GetName()) {
       jac.middleRows(row_start, kDim3d) = b_R_w*ee_splines_.at(ee)->GetJacobian(t,kPos);
+      // zmp_ add separate jacobian w.r.t. timings of each polynomial.
+      // keep top line untouched for backwards compatiblity.
     }
 
     if (var_set == base_linear_->GetName()) {

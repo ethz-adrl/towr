@@ -78,10 +78,10 @@ MotionOptimizerFacade::BuildVariables ()
     auto ee_force = std::make_shared<ForceSpline>(id_force,
                                                   ee_initially_in_contact,
                                                   motion_parameters_->GetForceLimit());
-    Vector3d initial_force(0.0, 0.0, motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount());
+    double fz_stand = motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount();
     ee_force->Init<CubicPolynomial>(contact_schedule->GetTimePerPhase(ee),
                                       motion_parameters_->polys_per_ee_phase_,
-                                      initial_force);
+                                      Vector3d(0.0, 0.0, fz_stand));
     opt_variables_->AddComponent(ee_force);
   }
 
@@ -151,7 +151,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 
   std::vector<std::shared_ptr<PolynomialSpline>> ee_splines;
   std::vector<std::shared_ptr<PolynomialSpline>> ee_forces_spline;
-  int n_ee = initial_ee_W_.GetCount();
+  int n_ee = motion_parameters_->GetEECount();
   for (int i=0; i<n_ee; ++i) {
     std::string id_motion = id::endeffectors_motion+std::to_string(i);
     ee_splines.push_back(std::dynamic_pointer_cast<PolynomialSpline>(opt_variables_->GetComponent(id_motion)));

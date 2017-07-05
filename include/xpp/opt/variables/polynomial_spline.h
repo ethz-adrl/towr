@@ -112,6 +112,7 @@ public:
 
   JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, int dim) const;
   Jacobian    GetJacobian(double t_global, MotionDerivative dxdt) const;
+  Jacobian    GetJacobian(int id, double t_local, MotionDerivative dxdt) const;
 
   VecPolynomials GetPolynomials() const { return polynomials_; }
   int GetNDim() const {return n_dim_; };

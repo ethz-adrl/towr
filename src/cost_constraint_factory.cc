@@ -16,13 +16,15 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 
-#include <xpp/opt/angular_state_converter.h>
+#include <xpp/opt/constraints/spline_junction_constraint.h>
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
 #include <xpp/opt/costs/polynomial_cost.h>
 #include <xpp/opt/costs/soft_constraint.h>
+
 #include <xpp/opt/variables/polynomial_spline.h>
+#include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/variables/variable_names.h>
 
 #include <xpp/opt/centroidal_model.h>
@@ -150,9 +152,11 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakePolynomialJunctionConstraint (const std::string& poly_id,
                                                          const Derivatives& derivatives) const
 {
-  auto poly = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars_->GetComponent(poly_id));
-  LinearSplineEquations equation_builder(*poly);
-  return std::make_shared<LinearEqualityConstraint>(opt_vars_, equation_builder.MakeJunction(derivatives), poly_id);
+//  auto poly = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars_->GetComponent(poly_id));
+//  LinearSplineEquations equation_builder(*poly);
+//  return std::make_shared<LinearEqualityConstraint>(opt_vars_, equation_builder.MakeJunction(derivatives), poly_id);
+//
+  return std::make_shared<SplineJunctionConstraint>(opt_vars_, poly_id, derivatives);
 }
 
 CostConstraintFactory::ConstraintPtr

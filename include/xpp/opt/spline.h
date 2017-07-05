@@ -48,6 +48,7 @@ public:
   };
 
   const StateLinXd GetPoint(double t_globals) const;
+  const StateLinXd GetPoint(int id, double t_local) const;
   int GetSegmentID(double t_global) const;
   double GetLocalTime(double t_global) const;
   double GetTotalTime() const;

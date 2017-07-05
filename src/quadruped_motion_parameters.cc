@@ -39,7 +39,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   // dynamic model for HyQ
   mass_    = 80;
   interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
-  force_limit_ = 20000.0; // [N]
+  force_limit_ = 10000.0; // [N]
 
 
   // range of motion specifictions for HyQ

@@ -42,7 +42,13 @@ Spline::GetPoint(double t_global) const
   int idx        = GetSegmentID(t_global);
   double t_local = GetLocalTime(t_global);
 
-  return segments_.at(idx)->GetPoint(t_local);
+  return GetPoint(idx, t_local);
+}
+
+const StateLinXd
+Spline::GetPoint (int id, double t_local) const
+{
+  return segments_.at(id)->GetPoint(t_local);
 }
 
 int

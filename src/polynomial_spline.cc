@@ -46,25 +46,29 @@ PolynomialSpline::GetValues () const
   return x_abcd;
 }
 
-JacobianRow
-PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, int dim) const
-{
-  assert(dim < n_dim_);
-
-  int id         = GetSegmentID(t_global);
-  double t_local = GetLocalTime(t_global);
-
-  return GetJacobianWrtCoeffAtPolynomial(deriv, t_local, id, dim);
-}
-
 Jacobian
 PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 {
+  int id         = GetSegmentID(t_global);
+  double t_local = GetLocalTime(t_global);
+
+  return GetJacobian(id, t_local, deriv);
+}
+
+Jacobian
+PolynomialSpline::GetJacobian (int id, double t_local, MotionDerivative dxdt) const
+{
   Jacobian jac(n_dim_, GetRows());
   for (int dim=0; dim<n_dim_; ++dim)
-    jac.row(dim) = GetJacobian(t_global, deriv, dim);
+    jac.row(dim) = GetJacobianWrtCoeffAtPolynomial(dxdt, t_local, id, dim);
 
   return jac;
+}
+
+JacobianRow
+PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, int dim) const
+{
+  return GetJacobian(t_global, deriv).row(dim);
 }
 
 JacobianRow
@@ -195,4 +199,3 @@ ForceSpline::GetBounds () const
 
 } /* namespace opt */
 } /* namespace xpp */
-
