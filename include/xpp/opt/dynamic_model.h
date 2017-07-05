@@ -27,7 +27,7 @@ namespace opt {
  */
 class DynamicModel {
 public:
-  DynamicModel ();
+  DynamicModel (int ee_count);
   virtual ~DynamicModel ();
 
   using ComPos    = Vector3d;
@@ -48,8 +48,7 @@ public:
                                               double t_global) const = 0;
   virtual Jacobian GetJacobianOfAccWrtBaseAng(const BaseAng&,
                                               double t_global) const = 0;
-  virtual Jacobian GetJacobianofAccWrtForce(const EndeffectorsForce&,
-                                            double t_global,
+  virtual Jacobian GetJacobianofAccWrtForce(const Jacobian& ee_force,
                                             EndeffectorID) const = 0;
   virtual Jacobian GetJacobianofAccWrtEEPos(const Jacobian&,
                                             EndeffectorID) const = 0;
@@ -60,6 +59,8 @@ protected:
   ComPos com_pos_;
   EELoad ee_force_;
   EEPos ee_pos_;
+
+  std::vector<EndeffectorID> ee_ids_;
 
 
 };

@@ -10,7 +10,9 @@
 namespace xpp {
 namespace opt {
 
-CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia)
+CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia,
+                                  int ee_count)
+    :DynamicModel(ee_count)
 {
   m_     = mass;
   I_inv_ = inertia.inverse().sparseView(1.0, -1.0); // don't treat zeros as sparse
@@ -43,6 +45,7 @@ CentroidalModel::GetBaseAcceleration () const
   return acc;
 }
 
+// zmp_ pass in only jacobian -> reduce coupling
 Jacobian
 CentroidalModel::GetJacobianOfAccWrtBaseLin (const BaseLin& base_lin,
                                              double t) const
@@ -70,14 +73,13 @@ CentroidalModel::GetJacobianOfAccWrtBaseAng (const BaseAng& base_ang,
 }
 
 Jacobian
-CentroidalModel::GetJacobianofAccWrtForce (const EndeffectorsForce& ee_force,
-                                          double t,
-                                          EndeffectorID ee) const
+CentroidalModel::GetJacobianofAccWrtForce (const Jacobian& ee_force_jac,
+                                           EndeffectorID ee) const
 {
-  int n = ee_force.GetRows();
-  Jacobian ee_force_jac(kDim3d, n);
-  for (auto dim : {X,Y,Z})
-    ee_force_jac.row(dim) = ee_force.GetJacobian(t, ee, dim);
+
+//  Jacobian ee_force_jac(kDim3d, n);
+//  for (auto dim : {X,Y,Z})
+//    ee_force_jac.row(dim) = ee_force.GetJacobian(t, ee, dim);
 
   Jacobian jac_lin = ee_force_jac;
 
@@ -85,6 +87,7 @@ CentroidalModel::GetJacobianofAccWrtForce (const EndeffectorsForce& ee_force,
   Jacobian jac_ang = -BuildCrossProductMatrix(r)*ee_force_jac;
 
 
+  int n = ee_force_jac.cols();
   Jacobian jac(kDim6d, n);
   jac.middleRows(AX, kDim3d) = I_inv_*jac_ang;
   jac.middleRows(LX, kDim3d) = 1./m_*jac_lin;

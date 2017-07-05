@@ -30,8 +30,10 @@ class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using BaseLinear  = std::shared_ptr<PolynomialSpline>;
   using BaseAngular = std::shared_ptr<PolynomialSpline>;
-  using EELoadPtr   = std::shared_ptr<EndeffectorsForce>;
-  using EESplinePtr = std::shared_ptr<EndeffectorSpline>;
+//  using EELoadPtr   = std::shared_ptr<EndeffectorsForce>;
+  using EESplinePtr = std::shared_ptr<EndeffectorSpline>; // zmp_ make base class pointer
+  using EEForcePtr  = std::shared_ptr<PolynomialSpline>;
+
 
   using DynamicModelPtr  = std::shared_ptr<DynamicModel>;
 
@@ -41,7 +43,9 @@ public:
 private:
   BaseLinear base_linear_;
   BaseAngular base_angular_;
-  EELoadPtr ee_load_;
+//  EELoadPtr ee_load_;
+  std::vector<EEForcePtr> ee_forces_;
+
 
   std::vector<EESplinePtr> ee_splines_;
   mutable DynamicModelPtr model_;

@@ -61,6 +61,7 @@ public:
   }
 
 
+  // zmp_ DRY with other init function
   template<typename PolyT>
   void Init (std::vector<double> T_polys, const VectorXd& initial_value)
   {
@@ -129,10 +130,45 @@ public:
   EndeffectorSpline(const std::string& id, bool first_phase_in_contact);
   virtual ~EndeffectorSpline ();
 
-  VecBound GetBounds () const override;
+  virtual VecBound GetBounds () const override;
 
 private:
   bool first_phase_in_contact_;
+};
+
+// zmp_ DRY almost the same as above, combine
+class ForceSpline : public PolynomialSpline {
+public:
+  ForceSpline(const std::string& id, bool first_phase_in_contact);
+  virtual ~ForceSpline ();
+
+  virtual VecBound GetBounds () const override;
+
+//  // zmp_ DRY with other init function
+//  template<typename PolyT>
+//  void Init (std::vector<double> T_polys, const VectorXd& initial_value)
+//  {
+//    // initialize at com position with zero velocity & acceleration
+//    n_dim_ = initial_value.rows();
+//    State initial_state(n_dim_);
+//    initial_state.p_ = initial_value;
+//
+//    for (double duration : T_polys) {
+//      auto p = std::make_shared<PolyT>();
+//      p->SetBoundary(duration, initial_state, initial_state);
+//      polynomials_.push_back(p);
+//    }
+//
+//    // DRY with above init
+//    SetSegmentsPtr(polynomials_);
+//    int n_polys = polynomials_.size();
+//    SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
+//  }
+
+private:
+  bool first_phase_in_contact_;
+
+  int n_polys_per_stance; // polynomials used to represent each stance phase
 };
 
 

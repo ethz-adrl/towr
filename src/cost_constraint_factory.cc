@@ -158,7 +158,8 @@ CostConstraintFactory::MakeDynamicConstraint() const
 {
 //  model_ = std::make_shared<LIPModel>();
   auto dynamic_model = std::make_shared<CentroidalModel>(params->GetMass(),
-                                                         params->GetInertiaParameters());
+                                                         params->GetInertiaParameters(),
+                                                         params->GetEECount());
 
   double dt = params->duration_polynomial_/params->n_constraints_per_poly_;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,

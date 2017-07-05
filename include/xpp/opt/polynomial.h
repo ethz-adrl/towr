@@ -65,6 +65,8 @@ public:
   CoeffVec GetCoeffIds() const;
   double GetDuration() const;
 
+  // zmp_ might not need this function anymore, if always optimizing
+  // over polynomial coefficients directly
   void UpdateCoefficients();
 
   StateLinXd start_, end_;

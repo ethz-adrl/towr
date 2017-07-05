@@ -67,11 +67,19 @@ MotionOptimizerFacade::BuildVariables ()
 
 
   for (auto ee : motion_parameters_->robot_ee_) {
-    std::string id = id::endeffectors_motion+std::to_string(ee);
-    bool first_contact = contact_schedule->GetPhases(ee).front().first;
-    auto ee_poly = std::make_shared<EndeffectorSpline>(id, first_contact);
+
+    bool ee_initially_in_contact = contact_schedule->GetPhases(ee).front().first;
+
+    std::string id_motion = id::endeffectors_motion+std::to_string(ee);
+    auto ee_poly = std::make_shared<EndeffectorSpline>(id_motion, ee_initially_in_contact);
     ee_poly->Init<QuarticPolynomial>(contact_schedule->GetTimePerPhase(ee), initial_ee_W_.At(ee));
     opt_variables_->AddComponent(ee_poly);
+
+    std::string id_force  = id::endeffector_force+std::to_string(ee);
+    auto ee_force = std::make_shared<ForceSpline>(id_force, ee_initially_in_contact);
+    Vector3d initial_force(0.0, 0.0, motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount());
+    ee_force->Init<QuinticPolynomial>(contact_schedule->GetTimePerPhase(ee), initial_force);
+    opt_variables_->AddComponent(ee_force);
   }
 
 

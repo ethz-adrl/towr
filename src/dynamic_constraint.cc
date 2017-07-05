@@ -30,12 +30,15 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   SetName("DynamicConstraint");
   base_linear_  = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_linear));
   base_angular_ = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_angular));
-  ee_load_      = std::dynamic_pointer_cast<EndeffectorsForce> (opt_vars->GetComponent(id::endeffector_force));
+//  ee_load_      = std::dynamic_pointer_cast<EndeffectorsForce> (opt_vars->GetComponent(id::endeffector_force));
 
-  auto ee_ordered = ee_load_->GetForce(0.0).GetEEsOrdered();
-  for (auto ee :  ee_ordered) {
-    std::string id = id::endeffectors_motion+std::to_string(ee);
-    ee_splines_.push_back(std::dynamic_pointer_cast<EndeffectorSpline>(opt_vars->GetComponent(id)));
+//  auto ee_ordered = ee_load_->GetForce(0.0).GetEEsOrdered();
+  for (auto ee : model_->GetEEIDs()) {
+    std::string id_motion = id::endeffectors_motion+std::to_string(ee);
+    ee_splines_.push_back(std::dynamic_pointer_cast<EndeffectorSpline>(opt_vars->GetComponent(id_motion)));
+
+    std::string id_force = id::endeffector_force+std::to_string(ee);
+    ee_forces_.push_back(std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id_force)));
   }
 
   SetRows(GetNumberOfNodes()*kDim6d);
@@ -92,8 +95,11 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
   Jacobian jac_parametrization(kDim6d,n);
 
   for (auto ee : model_->GetEEIDs()) {
-    if (var_set == ee_load_->GetName())
-      jac_model += model_->GetJacobianofAccWrtForce(*ee_load_, t, ee);
+
+    if (var_set == ee_forces_.at(ee)->GetName()) {
+      Jacobian jac_ee_force = ee_forces_.at(ee)->GetJacobian(t,kPos);
+      jac_model = model_->GetJacobianofAccWrtForce(jac_ee_force, ee);
+    }
 
     if (var_set == ee_splines_.at(ee)->GetName()) {
       Jacobian jac_ee_pos = ee_splines_.at(ee)->GetJacobian(t,kPos);
@@ -118,14 +124,18 @@ void
 DynamicConstraint::UpdateModel (double t) const
 {
   auto com_pos = base_linear_->GetPoint(t).p_;
-  auto ee_load = ee_load_->GetForce(t);
+//  auto ee_load = ee_load_->GetForce(t);
 
-  EndeffectorsPos ee_pos(ee_load.GetCount());
+  int n_ee = model_->GetEEIDs().size();
+
+  EndeffectorsPos ee_pos(n_ee);
+  Endeffectors<Vector3d> ee_force(n_ee);
   for (auto ee :  ee_pos.GetEEsOrdered()) {
-    ee_pos.At(ee) = ee_splines_.at(ee)->GetPoint(t).p_;
+    ee_force.At(ee) = ee_forces_.at(ee)->GetPoint(t).p_;
+    ee_pos.At(ee)   = ee_splines_.at(ee)->GetPoint(t).p_;
   }
 
-  model_->SetCurrent(com_pos, ee_load, ee_pos);
+  model_->SetCurrent(com_pos, ee_force, ee_pos);
 }
 
 } /* namespace opt */

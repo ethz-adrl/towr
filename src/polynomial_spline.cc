@@ -144,6 +144,53 @@ EndeffectorSpline::GetBounds () const
 }
 
 
+
+ForceSpline::ForceSpline(const std::string& id, bool first_phase_in_contact)
+   : PolynomialSpline(id)
+{
+  first_phase_in_contact_ = first_phase_in_contact;
+}
+
+ForceSpline::~ForceSpline ()
+{
+}
+
+VecBound
+ForceSpline::GetBounds () const
+{
+  const double max_force_ = 20000.0; // [N]
+
+  VecBound bounds(GetRows());
+  std::fill(bounds.begin(), bounds.end(), Bound(-max_force_, max_force_));
+
+  // zmp_ use motion param for this
+
+  bool is_contact = first_phase_in_contact_;
+
+  int i = 0;
+  for (const auto& p : GetPolynomials()) {
+    for (int dim=0; dim<GetNDim(); ++dim)
+      for (auto coeff : p->GetCoeffIds()) {
+
+        if(!is_contact) { // can't produce forces during swingphase
+          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
+        }
+
+        // unilateral contact forces
+        if(is_contact && dim==Z) {
+          bounds.at(Index(i,dim,coeff)) = Bound(0.0, max_force_);
+        }
+      }
+
+    is_contact = !is_contact; // after contact phase MUST come a swingphase (by definition).
+    i++;
+  }
+
+
+  return bounds;
+}
+
+
 } /* namespace opt */
 } /* namespace xpp */
 
