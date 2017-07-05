@@ -19,7 +19,6 @@
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/endeffectors_force.h>
 #include <xpp/opt/variables/polynomial_spline.h>
 #include <xpp/opt/variables/variable_names.h>
 
@@ -76,9 +75,13 @@ MotionOptimizerFacade::BuildVariables ()
     opt_variables_->AddComponent(ee_poly);
 
     std::string id_force  = id::endeffector_force+std::to_string(ee);
-    auto ee_force = std::make_shared<ForceSpline>(id_force, ee_initially_in_contact);
+    auto ee_force = std::make_shared<ForceSpline>(id_force,
+                                                  ee_initially_in_contact,
+                                                  motion_parameters_->GetForceLimit());
     Vector3d initial_force(0.0, 0.0, motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount());
-    ee_force->Init<LinearPolynomial>(contact_schedule->GetTimePerPhase(ee), 4, initial_force);
+    ee_force->Init<CubicPolynomial>(contact_schedule->GetTimePerPhase(ee),
+                                      motion_parameters_->polys_per_ee_phase_,
+                                      initial_force);
     opt_variables_->AddComponent(ee_force);
   }
 
@@ -97,13 +100,6 @@ MotionOptimizerFacade::BuildVariables ()
   base_angular->Init<QuarticPolynomial>(T, motion_parameters_->duration_polynomial_,
                      inital_base_.ang.p_);
   opt_variables_->AddComponent(base_angular);
-
-
-
-//  auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
-//                                                   *contact_schedule,
-//                                                   motion_parameters_->GetForceLimit());
-//  opt_variables_->AddComponent(force);
 
   opt_variables_->Print();
 }
@@ -151,16 +147,14 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   auto base_lin         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_linear));
   auto base_ang         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_angular));
   auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent(id::contact_schedule));
-//  auto ee_forces        = std::dynamic_pointer_cast<EndeffectorsForce> (opt_variables_->GetComponent(id::endeffector_force));
 
 
-  // zmp_ also here, explose only PolynomialSpline
-  std::vector<std::shared_ptr<EndeffectorSpline>> ee_splines;
+  std::vector<std::shared_ptr<PolynomialSpline>> ee_splines;
   std::vector<std::shared_ptr<PolynomialSpline>> ee_forces_spline;
   int n_ee = initial_ee_W_.GetCount();
   for (int i=0; i<n_ee; ++i) {
     std::string id_motion = id::endeffectors_motion+std::to_string(i);
-    ee_splines.push_back(std::dynamic_pointer_cast<EndeffectorSpline>(opt_variables_->GetComponent(id_motion)));
+    ee_splines.push_back(std::dynamic_pointer_cast<PolynomialSpline>(opt_variables_->GetComponent(id_motion)));
 
     std::string id_force = id::endeffector_force+std::to_string(i);
     ee_forces_spline.push_back(std::dynamic_pointer_cast<PolynomialSpline>(opt_variables_->GetComponent(id_force)));

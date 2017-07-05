@@ -45,17 +45,15 @@ CentroidalModel::GetBaseAcceleration () const
   return acc;
 }
 
-// zmp_ pass in only jacobian -> reduce coupling
 Jacobian
-CentroidalModel::GetJacobianOfAccWrtBaseLin (const BaseLin& base_lin,
-                                             double t) const
+CentroidalModel::GetJacobianOfAccWrtBaseLin (const Jacobian& jac_pos_base_lin) const
 {
   // build the com jacobian
-  int n = base_lin.GetRows();
+  int n = jac_pos_base_lin.cols();
 
   Jacobian jac_ang(kDim3d, n);
   for (const Vector3d& f : ee_force_.ToImpl())
-    jac_ang += BuildCrossProductMatrix(f)*base_lin.GetJacobian(t, kPos);
+    jac_ang += BuildCrossProductMatrix(f)*jac_pos_base_lin;
 
   Jacobian jac(kDim6d, n);
   jac.middleRows(AX, kDim3d) = I_inv_*jac_ang;
@@ -65,32 +63,23 @@ CentroidalModel::GetJacobianOfAccWrtBaseLin (const BaseLin& base_lin,
 }
 
 Jacobian
-CentroidalModel::GetJacobianOfAccWrtBaseAng (const BaseAng& base_ang,
-                                             double t) const
+CentroidalModel::GetJacobianOfAccWrtBaseAng (const Jacobian& jac_pos_base_ang) const
 {
   // the 6D base acceleration does not depend on base orientation
-  return Jacobian(kDim6d, base_ang.GetRows());
+  return Jacobian(kDim6d, jac_pos_base_ang.cols());
 }
 
 Jacobian
 CentroidalModel::GetJacobianofAccWrtForce (const Jacobian& ee_force_jac,
                                            EndeffectorID ee) const
 {
-
-//  Jacobian ee_force_jac(kDim3d, n);
-//  for (auto dim : {X,Y,Z})
-//    ee_force_jac.row(dim) = ee_force.GetJacobian(t, ee, dim);
-
-  Jacobian jac_lin = ee_force_jac;
-
   Vector3d r = com_pos_-ee_pos_.At(ee);
   Jacobian jac_ang = -BuildCrossProductMatrix(r)*ee_force_jac;
-
 
   int n = ee_force_jac.cols();
   Jacobian jac(kDim6d, n);
   jac.middleRows(AX, kDim3d) = I_inv_*jac_ang;
-  jac.middleRows(LX, kDim3d) = 1./m_*jac_lin;
+  jac.middleRows(LX, kDim3d) = 1./m_*ee_force_jac;
 
   return jac;
 }

@@ -72,8 +72,7 @@ private:
                                                double t) const;
 
   ConstraintPtr MakePolynomialJunctionConstraint(const std::string& poly_id,
-                                                 const Derivatives&,
-                                                 int skip_every = 1000) const;
+                                                 const Derivatives&) const;
 
 
 

@@ -50,8 +50,7 @@ public:
     * the position and velocity difference in x-y is returned,
     * resulting in m = (number of splines-1) * 3 * 2
     */
-  // zmp_ this high default value is senseless, extra computation
-  MatVec MakeJunction(const MotionDerivatives& derivatives, int skip_every = 1000) const;
+  MatVec MakeJunction(const MotionDerivatives& derivatives) const;
 
   /** xT*M*x = scalar total acceleration cost with these polynomial coefficients x.
     *

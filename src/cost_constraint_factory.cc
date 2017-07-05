@@ -135,10 +135,12 @@ CostConstraintFactory::MakeJunctionConstraint () const
   junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id::base_angular, derivatives));
 
   // allow lifting/placing of endeffector with nonzero acceleration
-  auto derivatives_ee = {kPos, kVel};
   for (auto ee : params->robot_ee_) {
-    std::string id = id::endeffectors_motion+std::to_string(ee);
-    junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id, derivatives_ee));
+    std::string id_motion = id::endeffectors_motion+std::to_string(ee);
+    junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id_motion, {kPos, kVel}));
+
+    std::string id_force = id::endeffector_force+std::to_string(ee);
+//    junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id_force, {kPos}, 4));
   }
 
   return junction_constraints;

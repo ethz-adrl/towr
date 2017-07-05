@@ -13,9 +13,9 @@
 
 #include <xpp/cartesian_declarations.h>
 
+#include <xpp/opt/variables/polynomial_spline.h>
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/dynamic_model.h>
-#include <xpp/opt/variables/polynomial_spline.h>
 
 #include "composite.h"
 #include "time_discretization_constraint.h"
@@ -28,28 +28,19 @@ class EndeffectorsForce;
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
-  using BaseLinear  = std::shared_ptr<PolynomialSpline>;
-  using BaseAngular = std::shared_ptr<PolynomialSpline>;
-//  using EELoadPtr   = std::shared_ptr<EndeffectorsForce>;
-  using EESplinePtr = std::shared_ptr<EndeffectorSpline>; // zmp_ make base class pointer
-  using EEForcePtr  = std::shared_ptr<PolynomialSpline>;
-
-
-  using DynamicModelPtr  = std::shared_ptr<DynamicModel>;
+  using PolySplinePtr   = std::shared_ptr<PolynomialSpline>;
+  using DynamicModelPtr = std::shared_ptr<DynamicModel>;
 
   DynamicConstraint (const OptVarsPtr& opt_vars, const DynamicModelPtr& m, double T, double dt);
   virtual ~DynamicConstraint ();
 
 private:
-  BaseLinear base_linear_;
-  BaseAngular base_angular_;
-//  EELoadPtr ee_load_;
-  std::vector<EEForcePtr> ee_forces_;
+  PolySplinePtr base_linear_;
+  PolySplinePtr base_angular_;
+  std::vector<PolySplinePtr> ee_forces_;
+  std::vector<PolySplinePtr> ee_splines_;
 
-
-  std::vector<EESplinePtr> ee_splines_;
   mutable DynamicModelPtr model_;
-
   AngularStateConverter converter_;
 
   int GetRow(int node, Coords6D dimension) const;

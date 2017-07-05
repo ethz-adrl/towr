@@ -65,7 +65,7 @@ EndeffectorsForce::GetJacobian (double t, EndeffectorID ee, Coords3D dim) const
     idx_start += ee_forces_.at(i)->GetRows();
 
   // insert single ee-Jacobian into Jacobian representing all endeffectors
-  // zmp_ could avoid this also by keeping each endeffector separate
+  // could avoid this also by keeping each endeffector separate
   for (JacobianRow::InnerIterator it(jac_ee); it; ++it)
     jac_row.coeffRef(idx_start+it.col()) = it.value();
 

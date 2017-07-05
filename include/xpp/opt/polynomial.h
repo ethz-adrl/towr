@@ -65,8 +65,6 @@ public:
   CoeffVec GetCoeffIds() const;
   double GetDuration() const;
 
-  // zmp_ might not need this function anymore, if always optimizing
-  // over polynomial coefficients directly
   void UpdateCoefficients();
 
   StateLinXd start_, end_;
@@ -82,17 +80,10 @@ private:
    * params are the same as @ref getPoint.
    * This is the only function that must be implemented by the child classes.
    */
-  // zmp_ might also not need this
   virtual void SetPolynomialCoefficients(double T,
                                          const StateLinXd& start_p,
-                                         const StateLinXd& end_p) { assert(false); };
+                                         const StateLinXd& end_p) = 0;
 };
-
-//class CrazyPolynomial: public Polynomial {
-//public:
-//  CrazyPolynomial() : Polynomial(10) {};
-//  ~CrazyPolynomial() {};
-//};
 
 /** Zero-order hold x(t) = A;
   */

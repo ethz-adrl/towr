@@ -116,7 +116,7 @@ public:
   VecPolynomials GetPolynomials() const { return polynomials_; }
   int GetNDim() const {return n_dim_; };
 
-private:
+protected:
   VecPolynomials polynomials_; ///< pointer to retain access to polynomial functions
   int n_dim_;
 
@@ -139,36 +139,43 @@ private:
 // zmp_ DRY almost the same as above, combine
 class ForceSpline : public PolynomialSpline {
 public:
-  ForceSpline(const std::string& id, bool first_phase_in_contact);
+  ForceSpline(const std::string& id, bool first_phase_in_contact, double max_force);
   virtual ~ForceSpline ();
 
   virtual VecBound GetBounds () const override;
 
-//  // zmp_ DRY with other init function
-//  template<typename PolyT>
-//  void Init (std::vector<double> T_polys, const VectorXd& initial_value)
-//  {
-//    // initialize at com position with zero velocity & acceleration
-//    n_dim_ = initial_value.rows();
-//    State initial_state(n_dim_);
-//    initial_state.p_ = initial_value;
-//
-//    for (double duration : T_polys) {
-//      auto p = std::make_shared<PolyT>();
-//      p->SetBoundary(duration, initial_state, initial_state);
-//      polynomials_.push_back(p);
-//    }
-//
-//    // DRY with above init
-//    SetSegmentsPtr(polynomials_);
-//    int n_polys = polynomials_.size();
-//    SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
-//  }
+  // zmp_ DRY with other init function
+  template<typename PolyT>
+  void Init (std::vector<double> T_polys,
+             int n_polys_per_phase,
+             const VectorXd& initial_value)
+  {
+    n_polys_per_phase_ = n_polys_per_phase;
+
+    // initialize at com position with zero velocity & acceleration
+    n_dim_ = initial_value.rows();
+    State initial_state(n_dim_);
+    initial_state.p_ = initial_value;
+
+    for (double duration : T_polys) {
+      for (int i=0; i < n_polys_per_phase_; ++i) {
+        auto p = std::make_shared<PolyT>();
+        p->SetBoundary(duration/n_polys_per_phase_, initial_state, initial_state);
+        polynomials_.push_back(p);
+      }
+    }
+
+    // DRY with above init
+    SetSegmentsPtr(polynomials_);
+    int n_polys = polynomials_.size();
+    SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
+  }
 
 private:
   bool first_phase_in_contact_;
+  double max_force_;
 
-  int n_polys_per_stance; // polynomials used to represent each stance phase
+  int n_polys_per_phase_; // polynomials used to represent each stance/swing phase
 };
 
 

@@ -23,11 +23,14 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  duration_polynomial_    = 0.2; //s 0.05
-  load_dt_                = 0.05;//duration_polynomial_/2.;
+  duration_polynomial_    = 0.15; //s 0.05
   // enforce at beginning and middle. The end if always enforced
   // due to acceleration continuity constraint.
   n_constraints_per_poly_ = 2;
+
+//  load_dt_                = 0.05;//duration_polynomial_/2.;
+  polys_per_ee_phase_     = 4;
+
 
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };

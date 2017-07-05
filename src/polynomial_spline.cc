@@ -145,10 +145,11 @@ EndeffectorSpline::GetBounds () const
 
 
 
-ForceSpline::ForceSpline(const std::string& id, bool first_phase_in_contact)
+ForceSpline::ForceSpline(const std::string& id, bool first_phase_in_contact, double max_force)
    : PolynomialSpline(id)
 {
   first_phase_in_contact_ = first_phase_in_contact;
+  max_force_ = max_force;
 }
 
 ForceSpline::~ForceSpline ()
@@ -158,24 +159,13 @@ ForceSpline::~ForceSpline ()
 VecBound
 ForceSpline::GetBounds () const
 {
-  const double max_force_ = 20000.0; // [N]
-
   VecBound bounds(GetRows());
   std::fill(bounds.begin(), bounds.end(), Bound(-max_force_, max_force_));
 
-  // zmp_ use motion param for this
-
   bool is_contact = first_phase_in_contact_;
-
-  // zmp_ remove
-//  std::cout << "\n\nForce Spline\n";
 
   int i = 0;
   for (const auto& p : GetPolynomials()) {
-
-
-//    std::cout << "i: " << i << std::endl;
-//    std::cout << "is_contact: " << is_contact << std::endl;
 
 
     for (int dim=0; dim<GetNDim(); ++dim)
@@ -195,7 +185,6 @@ ForceSpline::GetBounds () const
 
     if (i%n_polys_per_phase_ == 0)
       is_contact = !is_contact; // after contact phase MUST come a swingphase (by definition).
-
 
   }
 
