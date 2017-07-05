@@ -133,6 +133,9 @@ public:
 
   virtual VecBound GetBounds () const override;
 
+  // shouldn't be allowed to use this function for now
+//  Jacobian GetJacobian(double t_global, MotionDerivative dxdt) = delete;
+
 private:
   bool first_phase_in_contact_;
 };

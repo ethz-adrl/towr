@@ -19,6 +19,7 @@
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/contact_schedule.h>
+#include <xpp/opt/variables/contact_timings.h>
 #include <xpp/opt/variables/polynomial_spline.h>
 #include <xpp/opt/variables/variable_names.h>
 
@@ -83,6 +84,12 @@ MotionOptimizerFacade::BuildVariables ()
                                       motion_parameters_->polys_per_ee_phase_,
                                       Vector3d(0.0, 0.0, fz_stand));
     opt_variables_->AddComponent(ee_force);
+
+
+    // add timings as optimization variables
+    int max_n_steps = 3; // zmp_ move to parameters
+    auto ee_timings = std::make_shared<ContactTimings>(ee, max_n_steps);
+    opt_variables_->AddComponent(ee_timings);
   }
 
 

@@ -15,7 +15,7 @@ SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
                                                     const DerivativeVec& derivatives
                                                     )
 {
-
+  SetName("New SplineJunctionConstraint-" + spline_id);
   spline_  = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(spline_id));
 
   derivatives_ = derivatives;
