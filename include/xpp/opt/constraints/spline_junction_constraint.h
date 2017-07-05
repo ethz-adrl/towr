@@ -25,7 +25,9 @@ namespace opt {
  */
 class SplineJunctionConstraint : public Primitive {
 public:
-  using DerivativeVec = std::vector<MotionDerivative>;
+  using PolynomialPtr  = std::shared_ptr<PolynomialSpline>;
+//  using ContactTimePtr = std::shared_ptr<ContactTimings>;
+  using DerivativeVec  = std::vector<MotionDerivative>;
 
   SplineJunctionConstraint (const OptVarsPtr& opt_vars,
                             const std::string& spline_id,
@@ -37,7 +39,9 @@ public:
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
-  std::shared_ptr<PolynomialSpline> spline_;
+  PolynomialPtr spline_;
+//  ContactTimePtr contact_timings_;
+
   DerivativeVec derivatives_;
   int n_junctions_;
   int n_dim_;

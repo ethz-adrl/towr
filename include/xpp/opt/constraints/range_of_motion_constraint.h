@@ -25,7 +25,6 @@ namespace xpp {
 namespace opt {
 
 class PolynomialSpline;
-class EndeffectorsMotion;
 
 /** @brief Constrains the contact to lie in a box around the nominal stance
   *
@@ -39,12 +38,7 @@ class EndeffectorsMotion;
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
-  using BaseLinear     = std::shared_ptr<PolynomialSpline>;
-  using BaseAngular    = std::shared_ptr<PolynomialSpline>;
-  using EEMotionPtr    = std::shared_ptr<EndeffectorsMotion>;
-  using EESplinePtr    = std::shared_ptr<EndeffectorSpline>;
-  using MaxDevXY       = Vector3d;
-  using NominalStance  = EndeffectorsPos;
+  using PolySplinePtr  = std::shared_ptr<PolynomialSpline>;
 
   /**
    * @param dt discretization interval [s] when to check this constraint.
@@ -53,8 +47,9 @@ public:
    */
   RangeOfMotionBox(const OptVarsPtr& opt_vars_container,
                    double dt,
-                   const MaxDevXY& deviation_xy,
-                   const NominalStance& nom,
+                   const Vector3d& max_deviation_B,
+                   const Vector3d& nominal_ee_B,
+                   const EndeffectorID& ee,
                    double T);
   virtual ~RangeOfMotionBox();
 
@@ -63,17 +58,15 @@ private:
   void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
 
-  int GetRow(int node, EndeffectorID ee, int dimension) const;
+  int GetRow(int node, int dimension) const;
 
-  MaxDevXY max_deviation_from_nominal_;
-  NominalStance nominal_stance_;
-  BaseLinear base_linear_;
-  BaseAngular base_angular_;
+  PolySplinePtr base_linear_;
+  PolySplinePtr base_angular_;
+  PolySplinePtr ee_spline_;
 
-  std::vector<EESplinePtr> ee_splines_;
+  Vector3d max_deviation_from_nominal_;
+  Vector3d nominal_ee_pos_B;
   AngularStateConverter converter_;
-
-  std::vector<Coords3D> dim_;
 };
 
 } /* namespace opt */

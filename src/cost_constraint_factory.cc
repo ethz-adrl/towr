@@ -179,17 +179,21 @@ CostConstraintFactory::MakeDynamicConstraint() const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
+  auto rom_constraints = std::make_shared<Composite>("Range-of-Motion Constraints", true);
   double dt = 0.10;
 
-  auto constraint = std::make_shared<RangeOfMotionBox>(
-      opt_vars_,
-      dt,
-      params->GetMaximumDeviationFromNominal(),
-      params->GetNominalStanceInBase(),
-      params->GetTotalTime()
-      );
+  for (auto ee : params->robot_ee_) {
+    auto c = std::make_shared<RangeOfMotionBox>(opt_vars_,
+                                                dt,
+                                                params->GetMaximumDeviationFromNominal(),
+                                                params->GetNominalStanceInBase().At(ee),
+                                                ee,
+                                                params->GetTotalTime());
 
-  return constraint;
+    rom_constraints->AddComponent(c);
+  }
+
+  return rom_constraints;
 }
 
 CostConstraintFactory::ConstraintPtr
@@ -203,7 +207,7 @@ CostConstraintFactory::MakeStancesConstraints () const
   Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
   EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
 
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+  for (auto ee : params->robot_ee_) {
     std::string id = id::endeffectors_motion+std::to_string(ee);
     stance_constraints->AddComponent(MakePolynomialSplineConstraint(id, StateLin3d(initial_ee_W_.At(ee)), t_start));
 
