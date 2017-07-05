@@ -167,8 +167,17 @@ ForceSpline::GetBounds () const
 
   bool is_contact = first_phase_in_contact_;
 
+  // zmp_ remove
+//  std::cout << "\n\nForce Spline\n";
+
   int i = 0;
   for (const auto& p : GetPolynomials()) {
+
+
+//    std::cout << "i: " << i << std::endl;
+//    std::cout << "is_contact: " << is_contact << std::endl;
+
+
     for (int dim=0; dim<GetNDim(); ++dim)
       for (auto coeff : p->GetCoeffIds()) {
 
@@ -182,8 +191,12 @@ ForceSpline::GetBounds () const
         }
       }
 
-    is_contact = !is_contact; // after contact phase MUST come a swingphase (by definition).
     i++;
+
+    if (i%n_polys_per_phase_ == 0)
+      is_contact = !is_contact; // after contact phase MUST come a swingphase (by definition).
+
+
   }
 
 

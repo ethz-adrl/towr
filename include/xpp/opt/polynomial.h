@@ -31,7 +31,7 @@ public:
   // x(t) =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
   // x(t) =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
   // x(t) = 20Ft^3 + 12Et^2 + 6Dt   + 2C
-  enum PolynomialCoeff { A=0, B, C, D, E, F};
+  enum PolynomialCoeff { A=0, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W};
   using CoeffVec = std::vector<PolynomialCoeff>;
 
   enum PointType {Start=0, Goal=1};
@@ -82,10 +82,17 @@ private:
    * params are the same as @ref getPoint.
    * This is the only function that must be implemented by the child classes.
    */
+  // zmp_ might also not need this
   virtual void SetPolynomialCoefficients(double T,
                                          const StateLinXd& start_p,
-                                         const StateLinXd& end_p) = 0;
+                                         const StateLinXd& end_p) { assert(false); };
 };
+
+//class CrazyPolynomial: public Polynomial {
+//public:
+//  CrazyPolynomial() : Polynomial(10) {};
+//  ~CrazyPolynomial() {};
+//};
 
 /** Zero-order hold x(t) = A;
   */

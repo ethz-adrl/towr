@@ -196,7 +196,7 @@ Trot::Trot()
 
   constraints_ = {
                    InitCom,
-//                   FinalCom,
+                   FinalCom,
                    JunctionCom,
                    Dynamic,
 //                   Stance,

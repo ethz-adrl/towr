@@ -38,7 +38,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
     ee_splines_.push_back(std::dynamic_pointer_cast<EndeffectorSpline>(opt_vars->GetComponent(id_motion)));
 
     std::string id_force = id::endeffector_force+std::to_string(ee);
-    ee_forces_.push_back(std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id_force)));
+    ee_forces_.push_back(std::dynamic_pointer_cast<ForceSpline>(opt_vars->GetComponent(id_force)));
   }
 
   SetRows(GetNumberOfNodes()*kDim6d);
