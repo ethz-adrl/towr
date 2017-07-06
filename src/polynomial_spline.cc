@@ -22,8 +22,34 @@ PolynomialSpline::~PolynomialSpline ()
 {
 }
 
+void
+PolynomialSpline::Init (int n_polys, int poly_order, const VectorXd& initial_value)
+{
+  n_dim_ = initial_value.rows();
 
+  for (int i=0; i<n_polys; ++i) {
+    Polynomial p(poly_order, n_dim_);
+    p.SetCoefficients(Polynomial::A, initial_value);
+    polynomials_.push_back(p);
+  }
 
+  SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
+}
+
+void
+PolynomialSpline::SetPhaseDurations (const std::vector<double>& durations,
+                                     int polys_per_duration)
+{
+  assert(durations.size()*polys_per_duration == polynomials_.size());
+  durations_.clear();
+  n_polys_per_phase_ = polys_per_duration;
+
+  for (double duration : durations) {
+    for (int i=0; i < n_polys_per_phase_; ++i) {
+      durations_.push_back(duration/n_polys_per_phase_);
+    }
+  }
+}
 
 
 double
@@ -80,7 +106,7 @@ PolynomialSpline::GetSegmentID(double t_global) const
 const StateLinXd
 PolynomialSpline::GetPoint (int id, double t_local) const
 {
-  return polynomials_.at(id)->GetPoint(t_local);
+  return polynomials_.at(id).GetPoint(t_local);
 }
 
 
@@ -94,7 +120,7 @@ PolynomialSpline::GetPoint (int id, double t_local) const
 
 
 int
-PolynomialSpline::Index (int poly, int dim, PolyCoeff coeff) const
+PolynomialSpline::Index (int poly, int dim, Polynomial::PolynomialCoeff coeff) const
 {
   return GetFreeCoeffPerPoly() * n_dim_ * poly
        + GetFreeCoeffPerPoly() * dim
@@ -107,10 +133,10 @@ PolynomialSpline::GetValues () const
   VectorXd x_abcd(GetRows());
 
   int i=0;
-  for (const auto& s : polynomials_) {
+  for (const auto& p : polynomials_) {
     for (int dim = 0; dim<n_dim_; dim++)
-      for (auto coeff :  s->GetCoeffIds())
-        x_abcd[Index(i, dim, coeff)] = s->GetCoefficient(dim, coeff);
+      for (auto coeff :  p.GetCoeffIds())
+        x_abcd[Index(i, dim, coeff)] = p.GetCoefficient(dim, coeff);
     i++;
   }
 
@@ -150,8 +176,8 @@ PolynomialSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv,
   JacobianRow jac(1, GetRows());
   auto polynomial = polynomials_.at(id);
 
-  for (auto coeff : polynomial->GetCoeffIds()) {
-    double val = polynomial->GetDerivativeWrtCoeff(deriv, coeff, t_local);
+  for (auto coeff : polynomial.GetCoeffIds()) {
+    double val = polynomial.GetDerivativeWrtCoeff(deriv, coeff, t_local);
     int idx = Index(id,dim,coeff);
     jac.insert(idx) = val;
   }
@@ -165,15 +191,15 @@ PolynomialSpline::SetValues (const VectorXd& optimized_coeff)
   for (size_t p=0; p<polynomials_.size(); ++p) {
     auto& poly = polynomials_.at(p);
     for (int dim = 0; dim < n_dim_; dim++)
-      for (auto c : poly->GetCoeffIds())
-        poly->SetCoefficient(dim, c, optimized_coeff[Index(p,dim,c)]);
+      for (auto c : poly.GetCoeffIds())
+        poly.SetCoefficient(dim, c, optimized_coeff[Index(p,dim,c)]);
   }
 }
 
 int
 PolynomialSpline::GetFreeCoeffPerPoly () const
 {
-  return polynomials_.front()->GetCoeffIds().size();
+  return polynomials_.front().GetCoeffIds().size();
 }
 
 
@@ -198,7 +224,7 @@ EndeffectorSpline::GetBounds () const
   int i = 0;
   for (const auto& p : GetPolynomials()) {
     for (int dim=0; dim<GetNDim(); ++dim)
-      for (auto coeff : p->GetCoeffIds()) {
+      for (auto coeff : p.GetCoeffIds()) {
 
         if(is_contact && (coeff != Polynomial::A)) {
           bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
@@ -245,7 +271,7 @@ ForceSpline::GetBounds () const
 
 
     for (int dim=0; dim<GetNDim(); ++dim)
-      for (auto coeff : p->GetCoeffIds()) {
+      for (auto coeff : p.GetCoeffIds()) {
 
         if(!is_contact) { // can't produce forces during swingphase
           bounds.at(Index(i,dim,coeff)) = kEqualityBound_;

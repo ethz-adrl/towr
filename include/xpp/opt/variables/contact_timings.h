@@ -15,17 +15,23 @@ namespace opt {
 
 class ContactTimings : public Component {
 public:
-  ContactTimings (int ee, int max_num_steps);
+  using TimingsVec = std::vector<double>;
+
+  ContactTimings (int ee, const TimingsVec& t);
   virtual ~ContactTimings ();
 
   // timings for each phase (swing and stance)
-  virtual VectorXd GetValues() const override { return t_; };
-  virtual void SetValues(const VectorXd& x) override { t_= x; };
+  virtual VectorXd GetValues() const override;
+  virtual void SetValues(const VectorXd& x) override;
   virtual VecBound GetBounds () const override;
 
-private:
-  VectorXd t_;
+  TimingsVec GetTimings() const { return t_vec_; };
 
+private:
+
+//  void SetTimings(const TimingsVec& t) { t_vec_ = t; };
+
+  TimingsVec t_vec_;
   const double t_max_ = 1; //[s]
 };
 

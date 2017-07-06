@@ -17,7 +17,6 @@
 
 #include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/polynomial.h>
-//#include <xpp/opt/spline.h>
 
 namespace xpp {
 namespace opt {
@@ -29,65 +28,21 @@ namespace opt {
   */
 class PolynomialSpline : public Component {
 public:
-  using State          = StateLinXd;
-  using PolyCoeff      = Polynomial::PolynomialCoeff;
-  using PolyomialPtr   = std::shared_ptr<Polynomial>;
-  using VecPolynomials = std::vector<PolyomialPtr>;
+  using VecPolynomials = std::vector<Polynomial>;
 
   PolynomialSpline (const std::string& component_name);
   virtual ~PolynomialSpline ();
 
-  void Init (double t_global, double dt, int poly_order, const VectorXd& initial_value)
-  {
-    // initialize at com position with zero velocity & acceleration
-    n_dim_ = initial_value.rows();
-
-
-    double t_left = t_global;
-    while (t_left > 0.0) {
-      double duration = t_left>dt?  dt : t_left;
-      auto p = std::make_shared<Polynomial>(poly_order, n_dim_);
-
-      p->SetCoefficients(Polynomial::A, initial_value);
-      durations_.push_back(duration);
-      polynomials_.push_back(p);
-      t_left -= dt;
-    }
-
-    int n_polys = polynomials_.size();
-    SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
-  }
-
-
-  // zmp_ DRY with other init function
-//  template<typename PolyT>
-  void Init (std::vector<double> T_polys, int poly_order, const VectorXd& initial_value)
-  {
-    // initialize at com position with zero velocity & acceleration
-    n_dim_ = initial_value.rows();
-
-
-    for (double duration : T_polys) {
-      auto p = std::make_shared<Polynomial>(poly_order, n_dim_);
-//      p->SetBoundary(duration, initial_state, initial_state);
-      p->SetCoefficients(Polynomial::A, initial_value);
-      durations_.push_back(duration);
-      polynomials_.push_back(p);
-    }
-
-    // DRY with above init
-    int n_polys = polynomials_.size();
-    SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
-  }
-
+  void Init (int n_polys, int poly_order, const VectorXd& initial_value);
+  void SetPhaseDurations(const std::vector<double>& phase_durations,
+                         int polys_per_duration);
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
 
-  int Index(int polynomial, int dim, PolyCoeff coeff) const;
+  int Index(int polynomial, int dim, Polynomial::PolynomialCoeff coeff) const;
 
-  /** Calculates the Jacobian at a specific time of the motion, but specified by
-    * a local time and a polynome id. This allows to create spline junction constraints
+  /** @brief Calculates the Jacobian at a specific state.
     *
     * @param dxdt whether position, velocity, acceleration or jerk Jacobian is desired
     * @param t_poly the time at which the Jacobian is desired, expressed since current polynomial is active.
@@ -119,9 +74,11 @@ public:
   double GetDurationOfPoly(int id) const { return durations_.at(id); };
 
 protected:
-  std::vector<double> durations_;
+  std::vector<double> durations_; ///< duration of each polynomial in spline
   VecPolynomials polynomials_;    ///< pointer to retain access to polynomial functions
   int n_dim_;
+
+  int n_polys_per_phase_; // polynomials used to represent each timing phase
 
   int GetFreeCoeffPerPoly() const;
 };
@@ -150,40 +107,9 @@ public:
 
   virtual VecBound GetBounds () const override;
 
-  // zmp_ DRY with other init function
-//  template<typename PolyT>
-  void Init (std::vector<double> T_polys,
-             int n_polys_per_phase,
-             int poly_order,
-             const VectorXd& initial_value)
-  {
-    n_polys_per_phase_ = n_polys_per_phase;
-
-    // initialize at com position with zero velocity & acceleration
-    n_dim_ = initial_value.rows();
-//    State initial_state(n_dim_);
-//    initial_state.p_ = initial_value;
-
-    for (double duration : T_polys) {
-      for (int i=0; i < n_polys_per_phase_; ++i) {
-        auto p = std::make_shared<Polynomial>(poly_order, n_dim_);
-//        p->SetBoundary(duration/n_polys_per_phase_, initial_state, initial_state);
-        p->SetCoefficients(Polynomial::A, initial_value);
-        polynomials_.push_back(p);
-        durations_.push_back(duration/n_polys_per_phase_);
-      }
-    }
-
-    // DRY with above init
-    int n_polys = polynomials_.size();
-    SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
-  }
-
 private:
   bool first_phase_in_contact_;
   double max_force_;
-
-  int n_polys_per_phase_; // polynomials used to represent each stance/swing phase
 };
 
 

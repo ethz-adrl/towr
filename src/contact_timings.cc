@@ -14,20 +14,32 @@
 namespace xpp {
 namespace opt {
 
-ContactTimings::ContactTimings (int ee, int max_num_steps)
+ContactTimings::ContactTimings (int ee, const TimingsVec& t)
     :Component(0, id::contact_timings + std::to_string(ee))
 {
-  int n_phases = 2*max_num_steps;
-  t_ = VectorXd(n_phases); //as a step is always followed by a stance
-  double t_total = 3.0; // just an estimate
-  t_.fill(t_total/n_phases);
+//  int n_phases = 2*max_num_steps;
+//  double t_total = 3.0; // just an estimate
+//  TimingsVec(n_phases, t_total/n_phases);
 
-  SetRows(n_phases);
+  t_vec_ = t;
+  SetRows(t.size());
 }
 
 ContactTimings::~ContactTimings ()
 {
   // TODO Auto-generated destructor stub
+}
+
+VectorXd
+xpp::opt::ContactTimings::GetValues () const
+{
+  return VectorXd::Map(t_vec_.data(), t_vec_.size());
+}
+
+void
+xpp::opt::ContactTimings::SetValues (const VectorXd& x)
+{
+  VectorXd::Map(t_vec_.data(), x.size()) = x;
 }
 
 VecBound
@@ -41,3 +53,4 @@ ContactTimings::GetBounds () const
 
 } /* namespace opt */
 } /* namespace xpp */
+

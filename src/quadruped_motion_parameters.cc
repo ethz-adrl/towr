@@ -29,7 +29,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   n_constraints_per_poly_ = 2;
 
 //  load_dt_                = 0.05;//duration_polynomial_/2.;
-  polys_per_ee_phase_     = 4;
+  polys_per_ee_phase_     = 4; // zmp_ rename to force_phase!
 
 
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
