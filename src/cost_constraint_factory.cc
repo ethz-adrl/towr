@@ -16,7 +16,6 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
 
-#include <xpp/opt/constraints/spline_junction_constraint.h>
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/linear_constraint.h>
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
@@ -28,6 +27,7 @@
 #include <xpp/opt/variables/variable_names.h>
 
 #include <xpp/opt/centroidal_model.h>
+#include <xpp/opt/constraints/spline_constraint.h>
 
 namespace xpp {
 namespace opt {
@@ -88,10 +88,13 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakePolynomialSplineConstraint (
     const std::string& poly_id, const StateLin3d state, double t) const
 {
-  auto spline = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars_->GetComponent(poly_id));
-  LinearSplineEquations equation_builder(*spline);
-  MatVec lin_eq = equation_builder.MakeStateConstraint(state,t, {kPos, kVel, kAcc});
-  return std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq, poly_id);
+//  auto spline = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars_->GetComponent(poly_id));
+//  LinearSplineEquations equation_builder(*spline);
+//  MatVec lin_eq = equation_builder.MakeStateConstraint(state,t, {kPos, kVel, kAcc});
+//  return std::make_shared<LinearEqualityConstraint>(opt_vars_, lin_eq, poly_id);
+
+  auto derivs = {kPos, kVel, kAcc};
+  return std::make_shared<SplineStateConstraint>(opt_vars_, poly_id, t, state, derivs);
 }
 
 CostConstraintFactory::ConstraintPtr

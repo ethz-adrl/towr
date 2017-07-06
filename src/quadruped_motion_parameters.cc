@@ -180,7 +180,7 @@ Trot::Trot()
   contact_timings_ =
   {   0.3,
       t_phase, t_phase, t_phase, t_phase, // trot
-//      0.3, // flight_phase
+      0.3, // flight_phase
 ////      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
 //      t_phase, t_phase, t_phase, t_phase, // trot
       0.3
@@ -190,7 +190,7 @@ Trot::Trot()
   {
       II_,
       bP_, Pb_, bP_, Pb_, // trot
-//      BB_, // flight-phase
+      BB_, // flight-phase
 ////      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
 //      bP_, Pb_, bP_, Pb_, // trot
       II_

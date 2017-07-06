@@ -81,7 +81,7 @@ target_link_libraries(${SOLVER_LIB}
 add_library(${MOTION_OPT_LIB}
   src/motion_optimizer_facade.cc
   src/linear_constraint.cc
-  src/spline_junction_constraint.cc
+  src/spline_constraint.cc
   src/cost_constraint_factory.cc
   src/soft_constraint.cc
   src/time_discretization_constraint.cc
