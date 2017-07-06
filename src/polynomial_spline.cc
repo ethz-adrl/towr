@@ -30,8 +30,8 @@ double
 PolynomialSpline::GetTotalTime() const
 {
   double T = 0.0;
-  for (const auto& s: polynomials_) {
-    T += s->GetDuration();
+  for (double d: durations_) {
+    T += d;
   }
   return T;
 }
@@ -52,7 +52,7 @@ PolynomialSpline::GetLocalTime(double t_global) const
 
   double t_local = t_global;
   for (int id=0; id<id_spline; id++) {
-    t_local -= polynomials_.at(id)->GetDuration();
+    t_local -= durations_.at(id);
   }
 
   return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
@@ -66,8 +66,8 @@ PolynomialSpline::GetSegmentID(double t_global) const
 
    double t = 0;
    int i=0;
-   for (const auto& s: polynomials_) {
-     t += s->GetDuration();
+   for (double d: durations_) {
+     t += d;
 
      if (t >= t_global-eps) // at junctions, returns previous spline (=)
        return i;

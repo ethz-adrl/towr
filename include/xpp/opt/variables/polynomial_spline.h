@@ -37,24 +37,22 @@ public:
   PolynomialSpline (const std::string& component_name);
   virtual ~PolynomialSpline ();
 
-  template<typename PolyT>
-  void Init (double t_global, double dt, const VectorXd& initial_value)
+  void Init (double t_global, double dt, int poly_order, const VectorXd& initial_value)
   {
     // initialize at com position with zero velocity & acceleration
     n_dim_ = initial_value.rows();
-    State initial_state(n_dim_);
-    initial_state.p_ = initial_value;
+
 
     double t_left = t_global;
     while (t_left > 0.0) {
       double duration = t_left>dt?  dt : t_left;
-      auto p = std::make_shared<PolyT>();
-      p->SetBoundary(duration, initial_state, initial_state);
+      auto p = std::make_shared<Polynomial>(poly_order, n_dim_);
+
+      p->SetCoefficients(Polynomial::A, initial_value);
+      durations_.push_back(duration);
       polynomials_.push_back(p);
       t_left -= dt;
     }
-
-//    SetSegmentsPtr(polynomials_);
 
     int n_polys = polynomials_.size();
     SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
@@ -62,33 +60,26 @@ public:
 
 
   // zmp_ DRY with other init function
-  template<typename PolyT>
-  void Init (std::vector<double> T_polys, const VectorXd& initial_value)
+//  template<typename PolyT>
+  void Init (std::vector<double> T_polys, int poly_order, const VectorXd& initial_value)
   {
     // initialize at com position with zero velocity & acceleration
     n_dim_ = initial_value.rows();
-    State initial_state(n_dim_);
-    initial_state.p_ = initial_value;
+
 
     for (double duration : T_polys) {
-      auto p = std::make_shared<PolyT>();
-      p->SetBoundary(duration, initial_state, initial_state);
+      auto p = std::make_shared<Polynomial>(poly_order, n_dim_);
+//      p->SetBoundary(duration, initial_state, initial_state);
+      p->SetCoefficients(Polynomial::A, initial_value);
+      durations_.push_back(duration);
       polynomials_.push_back(p);
     }
 
     // DRY with above init
-//    SetSegmentsPtr(polynomials_);
     int n_polys = polynomials_.size();
     SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
   }
 
-
-
-
-//  void Init(double t_global, double duration_per_polynomial,
-//            const VectorXd& initial_val);
-//
-//  void Init(std::vector<double> T_polys, const VectorXd& initial_val);
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
@@ -125,9 +116,11 @@ public:
   double GetTotalTime() const;
 
 
+  double GetDurationOfPoly(int id) const { return durations_.at(id); };
 
 protected:
-  VecPolynomials polynomials_; ///< pointer to retain access to polynomial functions
+  std::vector<double> durations_;
+  VecPolynomials polynomials_;    ///< pointer to retain access to polynomial functions
   int n_dim_;
 
   int GetFreeCoeffPerPoly() const;
@@ -158,28 +151,30 @@ public:
   virtual VecBound GetBounds () const override;
 
   // zmp_ DRY with other init function
-  template<typename PolyT>
+//  template<typename PolyT>
   void Init (std::vector<double> T_polys,
              int n_polys_per_phase,
+             int poly_order,
              const VectorXd& initial_value)
   {
     n_polys_per_phase_ = n_polys_per_phase;
 
     // initialize at com position with zero velocity & acceleration
     n_dim_ = initial_value.rows();
-    State initial_state(n_dim_);
-    initial_state.p_ = initial_value;
+//    State initial_state(n_dim_);
+//    initial_state.p_ = initial_value;
 
     for (double duration : T_polys) {
       for (int i=0; i < n_polys_per_phase_; ++i) {
-        auto p = std::make_shared<PolyT>();
-        p->SetBoundary(duration/n_polys_per_phase_, initial_state, initial_state);
+        auto p = std::make_shared<Polynomial>(poly_order, n_dim_);
+//        p->SetBoundary(duration/n_polys_per_phase_, initial_state, initial_state);
+        p->SetCoefficients(Polynomial::A, initial_value);
         polynomials_.push_back(p);
+        durations_.push_back(duration/n_polys_per_phase_);
       }
     }
 
     // DRY with above init
-//    SetSegmentsPtr(polynomials_);
     int n_polys = polynomials_.size();
     SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
   }

@@ -72,7 +72,9 @@ MotionOptimizerFacade::BuildVariables ()
 
     std::string id_motion = id::endeffectors_motion+std::to_string(ee);
     auto ee_poly = std::make_shared<EndeffectorSpline>(id_motion, ee_initially_in_contact);
-    ee_poly->Init<QuarticPolynomial>(contact_schedule->GetTimePerPhase(ee), initial_ee_W_.At(ee));
+    ee_poly->Init(contact_schedule->GetTimePerPhase(ee),
+                                     4,
+                                     initial_ee_W_.At(ee));
     opt_variables_->AddComponent(ee_poly);
 
     std::string id_force  = id::endeffector_force+std::to_string(ee);
@@ -80,8 +82,9 @@ MotionOptimizerFacade::BuildVariables ()
                                                   ee_initially_in_contact,
                                                   motion_parameters_->GetForceLimit());
     double fz_stand = motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount();
-    ee_force->Init<CubicPolynomial>(contact_schedule->GetTimePerPhase(ee),
+    ee_force->Init(contact_schedule->GetTimePerPhase(ee),
                                       motion_parameters_->polys_per_ee_phase_,
+                                      3,
                                       Vector3d(0.0, 0.0, fz_stand));
     opt_variables_->AddComponent(ee_force);
 
@@ -95,8 +98,8 @@ MotionOptimizerFacade::BuildVariables ()
 
   double T = motion_parameters_->GetTotalTime();
   auto base_linear = std::make_shared<PolynomialSpline>(id::base_linear);
-  base_linear->Init<QuarticPolynomial>(T, motion_parameters_->duration_polynomial_,
-                    inital_base_.lin.p_);
+  base_linear->Init(T, motion_parameters_->duration_polynomial_,
+                                       4,inital_base_.lin.p_);
   opt_variables_->AddComponent(base_linear);
 
 
@@ -104,8 +107,8 @@ MotionOptimizerFacade::BuildVariables ()
   // These angles are to be interpreted as mapping a vector expressed in
   // base frame to world frame.
   auto base_angular = std::make_shared<PolynomialSpline>(id::base_angular);
-  base_angular->Init<QuarticPolynomial>(T, motion_parameters_->duration_polynomial_,
-                     inital_base_.ang.p_);
+  base_angular->Init(T, motion_parameters_->duration_polynomial_,
+                                        4,inital_base_.ang.p_);
   opt_variables_->AddComponent(base_angular);
 
   opt_variables_->Print();

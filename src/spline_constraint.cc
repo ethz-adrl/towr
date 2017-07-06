@@ -131,7 +131,7 @@ SplineJunctionConstraint::GetValues () const
   int row = 0;
 
   for (int id = 0; id < n_junctions_; ++id) {
-    double T = spline_->GetPolynomials().at(id)->GetDuration();
+    double T = spline_->GetDurationOfPoly(id);
 
     auto p0 = spline_->GetPoint(id, T);
     auto p1 = spline_->GetPoint(id+1, 0.0);
@@ -162,7 +162,7 @@ SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
 
     int row = 0;
     for (int id = 0; id < n_junctions_; ++id) {
-      double T = spline_->GetPolynomials().at(id)->GetDuration();
+      double T = spline_->GetDurationOfPoly(id);
 
       for (auto dxdt :  derivatives_) {
 
