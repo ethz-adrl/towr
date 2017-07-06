@@ -22,6 +22,77 @@ PolynomialSpline::~PolynomialSpline ()
 {
 }
 
+
+
+
+
+double
+PolynomialSpline::GetTotalTime() const
+{
+  double T = 0.0;
+  for (const auto& s: polynomials_) {
+    T += s->GetDuration();
+  }
+  return T;
+}
+
+const StateLinXd
+PolynomialSpline::GetPoint(double t_global) const
+{
+  int idx        = GetSegmentID(t_global);
+  double t_local = GetLocalTime(t_global);
+
+  return GetPoint(idx, t_local);
+}
+
+double
+PolynomialSpline::GetLocalTime(double t_global) const
+{
+  int id_spline = GetSegmentID(t_global);
+
+  double t_local = t_global;
+  for (int id=0; id<id_spline; id++) {
+    t_local -= polynomials_.at(id)->GetDuration();
+  }
+
+  return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
+}
+
+int
+PolynomialSpline::GetSegmentID(double t_global) const
+{
+  double eps = 1e-10; // double imprecision
+  assert(t_global<=GetTotalTime()+eps); // machine precision
+
+   double t = 0;
+   int i=0;
+   for (const auto& s: polynomials_) {
+     t += s->GetDuration();
+
+     if (t >= t_global-eps) // at junctions, returns previous spline (=)
+       return i;
+
+     i++;
+   }
+   assert(false); // this should never be reached
+}
+
+const StateLinXd
+PolynomialSpline::GetPoint (int id, double t_local) const
+{
+  return polynomials_.at(id)->GetPoint(t_local);
+}
+
+
+
+
+
+
+
+
+
+
+
 int
 PolynomialSpline::Index (int poly, int dim, PolyCoeff coeff) const
 {
@@ -46,6 +117,12 @@ PolynomialSpline::GetValues () const
   return x_abcd;
 }
 
+JacobianRow
+PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, int dim) const
+{
+  return GetJacobian(t_global, deriv).row(dim);
+}
+
 Jacobian
 PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 {
@@ -66,13 +143,8 @@ PolynomialSpline::GetJacobian (int id, double t_local, MotionDerivative dxdt) co
 }
 
 JacobianRow
-PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, int dim) const
-{
-  return GetJacobian(t_global, deriv).row(dim);
-}
-
-JacobianRow
-PolynomialSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv, double t_local,
+PolynomialSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv,
+                                                   double t_local,
                                                    int id, int dim) const
 {
   JacobianRow jac(1, GetRows());

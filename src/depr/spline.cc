@@ -23,6 +23,15 @@ Spline::GetTotalTime() const
   return T;
 }
 
+const StateLinXd
+Spline::GetPoint(double t_global) const
+{
+  int idx        = GetSegmentID(t_global);
+  double t_local = GetLocalTime(t_global);
+
+  return GetPoint(idx, t_local);
+}
+
 double
 Spline::GetLocalTime(double t_global) const
 {
@@ -34,21 +43,6 @@ Spline::GetLocalTime(double t_global) const
   }
 
   return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
-}
-
-const StateLinXd
-Spline::GetPoint(double t_global) const
-{
-  int idx        = GetSegmentID(t_global);
-  double t_local = GetLocalTime(t_global);
-
-  return GetPoint(idx, t_local);
-}
-
-const StateLinXd
-Spline::GetPoint (int id, double t_local) const
-{
-  return segments_.at(id)->GetPoint(t_local);
 }
 
 int
@@ -69,6 +63,13 @@ Spline::GetSegmentID(double t_global) const
    }
    assert(false); // this should never be reached
 }
+
+const StateLinXd
+Spline::GetPoint (int id, double t_local) const
+{
+  return segments_.at(id)->GetPoint(t_local);
+}
+
 
 } // namespace opt
 } // namespace xpp

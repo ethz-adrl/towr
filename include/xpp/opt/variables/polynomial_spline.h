@@ -17,7 +17,7 @@
 
 #include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/polynomial.h>
-#include <xpp/opt/spline.h>
+//#include <xpp/opt/spline.h>
 
 namespace xpp {
 namespace opt {
@@ -27,7 +27,7 @@ namespace opt {
   * This class is responsible for abstracting polynomial coefficients of multiple
   * polynomials into a spline with position/velocity and acceleration.
   */
-class PolynomialSpline : public Component, public Spline {
+class PolynomialSpline : public Component {
 public:
   using State          = StateLinXd;
   using PolyCoeff      = Polynomial::PolynomialCoeff;
@@ -54,7 +54,7 @@ public:
       t_left -= dt;
     }
 
-    SetSegmentsPtr(polynomials_);
+//    SetSegmentsPtr(polynomials_);
 
     int n_polys = polynomials_.size();
     SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
@@ -77,7 +77,7 @@ public:
     }
 
     // DRY with above init
-    SetSegmentsPtr(polynomials_);
+//    SetSegmentsPtr(polynomials_);
     int n_polys = polynomials_.size();
     SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
   }
@@ -85,10 +85,10 @@ public:
 
 
 
-  void Init(double t_global, double duration_per_polynomial,
-            const VectorXd& initial_val);
-
-  void Init(std::vector<double> T_polys, const VectorXd& initial_val);
+//  void Init(double t_global, double duration_per_polynomial,
+//            const VectorXd& initial_val);
+//
+//  void Init(std::vector<double> T_polys, const VectorXd& initial_val);
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
@@ -116,6 +116,15 @@ public:
 
   VecPolynomials GetPolynomials() const { return polynomials_; }
   int GetNDim() const {return n_dim_; };
+
+
+  const StateLinXd GetPoint(double t_globals) const;
+  const StateLinXd GetPoint(int id, double t_local) const;
+  int GetSegmentID(double t_global) const;
+  double GetLocalTime(double t_global) const;
+  double GetTotalTime() const;
+
+
 
 protected:
   VecPolynomials polynomials_; ///< pointer to retain access to polynomial functions
@@ -170,7 +179,7 @@ public:
     }
 
     // DRY with above init
-    SetSegmentsPtr(polynomials_);
+//    SetSegmentsPtr(polynomials_);
     int n_polys = polynomials_.size();
     SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
   }

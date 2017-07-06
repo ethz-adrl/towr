@@ -18,14 +18,12 @@ Polynomials ready to use:
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include "spline.h"
-
 namespace xpp {
 namespace opt {
 
 /** @brief Constructs a polynomial given start and end states.
   */
-class Polynomial : public Segment {
+class Polynomial {
 public:
 
   // x(t) =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
