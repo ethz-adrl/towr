@@ -29,6 +29,7 @@ namespace opt {
 class PolynomialSpline : public Component {
 public:
   using VecPolynomials = std::vector<Polynomial>;
+  using VecTimes       = std::vector<double>;
 
   PolynomialSpline (const std::string& component_name);
   virtual ~PolynomialSpline ();
@@ -66,15 +67,16 @@ public:
 
   const StateLinXd GetPoint(double t_globals) const;
   const StateLinXd GetPoint(int id, double t_local) const;
-  int GetSegmentID(double t_global) const;
-  double GetLocalTime(double t_global) const;
-  double GetTotalTime() const;
+
+  static int GetSegmentID(double t_global, const VecTimes&);
+  static double GetLocalTime(double t_global, const VecTimes&);
+//  double GetTotalTime() const;
 
 
   double GetDurationOfPoly(int id) const { return durations_.at(id); };
 
 protected:
-  std::vector<double> durations_; ///< duration of each polynomial in spline
+  VecTimes durations_; ///< duration of each polynomial in spline
   VecPolynomials polynomials_;    ///< pointer to retain access to polynomial functions
   int n_dim_;
 

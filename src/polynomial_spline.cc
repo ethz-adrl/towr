@@ -52,47 +52,45 @@ PolynomialSpline::SetPhaseDurations (const std::vector<double>& durations,
 }
 
 
-double
-PolynomialSpline::GetTotalTime() const
-{
-  double T = 0.0;
-  for (double d: durations_) {
-    T += d;
-  }
-  return T;
-}
+//double
+//PolynomialSpline::GetTotalTime() const
+//{
+//  return std::accumulate(durations_.begin(), durations_.end(), 0.0);
+//}
 
 const StateLinXd
 PolynomialSpline::GetPoint(double t_global) const
 {
-  int idx        = GetSegmentID(t_global);
-  double t_local = GetLocalTime(t_global);
+  int idx        = GetSegmentID(t_global, durations_);
+  double t_local = GetLocalTime(t_global,durations_);
 
   return GetPoint(idx, t_local);
 }
 
+
+
 double
-PolynomialSpline::GetLocalTime(double t_global) const
+PolynomialSpline::GetLocalTime(double t_global, const VecTimes& durations)
 {
-  int id_spline = GetSegmentID(t_global);
+  int id_spline = GetSegmentID(t_global, durations);
 
   double t_local = t_global;
   for (int id=0; id<id_spline; id++) {
-    t_local -= durations_.at(id);
+    t_local -= durations.at(id);
   }
 
   return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
 }
 
 int
-PolynomialSpline::GetSegmentID(double t_global) const
+PolynomialSpline::GetSegmentID(double t_global, const VecTimes& durations)
 {
   double eps = 1e-10; // double imprecision
-  assert(t_global<=GetTotalTime()+eps); // machine precision
+//  assert(t_global<=GetTotalTime()+eps); // machine precision
 
    double t = 0;
    int i=0;
-   for (double d: durations_) {
+   for (double d: durations) {
      t += d;
 
      if (t >= t_global-eps) // at junctions, returns previous spline (=)
@@ -152,8 +150,8 @@ PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, int dim)
 Jacobian
 PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 {
-  int id         = GetSegmentID(t_global);
-  double t_local = GetLocalTime(t_global);
+  int id         = GetSegmentID(t_global,durations_);
+  double t_local = GetLocalTime(t_global,durations_);
 
   return GetJacobian(id, t_local, deriv);
 }
