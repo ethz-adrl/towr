@@ -99,7 +99,8 @@ PolynomialSpline::GetSegmentID(double t_global, const VecTimes& durations)
 const StateLinXd
 PolynomialSpline::GetPoint (int id, double t_local) const
 {
-  return polynomials_.at(id).GetPoint(t_local);
+  polynomials_.at(id).SetTime(t_local);
+  return polynomials_.at(id).GetPoint();
 }
 
 
@@ -115,6 +116,7 @@ PolynomialSpline::GetPoint (int id, double t_local) const
 int
 PolynomialSpline::Index (int poly, int dim, Polynomial::PolynomialCoeff coeff) const
 {
+  // zmp_ spline shouldn't know anything about internal polynomial ordering.
   return GetFreeCoeffPerPoly() * n_dim_ * poly
        + GetFreeCoeffPerPoly() * dim
        + coeff;
@@ -127,6 +129,7 @@ PolynomialSpline::GetValues () const
 
   int i=0;
   for (const auto& p : polynomials_) {
+    // zmp_ shouldn't need to go through dimensions, just splines
     for (int dim = 0; dim<n_dim_; dim++)
       for (auto coeff :  p.GetCoeffIds())
         x_abcd[Index(i, dim, coeff)] = p.GetCoefficient(dim, coeff);
@@ -136,11 +139,11 @@ PolynomialSpline::GetValues () const
   return x_abcd;
 }
 
-JacobianRow
-PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, int dim) const
-{
-  return GetJacobian(t_global, deriv).row(dim);
-}
+//JacobianRow
+//PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, int dim) const
+//{
+//  return GetJacobian(t_global, deriv).row(dim);
+//}
 
 Jacobian
 PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
@@ -154,29 +157,34 @@ PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 Jacobian
 PolynomialSpline::GetJacobian (int id, double t_local, MotionDerivative dxdt) const
 {
-  Jacobian jac(n_dim_, GetRows());
-  for (int dim=0; dim<n_dim_; ++dim)
-    jac.row(dim) = GetJacobianWrtCoeffAtPolynomial(dxdt, t_local, id, dim);
+  polynomials_.at(id).SetTime(t_local);
+  return polynomials_.at(id).GetJacobian(dxdt);
 
-  return jac;
+
+//  Jacobian jac(n_dim_, GetRows());
+//  for (int dim=0; dim<n_dim_; ++dim)
+//    jac.row(dim) = GetJacobianWrtCoeffAtPolynomial(dxdt, t_local, id, dim);
+//
+//  return jac;
 }
 
-JacobianRow
-PolynomialSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv,
-                                                   double t_local,
-                                                   int id, int dim) const
-{
-  JacobianRow jac(1, GetRows());
-  auto polynomial = polynomials_.at(id);
-
-  for (auto coeff : polynomial.GetCoeffIds()) {
-    double val = polynomial.GetDerivativeWrtCoeff(deriv, coeff, t_local);
-    int idx = Index(id,dim,coeff);
-    jac.insert(idx) = val;
-  }
-
-  return jac;
-}
+//JacobianRow
+//PolynomialSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv,
+//                                                   double t_local,
+//                                                   int id, int dim) const
+//{
+//  JacobianRow jac(1, GetRows());
+//  auto polynomial = polynomials_.at(id);
+//
+//  for (auto coeff : polynomial.GetCoeffIds()) {
+//    polynomial.SetTime(t_local);
+//    double val = polynomial.GetDerivativeWrtCoeff(deriv, coeff);
+//    int idx = Index(id,dim,coeff);
+//    jac.insert(idx) = val;
+//  }
+//
+//  return jac;
+//}
 
 void
 PolynomialSpline::SetValues (const VectorXd& optimized_coeff)

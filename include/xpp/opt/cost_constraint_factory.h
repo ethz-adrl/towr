@@ -13,7 +13,7 @@
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/state.h>
 
-#include "linear_spline_equations.h"
+//#include "linear_spline_equations.h"
 #include "motion_parameters.h"
 #include <xpp/opt/constraints/composite.h>
 
@@ -34,7 +34,7 @@ public:
   using ConstraintPtr    = std::shared_ptr<Component>;
   using OptVarsContainer = std::shared_ptr<Composite>;
   using MotionParamsPtr  = std::shared_ptr<MotionParameters>;
-  using Derivatives      = LinearSplineEquations::MotionDerivatives;
+  using Derivatives      = std::vector<MotionDerivative>;
 
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();

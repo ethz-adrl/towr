@@ -12,12 +12,14 @@
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
+#include <xpp/opt/constraints/composite.h>
+
 namespace xpp {
 namespace opt {
 
 /** @brief A polynomial of arbitrary order and dimension.
   */
-class Polynomial {
+class Polynomial {// : public Component {
 public:
 
   // x(t)   =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
@@ -30,8 +32,22 @@ public:
   Polynomial(int order, int dim);
   virtual ~Polynomial() {};
 
-  StateLinXd GetPoint(const double dt) const;
-  double GetDerivativeWrtCoeff(MotionDerivative, PolynomialCoeff, double t) const;
+  // zmp_ make override
+  VectorXd GetValues () const;
+  void SetValues (const VectorXd& optimized_coeff);
+
+  void SetTime(double t) {t_ = t;};
+  /// jacobian of function below wr.t. values
+  Jacobian GetJacobian(MotionDerivative dxdt) const;
+  StateLinXd GetPoint() const;
+
+
+  ///< ax,ay,az,bx,by,bz,cx,cy,cz
+  int Index(PolynomialCoeff coeff, int dim) const;
+  VectorXd GetCoefficients(PolynomialCoeff coeff) const;
+
+
+  double GetDerivativeWrtCoeff(MotionDerivative, PolynomialCoeff) const;
 
   double GetCoefficient(int dim, PolynomialCoeff coeff) const;
   void SetCoefficient(int dim,   PolynomialCoeff coeff, double value);
@@ -40,9 +56,18 @@ public:
   CoeffVec GetCoeffIds() const;
 
 private:
+  double t_;                    ///!< current time
   std::vector<VectorXd> coeff_; //!< coefficients values of spline.
   CoeffVec coeff_ids_;          //!< non-zero coefficient indices.
+
+  VectorXd all_coeff_;
+  int n_coeff_per_dimension_;
+  int n_dim_;
 };
+
+
+
+
 
 } // namespace opt
 } // namespace xpp

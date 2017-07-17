@@ -26,6 +26,7 @@ namespace opt {
   * This class is responsible for abstracting polynomial coefficients of multiple
   * polynomials into a spline with position/velocity and acceleration.
   */
+// zmp_ the whole class can be seen as a composite of polynomial components.
 class PolynomialSpline : public Component {
 public:
   using VecPolynomials = std::vector<Polynomial>;
@@ -43,21 +44,21 @@ public:
 
   int Index(int polynomial, int dim, Polynomial::PolynomialCoeff coeff) const;
 
-  /** @brief Calculates the Jacobian at a specific state.
-    *
-    * @param dxdt whether position, velocity, acceleration or jerk Jacobian is desired
-    * @param t_poly the time at which the Jacobian is desired, expressed since current polynomial is active.
-    * @param id the ID of the current polynomial
-    * @param dim in which dimension (x,y) the Jacobian is desired.
-    */
-  JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt,
-                                              double t_poly, int id,
-                                              int dim) const;
-  JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt,
-                                              int id, double t_poly,
-                                              int dim) const = delete;
+//  /** @brief Calculates the Jacobian at a specific state.
+//    *
+//    * @param dxdt whether position, velocity, acceleration or jerk Jacobian is desired
+//    * @param t_poly the time at which the Jacobian is desired, expressed since current polynomial is active.
+//    * @param id the ID of the current polynomial
+//    * @param dim in which dimension (x,y) the Jacobian is desired.
+//    */
+//  JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt,
+//                                              double t_poly, int id,
+//                                              int dim) const;
+//  JacobianRow GetJacobianWrtCoeffAtPolynomial(MotionDerivative dxdt,
+//                                              int id, double t_poly,
+//                                              int dim) const = delete;
 
-  JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, int dim) const;
+//  JacobianRow GetJacobian(double t_global, MotionDerivative dxdt, int dim) const;
   Jacobian    GetJacobian(double t_global, MotionDerivative dxdt) const;
   Jacobian    GetJacobian(int id, double t_local, MotionDerivative dxdt) const;
 
@@ -75,7 +76,7 @@ public:
 
 protected:
   VecTimes durations_; ///< duration of each polynomial in spline
-  VecPolynomials polynomials_;    ///< pointer to retain access to polynomial functions
+  mutable VecPolynomials polynomials_;    ///< pointer to retain access to polynomial functions
   int n_dim_;
 
   int n_polys_per_phase_; // polynomials used to represent each timing phase

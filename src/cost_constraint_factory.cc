@@ -141,10 +141,11 @@ CostConstraintFactory::MakeJunctionConstraint () const
 
   // allow lifting/placing of endeffector with nonzero acceleration
   for (auto ee : params->robot_ee_) {
+    // zmp_ add this back if using original ee-parameterization
     std::string id_motion = id::endeffectors_motion+std::to_string(ee);
     junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id_motion, {kPos, kVel}));
 
-    std::string id_force = id::endeffector_force+std::to_string(ee);
+//    std::string id_force = id::endeffector_force+std::to_string(ee);
 //    junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id_force, {kPos}, 4));
   }
 
@@ -259,16 +260,17 @@ CostConstraintFactory::MakePolynomialCost (const std::string& poly_id,
                                            const Vector3d& weight_dimensions,
                                            double weight) const
 {
-  auto poly = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars_->GetComponent(poly_id));
-  LinearSplineEquations equation_builder(*poly);
-
-  Eigen::MatrixXd term = equation_builder.MakeCostMatrix(weight_dimensions, kAcc);
-
-  MatVec mv(term.rows(), term.cols());
-  mv.M = term;
-  mv.v.setZero();
-
-  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, poly_id, weight);
+  assert(false); /// not implemented at the moment
+//  auto poly = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars_->GetComponent(poly_id));
+//  LinearSplineEquations equation_builder(*poly);
+//
+//  Eigen::MatrixXd term = equation_builder.MakeCostMatrix(weight_dimensions, kAcc);
+//
+//  MatVec mv(term.rows(), term.cols());
+//  mv.M = term;
+//  mv.v.setZero();
+//
+//  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, poly_id, weight);
 }
 
 CostConstraintFactory::ConstraintPtr

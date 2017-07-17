@@ -16,16 +16,24 @@ Spliners ready to use:
 #include <cassert>
 #include <cmath>
 
+static int poly_id = 0;
+
 namespace xpp {
 namespace opt {
 
 Polynomial::Polynomial (int order, int dim)
+//    : Component(-1, "polynomial " + std::to_string(poly_id++))
 {
   int n_coeff = order+1;
   for (int c=A; c<n_coeff; ++c) {
     coeff_.push_back(VectorXd::Zero(dim));
     coeff_ids_.push_back(static_cast<PolynomialCoeff>(c));
   }
+
+  n_coeff_per_dimension_ = n_coeff;
+  n_dim_ = dim;
+
+
 }
 
 void
@@ -41,22 +49,75 @@ void Polynomial::SetCoefficient(int dim, PolynomialCoeff coeff, double value)
   coeff_[coeff](dim) = value;
 }
 
+VectorXd
+Polynomial::GetValues () const
+{
+//  int n_dim = coeff_.front().rows();
+//  int n_coeff =
+//  int n = coeff_.size()*coeff_.front().rows(); // zmp_ replace with GetRows()
+//  VectorXd x(n);
+//
+//  int i=0;
+//  for (auto coeff : coeff_) {
+//    x.middleRows(
+//  }
+
+  return all_coeff_;
+}
+
+void
+Polynomial::SetValues (const VectorXd& optimized_coeff)
+{
+  all_coeff_ = optimized_coeff;
+}
+
+Jacobian
+Polynomial::GetJacobian (MotionDerivative dxdt) const
+{
+  int n = all_coeff_.rows();
+  JacobianRow jac(n);
+
+  for (int dim=0; dim<n_dim_; ++dim) {
+    for (PolynomialCoeff c : coeff_ids_) {
+      int idx = Index(c, dim);
+      jac.insert(dim, idx) = GetDerivativeWrtCoeff(dxdt, c);
+    }
+  }
+
+  return jac;
+}
+
+int
+Polynomial::Index(PolynomialCoeff coeff, int dim) const
+{
+  return coeff*n_coeff_per_dimension_ + dim;
+}
+
+VectorXd
+Polynomial::GetCoefficients (PolynomialCoeff coeff) const
+{
+  return all_coeff_.middleRows(Index(coeff, 0), n_coeff_per_dimension_);
+}
+
+
 /**
  * The spliner always calculates the splines in the same way, but if the
  * spline coefficients are zero (as set by @ref Spliner()), the higher-order
  * terms have no effect.
  */
-StateLinXd Polynomial::GetPoint(const double t) const
+StateLinXd Polynomial::GetPoint() const
 {
   // sanity checks
-  if (t < 0.0)
+  if (t_ < 0.0)
     throw std::runtime_error("spliner.cc called with dt<0");
 
   StateLinXd out(coeff_.at(A).rows());
 
   for (auto d : {kPos, kVel, kAcc}) {
     for (PolynomialCoeff c : GetCoeffIds()) {
-      out.GetByIndex(d) += GetDerivativeWrtCoeff(d, c, t)*coeff_[c];
+      // zmp_ remove
+//      out.GetByIndex(d) += GetDerivativeWrtCoeff(d, c)*coeff_[c];
+      out.GetByIndex(d) += GetDerivativeWrtCoeff(d, c)*GetCoefficients(c);
     }
   }
 
@@ -64,16 +125,16 @@ StateLinXd Polynomial::GetPoint(const double t) const
 }
 
 double
-Polynomial::GetDerivativeWrtCoeff (MotionDerivative deriv, PolynomialCoeff c, double t) const
+Polynomial::GetDerivativeWrtCoeff (MotionDerivative deriv, PolynomialCoeff c) const
 {
   if (c<deriv)  // risky/ugly business...
     return 0.0; // derivative not depended on this coefficient.
 
   switch (deriv) {
-    case kPos:   return               std::pow(t,c);   break;
-    case kVel:   return c*            std::pow(t,c-1); break;
-    case kAcc:   return c*(c-1)*      std::pow(t,c-2); break;
-    case kJerk:  return c*(c-1)*(c-2)*std::pow(t,c-3); break;
+    case kPos:   return               std::pow(t_,c);   break;
+    case kVel:   return c*            std::pow(t_,c-1); break;
+    case kAcc:   return c*(c-1)*      std::pow(t_,c-2); break;
+    case kJerk:  return c*(c-1)*(c-2)*std::pow(t_,c-3); break;
   }
 }
 
