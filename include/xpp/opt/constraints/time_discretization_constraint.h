@@ -13,8 +13,6 @@
 #include <vector>
 
 #include <xpp/opt/bound.h>
-#include <xpp/opt/variables/contact_timings.h>
-
 #include "composite.h"
 
 namespace xpp {
@@ -24,9 +22,6 @@ namespace opt {
   */
 class TimeDiscretizationConstraint : public Primitive {
 public:
-  // zmp_ remove?
-//  using ContactTimePtr = std::shared_ptr<ContactTimings>;
-
   TimeDiscretizationConstraint (double T, double dt, const OptVarsPtr& opt_vars);
   virtual ~TimeDiscretizationConstraint ();
 
@@ -51,8 +46,6 @@ private:
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const = 0;
 
   std::vector<double> dts_; ///< discretized times
-
-//  ContactTimePtr contact_timings_;
 };
 
 } /* namespace opt */

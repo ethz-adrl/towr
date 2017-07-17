@@ -19,7 +19,6 @@
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/contact_timings.h>
 #include <xpp/opt/variables/polynomial_spline.h>
 #include <xpp/opt/variables/variable_names.h>
 
@@ -66,22 +65,23 @@ MotionOptimizerFacade::BuildVariables ()
   opt_variables_->AddComponent(contact_schedule);
 
 
-
-
   for (auto ee : motion_parameters_->robot_ee_) {
 
-    // add timings as optimization variables
-    auto ee_timings = std::make_shared<ContactTimings>(ee, contact_schedule->GetTimePerPhase(ee));
-    opt_variables_->AddComponent(ee_timings);
+//    // add timings as optimization variables
+//    auto ee_timings = std::make_shared<ContactTimings>(ee, contact_schedule->GetTimePerPhase(ee));
+//    opt_variables_->AddComponent(ee_timings);
+    auto timings = contact_schedule->GetTimePerPhase(ee);
     bool ee_initially_in_contact = contact_schedule->GetPhases(ee).front().first;
-    int n_phases = ee_timings->GetTimings().size();
+    int n_phases = timings.size();
 
 
     // EE_MOTION
     std::string id_motion = id::endeffectors_motion+std::to_string(ee);
     auto ee_poly = std::make_shared<EndeffectorSpline>(id_motion, ee_initially_in_contact);
-    ee_poly->Init(n_phases, 4,initial_ee_W_.At(ee));
-    ee_poly->SetPhaseDurations(ee_timings->GetTimings(), 1);
+    int polys_per_duration = 1;
+    int order_poly = 4;
+    ee_poly->Init(n_phases*polys_per_duration, order_poly,initial_ee_W_.At(ee));
+    ee_poly->SetPhaseDurations(timings, polys_per_duration);
     opt_variables_->AddComponent(ee_poly);
 
 
@@ -91,8 +91,8 @@ MotionOptimizerFacade::BuildVariables ()
                                                   ee_initially_in_contact,
                                                   motion_parameters_->GetForceLimit());
     double fz_stand = motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount();
-    ee_force->Init(n_phases*motion_parameters_->polys_per_ee_phase_, 3, Vector3d(0.0, 0.0, fz_stand));
-    ee_force->SetPhaseDurations(ee_timings->GetTimings(), motion_parameters_->polys_per_ee_phase_);
+    ee_force->Init(n_phases*motion_parameters_->polys_per_force_phase_, 3, Vector3d(0.0, 0.0, fz_stand));
+    ee_force->SetPhaseDurations(timings, motion_parameters_->polys_per_force_phase_);
     opt_variables_->AddComponent(ee_force);
 
 

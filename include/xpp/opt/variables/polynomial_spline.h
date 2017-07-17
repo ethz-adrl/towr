@@ -70,8 +70,6 @@ public:
 
   static int GetSegmentID(double t_global, const VecTimes&);
   static double GetLocalTime(double t_global, const VecTimes&);
-//  double GetTotalTime() const;
-
 
   double GetDurationOfPoly(int id) const { return durations_.at(id); };
 

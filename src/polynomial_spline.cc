@@ -40,6 +40,8 @@ void
 PolynomialSpline::SetPhaseDurations (const std::vector<double>& durations,
                                      int polys_per_duration)
 {
+  // zmp_ make this assert not neccessary
+
   assert(durations.size()*polys_per_duration == polynomials_.size());
   durations_.clear();
   n_polys_per_phase_ = polys_per_duration;
@@ -51,22 +53,14 @@ PolynomialSpline::SetPhaseDurations (const std::vector<double>& durations,
   }
 }
 
-
-//double
-//PolynomialSpline::GetTotalTime() const
-//{
-//  return std::accumulate(durations_.begin(), durations_.end(), 0.0);
-//}
-
 const StateLinXd
 PolynomialSpline::GetPoint(double t_global) const
 {
   int idx        = GetSegmentID(t_global, durations_);
-  double t_local = GetLocalTime(t_global,durations_);
+  double t_local = GetLocalTime(t_global, durations_);
 
   return GetPoint(idx, t_local);
 }
-
 
 
 double
@@ -82,11 +76,12 @@ PolynomialSpline::GetLocalTime(double t_global, const VecTimes& durations)
   return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
 }
 
+// possibly move these to different file
+// so no dependency of contact_timings on this spline
 int
 PolynomialSpline::GetSegmentID(double t_global, const VecTimes& durations)
 {
   double eps = 1e-10; // double imprecision
-//  assert(t_global<=GetTotalTime()+eps); // machine precision
 
    double t = 0;
    int i=0;

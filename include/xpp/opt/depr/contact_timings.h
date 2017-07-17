@@ -38,23 +38,15 @@ public:
   JacobianRow GetJacobianOfContactValueWrtTimings(double t_global) const;
 
 private:
-  // fix first phase
   enum PhaseType {InContact=0, BreakContact, Flight, MakeContact, PhaseCount};
-
-//  void SetTimings(const TimingsVec& t) { t_vec_ = t; };
-
   PhaseType GetPhaseType(double t_global) const;
+
   int Index(double t_global) const;
-
-
-//  PhaseType Opposite(const PhaseType&) const;
-
-  double eps_ = 0.02; ///< transition time between phases
   TimingsVec GetTVecWithTransitions() const;
 
-
-  TimingsVec t_vec_;
-  const double t_max_ = 1; //[s]
+  double eps_ = 0.02; ///< transition time between phases [s]
+  TimingsVec t_vec_; ///< vector of phase times
+  double t_max_; //[s]
 };
 
 } /* namespace opt */

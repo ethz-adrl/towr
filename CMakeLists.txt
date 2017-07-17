@@ -85,13 +85,14 @@ add_library(${MOTION_OPT_LIB}
   src/cost_constraint_factory.cc
   src/soft_constraint.cc
   src/time_discretization_constraint.cc
+#  src/contact_constraints.cc
+#  src/contact_timings.cc
   # body motion
   src/polynomial.cc
 #  src/spline.cc
   src/angular_state_converter.cc
 #  src/base_motion.cc
   src/polynomial_spline.cc
-  src/contact_timings.cc
   src/linear_spline_equations.cc
   src/polynomial_cost.cc
   # endeffector motion

@@ -80,17 +80,12 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
 
   if (var_set == ee_spline_->GetName()) {
     jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_->GetJacobian(t,kPos);
-    // zmp_ add separate jacobian w.r.t. timings of each polynomial.
-    // keep top line untouched for backwards compatiblity.
   }
 
 //  if (var_set == contact_timings_->GetName()) {
 //    jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_->GetJacobian(t,kPos);
-//    // zmp_ add separate jacobian w.r.t. timings of each polynomial.
 //    // keep top line untouched for backwards compatiblity.
 //  }
-
-
 
   if (var_set == base_linear_->GetName()) {
     jac.middleRows(row_start, kDim3d) = -1*b_R_w*base_linear_->GetJacobian(t, kPos);
