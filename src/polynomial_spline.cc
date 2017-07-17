@@ -33,7 +33,8 @@ PolynomialSpline::Init (int n_polys, int poly_order, const VectorXd& initial_val
     polynomials_.push_back(p);
   }
 
-  SetRows(n_polys*GetFreeCoeffPerPoly()*n_dim_);
+  // assume all polynomials have same size
+  SetRows(n_polys*polynomials_.front().GetValues().rows());
 }
 
 void
@@ -116,10 +117,16 @@ PolynomialSpline::GetPoint (int id, double t_local) const
 int
 PolynomialSpline::Index (int poly, int dim, Polynomial::PolynomialCoeff coeff) const
 {
-  // zmp_ spline shouldn't know anything about internal polynomial ordering.
-  return GetFreeCoeffPerPoly() * n_dim_ * poly
-       + GetFreeCoeffPerPoly() * dim
-       + coeff;
+  // zmp_ replace with GetROws();
+  // assume all have same size
+  int opt_vars_poly = polynomials_.front().GetValues().rows();
+
+  return poly*opt_vars_poly +  polynomials_.at(poly).Index(coeff,dim);
+
+//  // zmp_ spline shouldn't know anything about internal polynomial ordering.
+//  return GetFreeCoeffPerPoly() * n_dim_ * poly
+//       + GetFreeCoeffPerPoly() * dim
+//       + coeff;
 }
 
 VectorXd
@@ -157,8 +164,35 @@ PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 Jacobian
 PolynomialSpline::GetJacobian (int id, double t_local, MotionDerivative dxdt) const
 {
+
+  Jacobian jacobian(n_dim_, GetRows());
+
+
   polynomials_.at(id).SetTime(t_local);
-  return polynomials_.at(id).GetJacobian(dxdt);
+  auto jac = polynomials_.at(id).GetJacobian(dxdt);
+
+
+  int col_start = id*polynomials_.front().GetValues().rows();
+
+  // this will all be replaced anyway
+
+//  for (int dim=0; dim<n_dim_; ++dim) {
+    //  const Jacobian& jac = c->GetJacobian();
+    for (int k=0; k<jac.outerSize(); ++k) {
+      for (Jacobian::InnerIterator it(jac,k); it; ++it) {
+        jacobian.coeffRef(it.row(), col_start + it.col()) = it.value();
+      }
+    }
+//  }
+
+
+
+
+
+  // zmp_ remove later?
+//  assert(jac.cols() == GetValues().rows());
+
+  return jacobian;
 
 
 //  Jacobian jac(n_dim_, GetRows());
@@ -197,11 +231,11 @@ PolynomialSpline::SetValues (const VectorXd& optimized_coeff)
   }
 }
 
-int
-PolynomialSpline::GetFreeCoeffPerPoly () const
-{
-  return polynomials_.front().GetCoeffIds().size();
-}
+//int
+//PolynomialSpline::GetFreeCoeffPerPoly () const
+//{
+//  return polynomials_.front().GetCoeffIds().size();
+//}
 
 
 EndeffectorSpline::EndeffectorSpline(const std::string& id, bool first_phase_in_contact)

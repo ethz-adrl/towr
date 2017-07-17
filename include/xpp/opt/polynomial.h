@@ -49,6 +49,7 @@ public:
 
   double GetDerivativeWrtCoeff(MotionDerivative, PolynomialCoeff) const;
 
+  // zmp_ most of these can go
   double GetCoefficient(int dim, PolynomialCoeff coeff) const;
   void SetCoefficient(int dim,   PolynomialCoeff coeff, double value);
   void SetCoefficients(PolynomialCoeff coeff, const VectorXd& value);
@@ -57,7 +58,7 @@ public:
 
 private:
   double t_;                    ///!< current time
-  std::vector<VectorXd> coeff_; //!< coefficients values of spline.
+//  std::vector<VectorXd> coeff_; //!< coefficients values of spline.
   CoeffVec coeff_ids_;          //!< non-zero coefficient indices.
 
   VectorXd all_coeff_;

@@ -16,7 +16,7 @@ Spliners ready to use:
 #include <cassert>
 #include <cmath>
 
-static int poly_id = 0;
+//static int poly_id = 0;
 
 namespace xpp {
 namespace opt {
@@ -24,21 +24,26 @@ namespace opt {
 Polynomial::Polynomial (int order, int dim)
 //    : Component(-1, "polynomial " + std::to_string(poly_id++))
 {
+
+//  std::cout << "order: " << order << std::endl;
   int n_coeff = order+1;
   for (int c=A; c<n_coeff; ++c) {
-    coeff_.push_back(VectorXd::Zero(dim));
+//    coeff_.push_back(VectorXd::Zero(dim));
     coeff_ids_.push_back(static_cast<PolynomialCoeff>(c));
   }
 
   n_coeff_per_dimension_ = n_coeff;
   n_dim_ = dim;
 
-
+  // zmp_ use to SetRows()
+  all_coeff_ = VectorXd::Zero(n_coeff_per_dimension_*n_dim_);
 }
 
 void
 Polynomial::SetCoefficients (PolynomialCoeff coeff, const VectorXd& value)
 {
+//  all_coeff_.middleRows(Index(coeff, 0), n_coeff_per_dimension_) = value;
+
   for (int dim=0; dim<value.rows(); ++dim) {
     SetCoefficient(dim, coeff, value(dim));
   }
@@ -46,8 +51,20 @@ Polynomial::SetCoefficients (PolynomialCoeff coeff, const VectorXd& value)
 
 void Polynomial::SetCoefficient(int dim, PolynomialCoeff coeff, double value)
 {
-  coeff_[coeff](dim) = value;
+  all_coeff_(Index(coeff, dim)) = value;
 }
+
+double Polynomial::GetCoefficient(int dim, PolynomialCoeff coeff) const
+{
+  return all_coeff_(Index(coeff, dim));
+}
+
+Polynomial::CoeffVec
+Polynomial::GetCoeffIds () const
+{
+  return coeff_ids_;
+}
+
 
 VectorXd
 Polynomial::GetValues () const
@@ -75,11 +92,21 @@ Jacobian
 Polynomial::GetJacobian (MotionDerivative dxdt) const
 {
   int n = all_coeff_.rows();
-  JacobianRow jac(n);
+  Jacobian jac(n_dim_, n);
+
+//  std::cout << "DEBUUUUG:\n";
+//  std::cout << "n:  " << n << std::endl;
+//  std::cout << "n_dim_: " << n_dim_ << std::endl;
 
   for (int dim=0; dim<n_dim_; ++dim) {
     for (PolynomialCoeff c : coeff_ids_) {
+
       int idx = Index(c, dim);
+
+//      std::cout << "dim: " << dim << std::endl;
+//      std::cout << "coeff: " << c << std::endl;
+//      std::cout << "idx: " << idx << std::endl;
+
       jac.insert(dim, idx) = GetDerivativeWrtCoeff(dxdt, c);
     }
   }
@@ -90,13 +117,13 @@ Polynomial::GetJacobian (MotionDerivative dxdt) const
 int
 Polynomial::Index(PolynomialCoeff coeff, int dim) const
 {
-  return coeff*n_coeff_per_dimension_ + dim;
+  return coeff*n_dim_ + dim;
 }
 
 VectorXd
 Polynomial::GetCoefficients (PolynomialCoeff coeff) const
 {
-  return all_coeff_.middleRows(Index(coeff, 0), n_coeff_per_dimension_);
+  return all_coeff_.middleRows(Index(coeff, 0), n_dim_);
 }
 
 
@@ -111,7 +138,7 @@ StateLinXd Polynomial::GetPoint() const
   if (t_ < 0.0)
     throw std::runtime_error("spliner.cc called with dt<0");
 
-  StateLinXd out(coeff_.at(A).rows());
+  StateLinXd out(n_dim_);
 
   for (auto d : {kPos, kVel, kAcc}) {
     for (PolynomialCoeff c : GetCoeffIds()) {
@@ -137,18 +164,6 @@ Polynomial::GetDerivativeWrtCoeff (MotionDerivative deriv, PolynomialCoeff c) co
     case kJerk:  return c*(c-1)*(c-2)*std::pow(t_,c-3); break;
   }
 }
-
-double Polynomial::GetCoefficient(int dim, PolynomialCoeff coeff) const
-{
-  return coeff_[coeff](dim);
-}
-
-Polynomial::CoeffVec
-Polynomial::GetCoeffIds () const
-{
-  return coeff_ids_;
-}
-
 
 
 //void

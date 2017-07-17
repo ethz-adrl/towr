@@ -81,7 +81,7 @@ protected:
 
   int n_polys_per_phase_; // polynomials used to represent each timing phase
 
-  int GetFreeCoeffPerPoly() const;
+//  int GetFreeCoeffPerPoly() const;
 };
 
 
