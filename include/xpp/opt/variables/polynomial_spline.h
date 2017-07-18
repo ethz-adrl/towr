@@ -74,9 +74,9 @@ public:
 
 
 
-  void Init (int n_polys, int poly_order, const VectorXd& initial_value);
-  void SetPhaseDurations(const std::vector<double>& phase_durations,
-                         int polys_per_duration);
+//  void Init (int n_polys, int poly_order, const VectorXd& initial_value);
+//  void SetPhaseDurations(const std::vector<double>& phase_durations,
+//                         int polys_per_duration);
 
 //  VectorXd GetValues () const override;
 //  void SetValues (const VectorXd& optimized_coeff) override;
@@ -101,10 +101,11 @@ public:
 
   // zmp_ there is no need to combine these jacobians!
   Jacobian    GetJacobian(double t_global, MotionDerivative dxdt) const;
-  Jacobian    GetJacobian(int id, double t_local, MotionDerivative dxdt) const;
+//  Jacobian    GetJacobian(int id, double t_local, MotionDerivative dxdt) const;
 
   VecPolynomials GetPolynomials() const { return polynomials_; }
   PolynomialPtr GetPolynomial(int id) const { return polynomials_.at(id); }
+
 
   PolynomialPtr GetActivePolynomial(double t_global) const
   {
@@ -117,13 +118,29 @@ public:
 
 
   const StateLinXd GetPoint(double t_globals) const;
-  const StateLinXd GetPoint(int id, double t_local) const;
+//  const StateLinXd GetPoint(int id, double t_local) const;
 
   static int GetSegmentID(double t_global, const VecTimes&);
   static double GetLocalTime(double t_global, const VecTimes&);
 
   double GetDurationOfPoly(int id) const { return durations_.at(id); };
 
+
+
+
+
+protected:
+  VecTimes durations_; ///< duration of each polynomial in spline
+
+  ///< pointer to retain access to polynomial functions
+  VecPolynomials polynomials_;
+
+//  int n_dim_;
+
+//  int n_polys_per_phase_; // polynomials used to represent each timing phase
+
+
+private:
 
   // zmp_ move to source
   void AddPolynomial(const PolynomialPtr& poly)
@@ -135,18 +152,6 @@ public:
   {
     durations_ = durations;
   }
-
-
-
-protected:
-  VecTimes durations_; ///< duration of each polynomial in spline
-
-  ///< pointer to retain access to polynomial functions
-  VecPolynomials polynomials_;
-
-  int n_dim_;
-
-  int n_polys_per_phase_; // polynomials used to represent each timing phase
 
 //  int GetFreeCoeffPerPoly() const;
 };

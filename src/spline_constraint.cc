@@ -93,8 +93,6 @@ SplineStateConstraint::FillJacobianWithRespectTo (std::string var_set,
   auto p = spline_->GetActivePolynomial(t_);
   if (var_set == p->GetName()) {
 
-    std::cout << "GetName(): " << p->GetName() << " for var_set " << var_set << std::endl;
-
     int row = 0;
     for (auto dxdt :  derivatives_) {
       //        p->SetTime(PolynomialSpline::GetLocalTime(t_));
@@ -122,12 +120,6 @@ SplineStateConstraint::GetBounds () const
 
   return bounds;
 }
-
-
-
-
-
-
 
 
 
@@ -160,8 +152,8 @@ SplineJunctionConstraint::GetValues () const
   for (int id = 0; id < n_junctions_; ++id) {
     double T = spline_->GetDurationOfPoly(id);
 
-    auto p0 = spline_->GetPoint(id, T);
-    auto p1 = spline_->GetPoint(id+1, 0.0);
+    auto p0 = spline_->GetPolynomial(id)->GetPoint(T);
+    auto p1 = spline_->GetPolynomial(id+1)->GetPoint(0.0);
 
     for (auto dxdt :  derivatives_) {
       g.middleRows(row,n_dim_) = p0.GetByIndex(dxdt) - p1.GetByIndex(dxdt);
@@ -192,10 +184,11 @@ SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
 
       //
 
+      // zmp_ clean this up
 
       //      int row = 0;
       //      for (int id = 0; id < n_junctions_; ++id) {
-      //        double T = spline_->GetDurationOfPoly(id);
+              double T = spline_->GetDurationOfPoly(id);
 
       for (auto dxdt :  derivatives_) {
 
@@ -207,11 +200,12 @@ SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
 
 
 
-        p->SetTime(spline_->GetDurationOfPoly(id));
-        auto jac_final = p->GetJacobian(dxdt);
 
-        p->SetTime(0.0);
-        auto jac_start = p->GetJacobian(dxdt);
+//        p->SetTime(spline_->GetDurationOfPoly(id));
+        auto jac_final = p->GetJacobian(T,dxdt);
+
+//        p->SetTime(0.0);
+        auto jac_start = p->GetJacobian(0.0,dxdt);
 
         if (id != 0) // start of first spline constrained elsewhere
           jac.middleRows(IndexRowStart(id,   Start, dxdt), n_dim_) = -jac_start;

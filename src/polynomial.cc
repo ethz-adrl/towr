@@ -46,25 +46,26 @@ Polynomial::SetCoefficients (PolynomialCoeff coeff, const VectorXd& value)
 //  all_coeff_.middleRows(Index(coeff, 0), n_coeff_per_dimension_) = value;
 
   for (int dim=0; dim<value.rows(); ++dim) {
-    SetCoefficient(dim, coeff, value(dim));
+    all_coeff_(Index(coeff, dim)) = value(dim);
+//    SetCoefficient(dim, coeff, value(dim));
   }
 }
 
-void Polynomial::SetCoefficient(int dim, PolynomialCoeff coeff, double value)
-{
-  all_coeff_(Index(coeff, dim)) = value;
-}
+//void Polynomial::SetCoefficient(int dim, PolynomialCoeff coeff, double value)
+//{
+//  all_coeff_(Index(coeff, dim)) = value;
+//}
+//
+//double Polynomial::GetCoefficient(int dim, PolynomialCoeff coeff) const
+//{
+//  return all_coeff_(Index(coeff, dim));
+//}
 
-double Polynomial::GetCoefficient(int dim, PolynomialCoeff coeff) const
-{
-  return all_coeff_(Index(coeff, dim));
-}
-
-Polynomial::CoeffVec
-Polynomial::GetCoeffIds () const
-{
-  return coeff_ids_;
-}
+//Polynomial::CoeffVec
+//Polynomial::GetCoeffIds () const
+//{
+//  return coeff_ids_;
+//}
 
 
 VectorXd
@@ -89,31 +90,7 @@ Polynomial::SetValues (const VectorXd& optimized_coeff)
   all_coeff_ = optimized_coeff;
 }
 
-Jacobian
-Polynomial::GetJacobian (MotionDerivative dxdt) const
-{
-//  int n = all_coeff_.rows();
-  Jacobian jac(n_dim_, GetRows());
 
-//  std::cout << "DEBUUUUG:\n";
-//  std::cout << "n:  " << n << std::endl;
-//  std::cout << "n_dim_: " << n_dim_ << std::endl;
-
-  for (int dim=0; dim<n_dim_; ++dim) {
-    for (PolynomialCoeff c : coeff_ids_) {
-
-      int idx = Index(c, dim);
-
-//      std::cout << "dim: " << dim << std::endl;
-//      std::cout << "coeff: " << c << std::endl;
-//      std::cout << "idx: " << idx << std::endl;
-
-      jac.insert(dim, idx) = GetDerivativeWrtCoeff(dxdt, c);
-    }
-  }
-
-  return jac;
-}
 
 int
 Polynomial::Index(PolynomialCoeff coeff, int dim) const
@@ -133,7 +110,7 @@ Polynomial::GetCoefficients (PolynomialCoeff coeff) const
  * spline coefficients are zero (as set by @ref Spliner()), the higher-order
  * terms have no effect.
  */
-StateLinXd Polynomial::GetPoint() const
+StateLinXd Polynomial::GetPoint(double t_) const
 {
   // sanity checks
   if (t_ < 0.0)
@@ -142,18 +119,44 @@ StateLinXd Polynomial::GetPoint() const
   StateLinXd out(n_dim_);
 
   for (auto d : {kPos, kVel, kAcc}) {
-    for (PolynomialCoeff c : GetCoeffIds()) {
+    for (PolynomialCoeff c : coeff_ids_) {
       // zmp_ remove
 //      out.GetByIndex(d) += GetDerivativeWrtCoeff(d, c)*coeff_[c];
-      out.GetByIndex(d) += GetDerivativeWrtCoeff(d, c)*GetCoefficients(c);
+      out.GetByIndex(d) += GetDerivativeWrtCoeff(t_, d, c)*GetCoefficients(c);
     }
   }
 
   return out;
 }
 
+Jacobian
+Polynomial::GetJacobian (double t_, MotionDerivative dxdt) const
+{
+//  int n = all_coeff_.rows();
+  Jacobian jac(n_dim_, GetRows());
+
+//  std::cout << "DEBUUUUG:\n";
+//  std::cout << "n:  " << n << std::endl;
+//  std::cout << "n_dim_: " << n_dim_ << std::endl;
+
+  for (int dim=0; dim<n_dim_; ++dim) {
+    for (PolynomialCoeff c : coeff_ids_) {
+
+      int idx = Index(c, dim);
+
+//      std::cout << "dim: " << dim << std::endl;
+//      std::cout << "coeff: " << c << std::endl;
+//      std::cout << "idx: " << idx << std::endl;
+
+      jac.insert(dim, idx) = GetDerivativeWrtCoeff(t_, dxdt, c);
+    }
+  }
+
+  return jac;
+}
+
 double
-Polynomial::GetDerivativeWrtCoeff (MotionDerivative deriv, PolynomialCoeff c) const
+Polynomial::GetDerivativeWrtCoeff (double t_, MotionDerivative deriv, PolynomialCoeff c) const
 {
   if (c<deriv)  // risky/ugly business...
     return 0.0; // derivative not depended on this coefficient.

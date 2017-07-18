@@ -38,29 +38,33 @@ public:
 
 
   // zmp_ !!!for sure combine with time again!
-  void SetTime(double t) {t_ = t;};
+//  void SetTime(double t) {t_ = t;};
   /// jacobian of function below wr.t. values
-  Jacobian GetJacobian(MotionDerivative dxdt) const;
-  StateLinXd GetPoint() const;
+  StateLinXd GetPoint(double t) const;
+  Jacobian GetJacobian(double t, MotionDerivative dxdt) const;
 
+
+
+
+
+
+//  CoeffVec GetCoeffIds() const;
+  int GetDimCount() const {return n_dim_; };
+
+  void SetCoefficients(PolynomialCoeff coeff, const VectorXd& value);
+
+private:
+  // zmp_ most of these can go
+//  double GetCoefficient(int dim, PolynomialCoeff coeff) const;
+//  void SetCoefficient(int dim,   PolynomialCoeff coeff, double value);
 
   ///< ax,ay,az,bx,by,bz,cx,cy,cz
-  int Index(PolynomialCoeff coeff, int dim) const;
   VectorXd GetCoefficients(PolynomialCoeff coeff) const;
 
 
-  double GetDerivativeWrtCoeff(MotionDerivative, PolynomialCoeff) const;
-
-  // zmp_ most of these can go
-  double GetCoefficient(int dim, PolynomialCoeff coeff) const;
-  void SetCoefficient(int dim,   PolynomialCoeff coeff, double value);
-  void SetCoefficients(PolynomialCoeff coeff, const VectorXd& value);
-
-  CoeffVec GetCoeffIds() const;
-  int GetDimCount() const {return n_dim_; };
-
-private:
-  double t_;                    ///!< current time
+  int Index(PolynomialCoeff coeff, int dim) const;
+  double GetDerivativeWrtCoeff(double t, MotionDerivative, PolynomialCoeff) const;
+//  double t_;                    ///!< current time
 //  std::vector<VectorXd> coeff_; //!< coefficients values of spline.
   CoeffVec coeff_ids_;          //!< non-zero coefficient indices.
 
