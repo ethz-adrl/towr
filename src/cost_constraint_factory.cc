@@ -54,6 +54,9 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
   initial_ee_W_ = ee_pos;
   initial_base_ = initial_base;
   final_base_ = final_base;
+
+  contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars_->GetComponent(id::contact_schedule));
+
 }
 
 CostConstraintFactory::ConstraintPtr
@@ -114,10 +117,10 @@ CostConstraintFactory::MakeInitialConstraint () const
 //  state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_angular, initial_base_.ang, t));
 
 
-  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_vars_->GetComponent(id::contact_schedule));
+//  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_vars_->GetComponent(id::contact_schedule));
 
   for (auto ee : params->robot_ee_) {
-    auto durations_ee = contact_schedule->GetTimePerPhase(ee);
+    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);
     std::string id = id::endeffectors_motion+std::to_string(ee);
 //    state_constraints->AddComponent(MakePolynomialSplineConstraint(id, StateLin3d(initial_ee_W_.At(ee)), t));
     state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id, durations_ee, t, VectorXd(initial_ee_W_.At(ee)), derivs));
@@ -162,12 +165,12 @@ CostConstraintFactory::MakeJunctionConstraint () const
 //  junction_constraints->AddComponent(MakePolynomialJunctionConstraint(id::base_angular, derivatives));
 
   // allow lifting/placing of endeffector with nonzero acceleration
-  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_vars_->GetComponent(id::contact_schedule));
+//  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_vars_->GetComponent(id::contact_schedule));
 
   for (auto ee : params->robot_ee_) {
     // zmp_ add this back if using original ee-parameterization
     std::string id_motion = id::endeffectors_motion+std::to_string(ee);
-    auto durations_ee = contact_schedule->GetTimePerPhase(ee);
+    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);
 
     auto derivs_pos_vel = {kPos, kVel};
     junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id_motion, durations_ee, derivs_pos_vel));
@@ -219,6 +222,8 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
                                                 dt,
                                                 params->GetMaximumDeviationFromNominal(),
                                                 params->GetNominalStanceInBase().At(ee),
+                                                params->GetBasePolyDurations(),
+                                                contact_schedule_->GetTimePerPhase(ee),
                                                 ee,
                                                 params->GetTotalTime());
 

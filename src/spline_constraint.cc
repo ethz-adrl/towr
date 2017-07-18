@@ -90,8 +90,8 @@ SplineStateConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                   Jacobian& jac) const
 {
   // zmp_ determine beforehand (fixed after initialization)
-  auto p = spline_->GetActivePolynomial(t_);
-  if (var_set == p->GetName()) {
+//  auto p = spline_->GetActivePolynomial(t_);
+  if (spline_->PolynomialActive(var_set, t_)) {
 
     int row = 0;
     for (auto dxdt :  derivatives_) {

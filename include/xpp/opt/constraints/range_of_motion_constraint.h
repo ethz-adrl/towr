@@ -39,16 +39,20 @@ class PolynomialSpline;
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
   using PolySplinePtr  = std::shared_ptr<PolynomialSpline>;
+  using VecTimes       = std::vector<double>;
 
   /**
    * @param dt discretization interval [s] when to check this constraint.
    * @param deviation_xy allowed endeffector deviation from the default (x,y).
    * @param nom nominal endeffector position in base frame.
    */
+  // zmp_ just pass in fucking all parameter class
   RangeOfMotionBox(const OptVarsPtr& opt_vars_container,
                    double dt,
                    const Vector3d& max_deviation_B,
                    const Vector3d& nominal_ee_B,
+                   const VecTimes& base_poly_durations,
+                   const VecTimes& ee_poly_durations,
                    const EndeffectorID& ee,
                    double T);
   virtual ~RangeOfMotionBox();

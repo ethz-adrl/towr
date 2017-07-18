@@ -39,10 +39,10 @@ public:
   PolynomialSpline (const std::string& component_name);
   virtual ~PolynomialSpline ();
 
-  // zmp_ dummy method just to get to compile
+  // zmp_ dummy method just to get to compile the other constraints
   std::string GetName() const {};
   // zmp_ also remove this one
-  int GetRows() const { return polynomials_.size()*polynomials_.front()->GetValues().rows();};
+//  int GetRows() const { return polynomials_.size()*polynomials_.front()->GetValues().rows();};
 
 
   // zmp_ move to src
@@ -105,6 +105,14 @@ public:
 
   VecPolynomials GetPolynomials() const { return polynomials_; }
   PolynomialPtr GetPolynomial(int id) const { return polynomials_.at(id); }
+
+  /** @returns true if the polynomial with poly_name is active at current time.
+   */
+  bool PolynomialActive(const std::string& poly_name, double t_global)
+  {
+    int id = GetSegmentID(t_global, durations_);
+    return polynomials_.at(id)->GetName() == poly_name;
+  }
 
 
   PolynomialPtr GetActivePolynomial(double t_global) const

@@ -22,6 +22,8 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
                                     double dt,
                                     const Vector3d& max_dev_B,
                                     const Vector3d& nominal_ee_B,
+                                    const VecTimes& base_poly_durations,
+                                    const VecTimes& ee_poly_durations,
                                     const EndeffectorID& ee,
                                     double T)
     :TimeDiscretizationConstraint(T, dt, opt_vars)
@@ -30,10 +32,24 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   max_deviation_from_nominal_ = max_dev_B;
   nominal_ee_pos_B            = nominal_ee_B;
 
+
+  base_linear_  = PolynomialSpline::BuildSpline(opt_vars, id::base_linear, base_poly_durations);
+  base_angular_ = PolynomialSpline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
+
+
+//  std::cout << "\n\ndurations of ee " << std::to_string(ee) << std::endl;
+//  for (auto d : ee_poly_durations) {
+//    std::cout << d << std::endl;
+//  }
+
+//  base_linear_  = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_linear));
+//  base_angular_ = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_angular));
+
+
   std::string id_ee_motion = id::endeffectors_motion+std::to_string(ee);
-  base_linear_  = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_linear));
-  base_angular_ = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_angular));
-  ee_spline_    = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id_ee_motion));
+//  ee_spline_    = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id_ee_motion));
+  ee_spline_ = PolynomialSpline::BuildSpline(opt_vars, id_ee_motion, ee_poly_durations);
+
 
   SetRows(GetNumberOfNodes()*kDim3d);
   converter_ = AngularStateConverter(base_angular_);
@@ -78,20 +94,22 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
   int row_start = GetRow(k,X);
 
-  if (var_set == ee_spline_->GetName()) {
+  if (ee_spline_->PolynomialActive(var_set,t)) {
     jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_->GetJacobian(t,kPos);
   }
 
+  // zmp_ remove
 //  if (var_set == contact_timings_->GetName()) {
 //    jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_->GetJacobian(t,kPos);
 //    // keep top line untouched for backwards compatiblity.
 //  }
 
-  if (var_set == base_linear_->GetName()) {
+//  auto p_lin = base_linear_->GetActivePolynomial(t);
+  if (base_linear_->PolynomialActive(var_set,t)) {
     jac.middleRows(row_start, kDim3d) = -1*b_R_w*base_linear_->GetJacobian(t, kPos);
   }
 
-  if (var_set == base_angular_->GetName()) {
+  if (base_angular_->PolynomialActive(var_set,t)) {
     Vector3d base_W   = base_linear_->GetPoint(t).p_;
     Vector3d ee_pos_W = ee_spline_->GetPoint(t).p_;
     Vector3d r_W = ee_pos_W - base_W;
