@@ -30,8 +30,12 @@ class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using PolySplinePtr   = std::shared_ptr<PolynomialSpline>;
   using DynamicModelPtr = std::shared_ptr<DynamicModel>;
+  using VecTimes        = std::vector<double>;
 
-  DynamicConstraint (const OptVarsPtr& opt_vars, const DynamicModelPtr& m, double T, double dt);
+  DynamicConstraint (const OptVarsPtr& opt_vars,
+                     const DynamicModelPtr& m,
+                     const VecTimes& base_poly_durations,
+                     double T, double dt);
   virtual ~DynamicConstraint ();
 
 private:

@@ -98,13 +98,6 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
     jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_->GetJacobian(t,kPos);
   }
 
-  // zmp_ remove
-//  if (var_set == contact_timings_->GetName()) {
-//    jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_->GetJacobian(t,kPos);
-//    // keep top line untouched for backwards compatiblity.
-//  }
-
-//  auto p_lin = base_linear_->GetActivePolynomial(t);
   if (base_linear_->PolynomialActive(var_set,t)) {
     jac.middleRows(row_start, kDim3d) = -1*b_R_w*base_linear_->GetJacobian(t, kPos);
   }

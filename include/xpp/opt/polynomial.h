@@ -32,44 +32,26 @@ public:
   Polynomial(int order, int dim, const std::string& id="polynomial");
   virtual ~Polynomial() {};
 
-  // zmp_ make override
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
 
-
-  // zmp_ !!!for sure combine with time again!
-//  void SetTime(double t) {t_ = t;};
   /// jacobian of function below wr.t. values
   StateLinXd GetPoint(double t) const;
   Jacobian GetJacobian(double t, MotionDerivative dxdt) const;
 
-
-
-
-
-
-//  CoeffVec GetCoeffIds() const;
   int GetDimCount() const {return n_dim_; };
-
   void SetCoefficients(PolynomialCoeff coeff, const VectorXd& value);
 
 private:
-  // zmp_ most of these can go
-//  double GetCoefficient(int dim, PolynomialCoeff coeff) const;
-//  void SetCoefficient(int dim,   PolynomialCoeff coeff, double value);
 
   ///< ax,ay,az,bx,by,bz,cx,cy,cz
   VectorXd GetCoefficients(PolynomialCoeff coeff) const;
 
-
   int Index(PolynomialCoeff coeff, int dim) const;
   double GetDerivativeWrtCoeff(double t, MotionDerivative, PolynomialCoeff) const;
-//  double t_;                    ///!< current time
-//  std::vector<VectorXd> coeff_; //!< coefficients values of spline.
-  CoeffVec coeff_ids_;          //!< non-zero coefficient indices.
 
+  CoeffVec coeff_ids_;          //!< non-zero coefficient indices.
   VectorXd all_coeff_;
-//  int n_coeff_per_dimension_;
   int n_dim_;
 };
 

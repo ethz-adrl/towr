@@ -13,9 +13,7 @@
 namespace xpp {
 namespace opt {
 
-PolynomialSpline::PolynomialSpline (const std::string& component_name)
-//    : Component(-1, component_name)
-//    : Composite(component_name, true) // zmp_ this shouldn't be a composite, just wrapper
+PolynomialSpline::PolynomialSpline ()
 {
 }
 
@@ -23,52 +21,21 @@ PolynomialSpline::~PolynomialSpline ()
 {
 }
 
-//void
-//PolynomialSpline::Init (int n_polys, int poly_order, const VectorXd& initial_value)
-//{
-//  n_dim_ = initial_value.rows();
-//
-//  for (int i=0; i<n_polys; ++i) {
-//    auto p = std::make_shared<Polynomial>(poly_order, n_dim_);
-//    p->SetCoefficients(Polynomial::A, initial_value);
-//    polynomials_.push_back(p);
-//
-////    AddComponent(p);
-//  }
-//
-//  // assume all polynomials have same size
-//
-//
-////  SetRows(n_polys*polynomials_.front().GetValues().rows());
-//}
-//
-//// zmp_ can possibly remove this function
-//void
-//PolynomialSpline::SetPhaseDurations (const std::vector<double>& durations,
-//                                     int polys_per_duration)
-//{
-//  // zmp_ make this assert not neccessary
-//
-//  assert(durations.size()*polys_per_duration == polynomials_.size());
-//  durations_.clear();
-//  n_polys_per_phase_ = polys_per_duration;
-//
-//  for (double duration : durations) {
-//    for (int i=0; i < n_polys_per_phase_; ++i) {
-//      durations_.push_back(duration/n_polys_per_phase_);
-//    }
-//  }
-//}
 
-const StateLinXd
-PolynomialSpline::GetPoint(double t_global) const
+PolynomialSpline::PtrS
+PolynomialSpline::BuildSpline(const OptVarsPtr& opt_vars,
+                              const std::string& spline_base_id,
+                              const VecTimes& poly_durations)
 {
-  int idx        = GetSegmentID(t_global, durations_);
-  double t_local = GetLocalTime(t_global, durations_);
+  auto spline_ = std::make_shared<PolynomialSpline>();
+  spline_->SetDurations(poly_durations);
+  for (int i=0; i<poly_durations.size(); ++i) {
+    auto p = std::dynamic_pointer_cast<Polynomial>(opt_vars->GetComponent(spline_base_id+std::to_string(i)));
+    spline_->AddPolynomial(p);
+  }
 
-  return polynomials_.at(idx)->GetPoint(t_local);
+  return spline_;
 }
-
 
 double
 PolynomialSpline::GetLocalTime(double t_global, const VecTimes& durations)
@@ -80,11 +47,9 @@ PolynomialSpline::GetLocalTime(double t_global, const VecTimes& durations)
     t_local -= durations.at(id);
   }
 
-  return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
+  return t_local;
 }
 
-// possibly move these to different file
-// so no dependency of contact_timings on this spline
 int
 PolynomialSpline::GetSegmentID(double t_global, const VecTimes& durations)
 {
@@ -103,66 +68,14 @@ PolynomialSpline::GetSegmentID(double t_global, const VecTimes& durations)
    assert(false); // this should never be reached
 }
 
-//const StateLinXd
-//PolynomialSpline::GetPoint (int id, double t_local) const
-//{
-////  polynomials_.at(id)->SetTime(t_local);
-//  return polynomials_.at(id)->GetPoint(t_local);
-//}
+const StateLinXd
+PolynomialSpline::GetPoint(double t_global) const
+{
+  int idx        = GetSegmentID(t_global, durations_);
+  double t_local = GetLocalTime(t_global, durations_);
 
-
-
-
-
-
-
-
-
-
-
-
-
-//int
-//PolynomialSpline::Index (int poly, int dim, Polynomial::PolynomialCoeff coeff) const
-//{
-//  // zmp_ replace with GetROws();
-//  // assume all have same size
-//  int opt_vars_poly = polynomials_.front()->GetRows();
-//
-//  return poly*opt_vars_poly +  polynomials_.at(poly)->Index(coeff,dim);
-//
-////  // zmp_ spline shouldn't know anything about internal polynomial ordering.
-////  return GetFreeCoeffPerPoly() * n_dim_ * poly
-////       + GetFreeCoeffPerPoly() * dim
-////       + coeff;
-//}
-
-
-
-
-//VectorXd
-//PolynomialSpline::GetValues () const
-//{
-//  VectorXd x_abcd(GetRows());
-//
-//  int i=0;
-//  for (const auto& p : polynomials_) {
-//    // zmp_ shouldn't need to go through dimensions, just splines
-//    for (int dim = 0; dim<n_dim_; dim++)
-//      for (auto coeff :  p->GetCoeffIds())
-//        x_abcd[Index(i, dim, coeff)] = p->GetCoefficient(dim, coeff);
-//    i++;
-//  }
-//
-//  return x_abcd;
-//}
-
-
-//JacobianRow
-//PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, int dim) const
-//{
-//  return GetJacobian(t_global, deriv).row(dim);
-//}
+  return polynomials_.at(idx)->GetPoint(t_local);
+}
 
 Jacobian
 PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
@@ -170,110 +83,41 @@ PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
   int id         = GetSegmentID(t_global,durations_);
   double t_local = GetLocalTime(t_global,durations_);
 
-//  polynomials_.at(id)->SetTime(t_local);
   return polynomials_.at(id)->GetJacobian(t_local, deriv);
-
-//  return GetJacobian(id, t_local, deriv);
 }
 
-//Jacobian
-//PolynomialSpline::GetJacobian (int id, double t_local, MotionDerivative dxdt) const
-//{
-//
-//  int n = GetRows();
-//  Jacobian jacobian(n_dim_, n);
-//
-//
-////  polynomials_.at(id)->SetTime(t_local);
-//  auto jac = polynomials_.at(id)->GetJacobian(t_local, dxdt);
-//
-//
-//  int col_start = id*polynomials_.front()->GetRows();
-//
-//  // zmp_ this will all be replaced anyway
-//
-////  for (int dim=0; dim<n_dim_; ++dim) {
-//    //  const Jacobian& jac = c->GetJacobian();
-//    for (int k=0; k<jac.outerSize(); ++k) {
-//      for (Jacobian::InnerIterator it(jac,k); it; ++it) {
-//        jacobian.coeffRef(it.row(), col_start + it.col()) = it.value();
-//      }
-//    }
-////  }
-//
-//  // zmp_ remove later?
-////  assert(jac.cols() == GetValues().rows());
-//
-//  return jacobian;
-//
-//
-////  Jacobian jac(n_dim_, GetRows());
-////  for (int dim=0; dim<n_dim_; ++dim)
-////    jac.row(dim) = GetJacobianWrtCoeffAtPolynomial(dxdt, t_local, id, dim);
-////
-////  return jac;
-//}
+void
+PolynomialSpline::AddPolynomial(const PolynomialPtr& poly)
+{
+  polynomials_.push_back(poly);
+}
 
-//JacobianRow
-//PolynomialSpline::GetJacobianWrtCoeffAtPolynomial (MotionDerivative deriv,
-//                                                   double t_local,
-//                                                   int id, int dim) const
-//{
-//  JacobianRow jac(1, GetRows());
-//  auto polynomial = polynomials_.at(id);
-//
-//  for (auto coeff : polynomial.GetCoeffIds()) {
-//    polynomial.SetTime(t_local);
-//    double val = polynomial.GetDerivativeWrtCoeff(deriv, coeff);
-//    int idx = Index(id,dim,coeff);
-//    jac.insert(idx) = val;
-//  }
-//
-//  return jac;
-//}
+void
+PolynomialSpline::SetDurations(const VecTimes& durations)
+{
+  durations_ = durations;
+}
+
+bool
+PolynomialSpline::PolynomialActive(const std::string& poly_name, double t_global)
+{
+  int id = GetSegmentID(t_global, durations_);
+  return polynomials_.at(id)->GetName() == poly_name;
+}
+
+
+PolynomialSpline::PolynomialPtr
+PolynomialSpline::GetActivePolynomial(double t_global) const
+{
+  int id = GetSegmentID(t_global, durations_);
+  return polynomials_.at(id);
+}
 
 
 
 
 
 
-
-//void
-//PolynomialSpline::SetValues (const VectorXd& optimized_coeff)
-//{
-//  for (size_t p=0; p<polynomials_.size(); ++p) {
-//    auto& poly = polynomials_.at(p);
-//    for (int dim = 0; dim < n_dim_; dim++)
-//      for (auto c : poly->GetCoeffIds())
-//        poly->SetCoefficient(dim, c, optimized_coeff[Index(p,dim,c)]);
-//  }
-//}
-
-
-
-
-
-//int
-//PolynomialSpline::GetFreeCoeffPerPoly () const
-//{
-//  return polynomials_.front().GetCoeffIds().size();
-//}
-
-
-
-
-
-
-//EndeffectorSpline::EndeffectorSpline(const std::string& id, bool first_phase_in_contact)
-//   : PolynomialSpline(id)
-//{
-//  first_phase_in_contact_ = first_phase_in_contact;
-//}
-//
-//EndeffectorSpline::~EndeffectorSpline ()
-//{
-//}
-//
 //VecBound
 //EndeffectorSpline::GetBounds () const
 //{
@@ -305,12 +149,6 @@ PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 //
 //  return bounds;
 //}
-
-
-
-
-
-
 
 
 //ForceSpline::ForceSpline(const std::string& id, bool first_phase_in_contact, double max_force)

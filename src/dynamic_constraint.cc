@@ -14,28 +14,32 @@
 #include <xpp/state.h>
 
 #include <xpp/opt/variables/variable_names.h>
+#include <xpp/opt/variables/contact_schedule.h>
 
 namespace xpp {
 namespace opt {
 
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       const DynamicModelPtr& m,
+                                      const VecTimes& base_poly_durations,
                                       double T,
                                       double dt)
     :TimeDiscretizationConstraint(T, dt, opt_vars)
 {
   model_ = m;
 
+  auto contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::contact_schedule));
+
   SetName("DynamicConstraint");
-  base_linear_  = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_linear));
-  base_angular_ = std::dynamic_pointer_cast<PolynomialSpline>  (opt_vars->GetComponent(id::base_angular));
+  base_linear_  = PolynomialSpline::BuildSpline(opt_vars, id::base_linear, base_poly_durations);
+  base_angular_ = PolynomialSpline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
 
   for (auto ee : model_->GetEEIDs()) {
     std::string id_motion = id::endeffectors_motion+std::to_string(ee);
-    ee_splines_.push_back(std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id_motion)));
+    ee_splines_.push_back(PolynomialSpline::BuildSpline(opt_vars, id_motion, contact_schedule_->GetTimePerPhase(ee)));
 
     std::string id_force = id::endeffector_force+std::to_string(ee);
-    ee_forces_.push_back(std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id_force)));
+    ee_forces_.push_back(PolynomialSpline::BuildSpline(opt_vars, id_force, contact_schedule_->GetTimePerPhase(ee)));
   }
 
   SetRows(GetNumberOfNodes()*kDim6d);
@@ -92,24 +96,24 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 
   for (auto ee : model_->GetEEIDs()) {
 
-    if (var_set == ee_forces_.at(ee)->GetName()) {
+    if (ee_forces_.at(ee)->PolynomialActive(var_set,t)) {
       Jacobian jac_ee_force = ee_forces_.at(ee)->GetJacobian(t,kPos);
       jac_model = model_->GetJacobianofAccWrtForce(jac_ee_force, ee);
     }
 
-    if (var_set == ee_splines_.at(ee)->GetName()) {
+    if (ee_splines_.at(ee)->PolynomialActive(var_set,t)) {
       Jacobian jac_ee_pos = ee_splines_.at(ee)->GetJacobian(t,kPos);
       jac_model = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
     }
   }
 
-  if (var_set == base_linear_->GetName()) {
+  if (base_linear_->PolynomialActive(var_set,t)) {
     Jacobian jac_base_lin_pos = base_linear_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseLin(jac_base_lin_pos);
     jac_parametrization.middleRows(LX, kDim3d) = base_linear_->GetJacobian(t,kAcc);
   }
 
-  if (var_set == base_angular_->GetName()) {
+  if (base_angular_->PolynomialActive(var_set,t)) {
     Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_base_ang_pos);
     jac_parametrization.middleRows(AX, kDim3d) = converter_.GetDerivOfAngAccWrtCoeff(t);
