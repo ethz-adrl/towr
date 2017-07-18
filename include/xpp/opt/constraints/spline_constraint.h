@@ -22,44 +22,18 @@ namespace xpp {
 namespace opt {
 
 
-class SplineConstraint : public Primitive {
-public:
-  using PolynomialPtr  = std::shared_ptr<Spline>;
-//  using ContactTimePtr = std::shared_ptr<ContactTimings>;
-  using DerivativeVec  = std::vector<MotionDerivative>;
-  using VecTimes       = std::vector<double>;
-//  using VecPolynomials = std::vector<std::shared_ptr<Polynomial>>;
-
-  SplineConstraint (const OptVarsPtr& opt_vars,
-                    const std::string& spline_id,
-                    const VecTimes& poly_durations,
-                    const DerivativeVec&);
-  virtual ~SplineConstraint ();
-
-
-
-
-
-protected:
-  PolynomialPtr spline_;
-
-//  ContactTimePtr contact_timings_;
-
-  DerivativeVec derivatives_;
-
-  int n_dim_;
-};
-
-
 /** @brief Sets the spline equal to @state at time @t.
  */
-class SplineStateConstraint : public SplineConstraint {
+class SplineStateConstraint  : public Primitive {
 public:
-  // zmp_ maybe only pass in relevant spline and local time?
+  using DerivativeVec  = std::vector<MotionDerivative>;
+  using VecTimes       = std::vector<double>;
+  using SplinePtr      = std::shared_ptr<Spline>;
+  using PolyPtr        = std::shared_ptr<Polynomial>;
+
   SplineStateConstraint (const OptVarsPtr& opt_vars,
-                         const std::string& spline_id,
-                         const VecTimes& poly_durations,
-                         double t,
+                         PolyPtr active_poly,
+                         double t_local,
                          const StateLinXd& state,
                          const DerivativeVec&);
   virtual ~SplineStateConstraint ();
@@ -69,17 +43,22 @@ public:
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
-  double t_;
+  double t_local_;
   StateLinXd state_desired_;
-//  StateLinXd state_spline_;
-
+  DerivativeVec derivatives_;
+  int n_dim_;
+  PolyPtr active_poly_;
 };
 
 
 /** @brief Equates the values at spline junctions.
  */
-class SplineJunctionConstraint : public SplineConstraint {
+class SplineJunctionConstraint : public Primitive {// : public SplineConstraint {
 public:
+  using DerivativeVec = std::vector<MotionDerivative>;
+  using SplinePtr     = std::shared_ptr<Spline>;
+  using VecTimes      = std::vector<double>;
+
   SplineJunctionConstraint (const OptVarsPtr& opt_vars,
                             const std::string& spline_id,
                             const VecTimes& poly_durations,
@@ -95,12 +74,12 @@ public:
   int IndexRowStart(int spline_id, EvalTime which_end, MotionDerivative dxdt) const;
 
 private:
+  SplinePtr spline_;
   int n_junctions_;
+
+  DerivativeVec derivatives_;
+  int n_dim_;
 };
-
-
-
-
 
 } /* namespace opt */
 } /* namespace xpp */

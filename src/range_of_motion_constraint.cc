@@ -32,24 +32,10 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   max_deviation_from_nominal_ = max_dev_B;
   nominal_ee_pos_B            = nominal_ee_B;
 
-
+  std::string id_ee_motion = id::endeffectors_motion+std::to_string(ee);
   base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear, base_poly_durations);
   base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
-
-
-//  std::cout << "\n\ndurations of ee " << std::to_string(ee) << std::endl;
-//  for (auto d : ee_poly_durations) {
-//    std::cout << d << std::endl;
-//  }
-
-//  base_linear_  = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_linear));
-//  base_angular_ = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id::base_angular));
-
-
-  std::string id_ee_motion = id::endeffectors_motion+std::to_string(ee);
-//  ee_spline_    = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id_ee_motion));
-  ee_spline_ = Spline::BuildSpline(opt_vars, id_ee_motion, ee_poly_durations);
-
+  ee_spline_    = Spline::BuildSpline(opt_vars, id_ee_motion, ee_poly_durations);
 
   SetRows(GetNumberOfNodes()*kDim3d);
   converter_ = AngularStateConverter(base_angular_);

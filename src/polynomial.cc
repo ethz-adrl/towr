@@ -23,64 +23,29 @@ Polynomial::Polynomial (int order, int dim, const std::string& id )
     : Component(-1, id)
 {
 
-//  std::cout << "order: " << order << std::endl;
   int n_coeff = order+1;
   for (int c=A; c<n_coeff; ++c) {
-//    coeff_.push_back(VectorXd::Zero(dim));
     coeff_ids_.push_back(static_cast<PolynomialCoeff>(c));
   }
 
-//  n_coeff_per_dimension_ = n_coeff;
   n_dim_ = dim;
   int n_variables = n_coeff*n_dim_;
 
   SetRows(n_variables);
 
-//  // zmp_ use to SetRows()
   all_coeff_ = VectorXd::Zero(n_variables);
 }
 
 void
 Polynomial::SetCoefficients (PolynomialCoeff coeff, const VectorXd& value)
 {
-//  all_coeff_.middleRows(Index(coeff, 0), n_coeff_per_dimension_) = value;
-
-  for (int dim=0; dim<value.rows(); ++dim) {
+  for (int dim=0; dim<value.rows(); ++dim)
     all_coeff_(Index(coeff, dim)) = value(dim);
-//    SetCoefficient(dim, coeff, value(dim));
-  }
 }
-
-//void Polynomial::SetCoefficient(int dim, PolynomialCoeff coeff, double value)
-//{
-//  all_coeff_(Index(coeff, dim)) = value;
-//}
-//
-//double Polynomial::GetCoefficient(int dim, PolynomialCoeff coeff) const
-//{
-//  return all_coeff_(Index(coeff, dim));
-//}
-
-//Polynomial::CoeffVec
-//Polynomial::GetCoeffIds () const
-//{
-//  return coeff_ids_;
-//}
-
 
 VectorXd
 Polynomial::GetValues () const
 {
-//  int n_dim = coeff_.front().rows();
-//  int n_coeff =
-//  int n = coeff_.size()*coeff_.front().rows(); // zmp_ replace with GetRows()
-//  VectorXd x(n);
-//
-//  int i=0;
-//  for (auto coeff : coeff_) {
-//    x.middleRows(
-//  }
-
   return all_coeff_;
 }
 
@@ -89,8 +54,6 @@ Polynomial::SetValues (const VectorXd& optimized_coeff)
 {
   all_coeff_ = optimized_coeff;
 }
-
-
 
 int
 Polynomial::Index(PolynomialCoeff coeff, int dim) const
@@ -118,13 +81,9 @@ StateLinXd Polynomial::GetPoint(double t_) const
 
   StateLinXd out(n_dim_);
 
-  for (auto d : {kPos, kVel, kAcc}) {
-    for (PolynomialCoeff c : coeff_ids_) {
-      // zmp_ remove
-//      out.GetByIndex(d) += GetDerivativeWrtCoeff(d, c)*coeff_[c];
+  for (auto d : {kPos, kVel, kAcc})
+    for (PolynomialCoeff c : coeff_ids_)
       out.GetByIndex(d) += GetDerivativeWrtCoeff(t_, d, c)*GetCoefficients(c);
-    }
-  }
 
   return out;
 }
@@ -132,22 +91,12 @@ StateLinXd Polynomial::GetPoint(double t_) const
 Jacobian
 Polynomial::GetJacobian (double t_, MotionDerivative dxdt) const
 {
-//  int n = all_coeff_.rows();
   Jacobian jac(n_dim_, GetRows());
-
-//  std::cout << "DEBUUUUG:\n";
-//  std::cout << "n:  " << n << std::endl;
-//  std::cout << "n_dim_: " << n_dim_ << std::endl;
 
   for (int dim=0; dim<n_dim_; ++dim) {
     for (PolynomialCoeff c : coeff_ids_) {
 
       int idx = Index(c, dim);
-
-//      std::cout << "dim: " << dim << std::endl;
-//      std::cout << "coeff: " << c << std::endl;
-//      std::cout << "idx: " << idx << std::endl;
-
       jac.insert(dim, idx) = GetDerivativeWrtCoeff(t_, dxdt, c);
     }
   }

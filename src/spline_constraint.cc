@@ -10,57 +10,28 @@
 namespace xpp {
 namespace opt {
 
-SplineConstraint::SplineConstraint (const OptVarsPtr& opt_vars,
-                                    const std::string& spline_id,
-                                    const VecTimes& poly_durations,
-                                    const DerivativeVec& derivatives
-                                    )
-{
-//  spline_ = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(spline_id));
-
-//  spline_ = std::make_shared<PolynomialSpline>("dummy");
-//  spline_->SetDurations(poly_durations);
-//  for (int i=0; i<poly_durations.size(); ++i) {
-//    auto p = std::dynamic_pointer_cast<Polynomial>(opt_vars->GetComponent(spline_id+std::to_string(i)));
-//    n_dim_ = p->GetDimCount();
-//    spline_->AddPolynomial(p);
-//  }
-
-  spline_ = Spline::BuildSpline(opt_vars, spline_id, poly_durations);
-  n_dim_  = spline_->GetPolynomial(0)->GetDimCount();
-
-
-
-
-//  contact_timings_ = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(spline_id));
-
-  derivatives_ = derivatives;
-//  n_dim_ = spline_->GetNDim();
-
-  AddOptimizationVariables(opt_vars);
-}
-
-SplineConstraint::~SplineConstraint ()
-{
-}
-
-
-
-
 
 SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
-                                              const std::string& spline_id,
-                                              const VecTimes& poly_durations,
-                                              double t,
+                                              PolyPtr active_poly,
+                                              double t_local,
                                               const StateLinXd& state,
                                               const DerivativeVec& derivatives)
-    :SplineConstraint(opt_vars, spline_id, poly_durations, derivatives)
 {
-  SetName("New SplineStateConstraint-" + spline_id);
+  SetName("SplineStateConstraint-" + active_poly->GetName());
 
-  t_ = t;
+//  auto spline  = Spline::BuildSpline(opt_vars, spline_id, poly_durations);
+//  active_poly_ = spline->GetActivePolynomial(t_global);
+//  t_local_     = Spline::GetLocalTime(t_global, poly_durations);
+
+  active_poly_ = active_poly;
+  t_local_     = t_local;
+
   state_desired_ = state;
+  derivatives_   = derivatives;
+  n_dim_         = state.kNumDim;
+
   int n_constraints = derivatives.size()*n_dim_;
+  AddOptimizationVariables(opt_vars);
   SetRows(n_constraints);
 }
 
@@ -73,7 +44,7 @@ SplineStateConstraint::GetValues () const
 {
   VectorXd g = VectorXd::Zero(GetRows());
 
-  StateLinXd state_of_poly = spline_->GetPoint(t_);
+  StateLinXd state_of_poly = active_poly_->GetPoint(t_local_);
 
   int row = 0; // constraint count
   for (auto dxdt :  derivatives_) {
@@ -89,17 +60,12 @@ void
 SplineStateConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                   Jacobian& jac) const
 {
-  // zmp_ determine beforehand (fixed after initialization)
-//  auto p = spline_->GetActivePolynomial(t_);
-  if (spline_->PolynomialActive(var_set, t_)) {
+  if (var_set == active_poly_->GetName()) {
 
     int row = 0;
     for (auto dxdt :  derivatives_) {
-      //        p->SetTime(PolynomialSpline::GetLocalTime(t_));
 
-      Jacobian jac_deriv = spline_->GetJacobian(t_,dxdt);
-      //        std::cout << jac_deriv << std::endl;
-
+      Jacobian jac_deriv = active_poly_->GetJacobian(t_local_,dxdt);
       jac.middleRows(row,n_dim_) = jac_deriv;
       row += n_dim_;
     }
@@ -129,12 +95,15 @@ SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
                                     const VecTimes& poly_durations,
                                     const DerivativeVec& derivatives
                                     )
-    :SplineConstraint(opt_vars, spline_id, poly_durations, derivatives)
 {
-  SetName("New SplineJunctionConstraint-" + spline_id);
+  SetName("SplineJunctionConstraint-" + spline_id);
+  spline_ = Spline::BuildSpline(opt_vars, spline_id, poly_durations);
+  derivatives_   = derivatives;
+  n_dim_         = spline_->GetPolynomial(0)->GetDimCount();
 
   n_junctions_ = spline_->GetPolynomials().size()-1; // because one less junction than poly's.
   int n_constraints = derivatives_.size() * n_junctions_ * n_dim_;
+  AddOptimizationVariables(opt_vars);
   SetRows(n_constraints);
 }
 
@@ -181,30 +150,10 @@ SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
   for (auto p : spline_->GetPolynomials()) {
     if (var_set == p->GetName()) {
 
-
-      //
-
-      // zmp_ clean this up
-
-      //      int row = 0;
-      //      for (int id = 0; id < n_junctions_; ++id) {
-              double T = spline_->GetDurationOfPoly(id);
-
+      double T = spline_->GetDurationOfPoly(id);
       for (auto dxdt :  derivatives_) {
 
-        //          auto jac_0 = spline_->GetJacobian(id, T, dxdt);
-        //          auto jac_1 = spline_->GetJacobian(id+1, 0.0, dxdt);
-        //
-        //          jac.middleRows(row,n_dim_) = jac_0 - jac_1;
-        //          row += n_dim_;
-
-
-
-
-//        p->SetTime(spline_->GetDurationOfPoly(id));
         auto jac_final = p->GetJacobian(T,dxdt);
-
-//        p->SetTime(0.0);
         auto jac_start = p->GetJacobian(0.0,dxdt);
 
         if (id != 0) // start of first spline constrained elsewhere
@@ -215,23 +164,9 @@ SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
 
       }
     }
-    //    }
 
     id++;
   }
-
-
-  // zmp_ use this somehow
-//  for (auto poly : spline_->GetPolynomials()) {
-//    if (var_set == poly->GetName()) {
-//
-//
-//
-//
-//    }
-//  }
-
-
 }
 
 int

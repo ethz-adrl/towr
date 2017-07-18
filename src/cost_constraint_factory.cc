@@ -108,11 +108,15 @@ CostConstraintFactory::MakeInitialConstraint () const
 
   auto derivs = {kPos, kVel, kAcc};
 
-  auto durations_base = params->GetBasePolyDurations();
+  // zmp_ remove durations
+//  auto durations_base = params->GetBasePolyDurations();
+  auto first_poly_base_lin = std::dynamic_pointer_cast<Polynomial>(opt_vars_->GetComponent(id::base_linear+"0"));
+  auto first_poly_base_ang = std::dynamic_pointer_cast<Polynomial>(opt_vars_->GetComponent(id::base_angular+"0"));
 
-  double t = 0.0; // initial time
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_linear, durations_base, t, initial_base_.lin, derivs));
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_angular, durations_base, t, initial_base_.ang, derivs));
+
+  double t = 0.0; // initial time (global and local)
+  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, first_poly_base_lin, t, initial_base_.lin, derivs));
+  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, first_poly_base_ang, t, initial_base_.ang, derivs));
 //  state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_linear, initial_base_.lin, t));
 //  state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_angular, initial_base_.ang, t));
 
@@ -120,10 +124,11 @@ CostConstraintFactory::MakeInitialConstraint () const
 //  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_vars_->GetComponent(id::contact_schedule));
 
   for (auto ee : params->robot_ee_) {
-    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);
+//    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);
     std::string id = id::endeffectors_motion+std::to_string(ee);
+    auto first_poly_ee = std::dynamic_pointer_cast<Polynomial>(opt_vars_->GetComponent(id+"0"));
 //    state_constraints->AddComponent(MakePolynomialSplineConstraint(id, StateLin3d(initial_ee_W_.At(ee)), t));
-    state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id, durations_ee, t, VectorXd(initial_ee_W_.At(ee)), derivs));
+    state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, first_poly_ee, t, VectorXd(initial_ee_W_.At(ee)), derivs));
   }
 
   return state_constraints;
@@ -134,12 +139,18 @@ CostConstraintFactory::MakeFinalConstraint () const
 {
   auto state_constraints = std::make_shared<Composite>("State Final Constraints", true);
 
-  double T = params->GetTotalTime();
+//  double T = params->GetTotalTime();
+  // need t local of base
+  auto timings   = params->GetBasePolyDurations();
+  double T_local = timings.back();
+
+  auto last_poly_base_lin = std::dynamic_pointer_cast<Polynomial>(opt_vars_->GetComponent(id::base_linear +std::to_string(timings.size()-1)));
+  auto last_poly_base_ang = std::dynamic_pointer_cast<Polynomial>(opt_vars_->GetComponent(id::base_angular+std::to_string(timings.size()-1)));
 
   auto derivs = {kPos, kVel, kAcc};
-  auto durations_base = params->GetBasePolyDurations();
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_linear, durations_base, T, final_base_.lin, derivs));
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_angular, durations_base, T, final_base_.ang, derivs));
+//  auto durations_base = params->GetBasePolyDurations();
+  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, last_poly_base_lin, T_local, final_base_.lin, derivs));
+  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, last_poly_base_ang, T_local, final_base_.ang, derivs));
 
 //  state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_linear, final_base_.lin, T));
 //  state_constraints->AddComponent(MakePolynomialSplineConstraint(id::base_angular, final_base_.ang, T));
@@ -250,8 +261,8 @@ CostConstraintFactory::MakeStancesConstraints () const
 {
   auto stance_constraints = std::make_shared<Composite>("Stance Constraints", true);
 
-  double t_start = 0.0;
-  double t_end   = params->GetTotalTime();
+//  double t_start = 0.0;
+//  double t_end   = params->GetTotalTime();
 
   Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
   EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
@@ -260,17 +271,26 @@ CostConstraintFactory::MakeStancesConstraints () const
 
   auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_vars_->GetComponent(id::contact_schedule));
 
+
   for (auto ee : params->robot_ee_) {
+
+
+
     std::string id = id::endeffectors_motion+std::to_string(ee);
     auto durations_ee = contact_schedule->GetTimePerPhase(ee);
 
-    stance_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id, durations_ee, t_start, VectorXd(initial_ee_W_.At(ee)), derivs));
+
+    auto ee_spline_  = Spline::BuildSpline(opt_vars_, id, durations_ee);
+
+
+
+    stance_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, ee_spline_->GetPolynomials().front(), 0.0, VectorXd(initial_ee_W_.At(ee)), derivs));
 //    stance_constraints->AddComponent(MakePolynomialSplineConstraint(id, StateLin3d(initial_ee_W_.At(ee)), t_start));
 
     Endeffectors<StateLin3d> endeffectors_final_W(nominal_B.GetCount());
     endeffectors_final_W.At(ee).p_ = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
 
-    stance_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id, durations_ee, t_end, endeffectors_final_W.At(ee), derivs));
+    stance_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, ee_spline_->GetPolynomials().back(), durations_ee.back(), endeffectors_final_W.At(ee), derivs));
 //    stance_constraints->AddComponent(MakePolynomialSplineConstraint(id, StateLin3d(endeffectors_final_W.At(ee)), t_end));
   }
 
