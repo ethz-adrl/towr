@@ -64,6 +64,8 @@ MotionOptimizerFacade::BuildVariables ()
       motion_parameters_->GetContactSchedule());
   opt_variables_->AddComponent(contact_schedule);
 
+  int n_dim = inital_base_.lin.kNumDim;
+
 
   for (auto ee : motion_parameters_->robot_ee_) {
 
@@ -77,12 +79,21 @@ MotionOptimizerFacade::BuildVariables ()
 
     // EE_MOTION
     std::string id_motion = id::endeffectors_motion+std::to_string(ee);
-    auto ee_poly = std::make_shared<EndeffectorSpline>(id_motion, ee_initially_in_contact);
-    int polys_per_duration = 1;
+    // zmp_ use this one again
+//    auto ee_poly = std::make_shared<EndeffectorSpline>(id_motion, ee_initially_in_contact);
+//    auto ee_poly = std::make_shared<PolynomialSpline>(id_motion);
+//    int polys_per_duration = 1;
     int order_poly = 4;
-    ee_poly->Init(n_phases*polys_per_duration, order_poly,initial_ee_W_.At(ee));
-    ee_poly->SetPhaseDurations(timings, polys_per_duration);
-    opt_variables_->AddComponent(ee_poly);
+
+    for (int i=0; i<n_phases; ++i) {
+      auto p = std::make_shared<Polynomial>(order_poly, n_dim, id_motion + std::to_string(i));
+      p->SetCoefficients(Polynomial::A, initial_ee_W_.At(ee));
+      opt_variables_->AddComponent(p);
+    }
+
+//    ee_poly->Init(n_phases*polys_per_duration, order_poly,initial_ee_W_.At(ee));
+//    ee_poly->SetPhaseDurations(timings, polys_per_duration);
+//    opt_variables_->AddComponent(ee_poly);
 
 
 //    // EE_FORCES
@@ -101,30 +112,34 @@ MotionOptimizerFacade::BuildVariables ()
 
 
   // BASE_MOTION
-  std::vector<double> base_spline_timings_;
-  double dt = motion_parameters_->duration_polynomial_;
-  double t_left = motion_parameters_->GetTotalTime();
-  while (t_left > 0.0) {
-    double duration = t_left>dt?  dt : t_left;
-    base_spline_timings_.push_back(duration);
-    t_left -= dt;
+  std::vector<double> base_spline_timings_ = motion_parameters_->GetBasePolyDurations();
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+
+    auto p_lin = std::make_shared<Polynomial>(4, n_dim, id::base_linear+std::to_string(i));
+    p_lin->SetCoefficients(Polynomial::A, inital_base_.lin.p_);
+    opt_variables_->AddComponent(p_lin);
+
+    auto p_ang = std::make_shared<Polynomial>(4, n_dim, id::base_angular+std::to_string(i));
+    p_ang->SetCoefficients(Polynomial::A, inital_base_.ang.p_);
+    opt_variables_->AddComponent(p_ang);
   }
 
 
 //  double T = motion_parameters_->GetTotalTime();
-  auto base_linear = std::make_shared<PolynomialSpline>(id::base_linear);
-  base_linear->Init(base_spline_timings_.size(), 4, inital_base_.lin.p_);
-  base_linear->SetPhaseDurations(base_spline_timings_, 1);
-  opt_variables_->AddComponent(base_linear);
 
-
-  // Represent roll, pitch and yaw by a spline each.
-  // These angles are to be interpreted as mapping a vector expressed in
-  // base frame to world frame.
-  auto base_angular = std::make_shared<PolynomialSpline>(id::base_angular);
-  base_angular->Init(base_spline_timings_.size(), 4, inital_base_.ang.p_);
-  base_angular->SetPhaseDurations(base_spline_timings_, 1);
-  opt_variables_->AddComponent(base_angular);
+//  auto base_linear = std::make_shared<PolynomialSpline>(id::base_linear);
+//  base_linear->Init(base_spline_timings_.size(), 4, inital_base_.lin.p_);
+//  base_linear->SetPhaseDurations(base_spline_timings_, 1);
+//  opt_variables_->AddComponent(base_linear);
+//
+//
+//  // Represent roll, pitch and yaw by a spline each.
+//  // These angles are to be interpreted as mapping a vector expressed in
+//  // base frame to world frame.
+//  auto base_angular = std::make_shared<PolynomialSpline>(id::base_angular);
+//  base_angular->Init(base_spline_timings_.size(), 4, inital_base_.ang.p_);
+//  base_angular->SetPhaseDurations(base_spline_timings_, 1);
+//  opt_variables_->AddComponent(base_angular);
 
   opt_variables_->Print();
 }
@@ -169,8 +184,11 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   RobotStateVec trajectory;
 
-  auto base_lin         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_linear));
-  auto base_ang         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_angular));
+  auto base_lin = PolynomialSpline::BuildSpline(opt_variables_, id::base_linear, motion_parameters_->GetBasePolyDurations());
+  auto base_ang = PolynomialSpline::BuildSpline(opt_variables_, id::base_angular, motion_parameters_->GetBasePolyDurations());
+
+//  auto base_lin         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_linear));
+//  auto base_ang         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_angular));
   auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent(id::contact_schedule));
 
 
@@ -179,7 +197,9 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   int n_ee = motion_parameters_->GetEECount();
   for (int i=0; i<n_ee; ++i) {
     std::string id_motion = id::endeffectors_motion+std::to_string(i);
-    ee_splines.push_back(std::dynamic_pointer_cast<PolynomialSpline>(opt_variables_->GetComponent(id_motion)));
+    auto ee_spline = PolynomialSpline::BuildSpline(opt_variables_, id_motion, contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));
+    ee_splines.push_back(ee_spline);
+//    ee_splines.push_back(std::dynamic_pointer_cast<PolynomialSpline>(opt_variables_->GetComponent(id_motion)));
 
     std::string id_force = id::endeffector_force+std::to_string(i);
 //    ee_forces_spline.push_back(std::dynamic_pointer_cast<PolynomialSpline>(opt_variables_->GetComponent(id_force)));

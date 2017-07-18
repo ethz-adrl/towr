@@ -16,13 +16,11 @@ Spliners ready to use:
 #include <cassert>
 #include <cmath>
 
-//static int poly_id = 0;
-
 namespace xpp {
 namespace opt {
 
-Polynomial::Polynomial (int order, int dim)
-//    : Component(-1, "polynomial " + std::to_string(poly_id++))
+Polynomial::Polynomial (int order, int dim, const std::string& id )
+    : Component(-1, id)
 {
 
 //  std::cout << "order: " << order << std::endl;
@@ -32,11 +30,14 @@ Polynomial::Polynomial (int order, int dim)
     coeff_ids_.push_back(static_cast<PolynomialCoeff>(c));
   }
 
-  n_coeff_per_dimension_ = n_coeff;
+//  n_coeff_per_dimension_ = n_coeff;
   n_dim_ = dim;
+  int n_variables = n_coeff*n_dim_;
 
-  // zmp_ use to SetRows()
-  all_coeff_ = VectorXd::Zero(n_coeff_per_dimension_*n_dim_);
+  SetRows(n_variables);
+
+//  // zmp_ use to SetRows()
+  all_coeff_ = VectorXd::Zero(n_variables);
 }
 
 void
@@ -91,8 +92,8 @@ Polynomial::SetValues (const VectorXd& optimized_coeff)
 Jacobian
 Polynomial::GetJacobian (MotionDerivative dxdt) const
 {
-  int n = all_coeff_.rows();
-  Jacobian jac(n_dim_, n);
+//  int n = all_coeff_.rows();
+  Jacobian jac(n_dim_, GetRows());
 
 //  std::cout << "DEBUUUUG:\n";
 //  std::cout << "n:  " << n << std::endl;

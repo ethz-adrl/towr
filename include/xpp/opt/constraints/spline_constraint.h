@@ -27,9 +27,12 @@ public:
   using PolynomialPtr  = std::shared_ptr<PolynomialSpline>;
 //  using ContactTimePtr = std::shared_ptr<ContactTimings>;
   using DerivativeVec  = std::vector<MotionDerivative>;
+  using VecTimes       = std::vector<double>;
+//  using VecPolynomials = std::vector<std::shared_ptr<Polynomial>>;
 
   SplineConstraint (const OptVarsPtr& opt_vars,
                     const std::string& spline_id,
+                    const VecTimes& poly_durations,
                     const DerivativeVec&);
   virtual ~SplineConstraint ();
 
@@ -39,6 +42,7 @@ public:
 
 protected:
   PolynomialPtr spline_;
+
 //  ContactTimePtr contact_timings_;
 
   DerivativeVec derivatives_;
@@ -51,8 +55,10 @@ protected:
  */
 class SplineStateConstraint : public SplineConstraint {
 public:
+  // zmp_ maybe only pass in relevant spline and local time?
   SplineStateConstraint (const OptVarsPtr& opt_vars,
                          const std::string& spline_id,
+                         const VecTimes& poly_durations,
                          double t,
                          const StateLinXd& state,
                          const DerivativeVec&);
@@ -76,12 +82,17 @@ class SplineJunctionConstraint : public SplineConstraint {
 public:
   SplineJunctionConstraint (const OptVarsPtr& opt_vars,
                             const std::string& spline_id,
+                            const VecTimes& poly_durations,
                             const DerivativeVec&);
   virtual ~SplineJunctionConstraint ();
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
+
+
+  enum EvalTime {Final=0, Start=1};
+  int IndexRowStart(int spline_id, EvalTime which_end, MotionDerivative dxdt) const;
 
 private:
   int n_junctions_;

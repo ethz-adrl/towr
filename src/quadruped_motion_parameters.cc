@@ -200,9 +200,9 @@ Trot::Trot()
   constraints_ = {
                    InitCom,
                    FinalCom,
-                   JunctionCom,
+//                   JunctionCom,
 //                   Dynamic,
-                   Stance,
+//                   Stance,
 //                   RomBox, // usually enforced as soft-constraint/cost
   };
 //

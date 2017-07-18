@@ -36,6 +36,7 @@ public:
   StateLinXd();
   explicit StateLinXd(int dim);
   explicit StateLinXd(const VectorXd& p, const VectorXd& v, const VectorXd& a);
+  StateLinXd(const VectorXd& p);
   virtual ~StateLinXd() {};
 
   const VectorXd GetByIndex(MotionDerivative deriv) const;
@@ -67,7 +68,7 @@ public:
 class StateLin3d : public StateLinXd {
 public:
   StateLin3d() : StateLinXd(3) {};
-  StateLin3d(const VectorXd p) : StateLin3d() { p_ = p; };
+//  StateLin3d(const VectorXd p) : StateLin3d() { p_ = p; };
   StateLin3d(const StateLinXd&);
   virtual ~StateLin3d() {};
 

@@ -67,12 +67,12 @@ private:
   ConstraintPtr MakeStancesConstraints() const;
 //  ConstraintPtr MakePolygonCenterConstraint() const;
 
-  ConstraintPtr MakePolynomialSplineConstraint(const std::string& poly_id,
-                                               const StateLin3d state,
-                                               double t) const;
+//  ConstraintPtr MakePolynomialSplineConstraint(const std::string& poly_id,
+//                                               const StateLin3d state,
+//                                               double t) const;
 
-  ConstraintPtr MakePolynomialJunctionConstraint(const std::string& poly_id,
-                                                 const Derivatives&) const;
+//  ConstraintPtr MakePolynomialJunctionConstraint(const std::string& poly_id,
+//                                                 const Derivatives&) const;
 
 
 

@@ -34,6 +34,12 @@ StateLinXd::StateLinXd (const VectorXd& _p,
   a_ = _a;
 }
 
+StateLinXd::StateLinXd (const VectorXd& _p)
+    :StateLinXd(_p.rows())
+{
+  p_ = _p;
+}
+
 const VectorXd
 StateLinXd::GetByIndex (MotionDerivative deriv) const
 {

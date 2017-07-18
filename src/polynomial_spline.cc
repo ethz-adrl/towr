@@ -14,7 +14,8 @@ namespace xpp {
 namespace opt {
 
 PolynomialSpline::PolynomialSpline (const std::string& component_name)
-    : Component(-1, component_name)
+//    : Component(-1, component_name)
+//    : Composite(component_name, true) // zmp_ this shouldn't be a composite, just wrapper
 {
 }
 
@@ -28,15 +29,20 @@ PolynomialSpline::Init (int n_polys, int poly_order, const VectorXd& initial_val
   n_dim_ = initial_value.rows();
 
   for (int i=0; i<n_polys; ++i) {
-    Polynomial p(poly_order, n_dim_);
-    p.SetCoefficients(Polynomial::A, initial_value);
+    auto p = std::make_shared<Polynomial>(poly_order, n_dim_);
+    p->SetCoefficients(Polynomial::A, initial_value);
     polynomials_.push_back(p);
+
+//    AddComponent(p);
   }
 
   // assume all polynomials have same size
-  SetRows(n_polys*polynomials_.front().GetValues().rows());
+
+
+//  SetRows(n_polys*polynomials_.front().GetValues().rows());
 }
 
+// zmp_ can possibly remove this function
 void
 PolynomialSpline::SetPhaseDurations (const std::vector<double>& durations,
                                      int polys_per_duration)
@@ -100,8 +106,8 @@ PolynomialSpline::GetSegmentID(double t_global, const VecTimes& durations)
 const StateLinXd
 PolynomialSpline::GetPoint (int id, double t_local) const
 {
-  polynomials_.at(id).SetTime(t_local);
-  return polynomials_.at(id).GetPoint();
+  polynomials_.at(id)->SetTime(t_local);
+  return polynomials_.at(id)->GetPoint();
 }
 
 
@@ -114,37 +120,43 @@ PolynomialSpline::GetPoint (int id, double t_local) const
 
 
 
-int
-PolynomialSpline::Index (int poly, int dim, Polynomial::PolynomialCoeff coeff) const
-{
-  // zmp_ replace with GetROws();
-  // assume all have same size
-  int opt_vars_poly = polynomials_.front().GetValues().rows();
 
-  return poly*opt_vars_poly +  polynomials_.at(poly).Index(coeff,dim);
 
-//  // zmp_ spline shouldn't know anything about internal polynomial ordering.
-//  return GetFreeCoeffPerPoly() * n_dim_ * poly
-//       + GetFreeCoeffPerPoly() * dim
-//       + coeff;
-}
+//int
+//PolynomialSpline::Index (int poly, int dim, Polynomial::PolynomialCoeff coeff) const
+//{
+//  // zmp_ replace with GetROws();
+//  // assume all have same size
+//  int opt_vars_poly = polynomials_.front()->GetRows();
+//
+//  return poly*opt_vars_poly +  polynomials_.at(poly)->Index(coeff,dim);
+//
+////  // zmp_ spline shouldn't know anything about internal polynomial ordering.
+////  return GetFreeCoeffPerPoly() * n_dim_ * poly
+////       + GetFreeCoeffPerPoly() * dim
+////       + coeff;
+//}
 
-VectorXd
-PolynomialSpline::GetValues () const
-{
-  VectorXd x_abcd(GetRows());
 
-  int i=0;
-  for (const auto& p : polynomials_) {
-    // zmp_ shouldn't need to go through dimensions, just splines
-    for (int dim = 0; dim<n_dim_; dim++)
-      for (auto coeff :  p.GetCoeffIds())
-        x_abcd[Index(i, dim, coeff)] = p.GetCoefficient(dim, coeff);
-    i++;
-  }
 
-  return x_abcd;
-}
+
+//VectorXd
+//PolynomialSpline::GetValues () const
+//{
+//  VectorXd x_abcd(GetRows());
+//
+//  int i=0;
+//  for (const auto& p : polynomials_) {
+//    // zmp_ shouldn't need to go through dimensions, just splines
+//    for (int dim = 0; dim<n_dim_; dim++)
+//      for (auto coeff :  p->GetCoeffIds())
+//        x_abcd[Index(i, dim, coeff)] = p->GetCoefficient(dim, coeff);
+//    i++;
+//  }
+//
+//  return x_abcd;
+//}
+
 
 //JacobianRow
 //PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv, int dim) const
@@ -158,23 +170,27 @@ PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
   int id         = GetSegmentID(t_global,durations_);
   double t_local = GetLocalTime(t_global,durations_);
 
-  return GetJacobian(id, t_local, deriv);
+  polynomials_.at(id)->SetTime(t_local);
+  return polynomials_.at(id)->GetJacobian(deriv);
+
+//  return GetJacobian(id, t_local, deriv);
 }
 
 Jacobian
 PolynomialSpline::GetJacobian (int id, double t_local, MotionDerivative dxdt) const
 {
 
-  Jacobian jacobian(n_dim_, GetRows());
+  int n = GetRows();
+  Jacobian jacobian(n_dim_, n);
 
 
-  polynomials_.at(id).SetTime(t_local);
-  auto jac = polynomials_.at(id).GetJacobian(dxdt);
+  polynomials_.at(id)->SetTime(t_local);
+  auto jac = polynomials_.at(id)->GetJacobian(dxdt);
 
 
-  int col_start = id*polynomials_.front().GetValues().rows();
+  int col_start = id*polynomials_.front()->GetRows();
 
-  // this will all be replaced anyway
+  // zmp_ this will all be replaced anyway
 
 //  for (int dim=0; dim<n_dim_; ++dim) {
     //  const Jacobian& jac = c->GetJacobian();
@@ -184,10 +200,6 @@ PolynomialSpline::GetJacobian (int id, double t_local, MotionDerivative dxdt) co
       }
     }
 //  }
-
-
-
-
 
   // zmp_ remove later?
 //  assert(jac.cols() == GetValues().rows());
@@ -220,16 +232,26 @@ PolynomialSpline::GetJacobian (int id, double t_local, MotionDerivative dxdt) co
 //  return jac;
 //}
 
-void
-PolynomialSpline::SetValues (const VectorXd& optimized_coeff)
-{
-  for (size_t p=0; p<polynomials_.size(); ++p) {
-    auto& poly = polynomials_.at(p);
-    for (int dim = 0; dim < n_dim_; dim++)
-      for (auto c : poly.GetCoeffIds())
-        poly.SetCoefficient(dim, c, optimized_coeff[Index(p,dim,c)]);
-  }
-}
+
+
+
+
+
+
+//void
+//PolynomialSpline::SetValues (const VectorXd& optimized_coeff)
+//{
+//  for (size_t p=0; p<polynomials_.size(); ++p) {
+//    auto& poly = polynomials_.at(p);
+//    for (int dim = 0; dim < n_dim_; dim++)
+//      for (auto c : poly->GetCoeffIds())
+//        poly->SetCoefficient(dim, c, optimized_coeff[Index(p,dim,c)]);
+//  }
+//}
+
+
+
+
 
 //int
 //PolynomialSpline::GetFreeCoeffPerPoly () const
@@ -238,96 +260,105 @@ PolynomialSpline::SetValues (const VectorXd& optimized_coeff)
 //}
 
 
-EndeffectorSpline::EndeffectorSpline(const std::string& id, bool first_phase_in_contact)
-   : PolynomialSpline(id)
-{
-  first_phase_in_contact_ = first_phase_in_contact;
-}
-
-EndeffectorSpline::~EndeffectorSpline ()
-{
-}
-
-VecBound
-EndeffectorSpline::GetBounds () const
-{
-  VecBound bounds(GetRows());
-  std::fill(bounds.begin(), bounds.end(), kNoBound_);
-
-  bool is_contact = first_phase_in_contact_;
-
-  int i = 0;
-  for (const auto& p : GetPolynomials()) {
-    for (int dim=0; dim<GetNDim(); ++dim)
-      for (auto coeff : p.GetCoeffIds()) {
-
-        if(is_contact && (coeff != Polynomial::A)) {
-          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
-        }
-
-        // zmp_ this one should depend on x,y -> formulate as constraint
-        // that will allow rough terrain.
-        if(is_contact && dim==Z) {
-          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
-        }
-      }
-
-    is_contact = !is_contact; // after contact phase MUST come a swingphase (by definition).
-    i++;
-  }
-
-
-  return bounds;
-}
 
 
 
-ForceSpline::ForceSpline(const std::string& id, bool first_phase_in_contact, double max_force)
-   : PolynomialSpline(id)
-{
-  first_phase_in_contact_ = first_phase_in_contact;
-  max_force_ = max_force;
-}
 
-ForceSpline::~ForceSpline ()
-{
-}
+//EndeffectorSpline::EndeffectorSpline(const std::string& id, bool first_phase_in_contact)
+//   : PolynomialSpline(id)
+//{
+//  first_phase_in_contact_ = first_phase_in_contact;
+//}
+//
+//EndeffectorSpline::~EndeffectorSpline ()
+//{
+//}
+//
+//VecBound
+//EndeffectorSpline::GetBounds () const
+//{
+//  VecBound bounds(GetRows());
+//  std::fill(bounds.begin(), bounds.end(), kNoBound_);
+//
+//  bool is_contact = first_phase_in_contact_;
+//
+//  int i = 0;
+//  for (const auto& p : GetPolynomials()) {
+//    for (int dim=0; dim<GetNDim(); ++dim)
+//      for (auto coeff : p.GetCoeffIds()) {
+//
+//        if(is_contact && (coeff != Polynomial::A)) {
+//          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
+//        }
+//
+//        // zmp_ this one should depend on x,y -> formulate as constraint
+//        // that will allow rough terrain.
+//        if(is_contact && dim==Z) {
+//          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
+//        }
+//      }
+//
+//    is_contact = !is_contact; // after contact phase MUST come a swingphase (by definition).
+//    i++;
+//  }
+//
+//
+//  return bounds;
+//}
 
-VecBound
-ForceSpline::GetBounds () const
-{
-  VecBound bounds(GetRows());
-  std::fill(bounds.begin(), bounds.end(), Bound(-max_force_, max_force_));
-
-  bool is_contact = first_phase_in_contact_;
-
-  int i = 0;
-  for (const auto& p : GetPolynomials()) {
 
 
-    for (int dim=0; dim<GetNDim(); ++dim)
-      for (auto coeff : p.GetCoeffIds()) {
-
-        if(!is_contact) { // can't produce forces during swingphase
-          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
-        }
-
-        // unilateral contact forces
-        if(is_contact && dim==Z) {
-          bounds.at(Index(i,dim,coeff)) = Bound(0.0, max_force_);
-        }
-      }
-
-    i++;
-
-    if (i%n_polys_per_phase_ == 0)
-      is_contact = !is_contact; // after contact phase MUST come a swingphase (by definition).
-
-  }
 
 
-  return bounds;
-}
+
+
+
+//ForceSpline::ForceSpline(const std::string& id, bool first_phase_in_contact, double max_force)
+//   : PolynomialSpline(id)
+//{
+//  first_phase_in_contact_ = first_phase_in_contact;
+//  max_force_ = max_force;
+//}
+//
+//ForceSpline::~ForceSpline ()
+//{
+//}
+//
+//VecBound
+//ForceSpline::GetBounds () const
+//{
+//  VecBound bounds(GetRows());
+//  std::fill(bounds.begin(), bounds.end(), Bound(-max_force_, max_force_));
+//
+//  bool is_contact = first_phase_in_contact_;
+//
+//  int i = 0;
+//  for (const auto& p : GetPolynomials()) {
+//
+//
+//    for (int dim=0; dim<GetNDim(); ++dim)
+//      for (auto coeff : p.GetCoeffIds()) {
+//
+//        if(!is_contact) { // can't produce forces during swingphase
+//          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
+//        }
+//
+//        // unilateral contact forces
+//        if(is_contact && dim==Z) {
+//          bounds.at(Index(i,dim,coeff)) = Bound(0.0, max_force_);
+//        }
+//      }
+//
+//    i++;
+//
+//    if (i%n_polys_per_phase_ == 0)
+//      is_contact = !is_contact; // after contact phase MUST come a swingphase (by definition).
+//
+//  }
+//
+//
+//  return bounds;
+//}
 
 
 } /* namespace opt */

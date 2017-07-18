@@ -46,6 +46,8 @@ public:
   using CostWeights      = std::map<CostName, double>;
   using UsedConstraints  = std::vector<ConstraintName>;
 
+  using VecTimes         = std::vector<double>;
+
   virtual ~MotionParameters();
 
   int GetEECount() const { return robot_ee_.size(); };
@@ -55,6 +57,8 @@ public:
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
   double GetTotalTime() const;
+
+  VecTimes GetBasePolyDurations() const;
 
 
   MotionTypeID id_;

@@ -19,7 +19,7 @@ namespace opt {
 
 /** @brief A polynomial of arbitrary order and dimension.
   */
-class Polynomial {// : public Component {
+class Polynomial : public Component {
 public:
 
   // x(t)   =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
@@ -29,13 +29,15 @@ public:
   using CoeffVec = std::vector<PolynomialCoeff>;
 
 public:
-  Polynomial(int order, int dim);
+  Polynomial(int order, int dim, const std::string& id="polynomial");
   virtual ~Polynomial() {};
 
   // zmp_ make override
-  VectorXd GetValues () const;
-  void SetValues (const VectorXd& optimized_coeff);
+  VectorXd GetValues () const override;
+  void SetValues (const VectorXd& optimized_coeff) override;
 
+
+  // zmp_ !!!for sure combine with time again!
   void SetTime(double t) {t_ = t;};
   /// jacobian of function below wr.t. values
   Jacobian GetJacobian(MotionDerivative dxdt) const;
@@ -55,6 +57,7 @@ public:
   void SetCoefficients(PolynomialCoeff coeff, const VectorXd& value);
 
   CoeffVec GetCoeffIds() const;
+  int GetDimCount() const {return n_dim_; };
 
 private:
   double t_;                    ///!< current time
@@ -62,7 +65,7 @@ private:
   CoeffVec coeff_ids_;          //!< non-zero coefficient indices.
 
   VectorXd all_coeff_;
-  int n_coeff_per_dimension_;
+//  int n_coeff_per_dimension_;
   int n_dim_;
 };
 
