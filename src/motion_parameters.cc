@@ -60,7 +60,7 @@ MotionParameters::VecTimes
 MotionParameters::GetBasePolyDurations () const
 {
   std::vector<double> base_spline_timings_;
-  double dt = duration_polynomial_;
+  double dt = dt_base_polynomial_;
   double t_left = GetTotalTime();
 
   while (t_left > 0.0) {

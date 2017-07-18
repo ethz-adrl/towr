@@ -19,18 +19,18 @@ namespace xpp {
 namespace opt {
 
 RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
-                                    double dt,
-                                    const Vector3d& max_dev_B,
-                                    const Vector3d& nominal_ee_B,
-                                    const VecTimes& base_poly_durations,
+                                    const MotionParamsPtr& params,
                                     const VecTimes& ee_poly_durations,
-                                    const EndeffectorID& ee,
-                                    double T)
-    :TimeDiscretizationConstraint(T, dt, opt_vars)
+                                    const EndeffectorID& ee)
+    :TimeDiscretizationConstraint(params->GetTotalTime(),
+                                  params->dt_range_of_motion_,
+                                  opt_vars)
 {
   SetName("RangeOfMotionBox-" + std::to_string(ee));
-  max_deviation_from_nominal_ = max_dev_B;
-  nominal_ee_pos_B            = nominal_ee_B;
+  max_deviation_from_nominal_ = params->GetMaximumDeviationFromNominal();
+  nominal_ee_pos_B            = params->GetNominalStanceInBase().At(ee);
+
+  auto base_poly_durations = params->GetBasePolyDurations();
 
   std::string id_ee_motion = id::endeffectors_motion+std::to_string(ee);
   base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear, base_poly_durations);

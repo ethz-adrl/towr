@@ -19,10 +19,6 @@ SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
 {
   SetName("SplineStateConstraint-" + active_poly->GetName());
 
-//  auto spline  = Spline::BuildSpline(opt_vars, spline_id, poly_durations);
-//  active_poly_ = spline->GetActivePolynomial(t_global);
-//  t_local_     = Spline::GetLocalTime(t_global, poly_durations);
-
   active_poly_ = active_poly;
   t_local_     = t_local;
 

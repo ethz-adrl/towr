@@ -27,8 +27,6 @@ namespace opt {
 class SplineStateConstraint  : public Primitive {
 public:
   using DerivativeVec  = std::vector<MotionDerivative>;
-  using VecTimes       = std::vector<double>;
-  using SplinePtr      = std::shared_ptr<Spline>;
   using PolyPtr        = std::shared_ptr<Polynomial>;
 
   SplineStateConstraint (const OptVarsPtr& opt_vars,

@@ -23,7 +23,7 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  duration_polynomial_    = 0.15; //s 0.05
+  dt_base_polynomial_    = 0.15; //s 0.05
   // enforce at beginning and middle. The end if always enforced
   // due to acceleration continuity constraint.
   n_constraints_per_poly_ = 2;
@@ -34,6 +34,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
+  dt_range_of_motion_ = 0.1;
 
 
   // dynamic model for HyQ

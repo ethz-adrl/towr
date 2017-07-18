@@ -82,10 +82,6 @@ MotionOptimizerFacade::BuildVariables ()
 
     std::string id_force  = id::endeffector_force+std::to_string(ee);
     double fz_stand = motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount();
-    // zmp_ use this one again
-//    auto ee_poly = std::make_shared<EndeffectorSpline>(id_motion, ee_initially_in_contact);
-//    auto ee_poly = std::make_shared<PolynomialSpline>(id_motion);
-//    int polys_per_duration = 1;
     int order_poly = 4;
 
     for (int i=0; i<n_phases; ++i) {

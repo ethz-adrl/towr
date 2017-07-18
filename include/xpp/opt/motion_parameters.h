@@ -63,7 +63,8 @@ public:
 
   MotionTypeID id_;
 
-  double duration_polynomial_;
+  double dt_base_polynomial_;
+  double dt_range_of_motion_;    //[s]
 //  double load_dt_; /// duration of piecewise-constant ee_load
   int polys_per_force_phase_; /// number of polynomials for each endeffector phase
   int n_constraints_per_poly_; /// how many times dynamics are enforced

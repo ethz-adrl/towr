@@ -18,7 +18,6 @@ static const std::string base_linear         = "base_lin_";
 static const std::string base_angular        = "base_ang_";
 static const std::string endeffectors_motion = "endeffectors_motion_";
 static const std::string contact_schedule    = "contact_schedule_";
-static const std::string contact_timings     = "contact_timings_";
 static const std::string endeffector_force   = "endeffector_force_";
 
 } // namespace id

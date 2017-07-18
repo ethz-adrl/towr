@@ -8,15 +8,15 @@
 #ifndef XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include <array>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
-
 #include <xpp/opt/angular_state_converter.h>
+#include <xpp/opt/bound.h>
+#include <xpp/opt/motion_parameters.h>
+#include <xpp/state.h>
 
 #include "composite.h"
 #include "time_discretization_constraint.h"
@@ -38,23 +38,14 @@ class Spline;
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
-  using PolySplinePtr  = std::shared_ptr<Spline>;
-  using VecTimes       = std::vector<double>;
+  using PolySplinePtr   = std::shared_ptr<Spline>;
+  using VecTimes        = std::vector<double>;
+  using MotionParamsPtr = std::shared_ptr<MotionParameters>;
 
-  /**
-   * @param dt discretization interval [s] when to check this constraint.
-   * @param deviation_xy allowed endeffector deviation from the default (x,y).
-   * @param nom nominal endeffector position in base frame.
-   */
-  // zmp_ just pass in fucking all parameter class
-  RangeOfMotionBox(const OptVarsPtr& opt_vars_container,
-                   double dt,
-                   const Vector3d& max_deviation_B,
-                   const Vector3d& nominal_ee_B,
-                   const VecTimes& base_poly_durations,
+  RangeOfMotionBox(const OptVarsPtr& opt_vars,
+                   const MotionParamsPtr& params,
                    const VecTimes& ee_poly_durations,
-                   const EndeffectorID& ee,
-                   double T);
+                   const EndeffectorID& ee);
   virtual ~RangeOfMotionBox();
 
 private:

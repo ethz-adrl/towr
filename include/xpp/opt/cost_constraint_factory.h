@@ -60,7 +60,6 @@ private:
 
   std::shared_ptr<ContactSchedule> contact_schedule_;
 
-
   // constraints
   ConstraintPtr MakeInitialConstraint() const;
   ConstraintPtr MakeFinalConstraint() const;
@@ -68,16 +67,6 @@ private:
   ConstraintPtr MakeDynamicConstraint() const;
   ConstraintPtr MakeRangeOfMotionBoxConstraint() const;
   ConstraintPtr MakeStancesConstraints() const;
-//  ConstraintPtr MakePolygonCenterConstraint() const;
-
-//  ConstraintPtr MakePolynomialSplineConstraint(const std::string& poly_id,
-//                                               const StateLin3d state,
-//                                               double t) const;
-
-//  ConstraintPtr MakePolynomialJunctionConstraint(const std::string& poly_id,
-//                                                 const Derivatives&) const;
-
-
 
   // costs
   ConstraintPtr MakeMotionCost(double weight) const;
