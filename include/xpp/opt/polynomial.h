@@ -22,6 +22,7 @@ namespace opt {
 class Polynomial : public Component {
 public:
 
+  // e.g. 5th-order:
   // x(t)   =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
   // xd(t)  =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
   // xdd(t) = 20Ft^3 + 12Et^2 + 6Dt   + 2C

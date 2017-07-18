@@ -35,11 +35,8 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
 
   for (auto ee : model_->GetEEIDs()) {
-    std::string id_motion = id::endeffectors_motion+std::to_string(ee);
-    ee_splines_.push_back(Spline::BuildSpline(opt_vars, id_motion, contact_schedule_->GetTimePerPhase(ee)));
-
-    std::string id_force = id::endeffector_force+std::to_string(ee);
-    ee_forces_.push_back(Spline::BuildSpline(opt_vars, id_force, contact_schedule_->GetTimePerPhase(ee)));
+    ee_splines_.push_back(Spline::BuildSpline(opt_vars, id::GetEEId(ee), contact_schedule_->GetTimePerPhase(ee)));
+    ee_forces_.push_back(Spline::BuildSpline(opt_vars, id::GetEEForceId(ee), contact_schedule_->GetTimePerPhase(ee)));
   }
 
   SetRows(GetNumberOfNodes()*kDim6d);

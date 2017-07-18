@@ -20,6 +20,18 @@ static const std::string endeffectors_motion = "endeffectors_motion_";
 static const std::string contact_schedule    = "contact_schedule_";
 static const std::string endeffector_force   = "endeffector_force_";
 
+
+
+static std::string GetEEId(int ee)
+{
+  return  endeffectors_motion + std::to_string(ee) + "_";
+}
+
+static std::string GetEEForceId(int ee)
+{
+  return  endeffector_force + std::to_string(ee) + "_";
+}
+
 } // namespace id
 } // namespace opt
 } // namespace xpp

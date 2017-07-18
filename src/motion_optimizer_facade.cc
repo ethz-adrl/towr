@@ -78,14 +78,14 @@ MotionOptimizerFacade::BuildVariables ()
 
 
     // EE_MOTION
-    std::string id_motion = id::endeffectors_motion+std::to_string(ee);
+//    std::string id_motion = id::endeffectors_motion+std::to_string(ee);
 
     std::string id_force  = id::endeffector_force+std::to_string(ee);
     double fz_stand = motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount();
     int order_poly = 4;
 
     for (int i=0; i<n_phases; ++i) {
-      auto p_motion = std::make_shared<Polynomial>(order_poly, n_dim, id_motion + std::to_string(i));
+      auto p_motion = std::make_shared<Polynomial>(order_poly, n_dim, id::GetEEId(ee)+std::to_string(i));
       p_motion->SetCoefficients(Polynomial::A, initial_ee_W_.At(ee));
       opt_variables_->AddComponent(p_motion);
 
@@ -101,8 +101,7 @@ MotionOptimizerFacade::BuildVariables ()
 
 
 //    // EE_FORCES
-//    std::string id_force  = id::endeffector_force+std::to_string(ee);
-//    auto ee_force = std::make_shared<ForceSpline>(id_force,
+//    auto ee_force = std::make_shared<ForceSpline>(id::GetEEForce(ee),
 //                                                  ee_initially_in_contact,
 //                                                  motion_parameters_->GetForceLimit());
 //    double fz_stand = motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount();
@@ -200,12 +199,11 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   std::vector<std::shared_ptr<Spline>> ee_forces_spline; // zmp_ add forces again
   int n_ee = motion_parameters_->GetEECount();
   for (int i=0; i<n_ee; ++i) {
-    std::string id_motion = id::endeffectors_motion+std::to_string(i);
-    auto ee_spline = Spline::BuildSpline(opt_variables_, id_motion, contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));
+//    std::string id_motion = id::endeffectors_motion+std::to_string(i);
+    auto ee_spline = Spline::BuildSpline(opt_variables_, id::GetEEId(i), contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));
     ee_splines.push_back(ee_spline);
 
-//    std::string id_force = id::endeffector_force+std::to_string(i);
-//    auto force_spline = PolynomialSpline::BuildSpline(opt_variables_, id_force, contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));
+//    auto force_spline = PolynomialSpline::BuildSpline(opt_variables_, id::GetEEForceId(i), contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));
 //    ee_forces_spline.push_back(force_spline);
   }
 
