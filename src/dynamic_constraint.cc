@@ -31,15 +31,15 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   auto contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::contact_schedule));
 
   SetName("DynamicConstraint");
-  base_linear_  = PolynomialSpline::BuildSpline(opt_vars, id::base_linear, base_poly_durations);
-  base_angular_ = PolynomialSpline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
+  base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear, base_poly_durations);
+  base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
 
   for (auto ee : model_->GetEEIDs()) {
     std::string id_motion = id::endeffectors_motion+std::to_string(ee);
-    ee_splines_.push_back(PolynomialSpline::BuildSpline(opt_vars, id_motion, contact_schedule_->GetTimePerPhase(ee)));
+    ee_splines_.push_back(Spline::BuildSpline(opt_vars, id_motion, contact_schedule_->GetTimePerPhase(ee)));
 
     std::string id_force = id::endeffector_force+std::to_string(ee);
-    ee_forces_.push_back(PolynomialSpline::BuildSpline(opt_vars, id_force, contact_schedule_->GetTimePerPhase(ee)));
+    ee_forces_.push_back(Spline::BuildSpline(opt_vars, id_force, contact_schedule_->GetTimePerPhase(ee)));
   }
 
   SetRows(GetNumberOfNodes()*kDim6d);

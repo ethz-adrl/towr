@@ -15,7 +15,7 @@
 #include <xpp/state.h>
 
 #include <xpp/opt/constraints/composite.h>
-#include <xpp/opt/variables/polynomial_spline.h>
+#include <xpp/opt/variables/spline.h>
 
 namespace xpp {
 namespace opt {
@@ -32,7 +32,7 @@ namespace opt {
  */
 class AngularStateConverter {
 public:
-  using OrientationVariables = std::shared_ptr<PolynomialSpline>;
+  using OrientationVariables = std::shared_ptr<Spline>;
   using EulerAngles = Vector3d; ///< order x,y,z (roll, pitch, yaw).
   using EulerRates  = Vector3d; ///< derivative of the above
   using AngularVel  = Vector3d; ///< expressed in world

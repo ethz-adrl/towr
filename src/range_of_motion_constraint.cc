@@ -12,7 +12,7 @@
 
 #include <xpp/state.h>
 
-#include <xpp/opt/variables/polynomial_spline.h>
+#include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
@@ -33,8 +33,8 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   nominal_ee_pos_B            = nominal_ee_B;
 
 
-  base_linear_  = PolynomialSpline::BuildSpline(opt_vars, id::base_linear, base_poly_durations);
-  base_angular_ = PolynomialSpline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
+  base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear, base_poly_durations);
+  base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
 
 
 //  std::cout << "\n\ndurations of ee " << std::to_string(ee) << std::endl;
@@ -48,7 +48,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
 
   std::string id_ee_motion = id::endeffectors_motion+std::to_string(ee);
 //  ee_spline_    = std::dynamic_pointer_cast<PolynomialSpline>(opt_vars->GetComponent(id_ee_motion));
-  ee_spline_ = PolynomialSpline::BuildSpline(opt_vars, id_ee_motion, ee_poly_durations);
+  ee_spline_ = Spline::BuildSpline(opt_vars, id_ee_motion, ee_poly_durations);
 
 
   SetRows(GetNumberOfNodes()*kDim3d);

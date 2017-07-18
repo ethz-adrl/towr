@@ -26,7 +26,7 @@ SplineConstraint::SplineConstraint (const OptVarsPtr& opt_vars,
 //    spline_->AddPolynomial(p);
 //  }
 
-  spline_ = PolynomialSpline::BuildSpline(opt_vars, spline_id, poly_durations);
+  spline_ = Spline::BuildSpline(opt_vars, spline_id, poly_durations);
   n_dim_  = spline_->GetPolynomial(0)->GetDimCount();
 
 

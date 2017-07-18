@@ -89,10 +89,10 @@ add_library(${MOTION_OPT_LIB}
 #  src/contact_timings.cc
   # body motion
   src/polynomial.cc
+  src/spline.cc
 #  src/spline.cc
   src/angular_state_converter.cc
 #  src/base_motion.cc
-  src/polynomial_spline.cc
   
   # these could go back in sometime
 #  src/linear_spline_equations.cc

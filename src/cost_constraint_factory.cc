@@ -22,7 +22,7 @@
 #include <xpp/opt/costs/polynomial_cost.h>
 #include <xpp/opt/costs/soft_constraint.h>
 
-#include <xpp/opt/variables/polynomial_spline.h>
+#include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/variables/variable_names.h>

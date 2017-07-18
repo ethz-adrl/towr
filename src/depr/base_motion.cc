@@ -73,13 +73,13 @@ BaseMotion::GetJacobian (double t_global, MotionDerivative dxdt) const
   return jac;
 }
 
-PolynomialSpline
+Spline
 xpp::opt::BaseMotion::GetLinearSpline () const
 {
   return *linear_;
 }
 
-PolynomialSpline
+Spline
 xpp::opt::BaseMotion::GetAngularSpline () const
 {
   return *angular_;

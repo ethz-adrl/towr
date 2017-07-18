@@ -19,7 +19,7 @@
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/polynomial_spline.h>
+#include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/variable_names.h>
 
 #include <xpp/opt/ipopt_adapter.h>
@@ -192,20 +192,20 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   RobotStateVec trajectory;
 
-  auto base_lin = PolynomialSpline::BuildSpline(opt_variables_, id::base_linear, motion_parameters_->GetBasePolyDurations());
-  auto base_ang = PolynomialSpline::BuildSpline(opt_variables_, id::base_angular, motion_parameters_->GetBasePolyDurations());
+  auto base_lin = Spline::BuildSpline(opt_variables_, id::base_linear, motion_parameters_->GetBasePolyDurations());
+  auto base_ang = Spline::BuildSpline(opt_variables_, id::base_angular, motion_parameters_->GetBasePolyDurations());
 
 //  auto base_lin         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_linear));
 //  auto base_ang         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_angular));
   auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent(id::contact_schedule));
 
 
-  std::vector<std::shared_ptr<PolynomialSpline>> ee_splines;
-  std::vector<std::shared_ptr<PolynomialSpline>> ee_forces_spline; // zmp_ add forces again
+  std::vector<std::shared_ptr<Spline>> ee_splines;
+  std::vector<std::shared_ptr<Spline>> ee_forces_spline; // zmp_ add forces again
   int n_ee = motion_parameters_->GetEECount();
   for (int i=0; i<n_ee; ++i) {
     std::string id_motion = id::endeffectors_motion+std::to_string(i);
-    auto ee_spline = PolynomialSpline::BuildSpline(opt_variables_, id_motion, contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));
+    auto ee_spline = Spline::BuildSpline(opt_variables_, id_motion, contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));
     ee_splines.push_back(ee_spline);
 
 //    std::string id_force = id::endeffector_force+std::to_string(i);

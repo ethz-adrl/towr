@@ -14,7 +14,7 @@
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/opt/bound.h>
-#include <xpp/opt/variables/polynomial_spline.h>
+#include <xpp/opt/variables/spline.h>
 
 #include "composite.h"
 
@@ -24,7 +24,7 @@ namespace opt {
 
 class SplineConstraint : public Primitive {
 public:
-  using PolynomialPtr  = std::shared_ptr<PolynomialSpline>;
+  using PolynomialPtr  = std::shared_ptr<Spline>;
 //  using ContactTimePtr = std::shared_ptr<ContactTimings>;
   using DerivativeVec  = std::vector<MotionDerivative>;
   using VecTimes       = std::vector<double>;

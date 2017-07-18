@@ -26,16 +26,16 @@ namespace opt {
   * This class is responsible for abstracting polynomial coefficients of multiple
   * polynomials into a spline with position/velocity and acceleration.
   */
-class PolynomialSpline {
+class Spline {
 public:
   using PolynomialPtr  = std::shared_ptr<Polynomial>;
   using VecPolynomials = std::vector<PolynomialPtr>;
   using VecTimes       = std::vector<double>;
-  using PtrS           = std::shared_ptr<PolynomialSpline>; // pointer to oneself
+  using PtrS           = std::shared_ptr<Spline>; // pointer to oneself
   using OptVarsPtr     = Primitive::OptVarsPtr;
 
-  PolynomialSpline ();
-  virtual ~PolynomialSpline ();
+  Spline ();
+  virtual ~Spline ();
 
   static PtrS BuildSpline(const OptVarsPtr& opt_vars,
                           const std::string& spline_base_id,

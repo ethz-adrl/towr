@@ -24,7 +24,7 @@
 namespace xpp {
 namespace opt {
 
-class PolynomialSpline;
+class Spline;
 
 /** @brief Constrains the contact to lie in a box around the nominal stance
   *
@@ -38,7 +38,7 @@ class PolynomialSpline;
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
-  using PolySplinePtr  = std::shared_ptr<PolynomialSpline>;
+  using PolySplinePtr  = std::shared_ptr<Spline>;
   using VecTimes       = std::vector<double>;
 
   /**

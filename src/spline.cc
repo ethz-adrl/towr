@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/variables/polynomial_spline.h>
+#include <xpp/opt/variables/spline.h>
 
 #include <cassert>
 #include <Eigen/Dense>
@@ -13,21 +13,21 @@
 namespace xpp {
 namespace opt {
 
-PolynomialSpline::PolynomialSpline ()
+Spline::Spline ()
 {
 }
 
-PolynomialSpline::~PolynomialSpline ()
+Spline::~Spline ()
 {
 }
 
 
-PolynomialSpline::PtrS
-PolynomialSpline::BuildSpline(const OptVarsPtr& opt_vars,
+Spline::PtrS
+Spline::BuildSpline(const OptVarsPtr& opt_vars,
                               const std::string& spline_base_id,
                               const VecTimes& poly_durations)
 {
-  auto spline_ = std::make_shared<PolynomialSpline>();
+  auto spline_ = std::make_shared<Spline>();
   spline_->SetDurations(poly_durations);
   for (int i=0; i<poly_durations.size(); ++i) {
     auto p = std::dynamic_pointer_cast<Polynomial>(opt_vars->GetComponent(spline_base_id+std::to_string(i)));
@@ -38,7 +38,7 @@ PolynomialSpline::BuildSpline(const OptVarsPtr& opt_vars,
 }
 
 double
-PolynomialSpline::GetLocalTime(double t_global, const VecTimes& durations)
+Spline::GetLocalTime(double t_global, const VecTimes& durations)
 {
   int id_spline = GetSegmentID(t_global, durations);
 
@@ -51,7 +51,7 @@ PolynomialSpline::GetLocalTime(double t_global, const VecTimes& durations)
 }
 
 int
-PolynomialSpline::GetSegmentID(double t_global, const VecTimes& durations)
+Spline::GetSegmentID(double t_global, const VecTimes& durations)
 {
   double eps = 1e-10; // double imprecision
 
@@ -69,7 +69,7 @@ PolynomialSpline::GetSegmentID(double t_global, const VecTimes& durations)
 }
 
 const StateLinXd
-PolynomialSpline::GetPoint(double t_global) const
+Spline::GetPoint(double t_global) const
 {
   int idx        = GetSegmentID(t_global, durations_);
   double t_local = GetLocalTime(t_global, durations_);
@@ -78,7 +78,7 @@ PolynomialSpline::GetPoint(double t_global) const
 }
 
 Jacobian
-PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
+Spline::GetJacobian (double t_global, MotionDerivative deriv) const
 {
   int id         = GetSegmentID(t_global,durations_);
   double t_local = GetLocalTime(t_global,durations_);
@@ -87,27 +87,27 @@ PolynomialSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 }
 
 void
-PolynomialSpline::AddPolynomial(const PolynomialPtr& poly)
+Spline::AddPolynomial(const PolynomialPtr& poly)
 {
   polynomials_.push_back(poly);
 }
 
 void
-PolynomialSpline::SetDurations(const VecTimes& durations)
+Spline::SetDurations(const VecTimes& durations)
 {
   durations_ = durations;
 }
 
 bool
-PolynomialSpline::PolynomialActive(const std::string& poly_name, double t_global)
+Spline::PolynomialActive(const std::string& poly_name, double t_global)
 {
   int id = GetSegmentID(t_global, durations_);
   return polynomials_.at(id)->GetName() == poly_name;
 }
 
 
-PolynomialSpline::PolynomialPtr
-PolynomialSpline::GetActivePolynomial(double t_global) const
+Spline::PolynomialPtr
+Spline::GetActivePolynomial(double t_global) const
 {
   int id = GetSegmentID(t_global, durations_);
   return polynomials_.at(id);
