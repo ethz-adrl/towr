@@ -78,22 +78,31 @@ private:
 };
 
 
-
+// see matlab/third_order_poly.m script for derivation
 class CubicHermitePoly : public Polynomial {
 public:
+
+  enum Side {Start=0, End};
+
+  // zmp_ just make typedef, not new struct
+  struct Node {
+    std::array<VectorXd,2> val; // pos,vel
+  };
+
   CubicHermitePoly(int dim);
   virtual ~CubicHermitePoly();
 
   // must be called before SetNodes;
   void SetDuration(double T);
 
-  void SetNodes(const VectorXd& x0, const VectorXd& xd0,
-                const VectorXd& x1, const VectorXd& xd1);
+  void SetNodes(const Node& n0, const Node& n1);
 
-  double GetDerivativeOfPosWrtStartPos(double t, double duration) const;
-  double GetDerivativeOfPosWrtStartVel(double t, double duration) const;
-  double GetDerivativeOfPosWrtEndPos(double t,   double duration) const;
-  double GetDerivativeOfPosWrtEndVel(double t,   double duration) const;
+  double GetDerivativeOfPosWrt(Side, MotionDerivative, double t_local) const;
+
+//  double GetDerivativeOfPosWrtStartPos(double t_local) const;
+//  double GetDerivativeOfPosWrtStartVel(double t_local) const;
+//  double GetDerivativeOfPosWrtEndPos  (double t_local) const;
+//  double GetDerivativeOfPosWrtEndVel  (double t_local) const;
 
 private:
   // just for readability

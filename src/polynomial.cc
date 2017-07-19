@@ -170,39 +170,60 @@ CubicHermitePoly::SetDuration (double _T)
 }
 
 void
-CubicHermitePoly::SetNodes (const VectorXd& x0, const VectorXd& xd0,
-                            const VectorXd& x1, const VectorXd& xd1)
+CubicHermitePoly::SetNodes (const Node& n0, const Node& n1)
 {
-  // see matlab/third_order_poly.m script for derivation
-  coeff_[A] =  x0;
-  coeff_[B] =  xd0;
-  coeff_[C] = -( 3*(x0 - x1) +  T*(2*xd0 + xd1) ) / T2;
-  coeff_[D] =  ( 2*(x0 - x1) +  T*(  xd0 + xd1) ) / T3;
+  coeff_[A] =  n0.val.at(kPos);
+  coeff_[B] =  n0.val.at(kVel);
+  coeff_[C] = -( 3*(n0.val.at(kPos) - n1.val.at(kPos)) +  T*(2*n0.val.at(kVel) + n1.val.at(kVel)) ) / T2;
+  coeff_[D] =  ( 2*(n0.val.at(kPos) - n1.val.at(kPos)) +  T*(  n0.val.at(kVel) + n1.val.at(kVel)) ) / T3;
 }
 
 double
-CubicHermitePoly::GetDerivativeOfPosWrtStartPos (double t, double T) const
+CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative deriv,  double t) const
 {
-  return (2*std::pow(t,3))/T3 - (3*std::pow(t,2))/T2 + 1;
+  double t2 = std::pow(t,2);
+  double t3 = std::pow(t,3);
+
+  switch (side) {
+    case Start:
+      switch (deriv) {
+        case kPos: return (2*t3)/T3 - (3*t2)/T2 + 1;
+        case kVel: return t - (2*t2)/T + t3/T2;
+      }
+
+    case End:
+      switch (deriv) {
+        case kPos: return (3*t2)/T2 - (2*t3)/T3;
+        case kVel: return t3/T2 - t2/T;
+      }
+
+    default: assert(false);
+  }
 }
 
-double
-CubicHermitePoly::GetDerivativeOfPosWrtStartVel (double t, double T) const
-{
-  return t - (2*std::pow(t,2))/T + std::pow(t,3)/T2;
-}
-
-double
-CubicHermitePoly::GetDerivativeOfPosWrtEndPos (double t, double T) const
-{
-  return (3*std::pow(t,2))/T2 - (2*std::pow(t,3))/T3;
-}
-
-double
-CubicHermitePoly::GetDerivativeOfPosWrtEndVel (double t, double T) const
-{
-  return std::pow(t,3)/T2 - std::pow(t,2)/T;
-}
+//double
+//CubicHermitePoly::GetDerivativeOfPosWrtStartPos (double t) const
+//{
+//  return (2*std::pow(t,3))/T3 - (3*std::pow(t,2))/T2 + 1;
+//}
+//
+//double
+//CubicHermitePoly::GetDerivativeOfPosWrtStartVel (double t) const
+//{
+//  return t - (2*std::pow(t,2))/T + std::pow(t,3)/T2;
+//}
+//
+//double
+//CubicHermitePoly::GetDerivativeOfPosWrtEndPos (double t) const
+//{
+//  return (3*std::pow(t,2))/T2 - (2*std::pow(t,3))/T3;
+//}
+//
+//double
+//CubicHermitePoly::GetDerivativeOfPosWrtEndVel (double t) const
+//{
+//  return std::pow(t,3)/T2 - std::pow(t,2)/T;
+//}
 
 
 //void
@@ -326,5 +347,3 @@ CubicHermitePoly::GetDerivativeOfPosWrtEndVel (double t, double T) const
 
 } // namespace opt
 } // namespace xpp
-
-

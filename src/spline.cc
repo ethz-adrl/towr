@@ -14,7 +14,19 @@ namespace xpp {
 namespace opt {
 
 
-static int GetSegmentID(double t_global, const std::vector<double>& durations)
+
+
+
+Spline::Spline ()
+{
+}
+
+Spline::~Spline ()
+{
+}
+
+int
+Spline::GetSegmentID(double t_global, const std::vector<double>& durations)
 {
   double eps = 1e-10; // double imprecision
 
@@ -31,7 +43,8 @@ static int GetSegmentID(double t_global, const std::vector<double>& durations)
    assert(false); // this should never be reached
 }
 
-static double GetLocalTime(double t_global, const std::vector<double>& durations)
+double
+Spline::GetLocalTime(double t_global, const std::vector<double>& durations)
 {
   int id_spline = GetSegmentID(t_global, durations);
 
@@ -41,15 +54,6 @@ static double GetLocalTime(double t_global, const std::vector<double>& durations
   }
 
   return t_local;
-}
-
-
-Spline::Spline ()
-{
-}
-
-Spline::~Spline ()
-{
 }
 
 Spline
@@ -70,19 +74,15 @@ Spline::BuildSpline(const OptVarsPtr& opt_vars,
 const StateLinXd
 Spline::GetPoint(double t_global) const
 {
-  int idx        = GetSegmentID(t_global, durations_);
   double t_local = GetLocalTime(t_global, durations_);
-
-  return polynomials_.at(idx)->GetPoint(t_local);
+  return GetActivePolynomial(t_global)->GetPoint(t_local);
 }
 
 Jacobian
 Spline::GetJacobian (double t_global, MotionDerivative deriv) const
 {
-  int id         = GetSegmentID(t_global, durations_);
   double t_local = GetLocalTime(t_global, durations_);
-
-  return polynomials_.at(id)->GetJacobian(t_local, deriv);
+  return GetActivePolynomial(t_global)->GetJacobian(t_local, deriv);
 }
 
 bool
@@ -97,6 +97,7 @@ Spline::GetActivePolynomial(double t_global) const
   int id = GetSegmentID(t_global, durations_);
   return polynomials_.at(id);
 }
+
 
 //void
 //Spline::AddPolynomial(const PolynomialPtr& poly)
