@@ -93,11 +93,12 @@ SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
                                     )
 {
   SetName("SplineJunctionConstraint-" + spline_id);
-  spline_ = Spline::BuildSpline(opt_vars, spline_id, poly_durations);
-  derivatives_   = derivatives;
-  n_dim_         = spline_->GetPoint(0.0).kNumDim;
 
-  n_junctions_ = spline_->GetPolynomials().size()-1; // because one less junction than poly's.
+  spline_        = Spline::BuildSpline(opt_vars, spline_id, poly_durations);
+  derivatives_   = derivatives;
+  n_dim_         = spline_.GetPoint(0.0).kNumDim;
+
+  n_junctions_ = spline_.GetPolynomials().size()-1; // because one less junction than poly's.
   int n_constraints = derivatives_.size() * n_junctions_ * n_dim_;
   AddOptimizationVariables(opt_vars);
   SetRows(n_constraints);
@@ -115,10 +116,10 @@ SplineJunctionConstraint::GetValues () const
   int row = 0;
 
   for (int id = 0; id < n_junctions_; ++id) {
-    double T = spline_->GetDurationOfPoly(id);
+    double T = spline_.GetDurationOfPoly(id);
 
-    auto p0 = spline_->GetPolynomial(id)->GetPoint(T);
-    auto p1 = spline_->GetPolynomial(id+1)->GetPoint(0.0);
+    auto p0 = spline_.GetPolynomial(id)->GetPoint(T);
+    auto p1 = spline_.GetPolynomial(id+1)->GetPoint(0.0);
 
     for (auto dxdt :  derivatives_) {
       g.middleRows(row,n_dim_) = p0.GetByIndex(dxdt) - p1.GetByIndex(dxdt);
@@ -143,10 +144,10 @@ SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                      Jacobian& jac) const
 {
   int id=0;
-  for (auto p : spline_->GetPolynomials()) {
+  for (auto p : spline_.GetPolynomials()) {
     if (var_set == p->GetName()) {
 
-      double T = spline_->GetDurationOfPoly(id);
+      double T = spline_.GetDurationOfPoly(id);
       for (auto dxdt :  derivatives_) {
 
         auto jac_final = p->GetJacobian(T,dxdt);
@@ -155,7 +156,7 @@ SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
         if (id != 0) // start of first spline constrained elsewhere
           jac.middleRows(IndexRowStart(id,   Start, dxdt), n_dim_) = -jac_start;
 
-        if (id != spline_->GetPolynomials().size()-1) // end of last spline constrained elsewhere
+        if (id != spline_.GetPolynomials().size()-1) // end of last spline constrained elsewhere
           jac.middleRows(IndexRowStart(id,   Final, dxdt), n_dim_) =  jac_final;
 
       }

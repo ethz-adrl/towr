@@ -51,10 +51,9 @@ private:
 
 /** @brief Equates the values at spline junctions.
  */
-class SplineJunctionConstraint : public Primitive {// : public SplineConstraint {
+class SplineJunctionConstraint : public Primitive {
 public:
   using DerivativeVec = std::vector<MotionDerivative>;
-  using SplinePtr     = std::shared_ptr<Spline>;
   using VecTimes      = std::vector<double>;
 
   SplineJunctionConstraint (const OptVarsPtr& opt_vars,
@@ -72,7 +71,7 @@ public:
   int IndexRowStart(int spline_id, EvalTime which_end, MotionDerivative dxdt) const;
 
 private:
-  SplinePtr spline_;
+  Spline spline_;
   int n_junctions_;
 
   DerivativeVec derivatives_;

@@ -28,7 +28,6 @@ class EndeffectorsForce;
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
-  using PolySplinePtr   = std::shared_ptr<Spline>;
   using DynamicModelPtr = std::shared_ptr<DynamicModel>;
   using VecTimes        = std::vector<double>;
 
@@ -39,10 +38,10 @@ public:
   virtual ~DynamicConstraint ();
 
 private:
-  PolySplinePtr base_linear_;
-  PolySplinePtr base_angular_;
-  std::vector<PolySplinePtr> ee_forces_;
-  std::vector<PolySplinePtr> ee_splines_;
+  Spline base_linear_;
+  Spline base_angular_;
+  std::vector<Spline> ee_forces_;
+  std::vector<Spline> ee_splines_;
 
   mutable DynamicModelPtr model_;
   AngularStateConverter converter_;

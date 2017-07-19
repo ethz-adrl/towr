@@ -38,7 +38,6 @@ class Spline;
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
-  using PolySplinePtr   = std::shared_ptr<Spline>;
   using VecTimes        = std::vector<double>;
   using MotionParamsPtr = std::shared_ptr<MotionParameters>;
 
@@ -55,9 +54,9 @@ private:
 
   int GetRow(int node, int dimension) const;
 
-  PolySplinePtr base_linear_;
-  PolySplinePtr base_angular_;
-  PolySplinePtr ee_spline_;
+  Spline base_linear_;
+  Spline base_angular_;
+  Spline ee_spline_;
 
   Vector3d max_deviation_from_nominal_;
   Vector3d nominal_ee_pos_B;

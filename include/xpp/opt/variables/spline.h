@@ -31,15 +31,14 @@ public:
   using PolynomialPtr  = std::shared_ptr<Polynomial>;
   using VecPolynomials = std::vector<PolynomialPtr>;
   using VecTimes       = std::vector<double>;
-  using PtrS           = std::shared_ptr<Spline>; // pointer to oneself
   using OptVarsPtr     = Primitive::OptVarsPtr;
 
   Spline ();
   virtual ~Spline ();
 
-  static PtrS BuildSpline(const OptVarsPtr& opt_vars,
-                          const std::string& spline_base_id,
-                          const VecTimes& poly_durations);
+  static Spline BuildSpline(const OptVarsPtr& opt_vars,
+                            const std::string& spline_base_id,
+                            const VecTimes& poly_durations);
 
   static int GetSegmentID(double t_global, const VecTimes&);
   static double GetLocalTime(double t_global, const VecTimes&);
@@ -49,7 +48,7 @@ public:
 
   /** @returns true if the polynomial with poly_name is active at current time.
    */
-  bool PolynomialActive(const std::string& poly_name, double t_global);
+  bool PolynomialActive(const std::string& poly_name, double t_global) const;
   PolynomialPtr GetActivePolynomial(double t_global) const;
 
 

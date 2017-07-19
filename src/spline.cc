@@ -22,19 +22,19 @@ Spline::~Spline ()
 }
 
 
-Spline::PtrS
+Spline
 Spline::BuildSpline(const OptVarsPtr& opt_vars,
                     const std::string& spline_base_id,
                     const VecTimes& poly_durations)
 {
-  auto spline_ = std::make_shared<Spline>();
-  spline_->SetDurations(poly_durations);
+  Spline spline;
+  spline.SetDurations(poly_durations);
   for (int i=0; i<poly_durations.size(); ++i) {
     auto p = std::dynamic_pointer_cast<Polynomial>(opt_vars->GetComponent(spline_base_id+std::to_string(i)));
-    spline_->AddPolynomial(p);
+    spline.AddPolynomial(p);
   }
 
-  return spline_;
+  return spline;
 }
 
 double
@@ -99,7 +99,7 @@ Spline::SetDurations(const VecTimes& durations)
 }
 
 bool
-Spline::PolynomialActive(const std::string& poly_name, double t_global)
+Spline::PolynomialActive(const std::string& poly_name, double t_global) const
 {
   int id = GetSegmentID(t_global, durations_);
   return polynomials_.at(id)->GetName() == poly_name;
