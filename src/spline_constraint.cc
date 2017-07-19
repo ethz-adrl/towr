@@ -12,16 +12,15 @@ namespace opt {
 
 
 SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
-                                              PolyPtr active_poly,
-                                              double t_local,
+                                              const Spline& spline,
+                                              double t_global,
                                               const StateLinXd& state,
                                               const DerivativeVec& derivatives)
 {
-  SetName("SplineStateConstraint-" + active_poly->GetName());
+  SetName("SplineStateConstraint-");
 
-  // zmp_ attention, could change when also optimizing over durations
-  active_poly_ = active_poly;
-  t_local_     = t_local;
+  spline_      = spline;
+  t_global_     = t_global;
 
   state_desired_ = state;
   derivatives_   = derivatives;
@@ -41,7 +40,7 @@ SplineStateConstraint::GetValues () const
 {
   VectorXd g = VectorXd::Zero(GetRows());
 
-  StateLinXd state_of_poly = active_poly_->GetPoint(t_local_);
+  StateLinXd state_of_poly = spline_.GetPoint(t_global_);
 
   int row = 0; // constraint count
   for (auto dxdt :  derivatives_) {
@@ -57,12 +56,11 @@ void
 SplineStateConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                   Jacobian& jac) const
 {
-  if (var_set == active_poly_->GetName()) {
-
+  if (spline_.IsPolyActive(var_set, t_global_)) {
     int row = 0;
     for (auto dxdt :  derivatives_) {
 
-      Jacobian jac_deriv = active_poly_->GetJacobian(t_local_, dxdt);
+      Jacobian jac_deriv = spline_.GetJacobian(t_global_, dxdt);
       jac.middleRows(row,n_dim_) = jac_deriv;
       row += n_dim_;
     }

@@ -30,8 +30,8 @@ public:
   using PolyPtr        = std::shared_ptr<PolynomialVars>;
 
   SplineStateConstraint (const OptVarsPtr& opt_vars,
-                         PolyPtr active_poly,
-                         double t_local,
+                         const Spline& spline,
+                         double t_global,
                          const StateLinXd& state,
                          const DerivativeVec&);
   virtual ~SplineStateConstraint ();
@@ -41,11 +41,11 @@ public:
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
-  double t_local_;
+  double t_global_;
   StateLinXd state_desired_;
   DerivativeVec derivatives_;
   int n_dim_;
-  PolyPtr active_poly_;
+  Spline spline_;
 };
 
 

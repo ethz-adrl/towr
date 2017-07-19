@@ -86,7 +86,7 @@ CostConstraintFactory::GetCost(CostName name) const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeStateConstraint () const
 {
-  auto state_constraints = std::make_shared<Composite>("State Initial Constraints", true);
+  auto constraints = std::make_shared<Composite>("State Initial Constraints", true);
 
 
   auto base_poly_durations = params->GetBasePolyDurations();
@@ -99,15 +99,15 @@ CostConstraintFactory::MakeStateConstraint () const
 
 
   // initial base constraints
-  double t = 0.0; // initial time (local)
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin.GetPolynomials().front(), t, initial_base_.lin, derivs));
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang.GetPolynomials().front(), t, initial_base_.ang, derivs));
+  double t = 0.0; // initial time
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, t, initial_base_.lin, derivs));
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, t, initial_base_.ang, derivs));
 
 
   // final base constraints
-  double T_local = base_poly_durations.back();
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin.GetPolynomials().back(), T_local, final_base_.lin, derivs));
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang.GetPolynomials().back(), T_local, final_base_.ang, derivs));
+  double T = params->GetTotalTime();
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, T, final_base_.lin, derivs));
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, T, final_base_.ang, derivs));
 
 
   // endeffector constraints
@@ -120,7 +120,7 @@ CostConstraintFactory::MakeStateConstraint () const
 
     // initial endeffectors constraints
 //    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), contact_schedule_->GetTimePerPhase(ee));
-    state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee.GetPolynomials().front(), t, VectorXd(initial_ee_W_.At(ee)), derivs));
+    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, t, VectorXd(initial_ee_W_.At(ee)), derivs));
 
 
     // final endeffectors constraints
@@ -128,11 +128,11 @@ CostConstraintFactory::MakeStateConstraint () const
     EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
     Endeffectors<StateLin3d> endeffectors_final_W(nominal_B.GetCount());
     endeffectors_final_W.At(ee).p_ = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
-    state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee.GetPolynomials().back(), durations_ee.back(), endeffectors_final_W.At(ee), derivs));
+    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, T, endeffectors_final_W.At(ee), derivs));
 
   }
 
-  return state_constraints;
+  return constraints;
 }
 
 
