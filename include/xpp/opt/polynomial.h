@@ -30,8 +30,8 @@ public:
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
 
-  StateLinXd GetPoint(double t) const;
-  Jacobian GetJacobian(double t, MotionDerivative dxdt) const;
+  StateLinXd GetPoint(double t_local) const;
+  Jacobian GetJacobian(double t_local, MotionDerivative dxdt) const;
 
 private:
   PolynomialPtr polynomial_;
@@ -55,7 +55,7 @@ public:
   Polynomial(int order, int dim);
   virtual ~Polynomial() {};
 
-  StateLinXd GetPoint(double t) const;
+  StateLinXd GetPoint(double t_local) const;
 
   void SetConstantPos(const VectorXd& value);
   void SetCoefficient(PolynomialCoeff coeff, int dim, double value);
@@ -69,10 +69,37 @@ public:
   VectorXd GetCoefficients(PolynomialCoeff coeff) const;
   double GetDerivativeWrtCoeff(double t, MotionDerivative, PolynomialCoeff) const;
 
-private:
+protected:
   std::vector<VectorXd> coeff_;
+
+private:
   CoeffIDVec coeff_ids_;
   int n_dim_;
+};
+
+
+
+class CubicHermitePoly : public Polynomial {
+public:
+  CubicHermitePoly(int dim);
+  virtual ~CubicHermitePoly();
+
+  // must be called before SetNodes;
+  void SetDuration(double T);
+
+  void SetNodes(const VectorXd& x0, const VectorXd& xd0,
+                const VectorXd& x1, const VectorXd& xd1);
+
+  double GetDerivativeOfPosWrtStartPos(double t, double duration) const;
+  double GetDerivativeOfPosWrtStartVel(double t, double duration) const;
+  double GetDerivativeOfPosWrtEndPos(double t,   double duration) const;
+  double GetDerivativeOfPosWrtEndVel(double t,   double duration) const;
+
+private:
+  // just for readability
+  double T;
+  double T2;
+  double T3;
 };
 
 

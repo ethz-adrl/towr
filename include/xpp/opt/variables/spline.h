@@ -21,6 +21,7 @@
 namespace xpp {
 namespace opt {
 
+
 /** @brief Wraps a sequence of polynomials with optimized coefficients.
   *
   * This class is responsible for abstracting polynomial coefficients of multiple
@@ -30,8 +31,8 @@ class Spline {
 public:
   using PolynomialPtr  = std::shared_ptr<PolynomialVars>;
   using VecPolynomials = std::vector<PolynomialPtr>;
-  using VecTimes       = std::vector<double>;
   using OptVarsPtr     = Primitive::OptVarsPtr;
+  using VecTimes = std::vector<double>;
 
   Spline ();
   virtual ~Spline ();
@@ -40,8 +41,7 @@ public:
                             const std::string& spline_base_id,
                             const VecTimes& poly_durations);
 
-  static int GetSegmentID(double t_global, const VecTimes&);
-  static double GetLocalTime(double t_global, const VecTimes&);
+
 
   const StateLinXd GetPoint(double t_globals) const;
   Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const;
@@ -59,11 +59,11 @@ public:
 
 protected:
   VecTimes durations_; ///< duration of each polynomial in spline
-  VecPolynomials polynomials_;  ///< pointer to retain access to polynomial functions
+  VecPolynomials polynomials_;
 
-private:
-  void AddPolynomial(const PolynomialPtr& poly);
-  void SetDurations(const VecTimes& durations);
+//private:
+//  void AddPolynomial(const PolynomialPtr& poly);
+//  void SetDurations(const VecTimes& durations);
 };
 
 

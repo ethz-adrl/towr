@@ -2,8 +2,8 @@ clc;
 clear all;
 
 % 3rd order poly
-syms a b c d t p0 p1 v0 v1 T
-p   = a*t^3 + b*t^2 + c*t + d;
+syms a b c d t p0 v0 p1 v1 T
+p   = d*t^3 + c*t^2 + b*t + a;
 pv  = diff(p, t);
 
 
@@ -32,4 +32,9 @@ pretty(subs(p))
 
 
 % Get the derivative w.r.t the initial and final position
-jac_p = jacobian(subs(p), [p0 p1])
+jac_p = jacobian(subs(p), [p0 v0 p1 v1])
+
+dp_dp0 = jac_p(1)
+dp_dv0 = jac_p(2)
+dp_dp1 = jac_p(3)
+dp_dv1 = jac_p(4)

@@ -29,9 +29,9 @@ PolynomialVars::PolynomialVars (const std::string& id, const PolynomialPtr& poly
 }
 
 StateLinXd
-PolynomialVars::GetPoint (double t) const
+PolynomialVars::GetPoint (double t_local) const
 {
-  return polynomial_->GetPoint(t);
+  return polynomial_->GetPoint(t_local);
 }
 
 int
@@ -66,7 +66,7 @@ PolynomialVars::SetValues (const VectorXd& x)
 }
 
 Jacobian
-PolynomialVars::GetJacobian (double t, MotionDerivative dxdt) const
+PolynomialVars::GetJacobian (double t_local, MotionDerivative dxdt) const
 {
   int n_dim = polynomial_->GetDimCount();
   Jacobian jac(n_dim, GetRows());
@@ -75,12 +75,17 @@ PolynomialVars::GetJacobian (double t, MotionDerivative dxdt) const
     for (PolynomialCoeff c : polynomial_->GetCoeffIds()) {
 
       int idx = Index(c, dim);
-      jac.insert(dim, idx) = polynomial_->GetDerivativeWrtCoeff(t, dxdt, c);
+      jac.insert(dim, idx) = polynomial_->GetDerivativeWrtCoeff(t_local, dxdt, c);
     }
   }
 
   return jac;
 }
+
+
+
+
+
 
 Polynomial::Polynomial (int order, int dim)
 {
@@ -112,17 +117,17 @@ Polynomial::GetCoefficients (PolynomialCoeff c) const
  * spline coefficients are zero (as set by @ref Spliner()), the higher-order
  * terms have no effect.
  */
-StateLinXd Polynomial::GetPoint(double t) const
+StateLinXd Polynomial::GetPoint(double t_local) const
 {
   // sanity checks
-  if (t < 0.0)
+  if (t_local < 0.0)
     throw std::runtime_error("spliner.cc called with dt<0");
 
   StateLinXd out(n_dim_);
 
   for (auto d : {kPos, kVel, kAcc})
     for (PolynomialCoeff c : coeff_ids_)
-      out.GetByIndex(d) += GetDerivativeWrtCoeff(t, d, c)*coeff_.at(c);//GetCoefficients(c);
+      out.GetByIndex(d) += GetDerivativeWrtCoeff(t_local, d, c)*coeff_.at(c);//GetCoefficients(c);
 
   return out;
 }
@@ -145,6 +150,58 @@ Polynomial::GetDerivativeWrtCoeff (double t, MotionDerivative deriv, PolynomialC
     case kAcc:   return c*(c-1)*      std::pow(t,c-2); break;
     case kJerk:  return c*(c-1)*(c-2)*std::pow(t,c-3); break;
   }
+}
+
+CubicHermitePoly::CubicHermitePoly (int dim) : Polynomial(3,dim)
+{
+  T = T2 = T3 = 0;
+}
+
+CubicHermitePoly::~CubicHermitePoly ()
+{
+}
+
+void
+CubicHermitePoly::SetDuration (double _T)
+{
+  T  = _T;
+  T2 = _T*_T;
+  T3 = _T*_T*_T;
+}
+
+void
+CubicHermitePoly::SetNodes (const VectorXd& x0, const VectorXd& xd0,
+                            const VectorXd& x1, const VectorXd& xd1)
+{
+  // see matlab/third_order_poly.m script for derivation
+  coeff_[A] =  x0;
+  coeff_[B] =  xd0;
+  coeff_[C] = -( 3*(x0 - x1) +  T*(2*xd0 + xd1) ) / T2;
+  coeff_[D] =  ( 2*(x0 - x1) +  T*(  xd0 + xd1) ) / T3;
+}
+
+double
+CubicHermitePoly::GetDerivativeOfPosWrtStartPos (double t, double T) const
+{
+  return (2*std::pow(t,3))/T3 - (3*std::pow(t,2))/T2 + 1;
+}
+
+double
+CubicHermitePoly::GetDerivativeOfPosWrtStartVel (double t, double T) const
+{
+  return t - (2*std::pow(t,2))/T + std::pow(t,3)/T2;
+}
+
+double
+CubicHermitePoly::GetDerivativeOfPosWrtEndPos (double t, double T) const
+{
+  return (3*std::pow(t,2))/T2 - (2*std::pow(t,3))/T3;
+}
+
+double
+CubicHermitePoly::GetDerivativeOfPosWrtEndVel (double t, double T) const
+{
+  return std::pow(t,3)/T2 - std::pow(t,2)/T;
 }
 
 
@@ -266,5 +323,8 @@ Polynomial::GetDerivativeWrtCoeff (double t, MotionDerivative deriv, PolynomialC
 //}
 
 
+
 } // namespace opt
 } // namespace xpp
+
+
