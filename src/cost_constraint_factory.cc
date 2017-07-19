@@ -93,17 +93,20 @@ CostConstraintFactory::MakeInitialConstraint () const
 {
   auto state_constraints = std::make_shared<Composite>("State Initial Constraints", true);
 
-  auto first_poly_base_lin = std::dynamic_pointer_cast<Polynomial>(opt_vars_->GetComponent(id::base_linear+"0"));
-  auto first_poly_base_ang = std::dynamic_pointer_cast<Polynomial>(opt_vars_->GetComponent(id::base_angular+"0"));
+
+  auto base_poly_durations = params->GetBasePolyDurations();
+  auto spline_lin = Spline::BuildSpline(opt_vars_, id::base_linear, base_poly_durations);
+  auto spline_ang = Spline::BuildSpline(opt_vars_, id::base_angular, base_poly_durations);
+
 
   double t = 0.0; // initial time (local)
   auto derivs = {kPos, kVel, kAcc};
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, first_poly_base_lin, t, initial_base_.lin, derivs));
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, first_poly_base_ang, t, initial_base_.ang, derivs));
+  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin.GetPolynomials().front(), t, initial_base_.lin, derivs));
+  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang.GetPolynomials().front(), t, initial_base_.ang, derivs));
 
   for (auto ee : params->robot_ee_) {
-    auto first_poly_ee = std::dynamic_pointer_cast<Polynomial>(opt_vars_->GetComponent(id::GetEEId(ee)+"0"));
-    state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, first_poly_ee, t, VectorXd(initial_ee_W_.At(ee)), derivs));
+    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), contact_schedule_->GetTimePerPhase(ee));
+    state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee.GetPolynomials().front(), t, VectorXd(initial_ee_W_.At(ee)), derivs));
   }
 
   return state_constraints;

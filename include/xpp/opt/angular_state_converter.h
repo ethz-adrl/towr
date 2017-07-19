@@ -119,6 +119,13 @@ private:
    * each cell if filled with a row vector.
    */
   JacRowMatrix GetDerivativeOfRotationMatrixWrtCoeff(double t) const;
+
+  /** number of optimization variables of polynomial active at time t.
+   *
+   * usually these are the polynomial coefficients, but for e.g. cubic
+   * hermite spline these might be the node values and derivatives.
+   */
+  int OptVariablesOfCurrentPolyCount(double t) const;
 };
 
 } /* namespace opt */

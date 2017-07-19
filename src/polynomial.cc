@@ -19,54 +19,76 @@ Spliners ready to use:
 namespace xpp {
 namespace opt {
 
-Polynomial::Polynomial (int order, int dim, const std::string& id )
+
+
+PolynomialVars::PolynomialVars (const std::string& id, const PolynomialPtr& poly)
     : Component(-1, id)
 {
+  polynomial_ = poly;
+  polynomial_->SetOptVariablesId(id);
+  SetRows(polynomial_->GetCoeffCount());
+}
 
+
+// zmp_ use index function so GetAndSetFunctions are equal
+VectorXd
+PolynomialVars::GetValues () const
+{
+  VectorXd x(GetRows());
+  int row = 0;
+  for (auto c : polynomial_->GetCoeffIds()) {
+    int n_dim = polynomial_->GetDimCount();
+    x.middleRows(row, n_dim) = polynomial_->GetCoefficients(c);
+    row += n_dim;
+  }
+
+  return x;
+}
+
+void
+PolynomialVars::SetValues (const VectorXd& x)
+{
+  int row=0;
+  for (auto c : polynomial_->GetCoeffIds()) {
+    int n_dim = polynomial_->GetDimCount();
+    polynomial_->SetCoefficients(c, x.middleRows(row, n_dim));
+    row += n_dim;
+  }
+}
+
+
+
+
+
+Polynomial::Polynomial (int order, int dim)
+{
   int n_coeff = order+1;
   for (int c=A; c<n_coeff; ++c) {
     coeff_ids_.push_back(static_cast<PolynomialCoeff>(c));
+    coeff_.push_back(VectorXd::Zero(dim));
   }
 
   n_dim_ = dim;
   int n_variables = n_coeff*n_dim_;
 
-  SetRows(n_variables);
-
-  all_coeff_ = VectorXd::Zero(n_variables);
-}
-
-
-VectorXd
-Polynomial::GetValues () const
-{
-  return all_coeff_;
-}
-
-void
-Polynomial::SetValues (const VectorXd& optimized_coeff)
-{
-  all_coeff_ = optimized_coeff;
+//  all_coeff_ = VectorXd::Zero(n_variables);
 }
 
 
 void
-Polynomial::SetCoefficients (PolynomialCoeff coeff, const VectorXd& value)
+Polynomial::SetCoefficients (PolynomialCoeff c, const VectorXd& value)
 {
-  for (int dim=0; dim<value.rows(); ++dim)
-    all_coeff_(Index(coeff, dim)) = value(dim);
-}
+//  for (int dim=0; dim<value.rows(); ++dim)
+//    all_coeff_(Index(c, dim)) = value(dim);
 
-int
-Polynomial::Index(PolynomialCoeff coeff, int dim) const
-{
-  return coeff*n_dim_ + dim;
+  coeff_.at(c) = value;
 }
 
 VectorXd
-Polynomial::GetCoefficients (PolynomialCoeff coeff) const
+Polynomial::GetCoefficients (PolynomialCoeff c) const
 {
-  return all_coeff_.middleRows(Index(coeff, 0), n_dim_);
+//  return all_coeff_.middleRows(Index(c, 0), n_dim_);
+  return coeff_.at(c);
 }
 
 
@@ -85,15 +107,22 @@ StateLinXd Polynomial::GetPoint(double t) const
 
   for (auto d : {kPos, kVel, kAcc})
     for (PolynomialCoeff c : coeff_ids_)
-      out.GetByIndex(d) += GetDerivativeWrtCoeff(t, d, c)*GetCoefficients(c);
+      out.GetByIndex(d) += GetDerivativeWrtCoeff(t, d, c)*coeff_.at(c);//GetCoefficients(c);
 
   return out;
+}
+
+// zmp_ should these be moved up one level?
+int
+Polynomial::Index(PolynomialCoeff coeff, int dim) const
+{
+  return coeff*n_dim_ + dim;
 }
 
 Jacobian
 Polynomial::GetJacobian (double t, MotionDerivative dxdt) const
 {
-  Jacobian jac(n_dim_, GetRows());
+  Jacobian jac(n_dim_, GetCoeffCount());
 
   for (int dim=0; dim<n_dim_; ++dim) {
     for (PolynomialCoeff c : coeff_ids_) {

@@ -48,7 +48,7 @@ public:
 
   /** @returns true if the polynomial with poly_name is active at current time.
    */
-  bool PolynomialActive(const std::string& poly_name, double t_global) const;
+  bool IsPolyActive(const std::string& poly_vars, double t_global) const;
   PolynomialPtr GetActivePolynomial(double t_global) const;
 
 

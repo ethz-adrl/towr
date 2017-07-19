@@ -79,15 +79,15 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
   int row_start = GetRow(k,X);
 
-  if (ee_spline_.PolynomialActive(var_set,t)) {
+  if (ee_spline_.IsPolyActive(var_set,t)) {
     jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_.GetJacobian(t,kPos);
   }
 
-  if (base_linear_.PolynomialActive(var_set,t)) {
+  if (base_linear_.IsPolyActive(var_set,t)) {
     jac.middleRows(row_start, kDim3d) = -1*b_R_w*base_linear_.GetJacobian(t, kPos);
   }
 
-  if (base_angular_.PolynomialActive(var_set,t)) {
+  if (base_angular_.IsPolyActive(var_set,t)) {
     Vector3d base_W   = base_linear_.GetPoint(t).p_;
     Vector3d ee_pos_W = ee_spline_.GetPoint(t).p_;
     Vector3d r_W = ee_pos_W - base_W;

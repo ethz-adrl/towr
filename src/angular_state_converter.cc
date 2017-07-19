@@ -84,8 +84,7 @@ AngularStateConverter::GetAngularAcceleration (StateLin3d ori)
 Jacobian
 AngularStateConverter::GetDerivOfAngAccWrtCoeff (double t) const
 {
-  int n_coeff = euler_.GetActivePolynomial(t)->GetRows();
-  Jacobian jac(kDim3d, n_coeff);
+  Jacobian jac(kDim3d, OptVariablesOfCurrentPolyCount(t));
 
 
   StateLin3d ori = euler_.GetPoint(t);
@@ -158,8 +157,7 @@ AngularStateConverter::GetDerivMwrtCoeff (double t, Coords3D ang_acc_dim) const
   JacobianRow jac_z = euler_.GetJacobian(t, kPos).row(Z);
   JacobianRow jac_y = euler_.GetJacobian(t, kPos).row(Y);
 
-  int n_coeff = euler_.GetActivePolynomial(t)->GetRows();
-  Jacobian jac(kDim3d,n_coeff);
+  Jacobian jac(kDim3d, OptVariablesOfCurrentPolyCount(t));
 
   switch (ang_acc_dim) {
     case X: // basically derivative of top row (3 elements) of matrix M
@@ -210,9 +208,7 @@ AngularStateConverter::GetDerivativeOfRotationMatrixRowWrtCoeff (double t,
                                                                  bool inverse) const
 {
   JacRowMatrix Rd = GetDerivativeOfRotationMatrixWrtCoeff(t);
-
-  int n_coeff = euler_.GetActivePolynomial(t)->GetRows();
-  Jacobian jac(kDim3d,n_coeff);
+  Jacobian jac(kDim3d, OptVariablesOfCurrentPolyCount(t));
 
   for (int row : {X,Y,Z}) {
     for (int col : {X, Y, Z}) {
@@ -259,7 +255,6 @@ AngularStateConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
 Jacobian
 AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) const
 {
-  int n_coeff    = euler_.GetActivePolynomial(t)->GetRows();
   StateLin3d ori = euler_.GetPoint(t);
 
   double z  = ori.p_(Z);
@@ -272,7 +267,7 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) con
   JacobianRow jac_zd = euler_.GetJacobian(t, kVel).row(Z);
   JacobianRow jac_yd = euler_.GetJacobian(t, kVel).row(Y);
 
-  Jacobian jac(kDim3d,n_coeff);
+  Jacobian jac(kDim3d, OptVariablesOfCurrentPolyCount(t));
   switch (ang_acc_dim) {
     case X: // derivative of top row (3 elements) of matrix M-dot
       jac.row(Y) = sin(z)*zd*jac_z - cos(z)*jac_zd;
@@ -293,5 +288,13 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) con
   return jac;
 }
 
+int
+AngularStateConverter::OptVariablesOfCurrentPolyCount (double t) const
+{
+  // zmp_ attention, not the same thing
+  return euler_.GetActivePolynomial(t)->GetCoeffCount();
+}
+
 } /* namespace opt */
 } /* namespace xpp */
+
