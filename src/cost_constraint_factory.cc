@@ -63,12 +63,10 @@ CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::GetConstraint (ConstraintName name) const
 {
   switch (name) {
-    case InitCom:     return MakeInitialConstraint();
-    case FinalCom:    return MakeFinalConstraint();
+    case State:       return MakeStateConstraint();
     case JunctionCom: return MakeJunctionConstraint();
     case Dynamic:     return MakeDynamicConstraint();
     case RomBox:      return MakeRangeOfMotionBoxConstraint();
-    case Stance:      return MakeStancesConstraints();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -81,54 +79,62 @@ CostConstraintFactory::GetCost(CostName name) const
   switch (name) {
     case ComCostID:          return MakeMotionCost(weight);
     case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint(), weight);
-//    case PolyCenterCostID:   return ToCost(MakePolygonCenterConstraint()   , weight);
-    case FinalComCostID:     return ToCost(MakeFinalConstraint()           , weight);
-    case FinalStanceCostID:  return ToCost(MakeStancesConstraints()        , weight);
     default: throw std::runtime_error("cost not defined!");
   }
 }
 
 CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::MakeInitialConstraint () const
+CostConstraintFactory::MakeStateConstraint () const
 {
   auto state_constraints = std::make_shared<Composite>("State Initial Constraints", true);
 
 
   auto base_poly_durations = params->GetBasePolyDurations();
+
+  auto derivs = {kPos, kVel, kAcc};
+
+
   auto spline_lin = Spline::BuildSpline(opt_vars_, id::base_linear, base_poly_durations);
   auto spline_ang = Spline::BuildSpline(opt_vars_, id::base_angular, base_poly_durations);
 
 
+  // initial base constraints
   double t = 0.0; // initial time (local)
-  auto derivs = {kPos, kVel, kAcc};
   state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin.GetPolynomials().front(), t, initial_base_.lin, derivs));
   state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang.GetPolynomials().front(), t, initial_base_.ang, derivs));
 
+
+  // final base constraints
+  double T_local = base_poly_durations.back();
+  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin.GetPolynomials().back(), T_local, final_base_.lin, derivs));
+  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang.GetPolynomials().back(), T_local, final_base_.ang, derivs));
+
+
+  // endeffector constraints
+  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_vars_->GetComponent(id::contact_schedule));
   for (auto ee : params->robot_ee_) {
-    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), contact_schedule_->GetTimePerPhase(ee));
+
+    auto durations_ee = contact_schedule->GetTimePerPhase(ee);
+    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), durations_ee);
+
+
+    // initial endeffectors constraints
+//    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), contact_schedule_->GetTimePerPhase(ee));
     state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee.GetPolynomials().front(), t, VectorXd(initial_ee_W_.At(ee)), derivs));
+
+
+    // final endeffectors constraints
+    Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
+    EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
+    Endeffectors<StateLin3d> endeffectors_final_W(nominal_B.GetCount());
+    endeffectors_final_W.At(ee).p_ = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
+    state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee.GetPolynomials().back(), durations_ee.back(), endeffectors_final_W.At(ee), derivs));
+
   }
 
   return state_constraints;
 }
 
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::MakeFinalConstraint () const
-{
-  auto state_constraints = std::make_shared<Composite>("State Final Constraints", true);
-
-  auto timings   = params->GetBasePolyDurations();
-  double T_local = timings.back();
-
-  auto spline_lin = Spline::BuildSpline(opt_vars_, id::base_linear, timings);
-  auto spline_ang = Spline::BuildSpline(opt_vars_, id::base_angular, timings);
-
-  auto derivs = {kPos, kVel, kAcc};
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin.GetPolynomials().back(), T_local, final_base_.lin, derivs));
-  state_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang.GetPolynomials().back(), T_local, final_base_.ang, derivs));
-
-  return state_constraints;
-}
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeJunctionConstraint () const
@@ -197,31 +203,6 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
   return rom_constraints;
 }
 
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::MakeStancesConstraints () const
-{
-  auto stance_constraints = std::make_shared<Composite>("Stance Constraints", true);
-
-  Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
-  EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
-
-  auto derivs = {kPos, kVel, kAcc};
-  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_vars_->GetComponent(id::contact_schedule));
-
-  for (auto ee : params->robot_ee_) {
-
-    auto durations_ee = contact_schedule->GetTimePerPhase(ee);
-    auto ee_spline = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), durations_ee);
-
-    stance_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, ee_spline.GetPolynomials().front(), 0.0, VectorXd(initial_ee_W_.At(ee)), derivs));
-
-    Endeffectors<StateLin3d> endeffectors_final_W(nominal_B.GetCount());
-    endeffectors_final_W.At(ee).p_ = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
-    stance_constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, ee_spline.GetPolynomials().back(), durations_ee.back(), endeffectors_final_W.At(ee), derivs));
-  }
-
-  return stance_constraints;
-}
 
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeMotionCost(double weight) const

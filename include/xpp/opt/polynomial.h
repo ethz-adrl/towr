@@ -83,11 +83,7 @@ class CubicHermitePoly : public Polynomial {
 public:
 
   enum Side {Start=0, End};
-
-  // zmp_ just make typedef, not new struct
-  struct Node {
-    std::array<VectorXd,2> val; // pos,vel
-  };
+  using Node = std::array<VectorXd,2>; // pos,vel
 
   CubicHermitePoly(int dim);
   virtual ~CubicHermitePoly();
@@ -99,6 +95,7 @@ public:
 
   double GetDerivativeOfPosWrt(Side, MotionDerivative, double t_local) const;
 
+  // zmp_ remove
 //  double GetDerivativeOfPosWrtStartPos(double t_local) const;
 //  double GetDerivativeOfPosWrtStartVel(double t_local) const;
 //  double GetDerivativeOfPosWrtEndPos  (double t_local) const;

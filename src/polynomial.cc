@@ -172,10 +172,10 @@ CubicHermitePoly::SetDuration (double _T)
 void
 CubicHermitePoly::SetNodes (const Node& n0, const Node& n1)
 {
-  coeff_[A] =  n0.val.at(kPos);
-  coeff_[B] =  n0.val.at(kVel);
-  coeff_[C] = -( 3*(n0.val.at(kPos) - n1.val.at(kPos)) +  T*(2*n0.val.at(kVel) + n1.val.at(kVel)) ) / T2;
-  coeff_[D] =  ( 2*(n0.val.at(kPos) - n1.val.at(kPos)) +  T*(  n0.val.at(kVel) + n1.val.at(kVel)) ) / T3;
+  coeff_[A] =  n0.at(kPos);
+  coeff_[B] =  n0.at(kVel);
+  coeff_[C] = -( 3*(n0.at(kPos) - n1.at(kPos)) +  T*(2*n0.at(kVel) + n1.at(kVel)) ) / T2;
+  coeff_[D] =  ( 2*(n0.at(kPos) - n1.at(kPos)) +  T*(  n0.at(kVel) + n1.at(kVel)) ) / T3;
 }
 
 double

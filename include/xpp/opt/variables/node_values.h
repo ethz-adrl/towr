@@ -39,6 +39,8 @@ public:
    */
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& x) override;
+
+  const StateLinXd GetPoint(double t_global) const;
   Jacobian GetJacobianOfPosWrtNodes(double t_global) const;
 
   int Index(int node, MotionDerivative deriv, int dim) const;

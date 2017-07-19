@@ -17,7 +17,7 @@ namespace opt {
 NodeValues::NodeValues (const VecTimes& times, const Node& initial_value, const std::string& id)
     :Component(-1,"NodeValues_" + id)
 {
-  n_dim_ = initial_value.val.at(kPos).rows();
+  n_dim_ = initial_value.at(kPos).rows();
 
   int n_nodes = times.size()+1;
   nodes_ = std::vector<Node>(n_nodes, initial_value);
@@ -46,7 +46,7 @@ NodeValues::GetValues () const
 
   for (int i=0; i<nodes_.size(); ++i)
     for (MotionDerivative d : {kPos, kVel})
-      x.middleRows(Index(i, d, X), n_dim_) = nodes_.at(i).val.at(d);
+      x.middleRows(Index(i, d, X), n_dim_) = nodes_.at(i).at(d);
 
   return x;
 }
@@ -56,9 +56,18 @@ NodeValues::SetValues (const VectorXd& x)
 {
   for (int i=0; i<nodes_.size(); ++i)
     for (MotionDerivative d : {kPos, kVel})
-      nodes_.at(i).val.at(d) = x.middleRows(Index(i,d,X), n_dim_);
+      nodes_.at(i).at(d) = x.middleRows(Index(i,d,X), n_dim_);
 
   UpdatePolynomials();
+}
+
+void
+NodeValues::UpdatePolynomials ()
+{
+  for (int i=0; i<polynomials_.size(); ++i) {
+    polynomials_.at(i).SetNodes(nodes_.at(GetNodeId(i,Side::Start)),
+                                nodes_.at(GetNodeId(i,Side::End)));
+  }
 }
 
 int
@@ -73,11 +82,21 @@ NodeValues::GetNodeId (int poly_id, Side side) const
   return poly_id + side;
 }
 
+const StateLinXd
+NodeValues::GetPoint (double t_global) const
+{
+  // zmp_ DRY with "Spline"
+  double t_local = Spline::GetLocalTime(t_global, durations_);
+  int id         = Spline::GetSegmentID(t_global, durations_);
+  return polynomials_.at(id).GetPoint(t_local);
+}
+
 Jacobian
 NodeValues::GetJacobianOfPosWrtNodes (double t_global) const
 {
   Jacobian jac(n_dim_, GetRows());
 
+   // zmp_ DRY with "Spline"
    int poly_id    = Spline::GetSegmentID(t_global,durations_);
    double t_local = Spline::GetLocalTime(t_global, durations_);
 
@@ -99,38 +118,5 @@ NodeValues::GetJacobianOfPosWrtNodes (double t_global) const
 }
 
 
-void
-NodeValues::UpdatePolynomials ()
-{
-  for (int i=0; i<polynomials_.size(); ++i) {
-    polynomials_.at(i).SetNodes(nodes_.at(GetNodeId(i,Side::Start)),
-                                nodes_.at(GetNodeId(i,Side::End)));
-  }
-}
-
 } /* namespace opt */
 } /* namespace xpp */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

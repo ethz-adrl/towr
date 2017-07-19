@@ -19,6 +19,7 @@ SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
 {
   SetName("SplineStateConstraint-" + active_poly->GetName());
 
+  // zmp_ attention, could change when also optimizing over durations
   active_poly_ = active_poly;
   t_local_     = t_local;
 
@@ -61,7 +62,7 @@ SplineStateConstraint::FillJacobianWithRespectTo (std::string var_set,
     int row = 0;
     for (auto dxdt :  derivatives_) {
 
-      Jacobian jac_deriv = active_poly_->GetJacobian(t_local_,dxdt);
+      Jacobian jac_deriv = active_poly_->GetJacobian(t_local_, dxdt);
       jac.middleRows(row,n_dim_) = jac_deriv;
       row += n_dim_;
     }
@@ -82,7 +83,6 @@ SplineStateConstraint::GetBounds () const
 
   return bounds;
 }
-
 
 
 

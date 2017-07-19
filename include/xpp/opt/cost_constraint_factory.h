@@ -61,12 +61,10 @@ private:
   std::shared_ptr<ContactSchedule> contact_schedule_;
 
   // constraints
-  ConstraintPtr MakeInitialConstraint() const;
-  ConstraintPtr MakeFinalConstraint() const;
+  ConstraintPtr MakeStateConstraint() const;
   ConstraintPtr MakeJunctionConstraint() const;
   ConstraintPtr MakeDynamicConstraint() const;
   ConstraintPtr MakeRangeOfMotionBoxConstraint() const;
-  ConstraintPtr MakeStancesConstraints() const;
 
   // costs
   ConstraintPtr MakeMotionCost(double weight) const;

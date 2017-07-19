@@ -155,11 +155,9 @@ Walk::Walk()
   };
 
 
-  constraints_ = { InitCom,
-                   FinalCom,
+  constraints_ = { State,
                    JunctionCom,
                    Dynamic,
-//                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 //
@@ -199,12 +197,10 @@ Trot::Trot()
 
 
   constraints_ = {
-                   InitCom,
-                   FinalCom,
+                   State,
                    JunctionCom,
 //                   Dynamic,
-//                   Stance,
-                   RomBox, // usually enforced as soft-constraint/cost
+//                   RomBox, // usually enforced as soft-constraint/cost
   };
 //
 //  cost_weights_[RangOfMotionCostID] = 10.0;
@@ -246,11 +242,9 @@ Pace::Pace()
       II_,
   };
 
-  constraints_ = { InitCom,
-                   FinalCom,
+  constraints_ = { State,
                    JunctionCom,
                    Dynamic,
-                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 
@@ -372,11 +366,9 @@ Bound::Bound()
 
 
 
-  constraints_ = { InitCom,
-                   FinalCom,
+  constraints_ = { State,
                    JunctionCom,
                    Dynamic,
-//                   Stance,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 
@@ -392,8 +384,7 @@ PushRecovery::PushRecovery ()
 
   SetContactSequence(0.0, 0.0);
 
-  constraints_ = { InitCom,
-                   Stance,
+  constraints_ = { State,
                    JunctionCom,
                    Dynamic,
                    RomBox,
