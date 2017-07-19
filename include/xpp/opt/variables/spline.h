@@ -28,7 +28,7 @@ namespace opt {
   */
 class Spline {
 public:
-  using PolynomialPtr  = std::shared_ptr<Polynomial>;
+  using PolynomialPtr  = std::shared_ptr<PolynomialVars>;
   using VecPolynomials = std::vector<PolynomialPtr>;
   using VecTimes       = std::vector<double>;
   using OptVarsPtr     = Primitive::OptVarsPtr;

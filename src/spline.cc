@@ -30,10 +30,8 @@ Spline::BuildSpline(const OptVarsPtr& opt_vars,
   Spline spline;
   spline.SetDurations(poly_durations);
   for (int i=0; i<poly_durations.size(); ++i) {
-    auto var_set = std::dynamic_pointer_cast<PolynomialVars>(opt_vars->GetComponent(spline_base_id+std::to_string(i)));
-
-    // zmp_ extract only polynomial in shared pointer form from component?
-    spline.AddPolynomial(var_set->GetPolynomial());
+    auto p = std::dynamic_pointer_cast<PolynomialVars>(opt_vars->GetComponent(spline_base_id+std::to_string(i)));
+    spline.AddPolynomial(p);
   }
 
   return spline;
@@ -103,7 +101,7 @@ Spline::SetDurations(const VecTimes& durations)
 bool
 Spline::IsPolyActive(const std::string& poly_vars, double t_global) const
 {
-  return poly_vars == GetActivePolynomial(t_global)->GetOptVariablesId();
+  return poly_vars == GetActivePolynomial(t_global)->GetName();
 }
 
 

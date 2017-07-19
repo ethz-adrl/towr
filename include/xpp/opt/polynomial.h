@@ -18,6 +18,7 @@ namespace xpp {
 namespace opt {
 
 class Polynomial;
+enum PolynomialCoeff { A=0, B, C, D, E, F, G, H, I, J}; // allowed to add more
 
 class PolynomialVars : public Component {
 public:
@@ -26,15 +27,15 @@ public:
   PolynomialVars(const std::string& id, const PolynomialPtr& poly);
   virtual ~PolynomialVars() {};
 
-
-  // zmp_ these shouldn't be here, separate responsibility!
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
 
-  PolynomialPtr GetPolynomial() const { return polynomial_; };
+  StateLinXd GetPoint(double t) const;
+  Jacobian GetJacobian(double t, MotionDerivative dxdt) const;
 
 private:
   PolynomialPtr polynomial_;
+  int Index(PolynomialCoeff coeff, int dim) const;
 };
 
 
@@ -48,53 +49,28 @@ public:
   // x(t)   =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
   // xd(t)  =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
   // xdd(t) = 20Ft^3 + 12Et^2 + 6Dt   + 2C
-  enum PolynomialCoeff { A=0, B, C, D, E, F, G, H, I, J}; // allowed to add more
   using CoeffIDVec = std::vector<PolynomialCoeff>;
 
 public:
   Polynomial(int order, int dim);
   virtual ~Polynomial() {};
 
-
-
-//  // zmp_ these shouldn't be here, separate responsibility!
-//  VectorXd GetValues () const override;
-//  void SetValues (const VectorXd& optimized_coeff) override;
-
-  Jacobian GetJacobian(double t, MotionDerivative dxdt) const;
-
-
-
-
-  /// jacobian of function below wr.t. values
   StateLinXd GetPoint(double t) const;
 
-  void SetCoefficients(PolynomialCoeff coeff, const VectorXd& value);
+  void SetConstantPos(const VectorXd& value);
+  void SetCoefficient(PolynomialCoeff coeff, int dim, double value);
 
   // zmp_ attention when using cubic hermite polynomial
   int GetCoeffCount() const { return coeff_ids_.size()*n_dim_; };
-
-//  VectorXd all_coeff_; // zmp_ make private
-
-  void SetOptVariablesId(const std::string id) { opt_var_id_ = id; };
-  std::string GetOptVariablesId() const { return opt_var_id_; };
 
   CoeffIDVec GetCoeffIds() const { return coeff_ids_; };
 
   int GetDimCount() const { return n_dim_; };
   VectorXd GetCoefficients(PolynomialCoeff coeff) const;
-
-private:
-  std::string opt_var_id_; ///<< which optimization variables affect the poly
-
-  ///< ax,ay,az,bx,by,bz,cx,cy,cz
-
-
-  std::vector<VectorXd> coeff_;
-
-  int Index(PolynomialCoeff coeff, int dim) const;
   double GetDerivativeWrtCoeff(double t, MotionDerivative, PolynomialCoeff) const;
 
+private:
+  std::vector<VectorXd> coeff_;
   CoeffIDVec coeff_ids_;
   int n_dim_;
 };

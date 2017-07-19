@@ -86,7 +86,7 @@ MotionOptimizerFacade::BuildVariables ()
 
     for (int i=0; i<n_phases; ++i) {
       auto p_motion = std::make_shared<Polynomial>(order_poly, n_dim);
-      p_motion->SetCoefficients(Polynomial::A, initial_ee_W_.At(ee));
+      p_motion->SetConstantPos(initial_ee_W_.At(ee));
       opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::GetEEId(ee)+std::to_string(i), p_motion));
 
 
@@ -119,11 +119,11 @@ MotionOptimizerFacade::BuildVariables ()
   for (int i=0; i<base_spline_timings_.size(); ++i) {
 
     auto p_lin = std::make_shared<Polynomial>(4, n_dim);
-    p_lin->SetCoefficients(Polynomial::A, inital_base_.lin.p_);
+    p_lin->SetConstantPos(inital_base_.lin.p_);
     opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
 
     auto p_ang = std::make_shared<Polynomial>(4, n_dim);
-    p_ang->SetCoefficients(Polynomial::A, inital_base_.ang.p_);
+    p_ang->SetConstantPos(inital_base_.ang.p_);
     opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
   }
 

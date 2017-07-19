@@ -17,7 +17,7 @@ SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
                                               const StateLinXd& state,
                                               const DerivativeVec& derivatives)
 {
-  SetName("SplineStateConstraint-" + active_poly->GetOptVariablesId());
+  SetName("SplineStateConstraint-" + active_poly->GetName());
 
   active_poly_ = active_poly;
   t_local_     = t_local;
@@ -56,7 +56,7 @@ void
 SplineStateConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                   Jacobian& jac) const
 {
-  if (var_set == active_poly_->GetOptVariablesId()) {
+  if (var_set == active_poly_->GetName()) {
 
     int row = 0;
     for (auto dxdt :  derivatives_) {
@@ -145,7 +145,7 @@ SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
 {
   int id=0;
   for (auto p : spline_.GetPolynomials()) {
-    if (var_set == p->GetOptVariablesId()) {
+    if (var_set == p->GetName()) {
 
       double T = spline_.GetDurationOfPoly(id);
       for (auto dxdt :  derivatives_) {

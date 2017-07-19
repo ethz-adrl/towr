@@ -25,22 +25,30 @@ PolynomialVars::PolynomialVars (const std::string& id, const PolynomialPtr& poly
     : Component(-1, id)
 {
   polynomial_ = poly;
-  polynomial_->SetOptVariablesId(id);
   SetRows(polynomial_->GetCoeffCount());
 }
 
+StateLinXd
+PolynomialVars::GetPoint (double t) const
+{
+  return polynomial_->GetPoint(t);
+}
 
-// zmp_ use index function so GetAndSetFunctions are equal
+int
+PolynomialVars::Index(PolynomialCoeff coeff, int dim) const
+{
+  return coeff*polynomial_->GetDimCount() + dim;
+}
+
 VectorXd
 PolynomialVars::GetValues () const
 {
   VectorXd x(GetRows());
-  int row = 0;
-  for (auto c : polynomial_->GetCoeffIds()) {
-    int n_dim = polynomial_->GetDimCount();
-    x.middleRows(row, n_dim) = polynomial_->GetCoefficients(c);
-    row += n_dim;
-  }
+  for (auto c : polynomial_->GetCoeffIds())
+    for (int dim=0; dim<polynomial_->GetDimCount(); ++dim) {
+      double val = polynomial_->GetCoefficients(c)(dim);
+      x(Index(c, dim)) = val;
+    }
 
   return x;
 }
@@ -48,17 +56,31 @@ PolynomialVars::GetValues () const
 void
 PolynomialVars::SetValues (const VectorXd& x)
 {
-  int row=0;
+  //  int row=0;
   for (auto c : polynomial_->GetCoeffIds()) {
-    int n_dim = polynomial_->GetDimCount();
-    polynomial_->SetCoefficients(c, x.middleRows(row, n_dim));
-    row += n_dim;
+    for (int dim=0; dim<polynomial_->GetDimCount(); ++dim) {
+      double val = x(Index(c, dim));
+      polynomial_->SetCoefficient(c, dim, val);
+    }
   }
 }
 
+Jacobian
+PolynomialVars::GetJacobian (double t, MotionDerivative dxdt) const
+{
+  int n_dim = polynomial_->GetDimCount();
+  Jacobian jac(n_dim, GetRows());
 
+  for (int dim=0; dim<n_dim; ++dim) {
+    for (PolynomialCoeff c : polynomial_->GetCoeffIds()) {
 
+      int idx = Index(c, dim);
+      jac.insert(dim, idx) = polynomial_->GetDerivativeWrtCoeff(t, dxdt, c);
+    }
+  }
 
+  return jac;
+}
 
 Polynomial::Polynomial (int order, int dim)
 {
@@ -70,27 +92,20 @@ Polynomial::Polynomial (int order, int dim)
 
   n_dim_ = dim;
   int n_variables = n_coeff*n_dim_;
-
-//  all_coeff_ = VectorXd::Zero(n_variables);
 }
 
 
 void
-Polynomial::SetCoefficients (PolynomialCoeff c, const VectorXd& value)
+Polynomial::SetConstantPos (const VectorXd& value)
 {
-//  for (int dim=0; dim<value.rows(); ++dim)
-//    all_coeff_(Index(c, dim)) = value(dim);
-
-  coeff_.at(c) = value;
+  coeff_.at(A) = value;
 }
 
 VectorXd
 Polynomial::GetCoefficients (PolynomialCoeff c) const
 {
-//  return all_coeff_.middleRows(Index(c, 0), n_dim_);
   return coeff_.at(c);
 }
-
 
 /**
  * The spliner always calculates the splines in the same way, but if the
@@ -112,27 +127,10 @@ StateLinXd Polynomial::GetPoint(double t) const
   return out;
 }
 
-// zmp_ should these be moved up one level?
-int
-Polynomial::Index(PolynomialCoeff coeff, int dim) const
+void
+Polynomial::SetCoefficient (PolynomialCoeff c, int dim, double value)
 {
-  return coeff*n_dim_ + dim;
-}
-
-Jacobian
-Polynomial::GetJacobian (double t, MotionDerivative dxdt) const
-{
-  Jacobian jac(n_dim_, GetCoeffCount());
-
-  for (int dim=0; dim<n_dim_; ++dim) {
-    for (PolynomialCoeff c : coeff_ids_) {
-
-      int idx = Index(c, dim);
-      jac.insert(dim, idx) = GetDerivativeWrtCoeff(t, dxdt, c);
-    }
-  }
-
-  return jac;
+  coeff_.at(c)(dim) = value;
 }
 
 double
