@@ -27,7 +27,7 @@ using Jacobian    = MatrixSXd;
 using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 using VectorXd    = Eigen::VectorXd;
 
-/** @brief Interface representing either costs or constraints.
+/** @brief Interface representing either costs, constraints or opt variables.
  *
  * Every individual constraint (primitive) or composite of constraints follows
  * this interface and therefore they can be used interchangeably. Costs are

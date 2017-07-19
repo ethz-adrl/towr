@@ -95,7 +95,7 @@ SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
   SetName("SplineJunctionConstraint-" + spline_id);
   spline_ = Spline::BuildSpline(opt_vars, spline_id, poly_durations);
   derivatives_   = derivatives;
-  n_dim_         = spline_->GetPolynomial(0)->GetDimCount();
+  n_dim_         = spline_->GetPoint(0.0).kNumDim;
 
   n_junctions_ = spline_->GetPolynomials().size()-1; // because one less junction than poly's.
   int n_constraints = derivatives_.size() * n_junctions_ * n_dim_;

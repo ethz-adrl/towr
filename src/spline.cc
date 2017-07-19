@@ -24,8 +24,8 @@ Spline::~Spline ()
 
 Spline::PtrS
 Spline::BuildSpline(const OptVarsPtr& opt_vars,
-                              const std::string& spline_base_id,
-                              const VecTimes& poly_durations)
+                    const std::string& spline_base_id,
+                    const VecTimes& poly_durations)
 {
   auto spline_ = std::make_shared<Spline>();
   spline_->SetDurations(poly_durations);

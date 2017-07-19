@@ -33,14 +33,20 @@ public:
   Polynomial(int order, int dim, const std::string& id="polynomial");
   virtual ~Polynomial() {};
 
+
+
+  // zmp_ these shouldn't be here, separate responsibility!
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
 
-  /// jacobian of function below wr.t. values
-  StateLinXd GetPoint(double t) const;
   Jacobian GetJacobian(double t, MotionDerivative dxdt) const;
 
-  int GetDimCount() const {return n_dim_; };
+
+
+
+  /// jacobian of function below wr.t. values
+  StateLinXd GetPoint(double t) const;
+
   void SetCoefficients(PolynomialCoeff coeff, const VectorXd& value);
 
 private:
@@ -51,7 +57,7 @@ private:
   int Index(PolynomialCoeff coeff, int dim) const;
   double GetDerivativeWrtCoeff(double t, MotionDerivative, PolynomialCoeff) const;
 
-  CoeffVec coeff_ids_;          //!< non-zero coefficient indices.
+  CoeffVec coeff_ids_;
   VectorXd all_coeff_;
   int n_dim_;
 };
