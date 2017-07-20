@@ -7,7 +7,9 @@
 
 #include <xpp/opt/cost_constraint_factory.h>
 
+#include <cassert>
 #include <Eigen/Dense>
+#include <initializer_list>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -15,20 +17,15 @@
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
-
-#include <xpp/opt/constraints/dynamic_constraint.h>
-#include <xpp/opt/constraints/linear_constraint.h>
-#include <xpp/opt/constraints/range_of_motion_constraint.h>
-#include <xpp/opt/costs/polynomial_cost.h>
-#include <xpp/opt/costs/soft_constraint.h>
-
-#include <xpp/opt/variables/spline.h>
-#include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/angular_state_converter.h>
-#include <xpp/opt/variables/variable_names.h>
-
 #include <xpp/opt/centroidal_model.h>
+#include <xpp/opt/constraints/dynamic_constraint.h>
+#include <xpp/opt/constraints/range_of_motion_constraint.h>
 #include <xpp/opt/constraints/spline_constraint.h>
+#include <xpp/opt/costs/soft_constraint.h>
+#include <xpp/opt/variables/contact_schedule.h>
+#include <xpp/opt/variables/node_values.h>
+#include <xpp/opt/variables/spline.h>
+#include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
@@ -94,8 +91,8 @@ CostConstraintFactory::MakeStateConstraint () const
   auto derivs = {kPos, kVel, kAcc};
 
 
-  auto spline_lin = Spline::BuildSpline(opt_vars_, id::base_linear, base_poly_durations);
-  auto spline_ang = Spline::BuildSpline(opt_vars_, id::base_angular, base_poly_durations);
+  auto spline_lin = CoeffSpline::BuildSpline(opt_vars_, id::base_linear, base_poly_durations);
+  auto spline_ang = CoeffSpline::BuildSpline(opt_vars_, id::base_angular, base_poly_durations);
 
 
   // initial base constraints
@@ -115,16 +112,20 @@ CostConstraintFactory::MakeStateConstraint () const
   for (auto ee : params->robot_ee_) {
 
     auto durations_ee = contact_schedule->GetTimePerPhase(ee);
-    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), durations_ee);
+    auto spline_ee = HermiteSpline::BuildSpline(opt_vars_, id::GetEEId(ee), durations_ee);
 
     // initial endeffectors constraints
-    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, t, VectorXd(initial_ee_W_.At(ee)), derivs));
+    auto deriv_ee = {kPos}; // velocity and acceleration not yet implemented
+    auto c = std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, t,
+                                                     VectorXd(initial_ee_W_.At(ee)),
+                                                     deriv_ee);
+    constraints->AddComponent(c);
 
     // final endeffectors constraints
     Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
     EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
     VectorXd ee_pos_W = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
-    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, T, ee_pos_W, derivs));
+    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, T, ee_pos_W, deriv_ee));
 
   }
 
@@ -147,10 +148,10 @@ CostConstraintFactory::MakeJunctionConstraint () const
   junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, durations_base, derivatives));
 
   for (auto ee : params->robot_ee_) {
-    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);
+//    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);
 
-    auto derivs_pos_vel = {kPos, kVel};
-    junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::GetEEId(ee), durations_ee, derivs_pos_vel));
+//    auto derivs_pos_vel = {kPos, kVel};
+//    junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::GetEEId(ee), durations_ee, derivs_pos_vel));
 
   }
 

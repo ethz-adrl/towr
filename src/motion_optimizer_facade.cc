@@ -20,6 +20,7 @@
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/spline.h>
+#include <xpp/opt/variables/node_values.h>
 #include <xpp/opt/variables/variable_names.h>
 
 #include <xpp/opt/ipopt_adapter.h>
@@ -85,15 +86,28 @@ MotionOptimizerFacade::BuildVariables ()
     int order_poly = 4;
 
     for (int i=0; i<n_phases; ++i) {
-      auto p_motion = std::make_shared<Polynomial>(order_poly, n_dim);
-      p_motion->SetConstantPos(initial_ee_W_.At(ee));
-      opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::GetEEId(ee)+std::to_string(i), p_motion));
+
+
+
+//      // traditional spline
+//      auto p_motion = std::make_shared<Polynomial>(order_poly, n_dim);
+//      p_motion->SetConstantPos(initial_ee_W_.At(ee));
+//      opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::GetEEId(ee)+std::to_string(i), p_motion));
 
 
 //      auto p_force = std::make_shared<Polynomial>(order_poly, n_dim, id_force + std::to_string(i));
 //      p_force->SetCoefficients(Polynomial::A, Vector3d(0.0, 0.0, fz_stand));
 //      opt_variables_->AddComponent(p_force);
     }
+
+
+    // try cubic spline
+    NodeValues::Node n;
+    n.at(kPos) = initial_ee_W_.At(ee);
+    n.at(kVel) = Vector3d::Zero();
+    auto node_values = std::make_shared<NodeValues>(n, timings, id::GetEEId(ee));
+    opt_variables_->AddComponent(node_values);
+
 
 //    ee_poly->Init(n_phases*polys_per_duration, order_poly,initial_ee_W_.At(ee));
 //    ee_poly->SetPhaseDurations(timings, polys_per_duration);
@@ -187,8 +201,8 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   RobotStateVec trajectory;
 
-  auto base_lin = Spline::BuildSpline(opt_variables_, id::base_linear, motion_parameters_->GetBasePolyDurations());
-  auto base_ang = Spline::BuildSpline(opt_variables_, id::base_angular, motion_parameters_->GetBasePolyDurations());
+  auto base_lin = CoeffSpline::BuildSpline(opt_variables_, id::base_linear, motion_parameters_->GetBasePolyDurations());
+  auto base_ang = CoeffSpline::BuildSpline(opt_variables_, id::base_angular, motion_parameters_->GetBasePolyDurations());
 
 //  auto base_lin         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_linear));
 //  auto base_ang         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_angular));
@@ -201,7 +215,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   int n_ee = motion_parameters_->GetEECount();
   for (int i=0; i<n_ee; ++i) {
 //    std::string id_motion = id::endeffectors_motion+std::to_string(i);
-    auto ee_spline = Spline::BuildSpline(opt_variables_, id::GetEEId(i), contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));
+    auto ee_spline = HermiteSpline::BuildSpline(opt_variables_, id::GetEEId(i), contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));
     ee_splines.push_back(ee_spline);
 
 //    auto force_spline = PolynomialSpline::BuildSpline(opt_variables_, id::GetEEForceId(i), contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));

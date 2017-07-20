@@ -11,8 +11,11 @@
 #include <string>
 #include <vector>
 
+#include <xpp/cartesian_declarations.h>
 #include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/polynomial.h>
+
+#include "spline.h"
 
 namespace xpp {
 namespace opt {
@@ -27,8 +30,12 @@ public:
   using VecTimes = std::vector<double>;
 
 
-  NodeValues (const VecTimes& times, const Node& initial_value,
-              const std::string& id);
+//  using OptVarsPtr = Primitive::OptVarsPtr;
+  using PolyType = CubicHermitePoly;
+  using VecPoly  = std::vector<std::shared_ptr<PolyType>>;
+
+
+  NodeValues (const Node& initial_value, const VecTimes&, const std::string& name);
   virtual ~NodeValues ();
 
   /**
@@ -40,9 +47,17 @@ public:
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& x) override;
 
-  const StateLinXd GetPoint(double t_global) const;
-  Jacobian GetJacobian(double t_global,  MotionDerivative dxdt) const;
+//  const StateLinXd GetPoint(double t_global) const;
 
+
+
+//  VarsPtr GetActiveVariableSet(double t_global) const = 0;
+
+  Jacobian GetJacobian(int poly_id, double t_local, double T) const;
+
+
+
+  VecPoly GetCubicPolys() const { return cubic_polys_; };
 
 
 private:
@@ -50,14 +65,45 @@ private:
   int GetNodeId(int poly_id, Side) const;
 
   // zmp_ DRY with "Spline"...
-  VecTimes durations_; ///< duration of each polynomial in spline
   std::vector<Node> nodes_;
   int n_dim_;
 
-  std::vector<CubicHermitePoly> polynomials_;
+  VecPoly cubic_polys_;
+  VecTimes timings_; // zmp_ for now constant, remove at some point
+  void UpdatePolynomials(const VecTimes& durations);
 
-  void UpdatePolynomials();
 };
+
+
+
+
+class HermiteSpline : public Spline {
+public:
+  using NodeValueT = std::shared_ptr<NodeValues>;
+
+  // factory method
+  static Spline::Ptr BuildSpline(const OptVarsPtr& opt_vars,
+                                 const std::string& spline_base_id,
+                                 const VecTimes& poly_durations);
+
+
+  virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
+  Jacobian GetJacobian(double t_global,  MotionDerivative dxdt) const override;
+
+
+  void SetNodeValues(NodeValueT opt)
+  {
+    node_values_ = opt;
+    auto v = opt->GetCubicPolys();
+    polynomials_.assign(v.begin(), v.end()); // zmp_ links the two?
+  };
+
+private:
+  NodeValueT node_values_;
+};
+
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

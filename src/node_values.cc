@@ -14,8 +14,10 @@
 namespace xpp {
 namespace opt {
 
-NodeValues::NodeValues (const VecTimes& times, const Node& initial_value, const std::string& id)
-    :Component(-1,"NodeValues_" + id)
+NodeValues::NodeValues (const Node& initial_value,
+                        const VecTimes& times,
+                        const std::string& name)
+    :Component(-1, name)
 {
   n_dim_ = initial_value.at(kPos).rows();
 
@@ -23,15 +25,13 @@ NodeValues::NodeValues (const VecTimes& times, const Node& initial_value, const 
   nodes_ = std::vector<Node>(n_nodes, initial_value);
   SetRows(n_nodes*2*n_dim_);
 
-
   for (double t : times) {
-    CubicHermitePoly p(n_dim_);
-    p.SetDuration(t);
-    p.SetNodes(initial_value, initial_value);
-    polynomials_.push_back(p);
+    auto p = std::make_shared<PolyType>(n_dim_);
+    p->SetNodes(initial_value, initial_value, t);
+    cubic_polys_.push_back(p);
   }
 
-  durations_ = times;
+  timings_ = times;
 }
 
 NodeValues::~NodeValues () {}
@@ -55,16 +55,39 @@ NodeValues::SetValues (const VectorXd& x)
     for (MotionDerivative d : {kPos, kVel})
       nodes_.at(i).at(d) = x.middleRows(Index(i,d,X), n_dim_);
 
-  UpdatePolynomials();
+  UpdatePolynomials(timings_);
 }
 
 void
-NodeValues::UpdatePolynomials ()
+NodeValues::UpdatePolynomials (const VecTimes& durations)
 {
-  for (int i=0; i<polynomials_.size(); ++i) {
-    polynomials_.at(i).SetNodes(nodes_.at(GetNodeId(i,Side::Start)),
-                                nodes_.at(GetNodeId(i,Side::End)));
+  for (int i=0; i<cubic_polys_.size(); ++i) {
+    cubic_polys_.at(i)->SetNodes(nodes_.at(GetNodeId(i,Side::Start)),
+                                 nodes_.at(GetNodeId(i,Side::End)),
+                                 durations.at(i));
   }
+}
+
+Jacobian
+NodeValues::GetJacobian (int poly_id, double t_local, double T) const
+{
+  Jacobian jac(n_dim_, GetRows());
+
+   // always only two nodes affect current values at all times
+   for (Side side : {Side::Start, Side::End}) {
+     int node = GetNodeId(poly_id,side);
+
+     for (auto d : {kPos, kVel}) {
+
+       double dxdp = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, d, t_local, T);
+
+       // same value for x,y,z
+       for (int dim=0; dim<n_dim_; ++dim)
+         jac.coeffRef(dim, Index(node, d, dim)) = dxdp;
+     }
+   }
+
+  return jac;
 }
 
 int
@@ -79,42 +102,44 @@ NodeValues::GetNodeId (int poly_id, Side side) const
   return poly_id + side;
 }
 
-const StateLinXd
-NodeValues::GetPoint (double t_global) const
+
+
+
+Spline::Ptr
+HermiteSpline::BuildSpline (const OptVarsPtr& opt_vars,
+                            const std::string& node_id,
+                            const VecTimes& poly_durations)
 {
-  // zmp_ DRY with "Spline"
-  double t_local = Spline::GetLocalTime(t_global, durations_);
-  int id         = Spline::GetSegmentID(t_global, durations_);
-  return polynomials_.at(id).GetPoint(t_local);
+
+  auto spline = std::make_shared<HermiteSpline>();
+  spline->durations_ = poly_durations;
+  spline->SetNodeValues(std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(node_id)));
+
+  return spline;
+}
+
+bool
+HermiteSpline::DoVarAffectCurrentState (const std::string& poly_vars,
+                                     double t_current) const
+{
+  return poly_vars == node_values_->GetName();
 }
 
 Jacobian
-NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
+HermiteSpline::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
   assert(dxdt == kPos); // derivative of velocity/acceleration not implemented
 
-  Jacobian jac(n_dim_, GetRows());
+  int poly_id     = GetSegmentID(t_global);
+  double t_local  = GetLocalTime(t_global);
+  double duration = durations_.at(poly_id);
 
-   // zmp_ DRY with "Spline"
-   int poly_id    = Spline::GetSegmentID(t_global,durations_);
-   double t_local = Spline::GetLocalTime(t_global, durations_);
-
-   // always only two nodes affect current values at all times
-   for (Side side : {Side::Start, Side::End}) {
-     int node = GetNodeId(poly_id,side);
-
-     for (auto d : {kPos, kVel}) {
-
-       double dxdp = polynomials_.at(poly_id).GetDerivativeOfPosWrt(side, d, t_local);
-
-       // same value for x,y,z
-       for (int dim=0; dim<n_dim_; ++dim)
-         jac.insert(dim, Index(node, d, dim)) = dxdp;
-     }
-   }
-
-  return jac;
+  return node_values_->GetJacobian(poly_id, t_local, duration);
 }
+
+
+
+
 
 
 } /* namespace opt */

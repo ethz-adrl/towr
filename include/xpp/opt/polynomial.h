@@ -90,24 +90,15 @@ public:
   CubicHermitePoly(int dim);
   virtual ~CubicHermitePoly();
 
-  // must be called before SetNodes;
-  void SetDuration(double T);
+  void SetNodes(const Node& n0, const Node& n1, double T);
 
-  void SetNodes(const Node& n0, const Node& n1);
-
-  double GetDerivativeOfPosWrt(Side, MotionDerivative, double t_local) const;
+  double GetDerivativeOfPosWrt(Side, MotionDerivative, double t_local, double T) const;
 
   // zmp_ remove
 //  double GetDerivativeOfPosWrtStartPos(double t_local) const;
 //  double GetDerivativeOfPosWrtStartVel(double t_local) const;
 //  double GetDerivativeOfPosWrtEndPos  (double t_local) const;
 //  double GetDerivativeOfPosWrtEndVel  (double t_local) const;
-
-private:
-  // just for readability
-  double T;
-  double T2;
-  double T3;
 };
 
 

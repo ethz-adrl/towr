@@ -56,7 +56,7 @@ class SplineJunctionConstraint : public Primitive {
 public:
   using DerivativeVec = std::vector<MotionDerivative>;
   using VecTimes      = std::vector<double>;
-  using SplineT       = std::shared_ptr<Spline>;
+  using SplineT       = std::shared_ptr<CoeffSpline>;
 
   SplineJunctionConstraint (const OptVarsPtr& opt_vars,
                             const std::string& spline_id,

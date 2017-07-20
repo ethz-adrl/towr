@@ -32,33 +32,62 @@ namespace opt {
 class Spline {
 public:
   using PPtr      = std::shared_ptr<Polynomial>;
-  using VarsPtr   = std::shared_ptr<PolynomialVars>;
   using VecP      = std::vector<PPtr>;
-  using VecVars   = std::vector<VarsPtr>;
   using Ptr       = std::shared_ptr<Spline>;
 
-  using OptVarsPtr           = Primitive::OptVarsPtr;
-  using VecTimes             = std::vector<double>;
+  using OptVarsPtr = Primitive::OptVarsPtr;
+  using VecTimes   = std::vector<double>;
 
   Spline ();
   virtual ~Spline ();
 
-  static int GetSegmentID(double t_global, const std::vector<double>& durations);
-  static double GetLocalTime(double t_global, const std::vector<double>& durations);
-
-  // move to lower classes
-  static Ptr BuildSpline(const OptVarsPtr& opt_vars,
-                            const std::string& spline_base_id,
-                            const VecTimes& poly_durations);
 
 
-
-  // zmp_ nice, these both already correspond to node values :-)
-  // but specific for polynomial spline :-(
   const StateLinXd GetPoint(double t_globals) const;
-  PPtr GetActivePolynomial(double t_global) const;
-  VarsPtr GetActiveVariableSet(double t_global) const;
 
+
+  // these are the functions that differ
+  /** @returns true if the optimization variables poly_vars affect that
+   * state of the spline at t_global.
+   */
+  virtual bool DoVarAffectCurrentState(const std::string& poly_vars,
+                                       double t_current) const = 0;
+  virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
+
+
+
+
+
+
+
+protected:
+
+//  void AddPolynomial(PPtr p) { polynomials_.push_back(p); };
+
+
+  int GetSegmentID(double t_global) const;
+  double GetLocalTime(double t_global) const;
+
+  VecTimes durations_; ///< duration of each polynomial in spline
+  VecP polynomials_;   ///< the polynomials
+
+private:
+  PPtr GetActivePolynomial(double t_global) const;
+};
+
+
+
+
+class CoeffSpline : public Spline {
+public:
+
+  using VarsPtr   = std::shared_ptr<PolynomialVars>;
+  using VecVars   = std::vector<VarsPtr>;
+
+  // factory method
+  static Spline::Ptr BuildSpline(const OptVarsPtr& opt_vars,
+                                 const std::string& spline_base_id,
+                                 const VecTimes& poly_durations);
 
 
 
@@ -66,38 +95,26 @@ public:
   /** @returns true if the optimization variables poly_vars affect that
    * state of the spline at t_global.
    */
-  bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const;
-  Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const;
+  virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
+  virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const override;
+  VarsPtr GetActiveVariableSet(double t_global) const;
 
 
-
-
-
-  // these are only needed by spline junction constraints
+  int GetPolyCount() const { return polynomials_.size(); };
   double GetDurationOfPoly(int id) const { return durations_.at(id); };
-//  VecP GetPolynomials() const      { return polynomials_; }
+
+
+  // these are critical to expose... try not to
   PPtr GetPolynomial(int id) const { return polynomials_.at(id); }
   VarsPtr GetVarSet(int id) const { return poly_vars_.at(id); }
-  int GetPolyCount() const { return polynomials_.size(); };
 
-
-//  VecVars GetVarSets() const { return poly_vars_; }
-
-
-
-protected:
-  VecTimes durations_; ///< duration of each polynomial in spline
-  VecP polynomials_;   ///< the normal polynomials
+private:
   VecVars poly_vars_;  ///< the opt. variables that influence the polynomials
+
+
+
+
 };
-
-
-//class CoeffSpline : public Spline {
-//public:
-//
-//
-//
-//};
 
 
 

@@ -153,7 +153,6 @@ Polynomial::GetDerivativeWrtCoeff (double t, MotionDerivative deriv, PolynomialC
 
 CubicHermitePoly::CubicHermitePoly (int dim) : Polynomial(3,dim)
 {
-  T = T2 = T3 = 0;
 }
 
 CubicHermitePoly::~CubicHermitePoly ()
@@ -161,27 +160,22 @@ CubicHermitePoly::~CubicHermitePoly ()
 }
 
 void
-CubicHermitePoly::SetDuration (double _T)
-{
-  T  = _T;
-  T2 = _T*_T;
-  T3 = _T*_T*_T;
-}
-
-void
-CubicHermitePoly::SetNodes (const Node& n0, const Node& n1)
+CubicHermitePoly::SetNodes (const Node& n0, const Node& n1, double T)
 {
   coeff_[A] =  n0.at(kPos);
   coeff_[B] =  n0.at(kVel);
-  coeff_[C] = -( 3*(n0.at(kPos) - n1.at(kPos)) +  T*(2*n0.at(kVel) + n1.at(kVel)) ) / T2;
-  coeff_[D] =  ( 2*(n0.at(kPos) - n1.at(kPos)) +  T*(  n0.at(kVel) + n1.at(kVel)) ) / T3;
+  coeff_[C] = -( 3*(n0.at(kPos) - n1.at(kPos)) +  T*(2*n0.at(kVel) + n1.at(kVel)) ) / std::pow(T,2);
+  coeff_[D] =  ( 2*(n0.at(kPos) - n1.at(kPos)) +  T*(  n0.at(kVel) + n1.at(kVel)) ) / std::pow(T,3);
 }
 
 double
-CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative deriv,  double t) const
+CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative deriv,
+                                         double t, double T) const
 {
   double t2 = std::pow(t,2);
   double t3 = std::pow(t,3);
+  double T2 = std::pow(T,2);
+  double T3 = std::pow(T,3);
 
   switch (side) {
     case Start:

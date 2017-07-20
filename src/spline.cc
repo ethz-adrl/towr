@@ -26,13 +26,13 @@ Spline::~Spline ()
 }
 
 int
-Spline::GetSegmentID(double t_global, const std::vector<double>& durations)
+Spline::GetSegmentID(double t_global) const
 {
   double eps = 1e-10; // double imprecision
 
    double t = 0;
    int i=0;
-   for (double d: durations) {
+   for (double d: durations_) {
      t += d;
 
      if (t >= t_global-eps) // at junctions, returns previous spline (=)
@@ -44,24 +44,49 @@ Spline::GetSegmentID(double t_global, const std::vector<double>& durations)
 }
 
 double
-Spline::GetLocalTime(double t_global, const std::vector<double>& durations)
+Spline::GetLocalTime(double t_global) const
 {
-  int id_spline = GetSegmentID(t_global, durations);
+  int id_spline = GetSegmentID(t_global);
 
   double t_local = t_global;
   for (int id=0; id<id_spline; id++) {
-    t_local -= durations.at(id);
+    t_local -= durations_.at(id);
   }
 
   return t_local;
 }
 
-Spline::Ptr
-Spline::BuildSpline(const OptVarsPtr& opt_vars,
-                    const std::string& spline_base_id,
-                    const VecTimes& poly_durations)
+Spline::PPtr
+Spline::GetActivePolynomial(double t_global) const
 {
-  auto spline = std::make_shared<Spline>();
+  int id = GetSegmentID(t_global);
+  return polynomials_.at(id);
+}
+
+
+const StateLinXd
+Spline::GetPoint(double t_global) const
+{
+  double t_local = GetLocalTime(t_global);
+  return GetActivePolynomial(t_global)->GetPoint(t_local);
+}
+
+
+
+
+
+
+
+
+
+
+
+Spline::Ptr
+CoeffSpline::BuildSpline(const OptVarsPtr& opt_vars,
+                         const std::string& spline_base_id,
+                         const VecTimes& poly_durations)
+{
+  auto spline = std::make_shared<CoeffSpline>();
   spline->durations_ = poly_durations;
   for (int i=0; i<poly_durations.size(); ++i) {
     auto var_set = std::dynamic_pointer_cast<PolynomialVars>(opt_vars->GetComponent(spline_base_id+std::to_string(i)));
@@ -72,41 +97,33 @@ Spline::BuildSpline(const OptVarsPtr& opt_vars,
   return spline;
 }
 
-Spline::PPtr
-Spline::GetActivePolynomial(double t_global) const
-{
-  int id = GetSegmentID(t_global, durations_);
-  return polynomials_.at(id);
-}
-
-Spline::VarsPtr
-Spline::GetActiveVariableSet (double t_global) const
-{
-  int id = GetSegmentID(t_global, durations_);
-  return poly_vars_.at(id);
-}
-
-const StateLinXd
-Spline::GetPoint(double t_global) const
-{
-  double t_local = GetLocalTime(t_global, durations_);
-  return GetActivePolynomial(t_global)->GetPoint(t_local);
-}
-
-
-// these functions require optimization info
 Jacobian
-Spline::GetJacobian (double t_global, MotionDerivative deriv) const
+CoeffSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 {
-  double t_local = GetLocalTime(t_global, durations_);
+  double t_local = GetLocalTime(t_global);
   return GetActiveVariableSet(t_global)->GetJacobian(t_local, deriv);
 }
 
 bool
-Spline::DoVarAffectCurrentState(const std::string& poly_vars, double t_global) const
+CoeffSpline::DoVarAffectCurrentState(const std::string& poly_vars, double t_global) const
 {
   return poly_vars == GetActiveVariableSet(t_global)->GetName();
 }
+
+CoeffSpline::VarsPtr
+CoeffSpline::GetActiveVariableSet (double t_global) const
+{
+  int id = GetSegmentID(t_global);
+  return poly_vars_.at(id);
+}
+
+
+
+
+
+
+
+
 
 
 
