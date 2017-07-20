@@ -43,7 +43,7 @@ NodeValues::GetValues () const
 
   for (int i=0; i<nodes_.size(); ++i)
     for (MotionDerivative d : {kPos, kVel})
-      x.middleRows(Index(i, d, X), n_dim_) = nodes_.at(i).at(d);
+      x.middleRows(Index(i,d, X), n_dim_) = nodes_.at(i).at(d);
 
   return x;
 }
@@ -74,26 +74,26 @@ NodeValues::GetJacobian (int poly_id, double t_local, double T) const
   Jacobian jac(n_dim_, GetRows());
 
    // always only two nodes affect current values at all times
-   for (Side side : {Side::Start, Side::End}) {
-     int node = GetNodeId(poly_id,side);
+  for (Side side : {Side::Start, Side::End}) {
+    int node = GetNodeId(poly_id,side);
 
-     for (auto d : {kPos, kVel}) {
+    for (auto deriv : {kPos, kVel}) {
+      double dxdp = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, deriv, t_local, T);
 
-       double dxdp = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, d, t_local, T);
+      // same value for x,y,z
+      for (int dim=0; dim<n_dim_; ++dim)
+        jac.coeffRef(dim, Index(node, deriv, dim)) = dxdp;
 
-       // same value for x,y,z
-       for (int dim=0; dim<n_dim_; ++dim)
-         jac.coeffRef(dim, Index(node, d, dim)) = dxdp;
-     }
-   }
+    }
+  }
 
   return jac;
 }
 
 int
-NodeValues::Index (int node, MotionDerivative deriv, int dim) const
+NodeValues::Index (int node, MotionDerivative d, int dim) const
 {
-  return (node+deriv)*n_dim_ + dim;
+  return node*2*n_dim_ + d*n_dim_ + dim;
 }
 
 int
@@ -109,15 +109,24 @@ HermiteSpline::HermiteSpline (const OptVarsPtr& opt_vars,
                               const std::string& node_id,
                               const VecTimes& poly_durations)
 {
-  durations_ = poly_durations;
-  SetNodeValues(std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(node_id)));
+  durations_   = poly_durations;
+  node_values_ = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(node_id));
+
+  // zmp_ remove
+//  for (auto& p : node_values_->GetCubicPolys()) {
+//    polynomials_.push_back(p);
+//  }
+
+  auto v = node_values_->GetCubicPolys();
+  polynomials_.assign(v.begin(), v.end()); // zmp_ links the two?
 }
+
 
 HermiteSpline::~HermiteSpline() {};
 
 bool
 HermiteSpline::DoVarAffectCurrentState (const std::string& poly_vars,
-                                     double t_current) const
+                                        double t_current) const
 {
   return poly_vars == node_values_->GetName();
 }
@@ -125,7 +134,7 @@ HermiteSpline::DoVarAffectCurrentState (const std::string& poly_vars,
 Jacobian
 HermiteSpline::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
-  assert(dxdt == kPos); // derivative of velocity/acceleration not implemented
+  assert(dxdt == kPos); // derivative of velocity/acceleration not yet implemented
 
   int poly_id     = GetSegmentID(t_global);
   double t_local  = GetLocalTime(t_global);

@@ -14,7 +14,7 @@
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/opt/bound.h>
-#include <xpp/opt/variables/spline.h>
+#include <xpp/opt/variables/coeff_spline.h>
 
 #include "composite.h"
 

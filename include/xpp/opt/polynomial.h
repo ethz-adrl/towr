@@ -62,7 +62,6 @@ public:
   void SetConstantPos(const VectorXd& value);
   void SetCoefficient(PolynomialCoeff coeff, int dim, double value);
 
-  // zmp_ attention when using cubic hermite polynomial
   int GetCoeffCount() const { return coeff_ids_.size()*n_dim_; };
 
   CoeffIDVec GetCoeffIds() const { return coeff_ids_; };
@@ -83,7 +82,6 @@ private:
 // see matlab/third_order_poly.m script for derivation
 class CubicHermitePoly : public Polynomial {
 public:
-
   enum Side {Start=0, End};
   using Node = std::array<VectorXd,2>; // pos,vel
 
@@ -91,18 +89,8 @@ public:
   virtual ~CubicHermitePoly();
 
   void SetNodes(const Node& n0, const Node& n1, double T);
-
   double GetDerivativeOfPosWrt(Side, MotionDerivative, double t_local, double T) const;
-
-  // zmp_ remove
-//  double GetDerivativeOfPosWrtStartPos(double t_local) const;
-//  double GetDerivativeOfPosWrtStartVel(double t_local) const;
-//  double GetDerivativeOfPosWrtEndPos  (double t_local) const;
-//  double GetDerivativeOfPosWrtEndVel  (double t_local) const;
 };
-
-
-
 
 
 } // namespace opt

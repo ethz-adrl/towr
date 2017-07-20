@@ -47,24 +47,13 @@ public:
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& x) override;
 
-//  const StateLinXd GetPoint(double t_global) const;
-
-
-
-//  VarsPtr GetActiveVariableSet(double t_global) const = 0;
-
   Jacobian GetJacobian(int poly_id, double t_local, double T) const;
-
-
-
   VecPoly GetCubicPolys() const { return cubic_polys_; };
 
-
 private:
-  int Index(int node, MotionDerivative deriv, int dim) const;
+  int Index(int node, MotionDerivative, int dim) const;
   int GetNodeId(int poly_id, Side) const;
 
-  // zmp_ DRY with "Spline"...
   std::vector<Node> nodes_;
   int n_dim_;
 
@@ -73,8 +62,6 @@ private:
   void UpdatePolynomials(const VecTimes& durations);
 
 };
-
-
 
 
 class HermiteSpline : public Spline {
@@ -89,14 +76,6 @@ public:
 
   virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
   Jacobian GetJacobian(double t_global,  MotionDerivative dxdt) const override;
-
-
-  void SetNodeValues(NodeValueT opt)
-  {
-    node_values_ = opt;
-    auto v = opt->GetCubicPolys();
-    polynomials_.assign(v.begin(), v.end()); // zmp_ links the two?
-  };
 
 private:
   NodeValueT node_values_;

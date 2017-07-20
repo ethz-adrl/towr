@@ -200,7 +200,7 @@ Trot::Trot()
                    State,
 //                   JunctionCom,
 //                   Dynamic,
-//                   RomBox, // usually enforced as soft-constraint/cost
+                   RomBox, // usually enforced as soft-constraint/cost
   };
 //
 //  cost_weights_[RangOfMotionCostID] = 10.0;

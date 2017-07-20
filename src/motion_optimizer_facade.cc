@@ -129,7 +129,6 @@ MotionOptimizerFacade::BuildVariables ()
   // BASE_MOTION
   std::vector<double> base_spline_timings_ = motion_parameters_->GetBasePolyDurations();
 
-
   NodeValues::Node n;
   n.at(kPos) = inital_base_.lin.p_;
   n.at(kVel) = Vector3d::Zero();
@@ -141,7 +140,7 @@ MotionOptimizerFacade::BuildVariables ()
   opt_variables_->AddComponent(spline_ang);
 
 
-  for (int i=0; i<base_spline_timings_.size(); ++i) {
+//  for (int i=0; i<base_spline_timings_.size(); ++i) {
 //    auto p_lin = std::make_shared<Polynomial>(4, n_dim);
 //    p_lin->SetConstantPos(inital_base_.lin.p_);
 //    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
@@ -149,7 +148,7 @@ MotionOptimizerFacade::BuildVariables ()
 //    auto p_ang = std::make_shared<Polynomial>(4, n_dim);
 //    p_ang->SetConstantPos(inital_base_.ang.p_);
 //    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
-  }
+//  }
 
 
 //  double T = motion_parameters_->GetTotalTime();

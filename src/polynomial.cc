@@ -20,19 +20,12 @@ namespace xpp {
 namespace opt {
 
 
-
 PolynomialVars::PolynomialVars (const std::string& id, const PolynomialPtr& poly)
     : Component(-1, id)
 {
   polynomial_ = poly;
   SetRows(polynomial_->GetCoeffCount());
 }
-
-//StateLinXd
-//PolynomialVars::GetPoint (double t_local) const
-//{
-//  return polynomial_->GetPoint(t_local);
-//}
 
 int
 PolynomialVars::Index(PolynomialCoeff coeff, int dim) const
@@ -81,11 +74,6 @@ PolynomialVars::GetJacobian (double t_local, MotionDerivative dxdt) const
   return jac;
 }
 
-
-
-
-
-
 Polynomial::Polynomial (int order, int dim)
 {
   int n_coeff = order+1;
@@ -111,11 +99,6 @@ Polynomial::GetCoefficients (PolynomialCoeff c) const
   return coeff_.at(c);
 }
 
-/**
- * The spliner always calculates the splines in the same way, but if the
- * spline coefficients are zero (as set by @ref Spliner()), the higher-order
- * terms have no effect.
- */
 StateLinXd Polynomial::GetPoint(double t_local) const
 {
   // sanity checks
@@ -150,6 +133,7 @@ Polynomial::GetDerivativeWrtCoeff (double t, MotionDerivative deriv, PolynomialC
     case kJerk:  return c*(c-1)*(c-2)*std::pow(t,c-3); break;
   }
 }
+
 
 CubicHermitePoly::CubicHermitePoly (int dim) : Polynomial(3,dim)
 {

@@ -22,8 +22,6 @@ namespace xpp {
 namespace opt {
 
 
-
-
 /** @brief Wraps a sequence of polynomials with optimized coefficients.
   *
   * This class is responsible for abstracting polynomial coefficients of multiple
@@ -41,19 +39,12 @@ public:
   Spline ();
   virtual ~Spline ();
 
-
-  // factory method, rename to make spline
   static Spline::Ptr BuildSpline(const OptVarsPtr& opt_vars,
                                  const std::string& spline_base_id,
                                  const VecTimes& poly_durations);
 
-
-
-
   const StateLinXd GetPoint(double t_globals) const;
 
-
-  // these are the functions that differ
   /** @returns true if the optimization variables poly_vars affect that
    * state of the spline at t_global.
    */
@@ -62,73 +53,16 @@ public:
   virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
 
 
-
-
-
-
-
 protected:
-
-//  void AddPolynomial(PPtr p) { polynomials_.push_back(p); };
-
+  VecTimes durations_; ///< duration of each polynomial in spline
+  VecP polynomials_;   ///< the polynomials
 
   int GetSegmentID(double t_global) const;
   double GetLocalTime(double t_global) const;
 
-  VecTimes durations_; ///< duration of each polynomial in spline
-  VecP polynomials_;   ///< the polynomials
-
 private:
   PPtr GetActivePolynomial(double t_global) const;
 };
-
-
-
-
-class CoeffSpline : public Spline {
-public:
-
-  using VarsPtr   = std::shared_ptr<PolynomialVars>;
-  using VecVars   = std::vector<VarsPtr>;
-
-
-  CoeffSpline(const OptVarsPtr& opt_vars,
-              const std::string& spline_base_id,
-              const VecTimes& poly_durations);
-  virtual ~CoeffSpline();
-
-  // factory method
-//  static Spline::Ptr MakeSpline(const OptVarsPtr& opt_vars,
-//                                 const std::string& spline_base_id,
-//                                 const VecTimes& poly_durations);
-
-
-
-  // these are the functions that differ
-  /** @returns true if the optimization variables poly_vars affect that
-   * state of the spline at t_global.
-   */
-  virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
-  virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const override;
-  VarsPtr GetActiveVariableSet(double t_global) const;
-
-
-  int GetPolyCount() const { return polynomials_.size(); };
-  double GetDurationOfPoly(int id) const { return durations_.at(id); };
-
-
-  // these are critical to expose... try not to
-  PPtr GetPolynomial(int id) const { return polynomials_.at(id); }
-  VarsPtr GetVarSet(int id) const { return poly_vars_.at(id); }
-
-private:
-  VecVars poly_vars_;  ///< the opt. variables that influence the polynomials
-
-
-
-
-};
-
 
 
 } /* namespace opt */

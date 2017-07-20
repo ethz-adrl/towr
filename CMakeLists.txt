@@ -91,6 +91,7 @@ add_library(${MOTION_OPT_LIB}
   src/polynomial.cc
   src/node_values.cc
   src/spline.cc
+  src/coeff_spline.cc
 #  src/spline.cc
   src/angular_state_converter.cc
 #  src/base_motion.cc
