@@ -23,7 +23,11 @@ NodeValues::NodeValues (const Node& initial_value,
 
   int n_nodes = times.size()+1;
   nodes_ = std::vector<Node>(n_nodes, initial_value);
+
   int n_var = Index(n_nodes-1, kVel, n_dim_-1)+1; // last node, last dimension
+//  n_var += timings_.size(); // zmp_ optimize over these as well
+
+
   SetRows(n_var);
 
   for (double t : times) {
@@ -59,17 +63,36 @@ NodeValues::SetValues (const VectorXd& x)
   UpdatePolynomials(timings_);
 }
 
+//VecBound
+//NodeValues::GetBounds () const
+//{
+//  VecBound bounds(GetRows());
+//
+//  int row=0;
+//
+//  for (int i=0; i<nodes_.size(); ++i)
+//    for (MotionDerivative d : {kPos, kVel})
+//      for (int dim=0; dim<n_dim_; ++dim)
+//        bounds.at(Index(i,d, dim)) = kNoBound_;
+//
+//  int timings_start = bounds.size() - timings_.size();
+//  for (int i=0; i<timings_.size(); ++i) {
+//    bounds.at(timings_start+i) = Bound(0.1, 0.4);
+//  }
+//
+//  return bounds;
+//}
+
 int
 NodeValues::Index (int node, MotionDerivative d, int dim) const
 {
   // results in same position and velocity of pairwise nodes
   // e.g. keeping foot on ground for this duration
   int opt_node = std::floor(node/2); // node 0 and 1 -> 0
-                                 // node 2 and 3 -> 1
+                                     // node 2 and 3 -> 1
 
   return opt_node*2*n_dim_ + d*n_dim_ + dim;
 }
-
 
 void
 NodeValues::UpdatePolynomials (const VecTimes& durations)

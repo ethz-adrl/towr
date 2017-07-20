@@ -198,7 +198,7 @@ Trot::Trot()
 
   constraints_ = {
                    State,
-//                   JunctionCom,
+                   JunctionCom,
 //                   Dynamic,
                    RomBox, // usually enforced as soft-constraint/cost
   };

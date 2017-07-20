@@ -144,8 +144,8 @@ CostConstraintFactory::MakeJunctionConstraint () const
   auto derivatives = {kPos, kVel, kAcc};
 
   auto durations_base = params->GetBasePolyDurations();
-//  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, durations_base, derivatives));
-//  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, durations_base, derivatives));
+  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, durations_base, derivatives));
+  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, durations_base, derivatives));
 
   for (auto ee : params->robot_ee_) {
 //    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);

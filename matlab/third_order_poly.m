@@ -32,9 +32,10 @@ pretty(subs(p))
 
 
 % Get the derivative w.r.t the initial and final position
-jac_p = jacobian(subs(p), [p0 v0 p1 v1])
+jac_p = jacobian(subs(p), [p0 v0 p1 v1 T])
 
 dp_dp0 = jac_p(1)
 dp_dv0 = jac_p(2)
 dp_dp1 = jac_p(3)
 dp_dv1 = jac_p(4)
+dp_dT = jac_p(5)

@@ -47,6 +47,9 @@ public:
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& x) override;
 
+//  VecBound GetBounds () const override;
+
+
   Jacobian GetJacobian(int poly_id, double t_local, double T) const;
   VecPoly GetCubicPolys() const { return cubic_polys_; };
 

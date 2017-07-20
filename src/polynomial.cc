@@ -153,7 +153,7 @@ CubicHermitePoly::SetNodes (const Node& n0, const Node& n1, double T)
 }
 
 double
-CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative deriv,
+CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative node_value,
                                          double t, double T) const
 {
   double t2 = std::pow(t,2);
@@ -163,13 +163,13 @@ CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative deriv,
 
   switch (side) {
     case Start:
-      switch (deriv) {
+      switch (node_value) {
         case kPos: return (2*t3)/T3 - (3*t2)/T2 + 1;
         case kVel: return t - (2*t2)/T + t3/T2;
       }
 
     case End:
-      switch (deriv) {
+      switch (node_value) {
         case kPos: return (3*t2)/T2 - (2*t3)/T3;
         case kVel: return t3/T2 - t2/T;
       }
@@ -177,6 +177,32 @@ CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative deriv,
     default: assert(false);
   }
 }
+
+VectorXd
+CubicHermitePoly::GetDerivativeOfPosWrtDuration(const Node& n0,
+                                                const Node& n1,
+                                                double t,
+                                                double T) const
+{
+  VectorXd p0 = n0.at(kPos);
+  VectorXd v0 = n0.at(kVel);
+  VectorXd p1 = n1.at(kPos);
+  VectorXd v1 = n1.at(kVel);
+
+  double t2 = std::pow(t,2);
+  double t3 = std::pow(t,3);
+  double T2 = std::pow(T,2);
+  double T3 = std::pow(T,3);
+  double T4 = std::pow(T,4);
+
+  return   (t3*(v0 + v1))/T3
+         - (3*t3*(2*p0 - 2*p1 + T*v0 + T*v1))/T4
+         + (2*t2*(3*p0 - 3*p1 + 2*T*v0 + T*v1))/T3
+         - (t2*(2*v0 + v1))/T2;
+}
+
+
+
 
 //double
 //CubicHermitePoly::GetDerivativeOfPosWrtStartPos (double t) const
@@ -319,8 +345,6 @@ CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative deriv,
 //  coeff_[E] = -(2*h_*n4 - h_*n5 - 10*n2*end.p_ + 15*n3*end.p_ + 10*n2*start.p_ - 15*n3*start.p_)/(T4*(n_ - 2)*(n2 - 2*n_ + 1));
 //  coeff_[F] = -(2*(2*n2*end.p_ - 3*n3*end.p_ - 2*n2*start.p_ + 3*n3*start.p_))/(T5*(n_ - 2)*(n2 - 2*n_ + 1));
 //}
-
-
 
 } // namespace opt
 } // namespace xpp

@@ -28,9 +28,9 @@ Spline::BuildSpline (const OptVarsPtr& opt_vars,
   if (name.substr(0, s.size()) == s) // string starts with s
     spline = std::make_shared<HermiteSpline>(opt_vars, name, poly_durations);
   else if (name == id::base_linear)
-    spline = std::make_shared<HermiteSpline>(opt_vars, name, poly_durations);
+    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
   else if (name == id::base_angular)
-    spline = std::make_shared<HermiteSpline>(opt_vars, name, poly_durations);
+    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
   else
     spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
 

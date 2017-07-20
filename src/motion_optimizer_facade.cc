@@ -129,43 +129,26 @@ MotionOptimizerFacade::BuildVariables ()
   // BASE_MOTION
   std::vector<double> base_spline_timings_ = motion_parameters_->GetBasePolyDurations();
 
-  NodeValues::Node n;
-  n.at(kPos) = inital_base_.lin.p_;
-  n.at(kVel) = Vector3d::Zero();
-  auto spline_lin = std::make_shared<NodeValues>(n, base_spline_timings_, id::base_linear);
-  opt_variables_->AddComponent(spline_lin);
-
-  n.at(kPos) = inital_base_.ang.p_;
-  auto spline_ang = std::make_shared<NodeValues>(n, base_spline_timings_, id::base_angular);
-  opt_variables_->AddComponent(spline_ang);
-
-
-//  for (int i=0; i<base_spline_timings_.size(); ++i) {
-//    auto p_lin = std::make_shared<Polynomial>(4, n_dim);
-//    p_lin->SetConstantPos(inital_base_.lin.p_);
-//    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
+//  NodeValues::Node n;
+//  n.at(kPos) = inital_base_.lin.p_;
+//  n.at(kVel) = Vector3d::Zero();
+//  auto spline_lin = std::make_shared<NodeValues>(n, base_spline_timings_, id::base_linear);
+//  opt_variables_->AddComponent(spline_lin);
 //
-//    auto p_ang = std::make_shared<Polynomial>(4, n_dim);
-//    p_ang->SetConstantPos(inital_base_.ang.p_);
-//    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
-//  }
+//  n.at(kPos) = inital_base_.ang.p_;
+//  auto spline_ang = std::make_shared<NodeValues>(n, base_spline_timings_, id::base_angular);
+//  opt_variables_->AddComponent(spline_ang);
 
 
-//  double T = motion_parameters_->GetTotalTime();
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+    auto p_lin = std::make_shared<Polynomial>(4, n_dim);
+    p_lin->SetConstantPos(inital_base_.lin.p_);
+    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
 
-//  auto base_linear = std::make_shared<PolynomialSpline>(id::base_linear);
-//  base_linear->Init(base_spline_timings_.size(), 4, inital_base_.lin.p_);
-//  base_linear->SetPhaseDurations(base_spline_timings_, 1);
-//  opt_variables_->AddComponent(base_linear);
-//
-//
-//  // Represent roll, pitch and yaw by a spline each.
-//  // These angles are to be interpreted as mapping a vector expressed in
-//  // base frame to world frame.
-//  auto base_angular = std::make_shared<PolynomialSpline>(id::base_angular);
-//  base_angular->Init(base_spline_timings_.size(), 4, inital_base_.ang.p_);
-//  base_angular->SetPhaseDurations(base_spline_timings_, 1);
-//  opt_variables_->AddComponent(base_angular);
+    auto p_ang = std::make_shared<Polynomial>(4, n_dim);
+    p_ang->SetConstantPos(inital_base_.ang.p_);
+    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
+  }
 
   opt_variables_->Print();
 }
