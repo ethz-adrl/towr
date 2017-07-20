@@ -23,7 +23,8 @@ NodeValues::NodeValues (const Node& initial_value,
 
   int n_nodes = times.size()+1;
   nodes_ = std::vector<Node>(n_nodes, initial_value);
-  SetRows(n_nodes*2*n_dim_);
+  int n_var = Index(n_nodes-1, kVel, n_dim_-1)+1; // last node, last dimension
+  SetRows(n_var);
 
   for (double t : times) {
     auto p = std::make_shared<PolyType>(n_dim_);
@@ -58,6 +59,18 @@ NodeValues::SetValues (const VectorXd& x)
   UpdatePolynomials(timings_);
 }
 
+int
+NodeValues::Index (int node, MotionDerivative d, int dim) const
+{
+  // results in same position and velocity of pairwise nodes
+  // e.g. keeping foot on ground for this duration
+  int opt_node = std::floor(node/2); // node 0 and 1 -> 0
+                                 // node 2 and 3 -> 1
+
+  return opt_node*2*n_dim_ + d*n_dim_ + dim;
+}
+
+
 void
 NodeValues::UpdatePolynomials (const VecTimes& durations)
 {
@@ -82,18 +95,12 @@ NodeValues::GetJacobian (int poly_id, double t_local, double T) const
 
       // same value for x,y,z
       for (int dim=0; dim<n_dim_; ++dim)
-        jac.coeffRef(dim, Index(node, deriv, dim)) = dxdp;
+        jac.coeffRef(dim, Index(node, deriv, dim)) += dxdp; // += needed if multiple nodes are represented by same optimization variable
 
     }
   }
 
   return jac;
-}
-
-int
-NodeValues::Index (int node, MotionDerivative d, int dim) const
-{
-  return node*2*n_dim_ + d*n_dim_ + dim;
 }
 
 int
@@ -105,20 +112,15 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 
 
 
+
 HermiteSpline::HermiteSpline (const OptVarsPtr& opt_vars,
                               const std::string& node_id,
                               const VecTimes& poly_durations)
 {
   durations_   = poly_durations;
   node_values_ = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(node_id));
-
-  // zmp_ remove
-//  for (auto& p : node_values_->GetCubicPolys()) {
-//    polynomials_.push_back(p);
-//  }
-
   auto v = node_values_->GetCubicPolys();
-  polynomials_.assign(v.begin(), v.end()); // zmp_ links the two?
+  polynomials_.assign(v.begin(), v.end()); // links the two
 }
 
 
