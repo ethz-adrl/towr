@@ -33,8 +33,8 @@ public:
   StateLinXd GetPoint(double t_local) const;
   Jacobian GetJacobian(double t_local, MotionDerivative dxdt) const;
 
+  PolynomialPtr polynomial_; // zmp_ make private
 private:
-  PolynomialPtr polynomial_;
   int Index(PolynomialCoeff coeff, int dim) const;
 };
 

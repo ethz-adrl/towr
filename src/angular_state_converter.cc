@@ -292,7 +292,7 @@ int
 AngularStateConverter::OptVariablesOfCurrentPolyCount (double t) const
 {
   // zmp_ attention, not the same thing
-  return euler_.GetActivePolynomial(t)->GetRows();
+  return euler_.GetActiveVariableSet(t)->GetRows();
 }
 
 } /* namespace opt */

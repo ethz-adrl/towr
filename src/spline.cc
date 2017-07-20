@@ -65,10 +65,25 @@ Spline::BuildSpline(const OptVarsPtr& opt_vars,
   spline.durations_ = poly_durations;
   for (int i=0; i<poly_durations.size(); ++i) {
     auto p = std::dynamic_pointer_cast<PolynomialVars>(opt_vars->GetComponent(spline_base_id+std::to_string(i)));
-    spline.polynomials_.push_back(p);
+    spline.poly_vars_.push_back(p);
+    spline.polynomials_.push_back(p->polynomial_); // links the two
   }
 
   return spline;
+}
+
+Spline::PPtr
+Spline::GetActivePolynomial(double t_global) const
+{
+  int id = GetSegmentID(t_global, durations_);
+  return polynomials_.at(id);
+}
+
+Spline::VarsPtr
+Spline::GetActiveVariableSet (double t_global) const
+{
+  int id = GetSegmentID(t_global, durations_);
+  return poly_vars_.at(id);
 }
 
 const StateLinXd
@@ -78,25 +93,21 @@ Spline::GetPoint(double t_global) const
   return GetActivePolynomial(t_global)->GetPoint(t_local);
 }
 
+
+// these functions require optimization info
 Jacobian
 Spline::GetJacobian (double t_global, MotionDerivative deriv) const
 {
   double t_local = GetLocalTime(t_global, durations_);
-  return GetActivePolynomial(t_global)->GetJacobian(t_local, deriv);
+  return GetActiveVariableSet(t_global)->GetJacobian(t_local, deriv);
 }
 
 bool
-Spline::IsPolyActive(const std::string& poly_vars, double t_global) const
+Spline::DoVarAffectCurrentState(const std::string& poly_vars, double t_global) const
 {
-  return poly_vars == GetActivePolynomial(t_global)->GetName();
+  return poly_vars == GetActiveVariableSet(t_global)->GetName();
 }
 
-Spline::PolynomialPtr
-Spline::GetActivePolynomial(double t_global) const
-{
-  int id = GetSegmentID(t_global, durations_);
-  return polynomials_.at(id);
-}
 
 
 //void

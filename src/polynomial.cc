@@ -56,7 +56,6 @@ PolynomialVars::GetValues () const
 void
 PolynomialVars::SetValues (const VectorXd& x)
 {
-  //  int row=0;
   for (auto c : polynomial_->GetCoeffIds()) {
     for (int dim=0; dim<polynomial_->GetDimCount(); ++dim) {
       double val = x(Index(c, dim));

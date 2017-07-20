@@ -31,10 +31,13 @@ namespace opt {
   */
 class Spline {
 public:
-  using PolynomialPtr  = std::shared_ptr<PolynomialVars>;
-  using VecPolynomials = std::vector<PolynomialPtr>;
-  using OptVarsPtr     = Primitive::OptVarsPtr;
-  using VecTimes = std::vector<double>;
+  using PPtr    = std::shared_ptr<Polynomial>;
+  using VarsPtr = std::shared_ptr<PolynomialVars>;
+  using VecP    = std::vector<PPtr>;
+  using VecVars = std::vector<VarsPtr>;
+
+  using OptVarsPtr           = Primitive::OptVarsPtr;
+  using VecTimes             = std::vector<double>;
 
   Spline ();
   virtual ~Spline ();
@@ -48,26 +51,41 @@ public:
 
 
 
+  // zmp_ nice, these both already correspond to node values :-)
+  // but specific for polynomial spline :-(
   const StateLinXd GetPoint(double t_globals) const;
+  PPtr GetActivePolynomial(double t_global) const;
+  VarsPtr GetActiveVariableSet(double t_global) const;
 
-  // this function shouldn't be here
-  // or overwritten by hermiteSpline
+
+
+
+  // these are the functions that differ
+  /** @returns true if the optimization variables poly_vars affect that
+   * state of the spline at t_global.
+   */
+  bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const;
   Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const;
 
-  /** @returns true if the polynomial with poly_name is active at current time.
-   */
-  bool IsPolyActive(const std::string& poly_vars, double t_global) const;
-  PolynomialPtr GetActivePolynomial(double t_global) const;
 
 
+
+  // these are only needed by spline junction constraints
   double GetDurationOfPoly(int id) const { return durations_.at(id); };
+  VecP GetPolynomials() const     { return polynomials_; }
+  PPtr GetPolynomial(int id) const { return polynomials_.at(id); }
 
-  VecPolynomials GetPolynomials() const     { return polynomials_; }
-  PolynomialPtr GetPolynomial(int id) const { return polynomials_.at(id); }
+
+  VecVars GetVarSets() const { return poly_vars_; }
+
+
 
 protected:
   VecTimes durations_; ///< duration of each polynomial in spline
-  VecPolynomials polynomials_;
+  VecP polynomials_;
+
+  // add vector of components as well and separate
+  VecVars poly_vars_;
 
 //private:
 //  void AddPolynomial(const PolynomialPtr& poly);

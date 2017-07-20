@@ -41,13 +41,14 @@ public:
   void SetValues (const VectorXd& x) override;
 
   const StateLinXd GetPoint(double t_global) const;
-  Jacobian GetJacobianOfPosWrtNodes(double t_global) const;
+  Jacobian GetJacobian(double t_global,  MotionDerivative dxdt) const;
 
-  int Index(int node, MotionDerivative deriv, int dim) const;
-  int GetNodeId(int poly_id, Side) const;
 
 
 private:
+  int Index(int node, MotionDerivative deriv, int dim) const;
+  int GetNodeId(int poly_id, Side) const;
+
   // zmp_ DRY with "Spline"...
   VecTimes durations_; ///< duration of each polynomial in spline
   std::vector<Node> nodes_;

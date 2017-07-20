@@ -117,18 +117,14 @@ CostConstraintFactory::MakeStateConstraint () const
     auto durations_ee = contact_schedule->GetTimePerPhase(ee);
     auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), durations_ee);
 
-
     // initial endeffectors constraints
-//    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), contact_schedule_->GetTimePerPhase(ee));
     constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, t, VectorXd(initial_ee_W_.At(ee)), derivs));
-
 
     // final endeffectors constraints
     Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
     EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
-    Endeffectors<StateLin3d> endeffectors_final_W(nominal_B.GetCount());
-    endeffectors_final_W.At(ee).p_ = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
-    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, T, endeffectors_final_W.At(ee), derivs));
+    VectorXd ee_pos_W = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
+    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, T, ee_pos_W, derivs));
 
   }
 

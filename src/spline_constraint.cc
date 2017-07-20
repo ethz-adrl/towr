@@ -56,7 +56,7 @@ void
 SplineStateConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                   Jacobian& jac) const
 {
-  if (spline_.IsPolyActive(var_set, t_global_)) {
+  if (spline_.DoVarAffectCurrentState(var_set, t_global_)) {
     int row = 0;
     for (auto dxdt :  derivatives_) {
 
@@ -142,7 +142,7 @@ SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                      Jacobian& jac) const
 {
   int id=0;
-  for (auto p : spline_.GetPolynomials()) {
+  for (auto p : spline_.GetVarSets()) {
     if (var_set == p->GetName()) {
 
       double T = spline_.GetDurationOfPoly(id);

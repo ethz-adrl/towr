@@ -93,24 +93,24 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 
   for (auto ee : model_->GetEEIDs()) {
 
-    if (ee_forces_.at(ee).IsPolyActive(var_set,t)) {
+    if (ee_forces_.at(ee).DoVarAffectCurrentState(var_set,t)) {
       Jacobian jac_ee_force = ee_forces_.at(ee).GetJacobian(t,kPos);
       jac_model = model_->GetJacobianofAccWrtForce(jac_ee_force, ee);
     }
 
-    if (ee_splines_.at(ee).IsPolyActive(var_set,t)) {
+    if (ee_splines_.at(ee).DoVarAffectCurrentState(var_set,t)) {
       Jacobian jac_ee_pos = ee_splines_.at(ee).GetJacobian(t,kPos);
       jac_model = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
     }
   }
 
-  if (base_linear_.IsPolyActive(var_set,t)) {
+  if (base_linear_.DoVarAffectCurrentState(var_set,t)) {
     Jacobian jac_base_lin_pos = base_linear_.GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseLin(jac_base_lin_pos);
     jac_parametrization.middleRows(LX, kDim3d) = base_linear_.GetJacobian(t,kAcc);
   }
 
-  if (base_angular_.IsPolyActive(var_set,t)) {
+  if (base_angular_.DoVarAffectCurrentState(var_set,t)) {
     Jacobian jac_base_ang_pos = base_angular_.GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_base_ang_pos);
     jac_parametrization.middleRows(AX, kDim3d) = converter_.GetDerivOfAngAccWrtCoeff(t);

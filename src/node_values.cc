@@ -92,8 +92,10 @@ NodeValues::GetPoint (double t_global) const
 }
 
 Jacobian
-NodeValues::GetJacobianOfPosWrtNodes (double t_global) const
+NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
+  assert(dxdt == kPos); // derivative of velocity/acceleration not implemented
+
   Jacobian jac(n_dim_, GetRows());
 
    // zmp_ DRY with "Spline"
