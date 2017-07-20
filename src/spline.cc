@@ -8,13 +8,33 @@
 #include <xpp/opt/variables/spline.h>
 
 #include <cassert>
-#include <Eigen/Dense>
+
+#include <xpp/opt/variables/node_values.h>
+#include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
 
 
+Spline::Ptr
+Spline::BuildSpline (const OptVarsPtr& opt_vars,
+                     const std::string& name,
+                     const VecTimes& poly_durations)
+{
+  Ptr spline;
 
+  std::string s = id::endeffectors_motion;
+  if (name.substr(0, s.size()) == s) // string starts with s
+    spline = std::make_shared<HermiteSpline>(opt_vars, name, poly_durations);
+  else if (name == id::base_linear)
+    spline = std::make_shared<HermiteSpline>(opt_vars, name, poly_durations);
+  else if (name == id::base_angular)
+    spline = std::make_shared<HermiteSpline>(opt_vars, name, poly_durations);
+  else
+    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
+
+  return spline;
+}
 
 
 Spline::Spline ()
@@ -81,21 +101,20 @@ Spline::GetPoint(double t_global) const
 
 
 
-Spline::Ptr
-CoeffSpline::BuildSpline(const OptVarsPtr& opt_vars,
+
+CoeffSpline::CoeffSpline(const OptVarsPtr& opt_vars,
                          const std::string& spline_base_id,
                          const VecTimes& poly_durations)
 {
-  auto spline = std::make_shared<CoeffSpline>();
-  spline->durations_ = poly_durations;
+  durations_ = poly_durations;
   for (int i=0; i<poly_durations.size(); ++i) {
     auto var_set = std::dynamic_pointer_cast<PolynomialVars>(opt_vars->GetComponent(spline_base_id+std::to_string(i)));
-    spline->poly_vars_.push_back(var_set);
-    spline->polynomials_.push_back(var_set->GetPolynomial()); // links the two
+    poly_vars_.push_back(var_set);
+    polynomials_.push_back(var_set->GetPolynomial()); // links the two
   }
-
-  return spline;
 }
+
+CoeffSpline::~CoeffSpline() {};
 
 Jacobian
 CoeffSpline::GetJacobian (double t_global, MotionDerivative deriv) const

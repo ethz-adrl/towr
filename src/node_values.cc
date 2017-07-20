@@ -105,18 +105,15 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 
 
 
-Spline::Ptr
-HermiteSpline::BuildSpline (const OptVarsPtr& opt_vars,
-                            const std::string& node_id,
-                            const VecTimes& poly_durations)
+HermiteSpline::HermiteSpline (const OptVarsPtr& opt_vars,
+                              const std::string& node_id,
+                              const VecTimes& poly_durations)
 {
-
-  auto spline = std::make_shared<HermiteSpline>();
-  spline->durations_ = poly_durations;
-  spline->SetNodeValues(std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(node_id)));
-
-  return spline;
+  durations_ = poly_durations;
+  SetNodeValues(std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(node_id)));
 }
+
+HermiteSpline::~HermiteSpline() {};
 
 bool
 HermiteSpline::DoVarAffectCurrentState (const std::string& poly_vars,

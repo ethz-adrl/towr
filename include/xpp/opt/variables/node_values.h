@@ -81,11 +81,11 @@ class HermiteSpline : public Spline {
 public:
   using NodeValueT = std::shared_ptr<NodeValues>;
 
-  // factory method
-  static Spline::Ptr BuildSpline(const OptVarsPtr& opt_vars,
-                                 const std::string& spline_base_id,
-                                 const VecTimes& poly_durations);
 
+  HermiteSpline(const OptVarsPtr& opt_vars,
+                const std::string& spline_base_id,
+                const VecTimes& poly_durations);
+  virtual ~HermiteSpline();
 
   virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
   Jacobian GetJacobian(double t_global,  MotionDerivative dxdt) const override;

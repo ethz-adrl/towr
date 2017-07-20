@@ -88,11 +88,11 @@ CostConstraintFactory::MakeStateConstraint () const
 
   auto base_poly_durations = params->GetBasePolyDurations();
 
-  auto derivs = {kPos, kVel, kAcc};
+  auto derivs = {kPos};//, kVel, kAcc};
 
 
-  auto spline_lin = CoeffSpline::BuildSpline(opt_vars_, id::base_linear, base_poly_durations);
-  auto spline_ang = CoeffSpline::BuildSpline(opt_vars_, id::base_angular, base_poly_durations);
+  auto spline_lin = Spline::BuildSpline(opt_vars_, id::base_linear, base_poly_durations);
+  auto spline_ang = Spline::BuildSpline(opt_vars_, id::base_angular, base_poly_durations);
 
 
   // initial base constraints
@@ -112,7 +112,7 @@ CostConstraintFactory::MakeStateConstraint () const
   for (auto ee : params->robot_ee_) {
 
     auto durations_ee = contact_schedule->GetTimePerPhase(ee);
-    auto spline_ee = HermiteSpline::BuildSpline(opt_vars_, id::GetEEId(ee), durations_ee);
+    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), durations_ee);
 
     // initial endeffectors constraints
     auto deriv_ee = {kPos}; // velocity and acceleration not yet implemented
@@ -144,8 +144,8 @@ CostConstraintFactory::MakeJunctionConstraint () const
   auto derivatives = {kPos, kVel, kAcc};
 
   auto durations_base = params->GetBasePolyDurations();
-  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, durations_base, derivatives));
-  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, durations_base, derivatives));
+//  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, durations_base, derivatives));
+//  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, durations_base, derivatives));
 
   for (auto ee : params->robot_ee_) {
 //    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);

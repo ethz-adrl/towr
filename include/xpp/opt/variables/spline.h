@@ -42,6 +42,13 @@ public:
   virtual ~Spline ();
 
 
+  // factory method, rename to make spline
+  static Spline::Ptr BuildSpline(const OptVarsPtr& opt_vars,
+                                 const std::string& spline_base_id,
+                                 const VecTimes& poly_durations);
+
+
+
 
   const StateLinXd GetPoint(double t_globals) const;
 
@@ -84,10 +91,16 @@ public:
   using VarsPtr   = std::shared_ptr<PolynomialVars>;
   using VecVars   = std::vector<VarsPtr>;
 
+
+  CoeffSpline(const OptVarsPtr& opt_vars,
+              const std::string& spline_base_id,
+              const VecTimes& poly_durations);
+  virtual ~CoeffSpline();
+
   // factory method
-  static Spline::Ptr BuildSpline(const OptVarsPtr& opt_vars,
-                                 const std::string& spline_base_id,
-                                 const VecTimes& poly_durations);
+//  static Spline::Ptr MakeSpline(const OptVarsPtr& opt_vars,
+//                                 const std::string& spline_base_id,
+//                                 const VecTimes& poly_durations);
 
 
 

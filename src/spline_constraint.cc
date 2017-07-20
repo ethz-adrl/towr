@@ -93,7 +93,7 @@ SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
   SetName("SplineJunctionConstraint-" + spline_id);
 
   // need specific functions from coefficient spline
-  spline_        = std::dynamic_pointer_cast<CoeffSpline>(CoeffSpline::BuildSpline(opt_vars, spline_id, poly_durations));
+  spline_        = std::dynamic_pointer_cast<CoeffSpline>(Spline::BuildSpline(opt_vars, spline_id, poly_durations));
   derivatives_   = derivatives;
   n_dim_         = spline_->GetPoint(0.0).kNumDim;
 
