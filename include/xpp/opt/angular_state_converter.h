@@ -32,7 +32,7 @@ namespace opt {
  */
 class AngularStateConverter {
 public:
-  using OrientationVariables = Spline;
+  using OrientationVariables = std::shared_ptr<Spline>;
   using EulerAngles = Vector3d; ///< order x,y,z (roll, pitch, yaw).
   using EulerRates  = Vector3d; ///< derivative of the above
   using AngularVel  = Vector3d; ///< expressed in world

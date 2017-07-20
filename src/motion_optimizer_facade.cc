@@ -195,8 +195,9 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent(id::contact_schedule));
 
 
-  std::vector<Spline> ee_splines;
-  std::vector<Spline> ee_forces_spline; // zmp_ add forces again
+  using SplineT = std::shared_ptr<Spline>;
+  std::vector<SplineT> ee_splines;
+  std::vector<SplineT> ee_forces_spline; // zmp_ add forces again
   int n_ee = motion_parameters_->GetEECount();
   for (int i=0; i<n_ee; ++i) {
 //    std::string id_motion = id::endeffectors_motion+std::to_string(i);
@@ -216,16 +217,16 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     RobotStateCartesian state(n_ee);
 
     State3d base; // positions and orientations set to zero
-    base.lin = base_lin.GetPoint(t);
-    base.ang = AngularStateConverter::GetState(base_ang.GetPoint(t));
+    base.lin = base_lin->GetPoint(t);
+    base.ang = AngularStateConverter::GetState(base_ang->GetPoint(t));
     state.SetBase(base);
 
 
     RobotStateCartesian::FeetArray ee_state(n_ee);
     Endeffectors<Vector3d> ee_force_array(n_ee);
     for (auto ee : state.GetEndeffectors()) {
-      ee_state.At(ee)       = ee_splines.at(ee).GetPoint(t);
-//      ee_force_array.At(ee) = ee_forces_spline.at(ee).GetPoint(t).p_;
+      ee_state.At(ee)       = ee_splines.at(ee)->GetPoint(t);
+//      ee_force_array.At(ee) = ee_forces_spline.at(ee)->GetPoint(t).p_;
     }
 
     state.SetEEStateInWorld(ee_state);

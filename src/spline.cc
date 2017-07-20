@@ -56,17 +56,17 @@ Spline::GetLocalTime(double t_global, const std::vector<double>& durations)
   return t_local;
 }
 
-Spline
+Spline::Ptr
 Spline::BuildSpline(const OptVarsPtr& opt_vars,
                     const std::string& spline_base_id,
                     const VecTimes& poly_durations)
 {
-  Spline spline;
-  spline.durations_ = poly_durations;
+  auto spline = std::make_shared<Spline>();
+  spline->durations_ = poly_durations;
   for (int i=0; i<poly_durations.size(); ++i) {
     auto var_set = std::dynamic_pointer_cast<PolynomialVars>(opt_vars->GetComponent(spline_base_id+std::to_string(i)));
-    spline.poly_vars_.push_back(var_set);
-    spline.polynomials_.push_back(var_set->GetPolynomial()); // links the two
+    spline->poly_vars_.push_back(var_set);
+    spline->polynomials_.push_back(var_set->GetPolynomial()); // links the two
   }
 
   return spline;

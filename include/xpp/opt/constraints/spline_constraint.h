@@ -28,9 +28,10 @@ class SplineStateConstraint  : public Primitive {
 public:
   using DerivativeVec  = std::vector<MotionDerivative>;
   using PolyPtr        = std::shared_ptr<PolynomialVars>;
+  using SplineT        = std::shared_ptr<Spline>;
 
   SplineStateConstraint (const OptVarsPtr& opt_vars,
-                         const Spline& spline,
+                         const SplineT& spline,
                          double t_global,
                          const StateLinXd& state,
                          const DerivativeVec&);
@@ -45,7 +46,7 @@ private:
   StateLinXd state_desired_;
   DerivativeVec derivatives_;
   int n_dim_;
-  Spline spline_;
+  SplineT spline_;
 };
 
 
@@ -55,6 +56,7 @@ class SplineJunctionConstraint : public Primitive {
 public:
   using DerivativeVec = std::vector<MotionDerivative>;
   using VecTimes      = std::vector<double>;
+  using SplineT       = std::shared_ptr<Spline>;
 
   SplineJunctionConstraint (const OptVarsPtr& opt_vars,
                             const std::string& spline_id,
@@ -67,7 +69,7 @@ public:
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
-  Spline spline_;
+  SplineT spline_;
   int n_junctions_;
 
   DerivativeVec derivatives_;

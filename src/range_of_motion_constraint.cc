@@ -53,10 +53,10 @@ RangeOfMotionBox::GetRow (int node, int dim) const
 void
 RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
 {
-  Vector3d base_W = base_linear_.GetPoint(t).p_;
+  Vector3d base_W = base_linear_->GetPoint(t).p_;
   MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
 
-  Vector3d pos_ee_B = b_R_w*(ee_spline_.GetPoint(t).p_ - base_W);
+  Vector3d pos_ee_B = b_R_w*(ee_spline_->GetPoint(t).p_ - base_W);
   g.middleRows(GetRow(k, X), kDim3d) = pos_ee_B;
 }
 
@@ -79,17 +79,17 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
   int row_start = GetRow(k,X);
 
-  if (ee_spline_.DoVarAffectCurrentState(var_set,t)) {
-    jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_.GetJacobian(t,kPos);
+  if (ee_spline_->DoVarAffectCurrentState(var_set,t)) {
+    jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_->GetJacobian(t,kPos);
   }
 
-  if (base_linear_.DoVarAffectCurrentState(var_set,t)) {
-    jac.middleRows(row_start, kDim3d) = -1*b_R_w*base_linear_.GetJacobian(t, kPos);
+  if (base_linear_->DoVarAffectCurrentState(var_set,t)) {
+    jac.middleRows(row_start, kDim3d) = -1*b_R_w*base_linear_->GetJacobian(t, kPos);
   }
 
-  if (base_angular_.DoVarAffectCurrentState(var_set,t)) {
-    Vector3d base_W   = base_linear_.GetPoint(t).p_;
-    Vector3d ee_pos_W = ee_spline_.GetPoint(t).p_;
+  if (base_angular_->DoVarAffectCurrentState(var_set,t)) {
+    Vector3d base_W   = base_linear_->GetPoint(t).p_;
+    Vector3d ee_pos_W = ee_spline_->GetPoint(t).p_;
     Vector3d r_W = ee_pos_W - base_W;
     jac.middleRows(row_start, kDim3d) = converter_.GetDerivativeOfRotationMatrixRowWrtCoeff(t,r_W, true);
   }

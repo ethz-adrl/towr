@@ -34,10 +34,7 @@ NodeValues::NodeValues (const VecTimes& times, const Node& initial_value, const 
   durations_ = times;
 }
 
-NodeValues::~NodeValues ()
-{
-  // TODO Auto-generated destructor stub
-}
+NodeValues::~NodeValues () {}
 
 VectorXd
 NodeValues::GetValues () const

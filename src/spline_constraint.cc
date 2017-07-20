@@ -12,7 +12,7 @@ namespace opt {
 
 
 SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
-                                              const Spline& spline,
+                                              const SplineT& spline,
                                               double t_global,
                                               const StateLinXd& state,
                                               const DerivativeVec& derivatives)
@@ -40,7 +40,7 @@ SplineStateConstraint::GetValues () const
 {
   VectorXd g = VectorXd::Zero(GetRows());
 
-  StateLinXd state_of_poly = spline_.GetPoint(t_global_);
+  StateLinXd state_of_poly = spline_->GetPoint(t_global_);
 
   int row = 0; // constraint count
   for (auto dxdt :  derivatives_) {
@@ -56,11 +56,11 @@ void
 SplineStateConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                   Jacobian& jac) const
 {
-  if (spline_.DoVarAffectCurrentState(var_set, t_global_)) {
+  if (spline_->DoVarAffectCurrentState(var_set, t_global_)) {
     int row = 0;
     for (auto dxdt :  derivatives_) {
 
-      Jacobian jac_deriv = spline_.GetJacobian(t_global_, dxdt);
+      Jacobian jac_deriv = spline_->GetJacobian(t_global_, dxdt);
       jac.middleRows(row,n_dim_) = jac_deriv;
       row += n_dim_;
     }
@@ -94,12 +94,11 @@ SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
 
   spline_        = Spline::BuildSpline(opt_vars, spline_id, poly_durations);
   derivatives_   = derivatives;
-  n_dim_         = spline_.GetPoint(0.0).kNumDim;
+  n_dim_         = spline_->GetPoint(0.0).kNumDim;
 
-  n_junctions_ = spline_.GetPolyCount()-1; // because one less junction than poly's.
-  int n_constraints = derivatives_.size() * n_junctions_ * n_dim_;
+  n_junctions_ = spline_->GetPolyCount()-1; // because one less junction than poly's.
+  SetRows(derivatives_.size() * n_junctions_ * n_dim_);
   AddOptimizationVariables(opt_vars);
-  SetRows(n_constraints);
 }
 
 SplineJunctionConstraint::~SplineJunctionConstraint ()
@@ -114,10 +113,10 @@ SplineJunctionConstraint::GetValues () const
   int row = 0;
 
   for (int id = 0; id < n_junctions_; ++id) {
-    double T = spline_.GetDurationOfPoly(id);
+    double T = spline_->GetDurationOfPoly(id);
 
-    auto p0 = spline_.GetPolynomial(id)->GetPoint(T);
-    auto p1 = spline_.GetPolynomial(id+1)->GetPoint(0.0);
+    auto p0 = spline_->GetPolynomial(id)->GetPoint(T);
+    auto p1 = spline_->GetPolynomial(id+1)->GetPoint(0.0);
 
     for (auto dxdt :  derivatives_) {
       g.middleRows(row,n_dim_) = p0.GetByIndex(dxdt) - p1.GetByIndex(dxdt);
@@ -135,10 +134,10 @@ SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
   int row = 0;
   for (int id=0; id<n_junctions_; ++id) {
 
-    auto vars_before = spline_.GetVarSet(id);
-    double T_before  = spline_.GetDurationOfPoly(id);
+    auto vars_before = spline_->GetVarSet(id);
+    double T_before  = spline_->GetDurationOfPoly(id);
 
-    auto vars_after  = spline_.GetVarSet(id+1);
+    auto vars_after  = spline_->GetVarSet(id+1);
 
     for (auto dxdt :  derivatives_) {
 

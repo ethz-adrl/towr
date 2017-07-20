@@ -57,7 +57,7 @@ AngularStateConverter::GetOrientation (const EulerAngles& pos)
 AngularStateConverter::AngularVel
 AngularStateConverter::GetAngularVelocity (double t) const
 {
-  StateLin3d ori = euler_.GetPoint(t);
+  StateLin3d ori = euler_->GetPoint(t);
   return GetAngularVelocity(ori.p_, ori.v_);
 }
 
@@ -71,7 +71,7 @@ AngularStateConverter::GetAngularVelocity (const EulerAngles& pos,
 AngularStateConverter::AngularAcc
 AngularStateConverter::GetAngularAcceleration (double t) const
 {
-  StateLin3d ori = euler_.GetPoint(t);
+  StateLin3d ori = euler_->GetPoint(t);
   return GetAngularAcceleration(ori);
 }
 
@@ -87,14 +87,14 @@ AngularStateConverter::GetDerivOfAngAccWrtCoeff (double t) const
   Jacobian jac(kDim3d, OptVariablesOfCurrentPolyCount(t));
 
 
-  StateLin3d ori = euler_.GetPoint(t);
+  StateLin3d ori = euler_->GetPoint(t);
   // convert to sparse, but also regard 0.0 as non-zero element, because
   // could turn nonzero during the course of the program
   JacobianRow vel = ori.v_.transpose().sparseView(1.0, -1.0);
   JacobianRow acc = ori.a_.transpose().sparseView(1.0, -1.0);
 
-  Jacobian dVel_du  = euler_.GetJacobian(t, kVel);
-  Jacobian dAcc_du  = euler_.GetJacobian(t, kAcc);
+  Jacobian dVel_du  = euler_->GetJacobian(t, kVel);
+  Jacobian dAcc_du  = euler_->GetJacobian(t, kAcc);
 
 
   for (auto dim : {X,Y,Z}) {
@@ -149,13 +149,13 @@ AngularStateConverter::GetMdot (const EulerAngles& xyz,
 Jacobian
 AngularStateConverter::GetDerivMwrtCoeff (double t, Coords3D ang_acc_dim) const
 {
-//  int n_coeff    = euler_.GetRows();
-  StateLin3d ori = euler_.GetPoint(t);
+//  int n_coeff    = euler_->GetRows();
+  StateLin3d ori = euler_->GetPoint(t);
 
   double z = ori.p_(Z);
   double y = ori.p_(Y);
-  JacobianRow jac_z = euler_.GetJacobian(t, kPos).row(Z);
-  JacobianRow jac_y = euler_.GetJacobian(t, kPos).row(Y);
+  JacobianRow jac_z = euler_->GetJacobian(t, kPos).row(Z);
+  JacobianRow jac_y = euler_->GetJacobian(t, kPos).row(Y);
 
   Jacobian jac(kDim3d, OptVariablesOfCurrentPolyCount(t));
 
@@ -182,7 +182,7 @@ AngularStateConverter::GetDerivMwrtCoeff (double t, Coords3D ang_acc_dim) const
 MatrixSXd
 AngularStateConverter::GetRotationMatrixBaseToWorld (double t) const
 {
-  StateLin3d ori = euler_.GetPoint(t);
+  StateLin3d ori = euler_->GetPoint(t);
   return GetRotationMatrixBaseToWorld(ori.p_);
 }
 
@@ -228,14 +228,14 @@ AngularStateConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
 {
   JacRowMatrix jac;
 
-  StateLin3d ori = euler_.GetPoint(t);
+  StateLin3d ori = euler_->GetPoint(t);
   double x = ori.p_(X);
   double y = ori.p_(Y);
   double z = ori.p_(Z);
 
-  JacobianRow jac_x = euler_.GetJacobian(t, kPos).row(X);
-  JacobianRow jac_y = euler_.GetJacobian(t, kPos).row(Y);
-  JacobianRow jac_z = euler_.GetJacobian(t, kPos).row(Z);
+  JacobianRow jac_x = euler_->GetJacobian(t, kPos).row(X);
+  JacobianRow jac_y = euler_->GetJacobian(t, kPos).row(Y);
+  JacobianRow jac_z = euler_->GetJacobian(t, kPos).row(Z);
 
   jac.at(X).at(X) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
   jac.at(X).at(Y) = sin(x)*sin(z)*jac_x - cos(x)*cos(z)*jac_z - sin(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(z)*sin(y)*jac_x + cos(y)*cos(z)*sin(x)*jac_y;
@@ -255,17 +255,17 @@ AngularStateConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
 Jacobian
 AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) const
 {
-  StateLin3d ori = euler_.GetPoint(t);
+  StateLin3d ori = euler_->GetPoint(t);
 
   double z  = ori.p_(Z);
   double zd = ori.v_(Z);
   double y  = ori.p_(Y);
   double yd = ori.v_(Y);
 
-  JacobianRow jac_z  = euler_.GetJacobian(t, kPos).row(Z);
-  JacobianRow jac_y  = euler_.GetJacobian(t, kPos).row(Y);
-  JacobianRow jac_zd = euler_.GetJacobian(t, kVel).row(Z);
-  JacobianRow jac_yd = euler_.GetJacobian(t, kVel).row(Y);
+  JacobianRow jac_z  = euler_->GetJacobian(t, kPos).row(Z);
+  JacobianRow jac_y  = euler_->GetJacobian(t, kPos).row(Y);
+  JacobianRow jac_zd = euler_->GetJacobian(t, kVel).row(Z);
+  JacobianRow jac_yd = euler_->GetJacobian(t, kVel).row(Y);
 
   Jacobian jac(kDim3d, OptVariablesOfCurrentPolyCount(t));
   switch (ang_acc_dim) {
@@ -292,7 +292,7 @@ int
 AngularStateConverter::OptVariablesOfCurrentPolyCount (double t) const
 {
   // zmp_ attention, not the same thing
-  return euler_.GetActiveVariableSet(t)->GetRows();
+  return euler_->GetActiveVariableSet(t)->GetRows();
 }
 
 } /* namespace opt */

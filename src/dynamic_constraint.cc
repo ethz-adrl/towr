@@ -64,7 +64,7 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
   // acceleration base polynomial has with current values of optimization variables
   Vector6d acc_parametrization = Vector6d::Zero();
   acc_parametrization.middleRows(AX, kDim3d) = converter_.GetAngularAcceleration(t);
-  acc_parametrization.middleRows(LX, kDim3d) = base_linear_.GetPoint(t).a_;
+  acc_parametrization.middleRows(LX, kDim3d) = base_linear_->GetPoint(t).a_;
 
   for (auto dim : AllDim6D)
     g(GetRow(k,dim)) = acc_model(dim) - acc_parametrization(dim);
@@ -93,25 +93,25 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 
   for (auto ee : model_->GetEEIDs()) {
 
-    if (ee_forces_.at(ee).DoVarAffectCurrentState(var_set,t)) {
-      Jacobian jac_ee_force = ee_forces_.at(ee).GetJacobian(t,kPos);
+    if (ee_forces_.at(ee)->DoVarAffectCurrentState(var_set,t)) {
+      Jacobian jac_ee_force = ee_forces_.at(ee)->GetJacobian(t,kPos);
       jac_model = model_->GetJacobianofAccWrtForce(jac_ee_force, ee);
     }
 
-    if (ee_splines_.at(ee).DoVarAffectCurrentState(var_set,t)) {
-      Jacobian jac_ee_pos = ee_splines_.at(ee).GetJacobian(t,kPos);
+    if (ee_splines_.at(ee)->DoVarAffectCurrentState(var_set,t)) {
+      Jacobian jac_ee_pos = ee_splines_.at(ee)->GetJacobian(t,kPos);
       jac_model = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
     }
   }
 
-  if (base_linear_.DoVarAffectCurrentState(var_set,t)) {
-    Jacobian jac_base_lin_pos = base_linear_.GetJacobian(t,kPos);
+  if (base_linear_->DoVarAffectCurrentState(var_set,t)) {
+    Jacobian jac_base_lin_pos = base_linear_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseLin(jac_base_lin_pos);
-    jac_parametrization.middleRows(LX, kDim3d) = base_linear_.GetJacobian(t,kAcc);
+    jac_parametrization.middleRows(LX, kDim3d) = base_linear_->GetJacobian(t,kAcc);
   }
 
-  if (base_angular_.DoVarAffectCurrentState(var_set,t)) {
-    Jacobian jac_base_ang_pos = base_angular_.GetJacobian(t,kPos);
+  if (base_angular_->DoVarAffectCurrentState(var_set,t)) {
+    Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_base_ang_pos);
     jac_parametrization.middleRows(AX, kDim3d) = converter_.GetDerivOfAngAccWrtCoeff(t);
   }
@@ -122,14 +122,14 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 void
 DynamicConstraint::UpdateModel (double t) const
 {
-  auto com_pos = base_linear_.GetPoint(t).p_;
+  auto com_pos = base_linear_->GetPoint(t).p_;
 
   int n_ee = model_->GetEEIDs().size();
   EndeffectorsPos ee_pos(n_ee);
   Endeffectors<Vector3d> ee_force(n_ee);
   for (auto ee :  ee_pos.GetEEsOrdered()) {
-    ee_force.At(ee) = ee_forces_.at(ee).GetPoint(t).p_;
-    ee_pos.At(ee)   = ee_splines_.at(ee).GetPoint(t).p_;
+    ee_force.At(ee) = ee_forces_.at(ee)->GetPoint(t).p_;
+    ee_pos.At(ee)   = ee_splines_.at(ee)->GetPoint(t).p_;
   }
 
   model_->SetCurrent(com_pos, ee_force, ee_pos);

@@ -30,6 +30,7 @@ class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using DynamicModelPtr = std::shared_ptr<DynamicModel>;
   using VecTimes        = std::vector<double>;
+  using SplineT         = std::shared_ptr<Spline>;
 
   DynamicConstraint (const OptVarsPtr& opt_vars,
                      const DynamicModelPtr& m,
@@ -38,10 +39,10 @@ public:
   virtual ~DynamicConstraint ();
 
 private:
-  Spline base_linear_;
-  Spline base_angular_;
-  std::vector<Spline> ee_forces_;
-  std::vector<Spline> ee_splines_;
+  SplineT base_linear_;
+  SplineT base_angular_;
+  std::vector<SplineT> ee_forces_;
+  std::vector<SplineT> ee_splines_;
 
   mutable DynamicModelPtr model_;
   AngularStateConverter converter_;

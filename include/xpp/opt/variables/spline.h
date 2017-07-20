@@ -31,10 +31,11 @@ namespace opt {
   */
 class Spline {
 public:
-  using PPtr    = std::shared_ptr<Polynomial>;
-  using VarsPtr = std::shared_ptr<PolynomialVars>;
-  using VecP    = std::vector<PPtr>;
-  using VecVars = std::vector<VarsPtr>;
+  using PPtr      = std::shared_ptr<Polynomial>;
+  using VarsPtr   = std::shared_ptr<PolynomialVars>;
+  using VecP      = std::vector<PPtr>;
+  using VecVars   = std::vector<VarsPtr>;
+  using Ptr       = std::shared_ptr<Spline>;
 
   using OptVarsPtr           = Primitive::OptVarsPtr;
   using VecTimes             = std::vector<double>;
@@ -45,7 +46,8 @@ public:
   static int GetSegmentID(double t_global, const std::vector<double>& durations);
   static double GetLocalTime(double t_global, const std::vector<double>& durations);
 
-  static Spline BuildSpline(const OptVarsPtr& opt_vars,
+  // move to lower classes
+  static Ptr BuildSpline(const OptVarsPtr& opt_vars,
                             const std::string& spline_base_id,
                             const VecTimes& poly_durations);
 
@@ -70,6 +72,7 @@ public:
 
 
 
+
   // these are only needed by spline junction constraints
   double GetDurationOfPoly(int id) const { return durations_.at(id); };
 //  VecP GetPolynomials() const      { return polynomials_; }
@@ -84,15 +87,18 @@ public:
 
 protected:
   VecTimes durations_; ///< duration of each polynomial in spline
-  VecP polynomials_;
-
-  // add vector of components as well and separate
-  VecVars poly_vars_;
-
-//private:
-//  void AddPolynomial(const PolynomialPtr& poly);
-//  void SetDurations(const VecTimes& durations);
+  VecP polynomials_;   ///< the normal polynomials
+  VecVars poly_vars_;  ///< the opt. variables that influence the polynomials
 };
+
+
+//class CoeffSpline : public Spline {
+//public:
+//
+//
+//
+//};
+
 
 
 } /* namespace opt */
