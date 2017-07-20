@@ -66,10 +66,6 @@ public:
   VecBound GetBounds() const override;
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
-
-  enum EvalTime {Final=0, Start=1};
-  int IndexRowStart(int spline_id, EvalTime which_end, MotionDerivative dxdt) const;
-
 private:
   Spline spline_;
   int n_junctions_;

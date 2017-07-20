@@ -30,11 +30,13 @@ public:
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
 
-  StateLinXd GetPoint(double t_local) const;
+//  StateLinXd GetPoint(double t_local) const;
   Jacobian GetJacobian(double t_local, MotionDerivative dxdt) const;
 
-  PolynomialPtr polynomial_; // zmp_ make private
+  PolynomialPtr GetPolynomial() const { return polynomial_; };
+
 private:
+  PolynomialPtr polynomial_; // zmp_ make private
   int Index(PolynomialCoeff coeff, int dim) const;
 };
 

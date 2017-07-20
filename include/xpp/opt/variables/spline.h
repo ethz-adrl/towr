@@ -72,11 +72,13 @@ public:
 
   // these are only needed by spline junction constraints
   double GetDurationOfPoly(int id) const { return durations_.at(id); };
-  VecP GetPolynomials() const     { return polynomials_; }
+//  VecP GetPolynomials() const      { return polynomials_; }
   PPtr GetPolynomial(int id) const { return polynomials_.at(id); }
+  VarsPtr GetVarSet(int id) const { return poly_vars_.at(id); }
+  int GetPolyCount() const { return polynomials_.size(); };
 
 
-  VecVars GetVarSets() const { return poly_vars_; }
+//  VecVars GetVarSets() const { return poly_vars_; }
 
 
 

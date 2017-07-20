@@ -96,7 +96,7 @@ SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
   derivatives_   = derivatives;
   n_dim_         = spline_.GetPoint(0.0).kNumDim;
 
-  n_junctions_ = spline_.GetPolynomials().size()-1; // because one less junction than poly's.
+  n_junctions_ = spline_.GetPolyCount()-1; // because one less junction than poly's.
   int n_constraints = derivatives_.size() * n_junctions_ * n_dim_;
   AddOptimizationVariables(opt_vars);
   SetRows(n_constraints);
@@ -128,6 +128,32 @@ SplineJunctionConstraint::GetValues () const
   return g;
 }
 
+void
+SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
+                                                     Jacobian& jac) const
+{
+  int row = 0;
+  for (int id=0; id<n_junctions_; ++id) {
+
+    auto vars_before = spline_.GetVarSet(id);
+    double T_before  = spline_.GetDurationOfPoly(id);
+
+    auto vars_after  = spline_.GetVarSet(id+1);
+
+    for (auto dxdt :  derivatives_) {
+
+      if (var_set == vars_before->GetName())
+        jac.middleRows(row, n_dim_) =  vars_before->GetJacobian(T_before,dxdt);
+
+      if (var_set == vars_after->GetName())
+        jac.middleRows(row, n_dim_) = -vars_after->GetJacobian(0.0,dxdt);
+
+      row += n_dim_;
+
+    }
+  }
+}
+
 VecBound
 SplineJunctionConstraint::GetBounds () const
 {
@@ -135,42 +161,6 @@ SplineJunctionConstraint::GetBounds () const
   std::fill(bounds.begin(), bounds.end(), kEqualityBound_);
 
   return bounds;
-}
-
-void
-SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
-                                                     Jacobian& jac) const
-{
-  int id=0;
-  for (auto p : spline_.GetVarSets()) {
-    if (var_set == p->GetName()) {
-
-      double T = spline_.GetDurationOfPoly(id);
-      for (auto dxdt :  derivatives_) {
-
-        auto jac_final = p->GetJacobian(T,dxdt);
-        auto jac_start = p->GetJacobian(0.0,dxdt);
-
-        if (id != 0) // start of first spline constrained elsewhere
-          jac.middleRows(IndexRowStart(id,   Start, dxdt), n_dim_) = -jac_start;
-
-        if (id != spline_.GetPolynomials().size()-1) // end of last spline constrained elsewhere
-          jac.middleRows(IndexRowStart(id,   Final, dxdt), n_dim_) =  jac_final;
-
-      }
-    }
-
-    id++;
-  }
-}
-
-int
-SplineJunctionConstraint::IndexRowStart (int spline_id, EvalTime which_end,
-                                         MotionDerivative dxdt) const
-{
-  int constraints_per_junction = n_dim_*derivatives_.size();
-  int junction = spline_id-which_end;
-  return junction*constraints_per_junction + dxdt*n_dim_;
 }
 
 } /* namespace opt */

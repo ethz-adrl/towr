@@ -28,11 +28,11 @@ PolynomialVars::PolynomialVars (const std::string& id, const PolynomialPtr& poly
   SetRows(polynomial_->GetCoeffCount());
 }
 
-StateLinXd
-PolynomialVars::GetPoint (double t_local) const
-{
-  return polynomial_->GetPoint(t_local);
-}
+//StateLinXd
+//PolynomialVars::GetPoint (double t_local) const
+//{
+//  return polynomial_->GetPoint(t_local);
+//}
 
 int
 PolynomialVars::Index(PolynomialCoeff coeff, int dim) const
