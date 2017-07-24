@@ -24,7 +24,14 @@ NodeValues::NodeValues (const Node& initial_value,
   int n_nodes = times.size()+1;
   nodes_ = std::vector<Node>(n_nodes, initial_value);
 
-  int n_var = Index(n_nodes-1, kVel, n_dim_-1)+1; // last node, last dimension
+
+  int n_var = n_nodes*2*n_dim_;// + info.deriv_*n_dim_ + info.dim_;
+
+//  NodeInfo info;
+//  info.id_ = n_nodes-1;
+//  info.deriv_ = kVel,
+//  info.dim_ = n_dim_-1;
+//  int n_var = Index(info)+1; // last node, last dimension
 //  n_var += timings_.size(); // zmp_ optimize over these as well
 
 
@@ -46,9 +53,14 @@ NodeValues::GetValues () const
 {
   VectorXd x(GetRows());
 
-  for (int i=0; i<nodes_.size(); ++i)
-    for (MotionDerivative d : {kPos, kVel})
-      x.middleRows(Index(i,d, X), n_dim_) = nodes_.at(i).at(d);
+  for (int idx=0; idx<x.rows(); ++idx) {
+    for (auto info : GetNodeInfo(idx))
+      x(idx) = nodes_.at(info.id_).at(info.deriv_)(info.dim_);
+  }
+
+//  for (int i=0; i<nodes_.size(); ++i)
+//    for (MotionDerivative d : {kPos, kVel})
+//      x.middleRows(Index(i,d, X), n_dim_) = nodes_.at(i).at(d);
 
   return x;
 }
@@ -56,9 +68,15 @@ NodeValues::GetValues () const
 void
 NodeValues::SetValues (const VectorXd& x)
 {
-  for (int i=0; i<nodes_.size(); ++i)
-    for (MotionDerivative d : {kPos, kVel})
-      nodes_.at(i).at(d) = x.middleRows(Index(i,d,X), n_dim_);
+  for (int idx=0; idx<x.rows(); ++idx) {
+    for (auto info : GetNodeInfo(idx))
+      nodes_.at(info.id_).at(info.deriv_)(info.dim_) = x(idx);
+  }
+
+
+//  for (int i=0; i<nodes_.size(); ++i)
+//    for (MotionDerivative d : {kPos, kVel})
+//      nodes_.at(i).at(d) = x.middleRows(Index(i,d,X), n_dim_);
 
   UpdatePolynomials(timings_);
 }
@@ -83,15 +101,48 @@ NodeValues::SetValues (const VectorXd& x)
 //  return bounds;
 //}
 
-int
-NodeValues::Index (int node, MotionDerivative d, int dim) const
-{
-  // results in same position and velocity of pairwise nodes
-  // e.g. keeping foot on ground for this duration
-  int opt_node = std::floor(node/2); // node 0 and 1 -> 0
-                                     // node 2 and 3 -> 1
+//int
+//NodeValues::Index (NodeInfo info) const
+//{
+////  Node
+////
+//  // zmp_ inefficient, but no code duplication, hm....
+//  for (int idx=0; idx<GetRows(); ++idx)
+//    for (NodeInfo i : GetNodeInfo(idx))
+//      if (i == info)
+//        return idx;
+//
+//
+//  // could also be that value is fixed and therefore has no index
+//
+//
+//
+////  // results in same position and velocity of pairwise nodes
+////  // e.g. keeping foot on ground for this duration
+////  int opt_node = std::floor(info.id_/2); // node 0 and 1 -> 0
+////                                     // node 2 and 3 -> 1
+////
+////
+////  // change only the positions
+//////  return node*n_dim_ + dim;
+////
+////
+////  return opt_node*2*n_dim_ + info.deriv_*n_dim_ + info.dim_;
+//}
 
-  return opt_node*2*n_dim_ + d*n_dim_ + dim;
+std::vector<NodeValues::NodeInfo>
+NodeValues::GetNodeInfo (int idx) const
+{
+  NodeInfo info;
+
+  int values_per_node = 2*n_dim_;
+  info.id_    = std::floor(idx/values_per_node);
+
+  int internal_id = idx%values_per_node; // 0...6
+  info.deriv_ = std::floor(internal_id/n_dim_); // 0 for 0,1,2 and 1 for 3,4,5
+  info.dim_   = internal_id-info.deriv_*n_dim_;
+
+  return {info};
 }
 
 void
@@ -109,19 +160,53 @@ NodeValues::GetJacobian (int poly_id, double t_local, double T) const
 {
   Jacobian jac(n_dim_, GetRows());
 
-   // always only two nodes affect current values at all times
-  for (Side side : {Side::Start, Side::End}) {
-    int node = GetNodeId(poly_id,side);
 
-    for (auto deriv : {kPos, kVel}) {
-      double dxdp = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, deriv, t_local, T);
+  for (int idx=0; idx<jac.cols(); ++idx) {
 
-      // same value for x,y,z
-      for (int dim=0; dim<n_dim_; ++dim)
-        jac.coeffRef(dim, Index(node, deriv, dim)) += dxdp; // += needed if multiple nodes are represented by same optimization variable
+    for (NodeInfo info : GetNodeInfo(idx)) {
 
+      // every node belongs to two polynomials, except first one and last one
+      for (Side side : {Side::Start, Side::End}) {
+
+        int node = GetNodeId(poly_id,side);
+
+        if (node == info.id_) {
+          double val = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, (MotionDerivative)info.deriv_, t_local, T);
+          jac.coeffRef(info.dim_, idx) = val;
+        }
+      }
     }
+
+
+
+//    jac.coeffRef(info.dim_, idx) = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, info.deriv_, t_local, T);
+
+
+
   }
+
+
+
+
+//   // always only two nodes affect current values at all times
+//  for (Side side : {Side::Start, Side::End}) {
+//    int node = GetNodeId(poly_id,side);
+//
+//    NodeInfo info;
+//    info.id_ = node;
+//
+//    for (auto deriv : {kPos, kVel}) {
+//      info.deriv_ = deriv;
+//      double dxdp = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, deriv, t_local, T);
+//
+//      // same value for x,y,z
+//      for (int dim=0; dim<n_dim_; ++dim) {
+//        info.dim_ = dim;
+//        jac.coeffRef(dim, Index(info)) += dxdp; // += needed if multiple nodes are represented by same optimization variable
+//
+//      }
+//    }
+//  }
 
   return jac;
 }

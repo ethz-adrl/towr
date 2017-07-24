@@ -35,6 +35,17 @@ public:
   using VecPoly  = std::vector<std::shared_ptr<PolyType>>;
 
 
+  struct NodeInfo {
+
+
+//    bool operator==(const NodeInfo &, const NodeInfo &) { return true; };
+    int id_;
+    int deriv_;
+    int dim_;
+  };
+
+
+
   NodeValues (const Node& initial_value, const VecTimes&, const std::string& name);
   virtual ~NodeValues ();
 
@@ -54,7 +65,12 @@ public:
   VecPoly GetCubicPolys() const { return cubic_polys_; };
 
 private:
-  int Index(int node, MotionDerivative, int dim) const;
+  // make a vector
+  std::vector<NodeInfo> GetNodeInfo(int idx) const;
+//  int Index(NodeInfo) const;
+
+
+
   int GetNodeId(int poly_id, Side) const;
 
   std::vector<Node> nodes_;
@@ -65,6 +81,14 @@ private:
   void UpdatePolynomials(const VecTimes& durations);
 
 };
+
+inline bool operator==(const NodeValues::NodeInfo& lhs,
+                       const NodeValues::NodeInfo& rhs)
+ {
+     return (lhs.id_==rhs.id_)
+         && (lhs.deriv_==rhs.deriv_)
+         && (lhs.dim_ == rhs.dim_);
+ }
 
 
 class HermiteSpline : public Spline {

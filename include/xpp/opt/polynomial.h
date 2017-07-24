@@ -36,7 +36,7 @@ public:
   PolynomialPtr GetPolynomial() const { return polynomial_; };
 
 private:
-  PolynomialPtr polynomial_; // zmp_ make private
+  PolynomialPtr polynomial_;
   int Index(PolynomialCoeff coeff, int dim) const;
 };
 
