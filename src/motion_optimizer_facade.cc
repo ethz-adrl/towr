@@ -77,6 +77,14 @@ MotionOptimizerFacade::BuildVariables ()
     bool ee_initially_in_contact = contact_schedule->GetPhases(ee).front().first;
     int n_phases = timings.size();
 
+    // use two polynomials for each endeffector phase
+    int n_polys_per_phase = 2;
+    std::vector<double> timings2;
+    for (double t : timings)
+      for (int i=0; i<n_polys_per_phase; ++i)
+        timings2.push_back(t/n_polys_per_phase);
+
+
 
     // EE_MOTION
 //    std::string id_motion = id::endeffectors_motion+std::to_string(ee);
@@ -105,7 +113,7 @@ MotionOptimizerFacade::BuildVariables ()
     NodeValues::Node n;
     n.at(kPos) = initial_ee_W_.At(ee);
     n.at(kVel) = Vector3d::Zero();
-    auto node_values = std::make_shared<NodeValues>(n, timings, id::GetEEId(ee));
+    auto node_values = std::make_shared<NodeValues>(n, timings2, id::GetEEId(ee));
     opt_variables_->AddComponent(node_values);
 
 
@@ -207,7 +215,8 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   int n_ee = motion_parameters_->GetEECount();
   for (int i=0; i<n_ee; ++i) {
 //    std::string id_motion = id::endeffectors_motion+std::to_string(i);
-    auto ee_spline = Spline::BuildSpline(opt_variables_, id::GetEEId(i), contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));
+    auto durations = contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i));
+    auto ee_spline = Spline::BuildSpline(opt_variables_, id::GetEEId(i), durations);
     ee_splines.push_back(ee_spline);
 
 //    auto force_spline = PolynomialSpline::BuildSpline(opt_variables_, id::GetEEForceId(i), contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));

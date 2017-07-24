@@ -150,16 +150,19 @@ CubicHermitePoly::SetNodes (const Node& n0, const Node& n1, double T)
   coeff_[B] =  n0.at(kVel);
   coeff_[C] = -( 3*(n0.at(kPos) - n1.at(kPos)) +  T*(2*n0.at(kVel) + n1.at(kVel)) ) / std::pow(T,2);
   coeff_[D] =  ( 2*(n0.at(kPos) - n1.at(kPos)) +  T*(  n0.at(kVel) + n1.at(kVel)) ) / std::pow(T,3);
+
+  T_ = T;
 }
 
 double
 CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative node_value,
-                                         double t, double T) const
+                                         double t) const
 {
   double t2 = std::pow(t,2);
   double t3 = std::pow(t,3);
-  double T2 = std::pow(T,2);
-  double T3 = std::pow(T,3);
+  double T  = T_;
+  double T2 = std::pow(T_,2);
+  double T3 = std::pow(T_,3);
 
   switch (side) {
     case Start:
@@ -181,8 +184,7 @@ CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative node_value,
 VectorXd
 CubicHermitePoly::GetDerivativeOfPosWrtDuration(const Node& n0,
                                                 const Node& n1,
-                                                double t,
-                                                double T) const
+                                                double t) const
 {
   VectorXd p0 = n0.at(kPos);
   VectorXd v0 = n0.at(kVel);
@@ -191,9 +193,10 @@ CubicHermitePoly::GetDerivativeOfPosWrtDuration(const Node& n0,
 
   double t2 = std::pow(t,2);
   double t3 = std::pow(t,3);
-  double T2 = std::pow(T,2);
-  double T3 = std::pow(T,3);
-  double T4 = std::pow(T,4);
+  double T  = T_;
+  double T2 = std::pow(T_,2);
+  double T3 = std::pow(T_,3);
+  double T4 = std::pow(T_,4);
 
   return   (t3*(v0 + v1))/T3
          - (3*t3*(2*p0 - 2*p1 + T*v0 + T*v1))/T4

@@ -29,21 +29,15 @@ public:
   using VecNodes = std::vector<Node>;
   using VecTimes = std::vector<double>;
 
-
-//  using OptVarsPtr = Primitive::OptVarsPtr;
   using PolyType = CubicHermitePoly;
   using VecPoly  = std::vector<std::shared_ptr<PolyType>>;
 
 
   struct NodeInfo {
-
-
-//    bool operator==(const NodeInfo &, const NodeInfo &) { return true; };
     int id_;
     MotionDerivative deriv_;
     int dim_;
   };
-
 
 
   NodeValues (const Node& initial_value, const VecTimes&, const std::string& name);
@@ -61,35 +55,22 @@ public:
 //  VecBound GetBounds () const override;
 
 
-  Jacobian GetJacobian(int poly_id, double t_local, double T) const;
+  Jacobian GetJacobian(int poly_id, double t_local) const;
   VecPoly GetCubicPolys() const { return cubic_polys_; };
 
+  void UpdatePolynomials();
+  VecTimes GetDurations() const { return timings_; };
+
+
 private:
-  // make a vector
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
-//  int Index(NodeInfo) const;
-
-
-
   int GetNodeId(int poly_id, Side) const;
 
   std::vector<Node> nodes_;
-  int n_dim_;
-
+  VecTimes timings_; // zmp_ for now constant
   VecPoly cubic_polys_;
-  VecTimes timings_; // zmp_ for now constant, remove at some point
-  void UpdatePolynomials(const VecTimes& durations);
-
+  int n_dim_;
 };
-
-// zmp_ possibly remove this
-inline bool operator==(const NodeValues::NodeInfo& lhs,
-                       const NodeValues::NodeInfo& rhs)
- {
-     return (lhs.id_==rhs.id_)
-         && (lhs.deriv_==rhs.deriv_)
-         && (lhs.dim_ == rhs.dim_);
- }
 
 
 class HermiteSpline : public Spline {
@@ -97,15 +78,14 @@ public:
   using NodeValueT = std::shared_ptr<NodeValues>;
 
 
-  HermiteSpline(const OptVarsPtr& opt_vars,
-                const std::string& spline_base_id,
-                const VecTimes& poly_durations);
+  HermiteSpline(const OptVarsPtr& opt_vars, const std::string& spline_base_id);
   virtual ~HermiteSpline();
 
   virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
   Jacobian GetJacobian(double t_global,  MotionDerivative dxdt) const override;
 
 private:
+  virtual VecTimes GetDurations() const override { return node_values_->GetDurations(); };
   NodeValueT node_values_;
 };
 

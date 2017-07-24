@@ -39,6 +39,7 @@ public:
   Spline ();
   virtual ~Spline ();
 
+  // zmp_ this is ugly as i only use durations for coeff_spline spline...
   static Spline::Ptr BuildSpline(const OptVarsPtr& opt_vars,
                                  const std::string& spline_base_id,
                                  const VecTimes& poly_durations);
@@ -54,13 +55,14 @@ public:
 
 
 protected:
-  VecTimes durations_; ///< duration of each polynomial in spline
   VecP polynomials_;   ///< the polynomials
 
   int GetSegmentID(double t_global) const;
   double GetLocalTime(double t_global) const;
 
+
 private:
+  virtual VecTimes GetDurations() const = 0;
   PPtr GetActivePolynomial(double t_global) const;
 };
 

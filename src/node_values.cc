@@ -21,22 +21,15 @@ NodeValues::NodeValues (const Node& initial_value,
 {
   n_dim_ = initial_value.at(kPos).rows();
 
-  int n_nodes = times.size()+1;
-  nodes_ = std::vector<Node>(n_nodes, initial_value);
 
-
-//  int n_var = n_nodes*2*n_dim_;// + info.deriv_*n_dim_ + info.dim_;
-
-
-  int var_max = 1000;
-  int n_var = 0;
-  for (int idx=0; idx<var_max; ++idx) {
-    for (auto n : GetNodeInfo(idx)) {
-      if (n.id_==n_nodes-1 && n.deriv_==kVel && n.dim_==n_dim_-1)
-        n_var = idx+1;
-    }
-  }
-
+//  int var_max = 1000;
+//  int n_var = 0;
+//  for (int idx=0; idx<var_max; ++idx) {
+//    for (auto n : GetNodeInfo(idx)) {
+//      if (n.id_==n_nodes-1 && n.deriv_==kVel && n.dim_==n_dim_-1)
+//        n_var = idx+1;
+//    }
+//  }
 
 
 //  NodeInfo info;
@@ -47,16 +40,94 @@ NodeValues::NodeValues (const Node& initial_value,
 //  n_var += timings_.size(); // zmp_ optimize over these as well
 
 
-  SetRows(n_var);
-
+  nodes_.push_back(initial_value);
   for (double t : times) {
+
     auto p = std::make_shared<PolyType>(n_dim_);
     p->SetNodes(initial_value, initial_value, t);
+
     cubic_polys_.push_back(p);
+    nodes_.push_back(initial_value);
+    timings_.push_back(t);
+
   }
 
-  timings_ = times;
+
+//  int n_nodes = timings_.size()+1;
+//  nodes_ = std::vector<Node>(n_nodes, initial_value);
+
+  int n_opt_variables = 2*n_dim_*nodes_.size();
+  SetRows(n_opt_variables); // because two consecutive nodes are the same
 }
+
+
+std::vector<NodeValues::NodeInfo>
+NodeValues::GetNodeInfo (int idx) const
+{
+  std::vector<NodeInfo> nodes;
+
+
+//  // always two consecutive node pairs are equal
+//  int n_opt_values_per_node_ = 2*n_dim_;
+//  int opt_node = std::floor(idx/n_opt_values_per_node_);
+//  int internal_id = idx%n_opt_values_per_node_; // 0...6
+//
+//  // every idx maps to two nodes
+//  NodeInfo node;
+//  node.deriv_ = static_cast<MotionDerivative>(std::floor(internal_id/n_dim_));
+//  node.dim_   = internal_id-node.deriv_*n_dim_;
+//
+//  for (int i=0; i<2; ++i) {
+//    node.id_ = 2*opt_node + i;
+//    nodes.push_back(node);
+//  }
+
+
+
+
+
+//  // all velocities are left at zero, only optimizing positions
+//  // every second foothold node position is equal
+//  int n_opt_values_per_node = n_dim_;
+//  int node_bar = std::floor(idx/n_opt_values_per_node);
+//
+//
+//  NodeInfo node;
+////  node.id_    = std::floor(idx/n_opt_values_per_node_);
+//  node.deriv_ = kPos;
+//  node.dim_   = idx%n_opt_values_per_node;
+////  nodes.push_back(node);
+//
+//  for (int i=0; i<2; ++i) {
+//    node.id_ = 2*node_bar + i;
+//    nodes.push_back(node);
+//  }
+
+
+
+
+
+
+
+
+
+  // every value of every node gets its own optimization variable
+  NodeInfo node;
+  int n_opt_values_per_node_ = 2*n_dim_;
+  node.id_    = std::floor(idx/n_opt_values_per_node_);
+
+  int internal_id = idx%n_opt_values_per_node_; // 0...6
+  node.deriv_ = (MotionDerivative)std::floor(internal_id/n_dim_); // 0 for 0,1,2 and 1 for 3,4,5
+  node.dim_   = internal_id-node.deriv_*n_dim_;
+
+  nodes.push_back(node);
+
+
+
+  return nodes;
+}
+
+
 
 NodeValues::~NodeValues () {}
 
@@ -70,10 +141,6 @@ NodeValues::GetValues () const
       x(idx) = nodes_.at(info.id_).at(info.deriv_)(info.dim_);
   }
 
-//  for (int i=0; i<nodes_.size(); ++i)
-//    for (MotionDerivative d : {kPos, kVel})
-//      x.middleRows(Index(i,d, X), n_dim_) = nodes_.at(i).at(d);
-
   return x;
 }
 
@@ -85,12 +152,7 @@ NodeValues::SetValues (const VectorXd& x)
       nodes_.at(info.id_).at(info.deriv_)(info.dim_) = x(idx);
   }
 
-
-//  for (int i=0; i<nodes_.size(); ++i)
-//    for (MotionDerivative d : {kPos, kVel})
-//      nodes_.at(i).at(d) = x.middleRows(Index(i,d,X), n_dim_);
-
-  UpdatePolynomials(timings_);
+  UpdatePolynomials();
 }
 
 //VecBound
@@ -142,107 +204,36 @@ NodeValues::SetValues (const VectorXd& x)
 ////  return opt_node*2*n_dim_ + info.deriv_*n_dim_ + info.dim_;
 //}
 
-std::vector<NodeValues::NodeInfo>
-NodeValues::GetNodeInfo (int idx) const
-{
-  std::vector<NodeInfo> nodes;
 
-
-  int values_per_node = 2*n_dim_;
-  int opt_node = std::floor(idx/values_per_node);
-  int internal_id = idx%values_per_node; // 0...6
-
-  // every idx maps to two nodes
-  NodeInfo node;
-  node.deriv_ = static_cast<MotionDerivative>(std::floor(internal_id/n_dim_));
-  node.dim_   = internal_id-node.deriv_*n_dim_;
-
-  for (int i=0; i<2; ++i) {
-    node.id_ = 2*opt_node + i;
-    nodes.push_back(node);
-  }
-
-
-
-//  // every value of every node gets its own optimization variable
-//  NodeInfo node;
-//  int values_per_node = 2*n_dim_;
-//  node.id_    = std::floor(idx/values_per_node);
-//
-//  int internal_id = idx%values_per_node; // 0...6
-//  node.deriv_ = (MotionDerivative)std::floor(internal_id/n_dim_); // 0 for 0,1,2 and 1 for 3,4,5
-//  node.dim_   = internal_id-node.deriv_*n_dim_;
-//
-//  nodes.push_back(node);
-//
-
-
-
-  return nodes;
-}
 
 void
-NodeValues::UpdatePolynomials (const VecTimes& durations)
+NodeValues::UpdatePolynomials ()
 {
   for (int i=0; i<cubic_polys_.size(); ++i) {
     cubic_polys_.at(i)->SetNodes(nodes_.at(GetNodeId(i,Side::Start)),
                                  nodes_.at(GetNodeId(i,Side::End)),
-                                 durations.at(i));
+                                 timings_.at(i));
   }
 }
 
 Jacobian
-NodeValues::GetJacobian (int poly_id, double t_local, double T) const
+NodeValues::GetJacobian (int poly_id, double t_local) const
 {
   Jacobian jac(n_dim_, GetRows());
 
-
   for (int idx=0; idx<jac.cols(); ++idx) {
-
     for (NodeInfo info : GetNodeInfo(idx)) {
-
-      // every node belongs to two polynomials, except first one and last one
       for (Side side : {Side::Start, Side::End}) {
 
         int node = GetNodeId(poly_id,side);
 
         if (node == info.id_) {
-          double val = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, info.deriv_, t_local, T);
+          double val = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, info.deriv_, t_local);
           jac.coeffRef(info.dim_, idx) += val;
         }
       }
     }
-
-
-
-//    jac.coeffRef(info.dim_, idx) = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, info.deriv_, t_local, T);
-
-
-
   }
-
-
-
-
-//   // always only two nodes affect current values at all times
-//  for (Side side : {Side::Start, Side::End}) {
-//    int node = GetNodeId(poly_id,side);
-//
-//    NodeInfo info;
-//    info.id_ = node;
-//
-//    for (auto deriv : {kPos, kVel}) {
-//      info.deriv_ = deriv;
-//      double dxdp = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, deriv, t_local, T);
-//
-//      // same value for x,y,z
-//      for (int dim=0; dim<n_dim_; ++dim) {
-//        info.dim_ = dim;
-//        jac.coeffRef(dim, Index(info)) += dxdp; // += needed if multiple nodes are represented by same optimization variable
-//
-//      }
-//    }
-//  }
 
   return jac;
 }
@@ -258,10 +249,8 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 
 
 HermiteSpline::HermiteSpline (const OptVarsPtr& opt_vars,
-                              const std::string& node_id,
-                              const VecTimes& poly_durations)
+                              const std::string& node_id)
 {
-  durations_   = poly_durations;
   node_values_ = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(node_id));
   auto v = node_values_->GetCubicPolys();
   polynomials_.assign(v.begin(), v.end()); // links the two
@@ -281,12 +270,12 @@ Jacobian
 HermiteSpline::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
   assert(dxdt == kPos); // derivative of velocity/acceleration not yet implemented
+//  UpdateDurations();
 
   int poly_id     = GetSegmentID(t_global);
-  double t_local  = GetLocalTime(t_global);
-  double duration = durations_.at(poly_id);
+  double t_local  = GetLocalTime(t_global); // these are both wrong when adding extra polynomial
 
-  return node_values_->GetJacobian(poly_id, t_local, duration);
+  return node_values_->GetJacobian(poly_id, t_local);
 }
 
 

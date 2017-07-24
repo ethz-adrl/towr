@@ -53,7 +53,10 @@ public:
   PPtr GetPolynomial(int id) const { return polynomials_.at(id); }
   VarsPtr GetVarSet(int id) const { return poly_vars_.at(id); }
 
+  virtual VecTimes GetDurations() const { return durations_; };
+
 private:
+  VecTimes durations_; ///< duration of each polynomial in spline
   VecVars poly_vars_;  ///< the opt. variables that influence the polynomials
 };
 

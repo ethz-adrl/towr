@@ -26,7 +26,7 @@ Spline::BuildSpline (const OptVarsPtr& opt_vars,
 
   std::string s = id::endeffectors_motion;
   if (name.substr(0, s.size()) == s) // string starts with s
-    spline = std::make_shared<HermiteSpline>(opt_vars, name, poly_durations);
+    spline = std::make_shared<HermiteSpline>(opt_vars, name);
   else if (name == id::base_linear)
     spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
   else if (name == id::base_angular)
@@ -53,7 +53,7 @@ Spline::GetSegmentID(double t_global) const
 
    double t = 0;
    int i=0;
-   for (double d: durations_) {
+   for (double d: GetDurations()) {
      t += d;
 
      if (t >= t_global-eps) // at junctions, returns previous spline (=)
@@ -71,7 +71,7 @@ Spline::GetLocalTime(double t_global) const
 
   double t_local = t_global;
   for (int id=0; id<id_spline; id++) {
-    t_local -= durations_.at(id);
+    t_local -= GetDurations().at(id);
   }
 
   return t_local;
