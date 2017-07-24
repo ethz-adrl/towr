@@ -40,7 +40,7 @@ public:
 
 //    bool operator==(const NodeInfo &, const NodeInfo &) { return true; };
     int id_;
-    int deriv_;
+    MotionDerivative deriv_;
     int dim_;
   };
 
@@ -82,6 +82,7 @@ private:
 
 };
 
+// zmp_ possibly remove this
 inline bool operator==(const NodeValues::NodeInfo& lhs,
                        const NodeValues::NodeInfo& rhs)
  {

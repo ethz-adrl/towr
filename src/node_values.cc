@@ -25,7 +25,19 @@ NodeValues::NodeValues (const Node& initial_value,
   nodes_ = std::vector<Node>(n_nodes, initial_value);
 
 
-  int n_var = n_nodes*2*n_dim_;// + info.deriv_*n_dim_ + info.dim_;
+//  int n_var = n_nodes*2*n_dim_;// + info.deriv_*n_dim_ + info.dim_;
+
+
+  int var_max = 1000;
+  int n_var = 0;
+  for (int idx=0; idx<var_max; ++idx) {
+    for (auto n : GetNodeInfo(idx)) {
+      if (n.id_==n_nodes-1 && n.deriv_==kVel && n.dim_==n_dim_-1)
+        n_var = idx+1;
+    }
+  }
+
+
 
 //  NodeInfo info;
 //  info.id_ = n_nodes-1;
@@ -133,16 +145,40 @@ NodeValues::SetValues (const VectorXd& x)
 std::vector<NodeValues::NodeInfo>
 NodeValues::GetNodeInfo (int idx) const
 {
-  NodeInfo info;
+  std::vector<NodeInfo> nodes;
+
 
   int values_per_node = 2*n_dim_;
-  info.id_    = std::floor(idx/values_per_node);
-
+  int opt_node = std::floor(idx/values_per_node);
   int internal_id = idx%values_per_node; // 0...6
-  info.deriv_ = std::floor(internal_id/n_dim_); // 0 for 0,1,2 and 1 for 3,4,5
-  info.dim_   = internal_id-info.deriv_*n_dim_;
 
-  return {info};
+  // every idx maps to two nodes
+  NodeInfo node;
+  node.deriv_ = static_cast<MotionDerivative>(std::floor(internal_id/n_dim_));
+  node.dim_   = internal_id-node.deriv_*n_dim_;
+
+  for (int i=0; i<2; ++i) {
+    node.id_ = 2*opt_node + i;
+    nodes.push_back(node);
+  }
+
+
+
+//  // every value of every node gets its own optimization variable
+//  NodeInfo node;
+//  int values_per_node = 2*n_dim_;
+//  node.id_    = std::floor(idx/values_per_node);
+//
+//  int internal_id = idx%values_per_node; // 0...6
+//  node.deriv_ = (MotionDerivative)std::floor(internal_id/n_dim_); // 0 for 0,1,2 and 1 for 3,4,5
+//  node.dim_   = internal_id-node.deriv_*n_dim_;
+//
+//  nodes.push_back(node);
+//
+
+
+
+  return nodes;
 }
 
 void
@@ -171,8 +207,8 @@ NodeValues::GetJacobian (int poly_id, double t_local, double T) const
         int node = GetNodeId(poly_id,side);
 
         if (node == info.id_) {
-          double val = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, (MotionDerivative)info.deriv_, t_local, T);
-          jac.coeffRef(info.dim_, idx) = val;
+          double val = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, info.deriv_, t_local, T);
+          jac.coeffRef(info.dim_, idx) += val;
         }
       }
     }
