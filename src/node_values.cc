@@ -40,23 +40,63 @@ NodeValues::NodeValues (const Node& initial_value,
 //  n_var += timings_.size(); // zmp_ optimize over these as well
 
 
+
+//  int n_polys_per_phase = 2;
+//  std::vector<double> timings2;
+//  for (double t : timings)
+//    for (int i=0; i<n_polys_per_phase; ++i)
+//      timings2.push_back(t/n_polys_per_phase);
+
+
+  bool stance_phase = true;
+
+
+  n_polys_per_swing_phase = 4;
   nodes_.push_back(initial_value);
+  int n_opt_variables = 0;
   for (double t : times) {
 
-    auto p = std::make_shared<PolyType>(n_dim_);
-    p->SetNodes(initial_value, initial_value, t);
 
-    cubic_polys_.push_back(p);
-    nodes_.push_back(initial_value);
-    timings_.push_back(t);
+    if (stance_phase) {
+
+      auto p = std::make_shared<PolyType>(n_dim_);
+      cubic_polys_.push_back(p);
+      nodes_.push_back(initial_value);
+      timings_.push_back(t); // use complete time
+      n_opt_variables += 2*n_dim_;
+
+    } else { // swing_phase (divide into multiple nodes)
+
+      for (int i=0; i<n_polys_per_swing_phase; ++i) {
+
+        auto p = std::make_shared<PolyType>(n_dim_);
+        //    p->SetNodes(initial_value, initial_value, t);
+
+        cubic_polys_.push_back(p);
+        nodes_.push_back(initial_value);
+        timings_.push_back(t/n_polys_per_swing_phase);
+
+
+      }
+
+      n_opt_variables += 2*n_dim_*(n_polys_per_swing_phase-1);
+
+    }
+
+    stance_phase = !stance_phase; // make swing_phase
+
+
+
 
   }
+
+  UpdatePolynomials();
 
 
 //  int n_nodes = timings_.size()+1;
 //  nodes_ = std::vector<Node>(n_nodes, initial_value);
 
-  int n_opt_variables = 2*n_dim_*nodes_.size();
+//  int n_opt_variables = 2*n_dim_*nodes_.size();
   SetRows(n_opt_variables); // because two consecutive nodes are the same
 }
 
@@ -67,9 +107,41 @@ NodeValues::GetNodeInfo (int idx) const
   std::vector<NodeInfo> nodes;
 
 
-//  // always two consecutive node pairs are equal
-//  int n_opt_values_per_node_ = 2*n_dim_;
-//  int opt_node = std::floor(idx/n_opt_values_per_node_);
+  // always two consecutive node pairs are equal
+  int n_opt_values_per_node_ = 2*n_dim_;
+  int opt_node = std::floor(idx/n_opt_values_per_node_);
+  int internal_id = idx%n_opt_values_per_node_; // 0...6
+
+  NodeInfo node;
+  node.deriv_ = static_cast<MotionDerivative>(std::floor(internal_id/n_dim_));
+  node.dim_   = internal_id-node.deriv_*n_dim_;
+
+
+  int n_previous_stance_swing_cycles = std::floor(opt_node/n_polys_per_swing_phase);
+  int n_nodes_per_stance_phase = 2;
+  int nodes_per_cycle = n_nodes_per_stance_phase+n_polys_per_swing_phase-1;
+  int prev_cycle_nodes = n_previous_stance_swing_cycles*nodes_per_cycle;
+
+
+  bool is_stance = opt_node%n_polys_per_swing_phase == 0;
+  if (is_stance) {
+    for (int i=0; i<n_nodes_per_stance_phase; ++i) {
+
+
+      node.id_ = prev_cycle_nodes + i;
+      nodes.push_back(node);
+    }
+  } else { // swing node
+    node.id_ = prev_cycle_nodes + n_nodes_per_stance_phase + opt_node%n_polys_per_swing_phase - 1;
+    nodes.push_back(node);
+  }
+
+
+
+//  NodeInfo node;
+//  node.id_ = std::ceil(opt_node*(2+
+
+
 //  int internal_id = idx%n_opt_values_per_node_; // 0...6
 //
 //  // every idx maps to two nodes
@@ -111,16 +183,16 @@ NodeValues::GetNodeInfo (int idx) const
 
 
 
-  // every value of every node gets its own optimization variable
-  NodeInfo node;
-  int n_opt_values_per_node_ = 2*n_dim_;
-  node.id_    = std::floor(idx/n_opt_values_per_node_);
-
-  int internal_id = idx%n_opt_values_per_node_; // 0...6
-  node.deriv_ = (MotionDerivative)std::floor(internal_id/n_dim_); // 0 for 0,1,2 and 1 for 3,4,5
-  node.dim_   = internal_id-node.deriv_*n_dim_;
-
-  nodes.push_back(node);
+//  // every value of every node gets its own optimization variable
+//  NodeInfo node;
+//  int n_opt_values_per_node_ = 2*n_dim_;
+//  node.id_    = std::floor(idx/n_opt_values_per_node_);
+//
+//  int internal_id = idx%n_opt_values_per_node_; // 0...6
+//  node.deriv_ = (MotionDerivative)std::floor(internal_id/n_dim_); // 0 for 0,1,2 and 1 for 3,4,5
+//  node.dim_   = internal_id-node.deriv_*n_dim_;
+//
+//  nodes.push_back(node);
 
 
 
@@ -158,52 +230,28 @@ NodeValues::SetValues (const VectorXd& x)
 //VecBound
 //NodeValues::GetBounds () const
 //{
-//  VecBound bounds(GetRows());
+//  VecBound bounds(GetRows(), kNoBound_);
 //
 //  int row=0;
 //
-//  for (int i=0; i<nodes_.size(); ++i)
-//    for (MotionDerivative d : {kPos, kVel})
-//      for (int dim=0; dim<n_dim_; ++dim)
-//        bounds.at(Index(i,d, dim)) = kNoBound_;
 //
-//  int timings_start = bounds.size() - timings_.size();
-//  for (int i=0; i<timings_.size(); ++i) {
-//    bounds.at(timings_start+i) = Bound(0.1, 0.4);
+//  for (int idx=0; idx<bounds.size(); ++idx) {
+//    for (auto info : GetNodeInfo(idx)) {
+//      if (info.deriv_ == kVel) {
+//        bounds.at(idx) = kEqualityBound_;
+//      }
+//    }
 //  }
+//
+//
+//
+////  int timings_start = bounds.size() - timings_.size();
+////  for (int i=0; i<timings_.size(); ++i) {
+////    bounds.at(timings_start+i) = Bound(0.1, 0.4);
+////  }
 //
 //  return bounds;
 //}
-
-//int
-//NodeValues::Index (NodeInfo info) const
-//{
-////  Node
-////
-//  // zmp_ inefficient, but no code duplication, hm....
-//  for (int idx=0; idx<GetRows(); ++idx)
-//    for (NodeInfo i : GetNodeInfo(idx))
-//      if (i == info)
-//        return idx;
-//
-//
-//  // could also be that value is fixed and therefore has no index
-//
-//
-//
-////  // results in same position and velocity of pairwise nodes
-////  // e.g. keeping foot on ground for this duration
-////  int opt_node = std::floor(info.id_/2); // node 0 and 1 -> 0
-////                                     // node 2 and 3 -> 1
-////
-////
-////  // change only the positions
-//////  return node*n_dim_ + dim;
-////
-////
-////  return opt_node*2*n_dim_ + info.deriv_*n_dim_ + info.dim_;
-//}
-
 
 
 void
@@ -270,7 +318,6 @@ Jacobian
 HermiteSpline::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
   assert(dxdt == kPos); // derivative of velocity/acceleration not yet implemented
-//  UpdateDurations();
 
   int poly_id     = GetSegmentID(t_global);
   double t_local  = GetLocalTime(t_global); // these are both wrong when adding extra polynomial

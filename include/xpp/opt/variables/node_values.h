@@ -70,9 +70,12 @@ private:
   VecTimes timings_; // zmp_ for now constant
   VecPoly cubic_polys_;
   int n_dim_;
+
+  int n_polys_per_swing_phase;
 };
 
 
+// zmp_ might be able to remove this class
 class HermiteSpline : public Spline {
 public:
   using NodeValueT = std::shared_ptr<NodeValues>;
