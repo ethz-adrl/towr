@@ -27,7 +27,7 @@ NodeValues::NodeValues (bool is_motion,
   bool single_poly_phase = !is_start_multi_poly_;
 
 
-  int n_polys_per_multi_poly_phase = 2;
+  int n_polys_per_multi_poly_phase = 3;
   nodes_.push_back(initial_value);
 
   for (double T : times) {
@@ -137,18 +137,18 @@ NodeValues::SetValues (const VectorXd& x)
 //VecBound
 //NodeValues::GetBounds () const
 //{
-//  VecBound bounds(GetRows(), kNoBound_);
+//  VecBound bounds(GetRows(), Bound(-200, 200));
 //
-//  int row=0;
-//
-//
-//  for (int idx=0; idx<bounds.size(); ++idx) {
-//    for (auto info : GetNodeInfo(idx)) {
-//      if (info.deriv_ == kVel) {
-//        bounds.at(idx) = kEqualityBound_;
-//      }
-//    }
-//  }
+////  int row=0;
+////
+////
+////  for (int idx=0; idx<bounds.size(); ++idx) {
+////    for (auto info : GetNodeInfo(idx)) {
+////      if (info.deriv_ == kVel) {
+////        bounds.at(idx) = kEqualityBound_;
+////      }
+////    }
+////  }
 //
 //
 //
