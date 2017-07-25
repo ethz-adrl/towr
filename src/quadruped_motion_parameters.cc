@@ -23,19 +23,22 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  dt_base_polynomial_    = 0.2; //s 0.05
-  // enforce at beginning and middle. The end if always enforced
-  // due to acceleration continuity constraint.
+  dt_base_polynomial_    = 0.1; //s 0.05
+
+  // zmp_ since derivative of acceleration is nonsmooth, pay attention
+  // to never evaluate at junction of base polynomial directly
+  // (what i'm doing now! :-(
+  // must make sure every polynomial is at least evaluated once
+  dt_dynamic_constraint_ = dt_base_polynomial_/2;
 
   ee_splines_per_swing_phase_ = 3;
-  force_splines_per_stance_phase_ = 3;
+  force_splines_per_stance_phase_ = 5;
 
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
   dt_range_of_motion_ = 0.1;
 
   // dynamic model for HyQ
-  n_constraints_per_poly_ = 2;
   mass_    = 80;
   interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
   force_limit_ = 10000.0; // [N]
@@ -154,7 +157,7 @@ Walk::Walk()
 
 
   constraints_ = { State,
-                   JunctionCom,
+//                   JunctionCom,
                    Dynamic,
                    RomBox, // usually enforced as soft-constraint/cost
   };
@@ -177,9 +180,9 @@ Trot::Trot()
   contact_timings_ =
   {   0.3,
       t_phase, t_phase, t_phase, t_phase, // trot
-//      0.3, // flight_phase
+      0.3, // flight_phase
 ////      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
-//      t_phase, t_phase, t_phase, t_phase, // trot
+      t_phase, t_phase, t_phase, t_phase, // trot
       0.3
   };
 
@@ -187,16 +190,16 @@ Trot::Trot()
   {
       II_,
       bP_, Pb_, bP_, Pb_, // trot
-//      BB_, // flight-phase
+      BB_, // flight-phase
 ////      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
-//      bP_, Pb_, bP_, Pb_, // trot
+      bP_, Pb_, bP_, Pb_, // trot
       II_
   };
 
 
   constraints_ = {
                    State,
-                   JunctionCom,
+//                   JunctionCom,
                    Dynamic,
                    RomBox, // usually enforced as soft-constraint/cost
   };
@@ -241,7 +244,7 @@ Pace::Pace()
   };
 
   constraints_ = { State,
-                   JunctionCom,
+//                   JunctionCom,
                    Dynamic,
                    RomBox, // usually enforced as soft-constraint/cost
   };
@@ -365,7 +368,7 @@ Bound::Bound()
 
 
   constraints_ = { State,
-                   JunctionCom,
+//                   JunctionCom,
                    Dynamic,
                    RomBox, // usually enforced as soft-constraint/cost
   };

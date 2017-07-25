@@ -23,6 +23,8 @@ namespace opt {
 
 /** Holds position and velocity of nodes used to generate a cubic Hermite spline.
  */
+// zmp_ theoretically this class should know nothing about phases
+// just as Jon Snow knows nothing...
 class NodeValues : public Component {
 public:
   using Node     = CubicHermitePoly::Node;
@@ -41,8 +43,10 @@ public:
   };
 
 
-  NodeValues (bool is_first_phase_constant, const Node& initial_value,
-              const VecTimes&, int n_polys_in_changing_phase, const std::string& name);
+  NodeValues ();
+
+  void Init(const Node& initial_value, const VecTimes& times, const std::string& name);
+
   virtual ~NodeValues ();
 
   /**
@@ -55,43 +59,54 @@ public:
   void SetValues (const VectorXd& x) override;
 
 
-  Jacobian GetJacobian(int poly_id, double t_local) const;
+  Jacobian GetJacobian(int poly_id, double t_local, MotionDerivative dxdt) const;
   VecPoly GetCubicPolys() const { return cubic_polys_; };
 
-  void UpdatePolynomials();
   VecTimes GetDurations() const { return timings_; };
 
 protected:
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
-
-private:
-
-  int GetNodeId(int poly_id, Side) const;
-
   std::vector<Node> nodes_;
-  VecTimes timings_; // zmp_ for now constant
-  VecPoly cubic_polys_;
   int n_dim_;
 
   using OptNodeIs = int;
   using NodeIds   = std::vector<int>;
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
+
+private:
+
+  void UpdatePolynomials();
+  int GetNodeId(int poly_id, Side) const;
+
+  VecTimes timings_; // zmp_ for now constant
+  VecPoly cubic_polys_;
+
+};
+
+class PhaseNodes : public NodeValues {
+public:
+  PhaseNodes (const Node& initial_value,
+              const VecTimes& phase_times,
+              const std::string& name,
+              bool is_first_phase_constant,
+              int n_polys_in_changing_phase);
+  ~PhaseNodes();
 };
 
 
 
-class EEMotionNodes : public NodeValues {
+class EEMotionNodes : public PhaseNodes {
 public:
-  EEMotionNodes (const Node& initial_position, const VecTimes&,
+  EEMotionNodes (const Node& initial_position, const VecTimes& phase_times,
                  int splines_per_swing_phase, int ee_id);
   ~EEMotionNodes();
   VecBound GetBounds () const override;
 };
 
 
-class EEForcesNodes : public NodeValues {
+class EEForcesNodes : public PhaseNodes {
 public:
-  EEForcesNodes (const Node& initial_force, const VecTimes&,
+  EEForcesNodes (const Node& initial_force, const VecTimes& phase_times,
                  int splines_per_stance_phase, int ee_id);
   ~EEForcesNodes();
   VecBound GetBounds () const override;

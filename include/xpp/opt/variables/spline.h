@@ -40,6 +40,7 @@ public:
   virtual ~Spline ();
 
   // zmp_ this is ugly as i only use durations for coeff_spline spline...
+  // zmp_ remove duration from here
   static Spline::Ptr BuildSpline(const OptVarsPtr& opt_vars,
                                  const std::string& spline_base_id,
                                  const VecTimes& poly_durations);

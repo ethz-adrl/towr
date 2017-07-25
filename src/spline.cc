@@ -31,11 +31,11 @@ Spline::BuildSpline (const OptVarsPtr& opt_vars,
   else if (name.substr(0, s2.size()) == s2) // string starts with s
     spline = std::make_shared<HermiteSpline>(opt_vars, name);
   else if (name == id::base_linear)
-    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
+    spline = std::make_shared<HermiteSpline>(opt_vars, name);
   else if (name == id::base_angular)
-    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
+    spline = std::make_shared<HermiteSpline>(opt_vars, name);
   else
-    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
+    assert(false); // this shouldn't happen
 
   return spline;
 }

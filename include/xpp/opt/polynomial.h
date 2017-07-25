@@ -89,7 +89,11 @@ public:
   virtual ~CubicHermitePoly();
 
   void SetNodes(const Node& n0, const Node& n1, double T);
+
+  double GetDerivativeOf(MotionDerivative dxdt, Side, MotionDerivative node_value, double t_local) const;
   double GetDerivativeOfPosWrt(Side, MotionDerivative node_value, double t_local) const;
+  double GetDerivativeOfVelWrt(Side, MotionDerivative node_value, double t_local) const;
+  double GetDerivativeOfAccWrt(Side, MotionDerivative node_value, double t_local) const;
 
   VectorXd GetDerivativeOfPosWrtDuration(const Node& n0,
                                          const Node& n1,

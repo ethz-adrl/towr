@@ -70,7 +70,7 @@ public:
   double dt_range_of_motion_;    //[s]
 //  double load_dt_; /// duration of piecewise-constant ee_load
 //  int polys_per_force_phase_; /// number of polynomials for each endeffector phase
-  int n_constraints_per_poly_; /// how many times dynamics are enforced
+  double dt_dynamic_constraint_; /// how many times dynamics are enforced
 
 //  PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
 

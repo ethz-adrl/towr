@@ -168,7 +168,8 @@ CostConstraintFactory::MakeDynamicConstraint() const
                                                          params->GetInertiaParameters(),
                                                          params->GetEECount());
 
-  double dt = params->dt_base_polynomial_/params->n_constraints_per_poly_;
+  // zmp_ make this an absolut number
+  double dt = params->dt_dynamic_constraint_;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         dynamic_model,
                                                         params->GetBasePolyDurations(),

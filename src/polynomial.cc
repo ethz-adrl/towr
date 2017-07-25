@@ -154,6 +154,25 @@ CubicHermitePoly::SetNodes (const Node& n0, const Node& n1, double T)
   T_ = T;
 }
 
+
+double
+CubicHermitePoly::GetDerivativeOf (MotionDerivative dxdt, Side side,
+                                    MotionDerivative node_value,
+                                    double t_local) const
+{
+  switch (dxdt) {
+    case kPos:
+      return GetDerivativeOfPosWrt(side, node_value, t_local);
+    case kVel:
+      return GetDerivativeOfVelWrt(side, node_value, t_local);
+    case kAcc:
+      return GetDerivativeOfAccWrt(side, node_value, t_local);
+    default:
+      assert(false); // derivative not yet implemented
+  }
+}
+
+
 double
 CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative node_value,
                                          double t) const
@@ -180,6 +199,62 @@ CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative node_value,
     default: assert(false);
   }
 }
+
+double
+CubicHermitePoly::GetDerivativeOfVelWrt (Side side, MotionDerivative node_value,
+                                         double t) const
+{
+  double t2 = std::pow(t,2);
+  double t3 = std::pow(t,3);
+  double T  = T_;
+  double T2 = std::pow(T_,2);
+  double T3 = std::pow(T_,3);
+
+  switch (side) {
+    case Start:
+      switch (node_value) {
+        case kPos: return (6*t2)/T3 - (6*t)/T2;
+        case kVel: return (3*t2)/T2 - (4*t)/T + 1;
+      }
+
+    case End:
+      switch (node_value) {
+        case kPos: return (6*t)/T2 - (6*t2)/T3;
+        case kVel: return (3*t2)/T2 - (2*t)/T;
+      }
+
+    default: assert(false);
+  }
+}
+
+
+double
+CubicHermitePoly::GetDerivativeOfAccWrt (Side side, MotionDerivative node_value,
+                                         double t) const
+{
+  double t2 = std::pow(t,2);
+  double t3 = std::pow(t,3);
+  double T  = T_;
+  double T2 = std::pow(T_,2);
+  double T3 = std::pow(T_,3);
+
+  switch (side) {
+    case Start:
+      switch (node_value) {
+        case kPos: return (12*t)/T3 - 6/T2;
+        case kVel: return (6*t)/T2 - 4/T;
+      }
+
+    case End:
+      switch (node_value) {
+        case kPos: return 6/T2 - (12*t)/T3;
+        case kVel: return (6*t)/T2 - 2/T;
+      }
+
+    default: assert(false);
+  }
+}
+
 
 VectorXd
 CubicHermitePoly::GetDerivativeOfPosWrtDuration(const Node& n0,

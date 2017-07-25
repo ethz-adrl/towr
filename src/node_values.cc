@@ -15,73 +15,39 @@
 namespace xpp {
 namespace opt {
 
-NodeValues::NodeValues (bool is_first_constant,
-                        const Node& initial_value,
-                        const VecTimes& times,
-                        int n_polys_in_changing_phase,
-                        const std::string& name)
-    :Component(-1, name)
+NodeValues::NodeValues () : Component(-1, "dummy")
 {
+}
+
+NodeValues::~NodeValues () {}
+
+
+void
+NodeValues::Init (const Node& initial_value, const VecTimes& times,
+                  const std::string& name)
+{
+  SetName(name);
   n_dim_ = initial_value.at(kPos).rows();
 
-  bool is_constant_phase = is_first_constant;
-
   nodes_.push_back(initial_value);
-
-  int spline_id = 0;
   for (double T : times) {
-
-    if (is_constant_phase) {
-
-      auto p = std::make_shared<PolyType>(n_dim_);
-      cubic_polys_.push_back(p);
-      nodes_.push_back(initial_value);
-      timings_.push_back(T);
-
-    } else { // multip_poly_phase (=swing_phase for ee_motion and stance_phase for ee_force)
-
-      for (int i=0; i<n_polys_in_changing_phase; ++i) {
-
-        auto p = std::make_shared<PolyType>(n_dim_);
-
-        cubic_polys_.push_back(p);
-        nodes_.push_back(initial_value);
-        timings_.push_back(T/n_polys_in_changing_phase);
-
-
-      }
-
-
-    }
-
-    is_constant_phase = !is_constant_phase; // make multi poly phase
-
+    auto p = std::make_shared<PolyType>(n_dim_);
+    cubic_polys_.push_back(p);
+    nodes_.push_back(initial_value);
+    timings_.push_back(T);
   }
 
   UpdatePolynomials();
 
-
-
-
-  int first_constant_node_in_cycle = (!is_first_constant)*n_polys_in_changing_phase;
-
+  // every optimization value maps to a different node
   int opt_id = 0;
-  for (int node_id=0; node_id<nodes_.size(); ++node_id) {
-
-    opt_to_spline_[opt_id].push_back(node_id);
-
-    int node_in_cycle = node_id%(n_polys_in_changing_phase+1);
-
-    // use same optimization variable for next node in single poly phase
-    if (node_in_cycle != first_constant_node_in_cycle)
-      opt_id++;
-  }
+  for (int node_id=0; node_id<nodes_.size(); ++node_id)
+    opt_to_spline_[opt_id++] = {node_id};
 
 
   int n_opt_variables = opt_to_spline_.size() * 2*n_dim_;
   SetRows(n_opt_variables);
 }
-
 
 std::vector<NodeValues::NodeInfo>
 NodeValues::GetNodeInfo (int idx) const
@@ -90,13 +56,13 @@ NodeValues::GetNodeInfo (int idx) const
 
   // always two consecutive node pairs are equal
   int n_opt_values_per_node_ = 2*n_dim_;
-  int opt_node = std::floor(idx/n_opt_values_per_node_);
   int internal_id = idx%n_opt_values_per_node_; // 0...6
 
   NodeInfo node;
   node.deriv_ = static_cast<MotionDerivative>(std::floor(internal_id/n_dim_));
   node.dim_   = internal_id-node.deriv_*n_dim_;
 
+  int opt_node = std::floor(idx/n_opt_values_per_node_);
   for (auto node_id : opt_to_spline_.at(opt_node)) {
     node.id_ = node_id;
     nodes.push_back(node);
@@ -105,19 +71,14 @@ NodeValues::GetNodeInfo (int idx) const
   return nodes;
 }
 
-
-
-NodeValues::~NodeValues () {}
-
 VectorXd
 NodeValues::GetValues () const
 {
   VectorXd x(GetRows());
 
-  for (int idx=0; idx<x.rows(); ++idx) {
+  for (int idx=0; idx<x.rows(); ++idx)
     for (auto info : GetNodeInfo(idx))
       x(idx) = nodes_.at(info.id_).at(info.deriv_)(info.dim_);
-  }
 
   return x;
 }
@@ -125,10 +86,9 @@ NodeValues::GetValues () const
 void
 NodeValues::SetValues (const VectorXd& x)
 {
-  for (int idx=0; idx<x.rows(); ++idx) {
+  for (int idx=0; idx<x.rows(); ++idx)
     for (auto info : GetNodeInfo(idx))
       nodes_.at(info.id_).at(info.deriv_)(info.dim_) = x(idx);
-  }
 
   UpdatePolynomials();
 }
@@ -145,7 +105,7 @@ NodeValues::UpdatePolynomials ()
 }
 
 Jacobian
-NodeValues::GetJacobian (int poly_id, double t_local) const
+NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) const
 {
   Jacobian jac(n_dim_, GetRows());
 
@@ -156,7 +116,7 @@ NodeValues::GetJacobian (int poly_id, double t_local) const
         int node = GetNodeId(poly_id,side);
 
         if (node == info.id_) {
-          double val = cubic_polys_.at(poly_id)->GetDerivativeOfPosWrt(side, info.deriv_, t_local);
+          double val = cubic_polys_.at(poly_id)->GetDerivativeOf(dxdt, side, info.deriv_, t_local);
           jac.coeffRef(info.dim_, idx) += val;
         }
       }
@@ -176,11 +136,75 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 
 
 
+
+
+PhaseNodes::PhaseNodes (const Node& initial_value, const VecTimes& phase_times,
+                        const std::string& name, bool is_first_phase_constant,
+                        int n_polys_in_changing_phase)
+{
+
+  VecTimes poly_times;
+
+
+  bool is_constant_phase = is_first_phase_constant;
+  for (double T : phase_times) {
+
+    if (is_constant_phase)
+      poly_times.push_back(T);
+    else
+      for (int i=0; i<n_polys_in_changing_phase; ++i)
+        poly_times.push_back(T/n_polys_in_changing_phase);
+
+    is_constant_phase = !is_constant_phase;
+  }
+
+
+  Init(initial_value, poly_times, name);
+
+
+
+
+
+  int first_constant_node_in_cycle = (!is_first_phase_constant)*n_polys_in_changing_phase;
+
+  int opt_id = 0;
+  opt_to_spline_.clear();
+  for (int node_id=0; node_id<nodes_.size(); ++node_id) {
+
+    opt_to_spline_[opt_id].push_back(node_id);
+
+    int node_in_cycle = node_id%(n_polys_in_changing_phase+1);
+
+    // use same optimization variable for next node in single poly phase
+    if (node_in_cycle != first_constant_node_in_cycle)
+      opt_id++;
+  }
+
+
+  int n_opt_variables = opt_to_spline_.size() * 2*n_dim_;
+  SetRows(n_opt_variables);
+}
+
+PhaseNodes::~PhaseNodes ()
+{
+}
+
+
+
+
+
+
+
+
+
+
+
+
 EEMotionNodes::EEMotionNodes (const Node& initial_value,
                               const VecTimes& times,
                               int splines_per_swing_phase,
                               int ee)
-    :NodeValues(true, initial_value, times, splines_per_swing_phase, id::GetEEId(ee))
+    :PhaseNodes(initial_value, times, id::GetEEId(ee), true, splines_per_swing_phase)
 {
 }
 
@@ -222,7 +246,7 @@ EEForcesNodes::EEForcesNodes (const Node& initial_force,
                               const VecTimes& times,
                               int splines_per_stance_phase,
                               int ee)
-    :NodeValues(false, initial_force, times, splines_per_stance_phase, id::GetEEForceId(ee))
+    :PhaseNodes(initial_force, times, id::GetEEForceId(ee), false, splines_per_stance_phase)
 {
 }
 
@@ -297,15 +321,15 @@ HermiteSpline::DoVarAffectCurrentState (const std::string& poly_vars,
 Jacobian
 HermiteSpline::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
-  assert(dxdt == kPos); // derivative of velocity/acceleration not yet implemented
-
   int poly_id     = GetSegmentID(t_global);
   double t_local  = GetLocalTime(t_global); // these are both wrong when adding extra polynomial
 
-  return node_values_->GetJacobian(poly_id, t_local);
+  return node_values_->GetJacobian(poly_id, t_local, dxdt);
 }
 
 
 
 } /* namespace opt */
 } /* namespace xpp */
+
+
