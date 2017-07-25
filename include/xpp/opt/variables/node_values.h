@@ -71,9 +71,9 @@ private:
   VecPoly cubic_polys_;
   int n_dim_;
 
-  bool is_start_multi_poly_;
-
-  int n_polys_per_multi_poly_phase;
+  using OptNodeIs = int;
+  using NodeIds   = std::vector<int>;
+  std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
 };
 
 

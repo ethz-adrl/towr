@@ -182,7 +182,7 @@ Trot::Trot()
 //      0.3, // flight_phase
 ////      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
 //      t_phase, t_phase, t_phase, t_phase, // trot
-      0.3
+//      0.3
   };
 
   contact_sequence_ =
@@ -192,7 +192,7 @@ Trot::Trot()
 //      BB_, // flight-phase
 ////      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
 //      bP_, Pb_, bP_, Pb_, // trot
-      II_
+//      II_
   };
 
 

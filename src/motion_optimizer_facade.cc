@@ -113,16 +113,17 @@ MotionOptimizerFacade::BuildVariables ()
     NodeValues::Node n;
     n.at(kPos) = initial_ee_W_.At(ee);
     n.at(kVel) = Vector3d::Zero();
-    auto node_values = std::make_shared<NodeValues>(true, n, timings, id::GetEEId(ee));
-    opt_variables_->AddComponent(node_values);
+    auto nodes_motion = std::make_shared<NodeValues>(true, n, timings, id::GetEEId(ee));
+    opt_variables_->AddComponent(nodes_motion);
 
 
-//    // cubic spline for ee_forces
-//    NodeValues::Node n;
-//    n.at(kPos) = initial_ee_W_.At(ee);
-//    n.at(kVel) = Vector3d::Zero();
-//    auto node_values = std::make_shared<NodeValues>(false, n, timings, id::GetEEId(ee));
-//    opt_variables_->AddComponent(node_values);
+    // cubic spline for ee_forces
+    NodeValues::Node intial_force;
+    intial_force.at(kPos) = Vector3d::Zero();
+    intial_force.at(kPos).z() = motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount();
+    intial_force.at(kVel) = Vector3d::Zero();
+    auto nodes_forces = std::make_shared<NodeValues>(false, intial_force, timings, id::GetEEId(ee));
+    opt_variables_->AddComponent(nodes_forces);
 
 
 
