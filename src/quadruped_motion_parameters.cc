@@ -23,21 +23,19 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  dt_base_polynomial_    = 0.15; //s 0.05
+  dt_base_polynomial_    = 0.2; //s 0.05
   // enforce at beginning and middle. The end if always enforced
   // due to acceleration continuity constraint.
-  n_constraints_per_poly_ = 2;
 
-//  load_dt_                = 0.05;//duration_polynomial_/2.;
-  polys_per_force_phase_     = 4;
-
+  ee_splines_per_swing_phase_ = 3;
+  force_splines_per_stance_phase_ = 3;
 
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
   dt_range_of_motion_ = 0.1;
 
-
   // dynamic model for HyQ
+  n_constraints_per_poly_ = 2;
   mass_    = 80;
   interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
   force_limit_ = 10000.0; // [N]

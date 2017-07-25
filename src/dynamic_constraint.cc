@@ -45,6 +45,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   converter_ = AngularStateConverter(base_angular_);
 }
 
+// zmp_ possibly implement as lookup-map, as in NodeValues?
 int
 DynamicConstraint::GetRow (int node, Coords6D dimension) const
 {

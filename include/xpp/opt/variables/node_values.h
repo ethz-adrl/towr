@@ -20,6 +20,7 @@
 namespace xpp {
 namespace opt {
 
+
 /** Holds position and velocity of nodes used to generate a cubic Hermite spline.
  */
 class NodeValues : public Component {
@@ -40,7 +41,8 @@ public:
   };
 
 
-  NodeValues (bool is_motion, const Node& initial_value, const VecTimes&, const std::string& name);
+  NodeValues (bool is_first_phase_constant, const Node& initial_value,
+              const VecTimes&, int n_polys_in_changing_phase, const std::string& name);
   virtual ~NodeValues ();
 
   /**
@@ -52,8 +54,6 @@ public:
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& x) override;
 
-//  VecBound GetBounds () const override;
-
 
   Jacobian GetJacobian(int poly_id, double t_local) const;
   VecPoly GetCubicPolys() const { return cubic_polys_; };
@@ -61,9 +61,11 @@ public:
   void UpdatePolynomials();
   VecTimes GetDurations() const { return timings_; };
 
+protected:
+  std::vector<NodeInfo> GetNodeInfo(int idx) const;
 
 private:
-  std::vector<NodeInfo> GetNodeInfo(int idx) const;
+
   int GetNodeId(int poly_id, Side) const;
 
   std::vector<Node> nodes_;
@@ -75,6 +77,27 @@ private:
   using NodeIds   = std::vector<int>;
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
 };
+
+
+
+class EEMotionNodes : public NodeValues {
+public:
+  EEMotionNodes (const Node& initial_position, const VecTimes&,
+                 int splines_per_swing_phase, int ee_id);
+  ~EEMotionNodes();
+  VecBound GetBounds () const override;
+};
+
+
+class EEForcesNodes : public NodeValues {
+public:
+  EEForcesNodes (const Node& initial_force, const VecTimes&,
+                 int splines_per_stance_phase, int ee_id);
+  ~EEForcesNodes();
+  VecBound GetBounds () const override;
+};
+
+
 
 
 // zmp_ might be able to remove this class

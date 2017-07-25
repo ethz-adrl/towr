@@ -10,29 +10,28 @@
 #include <Eigen/Dense>
 
 #include <xpp/opt/variables/spline.h>
+#include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
 
-NodeValues::NodeValues (bool is_motion,
+NodeValues::NodeValues (bool is_first_constant,
                         const Node& initial_value,
                         const VecTimes& times,
+                        int n_polys_in_changing_phase,
                         const std::string& name)
     :Component(-1, name)
 {
   n_dim_ = initial_value.at(kPos).rows();
 
-  bool is_start_multi_poly_ = is_motion? false : true;
+  bool is_constant_phase = is_first_constant;
 
-  bool single_poly_phase = !is_start_multi_poly_;
-
-
-  int n_polys_per_multi_poly_phase = 3;
   nodes_.push_back(initial_value);
 
+  int spline_id = 0;
   for (double T : times) {
 
-    if (single_poly_phase) {
+    if (is_constant_phase) {
 
       auto p = std::make_shared<PolyType>(n_dim_);
       cubic_polys_.push_back(p);
@@ -41,13 +40,13 @@ NodeValues::NodeValues (bool is_motion,
 
     } else { // multip_poly_phase (=swing_phase for ee_motion and stance_phase for ee_force)
 
-      for (int i=0; i<n_polys_per_multi_poly_phase; ++i) {
+      for (int i=0; i<n_polys_in_changing_phase; ++i) {
 
         auto p = std::make_shared<PolyType>(n_dim_);
 
         cubic_polys_.push_back(p);
         nodes_.push_back(initial_value);
-        timings_.push_back(T/n_polys_per_multi_poly_phase);
+        timings_.push_back(T/n_polys_in_changing_phase);
 
 
       }
@@ -55,7 +54,7 @@ NodeValues::NodeValues (bool is_motion,
 
     }
 
-    single_poly_phase = !single_poly_phase; // make multi poly phase
+    is_constant_phase = !is_constant_phase; // make multi poly phase
 
   }
 
@@ -64,17 +63,17 @@ NodeValues::NodeValues (bool is_motion,
 
 
 
-  int single_poly_node_in_cycle = is_start_multi_poly_*n_polys_per_multi_poly_phase;
+  int first_constant_node_in_cycle = (!is_first_constant)*n_polys_in_changing_phase;
 
   int opt_id = 0;
   for (int node_id=0; node_id<nodes_.size(); ++node_id) {
 
     opt_to_spline_[opt_id].push_back(node_id);
 
-    int node_in_cycle = node_id%(n_polys_per_multi_poly_phase+1);
+    int node_in_cycle = node_id%(n_polys_in_changing_phase+1);
 
     // use same optimization variable for next node in single poly phase
-    if (node_in_cycle != single_poly_node_in_cycle)
+    if (node_in_cycle != first_constant_node_in_cycle)
       opt_id++;
   }
 
@@ -134,32 +133,6 @@ NodeValues::SetValues (const VectorXd& x)
   UpdatePolynomials();
 }
 
-//VecBound
-//NodeValues::GetBounds () const
-//{
-//  VecBound bounds(GetRows(), Bound(-200, 200));
-//
-////  int row=0;
-////
-////
-////  for (int idx=0; idx<bounds.size(); ++idx) {
-////    for (auto info : GetNodeInfo(idx)) {
-////      if (info.deriv_ == kVel) {
-////        bounds.at(idx) = kEqualityBound_;
-////      }
-////    }
-////  }
-//
-//
-//
-////  int timings_start = bounds.size() - timings_.size();
-////  for (int i=0; i<timings_.size(); ++i) {
-////    bounds.at(timings_start+i) = Bound(0.1, 0.4);
-////  }
-//
-//  return bounds;
-//}
-
 
 void
 NodeValues::UpdatePolynomials ()
@@ -203,6 +176,106 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 
 
 
+EEMotionNodes::EEMotionNodes (const Node& initial_value,
+                              const VecTimes& times,
+                              int splines_per_swing_phase,
+                              int ee)
+    :NodeValues(true, initial_value, times, splines_per_swing_phase, id::GetEEId(ee))
+{
+}
+
+EEMotionNodes::~EEMotionNodes ()
+{
+}
+
+VecBound
+EEMotionNodes::GetBounds () const
+{
+  VecBound bounds(GetRows(), Bound(kNoBound_));
+
+
+  for (int idx=0; idx<bounds.size(); ++idx) {
+
+    // no force allowed during swingphase
+    bool is_stance = GetNodeInfo(idx).size() == 2;
+
+    if (is_stance) {
+      if (GetNodeInfo(idx).at(0).deriv_ == kVel)
+        bounds.at(idx) = kEqualityBound_;
+
+      if (GetNodeInfo(idx).at(0).dim_ == Z)
+        bounds.at(idx) = kEqualityBound_; // ground is at zero height
+
+    }
+
+
+  }
+
+  return bounds;
+}
+
+
+
+
+
+EEForcesNodes::EEForcesNodes (const Node& initial_force,
+                              const VecTimes& times,
+                              int splines_per_stance_phase,
+                              int ee)
+    :NodeValues(false, initial_force, times, splines_per_stance_phase, id::GetEEForceId(ee))
+{
+}
+
+EEForcesNodes::~EEForcesNodes ()
+{
+}
+
+VecBound
+EEForcesNodes::GetBounds () const
+{
+  double max_force = 10000;
+  VecBound bounds(GetRows(), kNoBound_);
+
+  for (int idx=0; idx<bounds.size(); ++idx) {
+
+
+
+    // no force or force velocity allowed during swingphase
+    bool is_swing_phase = GetNodeInfo(idx).size() == 2;
+    if (is_swing_phase)
+      bounds.at(idx) = kEqualityBound_; // position and velocity must be zero
+    else { // stance-phase -> forces can be applied
+
+      NodeInfo n0 = GetNodeInfo(idx).front(); // only one node anyway
+
+      if (n0.deriv_ == kPos) {
+
+        if (n0.dim_ == X || n0.dim_ == Y)
+          bounds.at(idx) = Bound(-max_force, max_force);
+
+        // unilateral contact forces ("pulling" on ground not possible)
+        if (n0.dim_ == Z)
+          bounds.at(idx) = Bound(0.0, max_force);
+      }
+
+      if (n0.deriv_ == kVel && n0.dim_ == Z) {
+        bounds.at(idx) = kEqualityBound_; // zero slope to never exceed maximum height
+      }
+
+    }
+  }
+
+  return bounds;
+}
+
+
+
+
+
+
+
+
+
 HermiteSpline::HermiteSpline (const OptVarsPtr& opt_vars,
                               const std::string& node_id)
 {
@@ -231,9 +304,6 @@ HermiteSpline::GetJacobian (double t_global,  MotionDerivative dxdt) const
 
   return node_values_->GetJacobian(poly_id, t_local);
 }
-
-
-
 
 
 

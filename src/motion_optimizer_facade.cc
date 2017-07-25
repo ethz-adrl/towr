@@ -77,23 +77,23 @@ MotionOptimizerFacade::BuildVariables ()
     bool ee_initially_in_contact = contact_schedule->GetPhases(ee).front().first;
     int n_phases = timings.size();
 
-    // use two polynomials for each endeffector phase
-    int n_polys_per_phase = 2;
-    std::vector<double> timings2;
-    for (double t : timings)
-      for (int i=0; i<n_polys_per_phase; ++i)
-        timings2.push_back(t/n_polys_per_phase);
+//    // use two polynomials for each endeffector phase
+//    int n_polys_per_phase = 2;
+//    std::vector<double> timings2;
+//    for (double t : timings)
+//      for (int i=0; i<n_polys_per_phase; ++i)
+//        timings2.push_back(t/n_polys_per_phase);
 
 
 
     // EE_MOTION
 //    std::string id_motion = id::endeffectors_motion+std::to_string(ee);
 
-    std::string id_force  = id::endeffector_force+std::to_string(ee);
-    double fz_stand = motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount();
-    int order_poly = 4;
+//    std::string id_force  = id::endeffector_force+std::to_string(ee);
+//    double fz_stand = motion_parameters_->GetAvgZForce();
+//    int order_poly = 4;
 
-    for (int i=0; i<n_phases; ++i) {
+//    for (int i=0; i<n_phases; ++i) {
 
 
 
@@ -106,23 +106,23 @@ MotionOptimizerFacade::BuildVariables ()
 //      auto p_force = std::make_shared<Polynomial>(order_poly, n_dim, id_force + std::to_string(i));
 //      p_force->SetCoefficients(Polynomial::A, Vector3d(0.0, 0.0, fz_stand));
 //      opt_variables_->AddComponent(p_force);
-    }
+//    }
 
 
     // cubic spline for ee_motion
     NodeValues::Node intial_pos;
     intial_pos.at(kPos) = initial_ee_W_.At(ee);
     intial_pos.at(kVel) = Vector3d::Zero();
-    auto nodes_motion = std::make_shared<NodeValues>(true, intial_pos, timings, id::GetEEId(ee));
+    auto nodes_motion = std::make_shared<EEMotionNodes>(intial_pos, timings, motion_parameters_->ee_splines_per_swing_phase_, ee);
     opt_variables_->AddComponent(nodes_motion);
 
 
     // cubic spline for ee_forces
     NodeValues::Node intial_force;
     intial_force.at(kPos) = Vector3d::Zero();
-    intial_force.at(kPos).z() = motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount();
+    intial_force.at(kPos).z() = motion_parameters_->GetAvgZForce();
     intial_force.at(kVel) = Vector3d::Zero();
-    auto nodes_forces = std::make_shared<NodeValues>(false, intial_force, timings, id::GetEEForceId(ee));
+    auto nodes_forces = std::make_shared<EEForcesNodes>(intial_force, timings, motion_parameters_->force_splines_per_stance_phase_, ee);
     opt_variables_->AddComponent(nodes_forces);
 
 
