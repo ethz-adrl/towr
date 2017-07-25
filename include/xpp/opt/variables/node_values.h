@@ -40,7 +40,7 @@ public:
   };
 
 
-  NodeValues (const Node& initial_value, const VecTimes&, const std::string& name);
+  NodeValues (bool is_motion, const Node& initial_value, const VecTimes&, const std::string& name);
   virtual ~NodeValues ();
 
   /**
@@ -71,7 +71,7 @@ private:
   VecPoly cubic_polys_;
   int n_dim_;
 
-  int n_polys_per_swing_phase;
+  int n_polys_per_multi_poly_phase;
 };
 
 

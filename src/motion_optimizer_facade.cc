@@ -113,7 +113,7 @@ MotionOptimizerFacade::BuildVariables ()
     NodeValues::Node n;
     n.at(kPos) = initial_ee_W_.At(ee);
     n.at(kVel) = Vector3d::Zero();
-    auto node_values = std::make_shared<NodeValues>(n, timings, id::GetEEId(ee));
+    auto node_values = std::make_shared<NodeValues>(true, n, timings, id::GetEEId(ee));
     opt_variables_->AddComponent(node_values);
 
 

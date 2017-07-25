@@ -14,7 +14,8 @@
 namespace xpp {
 namespace opt {
 
-NodeValues::NodeValues (const Node& initial_value,
+NodeValues::NodeValues (bool is_motion,
+                        const Node& initial_value,
                         const VecTimes& times,
                         const std::string& name)
     :Component(-1, name)
@@ -48,16 +49,18 @@ NodeValues::NodeValues (const Node& initial_value,
 //      timings2.push_back(t/n_polys_per_phase);
 
 
-  bool stance_phase = true;
 
 
-  n_polys_per_swing_phase = 4;
+  bool single_poly_phase = is_motion? true : false;
+
+
+  n_polys_per_multi_poly_phase = 2;
   nodes_.push_back(initial_value);
   int n_opt_variables = 0;
   for (double t : times) {
 
 
-    if (stance_phase) {
+    if (single_poly_phase) {
 
       auto p = std::make_shared<PolyType>(n_dim_);
       cubic_polys_.push_back(p);
@@ -65,25 +68,25 @@ NodeValues::NodeValues (const Node& initial_value,
       timings_.push_back(t); // use complete time
       n_opt_variables += 2*n_dim_;
 
-    } else { // swing_phase (divide into multiple nodes)
+    } else { // multip_poly_phase (=swing_phase for ee_motion and stance_phase for ee_force)
 
-      for (int i=0; i<n_polys_per_swing_phase; ++i) {
+      for (int i=0; i<n_polys_per_multi_poly_phase; ++i) {
 
         auto p = std::make_shared<PolyType>(n_dim_);
         //    p->SetNodes(initial_value, initial_value, t);
 
         cubic_polys_.push_back(p);
         nodes_.push_back(initial_value);
-        timings_.push_back(t/n_polys_per_swing_phase);
+        timings_.push_back(t/n_polys_per_multi_poly_phase);
 
 
       }
 
-      n_opt_variables += 2*n_dim_*(n_polys_per_swing_phase-1);
+      n_opt_variables += 2*n_dim_*(n_polys_per_multi_poly_phase-1);
 
     }
 
-    stance_phase = !stance_phase; // make swing_phase
+    single_poly_phase = !single_poly_phase; // make swing_phase
 
 
 
@@ -117,22 +120,23 @@ NodeValues::GetNodeInfo (int idx) const
   node.dim_   = internal_id-node.deriv_*n_dim_;
 
 
-  int n_previous_stance_swing_cycles = std::floor(opt_node/n_polys_per_swing_phase);
-  int n_nodes_per_stance_phase = 2;
-  int nodes_per_cycle = n_nodes_per_stance_phase+n_polys_per_swing_phase-1;
+  int n_previous_stance_swing_cycles = std::floor(opt_node/n_polys_per_multi_poly_phase);
+  int n_nodes_per_single_poly_phase = 2;
+  int nodes_per_cycle = n_nodes_per_single_poly_phase+n_polys_per_multi_poly_phase-1;
   int prev_cycle_nodes = n_previous_stance_swing_cycles*nodes_per_cycle;
+  int n_nodes_past_cycle = opt_node%n_polys_per_multi_poly_phase;
 
 
-  bool is_stance = opt_node%n_polys_per_swing_phase == 0;
-  if (is_stance) {
-    for (int i=0; i<n_nodes_per_stance_phase; ++i) {
+  bool is_single_poly_node = n_nodes_past_cycle == 0;
+  if (is_single_poly_node) {
 
-
+    // each single poly opt. variable affects both start and end node
+    for (int i=0; i<n_nodes_per_single_poly_phase; ++i) {
       node.id_ = prev_cycle_nodes + i;
       nodes.push_back(node);
     }
-  } else { // swing node
-    node.id_ = prev_cycle_nodes + n_nodes_per_stance_phase + opt_node%n_polys_per_swing_phase - 1;
+  } else { // each multi_poly optimization variable has its own node
+    node.id_ = prev_cycle_nodes + n_nodes_per_single_poly_phase + n_nodes_past_cycle - 1;
     nodes.push_back(node);
   }
 
