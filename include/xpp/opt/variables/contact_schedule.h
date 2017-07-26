@@ -8,12 +8,13 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
 
-#include <Eigen/Dense>
+#include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
 #include <xpp/endeffectors.h>
-
+#include <xpp/opt/bound.h>
 #include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
@@ -37,16 +38,39 @@ public:
   // zmp_ make these std::vectors?
   virtual VectorXd GetValues() const override;
   virtual void SetValues(const VectorXd&) override;
+  VecBound GetBounds () const override;
+  int GetPhaseCount() const { return durations_.size(); };
 
 private:
   void SetPhaseSequence (const FullPhaseVec& phases, EndeffectorID ee);
   bool GetContact(int phase) const;
 
   bool first_phase_in_contact_ = true;
-//  std::vector<double> t_phase_end_; ///< global time when the contact changes.
 
   mutable std::vector<double> durations_;
 };
+
+
+
+/** Makes sure all phase durations sum up to final specified motion duration.
+ */
+class DurationConstraint : public Primitive {
+public:
+  using SchedulePtr = std::shared_ptr<ContactSchedule>;
+
+  DurationConstraint(const OptVarsPtr& opt_vars, double T_total, int ee);
+  ~DurationConstraint();
+
+  VectorXd GetValues() const override;
+  VecBound GetBounds() const override;
+  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
+
+private:
+  SchedulePtr schedule_;
+  double T_total_;
+};
+
+
 
 
 } /* namespace opt */
