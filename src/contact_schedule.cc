@@ -15,12 +15,14 @@
 namespace xpp {
 namespace opt {
 
-ContactSchedule::ContactSchedule (EndeffectorID ee, const FullPhaseVec& phases)
+ContactSchedule::ContactSchedule (EndeffectorID ee,
+                                  double t_total,
+                                  const FullPhaseVec& phases)
    :Component(0, id::GetEEContactId(ee))
 {
+  t_total_ = t_total;
   SetPhaseSequence(phases, ee);
-
-  SetRows(durations_.size());
+  SetRows(durations_.size()-1); // since last duration results from total time and previous durations
 }
 
 ContactSchedule::~ContactSchedule ()
@@ -63,24 +65,23 @@ ContactSchedule::IsInContact (double t_global) const
 VectorXd
 ContactSchedule::GetValues () const
 {
-  return Eigen::Map<VectorXd>(durations_.data(), durations_.size());
+//  return VectorXd(GetRows());
+  return Eigen::Map<VectorXd>(durations_.data(), durations_.size()-1);
 }
 
 void
 ContactSchedule::SetValues (const VectorXd& x)
 {
   VectorXd::Map(&durations_[0], x.rows()) = x;
+  durations_.back() = t_total_ - x.sum();
 }
 
 VecBound
 ContactSchedule::GetBounds () const
 {
-  VecBound bounds;
-
-  for (auto T : durations_)
-    bounds.push_back(Bound(0.1, 1.0));
-
-  return bounds;
+  double t_min = 0.1; // [s]
+  double t_max = 1.0; // [s]
+  return VecBound(GetRows(), Bound(t_min, t_max));
 }
 
 bool
@@ -102,44 +103,44 @@ ContactSchedule::GetTimePerPhase () const
 
 
 
-DurationConstraint::DurationConstraint (const OptVarsPtr& opt_vars,
-                                        double T_total, int ee)
-{
-  SetName("DurationConstraint-" + std::to_string(ee));
-  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEContactId(ee)));
-  T_total_ = T_total;
-
-  AddOptimizationVariables(opt_vars);
-  SetRows(1);
-}
-
-DurationConstraint::~DurationConstraint ()
-{
-}
-
-VectorXd
-DurationConstraint::GetValues () const
-{
-  VectorXd g = VectorXd::Zero(GetRows());
-  for (double t_phase : schedule_->GetTimePerPhase())
-    g(0) += t_phase;
-
-  return g;
-}
-
-VecBound
-DurationConstraint::GetBounds () const
-{
-  return VecBound(GetRows(), Bound(T_total_, T_total_));
-}
-
-void
-DurationConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
-{
-  if (var_set == schedule_->GetName())
-    for (int col=0; col<schedule_->GetPhaseCount(); ++col)
-      jac.coeffRef(0, col) = 1.0;
-}
+//DurationConstraint::DurationConstraint (const OptVarsPtr& opt_vars,
+//                                        double T_total, int ee)
+//{
+//  SetName("DurationConstraint-" + std::to_string(ee));
+//  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEContactId(ee)));
+//  T_total_ = T_total;
+//
+//  AddOptimizationVariables(opt_vars);
+//  SetRows(1);
+//}
+//
+//DurationConstraint::~DurationConstraint ()
+//{
+//}
+//
+//VectorXd
+//DurationConstraint::GetValues () const
+//{
+//  VectorXd g = VectorXd::Zero(GetRows());
+//  for (double t_phase : schedule_->GetTimePerPhase())
+//    g(0) += t_phase;
+//
+//  return g;
+//}
+//
+//VecBound
+//DurationConstraint::GetBounds () const
+//{
+//  return VecBound(GetRows(), Bound(T_total_, T_total_));
+//}
+//
+//void
+//DurationConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
+//{
+//  if (var_set == schedule_->GetName())
+//    for (int col=0; col<schedule_->GetPhaseCount(); ++col)
+//      jac.coeffRef(0, col) = 1.0;
+//}
 
 
 

@@ -31,7 +31,7 @@ Component::SetRows (int num_rows)
 void
 Component::Print () const
 {
-  int print_rows = 7;
+  int print_rows = 10;
   std::string end_string = ", ...";
 
   if (num_rows_ < print_rows) {
@@ -46,7 +46,7 @@ Component::Print () const
   VectorXd val = GetValues().topRows(print_rows);
   std::cout << val(0);
   for (int i=1; i<val.rows(); ++i)
-    std::cout << ",   " << val(i);
+    std::cout << ",\t" << val(i);
 
   std::cout << end_string << std::endl;
 }

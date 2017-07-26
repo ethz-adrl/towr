@@ -23,18 +23,17 @@ NodeValues::~NodeValues () {}
 
 
 void
-NodeValues::Init (const Node& initial_value, const VecTimes& times,
+NodeValues::Init (const Node& initial_value, int n_polynomials,
                   const std::string& name)
 {
   SetName(name);
   n_dim_ = initial_value.at(kPos).rows();
 
   nodes_.push_back(initial_value);
-  for (double T : times) {
+  for (int i=0; i<n_polynomials; ++i) {
     auto p = std::make_shared<PolyType>(n_dim_);
     cubic_polys_.push_back(p);
     nodes_.push_back(initial_value);
-    timings_.push_back(T);
   }
 
   UpdatePolynomials();
@@ -100,9 +99,38 @@ NodeValues::UpdatePolynomials ()
   for (int i=0; i<cubic_polys_.size(); ++i) {
     cubic_polys_.at(i)->SetNodes(nodes_.at(GetNodeId(i,Side::Start)),
                                  nodes_.at(GetNodeId(i,Side::End)),
-                                 timings_.at(i));
+                                 GetTimes().at(i));
   }
 }
+
+
+bool
+NodeValues::DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const
+{
+  return poly_vars == GetName();
+}
+
+const StateLinXd
+NodeValues::GetPoint(double t_global) const
+{
+  // zmp_ look at this returning a pair
+  int id         = GetSegmentID(t_global, GetTimes());
+  double t_local = GetLocalTime(t_global, GetTimes());
+  return cubic_polys_.at(id)->GetPoint(t_local);
+}
+
+
+Jacobian
+NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
+{
+  int poly_id     = GetSegmentID(t_global, GetTimes());
+  double t_local  = GetLocalTime(t_global, GetTimes()); // these are both wrong when adding extra polynomial
+
+  return GetJacobian(poly_id, t_local, dxdt);
+}
+
+
+
 
 Jacobian
 NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) const
@@ -138,30 +166,18 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 
 
 
-PhaseNodes::PhaseNodes (const Node& initial_value, const VecTimes& phase_times,
-                        const std::string& name, bool is_first_phase_constant,
+PhaseNodes::PhaseNodes (const Node& initial_value,
+                        const SchedulePtr& contact_schedule,
+                        const std::string& name,
+                        bool is_first_phase_constant,
                         int n_polys_in_changing_phase)
 {
+  contact_schedule_          = contact_schedule;
+  is_first_phase_constant_   = is_first_phase_constant;
+  n_polys_in_changing_phase_ = n_polys_in_changing_phase;
+  UpdateTimes();
 
-  VecTimes poly_times;
-
-
-  bool is_constant_phase = is_first_phase_constant;
-  for (double T : phase_times) {
-
-    if (is_constant_phase)
-      poly_times.push_back(T);
-    else
-      for (int i=0; i<n_polys_in_changing_phase; ++i)
-        poly_times.push_back(T/n_polys_in_changing_phase);
-
-    is_constant_phase = !is_constant_phase;
-  }
-
-
-  Init(initial_value, poly_times, name);
-
-
+  Init(initial_value, times_.size(), name);
 
 
 
@@ -189,7 +205,23 @@ PhaseNodes::~PhaseNodes ()
 {
 }
 
+void
+PhaseNodes::UpdateTimes() const
+{
+  times_.clear();
 
+  bool is_constant_phase = is_first_phase_constant_;
+  for (double T : contact_schedule_->GetTimePerPhase()) {
+
+    if (is_constant_phase)
+      times_.push_back(T);
+    else
+      for (int i=0; i<n_polys_in_changing_phase_; ++i)
+        times_.push_back(T/n_polys_in_changing_phase_);
+
+    is_constant_phase = !is_constant_phase;
+  }
+}
 
 
 
@@ -201,10 +233,10 @@ PhaseNodes::~PhaseNodes ()
 
 
 EEMotionNodes::EEMotionNodes (const Node& initial_value,
-                              const VecTimes& times,
+                              const SchedulePtr& contact_schedule,
                               int splines_per_swing_phase,
                               int ee)
-    :PhaseNodes(initial_value, times, id::GetEEId(ee), true, splines_per_swing_phase)
+    :PhaseNodes(initial_value, contact_schedule, id::GetEEId(ee), true, splines_per_swing_phase)
 {
 }
 
@@ -243,10 +275,10 @@ EEMotionNodes::GetBounds () const
 
 
 EEForcesNodes::EEForcesNodes (const Node& initial_force,
-                              const VecTimes& times,
+                              const SchedulePtr& contact_schedule,
                               int splines_per_stance_phase,
                               int ee)
-    :PhaseNodes(initial_force, times, id::GetEEForceId(ee), false, splines_per_stance_phase)
+    :PhaseNodes(initial_force, contact_schedule, id::GetEEForceId(ee), false, splines_per_stance_phase)
 {
 }
 

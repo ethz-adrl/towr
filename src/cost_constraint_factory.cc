@@ -123,8 +123,8 @@ CostConstraintFactory::MakeStateConstraint () const
 
 
 
-    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
-    constraints->AddComponent(duration_constraint);
+//    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
+//    constraints->AddComponent(duration_constraint);
   }
 
   return constraints;

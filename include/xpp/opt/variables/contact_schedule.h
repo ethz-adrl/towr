@@ -28,7 +28,7 @@ public:
   using Phase        = std::pair<bool, double>; // contact state and duration
   using PhaseVec     = std::vector<Phase>;
 
-  ContactSchedule (EndeffectorID ee, const FullPhaseVec& phases);
+  ContactSchedule (EndeffectorID ee, double t_total, const FullPhaseVec& phases);
   virtual ~ContactSchedule ();
 
   bool IsInContact(double t_global) const;
@@ -46,29 +46,30 @@ private:
   bool GetContact(int phase) const;
 
   bool first_phase_in_contact_ = true;
+  double t_total_;
 
   mutable std::vector<double> durations_;
 };
 
 
 
-/** Makes sure all phase durations sum up to final specified motion duration.
- */
-class DurationConstraint : public Primitive {
-public:
-  using SchedulePtr = std::shared_ptr<ContactSchedule>;
-
-  DurationConstraint(const OptVarsPtr& opt_vars, double T_total, int ee);
-  ~DurationConstraint();
-
-  VectorXd GetValues() const override;
-  VecBound GetBounds() const override;
-  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
-
-private:
-  SchedulePtr schedule_;
-  double T_total_;
-};
+///** Makes sure all phase durations sum up to final specified motion duration.
+// */
+//class DurationConstraint : public Primitive {
+//public:
+//  using SchedulePtr = std::shared_ptr<ContactSchedule>;
+//
+//  DurationConstraint(const OptVarsPtr& opt_vars, double T_total, int ee);
+//  ~DurationConstraint();
+//
+//  VectorXd GetValues() const override;
+//  VecBound GetBounds() const override;
+//  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
+//
+//private:
+//  SchedulePtr schedule_;
+//  double T_total_;
+//};
 
 
 

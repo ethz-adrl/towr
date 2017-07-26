@@ -8,13 +8,18 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_NODE_VALUES_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_NODE_VALUES_H_
 
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include <xpp/cartesian_declarations.h>
+#include <xpp/opt/bound.h>
 #include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/polynomial.h>
+#include <xpp/state.h>
 
+#include "contact_schedule.h"
 #include "spline.h"
 
 namespace xpp {
@@ -34,6 +39,8 @@ public:
   using VecPoly  = std::vector<std::shared_ptr<PolyType>>;
 
 
+
+
   struct NodeInfo {
     int id_;
     MotionDerivative deriv_;
@@ -44,7 +51,7 @@ public:
   NodeValues ();
   virtual ~NodeValues ();
 
-  void Init(const Node& initial_value, const VecTimes& times, const std::string& name);
+  void Init(const Node& initial_value, int n_polynomials, const std::string& name);
 
 
   VectorXd GetValues () const override;
@@ -52,32 +59,9 @@ public:
 
 
 
-
-
-
-  virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override
-  {
-    return poly_vars == GetName();
-  }
-
-  virtual const StateLinXd GetPoint(double t_global) const override
-  {
-    int id         = GetSegmentID(t_global, timings_);
-    double t_local = GetLocalTime(t_global, timings_);
-    return cubic_polys_.at(id)->GetPoint(t_local);
-  }
-
-
-  virtual Jacobian GetJacobian (double t_global,  MotionDerivative dxdt) const override
-  {
-    int poly_id     = GetSegmentID(t_global, timings_);
-    double t_local  = GetLocalTime(t_global, timings_); // these are both wrong when adding extra polynomial
-
-    return GetJacobian(poly_id, t_local, dxdt);
-  }
-
-
-
+  virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
+  virtual const StateLinXd GetPoint(double t_global) const override;
+  virtual Jacobian GetJacobian (double t_global,  MotionDerivative dxdt) const override;
 
 
 protected:
@@ -88,33 +72,54 @@ protected:
   using OptNodeIs = int;
   using NodeIds   = std::vector<int>;
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
+//  VecTimes timings_; // zmp_ for now constant
 
 private:
-
   Jacobian GetJacobian(int poly_id, double t_local, MotionDerivative dxdt) const;
   void UpdatePolynomials();
   int GetNodeId(int poly_id, Side) const;
 
-  VecTimes timings_; // zmp_ for now constant
+  virtual VecTimes GetTimes() const = 0;
+
+
   VecPoly cubic_polys_;
 };
 
 class PhaseNodes : public NodeValues {
 public:
+  using SchedulePtr = std::shared_ptr<ContactSchedule>;
+
   PhaseNodes (const Node& initial_value,
-              const VecTimes& phase_times,
+              const SchedulePtr& contact_schedule,
               const std::string& name,
               bool is_first_phase_constant,
               int n_polys_in_changing_phase);
   ~PhaseNodes();
+
+private:
+  virtual VecTimes GetTimes() const override
+  {
+//    UpdateTimes();
+    return times_;
+  };
+
+  void UpdateTimes() const;
+  mutable VecTimes times_;
+
+  SchedulePtr contact_schedule_;
+
+  bool is_first_phase_constant_;
+  int n_polys_in_changing_phase_;
 };
 
 
 
 class EEMotionNodes : public PhaseNodes {
 public:
-  EEMotionNodes (const Node& initial_position, const VecTimes& phase_times,
-                 int splines_per_swing_phase, int ee_id);
+  EEMotionNodes (const Node& initial_position,
+                 const SchedulePtr& contact_schedule,
+                 int splines_per_swing_phase,
+                 int ee_id);
   ~EEMotionNodes();
   VecBound GetBounds () const override;
 };
@@ -122,8 +127,10 @@ public:
 
 class EEForcesNodes : public PhaseNodes {
 public:
-  EEForcesNodes (const Node& initial_force, const VecTimes& phase_times,
-                 int splines_per_stance_phase, int ee_id);
+  EEForcesNodes (const Node& initial_force,
+                 const SchedulePtr& contact_schedule,
+                 int splines_per_stance_phase,
+                 int ee_id);
   ~EEForcesNodes();
   VecBound GetBounds () const override;
 };
