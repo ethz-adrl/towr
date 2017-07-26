@@ -65,22 +65,33 @@ ContactSchedule::IsInContact (double t_global) const
 VectorXd
 ContactSchedule::GetValues () const
 {
-//  return VectorXd(GetRows());
-  return Eigen::Map<VectorXd>(durations_.data(), durations_.size()-1);
+  VectorXd x = Eigen::Map<VectorXd>(durations_.data(), GetRows());
+
+//  std::cout << "x: " << x.transpose() << std::endl;
+  return x;
 }
 
 void
 ContactSchedule::SetValues (const VectorXd& x)
 {
   VectorXd::Map(&durations_[0], x.rows()) = x;
-  durations_.back() = t_total_ - x.sum();
+  double t_last = t_total_ - x.sum();
+  durations_.back() = t_last;
+
+//  std::cout << "x.rows(): " << x.rows() << std::endl;
+//  std::cout << "x.sum(): " << x.sum() << std::endl;
+//  std::cout << "t_last: " << t_last << std::endl;
+//
+//  std::cout << "durations: " << std::endl;
+//  for (double d : durations_)
+//    std::cout << d << std::endl;
 }
 
 VecBound
 ContactSchedule::GetBounds () const
 {
   double t_min = 0.1; // [s]
-  double t_max = 1.0; // [s]
+  double t_max = t_total_/durations_.size(); // [s] // zmp_ this is a huge constraint and should be fixed
   return VecBound(GetRows(), Bound(t_min, t_max));
 }
 

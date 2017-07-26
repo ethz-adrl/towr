@@ -16,25 +16,25 @@ namespace id {
 
 static const std::string base_linear         = "base_lin_";
 static const std::string base_angular        = "base_ang_";
-static const std::string endeffectors_motion = "ee_motion";
-static const std::string contact_schedule    = "ee_schedule";
-static const std::string endeffector_force   = "ee_force";
+static const std::string endeffectors_motion = "ee_motion_";
+static const std::string contact_schedule    = "ee_schedule_";
+static const std::string endeffector_force   = "ee_force_";
 
 
 
 static std::string GetEEId(int ee)
 {
-  return  endeffectors_motion + std::to_string(ee) + "_";
+  return  endeffectors_motion + std::to_string(ee);
 }
 
 static std::string GetEEForceId(int ee)
 {
-  return  endeffector_force + std::to_string(ee) + "_";
+  return  endeffector_force + std::to_string(ee);
 }
 
 static std::string GetEEContactId(int ee)
 {
-  return  contact_schedule + std::to_string(ee) + "_";
+  return  contact_schedule + std::to_string(ee);
 }
 
 } // namespace id

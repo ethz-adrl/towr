@@ -113,13 +113,13 @@ CostConstraintFactory::MakeStateConstraint () const
     auto c = std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, t,
                                                      VectorXd(initial_ee_W_.At(ee)),
                                                      deriv_ee);
-    constraints->AddComponent(c);
+//    constraints->AddComponent(c);
 
     // final endeffectors constraints
     Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
     EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
     VectorXd ee_pos_W = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
-    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, T, ee_pos_W, deriv_ee));
+//    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, T, ee_pos_W, deriv_ee));
 
 
 

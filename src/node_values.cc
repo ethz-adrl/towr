@@ -181,6 +181,13 @@ PhaseNodes::PhaseNodes (const Node& initial_value,
 
 
 
+  // zmp_ remove this
+  std::cout << GetName() << std::endl;
+  for (double d : times_) {
+    std::cout << d << std::endl;
+  }
+
+
   int first_constant_node_in_cycle = (!is_first_phase_constant)*n_polys_in_changing_phase;
 
   int opt_id = 0;
