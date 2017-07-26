@@ -168,7 +168,6 @@ CostConstraintFactory::MakeDynamicConstraint() const
                                                          params->GetInertiaParameters(),
                                                          params->GetEECount());
 
-  // zmp_ make this an absolut number
   double dt = params->dt_dynamic_constraint_;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         dynamic_model,

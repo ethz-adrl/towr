@@ -49,15 +49,9 @@ public:
 
   virtual ~NodeValues ();
 
-  /**
-   * ordered (x0,  y0,  z0,
-   *          xd0, yd0, zd0,
-   *          x1,  y1,  z1,
-   *          xd1, yd1, zd1,...
-   */
+
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& x) override;
-
 
   Jacobian GetJacobian(int poly_id, double t_local, MotionDerivative dxdt) const;
   VecPoly GetCubicPolys() const { return cubic_polys_; };
@@ -74,13 +68,11 @@ protected:
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
 
 private:
-
   void UpdatePolynomials();
   int GetNodeId(int poly_id, Side) const;
 
   VecTimes timings_; // zmp_ for now constant
   VecPoly cubic_polys_;
-
 };
 
 class PhaseNodes : public NodeValues {
