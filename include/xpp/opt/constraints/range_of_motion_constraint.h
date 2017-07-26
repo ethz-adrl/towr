@@ -16,6 +16,8 @@
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/bound.h>
 #include <xpp/opt/motion_parameters.h>
+#include <xpp/opt/variables/contact_schedule.h>
+#include <xpp/opt/variables/node_values.h>
 #include <xpp/state.h>
 
 #include "composite.h"
@@ -41,6 +43,8 @@ public:
   using VecTimes        = std::vector<double>;
   using MotionParamsPtr = std::shared_ptr<MotionParameters>;
   using SplineT         = std::shared_ptr<Spline>;
+  using EEMotionPtr     = std::shared_ptr<NodeValues>; // zmp_ make normal spline again
+  using SchedulePtr     = std::shared_ptr<ContactSchedule>;
 
   RangeOfMotionBox(const OptVarsPtr& opt_vars,
                    const MotionParamsPtr& params,
@@ -56,7 +60,8 @@ private:
 
   SplineT base_linear_;
   SplineT base_angular_;
-  SplineT ee_spline_;
+  EEMotionPtr ee_spline_;
+  SchedulePtr ee_timings_;
 
   Vector3d max_deviation_from_nominal_;
   Vector3d nominal_ee_pos_B;

@@ -173,7 +173,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   int n_ee = motion_parameters_->GetEECount();
   for (int ee=0; ee<n_ee; ++ee) {
 
-    auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_variables_->GetComponent(id::GetEEContactId(ee)));
+    auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_variables_->GetComponent(id::GetEEScheduleId(ee)));
     contact_schedules.push_back(contact_schedule);
 
     auto ee_spline = Spline::BuildSpline(opt_variables_, id::GetEEId(ee), {});

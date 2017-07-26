@@ -41,6 +41,8 @@ public:
   VecBound GetBounds () const override;
   int GetPhaseCount() const { return durations_.size(); };
 
+  Jacobian GetJacobianOfPos(VectorXd pos_deriv_xyz, double t_global) const;
+
 private:
   void SetPhaseSequence (const FullPhaseVec& phases, EndeffectorID ee);
   bool GetContact(int phase) const;

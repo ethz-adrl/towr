@@ -32,7 +32,9 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
 
   base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear,  base_poly_durations);
   base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
-  ee_spline_    = Spline::BuildSpline(opt_vars, id::GetEEId(ee), {});
+  // zmp_ hide node value implementation detail again, remove cast
+  ee_spline_    = std::dynamic_pointer_cast<NodeValues>(Spline::BuildSpline(opt_vars, id::GetEEId(ee), {}));
+  ee_timings_   = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
 
   SetRows(GetNumberOfNodes()*kDim3d);
   converter_ = AngularStateConverter(base_angular_);
@@ -79,6 +81,12 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
 
   if (ee_spline_->DoVarAffectCurrentState(var_set,t)) {
     jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_->GetJacobian(t,kPos);
+  }
+
+  // spring_clean_ first use of time values in derivatives, this is the goal!
+  if (var_set == ee_timings_->GetName()) {
+    VectorXd deriv = ee_spline_->GetDerivativeOfPosWrtTime(t);
+    jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(deriv, t);
   }
 
   if (base_linear_->DoVarAffectCurrentState(var_set,t)) {

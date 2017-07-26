@@ -58,7 +58,10 @@ public:
    */
   virtual bool DoVarAffectCurrentState(const std::string& poly_vars,
                                        double t_current) const = 0;
+
   virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
+
+
 };
 
 

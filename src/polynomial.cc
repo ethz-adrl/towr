@@ -152,6 +152,8 @@ CubicHermitePoly::SetNodes (const Node& n0, const Node& n1, double T)
   coeff_[D] =  ( 2*(n0.at(kPos) - n1.at(kPos)) +  T*(  n0.at(kVel) + n1.at(kVel)) ) / std::pow(T,3);
 
   T_ = T;
+  n0_ = n0;
+  n1_ = n1;
 }
 
 
@@ -257,14 +259,12 @@ CubicHermitePoly::GetDerivativeOfAccWrt (Side side, MotionDerivative node_value,
 
 
 VectorXd
-CubicHermitePoly::GetDerivativeOfPosWrtDuration(const Node& n0,
-                                                const Node& n1,
-                                                double t) const
+CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
 {
-  VectorXd p0 = n0.at(kPos);
-  VectorXd v0 = n0.at(kVel);
-  VectorXd p1 = n1.at(kPos);
-  VectorXd v1 = n1.at(kVel);
+  VectorXd p0 = n0_.at(kPos);
+  VectorXd v0 = n0_.at(kVel);
+  VectorXd p1 = n1_.at(kPos);
+  VectorXd v1 = n1_.at(kVel);
 
   double t2 = std::pow(t,2);
   double t3 = std::pow(t,3);

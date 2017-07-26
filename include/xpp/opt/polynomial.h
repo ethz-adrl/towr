@@ -95,12 +95,11 @@ public:
   double GetDerivativeOfVelWrt(Side, MotionDerivative node_value, double t_local) const;
   double GetDerivativeOfAccWrt(Side, MotionDerivative node_value, double t_local) const;
 
-  VectorXd GetDerivativeOfPosWrtDuration(const Node& n0,
-                                         const Node& n1,
-                                         double t_local) const;
+  VectorXd GetDerivativeOfPosWrtDuration(double t_local_local) const;
 
 private:
   double T_;
+  Node n0_, n1_;
 };
 
 

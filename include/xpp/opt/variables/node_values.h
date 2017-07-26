@@ -64,6 +64,9 @@ public:
   virtual Jacobian GetJacobian (double t_global,  MotionDerivative dxdt) const override;
 
 
+
+  VectorXd GetDerivativeOfPosWrtTime(double t_global) const;
+
 protected:
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
   std::vector<Node> nodes_;
@@ -72,9 +75,9 @@ protected:
   using OptNodeIs = int;
   using NodeIds   = std::vector<int>;
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
-//  VecTimes timings_; // zmp_ for now constant
 
 private:
+  VecPoly cubic_polys_;
   Jacobian GetJacobian(int poly_id, double t_local, MotionDerivative dxdt) const;
   void UpdatePolynomials();
   int GetNodeId(int poly_id, Side) const;
@@ -82,7 +85,6 @@ private:
   virtual VecTimes GetTimes() const = 0;
 
 
-  VecPoly cubic_polys_;
 };
 
 class PhaseNodes : public NodeValues {
@@ -99,12 +101,15 @@ public:
 private:
   virtual VecTimes GetTimes() const override
   {
-//    UpdateTimes();
+    UpdateTimes(); // spring_clean_ causes duration updated polynomials to be used
     return times_;
   };
 
   void UpdateTimes() const;
   mutable VecTimes times_;
+
+
+//  virtual Jacobian GetJacobianOfPosWrtTime(double t_global) const;
 
   SchedulePtr contact_schedule_;
 

@@ -18,7 +18,7 @@ namespace opt {
 ContactSchedule::ContactSchedule (EndeffectorID ee,
                                   double t_total,
                                   const FullPhaseVec& phases)
-   :Component(0, id::GetEEContactId(ee))
+   :Component(0, id::GetEEScheduleId(ee))
 {
   t_total_ = t_total;
   SetPhaseSequence(phases, ee);
@@ -65,10 +65,7 @@ ContactSchedule::IsInContact (double t_global) const
 VectorXd
 ContactSchedule::GetValues () const
 {
-  VectorXd x = Eigen::Map<VectorXd>(durations_.data(), GetRows());
-
-//  std::cout << "x: " << x.transpose() << std::endl;
-  return x;
+  return Eigen::Map<VectorXd>(durations_.data(), GetRows());
 }
 
 void
@@ -77,21 +74,14 @@ ContactSchedule::SetValues (const VectorXd& x)
   VectorXd::Map(&durations_[0], x.rows()) = x;
   double t_last = t_total_ - x.sum();
   durations_.back() = t_last;
-
-//  std::cout << "x.rows(): " << x.rows() << std::endl;
-//  std::cout << "x.sum(): " << x.sum() << std::endl;
-//  std::cout << "t_last: " << t_last << std::endl;
-//
-//  std::cout << "durations: " << std::endl;
-//  for (double d : durations_)
-//    std::cout << d << std::endl;
 }
 
 VecBound
 ContactSchedule::GetBounds () const
 {
+  // spring_clean_ these bounds are very restrictive and should be fixed
   double t_min = 0.1; // [s]
-  double t_max = t_total_/durations_.size(); // [s] // zmp_ this is a huge constraint and should be fixed
+  double t_max = t_total_/durations_.size(); // [s]
   return VecBound(GetRows(), Bound(t_min, t_max));
 }
 
@@ -109,6 +99,24 @@ std::vector<double>
 ContactSchedule::GetTimePerPhase () const
 {
   return durations_;
+}
+
+Jacobian
+ContactSchedule::GetJacobianOfPos (VectorXd deriv, double t_global) const
+{
+  // spring_clean_ adapt for derivative of last polynomial
+  // which depends on all the others trough T - (t0+t1..+tn-1)
+
+
+  int n_dim = deriv.rows();
+  Jacobian jac(n_dim, GetRows());
+
+  int phase = Spline::GetSegmentID(t_global, durations_);
+
+  for (int dim=0; dim<n_dim; ++dim)
+    jac.coeffRef(dim, phase) = deriv(dim);
+
+  return jac;
 }
 
 

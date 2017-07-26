@@ -154,11 +154,27 @@ NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) con
   return jac;
 }
 
+
 int
 NodeValues::GetNodeId (int poly_id, Side side) const
 {
   return poly_id + side;
 }
+
+
+
+
+
+
+VectorXd
+NodeValues::GetDerivativeOfPosWrtTime (double t_global) const
+{
+  int id         = GetSegmentID(t_global, GetTimes());
+  double t_local = GetLocalTime(t_global, GetTimes());
+  return cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local);
+}
+
+
 
 
 
@@ -178,15 +194,6 @@ PhaseNodes::PhaseNodes (const Node& initial_value,
   UpdateTimes();
 
   Init(initial_value, times_.size(), name);
-
-
-
-  // zmp_ remove this
-  std::cout << GetName() << std::endl;
-  for (double d : times_) {
-    std::cout << d << std::endl;
-  }
-
 
   int first_constant_node_in_cycle = (!is_first_phase_constant)*n_polys_in_changing_phase;
 

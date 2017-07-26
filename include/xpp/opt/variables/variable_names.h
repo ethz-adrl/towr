@@ -32,7 +32,7 @@ static std::string GetEEForceId(int ee)
   return  endeffector_force + std::to_string(ee);
 }
 
-static std::string GetEEContactId(int ee)
+static std::string GetEEScheduleId(int ee)
 {
   return  contact_schedule + std::to_string(ee);
 }
