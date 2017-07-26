@@ -8,13 +8,14 @@
 #include <xpp/opt/constraints/dynamic_constraint.h>
 
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <vector>
 
 #include <xpp/endeffectors.h>
-#include <xpp/state.h>
-
+#include <xpp/opt/bound.h>
+#include <xpp/opt/variables/node_values.h>
 #include <xpp/opt/variables/variable_names.h>
-#include <xpp/opt/variables/contact_schedule.h>
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {
@@ -28,16 +29,13 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
 {
   model_ = m;
 
-  auto contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::contact_schedule));
-
   SetName("DynamicConstraint");
   base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear,  base_poly_durations);
   base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
 
   for (auto ee : model_->GetEEIDs()) {
-    auto duration = contact_schedule_->GetTimePerPhase(ee);
-    ee_splines_.push_back(Spline::BuildSpline(opt_vars, id::GetEEId(ee), duration));
-    ee_forces_.push_back(Spline::BuildSpline(opt_vars, id::GetEEForceId(ee), duration));
+    ee_splines_.push_back(std::make_shared<HermiteSpline>(opt_vars, id::GetEEId(ee)));
+    ee_forces_.push_back(std::make_shared<HermiteSpline>(opt_vars, id::GetEEForceId(ee)));
   }
 
   SetRows(GetNumberOfNodes()*kDim6d);

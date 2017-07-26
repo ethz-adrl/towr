@@ -21,7 +21,6 @@ namespace xpp {
 namespace opt {
 
 class Component;
-class ContactSchedule;
 
 /** Builds all types of constraints/costs for the user.
   *
@@ -58,7 +57,6 @@ private:
   State3dEuler initial_base_;
   State3dEuler final_base_;
 
-  std::shared_ptr<ContactSchedule> contact_schedule_;
 
   // constraints
   ConstraintPtr MakeStateConstraint() const;

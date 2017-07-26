@@ -51,9 +51,6 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
   initial_ee_W_ = ee_pos;
   initial_base_ = initial_base;
   final_base_ = final_base;
-
-  contact_schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars_->GetComponent(id::contact_schedule));
-
 }
 
 CostConstraintFactory::ConstraintPtr
@@ -108,11 +105,9 @@ CostConstraintFactory::MakeStateConstraint () const
 
 
   // endeffector constraints
-  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_vars_->GetComponent(id::contact_schedule));
   for (auto ee : params->robot_ee_) {
 
-    auto durations_ee = contact_schedule->GetTimePerPhase(ee);
-    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), durations_ee);
+    auto spline_ee = std::make_shared<HermiteSpline>(opt_vars_, id::GetEEId(ee));
 
     // initial endeffectors constraints
     auto deriv_ee = {kPos}; // velocity and acceleration not yet implemented
@@ -186,7 +181,6 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
   for (auto ee : params->robot_ee_) {
     auto c = std::make_shared<RangeOfMotionBox>(opt_vars_,
                                                 params,
-                                                contact_schedule_->GetTimePerPhase(ee),
                                                 ee);
 
     rom_constraints->AddComponent(c);

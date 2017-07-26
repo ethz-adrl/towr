@@ -44,7 +44,6 @@ public:
 
   RangeOfMotionBox(const OptVarsPtr& opt_vars,
                    const MotionParamsPtr& params,
-                   const VecTimes& ee_poly_durations,
                    const EndeffectorID& ee);
   virtual ~RangeOfMotionBox();
 

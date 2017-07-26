@@ -32,6 +32,11 @@ static std::string GetEEForceId(int ee)
   return  endeffector_force + std::to_string(ee) + "_";
 }
 
+static std::string GetEEContactId(int ee)
+{
+  return  contact_schedule + std::to_string(ee) + "_";
+}
+
 } // namespace id
 } // namespace opt
 } // namespace xpp
