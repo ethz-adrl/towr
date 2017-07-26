@@ -61,12 +61,10 @@ MotionOptimizerFacade::BuildVariables ()
   opt_variables_->ClearComponents();
 
   // initialize the contact schedule
-  auto contact_schedule = std::make_shared<ContactSchedule>(
-      motion_parameters_->GetContactSchedule());
+  auto contact_schedule = std::make_shared<ContactSchedule>(motion_parameters_->GetContactSchedule());
   opt_variables_->AddComponent(contact_schedule);
 
   int n_dim = inital_base_.lin.kNumDim;
-
 
   for (auto ee : motion_parameters_->robot_ee_) {
 
@@ -74,73 +72,23 @@ MotionOptimizerFacade::BuildVariables ()
 //    auto ee_timings = std::make_shared<ContactTimings>(ee, contact_schedule->GetTimePerPhase(ee));
 //    opt_variables_->AddComponent(ee_timings);
     auto timings = contact_schedule->GetTimePerPhase(ee);
-    bool ee_initially_in_contact = contact_schedule->GetPhases(ee).front().first;
-    int n_phases = timings.size();
-
-    // use two polynomials for each endeffector phase
-    int n_polys_per_phase = 2;
-    std::vector<double> timings2;
-    for (double t : timings)
-      for (int i=0; i<n_polys_per_phase; ++i)
-        timings2.push_back(t/n_polys_per_phase);
-
-
-
-    // EE_MOTION
-//    std::string id_motion = id::endeffectors_motion+std::to_string(ee);
-
-    std::string id_force  = id::endeffector_force+std::to_string(ee);
-    double fz_stand = motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount();
-    int order_poly = 4;
-
-    for (int i=0; i<n_phases; ++i) {
-
-
-
-//      // traditional spline
-//      auto p_motion = std::make_shared<Polynomial>(order_poly, n_dim);
-//      p_motion->SetConstantPos(initial_ee_W_.At(ee));
-//      opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::GetEEId(ee)+std::to_string(i), p_motion));
-
-
-//      auto p_force = std::make_shared<Polynomial>(order_poly, n_dim, id_force + std::to_string(i));
-//      p_force->SetCoefficients(Polynomial::A, Vector3d(0.0, 0.0, fz_stand));
-//      opt_variables_->AddComponent(p_force);
-    }
 
 
     // cubic spline for ee_motion
-    NodeValues::Node n;
-    n.at(kPos) = initial_ee_W_.At(ee);
-    n.at(kVel) = Vector3d::Zero();
-    auto node_values = std::make_shared<NodeValues>(true, n, timings, id::GetEEId(ee));
-    opt_variables_->AddComponent(node_values);
+    NodeValues::Node intial_pos;
+    intial_pos.at(kPos) = initial_ee_W_.At(ee);
+    intial_pos.at(kVel) = Vector3d::Zero();
+    auto nodes_motion = std::make_shared<EEMotionNodes>(intial_pos, timings, motion_parameters_->ee_splines_per_swing_phase_, ee);
+    opt_variables_->AddComponent(nodes_motion);
 
 
-//    // cubic spline for ee_forces
-//    NodeValues::Node n;
-//    n.at(kPos) = initial_ee_W_.At(ee);
-//    n.at(kVel) = Vector3d::Zero();
-//    auto node_values = std::make_shared<NodeValues>(false, n, timings, id::GetEEId(ee));
-//    opt_variables_->AddComponent(node_values);
-
-
-
-
-//    ee_poly->Init(n_phases*polys_per_duration, order_poly,initial_ee_W_.At(ee));
-//    ee_poly->SetPhaseDurations(timings, polys_per_duration);
-//    opt_variables_->AddComponent(ee_poly);
-
-
-//    // EE_FORCES
-//    auto ee_force = std::make_shared<ForceSpline>(id::GetEEForce(ee),
-//                                                  ee_initially_in_contact,
-//                                                  motion_parameters_->GetForceLimit());
-//    double fz_stand = motion_parameters_->GetMass()*kGravity/motion_parameters_->GetEECount();
-//    ee_force->Init(n_phases*motion_parameters_->polys_per_force_phase_, 3, Vector3d(0.0, 0.0, fz_stand));
-//    ee_force->SetPhaseDurations(timings, motion_parameters_->polys_per_force_phase_);
-//    opt_variables_->AddComponent(ee_force);
-
+    // cubic spline for ee_forces
+    NodeValues::Node intial_force;
+    intial_force.at(kPos) = Vector3d::Zero();
+    intial_force.at(kPos).z() = motion_parameters_->GetAvgZForce();
+    intial_force.at(kVel) = Vector3d::Zero();
+    auto nodes_forces = std::make_shared<EEForcesNodes>(intial_force, timings, motion_parameters_->force_splines_per_stance_phase_, ee);
+    opt_variables_->AddComponent(nodes_forces);
   }
 
 
@@ -150,20 +98,23 @@ MotionOptimizerFacade::BuildVariables ()
 //  NodeValues::Node n;
 //  n.at(kPos) = inital_base_.lin.p_;
 //  n.at(kVel) = Vector3d::Zero();
-//  auto spline_lin = std::make_shared<NodeValues>(n, base_spline_timings_, id::base_linear);
+//  auto spline_lin = std::make_shared<NodeValues>();
+//  spline_lin->Init(n, base_spline_timings_, id::base_linear);
 //  opt_variables_->AddComponent(spline_lin);
 //
 //  n.at(kPos) = inital_base_.ang.p_;
-//  auto spline_ang = std::make_shared<NodeValues>(n, base_spline_timings_, id::base_angular);
+//  auto spline_ang = std::make_shared<NodeValues>();
+//  spline_ang->Init(n, base_spline_timings_, id::base_angular);
 //  opt_variables_->AddComponent(spline_ang);
 
 
+  int order = 4;
   for (int i=0; i<base_spline_timings_.size(); ++i) {
-    auto p_lin = std::make_shared<Polynomial>(4, n_dim);
+    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
     p_lin->SetConstantPos(inital_base_.lin.p_);
     opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
 
-    auto p_ang = std::make_shared<Polynomial>(4, n_dim);
+    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
     p_ang->SetConstantPos(inital_base_.ang.p_);
     opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
   }
@@ -213,15 +164,12 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 
   auto base_lin = Spline::BuildSpline(opt_variables_, id::base_linear, motion_parameters_->GetBasePolyDurations());
   auto base_ang = Spline::BuildSpline(opt_variables_, id::base_angular, motion_parameters_->GetBasePolyDurations());
-
-//  auto base_lin         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_linear));
-//  auto base_ang         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_angular));
   auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent(id::contact_schedule));
 
 
   using SplineT = std::shared_ptr<Spline>;
   std::vector<SplineT> ee_splines;
-  std::vector<SplineT> ee_forces_spline; // zmp_ add forces again
+  std::vector<SplineT> ee_forces_spline;
   int n_ee = motion_parameters_->GetEECount();
   for (int i=0; i<n_ee; ++i) {
 //    std::string id_motion = id::endeffectors_motion+std::to_string(i);
@@ -229,8 +177,8 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     auto ee_spline = Spline::BuildSpline(opt_variables_, id::GetEEId(i), durations);
     ee_splines.push_back(ee_spline);
 
-//    auto force_spline = PolynomialSpline::BuildSpline(opt_variables_, id::GetEEForceId(i), contact_schedule->GetTimePerPhase(static_cast<EndeffectorID>(i)));
-//    ee_forces_spline.push_back(force_spline);
+    auto force_spline = Spline::BuildSpline(opt_variables_, id::GetEEForceId(i), durations);
+    ee_forces_spline.push_back(force_spline);
   }
 
 
@@ -251,7 +199,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     Endeffectors<Vector3d> ee_force_array(n_ee);
     for (auto ee : state.GetEndeffectors()) {
       ee_state.At(ee)       = ee_splines.at(ee)->GetPoint(t);
-//      ee_force_array.At(ee) = ee_forces_spline.at(ee)->GetPoint(t).p_;
+      ee_force_array.At(ee) = ee_forces_spline.at(ee)->GetPoint(t).p_;
     }
 
     state.SetEEStateInWorld(ee_state);

@@ -73,6 +73,12 @@ MotionParameters::GetBasePolyDurations () const
   return base_spline_timings_;
 }
 
+double
+MotionParameters::GetAvgZForce () const
+{
+  return GetMass()*kGravity/GetEECount();
+}
+
 } // namespace opt
 } // namespace xpp
 

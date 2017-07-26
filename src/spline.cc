@@ -24,15 +24,18 @@ Spline::BuildSpline (const OptVarsPtr& opt_vars,
 {
   Ptr spline;
 
-  std::string s = id::endeffectors_motion;
-  if (name.substr(0, s.size()) == s) // string starts with s
+  std::string s1 = id::endeffectors_motion;
+  std::string s2 = id::endeffector_force;
+  if (name.substr(0, s1.size()) == s1) // string starts with s
+    spline = std::make_shared<HermiteSpline>(opt_vars, name);
+  else if (name.substr(0, s2.size()) == s2) // string starts with s
     spline = std::make_shared<HermiteSpline>(opt_vars, name);
   else if (name == id::base_linear)
     spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
   else if (name == id::base_angular)
     spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
   else
-    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
+    assert(false); // this shouldn't happen
 
   return spline;
 }
@@ -91,87 +94,6 @@ Spline::GetPoint(double t_global) const
   double t_local = GetLocalTime(t_global);
   return GetActivePolynomial(t_global)->GetPoint(t_local);
 }
-
-
-//VecBound
-//EndeffectorSpline::GetBounds () const
-//{
-//  VecBound bounds(GetRows());
-//  std::fill(bounds.begin(), bounds.end(), kNoBound_);
-//
-//  bool is_contact = first_phase_in_contact_;
-//
-//  int i = 0;
-//  for (const auto& p : GetPolynomials()) {
-//    for (int dim=0; dim<GetNDim(); ++dim)
-//      for (auto coeff : p.GetCoeffIds()) {
-//
-//        if(is_contact && (coeff != Polynomial::A)) {
-//          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
-//        }
-//
-//        // zmp_ this one should depend on x,y -> formulate as constraint
-//        // that will allow rough terrain.
-//        if(is_contact && dim==Z) {
-//          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
-//        }
-//      }
-//
-//    is_contact = !is_contact; // after contact phase MUST come a swingphase (by definition).
-//    i++;
-//  }
-//
-//
-//  return bounds;
-//}
-
-
-//ForceSpline::ForceSpline(const std::string& id, bool first_phase_in_contact, double max_force)
-//   : PolynomialSpline(id)
-//{
-//  first_phase_in_contact_ = first_phase_in_contact;
-//  max_force_ = max_force;
-//}
-//
-//ForceSpline::~ForceSpline ()
-//{
-//}
-//
-//VecBound
-//ForceSpline::GetBounds () const
-//{
-//  VecBound bounds(GetRows());
-//  std::fill(bounds.begin(), bounds.end(), Bound(-max_force_, max_force_));
-//
-//  bool is_contact = first_phase_in_contact_;
-//
-//  int i = 0;
-//  for (const auto& p : GetPolynomials()) {
-//
-//
-//    for (int dim=0; dim<GetNDim(); ++dim)
-//      for (auto coeff : p.GetCoeffIds()) {
-//
-//        if(!is_contact) { // can't produce forces during swingphase
-//          bounds.at(Index(i,dim,coeff)) = kEqualityBound_;
-//        }
-//
-//        // unilateral contact forces
-//        if(is_contact && dim==Z) {
-//          bounds.at(Index(i,dim,coeff)) = Bound(0.0, max_force_);
-//        }
-//      }
-//
-//    i++;
-//
-//    if (i%n_polys_per_phase_ == 0)
-//      is_contact = !is_contact; // after contact phase MUST come a swingphase (by definition).
-//
-//  }
-//
-//
-//  return bounds;
-//}
 
 
 } /* namespace opt */

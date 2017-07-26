@@ -24,18 +24,19 @@ namespace quad{
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
   dt_base_polynomial_    = 0.15; //s 0.05
-  // enforce at beginning and middle. The end if always enforced
-  // due to acceleration continuity constraint.
-  n_constraints_per_poly_ = 2;
 
-//  load_dt_                = 0.05;//duration_polynomial_/2.;
-  polys_per_force_phase_     = 4;
+  // zmp_ since derivative of acceleration is nonsmooth at junctions, pay attention
+  // to never evaluate at junction of base polynomial directly
+  // (what i'm doing now! :-(
+  // must make sure every polynomial is at least evaluated once
+  dt_dynamic_constraint_ = dt_base_polynomial_/2;
 
+  ee_splines_per_swing_phase_ = 2;
+  force_splines_per_stance_phase_ = 6;
 
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
-  dt_range_of_motion_ = 0.1;
-
+  dt_range_of_motion_ = 0.15;
 
   // dynamic model for HyQ
   mass_    = 80;
@@ -140,8 +141,8 @@ Walk::Walk()
   {
       0.4,
       t_step, t_step,t_step,t_step,
-      t_step, t_step,t_step,t_step,
-      t_step, t_step,t_step,t_step,
+//      t_step, t_step,t_step,t_step,
+//      t_step, t_step,t_step,t_step,
       0.2,
   };
 
@@ -149,14 +150,14 @@ Walk::Walk()
   {
       II_,
       PI_, IP_, bI_, Ib_,
-      PI_, IP_, bI_, Ib_,
-      PI_, IP_, bI_, Ib_,
+//      PI_, IP_, bI_, Ib_,
+//      PI_, IP_, bI_, Ib_,
       II_,
   };
 
 
   constraints_ = { State,
-                   JunctionCom,
+//                   JunctionCom,
                    Dynamic,
                    RomBox, // usually enforced as soft-constraint/cost
   };
@@ -179,9 +180,9 @@ Trot::Trot()
   contact_timings_ =
   {   0.3,
       t_phase, t_phase, t_phase, t_phase, // trot
-//      0.3, // flight_phase
+      0.3, // flight_phase
 ////      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
-//      t_phase, t_phase, t_phase, t_phase, // trot
+      t_phase, t_phase, t_phase, t_phase, // trot
       0.3
   };
 
@@ -189,9 +190,9 @@ Trot::Trot()
   {
       II_,
       bP_, Pb_, bP_, Pb_, // trot
-//      BB_, // flight-phase
+      BB_, // flight-phase
 ////      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
-//      bP_, Pb_, bP_, Pb_, // trot
+      bP_, Pb_, bP_, Pb_, // trot
       II_
   };
 
@@ -199,7 +200,7 @@ Trot::Trot()
   constraints_ = {
                    State,
                    JunctionCom,
-//                   Dynamic,
+                   Dynamic,
                    RomBox, // usually enforced as soft-constraint/cost
   };
 //
