@@ -23,8 +23,6 @@ namespace opt {
 
 /** Holds position and velocity of nodes used to generate a cubic Hermite spline.
  */
-// zmp_ theoretically this class should know nothing about phases
-// just as Jon Snow knows nothing...
 class NodeValues : public Component {
 public:
   using Node     = CubicHermitePoly::Node;
@@ -44,10 +42,9 @@ public:
 
 
   NodeValues ();
+  virtual ~NodeValues ();
 
   void Init(const Node& initial_value, const VecTimes& times, const std::string& name);
-
-  virtual ~NodeValues ();
 
 
   VectorXd GetValues () const override;

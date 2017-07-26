@@ -47,6 +47,9 @@ public:
 
   const StateLinXd GetPoint(double t_globals) const;
 
+
+  static int GetSegmentID(double t_global, const VecTimes& durations);
+
   /** @returns true if the optimization variables poly_vars affect that
    * state of the spline at t_global.
    */

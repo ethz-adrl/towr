@@ -50,13 +50,13 @@ Spline::~Spline ()
 }
 
 int
-Spline::GetSegmentID(double t_global) const
+Spline::GetSegmentID(double t_global, const VecTimes& durations)
 {
   double eps = 1e-10; // double imprecision
 
    double t = 0;
    int i=0;
-   for (double d: GetDurations()) {
+   for (double d: durations) {
      t += d;
 
      if (t >= t_global-eps) // at junctions, returns previous spline (=)
@@ -65,6 +65,12 @@ Spline::GetSegmentID(double t_global) const
      i++;
    }
    assert(false); // this should never be reached
+}
+
+int
+Spline::GetSegmentID(double t_global) const
+{
+  return GetSegmentID(t_global, GetDurations());
 }
 
 double

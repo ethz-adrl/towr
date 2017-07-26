@@ -22,10 +22,10 @@ namespace opt {
 
 class ContactSchedule : public Component {
 public:
-  using Phase = std::pair<bool, double>; // contact state and duration
-  using PhaseVec = std::vector<Phase>;
   using FullPhase    = std::pair<EndeffectorsBool, double>; // swinglegs and time
   using FullPhaseVec = std::vector<FullPhase>;
+  using Phase        = std::pair<bool, double>; // contact state and duration
+  using PhaseVec     = std::vector<Phase>;
 
   ContactSchedule (EndeffectorID ee, const FullPhaseVec& phases);
   virtual ~ContactSchedule ();
@@ -34,17 +34,18 @@ public:
 
   std::vector<double> GetTimePerPhase() const;
 
-  virtual VectorXd GetValues() const override { return VectorXd(); };
-  virtual void SetValues(const VectorXd&) override {};
+  // zmp_ make these std::vectors?
+  virtual VectorXd GetValues() const override;
+  virtual void SetValues(const VectorXd&) override;
 
 private:
   void SetPhaseSequence (const FullPhaseVec& phases, EndeffectorID ee);
-  void AddPhase(double t_duration);
   bool GetContact(int phase) const;
-  PhaseVec GetPhases() const;
 
   bool first_phase_in_contact_ = true;
-  std::vector<double> t_phase_end_; ///< global time when the contact changes.
+//  std::vector<double> t_phase_end_; ///< global time when the contact changes.
+
+  mutable std::vector<double> durations_;
 };
 
 
