@@ -27,7 +27,7 @@ CoeffSpline::~CoeffSpline() {};
 Jacobian
 CoeffSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 {
-  double t_local = GetLocalTime(t_global);
+  double t_local = GetLocalTime(t_global, durations_);
   return GetActiveVariableSet(t_global)->GetJacobian(t_local, deriv);
 }
 
@@ -40,7 +40,7 @@ CoeffSpline::DoVarAffectCurrentState(const std::string& poly_vars, double t_glob
 CoeffSpline::VarsPtr
 CoeffSpline::GetActiveVariableSet (double t_global) const
 {
-  int id = GetSegmentID(t_global);
+  int id = GetSegmentID(t_global, durations_);
   return poly_vars_.at(id);
 }
 

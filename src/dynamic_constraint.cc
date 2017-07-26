@@ -13,8 +13,8 @@
 
 #include <xpp/endeffectors.h>
 #include <xpp/opt/bound.h>
-#include <xpp/opt/variables/node_values.h>
 #include <xpp/opt/variables/variable_names.h>
+#include <xpp/opt/variables/spline.h>
 #include <xpp/state.h>
 
 namespace xpp {
@@ -34,8 +34,8 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
 
   for (auto ee : model_->GetEEIDs()) {
-    ee_splines_.push_back(std::make_shared<HermiteSpline>(opt_vars, id::GetEEId(ee)));
-    ee_forces_.push_back(std::make_shared<HermiteSpline>(opt_vars, id::GetEEForceId(ee)));
+    ee_splines_.push_back(Spline::BuildSpline(opt_vars, id::GetEEId(ee), {}));
+    ee_forces_.push_back(Spline::BuildSpline(opt_vars, id::GetEEForceId(ee), {}));
   }
 
   SetRows(GetNumberOfNodes()*kDim6d);

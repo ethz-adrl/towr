@@ -45,10 +45,13 @@ public:
                                  const std::string& spline_base_id,
                                  const VecTimes& poly_durations);
 
-  const StateLinXd GetPoint(double t_globals) const;
 
 
   static int GetSegmentID(double t_global, const VecTimes& durations);
+  static double GetLocalTime(double t_global, const VecTimes& durations);
+
+
+  virtual const StateLinXd GetPoint(double t_global) const = 0;
 
   /** @returns true if the optimization variables poly_vars affect that
    * state of the spline at t_global.
@@ -56,18 +59,6 @@ public:
   virtual bool DoVarAffectCurrentState(const std::string& poly_vars,
                                        double t_current) const = 0;
   virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
-
-
-protected:
-  VecP polynomials_;   ///< the polynomials
-
-  int GetSegmentID(double t_global) const;
-  double GetLocalTime(double t_global) const;
-
-
-private:
-  virtual VecTimes GetDurations() const = 0;
-  PPtr GetActivePolynomial(double t_global) const;
 };
 
 

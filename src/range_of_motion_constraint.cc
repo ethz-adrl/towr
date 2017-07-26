@@ -32,7 +32,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
 
   base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear,  base_poly_durations);
   base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
-  ee_spline_    = std::make_shared<HermiteSpline>(opt_vars, id::GetEEId(ee));
+  ee_spline_    = Spline::BuildSpline(opt_vars, id::GetEEId(ee), {});
 
   SetRows(GetNumberOfNodes()*kDim3d);
   converter_ = AngularStateConverter(base_angular_);

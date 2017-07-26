@@ -151,6 +151,8 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
     case Snopt:   SnoptAdapter::Solve(nlp); break;
     default: assert(false); // solver not implemented
   }
+
+  opt_variables_->Print();
 }
 
 MotionOptimizerFacade::RobotStateVec
@@ -165,20 +167,18 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   using SplineT = std::shared_ptr<Spline>;
   std::vector<SplineT> ee_splines;
   std::vector<SplineT> ee_forces_spline;
-  std::vector<std::shared_ptr<ContactSchedule>> ee_timings_;
+  std::vector<std::shared_ptr<ContactSchedule>> contact_schedules;
   int n_ee = motion_parameters_->GetEECount();
-  for (int i=0; i<n_ee; ++i) {
+  for (int ee=0; ee<n_ee; ++ee) {
 
-    auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_variables_->GetComponent(id::GetEEContactId(i)));
-    auto durations = contact_schedule->GetTimePerPhase();
-    ee_timings_.push_back(contact_schedule);
+    auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_variables_->GetComponent(id::GetEEContactId(ee)));
+    contact_schedules.push_back(contact_schedule);
 
-    auto ee_spline = Spline::BuildSpline(opt_variables_, id::GetEEId(i), durations);
+    auto ee_spline = Spline::BuildSpline(opt_variables_, id::GetEEId(ee), {});
     ee_splines.push_back(ee_spline);
 
-    auto force_spline = Spline::BuildSpline(opt_variables_, id::GetEEForceId(i), durations);
+    auto force_spline = Spline::BuildSpline(opt_variables_, id::GetEEForceId(ee), {});
     ee_forces_spline.push_back(force_spline);
-
   }
 
 
@@ -201,12 +201,10 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     for (auto ee : state.GetEndeffectors()) {
       ee_state.At(ee)       = ee_splines.at(ee)->GetPoint(t);
       ee_force_array.At(ee) = ee_forces_spline.at(ee)->GetPoint(t).p_;
-      contact_state.At(ee)  = ee_timings_.at(ee)->IsInContact(t);
+      contact_state.At(ee)  = contact_schedules.at(ee)->IsInContact(t);
     }
 
     state.SetEEStateInWorld(ee_state);
-
-
     state.SetEEForcesInWorld(ee_force_array);
     state.SetContactState(contact_state);
 

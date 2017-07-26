@@ -27,9 +27,9 @@ Spline::BuildSpline (const OptVarsPtr& opt_vars,
   std::string s1 = id::endeffectors_motion;
   std::string s2 = id::endeffector_force;
   if (name.substr(0, s1.size()) == s1) // string starts with s
-    spline = std::make_shared<HermiteSpline>(opt_vars, name);
+    spline = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(name));
   else if (name.substr(0, s2.size()) == s2) // string starts with s
-    spline = std::make_shared<HermiteSpline>(opt_vars, name);
+    spline = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(name));
   else if (name == id::base_linear)
     spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
   else if (name == id::base_angular)
@@ -67,38 +67,17 @@ Spline::GetSegmentID(double t_global, const VecTimes& durations)
    assert(false); // this should never be reached
 }
 
-int
-Spline::GetSegmentID(double t_global) const
-{
-  return GetSegmentID(t_global, GetDurations());
-}
-
 double
-Spline::GetLocalTime(double t_global) const
+Spline::GetLocalTime(double t_global, const VecTimes& durations)
 {
-  int id_spline = GetSegmentID(t_global);
+  int id_spline = GetSegmentID(t_global, durations);
 
   double t_local = t_global;
   for (int id=0; id<id_spline; id++) {
-    t_local -= GetDurations().at(id);
+    t_local -= durations.at(id);
   }
 
   return t_local;
-}
-
-Spline::PPtr
-Spline::GetActivePolynomial(double t_global) const
-{
-  int id = GetSegmentID(t_global);
-  return polynomials_.at(id);
-}
-
-
-const StateLinXd
-Spline::GetPoint(double t_global) const
-{
-  double t_local = GetLocalTime(t_global);
-  return GetActivePolynomial(t_global)->GetPoint(t_local);
 }
 
 

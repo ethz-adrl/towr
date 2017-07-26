@@ -23,7 +23,6 @@
 #include <xpp/opt/constraints/spline_constraint.h>
 #include <xpp/opt/costs/soft_constraint.h>
 #include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/node_values.h>
 #include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/variable_names.h>
 
@@ -85,7 +84,7 @@ CostConstraintFactory::MakeStateConstraint () const
 
   auto base_poly_durations = params->GetBasePolyDurations();
 
-  auto derivs = {kPos};//, kVel, kAcc};
+  auto derivs = {kPos, kVel};//, kAcc};
 
 
   auto spline_lin = Spline::BuildSpline(opt_vars_, id::base_linear, base_poly_durations);
@@ -107,7 +106,7 @@ CostConstraintFactory::MakeStateConstraint () const
   // endeffector constraints
   for (auto ee : params->robot_ee_) {
 
-    auto spline_ee = std::make_shared<HermiteSpline>(opt_vars_, id::GetEEId(ee));
+    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), {});
 
     // initial endeffectors constraints
     auto deriv_ee = {kPos}; // velocity and acceleration not yet implemented

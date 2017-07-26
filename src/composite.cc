@@ -31,7 +31,24 @@ Component::SetRows (int num_rows)
 void
 Component::Print () const
 {
-  std::cout << num_rows_ << "\t(" << name_ << ")" << std::endl;
+  int print_rows = 7;
+  std::string end_string = ", ...";
+
+  if (num_rows_ < print_rows) {
+    print_rows = num_rows_;
+    end_string.clear(); // all variables printed
+  }
+
+  std::cout.precision(2);
+  std::cout << std::fixed;
+  std::cout << name_ << " (" << num_rows_ << "):\t";
+
+  VectorXd val = GetValues().topRows(print_rows);
+  std::cout << val(0);
+  for (int i=1; i<val.rows(); ++i)
+    std::cout << ",   " << val(i);
+
+  std::cout << end_string << std::endl;
 }
 
 std::string
@@ -160,7 +177,7 @@ Composite::Print () const
 {
   std::cout << GetName() << ":\n";
   for (auto c : components_) {
-    std::cout << "    "; // indent components
+    std::cout << "   "; // indent components
     c->Print();
   }
   std::cout << std::endl;

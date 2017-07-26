@@ -16,9 +16,9 @@ namespace id {
 
 static const std::string base_linear         = "base_lin_";
 static const std::string base_angular        = "base_ang_";
-static const std::string endeffectors_motion = "endeffectors_motion_";
-static const std::string contact_schedule    = "contact_schedule_";
-static const std::string endeffector_force   = "endeffector_force_";
+static const std::string endeffectors_motion = "ee_motion";
+static const std::string contact_schedule    = "ee_schedule";
+static const std::string endeffector_force   = "ee_force";
 
 
 

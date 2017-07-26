@@ -294,41 +294,6 @@ EEForcesNodes::GetBounds () const
 
 
 
-
-
-
-
-
-
-HermiteSpline::HermiteSpline (const OptVarsPtr& opt_vars,
-                              const std::string& node_id)
-{
-  node_values_ = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(node_id));
-  auto v = node_values_->GetCubicPolys();
-  polynomials_.assign(v.begin(), v.end()); // links the two
-}
-
-
-HermiteSpline::~HermiteSpline() {};
-
-bool
-HermiteSpline::DoVarAffectCurrentState (const std::string& poly_vars,
-                                        double t_current) const
-{
-  return poly_vars == node_values_->GetName();
-}
-
-Jacobian
-HermiteSpline::GetJacobian (double t_global,  MotionDerivative dxdt) const
-{
-  int poly_id     = GetSegmentID(t_global);
-  double t_local  = GetLocalTime(t_global); // these are both wrong when adding extra polynomial
-
-  return node_values_->GetJacobian(poly_id, t_local, dxdt);
-}
-
-
-
 } /* namespace opt */
 } /* namespace xpp */
 

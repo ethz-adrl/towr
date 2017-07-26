@@ -29,20 +29,16 @@ public:
               const VecTimes& poly_durations);
   virtual ~CoeffSpline();
 
-  // factory method
-//  static Spline::Ptr MakeSpline(const OptVarsPtr& opt_vars,
-//                                 const std::string& spline_base_id,
-//                                 const VecTimes& poly_durations);
 
+  virtual const StateLinXd GetPoint(double t_global) const override
+  {
+    int id = GetSegmentID(t_global, durations_);
+    double t_local = GetLocalTime(t_global, durations_);
+    return polynomials_.at(id)->GetPoint(t_local);
+  }
 
-
-  // these are the functions that differ
-  /** @returns true if the optimization variables poly_vars affect that
-   * state of the spline at t_global.
-   */
   virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
   virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const override;
-  VarsPtr GetActiveVariableSet(double t_global) const;
 
 
   int GetPolyCount() const { return polynomials_.size(); };
@@ -53,11 +49,12 @@ public:
   PPtr GetPolynomial(int id) const { return polynomials_.at(id); }
   VarsPtr GetVarSet(int id) const { return poly_vars_.at(id); }
 
-  virtual VecTimes GetDurations() const { return durations_; };
-
 private:
+  VarsPtr GetActiveVariableSet(double t_global) const;
+
   VecTimes durations_; ///< duration of each polynomial in spline
   VecVars poly_vars_;  ///< the opt. variables that influence the polynomials
+  VecP polynomials_;   ///< the polynomials
 };
 
 } /* namespace opt */
