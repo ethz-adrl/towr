@@ -167,11 +167,14 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 
 
 VectorXd
-NodeValues::GetDerivativeOfPosWrtTime (double t_global) const
+PhaseNodes::GetDerivativeOfPosWrtTime (double t_global) const
 {
   int id         = GetSegmentID(t_global, GetTimes());
   double t_local = GetLocalTime(t_global, GetTimes());
-  return cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local);
+
+  double p = percent_of_phase_.at(id);
+
+  return cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local, p);
 }
 
 
@@ -227,11 +230,15 @@ PhaseNodes::UpdateTimes() const
   bool is_constant_phase = is_first_phase_constant_;
   for (double T : contact_schedule_->GetTimePerPhase()) {
 
-    if (is_constant_phase)
+    if (is_constant_phase) {
       times_.push_back(T);
-    else
-      for (int i=0; i<n_polys_in_changing_phase_; ++i)
+      percent_of_phase_.push_back(1.0);
+    } else {
+      for (int i=0; i<n_polys_in_changing_phase_; ++i) {
         times_.push_back(T/n_polys_in_changing_phase_);
+        percent_of_phase_.push_back(1.0/n_polys_in_changing_phase_);
+      }
+    }
 
     is_constant_phase = !is_constant_phase;
   }

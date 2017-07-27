@@ -43,7 +43,8 @@ public:
   using VecTimes        = std::vector<double>;
   using MotionParamsPtr = std::shared_ptr<MotionParameters>;
   using SplineT         = std::shared_ptr<Spline>;
-  using EEMotionPtr     = std::shared_ptr<NodeValues>; // zmp_ make normal spline again
+  using EEMotionType    = PhaseNodes;
+  using EEMotionPtr     = std::shared_ptr<EEMotionType>; // zmp_ make normal spline again
   using SchedulePtr     = std::shared_ptr<ContactSchedule>;
 
   RangeOfMotionBox(const OptVarsPtr& opt_vars,

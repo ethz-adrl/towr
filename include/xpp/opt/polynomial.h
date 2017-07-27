@@ -95,7 +95,13 @@ public:
   double GetDerivativeOfVelWrt(Side, MotionDerivative node_value, double t_local) const;
   double GetDerivativeOfAccWrt(Side, MotionDerivative node_value, double t_local) const;
 
-  VectorXd GetDerivativeOfPosWrtDuration(double t_local_local) const;
+  /** @brief How the total duration affect the position of the polynomial
+   *
+   * @param t_local the local polynomial time [0,pT]
+   * @param p the percent [0,inf] of the total duration w.r.t the derivative is desired that this T_ represents.
+   * @returns the derivative for each dimension (e.g. x,y,z)
+   */
+  VectorXd GetDerivativeOfPosWrtDuration(double t_local, double p=1.0) const;
 
 private:
   double T_;
