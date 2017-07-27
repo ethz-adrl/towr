@@ -105,15 +105,14 @@ public:
 private:
   virtual VecTimes GetTimes() const override
   {
-//    UpdateTimes(); // spring_clean_ causes duration updated polynomials to be used
+    // spring_clean_ causes duration updated polynomials to be used
+    UpdateTimes();
     return times_;
   };
 
   void UpdateTimes() const;
   mutable VecTimes times_;
 
-
-//  virtual Jacobian GetJacobianOfPosWrtTime(double t_global) const;
 
   SchedulePtr contact_schedule_;
 

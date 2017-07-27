@@ -154,7 +154,7 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
     default: assert(false); // solver not implemented
   }
 
-  opt_variables_->Print();
+//  opt_variables_->Print();
 }
 
 MotionOptimizerFacade::RobotStateVec

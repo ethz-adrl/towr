@@ -22,7 +22,8 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
 {
   t_total_ = t_total;
   SetPhaseSequence(phases, ee);
-  SetRows(durations_.size()-1); // since last duration results from total time and previous durations
+  bool last_duration_fixed = false;
+  SetRows(durations_.size()-last_duration_fixed); // since last duration results from total time and previous durations
 }
 
 ContactSchedule::~ContactSchedule ()
@@ -72,17 +73,28 @@ void
 ContactSchedule::SetValues (const VectorXd& x)
 {
   VectorXd::Map(&durations_[0], x.rows()) = x;
-  double t_last = t_total_ - x.sum();
-  durations_.back() = t_last;
+//  double t_last = t_total_ - x.sum();
+//  durations_.back() = t_last;
 }
 
 VecBound
 ContactSchedule::GetBounds () const
 {
-  // spring_clean_ these bounds are very restrictive and should be fixed
-  double t_min = 0.1; // [s]
-  double t_max = t_total_/durations_.size(); // [s]
-  return VecBound(GetRows(), Bound(t_min, t_max));
+  VecBound bounds;
+
+  for (int i=0; i<GetRows(); ++i) {
+    // spring_clean_ for now exactly keep initial durations
+    Bound b(durations_.at(i), durations_.at(i));
+    bounds.push_back(b);
+  }
+
+  return bounds;
+
+//
+//  // spring_clean_ these bounds are very restrictive and should be fixed
+//  double t_min = 0.1; // [s]
+//  double t_max = t_total_/durations_.size(); // [s]
+//  return VecBound(GetRows(), Bound(t_min, t_max));
 }
 
 bool
@@ -105,7 +117,8 @@ Jacobian
 ContactSchedule::GetJacobianOfPos (VectorXd deriv, double t_global) const
 {
   // spring_clean_ adapt for derivative of last polynomial
-  // which depends on all the others trough T - (t0+t1..+tn-1)
+  // this seems way harder than it has to be...
+  // which depends on all the others trough T - (t0+t1..+tn)
 
 
   int n_dim = deriv.rows();

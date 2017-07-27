@@ -273,7 +273,6 @@ EEMotionNodes::GetBounds () const
 
   for (int idx=0; idx<bounds.size(); ++idx) {
 
-    // no force allowed during swingphase
     bool is_stance = GetNodeInfo(idx).size() == 2;
 
     if (is_stance) {
