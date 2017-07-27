@@ -61,30 +61,31 @@ MotionOptimizerFacade::BuildVariables ()
   opt_variables_->ClearComponents();
 
 
+
+  std::vector<std::shared_ptr<ContactSchedule>> contact_schedule;
   for (auto ee : motion_parameters_->robot_ee_) {
-
-    // timings for each phase
-    auto contact_schedule = std::make_shared<ContactSchedule>(ee,
-                                                              motion_parameters_->GetTotalTime(),
-                                                              motion_parameters_->GetContactSchedule());
-//    auto timings = contact_schedule->GetTimePerPhase();
-    opt_variables_->AddComponent(contact_schedule);
+    contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,motion_parameters_->GetTotalTime(),motion_parameters_->GetContactSchedule()));
+    opt_variables_->AddComponent(contact_schedule.at(ee));
+  }
 
 
+  for (auto ee : motion_parameters_->robot_ee_) {
     // cubic spline for ee_motion
     NodeValues::Node intial_pos;
     intial_pos.at(kPos) = initial_ee_W_.At(ee);
     intial_pos.at(kVel) = Vector3d::Zero();
-    auto nodes_motion = std::make_shared<EEMotionNodes>(intial_pos, contact_schedule, motion_parameters_->ee_splines_per_swing_phase_, ee);
+    auto nodes_motion = std::make_shared<EEMotionNodes>(intial_pos, contact_schedule.at(ee), motion_parameters_->ee_splines_per_swing_phase_, ee);
     opt_variables_->AddComponent(nodes_motion);
+  }
 
 
+  for (auto ee : motion_parameters_->robot_ee_) {
     // cubic spline for ee_forces
     NodeValues::Node intial_force;
     intial_force.at(kPos) = Vector3d::Zero();
     intial_force.at(kPos).z() = motion_parameters_->GetAvgZForce();
     intial_force.at(kVel) = Vector3d::Zero();
-    auto nodes_forces = std::make_shared<EEForcesNodes>(intial_force, contact_schedule, motion_parameters_->force_splines_per_stance_phase_, ee);
+    auto nodes_forces = std::make_shared<EEForcesNodes>(intial_force, contact_schedule.at(ee), motion_parameters_->force_splines_per_stance_phase_, ee);
     opt_variables_->AddComponent(nodes_forces);
   }
 

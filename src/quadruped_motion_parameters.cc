@@ -31,7 +31,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   // must make sure every polynomial is at least evaluated once
   dt_dynamic_constraint_ = dt_base_polynomial_/2;
 
-  ee_splines_per_swing_phase_ = 2;
+  ee_splines_per_swing_phase_ = 1; // spring_clean_ this breaks duration derivatives
   force_splines_per_stance_phase_ = 6;
 
 //  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;

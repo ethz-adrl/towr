@@ -167,7 +167,7 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 
 
 VectorXd
-PhaseNodes::GetDerivativeOfPosWrtTime (double t_global) const
+PhaseNodes::GetDerivativeOfPosWrtDuration (double t_global) const
 {
   int id         = GetSegmentID(t_global, GetTimes());
   double t_local = GetLocalTime(t_global, GetTimes());
@@ -225,7 +225,9 @@ PhaseNodes::~PhaseNodes ()
 void
 PhaseNodes::UpdateTimes() const
 {
+  // zmp_ this is prone to bugs
   times_.clear();
+  percent_of_phase_.clear(); // only need to do this once
 
   bool is_constant_phase = is_first_phase_constant_;
   for (double T : contact_schedule_->GetTimePerPhase()) {

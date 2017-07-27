@@ -204,7 +204,7 @@ IpoptAdapter::Solve (NLP& nlp)
 //  }
 
   if (status_ != Solve_Succeeded) {
-    nlp.PrintCurrent();
+//    nlp.PrintCurrent();
     std::string msg = "Ipopt failed to find a solution. ReturnCode: " + std::to_string(status_);
     throw std::runtime_error(msg);
   }

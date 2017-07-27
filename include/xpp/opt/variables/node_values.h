@@ -99,7 +99,7 @@ public:
   ~PhaseNodes();
 
 
-  VectorXd GetDerivativeOfPosWrtTime(double t_global) const;
+  VectorXd GetDerivativeOfPosWrtDuration(double t_global) const;
 
 
 private:

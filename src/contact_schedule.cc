@@ -114,20 +114,37 @@ ContactSchedule::GetTimePerPhase () const
 }
 
 Jacobian
-ContactSchedule::GetJacobianOfPos (VectorXd deriv, double t_global) const
+ContactSchedule::GetJacobianOfPos (const VectorXd& duration_deriv,
+                                   const VectorXd& current_vel,
+                                   double t_global) const
 {
   // spring_clean_ adapt for derivative of last polynomial
   // this seems way harder than it has to be...
   // which depends on all the others trough T - (t0+t1..+tn)
 
 
-  int n_dim = deriv.rows();
-  Jacobian jac(n_dim, GetRows());
+  int n_dim = duration_deriv.rows();
+//  Jacobian jac(n_dim, GetRows()) = MatrixXd::Zero(;
 
-  int phase = Spline::GetSegmentID(t_global, durations_);
+  // convert to sparse, but also regard 0.0 as non-zero element, because
+  // could turn nonzero during the course of the program
+  // as durations change and t_global falls into different spline
+  Jacobian jac = Eigen::MatrixXd::Zero(n_dim, GetRows()).sparseView(1.0, -1.0);
 
-  for (int dim=0; dim<n_dim; ++dim)
-    jac.coeffRef(dim, phase) = deriv(dim);
+  int current_phase = Spline::GetSegmentID(t_global, durations_);
+
+  for (int dim=0; dim<n_dim; ++dim) {
+
+    // previous durations shift the entire spline
+    for (int phase=0; phase<current_phase; ++phase)
+      jac.coeffRef(dim, phase) = -current_vel(dim);
+
+    // current duration expands and compresses the spline
+    jac.coeffRef(dim, current_phase) = duration_deriv(dim);
+
+  }
+
+//  std::cout << "jac: " << jac << std::endl;
 
   return jac;
 }
