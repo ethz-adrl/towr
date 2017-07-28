@@ -57,6 +57,28 @@ PolynomialVars::SetValues (const VectorXd& x)
   }
 }
 
+//VecBound
+//PolynomialVars::GetBounds () const
+//{
+//  VecBound bounds(GetRows(), kEqualityBound_);
+//
+//  for (auto c : polynomial_->GetCoeffIds()) {
+//
+//    // only allow A and B coefficients to be nonzero
+//    if (c==A || c==B || c==C) {
+//      for (int dim=0; dim<polynomial_->GetDimCount(); ++dim) {
+//        double idx = Index(c, dim);
+//        double val = polynomial_->GetCoefficients(c)(dim);
+//        bounds.at(idx) = kNoBound_;
+//      }
+//    }
+//  }
+//
+//
+//  return bounds;
+//}
+
+
 Jacobian
 PolynomialVars::GetJacobian (double t_local, MotionDerivative dxdt) const
 {

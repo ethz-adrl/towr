@@ -30,6 +30,7 @@ public:
 
   ContactSchedule (EndeffectorID ee, double t_total, const SwingPhaseVec& phases);
   ContactSchedule (EndeffectorID ee, double t_total, int n_phases);
+  ContactSchedule (EndeffectorID ee, const std::vector<double>& timings);
   virtual ~ContactSchedule ();
 
   bool IsInContact(double t_global) const;

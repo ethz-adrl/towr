@@ -29,6 +29,7 @@ public:
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
+//  VecBound GetBounds () const override;
 
 //  StateLinXd GetPoint(double t_local) const;
   Jacobian GetJacobian(double t_local, MotionDerivative dxdt) const;

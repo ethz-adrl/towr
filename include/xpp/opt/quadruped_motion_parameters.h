@@ -19,7 +19,6 @@ namespace quad {
 class SingleMotionParameters : public MotionParameters {
 public:
   SingleMotionParameters() {
-    dt_base_polynomial_    = 0.15; //s 0.05
 
     // zmp_ since derivative of acceleration is nonsmooth at junctions, pay attention
     // to never evaluate at junction of base polynomial directly
@@ -45,14 +44,20 @@ public:
     max_dev_xy_ << 0.15, 0.15, 0.1;
 
     // spring_clean_ just the addition is used anyway
-    contact_timings_ = {0.3, 0.3, 0.3};
+    contact_timings_ = {0.1, 0.8, 0.1, 0.1, 0.1};
 
     constraints_ = {
-//        State,
-//        JunctionCom,
+        State,
+        JunctionCom,
         RomBox, // usually enforced as soft-constraint/cost
 //        Dynamic,
     };
+
+
+
+    dt_base_polynomial_    = std::accumulate(contact_timings_.begin(),
+                                             contact_timings_.end(),
+                                             0.0); //s 0.05
   }
 
 

@@ -34,7 +34,18 @@ ContactSchedule::ContactSchedule (EndeffectorID ee, double t_total, int n_phases
     :Component(0, id::GetEEScheduleId(ee))
 {
   t_total_ = t_total;
+  first_phase_in_contact_ = true;
   durations_ = std::vector<double>(n_phases, t_total/n_phases);
+  int last_duration_fixed = true? 1 : 0; // spring_clean_ is 1 always the correct number?
+  SetRows(durations_.size()-last_duration_fixed);
+}
+
+ContactSchedule::ContactSchedule (EndeffectorID ee, const std::vector<double>& timings)
+    :Component(0, id::GetEEScheduleId(ee))
+{
+  durations_ = timings;
+  first_phase_in_contact_ = true;
+  t_total_   = std::accumulate(durations_.begin(), durations_.end(), 0.0);
   int last_duration_fixed = true? 1 : 0; // spring_clean_ is 1 always the correct number?
   SetRows(durations_.size()-last_duration_fixed);
 }

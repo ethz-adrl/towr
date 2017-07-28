@@ -22,6 +22,7 @@
 #include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/node_values.h>
 #include <xpp/opt/variables/variable_names.h>
+#include <xpp/opt/quadruped_motion_parameters.h>
 
 #include <xpp/opt/ipopt_adapter.h>
 #include <xpp/opt/snopt_adapter.h>
@@ -31,6 +32,8 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
+  motion_parameters_ =  std::make_shared<opt::quad::SingleMotionParameters>();
+  BuildDefaultStartStance();
   opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
 }
 
@@ -61,12 +64,10 @@ MotionOptimizerFacade::BuildVariables ()
   opt_variables_->ClearComponents();
 
 
-
-  int n_phases_per_leg = 3; // stand, swing, stand
   std::vector<std::shared_ptr<ContactSchedule>> contact_schedule;
   for (auto ee : motion_parameters_->robot_ee_) {
 //    contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,motion_parameters_->GetTotalTime(),motion_parameters_->GetContactSchedule()));
-    contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,motion_parameters_->GetTotalTime(), n_phases_per_leg));
+    contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,motion_parameters_->contact_timings_));
     opt_variables_->AddComponent(contact_schedule.at(ee));
   }
 
@@ -108,8 +109,14 @@ MotionOptimizerFacade::BuildVariables ()
 //  opt_variables_->AddComponent(spline_ang);
 
 
-  int order = 4;
+  int order = 3;
   int n_dim = inital_base_.lin.kNumDim;
+
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
+    p_lin->SetConstantPos(inital_base_.lin.p_);
+    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
+  }
 
 //  for (int i=0; i<base_spline_timings_.size(); ++i) {
 //    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
@@ -117,11 +124,6 @@ MotionOptimizerFacade::BuildVariables ()
 //    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
 //  }
 //
-//  for (int i=0; i<base_spline_timings_.size(); ++i) {
-//    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
-//    p_lin->SetConstantPos(inital_base_.lin.p_);
-//    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
-//  }
 
 
   opt_variables_->Print();
@@ -169,7 +171,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   RobotStateVec trajectory;
 
-//  auto base_lin = Spline::BuildSpline(opt_variables_, id::base_linear, motion_parameters_->GetBasePolyDurations());
+  auto base_lin = Spline::BuildSpline(opt_variables_, id::base_linear, motion_parameters_->GetBasePolyDurations());
 //  auto base_ang = Spline::BuildSpline(opt_variables_, id::base_angular, motion_parameters_->GetBasePolyDurations());
 
 
@@ -199,7 +201,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     RobotStateCartesian state(n_ee);
 
     State3d base; // positions and orientations set to zero
-    base.lin = inital_base_.lin;//base_lin->GetPoint(t);
+    base.lin = base_lin->GetPoint(t); //inital_base_.lin;
 //    base.ang = AngularStateConverter::GetState(base_ang->GetPoint(t));
     state.SetBase(base);
 

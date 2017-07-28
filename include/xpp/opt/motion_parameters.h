@@ -78,6 +78,7 @@ public:
   double GetForceLimit() const {return force_limit_; };
 
   EEVec robot_ee_;
+  ContactTimings contact_timings_;
 protected:
 //  MotionTypeID id_;
 
@@ -88,7 +89,6 @@ protected:
   MaxDevXYZ max_dev_xy_;
   ContactSequence contact_sequence_;
   NominalStance nominal_stance_;
-  ContactTimings contact_timings_;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
 
