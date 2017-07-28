@@ -64,7 +64,6 @@ public:
   int ee_splines_per_swing_phase_;
   int force_splines_per_stance_phase_;
 
-  MotionTypeID id_;
 
   double dt_base_polynomial_;
   double dt_range_of_motion_;    //[s]
@@ -80,6 +79,8 @@ public:
 
   EEVec robot_ee_;
 protected:
+//  MotionTypeID id_;
+
   Eigen::Matrix3d interia_;
   double mass_;
   double force_limit_;

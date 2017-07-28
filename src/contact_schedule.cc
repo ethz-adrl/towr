@@ -28,8 +28,15 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
   SetPhaseSequence(phases, ee);
   int last_duration_fixed = true? 1 : 0; // spring_clean_ is 1 always the correct number?
   SetRows(durations_.size()-last_duration_fixed); // since last duration results from total time and previous durations
+}
 
-  std::cout << "GetRows(): " << GetRows() << std::endl;
+ContactSchedule::ContactSchedule (EndeffectorID ee, double t_total, int n_phases)
+    :Component(0, id::GetEEScheduleId(ee))
+{
+  t_total_ = t_total;
+  durations_ = std::vector<double>(n_phases, t_total/n_phases);
+  int last_duration_fixed = true? 1 : 0; // spring_clean_ is 1 always the correct number?
+  SetRows(durations_.size()-last_duration_fixed);
 }
 
 ContactSchedule::~ContactSchedule ()
@@ -111,13 +118,13 @@ ContactSchedule::GetBounds () const
   VecBound bounds;
   double t_min = 0.1; // [s]
   // spring_clean_ very important! so last phase not negative
-  double t_max = 0.2;//t_total_/durations_.size(); // [s] //
+  double t_max = 2.0;//t_total_/durations_.size(); // [s] //
 
   for (int i=0; i<GetRows(); ++i) {
     // spring_clean_ for now exactly keep initial durations
     // spring_clean_ this really affects the jacobian structure somehow
 //    Bound b(durations_.at(i), durations_.at(i)+0.1);
-    Bound b(t_min, 2.0);
+    Bound b(t_min, t_max);
     bounds.push_back(b);
   }
 
@@ -170,13 +177,15 @@ ContactSchedule::GetJacobianOfPos (const VectorXd& duration_deriv,
   Jacobian jac(n_dim, GetRows());
   for (int dim=0; dim<n_dim; ++dim) {
     for (int col=0; col<jac.cols(); ++col) {
-      jac.coeffRef(dim, col) = 0.00;
+      jac.insert(dim, col) = 0.01;
     }
   }
 
 
+
   int current_phase = Spline::GetSegmentID(t_global, durations_);
 
+//  int current_phase = 2;
 
   for (int dim=0; dim<n_dim; ++dim) {
     if (current_phase == durations_.size()-1) {// t belongs to last phase
@@ -197,11 +206,19 @@ ContactSchedule::GetJacobianOfPos (const VectorXd& duration_deriv,
     }
   }
 
+//  jac.makeCompressed();
+
+
 //  std::cout << "\n\nt: " << t_global << std::endl;
+//  std::cout << "durations: ";
+//  for (auto d : durations_)
+//    std::cout << d << ", ";
+//  std::cout << std::endl;
 //  std::cout << "duration_deriv: " << duration_deriv.transpose() << std::endl;
 //  std::cout << "current_vel: " << current_vel.transpose() << std::endl;
 //  std::cout << "phase: " << current_phase << std::endl;
 //  std::cout << "jac: " << jac.toDense() << std::endl;
+
 
   return jac;
 }

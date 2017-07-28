@@ -29,6 +29,7 @@ public:
   using PhaseVec     = std::vector<Phase>;
 
   ContactSchedule (EndeffectorID ee, double t_total, const SwingPhaseVec& phases);
+  ContactSchedule (EndeffectorID ee, double t_total, int n_phases);
   virtual ~ContactSchedule ();
 
   bool IsInContact(double t_global) const;

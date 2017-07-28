@@ -84,7 +84,8 @@ NLP::GetBoundsOnConstraints () const
 int
 NLP::GetNumberOfConstraints () const
 {
-  return GetBoundsOnConstraints().size();
+  return constraints_->GetRows();
+//  return GetBoundsOnConstraints().size();
 }
 
 VectorXd

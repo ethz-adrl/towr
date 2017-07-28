@@ -55,8 +55,6 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 bool IpoptAdapter::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
                             Index m, Number* g_l, Number* g_u)
 {
-
-  // no bounds on the spline coefficients of footholds
   auto bounds_x = nlp_->GetBoundsOnOptimizationVariables();
   for (uint c=0; c<bounds_x.size(); ++c) {
     x_lower[c] = bounds_x.at(c).lower_;

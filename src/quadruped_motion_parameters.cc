@@ -114,7 +114,7 @@ QuadrupedMotionParameters::MakeMotion (opt::MotionTypeID id)
 Walk::Walk()
 {
   max_dev_xy_ << 0.15, 0.15, 0.1;
-  id_ = opt::WalkID;
+//  id_ = opt::WalkID;
 
 //  double t_phase = 0.3;
 //  double t_trans = 0.1;
@@ -172,15 +172,15 @@ Walk::Walk()
 Trot::Trot()
 {
   max_dev_xy_ << 0.2, 0.2, 0.1;
-  id_ = opt::TrotID;
+//  id_ = opt::TrotID;
 
   double t_phase = 0.3;
   double t_trans = 0.1;
 
   contact_timings_ =
   {   0.3,
-      t_phase,
-      t_phase, t_phase, t_phase, // trot
+      t_phase, t_phase,
+//      t_phase, t_phase, // trot
 //      0.3, // flight_phase
 ////      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase, // walk
 //      t_phase, t_phase, t_phase, t_phase, // trot
@@ -190,8 +190,8 @@ Trot::Trot()
   contact_sequence_ =
   {
       II_,
-      bP_,
-      Pb_, bP_, Pb_, // trot
+      bP_, Pb_,
+//      bP_, Pb_, // trot
 //      BB_, // flight-phase
 ////      PI_, PP_, IP_, bI_, bb_, Ib_, // walk
 //      bP_, Pb_, bP_, Pb_, // trot
@@ -200,10 +200,10 @@ Trot::Trot()
 
 
   constraints_ = {
-                   State,
-                   JunctionCom,
-//                   Dynamic,
                    RomBox, // usually enforced as soft-constraint/cost
+//                   State,
+//                   JunctionCom,
+//                   Dynamic
   };
 //
 //  cost_weights_[RangOfMotionCostID] = 10.0;
@@ -216,7 +216,7 @@ Trot::Trot()
 Pace::Pace()
 {
   max_dev_xy_ << 0.2, 0.2, 0.1;
-  id_ = opt::PaceID;
+//  id_ = opt::PaceID;
 
   double t_flight = 0.2;
 
@@ -259,7 +259,7 @@ Pace::Pace()
 Bound::Bound()
 {
   max_dev_xy_ << 0.25, 0.21, 0.18;
-  id_ = opt::BoundID;
+//  id_ = opt::BoundID;
 
 
 //  // sequence for normal bound
@@ -383,7 +383,7 @@ Bound::Bound()
 PushRecovery::PushRecovery ()
 {
   max_dev_xy_ << 0.2, 0.2, 0.1;
-  id_ = opt::PushRecID;
+//  id_ = opt::PushRecID;
 
   SetContactSequence(0.0, 0.0);
 

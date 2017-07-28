@@ -15,6 +15,49 @@ namespace xpp {
 namespace opt {
 namespace quad {
 
+// zmp_ move to different class
+class SingleMotionParameters : public MotionParameters {
+public:
+  SingleMotionParameters() {
+    dt_base_polynomial_    = 0.15; //s 0.05
+
+    // zmp_ since derivative of acceleration is nonsmooth at junctions, pay attention
+    // to never evaluate at junction of base polynomial directly
+    // (what i'm doing now! :-(
+    // must make sure every polynomial is at least evaluated once
+    dt_dynamic_constraint_ = dt_base_polynomial_/2;
+
+    ee_splines_per_swing_phase_ = 1; // spring_clean_ this breaks duration derivatives
+    force_splines_per_stance_phase_ = 6;
+
+    robot_ee_ = { EEID::E0 };
+    dt_range_of_motion_ = 0.15;
+
+    // dynamic model for HyQ
+    mass_    = 80;
+    interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
+    force_limit_ = 10000.0; // [N]
+
+    // range of motion specifictions for HyQ
+    const double z_nominal_b = -0.58;
+    nominal_stance_.SetCount(robot_ee_.size());
+    nominal_stance_.At(EEID::E0) = PosXYZ( 0.0, 0.0, z_nominal_b);
+    max_dev_xy_ << 0.15, 0.15, 0.1;
+
+    // spring_clean_ just the addition is used anyway
+    contact_timings_ = {0.3, 0.3, 0.3};
+
+    constraints_ = {
+//        State,
+//        JunctionCom,
+        RomBox, // usually enforced as soft-constraint/cost
+//        Dynamic,
+    };
+  }
+
+
+};
+
 class QuadrupedMotionParameters : public MotionParameters {
 public:
   QuadrupedMotionParameters();

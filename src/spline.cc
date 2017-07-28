@@ -53,6 +53,7 @@ int
 Spline::GetSegmentID(double t_global, const VecTimes& durations)
 {
   double eps = 1e-10; // double imprecision
+  assert(t_global >= 0.0);
 
    double t = 0;
    int i=0;

@@ -122,10 +122,6 @@ CostConstraintFactory::MakeStateConstraint () const
     VectorXd ee_pos_W = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
 //    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, T, ee_pos_W, deriv_ee));
 
-
-
-    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
-    constraints->AddComponent(duration_constraint);
   }
 
   return constraints;
@@ -180,14 +176,19 @@ CostConstraintFactory::MakeDynamicConstraint() const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
-  auto rom_constraints = std::make_shared<Composite>("Range-of-Motion Constraints", true);
+  auto c = std::make_shared<Composite>("Range-of-Motion Constraints", true);
+
+  double T = params->GetTotalTime();
 
   for (auto ee : params->robot_ee_) {
-    auto c = std::make_shared<RangeOfMotionBox>(opt_vars_,
+    auto rom_constraints = std::make_shared<RangeOfMotionBox>(opt_vars_,
                                                 params,
                                                 ee);
 
-    rom_constraints->AddComponent(c);
+    c->AddComponent(rom_constraints);
+
+    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
+    c->AddComponent(duration_constraint);
 
 //    // add timing constraint
 //    auto contact_timing_constraints = std::make_shared<ContactConstraints>(opt_vars_,params->GetTotalTime(),dt,ee);
@@ -195,7 +196,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
   }
 
 
-  return rom_constraints;
+  return c;
 }
 
 
