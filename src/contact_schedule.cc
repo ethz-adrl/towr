@@ -35,7 +35,8 @@ ContactSchedule::SetPhaseSequence (const FullPhaseVec& phases, EndeffectorID ee)
 {
   double durations = 0.0;
 
-  first_phase_in_contact_ = phases.front().first.At(ee);
+  durations_.clear();
+  first_phase_in_contact_ = !phases.front().first.At(ee);
 
   for (int i=0; i<phases.size()-1; ++i) {
 
