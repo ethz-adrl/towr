@@ -10,6 +10,7 @@
 namespace xpp {
 namespace opt {
 
+static int id = 0;
 
 SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
                                               const SplineT& spline,
@@ -17,7 +18,7 @@ SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
                                               const StateLinXd& state,
                                               const DerivativeVec& derivatives)
 {
-  SetName("SplineStateConstraint-");
+  SetName("SplineStateConstraint-" + std::to_string(id++));
 
   spline_      = spline;
   t_global_     = t_global;
@@ -81,6 +82,9 @@ SplineStateConstraint::GetBounds () const
 
   return bounds;
 }
+
+
+
 
 
 

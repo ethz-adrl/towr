@@ -93,8 +93,9 @@ NodeValues::SetValues (const VectorXd& x)
 }
 
 
+// zmp_ remove the constant here, this is nonsense
 void
-NodeValues::UpdatePolynomials ()
+NodeValues::UpdatePolynomials () const
 {
   for (int i=0; i<cubic_polys_.size(); ++i) {
     cubic_polys_.at(i)->SetNodes(nodes_.at(GetNodeId(i,Side::Start)),
@@ -116,6 +117,8 @@ NodeValues::GetPoint(double t_global) const
   // zmp_ look at this returning a pair
   int id         = GetSegmentID(t_global, GetTimes());
   double t_local = GetLocalTime(t_global, GetTimes());
+
+  UpdatePolynomials(); // zmp_ ugly that has to be called before everything
   return cubic_polys_.at(id)->GetPoint(t_local);
 }
 
@@ -126,6 +129,7 @@ NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
   int poly_id     = GetSegmentID(t_global, GetTimes());
   double t_local  = GetLocalTime(t_global, GetTimes()); // these are both wrong when adding extra polynomial
 
+  UpdatePolynomials(); // zmp_ ugly that has to be called before everything
   return GetJacobian(poly_id, t_local, dxdt);
 }
 

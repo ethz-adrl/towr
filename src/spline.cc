@@ -64,6 +64,7 @@ Spline::GetSegmentID(double t_global, const VecTimes& durations)
 
      i++;
    }
+
    assert(false); // this should never be reached
 }
 

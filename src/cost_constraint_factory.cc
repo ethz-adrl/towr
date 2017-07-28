@@ -97,7 +97,7 @@ CostConstraintFactory::MakeStateConstraint () const
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, t, initial_base_.ang, derivs));
 
 
-  // final base constraints
+//  // final base constraints
   double T = params->GetTotalTime();
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, T, final_base_.lin, derivs));
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, T, final_base_.ang, derivs));
@@ -124,8 +124,8 @@ CostConstraintFactory::MakeStateConstraint () const
 
 
 
-//    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
-//    constraints->AddComponent(duration_constraint);
+    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
+    constraints->AddComponent(duration_constraint);
   }
 
   return constraints;

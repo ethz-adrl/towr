@@ -76,10 +76,10 @@ protected:
   using NodeIds   = std::vector<int>;
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
 
-  VecPoly cubic_polys_;
+  mutable VecPoly cubic_polys_;
+  void UpdatePolynomials() const;
 private:
   Jacobian GetJacobian(int poly_id, double t_local, MotionDerivative dxdt) const;
-  void UpdatePolynomials();
   int GetNodeId(int poly_id, Side) const;
 
   virtual VecTimes GetTimes() const = 0;
@@ -110,6 +110,7 @@ private:
     return times_;
   };
 
+  // zmp_ remove constant here
   void UpdateTimes() const;
   mutable VecTimes times_;
 

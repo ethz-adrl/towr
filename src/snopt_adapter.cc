@@ -174,7 +174,8 @@ SnoptAdapter::Solve (NLP& ref)
 
   if (EXIT != 0) {
     std::string msg = "Snopt failed to find a solution. EXIT:" + std::to_string(EXIT) + ", INFO:" + std::to_string(INFO);
-    throw std::runtime_error(msg);
+    std::cerr << msg;
+//    throw std::runtime_error(msg);
   }
 
    snopt.SetVariables();

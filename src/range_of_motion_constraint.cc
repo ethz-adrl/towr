@@ -83,7 +83,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
     jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_->GetJacobian(t,kPos);
   }
 
-  // spring_clean_ first use of time values in derivatives, this is the goal!
+//   spring_clean_ first use of time values in derivatives, this is the goal!
   if (var_set == ee_timings_->GetName()) {
     VectorXd duration_deriv = ee_spline_->GetDerivativeOfPosWrtDuration(t);
     VectorXd vel = ee_spline_->GetPoint(t).v_;

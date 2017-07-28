@@ -41,6 +41,7 @@ Component::Print () const
     end_string.clear(); // all variables printed
   }
 
+
   std::cout.precision(2);
   std::cout << std::fixed;
   std::cout << name_ << "\t(";
@@ -50,7 +51,8 @@ Component::Print () const
   print_counter += num_rows_;
 
   VectorXd val = GetValues().topRows(print_rows);
-  std::cout << val(0);
+  if (val.rows() > 0)
+    std::cout << val(0);
   for (int i=1; i<val.rows(); ++i)
     std::cout << ",\t" << val(i);
 
