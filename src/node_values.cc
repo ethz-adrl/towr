@@ -139,7 +139,12 @@ NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
 Jacobian
 NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) const
 {
+  // spring_clean_ this is very important, as at every local time, many different polynomials can be active
   Jacobian jac(n_dim_, GetRows());
+  for (int dim=0; dim<jac.rows(); ++dim)
+    for (int col=0; col<jac.cols(); ++col)
+      jac.insert(dim, col) = 0.0;
+
 
   for (int idx=0; idx<jac.cols(); ++idx) {
     for (NodeInfo info : GetNodeInfo(idx)) {
