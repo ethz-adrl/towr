@@ -23,7 +23,7 @@ namespace opt {
 enum MotionTypeID    { WalkID, TrotID, PaceID, BoundID, PushRecID };
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
                        FinalComCostID, FinalStanceCostID };
-enum ConstraintName  { State, JunctionCom, Dynamic, RomBox, };
+enum ConstraintName  { State, JunctionCom, Dynamic, RomBox, TotalTime };
 
 /** This class holds all the hardcoded values describing a motion.
   * This is specific to the robot and the type of motion desired.
@@ -63,8 +63,8 @@ public:
 
   int ee_splines_per_swing_phase_;
   int force_splines_per_stance_phase_;
+  int order_coeff_polys_;
 
-  MotionTypeID id_;
 
   double dt_base_polynomial_;
   double dt_range_of_motion_;    //[s]
@@ -79,7 +79,10 @@ public:
   double GetForceLimit() const {return force_limit_; };
 
   EEVec robot_ee_;
+  ContactTimings contact_timings_;
 protected:
+//  MotionTypeID id_;
+
   Eigen::Matrix3d interia_;
   double mass_;
   double force_limit_;
@@ -87,7 +90,6 @@ protected:
   MaxDevXYZ max_dev_xy_;
   ContactSequence contact_sequence_;
   NominalStance nominal_stance_;
-  ContactTimings contact_timings_;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
 

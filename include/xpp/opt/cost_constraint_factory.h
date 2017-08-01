@@ -63,6 +63,7 @@ private:
   ConstraintPtr MakeJunctionConstraint() const;
   ConstraintPtr MakeDynamicConstraint() const;
   ConstraintPtr MakeRangeOfMotionBoxConstraint() const;
+  ConstraintPtr MakeTotalTimeConstraint() const;
 
   // costs
   ConstraintPtr MakeMotionCost(double weight) const;

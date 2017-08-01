@@ -15,6 +15,57 @@ namespace xpp {
 namespace opt {
 namespace quad {
 
+class SingleMotionParameters : public MotionParameters {
+public:
+  SingleMotionParameters() {
+
+
+
+    ee_splines_per_swing_phase_ = 1; // spring_clean_ this breaks duration derivatives
+    force_splines_per_stance_phase_ = 4;
+
+    robot_ee_ = { EEID::E0 };
+    dt_range_of_motion_ = 0.05;
+
+    // dynamic model for HyQ
+    mass_    = 80;
+    interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
+    force_limit_ = 10000.0; // [N]
+
+    // range of motion specifictions for HyQ
+    const double z_nominal_b = -0.58;
+    nominal_stance_.SetCount(robot_ee_.size());
+    nominal_stance_.At(EEID::E0) = PosXYZ( 0.0, 0.0, z_nominal_b);
+    max_dev_xy_ << 0.15, 0.15, 0.2;
+
+    // spring_clean_ just the addition is used anyway
+    double t_swing  = 0.25;
+    double t_stance = 0.25;
+    contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance};
+    constraints_ = {
+        State,
+        JunctionCom,
+        RomBox,
+        Dynamic,
+    };
+
+
+//    double t_total = std::accumulate(contact_timings_.begin(),
+//                                     contact_timings_.end(),
+//                                     0.0);
+    order_coeff_polys_ = 4;
+    dt_base_polynomial_ = 0.25;//t_total; //s 0.05
+
+    // zmp_ since derivative of acceleration is nonsmooth at junctions, pay attention
+    // to never evaluate at junction of base polynomial directly
+    // (what i'm doing now! :-(
+    // must make sure every polynomial is at least evaluated once
+    dt_dynamic_constraint_ = dt_base_polynomial_/2;
+  }
+
+
+};
+
 class QuadrupedMotionParameters : public MotionParameters {
 public:
   QuadrupedMotionParameters();

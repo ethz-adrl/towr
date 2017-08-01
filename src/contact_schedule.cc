@@ -7,7 +7,11 @@
 
 #include <xpp/opt/variables/contact_schedule.h>
 
-#include <string>
+#include <cassert>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+#include <iostream>
+#include <numeric>
 
 #include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/variable_names.h>
@@ -15,44 +19,18 @@
 namespace xpp {
 namespace opt {
 
-ContactSchedule::ContactSchedule (EndeffectorID ee,
-                                  double t_total,
-                                  const FullPhaseVec& phases)
-   :Component(0, id::GetEEContactId(ee))
+
+ContactSchedule::ContactSchedule (EndeffectorID ee, const VecDurations& timings)
+    :Component(0, id::GetEEScheduleId(ee))
 {
-  t_total_ = t_total;
-  SetPhaseSequence(phases, ee);
-  SetRows(durations_.size()-1); // since last duration results from total time and previous durations
+  durations_ = timings;
+  first_phase_in_contact_ = true;
+  t_total_   = std::accumulate(durations_.begin(), durations_.end(), 0.0);
+  SetRows(durations_.size()-1); // since last phase-duration is not optimized over
 }
 
 ContactSchedule::~ContactSchedule ()
 {
-}
-
-void
-ContactSchedule::SetPhaseSequence (const FullPhaseVec& phases, EndeffectorID ee)
-{
-  double durations = 0.0;
-
-  first_phase_in_contact_ = phases.front().first.At(ee);
-
-  for (int i=0; i<phases.size()-1; ++i) {
-
-    bool is_swingleg = phases.at(i).first.At(ee);
-    bool is_swingleg_next = phases.at(i+1).first.At(ee);;
-
-    durations += phases.at(i).second;
-
-    // check if next phase is different phase
-    bool next_different = is_swingleg != is_swingleg_next;
-
-    if (next_different) {
-      durations_.push_back(durations);
-      durations = 0.0; // reset
-    }
-  }
-
-  durations_.push_back(durations+phases.back().second); // always add last phase
 }
 
 bool
@@ -65,34 +43,53 @@ ContactSchedule::IsInContact (double t_global) const
 VectorXd
 ContactSchedule::GetValues () const
 {
-  VectorXd x = Eigen::Map<VectorXd>(durations_.data(), GetRows());
+  VectorXd x(GetRows());
 
-//  std::cout << "x: " << x.transpose() << std::endl;
+  for (int i=0; i<x.rows(); ++i)
+    x(i) = durations_.at(i);
+
   return x;
 }
 
 void
 ContactSchedule::SetValues (const VectorXd& x)
 {
-  VectorXd::Map(&durations_[0], x.rows()) = x;
-  double t_last = t_total_ - x.sum();
-  durations_.back() = t_last;
+  VecDurations opt_durations;
 
-//  std::cout << "x.rows(): " << x.rows() << std::endl;
-//  std::cout << "x.sum(): " << x.sum() << std::endl;
-//  std::cout << "t_last: " << t_last << std::endl;
-//
-//  std::cout << "durations: " << std::endl;
-//  for (double d : durations_)
-//    std::cout << d << std::endl;
+  for (int i=0; i<x.rows(); ++i)
+    opt_durations.push_back(x(i));
+
+  durations_ = CalcAllDurations(opt_durations);
+}
+
+ContactSchedule::VecDurations
+ContactSchedule::CalcAllDurations (const VecDurations& opt_Ts) const
+{
+  VecDurations all_Ts;
+
+  for (double T : opt_Ts)
+    all_Ts.push_back(T);
+
+  // includes last phase that is not optimized
+  double T_last = t_total_ - std::accumulate(opt_Ts.begin(), opt_Ts.end(), 0.0);
+  assert(T_last > 0.0);
+  all_Ts.push_back(T_last);
+
+  return all_Ts;
 }
 
 VecBound
 ContactSchedule::GetBounds () const
 {
+  VecBound bounds;
   double t_min = 0.1; // [s]
-  double t_max = t_total_/durations_.size(); // [s] // zmp_ this is a huge constraint and should be fixed
-  return VecBound(GetRows(), Bound(t_min, t_max));
+  double t_max = t_total_/GetRows()-0.01; // [s] // quite restrictive
+
+  Bound b(t_min, t_max);
+  for (int i=0; i<GetRows(); ++i)
+    bounds.push_back(b);
+
+  return bounds;
 }
 
 bool
@@ -111,47 +108,79 @@ ContactSchedule::GetTimePerPhase () const
   return durations_;
 }
 
+Jacobian
+ContactSchedule::GetJacobianOfPos (const VectorXd& duration_deriv,
+                                   const VectorXd& current_vel,
+                                   double t_global) const
+{
+  int n_dim = current_vel.rows();
+  Eigen::MatrixXd jac = Eigen::MatrixXd::Zero(n_dim, GetRows());
+
+  int current_phase = Spline::GetSegmentID(t_global, durations_);
+  bool in_last_phase = current_phase == durations_.size()-1;
+
+  // duration of current phase expands and compressed spline
+  if (!in_last_phase)
+    jac.col(current_phase) = duration_deriv;
+
+  for (int phase=0; phase<current_phase; ++phase) {
+    // each previous durations shifts spline along time axis
+    jac.col(phase) = -1*current_vel;
+
+    // in last phase previous duration cause expansion/compression of spline
+    // as final time is fixed.
+    if (in_last_phase)
+      jac.col(phase) -= duration_deriv;
+  }
+
+  // convert to sparse, but also regard 0.0 as non-zero element, because
+  // could turn nonzero during the course of the program
+  // as durations change and t_global falls into different spline
+  return jac.sparseView(1.0, -1.0);
+}
 
 
 
-//DurationConstraint::DurationConstraint (const OptVarsPtr& opt_vars,
-//                                        double T_total, int ee)
-//{
-//  SetName("DurationConstraint-" + std::to_string(ee));
-//  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEContactId(ee)));
-//  T_total_ = T_total;
-//
-//  AddOptimizationVariables(opt_vars);
-//  SetRows(1);
-//}
-//
-//DurationConstraint::~DurationConstraint ()
-//{
-//}
-//
-//VectorXd
-//DurationConstraint::GetValues () const
-//{
-//  VectorXd g = VectorXd::Zero(GetRows());
+
+DurationConstraint::DurationConstraint (const OptVarsPtr& opt_vars,
+                                        double T_total, int ee)
+{
+  SetName("DurationConstraint-" + std::to_string(ee));
+  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
+  T_total_ = T_total;
+
+  AddOptimizationVariables(opt_vars);
+  SetRows(1);
+}
+
+DurationConstraint::~DurationConstraint ()
+{
+}
+
+VectorXd
+DurationConstraint::GetValues () const
+{
+  VectorXd g = VectorXd::Zero(GetRows());
 //  for (double t_phase : schedule_->GetTimePerPhase())
 //    g(0) += t_phase;
 //
-//  return g;
-//}
-//
-//VecBound
-//DurationConstraint::GetBounds () const
-//{
-//  return VecBound(GetRows(), Bound(T_total_, T_total_));
-//}
-//
-//void
-//DurationConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
-//{
-//  if (var_set == schedule_->GetName())
-//    for (int col=0; col<schedule_->GetPhaseCount(); ++col)
-//      jac.coeffRef(0, col) = 1.0;
-//}
+  g(0) = schedule_->GetValues().sum();
+  return g;
+}
+
+VecBound
+DurationConstraint::GetBounds () const
+{
+  return VecBound(GetRows(), Bound(0.1, T_total_-0.2));
+}
+
+void
+DurationConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
+{
+  if (var_set == schedule_->GetName())
+    for (int col=0; col<schedule_->GetRows(); ++col)
+      jac.coeffRef(0, col) = 1.0;
+}
 
 
 

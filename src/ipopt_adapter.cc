@@ -41,6 +41,8 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   m = nlp_->GetNumberOfConstraints();
   nnz_jac_g = nlp_->GetJacobianOfConstraints().nonZeros();
 
+  std::cout << "nnz_jac_g: " << nnz_jac_g << std::endl;
+
   // nonzeros in the hessian of the lagrangian
   // (one in the hessian of the objective for x2,
   //  and one in the hessian of the constraints for x1)
@@ -55,8 +57,6 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 bool IpoptAdapter::get_bounds_info(Index n, Number* x_lower, Number* x_upper,
                             Index m, Number* g_l, Number* g_u)
 {
-
-  // no bounds on the spline coefficients of footholds
   auto bounds_x = nlp_->GetBoundsOnOptimizationVariables();
   for (uint c=0; c<bounds_x.size(); ++c) {
     x_lower[c] = bounds_x.at(c).lower_;
@@ -131,6 +131,8 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
         nele++;
       }
     }
+
+    assert(nele == nele_jac); // initial sparsity structure is never allowed to change
   }
   else {
     // only gets used if "jacobian_approximation finite-difference-values" is not set
@@ -204,9 +206,10 @@ IpoptAdapter::Solve (NLP& nlp)
 //  }
 
   if (status_ != Solve_Succeeded) {
-    nlp.PrintCurrent();
+//    nlp.PrintCurrent();
     std::string msg = "Ipopt failed to find a solution. ReturnCode: " + std::to_string(status_);
-    throw std::runtime_error(msg);
+    std::cerr << msg;
+//    throw std::runtime_error(msg);
   }
 }
 

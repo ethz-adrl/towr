@@ -60,6 +60,7 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
     case JunctionCom: return MakeJunctionConstraint();
     case Dynamic:     return MakeDynamicConstraint();
     case RomBox:      return MakeRangeOfMotionBoxConstraint();
+    case TotalTime:   return MakeTotalTimeConstraint();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -97,7 +98,7 @@ CostConstraintFactory::MakeStateConstraint () const
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, t, initial_base_.ang, derivs));
 
 
-  // final base constraints
+//  // final base constraints
   double T = params->GetTotalTime();
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, T, final_base_.lin, derivs));
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, T, final_base_.ang, derivs));
@@ -109,6 +110,7 @@ CostConstraintFactory::MakeStateConstraint () const
     auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), {});
 
     // initial endeffectors constraints
+    // zmp_ replace these by normal variable bounds on the hermite-poly nodes
     auto deriv_ee = {kPos}; // velocity and acceleration not yet implemented
     auto c = std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, t,
                                                      VectorXd(initial_ee_W_.At(ee)),
@@ -121,10 +123,6 @@ CostConstraintFactory::MakeStateConstraint () const
     VectorXd ee_pos_W = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
 //    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, T, ee_pos_W, deriv_ee));
 
-
-
-//    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
-//    constraints->AddComponent(duration_constraint);
   }
 
   return constraints;
@@ -179,22 +177,34 @@ CostConstraintFactory::MakeDynamicConstraint() const
 CostConstraintFactory::ConstraintPtr
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
-  auto rom_constraints = std::make_shared<Composite>("Range-of-Motion Constraints", true);
+  auto c = std::make_shared<Composite>("Range-of-Motion Constraints", true);
+
+  double T = params->GetTotalTime();
 
   for (auto ee : params->robot_ee_) {
-    auto c = std::make_shared<RangeOfMotionBox>(opt_vars_,
+    auto rom_constraints = std::make_shared<RangeOfMotionBox>(opt_vars_,
                                                 params,
                                                 ee);
 
-    rom_constraints->AddComponent(c);
-
-//    // add timing constraint
-//    auto contact_timing_constraints = std::make_shared<ContactConstraints>(opt_vars_,params->GetTotalTime(),dt,ee);
-//    rom_constraints->AddComponent(contact_timing_constraints);
+    c->AddComponent(rom_constraints);
   }
 
 
-  return rom_constraints;
+  return c;
+}
+
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::MakeTotalTimeConstraint () const
+{
+  auto c = std::make_shared<Composite>("Range-of-Motion Constraints", true);
+  double T = params->GetTotalTime();
+
+  for (auto ee : params->robot_ee_) {
+    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
+    c->AddComponent(duration_constraint);
+  }
+
+  return c;
 }
 
 

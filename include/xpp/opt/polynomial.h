@@ -29,8 +29,7 @@ public:
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
-
-//  StateLinXd GetPoint(double t_local) const;
+//  VecBound GetBounds () const override;
   Jacobian GetJacobian(double t_local, MotionDerivative dxdt) const;
 
   PolynomialPtr GetPolynomial() const { return polynomial_; };
@@ -95,12 +94,17 @@ public:
   double GetDerivativeOfVelWrt(Side, MotionDerivative node_value, double t_local) const;
   double GetDerivativeOfAccWrt(Side, MotionDerivative node_value, double t_local) const;
 
-  VectorXd GetDerivativeOfPosWrtDuration(const Node& n0,
-                                         const Node& n1,
-                                         double t_local) const;
+  /** @brief How the total duration affect the position of the polynomial
+   *
+   * @param t_local the local polynomial time [0,pT]
+   * @param p the percent [0,inf] of the total duration w.r.t the derivative is desired that this T_ represents.
+   * @returns the derivative for each dimension (e.g. x,y,z)
+   */
+  VectorXd GetDerivativeOfPosWrtDuration(double t_local) const;
 
 private:
   double T_;
+  Node n0_, n1_;
 };
 
 

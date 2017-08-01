@@ -15,7 +15,7 @@
 namespace xpp {
 namespace opt {
 
-NodeValues::NodeValues () : Component(-1, "dummy")
+NodeValues::NodeValues () : Component(-1, "node_values_placeholder")
 {
 }
 
@@ -93,8 +93,9 @@ NodeValues::SetValues (const VectorXd& x)
 }
 
 
+// zmp_ remove the constant here, this is nonsense
 void
-NodeValues::UpdatePolynomials ()
+NodeValues::UpdatePolynomials () const
 {
   for (int i=0; i<cubic_polys_.size(); ++i) {
     cubic_polys_.at(i)->SetNodes(nodes_.at(GetNodeId(i,Side::Start)),
@@ -114,8 +115,13 @@ const StateLinXd
 NodeValues::GetPoint(double t_global) const
 {
   // zmp_ look at this returning a pair
-  int id         = GetSegmentID(t_global, GetTimes());
-  double t_local = GetLocalTime(t_global, GetTimes());
+//  int id         = GetSegmentID(t_global, GetTimes());
+//  double t_local = GetLocalTime(t_global, GetTimes());
+
+  int id; double t_local;
+  std::tie(id, t_local) = GetLocalTime(t_global, GetTimes());
+
+//  UpdatePolynomials(); // zmp_ ugly that has to be called before everything
   return cubic_polys_.at(id)->GetPoint(t_local);
 }
 
@@ -123,10 +129,14 @@ NodeValues::GetPoint(double t_global) const
 Jacobian
 NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
-  int poly_id     = GetSegmentID(t_global, GetTimes());
-  double t_local  = GetLocalTime(t_global, GetTimes()); // these are both wrong when adding extra polynomial
+//  int poly_id     = GetSegmentID(t_global, GetTimes());
+//  double t_local  = GetLocalTime(t_global, GetTimes()); // these are both wrong when adding extra polynomial
 
-  return GetJacobian(poly_id, t_local, dxdt);
+  int id; double t_local;
+  std::tie(id, t_local) = GetLocalTime(t_global, GetTimes());
+
+//  UpdatePolynomials(); // zmp_ ugly that has to be called before everything
+  return GetJacobian(id, t_local, dxdt);
 }
 
 
@@ -135,7 +145,9 @@ NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
 Jacobian
 NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) const
 {
-  Jacobian jac(n_dim_, GetRows());
+  // spring_clean_ this is very important, as at every local time,
+  // different polynomials can be active depending on poly durations
+  Jacobian jac = Eigen::MatrixXd::Zero(n_dim_, GetRows()).sparseView(1.0, -1.0);
 
   for (int idx=0; idx<jac.cols(); ++idx) {
     for (NodeInfo info : GetNodeInfo(idx)) {
@@ -154,12 +166,37 @@ NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) con
   return jac;
 }
 
+
 int
 NodeValues::GetNodeId (int poly_id, Side side) const
 {
   return poly_id + side;
 }
 
+
+
+
+
+// spring_clean_ rename to ..WrtPhaseDuration
+VectorXd
+PhaseNodes::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
+{
+  int id; double t_local;
+  std::tie(id, t_local) = GetLocalTime(t_global, GetTimes());
+
+  // polynomial durations derived w.r.t. opt. times
+  int id_local, num_splines_per_phase;
+  std::tie(id_local, num_splines_per_phase) = percent_of_phase_.at(id);
+
+
+  double percent_of_phase = 1./num_splines_per_phase;
+  double inner_derivative = percent_of_phase;
+  VectorXd vel = GetPoint(t_global).v_;
+
+  VectorXd tune = id_local*percent_of_phase*vel;
+
+  return inner_derivative*cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local) - tune;
+}
 
 
 
@@ -178,15 +215,6 @@ PhaseNodes::PhaseNodes (const Node& initial_value,
   UpdateTimes();
 
   Init(initial_value, times_.size(), name);
-
-
-
-  // zmp_ remove this
-  std::cout << GetName() << std::endl;
-  for (double d : times_) {
-    std::cout << d << std::endl;
-  }
-
 
   int first_constant_node_in_cycle = (!is_first_phase_constant)*n_polys_in_changing_phase;
 
@@ -215,19 +243,30 @@ PhaseNodes::~PhaseNodes ()
 void
 PhaseNodes::UpdateTimes() const
 {
+  // zmp_ this is prone to bugs
   times_.clear();
+  percent_of_phase_.clear(); // only need to do this once
 
   bool is_constant_phase = is_first_phase_constant_;
   for (double T : contact_schedule_->GetTimePerPhase()) {
 
-    if (is_constant_phase)
+    if (is_constant_phase) {
       times_.push_back(T);
-    else
-      for (int i=0; i<n_polys_in_changing_phase_; ++i)
+      percent_of_phase_.push_back({0,1});
+    } else {
+      for (int i=0; i<n_polys_in_changing_phase_; ++i) {
         times_.push_back(T/n_polys_in_changing_phase_);
+        percent_of_phase_.push_back({i,n_polys_in_changing_phase_});
+      }
+    }
 
     is_constant_phase = !is_constant_phase;
   }
+
+//  std::cout << "\n durations" << std::endl;
+//  for (int i=0; i<times_.size(); ++i) {
+//    std::cout << "t=" << times_.at(i) << ", p=" << percent_of_phase_.at(i) << std::endl;
+//  }
 }
 
 
@@ -259,7 +298,6 @@ EEMotionNodes::GetBounds () const
 
   for (int idx=0; idx<bounds.size(); ++idx) {
 
-    // no force allowed during swingphase
     bool is_stance = GetNodeInfo(idx).size() == 2;
 
     if (is_stance) {

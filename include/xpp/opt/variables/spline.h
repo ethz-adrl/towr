@@ -35,20 +35,19 @@ public:
 
   using OptVarsPtr = Primitive::OptVarsPtr;
   using VecTimes   = std::vector<double>;
+  using LocalInfo  = std::pair<int,double>; ///< id and local time
 
   Spline ();
   virtual ~Spline ();
 
   // zmp_ this is ugly as i only use durations for coeff_spline spline...
-  // zmp_ remove duration from here
+  // remove duration from here
   static Spline::Ptr BuildSpline(const OptVarsPtr& opt_vars,
                                  const std::string& spline_base_id,
                                  const VecTimes& poly_durations);
 
-
-
   static int GetSegmentID(double t_global, const VecTimes& durations);
-  static double GetLocalTime(double t_global, const VecTimes& durations);
+  static LocalInfo GetLocalTime(double t_global, const VecTimes& durations);
 
 
   virtual const StateLinXd GetPoint(double t_global) const = 0;
@@ -58,7 +57,10 @@ public:
    */
   virtual bool DoVarAffectCurrentState(const std::string& poly_vars,
                                        double t_current) const = 0;
+
   virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
+
+
 };
 
 

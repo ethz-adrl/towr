@@ -57,6 +57,22 @@ PolynomialVars::SetValues (const VectorXd& x)
   }
 }
 
+//VecBound
+//PolynomialVars::GetBounds () const
+//{
+//  VecBound bounds(GetRows(), kNoBound_);
+//
+//  for (auto c : polynomial_->GetCoeffIds()) {
+//    for (int dim=0; dim<polynomial_->GetDimCount(); ++dim) {
+//      double idx = Index(c, dim);
+//      if (c==B && dim==Z)
+//        bounds.at(idx) = kEqualityBound_;
+//    }
+//  }
+//  return bounds;
+//}
+
+
 Jacobian
 PolynomialVars::GetJacobian (double t_local, MotionDerivative dxdt) const
 {
@@ -152,6 +168,8 @@ CubicHermitePoly::SetNodes (const Node& n0, const Node& n1, double T)
   coeff_[D] =  ( 2*(n0.at(kPos) - n1.at(kPos)) +  T*(  n0.at(kVel) + n1.at(kVel)) ) / std::pow(T,3);
 
   T_ = T;
+  n0_ = n0;
+  n1_ = n1;
 }
 
 
@@ -257,14 +275,12 @@ CubicHermitePoly::GetDerivativeOfAccWrt (Side side, MotionDerivative node_value,
 
 
 VectorXd
-CubicHermitePoly::GetDerivativeOfPosWrtDuration(const Node& n0,
-                                                const Node& n1,
-                                                double t) const
+CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
 {
-  VectorXd p0 = n0.at(kPos);
-  VectorXd v0 = n0.at(kVel);
-  VectorXd p1 = n1.at(kPos);
-  VectorXd v1 = n1.at(kVel);
+  VectorXd x0 = n0_.at(kPos);
+  VectorXd x1 = n1_.at(kPos);
+  VectorXd v0 = n0_.at(kVel);
+  VectorXd v1 = n1_.at(kVel);
 
   double t2 = std::pow(t,2);
   double t3 = std::pow(t,3);
@@ -273,10 +289,17 @@ CubicHermitePoly::GetDerivativeOfPosWrtDuration(const Node& n0,
   double T3 = std::pow(T_,3);
   double T4 = std::pow(T_,4);
 
-  return   (t3*(v0 + v1))/T3
-         - (3*t3*(2*p0 - 2*p1 + T*v0 + T*v1))/T4
-         + (2*t2*(3*p0 - 3*p1 + 2*T*v0 + T*v1))/T3
-         - (t2*(2*v0 + v1))/T2;
+  VectorXd deriv = (t3*(v0 + v1))/T3
+                 - (t2*(2*v0 + v1))/T2
+                 - (3*t3*(2*x0 - 2*x1 + T*v0 + T*v1))/T4
+                 + (2*t2*(3*x0 - 3*x1 + 2*T*v0 + T*v1))/T3;
+
+  return deriv;
+
+//  return   (t3*(v0 + v1))/T3
+//         - (t2*(2*v0 + v1))/T2;
+//         - (3*t3*(2*p0 - 2*p1 + T*v0 + T*v1))/T4
+//         + (2*t2*(3*p0 - 3*p1 + 2*T*v0 + T*v1))/T3
 }
 
 
