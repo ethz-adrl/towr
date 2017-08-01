@@ -44,6 +44,8 @@ private:
   MotionOptimizerFacade motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
   NlpSolver solver_type_;
+
+  void SetInitialState (const RobotStateCartesian& initial_state);
 };
 
 } /* namespace ros */

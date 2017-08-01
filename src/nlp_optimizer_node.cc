@@ -7,9 +7,10 @@
 
 #include <xpp/ros/nlp_optimizer_node.h>
 
+#include <kindr/Core>
+
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
-#include <xpp/opt/quadruped_motion_parameters.h>
 
 #include <xpp_msgs/RobotStateCartesianTrajectory.h> // publish
 #include <xpp_msgs/OptParameters.h> // publish
@@ -36,11 +37,6 @@ NlpOptimizerNode::NlpOptimizerNode ()
   opt_parameters_pub_  = n.advertise<xpp_msgs::OptParameters>
                                     (xpp_msgs::opt_parameters, 1);
 
-
-  auto motion_params = std::make_shared<opt::quad::QuadrupedMotionParameters>();
-  motion_optimizer_.SetMotionParameters(motion_params);
-  motion_optimizer_.BuildDefaultStartStance();
-
   dt_ = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
 }
 
@@ -48,7 +44,7 @@ void
 NlpOptimizerNode::CurrentStateCallback (const StateMsg& msg)
 {
   auto curr_state = RosHelpers::RosToXpp(msg);
-  motion_optimizer_.SetInitialState(curr_state);
+  SetInitialState(curr_state);
 
 //  ROS_INFO_STREAM("Received Current Real State");
 //  std::cout << curr_state.GetBase() << std::endl;
@@ -73,14 +69,8 @@ NlpOptimizerNode::OptimizeMotion ()
 void
 NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 {
-//  auto goal_prev = motion_optimizer_.goal_geom_;
   motion_optimizer_.final_base_.lin = RosHelpers::RosToXpp(msg.goal_lin);
   motion_optimizer_.final_base_.ang = RosHelpers::RosToXpp(msg.goal_ang);
-
-  auto motion_id = static_cast<opt::MotionTypeID>(msg.motion_type);
-  auto params = opt::quad::QuadrupedMotionParameters::MakeMotion(motion_id);
-  motion_optimizer_.SetMotionParameters(params);
-
   solver_type_ = msg.use_solver_snopt ? opt::Snopt : opt::Ipopt;
 
   Eigen::Vector3d vel_dis(msg.vel_disturbance.x, msg.vel_disturbance.y, msg.vel_disturbance.z);
@@ -118,6 +108,23 @@ NlpOptimizerNode::PublishTrajectory () const
   auto cart_traj_msg = RosHelpers::XppToRosCart(opt_traj_cartesian);
   cart_trajectory_pub_.publish(cart_traj_msg);
 }
+
+void
+NlpOptimizerNode::SetInitialState (const RobotStateCartesian& initial_state)
+{
+  motion_optimizer_.initial_ee_W_       = initial_state.GetEEPos();
+
+  motion_optimizer_.inital_base_ = State3dEuler(); // zero
+  motion_optimizer_.inital_base_.lin = initial_state.GetBase().lin;
+
+  kindr::RotationQuaternionD quat(initial_state.GetBase().ang.q);
+  kindr::EulerAnglesZyxD euler(quat);
+  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
+  motion_optimizer_.inital_base_.ang.p_ = euler.toImplementation().reverse();
+  // assume zero euler rates and euler accelerations
+}
+
+
 
 } /* namespace ros */
 } /* namespace xpp */
