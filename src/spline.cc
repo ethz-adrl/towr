@@ -69,19 +69,19 @@ Spline::GetSegmentID(double t_global, const VecTimes& durations)
    assert(false); // this should never be reached
 }
 
-double
-Spline::GetLocalTime(double t_global, const VecTimes& durations)
+Spline::LocalInfo
+Spline::GetLocalTime (double t_global, const VecTimes& durations)
 {
-  int id_spline = GetSegmentID(t_global, durations);
+  int id = GetSegmentID(t_global, durations);
 
   double t_local = t_global;
-  for (int id=0; id<id_spline; id++) {
-    t_local -= durations.at(id);
-  }
+  for (int i=0; i<id; i++)
+    t_local -= durations.at(i);
 
-  return t_local;
+  return std::make_pair(id, t_local);
 }
 
 
 } /* namespace opt */
 } /* namespace xpp */
+

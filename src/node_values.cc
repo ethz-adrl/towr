@@ -15,7 +15,7 @@
 namespace xpp {
 namespace opt {
 
-NodeValues::NodeValues () : Component(-1, "dummy")
+NodeValues::NodeValues () : Component(-1, "node_values_placeholder")
 {
 }
 
@@ -115,10 +115,13 @@ const StateLinXd
 NodeValues::GetPoint(double t_global) const
 {
   // zmp_ look at this returning a pair
-  int id         = GetSegmentID(t_global, GetTimes());
-  double t_local = GetLocalTime(t_global, GetTimes());
+//  int id         = GetSegmentID(t_global, GetTimes());
+//  double t_local = GetLocalTime(t_global, GetTimes());
 
-  UpdatePolynomials(); // zmp_ ugly that has to be called before everything
+  int id; double t_local;
+  std::tie(id, t_local) = GetLocalTime(t_global, GetTimes());
+
+//  UpdatePolynomials(); // zmp_ ugly that has to be called before everything
   return cubic_polys_.at(id)->GetPoint(t_local);
 }
 
@@ -126,11 +129,14 @@ NodeValues::GetPoint(double t_global) const
 Jacobian
 NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
-  int poly_id     = GetSegmentID(t_global, GetTimes());
-  double t_local  = GetLocalTime(t_global, GetTimes()); // these are both wrong when adding extra polynomial
+//  int poly_id     = GetSegmentID(t_global, GetTimes());
+//  double t_local  = GetLocalTime(t_global, GetTimes()); // these are both wrong when adding extra polynomial
 
-  UpdatePolynomials(); // zmp_ ugly that has to be called before everything
-  return GetJacobian(poly_id, t_local, dxdt);
+  int id; double t_local;
+  std::tie(id, t_local) = GetLocalTime(t_global, GetTimes());
+
+//  UpdatePolynomials(); // zmp_ ugly that has to be called before everything
+  return GetJacobian(id, t_local, dxdt);
 }
 
 
@@ -139,12 +145,9 @@ NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
 Jacobian
 NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) const
 {
-  // spring_clean_ this is very important, as at every local time, many different polynomials can be active
-  Jacobian jac(n_dim_, GetRows());
-  for (int dim=0; dim<jac.rows(); ++dim)
-    for (int col=0; col<jac.cols(); ++col)
-      jac.insert(dim, col) = 0.0;
-
+  // spring_clean_ this is very important, as at every local time,
+  // different polynomials can be active depending on poly durations
+  Jacobian jac = Eigen::MatrixXd::Zero(n_dim_, GetRows()).sparseView(1.0, -1.0);
 
   for (int idx=0; idx<jac.cols(); ++idx) {
     for (NodeInfo info : GetNodeInfo(idx)) {
@@ -178,12 +181,15 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 VectorXd
 PhaseNodes::GetDerivativeOfPosWrtDuration (double t_global) const
 {
-  int id         = GetSegmentID(t_global, GetTimes());
-  double t_local = GetLocalTime(t_global, GetTimes());
+//  int id         = GetSegmentID(t_global, GetTimes());
+//  double t_local = GetLocalTime(t_global, GetTimes());
 
-  double p = percent_of_phase_.at(id);
+  int id; double t_local;
+  std::tie(id, t_local) = GetLocalTime(t_global, GetTimes());
 
-  return cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local, p);
+//  double p = percent_of_phase_.at(id); // use chain rule for this
+
+  return cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local);
 }
 
 

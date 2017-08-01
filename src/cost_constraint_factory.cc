@@ -187,8 +187,8 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 
     c->AddComponent(rom_constraints);
 
-    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
-    c->AddComponent(duration_constraint);
+//    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
+//    c->AddComponent(duration_constraint);
 
 //    // add timing constraint
 //    auto contact_timing_constraints = std::make_shared<ContactConstraints>(opt_vars_,params->GetTotalTime(),dt,ee);

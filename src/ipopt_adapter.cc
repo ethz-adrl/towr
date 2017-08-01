@@ -41,6 +41,8 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   m = nlp_->GetNumberOfConstraints();
   nnz_jac_g = nlp_->GetJacobianOfConstraints().nonZeros();
 
+  std::cout << "nnz_jac_g: " << nnz_jac_g << std::endl;
+
   // nonzeros in the hessian of the lagrangian
   // (one in the hessian of the objective for x2,
   //  and one in the hessian of the constraints for x1)
@@ -129,6 +131,8 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
         nele++;
       }
     }
+
+    assert(nele == nele_jac); // initial sparsity structure is never allowed to change
   }
   else {
     // only gets used if "jacobian_approximation finite-difference-values" is not set

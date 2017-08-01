@@ -24,11 +24,20 @@ CoeffSpline::CoeffSpline(const OptVarsPtr& opt_vars,
 
 CoeffSpline::~CoeffSpline() {};
 
+const StateLinXd
+CoeffSpline::GetPoint(double t_global) const
+{
+  int id; double t_local;
+  std::tie(id, t_local) = GetLocalTime(t_global, durations_);
+  return polynomials_.at(id)->GetPoint(t_local);
+}
+
 Jacobian
 CoeffSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 {
-  double t_local = GetLocalTime(t_global, durations_);
-  return GetActiveVariableSet(t_global)->GetJacobian(t_local, deriv);
+  int id; double t_local;
+  std::tie(id, t_local) = GetLocalTime(t_global, durations_);
+  return poly_vars_.at(id)->GetJacobian(t_local, deriv);
 }
 
 bool
@@ -40,7 +49,7 @@ CoeffSpline::DoVarAffectCurrentState(const std::string& poly_vars, double t_glob
 CoeffSpline::VarsPtr
 CoeffSpline::GetActiveVariableSet (double t_global) const
 {
-  int id = GetSegmentID(t_global, durations_);
+  auto id = GetSegmentID(t_global, durations_);
   return poly_vars_.at(id);
 }
 

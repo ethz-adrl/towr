@@ -102,7 +102,7 @@ public:
    * @param p the percent [0,inf] of the total duration w.r.t the derivative is desired that this T_ represents.
    * @returns the derivative for each dimension (e.g. x,y,z)
    */
-  VectorXd GetDerivativeOfPosWrtDuration(double t_local, double p=1.0) const;
+  VectorXd GetDerivativeOfPosWrtDuration(double t_local) const;
 
 private:
   double T_;

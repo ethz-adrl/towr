@@ -79,7 +79,6 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
 //  MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
   int row_start = GetRow(k,X);
 
-//   spring_clean_ first use of time values in derivatives, this is the goal!
   if (var_set == ee_timings_->GetName()) {
     VectorXd duration_deriv = ee_spline_->GetDerivativeOfPosWrtDuration(t);
     VectorXd vel = ee_spline_->GetPoint(t).v_;

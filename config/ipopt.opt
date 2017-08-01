@@ -13,11 +13,11 @@ linear_solver ma57
 #linear_solver ma86
 #linear_solver ma97
 
-jacobian_approximation finite-difference-values
+#jacobian_approximation finite-difference-values
 hessian_approximation limited-memory
 
 
-#derivative_test first-order
+derivative_test first-order
 derivative_test_tol 1e-4   # deviations between provided and finite-difference approximated derivatives larger than this value are flagged.
 #derivative_test second-order
 

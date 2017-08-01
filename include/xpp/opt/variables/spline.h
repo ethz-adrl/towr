@@ -35,6 +35,7 @@ public:
 
   using OptVarsPtr = Primitive::OptVarsPtr;
   using VecTimes   = std::vector<double>;
+  using LocalInfo  = std::pair<int,double>; ///< id and local time
 
   Spline ();
   virtual ~Spline ();
@@ -45,10 +46,8 @@ public:
                                  const std::string& spline_base_id,
                                  const VecTimes& poly_durations);
 
-
-
   static int GetSegmentID(double t_global, const VecTimes& durations);
-  static double GetLocalTime(double t_global, const VecTimes& durations);
+  static LocalInfo GetLocalTime(double t_global, const VecTimes& durations);
 
 
   virtual const StateLinXd GetPoint(double t_global) const = 0;

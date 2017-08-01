@@ -15,16 +15,11 @@ namespace xpp {
 namespace opt {
 namespace quad {
 
-// zmp_ move to different class
 class SingleMotionParameters : public MotionParameters {
 public:
   SingleMotionParameters() {
 
-    // zmp_ since derivative of acceleration is nonsmooth at junctions, pay attention
-    // to never evaluate at junction of base polynomial directly
-    // (what i'm doing now! :-(
-    // must make sure every polynomial is at least evaluated once
-    dt_dynamic_constraint_ = dt_base_polynomial_/2;
+
 
     ee_splines_per_swing_phase_ = 1; // spring_clean_ this breaks duration derivatives
     force_splines_per_stance_phase_ = 6;
@@ -44,12 +39,14 @@ public:
     max_dev_xy_ << 0.15, 0.15, 0.1;
 
     // spring_clean_ just the addition is used anyway
-    contact_timings_ = {0.1, 0.8, 0.1, 0.1, 0.1};
+    double t_swing  = 0.1;
+    double t_stance = 0.5;
+    contact_timings_ = {t_stance, t_swing, t_stance, t_swing, 1.0};
 
     constraints_ = {
         State,
         JunctionCom,
-        RomBox, // usually enforced as soft-constraint/cost
+        RomBox,
 //        Dynamic,
     };
 
@@ -58,6 +55,12 @@ public:
     dt_base_polynomial_    = std::accumulate(contact_timings_.begin(),
                                              contact_timings_.end(),
                                              0.0); //s 0.05
+
+    // zmp_ since derivative of acceleration is nonsmooth at junctions, pay attention
+    // to never evaluate at junction of base polynomial directly
+    // (what i'm doing now! :-(
+    // must make sure every polynomial is at least evaluated once
+    dt_dynamic_constraint_ = dt_base_polynomial_/2;
   }
 
 

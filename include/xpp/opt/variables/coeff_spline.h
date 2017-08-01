@@ -30,13 +30,7 @@ public:
   virtual ~CoeffSpline();
 
 
-  virtual const StateLinXd GetPoint(double t_global) const override
-  {
-    int id = GetSegmentID(t_global, durations_);
-    double t_local = GetLocalTime(t_global, durations_);
-    return polynomials_.at(id)->GetPoint(t_local);
-  }
-
+  virtual const StateLinXd GetPoint(double t_global) const override;
   virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
   virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const override;
 
