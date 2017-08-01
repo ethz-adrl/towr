@@ -23,29 +23,30 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
-  order_coeff_polys_ = 4;
-  dt_base_polynomial_    = 0.15; //s 0.05
 
   // zmp_ since derivative of acceleration is nonsmooth at junctions, pay attention
   // to never evaluate at junction of base polynomial directly
   // (what i'm doing now! :-(
   // must make sure every polynomial is at least evaluated once
+  order_coeff_polys_ = 4;
+  dt_base_polynomial_    = 0.25; //s 0.05
   dt_dynamic_constraint_ = dt_base_polynomial_/2;
 
   ee_splines_per_swing_phase_ = 1; // spring_clean_ this breaks duration derivatives
-  force_splines_per_stance_phase_ = 6;
-
-//  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
-  robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
-  dt_range_of_motion_ = 0.15;
+  force_splines_per_stance_phase_ = 3;
 
   // dynamic model for HyQ
   mass_    = 80;
   interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
-  force_limit_ = 10000.0; // [N]
+  force_limit_ = 1000.0; // [N]
 
 
-  // range of motion specifictions for HyQ
+
+//  offset_geom_to_com_ << -0.02230, -0.00010, 0.03870;
+  robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
+  dt_range_of_motion_ = 0.10;
+
+  // range of motion specifications for HyQ
   const double x_nominal_b = 0.28;
   const double y_nominal_b = 0.28;
   const double z_nominal_b = -0.58;
@@ -54,6 +55,28 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, z_nominal_b);
+  max_dev_xy_ << 0.15, 0.15, 0.15;
+
+
+
+  double t_swing  = 0.4;
+  double t_stance = 0.4;
+  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, 1.0};
+
+
+  constraints_ = {
+      State,
+      JunctionCom,
+      RomBox,
+      Dynamic,
+//      TotalTime,
+  };
+
+
+
+
+
+
 
   II_.SetCount(robot_ee_.size()); II_.SetAll(false);
   PI_.SetCount(robot_ee_.size()); PI_.SetAll(false);

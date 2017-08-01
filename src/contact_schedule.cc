@@ -82,7 +82,7 @@ VecBound
 ContactSchedule::GetBounds () const
 {
   VecBound bounds;
-  double t_min = 0.05; // [s]
+  double t_min = 0.1; // [s]
   double t_max = t_total_/GetRows()-0.01; // [s] // quite restrictive
 
   Bound b(t_min, t_max);

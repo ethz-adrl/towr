@@ -60,6 +60,7 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
     case JunctionCom: return MakeJunctionConstraint();
     case Dynamic:     return MakeDynamicConstraint();
     case RomBox:      return MakeRangeOfMotionBoxConstraint();
+    case TotalTime:   return MakeTotalTimeConstraint();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -186,15 +187,22 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
                                                 ee);
 
     c->AddComponent(rom_constraints);
-
-//    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
-//    c->AddComponent(duration_constraint);
-
-//    // add timing constraint
-//    auto contact_timing_constraints = std::make_shared<ContactConstraints>(opt_vars_,params->GetTotalTime(),dt,ee);
-//    rom_constraints->AddComponent(contact_timing_constraints);
   }
 
+
+  return c;
+}
+
+CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::MakeTotalTimeConstraint () const
+{
+  auto c = std::make_shared<Composite>("Range-of-Motion Constraints", true);
+  double T = params->GetTotalTime();
+
+  for (auto ee : params->robot_ee_) {
+    auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
+    c->AddComponent(duration_constraint);
+  }
 
   return c;
 }

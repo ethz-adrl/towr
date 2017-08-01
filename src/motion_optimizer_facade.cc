@@ -32,7 +32,7 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  motion_parameters_ =  std::make_shared<opt::quad::SingleMotionParameters>();
+  motion_parameters_ =  std::make_shared<opt::quad::QuadrupedMotionParameters>();
   BuildDefaultStartStance();
   opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
 }
@@ -163,7 +163,7 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
     default: assert(false); // solver not implemented
   }
 
-  opt_variables_->Print();
+  nlp.PrintCurrent();
 }
 
 MotionOptimizerFacade::RobotStateVec
