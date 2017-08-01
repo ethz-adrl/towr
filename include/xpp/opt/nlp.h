@@ -55,6 +55,12 @@ public:
   void AddCost(ConstraintPtrU);
   void AddConstraint(ConstraintPtrU);
 
+  void PrintCurrent() const
+  {
+    opt_variables_->Print();
+    constraints_->Print();
+  };
+
 private:
   ConstraintPtrU constraints_;
   ConstraintPtrU costs_;

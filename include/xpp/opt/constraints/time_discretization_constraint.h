@@ -8,8 +8,11 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_TIME_DISCRETIZATION_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_TIME_DISCRETIZATION_CONSTRAINT_H_
 
+#include <memory>
+#include <string>
 #include <vector>
 
+#include <xpp/opt/bound.h>
 #include "composite.h"
 
 namespace xpp {

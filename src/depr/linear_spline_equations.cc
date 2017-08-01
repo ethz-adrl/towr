@@ -64,15 +64,15 @@ LinearSplineEquations::MakeJunction (const MotionDerivatives& derivatives) const
   int i = 0; // constraint count
 
   for (int id = 0; id < n_junctions; ++id) {
-    double T = polynomials.at(id)->GetDuration();
+    double T = poly_spline_.GetDurationOfPoly(id);
 
     for (int dim=0; dim<n_dim; dim++){
       for (auto dxdt :  derivatives) {
         VecScalar curr, next;
 
         // coefficients are all set to zero
-        curr.s = polynomials.at(id)->GetPoint(T).GetByIndex(dxdt)[dim];
-        next.s = polynomials.at(id+1)->GetPoint(0.0).GetByIndex(dxdt)[dim];
+        curr.s = polynomials.at(id).GetPoint(T).GetByIndex(dxdt)[dim];
+        next.s = polynomials.at(id+1).GetPoint(0.0).GetByIndex(dxdt)[dim];
 
         curr.v = poly_spline_.GetJacobianWrtCoeffAtPolynomial(dxdt,   T,   id, dim);
         next.v = poly_spline_.GetJacobianWrtCoeffAtPolynomial(dxdt, 0.0, id+1, dim);
@@ -91,15 +91,15 @@ LinearSplineEquations::MakeCostMatrix (const VectorXd& weight, MotionDerivative 
   // total number of coefficients to be optimized
   int n_coeff = poly_spline_.GetRows();
   Eigen::MatrixXd M = Eigen::MatrixXd::Zero(n_coeff, n_coeff);
-  int i=0;
+  int poly_id=0;
   for (const auto& p : poly_spline_.GetPolynomials()) {
 
     for (int dim=0; dim<poly_spline_.GetNDim(); ++dim){
 
-      double T = p->GetDuration();
+      double T = poly_spline_.GetDurationOfPoly(poly_id);
 
       // get only those coefficients that affect this derivative
-      auto all_coeff = p->GetCoeffIds();
+      auto all_coeff = p.GetCoeffIds();
       Polynomial::CoeffVec coeff_vec;
       for (auto c : all_coeff) {
         if (c >= deriv) coeff_vec.push_back(c);
@@ -112,18 +112,18 @@ LinearSplineEquations::MakeCostMatrix (const VectorXd& weight, MotionDerivative 
           // "Learning, Planning and Control for Quadruped Robots over challenging
           // Terrain", IJRR, 2010
           // short: "square the values and integrate"
-          double deriv_wrt_c1 = p->GetDerivativeWrtCoeff(deriv,c1,T);
-          double deriv_wrt_c2 = p->GetDerivativeWrtCoeff(deriv,c2,T);
+          double deriv_wrt_c1 = p.GetDerivativeWrtCoeff(deriv,c1,T);
+          double deriv_wrt_c2 = p.GetDerivativeWrtCoeff(deriv,c2,T);
           double exponent_order = (c1-deriv)+(c2-deriv);
           double val =  (deriv_wrt_c1*deriv_wrt_c2)/(exponent_order+1); //+1 because of integration
 
-          const int idx_row = poly_spline_.Index(i, dim, c1);
-          const int idx_col = poly_spline_.Index(i, dim, c2);
+          const int idx_row = poly_spline_.Index(poly_id, dim, c1);
+          const int idx_col = poly_spline_.Index(poly_id, dim, c2);
           M(idx_row, idx_col) = val*weight[dim];
         }
       }
     }
-    i++;
+    poly_id++;
   }
 
   return M;

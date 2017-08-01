@@ -81,23 +81,31 @@ target_link_libraries(${SOLVER_LIB}
 add_library(${MOTION_OPT_LIB}
   src/motion_optimizer_facade.cc
   src/linear_constraint.cc
+  src/spline_constraint.cc
   src/cost_constraint_factory.cc
   src/soft_constraint.cc
   src/time_discretization_constraint.cc
+#  src/contact_constraints.cc
+#  src/contact_timings.cc
   # body motion
   src/polynomial.cc
+  src/node_values.cc
   src/spline.cc
+  src/coeff_spline.cc
+#  src/spline.cc
   src/angular_state_converter.cc
 #  src/base_motion.cc
-  src/polynomial_spline.cc
-  src/linear_spline_equations.cc
-  src/polynomial_cost.cc
+  
+  # these could go back in sometime
+#  src/linear_spline_equations.cc
+#  src/polynomial_cost.cc
+
   # endeffector motion
   #src/ee_phase_motion.cc
   #src/ee_motion.cc
   #src/endeffectors_motion.cc
-  src/endeffectors_force.cc
-  src/ee_force.cc
+#  src/endeffectors_force.cc
+#  src/ee_force.cc
   src/contact_schedule.cc
   # system dynamics
   src/dynamic_model.cc

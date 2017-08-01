@@ -8,72 +8,70 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
 
-#include <Eigen/Dense>
+#include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
 #include <xpp/endeffectors.h>
-
+#include <xpp/opt/bound.h>
 #include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
 
-class SingleContactMotion {
+
+class ContactSchedule : public Component {
 public:
-  using Phase = std::pair<bool, double>; // contact state and duration
-  using PhaseVec = std::vector<Phase>;
+  using VecDurations = std::vector<double>;
 
-  SingleContactMotion ();
-  virtual ~SingleContactMotion ();
+  ContactSchedule (EndeffectorID ee, const VecDurations& timings);
+  virtual ~ContactSchedule ();
 
-  void SetFirstContactState(bool);
-  void AddPhase(double t_duration);
   bool IsInContact(double t_global) const;
 
-  PhaseVec GetPhases() const;
   std::vector<double> GetTimePerPhase() const;
-  double GetTotalTime() const { return t_phase_end_.back(); };
+
+  // zmp_ make these std::vectors?
+  virtual VectorXd GetValues() const override;
+  virtual void SetValues(const VectorXd&) override;
+  VecBound GetBounds () const override;
+
+  Jacobian GetJacobianOfPos(const VectorXd& duration_deriv,
+                            const VectorXd& current_vel,
+                            double t_global) const;
 
 private:
   bool GetContact(int phase) const;
+  VecDurations CalcAllDurations(const VecDurations& opt_durations) const;
 
   bool first_phase_in_contact_ = true;
-  std::vector<double> t_phase_end_; ///< global time when the contact changes.
+  double t_total_;
+
+  VecDurations durations_;
 };
 
 
-/** @brief Knows which endeffectors are in contact at time t during trajectory.
+
+/** Makes sure all phase durations sum up to final specified motion duration.
  */
-class ContactSchedule : public Component {
+class DurationConstraint : public Primitive {
 public:
-  using EEContacts = Endeffectors<SingleContactMotion>;
-  using Phase      = std::pair<EndeffectorsBool, double>; // swinglegs and time
-  using PhaseVec   = std::vector<Phase>;
+  using SchedulePtr = std::shared_ptr<ContactSchedule>;
 
-  ContactSchedule (const PhaseVec& phases);
-  virtual ~ContactSchedule ();
+  DurationConstraint(const OptVarsPtr& opt_vars, double T_total, int ee);
+  ~DurationConstraint();
 
-  EndeffectorsBool IsInContact(double t_global) const;
-  int GetContactCount(double t_global) const;
-
-  double GetTotalTime() const;
-  std::vector<double> GetTimePerPhase(EndeffectorID) const;
-
-
-  // so far not optimizing over these
-  virtual VectorXd GetValues() const override { return VectorXd(); };
-  virtual void SetValues(const VectorXd&) override {};
-
-
-  SingleContactMotion::PhaseVec GetPhases(EndeffectorID) const;
+  VectorXd GetValues() const override;
+  VecBound GetBounds() const override;
+  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
-  EEContacts endeffectors_;
-  void SetPhaseSequence (const PhaseVec& phases);
-  void SetInitialSwinglegs(const EndeffectorsBool&);
-
+  SchedulePtr schedule_;
+  double T_total_;
 };
+
+
 
 
 } /* namespace opt */

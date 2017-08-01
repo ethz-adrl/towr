@@ -10,10 +10,10 @@
 namespace xpp {
 namespace opt {
 
-DynamicModel::DynamicModel ()
+DynamicModel::DynamicModel (int ee_count)
 {
-  // TODO Auto-generated constructor stub
-
+  for (int ee=0; ee<ee_count; ee++)
+    ee_ids_.push_back(static_cast<EndeffectorID>(ee));
 }
 
 DynamicModel::~DynamicModel ()
@@ -22,18 +22,18 @@ DynamicModel::~DynamicModel ()
 }
 
 void
-DynamicModel::SetCurrent (const ComPos& com_pos, const EELoad& ee_load,
+DynamicModel::SetCurrent (const ComPos& com_pos, const EELoad& ee_force,
                           const EEPos& ee_pos)
 {
-  com_pos_ = com_pos;
-  ee_force_ = ee_load;
-  ee_pos_  = ee_pos;
+  com_pos_  = com_pos;
+  ee_force_ = ee_force;
+  ee_pos_   = ee_pos;
 }
 
 std::vector<EndeffectorID>
 xpp::opt::DynamicModel::GetEEIDs () const
 {
-  return ee_force_.GetEEsOrdered();
+  return ee_ids_;
 }
 
 } /* namespace opt */

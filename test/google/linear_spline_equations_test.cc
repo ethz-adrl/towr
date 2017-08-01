@@ -42,7 +42,7 @@ TEST(LinearSplineEquations, JunctionTestPosition)
 
   // create a spline made up of two fifth order polynomials
   auto com_motion = MotionFactory::CreateComMotion(motion_structure.GetPhases());
-  auto com_spline = std::dynamic_pointer_cast<PolynomialSpline>(com_motion);
+  auto com_spline = std::dynamic_pointer_cast<Spline>(com_motion);
 
   // duration of first polynomial
   double T = com_spline->GetPolynomial(0).GetDuration();

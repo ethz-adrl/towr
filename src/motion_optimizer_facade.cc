@@ -19,9 +19,10 @@
 #include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/cost_constraint_factory.h>
 #include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/endeffectors_force.h>
-#include <xpp/opt/variables/polynomial_spline.h>
+#include <xpp/opt/variables/spline.h>
+#include <xpp/opt/variables/node_values.h>
 #include <xpp/opt/variables/variable_names.h>
+#include <xpp/opt/quadruped_motion_parameters.h>
 
 #include <xpp/opt/ipopt_adapter.h>
 #include <xpp/opt/snopt_adapter.h>
@@ -31,6 +32,8 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
+  motion_parameters_ =  std::make_shared<opt::quad::QuadrupedMotionParameters>();
+  BuildDefaultStartStance();
   opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
 }
 
@@ -60,42 +63,68 @@ MotionOptimizerFacade::BuildVariables ()
 {
   opt_variables_->ClearComponents();
 
-  // initialize the contact schedule
-  auto contact_schedule = std::make_shared<ContactSchedule>(
-      motion_parameters_->GetContactSchedule());
-  opt_variables_->AddComponent(contact_schedule);
 
-
+  std::vector<std::shared_ptr<ContactSchedule>> contact_schedule;
   for (auto ee : motion_parameters_->robot_ee_) {
-    std::string id = id::endeffectors_motion+std::to_string(ee);
-    bool first_contact = contact_schedule->GetPhases(ee).front().first;
-    auto ee_poly = std::make_shared<EndeffectorSpline>(id, first_contact);
-    ee_poly->Init<QuarticPolynomial>(contact_schedule->GetTimePerPhase(ee), initial_ee_W_.At(ee));
-    opt_variables_->AddComponent(ee_poly);
+//    contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,motion_parameters_->GetTotalTime(),motion_parameters_->GetContactSchedule()));
+    contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,motion_parameters_->contact_timings_));
+    opt_variables_->AddComponent(contact_schedule.at(ee));
   }
 
 
-  double T = motion_parameters_->GetTotalTime();
-  auto base_linear = std::make_shared<PolynomialSpline>(id::base_linear);
-  base_linear->Init<QuarticPolynomial>(T, motion_parameters_->duration_polynomial_,
-                    inital_base_.lin.p_);
-  opt_variables_->AddComponent(base_linear);
+  for (auto ee : motion_parameters_->robot_ee_) {
+    // cubic spline for ee_motion
+    NodeValues::Node intial_pos;
+    intial_pos.at(kPos) = initial_ee_W_.At(ee);
+    intial_pos.at(kVel) = Vector3d::Zero();
+    auto nodes_motion = std::make_shared<EEMotionNodes>(intial_pos, contact_schedule.at(ee), motion_parameters_->ee_splines_per_swing_phase_, ee);
+    opt_variables_->AddComponent(nodes_motion);
+  }
+
+// Endeffector Forces
+  for (auto ee : motion_parameters_->robot_ee_) {
+    // cubic spline for ee_forces
+    NodeValues::Node intial_force;
+    intial_force.at(kPos) = Vector3d::Zero();
+    intial_force.at(kPos).z() = motion_parameters_->GetAvgZForce();
+    intial_force.at(kVel) = Vector3d::Zero();
+    auto nodes_forces = std::make_shared<EEForcesNodes>(intial_force, contact_schedule.at(ee), motion_parameters_->force_splines_per_stance_phase_, ee);
+    opt_variables_->AddComponent(nodes_forces);
+  }
 
 
-  // Represent roll, pitch and yaw by a spline each.
-  // These angles are to be interpreted as mapping a vector expressed in
-  // base frame to world frame.
-  auto base_angular = std::make_shared<PolynomialSpline>(id::base_angular);
-  base_angular->Init<QuarticPolynomial>(T, motion_parameters_->duration_polynomial_,
-                     inital_base_.ang.p_);
-  opt_variables_->AddComponent(base_angular);
+  // BASE_MOTION
+  std::vector<double> base_spline_timings_ = motion_parameters_->GetBasePolyDurations();
+
+//  NodeValues::Node n;
+//  n.at(kPos) = inital_base_.lin.p_;
+//  n.at(kVel) = Vector3d::Zero();
+//  auto spline_lin = std::make_shared<NodeValues>();
+//  spline_lin->Init(n, base_spline_timings_, id::base_linear);
+//  opt_variables_->AddComponent(spline_lin);
+//
+//  n.at(kPos) = inital_base_.ang.p_;
+//  auto spline_ang = std::make_shared<NodeValues>();
+//  spline_ang->Init(n, base_spline_timings_, id::base_angular);
+//  opt_variables_->AddComponent(spline_ang);
 
 
+  int order = motion_parameters_->order_coeff_polys_;
+  int n_dim = inital_base_.lin.kNumDim;
 
-  auto force = std::make_shared<EndeffectorsForce>(motion_parameters_->load_dt_,
-                                                   *contact_schedule,
-                                                   motion_parameters_->GetForceLimit());
-  opt_variables_->AddComponent(force);
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
+    p_lin->SetConstantPos(inital_base_.lin.p_);
+    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
+  }
+
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
+    p_ang->SetConstantPos(inital_base_.ang.p_);
+    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
+  }
+
+
 
   opt_variables_->Print();
 }
@@ -133,6 +162,8 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
     case Snopt:   SnoptAdapter::Solve(nlp); break;
     default: assert(false); // solver not implemented
   }
+
+  nlp.PrintCurrent();
 }
 
 MotionOptimizerFacade::RobotStateVec
@@ -140,17 +171,25 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   RobotStateVec trajectory;
 
-  auto base_lin         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_linear));
-  auto base_ang         = std::dynamic_pointer_cast<PolynomialSpline>  (opt_variables_->GetComponent(id::base_angular));
-  auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>   (opt_variables_->GetComponent(id::contact_schedule));
-  auto ee_forces        = std::dynamic_pointer_cast<EndeffectorsForce> (opt_variables_->GetComponent(id::endeffector_force));
+  auto base_lin = Spline::BuildSpline(opt_variables_, id::base_linear, motion_parameters_->GetBasePolyDurations());
+  auto base_ang = Spline::BuildSpline(opt_variables_, id::base_angular, motion_parameters_->GetBasePolyDurations());
 
 
-  std::vector<std::shared_ptr<EndeffectorSpline>> ee_splines;
-  int n_ee = initial_ee_W_.GetCount();
-  for (int i=0; i<n_ee; ++i) {
-    std::string id = id::endeffectors_motion+std::to_string(i);
-    ee_splines.push_back(std::dynamic_pointer_cast<EndeffectorSpline>(opt_variables_->GetComponent(id)));
+  using SplineT = std::shared_ptr<Spline>;
+  std::vector<SplineT> ee_splines;
+  std::vector<SplineT> ee_forces_spline;
+  std::vector<std::shared_ptr<ContactSchedule>> contact_schedules;
+  int n_ee = motion_parameters_->GetEECount();
+  for (int ee=0; ee<n_ee; ++ee) {
+
+    auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_variables_->GetComponent(id::GetEEScheduleId(ee)));
+    contact_schedules.push_back(contact_schedule);
+
+    auto ee_spline = Spline::BuildSpline(opt_variables_, id::GetEEId(ee), {});
+    ee_splines.push_back(ee_spline);
+
+    auto force_spline = Spline::BuildSpline(opt_variables_, id::GetEEForceId(ee), {});
+    ee_forces_spline.push_back(force_spline);
   }
 
 
@@ -162,20 +201,23 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     RobotStateCartesian state(n_ee);
 
     State3d base; // positions and orientations set to zero
-    base.lin = base_lin->GetPoint(t);
+    base.lin = base_lin->GetPoint(t); //inital_base_.lin;
     base.ang = AngularStateConverter::GetState(base_ang->GetPoint(t));
     state.SetBase(base);
 
 
     RobotStateCartesian::FeetArray ee_state(n_ee);
-    for (auto ee : state.GetEndeffectors())
-      ee_state.At(ee) = ee_splines.at(ee)->GetPoint(t);
+    RobotStateCartesian::ContactState contact_state(n_ee);
+    Endeffectors<Vector3d> ee_force_array(n_ee);
+    for (auto ee : state.GetEndeffectors()) {
+      contact_state.At(ee)  = contact_schedules.at(ee)->IsInContact(t);
+      ee_state.At(ee)       = ee_splines.at(ee)->GetPoint(t);
+      ee_force_array.At(ee) = ee_forces_spline.at(ee)->GetPoint(t).p_;
+    }
 
     state.SetEEStateInWorld(ee_state);
-
-
-    state.SetEEForcesInWorld(ee_forces->GetForce(t));
-    state.SetContactState(contact_schedule->IsInContact(t));
+    state.SetEEForcesInWorld(ee_force_array);
+    state.SetContactState(contact_state);
 
     state.SetTime(t);
     trajectory.push_back(state);

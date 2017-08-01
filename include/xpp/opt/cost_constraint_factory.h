@@ -13,7 +13,7 @@
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/state.h>
 
-#include "linear_spline_equations.h"
+//#include "linear_spline_equations.h"
 #include "motion_parameters.h"
 #include <xpp/opt/constraints/composite.h>
 
@@ -34,7 +34,7 @@ public:
   using ConstraintPtr    = std::shared_ptr<Component>;
   using OptVarsContainer = std::shared_ptr<Composite>;
   using MotionParamsPtr  = std::shared_ptr<MotionParameters>;
-  using Derivatives      = LinearSplineEquations::MotionDerivatives;
+  using Derivatives      = std::vector<MotionDerivative>;
 
   CostConstraintFactory ();
   virtual ~CostConstraintFactory ();
@@ -59,22 +59,11 @@ private:
 
 
   // constraints
-  ConstraintPtr MakeInitialConstraint() const;
-  ConstraintPtr MakeFinalConstraint() const;
+  ConstraintPtr MakeStateConstraint() const;
   ConstraintPtr MakeJunctionConstraint() const;
   ConstraintPtr MakeDynamicConstraint() const;
   ConstraintPtr MakeRangeOfMotionBoxConstraint() const;
-  ConstraintPtr MakeStancesConstraints() const;
-//  ConstraintPtr MakePolygonCenterConstraint() const;
-
-  ConstraintPtr MakePolynomialSplineConstraint(const std::string& poly_id,
-                                               const StateLin3d state,
-                                               double t) const;
-
-  ConstraintPtr MakePolynomialJunctionConstraint(const std::string& poly_id,
-                                                 const Derivatives&) const;
-
-
+  ConstraintPtr MakeTotalTimeConstraint() const;
 
   // costs
   ConstraintPtr MakeMotionCost(double weight) const;

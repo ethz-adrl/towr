@@ -18,17 +18,14 @@ namespace opt {
  */
 class CentroidalModel : public DynamicModel {
 public:
-  CentroidalModel (double mass, const Eigen::Matrix3d& inertia);
+  CentroidalModel (double mass, const Eigen::Matrix3d& inertia, int ee_count);
   virtual ~CentroidalModel ();
 
   virtual BaseAcc GetBaseAcceleration() const override;
 
-  virtual Jacobian GetJacobianOfAccWrtBaseLin(const BaseLin&,
-                                              double t_global) const override;
-  virtual Jacobian GetJacobianOfAccWrtBaseAng(const BaseAng&,
-                                            double t_global) const override;
-  virtual Jacobian GetJacobianofAccWrtForce(const EndeffectorsForce&,
-                                            double t_global,
+  virtual Jacobian GetJacobianOfAccWrtBaseLin(const Jacobian& jac_base_lin_pos) const override;
+  virtual Jacobian GetJacobianOfAccWrtBaseAng(const Jacobian& jac_base_ang_pos) const override;
+  virtual Jacobian GetJacobianofAccWrtForce(const Jacobian& jac_force,
                                             EndeffectorID) const override;
   virtual Jacobian GetJacobianofAccWrtEEPos(const Jacobian& jac_ee_pos,
                                             EndeffectorID) const override;

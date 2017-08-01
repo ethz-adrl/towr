@@ -2,13 +2,7 @@
 @file   polynomial.h
 @author Alexander Winkler (winklera@ethz.ch)
 @date   29.07.2014
-
-@brief  A virtual class Polynomial with ready to use derived Polynomials
-
-Polynomials ready to use:
-        - Linear Polynomial
-        - Cubic Polynomial
-        - Quintic Polynomial
+@brief  Declares the Polynomial class.
 */
 #ifndef _XPP_OPT_UTILS_POLYNOMIAL_H_
 #define _XPP_OPT_UTILS_POLYNOMIAL_H_
@@ -18,153 +12,101 @@ Polynomials ready to use:
 #include <xpp/cartesian_declarations.h>
 #include <xpp/state.h>
 
-#include "spline.h"
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
 
-/** @brief Constructs a polynomial given start and end states.
+class Polynomial;
+enum PolynomialCoeff { A=0, B, C, D, E, F, G, H, I, J}; // allowed to add more
+
+class PolynomialVars : public Component {
+public:
+  using PolynomialPtr = std::shared_ptr<Polynomial>;
+
+  PolynomialVars(const std::string& id, const PolynomialPtr& poly);
+  virtual ~PolynomialVars() {};
+
+  VectorXd GetValues () const override;
+  void SetValues (const VectorXd& optimized_coeff) override;
+//  VecBound GetBounds () const override;
+  Jacobian GetJacobian(double t_local, MotionDerivative dxdt) const;
+
+  PolynomialPtr GetPolynomial() const { return polynomial_; };
+
+private:
+  PolynomialPtr polynomial_;
+  int Index(PolynomialCoeff coeff, int dim) const;
+};
+
+
+
+/** @brief A polynomial of arbitrary order and dimension.
   */
-class Polynomial : public Segment {
+class Polynomial {
 public:
 
-  // x(t) =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
-  // x(t) =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
-  // x(t) = 20Ft^3 + 12Et^2 + 6Dt   + 2C
-  enum PolynomialCoeff { A=0, B, C, D, E, F};
-  using CoeffVec = std::vector<PolynomialCoeff>;
-
-  enum PointType {Start=0, Goal=1};
+  // e.g. 5th-order:
+  // x(t)   =   Ft^5 +   Et^4 +  Dt^3 +  Ct^2 + Bt + A
+  // xd(t)  =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
+  // xdd(t) = 20Ft^3 + 12Et^2 + 6Dt   + 2C
+  using CoeffIDVec = std::vector<PolynomialCoeff>;
 
 public:
-  Polynomial(int order);
+  Polynomial(int order, int dim);
   virtual ~Polynomial() {};
 
-  /**
-   * @brief Sets the starting point of the spline and the end position.
-   * @param T Time to go from start to end.
-   * @param start_p desired start position, velocity and acceleration.
-   * @param end_p desired goal position, velocity and acceleration.
-   */
-  void SetBoundary(double T, const StateLinXd& start, const StateLinXd& end);
+  StateLinXd GetPoint(double t_local) const;
 
-  /**
-   * @brief Sets the starting point of the spline and the end position.
-   * @param dt current spline time.
-   * @param point current position at time dt.
-   */
-  StateLinXd GetPoint(const double dt) const;
-  double GetDerivativeWrtCoeff(MotionDerivative deriv,
-                               PolynomialCoeff coeff,
-                               double t) const;
-  virtual double GetDerivativeOfPosWrtPos(double t, PointType p) const { assert(false); };
+  void SetConstantPos(const VectorXd& value);
+  void SetCoefficient(PolynomialCoeff coeff, int dim, double value);
 
-  double GetCoefficient(int dim, PolynomialCoeff coeff) const;
-  void SetCoefficient(int dim,   PolynomialCoeff coeff, double value);
+  int GetCoeffCount() const { return coeff_ids_.size()*n_dim_; };
 
-  CoeffVec GetCoeffIds() const;
-  double GetDuration() const;
+  CoeffIDVec GetCoeffIds() const { return coeff_ids_; };
 
-  void UpdateCoefficients();
+  int GetDimCount() const { return n_dim_; };
+  VectorXd GetCoefficients(PolynomialCoeff coeff) const;
+  double GetDerivativeWrtCoeff(double t, MotionDerivative, PolynomialCoeff) const;
 
-  StateLinXd start_, end_;
 protected:
-  double duration = 0.0;
-  std::vector<VectorXd> coeff_; //!< coefficients of spline
-  CoeffVec coeff_ids_;
+  std::vector<VectorXd> coeff_;
 
 private:
-  /**
-   * @brief Calculates all spline coeff of current spline.
+  CoeffIDVec coeff_ids_;
+  int n_dim_;
+};
+
+
+// see matlab/third_order_poly.m script for derivation
+class CubicHermitePoly : public Polynomial {
+public:
+  enum Side {Start=0, End};
+  using Node = std::array<VectorXd,2>; // pos,vel
+
+  CubicHermitePoly(int dim);
+  virtual ~CubicHermitePoly();
+
+  void SetNodes(const Node& n0, const Node& n1, double T);
+
+  double GetDerivativeOf(MotionDerivative dxdt, Side, MotionDerivative node_value, double t_local) const;
+  double GetDerivativeOfPosWrt(Side, MotionDerivative node_value, double t_local) const;
+  double GetDerivativeOfVelWrt(Side, MotionDerivative node_value, double t_local) const;
+  double GetDerivativeOfAccWrt(Side, MotionDerivative node_value, double t_local) const;
+
+  /** @brief How the total duration affect the position of the polynomial
    *
-   * params are the same as @ref getPoint.
-   * This is the only function that must be implemented by the child classes.
+   * @param t_local the local polynomial time [0,pT]
+   * @param p the percent [0,inf] of the total duration w.r.t the derivative is desired that this T_ represents.
+   * @returns the derivative for each dimension (e.g. x,y,z)
    */
-  virtual void SetPolynomialCoefficients(double T,
-                                         const StateLinXd& start_p,
-                                         const StateLinXd& end_p) = 0;
-};
-
-/** Zero-order hold x(t) = A;
-  */
-class ConstantPolynomial: public Polynomial {
-public:
-  ConstantPolynomial() : Polynomial(0) {};
-  ~ConstantPolynomial() {};
-
-  double GetDerivativeOfPosWrtPos(double t, PointType p) const override;
+  VectorXd GetDerivativeOfPosWrtDuration(double t_local) const;
 
 private:
-  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
+  double T_;
+  Node n0_, n1_;
 };
 
-class LinearPolynomial : public Polynomial {
-public:
-  LinearPolynomial() : Polynomial(1) {};
-  ~LinearPolynomial() {};
-
-  double GetDerivativeOfPosWrtPos(double t, PointType p) const override;
-
-private:
-  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
-};
-
-/** @brief a polynomial of the form ct^3 + dt^2 + et + f.
- * see matlab script "third_order_poly.m" for generation of these values.
- */
-class CubicPolynomial : public Polynomial {
-public:
-  CubicPolynomial() : Polynomial(3) {};
-  ~CubicPolynomial() {};
-
-  double GetDerivativeOfPosWrtPos(double t, PointType p) const override;
-
-private:
-  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
-};
-
-class QuarticPolynomial : public Polynomial {
-public:
-  QuarticPolynomial() : Polynomial(4) {};
-  ~QuarticPolynomial() {};
-
-private:
-  void SetPolynomialCoefficients(double T, const StateLinXd& start,
-                                 const StateLinXd& end);
-};
-
-class QuinticPolynomial : public Polynomial {
-public:
-  QuinticPolynomial() : Polynomial(5) {};
-  ~QuinticPolynomial() {};
-
-private:
-  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
-};
-
-
-/** @brief Creates a smooth up and down motion for e.g. swinging a leg.
- *
- * see matlab script "swingleg_z_height.m" for generation of these values.
- */
-class LiftHeightPolynomial : public Polynomial {
-public:
-  LiftHeightPolynomial() :Polynomial(5) {};
-  ~LiftHeightPolynomial() {};
-
-  /** Determines how quick the height rises/drops.
-   *
-   * h is not the exact height between the contact points, but the height
-   * that the swingleg has as 1/n_*T and (n-1)/n*T, e.g. shortly after lift-off
-   * and right before touchdown. The lift-height in the center is higher.
-   */
-  void SetShape(int n, double h);
-
-private:
-  int n_ = 6;        ///< determines the shape of the swing motion
-  double height_ = 0.03;  ///< proportional to the lift height between contacts
-  void SetPolynomialCoefficients(double T, const StateLinXd& start, const StateLinXd& end);
-};
 
 } // namespace opt
 } // namespace xpp

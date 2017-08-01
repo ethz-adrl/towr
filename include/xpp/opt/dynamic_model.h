@@ -13,8 +13,6 @@
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
 #include <xpp/opt/constraints/composite.h>
-#include <xpp/opt/variables/endeffectors_force.h>
-#include <xpp/opt/variables/polynomial_spline.h>
 
 namespace xpp {
 namespace opt {
@@ -27,29 +25,21 @@ namespace opt {
  */
 class DynamicModel {
 public:
-  DynamicModel ();
+  DynamicModel (int ee_count);
   virtual ~DynamicModel ();
 
   using ComPos    = Vector3d;
-  using ComLinAcc = Vector3d;
-  using ComAngAcc = Vector3d;
   using BaseAcc   = Vector6d;
-
   using EELoad  = Endeffectors<Vector3d>;
   using EEPos   = EndeffectorsPos;
-  using BaseLin = PolynomialSpline;
-  using BaseAng = PolynomialSpline;
 
   void SetCurrent(const ComPos& com, const EELoad&, const EEPos&);
 
   virtual BaseAcc GetBaseAcceleration() const = 0;
 
-  virtual Jacobian GetJacobianOfAccWrtBaseLin(const BaseLin&,
-                                              double t_global) const = 0;
-  virtual Jacobian GetJacobianOfAccWrtBaseAng(const BaseAng&,
-                                              double t_global) const = 0;
-  virtual Jacobian GetJacobianofAccWrtForce(const EndeffectorsForce&,
-                                            double t_global,
+  virtual Jacobian GetJacobianOfAccWrtBaseLin(const Jacobian& jac_base_lin_pos) const = 0;
+  virtual Jacobian GetJacobianOfAccWrtBaseAng(const Jacobian& jac_base_ang_pos) const = 0;
+  virtual Jacobian GetJacobianofAccWrtForce(const Jacobian& ee_force,
                                             EndeffectorID) const = 0;
   virtual Jacobian GetJacobianofAccWrtEEPos(const Jacobian&,
                                             EndeffectorID) const = 0;
@@ -60,6 +50,8 @@ protected:
   ComPos com_pos_;
   EELoad ee_force_;
   EEPos ee_pos_;
+
+  std::vector<EndeffectorID> ee_ids_;
 
 
 };

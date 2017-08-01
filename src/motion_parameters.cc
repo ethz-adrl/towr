@@ -54,7 +54,29 @@ MotionParameters::GetTotalTime () const
     T += t;
 
   return T;
+}
 
+MotionParameters::VecTimes
+MotionParameters::GetBasePolyDurations () const
+{
+  std::vector<double> base_spline_timings_;
+  double dt = dt_base_polynomial_;
+  double t_left = GetTotalTime();
+
+  while (t_left > 0.0) {
+    double duration = t_left>dt?  dt : t_left;
+    base_spline_timings_.push_back(duration);
+
+    t_left -= dt;
+  }
+
+  return base_spline_timings_;
+}
+
+double
+MotionParameters::GetAvgZForce () const
+{
+  return GetMass()*kGravity/GetEECount();
 }
 
 } // namespace opt

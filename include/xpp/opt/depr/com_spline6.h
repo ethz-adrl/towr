@@ -22,7 +22,7 @@ namespace opt {
   * p(t) = at^5 + bt^4 + ct^3 + dt^2 + et + f with no constraint at the junction
   * between the polynomials.
   */
-class ComSpline6 : public PolynomialSpline {
+class ComSpline6 : public Spline {
 public:
   using PtrClone = BaseMotion::PtrU;
 

@@ -8,15 +8,17 @@
 #ifndef XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include <array>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
-
 #include <xpp/opt/angular_state_converter.h>
+#include <xpp/opt/bound.h>
+#include <xpp/opt/motion_parameters.h>
+#include <xpp/opt/variables/contact_schedule.h>
+#include <xpp/opt/variables/node_values.h>
+#include <xpp/state.h>
 
 #include "composite.h"
 #include "time_discretization_constraint.h"
@@ -24,8 +26,7 @@
 namespace xpp {
 namespace opt {
 
-class PolynomialSpline;
-class EndeffectorsMotion;
+class Spline;
 
 /** @brief Constrains the contact to lie in a box around the nominal stance
   *
@@ -39,23 +40,16 @@ class EndeffectorsMotion;
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
-  using BaseLinear     = std::shared_ptr<PolynomialSpline>;
-  using BaseAngular    = std::shared_ptr<PolynomialSpline>;
-  using EEMotionPtr    = std::shared_ptr<EndeffectorsMotion>;
-  using EESplinePtr    = std::shared_ptr<EndeffectorSpline>;
-  using MaxDevXY       = Vector3d;
-  using NominalStance  = EndeffectorsPos;
+  using VecTimes        = std::vector<double>;
+  using MotionParamsPtr = std::shared_ptr<MotionParameters>;
+  using SplineT         = std::shared_ptr<Spline>;
+  using EEMotionType    = PhaseNodes;
+  using EEMotionPtr     = std::shared_ptr<EEMotionType>; // zmp_ make normal spline again
+  using SchedulePtr     = std::shared_ptr<ContactSchedule>;
 
-  /**
-   * @param dt discretization interval [s] when to check this constraint.
-   * @param deviation_xy allowed endeffector deviation from the default (x,y).
-   * @param nom nominal endeffector position in base frame.
-   */
-  RangeOfMotionBox(const OptVarsPtr& opt_vars_container,
-                   double dt,
-                   const MaxDevXY& deviation_xy,
-                   const NominalStance& nom,
-                   double T);
+  RangeOfMotionBox(const OptVarsPtr& opt_vars,
+                   const MotionParamsPtr& params,
+                   const EndeffectorID& ee);
   virtual ~RangeOfMotionBox();
 
 private:
@@ -63,17 +57,16 @@ private:
   void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const override;
 
-  int GetRow(int node, EndeffectorID ee, int dimension) const;
+  int GetRow(int node, int dimension) const;
 
-  MaxDevXY max_deviation_from_nominal_;
-  NominalStance nominal_stance_;
-  BaseLinear base_linear_;
-  BaseAngular base_angular_;
+  SplineT base_linear_;
+  SplineT base_angular_;
+  EEMotionPtr ee_spline_;
+  SchedulePtr ee_timings_;
 
-  std::vector<EESplinePtr> ee_splines_;
+  Vector3d max_deviation_from_nominal_;
+  Vector3d nominal_ee_pos_B;
   AngularStateConverter converter_;
-
-  std::vector<Coords3D> dim_;
 };
 
 } /* namespace opt */

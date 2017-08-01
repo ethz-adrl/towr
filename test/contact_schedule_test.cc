@@ -13,21 +13,21 @@ namespace xpp {
 namespace opt {
 
 
-TEST(ContactMotionTest, IsInContact)
-{
-  quad::Trot trot;
-  ContactSchedule contact_motion(trot.GetContactSchedule());
-
-  double t = 0.0;
-  double T = 1.1;
-  double dt = 0.05;
-  for (int i=0; i<floor(T/dt); ++i) {
-    std::cout << "t: " << t << std::endl;
-    std::cout << contact_motion.IsInContact(t) << std::endl;
-    t += dt;
-  }
-
-}
+//TEST(ContactMotionTest, IsInContact)
+//{
+//  quad::Trot trot;
+//  ContactSchedule contact_motion(trot.GetContactSchedule());
+//
+//  double t = 0.0;
+//  double T = 1.1;
+//  double dt = 0.05;
+//  for (int i=0; i<floor(T/dt); ++i) {
+//    std::cout << "t: " << t << std::endl;
+//    std::cout << contact_motion.IsInContact(t) << std::endl;
+//    t += dt;
+//  }
+//
+//}
 
 
 } /* namespace opt */

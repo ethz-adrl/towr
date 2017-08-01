@@ -10,6 +10,8 @@
 namespace xpp {
 namespace opt {
 
+static int print_counter = 0;
+
 Component::Component (int num_rows, const std::string name)
 {
   num_rows_ = num_rows;
@@ -31,7 +33,30 @@ Component::SetRows (int num_rows)
 void
 Component::Print () const
 {
-  std::cout << num_rows_ << "\t(" << name_ << ")" << std::endl;
+  int print_rows = 10;
+  std::string end_string = ", ...";
+
+  if (num_rows_ < print_rows) {
+    print_rows = num_rows_;
+    end_string.clear(); // all variables printed
+  }
+
+
+  std::cout.precision(2);
+  std::cout << std::fixed;
+  std::cout << name_ << "\t(";
+  std::cout << num_rows_ << ",\t" << print_counter << "-" << print_counter+num_rows_;
+  std::cout << "):\t";
+
+  print_counter += num_rows_;
+
+  VectorXd val = GetValues().topRows(print_rows);
+  if (val.rows() > 0)
+    std::cout << val(0);
+  for (int i=1; i<val.rows(); ++i)
+    std::cout << ",\t" << val(i);
+
+  std::cout << end_string << std::endl;
 }
 
 std::string
@@ -158,9 +183,13 @@ Composite::GetComponentCount () const
 void
 Composite::Print () const
 {
+  if (GetName()=="nlp_variables" || GetName()=="constraints")
+    print_counter = 0;
+
+
   std::cout << GetName() << ":\n";
   for (auto c : components_) {
-    std::cout << "    "; // indent components
+    std::cout << "   "; // indent components
     c->Print();
   }
   std::cout << std::endl;

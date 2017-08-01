@@ -20,8 +20,8 @@ namespace opt {
 
 /** @brief Calculates the constraint violations for linear constraints.
   *
-  * This class is responsible for getting the current state of the CoM spline
-  * and using this to calculate the constraint violations.
+  * This class is responsible for using the current vector of optimization
+  * variables to calculate the constraint violations.
   */
 class LinearEqualityConstraint : public Primitive {
 public:

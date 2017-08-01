@@ -28,7 +28,7 @@ namespace opt {
   * and f coefficients of all splines can be uniquely determined from the other
   * coefficients and the initial position/velocity.
   */
-class ComSpline4 : public PolynomialSpline {
+class ComSpline4 : public Spline {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 

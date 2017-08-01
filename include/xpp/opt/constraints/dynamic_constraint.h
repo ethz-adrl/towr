@@ -10,12 +10,14 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <xpp/cartesian_declarations.h>
-
 #include <xpp/opt/angular_state_converter.h>
+#include <xpp/opt/bound.h>
 #include <xpp/opt/dynamic_model.h>
-#include <xpp/opt/variables/polynomial_spline.h>
+#include <xpp/opt/variables/contact_schedule.h>
+#include <xpp/opt/variables/node_values.h>
 
 #include "composite.h"
 #include "time_discretization_constraint.h"
@@ -28,24 +30,26 @@ class EndeffectorsForce;
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
-  using BaseLinear  = std::shared_ptr<PolynomialSpline>;
-  using BaseAngular = std::shared_ptr<PolynomialSpline>;
-  using EELoadPtr   = std::shared_ptr<EndeffectorsForce>;
-  using EESplinePtr = std::shared_ptr<EndeffectorSpline>;
+  using DynamicModelPtr = std::shared_ptr<DynamicModel>;
+  using VecTimes        = std::vector<double>;
+  using SplineT         = std::shared_ptr<Spline>;
+  using NodeSplineType  = PhaseNodes;
+  using SchedulePtr     = std::shared_ptr<ContactSchedule>;
 
-  using DynamicModelPtr  = std::shared_ptr<DynamicModel>;
-
-  DynamicConstraint (const OptVarsPtr& opt_vars, const DynamicModelPtr& m, double T, double dt);
+  DynamicConstraint (const OptVarsPtr& opt_vars,
+                     const DynamicModelPtr& m,
+                     const VecTimes& base_poly_durations,
+                     double T, double dt);
   virtual ~DynamicConstraint ();
 
 private:
-  BaseLinear base_linear_;
-  BaseAngular base_angular_;
-  EELoadPtr ee_load_;
+  SplineT base_linear_;
+  SplineT base_angular_;
+  std::vector<std::shared_ptr<NodeSplineType>> ee_forces_;
+  std::vector<std::shared_ptr<NodeSplineType>> ee_splines_;
+  std::vector<SchedulePtr> ee_timings_;
 
-  std::vector<EESplinePtr> ee_splines_;
   mutable DynamicModelPtr model_;
-
   AngularStateConverter converter_;
 
   int GetRow(int node, Coords6D dimension) const;

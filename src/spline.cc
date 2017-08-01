@@ -1,68 +1,87 @@
 /**
-@file    spliner_3d.cc
-@author  Alexander Winkler (winklera@ethz.ch)
-@date    Oct 21, 2014
-@brief   Creates 3 dimensional spline from start to end with duration T
+ @file    com_spline.cc
+ @author  Alexander W. Winkler (winklera@ethz.ch)
+ @date    Aug 23, 2016
+ @brief   Brief description
  */
+
+#include <xpp/opt/variables/spline.h>
 
 #include <cassert>
 
-#include <xpp/opt/spline.h>
-#include <xpp/state.h>
+#include <xpp/opt/variables/variable_names.h>
+
+#include <xpp/opt/variables/node_values.h>
+#include <xpp/opt/variables/coeff_spline.h>
 
 namespace xpp {
 namespace opt {
 
-double
-Spline::GetTotalTime() const
+Spline::Ptr
+Spline::BuildSpline (const OptVarsPtr& opt_vars,
+                     const std::string& name,
+                     const VecTimes& poly_durations)
 {
-  double T = 0.0;
-  for (const auto& s: segments_) {
-    T += s->GetDuration();
-  }
-  return T;
+  Ptr spline;
+
+  std::string s1 = id::endeffectors_motion;
+  std::string s2 = id::endeffector_force;
+  if (name.substr(0, s1.size()) == s1) // string starts with s
+    spline = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(name));
+  else if (name.substr(0, s2.size()) == s2) // string starts with s
+    spline = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(name));
+  else if (name == id::base_linear)
+    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
+  else if (name == id::base_angular)
+    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
+  else
+    assert(false); // this shouldn't happen
+
+  return spline;
 }
 
-double
-Spline::GetLocalTime(double t_global) const
+
+Spline::Spline ()
 {
-  int id_spline = GetSegmentID(t_global);
-
-  double t_local = t_global;
-  for (int id=0; id<id_spline; id++) {
-    t_local -= segments_.at(id)->GetDuration();
-  }
-
-  return t_local;//-eps_; // just to never get value greater than true duration due to rounding errors
 }
 
-const StateLinXd
-Spline::GetPoint(double t_global) const
+Spline::~Spline ()
 {
-  int idx        = GetSegmentID(t_global);
-  double t_local = GetLocalTime(t_global);
-
-  return segments_.at(idx)->GetPoint(t_local);
 }
 
 int
-Spline::GetSegmentID(double t_global) const
+Spline::GetSegmentID(double t_global, const VecTimes& durations)
 {
   double eps = 1e-10; // double imprecision
-  assert(t_global<=GetTotalTime()+eps); // machine precision
+  assert(t_global >= 0.0);
 
    double t = 0;
    int i=0;
-   for (const auto& s: segments_) {
-     t += s->GetDuration();
+   for (double d: durations) {
+     t += d;
 
      if (t >= t_global-eps) // at junctions, returns previous spline (=)
        return i;
 
      i++;
    }
+
    assert(false); // this should never be reached
 }
 
-} // namespace opt
-} // namespace xpp
+Spline::LocalInfo
+Spline::GetLocalTime (double t_global, const VecTimes& durations)
+{
+  int id = GetSegmentID(t_global, durations);
+
+  double t_local = t_global;
+  for (int i=0; i<id; i++)
+    t_local -= durations.at(i);
+
+  return std::make_pair(id, t_local);
+}
+
+
+} /* namespace opt */
+} /* namespace xpp */
+
