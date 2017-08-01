@@ -88,19 +88,19 @@ CostConstraintFactory::MakeStateConstraint () const
 
 
   auto spline_lin = Spline::BuildSpline(opt_vars_, id::base_linear, base_poly_durations);
-//  auto spline_ang = Spline::BuildSpline(opt_vars_, id::base_angular, base_poly_durations);
+  auto spline_ang = Spline::BuildSpline(opt_vars_, id::base_angular, base_poly_durations);
 
 
   // initial base constraints
   double t = 0.0; // initial time
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, t, initial_base_.lin, derivs));
-//  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, t, initial_base_.ang, derivs));
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, t, initial_base_.ang, derivs));
 
 
 //  // final base constraints
   double T = params->GetTotalTime();
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, T, final_base_.lin, derivs));
-//  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, T, final_base_.ang, derivs));
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, T, final_base_.ang, derivs));
 
 
   // endeffector constraints
@@ -140,7 +140,7 @@ CostConstraintFactory::MakeJunctionConstraint () const
 
   auto durations_base = params->GetBasePolyDurations();
   junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, durations_base, derivatives));
-//  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, durations_base, derivatives));
+  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, durations_base, derivatives));
 
   for (auto ee : params->robot_ee_) {
 //    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);

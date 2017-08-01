@@ -23,6 +23,7 @@ namespace quad{
 
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
+  order_coeff_polys_ = 4;
   dt_base_polynomial_    = 0.15; //s 0.05
 
   // zmp_ since derivative of acceleration is nonsmooth at junctions, pay attention

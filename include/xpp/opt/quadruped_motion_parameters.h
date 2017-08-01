@@ -21,11 +21,11 @@ public:
 
 
 
-    ee_splines_per_swing_phase_ = 2; // spring_clean_ this breaks duration derivatives
-    force_splines_per_stance_phase_ = 6;
+    ee_splines_per_swing_phase_ = 1; // spring_clean_ this breaks duration derivatives
+    force_splines_per_stance_phase_ = 4;
 
     robot_ee_ = { EEID::E0 };
-    dt_range_of_motion_ = 0.15;
+    dt_range_of_motion_ = 0.05;
 
     // dynamic model for HyQ
     mass_    = 80;
@@ -36,24 +36,25 @@ public:
     const double z_nominal_b = -0.58;
     nominal_stance_.SetCount(robot_ee_.size());
     nominal_stance_.At(EEID::E0) = PosXYZ( 0.0, 0.0, z_nominal_b);
-    max_dev_xy_ << 0.15, 0.15, 0.1;
+    max_dev_xy_ << 0.15, 0.15, 0.2;
 
     // spring_clean_ just the addition is used anyway
-    double t_swing  = 0.1;
-    double t_stance = 0.5;
-    contact_timings_ = {t_stance, t_swing, t_stance, t_swing};
+    double t_swing  = 0.25;
+    double t_stance = 0.25;
+    contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance};
     constraints_ = {
         State,
         JunctionCom,
         RomBox,
-//        Dynamic,
+        Dynamic,
     };
 
 
-
-    dt_base_polynomial_    = std::accumulate(contact_timings_.begin(),
-                                             contact_timings_.end(),
-                                             0.0); //s 0.05
+//    double t_total = std::accumulate(contact_timings_.begin(),
+//                                     contact_timings_.end(),
+//                                     0.0);
+    order_coeff_polys_ = 4;
+    dt_base_polynomial_ = 0.25;//t_total; //s 0.05
 
     // zmp_ since derivative of acceleration is nonsmooth at junctions, pay attention
     // to never evaluate at junction of base polynomial directly

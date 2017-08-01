@@ -82,15 +82,15 @@ MotionOptimizerFacade::BuildVariables ()
   }
 
 // Endeffector Forces
-//  for (auto ee : motion_parameters_->robot_ee_) {
-//    // cubic spline for ee_forces
-//    NodeValues::Node intial_force;
-//    intial_force.at(kPos) = Vector3d::Zero();
-//    intial_force.at(kPos).z() = motion_parameters_->GetAvgZForce();
-//    intial_force.at(kVel) = Vector3d::Zero();
-//    auto nodes_forces = std::make_shared<EEForcesNodes>(intial_force, contact_schedule.at(ee), motion_parameters_->force_splines_per_stance_phase_, ee);
-//    opt_variables_->AddComponent(nodes_forces);
-//  }
+  for (auto ee : motion_parameters_->robot_ee_) {
+    // cubic spline for ee_forces
+    NodeValues::Node intial_force;
+    intial_force.at(kPos) = Vector3d::Zero();
+    intial_force.at(kPos).z() = motion_parameters_->GetAvgZForce();
+    intial_force.at(kVel) = Vector3d::Zero();
+    auto nodes_forces = std::make_shared<EEForcesNodes>(intial_force, contact_schedule.at(ee), motion_parameters_->force_splines_per_stance_phase_, ee);
+    opt_variables_->AddComponent(nodes_forces);
+  }
 
 
   // BASE_MOTION
@@ -109,7 +109,7 @@ MotionOptimizerFacade::BuildVariables ()
 //  opt_variables_->AddComponent(spline_ang);
 
 
-  int order = 3;
+  int order = motion_parameters_->order_coeff_polys_;
   int n_dim = inital_base_.lin.kNumDim;
 
   for (int i=0; i<base_spline_timings_.size(); ++i) {
@@ -118,12 +118,12 @@ MotionOptimizerFacade::BuildVariables ()
     opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
   }
 
-//  for (int i=0; i<base_spline_timings_.size(); ++i) {
-//    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
-//    p_ang->SetConstantPos(inital_base_.ang.p_);
-//    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
-//  }
-//
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
+    p_ang->SetConstantPos(inital_base_.ang.p_);
+    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
+  }
+
 
 
   opt_variables_->Print();
@@ -172,7 +172,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   RobotStateVec trajectory;
 
   auto base_lin = Spline::BuildSpline(opt_variables_, id::base_linear, motion_parameters_->GetBasePolyDurations());
-//  auto base_ang = Spline::BuildSpline(opt_variables_, id::base_angular, motion_parameters_->GetBasePolyDurations());
+  auto base_ang = Spline::BuildSpline(opt_variables_, id::base_angular, motion_parameters_->GetBasePolyDurations());
 
 
   using SplineT = std::shared_ptr<Spline>;
@@ -188,8 +188,8 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     auto ee_spline = Spline::BuildSpline(opt_variables_, id::GetEEId(ee), {});
     ee_splines.push_back(ee_spline);
 
-//    auto force_spline = Spline::BuildSpline(opt_variables_, id::GetEEForceId(ee), {});
-//    ee_forces_spline.push_back(force_spline);
+    auto force_spline = Spline::BuildSpline(opt_variables_, id::GetEEForceId(ee), {});
+    ee_forces_spline.push_back(force_spline);
   }
 
 
@@ -202,7 +202,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 
     State3d base; // positions and orientations set to zero
     base.lin = base_lin->GetPoint(t); //inital_base_.lin;
-//    base.ang = AngularStateConverter::GetState(base_ang->GetPoint(t));
+    base.ang = AngularStateConverter::GetState(base_ang->GetPoint(t));
     state.SetBase(base);
 
 
@@ -212,7 +212,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
     for (auto ee : state.GetEndeffectors()) {
       contact_state.At(ee)  = contact_schedules.at(ee)->IsInContact(t);
       ee_state.At(ee)       = ee_splines.at(ee)->GetPoint(t);
-//      ee_force_array.At(ee) = ee_forces_spline.at(ee)->GetPoint(t).p_;
+      ee_force_array.At(ee) = ee_forces_spline.at(ee)->GetPoint(t).p_;
     }
 
     state.SetEEStateInWorld(ee_state);

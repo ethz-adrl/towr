@@ -63,6 +63,7 @@ public:
 
   int ee_splines_per_swing_phase_;
   int force_splines_per_stance_phase_;
+  int order_coeff_polys_;
 
 
   double dt_base_polynomial_;

@@ -117,21 +117,21 @@ ContactSchedule::GetJacobianOfPos (const VectorXd& duration_deriv,
   Eigen::MatrixXd jac = Eigen::MatrixXd::Zero(n_dim, GetRows());
 
   int current_phase = Spline::GetSegmentID(t_global, durations_);
-  bool last_phase = current_phase == durations_.size()-1;
-  double inner_deriv_Tlast = -1.0; // f(T1,T2,..) = T-T1-T2-T3...
+  bool in_last_phase = current_phase == durations_.size()-1;
 
+  // duration of current phase expands and compressed spline
+  if (!in_last_phase)
+    jac.col(current_phase) = duration_deriv;
 
-  // each previous durations expands and compresses the spline equally
   for (int phase=0; phase<current_phase; ++phase) {
+    // each previous durations shifts spline along time axis
     jac.col(phase) = -1*current_vel;
 
-    if (last_phase)
+    // in last phase previous duration cause expansion/compression of spline
+    // as final time is fixed.
+    if (in_last_phase)
       jac.col(phase) -= duration_deriv;
   }
-
-
-  if (!last_phase)
-    jac.col(current_phase) = duration_deriv;
 
   // convert to sparse, but also regard 0.0 as non-zero element, because
   // could turn nonzero during the course of the program

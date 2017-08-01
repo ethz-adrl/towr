@@ -10,12 +10,14 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <xpp/cartesian_declarations.h>
-
-#include <xpp/opt/variables/spline.h>
 #include <xpp/opt/angular_state_converter.h>
+#include <xpp/opt/bound.h>
 #include <xpp/opt/dynamic_model.h>
+#include <xpp/opt/variables/contact_schedule.h>
+#include <xpp/opt/variables/node_values.h>
 
 #include "composite.h"
 #include "time_discretization_constraint.h"
@@ -31,6 +33,8 @@ public:
   using DynamicModelPtr = std::shared_ptr<DynamicModel>;
   using VecTimes        = std::vector<double>;
   using SplineT         = std::shared_ptr<Spline>;
+  using NodeSplineType  = PhaseNodes;
+  using SchedulePtr     = std::shared_ptr<ContactSchedule>;
 
   DynamicConstraint (const OptVarsPtr& opt_vars,
                      const DynamicModelPtr& m,
@@ -41,8 +45,9 @@ public:
 private:
   SplineT base_linear_;
   SplineT base_angular_;
-  std::vector<SplineT> ee_forces_;
-  std::vector<SplineT> ee_splines_;
+  std::vector<std::shared_ptr<NodeSplineType>> ee_forces_;
+  std::vector<std::shared_ptr<NodeSplineType>> ee_splines_;
+  std::vector<SchedulePtr> ee_timings_;
 
   mutable DynamicModelPtr model_;
   AngularStateConverter converter_;
