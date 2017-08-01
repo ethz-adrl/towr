@@ -129,7 +129,7 @@ ContactSchedule::GetJacobianOfPos (const VectorXd& duration_deriv,
       jac.col(phase) = -1*current_vel;
 
   if (!last_phase)
-    jac.col(current_phase) = duration_deriv;
+    jac.col(current_phase) = duration_deriv; // spring_clean_ this is not the only change in this value!!!
 
   // convert to sparse, but also regard 0.0 as non-zero element, because
   // could turn nonzero during the course of the program

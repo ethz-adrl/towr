@@ -21,7 +21,7 @@ public:
 
 
 
-    ee_splines_per_swing_phase_ = 1; // spring_clean_ this breaks duration derivatives
+    ee_splines_per_swing_phase_ = 2; // spring_clean_ this breaks duration derivatives
     force_splines_per_stance_phase_ = 6;
 
     robot_ee_ = { EEID::E0 };

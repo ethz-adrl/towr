@@ -177,23 +177,26 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 
 
 
-
+// spring_clean_ rename to ..WrtPhaseDuration
 VectorXd
-PhaseNodes::GetDerivativeOfPosWrtDuration (double t_global) const
+PhaseNodes::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 {
-//  int id         = GetSegmentID(t_global, GetTimes());
-//  double t_local = GetLocalTime(t_global, GetTimes());
-
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, GetTimes());
 
-//  double p = percent_of_phase_.at(id); // use chain rule for this
+  // polynomial durations derived w.r.t. opt. times
+  int id_local, num_splines_per_phase;
+  std::tie(id_local, num_splines_per_phase) = percent_of_phase_.at(id);
 
-  return cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local);
+
+  double percent_of_phase = 1./num_splines_per_phase;
+  double inner_derivative = percent_of_phase;
+  VectorXd vel = GetPoint(t_global).v_;
+
+  VectorXd tune = id_local*percent_of_phase*vel;
+
+  return inner_derivative*cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local) - tune;
 }
-
-
-
 
 
 
@@ -249,16 +252,21 @@ PhaseNodes::UpdateTimes() const
 
     if (is_constant_phase) {
       times_.push_back(T);
-      percent_of_phase_.push_back(1.0);
+      percent_of_phase_.push_back({0,1});
     } else {
       for (int i=0; i<n_polys_in_changing_phase_; ++i) {
         times_.push_back(T/n_polys_in_changing_phase_);
-        percent_of_phase_.push_back(1.0/n_polys_in_changing_phase_);
+        percent_of_phase_.push_back({i,n_polys_in_changing_phase_});
       }
     }
 
     is_constant_phase = !is_constant_phase;
   }
+
+//  std::cout << "\n durations" << std::endl;
+//  for (int i=0; i<times_.size(); ++i) {
+//    std::cout << "t=" << times_.at(i) << ", p=" << percent_of_phase_.at(i) << std::endl;
+//  }
 }
 
 

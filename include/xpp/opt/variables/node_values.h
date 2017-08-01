@@ -99,7 +99,7 @@ public:
   ~PhaseNodes();
 
 
-  VectorXd GetDerivativeOfPosWrtDuration(double t_global) const;
+  VectorXd GetDerivativeOfPosWrtPhaseDuration(double t_global) const;
 
 
 private:
@@ -119,7 +119,8 @@ private:
 
   bool is_first_phase_constant_;
   int n_polys_in_changing_phase_;
-  mutable std::vector<double> percent_of_phase_;
+  using DurationInfo = std::pair<int, int>;
+  mutable std::vector<DurationInfo> percent_of_phase_;
 };
 
 
