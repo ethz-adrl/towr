@@ -118,7 +118,7 @@ add_library(${MOTION_OPT_LIB}
   #src/foothold_constraint.cc
   # robot specific info
   src/motion_parameters.cc
-  src/quadruped_motion_parameters.cc  
+  src/motion_parameter_instances.cc  
 )   
 target_link_libraries(${MOTION_OPT_LIB}
   ${catkin_LIBRARIES}

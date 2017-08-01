@@ -20,7 +20,6 @@
 namespace xpp {
 namespace opt {
 
-enum MotionTypeID    { WalkID, TrotID, PaceID, BoundID, PushRecID };
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
                        FinalComCostID, FinalStanceCostID };
 enum ConstraintName  { State, JunctionCom, Dynamic, RomBox, TotalTime };
@@ -30,7 +29,6 @@ enum ConstraintName  { State, JunctionCom, Dynamic, RomBox, TotalTime };
   */
 class MotionParameters {
 public:
-  using MotionTypePtr    = std::shared_ptr<MotionParameters>;
   using EEID             = EndeffectorID;
   using EEVec            = std::vector<EEID>;
   using ContactSequence  = std::vector<EndeffectorsBool>;
@@ -65,14 +63,10 @@ public:
   int force_splines_per_stance_phase_;
   int order_coeff_polys_;
 
-
   double dt_base_polynomial_;
-  double dt_range_of_motion_;    //[s]
-//  double load_dt_; /// duration of piecewise-constant ee_load
-//  int polys_per_force_phase_; /// number of polynomials for each endeffector phase
+  double dt_range_of_motion_;
   double dt_dynamic_constraint_; /// how many times dynamics are enforced
 
-//  PosXYZ offset_geom_to_com_; ///< between CoM and geometric center
 
   Eigen::Matrix3d GetInertiaParameters() const {return interia_; };
   double GetMass() const {return mass_; };
@@ -80,9 +74,8 @@ public:
 
   EEVec robot_ee_;
   ContactTimings contact_timings_;
-protected:
-//  MotionTypeID id_;
 
+protected:
   Eigen::Matrix3d interia_;
   double mass_;
   double force_limit_;

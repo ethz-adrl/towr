@@ -41,11 +41,9 @@ public:
   State3dEuler inital_base_;
   State3dEuler final_base_;
 
-  void SetMotionParameters(const MotionParametersPtr& params);
   const MotionParametersPtr GetMotionParameters() const { return motion_parameters_;};
 
   void BuildDefaultStartStance();
-
 private:
   void BuildVariables();
 

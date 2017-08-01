@@ -22,7 +22,7 @@
 #include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/node_values.h>
 #include <xpp/opt/variables/variable_names.h>
-#include <xpp/opt/quadruped_motion_parameters.h>
+#include <xpp/opt/motion_parameter_instances.h>
 
 #include <xpp/opt/ipopt_adapter.h>
 #include <xpp/opt/snopt_adapter.h>
@@ -32,7 +32,7 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  motion_parameters_ =  std::make_shared<opt::quad::QuadrupedMotionParameters>();
+  motion_parameters_ = std::make_shared<QuadrupedMotionParameters>();
   BuildDefaultStartStance();
   opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
 }
@@ -225,12 +225,6 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
   }
 
   return trajectory;
-}
-
-void
-MotionOptimizerFacade::SetMotionParameters (const MotionParametersPtr& params)
-{
-  motion_parameters_ = params;
 }
 
 
