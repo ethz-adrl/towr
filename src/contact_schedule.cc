@@ -83,7 +83,7 @@ ContactSchedule::GetBounds () const
 {
   VecBound bounds;
   double t_min = 0.05; // [s]
-  double t_max = t_total_/GetRows()-0.01; // [s]
+  double t_max = t_total_/GetRows()-0.01; // [s] // quite restrictive
 
   Bound b(t_min, t_max);
   for (int i=0; i<GetRows(); ++i)
@@ -122,14 +122,16 @@ ContactSchedule::GetJacobianOfPos (const VectorXd& duration_deriv,
 
 
   // each previous durations expands and compresses the spline equally
-  for (int phase=0; phase<current_phase; ++phase)
+  for (int phase=0; phase<current_phase; ++phase) {
+    jac.col(phase) = -1*current_vel;
+
     if (last_phase)
-      jac.col(phase) = duration_deriv*inner_deriv_Tlast;
-    else
-      jac.col(phase) = -1*current_vel;
+      jac.col(phase) -= duration_deriv;
+  }
+
 
   if (!last_phase)
-    jac.col(current_phase) = duration_deriv; // spring_clean_ this is not the only change in this value!!!
+    jac.col(current_phase) = duration_deriv;
 
   // convert to sparse, but also regard 0.0 as non-zero element, because
   // could turn nonzero during the course of the program
@@ -140,45 +142,45 @@ ContactSchedule::GetJacobianOfPos (const VectorXd& duration_deriv,
 
 
 
-//DurationConstraint::DurationConstraint (const OptVarsPtr& opt_vars,
-//                                        double T_total, int ee)
-//{
-//  SetName("DurationConstraint-" + std::to_string(ee));
-//  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
-//  T_total_ = T_total;
+DurationConstraint::DurationConstraint (const OptVarsPtr& opt_vars,
+                                        double T_total, int ee)
+{
+  SetName("DurationConstraint-" + std::to_string(ee));
+  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
+  T_total_ = T_total;
+
+  AddOptimizationVariables(opt_vars);
+  SetRows(1);
+}
+
+DurationConstraint::~DurationConstraint ()
+{
+}
+
+VectorXd
+DurationConstraint::GetValues () const
+{
+  VectorXd g = VectorXd::Zero(GetRows());
+//  for (double t_phase : schedule_->GetTimePerPhase())
+//    g(0) += t_phase;
 //
-//  AddOptimizationVariables(opt_vars);
-//  SetRows(1);
-//}
-//
-//DurationConstraint::~DurationConstraint ()
-//{
-//}
-//
-//VectorXd
-//DurationConstraint::GetValues () const
-//{
-//  VectorXd g = VectorXd::Zero(GetRows());
-////  for (double t_phase : schedule_->GetTimePerPhase())
-////    g(0) += t_phase;
-////
-//  g(0) = schedule_->GetValues().sum();
-//  return g;
-//}
-//
-//VecBound
-//DurationConstraint::GetBounds () const
-//{
-//  return VecBound(GetRows(), Bound(0.1, T_total_-0.2));
-//}
-//
-//void
-//DurationConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
-//{
-//  if (var_set == schedule_->GetName())
-//    for (int col=0; col<schedule_->GetRows(); ++col)
-//      jac.coeffRef(0, col) = 1.0;
-//}
+  g(0) = schedule_->GetValues().sum();
+  return g;
+}
+
+VecBound
+DurationConstraint::GetBounds () const
+{
+  return VecBound(GetRows(), Bound(0.1, T_total_-0.2));
+}
+
+void
+DurationConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
+{
+  if (var_set == schedule_->GetName())
+    for (int col=0; col<schedule_->GetRows(); ++col)
+      jac.coeffRef(0, col) = 1.0;
+}
 
 
 

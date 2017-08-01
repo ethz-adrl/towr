@@ -41,8 +41,7 @@ public:
     // spring_clean_ just the addition is used anyway
     double t_swing  = 0.1;
     double t_stance = 0.5;
-    contact_timings_ = {t_stance, t_swing, t_stance, t_swing, 1.0};
-
+    contact_timings_ = {t_stance, t_swing, t_stance, t_swing};
     constraints_ = {
         State,
         JunctionCom,

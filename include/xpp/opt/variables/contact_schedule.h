@@ -53,23 +53,23 @@ private:
 
 
 
-///** Makes sure all phase durations sum up to final specified motion duration.
-// */
-//class DurationConstraint : public Primitive {
-//public:
-//  using SchedulePtr = std::shared_ptr<ContactSchedule>;
-//
-//  DurationConstraint(const OptVarsPtr& opt_vars, double T_total, int ee);
-//  ~DurationConstraint();
-//
-//  VectorXd GetValues() const override;
-//  VecBound GetBounds() const override;
-//  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
-//
-//private:
-//  SchedulePtr schedule_;
-//  double T_total_;
-//};
+/** Makes sure all phase durations sum up to final specified motion duration.
+ */
+class DurationConstraint : public Primitive {
+public:
+  using SchedulePtr = std::shared_ptr<ContactSchedule>;
+
+  DurationConstraint(const OptVarsPtr& opt_vars, double T_total, int ee);
+  ~DurationConstraint();
+
+  VectorXd GetValues() const override;
+  VecBound GetBounds() const override;
+  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
+
+private:
+  SchedulePtr schedule_;
+  double T_total_;
+};
 
 
 
