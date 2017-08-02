@@ -22,36 +22,58 @@ NodeValues::NodeValues () : Component(-1, "node_values_placeholder")
 NodeValues::~NodeValues () {}
 
 
+//void
+//NodeValues::Init (const Node& initial_value, int n_polynomials,
+//                  const std::string& name)
+//{
+//  PolyInfoVec poly_infos;
+//
+//  for (int i=0; i<n_polynomials; ++i)
+//    poly_infos.push_back(std::make_tuple(i,0,1, false));
+//
+//  Init(initial_value, poly_infos, name);
+//}
+
 void
-NodeValues::Init (const Node& initial_value, int n_polynomials,
+NodeValues::Init (const Node& initial_value, const PolyInfoVec& poly_infos,
                   const std::string& name)
 {
   SetName(name);
   n_dim_ = initial_value.at(kPos).rows();
 
+  polynomial_info_ = poly_infos;
+  times_ = VecTimes(polynomial_info_.size());
+
   nodes_.push_back(initial_value);
-  for (int i=0; i<n_polynomials; ++i) {
+  for (auto& infos : poly_infos) {
     auto p = std::make_shared<PolyType>(n_dim_);
     cubic_polys_.push_back(p);
     nodes_.push_back(initial_value);
   }
 
-  UpdatePolynomials();
-
   SetNodeMappings();
-
-
   int n_opt_variables = opt_to_spline_.size() * 2*n_dim_;
   SetRows(n_opt_variables);
+
+  UpdatePolynomials();
 }
 
 void
 NodeValues::SetNodeMappings ()
 {
-  // every optimization value maps to a different node
   int opt_id = 0;
-  for (int node_id=0; node_id<nodes_.size(); ++node_id)
-    opt_to_spline_[opt_id++] = {node_id};
+  for (int i=0; i<polynomial_info_.size(); ++i) {
+    int node_id_start = GetNodeId(i, CubicHermitePoly::Start);
+
+    opt_to_spline_[opt_id].push_back(node_id_start);
+    bool is_constant_poly = std::get<3>(polynomial_info_.at(i));
+    // use same value for next node if polynomial is constant
+    if (!is_constant_poly)
+      opt_id++;
+  }
+
+  int last_node_id = polynomial_info_.size();
+  opt_to_spline_[opt_id].push_back(last_node_id);
 }
 
 std::vector<NodeValues::NodeInfo>
@@ -99,9 +121,8 @@ NodeValues::SetValues (const VectorXd& x)
 }
 
 
-// zmp_ remove the constant here, this is nonsense
 void
-NodeValues::UpdatePolynomials () const
+NodeValues::UpdatePolynomials ()
 {
   for (int i=0; i<cubic_polys_.size(); ++i) {
     cubic_polys_.at(i)->SetNodes(nodes_.at(GetNodeId(i,Side::Start)),
@@ -169,7 +190,7 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 
 
 VectorXd
-PhaseNodes::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
+NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 {
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, times_);
@@ -177,16 +198,15 @@ PhaseNodes::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
   // polynomial durations derived w.r.t. opt. times
   int phase_id, id_local, num_polys_in_phase;
   bool is_constant;
-  std::tie(phase_id, id_local, num_polys_in_phase, is_constant) = percent_of_phase_.at(id);
+  std::tie(phase_id, id_local, num_polys_in_phase, is_constant) = polynomial_info_.at(id);
 
 
   double percent_of_phase = 1./num_polys_in_phase;
   double inner_derivative = percent_of_phase;
   VectorXd vel = GetPoint(t_global).v_;
+  VectorXd dxdT = cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local);
 
-  VectorXd tune = id_local*percent_of_phase*vel;
-
-  return inner_derivative*cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local) - tune;
+  return inner_derivative*dxdT - id_local*percent_of_phase*vel;
 }
 
 
@@ -200,12 +220,15 @@ PhaseNodes::PhaseNodes (const Node& initial_value,
                         bool is_constant_during_contact,
                         int n_polys_in_changing_phase)
 {
-  SetTimeStructure(contact_schedule->GetPhaseCount(),
-                   is_constant_during_contact,
-                   contact_schedule,
-                   n_polys_in_changing_phase);
+  for (int i=0; i<contact_schedule.size(); ++i) {
+    if (contact_schedule.at(i) == is_constant_during_contact)
+      polynomial_info_.push_back(std::make_tuple(i,0,1, true));
+    else
+      for (int j=0; j<n_polys_in_changing_phase; ++j)
+        polynomial_info_.push_back(std::make_tuple(i,j,n_polys_in_changing_phase, false));
+  }
 
-  Init(initial_value, percent_of_phase_.size(), name);
+  Init(initial_value, polynomial_info_, name);
 }
 
 
@@ -215,50 +238,16 @@ PhaseNodes::~PhaseNodes ()
 
 
 void
-PhaseNodes::SetTimeStructure (int num_phases,
-                              bool is_constant_during_contact,
-                              const SchedulePtr& contact_schedule,
-                              int polys_in_non_constant_phase)
-{
-  for (int i=0; i<num_phases; ++i) {
-    if (contact_schedule->GetContact(i) == is_constant_during_contact)
-      percent_of_phase_.push_back(std::make_tuple(i,0,1, true));
-    else
-      for (int j=0; j<polys_in_non_constant_phase; ++j)
-        percent_of_phase_.push_back(std::make_tuple(i,j,polys_in_non_constant_phase, false));
-  }
-
-  times_ = VecTimes(percent_of_phase_.size());
-}
-
-
-void
-PhaseNodes::SetNodeMappings ()
-{
-  int opt_id = 0;
-  for (int i=0; i<percent_of_phase_.size(); ++i) {
-    int node_id_start = GetNodeId(i, CubicHermitePoly::Start);
-
-    opt_to_spline_[opt_id].push_back(node_id_start);
-    bool is_constant_poly = std::get<3>(percent_of_phase_.at(i));
-    // use same value for next node if polynomial is constant
-    if (!is_constant_poly)
-      opt_id++;
-  }
-
-  opt_to_spline_[opt_id].push_back(nodes_.size()-1); // add last node
-}
-
-
-void
 PhaseNodes::UpdateTimes(const VecTimes& durations)
 {
   int i=0;
-  for (auto info : percent_of_phase_) {
+  for (auto info : polynomial_info_) {
     int phase = std::get<0>(info);
     int n_polys_in_phase = std::get<2>(info);
     times_.at(i++) = durations.at(phase)/n_polys_in_phase;
   }
+
+  UpdatePolynomials();
 }
 
 

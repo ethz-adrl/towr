@@ -15,7 +15,6 @@
 
 #include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/variable_names.h>
-#include <xpp/opt/variables/node_values.h>
 
 
 namespace xpp {
@@ -121,6 +120,16 @@ ContactSchedule::GetContact (int phase) const
     return !first_phase_in_contact_;
 }
 
+std::vector<bool>
+ContactSchedule::GetContactSequence () const
+{
+  std::vector<bool> contact_sequence_;
+  for (int phase=0; phase<durations_.size(); ++phase)
+    contact_sequence_.push_back(GetContact(phase));
+
+  return contact_sequence_;
+}
+
 std::vector<double>
 ContactSchedule::GetTimePerPhase () const
 {
@@ -205,3 +214,5 @@ DurationConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& ja
 
 } /* namespace opt */
 } /* namespace xpp */
+
+

@@ -16,10 +16,12 @@
 #include <xpp/opt/bound.h>
 #include <xpp/opt/constraints/composite.h>
 
+#include "node_values.h"
+
+
 namespace xpp {
 namespace opt {
 
-class PhaseNodes;
 
 class ContactSchedule : public Component {
 public:
@@ -32,6 +34,7 @@ public:
   bool IsInContact(double t_global) const;
 
   std::vector<double> GetTimePerPhase() const;
+  std::vector<bool> GetContactSequence() const;
 
   void AddObserver(const PhaseNodesPtr& o);
   void UpdateObservers() const;

@@ -77,7 +77,7 @@ MotionOptimizerFacade::BuildVariables ()
     NodeValues::Node intial_pos;
     intial_pos.at(kPos) = initial_ee_W_.At(ee);
     intial_pos.at(kVel) = Vector3d::Zero();
-    auto nodes_motion = std::make_shared<EEMotionNodes>(intial_pos, contact_schedule.at(ee), motion_parameters_->ee_splines_per_swing_phase_, ee);
+    auto nodes_motion = std::make_shared<EEMotionNodes>(intial_pos, contact_schedule.at(ee)->GetContactSequence(), motion_parameters_->ee_splines_per_swing_phase_, ee);
     opt_variables_->AddComponent(nodes_motion);
     contact_schedule.at(ee)->AddObserver(nodes_motion);
   }
@@ -89,7 +89,7 @@ MotionOptimizerFacade::BuildVariables ()
     intial_force.at(kPos) = Vector3d::Zero();
     intial_force.at(kPos).z() = motion_parameters_->GetAvgZForce();
     intial_force.at(kVel) = Vector3d::Zero();
-    auto nodes_forces = std::make_shared<EEForcesNodes>(intial_force, contact_schedule.at(ee), motion_parameters_->force_splines_per_stance_phase_, ee);
+    auto nodes_forces = std::make_shared<EEForcesNodes>(intial_force, contact_schedule.at(ee)->GetContactSequence(), motion_parameters_->force_splines_per_stance_phase_, ee);
     opt_variables_->AddComponent(nodes_forces);
     contact_schedule.at(ee)->AddObserver(nodes_forces);
   }

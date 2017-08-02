@@ -20,7 +20,6 @@
 #include <xpp/opt/polynomial.h>
 #include <xpp/state.h>
 
-#include "contact_schedule.h"
 #include "spline.h"
 
 namespace xpp {
@@ -42,6 +41,16 @@ public:
 
 
 
+  using PhaseID = int;
+  using LocalID = int;
+  using LocalCount = int;
+  using IsContant = bool;
+  using DurationInfo = std::tuple<PhaseID, LocalID, LocalCount, IsContant>;
+  using PolyInfoVec = std::vector<DurationInfo>;
+
+
+
+
   struct NodeInfo {
     int id_;
     MotionDerivative deriv_;
@@ -52,7 +61,8 @@ public:
   NodeValues ();
   virtual ~NodeValues ();
 
-  void Init(const Node& initial_value, int n_polynomials, const std::string& name);
+//  void Init(const Node& initial_value, int n_polys, const std::string& name);
+  void Init(const Node& initial_value, const PolyInfoVec&, const std::string& name);
 
 
   VectorXd GetValues () const override;
@@ -65,36 +75,39 @@ public:
   virtual Jacobian GetJacobian (double t_global,  MotionDerivative dxdt) const override;
 
 
-
+  VectorXd GetDerivativeOfPosWrtPhaseDuration(double t_global) const;
 
 
 protected:
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
-  std::vector<Node> nodes_;
-  int n_dim_;
 
   using OptNodeIs = int;
   using NodeIds   = std::vector<int>;
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
 
-  mutable VecPoly cubic_polys_;
-  void UpdatePolynomials() const;
+  void UpdatePolynomials();
   int GetNodeId(int poly_id, Side) const;
-
   VecTimes times_;
-private:
 
+
+
+
+  PolyInfoVec polynomial_info_;
+
+
+private:
+  std::vector<Node> nodes_;
+  int n_dim_;
+  VecPoly cubic_polys_;
   virtual void SetNodeMappings();
 
   Jacobian GetJacobian(int poly_id, double t_local, MotionDerivative dxdt) const;
-
-
-
 };
+
 
 class PhaseNodes : public NodeValues {
 public:
-  using SchedulePtr = std::shared_ptr<ContactSchedule>;
+  using SchedulePtr = std::vector<bool>;
 
   PhaseNodes (const Node& initial_value,
               const SchedulePtr& contact_schedule,
@@ -104,30 +117,19 @@ public:
   ~PhaseNodes();
 
 
-  VectorXd GetDerivativeOfPosWrtPhaseDuration(double t_global) const;
-
-  void UpdateTimes(const VecTimes& durations);
+  /** @brief called by contact schedule when variables are updated.
+   *
+   * Converts phase durations to specific polynomial durations.
+   */
+  void UpdateTimes(const VecTimes& phase_durations);
 
 private:
 
 
-
-  void SetTimeStructure(int num_phases,
-                        bool is_constant_during_contact,
-                        const SchedulePtr& contact_schedule,
-                        int polys_in_non_constant_phase);
-
-  virtual void SetNodeMappings () override;
+//  virtual void SetNodeMappings () override;
 
 
 
-  using PhaseID = int;
-  using LocalID = int;
-  using LocalCount = int;
-  using IsContant = bool;
-  using DurationInfo = std::tuple<PhaseID, LocalID, LocalCount, IsContant>;
-  // zmp_ rename this
-  mutable std::vector<DurationInfo> percent_of_phase_;
 };
 
 
