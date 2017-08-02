@@ -11,6 +11,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include <xpp/cartesian_declarations.h>
@@ -78,11 +79,15 @@ protected:
 
   mutable VecPoly cubic_polys_;
   void UpdatePolynomials() const;
-private:
-  Jacobian GetJacobian(int poly_id, double t_local, MotionDerivative dxdt) const;
   int GetNodeId(int poly_id, Side) const;
 
-  virtual VecTimes GetTimes() const = 0;
+  VecTimes times_;
+private:
+
+  virtual void SetNodeMappings();
+
+  Jacobian GetJacobian(int poly_id, double t_local, MotionDerivative dxdt) const;
+
 
 
 };
@@ -94,32 +99,34 @@ public:
   PhaseNodes (const Node& initial_value,
               const SchedulePtr& contact_schedule,
               const std::string& name,
-              bool is_first_phase_constant,
+              bool is_constant_during_contact,
               int n_polys_in_changing_phase);
   ~PhaseNodes();
 
 
   VectorXd GetDerivativeOfPosWrtPhaseDuration(double t_global) const;
 
+  void UpdateTimes(const VecTimes& durations);
 
 private:
-  virtual VecTimes GetTimes() const override
-  {
-    // spring_clean_ causes duration updated polynomials to be used
-    UpdateTimes();
-    return times_;
-  };
-
-  // zmp_ remove constant here
-  void UpdateTimes() const;
-  mutable VecTimes times_;
 
 
-  SchedulePtr contact_schedule_;
 
-  bool is_first_phase_constant_;
-  int n_polys_in_changing_phase_;
-  using DurationInfo = std::pair<int, int>;
+  void SetTimeStructure(int num_phases,
+                        bool is_constant_during_contact,
+                        const SchedulePtr& contact_schedule,
+                        int polys_in_non_constant_phase);
+
+  virtual void SetNodeMappings () override;
+
+
+
+  using PhaseID = int;
+  using LocalID = int;
+  using LocalCount = int;
+  using IsContant = bool;
+  using DurationInfo = std::tuple<PhaseID, LocalID, LocalCount, IsContant>;
+  // zmp_ rename this
   mutable std::vector<DurationInfo> percent_of_phase_;
 };
 

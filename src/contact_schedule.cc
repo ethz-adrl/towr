@@ -15,6 +15,8 @@
 
 #include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/variable_names.h>
+#include <xpp/opt/variables/node_values.h>
+
 
 namespace xpp {
 namespace opt {
@@ -31,6 +33,20 @@ ContactSchedule::ContactSchedule (EndeffectorID ee, const VecDurations& timings)
 
 ContactSchedule::~ContactSchedule ()
 {
+}
+
+void
+ContactSchedule::AddObserver (const PhaseNodesPtr& o)
+{
+  observers_.push_back(o);
+  UpdateObservers();
+}
+
+void
+ContactSchedule::UpdateObservers () const
+{
+  for (auto& o : observers_)
+    o->UpdateTimes(durations_);
 }
 
 bool
@@ -60,7 +76,10 @@ ContactSchedule::SetValues (const VectorXd& x)
     opt_durations.push_back(x(i));
 
   durations_ = CalcAllDurations(opt_durations);
+  UpdateObservers();
 }
+
+
 
 ContactSchedule::VecDurations
 ContactSchedule::CalcAllDurations (const VecDurations& opt_Ts) const

@@ -10,7 +10,6 @@
 
 #include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include <xpp/endeffectors.h>
@@ -20,10 +19,12 @@
 namespace xpp {
 namespace opt {
 
+class PhaseNodes;
 
 class ContactSchedule : public Component {
 public:
-  using VecDurations = std::vector<double>;
+  using VecDurations  = std::vector<double>;
+  using PhaseNodesPtr = std::shared_ptr<PhaseNodes>;
 
   ContactSchedule (EndeffectorID ee, const VecDurations& timings);
   virtual ~ContactSchedule ();
@@ -31,6 +32,9 @@ public:
   bool IsInContact(double t_global) const;
 
   std::vector<double> GetTimePerPhase() const;
+
+  void AddObserver(const PhaseNodesPtr& o);
+  void UpdateObservers() const;
 
   // zmp_ make these std::vectors?
   virtual VectorXd GetValues() const override;
@@ -41,14 +45,22 @@ public:
                             const VectorXd& current_vel,
                             double t_global) const;
 
-private:
+  int GetPhaseCount() const { return GetTimePerPhase().size(); };
   bool GetContact(int phase) const;
+
+private:
   VecDurations CalcAllDurations(const VecDurations& opt_durations) const;
 
   bool first_phase_in_contact_ = true;
   double t_total_;
 
+  std::vector<PhaseNodesPtr> observers_;
+
   VecDurations durations_;
+
+
+
+
 };
 
 

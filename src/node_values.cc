@@ -38,14 +38,20 @@ NodeValues::Init (const Node& initial_value, int n_polynomials,
 
   UpdatePolynomials();
 
-  // every optimization value maps to a different node
-  int opt_id = 0;
-  for (int node_id=0; node_id<nodes_.size(); ++node_id)
-    opt_to_spline_[opt_id++] = {node_id};
+  SetNodeMappings();
 
 
   int n_opt_variables = opt_to_spline_.size() * 2*n_dim_;
   SetRows(n_opt_variables);
+}
+
+void
+NodeValues::SetNodeMappings ()
+{
+  // every optimization value maps to a different node
+  int opt_id = 0;
+  for (int node_id=0; node_id<nodes_.size(); ++node_id)
+    opt_to_spline_[opt_id++] = {node_id};
 }
 
 std::vector<NodeValues::NodeInfo>
@@ -100,7 +106,7 @@ NodeValues::UpdatePolynomials () const
   for (int i=0; i<cubic_polys_.size(); ++i) {
     cubic_polys_.at(i)->SetNodes(nodes_.at(GetNodeId(i,Side::Start)),
                                  nodes_.at(GetNodeId(i,Side::End)),
-                                 GetTimes().at(i));
+                                 times_.at(i));
   }
 }
 
@@ -114,14 +120,8 @@ NodeValues::DoVarAffectCurrentState(const std::string& poly_vars, double t_curre
 const StateLinXd
 NodeValues::GetPoint(double t_global) const
 {
-  // zmp_ look at this returning a pair
-//  int id         = GetSegmentID(t_global, GetTimes());
-//  double t_local = GetLocalTime(t_global, GetTimes());
-
   int id; double t_local;
-  std::tie(id, t_local) = GetLocalTime(t_global, GetTimes());
-
-//  UpdatePolynomials(); // zmp_ ugly that has to be called before everything
+  std::tie(id, t_local) = GetLocalTime(t_global, times_);
   return cubic_polys_.at(id)->GetPoint(t_local);
 }
 
@@ -129,18 +129,10 @@ NodeValues::GetPoint(double t_global) const
 Jacobian
 NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
-//  int poly_id     = GetSegmentID(t_global, GetTimes());
-//  double t_local  = GetLocalTime(t_global, GetTimes()); // these are both wrong when adding extra polynomial
-
   int id; double t_local;
-  std::tie(id, t_local) = GetLocalTime(t_global, GetTimes());
-
-//  UpdatePolynomials(); // zmp_ ugly that has to be called before everything
+  std::tie(id, t_local) = GetLocalTime(t_global, times_);
   return GetJacobian(id, t_local, dxdt);
 }
-
-
-
 
 Jacobian
 NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) const
@@ -176,20 +168,19 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 
 
 
-
-// spring_clean_ rename to ..WrtPhaseDuration
 VectorXd
 PhaseNodes::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 {
   int id; double t_local;
-  std::tie(id, t_local) = GetLocalTime(t_global, GetTimes());
+  std::tie(id, t_local) = GetLocalTime(t_global, times_);
 
   // polynomial durations derived w.r.t. opt. times
-  int id_local, num_splines_per_phase;
-  std::tie(id_local, num_splines_per_phase) = percent_of_phase_.at(id);
+  int phase_id, id_local, num_polys_in_phase;
+  bool is_constant;
+  std::tie(phase_id, id_local, num_polys_in_phase, is_constant) = percent_of_phase_.at(id);
 
 
-  double percent_of_phase = 1./num_splines_per_phase;
+  double percent_of_phase = 1./num_polys_in_phase;
   double inner_derivative = percent_of_phase;
   VectorXd vel = GetPoint(t_global).v_;
 
@@ -206,83 +197,80 @@ PhaseNodes::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 PhaseNodes::PhaseNodes (const Node& initial_value,
                         const SchedulePtr& contact_schedule,
                         const std::string& name,
-                        bool is_first_phase_constant,
+                        bool is_constant_during_contact,
                         int n_polys_in_changing_phase)
 {
-  contact_schedule_          = contact_schedule;
-  is_first_phase_constant_   = is_first_phase_constant;
-  n_polys_in_changing_phase_ = n_polys_in_changing_phase;
-  UpdateTimes();
+  SetTimeStructure(contact_schedule->GetPhaseCount(),
+                   is_constant_during_contact,
+                   contact_schedule,
+                   n_polys_in_changing_phase);
 
-  Init(initial_value, times_.size(), name);
-
-  int first_constant_node_in_cycle = (!is_first_phase_constant)*n_polys_in_changing_phase;
-
-  int opt_id = 0;
-  opt_to_spline_.clear();
-  for (int node_id=0; node_id<nodes_.size(); ++node_id) {
-
-    opt_to_spline_[opt_id].push_back(node_id);
-
-    int node_in_cycle = node_id%(n_polys_in_changing_phase+1);
-
-    // use same optimization variable for next node in single poly phase
-    if (node_in_cycle != first_constant_node_in_cycle)
-      opt_id++;
-  }
-
-
-  int n_opt_variables = opt_to_spline_.size() * 2*n_dim_;
-  SetRows(n_opt_variables);
+  Init(initial_value, percent_of_phase_.size(), name);
 }
+
 
 PhaseNodes::~PhaseNodes ()
 {
 }
 
+
 void
-PhaseNodes::UpdateTimes() const
+PhaseNodes::SetTimeStructure (int num_phases,
+                              bool is_constant_during_contact,
+                              const SchedulePtr& contact_schedule,
+                              int polys_in_non_constant_phase)
 {
-  // zmp_ this is prone to bugs
-  times_.clear();
-  percent_of_phase_.clear(); // only need to do this once
-
-  bool is_constant_phase = is_first_phase_constant_;
-  for (double T : contact_schedule_->GetTimePerPhase()) {
-
-    if (is_constant_phase) {
-      times_.push_back(T);
-      percent_of_phase_.push_back({0,1});
-    } else {
-      for (int i=0; i<n_polys_in_changing_phase_; ++i) {
-        times_.push_back(T/n_polys_in_changing_phase_);
-        percent_of_phase_.push_back({i,n_polys_in_changing_phase_});
-      }
-    }
-
-    is_constant_phase = !is_constant_phase;
+  for (int i=0; i<num_phases; ++i) {
+    if (contact_schedule->GetContact(i) == is_constant_during_contact)
+      percent_of_phase_.push_back(std::make_tuple(i,0,1, true));
+    else
+      for (int j=0; j<polys_in_non_constant_phase; ++j)
+        percent_of_phase_.push_back(std::make_tuple(i,j,polys_in_non_constant_phase, false));
   }
 
-//  std::cout << "\n durations" << std::endl;
-//  for (int i=0; i<times_.size(); ++i) {
-//    std::cout << "t=" << times_.at(i) << ", p=" << percent_of_phase_.at(i) << std::endl;
-//  }
+  times_ = VecTimes(percent_of_phase_.size());
 }
 
 
+void
+PhaseNodes::SetNodeMappings ()
+{
+  int opt_id = 0;
+  for (int i=0; i<percent_of_phase_.size(); ++i) {
+    int node_id_start = GetNodeId(i, CubicHermitePoly::Start);
+
+    opt_to_spline_[opt_id].push_back(node_id_start);
+    bool is_constant_poly = std::get<3>(percent_of_phase_.at(i));
+    // use same value for next node if polynomial is constant
+    if (!is_constant_poly)
+      opt_id++;
+  }
+
+  opt_to_spline_[opt_id].push_back(nodes_.size()-1); // add last node
+}
 
 
-
-
-
-
+void
+PhaseNodes::UpdateTimes(const VecTimes& durations)
+{
+  int i=0;
+  for (auto info : percent_of_phase_) {
+    int phase = std::get<0>(info);
+    int n_polys_in_phase = std::get<2>(info);
+    times_.at(i++) = durations.at(phase)/n_polys_in_phase;
+  }
+}
 
 
 EEMotionNodes::EEMotionNodes (const Node& initial_value,
                               const SchedulePtr& contact_schedule,
                               int splines_per_swing_phase,
                               int ee)
-    :PhaseNodes(initial_value, contact_schedule, id::GetEEId(ee), true, splines_per_swing_phase)
+    :PhaseNodes(initial_value,
+                contact_schedule,
+                id::GetEEId(ee),
+                true,
+                splines_per_swing_phase)
 {
 }
 
@@ -308,22 +296,20 @@ EEMotionNodes::GetBounds () const
         bounds.at(idx) = kEqualityBound_; // ground is at zero height
 
     }
-
-
   }
 
   return bounds;
 }
 
-
-
-
-
 EEForcesNodes::EEForcesNodes (const Node& initial_force,
                               const SchedulePtr& contact_schedule,
                               int splines_per_stance_phase,
                               int ee)
-    :PhaseNodes(initial_force, contact_schedule, id::GetEEForceId(ee), false, splines_per_stance_phase)
+    :PhaseNodes(initial_force,
+                contact_schedule,
+                id::GetEEForceId(ee),
+                false,
+                splines_per_stance_phase)
 {
 }
 
@@ -373,5 +359,3 @@ EEForcesNodes::GetBounds () const
 
 } /* namespace opt */
 } /* namespace xpp */
-
-

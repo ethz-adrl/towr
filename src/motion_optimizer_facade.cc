@@ -79,6 +79,7 @@ MotionOptimizerFacade::BuildVariables ()
     intial_pos.at(kVel) = Vector3d::Zero();
     auto nodes_motion = std::make_shared<EEMotionNodes>(intial_pos, contact_schedule.at(ee), motion_parameters_->ee_splines_per_swing_phase_, ee);
     opt_variables_->AddComponent(nodes_motion);
+    contact_schedule.at(ee)->AddObserver(nodes_motion);
   }
 
 // Endeffector Forces
@@ -90,6 +91,7 @@ MotionOptimizerFacade::BuildVariables ()
     intial_force.at(kVel) = Vector3d::Zero();
     auto nodes_forces = std::make_shared<EEForcesNodes>(intial_force, contact_schedule.at(ee), motion_parameters_->force_splines_per_stance_phase_, ee);
     opt_variables_->AddComponent(nodes_forces);
+    contact_schedule.at(ee)->AddObserver(nodes_forces);
   }
 
 
