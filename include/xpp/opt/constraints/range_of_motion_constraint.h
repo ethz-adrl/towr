@@ -17,7 +17,7 @@
 #include <xpp/opt/bound.h>
 #include <xpp/opt/motion_parameters.h>
 #include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/node_values.h>
+#include <xpp/opt/variables/spline.h>
 #include <xpp/state.h>
 
 #include "composite.h"
@@ -25,8 +25,6 @@
 
 namespace xpp {
 namespace opt {
-
-class Spline;
 
 /** @brief Constrains the contact to lie in a box around the nominal stance
   *
@@ -43,8 +41,6 @@ public:
   using VecTimes        = std::vector<double>;
   using MotionParamsPtr = std::shared_ptr<MotionParameters>;
   using SplineT         = std::shared_ptr<Spline>;
-  using EEMotionType    = PhaseNodes;
-  using EEMotionPtr     = std::shared_ptr<EEMotionType>; // zmp_ make normal spline again
   using SchedulePtr     = std::shared_ptr<ContactSchedule>;
 
   RangeOfMotionBox(const OptVarsPtr& opt_vars,
@@ -61,12 +57,14 @@ private:
 
   SplineT base_linear_;
   SplineT base_angular_;
-  EEMotionPtr ee_spline_;
+  SplineT ee_spline_;
   SchedulePtr ee_timings_;
 
   Vector3d max_deviation_from_nominal_;
   Vector3d nominal_ee_pos_B;
   AngularStateConverter converter_;
+
+  EndeffectorID ee_;
 };
 
 } /* namespace opt */

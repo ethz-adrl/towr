@@ -43,6 +43,9 @@ MonopedMotionParameters::MonopedMotionParameters()
   double t_swing  = 0.25;
   double t_stance = 0.25;
   contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance};
+  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+
+
   constraints_ = {
       State,
       JunctionCom,
@@ -96,13 +99,13 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, z_nominal_b);
-  max_dev_xy_ << 0.15, 0.15, 0.15;
+  max_dev_xy_ << 0.15, 0.15, 0.1;
 
 
-  double t_swing  = 0.4;
+  double t_swing  = 0.1;
   double t_stance = 0.4;
-  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, 1.0};
-
+  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance, t_swing, t_stance};
+  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
   constraints_ = {
       State,

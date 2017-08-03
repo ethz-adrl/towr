@@ -15,16 +15,19 @@
 
 #include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/variable_names.h>
+#include <xpp/state.h>
 
 
 namespace xpp {
 namespace opt {
 
 
-ContactSchedule::ContactSchedule (EndeffectorID ee, const VecDurations& timings)
+ContactSchedule::ContactSchedule (EndeffectorID ee, const VecDurations& timings,
+                                  double max_phase_duration)
     :Component(0, id::GetEEScheduleId(ee))
 {
   durations_ = timings;
+  max_phase_duration_ = max_phase_duration;
   first_phase_in_contact_ = true;
   t_total_   = std::accumulate(durations_.begin(), durations_.end(), 0.0);
   SetRows(durations_.size()-1); // since last phase-duration is not optimized over
@@ -100,8 +103,8 @@ VecBound
 ContactSchedule::GetBounds () const
 {
   VecBound bounds;
-  double t_min = 0.1; // [s]
-  double t_max = t_total_/GetRows()-0.01; // [s] // quite restrictive
+  double t_min = 0.2; // [s]
+  double t_max = max_phase_duration_;
 
   Bound b(t_min, t_max);
   for (int i=0; i<GetRows(); ++i)
@@ -137,51 +140,47 @@ ContactSchedule::GetTimePerPhase () const
 }
 
 Jacobian
-ContactSchedule::GetJacobianOfPos (double t_global, const std::string& observer_name) const
+ContactSchedule::GetJacobianOfPos (double t_global, const std::string& id) const
 {
+  PhaseNodesPtr o = GetObserver(id);
+  VectorXd dx_dT  = o->GetDerivativeOfPosWrtPhaseDuration(t_global);
+  VectorXd xd     = o->GetPoint(t_global).v_;
 
-  PhaseNodesPtr observer;
-  for (const auto& o : observers_) {
-    if (o->GetName() == observer_name) {
-      observer = o;
-      break;
-    }
-  }
-
-
-  VectorXd duration_deriv = observer->GetDerivativeOfPosWrtPhaseDuration(t_global);
-  VectorXd current_vel = observer->GetPoint(t_global).v_;
-
-
-  int n_dim = current_vel.rows();
+  int n_dim = xd.rows();
   Eigen::MatrixXd jac = Eigen::MatrixXd::Zero(n_dim, GetRows());
 
   int current_phase = Spline::GetSegmentID(t_global, durations_);
   bool in_last_phase = current_phase == durations_.size()-1;
 
-
   // duration of current phase expands and compressed spline
   if (!in_last_phase)
-    jac.col(current_phase) = duration_deriv;
+    jac.col(current_phase) = dx_dT;
 
   for (int phase=0; phase<current_phase; ++phase) {
     // each previous durations shifts spline along time axis
-    jac.col(phase) = -1*current_vel;
+    jac.col(phase) = -1*xd;
 
     // in last phase previous duration cause expansion/compression of spline
     // as final time is fixed.
     if (in_last_phase)
-      jac.col(phase) -= duration_deriv;
+      jac.col(phase) -= dx_dT;
   }
-
-
-
-
 
   // convert to sparse, but also regard 0.0 as non-zero element, because
   // could turn nonzero during the course of the program
   // as durations change and t_global falls into different spline
   return jac.sparseView(1.0, -1.0);
+}
+
+ContactSchedule::PhaseNodesPtr
+ContactSchedule::GetObserver (const std::string& id) const
+{
+  for (const auto& o : observers_)
+    if (o->GetName() == id)
+      return o;
+
+  std::cerr << "Observer \"" << id << "\" doesn't exist." << std::endl;
+  assert(false);
 }
 
 

@@ -7,9 +7,14 @@
 
 #include <xpp/opt/variables/node_values.h>
 
-#include <Eigen/Dense>
+#include <array>
+#include <cmath>
+#include <tuple>
+#include <utility>
 
-#include <xpp/opt/variables/spline.h>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
 #include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
@@ -181,7 +186,6 @@ NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, times_);
 
-
   auto info = polynomial_info_.at(id);
   double percent_of_phase = 1./info.num_polys_in_phase_;
   double inner_derivative = percent_of_phase;
@@ -190,8 +194,6 @@ NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 
   return inner_derivative*dxdT - info.poly_id_in_phase_*percent_of_phase*vel;
 }
-
-
 
 
 
@@ -236,7 +238,7 @@ EEMotionNodes::EEMotionNodes (const Node& initial_value,
                               int ee)
     :PhaseNodes(initial_value,
                 contact_schedule,
-                id::GetEEId(ee),
+                id::GetEEMotionId(ee),
                 true,
                 splines_per_swing_phase)
 {

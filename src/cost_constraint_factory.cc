@@ -107,7 +107,7 @@ CostConstraintFactory::MakeStateConstraint () const
   // endeffector constraints
   for (auto ee : params->robot_ee_) {
 
-    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEId(ee), {});
+    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEMotionId(ee), {});
 
     // initial endeffectors constraints
     // zmp_ replace these by normal variable bounds on the hermite-poly nodes

@@ -10,13 +10,13 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <xpp/cartesian_declarations.h>
-#include <xpp/state.h>
-
 #include <xpp/opt/constraints/composite.h>
 #include <xpp/opt/polynomial.h>
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {
@@ -59,7 +59,6 @@ public:
                                        double t_current) const = 0;
 
   virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
-
 
 };
 

@@ -11,7 +11,7 @@
 #include <Eigen/Sparse>
 
 #include <xpp/cartesian_declarations.h>
-#include <xpp/opt/variables/node_values.h>
+#include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/variable_names.h>
 
 namespace xpp {
@@ -25,6 +25,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
                                   opt_vars)
 {
   SetName("RangeOfMotionBox-" + std::to_string(ee));
+  ee_ = ee;
   max_deviation_from_nominal_ = params->GetMaximumDeviationFromNominal();
   nominal_ee_pos_B            = params->GetNominalStanceInBase().At(ee);
 
@@ -32,8 +33,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   auto base_poly_durations = params->GetBasePolyDurations();
   base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear,  base_poly_durations);
   base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
-//  // zmp_ hide node value implementation detail again, remove cast
-  ee_spline_    = std::dynamic_pointer_cast<EEMotionType>(Spline::BuildSpline(opt_vars, id::GetEEId(ee), {}));
+  ee_spline_    = Spline::BuildSpline(opt_vars, id::GetEEMotionId(ee), {});
   ee_timings_   = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
 
   SetRows(GetNumberOfNodes()*kDim3d);
@@ -80,7 +80,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   int row_start = GetRow(k,X);
 
   if (var_set == ee_timings_->GetName()) {
-    jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(t, ee_spline_->GetName());
+    jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(t, id::GetEEMotionId(ee_));
   }
 
   if (ee_spline_->DoVarAffectCurrentState(var_set,t)) {

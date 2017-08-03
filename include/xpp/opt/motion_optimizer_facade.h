@@ -41,14 +41,14 @@ public:
   State3dEuler inital_base_;
   State3dEuler final_base_;
 
-  const MotionParametersPtr GetMotionParameters() const { return motion_parameters_;};
+  const MotionParametersPtr GetMotionParameters() const { return params_;};
 
   void BuildDefaultStartStance();
 private:
   void BuildVariables();
 
   OptimizationVariablesPtr opt_variables_;
-  MotionParametersPtr motion_parameters_;
+  MotionParametersPtr params_;
   NLP nlp;
 };
 

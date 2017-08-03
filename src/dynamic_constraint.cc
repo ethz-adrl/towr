@@ -9,12 +9,10 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
-#include <vector>
 
 #include <xpp/endeffectors.h>
-#include <xpp/opt/bound.h>
-#include <xpp/opt/variables/variable_names.h>
 #include <xpp/opt/variables/spline.h>
+#include <xpp/opt/variables/variable_names.h>
 #include <xpp/state.h>
 
 namespace xpp {
@@ -34,10 +32,8 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
 
   for (auto ee : model_->GetEEIDs()) {
-    auto ee_spline    = Spline::BuildSpline(opt_vars, id::GetEEId(ee), {});
-    auto force_spline = Spline::BuildSpline(opt_vars, id::GetEEForceId(ee), {});
-    ee_splines_.push_back(std::dynamic_pointer_cast<NodeSplineType>(ee_spline));
-    ee_forces_.push_back(std::dynamic_pointer_cast<NodeSplineType>(force_spline));
+    ee_splines_.push_back(Spline::BuildSpline(opt_vars, id::GetEEMotionId(ee), {}));
+    ee_forces_.push_back(Spline::BuildSpline(opt_vars, id::GetEEForceId(ee), {}));
     ee_timings_.push_back(std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee))));
   }
 
@@ -110,7 +106,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
       Jacobian jac_f_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEForceId(ee));
       jac_model += model_->GetJacobianofAccWrtForce(jac_f_dT, ee);
 
-      Jacobian jac_x_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEId(ee));
+      Jacobian jac_x_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEMotionId(ee));
       jac_model +=  model_->GetJacobianofAccWrtEEPos(jac_x_dT, ee);
     }
   }

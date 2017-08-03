@@ -17,7 +17,7 @@
 #include <xpp/opt/bound.h>
 #include <xpp/opt/dynamic_model.h>
 #include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/node_values.h>
+#include <xpp/opt/variables/spline.h>
 
 #include "composite.h"
 #include "time_discretization_constraint.h"
@@ -25,15 +25,11 @@
 namespace xpp {
 namespace opt {
 
-class BaseMotion;
-class EndeffectorsForce;
-
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using DynamicModelPtr = std::shared_ptr<DynamicModel>;
   using VecTimes        = std::vector<double>;
   using SplineT         = std::shared_ptr<Spline>;
-  using NodeSplineType  = PhaseNodes;
   using SchedulePtr     = std::shared_ptr<ContactSchedule>;
 
   DynamicConstraint (const OptVarsPtr& opt_vars,
@@ -45,8 +41,8 @@ public:
 private:
   SplineT base_linear_;
   SplineT base_angular_;
-  std::vector<std::shared_ptr<NodeSplineType>> ee_forces_;
-  std::vector<std::shared_ptr<NodeSplineType>> ee_splines_;
+  std::vector<SplineT> ee_forces_;
+  std::vector<SplineT> ee_splines_;
   std::vector<SchedulePtr> ee_timings_;
 
   mutable DynamicModelPtr model_;

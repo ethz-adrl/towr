@@ -67,6 +67,8 @@ public:
   double dt_range_of_motion_;
   double dt_dynamic_constraint_; /// how many times dynamics are enforced
 
+  double max_phase_duration_;
+
 
   Eigen::Matrix3d GetInertiaParameters() const {return interia_; };
   double GetMass() const {return mass_; };

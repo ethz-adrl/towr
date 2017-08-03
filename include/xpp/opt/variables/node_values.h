@@ -11,7 +11,6 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <tuple>
 #include <vector>
 
 #include <xpp/cartesian_declarations.h>
@@ -59,34 +58,24 @@ public:
     int dim_;
   };
 
-
   NodeValues ();
   virtual ~NodeValues ();
 
   void Init(const Node& initial_value, const PolyInfoVec&, const std::string& name);
 
-
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& x) override;
-
-
-
   virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
   virtual const StateLinXd GetPoint(double t_global) const override;
   virtual Jacobian GetJacobian (double t_global,  MotionDerivative dxdt) const override;
 
-
   VectorXd GetDerivativeOfPosWrtPhaseDuration(double t_global) const;
 
-
 protected:
-
-
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
   void UpdatePolynomials();
   VecDurations times_;
   PolyInfoVec polynomial_info_;
-
 
 private:
   std::vector<Node> nodes_;

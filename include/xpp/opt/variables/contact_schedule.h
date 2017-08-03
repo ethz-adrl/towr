@@ -28,7 +28,8 @@ public:
   using VecDurations  = std::vector<double>;
   using PhaseNodesPtr = std::shared_ptr<PhaseNodes>;
 
-  ContactSchedule (EndeffectorID ee, const VecDurations& timings);
+  ContactSchedule (EndeffectorID ee, const VecDurations& timings,
+                   double max_phase_duration);
   virtual ~ContactSchedule ();
 
   bool IsInContact(double t_global) const;
@@ -54,8 +55,10 @@ private:
 
   bool first_phase_in_contact_ = true;
   double t_total_;
+  double max_phase_duration_;
 
   std::vector<PhaseNodesPtr> observers_;
+  PhaseNodesPtr GetObserver(const std::string& id) const;
 
   VecDurations durations_;
 

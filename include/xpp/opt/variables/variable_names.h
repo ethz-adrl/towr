@@ -22,7 +22,7 @@ static const std::string endeffector_force   = "ee_force_";
 
 
 
-static std::string GetEEId(int ee)
+static std::string GetEEMotionId(int ee)
 {
   return  endeffectors_motion + std::to_string(ee);
 }
