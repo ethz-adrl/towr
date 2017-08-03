@@ -103,7 +103,7 @@ VecBound
 ContactSchedule::GetBounds () const
 {
   VecBound bounds;
-  double t_min = 0.2; // [s]
+  double t_min = 0.15; // [s]
   double t_max = max_phase_duration_;
 
   Bound b(t_min, t_max);

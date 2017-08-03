@@ -37,11 +37,11 @@ MonopedMotionParameters::MonopedMotionParameters()
   const double z_nominal_b = -0.58;
   nominal_stance_.SetCount(robot_ee_.size());
   nominal_stance_.At(EEID::E0) = PosXYZ( 0.0, 0.0, z_nominal_b);
-  max_dev_xy_ << 0.15, 0.15, 0.2;
+  max_dev_xy_ << 0.15, 0.15, 0.12;
 
 
-  double t_swing  = 0.25;
-  double t_stance = 0.25;
+  double t_swing  = 0.3;
+  double t_stance = 0.2;
   contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance};
   max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
@@ -102,10 +102,11 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   max_dev_xy_ << 0.15, 0.15, 0.1;
 
 
-  double t_swing  = 0.1;
-  double t_stance = 0.4;
+  double t_swing  = 0.2;
+  double t_stance = 0.3;
   contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance, t_swing, t_stance};
   max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+  // min_phase always set to 0.15
 
   constraints_ = {
       State,

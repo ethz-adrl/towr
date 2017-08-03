@@ -39,6 +39,7 @@ public:
 
 
   struct PolyInfo {
+    PolyInfo() {};
     PolyInfo(int phase, int poly_id_in_phase,
              int num_polys_in_phase, bool is_constant)
         :phase_(phase), poly_id_in_phase_(poly_id_in_phase),
@@ -61,7 +62,12 @@ public:
   NodeValues ();
   virtual ~NodeValues ();
 
-  void Init(const Node& initial_value, const PolyInfoVec&, const std::string& name);
+  void Init(const Node& initial_value,
+            VecDurations& poly_durations,
+            const std::string& name);
+  void Init(const Node& initial_value, const PolyInfoVec&,
+            VecDurations& poly_durations,
+            const std::string& name);
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& x) override;
@@ -74,7 +80,7 @@ public:
 protected:
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
   void UpdatePolynomials();
-  VecDurations times_;
+  VecDurations poly_durations_;
   PolyInfoVec polynomial_info_;
 
 private:
@@ -96,10 +102,13 @@ class PhaseNodes : public NodeValues {
 public:
   using ContactVector = std::vector<bool>;
 
+  enum Type {Force, Motion} type_;
+
   PhaseNodes (const Node& initial_value,
               const ContactVector& contact_schedule,
+              const VecDurations& phase_durations,
+              Type type,
               const std::string& name,
-              bool is_constant_during_contact,
               int n_polys_in_changing_phase);
   ~PhaseNodes();
 
@@ -109,31 +118,13 @@ public:
    * Converts phase durations to specific polynomial durations.
    */
   void UpdateDurations(const VecDurations& phase_durations);
-};
 
-
-
-class EEMotionNodes : public PhaseNodes {
-public:
-  EEMotionNodes (const Node& initial_position,
-                 const ContactVector& contact_schedule,
-                 int splines_per_swing_phase,
-                 int ee_id);
-  ~EEMotionNodes();
   VecBound GetBounds () const override;
+
+private:
+  VecBound GetForceBounds () const;
+  VecBound GetMotionBounds () const;
 };
-
-
-class EEForcesNodes : public PhaseNodes {
-public:
-  EEForcesNodes (const Node& initial_force,
-                 const ContactVector& contact_schedule,
-                 int splines_per_stance_phase,
-                 int ee_id);
-  ~EEForcesNodes();
-  VecBound GetBounds () const override;
-};
-
 
 
 } /* namespace opt */

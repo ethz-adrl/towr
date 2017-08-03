@@ -32,7 +32,7 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  params_ = std::make_shared<QuadrupedMotionParameters>();
+  params_ = std::make_shared<MonopedMotionParameters>();
   BuildDefaultStartStance();
   opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
 }
@@ -66,7 +66,6 @@ MotionOptimizerFacade::BuildVariables ()
 
   std::vector<std::shared_ptr<ContactSchedule>> contact_schedule;
   for (auto ee : params_->robot_ee_) {
-//    contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,motion_parameters_->GetTotalTime(),motion_parameters_->GetContactSchedule()));
     contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,
                                                                  params_->contact_timings_,
                                                                  params_->max_phase_duration_));
@@ -79,7 +78,12 @@ MotionOptimizerFacade::BuildVariables ()
     NodeValues::Node intial_pos;
     intial_pos.at(kPos) = initial_ee_W_.At(ee);
     intial_pos.at(kVel) = Vector3d::Zero();
-    auto nodes_motion = std::make_shared<EEMotionNodes>(intial_pos, contact_schedule.at(ee)->GetContactSequence(), params_->ee_splines_per_swing_phase_, ee);
+    auto nodes_motion = std::make_shared<PhaseNodes>(intial_pos,
+                                                     contact_schedule.at(ee)->GetContactSequence(),
+                                                     contact_schedule.at(ee)->GetTimePerPhase(),
+                                                     PhaseNodes::Motion,
+                                                     id::GetEEMotionId(ee),
+                                                     params_->ee_splines_per_swing_phase_);
     opt_variables_->AddComponent(nodes_motion);
     contact_schedule.at(ee)->AddObserver(nodes_motion);
   }
@@ -91,7 +95,12 @@ MotionOptimizerFacade::BuildVariables ()
     intial_force.at(kPos) = Vector3d::Zero();
     intial_force.at(kPos).z() = params_->GetAvgZForce();
     intial_force.at(kVel) = Vector3d::Zero();
-    auto nodes_forces = std::make_shared<EEForcesNodes>(intial_force, contact_schedule.at(ee)->GetContactSequence(), params_->force_splines_per_stance_phase_, ee);
+    auto nodes_forces = std::make_shared<PhaseNodes>(intial_force,
+                                                     contact_schedule.at(ee)->GetContactSequence(),
+                                                     contact_schedule.at(ee)->GetTimePerPhase(),
+                                                     PhaseNodes::Force,
+                                                     id::GetEEForceId(ee),
+                                                     params_->force_splines_per_stance_phase_);
     opt_variables_->AddComponent(nodes_forces);
     contact_schedule.at(ee)->AddObserver(nodes_forces);
   }

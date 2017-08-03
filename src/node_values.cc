@@ -27,14 +27,34 @@ NodeValues::NodeValues () : Component(-1, "node_values_placeholder")
 NodeValues::~NodeValues () {}
 
 void
-NodeValues::Init (const Node& initial_value, const PolyInfoVec& poly_infos,
+NodeValues::Init (const Node& initial_value, VecDurations& poly_durations,
                   const std::string& name)
+{
+  PolyInfoVec poly_infos;
+
+  for (int i=0; i<poly_durations.size(); ++i) {
+    PolyInfo info;
+    info.is_constant_ = false; // always use different node for start and end
+    info.num_polys_in_phase_ = 1;
+    info.phase_ = i;
+    info.poly_id_in_phase_ = 0;
+
+    poly_infos.push_back(info);
+  }
+
+  Init(initial_value, poly_infos, poly_durations, name);
+}
+
+void
+NodeValues::Init (const Node& initial_value, const PolyInfoVec& poly_infos,
+                  VecDurations& poly_durations, const std::string& name)
 {
   SetName(name);
   n_dim_ = initial_value.at(kPos).rows();
 
   polynomial_info_ = poly_infos;
-  times_ = VecDurations(polynomial_info_.size());
+  int n_polys = polynomial_info_.size();
+  poly_durations_ = poly_durations;
 
   nodes_.push_back(initial_value);
   for (auto& infos : poly_infos) {
@@ -118,7 +138,7 @@ NodeValues::UpdatePolynomials ()
   for (int i=0; i<cubic_polys_.size(); ++i) {
     cubic_polys_.at(i)->SetNodes(nodes_.at(GetNodeId(i,Side::Start)),
                                  nodes_.at(GetNodeId(i,Side::End)),
-                                 times_.at(i));
+                                 poly_durations_.at(i));
   }
 }
 
@@ -133,7 +153,7 @@ const StateLinXd
 NodeValues::GetPoint(double t_global) const
 {
   int id; double t_local;
-  std::tie(id, t_local) = GetLocalTime(t_global, times_);
+  std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
   return cubic_polys_.at(id)->GetPoint(t_local);
 }
 
@@ -142,7 +162,7 @@ Jacobian
 NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
   int id; double t_local;
-  std::tie(id, t_local) = GetLocalTime(t_global, times_);
+  std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
   return GetJacobian(id, t_local, dxdt);
 }
 
@@ -151,6 +171,7 @@ NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) con
 {
   // spring_clean_ this is very important, as at every local time,
   // different polynomials can be active depending on poly durations
+  // but only if durations are optimized as well... adapt!
   Jacobian jac = Eigen::MatrixXd::Zero(n_dim_, GetRows()).sparseView(1.0, -1.0);
 
   for (int idx=0; idx<jac.cols(); ++idx) {
@@ -170,21 +191,17 @@ NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) con
   return jac;
 }
 
-
 int
 NodeValues::GetNodeId (int poly_id, Side side) const
 {
   return poly_id + side;
 }
 
-
-
-
 VectorXd
 NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 {
   int id; double t_local;
-  std::tie(id, t_local) = GetLocalTime(t_global, times_);
+  std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
 
   auto info = polynomial_info_.at(id);
   double percent_of_phase = 1./info.num_polys_in_phase_;
@@ -198,12 +215,19 @@ NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 
 
 
+
+
+
 PhaseNodes::PhaseNodes (const Node& initial_value,
                         const ContactVector& contact_schedule,
+                        const VecDurations& phase_durations,
+                        Type type,
                         const std::string& name,
-                        bool is_constant_during_contact,
                         int n_polys_in_changing_phase)
 {
+  type_ = type;
+  bool is_constant_during_contact = type==Motion? true : false;
+
   for (int i=0; i<contact_schedule.size(); ++i) {
     if (contact_schedule.at(i) == is_constant_during_contact)
       polynomial_info_.push_back(PolyInfo(i,0,1, true));
@@ -212,7 +236,8 @@ PhaseNodes::PhaseNodes (const Node& initial_value,
         polynomial_info_.push_back(PolyInfo(i,j,n_polys_in_changing_phase, false));
   }
 
-  Init(initial_value, polynomial_info_, name);
+  VecDurations poly_durations = VecDurations(polynomial_info_.size());
+  Init(initial_value, polynomial_info_, poly_durations, name);
 }
 
 
@@ -220,42 +245,32 @@ PhaseNodes::~PhaseNodes ()
 {
 }
 
-
 void
-PhaseNodes::UpdateDurations(const VecDurations& durations)
+PhaseNodes::UpdateDurations(const VecDurations& phase_durations)
 {
   int i=0;
   for (auto info : polynomial_info_)
-    times_.at(i++) = durations.at(info.phase_)/info.num_polys_in_phase_;
+    poly_durations_.at(i++) = phase_durations.at(info.phase_)/info.num_polys_in_phase_;
 
   UpdatePolynomials();
 }
 
-
-EEMotionNodes::EEMotionNodes (const Node& initial_value,
-                              const ContactVector& contact_schedule,
-                              int splines_per_swing_phase,
-                              int ee)
-    :PhaseNodes(initial_value,
-                contact_schedule,
-                id::GetEEMotionId(ee),
-                true,
-                splines_per_swing_phase)
+VecBound
+PhaseNodes::GetBounds () const
 {
-}
-
-EEMotionNodes::~EEMotionNodes ()
-{
+  switch (type_) {
+    case Force:  return GetForceBounds();
+    case Motion: return GetMotionBounds();
+    default:     assert(false); // type not defined
+  }
 }
 
 VecBound
-EEMotionNodes::GetBounds () const
+PhaseNodes::GetMotionBounds () const
 {
   VecBound bounds(GetRows(), Bound(kNoBound_));
 
-
   for (int idx=0; idx<bounds.size(); ++idx) {
-
     bool is_stance = GetNodeInfo(idx).size() == 2;
 
     if (is_stance) {
@@ -264,37 +279,19 @@ EEMotionNodes::GetBounds () const
 
       if (GetNodeInfo(idx).at(0).dim_ == Z)
         bounds.at(idx) = kEqualityBound_; // ground is at zero height
-
     }
   }
 
   return bounds;
 }
 
-EEForcesNodes::EEForcesNodes (const Node& initial_force,
-                              const ContactVector& contact_schedule,
-                              int splines_per_stance_phase,
-                              int ee)
-    :PhaseNodes(initial_force,
-                contact_schedule,
-                id::GetEEForceId(ee),
-                false,
-                splines_per_stance_phase)
-{
-}
-
-EEForcesNodes::~EEForcesNodes ()
-{
-}
-
 VecBound
-EEForcesNodes::GetBounds () const
+PhaseNodes::GetForceBounds () const
 {
   double max_force = 10000;
   VecBound bounds(GetRows(), kNoBound_);
 
   for (int idx=0; idx<bounds.size(); ++idx) {
-
 
 
     // no force or force velocity allowed during swingphase
@@ -324,7 +321,6 @@ EEForcesNodes::GetBounds () const
 
   return bounds;
 }
-
 
 
 } /* namespace opt */
