@@ -62,10 +62,14 @@ public:
   NodeValues ();
   virtual ~NodeValues ();
 
+  void Init(const VectorXd& initial_pos,
+            const VectorXd& final_pos,
+            VecDurations& poly_durations,
+            const std::string& name);
   void Init(const Node& initial_value,
             VecDurations& poly_durations,
             const std::string& name);
-  void Init(const Node& initial_value, const PolyInfoVec&,
+  void Init(const std::vector<Node>& initial_values, const PolyInfoVec&,
             VecDurations& poly_durations,
             const std::string& name);
 
@@ -95,6 +99,8 @@ protected:
 
 
 private:
+  PolyInfoVec BuildPolyInfos(int num_polys) const;
+
   std::vector<Node> nodes_;
   int n_dim_;
   VecPoly cubic_polys_;

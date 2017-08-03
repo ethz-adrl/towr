@@ -20,6 +20,12 @@ public:
   virtual ~MonopedMotionParameters() {};
 };
 
+class BipedMotionParameters : public MotionParameters {
+public:
+  BipedMotionParameters();
+  virtual ~BipedMotionParameters() {};
+};
+
 class QuadrupedMotionParameters : public MotionParameters {
 public:
   QuadrupedMotionParameters();

@@ -26,13 +26,44 @@ NodeValues::NodeValues () : Component(-1, "node_values_placeholder")
 
 NodeValues::~NodeValues () {}
 
+
+void
+NodeValues::Init(const VectorXd& initial_pos,
+                 const VectorXd& final_pos,
+                 VecDurations& poly_durations,
+                 const std::string& name)
+{
+  std::vector<Node> nodes;
+
+  double t_total = std::accumulate(poly_durations.begin(), poly_durations.end(), 0.0);
+  VectorXd dp = final_pos-initial_pos;
+  VectorXd average_velocity = dp/t_total;
+  int num_nodes = poly_durations.size()+1;
+  for (int i=0; i<num_nodes; ++i) {
+    Node n;
+    n.at(kPos) = initial_pos + i/(num_nodes-1)*dp;
+    n.at(kVel) = average_velocity;
+    nodes.push_back(n);
+  }
+
+  Init(nodes, BuildPolyInfos(poly_durations.size()), poly_durations, name);
+}
+
 void
 NodeValues::Init (const Node& initial_value, VecDurations& poly_durations,
                   const std::string& name)
 {
+  PolyInfoVec poly_infos = BuildPolyInfos(poly_durations.size());
+  auto nodes = std::vector<Node>(poly_durations.size()+1, initial_value);
+  Init(nodes, poly_infos, poly_durations, name);
+}
+
+NodeValues::PolyInfoVec
+NodeValues::BuildPolyInfos(int num_polys) const
+{
   PolyInfoVec poly_infos;
 
-  for (int i=0; i<poly_durations.size(); ++i) {
+  for (int i=0; i<num_polys; ++i) {
     PolyInfo info;
     info.is_constant_ = false; // always use different node for start and end
     info.num_polys_in_phase_ = 1;
@@ -42,25 +73,26 @@ NodeValues::Init (const Node& initial_value, VecDurations& poly_durations,
     poly_infos.push_back(info);
   }
 
-  Init(initial_value, poly_infos, poly_durations, name);
+  return poly_infos;
 }
 
 void
-NodeValues::Init (const Node& initial_value, const PolyInfoVec& poly_infos,
+NodeValues::Init (const std::vector<Node>& initial_values, const PolyInfoVec& poly_infos,
                   VecDurations& poly_durations, const std::string& name)
 {
   SetName(name);
-  n_dim_ = initial_value.at(kPos).rows();
+  n_dim_ = initial_values.front().at(kPos).rows();
 
   polynomial_info_ = poly_infos;
   int n_polys = polynomial_info_.size();
   poly_durations_ = poly_durations;
 
-  nodes_.push_back(initial_value);
+
+  nodes_ = initial_values;
+
   for (auto& infos : poly_infos) {
     auto p = std::make_shared<PolyType>(n_dim_);
     cubic_polys_.push_back(p);
-    nodes_.push_back(initial_value);
   }
 
   SetNodeMappings();
@@ -264,7 +296,8 @@ PhaseNodes::PhaseNodes (const Node& initial_value,
   }
 
   VecDurations poly_durations = VecDurations(polynomial_info_.size());
-  Init(initial_value, polynomial_info_, poly_durations, name);
+  auto nodes = std::vector<Node>(poly_durations.size()+1, initial_value);
+  Init(nodes, polynomial_info_, poly_durations, name);
 }
 
 
