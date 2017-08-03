@@ -22,7 +22,7 @@ namespace opt {
 
 MonopedMotionParameters::MonopedMotionParameters()
 {
-  ee_splines_per_swing_phase_ = 1; // spring_clean_ this breaks duration derivatives
+  ee_splines_per_swing_phase_ = 1;
   force_splines_per_stance_phase_ = 4;
 
   robot_ee_ = { EEID::E0 };
@@ -56,7 +56,7 @@ MonopedMotionParameters::MonopedMotionParameters()
   order_coeff_polys_ = 4;
   dt_base_polynomial_ = 0.25;//t_total; //s 0.05
 
-  // zmp_ since derivative of acceleration is nonsmooth at junctions, pay attention
+  // since derivative of acceleration is nonsmooth at junctions, pay attention
   // to never evaluate at junction of base polynomial directly
   // (what i'm doing now! :-(
   // must make sure every polynomial is at least evaluated once
@@ -67,7 +67,7 @@ MonopedMotionParameters::MonopedMotionParameters()
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
 
-  // zmp_ since derivative of acceleration is nonsmooth at junctions, pay attention
+  // since derivative of acceleration is nonsmooth at junctions, pay attention
   // to never evaluate at junction of base polynomial directly
   // (what i'm doing now! :-(
   // must make sure every polynomial is at least evaluated once
@@ -75,7 +75,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   dt_base_polynomial_    = 0.25; //s 0.05
   dt_dynamic_constraint_ = dt_base_polynomial_/2;
 
-  ee_splines_per_swing_phase_ = 1; // spring_clean_ this breaks duration derivatives
+  ee_splines_per_swing_phase_ = 1;
   force_splines_per_stance_phase_ = 3;
 
   // dynamic model for HyQ

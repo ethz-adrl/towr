@@ -107,14 +107,10 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
     }
 
     if (var_set == ee_timings_.at(ee)->GetName()) {
-      VectorXd df_dT = ee_forces_.at(ee)->GetDerivativeOfPosWrtPhaseDuration(t);
-      VectorXd df_dt = ee_forces_.at(ee)->GetPoint(t).v_;
-      Jacobian jac_f_dT = ee_timings_.at(ee)->GetJacobianOfPos(df_dT, df_dt, t);
+      Jacobian jac_f_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEForceId(ee));
       jac_model += model_->GetJacobianofAccWrtForce(jac_f_dT, ee);
 
-      VectorXd dx_dT = ee_splines_.at(ee)->GetDerivativeOfPosWrtPhaseDuration(t);
-      VectorXd dx_dt = ee_splines_.at(ee)->GetPoint(t).v_;
-      Jacobian jac_x_dT = ee_timings_.at(ee)->GetJacobianOfPos(dx_dT, dx_dt, t);
+      Jacobian jac_x_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEId(ee));
       jac_model +=  model_->GetJacobianofAccWrtEEPos(jac_x_dT, ee);
     }
   }

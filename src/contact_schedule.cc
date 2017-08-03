@@ -45,7 +45,7 @@ void
 ContactSchedule::UpdateObservers () const
 {
   for (auto& o : observers_)
-    o->UpdateTimes(durations_);
+    o->UpdateDurations(durations_);
 }
 
 bool
@@ -137,15 +137,28 @@ ContactSchedule::GetTimePerPhase () const
 }
 
 Jacobian
-ContactSchedule::GetJacobianOfPos (const VectorXd& duration_deriv,
-                                   const VectorXd& current_vel,
-                                   double t_global) const
+ContactSchedule::GetJacobianOfPos (double t_global, const std::string& observer_name) const
 {
+
+  PhaseNodesPtr observer;
+  for (const auto& o : observers_) {
+    if (o->GetName() == observer_name) {
+      observer = o;
+      break;
+    }
+  }
+
+
+  VectorXd duration_deriv = observer->GetDerivativeOfPosWrtPhaseDuration(t_global);
+  VectorXd current_vel = observer->GetPoint(t_global).v_;
+
+
   int n_dim = current_vel.rows();
   Eigen::MatrixXd jac = Eigen::MatrixXd::Zero(n_dim, GetRows());
 
   int current_phase = Spline::GetSegmentID(t_global, durations_);
   bool in_last_phase = current_phase == durations_.size()-1;
+
 
   // duration of current phase expands and compressed spline
   if (!in_last_phase)
@@ -160,6 +173,10 @@ ContactSchedule::GetJacobianOfPos (const VectorXd& duration_deriv,
     if (in_last_phase)
       jac.col(phase) -= duration_deriv;
   }
+
+
+
+
 
   // convert to sparse, but also regard 0.0 as non-zero element, because
   // could turn nonzero during the course of the program

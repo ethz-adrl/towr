@@ -44,9 +44,7 @@ public:
   virtual void SetValues(const VectorXd&) override;
   VecBound GetBounds () const override;
 
-  Jacobian GetJacobianOfPos(const VectorXd& duration_deriv,
-                            const VectorXd& current_vel,
-                            double t_global) const;
+  Jacobian GetJacobianOfPos(double t_global, const std::string& observer_name) const;
 
   int GetPhaseCount() const { return GetTimePerPhase().size(); };
   bool GetContact(int phase) const;

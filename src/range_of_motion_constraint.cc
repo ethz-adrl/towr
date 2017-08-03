@@ -80,9 +80,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   int row_start = GetRow(k,X);
 
   if (var_set == ee_timings_->GetName()) {
-    VectorXd duration_deriv = ee_spline_->GetDerivativeOfPosWrtPhaseDuration(t);
-    VectorXd vel = ee_spline_->GetPoint(t).v_;
-    jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(duration_deriv, vel, t);
+    jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(t, ee_spline_->GetName());
   }
 
   if (ee_spline_->DoVarAffectCurrentState(var_set,t)) {

@@ -21,19 +21,6 @@ NodeValues::NodeValues () : Component(-1, "node_values_placeholder")
 
 NodeValues::~NodeValues () {}
 
-
-//void
-//NodeValues::Init (const Node& initial_value, int n_polynomials,
-//                  const std::string& name)
-//{
-//  PolyInfoVec poly_infos;
-//
-//  for (int i=0; i<n_polynomials; ++i)
-//    poly_infos.push_back(std::make_tuple(i,0,1, false));
-//
-//  Init(initial_value, poly_infos, name);
-//}
-
 void
 NodeValues::Init (const Node& initial_value, const PolyInfoVec& poly_infos,
                   const std::string& name)
@@ -42,7 +29,7 @@ NodeValues::Init (const Node& initial_value, const PolyInfoVec& poly_infos,
   n_dim_ = initial_value.at(kPos).rows();
 
   polynomial_info_ = poly_infos;
-  times_ = VecTimes(polynomial_info_.size());
+  times_ = VecDurations(polynomial_info_.size());
 
   nodes_.push_back(initial_value);
   for (auto& infos : poly_infos) {
@@ -66,9 +53,8 @@ NodeValues::SetNodeMappings ()
     int node_id_start = GetNodeId(i, CubicHermitePoly::Start);
 
     opt_to_spline_[opt_id].push_back(node_id_start);
-    bool is_constant_poly = std::get<3>(polynomial_info_.at(i));
     // use same value for next node if polynomial is constant
-    if (!is_constant_poly)
+    if (!polynomial_info_.at(i).is_constant_)
       opt_id++;
   }
 
@@ -195,18 +181,14 @@ NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, times_);
 
-  // polynomial durations derived w.r.t. opt. times
-  int phase_id, id_local, num_polys_in_phase;
-  bool is_constant;
-  std::tie(phase_id, id_local, num_polys_in_phase, is_constant) = polynomial_info_.at(id);
 
-
-  double percent_of_phase = 1./num_polys_in_phase;
+  auto info = polynomial_info_.at(id);
+  double percent_of_phase = 1./info.num_polys_in_phase_;
   double inner_derivative = percent_of_phase;
   VectorXd vel = GetPoint(t_global).v_;
   VectorXd dxdT = cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local);
 
-  return inner_derivative*dxdT - id_local*percent_of_phase*vel;
+  return inner_derivative*dxdT - info.poly_id_in_phase_*percent_of_phase*vel;
 }
 
 
@@ -215,17 +197,17 @@ NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 
 
 PhaseNodes::PhaseNodes (const Node& initial_value,
-                        const SchedulePtr& contact_schedule,
+                        const ContactVector& contact_schedule,
                         const std::string& name,
                         bool is_constant_during_contact,
                         int n_polys_in_changing_phase)
 {
   for (int i=0; i<contact_schedule.size(); ++i) {
     if (contact_schedule.at(i) == is_constant_during_contact)
-      polynomial_info_.push_back(std::make_tuple(i,0,1, true));
+      polynomial_info_.push_back(PolyInfo(i,0,1, true));
     else
       for (int j=0; j<n_polys_in_changing_phase; ++j)
-        polynomial_info_.push_back(std::make_tuple(i,j,n_polys_in_changing_phase, false));
+        polynomial_info_.push_back(PolyInfo(i,j,n_polys_in_changing_phase, false));
   }
 
   Init(initial_value, polynomial_info_, name);
@@ -238,21 +220,18 @@ PhaseNodes::~PhaseNodes ()
 
 
 void
-PhaseNodes::UpdateTimes(const VecTimes& durations)
+PhaseNodes::UpdateDurations(const VecDurations& durations)
 {
   int i=0;
-  for (auto info : polynomial_info_) {
-    int phase = std::get<0>(info);
-    int n_polys_in_phase = std::get<2>(info);
-    times_.at(i++) = durations.at(phase)/n_polys_in_phase;
-  }
+  for (auto info : polynomial_info_)
+    times_.at(i++) = durations.at(info.phase_)/info.num_polys_in_phase_;
 
   UpdatePolynomials();
 }
 
 
 EEMotionNodes::EEMotionNodes (const Node& initial_value,
-                              const SchedulePtr& contact_schedule,
+                              const ContactVector& contact_schedule,
                               int splines_per_swing_phase,
                               int ee)
     :PhaseNodes(initial_value,
@@ -291,7 +270,7 @@ EEMotionNodes::GetBounds () const
 }
 
 EEForcesNodes::EEForcesNodes (const Node& initial_force,
-                              const SchedulePtr& contact_schedule,
+                              const ContactVector& contact_schedule,
                               int splines_per_stance_phase,
                               int ee)
     :PhaseNodes(initial_force,
