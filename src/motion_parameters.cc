@@ -63,7 +63,8 @@ MotionParameters::GetBasePolyDurations () const
   double dt = dt_base_polynomial_;
   double t_left = GetTotalTime();
 
-  while (t_left > 0.0) {
+  double eps = 1e-10; // since repeated subtraction causes inaccuracies
+  while (t_left > eps) {
     double duration = t_left>dt?  dt : t_left;
     base_spline_timings_.push_back(duration);
 
