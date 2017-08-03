@@ -32,7 +32,7 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  params_ = std::make_shared<MonopedMotionParameters>();
+  params_ = std::make_shared<QuadrupedMotionParameters>();
   BuildDefaultStartStance();
   opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
 }
@@ -109,33 +109,72 @@ MotionOptimizerFacade::BuildVariables ()
   // BASE_MOTION
   std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
 
-//  NodeValues::Node n;
-//  n.at(kPos) = inital_base_.lin.p_;
-//  n.at(kVel) = Vector3d::Zero();
-//  auto spline_lin = std::make_shared<NodeValues>();
-//  spline_lin->Init(n, base_spline_timings_, id::base_linear);
-//  opt_variables_->AddComponent(spline_lin);
+  NodeValues::Node initial_node, final_node;
+
+
+
+  initial_node.at(kPos) = inital_base_.lin.p_;
+  initial_node.at(kVel) = Vector3d::Zero();
+
+  final_node.at(kPos) = final_base_.lin.p_;
+  final_node.at(kVel) = final_base_.lin.v_;
+
+  auto spline_lin = std::make_shared<NodeValues>();
+  spline_lin->Init(initial_node, base_spline_timings_, id::base_linear);
+  spline_lin->AddBound(0, initial_node);
+  spline_lin->AddFinalBound(final_node);
+  opt_variables_->AddComponent(spline_lin);
+
+
+
+
+  initial_node.at(kPos) = inital_base_.ang.p_;
+  initial_node.at(kVel) = inital_base_.ang.v_;
+
+  final_node.at(kPos) = final_base_.ang.p_;
+  final_node.at(kVel) = final_base_.ang.v_;
+
+  auto spline_ang = std::make_shared<NodeValues>();
+  spline_ang->Init(initial_node, base_spline_timings_, id::base_angular);
+  spline_ang->AddBound(0, initial_node);
+  spline_ang->AddFinalBound(final_node);
+  opt_variables_->AddComponent(spline_ang);
+
+
+
+  std::cout << "bounds_base_linear: " << std::endl;
+  for (auto b : spline_lin->GetBounds()) {
+    std::cout << b.lower_ << " < x < " << b.upper_ << std::endl;
+  }
+
+  std::cout << "bounds_base_angular: " << std::endl;
+  for (auto b : spline_ang->GetBounds()) {
+    std::cout << b.lower_ << " < x < " << b.upper_ << std::endl;
+  }
+
+
+
+
+
+
+
+
+
+
+//  int order = params_->order_coeff_polys_;
+//  int n_dim = inital_base_.lin.kNumDim;
 //
-//  n.at(kPos) = inital_base_.ang.p_;
-//  auto spline_ang = std::make_shared<NodeValues>();
-//  spline_ang->Init(n, base_spline_timings_, id::base_angular);
-//  opt_variables_->AddComponent(spline_ang);
-
-
-  int order = params_->order_coeff_polys_;
-  int n_dim = inital_base_.lin.kNumDim;
-
-  for (int i=0; i<base_spline_timings_.size(); ++i) {
-    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
-    p_lin->SetConstantPos(inital_base_.lin.p_);
-    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
-  }
-
-  for (int i=0; i<base_spline_timings_.size(); ++i) {
-    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
-    p_ang->SetConstantPos(inital_base_.ang.p_);
-    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
-  }
+//  for (int i=0; i<base_spline_timings_.size(); ++i) {
+//    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
+//    p_lin->SetConstantPos(inital_base_.lin.p_);
+//    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
+//  }
+//
+//  for (int i=0; i<base_spline_timings_.size(); ++i) {
+//    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
+//    p_ang->SetConstantPos(inital_base_.ang.p_);
+//    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
+//  }
 
 
 

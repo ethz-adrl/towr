@@ -47,8 +47,8 @@ MonopedMotionParameters::MonopedMotionParameters()
 
 
   constraints_ = {
-      State,
-      JunctionCom,
+//      State,
+//      JunctionCom,
       RomBox,
       Dynamic,
       //      TotalTime,
@@ -63,7 +63,7 @@ MonopedMotionParameters::MonopedMotionParameters()
   // to never evaluate at junction of base polynomial directly
   // (what i'm doing now! :-(
   // must make sure every polynomial is at least evaluated once
-  dt_dynamic_constraint_ = dt_base_polynomial_/2;
+  dt_dynamic_constraint_ = dt_base_polynomial_/1.5;
 }
 
 
@@ -76,7 +76,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   // must make sure every polynomial is at least evaluated once
   order_coeff_polys_ = 4;
   dt_base_polynomial_    = 0.25; //s 0.05
-  dt_dynamic_constraint_ = dt_base_polynomial_/2;
+  dt_dynamic_constraint_ = dt_base_polynomial_/1.5;
 
   ee_splines_per_swing_phase_ = 1;
   force_splines_per_stance_phase_ = 3;
@@ -109,8 +109,8 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   // min_phase always set to 0.15
 
   constraints_ = {
-      State,
-      JunctionCom,
+//      State,
+//      JunctionCom,
       RomBox,
       Dynamic,
 //      TotalTime,

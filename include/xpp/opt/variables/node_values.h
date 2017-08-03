@@ -77,11 +77,21 @@ public:
 
   VectorXd GetDerivativeOfPosWrtPhaseDuration(double t_global) const;
 
+  void AddBound(int node_id, const Node& node);
+  void AddFinalBound(const Node& node);
+  virtual VecBound GetBounds () const override { return bounds_;};
+
+
+
+
+
 protected:
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
   void UpdatePolynomials();
   VecDurations poly_durations_;
   PolyInfoVec polynomial_info_;
+  VecBound bounds_;
+
 
 private:
   std::vector<Node> nodes_;
@@ -101,8 +111,8 @@ private:
 class PhaseNodes : public NodeValues {
 public:
   using ContactVector = std::vector<bool>;
-
   enum Type {Force, Motion} type_;
+
 
   PhaseNodes (const Node& initial_value,
               const ContactVector& contact_schedule,
@@ -119,11 +129,12 @@ public:
    */
   void UpdateDurations(const VecDurations& phase_durations);
 
-  VecBound GetBounds () const override;
+
+  virtual VecBound GetBounds () const override;
 
 private:
-  VecBound GetForceBounds () const;
-  VecBound GetMotionBounds () const;
+  VecBound OverlayMotionBounds (VecBound bounds) const;
+  VecBound OverlayForceBounds (VecBound bounds) const;
 };
 
 

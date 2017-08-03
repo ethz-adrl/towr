@@ -66,6 +66,7 @@ NodeValues::Init (const Node& initial_value, const PolyInfoVec& poly_infos,
   SetNodeMappings();
   int n_opt_variables = opt_to_spline_.size() * 2*n_dim_;
   SetRows(n_opt_variables);
+  bounds_ = VecBound(GetRows(), kNoBound_);
 
   UpdatePolynomials();
 }
@@ -166,6 +167,23 @@ NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
   return GetJacobian(id, t_local, dxdt);
 }
 
+void
+NodeValues::AddBound (int node_id, const Node& node)
+{
+  for (int idx=0; idx<GetRows(); ++idx)
+    for (auto info : GetNodeInfo(idx))
+      if (info.id_ == node_id) {
+        double bound = node.at(info.deriv_)(info.dim_);
+        bounds_.at(idx) = Bound(bound, bound);
+      }
+}
+
+void
+NodeValues::AddFinalBound (const Node& node)
+{
+  AddBound(nodes_.size()-1, node);
+}
+
 Jacobian
 NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) const
 {
@@ -259,18 +277,16 @@ VecBound
 PhaseNodes::GetBounds () const
 {
   switch (type_) {
-    case Force:  return GetForceBounds();
-    case Motion: return GetMotionBounds();
+    case Force:  return OverlayForceBounds(bounds_);
+    case Motion: return OverlayMotionBounds(bounds_);
     default:     assert(false); // type not defined
   }
 }
 
 VecBound
-PhaseNodes::GetMotionBounds () const
+PhaseNodes::OverlayMotionBounds (VecBound bounds) const
 {
-  VecBound bounds(GetRows(), Bound(kNoBound_));
-
-  for (int idx=0; idx<bounds.size(); ++idx) {
+  for (int idx=0; idx<GetRows(); ++idx) {
     bool is_stance = GetNodeInfo(idx).size() == 2;
 
     if (is_stance) {
@@ -286,13 +302,10 @@ PhaseNodes::GetMotionBounds () const
 }
 
 VecBound
-PhaseNodes::GetForceBounds () const
+PhaseNodes::OverlayForceBounds (VecBound bounds) const
 {
   double max_force = 10000;
-  VecBound bounds(GetRows(), kNoBound_);
-
-  for (int idx=0; idx<bounds.size(); ++idx) {
-
+  for (int idx=0; idx<GetRows(); ++idx) {
 
     // no force or force velocity allowed during swingphase
     bool is_swing_phase = GetNodeInfo(idx).size() == 2;

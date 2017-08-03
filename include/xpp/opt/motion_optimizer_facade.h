@@ -21,7 +21,6 @@
 namespace xpp {
 namespace opt {
 
-enum NlpSolver { Ipopt, Snopt };
 
 /** Simplified interface to the complete motion optimization framework.
   */
