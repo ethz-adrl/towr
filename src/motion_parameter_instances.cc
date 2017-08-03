@@ -75,7 +75,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   // (what i'm doing now! :-(
   // must make sure every polynomial is at least evaluated once
   order_coeff_polys_ = 4;
-  dt_base_polynomial_    = 0.25; //s 0.05
+  dt_base_polynomial_    = 0.2; //s 0.05
   dt_dynamic_constraint_ = dt_base_polynomial_/1.5;
 
   ee_splines_per_swing_phase_ = 1;

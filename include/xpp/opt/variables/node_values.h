@@ -91,6 +91,7 @@ protected:
   VecDurations poly_durations_;
   PolyInfoVec polynomial_info_;
   VecBound bounds_;
+  bool durations_change_ = false;
 
 
 private:
@@ -104,7 +105,9 @@ private:
   using NodeIds   = std::vector<int>;
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
 
-  Jacobian GetJacobian(int poly_id, double t_local, MotionDerivative dxdt) const;
+  void FillJacobian(int poly_id, double t_local, MotionDerivative dxdt,
+                    Jacobian& jac) const;
+
 };
 
 

@@ -164,8 +164,40 @@ NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
-  return GetJacobian(id, t_local, dxdt);
+
+  Jacobian jac(n_dim_, GetRows());
+
+  // if durations change, the polynomial active at a specified global time
+  // changes. Therefore, all elements of the jacobian could be non-zero
+  if (durations_change_)
+    jac = Eigen::MatrixXd::Zero(n_dim_, GetRows()).sparseView(1.0, -1.0);
+
+  FillJacobian(id, t_local, dxdt, jac);
+  return jac;
 }
+
+
+void
+NodeValues::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
+                          Jacobian& jac) const
+{
+  for (int idx=0; idx<jac.cols(); ++idx) {
+    for (NodeInfo info : GetNodeInfo(idx)) {
+      for (Side side : {Side::Start, Side::End}) {
+
+        int node = GetNodeId(poly_id,side);
+
+        if (node == info.id_) {
+          double val = cubic_polys_.at(poly_id)->GetDerivativeOf(dxdt, side, info.deriv_, t_local);
+          jac.coeffRef(info.dim_, idx) += val;
+        }
+      }
+    }
+  }
+}
+
+
+
 
 void
 NodeValues::AddBound (int node_id, const Node& node)
@@ -184,30 +216,7 @@ NodeValues::AddFinalBound (const Node& node)
   AddBound(nodes_.size()-1, node);
 }
 
-Jacobian
-NodeValues::GetJacobian (int poly_id, double t_local, MotionDerivative dxdt) const
-{
-  // spring_clean_ this is very important, as at every local time,
-  // different polynomials can be active depending on poly durations
-  // but only if durations are optimized as well... adapt!
-  Jacobian jac = Eigen::MatrixXd::Zero(n_dim_, GetRows()).sparseView(1.0, -1.0);
 
-  for (int idx=0; idx<jac.cols(); ++idx) {
-    for (NodeInfo info : GetNodeInfo(idx)) {
-      for (Side side : {Side::Start, Side::End}) {
-
-        int node = GetNodeId(poly_id,side);
-
-        if (node == info.id_) {
-          double val = cubic_polys_.at(poly_id)->GetDerivativeOf(dxdt, side, info.deriv_, t_local);
-          jac.coeffRef(info.dim_, idx) += val;
-        }
-      }
-    }
-  }
-
-  return jac;
-}
 
 int
 NodeValues::GetNodeId (int poly_id, Side side) const
@@ -266,6 +275,8 @@ PhaseNodes::~PhaseNodes ()
 void
 PhaseNodes::UpdateDurations(const VecDurations& phase_durations)
 {
+  durations_change_ = true;
+
   int i=0;
   for (auto info : polynomial_info_)
     poly_durations_.at(i++) = phase_durations.at(info.phase_)/info.num_polys_in_phase_;

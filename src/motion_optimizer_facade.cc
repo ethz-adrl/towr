@@ -109,6 +109,10 @@ MotionOptimizerFacade::BuildVariables ()
   // BASE_MOTION
   std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
 
+  std::cout << "base_spline_timings: " << std::endl;
+  for (auto d : base_spline_timings_)
+    std::cout << d << ", ";
+
   NodeValues::Node initial_node, final_node;
 
 
@@ -142,15 +146,15 @@ MotionOptimizerFacade::BuildVariables ()
 
 
 
-  std::cout << "bounds_base_linear: " << std::endl;
-  for (auto b : spline_lin->GetBounds()) {
-    std::cout << b.lower_ << " < x < " << b.upper_ << std::endl;
-  }
-
-  std::cout << "bounds_base_angular: " << std::endl;
-  for (auto b : spline_ang->GetBounds()) {
-    std::cout << b.lower_ << " < x < " << b.upper_ << std::endl;
-  }
+//  std::cout << "bounds_base_linear: " << std::endl;
+//  for (auto b : spline_lin->GetBounds()) {
+//    std::cout << b.lower_ << " < x < " << b.upper_ << std::endl;
+//  }
+//
+//  std::cout << "bounds_base_angular: " << std::endl;
+//  for (auto b : spline_ang->GetBounds()) {
+//    std::cout << b.lower_ << " < x < " << b.upper_ << std::endl;
+//  }
 
 
 
