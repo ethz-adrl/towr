@@ -41,7 +41,7 @@ NodeValues::Init(const VectorXd& initial_pos,
   int num_nodes = poly_durations.size()+1;
   for (int i=0; i<num_nodes; ++i) {
     Node n;
-    n.at(kPos) = initial_pos + i/(num_nodes-1)*dp;
+    n.at(kPos) = initial_pos + i/static_cast<double>(num_nodes-1)*dp;
     n.at(kVel) = average_velocity;
     nodes.push_back(n);
   }
