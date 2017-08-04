@@ -24,12 +24,14 @@ PhaseNodes::PhaseNodes (const Node& initial_value,
                         Type type,
                         const std::string& name,
                         int n_polys_in_changing_phase)
+    :NodeValues(initial_value.at(kPos).rows(),
+                BuildPolyInfos(contact_schedule, n_polys_in_changing_phase, type),
+                name)
 {
   type_ = type;
-  polynomial_info_ = BuildPolyInfos(contact_schedule, n_polys_in_changing_phase, type);
-  VecDurations poly_durations = VecDurations(polynomial_info_.size());
-  auto nodes = std::vector<Node>(poly_durations.size()+1, initial_value);
-  Init(nodes, polynomial_info_, poly_durations, name);
+  InitializeVariables(initial_value.at(kPos),
+                      initial_value.at(kPos),
+                      ConvertPhaseToSpline(phase_durations));
 }
 
 PhaseNodes::PolyInfoVec
@@ -60,12 +62,19 @@ void
 PhaseNodes::UpdateDurations(const VecDurations& phase_durations)
 {
   durations_change_ = true;
-
-  int i=0;
-  for (auto info : polynomial_info_)
-    poly_durations_.at(i++) = phase_durations.at(info.phase_)/info.num_polys_in_phase_;
-
+  poly_durations_ = ConvertPhaseToSpline(phase_durations);
   UpdatePolynomials();
+}
+
+PhaseNodes::VecDurations
+PhaseNodes::ConvertPhaseToSpline (const VecDurations& phase_durations) const
+{
+  VecDurations spline_durations;
+
+  for (auto info : polynomial_info_)
+    spline_durations.push_back(phase_durations.at(info.phase_)/info.num_polys_in_phase_);
+
+  return spline_durations;
 }
 
 VecBound
@@ -129,6 +138,8 @@ PhaseNodes::OverlayForceBounds (VecBound bounds) const
 
   return bounds;
 }
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

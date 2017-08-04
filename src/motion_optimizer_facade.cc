@@ -111,6 +111,7 @@ MotionOptimizerFacade::BuildVariables ()
 
   // BASE_MOTION
   std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
+  int n_dim = inital_base_.lin.kNumDim;
 
 
   NodeValues::Node initial_node, final_node;//, intermediate_node;
@@ -124,9 +125,9 @@ MotionOptimizerFacade::BuildVariables ()
 //  intermediate_node.at(kPos) = (inital_base_.lin.p_+final_base_.lin.p_)/2;
 //  intermediate_node.at(kVel) = Vector3d::Zero();
 
-  auto spline_lin = std::make_shared<NodeValues>();
+  auto spline_lin = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_linear);
 //  spline_lin->Init(initial_node, base_spline_timings_, id::base_linear);
-  spline_lin->Init(inital_base_.lin.p_, final_base_.lin.p_,  base_spline_timings_, id::base_linear);
+  spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_, base_spline_timings_);
   spline_lin->AddBound(0, initial_node);
   spline_lin->AddFinalBound(final_node);
   opt_variables_->AddComponent(spline_lin);
@@ -140,9 +141,9 @@ MotionOptimizerFacade::BuildVariables ()
   final_node.at(kPos) = final_base_.ang.p_;
   final_node.at(kVel) = final_base_.ang.v_;
 
-  auto spline_ang = std::make_shared<NodeValues>();
+  auto spline_ang = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_angular);
 //  spline_ang->Init(initial_node, base_spline_timings_, id::base_angular);
-  spline_ang->Init(inital_base_.ang.p_, final_base_.ang.p_, base_spline_timings_, id::base_angular);
+  spline_ang->InitializeVariables(inital_base_.ang.p_, final_base_.ang.p_, base_spline_timings_);
   spline_ang->AddBound(0, initial_node);
   spline_ang->AddFinalBound(final_node);
   opt_variables_->AddComponent(spline_ang);
@@ -150,7 +151,7 @@ MotionOptimizerFacade::BuildVariables ()
 
 
 //  int order = params_->order_coeff_polys_;
-//  int n_dim = inital_base_.lin.kNumDim;
+
 //
 //  for (int i=0; i<base_spline_timings_.size(); ++i) {
 //    auto p_lin = std::make_shared<Polynomial>(order, n_dim);

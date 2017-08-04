@@ -8,10 +8,10 @@
 #include <xpp/opt/variables/contact_schedule.h>
 
 #include <cassert>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
 #include <iostream>
 #include <numeric>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 #include <xpp/opt/variables/spline.h>
 #include <xpp/opt/variables/variable_names.h>

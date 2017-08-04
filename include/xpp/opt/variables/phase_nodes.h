@@ -49,6 +49,8 @@ private:
   PolyInfoVec BuildPolyInfos(const ContactVector& contact_schedule,
                              int n_polys_in_changing_phase,
                              Type type) const;
+
+  VecDurations ConvertPhaseToSpline(const VecDurations& phase_durations) const;
 };
 
 } /* namespace opt */

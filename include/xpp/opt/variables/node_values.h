@@ -59,19 +59,15 @@ public:
     int dim_;
   };
 
-  NodeValues ();
+  NodeValues (int n_dim, int n_polynomials, const std::string& name);
+  NodeValues (int n_dim, const PolyInfoVec&, const std::string& name);
   virtual ~NodeValues ();
 
-  void Init(const VectorXd& initial_pos,
-            const VectorXd& final_pos,
-            VecDurations& poly_durations,
-            const std::string& name);
-  void Init(const Node& initial_value,
-            VecDurations& poly_durations,
-            const std::string& name);
-  void Init(const std::vector<Node>& initial_values, const PolyInfoVec&,
-            VecDurations& poly_durations,
-            const std::string& name);
+
+  void InitializeVariables(const VectorXd& initial_pos,
+                           const VectorXd& final_pos,
+                           const VecDurations& poly_durations);
+
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& x) override;
@@ -88,21 +84,23 @@ public:
   virtual VecBound GetBounds () const override { return bounds_;};
 
 
+
+
 protected:
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
   void UpdatePolynomials();
+  bool durations_change_ = false;
   VecDurations poly_durations_;
   PolyInfoVec polynomial_info_;
   VecBound bounds_;
-  bool durations_change_ = false;
 
 
 private:
   PolyInfoVec BuildPolyInfos(int num_polys) const;
 
-  std::vector<Node> nodes_;
   int n_dim_;
   VecPoly cubic_polys_;
+  std::vector<Node> nodes_;
 
   int GetNodeId(int poly_id, Side) const;
   void SetNodeMappings();

@@ -20,42 +20,57 @@
 namespace xpp {
 namespace opt {
 
-NodeValues::NodeValues () : Component(-1, "node_values_placeholder")
+NodeValues::NodeValues (int n_dim, int n_polynomials, const std::string& name)
+    : NodeValues(n_dim, BuildPolyInfos(n_polynomials), name)
 {
+}
+
+NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::string& name)
+    : Component(-1, name)
+{
+  n_dim_ = n_dim;
+
+  polynomial_info_ = poly_infos;
+  int n_polys = polynomial_info_.size();
+
+  for (auto& infos : poly_infos) {
+    auto p = std::make_shared<PolyType>(n_dim_);
+    cubic_polys_.push_back(p);
+  }
+
+  SetNodeMappings();
+  int n_opt_variables = opt_to_spline_.size() * 2*n_dim_;
+  SetRows(n_opt_variables);
+
+  // default, non initialized values
+  nodes_  = std::vector<Node>(poly_infos.size()+1);
+  poly_durations_ = VecDurations(poly_infos.size(), 0.0);
+  bounds_ = VecBound(GetRows(), kNoBound_);
 }
 
 NodeValues::~NodeValues () {}
 
 
 void
-NodeValues::Init(const VectorXd& initial_pos,
-                 const VectorXd& final_pos,
-                 VecDurations& poly_durations,
-                 const std::string& name)
+NodeValues::InitializeVariables(const VectorXd& initial_pos,
+                                const VectorXd& final_pos,
+                                const VecDurations& poly_durations)
 {
-  std::vector<Node> nodes;
+  for (int i=0; i<poly_durations.size(); ++i)
+    poly_durations_.at(i) = poly_durations.at(i);
 
   double t_total = std::accumulate(poly_durations.begin(), poly_durations.end(), 0.0);
   VectorXd dp = final_pos-initial_pos;
   VectorXd average_velocity = dp/t_total;
-  int num_nodes = poly_durations.size()+1;
+  int num_nodes = polynomial_info_.size()+1;
   for (int i=0; i<num_nodes; ++i) {
     Node n;
     n.at(kPos) = initial_pos + i/static_cast<double>(num_nodes-1)*dp;
     n.at(kVel) = average_velocity;
-    nodes.push_back(n);
+    nodes_.at(i) = n;
   }
 
-  Init(nodes, BuildPolyInfos(poly_durations.size()), poly_durations, name);
-}
-
-void
-NodeValues::Init (const Node& initial_value, VecDurations& poly_durations,
-                  const std::string& name)
-{
-  PolyInfoVec poly_infos = BuildPolyInfos(poly_durations.size());
-  auto nodes = std::vector<Node>(poly_durations.size()+1, initial_value);
-  Init(nodes, poly_infos, poly_durations, name);
+  UpdatePolynomials();
 }
 
 NodeValues::PolyInfoVec
@@ -74,33 +89,6 @@ NodeValues::BuildPolyInfos(int num_polys) const
   }
 
   return poly_infos;
-}
-
-void
-NodeValues::Init (const std::vector<Node>& initial_values, const PolyInfoVec& poly_infos,
-                  VecDurations& poly_durations, const std::string& name)
-{
-  SetName(name);
-  n_dim_ = initial_values.front().at(kPos).rows();
-
-  polynomial_info_ = poly_infos;
-  int n_polys = polynomial_info_.size();
-  poly_durations_ = poly_durations;
-
-
-  nodes_ = initial_values;
-
-  for (auto& infos : poly_infos) {
-    auto p = std::make_shared<PolyType>(n_dim_);
-    cubic_polys_.push_back(p);
-  }
-
-  SetNodeMappings();
-  int n_opt_variables = opt_to_spline_.size() * 2*n_dim_;
-  SetRows(n_opt_variables);
-  bounds_ = VecBound(GetRows(), kNoBound_);
-
-  UpdatePolynomials();
 }
 
 void
