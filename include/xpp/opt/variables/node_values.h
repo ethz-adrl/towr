@@ -83,10 +83,9 @@ public:
 
   void AddBound(int node_id, const Node& node);
   void AddFinalBound(const Node& node);
+
+
   virtual VecBound GetBounds () const override { return bounds_;};
-
-
-
 
 
 protected:
@@ -116,35 +115,6 @@ private:
 
 };
 
-
-class PhaseNodes : public NodeValues {
-public:
-  using ContactVector = std::vector<bool>;
-  enum Type {Force, Motion} type_;
-
-
-  PhaseNodes (const Node& initial_value,
-              const ContactVector& contact_schedule,
-              const VecDurations& phase_durations,
-              Type type,
-              const std::string& name,
-              int n_polys_in_changing_phase);
-  ~PhaseNodes();
-
-
-  /** @brief called by contact schedule when variables are updated.
-   *
-   * Converts phase durations to specific polynomial durations.
-   */
-  void UpdateDurations(const VecDurations& phase_durations);
-
-
-  virtual VecBound GetBounds () const override;
-
-private:
-  VecBound OverlayMotionBounds (VecBound bounds) const;
-  VecBound OverlayForceBounds (VecBound bounds) const;
-};
 
 
 } /* namespace opt */

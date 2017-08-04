@@ -31,7 +31,7 @@ tol 0.001   # usually 0.01
 
 #bound_relax_factor 0.01
 max_cpu_time 16.1  
-#max_iter 0
+max_iter 0
 #bound_frac 0.5
 
 #acceptable_iter 10

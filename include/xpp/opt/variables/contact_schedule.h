@@ -16,7 +16,7 @@
 #include <xpp/opt/bound.h>
 #include <xpp/opt/constraints/composite.h>
 
-#include "node_values.h"
+#include "phase_nodes.h"
 
 
 namespace xpp {

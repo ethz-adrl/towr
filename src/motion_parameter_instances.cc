@@ -123,7 +123,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   // to never evaluate at junction of base polynomial directly
   // (what i'm doing now! :-(
   // must make sure every polynomial is at least evaluated once
-  order_coeff_polys_ = 4;
+  order_coeff_polys_ = 4; // only used with coefficient splines
   dt_base_polynomial_    = 0.2; //s 0.05
   dt_dynamic_constraint_ = dt_base_polynomial_/2.0;
 
@@ -137,7 +137,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 
 
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
-  dt_range_of_motion_ = 0.05;
+  dt_range_of_motion_ = 0.1;
 
   // range of motion specifications for HyQ
   const double x_nominal_b = 0.28;
@@ -153,7 +153,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 
   double t_swing  = 0.3;
   double t_stance = 0.2;
-  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance};
+  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, 0.5};
   max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 //  max_phase_duration_ = GetTotalTime();
   // min_phase always set to 0.15

@@ -78,6 +78,9 @@ MotionOptimizerFacade::BuildVariables ()
     NodeValues::Node intial_pos;
     intial_pos.at(kPos) = initial_ee_W_.At(ee);
     intial_pos.at(kVel) = Vector3d::Zero();
+
+//    Vector3d final_ee_pos_W = final_base_.lin.p_ + params_->GetNominalStanceInBase().At(ee);
+
     auto nodes_motion = std::make_shared<PhaseNodes>(intial_pos,
                                                      contact_schedule.at(ee)->GetContactSequence(),
                                                      contact_schedule.at(ee)->GetTimePerPhase(),
@@ -110,13 +113,16 @@ MotionOptimizerFacade::BuildVariables ()
   std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
 
 
-  NodeValues::Node initial_node, final_node;
+  NodeValues::Node initial_node, final_node;//, intermediate_node;
 
   initial_node.at(kPos) = inital_base_.lin.p_;
   initial_node.at(kVel) = Vector3d::Zero();
 
   final_node.at(kPos) = final_base_.lin.p_;
   final_node.at(kVel) = final_base_.lin.v_;
+
+//  intermediate_node.at(kPos) = (inital_base_.lin.p_+final_base_.lin.p_)/2;
+//  intermediate_node.at(kVel) = Vector3d::Zero();
 
   auto spline_lin = std::make_shared<NodeValues>();
 //  spline_lin->Init(initial_node, base_spline_timings_, id::base_linear);
