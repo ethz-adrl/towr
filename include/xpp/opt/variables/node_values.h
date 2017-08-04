@@ -64,9 +64,9 @@ public:
   virtual ~NodeValues ();
 
 
-  void InitializeVariables(const VectorXd& initial_pos,
-                           const VectorXd& final_pos,
-                           const VecDurations& poly_durations);
+  virtual void InitializeVariables(const VectorXd& initial_pos,
+                                   const VectorXd& final_pos,
+                                   const VecDurations& poly_durations);
 
 
   VectorXd GetValues () const override;
@@ -77,8 +77,8 @@ public:
 
   VectorXd GetDerivativeOfPosWrtPhaseDuration(double t_global) const;
 
-  void AddBound(int node_id, const Node& node);
-  void AddFinalBound(const Node& node);
+  void AddBound(int node_id, MotionDerivative, const VectorXd& val);
+  void AddFinalBound(MotionDerivative, const VectorXd& val);
 
 
   virtual VecBound GetBounds () const override { return bounds_;};

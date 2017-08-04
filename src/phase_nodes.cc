@@ -18,20 +18,16 @@ namespace xpp {
 namespace opt {
 
 
-PhaseNodes::PhaseNodes (const Node& initial_value,
+PhaseNodes::PhaseNodes (int n_dim,
                         const ContactVector& contact_schedule,
-                        const VecDurations& phase_durations,
-                        Type type,
                         const std::string& name,
-                        int n_polys_in_changing_phase)
-    :NodeValues(initial_value.at(kPos).rows(),
+                        int n_polys_in_changing_phase,
+                        Type type)
+    :NodeValues(n_dim,
                 BuildPolyInfos(contact_schedule, n_polys_in_changing_phase, type),
                 name)
 {
   type_ = type;
-  InitializeVariables(initial_value.at(kPos),
-                      initial_value.at(kPos),
-                      ConvertPhaseToSpline(phase_durations));
 }
 
 PhaseNodes::PolyInfoVec
@@ -64,6 +60,16 @@ PhaseNodes::UpdateDurations(const VecDurations& phase_durations)
   durations_change_ = true;
   poly_durations_ = ConvertPhaseToSpline(phase_durations);
   UpdatePolynomials();
+}
+
+void
+PhaseNodes::InitializeVariables (const VectorXd& initial_pos,
+                                 const VectorXd& final_pos,
+                                 const VecDurations& phase_durations)
+{
+  NodeValues::InitializeVariables(initial_pos,
+                                  final_pos,
+                                  ConvertPhaseToSpline(phase_durations));
 }
 
 PhaseNodes::VecDurations

@@ -23,13 +23,13 @@ public:
   using ContactVector = std::vector<bool>;
   enum Type {Force, Motion} type_;
 
+  using NodeValues::NodeValues;
 
-  PhaseNodes (const Node& initial_value,
+  PhaseNodes (int n_dim,
               const ContactVector& contact_schedule,
-              const VecDurations& phase_durations,
-              Type type,
               const std::string& name,
-              int n_polys_in_changing_phase);
+              int n_polys_in_changing_phase,
+              Type type);
   ~PhaseNodes();
 
 
@@ -41,6 +41,11 @@ public:
 
 
   virtual VecBound GetBounds () const override;
+
+
+  virtual void InitializeVariables(const VectorXd& initial_pos,
+                                   const VectorXd& final_pos,
+                                   const VecDurations& phase_durations) override;
 
 private:
   VecBound OverlayMotionBounds (VecBound bounds) const;

@@ -218,20 +218,20 @@ NodeValues::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
 
 
 void
-NodeValues::AddBound (int node_id, const Node& node)
+NodeValues::AddBound (int node_id, MotionDerivative d, const VectorXd& val)
 {
   for (int idx=0; idx<GetRows(); ++idx)
     for (auto info : GetNodeInfo(idx))
-      if (info.id_ == node_id) {
-        double bound = node.at(info.deriv_)(info.dim_);
+      if (info.id_==node_id && info.deriv_==d) {
+        double bound = val(info.dim_);
         bounds_.at(idx) = Bound(bound, bound);
       }
 }
 
 void
-NodeValues::AddFinalBound (const Node& node)
+NodeValues::AddFinalBound (MotionDerivative d, const VectorXd& val)
 {
-  AddBound(nodes_.size()-1, node);
+  AddBound(nodes_.size()-1, d, val);
 }
 
 

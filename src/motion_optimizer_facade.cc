@@ -74,36 +74,29 @@ MotionOptimizerFacade::BuildVariables ()
 
 
   for (auto ee : params_->robot_ee_) {
-    // cubic spline for ee_motion
-    NodeValues::Node intial_pos;
-    intial_pos.at(kPos) = initial_ee_W_.At(ee);
-    intial_pos.at(kVel) = Vector3d::Zero();
+    Vector3d final_ee_pos_W = final_base_.lin.p_ + params_->GetNominalStanceInBase().At(ee);
 
-//    Vector3d final_ee_pos_W = final_base_.lin.p_ + params_->GetNominalStanceInBase().At(ee);
-
-    auto nodes_motion = std::make_shared<PhaseNodes>(intial_pos,
+    auto nodes_motion = std::make_shared<PhaseNodes>(kDim3d,
                                                      contact_schedule.at(ee)->GetContactSequence(),
-                                                     contact_schedule.at(ee)->GetTimePerPhase(),
-                                                     PhaseNodes::Motion,
                                                      id::GetEEMotionId(ee),
-                                                     params_->ee_splines_per_swing_phase_);
+                                                     params_->ee_splines_per_swing_phase_,
+                                                     PhaseNodes::Motion);
+    nodes_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
     opt_variables_->AddComponent(nodes_motion);
     contact_schedule.at(ee)->AddObserver(nodes_motion);
   }
 
 // Endeffector Forces
   for (auto ee : params_->robot_ee_) {
-    // cubic spline for ee_forces
-    NodeValues::Node intial_force;
-    intial_force.at(kPos) = Vector3d::Zero();
-    intial_force.at(kPos).z() = params_->GetAvgZForce();
-    intial_force.at(kVel) = Vector3d::Zero();
-    auto nodes_forces = std::make_shared<PhaseNodes>(intial_force,
+    Vector3d f_stance(0.0, 0.0, params_->GetAvgZForce());
+    auto nodes_forces = std::make_shared<PhaseNodes>(kDim3d,
                                                      contact_schedule.at(ee)->GetContactSequence(),
-                                                     contact_schedule.at(ee)->GetTimePerPhase(),
-                                                     PhaseNodes::Force,
                                                      id::GetEEForceId(ee),
-                                                     params_->force_splines_per_stance_phase_);
+                                                     params_->force_splines_per_stance_phase_,
+                                                     PhaseNodes::Force);
+    nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule.at(ee)->GetTimePerPhase());
+
+
     opt_variables_->AddComponent(nodes_forces);
     contact_schedule.at(ee)->AddObserver(nodes_forces);
   }
@@ -111,42 +104,43 @@ MotionOptimizerFacade::BuildVariables ()
 
   // BASE_MOTION
   std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
-  int n_dim = inital_base_.lin.kNumDim;
+
+  auto linear  = std::make_tuple(id::base_linear,  inital_base_.lin, final_base_.lin);
+  auto angular = std::make_tuple(id::base_angular, inital_base_.ang, final_base_.ang);
+
+  for (auto tuple : {linear, angular}) {
+    std::string id   = std::get<0>(tuple);
+    StateLin3d init  = std::get<1>(tuple);
+    StateLin3d final = std::get<2>(tuple);
+
+    auto spline = std::make_shared<NodeValues>(init.kNumDim,  base_spline_timings_.size(), id);
+    spline->InitializeVariables(init.p_, final.p_, base_spline_timings_);
+
+    spline->AddBound(0,   kPos, init.p_);
+    spline->AddBound(0,   kVel, init.v_);
+    spline->AddFinalBound(kPos, final.p_);
+    spline->AddFinalBound(kVel, final.v_);
+    opt_variables_->AddComponent(spline);
+  }
 
 
-  NodeValues::Node initial_node, final_node;//, intermediate_node;
-
-  initial_node.at(kPos) = inital_base_.lin.p_;
-  initial_node.at(kVel) = Vector3d::Zero();
-
-  final_node.at(kPos) = final_base_.lin.p_;
-  final_node.at(kVel) = final_base_.lin.v_;
-
-//  intermediate_node.at(kPos) = (inital_base_.lin.p_+final_base_.lin.p_)/2;
-//  intermediate_node.at(kVel) = Vector3d::Zero();
-
-  auto spline_lin = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_linear);
-//  spline_lin->Init(initial_node, base_spline_timings_, id::base_linear);
-  spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_, base_spline_timings_);
-  spline_lin->AddBound(0, initial_node);
-  spline_lin->AddFinalBound(final_node);
-  opt_variables_->AddComponent(spline_lin);
-
-
-
-
-  initial_node.at(kPos) = inital_base_.ang.p_;
-  initial_node.at(kVel) = inital_base_.ang.v_;
-
-  final_node.at(kPos) = final_base_.ang.p_;
-  final_node.at(kVel) = final_base_.ang.v_;
-
-  auto spline_ang = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_angular);
-//  spline_ang->Init(initial_node, base_spline_timings_, id::base_angular);
-  spline_ang->InitializeVariables(inital_base_.ang.p_, final_base_.ang.p_, base_spline_timings_);
-  spline_ang->AddBound(0, initial_node);
-  spline_ang->AddFinalBound(final_node);
-  opt_variables_->AddComponent(spline_ang);
+//  int n_dim = inital_base_.lin.kNumDim;
+//  auto spline_lin = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_linear);
+//  spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_, base_spline_timings_);
+//  spline_lin->AddBound(0,   kPos, inital_base_.lin.p_);
+//  spline_lin->AddBound(0,   kVel, inital_base_.lin.v_);
+//  spline_lin->AddFinalBound(kPos,  final_base_.lin.p_);
+//  spline_lin->AddFinalBound(kVel,  final_base_.lin.v_);
+//  opt_variables_->AddComponent(spline_lin);
+//
+//
+//  auto spline_ang = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_angular);
+//  spline_ang->InitializeVariables(inital_base_.ang.p_, final_base_.ang.p_, base_spline_timings_);
+//  spline_ang->AddBound(0,   kPos, inital_base_.ang.p_);
+//  spline_ang->AddBound(0,   kVel, inital_base_.ang.v_);
+//  spline_ang->AddFinalBound(kPos,  final_base_.ang.p_);
+//  spline_ang->AddFinalBound(kVel,  final_base_.ang.v_);
+//  opt_variables_->AddComponent(spline_ang);
 
 
 

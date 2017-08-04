@@ -153,7 +153,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 
   double t_swing  = 0.3;
   double t_stance = 0.2;
-  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, 0.5};
+  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance};
   max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 //  max_phase_duration_ = GetTotalTime();
   // min_phase always set to 0.15
