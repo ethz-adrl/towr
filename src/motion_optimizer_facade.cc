@@ -176,18 +176,17 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
   nlp.Init(opt_variables_);
 
   auto constraints = std::make_unique<Composite>("constraints", true);
-  for (ConstraintName name : params_->GetUsedConstraints()) {
+  for (ConstraintName name : params_->GetUsedConstraints())
     constraints->AddComponent(factory.GetConstraint(name));
-  }
+
   constraints->Print();
   nlp.AddConstraint(std::move(constraints));
 
 
   auto costs = std::make_unique<Composite>("costs", false);
-  for (const auto& pair : params_->GetCostWeights()) {
-    CostName name = pair.first;
-    costs->AddComponent(factory.GetCost(name));
-  }
+  for (const auto& pair : params_->GetCostWeights())
+    costs->AddComponent(factory.GetCost(pair.first, pair.second));
+
   costs->Print();
   nlp.AddCost(std::move(costs));
 

@@ -21,7 +21,7 @@ namespace xpp {
 namespace opt {
 
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
-                       FinalComCostID, FinalStanceCostID };
+                       FinalComCostID, FinalStanceCostID, ForcesCostID };
 enum ConstraintName  { State, JunctionCom, Dynamic, RomBox, TotalTime };
 
 /** This class holds all the hardcoded values describing a motion.
@@ -40,7 +40,7 @@ public:
   using PosXYZ           = Vector3d;
   using NominalStance    = EndeffectorsPos;
   using MaxDevXYZ        = Vector3d;
-  using CostWeights      = std::map<CostName, double>;
+  using CostWeights      = std::vector<std::pair<CostName, double>>;
   using UsedConstraints  = std::vector<ConstraintName>;
 
   using VecTimes         = std::vector<double>;

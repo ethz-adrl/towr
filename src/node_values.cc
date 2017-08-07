@@ -216,7 +216,6 @@ NodeValues::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
   }
 }
 
-
 void
 NodeValues::AddBound (int node_id, MotionDerivative d, const VectorXd& val)
 {
@@ -233,7 +232,6 @@ NodeValues::AddFinalBound (MotionDerivative d, const VectorXd& val)
 {
   AddBound(nodes_.size()-1, d, val);
 }
-
 
 int
 NodeValues::GetNodeId (int poly_id, Side side) const
@@ -255,15 +253,6 @@ NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 
   return inner_derivative*dxdT - info.poly_id_in_phase_*percent_of_phase*vel;
 }
-
-
-
-
-
-
-
-
-
 
 } /* namespace opt */
 } /* namespace xpp */
