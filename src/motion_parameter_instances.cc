@@ -138,14 +138,14 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 
   // dynamic constraint
   dt_dynamic_constraint_ = dt_base_polynomial_/2.0;
-  force_splines_per_stance_phase_ = 4;
+  force_splines_per_stance_phase_ = 3;
   mass_    = 80;
   interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
   force_limit_ = 10000.0; // [N]
 
 
   // range of motion constraint
-  dt_range_of_motion_ = dt_base_polynomial_/2./2.;//0.1;
+  dt_range_of_motion_ = dt_base_polynomial_/2.;//0.1;
   // range of motion specifications for HyQ
   const double x_nominal_b = 0.28;
   const double y_nominal_b = 0.28;

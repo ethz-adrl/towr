@@ -77,7 +77,8 @@ public:
 
   VectorXd GetDerivativeOfPosWrtPhaseDuration(double t_global) const;
 
-  void AddBound(int node_id, MotionDerivative, const VectorXd& val);
+  void AddBound(int node_id, MotionDerivative, int dim, double val);
+  void AddStartBound (MotionDerivative d, const VectorXd& val);
   void AddIntermediateBound (MotionDerivative d, const VectorXd& val);
   void AddFinalBound(MotionDerivative, const VectorXd& val);
 

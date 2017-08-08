@@ -96,15 +96,24 @@ PhaseNodes::GetBounds () const
 VecBound
 PhaseNodes::OverlayMotionBounds (VecBound bounds) const
 {
+  double z_start = 0.0;
+  double z_new   = 0.4;
+
   for (int idx=0; idx<GetRows(); ++idx) {
     bool is_stance = GetNodeInfo(idx).size() == 2;
+    auto node = GetNodeInfo(idx).front(); // bound idx by first node it represents
 
     if (is_stance) {
-      if (GetNodeInfo(idx).at(0).deriv_ == kVel)
+      if (node.deriv_ == kVel)
         bounds.at(idx) = kEqualityBound_;
 
-      if (GetNodeInfo(idx).at(0).dim_ == Z)
-        bounds.at(idx) = kEqualityBound_; // ground is at zero height
+      if (node.dim_ == Z) {
+        bounds.at(idx) = Bound(z_start, z_start); // ground is at zero height
+
+        // to add different terrain heights
+        if (idx>1./2*GetRows())
+          bounds.at(idx) = Bound(z_new, z_new); // ground is at zero height
+      }
     }
   }
 
