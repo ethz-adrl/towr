@@ -42,7 +42,10 @@ MonopedMotionParameters::MonopedMotionParameters()
 
   double t_swing  = 0.3;
   double t_stance = 0.2;
-  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance};
+  contact_timings_ = ContactTimings(GetEECount());
+  contact_timings_.at(E0) = {t_stance, t_swing, t_stance, t_swing, t_stance};
+
+  min_phase_duration_ = 0.1;
   max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
 
@@ -90,7 +93,12 @@ BipedMotionParameters::BipedMotionParameters()
 
   double t_swing  = 0.3;
   double t_stance = 0.2;
-  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance};
+  contact_timings_ = ContactTimings(GetEECount());
+  contact_timings_.at(E0) = {t_stance, t_swing, t_stance, t_swing, t_stance};
+  contact_timings_.at(E1) = {t_stance, t_swing, t_stance, t_swing, t_stance};
+
+
+  min_phase_duration_ = 0.1;
   max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 //  max_phase_duration_ = GetTotalTime();
 
@@ -123,46 +131,52 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   // to never evaluate at junction of base polynomial directly
   // (what i'm doing now! :-(
   // must make sure every polynomial is at least evaluated once
-  order_coeff_polys_ = 4; // only used with coefficient splines
-  dt_base_polynomial_    = 0.2; //s 0.05
+  order_coeff_polys_  = 4; // only used with coefficient splines
+  dt_base_polynomial_ = 0.2; //s 0.05
+  ee_splines_per_swing_phase_ = 2;
+
+
+  // dynamic constraint
   dt_dynamic_constraint_ = dt_base_polynomial_/2.0;
-
-  ee_splines_per_swing_phase_ = 1;
   force_splines_per_stance_phase_ = 4;
-
-  // dynamic model for HyQ
   mass_    = 80;
   interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
-  force_limit_ = 1000.0; // [N]
+  force_limit_ = 10000.0; // [N]
 
 
+  // range of motion constraint
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
   dt_range_of_motion_ = 0.1;
-
   // range of motion specifications for HyQ
   const double x_nominal_b = 0.28;
   const double y_nominal_b = 0.28;
   const double z_nominal_b = -0.58;
-  nominal_stance_.SetCount(robot_ee_.size());
+  nominal_stance_.SetCount(GetEECount());
   nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, z_nominal_b);
-  max_dev_xy_ << 0.15, 0.15, 0.1;
+  max_dev_xy_ << 0.15, 0.15, 0.10;
 
 
-  double t_swing  = 0.3;
+  double t_swing  = 0.2;
   double t_stance = 0.2;
-  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance};
-//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+  double t_offset = t_swing;
+  contact_timings_ = ContactTimings(GetEECount());
+  contact_timings_.at(E0) = {t_offset + t_stance, t_swing, t_stance, t_swing, t_stance};
+  contact_timings_.at(E1) = {t_stance,            t_swing, t_stance, t_swing, t_stance + t_offset};
+  contact_timings_.at(E2) = {t_stance,            t_swing, t_stance, t_swing, t_stance + t_offset};
+  contact_timings_.at(E3) = {t_offset + t_stance, t_swing, t_stance, t_swing, t_stance};
+
+  min_phase_duration_ = 0.05;
   max_phase_duration_ = GetTotalTime();
-  // min_phase always set to 0.15
+//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
   constraints_ = {
 //      State,
 //      JunctionCom,
       RomBox,
-      Dynamic,
+//      Dynamic,
       TotalTime,
   };
 

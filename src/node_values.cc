@@ -233,6 +233,12 @@ NodeValues::AddFinalBound (MotionDerivative d, const VectorXd& val)
   AddBound(nodes_.size()-1, d, val);
 }
 
+void
+NodeValues::AddIntermediateBound (MotionDerivative d, const VectorXd& val)
+{
+  AddBound(nodes_.size()/2, d, val);
+}
+
 int
 NodeValues::GetNodeId (int poly_id, Side side) const
 {

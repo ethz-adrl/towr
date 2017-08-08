@@ -32,7 +32,7 @@ public:
   using EEID             = EndeffectorID;
   using EEVec            = std::vector<EEID>;
   using ContactSequence  = std::vector<EndeffectorsBool>;
-  using ContactTimings   = std::vector<double>;
+  using ContactTimings   = std::vector<std::vector<double>>;
   using Phase            = std::pair<EndeffectorsBool, double>;
   using ContactSchedule  = std::vector<Phase>;
 
@@ -49,7 +49,7 @@ public:
 
   int GetEECount() const { return robot_ee_.size(); };
   NominalStance GetNominalStanceInBase() const { return nominal_stance_; };
-  ContactSchedule GetContactSchedule() const;
+//  ContactSchedule GetContactSchedule() const;
   MaxDevXYZ GetMaximumDeviationFromNominal() const;
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
@@ -67,6 +67,7 @@ public:
   double dt_range_of_motion_;
   double dt_dynamic_constraint_; /// how many times dynamics are enforced
 
+  double min_phase_duration_;
   double max_phase_duration_;
 
 

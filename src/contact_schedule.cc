@@ -23,11 +23,11 @@ namespace opt {
 
 
 ContactSchedule::ContactSchedule (EndeffectorID ee, const VecDurations& timings,
-                                  double max_phase_duration)
+                                  double min_duration, double max_duration)
     :Component(0, id::GetEEScheduleId(ee))
 {
   durations_ = timings;
-  max_phase_duration_ = max_phase_duration;
+  phase_duration_bounds_ = Bound(min_duration, max_duration);
   first_phase_in_contact_ = true;
   t_total_   = std::accumulate(durations_.begin(), durations_.end(), 0.0);
   SetRows(durations_.size()-1); // since last phase-duration is not optimized over
@@ -103,12 +103,9 @@ VecBound
 ContactSchedule::GetBounds () const
 {
   VecBound bounds;
-  double t_min = 0.15; // [s]
-  double t_max = max_phase_duration_;
 
-  Bound b(t_min, t_max);
   for (int i=0; i<GetRows(); ++i)
-    bounds.push_back(b);
+    bounds.push_back(phase_duration_bounds_);
 
   return bounds;
 }

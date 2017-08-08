@@ -67,7 +67,8 @@ MotionOptimizerFacade::BuildVariables ()
   std::vector<std::shared_ptr<ContactSchedule>> contact_schedule;
   for (auto ee : params_->robot_ee_) {
     contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,
-                                                                 params_->contact_timings_,
+                                                                 params_->contact_timings_.at(ee),
+                                                                 params_->min_phase_duration_,
                                                                  params_->max_phase_duration_));
     opt_variables_->AddComponent(contact_schedule.at(ee));
   }
@@ -82,6 +83,8 @@ MotionOptimizerFacade::BuildVariables ()
 
     Vector3d final_ee_pos_W = final_base_.lin.p_ + params_->GetNominalStanceInBase().At(ee);
     nodes_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
+    nodes_motion->AddBound(0,   kPos, initial_ee_W_.At(ee));
+    nodes_motion->AddFinalBound(kPos, final_ee_pos_W);
 
     opt_variables_->AddComponent(nodes_motion);
     contact_schedule.at(ee)->AddObserver(nodes_motion);
@@ -122,6 +125,16 @@ MotionOptimizerFacade::BuildVariables ()
     spline->AddBound(0,   kVel, init.v_);
     spline->AddFinalBound(kPos, final.p_);
     spline->AddFinalBound(kVel, final.v_);
+
+    // try to force jump
+//    if (id == id::base_linear) {
+//      Vector3d inter = (init.p_ + final.p_)/2.;
+//      inter.z() = 0.7;
+//      spline->AddIntermediateBound(kPos, inter);
+//    }
+
+
+
     opt_variables_->AddComponent(spline);
   }
 

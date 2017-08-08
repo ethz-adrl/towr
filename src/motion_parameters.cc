@@ -10,19 +10,19 @@
 namespace xpp {
 namespace opt {
 
-MotionParameters::ContactSchedule
-MotionParameters::GetContactSchedule () const
-{
-  ContactSchedule phases;
-  for (int i=0; i<contact_sequence_.size(); ++i) {
-    double duration = contact_timings_.at(i);
-//    if (duration < 1e-10)
-//      continue; // skip phases with zero duration
-    phases.push_back(Phase(contact_sequence_.at(i), duration));
-  }
-
-  return phases;
-}
+//MotionParameters::ContactSchedule
+//MotionParameters::GetContactSchedule () const
+//{
+//  ContactSchedule phases;
+//  for (int i=0; i<contact_sequence_.size(); ++i) {
+//    double duration = contact_timings_.at(i);
+////    if (duration < 1e-10)
+////      continue; // skip phases with zero duration
+//    phases.push_back(Phase(contact_sequence_.at(i), duration));
+//  }
+//
+//  return phases;
+//}
 
 MotionParameters::MaxDevXYZ
 MotionParameters::GetMaximumDeviationFromNominal () const
@@ -46,7 +46,7 @@ double
 MotionParameters::GetTotalTime () const
 {
   double T = 0.0;
-  for (auto t : contact_timings_)
+  for (auto t : contact_timings_.at(E0)) // use leg 0 for calculation
     T += t;
 
   return T;
