@@ -8,11 +8,15 @@
 #ifndef XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
 #define XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
 
-#include <xpp/opt/motion_optimizer_facade.h>
-
+#include <ros/publisher.h>
+#include <ros/subscriber.h>
+#include <xpp_msgs/OptParameters.h>
 #include <xpp_msgs/RobotStateCartesian.h>  // receive from robot
+#include <xpp_msgs/RobotStateCartesianTrajectory.h>
 #include <xpp_msgs/UserCommand.h>          // receive from user
-#include <ros/ros.h>
+
+#include <xpp/opt/motion_optimizer_facade.h>
+#include <xpp/robot_state_cartesian.h>
 
 namespace xpp {
 namespace ros {
@@ -23,6 +27,8 @@ public:
   using UserCommandMsg        = xpp_msgs::UserCommand;
   using MotionOptimizerFacade = xpp::opt::MotionOptimizerFacade;
   using NlpSolver             = xpp::opt::NlpSolver;
+  using TrajMsg               = xpp_msgs::RobotStateCartesianTrajectory;
+  using ParamsMsg             = xpp_msgs::OptParameters;
 
 public:
   NlpOptimizerNode ();
@@ -46,6 +52,10 @@ private:
   NlpSolver solver_type_;
 
   void SetInitialState (const RobotStateCartesian& initial_state);
+  void SaveAsRosbag (const TrajMsg&, const ParamsMsg&) const;
+
+  ParamsMsg BuildOptParameters() const;
+  TrajMsg   BuildTrajectory() const;
 };
 
 } /* namespace ros */

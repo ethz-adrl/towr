@@ -11,6 +11,7 @@
 
 #include <xpp/ros/ros_helpers.h>
 #include <xpp/ros/topic_names.h>
+#include <rosbag/bag.h>
 
 #include <xpp_msgs/RobotStateCartesianTrajectory.h> // publish
 #include <xpp_msgs/OptParameters.h> // publish
@@ -82,31 +83,49 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
     OptimizeMotion();
 
   PublishTrajectory();
+  SaveAsRosbag(BuildTrajectory(), BuildOptParameters());
 }
 
 void
 NlpOptimizerNode::PublishOptParameters() const
 {
+  auto msg = BuildOptParameters();
+  opt_parameters_pub_.publish(msg);
+}
+
+xpp_msgs::OptParameters
+NlpOptimizerNode::BuildOptParameters() const
+{
+  auto params = motion_optimizer_.GetMotionParameters();
+
   xpp_msgs::OptParameters params_msg;
-  auto max_dev_xyz = motion_optimizer_.GetMotionParameters()->GetMaximumDeviationFromNominal();
+  auto max_dev_xyz = params->GetMaximumDeviationFromNominal();
   params_msg.ee_max_dev = RosHelpers::XppToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
-  auto nominal_B = motion_optimizer_.GetMotionParameters()->GetNominalStanceInBase();
+  auto nominal_B = params->GetNominalStanceInBase();
   for (auto ee : nominal_B.ToImpl())
     params_msg.nominal_ee_pos.push_back(RosHelpers::XppToRos<geometry_msgs::Point>(ee));
 
   params_msg.goal_lin = RosHelpers::XppToRos(motion_optimizer_.final_base_.lin);
   params_msg.goal_ang = RosHelpers::XppToRos(motion_optimizer_.final_base_.ang);
 
-  opt_parameters_pub_.publish(params_msg);
+  params_msg.base_mass = params->GetMass();
+
+  return params_msg;
 }
 
 void
 NlpOptimizerNode::PublishTrajectory () const
 {
-  auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
-  auto cart_traj_msg = RosHelpers::XppToRosCart(opt_traj_cartesian);
+  auto cart_traj_msg = BuildTrajectory();
   cart_trajectory_pub_.publish(cart_traj_msg);
+}
+
+NlpOptimizerNode::TrajMsg
+NlpOptimizerNode::BuildTrajectory() const
+{
+  auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
+  return RosHelpers::XppToRosCart(opt_traj_cartesian);
 }
 
 void
@@ -122,6 +141,39 @@ NlpOptimizerNode::SetInitialState (const RobotStateCartesian& initial_state)
   euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
   motion_optimizer_.inital_base_.ang.p_ = euler.toImplementation().reverse();
   // assume zero euler rates and euler accelerations
+}
+
+void
+NlpOptimizerNode::SaveAsRosbag (const TrajMsg& traj_msg,
+                                const ParamsMsg& params_msg) const
+{
+  static const std::string filename = "/home/winklera/Code/catkin_xpp/src/xpp/xpp_vis/bags/optimal_traj.bag";
+
+  ROS_INFO_STREAM("Saving trajectory in " << filename);
+  auto traj = ros::RosHelpers::RosToXppCart(traj_msg);
+
+  // record this to be able to pause and playback later
+  rosbag::Bag bag;
+  bag.open(filename, rosbag::bagmode::Write);
+
+  for (int i=0; i<traj.size(); ++i)
+  {
+    RobotStateCartesian state = traj.at(i);
+    double t_curr = state.GetTime();
+    auto timestamp = ::ros::Time(t_curr + 1e-6); // to avoid t=0.0
+
+    // add contant optimization parameters
+    // once would be enough, but ros seems to drop this message easily
+    bag.write(xpp_msgs::opt_parameters, timestamp, params_msg);
+
+    auto state_msg = traj_msg.states.at(i);
+    bag.write(xpp_msgs::curr_robot_state, timestamp, state_msg);
+  }
+
+  bag.close();
+
+  // play back the rosbag hacky like this, as I can't find appropriate C++ API.
+  system(("rosbag play --quiet "+ filename).c_str());
 }
 
 

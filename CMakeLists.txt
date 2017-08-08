@@ -6,6 +6,7 @@ project(xpp_ros)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED
   roscpp
+  rosbag
   keyboard
   joy
   xpp_msgs
@@ -127,6 +128,9 @@ include_directories(
 add_library(${LIB_NAME}
   src/nlp_optimizer_node.cc
   src/nlp_user_input_node.cc
+)
+target_link_libraries(${LIB_NAME}
+  ${catkin_LIBRARIES}
 )
 
 add_executable(nlp_optimizer_node 

@@ -28,7 +28,6 @@ class NlpUserInputNode {
 public:
   using KeyboardMsg = keyboard::Key;
   using JoyMsg      = sensor_msgs::Joy;
-  using MotionType  = xpp::opt::MotionTypeID;
   using InitVel     = geometry_msgs::Vector3;
 
   enum class Command { kSetGoal, kStartWalking, kNoCommand } command_ = Command::kNoCommand;
@@ -45,7 +44,6 @@ private:
 
   State3dEuler goal_geom_;
 
-  MotionType motion_type_;
   bool replay_trajectory_;
   bool use_solver_snopt_;
   InitVel velocity_disturbance_;

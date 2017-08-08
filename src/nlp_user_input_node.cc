@@ -29,7 +29,6 @@ NlpUserInputNode::NlpUserInputNode ()
   goal_geom_.lin.p_.setZero();
   goal_geom_.lin.p_ << 0.5, 0.0, 0.58;
   goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
-  motion_type_ = opt::TrotID;
   replay_trajectory_ = false;
   use_solver_snopt_ = false;
   UserCommandMsg msg;
@@ -104,19 +103,19 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       break;
     case msg.KEY_w:
       ROS_INFO_STREAM("Motion type set to Walking");
-      motion_type_ = opt::WalkID;
+//      motion_type_ = opt::WalkID;
       break;
     case msg.KEY_t:
       ROS_INFO_STREAM("Motion type set to Trotting");
-      motion_type_ = opt::TrotID;
+//      motion_type_ = opt::TrotID;
       break;
     case msg.KEY_b:
       ROS_INFO_STREAM("Motion type set to Bounding");
-      motion_type_ = opt::BoundID;
+//      motion_type_ = opt::BoundID;
       break;
     case msg.KEY_c:
       ROS_INFO_STREAM("Motion type set to Camel");
-      motion_type_ = opt::PaceID;
+//      motion_type_ = opt::PaceID;
       break;
     case msg.KEY_s:
       ROS_INFO_STREAM("Toggled NLP solver type");
@@ -124,7 +123,7 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       break;
     case msg.KEY_p:
       ROS_INFO_STREAM("Motion type set to Push Recovery");
-      motion_type_ = opt::PushRecID;
+//      motion_type_ = opt::PushRecID;
       break;
     case msg.KEY_r:
       ROS_INFO_STREAM("Replaying already optimized trajectory");
@@ -165,11 +164,11 @@ NlpUserInputNode::CallbackJoy (const JoyMsg& msg)
   }
 
   if (joy_msg_.buttons[A] == 1) {
-    motion_type_ = opt::WalkID;
+//    motion_type_ = opt::WalkID;
   }
 
   if (joy_msg_.buttons[X] == 1) {
-    motion_type_ = opt::TrotID;
+//    motion_type_ = opt::TrotID;
   }
 
   PublishCommand();
@@ -199,7 +198,6 @@ void NlpUserInputNode::PublishCommand()
   UserCommandMsg msg;
   msg.goal_lin          = RosHelpers::XppToRos(goal_geom_.lin);
   msg.goal_ang          = RosHelpers::XppToRos(goal_geom_.ang);
-  msg.motion_type       = motion_type_;
   msg.replay_trajectory = replay_trajectory_;
   msg.use_solver_snopt  = use_solver_snopt_;
   msg.vel_disturbance   = velocity_disturbance_;
