@@ -10,10 +10,6 @@
 namespace xpp {
 namespace opt {
 
-MotionParameters::~MotionParameters ()
-{
-}
-
 MotionParameters::ContactSchedule
 MotionParameters::GetContactSchedule () const
 {
@@ -78,6 +74,10 @@ double
 MotionParameters::GetAvgZForce () const
 {
   return GetMass()*kGravity/GetEECount();
+}
+
+MotionParameters::~MotionParameters ()
+{
 }
 
 } // namespace opt

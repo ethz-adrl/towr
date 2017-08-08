@@ -85,9 +85,14 @@ public:
 
 
 
+  VectorXd GetPositionValues() const;
+
+  const std::vector<Node> GetNodes() const { return nodes_; };
+
+  std::vector<NodeInfo> GetNodeInfo(int idx) const;
+  int GetDimCount() const { return n_dim_; };
 
 protected:
-  std::vector<NodeInfo> GetNodeInfo(int idx) const;
   void UpdatePolynomials();
   bool durations_change_ = false;
   VecDurations poly_durations_;

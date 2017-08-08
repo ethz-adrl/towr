@@ -167,7 +167,8 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   };
 
   cost_weights_ = {
-      {ForcesCostID, 1.0}
+//      {ForcesCostID, 1.0},
+//      {ComCostID, 1.0}
   };
 }
 

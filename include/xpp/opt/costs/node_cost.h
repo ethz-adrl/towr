@@ -30,6 +30,9 @@ private:
   void FillJacobianWithRespectTo(std::string var_set, Jacobian&) const;
   Nodes nodes_;
   std::string node_id_;
+
+  MotionDerivative deriv_;
+  int dim_;
 };
 
 } /* namespace opt */

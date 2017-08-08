@@ -227,15 +227,17 @@ CostConstraintFactory::MakeForcesCost(double weight) const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeMotionCost(double weight) const
 {
-  auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", false);
+//  auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", false);
+//
+//  VectorXd weight_xyz(kDim3d); weight_xyz << 1.0, 1.0, 1.0;
+//  base_acc_cost->AddComponent(MakePolynomialCost(id::base_linear, weight_xyz, weight));
+//
+//  VectorXd weight_angular(kDim3d); weight_angular << 0.1, 0.1, 0.1;
+//  base_acc_cost->AddComponent(MakePolynomialCost(id::base_angular, weight_angular, weight));
+//
+//  return base_acc_cost;
 
-  VectorXd weight_xyz(kDim3d); weight_xyz << 1.0, 1.0, 1.0;
-  base_acc_cost->AddComponent(MakePolynomialCost(id::base_linear, weight_xyz, weight));
-
-  VectorXd weight_angular(kDim3d); weight_angular << 0.1, 0.1, 0.1;
-  base_acc_cost->AddComponent(MakePolynomialCost(id::base_angular, weight_angular, weight));
-
-  return base_acc_cost;
+  return std::make_shared<NodeCost>(opt_vars_, id::base_linear);
 }
 
 CostConstraintFactory::ComponentPtr
