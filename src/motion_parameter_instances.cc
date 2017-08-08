@@ -127,13 +127,13 @@ BipedMotionParameters::BipedMotionParameters()
 QuadrupedMotionParameters::QuadrupedMotionParameters ()
 {
 
+  order_coeff_polys_  = 4; // only used with coefficient splines
   // since derivative of acceleration is nonsmooth at junctions, pay attention
   // to never evaluate at junction of base polynomial directly
   // (what i'm doing now! :-(
   // must make sure every polynomial is at least evaluated once
-  order_coeff_polys_  = 4; // only used with coefficient splines
   dt_base_polynomial_ = 0.2; //s 0.05
-  ee_splines_per_swing_phase_ = 2;
+  ee_splines_per_swing_phase_ = 1;
 
 
   // dynamic constraint
@@ -145,12 +145,12 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 
 
   // range of motion constraint
-  robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
-  dt_range_of_motion_ = 0.1;
+  dt_range_of_motion_ = dt_base_polynomial_/2./2.;//0.1;
   // range of motion specifications for HyQ
   const double x_nominal_b = 0.28;
   const double y_nominal_b = 0.28;
   const double z_nominal_b = -0.58;
+  robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
   nominal_stance_.SetCount(GetEECount());
   nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, z_nominal_b);
@@ -159,16 +159,16 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   max_dev_xy_ << 0.15, 0.15, 0.10;
 
 
-  double t_swing  = 0.2;
-  double t_stance = 0.2;
-  double t_offset = t_swing;
+  double f = 0.2; // [s] t_free
+  double c = 0.2; // [s] t_contact
+  double t_offset = f;
   contact_timings_ = ContactTimings(GetEECount());
-  contact_timings_.at(E0) = {t_offset + t_stance, t_swing, t_stance, t_swing, t_stance};
-  contact_timings_.at(E1) = {t_stance,            t_swing, t_stance, t_swing, t_stance + t_offset};
-  contact_timings_.at(E2) = {t_stance,            t_swing, t_stance, t_swing, t_stance + t_offset};
-  contact_timings_.at(E3) = {t_offset + t_stance, t_swing, t_stance, t_swing, t_stance};
+  contact_timings_.at(kMapQuadToOpt.at(LH)) = {t_offset + c, f, c, f, c, f, c           };
+  contact_timings_.at(kMapQuadToOpt.at(LF)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(RH)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(RF)) = {t_offset + c, f, c, f, c, f, c           };
 
-  min_phase_duration_ = 0.05;
+  min_phase_duration_ = 0.1;
   max_phase_duration_ = GetTotalTime();
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
@@ -176,7 +176,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 //      State,
 //      JunctionCom,
       RomBox,
-//      Dynamic,
+      Dynamic,
       TotalTime,
   };
 

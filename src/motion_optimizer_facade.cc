@@ -126,11 +126,15 @@ MotionOptimizerFacade::BuildVariables ()
     spline->AddFinalBound(kPos, final.p_);
     spline->AddFinalBound(kVel, final.v_);
 
-    // try to force jump
+//    // try to force jump
 //    if (id == id::base_linear) {
 //      Vector3d inter = (init.p_ + final.p_)/2.;
-//      inter.z() = 0.7;
+//      inter.z() = 0.9;
 //      spline->AddIntermediateBound(kPos, inter);
+//    }
+//
+//    if (id == id::base_angular) {
+//      spline->AddIntermediateBound(kPos, Vector3d::Zero());
 //    }
 
 
