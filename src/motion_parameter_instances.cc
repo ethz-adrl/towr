@@ -23,10 +23,10 @@ namespace opt {
 MonopedMotionParameters::MonopedMotionParameters()
 {
   ee_splines_per_swing_phase_ = 1;
-  force_splines_per_stance_phase_ = 4;
+  force_splines_per_stance_phase_ = 3;
 
   robot_ee_ = { EEID::E0 };
-  dt_range_of_motion_ = 0.05;
+  dt_range_of_motion_ = 0.1;
 
   // dynamic model for HyQ
   mass_    = 80;
@@ -40,13 +40,14 @@ MonopedMotionParameters::MonopedMotionParameters()
   max_dev_xy_ << 0.15, 0.15, 0.12;
 
 
-  double t_swing  = 0.3;
-  double t_stance = 0.2;
+  double f  = 0.2;
+  double c = 0.2;
   contact_timings_ = ContactTimings(GetEECount());
-  contact_timings_.at(E0) = {t_stance, t_swing, t_stance, t_swing, t_stance};
+  contact_timings_.at(E0) = {c, f, c, f, c, f, c, f, c};
 
   min_phase_duration_ = 0.1;
-  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+  max_phase_duration_ = GetTotalTime();
+//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
 
   constraints_ = {
@@ -54,7 +55,7 @@ MonopedMotionParameters::MonopedMotionParameters()
 //      JunctionCom,
       RomBox,
       Dynamic,
-      //      TotalTime,
+      TotalTime,
   };
 
 
@@ -72,10 +73,10 @@ MonopedMotionParameters::MonopedMotionParameters()
 BipedMotionParameters::BipedMotionParameters()
 {
   ee_splines_per_swing_phase_ = 1;
-  force_splines_per_stance_phase_ = 4;
+  force_splines_per_stance_phase_ = 3;
 
   robot_ee_ = { EEID::E0, EEID::E1 };
-  dt_range_of_motion_ = 0.05;
+  dt_range_of_motion_ = 0.1;
 
   // dynamic model for HyQ
   mass_    = 80;
@@ -91,16 +92,16 @@ BipedMotionParameters::BipedMotionParameters()
   max_dev_xy_ << 0.15, 0.15, 0.12;
 
 
-  double t_swing  = 0.3;
-  double t_stance = 0.2;
+  double f  = 0.2;
+  double c = 0.2;
   contact_timings_ = ContactTimings(GetEECount());
-  contact_timings_.at(E0) = {t_stance, t_swing, t_stance, t_swing, t_stance};
-  contact_timings_.at(E1) = {t_stance, t_swing, t_stance, t_swing, t_stance};
+  contact_timings_.at(E0) = {c, f, c, f, c, f, c, f, c};
+  contact_timings_.at(E1) = {c, f, c, f, c, f, c, f, c};
 
 
   min_phase_duration_ = 0.1;
-  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
-//  max_phase_duration_ = GetTotalTime();
+//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+  max_phase_duration_ = GetTotalTime();
 
 
   constraints_ = {
@@ -108,7 +109,7 @@ BipedMotionParameters::BipedMotionParameters()
 //      JunctionCom,
       RomBox,
       Dynamic,
-//      TotalTime,
+      TotalTime,
   };
 
 
