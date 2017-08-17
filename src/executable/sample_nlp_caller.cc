@@ -5,7 +5,7 @@
  * \brief  sends out a current state of hyq
  */
 
-#include <xpp/ros/ros_helpers.h>
+#include <xpp/ros/ros_conversions.h>
 #include <xpp/ros/topic_names.h>
 #include <xpp_msgs/RobotStateCartesian.h>
 
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 
   start_state_cart.SetTime(0.0);
 
-  CurrentInfoMsg msg = xpp::ros::RosHelpers::XppToRos(start_state_cart);
+  CurrentInfoMsg msg = xpp::ros::RosConversions::XppToRos(start_state_cart);
   ROS_INFO_STREAM("Publishing current state...");
   current_info_pub.publish(msg);
   current_info_pub.publish(msg);

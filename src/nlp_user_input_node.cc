@@ -6,7 +6,7 @@
  */
 
 #include <xpp/ros/nlp_user_input_node.h>
-#include <xpp/ros/ros_helpers.h>
+#include <xpp/ros/ros_conversions.h>
 #include <xpp/ros/topic_names.h>
 
 #include <std_msgs/Empty.h>         // send to trigger walking
@@ -32,8 +32,8 @@ NlpUserInputNode::NlpUserInputNode ()
   replay_trajectory_ = false;
   use_solver_snopt_ = false;
   UserCommandMsg msg;
-  msg.goal_lin = RosHelpers::XppToRos(goal_geom_.lin);
-  msg.goal_ang = RosHelpers::XppToRos(goal_geom_.ang);
+  msg.goal_lin = RosConversions::XppToRos(goal_geom_.lin);
+  msg.goal_ang = RosConversions::XppToRos(goal_geom_.ang);
   user_command_pub_.publish(msg);
 
   // start walking command
@@ -196,8 +196,8 @@ void NlpUserInputNode::PublishCommand()
     ModifyGoalJoy();
 
   UserCommandMsg msg;
-  msg.goal_lin          = RosHelpers::XppToRos(goal_geom_.lin);
-  msg.goal_ang          = RosHelpers::XppToRos(goal_geom_.ang);
+  msg.goal_lin          = RosConversions::XppToRos(goal_geom_.lin);
+  msg.goal_ang          = RosConversions::XppToRos(goal_geom_.ang);
   msg.replay_trajectory = replay_trajectory_;
   msg.use_solver_snopt  = use_solver_snopt_;
   msg.vel_disturbance   = velocity_disturbance_;

@@ -9,7 +9,7 @@
 
 #include <kindr/Core>
 
-#include <xpp/ros/ros_helpers.h>
+#include <xpp/ros/ros_conversions.h>
 #include <xpp/ros/topic_names.h>
 #include <rosbag/bag.h>
 
@@ -38,15 +38,15 @@ NlpOptimizerNode::NlpOptimizerNode ()
   opt_parameters_pub_  = n.advertise<xpp_msgs::OptParameters>
                                     (xpp_msgs::opt_parameters, 1);
 
-  dt_ = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
-  rosbag_name_ = RosHelpers::GetStringFromServer("/xpp/rosbag_name");
+  dt_          = RosConversions::GetDoubleFromServer("/xpp/trajectory_dt");
+  rosbag_name_ = RosConversions::GetStringFromServer("/xpp/rosbag_name");
 
 }
 
 void
 NlpOptimizerNode::CurrentStateCallback (const StateMsg& msg)
 {
-  auto curr_state = RosHelpers::RosToXpp(msg);
+  auto curr_state = RosConversions::RosToXpp(msg);
   SetInitialState(curr_state);
 
 //  ROS_INFO_STREAM("Received Current Real State");
@@ -72,8 +72,8 @@ NlpOptimizerNode::OptimizeMotion ()
 void
 NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 {
-  motion_optimizer_.final_base_.lin = RosHelpers::RosToXpp(msg.goal_lin);
-  motion_optimizer_.final_base_.ang = RosHelpers::RosToXpp(msg.goal_ang);
+  motion_optimizer_.final_base_.lin = RosConversions::RosToXpp(msg.goal_lin);
+  motion_optimizer_.final_base_.ang = RosConversions::RosToXpp(msg.goal_ang);
   solver_type_ = msg.use_solver_snopt ? opt::Snopt : opt::Ipopt;
 
   Eigen::Vector3d vel_dis(msg.vel_disturbance.x, msg.vel_disturbance.y, msg.vel_disturbance.z);
@@ -102,14 +102,14 @@ NlpOptimizerNode::BuildOptParameters() const
 
   xpp_msgs::OptParameters params_msg;
   auto max_dev_xyz = params->GetMaximumDeviationFromNominal();
-  params_msg.ee_max_dev = RosHelpers::XppToRos<geometry_msgs::Vector3>(max_dev_xyz);
+  params_msg.ee_max_dev = RosConversions::XppToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
   auto nominal_B = params->GetNominalStanceInBase();
   for (auto ee : nominal_B.ToImpl())
-    params_msg.nominal_ee_pos.push_back(RosHelpers::XppToRos<geometry_msgs::Point>(ee));
+    params_msg.nominal_ee_pos.push_back(RosConversions::XppToRos<geometry_msgs::Point>(ee));
 
-  params_msg.goal_lin = RosHelpers::XppToRos(motion_optimizer_.final_base_.lin);
-  params_msg.goal_ang = RosHelpers::XppToRos(motion_optimizer_.final_base_.ang);
+  params_msg.goal_lin = RosConversions::XppToRos(motion_optimizer_.final_base_.lin);
+  params_msg.goal_ang = RosConversions::XppToRos(motion_optimizer_.final_base_.ang);
 
   params_msg.base_mass = params->GetMass();
 
@@ -127,7 +127,7 @@ NlpOptimizerNode::TrajMsg
 NlpOptimizerNode::BuildTrajectory() const
 {
   auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
-  return RosHelpers::XppToRosCart(opt_traj_cartesian);
+  return RosConversions::XppToRosCart(opt_traj_cartesian);
 }
 
 void
@@ -150,7 +150,7 @@ NlpOptimizerNode::SaveAsRosbag (const TrajMsg& traj_msg,
                                 const ParamsMsg& params_msg) const
 {
   ROS_INFO_STREAM("Saving trajectory in " << rosbag_name_);
-  auto traj = ros::RosHelpers::RosToXppCart(traj_msg);
+  auto traj = ros::RosConversions::RosToXppCart(traj_msg);
 
   // record this to be able to pause and playback later
   rosbag::Bag bag;
