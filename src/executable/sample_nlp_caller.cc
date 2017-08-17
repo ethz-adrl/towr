@@ -10,7 +10,7 @@
 #include <xpp_msgs/RobotStateCartesian.h>
 
 #include <xpp/robot_state_cartesian.h>
-#include <xpp/endeffectors4.h>
+#include <xpp/endeffectors.h>
 
 using CurrentInfoMsg = xpp_msgs::RobotStateCartesian;
 using Vector3d       = Eigen::Vector3d;
@@ -18,6 +18,7 @@ using Vector3d       = Eigen::Vector3d;
 static const int n_ee = 4; // number of endeffectors
 
 using namespace xpp;
+using namespace quad;
 
 int main(int argc, char **argv)
 {
@@ -59,6 +60,7 @@ int main(int argc, char **argv)
   EndeffectorsPos hyq_ee(n_ee);
   double start_x = 0.28;
   double start_y = 0.28;
+  auto kMapQuadToOpt = Reverse(kMapOptToQuad);
   hyq_ee.At(kMapQuadToOpt.at(LF)) = Vector3d(base.lin.p_.x() +start_x,  base.lin.p_.y() +start_y, 0.0);
   hyq_ee.At(kMapQuadToOpt.at(RF)) = Vector3d(base.lin.p_.x() +start_x,  base.lin.p_.y() -start_y, 0.0);
   hyq_ee.At(kMapQuadToOpt.at(LH)) = Vector3d(base.lin.p_.x() -start_x,  base.lin.p_.y() +start_y, 0.0);
