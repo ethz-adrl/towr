@@ -2,13 +2,12 @@
   <!-- zmp optimization parameters -->
   <group ns="xpp">
     <!-- for building the discretized trajectory -->
-    <param name="trajectory_dt"          value="0.004" type="double"/>   <!-- equal to 1/TaskServoHz -->    	
-  </group>
-  <group ns="exec">
-  </group>
+    <param name="trajectory_dt" value="0.004" type="double"/>   <!-- equal to 1/TaskServoHz --> 
+    <param name="rosbag_name"   value="$(find xpp_ros)/bags/optimal_traj.bag" type="string"/>   
+  </group>   	
   <group ns="joy_node">
-    <param name="dev"                  value="/dev/input/js0"  type="string"/>  
-    <param name="autorepeat_rate"      value="0.0"   type="double"/>
-    <param name="deadzone"             value="0.05"  type="double"/>
+    <param name="dev"              value="/dev/input/js0"  type="string"/>  
+    <param name="autorepeat_rate"  value="0.0"   type="double"/>
+    <param name="deadzone"         value="0.05"  type="double"/>
   </group>
 </launch>

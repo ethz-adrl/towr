@@ -39,6 +39,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                     (xpp_msgs::opt_parameters, 1);
 
   dt_ = RosHelpers::GetDoubleFromServer("/xpp/trajectory_dt");
+  rosbag_name_ = RosHelpers::GetStringFromServer("/xpp/rosbag_name");
+
 }
 
 void
@@ -147,14 +149,12 @@ void
 NlpOptimizerNode::SaveAsRosbag (const TrajMsg& traj_msg,
                                 const ParamsMsg& params_msg) const
 {
-  static const std::string filename = "/home/winklera/Code/catkin_xpp/src/xpp/xpp_vis/bags/optimal_traj.bag";
-
-  ROS_INFO_STREAM("Saving trajectory in " << filename);
+  ROS_INFO_STREAM("Saving trajectory in " << rosbag_name_);
   auto traj = ros::RosHelpers::RosToXppCart(traj_msg);
 
   // record this to be able to pause and playback later
   rosbag::Bag bag;
-  bag.open(filename, rosbag::bagmode::Write);
+  bag.open(rosbag_name_, rosbag::bagmode::Write);
 
   for (int i=0; i<traj.size(); ++i)
   {
@@ -173,7 +173,7 @@ NlpOptimizerNode::SaveAsRosbag (const TrajMsg& traj_msg,
   bag.close();
 
   // play back the rosbag hacky like this, as I can't find appropriate C++ API.
-  system(("rosbag play --quiet "+ filename).c_str());
+  system(("rosbag play --quiet "+ rosbag_name_).c_str());
 }
 
 
