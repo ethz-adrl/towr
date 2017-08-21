@@ -14,7 +14,7 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include <xpp/endeffectors4.h>
+#include <xpp/endeffectors.h>
 
 namespace xpp {
 namespace opt {
@@ -72,6 +72,8 @@ MonopedMotionParameters::MonopedMotionParameters()
 
 BipedMotionParameters::BipedMotionParameters()
 {
+  using namespace xpp::biped;
+
   ee_splines_per_swing_phase_ = 1;
   force_splines_per_stance_phase_ = 3;
 
@@ -125,9 +127,9 @@ BipedMotionParameters::BipedMotionParameters()
 }
 
 
-QuadrupedMotionParameters::QuadrupedMotionParameters ()
+HyQMotionParameters::HyQMotionParameters ()
 {
-
+  using namespace xpp::quad;
   order_coeff_polys_  = 4; // only used with coefficient splines
   // since derivative of acceleration is nonsmooth at junctions, pay attention
   // to never evaluate at junction of base polynomial directly
@@ -148,11 +150,19 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   // range of motion constraint
   dt_range_of_motion_ = dt_base_polynomial_/2.;//0.1;
   // range of motion specifications for HyQ
-  const double x_nominal_b = 0.28;
-  const double y_nominal_b = 0.28;
-  const double z_nominal_b = -0.58;
+//  const double x_nominal_b = 0.28;
+//  const double y_nominal_b = 0.28;
+//  const double z_nominal_b = -0.58;
+
+//  // anymal values
+  const double x_nominal_b = 0.23;
+  const double y_nominal_b = 0.17;
+  const double z_nominal_b = -0.48;
+
+
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
   nominal_stance_.SetCount(GetEECount());
+  auto kMapQuadToOpt = Reverse(kMapOptToQuad);
   nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, z_nominal_b);
@@ -187,6 +197,71 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
   };
 }
 
+
+AnymalMotionParameters::AnymalMotionParameters ()
+{
+  using namespace xpp::quad;
+  order_coeff_polys_  = 4;
+  dt_base_polynomial_ = 0.2; //s 0.05
+  ee_splines_per_swing_phase_ = 1;
+
+
+  // dynamic constraint
+  dt_dynamic_constraint_ = dt_base_polynomial_/2.0;
+  force_splines_per_stance_phase_ = 3;
+  // from pkg anymal_description/urdf/base/anymal_base_2_parameters
+  mass_    = 18.29;
+  interia_ = buildInertiaTensor( 0.268388530623900,
+                                 0.884235660795284,
+                                 0.829158678306482,
+                                 0.000775392455422,
+                                 -0.015184853445095,
+                                 -0.000989297489507);
+  force_limit_ = 1000.0; // [N]
+
+
+  // range of motion constraint
+  dt_range_of_motion_ = dt_base_polynomial_/2.;
+  const double x_nominal_b = 0.23;
+  const double y_nominal_b = 0.17;
+  const double z_nominal_b = -0.48;
+  max_dev_xy_ << 0.15, 0.15, 0.10;
+
+  robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
+  nominal_stance_.SetCount(GetEECount());
+  auto kMapQuadToOpt = Reverse(kMapOptToQuad);
+  nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, z_nominal_b);
+
+
+  double f = 0.2; // [s] t_free
+  double c = 0.2; // [s] t_contact
+  double t_offset = f;
+  contact_timings_ = ContactTimings(GetEECount());
+  contact_timings_.at(kMapQuadToOpt.at(LH)) = {t_offset + c, f, c, f, c, f, c           };
+  contact_timings_.at(kMapQuadToOpt.at(LF)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(RH)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(RF)) = {t_offset + c, f, c, f, c, f, c           };
+
+  min_phase_duration_ = 0.1;
+  max_phase_duration_ = GetTotalTime();
+//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+
+  constraints_ = {
+//      State,
+//      JunctionCom,
+      RomBox,
+      Dynamic,
+      TotalTime,
+  };
+
+  cost_weights_ = {
+//      {ForcesCostID, 1.0},
+//      {ComCostID, 1.0}
+  };
+}
 
 
 
@@ -650,5 +725,6 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 //}
 
 } // namespace opt
-} // namespace xpp
+}// namespace xpp
+
 

@@ -26,9 +26,9 @@ public:
   virtual ~BipedMotionParameters() {};
 };
 
-class QuadrupedMotionParameters : public MotionParameters {
+class HyQMotionParameters : public MotionParameters {
 public:
-  QuadrupedMotionParameters();
+  HyQMotionParameters();
 
 protected:
 //  // naming convention:, where the circle is is a swingleg, front is right ->.
@@ -57,6 +57,11 @@ protected:
 
 //  void SetContactSequence(double p_overlap_lateral,
 //                          double p_overlap_opposite);
+};
+
+class AnymalMotionParameters : public MotionParameters {
+public:
+  AnymalMotionParameters();
 };
 
 } // namespace opt

@@ -42,8 +42,8 @@ public:
 
   const MotionParametersPtr GetMotionParameters() const { return params_;};
 
-  void BuildDefaultStartStance();
 private:
+  void BuildDefaultInitialState();
   void BuildVariables();
 
   OptimizationVariablesPtr opt_variables_;

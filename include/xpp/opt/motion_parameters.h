@@ -16,6 +16,7 @@
 #include <Eigen/Dense>
 
 #include <xpp/endeffectors.h>
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {
@@ -38,8 +39,8 @@ public:
 
   using PosXY            = Vector2d;
   using PosXYZ           = Vector3d;
-  using NominalStance    = EndeffectorsPos;
   using MaxDevXYZ        = Vector3d;
+  using NominalStance    = EndeffectorsPos;
   using CostWeights      = std::vector<std::pair<CostName, double>>;
   using UsedConstraints  = std::vector<ConstraintName>;
 

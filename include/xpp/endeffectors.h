@@ -9,16 +9,14 @@
 #define XPP_INCLUDE_XPP_ENDEFFECTORS_H_
 
 #include <deque>
-#include <Eigen/Dense>
 #include <iostream>
+#include <map>
 #include <vector>
-
-#include <xpp/state.h>
+#include <Eigen/Dense>
 
 namespace xpp {
 
 enum EndeffectorID { E0, E1, E2, E3, E4, E5 };
-static const std::vector<EndeffectorID> kEEOrder = { E0, E1, E2, E3, E4, E5 };
 
 /** @brief Data structure to assign values to each endeffector.
  *
@@ -107,21 +105,39 @@ public:
 };
 
 
-class EndeffectorsState : public Endeffectors<StateLin3d> {
-public:
-  EndeffectorsState (int n_ee) :Endeffectors(n_ee) {};
-  virtual ~EndeffectorsState () {};
 
-  /** @brief extracts only the position from the full state */
-  EndeffectorsPos GetPos() const
-  {
-    EndeffectorsPos pos(GetCount());
-    for (auto ee : GetEEsOrdered())
-      pos.At(ee) = At(ee).p_;
+// some specific morphologies
+namespace biped {
+enum FootID { L, R };
 
-    return pos;
-  }
+static const std::map<EndeffectorID, FootID> kMapOptToBiped {
+  { EndeffectorID::E0,  L},
+  { EndeffectorID::E1,  R},
 };
+}
+
+namespace quad {
+enum FootID { RF, LF, LH, RH };
+
+static const std::map<EndeffectorID, FootID> kMapOptToQuad {
+  { EndeffectorID::E0,  LH},
+  { EndeffectorID::E1,  LF},
+  { EndeffectorID::E2,  RH},
+  { EndeffectorID::E3,  RF},
+};
+}
+
+template<typename T>
+static std::map<T, EndeffectorID> Reverse(std::map<EndeffectorID, T> map) {
+
+  std::map<T, EndeffectorID> reverse;
+  for (auto pair : map) {
+    auto ee = pair.first;
+    reverse[map.at(ee)] = ee;
+  }
+
+  return reverse;
+}
 
 
 } /* namespace xpp */

@@ -32,8 +32,8 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  params_ = std::make_shared<QuadrupedMotionParameters>();
-  BuildDefaultStartStance();
+  params_ = std::make_shared<HyQMotionParameters>();
+  BuildDefaultInitialState();
   opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
 }
 
@@ -42,18 +42,16 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 }
 
 void
-MotionOptimizerFacade::BuildDefaultStartStance ()
+MotionOptimizerFacade::BuildDefaultInitialState ()
 {
-  double offset_x = 0.0;
-  inital_base_.lin.p_ << offset_x+0.000350114, -1.44379e-7, 0.573311;
-  inital_base_.lin.v_ << 0.000137518, -4.14828e-07,  0.000554118;
-  inital_base_.lin.a_ << 0.000197966, -5.72241e-07, -5.13328e-06;
+  auto p_nom_B = params_->GetNominalStanceInBase();
 
+  inital_base_.lin.p_ << 0.0, 0.0, -p_nom_B.At(E0).z();
   inital_base_.ang.p_ << 0.0, 0.0, 0.0; // euler (roll, pitch, yaw)
 
-  initial_ee_W_ = params_->GetNominalStanceInBase();
+  initial_ee_W_.SetCount(params_->GetEECount());
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-    initial_ee_W_.At(ee) += inital_base_.lin.p_;
+    initial_ee_W_.At(ee) = p_nom_B.At(ee) + inital_base_.lin.p_;
     initial_ee_W_.At(ee).z() = 0.0;
   }
 }
