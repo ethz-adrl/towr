@@ -16,12 +16,13 @@
 #include <Eigen/Dense>
 
 #include <xpp/endeffectors.h>
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {
 
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
-                       FinalComCostID, FinalStanceCostID };
+                       FinalComCostID, FinalStanceCostID, ForcesCostID };
 enum ConstraintName  { State, JunctionCom, Dynamic, RomBox, TotalTime };
 
 /** This class holds all the hardcoded values describing a motion.
@@ -32,15 +33,15 @@ public:
   using EEID             = EndeffectorID;
   using EEVec            = std::vector<EEID>;
   using ContactSequence  = std::vector<EndeffectorsBool>;
-  using ContactTimings   = std::vector<double>;
+  using ContactTimings   = std::vector<std::vector<double>>;
   using Phase            = std::pair<EndeffectorsBool, double>;
   using ContactSchedule  = std::vector<Phase>;
 
   using PosXY            = Vector2d;
   using PosXYZ           = Vector3d;
-  using NominalStance    = EndeffectorsPos;
   using MaxDevXYZ        = Vector3d;
-  using CostWeights      = std::map<CostName, double>;
+  using NominalStance    = EndeffectorsPos;
+  using CostWeights      = std::vector<std::pair<CostName, double>>;
   using UsedConstraints  = std::vector<ConstraintName>;
 
   using VecTimes         = std::vector<double>;
@@ -49,7 +50,7 @@ public:
 
   int GetEECount() const { return robot_ee_.size(); };
   NominalStance GetNominalStanceInBase() const { return nominal_stance_; };
-  ContactSchedule GetContactSchedule() const;
+//  ContactSchedule GetContactSchedule() const;
   MaxDevXYZ GetMaximumDeviationFromNominal() const;
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
@@ -67,6 +68,7 @@ public:
   double dt_range_of_motion_;
   double dt_dynamic_constraint_; /// how many times dynamics are enforced
 
+  double min_phase_duration_;
   double max_phase_duration_;
 
 

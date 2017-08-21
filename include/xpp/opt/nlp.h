@@ -18,6 +18,8 @@
 namespace xpp {
 namespace opt {
 
+enum NlpSolver { Ipopt, Snopt };
+
 /** @brief Nonlinear Programming problem definition
   *
   * This class is responsible for holding all the information of a

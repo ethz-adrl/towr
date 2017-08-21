@@ -39,6 +39,7 @@ public:
 
 
   struct PolyInfo {
+    PolyInfo() {};
     PolyInfo(int phase, int poly_id_in_phase,
              int num_polys_in_phase, bool is_constant)
         :phase_(phase), poly_id_in_phase_(poly_id_in_phase),
@@ -58,10 +59,15 @@ public:
     int dim_;
   };
 
-  NodeValues ();
+  NodeValues (int n_dim, int n_polynomials, const std::string& name);
+  NodeValues (int n_dim, const PolyInfoVec&, const std::string& name);
   virtual ~NodeValues ();
 
-  void Init(const Node& initial_value, const PolyInfoVec&, const std::string& name);
+
+  virtual void InitializeVariables(const VectorXd& initial_pos,
+                                   const VectorXd& final_pos,
+                                   const VecDurations& poly_durations);
+
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& x) override;
@@ -71,16 +77,37 @@ public:
 
   VectorXd GetDerivativeOfPosWrtPhaseDuration(double t_global) const;
 
-protected:
+  void AddBound(int node_id, MotionDerivative, int dim, double val);
+  void AddStartBound (MotionDerivative d, const VectorXd& val);
+  void AddIntermediateBound (MotionDerivative d, const VectorXd& val);
+  void AddFinalBound(MotionDerivative, const VectorXd& val);
+
+
+  virtual VecBound GetBounds () const override { return bounds_;};
+
+
+
+  VectorXd GetPositionValues() const;
+
+  const std::vector<Node> GetNodes() const { return nodes_; };
+
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
+  int GetDimCount() const { return n_dim_; };
+
+protected:
   void UpdatePolynomials();
-  VecDurations times_;
+  bool durations_change_ = false;
+  VecDurations poly_durations_;
   PolyInfoVec polynomial_info_;
+  VecBound bounds_;
+
 
 private:
-  std::vector<Node> nodes_;
+  PolyInfoVec BuildPolyInfos(int num_polys) const;
+
   int n_dim_;
   VecPoly cubic_polys_;
+  std::vector<Node> nodes_;
 
   int GetNodeId(int poly_id, Side) const;
   void SetNodeMappings();
@@ -88,50 +115,9 @@ private:
   using NodeIds   = std::vector<int>;
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
 
-  Jacobian GetJacobian(int poly_id, double t_local, MotionDerivative dxdt) const;
-};
+  void FillJacobian(int poly_id, double t_local, MotionDerivative dxdt,
+                    Jacobian& jac) const;
 
-
-class PhaseNodes : public NodeValues {
-public:
-  using ContactVector = std::vector<bool>;
-
-  PhaseNodes (const Node& initial_value,
-              const ContactVector& contact_schedule,
-              const std::string& name,
-              bool is_constant_during_contact,
-              int n_polys_in_changing_phase);
-  ~PhaseNodes();
-
-
-  /** @brief called by contact schedule when variables are updated.
-   *
-   * Converts phase durations to specific polynomial durations.
-   */
-  void UpdateDurations(const VecDurations& phase_durations);
-};
-
-
-
-class EEMotionNodes : public PhaseNodes {
-public:
-  EEMotionNodes (const Node& initial_position,
-                 const ContactVector& contact_schedule,
-                 int splines_per_swing_phase,
-                 int ee_id);
-  ~EEMotionNodes();
-  VecBound GetBounds () const override;
-};
-
-
-class EEForcesNodes : public PhaseNodes {
-public:
-  EEForcesNodes (const Node& initial_force,
-                 const ContactVector& contact_schedule,
-                 int splines_per_stance_phase,
-                 int ee_id);
-  ~EEForcesNodes();
-  VecBound GetBounds () const override;
 };
 
 

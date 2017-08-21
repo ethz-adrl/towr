@@ -90,6 +90,8 @@ add_library(${MOTION_OPT_LIB}
   # body motion
   src/polynomial.cc
   src/node_values.cc
+  src/node_cost.cc
+  src/phase_nodes.cc
   src/spline.cc
   src/coeff_spline.cc
 #  src/spline.cc

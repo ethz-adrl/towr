@@ -16,7 +16,7 @@
 #include <xpp/opt/bound.h>
 #include <xpp/opt/constraints/composite.h>
 
-#include "node_values.h"
+#include "phase_nodes.h"
 
 
 namespace xpp {
@@ -29,7 +29,7 @@ public:
   using PhaseNodesPtr = std::shared_ptr<PhaseNodes>;
 
   ContactSchedule (EndeffectorID ee, const VecDurations& timings,
-                   double max_phase_duration);
+                   double min_phase_duration, double max_phase_duration);
   virtual ~ContactSchedule ();
 
   bool IsInContact(double t_global) const;
@@ -55,7 +55,7 @@ private:
 
   bool first_phase_in_contact_ = true;
   double t_total_;
-  double max_phase_duration_;
+  Bound phase_duration_bounds_;
 
   std::vector<PhaseNodesPtr> observers_;
   PhaseNodesPtr GetObserver(const std::string& id) const;

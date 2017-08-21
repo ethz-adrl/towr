@@ -86,7 +86,11 @@ template<typename T>
 std::vector<EndeffectorID>
 Endeffectors<T>::GetEEsOrdered () const
 {
-  return std::vector<EndeffectorID>(kEEOrder.begin(), kEEOrder.begin()+ee_.size());
+  std::vector<EndeffectorID> vec;
+  for (int i=0; i<ee_.size(); ++i)
+    vec.push_back(static_cast<EndeffectorID>(i));
+
+  return vec;
 }
 
 template<typename T>

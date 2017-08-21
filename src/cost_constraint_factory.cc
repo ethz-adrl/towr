@@ -13,14 +13,15 @@
 #include <map>
 #include <stdexcept>
 #include <string>
-#include <vector>
 
 #include <xpp/cartesian_declarations.h>
 #include <xpp/endeffectors.h>
+#include <xpp/opt/angular_state_converter.h>
 #include <xpp/opt/centroidal_model.h>
 #include <xpp/opt/constraints/dynamic_constraint.h>
 #include <xpp/opt/constraints/range_of_motion_constraint.h>
 #include <xpp/opt/constraints/spline_constraint.h>
+#include <xpp/opt/costs/node_cost.h>
 #include <xpp/opt/costs/soft_constraint.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/spline.h>
@@ -52,7 +53,7 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
   final_base_ = final_base;
 }
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ComponentPtr
 CostConstraintFactory::GetConstraint (ConstraintName name) const
 {
   switch (name) {
@@ -65,19 +66,18 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
   }
 }
 
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::GetCost(CostName name) const
+CostConstraintFactory::ComponentPtr
+CostConstraintFactory::GetCost(const CostName& name, double weight) const
 {
-  double weight = params->GetCostWeights().at(name);
-
   switch (name) {
+    case ForcesCostID:       return MakeForcesCost(weight);
     case ComCostID:          return MakeMotionCost(weight);
     case RangOfMotionCostID: return ToCost(MakeRangeOfMotionBoxConstraint(), weight);
     default: throw std::runtime_error("cost not defined!");
   }
 }
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeStateConstraint () const
 {
   auto constraints = std::make_shared<Composite>("State Initial Constraints", true);
@@ -92,6 +92,7 @@ CostConstraintFactory::MakeStateConstraint () const
   auto spline_ang = Spline::BuildSpline(opt_vars_, id::base_angular, base_poly_durations);
 
 
+
   // initial base constraints
   double t = 0.0; // initial time
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, t, initial_base_.lin, derivs));
@@ -102,6 +103,7 @@ CostConstraintFactory::MakeStateConstraint () const
   double T = params->GetTotalTime();
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, T, final_base_.lin, derivs));
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, T, final_base_.ang, derivs));
+
 
 
   // endeffector constraints
@@ -129,7 +131,7 @@ CostConstraintFactory::MakeStateConstraint () const
 }
 
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeJunctionConstraint () const
 {
   auto junction_constraints = std::make_shared<Composite>("Junctions Constraints", true);
@@ -156,7 +158,7 @@ CostConstraintFactory::MakeJunctionConstraint () const
 
 
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
 //  model_ = std::make_shared<LIPModel>();
@@ -174,7 +176,7 @@ CostConstraintFactory::MakeDynamicConstraint() const
   return constraint;
 }
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
   auto c = std::make_shared<Composite>("Range-of-Motion Constraints", true);
@@ -193,7 +195,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
   return c;
 }
 
-CostConstraintFactory::ConstraintPtr
+CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeTotalTimeConstraint () const
 {
   auto c = std::make_shared<Composite>("Range-of-Motion Constraints", true);
@@ -208,21 +210,37 @@ CostConstraintFactory::MakeTotalTimeConstraint () const
 }
 
 
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::MakeMotionCost(double weight) const
+CostConstraintFactory::ComponentPtr
+CostConstraintFactory::MakeForcesCost(double weight) const
 {
-  auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", false);
+  auto cost = std::make_shared<Composite>("Forces Cost", false);
 
-  VectorXd weight_xyz(kDim3d); weight_xyz << 1.0, 1.0, 1.0;
-  base_acc_cost->AddComponent(MakePolynomialCost(id::base_linear, weight_xyz, weight));
+  for (auto ee : params->robot_ee_) {
+    auto f_cost = std::make_shared<NodeCost>(opt_vars_, id::GetEEForceId(ee));
+    cost->AddComponent(f_cost);
+  }
 
-  VectorXd weight_angular(kDim3d); weight_angular << 0.1, 0.1, 0.1;
-  base_acc_cost->AddComponent(MakePolynomialCost(id::base_angular, weight_angular, weight));
-
-  return base_acc_cost;
+  return cost;
 }
 
-CostConstraintFactory::ConstraintPtr
+
+CostConstraintFactory::ComponentPtr
+CostConstraintFactory::MakeMotionCost(double weight) const
+{
+//  auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", false);
+//
+//  VectorXd weight_xyz(kDim3d); weight_xyz << 1.0, 1.0, 1.0;
+//  base_acc_cost->AddComponent(MakePolynomialCost(id::base_linear, weight_xyz, weight));
+//
+//  VectorXd weight_angular(kDim3d); weight_angular << 0.1, 0.1, 0.1;
+//  base_acc_cost->AddComponent(MakePolynomialCost(id::base_angular, weight_angular, weight));
+//
+//  return base_acc_cost;
+
+  return std::make_shared<NodeCost>(opt_vars_, id::base_linear);
+}
+
+CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakePolynomialCost (const std::string& poly_id,
                                            const Vector3d& weight_dimensions,
                                            double weight) const
@@ -240,8 +258,8 @@ CostConstraintFactory::MakePolynomialCost (const std::string& poly_id,
 //  return std::make_shared<QuadraticPolynomialCost>(opt_vars_, mv, poly_id, weight);
 }
 
-CostConstraintFactory::ConstraintPtr
-CostConstraintFactory::ToCost (const ConstraintPtr& constraint, double weight) const
+CostConstraintFactory::ComponentPtr
+CostConstraintFactory::ToCost (const ComponentPtr& constraint, double weight) const
 {
   return std::make_shared<SoftConstraint>(constraint, weight);
 }

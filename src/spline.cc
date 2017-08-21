@@ -31,9 +31,11 @@ Spline::BuildSpline (const OptVarsPtr& opt_vars,
   else if (name.substr(0, s2.size()) == s2) // string starts with s
     spline = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(name));
   else if (name == id::base_linear)
-    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
+    spline = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(name));
+//    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
   else if (name == id::base_angular)
-    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
+    spline = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(name));
+//    spline = std::make_shared<CoeffSpline>(opt_vars, name, poly_durations);
   else
     assert(false); // this shouldn't happen
 

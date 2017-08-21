@@ -14,7 +14,7 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include <xpp/endeffectors4.h>
+#include <xpp/endeffectors.h>
 
 namespace xpp {
 namespace opt {
@@ -23,10 +23,10 @@ namespace opt {
 MonopedMotionParameters::MonopedMotionParameters()
 {
   ee_splines_per_swing_phase_ = 1;
-  force_splines_per_stance_phase_ = 4;
+  force_splines_per_stance_phase_ = 3;
 
   robot_ee_ = { EEID::E0 };
-  dt_range_of_motion_ = 0.05;
+  dt_range_of_motion_ = 0.1;
 
   // dynamic model for HyQ
   mass_    = 80;
@@ -37,85 +37,231 @@ MonopedMotionParameters::MonopedMotionParameters()
   const double z_nominal_b = -0.58;
   nominal_stance_.SetCount(robot_ee_.size());
   nominal_stance_.At(EEID::E0) = PosXYZ( 0.0, 0.0, z_nominal_b);
-  max_dev_xy_ << 0.15, 0.15, 0.2;
+  max_dev_xy_ << 0.15, 0.15, 0.12;
 
 
-  double t_swing  = 0.25;
-  double t_stance = 0.25;
-  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance};
-  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+  double f  = 0.2;
+  double c = 0.2;
+  contact_timings_ = ContactTimings(GetEECount());
+  contact_timings_.at(E0) = {c, f, c, f, c, f, c, f, c};
+
+  min_phase_duration_ = 0.1;
+  max_phase_duration_ = GetTotalTime();
+//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
 
   constraints_ = {
-      State,
-      JunctionCom,
+//      State,
+//      JunctionCom,
       RomBox,
       Dynamic,
-      //      TotalTime,
+      TotalTime,
   };
 
 
 
   order_coeff_polys_ = 4;
-  dt_base_polynomial_ = 0.25;//t_total; //s 0.05
+  dt_base_polynomial_ = 0.2;//t_total; //s 0.05
 
   // since derivative of acceleration is nonsmooth at junctions, pay attention
   // to never evaluate at junction of base polynomial directly
   // (what i'm doing now! :-(
   // must make sure every polynomial is at least evaluated once
-  dt_dynamic_constraint_ = dt_base_polynomial_/2;
+  dt_dynamic_constraint_ = dt_base_polynomial_/2.0;
 }
 
-
-QuadrupedMotionParameters::QuadrupedMotionParameters ()
+BipedMotionParameters::BipedMotionParameters()
 {
-
-  // since derivative of acceleration is nonsmooth at junctions, pay attention
-  // to never evaluate at junction of base polynomial directly
-  // (what i'm doing now! :-(
-  // must make sure every polynomial is at least evaluated once
-  order_coeff_polys_ = 4;
-  dt_base_polynomial_    = 0.25; //s 0.05
-  dt_dynamic_constraint_ = dt_base_polynomial_/2;
+  using namespace xpp::biped;
 
   ee_splines_per_swing_phase_ = 1;
   force_splines_per_stance_phase_ = 3;
 
+  robot_ee_ = { EEID::E0, EEID::E1 };
+  dt_range_of_motion_ = 0.1;
+
   // dynamic model for HyQ
   mass_    = 80;
   interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
-  force_limit_ = 1000.0; // [N]
+  force_limit_ = 10000.0; // [N]
+
+  // range of motion specifictions for HyQ
+  const double z_nominal_b = -0.58;
+  const double y_nominal_b = 0.28;
+  nominal_stance_.SetCount(robot_ee_.size());
+  nominal_stance_.At(EEID::E0) = PosXYZ( 0.0,  y_nominal_b, z_nominal_b);
+  nominal_stance_.At(EEID::E1) = PosXYZ( 0.0, -y_nominal_b, z_nominal_b);
+  max_dev_xy_ << 0.15, 0.15, 0.12;
+
+
+  double f  = 0.2;
+  double c = 0.2;
+  contact_timings_ = ContactTimings(GetEECount());
+  contact_timings_.at(E0) = {c, f, c, f, c, f, c, f, c};
+  contact_timings_.at(E1) = {c, f, c, f, c, f, c, f, c};
+
+
+  min_phase_duration_ = 0.1;
+//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+  max_phase_duration_ = GetTotalTime();
+
+
+  constraints_ = {
+//      State,
+//      JunctionCom,
+      RomBox,
+      Dynamic,
+      TotalTime,
+  };
+
+
+
+  order_coeff_polys_ = 4;
+  dt_base_polynomial_ = 0.2;//t_total; //s 0.05
+
+  // since derivative of acceleration is nonsmooth at junctions, pay attention
+  // to never evaluate at junction of base polynomial directly
+  // (what i'm doing now! :-(
+  // must make sure every polynomial is at least evaluated once
+  dt_dynamic_constraint_ = dt_base_polynomial_/2.0;
+}
+
+
+HyQMotionParameters::HyQMotionParameters ()
+{
+  using namespace xpp::quad;
+  order_coeff_polys_  = 4; // only used with coefficient splines
+  // since derivative of acceleration is nonsmooth at junctions, pay attention
+  // to never evaluate at junction of base polynomial directly
+  // (what i'm doing now! :-(
+  // must make sure every polynomial is at least evaluated once
+  dt_base_polynomial_ = 0.2; //s 0.05
+  ee_splines_per_swing_phase_ = 1;
+
+
+  // dynamic constraint
+  dt_dynamic_constraint_ = dt_base_polynomial_/2.0;
+  force_splines_per_stance_phase_ = 3;
+  mass_    = 80;
+  interia_ = buildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
+  force_limit_ = 10000.0; // [N]
+
+
+  // range of motion constraint
+  dt_range_of_motion_ = dt_base_polynomial_/2.;//0.1;
+  // range of motion specifications for HyQ
+//  const double x_nominal_b = 0.28;
+//  const double y_nominal_b = 0.28;
+//  const double z_nominal_b = -0.58;
+
+//  // anymal values
+  const double x_nominal_b = 0.23;
+  const double y_nominal_b = 0.17;
+  const double z_nominal_b = -0.48;
 
 
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
-  dt_range_of_motion_ = 0.10;
-
-  // range of motion specifications for HyQ
-  const double x_nominal_b = 0.28;
-  const double y_nominal_b = 0.28;
-  const double z_nominal_b = -0.58;
-  nominal_stance_.SetCount(robot_ee_.size());
+  nominal_stance_.SetCount(GetEECount());
+  auto kMapQuadToOpt = Reverse(kMapOptToQuad);
   nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, z_nominal_b);
-  max_dev_xy_ << 0.15, 0.15, 0.1;
+  max_dev_xy_ << 0.15, 0.15, 0.10;
 
 
-  double t_swing  = 0.1;
-  double t_stance = 0.4;
-  contact_timings_ = {t_stance, t_swing, t_stance, t_swing, t_stance, t_swing, t_stance};
-  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+  double f = 0.2; // [s] t_free
+  double c = 0.2; // [s] t_contact
+  double t_offset = f;
+  contact_timings_ = ContactTimings(GetEECount());
+  contact_timings_.at(kMapQuadToOpt.at(LH)) = {t_offset + c, f, c, f, c, f, c           };
+  contact_timings_.at(kMapQuadToOpt.at(LF)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(RH)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(RF)) = {t_offset + c, f, c, f, c, f, c           };
+
+  min_phase_duration_ = 0.1;
+  max_phase_duration_ = GetTotalTime();
+//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
   constraints_ = {
-      State,
-      JunctionCom,
+//      State,
+//      JunctionCom,
       RomBox,
       Dynamic,
-//      TotalTime,
+      TotalTime,
+  };
+
+  cost_weights_ = {
+//      {ForcesCostID, 1.0},
+//      {ComCostID, 1.0}
   };
 }
 
+
+AnymalMotionParameters::AnymalMotionParameters ()
+{
+  using namespace xpp::quad;
+  order_coeff_polys_  = 4;
+  dt_base_polynomial_ = 0.2; //s 0.05
+  ee_splines_per_swing_phase_ = 1;
+
+
+  // dynamic constraint
+  dt_dynamic_constraint_ = dt_base_polynomial_/2.0;
+  force_splines_per_stance_phase_ = 3;
+  // from pkg anymal_description/urdf/base/anymal_base_2_parameters
+  mass_    = 18.29;
+  interia_ = buildInertiaTensor( 0.268388530623900,
+                                 0.884235660795284,
+                                 0.829158678306482,
+                                 0.000775392455422,
+                                 -0.015184853445095,
+                                 -0.000989297489507);
+  force_limit_ = 1000.0; // [N]
+
+
+  // range of motion constraint
+  dt_range_of_motion_ = dt_base_polynomial_/2.;
+  const double x_nominal_b = 0.23;
+  const double y_nominal_b = 0.17;
+  const double z_nominal_b = -0.48;
+  max_dev_xy_ << 0.15, 0.15, 0.10;
+
+  robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
+  nominal_stance_.SetCount(GetEECount());
+  auto kMapQuadToOpt = Reverse(kMapOptToQuad);
+  nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, z_nominal_b);
+
+
+  double f = 0.2; // [s] t_free
+  double c = 0.2; // [s] t_contact
+  double t_offset = f;
+  contact_timings_ = ContactTimings(GetEECount());
+  contact_timings_.at(kMapQuadToOpt.at(LH)) = {t_offset + c, f, c, f, c, f, c           };
+  contact_timings_.at(kMapQuadToOpt.at(LF)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(RH)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(RF)) = {t_offset + c, f, c, f, c, f, c           };
+
+  min_phase_duration_ = 0.1;
+  max_phase_duration_ = GetTotalTime();
+//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+
+  constraints_ = {
+//      State,
+//      JunctionCom,
+      RomBox,
+      Dynamic,
+      TotalTime,
+  };
+
+  cost_weights_ = {
+//      {ForcesCostID, 1.0},
+//      {ComCostID, 1.0}
+  };
+}
 
 
 
@@ -579,5 +725,6 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 //}
 
 } // namespace opt
-} // namespace xpp
+}// namespace xpp
+
 

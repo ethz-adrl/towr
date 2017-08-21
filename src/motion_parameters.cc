@@ -10,23 +10,19 @@
 namespace xpp {
 namespace opt {
 
-MotionParameters::~MotionParameters ()
-{
-}
-
-MotionParameters::ContactSchedule
-MotionParameters::GetContactSchedule () const
-{
-  ContactSchedule phases;
-  for (int i=0; i<contact_sequence_.size(); ++i) {
-    double duration = contact_timings_.at(i);
-//    if (duration < 1e-10)
-//      continue; // skip phases with zero duration
-    phases.push_back(Phase(contact_sequence_.at(i), duration));
-  }
-
-  return phases;
-}
+//MotionParameters::ContactSchedule
+//MotionParameters::GetContactSchedule () const
+//{
+//  ContactSchedule phases;
+//  for (int i=0; i<contact_sequence_.size(); ++i) {
+//    double duration = contact_timings_.at(i);
+////    if (duration < 1e-10)
+////      continue; // skip phases with zero duration
+//    phases.push_back(Phase(contact_sequence_.at(i), duration));
+//  }
+//
+//  return phases;
+//}
 
 MotionParameters::MaxDevXYZ
 MotionParameters::GetMaximumDeviationFromNominal () const
@@ -50,7 +46,7 @@ double
 MotionParameters::GetTotalTime () const
 {
   double T = 0.0;
-  for (auto t : contact_timings_)
+  for (auto t : contact_timings_.at(E0)) // use leg 0 for calculation
     T += t;
 
   return T;
@@ -63,7 +59,8 @@ MotionParameters::GetBasePolyDurations () const
   double dt = dt_base_polynomial_;
   double t_left = GetTotalTime();
 
-  while (t_left > 0.0) {
+  double eps = 1e-10; // since repeated subtraction causes inaccuracies
+  while (t_left > eps) {
     double duration = t_left>dt?  dt : t_left;
     base_spline_timings_.push_back(duration);
 
@@ -77,6 +74,10 @@ double
 MotionParameters::GetAvgZForce () const
 {
   return GetMass()*kGravity/GetEECount();
+}
+
+MotionParameters::~MotionParameters ()
+{
 }
 
 } // namespace opt

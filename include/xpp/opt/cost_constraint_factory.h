@@ -31,7 +31,7 @@ class Component;
   */
 class CostConstraintFactory {
 public:
-  using ConstraintPtr    = std::shared_ptr<Component>;
+  using ComponentPtr     = std::shared_ptr<Component>;
   using OptVarsContainer = std::shared_ptr<Composite>;
   using MotionParamsPtr  = std::shared_ptr<MotionParameters>;
   using Derivatives      = std::vector<MotionDerivative>;
@@ -45,8 +45,8 @@ public:
             const State3dEuler& initial_base,
             const State3dEuler& final_base);
 
-  ConstraintPtr GetCost(CostName name) const;
-  ConstraintPtr GetConstraint(ConstraintName name) const;
+  ComponentPtr GetCost(const CostName& id, double weight) const;
+  ComponentPtr GetConstraint(ConstraintName name) const;
 
 private:
   MotionParamsPtr params;
@@ -59,19 +59,20 @@ private:
 
 
   // constraints
-  ConstraintPtr MakeStateConstraint() const;
-  ConstraintPtr MakeJunctionConstraint() const;
-  ConstraintPtr MakeDynamicConstraint() const;
-  ConstraintPtr MakeRangeOfMotionBoxConstraint() const;
-  ConstraintPtr MakeTotalTimeConstraint() const;
+  ComponentPtr MakeStateConstraint() const;
+  ComponentPtr MakeJunctionConstraint() const;
+  ComponentPtr MakeDynamicConstraint() const;
+  ComponentPtr MakeRangeOfMotionBoxConstraint() const;
+  ComponentPtr MakeTotalTimeConstraint() const;
 
   // costs
-  ConstraintPtr MakeMotionCost(double weight) const;
-  ConstraintPtr MakePolynomialCost(const std::string& poly_id,
+  ComponentPtr MakeForcesCost(double weight) const;
+  ComponentPtr MakeMotionCost(double weight) const;
+  ComponentPtr MakePolynomialCost(const std::string& poly_id,
                                    const Vector3d& weight_dimensions,
                                    double weight) const;
 
-  ConstraintPtr ToCost(const ConstraintPtr& constraint, double weight) const;
+  ComponentPtr ToCost(const ComponentPtr& constraint, double weight) const;
 };
 
 } /* namespace opt */
