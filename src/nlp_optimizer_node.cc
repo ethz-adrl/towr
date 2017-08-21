@@ -81,11 +81,16 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 
   PublishOptParameters();
 
-  if (!msg.replay_trajectory)
+  if (msg.optimize) {
     OptimizeMotion();
+    SaveAsRosbag(BuildTrajectory(), BuildOptParameters());
+  }
 
-  PublishTrajectory();
-  SaveAsRosbag(BuildTrajectory(), BuildOptParameters());
+  if (msg.replay_trajectory || msg.optimize) {
+    PublishTrajectory();
+    // play back the rosbag hacky like this, as I can't find appropriate C++ API.
+    system(("rosbag play --quiet "+ rosbag_name_).c_str());
+  }
 }
 
 void
@@ -171,9 +176,6 @@ NlpOptimizerNode::SaveAsRosbag (const TrajMsg& traj_msg,
   }
 
   bag.close();
-
-  // play back the rosbag hacky like this, as I can't find appropriate C++ API.
-  system(("rosbag play --quiet "+ rosbag_name_).c_str());
 }
 
 

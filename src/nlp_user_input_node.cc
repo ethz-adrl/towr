@@ -201,6 +201,7 @@ void NlpUserInputNode::PublishCommand()
   msg.replay_trajectory = replay_trajectory_;
   msg.use_solver_snopt  = use_solver_snopt_;
   msg.vel_disturbance   = velocity_disturbance_;
+  msg.optimize          = command_==Command::kStartWalking? true : false;
   user_command_pub_.publish(msg);
 
   switch (command_) {
