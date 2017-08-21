@@ -85,6 +85,7 @@ private:
   * do any evaluation, but only stitches together the results of the
   * components it is holding.
   */
+// zmp_ rename to
 class Composite : public Component {
 public:
   using ComponentPtr = std::shared_ptr<Component>;
@@ -101,12 +102,18 @@ public:
   Composite(const std::string name, bool append_components);
   virtual ~Composite() {};
 
+  ComponentPtr GetComponent(std::string name) const;
+
+
   /** @brief Adds a component to this composite.
-    */
-  void AddComponent (const ComponentPtr&);
+   *
+   * @param use     If false, then the composite will simply hold the pointer to
+   *                this component, but will be ignored it in all operations
+   *                except "GetComponent()".
+   */
+  void AddComponent (const ComponentPtr&, bool use=true);
   void ClearComponents();
   ComponentVec GetComponents() const;
-  ComponentPtr GetComponent(std::string name) const;
   int GetComponentCount() const;
 
   VectorXd GetValues   () const override;
@@ -119,6 +126,7 @@ public:
 private:
   bool append_components_;
   ComponentVec components_;
+  ComponentVec components_fixed_; // these are not optimized over
 };
 
 
@@ -127,6 +135,7 @@ private:
   * Classes that derive from this represent the actual "meat".
   * But somehow also just a Composite of OptimizationVariables.
   */
+// zmp_ rename to constraint?
 class Primitive : public Component {
 public:
   using OptVarsPtr = std::shared_ptr<Composite>;

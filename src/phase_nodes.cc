@@ -110,9 +110,9 @@ PhaseNodes::OverlayMotionBounds (VecBound bounds) const
       if (node.dim_ == Z) {
         bounds.at(idx) = Bound(z_start, z_start); // ground is at zero height
 
-        // to add different terrain heights
-        if (idx>1./2*GetRows())
-          bounds.at(idx) = Bound(z_new, z_new); // ground is at zero height
+//        // to add different terrain heights
+//        if (idx>1./2*GetRows())
+//          bounds.at(idx) = Bound(z_new, z_new); // ground is at zero height
       }
     }
   }

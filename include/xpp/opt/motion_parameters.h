@@ -8,8 +8,6 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
 
-#include <array>
-#include <map>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -17,6 +15,7 @@
 
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
+#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
@@ -45,6 +44,7 @@ public:
   using UsedConstraints  = std::vector<ConstraintName>;
 
   using VecTimes         = std::vector<double>;
+  using FixedVariables   = std::shared_ptr<Composite>;
 
   virtual ~MotionParameters();
 
@@ -58,6 +58,7 @@ public:
 
   VecTimes GetBasePolyDurations() const;
   double GetAvgZForce() const;
+  bool ConstraintExists(ConstraintName c) const;
 
 
   int ee_splines_per_swing_phase_;
@@ -78,6 +79,7 @@ public:
 
   EEVec robot_ee_;
   ContactTimings contact_timings_;
+
 
 protected:
   Eigen::Matrix3d interia_;

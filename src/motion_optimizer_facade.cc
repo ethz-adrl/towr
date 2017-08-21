@@ -32,7 +32,7 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  params_ = std::make_shared<HyQMotionParameters>();
+  params_ = std::make_shared<AnymalMotionParameters>();
   BuildDefaultInitialState();
   opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
 }
@@ -68,7 +68,8 @@ MotionOptimizerFacade::BuildVariables ()
                                                                  params_->contact_timings_.at(ee),
                                                                  params_->min_phase_duration_,
                                                                  params_->max_phase_duration_));
-    opt_variables_->AddComponent(contact_schedule.at(ee));
+    bool optimize_timings = params_->ConstraintExists(TotalTime);
+    opt_variables_->AddComponent(contact_schedule.at(ee), optimize_timings);
   }
 
 

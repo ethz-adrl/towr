@@ -150,14 +150,9 @@ HyQMotionParameters::HyQMotionParameters ()
   // range of motion constraint
   dt_range_of_motion_ = dt_base_polynomial_/2.;//0.1;
   // range of motion specifications for HyQ
-//  const double x_nominal_b = 0.28;
-//  const double y_nominal_b = 0.28;
-//  const double z_nominal_b = -0.58;
-
-//  // anymal values
-  const double x_nominal_b = 0.23;
-  const double y_nominal_b = 0.17;
-  const double z_nominal_b = -0.48;
+  const double x_nominal_b = 0.28;
+  const double y_nominal_b = 0.28;
+  const double z_nominal_b = -0.58;
 
 
   robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
@@ -210,7 +205,7 @@ AnymalMotionParameters::AnymalMotionParameters ()
   dt_dynamic_constraint_ = dt_base_polynomial_/2.0;
   force_splines_per_stance_phase_ = 3;
   // from pkg anymal_description/urdf/base/anymal_base_2_parameters
-  mass_    = 18.29;
+  mass_    = 18.29 + 4*2.0;
   interia_ = buildInertiaTensor( 0.268388530623900,
                                  0.884235660795284,
                                  0.829158678306482,
@@ -227,7 +222,7 @@ AnymalMotionParameters::AnymalMotionParameters ()
   const double z_nominal_b = -0.48;
   max_dev_xy_ << 0.15, 0.15, 0.10;
 
-  robot_ee_ = { EEID::E0, EEID::E1, EEID::E2, EEID::E3 };
+  robot_ee_ = { E0, E1, E2, E3 };
   nominal_stance_.SetCount(GetEECount());
   auto kMapQuadToOpt = Reverse(kMapOptToQuad);
   nominal_stance_.At(kMapQuadToOpt.at(LF)) = PosXYZ( x_nominal_b,   y_nominal_b, z_nominal_b);
@@ -254,7 +249,7 @@ AnymalMotionParameters::AnymalMotionParameters ()
 //      JunctionCom,
       RomBox,
       Dynamic,
-      TotalTime,
+//      TotalTime,
   };
 
   cost_weights_ = {

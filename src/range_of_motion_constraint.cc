@@ -34,6 +34,8 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear,  base_poly_durations);
   base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
   ee_spline_    = Spline::BuildSpline(opt_vars, id::GetEEMotionId(ee), {});
+
+  // this one shouldn't care where it gets the variable from!
   ee_timings_   = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
 
   SetRows(GetNumberOfNodes()*kDim3d);

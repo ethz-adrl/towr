@@ -42,6 +42,13 @@ MotionParameters::GetUsedConstraints () const
   return constraints_;
 }
 
+bool
+MotionParameters::ConstraintExists (ConstraintName c) const
+{
+  auto v = constraints_; // shorthand
+  return std::find(v.begin(), v.end(), c) != v.end();
+}
+
 double
 MotionParameters::GetTotalTime () const
 {
@@ -82,4 +89,5 @@ MotionParameters::~MotionParameters ()
 
 } // namespace opt
 } // namespace xpp
+
 

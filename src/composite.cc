@@ -78,14 +78,18 @@ Composite::Composite (const std::string name, bool append_components)
 }
 
 void
-Composite::AddComponent (const ComponentPtr& c)
+Composite::AddComponent (const ComponentPtr& c, bool use)
 {
-  components_.push_back(c);
+  if (use) {
+    components_.push_back(c);
 
-  if (append_components_)
-    SetRows(GetRows()+ c->GetRows());
+    if (append_components_)
+      SetRows(GetRows()+ c->GetRows());
+    else
+      SetRows(1); // composite holds costs
+  }
   else
-    SetRows(1); // composite holds costs
+    components_fixed_.push_back(c);
 }
 
 void
@@ -105,6 +109,10 @@ Composite::ComponentPtr
 Composite::GetComponent (std::string name) const
 {
   for (const auto& c : components_)
+    if (c->GetName() == name)
+      return c;
+
+  for (const auto& c : components_fixed_)
     if (c->GetName() == name)
       return c;
 
