@@ -29,9 +29,9 @@ enum NlpSolver { Ipopt, Snopt };
   */
 class NLP {
 public:
-  using Number   = double;
-  using OptimizationVariablesPtr = std::shared_ptr<Component>;
-  using ConstraintPtrU = std::unique_ptr<Component>;
+  using Number                   = double;
+  using OptimizationVariablesPtr = std::shared_ptr<Composite>;
+  using ConstraintPtrU           = std::unique_ptr<Component>;
 
   NLP ();
   virtual ~NLP ();
@@ -57,16 +57,18 @@ public:
   void AddCost(ConstraintPtrU);
   void AddConstraint(ConstraintPtrU);
 
-  void PrintCurrent() const
-  {
-    opt_variables_->Print();
-    constraints_->Print();
-  };
+  void PrintCurrent() const;
+  void SaveCurrent();
+
+  OptimizationVariablesPtr GetOptVariables(int iter);
+  int GetIterationCount() const { return x_prev.size(); };
 
 private:
   ConstraintPtrU constraints_;
   ConstraintPtrU costs_;
   OptimizationVariablesPtr opt_variables_;
+
+  std::vector<VectorXd> x_prev;
 
   VectorXd ConvertToEigen(const Number* x) const;
 };

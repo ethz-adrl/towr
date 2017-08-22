@@ -157,6 +157,7 @@ SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
 
     // the jacobian of all the constraints
     nlp_->EvalNonzerosOfJacobian(x, G+i);
+    nlp_->SaveCurrent();
   }
 }
 

@@ -17,15 +17,11 @@ NLP::NLP ()
 {
 }
 
-NLP::~NLP ()
-{
-  // TODO Auto-generated destructor stub
-}
-
 void
 NLP::Init (const OptimizationVariablesPtr& opt_variables)
 {
   opt_variables_ = opt_variables;
+  x_prev.clear();
 }
 
 int
@@ -128,12 +124,37 @@ NLP::AddConstraint (ConstraintPtrU constraint)
   constraints_ = std::move(constraint);
 }
 
+void
+NLP::PrintCurrent() const
+{
+  opt_variables_->Print();
+  constraints_->Print();
+};
+
+void
+NLP::SaveCurrent()
+{
+  x_prev.push_back(opt_variables_->GetValues());
+}
+
+NLP::OptimizationVariablesPtr
+NLP::GetOptVariables (int iter)
+{
+  opt_variables_->SetValues(x_prev.at(iter));
+  return opt_variables_;
+}
+
 VectorXd
 NLP::ConvertToEigen(const Number* x) const
 {
   return Eigen::Map<const VectorXd>(x,GetNumberOfOptimizationVariables());
 }
 
+NLP::~NLP ()
+{
+}
+
 } /* namespace opt */
 } /* namespace xpp */
+
 

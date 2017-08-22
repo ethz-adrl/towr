@@ -162,7 +162,7 @@ HyQMotionParameters::HyQMotionParameters ()
   nominal_stance_.At(kMapQuadToOpt.at(RF)) = PosXYZ( x_nominal_b,  -y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(LH)) = PosXYZ(-x_nominal_b,   y_nominal_b, z_nominal_b);
   nominal_stance_.At(kMapQuadToOpt.at(RH)) = PosXYZ(-x_nominal_b,  -y_nominal_b, z_nominal_b);
-  max_dev_xy_ << 0.15, 0.15, 0.10;
+  max_dev_xy_ << 0.2, 0.15, 0.10;
 
 
   double f = 0.2; // [s] t_free
@@ -183,7 +183,7 @@ HyQMotionParameters::HyQMotionParameters ()
 //      JunctionCom,
       RomBox,
       Dynamic,
-      TotalTime,
+//      TotalTime,
   };
 
   cost_weights_ = {
@@ -196,7 +196,7 @@ HyQMotionParameters::HyQMotionParameters ()
 AnymalMotionParameters::AnymalMotionParameters ()
 {
   using namespace xpp::quad;
-  order_coeff_polys_  = 4;
+  order_coeff_polys_  = 4; // not used!
   dt_base_polynomial_ = 0.2; //s 0.05
   ee_splines_per_swing_phase_ = 1;
 
@@ -219,8 +219,8 @@ AnymalMotionParameters::AnymalMotionParameters ()
   dt_range_of_motion_ = dt_base_polynomial_/2.;
   const double x_nominal_b = 0.23;
   const double y_nominal_b = 0.17;
-  const double z_nominal_b = -0.48;
-  max_dev_xy_ << 0.15, 0.15, 0.10;
+  const double z_nominal_b = -0.45;
+  max_dev_xy_ << 0.20, 0.15, 0.1;
 
   robot_ee_ = { E0, E1, E2, E3 };
   nominal_stance_.SetCount(GetEECount());

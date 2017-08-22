@@ -34,7 +34,6 @@ MotionOptimizerFacade::MotionOptimizerFacade ()
 {
   params_ = std::make_shared<AnymalMotionParameters>();
   BuildDefaultInitialState();
-  opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
 }
 
 MotionOptimizerFacade::~MotionOptimizerFacade ()
@@ -56,9 +55,10 @@ MotionOptimizerFacade::BuildDefaultInitialState ()
   }
 }
 
-void
-MotionOptimizerFacade::BuildVariables ()
+MotionOptimizerFacade::OptimizationVariablesPtr
+MotionOptimizerFacade::BuildVariables () const
 {
+  auto opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
   opt_variables_->ClearComponents();
 
 
@@ -143,7 +143,6 @@ MotionOptimizerFacade::BuildVariables ()
 //    }
 
 
-
     opt_variables_->AddComponent(spline);
   }
 
@@ -186,18 +185,15 @@ MotionOptimizerFacade::BuildVariables ()
 
 
   opt_variables_->Print();
+  return opt_variables_;
 }
 
 void
-MotionOptimizerFacade::SolveProblem (NlpSolver solver)
+MotionOptimizerFacade::BuildCostConstraints(const OptimizationVariablesPtr& opt_variables)
 {
-  BuildVariables();
-
   CostConstraintFactory factory;
-  factory.Init(opt_variables_, params_,
+  factory.Init(opt_variables, params_,
                initial_ee_W_, inital_base_, final_base_);
-
-  nlp.Init(opt_variables_);
 
   auto constraints = std::make_unique<Composite>("constraints", true);
   for (ConstraintName name : params_->GetUsedConstraints())
@@ -213,7 +209,15 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
 
   costs->Print();
   nlp.AddCost(std::move(costs));
+}
 
+void
+MotionOptimizerFacade::SolveProblem (NlpSolver solver)
+{
+  auto variables = BuildVariables();
+  nlp.Init(variables);
+
+  BuildCostConstraints(variables);
 
   switch (solver) {
     case Ipopt:   IpoptAdapter::Solve(nlp); break;
@@ -224,36 +228,51 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
   nlp.PrintCurrent();
 }
 
+MotionOptimizerFacade::NLPIterations
+MotionOptimizerFacade::GetTrajectories (double dt) const
+{
+  NLPIterations trajectories;
+
+  for (int iter=0; iter<nlp.GetIterationCount(); ++iter) {
+    auto opt_var = nlp.GetOptVariables(iter);
+    trajectories.push_back(BuildTrajectory(opt_var, params_, dt));
+  }
+
+  return trajectories;
+}
+
 MotionOptimizerFacade::RobotStateVec
-MotionOptimizerFacade::GetTrajectory (double dt) const
+MotionOptimizerFacade::BuildTrajectory (const OptimizationVariablesPtr& opt_variables,
+                                        const MotionParametersPtr& params,
+                                        double dt) const
 {
   RobotStateVec trajectory;
 
-  auto base_lin = Spline::BuildSpline(opt_variables_, id::base_linear, params_->GetBasePolyDurations());
-  auto base_ang = Spline::BuildSpline(opt_variables_, id::base_angular, params_->GetBasePolyDurations());
+  auto base_lin = Spline::BuildSpline(opt_variables, id::base_linear, params->GetBasePolyDurations());
+  auto base_ang = Spline::BuildSpline(opt_variables, id::base_angular, params->GetBasePolyDurations());
 
 
   using SplineT = std::shared_ptr<Spline>;
   std::vector<SplineT> ee_splines;
   std::vector<SplineT> ee_forces_spline;
   std::vector<std::shared_ptr<ContactSchedule>> contact_schedules;
-  int n_ee = params_->GetEECount();
+  int n_ee = params->GetEECount();
   for (int ee=0; ee<n_ee; ++ee) {
 
-    auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_variables_->GetComponent(id::GetEEScheduleId(ee)));
+    auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_variables->GetComponent(id::GetEEScheduleId(ee)));
     contact_schedules.push_back(contact_schedule);
 
-    auto ee_spline = Spline::BuildSpline(opt_variables_, id::GetEEMotionId(ee), {});
+    auto ee_spline = Spline::BuildSpline(opt_variables, id::GetEEMotionId(ee), {});
     ee_splines.push_back(ee_spline);
 
-    auto force_spline = Spline::BuildSpline(opt_variables_, id::GetEEForceId(ee), {});
+    auto force_spline = Spline::BuildSpline(opt_variables, id::GetEEForceId(ee), {});
     ee_forces_spline.push_back(force_spline);
   }
 
 
 
   double t=0.0;
-  double T = params_->GetTotalTime();
+  double T = params->GetTotalTime();
   while (t<=T+1e-5) {
 
     RobotStateCartesian state(n_ee);

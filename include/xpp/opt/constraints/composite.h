@@ -85,7 +85,6 @@ private:
   * do any evaluation, but only stitches together the results of the
   * components it is holding.
   */
-// zmp_ rename to
 class Composite : public Component {
 public:
   using ComponentPtr = std::shared_ptr<Component>;
@@ -127,6 +126,9 @@ private:
   bool append_components_;
   ComponentVec components_;
   ComponentVec components_fixed_; // these are not optimized over
+
+  // either deep copy or shallow copy of components_ must be chosen
+  Composite(const Composite& that) = delete;
 };
 
 

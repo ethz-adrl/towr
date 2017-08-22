@@ -157,6 +157,7 @@ bool IpoptAdapter::intermediate_callback(Ipopt::AlgorithmMode mode,
 //  std::cout << "Press Enter to continue...";
 //  std::cin.get(); // use to pause after every iteration
 //  nlp_->SendOutCurrentValues();
+  nlp_->SaveCurrent();
 	return true;
 }
 
@@ -169,6 +170,7 @@ void IpoptAdapter::finalize_solution(Ipopt::SolverReturn status,
 {
 
   nlp_->SetVariables(x);
+  nlp_->SaveCurrent();
 }
 
 void

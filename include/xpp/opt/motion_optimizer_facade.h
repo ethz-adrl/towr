@@ -29,12 +29,16 @@ public:
   using MotionParametersPtr      = std::shared_ptr<MotionParameters>;
   using OptimizationVariablesPtr = std::shared_ptr<Composite>;
   using RobotStateVec            = std::vector<RobotStateCartesian>;
+  using NLPIterations            = std::vector<RobotStateVec>;
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
 
   void SolveProblem(NlpSolver solver);
-  RobotStateVec GetTrajectory(double dt) const;
+  NLPIterations GetTrajectories(double dt) const;
+  RobotStateVec BuildTrajectory(const OptimizationVariablesPtr&,
+                                const MotionParametersPtr&,
+                                double dt) const;
 
   EndeffectorsPos initial_ee_W_;
   State3dEuler inital_base_;
@@ -44,11 +48,11 @@ public:
 
 private:
   void BuildDefaultInitialState();
-  void BuildVariables();
+  OptimizationVariablesPtr BuildVariables() const;
+  void BuildCostConstraints(const OptimizationVariablesPtr&);
 
-  OptimizationVariablesPtr opt_variables_;
   MotionParametersPtr params_;
-  NLP nlp;
+  mutable NLP nlp;
 };
 
 } /* namespace opt */
