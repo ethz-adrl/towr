@@ -10,6 +10,8 @@
 
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
+#include <rosbag/bag.h>
+
 #include <xpp_msgs/OptParameters.h>
 #include <xpp_msgs/RobotStateCartesian.h>  // receive from robot
 #include <xpp_msgs/RobotStateCartesianTrajectory.h>
@@ -28,14 +30,16 @@ public:
   using MotionOptimizerFacade = xpp::opt::MotionOptimizerFacade;
   using NlpSolver             = xpp::opt::NlpSolver;
   using TrajMsg               = xpp_msgs::RobotStateCartesianTrajectory;
+  using RobotStateVec         = MotionOptimizerFacade::RobotStateVec;
   using ParamsMsg             = xpp_msgs::OptParameters;
+  using NLPIterations         = MotionOptimizerFacade::NLPIterations;
 
 public:
   NlpOptimizerNode ();
   virtual ~NlpOptimizerNode () {};
 
 private:
-  void PublishTrajectory() const;
+//  void PublishTrajectory() const;
   void PublishOptParameters() const;
 
   void OptimizeMotion();
@@ -54,10 +58,11 @@ private:
   NlpSolver solver_type_;
 
   void SetInitialState (const RobotStateCartesian& initial_state);
-  void SaveAsRosbag (const TrajMsg&, const ParamsMsg&) const;
 
+  void SaveOptimizationAsRosbag() const;
+  void SaveTrajectoryInRosbag (rosbag::Bag&, const RobotStateVec& traj,
+                               const std::string& topic) const;
   ParamsMsg BuildOptParameters() const;
-  TrajMsg   BuildTrajectory() const;
 };
 
 } /* namespace ros */

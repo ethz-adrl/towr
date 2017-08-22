@@ -6,12 +6,12 @@
  */
 
 #include <xpp/ros/nlp_optimizer_node.h>
+#include <std_msgs/Int32.h>
 
 #include <kindr/Core>
 
 #include <xpp/ros/ros_conversions.h>
 #include <xpp/ros/topic_names.h>
-#include <rosbag/bag.h>
 
 #include <xpp_msgs/RobotStateCartesianTrajectory.h> // publish
 #include <xpp_msgs/OptParameters.h> // publish
@@ -39,7 +39,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                     (xpp_msgs::opt_parameters, 1);
 
   dt_          = RosConversions::GetDoubleFromServer("/xpp/trajectory_dt");
-  rosbag_name_ = RosConversions::GetStringFromServer("/xpp/rosbag_name");
+  rosbag_name_ = RosConversions::GetStringFromServer("/xpp/rosbag_name") + ".bag";
 
 }
 
@@ -83,11 +83,12 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 
   if (msg.optimize) {
     OptimizeMotion();
-    SaveAsRosbag(BuildTrajectory(), BuildOptParameters());
+    SaveOptimizationAsRosbag ();
+//    SaveAsRosbag(BuildTrajectory(), BuildOptParameters());
   }
 
   if (msg.replay_trajectory || msg.optimize) {
-    PublishTrajectory();
+    // PublishTrajectory();
     // play back the rosbag hacky like this, as I can't find appropriate C++ API.
     system(("rosbag play --quiet "+ rosbag_name_).c_str());
   }
@@ -122,25 +123,11 @@ NlpOptimizerNode::BuildOptParameters() const
 }
 
 void
-NlpOptimizerNode::PublishTrajectory () const
-{
-  auto cart_traj_msg = BuildTrajectory();
-  cart_trajectory_pub_.publish(cart_traj_msg);
-}
-
-NlpOptimizerNode::TrajMsg
-NlpOptimizerNode::BuildTrajectory() const
-{
-  auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
-  return RosConversions::XppToRosCart(opt_traj_cartesian);
-}
-
-void
 NlpOptimizerNode::SetInitialState (const RobotStateCartesian& initial_state)
 {
   motion_optimizer_.initial_ee_W_       = initial_state.GetEEPos();
 
-  motion_optimizer_.inital_base_ = State3dEuler(); // zero
+  motion_optimizer_.inital_base_     = State3dEuler(); // zero
   motion_optimizer_.inital_base_.lin = initial_state.GetBase().lin;
 
   kindr::RotationQuaternionD quat(initial_state.GetBase().ang.q);
@@ -151,34 +138,58 @@ NlpOptimizerNode::SetInitialState (const RobotStateCartesian& initial_state)
 }
 
 void
-NlpOptimizerNode::SaveAsRosbag (const TrajMsg& traj_msg,
-                                const ParamsMsg& params_msg) const
+NlpOptimizerNode::SaveOptimizationAsRosbag () const
 {
-  ROS_INFO_STREAM("Saving trajectory in " << rosbag_name_);
-  auto traj = ros::RosConversions::RosToXppCart(traj_msg);
-
-  // record this to be able to pause and playback later
   rosbag::Bag bag;
   bag.open(rosbag_name_, rosbag::bagmode::Write);
 
-  for (int i=0; i<traj.size(); ++i)
-  {
-    RobotStateCartesian state = traj.at(i);
-    double t_curr = state.GetTime();
-    auto timestamp = ::ros::Time(t_curr + 1e-6); // to avoid t=0.0
+  // save the a-priori fixed optimization variables
+  bag.write(xpp_msgs::opt_parameters, ::ros::Time(0.001), BuildOptParameters());
 
-    // add contant optimization parameters
-    // once would be enough, but ros seems to drop this message easily
-    bag.write(xpp_msgs::opt_parameters, timestamp, params_msg);
+  // save the trajectory of each iteration
+  auto trajectories = motion_optimizer_.GetTrajectories(dt_);
+  int n_iterations = trajectories.size();
+  for (int i=0; i<n_iterations; ++i)
+    SaveTrajectoryInRosbag(bag, trajectories.at(i), xpp_msgs::nlp_iterations_name + std::to_string(i));
 
-    auto state_msg = traj_msg.states.at(i);
-    bag.write(xpp_msgs::curr_robot_state, timestamp, state_msg);
-  }
+  // save number of iterations the optimizer took
+  std_msgs::Int32 m;
+  m.data = n_iterations;
+  bag.write(xpp_msgs::nlp_iterations_count, ::ros::Time(0.001), m);
+
+  // save the final trajectory
+  SaveTrajectoryInRosbag(bag, trajectories.back(), xpp_msgs::curr_robot_state);
 
   bag.close();
 }
 
+void
+NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
+                                          const RobotStateVec& traj,
+                                          const std::string& topic) const
+{
+  for (const auto state : traj) {
+    double t_curr = state.GetTime();
+    auto timestamp = ::ros::Time(t_curr +1e-6); // to avoid t=0.0
 
+    auto state_msg = ros::RosConversions::XppToRos(state);
+    bag.write(topic, timestamp, state_msg);
+  }
+}
+
+//void
+//NlpOptimizerNode::PublishTrajectory () const
+//{
+//  auto cart_traj_msg = BuildTrajectory();
+//  cart_trajectory_pub_.publish(cart_traj_msg);
+//}
+
+//NlpOptimizerNode::TrajMsg
+//NlpOptimizerNode::BuildTrajectory() const
+//{
+//  auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
+//  return RosConversions::XppToRosCart(opt_traj_cartesian);
+//}
 
 } /* namespace ros */
 } /* namespace xpp */
