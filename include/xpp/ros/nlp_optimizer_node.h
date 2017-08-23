@@ -13,10 +13,10 @@
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 #include <rosbag/bag.h>
+
+#include <xpp_msgs/RobotStateCartesian.h>
 #include <xpp_msgs/OptParameters.h>
-#include <xpp_msgs/RobotStateCartesian.h>  // receive from robot
-#include <xpp_msgs/RobotStateCartesianTrajectory.h>
-#include <xpp_msgs/UserCommand.h>          // receive from user
+#include <xpp_msgs/UserCommand.h>    // receive from user
 
 #include <xpp/motion_optimizer_facade.h>
 #include <xpp/nlp.h>
@@ -31,7 +31,6 @@ public:
   using UserCommandMsg        = xpp_msgs::UserCommand;
   using MotionOptimizerFacade = xpp::opt::MotionOptimizerFacade;
   using NlpSolver             = xpp::opt::NlpSolver;
-  using TrajMsg               = xpp_msgs::RobotStateCartesianTrajectory;
   using RobotStateVec         = MotionOptimizerFacade::RobotStateVec;
   using ParamsMsg             = xpp_msgs::OptParameters;
   using NLPIterations         = MotionOptimizerFacade::NLPIterations;

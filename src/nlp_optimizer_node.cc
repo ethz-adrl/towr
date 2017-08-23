@@ -40,15 +40,14 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                     &NlpOptimizerNode::CurrentStateCallback, this,
                                     ::ros::TransportHints().tcpNoDelay());
 
-  cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
-                                    (xpp_msgs::robot_trajectory_cart, 1);
+//  cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
+//                                    (xpp_msgs::robot_trajectory_cart, 1);
 
   opt_parameters_pub_  = n.advertise<xpp_msgs::OptParameters>
                                     (xpp_msgs::opt_parameters, 1);
 
   dt_          = RosConversions::GetDoubleFromServer("/xpp/trajectory_dt");
   rosbag_name_ = RosConversions::GetStringFromServer("/xpp/rosbag_name") + ".bag";
-
 }
 
 void
@@ -132,12 +131,12 @@ NlpOptimizerNode::BuildOptParameters() const
 void
 NlpOptimizerNode::SetInitialState (const RobotStateCartesian& initial_state)
 {
-  motion_optimizer_.initial_ee_W_       = initial_state.GetEEPos();
+  motion_optimizer_.initial_ee_W_ = initial_state.GetEEPos();
 
   motion_optimizer_.inital_base_     = State3dEuler(); // zero
-  motion_optimizer_.inital_base_.lin = initial_state.GetBase().lin;
+  motion_optimizer_.inital_base_.lin = initial_state.base_.lin;
 
-  kindr::RotationQuaternionD quat(initial_state.GetBase().ang.q);
+  kindr::RotationQuaternionD quat(initial_state.base_.ang.q);
   kindr::EulerAnglesZyxD euler(quat);
   euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
   motion_optimizer_.inital_base_.ang.p_ = euler.toImplementation().reverse();
@@ -176,8 +175,7 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
                                           const std::string& topic) const
 {
   for (const auto state : traj) {
-    double t_curr = state.GetTime();
-    auto timestamp = ::ros::Time(t_curr +1e-6); // to avoid t=0.0
+    auto timestamp = ::ros::Time(state.t_global_ +1e-6); // to avoid t=0.0
 
     auto state_msg = ros::RosConversions::XppToRos(state);
     bag.write(topic, timestamp, state_msg);

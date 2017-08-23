@@ -140,13 +140,6 @@ target_link_libraries(nlp_optimizer_node
   ${catkin_LIBRARIES}
 )  
                                                  
-add_executable(sample_nlp_caller 
-    src/executable/sample_nlp_caller.cc
-)
-target_link_libraries(sample_nlp_caller 
-  ${LIB_NAME}
-  ${catkin_LIBRARIES}
-)
 
 add_executable(nlp_user_input_node
     src/executable/nlp_user_input_node_exe.cc
@@ -155,6 +148,14 @@ target_link_libraries(nlp_user_input_node
   ${LIB_NAME}
   ${catkin_LIBRARIES}
 )
+
+#add_executable(sample_nlp_caller 
+#    src/executable/sample_nlp_caller.cc
+#)
+#target_link_libraries(sample_nlp_caller 
+#  ${LIB_NAME}
+#  ${catkin_LIBRARIES}
+#)
 
 #add_executable(qp_optimizer_node 
 #  src/executable/qp_optimizer_node_exe.cc

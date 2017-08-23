@@ -11,11 +11,8 @@
 #include <ros/ros.h>
 
 #include <xpp_msgs/StateLin3d.h>
+#include <xpp_msgs/State6d.h>
 #include <xpp_msgs/RobotStateCartesian.h>
-#include <xpp_msgs/RobotStateCartesianTrajectory.h>
-#include <xpp_msgs/Spline.h>
-#include <xpp_msgs/Contact.h>
-#include <xpp_msgs/ContactVector.h>
 
 #include <xpp/state.h>
 #include <xpp/robot_state_cartesian.h>
@@ -58,10 +55,9 @@ static std::string GetStringFromServer(const std::string& ros_param_name) {
   return val;
 }
 
-using StateLin3dMsg = xpp_msgs::StateLin3d;
 
 static StateLin3d
-RosToXpp(const StateLin3dMsg& ros)
+RosToXpp(const xpp_msgs::StateLin3d& ros)
 {
   StateLin3d point;
   point.p_.x() = ros.pos.x;
@@ -79,10 +75,10 @@ RosToXpp(const StateLin3dMsg& ros)
   return point;
 }
 
-static StateLin3dMsg
+static xpp_msgs::StateLin3d
 XppToRos(const StateLin3d& xpp)
 {
-  StateLin3dMsg ros;
+  xpp_msgs::StateLin3d ros;
   ros.pos.x = xpp.p_.x();
   ros.pos.y = xpp.p_.y();
   ros.pos.z = xpp.p_.z();
@@ -143,12 +139,10 @@ XppToRos(const Eigen::Quaterniond xpp)
   return ros;
 }
 
-using BaseStateMsg = xpp_msgs::BaseState;
-
-static BaseStateMsg
+static xpp_msgs::State6d
 XppToRos(const State3d& xpp)
 {
-  BaseStateMsg msg;
+  xpp_msgs::State6d msg;
 
   msg.pose.position = XppToRos<geometry_msgs::Point>(xpp.lin.p_);
   msg.twist.linear  = XppToRos<geometry_msgs::Vector3>(xpp.lin.v_);
@@ -162,7 +156,7 @@ XppToRos(const State3d& xpp)
 }
 
 static State3d
-RosToXpp(const BaseStateMsg& ros)
+RosToXpp(const xpp_msgs::State6d& ros)
 {
   State3d xpp;
 
@@ -177,104 +171,155 @@ RosToXpp(const BaseStateMsg& ros)
   return xpp;
 }
 
-
-using RobotStateCommonMsg = xpp_msgs::RobotStateCommon;
-
-static RobotStateCommon
-RosToXpp(const RobotStateCommonMsg& ros)
+static xpp_msgs::RobotStateCartesian
+XppToRos(const RobotStateCartesian& xpp)
 {
-  int n_ee            = ros.ee_in_contact.size();
-  RobotStateCommon xpp(n_ee);
+  xpp_msgs::RobotStateCartesian ros;
 
-  xpp.base_          = RosToXpp(ros.base);
-  xpp.t_global_      = ros.t_global;
+  ros.base            = XppToRos(xpp.base_);
+  ros.time_from_start = ::ros::Duration(xpp.t_global_);
 
-  RobotStateCommon::ContactState contact_state(n_ee);
-  for (int ee=0; ee<n_ee; ++ee)
-    xpp.is_contact_.At(static_cast<EEID>(ee)) = ros.ee_in_contact.at(ee);
-
-  return xpp;
-}
-
-static RobotStateCommonMsg
-XppToRos(const RobotStateCommon& xpp)
-{
-  RobotStateCommonMsg ros;
-
-  ros.base          = XppToRos(xpp.base_);
-  ros.t_global      = xpp.t_global_;
-
-  for (auto ee : xpp.is_contact_.GetEEsOrdered()) {
-    ros.ee_in_contact.push_back(xpp.is_contact_.At(ee));
+  for (auto ee : xpp.ee_contact_.GetEEsOrdered()) {
+    ros.ee_motion. push_back(XppToRos(xpp.ee_motion_.At(ee)));
+    ros.ee_contact.push_back(xpp.ee_contact_.At(ee));
+    ros.ee_forces. push_back(XppToRos<geometry_msgs::Vector3>(xpp.ee_forces_.At(ee)));
   }
 
   return ros;
 }
 
-
-using RobotStateCartesianMsg     = xpp_msgs::RobotStateCartesian;
-
-static RobotStateCartesianMsg
-XppToRos(const RobotStateCartesian& xpp)
-{
-  RobotStateCartesianMsg ros;
-
-  ros.common = XppToRos(xpp.GetCommon());
-
-  for (auto ee : xpp.GetEEState().ToImpl())
-    ros.feet.push_back(XppToRos(ee));
-
-  for (auto ee : xpp.GetEEForces().ToImpl())
-    ros.ee_forces.push_back(XppToRos<geometry_msgs::Vector3>(ee));
-
-  return ros;
-}
-
 static RobotStateCartesian
-RosToXpp(const RobotStateCartesianMsg& ros)
+RosToXpp(const xpp_msgs::RobotStateCartesian& ros)
 {
-  int n_ee = ros.feet.size();
+  int n_ee = ros.ee_motion.size();
   RobotStateCartesian xpp(n_ee);
 
-  xpp.SetCommon(RosToXpp(ros.common));
+  xpp.base_    = RosToXpp(ros.base);
+  xpp.t_global_ = ros.time_from_start.toSec();
 
-  RobotStateCartesian::FeetArray feet(n_ee);
-  int i=0;
-  for (auto state : ros.feet)
-    feet.At(static_cast<EEID>(i++)) = RosToXpp(state);
-  xpp.SetEEStateInWorld(feet);
-
-  i=0;
-  RobotStateCartesian::EEForces ee_forces(n_ee);
-  for (auto forces : ros.ee_forces)
-    ee_forces.At(static_cast<EEID>(i++)) = RosToXpp(forces);
-  xpp.SetEEForcesInWorld(ee_forces);
+  for (auto ee : xpp.ee_contact_.GetEEsOrdered()) {
+    xpp.ee_motion_.At(ee)  = RosToXpp(ros.ee_motion.at(ee));
+    xpp.ee_contact_.At(ee) = ros.ee_contact.at(ee);
+    xpp.ee_forces_.At(ee)  = RosToXpp(ros.ee_forces.at(ee));
+  }
 
   return xpp;
 }
 
-using RobotStateCartesianTrajMsg = xpp_msgs::RobotStateCartesianTrajectory;
 
-static RobotStateCartesianTrajMsg
-XppToRosCart(const std::vector<RobotStateCartesian>& xpp_traj)
-{
-  RobotStateCartesianTrajMsg msg;
-  for (auto& state : xpp_traj)
-    msg.states.push_back(XppToRos(state));
+//using RobotStateCommonMsg = xpp_msgs::RobotStateCommon;
+//
+//static RobotStateCommon
+//RosToXpp(const RobotStateCommonMsg& ros)
+//{
+//  int n_ee            = ros.ee_in_contact.size();
+//  RobotStateCommon xpp(n_ee);
+//
+//  xpp.base_          = RosToXpp(ros.base);
+//  xpp.t_global_      = ros.t_global;
+//
+//  RobotStateCommon::ContactState contact_state(n_ee);
+//  for (int ee=0; ee<n_ee; ++ee)
+//    xpp.is_contact_.At(static_cast<EEID>(ee)) = ros.ee_in_contact.at(ee);
+//
+//  return xpp;
+//}
+//
+//static RobotStateCommonMsg
+//XppToRos(const RobotStateCommon& xpp)
+//{
+//  RobotStateCommonMsg ros;
+//
+//  ros.base          = XppToRos(xpp.base_);
+//  ros.t_global      = xpp.t_global_;
+//
+//  for (auto ee : xpp.is_contact_.GetEEsOrdered()) {
+//    ros.ee_in_contact.push_back(xpp.is_contact_.At(ee));
+//  }
+//
+//  return ros;
+//}
 
-  return msg;
-}
 
-static std::vector<RobotStateCartesian>
-RosToXppCart(const RobotStateCartesianTrajMsg& msg)
-{
-  std::vector<RobotStateCartesian> xpp;
+//using RobotStateCartesianMsg     = xpp_msgs::RobotStateCartesian;
+//
+//static RobotStateCartesianMsg
+//XppToRos(const RobotStateCartesian& xpp)
+//{
+//  RobotStateCartesianMsg ros;
+//
+//  ros.common = XppToRos(xpp.GetCommon());
+//
+//  for (auto ee : xpp.GetEEState().ToImpl())
+//    ros.feet.push_back(XppToRos(ee));
+//
+//  for (auto ee : xpp.GetEEForces().ToImpl())
+//    ros.ee_forces.push_back(XppToRos<geometry_msgs::Vector3>(ee));
+//
+//  return ros;
+//}
+//
+//static RobotStateCartesian
+//RosToXpp(const RobotStateCartesianMsg& ros)
+//{
+//  int n_ee = ros.feet.size();
+//  RobotStateCartesian xpp(n_ee);
+//
+//  xpp.SetCommon(RosToXpp(ros.common));
+//
+//  RobotStateCartesian::FeetArray feet(n_ee);
+//  int i=0;
+//  for (auto state : ros.feet)
+//    feet.At(static_cast<EEID>(i++)) = RosToXpp(state);
+//  xpp.SetEEStateInWorld(feet);
+//
+//  i=0;
+//  RobotStateCartesian::EEForces ee_forces(n_ee);
+//  for (auto forces : ros.ee_forces)
+//    ee_forces.At(static_cast<EEID>(i++)) = RosToXpp(forces);
+//  xpp.SetEEForcesInWorld(ee_forces);
+//
+//  return xpp;
+//}
 
-  for (const auto& state : msg.states)
-    xpp.push_back(RosToXpp(state));
 
-  return xpp;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+//using RobotStateCartesianTrajMsg = xpp_msgs::RobotStateCartesianTrajectory;
+//
+//static RobotStateCartesianTrajMsg
+//XppToRosCart(const std::vector<RobotStateCartesian>& xpp_traj)
+//{
+//  RobotStateCartesianTrajMsg msg;
+//  for (auto& state : xpp_traj)
+//    msg.states.push_back(XppToRos(state));
+//
+//  return msg;
+//}
+//
+//static std::vector<RobotStateCartesian>
+//RosToXppCart(const RobotStateCartesianTrajMsg& msg)
+//{
+//  std::vector<RobotStateCartesian> xpp;
+//
+//  for (const auto& state : msg.states)
+//    xpp.push_back(RosToXpp(state));
+//
+//  return xpp;
+//}
+
+
 
 //using ContactMsg       = xpp_msgs::Contact;
 //using ContactVectorMsg = xpp_msgs::ContactVector;
