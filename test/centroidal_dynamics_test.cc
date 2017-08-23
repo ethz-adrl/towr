@@ -5,19 +5,8 @@
  @brief   Brief description
  */
 
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
-#include <iostream>
-
 #include <gtest/gtest.h>
-#include <xpp/cartesian_declarations.h>
-#include <xpp/endeffectors.h>
-#include <xpp/state.h>
-
-#include <Eigen/src/Core/IO.h>
-#include <xpp/opt/angular_state_converter.h>
-#include <xpp/opt/centroidal_model.h>
-#include <xpp/opt/constraints/composite.h>
+#include <xpp/angular_state_converter.h>
 
 namespace xpp {
 namespace opt {

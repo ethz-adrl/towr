@@ -10,9 +10,9 @@
 
 #include <vector>
 
+#include <xpp/composite.h>
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
-#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {

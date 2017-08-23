@@ -5,27 +5,25 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/cost_constraint_factory.h>
+#include <xpp/cost_constraint_factory.h>
 
 #include <cassert>
-#include <Eigen/Dense>
 #include <initializer_list>
-#include <map>
 #include <stdexcept>
-#include <string>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 
-#include <xpp/cartesian_declarations.h>
-#include <xpp/endeffectors.h>
-#include <xpp/opt/angular_state_converter.h>
-#include <xpp/opt/centroidal_model.h>
-#include <xpp/opt/constraints/dynamic_constraint.h>
-#include <xpp/opt/constraints/range_of_motion_constraint.h>
-#include <xpp/opt/constraints/spline_constraint.h>
-#include <xpp/opt/costs/node_cost.h>
-#include <xpp/opt/costs/soft_constraint.h>
-#include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/spline.h>
-#include <xpp/opt/variables/variable_names.h>
+#include <xpp/angular_state_converter.h>
+#include <xpp/centroidal_model.h>
+#include <xpp/constraints/dynamic_constraint.h>
+#include <xpp/constraints/range_of_motion_constraint.h>
+#include <xpp/constraints/spline_constraint.h>
+#include <xpp/costs/node_cost.h>
+#include <xpp/costs/soft_constraint.h>
+#include <xpp/variables/contact_schedule.h>
+#include <xpp/variables/spline.h>
+#include <xpp/variables/variable_names.h>
+
 
 namespace xpp {
 namespace opt {

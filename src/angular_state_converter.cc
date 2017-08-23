@@ -5,17 +5,12 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/angular_state_converter.h>
+#include <xpp/angular_state_converter.h>
 
 #include <cassert>
 #include <cmath>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
-
-#include <xpp/cartesian_declarations.h>
-#include <xpp/state.h>
-
-#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {

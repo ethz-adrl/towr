@@ -10,12 +10,13 @@
 
 #include <array>
 #include <memory>
+#include <Eigen/Dense>
 
-#include <xpp/cartesian_declarations.h>
-#include <xpp/state.h>
+#include "cartesian_declarations.h"
+#include "composite.h"
+#include "state.h"
+#include <xpp/variables/spline.h>
 
-#include <xpp/opt/constraints/composite.h>
-#include <xpp/opt/variables/spline.h>
 
 namespace xpp {
 namespace opt {

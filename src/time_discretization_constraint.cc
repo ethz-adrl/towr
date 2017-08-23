@@ -5,8 +5,13 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/constraints/time_discretization_constraint.h>
+#include <xpp/constraints/time_discretization_constraint.h>
+
 #include <cmath>
+#include <initializer_list>
+#include <Eigen/Dense>
+
+#include <xpp/bound.h>
 
 namespace xpp {
 namespace opt {

@@ -5,14 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/variables/phase_nodes.h>
-
-#include <string>
-#include <vector>
+#include <xpp/variables/phase_nodes.h>
 
 #include <xpp/cartesian_declarations.h>
-#include <xpp/opt/bound.h>
-#include <xpp/opt/variables/node_values.h>
+#include <xpp/variables/node_values.h>
 
 namespace xpp {
 namespace opt {

@@ -11,8 +11,9 @@
 #include <memory>
 #include <string>
 
-#include <xpp/opt/constraints/composite.h>
-#include <xpp/opt/variables/node_values.h>
+#include <xpp/cartesian_declarations.h>
+#include <xpp/composite.h>
+#include <xpp/variables/node_values.h>
 
 namespace xpp {
 namespace opt {

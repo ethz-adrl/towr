@@ -5,7 +5,12 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/costs/node_cost.h>
+#include <xpp/costs/node_cost.h>
+
+#include <cmath>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
 
 namespace xpp {
 namespace opt {

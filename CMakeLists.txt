@@ -19,7 +19,8 @@ if(BUILD_SNOPT)
 endif(BUILD_SNOPT)
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++14")
+
 
 set(MOTION_OPT_LIB xpp_opt)
 set(SOLVER_LIB xpp_solve)         # 
@@ -142,12 +143,10 @@ if(BUILD_TESTS)
                         test/google/helpers.cc
 #                        test/google/lip_model_test.cc
 #                        test/google/polynomial_test.cc
-                        test/google/motion_optimizer_facade_test.cc
 #                        test/google/ee_phase_motion_test.cc
 #                        test/google/ee_motion_test.cc
                         test/dynamic_constraint_test.cc
 #                        test/endeffectors_test.cc
-                        test/contact_schedule_test.cc
                         test/centroidal_dynamics_test.cc
                         )
                

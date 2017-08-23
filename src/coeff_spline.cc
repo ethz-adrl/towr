@@ -5,7 +5,15 @@
  @brief   Defines the coeff_spline.
  */
 
-#include <xpp/opt/variables/coeff_spline.h>
+#include <xpp/variables/coeff_spline.h>
+
+#include <tuple>
+#include <utility>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/composite.h>
+#include <xpp/polynomial.h>
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {

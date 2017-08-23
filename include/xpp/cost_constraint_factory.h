@@ -9,13 +9,15 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 
 #include <memory>
+#include <string>
+#include <vector>
 
-#include <xpp/robot_state_cartesian.h>
+#include <xpp/cartesian_declarations.h>
+#include <xpp/composite.h>
+#include <xpp/endeffectors.h>
 #include <xpp/state.h>
 
-//#include "linear_spline_equations.h"
 #include "motion_parameters.h"
-#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {

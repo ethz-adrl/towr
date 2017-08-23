@@ -11,9 +11,11 @@
 #include <string>
 #include <vector>
 
-#include <xpp/opt/bound.h>
+#include <xpp/bound.h>
+#include <xpp/composite.h>
 
 #include "node_values.h"
+
 
 namespace xpp {
 namespace opt {

@@ -5,15 +5,14 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/constraints/dynamic_constraint.h>
+#include <xpp/constraints/dynamic_constraint.h>
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
 #include <xpp/endeffectors.h>
-#include <xpp/opt/variables/spline.h>
-#include <xpp/opt/variables/variable_names.h>
 #include <xpp/state.h>
+#include <xpp/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {

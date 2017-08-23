@@ -5,17 +5,12 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/variables/node_values.h>
+#include <xpp/variables/node_values.h>
 
-#include <array>
-#include <cmath>
-#include <tuple>
-#include <utility>
+#include <vector>
 
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
-
-#include <xpp/opt/variables/variable_names.h>
+#include <xpp/composite.h>
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {

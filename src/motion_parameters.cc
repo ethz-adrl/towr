@@ -5,7 +5,12 @@
 @brief   Brief description
  */
 
-#include <xpp/opt/motion_parameters.h>
+#include <xpp/motion_parameters.h>
+
+#include <algorithm>
+#include <iterator>
+
+#include <xpp/cartesian_declarations.h>
 
 namespace xpp {
 namespace opt {

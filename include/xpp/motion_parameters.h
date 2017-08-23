@@ -8,14 +8,14 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
 
+#include <Eigen/Dense>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <Eigen/Dense>
 
+#include <xpp/composite.h>
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
-#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {

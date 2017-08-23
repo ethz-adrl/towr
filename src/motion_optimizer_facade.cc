@@ -5,27 +5,26 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/motion_optimizer_facade.h>
+#include <xpp/motion_optimizer_facade.h>
 
 #include <algorithm>
 #include <cassert>
 #include <deque>
-#include <Eigen/Dense>
 #include <string>
+#include <tuple>
 #include <utility>
+#include <Eigen/Dense>
 
-#include <xpp/endeffectors.h>
-
-#include <xpp/opt/angular_state_converter.h>
-#include <xpp/opt/cost_constraint_factory.h>
-#include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/spline.h>
-#include <xpp/opt/variables/node_values.h>
-#include <xpp/opt/variables/variable_names.h>
-#include <xpp/opt/motion_parameter_instances.h>
-
-#include <xpp/opt/ipopt_adapter.h>
-#include <xpp/opt/snopt_adapter.h>
+#include <xpp/angular_state_converter.h>
+#include <xpp/cartesian_declarations.h>
+#include <xpp/cost_constraint_factory.h>
+#include <xpp/ipopt_adapter.h>
+#include <xpp/motion_parameter_instances.h>
+#include <xpp/snopt_adapter.h>
+#include <xpp/variables/contact_schedule.h>
+#include <xpp/variables/phase_nodes.h>
+#include <xpp/variables/spline.h>
+#include <xpp/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {

@@ -11,12 +11,13 @@
 #include <memory>
 #include <vector>
 
+#include <xpp/composite.h>
+#include <xpp/endeffectors.h>
 #include <xpp/robot_state_cartesian.h>
 #include <xpp/state.h>
 
-#include <xpp/opt/nlp.h>
-#include <xpp/opt/constraints/composite.h>
 #include "motion_parameters.h"
+#include "nlp.h"
 
 namespace xpp {
 namespace opt {

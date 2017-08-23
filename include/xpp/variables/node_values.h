@@ -13,10 +13,10 @@
 #include <string>
 #include <vector>
 
+#include <xpp/bound.h>
 #include <xpp/cartesian_declarations.h>
-#include <xpp/opt/bound.h>
-#include <xpp/opt/constraints/composite.h>
-#include <xpp/opt/polynomial.h>
+#include <xpp/composite.h>
+#include <xpp/polynomial.h>
 #include <xpp/state.h>
 
 #include "spline.h"

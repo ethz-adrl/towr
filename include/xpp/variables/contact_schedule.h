@@ -12,9 +12,9 @@
 #include <string>
 #include <vector>
 
+#include <xpp/bound.h>
+#include <xpp/composite.h>
 #include <xpp/endeffectors.h>
-#include <xpp/opt/bound.h>
-#include <xpp/opt/constraints/composite.h>
 
 #include "phase_nodes.h"
 

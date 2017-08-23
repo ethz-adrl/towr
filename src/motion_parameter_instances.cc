@@ -5,7 +5,7 @@
  @brief   Specific values of the motion parameters corresponding to robots.
  */
 
-#include <xpp/opt/motion_parameter_instances.h>
+#include <xpp/motion_parameter_instances.h>
 
 #include <initializer_list>
 #include <map>

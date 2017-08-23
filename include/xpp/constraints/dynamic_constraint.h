@@ -12,15 +12,16 @@
 #include <string>
 #include <vector>
 
+#include <xpp/angular_state_converter.h>
+#include <xpp/bound.h>
 #include <xpp/cartesian_declarations.h>
-#include <xpp/opt/angular_state_converter.h>
-#include <xpp/opt/bound.h>
-#include <xpp/opt/dynamic_model.h>
-#include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/spline.h>
+#include <xpp/composite.h>
+#include <xpp/dynamic_model.h>
+#include <xpp/variables/contact_schedule.h>
+#include <xpp/variables/spline.h>
 
-#include "composite.h"
 #include "time_discretization_constraint.h"
+
 
 namespace xpp {
 namespace opt {

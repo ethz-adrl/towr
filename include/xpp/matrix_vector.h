@@ -9,9 +9,9 @@
 #ifndef XPP_OPT_INCLUDE_XPP_UTILS_MATRIX_VECTOR_H_
 #define XPP_OPT_INCLUDE_XPP_UTILS_MATRIX_VECTOR_H_
 
-#include <cassert>
 #include <stddef.h>
 #include <Eigen/Dense>
+
 
 namespace xpp {
 namespace opt {

@@ -9,14 +9,13 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_
 
 #include <cassert>
-#include <iostream>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <memory>
 #include <string>
 #include <vector>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
 
-#include <xpp/opt/bound.h>
+#include "bound.h"
 
 namespace xpp {
 namespace opt {
