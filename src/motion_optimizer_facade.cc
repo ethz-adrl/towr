@@ -75,11 +75,10 @@ MotionOptimizerFacade::BuildVariables () const
 
   // Endeffector Motions
   for (auto ee : params_->robot_ee_) {
-    auto nodes_motion = std::make_shared<PhaseNodes>(kDim3d,
-                                                     contact_schedule.at(ee)->GetContactSequence(),
-                                                     id::GetEEMotionId(ee),
-                                                     params_->ee_splines_per_swing_phase_,
-                                                     PhaseNodes::Motion);
+    auto nodes_motion = std::make_shared<EneffectorNodes>(kDim3d,
+                                                          contact_schedule.at(ee)->GetContactSequence(),
+                                                          id::GetEEMotionId(ee),
+                                                          params_->ee_splines_per_swing_phase_);
 
     Vector3d final_ee_pos_W = final_base_.lin.p_ + params_->GetNominalStanceInBase().At(ee);
     nodes_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
@@ -92,11 +91,11 @@ MotionOptimizerFacade::BuildVariables () const
 
   // Endeffector Forces
   for (auto ee : params_->robot_ee_) {
-    auto nodes_forces = std::make_shared<PhaseNodes>(kDim3d,
+    auto nodes_forces = std::make_shared<ForceNodes>(kDim3d,
                                                      contact_schedule.at(ee)->GetContactSequence(),
                                                      id::GetEEForceId(ee),
                                                      params_->force_splines_per_stance_phase_,
-                                                     PhaseNodes::Force);
+                                                     params_->GetForceLimit());
 
     Vector3d f_stance(0.0, 0.0, params_->GetAvgZForce());
     nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule.at(ee)->GetTimePerPhase());

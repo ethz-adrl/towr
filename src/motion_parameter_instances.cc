@@ -213,7 +213,7 @@ AnymalMotionParameters::AnymalMotionParameters ()
                                  0.000775392455422,
                                  -0.015184853445095,
                                  -0.000989297489507);
-  force_limit_ = 1000.0; // [N]
+  force_limit_ = 10000.0; // [N]
 
 
   // range of motion constraint

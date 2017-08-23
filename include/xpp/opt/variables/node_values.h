@@ -101,7 +101,7 @@ protected:
   bool durations_change_ = false;
   VecDurations poly_durations_;
   PolyInfoVec polynomial_info_;
-  VecBound bounds_;
+  mutable VecBound bounds_;
 
 
 private:

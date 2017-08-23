@@ -19,12 +19,10 @@ namespace xpp {
 namespace opt {
 
 class PhaseNodes : public NodeValues {
-public:
+protected:
   using ContactVector = std::vector<bool>;
-  enum Type {Force, Motion} type_;
 
-  using NodeValues::NodeValues;
-
+  enum Type {Force, Motion};
   PhaseNodes (int n_dim,
               const ContactVector& contact_schedule,
               const std::string& name,
@@ -32,6 +30,10 @@ public:
               Type type);
   ~PhaseNodes();
 
+public:
+  virtual void InitializeVariables(const VectorXd& initial_pos,
+                                   const VectorXd& final_pos,
+                                   const VecDurations& phase_durations) override;
 
   /** @brief called by contact schedule when variables are updated.
    *
@@ -39,23 +41,40 @@ public:
    */
   void UpdateDurations(const VecDurations& phase_durations);
 
-
-  virtual VecBound GetBounds () const override;
-
-
-  virtual void InitializeVariables(const VectorXd& initial_pos,
-                                   const VectorXd& final_pos,
-                                   const VecDurations& phase_durations) override;
-
 private:
-  VecBound OverlayMotionBounds (VecBound bounds) const;
-  VecBound OverlayForceBounds (VecBound bounds) const;
-
   PolyInfoVec BuildPolyInfos(const ContactVector& contact_schedule,
                              int n_polys_in_changing_phase,
                              Type type) const;
 
   VecDurations ConvertPhaseToSpline(const VecDurations& phase_durations) const;
+};
+
+
+class EneffectorNodes : public PhaseNodes {
+public:
+  EneffectorNodes (int n_dim,
+                   const ContactVector& contact_schedule,
+                   const std::string& name,
+                   int n_polys_in_changing_phase);
+  virtual ~EneffectorNodes();
+
+  virtual VecBound GetBounds() const override;
+};
+
+
+class ForceNodes : public PhaseNodes {
+public:
+  ForceNodes (int n_dim,
+              const ContactVector& contact_schedule,
+              const std::string& name,
+              int n_polys_in_changing_phase,
+              double force_max);
+  virtual ~ForceNodes();
+
+  virtual VecBound GetBounds() const override;
+
+private:
+  double f_max_;
 };
 
 } /* namespace opt */
