@@ -64,6 +64,12 @@ public:
   AnymalMotionParameters();
 };
 
+class QuadrotorMotionParameters : public MotionParameters {
+public:
+  QuadrotorMotionParameters();
+  virtual ~QuadrotorMotionParameters() {};
+};
+
 } // namespace opt
 } // namespace xpp
 

@@ -103,10 +103,15 @@ PhaseNodes::OverlayMotionBounds (VecBound bounds) const
     bool is_stance = GetNodeInfo(idx).size() == 2;
     auto node = GetNodeInfo(idx).front(); // bound idx by first node it represents
 
+    // keep feet above ground
+    if (node.dim_ == Z)
+      bounds.at(idx) = Bound(z_start, +1.0e20); // ground is at zero height
+
     if (is_stance) {
       if (node.deriv_ == kVel)
         bounds.at(idx) = kEqualityBound_;
 
+      // stay on ground if in contact
       if (node.dim_ == Z) {
         bounds.at(idx) = Bound(z_start, z_start); // ground is at zero height
 

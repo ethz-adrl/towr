@@ -58,6 +58,11 @@ public:
   void AddConstraint(ConstraintPtrU);
 
   void PrintCurrent() const;
+
+  /** @brief saves the current values of the optimization variables.
+   *
+   *  This is used to keep a history of the values for each NLP iterations.
+   */
   void SaveCurrent();
 
   OptimizationVariablesPtr GetOptVariables(int iter);

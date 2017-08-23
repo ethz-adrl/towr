@@ -86,19 +86,20 @@ BipedMotionParameters::BipedMotionParameters()
   force_limit_ = 10000.0; // [N]
 
   // range of motion specifictions for HyQ
-  const double z_nominal_b = -0.58;
-  const double y_nominal_b = 0.28;
+  const double z_nominal_b = -0.60;
+  const double y_nominal_b =  0.20;
   nominal_stance_.SetCount(robot_ee_.size());
   nominal_stance_.At(EEID::E0) = PosXYZ( 0.0,  y_nominal_b, z_nominal_b);
   nominal_stance_.At(EEID::E1) = PosXYZ( 0.0, -y_nominal_b, z_nominal_b);
-  max_dev_xy_ << 0.15, 0.15, 0.12;
+  max_dev_xy_ << 0.15, 0.15, 0.15;
 
 
   double f  = 0.2;
   double c = 0.2;
+  double offset = c;
   contact_timings_ = ContactTimings(GetEECount());
-  contact_timings_.at(E0) = {c, f, c, f, c, f, c, f, c};
-  contact_timings_.at(E1) = {c, f, c, f, c, f, c, f, c};
+  contact_timings_.at(E0) = {c+offset, f, c, f, c, f, c, f, c};
+  contact_timings_.at(E1) = {       c, f, c, f, c, f, c, f, c+offset};
 
 
   min_phase_duration_ = 0.1;
@@ -130,7 +131,7 @@ BipedMotionParameters::BipedMotionParameters()
 HyQMotionParameters::HyQMotionParameters ()
 {
   using namespace xpp::quad;
-  order_coeff_polys_  = 4; // only used with coefficient splines
+  order_coeff_polys_  = 4; // not used! only used with coefficient splines
   // since derivative of acceleration is nonsmooth at junctions, pay attention
   // to never evaluate at junction of base polynomial directly
   // (what i'm doing now! :-(
@@ -171,8 +172,8 @@ HyQMotionParameters::HyQMotionParameters ()
   contact_timings_ = ContactTimings(GetEECount());
   contact_timings_.at(kMapQuadToOpt.at(LH)) = {t_offset + c, f, c, f, c, f, c           };
   contact_timings_.at(kMapQuadToOpt.at(LF)) = {           c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(kMapQuadToOpt.at(RH)) = {           c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(kMapQuadToOpt.at(RF)) = {t_offset + c, f, c, f, c, f, c           };
+  contact_timings_.at(kMapQuadToOpt.at(RF)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(RH)) = {t_offset + c, f, c, f, c, f, c          };
 
   min_phase_duration_ = 0.1;
   max_phase_duration_ = GetTotalTime();
@@ -183,7 +184,7 @@ HyQMotionParameters::HyQMotionParameters ()
 //      JunctionCom,
       RomBox,
       Dynamic,
-//      TotalTime,
+      TotalTime,
   };
 
   cost_weights_ = {
@@ -249,7 +250,7 @@ AnymalMotionParameters::AnymalMotionParameters ()
 //      JunctionCom,
       RomBox,
       Dynamic,
-//      TotalTime,
+      TotalTime,
   };
 
   cost_weights_ = {
@@ -259,6 +260,70 @@ AnymalMotionParameters::AnymalMotionParameters ()
 }
 
 
+QuadrotorMotionParameters::QuadrotorMotionParameters ()
+{
+  using namespace xpp::quad;
+  order_coeff_polys_  = 4; // not used!
+  dt_base_polynomial_ = 0.2; //s 0.05
+  ee_splines_per_swing_phase_ = 1;
+
+
+  // dynamic constraint
+  dt_dynamic_constraint_ = dt_base_polynomial_/2.0;
+  force_splines_per_stance_phase_ = 3;
+  // from pkg xpp_urdfs/quadrotor_description/urdf/base/quadrotor.urdf
+  mass_    = 0.5; // [kg]
+  interia_ = buildInertiaTensor( 0.0023,
+                                 0.0023,
+                                 0.004,
+                                 0.0,
+                                 0.0,
+                                 0.0);
+  force_limit_ = 1000.0; // [N]
+
+
+  // range of motion constraint
+  dt_range_of_motion_ = dt_base_polynomial_/2.;
+  const double x_nominal_b = 0.22;
+  const double y_nominal_b = 0.22;
+  const double z_nominal_b = 0;
+  max_dev_xy_ << 0.0, 0.0, 0.0;
+
+  robot_ee_ = { E0, E1, E2, E3 };
+  nominal_stance_.SetCount(GetEECount());
+  auto kMapQuadToOpt = Reverse(kMapOptToRotor);
+  nominal_stance_.At(kMapQuadToOpt.at(L)) = PosXYZ( 0,   y_nominal_b, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(R)) = PosXYZ( 0,  -y_nominal_b, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(F)) = PosXYZ( x_nominal_b,   0, z_nominal_b);
+  nominal_stance_.At(kMapQuadToOpt.at(H)) = PosXYZ(-x_nominal_b,   0, z_nominal_b);
+
+
+  double f = 0.2; // [s] t_free
+  double c = 0.2; // [s] t_contact
+  double t_offset = f;
+  contact_timings_ = ContactTimings(GetEECount());
+  contact_timings_.at(kMapQuadToOpt.at(L)) = {t_offset + c, f, c, f, c, f, c           };
+  contact_timings_.at(kMapQuadToOpt.at(R)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(F)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(H)) = {t_offset + c, f, c, f, c, f, c           };
+
+  min_phase_duration_ = 0.1;
+  max_phase_duration_ = GetTotalTime();
+//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+
+  constraints_ = {
+//      State,
+//      JunctionCom,
+      RomBox,
+      Dynamic,
+//      TotalTime,
+  };
+
+  cost_weights_ = {
+//      {ForcesCostID, 1.0},
+//      {ComCostID, 1.0}
+  };
+}
 
 
 
@@ -721,5 +786,3 @@ AnymalMotionParameters::AnymalMotionParameters ()
 
 } // namespace opt
 }// namespace xpp
-
-

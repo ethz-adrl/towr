@@ -73,6 +73,7 @@ MotionOptimizerFacade::BuildVariables () const
   }
 
 
+  // Endeffector Motions
   for (auto ee : params_->robot_ee_) {
     auto nodes_motion = std::make_shared<PhaseNodes>(kDim3d,
                                                      contact_schedule.at(ee)->GetContactSequence(),
@@ -83,13 +84,13 @@ MotionOptimizerFacade::BuildVariables () const
     Vector3d final_ee_pos_W = final_base_.lin.p_ + params_->GetNominalStanceInBase().At(ee);
     nodes_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
     nodes_motion->AddStartBound(kPos, initial_ee_W_.At(ee).topRows<kDim2d>()); // only xy, z given by terrain
-    nodes_motion->AddFinalBound(kPos, final_ee_pos_W.topRows<kDim2d>());       // only xy, z given by terrain
+//    nodes_motion->AddFinalBound(kPos, final_ee_pos_W.topRows<kDim2d>());       // only xy, z given by terrain
 
     opt_variables_->AddComponent(nodes_motion);
     contact_schedule.at(ee)->AddObserver(nodes_motion);
   }
 
-// Endeffector Forces
+  // Endeffector Forces
   for (auto ee : params_->robot_ee_) {
     auto nodes_forces = std::make_shared<PhaseNodes>(kDim3d,
                                                      contact_schedule.at(ee)->GetContactSequence(),
@@ -124,17 +125,19 @@ MotionOptimizerFacade::BuildVariables () const
     spline->AddStartBound(kVel, init.v_);
     spline->AddFinalBound(kVel, final.v_);
 
-    if (id == id::base_linear)
+    if (id == id::base_linear) {
       spline->AddFinalBound(kPos, final.p_.topRows<kDim2d>()); // only xy, z given by terrain
+//      spline->SetBoundsAboveGround();
+    }
     if (id == id::base_angular)
       spline->AddFinalBound(kPos, final.p_); // roll, pitch, yaw bound
 
 
 
-//    // try to force jump
+//    // force intermediate jump
 //    if (id == id::base_linear) {
 //      Vector3d inter = (init.p_ + final.p_)/2.;
-//      inter.z() = 0.9;
+//      inter.z() = 0.8;
 //      spline->AddIntermediateBound(kPos, inter);
 //    }
 //

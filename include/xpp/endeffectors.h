@@ -114,7 +114,7 @@ static const std::map<EndeffectorID, FootID> kMapOptToBiped {
   { EndeffectorID::E0,  L},
   { EndeffectorID::E1,  R},
 };
-}
+} // namespace biped
 
 namespace quad {
 enum FootID { RF, LF, LH, RH };
@@ -125,7 +125,16 @@ static const std::map<EndeffectorID, FootID> kMapOptToQuad {
   { EndeffectorID::E2,  RH},
   { EndeffectorID::E3,  RF},
 };
-}
+
+enum RotorID { L, R, F, H };
+static const std::map<EndeffectorID, RotorID> kMapOptToRotor {
+  { EndeffectorID::E0,  L},
+  { EndeffectorID::E1,  F},
+  { EndeffectorID::E2,  R},
+  { EndeffectorID::E3,  H},
+};
+
+} // namespace quadruped
 
 template<typename T>
 static std::map<T, EndeffectorID> Reverse(std::map<EndeffectorID, T> map) {

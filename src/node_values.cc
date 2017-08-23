@@ -45,6 +45,7 @@ NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::str
   // default, non initialized values
   nodes_  = std::vector<Node>(poly_infos.size()+1);
   poly_durations_ = VecDurations(poly_infos.size(), 0.0);
+
   bounds_ = VecBound(GetRows(), kNoBound_);
 }
 
@@ -196,7 +197,6 @@ NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
   return jac;
 }
 
-
 void
 NodeValues::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
                           Jacobian& jac) const
@@ -214,6 +214,16 @@ NodeValues::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
       }
     }
   }
+}
+
+void
+NodeValues::SetBoundsAboveGround ()
+{
+  double z_height = 0.0;
+  for (int idx=0; idx<GetRows(); ++idx)
+    for (auto info : GetNodeInfo(idx))
+      if (info.deriv_==kPos && info.dim_==Z)
+        bounds_.at(idx) = Bound(z_height, +1.0e20);
 }
 
 void

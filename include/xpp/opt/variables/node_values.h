@@ -85,6 +85,8 @@ public:
 
   virtual VecBound GetBounds () const override { return bounds_;};
 
+  void SetBoundsAboveGround();
+
 
 
   VectorXd GetPositionValues() const;
