@@ -8,16 +8,18 @@
 #ifndef XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
 #define XPP_OPT_INCLUDE_XPP_ROS_NLP_OPTIMIZER_NODE_H_
 
+#include <string>
+
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 #include <rosbag/bag.h>
-
 #include <xpp_msgs/OptParameters.h>
 #include <xpp_msgs/RobotStateCartesian.h>  // receive from robot
 #include <xpp_msgs/RobotStateCartesianTrajectory.h>
 #include <xpp_msgs/UserCommand.h>          // receive from user
 
-#include <xpp/opt/motion_optimizer_facade.h>
+#include <xpp/motion_optimizer_facade.h>
+#include <xpp/nlp.h>
 #include <xpp/robot_state_cartesian.h>
 
 namespace xpp {

@@ -8,13 +8,13 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_ROS_NLP_USER_INPUT_NODE_H_
 
-#include <xpp/opt/motion_parameters.h>
-#include <xpp/state.h>
-
+#include <ros/publisher.h>
+#include <ros/subscriber.h>
 #include <geometry_msgs/Vector3.h>
 #include <keyboard/Key.h>
 #include <sensor_msgs/Joy.h>
-#include <ros/ros.h>
+
+#include <xpp/state.h>
 
 namespace xpp {
 namespace ros {

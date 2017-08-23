@@ -48,8 +48,8 @@ NlpUserInputNode::~NlpUserInputNode ()
 void
 NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
 {
-  const static double d_lin = 0.1; // [m]
-  const static double d_ang = 0.1; // [rad]
+  const static double d_lin = 0.1;  // [m]
+  const static double d_ang = 0.25; // [rad]
 
   switch (msg.code) {
     // desired goal positions

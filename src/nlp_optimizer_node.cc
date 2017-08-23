@@ -6,15 +6,23 @@
  */
 
 #include <xpp/ros/nlp_optimizer_node.h>
-#include <std_msgs/Int32.h>
 
+#include <cstdlib>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+#include <Eigen/Dense>
+
+#include <ros/ros.h>
+#include <std_msgs/Int32.h>
+#include <geometry_msgs/Point.h>
+#include <geometry_msgs/Vector3.h>
 #include <kindr/Core>
 
+#include <xpp/motion_parameters.h>
+#include <xpp/state.h>
 #include <xpp/ros/ros_conversions.h>
 #include <xpp/ros/topic_names.h>
-
-#include <xpp_msgs/RobotStateCartesianTrajectory.h> // publish
-#include <xpp_msgs/OptParameters.h> // publish
 
 namespace xpp {
 namespace ros {
@@ -84,7 +92,6 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
   if (msg.optimize) {
     OptimizeMotion();
     SaveOptimizationAsRosbag ();
-//    SaveAsRosbag(BuildTrajectory(), BuildOptParameters());
   }
 
   if (msg.replay_trajectory || msg.optimize) {

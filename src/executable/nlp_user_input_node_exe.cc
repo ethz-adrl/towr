@@ -5,6 +5,8 @@
 @brief   Start the nlp foothold optimization server
  */
 
+#include <ros/init.h>
+
 #include <xpp/ros/nlp_user_input_node.h>
 
 int main(int argc, char *argv[])
