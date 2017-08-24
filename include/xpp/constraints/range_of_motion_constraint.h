@@ -57,7 +57,7 @@ private:
 
   SplineT base_linear_;
   SplineT base_angular_;
-  SplineT ee_spline_;
+  SplineT ee_motion_;
   SchedulePtr ee_timings_;
 
   Vector3d max_deviation_from_nominal_;

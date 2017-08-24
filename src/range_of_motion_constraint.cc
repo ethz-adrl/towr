@@ -11,7 +11,6 @@
 #include <Eigen/Sparse>
 
 #include <xpp/cartesian_declarations.h>
-#include <xpp/variables/node_values.h>
 #include <xpp/variables/variable_names.h>
 
 namespace xpp {
@@ -29,9 +28,9 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   max_deviation_from_nominal_ = params->GetMaximumDeviationFromNominal();
   nominal_ee_pos_B            = params->GetNominalStanceInBase().At(ee);
 
-  base_linear_  = opt_vars->GetComponent<NodeValues>(id::base_linear);
-  base_angular_ = opt_vars->GetComponent<NodeValues>(id::base_angular);
-  ee_spline_    = opt_vars->GetComponent<NodeValues>(id::GetEEMotionId(ee));
+  base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
+  base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
+  ee_motion_    = opt_vars->GetComponent<Spline>(id::GetEEMotionId(ee));
 
   // this one shouldn't care where it gets the variable from!
   ee_timings_   = opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee));
@@ -55,7 +54,7 @@ RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) cons
 {
   Vector3d base_W = base_linear_->GetPoint(t).p_;
   MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
-  Vector3d pos_ee_B = b_R_w*(ee_spline_->GetPoint(t).p_ - base_W);
+  Vector3d pos_ee_B = b_R_w*(ee_motion_->GetPoint(t).p_ - base_W);
 
   g.middleRows(GetRow(k, X), kDim3d) = pos_ee_B;
 }
@@ -83,8 +82,8 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
     jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(t, id::GetEEMotionId(ee_));
   }
 
-  if (ee_spline_->DoVarAffectCurrentState(var_set,t)) {
-    jac.middleRows(row_start, kDim3d) = b_R_w*ee_spline_->GetJacobian(t,kPos);
+  if (ee_motion_->DoVarAffectCurrentState(var_set,t)) {
+    jac.middleRows(row_start, kDim3d) = b_R_w*ee_motion_->GetJacobian(t,kPos);
   }
 
   if (base_linear_->DoVarAffectCurrentState(var_set,t)) {
@@ -93,7 +92,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
 
   if (base_angular_->DoVarAffectCurrentState(var_set,t)) {
     Vector3d base_W   = base_linear_->GetPoint(t).p_;
-    Vector3d ee_pos_W = ee_spline_->GetPoint(t).p_;
+    Vector3d ee_pos_W = ee_motion_->GetPoint(t).p_;
     Vector3d r_W = ee_pos_W - base_W;
     jac.middleRows(row_start, kDim3d) = converter_.GetDerivativeOfRotationMatrixRowWrtCoeff(t,r_W, true);
   }

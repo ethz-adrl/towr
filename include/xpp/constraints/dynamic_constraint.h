@@ -42,7 +42,7 @@ private:
   SplineT base_linear_;
   SplineT base_angular_;
   std::vector<SplineT> ee_forces_;
-  std::vector<SplineT> ee_splines_;
+  std::vector<SplineT> ee_motion_;
   std::vector<SchedulePtr> ee_timings_;
 
   mutable DynamicModelPtr model_;

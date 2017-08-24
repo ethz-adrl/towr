@@ -255,13 +255,13 @@ MotionOptimizerFacade::BuildTrajectory (const OptimizationVariablesPtr& vars,
 
     RobotStateCartesian state(n_ee);
 
-    state.base_.lin = vars->GetComponent<NodeValues>(id::base_linear)->GetPoint(t);
-    state.base_.ang = AngularStateConverter::GetState(vars->GetComponent<NodeValues>(id::base_angular)->GetPoint(t));
+    state.base_.lin = vars->GetComponent<Spline>(id::base_linear)->GetPoint(t);
+    state.base_.ang = AngularStateConverter::GetState(vars->GetComponent<Spline>(id::base_angular)->GetPoint(t));
 
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
       state.ee_contact_.At(ee) = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->IsInContact(t);
-      state.ee_motion_.At(ee)  = vars->GetComponent<NodeValues>     (id::GetEEMotionId(ee))  ->GetPoint(t);
-      state.ee_forces_.At(ee)  = vars->GetComponent<NodeValues>     (id::GetEEForceId(ee))   ->GetPoint(t).p_;
+      state.ee_motion_.At(ee)  = vars->GetComponent<Spline>(id::GetEEMotionId(ee))->GetPoint(t);
+      state.ee_forces_.At(ee)  = vars->GetComponent<Spline>(id::GetEEForceId(ee))->GetPoint(t).p_;
     }
 
     state.t_global_ = t;
