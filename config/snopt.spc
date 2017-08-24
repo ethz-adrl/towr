@@ -28,8 +28,8 @@ Begin  TO NLP problem
 * Nonderivative linesearch
 
 * Convergence Tolerances
-  Major feasibility tolerance 1.0e-4  *target nonlinear constraint violation
-  Minor feasibility tolerance 1.0e-4  *for satisfying the QP bounds
+  Major feasibility tolerance 1.0e-3  *target nonlinear constraint violation
+  Minor feasibility tolerance 1.0e-3  *for satisfying the QP bounds
   Major optimality tolerance  1.0e-2  *target complementarity gap 
 
 End  TO NLP problem

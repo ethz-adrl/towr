@@ -83,9 +83,11 @@ MotionParameters::GetBasePolyDurations () const
 }
 
 double
-MotionParameters::GetAvgZForce () const
+MotionParameters::GetStandingZForce () const
 {
-  return GetMass()*kGravity/GetEECount();
+  double g = GetGravityAcceleration();
+  double m = GetMass();
+  return m*g/GetEECount();
 }
 
 MotionParameters::~MotionParameters ()

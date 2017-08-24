@@ -12,16 +12,31 @@
 
 #include <xpp/bound.h>
 #include <xpp/composite.h>
-#include <xpp/variables/node_values.h>
+#include <xpp/variables/phase_nodes.h>
 
 namespace xpp {
 namespace opt {
+
+class HeightMap {
+public:
+  HeightMap();
+  ~HeightMap();
+
+  double GetHeight(double x, double y) const;
+  double GetHeightDerivWrtX(double x, double y) const;
+  double GetHeightDerivWrtY(double x, double y) const;
+
+private:
+  double slope_;
+  double slope_start_;
+};
+
 
 class TerrainConstraint : public Constraint {
 public:
 
   TerrainConstraint (const OptVarsPtr& opt_vars,
-                     std::string ee_nodes_id);
+                     std::string ee_motion_id);
   virtual ~TerrainConstraint ();
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
@@ -29,9 +44,19 @@ public:
   VecBound GetBounds() const override;
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
+
+  double GetHeight(double x, double y) const;
+  double GetDerivativeWrtX(double x, double y) const;
+  double GetDerivativeWrtY(double x, double y) const;
+
 private:
-  NodeValues::Ptr node_values_;
+  EndeffectorNodes::Ptr ee_motion_;
+  HeightMap terrain_;
 };
+
+
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

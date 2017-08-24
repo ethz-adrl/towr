@@ -35,6 +35,7 @@ public:
 
   DynamicConstraint (const OptVarsPtr& opt_vars,
                      const DynamicModelPtr& m,
+                     double gravity,
                      double T, double dt);
   virtual ~DynamicConstraint ();
 
@@ -46,6 +47,7 @@ private:
   std::vector<SchedulePtr> ee_timings_;
 
   mutable DynamicModelPtr model_;
+  double gravity_;
   AngularStateConverter converter_;
 
   int GetRow(int node, Coords6D dimension) const;

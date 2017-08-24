@@ -43,6 +43,10 @@ public:
    */
   void UpdateDurations(const VecDurations& phase_durations);
 
+
+protected:
+  bool IsConstantNode(int node_id) const;
+
 private:
   PolyInfoVec BuildPolyInfos(const ContactVector& contact_schedule,
                              int n_polys_in_changing_phase,
@@ -52,13 +56,17 @@ private:
 };
 
 
-class EneffectorNodes : public PhaseNodes {
+class EndeffectorNodes : public PhaseNodes {
 public:
-  EneffectorNodes (int n_dim,
+  using Ptr = std::shared_ptr<EndeffectorNodes>;
+
+  EndeffectorNodes (int n_dim,
                    const ContactVector& contact_schedule,
                    const std::string& name,
                    int n_polys_in_changing_phase);
-  virtual ~EneffectorNodes();
+  virtual ~EndeffectorNodes();
+
+  bool IsContactNode(int node_id) const;
 
   virtual VecBound GetBounds() const override;
 };
@@ -72,6 +80,8 @@ public:
               int n_polys_in_changing_phase,
               double force_max);
   virtual ~ForceNodes();
+
+  bool IsSwingNode(int node_id) const;
 
   virtual VecBound GetBounds() const override;
 

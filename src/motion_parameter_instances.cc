@@ -198,7 +198,7 @@ AnymalMotionParameters::AnymalMotionParameters ()
 {
   using namespace xpp::quad;
   order_coeff_polys_  = 4; // not used!
-  dt_base_polynomial_ = 0.3; //s 0.05 // somehow this is should be coupled to swing time
+  dt_base_polynomial_ = 0.3; //s 0.05 // somehow this is is coupled to swing time
   ee_splines_per_swing_phase_ = 1;
 
 
@@ -219,9 +219,9 @@ AnymalMotionParameters::AnymalMotionParameters ()
   // range of motion constraint
   dt_range_of_motion_ = dt_base_polynomial_/2.;
   const double x_nominal_b = 0.33;  // wrt to hip 5cm
-  const double y_nominal_b = 0.12; // wrt to hip -3cm
+  const double y_nominal_b = 0.13; // wrt to hip -3cm
   const double z_nominal_b = -0.46; //
-  max_dev_xy_ << 0.20, 0.15, 0.1; // max leg length 58cm
+  max_dev_xy_ << 0.18, 0.13, 0.1; // max leg length 58cm
 
   robot_ee_ = { E0, E1, E2, E3 };
   nominal_stance_.SetCount(GetEECount());
@@ -237,9 +237,10 @@ AnymalMotionParameters::AnymalMotionParameters ()
   double t_offset = f;
   contact_timings_ = ContactTimings(GetEECount());
   contact_timings_.at(kMapQuadToOpt.at(LH)) = {t_offset + c, f, c, f, c, f, c           };
-  contact_timings_.at(kMapQuadToOpt.at(LF)) = {           c, f, c, f, c, f, c + t_offset};
   contact_timings_.at(kMapQuadToOpt.at(RH)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapQuadToOpt.at(LF)) = {           c, f, c, f, c, f, c + t_offset};
   contact_timings_.at(kMapQuadToOpt.at(RF)) = {t_offset + c, f, c, f, c, f, c           };
+
 
   min_phase_duration_ = 0.1;
   max_phase_duration_ = GetTotalTime();
@@ -250,6 +251,7 @@ AnymalMotionParameters::AnymalMotionParameters ()
 //      JunctionCom,
       RomBox,
       Dynamic,
+      Terrain,
 //      TotalTime,
   };
 

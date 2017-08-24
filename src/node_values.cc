@@ -42,6 +42,7 @@ NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::str
   poly_durations_ = VecDurations(poly_infos.size(), 0.0);
 
   bounds_ = VecBound(GetRows(), kNoBound_);
+  SetIndexMappings();
 }
 
 NodeValues::~NodeValues () {}
@@ -104,6 +105,26 @@ NodeValues::SetNodeMappings ()
   opt_to_spline_[opt_id].push_back(last_node_id);
 }
 
+void
+NodeValues::SetIndexMappings ()
+{
+  for (int idx=0; idx<GetRows(); ++idx) {
+    for (auto info : GetNodeInfo(idx)) {
+      node_info_to_idx[info] = idx;
+    }
+  }
+}
+
+int
+NodeValues::Index(int id, MotionDerivative deriv, int dim) const
+{
+  NodeInfo n;
+  n.id_ = id;
+  n.deriv_ = deriv;
+  n.dim_ = dim;
+  return node_info_to_idx.at(n);
+}
+
 std::vector<NodeValues::NodeInfo>
 NodeValues::GetNodeInfo (int idx) const
 {
@@ -125,6 +146,7 @@ NodeValues::GetNodeInfo (int idx) const
 
   return nodes;
 }
+
 
 VectorXd
 NodeValues::GetValues () const
@@ -222,6 +244,15 @@ NodeValues::SetBoundsAboveGround ()
 }
 
 void
+NodeValues::AddBounds(int node_id, MotionDerivative deriv,
+                      const std::vector<int>& dimensions,
+                      const VectorXd& val)
+{
+  for (auto dim : dimensions)
+    AddBound(node_id, deriv, dim, val(dim));
+}
+
+void
 NodeValues::AddBound (int node_id, MotionDerivative d, int dim, double val)
 {
   for (int idx=0; idx<GetRows(); ++idx)
@@ -231,30 +262,43 @@ NodeValues::AddBound (int node_id, MotionDerivative d, int dim, double val)
 }
 
 void
-NodeValues::AddStartBound (MotionDerivative d, const VectorXd& val)
+NodeValues::AddStartBound (MotionDerivative d,
+                           const std::vector<int>& dimensions,
+                           const VectorXd& val)
 {
-  for (int dim=0; dim<val.rows(); ++dim)
-    AddBound(0, d, dim, val(dim));
+  AddBounds(0, d, dimensions, val);
 }
 
 void
-NodeValues::AddFinalBound (MotionDerivative d, const VectorXd& val)
+NodeValues::AddFinalBound (MotionDerivative d,
+                           const std::vector<int>& dimensions,
+                           const VectorXd& val)
 {
-  for (int dim=0; dim<val.rows(); ++dim)
-    AddBound(nodes_.size()-1, d, dim, val(dim));
-}
-
-void
-NodeValues::AddIntermediateBound (MotionDerivative d, const VectorXd& val)
-{
-  for (int dim=0; dim<val.rows(); ++dim)
-    AddBound(nodes_.size()/2, d, dim, val(dim));
+  AddBounds(nodes_.size()-1, d, dimensions, val);
 }
 
 int
 NodeValues::GetNodeId (int poly_id, Side side) const
 {
   return poly_id + side;
+}
+
+std::vector<int>
+NodeValues::GetAdjacentPolyIds (int node_id) const
+{
+  std::vector<int> poly_ids;
+  int last_node_id = nodes_.size()-1;
+
+  if (node_id==0)
+    poly_ids.push_back(0);
+  else if (node_id==last_node_id)
+    poly_ids.push_back(last_node_id-1);
+  else {
+    poly_ids.push_back(node_id-1);
+    poly_ids.push_back(node_id);
+  }
+
+  return poly_ids;
 }
 
 VectorXd

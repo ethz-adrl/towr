@@ -18,6 +18,7 @@
 #include <xpp/constraints/dynamic_constraint.h>
 #include <xpp/constraints/range_of_motion_constraint.h>
 #include <xpp/constraints/spline_constraint.h>
+#include <xpp/constraints/terrain_constraint.h>
 #include <xpp/costs/node_cost.h>
 #include <xpp/costs/soft_constraint.h>
 #include <xpp/variables/contact_schedule.h>
@@ -60,6 +61,7 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
     case Dynamic:     return MakeDynamicConstraint();
     case RomBox:      return MakeRangeOfMotionBoxConstraint();
     case TotalTime:   return MakeTotalTimeConstraint();
+    case Terrain:     return MakeTerrainConstraint();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -167,6 +169,7 @@ CostConstraintFactory::MakeDynamicConstraint() const
   double dt = params->dt_dynamic_constraint_;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         dynamic_model,
+                                                        params->GetGravityAcceleration(),
                                                         params->GetTotalTime(),
                                                         dt
                                                         );
@@ -201,6 +204,19 @@ CostConstraintFactory::MakeTotalTimeConstraint () const
   for (auto ee : params->robot_ee_) {
     auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
     c->AddComponent(duration_constraint);
+  }
+
+  return c;
+}
+
+CostConstraintFactory::ComponentPtr
+CostConstraintFactory::MakeTerrainConstraint () const
+{
+  auto c = std::make_shared<Composite>("Terrain Constraints", true);
+
+  for (auto ee : params->robot_ee_) {
+    auto terrain = std::make_shared<TerrainConstraint>(opt_vars_, id::GetEEMotionId(ee));
+    c->AddComponent(terrain);
   }
 
   return c;

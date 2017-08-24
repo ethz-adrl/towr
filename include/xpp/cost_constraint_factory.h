@@ -66,6 +66,7 @@ private:
   ComponentPtr MakeDynamicConstraint() const;
   ComponentPtr MakeRangeOfMotionBoxConstraint() const;
   ComponentPtr MakeTotalTimeConstraint() const;
+  ComponentPtr MakeTerrainConstraint() const;
 
   // costs
   ComponentPtr MakeForcesCost(double weight) const;

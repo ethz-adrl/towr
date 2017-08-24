@@ -19,11 +19,14 @@ namespace opt {
 
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       const DynamicModelPtr& m,
+                                      double gravity,
                                       double T,
                                       double dt)
     :TimeDiscretizationConstraint(T, dt, opt_vars)
 {
   model_ = m;
+  gravity_ = gravity;
+
 
   SetName("DynamicConstraint");
   base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
@@ -72,7 +75,7 @@ DynamicConstraint::UpdateBoundsAtInstance(double t, int k, VecBound& bounds) con
 {
   for (auto dim : AllDim6D) {
     if (dim == LZ)
-      bounds.at(GetRow(k,dim)) = Bound(kGravity, kGravity);
+      bounds.at(GetRow(k,dim)) = Bound(gravity_, gravity_);
     else
       bounds.at(GetRow(k,dim)) = kEqualityBound_;
   }

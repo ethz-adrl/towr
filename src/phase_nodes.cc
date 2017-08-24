@@ -67,6 +67,20 @@ PhaseNodes::InitializeVariables (const VectorXd& initial_pos,
                                   ConvertPhaseToSpline(phase_durations));
 }
 
+bool
+PhaseNodes::IsConstantNode (int node_id) const
+{
+  bool is_constant = false;
+
+  // node is considered contact node if either left or right polynomial
+  // represents a contact phase
+  for (int poly_id : GetAdjacentPolyIds(node_id))
+    if (polynomial_info_.at(poly_id).is_constant_)
+      is_constant = true;
+
+  return is_constant;
+}
+
 PhaseNodes::VecDurations
 PhaseNodes::ConvertPhaseToSpline (const VecDurations& phase_durations) const
 {
@@ -80,7 +94,7 @@ PhaseNodes::ConvertPhaseToSpline (const VecDurations& phase_durations) const
 
 
 
-EneffectorNodes::EneffectorNodes (int n_dim,
+EndeffectorNodes::EndeffectorNodes (int n_dim,
                                   const ContactVector& contact_schedule,
                                   const std::string& name,
                                   int n_polys)
@@ -88,42 +102,31 @@ EneffectorNodes::EneffectorNodes (int n_dim,
 {
 }
 
-EneffectorNodes::~EneffectorNodes ()
+EndeffectorNodes::~EndeffectorNodes ()
 {
 }
 
-VecBound
-EneffectorNodes::GetBounds () const
+bool
+EndeffectorNodes::IsContactNode (int node_id) const
 {
-  double z_start = 0.0;
-  double z_new   = 0.4;
+  return IsConstantNode(node_id);
+}
 
+VecBound
+EndeffectorNodes::GetBounds () const
+{
   for (int idx=0; idx<GetRows(); ++idx) {
-    bool is_stance = GetNodeInfo(idx).size() == 2; // spring_clean_ this is hacky?
+
     auto node = GetNodeInfo(idx).front(); // bound idx by first node it represents
 
-    // keep feet above ground
-    if (node.dim_ == Z)
-      bounds_.at(idx) = Bound(z_start, +1.0e20); // ground is at zero height
-
-    if (is_stance) {
+    // endeffector is not allowed to move if in stance phase
+    if (IsContactNode(node.id_))
       if (node.deriv_ == kVel)
         bounds_.at(idx) = kEqualityBound_;
-
-      // stay on ground if in contact
-      if (node.dim_ == Z) {
-        bounds_.at(idx) = Bound(z_start, z_start); // ground is at zero height
-
-//        // to add different terrain heights
-//        if (idx>1./2*GetRows())
-//          bounds.at(idx) = Bound(z_new, z_new); // ground is at zero height
-      }
-    }
   }
 
   return bounds_;
 }
-
 
 
 
@@ -139,18 +142,24 @@ ForceNodes::~ForceNodes ()
 {
 }
 
+bool
+ForceNodes::IsSwingNode (int node_id) const
+{
+  return IsConstantNode(node_id);
+}
+
 VecBound
 ForceNodes::GetBounds () const
 {
   for (int idx=0; idx<GetRows(); ++idx) {
 
-    // no force or force velocity allowed during swingphase
-    bool is_swing_phase = GetNodeInfo(idx).size() == 2;
-    if (is_swing_phase)
-      bounds_.at(idx) = kEqualityBound_; // position and velocity must be zero
+    NodeInfo n0 = GetNodeInfo(idx).front(); // only one node anyway
+    bool is_swing = IsSwingNode(n0.id_);
+
+    if (is_swing)
+      bounds_.at(idx) = kEqualityBound_; // force must be zero
     else { // stance-phase -> forces can be applied
 
-      NodeInfo n0 = GetNodeInfo(idx).front(); // only one node anyway
 
       if (n0.deriv_ == kPos) {
 
@@ -163,7 +172,7 @@ ForceNodes::GetBounds () const
       }
 
       if (n0.deriv_ == kVel && n0.dim_ == Z) {
-        bounds_.at(idx) = kEqualityBound_; // zero slope to never exceed maximum height
+        bounds_.at(idx) = kEqualityBound_; // zero slope to never exceed zero force
       }
 
     }

@@ -74,15 +74,15 @@ MotionOptimizerFacade::BuildVariables () const
 
   // Endeffector Motions
   for (auto ee : params_->robot_ee_) {
-    auto nodes_motion = std::make_shared<EneffectorNodes>(kDim3d,
+    auto nodes_motion = std::make_shared<EndeffectorNodes>(kDim3d,
                                                           contact_schedule.at(ee)->GetContactSequence(),
                                                           id::GetEEMotionId(ee),
                                                           params_->ee_splines_per_swing_phase_);
 
     Vector3d final_ee_pos_W = final_base_.lin.p_ + params_->GetNominalStanceInBase().At(ee);
     nodes_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
-    nodes_motion->AddStartBound(kPos, initial_ee_W_.At(ee).topRows<kDim2d>()); // only xy, z given by terrain
-//    nodes_motion->AddFinalBound(kPos, final_ee_pos_W.topRows<kDim2d>());       // only xy, z given by terrain
+    nodes_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // only xy, z given by terrain
+//    nodes_motion->AddFinalBound(kPos, {X,Y},final_ee_pos_W);       // only xy, z given by terrain
 
     opt_variables_->AddComponent(nodes_motion);
     contact_schedule.at(ee)->AddObserver(nodes_motion);
@@ -96,7 +96,7 @@ MotionOptimizerFacade::BuildVariables () const
                                                      params_->force_splines_per_stance_phase_,
                                                      params_->GetForceLimit());
 
-    Vector3d f_stance(0.0, 0.0, params_->GetAvgZForce());
+    Vector3d f_stance(0.0, 0.0, params_->GetStandingZForce());
     nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule.at(ee)->GetTimePerPhase());
 
 
@@ -119,17 +119,18 @@ MotionOptimizerFacade::BuildVariables () const
     auto spline = std::make_shared<NodeValues>(init.kNumDim,  base_spline_timings_.size(), id);
     spline->InitializeVariables(init.p_, final.p_, base_spline_timings_);
 
-    spline->AddStartBound(kPos, init.p_);
-    spline->AddStartBound(kVel, init.v_);
+    std::vector<int> dimensions = {X,Y,Z};
+    spline->AddStartBound(kPos, dimensions, init.p_);
+    spline->AddStartBound(kVel, dimensions, init.v_);
 
-    spline->AddFinalBound(kVel, final.v_);
+    spline->AddFinalBound(kVel, dimensions, final.v_);
 
     if (id == id::base_linear) {
-      spline->AddFinalBound(kPos, final.p_.topRows<kDim2d>()); // only xy, z given by terrain
+      spline->AddFinalBound(kPos, {X,Y}, final.p_); // only xy, z given by terrain
 //      spline->SetBoundsAboveGround();
     }
     if (id == id::base_angular)
-      spline->AddFinalBound(kPos, final.p_); // roll, pitch, yaw bound
+      spline->AddFinalBound(kPos, {Z}, final.p_); // roll, pitch, yaw bound
 
 
 
