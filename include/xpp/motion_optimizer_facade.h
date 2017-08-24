@@ -37,9 +37,6 @@ public:
 
   void SolveProblem(NlpSolver solver);
   NLPIterations GetTrajectories(double dt) const;
-  RobotStateVec BuildTrajectory(const OptimizationVariablesPtr&,
-                                const MotionParametersPtr&,
-                                double dt) const;
 
   EndeffectorsPos initial_ee_W_;
   State3dEuler inital_base_;
@@ -48,6 +45,10 @@ public:
   const MotionParametersPtr GetMotionParameters() const { return params_;};
 
 private:
+  RobotStateVec BuildTrajectory(const OptimizationVariablesPtr&,
+                                int n_ee,
+                                double dt) const;
+
   void BuildDefaultInitialState();
   OptimizationVariablesPtr BuildVariables() const;
   void BuildCostConstraints(const OptimizationVariablesPtr&);

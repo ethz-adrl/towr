@@ -121,6 +121,7 @@ MotionOptimizerFacade::BuildVariables () const
 
     spline->AddStartBound(kPos, init.p_);
     spline->AddStartBound(kVel, init.v_);
+
     spline->AddFinalBound(kVel, final.v_);
 
     if (id == id::base_linear) {
@@ -236,68 +237,34 @@ MotionOptimizerFacade::GetTrajectories (double dt) const
 
   for (int iter=0; iter<nlp.GetIterationCount(); ++iter) {
     auto opt_var = nlp.GetOptVariables(iter);
-    trajectories.push_back(BuildTrajectory(opt_var, params_, dt));
+    trajectories.push_back(BuildTrajectory(opt_var, params_->GetEECount(), dt));
   }
 
   return trajectories;
 }
 
 MotionOptimizerFacade::RobotStateVec
-MotionOptimizerFacade::BuildTrajectory (const OptimizationVariablesPtr& opt_variables,
-                                        const MotionParametersPtr& params,
+MotionOptimizerFacade::BuildTrajectory (const OptimizationVariablesPtr& vars,
+                                        int n_ee,
                                         double dt) const
 {
   RobotStateVec trajectory;
-
-  auto base_lin = Spline::BuildSpline(opt_variables, id::base_linear, params->GetBasePolyDurations());
-  auto base_ang = Spline::BuildSpline(opt_variables, id::base_angular, params->GetBasePolyDurations());
-
-
-  using SplineT = std::shared_ptr<Spline>;
-  std::vector<SplineT> ee_splines;
-  std::vector<SplineT> ee_forces_spline;
-  std::vector<std::shared_ptr<ContactSchedule>> contact_schedules;
-  int n_ee = params->GetEECount();
-  for (int ee=0; ee<n_ee; ++ee) {
-
-    auto contact_schedule = std::dynamic_pointer_cast<ContactSchedule>(opt_variables->GetComponent(id::GetEEScheduleId(ee)));
-    contact_schedules.push_back(contact_schedule);
-
-    auto ee_spline = Spline::BuildSpline(opt_variables, id::GetEEMotionId(ee), {});
-    ee_splines.push_back(ee_spline);
-
-    auto force_spline = Spline::BuildSpline(opt_variables, id::GetEEForceId(ee), {});
-    ee_forces_spline.push_back(force_spline);
-  }
-
-
-
   double t=0.0;
-  double T = params->GetTotalTime();
+  double T = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(E0))->GetTotalTime();
   while (t<=T+1e-5) {
 
     RobotStateCartesian state(n_ee);
 
-    State3d base; // positions and orientations set to zero
-    base.lin = base_lin->GetPoint(t); //inital_base_.lin;
-    base.ang = AngularStateConverter::GetState(base_ang->GetPoint(t));
-    state.SetBase(base);
+    state.base_.lin = vars->GetComponent<NodeValues>(id::base_linear)->GetPoint(t);
+    state.base_.ang = AngularStateConverter::GetState(vars->GetComponent<NodeValues>(id::base_angular)->GetPoint(t));
 
-
-    RobotStateCartesian::FeetArray ee_state(n_ee);
-    RobotStateCartesian::ContactState contact_state(n_ee);
-    Endeffectors<Vector3d> ee_force_array(n_ee);
-    for (auto ee : state.GetEndeffectors()) {
-      contact_state.At(ee)  = contact_schedules.at(ee)->IsInContact(t);
-      ee_state.At(ee)       = ee_splines.at(ee)->GetPoint(t);
-      ee_force_array.At(ee) = ee_forces_spline.at(ee)->GetPoint(t).p_;
+    for (auto ee : state.ee_motion_.GetEEsOrdered()) {
+      state.ee_contact_.At(ee) = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->IsInContact(t);
+      state.ee_motion_.At(ee)  = vars->GetComponent<NodeValues>     (id::GetEEMotionId(ee))  ->GetPoint(t);
+      state.ee_forces_.At(ee)  = vars->GetComponent<NodeValues>     (id::GetEEForceId(ee))   ->GetPoint(t).p_;
     }
 
-    state.SetEEStateInWorld(ee_state);
-    state.SetEEForcesInWorld(ee_force_array);
-    state.SetContactState(contact_state);
-
-    state.SetTime(t);
+    state.t_global_ = t;
     trajectory.push_back(state);
     t += dt;
   }

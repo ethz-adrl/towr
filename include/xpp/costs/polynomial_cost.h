@@ -8,11 +8,10 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_COST_H_
 
-#include <memory>
 #include <string>
 
-#include <xpp/opt/matrix_vector.h>
-#include <xpp/opt/constraints/composite.h>
+#include <xpp/composite.h>
+#include <xpp/matrix_vector.h>
 
 namespace xpp {
 namespace opt {
@@ -23,7 +22,7 @@ namespace opt {
   * This class is responsible for getting the current value of the optimization
   * variables from the subject and calculating the scalar cost from these.
   */
-class QuadraticPolynomialCost : public Primitive {
+class QuadraticPolynomialCost : public Cost {
 public:
 
   QuadraticPolynomialCost(const OptVarsPtr&, const MatVec&,

@@ -224,8 +224,12 @@ DurationConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& ja
 }
 
 
+double
+ContactSchedule::GetTotalTime () const
+{
+  return std::accumulate(durations_.begin(), durations_.end(), 0.0);
+}
 
 } /* namespace opt */
 } /* namespace xpp */
-
 

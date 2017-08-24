@@ -33,6 +33,7 @@ public:
   using Side     = CubicHermitePoly::Side;
   using VecNodes = std::vector<Node>;
   using VecDurations = std::vector<double>;
+  using Ptr      = std::shared_ptr<NodeValues>;
 
   using PolyType = CubicHermitePoly;
   using VecPoly  = std::vector<std::shared_ptr<PolyType>>;
@@ -88,12 +89,11 @@ public:
   void SetBoundsAboveGround();
 
 
-
-  VectorXd GetPositionValues() const;
-
   const std::vector<Node> GetNodes() const { return nodes_; };
-
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
+
+
+
   int GetDimCount() const { return n_dim_; };
 
 protected:

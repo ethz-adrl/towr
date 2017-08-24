@@ -20,7 +20,7 @@ namespace opt {
 
 /** @brief Constraints evaluated at discretized times along a trajectory.
   */
-class TimeDiscretizationConstraint : public Primitive {
+class TimeDiscretizationConstraint : public Constraint {
 public:
   TimeDiscretizationConstraint (double T, double dt, const OptVarsPtr& opt_vars);
   virtual ~TimeDiscretizationConstraint ();

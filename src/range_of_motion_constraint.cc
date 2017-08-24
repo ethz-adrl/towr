@@ -11,6 +11,7 @@
 #include <Eigen/Sparse>
 
 #include <xpp/cartesian_declarations.h>
+#include <xpp/variables/node_values.h>
 #include <xpp/variables/variable_names.h>
 
 namespace xpp {
@@ -28,14 +29,12 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   max_deviation_from_nominal_ = params->GetMaximumDeviationFromNominal();
   nominal_ee_pos_B            = params->GetNominalStanceInBase().At(ee);
 
-
-  auto base_poly_durations = params->GetBasePolyDurations();
-  base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear,  base_poly_durations);
-  base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
-  ee_spline_    = Spline::BuildSpline(opt_vars, id::GetEEMotionId(ee), {});
+  base_linear_  = opt_vars->GetComponent<NodeValues>(id::base_linear);
+  base_angular_ = opt_vars->GetComponent<NodeValues>(id::base_angular);
+  ee_spline_    = opt_vars->GetComponent<NodeValues>(id::GetEEMotionId(ee));
 
   // this one shouldn't care where it gets the variable from!
-  ee_timings_   = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
+  ee_timings_   = opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee));
 
   SetRows(GetNumberOfNodes()*kDim3d);
   converter_ = AngularStateConverter(base_angular_);

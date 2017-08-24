@@ -99,7 +99,7 @@ EneffectorNodes::GetBounds () const
   double z_new   = 0.4;
 
   for (int idx=0; idx<GetRows(); ++idx) {
-    bool is_stance = GetNodeInfo(idx).size() == 2;
+    bool is_stance = GetNodeInfo(idx).size() == 2; // spring_clean_ this is hacky?
     auto node = GetNodeInfo(idx).front(); // bound idx by first node it represents
 
     // keep feet above ground

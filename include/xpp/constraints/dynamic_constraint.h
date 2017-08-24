@@ -35,7 +35,6 @@ public:
 
   DynamicConstraint (const OptVarsPtr& opt_vars,
                      const DynamicModelPtr& m,
-                     const VecTimes& base_poly_durations,
                      double T, double dt);
   virtual ~DynamicConstraint ();
 

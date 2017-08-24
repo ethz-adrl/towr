@@ -86,6 +86,7 @@ add_library(${MOTION_OPT_LIB}
   src/cost_constraint_factory.cc
   src/soft_constraint.cc
   src/time_discretization_constraint.cc
+  src/terrain_constraint.cc
 #  src/contact_constraints.cc
 #  src/contact_timings.cc
   # body motion

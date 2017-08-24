@@ -19,7 +19,6 @@ namespace opt {
 
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       const DynamicModelPtr& m,
-                                      const VecTimes& base_poly_durations,
                                       double T,
                                       double dt)
     :TimeDiscretizationConstraint(T, dt, opt_vars)
@@ -27,13 +26,13 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   model_ = m;
 
   SetName("DynamicConstraint");
-  base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear,  base_poly_durations);
-  base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
+  base_linear_  = opt_vars->GetComponent<NodeValues>(id::base_linear);
+  base_angular_ = opt_vars->GetComponent<NodeValues>(id::base_angular);
 
   for (auto ee : model_->GetEEIDs()) {
-    ee_splines_.push_back(Spline::BuildSpline(opt_vars, id::GetEEMotionId(ee), {}));
-    ee_forces_.push_back(Spline::BuildSpline(opt_vars, id::GetEEForceId(ee), {}));
-    ee_timings_.push_back(std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee))));
+    ee_splines_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEMotionId(ee)));
+    ee_forces_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEForceId(ee)));
+    ee_timings_.push_back(opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
   }
 
   SetRows(GetNumberOfNodes()*kDim6d);

@@ -167,7 +167,6 @@ CostConstraintFactory::MakeDynamicConstraint() const
   double dt = params->dt_dynamic_constraint_;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         dynamic_model,
-                                                        params->GetBasePolyDurations(),
                                                         params->GetTotalTime(),
                                                         dt
                                                         );

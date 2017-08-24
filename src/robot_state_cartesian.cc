@@ -9,87 +9,22 @@
 
 namespace xpp {
 
-RobotStateCommon::RobotStateCommon (int n_ee)
-    :is_contact_(n_ee)
+RobotStateCartesian::RobotStateCartesian(int n_ee)
 {
-  is_contact_.SetAll(true);
+  ee_motion_.SetCount(n_ee);
+  ee_forces_.SetCount(n_ee);
+  ee_contact_.SetCount(n_ee);
+  ee_contact_.SetAll(true);
   t_global_ = 0.0;
-}
-
-RobotStateCommon::~RobotStateCommon ()
-{
-}
+};
 
 
-RobotDataHolder::RobotDataHolder (int n_ee)
-    :data_(n_ee)
-{
-}
-
-RobotDataHolder::~RobotDataHolder ()
-{
-}
-
-RobotStateCartesian::RobotStateCartesian (int n_ee)
-    :RobotDataHolder(n_ee),
-     feet_W_(n_ee)
-{
-}
-
-RobotStateCartesian::~RobotStateCartesian ()
-{
-  // TODO Auto-generated destructor stub
-}
-
-void
-RobotStateCartesian::SetEEStateInWorld (MotionDerivative dxdt, const EEPos& val)
-{
-  feet_W_.SetCount(val.GetCount());
-  for (EEID ee : GetEndeffectors())
-    feet_W_.At(ee).GetByIndex(dxdt) = val.At(ee);
-}
-
-void
-RobotStateCartesian::SetEEStateInWorld (const FeetArray& ee)
-{
-  feet_W_ = ee;
-}
-
-const RobotStateCartesian::FeetArray&
-RobotStateCartesian::GetEEState () const
-{
-  return feet_W_;
-}
-
-void
-RobotStateCartesian::SetEEForcesInWorld (const EEForces& val)
-{
-  ee_forces_ = val;
-}
-
-RobotStateCartesian::EEForces
-RobotStateCartesian::GetEEForces () const
-{
-  return ee_forces_;
-}
-
-double
-RobotStateCartesian::GetZAvg () const
-{
-  double z_avg = 0.0;
-  for (EEID ee : GetEndeffectors())
-    if (GetContactState().At(ee))
-      z_avg += (feet_W_.At(ee).p_.z()/GetEEInContactCount());
-
-  return z_avg;
-}
-
-RobotStateCartesian::EEPos
+Endeffectors<Vector3d>
 RobotStateCartesian::GetEEPos () const
 {
-  EEPos pos_W(GetEECount());
-  for (EEID ee : GetEndeffectors())
-    pos_W.At(ee) = feet_W_.At(ee).p_;
+  Endeffectors<Vector3d> pos_W(ee_motion_.GetCount());
+  for (auto ee : ee_motion_.GetEEsOrdered())
+    pos_W.At(ee) = ee_motion_.At(ee).p_;
 
   return pos_W;
 }

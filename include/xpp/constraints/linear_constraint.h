@@ -23,7 +23,7 @@ namespace opt {
   * This class is responsible for using the current vector of optimization
   * variables to calculate the constraint violations.
   */
-class LinearEqualityConstraint : public Primitive {
+class LinearEqualityConstraint : public Constraint {
 public:
 
   /** @brief Defines the elements of the linear constraint as g = Mx+v.
