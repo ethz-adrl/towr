@@ -40,12 +40,14 @@ CostConstraintFactory::~CostConstraintFactory ()
 void
 CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
                              const MotionParamsPtr& _params,
+                             const HeightMap::Ptr& terrain,
                              const EndeffectorsPos& ee_pos,
                              const State3dEuler& initial_base,
                              const State3dEuler& final_base)
 {
   opt_vars_ = opt_vars;
-  params = _params;
+  params    = _params;
+  terrain_  = terrain;
 
   initial_ee_W_ = ee_pos;
   initial_base_ = initial_base;
@@ -212,14 +214,16 @@ CostConstraintFactory::MakeTotalTimeConstraint () const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeTerrainConstraint () const
 {
-  auto c = std::make_shared<Composite>("Terrain Constraints", true);
+  auto constraints = std::make_shared<Composite>("Terrain Constraints", true);
 
   for (auto ee : params->robot_ee_) {
-    auto terrain = std::make_shared<TerrainConstraint>(opt_vars_, id::GetEEMotionId(ee));
-    c->AddComponent(terrain);
+    auto c = std::make_shared<TerrainConstraint>(terrain_,
+                                                 opt_vars_,
+                                                 id::GetEEMotionId(ee));
+    constraints->AddComponent(c);
   }
 
-  return c;
+  return constraints;
 }
 
 

@@ -12,12 +12,12 @@
 #include <string>
 #include <vector>
 
-#include <xpp/cartesian_declarations.h>
-#include <xpp/composite.h>
-#include <xpp/endeffectors.h>
-#include <xpp/state.h>
-
+#include "cartesian_declarations.h"
+#include "composite.h"
+#include "endeffectors.h"
+#include "height_map.h"
 #include "motion_parameters.h"
+#include "state.h"
 
 namespace xpp {
 namespace opt {
@@ -43,6 +43,7 @@ public:
 
   void Init(const OptVarsContainer&,
             const MotionParamsPtr&,
+            const HeightMap::Ptr& terrain,
             const EndeffectorsPos& ee_pos,
             const State3dEuler& initial_base,
             const State3dEuler& final_base);
@@ -52,8 +53,9 @@ public:
 
 private:
   MotionParamsPtr params;
-
   OptVarsContainer opt_vars_;
+  HeightMap::Ptr terrain_;
+
 
   EndeffectorsPos initial_ee_W_;
   State3dEuler initial_base_;

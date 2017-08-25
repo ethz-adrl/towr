@@ -195,7 +195,7 @@ void
 MotionOptimizerFacade::BuildCostConstraints(const OptimizationVariablesPtr& opt_variables)
 {
   CostConstraintFactory factory;
-  factory.Init(opt_variables, params_,
+  factory.Init(opt_variables, params_, terrain_,
                initial_ee_W_, inital_base_, final_base_);
 
   auto constraints = std::make_unique<Composite>("constraints", true);

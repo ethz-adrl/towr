@@ -198,7 +198,7 @@ AnymalMotionParameters::AnymalMotionParameters ()
 {
   using namespace xpp::quad;
   order_coeff_polys_  = 4; // not used!
-  dt_base_polynomial_ = 0.3; //s 0.05 // somehow this is is coupled to swing time
+  dt_base_polynomial_ = 0.2; //s 0.05 // somehow this is is coupled to swing time
   ee_splines_per_swing_phase_ = 1;
 
 
@@ -252,7 +252,7 @@ AnymalMotionParameters::AnymalMotionParameters ()
       RomBox,
       Dynamic,
       Terrain,
-//      TotalTime,
+      TotalTime,
   };
 
   cost_weights_ = {
