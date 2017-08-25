@@ -13,16 +13,21 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include <ros/ros.h>
-#include <std_msgs/Int32.h>
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Vector3.h>
-#include <kindr/Core>
+#include <ros/node_handle.h>
+#include <ros/time.h>
+#include <ros/transport_hints.h>
+#include <rosconsole/macros_generated.h>
+#include <std_msgs/Int32.h>
+
+#include <kindr/rotations/Rotation.hpp>
 
 #include <xpp/motion_parameters.h>
 #include <xpp/state.h>
 #include <xpp/ros/ros_conversions.h>
 #include <xpp/ros/topic_names.h>
+#include <xpp/height_map.h>
 
 namespace xpp {
 namespace ros {
@@ -32,7 +37,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
 {
   ::ros::NodeHandle n;
 
-  user_command_sub_ = n.subscribe(xpp_msgs::goal_state_topic, 1,
+  user_command_sub_ = n.subscribe(xpp_msgs::user_command, 1,
                                 &NlpOptimizerNode::UserCommandCallback, this);
 
   current_state_sub_ = n.subscribe(xpp_msgs::curr_robot_state_real,
@@ -43,8 +48,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
 //  cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
 //                                    (xpp_msgs::robot_trajectory_cart, 1);
 
-  opt_parameters_pub_  = n.advertise<xpp_msgs::OptParameters>
-                                    (xpp_msgs::opt_parameters, 1);
+//  opt_parameters_pub_  = n.advertise<xpp_msgs::OptParameters>
+//                                    (xpp_msgs::opt_parameters, 1);
 
   dt_          = RosConversions::GetDoubleFromServer("/xpp/trajectory_dt");
   rosbag_name_ = RosConversions::GetStringFromServer("/xpp/rosbag_name") + ".bag";
@@ -81,12 +86,16 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 {
   motion_optimizer_.final_base_.lin = RosConversions::RosToXpp(msg.goal_lin);
   motion_optimizer_.final_base_.ang = RosConversions::RosToXpp(msg.goal_ang);
+  motion_optimizer_.terrain_        = opt::HeightMap::MakeTerrain(static_cast<opt::HeightMap::ID>(msg.terrain_id));
   solver_type_ = msg.use_solver_snopt ? opt::Snopt : opt::Ipopt;
 
   Eigen::Vector3d vel_dis(msg.vel_disturbance.x, msg.vel_disturbance.y, msg.vel_disturbance.z);
   motion_optimizer_.inital_base_.lin.v_ += vel_dis;
 
-  PublishOptParameters();
+
+  user_command_msg_ = msg;
+
+//  PublishOptParameters();
 
   if (msg.optimize) {
     OptimizeMotion();
@@ -96,19 +105,20 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
   if (msg.replay_trajectory || msg.optimize) {
     // PublishTrajectory();
     // play back the rosbag hacky like this, as I can't find appropriate C++ API.
-    system(("rosbag play --quiet "+ rosbag_name_).c_str());
+    system(("rosbag play --quiet " + rosbag_name_
+           + " --topics " + xpp_msgs::opt_parameters + " " + xpp_msgs::robot_state).c_str());
   }
 }
 
-void
-NlpOptimizerNode::PublishOptParameters() const
-{
-  auto msg = BuildOptParameters();
-  opt_parameters_pub_.publish(msg);
-}
+//void
+//NlpOptimizerNode::PublishOptParameters() const
+//{
+//  auto msg = BuildOptParameters();
+//  opt_parameters_pub_.publish(msg);
+//}
 
 xpp_msgs::OptParameters
-NlpOptimizerNode::BuildOptParameters() const
+NlpOptimizerNode::BuildOptParametersMsg() const
 {
   auto params = motion_optimizer_.GetMotionParameters();
 
@@ -119,9 +129,6 @@ NlpOptimizerNode::BuildOptParameters() const
   auto nominal_B = params->GetNominalStanceInBase();
   for (auto ee : nominal_B.ToImpl())
     params_msg.nominal_ee_pos.push_back(RosConversions::XppToRos<geometry_msgs::Point>(ee));
-
-  params_msg.goal_lin = RosConversions::XppToRos(motion_optimizer_.final_base_.lin);
-  params_msg.goal_ang = RosConversions::XppToRos(motion_optimizer_.final_base_.ang);
 
   params_msg.base_mass = params->GetMass();
 
@@ -148,9 +155,11 @@ NlpOptimizerNode::SaveOptimizationAsRosbag () const
 {
   rosbag::Bag bag;
   bag.open(rosbag_name_, rosbag::bagmode::Write);
+  ::ros::Time t0(0.001);
 
   // save the a-priori fixed optimization variables
-  bag.write(xpp_msgs::opt_parameters, ::ros::Time(0.001), BuildOptParameters());
+  bag.write(xpp_msgs::opt_parameters, t0, BuildOptParametersMsg());
+  bag.write(xpp_msgs::user_command, t0, user_command_msg_);
 
   // save the trajectory of each iteration
   auto trajectories = motion_optimizer_.GetTrajectories(dt_);
@@ -161,10 +170,10 @@ NlpOptimizerNode::SaveOptimizationAsRosbag () const
   // save number of iterations the optimizer took
   std_msgs::Int32 m;
   m.data = n_iterations;
-  bag.write(xpp_msgs::nlp_iterations_count, ::ros::Time(0.001), m);
+  bag.write(xpp_msgs::nlp_iterations_count, t0, m);
 
   // save the final trajectory
-  SaveTrajectoryInRosbag(bag, trajectories.back(), xpp_msgs::curr_robot_state);
+  SaveTrajectoryInRosbag(bag, trajectories.back(), xpp_msgs::robot_state);
 
   bag.close();
 }

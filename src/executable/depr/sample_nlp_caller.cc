@@ -34,7 +34,7 @@ int main(int argc, char **argv)
   }
 
   ::ros::NodeHandle n;
-  ::ros::Publisher current_info_pub = n.advertise<CurrentInfoMsg>(xpp_msgs::curr_robot_state, 10);
+  ::ros::Publisher current_info_pub = n.advertise<CurrentInfoMsg>(xpp_msgs::robot_state, 10);
 
   // give publisher and subscriber time to register with master
   ::ros::Rate poll_rate(100);

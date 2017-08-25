@@ -50,7 +50,7 @@ private:
   ::ros::Subscriber user_command_sub_;
   ::ros::Subscriber current_state_sub_;
   ::ros::Publisher cart_trajectory_pub_;
-  ::ros::Publisher opt_parameters_pub_;
+//  ::ros::Publisher opt_parameters_pub_;
 
   MotionOptimizerFacade motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
@@ -58,12 +58,14 @@ private:
 
   NlpSolver solver_type_;
 
+  UserCommandMsg user_command_msg_;
+
   void SetInitialState (const RobotStateCartesian& initial_state);
 
   void SaveOptimizationAsRosbag() const;
   void SaveTrajectoryInRosbag (rosbag::Bag&, const RobotStateVec& traj,
                                const std::string& topic) const;
-  ParamsMsg BuildOptParameters() const;
+  ParamsMsg BuildOptParametersMsg() const;
 };
 
 } /* namespace ros */

@@ -6,11 +6,19 @@
  */
 
 #include <xpp/ros/nlp_user_input_node.h>
-#include <xpp/ros/ros_conversions.h>
-#include <xpp/ros/topic_names.h>
 
+#include <iostream>
+#include <vector>
+#include <Eigen/Dense>
+
+#include <ros/node_handle.h>
+#include <rosconsole/macros_generated.h>
 #include <std_msgs/Empty.h>         // send to trigger walking
 #include <xpp_msgs/UserCommand.h>   // send to optimizer node
+
+#include <xpp/ros/ros_conversions.h>
+#include <xpp/ros/topic_names.h>
+#include <xpp/height_map.h>
 
 namespace xpp {
 namespace ros {
@@ -23,7 +31,7 @@ NlpUserInputNode::NlpUserInputNode ()
   key_sub_ = n.subscribe("/keyboard/keydown", 1, &NlpUserInputNode::CallbackKeyboard, this);
   joy_sub_ = n.subscribe("/joy", 1, &NlpUserInputNode::CallbackJoy, this);
 
-  user_command_pub_ = n.advertise<UserCommandMsg>(xpp_msgs::goal_state_topic, 1);
+  user_command_pub_ = n.advertise<UserCommandMsg>(xpp_msgs::user_command, 1);
 
   // publish goal zero initially
   goal_geom_.lin.p_.setZero();
@@ -202,6 +210,7 @@ void NlpUserInputNode::PublishCommand()
   msg.use_solver_snopt  = use_solver_snopt_;
   msg.vel_disturbance   = velocity_disturbance_;
   msg.optimize          = command_==Command::kStartWalking? true : false;
+  msg.terrain_id        = xpp::opt::HeightMap::Flat;
   user_command_pub_.publish(msg);
 
   switch (command_) {

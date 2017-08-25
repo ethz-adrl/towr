@@ -12,17 +12,14 @@
 
 namespace xpp_msgs {
 
-// rviz marker for displaying the desired goal state
-static const std::string goal_axis_rviz("xpp/goal");
-
 // the complete robot cartesian state including base, feet, time, ...
-static const std::string curr_robot_state("xpp/state");
+static const std::string robot_state("xpp/state");
 
 // the fixed parameters used for the optimization
 static const std::string opt_parameters("xpp/params");
 
 // position of the desired goal to reach
-static const std::string goal_state_topic("xpp/goal_state");
+static const std::string user_command("xpp/user_command");
 
 // command that tells the walking controller to start executing
 static const std::string start_walking_topic("xpp/start_walking");
@@ -32,9 +29,6 @@ static const std::string curr_robot_state_real("xpp/state_real");
 
 // sequence of cartesian robot states
 static const std::string robot_trajectory_cart("xpp/trajectory");
-
-// rviz marker topic for NLP's optimized variables (spline coefficients, footholds,...)
-static const std::string rviz_optimized("xpp/rviz_markers");
 
 // iterations the nlp took to solve the problem. Used when processing rosbags
 static const std::string nlp_iterations_count("xpp/nlp_iterations_count");
