@@ -41,7 +41,6 @@ static constexpr int kDim3d = 3; // X,Y,Z
 static constexpr int kDim6d = 6; // X,Y,Z, alpha, beta, gamma
 enum MotionDerivative { kPos=0, kVel, kAcc, kJerk };
 
-static const double kGravity = 9.80665; // gravity acceleration [m\s^2]
 
 } // namespace xpp
 

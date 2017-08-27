@@ -12,15 +12,15 @@
 #include <string>
 #include <vector>
 
+#include <xpp/angular_state_converter.h>
+#include <xpp/bound.h>
+#include <xpp/composite.h>
 #include <xpp/endeffectors.h>
-#include <xpp/opt/angular_state_converter.h>
-#include <xpp/opt/bound.h>
-#include <xpp/opt/motion_parameters.h>
-#include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/spline.h>
+#include <xpp/motion_parameters.h>
 #include <xpp/state.h>
+#include <xpp/variables/contact_schedule.h>
+#include <xpp/variables/spline.h>
 
-#include "composite.h"
 #include "time_discretization_constraint.h"
 
 namespace xpp {
@@ -57,7 +57,7 @@ private:
 
   SplineT base_linear_;
   SplineT base_angular_;
-  SplineT ee_spline_;
+  SplineT ee_motion_;
   SchedulePtr ee_timings_;
 
   Vector3d max_deviation_from_nominal_;

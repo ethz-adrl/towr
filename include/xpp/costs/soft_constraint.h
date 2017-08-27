@@ -10,7 +10,8 @@
 
 #include <Eigen/Dense>
 #include <memory>
-#include <xpp/opt/constraints/composite.h>
+
+#include <xpp/composite.h>
 
 namespace xpp {
 namespace opt {

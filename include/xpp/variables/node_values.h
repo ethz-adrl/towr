@@ -13,10 +13,10 @@
 #include <string>
 #include <vector>
 
+#include <xpp/bound.h>
 #include <xpp/cartesian_declarations.h>
-#include <xpp/opt/bound.h>
-#include <xpp/opt/constraints/composite.h>
-#include <xpp/opt/polynomial.h>
+#include <xpp/composite.h>
+#include <xpp/polynomial.h>
 #include <xpp/state.h>
 
 #include "spline.h"
@@ -33,9 +33,11 @@ public:
   using Side     = CubicHermitePoly::Side;
   using VecNodes = std::vector<Node>;
   using VecDurations = std::vector<double>;
+  using Ptr      = std::shared_ptr<NodeValues>;
 
   using PolyType = CubicHermitePoly;
   using VecPoly  = std::vector<std::shared_ptr<PolyType>>;
+  using Dimensions = std::vector<Coords3D>;
 
 
   struct PolyInfo {
@@ -48,16 +50,27 @@ public:
     int phase_;
     int poly_id_in_phase_;
     int num_polys_in_phase_;
-    bool is_constant_;
+    bool is_constant_; // spring_clean_ this shouldn't be here, has to do with phases
   };
 
   using PolyInfoVec = std::vector<PolyInfo>;
 
   struct NodeInfo {
+
     int id_;
     MotionDerivative deriv_;
     int dim_;
+
+    // for use with std map
+    bool operator <( const NodeInfo &rhs ) const
+    {
+       if         (id_ != rhs.id_)    return    id_ < rhs.id_;
+       else if (deriv_ != rhs.deriv_) return deriv_ < rhs.deriv_;
+       else                           return dim_   < rhs.dim_;
+    }
   };
+
+
 
   NodeValues (int n_dim, int n_polynomials, const std::string& name);
   NodeValues (int n_dim, const PolyInfoVec&, const std::string& name);
@@ -77,10 +90,18 @@ public:
 
   VectorXd GetDerivativeOfPosWrtPhaseDuration(double t_global) const;
 
+
+  void AddBounds(int node_id, MotionDerivative, const std::vector<int>& dim,
+                 const VectorXd& val);
   void AddBound(int node_id, MotionDerivative, int dim, double val);
-  void AddStartBound (MotionDerivative d, const VectorXd& val);
-  void AddIntermediateBound (MotionDerivative d, const VectorXd& val);
-  void AddFinalBound(MotionDerivative, const VectorXd& val);
+  void AddStartBound (MotionDerivative d,
+                      const std::vector<int>& dimensions,
+                      const VectorXd& val);
+  void AddFinalBound(MotionDerivative d,
+                     const std::vector<int>& dimensions,
+                     const VectorXd& val);
+
+
 
 
   virtual VecBound GetBounds () const override { return bounds_;};
@@ -88,12 +109,16 @@ public:
   void SetBoundsAboveGround();
 
 
-
-  VectorXd GetPositionValues() const;
-
   const std::vector<Node> GetNodes() const { return nodes_; };
-
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
+  // basically opposite of above
+  int Index(int id, MotionDerivative, int dim) const;
+  std::map<NodeInfo, int> node_info_to_idx;
+  void SetIndexMappings();
+
+
+
+
   int GetDimCount() const { return n_dim_; };
 
 protected:
@@ -101,8 +126,9 @@ protected:
   bool durations_change_ = false;
   VecDurations poly_durations_;
   PolyInfoVec polynomial_info_;
-  VecBound bounds_;
+  mutable VecBound bounds_;
 
+  std::vector<int> GetAdjacentPolyIds(int node_id) const;
 
 private:
   PolyInfoVec BuildPolyInfos(int num_polys) const;
@@ -112,6 +138,9 @@ private:
   std::vector<Node> nodes_;
 
   int GetNodeId(int poly_id, Side) const;
+
+
+
   void SetNodeMappings();
   using OptNodeIs = int;
   using NodeIds   = std::vector<int>;

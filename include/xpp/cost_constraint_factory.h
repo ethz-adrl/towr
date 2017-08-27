@@ -9,13 +9,15 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
 
 #include <memory>
+#include <string>
+#include <vector>
 
-#include <xpp/robot_state_cartesian.h>
-#include <xpp/state.h>
-
-//#include "linear_spline_equations.h"
+#include "cartesian_declarations.h"
+#include "composite.h"
+#include "endeffectors.h"
+#include "height_map.h"
 #include "motion_parameters.h"
-#include <xpp/opt/constraints/composite.h>
+#include "state.h"
 
 namespace xpp {
 namespace opt {
@@ -41,6 +43,7 @@ public:
 
   void Init(const OptVarsContainer&,
             const MotionParamsPtr&,
+            const HeightMap::Ptr& terrain,
             const EndeffectorsPos& ee_pos,
             const State3dEuler& initial_base,
             const State3dEuler& final_base);
@@ -50,8 +53,9 @@ public:
 
 private:
   MotionParamsPtr params;
-
   OptVarsContainer opt_vars_;
+  HeightMap::Ptr terrain_;
+
 
   EndeffectorsPos initial_ee_W_;
   State3dEuler initial_base_;
@@ -64,6 +68,7 @@ private:
   ComponentPtr MakeDynamicConstraint() const;
   ComponentPtr MakeRangeOfMotionBoxConstraint() const;
   ComponentPtr MakeTotalTimeConstraint() const;
+  ComponentPtr MakeTerrainConstraint() const;
 
   // costs
   ComponentPtr MakeForcesCost(double weight) const;

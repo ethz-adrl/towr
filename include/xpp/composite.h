@@ -9,14 +9,13 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_
 
 #include <cassert>
-#include <iostream>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <memory>
 #include <string>
 #include <vector>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
 
-#include <xpp/opt/bound.h>
+#include "bound.h"
 
 namespace xpp {
 namespace opt {
@@ -103,6 +102,13 @@ public:
 
   ComponentPtr GetComponent(std::string name) const;
 
+  template<typename T>
+  std::shared_ptr<T> GetComponent(const std::string& name) const
+  {
+    ComponentPtr c = GetComponent(name);
+    return std::dynamic_pointer_cast<T>(c);
+  }
+
 
   /** @brief Adds a component to this composite.
    *
@@ -137,7 +143,10 @@ private:
   * Classes that derive from this represent the actual "meat".
   * But somehow also just a Composite of OptimizationVariables.
   */
-// zmp_ rename to constraint?
+class Primitive;
+using Constraint = Primitive;
+using Cost       = Primitive;
+
 class Primitive : public Component {
 public:
   using OptVarsPtr = std::shared_ptr<Composite>;

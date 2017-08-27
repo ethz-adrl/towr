@@ -5,11 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/constraints/linear_constraint.h>
+#include <xpp/constraints/linear_constraint.h>
 
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
-#include <vector>
+#include <xpp/bound.h>
+#include <xpp/composite.h>
 
 namespace xpp {
 namespace opt {

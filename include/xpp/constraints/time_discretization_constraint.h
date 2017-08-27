@@ -8,19 +8,19 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_TIME_DISCRETIZATION_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_TIME_DISCRETIZATION_CONSTRAINT_H_
 
-#include <memory>
 #include <string>
 #include <vector>
 
-#include <xpp/opt/bound.h>
-#include "composite.h"
+#include <xpp/bound.h>
+#include <xpp/composite.h>
+
 
 namespace xpp {
 namespace opt {
 
 /** @brief Constraints evaluated at discretized times along a trajectory.
   */
-class TimeDiscretizationConstraint : public Primitive {
+class TimeDiscretizationConstraint : public Constraint {
 public:
   TimeDiscretizationConstraint (double T, double dt, const OptVarsPtr& opt_vars);
   virtual ~TimeDiscretizationConstraint ();

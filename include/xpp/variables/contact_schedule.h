@@ -12,9 +12,9 @@
 #include <string>
 #include <vector>
 
+#include <xpp/bound.h>
+#include <xpp/composite.h>
 #include <xpp/endeffectors.h>
-#include <xpp/opt/bound.h>
-#include <xpp/opt/constraints/composite.h>
 
 #include "phase_nodes.h"
 
@@ -40,7 +40,6 @@ public:
   void AddObserver(const PhaseNodesPtr& o);
   void UpdateObservers() const;
 
-  // zmp_ make these std::vectors?
   virtual VectorXd GetValues() const override;
   virtual void SetValues(const VectorXd&) override;
   VecBound GetBounds () const override;
@@ -49,6 +48,8 @@ public:
 
   int GetPhaseCount() const { return GetTimePerPhase().size(); };
   bool GetContact(int phase) const;
+
+  double GetTotalTime() const;
 
 private:
   VecDurations CalcAllDurations(const VecDurations& opt_durations) const;

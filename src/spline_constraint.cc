@@ -5,7 +5,13 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/constraints/spline_constraint.h>
+#include <xpp/constraints/spline_constraint.h>
+
+#include <algorithm>
+#include <Eigen/Dense>
+
+#include <xpp/bound.h>
+#include <xpp/variables/spline.h>
 
 namespace xpp {
 namespace opt {

@@ -5,7 +5,12 @@
 @brief   Brief description
  */
 
-#include <xpp/opt/motion_parameters.h>
+#include <xpp/motion_parameters.h>
+
+#include <algorithm>
+#include <iterator>
+
+#include <xpp/cartesian_declarations.h>
 
 namespace xpp {
 namespace opt {
@@ -78,9 +83,11 @@ MotionParameters::GetBasePolyDurations () const
 }
 
 double
-MotionParameters::GetAvgZForce () const
+MotionParameters::GetStandingZForce () const
 {
-  return GetMass()*kGravity/GetEECount();
+  double g = GetGravityAcceleration();
+  double m = GetMass();
+  return m*g/GetEECount();
 }
 
 MotionParameters::~MotionParameters ()

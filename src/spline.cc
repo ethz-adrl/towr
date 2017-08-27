@@ -5,14 +5,11 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/variables/spline.h>
+#include <xpp/variables/spline.h>
 
-#include <cassert>
+#include <xpp/variables/node_values.h>
+#include <xpp/variables/variable_names.h>
 
-#include <xpp/opt/variables/variable_names.h>
-
-#include <xpp/opt/variables/node_values.h>
-#include <xpp/opt/variables/coeff_spline.h>
 
 namespace xpp {
 namespace opt {

@@ -7,12 +7,14 @@
 #ifndef _XPP_OPT_UTILS_POLYNOMIAL_H_
 #define _XPP_OPT_UTILS_POLYNOMIAL_H_
 
+#include <array>
+#include <memory>
+#include <string>
 #include <vector>
 
 #include <xpp/cartesian_declarations.h>
+#include <xpp/composite.h>
 #include <xpp/state.h>
-
-#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {

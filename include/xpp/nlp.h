@@ -13,7 +13,7 @@
 #include <Eigen/Dense>
 
 #include "bound.h"
-#include <xpp/opt/constraints/composite.h>
+#include <xpp/composite.h>
 
 namespace xpp {
 namespace opt {

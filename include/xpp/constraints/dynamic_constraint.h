@@ -12,15 +12,16 @@
 #include <string>
 #include <vector>
 
+#include <xpp/angular_state_converter.h>
+#include <xpp/bound.h>
 #include <xpp/cartesian_declarations.h>
-#include <xpp/opt/angular_state_converter.h>
-#include <xpp/opt/bound.h>
-#include <xpp/opt/dynamic_model.h>
-#include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/spline.h>
+#include <xpp/composite.h>
+#include <xpp/dynamic_model.h>
+#include <xpp/variables/contact_schedule.h>
+#include <xpp/variables/spline.h>
 
-#include "composite.h"
 #include "time_discretization_constraint.h"
+
 
 namespace xpp {
 namespace opt {
@@ -34,7 +35,7 @@ public:
 
   DynamicConstraint (const OptVarsPtr& opt_vars,
                      const DynamicModelPtr& m,
-                     const VecTimes& base_poly_durations,
+                     double gravity,
                      double T, double dt);
   virtual ~DynamicConstraint ();
 
@@ -42,10 +43,11 @@ private:
   SplineT base_linear_;
   SplineT base_angular_;
   std::vector<SplineT> ee_forces_;
-  std::vector<SplineT> ee_splines_;
+  std::vector<SplineT> ee_motion_;
   std::vector<SchedulePtr> ee_timings_;
 
   mutable DynamicModelPtr model_;
+  double gravity_;
   AngularStateConverter converter_;
 
   int GetRow(int node, Coords6D dimension) const;

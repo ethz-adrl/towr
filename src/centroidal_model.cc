@@ -5,7 +5,15 @@
  @brief   Brief description
  */
 
-#include "xpp/opt/centroidal_model.h"
+#include <xpp/centroidal_model.h>
+
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include <xpp/cartesian_declarations.h>
+#include <xpp/composite.h>
+#include <xpp/endeffectors.h>
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {

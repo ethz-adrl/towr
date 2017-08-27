@@ -8,21 +8,21 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
 
+#include <Eigen/Dense>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <Eigen/Dense>
 
+#include <xpp/composite.h>
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
-#include <xpp/opt/constraints/composite.h>
 
 namespace xpp {
 namespace opt {
 
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
                        FinalComCostID, FinalStanceCostID, ForcesCostID };
-enum ConstraintName  { State, JunctionCom, Dynamic, RomBox, TotalTime };
+enum ConstraintName  { State, JunctionCom, Dynamic, RomBox, TotalTime, Terrain };
 
 /** This class holds all the hardcoded values describing a motion.
   * This is specific to the robot and the type of motion desired.
@@ -57,7 +57,7 @@ public:
   double GetTotalTime() const;
 
   VecTimes GetBasePolyDurations() const;
-  double GetAvgZForce() const;
+  double GetStandingZForce() const;
   bool ConstraintExists(ConstraintName c) const;
 
 
@@ -72,7 +72,6 @@ public:
   double min_phase_duration_;
   double max_phase_duration_;
 
-
   Eigen::Matrix3d GetInertiaParameters() const {return interia_; };
   double GetMass() const {return mass_; };
   double GetForceLimit() const {return force_limit_; };
@@ -80,6 +79,7 @@ public:
   EEVec robot_ee_;
   ContactTimings contact_timings_;
 
+  double GetGravityAcceleration() const { return 9.80665; }; // [m/s^2]
 
 protected:
   Eigen::Matrix3d interia_;

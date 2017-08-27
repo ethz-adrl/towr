@@ -5,7 +5,9 @@
  @brief   Brief description
  */
 
-#include "xpp/opt/dynamic_model.h"
+#include <xpp/dynamic_model.h>
+
+#include <Eigen/Dense>
 
 namespace xpp {
 namespace opt {

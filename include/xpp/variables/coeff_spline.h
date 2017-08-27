@@ -12,7 +12,12 @@
 #include <string>
 #include <vector>
 
-#include <xpp/opt/variables/spline.h>
+#include <xpp/cartesian_declarations.h>
+#include <xpp/composite.h>
+#include <xpp/polynomial.h>
+#include <xpp/state.h>
+
+#include "spline.h"
 
 namespace xpp {
 namespace opt {

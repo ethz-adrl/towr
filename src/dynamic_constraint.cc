@@ -5,36 +5,37 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/constraints/dynamic_constraint.h>
+#include <xpp/constraints/dynamic_constraint.h>
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
 #include <xpp/endeffectors.h>
-#include <xpp/opt/variables/spline.h>
-#include <xpp/opt/variables/variable_names.h>
 #include <xpp/state.h>
+#include <xpp/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
 
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       const DynamicModelPtr& m,
-                                      const VecTimes& base_poly_durations,
+                                      double gravity,
                                       double T,
                                       double dt)
     :TimeDiscretizationConstraint(T, dt, opt_vars)
 {
   model_ = m;
+  gravity_ = gravity;
+
 
   SetName("DynamicConstraint");
-  base_linear_  = Spline::BuildSpline(opt_vars, id::base_linear,  base_poly_durations);
-  base_angular_ = Spline::BuildSpline(opt_vars, id::base_angular, base_poly_durations);
+  base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
+  base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
 
   for (auto ee : model_->GetEEIDs()) {
-    ee_splines_.push_back(Spline::BuildSpline(opt_vars, id::GetEEMotionId(ee), {}));
-    ee_forces_.push_back(Spline::BuildSpline(opt_vars, id::GetEEForceId(ee), {}));
-    ee_timings_.push_back(std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee))));
+    ee_motion_.push_back(opt_vars->GetComponent<Spline>(id::GetEEMotionId(ee)));
+    ee_forces_.push_back(opt_vars->GetComponent<Spline>(id::GetEEForceId(ee)));
+    ee_timings_.push_back(opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
   }
 
   SetRows(GetNumberOfNodes()*kDim6d);
@@ -74,7 +75,7 @@ DynamicConstraint::UpdateBoundsAtInstance(double t, int k, VecBound& bounds) con
 {
   for (auto dim : AllDim6D) {
     if (dim == LZ)
-      bounds.at(GetRow(k,dim)) = Bound(kGravity, kGravity);
+      bounds.at(GetRow(k,dim)) = Bound(gravity_, gravity_);
     else
       bounds.at(GetRow(k,dim)) = kEqualityBound_;
   }
@@ -97,8 +98,8 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
       jac_model = model_->GetJacobianofAccWrtForce(jac_ee_force, ee);
     }
 
-    if (ee_splines_.at(ee)->DoVarAffectCurrentState(var_set,t)) {
-      Jacobian jac_ee_pos = ee_splines_.at(ee)->GetJacobian(t,kPos);
+    if (ee_motion_.at(ee)->DoVarAffectCurrentState(var_set,t)) {
+      Jacobian jac_ee_pos = ee_motion_.at(ee)->GetJacobian(t,kPos);
       jac_model = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
     }
 
@@ -136,7 +137,7 @@ DynamicConstraint::UpdateModel (double t) const
   Endeffectors<Vector3d> ee_force(n_ee);
   for (auto ee :  ee_pos.GetEEsOrdered()) {
     ee_force.At(ee) = ee_forces_.at(ee)->GetPoint(t).p_;
-    ee_pos.At(ee)   = ee_splines_.at(ee)->GetPoint(t).p_;
+    ee_pos.At(ee)   = ee_motion_.at(ee)->GetPoint(t).p_;
   }
 
   model_->SetCurrent(com_pos, ee_force, ee_pos);

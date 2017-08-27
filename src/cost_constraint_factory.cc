@@ -5,27 +5,26 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/cost_constraint_factory.h>
+#include <xpp/cost_constraint_factory.h>
 
 #include <cassert>
-#include <Eigen/Dense>
 #include <initializer_list>
-#include <map>
 #include <stdexcept>
-#include <string>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 
-#include <xpp/cartesian_declarations.h>
-#include <xpp/endeffectors.h>
-#include <xpp/opt/angular_state_converter.h>
-#include <xpp/opt/centroidal_model.h>
-#include <xpp/opt/constraints/dynamic_constraint.h>
-#include <xpp/opt/constraints/range_of_motion_constraint.h>
-#include <xpp/opt/constraints/spline_constraint.h>
-#include <xpp/opt/costs/node_cost.h>
-#include <xpp/opt/costs/soft_constraint.h>
-#include <xpp/opt/variables/contact_schedule.h>
-#include <xpp/opt/variables/spline.h>
-#include <xpp/opt/variables/variable_names.h>
+#include <xpp/angular_state_converter.h>
+#include <xpp/centroidal_model.h>
+#include <xpp/constraints/dynamic_constraint.h>
+#include <xpp/constraints/range_of_motion_constraint.h>
+#include <xpp/constraints/spline_constraint.h>
+#include <xpp/constraints/terrain_constraint.h>
+#include <xpp/costs/node_cost.h>
+#include <xpp/costs/soft_constraint.h>
+#include <xpp/variables/contact_schedule.h>
+#include <xpp/variables/spline.h>
+#include <xpp/variables/variable_names.h>
+
 
 namespace xpp {
 namespace opt {
@@ -41,12 +40,14 @@ CostConstraintFactory::~CostConstraintFactory ()
 void
 CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
                              const MotionParamsPtr& _params,
+                             const HeightMap::Ptr& terrain,
                              const EndeffectorsPos& ee_pos,
                              const State3dEuler& initial_base,
                              const State3dEuler& final_base)
 {
   opt_vars_ = opt_vars;
-  params = _params;
+  params    = _params;
+  terrain_  = terrain;
 
   initial_ee_W_ = ee_pos;
   initial_base_ = initial_base;
@@ -62,6 +63,7 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
     case Dynamic:     return MakeDynamicConstraint();
     case RomBox:      return MakeRangeOfMotionBoxConstraint();
     case TotalTime:   return MakeTotalTimeConstraint();
+    case Terrain:     return MakeTerrainConstraint();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -169,7 +171,7 @@ CostConstraintFactory::MakeDynamicConstraint() const
   double dt = params->dt_dynamic_constraint_;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         dynamic_model,
-                                                        params->GetBasePolyDurations(),
+                                                        params->GetGravityAcceleration(),
                                                         params->GetTotalTime(),
                                                         dt
                                                         );
@@ -207,6 +209,21 @@ CostConstraintFactory::MakeTotalTimeConstraint () const
   }
 
   return c;
+}
+
+CostConstraintFactory::ComponentPtr
+CostConstraintFactory::MakeTerrainConstraint () const
+{
+  auto constraints = std::make_shared<Composite>("Terrain Constraints", true);
+
+  for (auto ee : params->robot_ee_) {
+    auto c = std::make_shared<TerrainConstraint>(terrain_,
+                                                 opt_vars_,
+                                                 id::GetEEMotionId(ee));
+    constraints->AddComponent(c);
+  }
+
+  return constraints;
 }
 
 

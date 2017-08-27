@@ -12,11 +12,13 @@
 #include <string>
 #include <vector>
 
+#include <xpp/bound.h>
 #include <xpp/cartesian_declarations.h>
-#include <xpp/opt/bound.h>
-#include <xpp/opt/variables/coeff_spline.h>
+#include <xpp/composite.h>
+#include <xpp/polynomial.h>
+#include <xpp/state.h>
+#include <xpp/variables/coeff_spline.h>
 
-#include "composite.h"
 
 namespace xpp {
 namespace opt {
@@ -24,7 +26,7 @@ namespace opt {
 
 /** @brief Sets the spline equal to @state at time @t.
  */
-class SplineStateConstraint  : public Primitive {
+class SplineStateConstraint  : public Constraint {
 public:
   using DerivativeVec  = std::vector<MotionDerivative>;
   using PolyPtr        = std::shared_ptr<PolynomialVars>;
@@ -52,7 +54,7 @@ private:
 
 /** @brief Equates the values at spline junctions.
  */
-class SplineJunctionConstraint : public Primitive {
+class SplineJunctionConstraint : public Constraint {
 public:
   using DerivativeVec = std::vector<MotionDerivative>;
   using VecTimes      = std::vector<double>;

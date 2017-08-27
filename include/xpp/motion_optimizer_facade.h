@@ -11,12 +11,13 @@
 #include <memory>
 #include <vector>
 
-#include <xpp/robot_state_cartesian.h>
-#include <xpp/state.h>
-
-#include <xpp/opt/nlp.h>
-#include <xpp/opt/constraints/composite.h>
+#include "composite.h"
+#include "endeffectors.h"
+#include "height_map.h"
 #include "motion_parameters.h"
+#include "nlp.h"
+#include "robot_state_cartesian.h"
+#include "state.h"
 
 namespace xpp {
 namespace opt {
@@ -36,17 +37,20 @@ public:
 
   void SolveProblem(NlpSolver solver);
   NLPIterations GetTrajectories(double dt) const;
-  RobotStateVec BuildTrajectory(const OptimizationVariablesPtr&,
-                                const MotionParametersPtr&,
-                                double dt) const;
 
   EndeffectorsPos initial_ee_W_;
   State3dEuler inital_base_;
   State3dEuler final_base_;
 
+  HeightMap::Ptr terrain_;
+
   const MotionParametersPtr GetMotionParameters() const { return params_;};
 
 private:
+  RobotStateVec BuildTrajectory(const OptimizationVariablesPtr&,
+                                int n_ee,
+                                double dt) const;
+
   void BuildDefaultInitialState();
   OptimizationVariablesPtr BuildVariables() const;
   void BuildCostConstraints(const OptimizationVariablesPtr&);

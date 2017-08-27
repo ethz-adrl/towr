@@ -11,10 +11,12 @@ Spliners ready to use:
         - Quintic Spliner
 */
 
-#include <xpp/opt/polynomial.h>
+#include <xpp/polynomial.h>
 
 #include <cassert>
-#include <cmath>
+
+#include <xpp/composite.h>
+#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {

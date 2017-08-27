@@ -5,14 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/opt/variables/phase_nodes.h>
-
-#include <string>
-#include <vector>
+#include <xpp/variables/phase_nodes.h>
 
 #include <xpp/cartesian_declarations.h>
-#include <xpp/opt/bound.h>
-#include <xpp/opt/variables/node_values.h>
+#include <xpp/variables/node_values.h>
 
 namespace xpp {
 namespace opt {
@@ -27,7 +23,6 @@ PhaseNodes::PhaseNodes (int n_dim,
                 BuildPolyInfos(contact_schedule, n_polys_in_changing_phase, type),
                 name)
 {
-  type_ = type;
 }
 
 PhaseNodes::PolyInfoVec
@@ -72,6 +67,20 @@ PhaseNodes::InitializeVariables (const VectorXd& initial_pos,
                                   ConvertPhaseToSpline(phase_durations));
 }
 
+bool
+PhaseNodes::IsConstantNode (int node_id) const
+{
+  bool is_constant = false;
+
+  // node is considered contact node if either left or right polynomial
+  // represents a contact phase
+  for (int poly_id : GetAdjacentPolyIds(node_id))
+    if (polynomial_info_.at(poly_id).is_constant_)
+      is_constant = true;
+
+  return is_constant;
+}
+
 PhaseNodes::VecDurations
 PhaseNodes::ConvertPhaseToSpline (const VecDurations& phase_durations) const
 {
@@ -83,83 +92,96 @@ PhaseNodes::ConvertPhaseToSpline (const VecDurations& phase_durations) const
   return spline_durations;
 }
 
-VecBound
-PhaseNodes::GetBounds () const
+
+
+EndeffectorNodes::EndeffectorNodes (int n_dim,
+                                  const ContactVector& contact_schedule,
+                                  const std::string& name,
+                                  int n_polys)
+    :PhaseNodes(n_dim, contact_schedule, name, n_polys, Motion)
 {
-  switch (type_) {
-    case Force:  return OverlayForceBounds(bounds_);
-    case Motion: return OverlayMotionBounds(bounds_);
-    default:     assert(false); // type not defined
-  }
+}
+
+EndeffectorNodes::~EndeffectorNodes ()
+{
+}
+
+bool
+EndeffectorNodes::IsContactNode (int node_id) const
+{
+  return IsConstantNode(node_id);
 }
 
 VecBound
-PhaseNodes::OverlayMotionBounds (VecBound bounds) const
+EndeffectorNodes::GetBounds () const
 {
-  double z_start = 0.0;
-  double z_new   = 0.4;
-
   for (int idx=0; idx<GetRows(); ++idx) {
-    bool is_stance = GetNodeInfo(idx).size() == 2;
+
     auto node = GetNodeInfo(idx).front(); // bound idx by first node it represents
 
-    // keep feet above ground
-    if (node.dim_ == Z)
-      bounds.at(idx) = Bound(z_start, +1.0e20); // ground is at zero height
-
-    if (is_stance) {
+    // endeffector is not allowed to move if in stance phase
+    if (IsContactNode(node.id_))
       if (node.deriv_ == kVel)
-        bounds.at(idx) = kEqualityBound_;
-
-      // stay on ground if in contact
-      if (node.dim_ == Z) {
-        bounds.at(idx) = Bound(z_start, z_start); // ground is at zero height
-
-//        // to add different terrain heights
-//        if (idx>1./2*GetRows())
-//          bounds.at(idx) = Bound(z_new, z_new); // ground is at zero height
-      }
-    }
+        bounds_.at(idx) = kEqualityBound_;
   }
 
-  return bounds;
+  return bounds_;
+}
+
+
+
+ForceNodes::ForceNodes (int n_dim, const ContactVector& contact_schedule,
+                        const std::string& name, int n_polys,
+                        double force_max)
+    :PhaseNodes(n_dim, contact_schedule, name, n_polys, Force)
+{
+  f_max_ = force_max;
+}
+
+ForceNodes::~ForceNodes ()
+{
+}
+
+bool
+ForceNodes::IsSwingNode (int node_id) const
+{
+  return IsConstantNode(node_id);
 }
 
 VecBound
-PhaseNodes::OverlayForceBounds (VecBound bounds) const
+ForceNodes::GetBounds () const
 {
-  double max_force = 10000;
   for (int idx=0; idx<GetRows(); ++idx) {
 
-    // no force or force velocity allowed during swingphase
-    bool is_swing_phase = GetNodeInfo(idx).size() == 2;
-    if (is_swing_phase)
-      bounds.at(idx) = kEqualityBound_; // position and velocity must be zero
+    NodeInfo n0 = GetNodeInfo(idx).front(); // only one node anyway
+    bool is_swing = IsSwingNode(n0.id_);
+
+    if (is_swing)
+      bounds_.at(idx) = kEqualityBound_; // force must be zero
     else { // stance-phase -> forces can be applied
 
-      NodeInfo n0 = GetNodeInfo(idx).front(); // only one node anyway
 
       if (n0.deriv_ == kPos) {
 
         if (n0.dim_ == X || n0.dim_ == Y)
-          bounds.at(idx) = Bound(-max_force, max_force);
+          bounds_.at(idx) = Bound(-f_max_, f_max_);
 
         // unilateral contact forces ("pulling" on ground not possible)
         if (n0.dim_ == Z)
-          bounds.at(idx) = Bound(0.0, max_force);
+          bounds_.at(idx) = Bound(0.0, f_max_);
       }
 
       if (n0.deriv_ == kVel && n0.dim_ == Z) {
-        bounds.at(idx) = kEqualityBound_; // zero slope to never exceed maximum height
+        bounds_.at(idx) = kEqualityBound_; // zero slope to never exceed zero force
       }
 
     }
   }
 
-  return bounds;
+  return bounds_;
 }
-
-
 
 } /* namespace opt */
 } /* namespace xpp */
+
+
