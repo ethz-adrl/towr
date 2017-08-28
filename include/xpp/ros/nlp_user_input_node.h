@@ -41,6 +41,7 @@ private:
   void CallbackJoy(const JoyMsg& msg);
 
   void ModifyGoalJoy();
+  int terrain_id_;
 
   State3dEuler goal_geom_;
 

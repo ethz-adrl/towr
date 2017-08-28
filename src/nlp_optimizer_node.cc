@@ -105,8 +105,7 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
   if (msg.replay_trajectory || msg.optimize) {
     // PublishTrajectory();
     // play back the rosbag hacky like this, as I can't find appropriate C++ API.
-    system(("rosbag play --quiet " + rosbag_name_
-           + " --topics " + xpp_msgs::opt_parameters + " " + xpp_msgs::robot_state).c_str());
+    system(("rosbag play --quiet " + rosbag_name_).c_str());
   }
 }
 
@@ -123,14 +122,14 @@ NlpOptimizerNode::BuildOptParametersMsg() const
   auto params = motion_optimizer_.GetMotionParameters();
 
   xpp_msgs::OptParameters params_msg;
-  auto max_dev_xyz = params->GetMaximumDeviationFromNominal();
+  auto max_dev_xyz = motion_optimizer_.model_->GetMaximumDeviationFromNominal();
   params_msg.ee_max_dev = RosConversions::XppToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
-  auto nominal_B = params->GetNominalStanceInBase();
+  auto nominal_B = motion_optimizer_.model_->GetNominalStanceInBase();
   for (auto ee : nominal_B.ToImpl())
     params_msg.nominal_ee_pos.push_back(RosConversions::XppToRos<geometry_msgs::Point>(ee));
 
-  params_msg.base_mass = params->GetMass();
+  params_msg.base_mass = motion_optimizer_.model_->GetMass();
 
   return params_msg;
 }
@@ -159,7 +158,7 @@ NlpOptimizerNode::SaveOptimizationAsRosbag () const
 
   // save the a-priori fixed optimization variables
   bag.write(xpp_msgs::opt_parameters, t0, BuildOptParametersMsg());
-  bag.write(xpp_msgs::user_command, t0, user_command_msg_);
+  bag.write(xpp_msgs::user_command+"_saved", t0, user_command_msg_);
 
   // save the trajectory of each iteration
   auto trajectories = motion_optimizer_.GetTrajectories(dt_);

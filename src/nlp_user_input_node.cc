@@ -39,13 +39,17 @@ NlpUserInputNode::NlpUserInputNode ()
   goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
   replay_trajectory_ = false;
   use_solver_snopt_ = false;
-  UserCommandMsg msg;
-  msg.goal_lin = RosConversions::XppToRos(goal_geom_.lin);
-  msg.goal_ang = RosConversions::XppToRos(goal_geom_.ang);
-  user_command_pub_.publish(msg);
 
-  // start walking command
-  walk_command_pub_ = n.advertise<std_msgs::Empty>(xpp_msgs::start_walking_topic,1);
+
+  terrain_id_ = opt::HeightMap::FlatID;
+
+//  UserCommandMsg msg;
+//  msg.goal_lin = RosConversions::XppToRos(goal_geom_.lin);
+//  msg.goal_ang = RosConversions::XppToRos(goal_geom_.ang);
+//  user_command_pub_.publish(msg);
+//
+//  // start walking command
+//  walk_command_pub_ = n.advertise<std_msgs::Empty>(xpp_msgs::start_walking_topic,1);
 }
 
 NlpUserInputNode::~NlpUserInputNode ()
@@ -98,6 +102,11 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       break;
     case msg.KEY_KP9:
       goal_geom_.ang.p_.z() -= d_ang; // yaw-
+      break;
+
+    // terrains
+    case msg.KEY_1:
+      terrain_id_ = terrain_id_<opt::HeightMap::K_TERRAIN_COUNT-1? terrain_id_+1 : 0;
       break;
 
 
@@ -210,7 +219,7 @@ void NlpUserInputNode::PublishCommand()
   msg.use_solver_snopt  = use_solver_snopt_;
   msg.vel_disturbance   = velocity_disturbance_;
   msg.optimize          = command_==Command::kStartWalking? true : false;
-  msg.terrain_id        = xpp::opt::HeightMap::Flat;
+  msg.terrain_id        = terrain_id_;
   user_command_pub_.publish(msg);
 
   switch (command_) {
@@ -231,6 +240,7 @@ void NlpUserInputNode::PublishCommand()
   replay_trajectory_  = false;
   velocity_disturbance_ = InitVel(); // set zero
 }
+
 
 } /* namespace ros */
 } /* namespace xpp */
