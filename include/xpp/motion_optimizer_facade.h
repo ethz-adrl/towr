@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "composite.h"
+#include "centroidal_model.h"
 #include "endeffectors.h"
 #include "height_map.h"
 #include "motion_parameters.h"
@@ -43,12 +44,12 @@ public:
   State3dEuler final_base_;
 
   HeightMap::Ptr terrain_;
+  CentroidalModel::Ptr model_;
 
   const MotionParametersPtr GetMotionParameters() const { return params_;};
 
 private:
   RobotStateVec BuildTrajectory(const OptimizationVariablesPtr&,
-                                int n_ee,
                                 double dt) const;
 
   void BuildDefaultInitialState();

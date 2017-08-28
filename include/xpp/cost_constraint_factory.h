@@ -14,6 +14,7 @@
 
 #include "cartesian_declarations.h"
 #include "composite.h"
+#include "dynamic_model.h"
 #include "endeffectors.h"
 #include "height_map.h"
 #include "motion_parameters.h"
@@ -22,7 +23,6 @@
 namespace xpp {
 namespace opt {
 
-class Component;
 
 /** Builds all types of constraints/costs for the user.
   *
@@ -44,6 +44,7 @@ public:
   void Init(const OptVarsContainer&,
             const MotionParamsPtr&,
             const HeightMap::Ptr& terrain,
+            const DynamicModel::Ptr& model,
             const EndeffectorsPos& ee_pos,
             const State3dEuler& initial_base,
             const State3dEuler& final_base);
@@ -55,6 +56,7 @@ private:
   MotionParamsPtr params;
   OptVarsContainer opt_vars_;
   HeightMap::Ptr terrain_;
+  DynamicModel::Ptr model_;
 
 
   EndeffectorsPos initial_ee_W_;

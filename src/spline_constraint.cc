@@ -22,7 +22,8 @@ SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
                                               const SplineT& spline,
                                               double t_global,
                                               const StateLinXd& state,
-                                              const DerivativeVec& derivatives)
+                                              const DerivativeVec& derivatives,
+                                              const Dimensions& dimensions)
 {
   SetName("SplineStateConstraint-" + std::to_string(id++));
 
@@ -31,9 +32,9 @@ SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
 
   state_desired_ = state;
   derivatives_   = derivatives;
-  n_dim_         = state.kNumDim;
+  dims_          = dimensions;
 
-  int n_constraints = derivatives.size()*n_dim_;
+  int n_constraints = derivatives.size()*dims_.size();
   AddOptimizationVariables(opt_vars);
   SetRows(n_constraints);
 }
@@ -50,11 +51,9 @@ SplineStateConstraint::GetValues () const
   StateLinXd state_of_poly = spline_->GetPoint(t_global_);
 
   int row = 0; // constraint count
-  for (auto dxdt :  derivatives_) {
-
-    g.middleRows(row,n_dim_) = state_of_poly.GetByIndex(dxdt);
-    row += n_dim_;
-  }
+  for (auto dxdt :  derivatives_)
+    for (auto dim :  dims_)
+      g(row++) = state_of_poly.GetByIndex(dxdt)(dim);
 
   return g;
 }
@@ -68,8 +67,9 @@ SplineStateConstraint::FillJacobianWithRespectTo (std::string var_set,
     for (auto dxdt :  derivatives_) {
 
       Jacobian jac_deriv = spline_->GetJacobian(t_global_, dxdt);
-      jac.middleRows(row,n_dim_) = jac_deriv;
-      row += n_dim_;
+      for (auto dim :  dims_) {
+        jac.row(row++) = jac_deriv.row(dim);
+      }
     }
   }
 }
@@ -81,9 +81,8 @@ SplineStateConstraint::GetBounds () const
 
   for (auto dxdt :  derivatives_) {
     VectorXd state = state_desired_.GetByIndex(dxdt);
-    for (int dim=0; dim<n_dim_; ++dim) {
+    for (auto dim :  dims_)
       bounds.push_back(Bound(state(dim), state(dim)));
-    }
   }
 
   return bounds;
@@ -95,15 +94,14 @@ SplineStateConstraint::GetBounds () const
 
 
 SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
-                                    const std::string& spline_id,
-                                    const VecTimes& poly_durations,
-                                    const DerivativeVec& derivatives
-                                    )
+                                                    const std::string& spline_id,
+                                                    const DerivativeVec& derivatives
+                                                    )
 {
   SetName("SplineJunctionConstraint-" + spline_id);
 
   // need specific functions from coefficient spline
-  spline_        = std::dynamic_pointer_cast<CoeffSpline>(Spline::BuildSpline(opt_vars, spline_id, poly_durations));
+  spline_        = opt_vars->GetComponent<CoeffSpline>(spline_id);
   derivatives_   = derivatives;
   n_dim_         = spline_->GetPoint(0.0).kNumDim;
 

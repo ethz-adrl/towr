@@ -17,15 +17,14 @@
 namespace xpp {
 namespace opt {
 
+
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       const DynamicModelPtr& m,
-                                      double gravity,
-                                      double T,
-                                      double dt)
-    :TimeDiscretizationConstraint(T, dt, opt_vars)
+                                      const std::vector<double>& base_poly_durations)
+    :TimeDiscretizationConstraint(opt_vars)
 {
   model_ = m;
-  gravity_ = gravity;
+  gravity_ = m->GetGravityAcceleration();
 
 
   SetName("DynamicConstraint");
@@ -38,8 +37,29 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
     ee_timings_.push_back(opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
   }
 
-  SetRows(GetNumberOfNodes()*kDim6d);
 
+
+  double t_node = 0.0;
+  dts_ = {t_node};
+
+  double eps = 1e-6; // assume all polynomials have equal duration
+  for (int i=0; i<base_poly_durations.size()-1; ++i) {
+    double d = base_poly_durations.at(i);
+    t_node += d;
+    dts_.push_back(t_node-d/2.); // enforce dynamics at center of node
+    dts_.push_back(t_node);
+//    dts_.push_back(t_node-eps); // this results in continous acceleration along junctions
+//    dts_.push_back(t_node+eps);
+  }
+
+  double final_d = base_poly_durations.back();
+  t_node += final_d;
+  dts_.push_back(t_node-final_d/2);
+  dts_.push_back(t_node); // also ensure constraints at very last node/time.
+
+
+
+  SetRows(GetNumberOfNodes()*kDim6d);
   converter_ = AngularStateConverter(base_angular_);
 }
 

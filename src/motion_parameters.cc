@@ -29,12 +29,6 @@ namespace opt {
 //  return phases;
 //}
 
-MotionParameters::MaxDevXYZ
-MotionParameters::GetMaximumDeviationFromNominal () const
-{
-  return max_dev_xy_;
-}
-
 MotionParameters::CostWeights
 MotionParameters::GetCostWeights () const
 {
@@ -82,13 +76,6 @@ MotionParameters::GetBasePolyDurations () const
   return base_spline_timings_;
 }
 
-double
-MotionParameters::GetStandingZForce () const
-{
-  double g = GetGravityAcceleration();
-  double m = GetMass();
-  return m*g/GetEECount();
-}
 
 MotionParameters::~MotionParameters ()
 {

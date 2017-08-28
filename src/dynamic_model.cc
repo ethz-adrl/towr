@@ -16,6 +16,8 @@ DynamicModel::DynamicModel (int ee_count)
 {
   for (int ee=0; ee<ee_count; ee++)
     ee_ids_.push_back(static_cast<EndeffectorID>(ee));
+
+  nominal_stance_.SetCount(ee_count);
 }
 
 DynamicModel::~DynamicModel ()

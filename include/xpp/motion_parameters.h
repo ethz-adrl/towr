@@ -36,28 +36,20 @@ public:
   using Phase            = std::pair<EndeffectorsBool, double>;
   using ContactSchedule  = std::vector<Phase>;
 
-  using PosXY            = Vector2d;
-  using PosXYZ           = Vector3d;
-  using MaxDevXYZ        = Vector3d;
-  using NominalStance    = EndeffectorsPos;
+
   using CostWeights      = std::vector<std::pair<CostName, double>>;
   using UsedConstraints  = std::vector<ConstraintName>;
 
   using VecTimes         = std::vector<double>;
-  using FixedVariables   = std::shared_ptr<Composite>;
 
   virtual ~MotionParameters();
 
-  int GetEECount() const { return robot_ee_.size(); };
-  NominalStance GetNominalStanceInBase() const { return nominal_stance_; };
-//  ContactSchedule GetContactSchedule() const;
-  MaxDevXYZ GetMaximumDeviationFromNominal() const;
+
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
   double GetTotalTime() const;
 
   VecTimes GetBasePolyDurations() const;
-  double GetStandingZForce() const;
   bool ConstraintExists(ConstraintName c) const;
 
 
@@ -67,42 +59,23 @@ public:
 
   double dt_base_polynomial_;
   double dt_range_of_motion_;
-  double dt_dynamic_constraint_; /// how many times dynamics are enforced
 
   double min_phase_duration_;
   double max_phase_duration_;
 
-  Eigen::Matrix3d GetInertiaParameters() const {return interia_; };
-  double GetMass() const {return mass_; };
+
   double GetForceLimit() const {return force_limit_; };
 
-  EEVec robot_ee_;
   ContactTimings contact_timings_;
 
-  double GetGravityAcceleration() const { return 9.80665; }; // [m/s^2]
 
 protected:
-  Eigen::Matrix3d interia_;
-  double mass_;
   double force_limit_;
 
-  MaxDevXYZ max_dev_xy_;
+
   ContactSequence contact_sequence_;
-  NominalStance nominal_stance_;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
-
-
-  static Eigen::Matrix3d buildInertiaTensor(
-          double Ixx, double Iyy, double Izz,
-          double Ixy, double Ixz, double Iyz)
-  {
-    Eigen::Matrix3d I;
-    I <<  Ixx, -Ixy, -Ixz,
-         -Ixy,  Iyy, -Iyz,
-         -Ixz, -Iyz,  Izz;
-    return I;
-  }
 };
 
 } // namespace opt

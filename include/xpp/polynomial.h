@@ -19,27 +19,8 @@
 namespace xpp {
 namespace opt {
 
-class Polynomial;
+
 enum PolynomialCoeff { A=0, B, C, D, E, F, G, H, I, J}; // allowed to add more
-
-class PolynomialVars : public Component {
-public:
-  using PolynomialPtr = std::shared_ptr<Polynomial>;
-
-  PolynomialVars(const std::string& id, const PolynomialPtr& poly);
-  virtual ~PolynomialVars() {};
-
-  VectorXd GetValues () const override;
-  void SetValues (const VectorXd& optimized_coeff) override;
-//  VecBound GetBounds () const override;
-  Jacobian GetJacobian(double t_local, MotionDerivative dxdt) const;
-
-  PolynomialPtr GetPolynomial() const { return polynomial_; };
-
-private:
-  PolynomialPtr polynomial_;
-  int Index(PolynomialCoeff coeff, int dim) const;
-};
 
 
 
@@ -53,6 +34,7 @@ public:
   // xd(t)  =  5Ft^4 +  4Et^3 + 3Dt^2 + 2Ct   + B
   // xdd(t) = 20Ft^3 + 12Et^2 + 6Dt   + 2C
   using CoeffIDVec = std::vector<PolynomialCoeff>;
+  using Ptr        = std::shared_ptr<Polynomial>;
 
 public:
   Polynomial(int order, int dim);
@@ -60,8 +42,8 @@ public:
 
   StateLinXd GetPoint(double t_local) const;
 
-  void SetConstantPos(const VectorXd& value);
   void SetCoefficient(PolynomialCoeff coeff, int dim, double value);
+  void SetCoefficient(PolynomialCoeff coeff, const VectorXd& value);
 
   int GetCoeffCount() const { return coeff_ids_.size()*n_dim_; };
 
@@ -107,6 +89,24 @@ public:
 private:
   double T_;
   Node n0_, n1_;
+};
+
+
+class PolynomialVars : public Component {
+public:
+
+  PolynomialVars(const std::string& id, const Polynomial::Ptr& poly);
+  virtual ~PolynomialVars() {};
+
+  VectorXd GetValues () const override;
+  void SetValues (const VectorXd& optimized_coeff) override;
+  Jacobian GetJacobian(double t_local, MotionDerivative dxdt) const;
+
+  Polynomial::Ptr GetPolynomial() const { return polynomial_; };
+
+private:
+  Polynomial::Ptr polynomial_;
+  int Index(PolynomialCoeff coeff, int dim) const;
 };
 
 

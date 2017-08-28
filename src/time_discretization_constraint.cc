@@ -31,6 +31,11 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
   AddOptimizationVariables(opt_vars);
 }
 
+TimeDiscretizationConstraint::TimeDiscretizationConstraint (const OptVarsPtr& opt_vars)
+{
+  AddOptimizationVariables(opt_vars);
+}
+
 TimeDiscretizationConstraint::~TimeDiscretizationConstraint ()
 {
 }

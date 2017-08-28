@@ -22,7 +22,10 @@ namespace opt {
   */
 class TimeDiscretizationConstraint : public Constraint {
 public:
+  using EvaluationTimes = std::vector<double>;
+
   TimeDiscretizationConstraint (double T, double dt, const OptVarsPtr& opt_vars);
+  TimeDiscretizationConstraint (const OptVarsPtr& opt_vars);
   virtual ~TimeDiscretizationConstraint ();
 
   VectorXd GetValues() const override;
@@ -31,6 +34,7 @@ public:
 
 protected:
   int GetNumberOfNodes() const;
+  EvaluationTimes dts_; ///< times at which the constraint is evaluated.
 
 private:
   /** Sets the constraint value a specific time t, corresponding to node k.
@@ -45,7 +49,6 @@ private:
    */
   virtual void UpdateJacobianAtInstance(double t, int k, Jacobian&, std::string) const = 0;
 
-  std::vector<double> dts_; ///< discretized times
 };
 
 } /* namespace opt */

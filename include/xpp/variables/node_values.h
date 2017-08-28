@@ -117,8 +117,6 @@ public:
   void SetIndexMappings();
 
 
-
-
   int GetDimCount() const { return n_dim_; };
 
 protected:

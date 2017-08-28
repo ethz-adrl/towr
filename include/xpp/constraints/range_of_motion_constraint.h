@@ -45,6 +45,8 @@ public:
 
   RangeOfMotionBox(const OptVarsPtr& opt_vars,
                    const MotionParamsPtr& params,
+                   const Vector3d& nominal_ee_pos_B,
+                   const Vector3d& max_deviation_from_nominal,
                    const EndeffectorID& ee);
   virtual ~RangeOfMotionBox();
 
@@ -61,7 +63,7 @@ private:
   SchedulePtr ee_timings_;
 
   Vector3d max_deviation_from_nominal_;
-  Vector3d nominal_ee_pos_B;
+  Vector3d nominal_ee_pos_B_;
   AngularStateConverter converter_;
 
   EndeffectorID ee_;

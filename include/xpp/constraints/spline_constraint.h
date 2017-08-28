@@ -31,12 +31,14 @@ public:
   using DerivativeVec  = std::vector<MotionDerivative>;
   using PolyPtr        = std::shared_ptr<PolynomialVars>;
   using SplineT        = std::shared_ptr<Spline>;
+  using Dimensions     = std::vector<Coords3D>;
 
   SplineStateConstraint (const OptVarsPtr& opt_vars,
                          const SplineT& spline,
                          double t_global,
                          const StateLinXd& state,
-                         const DerivativeVec&);
+                         const DerivativeVec&,
+                         const Dimensions&);
   virtual ~SplineStateConstraint ();
 
   VectorXd GetValues() const override;
@@ -47,7 +49,7 @@ private:
   double t_global_;
   StateLinXd state_desired_;
   DerivativeVec derivatives_;
-  int n_dim_;
+  Dimensions dims_;
   SplineT spline_;
 };
 
@@ -62,7 +64,6 @@ public:
 
   SplineJunctionConstraint (const OptVarsPtr& opt_vars,
                             const std::string& spline_id,
-                            const VecTimes& poly_durations,
                             const DerivativeVec&);
   virtual ~SplineJunctionConstraint ();
 

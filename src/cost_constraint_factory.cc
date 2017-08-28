@@ -41,6 +41,7 @@ void
 CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
                              const MotionParamsPtr& _params,
                              const HeightMap::Ptr& terrain,
+                             const DynamicModel::Ptr& model,
                              const EndeffectorsPos& ee_pos,
                              const State3dEuler& initial_base,
                              const State3dEuler& final_base)
@@ -48,6 +49,7 @@ CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
   opt_vars_ = opt_vars;
   params    = _params;
   terrain_  = terrain;
+  model_    = model;
 
   initial_ee_W_ = ee_pos;
   initial_base_ = initial_base;
@@ -85,49 +87,59 @@ CostConstraintFactory::MakeStateConstraint () const
   auto constraints = std::make_shared<Composite>("State Initial Constraints", true);
 
 
-  auto base_poly_durations = params->GetBasePolyDurations();
-
-  auto derivs = {kPos, kVel};//, kAcc};
-
-
-  auto spline_lin = Spline::BuildSpline(opt_vars_, id::base_linear, base_poly_durations);
-  auto spline_ang = Spline::BuildSpline(opt_vars_, id::base_angular, base_poly_durations);
-
+  auto spline_lin = opt_vars_->GetComponent<Spline>(id::base_linear);
+  auto spline_ang = opt_vars_->GetComponent<Spline>(id::base_angular);
 
 
   // initial base constraints
   double t = 0.0; // initial time
-  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, t, initial_base_.lin, derivs));
-  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, t, initial_base_.ang, derivs));
+  auto dim = {X, Y, Z};
+  auto derivs = {kPos, kVel};
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, t, initial_base_.lin, derivs, dim));
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, t, initial_base_.ang, derivs, dim));
 
 
-//  // final base constraints
+//  // final linear and angular velocities must be zero
   double T = params->GetTotalTime();
-  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, T, final_base_.lin, derivs));
-  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, T, final_base_.ang, derivs));
+
+  dim = {X,Y};
+  derivs = {kPos};
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, T, final_base_.lin, derivs, dim));
+
+  // final yaw
+  dim = {Z};
+  derivs = {kPos};
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, T, final_base_.ang, derivs, dim));
+
+  dim = {X, Y, Z};
+  derivs = {kVel};
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_lin, T, final_base_.lin, derivs, dim));
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ang, T, final_base_.ang, derivs, dim));
 
 
 
-  // endeffector constraints
-  for (auto ee : params->robot_ee_) {
 
-    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEMotionId(ee), {});
 
-    // initial endeffectors constraints
-    // zmp_ replace these by normal variable bounds on the hermite-poly nodes
-    auto deriv_ee = {kPos}; // velocity and acceleration not yet implemented
-    auto c = std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, t,
-                                                     VectorXd(initial_ee_W_.At(ee)),
-                                                     deriv_ee);
-//    constraints->AddComponent(c);
-
-    // final endeffectors constraints
-    Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
-    EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
-    VectorXd ee_pos_W = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
-//    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, T, ee_pos_W, deriv_ee));
-
-  }
+//  // endeffector constraints
+//  for (auto ee : params->robot_ee_) {
+//
+//    auto spline_ee = Spline::BuildSpline(opt_vars_, id::GetEEMotionId(ee), {});
+//
+//    // initial endeffectors constraints
+//    // zmp_ replace these by normal variable bounds on the hermite-poly nodes
+//    auto deriv_ee = {kPos}; // velocity and acceleration not yet implemented
+//    auto c = std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, t,
+//                                                     VectorXd(initial_ee_W_.At(ee)),
+//                                                     deriv_ee);
+////    constraints->AddComponent(c);
+//
+//    // final endeffectors constraints
+//    Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
+//    EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
+//    VectorXd ee_pos_W = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
+////    constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, spline_ee, T, ee_pos_W, deriv_ee));
+//
+//  }
 
   return constraints;
 }
@@ -143,17 +155,16 @@ CostConstraintFactory::MakeJunctionConstraint () const
   // its accelerations equal to the first.
   auto derivatives = {kPos, kVel, kAcc};
 
-  auto durations_base = params->GetBasePolyDurations();
-  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, durations_base, derivatives));
-  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, durations_base, derivatives));
+  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, derivatives));
+  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, derivatives));
 
-  for (auto ee : params->robot_ee_) {
+//  for (auto ee : params->robot_ee_) {
 //    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);
 
 //    auto derivs_pos_vel = {kPos, kVel};
 //    junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::GetEEId(ee), durations_ee, derivs_pos_vel));
 
-  }
+//  }
 
   return junction_constraints;
 }
@@ -163,18 +174,11 @@ CostConstraintFactory::MakeJunctionConstraint () const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
-//  model_ = std::make_shared<LIPModel>();
-  auto dynamic_model = std::make_shared<CentroidalModel>(params->GetMass(),
-                                                         params->GetInertiaParameters(),
-                                                         params->GetEECount());
-
-  double dt = params->dt_dynamic_constraint_;
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
-                                                        dynamic_model,
-                                                        params->GetGravityAcceleration(),
-                                                        params->GetTotalTime(),
-                                                        dt
+                                                        model_,
+                                                        params->GetBasePolyDurations()
                                                         );
+
   return constraint;
 }
 
@@ -185,10 +189,12 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 
   double T = params->GetTotalTime();
 
-  for (auto ee : params->robot_ee_) {
+  for (auto ee : model_->GetEEIDs()) {
     auto rom_constraints = std::make_shared<RangeOfMotionBox>(opt_vars_,
-                                                params,
-                                                ee);
+                                                              params,
+                                                              model_->GetNominalStanceInBase().At(ee),
+                                                              model_->GetMaximumDeviationFromNominal(),
+                                                              ee);
 
     c->AddComponent(rom_constraints);
   }
@@ -203,7 +209,7 @@ CostConstraintFactory::MakeTotalTimeConstraint () const
   auto c = std::make_shared<Composite>("Range-of-Motion Constraints", true);
   double T = params->GetTotalTime();
 
-  for (auto ee : params->robot_ee_) {
+  for (auto ee : model_->GetEEIDs()) {
     auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
     c->AddComponent(duration_constraint);
   }
@@ -216,7 +222,7 @@ CostConstraintFactory::MakeTerrainConstraint () const
 {
   auto constraints = std::make_shared<Composite>("Terrain Constraints", true);
 
-  for (auto ee : params->robot_ee_) {
+  for (auto ee : model_->GetEEIDs()) {
     auto c = std::make_shared<TerrainConstraint>(terrain_,
                                                  opt_vars_,
                                                  id::GetEEMotionId(ee));
@@ -232,7 +238,7 @@ CostConstraintFactory::MakeForcesCost(double weight) const
 {
   auto cost = std::make_shared<Composite>("Forces Cost", false);
 
-  for (auto ee : params->robot_ee_) {
+  for (auto ee : model_->GetEEIDs()) {
     auto f_cost = std::make_shared<NodeCost>(opt_vars_, id::GetEEForceId(ee));
     cost->AddComponent(f_cost);
   }

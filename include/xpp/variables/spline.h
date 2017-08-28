@@ -14,7 +14,6 @@
 #include <vector>
 
 #include <xpp/cartesian_declarations.h>
-#include <xpp/composite.h>
 #include <xpp/polynomial.h>
 #include <xpp/state.h>
 
@@ -29,22 +28,13 @@ namespace opt {
   */
 class Spline {
 public:
-  using PPtr      = std::shared_ptr<Polynomial>;
-  using VecP      = std::vector<PPtr>;
   using Ptr       = std::shared_ptr<Spline>;
-
-  using OptVarsPtr = Primitive::OptVarsPtr;
-  using VecTimes   = std::vector<double>;
-  using LocalInfo  = std::pair<int,double>; ///< id and local time
+  using VecTimes  = std::vector<double>;
+  using LocalInfo = std::pair<int,double>; ///< id and local time
 
   Spline ();
   virtual ~Spline ();
 
-  // zmp_ this is ugly as i only use durations for coeff_spline spline...
-  // remove duration from here
-  static Spline::Ptr BuildSpline(const OptVarsPtr& opt_vars,
-                                 const std::string& spline_base_id,
-                                 const VecTimes& poly_durations);
 
   static int GetSegmentID(double t_global, const VecTimes& durations);
   static LocalInfo GetLocalTime(double t_global, const VecTimes& durations);

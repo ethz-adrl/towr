@@ -22,76 +22,6 @@ namespace xpp {
 namespace opt {
 
 
-PolynomialVars::PolynomialVars (const std::string& id, const PolynomialPtr& poly)
-    : Component(-1, id)
-{
-  polynomial_ = poly;
-  SetRows(polynomial_->GetCoeffCount());
-}
-
-int
-PolynomialVars::Index(PolynomialCoeff coeff, int dim) const
-{
-  return coeff*polynomial_->GetDimCount() + dim;
-}
-
-VectorXd
-PolynomialVars::GetValues () const
-{
-  VectorXd x(GetRows());
-  for (auto c : polynomial_->GetCoeffIds())
-    for (int dim=0; dim<polynomial_->GetDimCount(); ++dim) {
-      double val = polynomial_->GetCoefficients(c)(dim);
-      x(Index(c, dim)) = val;
-    }
-
-  return x;
-}
-
-void
-PolynomialVars::SetValues (const VectorXd& x)
-{
-  for (auto c : polynomial_->GetCoeffIds()) {
-    for (int dim=0; dim<polynomial_->GetDimCount(); ++dim) {
-      double val = x(Index(c, dim));
-      polynomial_->SetCoefficient(c, dim, val);
-    }
-  }
-}
-
-//VecBound
-//PolynomialVars::GetBounds () const
-//{
-//  VecBound bounds(GetRows(), kNoBound_);
-//
-//  for (auto c : polynomial_->GetCoeffIds()) {
-//    for (int dim=0; dim<polynomial_->GetDimCount(); ++dim) {
-//      double idx = Index(c, dim);
-//      if (c==B && dim==Z)
-//        bounds.at(idx) = kEqualityBound_;
-//    }
-//  }
-//  return bounds;
-//}
-
-
-Jacobian
-PolynomialVars::GetJacobian (double t_local, MotionDerivative dxdt) const
-{
-  int n_dim = polynomial_->GetDimCount();
-  Jacobian jac(n_dim, GetRows());
-
-  for (int dim=0; dim<n_dim; ++dim) {
-    for (PolynomialCoeff c : polynomial_->GetCoeffIds()) {
-
-      int idx = Index(c, dim);
-      jac.insert(dim, idx) = polynomial_->GetDerivativeWrtCoeff(t_local, dxdt, c);
-    }
-  }
-
-  return jac;
-}
-
 Polynomial::Polynomial (int order, int dim)
 {
   int n_coeff = order+1;
@@ -105,16 +35,16 @@ Polynomial::Polynomial (int order, int dim)
 }
 
 
-void
-Polynomial::SetConstantPos (const VectorXd& value)
-{
-  coeff_.at(A) = value;
-}
-
 VectorXd
 Polynomial::GetCoefficients (PolynomialCoeff c) const
 {
   return coeff_.at(c);
+}
+
+void
+Polynomial::SetCoefficient (PolynomialCoeff coeff, const VectorXd& value)
+{
+  coeff_.at(coeff) = value;
 }
 
 StateLinXd Polynomial::GetPoint(double t_local) const
@@ -303,6 +233,79 @@ CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
 //         - (3*t3*(2*p0 - 2*p1 + T*v0 + T*v1))/T4
 //         + (2*t2*(3*p0 - 3*p1 + 2*T*v0 + T*v1))/T3
 }
+
+
+
+
+
+PolynomialVars::PolynomialVars (const std::string& id, const Polynomial::Ptr& poly)
+    : Component(-1, id)
+{
+  polynomial_ = poly;
+  SetRows(polynomial_->GetCoeffCount());
+}
+
+int
+PolynomialVars::Index(PolynomialCoeff coeff, int dim) const
+{
+  return coeff*polynomial_->GetDimCount() + dim;
+}
+
+VectorXd
+PolynomialVars::GetValues () const
+{
+  VectorXd x(GetRows());
+  for (auto c : polynomial_->GetCoeffIds())
+    for (int dim=0; dim<polynomial_->GetDimCount(); ++dim) {
+      double val = polynomial_->GetCoefficients(c)(dim);
+      x(Index(c, dim)) = val;
+    }
+
+  return x;
+}
+
+void
+PolynomialVars::SetValues (const VectorXd& x)
+{
+  for (auto c : polynomial_->GetCoeffIds()) {
+    for (int dim=0; dim<polynomial_->GetDimCount(); ++dim) {
+      double val = x(Index(c, dim));
+      polynomial_->SetCoefficient(c, dim, val);
+    }
+  }
+}
+
+Jacobian
+PolynomialVars::GetJacobian (double t_local, MotionDerivative dxdt) const
+{
+  int n_dim = polynomial_->GetDimCount();
+  Jacobian jac(n_dim, GetRows());
+
+  for (int dim=0; dim<n_dim; ++dim) {
+    for (PolynomialCoeff c : polynomial_->GetCoeffIds()) {
+
+      int idx = Index(c, dim);
+      jac.insert(dim, idx) = polynomial_->GetDerivativeWrtCoeff(t_local, dxdt, c);
+    }
+  }
+
+  return jac;
+}
+
+//VecBound
+//PolynomialVars::GetBounds () const
+//{
+//  VecBound bounds(GetRows(), kNoBound_);
+//
+//  for (auto c : polynomial_->GetCoeffIds()) {
+//    for (int dim=0; dim<polynomial_->GetDimCount(); ++dim) {
+//      double idx = Index(c, dim);
+//      if (c==B && dim==Z)
+//        bounds.at(idx) = kEqualityBound_;
+//    }
+//  }
+//  return bounds;
+//}
 
 
 

@@ -8,7 +8,14 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
 
+#include <memory>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+#include "composite.h"
 #include "dynamic_model.h"
+#include "endeffectors.h"
+#include "state.h"
 
 namespace xpp {
 namespace opt {
@@ -18,6 +25,8 @@ namespace opt {
  */
 class CentroidalModel : public DynamicModel {
 public:
+  using Ptr = std::shared_ptr<CentroidalModel>;
+
   CentroidalModel (double mass, const Eigen::Matrix3d& inertia, int ee_count);
   virtual ~CentroidalModel ();
 
@@ -29,6 +38,12 @@ public:
                                             EndeffectorID) const override;
   virtual Jacobian GetJacobianofAccWrtEEPos(const Jacobian& jac_ee_pos,
                                             EndeffectorID) const override;
+
+  double GetStandingZForce() const;
+  double GetMass() const { return m_; };
+
+
+
 
 private:
   double m_;          /// mass of robot
@@ -48,6 +63,42 @@ private:
     return out;
   }
 };
+
+
+
+class MonopedCentroidalModel : public CentroidalModel {
+public:
+  MonopedCentroidalModel();
+  ~MonopedCentroidalModel() {};
+};
+
+
+class BipedCentroidalModel : public CentroidalModel {
+public:
+  BipedCentroidalModel();
+  ~BipedCentroidalModel() {};
+};
+
+class HyqCentroidalModel : public CentroidalModel {
+public:
+  HyqCentroidalModel();
+  ~HyqCentroidalModel() {};
+};
+
+
+class AnymalCentroidalModel : public CentroidalModel {
+public:
+  AnymalCentroidalModel();
+  ~AnymalCentroidalModel() {};
+};
+
+class QuadrotorCentroidalModel : public CentroidalModel {
+public:
+  QuadrotorCentroidalModel();
+  ~QuadrotorCentroidalModel() {};
+};
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

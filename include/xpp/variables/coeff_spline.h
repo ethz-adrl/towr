@@ -22,17 +22,21 @@
 namespace xpp {
 namespace opt {
 
-class CoeffSpline : public Spline {
+// doesn't hold any variables, just for keeping the struct in optimization
+// variables
+class CoeffSpline : public Spline, public Component {
 public:
-
   using VarsPtr   = std::shared_ptr<PolynomialVars>;
   using VecVars   = std::vector<VarsPtr>;
 
 
-  CoeffSpline(const OptVarsPtr& opt_vars,
-              const std::string& spline_base_id,
+  CoeffSpline(const std::string& spline_base_id,
               const VecTimes& poly_durations);
   virtual ~CoeffSpline();
+
+
+  // linear interpolation from start to goal
+  void InitializeVariables(const VectorXd& initial_pos, const VectorXd& final_pos);
 
 
   virtual const StateLinXd GetPoint(double t_global) const override;
@@ -40,20 +44,19 @@ public:
   virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const override;
 
 
-  int GetPolyCount() const { return polynomials_.size(); };
+  int GetPolyCount() const { return poly_vars_.size(); };
   double GetDurationOfPoly(int id) const { return durations_.at(id); };
 
 
   // these are critical to expose... try not to
-  PPtr GetPolynomial(int id) const { return polynomials_.at(id); }
+  Polynomial::Ptr GetPolynomial(int id) const { return poly_vars_.at(id)->GetPolynomial(); }
   VarsPtr GetVarSet(int id) const { return poly_vars_.at(id); }
 
+  VecVars poly_vars_;  ///< the opt. variables that influence the polynomials
 private:
   VarsPtr GetActiveVariableSet(double t_global) const;
 
   VecTimes durations_; ///< duration of each polynomial in spline
-  VecVars poly_vars_;  ///< the opt. variables that influence the polynomials
-  VecP polynomials_;   ///< the polynomials
 };
 
 } /* namespace opt */

@@ -53,8 +53,7 @@ NodeValues::InitializeVariables(const VectorXd& initial_pos,
                                 const VectorXd& final_pos,
                                 const VecDurations& poly_durations)
 {
-  for (int i=0; i<poly_durations.size(); ++i)
-    poly_durations_.at(i) = poly_durations.at(i);
+  poly_durations_ = poly_durations;
 
   double t_total = std::accumulate(poly_durations.begin(), poly_durations.end(), 0.0);
   VectorXd dp = final_pos-initial_pos;

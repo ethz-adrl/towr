@@ -44,7 +44,7 @@ public:
     * For constraints, each row represents one constraint.
     * For a cost, the vector has dimension 1, is scalar.
     */
-  virtual VectorXd GetValues() const = 0;
+  virtual VectorXd GetValues() const { assert(false); };
 
   // only needed for optimization variables
   virtual void SetValues(const VectorXd& x) { assert(false); };

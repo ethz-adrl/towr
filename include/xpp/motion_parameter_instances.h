@@ -26,9 +26,11 @@ public:
   virtual ~BipedMotionParameters() {};
 };
 
-class HyQMotionParameters : public MotionParameters {
+class QuadrupedMotionParameters : public MotionParameters {
 public:
-  HyQMotionParameters();
+  QuadrupedMotionParameters();
+  virtual ~QuadrupedMotionParameters() {};
+
 
 protected:
 //  // naming convention:, where the circle is is a swingleg, front is right ->.

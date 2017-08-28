@@ -25,13 +25,16 @@ namespace opt {
  */
 class DynamicModel {
 public:
+  using Ptr       = std::shared_ptr<DynamicModel>;
+  using ComPos    = Vector3d;
+  using BaseAcc   = Vector6d;
+  using EELoad    = Endeffectors<Vector3d>;
+  using EEPos     = EndeffectorsPos;
+
+
   DynamicModel (int ee_count);
   virtual ~DynamicModel ();
 
-  using ComPos    = Vector3d;
-  using BaseAcc   = Vector6d;
-  using EELoad  = Endeffectors<Vector3d>;
-  using EEPos   = EndeffectorsPos;
 
   void SetCurrent(const ComPos& com, const EELoad&, const EEPos&);
 
@@ -45,6 +48,13 @@ public:
                                             EndeffectorID) const = 0;
 
   std::vector<EndeffectorID> GetEEIDs() const;
+  int GetEECount() const { return ee_ids_.size(); };
+  double GetGravityAcceleration() const { return 9.80665; }; // [m/s^2]
+
+
+  // the kinematic parameters of the model
+  EndeffectorsPos GetNominalStanceInBase() const { return nominal_stance_; };
+  Vector3d GetMaximumDeviationFromNominal() const { return max_dev_from_nominal_; };
 
 protected:
   ComPos com_pos_;
@@ -52,6 +62,9 @@ protected:
   EEPos ee_pos_;
 
   std::vector<EndeffectorID> ee_ids_;
+  EndeffectorsPos nominal_stance_;
+  Vector3d max_dev_from_nominal_;
+
 
 
 };

@@ -10,28 +10,31 @@
 #include <algorithm>
 #include <cassert>
 #include <deque>
-#include <string>
-#include <tuple>
-#include <utility>
 #include <Eigen/Dense>
+#include <string>
+#include <utility>
 
 #include <xpp/angular_state_converter.h>
 #include <xpp/cartesian_declarations.h>
 #include <xpp/cost_constraint_factory.h>
-#include <xpp/ipopt_adapter.h>
 #include <xpp/motion_parameter_instances.h>
-#include <xpp/snopt_adapter.h>
+#include <xpp/polynomial.h>
+#include <xpp/variables/coeff_spline.h>
 #include <xpp/variables/contact_schedule.h>
 #include <xpp/variables/phase_nodes.h>
-#include <xpp/variables/spline.h>
 #include <xpp/variables/variable_names.h>
+#include <xpp/ipopt_adapter.h>
+#include <xpp/snopt_adapter.h>
 
 namespace xpp {
 namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  params_ = std::make_shared<AnymalMotionParameters>();
+  params_  = std::make_shared<QuadrupedMotionParameters>();
+  model_   = std::make_shared<AnymalCentroidalModel>();
+  terrain_ = std::make_shared<FlatGround>();
+
   BuildDefaultInitialState();
 }
 
@@ -42,12 +45,12 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 void
 MotionOptimizerFacade::BuildDefaultInitialState ()
 {
-  auto p_nom_B = params_->GetNominalStanceInBase();
+  auto p_nom_B = model_->GetNominalStanceInBase();
 
   inital_base_.lin.p_ << 0.0, 0.0, -p_nom_B.At(E0).z();
   inital_base_.ang.p_ << 0.0, 0.0, 0.0; // euler (roll, pitch, yaw)
 
-  initial_ee_W_.SetCount(params_->GetEECount());
+  initial_ee_W_.SetCount(model_->GetEECount());
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
     initial_ee_W_.At(ee) = p_nom_B.At(ee) + inital_base_.lin.p_;
     initial_ee_W_.At(ee).z() = 0.0;
@@ -62,7 +65,7 @@ MotionOptimizerFacade::BuildVariables () const
 
 
   std::vector<std::shared_ptr<ContactSchedule>> contact_schedule;
-  for (auto ee : params_->robot_ee_) {
+  for (auto ee : model_->GetEEIDs()) {
     contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,
                                                                  params_->contact_timings_.at(ee),
                                                                  params_->min_phase_duration_,
@@ -73,13 +76,13 @@ MotionOptimizerFacade::BuildVariables () const
 
 
   // Endeffector Motions
-  for (auto ee : params_->robot_ee_) {
+  for (auto ee : model_->GetEEIDs()) {
     auto nodes_motion = std::make_shared<EndeffectorNodes>(kDim3d,
                                                           contact_schedule.at(ee)->GetContactSequence(),
                                                           id::GetEEMotionId(ee),
                                                           params_->ee_splines_per_swing_phase_);
 
-    Vector3d final_ee_pos_W = final_base_.lin.p_ + params_->GetNominalStanceInBase().At(ee);
+    Vector3d final_ee_pos_W = final_base_.lin.p_ + model_->GetNominalStanceInBase().At(ee);
     nodes_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
     nodes_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // only xy, z given by terrain
 //    nodes_motion->AddFinalBound(kPos, {X,Y},final_ee_pos_W);       // only xy, z given by terrain
@@ -89,14 +92,14 @@ MotionOptimizerFacade::BuildVariables () const
   }
 
   // Endeffector Forces
-  for (auto ee : params_->robot_ee_) {
+  for (auto ee : model_->GetEEIDs()) {
     auto nodes_forces = std::make_shared<ForceNodes>(kDim3d,
                                                      contact_schedule.at(ee)->GetContactSequence(),
                                                      id::GetEEForceId(ee),
                                                      params_->force_splines_per_stance_phase_,
                                                      params_->GetForceLimit());
 
-    Vector3d f_stance(0.0, 0.0, params_->GetStandingZForce());
+    Vector3d f_stance(0.0, 0.0, model_->GetStandingZForce());
     nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule.at(ee)->GetTimePerPhase());
 
 
@@ -105,52 +108,51 @@ MotionOptimizerFacade::BuildVariables () const
   }
 
 
-  // BASE_MOTION
-  std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
-
-  auto linear  = std::make_tuple(id::base_linear,  inital_base_.lin, final_base_.lin);
-  auto angular = std::make_tuple(id::base_angular, inital_base_.ang, final_base_.ang);
-
-  for (auto tuple : {linear, angular}) {
-    std::string id   = std::get<0>(tuple);
-    StateLin3d init  = std::get<1>(tuple);
-    StateLin3d final = std::get<2>(tuple);
-
-    auto spline = std::make_shared<NodeValues>(init.kNumDim,  base_spline_timings_.size(), id);
-    spline->InitializeVariables(init.p_, final.p_, base_spline_timings_);
-
-    std::vector<int> dimensions = {X,Y,Z};
-    spline->AddStartBound(kPos, dimensions, init.p_);
-    spline->AddStartBound(kVel, dimensions, init.v_);
-
-    spline->AddFinalBound(kVel, dimensions, final.v_);
-
-    if (id == id::base_linear) {
-      spline->AddFinalBound(kPos, {X,Y}, final.p_); // only xy, z given by terrain
-//      spline->SetBoundsAboveGround();
-    }
-    if (id == id::base_angular)
-      spline->AddFinalBound(kPos, {Z}, final.p_); // roll, pitch, yaw bound
-
-
-
-//    // force intermediate jump
-//    if (id == id::base_linear) {
-//      Vector3d inter = (init.p_ + final.p_)/2.;
-//      inter.z() = 0.8;
-//      spline->AddIntermediateBound(kPos, inter);
-//    }
+//  // BASE_MOTION
+//  std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
 //
-//    if (id == id::base_angular) {
-//      spline->AddIntermediateBound(kPos, Vector3d::Zero());
+//  auto linear  = std::make_tuple(id::base_linear,  inital_base_.lin, final_base_.lin);
+//  auto angular = std::make_tuple(id::base_angular, inital_base_.ang, final_base_.ang);
+//
+//  for (auto tuple : {linear, angular}) {
+//    std::string id   = std::get<0>(tuple);
+//    StateLin3d init  = std::get<1>(tuple);
+//    StateLin3d final = std::get<2>(tuple);
+//
+//    auto spline = std::make_shared<NodeValues>(init.kNumDim,  base_spline_timings_.size(), id);
+//    spline->InitializeVariables(init.p_, final.p_, base_spline_timings_);
+//
+//    std::vector<int> dimensions = {X,Y,Z};
+//    spline->AddStartBound(kPos, dimensions, init.p_);
+//    spline->AddStartBound(kVel, dimensions, init.v_);
+//
+//    spline->AddFinalBound(kVel, dimensions, final.v_);
+//
+//    if (id == id::base_linear) {
+//      spline->AddFinalBound(kPos, {X,Y}, final.p_); // only xy, z given by terrain
+////      spline->SetBoundsAboveGround();
 //    }
+//    if (id == id::base_angular)
+//      spline->AddFinalBound(kPos, {Z}, final.p_); // roll, pitch, yaw bound
+//
+//
+//
+////    // force intermediate jump
+////    if (id == id::base_linear) {
+////      Vector3d inter = (init.p_ + final.p_)/2.;
+////      inter.z() = 0.8;
+////      spline->AddIntermediateBound(kPos, inter);
+////    }
+////
+////    if (id == id::base_angular) {
+////      spline->AddIntermediateBound(kPos, Vector3d::Zero());
+////    }
+//
+//
+//    opt_variables_->AddComponent(spline);
+//  }
 
 
-    opt_variables_->AddComponent(spline);
-  }
-
-
-//  int n_dim = inital_base_.lin.kNumDim;
 //  auto spline_lin = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_linear);
 //  spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_, base_spline_timings_);
 //  spline_lin->AddBound(0,   kPos, inital_base_.lin.p_);
@@ -170,20 +172,32 @@ MotionOptimizerFacade::BuildVariables () const
 
 
 
-//  int order = params_->order_coeff_polys_;
+  int n_dim = inital_base_.lin.kNumDim;
+  int order = params_->order_coeff_polys_;
 
-//
-//  for (int i=0; i<base_spline_timings_.size(); ++i) {
-//    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
-//    p_lin->SetConstantPos(inital_base_.lin.p_);
-//    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin));
-//  }
-//
-//  for (int i=0; i<base_spline_timings_.size(); ++i) {
-//    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
-//    p_ang->SetConstantPos(inital_base_.ang.p_);
-//    opt_variables_->AddComponent(std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang));
-//  }
+  std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
+  auto coeff_spline_ang = std::make_shared<CoeffSpline>(id::base_angular, base_spline_timings_);
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
+    auto var = std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang);
+    opt_variables_->AddComponent(var);
+
+    coeff_spline_ang->poly_vars_.push_back(var);
+  }
+  coeff_spline_ang->InitializeVariables(inital_base_.ang.p_, final_base_.ang.p_);
+  opt_variables_->AddComponent(coeff_spline_ang, false); // add just for easy access later
+
+
+  auto coeff_spline_lin = std::make_shared<CoeffSpline>(id::base_linear, base_spline_timings_);
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
+    auto var = std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin);
+    opt_variables_->AddComponent(var);
+    coeff_spline_lin->poly_vars_.push_back(var);
+  }
+  coeff_spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_);
+  opt_variables_->AddComponent(coeff_spline_lin, false); // add just for easy access later
+
 
 
 
@@ -195,7 +209,7 @@ void
 MotionOptimizerFacade::BuildCostConstraints(const OptimizationVariablesPtr& opt_variables)
 {
   CostConstraintFactory factory;
-  factory.Init(opt_variables, params_, terrain_,
+  factory.Init(opt_variables, params_, terrain_, model_,
                initial_ee_W_, inital_base_, final_base_);
 
   auto constraints = std::make_unique<Composite>("constraints", true);
@@ -238,7 +252,7 @@ MotionOptimizerFacade::GetTrajectories (double dt) const
 
   for (int iter=0; iter<nlp.GetIterationCount(); ++iter) {
     auto opt_var = nlp.GetOptVariables(iter);
-    trajectories.push_back(BuildTrajectory(opt_var, params_->GetEECount(), dt));
+    trajectories.push_back(BuildTrajectory(opt_var, dt));
   }
 
   return trajectories;
@@ -246,7 +260,6 @@ MotionOptimizerFacade::GetTrajectories (double dt) const
 
 MotionOptimizerFacade::RobotStateVec
 MotionOptimizerFacade::BuildTrajectory (const OptimizationVariablesPtr& vars,
-                                        int n_ee,
                                         double dt) const
 {
   RobotStateVec trajectory;
@@ -254,7 +267,7 @@ MotionOptimizerFacade::BuildTrajectory (const OptimizationVariablesPtr& vars,
   double T = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(E0))->GetTotalTime();
   while (t<=T+1e-5) {
 
-    RobotStateCartesian state(n_ee);
+    RobotStateCartesian state(model_->GetEECount());
 
     state.base_.lin = vars->GetComponent<Spline>(id::base_linear)->GetPoint(t);
     state.base_.ang = AngularStateConverter::GetState(vars->GetComponent<Spline>(id::base_angular)->GetPoint(t));
