@@ -22,7 +22,7 @@ namespace opt {
 
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
                        FinalComCostID, FinalStanceCostID, ForcesCostID };
-enum ConstraintName  { BasePoly, Dynamic, RomBox, TotalTime, Terrain };
+enum ConstraintName  { BasePoly, Dynamic, RomBox, TotalTime, Terrain, Swing };
 
 /** This class holds all the hardcoded values describing a motion.
   * This is specific to the robot and the type of motion desired.

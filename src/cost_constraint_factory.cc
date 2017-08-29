@@ -19,6 +19,7 @@
 #include <xpp/constraints/range_of_motion_constraint.h>
 #include <xpp/constraints/spline_constraint.h>
 #include <xpp/constraints/terrain_constraint.h>
+#include <xpp/constraints/swing_constraint.h>
 #include <xpp/costs/node_cost.h>
 #include <xpp/costs/soft_constraint.h>
 #include <xpp/variables/contact_schedule.h>
@@ -65,6 +66,7 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
     case RomBox:      return MakeRangeOfMotionBoxConstraint();
     case TotalTime:   return MakeTotalTimeConstraint();
     case Terrain:     return MakeTerrainConstraint();
+    case Swing:       return MakeSwingConstraint();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -266,6 +268,20 @@ CostConstraintFactory::MakeTerrainConstraint () const
                                                  opt_vars_,
                                                  id::GetEEMotionId(ee));
     constraints->AddComponent(c);
+  }
+
+  return constraints;
+}
+
+CostConstraintFactory::ComponentPtr
+CostConstraintFactory::MakeSwingConstraint () const
+{
+  auto constraints = std::make_shared<Composite>("Swing Constraints", true);
+
+  for (auto ee : model_->GetEEIDs()) {
+    auto swing = std::make_shared<SwingConstraint>(opt_vars_,
+                                                   id::GetEEMotionId(ee));
+    constraints->AddComponent(swing);
   }
 
   return constraints;

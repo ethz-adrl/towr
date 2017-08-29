@@ -66,11 +66,11 @@ private:
 
   // constraints
   ComponentPtr MakeStateConstraint() const;
-//  ComponentPtr MakeJunctionConstraint() const;
   ComponentPtr MakeDynamicConstraint() const;
   ComponentPtr MakeRangeOfMotionBoxConstraint() const;
   ComponentPtr MakeTotalTimeConstraint() const;
   ComponentPtr MakeTerrainConstraint() const;
+  ComponentPtr MakeSwingConstraint() const;
 
   // costs
   ComponentPtr MakeForcesCost(double weight) const;

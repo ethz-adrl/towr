@@ -35,6 +35,7 @@ TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
     if (ee_motion_->IsContactNode(i))
       constraint_count++; // every contact node constraint in z position
 
+  SetName("Terrain-Constraint-" + ee_motion);
   SetRows(constraint_count);
 }
 
