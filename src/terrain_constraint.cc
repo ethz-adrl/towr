@@ -30,13 +30,9 @@ TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
 
   AddOptimizationVariables(opt_vars);
 
-  int constraint_count = 0;
-  for (int i=0; i<ee_motion_->GetNodes().size(); ++i)
-    if (ee_motion_->IsContactNode(i))
-      constraint_count++; // every contact node constraint in z position
-
-  SetName("Terrain-Constraint-" + ee_motion);
+  int constraint_count = ee_motion_->GetNodes().size(); // z position of every node
   SetRows(constraint_count);
+  SetName("Terrain-Constraint-" + ee_motion);
 }
 
 VectorXd
@@ -44,13 +40,10 @@ TerrainConstraint::GetValues () const
 {
   VectorXd g(GetRows());
 
-  int row = 0;
   auto nodes = ee_motion_->GetNodes();
   for (int i=0; i<nodes.size(); ++i) {
-    if (ee_motion_->IsContactNode(i)) {
-      Vector3d p = nodes.at(i).at(kPos);
-      g(row++) = p.z() - terrain_->GetHeight(p.x(), p.y());
-    }
+    Vector3d p = nodes.at(i).at(kPos);
+    g(i) = p.z() - terrain_->GetHeight(p.x(), p.y());
   }
 
   return g;
@@ -59,7 +52,16 @@ TerrainConstraint::GetValues () const
 VecBound
 TerrainConstraint::GetBounds () const
 {
-  return VecBound(GetRows(), kEqualityBound_); // match height exactly
+  VecBound bounds(GetRows());
+
+  for (int i=0; i<ee_motion_->GetNodes().size(); ++i) {
+    if (ee_motion_->IsContactNode(i))
+      bounds.at(i) = kEqualityBound_;
+    else
+      bounds.at(i) = Bound(0.0, max_z_distance_above_terrain_);
+  }
+
+  return bounds;
 }
 
 void
@@ -68,19 +70,14 @@ TerrainConstraint::FillJacobianWithRespectTo (std::string var_set,
 {
   if (var_set == ee_motion_->GetName()) {
 
-    int row = 0;
     auto nodes = ee_motion_->GetNodes();
     for (int i=0; i<nodes.size(); ++i) {
-      if (ee_motion_->IsContactNode(i)) {
 
-        jac.coeffRef(row, ee_motion_->Index(i, kPos, Z)) = 1.0;
+        jac.coeffRef(i, ee_motion_->Index(i, kPos, Z)) = 1.0;
 
         Vector3d p = nodes.at(i).at(kPos);
-        jac.coeffRef(row, ee_motion_->Index(i, kPos, Y)) = -terrain_->GetHeightDerivWrtY(p.x(), p.y());
-        jac.coeffRef(row, ee_motion_->Index(i, kPos, X)) = -terrain_->GetHeightDerivWrtX(p.x(), p.y());
-
-        row++;
-      }
+        jac.coeffRef(i, ee_motion_->Index(i, kPos, Y)) = -terrain_->GetHeightDerivWrtY(p.x(), p.y());
+        jac.coeffRef(i, ee_motion_->Index(i, kPos, X)) = -terrain_->GetHeightDerivWrtX(p.x(), p.y());
     }
   }
 }
