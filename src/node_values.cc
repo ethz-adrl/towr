@@ -182,7 +182,7 @@ NodeValues::UpdatePolynomials ()
 
 
 bool
-NodeValues::DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const
+NodeValues::HoldsVarsetThatIsActiveNow(const std::string& poly_vars, double t_global) const
 {
   return poly_vars == GetName();
 }

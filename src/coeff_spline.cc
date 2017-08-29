@@ -60,12 +60,17 @@ CoeffSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 }
 
 bool
-CoeffSpline::DoVarAffectCurrentState(const std::string& poly_vars, double t_global) const
+CoeffSpline::HoldsVarsetThatIsActiveNow(const std::string& variable_id, double t_global) const
 {
-  return poly_vars == GetActiveVariableSet(t_global)->GetName();
+//  auto it = std::find_if(poly_vars_.begin(), poly_vars_.end(),
+//            [&id](const PolynomialVars::Ptr& v) { return variable_id == v->GetName(); });
+//  return it != poly_vars_.end();
+
+
+  return variable_id == GetActiveVariableSet(t_global)->GetName();
 }
 
-CoeffSpline::VarsPtr
+PolynomialVars::Ptr
 CoeffSpline::GetActiveVariableSet (double t_global) const
 {
   auto id = GetSegmentID(t_global, durations_);

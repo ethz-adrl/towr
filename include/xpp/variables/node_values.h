@@ -29,11 +29,11 @@ namespace opt {
  */
 class NodeValues : public Component, public Spline {
 public:
+  using Ptr      = std::shared_ptr<NodeValues>;
   using Node     = CubicHermitePoly::Node;
   using Side     = CubicHermitePoly::Side;
   using VecNodes = std::vector<Node>;
   using VecDurations = std::vector<double>;
-  using Ptr      = std::shared_ptr<NodeValues>;
 
   using PolyType = CubicHermitePoly;
   using VecPoly  = std::vector<std::shared_ptr<PolyType>>;
@@ -84,7 +84,7 @@ public:
 
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& x) override;
-  virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
+  virtual bool HoldsVarsetThatIsActiveNow(const std::string& poly_vars, double t_global) const override;
   virtual const StateLinXd GetPoint(double t_global) const override;
   virtual Jacobian GetJacobian (double t_global,  MotionDerivative dxdt) const override;
 

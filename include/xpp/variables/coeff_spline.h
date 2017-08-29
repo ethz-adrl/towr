@@ -26,9 +26,7 @@ namespace opt {
 // variables
 class CoeffSpline : public Spline, public Component {
 public:
-  using VarsPtr   = std::shared_ptr<PolynomialVars>;
-  using VecVars   = std::vector<VarsPtr>;
-
+  using VecVars   = std::vector<PolynomialVars::Ptr>;
 
   CoeffSpline(const std::string& spline_base_id,
               const VecTimes& poly_durations);
@@ -40,7 +38,7 @@ public:
 
 
   virtual const StateLinXd GetPoint(double t_global) const override;
-  virtual bool DoVarAffectCurrentState(const std::string& poly_vars, double t_current) const override;
+  virtual bool HoldsVarsetThatIsActiveNow(const std::string& poly_vars, double t_global) const override;
   virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const override;
 
 
@@ -50,11 +48,11 @@ public:
 
   // these are critical to expose... try not to
   Polynomial::Ptr GetPolynomial(int id) const { return poly_vars_.at(id)->GetPolynomial(); }
-  VarsPtr GetVarSet(int id) const { return poly_vars_.at(id); }
+  PolynomialVars::Ptr GetVarSet(int id) const { return poly_vars_.at(id); }
 
   VecVars poly_vars_;  ///< the opt. variables that influence the polynomials
 private:
-  VarsPtr GetActiveVariableSet(double t_global) const;
+  PolynomialVars::Ptr GetActiveVariableSet(double t_global) const;
 
   VecTimes durations_; ///< duration of each polynomial in spline
 };

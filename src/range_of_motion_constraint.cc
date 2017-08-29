@@ -32,9 +32,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
 
   base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
   base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
-  ee_motion_    = opt_vars->GetComponent<Spline>(id::GetEEMotionId(ee));
-
-  // this one shouldn't care where it gets the variable from!
+  ee_motion_    = opt_vars->GetComponent<NodeValues>(id::GetEEXYMotionId(ee));
   ee_timings_   = opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee));
 
   SetRows(GetNumberOfNodes()*kDim3d);
@@ -81,18 +79,18 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   int row_start = GetRow(k,X);
 
   if (var_set == ee_timings_->GetName()) {
-    jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(t, id::GetEEMotionId(ee_));
+    jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(t, id::GetEEXYMotionId(ee_));
   }
 
-  if (ee_motion_->DoVarAffectCurrentState(var_set,t)) {
+  if (var_set == ee_motion_->GetName()) {
     jac.middleRows(row_start, kDim3d) = b_R_w*ee_motion_->GetJacobian(t,kPos);
   }
 
-  if (base_linear_->DoVarAffectCurrentState(var_set,t)) {
+  if (base_linear_->HoldsVarsetThatIsActiveNow(var_set, t)) {
     jac.middleRows(row_start, kDim3d) = -1*b_R_w*base_linear_->GetJacobian(t, kPos);
   }
 
-  if (base_angular_->DoVarAffectCurrentState(var_set,t)) {
+  if (base_angular_->HoldsVarsetThatIsActiveNow(var_set, t)) {
     Vector3d base_W   = base_linear_->GetPoint(t).p_;
     Vector3d ee_pos_W = ee_motion_->GetPoint(t).p_;
     Vector3d r_W = ee_pos_W - base_W;

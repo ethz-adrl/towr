@@ -19,7 +19,7 @@ namespace opt {
 
 
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
-                                      const DynamicModelPtr& m,
+                                      const DynamicModel::Ptr& m,
                                       const std::vector<double>& evaluation_times)
     :TimeDiscretizationConstraint(opt_vars)
 {
@@ -33,8 +33,8 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
 
   for (auto ee : model_->GetEEIDs()) {
-    ee_motion_.push_back(opt_vars->GetComponent<Spline>(id::GetEEMotionId(ee)));
-    ee_forces_.push_back(opt_vars->GetComponent<Spline>(id::GetEEForceId(ee)));
+    ee_motion_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEXYMotionId(ee)));
+    ee_forces_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEForceId(ee)));
     ee_timings_.push_back(opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
   }
 
@@ -91,12 +91,12 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 
   for (auto ee : model_->GetEEIDs()) {
 
-    if (ee_forces_.at(ee)->DoVarAffectCurrentState(var_set,t)) {
+    if (var_set == ee_forces_.at(ee)->GetName()) {
       Jacobian jac_ee_force = ee_forces_.at(ee)->GetJacobian(t,kPos);
       jac_model = model_->GetJacobianofAccWrtForce(jac_ee_force, ee);
     }
 
-    if (ee_motion_.at(ee)->DoVarAffectCurrentState(var_set,t)) {
+    if (var_set == ee_motion_.at(ee)->GetName()) {
       Jacobian jac_ee_pos = ee_motion_.at(ee)->GetJacobian(t,kPos);
       jac_model = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
     }
@@ -105,18 +105,18 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
       Jacobian jac_f_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEForceId(ee));
       jac_model += model_->GetJacobianofAccWrtForce(jac_f_dT, ee);
 
-      Jacobian jac_x_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEMotionId(ee));
+      Jacobian jac_x_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEXYMotionId(ee));
       jac_model +=  model_->GetJacobianofAccWrtEEPos(jac_x_dT, ee);
     }
   }
 
-  if (base_linear_->DoVarAffectCurrentState(var_set,t)) {
+  if (base_linear_->HoldsVarsetThatIsActiveNow(var_set,t)) {
     Jacobian jac_base_lin_pos = base_linear_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseLin(jac_base_lin_pos);
     jac_parametrization.middleRows(LX, kDim3d) = base_linear_->GetJacobian(t,kAcc);
   }
 
-  if (base_angular_->DoVarAffectCurrentState(var_set,t)) {
+  if (base_angular_->HoldsVarsetThatIsActiveNow(var_set,t)) {
     Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_base_ang_pos);
     jac_parametrization.middleRows(AX, kDim3d) = converter_.GetDerivOfAngAccWrtCoeff(t);

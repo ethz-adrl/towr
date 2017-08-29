@@ -94,6 +94,7 @@ private:
 
 class PolynomialVars : public Component {
 public:
+  using Ptr = std::shared_ptr<PolynomialVars>;
 
   PolynomialVars(const std::string& id, const Polynomial::Ptr& poly);
   virtual ~PolynomialVars() {};

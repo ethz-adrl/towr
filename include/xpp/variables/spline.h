@@ -45,11 +45,9 @@ public:
   /** @returns true if the optimization variables poly_vars affect that
    * state of the spline at t_global.
    */
-  virtual bool DoVarAffectCurrentState(const std::string& poly_vars,
-                                       double t_current) const = 0;
+  virtual bool HoldsVarsetThatIsActiveNow(const std::string& set_name, double t_global) const = 0;
 
   virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
-
 };
 
 

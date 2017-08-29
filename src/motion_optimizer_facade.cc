@@ -89,16 +89,27 @@ MotionOptimizerFacade::BuildVariables () const
 
   // Endeffector Motions
   for (auto ee : model_->GetEEIDs()) {
-    auto nodes_motion = std::make_shared<EndeffectorNodes>(kDim3d,
-                                                          contact_schedule.at(ee)->GetContactSequence(),
-                                                          id::GetEEMotionId(ee),
-                                                          params_->ee_splines_per_swing_phase_);
+    auto ee_motion_xy = std::make_shared<EndeffectorNodes>(kDim3d,
+                                                           contact_schedule.at(ee)->GetContactSequence(),
+                                                           id::GetEEXYMotionId(ee),
+                                                           1);
 
     Vector3d final_ee_pos_W = final_base_.lin.p_ + model_->GetNominalStanceInBase().At(ee);
-    nodes_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
-    nodes_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // only xy, z given by terrain
-    opt_variables->AddComponent(nodes_motion);
-    contact_schedule.at(ee)->AddObserver(nodes_motion);
+    ee_motion_xy->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
+    ee_motion_xy->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // only xy, z given by terrain
+    opt_variables->AddComponent(ee_motion_xy);
+    contact_schedule.at(ee)->AddObserver(ee_motion_xy);
+
+
+    // endeffector z motion
+    auto ee_motion_z = std::make_shared<EndeffectorNodes>(kDim3d,
+                                                          contact_schedule.at(ee)->GetContactSequence(),
+                                                          id::GetEEZMotionId(ee),
+                                                          2);
+
+    ee_motion_z->InitializeVariables(initial_ee_W_.At(ee).bottomRows<1>(), final_ee_pos_W.bottomRows<1>(), contact_schedule.at(ee)->GetTimePerPhase());
+    opt_variables->AddComponent(ee_motion_z);
+    contact_schedule.at(ee)->AddObserver(ee_motion_z);
   }
 
   // Endeffector Forces
@@ -287,7 +298,7 @@ MotionOptimizerFacade::BuildTrajectory (const OptimizationVariablesPtr& vars,
 
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
       state.ee_contact_.At(ee) = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->IsInContact(t);
-      state.ee_motion_.At(ee)  = vars->GetComponent<Spline>(id::GetEEMotionId(ee))->GetPoint(t);
+      state.ee_motion_.At(ee)  = vars->GetComponent<Spline>(id::GetEEXYMotionId(ee))->GetPoint(t);
       state.ee_forces_.At(ee)  = vars->GetComponent<Spline>(id::GetEEForceId(ee))->GetPoint(t).p_;
     }
 

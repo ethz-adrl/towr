@@ -27,6 +27,16 @@ static std::string GetEEMotionId(int ee)
   return  endeffectors_motion + std::to_string(ee);
 }
 
+static std::string GetEEXYMotionId(int ee)
+{
+  return  endeffectors_motion + "_xy_" + std::to_string(ee);
+}
+
+static std::string GetEEZMotionId(int ee)
+{
+  return  endeffectors_motion + "_z_" + std::to_string(ee);
+}
+
 static std::string GetEEForceId(int ee)
 {
   return  endeffector_force + std::to_string(ee);

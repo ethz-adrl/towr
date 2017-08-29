@@ -40,8 +40,6 @@ class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
   using VecTimes        = std::vector<double>;
   using MotionParamsPtr = std::shared_ptr<OptimizationParameters>;
-  using SplineT         = std::shared_ptr<Spline>;
-  using SchedulePtr     = std::shared_ptr<ContactSchedule>;
 
   RangeOfMotionBox(const OptVarsPtr& opt_vars,
                    const MotionParamsPtr& params,
@@ -57,10 +55,10 @@ private:
 
   int GetRow(int node, int dimension) const;
 
-  SplineT base_linear_;
-  SplineT base_angular_;
-  SplineT ee_motion_;
-  SchedulePtr ee_timings_;
+  Spline::Ptr base_linear_;
+  Spline::Ptr base_angular_;
+  NodeValues::Ptr ee_motion_;
+  ContactSchedule::Ptr ee_timings_;
 
   Vector3d max_deviation_from_nominal_;
   Vector3d nominal_ee_pos_B_;

@@ -62,7 +62,7 @@ void
 SplineStateConstraint::FillJacobianWithRespectTo (std::string var_set,
                                                   Jacobian& jac) const
 {
-  if (spline_->DoVarAffectCurrentState(var_set, t_global_)) {
+  if (spline_->HoldsVarsetThatIsActiveNow(var_set, t_global_)) {
     int row = 0;
     for (auto dxdt :  derivatives_) {
 

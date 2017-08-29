@@ -25,6 +25,7 @@ namespace opt {
 
 class ContactSchedule : public Component {
 public:
+  using Ptr           = std::shared_ptr<ContactSchedule>;
   using VecDurations  = std::vector<double>;
   using PhaseNodesPtr = std::shared_ptr<PhaseNodes>;
 

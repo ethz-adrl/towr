@@ -115,14 +115,32 @@ EndeffectorNodes::IsContactNode (int node_id) const
 VecBound
 EndeffectorNodes::GetBounds () const
 {
+  double max_vel = 2.0; // m/s
   for (int idx=0; idx<GetRows(); ++idx) {
 
     auto node = GetNodeInfo(idx).front(); // bound idx by first node it represents
 
+
+
+
+
     // endeffector is not allowed to move if in stance phase
-    if (IsContactNode(node.id_))
+    if (IsContactNode(node.id_)) {
       if (node.deriv_ == kVel)
         bounds_.at(idx) = kEqualityBound_;
+    }
+//    else { // node in pure swingphase
+//      if (node.deriv_ == kVel) {
+//        bounds_.at(idx) = Bound(-max_vel, max_vel);
+//        if (node.dim_ == Z)
+//          bounds_.at(idx) = kEqualityBound_;
+//      }
+//    }
+
+
+
+
+
   }
 
   return bounds_;

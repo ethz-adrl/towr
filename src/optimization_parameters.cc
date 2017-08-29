@@ -174,7 +174,8 @@ QuadrupedOptParameters::QuadrupedOptParameters ()
 
   // range of motion constraint
   dt_range_of_motion_ = 0.1;
-  ee_splines_per_swing_phase_ = 1;
+  // not used, hardcoded for xy and z.
+  ee_splines_per_swing_phase_ = 2;
 
 
 

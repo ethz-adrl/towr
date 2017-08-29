@@ -28,24 +28,21 @@ namespace opt {
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
-  using DynamicModelPtr = std::shared_ptr<DynamicModel>;
   using VecTimes        = std::vector<double>;
-  using SplineT         = std::shared_ptr<Spline>;
-  using SchedulePtr     = std::shared_ptr<ContactSchedule>;
 
   DynamicConstraint (const OptVarsPtr& opt_vars,
-                     const DynamicModelPtr& m,
+                     const DynamicModel::Ptr& m,
                      const std::vector<double>& evaluation_times);
   virtual ~DynamicConstraint ();
 
 private:
-  SplineT base_linear_;
-  SplineT base_angular_;
-  std::vector<SplineT> ee_forces_;
-  std::vector<SplineT> ee_motion_;
-  std::vector<SchedulePtr> ee_timings_;
+  Spline::Ptr base_linear_;
+  Spline::Ptr base_angular_;
+  std::vector<NodeValues::Ptr> ee_forces_;
+  std::vector<NodeValues::Ptr> ee_motion_;
+  std::vector<ContactSchedule::Ptr> ee_timings_;
 
-  mutable DynamicModelPtr model_;
+  mutable DynamicModel::Ptr model_;
   double gravity_;
   AngularStateConverter converter_;
 
