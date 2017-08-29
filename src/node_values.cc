@@ -233,7 +233,7 @@ NodeValues::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
 
         int node = GetNodeId(poly_id,side);
 
-        if (node == info.id_ && dxdt == info.deriv_) {
+        if (node == info.id_) {
           double val = cubic_polys_.at(poly_id)->GetDerivativeOf(dxdt, side, info.deriv_, t_local);
 
           // if only want structure
