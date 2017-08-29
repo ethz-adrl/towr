@@ -18,7 +18,10 @@
 namespace xpp {
 namespace opt {
 
-
+/** Ensures the endeffector position always lays on or above terrain height.
+ *
+ * Attention: This is enforced only at the spline nodes.
+ */
 class TerrainConstraint : public Constraint {
 public:
   TerrainConstraint (const HeightMap::Ptr& terrain,
@@ -36,7 +39,7 @@ private:
   EndeffectorNodes::Ptr ee_motion_;
   HeightMap::Ptr terrain_;
 
-  double max_z_distance_above_terrain_ = 0.3; // [m]
+  double max_z_distance_above_terrain_ = 10.3; // [m]
 };
 
 

@@ -82,8 +82,6 @@ MotionOptimizerFacade::BuildVariables () const
                                                                  params_->contact_timings_.at(ee),
                                                                  params_->min_phase_duration_,
                                                                  params_->max_phase_duration_));
-    bool optimize_timings = params_->ConstraintExists(TotalTime);
-    opt_variables->AddComponent(contact_schedule.at(ee), optimize_timings);
   }
 
 
@@ -98,7 +96,6 @@ MotionOptimizerFacade::BuildVariables () const
     ee_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
     ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // only xy, z given by terrain
     opt_variables->AddComponent(ee_motion);
-    contact_schedule.at(ee)->AddObserver(ee_motion);
   }
 
   // Endeffector Forces
@@ -111,10 +108,20 @@ MotionOptimizerFacade::BuildVariables () const
 
     Vector3d f_stance(0.0, 0.0, model_->GetStandingZForce());
     nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule.at(ee)->GetTimePerPhase());
-
-
     opt_variables->AddComponent(nodes_forces);
-    contact_schedule.at(ee)->AddObserver(nodes_forces);
+  }
+
+
+  // make endeffector motion and forces dependent on durations
+  bool optimize_timings = params_->ConstraintExists(TotalTime);
+  for (auto ee : model_->GetEEIDs()) {
+
+    opt_variables->AddComponent(contact_schedule.at(ee), optimize_timings);
+
+    if (optimize_timings) {
+      contact_schedule.at(ee)->AddObserver(opt_variables->GetComponent<PhaseNodes>(id::GetEEMotionId(ee)));
+      contact_schedule.at(ee)->AddObserver(opt_variables->GetComponent<PhaseNodes>(id::GetEEForceId(ee)));
+    }
   }
 
 
