@@ -9,30 +9,38 @@
 #define XPP_QUADRUPED_MOTION_PARAMETERS_H_
 
 #include <xpp/endeffectors.h>
-#include "motion_parameters.h"
+#include "optimization_parameters.h"
 
 namespace xpp {
 namespace opt {
 
-class MonopedMotionParameters : public MotionParameters {
+class MonopedMotionParameters : public OptimizationParameters {
 public:
   MonopedMotionParameters();
-  virtual ~MonopedMotionParameters() {};
 };
 
-class BipedMotionParameters : public MotionParameters {
+class BipedMotionParameters : public OptimizationParameters {
 public:
   BipedMotionParameters();
-  virtual ~BipedMotionParameters() {};
 };
 
-class QuadrupedMotionParameters : public MotionParameters {
+class QuadrotorMotionParameters : public OptimizationParameters {
+public:
+  QuadrotorMotionParameters();
+};
+
+class AnymalMotionParameters : public OptimizationParameters {
+public:
+  AnymalMotionParameters();
+};
+
+class QuadrupedMotionParameters : public OptimizationParameters {
 public:
   QuadrupedMotionParameters();
   virtual ~QuadrupedMotionParameters() {};
 
 
-protected:
+//protected:
 //  // naming convention:, where the circle is is a swingleg, front is right ->.
 //  // so LF and RH swinging is (bP):  o x
 //  //                                 x o
@@ -61,16 +69,7 @@ protected:
 //                          double p_overlap_opposite);
 };
 
-class AnymalMotionParameters : public MotionParameters {
-public:
-  AnymalMotionParameters();
-};
 
-class QuadrotorMotionParameters : public MotionParameters {
-public:
-  QuadrotorMotionParameters();
-  virtual ~QuadrotorMotionParameters() {};
-};
 
 } // namespace opt
 } // namespace xpp

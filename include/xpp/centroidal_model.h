@@ -43,8 +43,6 @@ public:
   double GetMass() const { return m_; };
 
 
-
-
 private:
   double m_;          /// mass of robot
   Eigen::Matrix3d I_; /// inertia tensor of robot
@@ -65,31 +63,29 @@ private:
 };
 
 
-
-class MonopedCentroidalModel : public CentroidalModel {
+// some specific dynamic and kinematic robot implementations
+class MonopedModel : public CentroidalModel {
 public:
-  MonopedCentroidalModel();
-  ~MonopedCentroidalModel() {};
+  MonopedModel();
+  ~MonopedModel() {};
 };
 
-
-class BipedCentroidalModel : public CentroidalModel {
+class BipedModel : public CentroidalModel {
 public:
-  BipedCentroidalModel();
-  ~BipedCentroidalModel() {};
+  BipedModel();
+  ~BipedModel() {};
 };
 
-class HyqCentroidalModel : public CentroidalModel {
+class HyqModel : public CentroidalModel {
 public:
-  HyqCentroidalModel();
-  ~HyqCentroidalModel() {};
+  HyqModel();
+  ~HyqModel() {};
 };
 
-
-class AnymalCentroidalModel : public CentroidalModel {
+class AnymalModel : public CentroidalModel {
 public:
-  AnymalCentroidalModel();
-  ~AnymalCentroidalModel() {};
+  AnymalModel();
+  ~AnymalModel() {};
 };
 
 class QuadrotorCentroidalModel : public CentroidalModel {

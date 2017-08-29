@@ -39,6 +39,9 @@ Stairs::GetHeight (double x, double y) const
   if (x>first_step_start_+first_step_width_)
     h = height_second_step;
 
+  if (x>first_step_start_+first_step_width_+width_top)
+    h = 0.0;
+
   return h;
 }
 

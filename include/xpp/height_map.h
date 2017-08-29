@@ -52,6 +52,7 @@ private:
   double first_step_width_  = 0.4;
   double height_first_step  = 0.2;
   double height_second_step = 0.4;
+  double width_top = 1.0;
 };
 
 
@@ -62,7 +63,7 @@ public:
   virtual double GetHeightDerivWrtY(double x, double y) const override;
 
 private:
-  const double gap_start_ = 0.5;
+  const double gap_start_ = 1.0;
   const double gap_width_ = 0.5;
   const double gap_depth_ = 3.0;
 };

@@ -20,20 +20,20 @@ namespace xpp {
 namespace opt {
 
 
-MonopedMotionParameters::MonopedMotionParameters()
+MonopedOptParameters::MonopedOptParameters()
 {
-  ee_splines_per_swing_phase_ = 1;
+  order_coeff_polys_ = 4;
+  dt_base_polynomial_ = 0.1;
+
   force_splines_per_stance_phase_ = 3;
 
   dt_range_of_motion_ = 0.1;
-
-  force_limit_ = 10000.0; // [N]
-
+  ee_splines_per_swing_phase_ = 1;
 
   double f  = 0.2;
   double c = 0.2;
   contact_timings_ = ContactTimings(1);
-  contact_timings_.at(E0) = {c, f, c, f, c, f, c, f, c};
+  contact_timings_.at(E0) = {c, f, c, f, c, f, c, f, c, c, f, c, f, c, f, c, f, c};
 
   min_phase_duration_ = 0.1;
   max_phase_duration_ = GetTotalTime();
@@ -41,43 +41,33 @@ MonopedMotionParameters::MonopedMotionParameters()
 
 
   constraints_ = {
-//      State,
-//      JunctionCom,
+      BasePoly,
       RomBox,
       Dynamic,
       Terrain,
       TotalTime,
   };
 
-
-
-  order_coeff_polys_ = 4;
-  dt_base_polynomial_ = 0.2;//t_total; //s 0.05
 }
 
-BipedMotionParameters::BipedMotionParameters()
+BipedOptParameters::BipedOptParameters()
 {
-  using namespace xpp::biped;
-
   order_coeff_polys_ = 4;
-  dt_base_polynomial_ = 0.2;//t_total; //s 0.05
+  dt_base_polynomial_ = 0.1;
 
   ee_splines_per_swing_phase_ = 1;
   force_splines_per_stance_phase_ = 3;
 
 
   dt_range_of_motion_ = 0.1;
-
-
-  force_limit_ = 10000.0; // [N]
 
 
   double f  = 0.2;
   double c = 0.2;
   double offset = c;
   contact_timings_ = ContactTimings(2);
-  contact_timings_.at(E0) = {c+offset, f, c, f, c, f, c, f, c};
-  contact_timings_.at(E1) = {       c, f, c, f, c, f, c, f, c+offset};
+  contact_timings_.at(E0) = {c+offset,f,c,f,c,f,c,f,c,f,c,f,c,f, c};
+  contact_timings_.at(E1) = {       c,f,c,f,c,f,c,f,c,f,c,f,c,f, c+offset};
 
 
   min_phase_duration_ = 0.1;
@@ -86,8 +76,7 @@ BipedMotionParameters::BipedMotionParameters()
 
 
   constraints_ = {
-//      State,
-//      JunctionCom,
+      BasePoly,
       RomBox,
       Dynamic,
       Terrain,
@@ -97,32 +86,32 @@ BipedMotionParameters::BipedMotionParameters()
 
 
 
-QuadrupedMotionParameters::QuadrupedMotionParameters ()
+QuadrupedOptParameters::QuadrupedOptParameters ()
 {
   using namespace xpp::quad;
+
   order_coeff_polys_  = 4; // used only with coeff_spline representation
-  dt_base_polynomial_ = 0.15; //
-  ee_splines_per_swing_phase_ = 1;
+  dt_base_polynomial_ = 0.15;
 
 
   force_splines_per_stance_phase_ = 3;
-  force_limit_ = 3000.0; //[N]
 
 
   // range of motion constraint
   dt_range_of_motion_ = 0.1;
+  ee_splines_per_swing_phase_ = 1;
 
 
 
-  double f = 0.3; // [s] t_free
-  double c = 0.3; // [s] t_contact
+  double f = 0.2; // [s] t_free
+  double c = 0.2; // [s] t_contact
   double t_offset = f;
   contact_timings_ = ContactTimings(4);
   auto m = Reverse(kMapOptToQuad);
-  contact_timings_.at(m.at(LH)) = {t_offset + c, f, c, f, c, f, c           };
-  contact_timings_.at(m.at(RH)) = {           c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(m.at(LF)) = {           c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(m.at(RF)) = {t_offset + c, f, c, f, c, f, c           };
+  contact_timings_.at(m.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c, f, c, f, c           };
+  contact_timings_.at(m.at(RH)) = {           c, f, c, f, c, f, c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(m.at(LF)) = {           c, f, c, f, c, f, c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(m.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c, f, c, f, c           };
 
 
   min_phase_duration_ = 0.1;
@@ -130,8 +119,7 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
   constraints_ = {
-      State,
-      JunctionCom,
+      BasePoly,
       RomBox,
       Dynamic,
       Terrain,
@@ -145,21 +133,20 @@ QuadrupedMotionParameters::QuadrupedMotionParameters ()
 }
 
 
-QuadrotorMotionParameters::QuadrotorMotionParameters ()
+QuadrotorOptParameters::QuadrotorOptParameters ()
 {
   using namespace xpp::quad;
-  order_coeff_polys_  = 4; // not used!
+
+  order_coeff_polys_  = 4;
   dt_base_polynomial_ = 0.2; //s 0.05
-  ee_splines_per_swing_phase_ = 1;
 
 
-  // dynamic constraint
   force_splines_per_stance_phase_ = 3;
-  force_limit_ = 1000.0; // [N]
 
 
   // range of motion constraint
-  dt_range_of_motion_ = dt_base_polynomial_/2.;
+  dt_range_of_motion_ = 0.1;
+  ee_splines_per_swing_phase_ = 1;
 
 
 
@@ -178,8 +165,7 @@ QuadrotorMotionParameters::QuadrotorMotionParameters ()
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
   constraints_ = {
-//      State,
-//      JunctionCom,
+      //BasePoly
       RomBox,
       Dynamic,
 //      TotalTime,

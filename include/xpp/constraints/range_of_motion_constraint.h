@@ -16,7 +16,7 @@
 #include <xpp/bound.h>
 #include <xpp/composite.h>
 #include <xpp/endeffectors.h>
-#include <xpp/motion_parameters.h>
+#include <xpp/optimization_parameters.h>
 #include <xpp/state.h>
 #include <xpp/variables/contact_schedule.h>
 #include <xpp/variables/spline.h>
@@ -39,7 +39,7 @@ namespace opt {
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
   using VecTimes        = std::vector<double>;
-  using MotionParamsPtr = std::shared_ptr<MotionParameters>;
+  using MotionParamsPtr = std::shared_ptr<OptimizationParameters>;
   using SplineT         = std::shared_ptr<Spline>;
   using SchedulePtr     = std::shared_ptr<ContactSchedule>;
 

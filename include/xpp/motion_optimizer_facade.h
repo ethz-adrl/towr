@@ -15,8 +15,8 @@
 #include "centroidal_model.h"
 #include "endeffectors.h"
 #include "height_map.h"
-#include "motion_parameters.h"
 #include "nlp.h"
+#include "optimization_parameters.h"
 #include "robot_state_cartesian.h"
 #include "state.h"
 
@@ -28,7 +28,7 @@ namespace opt {
   */
 class MotionOptimizerFacade {
 public:
-  using MotionParametersPtr      = std::shared_ptr<MotionParameters>;
+  using MotionParametersPtr      = std::shared_ptr<OptimizationParameters>;
   using OptimizationVariablesPtr = std::shared_ptr<Composite>;
   using RobotStateVec            = std::vector<RobotStateCartesian>;
   using NLPIterations            = std::vector<RobotStateVec>;
@@ -55,6 +55,9 @@ private:
   void BuildDefaultInitialState();
   OptimizationVariablesPtr BuildVariables() const;
   void BuildCostConstraints(const OptimizationVariablesPtr&);
+
+  void SetBaseRepresentationCoeff(OptimizationVariablesPtr&) const;
+  void SetBaseRepresentationHermite(OptimizationVariablesPtr&) const;
 
   MotionParametersPtr params_;
   mutable NLP nlp;

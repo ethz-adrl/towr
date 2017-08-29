@@ -122,8 +122,7 @@ add_library(${MOTION_OPT_LIB}
 #  src/polygon_center_constraint.cc
   #src/foothold_constraint.cc
   # robot specific info
-  src/motion_parameters.cc
-  src/motion_parameter_instances.cc  
+  src/optimization_parameters.cc
 )   
 target_link_libraries(${MOTION_OPT_LIB}
   ${catkin_LIBRARIES}

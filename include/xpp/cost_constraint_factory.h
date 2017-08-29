@@ -17,7 +17,7 @@
 #include "dynamic_model.h"
 #include "endeffectors.h"
 #include "height_map.h"
-#include "motion_parameters.h"
+#include "optimization_parameters.h"
 #include "state.h"
 
 namespace xpp {
@@ -35,7 +35,7 @@ class CostConstraintFactory {
 public:
   using ComponentPtr     = std::shared_ptr<Component>;
   using OptVarsContainer = std::shared_ptr<Composite>;
-  using MotionParamsPtr  = std::shared_ptr<MotionParameters>;
+  using MotionParamsPtr  = std::shared_ptr<OptimizationParameters>;
   using Derivatives      = std::vector<MotionDerivative>;
 
   CostConstraintFactory ();
@@ -66,7 +66,7 @@ private:
 
   // constraints
   ComponentPtr MakeStateConstraint() const;
-  ComponentPtr MakeJunctionConstraint() const;
+//  ComponentPtr MakeJunctionConstraint() const;
   ComponentPtr MakeDynamicConstraint() const;
   ComponentPtr MakeRangeOfMotionBoxConstraint() const;
   ComponentPtr MakeTotalTimeConstraint() const;

@@ -17,7 +17,6 @@
 #include <xpp/angular_state_converter.h>
 #include <xpp/cartesian_declarations.h>
 #include <xpp/cost_constraint_factory.h>
-#include <xpp/motion_parameter_instances.h>
 #include <xpp/polynomial.h>
 #include <xpp/variables/coeff_spline.h>
 #include <xpp/variables/contact_schedule.h>
@@ -31,8 +30,8 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  params_  = std::make_shared<QuadrupedMotionParameters>();
-  model_   = std::make_shared<AnymalCentroidalModel>();
+  params_  = std::make_shared<QuadrupedOptParameters>();
+  model_   = std::make_shared<AnymalModel>();
   terrain_ = std::make_shared<FlatGround>();
 
   BuildDefaultInitialState();
@@ -60,8 +59,21 @@ MotionOptimizerFacade::BuildDefaultInitialState ()
 MotionOptimizerFacade::OptimizationVariablesPtr
 MotionOptimizerFacade::BuildVariables () const
 {
-  auto opt_variables_ = std::make_shared<Composite>("nlp_variables", true);
-  opt_variables_->ClearComponents();
+  auto opt_variables = std::make_shared<Composite>("nlp_variables", true);
+  opt_variables->ClearComponents();
+
+
+  switch (params_->GetBaseRepresentation()) {
+    case OptimizationParameters::CubicHermite:
+      SetBaseRepresentationHermite(opt_variables);
+      break;
+    case OptimizationParameters::PolyCoeff:
+      SetBaseRepresentationCoeff(opt_variables);
+      break;
+    default:
+      assert(false); // representation not defined
+      break;
+  }
 
 
   std::vector<std::shared_ptr<ContactSchedule>> contact_schedule;
@@ -71,7 +83,7 @@ MotionOptimizerFacade::BuildVariables () const
                                                                  params_->min_phase_duration_,
                                                                  params_->max_phase_duration_));
     bool optimize_timings = params_->ConstraintExists(TotalTime);
-    opt_variables_->AddComponent(contact_schedule.at(ee), optimize_timings);
+    opt_variables->AddComponent(contact_schedule.at(ee), optimize_timings);
   }
 
 
@@ -85,9 +97,7 @@ MotionOptimizerFacade::BuildVariables () const
     Vector3d final_ee_pos_W = final_base_.lin.p_ + model_->GetNominalStanceInBase().At(ee);
     nodes_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
     nodes_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // only xy, z given by terrain
-//    nodes_motion->AddFinalBound(kPos, {X,Y},final_ee_pos_W);       // only xy, z given by terrain
-
-    opt_variables_->AddComponent(nodes_motion);
+    opt_variables->AddComponent(nodes_motion);
     contact_schedule.at(ee)->AddObserver(nodes_motion);
   }
 
@@ -97,60 +107,97 @@ MotionOptimizerFacade::BuildVariables () const
                                                      contact_schedule.at(ee)->GetContactSequence(),
                                                      id::GetEEForceId(ee),
                                                      params_->force_splines_per_stance_phase_,
-                                                     params_->GetForceLimit());
+                                                     model_->GetForceLimit());
 
     Vector3d f_stance(0.0, 0.0, model_->GetStandingZForce());
     nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule.at(ee)->GetTimePerPhase());
 
 
-    opt_variables_->AddComponent(nodes_forces);
+    opt_variables->AddComponent(nodes_forces);
     contact_schedule.at(ee)->AddObserver(nodes_forces);
   }
 
 
-//  // BASE_MOTION
-//  std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
-//
-//  auto linear  = std::make_tuple(id::base_linear,  inital_base_.lin, final_base_.lin);
-//  auto angular = std::make_tuple(id::base_angular, inital_base_.ang, final_base_.ang);
-//
-//  for (auto tuple : {linear, angular}) {
-//    std::string id   = std::get<0>(tuple);
-//    StateLin3d init  = std::get<1>(tuple);
-//    StateLin3d final = std::get<2>(tuple);
-//
-//    auto spline = std::make_shared<NodeValues>(init.kNumDim,  base_spline_timings_.size(), id);
-//    spline->InitializeVariables(init.p_, final.p_, base_spline_timings_);
-//
-//    std::vector<int> dimensions = {X,Y,Z};
-//    spline->AddStartBound(kPos, dimensions, init.p_);
-//    spline->AddStartBound(kVel, dimensions, init.v_);
-//
-//    spline->AddFinalBound(kVel, dimensions, final.v_);
-//
-//    if (id == id::base_linear) {
-//      spline->AddFinalBound(kPos, {X,Y}, final.p_); // only xy, z given by terrain
-////      spline->SetBoundsAboveGround();
-//    }
-//    if (id == id::base_angular)
-//      spline->AddFinalBound(kPos, {Z}, final.p_); // roll, pitch, yaw bound
-//
-//
-//
-////    // force intermediate jump
-////    if (id == id::base_linear) {
-////      Vector3d inter = (init.p_ + final.p_)/2.;
-////      inter.z() = 0.8;
-////      spline->AddIntermediateBound(kPos, inter);
-////    }
-////
-////    if (id == id::base_angular) {
-////      spline->AddIntermediateBound(kPos, Vector3d::Zero());
-////    }
-//
-//
-//    opt_variables_->AddComponent(spline);
-//  }
+  opt_variables->Print();
+  return opt_variables;
+}
+
+void
+MotionOptimizerFacade::SetBaseRepresentationCoeff (OptimizationVariablesPtr& opt_variables) const
+{
+  int n_dim = inital_base_.lin.kNumDim;
+  int order = params_->order_coeff_polys_;
+
+  std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
+  auto coeff_spline_ang = std::make_shared<CoeffSpline>(id::base_angular, base_spline_timings_);
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
+    auto var = std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang);
+    opt_variables->AddComponent(var);
+
+    coeff_spline_ang->poly_vars_.push_back(var);
+  }
+  coeff_spline_ang->InitializeVariables(inital_base_.ang.p_, final_base_.ang.p_);
+  opt_variables->AddComponent(coeff_spline_ang, false); // add just for easy access later
+
+
+  auto coeff_spline_lin = std::make_shared<CoeffSpline>(id::base_linear, base_spline_timings_);
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
+    auto var = std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin);
+    opt_variables->AddComponent(var);
+    coeff_spline_lin->poly_vars_.push_back(var);
+  }
+  coeff_spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_);
+  opt_variables->AddComponent(coeff_spline_lin, false); // add just for easy access later
+}
+
+void
+MotionOptimizerFacade::SetBaseRepresentationHermite (OptimizationVariablesPtr& opt_variables_) const
+{
+  int n_dim = inital_base_.lin.kNumDim;
+  std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
+
+  auto linear  = std::make_tuple(id::base_linear,  inital_base_.lin, final_base_.lin);
+  auto angular = std::make_tuple(id::base_angular, inital_base_.ang, final_base_.ang);
+
+  for (auto tuple : {linear, angular}) {
+    std::string id   = std::get<0>(tuple);
+    StateLin3d init  = std::get<1>(tuple);
+    StateLin3d final = std::get<2>(tuple);
+
+    auto spline = std::make_shared<NodeValues>(init.kNumDim,  base_spline_timings_.size(), id);
+    spline->InitializeVariables(init.p_, final.p_, base_spline_timings_);
+
+    std::vector<int> dimensions = {X,Y,Z};
+    spline->AddStartBound(kPos, dimensions, init.p_);
+    spline->AddStartBound(kVel, dimensions, init.v_);
+
+    spline->AddFinalBound(kVel, dimensions, final.v_);
+
+    if (id == id::base_linear) {
+      spline->AddFinalBound(kPos, {X,Y}, final.p_); // only xy, z given by terrain
+      //      spline->SetBoundsAboveGround();
+    }
+    if (id == id::base_angular)
+      spline->AddFinalBound(kPos, {Z}, final.p_); // roll, pitch, yaw bound
+
+
+
+    //    // force intermediate jump
+    //    if (id == id::base_linear) {
+    //      Vector3d inter = (init.p_ + final.p_)/2.;
+    //      inter.z() = 0.8;
+    //      spline->AddIntermediateBound(kPos, inter);
+    //    }
+    //
+    //    if (id == id::base_angular) {
+    //      spline->AddIntermediateBound(kPos, Vector3d::Zero());
+    //    }
+
+
+    opt_variables_->AddComponent(spline);
+  }
 
 
 //  auto spline_lin = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_linear);
@@ -169,40 +216,6 @@ MotionOptimizerFacade::BuildVariables () const
 //  spline_ang->AddFinalBound(kPos,  final_base_.ang.p_);
 //  spline_ang->AddFinalBound(kVel,  final_base_.ang.v_);
 //  opt_variables_->AddComponent(spline_ang);
-
-
-
-  int n_dim = inital_base_.lin.kNumDim;
-  int order = params_->order_coeff_polys_;
-
-  std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
-  auto coeff_spline_ang = std::make_shared<CoeffSpline>(id::base_angular, base_spline_timings_);
-  for (int i=0; i<base_spline_timings_.size(); ++i) {
-    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
-    auto var = std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang);
-    opt_variables_->AddComponent(var);
-
-    coeff_spline_ang->poly_vars_.push_back(var);
-  }
-  coeff_spline_ang->InitializeVariables(inital_base_.ang.p_, final_base_.ang.p_);
-  opt_variables_->AddComponent(coeff_spline_ang, false); // add just for easy access later
-
-
-  auto coeff_spline_lin = std::make_shared<CoeffSpline>(id::base_linear, base_spline_timings_);
-  for (int i=0; i<base_spline_timings_.size(); ++i) {
-    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
-    auto var = std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin);
-    opt_variables_->AddComponent(var);
-    coeff_spline_lin->poly_vars_.push_back(var);
-  }
-  coeff_spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_);
-  opt_variables_->AddComponent(coeff_spline_lin, false); // add just for easy access later
-
-
-
-
-  opt_variables_->Print();
-  return opt_variables_;
 }
 
 void
@@ -285,7 +298,6 @@ MotionOptimizerFacade::BuildTrajectory (const OptimizationVariablesPtr& vars,
 
   return trajectory;
 }
-
 
 } /* namespace opt */
 } /* namespace xpp */

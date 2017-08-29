@@ -125,17 +125,17 @@ static Eigen::Matrix3d BuildInertiaTensor(
 }
 
 // specific models
-MonopedCentroidalModel::MonopedCentroidalModel ()
+MonopedModel::MonopedModel ()
     :CentroidalModel(80,
                      BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668),
                      1)
 {
   nominal_stance_.At(E0) = Vector3d( 0.0, 0.0, -0.58);
-
   max_dev_from_nominal_ << 0.15, 0.15, 0.12;
+  force_limit_ = 10000;
 }
 
-BipedCentroidalModel::BipedCentroidalModel ()
+BipedModel::BipedModel ()
     :CentroidalModel(80,
                      BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668),
                      2)
@@ -146,10 +146,10 @@ BipedCentroidalModel::BipedCentroidalModel ()
   nominal_stance_.At(E1) << 0.0, -y_nominal_b, z_nominal_b;
 
   max_dev_from_nominal_  << 0.15, 0.15, 0.15;
+  force_limit_ = 10000;
 }
 
-
-HyqCentroidalModel::HyqCentroidalModel ()
+HyqModel::HyqModel ()
     :CentroidalModel(80,
                      BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668),
                      4)
@@ -166,10 +166,11 @@ HyqCentroidalModel::HyqCentroidalModel ()
   nominal_stance_.At(kMapQuadToOpt.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
   max_dev_from_nominal_ << 0.2, 0.15, 0.10;
+  force_limit_ = 10000;
 };
 
 // from pkg anymal_description/urdf/base/anymal_base_2_parameters
-AnymalCentroidalModel::AnymalCentroidalModel ()
+AnymalModel::AnymalModel ()
     :CentroidalModel(18.29 + 4*2.0,
                      BuildInertiaTensor(0.268388530623900,
                                         0.884235660795284,
@@ -191,6 +192,7 @@ AnymalCentroidalModel::AnymalCentroidalModel ()
   nominal_stance_.At(kMapQuadToOpt.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
   max_dev_from_nominal_ << 0.18, 0.13, 0.1; // max leg length 58cm
+  force_limit_ = 3000;
 };
 
 
@@ -212,6 +214,7 @@ QuadrotorCentroidalModel::QuadrotorCentroidalModel ()
   nominal_stance_.At(kMapQuadToOpt.at(H)) << -x_nominal_b,   0, z_nominal_b;
 
   max_dev_from_nominal_ << 0.0, 0.0, 0.0;
+  force_limit_ = 100;
 }
 
 

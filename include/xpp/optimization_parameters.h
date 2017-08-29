@@ -22,12 +22,12 @@ namespace opt {
 
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
                        FinalComCostID, FinalStanceCostID, ForcesCostID };
-enum ConstraintName  { State, JunctionCom, Dynamic, RomBox, TotalTime, Terrain };
+enum ConstraintName  { BasePoly, Dynamic, RomBox, TotalTime, Terrain };
 
 /** This class holds all the hardcoded values describing a motion.
   * This is specific to the robot and the type of motion desired.
   */
-class MotionParameters {
+class OptimizationParameters {
 public:
   using EEID             = EndeffectorID;
   using EEVec            = std::vector<EEID>;
@@ -42,7 +42,7 @@ public:
 
   using VecTimes         = std::vector<double>;
 
-  virtual ~MotionParameters();
+  virtual ~OptimizationParameters();
 
 
   UsedConstraints GetUsedConstraints() const;
@@ -63,22 +63,48 @@ public:
   double min_phase_duration_;
   double max_phase_duration_;
 
+  enum BaseRepresentation {CubicHermite, PolyCoeff};
+  BaseRepresentation GetBaseRepresentation() const;
 
-  double GetForceLimit() const {return force_limit_; };
+
 
   ContactTimings contact_timings_;
 
 
 protected:
-  double force_limit_;
-
-
   ContactSequence contact_sequence_;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
 };
 
+
+// some specific ones
+class MonopedOptParameters : public OptimizationParameters {
+public:
+  MonopedOptParameters();
+};
+
+class BipedOptParameters : public OptimizationParameters {
+public:
+  BipedOptParameters();
+};
+
+class QuadrotorOptParameters : public OptimizationParameters {
+public:
+  QuadrotorOptParameters();
+};
+
+class QuadrupedOptParameters : public OptimizationParameters {
+public:
+  QuadrupedOptParameters();
+};
+
+
+
+
+
+
 } // namespace opt
-} // namespace hyq
+} // namespace xpp
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_ */

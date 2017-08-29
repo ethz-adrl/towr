@@ -60,8 +60,7 @@ CostConstraintFactory::ComponentPtr
 CostConstraintFactory::GetConstraint (ConstraintName name) const
 {
   switch (name) {
-    case State:       return MakeStateConstraint();
-    case JunctionCom: return MakeJunctionConstraint();
+    case BasePoly:  return MakeStateConstraint();
     case Dynamic:     return MakeDynamicConstraint();
     case RomBox:      return MakeRangeOfMotionBoxConstraint();
     case TotalTime:   return MakeTotalTimeConstraint();
@@ -118,6 +117,11 @@ CostConstraintFactory::MakeStateConstraint () const
 
 
 
+  // junction constraints
+  derivs = {kPos, kVel, kAcc};
+  constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, derivs));
+  constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, derivs));
+
 
 
 //  // endeffector constraints
@@ -145,38 +149,73 @@ CostConstraintFactory::MakeStateConstraint () const
 }
 
 
-CostConstraintFactory::ComponentPtr
-CostConstraintFactory::MakeJunctionConstraint () const
-{
-  auto junction_constraints = std::make_shared<Composite>("Junctions Constraints", true);
-
-  // acceleration important b/c enforcing system dynamics only once at the
-  // junction, so make sure second polynomial also respect that by making
-  // its accelerations equal to the first.
-  auto derivatives = {kPos, kVel, kAcc};
-
-  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, derivatives));
-  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, derivatives));
-
-//  for (auto ee : params->robot_ee_) {
-//    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);
-
-//    auto derivs_pos_vel = {kPos, kVel};
-//    junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::GetEEId(ee), durations_ee, derivs_pos_vel));
-
-//  }
-
-  return junction_constraints;
-}
+//CostConstraintFactory::ComponentPtr
+//CostConstraintFactory::MakeJunctionConstraint () const
+//{
+//  auto junction_constraints = std::make_shared<Composite>("Junctions Constraints", true);
+//
+//  // acceleration important b/c enforcing system dynamics only once at the
+//  // junction, so make sure second polynomial also respect that by making
+//  // its accelerations equal to the first.
+//  auto derivatives = {kPos, kVel, kAcc};
+//
+//  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, derivatives));
+//  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, derivatives));
+//
+////  for (auto ee : params->robot_ee_) {
+////    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);
+//
+////    auto derivs_pos_vel = {kPos, kVel};
+////    junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::GetEEId(ee), durations_ee, derivs_pos_vel));
+//
+////  }
+//
+//  return junction_constraints;
+//}
 
 
 
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeDynamicConstraint() const
 {
+  auto base_poly_durations = params->GetBasePolyDurations();
+  std::vector<double> dts_;
+  double t_node = 0.0;
+  dts_ = {t_node};
+
+  double eps = 1e-6; // assume all polynomials have equal duration
+  for (int i=0; i<base_poly_durations.size()-1; ++i) {
+    double d = base_poly_durations.at(i);
+    t_node += d;
+
+    switch (params->GetBaseRepresentation()) {
+      case OptimizationParameters::CubicHermite:
+        dts_.push_back(t_node-eps); // this results in continous acceleration along junctions
+        dts_.push_back(t_node+eps);
+        break;
+      case OptimizationParameters::PolyCoeff:
+        dts_.push_back(t_node-d/2.); // enforce dynamics at center of node
+        dts_.push_back(t_node);
+        break;
+      default:
+        assert(false); // representation not defined
+        break;
+    }
+  }
+
+  double final_d = base_poly_durations.back();
+  t_node += final_d;
+
+  if (params->GetBaseRepresentation() == OptimizationParameters::PolyCoeff)
+    dts_.push_back(t_node-final_d/2);
+
+  dts_.push_back(t_node); // also ensure constraints at very last node/time.
+
+
+
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
                                                         model_,
-                                                        params->GetBasePolyDurations()
+                                                        dts_
                                                         );
 
   return constraint;
