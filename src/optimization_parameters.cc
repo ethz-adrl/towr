@@ -168,14 +168,14 @@ QuadrupedOptParameters::QuadrupedOptParameters ()
   using namespace xpp::quad;
 
   order_coeff_polys_  = 4; // used only with coeff_spline representation
-  dt_base_polynomial_ = 0.1;
+  dt_base_polynomial_ = 0.15;
 
 
   force_splines_per_stance_phase_ = 3;
 
 
   // range of motion constraint
-  dt_range_of_motion_ = 0.1;
+  dt_range_of_motion_ = 0.15;
   // not used, hardcoded for xy and z.
   ee_splines_per_swing_phase_ = 1; // should always be 2 if i want to use swing constraint!
 
