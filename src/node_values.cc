@@ -43,6 +43,8 @@ NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::str
 
   bounds_ = VecBound(GetRows(), kNoBound_);
   SetIndexMappings();
+
+  jac_structure_ = Jacobian(n_dim, n_opt_variables);
 }
 
 NodeValues::~NodeValues () {}
@@ -202,12 +204,20 @@ NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
 
-  Jacobian jac(n_dim_, GetRows());
 
   // if durations change, the polynomial active at a specified global time
-  // changes. Therefore, all elements of the jacobian could be non-zero
+  // changes. Therefore, all elements of the Jacobian could be non-zero
+  if (fill_jacobian_structure_) {
+    // assume every global time time can fall into every polynomial
+    for (int i=0; i<polynomial_info_.size(); ++i)
+      FillJacobian(i, 0.0, dxdt, jac_structure_, true);
+  }
+  fill_jacobian_structure_ = false;
+
+
+  Jacobian jac(n_dim_, GetRows());
   if (durations_change_)
-    jac = Eigen::MatrixXd::Zero(n_dim_, GetRows()).sparseView(1.0, -1.0);
+    jac = jac_structure_;
 
   FillJacobian(id, t_local, dxdt, jac);
   return jac;
@@ -215,16 +225,21 @@ NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
 
 void
 NodeValues::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
-                          Jacobian& jac) const
+                          Jacobian& jac, bool fill_with_zeros) const
 {
   for (int idx=0; idx<jac.cols(); ++idx) {
     for (NodeInfo info : GetNodeInfo(idx)) {
-      for (Side side : {Side::Start, Side::End}) {
+      for (Side side : {Side::Start, Side::End}) { // every jacobian is affected by two nodes
 
         int node = GetNodeId(poly_id,side);
 
-        if (node == info.id_) {
+        if (node == info.id_ && dxdt == info.deriv_) {
           double val = cubic_polys_.at(poly_id)->GetDerivativeOf(dxdt, side, info.deriv_, t_local);
+
+          // if only want structure
+          if (fill_with_zeros)
+            val = 0.0;
+
           jac.coeffRef(info.dim_, idx) += val;
         }
       }

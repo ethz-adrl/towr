@@ -39,6 +39,8 @@ public:
   using VecPoly  = std::vector<std::shared_ptr<PolyType>>;
   using Dimensions = std::vector<Coords3D>;
 
+  mutable bool fill_jacobian_structure_ = true;
+  mutable Jacobian jac_structure_; // all zeros
 
   struct PolyInfo {
     PolyInfo() {};
@@ -57,7 +59,7 @@ public:
 
   struct NodeInfo {
 
-    int id_;
+    int id_; // the actual id of the node, not the optimized node
     MotionDerivative deriv_;
     int dim_;
 
@@ -144,8 +146,9 @@ private:
   using NodeIds   = std::vector<int>;
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
 
+  // fill_with_zeros is to get sparsity
   void FillJacobian(int poly_id, double t_local, MotionDerivative dxdt,
-                    Jacobian& jac) const;
+                    Jacobian& jac, bool fill_with_zeros=false) const;
 
 };
 
