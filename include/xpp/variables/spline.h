@@ -47,7 +47,8 @@ public:
    */
   virtual bool HoldsVarsetThatIsActiveNow(const std::string& set_name, double t_global) const = 0;
 
-  virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
+  virtual Jacobian GetJacobian(double t_global,
+                               MotionDerivative dxdt) const = 0;
 };
 
 

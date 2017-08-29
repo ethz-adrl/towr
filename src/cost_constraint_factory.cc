@@ -264,7 +264,7 @@ CostConstraintFactory::MakeTerrainConstraint () const
   for (auto ee : model_->GetEEIDs()) {
     auto c = std::make_shared<TerrainConstraint>(terrain_,
                                                  opt_vars_,
-                                                 id::GetEEXYMotionId(ee));
+                                                 id::GetEEMotionId(ee));
     constraints->AddComponent(c);
   }
 

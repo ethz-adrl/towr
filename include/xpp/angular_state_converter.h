@@ -33,14 +33,13 @@ namespace opt {
  */
 class AngularStateConverter {
 public:
-  using OrientationVariables = std::shared_ptr<Spline>;
   using EulerAngles = Vector3d; ///< order x,y,z (roll, pitch, yaw).
   using EulerRates  = Vector3d; ///< derivative of the above
   using AngularVel  = Vector3d; ///< expressed in world
   using AngularAcc  = Vector3d; ///< expressed in world
 
   AngularStateConverter ();
-  AngularStateConverter (const OrientationVariables&);
+  AngularStateConverter (const Spline::Ptr&);
   virtual ~AngularStateConverter ();
 
   static StateAng3d GetState(const StateLin3d& euler);
@@ -80,7 +79,7 @@ public:
                                                     bool inverse) const;
 
 private:
-  OrientationVariables euler_;
+  Spline::Ptr euler_;
 
   /// Internal calculations for the conversion from euler rates to angular
   /// velocities and accelerations. These are done using the matrix M defined
@@ -127,6 +126,8 @@ private:
    * hermite spline these might be the node values and derivatives.
    */
   int OptVariablesOfCurrentPolyCount(double t) const;
+
+  JacobianRow GetJac(double t, MotionDerivative deriv, Coords3D dim) const;
 };
 
 } /* namespace opt */

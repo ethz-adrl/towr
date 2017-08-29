@@ -33,7 +33,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
 
   for (auto ee : model_->GetEEIDs()) {
-    ee_motion_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEXYMotionId(ee)));
+    ee_motion_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEMotionId(ee)));
     ee_forces_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEForceId(ee)));
     ee_timings_.push_back(opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
   }
@@ -105,7 +105,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
       Jacobian jac_f_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEForceId(ee));
       jac_model += model_->GetJacobianofAccWrtForce(jac_f_dT, ee);
 
-      Jacobian jac_x_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEXYMotionId(ee));
+      Jacobian jac_x_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEMotionId(ee));
       jac_model +=  model_->GetJacobianofAccWrtEEPos(jac_x_dT, ee);
     }
   }

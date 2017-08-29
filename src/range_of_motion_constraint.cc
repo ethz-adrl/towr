@@ -32,7 +32,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
 
   base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
   base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
-  ee_motion_    = opt_vars->GetComponent<NodeValues>(id::GetEEXYMotionId(ee));
+  ee_motion_    = opt_vars->GetComponent<NodeValues>(id::GetEEMotionId(ee));
   ee_timings_   = opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee));
 
   SetRows(GetNumberOfNodes()*kDim3d);
@@ -79,7 +79,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   int row_start = GetRow(k,X);
 
   if (var_set == ee_timings_->GetName()) {
-    jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(t, id::GetEEXYMotionId(ee_));
+    jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(t, id::GetEEMotionId(ee_));
   }
 
   if (var_set == ee_motion_->GetName()) {

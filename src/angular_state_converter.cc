@@ -20,7 +20,7 @@ AngularStateConverter::AngularStateConverter ()
   // TODO Auto-generated constructor stub
 }
 
-AngularStateConverter::AngularStateConverter (const OrientationVariables& euler)
+AngularStateConverter::AngularStateConverter (const Spline::Ptr& euler)
 {
   euler_ = euler;
 }
@@ -144,13 +144,12 @@ AngularStateConverter::GetMdot (const EulerAngles& xyz,
 Jacobian
 AngularStateConverter::GetDerivMwrtCoeff (double t, Coords3D ang_acc_dim) const
 {
-//  int n_coeff    = euler_->GetRows();
   StateLin3d ori = euler_->GetPoint(t);
 
   double z = ori.p_(Z);
   double y = ori.p_(Y);
-  JacobianRow jac_z = euler_->GetJacobian(t, kPos).row(Z);
-  JacobianRow jac_y = euler_->GetJacobian(t, kPos).row(Y);
+  JacobianRow jac_z = GetJac(t, kPos, Z);
+  JacobianRow jac_y = GetJac(t, kPos, Y);
 
   Jacobian jac(kDim3d, OptVariablesOfCurrentPolyCount(t));
 
@@ -228,9 +227,9 @@ AngularStateConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
   double y = ori.p_(Y);
   double z = ori.p_(Z);
 
-  JacobianRow jac_x = euler_->GetJacobian(t, kPos).row(X);
-  JacobianRow jac_y = euler_->GetJacobian(t, kPos).row(Y);
-  JacobianRow jac_z = euler_->GetJacobian(t, kPos).row(Z);
+  JacobianRow jac_x = GetJac(t, kPos, X);
+  JacobianRow jac_y = GetJac(t, kPos, Y);
+  JacobianRow jac_z = GetJac(t, kPos, Z);
 
   jac.at(X).at(X) = -cos(z)*sin(y)*jac_y - cos(y)*sin(z)*jac_z;
   jac.at(X).at(Y) = sin(x)*sin(z)*jac_x - cos(x)*cos(z)*jac_z - sin(x)*sin(y)*sin(z)*jac_z + cos(x)*cos(z)*sin(y)*jac_x + cos(y)*cos(z)*sin(x)*jac_y;
@@ -257,10 +256,10 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) con
   double y  = ori.p_(Y);
   double yd = ori.v_(Y);
 
-  JacobianRow jac_z  = euler_->GetJacobian(t, kPos).row(Z);
-  JacobianRow jac_y  = euler_->GetJacobian(t, kPos).row(Y);
-  JacobianRow jac_zd = euler_->GetJacobian(t, kVel).row(Z);
-  JacobianRow jac_yd = euler_->GetJacobian(t, kVel).row(Y);
+  JacobianRow jac_z  = GetJac(t, kPos, Z);
+  JacobianRow jac_y  = GetJac(t, kPos, Y);
+  JacobianRow jac_zd = GetJac(t, kVel, Z);
+  JacobianRow jac_yd = GetJac(t, kVel, Y);
 
   Jacobian jac(kDim3d, OptVariablesOfCurrentPolyCount(t));
   switch (ang_acc_dim) {
@@ -281,6 +280,12 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) con
   }
 
   return jac;
+}
+
+JacobianRow
+AngularStateConverter::GetJac (double t, MotionDerivative deriv, Coords3D dim) const
+{
+  return euler_->GetJacobian(t, deriv).row(dim);
 }
 
 int
