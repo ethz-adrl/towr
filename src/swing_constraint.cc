@@ -23,7 +23,7 @@ namespace opt {
 
 SwingConstraint::SwingConstraint (const OptVarsPtr& opt_vars, std::string ee_motion)
 {
-  ee_motion_ = opt_vars->GetComponent<EndeffectorNodes>(ee_motion);
+  ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion);
 
   AddOptimizationVariables(opt_vars);
 

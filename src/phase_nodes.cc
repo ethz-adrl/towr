@@ -72,8 +72,8 @@ PhaseNodes::IsConstantNode (int node_id) const
 {
   bool is_constant = false;
 
-  // node is considered contact node if either left or right polynomial
-  // represents a contact phase
+  // node is considered constant if either left or right polynomial
+  // belongs to a constant phase
   for (int poly_id : GetAdjacentPolyIds(node_id))
     if (polynomial_info_.at(poly_id).is_constant_)
       is_constant = true;
@@ -92,28 +92,51 @@ PhaseNodes::ConvertPhaseToSpline (const VecDurations& phase_durations) const
   return spline_durations;
 }
 
+int
+PhaseNodes::GetPolyIDAtStartOfPhase (int phase) const
+{
+  int poly_id=0;
+  for (int i=0; i<polynomial_info_.size(); ++i)
+    if (polynomial_info_.at(i).phase_ == phase)
+      return i;
+}
+
+Vector3d
+PhaseNodes::GetValueAtStartOfPhase (int phase) const
+{
+  int poly_id=GetPolyIDAtStartOfPhase(phase);
+  return cubic_polys_.at(poly_id)->GetPoint(0.0).p_;
+}
+
+int
+PhaseNodes::GetNodeIDAtStartOfPhase (int phase) const
+{
+  int poly_id=GetPolyIDAtStartOfPhase(phase);
+  return GetNodeId(poly_id, Side::Start);
+}
 
 
-EndeffectorNodes::EndeffectorNodes (int n_dim,
-                                  const ContactVector& contact_schedule,
-                                  const std::string& name,
-                                  int n_polys)
-    :PhaseNodes(n_dim, contact_schedule, name, n_polys, Motion)
+
+
+EEMotionNodes::EEMotionNodes (const ContactVector& contact_schedule,
+                                    const std::string& name,
+                                    int n_polys)
+    :PhaseNodes(kDim3d, contact_schedule, name, n_polys, Motion)
 {
 }
 
-EndeffectorNodes::~EndeffectorNodes ()
+EEMotionNodes::~EEMotionNodes ()
 {
 }
 
 bool
-EndeffectorNodes::IsContactNode (int node_id) const
+EEMotionNodes::IsContactNode (int node_id) const
 {
   return IsConstantNode(node_id);
 }
 
 VecBound
-EndeffectorNodes::GetBounds () const
+EEMotionNodes::GetBounds () const
 {
   for (int idx=0; idx<GetRows(); ++idx) {
 
@@ -144,52 +167,63 @@ EndeffectorNodes::GetBounds () const
 
 
 
-ForceNodes::ForceNodes (int n_dim, const ContactVector& contact_schedule,
+
+
+
+EEForceNodes::EEForceNodes (const ContactVector& contact_schedule,
                         const std::string& name, int n_polys,
                         double force_max)
-    :PhaseNodes(n_dim, contact_schedule, name, n_polys, Force)
+    :PhaseNodes(kDim3d, contact_schedule, name, n_polys, Force)
 {
   f_max_ = force_max;
 }
 
-ForceNodes::~ForceNodes ()
+EEForceNodes::~EEForceNodes ()
 {
 }
 
 bool
-ForceNodes::IsSwingNode (int node_id) const
+EEForceNodes::IsStanceNode (int node_id) const
 {
-  return IsConstantNode(node_id);
+  return !IsConstantNode(node_id);
+}
+
+int
+EEForceNodes::GetPhase (int node_id) const
+{
+  assert(!IsStanceNode(node_id)); // because otherwise it has two phases
+
+  int poly_id = GetAdjacentPolyIds(node_id).front();
+  return polynomial_info_.at(poly_id).phase_;
 }
 
 VecBound
-ForceNodes::GetBounds () const
+EEForceNodes::GetBounds () const
 {
   for (int idx=0; idx<GetRows(); ++idx) {
 
     NodeInfo n0 = GetNodeInfo(idx).front(); // only one node anyway
-    bool is_swing = IsSwingNode(n0.id_);
 
-    if (is_swing)
-      bounds_.at(idx) = kEqualityBound_; // force must be zero
-    else { // stance-phase -> forces can be applied
+    if (IsStanceNode(n0.id_)) {
 
-
-      if (n0.deriv_ == kPos) {
-
-        if (n0.dim_ == X || n0.dim_ == Y)
-          bounds_.at(idx) = Bound(-f_max_, f_max_);
-
-        // unilateral contact forces ("pulling" on ground not possible)
-        if (n0.dim_ == Z)
-          bounds_.at(idx) = Bound(0.0, f_max_);
-      }
-
-      if (n0.deriv_ == kVel && n0.dim_ == Z) {
+//      if (n0.deriv_ == kPos) {
+//
+//        if (n0.dim_ == X || n0.dim_ == Y)
+//          bounds_.at(idx) = Bound(-f_max_, f_max_);
+//
+//        // unilateral contact forces ("pulling" on ground not possible)
+//        if (n0.dim_ == Z)
+//          bounds_.at(idx) = Bound(0.0, f_max_);
+//      }
+//
+      if (n0.deriv_ == kVel) {
         bounds_.at(idx) = kEqualityBound_; // zero slope to never exceed zero force
       }
 
+    } else { // swing node
+      bounds_.at(idx) = kEqualityBound_; // force must be zero
     }
+
   }
 
   return bounds_;

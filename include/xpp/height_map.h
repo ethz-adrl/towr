@@ -27,6 +27,9 @@ public:
   virtual double GetHeightDerivWrtY(double x, double y) const = 0;
 
   Vector3d GetNormal(double x, double y) const;
+  virtual Vector3d GetNormalDerivativeWrtX(double x, double y) const { return Vector3d::Zero();};
+  virtual Vector3d GetNormalDerivativeWrtY(double x, double y) const { return Vector3d::Zero();};
+
 
   enum ID { FlatID=0, StairsID, GapID, SlopeID, ChimneyID, K_TERRAIN_COUNT };
   static Ptr MakeTerrain(ID type);
@@ -38,6 +41,9 @@ public:
   virtual double GetHeight(double x, double y)          const override { return height_; };
   virtual double GetHeightDerivWrtX(double x, double y) const override { return 0.0; };
   virtual double GetHeightDerivWrtY(double x, double y) const override { return 0.0; };
+
+  virtual Vector3d GetNormalDerivativeWrtX(double x, double y) const { return Vector3d::Zero(); };
+  virtual Vector3d GetNormalDerivativeWrtY(double x, double y) const { return Vector3d::Zero(); };
 
 private:
   double height_ = 0.0; // [m]

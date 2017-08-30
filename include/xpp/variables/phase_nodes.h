@@ -43,9 +43,14 @@ public:
    */
   void UpdateDurations(const VecDurations& phase_durations);
 
+  Vector3d GetValueAtStartOfPhase(int phase) const;
+  int GetNodeIDAtStartOfPhase(int phase) const;
 
 protected:
   bool IsConstantNode(int node_id) const;
+
+  int GetPolyIDAtStartOfPhase(int phase) const;
+
 
 private:
   PolyInfoVec BuildPolyInfos(const ContactVector& contact_schedule,
@@ -56,32 +61,37 @@ private:
 };
 
 
-class EndeffectorNodes : public PhaseNodes {
+class EEMotionNodes : public PhaseNodes {
 public:
-  using Ptr = std::shared_ptr<EndeffectorNodes>;
+  using Ptr = std::shared_ptr<EEMotionNodes>;
 
-  EndeffectorNodes (int n_dim,
-                   const ContactVector& contact_schedule,
-                   const std::string& name,
-                   int n_polys_in_changing_phase);
-  virtual ~EndeffectorNodes();
+  EEMotionNodes (const ContactVector& contact_schedule,
+                 const std::string& name,
+                 int n_polys_in_changing_phase);
+  virtual ~EEMotionNodes();
 
   bool IsContactNode(int node_id) const;
+
+
+
 
   virtual VecBound GetBounds() const override;
 };
 
 
-class ForceNodes : public PhaseNodes {
+class EEForceNodes : public PhaseNodes {
 public:
-  ForceNodes (int n_dim,
-              const ContactVector& contact_schedule,
-              const std::string& name,
-              int n_polys_in_changing_phase,
-              double force_max);
-  virtual ~ForceNodes();
+  using Ptr = std::shared_ptr<EEForceNodes>;
 
-  bool IsSwingNode(int node_id) const;
+  EEForceNodes (const ContactVector& contact_schedule,
+                const std::string& name,
+                int n_polys_in_changing_phase,
+                double force_max);
+  virtual ~EEForceNodes();
+
+  bool IsStanceNode(int node_id) const;
+
+  int GetPhase(int node_id) const;
 
   virtual VecBound GetBounds() const override;
 

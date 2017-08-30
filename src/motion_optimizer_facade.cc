@@ -87,10 +87,9 @@ MotionOptimizerFacade::BuildVariables () const
 
   // Endeffector Motions
   for (auto ee : model_->GetEEIDs()) {
-    auto ee_motion = std::make_shared<EndeffectorNodes>(kDim3d,
-                                                        contact_schedule.at(ee)->GetContactSequence(),
-                                                        id::GetEEMotionId(ee),
-                                                        params_->ee_splines_per_swing_phase_);
+    auto ee_motion = std::make_shared<EEMotionNodes>(contact_schedule.at(ee)->GetContactSequence(),
+                                                     id::GetEEMotionId(ee),
+                                                     params_->ee_splines_per_swing_phase_);
 
     Vector3d final_ee_pos_W = final_base_.lin.p_ + model_->GetNominalStanceInBase().At(ee);
     ee_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
@@ -100,8 +99,7 @@ MotionOptimizerFacade::BuildVariables () const
 
   // Endeffector Forces
   for (auto ee : model_->GetEEIDs()) {
-    auto nodes_forces = std::make_shared<ForceNodes>(kDim3d,
-                                                     contact_schedule.at(ee)->GetContactSequence(),
+    auto nodes_forces = std::make_shared<EEForceNodes>(contact_schedule.at(ee)->GetContactSequence(),
                                                      id::GetEEForceId(ee),
                                                      params_->force_splines_per_stance_phase_,
                                                      model_->GetForceLimit());

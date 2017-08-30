@@ -20,11 +20,6 @@ DynamicModel::DynamicModel (int ee_count)
   nominal_stance_.SetCount(ee_count);
 }
 
-DynamicModel::~DynamicModel ()
-{
-  // TODO Auto-generated destructor stub
-}
-
 void
 DynamicModel::SetCurrent (const ComPos& com_pos, const EELoad& ee_force,
                           const EEPos& ee_pos)
@@ -38,6 +33,10 @@ std::vector<EndeffectorID>
 xpp::opt::DynamicModel::GetEEIDs () const
 {
   return ee_ids_;
+}
+
+DynamicModel::~DynamicModel ()
+{
 }
 
 } /* namespace opt */

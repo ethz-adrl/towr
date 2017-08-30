@@ -121,6 +121,8 @@ public:
 
   int GetDimCount() const { return n_dim_; };
 
+
+
 protected:
   void UpdatePolynomials();
   bool durations_change_ = false;
@@ -128,16 +130,19 @@ protected:
   PolyInfoVec polynomial_info_;
   mutable VecBound bounds_;
 
+  VecPoly cubic_polys_;
   std::vector<int> GetAdjacentPolyIds(int node_id) const;
 
+
+
+
+  int GetNodeId(int poly_id, Side) const;
 private:
   PolyInfoVec BuildPolyInfos(int num_polys) const;
 
   int n_dim_;
-  VecPoly cubic_polys_;
   std::vector<Node> nodes_;
 
-  int GetNodeId(int poly_id, Side) const;
 
 
 

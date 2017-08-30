@@ -27,14 +27,18 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   const std::string& ee_force_id,
                                   const std::string& ee_motion_id)
 {
-  ee_force_  = opt_vars->GetComponent<EndeffectorNodes>(ee_force_id);
-  ee_motion_ = opt_vars->GetComponent<EndeffectorNodes>(ee_motion_id);
-  terrain_ = terrain;
+  ee_force_  = opt_vars->GetComponent<EEForceNodes>(ee_force_id);
+  ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion_id);
+  terrain_   = terrain;
   friction_coeff_ = friction_coeff;
 
   AddOptimizationVariables(opt_vars);
 
-  int constraint_count = ee_force_->GetNodes().size(); // z position of every node
+  int constraint_count = 0;
+  for (int node_id=0; node_id<ee_force_->GetNodes().size(); ++node_id)
+    if (ee_force_->IsStanceNode(node_id))
+      constraint_count++; // positive normal force only allowed
+
   SetRows(constraint_count);
   SetName("Force-Constraint-" + ee_force_id);
 }
@@ -44,10 +48,18 @@ ForceConstraint::GetValues () const
 {
   VectorXd g(GetRows());
 
-  auto nodes = ee_force_->GetNodes();
-  for (int i=0; i<nodes.size(); ++i) {
-    Vector3d f = nodes.at(i).at(kPos);
-    g(i) = f.z() - terrain_->GetHeight(f.x(), f.y());
+  int row=0;
+  auto force_nodes = ee_force_->GetNodes();
+  for (int node_id=0; node_id<force_nodes.size(); ++node_id) {
+    if (ee_force_->IsStanceNode(node_id)) {
+
+      int phase  = ee_force_->GetPhase(node_id);
+      Vector3d p = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during stance phase
+      Vector3d n = terrain_->GetNormal(p.x(), p.y());
+
+      Vector3d f = force_nodes.at(node_id).at(kPos);
+      g(row++) = f.transpose() * n; // unilateral forces
+    }
   }
 
   return g;
@@ -56,32 +68,60 @@ ForceConstraint::GetValues () const
 VecBound
 ForceConstraint::GetBounds () const
 {
-  VecBound bounds(GetRows());
+  VecBound bounds;
 
-  for (int i=0; i<ee_force_->GetNodes().size(); ++i) {
-    if (ee_force_->IsContactNode(i))
-      bounds.at(i) = kEqualityBound_;
-    else
-      bounds.at(i) = Bound(0.0, 1.0);
-  }
+  double max_normal_force = 10000;
+
+  for (int i=0; i<ee_force_->GetNodes().size(); ++i)
+    if (ee_force_->IsStanceNode(i))
+      bounds.push_back(Bound(0.0, max_normal_force)); // unilateral forces
 
   return bounds;
 }
 
 void
 ForceConstraint::FillJacobianWithRespectTo (std::string var_set,
-                                              Jacobian& jac) const
+                                            Jacobian& jac) const
 {
   if (var_set == ee_force_->GetName()) {
 
-    auto nodes = ee_force_->GetNodes();
-    for (int i=0; i<nodes.size(); ++i) {
+    int row = 0;
+    for (int node_id=0; node_id<ee_force_->GetNodes().size(); ++node_id) {
+      if (ee_force_->IsStanceNode(node_id)) {
 
-      jac.coeffRef(i, ee_force_->Index(i, kPos, Z)) = 1.0;
+        int phase  = ee_force_->GetPhase(node_id);
+        Vector3d p = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during phase
+        Vector3d n = terrain_->GetNormal(p.x(), p.y());
 
-      Vector3d p = nodes.at(i).at(kPos);
-      jac.coeffRef(i, ee_force_->Index(i, kPos, Y)) = -terrain_->GetHeightDerivWrtY(p.x(), p.y());
-      jac.coeffRef(i, ee_force_->Index(i, kPos, X)) = -terrain_->GetHeightDerivWrtX(p.x(), p.y());
+        jac.coeffRef(row, ee_force_->Index(node_id, kPos, X)) = n.x();
+        jac.coeffRef(row, ee_force_->Index(node_id, kPos, Y)) = n.y();
+        jac.coeffRef(row, ee_force_->Index(node_id, kPos, Z)) = n.z();
+        row++;
+      }
+    }
+  }
+
+
+  if (var_set == ee_motion_->GetName()) {
+
+    int row = 0;
+    auto force_nodes = ee_force_->GetNodes();
+    for (int force_node_id=0; force_node_id<force_nodes.size(); ++force_node_id) {
+      if (ee_force_->IsStanceNode(force_node_id)) {
+
+        int phase  = ee_force_->GetPhase(force_node_id);
+        int ee_node_id = ee_motion_->GetNodeIDAtStartOfPhase(phase);
+
+        Vector3d p = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during pahse
+        Vector3d dndx = terrain_->GetNormalDerivativeWrtX(p.x(), p.y());
+        Vector3d dndy = terrain_->GetNormalDerivativeWrtY(p.x(), p.y());
+
+        Vector3d f = force_nodes.at(force_node_id).at(kPos);
+
+        jac.coeffRef(row, ee_motion_->Index(ee_node_id, kPos, X)) = f.transpose()*dndx;
+        jac.coeffRef(row, ee_motion_->Index(ee_node_id, kPos, Y)) = f.transpose()*dndy;
+        row++;
+      }
     }
   }
 }

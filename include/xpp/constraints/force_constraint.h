@@ -38,8 +38,8 @@ public:
 
 
 private:
-  EndeffectorNodes::Ptr ee_force_;
-  EndeffectorNodes::Ptr ee_motion_;
+  EEForceNodes::Ptr ee_force_;
+  EEMotionNodes::Ptr ee_motion_;
 
   HeightMap::Ptr terrain_;
   double friction_coeff_;

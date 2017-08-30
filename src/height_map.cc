@@ -30,13 +30,15 @@ HeightMap::MakeTerrain (ID type)
 HeightMap::Vector3d
 HeightMap::GetNormal (double x, double y) const
 {
-  // calculate tangent vectors from gradients
   double dzdx = GetHeightDerivWrtX(x,y);
   double dzdy = GetHeightDerivWrtY(x,y);
-  Vector3d tangent_x(1,0,dzdx);
-  Vector3d tangent_y(0,1,dzdy);
 
-  return tangent_x.cross(tangent_y);
+//  // calculate tangent vectors from gradients
+//  Vector3d tangent_x(1,0,dzdx);
+//  Vector3d tangent_y(0,1,dzdy);
+//  Vector3d normal = tangent_y.cross(tangent_x);
+
+  return Vector3d(-dzdx, -dzdy, 1.0); // could also multiply by -1
 }
 
 

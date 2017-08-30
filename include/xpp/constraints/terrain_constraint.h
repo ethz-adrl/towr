@@ -36,7 +36,7 @@ public:
 
 
 private:
-  EndeffectorNodes::Ptr ee_motion_;
+  EEMotionNodes::Ptr ee_motion_;
   HeightMap::Ptr terrain_;
 
   double max_z_distance_above_terrain_ = 10.3; // [m]
