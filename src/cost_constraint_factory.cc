@@ -10,16 +10,13 @@
 #include <cassert>
 #include <initializer_list>
 #include <stdexcept>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
 
-#include <xpp/angular_state_converter.h>
-#include <xpp/centroidal_model.h>
 #include <xpp/constraints/dynamic_constraint.h>
+#include <xpp/constraints/force_constraint.h>
 #include <xpp/constraints/range_of_motion_constraint.h>
 #include <xpp/constraints/spline_constraint.h>
-#include <xpp/constraints/terrain_constraint.h>
 #include <xpp/constraints/swing_constraint.h>
+#include <xpp/constraints/terrain_constraint.h>
 #include <xpp/costs/node_cost.h>
 #include <xpp/costs/soft_constraint.h>
 #include <xpp/variables/contact_schedule.h>
@@ -62,11 +59,12 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
 {
   switch (name) {
     case BasePoly:  return MakeStateConstraint();
-    case Dynamic:     return MakeDynamicConstraint();
-    case RomBox:      return MakeRangeOfMotionBoxConstraint();
-    case TotalTime:   return MakeTotalTimeConstraint();
-    case Terrain:     return MakeTerrainConstraint();
-    case Swing:       return MakeSwingConstraint();
+    case Dynamic:   return MakeDynamicConstraint();
+    case RomBox:    return MakeRangeOfMotionBoxConstraint();
+    case TotalTime: return MakeTotalTimeConstraint();
+    case Terrain:   return MakeTerrainConstraint();
+    case Force:     return MakeForceConstraint();
+    case Swing:     return MakeSwingConstraint();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -267,6 +265,23 @@ CostConstraintFactory::MakeTerrainConstraint () const
     auto c = std::make_shared<TerrainConstraint>(terrain_,
                                                  opt_vars_,
                                                  id::GetEEMotionId(ee));
+    constraints->AddComponent(c);
+  }
+
+  return constraints;
+}
+
+CostConstraintFactory::ComponentPtr
+CostConstraintFactory::MakeForceConstraint () const
+{
+  auto constraints = std::make_shared<Composite>("Force Constraints", true);
+
+  for (auto ee : model_->GetEEIDs()) {
+    auto c = std::make_shared<ForceConstraint>(terrain_,
+                                               params->friction_coeff_,
+                                               opt_vars_,
+                                               id::GetEEForceId(ee),
+                                               id::GetEEMotionId(ee));
     constraints->AddComponent(c);
   }
 

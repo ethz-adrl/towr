@@ -9,6 +9,7 @@
 #define XPP_OPT_INCLUDE_XPP_HEIGHT_MAP_H_
 
 #include <memory>
+#include <Eigen/Dense>
 
 namespace xpp {
 namespace opt {
@@ -16,13 +17,16 @@ namespace opt {
 
 class HeightMap {
 public:
-  using Ptr = std::shared_ptr<HeightMap>;
+  using Ptr      = std::shared_ptr<HeightMap>;
+  using Vector3d = Eigen::Vector3d;
 
   virtual ~HeightMap () {};
 
   virtual double GetHeight(double x, double y) const = 0;
   virtual double GetHeightDerivWrtX(double x, double y) const = 0;
   virtual double GetHeightDerivWrtY(double x, double y) const = 0;
+
+  Vector3d GetNormal(double x, double y) const;
 
   enum ID { FlatID=0, StairsID, GapID, SlopeID, ChimneyID, K_TERRAIN_COUNT };
   static Ptr MakeTerrain(ID type);

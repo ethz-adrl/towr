@@ -70,6 +70,7 @@ private:
   ComponentPtr MakeRangeOfMotionBoxConstraint() const;
   ComponentPtr MakeTotalTimeConstraint() const;
   ComponentPtr MakeTerrainConstraint() const;
+  ComponentPtr MakeForceConstraint() const;
   ComponentPtr MakeSwingConstraint() const;
 
   // costs

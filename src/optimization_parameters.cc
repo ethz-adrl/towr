@@ -201,7 +201,7 @@ QuadrupedOptParameters::QuadrupedOptParameters ()
       RomBox,
       Dynamic,
       Terrain,
-      TotalTime,
+//      TotalTime, // Attention: this causes segfault in SNOPT
 //      Swing,
   };
 
