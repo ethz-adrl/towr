@@ -171,11 +171,9 @@ EEMotionNodes::GetBounds () const
 
 
 EEForceNodes::EEForceNodes (const ContactVector& contact_schedule,
-                        const std::string& name, int n_polys,
-                        double force_max)
+                        const std::string& name, int n_polys)
     :PhaseNodes(kDim3d, contact_schedule, name, n_polys, Force)
 {
-  f_max_ = force_max;
 }
 
 EEForceNodes::~EEForceNodes ()
@@ -191,7 +189,7 @@ EEForceNodes::IsStanceNode (int node_id) const
 int
 EEForceNodes::GetPhase (int node_id) const
 {
-  assert(!IsStanceNode(node_id)); // because otherwise it has two phases
+  assert(IsStanceNode(node_id)); // because otherwise it has two phases
 
   int poly_id = GetAdjacentPolyIds(node_id).front();
   return polynomial_info_.at(poly_id).phase_;

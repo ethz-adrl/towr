@@ -53,8 +53,6 @@ public:
   double GetTotalTime() const;
 
 private:
-  VecDurations CalcAllDurations(const VecDurations& opt_durations) const;
-
   bool first_phase_in_contact_ = true;
   double t_total_;
   Bound phase_duration_bounds_;

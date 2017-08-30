@@ -85,8 +85,7 @@ public:
 
   EEForceNodes (const ContactVector& contact_schedule,
                 const std::string& name,
-                int n_polys_in_changing_phase,
-                double force_max);
+                int n_polys_in_changing_phase);
   virtual ~EEForceNodes();
 
   bool IsStanceNode(int node_id) const;
@@ -94,9 +93,6 @@ public:
   int GetPhase(int node_id) const;
 
   virtual VecBound GetBounds() const override;
-
-private:
-  double f_max_;
 };
 
 } /* namespace opt */

@@ -23,6 +23,7 @@ namespace opt {
 
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   double friction_coeff,
+                                  double force_limit,
                                   const OptVarsPtr& opt_vars,
                                   const std::string& ee_force_id,
                                   const std::string& ee_motion_id)
@@ -31,6 +32,7 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion_id);
   terrain_   = terrain;
   friction_coeff_ = friction_coeff;
+  force_limit_ = force_limit;
 
   AddOptimizationVariables(opt_vars);
 
@@ -58,7 +60,7 @@ ForceConstraint::GetValues () const
       Vector3d n = terrain_->GetNormal(p.x(), p.y());
 
       Vector3d f = force_nodes.at(node_id).at(kPos);
-      g(row++) = f.transpose() * n; // unilateral forces
+      g(row++) = f.transpose() * n; // >0 (unilateral forces)
     }
   }
 
@@ -70,11 +72,9 @@ ForceConstraint::GetBounds () const
 {
   VecBound bounds;
 
-  double max_normal_force = 10000;
-
   for (int i=0; i<ee_force_->GetNodes().size(); ++i)
     if (ee_force_->IsStanceNode(i))
-      bounds.push_back(Bound(0.0, max_normal_force)); // unilateral forces
+      bounds.push_back(Bound(0.0, force_limit_)); // unilateral forces
 
   return bounds;
 }

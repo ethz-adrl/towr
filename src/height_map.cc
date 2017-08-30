@@ -10,6 +10,8 @@
 #include <cassert>
 #include <cmath>
 
+#include <xpp/cartesian_declarations.h>
+
 namespace xpp {
 namespace opt {
 
@@ -41,6 +43,24 @@ HeightMap::GetNormal (double x, double y) const
   return Vector3d(-dzdx, -dzdy, 1.0); // could also multiply by -1
 }
 
+HeightMap::Vector3d
+HeightMap::GetNormalDerivativeWrtX (double x, double y) const
+{
+  Vector3d dndx = Vector3d::Zero();
+  dndx(X) = -GetHeightDerivWrtXX(x,y);
+  dndx(Y) = -GetHeightDerivWrtYX(x,y);
+  return dndx;
+}
+
+HeightMap::Vector3d
+HeightMap::GetNormalDerivativeWrtY (double x, double y) const
+{
+  Vector3d dndy = Vector3d::Zero();
+  dndy(X) = -GetHeightDerivWrtXY(x,y);
+  dndy(Y) = -GetHeightDerivWrtYY(x,y);
+  return dndy;
+}
+
 
 // STAIRS
 double
@@ -60,17 +80,6 @@ Stairs::GetHeight (double x, double y) const
   return h;
 }
 
-double
-Stairs::GetHeightDerivWrtX (double x, double y) const
-{
-  return 0.0;
-}
-
-double
-Stairs::GetHeightDerivWrtY (double x, double y) const
-{
-  return 0.0;
-}
 
 
 // GAP
@@ -104,9 +113,16 @@ Gap::GetHeightDerivWrtX (double x, double y) const
 }
 
 double
-Gap::GetHeightDerivWrtY (double x, double y) const
+Gap::GetHeightDerivWrtXX (double x, double y) const
 {
-  return 0.0;
+  double dzdxx = 0.0;
+
+  if (gap_start_ < x && x < gap_start_+gap_width_) {
+    double dx = gap_width_/2;
+    dzdxx = 2*gap_depth_/(dx*dx);
+  }
+
+  return dzdxx;
 }
 
 
@@ -146,11 +162,7 @@ Slope::GetHeightDerivWrtX (double x, double y) const
   return dzdx;
 }
 
-double
-Slope::GetHeightDerivWrtY (double x, double y) const
-{
-  return 0.0;
-}
+
 
 double
 Chimney::GetHeight (double x, double y) const
@@ -158,48 +170,57 @@ Chimney::GetHeight (double x, double y) const
   double z = 0.0;
 
   if (x>x_start_ && x<x_start_+length_) {
-    // gap
-//    z = -z_depth_; // make parabola for better derivatives
-
-    z = z_depth_/(y_start_*y_start_) * y*y - z_depth_;
 
     // slopes on the side
     if (y>y_start_) // left side
       z = slope_*(y-y_start_);
-    if (y<-y_start_) // right side
+    else if (y<-y_start_) // right side
       z = -slope_*(y+y_start_);
+    else
+      z = z_depth_/(y_start_*y_start_) * y*y - z_depth_;
   }
-
 
   return z;
 }
 
-double
-Chimney::GetHeightDerivWrtX (double x, double y) const
-{
-  return 0.0;
-}
 
 double
 Chimney::GetHeightDerivWrtY (double x, double y) const
 {
   double dzdy = 0.0;
 
-  if (x>x_start_ && x<x_start_+length_) {
+  if (x_start_ < x && x < x_start_+length_) {
 
-    // derivative of parabola
-    dzdy = 2*z_depth_/(y_start_*y_start_) *y;
-
-
-    // slopes on the side
-    if (y>y_start_) // left side
+    if (y>y_start_) // left side slope
       dzdy = slope_;
-    if (y<-y_start_) // right side
+    else if (y<-y_start_) // right side slope
       dzdy = -slope_;
+    else // center modeled as parabola
+      dzdy = 2*z_depth_/(y_start_*y_start_) *y;
   }
 
   return dzdy;
 }
+
+double
+Chimney::GetHeightDerivWrtYY (double x, double y) const
+{
+  double dzdyy = 0.0;
+
+  if (x_start_ < x && x < x_start_+length_) {
+
+    if (y>y_start_) // left side slope
+      dzdyy = 0.0;
+    else if (y<-y_start_) // right side slope
+      dzdyy = 0.0;
+    else // center modeled as parabola
+      dzdyy = 2*z_depth_/(y_start_*y_start_);
+  }
+
+  return dzdyy;
+}
+
+
 
 } /* namespace opt */
 } /* namespace xpp */

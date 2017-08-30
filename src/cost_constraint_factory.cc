@@ -279,6 +279,7 @@ CostConstraintFactory::MakeForceConstraint () const
   for (auto ee : model_->GetEEIDs()) {
     auto c = std::make_shared<ForceConstraint>(terrain_,
                                                params->friction_coeff_,
+                                               model_->GetForceLimit(),
                                                opt_vars_,
                                                id::GetEEForceId(ee),
                                                id::GetEEMotionId(ee));

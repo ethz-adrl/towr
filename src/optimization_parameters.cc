@@ -168,7 +168,7 @@ QuadrupedOptParameters::QuadrupedOptParameters ()
   using namespace xpp::quad;
 
   order_coeff_polys_  = 4; // used only with coeff_spline representation
-  dt_base_polynomial_ = 0.15;
+  dt_base_polynomial_ = 0.2;
 
 
   force_splines_per_stance_phase_ = 3;
@@ -187,13 +187,14 @@ QuadrupedOptParameters::QuadrupedOptParameters ()
   contact_timings_ = ContactTimings(4);
   auto m = Reverse(kMapOptToQuad);
   contact_timings_.at(m.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c           };
-  contact_timings_.at(m.at(RH)) = {           c, f, c, f, c, f, c, f, c + t_offset};
   contact_timings_.at(m.at(LF)) = {           c, f, c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(m.at(RH)) = {           c, f, c, f, c, f, c, f, c + t_offset};
   contact_timings_.at(m.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c           };
 
 
   min_phase_duration_ = 0.1;
-  max_phase_duration_ = GetTotalTime();
+  double max_time = 2.0;
+  max_phase_duration_ = max_time>GetTotalTime()?  GetTotalTime() : max_time;
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
   constraints_ = {
@@ -202,7 +203,7 @@ QuadrupedOptParameters::QuadrupedOptParameters ()
       Dynamic,
       Terrain,
       Force,
-//      TotalTime, // Attention: this causes segfault in SNOPT
+      TotalTime, // Attention: this causes segfault in SNOPT
 //      Swing,
   };
 

@@ -101,8 +101,7 @@ MotionOptimizerFacade::BuildVariables () const
   for (auto ee : model_->GetEEIDs()) {
     auto nodes_forces = std::make_shared<EEForceNodes>(contact_schedule.at(ee)->GetContactSequence(),
                                                      id::GetEEForceId(ee),
-                                                     params_->force_splines_per_stance_phase_,
-                                                     model_->GetForceLimit());
+                                                     params_->force_splines_per_stance_phase_);
 
     Vector3d f_stance(0.0, 0.0, model_->GetStandingZForce());
     nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule.at(ee)->GetTimePerPhase());

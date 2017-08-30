@@ -72,31 +72,12 @@ ContactSchedule::GetValues () const
 void
 ContactSchedule::SetValues (const VectorXd& x)
 {
-  VecDurations opt_durations;
+  for (int i=0; i<GetRows(); ++i)
+    durations_.at(i) = x(i);
 
-  for (int i=0; i<x.rows(); ++i)
-    opt_durations.push_back(x(i));
-
-  durations_ = CalcAllDurations(opt_durations);
+  durations_.back() =  t_total_ - x.sum();
+  assert(durations_.back()>0);
   UpdateObservers();
-}
-
-
-
-ContactSchedule::VecDurations
-ContactSchedule::CalcAllDurations (const VecDurations& opt_Ts) const
-{
-  VecDurations all_Ts;
-
-  for (double T : opt_Ts)
-    all_Ts.push_back(T);
-
-  // includes last phase that is not optimized
-  double T_last = t_total_ - std::accumulate(opt_Ts.begin(), opt_Ts.end(), 0.0);
-  assert(T_last > 0.0);
-  all_Ts.push_back(T_last);
-
-  return all_Ts;
 }
 
 VecBound

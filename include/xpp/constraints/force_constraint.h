@@ -25,7 +25,8 @@ namespace opt {
 class ForceConstraint : public Constraint {
 public:
   ForceConstraint (const HeightMap::Ptr& terrain,
-                   double friction_coeff_,
+                   double friction_coeff,
+                   double force_limit,
                    const OptVarsPtr& opt_vars,
                    const std::string& ee_force_id,
                    const std::string& ee_motion_id);
@@ -43,6 +44,7 @@ private:
 
   HeightMap::Ptr terrain_;
   double friction_coeff_;
+  double force_limit_;
 };
 
 
