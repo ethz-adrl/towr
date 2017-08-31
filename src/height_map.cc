@@ -30,7 +30,7 @@ HeightMap::MakeTerrain (ID type)
 }
 
 HeightMap::Vector3d
-HeightMap::GetNormal (double x, double y) const
+HeightMap::GetNormal (double x, double y, bool normalize) const
 {
   Vector3d n;
 
@@ -38,6 +38,22 @@ HeightMap::GetNormal (double x, double y) const
     n(dim) = -GetHeightFirstDerivativeWrt(dim, x, y);
 
   n(Z) = 1.0;
+
+  if (normalize)
+    n.normalize();
+
+  return n;
+}
+
+HeightMap::Vector3d
+HeightMap::GetNonNormalizedNormalDerivativeWrt (Coords3D deriv, double x, double y) const
+{
+  Vector3d n;
+
+  for (auto dim : {X,Y})
+    n(dim) = -GetHeightSecondDerivative(dim, deriv, x, y);
+
+  n(Z) = 0.0;
   return n;
 }
 
@@ -64,15 +80,10 @@ HeightMap::GetTangent2 (double x, double y) const
 HeightMap::Vector3d
 HeightMap::GetNormalDerivativeWrt (Coords3D dim, double x, double y) const
 {
-  Vector3d n = GetNormal(x,y);
-  Vector3d dn_normalized_wrt_n = GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(n, dim);
-
-  Vector3d dn_wrt_x;
-  dn_wrt_x(X) = -GetHeightSecondDerivative(X, dim, x,y);
-  dn_wrt_x(Y) = -GetHeightSecondDerivative(Y, dim, x,y);
-  dn_wrt_x(Z) = 0.0;
-
-  return dn_wrt_x; // spring_clean_ add this back dn_normalized_wrt_n.cwiseProduct(dn_wrt_x);
+  Vector3d n_non_normalized = GetNormal(x,y, false);
+  Vector3d dn_normalized_wrt_n = GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(n_non_normalized, dim);
+  Vector3d dn_wrt_dim = GetNonNormalizedNormalDerivativeWrt(dim, x, y);
+  return dn_normalized_wrt_n.cwiseProduct(dn_wrt_dim);
 }
 
 //HeightMap::Vector3d

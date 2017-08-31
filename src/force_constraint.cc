@@ -93,9 +93,9 @@ ForceConstraint::FillJacobianWithRespectTo (std::string var_set,
         Vector3d p = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during phase
         Vector3d n = terrain_->GetNormal(p.x(), p.y());
 
-        jac.coeffRef(row, ee_force_->Index(node_id, kPos, X)) = n.x();
-        jac.coeffRef(row, ee_force_->Index(node_id, kPos, Y)) = n.y();
-        jac.coeffRef(row, ee_force_->Index(node_id, kPos, Z)) = n.z();
+        for (auto dim : {X,Y,Z})
+          jac.coeffRef(row, ee_force_->Index(node_id, kPos, dim)) = n(dim);
+
         row++;
       }
     }
@@ -113,13 +113,13 @@ ForceConstraint::FillJacobianWithRespectTo (std::string var_set,
         int ee_node_id = ee_motion_->GetNodeIDAtStartOfPhase(phase);
 
         Vector3d p = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during pahse
-        Vector3d dndx = terrain_->GetNormalDerivativeWrt(X, p.x(), p.y());
-        Vector3d dndy = terrain_->GetNormalDerivativeWrt(Y, p.x(), p.y());
-
         Vector3d f = force_nodes.at(force_node_id).at(kPos);
 
-        jac.coeffRef(row, ee_motion_->Index(ee_node_id, kPos, X)) = f.transpose()*dndx;
-        jac.coeffRef(row, ee_motion_->Index(ee_node_id, kPos, Y)) = f.transpose()*dndy;
+        for (auto dim : {X,Y}) {
+          Vector3d dn_wrt_dim = terrain_->GetNormalDerivativeWrt(dim, p.x(), p.y());
+          jac.coeffRef(row, ee_motion_->Index(ee_node_id, kPos, dim)) = f.transpose()*dn_wrt_dim;
+        }
+
         row++;
       }
     }

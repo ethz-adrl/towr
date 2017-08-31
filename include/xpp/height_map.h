@@ -31,11 +31,8 @@ public:
 
 
 
-
-  // spring_clean_ use indices for less errors
-
   // Attention: these are not normalized!
-  Vector3d GetNormal(double x, double y) const;
+  Vector3d GetNormal(double x, double y, bool normalize=true) const;
   Vector3d GetNormalDerivativeWrt(Coords3D dim, double x, double y) const;
 //  Vector3d GetNormalDerivativeWrtX(double x, double y) const;
 //  Vector3d GetNormalDerivativeWrtY(double x, double y) const;
@@ -51,6 +48,9 @@ public:
 
 private:
 
+  Vector3d GetNonNormalizedNormalDerivativeWrt(Coords3D dim, double x, double y) const;
+
+  // spring_clean_ use Coords2D to better show intentions
   double GetHeightSecondDerivative(Coords3D dim1, Coords3D dim2, double x, double y) const;
 
 
