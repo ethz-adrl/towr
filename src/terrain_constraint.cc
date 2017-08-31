@@ -77,7 +77,7 @@ TerrainConstraint::FillJacobianWithRespectTo (std::string var_set,
 
       Vector3d p = nodes.at(i).at(kPos);
       for (auto dim : {X,Y})
-        jac.coeffRef(i, ee_motion_->Index(i, kPos, dim)) = -terrain_->GetHeightFirstDerivativeWrt(dim, p.x(), p.y());
+        jac.coeffRef(i, ee_motion_->Index(i, kPos, dim)) = -terrain_->GetDerivativeOfHeightWrt(To2D(dim), p.x(), p.y());
     }
   }
 }

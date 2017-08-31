@@ -19,39 +19,27 @@ namespace opt {
 
 class HeightMap {
 public:
-  using Ptr      = std::shared_ptr<HeightMap>;
-  using Vector3d = Eigen::Vector3d;
+  using Ptr         = std::shared_ptr<HeightMap>;
+  using Vector3d    = Eigen::Vector3d;
+  using Derivatives = std::vector<Coords2D>;
 
   enum ID { FlatID=0, StairsID, GapID, SlopeID, ChimneyID, K_TERRAIN_COUNT };
   static Ptr MakeTerrain(ID type);
   virtual ~HeightMap () {};
 
+  enum BasisVector { Normal, Tangent1, Tangent2 };
+
   virtual double GetHeight(double x, double y) const = 0;
-  double GetHeightFirstDerivativeWrt(Coords3D dim, double x, double y) const;
-
-
-
-  // Attention: these are not normalized!
-  Vector3d GetNormal(double x, double y, bool normalize=true) const;
-  Vector3d GetNormalDerivativeWrt(Coords3D dim, double x, double y) const;
-//  Vector3d GetNormalDerivativeWrtX(double x, double y) const;
-//  Vector3d GetNormalDerivativeWrtY(double x, double y) const;
-
-  Vector3d GetTangent1(double x, double y) const;
-  Vector3d GetTangent1DerivativeWrtX(double x, double y) const;
-  Vector3d GetTangent1DerivativeWrtY(double x, double y) const;
-
-  Vector3d GetTangent2(double x, double y) const;
-  Vector3d GetTangent2DerivativeWrtX(double x, double y) const;
-  Vector3d GetTangent2DerivativeWrtY(double x, double y) const;
-
+  double GetDerivativeOfHeightWrt(Coords2D dim, double x, double y) const;
+  Vector3d GetNormalizedBasis(BasisVector, double x, double y) const;
+  Vector3d GetDerivativeOfNormalizedBasisWrt(BasisVector, Coords2D dim, double x, double y) const;
 
 private:
-
-  Vector3d GetNonNormalizedNormalDerivativeWrt(Coords3D dim, double x, double y) const;
-
-  // spring_clean_ use Coords2D to better show intentions
-  double GetHeightSecondDerivative(Coords3D dim1, Coords3D dim2, double x, double y) const;
+  // not normalized basis vectors of basis vector derivatives
+  Vector3d GetBasisNotNormalized(BasisVector, double x, double y, const Derivatives& = {}) const;
+  Vector3d GetNormalNotNormalized(double x, double y, const Derivatives& = {}) const;
+  Vector3d GetTangent1NotNormalized(double x, double y, const Derivatives& = {}) const;
+  Vector3d GetTangent2NotNormalized(double x, double y, const Derivatives& = {}) const;
 
 
   // first derivaties that must be implemented by the user
@@ -59,14 +47,12 @@ private:
   virtual double GetHeightDerivWrtY(double x, double y) const { return 0.0; };
 
   // second derivatives wrt first letter, then second
+  double GetSecondDerivativeOfHeightWrt(Coords2D dim1, Coords2D dim2, double x, double y) const;
   virtual double GetHeightDerivWrtXX(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtXY(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtYX(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtYY(double x, double y) const { return 0.0; };
 
-
-  double GetOuterDerivativeWithValInNumerator(double val) const;
-  double GetOuterDerivativeWithOneInNumerator(double val) const;
 
   Vector3d GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(const Vector3d& non_normalized, int index) const;
 };
