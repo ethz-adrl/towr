@@ -113,8 +113,8 @@ ForceConstraint::FillJacobianWithRespectTo (std::string var_set,
         int ee_node_id = ee_motion_->GetNodeIDAtStartOfPhase(phase);
 
         Vector3d p = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during pahse
-        Vector3d dndx = terrain_->GetNormalDerivativeWrtX(p.x(), p.y());
-        Vector3d dndy = terrain_->GetNormalDerivativeWrtY(p.x(), p.y());
+        Vector3d dndx = terrain_->GetNormalDerivativeWrt(X, p.x(), p.y());
+        Vector3d dndy = terrain_->GetNormalDerivativeWrt(Y, p.x(), p.y());
 
         Vector3d f = force_nodes.at(force_node_id).at(kPos);
 

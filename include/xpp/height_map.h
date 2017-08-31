@@ -8,8 +8,10 @@
 #ifndef XPP_OPT_INCLUDE_XPP_HEIGHT_MAP_H_
 #define XPP_OPT_INCLUDE_XPP_HEIGHT_MAP_H_
 
-#include <memory>
 #include <Eigen/Dense>
+#include <memory>
+
+#include "cartesian_declarations.h"
 
 namespace xpp {
 namespace opt {
@@ -25,20 +27,48 @@ public:
   virtual ~HeightMap () {};
 
   virtual double GetHeight(double x, double y) const = 0;
-  virtual double GetHeightDerivWrtX(double x, double y) const { return 0.0; };
-  virtual double GetHeightDerivWrtY(double x, double y) const { return 0.0; };
+  double GetHeightFirstDerivativeWrt(Coords3D dim, double x, double y) const;
 
+
+
+
+  // spring_clean_ use indices for less errors
+
+  // Attention: these are not normalized!
   Vector3d GetNormal(double x, double y) const;
-  Vector3d GetNormalDerivativeWrtX(double x, double y) const;
-  Vector3d GetNormalDerivativeWrtY(double x, double y) const;
+  Vector3d GetNormalDerivativeWrt(Coords3D dim, double x, double y) const;
+//  Vector3d GetNormalDerivativeWrtX(double x, double y) const;
+//  Vector3d GetNormalDerivativeWrtY(double x, double y) const;
+
+  Vector3d GetTangent1(double x, double y) const;
+  Vector3d GetTangent1DerivativeWrtX(double x, double y) const;
+  Vector3d GetTangent1DerivativeWrtY(double x, double y) const;
+
+  Vector3d GetTangent2(double x, double y) const;
+  Vector3d GetTangent2DerivativeWrtX(double x, double y) const;
+  Vector3d GetTangent2DerivativeWrtY(double x, double y) const;
 
 
 private:
+
+  double GetHeightSecondDerivative(Coords3D dim1, Coords3D dim2, double x, double y) const;
+
+
+  // first derivaties that must be implemented by the user
+  virtual double GetHeightDerivWrtX(double x, double y) const { return 0.0; };
+  virtual double GetHeightDerivWrtY(double x, double y) const { return 0.0; };
+
   // second derivatives wrt first letter, then second
   virtual double GetHeightDerivWrtXX(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtXY(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtYX(double x, double y) const { return 0.0; };
   virtual double GetHeightDerivWrtYY(double x, double y) const { return 0.0; };
+
+
+  double GetOuterDerivativeWithValInNumerator(double val) const;
+  double GetOuterDerivativeWithOneInNumerator(double val) const;
+
+  Vector3d GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(const Vector3d& non_normalized, int index) const;
 };
 
 

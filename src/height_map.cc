@@ -32,34 +32,170 @@ HeightMap::MakeTerrain (ID type)
 HeightMap::Vector3d
 HeightMap::GetNormal (double x, double y) const
 {
-  double dzdx = GetHeightDerivWrtX(x,y);
-  double dzdy = GetHeightDerivWrtY(x,y);
+  Vector3d n;
 
-//  // calculate tangent vectors from gradients
-//  Vector3d tangent_x(1,0,dzdx);
-//  Vector3d tangent_y(0,1,dzdy);
-//  Vector3d normal = tangent_y.cross(tangent_x);
+  for (auto dim : {X,Y})
+    n(dim) = -GetHeightFirstDerivativeWrt(dim, x, y);
 
-  return Vector3d(-dzdx, -dzdy, 1.0); // could also multiply by -1
+  n(Z) = 1.0;
+  return n;
 }
 
 HeightMap::Vector3d
-HeightMap::GetNormalDerivativeWrtX (double x, double y) const
+HeightMap::GetTangent1 (double x, double y) const
 {
-  Vector3d dndx = Vector3d::Zero();
-  dndx(X) = -GetHeightDerivWrtXX(x,y);
-  dndx(Y) = -GetHeightDerivWrtYX(x,y);
-  return dndx;
+  Vector3d tx;
+  tx(X) = 1.0;
+  tx(Y) = 0.0;
+  tx(Z) = GetHeightFirstDerivativeWrt(X, x,y);
+  return tx;
 }
 
 HeightMap::Vector3d
-HeightMap::GetNormalDerivativeWrtY (double x, double y) const
+HeightMap::GetTangent2 (double x, double y) const
 {
-  Vector3d dndy = Vector3d::Zero();
-  dndy(X) = -GetHeightDerivWrtXY(x,y);
-  dndy(Y) = -GetHeightDerivWrtYY(x,y);
-  return dndy;
+  Vector3d ty;
+  ty(X) = 0.0;
+  ty(Y) = 1.0;
+  ty(Z) = GetHeightFirstDerivativeWrt(Y,x,y);
+  return ty;
 }
+
+HeightMap::Vector3d
+HeightMap::GetNormalDerivativeWrt (Coords3D dim, double x, double y) const
+{
+  Vector3d n = GetNormal(x,y);
+  Vector3d dn_normalized_wrt_n = GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(n, dim);
+
+  Vector3d dn_wrt_x;
+  dn_wrt_x(X) = -GetHeightSecondDerivative(X, dim, x,y);
+  dn_wrt_x(Y) = -GetHeightSecondDerivative(Y, dim, x,y);
+  dn_wrt_x(Z) = 0.0;
+
+  return dn_wrt_x; // spring_clean_ add this back dn_normalized_wrt_n.cwiseProduct(dn_wrt_x);
+}
+
+//HeightMap::Vector3d
+//HeightMap::GetNormalDerivativeWrtX (double x, double y) const
+//{
+//  Vector3d n = GetNormal(x,y);
+//  Vector3d dn_normalized_wrt_n = GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(n, X);
+//
+//  Vector3d dn_wrt_x;
+//  dn_wrt_x(X) = -GetHeightDerivWrtXX(x,y);
+//  dn_wrt_x(Y) = -GetHeightDerivWrtYX(x,y);
+//  dn_wrt_x(Z) = 0.0;
+//
+//  return dn_normalized_wrt_n.cwiseProduct(dn_wrt_x);
+//}
+//
+//HeightMap::Vector3d
+//HeightMap::GetNormalDerivativeWrtY (double x, double y) const
+//{
+//  Vector3d dndy;
+//  dndy(X) = -GetHeightDerivWrtXY(x,y);
+//  dndy(Y) = -GetHeightDerivWrtYY(x,y);
+//  dndy(Z) = -0.0;
+//  return dndy;
+//}
+
+HeightMap::Vector3d
+HeightMap::GetTangent1DerivativeWrtX (double x, double y) const
+{
+  double dzdx =  GetHeightDerivWrtX(x,y);
+  double dzdxx = GetHeightDerivWrtXX(x,y);
+
+  Vector3d dtx_dx;
+  dtx_dx(X) = GetOuterDerivativeWithOneInNumerator(dzdx);
+  dtx_dx(Y) = 0.0;
+  dtx_dx(Z) = GetOuterDerivativeWithValInNumerator(dzdx)*dzdxx;
+  return dtx_dx;
+}
+
+HeightMap::Vector3d
+HeightMap::GetTangent1DerivativeWrtY (double x, double y) const
+{
+  double dzdx  = GetHeightDerivWrtX(x,y);
+  double dzdxy = GetHeightDerivWrtXX(x,y);
+
+  Vector3d dtx_dy;
+  dtx_dy(X) = GetOuterDerivativeWithOneInNumerator(dzdx);
+  dtx_dy(Y) = 0.0;
+  dtx_dy(Z) = GetOuterDerivativeWithValInNumerator(dzdx)*dzdxy;
+  return dtx_dy;
+}
+
+HeightMap::Vector3d
+HeightMap::GetTangent2DerivativeWrtX (double x, double y) const
+{
+  double dzdy  = GetHeightDerivWrtY(x,y);
+  double dzdyx = GetHeightDerivWrtYX(x,y);
+
+  Vector3d dty_dx;
+  dty_dx(X) = 0.0;
+  dty_dx(Y) = GetOuterDerivativeWithOneInNumerator(dzdy);
+  dty_dx(Z) = GetOuterDerivativeWithValInNumerator(dzdy)*dzdyx;
+  return dty_dx;
+}
+
+HeightMap::Vector3d
+HeightMap::GetTangent2DerivativeWrtY (double x, double y) const
+{
+  double dzdy  = GetHeightDerivWrtY(x,y);
+  double dzdyy = GetHeightDerivWrtYY(x,y);
+
+  Vector3d dty_dy;
+  dty_dy(X) = 0.0;
+  dty_dy(Y) = GetOuterDerivativeWithOneInNumerator(dzdy);
+  dty_dy(Z) = GetOuterDerivativeWithValInNumerator(dzdy)*dzdyy;
+  return dty_dy;
+}
+
+double
+HeightMap::GetOuterDerivativeWithValInNumerator (double x) const
+{
+  double x2 = x*x;
+  return 1.0/std::pow(x2 + 1, 3./2.);
+}
+
+double
+HeightMap::GetOuterDerivativeWithOneInNumerator (double x) const
+{
+  double x2 = x*x;
+  return -x/std::pow(x2 + 1, 3./2.);
+}
+
+double
+HeightMap::GetHeightFirstDerivativeWrt (Coords3D dim, double x, double y) const
+{
+  switch (dim) {
+    case X: return GetHeightDerivWrtX(x,y);
+    case Y: return GetHeightDerivWrtY(x,y);
+    default: assert(false); // derivative dimension not implemented
+  }
+}
+
+double
+HeightMap::GetHeightSecondDerivative (Coords3D dim1, Coords3D dim2, double x, double y) const
+{
+  if (dim1 == X) {
+    if (dim2 == X) return GetHeightDerivWrtXX(x,y);
+    if (dim2 == Y) return GetHeightDerivWrtXY(x,y);
+  } else {
+    if (dim2 == X) return GetHeightDerivWrtYX(x,y);
+    if (dim2 == Y) return GetHeightDerivWrtYY(x,y);
+  }
+
+  assert(false); // second derivative not specified.
+}
+
+HeightMap::Vector3d
+HeightMap::GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex (
+    const Vector3d& v, int idx) const
+{
+  return 1/v.squaredNorm()*(v.norm() * Vector3d::Unit(idx) - v(idx)*v.normalized());
+}
+
 
 
 // STAIRS
@@ -219,8 +355,6 @@ Chimney::GetHeightDerivWrtYY (double x, double y) const
 
   return dzdyy;
 }
-
-
 
 } /* namespace opt */
 } /* namespace xpp */
