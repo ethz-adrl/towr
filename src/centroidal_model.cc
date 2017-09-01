@@ -192,7 +192,7 @@ AnymalModel::AnymalModel ()
   nominal_stance_.At(kMapQuadToOpt.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
   max_dev_from_nominal_ << 0.18, 0.13, 0.1; // max leg length 58cm
-  normal_force_max_ = 1000;
+  normal_force_max_ = 10000;
 };
 
 

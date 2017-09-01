@@ -192,7 +192,7 @@ QuadrupedOptParameters::QuadrupedOptParameters ()
   contact_timings_.at(m.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c           };
 
 
-  min_phase_duration_ = 0.05;
+  min_phase_duration_ = 0.15;
   double max_time = 10.0;
   max_phase_duration_ = max_time>GetTotalTime()?  GetTotalTime() : max_time;
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();

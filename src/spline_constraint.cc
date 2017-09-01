@@ -16,19 +16,40 @@
 namespace xpp {
 namespace opt {
 
-static int id = 0;
-
 SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
-                                              const SplineT& spline,
+                                              const std::string& id,
                                               double t_global,
                                               const StateLinXd& state,
                                               const DerivativeVec& derivatives,
                                               const Dimensions& dimensions)
 {
-  SetName("SplineStateConstraint-" + std::to_string(id++));
 
-  spline_      = spline;
-  t_global_     = t_global;
+  // print out names correctly
+  std::string deriv_string;
+  for (auto d : derivatives) {
+    if (d==kPos)
+      deriv_string += "pos,";
+    if (d==kVel)
+      deriv_string += "vel,";
+    if (d==kAcc)
+      deriv_string += "acc,";
+  }
+
+  std::string dim_string;
+  for (auto d : dimensions) {
+    if (d==X)
+      deriv_string += "X,";
+    if (d==Y)
+      deriv_string += "Y,";
+    if (d==Z)
+      deriv_string += "Z,";
+  }
+
+
+  SetName(id + ",t=" + std::to_string(t_global) + ", " + deriv_string + dim_string);
+
+  spline_      = opt_vars->GetComponent<Spline>(id);
+  t_global_    = t_global;
 
   state_desired_ = state;
   derivatives_   = derivatives;

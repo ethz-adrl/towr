@@ -35,7 +35,7 @@ Component::SetRows (int num_rows)
 void
 Component::Print () const
 {
-  int print_rows = 10;
+  int print_rows = 3;
   std::string end_string = ", ...";
 
   if (num_rows_ < print_rows) {
@@ -44,11 +44,38 @@ Component::Print () const
   }
 
 
+  // calculate squared bound violation
+  VectorXd x = GetValues();
+  VecBound bounds = GetBounds();
+
+  std::vector<int> viol_idx;
+  double eps = 0.001; // from ipopt config file
+  for (int i=0; i<bounds.size(); ++i) {
+    double lower = bounds.at(i).lower_;
+    double upper = bounds.at(i).upper_;
+    double val = x(i);
+    if (val < lower-eps || upper+eps < val)
+      viol_idx.push_back(i); // constraint out of bounds
+  }
+
+
+
   std::cout.precision(2);
   std::cout << std::fixed;
+  // https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
+  std::string black = "\033[0m";
+  std::string red   = "\033[31m";
+  std::string color = viol_idx.empty()? black : red;
   std::cout << name_ << "\t(";
-  std::cout << num_rows_ << ",\t" << print_counter << "-" << print_counter+num_rows_;
-  std::cout << "):\t";
+  std::cout << num_rows_ << ", " << print_counter << "-" << print_counter+num_rows_;
+  std::cout << ", " << color << "nr_violated=" << viol_idx.size() << " ( ";
+  int i_print = 4;
+  int nr_indices_print = viol_idx.size()<i_print? viol_idx.size() : i_print;
+  for (int i=0; i<nr_indices_print; ++i)
+    std::cout << viol_idx.at(i) << ", ";
+  std::cout << ")";
+  std::cout << black;
+  std::cout << ":\t";
 
   print_counter += num_rows_;
 

@@ -34,7 +34,7 @@ public:
   using Dimensions     = std::vector<Coords3D>;
 
   SplineStateConstraint (const OptVarsPtr& opt_vars,
-                         const SplineT& spline,
+                         const std::string& id,
                          double t_global,
                          const StateLinXd& state,
                          const DerivativeVec&,

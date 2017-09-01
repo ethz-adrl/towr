@@ -39,12 +39,8 @@ private:
   EEMotionNodes::Ptr ee_motion_;
   HeightMap::Ptr terrain_;
 
-  double max_z_distance_above_terrain_ = 10.3; // [m]
+  double max_z_distance_above_terrain_ = 1e20; // [m]
 };
-
-
-
-
 
 } /* namespace opt */
 } /* namespace xpp */

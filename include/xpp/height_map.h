@@ -95,7 +95,9 @@ public:
 private:
   const double gap_start_ = 1.0;
   const double gap_width_ = 0.5;
-  const double gap_depth_ = 3.0;
+  const double gap_depth_ = 20.0;
+  const double slope_ = gap_depth_/(gap_width_/2.);
+  const double gap_center_x_ = gap_start_ + gap_width_/2.;
 };
 
 
