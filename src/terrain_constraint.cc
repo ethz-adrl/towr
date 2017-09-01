@@ -56,7 +56,7 @@ TerrainConstraint::GetBounds () const
 
   for (int i=0; i<ee_motion_->GetNodes().size(); ++i) {
     if (ee_motion_->IsContactNode(i))
-      bounds.at(i) = kEqualityBound_;
+      bounds.at(i) = BoundZero;
     else
       bounds.at(i) = Bound(0.0, max_z_distance_above_terrain_);
   }
@@ -76,8 +76,8 @@ TerrainConstraint::FillJacobianWithRespectTo (std::string var_set,
       jac.coeffRef(i, ee_motion_->Index(i, kPos, Z)) = 1.0;
 
       Vector3d p = nodes.at(i).at(kPos);
-      jac.coeffRef(i, ee_motion_->Index(i, kPos, X)) = -terrain_->GetHeightDerivWrtX(p.x(), p.y());
-      jac.coeffRef(i, ee_motion_->Index(i, kPos, Y)) = -terrain_->GetHeightDerivWrtY(p.x(), p.y());
+      for (auto dim : {X,Y})
+        jac.coeffRef(i, ee_motion_->Index(i, kPos, dim)) = -terrain_->GetDerivativeOfHeightWrt(To2D(dim), p.x(), p.y());
     }
   }
 }

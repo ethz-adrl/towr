@@ -75,7 +75,7 @@ DynamicConstraint::UpdateBoundsAtInstance(double t, int k, VecBound& bounds) con
     if (dim == LZ)
       bounds.at(GetRow(k,dim)) = Bound(gravity_, gravity_);
     else
-      bounds.at(GetRow(k,dim)) = kEqualityBound_;
+      bounds.at(GetRow(k,dim)) = BoundZero;
   }
 }
 

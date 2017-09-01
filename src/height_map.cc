@@ -9,8 +9,7 @@
 
 #include <cassert>
 #include <cmath>
-
-#include <xpp/cartesian_declarations.h>
+#include <vector>
 
 namespace xpp {
 namespace opt {
@@ -30,36 +29,117 @@ HeightMap::MakeTerrain (ID type)
 }
 
 HeightMap::Vector3d
-HeightMap::GetNormal (double x, double y) const
+HeightMap::GetNormalNotNormalized(double x, double y, const Derivatives& deriv) const
 {
-  double dzdx = GetHeightDerivWrtX(x,y);
-  double dzdy = GetHeightDerivWrtY(x,y);
+  Vector3d n;
 
-//  // calculate tangent vectors from gradients
-//  Vector3d tangent_x(1,0,dzdx);
-//  Vector3d tangent_y(0,1,dzdy);
-//  Vector3d normal = tangent_y.cross(tangent_x);
+  bool basis_requested = deriv.empty();
 
-  return Vector3d(-dzdx, -dzdy, 1.0); // could also multiply by -1
+  for (auto dim : {X_,Y_}) {
+    if (basis_requested)
+      n(dim) = -GetDerivativeOfHeightWrt(dim, x, y);
+    else
+      n(dim) = -GetSecondDerivativeOfHeightWrt(dim, deriv.front(), x, y);
+  }
+
+  n(Z) = basis_requested? 1.0 : 0.0;
+
+  return n;
 }
 
 HeightMap::Vector3d
-HeightMap::GetNormalDerivativeWrtX (double x, double y) const
+HeightMap::GetTangent1NotNormalized (double x, double y, const Derivatives& deriv) const
 {
-  Vector3d dndx = Vector3d::Zero();
-  dndx(X) = -GetHeightDerivWrtXX(x,y);
-  dndx(Y) = -GetHeightDerivWrtYX(x,y);
-  return dndx;
+  Vector3d tx;
+
+  bool basis_requested = deriv.empty();
+
+  tx(X) = basis_requested? 1.0 : 0.0;
+  tx(Y) = 0.0;
+  tx(Z) = basis_requested? GetDerivativeOfHeightWrt(X_, x,y) : GetSecondDerivativeOfHeightWrt(X_, deriv.front(), x, y);
+
+  return tx;
 }
 
 HeightMap::Vector3d
-HeightMap::GetNormalDerivativeWrtY (double x, double y) const
+HeightMap::GetTangent2NotNormalized (double x, double y, const Derivatives& deriv) const
 {
-  Vector3d dndy = Vector3d::Zero();
-  dndy(X) = -GetHeightDerivWrtXY(x,y);
-  dndy(Y) = -GetHeightDerivWrtYY(x,y);
-  return dndy;
+  Vector3d ty;
+
+  bool basis_requested = deriv.empty();
+
+  ty(X) = 0.0;
+  ty(Y) = basis_requested? 1.0 : 0.0;
+  ty(Z) = basis_requested? GetDerivativeOfHeightWrt(Y_, x,y) : GetSecondDerivativeOfHeightWrt(Y_, deriv.front(), x, y);
+  return ty;
 }
+
+HeightMap::Vector3d
+HeightMap::GetBasisNotNormalized (BasisVector basis, double x, double y,
+                                  const Derivatives& deriv) const
+{
+  switch (basis) {
+    case Normal:   return GetNormalNotNormalized(x,y, deriv);
+    case Tangent1: return GetTangent1NotNormalized(x,y, deriv);
+    case Tangent2: return GetTangent2NotNormalized(x,y, deriv);
+    default: assert(false); // basis does not exist
+  }
+}
+
+HeightMap::Vector3d
+HeightMap::GetNormalizedBasis (BasisVector basis, double x, double y) const
+{
+  return GetBasisNotNormalized(basis, x,y).normalized();
+}
+
+HeightMap::Vector3d
+HeightMap::GetDerivativeOfNormalizedBasisWrt (BasisVector basis,
+                                              Coords2D dim, double x, double y) const
+{
+  // inner derivative
+  Vector3d dv_wrt_dim = GetBasisNotNormalized(basis, x, y, {dim});
+
+  // outer derivative
+  Vector3d v = GetBasisNotNormalized(basis, x,y, {});
+  Vector3d dn_normalized_wrt_n = GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex(v, dim);
+  return dn_normalized_wrt_n.cwiseProduct(dv_wrt_dim);
+}
+
+HeightMap::Vector3d
+HeightMap::GetDerivativeOfNormalizedVectorWrtNonNormalizedIndex (const Vector3d& v, int idx) const
+{
+  // see notebook or
+  // http://blog.mmacklin.com/2012/05/
+  return 1/v.squaredNorm()*(v.norm() * Vector3d::Unit(idx) - v(idx)*v.normalized());
+}
+
+double
+HeightMap::GetDerivativeOfHeightWrt (Coords2D dim, double x, double y) const
+{
+  switch (dim) {
+    case X: return GetHeightDerivWrtX(x,y);
+    case Y: return GetHeightDerivWrtY(x,y);
+    default: assert(false); // derivative dimension not implemented
+  }
+}
+
+double
+HeightMap::GetSecondDerivativeOfHeightWrt (Coords2D dim1, Coords2D dim2, double x, double y) const
+{
+  if (dim1 == X) {
+    if (dim2 == X) return GetHeightDerivWrtXX(x,y);
+    if (dim2 == Y) return GetHeightDerivWrtXY(x,y);
+  } else {
+    if (dim2 == X) return GetHeightDerivWrtYX(x,y);
+    if (dim2 == Y) return GetHeightDerivWrtYY(x,y);
+  }
+
+  assert(false); // second derivative not specified.
+}
+
+
+
+
 
 
 // STAIRS
@@ -219,8 +299,6 @@ Chimney::GetHeightDerivWrtYY (double x, double y) const
 
   return dzdyy;
 }
-
-
 
 } /* namespace opt */
 } /* namespace xpp */

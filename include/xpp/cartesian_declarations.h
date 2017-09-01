@@ -13,7 +13,18 @@
 namespace xpp {
 
 /// To be used with 6D vectors. 'A' stands for angular, 'L' for linear.
+enum Coords2D { X_=0, Y_};
 enum Coords3D { X=0, Y, Z };
+
+// could create constructor, that takes as input an enum of Coords2D and transforms to 3D.
+// but only one way
+static Coords2D To2D(Coords3D dim)
+{
+  assert(dim != Z);
+  return static_cast<Coords2D>(dim);
+};
+
+
 enum Coords6D { AX=0, AY, AZ, LX, LY, LZ };
 static const Coords6D AllDim6D[] = {AX, AY, AZ, LX, LY, LZ};
 
