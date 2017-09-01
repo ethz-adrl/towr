@@ -15,6 +15,7 @@
 #include <rosbag/bag.h>
 
 #include <xpp_msgs/RobotStateCartesian.h>
+#include <xpp_msgs/RobotStateCartesianTrajectory.h>
 #include <xpp_msgs/OptParameters.h>
 #include <xpp_msgs/UserCommand.h>    // receive from user
 
@@ -27,45 +28,36 @@ namespace ros {
 
 class NlpOptimizerNode {
 public:
-  using StateMsg              = xpp_msgs::RobotStateCartesian;
-  using UserCommandMsg        = xpp_msgs::UserCommand;
   using MotionOptimizerFacade = xpp::opt::MotionOptimizerFacade;
-  using NlpSolver             = xpp::opt::NlpSolver;
-  using RobotStateVec         = MotionOptimizerFacade::RobotStateVec;
-  using ParamsMsg             = xpp_msgs::OptParameters;
-  using NLPIterations         = MotionOptimizerFacade::NLPIterations;
 
 public:
   NlpOptimizerNode ();
   virtual ~NlpOptimizerNode () {};
 
 private:
-//  void PublishTrajectory() const;
-  void PublishOptParameters() const;
 
   void OptimizeMotion();
-  void CurrentStateCallback(const StateMsg& msg);
-  void UserCommandCallback(const UserCommandMsg& msg);
+  void CurrentStateCallback(const xpp_msgs::RobotStateCartesian&);
+  void UserCommandCallback(const xpp_msgs::UserCommand&);
 
   ::ros::Subscriber user_command_sub_;
   ::ros::Subscriber current_state_sub_;
   ::ros::Publisher cart_trajectory_pub_;
-//  ::ros::Publisher opt_parameters_pub_;
+  ::ros::Publisher opt_parameters_pub_;
 
   MotionOptimizerFacade motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
   std::string rosbag_name_; ///< folder to save bags
 
-  NlpSolver solver_type_;
-
-  UserCommandMsg user_command_msg_;
+  xpp_msgs::UserCommand user_command_msg_;
 
   void SetInitialState (const RobotStateCartesian& initial_state);
+  xpp_msgs::RobotStateCartesianTrajectory BuildTrajectoryMsg() const;
 
   void SaveOptimizationAsRosbag() const;
-  void SaveTrajectoryInRosbag (rosbag::Bag&, const RobotStateVec& traj,
+  void SaveTrajectoryInRosbag (rosbag::Bag&, const std::vector<RobotStateCartesian>& traj,
                                const std::string& topic) const;
-  ParamsMsg BuildOptParametersMsg() const;
+  xpp_msgs::OptParameters BuildOptParametersMsg() const;
 };
 
 } /* namespace ros */

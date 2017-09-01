@@ -13,6 +13,7 @@
 #include <xpp_msgs/StateLin3d.h>
 #include <xpp_msgs/State6d.h>
 #include <xpp_msgs/RobotStateCartesian.h>
+#include <xpp_msgs/RobotStateCartesianTrajectory.h>
 
 #include <xpp/state.h>
 #include <xpp/robot_state_cartesian.h>
@@ -205,6 +206,20 @@ RosToXpp(const xpp_msgs::RobotStateCartesian& ros)
 
   return xpp;
 }
+
+static xpp_msgs::RobotStateCartesianTrajectory
+XppToRos(const std::vector<RobotStateCartesian>& xpp)
+{
+  xpp_msgs::RobotStateCartesianTrajectory msg;
+
+  for (const auto state : xpp) {
+    auto state_msg = XppToRos(state);
+    msg.points.push_back(state_msg);
+  }
+
+  return msg;
+}
+
 
 
 //using RobotStateCommonMsg = xpp_msgs::RobotStateCommon;

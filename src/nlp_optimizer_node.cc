@@ -23,7 +23,7 @@
 
 #include <kindr/rotations/Rotation.hpp>
 
-#include <xpp/motion_parameters.h>
+#include <xpp/optimization_parameters.h>
 #include <xpp/state.h>
 #include <xpp/ros/ros_conversions.h>
 #include <xpp/ros/topic_names.h>
@@ -45,18 +45,18 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                     &NlpOptimizerNode::CurrentStateCallback, this,
                                     ::ros::TransportHints().tcpNoDelay());
 
-//  cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
-//                                    (xpp_msgs::robot_trajectory_cart, 1);
+  cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
+                                          (xpp_msgs::robot_trajectory_cart, 1);
 
-//  opt_parameters_pub_  = n.advertise<xpp_msgs::OptParameters>
-//                                    (xpp_msgs::opt_parameters, 1);
+  opt_parameters_pub_  = n.advertise<xpp_msgs::OptParameters>
+                                    (xpp_msgs::opt_parameters, 1);
 
   dt_          = RosConversions::GetDoubleFromServer("/xpp/trajectory_dt");
   rosbag_name_ = RosConversions::GetStringFromServer("/xpp/rosbag_name") + ".bag";
 }
 
 void
-NlpOptimizerNode::CurrentStateCallback (const StateMsg& msg)
+NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg)
 {
   auto curr_state = RosConversions::RosToXpp(msg);
   SetInitialState(curr_state);
@@ -72,22 +72,27 @@ NlpOptimizerNode::CurrentStateCallback (const StateMsg& msg)
 }
 
 void
-NlpOptimizerNode::OptimizeMotion ()
+NlpOptimizerNode::SetInitialState (const RobotStateCartesian& initial_state)
 {
-  try {
-    motion_optimizer_.SolveProblem(solver_type_);
-  } catch (const std::runtime_error& e) {
-    ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
-  }
+  motion_optimizer_.initial_ee_W_ = initial_state.GetEEPos();
+
+  motion_optimizer_.inital_base_     = State3dEuler(); // zero
+  motion_optimizer_.inital_base_.lin = initial_state.base_.lin;
+
+  kindr::RotationQuaternionD quat(initial_state.base_.ang.q);
+  kindr::EulerAnglesZyxD euler(quat);
+  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
+  motion_optimizer_.inital_base_.ang.p_ = euler.toImplementation().reverse();
+  // assume zero euler rates and euler accelerations
 }
 
 void
-NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
+NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
 {
   motion_optimizer_.final_base_.lin = RosConversions::RosToXpp(msg.goal_lin);
   motion_optimizer_.final_base_.ang = RosConversions::RosToXpp(msg.goal_ang);
   motion_optimizer_.terrain_        = opt::HeightMap::MakeTerrain(static_cast<opt::HeightMap::ID>(msg.terrain_id));
-  solver_type_ = msg.use_solver_snopt ? opt::Snopt : opt::Ipopt;
+  motion_optimizer_.nlp_solver_     = msg.use_solver_snopt ? MotionOptimizerFacade::Snopt : MotionOptimizerFacade::Ipopt;
 
   Eigen::Vector3d vel_dis(msg.vel_disturbance.x, msg.vel_disturbance.y, msg.vel_disturbance.z);
   motion_optimizer_.inital_base_.lin.v_ += vel_dis;
@@ -95,11 +100,12 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
 
   user_command_msg_ = msg;
 
-//  PublishOptParameters();
+  opt_parameters_pub_.publish(BuildOptParametersMsg());
 
   if (msg.optimize) {
     OptimizeMotion();
-    SaveOptimizationAsRosbag ();
+    cart_trajectory_pub_.publish(BuildTrajectoryMsg());
+    SaveOptimizationAsRosbag();
   }
 
   if (msg.replay_trajectory || msg.optimize) {
@@ -109,12 +115,22 @@ NlpOptimizerNode::UserCommandCallback(const UserCommandMsg& msg)
   }
 }
 
-//void
-//NlpOptimizerNode::PublishOptParameters() const
-//{
-//  auto msg = BuildOptParameters();
-//  opt_parameters_pub_.publish(msg);
-//}
+void
+NlpOptimizerNode::OptimizeMotion ()
+{
+  try {
+    motion_optimizer_.SolveProblem();
+  } catch (const std::runtime_error& e) {
+    ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
+  }
+}
+
+xpp_msgs::RobotStateCartesianTrajectory
+NlpOptimizerNode::BuildTrajectoryMsg () const
+{
+  auto cart_traj = motion_optimizer_.GetTrajectory(dt_);
+  return ros::RosConversions::XppToRos(cart_traj);
+}
 
 xpp_msgs::OptParameters
 NlpOptimizerNode::BuildOptParametersMsg() const
@@ -135,21 +151,6 @@ NlpOptimizerNode::BuildOptParametersMsg() const
 }
 
 void
-NlpOptimizerNode::SetInitialState (const RobotStateCartesian& initial_state)
-{
-  motion_optimizer_.initial_ee_W_ = initial_state.GetEEPos();
-
-  motion_optimizer_.inital_base_     = State3dEuler(); // zero
-  motion_optimizer_.inital_base_.lin = initial_state.base_.lin;
-
-  kindr::RotationQuaternionD quat(initial_state.base_.ang.q);
-  kindr::EulerAnglesZyxD euler(quat);
-  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
-  motion_optimizer_.inital_base_.ang.p_ = euler.toImplementation().reverse();
-  // assume zero euler rates and euler accelerations
-}
-
-void
 NlpOptimizerNode::SaveOptimizationAsRosbag () const
 {
   rosbag::Bag bag;
@@ -161,7 +162,7 @@ NlpOptimizerNode::SaveOptimizationAsRosbag () const
   bag.write(xpp_msgs::user_command+"_saved", t0, user_command_msg_);
 
   // save the trajectory of each iteration
-  auto trajectories = motion_optimizer_.GetTrajectories(dt_);
+  auto trajectories = motion_optimizer_.GetIntermediateSolutions(dt_);
   int n_iterations = trajectories.size();
   for (int i=0; i<n_iterations; ++i)
     SaveTrajectoryInRosbag(bag, trajectories.at(i), xpp_msgs::nlp_iterations_name + std::to_string(i));
@@ -174,12 +175,15 @@ NlpOptimizerNode::SaveOptimizationAsRosbag () const
   // save the final trajectory
   SaveTrajectoryInRosbag(bag, trajectories.back(), xpp_msgs::robot_state);
 
+  // optional: save the entire trajectory as one message
+  bag.write(xpp_msgs::robot_trajectory_cart, t0, BuildTrajectoryMsg());
+
   bag.close();
 }
 
 void
 NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
-                                          const RobotStateVec& traj,
+                                          const std::vector<RobotStateCartesian>& traj,
                                           const std::string& topic) const
 {
   for (const auto state : traj) {
@@ -190,19 +194,6 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
   }
 }
 
-//void
-//NlpOptimizerNode::PublishTrajectory () const
-//{
-//  auto cart_traj_msg = BuildTrajectory();
-//  cart_trajectory_pub_.publish(cart_traj_msg);
-//}
-
-//NlpOptimizerNode::TrajMsg
-//NlpOptimizerNode::BuildTrajectory() const
-//{
-//  auto opt_traj_cartesian = motion_optimizer_.GetTrajectory(dt_);
-//  return RosConversions::XppToRosCart(opt_traj_cartesian);
-//}
 
 } /* namespace ros */
 } /* namespace xpp */
