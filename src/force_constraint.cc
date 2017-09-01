@@ -30,14 +30,16 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
   ee_force_  = opt_vars->GetComponent<EEForceNodes>(ee_force_id);
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion_id);
   terrain_   = terrain;
-  force_limit_ = force_limit;
+  force_limit_normal_direction_ = force_limit;
+  mu_        = terrain->GetFrictionCoeff();
 
   AddOptimizationVariables(opt_vars);
 
   int constraint_count = 0;
+  n_constraints_per_node_ = 1 + 2*kDim2d; // positive normal force + 4 friction pyramid constraints
   for (int node_id=0; node_id<ee_force_->GetNodes().size(); ++node_id)
     if (ee_force_->IsStanceNode(node_id))
-      constraint_count++; // positive normal force only allowed
+      constraint_count += n_constraints_per_node_;
 
   SetRows(constraint_count);
   SetName("Force-Constraint-" + ee_force_id);
@@ -56,9 +58,19 @@ ForceConstraint::GetValues () const
       int phase  = ee_force_->GetPhase(node_id);
       Vector3d p = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during stance phase
       Vector3d n = terrain_->GetNormalizedBasis(HeightMap::Normal, p.x(), p.y());
-
       Vector3d f = force_nodes.at(node_id).at(kPos);
+
+      // unilateral force
       g(row++) = f.transpose() * n; // >0 (unilateral forces)
+
+      // frictional pyramid
+      Vector3d t1 = terrain_->GetNormalizedBasis(HeightMap::Tangent1, p.x(), p.y());
+      g(row++) = f.transpose() * (t1 - mu_*n); // t1 < mu*n
+      g(row++) = f.transpose() * (t1 + mu_*n); // t1 > -mu*n
+
+      Vector3d t2 = terrain_->GetNormalizedBasis(HeightMap::Tangent2, p.x(), p.y());
+      g(row++) = f.transpose() * (t2 - mu_*n); // t2 < mu*n
+      g(row++) = f.transpose() * (t2 + mu_*n); // t2 > -mu*n
     }
   }
 
@@ -70,9 +82,15 @@ ForceConstraint::GetBounds () const
 {
   VecBound bounds;
 
-  for (int i=0; i<ee_force_->GetNodes().size(); ++i)
-    if (ee_force_->IsStanceNode(i))
-      bounds.push_back(Bound(0.0, force_limit_)); // unilateral forces
+  for (int i=0; i<ee_force_->GetNodes().size(); ++i) {
+    if (ee_force_->IsStanceNode(i)) {
+      bounds.push_back(Bound(0.0, force_limit_normal_direction_)); // unilateral forces
+      bounds.push_back(BoundSmallerZero); // f_t1 <  mu*n
+      bounds.push_back(BoundGreaterZero); // f_t1 > -mu*n
+      bounds.push_back(BoundSmallerZero); // f_t2 <  mu*n
+      bounds.push_back(BoundGreaterZero); // f_t2 > -mu*n
+    }
+  }
 
   return bounds;
 }
@@ -87,14 +105,27 @@ ForceConstraint::FillJacobianWithRespectTo (std::string var_set,
     for (int node_id=0; node_id<ee_force_->GetNodes().size(); ++node_id) {
       if (ee_force_->IsStanceNode(node_id)) {
 
-        int phase  = ee_force_->GetPhase(node_id);
-        Vector3d p = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during phase
-        Vector3d n = terrain_->GetNormalizedBasis(HeightMap::Normal, p.x(), p.y());
+        // unilateral force
+        int phase   = ee_force_->GetPhase(node_id);
+        Vector3d p  = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during phase
+        Vector3d n  = terrain_->GetNormalizedBasis(HeightMap::Normal,   p.x(), p.y());
+        Vector3d t1 = terrain_->GetNormalizedBasis(HeightMap::Tangent1, p.x(), p.y());
+        Vector3d t2 = terrain_->GetNormalizedBasis(HeightMap::Tangent2, p.x(), p.y());
 
-        for (auto dim : {X,Y,Z})
-          jac.coeffRef(row, ee_force_->Index(node_id, kPos, dim)) = n(dim);
+        for (auto dim : {X,Y,Z}) {
+          int idx = ee_force_->Index(node_id, kPos, dim);
 
-        row++;
+          int row_reset=row;
+
+          jac.coeffRef(row_reset++, idx) = n(dim);              // unilateral force
+          jac.coeffRef(row_reset++, idx) = t1(dim)-mu_*n(dim);  // f_t1 <  mu*n
+          jac.coeffRef(row_reset++, idx) = t1(dim)+mu_*n(dim);  // f_t1 > -mu*n
+          jac.coeffRef(row_reset++, idx) = t2(dim)-mu_*n(dim);  // f_t2 <  mu*n
+          jac.coeffRef(row_reset++, idx) = t2(dim)+mu_*n(dim);  // f_t2 > -mu*n
+        }
+
+        row += n_constraints_per_node_;
+
       }
     }
   }
@@ -114,11 +145,28 @@ ForceConstraint::FillJacobianWithRespectTo (std::string var_set,
         Vector3d f = force_nodes.at(force_node_id).at(kPos);
 
         for (auto dim : {X_,Y_}) {
-          Vector3d dn_wrt_dim = terrain_->GetDerivativeOfNormalizedBasisWrt(HeightMap::Normal, dim, p.x(), p.y());
-          jac.coeffRef(row, ee_motion_->Index(ee_node_id, kPos, dim)) = f.transpose()*dn_wrt_dim;
+
+          int idx = ee_motion_->Index(ee_node_id, kPos, dim);
+          int row_reset=row;
+
+          Vector3d dn  = terrain_->GetDerivativeOfNormalizedBasisWrt(HeightMap::Normal, dim, p.x(), p.y());
+          Vector3d dt1 = terrain_->GetDerivativeOfNormalizedBasisWrt(HeightMap::Tangent1, dim, p.x(), p.y());
+          Vector3d dt2 = terrain_->GetDerivativeOfNormalizedBasisWrt(HeightMap::Tangent2, dim, p.x(), p.y());
+
+
+          // unilateral force
+          jac.coeffRef(row_reset++, idx) = f.transpose()*dn;
+
+          // friction force tangent 1 derivative
+          jac.coeffRef(row_reset++, idx) = f.transpose()*(dt1-mu_*dn);
+          jac.coeffRef(row_reset++, idx) = f.transpose()*(dt1+mu_*dn);
+
+          // friction force tangent 2 derivative
+          jac.coeffRef(row_reset++, idx) = f.transpose()*(dt2-mu_*dn);
+          jac.coeffRef(row_reset++, idx) = f.transpose()*(dt2+mu_*dn);
         }
 
-        row++;
+        row += n_constraints_per_node_;
       }
     }
   }

@@ -39,7 +39,6 @@ public:
   double GetFrictionCoeff() const { return friction_coeff_; };
 
 private:
-
   double friction_coeff_ = 1.0;
 
   // not normalized basis vectors of basis vector derivatives

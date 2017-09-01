@@ -132,7 +132,7 @@ MonopedModel::MonopedModel ()
 {
   nominal_stance_.At(E0) = Vector3d( 0.0, 0.0, -0.58);
   max_dev_from_nominal_ << 0.15, 0.15, 0.12;
-  force_limit_ = 10000;
+  normal_force_max_ = 10000;
 }
 
 BipedModel::BipedModel ()
@@ -146,7 +146,7 @@ BipedModel::BipedModel ()
   nominal_stance_.At(E1) << 0.0, -y_nominal_b, z_nominal_b;
 
   max_dev_from_nominal_  << 0.15, 0.15, 0.15;
-  force_limit_ = 10000;
+  normal_force_max_ = 10000;
 }
 
 HyqModel::HyqModel ()
@@ -166,7 +166,7 @@ HyqModel::HyqModel ()
   nominal_stance_.At(kMapQuadToOpt.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
   max_dev_from_nominal_ << 0.2, 0.15, 0.10;
-  force_limit_ = 10000;
+  normal_force_max_ = 10000;
 };
 
 // from pkg anymal_description/urdf/base/anymal_base_2_parameters
@@ -192,7 +192,7 @@ AnymalModel::AnymalModel ()
   nominal_stance_.At(kMapQuadToOpt.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
   max_dev_from_nominal_ << 0.18, 0.13, 0.1; // max leg length 58cm
-  force_limit_ = 3000;
+  normal_force_max_ = 1000;
 };
 
 
@@ -214,7 +214,7 @@ QuadrotorCentroidalModel::QuadrotorCentroidalModel ()
   nominal_stance_.At(kMapQuadToOpt.at(H)) << -x_nominal_b,   0, z_nominal_b;
 
   max_dev_from_nominal_ << 0.0, 0.0, 0.0;
-  force_limit_ = 100;
+  normal_force_max_ = 100;
 }
 
 

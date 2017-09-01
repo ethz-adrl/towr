@@ -149,11 +149,11 @@ EEMotionNodes::GetBounds () const
     // endeffector is not allowed to move if in stance phase
     if (IsContactNode(node.id_)) {
       if (node.deriv_ == kVel)
-        bounds_.at(idx) = kEqualityBound_;
+        bounds_.at(idx) = BoundZero;
     }
     else { // node in pure swing-phase
       if (node.deriv_ == kVel && node.dim_ == Z)
-        bounds_.at(idx) = kEqualityBound_; // zero velocity at top
+        bounds_.at(idx) = BoundZero; // zero velocity at top
     }
 
 
@@ -215,11 +215,11 @@ EEForceNodes::GetBounds () const
 //      }
 //
       if (n0.deriv_ == kVel) {
-        bounds_.at(idx) = kEqualityBound_; // zero slope to never exceed zero force
+        bounds_.at(idx) = BoundZero; // zero slope to never exceed zero force
       }
 
     } else { // swing node
-      bounds_.at(idx) = kEqualityBound_; // force must be zero
+      bounds_.at(idx) = BoundZero; // force must be zero
     }
 
   }

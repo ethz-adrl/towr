@@ -69,7 +69,7 @@ SwingConstraint::GetValues () const
 VecBound
 SwingConstraint::GetBounds () const
 {
-  return VecBound(GetRows(), Bound(-0.05, 0.05));
+  return VecBound(GetRows(), BoundZero);
 }
 
 void

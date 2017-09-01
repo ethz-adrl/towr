@@ -56,7 +56,7 @@ TerrainConstraint::GetBounds () const
 
   for (int i=0; i<ee_motion_->GetNodes().size(); ++i) {
     if (ee_motion_->IsContactNode(i))
-      bounds.at(i) = kEqualityBound_;
+      bounds.at(i) = BoundZero;
     else
       bounds.at(i) = Bound(0.0, max_z_distance_above_terrain_);
   }

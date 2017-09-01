@@ -175,14 +175,14 @@ QuadrupedOptParameters::QuadrupedOptParameters ()
 
 
   // range of motion constraint
-  dt_range_of_motion_ = 0.1;
+  dt_range_of_motion_ = 0.15;
   // not used, hardcoded for xy and z.
   ee_splines_per_swing_phase_ = 1; // should always be 2 if i want to use swing constraint!
 
 
 
-  double f = 0.3; // [s] t_free
-  double c = 0.3; // [s] t_contact
+  double f = 0.25; // [s] t_free
+  double c = 0.25; // [s] t_contact
   double t_offset = f;
   contact_timings_ = ContactTimings(4);
   auto m = Reverse(kMapOptToQuad);
@@ -192,8 +192,8 @@ QuadrupedOptParameters::QuadrupedOptParameters ()
   contact_timings_.at(m.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c           };
 
 
-  min_phase_duration_ = 0.1;
-  double max_time = 2.0;
+  min_phase_duration_ = 0.05;
+  double max_time = 10.0;
   max_phase_duration_ = max_time>GetTotalTime()?  GetTotalTime() : max_time;
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 

@@ -166,7 +166,7 @@ VecBound
 SplineJunctionConstraint::GetBounds () const
 {
   VecBound bounds(GetRows());
-  std::fill(bounds.begin(), bounds.end(), kEqualityBound_);
+  std::fill(bounds.begin(), bounds.end(), BoundZero);
 
   return bounds;
 }
