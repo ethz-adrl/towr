@@ -69,7 +69,6 @@ public:
 
 
   ContactTimings contact_timings_;
-  double friction_coeff_ = 1.0; // between terrain and endeffectors
 
 
 protected:

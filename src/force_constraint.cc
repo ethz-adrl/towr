@@ -22,7 +22,6 @@ namespace opt {
 
 
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
-                                  double friction_coeff,
                                   double force_limit,
                                   const OptVarsPtr& opt_vars,
                                   const std::string& ee_force_id,
@@ -31,7 +30,6 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
   ee_force_  = opt_vars->GetComponent<EEForceNodes>(ee_force_id);
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion_id);
   terrain_   = terrain;
-  friction_coeff_ = friction_coeff;
   force_limit_ = force_limit;
 
   AddOptimizationVariables(opt_vars);

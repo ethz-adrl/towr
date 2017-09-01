@@ -17,6 +17,8 @@ namespace xpp {
 namespace opt {
 
 
+// TODO: use ct_core/test/auto_diff functions to generate these derivatives
+// which should be possible, as it is a very separated class
 class HeightMap {
 public:
   using Ptr         = std::shared_ptr<HeightMap>;
@@ -34,7 +36,12 @@ public:
   Vector3d GetNormalizedBasis(BasisVector, double x, double y) const;
   Vector3d GetDerivativeOfNormalizedBasisWrt(BasisVector, Coords2D dim, double x, double y) const;
 
+  double GetFrictionCoeff() const { return friction_coeff_; };
+
 private:
+
+  double friction_coeff_ = 1.0;
+
   // not normalized basis vectors of basis vector derivatives
   Vector3d GetBasisNotNormalized(BasisVector, double x, double y, const Derivatives& = {}) const;
   Vector3d GetNormalNotNormalized(double x, double y, const Derivatives& = {}) const;
