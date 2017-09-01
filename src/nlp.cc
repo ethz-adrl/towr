@@ -138,6 +138,12 @@ NLP::SaveCurrent()
 }
 
 NLP::OptimizationVariablesPtr
+NLP::GetOptVariables ()
+{
+  return GetOptVariables(GetIterationCount()-1);
+}
+
+NLP::OptimizationVariablesPtr
 NLP::GetOptVariables (int iter)
 {
   opt_variables_->SetValues(x_prev.at(iter));

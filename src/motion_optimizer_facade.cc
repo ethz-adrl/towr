@@ -246,14 +246,14 @@ MotionOptimizerFacade::BuildCostConstraints(const OptimizationVariablesPtr& opt_
 }
 
 void
-MotionOptimizerFacade::SolveProblem (NlpSolver solver)
+MotionOptimizerFacade::SolveProblem ()
 {
   auto variables = BuildVariables();
   nlp.Init(variables);
 
   BuildCostConstraints(variables);
 
-  switch (solver) {
+  switch (nlp_solver_) {
     case Ipopt:   IpoptAdapter::Solve(nlp); break;
     case Snopt:   SnoptAdapter::Solve(nlp); break;
     default: assert(false); // solver not implemented
@@ -262,21 +262,28 @@ MotionOptimizerFacade::SolveProblem (NlpSolver solver)
   nlp.PrintCurrent();
 }
 
-MotionOptimizerFacade::NLPIterations
-MotionOptimizerFacade::GetTrajectories (double dt) const
+std::vector<MotionOptimizerFacade::RobotStateVec>
+MotionOptimizerFacade::GetIntermediateSolutions (double dt) const
 {
-  NLPIterations trajectories;
+  std::vector<RobotStateVec> trajectories;
 
   for (int iter=0; iter<nlp.GetIterationCount(); ++iter) {
     auto opt_var = nlp.GetOptVariables(iter);
-    trajectories.push_back(BuildTrajectory(opt_var, dt));
+    trajectories.push_back(GetTrajectory(opt_var, dt));
   }
 
   return trajectories;
 }
 
 MotionOptimizerFacade::RobotStateVec
-MotionOptimizerFacade::BuildTrajectory (const OptimizationVariablesPtr& vars,
+MotionOptimizerFacade::GetTrajectory (double dt) const
+{
+  auto opt_var = nlp.GetOptVariables();
+  return GetTrajectory(opt_var, dt);
+}
+
+MotionOptimizerFacade::RobotStateVec
+MotionOptimizerFacade::GetTrajectory (const OptimizationVariablesPtr& vars,
                                         double dt) const
 {
   RobotStateVec trajectory;

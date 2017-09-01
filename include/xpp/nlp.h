@@ -18,8 +18,6 @@
 namespace xpp {
 namespace opt {
 
-enum NlpSolver { Ipopt, Snopt };
-
 /** @brief Nonlinear Programming problem definition
   *
   * This class is responsible for holding all the information of a
@@ -65,6 +63,7 @@ public:
    */
   void SaveCurrent();
 
+  OptimizationVariablesPtr GetOptVariables();
   OptimizationVariablesPtr GetOptVariables(int iter);
   int GetIterationCount() const { return x_prev.size(); };
 
