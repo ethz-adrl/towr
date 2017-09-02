@@ -31,7 +31,7 @@ public:
 
 private:
   EEMotionNodes::Ptr ee_motion_;
-  double t_swing_avg_ = 0.2;
+  double t_swing_avg_ = 100.2;
 };
 
 

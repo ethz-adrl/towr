@@ -106,47 +106,116 @@ public:
 
 
 
-// some specific morphologies
 namespace biped {
-enum FootID { L, R };
-
-static const std::map<EndeffectorID, FootID> kMapOptToBiped {
-  { EndeffectorID::E0,  L},
-  { EndeffectorID::E1,  R},
+static const std::string L = "L";
+static const std::string R = "R";
+static const std::map<std::string, EndeffectorID> kMapIDToEE {
+  { L, E0},
+  { R, E1},
 };
-} // namespace biped
-
+}
 namespace quad {
-enum FootID { RF, LF, LH, RH };
-
-static const std::map<EndeffectorID, FootID> kMapOptToQuad {
-  { EndeffectorID::E0,  LH},
-  { EndeffectorID::E1,  LF},
-  { EndeffectorID::E2,  RH},
-  { EndeffectorID::E3,  RF},
+static const std::string LF = "LF";
+static const std::string RF = "RF";
+static const std::string LH = "LH";
+static const std::string RH = "RH";
+static const std::map<std::string, EndeffectorID> kMapIDToEE {
+  { LF, E0},
+  { RF, E1},
+  { LH, E2},
+  { RH, E3},
 };
-
-enum RotorID { L, R, F, H };
-static const std::map<EndeffectorID, RotorID> kMapOptToRotor {
-  { EndeffectorID::E0,  L},
-  { EndeffectorID::E1,  F},
-  { EndeffectorID::E2,  R},
-  { EndeffectorID::E3,  H},
+}
+namespace quad_rotor { // underscore to not collide with biped definitions
+static const std::string L = "L";
+static const std::string R = "R";
+static const std::string F = "F";
+static const std::string H = "H";
+static const std::map<std::string, EndeffectorID> kMapIDToEE {
+  { L, E0},
+  { R, E1},
+  { F, E2},
+  { H, E3},
 };
+}
 
-} // namespace quadruped
 
 template<typename T>
-static std::map<T, EndeffectorID> Reverse(std::map<EndeffectorID, T> map) {
+static std::map<EndeffectorID, T> ReverseMap(std::map<T, EndeffectorID> map) {
 
-  std::map<T, EndeffectorID> reverse;
-  for (auto pair : map) {
-    auto ee = pair.first;
-    reverse[map.at(ee)] = ee;
+  std::map<EndeffectorID, T> reverse;
+  for (auto p : map) {
+    auto flipped = std::pair<EndeffectorID, T>(p.second, p.first);
+    if ( !reverse.insert(flipped).second )
+      assert(false); //  key already present, won't overwrite...
   }
 
   return reverse;
 }
+
+
+
+//// the mapping of these strings to endeffector values
+//static const std::map<std::string, EndeffectorID> kMapIDToEE {
+//  { biped::L, E0},
+//  { biped::R, E1},
+//
+//  { quad::LF, E0},
+//  { quad::RF, E1},
+//  { quad::LH, E2},
+//  { quad::RH, E3},
+//
+//  { quad_rotor::L, E0},
+//  { quad_rotor::R, E1},
+//  { quad_rotor::F, E2},
+//  { quad_rotor::H, E3},
+//};
+
+
+//// some specific morphologies
+//namespace biped {
+////enum FootID { L, R };
+////
+////static const std::map<EndeffectorID, FootID> kMapOptToBiped {
+////  { EndeffectorID::E0,  L},
+////  { EndeffectorID::E1,  R},
+////};
+//} // namespace biped
+//
+//namespace quad {
+////enum FootID { RF, LF, LH, RH };
+//
+////static const std::map<EndeffectorID, FootID> kMapOptToQuad {
+////  { EndeffectorID::E0,  LF},
+////  { EndeffectorID::E1,  RF},
+////  { EndeffectorID::E2,  LH},
+////  { EndeffectorID::E3,  RH},
+////};
+//
+////enum RotorID { L, R, F, H };
+////static const std::map<EndeffectorID, RotorID> kMapOptToRotor {
+////  { EndeffectorID::E0,  L},
+////  { EndeffectorID::E1,  F},
+////  { EndeffectorID::E2,  R},
+////  { EndeffectorID::E3,  H},
+////};
+//
+//} // namespace quadruped
+
+
+//// remove this one
+//template<typename T>
+//static std::map<T, EndeffectorID> Reverse(std::map<EndeffectorID, T> map) {
+//
+//  std::map<T, EndeffectorID> reverse;
+//  for (auto pair : map) {
+//    auto ee = pair.first;
+//    reverse[map.at(ee)] = ee;
+//  }
+//
+//  return reverse;
+//}
+
 
 
 } /* namespace xpp */

@@ -35,6 +35,17 @@ xpp::opt::DynamicModel::GetEEIDs () const
   return ee_ids_;
 }
 
+std::vector<std::string>
+xpp::opt::DynamicModel::GetEndeffectorNames () const
+{
+  std::vector<std::string> names_;
+  auto map_ee_to_id = ReverseMap(map_id_to_ee_);
+  for (EndeffectorID ee : ee_ids_)
+     names_.push_back(map_ee_to_id.at(ee));
+
+  return names_;
+}
+
 DynamicModel::~DynamicModel ()
 {
 }

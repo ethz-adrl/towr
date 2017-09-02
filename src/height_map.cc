@@ -168,19 +168,22 @@ Gap::GetHeight (double x, double y) const
 {
   double h = 0.0;
 
-//  // modelled as parabola
-//  if (gap_start_ < x && x < gap_start_+gap_width_) {
-//    double dx = gap_width_/2;
-//    double x_center = gap_start_ + gap_width_/2;
-//    h = gap_depth_/(dx*dx) * std::pow(x - x_center,2) - gap_depth_;
+  // modelled as parabola
+  if (gap_start_ < x && x < gap_end_x) {
+//    h = gap_depth_/(dx*dx) * std::pow(x - gap_center_x_,2) - gap_depth_;
+
+
+    h = a*x*x + b*x + c;
+  }
+
+//  // modelled as straight slopes
+//  if (gap_start_ < x && x < gap_end_x) {
+////    h = -slope_*(x - gap_start_);
+//    h = -gap_depth_;
 //  }
 
-  // modelled as straight slopes
-  if (gap_start_ < x && x < gap_center_x_)
-    h = -slope_*(x - gap_start_);
-
-  if (gap_center_x_ < x && x < gap_start_+gap_width_)
-    h = slope_*(x - gap_center_x_) - gap_depth_;
+//  if (gap_center_x_ < x && x < gap_end_x)
+//    h = slope_*(x - gap_center_x_) - gap_depth_;
 
 
   return h;
@@ -191,19 +194,30 @@ Gap::GetHeightDerivWrtX (double x, double y) const
 {
   double dhdx = 0.0;
 
-//  //  modelled as parabola
-//  if (gap_start_ < x && x < gap_start_+gap_width_) {
-//    double dx = gap_width_/2;
-//    double x_center = gap_start_ + gap_width_/2;
-//    dhdx = 2*gap_depth_/(dx*dx) * (x - x_center);
+  //  modelled as parabola
+  if (gap_start_ < x && x < gap_end_x) {
+
+    dhdx = 2*a*x + b;
+
+//    dhdx = 2*gap_depth_/(dx*dx) * (x - gap_center_x_);
+  }
+
+//  //  smooth corners in front of gap
+//  if (gap_start_-eps_ < x && x < gap_start_) {
+//    dhdx = -1 * (x - gap_start_);
+//  }
+//
+//  //  smooth corners in behind gap
+//  if (gap_end_x < x && x < gap_end_x+eps_) {
+//    dhdx = 1 * (x - gap_end_x);
 //  }
 
   // modelled as straight slopes
-  if (gap_start_ < x && x < gap_start_+gap_width_/2.)
-    dhdx = -slope_;
+//  if (gap_start_ < x && x < gap_end_x)
+//    dhdx = -slope_;
 
-  if (gap_start_+gap_width_/2. < x && x < gap_start_+gap_width_)
-    dhdx = slope_;
+//  if (gap_center_x_ < x && x < gap_end_x)
+//    dhdx = slope_;
 
   return dhdx;
 }
@@ -213,11 +227,24 @@ Gap::GetHeightDerivWrtXX (double x, double y) const
 {
   double dzdxx = 0.0;
 
-//  // modelled as parabola
-//  if (gap_start_ < x && x < gap_start_+gap_width_) {
-//    double dx = gap_width_/2;
+  // modelled as parabola
+  if (gap_start_ < x && x < gap_end_x) {
 //    dzdxx = 2*gap_depth_/(dx*dx);
+
+    dzdxx = 2*a;
+  }
+
+//  //  smooth corners in front of gap
+//  if (gap_start_-eps_ < x && x < gap_start_) {
+//    dzdxx = -1;
 //  }
+//
+//  //  smooth corners in behind gap
+//  if (gap_end_x < x && x < gap_end_x+eps_) {
+//    dzdxx = 1;
+//  }
+
+
 
   return dzdxx;
 }
@@ -268,13 +295,23 @@ Chimney::GetHeight (double x, double y) const
 
   if (x>x_start_ && x<x_start_+length_) {
 
+
     // slopes on the side
-    if (y>y_start_) // left side
-      z = slope_*(y-y_start_);
-    else if (y<-y_start_) // right side
-      z = -slope_*(y+y_start_);
-    else
-      z = z_depth_/(y_start_*y_start_) * y*y - z_depth_;
+//    if (y>0) // left side
+      z = slope_*y - z_depth_center_;
+//    else // right side
+//      z = -slope_*y - z_depth_center_;
+
+
+
+
+//    // slopes with center estimated as parabola
+//    if (y>y_start_) // left side
+//      z = slope_*(y-y_start_);
+//    else if (y<-y_start_) // right side
+//      z = -slope_*(y+y_start_);
+//    else
+//      z = z_depth_/(y_start_*y_start_) * y*y - z_depth_;
   }
 
   return z;
@@ -288,12 +325,20 @@ Chimney::GetHeightDerivWrtY (double x, double y) const
 
   if (x_start_ < x && x < x_start_+length_) {
 
-    if (y>y_start_) // left side slope
+    // slopes on the side
+//    if (y>0) // left side
       dzdy = slope_;
-    else if (y<-y_start_) // right side slope
-      dzdy = -slope_;
-    else // center modeled as parabola
-      dzdy = 2*z_depth_/(y_start_*y_start_) *y;
+//    else // right side
+//      dzdy = -slope_;
+
+
+
+//    if (y>y_start_) // left side slope
+//      dzdy = slope_;
+//    else if (y<-y_start_) // right side slope
+//      dzdy = -slope_;
+//    else // center modeled as parabola
+//      dzdy = 2*z_depth_/(y_start_*y_start_) *y;
   }
 
   return dzdy;
@@ -304,15 +349,15 @@ Chimney::GetHeightDerivWrtYY (double x, double y) const
 {
   double dzdyy = 0.0;
 
-  if (x_start_ < x && x < x_start_+length_) {
-
-    if (y>y_start_) // left side slope
-      dzdyy = 0.0;
-    else if (y<-y_start_) // right side slope
-      dzdyy = 0.0;
-    else // center modeled as parabola
-      dzdyy = 2*z_depth_/(y_start_*y_start_);
-  }
+//  if (x_start_ < x && x < x_start_+length_) {
+//
+//    if (y>y_start_) // left side slope
+//      dzdyy = 0.0;
+//    else if (y<-y_start_) // right side slope
+//      dzdyy = 0.0;
+//    else // center modeled as parabola
+//      dzdyy = 2*z_depth_/(y_start_*y_start_);
+//  }
 
   return dzdyy;
 }

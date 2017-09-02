@@ -94,10 +94,24 @@ public:
 
 private:
   const double gap_start_ = 1.0;
-  const double gap_width_ = 0.5;
-  const double gap_depth_ = 20.0;
-  const double slope_ = gap_depth_/(gap_width_/2.);
-  const double gap_center_x_ = gap_start_ + gap_width_/2.;
+  const double w = 0.7; // gap width
+  const double h = 1.0;
+
+  const double slope_ = h/w;
+  const double dx = w/2; // gap witdh 2
+  const double xc = gap_start_ + dx; // gap center
+  const double gap_end_x = gap_start_ + w;
+
+
+
+  // generated with matlab
+  // see /matlab/gap_model.m
+  // coefficients of 2nd order polynomial
+  // h = a*x^2 + b*x + c
+  const double a = (4*h)/(w*w);
+  const double b = -(8*h*xc)/(w*w);
+  const double c = -(h*(w - 2*xc)*(w + 2*xc))/(w*w);
+
 };
 
 
@@ -128,9 +142,10 @@ public:
 private:
   const double x_start_ = 0.5;
   const double length_  = 1.0;
-  const double y_start_ = 0.30; // distance to start of slope from center at z=0
+  const double y_start_ = 0.5; // distance to start of slope from center at z=0
   const double slope_   = 3;
-  const double z_depth_ = 2.5;
+  const double z_depth_center_ = slope_*y_start_;
+//  const double z_depth_ = 2.5;
 };
 
 

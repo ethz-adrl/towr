@@ -142,8 +142,9 @@ BipedOptParameters::BipedOptParameters()
   double c = 0.2;
   double offset = c;
   contact_timings_ = ContactTimings(2);
-  contact_timings_.at(E0) = {c+offset,f,c,f,c,f,c,f,c,f,c,f,c,f, c};
-  contact_timings_.at(E1) = {       c,f,c,f,c,f,c,f,c,f,c,f,c,f, c+offset};
+  using namespace xpp::biped;
+  contact_timings_.at(kMapIDToEE.at(L)) = {c+offset,f,c,f,c,f,c,f,c,f,c,f,c,f, c};
+  contact_timings_.at(kMapIDToEE.at(R)) = {       c,f,c,f,c,f,c,f,c,f,c,f,c,f, c+offset};
 
 
   min_phase_duration_ = 0.1;
@@ -165,13 +166,11 @@ BipedOptParameters::BipedOptParameters()
 
 QuadrupedOptParameters::QuadrupedOptParameters ()
 {
-  using namespace xpp::quad;
-
   order_coeff_polys_  = 4; // used only with coeff_spline representation
-  dt_base_polynomial_ = 0.2;
+  dt_base_polynomial_ = 0.25;
 
 
-  force_splines_per_stance_phase_ = 3;
+  force_splines_per_stance_phase_ = 2; // 2 also works quite well
 
 
   // range of motion constraint
@@ -185,14 +184,14 @@ QuadrupedOptParameters::QuadrupedOptParameters ()
   double c = 0.25; // [s] t_contact
   double t_offset = f;
   contact_timings_ = ContactTimings(4);
-  auto m = Reverse(kMapOptToQuad);
-  contact_timings_.at(m.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c           };
-  contact_timings_.at(m.at(LF)) = {           c, f, c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(m.at(RH)) = {           c, f, c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(m.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c           };
+  using namespace xpp::quad;
+  contact_timings_.at(kMapIDToEE.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c           };
+  contact_timings_.at(kMapIDToEE.at(LF)) = {           c, f, c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapIDToEE.at(RH)) = {           c, f, c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapIDToEE.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c           };
 
 
-  min_phase_duration_ = 0.15;
+  min_phase_duration_ = 0.10;
   double max_time = 10.0;
   max_phase_duration_ = max_time>GetTotalTime()?  GetTotalTime() : max_time;
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
@@ -216,7 +215,6 @@ QuadrupedOptParameters::QuadrupedOptParameters ()
 
 QuadrotorOptParameters::QuadrotorOptParameters ()
 {
-  using namespace xpp::quad;
 
   order_coeff_polys_  = 4;
   dt_base_polynomial_ = 0.2; //s 0.05
@@ -235,11 +233,12 @@ QuadrotorOptParameters::QuadrotorOptParameters ()
   double c = 0.2; // [s] t_contact
   double t_offset = f;
   contact_timings_ = ContactTimings(4);
-  auto m = Reverse(kMapOptToRotor);
-  contact_timings_.at(m.at(L)) = {t_offset + c, f, c, f, c, f, c           };
-  contact_timings_.at(m.at(R)) = {           c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(m.at(F)) = {           c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(m.at(H)) = {t_offset + c, f, c, f, c, f, c           };
+  using namespace xpp::quad_rotor;
+//  auto m = Reverse(kMapOptToRotor);
+  contact_timings_.at(kMapIDToEE.at(L)) = {t_offset + c, f, c, f, c, f, c           };
+  contact_timings_.at(kMapIDToEE.at(R)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapIDToEE.at(F)) = {           c, f, c, f, c, f, c + t_offset};
+  contact_timings_.at(kMapIDToEE.at(H)) = {t_offset + c, f, c, f, c, f, c           };
 
   min_phase_duration_ = 0.1;
   max_phase_duration_ = GetTotalTime();

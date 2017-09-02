@@ -57,6 +57,8 @@ public:
   EndeffectorsPos GetNominalStanceInBase() const { return nominal_stance_; };
   Vector3d GetMaximumDeviationFromNominal() const { return max_dev_from_nominal_; };
 
+  std::vector<std::string> GetEndeffectorNames() const;
+
 protected:
   ComPos com_pos_;
   EELoad ee_force_;
@@ -66,6 +68,8 @@ protected:
   EndeffectorsPos nominal_stance_;
   Vector3d max_dev_from_nominal_;
   double normal_force_max_;
+
+  std::map<std::string, EndeffectorID> map_id_to_ee_;
 
 };
 

@@ -86,8 +86,8 @@ SwingConstraint::FillJacobianWithRespectTo (std::string var_set,
         for (auto dim : {X,Y}) {
           // position constraint
           jac.coeffRef(row, ee_motion_->Index(i,   kPos, dim)) =  1.0;  // current node
-          jac.coeffRef(row, ee_motion_->Index(i+1, kPos, dim)) = -0.5; // next node
-          jac.coeffRef(row, ee_motion_->Index(i-1, kPos, dim)) = -0.5; // previous node
+          jac.coeffRef(row, ee_motion_->Index(i+1, kPos, dim)) = -0.5;  // next node
+          jac.coeffRef(row, ee_motion_->Index(i-1, kPos, dim)) = -0.5;  // previous node
           row++;
 
           // velocity constraint

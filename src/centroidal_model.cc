@@ -130,6 +130,7 @@ MonopedModel::MonopedModel ()
                      BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668),
                      1)
 {
+  map_id_to_ee_["E0"] = E0;
   nominal_stance_.At(E0) = Vector3d( 0.0, 0.0, -0.58);
   max_dev_from_nominal_ << 0.15, 0.15, 0.12;
   normal_force_max_ = 10000;
@@ -140,10 +141,13 @@ BipedModel::BipedModel ()
                      BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668),
                      2)
 {
+  using namespace xpp::biped;
+  map_id_to_ee_ = biped::kMapIDToEE;
+
   const double z_nominal_b = -0.60;
   const double y_nominal_b =  0.20;
-  nominal_stance_.At(E0) << 0.0,  y_nominal_b, z_nominal_b;
-  nominal_stance_.At(E1) << 0.0, -y_nominal_b, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(L)) << 0.0,  y_nominal_b, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(R)) << 0.0, -y_nominal_b, z_nominal_b;
 
   max_dev_from_nominal_  << 0.15, 0.15, 0.15;
   normal_force_max_ = 10000;
@@ -155,15 +159,17 @@ HyqModel::HyqModel ()
                      4)
 {
   using namespace xpp::quad;
+  map_id_to_ee_ = quad::kMapIDToEE;
+
   const double x_nominal_b = 0.28;
   const double y_nominal_b = 0.28;
   const double z_nominal_b = -0.58;
 
-  auto kMapQuadToOpt = Reverse(quad::kMapOptToQuad);
-  nominal_stance_.At(kMapQuadToOpt.at(LF)) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
-  nominal_stance_.At(kMapQuadToOpt.at(RF)) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
-  nominal_stance_.At(kMapQuadToOpt.at(LH)) << -x_nominal_b,   y_nominal_b, z_nominal_b;
-  nominal_stance_.At(kMapQuadToOpt.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
+//  auto kMapQuadToOpt = Reverse(quad::kMapOptToQuad);
+  nominal_stance_.At(map_id_to_ee_.at(LF)) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(RF)) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(LH)) << -x_nominal_b,   y_nominal_b, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
   max_dev_from_nominal_ << 0.2, 0.15, 0.10;
   normal_force_max_ = 10000;
@@ -181,18 +187,19 @@ AnymalModel::AnymalModel ()
                      4)
 {
   using namespace xpp::quad;
+  map_id_to_ee_ = quad::kMapIDToEE;
+
   const double x_nominal_b = 0.33;  // wrt to hip 5cm
   const double y_nominal_b = 0.13; // wrt to hip -3cm
   const double z_nominal_b = -0.46; //
 
-  auto kMapQuadToOpt = Reverse(kMapOptToQuad);
-  nominal_stance_.At(kMapQuadToOpt.at(LF)) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
-  nominal_stance_.At(kMapQuadToOpt.at(RF)) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
-  nominal_stance_.At(kMapQuadToOpt.at(LH)) << -x_nominal_b,   y_nominal_b, z_nominal_b;
-  nominal_stance_.At(kMapQuadToOpt.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(LF)) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(RF)) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(LH)) << -x_nominal_b,   y_nominal_b, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
   max_dev_from_nominal_ << 0.18, 0.13, 0.1; // max leg length 58cm
-  normal_force_max_ = 10000;
+  normal_force_max_ = 1000;
 };
 
 
@@ -202,16 +209,18 @@ QuadrotorCentroidalModel::QuadrotorCentroidalModel ()
                      BuildInertiaTensor( 0.0023, 0.0023, 0.004, 0.0, 0.0, 0.0),
                      4)
 {
-  using namespace xpp::quad;
+  using namespace xpp::quad_rotor;
+  map_id_to_ee_ = quad_rotor::kMapIDToEE;
+
   const double x_nominal_b = 0.22;
   const double y_nominal_b = 0.22;
   const double z_nominal_b = 0;
 
-  auto kMapQuadToOpt = Reverse(kMapOptToRotor);
-  nominal_stance_.At(kMapQuadToOpt.at(L)) <<  0,   y_nominal_b, z_nominal_b;
-  nominal_stance_.At(kMapQuadToOpt.at(R)) <<  0,  -y_nominal_b, z_nominal_b;
-  nominal_stance_.At(kMapQuadToOpt.at(F)) <<  x_nominal_b,   0, z_nominal_b;
-  nominal_stance_.At(kMapQuadToOpt.at(H)) << -x_nominal_b,   0, z_nominal_b;
+//  auto kMapQuadToOpt = Reverse(kMapOptToRotor);
+  nominal_stance_.At(map_id_to_ee_.at(L)) <<  0,   y_nominal_b, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(R)) <<  0,  -y_nominal_b, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(F)) <<  x_nominal_b,   0, z_nominal_b;
+  nominal_stance_.At(map_id_to_ee_.at(H)) << -x_nominal_b,   0, z_nominal_b;
 
   max_dev_from_nominal_ << 0.0, 0.0, 0.0;
   normal_force_max_ = 100;
