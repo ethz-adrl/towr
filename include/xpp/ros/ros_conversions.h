@@ -27,10 +27,6 @@ namespace ros {
  */
 struct RosConversions {
 
-using Vector3d   = Eigen::Vector3d;
-using EEID       = EndeffectorID;
-
-
 static double GetDoubleFromServer(const std::string& ros_param_name) {
   double val;
   if(!::ros::param::get(ros_param_name,val))

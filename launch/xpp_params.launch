@@ -11,4 +11,11 @@
     <param name="autorepeat_rate"  value="0.0"   type="double"/>
     <param name="deadzone"         value="0.05"  type="double"/>
   </group>
+  <!-- tried to get continuous publishing when key pressed, but not working -->
+  <group ns="keyboard">
+    <param name="allow_repeat"     value="true"  type="bool"/>  
+    <param name="repeat_delay"     value="0"     type="int"/>
+    <param name="repeat_interval"  value="10"    type="int"/>
+  </group>
+  
 </launch>

@@ -19,29 +19,28 @@
 #include <xpp/ros/ros_conversions.h>
 #include <xpp/ros/topic_names.h>
 #include <xpp/height_map.h>
+#include <xpp/quadruped_gait_generator.h>
 
 namespace xpp {
 namespace ros {
 
-using UserCommandMsg = xpp_msgs::UserCommand;
 
 NlpUserInputNode::NlpUserInputNode ()
 {
   ::ros::NodeHandle n;
   key_sub_ = n.subscribe("/keyboard/keydown", 1, &NlpUserInputNode::CallbackKeyboard, this);
-  joy_sub_ = n.subscribe("/joy", 1, &NlpUserInputNode::CallbackJoy, this);
+//  joy_sub_ = n.subscribe("/joy", 1, &NlpUserInputNode::CallbackJoy, this);
 
-  user_command_pub_ = n.advertise<UserCommandMsg>(xpp_msgs::user_command, 1);
+  user_command_pub_ = n.advertise<xpp_msgs::UserCommand>(xpp_msgs::user_command, 1);
 
   // publish goal zero initially
   goal_geom_.lin.p_.setZero();
-  goal_geom_.lin.p_ << 0.5, 0.0, 0.58;
+  goal_geom_.lin.p_ << 1.3, 0.0, 0.46;
   goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
-  replay_trajectory_ = false;
-  use_solver_snopt_ = false;
 
 
   terrain_id_ = opt::HeightMap::FlatID;
+  gait_type_ = quad::QuadrupedGaitGenerator::Trot;
 
 //  UserCommandMsg msg;
 //  msg.goal_lin = RosConversions::XppToRos(goal_geom_.lin);
@@ -50,11 +49,6 @@ NlpUserInputNode::NlpUserInputNode ()
 //
 //  // start walking command
 //  walk_command_pub_ = n.advertise<std_msgs::Empty>(xpp_msgs::start_walking_topic,1);
-}
-
-NlpUserInputNode::~NlpUserInputNode ()
-{
-  // TODO Auto-generated destructor stub
 }
 
 void
@@ -110,56 +104,45 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       break;
 
 
+    // speed
+    case msg.KEY_KP_PLUS:
+      total_duration_ += 0.2;
+      ROS_INFO_STREAM("Total duration increased to " << total_duration_);
+    break;
+    case msg.KEY_KP_MINUS:
+      total_duration_ -= 0.2;
+      ROS_INFO_STREAM("Total duration decreased to " << total_duration_);
+    break;
 
-    case msg.KEY_RETURN:
-      command_ = Command::kSetGoal;
-      break;
+
     case msg.KEY_g:
-      ROS_INFO_STREAM("Start Walking command sent to controller");
-      command_ = Command::kStartWalking;
+      ROS_INFO_STREAM("Request to optimize sent");
+      optimize_ = true;
       break;
     case msg.KEY_w:
       ROS_INFO_STREAM("Motion type set to Walking");
-//      motion_type_ = opt::WalkID;
+      gait_type_ = quad::QuadrupedGaitGenerator::Walk;
       break;
     case msg.KEY_t:
       ROS_INFO_STREAM("Motion type set to Trotting");
-//      motion_type_ = opt::TrotID;
+      gait_type_ = quad::QuadrupedGaitGenerator::Trot;
       break;
     case msg.KEY_b:
       ROS_INFO_STREAM("Motion type set to Bounding");
-//      motion_type_ = opt::BoundID;
+      gait_type_ = quad::QuadrupedGaitGenerator::Bound;
       break;
-    case msg.KEY_c:
-      ROS_INFO_STREAM("Motion type set to Camel");
-//      motion_type_ = opt::PaceID;
+    case msg.KEY_p:
+      ROS_INFO_STREAM("Motion type set to Pace");
+      gait_type_ = quad::QuadrupedGaitGenerator::Pace;
       break;
     case msg.KEY_s:
       ROS_INFO_STREAM("Toggled NLP solver type");
       use_solver_snopt_ = !use_solver_snopt_;
       break;
-    case msg.KEY_p:
-      ROS_INFO_STREAM("Motion type set to Push Recovery");
-//      motion_type_ = opt::PushRecID;
-      break;
     case msg.KEY_r:
       ROS_INFO_STREAM("Replaying already optimized trajectory");
       replay_trajectory_ = true;
       break;
-    case msg.KEY_d: {
-
-      std::vector<double> x_vel = { 1.3,   1.4,  0.1,  -1.4, -0.8,  0.8,  1.9   };
-      std::vector<double> y_vel = { -0.4,  0.05, 1.5,   0.0, -1.5,  1.5,  0.0   };
-
-      static int idx = 0;
-      velocity_disturbance_.x = x_vel.at(idx);
-      velocity_disturbance_.y = y_vel.at(idx);
-      velocity_disturbance_.z = 0.0;
-
-      idx = idx<x_vel.size()-1 ? idx+1 : 0; // circular buffer
-      ROS_INFO_STREAM("Added initial velocity disturbance of (" << x_vel.at(idx) << "," << y_vel.at(idx) << ")." );
-
-    }
     default:
       break;
   }
@@ -168,79 +151,69 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
   PublishCommand();
 }
 
-void
-NlpUserInputNode::CallbackJoy (const JoyMsg& msg)
-{
-  joy_msg_ = msg;
 
-  enum JoyButtons {X=0, A, B, Y};
 
-  if (joy_msg_.buttons[Y] == 1) {
-    command_ = Command::kStartWalking;
-    replay_trajectory_ = true;
-  }
-
-  if (joy_msg_.buttons[A] == 1) {
-//    motion_type_ = opt::WalkID;
-  }
-
-  if (joy_msg_.buttons[X] == 1) {
-//    motion_type_ = opt::TrotID;
-  }
-
-  PublishCommand();
-}
-
-void
-NlpUserInputNode::ModifyGoalJoy ()
-{
-  enum Axis {L_LEFT = 0, L_FORWARD, R_LEFT, R_FORWARD};
-
-  double max_vel = 0.2; // [m/s]
-
-  double vel_y = -max_vel*joy_msg_.axes[L_FORWARD];
-  double vel_x = max_vel*joy_msg_.axes[L_LEFT];
-
-  // integrate velocity
-  double joy_deadzone = 0.05;
-  goal_geom_.lin.p_.x() += vel_x * joy_deadzone;
-  goal_geom_.lin.p_.y() += vel_y * joy_deadzone;
-}
 
 void NlpUserInputNode::PublishCommand()
 {
-  if (!joy_msg_.axes.empty())
-    ModifyGoalJoy();
+//  if (!joy_msg_.axes.empty())
+//    ModifyGoalJoy();
 
-  UserCommandMsg msg;
+  xpp_msgs::UserCommand msg;
   msg.goal_lin          = RosConversions::XppToRos(goal_geom_.lin);
   msg.goal_ang          = RosConversions::XppToRos(goal_geom_.ang);
   msg.replay_trajectory = replay_trajectory_;
   msg.use_solver_snopt  = use_solver_snopt_;
-  msg.vel_disturbance   = velocity_disturbance_;
-  msg.optimize          = command_==Command::kStartWalking? true : false;
+  msg.optimize          = optimize_;
   msg.terrain_id        = terrain_id_;
+  msg.gait_id           = gait_type_;
+  msg.total_duration    = total_duration_;
+
+
   user_command_pub_.publish(msg);
 
-  switch (command_) {
-    case Command::kSetGoal: {
-      ROS_INFO_STREAM("Sending out desired goal state");
-      break;
-    }
-    case Command::kStartWalking: {
-      ROS_INFO_STREAM("Sending out walking command");
-      walk_command_pub_.publish(std_msgs::Empty());
-      break;
-    }
-    default: // no command
-      break;
-  }
-
-  command_ = Command::kNoCommand;
+  optimize_ = false;
   replay_trajectory_  = false;
-  velocity_disturbance_ = InitVel(); // set zero
 }
 
+//void
+//NlpUserInputNode::ModifyGoalJoy ()
+//{
+//  enum Axis {L_LEFT = 0, L_FORWARD, R_LEFT, R_FORWARD};
+//
+//  double max_vel = 0.2; // [m/s]
+//
+//  double vel_y = -max_vel*joy_msg_.axes[L_FORWARD];
+//  double vel_x = max_vel*joy_msg_.axes[L_LEFT];
+//
+//  // integrate velocity
+//  double joy_deadzone = 0.05;
+//  goal_geom_.lin.p_.x() += vel_x * joy_deadzone;
+//  goal_geom_.lin.p_.y() += vel_y * joy_deadzone;
+//}
+//
+//void
+//NlpUserInputNode::CallbackJoy (const JoyMsg& msg)
+//{
+//  joy_msg_ = msg;
+//
+//  enum JoyButtons {X=0, A, B, Y};
+//
+//  if (joy_msg_.buttons[Y] == 1) {
+//    command_ = Command::kStartWalking;
+//    replay_trajectory_ = true;
+//  }
+//
+//  if (joy_msg_.buttons[A] == 1) {
+////    motion_type_ = opt::WalkID;
+//  }
+//
+//  if (joy_msg_.buttons[X] == 1) {
+////    motion_type_ = opt::TrotID;
+//  }
+//
+//  PublishCommand();
+//}
 
 } /* namespace ros */
 } /* namespace xpp */

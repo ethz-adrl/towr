@@ -89,13 +89,12 @@ NlpOptimizerNode::SetInitialState (const RobotStateCartesian& initial_state)
 void
 NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
 {
-  motion_optimizer_.final_base_.lin = RosConversions::RosToXpp(msg.goal_lin);
-  motion_optimizer_.final_base_.ang = RosConversions::RosToXpp(msg.goal_ang);
-  motion_optimizer_.terrain_        = opt::HeightMap::MakeTerrain(static_cast<opt::HeightMap::ID>(msg.terrain_id));
-  motion_optimizer_.nlp_solver_     = msg.use_solver_snopt ? MotionOptimizerFacade::Snopt : MotionOptimizerFacade::Ipopt;
+  motion_optimizer_.terrain_ = opt::HeightMap::MakeTerrain(static_cast<opt::HeightMap::ID>(msg.terrain_id));
+  motion_optimizer_.model_->SetInitialGait(msg.gait_id);
+  motion_optimizer_.params_->SetTotalDuration(msg.total_duration);
 
-  Eigen::Vector3d vel_dis(msg.vel_disturbance.x, msg.vel_disturbance.y, msg.vel_disturbance.z);
-  motion_optimizer_.inital_base_.lin.v_ += vel_dis;
+  motion_optimizer_.nlp_solver_ = msg.use_solver_snopt ? MotionOptimizerFacade::Snopt : MotionOptimizerFacade::Ipopt;
+  motion_optimizer_.SetFinalState(RosConversions::RosToXpp(msg.goal_lin), RosConversions::RosToXpp(msg.goal_ang));
 
 
   user_command_msg_ = msg;
@@ -104,7 +103,7 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
 
   if (msg.optimize) {
     OptimizeMotion();
-    cart_trajectory_pub_.publish(BuildTrajectoryMsg());
+//    cart_trajectory_pub_.publish(BuildTrajectoryMsg());
     SaveOptimizationAsRosbag();
   }
 
@@ -129,21 +128,22 @@ xpp_msgs::RobotStateCartesianTrajectory
 NlpOptimizerNode::BuildTrajectoryMsg () const
 {
   auto cart_traj = motion_optimizer_.GetTrajectory(dt_);
-  return ros::RosConversions::XppToRos(cart_traj);
+  return RosConversions::XppToRos(cart_traj);
 }
 
 xpp_msgs::OptParameters
 NlpOptimizerNode::BuildOptParametersMsg() const
 {
-  auto params = motion_optimizer_.GetMotionParameters();
-
   xpp_msgs::OptParameters params_msg;
   auto max_dev_xyz = motion_optimizer_.model_->GetMaximumDeviationFromNominal();
   params_msg.ee_max_dev = RosConversions::XppToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
   auto nominal_B = motion_optimizer_.model_->GetNominalStanceInBase();
-  for (auto ee : nominal_B.ToImpl())
+  auto ee_names = motion_optimizer_.model_->GetEndeffectorNames();
+  params_msg.ee_names = ee_names;
+  for (auto ee : nominal_B.ToImpl()) {
     params_msg.nominal_ee_pos.push_back(RosConversions::XppToRos<geometry_msgs::Point>(ee));
+  }
 
   params_msg.base_mass = motion_optimizer_.model_->GetMass();
 

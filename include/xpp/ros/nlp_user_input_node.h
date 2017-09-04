@@ -16,6 +16,7 @@
 
 #include <xpp/state.h>
 
+
 namespace xpp {
 namespace ros {
 
@@ -28,33 +29,30 @@ class NlpUserInputNode {
 public:
   using KeyboardMsg = keyboard::Key;
   using JoyMsg      = sensor_msgs::Joy;
-  using InitVel     = geometry_msgs::Vector3;
-
-  enum class Command { kSetGoal, kStartWalking, kNoCommand } command_ = Command::kNoCommand;
 
   NlpUserInputNode ();
-  virtual ~NlpUserInputNode ();
+  virtual ~NlpUserInputNode () {};
   void PublishCommand();
 
 private:
+  ::ros::Subscriber key_sub_;
   void CallbackKeyboard(const KeyboardMsg& msg);
-  void CallbackJoy(const JoyMsg& msg);
+  ::ros::Publisher  user_command_pub_;
 
-  void ModifyGoalJoy();
-  int terrain_id_;
 
   State3dEuler goal_geom_;
+  int terrain_id_;
+  bool replay_trajectory_ = false;
+  bool use_solver_snopt_ = false;
+  bool optimize_ = false;
+  int gait_type_;
+  double total_duration_ = 3.0;
 
-  bool replay_trajectory_;
-  bool use_solver_snopt_;
-  InitVel velocity_disturbance_;
 
-  ::ros::Subscriber key_sub_;
-  ::ros::Subscriber joy_sub_;
-  JoyMsg joy_msg_;
-
-  ::ros::Publisher  user_command_pub_;
-  ::ros::Publisher  walk_command_pub_; // tells the robot to start walking
+//  JoyMsg joy_msg_;
+//  ::ros::Subscriber joy_sub_;
+//  void CallbackJoy(const JoyMsg& msg);
+//  void ModifyGoalJoy();
 };
 
 } /* namespace ros */
