@@ -214,9 +214,9 @@ EEForceNodes::GetBounds () const
 //          bounds_.at(idx) = Bound(0.0, f_max_);
 //      }
 //
-      if (n0.deriv_ == kVel) {
-        bounds_.at(idx) = BoundZero; // zero slope to never exceed zero force between nodes
-      }
+//      if (n0.deriv_ == kVel) {
+//        bounds_.at(idx) = BoundZero; // zero slope to never exceed zero force between nodes
+//      }
 
     } else { // swing node
       bounds_.at(idx) = BoundZero; // force must be zero

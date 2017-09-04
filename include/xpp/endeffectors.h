@@ -79,7 +79,7 @@ std::ostream& operator<<(std::ostream& stream, Endeffectors<T> endeffectors)
 
 class EndeffectorsBool : public Endeffectors<bool> {
 public:
-  EndeffectorsBool (int n_ee = 0) :Endeffectors(n_ee) {};
+  EndeffectorsBool (int n_ee = 0, bool val = false) :Endeffectors(n_ee) { SetAll(val);};
   virtual ~EndeffectorsBool () {};
 
   /** @brief returns a copy with flipped boolean values. */

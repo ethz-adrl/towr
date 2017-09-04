@@ -15,6 +15,8 @@
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
 
+#include <xpp/quadruped_gait_generator.h>
+
 namespace xpp {
 namespace opt {
 
@@ -134,6 +136,10 @@ MonopedModel::MonopedModel ()
   nominal_stance_.At(E0) = Vector3d( 0.0, 0.0, -0.58);
   max_dev_from_nominal_ << 0.15, 0.15, 0.12;
   normal_force_max_ = 10000;
+
+  double f  = 0.2;
+  double c = 0.2;
+  contact_timings_.at(E0) = {c, f, c, f, c, f, c, f, c, f, c, f, c};
 }
 
 BipedModel::BipedModel ()
@@ -151,6 +157,14 @@ BipedModel::BipedModel ()
 
   max_dev_from_nominal_  << 0.15, 0.15, 0.15;
   normal_force_max_ = 10000;
+
+
+  // timings normalized anyway
+  double f  = 0.2;
+  double c = 0.2;
+  double offset = c;
+  contact_timings_.at(kMapIDToEE.at(L)) = {c+offset,f,c,f,c,f,c,f,c};
+  contact_timings_.at(kMapIDToEE.at(R)) = {       c,f,c,f,c,f,c,f, c+offset};
 }
 
 HyqModel::HyqModel ()
@@ -175,9 +189,18 @@ HyqModel::HyqModel ()
   normal_force_max_ = 10000;
 };
 
+void
+HyqModel::SetInitialGait (int gait_id)
+{
+  using namespace xpp::quad;
+  QuadrupedGaitGenerator gait_gen;
+  gait_gen.SetGait(static_cast<QuadrupedGaitGenerator::QuadrupedGaits>(gait_id));
+  contact_timings_ = gait_gen.GetContactSchedule();
+}
+
 // from pkg anymal_description/urdf/base/anymal_base_2_parameters
 AnymalModel::AnymalModel ()
-    :CentroidalModel(18.29 + 4*2.0,
+    :CentroidalModel(18.29 + 4*2.0, // michi sagt anymal wiegt 33.7kg
                      BuildInertiaTensor(0.268388530623900,
                                         0.884235660795284,
                                         0.829158678306482,
@@ -201,6 +224,23 @@ AnymalModel::AnymalModel ()
   max_dev_from_nominal_ << 0.18, 0.13, 0.1; // max leg length 58cm
   normal_force_max_ = 1000;
 };
+
+void
+AnymalModel::SetInitialGait (int gait_id)
+{
+  using namespace xpp::quad;
+  QuadrupedGaitGenerator gait_gen;
+  gait_gen.SetGait(static_cast<QuadrupedGaitGenerator::QuadrupedGaits>(gait_id));
+  contact_timings_ = gait_gen.GetContactSchedule();
+
+  //  double f = 0.4; // [s] t_free
+  //  double c = 0.4; // [s] t_contact
+  //  double t_offset = f;
+  //  contact_timings_.at(kMapIDToEE.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c           };
+  //  contact_timings_.at(kMapIDToEE.at(LF)) = {           c, f, c, f, c, f, c, f, c + t_offset};
+  //  contact_timings_.at(kMapIDToEE.at(RH)) = {           c, f, c, f, c, f, c, f, c + t_offset};
+  //  contact_timings_.at(kMapIDToEE.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c           };
+}
 
 
 // from pkg xpp_urdfs/quadrotor_description/urdf/base/quadrotor.urdf
@@ -230,4 +270,5 @@ QuadrotorCentroidalModel::QuadrotorCentroidalModel ()
 
 } /* namespace opt */
 } /* namespace xpp */
+
 

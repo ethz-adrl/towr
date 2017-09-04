@@ -14,8 +14,6 @@
 #include <vector>
 
 #include <xpp/composite.h>
-#include <xpp/endeffectors.h>
-#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {
@@ -29,25 +27,18 @@ enum ConstraintName  { BasePoly, Dynamic, RomBox, TotalTime, Terrain, Force, Swi
   */
 class OptimizationParameters {
 public:
-  using EEID             = EndeffectorID;
-  using EEVec            = std::vector<EEID>;
-  using ContactSequence  = std::vector<EndeffectorsBool>;
-  using ContactTimings   = std::vector<std::vector<double>>;
-  using Phase            = std::pair<EndeffectorsBool, double>;
-  using ContactSchedule  = std::vector<Phase>;
-
-
   using CostWeights      = std::vector<std::pair<CostName, double>>;
   using UsedConstraints  = std::vector<ConstraintName>;
-
   using VecTimes         = std::vector<double>;
 
+  OptimizationParameters();
   virtual ~OptimizationParameters();
-
 
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
-  double GetTotalTime() const;
+
+  void SetTotalDuration(double d) {t_total_ = d; };
+  double GetTotalTime() const { return t_total_;} ;
 
   VecTimes GetBasePolyDurations() const;
   bool ConstraintExists(ConstraintName c) const;
@@ -66,38 +57,14 @@ public:
   enum BaseRepresentation {CubicHermite, PolyCoeff};
   BaseRepresentation GetBaseRepresentation() const;
 
-
-
-  ContactTimings contact_timings_;
-
-
-protected:
-  ContactSequence contact_sequence_;
+private:
+  double t_total_;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
 };
 
 
-// some specific ones
-class MonopedOptParameters : public OptimizationParameters {
-public:
-  MonopedOptParameters();
-};
 
-class BipedOptParameters : public OptimizationParameters {
-public:
-  BipedOptParameters();
-};
-
-class QuadrotorOptParameters : public OptimizationParameters {
-public:
-  QuadrotorOptParameters();
-};
-
-class QuadrupedOptParameters : public OptimizationParameters {
-public:
-  QuadrupedOptParameters();
-};
 
 
 

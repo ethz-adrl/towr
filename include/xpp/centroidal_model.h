@@ -80,12 +80,16 @@ class HyqModel : public CentroidalModel {
 public:
   HyqModel();
   ~HyqModel() {};
+
+  virtual void SetInitialGait(int gait_id) override;
 };
 
 class AnymalModel : public CentroidalModel {
 public:
   AnymalModel();
   ~AnymalModel() {};
+
+  virtual void SetInitialGait(int gait_id) override;
 };
 
 class QuadrotorCentroidalModel : public CentroidalModel {

@@ -42,14 +42,17 @@ public:
 
   EndeffectorsPos initial_ee_W_;
   State3dEuler inital_base_;
-  State3dEuler final_base_;
 
   HeightMap::Ptr terrain_;
   CentroidalModel::Ptr model_;
+  MotionParametersPtr params_;
 
-  const MotionParametersPtr GetMotionParameters() const { return params_;};
+//  const MotionParametersPtr GetMotionParameters() const { return params_;};
+
+  void SetFinalState(const StateLin3d& lin, const StateLin3d& ang);
 
 private:
+  State3dEuler final_base_;
   RobotStateVec GetTrajectory(const OptimizationVariablesPtr&, double dt) const;
 
   void BuildDefaultInitialState();
@@ -59,7 +62,6 @@ private:
   void SetBaseRepresentationCoeff(OptimizationVariablesPtr&) const;
   void SetBaseRepresentationHermite(OptimizationVariablesPtr&) const;
 
-  MotionParametersPtr params_;
   mutable NLP nlp;
 };
 

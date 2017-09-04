@@ -22,14 +22,19 @@ namespace xpp {
 namespace opt {
 
 
-ContactSchedule::ContactSchedule (EndeffectorID ee, const VecDurations& timings,
-                                  double min_duration, double max_duration)
+ContactSchedule::ContactSchedule (EndeffectorID ee,
+                                  double t_total,
+                                  const VecDurations& timings,
+                                  double min_duration,
+                                  double max_duration)
     :Component(0, id::GetEEScheduleId(ee))
 {
-  durations_ = timings;
+  t_total_   = t_total;//std::accumulate(durations_.begin(), durations_.end(), 0.0);
+  for (auto d : timings)
+    durations_.push_back(d*t_total);
+
   phase_duration_bounds_ = Bound(min_duration, max_duration);
   first_phase_in_contact_ = true;
-  t_total_   = std::accumulate(durations_.begin(), durations_.end(), 0.0);
   SetRows(durations_.size()-1); // since last phase-duration is not optimized over
 }
 

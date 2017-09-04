@@ -25,7 +25,7 @@ public:
   using Vector3d    = Eigen::Vector3d;
   using Derivatives = std::vector<Coords2D>;
 
-  enum ID { FlatID=0, StairsID, GapID, SlopeID, ChimneyID, K_TERRAIN_COUNT };
+  enum ID { FlatID=0, BlockID, StairsID, GapID, SlopeID, ChimneyID, ChimneyLRID, K_TERRAIN_COUNT };
   static Ptr MakeTerrain(ID type);
   virtual ~HeightMap () {};
 
@@ -72,6 +72,21 @@ private:
   double height_ = 0.0; // [m]
 };
 
+class Block : public HeightMap {
+public:
+  virtual double GetHeight(double x, double y)  const override;
+  virtual double GetHeightDerivWrtX(double x, double y) const override;
+
+private:
+  double block_start = 1.5;
+  double length_     = 2.0;
+  double height_     = 1.0; // [m]
+
+  double eps_ = 0.1; // approximate as slope
+  const double slope_ = height_/eps_;
+};
+
+
 
 class Stairs : public HeightMap {
 public:
@@ -84,6 +99,8 @@ private:
   double height_second_step = 0.4;
   double width_top = 1.0;
 };
+
+
 
 
 class Gap : public HeightMap {
@@ -137,15 +154,30 @@ class Chimney : public HeightMap {
 public:
   virtual double GetHeight(double x, double y) const override;
   virtual double GetHeightDerivWrtY(double x, double y) const override;
-  virtual double GetHeightDerivWrtYY(double x, double y) const override;
 
 private:
   const double x_start_ = 0.5;
   const double length_  = 1.0;
   const double y_start_ = 0.5; // distance to start of slope from center at z=0
   const double slope_   = 3;
-  const double z_depth_center_ = slope_*y_start_;
-//  const double z_depth_ = 2.5;
+
+  const double x_end_ = x_start_+length_;
+};
+
+
+class ChimneyLR : public HeightMap {
+public:
+  virtual double GetHeight(double x, double y) const override;
+  virtual double GetHeightDerivWrtY(double x, double y) const override;
+
+private:
+  const double x_start_ = 0.5;
+  const double length_  = 1.0;
+  const double y_start_ = 0.5; // distance to start of slope from center at z=0
+  const double slope_   = 2;
+
+  const double x_end1_ = x_start_+length_;
+  const double x_end2_ = x_start_+2*length_;
 };
 
 

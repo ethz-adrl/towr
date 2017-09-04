@@ -23,6 +23,8 @@ namespace opt {
  * This model must implement the relationship between the endeffector forces
  * and the movement of the 6-dimensional base.
  */
+// zmp_ don't just call dynamic model, as it also includes kinematic parameters
+// and initialization timings
 class DynamicModel {
 public:
   using Ptr       = std::shared_ptr<DynamicModel>;
@@ -30,6 +32,7 @@ public:
   using BaseAcc   = Vector6d;
   using EELoad    = Endeffectors<Vector3d>;
   using EEPos     = EndeffectorsPos;
+  using ContactTimings   = std::vector<std::vector<double>>;
 
 
   DynamicModel (int ee_count);
@@ -59,18 +62,24 @@ public:
 
   std::vector<std::string> GetEndeffectorNames() const;
 
+
+  virtual void SetInitialGait(int gait_id) {}; // does nothing if not overwritten
+  std::vector<double> GetNormalizedInitialTimings(EndeffectorID ee) const;
+
 protected:
   ComPos com_pos_;
   EELoad ee_force_;
   EEPos ee_pos_;
 
   std::vector<EndeffectorID> ee_ids_;
+
+  ContactTimings contact_timings_;
+
   EndeffectorsPos nominal_stance_;
   Vector3d max_dev_from_nominal_;
   double normal_force_max_;
 
   std::map<std::string, EndeffectorID> map_id_to_ee_;
-
 };
 
 } /* namespace opt */

@@ -29,8 +29,11 @@ public:
   using VecDurations  = std::vector<double>;
   using PhaseNodesPtr = std::shared_ptr<PhaseNodes>;
 
-  ContactSchedule (EndeffectorID ee, const VecDurations& timings,
-                   double min_phase_duration, double max_phase_duration);
+  ContactSchedule (EndeffectorID ee,
+                   double t_total,
+                   const VecDurations& timings,
+                   double min_phase_duration,
+                   double max_phase_duration);
   virtual ~ContactSchedule ();
 
   bool IsInContact(double t_global) const;

@@ -34,7 +34,7 @@ CoeffSpline::InitializeVariables (const VectorXd& initial_pos,
   VectorXd average_velocity = dp/t_total;
   int num_polys = poly_vars_.size();
   for (int i=0; i<num_polys; ++i) {
-    VectorXd pos = initial_pos + i/static_cast<double>(num_polys-1)*dp;
+    VectorXd pos = initial_pos + i/static_cast<double>(num_polys)*dp;
     poly_vars_.at(i)->GetPolynomial()->SetCoefficient(A, pos);
     poly_vars_.at(i)->GetPolynomial()->SetCoefficient(B, average_velocity);
   }

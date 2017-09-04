@@ -284,11 +284,11 @@ NodeValues::AddStartBound (MotionDerivative d,
 }
 
 void
-NodeValues::AddFinalBound (MotionDerivative d,
+NodeValues::AddFinalBound (MotionDerivative deriv,
                            const std::vector<int>& dimensions,
                            const VectorXd& val)
 {
-  AddBounds(nodes_.size()-1, d, dimensions, val);
+  AddBounds(nodes_.size()-1, deriv, dimensions, val);
 }
 
 int

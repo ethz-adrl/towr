@@ -6,28 +6,51 @@
  */
 
 #include <xpp/optimization_parameters.h>
-
-#include <algorithm>
-#include <iterator>
-
 #include <xpp/cartesian_declarations.h>
 
 namespace xpp {
 namespace opt {
 
-//MotionParameters::ContactSchedule
-//MotionParameters::GetContactSchedule () const
-//{
-//  ContactSchedule phases;
-//  for (int i=0; i<contact_sequence_.size(); ++i) {
-//    double duration = contact_timings_.at(i);
-////    if (duration < 1e-10)
-////      continue; // skip phases with zero duration
-//    phases.push_back(Phase(contact_sequence_.at(i), duration));
-//  }
-//
-//  return phases;
-//}
+OptimizationParameters::OptimizationParameters ()
+{
+  order_coeff_polys_  = 4; // used only with coeff_spline representation
+  dt_base_polynomial_ = 0.25;
+
+
+  // 2 also works quite well. Remember that inbetween the nodes, forces
+  // could still be violating unilateral and friction constraints by
+  // polynomial interpolation
+  force_splines_per_stance_phase_ = 2;
+
+
+  // range of motion constraint
+  dt_range_of_motion_ = 0.10;
+  // not used, hardcoded for xy and z.
+  ee_splines_per_swing_phase_ = 2; // should always be 2 if i want to use swing constraint!
+
+  t_total_ = 3.0;
+
+
+  min_phase_duration_ = 0.1;
+  double max_time = 10.0;
+  max_phase_duration_ = max_time>GetTotalTime()?  GetTotalTime() : max_time;
+//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+
+  constraints_ = {
+      BasePoly, // include this results in non-hermite representation to be used
+      RomBox,
+      Dynamic,
+      Terrain,
+      Force,
+//      TotalTime, // Attention: this causes segfault in SNOPT
+      Swing,
+  };
+
+  cost_weights_ = {
+//      {ForcesCostID, 1.0},
+//      {ComCostID, 1.0}
+  };
+}
 
 OptimizationParameters::CostWeights
 OptimizationParameters::GetCostWeights () const
@@ -48,22 +71,12 @@ OptimizationParameters::ConstraintExists (ConstraintName c) const
   return std::find(v.begin(), v.end(), c) != v.end();
 }
 
-double
-OptimizationParameters::GetTotalTime () const
-{
-  double T = 0.0;
-  for (auto t : contact_timings_.at(E0)) // use leg 0 for calculation
-    T += t;
-
-  return T;
-}
-
 OptimizationParameters::VecTimes
 OptimizationParameters::GetBasePolyDurations () const
 {
   std::vector<double> base_spline_timings_;
   double dt = dt_base_polynomial_;
-  double t_left = GetTotalTime();
+  double t_left = t_total_;
 
   double eps = 1e-10; // since repeated subtraction causes inaccuracies
   while (t_left > eps) {
@@ -90,176 +103,6 @@ OptimizationParameters::GetBaseRepresentation () const
 OptimizationParameters::~OptimizationParameters ()
 {
 }
-
-
-
-
-// some specific implementations
-MonopedOptParameters::MonopedOptParameters()
-{
-  order_coeff_polys_ = 4;
-  dt_base_polynomial_ = 0.1;
-
-  force_splines_per_stance_phase_ = 3;
-
-  dt_range_of_motion_ = 0.1;
-  ee_splines_per_swing_phase_ = 1;
-
-  double f  = 0.2;
-  double c = 0.2;
-  contact_timings_ = ContactTimings(1);
-  contact_timings_.at(E0) = {c, f, c, f, c, f, c, f, c, c, f, c, f, c, f, c, f, c};
-
-  min_phase_duration_ = 0.1;
-  max_phase_duration_ = GetTotalTime();
-//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
-
-
-  constraints_ = {
-      BasePoly,
-      RomBox,
-      Dynamic,
-      Terrain,
-      TotalTime,
-      Swing
-  };
-
-}
-
-BipedOptParameters::BipedOptParameters()
-{
-  order_coeff_polys_ = 4;
-  dt_base_polynomial_ = 0.1;
-
-  ee_splines_per_swing_phase_ = 1;
-  force_splines_per_stance_phase_ = 3;
-
-
-  dt_range_of_motion_ = 0.1;
-
-
-  double f  = 0.2;
-  double c = 0.2;
-  double offset = c;
-  contact_timings_ = ContactTimings(2);
-  using namespace xpp::biped;
-  contact_timings_.at(kMapIDToEE.at(L)) = {c+offset,f,c,f,c,f,c,f,c,f,c,f,c,f, c};
-  contact_timings_.at(kMapIDToEE.at(R)) = {       c,f,c,f,c,f,c,f,c,f,c,f,c,f, c+offset};
-
-
-  min_phase_duration_ = 0.1;
-//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
-  max_phase_duration_ = GetTotalTime();
-
-
-  constraints_ = {
-      BasePoly,
-      RomBox,
-      Dynamic,
-      Terrain,
-      TotalTime,
-      Swing,
-  };
-}
-
-
-
-QuadrupedOptParameters::QuadrupedOptParameters ()
-{
-  order_coeff_polys_  = 4; // used only with coeff_spline representation
-  dt_base_polynomial_ = 0.25;
-
-
-  force_splines_per_stance_phase_ = 2; // 2 also works quite well
-
-
-  // range of motion constraint
-  dt_range_of_motion_ = 0.15;
-  // not used, hardcoded for xy and z.
-  ee_splines_per_swing_phase_ = 1; // should always be 2 if i want to use swing constraint!
-
-
-
-  double f = 0.25; // [s] t_free
-  double c = 0.25; // [s] t_contact
-  double t_offset = f;
-  contact_timings_ = ContactTimings(4);
-  using namespace xpp::quad;
-  contact_timings_.at(kMapIDToEE.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c           };
-  contact_timings_.at(kMapIDToEE.at(LF)) = {           c, f, c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(kMapIDToEE.at(RH)) = {           c, f, c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(kMapIDToEE.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c           };
-
-
-  min_phase_duration_ = 0.10;
-  double max_time = 10.0;
-  max_phase_duration_ = max_time>GetTotalTime()?  GetTotalTime() : max_time;
-//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
-
-  constraints_ = {
-      BasePoly, // include this results in non-hermite representation to be used
-      RomBox,
-      Dynamic,
-      Terrain,
-      Force,
-      TotalTime, // Attention: this causes segfault in SNOPT
-//      Swing,
-  };
-
-  cost_weights_ = {
-//      {ForcesCostID, 1.0},
-//      {ComCostID, 1.0}
-  };
-}
-
-
-QuadrotorOptParameters::QuadrotorOptParameters ()
-{
-
-  order_coeff_polys_  = 4;
-  dt_base_polynomial_ = 0.2; //s 0.05
-
-
-  force_splines_per_stance_phase_ = 3;
-
-
-  // range of motion constraint
-  dt_range_of_motion_ = 0.1;
-  ee_splines_per_swing_phase_ = 1;
-
-
-
-  double f = 0.2; // [s] t_free
-  double c = 0.2; // [s] t_contact
-  double t_offset = f;
-  contact_timings_ = ContactTimings(4);
-  using namespace xpp::quad_rotor;
-//  auto m = Reverse(kMapOptToRotor);
-  contact_timings_.at(kMapIDToEE.at(L)) = {t_offset + c, f, c, f, c, f, c           };
-  contact_timings_.at(kMapIDToEE.at(R)) = {           c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(kMapIDToEE.at(F)) = {           c, f, c, f, c, f, c + t_offset};
-  contact_timings_.at(kMapIDToEE.at(H)) = {t_offset + c, f, c, f, c, f, c           };
-
-  min_phase_duration_ = 0.1;
-  max_phase_duration_ = GetTotalTime();
-//  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
-
-  constraints_ = {
-      //BasePoly
-      RomBox,
-      Dynamic,
-      Swing,
-//      TotalTime,
-  };
-
-  cost_weights_ = {
-//      {ForcesCostID, 1.0},
-//      {ComCostID, 1.0}
-  };
-}
-
-
-
 
 
 } // namespace opt

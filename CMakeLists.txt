@@ -90,6 +90,7 @@ add_library(${MOTION_OPT_LIB}
   src/terrain_constraint.cc
   src/swing_constraint.cc
   src/force_constraint.cc
+  src/quadruped_gait_generator.cc
 #  src/contact_constraints.cc
 #  src/contact_timings.cc
   # body motion

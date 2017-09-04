@@ -30,7 +30,7 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  params_  = std::make_shared<QuadrupedOptParameters>();
+  params_  = std::make_shared<OptimizationParameters>();
   model_   = std::make_shared<AnymalModel>();
   terrain_ = std::make_shared<FlatGround>();
 
@@ -79,7 +79,8 @@ MotionOptimizerFacade::BuildVariables () const
   std::vector<std::shared_ptr<ContactSchedule>> contact_schedule;
   for (auto ee : model_->GetEEIDs()) {
     contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,
-                                                                 params_->contact_timings_.at(ee),
+                                                                 params_->GetTotalTime(),
+                                                                 model_->GetNormalizedInitialTimings(ee),
                                                                  params_->min_phase_duration_,
                                                                  params_->max_phase_duration_));
   }
@@ -94,6 +95,7 @@ MotionOptimizerFacade::BuildVariables () const
     Vector3d final_ee_pos_W = final_base_.lin.p_ + model_->GetNominalStanceInBase().At(ee);
     ee_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
     ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // only xy, z given by terrain
+//    ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);         // fixes the final footholds
     opt_variables->AddComponent(ee_motion);
   }
 
@@ -310,6 +312,20 @@ MotionOptimizerFacade::GetTrajectory (const OptimizationVariablesPtr& vars,
   return trajectory;
 }
 
+void
+MotionOptimizerFacade::SetFinalState (const StateLin3d& lin,
+                                      const StateLin3d& ang)
+{
+  final_base_.ang = ang;
+  final_base_.lin = lin;
+
+  // height depends on terrain
+  double z_terrain = terrain_->GetHeight(lin.p_.x(), lin.p_.y());
+  double z_nominal_B = model_->GetNominalStanceInBase().At(E0).z();
+  final_base_.lin.p_.z() = z_terrain - z_nominal_B;
+}
+
 } /* namespace opt */
 } /* namespace xpp */
+
 

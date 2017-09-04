@@ -18,6 +18,7 @@ DynamicModel::DynamicModel (int ee_count)
     ee_ids_.push_back(static_cast<EndeffectorID>(ee));
 
   nominal_stance_.SetCount(ee_count);
+  contact_timings_ = ContactTimings(ee_count);
 }
 
 void
@@ -46,10 +47,19 @@ xpp::opt::DynamicModel::GetEndeffectorNames () const
   return names_;
 }
 
+std::vector<double>
+DynamicModel::GetNormalizedInitialTimings (EndeffectorID ee) const
+{
+  // normalize vector, so equals 1.0
+  auto v = contact_timings_.at(ee);
+  double sum = std::accumulate(v.begin(), v.end(), 0.0);
+  std::transform(v.begin(), v.end(), v.begin(), [sum](auto& e){ return e/sum;});
+  return v;
+}
+
 DynamicModel::~DynamicModel ()
 {
 }
 
 } /* namespace opt */
 } /* namespace xpp */
-
