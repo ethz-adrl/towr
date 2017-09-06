@@ -29,7 +29,7 @@ public:
   FootDurations GetContactSchedule() const;
 
 
-  enum QuadrupedGaits {Trot=0, Walk, Pace, Bound};
+  enum QuadrupedGaits {Walk=0, Trot,  Pace, Bound, kNumGaits};
   void SetGait(QuadrupedGaits gait);
 
   void SetDurationsWalk();

@@ -58,7 +58,7 @@ public:
   BaseRepresentation GetBaseRepresentation() const;
 
 private:
-  double t_total_;
+  double t_total_ = 3.0;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
 };

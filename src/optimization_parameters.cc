@@ -28,8 +28,6 @@ OptimizationParameters::OptimizationParameters ()
   // not used, hardcoded for xy and z.
   ee_splines_per_swing_phase_ = 2; // should always be 2 if i want to use swing constraint!
 
-  t_total_ = 3.0;
-
 
   min_phase_duration_ = 0.1;
   double max_time = 10.0;

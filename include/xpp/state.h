@@ -92,6 +92,42 @@ public:
   : q(_q), v(_v), a(_a) {}
 };
 
+
+/** Conversions between Euler angles and Quaternions */
+
+/**
+ * Represents an orientation by euer ZY'X'' convention
+ *
+ * First rotate around z-axis, then around new y' axis, finally around newest x'' axis.
+ *
+ * @param q Quaterinion
+ * @return first element is roll angle in radians, then pitch, then yaw
+ */
+static Vector3d GetEulerZYXAngles(const Eigen::Quaterniond& q)
+{
+  Vector3d yaw_pitch_roll = q.toRotationMatrix().eulerAngles(Z, Y, X);
+  return yaw_pitch_roll.reverse();
+}
+
+/**
+ * Represents an orientation by Quaternion from Euler ZY'X'' convention
+ *
+ * First rotate around z-axis, then around new y' axis, finally around newest x'' axis.
+ */
+static Eigen::Quaterniond GetQuaternionFromEulerZYX(double yaw, double pitch, double roll)
+{
+  using namespace Eigen;
+  Quaterniond q;
+
+  q =   AngleAxisd(yaw,   Vector3d::UnitZ())
+      * AngleAxisd(pitch, Vector3d::UnitY())
+      * AngleAxisd(roll,  Vector3d::UnitX());
+
+  return q;
+}
+
+
+
 /** The complete state (linear+angular) of an object in 3-dimensional space
   */
 class State3d {
@@ -108,6 +144,9 @@ public:
 class State3dEuler {
 public:
   StateLin3d lin; ///< linear position, velocity and acceleration
+
+
+
   StateLin3d ang; ///< rpy euler angles, euler rates, euler accelerations
 };
 

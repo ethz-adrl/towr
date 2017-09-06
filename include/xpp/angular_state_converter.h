@@ -24,7 +24,9 @@ namespace opt {
 /** @brief Provides conversions from euler angles.
  *
  * If euler angles are to be given, they must be ordered in the vector by
- * x,y,z (roll first element, pitch second, yaw third).
+ * x,y,z (roll first element, pitch second, yaw third). They represent
+ * the ZY'X'' convention, meaning they first rotated around z-axis by yaw,
+ * then around new y-axis by pitch, finally around newest x-axis by roll.
  *
  * Formulas taken from kindr:
  * http://docs.leggedrobotics.com/kindr/cheatsheet_latest.pdf

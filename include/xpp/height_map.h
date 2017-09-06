@@ -37,6 +37,7 @@ public:
   Vector3d GetDerivativeOfNormalizedBasisWrt(BasisVector, Coords2D dim, double x, double y) const;
 
   double GetFrictionCoeff() const { return friction_coeff_; };
+  virtual void SetGroundHeight(double height) {};
 
 private:
   double friction_coeff_ = 1.0;
@@ -69,6 +70,7 @@ public:
   virtual double GetHeight(double x, double y)  const override { return height_; };
 
 private:
+  virtual void SetGroundHeight(double h) override { height_ = h; };
   double height_ = 0.0; // [m]
 };
 
