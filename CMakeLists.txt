@@ -149,13 +149,13 @@ target_link_libraries(nlp_user_input_node
   ${catkin_LIBRARIES}
 )
 
-#add_executable(sample_nlp_caller 
-#    src/executable/sample_nlp_caller.cc
-#)
-#target_link_libraries(sample_nlp_caller 
-#  ${LIB_NAME}
-#  ${catkin_LIBRARIES}
-#)
+add_executable(robot_state_publisher
+    src/executable/robot_state_publisher.cc
+)
+target_link_libraries(robot_state_publisher
+  ${LIB_NAME}
+  ${catkin_LIBRARIES}
+)
 
 #add_executable(qp_optimizer_node 
 #  src/executable/qp_optimizer_node_exe.cc

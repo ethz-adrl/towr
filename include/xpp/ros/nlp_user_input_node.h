@@ -39,13 +39,21 @@ private:
   void CallbackKeyboard(const KeyboardMsg& msg);
   ::ros::Publisher  user_command_pub_;
 
+  int AdvanceCircularBuffer(int& curr, int max) const
+  {
+    return curr==max? 0 : curr+1;
+  }
+
 
   State3dEuler goal_geom_;
   int terrain_id_;
+  int gait_id_;
   bool replay_trajectory_ = false;
   bool use_solver_snopt_ = false;
   bool optimize_ = false;
-  int gait_type_;
+  bool publish_optimized_trajectory_ = false;
+
+//  int gait_type_;
   double total_duration_ = 3.0;
 
 

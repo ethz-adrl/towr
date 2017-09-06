@@ -12,8 +12,14 @@
 
 namespace xpp_msgs {
 
-// the complete robot cartesian state including base, feet, time, ...
-static const std::string robot_state("xpp/state");
+// the current robot cartesian state including base, feet, time, ...
+static const std::string robot_state_current("xpp/state_curr");
+
+// the desired state that comes from the optimizer
+static const std::string robot_state_desired("xpp/state_des");
+
+// sequence of desired states coming from the optimizer
+static const std::string robot_trajectory_desired("xpp/trajectory_des");
 
 // the fixed parameters used for the optimization
 static const std::string opt_parameters("xpp/params");
@@ -21,14 +27,12 @@ static const std::string opt_parameters("xpp/params");
 // position of the desired goal to reach
 static const std::string user_command("xpp/user_command");
 
-// command that tells the walking controller to start executing
-static const std::string start_walking_topic("xpp/start_walking");
+//// command that tells the walking controller to start executing
+//static const std::string start_walking_topic("xpp/start_walking");
 
 // the robot state sent from actual robot/simulation(SL).
-static const std::string curr_robot_state_real("xpp/state_real");
+//static const std::string curr_robot_state_real("xpp/state_real");
 
-// sequence of cartesian robot states
-static const std::string robot_trajectory_cart("xpp/trajectory");
 
 // iterations the nlp took to solve the problem. Used when processing rosbags
 static const std::string nlp_iterations_count("xpp/nlp_iterations_count");

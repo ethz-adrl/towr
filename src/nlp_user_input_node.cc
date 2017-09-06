@@ -40,15 +40,7 @@ NlpUserInputNode::NlpUserInputNode ()
 
 
   terrain_id_ = opt::HeightMap::FlatID;
-  gait_type_ = quad::QuadrupedGaitGenerator::Trot;
-
-//  UserCommandMsg msg;
-//  msg.goal_lin = RosConversions::XppToRos(goal_geom_.lin);
-//  msg.goal_ang = RosConversions::XppToRos(goal_geom_.ang);
-//  user_command_pub_.publish(msg);
-//
-//  // start walking command
-//  walk_command_pub_ = n.advertise<std_msgs::Empty>(xpp_msgs::start_walking_topic,1);
+  gait_id_    = quad::QuadrupedGaitGenerator::Trot;
 }
 
 void
@@ -100,7 +92,13 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
 
     // terrains
     case msg.KEY_1:
-      terrain_id_ = terrain_id_<opt::HeightMap::K_TERRAIN_COUNT-1? terrain_id_+1 : 0;
+      terrain_id_ = AdvanceCircularBuffer(terrain_id_, opt::HeightMap::K_TERRAIN_COUNT-1);
+      ROS_INFO_STREAM("Switched terrain to " << terrain_id_);
+      break;
+
+    case msg.KEY_g:
+      gait_id_ = AdvanceCircularBuffer(gait_id_, quad::QuadrupedGaitGenerator::kNumGaits-1);
+      ROS_INFO_STREAM("Switched gait to " << gait_id_);
       break;
 
 
@@ -115,25 +113,13 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
     break;
 
 
-    case msg.KEY_g:
-      ROS_INFO_STREAM("Request to optimize sent");
+    case msg.KEY_o:
+      ROS_INFO_STREAM("Optimize motion request sent");
       optimize_ = true;
       break;
-    case msg.KEY_w:
-      ROS_INFO_STREAM("Motion type set to Walking");
-      gait_type_ = quad::QuadrupedGaitGenerator::Walk;
-      break;
-    case msg.KEY_t:
-      ROS_INFO_STREAM("Motion type set to Trotting");
-      gait_type_ = quad::QuadrupedGaitGenerator::Trot;
-      break;
-    case msg.KEY_b:
-      ROS_INFO_STREAM("Motion type set to Bounding");
-      gait_type_ = quad::QuadrupedGaitGenerator::Bound;
-      break;
     case msg.KEY_p:
-      ROS_INFO_STREAM("Motion type set to Pace");
-      gait_type_ = quad::QuadrupedGaitGenerator::Pace;
+      ROS_INFO_STREAM("Publish optimized trajectory request sent");
+      publish_optimized_trajectory_ = true;
       break;
     case msg.KEY_s:
       ROS_INFO_STREAM("Toggled NLP solver type");
@@ -166,7 +152,7 @@ void NlpUserInputNode::PublishCommand()
   msg.use_solver_snopt  = use_solver_snopt_;
   msg.optimize          = optimize_;
   msg.terrain_id        = terrain_id_;
-  msg.gait_id           = gait_type_;
+  msg.gait_id           = gait_id_;
   msg.total_duration    = total_duration_;
 
 
@@ -174,6 +160,7 @@ void NlpUserInputNode::PublishCommand()
 
   optimize_ = false;
   replay_trajectory_  = false;
+  publish_optimized_trajectory_ = false;
 }
 
 //void

@@ -51,7 +51,6 @@ private:
 
   xpp_msgs::UserCommand user_command_msg_;
 
-  void SetInitialState (const RobotStateCartesian& initial_state);
   xpp_msgs::RobotStateCartesianTrajectory BuildTrajectoryMsg() const;
 
   void SaveOptimizationAsRosbag() const;
