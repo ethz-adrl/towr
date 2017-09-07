@@ -29,8 +29,11 @@ SwingConstraint::SwingConstraint (const OptVarsPtr& opt_vars, std::string ee_mot
 
   int constraint_count = 0;
   for (int i=0; i<ee_motion_->GetNodes().size(); ++i)
-    if (!ee_motion_->IsContactNode(i))
+    if (!ee_motion_->IsContactNode(i)) {
       constraint_count += 2*kDim2d; // constrain xy position and velocity of every swing node
+//      constraint_count += 1; // if swing in apex is constrained
+    }
+
 
   SetName("Swing-Constraint-" + ee_motion);
   SetRows(constraint_count);
@@ -60,6 +63,9 @@ SwingConstraint::GetValues () const
         g(row++) = curr.at(kPos)(dim) - xy_center(dim);
         g(row++) = curr.at(kVel)(dim) - des_vel_center(dim);
       }
+
+//      g(row++) = curr.at(kPos).z() - swing_height_in_world_;
+
     }
   }
 
@@ -96,6 +102,9 @@ SwingConstraint::FillJacobianWithRespectTo (std::string var_set,
           jac.coeffRef(row, ee_motion_->Index(i-1, kPos, dim)) = +1.0/t_swing_avg_; // previous node
           row++;
         }
+
+//        jac.coeffRef(row, ee_motion_->Index(i, kPos, Z)) =  1.0;  // current node
+//        row++;
       }
     }
   }

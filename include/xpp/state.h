@@ -193,12 +193,11 @@ StateLinXd::operator!=(const StateLinXd &other) const
 
 inline std::ostream& operator<<(std::ostream& out, const StateAng3d& ori)
 {
-  Eigen::Vector3d rpy_rad, rpy_deg;
-  rpy_rad = ori.q.toRotationMatrix().eulerAngles(2,1,0);
-  rpy_deg = rpy_rad * (180.0 / 3.14);
+  Vector3d rpy_rad;
+  rpy_rad = GetEulerZYXAngles(ori.q);
   out << "rpy=" << rpy_rad.transpose() << "  "
-      << "v=" << ori.v.transpose() << "  "
-      << "a=" << ori.a.transpose();
+      << "v="   << ori.v.transpose() << "  "
+      << "a="   << ori.a.transpose();
   return out;
 }
 

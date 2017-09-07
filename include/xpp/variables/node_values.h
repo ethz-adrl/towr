@@ -52,7 +52,7 @@ public:
     int phase_;
     int poly_id_in_phase_;
     int num_polys_in_phase_;
-    bool is_constant_; // spring_clean_ this shouldn't be here, has to do with phases
+    bool is_constant_; // zmp_ this shouldn't be here, has to do with phases
   };
 
   using PolyInfoVec = std::vector<PolyInfo>;

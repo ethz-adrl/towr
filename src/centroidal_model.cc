@@ -194,7 +194,7 @@ HyqModel::SetInitialGait (int gait_id)
 {
   using namespace xpp::quad;
   QuadrupedGaitGenerator gait_gen;
-  gait_gen.SetGait(static_cast<QuadrupedGaitGenerator::QuadrupedGaits>(gait_id));
+  gait_gen.SetGait(static_cast<QuadrupedGaits>(gait_id));
   contact_timings_ = gait_gen.GetContactSchedule();
 }
 
@@ -213,16 +213,17 @@ AnymalModel::AnymalModel ()
   map_id_to_ee_ = quad::kMapIDToEE;
 
   const double x_nominal_b = 0.33;  // wrt to hip 5cm
-  const double y_nominal_b = 0.13; // wrt to hip -3cm
-  const double z_nominal_b = -0.46; //
+  const double y_nominal_b = 0.15; // wrt to hip -3cm
+  const double z_nominal_b = -0.47;
 
   nominal_stance_.At(map_id_to_ee_.at(LF)) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
   nominal_stance_.At(map_id_to_ee_.at(RF)) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
   nominal_stance_.At(map_id_to_ee_.at(LH)) << -x_nominal_b,   y_nominal_b, z_nominal_b;
   nominal_stance_.At(map_id_to_ee_.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
-  max_dev_from_nominal_ << 0.18, 0.13, 0.1; // max leg length 58cm
-  normal_force_max_ = 1000;
+  //spring_clean_ reduced endeffector range of motion
+  max_dev_from_nominal_ << 0.18, 0.08, 0.07; // spring_clean_ reduce y range
+  normal_force_max_ = 1000; // spring_clean_ halved the max force
 };
 
 void
@@ -230,7 +231,7 @@ AnymalModel::SetInitialGait (int gait_id)
 {
   using namespace xpp::quad;
   QuadrupedGaitGenerator gait_gen;
-  gait_gen.SetGait(static_cast<QuadrupedGaitGenerator::QuadrupedGaits>(gait_id));
+  gait_gen.SetGait(static_cast<QuadrupedGaits>(gait_id));
   contact_timings_ = gait_gen.GetContactSchedule();
 
   //  double f = 0.4; // [s] t_free
