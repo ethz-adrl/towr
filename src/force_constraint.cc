@@ -84,7 +84,7 @@ ForceConstraint::GetBounds () const
 
   for (int i=0; i<ee_force_->GetNodes().size(); ++i) {
     if (ee_force_->IsStanceNode(i)) {
-      bounds.push_back(Bound(0.0, force_limit_normal_direction_)); // unilateral forces
+      bounds.push_back(NLPBound(0.0, force_limit_normal_direction_)); // unilateral forces
       bounds.push_back(BoundSmallerZero); // f_t1 <  mu*n
       bounds.push_back(BoundGreaterZero); // f_t1 > -mu*n
       bounds.push_back(BoundSmallerZero); // f_t2 <  mu*n

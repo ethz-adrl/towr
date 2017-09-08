@@ -9,8 +9,8 @@
 
 #include <algorithm>
 #include <Eigen/Dense>
+#include <xpp/nlp_bound.h>
 
-#include <xpp/bound.h>
 #include <xpp/variables/spline.h>
 
 namespace xpp {
@@ -103,7 +103,7 @@ SplineStateConstraint::GetBounds () const
   for (auto dxdt :  derivatives_) {
     VectorXd state = state_desired_.GetByIndex(dxdt);
     for (auto dim :  dims_)
-      bounds.push_back(Bound(state(dim), state(dim)));
+      bounds.push_back(NLPBound(state(dim), state(dim)));
   }
 
   return bounds;

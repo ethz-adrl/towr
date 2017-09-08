@@ -15,8 +15,8 @@ namespace opt {
 
 /** Upper and lower bound on either constraints or optimization variables
   */
-struct Bound {
-  Bound(double lower = 0.0, double upper = 0.0) {
+struct NLPBound {
+  NLPBound(double lower = 0.0, double upper = 0.0) {
     lower_ = lower;
     upper_ = upper;
   }
@@ -34,12 +34,12 @@ struct Bound {
   }
 };
 
-static const Bound kNoBound_        = Bound(-1.0e20, +1.0e20);;
-static const Bound BoundZero        = Bound(0.0, 0.0);
-static const Bound BoundGreaterZero = Bound(0.0, +1.0e20);
-static const Bound BoundSmallerZero = Bound(-1.0e20, 0.0);
+static const NLPBound kNoBound_        = NLPBound(-1.0e20, +1.0e20);;
+static const NLPBound BoundZero        = NLPBound(0.0, 0.0);
+static const NLPBound BoundGreaterZero = NLPBound(0.0, +1.0e20);
+static const NLPBound BoundSmallerZero = NLPBound(-1.0e20, 0.0);
 
-using VecBound = std::vector<Bound>;
+using VecBound = std::vector<NLPBound>;
 
 }
 }

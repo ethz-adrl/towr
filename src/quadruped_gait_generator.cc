@@ -46,25 +46,8 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
   BB_.SetAll(true);
 
   // default gait
-  SetDurationsTrot();
+  SetGaits({Trot});
 }
-
-void
-QuadrupedGaitGenerator::SetGait (QuadrupedGaits gait)
-{
-  switch (gait) {
-    case Stand:    SetDurationsStand();break;
-    case Leglift:  SetDurationsLeglift();break;
-    case Walk:     SetDurationsWalk(); break;
-    case Trot:     SetDurationsTrot(); break;
-    case TrotFly:  SetDurationsTrotFly(); break;
-    case Pace:     SetDurationsPace(); break;
-    case Bound:    SetDurationsBound();break;
-    case Pronk:    SetDurationsPronk();break;
-    default: assert(false); // gait not implemented
-  }
-}
-
 
 QuadrupedGaitGenerator::FootDurations
 QuadrupedGaitGenerator::GetContactSchedule () const
@@ -72,13 +55,13 @@ QuadrupedGaitGenerator::GetContactSchedule () const
   VecTimes d_accumulated(n_ee_, 0.0);
 
   FootDurations foot_durations(n_ee_);
-  for (int phase=0; phase<phase_contacts_.size()-1; ++phase) {
+  for (int phase=0; phase<contacts_.size()-1; ++phase) {
 
-    ContactState curr = phase_contacts_.at(phase);
-    ContactState next = phase_contacts_.at(phase+1);
+    ContactState curr = contacts_.at(phase);
+    ContactState next = contacts_.at(phase+1);
 
     for (auto ee : curr.GetEEsOrdered()) {
-      d_accumulated.at(ee) += phase_times_.at(phase);
+      d_accumulated.at(ee) += times_.at(phase);
 
       // if contact will change in next phase, so this phase duration complete
       bool contacts_will_change = curr.At(ee) != next.At(ee);
@@ -90,172 +73,251 @@ QuadrupedGaitGenerator::GetContactSchedule () const
   }
 
   // push back last phase
-  for (auto ee : phase_contacts_.back().GetEEsOrdered())
-    foot_durations.at(ee).push_back(d_accumulated.at(ee) + phase_times_.back());
+  for (auto ee : contacts_.back().GetEEsOrdered())
+    foot_durations.at(ee).push_back(d_accumulated.at(ee) + times_.back());
 
 
   return foot_durations;
 }
 
 void
-QuadrupedGaitGenerator::SetDurationsStand ()
+QuadrupedGaitGenerator::SetGaits (const std::vector<QuadrupedGaits>& gaits)
 {
-  phase_times_ =
+  // initialize with stance phase
+  times_    = { 0.3 };
+  contacts_ = { BB_ };
+
+  for (QuadrupedGaits g : gaits) {
+    auto info = GetGait(g);
+    std::vector<double>       t = info.first;
+    std::vector<ContactState> c = info.second;
+    assert(t.size() == c.size()); // make sure every phase has a time
+
+    times_.insert      (times_.end(), t.begin(), t.end());
+    contacts_.insert(contacts_.end(), c.begin(), c.end());
+
+    // insert short time where all legs are in contact between gaits
+//    times_.push_back(0.2);
+//    contacts_.push_back(BB_);
+  }
+
+  // insert final stance phase
+  times_.push_back(0.5);
+  contacts_.push_back(BB_);
+//  NormalizeTimesToOne();
+}
+
+QuadrupedGaitGenerator::GaiInfo
+QuadrupedGaitGenerator::GetGait(QuadrupedGaits gait) const
+{
+  switch (gait) {
+    case Stand:       return GetDurationsStand();
+    case Leglift:     return GetDurationsLeglift();
+    case Walk:        return GetDurationsWalk();
+    case WalkOverlap: return GetDurationsWalkOverlap();
+    case Trot:        return GetDurationsTrot();
+    case TrotFly:     return GetDurationsTrotFly();
+    case Pace:        return GetDurationsPace();
+    case Bound:       return GetDurationsBound();
+    case Pronk:       return GetDurationsPronk();
+    default: assert(false); // gait not implemented
+  }
+}
+
+// already in dynamic model
+//void
+//QuadrupedGaitGenerator::NormalizeTimesToOne()
+//{
+//  double total_time = std::accumulate(times_.begin(), times_.end(), 0.0);
+//  std::transform(times_.begin(), times_.end(), times_.begin(),
+//                 [total_time](double t_phase){ return t_phase/total_time;});
+//}
+
+QuadrupedGaitGenerator::GaiInfo
+QuadrupedGaitGenerator::GetDurationsStand () const
+{
+  auto times =
   {
       1.0,
   };
-  phase_contacts_ =
+  auto contacts =
   {
       BB_,
   };
+
+  return std::make_pair(times, contacts);
 }
 
-void
-QuadrupedGaitGenerator::SetDurationsLeglift ()
+QuadrupedGaitGenerator::GaiInfo
+QuadrupedGaitGenerator::GetDurationsLeglift () const
 {
-  phase_times_ =
+  auto phase_times =
   {
       0.3,
-      0.3,
-      0.3
   };
-  phase_contacts_ =
+  auto phase_contacts =
   {
-      BB_,
       Bb_,
-      BB_
   };
+
+  return std::make_pair(phase_times, phase_contacts);
 }
 
-void
-QuadrupedGaitGenerator::SetDurationsPronk ()
+QuadrupedGaitGenerator::GaiInfo
+QuadrupedGaitGenerator::GetDurationsPronk () const
 {
-  phase_times_ =
+  auto times =
   {
-      0.3,
-      0.2, 0.4, 0.2,
-      0.3
+      0.1, 0.3,
+      0.1, 0.3,
+      0.1, 0.3,
   };
-  phase_contacts_ =
+  auto phase_contacts =
   {
-      BB_,
-      II_, BB_, II_,
-      BB_
+      II_, BB_,
+      II_, BB_,
+      II_, BB_,
   };
+
+  return std::make_pair(times, phase_contacts);
 }
 
-void
-QuadrupedGaitGenerator::SetDurationsWalk ()
+QuadrupedGaitGenerator::GaiInfo
+QuadrupedGaitGenerator::GetDurationsWalk () const
 {
-  double t_phase = 0.2;
-  double t_trans = 0.1;
-  phase_times_ =
+  double t_phase = 0.3;
+  double t_trans = 0.13;
+  auto times =
   {
-      0.3,
       t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
       t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      0.2,
   };
-  phase_contacts_ =
+  auto phase_contacts =
   {
-      BB_,
       bB_, bb_, Bb_, PB_, PP_, BP_,
       bB_, bb_, Bb_, PB_, PP_, BP_,
-      BB_,
   };
+
+  return std::make_pair(times, phase_contacts);
 }
 
-void
-QuadrupedGaitGenerator::SetDurationsTrot ()
+QuadrupedGaitGenerator::GaiInfo
+QuadrupedGaitGenerator::GetDurationsWalkOverlap () const
+{
+  double three    = 0.3;
+  double lateral  = 0.13;
+  double diagonal = 0.13;
+
+  auto times =
+  {
+      three, lateral, three,
+      diagonal,
+      three, lateral, three,
+      diagonal,
+      // next stride
+      three, lateral, three,
+      diagonal,
+      three, lateral, three,
+      diagonal,
+  };
+  auto phase_contacts =
+  {
+      bB_, bb_, Bb_,
+      Pb_,
+      PB_, PP_, BP_,
+      bP_,
+      // next stride
+      bB_, bb_, Bb_,
+      Pb_,
+      PB_, PP_, BP_,
+      bP_,
+  };
+
+  return std::make_pair(times, phase_contacts);
+}
+
+QuadrupedGaitGenerator::GaiInfo
+QuadrupedGaitGenerator::GetDurationsTrot () const
 {
   double t_phase = 0.4;
-  double t_trans = 0.05;
-  phase_times_ =
+  double t_trans = 0.2;
+  auto times =
   {
-      0.3,
       t_phase, t_trans, t_phase, t_trans,
       t_phase, t_trans, t_phase, t_trans,
       t_phase, t_trans, t_phase, t_trans,
-      0.2,
   };
-  phase_contacts_ =
+  auto phase_contacts =
   {
-      BB_,
       bP_, BB_, Pb_, BB_,
       bP_, BB_, Pb_, BB_,
       bP_, BB_, Pb_, BB_,
-      BB_,
   };
+
+  return std::make_pair(times, phase_contacts);
 }
 
-void
-QuadrupedGaitGenerator::SetDurationsTrotFly ()
+QuadrupedGaitGenerator::GaiInfo
+QuadrupedGaitGenerator::GetDurationsTrotFly () const
 {
-  double t_phase = 0.4;
-  double t_trans = 0.05;
-  phase_times_ =
+  double stance = 0.3;
+  double flight = 0.05;
+  auto times =
   {
-      0.3,
-      t_phase, t_trans, t_phase, t_trans,
-      t_phase, t_trans, t_phase, t_trans,
-      t_phase, t_trans, t_phase, t_trans,
-      0.2,
+      stance, flight, stance, flight,
+      stance, flight, stance, flight,
+      stance, flight, stance, flight,
   };
-  phase_contacts_ =
+  auto phase_contacts =
   {
-      BB_,
       bP_, II_, Pb_, II_,
       bP_, II_, Pb_, II_,
       bP_, II_, Pb_, II_,
-      BB_,
   };
+
+  return std::make_pair(times, phase_contacts);
 }
 
-void
-QuadrupedGaitGenerator::SetDurationsPace ()
+QuadrupedGaitGenerator::GaiInfo
+QuadrupedGaitGenerator::GetDurationsPace () const
 {
-  double A = 0.4;
-  double B = 0.1;
-  phase_times_ =
+  double A = 0.3;
+  double B = 0.05;
+  auto times =
   {
-      0.3,
       A, B, A, B,
       A, B, A, B,
       A, B, A, B,
-      0.2,
   };
-  phase_contacts_ =
+  auto phase_contacts =
   {
-      BB_,
-      PP_, BB_, bb_, BB_,
-      PP_, BB_, bb_, BB_,
-      PP_, BB_, bb_, BB_,
-      BB_,
+      PP_, II_, bb_, II_,
+      PP_, II_, bb_, II_,
+      PP_, II_, bb_, II_,
   };
+
+  return std::make_pair(times, phase_contacts);
 }
 
-void
-QuadrupedGaitGenerator::SetDurationsBound ()
+QuadrupedGaitGenerator::GaiInfo
+QuadrupedGaitGenerator::GetDurationsBound () const
 {
-  double A = 0.4;
-  double B = 0.2;
-  phase_times_ =
+  double A = 0.3;
+  double B = 0.05;
+  auto times =
   {
-      0.3,
       A, B, A, B,
       A, B, A, B,
       A, B, A, B,
-      0.2,
   };
-  phase_contacts_ =
+  auto phase_contacts =
   {
-      BB_,
-      BI_, BB_, IB_, BB_,
-      BI_, BB_, IB_, BB_,
-      BI_, BB_, IB_, BB_,
-      BB_,
+      BI_, II_, IB_, II_,
+      BI_, II_, IB_, II_,
+      BI_, II_, IB_, II_,
   };
+
+  return std::make_pair(times, phase_contacts);
 }
 
 QuadrupedGaitGenerator::~QuadrupedGaitGenerator ()

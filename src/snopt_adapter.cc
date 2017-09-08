@@ -14,8 +14,8 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <xpp/bound.h>
 #include <xpp/composite.h>
+#include <xpp/nlp_bound.h>
 
 
 namespace xpp {

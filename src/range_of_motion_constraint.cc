@@ -63,7 +63,7 @@ void
 RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k, VecBound& bounds) const
 {
   for (int dim=0; dim<kDim3d; ++dim) {
-    Bound b;
+    NLPBound b;
     b += nominal_ee_pos_B_(dim);
     b.upper_ += max_deviation_from_nominal_(dim);
     b.lower_ -= max_deviation_from_nominal_(dim);

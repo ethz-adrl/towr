@@ -10,7 +10,7 @@
 #include <Eigen/Sparse>
 #include <string>
 
-#include <xpp/bound.h>
+#include <xpp/nlp_bound.h>
 
 namespace xpp {
 namespace opt {

@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-#include "bound.h"
+#include "nlp_bound.h"
 
 namespace xpp {
 namespace opt {

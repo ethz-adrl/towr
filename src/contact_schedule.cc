@@ -33,7 +33,7 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
   for (auto d : timings)
     durations_.push_back(d*t_total);
 
-  phase_duration_bounds_ = Bound(min_duration, max_duration);
+  phase_duration_bounds_ = NLPBound(min_duration, max_duration);
   first_phase_in_contact_ = true;
   SetRows(durations_.size()-1); // since last phase-duration is not optimized over
 }
@@ -198,7 +198,7 @@ DurationConstraint::GetValues () const
 VecBound
 DurationConstraint::GetBounds () const
 {
-  return VecBound(GetRows(), Bound(0.1, T_total_-0.2));
+  return VecBound(GetRows(), NLPBound(0.1, T_total_-0.2));
 }
 
 void

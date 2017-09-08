@@ -64,7 +64,7 @@ public:
 
 
   virtual void SetInitialGait(int gait_id) {}; // does nothing if not overwritten
-  std::vector<double> GetNormalizedInitialTimings(EndeffectorID ee) const;
+  std::vector<double> GetNormalizedInitialTimings(EndeffectorID ee);
 
 protected:
   ComPos com_pos_;
@@ -74,6 +74,7 @@ protected:
   std::vector<EndeffectorID> ee_ids_;
 
   ContactTimings contact_timings_;
+  void NormalizeTimesToOne(EndeffectorID ee);
 
   EndeffectorsPos nominal_stance_;
   Vector3d max_dev_from_nominal_;

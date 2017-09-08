@@ -7,8 +7,8 @@
 
 #include <xpp/constraints/linear_constraint.h>
 
-#include <xpp/bound.h>
 #include <xpp/composite.h>
+#include <xpp/nlp_bound.h>
 
 namespace xpp {
 namespace opt {
@@ -44,7 +44,7 @@ LinearEqualityConstraint::GetBounds () const
   VecBound bounds;
 
   for (int i=0; i<GetRows(); ++i) {
-    Bound bound(-linear_equation_.v[i],-linear_equation_.v[i]);
+    NLPBound bound(-linear_equation_.v[i],-linear_equation_.v[i]);
     bounds.push_back(bound);
   }
 

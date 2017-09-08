@@ -10,9 +10,9 @@
 
 #include <string>
 
-#include <xpp/bound.h>
 #include <xpp/composite.h>
 #include <xpp/matrix_vector.h>
+#include <xpp/nlp_bound.h>
 
 
 namespace xpp {

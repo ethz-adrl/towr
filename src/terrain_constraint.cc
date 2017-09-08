@@ -58,7 +58,7 @@ TerrainConstraint::GetBounds () const
     if (ee_motion_->IsContactNode(i))
       bounds.at(i) = BoundZero;
     else
-      bounds.at(i) = Bound(0.0, max_z_distance_above_terrain_);
+      bounds.at(i) = NLPBound(0.0, max_z_distance_above_terrain_);
   }
 
   return bounds;

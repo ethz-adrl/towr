@@ -128,22 +128,24 @@ static Eigen::Matrix3d BuildInertiaTensor(
 
 // specific models
 MonopedModel::MonopedModel ()
-    :CentroidalModel(80,
+    :CentroidalModel(20,
                      BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668),
                      1)
 {
   map_id_to_ee_["E0"] = E0;
   nominal_stance_.At(E0) = Vector3d( 0.0, 0.0, -0.58);
-  max_dev_from_nominal_ << 0.15, 0.15, 0.12;
-  normal_force_max_ = 10000;
+  max_dev_from_nominal_ << 0.15, 0.15, 0.15;
+  normal_force_max_ = 2000;
 
-  double f  = 0.2;
-  double c = 0.2;
-  contact_timings_.at(E0) = {c, f, c, f, c, f, c, f, c, f, c, f, c};
+  double f   = 0.2;
+  double fh  = 0.3;
+  double c   = 0.15;
+  contact_timings_.at(E0) = {c, f, c, f, c, f, c, fh, c, 0.4, c,
+                            f, c, f, c, fh, c, f, c, f, c, f, c};
 }
 
 BipedModel::BipedModel ()
-    :CentroidalModel(80,
+    :CentroidalModel(20,
                      BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668),
                      2)
 {
@@ -156,15 +158,21 @@ BipedModel::BipedModel ()
   nominal_stance_.At(map_id_to_ee_.at(R)) << 0.0, -y_nominal_b, z_nominal_b;
 
   max_dev_from_nominal_  << 0.15, 0.15, 0.15;
-  normal_force_max_ = 10000;
+  normal_force_max_ = 400;
 
 
-  // timings normalized anyway
-  double f  = 0.2;
-  double c = 0.2;
+
+//  quad::QuadrupedGaitGenerator gait_gen;
+//  gait_gen.SetGaits({quad::Trot, quad::TrotFly, quad::Bound, quad::Pace});
+//  ContactTimings quad_timings = gait_gen.GetContactSchedule();
+//  contact_timings_.at(kMapIDToEE.at(L)) = quad_timings.at(quad::kMapIDToEE.at(quad::LF));
+//  contact_timings_.at(kMapIDToEE.at(R)) = quad_timings.at(quad::kMapIDToEE.at(quad::RF));
+
+  double f  = 0.5;
+  double c  = 0.5;
   double offset = c;
-  contact_timings_.at(kMapIDToEE.at(L)) = {c+offset,f,c,f,c,f,c,f,c};
-  contact_timings_.at(kMapIDToEE.at(R)) = {       c,f,c,f,c,f,c,f, c+offset};
+  contact_timings_.at(kMapIDToEE.at(L)) = {c+offset,f,c,f,c,f,c,f,c,f,c};
+  contact_timings_.at(kMapIDToEE.at(R)) = {       c,f,c,f,c,f,c,f,c,f, c+offset};
 }
 
 HyqModel::HyqModel ()
@@ -194,7 +202,8 @@ HyqModel::SetInitialGait (int gait_id)
 {
   using namespace xpp::quad;
   QuadrupedGaitGenerator gait_gen;
-  gait_gen.SetGait(static_cast<QuadrupedGaits>(gait_id));
+//  gait_gen.SetGaits({static_cast<QuadrupedGaits>(gait_id)});
+  gait_gen.SetGaits({WalkOverlap, TrotFly, Bound, Pace});
   contact_timings_ = gait_gen.GetContactSchedule();
 }
 
@@ -222,25 +231,27 @@ AnymalModel::AnymalModel ()
   nominal_stance_.At(map_id_to_ee_.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
   //spring_clean_ reduced endeffector range of motion
-  max_dev_from_nominal_ << 0.18, 0.08, 0.07; // spring_clean_ reduce y range
-  normal_force_max_ = 1000; // spring_clean_ halved the max force
+//  max_dev_from_nominal_ << 0.18, 0.08, 0.07; // for motions on real ANYmal
+  max_dev_from_nominal_ << 0.18, 0.13, 0.09; // spring_clean_ reduce y range
+  normal_force_max_ = 2000; // spring_clean_ halved the max force
 };
 
 void
 AnymalModel::SetInitialGait (int gait_id)
 {
   using namespace xpp::quad;
-  QuadrupedGaitGenerator gait_gen;
-  gait_gen.SetGait(static_cast<QuadrupedGaits>(gait_id));
-  contact_timings_ = gait_gen.GetContactSchedule();
+//  QuadrupedGaitGenerator gait_gen;
+//  gait_gen.SetGaits({static_cast<QuadrupedGaits>(gait_id)});
+//  gait_gen.SetGaits({Trot, Trot});
+//  contact_timings_ = gait_gen.GetContactSchedule();
 
-  //  double f = 0.4; // [s] t_free
-  //  double c = 0.4; // [s] t_contact
-  //  double t_offset = f;
-  //  contact_timings_.at(kMapIDToEE.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c           };
-  //  contact_timings_.at(kMapIDToEE.at(LF)) = {           c, f, c, f, c, f, c, f, c + t_offset};
-  //  contact_timings_.at(kMapIDToEE.at(RH)) = {           c, f, c, f, c, f, c, f, c + t_offset};
-  //  contact_timings_.at(kMapIDToEE.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c           };
+    double f = 0.4; // [s] t_free
+    double c = 0.4; // [s] t_contact
+    double t_offset = f;
+    contact_timings_.at(kMapIDToEE.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c           };
+    contact_timings_.at(kMapIDToEE.at(LF)) = {           c, f, c, f, c, f, c, f, c + t_offset};
+    contact_timings_.at(kMapIDToEE.at(RH)) = {           c, f, c, f, c, f, c, f, c + t_offset};
+    contact_timings_.at(kMapIDToEE.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c           };
 }
 
 

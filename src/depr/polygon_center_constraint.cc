@@ -14,9 +14,9 @@
 
 #include <xpp/endeffectors.h>
 
-#include <xpp/bound.h>
 #include <xpp/opt/variables/contact_schedule.h>
 #include <xpp/opt/variables/endeffectors_endeffectors_force.h>
+#include <xpp/nlp_bound.h>
 
 namespace xpp {
 namespace opt {

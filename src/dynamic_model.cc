@@ -48,13 +48,19 @@ xpp::opt::DynamicModel::GetEndeffectorNames () const
 }
 
 std::vector<double>
-DynamicModel::GetNormalizedInitialTimings (EndeffectorID ee) const
+DynamicModel::GetNormalizedInitialTimings (EndeffectorID ee)
 {
-  // normalize vector, so equals 1.0
-  auto v = contact_timings_.at(ee);
-  double sum = std::accumulate(v.begin(), v.end(), 0.0);
-  std::transform(v.begin(), v.end(), v.begin(), [sum](auto& e){ return e/sum;});
-  return v;
+  NormalizeTimesToOne(ee);
+  return contact_timings_.at(ee);
+}
+
+void
+DynamicModel::NormalizeTimesToOne(EndeffectorID ee)
+{
+  auto& v = contact_timings_.at(ee); // shorthand
+  double total_time = std::accumulate(v.begin(), v.end(), 0.0);
+  std::transform(v.begin(), v.end(), v.begin(),
+                 [total_time](double t_phase){ return t_phase/total_time;});
 }
 
 DynamicModel::~DynamicModel ()

@@ -13,9 +13,9 @@
 #include <string>
 #include <vector>
 
-#include <xpp/bound.h>
 #include <xpp/cartesian_declarations.h>
 #include <xpp/composite.h>
+#include <xpp/nlp_bound.h>
 #include <xpp/polynomial.h>
 #include <xpp/state.h>
 

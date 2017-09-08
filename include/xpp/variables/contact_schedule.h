@@ -12,9 +12,9 @@
 #include <string>
 #include <vector>
 
-#include <xpp/bound.h>
 #include <xpp/composite.h>
 #include <xpp/endeffectors.h>
+#include <xpp/nlp_bound.h>
 
 #include "phase_nodes.h"
 
@@ -58,7 +58,7 @@ public:
 private:
   bool first_phase_in_contact_ = true;
   double t_total_;
-  Bound phase_duration_bounds_;
+  NLPBound phase_duration_bounds_;
 
   std::vector<PhaseNodesPtr> observers_;
   PhaseNodesPtr GetObserver(const std::string& id) const;

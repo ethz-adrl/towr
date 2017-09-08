@@ -14,19 +14,19 @@ namespace opt {
 OptimizationParameters::OptimizationParameters ()
 {
   order_coeff_polys_  = 4; // used only with coeff_spline representation
-  dt_base_polynomial_ = 0.15;
+  dt_base_polynomial_ = 0.2;
 
 
   // 2 also works quite well. Remember that inbetween the nodes, forces
   // could still be violating unilateral and friction constraints by
   // polynomial interpolation
-  force_splines_per_stance_phase_ = 4; // spring_clean_   this makes it a lot bigger
+  force_splines_per_stance_phase_ = 3; // spring_clean_   this makes it a lot bigger
 
 
   // range of motion constraint
   dt_range_of_motion_ = 0.1;
   // not used, hardcoded for xy and z.
-  ee_splines_per_swing_phase_ = 2; // should always be 2 if i want to use swing constraint!
+  ee_splines_per_swing_phase_ = 1; // should always be 2 if i want to use swing constraint!
 
 
   min_phase_duration_ = 0.1;
@@ -40,8 +40,8 @@ OptimizationParameters::OptimizationParameters ()
       Dynamic,
       Terrain,
       Force,
-//      TotalTime, // Attention: this causes segfault in SNOPT
-      Swing,
+      TotalTime, // Attention: this causes segfault in SNOPT
+//      Swing, // spring_clean_ this is important for lifting leg
   };
 
   cost_weights_ = {

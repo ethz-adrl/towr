@@ -10,8 +10,8 @@
 
 #include <string>
 
-#include <xpp/bound.h>
 #include <xpp/composite.h>
+#include <xpp/nlp_bound.h>
 #include <xpp/variables/phase_nodes.h>
 
 namespace xpp {
@@ -31,7 +31,7 @@ public:
 
 private:
   EEMotionNodes::Ptr ee_motion_;
-  double t_swing_avg_ = 100.2;
+  double t_swing_avg_ = 0.3;
 //  double swing_height_in_world_ = 0.06; //  hacky way to lift legs
 };
 

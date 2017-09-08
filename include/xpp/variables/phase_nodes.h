@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 
-#include <xpp/bound.h>
 #include <xpp/composite.h>
+#include <xpp/nlp_bound.h>
 
 #include "node_values.h"
 

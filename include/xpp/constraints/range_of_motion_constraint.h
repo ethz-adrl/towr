@@ -13,9 +13,9 @@
 #include <vector>
 
 #include <xpp/angular_state_converter.h>
-#include <xpp/bound.h>
 #include <xpp/composite.h>
 #include <xpp/endeffectors.h>
+#include <xpp/nlp_bound.h>
 #include <xpp/optimization_parameters.h>
 #include <xpp/state.h>
 #include <xpp/variables/contact_schedule.h>

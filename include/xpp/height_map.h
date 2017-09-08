@@ -81,10 +81,10 @@ public:
 
 private:
   double block_start = 1.5;
-  double length_     = 2.0;
-  double height_     = 1.0; // [m]
+  double length_     = 1.0;
+  double height_     = 0.4; // [m]
 
-  double eps_ = 0.1; // approximate as slope
+  double eps_ = 0.05; // approximate as slope
   const double slope_ = height_/eps_;
 };
 
@@ -95,7 +95,7 @@ public:
   virtual double GetHeight(double x, double y) const override;
 
 private:
-  double first_step_start_  = 0.7;
+  double first_step_start_  = 1.5;
   double first_step_width_  = 0.4;
   double height_first_step  = 0.2;
   double height_second_step = 0.4;
@@ -112,9 +112,9 @@ public:
   virtual double GetHeightDerivWrtXX(double x, double y) const override;
 
 private:
-  const double gap_start_ = 1.0;
-  const double w = 0.7; // gap width
-  const double h = 1.0;
+  const double gap_start_ = 1.5;
+  const double w = 0.5; // gap width
+  const double h = 0.4;
 
   const double slope_ = h/w;
   const double dx = w/2; // gap witdh 2

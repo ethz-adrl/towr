@@ -12,8 +12,8 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include "bound.h"
 #include <xpp/composite.h>
+#include "nlp_bound.h"
 
 namespace xpp {
 namespace opt {

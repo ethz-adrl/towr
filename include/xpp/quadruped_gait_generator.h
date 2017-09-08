@@ -16,17 +16,18 @@ namespace xpp {
 namespace quad {
 
 
-enum QuadrupedGaits {Stand=0, Leglift, Walk, TrotFly, Trot,  Pace, Bound, Pronk, kNumGaits};
+enum QuadrupedGaits {Stand=0, Leglift, Walk, WalkOverlap, TrotFly, Trot,  Pace, Bound, Pronk, kNumGaits};
 static std::map<int, std::string> gait_names =
 {
-  {Stand ,  "Stand"},
-  {Leglift, "Leglift"},
-  {Walk  ,  "Walk"},
-  {Trot,    "Trot"},
-  {TrotFly, "TrotFly"},
-  {Pace,    "Pace"},
-  {Bound,   "Bound"},
-  {Pronk,   "Pronk"}
+  {Stand,        "Stand"},
+  {Leglift,      "Leglift"},
+  {Walk,         "Walk"},
+  {WalkOverlap,  "WalkOverlap"},
+  {Trot,         "Trot"},
+  {TrotFly,      "TrotFly"},
+  {Pace,         "Pace"},
+  {Bound,        "Bound"},
+  {Pronk,        "Pronk"}
 };
 
 class QuadrupedGaitGenerator {
@@ -36,25 +37,35 @@ public:
   using ContactState   = EndeffectorsBool;
   using VecTimes       = std::vector<double>;
   using FootDurations  = std::vector<VecTimes>;
+  using GaiInfo        = std::pair<VecTimes,std::vector<ContactState>>;
 
   QuadrupedGaitGenerator ();
   virtual ~QuadrupedGaitGenerator ();
 
   FootDurations GetContactSchedule() const;
-  void SetGait(QuadrupedGaits gait);
+  void SetGaits(const std::vector<QuadrupedGaits>& gaits);
 
-  void SetDurationsStand();
-  void SetDurationsLeglift();
-  void SetDurationsWalk();
-  void SetDurationsTrot();
-  void SetDurationsTrotFly();
-  void SetDurationsPace();
-  void SetDurationsBound();
-  void SetDurationsPronk();
 
 private:
-  VecTimes phase_times_;
-  std::vector<ContactState> phase_contacts_;
+  std::vector<double> times_;
+  std::vector<ContactState> contacts_;
+
+  GaiInfo GetGait(QuadrupedGaits gait) const;
+
+  GaiInfo GetDurationsStand() const;
+  GaiInfo GetDurationsLeglift() const;
+  GaiInfo GetDurationsWalk() const;
+  GaiInfo GetDurationsWalkOverlap() const;
+  GaiInfo GetDurationsTrot() const;
+  GaiInfo GetDurationsTrotFly() const;
+  GaiInfo GetDurationsPace() const;
+  GaiInfo GetDurationsBound() const;
+  GaiInfo GetDurationsPronk() const;
+
+//  /**
+//   * So the total duration of all phase times equals 1 second.
+//   */
+//  void NormalizeTimesToOne();
 
 
   // naming convention:, where the circle is is contact, front is right ->.

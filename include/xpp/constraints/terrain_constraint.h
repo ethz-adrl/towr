@@ -10,9 +10,9 @@
 
 #include <string>
 
-#include <xpp/bound.h>
 #include <xpp/composite.h>
 #include <xpp/height_map.h>
+#include <xpp/nlp_bound.h>
 #include <xpp/variables/phase_nodes.h>
 
 namespace xpp {
