@@ -40,7 +40,6 @@ public:
   std::vector<RobotStateVec> GetIntermediateSolutions(double dt) const;
   RobotStateVec GetTrajectory(double dt) const;
 
-  EndeffectorsPos initial_ee_W_;
   State3dEuler inital_base_;
 
   HeightMap::Ptr terrain_;
@@ -50,8 +49,18 @@ public:
 //  const MotionParametersPtr GetMotionParameters() const { return params_;};
 
   void SetFinalState(const StateLin3d& lin, const StateLin3d& ang);
+  void SetIntialFootholds(EndeffectorsPos pos) {initial_ee_W_ = pos; };
+
+  void SetTerrainFromAvgFootholdHeight() const
+  {
+    double avg_height=0.0;
+    for ( auto pos : initial_ee_W_.ToImpl())
+      avg_height += pos.z()/initial_ee_W_.GetCount();
+    terrain_->SetGroundHeight(avg_height);
+  }
 
 private:
+  EndeffectorsPos initial_ee_W_;
   State3dEuler final_base_;
   RobotStateVec GetTrajectory(const OptimizationVariablesPtr&, double dt) const;
 

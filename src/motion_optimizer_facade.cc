@@ -34,27 +34,27 @@ MotionOptimizerFacade::MotionOptimizerFacade ()
   model_   = std::make_shared<AnymalModel>();
   terrain_ = std::make_shared<FlatGround>();
 
-  BuildDefaultInitialState();
+//  BuildDefaultInitialState();
 }
 
 MotionOptimizerFacade::~MotionOptimizerFacade ()
 {
 }
 
-void
-MotionOptimizerFacade::BuildDefaultInitialState ()
-{
-  auto p_nom_B = model_->GetNominalStanceInBase();
-
-  inital_base_.lin.p_ << 0.0, 0.0, -p_nom_B.At(E0).z();
-  inital_base_.ang.p_ << 0.0, 0.0, 0.0; // euler (roll, pitch, yaw)
-
-  initial_ee_W_.SetCount(model_->GetEECount());
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-    initial_ee_W_.At(ee) = p_nom_B.At(ee) + inital_base_.lin.p_;
-    initial_ee_W_.At(ee).z() = 0.0;
-  }
-}
+//void
+//MotionOptimizerFacade::BuildDefaultInitialState ()
+//{
+//  auto p_nom_B = model_->GetNominalStanceInBase();
+//
+//  inital_base_.lin.p_ << 0.0, 0.0, -p_nom_B.At(E0).z();
+//  inital_base_.ang.p_ << 0.0, 0.0, 0.0; // euler (roll, pitch, yaw)
+//
+//  initial_ee_W_.SetCount(model_->GetEECount());
+//  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+//    initial_ee_W_.At(ee) = p_nom_B.At(ee) + inital_base_.lin.p_;
+//    initial_ee_W_.At(ee).z() = 0.0;
+//  }
+//}
 
 MotionOptimizerFacade::OptimizationVariablesPtr
 MotionOptimizerFacade::BuildVariables () const
@@ -92,10 +92,17 @@ MotionOptimizerFacade::BuildVariables () const
                                                      id::GetEEMotionId(ee),
                                                      params_->ee_splines_per_swing_phase_);
 
-    Vector3d final_ee_pos_W = final_base_.lin.p_ + model_->GetNominalStanceInBase().At(ee);
+    double yaw = final_base_.ang.p_.z();
+    Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
+    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_->GetNominalStanceInBase().At(ee);
+
+
+
     ee_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
-    ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // only xy, z given by terrain
-//    ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);         // fixes the final footholds
+    ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // spring_clean_ only xy, z given by terrain
+
+    //spring_clean_ fixed final footholds
+    ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);         // fixes the final footholds
     opt_variables->AddComponent(ee_motion);
   }
 

@@ -15,6 +15,20 @@
 namespace xpp {
 namespace quad {
 
+
+enum QuadrupedGaits {Stand=0, Leglift, Walk, TrotFly, Trot,  Pace, Bound, Pronk, kNumGaits};
+static std::map<int, std::string> gait_names =
+{
+  {Stand ,  "Stand"},
+  {Leglift, "Leglift"},
+  {Walk  ,  "Walk"},
+  {Trot,    "Trot"},
+  {TrotFly, "TrotFly"},
+  {Pace,    "Pace"},
+  {Bound,   "Bound"},
+  {Pronk,   "Pronk"}
+};
+
 class QuadrupedGaitGenerator {
 public:
   static const int n_ee_ = 4; // number of endeffectors
@@ -27,15 +41,16 @@ public:
   virtual ~QuadrupedGaitGenerator ();
 
   FootDurations GetContactSchedule() const;
-
-
-  enum QuadrupedGaits {Walk=0, Trot,  Pace, Bound, kNumGaits};
   void SetGait(QuadrupedGaits gait);
 
+  void SetDurationsStand();
+  void SetDurationsLeglift();
   void SetDurationsWalk();
   void SetDurationsTrot();
+  void SetDurationsTrotFly();
   void SetDurationsPace();
   void SetDurationsBound();
+  void SetDurationsPronk();
 
 private:
   VecTimes phase_times_;

@@ -32,6 +32,7 @@ public:
 private:
   EEMotionNodes::Ptr ee_motion_;
   double t_swing_avg_ = 100.2;
+//  double swing_height_in_world_ = 0.06; //  hacky way to lift legs
 };
 
 

@@ -53,10 +53,14 @@ void
 QuadrupedGaitGenerator::SetGait (QuadrupedGaits gait)
 {
   switch (gait) {
-    case Walk:  SetDurationsWalk(); break;
-    case Trot:  SetDurationsTrot(); break;
-    case Pace:  SetDurationsPace(); break;
-    case Bound: SetDurationsBound();break;
+    case Stand:    SetDurationsStand();break;
+    case Leglift:  SetDurationsLeglift();break;
+    case Walk:     SetDurationsWalk(); break;
+    case Trot:     SetDurationsTrot(); break;
+    case TrotFly:  SetDurationsTrotFly(); break;
+    case Pace:     SetDurationsPace(); break;
+    case Bound:    SetDurationsBound();break;
+    case Pronk:    SetDurationsPronk();break;
     default: assert(false); // gait not implemented
   }
 }
@@ -94,9 +98,56 @@ QuadrupedGaitGenerator::GetContactSchedule () const
 }
 
 void
+QuadrupedGaitGenerator::SetDurationsStand ()
+{
+  phase_times_ =
+  {
+      1.0,
+  };
+  phase_contacts_ =
+  {
+      BB_,
+  };
+}
+
+void
+QuadrupedGaitGenerator::SetDurationsLeglift ()
+{
+  phase_times_ =
+  {
+      0.3,
+      0.3,
+      0.3
+  };
+  phase_contacts_ =
+  {
+      BB_,
+      Bb_,
+      BB_
+  };
+}
+
+void
+QuadrupedGaitGenerator::SetDurationsPronk ()
+{
+  phase_times_ =
+  {
+      0.3,
+      0.2, 0.4, 0.2,
+      0.3
+  };
+  phase_contacts_ =
+  {
+      BB_,
+      II_, BB_, II_,
+      BB_
+  };
+}
+
+void
 QuadrupedGaitGenerator::SetDurationsWalk ()
 {
-  double t_phase = 0.3;
+  double t_phase = 0.2;
   double t_trans = 0.1;
   phase_times_ =
   {
@@ -111,7 +162,6 @@ QuadrupedGaitGenerator::SetDurationsWalk ()
       BB_,
       bB_, bb_, Bb_, PB_, PP_, BP_,
       bB_, bb_, Bb_, PB_, PP_, BP_,
-      bB_, bb_, Bb_, PB_, PP_, BP_,
       BB_,
   };
 }
@@ -119,21 +169,45 @@ QuadrupedGaitGenerator::SetDurationsWalk ()
 void
 QuadrupedGaitGenerator::SetDurationsTrot ()
 {
-  double t_phase = 0.3;
+  double t_phase = 0.4;
+  double t_trans = 0.05;
   phase_times_ =
   {
       0.3,
-      t_phase, t_phase,
-      t_phase, t_phase,
-      t_phase, t_phase,
+      t_phase, t_trans, t_phase, t_trans,
+      t_phase, t_trans, t_phase, t_trans,
+      t_phase, t_trans, t_phase, t_trans,
       0.2,
   };
   phase_contacts_ =
   {
       BB_,
-      bP_, Pb_,
-      bP_, Pb_,
-      bP_, Pb_,
+      bP_, BB_, Pb_, BB_,
+      bP_, BB_, Pb_, BB_,
+      bP_, BB_, Pb_, BB_,
+      BB_,
+  };
+}
+
+void
+QuadrupedGaitGenerator::SetDurationsTrotFly ()
+{
+  double t_phase = 0.4;
+  double t_trans = 0.05;
+  phase_times_ =
+  {
+      0.3,
+      t_phase, t_trans, t_phase, t_trans,
+      t_phase, t_trans, t_phase, t_trans,
+      t_phase, t_trans, t_phase, t_trans,
+      0.2,
+  };
+  phase_contacts_ =
+  {
+      BB_,
+      bP_, II_, Pb_, II_,
+      bP_, II_, Pb_, II_,
+      bP_, II_, Pb_, II_,
       BB_,
   };
 }
@@ -141,21 +215,22 @@ QuadrupedGaitGenerator::SetDurationsTrot ()
 void
 QuadrupedGaitGenerator::SetDurationsPace ()
 {
-  double t_phase = 0.4;
+  double A = 0.4;
+  double B = 0.1;
   phase_times_ =
   {
       0.3,
-      t_phase, t_phase,
-      t_phase, t_phase,
-      t_phase, t_phase,
+      A, B, A, B,
+      A, B, A, B,
+      A, B, A, B,
       0.2,
   };
   phase_contacts_ =
   {
       BB_,
-      PP_, bb_,
-      PP_, bb_,
-      PP_, bb_,
+      PP_, BB_, bb_, BB_,
+      PP_, BB_, bb_, BB_,
+      PP_, BB_, bb_, BB_,
       BB_,
   };
 }
@@ -163,21 +238,22 @@ QuadrupedGaitGenerator::SetDurationsPace ()
 void
 QuadrupedGaitGenerator::SetDurationsBound ()
 {
-  double t_phase = 0.3;
+  double A = 0.4;
+  double B = 0.2;
   phase_times_ =
   {
       0.3,
-      t_phase, t_phase,
-      t_phase, t_phase,
-      t_phase, t_phase,
+      A, B, A, B,
+      A, B, A, B,
+      A, B, A, B,
       0.2,
   };
   phase_contacts_ =
   {
       BB_,
-      BI_, IB_,
-      BI_, IB_,
-      BI_, IB_,
+      BI_, BB_, IB_, BB_,
+      BI_, BB_, IB_, BB_,
+      BI_, BB_, IB_, BB_,
       BB_,
   };
 }
