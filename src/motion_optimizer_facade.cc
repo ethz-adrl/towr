@@ -92,12 +92,14 @@ MotionOptimizerFacade::BuildVariables () const
                                                      id::GetEEMotionId(ee),
                                                      params_->ee_splines_per_swing_phase_);
 
-    Vector3d final_ee_pos_W = final_base_.lin.p_ + model_->GetNominalStanceInBase().At(ee);
+    double yaw = final_base_.ang.p_.z();
+    Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
+    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_->GetNominalStanceInBase().At(ee);
+
+
+
     ee_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
     ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // spring_clean_ only xy, z given by terrain
-
-
-    std::cout << "pos xy: " << initial_ee_W_.At(ee).transpose();
 
     //spring_clean_ fixed final footholds
     ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);         // fixes the final footholds

@@ -54,6 +54,7 @@ QuadrupedGaitGenerator::SetGait (QuadrupedGaits gait)
 {
   switch (gait) {
     case Stand:    SetDurationsStand();break;
+    case Leglift:  SetDurationsLeglift();break;
     case Walk:     SetDurationsWalk(); break;
     case Trot:     SetDurationsTrot(); break;
     case TrotFly:  SetDurationsTrotFly(); break;
@@ -110,15 +111,36 @@ QuadrupedGaitGenerator::SetDurationsStand ()
 }
 
 void
+QuadrupedGaitGenerator::SetDurationsLeglift ()
+{
+  phase_times_ =
+  {
+      0.3,
+      0.3,
+      0.3
+  };
+  phase_contacts_ =
+  {
+      BB_,
+      Bb_,
+      BB_
+  };
+}
+
+void
 QuadrupedGaitGenerator::SetDurationsPronk ()
 {
   phase_times_ =
   {
-      1.0, 0.5, 1.0
+      0.3,
+      0.2, 0.4, 0.2,
+      0.3
   };
   phase_contacts_ =
   {
-      BB_, II_, BB_
+      BB_,
+      II_, BB_, II_,
+      BB_
   };
 }
 
@@ -216,21 +238,22 @@ QuadrupedGaitGenerator::SetDurationsPace ()
 void
 QuadrupedGaitGenerator::SetDurationsBound ()
 {
-  double t_phase = 0.2;
+  double A = 0.4;
+  double B = 0.2;
   phase_times_ =
   {
       0.3,
-      t_phase, t_phase,
-      t_phase, t_phase,
-      t_phase, t_phase,
+      A, B, A, B,
+      A, B, A, B,
+      A, B, A, B,
       0.2,
   };
   phase_contacts_ =
   {
       BB_,
-      BI_, IB_,
-      BI_, IB_,
-      BI_, IB_,
+      BI_, BB_, IB_, BB_,
+      BI_, BB_, IB_, BB_,
+      BI_, BB_, IB_, BB_,
       BB_,
   };
 }

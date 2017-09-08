@@ -88,37 +88,29 @@ CostConstraintFactory::MakeStateConstraint () const
 
 
   // initial base constraints
-  double t = 0.0; // initial time
-  auto dim = {X, Y, Z};
-  auto derivs = {kPos, kVel};
-  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_linear, t, initial_base_.lin, derivs, dim));
-  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_angular, t, initial_base_.ang, derivs, dim));
-
-
-//  // final linear and angular velocities must be zero
+  double t0 = 0.0; // initial time
   double T = params->GetTotalTime();
-
-  dim = {X,Y};
-  derivs = {kPos};
-  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_linear, T, final_base_.lin, derivs, dim));
-
-  // final yaw
-  dim = {Z};
-  derivs = {kPos};
-  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_angular, T, final_base_.ang, derivs, dim));
-
-  dim = {X, Y, Z};
-  derivs = {kVel};
-  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_linear, T, final_base_.lin, derivs, dim));
-  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_angular, T, final_base_.ang, derivs, dim));
+  auto Z_         = {Z};
+  auto XY_        = {X,Y};
+  auto XYZ_       = {X, Y, Z};
+  auto Pos_       = {kPos};
+  auto PosVel_    = {kPos, kVel};
+  auto VelAcc_    = {kVel, kAcc};
+  auto PosVelAcc_ = {kPos, kVel, kAcc};
 
 
+  // linear base motion
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_linear, t0, initial_base_.lin, PosVelAcc_, XYZ_));
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_linear, T,  final_base_.lin,   PosVelAcc_, XYZ_));
+
+  // angular base motion
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_angular, t0, initial_base_.ang, PosVelAcc_, XYZ_));
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_angular, T,  final_base_.ang,   PosVelAcc_, XYZ_));
+//  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_angular, T,  final_base_.ang,   VelAcc_, XYZ_));
 
   // junction constraints
-  derivs = {kPos, kVel, kAcc};
-  constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, derivs));
-  constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, derivs));
-
+  constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear,  PosVelAcc_));
+  constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, PosVelAcc_));
 
 
 //  // endeffector constraints

@@ -16,10 +16,11 @@ namespace xpp {
 namespace quad {
 
 
-enum QuadrupedGaits {Stand=0, Walk, TrotFly, Trot,  Pace, Bound, Pronk, kNumGaits};
+enum QuadrupedGaits {Stand=0, Leglift, Walk, TrotFly, Trot,  Pace, Bound, Pronk, kNumGaits};
 static std::map<int, std::string> gait_names =
 {
   {Stand ,  "Stand"},
+  {Leglift, "Leglift"},
   {Walk  ,  "Walk"},
   {Trot,    "Trot"},
   {TrotFly, "TrotFly"},
@@ -43,6 +44,7 @@ public:
   void SetGait(QuadrupedGaits gait);
 
   void SetDurationsStand();
+  void SetDurationsLeglift();
   void SetDurationsWalk();
   void SetDurationsTrot();
   void SetDurationsTrotFly();
