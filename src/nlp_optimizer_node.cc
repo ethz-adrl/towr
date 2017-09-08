@@ -11,6 +11,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <ctime>
+
 #include <Eigen/Dense>
 
 #include <geometry_msgs/Point.h>
@@ -53,7 +55,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
                                     (xpp_msgs::opt_parameters, 1);
 
   dt_          = RosConversions::GetDoubleFromServer("/xpp/trajectory_dt");
-  rosbag_name_ = RosConversions::GetStringFromServer("/xpp/rosbag_name") + ".bag";
+  rosbag_folder_ = RosConversions::GetStringFromServer("/xpp/rosbag_name");
 }
 
 void
@@ -75,14 +77,13 @@ NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
 //  motion_optimizer_.inital_base_.ang.p_ = GetEulerZYXAngles(curr_state.base_.ang.q);
 
 
-
   kindr::RotationQuaternionD quat(curr_state.base_.ang.q);
   kindr::EulerAnglesZyxD euler(quat);
   euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
-//  motion_optimizer_.inital_base_.ang.p_ = euler.toImplementation().reverse();
+  std::cout << euler.toImplementation();
+  motion_optimizer_.inital_base_.ang.p_ = euler.toImplementation().reverse();
 
-  // spring_clean_ assuming zero orientation
-  curr_state.base_.ang.q.setIdentity();
+//  curr_state.base_.ang.q.setIdentity();
 
 //  std::cout << "\n\ncurrent_state: ";
 //  std::cout << curr_state.base_;
@@ -113,6 +114,19 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
   ROS_INFO_STREAM("publishing optimization parameters to " << opt_parameters_pub_.getTopic());
   opt_parameters_pub_.publish(BuildOptParametersMsg());
 
+
+  std::string bag_file = rosbag_folder_+ bag_name_;
+  if (msg.optimize) {
+    OptimizeMotion();
+    SaveOptimizationAsRosbag(bag_file, true);
+  }
+
+  if (msg.replay_trajectory || msg.optimize) {
+    // play back the rosbag hacky like this, as I can't find appropriate C++ API.
+    system(("rosbag play --topics " + xpp_msgs::robot_state_desired + " --quiet " + bag_file).c_str());
+  }
+
+
   if (msg.publish_traj) {
     ROS_INFO_STREAM("publishing optimized trajectory to " << cart_trajectory_pub_.getTopic());
     auto traj_msg = BuildTrajectoryMsg();
@@ -125,16 +139,13 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
       std::cout << traj_msg.points.front().ee_motion.at(i).pos.z << ", ";
       std::cout << std::endl;
     }
-  }
 
-  if (msg.optimize) {
-    OptimizeMotion();
-    SaveOptimizationAsRosbag();
-  }
-
-  if (msg.replay_trajectory || msg.optimize) {
-    // play back the rosbag hacky like this, as I can't find appropriate C++ API.
-    system(("rosbag play --topics " + xpp_msgs::robot_state_desired + " --quiet " + rosbag_name_).c_str());
+    // get current date and time
+    std::string subfolder = "/published/";
+    time_t _tm =time(NULL );
+    struct tm * curtime = localtime ( &_tm );
+    std::string name = rosbag_folder_ + subfolder + asctime(curtime) + ".bag";
+    SaveOptimizationAsRosbag(name, false);
   }
 }
 
@@ -175,10 +186,11 @@ NlpOptimizerNode::BuildOptParametersMsg() const
 }
 
 void
-NlpOptimizerNode::SaveOptimizationAsRosbag () const
+NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
+                                            bool include_iterations) const
 {
   rosbag::Bag bag;
-  bag.open(rosbag_name_, rosbag::bagmode::Write);
+  bag.open(bag_name, rosbag::bagmode::Write);
   ::ros::Time t0(0.001);
 
   // save the a-priori fixed optimization variables
@@ -186,15 +198,18 @@ NlpOptimizerNode::SaveOptimizationAsRosbag () const
   bag.write(xpp_msgs::user_command+"_saved", t0, user_command_msg_);
 
   // save the trajectory of each iteration
-  auto trajectories = motion_optimizer_.GetIntermediateSolutions(dt_);
-  int n_iterations = trajectories.size();
-  for (int i=0; i<n_iterations; ++i)
-    SaveTrajectoryInRosbag(bag, trajectories.at(i), xpp_msgs::nlp_iterations_name + std::to_string(i));
+  if (include_iterations) {
+    auto trajectories = motion_optimizer_.GetIntermediateSolutions(dt_);
+    int n_iterations = trajectories.size();
+    for (int i=0; i<n_iterations; ++i)
+      SaveTrajectoryInRosbag(bag, trajectories.at(i), xpp_msgs::nlp_iterations_name + std::to_string(i));
 
-  // save number of iterations the optimizer took
-  std_msgs::Int32 m;
-  m.data = n_iterations;
-  bag.write(xpp_msgs::nlp_iterations_count, t0, m);
+    // save number of iterations the optimizer took
+    std_msgs::Int32 m;
+    m.data = n_iterations;
+    bag.write(xpp_msgs::nlp_iterations_count, t0, m);
+  }
+
 
   // save the final trajectory
   auto final_trajectory = motion_optimizer_.GetTrajectory(dt_);

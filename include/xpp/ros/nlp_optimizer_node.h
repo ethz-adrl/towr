@@ -47,13 +47,16 @@ private:
 
   MotionOptimizerFacade motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
-  std::string rosbag_name_; ///< folder to save bags
 
   xpp_msgs::UserCommand user_command_msg_;
 
+
+  std::string rosbag_folder_; ///< folder to save bags
+  std::string bag_name_ = "/optimal_traj.bag";
+
   xpp_msgs::RobotStateCartesianTrajectory BuildTrajectoryMsg() const;
 
-  void SaveOptimizationAsRosbag() const;
+  void SaveOptimizationAsRosbag(const std::string& bag_name, bool include_iterations=false) const;
   void SaveTrajectoryInRosbag (rosbag::Bag&, const std::vector<RobotStateCartesian>& traj,
                                const std::string& topic) const;
   xpp_msgs::OptParameters BuildOptParametersMsg() const;

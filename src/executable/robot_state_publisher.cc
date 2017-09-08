@@ -62,15 +62,18 @@ int main(int argc, char **argv)
   state.base_.ang.q = GetQuaternionFromEulerZYX(yaw, pitch, roll);
 
 
+  Eigen::Matrix3d w_R_b = state.base_.ang.q.toRotationMatrix();
+
+
   // endeffector position expressed in base frame
   double x_ee_B = 0.33;
-  double y_ee_B = 0.05;
+  double y_ee_B = 0.12;
   double z_ee_B = -0.46;
   Vector3d init = state.base_.lin.p_;
-  state.ee_motion_.At(quad::kMapIDToEE.at(quad::LF)).p_ = Vector3d(+x_ee_B,  +y_ee_B, z_ee_B) + init;
-  state.ee_motion_.At(quad::kMapIDToEE.at(quad::RF)).p_ = Vector3d(+x_ee_B,  -y_ee_B, z_ee_B) + init;
-  state.ee_motion_.At(quad::kMapIDToEE.at(quad::LH)).p_ = Vector3d(-x_ee_B,  +y_ee_B, z_ee_B) + init;
-  state.ee_motion_.At(quad::kMapIDToEE.at(quad::RH)).p_ = Vector3d(-x_ee_B,  -y_ee_B, z_ee_B) + init;
+  state.ee_motion_.At(quad::kMapIDToEE.at(quad::LF)).p_ = w_R_b*(Vector3d(+x_ee_B,  +y_ee_B, z_ee_B)) + init;
+  state.ee_motion_.At(quad::kMapIDToEE.at(quad::RF)).p_ = w_R_b*(Vector3d(+x_ee_B,  -y_ee_B, z_ee_B)) + init;
+  state.ee_motion_.At(quad::kMapIDToEE.at(quad::LH)).p_ = w_R_b*(Vector3d(-x_ee_B,  +y_ee_B, z_ee_B)) + init;
+  state.ee_motion_.At(quad::kMapIDToEE.at(quad::RH)).p_ = w_R_b*(Vector3d(-x_ee_B,  -y_ee_B, z_ee_B)) + init;
 
 
   state.t_global_ = 1.0;
