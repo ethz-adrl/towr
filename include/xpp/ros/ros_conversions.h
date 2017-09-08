@@ -188,10 +188,11 @@ XppToRos(const RobotStateCartesian& xpp)
 static RobotStateCartesian
 RosToXpp(const xpp_msgs::RobotStateCartesian& ros)
 {
+
   int n_ee = ros.ee_motion.size();
   RobotStateCartesian xpp(n_ee);
 
-  xpp.base_    = RosToXpp(ros.base);
+  xpp.base_     = RosToXpp(ros.base);
   xpp.t_global_ = ros.time_from_start.toSec();
 
   for (auto ee : xpp.ee_contact_.GetEEsOrdered()) {

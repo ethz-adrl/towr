@@ -4,7 +4,7 @@
     <!-- HyQ:    250Hz, so dt=0.004 -->
     <!-- ANYmal: 400Hz, so dt=0.0025 -->
     <param name="trajectory_dt" value="0.0025" type="double"/>   <!-- equal to 1/TaskServoHz --> 
-    <param name="rosbag_name"   value="$(find xpp_msgs)/bags/optimal_traj" type="string"/>   
+    <param name="rosbag_name"   value="$(find xpp_msgs)/bags" type="string"/>   
   </group>   	
   <group ns="joy_node">
     <param name="dev"              value="/dev/input/js0"  type="string"/>  

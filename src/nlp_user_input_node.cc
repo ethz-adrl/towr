@@ -40,7 +40,7 @@ NlpUserInputNode::NlpUserInputNode ()
 
 
   terrain_id_ = opt::HeightMap::FlatID;
-  gait_id_    = quad::QuadrupedGaitGenerator::Trot;
+  gait_id_    = quad::Trot;
 }
 
 void
@@ -97,8 +97,8 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       break;
 
     case msg.KEY_g:
-      gait_id_ = AdvanceCircularBuffer(gait_id_, quad::QuadrupedGaitGenerator::kNumGaits-1);
-      ROS_INFO_STREAM("Switched gait to " << gait_id_);
+      gait_id_ = AdvanceCircularBuffer(gait_id_, quad::kNumGaits-1);
+      ROS_INFO_STREAM("Switched gait to " + quad::gait_names.at(gait_id_) );
       break;
 
 
@@ -154,6 +154,7 @@ void NlpUserInputNode::PublishCommand()
   msg.terrain_id        = terrain_id_;
   msg.gait_id           = gait_id_;
   msg.total_duration    = total_duration_;
+  msg.publish_traj      = publish_optimized_trajectory_;
 
 
   user_command_pub_.publish(msg);
