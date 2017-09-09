@@ -80,7 +80,7 @@ NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
   kindr::RotationQuaternionD quat(curr_state.base_.ang.q);
   kindr::EulerAnglesZyxD euler(quat);
   euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
-  std::cout << euler.toImplementation();
+//  std::cout << euler.toImplementation();
   motion_optimizer_.inital_base_.ang.p_ = euler.toImplementation().reverse();
 
 //  curr_state.base_.ang.q.setIdentity();

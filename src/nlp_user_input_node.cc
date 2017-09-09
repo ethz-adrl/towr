@@ -53,21 +53,27 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
     // desired goal positions
     case msg.KEY_RIGHT:
       goal_geom_.lin.p_.x() -= d_lin;
+      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
       break;
     case msg.KEY_LEFT:
       goal_geom_.lin.p_.x() += d_lin;
+      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
       break;
     case msg.KEY_DOWN:
       goal_geom_.lin.p_.y() += d_lin;
+      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
       break;
     case msg.KEY_UP:
       goal_geom_.lin.p_.y() -= d_lin;
+      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
       break;
     case msg.KEY_PAGEUP:
       goal_geom_.lin.p_.z() += 0.5*d_lin;
+      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
       break;
     case msg.KEY_PAGEDOWN:
       goal_geom_.lin.p_.z() -= 0.5*d_lin;
+      ROS_INFO_STREAM("Goal position set to " << goal_geom_.lin.p_.transpose());
       break;
 
     // desired goal orientations
