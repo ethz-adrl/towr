@@ -134,12 +134,12 @@ MonopedModel::MonopedModel ()
 {
   map_id_to_ee_["E0"] = E0;
   nominal_stance_.At(E0) = Vector3d( 0.0, 0.0, -0.58);
-  max_dev_from_nominal_ << 0.15, 0.15, 0.15;
-  normal_force_max_ = 2000;
+  max_dev_from_nominal_ << 0.25, 0.15, 0.2;
+  normal_force_max_ = 800;
 
   double f   = 0.2;
-  double fh  = 0.3;
-  double c   = 0.15;
+  double fh  = 0.2;
+  double c   = 0.2;
   contact_timings_.at(E0) = {c, f, c, f, c, f, c, fh, c, 0.4, c,
                             f, c, f, c, fh, c, f, c, f, c, f, c};
 }
@@ -157,7 +157,7 @@ BipedModel::BipedModel ()
   nominal_stance_.At(map_id_to_ee_.at(L)) << 0.0,  y_nominal_b, z_nominal_b;
   nominal_stance_.At(map_id_to_ee_.at(R)) << 0.0, -y_nominal_b, z_nominal_b;
 
-  max_dev_from_nominal_  << 0.15, 0.15, 0.15;
+  max_dev_from_nominal_  << 0.25, 0.15, 0.18;
   normal_force_max_ = 400;
 
 
@@ -232,8 +232,8 @@ AnymalModel::AnymalModel ()
 
   //spring_clean_ reduced endeffector range of motion
 //  max_dev_from_nominal_ << 0.18, 0.08, 0.07; // for motions on real ANYmal
-  max_dev_from_nominal_ << 0.18, 0.13, 0.09; // spring_clean_ reduce y range
-  normal_force_max_ = 2000; // spring_clean_ halved the max force
+  max_dev_from_nominal_ << 0.23, 0.13, 0.09; // spring_clean_ reduce y range
+  normal_force_max_ = 500; // spring_clean_ halved the max force
 };
 
 void
@@ -248,10 +248,10 @@ AnymalModel::SetInitialGait (int gait_id)
     double f = 0.4; // [s] t_free
     double c = 0.4; // [s] t_contact
     double t_offset = f;
-    contact_timings_.at(kMapIDToEE.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c           };
-    contact_timings_.at(kMapIDToEE.at(LF)) = {           c, f, c, f, c, f, c, f, c + t_offset};
-    contact_timings_.at(kMapIDToEE.at(RH)) = {           c, f, c, f, c, f, c, f, c + t_offset};
-    contact_timings_.at(kMapIDToEE.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c           };
+    contact_timings_.at(kMapIDToEE.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c, f, c           };
+    contact_timings_.at(kMapIDToEE.at(LF)) = {           c, f, c, f, c, f, c, f, c, f, c + t_offset};
+    contact_timings_.at(kMapIDToEE.at(RH)) = {           c, f, c, f, c, f, c, f, c, f, c + t_offset};
+    contact_timings_.at(kMapIDToEE.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c, f, c           };
 }
 
 

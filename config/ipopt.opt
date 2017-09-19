@@ -23,7 +23,7 @@ derivative_test_tol 1e-3   # deviations between provided and finite-difference a
 
 #fixed_variable_treatment relax-bounds
 
-tol 0.001   # usually 0.01
+tol 0.01   # usually 0.01
 #constr_viol_tol 1e-3
 #dual_inf_tol 1e10
 #compl_inf_tol 1e10

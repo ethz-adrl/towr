@@ -81,10 +81,10 @@ public:
 
 private:
   double block_start = 1.5;
-  double length_     = 1.0;
-  double height_     = 0.4; // [m]
+  double length_     = 3.5;
+  double height_     = 0.8; // [m]
 
-  double eps_ = 0.05; // approximate as slope
+  double eps_ = 0.03; // approximate as slope
   const double slope_ = height_/eps_;
 };
 
@@ -114,10 +114,10 @@ public:
 private:
   const double gap_start_ = 1.5;
   const double w = 0.5; // gap width
-  const double h = 0.4;
+  const double h = 1.6;
 
   const double slope_ = h/w;
-  const double dx = w/2; // gap witdh 2
+  const double dx = w/2.0; // gap witdh 2
   const double xc = gap_start_ + dx; // gap center
   const double gap_end_x = gap_start_ + w;
 
@@ -130,7 +130,6 @@ private:
   const double a = (4*h)/(w*w);
   const double b = -(8*h*xc)/(w*w);
   const double c = -(h*(w - 2*xc)*(w + 2*xc))/(w*w);
-
 };
 
 
@@ -140,10 +139,10 @@ public:
   virtual double GetHeightDerivWrtX(double x, double y) const override;
 
 private:
-  const double slope_start_ = 0.5;
+  const double slope_start_ = 1.0;
   const double up_length_   = 1.0;
   const double down_length_ = 1.0;
-  const double height_center = 0.5;
+  const double height_center = 0.7;
 
   const double x_down_start_ = slope_start_+up_length_;
   const double x_flat_start_ = x_down_start_ + down_length_;
@@ -158,10 +157,10 @@ public:
   virtual double GetHeightDerivWrtY(double x, double y) const override;
 
 private:
-  const double x_start_ = 0.5;
-  const double length_  = 1.0;
+  const double x_start_ = 1.5;
+  const double length_  = 1.5;
   const double y_start_ = 0.5; // distance to start of slope from center at z=0
-  const double slope_   = 3;
+  const double slope_   = 3;   // 2 or 3
 
   const double x_end_ = x_start_+length_;
 };

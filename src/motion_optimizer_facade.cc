@@ -31,7 +31,7 @@ namespace opt {
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
   params_  = std::make_shared<OptimizationParameters>();
-  model_   = std::make_shared<AnymalModel>();
+  model_   = std::make_shared<MonopedModel>();
   terrain_ = std::make_shared<FlatGround>();
 
   BuildDefaultInitialState();
