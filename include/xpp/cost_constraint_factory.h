@@ -14,11 +14,11 @@
 
 #include "cartesian_declarations.h"
 #include "composite.h"
-#include "dynamic_model.h"
 #include "endeffectors.h"
 #include "height_map.h"
 #include "optimization_parameters.h"
 #include "state.h"
+#include <xpp/models/robot_model.h>
 
 namespace xpp {
 namespace opt {
@@ -44,7 +44,7 @@ public:
   void Init(const OptVarsContainer&,
             const MotionParamsPtr&,
             const HeightMap::Ptr& terrain,
-            const DynamicModel::Ptr& model,
+            const RobotModel::Ptr& model,
             const EndeffectorsPos& ee_pos,
             const State3dEuler& initial_base,
             const State3dEuler& final_base);
@@ -56,7 +56,7 @@ private:
   MotionParamsPtr params;
   OptVarsContainer opt_vars_;
   HeightMap::Ptr terrain_;
-  DynamicModel::Ptr model_;
+  RobotModel::Ptr model_;
 
 
   EndeffectorsPos initial_ee_W_;

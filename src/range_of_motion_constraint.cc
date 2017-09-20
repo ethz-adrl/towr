@@ -18,8 +18,7 @@ namespace opt {
 
 RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
                                     const MotionParamsPtr& params,
-                                    const Vector3d& nominal_ee_pos_B,
-                                    const Vector3d& max_deviation_from_nominal,
+                                    const KinematicModel::Ptr& kinematic_model,
                                     const EndeffectorID& ee)
     :TimeDiscretizationConstraint(params->GetTotalTime(),
                                   params->dt_range_of_motion_,
@@ -27,8 +26,8 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
 {
   SetName("RangeOfMotionBox-" + std::to_string(ee));
   ee_ = ee;
-  max_deviation_from_nominal_ = max_deviation_from_nominal;
-  nominal_ee_pos_B_           = nominal_ee_pos_B;
+  max_deviation_from_nominal_ = kinematic_model->GetMaximumDeviationFromNominal();
+  nominal_ee_pos_B_           = kinematic_model->GetNominalStanceInBase().At(ee);
 
   base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
   base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);

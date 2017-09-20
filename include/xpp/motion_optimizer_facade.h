@@ -11,8 +11,9 @@
 #include <memory>
 #include <vector>
 
+#include <xpp/models/robot_model.h>
+
 #include "composite.h"
-#include "centroidal_model.h"
 #include "endeffectors.h"
 #include "height_map.h"
 #include "nlp.h"
@@ -43,7 +44,7 @@ public:
   State3dEuler inital_base_;
 
   HeightMap::Ptr terrain_;
-  CentroidalModel::Ptr model_;
+  RobotModel::Ptr model_;
   MotionParametersPtr params_;
 
 //  const MotionParametersPtr GetMotionParameters() const { return params_;};

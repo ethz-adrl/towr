@@ -15,7 +15,7 @@
 #include <xpp/angular_state_converter.h>
 #include <xpp/cartesian_declarations.h>
 #include <xpp/composite.h>
-#include <xpp/dynamic_model.h>
+#include <xpp/models/dynamic_model.h>
 #include <xpp/nlp_bound.h>
 #include <xpp/variables/contact_schedule.h>
 #include <xpp/variables/spline.h>

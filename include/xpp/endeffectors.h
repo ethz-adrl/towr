@@ -155,71 +155,105 @@ static std::map<EndeffectorID, T> ReverseMap(std::map<T, EndeffectorID> map) {
 
 
 
-//// the mapping of these strings to endeffector values
-//static const std::map<std::string, EndeffectorID> kMapIDToEE {
-//  { biped::L, E0},
-//  { biped::R, E1},
-//
-//  { quad::LF, E0},
-//  { quad::RF, E1},
-//  { quad::LH, E2},
-//  { quad::RH, E3},
-//
-//  { quad_rotor::L, E0},
-//  { quad_rotor::R, E1},
-//  { quad_rotor::F, E2},
-//  { quad_rotor::H, E3},
-//};
 
+// the implementation of the above functions
+template<typename T>
+Endeffectors<T>::Endeffectors (int n_ee)
+{
+  SetCount(n_ee);
+}
 
-//// some specific morphologies
-//namespace biped {
-////enum FootID { L, R };
-////
-////static const std::map<EndeffectorID, FootID> kMapOptToBiped {
-////  { EndeffectorID::E0,  L},
-////  { EndeffectorID::E1,  R},
-////};
-//} // namespace biped
-//
-//namespace quad {
-////enum FootID { RF, LF, LH, RH };
-//
-////static const std::map<EndeffectorID, FootID> kMapOptToQuad {
-////  { EndeffectorID::E0,  LF},
-////  { EndeffectorID::E1,  RF},
-////  { EndeffectorID::E2,  LH},
-////  { EndeffectorID::E3,  RH},
-////};
-//
-////enum RotorID { L, R, F, H };
-////static const std::map<EndeffectorID, RotorID> kMapOptToRotor {
-////  { EndeffectorID::E0,  L},
-////  { EndeffectorID::E1,  F},
-////  { EndeffectorID::E2,  R},
-////  { EndeffectorID::E3,  H},
-////};
-//
-//} // namespace quadruped
+template<typename T>
+void
+Endeffectors<T>::SetCount (int n_ee)
+{
+  ee_.resize(n_ee);
+}
 
+template<typename T>
+Endeffectors<T>::~Endeffectors ()
+{
+}
 
-//// remove this one
-//template<typename T>
-//static std::map<T, EndeffectorID> Reverse(std::map<EndeffectorID, T> map) {
-//
-//  std::map<T, EndeffectorID> reverse;
-//  for (auto pair : map) {
-//    auto ee = pair.first;
-//    reverse[map.at(ee)] = ee;
-//  }
-//
-//  return reverse;
-//}
+template<typename T>
+void
+Endeffectors<T>::SetAll (const T& value)
+{
+  std::fill(ee_.begin(), ee_.end(), value);
+}
 
+template<typename T>
+T&
+Endeffectors<T>::At (EndeffectorID idx)
+{
+  return ee_.at(idx);
+}
 
+template<typename T>
+const T&
+Endeffectors<T>::At (EndeffectorID idx) const
+{
+  return ee_.at(idx);
+}
+
+template<typename T>
+int
+Endeffectors<T>::GetCount () const
+{
+  return ee_.size();
+}
+
+template<typename T>
+const typename Endeffectors<T>::Container
+Endeffectors<T>::ToImpl () const
+{
+  return ee_;
+}
+
+template<typename T>
+const typename Endeffectors<T>::EndeffectorsT
+Endeffectors<T>::operator - (const EndeffectorsT& rhs) const
+{
+  EndeffectorsT result(ee_.size());
+  for (auto i : GetEEsOrdered())
+    result.At(i) = ee_.at(i) - rhs.At(i);
+
+  return result;
+}
+
+template<typename T>
+const typename Endeffectors<T>::EndeffectorsT
+Endeffectors<T>::operator / (double scalar) const
+{
+  EndeffectorsT result(ee_.size());
+  for (auto i : GetEEsOrdered())
+    result.At(i) = ee_.at(i)/scalar;
+
+  return result;
+}
+
+template<typename T>
+std::vector<EndeffectorID>
+Endeffectors<T>::GetEEsOrdered () const
+{
+  std::vector<EndeffectorID> vec;
+  for (int i=0; i<ee_.size(); ++i)
+    vec.push_back(static_cast<EndeffectorID>(i));
+
+  return vec;
+}
+
+template<typename T>
+bool
+Endeffectors<T>::operator!=(const Endeffectors& other) const
+{
+  for (auto ee : GetEEsOrdered()) {
+    if (ee_.at(ee) != other.At(ee))
+      return true;
+  }
+  return false;
+}
 
 } /* namespace xpp */
-
-#include "impl/endeffectors-impl.h"
 
 #endif /* XPP_INCLUDE_XPP_ENDEFFECTORS_H_ */

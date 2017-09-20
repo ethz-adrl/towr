@@ -32,7 +32,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
   base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
 
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : model_->ee_pos_.GetEEsOrdered()) {
     ee_motion_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEMotionId(ee)));
     ee_forces_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEForceId(ee)));
     ee_timings_.push_back(opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
@@ -89,7 +89,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
   Jacobian jac_model(kDim6d,n);
   Jacobian jac_parametrization(kDim6d,n);
 
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : model_->ee_pos_.GetEEsOrdered()) {
 
     if (var_set == ee_forces_.at(ee)->GetName()) {
       Jacobian jac_ee_force = ee_forces_.at(ee)->GetJacobian(t,kPos);
@@ -130,7 +130,7 @@ DynamicConstraint::UpdateModel (double t) const
 {
   auto com_pos = base_linear_->GetPoint(t).p_;
 
-  int n_ee = model_->GetEEIDs().size();
+  int n_ee = model_->ee_pos_.GetCount();
   EndeffectorsPos ee_pos(n_ee);
   Endeffectors<Vector3d> ee_force(n_ee);
   for (auto ee :  ee_pos.GetEEsOrdered()) {

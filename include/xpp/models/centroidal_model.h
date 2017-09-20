@@ -8,14 +8,16 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
 
-#include <memory>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include <memory>
 
-#include "composite.h"
+#include <xpp/composite.h>
+#include <xpp/endeffectors.h>
+#include <xpp/state.h>
+
 #include "dynamic_model.h"
-#include "endeffectors.h"
-#include "state.h"
+#include "robot_model.h"
 
 namespace xpp {
 namespace opt {
@@ -39,44 +41,29 @@ public:
   virtual Jacobian GetJacobianofAccWrtEEPos(const Jacobian& jac_ee_pos,
                                             EndeffectorID) const override;
 
-  double GetStandingZForce() const;
-  double GetMass() const { return m_; };
-
-
 private:
-  double m_;          /// mass of robot
-  Eigen::Matrix3d I_; /// inertia tensor of robot
-  Eigen::SparseMatrix<double, Eigen::RowMajor> I_inv_;
-
-
-  static Jacobian
-  BuildCrossProductMatrix(const Vector3d& in)
-  {
-    Jacobian out(3,3);
-
-    out.coeffRef(0,1) = -in(2); out.coeffRef(0,2) =  in(1);
-    out.coeffRef(1,0) =  in(2); out.coeffRef(1,2) = -in(0);
-    out.coeffRef(2,0) = -in(1); out.coeffRef(2,1) =  in(0);
-
-    return out;
-  }
+//  Eigen::Matrix3d I_; /// inertia tensor of robot base
+  Eigen::SparseMatrix<double, Eigen::RowMajor> I_inv_; // inverse of base inertia
 };
 
 
+
+
 // some specific dynamic and kinematic robot implementations
-class MonopedModel : public CentroidalModel {
+// spring_clean_ move to different file
+class MonopedModel : public RobotModel {
 public:
   MonopedModel();
   ~MonopedModel() {};
 };
 
-class BipedModel : public CentroidalModel {
+class BipedModel : public RobotModel {
 public:
   BipedModel();
   ~BipedModel() {};
 };
 
-class HyqModel : public CentroidalModel {
+class HyqModel : public RobotModel {
 public:
   HyqModel();
   ~HyqModel() {};
@@ -84,7 +71,7 @@ public:
   virtual void SetInitialGait(int gait_id) override;
 };
 
-class AnymalModel : public CentroidalModel {
+class AnymalModel : public RobotModel {
 public:
   AnymalModel();
   ~AnymalModel() {};
@@ -92,7 +79,7 @@ public:
   virtual void SetInitialGait(int gait_id) override;
 };
 
-class QuadrotorCentroidalModel : public CentroidalModel {
+class QuadrotorCentroidalModel : public RobotModel {
 public:
   QuadrotorCentroidalModel();
   ~QuadrotorCentroidalModel() {};

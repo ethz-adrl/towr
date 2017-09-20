@@ -116,6 +116,8 @@ add_library(${MOTION_OPT_LIB}
 #  src/ee_force.cc
   src/contact_schedule.cc
   # system dynamics
+  src/robot_model.cc
+  src/kinematic_model.cc
   src/dynamic_model.cc
 #  src/lip_model.cc
   src/centroidal_model.cc

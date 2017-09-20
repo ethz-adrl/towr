@@ -14,6 +14,8 @@
 #include <string>
 #include <utility>
 
+#include <xpp/models/centroidal_model.h> // spring_clean_ remove
+
 #include <xpp/angular_state_converter.h>
 #include <xpp/cartesian_declarations.h>
 #include <xpp/cost_constraint_factory.h>
@@ -31,7 +33,7 @@ namespace opt {
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
   params_  = std::make_shared<OptimizationParameters>();
-  model_   = std::make_shared<MonopedModel>();
+  model_   = std::make_shared<AnymalModel>();
   terrain_ = std::make_shared<FlatGround>();
 
   BuildDefaultInitialState();
@@ -44,7 +46,7 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 void
 MotionOptimizerFacade::BuildDefaultInitialState ()
 {
-  auto p_nom_B = model_->GetNominalStanceInBase();
+  auto p_nom_B = model_->kinematic_model_->GetNominalStanceInBase();
 
   inital_base_.lin.p_ << 0.0, 0.0, -p_nom_B.At(E0).z();
   inital_base_.ang.p_ << 0.0, 0.0, 0.0; // euler (roll, pitch, yaw)
@@ -94,7 +96,7 @@ MotionOptimizerFacade::BuildVariables () const
 
     double yaw = final_base_.ang.p_.z();
     Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
-    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_->GetNominalStanceInBase().At(ee);
+    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_->kinematic_model_->GetNominalStanceInBase().At(ee);
 
 
 
@@ -112,7 +114,7 @@ MotionOptimizerFacade::BuildVariables () const
                                                      id::GetEEForceId(ee),
                                                      params_->force_splines_per_stance_phase_);
 
-    Vector3d f_stance(0.0, 0.0, model_->GetStandingZForce());
+    Vector3d f_stance(0.0, 0.0, model_->dynamic_model_->GetStandingZForce());
     nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule.at(ee)->GetTimePerPhase());
     opt_variables->AddComponent(nodes_forces);
   }
@@ -328,7 +330,7 @@ MotionOptimizerFacade::SetFinalState (const StateLin3d& lin,
 
   // height depends on terrain
   double z_terrain = terrain_->GetHeight(lin.p_.x(), lin.p_.y());
-  double z_nominal_B = model_->GetNominalStanceInBase().At(E0).z();
+  double z_nominal_B = model_->kinematic_model_->GetNominalStanceInBase().At(E0).z();
   final_base_.lin.p_.z() = z_terrain - z_nominal_B;
 }
 

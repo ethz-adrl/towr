@@ -40,8 +40,8 @@ OptimizationParameters::OptimizationParameters ()
       Dynamic,
       Terrain,
       Force,
-      TotalTime, // Attention: this causes segfault in SNOPT
-//      Swing, // spring_clean_ this is important for lifting leg
+//      TotalTime, // Attention: this causes segfault in SNOPT
+      Swing, // spring_clean_ this is important for lifting leg
   };
 
   cost_weights_ = {
