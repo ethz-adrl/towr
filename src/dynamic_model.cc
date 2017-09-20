@@ -1,24 +1,19 @@
 /**
  @file    dynamic_model.cc
  @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    May 19, 2017
+ @date    Sep 19, 2017
  @brief   Brief description
  */
 
-#include <xpp/dynamic_model.h>
-
-#include <Eigen/Dense>
+#include <xpp/models/dynamic_model.h>
 
 namespace xpp {
 namespace opt {
 
-DynamicModel::DynamicModel (int ee_count)
+DynamicModel::DynamicModel(double mass)
 {
-  for (int ee=0; ee<ee_count; ee++)
-    ee_ids_.push_back(static_cast<EndeffectorID>(ee));
-
-  nominal_stance_.SetCount(ee_count);
-  contact_timings_ = ContactTimings(ee_count);
+  m_ = mass;
+  g_ = 9.80665;
 }
 
 void
@@ -30,41 +25,15 @@ DynamicModel::SetCurrent (const ComPos& com_pos, const EELoad& ee_force,
   ee_pos_   = ee_pos;
 }
 
-std::vector<EndeffectorID>
-xpp::opt::DynamicModel::GetEEIDs () const
+double
+DynamicModel::GetStandingZForce () const
 {
-  return ee_ids_;
+  return m_*g_/ee_pos_.GetCount();
 }
 
-std::vector<std::string>
-xpp::opt::DynamicModel::GetEndeffectorNames () const
+DynamicModel::~DynamicModel()
 {
-  std::vector<std::string> names_;
-  auto map_ee_to_id = ReverseMap(map_id_to_ee_);
-  for (EndeffectorID ee : ee_ids_)
-     names_.push_back(map_ee_to_id.at(ee));
-
-  return names_;
-}
-
-std::vector<double>
-DynamicModel::GetNormalizedInitialTimings (EndeffectorID ee)
-{
-  NormalizeTimesToOne(ee);
-  return contact_timings_.at(ee);
-}
-
-void
-DynamicModel::NormalizeTimesToOne(EndeffectorID ee)
-{
-  auto& v = contact_timings_.at(ee); // shorthand
-  double total_time = std::accumulate(v.begin(), v.end(), 0.0);
-  std::transform(v.begin(), v.end(), v.begin(),
-                 [total_time](double t_phase){ return t_phase/total_time;});
-}
-
-DynamicModel::~DynamicModel ()
-{
+  // TODO Auto-generated destructor stub
 }
 
 } /* namespace opt */

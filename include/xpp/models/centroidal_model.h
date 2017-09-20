@@ -12,10 +12,11 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include "composite.h"
+#include <xpp/composite.h>
+#include <xpp/endeffectors.h>
+#include <xpp/state.h>
+
 #include "dynamic_model.h"
-#include "endeffectors.h"
-#include "state.h"
 
 namespace xpp {
 namespace opt {
@@ -39,66 +40,9 @@ public:
   virtual Jacobian GetJacobianofAccWrtEEPos(const Jacobian& jac_ee_pos,
                                             EndeffectorID) const override;
 
-  double GetStandingZForce() const;
-  double GetMass() const { return m_; };
-
-
 private:
-  double m_;          /// mass of robot
-  Eigen::Matrix3d I_; /// inertia tensor of robot
-  Eigen::SparseMatrix<double, Eigen::RowMajor> I_inv_;
-
-
-  static Jacobian
-  BuildCrossProductMatrix(const Vector3d& in)
-  {
-    Jacobian out(3,3);
-
-    out.coeffRef(0,1) = -in(2); out.coeffRef(0,2) =  in(1);
-    out.coeffRef(1,0) =  in(2); out.coeffRef(1,2) = -in(0);
-    out.coeffRef(2,0) = -in(1); out.coeffRef(2,1) =  in(0);
-
-    return out;
-  }
+  Eigen::SparseMatrix<double, Eigen::RowMajor> I_inv_; // inverse of base inertia
 };
-
-
-// some specific dynamic and kinematic robot implementations
-class MonopedModel : public CentroidalModel {
-public:
-  MonopedModel();
-  ~MonopedModel() {};
-};
-
-class BipedModel : public CentroidalModel {
-public:
-  BipedModel();
-  ~BipedModel() {};
-};
-
-class HyqModel : public CentroidalModel {
-public:
-  HyqModel();
-  ~HyqModel() {};
-
-  virtual void SetInitialGait(int gait_id) override;
-};
-
-class AnymalModel : public CentroidalModel {
-public:
-  AnymalModel();
-  ~AnymalModel() {};
-
-  virtual void SetInitialGait(int gait_id) override;
-};
-
-class QuadrotorCentroidalModel : public CentroidalModel {
-public:
-  QuadrotorCentroidalModel();
-  ~QuadrotorCentroidalModel() {};
-};
-
-
 
 } /* namespace opt */
 } /* namespace xpp */

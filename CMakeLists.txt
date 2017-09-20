@@ -90,6 +90,10 @@ add_library(${MOTION_OPT_LIB}
   src/terrain_constraint.cc
   src/swing_constraint.cc
   src/force_constraint.cc
+  #
+  src/gait_generator.cc
+  src/monoped_gait_generator.cc
+  src/biped_gait_generator.cc
   src/quadruped_gait_generator.cc
 #  src/contact_constraints.cc
 #  src/contact_timings.cc
@@ -116,6 +120,8 @@ add_library(${MOTION_OPT_LIB}
 #  src/ee_force.cc
   src/contact_schedule.cc
   # system dynamics
+  src/robot_model.cc
+  src/kinematic_model.cc
   src/dynamic_model.cc
 #  src/lip_model.cc
   src/centroidal_model.cc

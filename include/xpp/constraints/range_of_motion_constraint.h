@@ -15,10 +15,12 @@
 #include <xpp/angular_state_converter.h>
 #include <xpp/composite.h>
 #include <xpp/endeffectors.h>
+#include <xpp/models/kinematic_model.h>
 #include <xpp/nlp_bound.h>
 #include <xpp/optimization_parameters.h>
 #include <xpp/state.h>
 #include <xpp/variables/contact_schedule.h>
+#include <xpp/variables/node_values.h>
 #include <xpp/variables/spline.h>
 
 #include "time_discretization_constraint.h"
@@ -43,8 +45,7 @@ public:
 
   RangeOfMotionBox(const OptVarsPtr& opt_vars,
                    const MotionParamsPtr& params,
-                   const Vector3d& nominal_ee_pos_B,
-                   const Vector3d& max_deviation_from_nominal,
+                   const KinematicModel::Ptr& kinematic_model,
                    const EndeffectorID& ee);
   virtual ~RangeOfMotionBox();
 

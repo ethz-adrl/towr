@@ -10,18 +10,21 @@
 #include <algorithm>
 #include <cassert>
 #include <deque>
-#include <Eigen/Dense>
 #include <string>
+#include <tuple>
 #include <utility>
+#include <Eigen/Sparse>
 
 #include <xpp/angular_state_converter.h>
 #include <xpp/cartesian_declarations.h>
 #include <xpp/cost_constraint_factory.h>
+#include <xpp/models/robot_model.h>
 #include <xpp/polynomial.h>
 #include <xpp/variables/coeff_spline.h>
 #include <xpp/variables/contact_schedule.h>
 #include <xpp/variables/phase_nodes.h>
 #include <xpp/variables/variable_names.h>
+
 #include <xpp/ipopt_adapter.h>
 #include <xpp/snopt_adapter.h>
 
@@ -30,30 +33,41 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  params_  = std::make_shared<OptimizationParameters>();
-  model_   = std::make_shared<MonopedModel>();
-  terrain_ = std::make_shared<FlatGround>();
+  params_         = std::make_shared<OptimizationParameters>();
+  terrain_        = std::make_shared<FlatGround>();
+
+  model_.MakeAnymalModel();
+  model_.gait_generator_->SetGaits({Stand, Hop1, Hop1, Walk1, Hop1, Hop1, Stand});
 
   BuildDefaultInitialState();
-}
-
-MotionOptimizerFacade::~MotionOptimizerFacade ()
-{
 }
 
 void
 MotionOptimizerFacade::BuildDefaultInitialState ()
 {
-  auto p_nom_B = model_->GetNominalStanceInBase();
+  auto p_nom_B = model_.kinematic_model_->GetNominalStanceInBase();
 
   inital_base_.lin.p_ << 0.0, 0.0, -p_nom_B.At(E0).z();
   inital_base_.ang.p_ << 0.0, 0.0, 0.0; // euler (roll, pitch, yaw)
 
-  initial_ee_W_.SetCount(model_->GetEECount());
+  initial_ee_W_.SetCount(p_nom_B.GetCount());
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
     initial_ee_W_.At(ee) = p_nom_B.At(ee) + inital_base_.lin.p_;
     initial_ee_W_.At(ee).z() = 0.0;
   }
+}
+
+void
+MotionOptimizerFacade::SetFinalState (const StateLin3d& lin,
+                                      const StateLin3d& ang)
+{
+  final_base_.ang = ang;
+  final_base_.lin = lin;
+
+  // height depends on terrain
+  double z_terrain = terrain_->GetHeight(lin.p_.x(), lin.p_.y());
+  double z_nominal_B = model_.kinematic_model_->GetNominalStanceInBase().At(E0).z();
+  final_base_.lin.p_.z() = z_terrain - z_nominal_B;
 }
 
 MotionOptimizerFacade::OptimizationVariablesPtr
@@ -77,42 +91,41 @@ MotionOptimizerFacade::BuildVariables () const
 
 
   std::vector<std::shared_ptr<ContactSchedule>> contact_schedule;
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
     contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,
                                                                  params_->GetTotalTime(),
-                                                                 model_->GetNormalizedInitialTimings(ee),
+                                                                 model_.gait_generator_->GetNormalizedContactSchedule(ee),
                                                                  params_->min_phase_duration_,
                                                                  params_->max_phase_duration_));
   }
 
 
   // Endeffector Motions
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
     auto ee_motion = std::make_shared<EEMotionNodes>(contact_schedule.at(ee)->GetContactSequence(),
                                                      id::GetEEMotionId(ee),
                                                      params_->ee_splines_per_swing_phase_);
 
     double yaw = final_base_.ang.p_.z();
     Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
-    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_->GetNominalStanceInBase().At(ee);
+    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().At(ee);
 
 
 
     ee_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
     ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // only xy, z given by terrain
 
-    //spring_clean_ fixed final footholds
     ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
     opt_variables->AddComponent(ee_motion);
   }
 
   // Endeffector Forces
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
     auto nodes_forces = std::make_shared<EEForceNodes>(contact_schedule.at(ee)->GetContactSequence(),
                                                      id::GetEEForceId(ee),
                                                      params_->force_splines_per_stance_phase_);
 
-    Vector3d f_stance(0.0, 0.0, model_->GetStandingZForce());
+    Vector3d f_stance(0.0, 0.0, model_.dynamic_model_->GetStandingZForce());
     nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule.at(ee)->GetTimePerPhase());
     opt_variables->AddComponent(nodes_forces);
   }
@@ -120,7 +133,7 @@ MotionOptimizerFacade::BuildVariables () const
 
   // make endeffector motion and forces dependent on durations
   bool optimize_timings = params_->ConstraintExists(TotalTime);
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
 
     opt_variables->AddComponent(contact_schedule.at(ee), optimize_timings);
 
@@ -300,7 +313,7 @@ MotionOptimizerFacade::GetTrajectory (const OptimizationVariablesPtr& vars,
   double T = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(E0))->GetTotalTime();
   while (t<=T+1e-5) {
 
-    RobotStateCartesian state(model_->GetEECount());
+    RobotStateCartesian state(initial_ee_W_.GetCount());
 
     state.base_.lin = vars->GetComponent<Spline>(id::base_linear)->GetPoint(t);
     state.base_.ang = AngularStateConverter::GetState(vars->GetComponent<Spline>(id::base_angular)->GetPoint(t));
@@ -319,17 +332,8 @@ MotionOptimizerFacade::GetTrajectory (const OptimizationVariablesPtr& vars,
   return trajectory;
 }
 
-void
-MotionOptimizerFacade::SetFinalState (const StateLin3d& lin,
-                                      const StateLin3d& ang)
+MotionOptimizerFacade::~MotionOptimizerFacade ()
 {
-  final_base_.ang = ang;
-  final_base_.lin = lin;
-
-  // height depends on terrain
-  double z_terrain = terrain_->GetHeight(lin.p_.x(), lin.p_.y());
-  double z_nominal_B = model_->GetNominalStanceInBase().At(E0).z();
-  final_base_.lin.p_.z() = z_terrain - z_nominal_B;
 }
 
 } /* namespace opt */
