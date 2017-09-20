@@ -19,7 +19,7 @@
 #include <xpp/ros/ros_conversions.h>
 #include <xpp/ros/topic_names.h>
 #include <xpp/height_map.h>
-#include <xpp/quadruped_gait_generator.h>
+#include <xpp/models/gait_generator.h>
 
 namespace xpp {
 namespace ros {
@@ -40,7 +40,7 @@ NlpUserInputNode::NlpUserInputNode ()
 
 
   terrain_id_ = opt::HeightMap::FlatID;
-  gait_id_    = quad::Trot;
+  gait_id_    = opt::Run1;
 }
 
 void
@@ -103,8 +103,8 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       break;
 
     case msg.KEY_g:
-      gait_id_ = AdvanceCircularBuffer(gait_id_, quad::kNumGaits-1);
-      ROS_INFO_STREAM("Switched gait to " + quad::gait_names.at(gait_id_) );
+      gait_id_ = AdvanceCircularBuffer(gait_id_, opt::kNumGaits-1);
+      ROS_INFO_STREAM("Switched gait to " + opt::gait_names.at(gait_id_) );
       break;
 
 

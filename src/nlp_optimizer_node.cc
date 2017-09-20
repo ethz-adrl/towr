@@ -105,7 +105,7 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
   motion_optimizer_.SetTerrainFromAvgFootholdHeight();
 
 
-  motion_optimizer_.model_->SetInitialGait(msg.gait_id);
+//  motion_optimizer_.model_.SetInitialGait(msg.gait_id);
   motion_optimizer_.params_->SetTotalDuration(msg.total_duration);
 
   motion_optimizer_.nlp_solver_ = msg.use_solver_snopt ? MotionOptimizerFacade::Snopt : MotionOptimizerFacade::Ipopt;
@@ -170,17 +170,17 @@ xpp_msgs::OptParameters
 NlpOptimizerNode::BuildOptParametersMsg() const
 {
   xpp_msgs::OptParameters params_msg;
-  auto max_dev_xyz = motion_optimizer_.model_->GetMaximumDeviationFromNominal();
+  auto max_dev_xyz = motion_optimizer_.model_.kinematic_model_->GetMaximumDeviationFromNominal();
   params_msg.ee_max_dev = RosConversions::XppToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
-  auto nominal_B = motion_optimizer_.model_->GetNominalStanceInBase();
-  auto ee_names = motion_optimizer_.model_->GetEndeffectorNames();
+  auto nominal_B = motion_optimizer_.model_.kinematic_model_->GetNominalStanceInBase();
+  auto ee_names = motion_optimizer_.model_.gait_generator_->GetEndeffectorNames();
   params_msg.ee_names = ee_names;
   for (auto ee : nominal_B.ToImpl()) {
     params_msg.nominal_ee_pos.push_back(RosConversions::XppToRos<geometry_msgs::Point>(ee));
   }
 
-  params_msg.base_mass = motion_optimizer_.model_->GetMass();
+  params_msg.base_mass = motion_optimizer_.model_.dynamic_model_->GetMass();
 
   return params_msg;
 }
