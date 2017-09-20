@@ -36,8 +36,8 @@ MotionOptimizerFacade::MotionOptimizerFacade ()
   params_         = std::make_shared<OptimizationParameters>();
   terrain_        = std::make_shared<FlatGround>();
 
-  model_.MakeAnymalModel();
-  model_.gait_generator_->SetGaits({Stand, Hop1, Hop1, Walk1, Hop1, Hop1, Stand});
+  model_.MakeHyqModel();
+  model_.gait_generator_->SetGaits({Stand, Hop1, Hop2, Walk1, Run1, Hop1, Stand});
 
   BuildDefaultInitialState();
 }

@@ -177,7 +177,7 @@ QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideTrotFly () const
 {
   double stance = 0.3;
-  double flight = 0.05;
+  double flight = 0.15;
   auto times =
   {
       stance, flight, stance, flight,
@@ -194,7 +194,7 @@ QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStridePace () const
 {
   double A = 0.3;
-  double B = 0.05;
+  double B = 0.15;
   auto times =
   {
       A, B, A, B,
@@ -211,7 +211,7 @@ QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideBound () const
 {
   double A = 0.3;
-  double B = 0.05;
+  double B = 0.15;
   auto times =
   {
       A, B, A, B,

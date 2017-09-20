@@ -66,14 +66,7 @@ private:
                           Index m, Index nele_jac, Index* iRow, Index *jCol,
                           Number* values);
 
-  /** Method to return:
-   *   1) The structure of the hessian of the lagrangian (if "values" is NULL)
-   *   2) The values of the hessian of the lagrangian (if "values" is not NULL)
-   */
-//  virtual bool eval_h(Index n, const Number* x, bool new_x,
-//                      Number obj_factor, Index m, const Number* lambda,
-//                      bool new_lambda, Index nele_hess, Index* iRow,
-//                      Index* jCol, Number* values);
+
 
   virtual bool intermediate_callback(Ipopt::AlgorithmMode mode,
                                      Index iter, Number obj_value,
@@ -93,6 +86,17 @@ private:
                                  Number obj_value,
                                  const Ipopt::IpoptData* ip_data,
                                  Ipopt::IpoptCalculatedQuantities* ip_cq);
+
+
+  /** Should never be called if provided config file is correctly loaded.
+   */
+  virtual bool eval_h(Index n, const Number* x, bool new_x,
+                      Number obj_factor, Index m, const Number* lambda,
+                      bool new_lambda, Index nele_hess, Index* iRow,
+                      Index* jCol, Number* values)
+  {
+    throw std::runtime_error("ERROR: Run the executable from the xpp_opt/config directory");
+  }
 
 private:
   NLP* nlp_;
