@@ -46,11 +46,14 @@ public:
   double GetMass() const { return m_; };
   double GetStandingZForce() const;
 
+  double GetForceLimit() const {return normal_force_max_; };
+
   // spring_clean_ this is an issue, remove this
 //  std::vector<EndeffectorID> GetEEIDs() const { return ee_pos_.GetEEsOrdered(); };
 
   // spring_clean_ make private again
   EEPos ee_pos_;
+  double normal_force_max_;
 protected:
   // dynamic model parameters
   // spring_clean_ could also make this robot_state_cartesian?

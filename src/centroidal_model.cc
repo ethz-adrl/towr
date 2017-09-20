@@ -137,12 +137,12 @@ MonopedModel::MonopedModel () : RobotModel(1)
 {
   Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
   dynamic_model_ = std::make_shared<CentroidalModel>(20,I,1);
+  dynamic_model_->normal_force_max_ = 800;
 
 
   map_id_to_ee_["E0"] = E0;
   kinematic_model_->nominal_stance_.At(E0) = Vector3d( 0.0, 0.0, -0.58);
   kinematic_model_->max_dev_from_nominal_ << 0.25, 0.15, 0.2;
-  normal_force_max_ = 800;
 
   double f   = 0.2;
   double fh  = 0.2;
@@ -155,6 +155,7 @@ BipedModel::BipedModel () : RobotModel(2)
 {
   Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
   dynamic_model_ = std::make_shared<CentroidalModel>(20,I,2);
+  dynamic_model_->normal_force_max_ = 400;
 
   using namespace xpp::biped;
   map_id_to_ee_ = biped::kMapIDToEE;
@@ -165,7 +166,6 @@ BipedModel::BipedModel () : RobotModel(2)
   kinematic_model_->nominal_stance_.At(map_id_to_ee_.at(R)) << 0.0, -y_nominal_b, z_nominal_b;
 
   kinematic_model_->max_dev_from_nominal_  << 0.25, 0.15, 0.18;
-  normal_force_max_ = 400;
 
 
 
@@ -186,6 +186,7 @@ HyqModel::HyqModel () : RobotModel(4)
 {
   Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
   dynamic_model_ = std::make_shared<CentroidalModel>(80,I,4);
+  dynamic_model_->normal_force_max_ = 10000;
 
   using namespace xpp::quad;
   map_id_to_ee_ = quad::kMapIDToEE;
@@ -201,7 +202,6 @@ HyqModel::HyqModel () : RobotModel(4)
   kinematic_model_->nominal_stance_.At(map_id_to_ee_.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
   kinematic_model_->max_dev_from_nominal_ << 0.2, 0.15, 0.10;
-  normal_force_max_ = 10000;
 };
 
 void
@@ -210,7 +210,7 @@ HyqModel::SetInitialGait (int gait_id)
   using namespace xpp::quad;
   QuadrupedGaitGenerator gait_gen;
 //  gait_gen.SetGaits({static_cast<QuadrupedGaits>(gait_id)});
-  gait_gen.SetGaits({WalkOverlap, TrotFly, Bound, Pace});
+  gait_gen.SetGaits({Stand, Walk2, Run2, Hop1, Run3, Stand});
   contact_timings_ = gait_gen.GetContactSchedule();
 }
 
@@ -224,6 +224,7 @@ AnymalModel::AnymalModel () : RobotModel(4)
                                           -0.015184853445095,
                                           -0.000989297489507);
   dynamic_model_ = std::make_shared<CentroidalModel>(18.29 + 4*2.0,I,4);
+  dynamic_model_->normal_force_max_ = 500; // spring_clean_ halved the max force
 
 
 
@@ -244,25 +245,24 @@ AnymalModel::AnymalModel () : RobotModel(4)
   kinematic_model_->max_dev_from_nominal_ << 0.23, 0.13, 0.09; // spring_clean_ reduce y range
 
 
-  normal_force_max_ = 500; // spring_clean_ halved the max force
 };
 
 void
 AnymalModel::SetInitialGait (int gait_id)
 {
   using namespace xpp::quad;
-//  QuadrupedGaitGenerator gait_gen;
+  QuadrupedGaitGenerator gait_gen;
 //  gait_gen.SetGaits({static_cast<QuadrupedGaits>(gait_id)});
-//  gait_gen.SetGaits({Trot, Trot});
-//  contact_timings_ = gait_gen.GetContactSchedule();
+  gait_gen.SetGaits({Stand, Walk1, Stand});
+  contact_timings_ = gait_gen.GetContactSchedule();
 
-    double f = 0.4; // [s] t_free
-    double c = 0.4; // [s] t_contact
-    double t_offset = f;
-    contact_timings_.at(kMapIDToEE.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c, f, c           };
-    contact_timings_.at(kMapIDToEE.at(LF)) = {           c, f, c, f, c, f, c, f, c, f, c + t_offset};
-    contact_timings_.at(kMapIDToEE.at(RH)) = {           c, f, c, f, c, f, c, f, c, f, c + t_offset};
-    contact_timings_.at(kMapIDToEE.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c, f, c           };
+//    double f = 0.4; // [s] t_free
+//    double c = 0.4; // [s] t_contact
+//    double t_offset = f;
+//    contact_timings_.at(kMapIDToEE.at(LH)) = {t_offset + c, f, c, f, c, f, c, f, c, f, c           };
+//    contact_timings_.at(kMapIDToEE.at(LF)) = {           c, f, c, f, c, f, c, f, c, f, c + t_offset};
+//    contact_timings_.at(kMapIDToEE.at(RH)) = {           c, f, c, f, c, f, c, f, c, f, c + t_offset};
+//    contact_timings_.at(kMapIDToEE.at(RF)) = {t_offset + c, f, c, f, c, f, c, f, c, f, c           };
 }
 
 
@@ -271,6 +271,7 @@ QuadrotorCentroidalModel::QuadrotorCentroidalModel () : RobotModel(4)
 {
   Eigen::Matrix3d I = BuildInertiaTensor( 0.0023, 0.0023, 0.004, 0.0, 0.0, 0.0);
   dynamic_model_ = std::make_shared<CentroidalModel>(0.5, I, 4);
+  dynamic_model_->normal_force_max_ = 100;
 
   using namespace xpp::quad_rotor;
   map_id_to_ee_ = quad_rotor::kMapIDToEE;
@@ -286,8 +287,6 @@ QuadrotorCentroidalModel::QuadrotorCentroidalModel () : RobotModel(4)
   kinematic_model_->nominal_stance_.At(map_id_to_ee_.at(H)) << -x_nominal_b,   0, z_nominal_b;
 
   kinematic_model_->max_dev_from_nominal_ << 0.0, 0.0, 0.0;
-
-  normal_force_max_ = 100;
 }
 
 

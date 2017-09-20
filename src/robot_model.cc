@@ -23,11 +23,11 @@ RobotModel::RobotModel (int ee_count)
 }
 
 
-std::vector<EndeffectorID>
-xpp::opt::RobotModel::GetEEIDs () const
-{
-  return ee_ids_;
-}
+//std::vector<EndeffectorID>
+//xpp::opt::RobotModel::GetEEIDs () const
+//{
+//  return ee_ids_;
+//}
 
 std::vector<std::string>
 xpp::opt::RobotModel::GetEndeffectorNames () const

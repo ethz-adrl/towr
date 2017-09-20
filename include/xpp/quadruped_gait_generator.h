@@ -8,59 +8,32 @@
 #ifndef XPP_OPT_INCLUDE_XPP_QUADRUPED_GAIT_GENERATOR_H_
 #define XPP_OPT_INCLUDE_XPP_QUADRUPED_GAIT_GENERATOR_H_
 
+#include <utility>
 #include <vector>
 
 #include "endeffectors.h"
+#include "gait_generator.h"
 
 namespace xpp {
 namespace quad {
 
-
-enum QuadrupedGaits {Stand=0, Leglift, Walk, WalkOverlap, TrotFly, Trot,  Pace, Bound, Pronk, kNumGaits};
-static std::map<int, std::string> gait_names =
-{
-  {Stand,        "Stand"},
-  {Leglift,      "Leglift"},
-  {Walk,         "Walk"},
-  {WalkOverlap,  "WalkOverlap"},
-  {Trot,         "Trot"},
-  {TrotFly,      "TrotFly"},
-  {Pace,         "Pace"},
-  {Bound,        "Bound"},
-  {Pronk,        "Pronk"}
-};
-
-class QuadrupedGaitGenerator {
+class QuadrupedGaitGenerator : public opt::GaitGenerator {
 public:
-  static const int n_ee_ = 4; // number of endeffectors
-
-  using ContactState   = EndeffectorsBool;
-  using VecTimes       = std::vector<double>;
-  using FootDurations  = std::vector<VecTimes>;
-  using GaiInfo        = std::pair<VecTimes,std::vector<ContactState>>;
-
   QuadrupedGaitGenerator ();
   virtual ~QuadrupedGaitGenerator ();
 
-  FootDurations GetContactSchedule() const;
-  void SetGaits(const std::vector<QuadrupedGaits>& gaits);
-
-
 private:
-  std::vector<double> times_;
-  std::vector<ContactState> contacts_;
+  virtual GaitInfo GetGait(opt::GaitTypes gait) const override;
 
-  GaiInfo GetGait(QuadrupedGaits gait) const;
-
-  GaiInfo GetDurationsStand() const;
-  GaiInfo GetDurationsLeglift() const;
-  GaiInfo GetDurationsWalk() const;
-  GaiInfo GetDurationsWalkOverlap() const;
-  GaiInfo GetDurationsTrot() const;
-  GaiInfo GetDurationsTrotFly() const;
-  GaiInfo GetDurationsPace() const;
-  GaiInfo GetDurationsBound() const;
-  GaiInfo GetDurationsPronk() const;
+  GaitInfo GetDurationsStand() const;
+  GaitInfo GetDurationsFlight() const;
+  GaitInfo GetDurationsWalk() const;
+  GaitInfo GetDurationsWalkOverlap() const;
+  GaitInfo GetDurationsTrot() const;
+  GaitInfo GetDurationsTrotFly() const;
+  GaitInfo GetDurationsPace() const;
+  GaitInfo GetDurationsBound() const;
+  GaitInfo GetDurationsPronk() const;
 
 //  /**
 //   * So the total duration of all phase times equals 1 second.

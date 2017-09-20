@@ -214,7 +214,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 
   double T = params->GetTotalTime();
 
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : GetEEIDs()) {
     auto rom_constraints = std::make_shared<RangeOfMotionBox>(opt_vars_,
                                                               params,
                                                               model_->kinematic_model_,
@@ -232,7 +232,7 @@ CostConstraintFactory::MakeTotalTimeConstraint () const
   auto c = std::make_shared<Composite>("Range-of-Motion Constraints", true);
   double T = params->GetTotalTime();
 
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : GetEEIDs()) {
     auto duration_constraint = std::make_shared<DurationConstraint>(opt_vars_, T, ee);
     c->AddComponent(duration_constraint);
   }
@@ -245,7 +245,7 @@ CostConstraintFactory::MakeTerrainConstraint () const
 {
   auto constraints = std::make_shared<Composite>("Terrain Constraints", true);
 
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : GetEEIDs()) {
     auto c = std::make_shared<TerrainConstraint>(terrain_,
                                                  opt_vars_,
                                                  id::GetEEMotionId(ee));
@@ -261,9 +261,9 @@ CostConstraintFactory::MakeForceConstraint () const
   auto constraints = std::make_shared<Composite>("Force Constraints", true);
 
   // spring_clean_ use initial eendeffector position for this, not model
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : GetEEIDs()) {
     auto c = std::make_shared<ForceConstraint>(terrain_,
-                                               model_->GetForceLimit(),
+                                               model_->dynamic_model_->GetForceLimit(),
                                                opt_vars_,
                                                id::GetEEForceId(ee),
                                                id::GetEEMotionId(ee));
@@ -278,7 +278,7 @@ CostConstraintFactory::MakeSwingConstraint () const
 {
   auto constraints = std::make_shared<Composite>("Swing Constraints", true);
 
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : GetEEIDs()) {
     auto swing = std::make_shared<SwingConstraint>(opt_vars_,
                                                    id::GetEEMotionId(ee));
     constraints->AddComponent(swing);
@@ -293,7 +293,7 @@ CostConstraintFactory::MakeForcesCost(double weight) const
 {
   auto cost = std::make_shared<Composite>("Forces Cost", false);
 
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : GetEEIDs()) {
     auto f_cost = std::make_shared<NodeCost>(opt_vars_, id::GetEEForceId(ee));
     cost->AddComponent(f_cost);
   }

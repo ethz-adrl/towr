@@ -81,6 +81,8 @@ private:
                                    double weight) const;
 
   ComponentPtr ToCost(const ComponentPtr& constraint, double weight) const;
+
+  std::vector<EndeffectorID> GetEEIDs() const { return initial_ee_W_.GetEEsOrdered(); };
 };
 
 } /* namespace opt */

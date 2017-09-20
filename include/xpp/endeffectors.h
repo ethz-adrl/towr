@@ -83,25 +83,25 @@ public:
   virtual ~EndeffectorsBool () {};
 
   /** @brief returns a copy with flipped boolean values. */
-  EndeffectorsBool Invert() const
-  {
-    EndeffectorsBool ret(GetCount());
-    for (auto ee : GetEEsOrdered())
-      ret.At(ee) = !At(ee);
-
-    return ret;
-  }
+//  EndeffectorsBool Invert() const
+//  {
+//    EndeffectorsBool ret(GetCount());
+//    for (auto ee : GetEEsOrdered())
+//      ret.At(ee) = !At(ee);
+//
+//    return ret;
+//  }
 
   /** @brief number of endeffectors with flag set to TRUE */
-  int GetTrueCount() const
-  {
-    int count = 0;
-    for (auto ee : GetEEsOrdered())
-      if (At(ee))
-        count++;
-
-    return count;
-  }
+//  int GetTrueCount() const
+//  {
+//    int count = 0;
+//    for (auto ee : GetEEsOrdered())
+//      if (At(ee))
+//        count++;
+//
+//    return count;
+//  }
 };
 
 

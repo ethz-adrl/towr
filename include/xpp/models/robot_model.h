@@ -54,10 +54,10 @@ public:
 //  virtual Jacobian GetJacobianofAccWrtEEPos(const Jacobian&,
 //                                            EndeffectorID) const = 0;
 
-  std::vector<EndeffectorID> GetEEIDs() const;
-  int GetEECount() const { return ee_ids_.size(); };
+//  std::vector<EndeffectorID> GetEEIDs() const;
+//  int GetEECount() const { return ee_ids_.size(); };
 //  double GetGravityAcceleration() const { return 9.80665; }; // [m/s^2]
-  double GetForceLimit() const {return normal_force_max_; };
+
 
 
   std::vector<std::string> GetEndeffectorNames() const;
@@ -84,7 +84,7 @@ protected:
 
 //  EndeffectorsPos nominal_stance_;
 //  Vector3d max_dev_from_nominal_;
-  double normal_force_max_;
+
 
   std::map<std::string, EndeffectorID> map_id_to_ee_;
 };

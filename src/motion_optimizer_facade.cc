@@ -51,7 +51,7 @@ MotionOptimizerFacade::BuildDefaultInitialState ()
   inital_base_.lin.p_ << 0.0, 0.0, -p_nom_B.At(E0).z();
   inital_base_.ang.p_ << 0.0, 0.0, 0.0; // euler (roll, pitch, yaw)
 
-  initial_ee_W_.SetCount(model_->GetEECount());
+  initial_ee_W_.SetCount(p_nom_B.GetCount());
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
     initial_ee_W_.At(ee) = p_nom_B.At(ee) + inital_base_.lin.p_;
     initial_ee_W_.At(ee).z() = 0.0;
@@ -79,7 +79,7 @@ MotionOptimizerFacade::BuildVariables () const
 
 
   std::vector<std::shared_ptr<ContactSchedule>> contact_schedule;
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
     contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,
                                                                  params_->GetTotalTime(),
                                                                  model_->GetNormalizedInitialTimings(ee),
@@ -89,7 +89,7 @@ MotionOptimizerFacade::BuildVariables () const
 
 
   // Endeffector Motions
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
     auto ee_motion = std::make_shared<EEMotionNodes>(contact_schedule.at(ee)->GetContactSequence(),
                                                      id::GetEEMotionId(ee),
                                                      params_->ee_splines_per_swing_phase_);
@@ -109,7 +109,7 @@ MotionOptimizerFacade::BuildVariables () const
   }
 
   // Endeffector Forces
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
     auto nodes_forces = std::make_shared<EEForceNodes>(contact_schedule.at(ee)->GetContactSequence(),
                                                      id::GetEEForceId(ee),
                                                      params_->force_splines_per_stance_phase_);
@@ -122,7 +122,7 @@ MotionOptimizerFacade::BuildVariables () const
 
   // make endeffector motion and forces dependent on durations
   bool optimize_timings = params_->ConstraintExists(TotalTime);
-  for (auto ee : model_->GetEEIDs()) {
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
 
     opt_variables->AddComponent(contact_schedule.at(ee), optimize_timings);
 
@@ -302,7 +302,7 @@ MotionOptimizerFacade::GetTrajectory (const OptimizationVariablesPtr& vars,
   double T = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(E0))->GetTotalTime();
   while (t<=T+1e-5) {
 
-    RobotStateCartesian state(model_->GetEECount());
+    RobotStateCartesian state(initial_ee_W_.GetCount());
 
     state.base_.lin = vars->GetComponent<Spline>(id::base_linear)->GetPoint(t);
     state.base_.ang = AngularStateConverter::GetState(vars->GetComponent<Spline>(id::base_angular)->GetPoint(t));
