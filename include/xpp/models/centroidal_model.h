@@ -8,16 +8,15 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
 
+#include <memory>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
-#include <memory>
 
 #include <xpp/composite.h>
 #include <xpp/endeffectors.h>
 #include <xpp/state.h>
 
 #include "dynamic_model.h"
-#include "robot_model.h"
 
 namespace xpp {
 namespace opt {
@@ -42,50 +41,8 @@ public:
                                             EndeffectorID) const override;
 
 private:
-//  Eigen::Matrix3d I_; /// inertia tensor of robot base
   Eigen::SparseMatrix<double, Eigen::RowMajor> I_inv_; // inverse of base inertia
 };
-
-
-
-
-// some specific dynamic and kinematic robot implementations
-// spring_clean_ move to different file
-class MonopedModel : public RobotModel {
-public:
-  MonopedModel();
-  ~MonopedModel() {};
-};
-
-class BipedModel : public RobotModel {
-public:
-  BipedModel();
-  ~BipedModel() {};
-};
-
-class HyqModel : public RobotModel {
-public:
-  HyqModel();
-  ~HyqModel() {};
-
-  virtual void SetInitialGait(int gait_id) override;
-};
-
-class AnymalModel : public RobotModel {
-public:
-  AnymalModel();
-  ~AnymalModel() {};
-
-  virtual void SetInitialGait(int gait_id) override;
-};
-
-class QuadrotorCentroidalModel : public RobotModel {
-public:
-  QuadrotorCentroidalModel();
-  ~QuadrotorCentroidalModel() {};
-};
-
-
 
 } /* namespace opt */
 } /* namespace xpp */

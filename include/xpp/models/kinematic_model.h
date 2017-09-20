@@ -20,18 +20,14 @@ class KinematicModel {
 public:
   using Ptr = std::shared_ptr<KinematicModel>;
 
-  KinematicModel ();
+  KinematicModel (int n_ee);
   virtual ~KinematicModel ();
 
   virtual EndeffectorsPos GetNominalStanceInBase() const { return nominal_stance_; };
   virtual Vector3d GetMaximumDeviationFromNominal() const { return max_dev_from_nominal_; };
 
-  // spring_clean_ make private at some point
   EndeffectorsPos nominal_stance_;
   Vector3d max_dev_from_nominal_;
-
-
-private:
 };
 
 } /* namespace opt */

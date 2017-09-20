@@ -39,7 +39,7 @@ void
 CostConstraintFactory::Init (const OptVarsContainer& opt_vars,
                              const MotionParamsPtr& _params,
                              const HeightMap::Ptr& terrain,
-                             const RobotModel::Ptr& model,
+                             const RobotModel& model,
                              const EndeffectorsPos& ee_pos,
                              const State3dEuler& initial_base,
                              const State3dEuler& final_base)
@@ -201,7 +201,7 @@ CostConstraintFactory::MakeDynamicConstraint() const
   dts_.push_back(t_node); // also ensure constraints at very last node/time.
 
   auto constraint = std::make_shared<DynamicConstraint>(opt_vars_,
-                                                        model_->dynamic_model_,
+                                                        model_.dynamic_model_,
                                                         dts_
                                                         );
   return constraint;
@@ -217,7 +217,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
   for (auto ee : GetEEIDs()) {
     auto rom_constraints = std::make_shared<RangeOfMotionBox>(opt_vars_,
                                                               params,
-                                                              model_->kinematic_model_,
+                                                              model_.kinematic_model_,
                                                               ee);
     c->AddComponent(rom_constraints);
   }
@@ -260,10 +260,9 @@ CostConstraintFactory::MakeForceConstraint () const
 {
   auto constraints = std::make_shared<Composite>("Force Constraints", true);
 
-  // spring_clean_ use initial eendeffector position for this, not model
   for (auto ee : GetEEIDs()) {
     auto c = std::make_shared<ForceConstraint>(terrain_,
-                                               model_->dynamic_model_->GetForceLimit(),
+                                               model_.dynamic_model_->GetForceLimit(),
                                                opt_vars_,
                                                id::GetEEForceId(ee),
                                                id::GetEEMotionId(ee));

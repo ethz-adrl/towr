@@ -8,14 +8,10 @@
 #ifndef XPP_OPT_INCLUDE_XPP_QUADRUPED_GAIT_GENERATOR_H_
 #define XPP_OPT_INCLUDE_XPP_QUADRUPED_GAIT_GENERATOR_H_
 
-#include <utility>
-#include <vector>
-
-#include "endeffectors.h"
 #include "gait_generator.h"
 
 namespace xpp {
-namespace quad {
+namespace opt {
 
 class QuadrupedGaitGenerator : public opt::GaitGenerator {
 public:
@@ -25,20 +21,15 @@ public:
 private:
   virtual GaitInfo GetGait(opt::GaitTypes gait) const override;
 
-  GaitInfo GetDurationsStand() const;
-  GaitInfo GetDurationsFlight() const;
-  GaitInfo GetDurationsWalk() const;
-  GaitInfo GetDurationsWalkOverlap() const;
-  GaitInfo GetDurationsTrot() const;
-  GaitInfo GetDurationsTrotFly() const;
-  GaitInfo GetDurationsPace() const;
-  GaitInfo GetDurationsBound() const;
-  GaitInfo GetDurationsPronk() const;
-
-//  /**
-//   * So the total duration of all phase times equals 1 second.
-//   */
-//  void NormalizeTimesToOne();
+  GaitInfo GetStrideStand() const;
+  GaitInfo GetStrideFlight() const;
+  GaitInfo GetStrideWalk() const;
+  GaitInfo GetStrideWalkOverlap() const;
+  GaitInfo GetStrideTrot() const;
+  GaitInfo GetStrideTrotFly() const;
+  GaitInfo GetStridePace() const;
+  GaitInfo GetStrideBound() const;
+  GaitInfo GetStridePronk() const;
 
 
   // naming convention:, where the circle is is contact, front is right ->.
@@ -63,11 +54,11 @@ private:
   ContactState BP_;
   ContactState bB_;
   ContactState PB_;
-  // flight-phase
+  // stance-phase
   ContactState BB_;
 };
 
-} /* namespace quad */
+} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_QUADRUPED_GAIT_GENERATOR_H_ */

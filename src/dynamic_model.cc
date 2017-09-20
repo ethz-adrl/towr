@@ -28,7 +28,7 @@ DynamicModel::SetCurrent (const ComPos& com_pos, const EELoad& ee_force,
 double
 DynamicModel::GetStandingZForce () const
 {
-  return m_*g_/ee_pos_.GetCount(); // spring_clean_ something is off here
+  return m_*g_/ee_pos_.GetCount();
 }
 
 DynamicModel::~DynamicModel()

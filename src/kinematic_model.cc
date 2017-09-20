@@ -5,15 +5,17 @@
  @brief   Brief description
  */
 
-#include "xpp/models/kinematic_model.h"
+#include <xpp/models/kinematic_model.h>
+
+#include <Eigen/Dense>
 
 namespace xpp {
 namespace opt {
 
-KinematicModel::KinematicModel ()
+KinematicModel::KinematicModel (int n_ee)
 {
-  // TODO Auto-generated constructor stub
-
+  nominal_stance_.SetCount(n_ee);
+  max_dev_from_nominal_.setZero();
 }
 
 KinematicModel::~KinematicModel ()

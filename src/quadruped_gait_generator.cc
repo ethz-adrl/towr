@@ -5,10 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/quadruped_gait_generator.h>
+#include <xpp/models/quadruped_gait_generator.h>
 
 namespace xpp {
-namespace quad {
+namespace opt {
 
 QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
 {
@@ -22,7 +22,9 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
   BB_                               = init; // four-leg support phase
 
 
-  auto m = kMapIDToEE; // shorthand for readability
+  using namespace quad;
+  map_id_to_ee_ = quad::kMapIDToEE;
+  auto m = map_id_to_ee_; // shorthand for readability
 
   // flight_phase
   II_.SetAll(false);
@@ -54,21 +56,21 @@ QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetGait(opt::GaitTypes gait) const
 {
   switch (gait) {
-    case opt::Stand:   return GetDurationsStand();
-    case opt::Flight:  return GetDurationsFlight();
-    case opt::Walk1:   return GetDurationsWalk();
-    case opt::Walk2:   return GetDurationsWalkOverlap();
-    case opt::Run1:    return GetDurationsTrot();
-    case opt::Run2:    return GetDurationsTrotFly();
-    case opt::Run3:    return GetDurationsPace();
-    case opt::Hop1:    return GetDurationsBound();
-    case opt::Hop2:    return GetDurationsPronk();
+    case opt::Stand:   return GetStrideStand();
+    case opt::Flight:  return GetStrideFlight();
+    case opt::Walk1:   return GetStrideWalk();
+    case opt::Walk2:   return GetStrideWalkOverlap();
+    case opt::Run1:    return GetStrideTrot();
+    case opt::Run2:    return GetStrideTrotFly();
+    case opt::Run3:    return GetStridePace();
+    case opt::Hop1:    return GetStrideBound();
+    case opt::Hop2:    return GetStridePronk();
     default: assert(false); // gait not implemented
   }
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetDurationsStand () const
+QuadrupedGaitGenerator::GetStrideStand () const
 {
   auto times =
   {
@@ -83,7 +85,7 @@ QuadrupedGaitGenerator::GetDurationsStand () const
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetDurationsFlight () const
+QuadrupedGaitGenerator::GetStrideFlight () const
 {
   auto times =
   {
@@ -98,18 +100,14 @@ QuadrupedGaitGenerator::GetDurationsFlight () const
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetDurationsPronk () const
+QuadrupedGaitGenerator::GetStridePronk () const
 {
   auto times =
   {
       0.1, 0.3,
-      0.1, 0.3,
-      0.1, 0.3,
   };
   auto phase_contacts =
   {
-      II_, BB_,
-      II_, BB_,
       II_, BB_,
   };
 
@@ -117,18 +115,16 @@ QuadrupedGaitGenerator::GetDurationsPronk () const
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetDurationsWalk () const
+QuadrupedGaitGenerator::GetStrideWalk () const
 {
   double t_phase = 0.3;
   double t_trans = 0.13;
   auto times =
   {
       t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
   };
   auto phase_contacts =
   {
-      bB_, bb_, Bb_, PB_, PP_, BP_,
       bB_, bb_, Bb_, PB_, PP_, BP_,
   };
 
@@ -136,7 +132,7 @@ QuadrupedGaitGenerator::GetDurationsWalk () const
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetDurationsWalkOverlap () const
+QuadrupedGaitGenerator::GetStrideWalkOverlap () const
 {
   double three    = 0.3;
   double lateral  = 0.13;
@@ -148,19 +144,9 @@ QuadrupedGaitGenerator::GetDurationsWalkOverlap () const
       diagonal,
       three, lateral, three,
       diagonal,
-      // next stride
-      three, lateral, three,
-      diagonal,
-      three, lateral, three,
-      diagonal,
   };
   auto phase_contacts =
   {
-      bB_, bb_, Bb_,
-      Pb_,
-      PB_, PP_, BP_,
-      bP_,
-      // next stride
       bB_, bb_, Bb_,
       Pb_,
       PB_, PP_, BP_,
@@ -171,20 +157,16 @@ QuadrupedGaitGenerator::GetDurationsWalkOverlap () const
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetDurationsTrot () const
+QuadrupedGaitGenerator::GetStrideTrot () const
 {
   double t_phase = 0.4;
   double t_trans = 0.2;
   auto times =
   {
       t_phase, t_trans, t_phase, t_trans,
-      t_phase, t_trans, t_phase, t_trans,
-      t_phase, t_trans, t_phase, t_trans,
   };
   auto phase_contacts =
   {
-      bP_, BB_, Pb_, BB_,
-      bP_, BB_, Pb_, BB_,
       bP_, BB_, Pb_, BB_,
   };
 
@@ -192,20 +174,16 @@ QuadrupedGaitGenerator::GetDurationsTrot () const
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetDurationsTrotFly () const
+QuadrupedGaitGenerator::GetStrideTrotFly () const
 {
   double stance = 0.3;
   double flight = 0.05;
   auto times =
   {
       stance, flight, stance, flight,
-      stance, flight, stance, flight,
-      stance, flight, stance, flight,
   };
   auto phase_contacts =
   {
-      bP_, II_, Pb_, II_,
-      bP_, II_, Pb_, II_,
       bP_, II_, Pb_, II_,
   };
 
@@ -213,20 +191,16 @@ QuadrupedGaitGenerator::GetDurationsTrotFly () const
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetDurationsPace () const
+QuadrupedGaitGenerator::GetStridePace () const
 {
   double A = 0.3;
   double B = 0.05;
   auto times =
   {
       A, B, A, B,
-      A, B, A, B,
-      A, B, A, B,
   };
   auto phase_contacts =
   {
-      PP_, II_, bb_, II_,
-      PP_, II_, bb_, II_,
       PP_, II_, bb_, II_,
   };
 
@@ -234,20 +208,16 @@ QuadrupedGaitGenerator::GetDurationsPace () const
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetDurationsBound () const
+QuadrupedGaitGenerator::GetStrideBound () const
 {
   double A = 0.3;
   double B = 0.05;
   auto times =
   {
       A, B, A, B,
-      A, B, A, B,
-      A, B, A, B,
   };
   auto phase_contacts =
   {
-      BI_, II_, IB_, II_,
-      BI_, II_, IB_, II_,
       BI_, II_, IB_, II_,
   };
 
@@ -259,5 +229,7 @@ QuadrupedGaitGenerator::~QuadrupedGaitGenerator ()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace quad */
+} /* namespace opt */
 } /* namespace xpp */
+
+

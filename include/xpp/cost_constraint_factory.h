@@ -44,7 +44,7 @@ public:
   void Init(const OptVarsContainer&,
             const MotionParamsPtr&,
             const HeightMap::Ptr& terrain,
-            const RobotModel::Ptr& model,
+            const RobotModel& model,
             const EndeffectorsPos& ee_pos,
             const State3dEuler& initial_base,
             const State3dEuler& final_base);
@@ -56,7 +56,7 @@ private:
   MotionParamsPtr params;
   OptVarsContainer opt_vars_;
   HeightMap::Ptr terrain_;
-  RobotModel::Ptr model_;
+  RobotModel model_;
 
 
   EndeffectorsPos initial_ee_W_;

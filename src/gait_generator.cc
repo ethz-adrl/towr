@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/gait_generator.h>
+#include <xpp/models/gait_generator.h>
 
 namespace xpp {
 namespace opt {
@@ -78,6 +78,17 @@ GaitGenerator::SetGaits (const std::vector<GaitTypes>& gaits)
   }
 }
 
+std::vector<std::string>
+GaitGenerator::GetEndeffectorNames () const
+{
+  std::vector<std::string> names_;
+  auto map_ee_to_id = ReverseMap(map_id_to_ee_);
+  int n_ee = map_ee_to_id.size();
+  for (int i=0; i<n_ee; ++i)
+     names_.push_back(map_ee_to_id.at(static_cast<EndeffectorID>(i)));
+
+  return names_;
+}
 
 GaitGenerator::~GaitGenerator ()
 {

@@ -28,7 +28,6 @@ public:
   DynamicModel(double mass);
   virtual ~DynamicModel ();
 
-
   void SetCurrent(const ComPos& com, const EELoad&, const EEPos&);
 
   virtual BaseAcc GetBaseAcceleration() const = 0;
@@ -41,28 +40,24 @@ public:
                                             EndeffectorID) const = 0;
 
 
-
   double GetGravityAcceleration() const { return g_; };
   double GetMass() const { return m_; };
   double GetStandingZForce() const;
 
+  void SetForceLimit(double val) { normal_force_max_  = val; };
   double GetForceLimit() const {return normal_force_max_; };
 
-  // spring_clean_ this is an issue, remove this
-//  std::vector<EndeffectorID> GetEEIDs() const { return ee_pos_.GetEEsOrdered(); };
+  std::vector<EndeffectorID> GetEEIDs() const { return ee_pos_.GetEEsOrdered(); };
 
-  // spring_clean_ make private again
-  EEPos ee_pos_;
-  double normal_force_max_;
 protected:
-  // dynamic model parameters
-  // spring_clean_ could also make this robot_state_cartesian?
+  EEPos ee_pos_;
   ComPos com_pos_;
   EELoad ee_force_;
 
   double g_; // gravity acceleration [m/s^2]
   double m_; // mass of the robot
 
+  double normal_force_max_;
 };
 
 } /* namespace opt */

@@ -8,10 +8,9 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
 
+#include <Eigen/Dense>
 #include <memory>
 #include <vector>
-
-#include <xpp/models/robot_model.h>
 
 #include "composite.h"
 #include "endeffectors.h"
@@ -20,6 +19,8 @@
 #include "optimization_parameters.h"
 #include "robot_state_cartesian.h"
 #include "state.h"
+#include <xpp/models/robot_model.h>
+
 
 namespace xpp {
 namespace opt {
@@ -44,7 +45,7 @@ public:
   State3dEuler inital_base_;
 
   HeightMap::Ptr terrain_;
-  RobotModel::Ptr model_;
+  RobotModel model_;
   MotionParametersPtr params_;
 
 //  const MotionParametersPtr GetMotionParameters() const { return params_;};
