@@ -77,23 +77,29 @@ RobotModel::MakeHyqModel ()
   using namespace xpp::quad;
   int n_ee = kMapIDToEE.size();
 
-  Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
-  dynamic_model_ = std::make_shared<CentroidalModel>(80, I, n_ee);
+//  Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
+
+  // for hyq standing in nominal stance, legs taken into account
+  Eigen::Matrix3d I = BuildInertiaTensor( 4.26, 8.97, 9.88, -0.0063, 0.193, 0.0126);
+
+
+
+  dynamic_model_ = std::make_shared<CentroidalModel>(83, I, n_ee);
   dynamic_model_->SetForceLimit(10000);
 
 
 
   kinematic_model_ = std::make_shared<KinematicModel>(n_ee);
-  const double x_nominal_b = 0.28;
-  const double y_nominal_b = 0.28;
-  const double z_nominal_b = -0.58;
+  const double x_nominal_b = 0.31;
+  const double y_nominal_b = 0.29;
+  const double z_nominal_b = -0.56;
 
   kinematic_model_->nominal_stance_.At(kMapIDToEE.at(LF)) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.At(kMapIDToEE.at(RF)) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.At(kMapIDToEE.at(LH)) << -x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.At(kMapIDToEE.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
-  kinematic_model_->max_dev_from_nominal_ << 0.2, 0.15, 0.10;
+  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.07, 0.05;
 
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
 }
