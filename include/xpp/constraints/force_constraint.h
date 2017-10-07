@@ -18,7 +18,7 @@
 namespace xpp {
 namespace opt {
 
-/** Ensures the endeffector position always lays on or above forces height.
+/** Ensures the end-effector force lies inside friction cone.
  *
  * Attention: This is enforced only at the spline nodes.
  */

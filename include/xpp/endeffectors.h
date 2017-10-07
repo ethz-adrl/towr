@@ -93,15 +93,15 @@ public:
 //  }
 
   /** @brief number of endeffectors with flag set to TRUE */
-//  int GetTrueCount() const
-//  {
-//    int count = 0;
-//    for (auto ee : GetEEsOrdered())
-//      if (At(ee))
-//        count++;
-//
-//    return count;
-//  }
+  int GetTrueCount() const
+  {
+    int count = 0;
+    for (auto ee : GetEEsOrdered())
+      if (At(ee))
+        count++;
+
+    return count;
+  }
 };
 
 

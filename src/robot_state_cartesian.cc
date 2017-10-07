@@ -29,5 +29,15 @@ RobotStateCartesian::GetEEPos () const
   return pos_W;
 }
 
+Endeffectors<Vector3d>
+RobotStateCartesian::GetEEAcc () const
+{
+  Endeffectors<Vector3d> acc_W(ee_motion_.GetCount());
+  for (auto ee : ee_motion_.GetEEsOrdered())
+    acc_W.At(ee) = ee_motion_.At(ee).a_;
+
+  return acc_W;
+}
+
 } /* namespace xpp */
 

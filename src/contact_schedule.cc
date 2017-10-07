@@ -25,16 +25,17 @@ namespace opt {
 ContactSchedule::ContactSchedule (EndeffectorID ee,
                                   double t_total,
                                   const VecDurations& timings,
+                                  bool is_in_contact_at_start,
                                   double min_duration,
                                   double max_duration)
     :Component(0, id::GetEEScheduleId(ee))
 {
-  t_total_   = t_total;//std::accumulate(durations_.begin(), durations_.end(), 0.0);
+  t_total_   = t_total;
   for (auto d : timings)
     durations_.push_back(d*t_total);
 
   phase_duration_bounds_ = NLPBound(min_duration, max_duration);
-  first_phase_in_contact_ = true;
+  first_phase_in_contact_ = is_in_contact_at_start;
   SetRows(durations_.size()-1); // since last phase-duration is not optimized over
 }
 

@@ -60,6 +60,7 @@ QuadrupedGaitGenerator::GetGait(opt::GaitTypes gait) const
     case opt::Flight:  return GetStrideFlight();
     case opt::Walk1:   return GetStrideWalk();
     case opt::Walk2:   return GetStrideWalkOverlap();
+    case opt::Walk3:   return GetStrideWalkOverlapNoTransition();
     case opt::Run1:    return GetStrideTrot();
     case opt::Run2:    return GetStrideTrotFly();
     case opt::Run3:    return GetStridePace();
@@ -117,15 +118,17 @@ QuadrupedGaitGenerator::GetStridePronk () const
 QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideWalk () const
 {
-  double t_phase = 0.3;
-  double t_trans = 0.13;
+  double step  = 0.3;
+  double stand = 0.1;
   auto times =
   {
-      t_phase, t_trans, t_phase, t_phase, t_trans, t_phase,
+      step, stand, step, stand,
+      step, stand, step, stand,
   };
   auto phase_contacts =
   {
-      bB_, bb_, Bb_, PB_, PP_, BP_,
+      bB_, BB_, Bb_, BB_,
+      PB_, BB_, BP_, BB_
   };
 
   return std::make_pair(times, phase_contacts);
@@ -148,12 +151,24 @@ QuadrupedGaitGenerator::GetStrideWalkOverlap () const
   auto phase_contacts =
   {
       bB_, bb_, Bb_,
-      Pb_,
+      Pb_, // starting lifting RH
       PB_, PP_, BP_,
-      bP_,
+      bP_, // start lifting LH
   };
 
   return std::make_pair(times, phase_contacts);
+}
+
+QuadrupedGaitGenerator::GaitInfo
+QuadrupedGaitGenerator::GetStrideWalkOverlapNoTransition () const
+{
+  GaitInfo g = GetStrideWalkOverlap();
+
+  // remove the final transition between strides
+  g.first.pop_back();
+  g.second.pop_back();
+
+  return g;
 }
 
 QuadrupedGaitGenerator::GaitInfo
@@ -194,14 +209,14 @@ QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStridePace () const
 {
   double A = 0.3;
-  double B = 0.15;
+  double B = 0.4;
   auto times =
   {
       A, B, A, B,
   };
   auto phase_contacts =
   {
-      PP_, II_, bb_, II_,
+      PP_, BB_, bb_, BB_,
   };
 
   return std::make_pair(times, phase_contacts);
@@ -211,14 +226,14 @@ QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideBound () const
 {
   double A = 0.3;
-  double B = 0.15;
+  double B = 0.3;
   auto times =
   {
       A, B, A, B,
   };
   auto phase_contacts =
   {
-      BI_, II_, IB_, II_,
+      BI_, BB_, IB_, BB_,
   };
 
   return std::make_pair(times, phase_contacts);

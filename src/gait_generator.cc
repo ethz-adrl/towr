@@ -64,9 +64,18 @@ GaitGenerator::GetContactSchedule () const
   return foot_durations;
 }
 
+bool
+GaitGenerator::IsInContactAtStart (EndeffectorID ee) const
+{
+  return contacts_.front().At(ee);
+}
+
 void
 GaitGenerator::SetGaits (const std::vector<GaitTypes>& gaits)
 {
+  contacts_.clear();
+  times_.clear();
+
   for (GaitTypes g : gaits) {
     auto info = GetGait(g);
     std::vector<double>       t = info.first;

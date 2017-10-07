@@ -25,6 +25,7 @@ private:
   GaitInfo GetStrideFlight() const;
   GaitInfo GetStrideWalk() const;
   GaitInfo GetStrideWalkOverlap() const;
+  GaitInfo GetStrideWalkOverlapNoTransition() const;
   GaitInfo GetStrideTrot() const;
   GaitInfo GetStrideTrotFly() const;
   GaitInfo GetStridePace() const;

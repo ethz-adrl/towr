@@ -119,8 +119,8 @@ PhaseNodes::GetNodeIDAtStartOfPhase (int phase) const
 
 
 EEMotionNodes::EEMotionNodes (const ContactVector& contact_schedule,
-                                    const std::string& name,
-                                    int n_polys)
+                              const std::string& name,
+                              int n_polys)
     :PhaseNodes(kDim3d, contact_schedule, name, n_polys, Motion)
 {
 }

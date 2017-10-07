@@ -27,13 +27,16 @@ SwingConstraint::SwingConstraint (const OptVarsPtr& opt_vars, std::string ee_mot
 
   AddOptimizationVariables(opt_vars);
 
+  auto nodes = ee_motion_->GetNodes();
+  usable_nodes_ = nodes.size() - 1; // because swinging last node has no further node
+
+
   int constraint_count = 0;
-  for (int i=0; i<ee_motion_->GetNodes().size(); ++i)
+  for (int i=node_start_; i<usable_nodes_; ++i)
     if (!ee_motion_->IsContactNode(i)) {
       constraint_count += 2*kDim2d; // constrain xy position and velocity of every swing node
 //      constraint_count += 1; // if swing in apex is constrained
     }
-
 
   SetName("Swing-Constraint-" + ee_motion);
   SetRows(constraint_count);
@@ -47,7 +50,7 @@ SwingConstraint::GetValues () const
 
   int row = 0;
   auto nodes = ee_motion_->GetNodes();
-  for (int i=0; i<nodes.size(); ++i) {
+  for (int i=node_start_; i<usable_nodes_; ++i) {
     if (!ee_motion_->IsContactNode(i)) {
 
       // assumes two splines per swingphase and starting and ending in stance
@@ -85,8 +88,7 @@ SwingConstraint::FillJacobianWithRespectTo (std::string var_set,
   if (var_set == ee_motion_->GetName()) {
 
     int row = 0;
-    auto nodes = ee_motion_->GetNodes();
-    for (int i=0; i<nodes.size(); ++i) {
+    for (int i=node_start_; i<usable_nodes_; ++i) {
       if (!ee_motion_->IsContactNode(i)) { // swing-phase
 
         for (auto dim : {X,Y}) {

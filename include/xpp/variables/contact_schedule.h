@@ -32,6 +32,7 @@ public:
   ContactSchedule (EndeffectorID ee,
                    double t_total,
                    const VecDurations& timings,
+                   bool is_in_contact_at_start,
                    double min_phase_duration,
                    double max_phase_duration);
   virtual ~ContactSchedule ();
@@ -56,7 +57,7 @@ public:
   double GetTotalTime() const;
 
 private:
-  bool first_phase_in_contact_ = true;
+  bool first_phase_in_contact_;
   double t_total_;
   NLPBound phase_duration_bounds_;
 

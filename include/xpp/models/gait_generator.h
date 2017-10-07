@@ -19,13 +19,14 @@
 namespace xpp {
 namespace opt {
 
-enum GaitTypes {Stand=0, Flight, Walk1, Walk2, Run2, Run1,  Run3, Hop1, Hop2, kNumGaits};
+enum GaitTypes {Stand=0, Flight, Walk1, Walk2, Walk3, Run2, Run1,  Run3, Hop1, Hop2, kNumGaits};
 static std::map<int, std::string> gait_names =
 {
   {Stand,   "Stand"},
   {Flight,  "Flight"},
   {Walk1,   "Walk"},
   {Walk2,   "WalkOverlap"},
+  {Walk3,   "WalkOverlapNoTransition"},
   {Run1,    "Trot"},
   {Run2,    "TrotFly"},
   {Run3,    "Pace"},
@@ -54,6 +55,7 @@ public:
   std::vector<std::string> GetEndeffectorNames() const;
 
   void SetGaits(const std::vector<GaitTypes>& gaits);
+  bool IsInContactAtStart(EndeffectorID ee) const;
 
 
 

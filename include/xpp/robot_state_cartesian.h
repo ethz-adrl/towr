@@ -18,7 +18,10 @@ public:
   RobotStateCartesian(int n_ee);
   ~RobotStateCartesian() {};
 
+  State3d GetBase() const { return base_; };
   Endeffectors<Vector3d> GetEEPos() const;
+  Endeffectors<Vector3d> GetEEAcc() const;
+  EndeffectorsBool GetContactState() const { return ee_contact_; };
 
   State3d base_;
   double t_global_;

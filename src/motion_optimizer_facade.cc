@@ -37,7 +37,14 @@ MotionOptimizerFacade::MotionOptimizerFacade ()
   terrain_        = std::make_shared<FlatGround>();
 
   model_.MakeHyqModel();
-  model_.gait_generator_->SetGaits({Stand, Hop1, Hop2, Walk1, Run1, Hop1, Stand});
+//  model_.gait_generator_->SetGaits({Walk1, Walk1});
+    model_.gait_generator_->SetGaits({Stand, Walk2, Walk2, Walk3, Stand});
+//  model_.gait_generator_->SetGaits({Run1, Run1});
+//  model_.gait_generator_->SetGaits({Run3, Run3, Run3, Run3});
+//  model_.gait_generator_->SetGaits({Run3, Run3, Hop1, Hop1});
+//  model_.gait_generator_->SetGaits({Hop1, Hop1, Hop1});
+//    model_.gait_generator_->SetGaits({Hop2, Hop2, Hop2});
+//  model_.gait_generator_->SetGaits({Stand, Run1, Run1, Stand});
 
   BuildDefaultInitialState();
 }
@@ -95,6 +102,7 @@ MotionOptimizerFacade::BuildVariables () const
     contact_schedule.push_back(std::make_shared<ContactSchedule>(ee,
                                                                  params_->GetTotalTime(),
                                                                  model_.gait_generator_->GetNormalizedContactSchedule(ee),
+                                                                 model_.gait_generator_->IsInContactAtStart(ee),
                                                                  params_->min_phase_duration_,
                                                                  params_->max_phase_duration_));
   }
@@ -113,7 +121,7 @@ MotionOptimizerFacade::BuildVariables () const
 
 
     ee_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
-    ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));   // only xy, z given by terrain
+    ee_motion->AddStartBound(kPos, {X,Y,Z}, initial_ee_W_.At(ee));
 
     ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
     opt_variables->AddComponent(ee_motion);
