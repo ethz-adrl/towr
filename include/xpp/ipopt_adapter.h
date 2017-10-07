@@ -9,6 +9,9 @@
 #define XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_
 
 #include <IpTNLP.hpp>
+#include <IpIpoptApplication.hpp>
+#include <IpSolveStatistics.hpp>
+
 #include "nlp.h"
 
 namespace xpp {
@@ -30,6 +33,7 @@ public:
 	  * @param[in/out] nlp the nonlinear program to be modified.
 	  */
 	static void Solve(NLP& nlp);
+
 
 private:
 	IpoptAdapter(NLP& nlp);
@@ -87,19 +91,9 @@ private:
                                  const Ipopt::IpoptData* ip_data,
                                  Ipopt::IpoptCalculatedQuantities* ip_cq);
 
-
-  /** Should never be called if provided config file is correctly loaded.
-   */
-  virtual bool eval_h(Index n, const Number* x, bool new_x,
-                      Number obj_factor, Index m, const Number* lambda,
-                      bool new_lambda, Index nele_hess, Index* iRow,
-                      Index* jCol, Number* values)
-  {
-    throw std::runtime_error("ERROR: Run the executable from the xpp_opt/config directory");
-  }
-
 private:
   NLP* nlp_;
+  static void SetOptions(Ipopt::SmartPtr<Ipopt::IpoptApplication> app);
 };
 
 } // namespace opt

@@ -117,13 +117,7 @@ SnoptAdapter::Init ()
     }
   }
 
-  setProbName   ( "snopt" );
-  setSpecsFile  ( "snopt.spc" );
-//  setPrintFile  ( "snopt.out" ); // appends the file
-
   setUserFun    (&SnoptAdapter::ObjectiveAndConstraintFct);
-  setIntParameter( "Derivative option", 1 ); // 1 = snopt will not calculate missing derivatives
-//  setIntParameter( "Verify level ", 3 );
 }
 
 void
@@ -169,6 +163,7 @@ SnoptAdapter::Solve (NLP& ref)
 
   SnoptAdapter snopt(ref);
   snopt.Init();
+  SetOptions(snopt);
 
   // error codes as given in the manual.
   int INFO = snopt.solve(Cold);
@@ -181,6 +176,36 @@ SnoptAdapter::Solve (NLP& ref)
   }
 
    snopt.SetVariables();
+}
+
+void SnoptAdapter::SetOptions(SnoptAdapter& solver)
+{
+  // A complete list of options can be found in the snopt user guide:
+  // https://web.stanford.edu/group/SOL/guides/sndoc7.pdf
+
+  solver.setProbName( "snopt" );
+//  solver.setSpecsFile  ( "snopt.spc" ); // to set options in config file
+
+  solver.setIntParameter( "Major Print level", 1 );
+  solver.setIntParameter( "Minor print level", 1 );
+  solver.setParameter( "Solution");
+
+  solver.setIntParameter( "Derivative option", 1 ); // 1 = snopt will not calculate missing derivatives
+  solver.setIntParameter( "Verify level ", 3 ); // full check on gradients, will throw error
+
+//  solver.setIntParameter("Major iterations limit", 2);
+  solver.setIntParameter("Iterations limit", 200000);
+
+  solver.setRealParameter( "Major feasibility tolerance",  1.0e-3); // target nonlinear constraint violation
+  solver.setRealParameter( "Minor feasibility tolerance",  1.0e-3); // for satisfying the QP bounds
+  solver.setRealParameter( "Major optimality tolerance",   1.0e-2); // target complementarity gap
+
+  // These options strongly influce SNOPT based on the FAQ.snopt
+  // file located in the downloaded source
+//  solver.setIntParameter( "Crash option", 3 );
+//  solver.setIntParameter( "Hessian updates", 5 );
+
+//  solver.setParameter("Nonderivative linesearch");
 }
 
 void

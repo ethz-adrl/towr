@@ -17,9 +17,6 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <IpIpoptApplication.hpp>
-#include <IpSolveStatistics.hpp>
-
 namespace xpp {
 namespace opt {
 
@@ -43,9 +40,9 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 
   std::cout << "nnz_jac_g: " << nnz_jac_g << std::endl;
 
-  // nonzeros in the hessian of the lagrangian
-  // (one in the hessian of the objective for x2,
-  //  and one in the hessian of the constraints for x1)
+  // nonzeros in the Hessian of the Lagrangian
+  // (one in the Hessian of the objective for x2,
+  //  and one in the Hessian of the constraints for x1)
   nnz_h_lag = n*n;
 
   // start index at 0 for row/col entries
@@ -78,9 +75,7 @@ bool IpoptAdapter::get_starting_point(Index n, bool init_x, Number* x,
                                Index m, bool init_lambda,
                                Number* lambda)
 {
-	// Here, we assume we only have starting values for x, if you code
-	// your own NLP, you can provide starting values for the others if
-	// you wish.
+	// Here, we assume we only have starting values for x
 	assert(init_x == true);
 	assert(init_z == false);
 	assert(init_lambda == false);
@@ -91,13 +86,11 @@ bool IpoptAdapter::get_starting_point(Index n, bool init_x, Number* x,
   return true;
 }
 
-
 bool IpoptAdapter::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
   obj_value = nlp_->EvaluateCostFunction(x);
   return true;
 }
-
 
 bool IpoptAdapter::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
@@ -106,14 +99,12 @@ bool IpoptAdapter::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 	return true;
 }
 
-
 bool IpoptAdapter::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
   VectorXd g_eig = nlp_->EvaluateConstraints(x);
   Eigen::Map<VectorXd>(g,m) = g_eig;
   return true;
 }
-
 
 bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
                        Index m, Index nele_jac, Index* iRow, Index *jCol,
@@ -142,8 +133,6 @@ bool IpoptAdapter::eval_jac_g(Index n, const Number* x, bool new_x,
   return true;
 }
 
-
-
 bool IpoptAdapter::intermediate_callback(Ipopt::AlgorithmMode mode,
                                    Index iter, Number obj_value,
                                    Number inf_pr, Number inf_du,
@@ -154,9 +143,6 @@ bool IpoptAdapter::intermediate_callback(Ipopt::AlgorithmMode mode,
                                    const Ipopt::IpoptData* ip_data,
                                    Ipopt::IpoptCalculatedQuantities* ip_cq)
 {
-//  std::cout << "Press Enter to continue...";
-//  std::cin.get(); // use to pause after every iteration
-//  nlp_->SendOutCurrentValues();
   nlp_->SaveCurrent();
 	return true;
 }
@@ -183,8 +169,8 @@ IpoptAdapter::Solve (NLP& nlp)
   // initialize the ipopt solver
   IpoptApplicationPtr ipopt_app_ = new IpoptApplication();
   ipopt_app_->RethrowNonIpoptException(true); // this allows to see the error message of exceptions thrown inside ipopt
+  SetOptions(ipopt_app_);
 
-  //  ipopt_solver_->Options()->SetNumericValue("max_cpu_time", max_cpu_time);
   ApplicationReturnStatus status_ = ipopt_app_->Initialize();
   if (status_ != Solve_Succeeded) {
     std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
@@ -194,25 +180,44 @@ IpoptAdapter::Solve (NLP& nlp)
   // Convert the NLP problem to Ipopt
   IpoptPtr nlp_ptr = new IpoptAdapter(nlp);
   status_ = ipopt_app_->OptimizeTNLP(nlp_ptr);
-//  if (status_ == Solve_Succeeded) {
-//    // Retrieve some statistics about the solve
-//    Index iter_count = ipopt_app_->Statistics()->IterationCount();
-//    std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
-//
-//    Number final_obj = ipopt_app_->Statistics()->FinalObjective();
-//    std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
-//  }
-//
-//  if (status_ == Infeasible_Problem_Detected) {
-//    std::cout << "Problem/Constraints infeasible; run again?";
-//  }
 
   if (status_ != Solve_Succeeded) {
-//    nlp.PrintCurrent();
     std::string msg = "Ipopt failed to find a solution. ReturnCode: " + std::to_string(status_);
     std::cerr << msg;
-//    throw std::runtime_error(msg);
   }
+}
+
+void
+IpoptAdapter::SetOptions (Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app_)
+{
+  // A complete list of options can be found here
+  // https://www.coin-or.org/Ipopt/documentation/node40.html
+
+  // Set some options
+  ipopt_app_->Options()->SetStringValue("linear_solver", "ma57"); // 27, 57, 77, 86, 97
+//  ipopt_app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
+  ipopt_app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
+  ipopt_app_->Options()->SetNumericValue("derivative_test_tol", 1e-3);
+//  ipopt_app_->Options()->SetStringValue("derivative_test", "first-order");
+//  ipopt_app_->Options()->SetStringValue("derivative_test", "second-order");
+
+  ipopt_app_->Options()->SetNumericValue("tol", 0.001);
+//  ipopt_app_->Options()->SetNumericValue("constr_viol_tol", 1e-3);
+//  ipopt_app_->Options()->SetNumericValue("dual_inf_tol", 1e10);
+//  ipopt_app_->Options()->SetNumericValue("compl_inf_tol", 1e10);
+
+  ipopt_app_->Options()->SetNumericValue("max_cpu_time", 10.0);
+//  ipopt_app_->Options()->SetIntegerValue("max_iter", 0);
+//  ipopt_app_->Options()->SetNumericValue("bound_relax_factor", 0.01);
+//  ipopt_app_->Options()->SetNumericValue("bound_frac", 0.5);
+
+  ipopt_app_->Options()->SetIntegerValue("print_level", 5);
+  ipopt_app_->Options()->SetStringValue("print_user_options", "yes");
+  ipopt_app_->Options()->SetStringValue("print_timing_statistics", "no");
+//  ipopt_app_->Options()->SetStringValue("output_file", "ipopt.out");
+
+//  ipopt_app_->Options()->SetNumericValue("obj_scaling_factor", 10);
+//  ipopt_app_->Options()->SetStringValue("nlp_scaling_method", "none"); // "equilibration-based", "gradient-based"
 }
 
 } // namespace opt

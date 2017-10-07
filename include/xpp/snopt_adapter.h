@@ -43,6 +43,8 @@ private:
   void SetVariables();
 
   static NLPPtr nlp_; // use raw pointer as SnoptAdapter doesn't own the nlp.
+
+  static void SetOptions(SnoptAdapter&);
 };
 
 } /* namespace opt */

@@ -165,7 +165,11 @@ QuadrupedGaitGenerator::GetStrideWalkOverlapNoTransition () const
   GaitInfo g = GetStrideWalkOverlap();
 
   // remove the final transition between strides
+  // but ensure that last step duration is not cut off
+  double t_final = g.first.back();
   g.first.pop_back();
+  g.first.back() += t_final;
+
   g.second.pop_back();
 
   return g;
