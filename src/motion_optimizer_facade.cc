@@ -33,18 +33,12 @@ namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
-  params_         = std::make_shared<OptimizationParameters>();
-  terrain_        = std::make_shared<FlatGround>();
+  params_ = std::make_shared<OptimizationParameters>();
 
+  // overridden in nlp node
+  terrain_        = std::make_shared<FlatGround>();
   model_.MakeHyqModel();
-//  model_.gait_generator_->SetGaits({Walk1, Walk1});
-    model_.gait_generator_->SetGaits({Stand, Walk2, Walk2, Walk3, Stand});
-//  model_.gait_generator_->SetGaits({Run1, Run1});
-//  model_.gait_generator_->SetGaits({Run3, Run3, Run3, Run3});
-//  model_.gait_generator_->SetGaits({Run3, Run3, Hop1, Hop1});
-//  model_.gait_generator_->SetGaits({Hop1, Hop1, Hop1});
-//    model_.gait_generator_->SetGaits({Hop2, Hop2, Hop2});
-//  model_.gait_generator_->SetGaits({Stand, Run1, Run1, Stand});
+  model_.gait_generator_->SetCombo(GaitGenerator::Combo0);
 
   BuildDefaultInitialState();
 }

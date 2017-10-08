@@ -55,9 +55,9 @@ SwingConstraint::GetValues () const
 
       // assumes two splines per swingphase and starting and ending in stance
       auto curr = nodes.at(i);
+
       Vector2d prev = nodes.at(i-1).at(kPos).topRows<kDim2d>();;
       Vector2d next = nodes.at(i+1).at(kPos).topRows<kDim2d>();
-
 
       Vector2d distance_xy    = next - prev;
       Vector2d xy_center      = prev + 0.5*distance_xy;

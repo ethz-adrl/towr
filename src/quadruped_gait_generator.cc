@@ -49,23 +49,40 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
   BB_.SetAll(true);
 
   // default gait
-  SetGaits({opt::Stand});
+  SetGaits({Stand});
+}
+
+void
+QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
+{
+  switch (combo) {
+    case Combo0: SetGaits({Stand, Walk2, Walk2, Walk3E, Stand}); break;
+    case Combo1: SetGaits({Stand, Run2, Run2, Run2E, Stand}); break;
+    case Combo2: SetGaits({Stand, Hop5, Hop5, Hop5E, Stand}); break;
+    case Combo3: SetGaits({Stand, Hop3, Hop3, Hop3E, Stand}); break;
+    default: assert(false); break; // gait combo not implemented
+  }
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetGait(opt::GaitTypes gait) const
+QuadrupedGaitGenerator::GetGait(GaitTypes gait) const
 {
   switch (gait) {
-    case opt::Stand:   return GetStrideStand();
-    case opt::Flight:  return GetStrideFlight();
-    case opt::Walk1:   return GetStrideWalk();
-    case opt::Walk2:   return GetStrideWalkOverlap();
-    case opt::Walk3:   return GetStrideWalkOverlapNoTransition();
-    case opt::Run1:    return GetStrideTrot();
-    case opt::Run2:    return GetStrideTrotFly();
-    case opt::Run3:    return GetStridePace();
-    case opt::Hop1:    return GetStrideBound();
-    case opt::Hop2:    return GetStridePronk();
+    case Stand:   return GetStrideStand();
+    case Flight:  return GetStrideFlight();
+    case Walk1:   return GetStrideWalk();
+    case Walk2:   return GetStrideWalkOverlap();
+    case Walk3E:  return RemoveTransition(GetStrideWalkOverlap());
+    case Run1:    return GetStrideTrot();
+    case Run2:    return GetStrideTrotFly();
+    case Run2E:   return RemoveTransition(GetStrideTrotFly());
+    case Run3:    return GetStridePace();
+    case Hop1:    return GetStrideBound();
+    case Hop2:    return GetStridePronk();
+    case Hop3:    return GetStrideGallop();
+    case Hop3E:   return RemoveTransition(GetStrideGallop());
+    case Hop5:    return GetStrideFlyingGallop();
+    case Hop5E:   return RemoveTransition(GetStrideFlyingGallop());
     default: assert(false); // gait not implemented
   }
 }
@@ -75,7 +92,7 @@ QuadrupedGaitGenerator::GetStrideStand () const
 {
   auto times =
   {
-      0.5,
+      0.3,
   };
   auto contacts =
   {
@@ -90,7 +107,7 @@ QuadrupedGaitGenerator::GetStrideFlight () const
 {
   auto times =
   {
-      0.5,
+      0.3,
   };
   auto contacts =
   {
@@ -160,22 +177,6 @@ QuadrupedGaitGenerator::GetStrideWalkOverlap () const
 }
 
 QuadrupedGaitGenerator::GaitInfo
-QuadrupedGaitGenerator::GetStrideWalkOverlapNoTransition () const
-{
-  GaitInfo g = GetStrideWalkOverlap();
-
-  // remove the final transition between strides
-  // but ensure that last step duration is not cut off
-  double t_final = g.first.back();
-  g.first.pop_back();
-  g.first.back() += t_final;
-
-  g.second.pop_back();
-
-  return g;
-}
-
-QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideTrot () const
 {
   double t_phase = 0.4;
@@ -196,7 +197,7 @@ QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideTrotFly () const
 {
   double stance = 0.3;
-  double flight = 0.15;
+  double flight = 0.1;
   auto times =
   {
       stance, flight, stance, flight,
@@ -238,6 +239,51 @@ QuadrupedGaitGenerator::GetStrideBound () const
   auto phase_contacts =
   {
       BI_, BB_, IB_, BB_,
+  };
+
+  return std::make_pair(times, phase_contacts);
+}
+
+QuadrupedGaitGenerator::GaitInfo
+QuadrupedGaitGenerator::GetStrideGallop () const
+{
+  double A = 0.3; // both feet in air
+  double B = 0.2; // overlap
+  double C = 0.2; // transition front->hind
+  auto times =
+  {
+      B, A, B,
+      C,
+      B, A, B,
+      C
+  };
+  auto phase_contacts =
+  {
+      Bb_, BI_, BP_,  // front legs swing forward
+      bP_,            // transition phase
+      bB_, IB_, PB_,  // hind legs swing forward
+      Pb_
+  };
+
+  return std::make_pair(times, phase_contacts);
+}
+
+QuadrupedGaitGenerator::GaitInfo
+QuadrupedGaitGenerator::GetStrideFlyingGallop () const
+{
+  double A = 0.3; // both feet in air
+  double B = 0.1; // overlap
+  auto times =
+  {
+      // from stelians paper
+      0.1, 0.1, 0.1,
+      0.3, 0.2, 0.2, 0.1
+  };
+  auto phase_contacts =
+  {
+      // from stelians paper
+      PI_, Pb_, Ib_,
+      IP_, II_, bI_, BI_,
   };
 
   return std::make_pair(times, phase_contacts);

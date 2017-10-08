@@ -78,6 +78,7 @@ GaitGenerator::SetGaits (const std::vector<GaitTypes>& gaits)
 
   for (GaitTypes g : gaits) {
     auto info = GetGait(g);
+
     std::vector<double>       t = info.first;
     std::vector<ContactState> c = info.second;
     assert(t.size() == c.size()); // make sure every phase has a time
@@ -85,6 +86,21 @@ GaitGenerator::SetGaits (const std::vector<GaitTypes>& gaits)
     times_.insert      (times_.end(), t.begin(), t.end());
     contacts_.insert(contacts_.end(), c.begin(), c.end());
   }
+}
+
+GaitGenerator::GaitInfo
+GaitGenerator::RemoveTransition (const GaitInfo& g) const
+{
+  GaitInfo new_gait = g;
+
+  // remove the final transition between strides
+  // but ensure that last step duration is not cut off
+  new_gait.first.pop_back();
+  new_gait.first.back() += g.first.back();
+
+  new_gait.second.pop_back();
+
+  return new_gait;
 }
 
 std::vector<std::string>
@@ -106,3 +122,5 @@ GaitGenerator::~GaitGenerator ()
 
 } /* namespace opt */
 } /* namespace xpp */
+
+

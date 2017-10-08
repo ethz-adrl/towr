@@ -19,18 +19,21 @@ public:
   virtual ~QuadrupedGaitGenerator ();
 
 private:
-  virtual GaitInfo GetGait(opt::GaitTypes gait) const override;
+  virtual GaitInfo GetGait(GaitTypes gait) const override;
 
   GaitInfo GetStrideStand() const;
   GaitInfo GetStrideFlight() const;
   GaitInfo GetStrideWalk() const;
   GaitInfo GetStrideWalkOverlap() const;
-  GaitInfo GetStrideWalkOverlapNoTransition() const;
   GaitInfo GetStrideTrot() const;
   GaitInfo GetStrideTrotFly() const;
   GaitInfo GetStridePace() const;
   GaitInfo GetStrideBound() const;
+  GaitInfo GetStrideGallop() const;
+  GaitInfo GetStrideFlyingGallop() const;
   GaitInfo GetStridePronk() const;
+
+  virtual void SetCombo(GaitCombos combo) override;
 
 
   // naming convention:, where the circle is is contact, front is right ->.

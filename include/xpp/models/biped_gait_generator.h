@@ -19,7 +19,7 @@ public:
   virtual ~BipedGaitGenerator ();
 
 private:
-  virtual GaitInfo GetGait(opt::GaitTypes gait) const override;
+  virtual GaitInfo GetGait(GaitTypes gait) const override;
 
   GaitInfo GetStrideStand() const;
   GaitInfo GetStrideFlight() const;

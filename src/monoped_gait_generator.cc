@@ -16,18 +16,18 @@ MonopedGaitGenerator::MonopedGaitGenerator ()
 }
 
 MonopedGaitGenerator::GaitInfo
-MonopedGaitGenerator::GetGait (opt::GaitTypes gait) const
+MonopedGaitGenerator::GetGait (GaitTypes gait) const
 {
   switch (gait) {
-    case opt::Stand:   return GetStrideStand();
-    case opt::Flight:  return GetStrideFlight();
-    case opt::Walk1:   return GetStrideHop();
-    case opt::Walk2:   return GetStrideHop();
-    case opt::Run1:    return GetStrideHop();
-    case opt::Run2:    return GetStrideHop();
-    case opt::Run3:    return GetStrideHop();
-    case opt::Hop1:    return GetStrideHop();
-    case opt::Hop2:    return GetStrideHop();
+    case Stand:   return GetStrideStand();
+    case Flight:  return GetStrideFlight();
+    case Walk1:   return GetStrideHop();
+    case Walk2:   return GetStrideHop();
+    case Run1:    return GetStrideHop();
+    case Run2:    return GetStrideHop();
+    case Run3:    return GetStrideHop();
+    case Hop1:    return GetStrideHop();
+    case Hop2:    return GetStrideHop();
     default: assert(false); // gait not implemented
   }
 }

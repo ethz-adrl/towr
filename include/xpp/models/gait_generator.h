@@ -19,25 +19,10 @@
 namespace xpp {
 namespace opt {
 
-enum GaitTypes {Stand=0, Flight, Walk1, Walk2, Walk3, Run2, Run1,  Run3, Hop1, Hop2, kNumGaits};
-static std::map<int, std::string> gait_names =
-{
-  {Stand,   "Stand"},
-  {Flight,  "Flight"},
-  {Walk1,   "Walk"},
-  {Walk2,   "WalkOverlap"},
-  {Walk3,   "WalkOverlapNoTransition"},
-  {Run1,    "Trot"},
-  {Run2,    "TrotFly"},
-  {Run3,    "Pace"},
-  {Hop1,    "Bound"},
-  {Hop2,    "Pronk"},
-};
-
 class GaitGenerator {
 public:
-  using Ptr = std::shared_ptr<GaitGenerator>;
-  using VecTimes = std::vector<double>;
+  using Ptr            = std::shared_ptr<GaitGenerator>;
+  using VecTimes       = std::vector<double>;
   using FootDurations  = std::vector<VecTimes>;
   using ContactState   = EndeffectorsBool;
   using GaitInfo       = std::pair<VecTimes,std::vector<ContactState>>;
@@ -47,6 +32,7 @@ public:
 
   VecTimes GetContactSchedule(EndeffectorID ee) const;
   VecTimes GetNormalizedContactSchedule(EndeffectorID ee) const;
+  bool IsInContactAtStart(EndeffectorID ee) const;
 
   //  contact_timings_.at(kMapIDToEE.at(L)) = {c+offset,f,c,f,c,f,c,f,c,f,c};
   //  contact_timings_.at(kMapIDToEE.at(R)) = {       c,f,c,f,c,f,c,f,c,f, c+offset};
@@ -54,8 +40,17 @@ public:
 
   std::vector<std::string> GetEndeffectorNames() const;
 
-  void SetGaits(const std::vector<GaitTypes>& gaits);
-  bool IsInContactAtStart(EndeffectorID ee) const;
+  enum GaitTypes {Stand=0, Flight,
+                  Walk1, Walk2, Walk3E,
+                  Run2, Run2E, Run1,  Run3,
+                  Hop1, Hop2, Hop3, Hop3E, Hop5, Hop5E,
+                  kNumGaits};
+  enum GaitCombos { Combo0=0, Combo1, Combo2, Combo3, kNumCombos };
+
+
+  virtual void SetCombo(GaitCombos combo) { assert(false); };
+
+
 
 
 
@@ -64,8 +59,17 @@ protected:
   std::vector<ContactState> contacts_;
   std::map<std::string, EndeffectorID> map_id_to_ee_; // must be filled by derived class
 
+  void SetGaits(const std::vector<GaitTypes>& gaits);
+
+  /**
+   * Removes the last phase that would transition to a new stride.
+   * This is usually neccessary for a gait change.
+   */
+  GaitInfo RemoveTransition(const GaitInfo& g) const;
+
 private:
   virtual GaitInfo GetGait(GaitTypes gait) const = 0;
+
 };
 
 } /* namespace opt */

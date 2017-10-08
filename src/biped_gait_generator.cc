@@ -21,22 +21,22 @@ BipedGaitGenerator::BipedGaitGenerator ()
   b_.At(map_id_to_ee_.at(biped::R)) = true;
   B_.SetAll(true);
 
-  SetGaits({opt::Stand});
+  SetGaits({Stand});
 }
 
 BipedGaitGenerator::GaitInfo
-BipedGaitGenerator::GetGait (opt::GaitTypes gait) const
+BipedGaitGenerator::GetGait (GaitTypes gait) const
 {
   switch (gait) {
-    case opt::Stand:   return GetStrideStand();
-    case opt::Flight:  return GetStrideFlight();
-    case opt::Walk1:   return GetStrideWalk();
-    case opt::Walk2:   return GetStrideWalk();
-    case opt::Run1:    return GetStrideRun();
-    case opt::Run2:    return GetStrideRun();
-    case opt::Run3:    return GetStrideRun();
-    case opt::Hop1:    return GetStrideHop();
-    case opt::Hop2:    return GetStrideHop();
+    case Stand:   return GetStrideStand();
+    case Flight:  return GetStrideFlight();
+    case Walk1:   return GetStrideWalk();
+    case Walk2:   return GetStrideWalk();
+    case Run1:    return GetStrideRun();
+    case Run2:    return GetStrideRun();
+    case Run3:    return GetStrideRun();
+    case Hop1:    return GetStrideHop();
+    case Hop2:    return GetStrideHop();
     default: assert(false); // gait not implemented
   }
 }
