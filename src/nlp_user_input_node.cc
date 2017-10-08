@@ -39,8 +39,8 @@ NlpUserInputNode::NlpUserInputNode ()
   goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
 
 
-  terrain_id_ = opt::HeightMap::FlatID;
-  gait_id_    = opt::Run1;
+  terrain_id_    = opt::HeightMap::FlatID;
+  gait_combo_id_ = opt::GaitGenerator::Combo1;
 }
 
 void
@@ -103,8 +103,8 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       break;
 
     case msg.KEY_g:
-      gait_id_ = AdvanceCircularBuffer(gait_id_, opt::kNumGaits-1);
-      ROS_INFO_STREAM("Switched gait to " + opt::gait_names.at(gait_id_) );
+      gait_combo_id_ = AdvanceCircularBuffer(gait_combo_id_, opt::GaitGenerator::kNumCombos-1);
+      ROS_INFO_STREAM("Switched gait to combo " + std::to_string(gait_combo_id_) );
       break;
 
 
@@ -124,8 +124,15 @@ NlpUserInputNode::CallbackKeyboard (const KeyboardMsg& msg)
       optimize_ = true;
       break;
     case msg.KEY_p:
-      ROS_INFO_STREAM("Publish optimized trajectory request sent");
-      publish_optimized_trajectory_ = true;
+      ROS_INFO_STREAM("ATTENTION: Are you sure you want to send this to the robot?");
+      ROS_INFO_STREAM("Press y and Enter in this window to continue...");
+      char input;
+      std::cin >> input;
+      if (input == 'y') {
+        publish_optimized_trajectory_ = true;
+        ROS_INFO_STREAM("Publish optimized trajectory request sent");
+      } else
+        ROS_INFO_STREAM("Aborted");
       break;
     case msg.KEY_s:
       ROS_INFO_STREAM("Toggled NLP solver type");
@@ -158,7 +165,7 @@ void NlpUserInputNode::PublishCommand()
   msg.use_solver_snopt  = use_solver_snopt_;
   msg.optimize          = optimize_;
   msg.terrain_id        = terrain_id_;
-  msg.gait_id           = gait_id_;
+  msg.gait_id           = gait_combo_id_;
   msg.total_duration    = total_duration_;
   msg.publish_traj      = publish_optimized_trajectory_;
 

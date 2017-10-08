@@ -47,14 +47,14 @@ private:
 
   State3dEuler goal_geom_;
   int terrain_id_;
-  int gait_id_;
+  int gait_combo_id_;
   bool replay_trajectory_ = false;
   bool use_solver_snopt_ = false;
   bool optimize_ = false;
   bool publish_optimized_trajectory_ = false;
 
 //  int gait_type_;
-  double total_duration_ = 3.0;
+  double total_duration_ = 2.0;
 
 
 //  JoyMsg joy_msg_;

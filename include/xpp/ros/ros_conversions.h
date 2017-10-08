@@ -217,6 +217,19 @@ XppToRos(const std::vector<RobotStateCartesian>& xpp)
   return msg;
 }
 
+static std::vector<RobotStateCartesian>
+RosToXpp(const xpp_msgs::RobotStateCartesianTrajectory& ros)
+{
+  std::vector<RobotStateCartesian> xpp_vec;
+
+  for (const auto ros_state : ros.points) {
+    auto xpp = RosToXpp(ros_state);
+    xpp_vec.push_back(xpp);
+  }
+
+  return xpp_vec;
+}
+
 
 
 //using RobotStateCommonMsg = xpp_msgs::RobotStateCommon;

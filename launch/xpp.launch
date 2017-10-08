@@ -5,10 +5,5 @@
   
   <include file="$(find xpp_ros)/launch/xpp_params.launch"></include>
 
-  <!-- IPOPT and SNOPT require the executable to be launched from the file -->
-  <!-- where the config files are stored, so set this in your ~./bashrc    -->
-  <!-- export ROS_HOME="/path/to/xpp_opt/config"  -->
-  <param name="dummy" value="$(env ROS_HOME)" />
   <node name="nlp_optimizer_node" pkg="xpp_ros" type="nlp_optimizer_node" output="screen"/>
-  
 </launch>

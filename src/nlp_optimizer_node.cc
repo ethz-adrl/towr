@@ -105,7 +105,9 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
   motion_optimizer_.SetTerrainFromAvgFootholdHeight();
 
 
-//  motion_optimizer_.model_.SetInitialGait(msg.gait_id);
+  motion_optimizer_.model_.MakeHyqModel();
+  auto gait = static_cast<opt::GaitGenerator::GaitCombos>(msg.gait_id);
+  motion_optimizer_.model_.gait_generator_->SetCombo(gait);
   motion_optimizer_.params_->SetTotalDuration(msg.total_duration);
 
   motion_optimizer_.nlp_solver_ = msg.use_solver_snopt ? MotionOptimizerFacade::Snopt : MotionOptimizerFacade::Ipopt;
