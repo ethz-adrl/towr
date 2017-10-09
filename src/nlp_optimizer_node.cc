@@ -56,12 +56,35 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   dt_          = RosConversions::GetDoubleFromServer("/xpp/trajectory_dt");
   rosbag_folder_ = RosConversions::GetStringFromServer("/xpp/rosbag_name");
+
+  user_command_msg_.total_duration = 0.1;
 }
 
 void
 NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg)
 {
   auto curr_state = RosConversions::RosToXpp(msg);
+
+  // some logging of the real robot state sent from SL
+  if (save_current_state_)
+    curr_states_log_.push_back(curr_state);
+
+  // end of current batch
+  if (curr_state.t_global_ > user_command_msg_.total_duration-10*dt_) {
+    // get current date and time
+    std::string subfolder = "/published/";
+    time_t _tm =time(NULL );
+    struct tm * curtime = localtime ( &_tm );
+    std::string name = rosbag_folder_ + subfolder + asctime(curtime) + "_real.bag";
+    SaveOptimizationAsRosbag(name, false);
+
+    rosbag::Bag bag;
+    bag.open(name, rosbag::bagmode::Write);
+    SaveTrajectoryInRosbag(bag, curr_states_log_, xpp_msgs::robot_state_current);
+    bag.close();
+    save_current_state_ = false; // reached the end of trajectory
+  }
+
 //  motion_optimizer_.initial_ee_W_ = curr_state.GetEEPos();
 
   motion_optimizer_.inital_base_     = State3dEuler(); // zero
@@ -134,13 +157,16 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
     auto traj_msg = BuildTrajectoryMsg();
     cart_trajectory_pub_.publish(traj_msg);
 
-    for (int i=0; i<4; ++i) {
-      std::cout << "xyz feet: ";
-      std::cout << traj_msg.points.front().ee_motion.at(i).pos.x << ", ";
-      std::cout << traj_msg.points.front().ee_motion.at(i).pos.y << ", ";
-      std::cout << traj_msg.points.front().ee_motion.at(i).pos.z << ", ";
-      std::cout << std::endl;
-    }
+    curr_states_log_.clear();
+    save_current_state_ = true;
+
+//    for (int i=0; i<4; ++i) {
+//      std::cout << "xyz feet: ";
+//      std::cout << traj_msg.points.front().ee_motion.at(i).pos.x << ", ";
+//      std::cout << traj_msg.points.front().ee_motion.at(i).pos.y << ", ";
+//      std::cout << traj_msg.points.front().ee_motion.at(i).pos.z << ", ";
+//      std::cout << std::endl;
+//    }
 
     // get current date and time
     std::string subfolder = "/published/";

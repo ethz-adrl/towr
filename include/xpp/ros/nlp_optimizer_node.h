@@ -53,6 +53,8 @@ private:
 
   std::string rosbag_folder_; ///< folder to save bags
   std::string bag_name_ = "/optimal_traj.bag";
+  std::vector<RobotStateCartesian> curr_states_log_;
+  bool save_current_state_ = false;
 
   xpp_msgs::RobotStateCartesianTrajectory BuildTrajectoryMsg() const;
 
