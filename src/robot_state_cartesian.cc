@@ -39,5 +39,26 @@ RobotStateCartesian::GetEEAcc () const
   return acc_W;
 }
 
+Endeffectors<Vector3d>
+RobotStateCartesian::GetEEVelInBase () const
+{
+  using namespace Eigen;
+  Endeffectors<Vector3d> vel_B(ee_motion_.GetCount());
+  Vector3d base_ang_W = base_.ang.v;
+  Vector3d base_lin_W = base_.lin.v_;
+  Matrix3d B_R_W = base_.ang.q.normalized().toRotationMatrix().transpose();
+
+  for (auto ee : ee_motion_.GetEEsOrdered()) {
+
+    Vector3d pos_ee_W = ee_motion_.At(ee).p_;
+    Vector3d vel_ee_W = ee_motion_.At(ee).v_;
+
+    Vector3d rel_vel_ee_W = vel_ee_W - base_lin_W + base_ang_W.cross(pos_ee_W);
+    vel_B.At(ee) = B_R_W * rel_vel_ee_W;
+  }
+
+  return vel_B;
+}
+
 } /* namespace xpp */
 

@@ -23,6 +23,8 @@ public:
   Endeffectors<Vector3d> GetEEAcc() const;
   EndeffectorsBool GetContactState() const { return ee_contact_; };
 
+  Endeffectors<Vector3d> GetEEVelInBase() const;
+
   State3d base_;
   double t_global_;
   Endeffectors<StateLin3d> ee_motion_;

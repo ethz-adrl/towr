@@ -38,7 +38,7 @@ private:
   void FillJacobianWithRespectTo(std::string var_set, Jacobian&) const;
 
   double weight_ = 1.0;
-  MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar costst
+  MatVec matrix_vector_;  ///< a matrix and a vector used to calculate a scalar cost
   std::string variables_;
 };
 

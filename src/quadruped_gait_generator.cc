@@ -56,14 +56,16 @@ void
 QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
 {
   switch (combo) {
-    case Combo0: SetGaits({Stand, Walk1, Walk1, Walk1, Stand});  break; // conservative-walk
-    case Combo1: SetGaits({Stand, Walk2, Walk2, Walk2E, Stand}); break; // overlap-walk
-    case Combo2: SetGaits({Stand, Run1, Run1, Run1, Stand});     break; // conservative trot
-    case Combo3: SetGaits({Stand, Run2, Run2, Run2E, Stand});    break; // flying trot
-    case Combo4: SetGaits({Stand, Run3, Run3, Run3, Stand});     break; // pace
-    case Combo5: SetGaits({Stand, Hop1, Hop1, Hop1, Stand});     break; // bound
-    case Combo6: SetGaits({Stand, Hop3, Hop3, Hop3E, Stand});    break; // gallop
-    case Combo7: SetGaits({Stand, Hop2});                        break; // pronk
+    case Combo0: SetGaits({Stand});  break; // just standing to reach default end
+    case Combo1: SetGaits({Stand, Flight, Stand});  break; // conservative-walk
+    case Combo2: SetGaits({Stand, Walk1, Stand}); break; // conservative-walk
+    case Combo3: SetGaits({Stand, Walk2, Walk2, Walk2E, Stand}); break; // overlap-walk
+    case Combo4: SetGaits({Stand, Run1, Run1, Stand});     break; // conservative trot
+//    case Combo4: SetGaits({Stand, Run2, Run2, Run2E, Stand});    break; // flying trot
+    case Combo5: SetGaits({Stand, Run3, Stand});     break; // pace
+    case Combo6: SetGaits({Stand, Hop1, Hop1, Hop1, Stand});     break; // bound
+    case Combo7: SetGaits({Stand, Hop3, Hop3, Hop3E, Stand});    break; // gallop
+    case Combo8: SetGaits({Stand, Hop2});                        break; // pronk
     default: assert(false); break; // gait combo not implemented
   }
 }
@@ -115,7 +117,7 @@ QuadrupedGaitGenerator::GetStrideFlight () const
   };
   auto contacts =
   {
-      II_,
+      Bb_,
   };
 
   return std::make_pair(times, contacts);
@@ -141,7 +143,7 @@ QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideWalk () const
 {
   double step  = 0.3;
-  double stand = 0.1;
+  double stand = 0.3; // 0.1 was previously
   auto times =
   {
       step, stand, step, stand,

@@ -37,6 +37,8 @@ public:
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
 
+  void SetInitialState(const RobotStateCartesian&);
+
   enum NlpSolver { Ipopt, Snopt } nlp_solver_;
   void SolveProblem();
   std::vector<RobotStateVec> GetIntermediateSolutions(double dt) const;

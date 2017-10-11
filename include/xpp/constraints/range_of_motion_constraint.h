@@ -41,10 +41,9 @@ namespace opt {
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
   using VecTimes        = std::vector<double>;
-  using MotionParamsPtr = std::shared_ptr<OptimizationParameters>;
 
   RangeOfMotionBox(const OptVarsPtr& opt_vars,
-                   const MotionParamsPtr& params,
+                   const OptimizationParameters& params,
                    const KinematicModel::Ptr& kinematic_model,
                    const EndeffectorID& ee);
   virtual ~RangeOfMotionBox();
