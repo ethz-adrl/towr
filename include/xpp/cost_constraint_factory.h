@@ -72,6 +72,7 @@ private:
   ComponentPtr MakeTerrainConstraint() const;
   ComponentPtr MakeForceConstraint() const;
   ComponentPtr MakeSwingConstraint() const;
+  ComponentPtr MakeBaseRangeOfMotionConstraint() const;
 
   // costs
   ComponentPtr MakeForcesCost(double weight) const;

@@ -11,6 +11,8 @@
 #include <initializer_list>
 #include <stdexcept>
 
+#include <Eigen/src/Core/CommaInitializer.h>
+#include <xpp/constraints/base_motion_constraint.h>
 #include <xpp/constraints/dynamic_constraint.h>
 #include <xpp/constraints/force_constraint.h>
 #include <xpp/constraints/range_of_motion_constraint.h>
@@ -19,8 +21,8 @@
 #include <xpp/constraints/terrain_constraint.h>
 #include <xpp/costs/node_cost.h>
 #include <xpp/costs/soft_constraint.h>
+#include <xpp/models/dynamic_model.h>
 #include <xpp/variables/contact_schedule.h>
-#include <xpp/variables/spline.h>
 #include <xpp/variables/variable_names.h>
 
 
@@ -58,13 +60,14 @@ CostConstraintFactory::ComponentPtr
 CostConstraintFactory::GetConstraint (ConstraintName name) const
 {
   switch (name) {
-    case BasePoly:  return MakeStateConstraint();
-    case Dynamic:   return MakeDynamicConstraint();
-    case RomBox:    return MakeRangeOfMotionBoxConstraint();
-    case TotalTime: return MakeTotalTimeConstraint();
-    case Terrain:   return MakeTerrainConstraint();
-    case Force:     return MakeForceConstraint();
-    case Swing:     return MakeSwingConstraint();
+    case BasePoly:       return MakeStateConstraint();
+    case Dynamic:        return MakeDynamicConstraint();
+    case EndeffectorRom: return MakeRangeOfMotionBoxConstraint();
+    case BaseRom:        return MakeBaseRangeOfMotionConstraint();
+    case TotalTime:      return MakeTotalTimeConstraint();
+    case Terrain:        return MakeTerrainConstraint();
+    case Force:          return MakeForceConstraint();
+    case Swing:          return MakeSwingConstraint();
     default: throw std::runtime_error("constraint not defined!");
   }
 }
@@ -113,6 +116,7 @@ CostConstraintFactory::MakeStateConstraint () const
   constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, PosVelAcc_));
 
 
+
 //  // endeffector constraints
 //  for (auto ee : params->robot_ee_) {
 //
@@ -137,32 +141,11 @@ CostConstraintFactory::MakeStateConstraint () const
   return constraints;
 }
 
-
-//CostConstraintFactory::ComponentPtr
-//CostConstraintFactory::MakeJunctionConstraint () const
-//{
-//  auto junction_constraints = std::make_shared<Composite>("Junctions Constraints", true);
-//
-//  // acceleration important b/c enforcing system dynamics only once at the
-//  // junction, so make sure second polynomial also respect that by making
-//  // its accelerations equal to the first.
-//  auto derivatives = {kPos, kVel, kAcc};
-//
-//  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_linear, derivatives));
-//  junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::base_angular, derivatives));
-//
-////  for (auto ee : params->robot_ee_) {
-////    auto durations_ee = contact_schedule_->GetTimePerPhase(ee);
-//
-////    auto derivs_pos_vel = {kPos, kVel};
-////    junction_constraints->AddComponent(std::make_shared<SplineJunctionConstraint>(opt_vars_, id::GetEEId(ee), durations_ee, derivs_pos_vel));
-//
-////  }
-//
-//  return junction_constraints;
-//}
-
-
+CostConstraintFactory::ComponentPtr
+CostConstraintFactory::MakeBaseRangeOfMotionConstraint () const
+{
+  return std::make_shared<BaseMotionConstraint>(opt_vars_, *params);
+}
 
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeDynamicConstraint() const
@@ -216,7 +199,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 
   for (auto ee : GetEEIDs()) {
     auto rom_constraints = std::make_shared<RangeOfMotionBox>(opt_vars_,
-                                                              params,
+                                                              *params,
                                                               model_.kinematic_model_,
                                                               ee);
     c->AddComponent(rom_constraints);
@@ -304,17 +287,17 @@ CostConstraintFactory::MakeForcesCost(double weight) const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeMotionCost(double weight) const
 {
-//  auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", false);
-//
-//  VectorXd weight_xyz(kDim3d); weight_xyz << 1.0, 1.0, 1.0;
-//  base_acc_cost->AddComponent(MakePolynomialCost(id::base_linear, weight_xyz, weight));
-//
-//  VectorXd weight_angular(kDim3d); weight_angular << 0.1, 0.1, 0.1;
-//  base_acc_cost->AddComponent(MakePolynomialCost(id::base_angular, weight_angular, weight));
-//
-//  return base_acc_cost;
+  auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", false);
 
-  return std::make_shared<NodeCost>(opt_vars_, id::base_linear);
+  VectorXd weight_xyz(kDim3d); weight_xyz << 1.0, 1.0, 1.0;
+  base_acc_cost->AddComponent(MakePolynomialCost(id::base_linear, weight_xyz, weight));
+
+  VectorXd weight_angular(kDim3d); weight_angular << 0.1, 0.1, 0.1;
+  base_acc_cost->AddComponent(MakePolynomialCost(id::base_angular, weight_angular, weight));
+
+  return base_acc_cost;
+
+//  return std::make_shared<NodeCost>(opt_vars_, id::base_linear);
 }
 
 CostConstraintFactory::ComponentPtr
