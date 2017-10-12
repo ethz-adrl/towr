@@ -57,16 +57,17 @@ QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
 {
   switch (combo) {
     case Combo0: SetGaits({Stand});  break; // just standing to reach default end
-    case Combo1: SetGaits({Stand, Flight, Stand});  break; // conservative-walk
+    case Combo1: SetGaits({Stand, Flight, Stand});  break; // lift one leg
     case Combo2: SetGaits({Stand, Walk1, Stand}); break; // conservative-walk
-    case Combo3: SetGaits({Stand, Walk2, Walk2, Walk2E, Stand}); break; // overlap-walk
-    case Combo4: SetGaits({Stand, Run1, Run1, Stand});     break; // conservative trot
-//    case Combo4: SetGaits({Stand, Run2, Run2, Run2E, Stand});    break; // flying trot
-    case Combo5: SetGaits({Stand, Run3, Stand});     break; // pace
-    case Combo6: SetGaits({Stand, Hop1, Hop1, Hop1, Stand});     break; // bound
+    case Combo3: SetGaits({Stand, Walk1, Walk1, Stand}); break; // conservative-walk
+    case Combo4: SetGaits({Stand, Stand, Run3, Stand, Stand}); break; // pace
+    case Combo5: SetGaits({Stand, Walk2, Walk2E, Stand}); break; // overlap-walk
+    case Combo6: SetGaits({Stand, Hop1, Stand});     break; // bound
     case Combo7: SetGaits({Stand, Hop3, Hop3, Hop3E, Stand});    break; // gallop
     case Combo8: SetGaits({Stand, Hop2});                        break; // pronk
-    default: assert(false); break; // gait combo not implemented
+//    case Combo4: SetGaits({Stand, Run1, Run1, Stand});     break; // conservative trot
+//    case Combo4: SetGaits({Stand, Run2, Run2, Run2E, Stand});    break; // flying trot
+    default: assert(false); std::cout << "Gait not defined\n"; break; // gait combo not implemented
   }
 }
 

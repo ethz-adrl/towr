@@ -7,13 +7,11 @@
 
 #include <xpp/variables/coeff_spline.h>
 
+#include <numeric>
 #include <tuple>
 #include <utility>
+#include <Eigen/Dense>
 
-#include <xpp/cartesian_declarations.h>
-#include <xpp/composite.h>
-#include <xpp/polynomial.h>
-#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {

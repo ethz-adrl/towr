@@ -13,9 +13,10 @@
 #include <utility>
 #include <vector>
 
-#include <xpp/cartesian_declarations.h>
-#include <xpp/polynomial.h>
-#include <xpp/state.h>
+#include <xpp_states/cartesian_declarations.h>
+#include <xpp_states/state.h>
+
+#include <xpp/composite.h>
 
 namespace xpp {
 namespace opt {

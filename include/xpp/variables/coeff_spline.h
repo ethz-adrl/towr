@@ -8,16 +8,17 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_COEFF_SPLINE_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_COEFF_SPLINE_H_
 
-#include <memory>
 #include <string>
 #include <vector>
 
-#include <xpp/cartesian_declarations.h>
+#include <xpp_states/cartesian_declarations.h>
+#include <xpp_states/state.h>
+
 #include <xpp/composite.h>
 #include <xpp/polynomial.h>
-#include <xpp/state.h>
 
 #include "spline.h"
+
 
 namespace xpp {
 namespace opt {

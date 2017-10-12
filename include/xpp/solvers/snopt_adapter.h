@@ -9,7 +9,8 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_
 
 #include <snoptProblem.hpp>
-#include "nlp.h"
+
+#include <xpp/nlp.h>
 
 namespace xpp {
 namespace opt {

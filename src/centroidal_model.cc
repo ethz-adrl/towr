@@ -7,13 +7,10 @@
 
 #include <xpp/models/centroidal_model.h>
 
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
+#include <vector>
 
-#include <xpp/cartesian_declarations.h>
-#include <xpp/composite.h>
-#include <xpp/endeffectors.h>
-#include <xpp/state.h>
+#include <xpp_states/cartesian_declarations.h>
+
 
 namespace xpp {
 namespace opt {

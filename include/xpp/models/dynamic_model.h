@@ -9,10 +9,13 @@
 #define XPP_OPT_INCLUDE_XPP_MODELS_DYNAMIC_MODEL_H_
 
 #include <memory>
+#include <vector>
+
+#include <xpp_states/endeffectors.h>
+#include <xpp_states/state.h>
 
 #include <xpp/composite.h>
-#include <xpp/endeffectors.h>
-#include <xpp/state.h>
+
 
 namespace xpp {
 namespace opt {

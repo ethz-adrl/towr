@@ -10,25 +10,26 @@
 #include <algorithm>
 #include <cassert>
 #include <deque>
+#include <Eigen/Sparse>
 #include <string>
 #include <tuple>
 #include <utility>
-#include <Eigen/Sparse>
 
 #include <kindr/rotations/Rotation.hpp>
+#include <xpp_states/cartesian_declarations.h>
 
 #include <xpp/angular_state_converter.h>
-#include <xpp/cartesian_declarations.h>
 #include <xpp/cost_constraint_factory.h>
-#include <xpp/models/robot_model.h>
+#include <xpp/models/gait_generator.h>
+#include <xpp/models/kinematic_model.h>
 #include <xpp/polynomial.h>
 #include <xpp/variables/coeff_spline.h>
 #include <xpp/variables/contact_schedule.h>
 #include <xpp/variables/phase_nodes.h>
 #include <xpp/variables/variable_names.h>
 
-#include <xpp/ipopt_adapter.h>
-#include <xpp/snopt_adapter.h>
+#include <xpp/solvers/snopt_adapter.h>
+#include <xpp/solvers/ipopt_adapter.h>
 
 namespace xpp {
 namespace opt {
@@ -68,10 +69,16 @@ MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& curr_state)
 //  motion_optimizer_.inital_base_.lin.v_.setZero();
 //  motion_optimizer_.inital_base_.lin.a_.setZero();
 
+  // spring_clean_ better use this at some point
+//  inital_base_.ang.p_ = GetEulerZYXAngles(curr_state.base_.ang.q);
+
   kindr::RotationQuaternionD quat(curr_state.base_.ang.q);
   kindr::EulerAnglesZyxD euler(quat);
   euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
   inital_base_.ang.p_ = euler.toImplementation().reverse();
+
+
+
   SetIntialFootholds(curr_state.GetEEPos());
 }
 

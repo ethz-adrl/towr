@@ -9,8 +9,9 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include <memory>
 
-#include <xpp/cartesian_declarations.h>
+#include <xpp_states/cartesian_declarations.h>
 #include <xpp/variables/variable_names.h>
 
 namespace xpp {

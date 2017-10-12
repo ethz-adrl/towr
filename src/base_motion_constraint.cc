@@ -26,14 +26,15 @@ BaseMotionConstraint::BaseMotionConstraint (const OptVarsPtr& opt_vars,
 
   double z_init = base_linear_->GetPoint(0.0).p_.z();
 
-  double dev_rad = 0.2;
+  double dev_rad = 0.1;
   node_bounds_.resize(kDim6d);
   node_bounds_.at(AX) = NLPBound(-dev_rad, dev_rad);
   node_bounds_.at(AY) = NLPBound(-dev_rad, dev_rad);
-  node_bounds_.at(AZ) = kNoBound_;
+  node_bounds_.at(AZ) = NLPBound(-dev_rad, dev_rad); // kNoBound
   node_bounds_.at(LX) = kNoBound_;
-  node_bounds_.at(LY) = kNoBound_;
-  node_bounds_.at(LZ) = NLPBound(z_init-0.1, z_init+0.1); // allow to move 10cm up and down
+  node_bounds_.at(LY) = kNoBound_;//NLPBound(-0.05, 0.05);
+  double dev_z = 0.05;
+  node_bounds_.at(LZ) = NLPBound(z_init-dev_z, z_init+dev_z); // allow to move 10cm up and down
 
   SetRows(GetNumberOfNodes()*node_bounds_.size());
 }

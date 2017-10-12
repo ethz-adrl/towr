@@ -8,17 +8,17 @@
 #ifndef XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 #define XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
 
-#include <memory>
 #include <string>
 #include <vector>
 
+#include <xpp_states/endeffectors.h>
+#include <xpp_states/state.h>
+
 #include <xpp/angular_state_converter.h>
 #include <xpp/composite.h>
-#include <xpp/endeffectors.h>
 #include <xpp/models/kinematic_model.h>
 #include <xpp/nlp_bound.h>
 #include <xpp/optimization_parameters.h>
-#include <xpp/state.h>
 #include <xpp/variables/contact_schedule.h>
 #include <xpp/variables/node_values.h>
 #include <xpp/variables/spline.h>
@@ -40,7 +40,7 @@ namespace opt {
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
-  using VecTimes        = std::vector<double>;
+//  using VecTimes        = std::vector<double>;
 
   RangeOfMotionBox(const OptVarsPtr& opt_vars,
                    const OptimizationParameters& params,

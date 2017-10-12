@@ -6,7 +6,10 @@
  */
 
 #include <xpp/optimization_parameters.h>
-#include <xpp/cartesian_declarations.h>
+
+#include <algorithm>
+#include <initializer_list>
+#include <iterator>
 
 namespace xpp {
 namespace opt {
@@ -27,7 +30,7 @@ OptimizationParameters::OptimizationParameters ()
   dt_range_of_motion_ = 0.1;
   ee_splines_per_swing_phase_ = 2; // should always be 2 if i want to use swing constraint!
 
-  dt_base_range_of_motion_ = dt_base_polynomial_;
+  dt_base_range_of_motion_ = dt_base_polynomial_/4.;
 
 
   min_phase_duration_ = 0.1;
