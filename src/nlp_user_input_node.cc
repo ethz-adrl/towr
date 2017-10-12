@@ -5,7 +5,7 @@
  @brief   Defines the NlpUserInputNode class
  */
 
-#include <xpp/ros/nlp_user_input_node.h>
+#include <xpp_opt_ros/nlp_user_input_node.h>
 
 #include <iostream>
 #include <vector>
@@ -16,8 +16,9 @@
 #include <std_msgs/Empty.h>         // send to trigger walking
 #include <xpp_msgs/UserCommand.h>   // send to optimizer node
 
-#include <xpp/ros/ros_conversions.h>
-#include <xpp/ros/topic_names.h>
+#include <xpp_msgs/topic_names.h>
+#include <xpp_ros_conversions/ros_conversions.h>
+
 #include <xpp/height_map.h>
 #include <xpp/models/gait_generator.h>
 
@@ -40,7 +41,7 @@ NlpUserInputNode::NlpUserInputNode ()
 
 
   terrain_id_    = opt::HeightMap::FlatID;
-  gait_combo_id_ = opt::GaitGenerator::Combo1;
+  gait_combo_id_ = opt::GaitGenerator::Combo0;
 }
 
 void

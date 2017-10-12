@@ -5,7 +5,7 @@
  @brief   Defines the ROS node that initializes/calls the NLP optimizer.
  */
 
-#include <xpp/ros/nlp_optimizer_node.h>
+#include <xpp_opt_ros/nlp_optimizer_node.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -23,12 +23,12 @@
 #include <rosconsole/macros_generated.h>
 #include <std_msgs/Int32.h>
 
-#include <kindr/rotations/Rotation.hpp>
+#include <xpp_states/state.h>
+
+#include <xpp_msgs/topic_names.h>
+#include <xpp_ros_conversions/ros_conversions.h>
 
 #include <xpp/optimization_parameters.h>
-#include <xpp/state.h>
-#include <xpp/ros/ros_conversions.h>
-#include <xpp/ros/topic_names.h>
 #include <xpp/height_map.h>
 
 namespace xpp {
@@ -54,46 +54,40 @@ NlpOptimizerNode::NlpOptimizerNode ()
   opt_parameters_pub_  = n.advertise<xpp_msgs::OptParameters>
                                     (xpp_msgs::opt_parameters, 1);
 
-  dt_          = RosConversions::GetDoubleFromServer("/xpp/trajectory_dt");
+  dt_            = RosConversions::GetDoubleFromServer("/xpp/trajectory_dt");
   rosbag_folder_ = RosConversions::GetStringFromServer("/xpp/rosbag_name");
+
+  user_command_msg_.total_duration = 0.1;
 }
 
 void
 NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg)
 {
   auto curr_state = RosConversions::RosToXpp(msg);
-//  motion_optimizer_.initial_ee_W_ = curr_state.GetEEPos();
 
-  motion_optimizer_.inital_base_     = State3dEuler(); // zero
-  motion_optimizer_.inital_base_.lin = curr_state.base_.lin;
-//  motion_optimizer_.inital_base_.lin.v_.setZero();
-//  motion_optimizer_.inital_base_.lin.a_.setZero();
+  // some logging of the real robot state sent from SL
+  if (save_current_state_)
+    curr_states_log_.push_back(curr_state);
 
-  motion_optimizer_.SetIntialFootholds(curr_state.GetEEPos());
+  // end of current batch
+  if (curr_state.t_global_ > user_command_msg_.total_duration-10*dt_) {
+    // get current date and time
+    std::string subfolder = "/published/";
+    time_t _tm = time(NULL );
+    struct tm * curtime = localtime ( &_tm );
+    std::string name = rosbag_folder_ + subfolder + asctime(curtime) + "_real.bag";
 
+    rosbag::Bag bag;
+    bag.open(name, rosbag::bagmode::Write);
+    SaveTrajectoryInRosbag(bag, curr_states_log_, xpp_msgs::robot_state_current);
+    bag.close();
+    save_current_state_ = false; // reached the end of trajectory
+  }
 
-
-//  ROS_INFO_STREAM("Received Current State. Setting only positions, zeroing velocity and accelerations");
-//  motion_optimizer_.inital_base_.ang.p_ = GetEulerZYXAngles(curr_state.base_.ang.q);
-
-
-  kindr::RotationQuaternionD quat(curr_state.base_.ang.q);
-  kindr::EulerAnglesZyxD euler(quat);
-  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
-//  std::cout << euler.toImplementation();
-  motion_optimizer_.inital_base_.ang.p_ = euler.toImplementation().reverse();
-
-//  curr_state.base_.ang.q.setIdentity();
-
-//  std::cout << "\n\ncurrent_state: ";
-//  std::cout << curr_state.base_;
-//
-//  std::cout << "all endeffectors:\n";
-//  for (auto ee : curr_state.ee_contact_.GetEEsOrdered()) {
-//    std::cout << curr_state.ee_motion_.At(ee).p_.transpose();
-//    std::cout << curr_state.ee_contact_.At(ee);
-//    std::cout << curr_state.ee_forces_.At(ee).transpose();
-//  }
+  if (first_callback_) {
+    motion_optimizer_.SetInitialState(curr_state);
+    first_callback_ = false;
+  }
 }
 
 void
@@ -134,13 +128,20 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
     auto traj_msg = BuildTrajectoryMsg();
     cart_trajectory_pub_.publish(traj_msg);
 
-    for (int i=0; i<4; ++i) {
-      std::cout << "xyz feet: ";
-      std::cout << traj_msg.points.front().ee_motion.at(i).pos.x << ", ";
-      std::cout << traj_msg.points.front().ee_motion.at(i).pos.y << ", ";
-      std::cout << traj_msg.points.front().ee_motion.at(i).pos.z << ", ";
-      std::cout << std::endl;
-    }
+    // this is where next motion will start from
+    auto final_state = motion_optimizer_.GetTrajectory(dt_).back();
+    motion_optimizer_.SetInitialState(final_state);
+
+    curr_states_log_.clear();
+    save_current_state_ = true;
+
+//    for (int i=0; i<4; ++i) {
+//      std::cout << "xyz feet: ";
+//      std::cout << traj_msg.points.front().ee_motion.at(i).pos.x << ", ";
+//      std::cout << traj_msg.points.front().ee_motion.at(i).pos.y << ", ";
+//      std::cout << traj_msg.points.front().ee_motion.at(i).pos.z << ", ";
+//      std::cout << std::endl;
+//    }
 
     // get current date and time
     std::string subfolder = "/published/";

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(xpp_ros)
+project(xpp_opt_ros)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -10,11 +10,10 @@ find_package(catkin REQUIRED
   joy
   xpp_msgs
   xpp_opt
+  xpp_ros_conversions
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++11") 
-
-set(LIB_NAME xpp_ros)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -107,8 +106,8 @@ set(LIB_NAME xpp_ros)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
    INCLUDE_DIRS include
-   LIBRARIES ${LIB_NAME}
-   CATKIN_DEPENDS xpp_opt xpp_msgs
+   LIBRARIES ${PROJECT_NAME}
+   CATKIN_DEPENDS xpp_msgs
 #  DEPENDS system_lib
 )
 
@@ -124,11 +123,11 @@ include_directories(
 )
 
 # Declare a C++ library
-add_library(${LIB_NAME}
+add_library(${PROJECT_NAME}
   src/nlp_optimizer_node.cc
   src/nlp_user_input_node.cc
 )
-target_link_libraries(${LIB_NAME}
+target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
@@ -136,7 +135,7 @@ add_executable(nlp_optimizer_node
   src/executable/nlp_optimizer_node_exe.cc
 )
 target_link_libraries(nlp_optimizer_node 
-  ${LIB_NAME}
+  ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )  
                                                  
@@ -145,7 +144,7 @@ add_executable(nlp_user_input_node
     src/executable/nlp_user_input_node_exe.cc
 )
 target_link_libraries(nlp_user_input_node 
-  ${LIB_NAME}
+  ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
@@ -153,7 +152,7 @@ add_executable(robot_state_publisher
     src/executable/robot_state_publisher.cc
 )
 target_link_libraries(robot_state_publisher
-  ${LIB_NAME}
+  ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 

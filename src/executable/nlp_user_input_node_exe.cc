@@ -7,7 +7,7 @@
 
 #include <ros/init.h>
 
-#include <xpp/ros/nlp_user_input_node.h>
+#include <xpp_opt_ros/nlp_user_input_node.h>
 
 int main(int argc, char *argv[])
 {

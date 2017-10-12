@@ -19,9 +19,10 @@
 #include <xpp_msgs/OptParameters.h>
 #include <xpp_msgs/UserCommand.h>    // receive from user
 
+#include <xpp_states/robot_state_cartesian.h>
+
 #include <xpp/motion_optimizer_facade.h>
 #include <xpp/nlp.h>
-#include <xpp/robot_state_cartesian.h>
 
 namespace xpp {
 namespace ros {
@@ -38,6 +39,7 @@ private:
 
   void OptimizeMotion();
   void CurrentStateCallback(const xpp_msgs::RobotStateCartesian&);
+
   void UserCommandCallback(const xpp_msgs::UserCommand&);
 
   ::ros::Subscriber user_command_sub_;
@@ -50,9 +52,12 @@ private:
 
   xpp_msgs::UserCommand user_command_msg_;
 
+  bool first_callback_ = true;
 
   std::string rosbag_folder_; ///< folder to save bags
   std::string bag_name_ = "/optimal_traj.bag";
+  std::vector<RobotStateCartesian> curr_states_log_;
+  bool save_current_state_ = false;
 
   xpp_msgs::RobotStateCartesianTrajectory BuildTrajectoryMsg() const;
 

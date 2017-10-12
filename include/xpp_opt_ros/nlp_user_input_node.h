@@ -14,7 +14,7 @@
 #include <keyboard/Key.h>
 #include <sensor_msgs/Joy.h>
 
-#include <xpp/state.h>
+#include <xpp_states/state.h>
 
 
 namespace xpp {

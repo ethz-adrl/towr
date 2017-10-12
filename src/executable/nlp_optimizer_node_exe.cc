@@ -6,7 +6,7 @@
  */
 
 #include <ros/ros.h>
-#include <xpp/ros/nlp_optimizer_node.h>
+#include <xpp_opt_ros/nlp_optimizer_node.h>
 
 
 int main(int argc, char *argv[])
