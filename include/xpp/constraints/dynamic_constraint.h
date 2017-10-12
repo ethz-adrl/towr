@@ -8,20 +8,20 @@
 #ifndef XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
 #define XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
 
-#include <memory>
 #include <string>
 #include <vector>
 
+#include <xpp_states/cartesian_declarations.h>
+
 #include <xpp/angular_state_converter.h>
-#include <xpp/cartesian_declarations.h>
 #include <xpp/composite.h>
 #include <xpp/models/dynamic_model.h>
 #include <xpp/nlp_bound.h>
 #include <xpp/variables/contact_schedule.h>
+#include <xpp/variables/node_values.h>
 #include <xpp/variables/spline.h>
 
 #include "time_discretization_constraint.h"
-
 
 namespace xpp {
 namespace opt {

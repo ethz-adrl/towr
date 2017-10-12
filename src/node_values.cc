@@ -7,10 +7,13 @@
 
 #include <xpp/variables/node_values.h>
 
-#include <vector>
-
-#include <xpp/composite.h>
-#include <xpp/state.h>
+#include <array>
+#include <cmath>
+#include <numeric>
+#include <tuple>
+#include <utility>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 namespace xpp {
 namespace opt {

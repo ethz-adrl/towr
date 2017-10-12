@@ -5,7 +5,7 @@
  @brief   Defines the IPOPT adapter
  */
 
-#include <xpp/ipopt_adapter.h>
+#include <xpp/solvers/ipopt_adapter.h>
 
 #include <cassert>
 #include <iostream>
@@ -27,8 +27,37 @@ IpoptAdapter::IpoptAdapter(NLP& nlp)
   nlp_ = &nlp;
 }
 
-IpoptAdapter::~IpoptAdapter ()
+void
+IpoptAdapter::SetOptions (Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app_)
 {
+  // A complete list of options can be found here
+  // https://www.coin-or.org/Ipopt/documentation/node40.html
+
+  // Set some options
+  ipopt_app_->Options()->SetStringValue("linear_solver", "ma57"); // 27, 57, 77, 86, 97
+//  ipopt_app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
+  ipopt_app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
+  ipopt_app_->Options()->SetNumericValue("derivative_test_tol", 1e-3);
+//  ipopt_app_->Options()->SetStringValue("derivative_test", "first-order");
+//  ipopt_app_->Options()->SetStringValue("derivative_test", "second-order");
+
+  ipopt_app_->Options()->SetNumericValue("tol", 0.001);
+//  ipopt_app_->Options()->SetNumericValue("constr_viol_tol", 1e-3);
+//  ipopt_app_->Options()->SetNumericValue("dual_inf_tol", 1e10);
+//  ipopt_app_->Options()->SetNumericValue("compl_inf_tol", 1e10);
+
+  ipopt_app_->Options()->SetNumericValue("max_cpu_time", 10.0);
+//  ipopt_app_->Options()->SetIntegerValue("max_iter", 0);
+//  ipopt_app_->Options()->SetNumericValue("bound_relax_factor", 0.01);
+//  ipopt_app_->Options()->SetNumericValue("bound_frac", 0.5);
+
+  ipopt_app_->Options()->SetIntegerValue("print_level", 5);
+  ipopt_app_->Options()->SetStringValue("print_user_options", "yes");
+  ipopt_app_->Options()->SetStringValue("print_timing_statistics", "no");
+//  ipopt_app_->Options()->SetStringValue("output_file", "ipopt.out");
+
+//  ipopt_app_->Options()->SetNumericValue("obj_scaling_factor", 10);
+//  ipopt_app_->Options()->SetStringValue("nlp_scaling_method", "none"); // "equilibration-based", "gradient-based"
 }
 
 bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
@@ -38,7 +67,7 @@ bool IpoptAdapter::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
   m = nlp_->GetNumberOfConstraints();
   nnz_jac_g = nlp_->GetJacobianOfConstraints().nonZeros();
 
-  std::cout << "nnz_jac_g: " << nnz_jac_g << std::endl;
+//  std::cout << "nnz_jac_g: " << nnz_jac_g << std::endl;
 
   // nonzeros in the Hessian of the Lagrangian
   // (one in the Hessian of the objective for x2,
@@ -187,38 +216,10 @@ IpoptAdapter::Solve (NLP& nlp)
   }
 }
 
-void
-IpoptAdapter::SetOptions (Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app_)
+IpoptAdapter::~IpoptAdapter ()
 {
-  // A complete list of options can be found here
-  // https://www.coin-or.org/Ipopt/documentation/node40.html
-
-  // Set some options
-  ipopt_app_->Options()->SetStringValue("linear_solver", "ma57"); // 27, 57, 77, 86, 97
-//  ipopt_app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
-  ipopt_app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
-  ipopt_app_->Options()->SetNumericValue("derivative_test_tol", 1e-3);
-//  ipopt_app_->Options()->SetStringValue("derivative_test", "first-order");
-//  ipopt_app_->Options()->SetStringValue("derivative_test", "second-order");
-
-  ipopt_app_->Options()->SetNumericValue("tol", 0.001);
-//  ipopt_app_->Options()->SetNumericValue("constr_viol_tol", 1e-3);
-//  ipopt_app_->Options()->SetNumericValue("dual_inf_tol", 1e10);
-//  ipopt_app_->Options()->SetNumericValue("compl_inf_tol", 1e10);
-
-  ipopt_app_->Options()->SetNumericValue("max_cpu_time", 10.0);
-//  ipopt_app_->Options()->SetIntegerValue("max_iter", 0);
-//  ipopt_app_->Options()->SetNumericValue("bound_relax_factor", 0.01);
-//  ipopt_app_->Options()->SetNumericValue("bound_frac", 0.5);
-
-  ipopt_app_->Options()->SetIntegerValue("print_level", 5);
-  ipopt_app_->Options()->SetStringValue("print_user_options", "yes");
-  ipopt_app_->Options()->SetStringValue("print_timing_statistics", "no");
-//  ipopt_app_->Options()->SetStringValue("output_file", "ipopt.out");
-
-//  ipopt_app_->Options()->SetNumericValue("obj_scaling_factor", 10);
-//  ipopt_app_->Options()->SetStringValue("nlp_scaling_method", "none"); // "equilibration-based", "gradient-based"
 }
+
 
 } // namespace opt
 } // namespace xpp

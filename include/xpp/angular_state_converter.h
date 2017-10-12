@@ -9,12 +9,11 @@
 #define XPP_OPT_INCLUDE_XPP_OPT_ANGULAR_STATE_CONVERTER_H_
 
 #include <array>
-#include <memory>
-#include <Eigen/Dense>
 
-#include "cartesian_declarations.h"
+#include <xpp_states/cartesian_declarations.h>
+#include <xpp_states/state.h>
+
 #include "composite.h"
-#include "state.h"
 #include <xpp/variables/spline.h>
 
 

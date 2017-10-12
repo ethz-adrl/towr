@@ -12,11 +12,12 @@
 #include <string>
 #include <vector>
 
-#include <xpp/cartesian_declarations.h>
+#include <xpp_states/cartesian_declarations.h>
+#include <xpp_states/state.h>
+
 #include <xpp/composite.h>
 #include <xpp/nlp_bound.h>
 #include <xpp/polynomial.h>
-#include <xpp/state.h>
 #include <xpp/variables/coeff_spline.h>
 
 

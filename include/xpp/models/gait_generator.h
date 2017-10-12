@@ -14,7 +14,7 @@
 #include <utility>
 #include <vector>
 
-#include <xpp/endeffectors.h>
+#include <xpp_states/endeffectors.h>
 
 namespace xpp {
 namespace opt {
@@ -40,12 +40,7 @@ public:
 
   std::vector<std::string> GetEndeffectorNames() const;
 
-  enum GaitTypes {Stand=0, Flight,
-                  Walk1, Walk2, Walk3E,
-                  Run2, Run2E, Run1,  Run3,
-                  Hop1, Hop2, Hop3, Hop3E, Hop5, Hop5E,
-                  kNumGaits};
-  enum GaitCombos { Combo0=0, Combo1, Combo2, Combo3, kNumCombos };
+  enum GaitCombos { Combo0=0, Combo1, Combo2, Combo3, Combo4, Combo5, Combo6, Combo7, Combo8, kNumCombos };
 
 
   virtual void SetCombo(GaitCombos combo) { assert(false); };
@@ -59,6 +54,11 @@ protected:
   std::vector<ContactState> contacts_;
   std::map<std::string, EndeffectorID> map_id_to_ee_; // must be filled by derived class
 
+  enum GaitTypes {Stand=0, Flight,
+                  Walk1, Walk2, Walk2E,
+                  Run2, Run2E, Run1, Run3,
+                  Hop1, Hop2, Hop3, Hop3E, Hop5, Hop5E,
+                  kNumGaits};
   void SetGaits(const std::vector<GaitTypes>& gaits);
 
   /**

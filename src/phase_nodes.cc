@@ -7,8 +7,12 @@
 
 #include <xpp/variables/phase_nodes.h>
 
-#include <xpp/cartesian_declarations.h>
-#include <xpp/variables/node_values.h>
+#include <cassert>
+
+#include <xpp_states/cartesian_declarations.h>
+#include <xpp_states/state.h>
+
+#include <xpp/polynomial.h>
 
 namespace xpp {
 namespace opt {

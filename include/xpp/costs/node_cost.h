@@ -11,7 +11,8 @@
 #include <memory>
 #include <string>
 
-#include <xpp/cartesian_declarations.h>
+#include <xpp_states/cartesian_declarations.h>
+
 #include <xpp/composite.h>
 #include <xpp/variables/node_values.h>
 

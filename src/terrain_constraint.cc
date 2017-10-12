@@ -8,13 +8,14 @@
 #include <xpp/constraints/terrain_constraint.h>
 
 #include <array>
-#include <memory>
-#include <vector>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include <memory>
+#include <vector>
 
-#include <xpp/cartesian_declarations.h>
-#include <xpp/state.h>
+#include <xpp_states/cartesian_declarations.h>
+#include <xpp_states/state.h>
+
 #include <xpp/variables/node_values.h>
 
 namespace xpp {
@@ -30,7 +31,11 @@ TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
 
   AddOptimizationVariables(opt_vars);
 
-  int constraint_count = ee_motion_->GetNodes().size(); // z position of every node
+  // skip first node, b/c already constrained by initial stance
+  for (int id=1; id<ee_motion_->GetNodes().size(); ++id)
+    node_ids_.push_back(id);
+
+  int constraint_count = node_ids_.size();
   SetRows(constraint_count);
   SetName("Terrain-Constraint-" + ee_motion);
 }
@@ -41,9 +46,10 @@ TerrainConstraint::GetValues () const
   VectorXd g(GetRows());
 
   auto nodes = ee_motion_->GetNodes();
-  for (int i=0; i<nodes.size(); ++i) {
-    Vector3d p = nodes.at(i).at(kPos);
-    g(i) = p.z() - terrain_->GetHeight(p.x(), p.y());
+  int row = 0;
+  for (int id : node_ids_) {
+    Vector3d p = nodes.at(id).at(kPos);
+    g(row++) = p.z() - terrain_->GetHeight(p.x(), p.y());
   }
 
   return g;
@@ -54,11 +60,13 @@ TerrainConstraint::GetBounds () const
 {
   VecBound bounds(GetRows());
 
-  for (int i=0; i<ee_motion_->GetNodes().size(); ++i) {
-    if (ee_motion_->IsContactNode(i))
-      bounds.at(i) = BoundZero;
+  int row = 0;
+  for (int id : node_ids_) {
+    if (ee_motion_->IsContactNode(id))
+      bounds.at(row) = BoundZero;
     else
-      bounds.at(i) = NLPBound(0.0, max_z_distance_above_terrain_);
+      bounds.at(row) = NLPBound(0.0, max_z_distance_above_terrain_);
+    row++;
   }
 
   return bounds;
@@ -71,13 +79,16 @@ TerrainConstraint::FillJacobianWithRespectTo (std::string var_set,
   if (var_set == ee_motion_->GetName()) {
 
     auto nodes = ee_motion_->GetNodes();
-    for (int i=0; i<nodes.size(); ++i) {
+    int row = 0;
+    for (int id : node_ids_) {
 
-      jac.coeffRef(i, ee_motion_->Index(i, kPos, Z)) = 1.0;
+      jac.coeffRef(row, ee_motion_->Index(id, kPos, Z)) = 1.0;
 
-      Vector3d p = nodes.at(i).at(kPos);
+      Vector3d p = nodes.at(id).at(kPos);
       for (auto dim : {X,Y})
-        jac.coeffRef(i, ee_motion_->Index(i, kPos, dim)) = -terrain_->GetDerivativeOfHeightWrt(To2D(dim), p.x(), p.y());
+        jac.coeffRef(row, ee_motion_->Index(id, kPos, dim)) = -terrain_->GetDerivativeOfHeightWrt(To2D(dim), p.x(), p.y());
+
+      row++;
     }
   }
 }

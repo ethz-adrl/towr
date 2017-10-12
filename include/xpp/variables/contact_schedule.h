@@ -12,8 +12,9 @@
 #include <string>
 #include <vector>
 
+#include <xpp_states/endeffectors.h>
+
 #include <xpp/composite.h>
-#include <xpp/endeffectors.h>
 #include <xpp/nlp_bound.h>
 
 #include "phase_nodes.h"

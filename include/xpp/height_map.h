@@ -10,8 +10,9 @@
 
 #include <Eigen/Dense>
 #include <memory>
+#include <vector>
 
-#include "cartesian_declarations.h"
+#include <xpp_states/cartesian_declarations.h>
 
 namespace xpp {
 namespace opt {

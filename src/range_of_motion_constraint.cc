@@ -9,19 +9,20 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include <memory>
 
-#include <xpp/cartesian_declarations.h>
+#include <xpp_states/cartesian_declarations.h>
 #include <xpp/variables/variable_names.h>
 
 namespace xpp {
 namespace opt {
 
 RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
-                                    const MotionParamsPtr& params,
+                                    const OptimizationParameters& params,
                                     const KinematicModel::Ptr& kinematic_model,
                                     const EndeffectorID& ee)
-    :TimeDiscretizationConstraint(params->GetTotalTime(),
-                                  params->dt_range_of_motion_,
+    :TimeDiscretizationConstraint(params.GetTotalTime(),
+                                  params.dt_range_of_motion_,
                                   opt_vars)
 {
   SetName("RangeOfMotionBox-" + std::to_string(ee));

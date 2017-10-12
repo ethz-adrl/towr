@@ -12,13 +12,14 @@
 #include <memory>
 #include <vector>
 
+#include <xpp_states/endeffectors.h>
+#include <xpp_states/robot_state_cartesian.h>
+#include <xpp_states/state.h>
+
 #include "composite.h"
-#include "endeffectors.h"
 #include "height_map.h"
 #include "nlp.h"
 #include "optimization_parameters.h"
-#include "robot_state_cartesian.h"
-#include "state.h"
 #include <xpp/models/robot_model.h>
 
 
@@ -36,6 +37,8 @@ public:
 
   MotionOptimizerFacade ();
   virtual ~MotionOptimizerFacade ();
+
+  void SetInitialState(const RobotStateCartesian&);
 
   enum NlpSolver { Ipopt, Snopt } nlp_solver_;
   void SolveProblem();

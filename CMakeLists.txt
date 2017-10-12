@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.8)
 project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
+  xpp_states
+  kindr     # remove this at some point
 )
 
 find_package(Eigen3 REQUIRED)
@@ -24,7 +26,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++14")
 
 set(MOTION_OPT_LIB xpp_opt)
 set(SOLVER_LIB xpp_solve)         # 
-set(STATES_LIB xpp_states)   # defines common interface robot states 
+#set(STATES_LIB xpp_states)   # defines common interface robot states 
 
 ###################################
 ## catkin specific configuration ##
@@ -37,8 +39,8 @@ set(STATES_LIB xpp_states)   # defines common interface robot states
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}
-  LIBRARIES ${STATES_LIB} ${MOTION_OPT_LIB} ${IPOPT_LIBRARIES}
-  CATKIN_DEPENDS
+  LIBRARIES ${MOTION_OPT_LIB} ${IPOPT_LIBRARIES}
+  CATKIN_DEPENDS xpp_states
   DEPENDS
 )
 
@@ -53,13 +55,13 @@ include_directories(
 ## General library for robot state interfaces used by many packages
 ## TODO: Find way to make other packages use this library without needing
 ## to install IPOPT, SNOPT
-add_library(${STATES_LIB}
-  src/state.cc
-  src/robot_state_cartesian.cc
-)
-target_link_libraries(${STATES_LIB}
-  ${catkin_LIBRARIES}
-)
+#add_library(${STATES_LIB}
+#  src/state.cc
+#  src/robot_state_cartesian.cc
+#)
+#target_link_libraries(${STATES_LIB}
+#  ${catkin_LIBRARIES}
+#)
 
 
 # A nlp solving framework for Eigen, Ipopt, Snopt
@@ -86,6 +88,7 @@ add_library(${MOTION_OPT_LIB}
   src/cost_constraint_factory.cc
   src/soft_constraint.cc
   src/time_discretization_constraint.cc
+  src/base_motion_constraint.cc
   src/height_map.cc
   src/terrain_constraint.cc
   src/swing_constraint.cc

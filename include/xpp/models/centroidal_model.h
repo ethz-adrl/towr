@@ -8,13 +8,13 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
 
-#include <memory>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include <memory>
+
+#include <xpp_states/endeffectors.h>
 
 #include <xpp/composite.h>
-#include <xpp/endeffectors.h>
-#include <xpp/state.h>
 
 #include "dynamic_model.h"
 

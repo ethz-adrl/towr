@@ -10,23 +10,26 @@
 #include <algorithm>
 #include <cassert>
 #include <deque>
+#include <Eigen/Sparse>
 #include <string>
 #include <tuple>
 #include <utility>
-#include <Eigen/Sparse>
+
+#include <kindr/rotations/Rotation.hpp>
+#include <xpp_states/cartesian_declarations.h>
 
 #include <xpp/angular_state_converter.h>
-#include <xpp/cartesian_declarations.h>
 #include <xpp/cost_constraint_factory.h>
-#include <xpp/models/robot_model.h>
+#include <xpp/models/gait_generator.h>
+#include <xpp/models/kinematic_model.h>
 #include <xpp/polynomial.h>
 #include <xpp/variables/coeff_spline.h>
 #include <xpp/variables/contact_schedule.h>
 #include <xpp/variables/phase_nodes.h>
 #include <xpp/variables/variable_names.h>
 
-#include <xpp/ipopt_adapter.h>
-#include <xpp/snopt_adapter.h>
+#include <xpp/solvers/snopt_adapter.h>
+#include <xpp/solvers/ipopt_adapter.h>
 
 namespace xpp {
 namespace opt {
@@ -56,6 +59,27 @@ MotionOptimizerFacade::BuildDefaultInitialState ()
     initial_ee_W_.At(ee) = p_nom_B.At(ee) + inital_base_.lin.p_;
     initial_ee_W_.At(ee).z() = 0.0;
   }
+}
+
+void
+MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& curr_state)
+{
+  inital_base_     = State3dEuler(); // first zero everything
+  inital_base_.lin = curr_state.base_.lin;
+//  motion_optimizer_.inital_base_.lin.v_.setZero();
+//  motion_optimizer_.inital_base_.lin.a_.setZero();
+
+  // spring_clean_ better use this at some point
+//  inital_base_.ang.p_ = GetEulerZYXAngles(curr_state.base_.ang.q);
+
+  kindr::RotationQuaternionD quat(curr_state.base_.ang.q);
+  kindr::EulerAnglesZyxD euler(quat);
+  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
+  inital_base_.ang.p_ = euler.toImplementation().reverse();
+
+
+
+  SetIntialFootholds(curr_state.GetEEPos());
 }
 
 void
@@ -115,9 +139,13 @@ MotionOptimizerFacade::BuildVariables () const
 
 
     ee_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
-    ee_motion->AddStartBound(kPos, {X,Y,Z}, initial_ee_W_.At(ee));
 
-    ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
+    // actually initial Z position should be constrained as well...-.-
+    ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));
+//    ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
+
+
+
     opt_variables->AddComponent(ee_motion);
   }
 
@@ -146,7 +174,7 @@ MotionOptimizerFacade::BuildVariables () const
   }
 
 
-  opt_variables->Print();
+//  opt_variables->Print();
   return opt_variables;
 }
 
@@ -257,7 +285,7 @@ MotionOptimizerFacade::BuildCostConstraints(const OptimizationVariablesPtr& opt_
   for (ConstraintName name : params_->GetUsedConstraints())
     constraints->AddComponent(factory.GetConstraint(name));
 
-  constraints->Print();
+//  constraints->Print();
   nlp.AddConstraint(std::move(constraints));
 
 
@@ -265,7 +293,7 @@ MotionOptimizerFacade::BuildCostConstraints(const OptimizationVariablesPtr& opt_
   for (const auto& pair : params_->GetCostWeights())
     costs->AddComponent(factory.GetCost(pair.first, pair.second));
 
-  costs->Print();
+//  costs->Print();
   nlp.AddCost(std::move(costs));
 }
 
@@ -340,5 +368,3 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 
 } /* namespace opt */
 } /* namespace xpp */
-
-

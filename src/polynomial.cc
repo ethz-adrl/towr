@@ -14,9 +14,11 @@ Spliners ready to use:
 #include <xpp/polynomial.h>
 
 #include <cassert>
+#include <cmath>
+#include <stdexcept>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 
-#include <xpp/composite.h>
-#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {

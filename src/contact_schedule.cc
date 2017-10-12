@@ -13,7 +13,8 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <xpp/state.h>
+#include <xpp_states/state.h>
+
 #include <xpp/variables/spline.h>
 #include <xpp/variables/variable_names.h>
 

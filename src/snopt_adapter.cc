@@ -5,7 +5,7 @@
  @brief   Defines the SnoptAdapter class
  */
 
-#include <xpp/snopt_adapter.h>
+#include <xpp/solvers/snopt_adapter.h>
 
 #include <iostream>
 #include <string>

@@ -10,8 +10,9 @@
 
 #include <memory>
 
-#include <xpp/endeffectors.h>
-#include <xpp/state.h>
+#include <xpp_states/endeffectors.h>
+#include <xpp_states/state.h>
+
 
 namespace xpp {
 namespace opt {

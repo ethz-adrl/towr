@@ -7,17 +7,18 @@
 
 #include <xpp/models/robot_model.h>
 
+#include <Eigen/Dense>
 #include <map>
 #include <memory>
-#include <Eigen/Dense>
 
-#include <xpp/models/monoped_gait_generator.h>
+#include <xpp_states/endeffectors.h>
+#include <xpp_states/state.h>
+
 #include <xpp/models/biped_gait_generator.h>
+#include <xpp/models/centroidal_model.h>
+#include <xpp/models/monoped_gait_generator.h>
 #include <xpp/models/quadruped_gait_generator.h>
 
-#include <xpp/endeffectors.h>
-#include <xpp/models/centroidal_model.h>
-#include <xpp/state.h>
 
 namespace xpp {
 namespace opt {
@@ -92,14 +93,17 @@ RobotModel::MakeHyqModel ()
   kinematic_model_ = std::make_shared<KinematicModel>(n_ee);
   const double x_nominal_b = 0.31;
   const double y_nominal_b = 0.29;
-  const double z_nominal_b = -0.56;
+  const double z_nominal_b = -0.58;
+//  const double z_nominal_b = -0.60;
 
   kinematic_model_->nominal_stance_.At(kMapIDToEE.at(LF)) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.At(kMapIDToEE.at(RF)) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.At(kMapIDToEE.at(LH)) << -x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.At(kMapIDToEE.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
-  kinematic_model_->max_dev_from_nominal_ << 0.20, 0.07, 0.05;
+//  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.07, 0.05;
+
+  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.1, 0.1;
 
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
 }

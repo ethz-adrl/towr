@@ -12,9 +12,11 @@
 #include <string>
 #include <vector>
 
-#include <xpp/cartesian_declarations.h>
-#include <xpp/composite.h>
-#include <xpp/state.h>
+#include <xpp_states/cartesian_declarations.h>
+#include <xpp_states/state.h>
+
+#include "composite.h"
+
 
 namespace xpp {
 namespace opt {

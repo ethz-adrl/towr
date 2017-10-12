@@ -12,13 +12,15 @@
 #include <string>
 #include <vector>
 
-#include "cartesian_declarations.h"
+#include <xpp_states/cartesian_declarations.h>
+#include <xpp_states/endeffectors.h>
+#include <xpp_states/state.h>
+
 #include "composite.h"
-#include "endeffectors.h"
 #include "height_map.h"
 #include "optimization_parameters.h"
-#include "state.h"
 #include <xpp/models/robot_model.h>
+
 
 namespace xpp {
 namespace opt {
@@ -72,6 +74,7 @@ private:
   ComponentPtr MakeTerrainConstraint() const;
   ComponentPtr MakeForceConstraint() const;
   ComponentPtr MakeSwingConstraint() const;
+  ComponentPtr MakeBaseRangeOfMotionConstraint() const;
 
   // costs
   ComponentPtr MakeForcesCost(double weight) const;

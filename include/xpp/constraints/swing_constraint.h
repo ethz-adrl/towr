@@ -34,7 +34,7 @@ private:
   double t_swing_avg_ = 0.3;
   int node_start_ = 1; // skip first node
   int usable_nodes_; // how many nodes are iterated over
-//  double swing_height_in_world_ = 0.06; //  hacky way to lift legs
+//  double swing_height_in_world_ = 0.10; //  hacky way to lift legs
 };
 
 
