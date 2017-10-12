@@ -5,13 +5,15 @@
  * \brief  sends out a current state of hyq
  */
 
-#include <xpp/ros/ros_conversions.h>
-#include <xpp/ros/topic_names.h>
+#include <xpp_msgs/topic_names.h>
+
+#include <xpp_ros_conversions/ros_conversions.h>
+
 #include <xpp_msgs/RobotStateCartesian.h>
 #include <xpp_msgs/RobotStateCartesianTrajectory.h>
 
-#include <xpp/robot_state_cartesian.h>
-#include <xpp/endeffectors.h>
+#include <xpp_states/robot_state_cartesian.h>
+#include <xpp_states/endeffectors.h>
 
 
 using namespace xpp;

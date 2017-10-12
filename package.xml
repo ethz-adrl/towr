@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>xpp_ros</name>
+  <name>xpp_opt_ros</name>
   <version>0.0.0</version>
   <description>The xpp_ros package</description>
 
@@ -46,14 +46,18 @@
   <build_depend>rosbag</build_depend>
   
   <build_depend>xpp_msgs</build_depend>
+  <run_depend>xpp_msgs</run_depend>
+  
+  <build_depend>xpp_ros_conversions</build_depend>
+  <run_depend>xpp_ros_conversions</run_depend>
+  
   <build_depend>xpp_opt</build_depend>
+  <run_depend>xpp_opt</run_depend>
   
   <run_depend>joy</run_depend>
   <run_depend>keyboard</run_depend>
   <run_depend>rosbag</run_depend>
   
-  <run_depend>xpp_msgs</run_depend>
-  <run_depend>xpp_opt</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
