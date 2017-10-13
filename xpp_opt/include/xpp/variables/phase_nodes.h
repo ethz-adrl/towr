@@ -18,7 +18,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 class PhaseNodes : public NodeValues {
 protected:
@@ -95,7 +94,6 @@ public:
   virtual VecBound GetBounds() const override;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_PHASE_NODES_H_ */

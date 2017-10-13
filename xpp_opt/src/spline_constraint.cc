@@ -14,7 +14,6 @@
 #include <xpp/variables/spline.h>
 
 namespace xpp {
-namespace opt {
 
 SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
                                               const std::string& id,
@@ -192,7 +191,6 @@ SplineJunctionConstraint::GetBounds () const
   return bounds;
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 
 

@@ -11,7 +11,6 @@
 #include <string>
 
 namespace xpp {
-namespace opt {
 namespace id {
 
 static const std::string base_linear         = "base_lin_";
@@ -37,7 +36,6 @@ static std::string GetEEScheduleId(int ee)
 }
 
 } // namespace id
-} // namespace opt
 } // namespace xpp
 
 

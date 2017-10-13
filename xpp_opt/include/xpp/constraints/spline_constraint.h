@@ -22,7 +22,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 
 /** @brief Sets the spline equal to @state at time @t.
@@ -80,7 +79,6 @@ private:
   int n_dim_;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINTS_SPLINE_CONSTRAINT_H_ */

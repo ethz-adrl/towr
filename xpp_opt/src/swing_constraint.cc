@@ -19,7 +19,6 @@
 #include <xpp/variables/node_values.h>
 
 namespace xpp {
-namespace opt {
 
 
 SwingConstraint::SwingConstraint (const OptVarsPtr& opt_vars, std::string ee_motion)
@@ -117,5 +116,4 @@ SwingConstraint::~SwingConstraint ()
 {
 }
 
-} /* namespace opt */
 } /* namespace xpp */

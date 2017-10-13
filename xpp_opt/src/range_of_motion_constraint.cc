@@ -15,7 +15,6 @@
 #include <xpp/variables/variable_names.h>
 
 namespace xpp {
-namespace opt {
 
 RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
                                     const OptimizationParameters& params,
@@ -98,5 +97,4 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   }
 }
 
-} /* namespace opt */
 } /* namespace xpp */

@@ -21,7 +21,6 @@ Spliners ready to use:
 
 
 namespace xpp {
-namespace opt {
 
 
 Polynomial::Polynomial (int order, int dim)
@@ -454,5 +453,4 @@ PolynomialVars::GetJacobian (double t_local, MotionDerivative dxdt) const
 //  coeff_[F] = -(2*(2*n2*end.p_ - 3*n3*end.p_ - 2*n2*start.p_ + 3*n3*start.p_))/(T5*(n_ - 2)*(n2 - 2*n_ + 1));
 //}
 
-} // namespace opt
 } // namespace xpp

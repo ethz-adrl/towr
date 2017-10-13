@@ -19,7 +19,6 @@
 #include <xpp/composite.h>
 
 namespace xpp {
-namespace opt {
 
 
 /** @brief Wraps a sequence of polynomials with optimized coefficients.
@@ -52,8 +51,6 @@ public:
                                MotionDerivative dxdt) const = 0;
 };
 
-
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_SPLINE_H_ */

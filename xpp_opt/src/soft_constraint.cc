@@ -13,7 +13,6 @@
 #include <xpp/nlp_bound.h>
 
 namespace xpp {
-namespace opt {
 
 SoftConstraint::SoftConstraint (const ConstraintPtr& constraint, double weight)
     :Component(1, "SoftConstraint-" + constraint->GetName())
@@ -56,5 +55,4 @@ SoftConstraint::GetJacobian () const
   return grad.transpose().sparseView();
 }
 
-} /* namespace opt */
 } /* namespace xpp */

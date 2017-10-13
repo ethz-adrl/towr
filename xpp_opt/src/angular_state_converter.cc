@@ -13,7 +13,6 @@
 #include <Eigen/Sparse>
 
 namespace xpp {
-namespace opt {
 
 AngularStateConverter::AngularStateConverter ()
 {
@@ -295,6 +294,5 @@ AngularStateConverter::OptVariablesOfCurrentPolyCount (double t) const
   return euler_->GetJacobian(t, kPos).cols();
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 

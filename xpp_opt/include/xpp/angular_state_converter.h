@@ -18,7 +18,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 /** @brief Provides conversions from euler angles.
  *
@@ -131,7 +130,6 @@ private:
   JacobianRow GetJac(double t, MotionDerivative deriv, Coords3D dim) const;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_ANGULAR_STATE_CONVERTER_H_ */

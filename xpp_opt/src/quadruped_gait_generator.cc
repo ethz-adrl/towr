@@ -8,7 +8,6 @@
 #include <xpp/models/quadruped_gait_generator.h>
 
 namespace xpp {
-namespace opt {
 
 QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
 {
@@ -304,7 +303,6 @@ QuadrupedGaitGenerator::~QuadrupedGaitGenerator ()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 
 

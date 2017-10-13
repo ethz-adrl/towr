@@ -8,7 +8,6 @@
 #include <xpp/models/gait_generator.h>
 
 namespace xpp {
-namespace opt {
 
 GaitGenerator::GaitGenerator ()
 {
@@ -120,7 +119,6 @@ GaitGenerator::~GaitGenerator ()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 
 

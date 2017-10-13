@@ -17,7 +17,6 @@
 #include <xpp/variables/node_values.h>
 
 namespace xpp {
-namespace opt {
 
 class NodeCost : public Cost {
 public:
@@ -37,7 +36,6 @@ private:
   int dim_;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_COSTS_NODE_COST_H_ */

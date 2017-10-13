@@ -17,7 +17,6 @@
 #include <xpp_states/endeffectors.h>
 
 namespace xpp {
-namespace opt {
 
 class GaitGenerator {
 public:
@@ -72,7 +71,6 @@ private:
 
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_GAIT_GENERATOR_H_ */

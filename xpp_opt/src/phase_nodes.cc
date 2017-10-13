@@ -15,7 +15,6 @@
 #include <xpp/polynomial.h>
 
 namespace xpp {
-namespace opt {
 
 
 PhaseNodes::PhaseNodes (int n_dim,
@@ -231,7 +230,6 @@ EEForceNodes::GetBounds () const
   return bounds_;
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 
 

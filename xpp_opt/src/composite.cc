@@ -10,7 +10,6 @@
 #include <iostream>
 
 namespace xpp {
-namespace opt {
 
 static int print_counter = 0;
 
@@ -266,5 +265,4 @@ Primitive::GetJacobian () const
   return jacobian;
 }
 
-} /* namespace opt */
 } /* namespace xpp */

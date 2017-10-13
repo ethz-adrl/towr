@@ -16,7 +16,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 /** @brief Constraints evaluated at discretized times along a trajectory.
   */
@@ -51,7 +50,6 @@ private:
 
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_TIME_DISCRETIZATION_CONSTRAINT_H_ */

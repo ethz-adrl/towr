@@ -16,7 +16,6 @@
 #include <xpp_states/terrain_types.h>
 
 namespace xpp {
-namespace opt {
 
 
 // TODO: use ct_core/test/auto_diff functions to generate these derivatives
@@ -183,8 +182,6 @@ private:
 };
 
 
-
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_HEIGHT_MAP_H_ */

@@ -13,7 +13,6 @@
 #include <xpp/variables/variable_names.h>
 
 namespace xpp {
-namespace opt {
 
 BaseMotionConstraint::BaseMotionConstraint (const OptVarsPtr& opt_vars,
                                             const OptimizationParameters& params)
@@ -77,5 +76,4 @@ BaseMotionConstraint::~BaseMotionConstraint ()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace opt */
 } /* namespace xpp */

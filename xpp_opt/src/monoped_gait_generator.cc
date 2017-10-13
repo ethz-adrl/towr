@@ -8,7 +8,6 @@
 #include <xpp/models/monoped_gait_generator.h>
 
 namespace xpp {
-namespace opt {
 
 MonopedGaitGenerator::MonopedGaitGenerator ()
 {
@@ -84,5 +83,4 @@ MonopedGaitGenerator::~MonopedGaitGenerator ()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace opt */
 } /* namespace xpp */

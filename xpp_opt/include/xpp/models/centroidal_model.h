@@ -19,7 +19,6 @@
 #include "dynamic_model.h"
 
 namespace xpp {
-namespace opt {
 
 /**
  * @brief Centroidal Dynamics for the 6-DoF Base to model the system.
@@ -44,7 +43,6 @@ private:
   Eigen::SparseMatrix<double, Eigen::RowMajor> I_inv_; // inverse of base inertia
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_ */

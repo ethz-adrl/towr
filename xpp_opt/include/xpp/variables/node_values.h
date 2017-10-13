@@ -23,7 +23,6 @@
 #include "spline.h"
 
 namespace xpp {
-namespace opt {
 
 
 /** Holds position and velocity of nodes used to generate a cubic Hermite spline.
@@ -158,9 +157,6 @@ private:
 
 };
 
-
-
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_NODE_VALUES_H_ */

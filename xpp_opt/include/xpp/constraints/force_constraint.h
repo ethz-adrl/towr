@@ -16,7 +16,6 @@
 #include <xpp/variables/phase_nodes.h>
 
 namespace xpp {
-namespace opt {
 
 /** Ensures the end-effector force lies inside friction cone.
  *
@@ -47,8 +46,6 @@ private:
   int n_constraints_per_node_;
 };
 
-
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_CONSTRAINTS_FORCE_CONSTRAINT_H_ */

@@ -20,7 +20,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 
 ContactSchedule::ContactSchedule (EndeffectorID ee,
@@ -218,6 +217,5 @@ ContactSchedule::GetTotalTime () const
   return std::accumulate(durations_.begin(), durations_.end(), 0.0);
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 

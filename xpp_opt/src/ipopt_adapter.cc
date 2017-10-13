@@ -18,7 +18,6 @@
 #include <Eigen/Sparse>
 
 namespace xpp {
-namespace opt {
 
 using VectorXd = Eigen::VectorXd;
 
@@ -220,6 +219,4 @@ IpoptAdapter::~IpoptAdapter ()
 {
 }
 
-
-} // namespace opt
 } // namespace xpp

@@ -9,7 +9,6 @@
 #include <gtest/gtest.h>
 
 namespace xpp {
-namespace opt {
 
 using VectorXd = Eigen::VectorXd;
 
@@ -52,6 +51,4 @@ TEST(DynamicConstraintTest, EigenScalar)
   std::cout << g << std::endl;
 }
 
-
-} /* namespace opt */
 } /* namespace xpp */

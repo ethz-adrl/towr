@@ -16,7 +16,6 @@
 #include <Eigen/Sparse>
 
 namespace xpp {
-namespace opt {
 
 NodeValues::NodeValues (int n_dim, int n_polynomials, const std::string& name)
     : NodeValues(n_dim, BuildPolyInfos(n_polynomials), name)
@@ -333,5 +332,4 @@ NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
   return inner_derivative*dxdT - info.poly_id_in_phase_*percent_of_phase*vel;
 }
 
-} /* namespace opt */
 } /* namespace xpp */

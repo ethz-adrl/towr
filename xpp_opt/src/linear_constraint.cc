@@ -11,18 +11,19 @@
 #include <xpp/nlp_bound.h>
 
 namespace xpp {
-namespace opt {
 
 LinearEqualityConstraint::LinearEqualityConstraint (
     const OptVarsPtr& opt_vars,
-    const MatVec& linear_equation,
+    const Eigen::MatrixXd& M,
+    const Eigen::VectorXd& v,
     const std::string& variable_name)
 {
   SetName("LinearEqualityConstraint-" + variable_name);
-  linear_equation_ = linear_equation;
+  M_ = M;
+  v_ = v;
   variable_name_   = variable_name;
 
-  int num_constraints = linear_equation_.v.rows();
+  int num_constraints = v.rows();
   SetRows(num_constraints);
   AddOptimizationVariables(opt_vars);
 }
@@ -35,7 +36,7 @@ VectorXd
 LinearEqualityConstraint::GetValues () const
 {
   VectorXd x = GetOptVars()->GetComponent(variable_name_)->GetValues();
-  return linear_equation_.M*x;
+  return M_*x;
 }
 
 VecBound
@@ -44,7 +45,7 @@ LinearEqualityConstraint::GetBounds () const
   VecBound bounds;
 
   for (int i=0; i<GetRows(); ++i) {
-    NLPBound bound(-linear_equation_.v[i],-linear_equation_.v[i]);
+    NLPBound bound(-v_[i],-v_[i]);
     bounds.push_back(bound);
   }
 
@@ -57,9 +58,8 @@ LinearEqualityConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobi
   // the constraints are all linear w.r.t. the decision variables.
   // careful, .sparseView is only valid when the Jacobian is constant
   if (var_set == variable_name_)
-    jac = linear_equation_.M.sparseView();
+    jac = M_.sparseView();
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 

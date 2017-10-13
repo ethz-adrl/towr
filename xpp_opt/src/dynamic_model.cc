@@ -8,7 +8,6 @@
 #include <xpp/models/dynamic_model.h>
 
 namespace xpp {
-namespace opt {
 
 DynamicModel::DynamicModel(double mass)
 {
@@ -36,5 +35,4 @@ DynamicModel::~DynamicModel()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace opt */
 } /* namespace xpp */

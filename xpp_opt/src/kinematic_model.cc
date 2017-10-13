@@ -10,7 +10,6 @@
 #include <Eigen/Dense>
 
 namespace xpp {
-namespace opt {
 
 KinematicModel::KinematicModel (int n_ee)
 {
@@ -23,5 +22,4 @@ KinematicModel::~KinematicModel ()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace opt */
 } /* namespace xpp */

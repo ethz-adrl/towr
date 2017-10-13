@@ -13,7 +13,6 @@
 #include <xpp/nlp.h>
 
 namespace xpp {
-namespace opt {
 
 /** @brief Converts the NLP defined in XPP to the SNOPT interface.
   *
@@ -48,7 +47,6 @@ private:
   static void SetOptions(SnoptAdapter&);
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_SNOPT_ADAPTER_H_ */

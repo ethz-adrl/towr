@@ -19,7 +19,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 SnoptAdapter::NLPPtr SnoptAdapter::nlp_;
 
@@ -214,6 +213,5 @@ SnoptAdapter::SetVariables ()
   nlp_->SetVariables(x);
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 

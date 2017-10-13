@@ -11,9 +11,8 @@
 #include "gait_generator.h"
 
 namespace xpp {
-namespace opt {
 
-class QuadrupedGaitGenerator : public opt::GaitGenerator {
+class QuadrupedGaitGenerator : public GaitGenerator {
 public:
   QuadrupedGaitGenerator ();
   virtual ~QuadrupedGaitGenerator ();
@@ -62,7 +61,6 @@ private:
   ContactState BB_;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_QUADRUPED_GAIT_GENERATOR_H_ */

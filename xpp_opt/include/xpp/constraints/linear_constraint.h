@@ -11,12 +11,10 @@
 #include <string>
 
 #include <xpp/composite.h>
-#include <xpp/matrix_vector.h>
 #include <xpp/nlp_bound.h>
 
 
 namespace xpp {
-namespace opt {
 
 /** @brief Calculates the constraint violations for linear constraints.
   *
@@ -33,7 +31,8 @@ public:
     * @param variable_name   The name of the variables x.
     */
   LinearEqualityConstraint (const OptVarsPtr& opt_vars_,
-                            const MatVec& linear_equation,
+                            const Eigen::MatrixXd& M,
+                            const Eigen::VectorXd& v,
                             const std::string& variable_name);
   virtual ~LinearEqualityConstraint ();
 
@@ -43,11 +42,11 @@ public:
   void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
 
 private:
-  MatVec linear_equation_;
+  Eigen::MatrixXd M_;
+  Eigen::VectorXd v_;
   std::string variable_name_;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_LINEAR_CONSTRAINT_H_ */

@@ -14,7 +14,6 @@
 #include <xpp/nlp_bound.h>
 
 namespace xpp {
-namespace opt {
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
                                                             const OptVarsPtr& opt_vars)
@@ -79,7 +78,6 @@ TimeDiscretizationConstraint::FillJacobianWithRespectTo (std::string var_set,
     UpdateJacobianAtInstance(t, k++, jac, var_set);
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 
 

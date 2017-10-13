@@ -17,7 +17,6 @@
 #include <xpp/variables/variable_names.h>
 
 namespace xpp {
-namespace opt {
 
 
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
@@ -143,6 +142,5 @@ DynamicConstraint::UpdateModel (double t) const
   model_->SetCurrent(com_pos, ee_force, ee_pos);
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 

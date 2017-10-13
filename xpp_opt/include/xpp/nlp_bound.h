@@ -11,7 +11,6 @@
 #include <vector>
 
 namespace xpp {
-namespace opt {
 
 /** Upper and lower bound on either constraints or optimization variables
   */
@@ -41,7 +40,7 @@ static const NLPBound BoundSmallerZero = NLPBound(-1.0e20, 0.0);
 
 using VecBound = std::vector<NLPBound>;
 
-}
-}
+
+} // namespace xpp
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_BOUND_H_ */

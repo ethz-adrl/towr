@@ -12,7 +12,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 
 Spline::Spline ()
@@ -56,6 +55,5 @@ Spline::GetLocalTime (double t_global, const VecTimes& durations)
 }
 
 
-} /* namespace opt */
 } /* namespace xpp */
 

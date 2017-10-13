@@ -13,7 +13,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 NodeCost::NodeCost (const OptVarsPtr& opt_vars, const std::string& nodes_id)
 {
@@ -58,5 +57,4 @@ NodeCost::FillJacobianWithRespectTo (std::string var_set,
 
 NodeCost::~NodeCost (){}
 
-} /* namespace opt */
 } /* namespace xpp */

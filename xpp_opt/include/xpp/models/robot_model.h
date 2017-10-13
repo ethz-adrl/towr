@@ -14,8 +14,6 @@
 #include "kinematic_model.h"
 
 namespace xpp {
-namespace opt {
-
 /**
  * @brief Holds the robot specific values.
  */
@@ -32,7 +30,6 @@ struct RobotModel {
   GaitGenerator::Ptr  gait_generator_;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_ROBOT_MODEL_H_ */

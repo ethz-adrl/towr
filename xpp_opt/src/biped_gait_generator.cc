@@ -8,7 +8,6 @@
 #include <xpp/models/biped_gait_generator.h>
 
 namespace xpp {
-namespace opt {
 
 BipedGaitGenerator::BipedGaitGenerator ()
 {
@@ -131,5 +130,4 @@ BipedGaitGenerator::~BipedGaitGenerator ()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace opt */
 } /* namespace xpp */

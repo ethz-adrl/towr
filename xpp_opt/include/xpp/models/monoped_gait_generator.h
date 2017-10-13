@@ -11,7 +11,6 @@
 #include "gait_generator.h"
 
 namespace xpp {
-namespace opt {
 
 class MonopedGaitGenerator : public GaitGenerator {
 public:
@@ -29,7 +28,6 @@ private:
   ContactState x_ = ContactState(1, false); // flight
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_MONOPED_GAIT_GENERATOR_H_ */

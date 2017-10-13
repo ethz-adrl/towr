@@ -11,7 +11,6 @@
 #include "gait_generator.h"
 
 namespace xpp {
-namespace opt {
 
 class BipedGaitGenerator : public GaitGenerator {
 public:
@@ -34,7 +33,6 @@ private:
   ContactState B_; // stance (both legs in contact)
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_BIPED_GAIT_GENERATOR_H_ */

@@ -9,7 +9,6 @@
 #include <xpp/angular_state_converter.h>
 
 namespace xpp {
-namespace opt {
 
 TEST(CentroidalDynamicsTest, GetBaseAcceleration)
 {
@@ -60,6 +59,4 @@ TEST(CentroidalDynamicsTest, TestRotations)
 
 }
 
-
-} /* namespace opt */
 } /* namespace xpp */

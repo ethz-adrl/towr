@@ -16,7 +16,6 @@
 #include <xpp/variables/phase_nodes.h>
 
 namespace xpp {
-namespace opt {
 
 /** Ensures the endeffector position always lays on or above terrain height.
  *
@@ -44,7 +43,6 @@ private:
   double max_z_distance_above_terrain_ = 1e20; // [m]
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_CONSTRAINTS_TERRAIN_CONSTRAINT_H_ */

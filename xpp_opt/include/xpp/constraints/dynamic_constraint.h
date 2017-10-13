@@ -24,7 +24,6 @@
 #include "time_discretization_constraint.h"
 
 namespace xpp {
-namespace opt {
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
@@ -55,7 +54,6 @@ private:
   void UpdateModel(double t) const;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_ */

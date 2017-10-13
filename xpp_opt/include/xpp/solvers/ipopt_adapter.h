@@ -15,7 +15,6 @@
 #include <xpp/nlp.h>
 
 namespace xpp {
-namespace opt {
 
 /** @brief Converts the NLP defined in the XPP to the IPOPT interface.
   *
@@ -96,7 +95,6 @@ private:
   static void SetOptions(Ipopt::SmartPtr<Ipopt::IpoptApplication> app);
 };
 
-} // namespace opt
 } // namespace xpp
 
 #endif /* XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_ */

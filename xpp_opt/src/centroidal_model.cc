@@ -13,7 +13,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia,
                                   int ee_count)
@@ -115,7 +114,6 @@ CentroidalModel::GetJacobianofAccWrtEEPos (const Jacobian& jac_ee_pos,
   return jac;
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 
 

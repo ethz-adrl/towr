@@ -19,7 +19,6 @@
 #include <xpp/variables/node_values.h>
 
 namespace xpp {
-namespace opt {
 
 
 TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
@@ -97,5 +96,4 @@ TerrainConstraint::~TerrainConstraint ()
 {
 }
 
-} /* namespace opt */
 } /* namespace xpp */

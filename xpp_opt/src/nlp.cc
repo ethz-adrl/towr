@@ -11,7 +11,6 @@
 #include <Eigen/Sparse>
 
 namespace xpp {
-namespace opt {
 
 NLP::NLP ()
 {
@@ -160,7 +159,6 @@ NLP::~NLP ()
 {
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 
 

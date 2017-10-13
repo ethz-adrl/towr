@@ -25,12 +25,8 @@
 #include <xpp/nlp.h>
 
 namespace xpp {
-namespace ros {
 
 class NlpOptimizerNode {
-public:
-  using MotionOptimizerFacade = xpp::opt::MotionOptimizerFacade;
-
 public:
   NlpOptimizerNode ();
   virtual ~NlpOptimizerNode () {};
@@ -67,7 +63,6 @@ private:
   xpp_msgs::OptParameters BuildOptParametersMsg() const;
 };
 
-} /* namespace ros */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_ROS_OPTIMIZER_NODE_H_ */

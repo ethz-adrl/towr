@@ -14,7 +14,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 CoeffSpline::CoeffSpline(const std::string& spline_base_id,
                          const VecTimes& poly_durations)
@@ -75,6 +74,4 @@ CoeffSpline::GetActiveVariableSet (double t_global) const
   return poly_vars_.at(id);
 }
 
-
-} /* namespace opt */
 } /* namespace xpp */

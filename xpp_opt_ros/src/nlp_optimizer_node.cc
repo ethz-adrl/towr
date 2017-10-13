@@ -34,7 +34,6 @@
 #include <xpp/height_map.h>
 
 namespace xpp {
-namespace ros {
 
 
 NlpOptimizerNode::NlpOptimizerNode ()
@@ -97,12 +96,12 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
 {
   user_command_msg_ = msg;
 
-  motion_optimizer_.terrain_ = opt::HeightMap::MakeTerrain(static_cast<TerrainID>(msg.terrain_id));
+  motion_optimizer_.terrain_ = HeightMap::MakeTerrain(static_cast<TerrainID>(msg.terrain_id));
   motion_optimizer_.SetTerrainFromAvgFootholdHeight();
 
 
   motion_optimizer_.model_.MakeHyqModel();
-  auto gait = static_cast<opt::GaitGenerator::GaitCombos>(msg.gait_id);
+  auto gait = static_cast<GaitGenerator::GaitCombos>(msg.gait_id);
   motion_optimizer_.model_.gait_generator_->SetCombo(gait);
   motion_optimizer_.params_->SetTotalDuration(msg.total_duration);
 
@@ -238,12 +237,12 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
     auto timestamp = ::ros::Time(state.t_global_ +1e-6); // to avoid t=0.0
 
     xpp_msgs::RobotStateCartesian msg;
-    msg = ros::RosConversions::XppToRos(state);
+    msg = RosConversions::XppToRos(state);
     bag.write(topic, timestamp, msg);
 
     xpp_msgs::TerrainInfo terrain_msg;
     for (auto ee : state.ee_motion_.ToImpl()) {
-      Vector3d n = motion_optimizer_.terrain_->GetNormalizedBasis(opt::HeightMap::Normal,
+      Vector3d n = motion_optimizer_.terrain_->GetNormalizedBasis(HeightMap::Normal,
                                                                   ee.p_.x(), ee.p_.y());
       terrain_msg.surface_normals.push_back(RosConversions::XppToRos<geometry_msgs::Vector3>(n));
       terrain_msg.friction_coeff = motion_optimizer_.terrain_->GetFrictionCoeff();
@@ -259,6 +258,4 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
   }
 }
 
-
-} /* namespace ros */
 } /* namespace xpp */

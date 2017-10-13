@@ -16,7 +16,6 @@
 #include <xpp/composite.h>
 
 namespace xpp {
-namespace opt {
 
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
                        FinalComCostID, FinalStanceCostID, ForcesCostID };
@@ -65,15 +64,6 @@ private:
   CostWeights cost_weights_;
 };
 
-
-
-
-
-
-
-
-
-} // namespace opt
 } // namespace xpp
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_ */

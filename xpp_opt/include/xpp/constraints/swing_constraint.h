@@ -15,7 +15,6 @@
 #include <xpp/variables/phase_nodes.h>
 
 namespace xpp {
-namespace opt {
 
 
 class SwingConstraint : public Constraint {
@@ -37,11 +36,6 @@ private:
 //  double swing_height_in_world_ = 0.10; //  hacky way to lift legs
 };
 
-
-
-
-
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_CONSTRAINTS_SWING_CONSTRAINT_H_ */

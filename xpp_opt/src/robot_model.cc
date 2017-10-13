@@ -21,7 +21,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 static Eigen::Matrix3d BuildInertiaTensor(
         double Ixx, double Iyy, double Izz,
@@ -163,5 +162,4 @@ RobotModel::MakeQuadrotorModel ()
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
 }
 
-} /* namespace opt */
 } /* namespace xpp */

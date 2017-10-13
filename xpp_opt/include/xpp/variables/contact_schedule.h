@@ -21,7 +21,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 
 class ContactSchedule : public Component {
@@ -93,9 +92,6 @@ private:
 };
 
 
-
-
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_ */

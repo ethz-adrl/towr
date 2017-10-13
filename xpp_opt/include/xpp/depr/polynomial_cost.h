@@ -14,7 +14,6 @@
 #include <xpp/matrix_vector.h>
 
 namespace xpp {
-namespace opt {
 
 
 /** @brief Calculates the scalar cost associated with a vector of variables.

@@ -12,7 +12,6 @@
 #include <vector>
 
 namespace xpp {
-namespace opt {
 
 
 HeightMap::Ptr
@@ -370,7 +369,6 @@ ChimneyLR::GetHeightDerivWrtY (double x, double y) const
   return dzdy;
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 
 

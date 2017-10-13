@@ -18,7 +18,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 class DynamicModel {
 public:
@@ -63,7 +62,6 @@ protected:
   double normal_force_max_;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_MODELS_DYNAMIC_MODEL_H_ */

@@ -14,7 +14,6 @@
 #include <xpp/composite.h>
 
 namespace xpp {
-namespace opt {
 
 /** Converts a constraint to a cost by weighing the quadratic violations.
   *
@@ -49,7 +48,6 @@ private:
   double weight_ = 1.0; ///< the weight relative to other costs
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_ */

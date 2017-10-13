@@ -18,7 +18,6 @@
 #include "nlp_bound.h"
 
 namespace xpp {
-namespace opt {
 
 // make sure all jacobians in code follow same storage order
 using MatrixSXd   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
@@ -167,9 +166,6 @@ private:
   OptVarsPtr opt_vars_;
 };
 
-
-
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_ */

@@ -21,7 +21,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 // doesn't hold any variables, just for keeping the struct in optimization
 // variables
@@ -58,7 +57,6 @@ private:
   VecTimes durations_; ///< duration of each polynomial in spline
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 

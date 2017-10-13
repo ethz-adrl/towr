@@ -24,7 +24,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 
 /** Simplified interface to the complete motion optimization framework.
@@ -79,7 +78,6 @@ private:
   mutable NLP nlp;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_ */

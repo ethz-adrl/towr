@@ -19,7 +19,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
@@ -177,5 +176,4 @@ ForceConstraint::~ForceConstraint ()
 {
 }
 
-} /* namespace opt */
 } /* namespace xpp */

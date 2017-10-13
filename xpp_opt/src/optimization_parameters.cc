@@ -12,7 +12,6 @@
 #include <iterator>
 
 namespace xpp {
-namespace opt {
 
 OptimizationParameters::OptimizationParameters ()
 {
@@ -107,7 +106,5 @@ OptimizationParameters::~OptimizationParameters ()
 {
 }
 
-
-} // namespace opt
 } // namespace xpp
 

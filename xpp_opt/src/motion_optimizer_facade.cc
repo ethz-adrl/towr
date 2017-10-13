@@ -32,7 +32,6 @@
 #include <xpp/solvers/ipopt_adapter.h>
 
 namespace xpp {
-namespace opt {
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
@@ -366,5 +365,4 @@ MotionOptimizerFacade::~MotionOptimizerFacade ()
 {
 }
 
-} /* namespace opt */
 } /* namespace xpp */

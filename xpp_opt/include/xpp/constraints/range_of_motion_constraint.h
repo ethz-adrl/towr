@@ -26,7 +26,6 @@
 #include "time_discretization_constraint.h"
 
 namespace xpp {
-namespace opt {
 
 /** @brief Constrains the contact to lie in a box around the nominal stance
   *
@@ -67,7 +66,6 @@ private:
   EndeffectorID ee_;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_ */

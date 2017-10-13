@@ -23,7 +23,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 
 /** Builds all types of constraints/costs for the user.
@@ -88,7 +87,6 @@ private:
   std::vector<EndeffectorID> GetEEIDs() const { return initial_ee_W_.GetEEsOrdered(); };
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_ */

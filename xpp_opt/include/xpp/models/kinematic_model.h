@@ -13,9 +13,7 @@
 #include <xpp_states/endeffectors.h>
 #include <xpp_states/state.h>
 
-
 namespace xpp {
-namespace opt {
 
 class KinematicModel {
 public:
@@ -31,7 +29,6 @@ public:
   Vector3d max_dev_from_nominal_;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_MODELS_KINEMATIC_MODEL_H_ */

@@ -19,7 +19,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 
 enum PolynomialCoeff { A=0, B, C, D, E, F, G, H, I, J}; // allowed to add more
@@ -112,8 +111,6 @@ private:
   int Index(PolynomialCoeff coeff, int dim) const;
 };
 
-
-} // namespace opt
 } // namespace xpp
 
 #endif // _XPP_OPT_UTILS_POLYNOMIAL_H_

@@ -27,7 +27,6 @@
 
 
 namespace xpp {
-namespace opt {
 
 CostConstraintFactory::CostConstraintFactory ()
 {
@@ -324,6 +323,5 @@ CostConstraintFactory::ToCost (const ComponentPtr& constraint, double weight) co
   return std::make_shared<SoftConstraint>(constraint, weight);
 }
 
-} /* namespace opt */
 } /* namespace xpp */
 

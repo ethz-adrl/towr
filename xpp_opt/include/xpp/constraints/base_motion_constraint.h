@@ -14,7 +14,6 @@
 #include "time_discretization_constraint.h"
 
 namespace xpp {
-namespace opt {
 
 /**
  * Keeps the 6D base motion in a specified range.
@@ -39,7 +38,6 @@ private:
   int GetRow (int node, int dim) const;
 };
 
-} /* namespace opt */
 } /* namespace xpp */
 
 #endif /* XPP_OPT_INCLUDE_XPP_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_ */
