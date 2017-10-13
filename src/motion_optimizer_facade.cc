@@ -15,7 +15,7 @@
 #include <tuple>
 #include <utility>
 
-#include <kindr/rotations/Rotation.hpp>
+//#include <kindr/rotations/Rotation.hpp>
 #include <xpp_states/cartesian_declarations.h>
 
 #include <xpp/angular_state_converter.h>
@@ -70,12 +70,12 @@ MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& curr_state)
 //  motion_optimizer_.inital_base_.lin.a_.setZero();
 
   // spring_clean_ better use this at some point
-//  inital_base_.ang.p_ = GetEulerZYXAngles(curr_state.base_.ang.q);
+  inital_base_.ang.p_ = GetEulerZYXAngles(curr_state.base_.ang.q);
 
-  kindr::RotationQuaternionD quat(curr_state.base_.ang.q);
-  kindr::EulerAnglesZyxD euler(quat);
-  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
-  inital_base_.ang.p_ = euler.toImplementation().reverse();
+//  kindr::RotationQuaternionD quat(curr_state.base_.ang.q);
+//  kindr::EulerAnglesZyxD euler(quat);
+//  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
+//  inital_base_.ang.p_ = euler.toImplementation().reverse();
 
 
 
@@ -336,7 +336,7 @@ MotionOptimizerFacade::GetTrajectory (double dt) const
 
 MotionOptimizerFacade::RobotStateVec
 MotionOptimizerFacade::GetTrajectory (const OptimizationVariablesPtr& vars,
-                                        double dt) const
+                                      double dt) const
 {
   RobotStateVec trajectory;
   double t=0.0;

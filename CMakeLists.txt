@@ -4,7 +4,6 @@ project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
   xpp_states
-  kindr     # remove this at some point
 )
 
 find_package(Eigen3 REQUIRED)

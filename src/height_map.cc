@@ -16,7 +16,7 @@ namespace opt {
 
 
 HeightMap::Ptr
-HeightMap::MakeTerrain (ID type)
+HeightMap::MakeTerrain (TerrainID type)
 {
   switch (type) {
     case FlatID:      return std::make_shared<FlatGround>(); break;

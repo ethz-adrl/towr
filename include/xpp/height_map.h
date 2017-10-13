@@ -13,6 +13,7 @@
 #include <vector>
 
 #include <xpp_states/cartesian_declarations.h>
+#include <xpp_states/terrain_types.h>
 
 namespace xpp {
 namespace opt {
@@ -26,8 +27,7 @@ public:
   using Vector3d    = Eigen::Vector3d;
   using Derivatives = std::vector<Coords2D>;
 
-  enum ID { FlatID=0, BlockID, StairsID, GapID, SlopeID, ChimneyID, ChimneyLRID, K_TERRAIN_COUNT };
-  static Ptr MakeTerrain(ID type);
+  static Ptr MakeTerrain(TerrainID type);
   virtual ~HeightMap () {};
 
   enum BasisVector { Normal, Tangent1, Tangent2 };

@@ -40,7 +40,7 @@ OptimizationParameters::OptimizationParameters ()
 
   constraints_ = {
       BasePoly, // include this results in non-hermite representation to be used
-      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
+//      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
       EndeffectorRom,
       Dynamic,
       Terrain,
