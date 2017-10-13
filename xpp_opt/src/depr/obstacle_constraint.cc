@@ -8,7 +8,7 @@
 #include <xpp/opt/obstacle_constraint.h>
 #include <xpp/opt/variable_names.h>
 
-#include <xpp/nlp_bound.h>
+#include <../../include/xpp_opt/nlp_bound.h>
 
 namespace xpp {
 namespace opt {

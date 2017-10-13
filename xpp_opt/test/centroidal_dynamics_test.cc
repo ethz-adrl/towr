@@ -6,7 +6,8 @@
  */
 
 #include <gtest/gtest.h>
-#include <xpp/angular_state_converter.h>
+
+#include <../include/xpp_opt/angular_state_converter.h>
 
 namespace xpp {
 

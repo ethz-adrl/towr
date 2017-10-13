@@ -5,13 +5,14 @@
  @brief   Brief description
  */
 
-#include <xpp/constraints/spline_constraint.h>
+#include <xpp_opt/constraints/spline_constraint.h>
 
 #include <algorithm>
 #include <Eigen/Dense>
-#include <xpp/nlp_bound.h>
 
-#include <xpp/variables/spline.h>
+#include <xpp_opt/variables/spline.h>
+#include <xpp_opt/solvers/nlp_bound.h>
+#include <xpp_opt/variables/spline.h>
 
 namespace xpp {
 

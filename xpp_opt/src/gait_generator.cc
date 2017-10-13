@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/models/gait_generator.h>
+#include <../include/xpp_opt/models/gait_generator.h>
 
 namespace xpp {
 

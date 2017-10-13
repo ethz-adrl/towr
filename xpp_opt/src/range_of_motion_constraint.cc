@@ -5,14 +5,14 @@
  @brief   Defines the RangeOfMotionBox class.
  */
 
-#include <xpp/constraints/range_of_motion_constraint.h>
+#include <../include/xpp_opt/constraints/range_of_motion_constraint.h>
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <memory>
 
+#include <../include/xpp_opt/variables/variable_names.h>
 #include <xpp_states/cartesian_declarations.h>
-#include <xpp/variables/variable_names.h>
 
 namespace xpp {
 

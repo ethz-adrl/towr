@@ -5,16 +5,16 @@
  @brief   Brief description
  */
 
-#include <xpp/constraints/dynamic_constraint.h>
+#include <../include/xpp_opt/constraints/dynamic_constraint.h>
 
 #include <memory>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
+#include <../include/xpp_opt/variables/variable_names.h>
 #include <xpp_states/endeffectors.h>
 #include <xpp_states/state.h>
 
-#include <xpp/variables/variable_names.h>
 
 namespace xpp {
 

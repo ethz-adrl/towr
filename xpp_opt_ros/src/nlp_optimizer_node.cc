@@ -30,8 +30,8 @@
 
 #include <xpp_ros_conversions/ros_conversions.h>
 
-#include <xpp/optimization_parameters.h>
-#include <xpp/height_map.h>
+#include <../../xpp_opt/include/xpp_opt/height_map.h>
+#include <../../xpp_opt/include/xpp_opt/optimization_parameters.h>
 
 namespace xpp {
 

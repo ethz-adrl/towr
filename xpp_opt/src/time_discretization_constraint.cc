@@ -5,13 +5,13 @@
  @brief   Brief description
  */
 
-#include <xpp/constraints/time_discretization_constraint.h>
+#include <xpp_opt/constraints/time_discretization_constraint.h>
 
 #include <cmath>
 #include <initializer_list>
 #include <Eigen/Dense>
 
-#include <xpp/nlp_bound.h>
+#include <xpp_opt/solvers/nlp_bound.h>
 
 namespace xpp {
 

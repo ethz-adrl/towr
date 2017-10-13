@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/motion_optimizer_facade.h>
+#include <../include/xpp_opt/motion_optimizer_facade.h>
 
 #include <algorithm>
 #include <cassert>
@@ -15,21 +15,20 @@
 #include <tuple>
 #include <utility>
 
+#include <../include/xpp_opt/angular_state_converter.h>
+#include <../include/xpp_opt/cost_constraint_factory.h>
+#include <../include/xpp_opt/models/gait_generator.h>
+#include <../include/xpp_opt/models/kinematic_model.h>
+#include <../include/xpp_opt/polynomial.h>
+#include <../include/xpp_opt/solvers/ipopt_adapter.h>
+#include <../include/xpp_opt/solvers/snopt_adapter.h>
+#include <../include/xpp_opt/variables/coeff_spline.h>
+#include <../include/xpp_opt/variables/contact_schedule.h>
+#include <../include/xpp_opt/variables/phase_nodes.h>
+#include <../include/xpp_opt/variables/variable_names.h>
 //#include <kindr/rotations/Rotation.hpp>
 #include <xpp_states/cartesian_declarations.h>
 
-#include <xpp/angular_state_converter.h>
-#include <xpp/cost_constraint_factory.h>
-#include <xpp/models/gait_generator.h>
-#include <xpp/models/kinematic_model.h>
-#include <xpp/polynomial.h>
-#include <xpp/variables/coeff_spline.h>
-#include <xpp/variables/contact_schedule.h>
-#include <xpp/variables/phase_nodes.h>
-#include <xpp/variables/variable_names.h>
-
-#include <xpp/solvers/snopt_adapter.h>
-#include <xpp/solvers/ipopt_adapter.h>
 
 namespace xpp {
 

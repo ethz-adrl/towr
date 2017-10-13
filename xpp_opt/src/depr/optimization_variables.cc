@@ -9,7 +9,7 @@
 
 #include <xpp/opt/depr/optimization_variables.h>
 
-#include <xpp/nlp_bound.h>
+#include <../../include/xpp_opt/nlp_bound.h>
 
 namespace xpp {
 namespace opt {

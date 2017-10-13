@@ -5,12 +5,12 @@
  @brief   Defines the class SoftConstraint
  */
 
-#include <xpp/costs/soft_constraint.h>
+#include <xpp_opt/solvers/soft_constraint.h>
 
 #include <Eigen/Sparse>
 #include <string>
 
-#include <xpp/nlp_bound.h>
+#include <xpp_opt/solvers/nlp_bound.h>
 
 namespace xpp {
 

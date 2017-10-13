@@ -5,10 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/variables/spline.h>
+#include <../include/xpp_opt/variables/spline.h>
 
-#include <xpp/variables/node_values.h>
-#include <xpp/variables/variable_names.h>
+#include <../include/xpp_opt/variables/node_values.h>
+#include <../include/xpp_opt/variables/variable_names.h>
 
 
 namespace xpp {

@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/variables/node_values.h>
+#include <../include/xpp_opt/variables/node_values.h>
 
 #include <array>
 #include <cmath>

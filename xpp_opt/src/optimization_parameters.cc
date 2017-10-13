@@ -5,7 +5,7 @@
 @brief   Brief description
  */
 
-#include <xpp/optimization_parameters.h>
+#include <../include/xpp_opt/optimization_parameters.h>
 
 #include <algorithm>
 #include <initializer_list>

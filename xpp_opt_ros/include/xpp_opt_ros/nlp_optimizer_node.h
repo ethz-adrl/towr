@@ -21,8 +21,8 @@
 
 #include <xpp_states/robot_state_cartesian.h>
 
-#include <xpp/motion_optimizer_facade.h>
-#include <xpp/nlp.h>
+#include <xpp_opt/motion_optimizer_facade.h>
+#include <xpp_opt/solvers/nlp.h>
 
 namespace xpp {
 

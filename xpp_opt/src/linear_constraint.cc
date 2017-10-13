@@ -5,10 +5,10 @@
  @brief   Brief description
  */
 
-#include <xpp/constraints/linear_constraint.h>
+#include <xpp_opt/solvers/linear_constraint.h>
 
-#include <xpp/composite.h>
-#include <xpp/nlp_bound.h>
+#include <xpp_opt/solvers/composite.h>
+#include <xpp_opt/solvers/nlp_bound.h>
 
 namespace xpp {
 

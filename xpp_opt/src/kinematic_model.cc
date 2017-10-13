@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/models/kinematic_model.h>
+#include <../include/xpp_opt/models/kinematic_model.h>
 
 #include <Eigen/Dense>
 

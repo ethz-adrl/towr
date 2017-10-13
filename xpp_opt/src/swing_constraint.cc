@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/constraints/swing_constraint.h>
+#include <../include/xpp_opt/constraints/swing_constraint.h>
 
 #include <array>
 #include <Eigen/Dense>
@@ -13,10 +13,10 @@
 #include <memory>
 #include <vector>
 
+#include <../include/xpp_opt/variables/node_values.h>
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <xpp/variables/node_values.h>
 
 namespace xpp {
 

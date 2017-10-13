@@ -5,14 +5,14 @@
  @brief   Brief description
  */
 
-#include <xpp/variables/phase_nodes.h>
+#include <../include/xpp_opt/variables/phase_nodes.h>
 
 #include <cassert>
 
+#include <../include/xpp_opt/polynomial.h>
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <xpp/polynomial.h>
 
 namespace xpp {
 

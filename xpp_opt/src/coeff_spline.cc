@@ -5,7 +5,7 @@
  @brief   Defines the coeff_spline.
  */
 
-#include <xpp/variables/coeff_spline.h>
+#include <../include/xpp_opt/variables/coeff_spline.h>
 
 #include <numeric>
 #include <tuple>

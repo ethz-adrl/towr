@@ -5,19 +5,19 @@
  @brief   Brief description
  */
 
-#include <xpp/models/robot_model.h>
+#include <../include/xpp_opt/models/robot_model.h>
 
 #include <Eigen/Dense>
 #include <map>
 #include <memory>
 
+#include <../include/xpp_opt/models/biped_gait_generator.h>
+#include <../include/xpp_opt/models/centroidal_model.h>
+#include <../include/xpp_opt/models/monoped_gait_generator.h>
+#include <../include/xpp_opt/models/quadruped_gait_generator.h>
 #include <xpp_states/endeffectors.h>
 #include <xpp_states/state.h>
 
-#include <xpp/models/biped_gait_generator.h>
-#include <xpp/models/centroidal_model.h>
-#include <xpp/models/monoped_gait_generator.h>
-#include <xpp/models/quadruped_gait_generator.h>
 
 
 namespace xpp {

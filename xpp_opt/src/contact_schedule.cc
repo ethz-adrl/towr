@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/variables/contact_schedule.h>
+#include <../include/xpp_opt/variables/contact_schedule.h>
 
 #include <cassert>
 #include <iostream>
@@ -13,10 +13,10 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
+#include <../include/xpp_opt/variables/spline.h>
+#include <../include/xpp_opt/variables/variable_names.h>
 #include <xpp_states/state.h>
 
-#include <xpp/variables/spline.h>
-#include <xpp/variables/variable_names.h>
 
 
 namespace xpp {

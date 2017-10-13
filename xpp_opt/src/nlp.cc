@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/nlp.h>
+#include <xpp_opt/solvers/nlp.h>
 
 #include <algorithm>
 #include <Eigen/Sparse>

@@ -5,12 +5,12 @@
  @brief   Brief description
  */
 
-#include <xpp/constraints/base_motion_constraint.h>
+#include <xpp_opt/constraints/base_motion_constraint.h>
 
 #include <memory>
 
-#include <xpp/composite.h>
-#include <xpp/variables/variable_names.h>
+#include <xpp_opt/solvers/composite.h>
+#include <xpp_opt/variables/variable_names.h>
 
 namespace xpp {
 

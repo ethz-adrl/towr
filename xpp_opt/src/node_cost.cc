@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/costs/node_cost.h>
+#include <../include/xpp_opt/costs/node_cost.h>
 
 #include <cmath>
 #include <Eigen/Dense>

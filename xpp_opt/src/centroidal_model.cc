@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp/models/centroidal_model.h>
+#include <../include/xpp_opt/models/centroidal_model.h>
 
 #include <vector>
 

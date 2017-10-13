@@ -5,25 +5,24 @@
  @brief   Brief description
  */
 
-#include <xpp/cost_constraint_factory.h>
+#include <xpp_opt/cost_constraint_factory.h>
 
 #include <cassert>
 #include <initializer_list>
 #include <stdexcept>
 
-#include <Eigen/src/Core/CommaInitializer.h>
-#include <xpp/constraints/base_motion_constraint.h>
-#include <xpp/constraints/dynamic_constraint.h>
-#include <xpp/constraints/force_constraint.h>
-#include <xpp/constraints/range_of_motion_constraint.h>
-#include <xpp/constraints/spline_constraint.h>
-#include <xpp/constraints/swing_constraint.h>
-#include <xpp/constraints/terrain_constraint.h>
-#include <xpp/costs/node_cost.h>
-#include <xpp/costs/soft_constraint.h>
-#include <xpp/models/dynamic_model.h>
-#include <xpp/variables/contact_schedule.h>
-#include <xpp/variables/variable_names.h>
+#include <xpp_opt/constraints/base_motion_constraint.h>
+#include <xpp_opt/constraints/dynamic_constraint.h>
+#include <xpp_opt/constraints/force_constraint.h>
+#include <xpp_opt/constraints/range_of_motion_constraint.h>
+#include <xpp_opt/constraints/spline_constraint.h>
+#include <xpp_opt/constraints/swing_constraint.h>
+#include <xpp_opt/constraints/terrain_constraint.h>
+#include <xpp_opt/costs/node_cost.h>
+#include <xpp_opt/solvers/soft_constraint.h>
+#include <xpp_opt/models/dynamic_model.h>
+#include <xpp_opt/variables/contact_schedule.h>
+#include <xpp_opt/variables/variable_names.h>
 
 
 namespace xpp {
