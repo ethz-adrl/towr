@@ -6,9 +6,6 @@ project(xpp_opt_ros)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED
   rosbag
-  keyboard
-  joy
-  xpp_msgs
   xpp_opt
   xpp_ros_conversions
 )
@@ -107,7 +104,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++11")
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ${PROJECT_NAME}
-   CATKIN_DEPENDS xpp_msgs
+   CATKIN_DEPENDS
 #  DEPENDS system_lib
 )
 
@@ -125,7 +122,6 @@ include_directories(
 # Declare a C++ library
 add_library(${PROJECT_NAME}
   src/nlp_optimizer_node.cc
-  src/nlp_user_input_node.cc
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
@@ -139,22 +135,6 @@ target_link_libraries(nlp_optimizer_node
   ${catkin_LIBRARIES}
 )  
                                                  
-
-add_executable(nlp_user_input_node
-    src/executable/nlp_user_input_node_exe.cc
-)
-target_link_libraries(nlp_user_input_node 
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
-
-add_executable(robot_state_publisher
-    src/executable/robot_state_publisher.cc
-)
-target_link_libraries(robot_state_publisher
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
 
 #add_executable(qp_optimizer_node 
 #  src/executable/qp_optimizer_node_exe.cc

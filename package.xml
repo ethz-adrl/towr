@@ -45,9 +45,6 @@
   <build_depend>joy</build_depend>
   <build_depend>rosbag</build_depend>
   
-  <build_depend>xpp_msgs</build_depend>
-  <run_depend>xpp_msgs</run_depend>
-  
   <build_depend>xpp_ros_conversions</build_depend>
   <run_depend>xpp_ros_conversions</run_depend>
   

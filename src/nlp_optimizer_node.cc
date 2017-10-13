@@ -26,6 +26,8 @@
 #include <xpp_states/state.h>
 
 #include <xpp_msgs/topic_names.h>
+#include <xpp_msgs/TerrainInfo.h>
+
 #include <xpp_ros_conversions/ros_conversions.h>
 
 #include <xpp/optimization_parameters.h>
@@ -95,7 +97,7 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
 {
   user_command_msg_ = msg;
 
-  motion_optimizer_.terrain_ = opt::HeightMap::MakeTerrain(static_cast<opt::HeightMap::ID>(msg.terrain_id));
+  motion_optimizer_.terrain_ = opt::HeightMap::MakeTerrain(static_cast<TerrainID>(msg.terrain_id));
   motion_optimizer_.SetTerrainFromAvgFootholdHeight();
 
 
@@ -105,7 +107,8 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
   motion_optimizer_.params_->SetTotalDuration(msg.total_duration);
 
   motion_optimizer_.nlp_solver_ = msg.use_solver_snopt ? MotionOptimizerFacade::Snopt : MotionOptimizerFacade::Ipopt;
-  motion_optimizer_.SetFinalState(RosConversions::RosToXpp(msg.goal_lin), RosConversions::RosToXpp(msg.goal_ang));
+  motion_optimizer_.SetFinalState(RosConversions::RosToXpp(msg.goal_lin),
+                                  RosConversions::RosToXpp(msg.goal_ang));
 
   ROS_INFO_STREAM("publishing optimization parameters to " << opt_parameters_pub_.getTopic());
   opt_parameters_pub_.publish(BuildOptParametersMsg());
@@ -119,7 +122,9 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
 
   if (msg.replay_trajectory || msg.optimize) {
     // play back the rosbag hacky like this, as I can't find appropriate C++ API.
-    system(("rosbag play --topics " + xpp_msgs::robot_state_desired + " --quiet " + bag_file).c_str());
+    system(("rosbag play --topics " + xpp_msgs::robot_state_desired + " "
+                                    + xpp_msgs::terrain_info
+                                    + " --quiet " + bag_file).c_str());
   }
 
 
@@ -232,8 +237,25 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
   for (const auto state : traj) {
     auto timestamp = ::ros::Time(state.t_global_ +1e-6); // to avoid t=0.0
 
-    auto state_msg = ros::RosConversions::XppToRos(state);
-    bag.write(topic, timestamp, state_msg);
+    xpp_msgs::RobotStateCartesian msg;
+    msg = ros::RosConversions::XppToRos(state);
+    bag.write(topic, timestamp, msg);
+
+    xpp_msgs::TerrainInfo terrain_msg;
+    for (auto ee : state.ee_motion_.ToImpl()) {
+      Vector3d n = motion_optimizer_.terrain_->GetNormalizedBasis(opt::HeightMap::Normal,
+                                                                  ee.p_.x(), ee.p_.y());
+      terrain_msg.surface_normals.push_back(RosConversions::XppToRos<geometry_msgs::Vector3>(n));
+      terrain_msg.friction_coeff = motion_optimizer_.terrain_->GetFrictionCoeff();
+    }
+
+    bag.write(xpp_msgs::terrain_info, timestamp, terrain_msg);
+
+
+
+//    Vector3d f = motion_optimizer_.terrain_->GetHeight(state.)
+
+//    bag.write(topic, timestamp, msg);
   }
 }
 
