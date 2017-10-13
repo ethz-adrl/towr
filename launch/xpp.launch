@@ -1,0 +1,10 @@
+<launch>  
+  <!-- so the logging print the node name -->
+  <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${node}]: ${message}" />
+  <env name="ROSCONSOLE_CONFIG_FILE" value="$(find xpp_opt_ros)/config/xpp.conf"/>
+  
+  <!--  load the ros parameters  -->
+  <include file="$(find xpp_opt_ros)/launch/xpp_params.launch"></include>
+
+  <node name="nlp_optimizer_node" pkg="xpp_opt_ros" type="nlp_optimizer_node" output="screen"/>
+</launch>

@@ -4,3 +4,5 @@
 *.out
 /config/rospack_cache_*
 *~
+bags/optimal_traj.bag
+bags/optimal_traj_combined.bag
