@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/constraints/terrain_constraint.h>
+#include <xpp_opt/constraints/terrain_constraint.h>
 
 #include <array>
 #include <Eigen/Dense>
@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-#include <../include/xpp_opt/variables/node_values.h>
+#include <xpp_opt/variables/node_values.h>
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 

@@ -27,7 +27,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
   SetName("RangeOfMotionBox-" + std::to_string(ee));
   ee_ = ee;
   max_deviation_from_nominal_ = kinematic_model->GetMaximumDeviationFromNominal();
-  nominal_ee_pos_B_           = kinematic_model->GetNominalStanceInBase().At(ee);
+  nominal_ee_pos_B_           = kinematic_model->GetNominalStanceInBase().at(ee);
 
   base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
   base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);

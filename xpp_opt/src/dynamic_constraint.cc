@@ -135,8 +135,8 @@ DynamicConstraint::UpdateModel (double t) const
   EndeffectorsPos ee_pos(n_ee);
   Endeffectors<Vector3d> ee_force(n_ee);
   for (auto ee :  ee_pos.GetEEsOrdered()) {
-    ee_force.At(ee) = ee_forces_.at(ee)->GetPoint(t).p_;
-    ee_pos.At(ee)   = ee_motion_.at(ee)->GetPoint(t).p_;
+    ee_force.at(ee) = ee_forces_.at(ee)->GetPoint(t).p_;
+    ee_pos.at(ee)   = ee_motion_.at(ee)->GetPoint(t).p_;
   }
 
   model_->SetCurrent(com_pos, ee_force, ee_pos);

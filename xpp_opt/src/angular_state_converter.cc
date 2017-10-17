@@ -35,8 +35,8 @@ AngularStateConverter::GetState (const StateLin3d& euler)
   StateAng3d ang;
 
   ang.q = AngularStateConverter::GetOrientation(euler.p_);
-  ang.v = AngularStateConverter::GetAngularVelocity(euler.p_, euler.v_);
-  ang.a = AngularStateConverter::GetAngularAcceleration(euler);
+  ang.w = AngularStateConverter::GetAngularVelocity(euler.p_, euler.v_);
+  ang.wd = AngularStateConverter::GetAngularAcceleration(euler);
 
   return ang;
 }

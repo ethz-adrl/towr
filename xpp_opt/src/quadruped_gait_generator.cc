@@ -5,7 +5,8 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/models/quadruped_gait_generator.h>
+#include <xpp_opt/models/quadruped_gait_generator.h>
+#include <xpp_states/endeffector_mappings.h>
 
 namespace xpp {
 
@@ -21,29 +22,27 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
   BB_                               = init; // four-leg support phase
 
 
-  using namespace quad;
-  map_id_to_ee_ = quad::kMapIDToEE;
-  auto m = map_id_to_ee_; // shorthand for readability
+  using namespace quad; // only for LF, RF, ... enums
 
   // flight_phase
   II_.SetAll(false);
   // one stanceleg
-  PI_.At(m.at(LH)) = true;
-  bI_.At(m.at(RH)) = true;
-  IP_.At(m.at(LF)) = true;
-  Ib_.At(m.at(RF)) = true;
+  PI_.at(LH) = true;
+  bI_.at(RH) = true;
+  IP_.at(LF) = true;
+  Ib_.at(RF) = true;
   // two stancelegs
-  Pb_.At(m.at(LH)) = true; Pb_.At(m.at(RF)) = true;
-  bP_.At(m.at(RH)) = true; bP_.At(m.at(LF)) = true;
-  BI_.At(m.at(LH)) = true; BI_.At(m.at(RH)) = true;
-  IB_.At(m.at(LF)) = true; IB_.At(m.at(RF)) = true;
-  PP_.At(m.at(LH)) = true; PP_.At(m.at(LF)) = true;
-  bb_.At(m.at(RH)) = true; bb_.At(m.at(RF)) = true;
+  Pb_.at(LH) = true; Pb_.at(RF) = true;
+  bP_.at(RH) = true; bP_.at(LF) = true;
+  BI_.at(LH) = true; BI_.at(RH) = true;
+  IB_.at(LF) = true; IB_.at(RF) = true;
+  PP_.at(LH) = true; PP_.at(LF) = true;
+  bb_.at(RH) = true; bb_.at(RF) = true;
   // three stancelegs
-  Bb_.At(m.at(LH)) = true; Bb_.At(m.at(RH)) = true;  Bb_.At(m.at(RF))= true;
-  BP_.At(m.at(LH)) = true; BP_.At(m.at(RH)) = true;  BP_.At(m.at(LF))= true;
-  bB_.At(m.at(RH)) = true; bB_.At(m.at(LF)) = true;  bB_.At(m.at(RF))= true;
-  PB_.At(m.at(LH)) = true; PB_.At(m.at(LF)) = true;  PB_.At(m.at(RF))= true;
+  Bb_.at(LH) = true; Bb_.at(RH) = true;  Bb_.at(RF)= true;
+  BP_.at(LH) = true; BP_.at(RH) = true;  BP_.at(LF)= true;
+  bB_.at(RH) = true; bB_.at(LF) = true;  bB_.at(RF)= true;
+  PB_.at(LH) = true; PB_.at(LF) = true;  PB_.at(RF)= true;
   // four stancelgs
   BB_.SetAll(true);
 

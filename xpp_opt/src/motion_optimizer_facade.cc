@@ -15,18 +15,18 @@
 #include <tuple>
 #include <utility>
 
-#include <../include/xpp_opt/angular_state_converter.h>
-#include <../include/xpp_opt/cost_constraint_factory.h>
-#include <../include/xpp_opt/models/gait_generator.h>
-#include <../include/xpp_opt/models/kinematic_model.h>
-#include <../include/xpp_opt/polynomial.h>
-#include <../include/xpp_opt/solvers/ipopt_adapter.h>
-#include <../include/xpp_opt/solvers/snopt_adapter.h>
-#include <../include/xpp_opt/variables/coeff_spline.h>
-#include <../include/xpp_opt/variables/contact_schedule.h>
-#include <../include/xpp_opt/variables/phase_nodes.h>
-#include <../include/xpp_opt/variables/variable_names.h>
-//#include <kindr/rotations/Rotation.hpp>
+#include <xpp_opt/angular_state_converter.h>
+#include <xpp_opt/cost_constraint_factory.h>
+#include <xpp_opt/models/gait_generator.h>
+#include <xpp_opt/models/kinematic_model.h>
+#include <xpp_opt/polynomial.h>
+#include <xpp_opt/solvers/ipopt_adapter.h>
+#include <xpp_opt/solvers/snopt_adapter.h>
+#include <xpp_opt/variables/coeff_spline.h>
+#include <xpp_opt/variables/contact_schedule.h>
+#include <xpp_opt/variables/phase_nodes.h>
+#include <xpp_opt/variables/variable_names.h>
+
 #include <xpp_states/cartesian_declarations.h>
 
 
@@ -49,13 +49,13 @@ MotionOptimizerFacade::BuildDefaultInitialState ()
 {
   auto p_nom_B = model_.kinematic_model_->GetNominalStanceInBase();
 
-  inital_base_.lin.p_ << 0.0, 0.0, -p_nom_B.At(E0).z();
+  inital_base_.lin.p_ << 0.0, 0.0, -p_nom_B.at(0).z();
   inital_base_.ang.p_ << 0.0, 0.0, 0.0; // euler (roll, pitch, yaw)
 
-  initial_ee_W_.SetCount(p_nom_B.GetCount());
+  initial_ee_W_.SetCount(p_nom_B.GetEECount());
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-    initial_ee_W_.At(ee) = p_nom_B.At(ee) + inital_base_.lin.p_;
-    initial_ee_W_.At(ee).z() = 0.0;
+    initial_ee_W_.at(ee) = p_nom_B.at(ee) + inital_base_.lin.p_;
+    initial_ee_W_.at(ee).z() = 0.0;
   }
 }
 
@@ -77,7 +77,7 @@ MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& curr_state)
 
 
 
-  SetIntialFootholds(curr_state.GetEEPos());
+  SetIntialFootholds(curr_state.ee_motion_.Get(kPos));
 }
 
 void
@@ -89,7 +89,7 @@ MotionOptimizerFacade::SetFinalState (const StateLin3d& lin,
 
   // height depends on terrain
   double z_terrain = terrain_->GetHeight(lin.p_.x(), lin.p_.y());
-  double z_nominal_B = model_.kinematic_model_->GetNominalStanceInBase().At(E0).z();
+  double z_nominal_B = model_.kinematic_model_->GetNominalStanceInBase().at(0).z();
   final_base_.lin.p_.z() = z_terrain - z_nominal_B;
 }
 
@@ -132,14 +132,14 @@ MotionOptimizerFacade::BuildVariables () const
 
     double yaw = final_base_.ang.p_.z();
     Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
-    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().At(ee);
+    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
 
 
 
-    ee_motion->InitializeVariables(initial_ee_W_.At(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
+    ee_motion->InitializeVariables(initial_ee_W_.at(ee), final_ee_pos_W, contact_schedule.at(ee)->GetTimePerPhase());
 
     // actually initial Z position should be constrained as well...-.-
-    ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.At(ee));
+    ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
 //    ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
 
 
@@ -338,18 +338,18 @@ MotionOptimizerFacade::GetTrajectory (const OptimizationVariablesPtr& vars,
 {
   RobotStateVec trajectory;
   double t=0.0;
-  double T = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(E0))->GetTotalTime();
+  double T = params_->GetTotalTime();
   while (t<=T+1e-5) {
 
-    RobotStateCartesian state(initial_ee_W_.GetCount());
+    RobotStateCartesian state(initial_ee_W_.GetEECount());
 
     state.base_.lin = vars->GetComponent<Spline>(id::base_linear)->GetPoint(t);
     state.base_.ang = AngularStateConverter::GetState(vars->GetComponent<Spline>(id::base_angular)->GetPoint(t));
 
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
-      state.ee_contact_.At(ee) = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->IsInContact(t);
-      state.ee_motion_.At(ee)  = vars->GetComponent<Spline>(id::GetEEMotionId(ee))->GetPoint(t);
-      state.ee_forces_.At(ee)  = vars->GetComponent<Spline>(id::GetEEForceId(ee))->GetPoint(t).p_;
+      state.ee_contact_.at(ee) = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->IsInContact(t);
+      state.ee_motion_.at(ee)  = vars->GetComponent<Spline>(id::GetEEMotionId(ee))->GetPoint(t);
+      state.ee_forces_.at(ee)  = vars->GetComponent<Spline>(id::GetEEForceId(ee))->GetPoint(t).p_;
     }
 
     state.t_global_ = t;

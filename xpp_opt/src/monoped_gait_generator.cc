@@ -5,13 +5,13 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/models/monoped_gait_generator.h>
+#include <xpp_opt/models/monoped_gait_generator.h>
 
 namespace xpp {
 
 MonopedGaitGenerator::MonopedGaitGenerator ()
 {
-  map_id_to_ee_ = { {"E0", E0 } };
+  map_id_to_ee_ = { {"E0", 0 } };
 }
 
 MonopedGaitGenerator::GaitInfo

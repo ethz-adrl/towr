@@ -27,7 +27,7 @@ DynamicModel::SetCurrent (const ComPos& com_pos, const EELoad& ee_force,
 double
 DynamicModel::GetStandingZForce () const
 {
-  return m_*g_/ee_pos_.GetCount();
+  return m_*g_/ee_pos_.GetEECount();
 }
 
 DynamicModel::~DynamicModel()

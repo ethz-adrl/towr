@@ -5,7 +5,8 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/models/biped_gait_generator.h>
+#include <xpp_opt/models/biped_gait_generator.h>
+#include <xpp_states/endeffector_mappings.h>
 
 namespace xpp {
 
@@ -14,10 +15,9 @@ BipedGaitGenerator::BipedGaitGenerator ()
   ContactState init(2, false);
   I_ = b_ = P_ = B_ = init;
 
-  map_id_to_ee_ = biped::kMapIDToEE;
   I_.SetAll(false);
-  P_.At(map_id_to_ee_.at(biped::L)) = true;
-  b_.At(map_id_to_ee_.at(biped::R)) = true;
+  P_.at(biped::L) = true;
+  b_.at(biped::R) = true;
   B_.SetAll(true);
 
   SetGaits({Stand});

@@ -34,7 +34,7 @@ GaitGenerator::GetContactSchedule (EndeffectorID ee) const
 GaitGenerator::FootDurations
 GaitGenerator::GetContactSchedule () const
 {
-  int n_ee = contacts_.front().GetCount();
+  int n_ee = contacts_.front().GetEECount();
   VecTimes d_accumulated(n_ee, 0.0);
 
   FootDurations foot_durations(n_ee);
@@ -47,7 +47,7 @@ GaitGenerator::GetContactSchedule () const
       d_accumulated.at(ee) += times_.at(phase);
 
       // if contact will change in next phase, so this phase duration complete
-      bool contacts_will_change = curr.At(ee) != next.At(ee);
+      bool contacts_will_change = curr.at(ee) != next.at(ee);
       if (contacts_will_change)  {
         foot_durations.at(ee).push_back(d_accumulated.at(ee));
         d_accumulated.at(ee) = 0.0;
@@ -66,7 +66,7 @@ GaitGenerator::GetContactSchedule () const
 bool
 GaitGenerator::IsInContactAtStart (EndeffectorID ee) const
 {
-  return contacts_.front().At(ee);
+  return contacts_.front().at(ee);
 }
 
 void

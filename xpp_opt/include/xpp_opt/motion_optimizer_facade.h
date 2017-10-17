@@ -60,7 +60,7 @@ public:
   {
     double avg_height=0.0;
     for ( auto pos : initial_ee_W_.ToImpl())
-      avg_height += pos.z()/initial_ee_W_.GetCount();
+      avg_height += pos.z()/initial_ee_W_.GetEECount();
     terrain_->SetGroundHeight(avg_height);
   }
 

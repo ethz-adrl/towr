@@ -5,19 +5,19 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/models/robot_model.h>
+#include <xpp_opt/models/robot_model.h>
 
 #include <Eigen/Dense>
 #include <map>
 #include <memory>
 
-#include <../include/xpp_opt/models/biped_gait_generator.h>
-#include <../include/xpp_opt/models/centroidal_model.h>
-#include <../include/xpp_opt/models/monoped_gait_generator.h>
-#include <../include/xpp_opt/models/quadruped_gait_generator.h>
+#include <xpp_opt/models/biped_gait_generator.h>
+#include <xpp_opt/models/centroidal_model.h>
+#include <xpp_opt/models/monoped_gait_generator.h>
+#include <xpp_opt/models/quadruped_gait_generator.h>
 #include <xpp_states/endeffectors.h>
 #include <xpp_states/state.h>
-
+#include <xpp_states/endeffector_mappings.h>
 
 
 namespace xpp {
@@ -43,7 +43,7 @@ RobotModel::MakeMonopedModel ()
   dynamic_model_->SetForceLimit(800);
 
   kinematic_model_ = std::make_shared<KinematicModel>(n_ee);
-  kinematic_model_->nominal_stance_.At(E0) = Vector3d( 0.0, 0.0, -0.58);
+  kinematic_model_->nominal_stance_.at(0) = Vector3d( 0.0, 0.0, -0.58);
   kinematic_model_->max_dev_from_nominal_ << 0.25, 0.15, 0.2;
 
   gait_generator_ = std::make_shared<MonopedGaitGenerator>();
@@ -52,8 +52,8 @@ RobotModel::MakeMonopedModel ()
 void
 RobotModel::MakeBipedModel ()
 {
-  using namespace xpp::biped;
-  int n_ee = kMapIDToEE.size();
+  using namespace biped; // for L, R definitions
+  int n_ee = 2;
 
   Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
   dynamic_model_ = std::make_shared<CentroidalModel>(20, I, n_ee);
@@ -63,8 +63,8 @@ RobotModel::MakeBipedModel ()
   kinematic_model_ = std::make_shared<KinematicModel>(n_ee);
   const double z_nominal_b = -0.60;
   const double y_nominal_b =  0.20;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(L)) << 0.0,  y_nominal_b, z_nominal_b;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(R)) << 0.0, -y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(L) << 0.0,  y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(R) << 0.0, -y_nominal_b, z_nominal_b;
 
   kinematic_model_->max_dev_from_nominal_  << 0.25, 0.15, 0.18;
 
@@ -75,7 +75,7 @@ void
 RobotModel::MakeHyqModel ()
 {
   using namespace xpp::quad;
-  int n_ee = kMapIDToEE.size();
+  int n_ee = 4;
 
 //  Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
 
@@ -95,10 +95,10 @@ RobotModel::MakeHyqModel ()
   const double z_nominal_b = -0.58;
 //  const double z_nominal_b = -0.60;
 
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(LF)) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(RF)) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(LH)) << -x_nominal_b,   y_nominal_b, z_nominal_b;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(LF) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
 
 //  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.07, 0.05;
 
@@ -111,7 +111,7 @@ void
 RobotModel::MakeAnymalModel ()
 {
   using namespace xpp::quad;
-  int n_ee = kMapIDToEE.size();
+  int n_ee = 4;
 
   Eigen::Matrix3d I = BuildInertiaTensor( 0.268388530623900,
                                           0.884235660795284,
@@ -127,10 +127,10 @@ RobotModel::MakeAnymalModel ()
   const double x_nominal_b = 0.33;  // wrt to hip 5cm
   const double y_nominal_b = 0.15; // wrt to hip -3cm
   const double z_nominal_b = -0.47;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(LF)) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(RF)) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(LH)) << -x_nominal_b,   y_nominal_b, z_nominal_b;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(RH)) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(LF) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
   kinematic_model_->max_dev_from_nominal_ << 0.23, 0.13, 0.09;
 
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
@@ -140,7 +140,7 @@ void
 RobotModel::MakeQuadrotorModel ()
 {
   using namespace xpp::quad_rotor;
-  int n_ee = kMapIDToEE.size();
+  int n_ee = 4;
 
   Eigen::Matrix3d I = BuildInertiaTensor( 0.0023, 0.0023, 0.004, 0.0, 0.0, 0.0);
   dynamic_model_ = std::make_shared<CentroidalModel>(0.5, I, n_ee);
@@ -152,10 +152,10 @@ RobotModel::MakeQuadrotorModel ()
   const double x_nominal_b = 0.22;
   const double y_nominal_b = 0.22;
   const double z_nominal_b = 0;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(L)) <<  0,   y_nominal_b, z_nominal_b;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(R)) <<  0,  -y_nominal_b, z_nominal_b;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(F)) <<  x_nominal_b,   0, z_nominal_b;
-  kinematic_model_->nominal_stance_.At(kMapIDToEE.at(H)) << -x_nominal_b,   0, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(L) <<  0,   y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(R) <<  0,  -y_nominal_b, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(F) <<  x_nominal_b,   0, z_nominal_b;
+  kinematic_model_->nominal_stance_.at(H) << -x_nominal_b,   0, z_nominal_b;
 
   kinematic_model_->max_dev_from_nominal_ << 0.0, 0.0, 0.0;
 

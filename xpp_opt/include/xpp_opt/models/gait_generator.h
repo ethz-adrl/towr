@@ -23,7 +23,7 @@ public:
   using Ptr            = std::shared_ptr<GaitGenerator>;
   using VecTimes       = std::vector<double>;
   using FootDurations  = std::vector<VecTimes>;
-  using ContactState   = EndeffectorsBool;
+  using ContactState   = EndeffectorsContact;
   using GaitInfo       = std::pair<VecTimes,std::vector<ContactState>>;
 
   GaitGenerator ();

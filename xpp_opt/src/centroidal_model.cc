@@ -33,8 +33,8 @@ CentroidalModel::GetBaseAcceleration () const
   Vector3d f_lin, ang; f_lin.setZero(); ang.setZero();
 
   for (auto ee : ee_pos_.GetEEsOrdered()) {
-    Vector3d f = ee_force_.At(ee);
-    ang += f.cross(com_pos_-ee_pos_.At(ee));
+    Vector3d f = ee_force_.at(ee);
+    ang += f.cross(com_pos_-ee_pos_.at(ee));
     f_lin += f;
   }
 
@@ -90,7 +90,7 @@ Jacobian
 CentroidalModel::GetJacobianofAccWrtForce (const Jacobian& ee_force_jac,
                                            EndeffectorID ee) const
 {
-  Vector3d r = com_pos_-ee_pos_.At(ee);
+  Vector3d r = com_pos_-ee_pos_.at(ee);
   Jacobian jac_ang = -BuildCrossProductMatrix(r)*ee_force_jac;
 
   int n = ee_force_jac.cols();
@@ -105,7 +105,7 @@ Jacobian
 CentroidalModel::GetJacobianofAccWrtEEPos (const Jacobian& jac_ee_pos,
                                            EndeffectorID ee) const
 {
-  Vector3d f = ee_force_.At(ee);
+  Vector3d f = ee_force_.at(ee);
   Jacobian jac_ang = BuildCrossProductMatrix(f)*(-jac_ee_pos);
 
   Jacobian jac(kDim6d, jac_ang.cols());
