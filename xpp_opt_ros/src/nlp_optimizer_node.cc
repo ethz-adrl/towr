@@ -28,10 +28,10 @@
 #include <xpp_msgs/topic_names.h>
 #include <xpp_msgs/TerrainInfo.h>
 
-#include <xpp_ros_conversions/ros_conversions.h>
-
-#include <../../xpp_opt/include/xpp_opt/height_map.h>
-#include <../../xpp_opt/include/xpp_opt/optimization_parameters.h>
+#include <../../../xpp/xpp_ros_conversions/include/xpp_ros_conversions/convert.h>
+#include <xpp_opt/height_map.h>
+#include <xpp_opt/optimization_parameters.h>
+#include <xpp_opt_ros/param_server.h>
 
 namespace xpp {
 
@@ -55,8 +55,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
   opt_parameters_pub_  = n.advertise<xpp_msgs::OptParameters>
                                     (xpp_msgs::opt_parameters, 1);
 
-  dt_            = RosConversions::GetDoubleFromServer("/xpp/trajectory_dt");
-  rosbag_folder_ = RosConversions::GetStringFromServer("/xpp/rosbag_name");
+  dt_            = ParamServer::GetDouble("/xpp/trajectory_dt");
+  rosbag_folder_ = ParamServer::GetString("/xpp/rosbag_name");
 
   user_command_msg_.total_duration = 0.1;
 }
@@ -64,7 +64,7 @@ NlpOptimizerNode::NlpOptimizerNode ()
 void
 NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg)
 {
-  auto curr_state = RosConversions::RosToXpp(msg);
+  auto curr_state = Convert::ToXpp(msg);
 
   // some logging of the real robot state sent from SL
   if (save_current_state_)
@@ -106,8 +106,8 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
   motion_optimizer_.params_->SetTotalDuration(msg.total_duration);
 
   motion_optimizer_.nlp_solver_ = msg.use_solver_snopt ? MotionOptimizerFacade::Snopt : MotionOptimizerFacade::Ipopt;
-  motion_optimizer_.SetFinalState(RosConversions::RosToXpp(msg.goal_lin),
-                                  RosConversions::RosToXpp(msg.goal_ang));
+  motion_optimizer_.SetFinalState(Convert::ToXpp(msg.goal_lin),
+                                  Convert::ToXpp(msg.goal_ang));
 
   ROS_INFO_STREAM("publishing optimization parameters to " << opt_parameters_pub_.getTopic());
   opt_parameters_pub_.publish(BuildOptParametersMsg());
@@ -170,7 +170,7 @@ xpp_msgs::RobotStateCartesianTrajectory
 NlpOptimizerNode::BuildTrajectoryMsg () const
 {
   auto cart_traj = motion_optimizer_.GetTrajectory(dt_);
-  return RosConversions::XppToRos(cart_traj);
+  return Convert::ToRos(cart_traj);
 }
 
 xpp_msgs::OptParameters
@@ -178,13 +178,13 @@ NlpOptimizerNode::BuildOptParametersMsg() const
 {
   xpp_msgs::OptParameters params_msg;
   auto max_dev_xyz = motion_optimizer_.model_.kinematic_model_->GetMaximumDeviationFromNominal();
-  params_msg.ee_max_dev = RosConversions::XppToRos<geometry_msgs::Vector3>(max_dev_xyz);
+  params_msg.ee_max_dev = Convert::ToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
   auto nominal_B = motion_optimizer_.model_.kinematic_model_->GetNominalStanceInBase();
   auto ee_names = motion_optimizer_.model_.gait_generator_->GetEndeffectorNames();
   params_msg.ee_names = ee_names;
   for (auto ee : nominal_B.ToImpl()) {
-    params_msg.nominal_ee_pos.push_back(RosConversions::XppToRos<geometry_msgs::Point>(ee));
+    params_msg.nominal_ee_pos.push_back(Convert::ToRos<geometry_msgs::Point>(ee));
   }
 
   params_msg.base_mass = motion_optimizer_.model_.dynamic_model_->GetMass();
@@ -237,14 +237,14 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
     auto timestamp = ::ros::Time(state.t_global_ +1e-6); // to avoid t=0.0
 
     xpp_msgs::RobotStateCartesian msg;
-    msg = RosConversions::XppToRos(state);
+    msg = Convert::ToRos(state);
     bag.write(topic, timestamp, msg);
 
     xpp_msgs::TerrainInfo terrain_msg;
     for (auto ee : state.ee_motion_.ToImpl()) {
       Vector3d n = motion_optimizer_.terrain_->GetNormalizedBasis(HeightMap::Normal,
                                                                   ee.p_.x(), ee.p_.y());
-      terrain_msg.surface_normals.push_back(RosConversions::XppToRos<geometry_msgs::Vector3>(n));
+      terrain_msg.surface_normals.push_back(Convert::ToRos<geometry_msgs::Vector3>(n));
       terrain_msg.friction_coeff = motion_optimizer_.terrain_->GetFrictionCoeff();
     }
 

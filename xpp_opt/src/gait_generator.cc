@@ -105,11 +105,9 @@ GaitGenerator::RemoveTransition (const GaitInfo& g) const
 std::vector<std::string>
 GaitGenerator::GetEndeffectorNames () const
 {
-  std::vector<std::string> names_;
-  auto map_ee_to_id = ReverseMap(map_id_to_ee_);
-  int n_ee = map_ee_to_id.size();
-  for (int i=0; i<n_ee; ++i)
-     names_.push_back(map_ee_to_id.at(static_cast<EndeffectorID>(i)));
+  std::vector<std::string> names_(map_id_to_ee_.size());
+  for (auto m : map_id_to_ee_)
+     names_.at(m.second) = m.first;
 
   return names_;
 }

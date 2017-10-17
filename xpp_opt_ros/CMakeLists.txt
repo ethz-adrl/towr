@@ -128,12 +128,19 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 add_executable(nlp_optimizer_node 
-  src/executable/nlp_optimizer_node_exe.cc
+  src/exe/nlp_optimizer_node_exe.cc
 )
 target_link_libraries(nlp_optimizer_node 
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
-)  
+)
+
+## misc
+add_executable(rosbag_traj_combiner 
+  src/exe/rosbag_traj_combiner.cc)
+target_link_libraries(rosbag_traj_combiner
+  ${catkin_LIBRARIES}
+)
                                                  
 
 #add_executable(qp_optimizer_node 

@@ -8,9 +8,9 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
 
+#include <memory>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
-#include <memory>
 
 #include <xpp_states/endeffectors.h>
 
