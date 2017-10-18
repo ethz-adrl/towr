@@ -4,10 +4,14 @@ project(xpp_opt_ros)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
   rosbag
-  xpp_opt
+  keyboard
   xpp_ros_conversions
+  xpp_states
+  xpp_msgs
+  xpp_opt
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++11") 
@@ -122,22 +126,28 @@ include_directories(
 # Declare a C++ library
 add_library(${PROJECT_NAME}
   src/nlp_optimizer_node.cc
+  src/user_interface.cc
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
-add_executable(nlp_optimizer_node 
-  src/exe/nlp_optimizer_node_exe.cc
-)
+
+add_executable(nlp_optimizer_node src/exe/nlp_optimizer_node_exe.cc)
 target_link_libraries(nlp_optimizer_node 
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
-## misc
-add_executable(rosbag_traj_combiner 
-  src/exe/rosbag_traj_combiner.cc)
+
+add_executable(user_interface_node src/exe/user_interface_node.cc)
+target_link_libraries(user_interface_node 
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
+
+add_executable(rosbag_traj_combiner src/exe/rosbag_traj_combiner.cc)
 target_link_libraries(rosbag_traj_combiner
   ${catkin_LIBRARIES}
 )

@@ -41,19 +41,29 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   
-  <build_depend>keyboard</build_depend>
-  <build_depend>joy</build_depend>
+  <build_depend>roscpp</build_depend>
+  <run_depend>roscpp</run_depend>
+    
   <build_depend>rosbag</build_depend>
+  <run_depend>rosbag</run_depend>
+  
+  <build_depend>keyboard</build_depend>
+  <run_depend>keyboard</run_depend>
   
   <build_depend>xpp_ros_conversions</build_depend>
   <run_depend>xpp_ros_conversions</run_depend>
   
+  <build_depend>xpp_states</build_depend>
+  <run_depend>xpp_states</run_depend>
+  
+  <build_depend>xpp_msgs</build_depend>
+  <run_depend>xpp_msgs</run_depend>
+  
   <build_depend>xpp_opt</build_depend>
   <run_depend>xpp_opt</run_depend>
   
-  <run_depend>joy</run_depend>
-  <run_depend>keyboard</run_depend>
-  <run_depend>rosbag</run_depend>
+  
+  
   
 
   <!-- The export tag contains other, unspecified, tags -->
