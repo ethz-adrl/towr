@@ -32,7 +32,6 @@ public:
   virtual ~NlpOptimizerNode () {};
 
 private:
-
   void OptimizeMotion();
   void CurrentStateCallback(const xpp_msgs::RobotStateCartesian&);
 

@@ -1,8 +1,4 @@
-/bin/*
-/build/*
 /doc/html/*
-*.out
-/config/rospack_cache_*
-*~
-bags/optimal_traj.bag
-bags/optimal_traj_combined.bag
+*/bags/*/*.bag
+*/bags/*.bag
+*/bags/published/*
