@@ -5,7 +5,7 @@
  @brief   Defines the IPOPT adapter
  */
 
-#include <../include/xpp_opt/solvers/ipopt_adapter.h>
+#include <xpp_solve/ipopt_adapter.h>
 
 #include <cassert>
 #include <iostream>

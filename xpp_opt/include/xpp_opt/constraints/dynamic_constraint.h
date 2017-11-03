@@ -12,9 +12,9 @@
 #include <vector>
 
 #include <xpp_states/cartesian_declarations.h>
+#include <xpp_solve/composite.h>
 
 #include <xpp_opt/angular_state_converter.h>
-#include <xpp_opt/solvers/composite.h>
 #include <xpp_opt/constraints/time_discretization_constraint.h>
 #include <xpp_opt/models/dynamic_model.h>
 #include <xpp_opt/variables/contact_schedule.h>

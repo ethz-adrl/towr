@@ -19,10 +19,7 @@
 #include <xpp_msgs/OptParameters.h>
 #include <xpp_msgs/UserCommand.h>    // receive from user
 
-#include <xpp_states/robot_state_cartesian.h>
-
 #include <xpp_opt/motion_optimizer_facade.h>
-#include <xpp_opt/solvers/nlp.h>
 
 namespace xpp {
 

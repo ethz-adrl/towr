@@ -12,8 +12,7 @@
 #include <memory>
 #include <vector>
 
-#include <xpp_opt/solvers/composite.h>
-#include <xpp_opt/solvers/nlp.h>
+#include <xpp_solve/nlp.h>
 
 #include <xpp_opt/height_map.h>
 #include <xpp_opt/models/robot_model.h>

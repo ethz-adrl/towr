@@ -14,7 +14,7 @@
 
 #include <xpp_states/endeffectors.h>
 
-#include <xpp_opt/solvers/composite.h>
+#include <xpp_solve/composite.h>
 #include <xpp_opt/variables/phase_nodes.h>
 
 namespace xpp {

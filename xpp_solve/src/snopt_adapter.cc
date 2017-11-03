@@ -5,7 +5,7 @@
  @brief   Defines the SnoptAdapter class
  */
 
-#include <xpp_opt/solvers/snopt_adapter.h>
+#include <xpp_solve/snopt_adapter.h>
 
 #include <iostream>
 #include <string>
@@ -13,9 +13,6 @@
 #include <sys/types.h>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
-
-#include <xpp_opt/solvers/composite.h>
-#include <xpp_opt/solvers/nlp_bound.h>
 
 
 namespace xpp {

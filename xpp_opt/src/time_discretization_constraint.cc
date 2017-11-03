@@ -11,8 +11,6 @@
 #include <initializer_list>
 #include <Eigen/Dense>
 
-#include <xpp_opt/solvers/nlp_bound.h>
-
 namespace xpp {
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,

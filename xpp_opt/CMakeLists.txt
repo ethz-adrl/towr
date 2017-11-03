@@ -4,28 +4,17 @@ project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
   xpp_states
+  xpp_solve
 )
 
 find_package(Eigen3 REQUIRED)
-find_package(GTest)
+#find_package(GTest)
 
-# NLP solvers (adapt global path accordingly)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-find_package(IPOPT REQUIRED)
-option(BUILD_SNOPT "Build problem to solve with snopt nlp solver" ON)
-if(BUILD_SNOPT)
-  set(SNOPT_SRC_DIR "/home/winklera/3rd_party_software/snopt_lib")
-  set(SNOPT_INCLUDE_DIRS ${SNOPT_SRC_DIR}/include)
-  set(SNOPT_LIBRARIES ${SNOPT_SRC_DIR}/lib/libsnopt7_cpp.so ${SNOPT_SRC_DIR}/lib/libsnopt7.so) # must be absolute path
-endif(BUILD_SNOPT)
+
 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++14")
 
-
-set(MOTION_OPT_LIB xpp_opt)
-set(SOLVER_LIB xpp_solve)         # 
-#set(STATES_LIB xpp_states)   # defines common interface robot states 
 
 ###################################
 ## catkin specific configuration ##
@@ -37,18 +26,15 @@ set(SOLVER_LIB xpp_solve)         #
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}
-  LIBRARIES ${MOTION_OPT_LIB} ${IPOPT_LIBRARIES}
-  CATKIN_DEPENDS xpp_states
+  INCLUDE_DIRS include
+  LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS xpp_solve
   DEPENDS
 )
 
 include_directories(
   include
-  ${EIGEN3_INCLUDE_DIR}
   ${catkin_INCLUDE_DIRS}
-  ${IPOPT_INCLUDE_DIRS}
-  ${SNOPT_INCLUDE_DIRS}
 )
 
 ## General library for robot state interfaces used by many packages
@@ -63,29 +49,13 @@ include_directories(
 #)
 
 
-# A nlp solving framework for Eigen, Ipopt, Snopt
-# to compile this the third-party solver libraries must be installed
-add_library(${SOLVER_LIB}
-  src/nlp.cc
-  src/ipopt_adapter.cc
-  src/snopt_adapter.cc
-  src/composite.cc
-)
-target_link_libraries(${SOLVER_LIB}
-  ${catkin_LIBRARIES}
-  ${IPOPT_LIBRARIES}
-  ${SNOPT_LIBRARIES}
-)
-
 
 # the specific motion optimization problem for legged robots
 # only packages that actually want to implement the optimization problem need this
-add_library(${MOTION_OPT_LIB}
+add_library(${PROJECT_NAME}
   src/motion_optimizer_facade.cc
-  src/linear_constraint.cc
   src/spline_constraint.cc
   src/cost_constraint_factory.cc
-  src/soft_constraint.cc
   src/time_discretization_constraint.cc
   src/base_motion_constraint.cc
   src/height_map.cc
@@ -135,41 +105,27 @@ add_library(${MOTION_OPT_LIB}
   # robot specific info
   src/optimization_parameters.cc
 )   
-target_link_libraries(${MOTION_OPT_LIB}
+target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
-  ${STATES_LIB}
-  ${SOLVER_LIB}
 )
-  
-# Some example executables if turned "ON"
-option(BUILD_TESTS "Build some testing executables" ON)
-if(BUILD_TESTS)
-  
-  # enable_testing()
-  # FIXME use catkins macro to build the unit test
-  # http://wiki.ros.org/catkin/CMakeLists.txt#msgs_srvs_actions
-  # catkin_add_gtest(myUnitTest test/utest.cpp)
-  message(STATUS "GTEST_FOUND " ${GTEST_FOUND})
-  if(GTEST_FOUND)
-    set(MY_GTEST_UNITS  test/google/gtest_main.cc 
-                        test/google/helpers.cc
-#                        test/google/lip_model_test.cc
-#                        test/google/polynomial_test.cc
-#                        test/google/ee_phase_motion_test.cc
-#                        test/google/ee_motion_test.cc
-                        test/dynamic_constraint_test.cc
-#                        test/endeffectors_test.cc
-                        test/centroidal_dynamics_test.cc
-                        )
-               
-    add_executable(googleTest ${MY_GTEST_UNITS})
-    
-    target_link_libraries(googleTest 
-                          ${SOLVER_LIB}
-                          ${MOTION_OPT_LIB}
-                          ${GTEST_LIBRARIES}
-                          pthread
-                          )
-  endif(GTEST_FOUND)
+
+
+
+#############
+## Testing ##
+#############
+
+if (CATKIN_ENABLE_TESTING)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+catkin_add_gtest(${PROJECT_NAME}_test
+    test/google/gtest_main.cc 
+    test/google/helpers.cc
+    test/dynamic_constraint_test.cc
+    test/centroidal_dynamics_test.cc
+)
+endif()
+
+if(TARGET ${PROJECT_NAME}_test)
+  target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
 endif()
 

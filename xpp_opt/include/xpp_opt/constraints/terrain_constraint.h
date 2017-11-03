@@ -10,8 +10,8 @@
 
 #include <string>
 
-#include <xpp_opt/solvers/composite.h>
-#include <xpp_opt/solvers/nlp_bound.h>
+#include <xpp_solve/composite.h>
+
 #include <xpp_opt/height_map.h>
 #include <xpp_opt/variables/phase_nodes.h>
 

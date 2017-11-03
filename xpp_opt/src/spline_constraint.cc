@@ -11,8 +11,6 @@
 #include <Eigen/Dense>
 
 #include <xpp_opt/variables/spline.h>
-#include <xpp_opt/solvers/nlp_bound.h>
-#include <xpp_opt/variables/spline.h>
 
 namespace xpp {
 

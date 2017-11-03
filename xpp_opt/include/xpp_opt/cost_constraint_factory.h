@@ -12,7 +12,8 @@
 #include <string>
 #include <vector>
 
-#include <xpp_opt/solvers/composite.h>
+#include <xpp_solve/composite.h>
+
 #include <xpp_opt/height_map.h>
 #include <xpp_opt/models/robot_model.h>
 #include <xpp_opt/optimization_parameters.h>

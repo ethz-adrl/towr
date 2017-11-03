@@ -11,6 +11,8 @@
 #include <initializer_list>
 #include <stdexcept>
 
+#include <xpp_solve/soft_constraint.h>
+
 #include <xpp_opt/constraints/base_motion_constraint.h>
 #include <xpp_opt/constraints/dynamic_constraint.h>
 #include <xpp_opt/constraints/force_constraint.h>
@@ -19,7 +21,6 @@
 #include <xpp_opt/constraints/swing_constraint.h>
 #include <xpp_opt/constraints/terrain_constraint.h>
 #include <xpp_opt/costs/node_cost.h>
-#include <xpp_opt/solvers/soft_constraint.h>
 #include <xpp_opt/models/dynamic_model.h>
 #include <xpp_opt/variables/contact_schedule.h>
 #include <xpp_opt/variables/variable_names.h>

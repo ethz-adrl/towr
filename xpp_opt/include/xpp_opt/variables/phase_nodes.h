@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <xpp_opt/solvers/composite.h>
+#include <xpp_solve/composite.h>
 #include <xpp_opt/variables/node_values.h>
 
 

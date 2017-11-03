@@ -11,8 +11,9 @@
 #include <string>
 #include <vector>
 
+#include <xpp_solve/composite.h>
+
 #include <xpp_opt/angular_state_converter.h>
-#include <xpp_opt/solvers/composite.h>
 #include <xpp_opt/constraints/time_discretization_constraint.h>
 #include <xpp_opt/models/kinematic_model.h>
 #include <xpp_opt/optimization_parameters.h>

@@ -20,12 +20,12 @@
 #include <xpp_opt/models/gait_generator.h>
 #include <xpp_opt/models/kinematic_model.h>
 #include <xpp_opt/polynomial.h>
-#include <xpp_opt/solvers/ipopt_adapter.h>
-#include <xpp_opt/solvers/snopt_adapter.h>
 #include <xpp_opt/variables/coeff_spline.h>
 #include <xpp_opt/variables/contact_schedule.h>
 #include <xpp_opt/variables/phase_nodes.h>
 #include <xpp_opt/variables/variable_names.h>
+#include <xpp_solve/ipopt_adapter.h>
+#include <xpp_solve/snopt_adapter.h>
 
 #include <xpp_states/cartesian_declarations.h>
 

@@ -11,9 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <xpp_opt/solvers/composite.h>
-#include <xpp_opt/solvers/nlp_bound.h>
-
+#include <xpp_solve/composite.h>
 
 namespace xpp {
 

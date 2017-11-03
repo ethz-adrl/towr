@@ -1,19 +1,27 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(xpp_opt_ros)
+project(xpp_solve)
+
+## Compile as C++11, supported in ROS Kinetic and newer
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++11")
+# add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rosbag
-  keyboard
-  xpp_states
-  xpp_msgs
-  xpp_opt
-)
+find_package(catkin REQUIRED)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++11") 
+find_package(Eigen3 REQUIRED)
+
+# NLP solvers (adapt global path accordingly)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+find_package(IPOPT REQUIRED)
+option(BUILD_SNOPT "Build problem to solve with snopt nlp solver" ON)
+if(BUILD_SNOPT)
+  set(SNOPT_SRC_DIR "/home/winklera/3rd_party_software/snopt_lib")
+  set(SNOPT_INCLUDE_DIRS ${SNOPT_SRC_DIR}/include)
+  set(SNOPT_LIBRARIES ${SNOPT_SRC_DIR}/lib/libsnopt7_cpp.so ${SNOPT_SRC_DIR}/lib/libsnopt7.so) # must be absolute path
+endif(BUILD_SNOPT)
+
 
 
 ###################################
@@ -21,14 +29,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++11")
 ###################################
 ## The catkin_package macro generates cmake config files for your package
 ## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if you package contains header files
+## INCLUDE_DIRS: uncomment this if your package contains header files
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-   INCLUDE_DIRS include
-   LIBRARIES ${PROJECT_NAME}
-   CATKIN_DEPENDS
+   INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS} ${SNOPT_INCLUDE_DIRS}
+   LIBRARIES ${PROJECT_NAME} ${IPOPT_LIBRARIES} ${SNOPT_LIBRARIES}
+#  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
 
@@ -40,71 +48,48 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
+  ${IPOPT_INCLUDE_DIRS}
+  ${SNOPT_INCLUDE_DIRS}
 )
 
 # Declare a C++ library
 add_library(${PROJECT_NAME}
-  src/nlp_optimizer_node.cc
-  src/user_interface.cc
+  src/nlp.cc
+  src/composite.cc
+  src/linear_constraint.cc
+  src/soft_constraint.cc
+  src/ipopt_adapter.cc
+  src/snopt_adapter.cc
 )
+
 target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
+  ${IPOPT_LIBRARIES}
+  ${SNOPT_LIBRARIES}
 )
-
-
-add_executable(nlp_optimizer_node src/exe/nlp_optimizer_node_exe.cc)
-target_link_libraries(nlp_optimizer_node 
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
-
-
-add_executable(user_interface_node src/exe/user_interface_node.cc)
-target_link_libraries(user_interface_node 
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
-
-
-add_executable(rosbag_traj_combiner src/exe/rosbag_traj_combiner.cc)
-target_link_libraries(rosbag_traj_combiner
-  ${catkin_LIBRARIES}
-)
-                                                 
-
-#add_executable(qp_optimizer_node 
-#  src/executable/qp_optimizer_node_exe.cc
-#)
-#
-#target_link_libraries(qp_optimizer_node 
-#  ${LIB_NAME}
-#  ${catkin_LIBRARIES}
-#)  
-#
-#add_executable(sample_qp_caller 
-#    src/executable/sample_qp_caller.cc
-#)
-#target_link_libraries(sample_qp_caller 
-#  ${LIB_NAME}
-#  ${catkin_LIBRARIES}
-#)
-
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(xpp_ros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(xpp_ros_node src/xpp_ros_node.cpp)
+## With catkin_make all packages are built within a single CMake context
+## The recommended prefix ensures that target names across packages don't collide
+# add_executable(${PROJECT_NAME}_node src/xpp_nlp_node.cpp)
+
+## Rename C++ executable without prefix
+## The above recommended prefix causes long target names, the following renames the
+## target back to the shorter version for ease of user use
+## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
+# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(xpp_ros_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(xpp_ros_node
+# target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
 
@@ -123,7 +108,7 @@ target_link_libraries(rosbag_traj_combiner
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS xpp_ros xpp_ros_node
+# install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -148,7 +133,7 @@ target_link_libraries(rosbag_traj_combiner
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_xpp_ros.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_xpp_nlp.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

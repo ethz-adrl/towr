@@ -16,7 +16,7 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <xpp_opt/solvers/composite.h>
+#include <xpp_solve/composite.h>
 #include <xpp_opt/polynomial.h>
 #include <xpp_opt/variables/spline.h>
 

@@ -5,7 +5,7 @@
  @brief   Abstract class representing a constraint for the NLP problem.
  */
 
-#include <xpp_opt/solvers/composite.h>
+#include <xpp_solve/composite.h>
 
 #include <iostream>
 

@@ -9,7 +9,6 @@
 
 #include <memory>
 
-#include <xpp_opt/solvers/composite.h>
 #include <xpp_opt/variables/variable_names.h>
 
 namespace xpp {
