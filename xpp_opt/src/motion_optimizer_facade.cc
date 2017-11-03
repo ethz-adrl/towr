@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/motion_optimizer_facade.h>
+#include <xpp_opt/motion_optimizer_facade.h>
 
 #include <algorithm>
 #include <cassert>
@@ -24,10 +24,9 @@
 #include <xpp_opt/variables/contact_schedule.h>
 #include <xpp_opt/variables/phase_nodes.h>
 #include <xpp_opt/variables/variable_names.h>
-#include <xpp_solve/ipopt_adapter.h>
-#include <xpp_solve/snopt_adapter.h>
 
-#include <xpp_states/cartesian_declarations.h>
+#include <xpp_solve/ipopt_adapter.h>
+//#include <xpp_solve/snopt_adapter.h>
 
 
 namespace xpp {
@@ -304,8 +303,8 @@ MotionOptimizerFacade::SolveProblem ()
   BuildCostConstraints(variables);
 
   switch (nlp_solver_) {
-    case Ipopt:   IpoptAdapter::Solve(nlp); break;
-    case Snopt:   SnoptAdapter::Solve(nlp); break;
+    case NLP::Ipopt: IpoptAdapter::Solve(nlp); break;
+//    case NLP::Snopt: SnoptAdapter::Solve(nlp); break;
     default: assert(false); // solver not implemented
   }
 

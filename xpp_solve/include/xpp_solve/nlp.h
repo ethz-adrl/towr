@@ -34,6 +34,11 @@ public:
   virtual ~NLP ();
 
   void Init(const OptimizationVariablesPtr&);
+
+  enum NlpSolver { Ipopt, Snopt };
+//  void Solve(NlpSolver);
+
+
   void SetVariables(const Number* x);
 
   int GetNumberOfOptimizationVariables() const;

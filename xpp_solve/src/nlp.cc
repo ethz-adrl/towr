@@ -161,4 +161,3 @@ NLP::~NLP ()
 
 } /* namespace xpp */
 
-

@@ -39,7 +39,7 @@ public:
 
   void SetInitialState(const RobotStateCartesian&);
 
-  enum NlpSolver { Ipopt, Snopt } nlp_solver_;
+  enum NLP::NlpSolver nlp_solver_;
   void SolveProblem();
   std::vector<RobotStateVec> GetIntermediateSolutions(double dt) const;
   RobotStateVec GetTrajectory(double dt) const;
