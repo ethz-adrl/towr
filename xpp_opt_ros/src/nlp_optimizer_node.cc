@@ -24,11 +24,11 @@
 #include <std_msgs/Int32.h>
 
 #include <xpp_states/state.h>
+#include <xpp_states/convert.h>
 
 #include <xpp_msgs/topic_names.h>
 #include <xpp_msgs/TerrainInfo.h>
 
-#include <xpp_ros_conversions/convert.h>
 #include <xpp_opt/height_map.h>
 #include <xpp_opt/optimization_parameters.h>
 #include <xpp_opt_ros/param_server.h>

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>xpp_opt_ros</name>
   <version>0.0.0</version>
   <description>The xpp_ros package</description>
@@ -41,31 +41,14 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   
-  <build_depend>roscpp</build_depend>
-  <run_depend>roscpp</run_depend>
-    
-  <build_depend>rosbag</build_depend>
-  <run_depend>rosbag</run_depend>
-  
-  <build_depend>keyboard</build_depend>
-  <run_depend>keyboard</run_depend>
-  
-  <build_depend>xpp_ros_conversions</build_depend>
-  <run_depend>xpp_ros_conversions</run_depend>
-  
-  <build_depend>xpp_states</build_depend>
-  <run_depend>xpp_states</run_depend>
-  
-  <build_depend>xpp_msgs</build_depend>
-  <run_depend>xpp_msgs</run_depend>
-  
-  <build_depend>xpp_opt</build_depend>
-  <run_depend>xpp_opt</run_depend>
-  
-  
-  
-  
+  <depend>roscpp</depend>
+  <depend>rosbag</depend>
+  <depend>keyboard</depend>
+  <depend>xpp_states</depend>
+  <depend>xpp_msgs</depend>
+  <depend>xpp_opt</depend>
 
+ 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->

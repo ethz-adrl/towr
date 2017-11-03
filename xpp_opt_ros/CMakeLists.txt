@@ -8,7 +8,6 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rosbag
   keyboard
-  xpp_ros_conversions
   xpp_states
   xpp_msgs
   xpp_opt
