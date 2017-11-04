@@ -82,6 +82,14 @@ if(DEFINED ENV{IPOPT_DIR})
   add_library(${IPOPT_ADAPTER_LIB}
     src/ipopt_adapter.cc
   )
+  
+  # some example problems
+  add_executable(problem1 test/problem1.cc)
+  target_link_libraries(problem1
+    ${PROJECT_NAME}
+    ${IPOPT_ADAPTER_LIB}
+    ${IPOPT_LIBRARIES} 
+  )
 endif()
 
 # compile adapter for SNOPT 
@@ -90,6 +98,9 @@ if(DEFINED ENV{SNOPT_DIR})
     src/snopt_adapter.cc
   )
 endif()
+
+
+
 
 
 
