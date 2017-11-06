@@ -13,7 +13,7 @@
  */
 
 #include <cmath>
-#include <xpp_solve/ipopt_adapter.h>
+#include <xpp_solve/solvers/ipopt_adapter.h>
 
 using namespace xpp;
 using Eigen::Vector2d;
@@ -21,13 +21,13 @@ using Eigen::Vector2d;
 
 class ExVariables : public Component {
 public:
-  ExVariables() : Component(2, "ex_variables")
+  ExVariables() : Component(2, "var_set1")
   {
     x0_ = 0.0;
     x1_ = 0.0;
 
     bounds_.resize(GetRows());
-    bounds_.at(0) = kNoBound_;
+    bounds_.at(0) = NoBound;
     bounds_.at(1) = NLPBound(-1.0, 1.0);
   }
 
@@ -63,7 +63,7 @@ public:
   virtual VectorXd GetValues() const override
   {
     VectorXd g(GetRows());
-    Vector2d x = GetOptVars()->GetComponent("ex_variables")->GetValues(); // could be multiple sets
+    Vector2d x = GetOptVars()->GetComponent("var_set1")->GetValues(); // could be multiple sets
     g(0) = std::pow(x(0),2) + x(1);
     return g;
   };
@@ -71,21 +71,22 @@ public:
   VecBound GetBounds() const override
   {
     VecBound b(GetRows());
-    b.at(0) = NLPBound(1.0, +1.0e20); // between 1 and inifinity
+    b.at(0) = NLPBound(1.0, +inf); // between 1 and inifinity
     return b;
   }
 
   void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const override
   {
-    if (var_set == "ex_variables") {
+    if (var_set == "var_set1") {
 
-      Vector2d x = GetOptVars()->GetComponent("ex_variables")->GetValues();
+      Vector2d x = GetOptVars()->GetComponent("var_set1")->GetValues();
 
       jac.coeffRef(0, 0) = 2.0*x(0); // derivative of first constraint w.r.t x0
       jac.coeffRef(0, 1) = 1.0; // derivative of first constraint w.r.t x1
     }
   }
 };
+
 
 class ExCost: public Cost {
 public:
@@ -99,7 +100,7 @@ public:
   virtual VectorXd GetValues() const override
   {
     VectorXd J(GetRows());
-    Vector2d x = GetOptVars()->GetComponent("ex_variables")->GetValues();
+    Vector2d x = GetOptVars()->GetComponent("var_set1")->GetValues();
 
     J(0) = -std::pow(x(1)-2,2);
     return J;
@@ -107,16 +108,15 @@ public:
 
   void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const override
   {
-    if (var_set == "ex_variables") {
+    if (var_set == "var_set1") {
 
-      Vector2d x = GetOptVars()->GetComponent("ex_variables")->GetValues();
+      Vector2d x = GetOptVars()->GetComponent("var_set1")->GetValues();
 
       jac.coeffRef(0, 0) = 0.0;             // derivative of cost w.r.t x0
       jac.coeffRef(0, 1) = -2.0*(x(1)-2.0); // derivative of cost w.r.t x1
     }
   }
 };
-
 
 
 

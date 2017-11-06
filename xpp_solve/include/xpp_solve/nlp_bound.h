@@ -33,10 +33,12 @@ struct NLPBound {
   }
 };
 
-static const NLPBound kNoBound_        = NLPBound(-1.0e20, +1.0e20);;
-static const NLPBound BoundZero        = NLPBound(0.0, 0.0);
-static const NLPBound BoundGreaterZero = NLPBound(0.0, +1.0e20);
-static const NLPBound BoundSmallerZero = NLPBound(-1.0e20, 0.0);
+static const double inf = 1.0e20;
+
+static const NLPBound NoBound          = NLPBound(-inf, +inf);
+static const NLPBound BoundZero        = NLPBound( 0.0,  0.0);
+static const NLPBound BoundGreaterZero = NLPBound( 0.0, +inf);
+static const NLPBound BoundSmallerZero = NLPBound(-inf,  0.0);
 
 using VecBound = std::vector<NLPBound>;
 

@@ -29,8 +29,8 @@ BaseMotionConstraint::BaseMotionConstraint (const OptVarsPtr& opt_vars,
   node_bounds_.at(AX) = NLPBound(-dev_rad, dev_rad);
   node_bounds_.at(AY) = NLPBound(-dev_rad, dev_rad);
   node_bounds_.at(AZ) = NLPBound(-dev_rad, dev_rad); // kNoBound
-  node_bounds_.at(LX) = kNoBound_;
-  node_bounds_.at(LY) = kNoBound_;//NLPBound(-0.05, 0.05);
+  node_bounds_.at(LX) = NoBound;
+  node_bounds_.at(LY) = NoBound;//NLPBound(-0.05, 0.05);
   double dev_z = 0.05;
   node_bounds_.at(LZ) = NLPBound(z_init-dev_z, z_init+dev_z); // allow to move 10cm up and down
 

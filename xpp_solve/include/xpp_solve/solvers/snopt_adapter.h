@@ -10,7 +10,7 @@
 
 #include <snoptProblem.hpp>
 
-#include "nlp.h"
+#include <xpp_solve/nlp.h>
 
 namespace xpp {
 

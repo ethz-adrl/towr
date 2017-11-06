@@ -58,7 +58,7 @@ public:
 
   /** @returns For each row an upper and lower bound is given.
     */
-  virtual VecBound GetBounds() const { return VecBound(GetRows(), kNoBound_); };
+  virtual VecBound GetBounds() const { return VecBound(GetRows(), NoBound); };
 
   /** @returns 1 for cost and >1 for however many constraints or opt-variables.
     */

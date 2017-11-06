@@ -12,7 +12,7 @@
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
 
-#include "nlp.h"
+#include <xpp_solve/nlp.h>
 
 namespace xpp {
 

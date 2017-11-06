@@ -43,7 +43,7 @@ NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::str
   nodes_  = std::vector<Node>(poly_infos.size()+1);
   poly_durations_ = VecDurations(poly_infos.size(), 0.0);
 
-  bounds_ = VecBound(GetRows(), kNoBound_);
+  bounds_ = VecBound(GetRows(), NoBound);
   SetIndexMappings();
 
   jac_structure_ = Jacobian(n_dim, n_opt_variables);

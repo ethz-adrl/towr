@@ -25,7 +25,7 @@
 #include <xpp_opt/variables/phase_nodes.h>
 #include <xpp_opt/variables/variable_names.h>
 
-#include <xpp_solve/ipopt_adapter.h>
+#include <xpp_solve/solvers/ipopt_adapter.h>
 //#include <xpp_solve/snopt_adapter.h>
 
 
