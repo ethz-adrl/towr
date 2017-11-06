@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <xpp_solve/leaves.h>
+#include <opt_solve/leaves.h>
 
 namespace xpp {
 

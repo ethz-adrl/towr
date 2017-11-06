@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-#include <xpp_solve/nlp.h>
+#include <opt_solve/nlp.h>
 
 #include <xpp_opt/height_map.h>
 #include <xpp_opt/models/robot_model.h>

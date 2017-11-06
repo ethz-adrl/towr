@@ -15,7 +15,7 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <xpp_solve/leaves.h>
+#include <opt_solve/leaves.h>
 
 
 namespace xpp {

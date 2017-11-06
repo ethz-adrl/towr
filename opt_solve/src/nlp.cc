@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp_solve/nlp.h>
+#include <opt_solve/nlp.h>
 
 
 namespace opt {

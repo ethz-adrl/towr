@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include <xpp_solve/composite.h>
+#include <opt_solve/composite.h>
 #include <xpp_opt/variables/phase_nodes.h>
 
 namespace xpp {

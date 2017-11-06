@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp_solve/linear_constraint.h>
+#include <opt_solve/linear_constraint.h>
 
 
 namespace opt {

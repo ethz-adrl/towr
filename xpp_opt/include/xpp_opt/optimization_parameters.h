@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-#include <xpp_solve/composite.h>
+#include <opt_solve/composite.h>
 
 namespace xpp {
 

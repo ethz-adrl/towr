@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <xpp_solve/composite.h>
+#include <opt_solve/composite.h>
 
 #include <xpp_opt/angular_state_converter.h>
 #include <xpp_opt/constraints/time_discretization_constraint.h>

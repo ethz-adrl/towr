@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>xpp_solve</name>
+  <name>opt_solve</name>
   <version>0.0.0</version>
   <description>
     Provides a unified <a href="http://eigen.tuxfamily.org">Eigen-</a>based 

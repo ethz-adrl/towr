@@ -12,9 +12,9 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <xpp_states/endeffectors.h>
-#include <xpp_solve/composite.h>
+#include <opt_solve/composite.h>
 
+#include <xpp_states/endeffectors.h>
 #include <xpp_opt/models/dynamic_model.h>
 
 namespace xpp {

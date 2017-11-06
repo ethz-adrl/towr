@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp_solve/leaves.h>
+#include <opt_solve/leaves.h>
 
 namespace opt {
 
