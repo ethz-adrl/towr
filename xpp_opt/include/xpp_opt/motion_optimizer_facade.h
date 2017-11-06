@@ -32,7 +32,7 @@ class MotionOptimizerFacade {
 public:
   using MotionParametersPtr      = std::shared_ptr<OptimizationParameters>;
 //  using OptimizationVariablesPtr = NLP::OptimizationVariablesPtr;
-  using VariablesCompPtr         = Composite::Ptr;
+  using VariablesCompPtr         = opt::Composite::Ptr;
   using RobotStateVec            = std::vector<RobotStateCartesian>;
 
   MotionOptimizerFacade ();
@@ -76,7 +76,7 @@ private:
   void SetBaseRepresentationCoeff(VariablesCompPtr&) const;
   void SetBaseRepresentationHermite(VariablesCompPtr&) const;
 
-  mutable NLP nlp;
+  mutable opt::NLP nlp;
 };
 
 } /* namespace xpp */

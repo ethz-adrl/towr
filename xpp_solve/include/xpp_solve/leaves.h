@@ -10,7 +10,7 @@
 
 #include "composite.h"
 
-namespace xpp {
+namespace opt {
 
 /** @brief An specific constraint implementing the above interface.
   *
@@ -19,20 +19,22 @@ namespace xpp {
   */
 class Constraint : public Component {
 public:
-  Constraint(const Composite::Ptr& variables, int row_count, const std::string& name);
+  using VariablesPtr = Composite::Ptr;
+
+  Constraint(const VariablesPtr& variables, int row_count, const std::string& name);
   virtual ~Constraint() {};
 
   Jacobian GetJacobian() const override;
 
 
 protected:
-  const Composite::Ptr GetVariables() const { return variables_; };
+  const VariablesPtr GetVariables() const { return variables_; };
 
 private:
   /** @brief Jacobian of the component with respect to each decision variable set.
     */
   virtual void FillJacobianBlock(std::string var_set, Jacobian& jacobian_block) const = 0;
-  Composite::Ptr variables_;
+  VariablesPtr variables_;
 
   // not neccessary for constraints or costs
   virtual void SetValues(const VectorXd& x) override { assert(false); };
@@ -43,7 +45,7 @@ private:
 
 class Cost : public Constraint {
 public:
-  Cost(const Composite::Ptr& variables, const std::string& name);
+  Cost(const VariablesPtr& variables, const std::string& name);
   virtual ~Cost() {};
 
   virtual VecBound GetBounds() const override
@@ -72,6 +74,6 @@ static const int kSpecifyLater = -1;
 
 
 
-} /* namespace xpp */
+} /* namespace opt */
 
 #endif /* XPP_OPT_XPP_SOLVE_INCLUDE_XPP_SOLVE_LEAVES_H_ */

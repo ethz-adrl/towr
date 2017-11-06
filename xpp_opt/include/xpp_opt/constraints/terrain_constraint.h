@@ -21,10 +21,10 @@ namespace xpp {
  *
  * Attention: This is enforced only at the spline nodes.
  */
-class TerrainConstraint : public Constraint {
+class TerrainConstraint : public opt::Constraint {
 public:
   TerrainConstraint (const HeightMap::Ptr& terrain,
-                     const Composite::Ptr& opt_vars,
+                     const VariablesPtr& opt_vars,
                      std::string ee_motion_id);
   virtual ~TerrainConstraint ();
 

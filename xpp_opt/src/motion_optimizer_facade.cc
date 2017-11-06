@@ -31,6 +31,8 @@
 
 namespace xpp {
 
+using namespace opt;
+
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
   params_ = std::make_shared<OptimizationParameters>();

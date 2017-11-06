@@ -20,11 +20,11 @@ namespace xpp {
  *
  * Attention: This is enforced only at the spline nodes.
  */
-class ForceConstraint : public Constraint {
+class ForceConstraint : public opt::Constraint {
 public:
   ForceConstraint (const HeightMap::Ptr& terrain,
                    double force_limit_in_normal_direction,
-                   const Composite::Ptr& opt_vars,
+                   const VariablesPtr& opt_vars,
                    const std::string& ee_force_id,
                    const std::string& ee_motion_id);
   virtual ~ForceConstraint ();

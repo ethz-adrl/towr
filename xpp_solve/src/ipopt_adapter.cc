@@ -8,7 +8,7 @@
 #include <xpp_solve/solvers/ipopt_adapter.h>
 
 
-namespace xpp {
+namespace opt {
 
 IpoptAdapter::IpoptAdapter(NLP& nlp)
 {
@@ -208,4 +208,4 @@ IpoptAdapter::~IpoptAdapter ()
 {
 }
 
-} // namespace xpp
+} // namespace opt

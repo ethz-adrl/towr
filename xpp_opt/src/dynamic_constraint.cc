@@ -19,7 +19,7 @@
 namespace xpp {
 
 
-DynamicConstraint::DynamicConstraint (const Composite::Ptr& opt_vars,
+DynamicConstraint::DynamicConstraint (const VariablesPtr& opt_vars,
                                       const DynamicModel::Ptr& m,
                                       const std::vector<double>& evaluation_times)
     :TimeDiscretizationConstraint(opt_vars, evaluation_times, "DynamicConstraint")
@@ -72,6 +72,8 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 void
 DynamicConstraint::UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const
 {
+  using namespace opt;
+
   for (auto dim : AllDim6D) {
     if (dim == LZ)
       bounds.at(GetRow(k,dim)) = NLPBound(gravity_, gravity_);

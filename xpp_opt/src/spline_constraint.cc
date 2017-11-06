@@ -14,7 +14,9 @@
 
 namespace xpp {
 
-SplineStateConstraint::SplineStateConstraint (const Composite::Ptr& opt_vars,
+using namespace opt;
+
+SplineStateConstraint::SplineStateConstraint (const VariablesPtr& opt_vars,
                                               const std::string& id,
                                               double t_global,
                                               const StateLinXd& state,
@@ -94,7 +96,7 @@ SplineStateConstraint::FillJacobianBlock (std::string var_set,
   }
 }
 
-VecBound
+SplineStateConstraint::VecBound
 SplineStateConstraint::GetBounds () const
 {
   VecBound bounds;
@@ -113,7 +115,7 @@ SplineStateConstraint::GetBounds () const
 
 
 
-SplineJunctionConstraint::SplineJunctionConstraint (const Composite::Ptr& opt_vars,
+SplineJunctionConstraint::SplineJunctionConstraint (const VariablesPtr& opt_vars,
                                                     const std::string& spline_id,
                                                     const DerivativeVec& derivatives
                                                     )
@@ -183,7 +185,7 @@ SplineJunctionConstraint::FillJacobianBlock (std::string var_set,
   }
 }
 
-VecBound
+SplineJunctionConstraint::VecBound
 SplineJunctionConstraint::GetBounds () const
 {
   VecBound bounds(GetRows());

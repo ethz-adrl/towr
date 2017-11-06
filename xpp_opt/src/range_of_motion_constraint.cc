@@ -16,7 +16,7 @@
 
 namespace xpp {
 
-RangeOfMotionBox::RangeOfMotionBox (const Composite::Ptr& opt_vars,
+RangeOfMotionBox::RangeOfMotionBox (const VariablesPtr& opt_vars,
                                     const OptimizationParameters& params,
                                     const KinematicModel::Ptr& kinematic_model,
                                     const EndeffectorID& ee)
@@ -62,6 +62,8 @@ RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) cons
 void
 RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k, VecBound& bounds) const
 {
+  using namespace opt;
+
   for (int dim=0; dim<kDim3d; ++dim) {
     NLPBound b;
     b += nominal_ee_pos_B_(dim);

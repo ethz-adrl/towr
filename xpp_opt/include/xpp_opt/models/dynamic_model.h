@@ -25,6 +25,7 @@ public:
   using BaseAcc   = Vector6d;
   using EELoad    = Endeffectors<Vector3d>;
   using EEPos     = EndeffectorsPos;
+  using Jacobian  = opt::Component::Jacobian;
 
   DynamicModel(double mass);
   virtual ~DynamicModel ();

@@ -17,6 +17,8 @@
 
 namespace xpp {
 
+using namespace opt;
+
 NodeValues::NodeValues (int n_dim, int n_polynomials, const std::string& name)
     : NodeValues(n_dim, BuildPolyInfos(n_polynomials), name)
 {
@@ -200,7 +202,7 @@ NodeValues::GetPoint(double t_global) const
 }
 
 
-Jacobian
+NodeValues::Jacobian
 NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
 {
   int id; double t_local;

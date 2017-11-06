@@ -16,6 +16,8 @@
 
 namespace xpp {
 
+using namespace opt;
+
 
 PhaseNodes::PhaseNodes (int n_dim,
                         const ContactVector& contact_schedule,
@@ -138,7 +140,7 @@ EEMotionNodes::IsContactNode (int node_id) const
   return IsConstantNode(node_id);
 }
 
-VecBound
+EEMotionNodes::VecBound
 EEMotionNodes::GetBounds () const
 {
   for (int idx=0; idx<GetRows(); ++idx) {
@@ -198,7 +200,7 @@ EEForceNodes::GetPhase (int node_id) const
   return polynomial_info_.at(poly_id).phase_;
 }
 
-VecBound
+EEForceNodes::VecBound
 EEForceNodes::GetBounds () const
 {
   for (int idx=0; idx<GetRows(); ++idx) {

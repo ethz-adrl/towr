@@ -14,7 +14,7 @@
 
 #include <xpp_solve/nlp.h>
 
-namespace xpp {
+namespace opt {
 
 /** @brief Converts the NLP defined in the XPP to the IPOPT interface.
   *
@@ -25,8 +25,10 @@ namespace xpp {
   */
 class IpoptAdapter : public Ipopt::TNLP {
 public:
-  using Index         = Ipopt::Index;
-  using Number        = Ipopt::Number;
+  using Index    = Ipopt::Index;
+  using Number   = Ipopt::Number;
+  using VectorXd = NLP::VectorXd;
+  using Jacobian = NLP::Jacobian;
 
 	/** @brief Builds an Ipopt NLP and solves it.
 	  * @param[in/out] nlp the nonlinear program to be modified.
@@ -95,6 +97,6 @@ private:
   static void SetOptions(Ipopt::SmartPtr<Ipopt::IpoptApplication> app);
 };
 
-} // namespace xpp
+} // namespace opt
 
 #endif /* XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_ */

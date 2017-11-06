@@ -50,6 +50,8 @@ CentroidalModel::GetBaseAcceleration () const
 }
 
 // just a helper function
+using Jacobian = DynamicModel::Jacobian;
+
 static Jacobian
 BuildCrossProductMatrix(const Vector3d& in)
 {

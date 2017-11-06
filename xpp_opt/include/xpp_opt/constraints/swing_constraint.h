@@ -16,9 +16,9 @@
 namespace xpp {
 
 
-class SwingConstraint : public Constraint {
+class SwingConstraint : public opt::Constraint {
 public:
-  SwingConstraint (const Composite::Ptr& opt_vars, std::string ee_motion_id);
+  SwingConstraint (const VariablesPtr& opt_vars, std::string ee_motion_id);
   virtual ~SwingConstraint ();
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */

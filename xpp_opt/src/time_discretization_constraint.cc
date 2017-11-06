@@ -13,8 +13,10 @@
 
 namespace xpp {
 
+using namespace opt;
+
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
-                                                            const Composite::Ptr& opt_vars,
+                                                            const Variables& opt_vars,
                                                             const std::string& name)
     :Constraint(opt_vars, kSpecifyLater, name) // just placeholder
 {
@@ -30,7 +32,7 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
 //  AddOptimizationVariables(opt_vars);
 }
 
-TimeDiscretizationConstraint::TimeDiscretizationConstraint (const Composite::Ptr& opt_vars,
+TimeDiscretizationConstraint::TimeDiscretizationConstraint (const Variables& opt_vars,
                                                             const EvaluationTimes& times,
                                                             const std::string& name)
    :Constraint(opt_vars, kSpecifyLater, name) // just placeholder
@@ -49,7 +51,7 @@ TimeDiscretizationConstraint::GetNumberOfNodes () const
   return dts_.size();
 }
 
-VectorXd
+TimeDiscretizationConstraint::VectorXd
 TimeDiscretizationConstraint::GetValues () const
 {
   VectorXd g = VectorXd::Zero(GetRows());
@@ -61,7 +63,7 @@ TimeDiscretizationConstraint::GetValues () const
   return g;
 }
 
-VecBound
+TimeDiscretizationConstraint::VecBound
 TimeDiscretizationConstraint::GetBounds () const
 {
   VecBound bounds(GetRows());

@@ -75,7 +75,7 @@ AngularStateConverter::GetAngularAcceleration (StateLin3d ori)
   return GetMdot(ori.p_, ori.v_)*ori.v_ + GetM(ori.p_)*ori.a_;
 }
 
-Jacobian
+AngularStateConverter::Jacobian
 AngularStateConverter::GetDerivOfAngAccWrtCoeff (double t) const
 {
   Jacobian jac(kDim3d, OptVariablesOfCurrentPolyCount(t));
@@ -140,7 +140,7 @@ AngularStateConverter::GetMdot (const EulerAngles& xyz,
  return Mdot;
 }
 
-Jacobian
+AngularStateConverter::Jacobian
 AngularStateConverter::GetDerivMwrtCoeff (double t, Coords3D ang_acc_dim) const
 {
   StateLin3d ori = euler_->GetPoint(t);
@@ -195,7 +195,7 @@ AngularStateConverter::GetRotationMatrixBaseToWorld (const EulerAngles& xyz)
   return M.sparseView(1.0, -1.0);
 }
 
-Jacobian
+AngularStateConverter::Jacobian
 AngularStateConverter::GetDerivativeOfRotationMatrixRowWrtCoeff (double t,
                                                                  const Vector3d& v,
                                                                  bool inverse) const
@@ -245,7 +245,7 @@ AngularStateConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
   return jac;
 }
 
-Jacobian
+AngularStateConverter::Jacobian
 AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) const
 {
   StateLin3d ori = euler_->GetPoint(t);

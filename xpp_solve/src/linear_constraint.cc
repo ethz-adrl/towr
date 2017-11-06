@@ -8,7 +8,7 @@
 #include <xpp_solve/linear_constraint.h>
 
 
-namespace xpp {
+namespace opt {
 
 LinearEqualityConstraint::LinearEqualityConstraint (
   const Composite::Ptr& variables,
@@ -26,14 +26,14 @@ LinearEqualityConstraint::~LinearEqualityConstraint ()
 {
 }
 
-VectorXd
+LinearEqualityConstraint::VectorXd
 LinearEqualityConstraint::GetValues () const
 {
   VectorXd x = GetVariables()->GetComponent(variable_name_)->GetValues();
   return M_*x;
 }
 
-VecBound
+LinearEqualityConstraint::VecBound
 LinearEqualityConstraint::GetBounds () const
 {
   VecBound bounds;
@@ -55,5 +55,5 @@ LinearEqualityConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac)
     jac = M_.sparseView();
 }
 
-} /* namespace xpp */
+} /* namespace opt */
 

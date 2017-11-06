@@ -37,6 +37,7 @@ public:
   using AngularVel  = Vector3d; ///< expressed in world
   using AngularAcc  = Vector3d; ///< expressed in world
 
+  using Jacobian    = opt::Component::Jacobian;
   using MatrixSXd   = Jacobian;
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 

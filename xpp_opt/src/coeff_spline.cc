@@ -48,7 +48,7 @@ CoeffSpline::GetPoint(double t_global) const
   return poly_vars_.at(id)->GetPolynomial()->GetPoint(t_local);
 }
 
-Jacobian
+CoeffSpline::Jacobian
 CoeffSpline::GetJacobian (double t_global, MotionDerivative deriv) const
 {
   int id; double t_local;

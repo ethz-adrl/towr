@@ -11,7 +11,7 @@
 
 #include "composite.h"
 
-namespace xpp {
+namespace opt {
 
 /** @brief Nonlinear Programming problem definition
   *
@@ -22,6 +22,11 @@ namespace xpp {
   */
 class NLP {
 public:
+  using VecBound = Component::VecBound;
+  using Jacobian = Component::Jacobian;
+  using VectorXd = Component::VectorXd;
+
+
   NLP ();
   virtual ~NLP ();
 
@@ -71,6 +76,6 @@ private:
   VectorXd ConvertToEigen(const double* x) const;
 };
 
-} /* namespace xpp */
+} /* namespace opt */
 
 #endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_H_ */

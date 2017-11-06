@@ -14,7 +14,7 @@
 
 namespace xpp {
 
-NodeCost::NodeCost (const Composite::Ptr& opt_vars, const std::string& nodes_id)
+NodeCost::NodeCost (const VariablesPtr& opt_vars, const std::string& nodes_id)
     : Cost(opt_vars, "Node Cost")
 {
 //  SetName("Node Cost");

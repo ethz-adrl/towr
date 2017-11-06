@@ -15,7 +15,7 @@
 #include <xpp_solve/leaves.h>
 #include <xpp_solve/solvers/ipopt_adapter.h>
 
-using namespace xpp;
+using namespace opt;
 using Eigen::Vector2d;
 
 

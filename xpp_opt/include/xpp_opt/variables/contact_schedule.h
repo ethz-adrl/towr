@@ -19,7 +19,7 @@
 
 namespace xpp {
 
-class ContactSchedule : public Variables {
+class ContactSchedule : public opt::Variables {
 public:
   using Ptr           = std::shared_ptr<ContactSchedule>;
   using VecDurations  = std::vector<double>;
@@ -55,7 +55,7 @@ public:
 private:
   bool first_phase_in_contact_;
   double t_total_;
-  NLPBound phase_duration_bounds_;
+  opt::NLPBound phase_duration_bounds_;
 
   std::vector<PhaseNodesPtr> observers_;
   PhaseNodesPtr GetObserver(const std::string& id) const;
@@ -71,11 +71,11 @@ private:
 // spring_clean_ use own file for this
 /** Makes sure all phase durations sum up to final specified motion duration.
  */
-class DurationConstraint : public Constraint {
+class DurationConstraint : public opt::Constraint {
 public:
   using SchedulePtr = std::shared_ptr<ContactSchedule>;
 
-  DurationConstraint(const Composite::Ptr& opt_vars, double T_total, int ee);
+  DurationConstraint(const VariablesPtr& opt_vars, double T_total, int ee);
   ~DurationConstraint();
 
   VectorXd GetValues() const override;

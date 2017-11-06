@@ -9,7 +9,7 @@
 #define XPP_XPP_OPT_INCLUDE_XPP_BOUND_H_
 
 
-namespace xpp {
+namespace opt {
 
 /** Upper and lower bound on either constraints or optimization variables
   */
@@ -39,6 +39,6 @@ static const NLPBound BoundZero        = NLPBound( 0.0,  0.0);
 static const NLPBound BoundGreaterZero = NLPBound( 0.0, +inf);
 static const NLPBound BoundSmallerZero = NLPBound(-inf,  0.0);
 
-} // namespace xpp
+} // namespace opt
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_BOUND_H_ */

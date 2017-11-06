@@ -7,17 +7,17 @@
 
 #include <xpp_solve/leaves.h>
 
-namespace xpp {
+namespace opt {
 
 
-Constraint::Constraint (const Composite::Ptr& variables,
+Constraint::Constraint (const VariablesPtr& variables,
             int row_count,
             const std::string& name) : Component(row_count, name)
 {
   variables_ = variables;
 }
 
-Jacobian
+Constraint::Jacobian
 Constraint::GetJacobian () const
 {
   Jacobian jacobian(GetRows(), variables_->GetRows());
@@ -42,10 +42,10 @@ Constraint::GetJacobian () const
 }
 
 
-Cost::Cost (const Composite::Ptr& variables, const std::string& name)
+Cost::Cost (const VariablesPtr& variables, const std::string& name)
    :Constraint(variables, 1, name)
 {
 }
 
 
-} /* namespace xpp */
+} /* namespace opt */

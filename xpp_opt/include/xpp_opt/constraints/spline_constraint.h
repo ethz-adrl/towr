@@ -26,14 +26,14 @@ namespace xpp {
 
 /** @brief Sets the spline equal to @state at time @t.
  */
-class SplineStateConstraint  : public Constraint {
+class SplineStateConstraint  : public opt::Constraint {
 public:
   using DerivativeVec  = std::vector<MotionDerivative>;
   using PolyPtr        = std::shared_ptr<PolynomialVars>;
   using SplineT        = std::shared_ptr<Spline>;
   using Dimensions     = std::vector<Coords3D>;
 
-  SplineStateConstraint (const Composite::Ptr& opt_vars,
+  SplineStateConstraint (const VariablesPtr& opt_vars,
                          const std::string& id,
                          double t_global,
                          const StateLinXd& state,
@@ -56,13 +56,13 @@ private:
 
 /** @brief Equates the values at spline junctions.
  */
-class SplineJunctionConstraint : public Constraint {
+class SplineJunctionConstraint : public opt::Constraint {
 public:
   using DerivativeVec = std::vector<MotionDerivative>;
   using VecTimes      = std::vector<double>;
   using SplineT       = std::shared_ptr<CoeffSpline>;
 
-  SplineJunctionConstraint (const Composite::Ptr& opt_vars,
+  SplineJunctionConstraint (const VariablesPtr& opt_vars,
                             const std::string& spline_id,
                             const DerivativeVec&);
   virtual ~SplineJunctionConstraint ();

@@ -28,6 +28,8 @@
 
 namespace xpp {
 
+using namespace opt;
+
 CostConstraintFactory::CostConstraintFactory ()
 {
 }

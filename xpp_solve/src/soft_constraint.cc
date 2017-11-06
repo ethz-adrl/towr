@@ -8,7 +8,7 @@
 #include <xpp_solve/soft_constraint.h>
 
 
-namespace xpp {
+namespace opt {
 
 SoftConstraint::SoftConstraint (const ConstraintPtr& constraint, double weight)
     :Component(1, "SoftConstraint-" + constraint->GetName())
@@ -42,7 +42,7 @@ SoftConstraint::GetValues () const
   return weight_ * cost;
 }
 
-Jacobian
+SoftConstraint::Jacobian
 SoftConstraint::GetJacobian () const
 {
   VectorXd g   = constraint_->GetValues();
@@ -51,4 +51,4 @@ SoftConstraint::GetJacobian () const
   return grad.transpose().sparseView();
 }
 
-} /* namespace xpp */
+} /* namespace opt */

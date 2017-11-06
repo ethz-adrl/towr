@@ -13,20 +13,22 @@
 #include <memory>
 #include <vector>
 
-#include <../include/xpp_opt/variables/node_values.h>
+#include <xpp_opt/variables/node_values.h>
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
 
 namespace xpp {
 
+using namespace opt;
+
 
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   double force_limit,
-                                  const Composite::Ptr& opt_vars,
+                                  const VariablesPtr& opt_vars,
                                   const std::string& ee_force_id,
                                   const std::string& ee_motion_id)
-    :Constraint(opt_vars, kSpecifyLater, "Force-Constraint-" + ee_force_id )
+    :opt::Constraint(opt_vars, kSpecifyLater, "Force-Constraint-" + ee_force_id )
 {
   ee_force_  = opt_vars->GetComponent<EEForceNodes>(ee_force_id);
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion_id);
@@ -78,7 +80,7 @@ ForceConstraint::GetValues () const
   return g;
 }
 
-VecBound
+ForceConstraint::VecBound
 ForceConstraint::GetBounds () const
 {
   VecBound bounds;

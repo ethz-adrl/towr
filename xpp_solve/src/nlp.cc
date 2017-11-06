@@ -8,7 +8,7 @@
 #include <xpp_solve/nlp.h>
 
 
-namespace xpp {
+namespace opt {
 
 NLP::NLP ()
 {
@@ -27,13 +27,13 @@ NLP::GetNumberOfOptimizationVariables () const
   return opt_variables_->GetRows();
 }
 
-VecBound
+NLP::VecBound
 NLP::GetBoundsOnOptimizationVariables () const
 {
   return opt_variables_->GetBounds();
 }
 
-VectorXd
+NLP::VectorXd
 NLP::GetStartingValues () const
 {
   return opt_variables_->GetValues();
@@ -56,7 +56,7 @@ NLP::EvaluateCostFunction (const double* x)
   return g(0);
 }
 
-VectorXd
+NLP::VectorXd
 NLP::EvaluateCostFunctionGradient (const double* x)
 {
   Jacobian jac = Jacobian(1,GetNumberOfOptimizationVariables());
@@ -68,7 +68,7 @@ NLP::EvaluateCostFunctionGradient (const double* x)
   return jac.row(0).transpose();
 }
 
-VecBound
+NLP::VecBound
 NLP::GetBoundsOnConstraints () const
 {
   return constraints_->GetBounds();
@@ -80,7 +80,7 @@ NLP::GetNumberOfConstraints () const
   return GetBoundsOnConstraints().size();
 }
 
-VectorXd
+NLP::VectorXd
 NLP::EvaluateConstraints (const double* x)
 {
   SetVariables(x);
@@ -103,7 +103,7 @@ NLP::EvalNonzerosOfJacobian (const double* x, double* values)
   std::copy(jac.valuePtr(), jac.valuePtr() + jac.nonZeros(), values);
 }
 
-Jacobian
+NLP::Jacobian
 NLP::GetJacobianOfConstraints () const
 {
   return constraints_->GetJacobian();
@@ -148,7 +148,7 @@ NLP::GetOptVariables (int iter)
   return opt_variables_;
 }
 
-VectorXd
+NLP::VectorXd
 NLP::ConvertToEigen(const double* x) const
 {
   return Eigen::Map<const VectorXd>(x,GetNumberOfOptimizationVariables());
@@ -158,5 +158,5 @@ NLP::~NLP ()
 {
 }
 
-} /* namespace xpp */
+} /* namespace opt */
 

@@ -10,7 +10,7 @@
 
 #include "leaves.h"
 
-namespace xpp {
+namespace opt {
 
 /** @brief Calculates the constraint violations for linear constraints.
   *
@@ -43,6 +43,6 @@ private:
   std::string variable_name_;
 };
 
-} /* namespace xpp */
+} /* namespace opt */
 
 #endif /* XPP_OPT_INCLUDE_XPP_OPT_LINEAR_CONSTRAINT_H_ */

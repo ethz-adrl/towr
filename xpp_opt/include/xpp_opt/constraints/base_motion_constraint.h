@@ -20,7 +20,7 @@ namespace xpp {
  */
 class BaseMotionConstraint : public TimeDiscretizationConstraint {
 public:
-  BaseMotionConstraint (const Composite::Ptr& opt_vars,
+  BaseMotionConstraint (const Variables& opt_vars,
                         const OptimizationParameters& params);
   virtual ~BaseMotionConstraint ();
 

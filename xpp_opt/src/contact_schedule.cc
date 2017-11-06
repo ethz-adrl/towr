@@ -35,7 +35,7 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
   for (auto d : timings)
     durations_.push_back(d*t_total);
 
-  phase_duration_bounds_ = NLPBound(min_duration, max_duration);
+  phase_duration_bounds_ = opt::NLPBound(min_duration, max_duration);
   first_phase_in_contact_ = is_in_contact_at_start;
 //  SetRows(durations_.size()-1); //
 }
@@ -87,7 +87,7 @@ ContactSchedule::SetValues (const VectorXd& x)
   UpdateObservers();
 }
 
-VecBound
+ContactSchedule::VecBound
 ContactSchedule::GetBounds () const
 {
   VecBound bounds;
@@ -124,7 +124,7 @@ ContactSchedule::GetTimePerPhase () const
   return durations_;
 }
 
-Jacobian
+ContactSchedule::Jacobian
 ContactSchedule::GetJacobianOfPos (double t_global, const std::string& id) const
 {
   PhaseNodesPtr o = GetObserver(id);
@@ -171,7 +171,7 @@ ContactSchedule::GetObserver (const std::string& id) const
 
 
 
-DurationConstraint::DurationConstraint (const Composite::Ptr& opt_vars,
+DurationConstraint::DurationConstraint (const VariablesPtr& opt_vars,
                                         double T_total, int ee)
     :Constraint(opt_vars, 1, "DurationConstraint-" + std::to_string(ee))
 {
@@ -198,10 +198,10 @@ DurationConstraint::GetValues () const
   return g;
 }
 
-VecBound
+DurationConstraint::VecBound
 DurationConstraint::GetBounds () const
 {
-  return VecBound(GetRows(), NLPBound(0.1, T_total_-0.2));
+  return VecBound(GetRows(), opt::NLPBound(0.1, T_total_-0.2));
 }
 
 void

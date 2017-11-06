@@ -11,7 +11,7 @@
 
 #include "composite.h"
 
-namespace xpp {
+namespace opt {
 
 /** Converts a constraint to a cost by weighing the quadratic violations.
   *
@@ -49,6 +49,6 @@ private:
   virtual void SetValues(const VectorXd& x) override { assert(false); };
 };
 
-} /* namespace xpp */
+} /* namespace opt */
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_ */

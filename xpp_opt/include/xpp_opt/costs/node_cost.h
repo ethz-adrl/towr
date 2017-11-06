@@ -19,11 +19,11 @@
 
 namespace xpp {
 
-class NodeCost : public Cost {
+class NodeCost : public opt::Cost {
 public:
   using Nodes = std::shared_ptr<NodeValues>;
 
-  NodeCost (const Composite::Ptr&, const std::string& nodes_id);
+  NodeCost (const VariablesPtr&, const std::string& nodes_id);
   virtual ~NodeCost ();
 
   VectorXd GetValues () const override;

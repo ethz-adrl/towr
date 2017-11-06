@@ -8,7 +8,7 @@
 #include <xpp_solve/solvers/snopt_adapter.h>
 
 
-namespace xpp {
+namespace opt {
 
 SnoptAdapter::NLPPtr SnoptAdapter::nlp_;
 
@@ -203,5 +203,5 @@ SnoptAdapter::SetVariables ()
   nlp_->SetVariables(x);
 }
 
-} /* namespace xpp */
+} /* namespace opt */
 

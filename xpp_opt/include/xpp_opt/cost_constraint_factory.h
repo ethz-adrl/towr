@@ -35,8 +35,8 @@ namespace xpp {
   */
 class CostConstraintFactory {
 public:
-  using ComponentPtr     = std::shared_ptr<Component>;
-  using OptVarsContainer = std::shared_ptr<Composite>;
+  using ComponentPtr     = std::shared_ptr<opt::Component>;
+  using OptVarsContainer = std::shared_ptr<opt::Composite>;
   using MotionParamsPtr  = std::shared_ptr<OptimizationParameters>;
   using Derivatives      = std::vector<MotionDerivative>;
 

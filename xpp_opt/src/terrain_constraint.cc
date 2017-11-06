@@ -20,13 +20,12 @@
 
 namespace xpp {
 
+using namespace opt;
 
 TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
-                                      const Composite::Ptr& opt_vars,
+                                      const VariablesPtr& opt_vars,
                                       std::string ee_motion)
-    :Constraint(opt_vars,
-                kSpecifyLater,
-                "Terrain-Constraint-" + ee_motion)
+    :Constraint(opt_vars, kSpecifyLater, "Terrain-Constraint-" + ee_motion)
 {
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion);
 
@@ -58,7 +57,7 @@ TerrainConstraint::GetValues () const
   return g;
 }
 
-VecBound
+TerrainConstraint::VecBound
 TerrainConstraint::GetBounds () const
 {
   VecBound bounds(GetRows());

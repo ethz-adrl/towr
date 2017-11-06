@@ -22,6 +22,8 @@ Spliners ready to use:
 
 namespace xpp {
 
+using namespace opt;
+
 
 Polynomial::Polynomial (int order, int dim)
 {
@@ -276,7 +278,7 @@ PolynomialVars::SetValues (const VectorXd& x)
   }
 }
 
-Jacobian
+PolynomialVars::Jacobian
 PolynomialVars::GetJacobian (double t_local, MotionDerivative dxdt) const
 {
   int n_dim = polynomial_->GetDimCount();

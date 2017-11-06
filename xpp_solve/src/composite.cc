@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-namespace xpp {
+namespace opt {
 
 static int print_counter = 0;
 
@@ -72,7 +72,7 @@ Composite::GetComponent (std::string name) const
   assert(false); // component with name doesn't exist
 }
 
-VectorXd
+Composite::VectorXd
 Composite::GetValues () const
 {
   VectorXd g_all = VectorXd::Zero(GetRows());
@@ -102,7 +102,7 @@ Composite::SetValues (const VectorXd& x)
   }
 }
 
-Jacobian
+Composite::Jacobian
 Composite::GetJacobian () const
 {
   int n_var = GetNonzeroComponents().front()->GetJacobian().cols();
@@ -123,7 +123,7 @@ Composite::GetJacobian () const
   return jacobian;
 }
 
-VecBound
+Composite::VecBound
 Composite::GetBounds () const
 {
   VecBound bounds_;
@@ -218,5 +218,5 @@ Composite::Print () const
 
 
 
-} /* namespace xpp */
+} /* namespace opt */
 

@@ -23,9 +23,10 @@ namespace xpp {
 
 // doesn't hold any variables, just for keeping the struct in optimization
 // variables
-class CoeffSpline : public Spline, public Variables {
+class CoeffSpline : public Spline, public opt::Variables {
 public:
-  using VecVars   = std::vector<PolynomialVars::Ptr>;
+  using VecVars  = std::vector<PolynomialVars::Ptr>;
+  using VectorXd = Eigen::VectorXd;
 
   CoeffSpline(const std::string& spline_base_id,
               const VecTimes& poly_durations);
@@ -50,7 +51,7 @@ public:
   PolynomialVars::Ptr GetVarSet(int id) const { return poly_vars_.at(id); }
 
 
-  virtual VecBound GetBounds() const override { return VecBound(GetRows(), NoBound); };
+  virtual VecBound GetBounds() const override { return VecBound(GetRows(), opt::NoBound); };
   virtual VectorXd GetValues() const override { assert(false); };
   virtual void SetValues(const VectorXd& x) override { assert(false); };
 

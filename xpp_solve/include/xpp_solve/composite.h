@@ -17,12 +17,7 @@
 
 #include "nlp_bound.h"
 
-namespace xpp {
-
-
-using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-using VectorXd = Eigen::VectorXd;
-using VecBound = std::vector<NLPBound>;
+namespace opt {
 
 
 /** @brief Interface representing either costs, constraints or opt variables.
@@ -39,6 +34,10 @@ class Component {
 public:
   using Ptr  = std::shared_ptr<Component>;
   using PtrU = std::unique_ptr<Component>;
+
+  using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+  using VectorXd = Eigen::VectorXd;
+  using VecBound = std::vector<NLPBound>;
 
   Component(int num_rows, const std::string name);
   virtual ~Component() {};
@@ -144,6 +143,6 @@ std::shared_ptr<T> Composite::GetComponent(const std::string& name) const
 }
 
 
-} /* namespace xpp */
+} /* namespace opt */
 
 #endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_ */

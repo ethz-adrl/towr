@@ -17,17 +17,18 @@ namespace xpp {
 
 /** @brief Constraints evaluated at discretized times along a trajectory.
   */
-class TimeDiscretizationConstraint : public Constraint {
+class TimeDiscretizationConstraint : public opt::Constraint {
 public:
   using EvaluationTimes = std::vector<double>;
+  using Variables = opt::Composite::Ptr;
 
-  TimeDiscretizationConstraint (double T, double dt, const Composite::Ptr& opt_vars,
+  TimeDiscretizationConstraint (double T, double dt, const Variables& opt_vars,
                                 const std::string& name);
-  TimeDiscretizationConstraint (const Composite::Ptr& opt_vars, const EvaluationTimes&,
+  TimeDiscretizationConstraint (const Variables& opt_vars, const EvaluationTimes&,
                                 const std::string& name);
   virtual ~TimeDiscretizationConstraint ();
 
-  VectorXd GetValues() const override;
+  Eigen::VectorXd GetValues() const override;
   VecBound GetBounds() const override;
   void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
