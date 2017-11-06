@@ -5,8 +5,8 @@
  @brief   Defines the Adapter class to interact with the Ipopt Library.
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_
-#define XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_
+#ifndef OPT_SOLVE_INCLUDE_OPT_IPOPT_ADAPTER_H_
+#define OPT_SOLVE_INCLUDE_OPT_IPOPT_ADAPTER_H_
 
 #include <IpTNLP.hpp>
 #include <IpIpoptApplication.hpp>
@@ -99,4 +99,4 @@ private:
 
 } // namespace opt
 
-#endif /* XPP_XPP_OPT_INCLUDE_IPOPT_ADAPTER_H_ */
+#endif /* OPT_SOLVE_INCLUDE_OPT_IPOPT_ADAPTER_H_ */

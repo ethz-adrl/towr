@@ -55,7 +55,7 @@ public:
 private:
   bool first_phase_in_contact_;
   double t_total_;
-  opt::NLPBound phase_duration_bounds_;
+  opt::Bounds phase_duration_bounds_;
 
   std::vector<PhaseNodesPtr> observers_;
   PhaseNodesPtr GetObserver(const std::string& id) const;

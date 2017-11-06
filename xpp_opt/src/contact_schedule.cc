@@ -35,7 +35,7 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
   for (auto d : timings)
     durations_.push_back(d*t_total);
 
-  phase_duration_bounds_ = opt::NLPBound(min_duration, max_duration);
+  phase_duration_bounds_ = opt::Bounds(min_duration, max_duration);
   first_phase_in_contact_ = is_in_contact_at_start;
 //  SetRows(durations_.size()-1); //
 }
@@ -201,7 +201,7 @@ DurationConstraint::GetValues () const
 DurationConstraint::VecBound
 DurationConstraint::GetBounds () const
 {
-  return VecBound(GetRows(), opt::NLPBound(0.1, T_total_-0.2));
+  return VecBound(GetRows(), opt::Bounds(0.1, T_total_-0.2));
 }
 
 void

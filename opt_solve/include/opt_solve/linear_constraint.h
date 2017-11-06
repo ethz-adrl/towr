@@ -5,8 +5,8 @@
  @brief   Implements a special form of constraint, namely linear.
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_LINEAR_CONSTRAINT_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_LINEAR_CONSTRAINT_H_
+#ifndef OPT_SOLVE_INCLUDE_OPT_LINEAR_EQUALITY_CONSTRAINT_H_
+#define OPT_SOLVE_INCLUDE_OPT_LINEAR_EQUALITY_CONSTRAINT_H_
 
 #include "leaves.h"
 
@@ -45,4 +45,4 @@ private:
 
 } /* namespace opt */
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_LINEAR_CONSTRAINT_H_ */
+#endif /* OPT_SOLVE_INCLUDE_OPT_LINEAR_EQUALITY_CONSTRAINT_H_ */

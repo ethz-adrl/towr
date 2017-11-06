@@ -5,8 +5,8 @@
  @brief   Declares the class SoftConstraint
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
-#define XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
+#ifndef OPT_SOLVE_INCLUDE_OPT_SOFT_CONSTRAINT_H_
+#define OPT_SOLVE_INCLUDE_OPT_SOFT_CONSTRAINT_H_
 
 
 #include "composite.h"
@@ -51,4 +51,4 @@ private:
 
 } /* namespace opt */
 
-#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_ */
+#endif /* OPT_SOLVE_INCLUDE_OPT_SOFT_CONSTRAINT_H_ */

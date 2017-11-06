@@ -43,7 +43,7 @@ public:
   {
     VecBound bounds(GetRows());
     bounds.at(0) = NoBound;
-    bounds.at(1) = NLPBound(-1.0, 1.0);
+    bounds.at(1) = Bounds(-1.0, 1.0);
     return bounds;
   }
 
@@ -67,7 +67,7 @@ public:
   VecBound GetBounds() const override
   {
     VecBound b(GetRows());
-    b.at(0) = NLPBound(1.0, +inf); // between 1 and inifinity
+    b.at(0) = Bounds(1.0, +inf); // between 1 and inifinity
     return b;
   }
 

@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_H_
-#define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_H_
+#ifndef OPT_SOLVE_INCLUDE_OPT_NLP_H_
+#define OPT_SOLVE_INCLUDE_OPT_NLP_H_
 
 
 #include "composite.h"
@@ -78,4 +78,4 @@ private:
 
 } /* namespace opt */
 
-#endif /* USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_H_ */
+#endif /* OPT_SOLVE_INCLUDE_OPT_NLP_H_ */

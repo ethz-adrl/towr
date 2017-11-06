@@ -39,7 +39,7 @@ LinearEqualityConstraint::GetBounds () const
   VecBound bounds;
 
   for (int i=0; i<GetRows(); ++i) {
-    NLPBound bound(-v_[i],-v_[i]);
+    Bounds bound(-v_[i],-v_[i]);
     bounds.push_back(bound);
   }
 

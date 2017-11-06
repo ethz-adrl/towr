@@ -258,7 +258,7 @@ NodeValues::SetBoundsAboveGround ()
   for (int idx=0; idx<GetRows(); ++idx)
     for (auto info : GetNodeInfo(idx))
       if (info.deriv_==kPos && info.dim_==Z)
-        bounds_.at(idx) = NLPBound(z_height, +1.0e20);
+        bounds_.at(idx) = Bounds(z_height, +1.0e20);
 }
 
 void
@@ -276,7 +276,7 @@ NodeValues::AddBound (int node_id, MotionDerivative d, int dim, double val)
   for (int idx=0; idx<GetRows(); ++idx)
     for (auto info : GetNodeInfo(idx))
       if (info.id_==node_id && info.deriv_==d && info.dim_==dim)
-        bounds_.at(idx) = NLPBound(val, val);
+        bounds_.at(idx) = Bounds(val, val);
 }
 
 void

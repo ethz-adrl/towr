@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_XPP_SOLVE_INCLUDE_XPP_SOLVE_LEAVES_H_
-#define XPP_OPT_XPP_SOLVE_INCLUDE_XPP_SOLVE_LEAVES_H_
+#ifndef OPT_SOLVE_INCLUDE_OPT_LEAVES_H_
+#define OPT_SOLVE_INCLUDE_OPT_LEAVES_H_
 
 #include "composite.h"
 
@@ -76,4 +76,4 @@ static const int kSpecifyLater = -1;
 
 } /* namespace opt */
 
-#endif /* XPP_OPT_XPP_SOLVE_INCLUDE_XPP_SOLVE_LEAVES_H_ */
+#endif /* OPT_SOLVE_INCLUDE_OPT_LEAVES_H_ */

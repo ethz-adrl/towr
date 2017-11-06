@@ -1,20 +1,20 @@
 /**
-@file    bound.h
+@file    bounds.h
 @author  Alexander W. Winkler (winklera@ethz.ch)
 @date    Mar 13, 2017
 @brief   Brief description
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_XPP_BOUND_H_
-#define XPP_XPP_OPT_INCLUDE_XPP_BOUND_H_
+#ifndef OPT_SOLVE_INCLUDE_OPT_BOUNDS_H_
+#define OPT_SOLVE_INCLUDE_OPT_BOUNDS_H_
 
 
 namespace opt {
 
 /** Upper and lower bound on either constraints or optimization variables
   */
-struct NLPBound {
-  NLPBound(double lower = 0.0, double upper = 0.0) {
+struct Bounds {
+  Bounds(double lower = 0.0, double upper = 0.0) {
     lower_ = lower;
     upper_ = upper;
   }
@@ -34,11 +34,11 @@ struct NLPBound {
 
 static const double inf = 1.0e20;
 
-static const NLPBound NoBound          = NLPBound(-inf, +inf);
-static const NLPBound BoundZero        = NLPBound( 0.0,  0.0);
-static const NLPBound BoundGreaterZero = NLPBound( 0.0, +inf);
-static const NLPBound BoundSmallerZero = NLPBound(-inf,  0.0);
+static const Bounds NoBound          = Bounds(-inf, +inf);
+static const Bounds BoundZero        = Bounds( 0.0,  0.0);
+static const Bounds BoundGreaterZero = Bounds( 0.0, +inf);
+static const Bounds BoundSmallerZero = Bounds(-inf,  0.0);
 
 } // namespace opt
 
-#endif /* XPP_XPP_OPT_INCLUDE_XPP_BOUND_H_ */
+#endif /* OPT_SOLVE_INCLUDE_OPT_BOUNDS_H_ */

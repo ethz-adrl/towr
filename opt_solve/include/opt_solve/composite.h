@@ -5,8 +5,8 @@
  @brief   Represents constraints/costs using Composite Pattern.
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_
-#define XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_
+#ifndef OPT_SOLVE_INCLUDE_OPT_COMPOSITE_H_
+#define OPT_SOLVE_INCLUDE_OPT_COMPOSITE_H_
 
 #include <memory>
 #include <string>
@@ -15,7 +15,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include "nlp_bound.h"
+#include "bounds.h"
 
 namespace opt {
 
@@ -37,7 +37,7 @@ public:
 
   using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
   using VectorXd = Eigen::VectorXd;
-  using VecBound = std::vector<NLPBound>;
+  using VecBound = std::vector<Bounds>;
 
   Component(int num_rows, const std::string name);
   virtual ~Component() {};
@@ -145,4 +145,4 @@ std::shared_ptr<T> Composite::GetComponent(const std::string& name) const
 
 } /* namespace opt */
 
-#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_ */
+#endif /* OPT_SOLVE_INCLUDE_OPT_COMPOSITE_H_ */

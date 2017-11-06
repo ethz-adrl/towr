@@ -104,7 +104,7 @@ SplineStateConstraint::GetBounds () const
   for (auto dxdt :  derivatives_) {
     VectorXd state = state_desired_.GetByIndex(dxdt);
     for (auto dim :  dims_)
-      bounds.push_back(NLPBound(state(dim), state(dim)));
+      bounds.push_back(Bounds(state(dim), state(dim)));
   }
 
   return bounds;
