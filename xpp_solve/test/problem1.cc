@@ -19,9 +19,9 @@ using namespace xpp;
 using Eigen::Vector2d;
 
 
-class ExVariables : public Component {
+class ExVariables : public Variables {
 public:
-  ExVariables() : Component(2, "var_set1")
+  ExVariables() : Variables(2, "var_set1")
   {
     x0_ = 0.0;
     x1_ = 0.0;
@@ -52,12 +52,13 @@ private:
 
 class ExConstraint : public Constraint {
 public:
-  ExConstraint(const OptVarsPtr& vars) : Constraint(vars)
+  ExConstraint(const OptVarsPtr& vars)
+      : Constraint(vars, 1, "quadratic_constraint")
   {
-    SetName("quadratic_constraint");
+//    SetName("quadratic_constraint");
 //    AddOptimizationVariables(vars);
-    int constraint_count = 1; // only one constraint row
-    SetRows(constraint_count);
+//    int constraint_count = 1; // only one constraint row
+//    SetRows(constraint_count);
   }
 
   virtual VectorXd GetValues() const override
@@ -75,7 +76,7 @@ public:
     return b;
   }
 
-  void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const override
+  void FillJacobianBlock (std::string var_set, Jacobian& jac) const override
   {
     if (var_set == "var_set1") {
 
@@ -90,11 +91,11 @@ public:
 
 class ExCost: public Cost {
 public:
-  ExCost(const OptVarsPtr& vars) : Constraint(vars)
+  ExCost(const OptVarsPtr& vars) : Cost(vars,  "quadratic_cost")
   {
-    SetName("quadratic_cost");
+//    SetName("quadratic_cost");
 //    AddOptimizationVariables(vars);
-    SetRows(1);  // cost always has only 1 row
+//    SetRows(1);  // cost always has only 1 row
   }
 
   virtual VectorXd GetValues() const override
@@ -106,7 +107,7 @@ public:
     return J;
   };
 
-  void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const override
+  void FillJacobianBlock (std::string var_set, Jacobian& jac) const override
   {
     if (var_set == "var_set1") {
 

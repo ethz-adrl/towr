@@ -31,7 +31,8 @@ namespace xpp {
 class MotionOptimizerFacade {
 public:
   using MotionParametersPtr      = std::shared_ptr<OptimizationParameters>;
-  using OptimizationVariablesPtr = std::shared_ptr<Composite>;
+  using OptimizationVariablesPtr = NLP::OptimizationVariablesPtr;
+  using VariablesCompPtr         = std::shared_ptr<Composite>;
   using RobotStateVec            = std::vector<RobotStateCartesian>;
 
   MotionOptimizerFacade ();
@@ -66,14 +67,14 @@ public:
 private:
   EndeffectorsPos initial_ee_W_;
   State3dEuler final_base_;
-  RobotStateVec GetTrajectory(const OptimizationVariablesPtr&, double dt) const;
+  RobotStateVec GetTrajectory(const VariablesCompPtr&, double dt) const;
 
   void BuildDefaultInitialState();
-  OptimizationVariablesPtr BuildVariables() const;
-  void BuildCostConstraints(const OptimizationVariablesPtr&);
+  VariablesCompPtr BuildVariables() const;
+  void BuildCostConstraints(const VariablesCompPtr&);
 
-  void SetBaseRepresentationCoeff(OptimizationVariablesPtr&) const;
-  void SetBaseRepresentationHermite(OptimizationVariablesPtr&) const;
+  void SetBaseRepresentationCoeff(VariablesCompPtr&) const;
+  void SetBaseRepresentationHermite(VariablesCompPtr&) const;
 
   mutable NLP nlp;
 };

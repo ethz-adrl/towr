@@ -25,11 +25,23 @@ using Jacobian    = MatrixSXd;
 using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 using VectorXd    = Eigen::VectorXd;
 
+
+class Component;
+//class Composite;
+//class Leaf;
+
+using Variables  = Component;
+//using Constraint = Leaf;
+//using Cost       = Leaf;
+
+
 /** @brief Interface representing either costs, constraints or opt variables.
  *
  * Every individual constraint (primitive) or composite of constraints follows
  * this interface and therefore they can be used interchangeably. Costs are
  * seen as constraints with just one row.
+ *
+ * "smallest common denominator" of variables, costs and constraints
  *
  * see https://sourcemaking.com/design_patterns/composite
  */
@@ -69,7 +81,7 @@ public:
 
 protected:
   void SetRows(int num_rows);
-  void SetName(const std::string&);
+//  void SetName(const std::string&);
 
 private:
   int num_rows_ = 0;
@@ -142,20 +154,22 @@ private:
   * Classes that derive from this represent the actual "meat".
   * But somehow also just a Composite of OptimizationVariables.
   */
-class Leaf;
-using Constraint = Leaf;
-using Cost       = Leaf;
 
-class Leaf : public Component {
+
+class Constraint : public Component {
 public:
   using OptVarsPtr = std::shared_ptr<Composite>;
 
-  Leaf(const OptVarsPtr&);
-  virtual ~Leaf() {};
+  Constraint(const OptVarsPtr&,
+       int row_count,
+       const std::string& name);
+
+  virtual ~Constraint() {};
 
   Jacobian GetJacobian() const override;
 
-//  virtual void LinkMembersToVariables() {};
+
+//  void LinkVariables(const OptVarsPtr& vars) {opt_vars_ = vars; };
 
 protected:
 //  void AddOptimizationVariables(const OptVarsPtr&);
@@ -164,9 +178,32 @@ protected:
 private:
   /** @brief Jacobian of the component with respect to each decision variable set.
     */
-  virtual void FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const = 0;
+  virtual void FillJacobianBlock(std::string var_set, Jacobian& jacobian_block) const = 0;
   OptVarsPtr opt_vars_;
+
+//  std::vector<std::string> vars_sets_; ///< these affect cost/constraint
 };
+
+
+class Cost : public Constraint {
+public:
+  Cost(const OptVarsPtr&, const std::string& name);
+  virtual ~Cost() {};
+};
+
+
+
+
+//class ConstraintCostComposite : Composite {
+//public:
+//  virtual void Init(const std::shared_ptr<Composite>& vars)
+//  {
+//    for (auto& c : components_)
+//      c->LinkVariables(vars);
+//  };
+//};
+
+static const int kSpecifyLater = -1; // not recommended, requires SetRows() call
 
 } /* namespace xpp */
 

@@ -43,7 +43,7 @@ public:
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
-  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
+  void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
 private:
   double t_global_;
@@ -69,7 +69,7 @@ public:
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
-  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
+  void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
 private:
   SplineT spline_;

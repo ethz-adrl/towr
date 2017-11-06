@@ -21,13 +21,15 @@ class TimeDiscretizationConstraint : public Constraint {
 public:
   using EvaluationTimes = std::vector<double>;
 
-  TimeDiscretizationConstraint (double T, double dt, const OptVarsPtr& opt_vars);
-  TimeDiscretizationConstraint (const OptVarsPtr& opt_vars);
+  TimeDiscretizationConstraint (double T, double dt, const OptVarsPtr& opt_vars,
+                                const std::string& name);
+  TimeDiscretizationConstraint (const OptVarsPtr& opt_vars, const EvaluationTimes&,
+                                const std::string& name);
   virtual ~TimeDiscretizationConstraint ();
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
-  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
+  void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
 protected:
   int GetNumberOfNodes() const;

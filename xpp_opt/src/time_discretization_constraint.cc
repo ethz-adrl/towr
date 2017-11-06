@@ -14,8 +14,9 @@
 namespace xpp {
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
-                                                            const OptVarsPtr& opt_vars)
-    :Constraint(opt_vars)
+                                                            const OptVarsPtr& opt_vars,
+                                                            const std::string& name)
+    :Constraint(opt_vars, kSpecifyLater, name) // just placeholder
 {
   double t = 0.0;
   dts_ = {t};
@@ -29,9 +30,12 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
 //  AddOptimizationVariables(opt_vars);
 }
 
-TimeDiscretizationConstraint::TimeDiscretizationConstraint (const OptVarsPtr& opt_vars)
-   :Constraint(opt_vars)
+TimeDiscretizationConstraint::TimeDiscretizationConstraint (const OptVarsPtr& opt_vars,
+                                                            const EvaluationTimes& times,
+                                                            const std::string& name)
+   :Constraint(opt_vars, kSpecifyLater, name) // just placeholder
 {
+  dts_ = times;
 //  AddOptimizationVariables(opt_vars);
 }
 
@@ -70,8 +74,8 @@ TimeDiscretizationConstraint::GetBounds () const
 }
 
 void
-TimeDiscretizationConstraint::FillJacobianWithRespectTo (std::string var_set,
-                                                        Jacobian& jac) const
+TimeDiscretizationConstraint::FillJacobianBlock (std::string var_set,
+                                                  Jacobian& jac) const
 {
   int k = 0;
   for (double t : dts_)

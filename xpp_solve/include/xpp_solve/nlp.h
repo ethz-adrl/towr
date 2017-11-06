@@ -13,7 +13,6 @@
 #include <Eigen/Dense>
 
 #include "composite.h"
-#include "nlp_bound.h"
 
 namespace xpp {
 
@@ -27,7 +26,7 @@ namespace xpp {
 class NLP {
 public:
   using Number                   = double;
-  using OptimizationVariablesPtr = std::shared_ptr<Composite>;
+  using OptimizationVariablesPtr = std::shared_ptr<Component>;
   using ConstraintPtrU           = std::unique_ptr<Component>;
 
   NLP ();

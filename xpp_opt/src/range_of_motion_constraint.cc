@@ -5,13 +5,13 @@
  @brief   Defines the RangeOfMotionBox class.
  */
 
-#include <../include/xpp_opt/constraints/range_of_motion_constraint.h>
+#include <xpp_opt/constraints/range_of_motion_constraint.h>
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <memory>
 
-#include <../include/xpp_opt/variables/variable_names.h>
+#include <xpp_opt/variables/variable_names.h>
 #include <xpp_states/cartesian_declarations.h>
 
 namespace xpp {
@@ -22,9 +22,10 @@ RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
                                     const EndeffectorID& ee)
     :TimeDiscretizationConstraint(params.GetTotalTime(),
                                   params.dt_range_of_motion_,
-                                  opt_vars)
+                                  opt_vars,
+                                  "RangeOfMotionBox-" + std::to_string(ee))
 {
-  SetName("RangeOfMotionBox-" + std::to_string(ee));
+//  SetName("RangeOfMotionBox-" + std::to_string(ee));
   ee_ = ee;
   max_deviation_from_nominal_ = kinematic_model->GetMaximumDeviationFromNominal();
   nominal_ee_pos_B_           = kinematic_model->GetNominalStanceInBase().at(ee);

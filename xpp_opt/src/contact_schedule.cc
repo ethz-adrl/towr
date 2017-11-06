@@ -28,7 +28,8 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
                                   bool is_in_contact_at_start,
                                   double min_duration,
                                   double max_duration)
-    :Component(0, id::GetEEScheduleId(ee))
+    // -1 since last phase-duration is not optimized over
+    :Variables(timings.size()-1, id::GetEEScheduleId(ee))
 {
   t_total_   = t_total;
   for (auto d : timings)
@@ -36,7 +37,7 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
 
   phase_duration_bounds_ = NLPBound(min_duration, max_duration);
   first_phase_in_contact_ = is_in_contact_at_start;
-  SetRows(durations_.size()-1); // since last phase-duration is not optimized over
+//  SetRows(durations_.size()-1); //
 }
 
 ContactSchedule::~ContactSchedule ()
@@ -172,14 +173,14 @@ ContactSchedule::GetObserver (const std::string& id) const
 
 DurationConstraint::DurationConstraint (const OptVarsPtr& opt_vars,
                                         double T_total, int ee)
-    :Constraint(opt_vars)
+    :Constraint(opt_vars, 1, "DurationConstraint-" + std::to_string(ee))
 {
-  SetName("DurationConstraint-" + std::to_string(ee));
+//  SetName("DurationConstraint-" + std::to_string(ee));
   schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
   T_total_ = T_total;
 
 //  AddOptimizationVariables(opt_vars);
-  SetRows(1);
+//  SetRows(1);
 }
 
 DurationConstraint::~DurationConstraint ()
@@ -204,7 +205,7 @@ DurationConstraint::GetBounds () const
 }
 
 void
-DurationConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
+DurationConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 {
   if (var_set == schedule_->GetName())
     for (int col=0; col<schedule_->GetRows(); ++col)

@@ -93,11 +93,11 @@ Component::GetName () const
   return name_;
 }
 
-void
-Component::SetName (const std::string& name)
-{
-  name_ = name;
-}
+//void
+//Component::SetName (const std::string& name)
+//{
+//  name_ = name;
+//}
 
 Composite::Composite (const std::string name, bool append_components)
     :Component(0, name)
@@ -231,9 +231,15 @@ Composite::Print () const
   std::cout << std::endl;
 }
 
-Leaf::Leaf (const OptVarsPtr& vars) : Component(-1, "Leaf")
+
+
+
+Constraint::Constraint (const OptVarsPtr& vars,
+            int row_count,
+            const std::string& name) : Component(row_count, name)
 {
   opt_vars_ = vars;
+//  SetName(name);
 }
 
 //void
@@ -243,7 +249,7 @@ Leaf::Leaf (const OptVarsPtr& vars) : Component(-1, "Leaf")
 //}
 
 Jacobian
-Leaf::GetJacobian () const
+Constraint::GetJacobian () const
 {
   Jacobian jacobian(GetRows(), opt_vars_->GetRows());
 
@@ -253,7 +259,7 @@ Leaf::GetJacobian () const
     int n = vars->GetRows();
     Jacobian jac = Jacobian(GetRows(), n);
 
-    FillJacobianWithRespectTo(vars->GetName(), jac);
+    FillJacobianBlock(vars->GetName(), jac);
 
     // insert the derivative in the correct position in the overall Jacobian
     for (int k=0; k<jac.outerSize(); ++k)
@@ -266,4 +272,11 @@ Leaf::GetJacobian () const
   return jacobian;
 }
 
+Cost::Cost (const OptVarsPtr& vars, const std::string& name)
+   :Constraint(vars, 1, name)
+{
+}
+
+
 } /* namespace xpp */
+

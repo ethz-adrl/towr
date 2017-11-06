@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/constraints/swing_constraint.h>
+#include <xpp_opt/constraints/swing_constraint.h>
 
 #include <array>
 #include <Eigen/Dense>
@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-#include <../include/xpp_opt/variables/node_values.h>
+#include <xpp_opt/variables/node_values.h>
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
@@ -22,7 +22,7 @@ namespace xpp {
 
 
 SwingConstraint::SwingConstraint (const OptVarsPtr& opt_vars, std::string ee_motion)
-    :Constraint(opt_vars)
+    :Constraint(opt_vars, kSpecifyLater, "Swing-Constraint-" + ee_motion)
 {
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion);
 
@@ -39,7 +39,7 @@ SwingConstraint::SwingConstraint (const OptVarsPtr& opt_vars, std::string ee_mot
 //      constraint_count += 1; // if swing in apex is constrained
     }
 
-  SetName("Swing-Constraint-" + ee_motion);
+//  SetName("Swing-Constraint-" + ee_motion);
   SetRows(constraint_count);
 }
 
@@ -83,8 +83,8 @@ SwingConstraint::GetBounds () const
 }
 
 void
-SwingConstraint::FillJacobianWithRespectTo (std::string var_set,
-                                            Jacobian& jac) const
+SwingConstraint::FillJacobianBlock (std::string var_set,
+                                    Jacobian& jac) const
 {
   if (var_set == ee_motion_->GetName()) {
 

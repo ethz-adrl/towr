@@ -5,13 +5,13 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/constraints/dynamic_constraint.h>
+#include <xpp_opt/constraints/dynamic_constraint.h>
 
 #include <memory>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <../include/xpp_opt/variables/variable_names.h>
+#include <xpp_opt/variables/variable_names.h>
 #include <xpp_states/endeffectors.h>
 #include <xpp_states/state.h>
 
@@ -22,9 +22,9 @@ namespace xpp {
 DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
                                       const DynamicModel::Ptr& m,
                                       const std::vector<double>& evaluation_times)
-    :TimeDiscretizationConstraint(opt_vars)
+    :TimeDiscretizationConstraint(opt_vars, evaluation_times, "DynamicConstraint")
 {
-  dts_ = evaluation_times;
+//  dts_ = evaluation_times;
   model_ = m;
   gravity_ = m->GetGravityAcceleration();
 
@@ -38,7 +38,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
     ee_timings_.push_back(opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
   }
 
-  SetName("DynamicConstraint");
+//  SetName("DynamicConstraint");
   SetRows(GetNumberOfNodes()*kDim6d);
   converter_ = AngularStateConverter(base_angular_);
 }

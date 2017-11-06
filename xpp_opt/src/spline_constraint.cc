@@ -20,32 +20,32 @@ SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
                                               const StateLinXd& state,
                                               const DerivativeVec& derivatives,
                                               const Dimensions& dimensions)
-    :Constraint(opt_vars)
+    :Constraint(opt_vars, derivatives.size()*dimensions.size(), "spline_cost")
 {
 
-  // print out names correctly
-  std::string deriv_string;
-  for (auto d : derivatives) {
-    if (d==kPos)
-      deriv_string += "pos,";
-    if (d==kVel)
-      deriv_string += "vel,";
-    if (d==kAcc)
-      deriv_string += "acc,";
-  }
-
-  std::string dim_string;
-  for (auto d : dimensions) {
-    if (d==X)
-      deriv_string += "X,";
-    if (d==Y)
-      deriv_string += "Y,";
-    if (d==Z)
-      deriv_string += "Z,";
-  }
-
-
-  SetName(id + ",t=" + std::to_string(t_global) + ", " + deriv_string + dim_string);
+//  // print out names correctly
+//  std::string deriv_string;
+//  for (auto d : derivatives) {
+//    if (d==kPos)
+//      deriv_string += "pos,";
+//    if (d==kVel)
+//      deriv_string += "vel,";
+//    if (d==kAcc)
+//      deriv_string += "acc,";
+//  }
+//
+//  std::string dim_string;
+//  for (auto d : dimensions) {
+//    if (d==X)
+//      deriv_string += "X,";
+//    if (d==Y)
+//      deriv_string += "Y,";
+//    if (d==Z)
+//      deriv_string += "Z,";
+//  }
+//
+//
+//  SetName(id + ",t=" + std::to_string(t_global) + ", " + deriv_string + dim_string);
 
   spline_      = opt_vars->GetComponent<Spline>(id);
   t_global_    = t_global;
@@ -54,9 +54,9 @@ SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
   derivatives_   = derivatives;
   dims_          = dimensions;
 
-  int n_constraints = derivatives.size()*dims_.size();
+//  int n_constraints = derivatives.size()*dims_.size();
 //  AddOptimizationVariables(opt_vars);
-  SetRows(n_constraints);
+//  SetRows(n_constraints);
 }
 
 SplineStateConstraint::~SplineStateConstraint ()
@@ -79,7 +79,7 @@ SplineStateConstraint::GetValues () const
 }
 
 void
-SplineStateConstraint::FillJacobianWithRespectTo (std::string var_set,
+SplineStateConstraint::FillJacobianBlock (std::string var_set,
                                                   Jacobian& jac) const
 {
   if (spline_->HoldsVarsetThatIsActiveNow(var_set, t_global_)) {
@@ -117,9 +117,9 @@ SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
                                                     const std::string& spline_id,
                                                     const DerivativeVec& derivatives
                                                     )
-    : Constraint(opt_vars)
+    : Constraint(opt_vars, -1, "SplineJunctionConstraint-" + spline_id)
 {
-  SetName("SplineJunctionConstraint-" + spline_id);
+//  SetName("SplineJunctionConstraint-" + spline_id);
 
   // need specific functions from coefficient spline
   spline_        = opt_vars->GetComponent<CoeffSpline>(spline_id);
@@ -158,7 +158,7 @@ SplineJunctionConstraint::GetValues () const
 }
 
 void
-SplineJunctionConstraint::FillJacobianWithRespectTo (std::string var_set,
+SplineJunctionConstraint::FillJacobianBlock (std::string var_set,
                                                      Jacobian& jac) const
 {
   int row = 0;

@@ -19,7 +19,7 @@
 
 namespace xpp {
 
-class ContactSchedule : public Component {
+class ContactSchedule : public Variables {
 public:
   using Ptr           = std::shared_ptr<ContactSchedule>;
   using VecDurations  = std::vector<double>;
@@ -71,7 +71,7 @@ private:
 // spring_clean_ use own file for this
 /** Makes sure all phase durations sum up to final specified motion duration.
  */
-class DurationConstraint : public Leaf {
+class DurationConstraint : public Constraint {
 public:
   using SchedulePtr = std::shared_ptr<ContactSchedule>;
 
@@ -80,7 +80,7 @@ public:
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
-  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
+  void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
 private:
   SchedulePtr schedule_;

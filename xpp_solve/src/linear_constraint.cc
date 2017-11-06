@@ -11,19 +11,19 @@
 namespace xpp {
 
 LinearEqualityConstraint::LinearEqualityConstraint (
-    const OptVarsPtr& opt_vars,
-    const Eigen::MatrixXd& M,
-    const Eigen::VectorXd& v,
-    const std::string& variable_name)
-    : Constraint(opt_vars)
+  const OptVarsPtr& opt_vars,
+  const Eigen::MatrixXd& M,
+  const Eigen::VectorXd& v,
+  const std::string& variable_name)
+    : Constraint(opt_vars, v.rows(), "LinearEqualityConstraint-" + variable_name)
 {
-  SetName("LinearEqualityConstraint-" + variable_name);
+//  SetName("LinearEqualityConstraint-" + variable_name);
   M_ = M;
   v_ = v;
   variable_name_   = variable_name;
 
-  int num_constraints = v.rows();
-  SetRows(num_constraints);
+//  int num_constraints = v.rows();
+//  SetRows(num_constraints);
 //  AddOptimizationVariables(opt_vars);
 }
 
@@ -52,7 +52,7 @@ LinearEqualityConstraint::GetBounds () const
 }
 
 void
-LinearEqualityConstraint::FillJacobianWithRespectTo (std::string var_set, Jacobian& jac) const
+LinearEqualityConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 {
   // the constraints are all linear w.r.t. the decision variables.
   // careful, sparseView is only valid when the Jacobian is constant

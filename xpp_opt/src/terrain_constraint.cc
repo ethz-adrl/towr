@@ -24,7 +24,9 @@ namespace xpp {
 TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
                                       const OptVarsPtr& opt_vars,
                                       std::string ee_motion)
-    :Constraint(opt_vars)
+    :Constraint(opt_vars,
+                kSpecifyLater,
+                "Terrain-Constraint-" + ee_motion)
 {
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion);
 
@@ -38,7 +40,7 @@ TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
 
   int constraint_count = node_ids_.size();
   SetRows(constraint_count);
-  SetName("Terrain-Constraint-" + ee_motion);
+//  SetName("Terrain-Constraint-" + ee_motion);
 }
 
 VectorXd
@@ -74,8 +76,8 @@ TerrainConstraint::GetBounds () const
 }
 
 void
-TerrainConstraint::FillJacobianWithRespectTo (std::string var_set,
-                                              Jacobian& jac) const
+TerrainConstraint::FillJacobianBlock (std::string var_set,
+                                      Jacobian& jac) const
 {
   if (var_set == ee_motion_->GetName()) {
 

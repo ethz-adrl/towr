@@ -38,7 +38,7 @@ public:
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
-  void FillJacobianWithRespectTo (std::string var_set, Jacobian&) const override;
+  void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
 private:
   Eigen::MatrixXd M_;

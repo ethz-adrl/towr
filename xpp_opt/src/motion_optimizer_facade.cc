@@ -91,7 +91,7 @@ MotionOptimizerFacade::SetFinalState (const StateLin3d& lin,
   final_base_.lin.p_.z() = z_terrain - z_nominal_B;
 }
 
-MotionOptimizerFacade::OptimizationVariablesPtr
+MotionOptimizerFacade::VariablesCompPtr
 MotionOptimizerFacade::BuildVariables () const
 {
   auto opt_variables = std::make_shared<Composite>("nlp_variables", true);
@@ -175,7 +175,7 @@ MotionOptimizerFacade::BuildVariables () const
 }
 
 void
-MotionOptimizerFacade::SetBaseRepresentationCoeff (OptimizationVariablesPtr& opt_variables) const
+MotionOptimizerFacade::SetBaseRepresentationCoeff (VariablesCompPtr& opt_variables) const
 {
   int n_dim = inital_base_.lin.kNumDim;
   int order = params_->order_coeff_polys_;
@@ -205,7 +205,7 @@ MotionOptimizerFacade::SetBaseRepresentationCoeff (OptimizationVariablesPtr& opt
 }
 
 void
-MotionOptimizerFacade::SetBaseRepresentationHermite (OptimizationVariablesPtr& opt_variables_) const
+MotionOptimizerFacade::SetBaseRepresentationHermite (VariablesCompPtr& opt_variables_) const
 {
   int n_dim = inital_base_.lin.kNumDim;
   std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
@@ -271,7 +271,7 @@ MotionOptimizerFacade::SetBaseRepresentationHermite (OptimizationVariablesPtr& o
 }
 
 void
-MotionOptimizerFacade::BuildCostConstraints(const OptimizationVariablesPtr& opt_variables)
+MotionOptimizerFacade::BuildCostConstraints(const VariablesCompPtr& opt_variables)
 {
   CostConstraintFactory factory;
   factory.Init(opt_variables, params_, terrain_, model_,
@@ -317,7 +317,8 @@ MotionOptimizerFacade::GetIntermediateSolutions (double dt) const
 
   for (int iter=0; iter<nlp.GetIterationCount(); ++iter) {
     auto opt_var = nlp.GetOptVariables(iter);
-    trajectories.push_back(GetTrajectory(opt_var, dt));
+    auto vars_composite = std::dynamic_pointer_cast<Composite>(opt_var);
+    trajectories.push_back(GetTrajectory(vars_composite, dt));
   }
 
   return trajectories;
@@ -327,16 +328,18 @@ MotionOptimizerFacade::RobotStateVec
 MotionOptimizerFacade::GetTrajectory (double dt) const
 {
   auto opt_var = nlp.GetOptVariables();
-  return GetTrajectory(opt_var, dt);
+  auto vars_composite = std::dynamic_pointer_cast<Composite>(opt_var);
+  return GetTrajectory(vars_composite, dt);
 }
 
 MotionOptimizerFacade::RobotStateVec
-MotionOptimizerFacade::GetTrajectory (const OptimizationVariablesPtr& vars,
+MotionOptimizerFacade::GetTrajectory (const VariablesCompPtr& vars,
                                       double dt) const
 {
   RobotStateVec trajectory;
   double t=0.0;
   double T = params_->GetTotalTime();
+
   while (t<=T+1e-5) {
 
     RobotStateCartesian state(initial_ee_W_.GetEECount());

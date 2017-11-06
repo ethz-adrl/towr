@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/costs/node_cost.h>
+#include <xpp_opt/costs/node_cost.h>
 
 #include <cmath>
 #include <Eigen/Dense>
@@ -15,9 +15,9 @@
 namespace xpp {
 
 NodeCost::NodeCost (const OptVarsPtr& opt_vars, const std::string& nodes_id)
-    : Cost(opt_vars)
+    : Cost(opt_vars, "Node Cost")
 {
-  SetName("Node Cost");
+//  SetName("Node Cost");
 
   nodes_   = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(nodes_id));
   node_id_ = nodes_id;
@@ -25,7 +25,7 @@ NodeCost::NodeCost (const OptVarsPtr& opt_vars, const std::string& nodes_id)
   deriv_ = kPos;
   dim_   = Z;
 
-  SetRows(1); // because cost
+//  SetRows(1); // because cost
 //  AddOptimizationVariables(opt_vars);
 }
 
@@ -42,8 +42,7 @@ NodeCost::GetValues () const
 }
 
 void
-NodeCost::FillJacobianWithRespectTo (std::string var_set,
-                                     Jacobian& jac) const
+NodeCost::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 {
   if (var_set == node_id_) {
 

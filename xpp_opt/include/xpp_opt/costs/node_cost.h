@@ -29,7 +29,7 @@ public:
   VectorXd GetValues () const override;
 
 private:
-  void FillJacobianWithRespectTo(std::string var_set, Jacobian&) const;
+  void FillJacobianBlock(std::string var_set, Jacobian&) const override;
   Nodes nodes_;
   std::string node_id_;
 

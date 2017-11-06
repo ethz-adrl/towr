@@ -26,7 +26,7 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   const OptVarsPtr& opt_vars,
                                   const std::string& ee_force_id,
                                   const std::string& ee_motion_id)
-    :Constraint(opt_vars)
+    :Constraint(opt_vars, kSpecifyLater, "Force-Constraint-" + ee_force_id )
 {
   ee_force_  = opt_vars->GetComponent<EEForceNodes>(ee_force_id);
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion_id);
@@ -43,7 +43,7 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
       constraint_count += n_constraints_per_node_;
 
   SetRows(constraint_count);
-  SetName("Force-Constraint-" + ee_force_id);
+//  SetName("Force-Constraint-" + ee_force_id);
 }
 
 VectorXd
@@ -97,8 +97,8 @@ ForceConstraint::GetBounds () const
 }
 
 void
-ForceConstraint::FillJacobianWithRespectTo (std::string var_set,
-                                            Jacobian& jac) const
+ForceConstraint::FillJacobianBlock (std::string var_set,
+                                    Jacobian& jac) const
 {
   if (var_set == ee_force_->GetName()) {
 
