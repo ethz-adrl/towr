@@ -13,7 +13,7 @@
 
 namespace xpp {
 
-BaseMotionConstraint::BaseMotionConstraint (const OptVarsPtr& opt_vars,
+BaseMotionConstraint::BaseMotionConstraint (const Composite::Ptr& opt_vars,
                                             const OptimizationParameters& params)
     :TimeDiscretizationConstraint(params.GetTotalTime(),
                                   params.dt_base_range_of_motion_,

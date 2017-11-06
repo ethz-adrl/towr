@@ -284,7 +284,7 @@ MotionOptimizerFacade::BuildCostConstraints(const VariablesCompPtr& opt_variable
     constraints->AddComponent(factory.GetConstraint(name));
 
 //  constraints->Print();
-  nlp.AddConstraint(std::move(constraints));
+  nlp.SetConstraints(std::move(constraints));
 
 
   auto costs = std::make_unique<Composite>("costs", true);
@@ -292,20 +292,20 @@ MotionOptimizerFacade::BuildCostConstraints(const VariablesCompPtr& opt_variable
     costs->AddComponent(factory.GetCost(pair.first, pair.second));
 
 //  costs->Print();
-  nlp.AddCost(std::move(costs));
+  nlp.SetCosts(std::move(costs));
 }
 
 void
 MotionOptimizerFacade::SolveProblem ()
 {
   auto variables = BuildVariables();
-  nlp.Init(variables);
+  nlp.SetVariables(variables);
 
   BuildCostConstraints(variables);
 
   switch (nlp_solver_) {
-    case NLP::Ipopt: IpoptAdapter::Solve(nlp); break;
-//    case NLP::Snopt: SnoptAdapter::Solve(nlp); break;
+    case Ipopt: IpoptAdapter::Solve(nlp); break;
+//    case Snopt: SnoptAdapter::Solve(nlp); break;
     default: assert(false); // solver not implemented
   }
 

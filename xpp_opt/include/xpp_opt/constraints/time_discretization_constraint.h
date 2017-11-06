@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <xpp_solve/composite.h>
+#include <xpp_solve/leaves.h>
 
 namespace xpp {
 
@@ -21,9 +21,9 @@ class TimeDiscretizationConstraint : public Constraint {
 public:
   using EvaluationTimes = std::vector<double>;
 
-  TimeDiscretizationConstraint (double T, double dt, const OptVarsPtr& opt_vars,
+  TimeDiscretizationConstraint (double T, double dt, const Composite::Ptr& opt_vars,
                                 const std::string& name);
-  TimeDiscretizationConstraint (const OptVarsPtr& opt_vars, const EvaluationTimes&,
+  TimeDiscretizationConstraint (const Composite::Ptr& opt_vars, const EvaluationTimes&,
                                 const std::string& name);
   virtual ~TimeDiscretizationConstraint ();
 

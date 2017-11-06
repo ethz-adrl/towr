@@ -15,7 +15,7 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <xpp_solve/composite.h>
+#include <xpp_solve/leaves.h>
 
 
 namespace xpp {
@@ -93,7 +93,7 @@ private:
 };
 
 
-class PolynomialVars : public Component {
+class PolynomialVars : public Variables {
 public:
   using Ptr = std::shared_ptr<PolynomialVars>;
 
@@ -103,6 +103,7 @@ public:
   VectorXd GetValues () const override;
   void SetValues (const VectorXd& optimized_coeff) override;
   Jacobian GetJacobian(double t_local, MotionDerivative dxdt) const;
+  virtual VecBound GetBounds() const override { return VecBound(GetRows(), NoBound); };
 
   Polynomial::Ptr GetPolynomial() const { return polynomial_; };
 

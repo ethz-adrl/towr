@@ -75,7 +75,7 @@ class DurationConstraint : public Constraint {
 public:
   using SchedulePtr = std::shared_ptr<ContactSchedule>;
 
-  DurationConstraint(const OptVarsPtr& opt_vars, double T_total, int ee);
+  DurationConstraint(const Composite::Ptr& opt_vars, double T_total, int ee);
   ~DurationConstraint();
 
   VectorXd GetValues() const override;

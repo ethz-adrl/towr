@@ -19,7 +19,7 @@
 namespace xpp {
 
 
-DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
+DynamicConstraint::DynamicConstraint (const Composite::Ptr& opt_vars,
                                       const DynamicModel::Ptr& m,
                                       const std::vector<double>& evaluation_times)
     :TimeDiscretizationConstraint(opt_vars, evaluation_times, "DynamicConstraint")

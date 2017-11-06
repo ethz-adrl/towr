@@ -14,7 +14,7 @@
 
 namespace xpp {
 
-SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
+SplineStateConstraint::SplineStateConstraint (const Composite::Ptr& opt_vars,
                                               const std::string& id,
                                               double t_global,
                                               const StateLinXd& state,
@@ -113,7 +113,7 @@ SplineStateConstraint::GetBounds () const
 
 
 
-SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
+SplineJunctionConstraint::SplineJunctionConstraint (const Composite::Ptr& opt_vars,
                                                     const std::string& spline_id,
                                                     const DerivativeVec& derivatives
                                                     )

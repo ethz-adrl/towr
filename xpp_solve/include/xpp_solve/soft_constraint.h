@@ -8,8 +8,6 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_SOFT_CONSTRAINT_H_
 
-#include <Eigen/Dense>
-#include <memory>
 
 #include "composite.h"
 
@@ -46,6 +44,9 @@ private:
   virtual Jacobian GetJacobian() const override;
 
   double weight_ = 1.0; ///< the weight relative to other costs
+
+  virtual VecBound GetBounds() const override { return VecBound(GetRows(), NoBound); };
+  virtual void SetValues(const VectorXd& x) override { assert(false); };
 };
 
 } /* namespace xpp */

@@ -105,7 +105,7 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
   motion_optimizer_.model_.gait_generator_->SetCombo(gait);
   motion_optimizer_.params_->SetTotalDuration(msg.total_duration);
 
-  motion_optimizer_.nlp_solver_ = msg.use_solver_snopt ? NLP::Snopt : NLP::Ipopt;
+  motion_optimizer_.nlp_solver_ = msg.use_solver_snopt ? MotionOptimizerFacade::Snopt : MotionOptimizerFacade::Ipopt;
   motion_optimizer_.SetFinalState(Convert::ToXpp(msg.goal_lin),
                                   Convert::ToXpp(msg.goal_ang));
 

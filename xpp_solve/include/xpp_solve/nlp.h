@@ -8,9 +8,6 @@
 #ifndef USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_H_
 #define USER_TASK_DEPENDS_XPP_OPT_INCLUDE_XPP_OPT_NLP_H_
 
-#include <memory>
-#include <vector>
-#include <Eigen/Dense>
 
 #include "composite.h"
 
@@ -25,38 +22,32 @@ namespace xpp {
   */
 class NLP {
 public:
-  using Number                   = double;
-  using OptimizationVariablesPtr = std::shared_ptr<Component>;
-  using ConstraintPtrU           = std::unique_ptr<Component>;
-
   NLP ();
   virtual ~NLP ();
 
-  void Init(const OptimizationVariablesPtr&);
+  void SetVariables(const Component::Ptr& variables);
+  void SetCosts(Component::PtrU);
+  void SetConstraints(Component::PtrU);
 
-  enum NlpSolver { Ipopt, Snopt };
-//  void Solve(NlpSolver);
 
 
-  void SetVariables(const Number* x);
+  void SetVariables(const double* x);
 
   int GetNumberOfOptimizationVariables() const;
   bool HasCostTerms() const;
   VecBound GetBoundsOnOptimizationVariables() const;
   VectorXd GetStartingValues() const;
 
-  double EvaluateCostFunction(const Number* x);
-  VectorXd EvaluateCostFunctionGradient(const Number* x);
+  double EvaluateCostFunction(const double* x);
+  VectorXd EvaluateCostFunctionGradient(const double* x);
 
   int GetNumberOfConstraints() const;
   VecBound GetBoundsOnConstraints() const;
-  VectorXd EvaluateConstraints(const Number* x);
+  VectorXd EvaluateConstraints(const double* x);
 
-  void EvalNonzerosOfJacobian(const Number* x, Number* values);
+  void EvalNonzerosOfJacobian(const double* x, double* values);
   Jacobian GetJacobianOfConstraints() const;
 
-  void AddCost(ConstraintPtrU);
-  void AddConstraint(ConstraintPtrU);
 
   void PrintCurrent() const;
 
@@ -66,18 +57,18 @@ public:
    */
   void SaveCurrent();
 
-  OptimizationVariablesPtr GetOptVariables();
-  OptimizationVariablesPtr GetOptVariables(int iter);
+  Component::Ptr GetOptVariables();
+  Component::Ptr GetOptVariables(int iter);
   int GetIterationCount() const { return x_prev.size(); };
 
 private:
-  ConstraintPtrU constraints_;
-  ConstraintPtrU costs_;
-  OptimizationVariablesPtr opt_variables_;
+  Component::PtrU constraints_;
+  Component::PtrU costs_;
+  Component::Ptr opt_variables_;
 
   std::vector<VectorXd> x_prev;
 
-  VectorXd ConvertToEigen(const Number* x) const;
+  VectorXd ConvertToEigen(const double* x) const;
 };
 
 } /* namespace xpp */

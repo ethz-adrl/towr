@@ -171,7 +171,7 @@ ContactSchedule::GetObserver (const std::string& id) const
 
 
 
-DurationConstraint::DurationConstraint (const OptVarsPtr& opt_vars,
+DurationConstraint::DurationConstraint (const Composite::Ptr& opt_vars,
                                         double T_total, int ee)
     :Constraint(opt_vars, 1, "DurationConstraint-" + std::to_string(ee))
 {

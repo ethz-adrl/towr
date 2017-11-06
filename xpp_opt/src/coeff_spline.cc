@@ -17,7 +17,7 @@ namespace xpp {
 
 CoeffSpline::CoeffSpline(const std::string& spline_base_id,
                          const VecTimes& poly_durations)
-    :Component(0, spline_base_id) // holds no optimization variables
+    :Variables(0, spline_base_id) // holds no optimization variables
 {
   durations_ = poly_durations;
 }

@@ -23,7 +23,7 @@ namespace xpp {
 
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   double force_limit,
-                                  const OptVarsPtr& opt_vars,
+                                  const Composite::Ptr& opt_vars,
                                   const std::string& ee_force_id,
                                   const std::string& ee_motion_id)
     :Constraint(opt_vars, kSpecifyLater, "Force-Constraint-" + ee_force_id )

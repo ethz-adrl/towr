@@ -12,7 +12,7 @@
  *
  */
 
-#include <cmath>
+#include <xpp_solve/leaves.h>
 #include <xpp_solve/solvers/ipopt_adapter.h>
 
 using namespace xpp;
@@ -23,18 +23,10 @@ class ExVariables : public Variables {
 public:
   ExVariables() : Variables(2, "var_set1")
   {
+    // initial values
     x0_ = 0.0;
     x1_ = 0.0;
-
-    bounds_.resize(GetRows());
-    bounds_.at(0) = NoBound;
-    bounds_.at(1) = NLPBound(-1.0, 1.0);
   }
-
-  virtual VectorXd GetValues() const
-  {
-    return Vector2d(x0_, x1_);
-  };
 
   virtual void SetValues(const VectorXd& x)
   {
@@ -42,29 +34,32 @@ public:
     x1_ = x(1);
   };
 
-private:
-  double x0_;
-  double x1_;
+  virtual VectorXd GetValues() const
+  {
+    return Vector2d(x0_, x1_);
+  };
 
-  VecBound bounds_;
+  VecBound GetBounds() const override
+  {
+    VecBound bounds(GetRows());
+    bounds.at(0) = NoBound;
+    bounds.at(1) = NLPBound(-1.0, 1.0);
+    return bounds;
+  }
+
+private:
+  double x0_, x1_;
 };
 
 
 class ExConstraint : public Constraint {
 public:
-  ExConstraint(const OptVarsPtr& vars)
-      : Constraint(vars, 1, "quadratic_constraint")
-  {
-//    SetName("quadratic_constraint");
-//    AddOptimizationVariables(vars);
-//    int constraint_count = 1; // only one constraint row
-//    SetRows(constraint_count);
-  }
+  ExConstraint(const Composite::Ptr& variables) : Constraint(variables, 1, "constraint1"){}
 
   virtual VectorXd GetValues() const override
   {
     VectorXd g(GetRows());
-    Vector2d x = GetOptVars()->GetComponent("var_set1")->GetValues(); // could be multiple sets
+    Vector2d x = GetVariables()->GetComponent("var_set1")->GetValues();
     g(0) = std::pow(x(0),2) + x(1);
     return g;
   };
@@ -80,10 +75,10 @@ public:
   {
     if (var_set == "var_set1") {
 
-      Vector2d x = GetOptVars()->GetComponent("var_set1")->GetValues();
+      Vector2d x = GetVariables()->GetComponent("var_set1")->GetValues();
 
       jac.coeffRef(0, 0) = 2.0*x(0); // derivative of first constraint w.r.t x0
-      jac.coeffRef(0, 1) = 1.0; // derivative of first constraint w.r.t x1
+      jac.coeffRef(0, 1) = 1.0;      // derivative of first constraint w.r.t x1
     }
   }
 };
@@ -91,17 +86,12 @@ public:
 
 class ExCost: public Cost {
 public:
-  ExCost(const OptVarsPtr& vars) : Cost(vars,  "quadratic_cost")
-  {
-//    SetName("quadratic_cost");
-//    AddOptimizationVariables(vars);
-//    SetRows(1);  // cost always has only 1 row
-  }
+  ExCost(const Composite::Ptr& variables) : Cost(variables,  "cost_term1") {}
 
   virtual VectorXd GetValues() const override
   {
     VectorXd J(GetRows());
-    Vector2d x = GetOptVars()->GetComponent("var_set1")->GetValues();
+    Vector2d x = GetVariables()->GetComponent("var_set1")->GetValues();
 
     J(0) = -std::pow(x(1)-2,2);
     return J;
@@ -111,7 +101,7 @@ public:
   {
     if (var_set == "var_set1") {
 
-      Vector2d x = GetOptVars()->GetComponent("var_set1")->GetValues();
+      Vector2d x = GetVariables()->GetComponent("var_set1")->GetValues();
 
       jac.coeffRef(0, 0) = 0.0;             // derivative of cost w.r.t x0
       jac.coeffRef(0, 1) = -2.0*(x(1)-2.0); // derivative of cost w.r.t x1
@@ -123,26 +113,24 @@ public:
 
 int main()
 {
-  auto variables  = std::make_shared<Composite>("all_variables", false);
+  auto variables = std::make_shared<Composite>("all_variables", false);
   variables->AddComponent(std::make_shared<ExVariables>());
 
-  std::unique_ptr<ExConstraint> constraint(new ExConstraint(variables));
-  std::unique_ptr<ExCost> cost(new ExCost(variables));
+  auto constraints = std::make_unique<Composite>("all_constraints", false);
+  constraints->AddComponent(std::make_shared<ExConstraint>(variables));
 
+  auto costs = std::make_unique<Composite>("all_costs", true);
+  costs->AddComponent(std::make_shared<ExCost>(variables));
 
   NLP nlp;
-  nlp.Init(variables);
-  nlp.AddConstraint(std::move(constraint));
-  nlp.AddCost(std::move(cost));
-
-//  variables->Print();
-//  nlp.PrintCurrent();
+  nlp.SetVariables(variables);
+  nlp.SetConstraints(std::move(constraints));
+  nlp.SetCosts(std::move(costs));
 
   IpoptAdapter::Solve(nlp);
 
   nlp.PrintCurrent();
-//  variables->Print();
 
-  VectorXd x = variables->GetValues();
+  std::cout << "\n\nx: " << variables->GetValues().transpose() << std::endl;;
 }
 

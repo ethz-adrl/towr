@@ -8,10 +8,7 @@
 #ifndef XPP_OPT_INCLUDE_XPP_OPT_LINEAR_CONSTRAINT_H_
 #define XPP_OPT_INCLUDE_XPP_OPT_LINEAR_CONSTRAINT_H_
 
-#include <string>
-
-#include "composite.h"
-#include "nlp_bound.h"
+#include "leaves.h"
 
 namespace xpp {
 
@@ -29,7 +26,7 @@ public:
     * @param linear_equation The matrix M and vector v.
     * @param variable_name   The name of the variables x.
     */
-  LinearEqualityConstraint (const OptVarsPtr& opt_vars_,
+  LinearEqualityConstraint (const Composite::Ptr& variables,
                             const Eigen::MatrixXd& M,
                             const Eigen::VectorXd& v,
                             const std::string& variable_name);

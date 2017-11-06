@@ -240,7 +240,7 @@ CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
 
 
 PolynomialVars::PolynomialVars (const std::string& id, const Polynomial::Ptr& poly)
-    : Component(-1, id)
+    : Variables(-1, id)
 {
   polynomial_ = poly;
   SetRows(polynomial_->GetCoeffCount());

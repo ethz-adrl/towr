@@ -31,8 +31,8 @@ namespace xpp {
 class MotionOptimizerFacade {
 public:
   using MotionParametersPtr      = std::shared_ptr<OptimizationParameters>;
-  using OptimizationVariablesPtr = NLP::OptimizationVariablesPtr;
-  using VariablesCompPtr         = std::shared_ptr<Composite>;
+//  using OptimizationVariablesPtr = NLP::OptimizationVariablesPtr;
+  using VariablesCompPtr         = Composite::Ptr;
   using RobotStateVec            = std::vector<RobotStateCartesian>;
 
   MotionOptimizerFacade ();
@@ -40,7 +40,7 @@ public:
 
   void SetInitialState(const RobotStateCartesian&);
 
-  enum NLP::NlpSolver nlp_solver_;
+  enum NlpSolver { Ipopt, Snopt } nlp_solver_;
   void SolveProblem();
   std::vector<RobotStateVec> GetIntermediateSolutions(double dt) const;
   RobotStateVec GetTrajectory(double dt) const;

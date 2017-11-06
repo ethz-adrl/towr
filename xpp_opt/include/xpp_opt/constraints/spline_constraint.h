@@ -33,7 +33,7 @@ public:
   using SplineT        = std::shared_ptr<Spline>;
   using Dimensions     = std::vector<Coords3D>;
 
-  SplineStateConstraint (const OptVarsPtr& opt_vars,
+  SplineStateConstraint (const Composite::Ptr& opt_vars,
                          const std::string& id,
                          double t_global,
                          const StateLinXd& state,
@@ -62,7 +62,7 @@ public:
   using VecTimes      = std::vector<double>;
   using SplineT       = std::shared_ptr<CoeffSpline>;
 
-  SplineJunctionConstraint (const OptVarsPtr& opt_vars,
+  SplineJunctionConstraint (const Composite::Ptr& opt_vars,
                             const std::string& spline_id,
                             const DerivativeVec&);
   virtual ~SplineJunctionConstraint ();

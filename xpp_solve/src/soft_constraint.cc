@@ -7,10 +7,6 @@
 
 #include <xpp_solve/soft_constraint.h>
 
-#include <Eigen/Sparse>
-#include <string>
-
-#include <xpp_solve/nlp_bound.h>
 
 namespace xpp {
 

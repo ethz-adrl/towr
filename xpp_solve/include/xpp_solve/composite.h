@@ -8,31 +8,21 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_COMPOSITE_H_
 
-#include <cassert>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 #include "nlp_bound.h"
 
 namespace xpp {
 
-// make sure all jacobians in code follow same storage order
-using MatrixSXd   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-using Jacobian    = MatrixSXd;
-using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
-using VectorXd    = Eigen::VectorXd;
 
-
-class Component;
-//class Composite;
-//class Leaf;
-
-using Variables  = Component;
-//using Constraint = Leaf;
-//using Cost       = Leaf;
+using Jacobian = Eigen::SparseMatrix<double, Eigen::RowMajor>;
+using VectorXd = Eigen::VectorXd;
+using VecBound = std::vector<NLPBound>;
 
 
 /** @brief Interface representing either costs, constraints or opt variables.
@@ -47,6 +37,9 @@ using Variables  = Component;
  */
 class Component {
 public:
+  using Ptr  = std::shared_ptr<Component>;
+  using PtrU = std::unique_ptr<Component>;
+
   Component(int num_rows, const std::string name);
   virtual ~Component() {};
 
@@ -55,10 +48,15 @@ public:
     * For constraints, each row represents one constraint.
     * For a cost, the vector has dimension 1, is scalar.
     */
-  virtual VectorXd GetValues() const { assert(false); };
+  virtual VectorXd GetValues() const = 0;
+
+  /** @returns For each row an upper and lower bound is given.
+    */
+  virtual VecBound GetBounds() const = 0;
+
 
   // only needed for optimization variables
-  virtual void SetValues(const VectorXd& x) { assert(false); };
+  virtual void SetValues(const VectorXd& x) = 0;
 
   /** @returns Derivatives of each row w.r.t each decision variable.
     *
@@ -66,11 +64,8 @@ public:
     * For a cost only the first row is filled (gradient transpose).
     */
   // not needed for optimization variables
-  virtual Jacobian GetJacobian() const { assert(false); };
+  virtual Jacobian GetJacobian() const = 0;
 
-  /** @returns For each row an upper and lower bound is given.
-    */
-  virtual VecBound GetBounds() const { return VecBound(GetRows(), NoBound); };
 
   /** @returns 1 for cost and >1 for however many constraints or opt-variables.
     */
@@ -80,13 +75,17 @@ public:
   virtual void Print() const;
 
   void SetRows(int num_rows);
+
 protected:
-//  void SetName(const std::string&);
 
 private:
   int num_rows_ = 0;
   std::string name_;
 };
+
+
+
+
 
 
 /** @brief A collection of components that forwards every call to these.
@@ -97,36 +96,25 @@ private:
   */
 class Composite : public Component {
 public:
-  using ComponentPtr = std::shared_ptr<Component>;
-  using ComponentVec = std::vector<ComponentPtr>;
+  using Ptr = std::shared_ptr<Composite>;
+  using ComponentVec = std::vector<Component::Ptr>;
 
   /** @brief Determines weather composite represents cost or constraints.
     *
     * Constraints append individual constraint values and jacobian rows
     * below one another, whereas costs are added to the same row (0) to
     * always remain a single row.
-    *
-    * Default (true) represent constraints.
     */
-//  enum Type { Variables, Cost, Constraint };
   Composite(const std::string name, bool is_cost);
   virtual ~Composite() {};
 
-  ComponentPtr GetComponent(std::string name) const;
-
-  template<typename T>
-  std::shared_ptr<T> GetComponent(const std::string& name) const
-  {
-    ComponentPtr c = GetComponent(name);
-    return std::dynamic_pointer_cast<T>(c);
-  }
-
+  Component::Ptr GetComponent(std::string name) const;
+  template<typename T> std::shared_ptr<T> GetComponent(const std::string& name) const;
 
   /** @brief Adds a component to this composite.
    */
-  void AddComponent (const ComponentPtr&);
+  void AddComponent (const Component::Ptr&);
   void ClearComponents();
-//  ComponentVec GetComponents() const;
 
   VectorXd GetValues   () const override;
   Jacobian GetJacobian () const override;
@@ -138,75 +126,23 @@ public:
   ComponentVec GetNonzeroComponents() const;
 
 private:
-//  int GetComponentCount() const;
   bool is_cost_;
   ComponentVec components_;
-
-
-
-
-//  ComponentVec components_fixed_; // these are not optimized over
 
   // either deep copy or shallow copy of components_ must be chosen
   Composite(const Composite& that) = delete;
 };
 
 
-/** @brief An specific constraint implementing the above interface.
-  *
-  * Classes that derive from this represent the actual "meat".
-  * But somehow also just a Composite of OptimizationVariables.
-  */
 
+// implementation of template functions
+template<typename T>
+std::shared_ptr<T> Composite::GetComponent(const std::string& name) const
+{
+  Component::Ptr c = GetComponent(name);
+  return std::dynamic_pointer_cast<T>(c);
+}
 
-class Constraint : public Component {
-public:
-  using OptVarsPtr = std::shared_ptr<Composite>;
-
-  Constraint(const OptVarsPtr&,
-       int row_count,
-       const std::string& name);
-
-  virtual ~Constraint() {};
-
-  Jacobian GetJacobian() const override;
-
-
-//  void LinkVariables(const OptVarsPtr& vars) {opt_vars_ = vars; };
-
-protected:
-//  void AddOptimizationVariables(const OptVarsPtr&);
-  const OptVarsPtr GetOptVars() const { return opt_vars_; };
-
-private:
-  /** @brief Jacobian of the component with respect to each decision variable set.
-    */
-  virtual void FillJacobianBlock(std::string var_set, Jacobian& jacobian_block) const = 0;
-  OptVarsPtr opt_vars_;
-
-//  std::vector<std::string> vars_sets_; ///< these affect cost/constraint
-};
-
-
-class Cost : public Constraint {
-public:
-  Cost(const OptVarsPtr&, const std::string& name);
-  virtual ~Cost() {};
-};
-
-
-
-
-//class ConstraintCostComposite : Composite {
-//public:
-//  virtual void Init(const std::shared_ptr<Composite>& vars)
-//  {
-//    for (auto& c : components_)
-//      c->LinkVariables(vars);
-//  };
-//};
-
-static const int kSpecifyLater = -1; // not recommended, requires SetRows() call
 
 } /* namespace xpp */
 

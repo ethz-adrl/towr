@@ -37,6 +37,9 @@ public:
   using AngularVel  = Vector3d; ///< expressed in world
   using AngularAcc  = Vector3d; ///< expressed in world
 
+  using MatrixSXd   = Jacobian;
+  using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
+
   AngularStateConverter ();
   AngularStateConverter (const Spline::Ptr&);
   virtual ~AngularStateConverter ();

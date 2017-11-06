@@ -40,7 +40,7 @@ class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
 //  using VecTimes        = std::vector<double>;
 
-  RangeOfMotionBox(const OptVarsPtr& opt_vars,
+  RangeOfMotionBox(const Composite::Ptr& opt_vars,
                    const OptimizationParameters& params,
                    const KinematicModel::Ptr& kinematic_model,
                    const EndeffectorID& ee);

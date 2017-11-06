@@ -7,8 +7,6 @@
 
 #include <xpp_solve/nlp.h>
 
-#include <algorithm>
-#include <Eigen/Sparse>
 
 namespace xpp {
 
@@ -17,7 +15,7 @@ NLP::NLP ()
 }
 
 void
-NLP::Init (const OptimizationVariablesPtr& opt_variables)
+NLP::SetVariables (const Component::Ptr& opt_variables)
 {
   opt_variables_ = opt_variables;
   x_prev.clear();
@@ -42,13 +40,13 @@ NLP::GetStartingValues () const
 }
 
 void
-NLP::SetVariables (const Number* x)
+NLP::SetVariables (const double* x)
 {
   opt_variables_->SetValues(ConvertToEigen(x));
 }
 
 double
-NLP::EvaluateCostFunction (const Number* x)
+NLP::EvaluateCostFunction (const double* x)
 {
   VectorXd g = VectorXd::Zero(1);
   if (HasCostTerms()) {
@@ -59,7 +57,7 @@ NLP::EvaluateCostFunction (const Number* x)
 }
 
 VectorXd
-NLP::EvaluateCostFunctionGradient (const Number* x)
+NLP::EvaluateCostFunctionGradient (const double* x)
 {
   Jacobian jac = Jacobian(1,GetNumberOfOptimizationVariables());
   if (HasCostTerms()) {
@@ -83,7 +81,7 @@ NLP::GetNumberOfConstraints () const
 }
 
 VectorXd
-NLP::EvaluateConstraints (const Number* x)
+NLP::EvaluateConstraints (const double* x)
 {
   SetVariables(x);
   return constraints_->GetValues();
@@ -96,7 +94,7 @@ NLP::HasCostTerms () const
 }
 
 void
-NLP::EvalNonzerosOfJacobian (const Number* x, Number* values)
+NLP::EvalNonzerosOfJacobian (const double* x, double* values)
 {
   SetVariables(x);
   Jacobian jac = GetJacobianOfConstraints();
@@ -112,13 +110,13 @@ NLP::GetJacobianOfConstraints () const
 }
 
 void
-NLP::AddCost (ConstraintPtrU cost)
+NLP::SetCosts (Component::PtrU cost)
 {
   costs_ = std::move(cost);
 }
 
 void
-NLP::AddConstraint (ConstraintPtrU constraint)
+NLP::SetConstraints (Component::PtrU constraint)
 {
   constraints_ = std::move(constraint);
 }
@@ -137,13 +135,13 @@ NLP::SaveCurrent()
   x_prev.push_back(opt_variables_->GetValues());
 }
 
-NLP::OptimizationVariablesPtr
+Component::Ptr
 NLP::GetOptVariables ()
 {
   return GetOptVariables(GetIterationCount()-1);
 }
 
-NLP::OptimizationVariablesPtr
+Component::Ptr
 NLP::GetOptVariables (int iter)
 {
   opt_variables_->SetValues(x_prev.at(iter));
@@ -151,7 +149,7 @@ NLP::GetOptVariables (int iter)
 }
 
 VectorXd
-NLP::ConvertToEigen(const Number* x) const
+NLP::ConvertToEigen(const double* x) const
 {
   return Eigen::Map<const VectorXd>(x,GetNumberOfOptimizationVariables());
 }

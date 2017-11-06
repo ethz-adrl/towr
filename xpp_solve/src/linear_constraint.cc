@@ -11,20 +11,15 @@
 namespace xpp {
 
 LinearEqualityConstraint::LinearEqualityConstraint (
-  const OptVarsPtr& opt_vars,
+  const Composite::Ptr& variables,
   const Eigen::MatrixXd& M,
   const Eigen::VectorXd& v,
   const std::string& variable_name)
-    : Constraint(opt_vars, v.rows(), "LinearEqualityConstraint-" + variable_name)
+    : Constraint(variables, v.rows(), "LinearEqualityConstraint-" + variable_name)
 {
-//  SetName("LinearEqualityConstraint-" + variable_name);
   M_ = M;
   v_ = v;
   variable_name_   = variable_name;
-
-//  int num_constraints = v.rows();
-//  SetRows(num_constraints);
-//  AddOptimizationVariables(opt_vars);
 }
 
 LinearEqualityConstraint::~LinearEqualityConstraint ()
@@ -34,7 +29,7 @@ LinearEqualityConstraint::~LinearEqualityConstraint ()
 VectorXd
 LinearEqualityConstraint::GetValues () const
 {
-  VectorXd x = GetOptVars()->GetComponent(variable_name_)->GetValues();
+  VectorXd x = GetVariables()->GetComponent(variable_name_)->GetValues();
   return M_*x;
 }
 

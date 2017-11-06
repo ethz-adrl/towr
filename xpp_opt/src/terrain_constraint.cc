@@ -22,7 +22,7 @@ namespace xpp {
 
 
 TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
-                                      const OptVarsPtr& opt_vars,
+                                      const Composite::Ptr& opt_vars,
                                       std::string ee_motion)
     :Constraint(opt_vars,
                 kSpecifyLater,

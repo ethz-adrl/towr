@@ -28,7 +28,7 @@ class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using VecTimes        = std::vector<double>;
 
-  DynamicConstraint (const OptVarsPtr& opt_vars,
+  DynamicConstraint (const Composite::Ptr& opt_vars,
                      const DynamicModel::Ptr& m,
                      const std::vector<double>& evaluation_times);
   virtual ~DynamicConstraint ();

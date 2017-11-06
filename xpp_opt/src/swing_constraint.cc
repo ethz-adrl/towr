@@ -21,7 +21,7 @@
 namespace xpp {
 
 
-SwingConstraint::SwingConstraint (const OptVarsPtr& opt_vars, std::string ee_motion)
+SwingConstraint::SwingConstraint (const Composite::Ptr& opt_vars, std::string ee_motion)
     :Constraint(opt_vars, kSpecifyLater, "Swing-Constraint-" + ee_motion)
 {
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion);

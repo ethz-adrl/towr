@@ -7,19 +7,8 @@
 
 #include <xpp_solve/solvers/ipopt_adapter.h>
 
-#include <cassert>
-#include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <sys/types.h>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
 
 namespace xpp {
-
-using VectorXd = Eigen::VectorXd;
 
 IpoptAdapter::IpoptAdapter(NLP& nlp)
 {

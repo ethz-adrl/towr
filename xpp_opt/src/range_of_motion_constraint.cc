@@ -16,7 +16,7 @@
 
 namespace xpp {
 
-RangeOfMotionBox::RangeOfMotionBox (const OptVarsPtr& opt_vars,
+RangeOfMotionBox::RangeOfMotionBox (const Composite::Ptr& opt_vars,
                                     const OptimizationParameters& params,
                                     const KinematicModel::Ptr& kinematic_model,
                                     const EndeffectorID& ee)
@@ -53,7 +53,7 @@ void
 RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
 {
   Vector3d base_W = base_linear_->GetPoint(t).p_;
-  MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
+  AngularStateConverter::MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
   Vector3d pos_ee_B = b_R_w*(ee_motion_->GetPoint(t).p_ - base_W);
 
   g.middleRows(GetRow(k, X), kDim3d) = pos_ee_B;
@@ -75,7 +75,7 @@ void
 RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
                                             std::string var_set) const
 {
-  MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
+  AngularStateConverter::MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
   int row_start = GetRow(k,X);
 
   if (var_set == ee_timings_->GetName()) {

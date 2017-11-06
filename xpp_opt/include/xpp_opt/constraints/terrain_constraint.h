@@ -24,7 +24,7 @@ namespace xpp {
 class TerrainConstraint : public Constraint {
 public:
   TerrainConstraint (const HeightMap::Ptr& terrain,
-                     const OptVarsPtr& opt_vars,
+                     const Composite::Ptr& opt_vars,
                      std::string ee_motion_id);
   virtual ~TerrainConstraint ();
 

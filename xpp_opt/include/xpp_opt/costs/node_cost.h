@@ -23,7 +23,7 @@ class NodeCost : public Cost {
 public:
   using Nodes = std::shared_ptr<NodeValues>;
 
-  NodeCost (const OptVarsPtr&, const std::string& nodes_id);
+  NodeCost (const Composite::Ptr&, const std::string& nodes_id);
   virtual ~NodeCost ();
 
   VectorXd GetValues () const override;

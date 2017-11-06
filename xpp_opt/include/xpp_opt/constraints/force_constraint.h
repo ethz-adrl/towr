@@ -24,7 +24,7 @@ class ForceConstraint : public Constraint {
 public:
   ForceConstraint (const HeightMap::Ptr& terrain,
                    double force_limit_in_normal_direction,
-                   const OptVarsPtr& opt_vars,
+                   const Composite::Ptr& opt_vars,
                    const std::string& ee_force_id,
                    const std::string& ee_motion_id);
   virtual ~ForceConstraint ();
