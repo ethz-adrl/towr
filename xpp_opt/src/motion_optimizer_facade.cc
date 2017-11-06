@@ -94,7 +94,7 @@ MotionOptimizerFacade::SetFinalState (const StateLin3d& lin,
 MotionOptimizerFacade::VariablesCompPtr
 MotionOptimizerFacade::BuildVariables () const
 {
-  auto opt_variables = std::make_shared<Composite>("nlp_variables", true);
+  auto opt_variables = std::make_shared<Composite>("nlp_variables", false);
   opt_variables->ClearComponents();
 
 
@@ -161,12 +161,14 @@ MotionOptimizerFacade::BuildVariables () const
   bool optimize_timings = params_->ConstraintExists(TotalTime);
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
 
-    opt_variables->AddComponent(contact_schedule.at(ee), optimize_timings);
-
     if (optimize_timings) {
       contact_schedule.at(ee)->AddObserver(opt_variables->GetComponent<PhaseNodes>(id::GetEEMotionId(ee)));
       contact_schedule.at(ee)->AddObserver(opt_variables->GetComponent<PhaseNodes>(id::GetEEForceId(ee)));
+    } else {
+      contact_schedule.at(ee)->SetRows(0); // zero rows means no variables to optimize
     }
+
+    opt_variables->AddComponent(contact_schedule.at(ee));
   }
 
 
@@ -190,7 +192,7 @@ MotionOptimizerFacade::SetBaseRepresentationCoeff (VariablesCompPtr& opt_variabl
     coeff_spline_ang->poly_vars_.push_back(var);
   }
   coeff_spline_ang->InitializeVariables(inital_base_.ang.p_, final_base_.ang.p_);
-  opt_variables->AddComponent(coeff_spline_ang, false); // add just for easy access later
+  opt_variables->AddComponent(coeff_spline_ang); // add just for easy access later
 
 
   auto coeff_spline_lin = std::make_shared<CoeffSpline>(id::base_linear, base_spline_timings_);
@@ -201,7 +203,7 @@ MotionOptimizerFacade::SetBaseRepresentationCoeff (VariablesCompPtr& opt_variabl
     coeff_spline_lin->poly_vars_.push_back(var);
   }
   coeff_spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_);
-  opt_variables->AddComponent(coeff_spline_lin, false); // add just for easy access later
+  opt_variables->AddComponent(coeff_spline_lin); // add just for easy access later
 }
 
 void
@@ -277,7 +279,7 @@ MotionOptimizerFacade::BuildCostConstraints(const VariablesCompPtr& opt_variable
   factory.Init(opt_variables, params_, terrain_, model_,
                initial_ee_W_, inital_base_, final_base_);
 
-  auto constraints = std::make_unique<Composite>("constraints", true);
+  auto constraints = std::make_unique<Composite>("constraints", false);
   for (ConstraintName name : params_->GetUsedConstraints())
     constraints->AddComponent(factory.GetConstraint(name));
 
@@ -285,7 +287,7 @@ MotionOptimizerFacade::BuildCostConstraints(const VariablesCompPtr& opt_variable
   nlp.AddConstraint(std::move(constraints));
 
 
-  auto costs = std::make_unique<Composite>("costs", false);
+  auto costs = std::make_unique<Composite>("costs", true);
   for (const auto& pair : params_->GetCostWeights())
     costs->AddComponent(factory.GetCost(pair.first, pair.second));
 

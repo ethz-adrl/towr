@@ -85,7 +85,7 @@ CostConstraintFactory::GetCost(const CostName& name, double weight) const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeStateConstraint () const
 {
-  auto constraints = std::make_shared<Composite>("State Constraints", true);
+  auto constraints = std::make_shared<Composite>("State Constraints", false);
 
 
 
@@ -192,7 +192,7 @@ CostConstraintFactory::MakeDynamicConstraint() const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
-  auto c = std::make_shared<Composite>("Range-of-Motion Constraints", true);
+  auto c = std::make_shared<Composite>("Range-of-Motion Constraints", false);
 
   double T = params->GetTotalTime();
 
@@ -211,7 +211,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeTotalTimeConstraint () const
 {
-  auto c = std::make_shared<Composite>("Range-of-Motion Constraints", true);
+  auto c = std::make_shared<Composite>("Range-of-Motion Constraints", false);
   double T = params->GetTotalTime();
 
   for (auto ee : GetEEIDs()) {
@@ -225,7 +225,7 @@ CostConstraintFactory::MakeTotalTimeConstraint () const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeTerrainConstraint () const
 {
-  auto constraints = std::make_shared<Composite>("Terrain Constraints", true);
+  auto constraints = std::make_shared<Composite>("Terrain Constraints", false);
 
   for (auto ee : GetEEIDs()) {
     auto c = std::make_shared<TerrainConstraint>(terrain_,
@@ -240,7 +240,7 @@ CostConstraintFactory::MakeTerrainConstraint () const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeForceConstraint () const
 {
-  auto constraints = std::make_shared<Composite>("Force Constraints", true);
+  auto constraints = std::make_shared<Composite>("Force Constraints", false);
 
   for (auto ee : GetEEIDs()) {
     auto c = std::make_shared<ForceConstraint>(terrain_,
@@ -257,7 +257,7 @@ CostConstraintFactory::MakeForceConstraint () const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeSwingConstraint () const
 {
-  auto constraints = std::make_shared<Composite>("Swing Constraints", true);
+  auto constraints = std::make_shared<Composite>("Swing Constraints", false);
 
   for (auto ee : GetEEIDs()) {
     auto swing = std::make_shared<SwingConstraint>(opt_vars_,
@@ -272,7 +272,7 @@ CostConstraintFactory::MakeSwingConstraint () const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeForcesCost(double weight) const
 {
-  auto cost = std::make_shared<Composite>("Forces Cost", false);
+  auto cost = std::make_shared<Composite>("Forces Cost", true);
 
   for (auto ee : GetEEIDs()) {
     auto f_cost = std::make_shared<NodeCost>(opt_vars_, id::GetEEForceId(ee));
@@ -286,7 +286,7 @@ CostConstraintFactory::MakeForcesCost(double weight) const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeMotionCost(double weight) const
 {
-  auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", false);
+  auto base_acc_cost = std::make_shared<Composite>("Base Acceleration Costs", true);
 
   VectorXd weight_xyz(kDim3d); weight_xyz << 1.0, 1.0, 1.0;
   base_acc_cost->AddComponent(MakePolynomialCost(id::base_linear, weight_xyz, weight));

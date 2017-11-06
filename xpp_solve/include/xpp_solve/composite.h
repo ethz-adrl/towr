@@ -47,7 +47,7 @@ using Variables  = Component;
  */
 class Component {
 public:
-  Component(int num_rows, const std::string name = "");
+  Component(int num_rows, const std::string name);
   virtual ~Component() {};
 
   /** @returns A vector of values for current cost or constraints.
@@ -79,8 +79,8 @@ public:
 
   virtual void Print() const;
 
-protected:
   void SetRows(int num_rows);
+protected:
 //  void SetName(const std::string&);
 
 private:
@@ -108,7 +108,8 @@ public:
     *
     * Default (true) represent constraints.
     */
-  Composite(const std::string name, bool append_components);
+//  enum Type { Variables, Cost, Constraint };
+  Composite(const std::string name, bool is_cost);
   virtual ~Composite() {};
 
   ComponentPtr GetComponent(std::string name) const;
@@ -122,15 +123,10 @@ public:
 
 
   /** @brief Adds a component to this composite.
-   *
-   * @param use     If false, then the composite will simply hold the pointer to
-   *                this component, but will be ignored it in all operations
-   *                except "GetComponent()".
    */
-  void AddComponent (const ComponentPtr&, bool use=true);
+  void AddComponent (const ComponentPtr&);
   void ClearComponents();
-  ComponentVec GetComponents() const;
-  int GetComponentCount() const;
+//  ComponentVec GetComponents() const;
 
   VectorXd GetValues   () const override;
   Jacobian GetJacobian () const override;
@@ -139,10 +135,17 @@ public:
 
   void Print() const override;
 
+  ComponentVec GetNonzeroComponents() const;
+
 private:
-  bool append_components_;
+//  int GetComponentCount() const;
+  bool is_cost_;
   ComponentVec components_;
-  ComponentVec components_fixed_; // these are not optimized over
+
+
+
+
+//  ComponentVec components_fixed_; // these are not optimized over
 
   // either deep copy or shallow copy of components_ must be chosen
   Composite(const Composite& that) = delete;

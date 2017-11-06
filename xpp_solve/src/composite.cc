@@ -99,25 +99,31 @@ Component::GetName () const
 //  name_ = name;
 //}
 
-Composite::Composite (const std::string name, bool append_components)
+Composite::Composite (const std::string name, bool is_cost)
     :Component(0, name)
 {
-  append_components_ = append_components;
+  is_cost_ = is_cost;
+//  switch (type) {
+//    case Variables:  is_cost_ =  true; break;
+//    case Constraint: is_cost_ =  true; break;
+//    case Cost:       is_cost_ = false; break;
+//    default: assert(false);
+//  }
 }
 
 void
-Composite::AddComponent (const ComponentPtr& c, bool use)
+Composite::AddComponent (const ComponentPtr& c)
 {
-  if (use) {
+//  if (use) {
     components_.push_back(c);
 
-    if (append_components_)
-      SetRows(GetRows()+ c->GetRows());
+    if (is_cost_)
+      SetRows(1);
     else
-      SetRows(1); // composite holds costs
-  }
-  else
-    components_fixed_.push_back(c);
+      SetRows(GetRows()+ c->GetRows());
+//  }
+//  else
+//    components_fixed_.push_back(c);
 }
 
 void
@@ -127,11 +133,11 @@ Composite::ClearComponents ()
   SetRows(0);
 }
 
-Composite::ComponentVec
-Composite::GetComponents () const
-{
-  return components_;
-}
+//Composite::ComponentVec
+//Composite::GetComponents () const
+//{
+//  return components_;
+//}
 
 Composite::ComponentPtr
 Composite::GetComponent (std::string name) const
@@ -140,9 +146,9 @@ Composite::GetComponent (std::string name) const
     if (c->GetName() == name)
       return c;
 
-  for (const auto& c : components_fixed_)
-    if (c->GetName() == name)
-      return c;
+//  for (const auto& c : components_fixed_)
+//    if (c->GetName() == name)
+//      return c;
 
   std::cerr << "component \"" << name << "\" doesn't exist." << std::endl;
   assert(false); // component with name doesn't exist
@@ -154,13 +160,16 @@ Composite::GetValues () const
   VectorXd g_all = VectorXd::Zero(GetRows());
 
   int row = 0;
-  for (const auto& c : components_) {
+  for (const auto& c : GetNonzeroComponents()) {
+
+    int n_rows = c->GetRows();
+//    if (n_rows <= 0 )
+//      continue; // skip component
 
     VectorXd g = c->GetValues();
-    int n_rows = c->GetRows();
     g_all.middleRows(row, n_rows) += g;
 
-    if (append_components_)
+    if (!is_cost_)
       row += n_rows;
   }
   return g_all;
@@ -170,28 +179,34 @@ void
 Composite::SetValues (const VectorXd& x)
 {
   int row = 0;
-  for (auto& c : components_) {
-    int n_var = c->GetRows();
-    c->SetValues(x.middleRows(row,n_var));
-    row += n_var;
+  for (auto& c : GetNonzeroComponents()) {
+    int n_rows = c->GetRows();
+//    if (n_rows <= 0 )
+//      continue; // skip component
+
+    c->SetValues(x.middleRows(row,n_rows));
+    row += n_rows;
   }
 }
 
 Jacobian
 Composite::GetJacobian () const
 {
-  int n_var = components_.front()->GetJacobian().cols();
+  int n_var = GetNonzeroComponents().front()->GetJacobian().cols();
   Jacobian jacobian(GetRows(), n_var);
 
   int row = 0;
-  for (const auto& c : components_) {
+  for (const auto& c : GetNonzeroComponents()) {
+
+//    if (c->GetRows() <= 0 )
+//      continue; // skip component
 
     const Jacobian& jac = c->GetJacobian();
     for (int k=0; k<jac.outerSize(); ++k)
       for (Jacobian::InnerIterator it(jac,k); it; ++it)
         jacobian.coeffRef(row+it.row(), it.col()) += it.value();
 
-    if (append_components_)
+    if (!is_cost_)
       row += c->GetRows();
   }
 
@@ -202,7 +217,7 @@ VecBound
 Composite::GetBounds () const
 {
   VecBound bounds_;
-  for (const auto& c : components_) {
+  for (const auto& c : GetNonzeroComponents()) {
     VecBound b = c->GetBounds();
     bounds_.insert(bounds_.end(), b.begin(), b.end());
   }
@@ -210,11 +225,22 @@ Composite::GetBounds () const
   return bounds_;
 }
 
-int
-Composite::GetComponentCount () const
+Composite::ComponentVec
+Composite::GetNonzeroComponents() const
 {
-  return components_.size();
+  ComponentVec components;
+  for (const auto& c : components_)
+    if (c->GetRows() != 0 )
+      components.push_back(c);
+
+  return components;
 }
+
+//int
+//Composite::GetComponentCount () const
+//{
+//  return components_.size();
+//}
 
 void
 Composite::Print () const
@@ -222,9 +248,8 @@ Composite::Print () const
   if (GetName()=="nlp_variables" || GetName()=="constraints")
     print_counter = 0;
 
-
   std::cout << GetName() << ":\n";
-  for (auto c : components_) {
+  for (auto c : GetNonzeroComponents()) {
     std::cout << "   "; // indent components
     c->Print();
   }
@@ -254,7 +279,7 @@ Constraint::GetJacobian () const
   Jacobian jacobian(GetRows(), opt_vars_->GetRows());
 
   int col = 0;
-  for (const auto& vars : opt_vars_->GetComponents()) {
+  for (const auto& vars : opt_vars_->GetNonzeroComponents()) {
 
     int n = vars->GetRows();
     Jacobian jac = Jacobian(GetRows(), n);

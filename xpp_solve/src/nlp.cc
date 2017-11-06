@@ -126,7 +126,8 @@ NLP::AddConstraint (ConstraintPtrU constraint)
 void
 NLP::PrintCurrent() const
 {
-//  opt_variables_->Print();
+  opt_variables_->Print();
+  costs_->Print();
   constraints_->Print();
 };
 

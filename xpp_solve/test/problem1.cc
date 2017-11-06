@@ -121,9 +121,9 @@ public:
 
 
 
-int main(int argc, char *argv[])
+int main()
 {
-  auto variables  = std::make_shared<Composite>("all_variables", true);
+  auto variables  = std::make_shared<Composite>("all_variables", false);
   variables->AddComponent(std::make_shared<ExVariables>());
 
   std::unique_ptr<ExConstraint> constraint(new ExConstraint(variables));
@@ -135,16 +135,14 @@ int main(int argc, char *argv[])
   nlp.AddConstraint(std::move(constraint));
   nlp.AddCost(std::move(cost));
 
-  variables->Print();
-  nlp.PrintCurrent();
+//  variables->Print();
+//  nlp.PrintCurrent();
 
   IpoptAdapter::Solve(nlp);
 
   nlp.PrintCurrent();
-  variables->Print();
+//  variables->Print();
 
   VectorXd x = variables->GetValues();
-
-  return 1;
 }
 
