@@ -5,8 +5,8 @@
   <description>
     Provides a unified <a href="http://eigen.tuxfamily.org">Eigen-</a>based 
     interface to use Nonlinear Programming solvers such as 
-    <a href="https://projects.coin-or.org/Ipopt">Ipopt-</a> or
-    <a href="http://ampl.com/products/solvers/solvers-we-sell/snopt/">Snopt-</a>.
+    <a href="https://projects.coin-or.org/Ipopt">Ipopt</a> or
+    <a href="http://ampl.com/products/solvers/solvers-we-sell/snopt/">Snopt</a>.
   </description>
 
   <author email="winklera@ethz.ch">Alexander W. Winkler</author>
