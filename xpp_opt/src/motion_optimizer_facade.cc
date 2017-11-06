@@ -66,7 +66,6 @@ MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& curr_state)
 //  motion_optimizer_.inital_base_.lin.v_.setZero();
 //  motion_optimizer_.inital_base_.lin.a_.setZero();
 
-  // spring_clean_ better use this at some point
   inital_base_.ang.p_ = GetEulerZYXAngles(curr_state.base_.ang.q);
 
 //  kindr::RotationQuaternionD quat(curr_state.base_.ang.q);

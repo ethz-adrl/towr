@@ -15,6 +15,7 @@ LinearEqualityConstraint::LinearEqualityConstraint (
     const Eigen::MatrixXd& M,
     const Eigen::VectorXd& v,
     const std::string& variable_name)
+    : Constraint(opt_vars)
 {
   SetName("LinearEqualityConstraint-" + variable_name);
   M_ = M;
@@ -23,7 +24,7 @@ LinearEqualityConstraint::LinearEqualityConstraint (
 
   int num_constraints = v.rows();
   SetRows(num_constraints);
-  AddOptimizationVariables(opt_vars);
+//  AddOptimizationVariables(opt_vars);
 }
 
 LinearEqualityConstraint::~LinearEqualityConstraint ()

@@ -15,6 +15,7 @@ namespace xpp {
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
                                                             const OptVarsPtr& opt_vars)
+    :Constraint(opt_vars)
 {
   double t = 0.0;
   dts_ = {t};
@@ -25,12 +26,13 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
   }
 
   dts_.push_back(T); // also ensure constraints at very last node/time.
-  AddOptimizationVariables(opt_vars);
+//  AddOptimizationVariables(opt_vars);
 }
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (const OptVarsPtr& opt_vars)
+   :Constraint(opt_vars)
 {
-  AddOptimizationVariables(opt_vars);
+//  AddOptimizationVariables(opt_vars);
 }
 
 TimeDiscretizationConstraint::~TimeDiscretizationConstraint ()

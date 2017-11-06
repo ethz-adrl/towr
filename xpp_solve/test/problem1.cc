@@ -52,10 +52,10 @@ private:
 
 class ExConstraint : public Constraint {
 public:
-  ExConstraint(const OptVarsPtr& vars)
+  ExConstraint(const OptVarsPtr& vars) : Constraint(vars)
   {
     SetName("quadratic_constraint");
-    AddOptimizationVariables(vars);
+//    AddOptimizationVariables(vars);
     int constraint_count = 1; // only one constraint row
     SetRows(constraint_count);
   }
@@ -90,10 +90,10 @@ public:
 
 class ExCost: public Cost {
 public:
-  ExCost(const OptVarsPtr& vars)
+  ExCost(const OptVarsPtr& vars) : Constraint(vars)
   {
     SetName("quadratic_cost");
-    AddOptimizationVariables(vars);
+//    AddOptimizationVariables(vars);
     SetRows(1);  // cost always has only 1 row
   }
 

@@ -24,11 +24,13 @@ namespace xpp {
 TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
                                       const OptVarsPtr& opt_vars,
                                       std::string ee_motion)
+    :Constraint(opt_vars)
 {
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion);
+
   terrain_ = terrain;
 
-  AddOptimizationVariables(opt_vars);
+//  AddOptimizationVariables(opt_vars);
 
   // skip first node, b/c already constrained by initial stance
   for (int id=1; id<ee_motion_->GetNodes().size(); ++id)

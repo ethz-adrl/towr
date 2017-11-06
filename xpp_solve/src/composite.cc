@@ -231,18 +231,19 @@ Composite::Print () const
   std::cout << std::endl;
 }
 
-Primitive::Primitive () : Component(-1, "Primitive")
-{
-}
-
-void
-Primitive::AddOptimizationVariables (const OptVarsPtr& vars)
+Leaf::Leaf (const OptVarsPtr& vars) : Component(-1, "Leaf")
 {
   opt_vars_ = vars;
 }
 
+//void
+//Leaf::AddOptimizationVariables (const OptVarsPtr& vars)
+//{
+//  opt_vars_ = vars;
+//}
+
 Jacobian
-Primitive::GetJacobian () const
+Leaf::GetJacobian () const
 {
   Jacobian jacobian(GetRows(), opt_vars_->GetRows());
 

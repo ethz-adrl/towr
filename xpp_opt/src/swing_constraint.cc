@@ -22,10 +22,11 @@ namespace xpp {
 
 
 SwingConstraint::SwingConstraint (const OptVarsPtr& opt_vars, std::string ee_motion)
+    :Constraint(opt_vars)
 {
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion);
 
-  AddOptimizationVariables(opt_vars);
+//  AddOptimizationVariables(opt_vars);
 
   auto nodes = ee_motion_->GetNodes();
   usable_nodes_ = nodes.size() - 1; // because swinging last node has no further node

@@ -26,6 +26,7 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   const OptVarsPtr& opt_vars,
                                   const std::string& ee_force_id,
                                   const std::string& ee_motion_id)
+    :Constraint(opt_vars)
 {
   ee_force_  = opt_vars->GetComponent<EEForceNodes>(ee_force_id);
   ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion_id);
@@ -33,7 +34,7 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
   force_limit_normal_direction_ = force_limit;
   mu_        = terrain->GetFrictionCoeff();
 
-  AddOptimizationVariables(opt_vars);
+//  AddOptimizationVariables(opt_vars);
 
   int constraint_count = 0;
   n_constraints_per_node_ = 1 + 2*kDim2d; // positive normal force + 4 friction pyramid constraints

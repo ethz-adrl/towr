@@ -20,6 +20,7 @@ SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
                                               const StateLinXd& state,
                                               const DerivativeVec& derivatives,
                                               const Dimensions& dimensions)
+    :Constraint(opt_vars)
 {
 
   // print out names correctly
@@ -54,7 +55,7 @@ SplineStateConstraint::SplineStateConstraint (const OptVarsPtr& opt_vars,
   dims_          = dimensions;
 
   int n_constraints = derivatives.size()*dims_.size();
-  AddOptimizationVariables(opt_vars);
+//  AddOptimizationVariables(opt_vars);
   SetRows(n_constraints);
 }
 
@@ -116,6 +117,7 @@ SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
                                                     const std::string& spline_id,
                                                     const DerivativeVec& derivatives
                                                     )
+    : Constraint(opt_vars)
 {
   SetName("SplineJunctionConstraint-" + spline_id);
 
@@ -126,7 +128,7 @@ SplineJunctionConstraint::SplineJunctionConstraint (const OptVarsPtr& opt_vars,
 
   n_junctions_ = spline_->GetPolyCount()-1; // because one less junction than poly's.
   SetRows(derivatives_.size() * n_junctions_ * n_dim_);
-  AddOptimizationVariables(opt_vars);
+//  AddOptimizationVariables(opt_vars);
 }
 
 SplineJunctionConstraint::~SplineJunctionConstraint ()

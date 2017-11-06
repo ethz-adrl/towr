@@ -15,6 +15,7 @@
 namespace xpp {
 
 NodeCost::NodeCost (const OptVarsPtr& opt_vars, const std::string& nodes_id)
+    : Cost(opt_vars)
 {
   SetName("Node Cost");
 
@@ -25,7 +26,7 @@ NodeCost::NodeCost (const OptVarsPtr& opt_vars, const std::string& nodes_id)
   dim_   = Z;
 
   SetRows(1); // because cost
-  AddOptimizationVariables(opt_vars);
+//  AddOptimizationVariables(opt_vars);
 }
 
 VectorXd

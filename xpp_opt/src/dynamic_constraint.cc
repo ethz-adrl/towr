@@ -29,7 +29,6 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
   gravity_ = m->GetGravityAcceleration();
 
 
-  SetName("DynamicConstraint");
   base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
   base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
 
@@ -39,6 +38,7 @@ DynamicConstraint::DynamicConstraint (const OptVarsPtr& opt_vars,
     ee_timings_.push_back(opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
   }
 
+  SetName("DynamicConstraint");
   SetRows(GetNumberOfNodes()*kDim6d);
   converter_ = AngularStateConverter(base_angular_);
 }

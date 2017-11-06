@@ -22,7 +22,7 @@ OptimizationParameters::OptimizationParameters ()
   // 2 also works quite well. Remember that inbetween the nodes, forces
   // could still be violating unilateral and friction constraints by
   // polynomial interpolation
-  force_splines_per_stance_phase_ = 3; // spring_clean_   this makes it a lot bigger
+  force_splines_per_stance_phase_ = 3; // this makes it a lot bigger
 
 
   // range of motion constraint

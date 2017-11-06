@@ -142,21 +142,23 @@ private:
   * Classes that derive from this represent the actual "meat".
   * But somehow also just a Composite of OptimizationVariables.
   */
-class Primitive;
-using Constraint = Primitive;
-using Cost       = Primitive;
+class Leaf;
+using Constraint = Leaf;
+using Cost       = Leaf;
 
-class Primitive : public Component {
+class Leaf : public Component {
 public:
   using OptVarsPtr = std::shared_ptr<Composite>;
 
-  Primitive();
-  virtual ~Primitive() {};
+  Leaf(const OptVarsPtr&);
+  virtual ~Leaf() {};
 
   Jacobian GetJacobian() const override;
 
+//  virtual void LinkMembersToVariables() {};
+
 protected:
-  void AddOptimizationVariables(const OptVarsPtr&);
+//  void AddOptimizationVariables(const OptVarsPtr&);
   const OptVarsPtr GetOptVars() const { return opt_vars_; };
 
 private:

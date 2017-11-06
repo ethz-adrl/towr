@@ -68,10 +68,10 @@ private:
 };
 
 
-
+// spring_clean_ use own file for this
 /** Makes sure all phase durations sum up to final specified motion duration.
  */
-class DurationConstraint : public Primitive {
+class DurationConstraint : public Leaf {
 public:
   using SchedulePtr = std::shared_ptr<ContactSchedule>;
 
