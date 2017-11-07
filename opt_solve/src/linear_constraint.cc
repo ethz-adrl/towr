@@ -24,20 +24,13 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-/**
- @file    a_linear_constraint.cc
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    May 26, 2016
- @brief   Brief description
- */
-
 #include <opt_solve/linear_constraint.h>
-
 
 namespace opt {
 
+
 LinearEqualityConstraint::LinearEqualityConstraint (
-  const Composite::Ptr& variables,
+  const VariablesPtr& variables,
   const Eigen::MatrixXd& M,
   const Eigen::VectorXd& v,
   const std::string& variable_name)
@@ -46,10 +39,6 @@ LinearEqualityConstraint::LinearEqualityConstraint (
   M_ = M;
   v_ = v;
   variable_name_   = variable_name;
-}
-
-LinearEqualityConstraint::~LinearEqualityConstraint ()
-{
 }
 
 LinearEqualityConstraint::VectorXd
@@ -80,6 +69,11 @@ LinearEqualityConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac)
   if (var_set == variable_name_)
     jac = M_.sparseView();
 }
+
+LinearEqualityConstraint::~LinearEqualityConstraint ()
+{
+}
+
 
 } /* namespace opt */
 

@@ -26,8 +26,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /**
  * @file   leaves.h
- * @brief  Declares the classes Variables, Cost and Constraint. For more
- * information see Component.
+ * @brief  Declares the classes Variables, Cost and Constraint.
  */
 
 #ifndef OPT_SOLVE_INCLUDE_OPT_LEAVES_H_
@@ -66,7 +65,9 @@ public:
  * @brief A container holding a set of related constraints.
  *
  * This container holds constraints representing a single concept, e.g.
- * all constraints keeping a foot inside its range of motion.
+ * @c n constraints keeping a foot inside its range of motion. Each of the
+ * @c n rows is given by:
+ * lower_bound < g(x) < upper_bound
  *
  * @sa Component
  */
@@ -75,12 +76,12 @@ public:
   using VariablesPtr = Composite::Ptr;
 
   /**
-   * @brief Creates constraints on the variables @c vars.
-   * @param vars  The variables that are constrained.
+   * @brief Creates constraints on the variables @c x.
+   * @param x  The variables that define the constraint.
    * @param n_constraints  The number of constraints.
    * @param name  What these constraints represent.
    */
-  Constraint(const VariablesPtr& vars, int n_constraints, const std::string& name);
+  Constraint(const VariablesPtr& x, int n_constraints, const std::string& name);
   virtual ~Constraint() {};
 
   /**

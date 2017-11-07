@@ -24,13 +24,6 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-/**
- @file    nlp.cc
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Jul 1, 2016
- @brief   Brief description
- */
-
 #include <opt_solve/problem.h>
 
 
@@ -60,7 +53,7 @@ Problem::GetBoundsOnOptimizationVariables () const
 }
 
 Problem::VectorXd
-Problem::GetStartingValues () const
+Problem::GetVariableValues () const
 {
   return opt_variables_->GetValues();
 }

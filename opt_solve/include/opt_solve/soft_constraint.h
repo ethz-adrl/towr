@@ -24,54 +24,59 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-/**
- @file    cost_adapter.h
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Oct 14, 2016
- @brief   Declares the class SoftConstraint
- */
-
 #ifndef OPT_SOLVE_INCLUDE_OPT_SOFT_CONSTRAINT_H_
 #define OPT_SOLVE_INCLUDE_OPT_SOFT_CONSTRAINT_H_
-
 
 #include "composite.h"
 
 namespace opt {
 
-/** Converts a constraint to a cost by weighing the quadratic violations.
-  *
-  * Let constraint g(x) \in R^m with upper bound b_u and lower bound b_l.
-  * Let g'(x) = g(x) - 0.5(b_u+b_l) = g(x) - b
-  * And it's derivative dg'(x)/dx = J(x).
-  * Define a cost as c(x) = 0.5 * g'^T * W * g', where W = diag(w1,...,wm).
-  * Then the gradient of the cost is defined as:
-  * dc(x)/dx = (g'(x)^T * W * J)^T = J^T * W * (g(x)-b).
-  */
+/**
+ * @brief Converts a constraint to a cost by weighing the quadratic violations.
+ *
+ * Let constraint g(x) \in R^m with upper bound b_u and lower bound b_l.
+ * Let g'(x) = g(x) - 0.5(b_u+b_l) = g(x) - b
+ * And it's derivative dg'(x)/dx = J(x).
+ * Define a cost as c(x) = 0.5 * g'^T * W * g', where W = diag(w1,...,wm).
+ * Then the gradient of the cost is defined as:
+ * dc(x)/dx = (g'(x)^T * W * J)^T = J^T * W * (g(x)-b).
+ */
 class SoftConstraint : public Component {
 public:
   using ConstraintPtr = Component::Ptr;
 
-  SoftConstraint (const ConstraintPtr& constraint, double weight);
+  /**
+   * @brief Creates a soft constraint (=cost) from a hard constraint.
+   * @param constraint  The fully initialized constraint.
+   *
+   * Weights are set to identity, so each constraint violation contributes
+   * equally to the cost.
+   */
+  SoftConstraint (const ConstraintPtr& constraint);
   virtual ~SoftConstraint ();
 
 private:
   ConstraintPtr constraint_;
-  VectorXd weights_; ///< How each constraint violation contributes to cost
-  VectorXd b_;       /// average value of each upper and lower bound
+  VectorXd W_; ///< weights how each constraint violation contributes to the cost.
+  VectorXd b_; /// average value of each upper and lower bound.
 
-  /** c(x) = 0.5 * (g-b)^T * W * (g-b)
-    */
+  /**
+   * @brief The quadratic constraint violation transformed to a cost.
+   *
+   * c(x) = 0.5 * (g-b)^T * W * (g-b)
+   */
   virtual VectorXd GetValues () const override;
 
-  /** dc(x)/dx = J^T * W * (g-b)
-    */
+  /**
+   * @brief The row-vector of derivatives of the cost term.
+   *
+   * dc(x)/dx = J^T * W * (g-b)
+   */
   virtual Jacobian GetJacobian() const override;
 
-  double weight_ = 1.0; ///< the weight relative to other costs
-
-  virtual VecBound GetBounds() const override { return VecBound(GetRows(), NoBound); };
-  virtual void SetVariables(const VectorXd& x) override { assert(false); };
+  // doesn't exist for cost, generated run-time error when used
+  virtual VecBound GetBounds() const override final { return VecBound(GetRows(), NoBound); };
+  virtual void SetVariables(const VectorXd& x) override final { assert(false); };
 };
 
 } /* namespace opt */

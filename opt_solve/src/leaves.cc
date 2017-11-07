@@ -61,6 +61,7 @@ Constraint::GetJacobian () const
 }
 
 
+
 Cost::Cost (const VariablesPtr& variables, const std::string& name)
    :Constraint(variables, 1, name)
 {

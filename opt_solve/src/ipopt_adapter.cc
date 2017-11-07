@@ -137,7 +137,7 @@ bool IpoptAdapter::get_starting_point(Index n, bool init_x, double* x,
 	assert(init_z == false);
 	assert(init_lambda == false);
 
-  VectorXd x_all = nlp_->GetStartingValues();
+  VectorXd x_all = nlp_->GetVariableValues();
   Eigen::Map<VectorXd>(&x[0], x_all.rows()) = x_all;
 
   return true;

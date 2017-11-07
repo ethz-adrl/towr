@@ -53,7 +53,6 @@ public:
   using VectorXd = Problem::VectorXd;
   using Jacobian = Problem::Jacobian;
 
-
 	/** @brief  Creates an IpoptAdapter and solves the NLP.
 	  * @param [in/out]  nlp  The specific problem.
 	  *

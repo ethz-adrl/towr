@@ -24,19 +24,11 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-/**
- @file    cost_adapter.cc
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Oct 14, 2016
- @brief   Defines the class SoftConstraint
- */
-
 #include <opt_solve/soft_constraint.h>
-
 
 namespace opt {
 
-SoftConstraint::SoftConstraint (const ConstraintPtr& constraint, double weight)
+SoftConstraint::SoftConstraint (const ConstraintPtr& constraint)
     :Component(1, "SoftConstraint-" + constraint->GetName())
 {
   constraint_ = constraint;
@@ -50,22 +42,16 @@ SoftConstraint::SoftConstraint (const ConstraintPtr& constraint, double weight)
   }
 
   // treat all constraints equally by default
-  weights_.resize(n_constraints);
-  weights_.setOnes();
-
-  weight_ = weight;
-}
-
-SoftConstraint::~SoftConstraint ()
-{
+  W_.resize(n_constraints);
+  W_.setOnes();
 }
 
 SoftConstraint::VectorXd
 SoftConstraint::GetValues () const
 {
   VectorXd g = constraint_->GetValues();
-  VectorXd cost = 0.5*(g-b_).transpose()*weights_.asDiagonal()*(g-b_);
-  return weight_ * cost;
+  VectorXd cost = 0.5*(g-b_).transpose()*W_.asDiagonal()*(g-b_);
+  return cost;
 }
 
 SoftConstraint::Jacobian
@@ -73,8 +59,12 @@ SoftConstraint::GetJacobian () const
 {
   VectorXd g   = constraint_->GetValues();
   Jacobian jac = constraint_->GetJacobian();
-  VectorXd grad = weight_*jac.transpose()*weights_.asDiagonal()*(g-b_);
+  VectorXd grad = jac.transpose()*W_.asDiagonal()*(g-b_);
   return grad.transpose().sparseView();
+}
+
+SoftConstraint::~SoftConstraint ()
+{
 }
 
 } /* namespace opt */

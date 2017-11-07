@@ -27,7 +27,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**
  * @file   composite.h
  * @brief  Declares the classes Composite and Component used as variables,
- * costs and constraints. For more information see Component.
+ * costs and constraints.
  */
 
 #ifndef OPT_SOLVE_INCLUDE_OPT_COMPOSITE_H_
@@ -45,7 +45,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace opt {
 
 /**
- * @brief Interface representing either Variable, cost or constraint.
+ * @brief Interface representing either Variable, Cost or Constraint.
  *
  * This structure allows a user to define individual and independent variable
  * sets, constraints and costs without having to worry about how to organize
@@ -53,7 +53,7 @@ namespace opt {
  *
  * The high-level idea is that variables, costs and constraints can all be fit
  * into the same interface (Component). For example, each has a "value", which
- * is either the actual value of the variables, the constraint violation or the
+ * is either the actual value of the variables, the constraint value g or the
  * cost. Additionally, a real-world optimization problem usually doesn't just
  * contain one set of variables, but is comprised of @a multiple variable sets,
  * constraints and cost terms (Composite). This representation provides one
@@ -91,7 +91,7 @@ public:
    * @brief  Returns the "values" of whatever this component represents.
    *
    * @li For Variable this represents the actual optimization values.
-   * @li For Constraint this represents the constraint violation.
+   * @li For Constraint this represents the constraint value g.
    * @li For Cost this represents the cost value.
    */
   virtual VectorXd GetValues() const = 0;

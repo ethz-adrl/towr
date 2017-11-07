@@ -24,13 +24,6 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-/**
- @file    linear_constraint.h
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    May 26, 2016
- @brief   Implements a special form of constraint, namely linear.
- */
-
 #ifndef OPT_SOLVE_INCLUDE_OPT_LINEAR_EQUALITY_CONSTRAINT_H_
 #define OPT_SOLVE_INCLUDE_OPT_LINEAR_EQUALITY_CONSTRAINT_H_
 
@@ -38,34 +31,34 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace opt {
 
-/** @brief Calculates the constraint violations for linear constraints.
-  *
-  * This class is responsible for using the current vector of optimization
-  * variables to calculate the constraint violations.
-  */
+/**
+ * @brief Calculates the constraint violations for linear constraints.
+ */
 class LinearEqualityConstraint : public Constraint {
 public:
+  using MatrixXd = Eigen::MatrixXd;
 
-  /** @brief Defines the elements of the linear constraint as g = Mx+v.
-    *
-    * @param opt_vars_       This is where the vector x is taken from.
-    * @param linear_equation The matrix M and vector v.
-    * @param variable_name   The name of the variables x.
-    */
-  LinearEqualityConstraint (const Composite::Ptr& variables,
-                            const Eigen::MatrixXd& M,
-                            const Eigen::VectorXd& v,
-                            const std::string& variable_name);
+  /**
+   * @brief Defines the elements of the linear constraint as g = Mx+v = 0.
+   *
+   * @param x  The optimization variables x.
+   * @param M  The matrix M defining the slope.
+   * @param v  The vector v defining the constanct offset.
+   * @param variable_set  The name of the variables x.
+   */
+  LinearEqualityConstraint (const VariablesPtr& x,
+                            const MatrixXd& M,
+                            const VectorXd& v,
+                            const std::string& variable_set);
   virtual ~LinearEqualityConstraint ();
 
-  /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
-  VectorXd GetValues() const override;
-  VecBound GetBounds() const override;
-  void FillJacobianBlock (std::string var_set, Jacobian&) const override;
+  VectorXd GetValues() const override final;
+  VecBound GetBounds() const override final;
+  void FillJacobianBlock (std::string var_set, Jacobian&) const override final;
 
 private:
-  Eigen::MatrixXd M_;
-  Eigen::VectorXd v_;
+  MatrixXd M_;
+  VectorXd v_;
   std::string variable_name_;
 };
 

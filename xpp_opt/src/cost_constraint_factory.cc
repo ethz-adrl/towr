@@ -322,7 +322,7 @@ CostConstraintFactory::MakePolynomialCost (const std::string& poly_id,
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::ToCost (const ComponentPtr& constraint, double weight) const
 {
-  return std::make_shared<SoftConstraint>(constraint, weight);
+  return std::make_shared<SoftConstraint>(constraint);
 }
 
 } /* namespace xpp */

@@ -24,15 +24,7 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-/**
- @file    snopt_adapter.cc
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Jul 4, 2016
- @brief   Defines the SnoptAdapter class
- */
-
 #include <opt_solve/solvers/snopt_adapter.h>
-
 
 namespace opt {
 
@@ -55,8 +47,7 @@ SnoptAdapter::Solve (Problem& ref)
 
   if (EXIT != 0) {
     std::string msg = "Snopt failed to find a solution. EXIT:" + std::to_string(EXIT) + ", INFO:" + std::to_string(INFO);
-    std::cerr << msg;
-//    throw std::runtime_error(msg);
+    throw std::runtime_error(msg);
   }
 
    snopt.SetVariables();
@@ -137,7 +128,7 @@ SnoptAdapter::Init ()
   }
 
   // initial values of the optimization
-  VectorXd x_all = nlp_->GetStartingValues();
+  VectorXd x_all = nlp_->GetVariableValues();
   Eigen::Map<VectorXd>(&x[0], x_all.rows()) = x_all;
 
   ObjRow  = nlp_->HasCostTerms()? 0 : -1; // the row in user function that corresponds to the objective function
