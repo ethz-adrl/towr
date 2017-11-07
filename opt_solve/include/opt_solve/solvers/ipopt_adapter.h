@@ -24,13 +24,6 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-/**
- @file    ipopt_adapter.h
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Jan 10, 2016
- @brief   Defines the Adapter class to interact with the Ipopt Library.
- */
-
 #ifndef OPT_SOLVE_INCLUDE_OPT_IPOPT_ADAPTER_H_
 #define OPT_SOLVE_INCLUDE_OPT_IPOPT_ADAPTER_H_
 
@@ -38,32 +31,62 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <IpIpoptApplication.hpp>
 #include <IpSolveStatistics.hpp>
 
-#include <opt_solve/nlp.h>
+#include <opt_solve/problem.h>
 
 namespace opt {
 
-/** @brief Converts the NLP defined in the XPP to the IPOPT interface.
-  *
-  * https://projects.coin-or.org/Ipopt
-  *
-  * This implements the Adapter pattern. This class should not add any functionality,
-  * but merely delegate it to the Adaptee (the nlp class).
-  */
+/**
+ * @brief Converts an optimization problem into an IPOPT interface.
+ *
+ * @ingroup solvers
+ *
+ * Given an optimization Problem with variables, costs and constraints, this
+ * class wraps it and makes it conform with the interface defined by IPOPT
+ * https://projects.coin-or.org/Ipopt
+ *
+ * This implements the Adapter pattern. This class should not add any
+ * functionality, but merely delegate it to the Adaptee (the Problem object).
+ */
 class IpoptAdapter : public Ipopt::TNLP {
 public:
   using Index    = Ipopt::Index;
-  using Number   = Ipopt::Number;
-  using VectorXd = NLP::VectorXd;
-  using Jacobian = NLP::Jacobian;
+  using VectorXd = Problem::VectorXd;
+  using Jacobian = Problem::Jacobian;
 
-	/** @brief Builds an Ipopt NLP and solves it.
-	  * @param[in/out] nlp the nonlinear program to be modified.
+
+	/** @brief  Creates an IpoptAdapter and solves the NLP.
+	  * @param [in/out]  nlp  The specific problem.
+	  *
+	  * This function creates the actual solver, sets the solver specific
+	  * options (see SetOptions()) and passes the IpoptAdapter problem to it
+	  * to be modified.
 	  */
-	static void Solve(NLP& nlp);
-
+	static void Solve(Problem& nlp);
 
 private:
-	IpoptAdapter(NLP& nlp);
+  /**
+   * @brief  Defines settings for the Ipopt solver @a app.
+   * @param app  The actual Ipopt solver.
+   *
+   * These settings include which QP solver to use, if gradients should
+   * be approximated or the provided analytical ones used, when the iterations
+   * should be terminated,...
+   *
+   * A complete list of options can be found at:
+   * https://www.coin-or.org/Ipopt/documentation/node40.html
+   */
+  static void SetOptions(Ipopt::SmartPtr<Ipopt::IpoptApplication> app);
+
+  Problem* nlp_; ///< The solver independent problem definition
+
+private:
+  /**
+   * @brief  Creates an IpoptAdapter wrapping the @a nlp.
+   * @param  nlp  The specific nonlinear programming problem.
+   *
+   * This constructor holds and modifies the passed nlp.
+   */
+	IpoptAdapter(Problem& nlp);
   virtual ~IpoptAdapter();
 
   /** Method to return some info about the nlp */
@@ -71,40 +94,40 @@ private:
                             Index& nnz_h_lag, IndexStyleEnum& index_style);
 
   /** Method to return the bounds for my problem */
-  virtual bool get_bounds_info(Index n, Number* x_l, Number* x_u,
-                               Index m, Number* g_l, Number* g_u);
+  virtual bool get_bounds_info(Index n, double* x_l, double* x_u,
+                               Index m, double* g_l, double* g_u);
 
   /** Method to return the starting point for the algorithm */
-  virtual bool get_starting_point(Index n, bool init_x, Number* x,
-                                  bool init_z, Number* z_L, Number* z_U,
+  virtual bool get_starting_point(Index n, bool init_x, double* x,
+                                  bool init_z, double* z_L, double* z_U,
                                   Index m, bool init_lambda,
-                                  Number* lambda);
+                                  double* lambda);
 
   /** Method to return the objective value */
-  virtual bool eval_f(Index n, const Number* x, bool new_x, Number& obj_value);
+  virtual bool eval_f(Index n, const double* x, bool new_x, double& obj_value);
 
   /** Method to return the gradient of the objective */
-  virtual bool eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f);
+  virtual bool eval_grad_f(Index n, const double* x, bool new_x, double* grad_f);
 
   /** Method to return the constraint residuals */
-  virtual bool eval_g(Index n, const Number* x, bool new_x, Index m, Number* g);
+  virtual bool eval_g(Index n, const double* x, bool new_x, Index m, double* g);
 
   /** Method to return:
    *   1) The structure of the jacobian (if "values" is NULL)
    *   2) The values of the jacobian (if "values" is not NULL)
    */
-  virtual bool eval_jac_g(Index n, const Number* x, bool new_x,
+  virtual bool eval_jac_g(Index n, const double* x, bool new_x,
                           Index m, Index nele_jac, Index* iRow, Index *jCol,
-                          Number* values);
+                          double* values);
 
-
-
+  /** This is called after every iteration and is used to save intermediate
+    *  solutions in the nlp */
   virtual bool intermediate_callback(Ipopt::AlgorithmMode mode,
-                                     Index iter, Number obj_value,
-                                     Number inf_pr, Number inf_du,
-                                     Number mu, Number d_norm,
-                                     Number regularization_size,
-                                     Number alpha_du, Number alpha_pr,
+                                     Index iter, double obj_value,
+                                     double inf_pr, double inf_du,
+                                     double mu, double d_norm,
+                                     double regularization_size,
+                                     double alpha_du, double alpha_pr,
                                      Index ls_trials,
                                      const Ipopt::IpoptData* ip_data,
                                      Ipopt::IpoptCalculatedQuantities* ip_cq);
@@ -112,15 +135,11 @@ private:
   /** This method is called when the algorithm is complete so the TNLP can
     * store/write the solution */
   virtual void finalize_solution(Ipopt::SolverReturn status,
-                                 Index n, const Number* x, const Number* z_L, const Number* z_U,
-                                 Index m, const Number* g, const Number* lambda,
-                                 Number obj_value,
+                                 Index n, const double* x, const double* z_L, const double* z_U,
+                                 Index m, const double* g, const double* lambda,
+                                 double obj_value,
                                  const Ipopt::IpoptData* ip_data,
                                  Ipopt::IpoptCalculatedQuantities* ip_cq);
-
-private:
-  NLP* nlp_;
-  static void SetOptions(Ipopt::SmartPtr<Ipopt::IpoptApplication> app);
 };
 
 } // namespace opt

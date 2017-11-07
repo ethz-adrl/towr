@@ -26,7 +26,7 @@ public:
   NodeCost (const VariablesPtr&, const std::string& nodes_id);
   virtual ~NodeCost ();
 
-  VectorXd GetValues () const override;
+  double GetCost () const override;
 
 private:
   void FillJacobianBlock(std::string var_set, Jacobian&) const override;

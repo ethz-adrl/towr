@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-#include <opt_solve/nlp.h>
+#include <opt_solve/problem.h>
 
 #include <xpp_opt/height_map.h>
 #include <xpp_opt/models/robot_model.h>
@@ -76,7 +76,7 @@ private:
   void SetBaseRepresentationCoeff(VariablesCompPtr&) const;
   void SetBaseRepresentationHermite(VariablesCompPtr&) const;
 
-  mutable opt::NLP nlp;
+  mutable opt::Problem nlp;
 };
 
 } /* namespace xpp */

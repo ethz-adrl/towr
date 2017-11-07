@@ -45,16 +45,16 @@ using namespace opt;
 using Eigen::Vector2d;
 
 
-class ExVariables : public Variables {
+class ExVariables : public Variable {
 public:
-  ExVariables() : Variables(2, "var_set1")
+  ExVariables() : Variable(2, "var_set1")
   {
     // initial values
     x0_ = 0.0;
     x1_ = 0.0;
   }
 
-  virtual void SetValues(const VectorXd& x)
+  virtual void SetVariables(const VectorXd& x)
   {
     x0_ = x(0);
     x1_ = x(1);
@@ -114,13 +114,10 @@ class ExCost: public Cost {
 public:
   ExCost(const Composite::Ptr& variables) : Cost(variables,  "cost_term1") {}
 
-  virtual VectorXd GetValues() const override
+  virtual double GetCost() const override
   {
-    VectorXd J(GetRows());
     Vector2d x = GetVariables()->GetComponent("var_set1")->GetValues();
-
-    J(0) = -std::pow(x(1)-2,2);
-    return J;
+    return -std::pow(x(1)-2,2);
   };
 
   void FillJacobianBlock (std::string var_set, Jacobian& jac) const override
@@ -148,7 +145,7 @@ int main()
   auto costs = std::make_unique<Composite>("all_costs", true);
   costs->AddComponent(std::make_shared<ExCost>(variables));
 
-  NLP nlp;
+  Problem nlp;
   nlp.SetVariables(variables);
   nlp.SetConstraints(std::move(constraints));
   nlp.SetCosts(std::move(costs));

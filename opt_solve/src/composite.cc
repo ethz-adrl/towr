@@ -24,20 +24,11 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-/**
- @file    composite.h
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    May 30, 2016
- @brief   Abstract class representing a constraint for the NLP problem.
- */
-
 #include <opt_solve/composite.h>
 
 #include <iostream>
 
 namespace opt {
-
-static int print_counter = 0;
 
 Component::Component (int num_rows, const std::string name)
 {
@@ -63,9 +54,7 @@ Component::GetName () const
   return name_;
 }
 
-
-Composite::Composite (const std::string name, bool is_cost)
-    :Component(0, name)
+Composite::Composite (const std::string name, bool is_cost) :Component(0, name)
 {
   is_cost_ = is_cost;
 }
@@ -88,7 +77,7 @@ Composite::ClearComponents ()
   SetRows(0);
 }
 
-Component::Ptr
+const Component::Ptr
 Composite::GetComponent (std::string name) const
 {
   for (const auto& c : components_)
@@ -117,13 +106,13 @@ Composite::GetValues () const
 }
 
 void
-Composite::SetValues (const VectorXd& x)
+Composite::SetVariables (const VectorXd& x)
 {
   int row = 0;
   for (auto& c : GetNonzeroComponents()) {
 
     int n_rows = c->GetRows();
-    c->SetValues(x.middleRows(row,n_rows));
+    c->SetVariables(x.middleRows(row,n_rows));
     row += n_rows;
   }
 }
@@ -172,9 +161,11 @@ Composite::GetNonzeroComponents() const
   return components;
 }
 
+
 // some printouts for convenience
-void
-Component::Print () const
+static int print_counter = 0;
+
+void Component::Print () const
 {
   int print_rows = 3;
   std::string end_string = ", ...";
@@ -227,12 +218,11 @@ Component::Print () const
   std::cout << end_string << std::endl;
 }
 
-
 void
 Composite::Print () const
 {
-  if (GetName()=="nlp_variables" || GetName()=="constraints")
-    print_counter = 0;
+//  if (GetName()=="nlp_variables" || GetName()=="constraints")
+  print_counter = 0;
 
   std::cout << GetName() << ":\n";
   for (auto c : GetNonzeroComponents()) {
@@ -242,7 +232,4 @@ Composite::Print () const
   std::cout << std::endl;
 }
 
-
-
 } /* namespace opt */
-

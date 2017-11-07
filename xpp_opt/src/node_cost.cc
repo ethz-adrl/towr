@@ -29,16 +29,16 @@ NodeCost::NodeCost (const VariablesPtr& opt_vars, const std::string& nodes_id)
 //  AddOptimizationVariables(opt_vars);
 }
 
-VectorXd
-NodeCost::GetValues () const
+double
+NodeCost::GetCost () const
 {
-  VectorXd f = VectorXd::Zero(1);
+  double cost;
   for (auto n : nodes_->GetNodes()) {
     double val = n.at(deriv_)(dim_);
-    f(0) += std::pow(val,2);
+    cost += std::pow(val,2);
   }
 
-  return f;
+  return cost;
 }
 
 void

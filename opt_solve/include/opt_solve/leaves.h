@@ -25,10 +25,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 /**
- @file    leafs.h
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Nov 6, 2017
- @brief   Brief description
+ * @file   leaves.h
+ * @brief  Declares the classes Variables, Cost and Constraint. For more
+ * information see Component.
  */
 
 #ifndef OPT_SOLVE_INCLUDE_OPT_LEAVES_H_
@@ -36,69 +35,129 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "composite.h"
 
+
 namespace opt {
 
-/** @brief An specific constraint implementing the above interface.
-  *
-  * Classes that derive from this represent the actual "meat".
-  * But somehow also just a Composite of OptimizationVariables.
-  */
-class Constraint : public Component {
+/**
+ * @brief  A container holding a set of related optimization variables.
+ *
+ * This is a single set of variables representing a single concept, e.g
+ * "spline coefficients" or "step durations".
+ *
+ * @sa Component
+ */
+class Variable : public Component {
 public:
-  using VariablesPtr = Composite::Ptr;
+  /**
+   * @brief Creates a set of variables representing a single concept.
+   * @param n_var  Number of variables.
+   * @param name   What the variables represent to (e.g. "spline coefficients").
+   */
+  Variable(int n_var, const std::string name) : Component(n_var, name) {};
+  virtual ~Variable() {};
 
-  Constraint(const VariablesPtr& variables, int row_count, const std::string& name);
-  virtual ~Constraint() {};
-
-  Jacobian GetJacobian() const override;
-
-
-protected:
-  const VariablesPtr GetVariables() const { return variables_; };
-
-private:
-  /** @brief Jacobian of the component with respect to each decision variable set.
-    */
-  virtual void FillJacobianBlock(std::string var_set, Jacobian& jacobian_block) const = 0;
-  VariablesPtr variables_;
-
-  // not neccessary for constraints or costs
-  virtual void SetValues(const VectorXd& x) override { assert(false); };
+  // doesn't exist for variables, generated run-time error when used.
+  virtual Jacobian GetJacobian() const override final { assert(false); };
 };
 
 
 
+/**
+ * @brief A container holding a set of related constraints.
+ *
+ * This container holds constraints representing a single concept, e.g.
+ * all constraints keeping a foot inside its range of motion.
+ *
+ * @sa Component
+ */
+class Constraint : public Component {
+public:
+  using VariablesPtr = Composite::Ptr;
 
+  /**
+   * @brief Creates constraints on the variables @c vars.
+   * @param vars  The variables that are constrained.
+   * @param n_constraints  The number of constraints.
+   * @param name  What these constraints represent.
+   */
+  Constraint(const VariablesPtr& vars, int n_constraints, const std::string& name);
+  virtual ~Constraint() {};
+
+  /**
+   * @brief  The matrix of derivatives for these constraints and variables.
+   *
+   * Assuming @c n constraints and @c m variables, the returned Jacobian
+   * has dimensions n x m. Every row represents the derivatives of a single
+   * constraint, whereas every column refers to a single optimization variable.
+   *
+   * This function only combines the user-defined jacobians from
+   * FillJacobianBlock().
+   */
+  Jacobian GetJacobian() const override final;
+
+protected:
+  /**
+   * @brief Read access to the value of the optimization variables.
+   *
+   * This must be used to formulate the constraint violation and Jacobian.
+   */
+  const VariablesPtr GetVariables() const { return variables_; };
+
+private:
+  /**
+   * @brief Set individual Jacobians corresponding to each decision variable set.
+   * @param var_set  Set of variables the current Jacobian block belongs to.
+   * @param jac_block  Columns of the overall Jacobian affected by var_set.
+   *
+   * A convenience function so the user does not have to worry about the
+   * ordering of variable sets. All that is required is that the user knows
+   * the internal ordering of variables in each individual set and provides
+   * the Jacobian of the constraints w.r.t. this set (starting at column 0).
+   * GetJacobian() then inserts these columns at the correct position in the
+   * overall Jacobian.
+   *
+   * If the constraint doen't depend on a @c var_set, this function should
+   * simply do nothing.
+   */
+  virtual void FillJacobianBlock(std::string var_set, Jacobian& jac_block) const = 0;
+  VariablesPtr variables_;
+
+  // doesn't exist for constraints, generated run-time error when used
+  virtual void SetVariables(const VectorXd& x) override final { assert(false); };
+};
+
+
+
+/**
+ * @brief A container holding a single cost term.
+ *
+ * This container builds a scalar cost term from the values of the variables.
+ * This can be seen as a constraint with only one row and no bounds.
+ *
+ * @sa Component
+ */
 class Cost : public Constraint {
 public:
   Cost(const VariablesPtr& variables, const std::string& name);
   virtual ~Cost() {};
 
-  virtual VecBound GetBounds() const override
-  {
-    return VecBound(GetRows(), NoBound);
-  };
-};
+private:
+  /**
+   * @brief  Returns the scalar cost term calculated from the @c variables.
+   */
+  virtual double GetCost() const = 0;
 
-
-
-
-class Variables : public Component {
 public:
-  Variables(int n_rows, const std::string name) : Component(n_rows, name) {};
-  virtual ~Variables() {};
+  /**
+   * @brief  Wrapper function that converts double to Eigen::VectorXd.
+   */
+  virtual VectorXd GetValues() const override final;
 
-  // doesn't exist for optimization variables
-  virtual Jacobian GetJacobian() const override { assert(false); };
+  /**
+   * @brief  Returns infinite bounds (e.g. no bounds).
+   */
+  virtual VecBound GetBounds() const override final;
 };
-
-
-// use this for placeholder if number of constraints not clear in c'tor.
-// not recommended, requires SetRows() call.
-static const int kSpecifyLater = -1;
-
-
-
 
 } /* namespace opt */
 

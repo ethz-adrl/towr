@@ -25,7 +25,7 @@ NodeValues::NodeValues (int n_dim, int n_polynomials, const std::string& name)
 }
 
 NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::string& name)
-    : Variables(kSpecifyLater, name)
+    : Variable(kSpecifyLater, name)
 {
   n_dim_ = n_dim;
 
@@ -166,7 +166,7 @@ NodeValues::GetValues () const
 }
 
 void
-NodeValues::SetValues (const VectorXd& x)
+NodeValues::SetVariables (const VectorXd& x)
 {
   for (int idx=0; idx<x.rows(); ++idx)
     for (auto info : GetNodeInfo(idx))

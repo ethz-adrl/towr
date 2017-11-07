@@ -24,38 +24,53 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-/**
-@file    snopt_adapter.h
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Jul 4, 2016
- @brief   Declares the SnoptAdapter class
- */
-
 #ifndef OPT_SOLVE_INCLUDE_OPT_SNOPT_ADAPTER_H_
 #define OPT_SOLVE_INCLUDE_OPT_SNOPT_ADAPTER_H_
 
 #include <snoptProblem.hpp>
 
-#include <opt_solve/nlp.h>
+#include <problem.h>
 
 namespace opt {
 
-/** @brief Converts the NLP defined in XPP to the SNOPT interface.
-  *
-  * http://web.stanford.edu/group/SOL/guides/sndoc7.pdf
-  *
-  * This implements the Adapter pattern. This class should not add any functionality,
-  * but merely delegate it to the Adaptee (the NLP class).
-  */
+/**
+ * @brief Converts an optimization problem into a SNOPT interface.
+ *
+ * @ingroup solvers
+ *
+ * Given an optimization Problem with variables, costs and constraints, this
+ * class wraps it and makes it conform with the interface defined by SNOPT
+ * http://web.stanford.edu/group/SOL/guides/sndoc7.pdf
+ *
+ * This implements the Adapter pattern. This class should not add any
+ * functionality, but merely delegate it to the Adaptee (the Problem object).
+ */
 class SnoptAdapter : public snoptProblemA {
 public:
-  using NLPPtr  = NLP*;
+  using NLPPtr  = Problem*;
 
   /** Keeps reference to this NLP and modifies it! */
-  SnoptAdapter (NLP& ref);
+  SnoptAdapter (Problem& nlp);
   virtual ~SnoptAdapter ();
 
-  static void Solve(NLP& ref);
+  /**
+   * @brief Creates a snoptProblemA from @a nlp and solves it.
+   * @param [in/out]  nlp  The specific problem to be used and modified.
+   */
+  static void Solve(Problem& nlp);
+
+private:
+  /**
+   * @brief  Sets solver settings for Snopt.
+   *
+   * These settings include which QP solver to use, if gradients should
+   * be approximated or the provided analytical ones used, when the iterations
+   * should be terminated,...
+   *
+   * A complete list of options can be found at:
+   * https://web.stanford.edu/group/SOL/guides/sndoc7.pdf
+   */
+  static void SetOptions(SnoptAdapter&);
 
 private:
   void Init();
@@ -70,7 +85,6 @@ private:
 
   static NLPPtr nlp_; // use raw pointer as SnoptAdapter doesn't own the nlp.
 
-  static void SetOptions(SnoptAdapter&);
 };
 
 } /* namespace opt */

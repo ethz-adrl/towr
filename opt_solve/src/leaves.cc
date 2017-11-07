@@ -24,17 +24,10 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-/**
- @file    leafs.cc
- @author  Alexander W. Winkler (winklera@ethz.ch)
- @date    Nov 6, 2017
- @brief   Brief description
- */
-
 #include <opt_solve/leaves.h>
 
-namespace opt {
 
+namespace opt {
 
 Constraint::Constraint (const VariablesPtr& variables,
             int row_count,
@@ -72,6 +65,20 @@ Cost::Cost (const VariablesPtr& variables, const std::string& name)
    :Constraint(variables, 1, name)
 {
 }
+
+Cost::VectorXd
+Cost::GetValues() const
+{
+  VectorXd cost(1);
+  cost(0) = GetCost();
+  return cost;
+};
+
+Cost::VecBound
+Cost::GetBounds() const
+{
+  return VecBound(GetRows(), NoBound);
+};
 
 
 } /* namespace opt */

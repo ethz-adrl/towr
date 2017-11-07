@@ -93,7 +93,7 @@ private:
 };
 
 
-class PolynomialVars : public opt::Variables {
+class PolynomialVars : public opt::Variable {
 public:
   using Ptr = std::shared_ptr<PolynomialVars>;
 
@@ -101,7 +101,7 @@ public:
   virtual ~PolynomialVars() {};
 
   VectorXd GetValues () const override;
-  void SetValues (const VectorXd& optimized_coeff) override;
+  void SetVariables (const VectorXd& optimized_coeff) override;
   Jacobian GetJacobian(double t_local, MotionDerivative dxdt) const;
   virtual VecBound GetBounds() const override { return VecBound(GetRows(), opt::NoBound); };
 

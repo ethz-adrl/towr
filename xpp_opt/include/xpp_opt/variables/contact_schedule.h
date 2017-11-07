@@ -19,7 +19,7 @@
 
 namespace xpp {
 
-class ContactSchedule : public opt::Variables {
+class ContactSchedule : public opt::Variable {
 public:
   using Ptr           = std::shared_ptr<ContactSchedule>;
   using VecDurations  = std::vector<double>;
@@ -42,7 +42,7 @@ public:
   void UpdateObservers() const;
 
   virtual VectorXd GetValues() const override;
-  virtual void SetValues(const VectorXd&) override;
+  virtual void SetVariables(const VectorXd&) override;
   VecBound GetBounds () const override;
 
   Jacobian GetJacobianOfPos(double t_global, const std::string& observer_name) const;

@@ -31,8 +31,17 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  @brief   Brief description
  */
 
-#ifndef OPT_SOLVE_INCLUDE_OPT_NLP_H_
-#define OPT_SOLVE_INCLUDE_OPT_NLP_H_
+/** @defgroup solvers NLP solvers
+ *  @brief Interfaces to specific solvers
+ *
+ *  These are specific solvers for which the interface to the Problem class
+ *  has been implemented.
+ *  @{
+ *  @}
+ */
+
+#ifndef OPT_SOLVE_INCLUDE_OPT_PROBLEM_H_
+#define OPT_SOLVE_INCLUDE_OPT_PROBLEM_H_
 
 
 #include "composite.h"
@@ -46,15 +55,15 @@ namespace opt {
   * the cost function, the constraint function, constraint bounds and possibly
   * derivatives.
   */
-class NLP {
+class Problem {
 public:
   using VecBound = Component::VecBound;
   using Jacobian = Component::Jacobian;
   using VectorXd = Component::VectorXd;
 
 
-  NLP ();
-  virtual ~NLP ();
+  Problem ();
+  virtual ~Problem ();
 
   void SetVariables(const Component::Ptr& variables);
   void SetCosts(Component::PtrU);
@@ -104,4 +113,4 @@ private:
 
 } /* namespace opt */
 
-#endif /* OPT_SOLVE_INCLUDE_OPT_NLP_H_ */
+#endif /* OPT_SOLVE_INCLUDE_OPT_PROBLEM_H_ */

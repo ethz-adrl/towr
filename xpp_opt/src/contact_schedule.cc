@@ -29,7 +29,7 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
                                   double min_duration,
                                   double max_duration)
     // -1 since last phase-duration is not optimized over
-    :Variables(timings.size()-1, id::GetEEScheduleId(ee))
+    :Variable(timings.size()-1, id::GetEEScheduleId(ee))
 {
   t_total_   = t_total;
   for (auto d : timings)
@@ -77,7 +77,7 @@ ContactSchedule::GetValues () const
 }
 
 void
-ContactSchedule::SetValues (const VectorXd& x)
+ContactSchedule::SetVariables (const VectorXd& x)
 {
   for (int i=0; i<GetRows(); ++i)
     durations_.at(i) = x(i);

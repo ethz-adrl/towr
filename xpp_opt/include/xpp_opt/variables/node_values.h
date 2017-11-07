@@ -26,7 +26,7 @@ namespace xpp {
 
 /** Holds position and velocity of nodes used to generate a cubic Hermite spline.
  */
-class NodeValues : public opt::Variables, public Spline {
+class NodeValues : public opt::Variable, public Spline {
 public:
   using Ptr      = std::shared_ptr<NodeValues>;
   using Node     = CubicHermitePoly::Node;
@@ -84,7 +84,7 @@ public:
 
 
   VectorXd GetValues () const override;
-  void SetValues (const VectorXd& x) override;
+  void SetVariables (const VectorXd& x) override;
   virtual bool HoldsVarsetThatIsActiveNow(const std::string& poly_vars, double t_global) const override;
   virtual const StateLinXd GetPoint(double t_global) const override;
   virtual Jacobian GetJacobian (double t_global,  MotionDerivative dxdt) const override;

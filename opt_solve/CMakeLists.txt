@@ -71,7 +71,7 @@ include_directories(
 
 # The solver independent part of the library
 add_library(${PROJECT_NAME}
-  src/nlp.cc
+  src/problem.cc
   src/composite.cc
   src/leaves.cc
   src/linear_constraint.cc

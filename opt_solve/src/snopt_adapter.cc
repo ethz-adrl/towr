@@ -40,13 +40,58 @@ SnoptAdapter::NLPPtr SnoptAdapter::nlp_;
 
 using VectorXd = Eigen::VectorXd;
 
-SnoptAdapter::SnoptAdapter (NLP& ref)
+void
+SnoptAdapter::Solve (Problem& ref)
 {
-  nlp_ = &ref;
+  int Cold = 0, Basis = 1, Warm = 2;
+
+  SnoptAdapter snopt(ref);
+  snopt.Init();
+  SetOptions(snopt);
+
+  // error codes as given in the manual.
+  int INFO = snopt.solve(Cold);
+  int EXIT = INFO - INFO%10; // change least significant digit to zero
+
+  if (EXIT != 0) {
+    std::string msg = "Snopt failed to find a solution. EXIT:" + std::to_string(EXIT) + ", INFO:" + std::to_string(INFO);
+    std::cerr << msg;
+//    throw std::runtime_error(msg);
+  }
+
+   snopt.SetVariables();
 }
 
-SnoptAdapter::~SnoptAdapter ()
+void SnoptAdapter::SetOptions(SnoptAdapter& solver)
 {
+  // A complete list of options can be found in the snopt user guide:
+  // https://web.stanford.edu/group/SOL/guides/sndoc7.pdf
+
+  // solver.setSpecsFile( "snopt.spc" ); // to set options in config file
+  solver.setProbName( "snopt" );
+
+  solver.setIntParameter( "Major Print level", 1 );
+  solver.setIntParameter( "Minor print level", 1 );
+  solver.setParameter( "Solution");
+
+  solver.setIntParameter( "Derivative option", 1 ); // 1 = snopt will not calculate missing derivatives
+  solver.setIntParameter( "Verify level ", 3 ); // full check on gradients, will throw error
+
+  solver.setIntParameter("Iterations limit", 200000);
+  // solver.setIntParameter("Major iterations limit", 2);
+
+  solver.setRealParameter( "Major feasibility tolerance",  1.0e-3); // target nonlinear constraint violation
+  solver.setRealParameter( "Minor feasibility tolerance",  1.0e-3); // for satisfying the QP bounds
+  solver.setRealParameter( "Major optimality tolerance",   1.0e-2); // target complementarity gap
+
+  // solver.setIntParameter( "Crash option", 3 );
+  // solver.setIntParameter( "Hessian updates", 5 );
+  // solver.setParameter("Nonderivative linesearch");
+}
+
+SnoptAdapter::SnoptAdapter (Problem& ref)
+{
+  nlp_ = &ref;
 }
 
 void
@@ -172,62 +217,14 @@ SnoptAdapter::ObjectiveAndConstraintFct (int* Status, int* n, double x[],
 }
 
 void
-SnoptAdapter::Solve (NLP& ref)
-{
-  int Cold = 0, Basis = 1, Warm = 2;
-
-  SnoptAdapter snopt(ref);
-  snopt.Init();
-  SetOptions(snopt);
-
-  // error codes as given in the manual.
-  int INFO = snopt.solve(Cold);
-  int EXIT = INFO - INFO%10; // change least significant digit to zero
-
-  if (EXIT != 0) {
-    std::string msg = "Snopt failed to find a solution. EXIT:" + std::to_string(EXIT) + ", INFO:" + std::to_string(INFO);
-    std::cerr << msg;
-//    throw std::runtime_error(msg);
-  }
-
-   snopt.SetVariables();
-}
-
-void SnoptAdapter::SetOptions(SnoptAdapter& solver)
-{
-  // A complete list of options can be found in the snopt user guide:
-  // https://web.stanford.edu/group/SOL/guides/sndoc7.pdf
-
-  solver.setProbName( "snopt" );
-//  solver.setSpecsFile  ( "snopt.spc" ); // to set options in config file
-
-  solver.setIntParameter( "Major Print level", 1 );
-  solver.setIntParameter( "Minor print level", 1 );
-  solver.setParameter( "Solution");
-
-  solver.setIntParameter( "Derivative option", 1 ); // 1 = snopt will not calculate missing derivatives
-  solver.setIntParameter( "Verify level ", 3 ); // full check on gradients, will throw error
-
-//  solver.setIntParameter("Major iterations limit", 2);
-  solver.setIntParameter("Iterations limit", 200000);
-
-  solver.setRealParameter( "Major feasibility tolerance",  1.0e-3); // target nonlinear constraint violation
-  solver.setRealParameter( "Minor feasibility tolerance",  1.0e-3); // for satisfying the QP bounds
-  solver.setRealParameter( "Major optimality tolerance",   1.0e-2); // target complementarity gap
-
-  // These options strongly influce SNOPT based on the FAQ.snopt
-  // file located in the downloaded source
-//  solver.setIntParameter( "Crash option", 3 );
-//  solver.setIntParameter( "Hessian updates", 5 );
-
-//  solver.setParameter("Nonderivative linesearch");
-}
-
-void
 SnoptAdapter::SetVariables ()
 {
   nlp_->SetVariables(x);
 }
 
-} /* namespace opt */
+SnoptAdapter::~SnoptAdapter ()
+{
+}
 
+
+} /* namespace opt */

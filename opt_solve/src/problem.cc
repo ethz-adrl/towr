@@ -31,48 +31,48 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  @brief   Brief description
  */
 
-#include <opt_solve/nlp.h>
+#include <opt_solve/problem.h>
 
 
 namespace opt {
 
-NLP::NLP ()
+Problem::Problem ()
 {
 }
 
 void
-NLP::SetVariables (const Component::Ptr& opt_variables)
+Problem::SetVariables (const Component::Ptr& opt_variables)
 {
   opt_variables_ = opt_variables;
   x_prev.clear();
 }
 
 int
-NLP::GetNumberOfOptimizationVariables () const
+Problem::GetNumberOfOptimizationVariables () const
 {
   return opt_variables_->GetRows();
 }
 
-NLP::VecBound
-NLP::GetBoundsOnOptimizationVariables () const
+Problem::VecBound
+Problem::GetBoundsOnOptimizationVariables () const
 {
   return opt_variables_->GetBounds();
 }
 
-NLP::VectorXd
-NLP::GetStartingValues () const
+Problem::VectorXd
+Problem::GetStartingValues () const
 {
   return opt_variables_->GetValues();
 }
 
 void
-NLP::SetVariables (const double* x)
+Problem::SetVariables (const double* x)
 {
-  opt_variables_->SetValues(ConvertToEigen(x));
+  opt_variables_->SetVariables(ConvertToEigen(x));
 }
 
 double
-NLP::EvaluateCostFunction (const double* x)
+Problem::EvaluateCostFunction (const double* x)
 {
   VectorXd g = VectorXd::Zero(1);
   if (HasCostTerms()) {
@@ -82,8 +82,8 @@ NLP::EvaluateCostFunction (const double* x)
   return g(0);
 }
 
-NLP::VectorXd
-NLP::EvaluateCostFunctionGradient (const double* x)
+Problem::VectorXd
+Problem::EvaluateCostFunctionGradient (const double* x)
 {
   Jacobian jac = Jacobian(1,GetNumberOfOptimizationVariables());
   if (HasCostTerms()) {
@@ -94,33 +94,33 @@ NLP::EvaluateCostFunctionGradient (const double* x)
   return jac.row(0).transpose();
 }
 
-NLP::VecBound
-NLP::GetBoundsOnConstraints () const
+Problem::VecBound
+Problem::GetBoundsOnConstraints () const
 {
   return constraints_->GetBounds();
 }
 
 int
-NLP::GetNumberOfConstraints () const
+Problem::GetNumberOfConstraints () const
 {
   return GetBoundsOnConstraints().size();
 }
 
-NLP::VectorXd
-NLP::EvaluateConstraints (const double* x)
+Problem::VectorXd
+Problem::EvaluateConstraints (const double* x)
 {
   SetVariables(x);
   return constraints_->GetValues();
 }
 
 bool
-NLP::HasCostTerms () const
+Problem::HasCostTerms () const
 {
   return costs_->GetRows()>0;
 }
 
 void
-NLP::EvalNonzerosOfJacobian (const double* x, double* values)
+Problem::EvalNonzerosOfJacobian (const double* x, double* values)
 {
   SetVariables(x);
   Jacobian jac = GetJacobianOfConstraints();
@@ -129,26 +129,26 @@ NLP::EvalNonzerosOfJacobian (const double* x, double* values)
   std::copy(jac.valuePtr(), jac.valuePtr() + jac.nonZeros(), values);
 }
 
-NLP::Jacobian
-NLP::GetJacobianOfConstraints () const
+Problem::Jacobian
+Problem::GetJacobianOfConstraints () const
 {
   return constraints_->GetJacobian();
 }
 
 void
-NLP::SetCosts (Component::PtrU cost)
+Problem::SetCosts (Component::PtrU cost)
 {
   costs_ = std::move(cost);
 }
 
 void
-NLP::SetConstraints (Component::PtrU constraint)
+Problem::SetConstraints (Component::PtrU constraint)
 {
   constraints_ = std::move(constraint);
 }
 
 void
-NLP::PrintCurrent() const
+Problem::PrintCurrent() const
 {
   opt_variables_->Print();
   costs_->Print();
@@ -156,31 +156,31 @@ NLP::PrintCurrent() const
 };
 
 void
-NLP::SaveCurrent()
+Problem::SaveCurrent()
 {
   x_prev.push_back(opt_variables_->GetValues());
 }
 
 Component::Ptr
-NLP::GetOptVariables ()
+Problem::GetOptVariables ()
 {
   return GetOptVariables(GetIterationCount()-1);
 }
 
 Component::Ptr
-NLP::GetOptVariables (int iter)
+Problem::GetOptVariables (int iter)
 {
-  opt_variables_->SetValues(x_prev.at(iter));
+  opt_variables_->SetVariables(x_prev.at(iter));
   return opt_variables_;
 }
 
-NLP::VectorXd
-NLP::ConvertToEigen(const double* x) const
+Problem::VectorXd
+Problem::ConvertToEigen(const double* x) const
 {
   return Eigen::Map<const VectorXd>(x,GetNumberOfOptimizationVariables());
 }
 
-NLP::~NLP ()
+Problem::~Problem ()
 {
 }
 

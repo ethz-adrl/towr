@@ -50,8 +50,7 @@ namespace opt {
   */
 class SoftConstraint : public Component {
 public:
-  using ConstraintPtr = std::shared_ptr<Component>;
-  using VectorXd      = Eigen::VectorXd;
+  using ConstraintPtr = Component::Ptr;
 
   SoftConstraint (const ConstraintPtr& constraint, double weight);
   virtual ~SoftConstraint ();
@@ -72,7 +71,7 @@ private:
   double weight_ = 1.0; ///< the weight relative to other costs
 
   virtual VecBound GetBounds() const override { return VecBound(GetRows(), NoBound); };
-  virtual void SetValues(const VectorXd& x) override { assert(false); };
+  virtual void SetVariables(const VectorXd& x) override { assert(false); };
 };
 
 } /* namespace opt */
