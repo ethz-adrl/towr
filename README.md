@@ -1,4 +1,4 @@
-### ![](https://i.imgur.com/ct8e7T4h.png)  
+### xpp_opt
 
 | ![](https://i.imgur.com/NkL8Haw.gif) | ![](https://i.imgur.com/RrEc2Cd.gif) 
 |:-------------------------:|:-------------------------:|
@@ -27,7 +27,7 @@ This code was developed at the [Agile and Dexterous Robotics Lab](http://www.adr
 Install and set the path to the header and source files through global varialbes in your .bashrc through
 
     export IPOPT_DIR=/home/path/to/ipopt/Ipopt-3.12.4
-    SNOPT_DIR=/home/path/to/snopt/snopt_lib
+    export SNOPT_DIR=/home/path/to/snopt/snopt_lib
 
 [ROS]  
 Packages: [xpp], catkin, roscpp, tf, kdl_parser, robot_state_publisher, message_runtime, message_generation, std_msgs, geometry_msgs, sensor_msgs, rviz, rosbag, keyboard
