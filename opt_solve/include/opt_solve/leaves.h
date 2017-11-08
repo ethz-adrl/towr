@@ -52,7 +52,7 @@ public:
    * @param n_var  Number of variables.
    * @param name   What the variables represent to (e.g. "spline coefficients").
    */
-  Variable(int n_var, const std::string name) : Component(n_var, name) {};
+  Variable(int n_var, const std::string& name) : Component(n_var, name) {};
   virtual ~Variable() {};
 
   // doesn't exist for variables, generated run-time error when used.

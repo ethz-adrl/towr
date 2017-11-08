@@ -39,9 +39,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include <opt_solve/leaves.h>
-#include <opt_solve/solvers/ipopt_adapter.h>
 
-using namespace opt;
+namespace opt {
 using Eigen::Vector2d;
 
 
@@ -132,28 +131,5 @@ public:
   }
 };
 
-
-
-int main()
-{
-  auto variables = std::make_shared<Composite>("all_variables", false);
-  variables->AddComponent(std::make_shared<ExVariables>());
-
-  auto constraints = std::make_unique<Composite>("all_constraints", false);
-  constraints->AddComponent(std::make_shared<ExConstraint>(variables));
-
-  auto costs = std::make_unique<Composite>("all_costs", true);
-  costs->AddComponent(std::make_shared<ExCost>(variables));
-
-  Problem nlp;
-  nlp.SetVariables(variables);
-  nlp.SetConstraints(std::move(constraints));
-  nlp.SetCosts(std::move(costs));
-
-  IpoptAdapter::Solve(nlp);
-
-  nlp.PrintCurrent();
-
-  std::cout << "\n\nx: " << variables->GetValues().transpose() << std::endl;;
-}
+} // namespace opt
 

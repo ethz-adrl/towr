@@ -29,7 +29,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <snoptProblem.hpp>
 
-#include <problem.h>
+#include <opt_solve/problem.h>
 
 namespace opt {
 
@@ -48,8 +48,13 @@ namespace opt {
 class SnoptAdapter : public snoptProblemA {
 public:
   using NLPPtr  = Problem*;
+  using VectorXd = Problem::VectorXd;
+  using Jacobian = Problem::Jacobian;
 
-  /** Keeps reference to this NLP and modifies it! */
+  /**
+   * @brief  Creates an Adapter Object around the problem to conform to the
+   * Snopt interface.
+   */
   SnoptAdapter (Problem& nlp);
   virtual ~SnoptAdapter ();
 

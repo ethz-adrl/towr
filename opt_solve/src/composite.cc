@@ -30,7 +30,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace opt {
 
-Component::Component (int num_rows, const std::string name)
+Component::Component (int num_rows, const std::string& name)
 {
   num_rows_ = num_rows;
   name_ = name;
@@ -54,7 +54,7 @@ Component::GetName () const
   return name_;
 }
 
-Composite::Composite (const std::string name, bool is_cost) :Component(0, name)
+Composite::Composite (const std::string& name, bool is_cost) :Component(0, name)
 {
   is_cost_ = is_cost;
 }

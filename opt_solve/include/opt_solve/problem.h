@@ -39,14 +39,14 @@ namespace opt {
  * the cost function, the constraints and their bounds and derivatives of
  * all. With this information the problem can be solved by any specific solver.
  *
- *  find x1, x2
+ *  find x1, x2                            (Variable sets 1 & 2)
  *  s.t
  *       x1_lower  <= x1 <= x1_upper       (bounds on variable set x1 \in R^m1)
  *
- *       g1_lower < g1(x1,x2) < g1_upper   (constraint set 1 \in R^n1)
- *       g2_lower < g2(x1,x2) < g2_upper   (constraint set 2 \in R^n2)
+ *       g1_lower < g1(x1,x2) < g1_upper   (Constraint set 1 \in R^n1)
+ *       g2_lower < g2(x1,x2) < g2_upper   (Constraint set 2 \in R^n2)
  *
- *       x1,x2 = arg min c1(x1,x2)         (cost terms 1)
+ *       x1,x2 = arg min c1(x1,x2)         (Cost terms 1)
  *
  *
  * See @ref solvers for currently implemented solvers.
@@ -114,7 +114,7 @@ public:
   double EvaluateCostFunction(const double* x);
 
   /**
-   * @brief The column-vector of derivatives of the cost w.r.t each variable.
+   * @brief The column-vector of derivatives of the cost w.r.t. each variable.
    */
   VectorXd EvaluateCostFunctionGradient(const double* x);
 
@@ -181,7 +181,7 @@ private:
   Component::PtrU costs_;
   Component::Ptr opt_variables_;
 
-  std::vector<VectorXd> x_prev;
+  std::vector<VectorXd> x_prev; ///< the pure variables for every iteration.
 
   VectorXd ConvertToEigen(const double* x) const;
 };

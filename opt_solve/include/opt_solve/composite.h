@@ -84,7 +84,7 @@ public:
    * @li number of constraints in this constraint set
    * @li 1 if this component represents a Cost.
    */
-  Component(int num_rows, const std::string name);
+  Component(int num_rows, const std::string& name);
   virtual ~Component() {};
 
   /**
@@ -176,7 +176,7 @@ public:
    * rows below one another, whereas costs terms are all accumulated to a
    * scalar value/a single Jacobian row.
    */
-  Composite(const std::string name, bool is_cost);
+  Composite(const std::string& name, bool is_cost);
   virtual ~Composite() {};
 
   // see Component for documentation

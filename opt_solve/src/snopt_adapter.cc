@@ -30,8 +30,6 @@ namespace opt {
 
 SnoptAdapter::NLPPtr SnoptAdapter::nlp_;
 
-using VectorXd = Eigen::VectorXd;
-
 void
 SnoptAdapter::Solve (Problem& ref)
 {
@@ -50,7 +48,7 @@ SnoptAdapter::Solve (Problem& ref)
     throw std::runtime_error(msg);
   }
 
-   snopt.SetVariables();
+  snopt.SetVariables();
 }
 
 void SnoptAdapter::SetOptions(SnoptAdapter& solver)
@@ -62,7 +60,7 @@ void SnoptAdapter::SetOptions(SnoptAdapter& solver)
   solver.setProbName( "snopt" );
 
   solver.setIntParameter( "Major Print level", 1 );
-  solver.setIntParameter( "Minor print level", 1 );
+  solver.setIntParameter( "Minor Print level", 1 );
   solver.setParameter( "Solution");
 
   solver.setIntParameter( "Derivative option", 1 ); // 1 = snopt will not calculate missing derivatives
@@ -168,7 +166,7 @@ SnoptAdapter::Init ()
     }
   }
 
-  setUserFun    (&SnoptAdapter::ObjectiveAndConstraintFct);
+  setUserFun(&SnoptAdapter::ObjectiveAndConstraintFct);
 }
 
 void

@@ -85,12 +85,12 @@ if(DEFINED ENV{IPOPT_DIR})
   )
   
   # some example problems
-  add_executable(problem1 test/problem1.cc)
-  target_link_libraries(problem1
-    ${PROJECT_NAME}
-    ${IPOPT_ADAPTER_LIB}
-    ${IPOPT_LIBRARIES} 
-  )
+#  add_executable(problem1 test/problem1.cc)
+#  target_link_libraries(problem1
+#    ${PROJECT_NAME}
+#    ${IPOPT_ADAPTER_LIB}
+#    ${IPOPT_LIBRARIES} 
+#  )
 endif()
 
 # compile adapter for SNOPT 
@@ -99,9 +99,6 @@ if(DEFINED ENV{SNOPT_DIR})
     src/snopt_adapter.cc
   )
 endif()
-
-
-
 
 
 
@@ -130,11 +127,25 @@ install(
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_xpp_nlp.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+if (CATKIN_ENABLE_TESTING)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+catkin_add_gtest(${PROJECT_NAME}_test
+    test/gtest_main.cc 
+#    test/variables_test.cc
+#    test/problem_test.cc
+    test/composite_test.cc
+    # solver testing
+#    test/ex_test_ipopt.cc
+#    test/ex_test_snopt.cc
+)
+endif()
 
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+if(TARGET ${PROJECT_NAME}_test)
+  target_link_libraries(${PROJECT_NAME}_test 
+     ${PROJECT_NAME}
+     ${IPOPT_ADAPTER_LIB}
+     ${SNOPT_ADAPTER_LIB}
+     ${IPOPT_LIBRARIES} 
+     ${SNOPT_LIBRARIES}  
+)
+endif()
