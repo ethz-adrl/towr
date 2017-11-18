@@ -71,6 +71,11 @@ add_executable(rosbag_traj_combiner src/exe/rosbag_traj_combiner.cc)
 target_link_libraries(rosbag_traj_combiner
   ${catkin_LIBRARIES}
 )
+
+add_executable(rosbag_geom_msg_extractor src/exe/rosbag_geom_msg_extractor.cc)
+target_link_libraries(rosbag_geom_msg_extractor
+  ${catkin_LIBRARIES}
+)
                                                  
 
 #add_executable(qp_optimizer_node 

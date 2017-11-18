@@ -7,13 +7,5 @@
   <include file="$(find xpp_opt_ros)/launch/xpp_params.launch"></include>
 
   <node name="nlp_optimizer_node" pkg="xpp_opt_ros" type="nlp_optimizer_node" output="screen"/>
-  
-  <!-- for commanding goal positions and tasks -->
-  <node name="user_interface_node" pkg="xpp_opt_ros" type="user_interface_node" output="screen" cwd="node" >  
-  </node>
-   
-  <!-- for commanding goal positions and tasks -->
-  <node name="keyboard" pkg="keyboard" type="keyboard" output="screen" cwd="node" >  
-  </node>
-  
+    
 </launch>

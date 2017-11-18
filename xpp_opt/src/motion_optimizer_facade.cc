@@ -16,7 +16,7 @@
 #include <utility>
 
 #include <opt_solve/solvers/ipopt_adapter.h>
-//#include <opt_solve/snopt_adapter.h>
+#include <opt_solve/solvers/snopt_adapter.h>
 
 #include <xpp_opt/angular_state_converter.h>
 #include <xpp_opt/cost_constraint_factory.h>
@@ -37,27 +37,9 @@ MotionOptimizerFacade::MotionOptimizerFacade ()
 {
   params_ = std::make_shared<OptimizationParameters>();
 
-  // overridden in nlp node
-  terrain_        = std::make_shared<FlatGround>();
-  model_.MakeHyqModel();
-  model_.gait_generator_->SetCombo(GaitGenerator::Combo0);
-
-  BuildDefaultInitialState();
-}
-
-void
-MotionOptimizerFacade::BuildDefaultInitialState ()
-{
-  auto p_nom_B = model_.kinematic_model_->GetNominalStanceInBase();
-
-  inital_base_.lin.p_ << 0.0, 0.0, -p_nom_B.at(0).z();
-  inital_base_.ang.p_ << 0.0, 0.0, 0.0; // euler (roll, pitch, yaw)
-
-  initial_ee_W_.SetCount(p_nom_B.GetEECount());
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-    initial_ee_W_.at(ee) = p_nom_B.at(ee) + inital_base_.lin.p_;
-    initial_ee_W_.at(ee).z() = 0.0;
-  }
+  RobotModel model;
+  model.MakeAnymalModel();
+  RobotModel::SetAnymalInitialState(inital_base_, initial_ee_W_);
 }
 
 void
@@ -68,14 +50,12 @@ MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& curr_state)
 //  motion_optimizer_.inital_base_.lin.v_.setZero();
 //  motion_optimizer_.inital_base_.lin.a_.setZero();
 
-  inital_base_.ang.p_ = GetEulerZYXAngles(curr_state.base_.ang.q);
+  inital_base_.ang.p_ = GetUnique(GetEulerZYXAngles(curr_state.base_.ang.q));
 
 //  kindr::RotationQuaternionD quat(curr_state.base_.ang.q);
 //  kindr::EulerAnglesZyxD euler(quat);
 //  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
 //  inital_base_.ang.p_ = euler.toImplementation().reverse();
-
-
 
   SetIntialFootholds(curr_state.ee_motion_.Get(kPos));
 }
@@ -140,7 +120,7 @@ MotionOptimizerFacade::BuildVariables () const
 
     // actually initial Z position should be constrained as well...-.-
     ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
-//    ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
+    ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
 
 
 
@@ -307,7 +287,7 @@ MotionOptimizerFacade::SolveProblem ()
 
   switch (nlp_solver_) {
     case Ipopt: IpoptAdapter::Solve(nlp); break;
-//    case Snopt: SnoptAdapter::Solve(nlp); break;
+    case Snopt: SnoptAdapter::Solve(nlp); break;
     default: assert(false); // solver not implemented
   }
 
@@ -367,6 +347,93 @@ MotionOptimizerFacade::GetTrajectory (const VariablesCompPtr& vars,
 
 MotionOptimizerFacade::~MotionOptimizerFacade ()
 {
+}
+
+/*! @brief Returns unique Euler angles in [-pi,pi),[-pi/2,pi/2),[-pi,pi).
+ *
+ * Taken from https://github.com/ethz-asl/kindr
+ *
+ * Copyright (c) 2013, Christian Gehring, Hannes Sommer, Paul Furgale, Remo Diethelm
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Autonomous Systems Lab, ETH Zurich nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL Christian Gehring, Hannes Sommer, Paul Furgale,
+ * Remo Diethelm BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+ * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+Vector3d
+MotionOptimizerFacade::GetUnique (const Vector3d& zyx_non_unique) const
+{
+  Vector3d zyx = zyx_non_unique;
+  const double tol = 1e-3;
+
+  // wrap angles into [-pi,pi),[-pi/2,pi/2),[-pi,pi)
+  if(zyx.y() < -M_PI/2 - tol)
+  {
+    if(zyx.x() < 0) {
+      zyx.x() = zyx.x() + M_PI;
+    } else {
+      zyx.x() = zyx.x() - M_PI;
+    }
+
+    zyx.y() = -(zyx.y() + M_PI);
+
+    if(zyx.z() < 0) {
+      zyx.z() = zyx.z() + M_PI;
+    } else {
+      zyx.z() = zyx.z() - M_PI;
+    }
+  }
+  else if(-M_PI/2 - tol <= zyx.y() && zyx.y() <= -M_PI/2 + tol)
+  {
+    zyx.x() -= zyx.z();
+    zyx.z() = 0;
+  }
+  else if(-M_PI/2 + tol < zyx.y() && zyx.y() < M_PI/2 - tol)
+  {
+    // ok
+  }
+  else if(M_PI/2 - tol <= zyx.y() && zyx.y() <= M_PI/2 + tol)
+  {
+    // todo: M_PI/2 should not be in range, other formula?
+    zyx.x() += zyx.z();
+    zyx.z() = 0;
+  }
+  else // M_PI/2 + tol < zyx.y()
+  {
+    if(zyx.x() < 0) {
+      zyx.x() = zyx.x() + M_PI;
+    } else {
+      zyx.x() = zyx.x() - M_PI;
+    }
+
+    zyx.y() = -(zyx.y() - M_PI);
+
+    if(zyx.z() < 0) {
+      zyx.z() = zyx.z() + M_PI;
+    } else {
+      zyx.z() = zyx.z() - M_PI;
+    }
+  }
+
+  return zyx;
 }
 
 } /* namespace xpp */

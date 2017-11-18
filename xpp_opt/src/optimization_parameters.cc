@@ -5,7 +5,7 @@
 @brief   Brief description
  */
 
-#include <../include/xpp_opt/optimization_parameters.h>
+#include <xpp_opt/optimization_parameters.h>
 
 #include <algorithm>
 #include <initializer_list>
@@ -16,7 +16,7 @@ namespace xpp {
 OptimizationParameters::OptimizationParameters ()
 {
   order_coeff_polys_  = 4; // used only with coeff_spline representation
-  dt_base_polynomial_ = 0.2;
+  dt_base_polynomial_ = 0.2; // 0.2
 
 
   // 2 also works quite well. Remember that inbetween the nodes, forces
@@ -26,7 +26,7 @@ OptimizationParameters::OptimizationParameters ()
 
 
   // range of motion constraint
-  dt_range_of_motion_ = 0.1;
+  dt_range_of_motion_ = 0.1; // 0.1
   ee_splines_per_swing_phase_ = 2; // should always be 2 if i want to use swing constraint!
 
   dt_base_range_of_motion_ = dt_base_polynomial_/4.;
@@ -39,7 +39,7 @@ OptimizationParameters::OptimizationParameters ()
 
   constraints_ = {
       BasePoly, // include this results in non-hermite representation to be used
-//      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
+      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
       EndeffectorRom,
       Dynamic,
       Terrain,

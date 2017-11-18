@@ -71,8 +71,10 @@ CentroidalModel::GetJacobianOfAccWrtBaseLin (const Jacobian& jac_pos_base_lin) c
   int n = jac_pos_base_lin.cols();
 
   Jacobian jac_ang(kDim3d, n);
-  for (const Vector3d& f : ee_force_.ToImpl())
-    jac_ang += BuildCrossProductMatrix(f)*jac_pos_base_lin;
+  for (const Vector3d& f : ee_force_.ToImpl()) {
+    Jacobian jac_comp = BuildCrossProductMatrix(f)*jac_pos_base_lin;
+    jac_ang += jac_comp;
+  }
 
   Jacobian jac(kDim6d, n);
   jac.middleRows(AX, kDim3d) = I_inv_*jac_ang;

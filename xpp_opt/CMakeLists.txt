@@ -137,8 +137,7 @@ install(
 if (CATKIN_ENABLE_TESTING)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 catkin_add_gtest(${PROJECT_NAME}_test
-    test/google/gtest_main.cc 
-    test/google/helpers.cc
+    test/gtest_main.cc 
     test/dynamic_constraint_test.cc
     test/centroidal_dynamics_test.cc
 )

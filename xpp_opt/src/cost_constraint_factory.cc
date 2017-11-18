@@ -105,7 +105,8 @@ CostConstraintFactory::MakeStateConstraint () const
 
   // linear base motion
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_linear, t0, initial_base_.lin, PosVelAcc_, XYZ_));
-  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_linear, T,  final_base_.lin,   PosVelAcc_, XYZ_));
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_linear, T,  final_base_.lin,   PosVelAcc_, XY_));
+  constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_linear, T,  final_base_.lin,   VelAcc_, Z_));
 
   // angular base motion
   constraints->AddComponent(std::make_shared<SplineStateConstraint>(opt_vars_, id::base_angular, t0, initial_base_.ang, PosVelAcc_, XYZ_));

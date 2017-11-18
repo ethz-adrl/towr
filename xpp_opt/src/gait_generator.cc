@@ -5,7 +5,9 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/models/gait_generator.h>
+#include <xpp_opt/models/gait_generator.h>
+
+#include <numeric> // std::accumulate
 
 namespace xpp {
 

@@ -17,9 +17,9 @@ using namespace xpp;
 
 int main(int argc, char *argv[])
 {
-	ros::init(argc, argv, "rosbag_trajectory_combiner");
+  ros::init(argc, argv, "rosbag_trajectory_combiner");
 
-	std::string name = ParamServer::GetString("/xpp/rosbag_name");
+  std::string name = ParamServer::GetString("/xpp/rosbag_name");
 
   rosbag::Bag bag_r;
   bag_r.open(name+".bag", rosbag::bagmode::Read);
@@ -72,5 +72,5 @@ int main(int argc, char *argv[])
   bag_w.close();
   ROS_INFO_STREAM("Successfully created bag " + bag_w.getFileName());
 
-	return 1;
+  return 1;
 }

@@ -3,7 +3,7 @@
     <!-- for building the discretized trajectory -->
     <!-- HyQ:    250Hz, so dt=0.004 -->
     <!-- ANYmal: 400Hz, so dt=0.0025 -->
-    <param name="trajectory_dt" value="0.02" type="double"/>   <!-- equal to 1/TaskServoHz --> 
+    <param name="trajectory_dt" value="0.0025" type="double"/>   <!-- equal to 1/TaskServoHz --> 
     <param name="rosbag_name"   value="$(find xpp_opt_ros)/bags" type="string"/>   
   </group>   	
   <group ns="joy_node">

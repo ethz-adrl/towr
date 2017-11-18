@@ -34,7 +34,7 @@ BaseMotionConstraint::BaseMotionConstraint (const Variables& opt_vars,
   node_bounds_.at(AZ) = Bounds(-dev_rad, dev_rad); // kNoBound
   node_bounds_.at(LX) = NoBound;
   node_bounds_.at(LY) = NoBound;//NLPBound(-0.05, 0.05);
-  double dev_z = 0.05;
+  double dev_z = 0.06;
   node_bounds_.at(LZ) = Bounds(z_init-dev_z, z_init+dev_z); // allow to move 10cm up and down
 
   SetRows(GetNumberOfNodes()*node_bounds_.size());

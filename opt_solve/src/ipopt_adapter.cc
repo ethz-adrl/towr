@@ -65,7 +65,7 @@ IpoptAdapter::SetOptions (Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app_)
   ipopt_app_->Options()->SetStringValue("linear_solver", "ma57"); // 27, 57, 77, 86, 97
   ipopt_app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
   ipopt_app_->Options()->SetNumericValue("derivative_test_tol", 1e-3);
-  // ipopt_app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
+//   ipopt_app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
   // ipopt_app_->Options()->SetStringValue("derivative_test", "first-order");
   // ipopt_app_->Options()->SetStringValue("derivative_test", "second-order");
 

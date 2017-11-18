@@ -100,7 +100,7 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
   motion_optimizer_.SetTerrainFromAvgFootholdHeight();
 
 
-  motion_optimizer_.model_.MakeHyqModel();
+  motion_optimizer_.model_.MakeAnymalModel();
   auto gait = static_cast<GaitGenerator::GaitCombos>(msg.gait_id);
   motion_optimizer_.model_.gait_generator_->SetCombo(gait);
   motion_optimizer_.params_->SetTotalDuration(msg.total_duration);
@@ -116,7 +116,7 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
   std::string bag_file = rosbag_folder_+ bag_name_;
   if (msg.optimize) {
     OptimizeMotion();
-    SaveOptimizationAsRosbag(bag_file, true);
+    SaveOptimizationAsRosbag(bag_file, false);
   }
 
   if (msg.replay_trajectory || msg.optimize) {

@@ -140,15 +140,15 @@ UserInterface::CallbackKeyboard (const keyboard::Key& msg)
       optimize_ = true;
       break;
     case msg.KEY_p:
-      ROS_INFO_STREAM("ATTENTION: Are you sure you want to send this to the robot?");
-      ROS_INFO_STREAM("Press y and Enter in this window to continue...");
-      char input;
-      std::cin >> input;
-      if (input == 'y') {
+//      ROS_INFO_STREAM("ATTENTION: Are you sure you want to send this to the robot?");
+//      ROS_INFO_STREAM("Press y and Enter in this window to continue...");
+//      char input;
+//      std::cin >> input;
+//      if (input == 'y') {
         publish_optimized_trajectory_ = true;
-        ROS_INFO_STREAM("Publish optimized trajectory request sent");
-      } else
-        ROS_INFO_STREAM("Aborted");
+//        ROS_INFO_STREAM("Publish optimized trajectory request sent");
+//      } else
+//        ROS_INFO_STREAM("Aborted");
       break;
     case msg.KEY_s:
       ROS_INFO_STREAM("Toggled NLP solver type");

@@ -24,6 +24,9 @@ struct RobotModel {
   void MakeAnymalModel();
   void MakeQuadrotorModel();
 
+  // todo move to cpp file
+  static void SetAnymalInitialState(State3dEuler& base, EndeffectorsPos& feet);
+
   KinematicModel::Ptr kinematic_model_;
   DynamicModel::Ptr   dynamic_model_;
   GaitGenerator::Ptr  gait_generator_;

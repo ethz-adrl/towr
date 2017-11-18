@@ -17,6 +17,7 @@
 #include <xpp_opt/height_map.h>
 #include <xpp_opt/models/robot_model.h>
 #include <xpp_opt/optimization_parameters.h>
+
 #include <xpp_states/endeffectors.h>
 #include <xpp_states/robot_state_cartesian.h>
 #include <xpp_states/state.h>
@@ -31,7 +32,6 @@ namespace xpp {
 class MotionOptimizerFacade {
 public:
   using MotionParametersPtr      = std::shared_ptr<OptimizationParameters>;
-//  using OptimizationVariablesPtr = NLP::OptimizationVariablesPtr;
   using VariablesCompPtr         = opt::Composite::Ptr;
   using RobotStateVec            = std::vector<RobotStateCartesian>;
 
@@ -69,7 +69,6 @@ private:
   State3dEuler final_base_;
   RobotStateVec GetTrajectory(const VariablesCompPtr&, double dt) const;
 
-  void BuildDefaultInitialState();
   VariablesCompPtr BuildVariables() const;
   void BuildCostConstraints(const VariablesCompPtr&);
 
@@ -77,6 +76,8 @@ private:
   void SetBaseRepresentationHermite(VariablesCompPtr&) const;
 
   mutable opt::Problem nlp;
+
+  Vector3d GetUnique(const Vector3d& zyx_non_unique) const;
 };
 
 } /* namespace xpp */

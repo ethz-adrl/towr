@@ -113,27 +113,54 @@ RobotModel::MakeAnymalModel ()
   using namespace xpp::quad;
   int n_ee = 4;
 
-  Eigen::Matrix3d I = BuildInertiaTensor( 0.268388530623900,
-                                          0.884235660795284,
-                                          0.829158678306482,
-                                          0.000775392455422,
-                                          -0.015184853445095,
-                                          -0.000989297489507);
-  dynamic_model_ = std::make_shared<CentroidalModel>(18.29 + 4*2.0, I, n_ee);
+//  Eigen::Matrix3d I = BuildInertiaTensor( 0.268388530623900,
+//                                          0.884235660795284,
+//                                          0.829158678306482,
+//                                          0.000775392455422,
+//                                          -0.015184853445095,
+//                                          -0.000989297489507);
+
+  // adapted from anymal standing with all legs on ground
+  Eigen::Matrix3d I = BuildInertiaTensor( 1.11117,
+		                                  2.20775,
+		                                  2.02077,
+		                                  0.00943193,
+		                                  0.0101473,
+		                                  0.00124553);
+
+
+
+  dynamic_model_ = std::make_shared<CentroidalModel>(36.5, I, n_ee);
   dynamic_model_->SetForceLimit(500);
 
 
   kinematic_model_ = std::make_shared<KinematicModel>(n_ee);
-  const double x_nominal_b = 0.33;  // wrt to hip 5cm
-  const double y_nominal_b = 0.15; // wrt to hip -3cm
+  const double x_nominal_b = 0.33; // wrt to hip 5cm
+  const double y_nominal_b = 0.17; // wrt to hip -3cm
   const double z_nominal_b = -0.47;
   kinematic_model_->nominal_stance_.at(LF) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
-  kinematic_model_->max_dev_from_nominal_ << 0.23, 0.13, 0.09;
+  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.05, 0.07;
 
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
+}
+
+void
+RobotModel::SetAnymalInitialState (State3dEuler& base, EndeffectorsPos& feet)
+{
+  using namespace xpp::quad;
+
+  base.lin.p_ << -0.02, 0.0, 0.54;
+  base.ang.p_ << 0.0, 0.0, 0.0;    // euler (roll, pitch, yaw)
+
+  int n_ee = 4;
+  feet.SetCount(n_ee);
+  feet.at(LF) << 0.25, 0.18, 0.02;
+  feet.at(RF) <<  0.24, -0.20, 0.02;
+  feet.at(LH) <<   -0.28, 0.18, 0.02;
+  feet.at(RH) <<   -0.27, -0.20, 0.02;
 }
 
 void
@@ -163,3 +190,4 @@ RobotModel::MakeQuadrotorModel ()
 }
 
 } /* namespace xpp */
+
