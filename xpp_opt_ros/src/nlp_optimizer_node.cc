@@ -66,24 +66,24 @@ NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
 {
   auto curr_state = Convert::ToXpp(msg);
 
-  // some logging of the real robot state sent from SL
-  if (save_current_state_)
-    curr_states_log_.push_back(curr_state);
-
-  // end of current batch
-  if (curr_state.t_global_ > user_command_msg_.total_duration-10*dt_) {
-    // get current date and time
-    std::string subfolder = "/published/";
-    time_t _tm = time(NULL );
-    struct tm * curtime = localtime ( &_tm );
-    std::string name = rosbag_folder_ + subfolder + asctime(curtime) + "_real.bag";
-
-    rosbag::Bag bag;
-    bag.open(name, rosbag::bagmode::Write);
-    SaveTrajectoryInRosbag(bag, curr_states_log_, xpp_msgs::robot_state_current);
-    bag.close();
-    save_current_state_ = false; // reached the end of trajectory
-  }
+//  // some logging of the real robot state sent from SL
+//  if (save_current_state_)
+//    curr_states_log_.push_back(curr_state);
+//
+//  // end of current batch
+//  if (curr_state.t_global_ > user_command_msg_.total_duration-10*dt_) {
+//    // get current date and time
+//    std::string subfolder = "/published/";
+//    time_t _tm = time(NULL );
+//    struct tm * curtime = localtime ( &_tm );
+//    std::string name = rosbag_folder_ + subfolder + asctime(curtime) + "_real.bag";
+//
+//    rosbag::Bag bag;
+//    bag.open(name, rosbag::bagmode::Write);
+//    SaveTrajectoryInRosbag(bag, curr_states_log_, xpp_msgs::robot_state_current);
+//    bag.close();
+//    save_current_state_ = false; // reached the end of trajectory
+//  }
 
   if (first_callback_) {
     motion_optimizer_.SetInitialState(curr_state);

@@ -122,11 +122,11 @@ RobotModel::MakeAnymalModel ()
 
   // adapted from anymal standing with all legs on ground
   Eigen::Matrix3d I = BuildInertiaTensor( 1.11117,
-		                                  2.20775,
-		                                  2.02077,
-		                                  0.00943193,
-		                                  0.0101473,
-		                                  0.00124553);
+		                          2.20775,
+		                          2.02077,
+		                          0.00943193,
+		                          0.0101473,
+		                          0.00124553);
 
 
 
@@ -136,13 +136,13 @@ RobotModel::MakeAnymalModel ()
 
   kinematic_model_ = std::make_shared<KinematicModel>(n_ee);
   const double x_nominal_b = 0.33; // wrt to hip 5cm
-  const double y_nominal_b = 0.17; // wrt to hip -3cm
+  const double y_nominal_b = 0.19; // wrt to hip -3cm
   const double z_nominal_b = -0.47;
   kinematic_model_->nominal_stance_.at(LF) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
-  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.05, 0.07;
+  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.06, 0.07;
 
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
 }
