@@ -85,10 +85,10 @@ NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
 //    save_current_state_ = false; // reached the end of trajectory
 //  }
 
-  if (first_callback_) {
-    motion_optimizer_.SetInitialState(curr_state);
-    first_callback_ = false;
-  }
+  motion_optimizer_.SetInitialState(curr_state);
+//  if (first_callback_) {
+//    first_callback_ = false;
+//  }
 }
 
 void
@@ -132,20 +132,12 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
     auto traj_msg = BuildTrajectoryMsg();
     cart_trajectory_pub_.publish(traj_msg);
 
-    // this is where next motion will start from
-    auto final_state = motion_optimizer_.GetTrajectory(dt_).back();
-    motion_optimizer_.SetInitialState(final_state);
-
-    curr_states_log_.clear();
-    save_current_state_ = true;
-
-//    for (int i=0; i<4; ++i) {
-//      std::cout << "xyz feet: ";
-//      std::cout << traj_msg.points.front().ee_motion.at(i).pos.x << ", ";
-//      std::cout << traj_msg.points.front().ee_motion.at(i).pos.y << ", ";
-//      std::cout << traj_msg.points.front().ee_motion.at(i).pos.z << ", ";
-//      std::cout << std::endl;
-//    }
+//    // this is where next motion will start from
+//    auto final_state = motion_optimizer_.GetTrajectory(dt_).back();
+//    motion_optimizer_.SetInitialState(final_state);
+//
+//    curr_states_log_.clear();
+//    save_current_state_ = true;
 
     // get current date and time
     std::string subfolder = "/published/";

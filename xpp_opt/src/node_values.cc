@@ -292,6 +292,10 @@ NodeValues::AddFinalBound (MotionDerivative deriv,
                            const std::vector<int>& dimensions,
                            const VectorXd& val)
 {
+//  // careful to not overwrite start bound
+//  if (nodes_.size() == 2)
+//    throw std::runtime_error("overwriting start bound");
+
   AddBounds(nodes_.size()-1, deriv, dimensions, val);
 }
 

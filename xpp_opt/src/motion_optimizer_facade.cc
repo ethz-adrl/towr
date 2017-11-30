@@ -120,9 +120,10 @@ MotionOptimizerFacade::BuildVariables () const
 
     // actually initial Z position should be constrained as well...-.-
     ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
-    ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
 
-
+    bool step_taken = ee_motion->GetNodes().size() > 2;
+    if (step_taken) // otherwise overwrites start bound
+      ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
 
     opt_variables->AddComponent(ee_motion);
   }
