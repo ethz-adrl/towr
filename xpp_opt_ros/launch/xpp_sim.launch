@@ -1,0 +1,27 @@
+<launch>
+
+  <!-- so the logging print the node name -->
+  <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${node}]: ${message}" />
+
+  <!-- Upload anymal URDF and IK-->
+  <include file="$(find xpp_anymal_ik)/launch/load.launch"></include>
+
+  <!-- This is needed because ANYmal simulation has odom as fixed frame -->
+  <node pkg="tf" type="static_transform_publisher" name="odom_to_world_pub" args="0 0 0 0 0 0 1 odom world 100"/>
+
+  <!-- visualizes goal, opt. parameters and cartesian base state, endeffector positions and forces -->
+  <node name="rviz_marker_node" pkg="xpp_vis" type="rviz_marker_node" output="screen">
+  </node>
+
+  <!-- for commanding goal positions and tasks -->
+  <node name="user_interface_node" pkg="xpp_opt_ros" type="user_interface_node" output="screen" cwd="node" >  
+  </node>
+   
+  <!-- for commanding goal positions and tasks -->
+  <node name="keyboard" pkg="keyboard" type="keyboard" output="screen" cwd="node" >  
+  </node>
+  
+  <!-- Start the optimizer-->
+  <include file="$(find xpp_opt_ros)/launch/xpp.launch"></include>
+       
+</launch>
