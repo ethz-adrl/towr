@@ -89,6 +89,13 @@ NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
 //  if (first_callback_) {
 //    first_callback_ = false;
 //  }
+
+
+//  std::cout << "current footholds:\n";
+//  for (auto ee : msg.ee_motion) {
+//    std::cout << ee.pos.z << "\t";
+//  }
+//  std::cout << std::endl;
 }
 
 void

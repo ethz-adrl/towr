@@ -57,12 +57,13 @@ QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
     case Combo0: SetGaits({Stand});  break;
     case Combo1: SetGaits({Stand, Flight, Stand});                 break; // lift one leg
     case Combo2: SetGaits({Stand, Run1, Run1, Stand});             break; // trot
-    case Combo3: SetGaits({Stand, Walk1, Stand});                  break; // walk
-    case Combo4: SetGaits({Stand, Run3, Run3, Stand});             break; // pace
-    case Combo5: SetGaits({Stand, Run1, Run1, Run1, Run1, Stand}); break; // long trot
+    case Combo3: SetGaits({Stand, Run1, Run1, Run1, Run1, Stand}); break; // long trot
+    case Combo4: SetGaits({Stand, Run2, Run2E, Stand});            break; // fly trot
+    case Combo5: SetGaits({Stand, Walk1, Stand});                  break; // walk
     case Combo6: SetGaits({Stand, Walk2, Walk2E, Stand});          break; // overlap-walk
-    case Combo7: SetGaits({Stand, Run3, Run3, Run3, Run3, Stand}); break; // long pace
-    case Combo8: SetGaits({Stand, Hop3, Hop3E, Stand});            break; // gallop
+    case Combo7: SetGaits({Stand, Run3, Stand});                   break; // pace
+    case Combo8: SetGaits({Stand, Run3, Run3, Stand});             break; // long pace
+//    case Combo8: SetGaits({Stand, Hop3, Hop3E, Stand});            break; // gallop
     default: assert(false); std::cout << "Gait not defined\n"; break;
   }
 

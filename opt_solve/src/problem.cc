@@ -143,8 +143,8 @@ Problem::SetConstraints (Component::PtrU constraint)
 void
 Problem::PrintCurrent() const
 {
-  opt_variables_->Print();
-  costs_->Print();
+//  opt_variables_->Print();
+//  costs_->Print();
   constraints_->Print();
 };
 

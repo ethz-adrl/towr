@@ -22,9 +22,8 @@ SplineStateConstraint::SplineStateConstraint (const VariablesPtr& opt_vars,
                                               const StateLinXd& state,
                                               const DerivativeVec& derivatives,
                                               const Dimensions& dimensions)
-    :Constraint(opt_vars, derivatives.size()*dimensions.size(), "spline_cost")
+    :Constraint(opt_vars, derivatives.size()*dimensions.size(), "base_spline_")
 {
-
 //  // print out names correctly
 //  std::string deriv_string;
 //  for (auto d : derivatives) {

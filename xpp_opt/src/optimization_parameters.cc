@@ -16,13 +16,13 @@ namespace xpp {
 OptimizationParameters::OptimizationParameters ()
 {
   order_coeff_polys_  = 4; // used only with coeff_spline representation
-  dt_base_polynomial_ = 0.2; // 0.2
+  dt_base_polynomial_ = 0.1; // 0.2
 
 
   // 2 also works quite well. Remember that inbetween the nodes, forces
   // could still be violating unilateral and friction constraints by
   // polynomial interpolation
-  force_splines_per_stance_phase_ = 3; // this makes it a lot bigger
+  force_splines_per_stance_phase_ = 4; // this makes it a lot bigger
 
 
   // range of motion constraint

@@ -25,17 +25,17 @@ BaseMotionConstraint::BaseMotionConstraint (const Variables& opt_vars,
   base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
   base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
 
-  double z_init = base_linear_->GetPoint(0.0).p_.z();
 
   double dev_rad = 0.1;
   node_bounds_.resize(kDim6d);
-  node_bounds_.at(AX) = Bounds(-dev_rad, dev_rad);
-  node_bounds_.at(AY) = Bounds(-dev_rad, dev_rad);
-  node_bounds_.at(AZ) = Bounds(-dev_rad, dev_rad); // kNoBound
+  node_bounds_.at(AX) = NoBound;//Bounds(-dev_rad, dev_rad);
+  node_bounds_.at(AY) = NoBound;//Bounds(-dev_rad, dev_rad);
+  node_bounds_.at(AZ) = NoBound;//Bounds(-dev_rad, dev_rad); // NoBound
   node_bounds_.at(LX) = NoBound;
-  node_bounds_.at(LY) = NoBound;//NLPBound(-0.05, 0.05);
-  double dev_z = 0.06;
-  node_bounds_.at(LZ) = Bounds(z_init-dev_z, z_init+dev_z); // allow to move dev_z cm up and down
+  node_bounds_.at(LY) = NoBound;//Bounds(-0.05, 0.05);
+
+  double z_init = 0.46;//base_linear_->GetPoint(0.0).p_.z();
+  node_bounds_.at(LZ) = Bounds(0.46, 0.55); // allow to move dev_z cm up and down
 
   SetRows(GetNumberOfNodes()*node_bounds_.size());
 }

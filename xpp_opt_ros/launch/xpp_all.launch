@@ -1,0 +1,12 @@
+<launch>
+
+  <!-- so the logging print the node name -->
+  <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${node}]: ${message}" />
+
+  <!-- Upload anymal URDF and IK-->
+  <include file="$(find xpp_vis)/launch/xpp_full.launch"></include>
+
+  <!-- Start the optimizer-->
+  <include file="$(find xpp_opt_ros)/launch/xpp.launch"></include>
+       
+</launch>

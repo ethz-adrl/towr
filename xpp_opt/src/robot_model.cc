@@ -137,12 +137,12 @@ RobotModel::MakeAnymalModel ()
   kinematic_model_ = std::make_shared<KinematicModel>(n_ee);
   const double x_nominal_b = 0.33; // wrt to hip 5cm
   const double y_nominal_b = 0.19; // wrt to hip -3cm
-  const double z_nominal_b = -0.47;
+  const double z_nominal_b = -0.46;
   kinematic_model_->nominal_stance_.at(LF) <<  x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
-  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.06, 0.07;
+  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.06, 0.10;
 
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
 }
@@ -152,15 +152,16 @@ RobotModel::SetAnymalInitialState (State3dEuler& base, EndeffectorsPos& feet)
 {
   using namespace xpp::quad;
 
-  base.lin.p_ << -0.02, 0.0, 0.54;
+  base.lin.p_ << 0.0, 0.0, 0.46;  // for real robot 0.46, in simulation probably higher.
   base.ang.p_ << 0.0, 0.0, 0.0;    // euler (roll, pitch, yaw)
 
   int n_ee = 4;
+  double z_start = -0.02; // for real robot approx -0.02, in simulation +0.02.
   feet.SetCount(n_ee);
-  feet.at(LF) << 0.25, 0.18, 0.02;
-  feet.at(RF) <<  0.24, -0.20, 0.02;
-  feet.at(LH) <<   -0.28, 0.18, 0.02;
-  feet.at(RH) <<   -0.27, -0.20, 0.02;
+  feet.at(LF) <<  0.34,  0.19, z_start;
+  feet.at(RF) <<  0.34, -0.19, z_start;
+  feet.at(LH) << -0.34,  0.19, z_start;
+  feet.at(RH) << -0.34, -0.19, z_start;
 }
 
 void
