@@ -16,10 +16,13 @@ DynamicModel::DynamicModel(double mass)
 }
 
 void
-DynamicModel::SetCurrent (const ComPos& com_pos, const EELoad& ee_force,
+DynamicModel::SetCurrent (const ComPos& com_pos,
+                          const AngVel& omega,
+                          const EELoad& ee_force,
                           const EEPos& ee_pos)
 {
   com_pos_  = com_pos;
+  omega_    = omega;
   ee_force_ = ee_force;
   ee_pos_   = ee_pos;
 }

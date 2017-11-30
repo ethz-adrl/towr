@@ -62,6 +62,25 @@ AngularStateConverter::GetAngularVelocity (const EulerAngles& pos,
   return GetM(pos)*vel;
 }
 
+AngularStateConverter::Jacobian
+AngularStateConverter::GetDerivOfAngVelWrtCoeff(double t) const
+{
+  Jacobian jac(kDim3d, OptVariablesOfCurrentPolyCount(t));
+
+  StateLin3d ori = euler_->GetPoint(t);
+  // convert to sparse, but also regard 0.0 as non-zero element, because
+  // could turn nonzero during the course of the program
+  JacobianRow vel = ori.v_.transpose().sparseView(1.0, -1.0);
+  Jacobian dVel_du  = euler_->GetJacobian(t, kVel);
+
+  for (auto dim : {X,Y,Z}) {
+    Jacobian dM_du = GetDerivMwrtCoeff(t,dim);
+    jac.row(dim) = vel*dM_du + GetM(ori.p_).row(dim)*dVel_du;
+  }
+
+  return jac;
+}
+
 AngularStateConverter::AngularAcc
 AngularStateConverter::GetAngularAcceleration (double t) const
 {
@@ -135,7 +154,7 @@ AngularStateConverter::GetMdot (const EulerAngles& xyz,
 
   Mdot.coeffRef(0,Y) = -cos(z)*zd; Mdot.coeffRef(0,X) = -cos(z)*sin(y)*yd - cos(y)*sin(z)*zd;
   Mdot.coeffRef(1,Y) = -sin(z)*zd; Mdot.coeffRef(1,X) =  cos(y)*cos(z)*zd - sin(y)*sin(z)*yd;
-                                    Mdot.coeffRef(2,X) = -cos(y)*yd;
+                                   Mdot.coeffRef(2,X) = -cos(y)*yd;
 
  return Mdot;
 }

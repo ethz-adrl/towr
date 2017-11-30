@@ -18,8 +18,10 @@ CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia,
                                   int ee_count)
     :DynamicModel(mass)
 {
-  SetCurrent(ComPos::Zero(), EELoad(ee_count), EEPos(ee_count));
-  I_inv_ = inertia.inverse().sparseView();
+  SetCurrent(ComPos::Zero(), AngVel::Zero(), EELoad(ee_count), EEPos(ee_count));
+  I_dense_ = inertia;
+  I_       = inertia.sparseView();
+  I_inv_   = inertia.inverse().sparseView();
 }
 
 CentroidalModel::~CentroidalModel ()
@@ -30,11 +32,11 @@ CentroidalModel::~CentroidalModel ()
 CentroidalModel::BaseAcc
 CentroidalModel::GetBaseAcceleration () const
 {
-  Vector3d f_lin, ang; f_lin.setZero(); ang.setZero();
+  Vector3d f_lin, f_ang; f_lin.setZero(); f_ang.setZero();
 
   for (auto ee : ee_pos_.GetEEsOrdered()) {
     Vector3d f = ee_force_.at(ee);
-    ang += f.cross(com_pos_-ee_pos_.at(ee));
+    f_ang += f.cross(com_pos_-ee_pos_.at(ee));
     f_lin += f;
   }
 
@@ -43,7 +45,7 @@ CentroidalModel::GetBaseAcceleration () const
   // f_lin += fg_W;
 
   BaseAcc acc;
-  acc.segment(AX, kDim3d) = I_inv_*ang;
+  acc.segment(AX, kDim3d) = I_inv_*(f_ang - omega_.cross(I_dense_*omega_)); // coriolis terms
   acc.segment(LX, kDim3d) = 1./m_ *f_lin;
 
   return acc;
@@ -84,10 +86,19 @@ CentroidalModel::GetJacobianOfAccWrtBaseLin (const Jacobian& jac_pos_base_lin) c
 }
 
 Jacobian
-CentroidalModel::GetJacobianOfAccWrtBaseAng (const Jacobian& jac_pos_base_ang) const
+CentroidalModel::GetJacobianOfAccWrtBaseAng (const Jacobian& jac_ang_vel) const
 {
-  // the 6D base acceleration does not depend on base orientation
-  return Jacobian(kDim6d, jac_pos_base_ang.cols());
+  int n = jac_ang_vel.cols();
+
+  // the 6D base acceleration does not depend on base orientation, but on angular velocity
+  // add derivative of w x Iw here!!!
+  Jacobian jac_coriolis  = -BuildCrossProductMatrix(I_*omega_)*jac_ang_vel;
+  jac_coriolis          +=  BuildCrossProductMatrix(omega_)*I_*jac_ang_vel;
+
+  Jacobian jac(kDim6d, n);
+  jac.middleRows(AX, kDim3d) = I_inv_*(-jac_coriolis);
+
+  return jac;
 }
 
 Jacobian

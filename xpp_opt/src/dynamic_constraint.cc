@@ -120,8 +120,9 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
   }
 
   if (base_angular_->HoldsVarsetThatIsActiveNow(var_set,t)) {
-    Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
-    jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_base_ang_pos);
+    Jacobian jac_ang_vel_wrt_coeff = converter_.GetDerivOfAngVelWrtCoeff(t);
+//    Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
+    jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_ang_vel_wrt_coeff);
     jac_parametrization.middleRows(AX, kDim3d) = converter_.GetDerivOfAngAccWrtCoeff(t);
   }
 
@@ -131,7 +132,8 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 void
 DynamicConstraint::UpdateModel (double t) const
 {
-  auto com_pos = base_linear_->GetPoint(t).p_;
+  auto com_pos   = base_linear_->GetPoint(t).p_;
+  Vector3d omega = converter_.GetAngularVelocity(t);
 
   int n_ee = model_->GetEEIDs().size();
   EndeffectorsPos ee_pos(n_ee);
@@ -141,7 +143,7 @@ DynamicConstraint::UpdateModel (double t) const
     ee_pos.at(ee)   = ee_motion_.at(ee)->GetPoint(t).p_;
   }
 
-  model_->SetCurrent(com_pos, ee_force, ee_pos);
+  model_->SetCurrent(com_pos, omega, ee_force, ee_pos);
 }
 
 } /* namespace xpp */

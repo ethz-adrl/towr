@@ -22,6 +22,7 @@ class DynamicModel {
 public:
   using Ptr       = std::shared_ptr<DynamicModel>;
   using ComPos    = Vector3d;
+  using AngVel    = Vector3d;
   using BaseAcc   = Vector6d;
   using EELoad    = Endeffectors<Vector3d>;
   using EEPos     = EndeffectorsPos;
@@ -30,7 +31,7 @@ public:
   DynamicModel(double mass);
   virtual ~DynamicModel ();
 
-  void SetCurrent(const ComPos& com, const EELoad&, const EEPos&);
+  void SetCurrent(const ComPos& com, const AngVel& w, const EELoad&, const EEPos&);
 
   virtual BaseAcc GetBaseAcceleration() const = 0;
 
@@ -51,9 +52,11 @@ public:
 
   std::vector<EndeffectorID> GetEEIDs() const { return ee_pos_.GetEEsOrdered(); };
 
+
 protected:
   EEPos ee_pos_;
   ComPos com_pos_;
+  AngVel omega_;
   EELoad ee_force_;
 
   double g_; // gravity acceleration [m/s^2]

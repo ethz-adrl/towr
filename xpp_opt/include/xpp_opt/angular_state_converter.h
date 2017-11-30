@@ -51,6 +51,7 @@ public:
 
   AngularVel GetAngularVelocity(double t) const;
   static AngularVel GetAngularVelocity(const EulerAngles& pos, const EulerAngles& vel);
+  Jacobian GetDerivOfAngVelWrtCoeff(double t) const;
 
   static AngularAcc GetAngularAcceleration(StateLin3d euler);
   AngularAcc GetAngularAcceleration(double t) const;
