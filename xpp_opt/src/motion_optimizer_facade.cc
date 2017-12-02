@@ -37,10 +37,10 @@ MotionOptimizerFacade::MotionOptimizerFacade ()
 {
   params_ = std::make_shared<OptimizationParameters>();
 
-  model_.MakeBipedModel();
-  model_.SetInitialState(inital_base_, initial_ee_W_);
+//  model_.MakeBipedModel();
+  model_.MakeAnymalModel();
 
-//  model_.MakeAnymalModel();
+  model_.SetInitialState(inital_base_, initial_ee_W_);
 //  RobotModel::SetAnymalInitialState(inital_base_, initial_ee_W_);
 }
 

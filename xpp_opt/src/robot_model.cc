@@ -131,7 +131,7 @@ RobotModel::MakeAnymalModel ()
 
 
   dynamic_model_ = std::make_shared<CentroidalModel>(36.5, I, n_ee);
-  dynamic_model_->SetForceLimit(500);
+  dynamic_model_->SetForceLimit(3000);
 
 
   kinematic_model_ = std::make_shared<KinematicModel>(n_ee);
@@ -143,6 +143,7 @@ RobotModel::MakeAnymalModel ()
   kinematic_model_->nominal_stance_.at(LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
   kinematic_model_->max_dev_from_nominal_ << 0.15, 0.06, 0.10;
+//  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.06, 0.10; // for real robot tests
 
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
 }

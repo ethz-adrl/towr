@@ -15,7 +15,7 @@ namespace xpp {
 class QuadrupedGaitGenerator : public GaitGenerator {
 public:
   QuadrupedGaitGenerator ();
-  virtual ~QuadrupedGaitGenerator ();
+  virtual ~QuadrupedGaitGenerator () = default;
 
 private:
   virtual GaitInfo GetGait(GaitTypes gait) const override;

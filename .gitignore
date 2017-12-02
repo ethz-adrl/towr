@@ -5,4 +5,8 @@
 */bags/anymal/debug/*
 */bags/video/*
 */bags/anymal/test/
+/xpp_opt_ros/bags/biped/*
+/xpp_opt_ros/bags/anymal/*
+/xpp_opt_ros/bags/hyq/*
+/xpp_opt_ros/bags/monoped/*
 /opt_solve/doc/*

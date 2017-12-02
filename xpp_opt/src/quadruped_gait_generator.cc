@@ -58,12 +58,22 @@ QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
     case Combo1: SetGaits({Stand, Flight, Stand});                 break; // lift one leg
     case Combo2: SetGaits({Stand, Run1, Run1, Stand});             break; // trot
     case Combo3: SetGaits({Stand, Run1, Run1, Run1, Run1, Stand}); break; // long trot
-    case Combo4: SetGaits({Stand, Run2, Run2E, Stand});            break; // fly trot
+    case Combo4: SetGaits({Stand, Run2, Run2, Stand});             break; // fly trot
     case Combo5: SetGaits({Stand, Walk1, Stand});                  break; // walk
     case Combo6: SetGaits({Stand, Walk2, Walk2E, Stand});          break; // overlap-walk
     case Combo7: SetGaits({Stand, Run3, Stand});                   break; // pace
-    case Combo8: SetGaits({Stand, Run3, Run3, Stand});             break; // long pace
-//    case Combo8: SetGaits({Stand, Hop3, Hop3E, Stand});            break; // gallop
+    case Combo8: SetGaits({Stand,
+                           Walk2, Walk2E,
+                           Hop3, Hop3E, // gallop
+                           Stand,
+                           Run2, Run2, // flying trot
+                           Run3, Run3, // pace
+                           Stand,
+                           Hop1, Hop1, // bound
+                           Stand,
+                           Hop2,
+                           Stand});
+      break;
     default: assert(false); std::cout << "Gait not defined\n"; break;
   }
 
@@ -94,7 +104,6 @@ QuadrupedGaitGenerator::GetGait(GaitTypes gait) const
     case Walk2E:  return RemoveTransition(GetStrideWalkOverlap());
     case Run1:    return GetStrideTrot();
     case Run2:    return GetStrideTrotFly();
-    case Run2E:   return RemoveTransition(GetStrideTrotFly());
     case Run3:    return GetStridePace();
     case Hop1:    return GetStrideBound();
     case Hop2:    return GetStridePronk();
@@ -111,7 +120,7 @@ QuadrupedGaitGenerator::GetStrideStand () const
 {
   auto times =
   {
-      0.6,
+      0.2,
   };
   auto contacts =
   {
@@ -139,14 +148,17 @@ QuadrupedGaitGenerator::GetStrideFlight () const
 QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStridePronk () const
 {
+  double push   = 0.3;
+  double flight = 0.4;
+  double land   = 0.3;
+
   auto times =
   {
-      // depends on kinematic max_dev_from_nominal.z() parameter as well
-      0.2, 0.3
+      push, flight, land
   };
   auto phase_contacts =
   {
-      II_, BB_,
+      BB_, II_, BB_,
   };
 
   return std::make_pair(times, phase_contacts);
@@ -174,9 +186,9 @@ QuadrupedGaitGenerator::GetStrideWalk () const
 QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideWalkOverlap () const
 {
-  double three    = 0.3;
-  double lateral  = 0.13;
-  double diagonal = 0.13;
+  double three    = 0.3*0.7;
+  double lateral  = 0.13*0.7;
+  double diagonal = 0.13*0.7;
 
   auto times =
   {
@@ -218,15 +230,19 @@ QuadrupedGaitGenerator::GetStrideTrot () const
 QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideTrotFly () const
 {
-  double stance = 0.3;
-  double flight = 0.1; // 0.03 for sample
+  double push   = 0.2*0.7;
+  double flight = 0.2*0.7; // 0.03 for sample
+  double land   = 0.2*0.7;
   auto times =
   {
-      stance, flight, stance, flight,
+      push, flight,
+      land+push, flight,
+      land
   };
   auto phase_contacts =
   {
-      bP_, II_, Pb_, II_,
+      bP_, II_,
+      Pb_, II_, bP_,
   };
 
   return std::make_pair(times, phase_contacts);
@@ -235,15 +251,17 @@ QuadrupedGaitGenerator::GetStrideTrotFly () const
 QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStridePace () const
 {
-  double A = 0.3;
-  double B = 0.3;
+  double push   = 0.15;
+  double flight = 0.1;
+  double land   = 0.15;
+
   auto times =
   {
-      A, B, A, B,
+      push, flight, land+push, flight, land
   };
   auto phase_contacts =
   {
-      PP_, BB_, bb_, BB_,
+      PP_, II_, bb_, II_, PP_,
   };
 
   return std::make_pair(times, phase_contacts);
@@ -252,15 +270,17 @@ QuadrupedGaitGenerator::GetStridePace () const
 QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideBound () const
 {
-  double A = 0.3;
-  double B = 0.2;
+  double push   = 0.15;
+  double flight = 0.1;
+  double land   = 0.15;
+
   auto times =
   {
-      A, B, A, B,
+      push, flight, land+push, flight, land
   };
   auto phase_contacts =
   {
-      BI_, BB_, IB_, BB_,
+      BI_, II_, IB_, II_, BI_,
   };
 
   return std::make_pair(times, phase_contacts);
@@ -269,9 +289,9 @@ QuadrupedGaitGenerator::GetStrideBound () const
 QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideGallop () const
 {
-  double A = 0.3; // both feet in air
-  double B = 0.2; // overlap
-  double C = 0.2; // transition front->hind
+  double A = 0.3*0.6; // both feet in air
+  double B = 0.2*0.6; // overlap
+  double C = 0.2*0.6; // transition front->hind
   auto times =
   {
       B, A, B,
@@ -314,11 +334,4 @@ QuadrupedGaitGenerator::GetStrideFlyingGallop () const
 	return std::make_pair(times, phase_contacts);
 }
 
-QuadrupedGaitGenerator::~QuadrupedGaitGenerator ()
-{
-  // TODO Auto-generated destructor stub
-}
-
 } /* namespace xpp */
-
-
