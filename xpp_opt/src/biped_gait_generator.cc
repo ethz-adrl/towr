@@ -23,6 +23,32 @@ BipedGaitGenerator::BipedGaitGenerator ()
   SetGaits({Stand});
 }
 
+void
+BipedGaitGenerator::SetCombo (GaitCombos combo)
+{
+  switch (combo) {
+    case Combo0: SetGaits({Stand});                                break;
+    case Combo1: SetGaits({Stand, Flight, Stand});                 break;
+    case Combo2: SetGaits({Stand, Walk1, Walk1, Stand});           break;
+    case Combo3: SetGaits({Stand, Run1, Run1, Stand});             break;
+    case Combo4: SetGaits({Stand, Hop1, Hop1, Stand});             break;
+    case Combo5: SetGaits({Stand, Hop2, Hop2, Hop2, Stand});       break;
+    case Combo6: SetGaits({Stand, Hop3, Hop3, Hop3, Hop3, Stand}); break;
+    case Combo7: SetGaits({Stand, Hop5, Hop5, Hop5, Stand});       break;
+    case Combo8: SetGaits({Stand,
+                           Walk1, Walk1,
+                           Run1, Run1, Run1,
+                           Hop2, Hop2, Hop2, Hop2,
+                           Stand, Stand,
+                           Hop5, Hop5,
+                           Hop1,
+                           Stand,
+                          });
+      break;
+    default: assert(false); std::cout << "Gait not defined\n";     break;
+  }
+}
+
 BipedGaitGenerator::GaitInfo
 BipedGaitGenerator::GetGait (GaitTypes gait) const
 {
@@ -32,10 +58,11 @@ BipedGaitGenerator::GetGait (GaitTypes gait) const
     case Walk1:   return GetStrideWalk();
     case Walk2:   return GetStrideWalk();
     case Run1:    return GetStrideRun();
-    case Run2:    return GetStrideRun();
     case Run3:    return GetStrideRun();
     case Hop1:    return GetStrideHop();
-    case Hop2:    return GetStrideHop();
+    case Hop2:    return GetStrideLeftHop();
+    case Hop3:    return GetStrideRightHop();
+    case Hop5:    return GetStrideGallopHop();
     default: assert(false); // gait not implemented
   }
 }
@@ -45,7 +72,7 @@ BipedGaitGenerator::GetStrideStand () const
 {
   auto times =
   {
-      0.5,
+      0.2,
   };
   auto contacts =
   {
@@ -74,7 +101,7 @@ BipedGaitGenerator::GaitInfo
 BipedGaitGenerator::GetStrideWalk () const
 {
   double step = 0.3;
-  double stance = 0.1;
+  double stance = 0.05;
   auto times =
   {
       step, stance,
@@ -92,17 +119,19 @@ BipedGaitGenerator::GetStrideWalk () const
 BipedGaitGenerator::GaitInfo
 BipedGaitGenerator::GetStrideRun () const
 {
-  double step = 0.3;
-  double flight = 0.2;
+//  double step = 0.3;
+  double flight = 0.4;
+  double pushoff = 0.15;
+  double landing = 0.15;
   auto times =
   {
-      step, flight,
-      step, flight,
+      pushoff, flight,
+      landing+pushoff, flight, landing,
   };
   auto phase_contacts =
   {
-      b_, I_, // swing left foot
-      P_, I_, // swing right foot
+      b_, I_,     // swing left foot
+      P_, I_, b_, // swing right foot
   };
 
   return std::make_pair(times, phase_contacts);
@@ -111,23 +140,78 @@ BipedGaitGenerator::GetStrideRun () const
 BipedGaitGenerator::GaitInfo
 BipedGaitGenerator::GetStrideHop () const
 {
-  double push = 0.3;
-  double flight = 0.2;
+  double push   = 0.15;
+  double flight = 0.5;
+  double land   = 0.15;
   auto times =
   {
-      push, flight,
+      push, flight, land
   };
   auto phase_contacts =
   {
-      B_, I_,
+      B_, I_, B_,
   };
 
   return std::make_pair(times, phase_contacts);
 }
 
-BipedGaitGenerator::~BipedGaitGenerator ()
+BipedGaitGenerator::GaitInfo
+BipedGaitGenerator::GetStrideGallopHop () const
 {
-  // TODO Auto-generated destructor stub
+  double push   = 0.2;
+  double flight = 0.3;
+  double land   = 0.2;
+
+  auto times =
+  {
+      push, flight,
+      land, land,
+  };
+  auto phase_contacts =
+  {
+      P_, I_,
+      b_, B_,
+  };
+
+  return std::make_pair(times, phase_contacts);
+}
+
+BipedGaitGenerator::GaitInfo
+BipedGaitGenerator::GetStrideLeftHop () const
+{
+  double push   = 0.15;
+  double flight = 0.4;
+  double land   = 0.15;
+
+  auto times =
+  {
+      push, flight, land,
+  };
+  auto phase_contacts =
+  {
+      b_, I_, b_
+  };
+
+  return std::make_pair(times, phase_contacts);
+}
+
+BipedGaitGenerator::GaitInfo
+BipedGaitGenerator::GetStrideRightHop () const
+{
+  double push   = 0.2;
+  double flight = 0.2;
+  double land   = 0.2;
+
+  auto times =
+  {
+      push, flight, land
+  };
+  auto phase_contacts =
+  {
+      P_, I_, P_
+  };
+
+  return std::make_pair(times, phase_contacts);
 }
 
 } /* namespace xpp */

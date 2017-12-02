@@ -14,6 +14,17 @@ MonopedGaitGenerator::MonopedGaitGenerator ()
   map_id_to_ee_ = { {"E0", 0 } };
 }
 
+void
+MonopedGaitGenerator::SetCombo (GaitCombos combo)
+{
+  switch (combo) {
+    case Combo0: SetGaits({Stand});  break;
+    case Combo1: SetGaits({Stand, Flight, Stand});  break; // lift one leg
+    case Combo2: SetGaits({Stand, Walk1, Walk1, Stand}); break; // trot
+    default: assert(false); std::cout << "Gait not defined\n"; break;
+  }
+}
+
 MonopedGaitGenerator::GaitInfo
 MonopedGaitGenerator::GetGait (GaitTypes gait) const
 {
@@ -76,11 +87,6 @@ MonopedGaitGenerator::GetStrideHop () const
   };
 
   return std::make_pair(times, contacts);
-}
-
-MonopedGaitGenerator::~MonopedGaitGenerator ()
-{
-  // TODO Auto-generated destructor stub
 }
 
 } /* namespace xpp */

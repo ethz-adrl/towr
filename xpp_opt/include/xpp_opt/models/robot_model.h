@@ -24,7 +24,10 @@ struct RobotModel {
   void MakeAnymalModel();
   void MakeQuadrotorModel();
 
-  // todo move to cpp file
+  /**
+   * Sets the initial state based on the nominal configuration.
+   */
+  void SetInitialState(State3dEuler& base, EndeffectorsPos& feet) const;
   static void SetAnymalInitialState(State3dEuler& base, EndeffectorsPos& feet);
 
   KinematicModel::Ptr kinematic_model_;

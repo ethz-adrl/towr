@@ -15,9 +15,10 @@ namespace xpp {
 class MonopedGaitGenerator : public GaitGenerator {
 public:
   MonopedGaitGenerator ();
-  virtual ~MonopedGaitGenerator ();
+  virtual ~MonopedGaitGenerator () = default;
 
 private:
+
   virtual GaitInfo GetGait(GaitTypes gait) const override;
 
   GaitInfo GetStrideStand() const;
@@ -26,6 +27,8 @@ private:
 
   ContactState o_ = ContactState(1, true); // stance
   ContactState x_ = ContactState(1, false); // flight
+
+  virtual void SetCombo(GaitCombos combo) override;
 };
 
 } /* namespace xpp */

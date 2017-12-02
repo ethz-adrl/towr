@@ -57,7 +57,7 @@ RobotModel::MakeBipedModel ()
 
   Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
   dynamic_model_ = std::make_shared<CentroidalModel>(20, I, n_ee);
-  dynamic_model_->SetForceLimit(400);
+  dynamic_model_->SetForceLimit(1000);
 
 
   kinematic_model_ = std::make_shared<KinematicModel>(n_ee);
@@ -66,7 +66,7 @@ RobotModel::MakeBipedModel ()
   kinematic_model_->nominal_stance_.at(L) << 0.0,  y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(R) << 0.0, -y_nominal_b, z_nominal_b;
 
-  kinematic_model_->max_dev_from_nominal_  << 0.25, 0.15, 0.18;
+  kinematic_model_->max_dev_from_nominal_  << 0.25, 0.15, 0.15;
 
   gait_generator_ = std::make_shared<BipedGaitGenerator>();
 }
@@ -162,6 +162,19 @@ RobotModel::SetAnymalInitialState (State3dEuler& base, EndeffectorsPos& feet)
   feet.at(RF) <<  0.34, -0.19, z_start;
   feet.at(LH) << -0.34,  0.19, z_start;
   feet.at(RH) << -0.34, -0.19, z_start;
+}
+
+void
+RobotModel::SetInitialState(State3dEuler& base, EndeffectorsPos& feet) const
+{
+  double z_start = kinematic_model_->nominal_stance_.at(0).z();
+
+  base.lin.p_ << 0.0, 0.0, -z_start;  // for real robot 0.46, in simulation probably higher.
+  base.ang.p_ << 0.0, 0.0, 0.0;      // euler (roll, pitch, yaw)
+
+  feet = kinematic_model_->nominal_stance_;
+  for (int i=0; i<feet.GetEECount(); ++i)
+    feet.at(i).z() = 0.0; // ground level
 }
 
 void

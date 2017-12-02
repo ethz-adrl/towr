@@ -42,7 +42,7 @@ public:
   enum GaitCombos { Combo0=0, Combo1, Combo2, Combo3, Combo4, Combo5, Combo6, Combo7, Combo8, kNumCombos };
 
 
-  virtual void SetCombo(GaitCombos combo) { assert(false); };
+  virtual void SetCombo(GaitCombos combo) = 0;
 
 
 
@@ -55,7 +55,7 @@ protected:
 
   enum GaitTypes {Stand=0, Flight,
                   Walk1, Walk2, Walk2E,
-                  Run2, Run2E, Run1, Run3,
+                  Run2, Run2E, Run1, Run1E, Run3,
                   Hop1, Hop2, Hop3, Hop3E, Hop5, Hop5E,
                   kNumGaits};
   void SetGaits(const std::vector<GaitTypes>& gaits);

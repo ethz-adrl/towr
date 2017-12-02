@@ -15,9 +15,10 @@ namespace xpp {
 class BipedGaitGenerator : public GaitGenerator {
 public:
   BipedGaitGenerator ();
-  virtual ~BipedGaitGenerator ();
+  virtual ~BipedGaitGenerator () = default;
 
 private:
+
   virtual GaitInfo GetGait(GaitTypes gait) const override;
 
   GaitInfo GetStrideStand() const;
@@ -25,6 +26,11 @@ private:
   GaitInfo GetStrideWalk() const;
   GaitInfo GetStrideRun() const;
   GaitInfo GetStrideHop() const;
+  GaitInfo GetStrideLeftHop() const;
+  GaitInfo GetStrideRightHop() const;
+  GaitInfo GetStrideGallopHop() const;
+
+  virtual void SetCombo(GaitCombos combo) override;
 
   // naming convention:, where the circle is is contact, front is right ->.
   ContactState I_; // flight
