@@ -102,7 +102,7 @@ RobotModel::MakeHyqModel ()
 
 //  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.07, 0.05;
 
-  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.1, 0.1;
+  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.06, 0.1;
 
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
 }
