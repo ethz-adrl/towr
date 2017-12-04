@@ -34,7 +34,17 @@ BipedGaitGenerator::SetCombo (GaitCombos combo)
     case Combo4: SetGaits({Stand, Hop1, Hop1, Stand});             break;
     case Combo5: SetGaits({Stand, Hop2, Hop2, Hop2, Stand});       break;
     case Combo6: SetGaits({Stand, Hop3, Hop3, Hop3, Hop3, Stand}); break;
-    case Combo7: SetGaits({Stand, Hop5, Hop5, Hop5, Stand});       break;
+//    case Combo7: SetGaits({Stand,
+//                           Run1, Run1, Run1,
+//                           Run1, Run1,
+//                           Stand});
+//      break;
+    case Combo7: SetGaits({Stand,
+                           Walk1, Walk1, Walk1,
+                           Walk1, Walk1,
+                           Stand});
+      break;
+    // for RA-L sequence video
     case Combo8: SetGaits({Stand,
                            Walk1, Walk1,
                            Run1, Run1, Run1,

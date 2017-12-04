@@ -61,7 +61,11 @@ QuadrupedGaitGenerator::SetCombo (GaitCombos combo)
     case Combo4: SetGaits({Stand, Run2, Run2, Stand});             break; // fly trot
     case Combo5: SetGaits({Stand, Walk1, Stand});                  break; // walk
     case Combo6: SetGaits({Stand, Walk2, Walk2E, Stand});          break; // overlap-walk
-    case Combo7: SetGaits({Stand, Run3, Stand});                   break; // pace
+    case Combo7: SetGaits({Stand,
+                           Run2, Run2, Run2, Run2, Run2,
+                           Run2, Run2, Run2, Run2, Run2,
+                           Stand});
+      break; // pace
     case Combo8: SetGaits({Stand,
                            Walk2, Walk2E,
                            Hop3, Hop3E, // gallop

@@ -75,7 +75,7 @@ IpoptAdapter::SetOptions (Ipopt::SmartPtr<Ipopt::IpoptApplication> ipopt_app_)
   // ipopt_app_->Options()->SetNumericValue("dual_inf_tol", 1e10);
   // ipopt_app_->Options()->SetNumericValue("compl_inf_tol", 1e10);
 
-  ipopt_app_->Options()->SetNumericValue("max_cpu_time", 10.0);
+  ipopt_app_->Options()->SetNumericValue("max_cpu_time", 60.0);
   // ipopt_app_->Options()->SetIntegerValue("max_iter", 0);
   // ipopt_app_->Options()->SetNumericValue("bound_relax_factor", 0.01);
   // ipopt_app_->Options()->SetNumericValue("bound_frac", 0.5);

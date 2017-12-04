@@ -13,8 +13,8 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <../include/xpp_opt/variables/spline.h>
-#include <../include/xpp_opt/variables/variable_names.h>
+#include <xpp_opt/variables/spline.h>
+#include <xpp_opt/variables/variable_names.h>
 #include <xpp_states/state.h>
 
 
@@ -37,11 +37,6 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
 
   phase_duration_bounds_ = opt::Bounds(min_duration, max_duration);
   first_phase_in_contact_ = is_in_contact_at_start;
-//  SetRows(durations_.size()-1); //
-}
-
-ContactSchedule::~ContactSchedule ()
-{
 }
 
 void
@@ -168,12 +163,18 @@ ContactSchedule::GetObserver (const std::string& id) const
   assert(false);
 }
 
+double
+ContactSchedule::GetTotalTime () const
+{
+  return std::accumulate(durations_.begin(), durations_.end(), 0.0);
+}
+
 
 
 
 DurationConstraint::DurationConstraint (const VariablesPtr& opt_vars,
                                         double T_total, int ee)
-    :Constraint(opt_vars, 1, "DurationConstraint-" + std::to_string(ee))
+    :Constraint(opt_vars, 1, "DurationConstraint_ee_-" + std::to_string(ee))
 {
 //  SetName("DurationConstraint-" + std::to_string(ee));
   schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
@@ -181,10 +182,6 @@ DurationConstraint::DurationConstraint (const VariablesPtr& opt_vars,
 
 //  AddOptimizationVariables(opt_vars);
 //  SetRows(1);
-}
-
-DurationConstraint::~DurationConstraint ()
-{
 }
 
 VectorXd
@@ -210,13 +207,6 @@ DurationConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
   if (var_set == schedule_->GetName())
     for (int col=0; col<schedule_->GetRows(); ++col)
       jac.coeffRef(0, col) = 1.0;
-}
-
-
-double
-ContactSchedule::GetTotalTime () const
-{
-  return std::accumulate(durations_.begin(), durations_.end(), 0.0);
 }
 
 } /* namespace xpp */

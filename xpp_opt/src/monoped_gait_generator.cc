@@ -19,8 +19,13 @@ MonopedGaitGenerator::SetCombo (GaitCombos combo)
 {
   switch (combo) {
     case Combo0: SetGaits({Stand});  break;
-    case Combo1: SetGaits({Stand, Flight, Stand});  break; // lift one leg
-    case Combo2: SetGaits({Stand, Walk1, Walk1, Stand}); break; // trot
+    case Combo1: SetGaits({Stand, Flight, Stand});  break;
+    case Combo2: SetGaits({Stand, Walk1, Walk1, Stand}); break;
+    case Combo3: SetGaits({Stand,
+                           Walk1, Walk1, Walk1, Walk1, Walk1,
+                           Walk1, Walk1, Walk1, Walk1, Walk1,
+                           Stand});
+      break;
     default: assert(false); std::cout << "Gait not defined\n"; break;
   }
 }

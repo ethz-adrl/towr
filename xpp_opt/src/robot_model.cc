@@ -57,16 +57,17 @@ RobotModel::MakeBipedModel ()
 
   Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
   dynamic_model_ = std::make_shared<CentroidalModel>(20, I, n_ee);
-  dynamic_model_->SetForceLimit(1000);
+  dynamic_model_->SetForceLimit(5000);
 
 
   kinematic_model_ = std::make_shared<KinematicModel>(n_ee);
-  const double z_nominal_b = -0.60;
+  const double z_nominal_b = -0.65;
   const double y_nominal_b =  0.20;
   kinematic_model_->nominal_stance_.at(L) << 0.0,  y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(R) << 0.0, -y_nominal_b, z_nominal_b;
 
-  kinematic_model_->max_dev_from_nominal_  << 0.25, 0.15, 0.15;
+//  kinematic_model_->max_dev_from_nominal_  << 0.25, 0.15, 0.10;
+  kinematic_model_->max_dev_from_nominal_  << 0.3, 0.15, 0.15;
 
   gait_generator_ = std::make_shared<BipedGaitGenerator>();
 }
@@ -142,7 +143,7 @@ RobotModel::MakeAnymalModel ()
   kinematic_model_->nominal_stance_.at(RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
-  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.06, 0.10;
+  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.15, 0.13;
 //  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.06, 0.10; // for real robot tests
 
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();

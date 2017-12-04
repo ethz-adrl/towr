@@ -26,14 +26,14 @@ OptimizationParameters::OptimizationParameters ()
 
 
   // range of motion constraint
-  dt_range_of_motion_ = 0.1; // 0.1
+  dt_range_of_motion_ = 0.05; // 0.1
   ee_splines_per_swing_phase_ = 2; // should always be 2 if i want to use swing constraint!
 
   dt_base_range_of_motion_ = dt_base_polynomial_/4.;
 
 
   min_phase_duration_ = 0.1;
-  double max_time = 1.0; // this helps convergence
+  double max_time = 2.0; // this helps convergence
   max_phase_duration_ = max_time>GetTotalTime()?  GetTotalTime() : max_time;
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
@@ -44,7 +44,7 @@ OptimizationParameters::OptimizationParameters ()
       Dynamic,
       Terrain,
       Force,
-//      TotalTime, // Attention: this causes segfault in SNOPT
+      TotalTime, // Attention: this causes segfault in SNOPT
       Swing, // this is important for lifting leg
   };
 

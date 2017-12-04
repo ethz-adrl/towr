@@ -113,7 +113,7 @@ public:
 
 private:
   const double gap_start_ = 1.5;
-  const double w = 0.5; // gap width
+  const double w = 1.0; // gap width or 0.5 for ANYmal
   const double h = 1.6;
 
   const double slope_ = h/w;

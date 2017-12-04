@@ -31,7 +31,7 @@ public:
                    bool is_in_contact_at_start,
                    double min_phase_duration,
                    double max_phase_duration);
-  virtual ~ContactSchedule ();
+  virtual ~ContactSchedule () = default;
 
   bool IsInContact(double t_global) const;
 
@@ -76,7 +76,7 @@ public:
   using SchedulePtr = std::shared_ptr<ContactSchedule>;
 
   DurationConstraint(const VariablesPtr& opt_vars, double T_total, int ee);
-  ~DurationConstraint();
+  ~DurationConstraint() = default;
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;

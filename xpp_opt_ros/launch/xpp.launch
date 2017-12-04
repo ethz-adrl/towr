@@ -6,6 +6,11 @@
   <!--  load the ros parameters  -->
   <include file="$(find xpp_opt_ros)/launch/xpp_params.launch"></include>
 
-  <node name="nlp_optimizer_node" pkg="xpp_opt_ros" type="nlp_optimizer_node" output="screen"/>
+  <node 
+    name="nlp_optimizer_node" 
+    pkg="xpp_opt_ros" 
+    type="nlp_optimizer_node" 
+    output="screen">
+  </node>
     
 </launch>

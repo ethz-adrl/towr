@@ -214,7 +214,7 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 CostConstraintFactory::ComponentPtr
 CostConstraintFactory::MakeTotalTimeConstraint () const
 {
-  auto c = std::make_shared<Composite>("Range-of-Motion Constraints", false);
+  auto c = std::make_shared<Composite>("TotalTimeConstraint", false);
   double T = params->GetTotalTime();
 
   for (auto ee : GetEEIDs()) {
