@@ -114,7 +114,7 @@ public:
 private:
   const double gap_start_ = 1.5;
   const double w = 1.0; // gap width or 0.5 for ANYmal
-  const double h = 1.6;
+  const double h = 1.0; // 1.6 was
 
   const double slope_ = h/w;
   const double dx = w/2.0; // gap witdh 2
