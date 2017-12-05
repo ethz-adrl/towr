@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   std::cout << "Reading from bag " + bag_r.getFileName() << std::endl;
 
   // select which iterations (message topics) to be included in bag file
-  std::string topic = "xpp/state_des";
+  std::string topic = "/xpp/state_des";
   rosbag::View view(bag_r, rosbag::TopicQuery(topic));
   if (view.size() == 0) {
     std::cerr << "Error: Topic " << topic << " doesn't exist\n";

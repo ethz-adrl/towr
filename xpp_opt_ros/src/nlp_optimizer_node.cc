@@ -122,7 +122,7 @@ NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
   std::string bag_file = rosbag_folder_+ bag_name_;
   if (msg.optimize) {
     OptimizeMotion();
-    SaveOptimizationAsRosbag(bag_file, false);
+    SaveOptimizationAsRosbag(bag_file, true);
   }
 
   if (msg.replay_trajectory || msg.optimize) {
