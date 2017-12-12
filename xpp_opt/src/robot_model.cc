@@ -67,7 +67,7 @@ RobotModel::MakeBipedModel ()
   kinematic_model_->nominal_stance_.at(R) << 0.0, -y_nominal_b, z_nominal_b;
 
 //  kinematic_model_->max_dev_from_nominal_  << 0.25, 0.15, 0.10;
-  kinematic_model_->max_dev_from_nominal_  << 0.3, 0.15, 0.15;
+  kinematic_model_->max_dev_from_nominal_  << 0.25, 0.15, 0.15;
 
   gait_generator_ = std::make_shared<BipedGaitGenerator>();
 }
@@ -143,8 +143,8 @@ RobotModel::MakeAnymalModel ()
   kinematic_model_->nominal_stance_.at(RF) <<  x_nominal_b,  -y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(LH) << -x_nominal_b,   y_nominal_b, z_nominal_b;
   kinematic_model_->nominal_stance_.at(RH) << -x_nominal_b,  -y_nominal_b, z_nominal_b;
-  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.15, 0.13;
-//  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.06, 0.10; // for real robot tests
+//  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.15, 0.13;
+  kinematic_model_->max_dev_from_nominal_ << 0.15, 0.1, 0.10; // for real robot tests
 
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
 }

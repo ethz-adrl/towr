@@ -40,7 +40,7 @@ public:
   virtual void SetGroundHeight(double height) {};
 
 private:
-  double friction_coeff_ = 1.0;
+  double friction_coeff_ = 0.5;
 
   // not normalized basis vectors of basis vector derivatives
   Vector3d GetBasisNotNormalized(BasisVector, double x, double y, const Derivatives& = {}) const;
