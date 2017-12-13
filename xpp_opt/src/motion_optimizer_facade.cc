@@ -38,8 +38,8 @@ MotionOptimizerFacade::MotionOptimizerFacade ()
   params_ = std::make_shared<OptimizationParameters>();
 
 //    model_.MakeMonopedModel();
-  model_.MakeBipedModel();
-//  model_.MakeAnymalModel();
+//  model_.MakeBipedModel();
+  model_.MakeAnymalModel();
 //  model_.MakeHyqModel();
 
   model_.SetInitialState(inital_base_, initial_ee_W_);
