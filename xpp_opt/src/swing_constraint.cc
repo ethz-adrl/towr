@@ -23,13 +23,17 @@ namespace xpp {
 using namespace opt;
 
 
-SwingConstraint::SwingConstraint (const VariablesPtr& opt_vars, std::string ee_motion)
-    :Constraint(opt_vars, kSpecifyLater, "Swing-Constraint-" + ee_motion)
+SwingConstraint::SwingConstraint (std::string ee_motion)
+    :Constraint(kSpecifyLater, "Swing-Constraint-" + ee_motion)
 {
-  ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion);
-
+  ee_motion_id_ = ee_motion;
 //  AddOptimizationVariables(opt_vars);
+}
 
+void
+xpp::SwingConstraint::LinkVariables (const VariablesPtr& x)
+{
+  ee_motion_ = x->GetComponent<EEMotionNodes>(ee_motion_id_);
   auto nodes = ee_motion_->GetNodes();
   usable_nodes_ = nodes.size() - 1; // because swinging last node has no further node
 

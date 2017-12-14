@@ -4,7 +4,7 @@ project(xpp_opt)
 
 find_package(catkin REQUIRED COMPONENTS
   xpp_states
-  opt_solve
+  ifopt
 )
 
 find_package(Eigen3 REQUIRED)
@@ -13,7 +13,7 @@ find_package(Eigen3 REQUIRED)
 
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++11")
 
 
 ###################################
@@ -28,7 +28,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++14")
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS opt_solve
+  CATKIN_DEPENDS ifopt
   DEPENDS
 )
 

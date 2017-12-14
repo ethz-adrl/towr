@@ -15,8 +15,8 @@
 #include <tuple>
 #include <utility>
 
-#include <opt_solve/solvers/ipopt_adapter.h>
-#include <opt_solve/solvers/snopt_adapter.h>
+#include <ifopt/solvers/ipopt_adapter.h>
+#include <ifopt/solvers/snopt_adapter.h>
 
 #include <xpp_opt/angular_state_converter.h>
 #include <xpp_opt/cost_constraint_factory.h>
@@ -31,7 +31,7 @@
 
 namespace xpp {
 
-using namespace opt;
+using Composite = opt::Composite;
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {
@@ -77,19 +77,19 @@ MotionOptimizerFacade::SetFinalState (const StateLin3d& lin,
   final_base_.lin.p_.z() = z_terrain - z_nominal_B;
 }
 
-MotionOptimizerFacade::VariablesCompPtr
+void
 MotionOptimizerFacade::BuildVariables () const
 {
-  auto opt_variables = std::make_shared<Composite>("nlp_variables", false);
-  opt_variables->ClearComponents();
+//  auto opt_variables = std::make_shared<opt::Composite>("nlp_variables", false);
+//  opt_variables->ClearComponents();
 
 
   switch (params_->GetBaseRepresentation()) {
     case OptimizationParameters::CubicHermite:
-      SetBaseRepresentationHermite(opt_variables);
+      SetBaseRepresentationHermite();
       break;
     case OptimizationParameters::PolyCoeff:
-      SetBaseRepresentationCoeff(opt_variables);
+      SetBaseRepresentationCoeff();
       break;
     default:
       assert(false); // representation not defined
@@ -129,42 +129,50 @@ MotionOptimizerFacade::BuildVariables () const
     if (step_taken) // otherwise overwrites start bound
       ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
 
-    opt_variables->AddComponent(ee_motion);
-  }
+    nlp.AddVariableSet(ee_motion);
+
+
+
+
+
+
+//  }
 
   // Endeffector Forces
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+//  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
     auto nodes_forces = std::make_shared<EEForceNodes>(contact_schedule.at(ee)->GetContactSequence(),
                                                      id::GetEEForceId(ee),
                                                      params_->force_splines_per_stance_phase_);
 
     Vector3d f_stance(0.0, 0.0, model_.dynamic_model_->GetStandingZForce());
     nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule.at(ee)->GetTimePerPhase());
-    opt_variables->AddComponent(nodes_forces);
-  }
+    nlp.AddVariableSet(nodes_forces);
+
+//  }
 
 
   // make endeffector motion and forces dependent on durations
   bool optimize_timings = params_->ConstraintExists(TotalTime);
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+//  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
 
     if (optimize_timings) {
-      contact_schedule.at(ee)->AddObserver(opt_variables->GetComponent<PhaseNodes>(id::GetEEMotionId(ee)));
-      contact_schedule.at(ee)->AddObserver(opt_variables->GetComponent<PhaseNodes>(id::GetEEForceId(ee)));
+      contact_schedule.at(ee)->AddObserver(ee_motion);
+      contact_schedule.at(ee)->AddObserver(nodes_forces);
     } else {
       contact_schedule.at(ee)->SetRows(0); // zero rows means no variables to optimize
     }
 
-    opt_variables->AddComponent(contact_schedule.at(ee));
+    nlp.AddVariableSet(contact_schedule.at(ee));
+
   }
 
 
 //  opt_variables->Print();
-  return opt_variables;
+//  return opt_variables;
 }
 
 void
-MotionOptimizerFacade::SetBaseRepresentationCoeff (VariablesCompPtr& opt_variables) const
+MotionOptimizerFacade::SetBaseRepresentationCoeff () const
 {
   int n_dim = inital_base_.lin.kNumDim;
   int order = params_->order_coeff_polys_;
@@ -174,27 +182,27 @@ MotionOptimizerFacade::SetBaseRepresentationCoeff (VariablesCompPtr& opt_variabl
   for (int i=0; i<base_spline_timings_.size(); ++i) {
     auto p_ang = std::make_shared<Polynomial>(order, n_dim);
     auto var = std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang);
-    opt_variables->AddComponent(var);
+    nlp.AddVariableSet(var);
 
     coeff_spline_ang->poly_vars_.push_back(var);
   }
   coeff_spline_ang->InitializeVariables(inital_base_.ang.p_, final_base_.ang.p_);
-  opt_variables->AddComponent(coeff_spline_ang); // add just for easy access later
+  nlp.AddVariableSet(coeff_spline_ang); // add just for easy access later
 
 
   auto coeff_spline_lin = std::make_shared<CoeffSpline>(id::base_linear, base_spline_timings_);
   for (int i=0; i<base_spline_timings_.size(); ++i) {
     auto p_lin = std::make_shared<Polynomial>(order, n_dim);
     auto var = std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin);
-    opt_variables->AddComponent(var);
+    nlp.AddVariableSet(var);
     coeff_spline_lin->poly_vars_.push_back(var);
   }
   coeff_spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_);
-  opt_variables->AddComponent(coeff_spline_lin); // add just for easy access later
+  nlp.AddVariableSet(coeff_spline_lin); // add just for easy access later
 }
 
 void
-MotionOptimizerFacade::SetBaseRepresentationHermite (VariablesCompPtr& opt_variables_) const
+MotionOptimizerFacade::SetBaseRepresentationHermite () const
 {
   int n_dim = inital_base_.lin.kNumDim;
   std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
@@ -237,7 +245,7 @@ MotionOptimizerFacade::SetBaseRepresentationHermite (VariablesCompPtr& opt_varia
     //    }
 
 
-    opt_variables_->AddComponent(spline);
+    nlp.AddVariableSet(spline);
   }
 
 
@@ -259,40 +267,52 @@ MotionOptimizerFacade::SetBaseRepresentationHermite (VariablesCompPtr& opt_varia
 //  opt_variables_->AddComponent(spline_ang);
 }
 
-void
-MotionOptimizerFacade::BuildCostConstraints(const VariablesCompPtr& opt_variables)
-{
-  CostConstraintFactory factory;
-  factory.Init(opt_variables, params_, terrain_, model_,
-               initial_ee_W_, inital_base_, final_base_);
-
-  auto constraints = std::make_unique<Composite>("constraints", false);
-  for (ConstraintName name : params_->GetUsedConstraints())
-    constraints->AddComponent(factory.GetConstraint(name));
-
-//  constraints->Print();
-  nlp.SetConstraints(std::move(constraints));
-
-
-  auto costs = std::make_unique<Composite>("costs", true);
-  for (const auto& pair : params_->GetCostWeights())
-    costs->AddComponent(factory.GetCost(pair.first, pair.second));
-
-//  costs->Print();
-  nlp.SetCosts(std::move(costs));
-}
+//void
+//MotionOptimizerFacade::BuildCostConstraints(const VariablesCompPtr& opt_variables)
+//{
+//  CostConstraintFactory factory;
+//  factory.Init(opt_variables, params_, terrain_, model_,
+//               initial_ee_W_, inital_base_, final_base_);
+//
+//  auto constraints = std::make_unique<Composite>("constraints", false);
+//  for (ConstraintName name : params_->GetUsedConstraints())
+//    constraints->AddComponent(factory.GetConstraint(name));
+//
+////  constraints->Print();
+//  nlp.SetConstraints(std::move(constraints));
+//
+//
+//  auto costs = std::make_unique<Composite>("costs", true);
+//  for (const auto& pair : params_->GetCostWeights())
+//    costs->AddComponent(factory.GetCost(pair.first, pair.second));
+//
+////  costs->Print();
+//  nlp.SetCosts(std::move(costs));
+//}
 
 void
 MotionOptimizerFacade::SolveProblem ()
 {
-  auto variables = BuildVariables();
-  nlp.SetVariables(variables);
+  nlp = opt::Problem(); // reset
 
-  BuildCostConstraints(variables);
+  BuildVariables();
+
+  CostConstraintFactory factory;
+  factory.Init(params_, terrain_, model_,
+               initial_ee_W_, inital_base_, final_base_);
+
+  for (ConstraintName name : params_->GetUsedConstraints())
+    for (auto c : factory.GetConstraint(name))
+      nlp.AddConstraintSet(c);
+
+  for (const auto& pair : params_->GetCostWeights())
+    for (auto c : factory.GetCost(pair.first, pair.second))
+      nlp.AddCostSet(c);
+
 
   switch (nlp_solver_) {
-    case Ipopt: IpoptAdapter::Solve(nlp); break;
-    case Snopt: SnoptAdapter::Solve(nlp); break;
+    case Ipopt: opt::IpoptAdapter::Solve(nlp); break;
+    case Snopt: opt::SnoptAdapter::Solve(nlp); break;
     default: assert(false); // solver not implemented
   }
 
@@ -350,9 +370,6 @@ MotionOptimizerFacade::GetTrajectory (const VariablesCompPtr& vars,
   return trajectory;
 }
 
-MotionOptimizerFacade::~MotionOptimizerFacade ()
-{
-}
 
 /*! @brief Returns unique Euler angles in [-pi,pi),[-pi/2,pi/2),[-pi,pi).
  *

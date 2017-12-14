@@ -15,7 +15,7 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <opt_solve/composite.h>
+#include <ifopt/composite.h>
 
 #include <xpp_opt/polynomial.h>
 #include <xpp_opt/variables/coeff_spline.h>
@@ -33,13 +33,14 @@ public:
   using SplineT        = std::shared_ptr<Spline>;
   using Dimensions     = std::vector<Coords3D>;
 
-  SplineStateConstraint (const VariablesPtr& opt_vars,
-                         const std::string& id,
+  SplineStateConstraint (const std::string& id,
                          double t_global,
                          const StateLinXd& state,
                          const DerivativeVec&,
                          const Dimensions&);
   virtual ~SplineStateConstraint ();
+
+  virtual void LinkVariables(const VariablesPtr& x) override;
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
@@ -51,6 +52,7 @@ private:
   DerivativeVec derivatives_;
   Dimensions dims_;
   SplineT spline_;
+  std::string id_;
 };
 
 
@@ -62,10 +64,11 @@ public:
   using VecTimes      = std::vector<double>;
   using SplineT       = std::shared_ptr<CoeffSpline>;
 
-  SplineJunctionConstraint (const VariablesPtr& opt_vars,
-                            const std::string& spline_id,
+  SplineJunctionConstraint (const std::string& spline_id,
                             const DerivativeVec&);
   virtual ~SplineJunctionConstraint ();
+
+  virtual void LinkVariables(const VariablesPtr& x) override;
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
@@ -74,6 +77,7 @@ public:
 private:
   SplineT spline_;
   int n_junctions_;
+  std::string id_;
 
   DerivativeVec derivatives_;
   int n_dim_;

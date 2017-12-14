@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-#include <opt_solve/problem.h>
+#include <ifopt/problem.h>
 
 #include <xpp_opt/height_map.h>
 #include <xpp_opt/models/robot_model.h>
@@ -36,7 +36,7 @@ public:
   using RobotStateVec            = std::vector<RobotStateCartesian>;
 
   MotionOptimizerFacade ();
-  virtual ~MotionOptimizerFacade ();
+  virtual ~MotionOptimizerFacade () = default;
 
   void SetInitialState(const RobotStateCartesian&);
 
@@ -69,11 +69,11 @@ private:
   State3dEuler final_base_;
   RobotStateVec GetTrajectory(const VariablesCompPtr&, double dt) const;
 
-  VariablesCompPtr BuildVariables() const;
-  void BuildCostConstraints(const VariablesCompPtr&);
+  void BuildVariables() const;
+//  void BuildCostConstraints(const VariablesCompPtr&);
 
-  void SetBaseRepresentationCoeff(VariablesCompPtr&) const;
-  void SetBaseRepresentationHermite(VariablesCompPtr&) const;
+  void SetBaseRepresentationCoeff() const;
+  void SetBaseRepresentationHermite() const;
 
   mutable opt::Problem nlp;
 

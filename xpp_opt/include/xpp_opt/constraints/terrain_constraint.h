@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include <opt_solve/composite.h>
+#include <ifopt/composite.h>
 
 #include <xpp_opt/height_map.h>
 #include <xpp_opt/variables/phase_nodes.h>
@@ -24,9 +24,11 @@ namespace xpp {
 class TerrainConstraint : public opt::Constraint {
 public:
   TerrainConstraint (const HeightMap::Ptr& terrain,
-                     const VariablesPtr& opt_vars,
                      std::string ee_motion_id);
   virtual ~TerrainConstraint ();
+
+
+  virtual void LinkVariables(const VariablesPtr& x) override;
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd GetValues() const override;
@@ -37,6 +39,8 @@ public:
 private:
   EEMotionNodes::Ptr ee_motion_;
   HeightMap::Ptr terrain_;
+
+  std::string ee_motion_id_;
 
   std::vector<int> node_ids_;
 

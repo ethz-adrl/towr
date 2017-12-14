@@ -13,10 +13,11 @@
 #include <memory>
 #include <vector>
 
-#include <xpp_opt/variables/node_values.h>
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
+#include <xpp_opt/variables/node_values.h>
+#include <xpp_opt/variables/variable_names.h>
 
 namespace xpp {
 
@@ -25,18 +26,26 @@ using namespace opt;
 
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   double force_limit,
-                                  const VariablesPtr& opt_vars,
-                                  const std::string& ee_force_id,
-                                  const std::string& ee_motion_id)
-    :opt::Constraint(opt_vars, kSpecifyLater, "Force-Constraint-" + ee_force_id )
+                                  EndeffectorID ee)
+    :opt::Constraint(kSpecifyLater, "Force-Constraint-" + id::GetEEForceId(ee))
 {
-  ee_force_  = opt_vars->GetComponent<EEForceNodes>(ee_force_id);
-  ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion_id);
+
   terrain_   = terrain;
   force_limit_normal_direction_ = force_limit;
   mu_        = terrain->GetFrictionCoeff();
+  ee_ = ee;
 
 //  AddOptimizationVariables(opt_vars);
+
+
+//  SetName("Force-Constraint-" + ee_force_id);
+}
+
+void
+ForceConstraint::LinkVariables (const VariablesPtr& x)
+{
+  ee_force_  = x->GetComponent<EEForceNodes>(id::GetEEForceId(ee_));
+  ee_motion_ = x->GetComponent<EEMotionNodes>(id::GetEEMotionId(ee_));
 
   int constraint_count = 0;
   n_constraints_per_node_ = 1 + 2*kDim2d; // positive normal force + 4 friction pyramid constraints
@@ -45,7 +54,6 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
       constraint_count += n_constraints_per_node_;
 
   SetRows(constraint_count);
-//  SetName("Force-Constraint-" + ee_force_id);
 }
 
 VectorXd

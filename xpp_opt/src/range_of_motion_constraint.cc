@@ -16,26 +16,30 @@
 
 namespace xpp {
 
-RangeOfMotionBox::RangeOfMotionBox (const VariablesPtr& opt_vars,
-                                    const OptimizationParameters& params,
+RangeOfMotionBox::RangeOfMotionBox (const OptimizationParameters& params,
                                     const KinematicModel::Ptr& kinematic_model,
                                     const EndeffectorID& ee)
     :TimeDiscretizationConstraint(params.GetTotalTime(),
                                   params.dt_range_of_motion_,
-                                  opt_vars,
                                   "RangeOfMotionBox-" + std::to_string(ee))
 {
 //  SetName("RangeOfMotionBox-" + std::to_string(ee));
   ee_ = ee;
   max_deviation_from_nominal_ = kinematic_model->GetMaximumDeviationFromNominal();
   nominal_ee_pos_B_           = kinematic_model->GetNominalStanceInBase().at(ee);
-
-  base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
-  base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
-  ee_motion_    = opt_vars->GetComponent<NodeValues>(id::GetEEMotionId(ee));
-  ee_timings_   = opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee));
-
   SetRows(GetNumberOfNodes()*kDim3d);
+
+
+}
+
+void
+RangeOfMotionBox::LinkVariables (const VariablesPtr& x)
+{
+  base_linear_  = x->GetComponent<Spline>(id::base_linear);
+  base_angular_ = x->GetComponent<Spline>(id::base_angular);
+  ee_motion_    = x->GetComponent<NodeValues>(id::GetEEMotionId(ee_));
+  ee_timings_   = x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee_));
+
   converter_ = AngularStateConverter(base_angular_);
 }
 
@@ -101,3 +105,4 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
 }
 
 } /* namespace xpp */
+

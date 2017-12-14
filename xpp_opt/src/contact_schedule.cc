@@ -172,16 +172,22 @@ ContactSchedule::GetTotalTime () const
 
 
 
-DurationConstraint::DurationConstraint (const VariablesPtr& opt_vars,
-                                        double T_total, int ee)
-    :Constraint(opt_vars, 1, "DurationConstraint_ee_-" + std::to_string(ee))
+DurationConstraint::DurationConstraint (double T_total, int ee)
+    :Constraint(1, "DurationConstraint_ee_-" + std::to_string(ee))
 {
 //  SetName("DurationConstraint-" + std::to_string(ee));
-  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
+//  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
   T_total_ = T_total;
+  ee_ = ee;
 
 //  AddOptimizationVariables(opt_vars);
 //  SetRows(1);
+}
+
+void
+DurationConstraint::LinkVariables (const VariablesPtr& x)
+{
+  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(x->GetComponent(id::GetEEScheduleId(ee_)));
 }
 
 VectorXd

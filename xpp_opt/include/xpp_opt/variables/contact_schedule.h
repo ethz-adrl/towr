@@ -14,7 +14,7 @@
 
 #include <xpp_states/endeffectors.h>
 
-#include <opt_solve/composite.h>
+#include <ifopt/composite.h>
 #include <xpp_opt/variables/phase_nodes.h>
 
 namespace xpp {
@@ -75,8 +75,10 @@ class DurationConstraint : public opt::Constraint {
 public:
   using SchedulePtr = std::shared_ptr<ContactSchedule>;
 
-  DurationConstraint(const VariablesPtr& opt_vars, double T_total, int ee);
+  DurationConstraint(double T_total, int ee);
   ~DurationConstraint() = default;
+
+  virtual void LinkVariables(const VariablesPtr& x) override;
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
@@ -85,6 +87,7 @@ public:
 private:
   SchedulePtr schedule_;
   double T_total_;
+  EndeffectorID ee_;
 };
 
 

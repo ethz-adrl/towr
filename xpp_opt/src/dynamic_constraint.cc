@@ -19,27 +19,40 @@
 namespace xpp {
 
 
-DynamicConstraint::DynamicConstraint (const VariablesPtr& opt_vars,
-                                      const DynamicModel::Ptr& m,
+DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
                                       const std::vector<double>& evaluation_times)
-    :TimeDiscretizationConstraint(opt_vars, evaluation_times, "DynamicConstraint")
+    :TimeDiscretizationConstraint(evaluation_times, "DynamicConstraint")
 {
 //  dts_ = evaluation_times;
   model_ = m;
   gravity_ = m->GetGravityAcceleration();
 
 
-  base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
-  base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
-
-  for (auto ee : model_->GetEEIDs()) {
-    ee_motion_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEMotionId(ee)));
-    ee_forces_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEForceId(ee)));
-    ee_timings_.push_back(opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
-  }
+//  base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
+//  base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
+//
+//  for (auto ee : model_->GetEEIDs()) {
+//    ee_motion_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEMotionId(ee)));
+//    ee_forces_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEForceId(ee)));
+//    ee_timings_.push_back(opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
+//  }
 
 //  SetName("DynamicConstraint");
   SetRows(GetNumberOfNodes()*kDim6d);
+}
+
+void
+xpp::DynamicConstraint::LinkVariables (const VariablesPtr& x)
+{
+  base_linear_  = x->GetComponent<Spline>(id::base_linear);
+  base_angular_ = x->GetComponent<Spline>(id::base_angular);
+
+  for (auto ee : model_->GetEEIDs()) {
+    ee_motion_.push_back(x->GetComponent<NodeValues>(id::GetEEMotionId(ee)));
+    ee_forces_.push_back(x->GetComponent<NodeValues>(id::GetEEForceId(ee)));
+    ee_timings_.push_back(x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
+  }
+
   converter_ = AngularStateConverter(base_angular_);
 }
 
@@ -147,4 +160,3 @@ DynamicConstraint::UpdateModel (double t) const
 }
 
 } /* namespace xpp */
-

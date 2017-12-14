@@ -15,16 +15,13 @@ namespace xpp {
 
 using namespace opt;
 
-BaseMotionConstraint::BaseMotionConstraint (const Variables& opt_vars,
-                                            const OptimizationParameters& params)
+BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params)
     :TimeDiscretizationConstraint(params.GetTotalTime(),
                                   params.dt_base_range_of_motion_,
-                                  opt_vars,
                                   "BaseMotionConstraint")
 {
-  base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
-  base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
-
+//  base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
+//  base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
 
   double dev_rad = 0.1;
   node_bounds_.resize(kDim6d);
@@ -39,6 +36,13 @@ BaseMotionConstraint::BaseMotionConstraint (const Variables& opt_vars,
 
   SetRows(GetNumberOfNodes()*node_bounds_.size());
 }
+
+void
+BaseMotionConstraint::LinkVariables(const VariablesPtr& x)
+{
+  base_linear_   = x->GetComponent<Spline>(id::base_linear);
+  base_angular_  = x->GetComponent<Spline>(id::base_angular);
+};
 
 void
 BaseMotionConstraint::UpdateConstraintAtInstance (double t, int k,

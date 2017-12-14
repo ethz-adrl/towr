@@ -16,13 +16,12 @@ namespace xpp {
 
 using namespace opt;
 
-SplineStateConstraint::SplineStateConstraint (const VariablesPtr& opt_vars,
-                                              const std::string& id,
+SplineStateConstraint::SplineStateConstraint (const std::string& id,
                                               double t_global,
                                               const StateLinXd& state,
                                               const DerivativeVec& derivatives,
                                               const Dimensions& dimensions)
-    :Constraint(opt_vars, derivatives.size()*dimensions.size(), "base_spline_")
+    :Constraint(derivatives.size()*dimensions.size(), "base_spline_")
 {
 //  // print out names correctly
 //  std::string deriv_string;
@@ -48,7 +47,7 @@ SplineStateConstraint::SplineStateConstraint (const VariablesPtr& opt_vars,
 //
 //  SetName(id + ",t=" + std::to_string(t_global) + ", " + deriv_string + dim_string);
 
-  spline_      = opt_vars->GetComponent<Spline>(id);
+  id_ = id;
   t_global_    = t_global;
 
   state_desired_ = state;
@@ -58,6 +57,12 @@ SplineStateConstraint::SplineStateConstraint (const VariablesPtr& opt_vars,
 //  int n_constraints = derivatives.size()*dims_.size();
 //  AddOptimizationVariables(opt_vars);
 //  SetRows(n_constraints);
+}
+
+void
+xpp::SplineStateConstraint::LinkVariables (const VariablesPtr& x)
+{
+  spline_ = x->GetComponent<Spline>(id_);
 }
 
 SplineStateConstraint::~SplineStateConstraint ()
@@ -114,22 +119,31 @@ SplineStateConstraint::GetBounds () const
 
 
 
-SplineJunctionConstraint::SplineJunctionConstraint (const VariablesPtr& opt_vars,
-                                                    const std::string& spline_id,
+SplineJunctionConstraint::SplineJunctionConstraint (const std::string& spline_id,
                                                     const DerivativeVec& derivatives
                                                     )
-    : Constraint(opt_vars, -1, "SplineJunctionConstraint-" + spline_id)
+    : Constraint(kSpecifyLater, "SplineJunctionConstraint-" + spline_id)
 {
 //  SetName("SplineJunctionConstraint-" + spline_id);
 
   // need specific functions from coefficient spline
-  spline_        = opt_vars->GetComponent<CoeffSpline>(spline_id);
+//  spline_        = opt_vars->GetComponent<CoeffSpline>(spline_id);
   derivatives_   = derivatives;
-  n_dim_         = spline_->GetPoint(0.0).kNumDim;
+  id_ = spline_id;
+//  n_dim_         = spline_->GetPoint(0.0).kNumDim;
 
+//  n_junctions_ = spline_->GetPolyCount()-1; // because one less junction than poly's.
+//  SetRows(derivatives_.size() * n_junctions_ * n_dim_);
+//  AddOptimizationVariables(opt_vars);
+}
+
+void
+SplineJunctionConstraint::LinkVariables (const VariablesPtr& x)
+{
+  spline_ = x->GetComponent<CoeffSpline>(id_);
+  n_dim_  = spline_->GetPoint(0.0).kNumDim;
   n_junctions_ = spline_->GetPolyCount()-1; // because one less junction than poly's.
   SetRows(derivatives_.size() * n_junctions_ * n_dim_);
-//  AddOptimizationVariables(opt_vars);
 }
 
 SplineJunctionConstraint::~SplineJunctionConstraint ()

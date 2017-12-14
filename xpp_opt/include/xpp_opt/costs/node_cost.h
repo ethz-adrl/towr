@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>
 
-#include <opt_solve/composite.h>
+#include <ifopt/composite.h>
 
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_opt/variables/node_values.h>
@@ -23,8 +23,10 @@ class NodeCost : public opt::Cost {
 public:
   using Nodes = std::shared_ptr<NodeValues>;
 
-  NodeCost (const VariablesPtr&, const std::string& nodes_id);
+  NodeCost (const std::string& nodes_id);
   virtual ~NodeCost ();
+
+  virtual void LinkVariables(const VariablesPtr& x) override;
 
   double GetCost () const override;
 

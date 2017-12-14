@@ -11,8 +11,6 @@
 #include <memory>
 #include <Eigen/Eigen>
 
-#include <opt_solve/composite.h>
-
 #include <xpp_states/endeffectors.h>
 #include <xpp_opt/models/dynamic_model.h>
 

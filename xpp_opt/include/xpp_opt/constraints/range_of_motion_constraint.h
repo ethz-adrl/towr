@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <opt_solve/composite.h>
+#include <ifopt/composite.h>
 
 #include <xpp_opt/angular_state_converter.h>
 #include <xpp_opt/constraints/time_discretization_constraint.h>
@@ -40,11 +40,12 @@ class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
 //  using VecTimes        = std::vector<double>;
 
-  RangeOfMotionBox(const VariablesPtr& opt_vars,
-                   const OptimizationParameters& params,
+  RangeOfMotionBox(const OptimizationParameters& params,
                    const KinematicModel::Ptr& kinematic_model,
                    const EndeffectorID& ee);
   virtual ~RangeOfMotionBox();
+
+  virtual void LinkVariables(const VariablesPtr& x) override;
 
 private:
   void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;

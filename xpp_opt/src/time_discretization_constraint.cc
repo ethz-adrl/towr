@@ -16,9 +16,8 @@ namespace xpp {
 using namespace opt;
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
-                                                            const Variables& opt_vars,
                                                             const std::string& name)
-    :Constraint(opt_vars, kSpecifyLater, name) // just placeholder
+    :Constraint(kSpecifyLater, name)
 {
   double t = 0.0;
   dts_ = {t};
@@ -32,10 +31,9 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
 //  AddOptimizationVariables(opt_vars);
 }
 
-TimeDiscretizationConstraint::TimeDiscretizationConstraint (const Variables& opt_vars,
-                                                            const EvaluationTimes& times,
+TimeDiscretizationConstraint::TimeDiscretizationConstraint (const EvaluationTimes& times,
                                                             const std::string& name)
-   :Constraint(opt_vars, kSpecifyLater, name) // just placeholder
+   :Constraint(kSpecifyLater, name) // just placeholder
 {
   dts_ = times;
 //  AddOptimizationVariables(opt_vars);

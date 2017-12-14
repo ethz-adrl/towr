@@ -12,7 +12,8 @@
 #include <string>
 #include <vector>
 
-#include <opt_solve/composite.h>
+#include <ifopt/composite.h>
+#include <ifopt/leaves.h>
 
 #include <xpp_opt/height_map.h>
 #include <xpp_opt/models/robot_model.h>
@@ -36,27 +37,29 @@ namespace xpp {
 class CostConstraintFactory {
 public:
   using ComponentPtr     = std::shared_ptr<opt::Component>;
+  using ConstraintPtr    = std::shared_ptr<opt::Constraint>;
+  using ContraintPtrVec  = std::vector<ConstraintPtr>;
+  using CostPtr          = std::shared_ptr<opt::Cost>;
+  using CostPtrVec       = std::vector<CostPtr>;
   using OptVarsContainer = std::shared_ptr<opt::Composite>;
   using MotionParamsPtr  = std::shared_ptr<OptimizationParameters>;
   using Derivatives      = std::vector<MotionDerivative>;
 
-  CostConstraintFactory ();
-  virtual ~CostConstraintFactory ();
+  CostConstraintFactory () = default;
+  virtual ~CostConstraintFactory () = default;
 
-  void Init(const OptVarsContainer&,
-            const MotionParamsPtr&,
+  void Init(const MotionParamsPtr&,
             const HeightMap::Ptr& terrain,
             const RobotModel& model,
             const EndeffectorsPos& ee_pos,
             const State3dEuler& initial_base,
             const State3dEuler& final_base);
 
-  ComponentPtr GetCost(const CostName& id, double weight) const;
-  ComponentPtr GetConstraint(ConstraintName name) const;
+  CostPtrVec GetCost(const CostName& id, double weight) const;
+  ContraintPtrVec GetConstraint(ConstraintName name) const;
 
 private:
   MotionParamsPtr params;
-  OptVarsContainer opt_vars_;
   HeightMap::Ptr terrain_;
   RobotModel model_;
 
@@ -67,23 +70,23 @@ private:
 
 
   // constraints
-  ComponentPtr MakeStateConstraint() const;
-  ComponentPtr MakeDynamicConstraint() const;
-  ComponentPtr MakeRangeOfMotionBoxConstraint() const;
-  ComponentPtr MakeTotalTimeConstraint() const;
-  ComponentPtr MakeTerrainConstraint() const;
-  ComponentPtr MakeForceConstraint() const;
-  ComponentPtr MakeSwingConstraint() const;
-  ComponentPtr MakeBaseRangeOfMotionConstraint() const;
+  ContraintPtrVec MakeStateConstraint() const;
+  ContraintPtrVec MakeDynamicConstraint() const;
+  ContraintPtrVec MakeRangeOfMotionBoxConstraint() const;
+  ContraintPtrVec MakeTotalTimeConstraint() const;
+  ContraintPtrVec MakeTerrainConstraint() const;
+  ContraintPtrVec MakeForceConstraint() const;
+  ContraintPtrVec MakeSwingConstraint() const;
+  ContraintPtrVec MakeBaseRangeOfMotionConstraint() const;
 
   // costs
-  ComponentPtr MakeForcesCost(double weight) const;
-  ComponentPtr MakeMotionCost(double weight) const;
-  ComponentPtr MakePolynomialCost(const std::string& poly_id,
-                                   const Vector3d& weight_dimensions,
-                                   double weight) const;
+  CostPtrVec MakeForcesCost(double weight) const;
+//  CostPtrVec MakeMotionCost(double weight) const;
+//  CostPtrVec MakePolynomialCost(const std::string& poly_id,
+//                                   const Vector3d& weight_dimensions,
+//                                   double weight) const;
 
-  ComponentPtr ToCost(const ComponentPtr& constraint, double weight) const;
+//  CostPtrVec ToCost(const ConstraintPtr& constraint, double weight) const;
 
   std::vector<EndeffectorID> GetEEIDs() const { return initial_ee_W_.GetEEsOrdered(); };
 };

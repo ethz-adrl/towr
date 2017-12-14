@@ -20,17 +20,17 @@ static const std::string contact_schedule    = "ee_schedule";
 static const std::string endeffector_force   = "ee_force_";
 
 
-static std::string GetEEMotionId(int ee)
+static std::string GetEEMotionId(uint ee)
 {
   return  endeffectors_motion + "_xy_" + std::to_string(ee);
 }
 
-static std::string GetEEForceId(int ee)
+static std::string GetEEForceId(uint ee)
 {
   return  endeffector_force + std::to_string(ee);
 }
 
-static std::string GetEEScheduleId(int ee)
+static std::string GetEEScheduleId(uint ee)
 {
   return  contact_schedule + std::to_string(ee);
 }

@@ -42,7 +42,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   
   <depend>xpp_states</depend>
-  <depend>opt_solve</depend>
+  <depend>ifopt</depend>
   
     
 </package>

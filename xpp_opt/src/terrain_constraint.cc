@@ -23,15 +23,25 @@ namespace xpp {
 using namespace opt;
 
 TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
-                                      const VariablesPtr& opt_vars,
                                       std::string ee_motion)
-    :Constraint(opt_vars, kSpecifyLater, "Terrain-Constraint-" + ee_motion)
+    :Constraint(kSpecifyLater, "Terrain-Constraint-" + ee_motion)
 {
-  ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion);
+
+  ee_motion_id_ = ee_motion;
+//  ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion);
 
   terrain_ = terrain;
 
 //  AddOptimizationVariables(opt_vars);
+
+
+//  SetName("Terrain-Constraint-" + ee_motion);
+}
+
+void
+TerrainConstraint::LinkVariables (const VariablesPtr& x)
+{
+  ee_motion_ = x->GetComponent<EEMotionNodes>(ee_motion_id_);
 
   // skip first node, b/c already constrained by initial stance
   for (int id=1; id<ee_motion_->GetNodes().size(); ++id)
@@ -39,7 +49,6 @@ TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
 
   int constraint_count = node_ids_.size();
   SetRows(constraint_count);
-//  SetName("Terrain-Constraint-" + ee_motion);
 }
 
 VectorXd

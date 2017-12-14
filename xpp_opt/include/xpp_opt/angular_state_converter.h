@@ -13,7 +13,7 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <opt_solve/composite.h>
+#include <ifopt/composite.h>
 #include <xpp_opt/variables/spline.h>
 
 namespace xpp {

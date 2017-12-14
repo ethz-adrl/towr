@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <opt_solve/leaves.h>
+#include <ifopt/leaves.h>
 
 namespace xpp {
 
@@ -20,11 +20,10 @@ namespace xpp {
 class TimeDiscretizationConstraint : public opt::Constraint {
 public:
   using EvaluationTimes = std::vector<double>;
-  using Variables = opt::Composite::Ptr;
 
-  TimeDiscretizationConstraint (double T, double dt, const Variables& opt_vars,
+  TimeDiscretizationConstraint (double T, double dt,
                                 const std::string& name);
-  TimeDiscretizationConstraint (const Variables& opt_vars, const EvaluationTimes&,
+  TimeDiscretizationConstraint (const EvaluationTimes&,
                                 const std::string& name);
   virtual ~TimeDiscretizationConstraint ();
 

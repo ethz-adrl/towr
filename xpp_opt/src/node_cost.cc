@@ -14,12 +14,11 @@
 
 namespace xpp {
 
-NodeCost::NodeCost (const VariablesPtr& opt_vars, const std::string& nodes_id)
-    : Cost(opt_vars, "Node Cost")
+NodeCost::NodeCost (const std::string& nodes_id) : Cost("Node Cost")
 {
 //  SetName("Node Cost");
 
-  nodes_   = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(nodes_id));
+//  nodes_   = std::dynamic_pointer_cast<NodeValues>(opt_vars->GetComponent(nodes_id));
   node_id_ = nodes_id;
 
   deriv_ = kPos;
@@ -27,6 +26,12 @@ NodeCost::NodeCost (const VariablesPtr& opt_vars, const std::string& nodes_id)
 
 //  SetRows(1); // because cost
 //  AddOptimizationVariables(opt_vars);
+}
+
+void
+NodeCost::LinkVariables (const VariablesPtr& x)
+{
+  nodes_ = std::dynamic_pointer_cast<NodeValues>(x->GetComponent(node_id_));
 }
 
 double
@@ -58,3 +63,5 @@ NodeCost::FillJacobianBlock (std::string var_set, Jacobian& jac) const
 NodeCost::~NodeCost (){}
 
 } /* namespace xpp */
+
+

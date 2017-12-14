@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <opt_solve/composite.h>
+#include <ifopt/composite.h>
 
 #include <xpp_states/cartesian_declarations.h>
 
@@ -27,12 +27,13 @@ namespace xpp {
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
-  using VecTimes        = std::vector<double>;
+  using VecTimes = std::vector<double>;
 
-  DynamicConstraint (const VariablesPtr& opt_vars,
-                     const DynamicModel::Ptr& m,
+  DynamicConstraint (const DynamicModel::Ptr& m,
                      const std::vector<double>& evaluation_times);
   virtual ~DynamicConstraint ();
+
+  virtual void LinkVariables(const VariablesPtr& x) override;
 
 private:
   Spline::Ptr base_linear_;

@@ -10,7 +10,8 @@
 
 #include <string>
 
-#include <opt_solve/composite.h>
+#include <ifopt/composite.h>
+
 #include <xpp_opt/height_map.h>
 #include <xpp_opt/variables/phase_nodes.h>
 
@@ -22,12 +23,14 @@ namespace xpp {
  */
 class ForceConstraint : public opt::Constraint {
 public:
+  using EndeffectorID = uint;
+
   ForceConstraint (const HeightMap::Ptr& terrain,
                    double force_limit_in_normal_direction,
-                   const VariablesPtr& opt_vars,
-                   const std::string& ee_force_id,
-                   const std::string& ee_motion_id);
+                   EndeffectorID ee);
   virtual ~ForceConstraint ();
+
+  virtual void LinkVariables(const VariablesPtr& x) override;
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd GetValues() const override;
@@ -43,6 +46,8 @@ private:
   double force_limit_normal_direction_;
   double mu_; // friction coeff
   int n_constraints_per_node_;
+
+  EndeffectorID ee_;
 };
 
 } /* namespace xpp */

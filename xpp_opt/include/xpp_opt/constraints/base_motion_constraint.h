@@ -20,10 +20,10 @@ namespace xpp {
  */
 class BaseMotionConstraint : public TimeDiscretizationConstraint {
 public:
-  BaseMotionConstraint (const Variables& opt_vars,
-                        const OptimizationParameters& params);
+  BaseMotionConstraint (const OptimizationParameters& params);
   virtual ~BaseMotionConstraint ();
 
+  virtual void LinkVariables(const VariablesPtr& x) override;
 
   void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;
   void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;
