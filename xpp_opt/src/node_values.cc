@@ -25,7 +25,7 @@ NodeValues::NodeValues (int n_dim, int n_polynomials, const std::string& name)
 }
 
 NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::string& name)
-    : Variable(kSpecifyLater, name)
+    : VariableSet(kSpecifyLater, name)
 {
   n_dim_ = n_dim;
 

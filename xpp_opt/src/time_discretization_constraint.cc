@@ -17,7 +17,7 @@ using namespace opt;
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
                                                             const std::string& name)
-    :Constraint(kSpecifyLater, name)
+    :ConstraintSet(kSpecifyLater, name)
 {
   double t = 0.0;
   dts_ = {t};
@@ -33,7 +33,7 @@ TimeDiscretizationConstraint::TimeDiscretizationConstraint (double T, double dt,
 
 TimeDiscretizationConstraint::TimeDiscretizationConstraint (const EvaluationTimes& times,
                                                             const std::string& name)
-   :Constraint(kSpecifyLater, name) // just placeholder
+   :ConstraintSet(kSpecifyLater, name) // just placeholder
 {
   dts_ = times;
 //  AddOptimizationVariables(opt_vars);

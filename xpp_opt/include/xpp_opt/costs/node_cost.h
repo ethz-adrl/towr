@@ -19,7 +19,7 @@
 
 namespace xpp {
 
-class NodeCost : public opt::Cost {
+class NodeCost : public opt::CostTerm {
 public:
   using Nodes = std::shared_ptr<NodeValues>;
 

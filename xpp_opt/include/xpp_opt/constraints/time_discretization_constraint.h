@@ -17,7 +17,7 @@ namespace xpp {
 
 /** @brief Constraints evaluated at discretized times along a trajectory.
   */
-class TimeDiscretizationConstraint : public opt::Constraint {
+class TimeDiscretizationConstraint : public opt::ConstraintSet {
 public:
   using EvaluationTimes = std::vector<double>;
 

@@ -21,7 +21,7 @@ namespace xpp {
  *
  * Attention: This is enforced only at the spline nodes.
  */
-class TerrainConstraint : public opt::Constraint {
+class TerrainConstraint : public opt::ConstraintSet {
 public:
   TerrainConstraint (const HeightMap::Ptr& terrain,
                      std::string ee_motion_id);

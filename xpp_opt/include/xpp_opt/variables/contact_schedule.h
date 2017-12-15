@@ -19,7 +19,7 @@
 
 namespace xpp {
 
-class ContactSchedule : public opt::Variable {
+class ContactSchedule : public opt::VariableSet {
 public:
   using Ptr           = std::shared_ptr<ContactSchedule>;
   using VecDurations  = std::vector<double>;
@@ -71,7 +71,7 @@ private:
 // spring_clean_ use own file for this
 /** Makes sure all phase durations sum up to final specified motion duration.
  */
-class DurationConstraint : public opt::Constraint {
+class DurationConstraint : public opt::ConstraintSet {
 public:
   using SchedulePtr = std::shared_ptr<ContactSchedule>;
 

@@ -26,7 +26,7 @@ namespace xpp {
 
 /** Holds position and velocity of nodes used to generate a cubic Hermite spline.
  */
-class NodeValues : public opt::Variable, public Spline {
+class NodeValues : public opt::VariableSet, public Spline {
 public:
   using Ptr      = std::shared_ptr<NodeValues>;
   using Node     = CubicHermitePoly::Node;

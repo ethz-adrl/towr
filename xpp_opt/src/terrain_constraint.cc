@@ -24,7 +24,7 @@ using namespace opt;
 
 TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
                                       std::string ee_motion)
-    :Constraint(kSpecifyLater, "Terrain-Constraint-" + ee_motion)
+    :ConstraintSet(kSpecifyLater, "Terrain-Constraint-" + ee_motion)
 {
 
   ee_motion_id_ = ee_motion;

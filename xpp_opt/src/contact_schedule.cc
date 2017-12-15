@@ -29,7 +29,7 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
                                   double min_duration,
                                   double max_duration)
     // -1 since last phase-duration is not optimized over
-    :Variable(timings.size()-1, id::GetEEScheduleId(ee))
+    :VariableSet(timings.size()-1, id::GetEEScheduleId(ee))
 {
   t_total_   = t_total;
   for (auto d : timings)
@@ -173,7 +173,7 @@ ContactSchedule::GetTotalTime () const
 
 
 DurationConstraint::DurationConstraint (double T_total, int ee)
-    :Constraint(1, "DurationConstraint_ee_-" + std::to_string(ee))
+    :ConstraintSet(1, "DurationConstraint_ee_-" + std::to_string(ee))
 {
 //  SetName("DurationConstraint-" + std::to_string(ee));
 //  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));

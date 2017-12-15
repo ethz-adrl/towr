@@ -93,7 +93,7 @@ private:
 };
 
 
-class PolynomialVars : public opt::Variable {
+class PolynomialVars : public opt::VariableSet {
 public:
   using Ptr = std::shared_ptr<PolynomialVars>;
 

@@ -16,7 +16,7 @@
 namespace xpp {
 
 
-class SwingConstraint : public opt::Constraint {
+class SwingConstraint : public opt::ConstraintSet {
 public:
   SwingConstraint (std::string ee_motion_id);
   virtual ~SwingConstraint ();

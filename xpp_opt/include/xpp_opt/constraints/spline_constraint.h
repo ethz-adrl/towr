@@ -26,7 +26,7 @@ namespace xpp {
 
 /** @brief Sets the spline equal to @state at time @t.
  */
-class SplineStateConstraint  : public opt::Constraint {
+class SplineStateConstraint  : public opt::ConstraintSet {
 public:
   using DerivativeVec  = std::vector<MotionDerivative>;
   using PolyPtr        = std::shared_ptr<PolynomialVars>;
@@ -58,7 +58,7 @@ private:
 
 /** @brief Equates the values at spline junctions.
  */
-class SplineJunctionConstraint : public opt::Constraint {
+class SplineJunctionConstraint : public opt::ConstraintSet {
 public:
   using DerivativeVec = std::vector<MotionDerivative>;
   using VecTimes      = std::vector<double>;

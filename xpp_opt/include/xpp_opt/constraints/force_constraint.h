@@ -21,7 +21,7 @@ namespace xpp {
  *
  * Attention: This is enforced only at the spline nodes.
  */
-class ForceConstraint : public opt::Constraint {
+class ForceConstraint : public opt::ConstraintSet {
 public:
   using EndeffectorID = uint;
 

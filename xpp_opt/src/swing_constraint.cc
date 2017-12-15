@@ -24,7 +24,7 @@ using namespace opt;
 
 
 SwingConstraint::SwingConstraint (std::string ee_motion)
-    :Constraint(kSpecifyLater, "Swing-Constraint-" + ee_motion)
+    :ConstraintSet(kSpecifyLater, "Swing-Constraint-" + ee_motion)
 {
   ee_motion_id_ = ee_motion;
 //  AddOptimizationVariables(opt_vars);

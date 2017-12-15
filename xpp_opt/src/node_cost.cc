@@ -14,7 +14,7 @@
 
 namespace xpp {
 
-NodeCost::NodeCost (const std::string& nodes_id) : Cost("Node Cost")
+NodeCost::NodeCost (const std::string& nodes_id) : CostTerm("Node Cost")
 {
 //  SetName("Node Cost");
 

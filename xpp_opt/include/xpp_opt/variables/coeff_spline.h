@@ -23,7 +23,7 @@ namespace xpp {
 
 // doesn't hold any variables, just for keeping the struct in optimization
 // variables
-class CoeffSpline : public Spline, public opt::Variable {
+class CoeffSpline : public Spline, public opt::VariableSet {
 public:
   using VecVars  = std::vector<PolynomialVars::Ptr>;
   using VectorXd = Eigen::VectorXd;

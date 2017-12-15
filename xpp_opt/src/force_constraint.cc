@@ -27,7 +27,7 @@ using namespace opt;
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   double force_limit,
                                   EndeffectorID ee)
-    :opt::Constraint(kSpecifyLater, "Force-Constraint-" + id::GetEEForceId(ee))
+    :opt::ConstraintSet(kSpecifyLater, "Force-Constraint-" + id::GetEEForceId(ee))
 {
 
   terrain_   = terrain;

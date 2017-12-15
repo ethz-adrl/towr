@@ -21,7 +21,7 @@ SplineStateConstraint::SplineStateConstraint (const std::string& id,
                                               const StateLinXd& state,
                                               const DerivativeVec& derivatives,
                                               const Dimensions& dimensions)
-    :Constraint(derivatives.size()*dimensions.size(), "base_spline_")
+    :ConstraintSet(derivatives.size()*dimensions.size(), "base_spline_")
 {
 //  // print out names correctly
 //  std::string deriv_string;
@@ -122,7 +122,7 @@ SplineStateConstraint::GetBounds () const
 SplineJunctionConstraint::SplineJunctionConstraint (const std::string& spline_id,
                                                     const DerivativeVec& derivatives
                                                     )
-    : Constraint(kSpecifyLater, "SplineJunctionConstraint-" + spline_id)
+    : ConstraintSet(kSpecifyLater, "SplineJunctionConstraint-" + spline_id)
 {
 //  SetName("SplineJunctionConstraint-" + spline_id);
 
