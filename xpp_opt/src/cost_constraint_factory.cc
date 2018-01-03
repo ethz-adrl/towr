@@ -11,7 +11,7 @@
 #include <initializer_list>
 #include <stdexcept>
 
-#include <ifopt/soft_constraint.h>
+#include <xpp_opt/costs/soft_constraint.h>
 
 #include <xpp_opt/constraints/base_motion_constraint.h>
 #include <xpp_opt/constraints/dynamic_constraint.h>

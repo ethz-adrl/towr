@@ -28,7 +28,7 @@ public:
   virtual ~TerrainConstraint ();
 
 
-  virtual void LinkVariables(const VariablesPtr& x) override;
+  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd GetValues() const override;

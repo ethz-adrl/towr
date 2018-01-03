@@ -38,7 +38,7 @@ BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params
 }
 
 void
-BaseMotionConstraint::LinkVariables(const VariablesPtr& x)
+BaseMotionConstraint::InitVariableDependedQuantities(const VariablesPtr& x)
 {
   base_linear_   = x->GetComponent<Spline>(id::base_linear);
   base_angular_  = x->GetComponent<Spline>(id::base_angular);

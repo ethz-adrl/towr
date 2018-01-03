@@ -42,7 +42,7 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
 }
 
 void
-ForceConstraint::LinkVariables (const VariablesPtr& x)
+ForceConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
   ee_force_  = x->GetComponent<EEForceNodes>(id::GetEEForceId(ee_));
   ee_motion_ = x->GetComponent<EEMotionNodes>(id::GetEEMotionId(ee_));

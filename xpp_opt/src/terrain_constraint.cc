@@ -39,7 +39,7 @@ TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
 }
 
 void
-TerrainConstraint::LinkVariables (const VariablesPtr& x)
+TerrainConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
   ee_motion_ = x->GetComponent<EEMotionNodes>(ee_motion_id_);
 

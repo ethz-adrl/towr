@@ -40,7 +40,7 @@ public:
                          const Dimensions&);
   virtual ~SplineStateConstraint ();
 
-  virtual void LinkVariables(const VariablesPtr& x) override;
+  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;
@@ -68,7 +68,7 @@ public:
                             const DerivativeVec&);
   virtual ~SplineJunctionConstraint ();
 
-  virtual void LinkVariables(const VariablesPtr& x) override;
+  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
   VectorXd GetValues() const override;
   VecBound GetBounds() const override;

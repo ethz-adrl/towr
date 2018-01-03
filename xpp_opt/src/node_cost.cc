@@ -29,7 +29,7 @@ NodeCost::NodeCost (const std::string& nodes_id) : CostTerm("Node Cost")
 }
 
 void
-NodeCost::LinkVariables (const VariablesPtr& x)
+NodeCost::InitVariableDependedQuantities (const VariablesPtr& x)
 {
   nodes_ = std::dynamic_pointer_cast<NodeValues>(x->GetComponent(node_id_));
 }

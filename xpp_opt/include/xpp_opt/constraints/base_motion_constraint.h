@@ -23,7 +23,7 @@ public:
   BaseMotionConstraint (const OptimizationParameters& params);
   virtual ~BaseMotionConstraint ();
 
-  virtual void LinkVariables(const VariablesPtr& x) override;
+  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
   void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;
   void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;

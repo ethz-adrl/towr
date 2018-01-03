@@ -45,7 +45,7 @@ public:
                    const EndeffectorID& ee);
   virtual ~RangeOfMotionBox();
 
-  virtual void LinkVariables(const VariablesPtr& x) override;
+  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
 private:
   void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;

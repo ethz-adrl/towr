@@ -26,7 +26,7 @@ public:
   VecBound GetBounds() const override;
   void FillJacobianBlock (std::string var_set, Jacobian&) const override;
 
-  virtual void LinkVariables(const VariablesPtr& x) override;
+  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
 private:
   EEMotionNodes::Ptr ee_motion_;

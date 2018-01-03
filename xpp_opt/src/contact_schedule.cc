@@ -185,7 +185,7 @@ DurationConstraint::DurationConstraint (double T_total, int ee)
 }
 
 void
-DurationConstraint::LinkVariables (const VariablesPtr& x)
+DurationConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
   schedule_ = std::dynamic_pointer_cast<ContactSchedule>(x->GetComponent(id::GetEEScheduleId(ee_)));
 }

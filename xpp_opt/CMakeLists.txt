@@ -104,6 +104,9 @@ add_library(${PROJECT_NAME}
   #src/foothold_constraint.cc
   # robot specific info
   src/optimization_parameters.cc
+  # generic classes
+  src/linear_constraint.cc
+  src/soft_constraint.cc
 )   
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}

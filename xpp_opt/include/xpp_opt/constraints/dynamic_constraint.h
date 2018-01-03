@@ -33,7 +33,7 @@ public:
                      const std::vector<double>& evaluation_times);
   virtual ~DynamicConstraint ();
 
-  virtual void LinkVariables(const VariablesPtr& x) override;
+  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
 private:
   Spline::Ptr base_linear_;

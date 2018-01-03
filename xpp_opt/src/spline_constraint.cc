@@ -60,7 +60,7 @@ SplineStateConstraint::SplineStateConstraint (const std::string& id,
 }
 
 void
-xpp::SplineStateConstraint::LinkVariables (const VariablesPtr& x)
+xpp::SplineStateConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
   spline_ = x->GetComponent<Spline>(id_);
 }
@@ -138,7 +138,7 @@ SplineJunctionConstraint::SplineJunctionConstraint (const std::string& spline_id
 }
 
 void
-SplineJunctionConstraint::LinkVariables (const VariablesPtr& x)
+SplineJunctionConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
   spline_ = x->GetComponent<CoeffSpline>(id_);
   n_dim_  = spline_->GetPoint(0.0).kNumDim;

@@ -33,7 +33,7 @@ RangeOfMotionBox::RangeOfMotionBox (const OptimizationParameters& params,
 }
 
 void
-RangeOfMotionBox::LinkVariables (const VariablesPtr& x)
+RangeOfMotionBox::InitVariableDependedQuantities (const VariablesPtr& x)
 {
   base_linear_  = x->GetComponent<Spline>(id::base_linear);
   base_angular_ = x->GetComponent<Spline>(id::base_angular);

@@ -26,7 +26,7 @@ public:
   NodeCost (const std::string& nodes_id);
   virtual ~NodeCost ();
 
-  virtual void LinkVariables(const VariablesPtr& x) override;
+  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
   double GetCost () const override;
 

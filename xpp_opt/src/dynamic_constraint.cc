@@ -42,7 +42,7 @@ DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
 }
 
 void
-xpp::DynamicConstraint::LinkVariables (const VariablesPtr& x)
+xpp::DynamicConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
   base_linear_  = x->GetComponent<Spline>(id::base_linear);
   base_angular_ = x->GetComponent<Spline>(id::base_angular);

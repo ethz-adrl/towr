@@ -31,7 +31,7 @@ SwingConstraint::SwingConstraint (std::string ee_motion)
 }
 
 void
-xpp::SwingConstraint::LinkVariables (const VariablesPtr& x)
+xpp::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
   ee_motion_ = x->GetComponent<EEMotionNodes>(ee_motion_id_);
   auto nodes = ee_motion_->GetNodes();
