@@ -16,23 +16,25 @@
 
 #include <xpp_msgs/RobotStateCartesian.h>
 #include <xpp_msgs/RobotStateCartesianTrajectory.h>
-#include <xpp_msgs/OptParameters.h>
-#include <xpp_msgs/UserCommand.h>    // receive from user
+#include <xpp_msgs/RobotParameters.h>
 
+#include <xpp_opt_ros/UserCommand.h>    // receive from user
 #include <xpp_opt/motion_optimizer_facade.h>
 
 namespace xpp {
 
 class NlpOptimizerNode {
 public:
+  using UserCommand = xpp_opt_ros::UserCommand;
+
   NlpOptimizerNode ();
-  virtual ~NlpOptimizerNode () {};
+  virtual ~NlpOptimizerNode () = default;
 
 private:
   void OptimizeMotion();
   void CurrentStateCallback(const xpp_msgs::RobotStateCartesian&);
 
-  void UserCommandCallback(const xpp_msgs::UserCommand&);
+  void UserCommandCallback(const UserCommand&);
 
   ::ros::Subscriber user_command_sub_;
   ::ros::Subscriber current_state_sub_;
@@ -42,7 +44,7 @@ private:
   MotionOptimizerFacade motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
 
-  xpp_msgs::UserCommand user_command_msg_;
+  UserCommand user_command_msg_;
 
   bool first_callback_ = true;
 
@@ -56,7 +58,7 @@ private:
   void SaveOptimizationAsRosbag(const std::string& bag_name, bool include_iterations=false) const;
   void SaveTrajectoryInRosbag (rosbag::Bag&, const std::vector<RobotStateCartesian>& traj,
                                const std::string& topic) const;
-  xpp_msgs::OptParameters BuildOptParametersMsg() const;
+  xpp_msgs::RobotParameters BuildOptParametersMsg() const;
 };
 
 } /* namespace xpp */

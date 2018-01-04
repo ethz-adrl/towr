@@ -11,6 +11,7 @@
 #include <boost/foreach.hpp>
 
 #include <xpp_msgs/topic_names.h>
+#include <xpp_opt_ros/topic_names.h>
 #include <xpp_opt_ros/param_server.h>
 
 using namespace xpp;

@@ -41,10 +41,15 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   
+  <depend>message_runtime</depend>
+  <depend>message_generation</depend>
+  <depend>std_msgs</depend>
+  
   <depend>roscpp</depend>
   <depend>rosbag</depend>
   <depend>keyboard</depend>
   <depend>xpp_states</depend>
+  <depend>xpp_vis</depend>
   <depend>xpp_msgs</depend>
   <depend>xpp_opt</depend>
 

@@ -5,15 +5,34 @@ project(xpp_opt_ros)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  message_generation
+  std_msgs
+  xpp_msgs
   roscpp
   rosbag
   keyboard
+  xpp_vis      # only for rviz_colors.h
   xpp_states
-  xpp_msgs
   xpp_opt
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -std=c++11") 
+
+
+
+
+## Generate messages in the 'msg' folder
+add_message_files(
+  FILES
+  UserCommand.msg
+)
+
+## Generate added messages and services with any dependencies listed here
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  xpp_msgs
+)
 
 
 ###################################
@@ -47,6 +66,7 @@ include_directories(
 add_library(${PROJECT_NAME}
   src/nlp_optimizer_node.cc
   src/user_interface.cc
+  src/rviz_terrain_builder.cc
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
@@ -59,13 +79,17 @@ target_link_libraries(nlp_optimizer_node
   ${catkin_LIBRARIES}
 )
 
-
 add_executable(user_interface_node src/exe/user_interface_node.cc)
 target_link_libraries(user_interface_node 
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
+add_executable(rviz_terrain_node src/exe/rviz_terrain_node.cc)
+target_link_libraries(rviz_terrain_node
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
 
 add_executable(rosbag_traj_combiner src/exe/rosbag_traj_combiner.cc)
 target_link_libraries(rosbag_traj_combiner

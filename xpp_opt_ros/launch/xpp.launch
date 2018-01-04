@@ -5,6 +5,13 @@
   
   <!--  load the ros parameters  -->
   <include file="$(find xpp_opt_ros)/launch/xpp_params.launch"></include>
+  
+  <node 
+    name="rviz_terrain_node" 
+    pkg="xpp_opt_ros" 
+    type="rviz_terrain_node" 
+    output="screen">
+  </node>
 
   <node 
     name="nlp_optimizer_node" 

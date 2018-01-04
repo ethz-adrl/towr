@@ -32,13 +32,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ros/node_handle.h>
 
-#include <xpp_msgs/UserCommand.h>
 
 #include <xpp_states/convert.h>
+#include <xpp_states/terrain_types.h>
 #include <xpp_msgs/topic_names.h>
 
-#include <xpp_states/terrain_types.h>
-
+#include <xpp_opt_ros/UserCommand.h>
+#include <xpp_opt_ros/topic_names.h>
 
 namespace xpp {
 
@@ -48,7 +48,7 @@ UserInterface::UserInterface ()
   key_sub_ = n.subscribe("/keyboard/keydown", 1, &UserInterface::CallbackKeyboard, this);
   ROS_INFO("Subscribed to: %s", key_sub_.getTopic().c_str());
 
-  user_command_pub_ = n.advertise<xpp_msgs::UserCommand>(xpp_msgs::user_command, 1);
+  user_command_pub_ = n.advertise<xpp_opt_ros::UserCommand>(xpp_msgs::user_command, 1);
   ROS_INFO("Publishing to: %s", user_command_pub_.getTopic().c_str());
 
   // publish goal zero initially
@@ -167,7 +167,7 @@ UserInterface::CallbackKeyboard (const keyboard::Key& msg)
 
 void UserInterface::PublishCommand()
 {
-  xpp_msgs::UserCommand msg;
+  xpp_opt_ros::UserCommand msg;
   msg.goal_lin          = Convert::ToRos(goal_geom_.lin);
   msg.goal_ang          = Convert::ToRos(goal_geom_.ang);
   msg.replay_trajectory = replay_trajectory_;

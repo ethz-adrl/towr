@@ -27,6 +27,7 @@
 #include <xpp_states/convert.h>
 
 #include <xpp_msgs/topic_names.h>
+#include <xpp_opt_ros/topic_names.h>
 #include <xpp_msgs/TerrainInfo.h>
 
 #include <xpp_opt/height_map.h>
@@ -52,8 +53,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
   cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
                                           (xpp_msgs::robot_trajectory_desired, 1);
 
-  opt_parameters_pub_  = n.advertise<xpp_msgs::OptParameters>
-                                    (xpp_msgs::opt_parameters, 1);
+  opt_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
+                                    (xpp_msgs::robot_parameters, 1);
 
   dt_            = ParamServer::GetDouble("/xpp/trajectory_dt");
   rosbag_folder_ = ParamServer::GetString("/xpp/rosbag_name");
@@ -99,7 +100,7 @@ NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
 }
 
 void
-NlpOptimizerNode::UserCommandCallback(const xpp_msgs::UserCommand& msg)
+NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
 {
   user_command_msg_ = msg;
 
@@ -171,10 +172,10 @@ NlpOptimizerNode::BuildTrajectoryMsg () const
   return Convert::ToRos(cart_traj);
 }
 
-xpp_msgs::OptParameters
+xpp_msgs::RobotParameters
 NlpOptimizerNode::BuildOptParametersMsg() const
 {
-  xpp_msgs::OptParameters params_msg;
+  xpp_msgs::RobotParameters params_msg;
   auto max_dev_xyz = motion_optimizer_.model_.kinematic_model_->GetMaximumDeviationFromNominal();
   params_msg.ee_max_dev = Convert::ToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
@@ -199,7 +200,7 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
   ::ros::Time t0(0.001);
 
   // save the a-priori fixed optimization variables
-  bag.write(xpp_msgs::opt_parameters, t0, BuildOptParametersMsg());
+  bag.write(xpp_msgs::robot_parameters, t0, BuildOptParametersMsg());
   bag.write(xpp_msgs::user_command+"_saved", t0, user_command_msg_);
 
   // save the trajectory of each iteration
