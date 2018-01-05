@@ -46,18 +46,6 @@ CostConstraintFactory::Init (const MotionParamsPtr& _params,
   initial_ee_W_ = ee_pos;
   initial_base_ = initial_base;
   final_base_ = final_base;
-
-
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-    contact_schedule_.push_back(std::make_shared<ContactSchedule>(ee,
-                                                                 params_->GetTotalTime(),
-                                                                 model_.gait_generator_->GetNormalizedContactSchedule(ee),
-                                                                 model_.gait_generator_->IsInContactAtStart(ee),
-                                                                 params_->min_phase_duration_,
-                                                                 params_->max_phase_duration_));
-
-
-  }
 }
 
 CostConstraintFactory::VariablePtrVec
@@ -90,11 +78,11 @@ CostConstraintFactory::GetVariableSets () const
   vars.insert(vars.end(), ee_forces.begin(), ee_forces.end());
 
 
-//  bool optimize_timings = params_->ConstraintExists(TotalTime);
-//  if (optimize_timings) {
+  bool optimize_timings = params_->ConstraintExists(TotalTime);
+  if (optimize_timings) {
     auto contact_schedule = MakeContactScheduleVariables(ee_motion, ee_forces);
     vars.insert(vars.end(), contact_schedule.begin(), contact_schedule.end());
-//  }
+  }
 
   return vars;
 }
@@ -238,9 +226,6 @@ CostConstraintFactory::ContraintPtrVec
 CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
 {
   ContraintPtrVec c;
-//  auto c = std::make_shared<Composite>("Range-of-Motion Constraints", false);
-
-  double T = params_->GetTotalTime();
 
   for (auto ee : GetEEIDs()) {
     auto rom_constraints = std::make_shared<RangeOfMotionBox>(*params_,
@@ -249,7 +234,6 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
     c.push_back(rom_constraints);
   }
 
-
   return c;
 }
 
@@ -257,7 +241,6 @@ CostConstraintFactory::ContraintPtrVec
 CostConstraintFactory::MakeTotalTimeConstraint () const
 {
   ContraintPtrVec c;
-//  auto c = std::make_shared<Composite>("TotalTimeConstraint", false);
   double T = params_->GetTotalTime();
 
   for (auto ee : GetEEIDs()) {
@@ -272,7 +255,6 @@ CostConstraintFactory::ContraintPtrVec
 CostConstraintFactory::MakeTerrainConstraint () const
 {
   ContraintPtrVec constraints;
-//  auto constraints = std::make_shared<Composite>("Terrain Constraints", false);
 
   for (auto ee : GetEEIDs()) {
     auto c = std::make_shared<TerrainConstraint>(terrain_, id::GetEEMotionId(ee));
@@ -286,7 +268,6 @@ CostConstraintFactory::ContraintPtrVec
 CostConstraintFactory::MakeForceConstraint () const
 {
   ContraintPtrVec constraints;
-//  auto constraints = std::make_shared<Composite>("Force Constraints", false);
 
   for (auto ee : GetEEIDs()) {
     auto c = std::make_shared<ForceConstraint>(terrain_,
@@ -302,7 +283,6 @@ CostConstraintFactory::ContraintPtrVec
 CostConstraintFactory::MakeSwingConstraint () const
 {
   ContraintPtrVec constraints;
-//  auto constraints = std::make_shared<Composite>("Swing Constraints", false);
 
   for (auto ee : GetEEIDs()) {
     auto swing = std::make_shared<SwingConstraint>(id::GetEEMotionId(ee));
@@ -422,8 +402,13 @@ CostConstraintFactory::MakeEndeffectorVariables () const
   VariablePtrVec vars;
 
   // Endeffector Motions
+  double T = params_->GetTotalTime();
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-    auto ee_motion = std::make_shared<EEMotionNodes>(contact_schedule_.at(ee)->GetContactSequence(),
+
+    auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
+
+    auto ee_motion = std::make_shared<EEMotionNodes>(contact_schedule.size(),
+                                                     model_.gait_generator_->IsInContactAtStart(ee),
                                                      id::GetEEMotionId(ee),
                                                      params_->ee_splines_per_swing_phase_);
 
@@ -433,7 +418,7 @@ CostConstraintFactory::MakeEndeffectorVariables () const
 
 
 
-    ee_motion->InitializeVariables(initial_ee_W_.at(ee), final_ee_pos_W, contact_schedule_.at(ee)->GetTimePerPhase());
+    ee_motion->InitializeVariables(initial_ee_W_.at(ee), final_ee_pos_W, contact_schedule);
 
     // actually initial Z position should be constrained as well...-.-
     ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
@@ -455,13 +440,18 @@ CostConstraintFactory::MakeForceVariables () const
 {
   VariablePtrVec vars;
 
+  double T = params_->GetTotalTime();
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-    auto nodes_forces = std::make_shared<EEForceNodes>(contact_schedule_.at(ee)->GetContactSequence(),
+
+    auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
+
+    auto nodes_forces = std::make_shared<EEForceNodes>(contact_schedule.size(),
+                                                       model_.gait_generator_->IsInContactAtStart(ee),
                                                        id::GetEEForceId(ee),
                                                        params_->force_splines_per_stance_phase_);
 
     Vector3d f_stance(0.0, 0.0, model_.dynamic_model_->GetStandingZForce());
-    nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule_.at(ee)->GetTimePerPhase());
+    nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule);
     vars.push_back(nodes_forces);
   }
 
@@ -474,37 +464,31 @@ CostConstraintFactory::MakeContactScheduleVariables (const VariablePtrVec& ee_mo
 {
   VariablePtrVec vars;
 
-  bool optimize_timings = params_->ConstraintExists(TotalTime);
-
+  double T = params_->GetTotalTime();
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {
 
+    auto var = std::make_shared<ContactSchedule>(ee,
+                                                 model_.gait_generator_->GetContactSchedule(T, ee),
+                                                 params_->min_phase_duration_,
+                                                 params_->max_phase_duration_);
 
-    // this should always be the case when this is called
-    if (optimize_timings) {
+    auto node_motion = std::dynamic_pointer_cast<PhaseNodes>(ee_motion.at(ee));
+    auto node_force  = std::dynamic_pointer_cast<PhaseNodes>(ee_force.at(ee));
 
-      auto node_motion = std::dynamic_pointer_cast<PhaseNodes>(ee_motion.at(ee));
-      auto node_force  = std::dynamic_pointer_cast<PhaseNodes>(ee_force.at(ee));
+    // always update endeffector parameterization with the current durations
+    var->AddObserver(node_motion);
+    var->AddObserver(node_force);
 
-      contact_schedule_.at(ee)->AddObserver(node_motion);
-      contact_schedule_.at(ee)->AddObserver(node_force);
-
-    } else {
-      contact_schedule_.at(ee)->SetRows(0); // zero rows means no variables to optimize
-    }
-
-    vars.push_back(contact_schedule_.at(ee));
-
+    vars.push_back(var);
   }
 
   return vars;
-
 }
 
 CostConstraintFactory::CostPtrVec
 CostConstraintFactory::MakeForcesCost(double weight) const
 {
   CostPtrVec cost;
-//  auto cost = std::make_shared<Composite>("Forces Cost", true);
 
   for (auto ee : GetEEIDs())
     cost.push_back(std::make_shared<NodeCost>(id::GetEEForceId(ee)));

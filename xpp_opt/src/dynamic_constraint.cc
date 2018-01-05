@@ -117,7 +117,9 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
       jac_model = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
     }
 
-    if (var_set == ee_timings_.at(ee)->GetName()) {
+    // is only executed, if ee_timings part of optimization variables,
+    // so otherwise the pointer can actually be null.
+    if (var_set == id::GetEEScheduleId(ee)) {
       Jacobian jac_f_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEForceId(ee));
       jac_model += model_->GetJacobianofAccWrtForce(jac_f_dT, ee);
 

@@ -24,10 +24,6 @@
 #include <xpp_opt/optimization_parameters.h>
 
 
-#include <xpp_opt/variables/contact_schedule.h>
-
-
-
 namespace xpp {
 
 
@@ -69,11 +65,6 @@ private:
   MotionParamsPtr params_;
   HeightMap::Ptr terrain_;
   RobotModel model_;
-
-  std::vector<std::shared_ptr<ContactSchedule>> contact_schedule_;
-
-//  mutable VariablePtrVec ee_motion_;
-//  mutable VariablePtrVec ee_forces_;
 
 
   EndeffectorsPos initial_ee_W_;

@@ -24,11 +24,12 @@ protected:
 
   enum Type {Force, Motion};
   PhaseNodes (int n_dim,
-              const ContactVector& contact_schedule,
+              int phase_count,
+              bool is_in_contact_at_start,
               const std::string& name,
               int n_polys_in_changing_phase,
               Type type);
-  ~PhaseNodes();
+  virtual ~PhaseNodes() = default;
 
 public:
   virtual void InitializeVariables(const VectorXd& initial_pos,
@@ -44,6 +45,8 @@ public:
   Vector3d GetValueAtStartOfPhase(int phase) const;
   int GetNodeIDAtStartOfPhase(int phase) const;
 
+  bool IsConstantPhase(double t) const;
+
 protected:
   bool IsConstantNode(int node_id) const;
 
@@ -51,11 +54,14 @@ protected:
 
 
 private:
-  PolyInfoVec BuildPolyInfos(const ContactVector& contact_schedule,
+  PolyInfoVec BuildPolyInfos(int phase_count,
+                             bool is_in_contact_at_start,
                              int n_polys_in_changing_phase,
                              Type type) const;
 
   VecDurations ConvertPhaseToSpline(const VecDurations& phase_durations) const;
+
+  VecDurations phase_durations_; // as opposed to poly_durations in node_values
 };
 
 
@@ -63,15 +69,13 @@ class EEMotionNodes : public PhaseNodes {
 public:
   using Ptr = std::shared_ptr<EEMotionNodes>;
 
-  EEMotionNodes (const ContactVector& contact_schedule,
+  EEMotionNodes (int phase_count,
+                 bool is_in_contact_at_start,
                  const std::string& name,
                  int n_polys_in_changing_phase);
-  virtual ~EEMotionNodes();
+  virtual ~EEMotionNodes() = default;
 
   bool IsContactNode(int node_id) const;
-
-
-
 
   virtual VecBound GetBounds() const override;
 };
@@ -81,10 +85,11 @@ class EEForceNodes : public PhaseNodes {
 public:
   using Ptr = std::shared_ptr<EEForceNodes>;
 
-  EEForceNodes (const ContactVector& contact_schedule,
+  EEForceNodes (int phase_count,
+                bool is_in_contact_at_start,
                 const std::string& name,
                 int n_polys_in_changing_phase);
-  virtual ~EEForceNodes();
+  virtual ~EEForceNodes() = default;
 
   bool IsStanceNode(int node_id) const;
 

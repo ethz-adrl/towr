@@ -28,10 +28,25 @@ GaitGenerator::GetNormalizedContactSchedule (EndeffectorID ee) const
 }
 
 GaitGenerator::VecTimes
-GaitGenerator::GetContactSchedule (EndeffectorID ee) const
+GaitGenerator::GetContactSchedule (double t_total, EndeffectorID ee) const
 {
-  return GetContactSchedule().at(ee);
+  // scale total time tu t_total
+  std::vector<double> durations;
+  for (auto d : GetNormalizedContactSchedule(ee))
+    durations.push_back(d*t_total);
+
+  return durations;
 }
+
+//std::vector<bool>
+//GaitGenerator::GetContactSequence () const
+//{
+//  std::vector<bool> contact_sequence_;
+//  for (int phase=0; phase<durations_.size(); ++phase)
+//    contact_sequence_.push_back(GetContact(phase));
+//
+//  return contact_sequence_;
+//}
 
 GaitGenerator::FootDurations
 GaitGenerator::GetContactSchedule () const

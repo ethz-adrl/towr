@@ -43,7 +43,7 @@ public:
   RangeOfMotionBox(const OptimizationParameters& params,
                    const KinematicModel::Ptr& kinematic_model,
                    const EndeffectorID& ee);
-  virtual ~RangeOfMotionBox();
+  virtual ~RangeOfMotionBox() = default;
 
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
