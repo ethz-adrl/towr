@@ -39,13 +39,64 @@ CostConstraintFactory::Init (const MotionParamsPtr& _params,
                              const State3dEuler& initial_base,
                              const State3dEuler& final_base)
 {
-  params    = _params;
+  params_   = _params;
   terrain_  = terrain;
   model_    = model;
 
   initial_ee_W_ = ee_pos;
   initial_base_ = initial_base;
   final_base_ = final_base;
+
+
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+    contact_schedule_.push_back(std::make_shared<ContactSchedule>(ee,
+                                                                 params_->GetTotalTime(),
+                                                                 model_.gait_generator_->GetNormalizedContactSchedule(ee),
+                                                                 model_.gait_generator_->IsInContactAtStart(ee),
+                                                                 params_->min_phase_duration_,
+                                                                 params_->max_phase_duration_));
+
+
+  }
+}
+
+CostConstraintFactory::VariablePtrVec
+CostConstraintFactory::GetVariableSets () const
+{
+  VariablePtrVec vars;
+
+  auto base_rep = params_->GetBaseRepresentation();
+  switch (base_rep) {
+    case OptimizationParameters::PolyCoeff:  {
+      auto v = MakeBaseVariablesCoeff();
+      vars.insert(vars.end(), v.begin(), v.end());
+      break;
+    }
+    case OptimizationParameters::CubicHermite: {
+      auto v = MakeBaseVariablesHermite();
+      vars.insert(vars.end(), v.begin(), v.end());
+      break;
+    }
+    default:
+      throw std::runtime_error("base variable type not not defined!");
+  }
+
+
+  auto ee_motion = MakeEndeffectorVariables();
+  vars.insert(vars.end(), ee_motion.begin(), ee_motion.end());
+
+
+  auto ee_forces = MakeForceVariables();
+  vars.insert(vars.end(), ee_forces.begin(), ee_forces.end());
+
+
+//  bool optimize_timings = params_->ConstraintExists(TotalTime);
+//  if (optimize_timings) {
+    auto contact_schedule = MakeContactScheduleVariables(ee_motion, ee_forces);
+    vars.insert(vars.end(), contact_schedule.begin(), contact_schedule.end());
+//  }
+
+  return vars;
 }
 
 CostConstraintFactory::ContraintPtrVec
@@ -85,7 +136,7 @@ CostConstraintFactory::MakeStateConstraint () const
 
   // initial base constraints
   double t0 = 0.0; // initial time
-  double T = params->GetTotalTime();
+  double T = params_->GetTotalTime();
   auto Z_         = {Z};
   auto XY_        = {X,Y};
   auto XYZ_       = {X, Y, Z};
@@ -138,13 +189,13 @@ CostConstraintFactory::MakeStateConstraint () const
 CostConstraintFactory::ContraintPtrVec
 CostConstraintFactory::MakeBaseRangeOfMotionConstraint () const
 {
-  return {std::make_shared<BaseMotionConstraint>(*params)};
+  return {std::make_shared<BaseMotionConstraint>(*params_)};
 }
 
 CostConstraintFactory::ContraintPtrVec
 CostConstraintFactory::MakeDynamicConstraint() const
 {
-  auto base_poly_durations = params->GetBasePolyDurations();
+  auto base_poly_durations = params_->GetBasePolyDurations();
   std::vector<double> dts_;
   double t_node = 0.0;
   dts_ = {t_node};
@@ -154,7 +205,7 @@ CostConstraintFactory::MakeDynamicConstraint() const
     double d = base_poly_durations.at(i);
     t_node += d;
 
-    switch (params->GetBaseRepresentation()) {
+    switch (params_->GetBaseRepresentation()) {
       case OptimizationParameters::CubicHermite:
         dts_.push_back(t_node-eps); // this results in continuous acceleration along junctions
         dts_.push_back(t_node+eps);
@@ -172,7 +223,7 @@ CostConstraintFactory::MakeDynamicConstraint() const
   double final_d = base_poly_durations.back();
   t_node += final_d;
 
-  if (params->GetBaseRepresentation() == OptimizationParameters::PolyCoeff)
+  if (params_->GetBaseRepresentation() == OptimizationParameters::PolyCoeff)
     dts_.push_back(t_node-final_d/2);
 
   dts_.push_back(t_node); // also ensure constraints at very last node/time.
@@ -189,10 +240,10 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
   ContraintPtrVec c;
 //  auto c = std::make_shared<Composite>("Range-of-Motion Constraints", false);
 
-  double T = params->GetTotalTime();
+  double T = params_->GetTotalTime();
 
   for (auto ee : GetEEIDs()) {
-    auto rom_constraints = std::make_shared<RangeOfMotionBox>(*params,
+    auto rom_constraints = std::make_shared<RangeOfMotionBox>(*params_,
                                                               model_.kinematic_model_,
                                                               ee);
     c.push_back(rom_constraints);
@@ -207,7 +258,7 @@ CostConstraintFactory::MakeTotalTimeConstraint () const
 {
   ContraintPtrVec c;
 //  auto c = std::make_shared<Composite>("TotalTimeConstraint", false);
-  double T = params->GetTotalTime();
+  double T = params_->GetTotalTime();
 
   for (auto ee : GetEEIDs()) {
     auto duration_constraint = std::make_shared<DurationConstraint>(T, ee);
@@ -261,6 +312,193 @@ CostConstraintFactory::MakeSwingConstraint () const
   return constraints;
 }
 
+CostConstraintFactory::VariablePtrVec
+CostConstraintFactory::MakeBaseVariablesCoeff () const
+{
+  VariablePtrVec vars;
+
+  int n_dim = initial_base_.lin.kNumDim;
+  int order = params_->order_coeff_polys_;
+
+  std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
+  auto coeff_spline_ang = std::make_shared<CoeffSpline>(id::base_angular, base_spline_timings_);
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
+    auto var = std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang);
+    vars.push_back(var);
+
+    coeff_spline_ang->poly_vars_.push_back(var);
+  }
+  coeff_spline_ang->InitializeVariables(initial_base_.ang.p_, final_base_.ang.p_);
+  vars.push_back(coeff_spline_ang); // add just for easy access later
+
+
+  auto coeff_spline_lin = std::make_shared<CoeffSpline>(id::base_linear, base_spline_timings_);
+  for (int i=0; i<base_spline_timings_.size(); ++i) {
+    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
+    auto var = std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin);
+    vars.push_back(var);
+    coeff_spline_lin->poly_vars_.push_back(var);
+  }
+  coeff_spline_lin->InitializeVariables(initial_base_.lin.p_, final_base_.lin.p_);
+  vars.push_back(coeff_spline_lin); // add just for easy access later
+
+
+  return vars;
+}
+
+CostConstraintFactory::VariablePtrVec
+CostConstraintFactory::MakeBaseVariablesHermite () const
+{
+  VariablePtrVec vars;
+
+  int n_dim = initial_base_.lin.kNumDim;
+  std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
+
+  auto linear  = std::make_tuple(id::base_linear,  initial_base_.lin, final_base_.lin);
+  auto angular = std::make_tuple(id::base_angular, initial_base_.ang, final_base_.ang);
+
+  for (auto tuple : {linear, angular}) {
+    std::string id   = std::get<0>(tuple);
+    StateLin3d init  = std::get<1>(tuple);
+    StateLin3d final = std::get<2>(tuple);
+
+    auto spline = std::make_shared<NodeValues>(init.kNumDim,  base_spline_timings_.size(), id);
+    spline->InitializeVariables(init.p_, final.p_, base_spline_timings_);
+
+    std::vector<int> dimensions = {X,Y,Z};
+    spline->AddStartBound(kPos, dimensions, init.p_);
+    spline->AddStartBound(kVel, dimensions, init.v_);
+
+    spline->AddFinalBound(kVel, dimensions, final.v_);
+
+    if (id == id::base_linear) {
+      spline->AddFinalBound(kPos, {X,Y}, final.p_); // only xy, z given by terrain
+      //      spline->SetBoundsAboveGround();
+    }
+    if (id == id::base_angular)
+      spline->AddFinalBound(kPos, {Z}, final.p_); // roll, pitch, yaw bound
+
+
+
+    //    // force intermediate jump
+    //    if (id == id::base_linear) {
+    //      Vector3d inter = (init.p_ + final.p_)/2.;
+    //      inter.z() = 0.8;
+    //      spline->AddIntermediateBound(kPos, inter);
+    //    }
+    //
+    //    if (id == id::base_angular) {
+    //      spline->AddIntermediateBound(kPos, Vector3d::Zero());
+    //    }
+
+
+    vars.push_back(spline);
+  }
+
+  //  auto spline_lin = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_linear);
+  //  spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_, base_spline_timings_);
+  //  spline_lin->AddBound(0,   kPos, inital_base_.lin.p_);
+  //  spline_lin->AddBound(0,   kVel, inital_base_.lin.v_);
+  //  spline_lin->AddFinalBound(kPos,  final_base_.lin.p_);
+  //  spline_lin->AddFinalBound(kVel,  final_base_.lin.v_);
+  //  opt_variables_->AddComponent(spline_lin);
+  //
+  //
+  //  auto spline_ang = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_angular);
+  //  spline_ang->InitializeVariables(inital_base_.ang.p_, final_base_.ang.p_, base_spline_timings_);
+  //  spline_ang->AddBound(0,   kPos, inital_base_.ang.p_);
+  //  spline_ang->AddBound(0,   kVel, inital_base_.ang.v_);
+  //  spline_ang->AddFinalBound(kPos,  final_base_.ang.p_);
+  //  spline_ang->AddFinalBound(kVel,  final_base_.ang.v_);
+  //  opt_variables_->AddComponent(spline_ang);
+
+  return vars;
+}
+
+CostConstraintFactory::VariablePtrVec
+CostConstraintFactory::MakeEndeffectorVariables () const
+{
+  VariablePtrVec vars;
+
+  // Endeffector Motions
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+    auto ee_motion = std::make_shared<EEMotionNodes>(contact_schedule_.at(ee)->GetContactSequence(),
+                                                     id::GetEEMotionId(ee),
+                                                     params_->ee_splines_per_swing_phase_);
+
+    double yaw = final_base_.ang.p_.z();
+    Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
+    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
+
+
+
+    ee_motion->InitializeVariables(initial_ee_W_.at(ee), final_ee_pos_W, contact_schedule_.at(ee)->GetTimePerPhase());
+
+    // actually initial Z position should be constrained as well...-.-
+    ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
+
+    bool step_taken = ee_motion->GetNodes().size() > 2;
+    if (step_taken) // otherwise overwrites start bound
+      ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
+
+    vars.push_back(ee_motion);
+
+  }
+
+
+  return vars;
+}
+
+CostConstraintFactory::VariablePtrVec
+CostConstraintFactory::MakeForceVariables () const
+{
+  VariablePtrVec vars;
+
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+    auto nodes_forces = std::make_shared<EEForceNodes>(contact_schedule_.at(ee)->GetContactSequence(),
+                                                       id::GetEEForceId(ee),
+                                                       params_->force_splines_per_stance_phase_);
+
+    Vector3d f_stance(0.0, 0.0, model_.dynamic_model_->GetStandingZForce());
+    nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule_.at(ee)->GetTimePerPhase());
+    vars.push_back(nodes_forces);
+  }
+
+  return vars;
+}
+
+CostConstraintFactory::VariablePtrVec
+CostConstraintFactory::MakeContactScheduleVariables (const VariablePtrVec& ee_motion,
+                                                     const VariablePtrVec& ee_force) const
+{
+  VariablePtrVec vars;
+
+  bool optimize_timings = params_->ConstraintExists(TotalTime);
+
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+
+
+    // this should always be the case when this is called
+    if (optimize_timings) {
+
+      auto node_motion = std::dynamic_pointer_cast<PhaseNodes>(ee_motion.at(ee));
+      auto node_force  = std::dynamic_pointer_cast<PhaseNodes>(ee_force.at(ee));
+
+      contact_schedule_.at(ee)->AddObserver(node_motion);
+      contact_schedule_.at(ee)->AddObserver(node_force);
+
+    } else {
+      contact_schedule_.at(ee)->SetRows(0); // zero rows means no variables to optimize
+    }
+
+    vars.push_back(contact_schedule_.at(ee));
+
+  }
+
+  return vars;
+
+}
 
 CostConstraintFactory::CostPtrVec
 CostConstraintFactory::MakeForcesCost(double weight) const

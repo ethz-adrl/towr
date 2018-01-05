@@ -20,6 +20,7 @@ namespace xpp {
 class PhaseNodes : public NodeValues {
 protected:
   using ContactVector = std::vector<bool>;
+  using Ptr = std::shared_ptr<PhaseNodes>;
 
   enum Type {Force, Motion};
   PhaseNodes (int n_dim,

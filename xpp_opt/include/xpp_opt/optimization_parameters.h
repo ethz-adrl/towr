@@ -17,16 +17,18 @@
 
 namespace xpp {
 
-enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
-                       FinalComCostID, FinalStanceCostID, ForcesCostID };
+//enum BaseRepresentation { BaseVarsHermite, BaseVarsCoeff };
 enum ConstraintName  { BasePoly, Dynamic, EndeffectorRom, TotalTime, Terrain,
                        Force, Swing, BaseRom };
+enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
+                       FinalComCostID, FinalStanceCostID, ForcesCostID };
 
 /** This class holds all the hardcoded values describing a motion.
   * This is specific to the robot and the type of motion desired.
   */
 class OptimizationParameters {
 public:
+//  using UsedVariableSets = std::vector<VariableName>;
   using CostWeights      = std::vector<std::pair<CostName, double>>;
   using UsedConstraints  = std::vector<ConstraintName>;
   using VecTimes         = std::vector<double>;
@@ -34,6 +36,7 @@ public:
   OptimizationParameters();
   virtual ~OptimizationParameters();
 
+//  BaseRepresentation GetBaseRepresentation() const { return base_representation_;};
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
 
@@ -60,6 +63,8 @@ public:
 
 private:
   double t_total_ = 3.0;
+//  BaseRepresentation base_representation_;
+//  UsedVariableSets variables_;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
 };

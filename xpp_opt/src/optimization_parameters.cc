@@ -19,6 +19,9 @@ OptimizationParameters::OptimizationParameters ()
   dt_base_polynomial_ = 0.2; // 0.2
 
 
+//  base_representation_ = BaseVarsCoeff;
+
+
   // 2 also works quite well. Remember that inbetween the nodes, forces
   // could still be violating unilateral and friction constraints by
   // polynomial interpolation
@@ -36,6 +39,15 @@ OptimizationParameters::OptimizationParameters ()
   double max_time = 2.0; // this helps convergence
   max_phase_duration_ = max_time>GetTotalTime()?  GetTotalTime() : max_time;
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
+
+
+//  variables_ = {
+//      BaseVarsCoeff,
+//      EndeffectorVars,
+//      ForceVars,
+//      ContactScheduleVars
+//  };
+
 
   constraints_ = {
       BasePoly, // include this results in non-hermite representation to be used

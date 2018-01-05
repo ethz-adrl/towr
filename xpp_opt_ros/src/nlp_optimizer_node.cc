@@ -26,6 +26,9 @@
 #include <xpp_states/state.h>
 #include <xpp_states/convert.h>
 
+#include <ifopt/solvers/ipopt_adapter.h>
+#include <ifopt/solvers/snopt_adapter.h>
+
 #include <xpp_msgs/topic_names.h>
 #include <xpp_opt_ros/topic_names.h>
 #include <xpp_msgs/TerrainInfo.h>
@@ -159,7 +162,13 @@ void
 NlpOptimizerNode::OptimizeMotion ()
 {
   try {
-    motion_optimizer_.SolveProblem();
+    // the generic optimization problem
+    nlp_ = motion_optimizer_.BuildNLP();
+
+    opt::IpoptAdapter::Solve(nlp_);
+//    opt::SnoptAdapter::Solve(nlp);
+    nlp_.PrintCurrent();
+
   } catch (const std::runtime_error& e) {
     ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
   }
@@ -168,7 +177,7 @@ NlpOptimizerNode::OptimizeMotion ()
 xpp_msgs::RobotStateCartesianTrajectory
 NlpOptimizerNode::BuildTrajectoryMsg () const
 {
-  auto cart_traj = motion_optimizer_.GetTrajectory(dt_);
+  auto cart_traj = motion_optimizer_.GetTrajectory(nlp_.GetOptVariables(), dt_);
   return Convert::ToRos(cart_traj);
 }
 
@@ -205,7 +214,7 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
 
   // save the trajectory of each iteration
   if (include_iterations) {
-    auto trajectories = motion_optimizer_.GetIntermediateSolutions(dt_);
+    auto trajectories = motion_optimizer_.GetIntermediateSolutions(nlp_, dt_);
     int n_iterations = trajectories.size();
     for (int i=0; i<n_iterations; ++i)
       SaveTrajectoryInRosbag(bag, trajectories.at(i), xpp_msgs::nlp_iterations_name + std::to_string(i));
@@ -218,7 +227,7 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
 
 
   // save the final trajectory
-  auto final_trajectory = motion_optimizer_.GetTrajectory(dt_);
+  auto final_trajectory = motion_optimizer_.GetTrajectory(nlp_.GetOptVariables(), dt_);
   SaveTrajectoryInRosbag(bag, final_trajectory, xpp_msgs::robot_state_desired);
 
   // optional: save the entire trajectory as one message

@@ -15,12 +15,16 @@
 #include <ifopt/composite.h>
 #include <ifopt/leaves.h>
 
-#include <xpp_opt/height_map.h>
-#include <xpp_opt/models/robot_model.h>
-#include <xpp_opt/optimization_parameters.h>
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/endeffectors.h>
 #include <xpp_states/state.h>
+
+#include <xpp_opt/height_map.h>
+#include <xpp_opt/models/robot_model.h>
+#include <xpp_opt/optimization_parameters.h>
+
+
+#include <xpp_opt/variables/contact_schedule.h>
 
 
 
@@ -36,8 +40,10 @@ namespace xpp {
   */
 class CostConstraintFactory {
 public:
+
   using ComponentPtr     = std::shared_ptr<opt::Component>;
   using ConstraintPtr    = std::shared_ptr<opt::ConstraintSet>;
+  using VariablePtrVec   = std::vector<opt::VariableSet::Ptr>;
   using ContraintPtrVec  = std::vector<ConstraintPtr>;
   using CostPtr          = std::shared_ptr<opt::CostTerm>;
   using CostPtrVec       = std::vector<CostPtr>;
@@ -55,19 +61,33 @@ public:
             const State3dEuler& initial_base,
             const State3dEuler& final_base);
 
-  CostPtrVec GetCost(const CostName& id, double weight) const;
+  VariablePtrVec GetVariableSets() const;
   ContraintPtrVec GetConstraint(ConstraintName name) const;
+  CostPtrVec GetCost(const CostName& id, double weight) const;
 
 private:
-  MotionParamsPtr params;
+  MotionParamsPtr params_;
   HeightMap::Ptr terrain_;
   RobotModel model_;
+
+  std::vector<std::shared_ptr<ContactSchedule>> contact_schedule_;
+
+//  mutable VariablePtrVec ee_motion_;
+//  mutable VariablePtrVec ee_forces_;
 
 
   EndeffectorsPos initial_ee_W_;
   State3dEuler initial_base_;
   State3dEuler final_base_;
 
+
+  // variables
+  VariablePtrVec MakeBaseVariablesCoeff() const;
+  VariablePtrVec MakeBaseVariablesHermite() const;
+  VariablePtrVec MakeEndeffectorVariables() const;
+  VariablePtrVec MakeForceVariables() const;
+  VariablePtrVec MakeContactScheduleVariables(const VariablePtrVec& ee_motion,
+                                              const VariablePtrVec& ee_force) const;
 
   // constraints
   ContraintPtrVec MakeStateConstraint() const;
