@@ -86,7 +86,7 @@ public:
 
   VectorXd GetValues () const override;
   void SetVariables (const VectorXd& x) override;
-  virtual bool HoldsVarsetThatIsActiveNow(const std::string& poly_vars, double t_global) const override;
+
   virtual const StateLinXd GetPoint(double t_global) const override;
   virtual Jacobian GetJacobian (double t_global,  MotionDerivative dxdt) const override;
 

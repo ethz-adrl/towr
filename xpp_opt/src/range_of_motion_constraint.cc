@@ -86,11 +86,11 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
     jac.middleRows(row_start, kDim3d) = b_R_w*ee_motion_->GetJacobian(t,kPos);
   }
 
-  if (base_linear_->HoldsVarsetThatIsActiveNow(var_set, t)) {
+  if (var_set == id::base_linear) {
     jac.middleRows(row_start, kDim3d) = -1*b_R_w*base_linear_->GetJacobian(t, kPos);
   }
 
-  if (base_angular_->HoldsVarsetThatIsActiveNow(var_set, t)) {
+  if (var_set == id::base_angular) {
     Vector3d base_W   = base_linear_->GetPoint(t).p_;
     Vector3d ee_pos_W = ee_motion_->GetPoint(t).p_;
     Vector3d r_W = ee_pos_W - base_W;

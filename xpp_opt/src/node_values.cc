@@ -186,13 +186,6 @@ NodeValues::UpdatePolynomials ()
   }
 }
 
-
-bool
-NodeValues::HoldsVarsetThatIsActiveNow(const std::string& poly_vars, double t_global) const
-{
-  return poly_vars == GetName();
-}
-
 const StateLinXd
 NodeValues::GetPoint(double t_global) const
 {

@@ -64,10 +64,10 @@ BaseMotionConstraint::UpdateJacobianAtInstance (double t, int k,
                                                 Jacobian& jac,
                                                 std::string var_set) const
 {
-  if (base_angular_->HoldsVarsetThatIsActiveNow(var_set, t))
+  if (var_set == id::base_angular)
     jac.middleRows(GetRow(k,AX), kDim3d) = base_angular_->GetJacobian(t, kPos);
 
-  if (base_linear_->HoldsVarsetThatIsActiveNow(var_set, t))
+  if (var_set == id::base_linear)
     jac.middleRows(GetRow(k,LX), kDim3d) = base_linear_->GetJacobian(t, kPos);
 }
 
