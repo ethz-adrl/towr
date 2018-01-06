@@ -224,6 +224,10 @@ NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
     jac = jac_structure_;
 
   FillJacobian(id, t_local, dxdt, jac);
+
+  // needed to avoid Eigen::assert failure "wrong storage order" triggered
+  // in dynamic_constraint.cc
+  jac.makeCompressed();
   return jac;
 }
 
