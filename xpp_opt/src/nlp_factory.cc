@@ -65,8 +65,7 @@ NlpFactory::GetVariableSets () const
   vars.insert(vars.end(), ee_forces.begin(), ee_forces.end());
 
 
-  bool optimize_timings = params_->ConstraintExists(TotalTime);
-  if (optimize_timings) {
+  if (params_->OptimizeTimings()) {
     auto contact_schedule = MakeContactScheduleVariables(ee_motion, ee_forces);
     vars.insert(vars.end(), contact_schedule.begin(), contact_schedule.end());
   }
@@ -129,8 +128,8 @@ NlpFactory::MakeDynamicConstraint() const
   dts_.push_back(t_node); // also ensure constraints at very last node/time.
 
   auto constraint = std::make_shared<DynamicConstraint>(model_.dynamic_model_,
-                                                        dts_
-                                                        );
+                                                        dts_,
+                                                        params_->OptimizeTimings());
   return {constraint};
 }
 
@@ -142,7 +141,8 @@ NlpFactory::MakeRangeOfMotionBoxConstraint () const
   for (auto ee : GetEEIDs()) {
     auto rom_constraints = std::make_shared<RangeOfMotionBox>(*params_,
                                                               model_.kinematic_model_,
-                                                              ee);
+                                                              ee,
+                                                              params_->OptimizeTimings());
     c.push_back(rom_constraints);
   }
 

@@ -40,11 +40,10 @@ namespace xpp {
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
-//  using VecTimes        = std::vector<double>;
-
   RangeOfMotionBox(const OptimizationParameters& params,
                    const KinematicModel::Ptr& kinematic_model,
-                   const EndeffectorID& ee);
+                   const EndeffectorID& ee,
+                   bool optimize_timings);
   virtual ~RangeOfMotionBox() = default;
 
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
@@ -66,6 +65,7 @@ private:
   AngularStateConverter converter_;
 
   EndeffectorID ee_;
+  bool optimize_timings_;
 };
 
 } /* namespace xpp */

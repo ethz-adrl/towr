@@ -165,8 +165,8 @@ NlpOptimizerNode::OptimizeMotion ()
     // the generic optimization problem
     nlp_ = motion_optimizer_.BuildNLP();
 
-    opt::IpoptAdapter::Solve(nlp_);
-//    opt::SnoptAdapter::Solve(nlp);
+//    opt::IpoptAdapter::Solve(nlp_);
+    opt::SnoptAdapter::Solve(nlp_);
     nlp_.PrintCurrent();
 
   } catch (const std::runtime_error& e) {

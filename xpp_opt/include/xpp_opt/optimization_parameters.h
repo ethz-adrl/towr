@@ -41,7 +41,7 @@ public:
   double GetTotalTime() const { return t_total_;} ;
 
   VecTimes GetBasePolyDurations() const;
-  bool ConstraintExists(ConstraintName c) const;
+  bool OptimizeTimings() const;
 
 
   int ee_splines_per_swing_phase_;
@@ -56,8 +56,6 @@ public:
 
 private:
   double t_total_ = 3.0;
-//  BaseRepresentation base_representation_;
-//  UsedVariableSets variables_;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
 };

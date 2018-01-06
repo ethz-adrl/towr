@@ -66,8 +66,9 @@ OptimizationParameters::GetUsedConstraints () const
 }
 
 bool
-OptimizationParameters::ConstraintExists (ConstraintName c) const
+OptimizationParameters::OptimizeTimings () const
 {
+  ConstraintName c = TotalTime;
   auto v = constraints_; // shorthand
   return std::find(v.begin(), v.end(), c) != v.end();
 }

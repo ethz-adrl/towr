@@ -20,24 +20,14 @@ namespace xpp {
 
 
 DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
-                                      const std::vector<double>& evaluation_times)
+                                      const std::vector<double>& evaluation_times,
+                                      bool optimize_timings)
     :TimeDiscretizationConstraint(evaluation_times, "DynamicConstraint")
 {
-//  dts_ = evaluation_times;
   model_ = m;
   gravity_ = m->GetGravityAcceleration();
+  optimize_timings_ = optimize_timings;
 
-
-//  base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
-//  base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
-//
-//  for (auto ee : model_->GetEEIDs()) {
-//    ee_motion_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEMotionId(ee)));
-//    ee_forces_.push_back(opt_vars->GetComponent<NodeValues>(id::GetEEForceId(ee)));
-//    ee_timings_.push_back(opt_vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
-//  }
-
-//  SetName("DynamicConstraint");
   SetRows(GetNumberOfNodes()*kDim6d);
 }
 
@@ -50,7 +40,8 @@ xpp::DynamicConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
   for (auto ee : model_->GetEEIDs()) {
     ee_motion_.push_back(x->GetComponent<NodeValues>(id::GetEEMotionId(ee)));
     ee_forces_.push_back(x->GetComponent<NodeValues>(id::GetEEForceId(ee)));
-    ee_timings_.push_back(x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
+    if (optimize_timings_)
+      ee_timings_.push_back(x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
   }
 
   converter_ = AngularStateConverter(base_angular_);
@@ -60,10 +51,6 @@ int
 DynamicConstraint::GetRow (int node, Coords6D dimension) const
 {
   return kDim6d*node + dimension;
-}
-
-DynamicConstraint::~DynamicConstraint ()
-{
 }
 
 void
@@ -105,6 +92,20 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
   Jacobian jac_model(kDim6d,n);
   Jacobian jac_parametrization(kDim6d,n);
 
+  if (var_set == id::base_linear) {
+    Jacobian jac_base_lin_pos = base_linear_->GetJacobian(t,kPos);
+    jac_model = model_->GetJacobianOfAccWrtBaseLin(jac_base_lin_pos);
+    jac_parametrization.middleRows(LX, kDim3d) = base_linear_->GetJacobian(t,kAcc);
+  }
+
+  if (var_set == id::base_angular) {
+    Jacobian jac_ang_vel_wrt_coeff = converter_.GetDerivOfAngVelWrtCoeff(t);
+//    Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
+    jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_ang_vel_wrt_coeff);
+    jac_parametrization.middleRows(AX, kDim3d) = converter_.GetDerivOfAngAccWrtCoeff(t);
+  }
+
+
   for (auto ee : model_->GetEEIDs()) {
 
     if (var_set == ee_forces_.at(ee)->GetName()) {
@@ -120,6 +121,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
     // is only executed, if ee_timings part of optimization variables,
     // so otherwise the pointer can actually be null.
     if (var_set == id::GetEEScheduleId(ee)) {
+
       Jacobian jac_f_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEForceId(ee));
       jac_model += model_->GetJacobianofAccWrtForce(jac_f_dT, ee);
 
@@ -128,18 +130,6 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
     }
   }
 
-  if (var_set == id::base_linear) {
-    Jacobian jac_base_lin_pos = base_linear_->GetJacobian(t,kPos);
-    jac_model = model_->GetJacobianOfAccWrtBaseLin(jac_base_lin_pos);
-    jac_parametrization.middleRows(LX, kDim3d) = base_linear_->GetJacobian(t,kAcc);
-  }
-
-  if (var_set == id::base_angular) {
-    Jacobian jac_ang_vel_wrt_coeff = converter_.GetDerivOfAngVelWrtCoeff(t);
-//    Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
-    jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_ang_vel_wrt_coeff);
-    jac_parametrization.middleRows(AX, kDim3d) = converter_.GetDerivOfAngAccWrtCoeff(t);
-  }
 
   jac.middleRows(GetRow(k,AX), kDim6d) = jac_model - jac_parametrization;
 }

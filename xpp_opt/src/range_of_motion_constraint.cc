@@ -18,13 +18,14 @@ namespace xpp {
 
 RangeOfMotionBox::RangeOfMotionBox (const OptimizationParameters& params,
                                     const KinematicModel::Ptr& kinematic_model,
-                                    const EndeffectorID& ee)
+                                    const EndeffectorID& ee,
+                                    bool optimize_timings)
     :TimeDiscretizationConstraint(params.GetTotalTime(),
                                   params.dt_range_of_motion_,
                                   "RangeOfMotionBox-" + std::to_string(ee))
 {
-//  SetName("RangeOfMotionBox-" + std::to_string(ee));
   ee_ = ee;
+  optimize_timings_ = optimize_timings;
   max_deviation_from_nominal_ = kinematic_model->GetMaximumDeviationFromNominal();
   nominal_ee_pos_B_           = kinematic_model->GetNominalStanceInBase().at(ee);
   SetRows(GetNumberOfNodes()*kDim3d);
@@ -36,7 +37,9 @@ RangeOfMotionBox::InitVariableDependedQuantities (const VariablesPtr& x)
   base_linear_  = x->GetComponent<Spline>(id::base_linear);
   base_angular_ = x->GetComponent<Spline>(id::base_angular);
   ee_motion_    = x->GetComponent<NodeValues>(id::GetEEMotionId(ee_));
-  ee_timings_   = x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee_));
+
+  if (optimize_timings_)
+    ee_timings_   = x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee_));
 
   converter_ = AngularStateConverter(base_angular_);
 }

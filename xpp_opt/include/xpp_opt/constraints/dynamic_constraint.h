@@ -31,8 +31,9 @@ public:
   using VecTimes = std::vector<double>;
 
   DynamicConstraint (const DynamicModel::Ptr& m,
-                     const std::vector<double>& evaluation_times);
-  virtual ~DynamicConstraint ();
+                     const std::vector<double>& evaluation_times,
+                     bool optimize_timings);
+  virtual ~DynamicConstraint () = default;
 
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
@@ -42,6 +43,8 @@ private:
   std::vector<NodeValues::Ptr> ee_forces_;
   std::vector<NodeValues::Ptr> ee_motion_;
   std::vector<ContactSchedule::Ptr> ee_timings_;
+
+  bool optimize_timings_;
 
   mutable DynamicModel::Ptr model_;
   double gravity_;
