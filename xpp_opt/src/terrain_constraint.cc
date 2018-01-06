@@ -26,16 +26,8 @@ TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
                                       std::string ee_motion)
     :ConstraintSet(kSpecifyLater, "Terrain-Constraint-" + ee_motion)
 {
-
   ee_motion_id_ = ee_motion;
-//  ee_motion_ = opt_vars->GetComponent<EEMotionNodes>(ee_motion);
-
   terrain_ = terrain;
-
-//  AddOptimizationVariables(opt_vars);
-
-
-//  SetName("Terrain-Constraint-" + ee_motion);
 }
 
 void
@@ -102,10 +94,6 @@ TerrainConstraint::FillJacobianBlock (std::string var_set,
       row++;
     }
   }
-}
-
-TerrainConstraint::~TerrainConstraint ()
-{
 }
 
 } /* namespace xpp */

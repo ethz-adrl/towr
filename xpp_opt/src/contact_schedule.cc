@@ -23,20 +23,16 @@ namespace xpp {
 
 
 ContactSchedule::ContactSchedule (EndeffectorID ee,
-                                  double t_total,
                                   const VecDurations& timings,
-                                  bool is_in_contact_at_start,
                                   double min_duration,
                                   double max_duration)
-    // -1 since last phase-duration is not optimized over
+    // -1 since last phase-duration is not optimized over, but comes from total time
     :VariableSet(timings.size()-1, id::GetEEScheduleId(ee))
 {
-  t_total_   = t_total;
-  for (auto d : timings)
-    durations_.push_back(d*t_total);
+  durations_ = timings;
+  t_total_ = std::accumulate(timings.begin(), timings.end(), 0.0);
 
   phase_duration_bounds_ = opt::Bounds(min_duration, max_duration);
-  first_phase_in_contact_ = is_in_contact_at_start;
 }
 
 void
@@ -51,13 +47,6 @@ ContactSchedule::UpdateObservers () const
 {
   for (auto& o : observers_)
     o->UpdateDurations(durations_);
-}
-
-bool
-ContactSchedule::IsInContact (double t_global) const
-{
-  int id = Spline::GetSegmentID(t_global, durations_);
-  return GetContact(id);
 }
 
 VectorXd
@@ -91,32 +80,6 @@ ContactSchedule::GetBounds () const
     bounds.push_back(phase_duration_bounds_);
 
   return bounds;
-}
-
-bool
-ContactSchedule::GetContact (int phase) const
-{
-   // always alternating
-  if (phase%2==0)
-    return first_phase_in_contact_;
-  else
-    return !first_phase_in_contact_;
-}
-
-std::vector<bool>
-ContactSchedule::GetContactSequence () const
-{
-  std::vector<bool> contact_sequence_;
-  for (int phase=0; phase<durations_.size(); ++phase)
-    contact_sequence_.push_back(GetContact(phase));
-
-  return contact_sequence_;
-}
-
-std::vector<double>
-ContactSchedule::GetTimePerPhase () const
-{
-  return durations_;
 }
 
 ContactSchedule::Jacobian
@@ -163,25 +126,14 @@ ContactSchedule::GetObserver (const std::string& id) const
   assert(false);
 }
 
-double
-ContactSchedule::GetTotalTime () const
-{
-  return std::accumulate(durations_.begin(), durations_.end(), 0.0);
-}
-
 
 
 
 DurationConstraint::DurationConstraint (double T_total, int ee)
     :ConstraintSet(1, "DurationConstraint_ee_-" + std::to_string(ee))
 {
-//  SetName("DurationConstraint-" + std::to_string(ee));
-//  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(opt_vars->GetComponent(id::GetEEScheduleId(ee)));
   T_total_ = T_total;
   ee_ = ee;
-
-//  AddOptimizationVariables(opt_vars);
-//  SetRows(1);
 }
 
 void

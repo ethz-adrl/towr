@@ -16,7 +16,8 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <ifopt/composite.h>
+#include <ifopt/composite.h> // for Jacobian definition
+
 
 namespace xpp {
 
@@ -32,20 +33,13 @@ public:
   using VecTimes  = std::vector<double>;
   using LocalInfo = std::pair<int,double>; ///< id and local time
 
-  Spline ();
-  virtual ~Spline ();
-
+  Spline () = default;
+  virtual ~Spline () = default;
 
   static int GetSegmentID(double t_global, const VecTimes& durations);
   static LocalInfo GetLocalTime(double t_global, const VecTimes& durations);
 
-
   virtual const StateLinXd GetPoint(double t_global) const = 0;
-
-  /** @returns true if the optimization variables poly_vars affect that
-   * state of the spline at t_global.
-   */
-  virtual bool HoldsVarsetThatIsActiveNow(const std::string& set_name, double t_global) const = 0;
 
   virtual opt::Component::Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
 };

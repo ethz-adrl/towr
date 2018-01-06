@@ -32,6 +32,8 @@ public:
 
 private:
   void OptimizeMotion();
+  mutable opt::Problem nlp_;
+
   void CurrentStateCallback(const xpp_msgs::RobotStateCartesian&);
 
   void UserCommandCallback(const UserCommand&);
@@ -59,6 +61,8 @@ private:
   void SaveTrajectoryInRosbag (rosbag::Bag&, const std::vector<RobotStateCartesian>& traj,
                                const std::string& topic) const;
   xpp_msgs::RobotParameters BuildOptParametersMsg() const;
+
+
 };
 
 } /* namespace xpp */

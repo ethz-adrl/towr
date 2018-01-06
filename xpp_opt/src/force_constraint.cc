@@ -183,8 +183,4 @@ ForceConstraint::FillJacobianBlock (std::string var_set,
   }
 }
 
-ForceConstraint::~ForceConstraint ()
-{
-}
-
 } /* namespace xpp */

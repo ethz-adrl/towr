@@ -17,10 +17,10 @@
 
 namespace xpp {
 
+enum ConstraintName  { Dynamic, EndeffectorRom, TotalTime, Terrain,
+                       Force, Swing, BaseRom };
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
                        FinalComCostID, FinalStanceCostID, ForcesCostID };
-enum ConstraintName  { BasePoly, Dynamic, EndeffectorRom, TotalTime, Terrain,
-                       Force, Swing, BaseRom };
 
 /** This class holds all the hardcoded values describing a motion.
   * This is specific to the robot and the type of motion desired.
@@ -32,7 +32,7 @@ public:
   using VecTimes         = std::vector<double>;
 
   OptimizationParameters();
-  virtual ~OptimizationParameters();
+  virtual ~OptimizationParameters() = default;
 
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
@@ -46,7 +46,6 @@ public:
 
   int ee_splines_per_swing_phase_;
   int force_splines_per_stance_phase_;
-  int order_coeff_polys_;
 
   double dt_base_polynomial_;
   double dt_range_of_motion_;
@@ -55,11 +54,10 @@ public:
   double min_phase_duration_;
   double max_phase_duration_;
 
-  enum BaseRepresentation {CubicHermite, PolyCoeff};
-  BaseRepresentation GetBaseRepresentation() const;
-
 private:
   double t_total_ = 3.0;
+//  BaseRepresentation base_representation_;
+//  UsedVariableSets variables_;
   UsedConstraints constraints_;
   CostWeights cost_weights_;
 };

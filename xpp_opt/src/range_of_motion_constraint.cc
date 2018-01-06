@@ -28,8 +28,6 @@ RangeOfMotionBox::RangeOfMotionBox (const OptimizationParameters& params,
   max_deviation_from_nominal_ = kinematic_model->GetMaximumDeviationFromNominal();
   nominal_ee_pos_B_           = kinematic_model->GetNominalStanceInBase().at(ee);
   SetRows(GetNumberOfNodes()*kDim3d);
-
-
 }
 
 void
@@ -41,10 +39,6 @@ RangeOfMotionBox::InitVariableDependedQuantities (const VariablesPtr& x)
   ee_timings_   = x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee_));
 
   converter_ = AngularStateConverter(base_angular_);
-}
-
-RangeOfMotionBox::~RangeOfMotionBox ()
-{
 }
 
 int
@@ -84,7 +78,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   AngularStateConverter::MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
   int row_start = GetRow(k,X);
 
-  if (var_set == ee_timings_->GetName()) {
+  if (var_set == id::GetEEScheduleId(ee_)) {
     jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(t, id::GetEEMotionId(ee_));
   }
 
@@ -92,11 +86,11 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
     jac.middleRows(row_start, kDim3d) = b_R_w*ee_motion_->GetJacobian(t,kPos);
   }
 
-  if (base_linear_->HoldsVarsetThatIsActiveNow(var_set, t)) {
+  if (var_set == id::base_linear) {
     jac.middleRows(row_start, kDim3d) = -1*b_R_w*base_linear_->GetJacobian(t, kPos);
   }
 
-  if (base_angular_->HoldsVarsetThatIsActiveNow(var_set, t)) {
+  if (var_set == id::base_angular) {
     Vector3d base_W   = base_linear_->GetPoint(t).p_;
     Vector3d ee_pos_W = ee_motion_->GetPoint(t).p_;
     Vector3d r_W = ee_pos_W - base_W;

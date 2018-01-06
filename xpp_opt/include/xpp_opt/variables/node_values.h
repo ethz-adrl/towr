@@ -16,9 +16,10 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <ifopt/composite.h>
-#include <xpp_opt/polynomial.h>
+#include <ifopt/leaves.h>
+
 #include <xpp_opt/variables/spline.h>
+#include <xpp_opt/variables/polynomial.h>
 
 
 namespace xpp {
@@ -85,7 +86,7 @@ public:
 
   VectorXd GetValues () const override;
   void SetVariables (const VectorXd& x) override;
-  virtual bool HoldsVarsetThatIsActiveNow(const std::string& poly_vars, double t_global) const override;
+
   virtual const StateLinXd GetPoint(double t_global) const override;
   virtual Jacobian GetJacobian (double t_global,  MotionDerivative dxdt) const override;
 

@@ -12,8 +12,8 @@
 
 #include <ifopt/composite.h>
 
-#include <xpp_opt/height_map.h>
 #include <xpp_opt/variables/phase_nodes.h>
+#include "height_map.h"
 
 namespace xpp {
 
@@ -28,7 +28,7 @@ public:
   ForceConstraint (const HeightMap::Ptr& terrain,
                    double force_limit_in_normal_direction,
                    EndeffectorID ee);
-  virtual ~ForceConstraint ();
+  virtual ~ForceConstraint () = default;
 
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 

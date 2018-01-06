@@ -14,7 +14,7 @@
 
 #include <ifopt/problem.h>
 
-#include <xpp_opt/height_map.h>
+#include <xpp_opt/constraints/height_map.h>
 #include <xpp_opt/models/robot_model.h>
 #include <xpp_opt/optimization_parameters.h>
 
@@ -41,9 +41,11 @@ public:
   void SetInitialState(const RobotStateCartesian&);
 
   enum NlpSolver { Ipopt, Snopt } nlp_solver_;
-  void SolveProblem();
-  std::vector<RobotStateVec> GetIntermediateSolutions(double dt) const;
-  RobotStateVec GetTrajectory(double dt) const;
+  opt::Problem BuildNLP();
+  // smell make constant again
+  std::vector<RobotStateVec> GetIntermediateSolutions(opt::Problem&, double dt) const;
+  RobotStateVec GetTrajectory(const VariablesCompPtr&, double dt) const;
+//  RobotStateVec GetTrajectory(double dt) const;
 
   State3dEuler inital_base_;
 
@@ -67,15 +69,14 @@ public:
 private:
   EndeffectorsPos initial_ee_W_;
   State3dEuler final_base_;
-  RobotStateVec GetTrajectory(const VariablesCompPtr&, double dt) const;
 
-  void BuildVariables() const;
+//  void BuildVariables() const;
 //  void BuildCostConstraints(const VariablesCompPtr&);
 
-  void SetBaseRepresentationCoeff() const;
-  void SetBaseRepresentationHermite() const;
+//  void SetBaseRepresentationCoeff() const;
+//  void SetBaseRepresentationHermite() const;
 
-  mutable opt::Problem nlp;
+//  mutable opt::Problem nlp;
 
   Vector3d GetUnique(const Vector3d& zyx_non_unique) const;
 };

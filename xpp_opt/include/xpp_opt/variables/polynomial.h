@@ -15,14 +15,9 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <ifopt/leaves.h>
-
-
 namespace xpp {
 
-
 enum PolynomialCoeff { A=0, B, C, D, E, F, G, H, I, J}; // allowed to add more
-
 
 
 /** @brief A polynomial of arbitrary order and dimension.
@@ -70,7 +65,7 @@ public:
   using Node = std::array<VectorXd,2>; // pos,vel
 
   CubicHermitePoly(int dim);
-  virtual ~CubicHermitePoly();
+  virtual ~CubicHermitePoly() = default;
 
   void SetNodes(const Node& n0, const Node& n1, double T);
 
@@ -90,26 +85,6 @@ public:
 private:
   double T_;
   Node n0_, n1_;
-};
-
-
-class PolynomialVars : public opt::VariableSet {
-public:
-  using Ptr = std::shared_ptr<PolynomialVars>;
-
-  PolynomialVars(const std::string& id, const Polynomial::Ptr& poly);
-  virtual ~PolynomialVars() {};
-
-  VectorXd GetValues () const override;
-  void SetVariables (const VectorXd& optimized_coeff) override;
-  Jacobian GetJacobian(double t_local, MotionDerivative dxdt) const;
-  virtual VecBound GetBounds() const override { return VecBound(GetRows(), opt::NoBound); };
-
-  Polynomial::Ptr GetPolynomial() const { return polynomial_; };
-
-private:
-  Polynomial::Ptr polynomial_;
-  int Index(PolynomialCoeff coeff, int dim) const;
 };
 
 } // namespace xpp

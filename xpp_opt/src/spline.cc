@@ -7,20 +7,8 @@
 
 #include <xpp_opt/variables/spline.h>
 
-#include <xpp_opt/variables/node_values.h>
-#include <xpp_opt/variables/variable_names.h>
-
 
 namespace xpp {
-
-
-Spline::Spline ()
-{
-}
-
-Spline::~Spline ()
-{
-}
 
 int
 Spline::GetSegmentID(double t_global, const VecTimes& durations)

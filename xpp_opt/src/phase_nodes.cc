@@ -5,11 +5,10 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/variables/phase_nodes.h>
+#include <xpp_opt/variables/phase_nodes.h>
 
 #include <cassert>
 
-#include <../include/xpp_opt/polynomial.h>
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
@@ -20,44 +19,63 @@ using namespace opt;
 
 
 PhaseNodes::PhaseNodes (int n_dim,
-                        const ContactVector& contact_schedule,
+                        int phase_count,
+                        bool is_in_contact_at_start,
                         const std::string& name,
                         int n_polys_in_changing_phase,
                         Type type)
     :NodeValues(n_dim,
-                BuildPolyInfos(contact_schedule, n_polys_in_changing_phase, type),
+                BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type),
                 name)
 {
 }
 
 PhaseNodes::PolyInfoVec
-PhaseNodes::BuildPolyInfos (const ContactVector& contact_schedule,
+PhaseNodes::BuildPolyInfos (int phase_count,
+                            bool is_in_contact_at_start,
                             int n_polys_in_changing_phase,
                             Type type) const
 {
   PolyInfoVec polynomial_info;
 
-  bool is_constant_during_contact = type==Motion? true : false;
+  bool first_phase_constant = (is_in_contact_at_start  && type==Motion)
+                           || (!is_in_contact_at_start && type==Force);
 
-  for (int i=0; i<contact_schedule.size(); ++i) {
-    if (contact_schedule.at(i) == is_constant_during_contact)
+
+  bool phase_constant = first_phase_constant;
+
+  for (int i=0; i<phase_count; ++i) {
+    if (phase_constant)
       polynomial_info.push_back(PolyInfo(i,0,1, true));
     else
       for (int j=0; j<n_polys_in_changing_phase; ++j)
         polynomial_info.push_back(PolyInfo(i,j,n_polys_in_changing_phase, false));
+
+    phase_constant = !phase_constant; // constant and non-constant phase alternate
   }
 
   return polynomial_info;
 }
 
-PhaseNodes::~PhaseNodes ()
+
+bool
+PhaseNodes::IsConstantPhase (double t_global) const
 {
+  int phase_id = Spline::GetSegmentID(t_global, phase_durations_);
+
+  // always alternating
+  bool first_phase_in_contact = polynomial_info_.front().is_constant_;
+  if (phase_id%2==0)
+   return first_phase_in_contact;
+  else
+   return !first_phase_in_contact;
 }
 
 void
 PhaseNodes::UpdateDurations(const VecDurations& phase_durations)
 {
   durations_change_ = true;
+  phase_durations_ = phase_durations;
   poly_durations_ = ConvertPhaseToSpline(phase_durations);
   UpdatePolynomials();
 }
@@ -70,6 +88,8 @@ PhaseNodes::InitializeVariables (const VectorXd& initial_pos,
   NodeValues::InitializeVariables(initial_pos,
                                   final_pos,
                                   ConvertPhaseToSpline(phase_durations));
+
+  phase_durations_ = phase_durations;
 }
 
 bool
@@ -123,14 +143,11 @@ PhaseNodes::GetNodeIDAtStartOfPhase (int phase) const
 
 
 
-EEMotionNodes::EEMotionNodes (const ContactVector& contact_schedule,
+EEMotionNodes::EEMotionNodes (int phase_count,
+                              bool is_in_contact_at_start,
                               const std::string& name,
                               int n_polys)
-    :PhaseNodes(kDim3d, contact_schedule, name, n_polys, Motion)
-{
-}
-
-EEMotionNodes::~EEMotionNodes ()
+    :PhaseNodes(kDim3d, phase_count, is_in_contact_at_start, name, n_polys, Motion)
 {
 }
 
@@ -175,13 +192,10 @@ EEMotionNodes::GetBounds () const
 
 
 
-EEForceNodes::EEForceNodes (const ContactVector& contact_schedule,
-                        const std::string& name, int n_polys)
-    :PhaseNodes(kDim3d, contact_schedule, name, n_polys, Force)
-{
-}
-
-EEForceNodes::~EEForceNodes ()
+EEForceNodes::EEForceNodes (int phase_count,
+                            bool is_in_contact_at_start,
+                            const std::string& name, int n_polys)
+    :PhaseNodes(kDim3d, phase_count, is_in_contact_at_start, name, n_polys, Force)
 {
 }
 
@@ -233,5 +247,3 @@ EEForceNodes::GetBounds () const
 }
 
 } /* namespace xpp */
-
-

@@ -29,9 +29,10 @@ public:
   GaitGenerator ();
   virtual ~GaitGenerator ();
 
-  VecTimes GetContactSchedule(EndeffectorID ee) const;
+  VecTimes GetContactSchedule(double T, EndeffectorID ee) const;
   VecTimes GetNormalizedContactSchedule(EndeffectorID ee) const;
   bool IsInContactAtStart(EndeffectorID ee) const;
+//  std::vector<bool> GetContactSequence() const;
 
   //  contact_timings_.at(kMapIDToEE.at(L)) = {c+offset,f,c,f,c,f,c,f,c,f,c};
   //  contact_timings_.at(kMapIDToEE.at(R)) = {       c,f,c,f,c,f,c,f,c,f, c+offset};

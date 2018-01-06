@@ -26,17 +26,10 @@ public:
   using PhaseNodesPtr = std::shared_ptr<PhaseNodes>;
 
   ContactSchedule (EndeffectorID ee,
-                   double t_total,
                    const VecDurations& timings,
-                   bool is_in_contact_at_start,
                    double min_phase_duration,
                    double max_phase_duration);
   virtual ~ContactSchedule () = default;
-
-  bool IsInContact(double t_global) const;
-
-  std::vector<double> GetTimePerPhase() const;
-  std::vector<bool> GetContactSequence() const;
 
   void AddObserver(const PhaseNodesPtr& o);
   void UpdateObservers() const;
@@ -47,13 +40,8 @@ public:
 
   Jacobian GetJacobianOfPos(double t_global, const std::string& observer_name) const;
 
-  int GetPhaseCount() const { return GetTimePerPhase().size(); };
-  bool GetContact(int phase) const;
-
-  double GetTotalTime() const;
 
 private:
-  bool first_phase_in_contact_;
   double t_total_;
   opt::Bounds phase_duration_bounds_;
 
@@ -61,10 +49,6 @@ private:
   PhaseNodesPtr GetObserver(const std::string& id) const;
 
   VecDurations durations_;
-
-
-
-
 };
 
 

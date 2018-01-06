@@ -186,13 +186,6 @@ NodeValues::UpdatePolynomials ()
   }
 }
 
-
-bool
-NodeValues::HoldsVarsetThatIsActiveNow(const std::string& poly_vars, double t_global) const
-{
-  return poly_vars == GetName();
-}
-
 const StateLinXd
 NodeValues::GetPoint(double t_global) const
 {
@@ -224,6 +217,10 @@ NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
     jac = jac_structure_;
 
   FillJacobian(id, t_local, dxdt, jac);
+
+  // needed to avoid Eigen::assert failure "wrong storage order" triggered
+  // in dynamic_constraint.cc
+  jac.makeCompressed();
   return jac;
 }
 

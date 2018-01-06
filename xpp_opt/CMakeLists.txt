@@ -54,8 +54,7 @@ include_directories(
 # only packages that actually want to implement the optimization problem need this
 add_library(${PROJECT_NAME}
   src/motion_optimizer_facade.cc
-  src/spline_constraint.cc
-  src/cost_constraint_factory.cc
+  src/nlp_factory.cc
   src/time_discretization_constraint.cc
   src/base_motion_constraint.cc
   src/height_map.cc
@@ -75,7 +74,6 @@ add_library(${PROJECT_NAME}
   src/node_cost.cc
   src/phase_nodes.cc
   src/spline.cc
-  src/coeff_spline.cc
 #  src/spline.cc
   src/angular_state_converter.cc
 #  src/base_motion.cc

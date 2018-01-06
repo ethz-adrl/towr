@@ -117,7 +117,9 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
       jac_model = model_->GetJacobianofAccWrtEEPos(jac_ee_pos, ee);
     }
 
-    if (var_set == ee_timings_.at(ee)->GetName()) {
+    // is only executed, if ee_timings part of optimization variables,
+    // so otherwise the pointer can actually be null.
+    if (var_set == id::GetEEScheduleId(ee)) {
       Jacobian jac_f_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEForceId(ee));
       jac_model += model_->GetJacobianofAccWrtForce(jac_f_dT, ee);
 
@@ -126,13 +128,13 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
     }
   }
 
-  if (base_linear_->HoldsVarsetThatIsActiveNow(var_set,t)) {
+  if (var_set == id::base_linear) {
     Jacobian jac_base_lin_pos = base_linear_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseLin(jac_base_lin_pos);
     jac_parametrization.middleRows(LX, kDim3d) = base_linear_->GetJacobian(t,kAcc);
   }
 
-  if (base_angular_->HoldsVarsetThatIsActiveNow(var_set,t)) {
+  if (var_set == id::base_angular) {
     Jacobian jac_ang_vel_wrt_coeff = converter_.GetDerivOfAngVelWrtCoeff(t);
 //    Jacobian jac_base_ang_pos = base_angular_->GetJacobian(t,kPos);
     jac_model = model_->GetJacobianOfAccWrtBaseAng(jac_ang_vel_wrt_coeff);

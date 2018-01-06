@@ -12,32 +12,37 @@
 #include <string>
 #include <vector>
 
-#include <ifopt/composite.h>
 #include <ifopt/leaves.h>
 
-#include <xpp_opt/height_map.h>
-#include <xpp_opt/models/robot_model.h>
-#include <xpp_opt/optimization_parameters.h>
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/endeffectors.h>
 #include <xpp_states/state.h>
 
+#include <xpp_opt/constraints/height_map.h>
+#include <xpp_opt/models/robot_model.h>
+#include <xpp_opt/optimization_parameters.h>
 
 
 namespace xpp {
 
 
 /** Builds all types of constraints/costs for the user.
-  *
-  * Implements the factory method, hiding object creation from the client.
-  * The client specifies which object it wants, and this class is responsible
-  * for the object creation. Factory method is like template method pattern
-  * for object creation.
-  */
-class CostConstraintFactory {
+ *
+ * Abstracts the entire problem of Trajectory Optimization for walking
+ * robots into the formulation of variables, constraints and cost, solvable
+ * by any NLP solver.
+ *
+ * Implements the factory method, hiding object creation from the client.
+ * The client specifies which object it wants, and this class is responsible
+ * for the object creation. Factory method is like template method pattern
+ * for object creation.
+ */
+class NlpFactory {
 public:
+
   using ComponentPtr     = std::shared_ptr<opt::Component>;
   using ConstraintPtr    = std::shared_ptr<opt::ConstraintSet>;
+  using VariablePtrVec   = std::vector<opt::VariableSet::Ptr>;
   using ContraintPtrVec  = std::vector<ConstraintPtr>;
   using CostPtr          = std::shared_ptr<opt::CostTerm>;
   using CostPtrVec       = std::vector<CostPtr>;
@@ -45,8 +50,8 @@ public:
   using MotionParamsPtr  = std::shared_ptr<OptimizationParameters>;
   using Derivatives      = std::vector<MotionDerivative>;
 
-  CostConstraintFactory () = default;
-  virtual ~CostConstraintFactory () = default;
+  NlpFactory () = default;
+  virtual ~NlpFactory () = default;
 
   void Init(const MotionParamsPtr&,
             const HeightMap::Ptr& terrain,
@@ -55,11 +60,12 @@ public:
             const State3dEuler& initial_base,
             const State3dEuler& final_base);
 
-  CostPtrVec GetCost(const CostName& id, double weight) const;
+  VariablePtrVec GetVariableSets() const;
   ContraintPtrVec GetConstraint(ConstraintName name) const;
+  CostPtrVec GetCost(const CostName& id, double weight) const;
 
 private:
-  MotionParamsPtr params;
+  MotionParamsPtr params_;
   HeightMap::Ptr terrain_;
   RobotModel model_;
 
@@ -69,8 +75,14 @@ private:
   State3dEuler final_base_;
 
 
+  // variables
+  VariablePtrVec MakeBaseVariablesHermite() const;
+  VariablePtrVec MakeEndeffectorVariables() const;
+  VariablePtrVec MakeForceVariables() const;
+  VariablePtrVec MakeContactScheduleVariables(const VariablePtrVec& ee_motion,
+                                              const VariablePtrVec& ee_force) const;
+
   // constraints
-  ContraintPtrVec MakeStateConstraint() const;
   ContraintPtrVec MakeDynamicConstraint() const;
   ContraintPtrVec MakeRangeOfMotionBoxConstraint() const;
   ContraintPtrVec MakeTotalTimeConstraint() const;
