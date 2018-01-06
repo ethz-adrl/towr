@@ -55,7 +55,7 @@ include_directories(
 add_library(${PROJECT_NAME}
   src/motion_optimizer_facade.cc
   src/spline_constraint.cc
-  src/cost_constraint_factory.cc
+  src/nlp_factory.cc
   src/time_discretization_constraint.cc
   src/base_motion_constraint.cc
   src/height_map.cc

@@ -16,7 +16,6 @@
 #include <utility>
 
 #include <xpp_opt/angular_state_converter.h>
-#include <xpp_opt/cost_constraint_factory.h>
 #include <xpp_opt/models/gait_generator.h>
 #include <xpp_opt/models/kinematic_model.h>
 #include <xpp_opt/polynomial.h>
@@ -24,6 +23,7 @@
 #include <xpp_opt/variables/contact_schedule.h>
 #include <xpp_opt/variables/phase_nodes.h>
 #include <xpp_opt/variables/variable_names.h>
+#include "../include/xpp_opt/nlp_factory.h"
 
 
 namespace xpp {
@@ -79,7 +79,7 @@ MotionOptimizerFacade::BuildNLP ()
 {
   opt::Problem nlp;
 
-  CostConstraintFactory factory;
+  NlpFactory factory;
   factory.Init(params_, terrain_, model_,
                initial_ee_W_, inital_base_, final_base_);
 
@@ -127,9 +127,9 @@ MotionOptimizerFacade::GetTrajectory (const VariablesCompPtr& vars,
 
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
 //      state.ee_contact_.at(ee) = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->IsInContact(t);
-      auto ee_motioin = vars->GetComponent<PhaseNodes>(id::GetEEMotionId(ee));
-      state.ee_contact_.at(ee) = ee_motioin->IsConstantPhase(t);
-      state.ee_motion_.at(ee)  = ee_motioin->GetPoint(t);
+      auto ee_motion = vars->GetComponent<PhaseNodes>(id::GetEEMotionId(ee));
+      state.ee_contact_.at(ee) = ee_motion->IsConstantPhase(t);
+      state.ee_motion_.at(ee)  = ee_motion->GetPoint(t);
       state.ee_forces_.at(ee)  = vars->GetComponent<Spline>(id::GetEEForceId(ee))->GetPoint(t).p_;
     }
 

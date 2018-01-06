@@ -28,13 +28,17 @@ namespace xpp {
 
 
 /** Builds all types of constraints/costs for the user.
-  *
-  * Implements the factory method, hiding object creation from the client.
-  * The client specifies which object it wants, and this class is responsible
-  * for the object creation. Factory method is like template method pattern
-  * for object creation.
-  */
-class CostConstraintFactory {
+ *
+ * Abstracts the entire problem of Trajectory Optimization for walking
+ * robots into the formulation of variables, constraints and cost, solvable
+ * by any NLP solver.
+ *
+ * Implements the factory method, hiding object creation from the client.
+ * The client specifies which object it wants, and this class is responsible
+ * for the object creation. Factory method is like template method pattern
+ * for object creation.
+ */
+class NlpFactory {
 public:
 
   using ComponentPtr     = std::shared_ptr<opt::Component>;
@@ -47,8 +51,8 @@ public:
   using MotionParamsPtr  = std::shared_ptr<OptimizationParameters>;
   using Derivatives      = std::vector<MotionDerivative>;
 
-  CostConstraintFactory () = default;
-  virtual ~CostConstraintFactory () = default;
+  NlpFactory () = default;
+  virtual ~NlpFactory () = default;
 
   void Init(const MotionParamsPtr&,
             const HeightMap::Ptr& terrain,

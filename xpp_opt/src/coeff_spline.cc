@@ -38,8 +38,6 @@ CoeffSpline::InitializeVariables (const VectorXd& initial_pos,
 }
 
 
-CoeffSpline::~CoeffSpline() {};
-
 const StateLinXd
 CoeffSpline::GetPoint(double t_global) const
 {

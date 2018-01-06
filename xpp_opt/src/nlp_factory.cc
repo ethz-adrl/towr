@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <xpp_opt/cost_constraint_factory.h>
+#include "../include/xpp_opt/nlp_factory.h"
 
 #include <cassert>
 #include <initializer_list>
@@ -32,7 +32,7 @@ using namespace opt;
 
 
 void
-CostConstraintFactory::Init (const MotionParamsPtr& _params,
+NlpFactory::Init (const MotionParamsPtr& _params,
                              const HeightMap::Ptr& terrain,
                              const RobotModel& model,
                              const EndeffectorsPos& ee_pos,
@@ -48,8 +48,8 @@ CostConstraintFactory::Init (const MotionParamsPtr& _params,
   final_base_ = final_base;
 }
 
-CostConstraintFactory::VariablePtrVec
-CostConstraintFactory::GetVariableSets () const
+NlpFactory::VariablePtrVec
+NlpFactory::GetVariableSets () const
 {
   VariablePtrVec vars;
 
@@ -87,8 +87,8 @@ CostConstraintFactory::GetVariableSets () const
   return vars;
 }
 
-CostConstraintFactory::ContraintPtrVec
-CostConstraintFactory::GetConstraint (ConstraintName name) const
+NlpFactory::ContraintPtrVec
+NlpFactory::GetConstraint (ConstraintName name) const
 {
   switch (name) {
     case BasePoly:       return MakeStateConstraint();
@@ -103,8 +103,8 @@ CostConstraintFactory::GetConstraint (ConstraintName name) const
   }
 }
 
-CostConstraintFactory::CostPtrVec
-CostConstraintFactory::GetCost(const CostName& name, double weight) const
+NlpFactory::CostPtrVec
+NlpFactory::GetCost(const CostName& name, double weight) const
 {
   switch (name) {
     case ForcesCostID:       return MakeForcesCost(weight);
@@ -114,8 +114,8 @@ CostConstraintFactory::GetCost(const CostName& name, double weight) const
   }
 }
 
-CostConstraintFactory::ContraintPtrVec
-CostConstraintFactory::MakeStateConstraint () const
+NlpFactory::ContraintPtrVec
+NlpFactory::MakeStateConstraint () const
 {
   ContraintPtrVec constraints;
 //  auto constraints = std::make_shared<Composite>("State Constraints", false);
@@ -174,14 +174,14 @@ CostConstraintFactory::MakeStateConstraint () const
   return constraints;
 }
 
-CostConstraintFactory::ContraintPtrVec
-CostConstraintFactory::MakeBaseRangeOfMotionConstraint () const
+NlpFactory::ContraintPtrVec
+NlpFactory::MakeBaseRangeOfMotionConstraint () const
 {
   return {std::make_shared<BaseMotionConstraint>(*params_)};
 }
 
-CostConstraintFactory::ContraintPtrVec
-CostConstraintFactory::MakeDynamicConstraint() const
+NlpFactory::ContraintPtrVec
+NlpFactory::MakeDynamicConstraint() const
 {
   auto base_poly_durations = params_->GetBasePolyDurations();
   std::vector<double> dts_;
@@ -222,8 +222,8 @@ CostConstraintFactory::MakeDynamicConstraint() const
   return {constraint};
 }
 
-CostConstraintFactory::ContraintPtrVec
-CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
+NlpFactory::ContraintPtrVec
+NlpFactory::MakeRangeOfMotionBoxConstraint () const
 {
   ContraintPtrVec c;
 
@@ -237,8 +237,8 @@ CostConstraintFactory::MakeRangeOfMotionBoxConstraint () const
   return c;
 }
 
-CostConstraintFactory::ContraintPtrVec
-CostConstraintFactory::MakeTotalTimeConstraint () const
+NlpFactory::ContraintPtrVec
+NlpFactory::MakeTotalTimeConstraint () const
 {
   ContraintPtrVec c;
   double T = params_->GetTotalTime();
@@ -251,8 +251,8 @@ CostConstraintFactory::MakeTotalTimeConstraint () const
   return c;
 }
 
-CostConstraintFactory::ContraintPtrVec
-CostConstraintFactory::MakeTerrainConstraint () const
+NlpFactory::ContraintPtrVec
+NlpFactory::MakeTerrainConstraint () const
 {
   ContraintPtrVec constraints;
 
@@ -264,8 +264,8 @@ CostConstraintFactory::MakeTerrainConstraint () const
   return constraints;
 }
 
-CostConstraintFactory::ContraintPtrVec
-CostConstraintFactory::MakeForceConstraint () const
+NlpFactory::ContraintPtrVec
+NlpFactory::MakeForceConstraint () const
 {
   ContraintPtrVec constraints;
 
@@ -279,8 +279,8 @@ CostConstraintFactory::MakeForceConstraint () const
   return constraints;
 }
 
-CostConstraintFactory::ContraintPtrVec
-CostConstraintFactory::MakeSwingConstraint () const
+NlpFactory::ContraintPtrVec
+NlpFactory::MakeSwingConstraint () const
 {
   ContraintPtrVec constraints;
 
@@ -292,8 +292,8 @@ CostConstraintFactory::MakeSwingConstraint () const
   return constraints;
 }
 
-CostConstraintFactory::VariablePtrVec
-CostConstraintFactory::MakeBaseVariablesCoeff () const
+NlpFactory::VariablePtrVec
+NlpFactory::MakeBaseVariablesCoeff () const
 {
   VariablePtrVec vars;
 
@@ -327,8 +327,8 @@ CostConstraintFactory::MakeBaseVariablesCoeff () const
   return vars;
 }
 
-CostConstraintFactory::VariablePtrVec
-CostConstraintFactory::MakeBaseVariablesHermite () const
+NlpFactory::VariablePtrVec
+NlpFactory::MakeBaseVariablesHermite () const
 {
   VariablePtrVec vars;
 
@@ -396,8 +396,8 @@ CostConstraintFactory::MakeBaseVariablesHermite () const
   return vars;
 }
 
-CostConstraintFactory::VariablePtrVec
-CostConstraintFactory::MakeEndeffectorVariables () const
+NlpFactory::VariablePtrVec
+NlpFactory::MakeEndeffectorVariables () const
 {
   VariablePtrVec vars;
 
@@ -435,8 +435,8 @@ CostConstraintFactory::MakeEndeffectorVariables () const
   return vars;
 }
 
-CostConstraintFactory::VariablePtrVec
-CostConstraintFactory::MakeForceVariables () const
+NlpFactory::VariablePtrVec
+NlpFactory::MakeForceVariables () const
 {
   VariablePtrVec vars;
 
@@ -458,8 +458,8 @@ CostConstraintFactory::MakeForceVariables () const
   return vars;
 }
 
-CostConstraintFactory::VariablePtrVec
-CostConstraintFactory::MakeContactScheduleVariables (const VariablePtrVec& ee_motion,
+NlpFactory::VariablePtrVec
+NlpFactory::MakeContactScheduleVariables (const VariablePtrVec& ee_motion,
                                                      const VariablePtrVec& ee_force) const
 {
   VariablePtrVec vars;
@@ -485,8 +485,8 @@ CostConstraintFactory::MakeContactScheduleVariables (const VariablePtrVec& ee_mo
   return vars;
 }
 
-CostConstraintFactory::CostPtrVec
-CostConstraintFactory::MakeForcesCost(double weight) const
+NlpFactory::CostPtrVec
+NlpFactory::MakeForcesCost(double weight) const
 {
   CostPtrVec cost;
 

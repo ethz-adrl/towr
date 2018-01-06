@@ -30,7 +30,7 @@ public:
 
   CoeffSpline(const std::string& spline_base_id,
               const VecTimes& poly_durations);
-  virtual ~CoeffSpline();
+  virtual ~CoeffSpline() = default;
 
 
   // linear interpolation from start to goal

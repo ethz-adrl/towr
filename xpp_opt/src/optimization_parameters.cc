@@ -56,7 +56,7 @@ OptimizationParameters::OptimizationParameters ()
       Dynamic,
       Terrain,
       Force,
-//      TotalTime, // Attention: this causes segfault in SNOPT
+      TotalTime, // Attention: this causes segfault in SNOPT
       Swing, // this is important for lifting leg
   };
 
