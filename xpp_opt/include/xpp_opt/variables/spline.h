@@ -16,7 +16,8 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <ifopt/composite.h>
+#include <ifopt/composite.h> // for Jacobian definition
+
 
 namespace xpp {
 
@@ -32,8 +33,8 @@ public:
   using VecTimes  = std::vector<double>;
   using LocalInfo = std::pair<int,double>; ///< id and local time
 
-  Spline ();
-  virtual ~Spline ();
+  Spline () = default;
+  virtual ~Spline () = default;
 
 
   static int GetSegmentID(double t_global, const VecTimes& durations);

@@ -17,8 +17,7 @@
 
 namespace xpp {
 
-//enum BaseRepresentation { BaseVarsHermite, BaseVarsCoeff };
-enum ConstraintName  { BasePoly, Dynamic, EndeffectorRom, TotalTime, Terrain,
+enum ConstraintName  { Dynamic, EndeffectorRom, TotalTime, Terrain,
                        Force, Swing, BaseRom };
 enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
                        FinalComCostID, FinalStanceCostID, ForcesCostID };
@@ -28,15 +27,13 @@ enum CostName        { ComCostID, RangOfMotionCostID, PolyCenterCostID,
   */
 class OptimizationParameters {
 public:
-//  using UsedVariableSets = std::vector<VariableName>;
   using CostWeights      = std::vector<std::pair<CostName, double>>;
   using UsedConstraints  = std::vector<ConstraintName>;
   using VecTimes         = std::vector<double>;
 
   OptimizationParameters();
-  virtual ~OptimizationParameters();
+  virtual ~OptimizationParameters() = default;
 
-//  BaseRepresentation GetBaseRepresentation() const { return base_representation_;};
   UsedConstraints GetUsedConstraints() const;
   CostWeights GetCostWeights() const;
 
@@ -49,7 +46,6 @@ public:
 
   int ee_splines_per_swing_phase_;
   int force_splines_per_stance_phase_;
-  int order_coeff_polys_;
 
   double dt_base_polynomial_;
   double dt_range_of_motion_;
@@ -57,9 +53,6 @@ public:
 
   double min_phase_duration_;
   double max_phase_duration_;
-
-  enum BaseRepresentation {CubicHermite, PolyCoeff};
-  BaseRepresentation GetBaseRepresentation() const;
 
 private:
   double t_total_ = 3.0;

@@ -15,13 +15,14 @@
 
 #include <xpp_states/cartesian_declarations.h>
 
-#include <xpp_opt/angular_state_converter.h>
-#include <xpp_opt/constraints/time_discretization_constraint.h>
 #include <xpp_opt/models/dynamic_model.h>
+
 #include <xpp_opt/variables/contact_schedule.h>
 #include <xpp_opt/variables/node_values.h>
 #include <xpp_opt/variables/spline.h>
+#include <xpp_opt/variables/angular_state_converter.h>
 
+#include "time_discretization_constraint.h"
 
 namespace xpp {
 

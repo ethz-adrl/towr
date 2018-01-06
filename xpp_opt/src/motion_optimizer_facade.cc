@@ -15,20 +15,19 @@
 #include <tuple>
 #include <utility>
 
-#include <xpp_opt/angular_state_converter.h>
 #include <xpp_opt/models/gait_generator.h>
 #include <xpp_opt/models/kinematic_model.h>
-#include <xpp_opt/polynomial.h>
-#include <xpp_opt/variables/coeff_spline.h>
+
+#include <xpp_opt/variables/angular_state_converter.h>
+#include <xpp_opt/variables/polynomial.h>
 #include <xpp_opt/variables/contact_schedule.h>
 #include <xpp_opt/variables/phase_nodes.h>
 #include <xpp_opt/variables/variable_names.h>
-#include "../include/xpp_opt/nlp_factory.h"
+
+#include <xpp_opt/nlp_factory.h>
 
 
 namespace xpp {
-
-using Composite = opt::Composite;
 
 MotionOptimizerFacade::MotionOptimizerFacade ()
 {

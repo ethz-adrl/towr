@@ -12,14 +12,13 @@
 #include <string>
 #include <vector>
 
-#include <ifopt/composite.h>
 #include <ifopt/leaves.h>
 
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/endeffectors.h>
 #include <xpp_states/state.h>
 
-#include <xpp_opt/height_map.h>
+#include <xpp_opt/constraints/height_map.h>
 #include <xpp_opt/models/robot_model.h>
 #include <xpp_opt/optimization_parameters.h>
 
@@ -77,7 +76,6 @@ private:
 
 
   // variables
-  VariablePtrVec MakeBaseVariablesCoeff() const;
   VariablePtrVec MakeBaseVariablesHermite() const;
   VariablePtrVec MakeEndeffectorVariables() const;
   VariablePtrVec MakeForceVariables() const;
@@ -85,7 +83,6 @@ private:
                                               const VariablePtrVec& ee_force) const;
 
   // constraints
-  ContraintPtrVec MakeStateConstraint() const;
   ContraintPtrVec MakeDynamicConstraint() const;
   ContraintPtrVec MakeRangeOfMotionBoxConstraint() const;
   ContraintPtrVec MakeTotalTimeConstraint() const;

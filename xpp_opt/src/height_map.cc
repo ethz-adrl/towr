@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/height_map.h>
+#include <xpp_opt/constraints/height_map.h>
 
 #include <cassert>
 #include <cmath>

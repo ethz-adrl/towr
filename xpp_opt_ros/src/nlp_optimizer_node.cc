@@ -33,7 +33,7 @@
 #include <xpp_opt_ros/topic_names.h>
 #include <xpp_msgs/TerrainInfo.h>
 
-#include <xpp_opt/height_map.h>
+#include <xpp_opt/constraints/height_map.h>
 #include <xpp_opt/optimization_parameters.h>
 #include <xpp_opt_ros/param_server.h>
 

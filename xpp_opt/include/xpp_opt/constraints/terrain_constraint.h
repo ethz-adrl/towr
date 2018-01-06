@@ -12,8 +12,8 @@
 
 #include <ifopt/composite.h>
 
-#include <xpp_opt/height_map.h>
 #include <xpp_opt/variables/phase_nodes.h>
+#include "height_map.h"
 
 namespace xpp {
 
@@ -25,7 +25,7 @@ class TerrainConstraint : public opt::ConstraintSet {
 public:
   TerrainConstraint (const HeightMap::Ptr& terrain,
                      std::string ee_motion_id);
-  virtual ~TerrainConstraint ();
+  virtual ~TerrainConstraint () = default;
 
 
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;

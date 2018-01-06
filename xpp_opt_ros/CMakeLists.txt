@@ -48,6 +48,9 @@ catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ${PROJECT_NAME}
    CATKIN_DEPENDS
+     message_runtime
+     std_msgs
+     xpp_msgs
 #  DEPENDS system_lib
 )
 
@@ -71,6 +74,8 @@ add_library(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
+# so messages are compiled into header files before building library
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp)
 
 
 add_executable(nlp_optimizer_node src/exe/nlp_optimizer_node_exe.cc)

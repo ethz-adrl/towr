@@ -15,11 +15,7 @@ namespace xpp {
 
 OptimizationParameters::OptimizationParameters ()
 {
-  order_coeff_polys_  = 4; // used only with coeff_spline representation
-  dt_base_polynomial_ = 0.2; // 0.2
-
-
-//  base_representation_ = BaseVarsCoeff;
+  dt_base_polynomial_ = 0.1; // 0.2
 
 
   // 2 also works quite well. Remember that inbetween the nodes, forces
@@ -41,23 +37,14 @@ OptimizationParameters::OptimizationParameters ()
 //  max_phase_duration_ = GetTotalTime()/contact_timings_.size();
 
 
-//  variables_ = {
-//      BaseVarsCoeff,
-//      EndeffectorVars,
-//      ForceVars,
-//      ContactScheduleVars
-//  };
-
-
   constraints_ = {
-      BasePoly, // include this results in non-hermite representation to be used
-//      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
       EndeffectorRom,
       Dynamic,
       Terrain,
       Force,
-      TotalTime, // Attention: this causes segfault in SNOPT
+//      TotalTime, // Attention: this causes segfault in SNOPT
       Swing, // this is important for lifting leg
+//      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
   };
 
   cost_weights_ = {
@@ -101,21 +88,6 @@ OptimizationParameters::GetBasePolyDurations () const
   }
 
   return base_spline_timings_;
-}
-
-OptimizationParameters::BaseRepresentation
-OptimizationParameters::GetBaseRepresentation () const
-{
-  auto v = constraints_; // alias
-  if(std::find(v.begin(), v.end(), BasePoly) != v.end()) {
-      return PolyCoeff; // v contains element
-  } else {
-     return CubicHermite;
-  }
-}
-
-OptimizationParameters::~OptimizationParameters ()
-{
 }
 
 } // namespace xpp

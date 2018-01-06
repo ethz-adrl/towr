@@ -16,9 +16,10 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <ifopt/composite.h>
-#include <xpp_opt/polynomial.h>
+#include <ifopt/leaves.h>
+
 #include <xpp_opt/variables/spline.h>
+#include <xpp_opt/variables/polynomial.h>
 
 
 namespace xpp {

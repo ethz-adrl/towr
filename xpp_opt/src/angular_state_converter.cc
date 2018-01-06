@@ -5,7 +5,7 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/angular_state_converter.h>
+#include <xpp_opt/variables/angular_state_converter.h>
 
 #include <cassert>
 #include <cmath>

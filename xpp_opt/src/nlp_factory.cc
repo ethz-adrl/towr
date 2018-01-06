@@ -17,7 +17,6 @@
 #include <xpp_opt/constraints/dynamic_constraint.h>
 #include <xpp_opt/constraints/force_constraint.h>
 #include <xpp_opt/constraints/range_of_motion_constraint.h>
-#include <xpp_opt/constraints/spline_constraint.h>
 #include <xpp_opt/constraints/swing_constraint.h>
 #include <xpp_opt/constraints/terrain_constraint.h>
 #include <xpp_opt/costs/node_cost.h>
@@ -53,21 +52,9 @@ NlpFactory::GetVariableSets () const
 {
   VariablePtrVec vars;
 
-  auto base_rep = params_->GetBaseRepresentation();
-  switch (base_rep) {
-    case OptimizationParameters::PolyCoeff:  {
-      auto v = MakeBaseVariablesCoeff();
-      vars.insert(vars.end(), v.begin(), v.end());
-      break;
-    }
-    case OptimizationParameters::CubicHermite: {
-      auto v = MakeBaseVariablesHermite();
-      vars.insert(vars.end(), v.begin(), v.end());
-      break;
-    }
-    default:
-      throw std::runtime_error("base variable type not not defined!");
-  }
+
+  auto base_motion = MakeBaseVariablesHermite();
+  vars.insert(vars.end(), base_motion.begin(), base_motion.end());
 
 
   auto ee_motion = MakeEndeffectorVariables();
@@ -91,7 +78,6 @@ NlpFactory::ContraintPtrVec
 NlpFactory::GetConstraint (ConstraintName name) const
 {
   switch (name) {
-    case BasePoly:       return MakeStateConstraint();
     case Dynamic:        return MakeDynamicConstraint();
     case EndeffectorRom: return MakeRangeOfMotionBoxConstraint();
     case BaseRom:        return MakeBaseRangeOfMotionConstraint();
@@ -115,66 +101,6 @@ NlpFactory::GetCost(const CostName& name, double weight) const
 }
 
 NlpFactory::ContraintPtrVec
-NlpFactory::MakeStateConstraint () const
-{
-  ContraintPtrVec constraints;
-//  auto constraints = std::make_shared<Composite>("State Constraints", false);
-
-
-
-  // initial base constraints
-  double t0 = 0.0; // initial time
-  double T = params_->GetTotalTime();
-  auto Z_         = {Z};
-  auto XY_        = {X,Y};
-  auto XYZ_       = {X, Y, Z};
-  auto Pos_       = {kPos};
-  auto PosVel_    = {kPos, kVel};
-  auto VelAcc_    = {kVel, kAcc};
-  auto PosVelAcc_ = {kPos, kVel, kAcc};
-
-
-  // linear base motion
-  constraints.push_back(std::make_shared<SplineStateConstraint>(id::base_linear, t0, initial_base_.lin, PosVelAcc_, XYZ_));
-  constraints.push_back(std::make_shared<SplineStateConstraint>(id::base_linear, T,  final_base_.lin,   PosVelAcc_, XY_));
-  constraints.push_back(std::make_shared<SplineStateConstraint>(id::base_linear, T,  final_base_.lin,   PosVelAcc_, Z_));
-
-  // angular base motion
-  constraints.push_back(std::make_shared<SplineStateConstraint>(id::base_angular, t0, initial_base_.ang, PosVelAcc_, XYZ_));
-  constraints.push_back(std::make_shared<SplineStateConstraint>(id::base_angular, T,  final_base_.ang,   PosVelAcc_, XYZ_));
-//  constraints.push_back(std::make_shared<SplineStateConstraint>(id::base_angular, T,  final_base_.ang,   VelAcc_, XYZ_));
-
-  // junction constraints
-  constraints.push_back(std::make_shared<SplineJunctionConstraint>(id::base_linear,  PosVelAcc_));
-  constraints.push_back(std::make_shared<SplineJunctionConstraint>(id::base_angular, PosVelAcc_));
-
-
-
-//  // endeffector constraints
-//  for (auto ee : params->robot_ee_) {
-//
-//    auto spline_ee = Spline::BuildSpline(id::GetEEMotionId(ee), {});
-//
-//    // initial endeffectors constraints
-//    // zmp_ replace these by normal variable bounds on the hermite-poly nodes
-//    auto deriv_ee = {kPos}; // velocity and acceleration not yet implemented
-//    auto c = std::make_shared<SplineStateConstraint>(spline_ee, t,
-//                                                     VectorXd(initial_ee_W_.At(ee)),
-//                                                     deriv_ee);
-////    constraints.push_back(c);
-//
-//    // final endeffectors constraints
-//    Eigen::Matrix3d w_R_b = AngularStateConverter::GetRotationMatrixBaseToWorld(final_base_.ang.p_);
-//    EndeffectorsPos nominal_B = params->GetNominalStanceInBase();
-//    VectorXd ee_pos_W = final_base_.lin.p_ + w_R_b*nominal_B.At(ee);
-////    constraints.push_back(std::make_shared<SplineStateConstraint>(spline_ee, T, ee_pos_W, deriv_ee));
-//
-//  }
-
-  return constraints;
-}
-
-NlpFactory::ContraintPtrVec
 NlpFactory::MakeBaseRangeOfMotionConstraint () const
 {
   return {std::make_shared<BaseMotionConstraint>(*params_)};
@@ -193,26 +119,12 @@ NlpFactory::MakeDynamicConstraint() const
     double d = base_poly_durations.at(i);
     t_node += d;
 
-    switch (params_->GetBaseRepresentation()) {
-      case OptimizationParameters::CubicHermite:
-        dts_.push_back(t_node-eps); // this results in continuous acceleration along junctions
-        dts_.push_back(t_node+eps);
-        break;
-      case OptimizationParameters::PolyCoeff:
-        dts_.push_back(t_node-d/2.); // enforce dynamics at center of node
-        dts_.push_back(t_node);
-        break;
-      default:
-        assert(false); // representation not defined
-        break;
-    }
+    dts_.push_back(t_node-eps); // this results in continuous acceleration along junctions
+    dts_.push_back(t_node+eps);
   }
 
   double final_d = base_poly_durations.back();
   t_node += final_d;
-
-  if (params_->GetBaseRepresentation() == OptimizationParameters::PolyCoeff)
-    dts_.push_back(t_node-final_d/2);
 
   dts_.push_back(t_node); // also ensure constraints at very last node/time.
 
@@ -290,41 +202,6 @@ NlpFactory::MakeSwingConstraint () const
   }
 
   return constraints;
-}
-
-NlpFactory::VariablePtrVec
-NlpFactory::MakeBaseVariablesCoeff () const
-{
-  VariablePtrVec vars;
-
-  int n_dim = initial_base_.lin.kNumDim;
-  int order = params_->order_coeff_polys_;
-
-  std::vector<double> base_spline_timings_ = params_->GetBasePolyDurations();
-  auto coeff_spline_ang = std::make_shared<CoeffSpline>(id::base_angular, base_spline_timings_);
-  for (int i=0; i<base_spline_timings_.size(); ++i) {
-    auto p_ang = std::make_shared<Polynomial>(order, n_dim);
-    auto var = std::make_shared<PolynomialVars>(id::base_angular+std::to_string(i), p_ang);
-    vars.push_back(var);
-
-    coeff_spline_ang->poly_vars_.push_back(var);
-  }
-  coeff_spline_ang->InitializeVariables(initial_base_.ang.p_, final_base_.ang.p_);
-  vars.push_back(coeff_spline_ang); // add just for easy access later
-
-
-  auto coeff_spline_lin = std::make_shared<CoeffSpline>(id::base_linear, base_spline_timings_);
-  for (int i=0; i<base_spline_timings_.size(); ++i) {
-    auto p_lin = std::make_shared<Polynomial>(order, n_dim);
-    auto var = std::make_shared<PolynomialVars>(id::base_linear+std::to_string(i), p_lin);
-    vars.push_back(var);
-    coeff_spline_lin->poly_vars_.push_back(var);
-  }
-  coeff_spline_lin->InitializeVariables(initial_base_.lin.p_, final_base_.lin.p_);
-  vars.push_back(coeff_spline_lin); // add just for easy access later
-
-
-  return vars;
 }
 
 NlpFactory::VariablePtrVec
