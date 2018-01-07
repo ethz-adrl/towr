@@ -1,0 +1,21 @@
+<launch>
+  <group ns="towr">
+    <!-- for building the discretized trajectory -->
+    <!-- HyQ:    250Hz, so dt=0.004 -->
+    <!-- ANYmal: 400Hz, so dt=0.0025 -->
+    <param name="trajectory_dt" value="0.0025" type="double"/>   <!-- equal to 1/TaskServoHz --> 
+    <param name="rosbag_name"   value="$(find towr_ros)/bags" type="string"/>   
+  </group>   	
+  <group ns="joy_node">
+    <param name="dev"              value="/dev/input/js0"  type="string"/>  
+    <param name="autorepeat_rate"  value="0.0"   type="double"/>
+    <param name="deadzone"         value="0.05"  type="double"/>
+  </group>
+  <!-- tried to get continuous publishing when key pressed, but not working -->
+  <group ns="keyboard">
+    <param name="allow_repeat"     value="true"  type="bool"/>  
+    <param name="repeat_delay"     value="0"     type="int"/>
+    <param name="repeat_interval"  value="10"    type="int"/>
+  </group>
+  
+</launch>

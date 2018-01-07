@@ -1,0 +1,23 @@
+<launch>  
+  <!-- so the logging print the node name -->
+  <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${node}]: ${message}" />
+  <env name="ROSCONSOLE_CONFIG_FILE" value="$(find towr_ros)/config/towr.conf"/>
+  
+  <!--  load the ros parameters  -->
+  <include file="$(find towr_ros)/launch/towr_params.launch"></include>
+  
+  <node 
+    name="rviz_terrain_node" 
+    pkg="towr_ros" 
+    type="rviz_terrain_node" 
+    output="screen">
+  </node>
+
+  <node 
+    name="nlp_optimizer_node" 
+    pkg="towr_ros" 
+    type="nlp_optimizer_node" 
+    output="screen">
+  </node>
+    
+</launch>

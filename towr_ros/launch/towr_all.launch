@@ -1,0 +1,20 @@
+<launch>
+
+  <!-- so the logging print the node name -->
+  <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${node}]: ${message}" />
+
+  <!-- Upload anymal URDF and IK-->
+  <include file="$(find xpp_vis)/launch/xpp_full.launch"></include>
+  
+  <!-- for commanding goal positions and tasks -->
+  <node name="user_interface_node" pkg="towr_ros" type="user_interface_node" output="screen" cwd="node" >  
+  </node>
+   
+  <!-- for commanding goal positions and tasks -->
+  <node name="keyboard" pkg="keyboard" type="keyboard" output="screen" cwd="node" >  
+  </node>
+
+  <!-- Start the optimizer-->
+  <include file="$(find towr_ros)/launch/towr.launch"></include>
+       
+</launch>
