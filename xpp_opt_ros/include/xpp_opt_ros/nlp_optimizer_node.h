@@ -32,7 +32,6 @@ public:
 
 private:
   void OptimizeMotion();
-  mutable opt::Problem nlp_;
 
   void CurrentStateCallback(const xpp_msgs::RobotStateCartesian&);
 
@@ -41,12 +40,12 @@ private:
   ::ros::Subscriber user_command_sub_;
   ::ros::Subscriber current_state_sub_;
   ::ros::Publisher cart_trajectory_pub_;
-  ::ros::Publisher opt_parameters_pub_;
+  ::ros::Publisher robot_parameters_pub_;
 
   MotionOptimizerFacade motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
 
-  UserCommand user_command_msg_;
+//  UserCommand user_command_msg_;
 
   bool first_callback_ = true;
 
@@ -57,10 +56,14 @@ private:
 
   xpp_msgs::RobotStateCartesianTrajectory BuildTrajectoryMsg() const;
 
-  void SaveOptimizationAsRosbag(const std::string& bag_name, bool include_iterations=false) const;
+  void SaveOptimizationAsRosbag(const std::string& bag_name,
+                                const xpp_msgs::RobotParameters& robot_params,
+                                const UserCommand user_command_msg,
+                                const HeightMap::Ptr& terrain,
+                                bool include_iterations=false) const;
   void SaveTrajectoryInRosbag (rosbag::Bag&, const std::vector<RobotStateCartesian>& traj,
-                               const std::string& topic) const;
-  xpp_msgs::RobotParameters BuildOptParametersMsg() const;
+                               const HeightMap::Ptr& terrain, const std::string& topic) const;
+  xpp_msgs::RobotParameters BuildRobotParametersMsg(const RobotModel& model) const;
 
 
 };

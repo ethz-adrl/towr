@@ -26,6 +26,9 @@
 
 #include <xpp_opt/nlp_factory.h>
 
+#include <ifopt/solvers/ipopt_adapter.h>
+#include <ifopt/solvers/snopt_adapter.h>
+
 
 namespace xpp {
 
@@ -35,10 +38,10 @@ MotionOptimizerFacade::MotionOptimizerFacade ()
 
 //    model_.MakeMonopedModel();
 //  model_.MakeBipedModel();
-  model_.MakeAnymalModel();
+//  model_.MakeAnymalModel();
 //  model_.MakeHyqModel();
 
-  model_.SetInitialState(inital_base_, initial_ee_W_);
+//  model_.SetInitialState(inital_base_, initial_ee_W_);
 //  RobotModel::SetAnymalInitialState(inital_base_, initial_ee_W_);
 }
 
@@ -57,24 +60,46 @@ MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& curr_state)
 //  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
 //  inital_base_.ang.p_ = euler.toImplementation().reverse();
 
-  SetIntialFootholds(curr_state.ee_motion_.Get(kPos));
+  initial_ee_W_ = curr_state.ee_motion_.Get(kPos);
+//  SetIntialFootholds(curr_state.ee_motion_.Get(kPos));
 }
 
-void
-MotionOptimizerFacade::SetFinalState (const StateLin3d& lin,
-                                      const StateLin3d& ang)
+void MotionOptimizerFacade::SetParameters(const State3dEuler& final_base,
+                                          double total_time,
+                                          const RobotModel& model,
+                                          HeightMap::Ptr terrain)
 {
-  final_base_.ang = ang;
-  final_base_.lin = lin;
+  final_base_ = final_base;
+//  // height depends on terrain
+//  double z_terrain = terrain_->GetHeight(lin.p_.x(), lin.p_.y());
+//  double z_nominal_B = model_.kinematic_model_->GetNominalStanceInBase().at(0).z();
+//  final_base_.lin.p_.z() = z_terrain - z_nominal_B;
 
-  // height depends on terrain
-  double z_terrain = terrain_->GetHeight(lin.p_.x(), lin.p_.y());
-  double z_nominal_B = model_.kinematic_model_->GetNominalStanceInBase().at(0).z();
-  final_base_.lin.p_.z() = z_terrain - z_nominal_B;
+  params_->SetTotalDuration(total_time);
+
+  model_ = model;
+
+  terrain_ = terrain;
+  SetTerrainHeightFromAvgFootholdHeight(terrain_); // make sure initial footholds are set
+
+//  model_.SetInitialState(inital_base_, initial_ee_W_);
 }
+
+//void
+//MotionOptimizerFacade::SetFinalState (const StateLin3d& lin,
+//                                      const StateLin3d& ang)
+//{
+//  final_base_.ang = ang;
+//  final_base_.lin = lin;
+//
+//  // height depends on terrain
+//  double z_terrain = terrain_->GetHeight(lin.p_.x(), lin.p_.y());
+//  double z_nominal_B = model_.kinematic_model_->GetNominalStanceInBase().at(0).z();
+//  final_base_.lin.p_.z() = z_terrain - z_nominal_B;
+//}
 
 opt::Problem
-MotionOptimizerFacade::BuildNLP ()
+MotionOptimizerFacade::BuildNLP () const
 {
   opt::Problem nlp;
 
@@ -96,17 +121,33 @@ MotionOptimizerFacade::BuildNLP ()
   return nlp;
 }
 
+void MotionOptimizerFacade::SolveNLP()
+{
+  nlp_ = BuildNLP();
+
+  opt::IpoptAdapter::Solve(nlp_);
+  // opt::SnoptAdapter::Solve(nlp_);
+
+  nlp_.PrintCurrent();
+}
+
 std::vector<MotionOptimizerFacade::RobotStateVec>
-MotionOptimizerFacade::GetIntermediateSolutions (opt::Problem& nlp, double dt) const
+MotionOptimizerFacade::GetIntermediateSolutions (double dt) const
 {
   std::vector<RobotStateVec> trajectories;
 
-  for (int iter=0; iter<nlp.GetIterationCount(); ++iter) {
-    auto opt_var = nlp.GetOptVariables(iter);
+  for (int iter=0; iter<nlp_.GetIterationCount(); ++iter) {
+    auto opt_var = nlp_.GetOptVariables(iter);
     trajectories.push_back(GetTrajectory(opt_var, dt));
   }
 
   return trajectories;
+}
+
+MotionOptimizerFacade::RobotStateVec
+MotionOptimizerFacade::GetTrajectory (double dt) const
+{
+  return GetTrajectory(nlp_.GetOptVariables(), dt);
 }
 
 MotionOptimizerFacade::RobotStateVec
@@ -138,6 +179,15 @@ MotionOptimizerFacade::GetTrajectory (const VariablesCompPtr& vars,
   }
 
   return trajectory;
+}
+
+void MotionOptimizerFacade::SetTerrainHeightFromAvgFootholdHeight(
+    HeightMap::Ptr& terrain) const
+{
+  double avg_height=0.0;
+  for ( auto pos : initial_ee_W_.ToImpl())
+    avg_height += pos.z()/initial_ee_W_.GetEECount();
+  terrain->SetGroundHeight(avg_height);
 }
 
 

@@ -15,7 +15,7 @@ namespace xpp {
 
 OptimizationParameters::OptimizationParameters ()
 {
-  dt_base_polynomial_ = 0.1; // 0.2
+  dt_base_polynomial_ = 0.2; // 0.2
 
 
   // 2 also works quite well. Remember that inbetween the nodes, forces

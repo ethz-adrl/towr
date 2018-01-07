@@ -39,44 +39,41 @@ public:
   virtual ~MotionOptimizerFacade () = default;
 
   void SetInitialState(const RobotStateCartesian&);
+  void SetParameters(const State3dEuler& final_base,
+                     double total_time,
+                     const RobotModel& model,
+                     HeightMap::Ptr terrain);
 
-  enum NlpSolver { Ipopt, Snopt } nlp_solver_;
-  opt::Problem BuildNLP();
-  // smell make constant again
-  std::vector<RobotStateVec> GetIntermediateSolutions(opt::Problem&, double dt) const;
-  RobotStateVec GetTrajectory(const VariablesCompPtr&, double dt) const;
-//  RobotStateVec GetTrajectory(double dt) const;
 
-  State3dEuler inital_base_;
+  void SolveNLP();
 
-  HeightMap::Ptr terrain_;
-  RobotModel model_;
-  MotionParametersPtr params_;
+  RobotStateVec GetTrajectory(double dt) const;
+  std::vector<RobotStateVec> GetIntermediateSolutions(double dt) const;
 
-//  const MotionParametersPtr GetMotionParameters() const { return params_;};
 
-  void SetFinalState(const StateLin3d& lin, const StateLin3d& ang);
-  void SetIntialFootholds(EndeffectorsPos pos) {initial_ee_W_ = pos; };
 
-  void SetTerrainFromAvgFootholdHeight() const
-  {
-    double avg_height=0.0;
-    for ( auto pos : initial_ee_W_.ToImpl())
-      avg_height += pos.z()/initial_ee_W_.GetEECount();
-    terrain_->SetGroundHeight(avg_height);
-  }
+
+
+//  void SetFinalState(const StateLin3d& lin, const StateLin3d& ang);
+//  void SetIntialFootholds(EndeffectorsPos pos) {initial_ee_W_ = pos; };
+
+
 
 private:
+  State3dEuler inital_base_;
   EndeffectorsPos initial_ee_W_;
+
+  RobotModel model_;
+  HeightMap::Ptr terrain_;
+  MotionParametersPtr params_;
   State3dEuler final_base_;
 
-//  void BuildVariables() const;
-//  void BuildCostConstraints(const VariablesCompPtr&);
+  opt::Problem BuildNLP() const;
+  mutable opt::Problem nlp_;
 
-//  void SetBaseRepresentationCoeff() const;
-//  void SetBaseRepresentationHermite() const;
+  RobotStateVec GetTrajectory(const VariablesCompPtr&, double dt) const;
+  void SetTerrainHeightFromAvgFootholdHeight(HeightMap::Ptr& terrain) const;
 
-//  mutable opt::Problem nlp;
 
   Vector3d GetUnique(const Vector3d& zyx_non_unique) const;
 };

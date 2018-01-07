@@ -26,9 +26,6 @@
 #include <xpp_states/state.h>
 #include <xpp_states/convert.h>
 
-#include <ifopt/solvers/ipopt_adapter.h>
-#include <ifopt/solvers/snopt_adapter.h>
-
 #include <xpp_msgs/topic_names.h>
 #include <xpp_opt_ros/topic_names.h>
 #include <xpp_msgs/TerrainInfo.h>
@@ -56,13 +53,24 @@ NlpOptimizerNode::NlpOptimizerNode ()
   cart_trajectory_pub_  = n.advertise<xpp_msgs::RobotStateCartesianTrajectory>
                                           (xpp_msgs::robot_trajectory_desired, 1);
 
-  opt_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
+  robot_parameters_pub_  = n.advertise<xpp_msgs::RobotParameters>
                                     (xpp_msgs::robot_parameters, 1);
 
   dt_            = ParamServer::GetDouble("/xpp/trajectory_dt");
   rosbag_folder_ = ParamServer::GetString("/xpp/rosbag_name");
 
-  user_command_msg_.total_duration = 0.1;
+
+
+  // hardcode initial state
+  RobotStateCartesian init(4);
+  init.base_.lin.p_.z() = 0.46;
+
+  init.ee_motion_.at(0).p_ <<  0.34,  0.19, 0.0; // LF
+  init.ee_motion_.at(1).p_ <<  0.34, -0.19, 0.0; // RF
+  init.ee_motion_.at(2).p_ << -0.34,  0.19, 0.0; // LH
+  init.ee_motion_.at(3).p_ << -0.34, -0.19, 0.0; // RH
+
+  motion_optimizer_.SetInitialState(init);
 }
 
 void
@@ -105,28 +113,34 @@ NlpOptimizerNode::CurrentStateCallback (const xpp_msgs::RobotStateCartesian& msg
 void
 NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
 {
-  user_command_msg_ = msg;
+  auto terrain = HeightMap::MakeTerrain(static_cast<TerrainID>(msg.terrain_id));
 
-  motion_optimizer_.terrain_ = HeightMap::MakeTerrain(static_cast<TerrainID>(msg.terrain_id));
-  motion_optimizer_.SetTerrainFromAvgFootholdHeight();
+  State3dEuler final_base;
+  final_base.lin = Convert::ToXpp(msg.goal_lin);
+  final_base.ang = Convert::ToXpp(msg.goal_ang);
 
 
-  auto gait = static_cast<GaitGenerator::GaitCombos>(msg.gait_id);
-  motion_optimizer_.model_.gait_generator_->SetCombo(gait);
-  motion_optimizer_.params_->SetTotalDuration(msg.total_duration);
+  RobotModel model;
+  model.MakeAnymalModel();
+  model.gait_generator_->SetCombo(static_cast<GaitGenerator::GaitCombos>(msg.gait_id));
+  //  model_.MakeMonopedModel();
+  //  model_.MakeBipedModel();
+  //  model_.MakeHyqModel();
 
-  motion_optimizer_.nlp_solver_ = msg.use_solver_snopt ? MotionOptimizerFacade::Snopt : MotionOptimizerFacade::Ipopt;
-  motion_optimizer_.SetFinalState(Convert::ToXpp(msg.goal_lin),
-                                  Convert::ToXpp(msg.goal_ang));
+  ROS_INFO_STREAM("publishing optimization parameters to " << robot_parameters_pub_.getTopic());
+  xpp_msgs::RobotParameters robot_params_msg = BuildRobotParametersMsg(model);
+  robot_parameters_pub_.publish(robot_params_msg);
 
-  ROS_INFO_STREAM("publishing optimization parameters to " << opt_parameters_pub_.getTopic());
-  opt_parameters_pub_.publish(BuildOptParametersMsg());
+
+  motion_optimizer_.SetParameters(final_base, msg.total_duration, model, terrain);
+
+
 
 
   std::string bag_file = rosbag_folder_+ bag_name_;
   if (msg.optimize) {
     OptimizeMotion();
-    SaveOptimizationAsRosbag(bag_file, false);
+    SaveOptimizationAsRosbag(bag_file, robot_params_msg, msg, terrain, false);
   }
 
   if (msg.replay_trajectory || msg.optimize) {
@@ -154,7 +168,7 @@ NlpOptimizerNode::UserCommandCallback(const UserCommand& msg)
     time_t _tm =time(NULL );
     struct tm * curtime = localtime ( &_tm );
     std::string name = rosbag_folder_ + subfolder + asctime(curtime) + ".bag";
-    SaveOptimizationAsRosbag(name, false);
+    SaveOptimizationAsRosbag(name, robot_params_msg, msg, terrain, false);
   }
 }
 
@@ -162,13 +176,7 @@ void
 NlpOptimizerNode::OptimizeMotion ()
 {
   try {
-    // the generic optimization problem
-    nlp_ = motion_optimizer_.BuildNLP();
-
-//    opt::IpoptAdapter::Solve(nlp_);
-    opt::SnoptAdapter::Solve(nlp_);
-    nlp_.PrintCurrent();
-
+    motion_optimizer_.SolveNLP();
   } catch (const std::runtime_error& e) {
     ROS_ERROR_STREAM("Optimization failed, not sending. " << e.what());
   }
@@ -177,31 +185,34 @@ NlpOptimizerNode::OptimizeMotion ()
 xpp_msgs::RobotStateCartesianTrajectory
 NlpOptimizerNode::BuildTrajectoryMsg () const
 {
-  auto cart_traj = motion_optimizer_.GetTrajectory(nlp_.GetOptVariables(), dt_);
+  auto cart_traj = motion_optimizer_.GetTrajectory(dt_);
   return Convert::ToRos(cart_traj);
 }
 
 xpp_msgs::RobotParameters
-NlpOptimizerNode::BuildOptParametersMsg() const
+NlpOptimizerNode::BuildRobotParametersMsg(const RobotModel& model) const
 {
   xpp_msgs::RobotParameters params_msg;
-  auto max_dev_xyz = motion_optimizer_.model_.kinematic_model_->GetMaximumDeviationFromNominal();
+  auto max_dev_xyz = model.kinematic_model_->GetMaximumDeviationFromNominal();
   params_msg.ee_max_dev = Convert::ToRos<geometry_msgs::Vector3>(max_dev_xyz);
 
-  auto nominal_B = motion_optimizer_.model_.kinematic_model_->GetNominalStanceInBase();
-  auto ee_names = motion_optimizer_.model_.gait_generator_->GetEndeffectorNames();
+  auto nominal_B = model.kinematic_model_->GetNominalStanceInBase();
+  auto ee_names = model.gait_generator_->GetEndeffectorNames();
   params_msg.ee_names = ee_names;
   for (auto ee : nominal_B.ToImpl()) {
     params_msg.nominal_ee_pos.push_back(Convert::ToRos<geometry_msgs::Point>(ee));
   }
 
-  params_msg.base_mass = motion_optimizer_.model_.dynamic_model_->GetMass();
+  params_msg.base_mass = model.dynamic_model_->GetMass();
 
   return params_msg;
 }
 
 void
 NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
+                                            const xpp_msgs::RobotParameters& robot_params,
+                                            const UserCommand user_command_msg,
+                                            const HeightMap::Ptr& terrain,
                                             bool include_iterations) const
 {
   rosbag::Bag bag;
@@ -209,15 +220,15 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
   ::ros::Time t0(0.001);
 
   // save the a-priori fixed optimization variables
-  bag.write(xpp_msgs::robot_parameters, t0, BuildOptParametersMsg());
-  bag.write(xpp_msgs::user_command+"_saved", t0, user_command_msg_);
+  bag.write(xpp_msgs::robot_parameters, t0, robot_params);
+  bag.write(xpp_msgs::user_command+"_saved", t0, user_command_msg);
 
   // save the trajectory of each iteration
   if (include_iterations) {
-    auto trajectories = motion_optimizer_.GetIntermediateSolutions(nlp_, dt_);
+    auto trajectories = motion_optimizer_.GetIntermediateSolutions(dt_);
     int n_iterations = trajectories.size();
     for (int i=0; i<n_iterations; ++i)
-      SaveTrajectoryInRosbag(bag, trajectories.at(i), xpp_msgs::nlp_iterations_name + std::to_string(i));
+      SaveTrajectoryInRosbag(bag, trajectories.at(i), terrain, xpp_msgs::nlp_iterations_name + std::to_string(i));
 
     // save number of iterations the optimizer took
     std_msgs::Int32 m;
@@ -227,8 +238,8 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
 
 
   // save the final trajectory
-  auto final_trajectory = motion_optimizer_.GetTrajectory(nlp_.GetOptVariables(), dt_);
-  SaveTrajectoryInRosbag(bag, final_trajectory, xpp_msgs::robot_state_desired);
+  auto final_trajectory = motion_optimizer_.GetTrajectory(dt_);
+  SaveTrajectoryInRosbag(bag, final_trajectory, terrain, xpp_msgs::robot_state_desired);
 
   // optional: save the entire trajectory as one message
   bag.write(xpp_msgs::robot_trajectory_desired, t0, BuildTrajectoryMsg());
@@ -239,6 +250,7 @@ NlpOptimizerNode::SaveOptimizationAsRosbag (const std::string& bag_name,
 void
 NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
                                           const std::vector<RobotStateCartesian>& traj,
+                                          const HeightMap::Ptr& terrain,
                                           const std::string& topic) const
 {
   for (const auto state : traj) {
@@ -250,10 +262,9 @@ NlpOptimizerNode::SaveTrajectoryInRosbag (rosbag::Bag& bag,
 
     xpp_msgs::TerrainInfo terrain_msg;
     for (auto ee : state.ee_motion_.ToImpl()) {
-      Vector3d n = motion_optimizer_.terrain_->GetNormalizedBasis(HeightMap::Normal,
-                                                                  ee.p_.x(), ee.p_.y());
+      Vector3d n = terrain->GetNormalizedBasis(HeightMap::Normal, ee.p_.x(), ee.p_.y());
       terrain_msg.surface_normals.push_back(Convert::ToRos<geometry_msgs::Vector3>(n));
-      terrain_msg.friction_coeff = motion_optimizer_.terrain_->GetFrictionCoeff();
+      terrain_msg.friction_coeff = terrain->GetFrictionCoeff();
     }
 
     bag.write(xpp_msgs::terrain_info, timestamp, terrain_msg);
