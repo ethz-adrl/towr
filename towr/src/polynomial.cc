@@ -140,7 +140,6 @@ CubicHermitePoly::GetDerivativeOfVelWrt (Side side, MotionDerivative node_value,
                                          double t) const
 {
   double t2 = std::pow(t,2);
-  double t3 = std::pow(t,3);
   double T  = T_;
   double T2 = std::pow(T_,2);
   double T3 = std::pow(T_,3);
@@ -167,8 +166,6 @@ double
 CubicHermitePoly::GetDerivativeOfAccWrt (Side side, MotionDerivative node_value,
                                          double t) const
 {
-  double t2 = std::pow(t,2);
-  double t3 = std::pow(t,3);
   double T  = T_;
   double T2 = std::pow(T_,2);
   double T3 = std::pow(T_,3);
