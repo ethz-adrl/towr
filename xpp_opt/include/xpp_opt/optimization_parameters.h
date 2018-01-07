@@ -8,12 +8,10 @@
 #ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
 #define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
 
-#include <Eigen/Dense>
-#include <memory>
+
 #include <utility>
 #include <vector>
 
-#include <ifopt/composite.h>
 
 namespace xpp {
 

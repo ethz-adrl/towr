@@ -19,7 +19,8 @@
 #include <xpp_msgs/RobotParameters.h>
 
 #include <xpp_opt_ros/UserCommand.h>    // receive from user
-#include <xpp_opt/motion_optimizer_facade.h>
+
+#include "../../../xpp_opt/include/xpp_opt/towr.h"
 
 namespace xpp {
 
@@ -42,7 +43,7 @@ private:
   ::ros::Publisher cart_trajectory_pub_;
   ::ros::Publisher robot_parameters_pub_;
 
-  MotionOptimizerFacade motion_optimizer_;
+  TOWR motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
 
 //  UserCommand user_command_msg_;

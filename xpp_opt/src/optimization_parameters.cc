@@ -8,8 +8,6 @@
 #include <xpp_opt/optimization_parameters.h>
 
 #include <algorithm>
-#include <initializer_list>
-#include <iterator>
 
 namespace xpp {
 

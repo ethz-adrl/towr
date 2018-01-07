@@ -39,21 +39,14 @@ namespace xpp {
  */
 class NlpFactory {
 public:
-
-  using ComponentPtr     = std::shared_ptr<opt::Component>;
-  using ConstraintPtr    = std::shared_ptr<opt::ConstraintSet>;
   using VariablePtrVec   = std::vector<opt::VariableSet::Ptr>;
-  using ContraintPtrVec  = std::vector<ConstraintPtr>;
-  using CostPtr          = std::shared_ptr<opt::CostTerm>;
-  using CostPtrVec       = std::vector<CostPtr>;
-  using OptVarsContainer = std::shared_ptr<opt::Composite>;
-  using MotionParamsPtr  = std::shared_ptr<OptimizationParameters>;
-  using Derivatives      = std::vector<MotionDerivative>;
+  using ContraintPtrVec  = std::vector<opt::ConstraintSet::Ptr>;
+  using CostPtrVec       = std::vector<opt::CostTerm::Ptr>;
 
   NlpFactory () = default;
   virtual ~NlpFactory () = default;
 
-  void Init(const MotionParamsPtr&,
+  void Init(const OptimizationParameters&,
             const HeightMap::Ptr& terrain,
             const RobotModel& model,
             const EndeffectorsPos& ee_pos,
@@ -65,11 +58,9 @@ public:
   CostPtrVec GetCost(const CostName& id, double weight) const;
 
 private:
-  MotionParamsPtr params_;
+  OptimizationParameters params_;
   HeightMap::Ptr terrain_;
   RobotModel model_;
-
-
   EndeffectorsPos initial_ee_W_;
   State3dEuler initial_base_;
   State3dEuler final_base_;

@@ -53,7 +53,7 @@ include_directories(
 # the specific motion optimization problem for legged robots
 # only packages that actually want to implement the optimization problem need this
 add_library(${PROJECT_NAME}
-  src/motion_optimizer_facade.cc
+  src/towr.cc
   src/nlp_factory.cc
   src/time_discretization_constraint.cc
   src/base_motion_constraint.cc

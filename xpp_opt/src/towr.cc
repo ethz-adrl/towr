@@ -5,66 +5,31 @@
  @brief   Brief description
  */
 
-#include <xpp_opt/motion_optimizer_facade.h>
-
-#include <algorithm>
-#include <cassert>
-#include <deque>
-#include <Eigen/Sparse>
-#include <string>
-#include <tuple>
-#include <utility>
-
-#include <xpp_opt/models/gait_generator.h>
-#include <xpp_opt/models/kinematic_model.h>
-
-#include <xpp_opt/variables/angular_state_converter.h>
-#include <xpp_opt/variables/polynomial.h>
-#include <xpp_opt/variables/contact_schedule.h>
-#include <xpp_opt/variables/phase_nodes.h>
-#include <xpp_opt/variables/variable_names.h>
-
-#include <xpp_opt/nlp_factory.h>
+#include <xpp_opt/towr.h>
 
 #include <ifopt/solvers/ipopt_adapter.h>
 #include <ifopt/solvers/snopt_adapter.h>
 
+#include <xpp_opt/nlp_factory.h>
+#include <xpp_opt/variables/variable_names.h>
+#include <xpp_opt/variables/angular_state_converter.h>
+#include <xpp_opt/variables/spline.h>
+#include <xpp_opt/variables/phase_nodes.h>
+
 
 namespace xpp {
 
-MotionOptimizerFacade::MotionOptimizerFacade ()
-{
-  params_ = std::make_shared<OptimizationParameters>();
-
-//    model_.MakeMonopedModel();
-//  model_.MakeBipedModel();
-//  model_.MakeAnymalModel();
-//  model_.MakeHyqModel();
-
-//  model_.SetInitialState(inital_base_, initial_ee_W_);
-//  RobotModel::SetAnymalInitialState(inital_base_, initial_ee_W_);
-}
 
 void
-MotionOptimizerFacade::SetInitialState (const RobotStateCartesian& curr_state)
+TOWR::SetInitialState (const RobotStateCartesian& curr_state)
 {
   inital_base_     = State3dEuler(); // first zero everything
   inital_base_.lin = curr_state.base_.lin;
-//  motion_optimizer_.inital_base_.lin.v_.setZero();
-//  motion_optimizer_.inital_base_.lin.a_.setZero();
-
   inital_base_.ang.p_ = GetUnique(GetEulerZYXAngles(curr_state.base_.ang.q));
-
-//  kindr::RotationQuaternionD quat(curr_state.base_.ang.q);
-//  kindr::EulerAnglesZyxD euler(quat);
-//  euler.setUnique(); // to express euler angles close to 0,0,0, not 180,180,180 (although same orientation)
-//  inital_base_.ang.p_ = euler.toImplementation().reverse();
-
   initial_ee_W_ = curr_state.ee_motion_.Get(kPos);
-//  SetIntialFootholds(curr_state.ee_motion_.Get(kPos));
 }
 
-void MotionOptimizerFacade::SetParameters(const State3dEuler& final_base,
+void TOWR::SetParameters(const State3dEuler& final_base,
                                           double total_time,
                                           const RobotModel& model,
                                           HeightMap::Ptr terrain)
@@ -75,53 +40,37 @@ void MotionOptimizerFacade::SetParameters(const State3dEuler& final_base,
 //  double z_nominal_B = model_.kinematic_model_->GetNominalStanceInBase().at(0).z();
 //  final_base_.lin.p_.z() = z_terrain - z_nominal_B;
 
-  params_->SetTotalDuration(total_time);
+  params_.SetTotalDuration(total_time);
 
   model_ = model;
 
   terrain_ = terrain;
   SetTerrainHeightFromAvgFootholdHeight(terrain_); // make sure initial footholds are set
-
-//  model_.SetInitialState(inital_base_, initial_ee_W_);
 }
 
-//void
-//MotionOptimizerFacade::SetFinalState (const StateLin3d& lin,
-//                                      const StateLin3d& ang)
-//{
-//  final_base_.ang = ang;
-//  final_base_.lin = lin;
-//
-//  // height depends on terrain
-//  double z_terrain = terrain_->GetHeight(lin.p_.x(), lin.p_.y());
-//  double z_nominal_B = model_.kinematic_model_->GetNominalStanceInBase().at(0).z();
-//  final_base_.lin.p_.z() = z_terrain - z_nominal_B;
-//}
-
 opt::Problem
-MotionOptimizerFacade::BuildNLP () const
+TOWR::BuildNLP () const
 {
   opt::Problem nlp;
 
   NlpFactory factory;
-  factory.Init(params_, terrain_, model_,
-               initial_ee_W_, inital_base_, final_base_);
+  factory.Init(params_, terrain_, model_, initial_ee_W_, inital_base_, final_base_);
 
   for (auto c : factory.GetVariableSets())
     nlp.AddVariableSet(c);
 
-  for (ConstraintName name : params_->GetUsedConstraints())
+  for (ConstraintName name : params_.GetUsedConstraints())
     for (auto c : factory.GetConstraint(name))
       nlp.AddConstraintSet(c);
 
-  for (const auto& pair : params_->GetCostWeights())
+  for (const auto& pair : params_.GetCostWeights())
     for (auto c : factory.GetCost(pair.first, pair.second))
       nlp.AddCostSet(c);
 
   return nlp;
 }
 
-void MotionOptimizerFacade::SolveNLP()
+void TOWR::SolveNLP()
 {
   nlp_ = BuildNLP();
 
@@ -131,8 +80,8 @@ void MotionOptimizerFacade::SolveNLP()
   nlp_.PrintCurrent();
 }
 
-std::vector<MotionOptimizerFacade::RobotStateVec>
-MotionOptimizerFacade::GetIntermediateSolutions (double dt) const
+std::vector<TOWR::RobotStateVec>
+TOWR::GetIntermediateSolutions (double dt) const
 {
   std::vector<RobotStateVec> trajectories;
 
@@ -144,19 +93,19 @@ MotionOptimizerFacade::GetIntermediateSolutions (double dt) const
   return trajectories;
 }
 
-MotionOptimizerFacade::RobotStateVec
-MotionOptimizerFacade::GetTrajectory (double dt) const
+TOWR::RobotStateVec
+TOWR::GetTrajectory (double dt) const
 {
   return GetTrajectory(nlp_.GetOptVariables(), dt);
 }
 
-MotionOptimizerFacade::RobotStateVec
-MotionOptimizerFacade::GetTrajectory (const VariablesCompPtr& vars,
+TOWR::RobotStateVec
+TOWR::GetTrajectory (const VariablesCompPtr& vars,
                                       double dt) const
 {
   RobotStateVec trajectory;
   double t=0.0;
-  double T = params_->GetTotalTime();
+  double T = params_.GetTotalTime();
 
   while (t<=T+1e-5) {
 
@@ -181,7 +130,7 @@ MotionOptimizerFacade::GetTrajectory (const VariablesCompPtr& vars,
   return trajectory;
 }
 
-void MotionOptimizerFacade::SetTerrainHeightFromAvgFootholdHeight(
+void TOWR::SetTerrainHeightFromAvgFootholdHeight(
     HeightMap::Ptr& terrain) const
 {
   double avg_height=0.0;
@@ -221,7 +170,7 @@ void MotionOptimizerFacade::SetTerrainHeightFromAvgFootholdHeight(
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 Vector3d
-MotionOptimizerFacade::GetUnique (const Vector3d& zyx_non_unique) const
+TOWR::GetUnique (const Vector3d& zyx_non_unique) const
 {
   Vector3d zyx = zyx_non_unique;
   const double tol = 1e-3;
