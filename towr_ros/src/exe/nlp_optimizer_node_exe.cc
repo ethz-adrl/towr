@@ -12,7 +12,7 @@
 int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "nlp_optimizer_node");
-  xpp::NlpOptimizerNode xpp_optimizer_node;
+  towr::NlpOptimizerNode xpp_optimizer_node;
   ros::spin();
 
   return 1;

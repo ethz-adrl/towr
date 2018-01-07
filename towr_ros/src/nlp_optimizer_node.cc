@@ -34,7 +34,9 @@
 
 #include <towr/constraints/height_map.h>
 
-namespace xpp {
+namespace towr {
+
+using namespace xpp;
 
 
 NlpOptimizerNode::NlpOptimizerNode ()

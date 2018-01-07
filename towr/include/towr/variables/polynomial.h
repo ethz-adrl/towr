@@ -4,8 +4,8 @@
 @date   29.07.2014
 @brief  Declares the Polynomial class.
 */
-#ifndef _XPP_OPT_UTILS_POLYNOMIAL_H_
-#define _XPP_OPT_UTILS_POLYNOMIAL_H_
+#ifndef TOWR_VARIABLES_POLYNOMIAL_H_
+#define TOWR_VARIABLES_POLYNOMIAL_H_
 
 #include <array>
 #include <memory>
@@ -15,7 +15,7 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-namespace xpp {
+namespace towr {
 
 enum PolynomialCoeff { A=0, B, C, D, E, F, G, H, I, J}; // allowed to add more
 
@@ -31,6 +31,9 @@ public:
   // xdd(t) = 20Ft^3 + 12Et^2 + 6Dt   + 2C
   using CoeffIDVec = std::vector<PolynomialCoeff>;
   using Ptr        = std::shared_ptr<Polynomial>;
+  using VectorXd   = Eigen::VectorXd;
+  using StateLinXd = xpp::StateLinXd;
+  using MotionDerivative = xpp::MotionDerivative;
 
 public:
   Polynomial(int order, int dim);
@@ -87,6 +90,6 @@ private:
   Node n0_, n1_;
 };
 
-} // namespace xpp
+} // namespace towr
 
-#endif // _XPP_OPT_UTILS_POLYNOMIAL_H_
+#endif // TOWR_VARIABLES_POLYNOMIAL_H_

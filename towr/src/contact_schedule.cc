@@ -13,7 +13,7 @@
 #include <towr/variables/variable_names.h>
 
 
-namespace xpp {
+namespace towr {
 
 
 ContactSchedule::ContactSchedule (EndeffectorID ee,
@@ -43,7 +43,7 @@ ContactSchedule::UpdateObservers () const
     o->UpdateDurations(durations_);
 }
 
-VectorXd
+Eigen::VectorXd
 ContactSchedule::GetValues () const
 {
   VectorXd x(GetRows());
@@ -121,5 +121,5 @@ ContactSchedule::GetObserver (const std::string& id) const
 }
 
 
-} /* namespace xpp */
+} /* namespace towr */
 

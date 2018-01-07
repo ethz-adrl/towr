@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_
+#ifndef TOWR_VARIABLES_CONTACT_SCHEDULE_H_
+#define TOWR_VARIABLES_CONTACT_SCHEDULE_H_
 
 #include <memory>
 #include <string>
@@ -18,13 +18,14 @@
 
 #include "phase_nodes.h"
 
-namespace xpp {
+namespace towr {
 
 class ContactSchedule : public opt::VariableSet {
 public:
   using Ptr           = std::shared_ptr<ContactSchedule>;
   using VecDurations  = std::vector<double>;
   using PhaseNodesPtr = std::shared_ptr<PhaseNodes>;
+  using EndeffectorID = xpp::EndeffectorID;
 
   ContactSchedule (EndeffectorID ee,
                    const VecDurations& timings,
@@ -54,6 +55,6 @@ private:
 
 
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_CONTACT_SCHEDULE_H_ */
+#endif /* TOWR_VARIABLES_CONTACT_SCHEDULE_H_ */

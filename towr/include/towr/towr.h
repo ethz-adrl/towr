@@ -5,8 +5,8 @@
  @brief   The facade for the motion optimization, ROS independent
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
-#define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_
+#ifndef TOWR_TOWR_H_
+#define TOWR_TOWR_H_
 
 #include <memory>
 #include <vector>
@@ -23,15 +23,18 @@
 #include <towr/optimization_parameters.h>
 
 
-namespace xpp {
+namespace towr {
 
 
 /** Simplified interface to the complete motion optimization framework.
   */
 class TOWR {
 public:
-  using VariablesCompPtr = opt::Composite::Ptr;
-  using RobotStateVec    = std::vector<RobotStateCartesian>;
+  using VariablesCompPtr    = opt::Composite::Ptr;
+  using RobotStateCartesian = xpp::RobotStateCartesian;
+  using State3dEuler        = xpp::State3dEuler;
+  using EndeffectorsPos     = xpp::EndeffectorsPos;
+  using RobotStateVec       = std::vector<RobotStateCartesian>;
 
   TOWR () = default;
   virtual ~TOWR () = default;
@@ -64,9 +67,9 @@ private:
   void SetTerrainHeightFromAvgFootholdHeight(HeightMap::Ptr& terrain) const;
 
 
-  Vector3d GetUnique(const Vector3d& zyx_non_unique) const;
+  Eigen::Vector3d GetUnique(const Eigen::Vector3d& zyx_non_unique) const;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_OPTIMIZER_FACADE_H_ */
+#endif /* TOWR_TOWR_H_ */

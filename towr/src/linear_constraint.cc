@@ -26,7 +26,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/constraints/linear_constraint.h>
 
-namespace opt {
+namespace towr {
 
 
 LinearEqualityConstraint::LinearEqualityConstraint (
@@ -53,7 +53,7 @@ LinearEqualityConstraint::GetBounds () const
   VecBound bounds;
 
   for (int i=0; i<GetRows(); ++i) {
-    Bounds bound(-v_[i],-v_[i]);
+    opt::Bounds bound(-v_[i],-v_[i]);
     bounds.push_back(bound);
   }
 
@@ -69,5 +69,5 @@ LinearEqualityConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac)
     jac = M_.sparseView();
 }
 
-} /* namespace opt */
+} /* namespace towr */
 

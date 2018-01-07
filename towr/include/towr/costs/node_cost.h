@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_COSTS_NODE_COST_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_COSTS_NODE_COST_H_
+#ifndef TOWR_COSTS_NODE_COST_H_
+#define TOWR_COSTS_NODE_COST_H_
 
 #include <memory>
 #include <string>
@@ -18,14 +18,14 @@
 #include <towr/variables/node_values.h>
 
 
-namespace xpp {
+namespace towr {
 
 class NodeCost : public opt::CostTerm {
 public:
   using Nodes = std::shared_ptr<NodeValues>;
 
   NodeCost (const std::string& nodes_id);
-  virtual ~NodeCost ();
+  virtual ~NodeCost () = default;
 
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
@@ -36,10 +36,10 @@ private:
   Nodes nodes_;
   std::string node_id_;
 
-  MotionDerivative deriv_;
+  xpp::MotionDerivative deriv_;
   int dim_;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_COSTS_NODE_COST_H_ */
+#endif /* TOWR_COSTS_NODE_COST_H_ */

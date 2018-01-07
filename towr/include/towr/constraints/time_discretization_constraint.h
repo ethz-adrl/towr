@@ -5,15 +5,15 @@
  @brief   Declares the TimeDisretizationConstraint class
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_XPP_TIME_DISCRETIZATION_CONSTRAINT_H_
-#define XPP_XPP_OPT_INCLUDE_XPP_TIME_DISCRETIZATION_CONSTRAINT_H_
+#ifndef TOWR_CONSTRAINTS_TIME_DISCRETIZATION_CONSTRAINT_H_
+#define TOWR_CONSTRAINTS_TIME_DISCRETIZATION_CONSTRAINT_H_
 
 #include <string>
 #include <vector>
 
 #include <ifopt/leaves.h>
 
-namespace xpp {
+namespace towr {
 
 /** @brief Constraints evaluated at discretized times along a trajectory.
   */
@@ -50,6 +50,6 @@ private:
 
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_XPP_OPT_INCLUDE_XPP_TIME_DISCRETIZATION_CONSTRAINT_H_ */
+#endif /* TOWR_CONSTRAINTS_TIME_DISCRETIZATION_CONSTRAINT_H_ */

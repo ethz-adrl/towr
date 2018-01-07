@@ -34,13 +34,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include <xpp_states/convert.h>
-#include <xpp_states/terrain_types.h>
 #include <xpp_msgs/topic_names.h>
 
 #include <towr_ros/UserCommand.h>
 #include <towr_ros/topic_names.h>
 
-namespace xpp {
+#include <towr/constraints/height_map.h>
+
+namespace towr {
 
 UserInterface::UserInterface ()
 {
@@ -168,8 +169,8 @@ UserInterface::CallbackKeyboard (const keyboard::Key& msg)
 void UserInterface::PublishCommand()
 {
   towr_ros::UserCommand msg;
-  msg.goal_lin          = Convert::ToRos(goal_geom_.lin);
-  msg.goal_ang          = Convert::ToRos(goal_geom_.ang);
+  msg.goal_lin          = xpp::Convert::ToRos(goal_geom_.lin);
+  msg.goal_ang          = xpp::Convert::ToRos(goal_geom_.ang);
   msg.replay_trajectory = replay_trajectory_;
   msg.use_solver_snopt  = use_solver_snopt_;
   msg.optimize          = optimize_;

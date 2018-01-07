@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_CONSTRAINTS_TERRAIN_CONSTRAINT_H_
-#define XPP_OPT_INCLUDE_XPP_CONSTRAINTS_TERRAIN_CONSTRAINT_H_
+#ifndef TOWR_CONSTRAINTS_TERRAIN_CONSTRAINT_H_
+#define TOWR_CONSTRAINTS_TERRAIN_CONSTRAINT_H_
 
 #include <string>
 
@@ -15,7 +15,7 @@
 #include <towr/variables/phase_nodes.h>
 #include "height_map.h"
 
-namespace xpp {
+namespace towr {
 
 /** Ensures the endeffector position always lays on or above terrain height.
  *
@@ -47,6 +47,6 @@ private:
   double max_z_distance_above_terrain_ = 1e20; // [m]
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_CONSTRAINTS_TERRAIN_CONSTRAINT_H_ */
+#endif /* TOWR_CONSTRAINTS_TERRAIN_CONSTRAINT_H_ */

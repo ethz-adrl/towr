@@ -11,7 +11,9 @@
 #include <cmath>
 #include <vector>
 
-namespace xpp {
+namespace towr {
+
+using namespace xpp;
 
 
 HeightMap::Ptr
@@ -369,6 +371,6 @@ ChimneyLR::GetHeightDerivWrtY (double x, double y) const
   return dzdy;
 }
 
-} /* namespace xpp */
+} /* namespace towr */
 
 

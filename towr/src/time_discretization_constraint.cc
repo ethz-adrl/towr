@@ -11,7 +11,7 @@
 #include <initializer_list>
 #include <Eigen/Dense>
 
-namespace xpp {
+namespace towr {
 
 using namespace opt;
 
@@ -82,6 +82,6 @@ TimeDiscretizationConstraint::FillJacobianBlock (std::string var_set,
     UpdateJacobianAtInstance(t, k++, jac, var_set);
 }
 
-} /* namespace xpp */
+} /* namespace towr */
 
 

@@ -5,12 +5,12 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_MONOPED_GAIT_GENERATOR_H_
-#define XPP_OPT_INCLUDE_XPP_MONOPED_GAIT_GENERATOR_H_
+#ifndef TOWR_MODELS_MONOPED_GAIT_GENERATOR_H_
+#define TOWR_MODELS_MONOPED_GAIT_GENERATOR_H_
 
 #include "gait_generator.h"
 
-namespace xpp {
+namespace towr {
 
 class MonopedGaitGenerator : public GaitGenerator {
 public:
@@ -31,6 +31,6 @@ private:
   virtual void SetCombo(GaitCombos combo) override;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_MONOPED_GAIT_GENERATOR_H_ */
+#endif /* TOWR_MODELS_MONOPED_GAIT_GENERATOR_H_ */

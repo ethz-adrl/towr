@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_CONSTRAINTS_FORCE_CONSTRAINT_H_
-#define XPP_OPT_INCLUDE_XPP_CONSTRAINTS_FORCE_CONSTRAINT_H_
+#ifndef TOWR_CONSTRAINTS_FORCE_CONSTRAINT_H_
+#define TOWR_CONSTRAINTS_FORCE_CONSTRAINT_H_
 
 #include <string>
 
@@ -15,7 +15,7 @@
 #include <towr/variables/phase_nodes.h>
 #include "height_map.h"
 
-namespace xpp {
+namespace towr {
 
 /** Ensures the end-effector force lies inside friction cone.
  *
@@ -50,6 +50,6 @@ private:
   EndeffectorID ee_;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_CONSTRAINTS_FORCE_CONSTRAINT_H_ */
+#endif /* TOWR_CONSTRAINTS_FORCE_CONSTRAINT_H_ */

@@ -17,8 +17,9 @@
 #include <towr/variables/phase_nodes.h>
 
 
-namespace xpp {
+namespace towr {
 
+using namespace xpp;
 
 void
 TOWR::SetInitialState (const RobotStateCartesian& curr_state)
@@ -227,4 +228,4 @@ TOWR::GetUnique (const Vector3d& zyx_non_unique) const
   return zyx;
 }
 
-} /* namespace xpp */
+} /* namespace towr */

@@ -5,8 +5,8 @@
  @brief   Declares factory class to build constraints.
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
-#define XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_
+#ifndef TOWR_NLP_FACTORY_H_
+#define TOWR_NLP_FACTORY_H_
 
 #include <memory>
 #include <string>
@@ -23,7 +23,7 @@
 #include <towr/optimization_parameters.h>
 
 
-namespace xpp {
+namespace towr {
 
 
 /** Builds all types of constraints/costs for the user.
@@ -42,6 +42,8 @@ public:
   using VariablePtrVec   = std::vector<opt::VariableSet::Ptr>;
   using ContraintPtrVec  = std::vector<opt::ConstraintSet::Ptr>;
   using CostPtrVec       = std::vector<opt::CostTerm::Ptr>;
+  using EndeffectorsPos  = xpp::EndeffectorsPos;
+  using State3dEuler     = xpp::State3dEuler;
 
   NlpFactory () = default;
   virtual ~NlpFactory () = default;
@@ -49,9 +51,9 @@ public:
   void Init(const OptimizationParameters&,
             const HeightMap::Ptr& terrain,
             const RobotModel& model,
-            const EndeffectorsPos& ee_pos,
-            const State3dEuler& initial_base,
-            const State3dEuler& final_base);
+            const xpp::EndeffectorsPos& ee_pos,
+            const xpp::State3dEuler& initial_base,
+            const xpp::State3dEuler& final_base);
 
   VariablePtrVec GetVariableSets() const;
   ContraintPtrVec GetConstraint(ConstraintName name) const;
@@ -91,9 +93,9 @@ private:
 
 //  CostPtrVec ToCost(const ConstraintPtr& constraint, double weight) const;
 
-  std::vector<EndeffectorID> GetEEIDs() const { return initial_ee_W_.GetEEsOrdered(); };
+  std::vector<xpp::EndeffectorID> GetEEIDs() const { return initial_ee_W_.GetEEsOrdered(); };
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_COST_CONSTRAINT_FACTORY_H_ */
+#endif /* TOWR_NLP_FACTORY_H_ */

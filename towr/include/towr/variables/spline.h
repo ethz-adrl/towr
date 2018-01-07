@@ -5,8 +5,8 @@
  @brief   Declares the class ComSpline
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_SPLINE_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_SPLINE_H_
+#ifndef TOWR_VARIABLES_SPLINE_H_
+#define TOWR_VARIABLES_SPLINE_H_
 
 #include <memory>
 #include <string>
@@ -19,7 +19,7 @@
 #include <ifopt/composite.h> // for Jacobian definition
 
 
-namespace xpp {
+namespace towr {
 
 
 /** @brief Wraps a sequence of polynomials with optimized coefficients.
@@ -29,9 +29,11 @@ namespace xpp {
   */
 class Spline {
 public:
-  using Ptr       = std::shared_ptr<Spline>;
-  using VecTimes  = std::vector<double>;
-  using LocalInfo = std::pair<int,double>; ///< id and local time
+  using Ptr        = std::shared_ptr<Spline>;
+  using VecTimes   = std::vector<double>;
+  using LocalInfo  = std::pair<int,double>; ///< id and local time
+  using StateLinXd = xpp::StateLinXd;
+  using MotionDerivative = xpp::MotionDerivative;
 
   Spline () = default;
   virtual ~Spline () = default;
@@ -44,6 +46,6 @@ public:
   virtual opt::Component::Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_POLYNOMIAL_SPLINE_H_ */
+#endif /* TOWR_VARIABLES_SPLINE_H_ */

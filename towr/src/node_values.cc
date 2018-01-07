@@ -14,9 +14,10 @@
 #include <utility>
 #include <Eigen/Eigen>
 
-namespace xpp {
+namespace towr {
 
 using namespace opt;
+using namespace xpp;
 
 NodeValues::NodeValues (int n_dim, int n_polynomials, const std::string& name)
     : NodeValues(n_dim, BuildPolyInfos(n_polynomials), name)
@@ -50,7 +51,6 @@ NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::str
   jac_structure_ = Jacobian(n_dim, n_opt_variables);
 }
 
-NodeValues::~NodeValues () {}
 
 
 void
@@ -334,4 +334,4 @@ NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
   return inner_derivative*dxdT - info.poly_id_in_phase_*percent_of_phase*vel;
 }
 
-} /* namespace xpp */
+} /* namespace towr */

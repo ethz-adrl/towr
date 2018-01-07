@@ -32,11 +32,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <xpp_states/convert.h>
 #include <xpp_states/state.h>
-#include <xpp_states/terrain_types.h>
 #include <xpp_vis/rviz_colors.h>
 
+#include <towr/constraints/height_map.h>
 
-namespace xpp {
+namespace towr {
+
+using namespace xpp;
 
 RvizTerrainBuilder::Marker
 RvizTerrainBuilder::BuildTerrainBlock (const Vector3d& pos,

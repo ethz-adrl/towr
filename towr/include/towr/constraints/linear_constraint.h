@@ -24,17 +24,17 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef OPT_SOLVE_INCLUDE_OPT_LINEAR_EQUALITY_CONSTRAINT_H_
-#define OPT_SOLVE_INCLUDE_OPT_LINEAR_EQUALITY_CONSTRAINT_H_
+#ifndef TOWR_CONSTRAINTS_LINEAR_CONSTRAINT_H_
+#define TOWR_CONSTRAINTS_LINEAR_CONSTRAINT_H_
 
 #include <ifopt/leaves.h>
 
-namespace opt {
+namespace towr {
 
 /**
  * @brief Calculates the constraint violations for linear constraints.
  */
-class LinearEqualityConstraint : public ConstraintSet {
+class LinearEqualityConstraint : public opt::ConstraintSet {
 public:
   using MatrixXd = Eigen::MatrixXd;
 
@@ -60,6 +60,6 @@ private:
   std::string variable_name_;
 };
 
-} /* namespace opt */
+} /* namespace towr */
 
-#endif /* OPT_SOLVE_INCLUDE_OPT_LINEAR_EQUALITY_CONSTRAINT_H_ */
+#endif /* TOWR_CONSTRAINTS_LINEAR_CONSTRAINT_H_ */

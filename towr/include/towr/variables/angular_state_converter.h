@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_ANGULAR_STATE_CONVERTER_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_ANGULAR_STATE_CONVERTER_H_
+#ifndef TOWR_VARIABLES_ANGULAR_STATE_CONVERTER_H_
+#define TOWR_VARIABLES_ANGULAR_STATE_CONVERTER_H_
 
 #include <array>
 
@@ -17,7 +17,7 @@
 
 #include "spline.h"
 
-namespace xpp {
+namespace towr {
 
 /** @brief Provides conversions from euler angles.
  *
@@ -33,10 +33,13 @@ namespace xpp {
  */
 class AngularStateConverter {
 public:
+  using Vector3d    = Eigen::Vector3d;
   using EulerAngles = Vector3d; ///< order x,y,z (roll, pitch, yaw).
   using EulerRates  = Vector3d; ///< derivative of the above
   using AngularVel  = Vector3d; ///< expressed in world
   using AngularAcc  = Vector3d; ///< expressed in world
+  using StateAng3d  = xpp::StateAng3d;
+  using StateLin3d  = xpp::StateLin3d;
 
   using Jacobian    = opt::Component::Jacobian;
   using MatrixSXd   = Jacobian;
@@ -108,16 +111,16 @@ private:
    *  @returns    the Jacobians w.r.t the coefficients for each of the 3 rows
    *              of the matrix stacked on top of each other.
    */
-  Jacobian GetDerivMwrtCoeff(double t, Coords3D dim) const;
+  Jacobian GetDerivMwrtCoeff(double t, xpp::Coords3D dim) const;
 
   /** @brief Derivative of the @a dim row of the time derivative of M with
    *         respect to the polynomial coefficients.
    *
    *  @param dim Which dimension of the angular acceleration is desired
    */
-  Jacobian GetDerivMdotwrtCoeff(double t, Coords3D dim) const;
+  Jacobian GetDerivMdotwrtCoeff(double t, xpp::Coords3D dim) const;
 
-  using JacRowMatrix = std::array<std::array<JacobianRow, kDim3d>, kDim3d>;
+  using JacRowMatrix = std::array<std::array<JacobianRow, xpp::kDim3d>, xpp::kDim3d>;
   /** @brief matrix of derivatives of each cell w.r.t spline coefficients
    *
    * This 2d-array has the same dimensions as the rotation matrix M_IB, but
@@ -132,9 +135,9 @@ private:
    */
   int OptVariablesOfCurrentPolyCount(double t) const;
 
-  JacobianRow GetJac(double t, MotionDerivative deriv, Coords3D dim) const;
+  JacobianRow GetJac(double t, xpp::MotionDerivative deriv, xpp::Coords3D dim) const;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_ANGULAR_STATE_CONVERTER_H_ */
+#endif /* TOWR_VARIABLES_ANGULAR_STATE_CONVERTER_H_ */

@@ -7,7 +7,7 @@
 
 #include <towr/models/monoped_gait_generator.h>
 
-namespace xpp {
+namespace towr {
 
 MonopedGaitGenerator::MonopedGaitGenerator ()
 {
@@ -94,4 +94,4 @@ MonopedGaitGenerator::GetStrideHop () const
   return std::make_pair(times, contacts);
 }
 
-} /* namespace xpp */
+} /* namespace towr */

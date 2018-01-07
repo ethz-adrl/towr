@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_CONSTRAINTS_SWING_CONSTRAINT_H_
-#define XPP_OPT_INCLUDE_XPP_CONSTRAINTS_SWING_CONSTRAINT_H_
+#ifndef TOWR_CONSTRAINTS_SWING_CONSTRAINT_H_
+#define TOWR_CONSTRAINTS_SWING_CONSTRAINT_H_
 
 #include <string>
 
@@ -14,13 +14,13 @@
 
 #include <towr/variables/phase_nodes.h>
 
-namespace xpp {
+namespace towr {
 
 
 class SwingConstraint : public opt::ConstraintSet {
 public:
   SwingConstraint (std::string ee_motion_id);
-  virtual ~SwingConstraint ();
+  virtual ~SwingConstraint () = default;
 
   /** @brief Returns a vector of constraint violations for current variables \c x_coeff. */
   VectorXd GetValues() const override;
@@ -38,6 +38,6 @@ private:
 //  double swing_height_in_world_ = 0.10; //  hacky way to lift legs
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_CONSTRAINTS_SWING_CONSTRAINT_H_ */
+#endif /* TOWR_CONSTRAINTS_SWING_CONSTRAINT_H_ */

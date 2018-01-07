@@ -21,7 +21,7 @@
 #include <towr/models/quadruped_gait_generator.h>
 
 
-namespace xpp {
+namespace towr {
 
 static Eigen::Matrix3d BuildInertiaTensor(
         double Ixx, double Iyy, double Izz,
@@ -44,7 +44,7 @@ RobotModel::MakeMonopedModel ()
   dynamic_model_->SetForceLimit(800);
 
   kinematic_model_ = std::make_shared<KinematicModel>(n_ee);
-  kinematic_model_->nominal_stance_.at(0) = Vector3d( 0.0, 0.0, -0.58);
+  kinematic_model_->nominal_stance_.at(0) = Eigen::Vector3d( 0.0, 0.0, -0.58);
   kinematic_model_->max_dev_from_nominal_ << 0.25, 0.15, 0.2;
 
   gait_generator_ = std::make_shared<MonopedGaitGenerator>();
@@ -53,7 +53,7 @@ RobotModel::MakeMonopedModel ()
 void
 RobotModel::MakeBipedModel ()
 {
-  using namespace biped; // for L, R definitions
+  using namespace xpp::biped; // for L, R definitions
   int n_ee = 2;
 
   Eigen::Matrix3d I = BuildInertiaTensor( 1.209488,5.5837,6.056973,0.00571,-0.190812,-0.012668);
@@ -206,5 +206,5 @@ RobotModel::MakeQuadrotorModel ()
   gait_generator_ = std::make_shared<QuadrupedGaitGenerator>();
 }
 
-} /* namespace xpp */
+} /* namespace towr */
 

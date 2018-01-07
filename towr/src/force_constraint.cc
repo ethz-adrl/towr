@@ -18,9 +18,10 @@
 #include <towr/variables/node_values.h>
 #include <towr/variables/variable_names.h>
 
-namespace xpp {
+namespace towr {
 
 using namespace opt;
+using namespace xpp;
 
 
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
@@ -182,4 +183,4 @@ ForceConstraint::FillJacobianBlock (std::string var_set,
   }
 }
 
-} /* namespace xpp */
+} /* namespace towr */

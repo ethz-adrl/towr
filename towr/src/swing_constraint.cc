@@ -17,9 +17,10 @@
 
 #include <towr/variables/node_values.h>
 
-namespace xpp {
+namespace towr {
 
 using namespace opt;
+using namespace xpp;
 
 
 SwingConstraint::SwingConstraint (std::string ee_motion)
@@ -30,7 +31,7 @@ SwingConstraint::SwingConstraint (std::string ee_motion)
 }
 
 void
-xpp::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
+towr::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
   ee_motion_ = x->GetComponent<EEMotionNodes>(ee_motion_id_);
   auto nodes = ee_motion_->GetNodes();
@@ -118,8 +119,4 @@ SwingConstraint::FillJacobianBlock (std::string var_set,
   }
 }
 
-SwingConstraint::~SwingConstraint ()
-{
-}
-
-} /* namespace xpp */
+} /* namespace towr */

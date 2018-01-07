@@ -35,7 +35,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static ros::Publisher rviz_terrain_pub;
 static ros::Publisher rviz_pose_pub;
-static xpp::RvizTerrainBuilder terrain_builder;
+static towr::RvizTerrainBuilder terrain_builder;
 
 void UserCommandCallback(const towr_ros::UserCommand& msg_in)
 {

@@ -22,9 +22,10 @@
 #include <towr/models/dynamic_model.h>
 
 
-namespace xpp {
+namespace towr {
 
 using namespace opt;
+using namespace xpp;
 
 
 void
@@ -409,5 +410,5 @@ NlpFactory::MakeForcesCost(double weight) const
 //  return {std::make_shared<SoftConstraint>(constraint)};
 //}
 
-} /* namespace xpp */
+} /* namespace towr */
 

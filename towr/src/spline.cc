@@ -8,7 +8,7 @@
 #include <towr/variables/spline.h>
 
 
-namespace xpp {
+namespace towr {
 
 int
 Spline::GetSegmentID(double t_global, const VecTimes& durations)
@@ -43,5 +43,5 @@ Spline::GetLocalTime (double t_global, const VecTimes& durations)
 }
 
 
-} /* namespace xpp */
+} /* namespace towr */
 

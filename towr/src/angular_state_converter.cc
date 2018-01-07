@@ -12,7 +12,9 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-namespace xpp {
+namespace towr {
+
+using namespace xpp;
 
 AngularStateConverter::AngularStateConverter (const Spline::Ptr& euler)
 {
@@ -303,5 +305,5 @@ AngularStateConverter::OptVariablesOfCurrentPolyCount (double t) const
   return euler_->GetJacobian(t, kPos).cols();
 }
 
-} /* namespace xpp */
+} /* namespace towr */
 

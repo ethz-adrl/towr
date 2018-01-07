@@ -5,19 +5,21 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_MODELS_KINEMATIC_MODEL_H_
-#define XPP_OPT_INCLUDE_XPP_MODELS_KINEMATIC_MODEL_H_
+#ifndef TOWR_MODELS_KINEMATIC_MODEL_H_
+#define TOWR_MODELS_KINEMATIC_MODEL_H_
 
 #include <memory>
 
 #include <xpp_states/endeffectors.h>
 #include <xpp_states/state.h>
 
-namespace xpp {
+namespace towr {
 
 class KinematicModel {
 public:
   using Ptr = std::shared_ptr<KinematicModel>;
+  using EndeffectorsPos = xpp::EndeffectorsPos;
+  using Vector3d = Eigen::Vector3d;
 
   KinematicModel (int n_ee);
   virtual ~KinematicModel () = default;
@@ -29,6 +31,6 @@ public:
   Vector3d max_dev_from_nominal_;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_MODELS_KINEMATIC_MODEL_H_ */
+#endif /* TOWR_MODELS_KINEMATIC_MODEL_H_ */

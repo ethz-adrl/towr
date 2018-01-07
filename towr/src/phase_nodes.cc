@@ -13,9 +13,10 @@
 #include <xpp_states/state.h>
 
 
-namespace xpp {
+namespace towr {
 
 using namespace opt;
+using namespace xpp;
 
 
 PhaseNodes::PhaseNodes (int n_dim,
@@ -246,4 +247,4 @@ EEForceNodes::GetBounds () const
   return bounds_;
 }
 
-} /* namespace xpp */
+} /* namespace towr */

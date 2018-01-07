@@ -35,7 +35,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <xpp_states/state.h>
 
 
-namespace xpp {
+namespace towr {
 
 /**
  * @brief Translates user input into a ROS message.
@@ -61,7 +61,7 @@ private:
   void CallbackKeyboard(const keyboard::Key& msg);
   void PublishCommand();
 
-  State3dEuler goal_geom_;
+  xpp::State3dEuler goal_geom_;
   int kMaxNumGaits_ = 8;
   int terrain_id_;
   int gait_combo_id_;

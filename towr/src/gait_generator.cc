@@ -9,7 +9,7 @@
 
 #include <numeric> // std::accumulate
 
-namespace xpp {
+namespace towr {
 
 
 GaitGenerator::VecTimes
@@ -115,6 +115,6 @@ GaitGenerator::GetEndeffectorNames () const
   return names_;
 }
 
-} /* namespace xpp */
+} /* namespace towr */
 
 

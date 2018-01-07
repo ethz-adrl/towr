@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_
+#ifndef TOWR_MODELS_CENTROIDAL_MODEL_H_
+#define TOWR_MODELS_CENTROIDAL_MODEL_H_
 
 #include <memory>
 #include <Eigen/Eigen>
@@ -15,7 +15,7 @@
 
 #include "dynamic_model.h"
 
-namespace xpp {
+namespace towr {
 
 /**
  * @brief Centroidal Dynamics for the 6-DoF Base to model the system.
@@ -25,7 +25,7 @@ public:
   using Ptr = std::shared_ptr<CentroidalModel>;
 
   CentroidalModel (double mass, const Eigen::Matrix3d& inertia, int ee_count);
-  virtual ~CentroidalModel ();
+  virtual ~CentroidalModel () = default;
 
   virtual BaseAcc GetBaseAcceleration() const override;
 
@@ -42,6 +42,6 @@ private:
   Eigen::SparseMatrix<double, Eigen::RowMajor> I_inv_; // inverse of base inertia
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_CENTROIDAL_MODEL_H_ */
+#endif /* TOWR_MODELS_CENTROIDAL_MODEL_H_ */

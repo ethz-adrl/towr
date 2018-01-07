@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_PHASE_NODES_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_PHASE_NODES_H_
+#ifndef TOWR_VARIABLES_PHASE_NODES_H_
+#define TOWR_VARIABLES_PHASE_NODES_H_
 
 #include <string>
 #include <vector>
@@ -16,7 +16,7 @@
 #include "node_values.h"
 
 
-namespace xpp {
+namespace towr {
 
 class PhaseNodes : public NodeValues {
 protected:
@@ -43,7 +43,7 @@ public:
    */
   void UpdateDurations(const VecDurations& phase_durations);
 
-  Vector3d GetValueAtStartOfPhase(int phase) const;
+  Eigen::Vector3d GetValueAtStartOfPhase(int phase) const;
   int GetNodeIDAtStartOfPhase(int phase) const;
 
   bool IsConstantPhase(double t) const;
@@ -99,6 +99,6 @@ public:
   virtual VecBound GetBounds() const override;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_PHASE_NODES_H_ */
+#endif /* TOWR_VARIABLES_PHASE_NODES_H_ */

@@ -22,11 +22,12 @@
 
 #include <towr/towr.h>
 
-namespace xpp {
+namespace towr {
 
 class NlpOptimizerNode {
 public:
-  using UserCommand = towr_ros::UserCommand;
+  using UserCommand         = towr_ros::UserCommand;
+  using RobotStateCartesian = xpp::RobotStateCartesian;
 
   NlpOptimizerNode ();
   virtual ~NlpOptimizerNode () = default;
@@ -45,8 +46,6 @@ private:
 
   TOWR motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
-
-//  UserCommand user_command_msg_;
 
   bool first_callback_ = true;
 

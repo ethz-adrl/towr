@@ -5,14 +5,14 @@
  *      Author: winklera
  */
 
-#ifndef XPP_OPT_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINTS_TOTAL_DURATION_CONSTRAINT_H_
-#define XPP_OPT_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINTS_TOTAL_DURATION_CONSTRAINT_H_
+#ifndef TOWR_CONSTRAINTS_TOTAL_DURATION_CONSTRAINT_H_
+#define TOWR_CONSTRAINTS_TOTAL_DURATION_CONSTRAINT_H_
 
 #include <ifopt/leaves.h>
 
 #include <towr/variables/contact_schedule.h>
 
-namespace xpp {
+namespace towr {
 
 class TotalDurationConstraint : public opt::ConstraintSet {
 public:
@@ -29,9 +29,9 @@ public:
 private:
   ContactSchedule::Ptr schedule_;
   double T_total_;
-  EndeffectorID ee_;
+  xpp::EndeffectorID ee_;
 };
 
-} // namespace xpp
+} // namespace towr
 
-#endif /* XPP_OPT_XPP_OPT_INCLUDE_XPP_OPT_CONSTRAINTS_TOTAL_DURATION_CONSTRAINT_H_ */
+#endif /* TOWR_CONSTRAINTS_TOTAL_DURATION_CONSTRAINT_H_ */

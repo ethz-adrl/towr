@@ -12,7 +12,9 @@
 #include <xpp_states/cartesian_declarations.h>
 
 
-namespace xpp {
+namespace towr {
+
+using namespace xpp;
 
 CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia,
                                   int ee_count)
@@ -22,11 +24,6 @@ CentroidalModel::CentroidalModel (double mass, const Eigen::Matrix3d& inertia,
   I_dense_ = inertia;
   I_       = inertia.sparseView();
   I_inv_   = inertia.inverse().sparseView();
-}
-
-CentroidalModel::~CentroidalModel ()
-{
-  // TODO Auto-generated destructor stub
 }
 
 CentroidalModel::BaseAcc
@@ -129,6 +126,6 @@ CentroidalModel::GetJacobianofAccWrtEEPos (const Jacobian& jac_ee_pos,
   return jac;
 }
 
-} /* namespace xpp */
+} /* namespace towr */
 
 

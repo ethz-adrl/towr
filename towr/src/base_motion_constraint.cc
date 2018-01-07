@@ -11,9 +11,10 @@
 
 #include <towr/variables/variable_names.h>
 
-namespace xpp {
+namespace towr {
 
 using namespace opt;
+using namespace xpp;
 
 BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params)
     :TimeDiscretizationConstraint(params.GetTotalTime(),
@@ -82,4 +83,4 @@ BaseMotionConstraint::~BaseMotionConstraint ()
   // TODO Auto-generated destructor stub
 }
 
-} /* namespace xpp */
+} /* namespace towr */

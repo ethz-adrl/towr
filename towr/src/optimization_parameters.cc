@@ -9,7 +9,7 @@
 
 #include <algorithm>
 
-namespace xpp {
+namespace towr {
 
 OptimizationParameters::OptimizationParameters ()
 {
@@ -89,5 +89,5 @@ OptimizationParameters::GetBasePolyDurations () const
   return base_spline_timings_;
 }
 
-} // namespace xpp
+} // namespace towr
 

@@ -5,12 +5,12 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_QUADRUPED_GAIT_GENERATOR_H_
-#define XPP_OPT_INCLUDE_XPP_QUADRUPED_GAIT_GENERATOR_H_
+#ifndef TOWR_MODELS_QUADRUPED_GAIT_GENERATOR_H_
+#define TOWR_MODELS_QUADRUPED_GAIT_GENERATOR_H_
 
 #include "gait_generator.h"
 
-namespace xpp {
+namespace towr {
 
 class QuadrupedGaitGenerator : public GaitGenerator {
 public:
@@ -61,6 +61,6 @@ private:
   ContactState BB_;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_QUADRUPED_GAIT_GENERATOR_H_ */
+#endif /* TOWR_MODELS_QUADRUPED_GAIT_GENERATOR_H_ */

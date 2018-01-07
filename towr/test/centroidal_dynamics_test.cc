@@ -9,7 +9,7 @@
 
 #include <towr/variables/angular_state_converter.h>
 
-namespace xpp {
+namespace towr {
 
 TEST(CentroidalDynamicsTest, GetBaseAcceleration)
 {

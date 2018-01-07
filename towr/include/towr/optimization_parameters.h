@@ -5,15 +5,15 @@
 @brief   Brief description
  */
 
-#ifndef XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
-#define XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_
+#ifndef TOWR_OPTIMIZATION_PARAMETERS_H_
+#define TOWR_OPTIMIZATION_PARAMETERS_H_
 
 
 #include <utility>
 #include <vector>
 
 
-namespace xpp {
+namespace towr {
 
 enum ConstraintName  { Dynamic, EndeffectorRom, TotalTime, Terrain,
                        Force, Swing, BaseRom };
@@ -58,6 +58,6 @@ private:
   CostWeights cost_weights_;
 };
 
-} // namespace xpp
+} // namespace towr
 
-#endif /* XPP_XPP_OPT_INCLUDE_XPP_OPT_MOTION_TYPE_H_ */
+#endif /* TOWR_OPTIMIZATION_PARAMETERS_H_ */

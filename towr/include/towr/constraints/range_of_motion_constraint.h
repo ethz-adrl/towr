@@ -5,8 +5,8 @@
  @brief   Declares various Range of Motion Constraint classes
  */
 
-#ifndef XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
-#define XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_
+#ifndef TOWR_CONSTRAINTS_RANGE_OF_MOTION_CONSTRAINT_H_
+#define TOWR_CONSTRAINTS_RANGE_OF_MOTION_CONSTRAINT_H_
 
 #include <string>
 #include <vector>
@@ -26,7 +26,7 @@
 #include "time_discretization_constraint.h"
 
 
-namespace xpp {
+namespace towr {
 
 /** @brief Constrains the contact to lie in a box around the nominal stance
   *
@@ -40,6 +40,8 @@ namespace xpp {
   */
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
+  using EndeffectorID = xpp::EndeffectorID;
+
   RangeOfMotionBox(const OptimizationParameters& params,
                    const KinematicModel::Ptr& kinematic_model,
                    const EndeffectorID& ee,
@@ -60,14 +62,14 @@ private:
   NodeValues::Ptr ee_motion_;
   ContactSchedule::Ptr ee_timings_;
 
-  Vector3d max_deviation_from_nominal_;
-  Vector3d nominal_ee_pos_B_;
+  Eigen::Vector3d max_deviation_from_nominal_;
+  Eigen::Vector3d nominal_ee_pos_B_;
   AngularStateConverter converter_;
 
   EndeffectorID ee_;
   bool optimize_timings_;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_RANGE_OF_MOTION_CONSTRAINT_H_ */
+#endif /* TOWR_CONSTRAINTS_RANGE_OF_MOTION_CONSTRAINT_H_ */

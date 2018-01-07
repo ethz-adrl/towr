@@ -9,7 +9,9 @@
 
 #include <xpp_states/endeffector_mappings.h>
 
-namespace xpp {
+namespace towr {
+
+using namespace xpp;
 
 BipedGaitGenerator::BipedGaitGenerator ()
 {
@@ -225,4 +227,4 @@ BipedGaitGenerator::GetStrideRightHop () const
   return std::make_pair(times, phase_contacts);
 }
 
-} /* namespace xpp */
+} /* namespace towr */

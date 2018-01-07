@@ -14,7 +14,10 @@
 
 #include <towr/variables/variable_names.h>
 
-namespace xpp {
+namespace towr {
+
+using namespace xpp;
+
 
 RangeOfMotionBox::RangeOfMotionBox (const OptimizationParameters& params,
                                     const KinematicModel::Ptr& kinematic_model,

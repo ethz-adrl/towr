@@ -5,12 +5,12 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_BIPED_GAIT_GENERATOR_H_
-#define XPP_OPT_INCLUDE_XPP_BIPED_GAIT_GENERATOR_H_
+#ifndef TOWR_MODELS_BIPED_GAIT_GENERATOR_H_
+#define TOWR_MODELS_BIPED_GAIT_GENERATOR_H_
 
 #include "gait_generator.h"
 
-namespace xpp {
+namespace towr {
 
 class BipedGaitGenerator : public GaitGenerator {
 public:
@@ -39,6 +39,6 @@ private:
   ContactState B_; // stance (both legs in contact)
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_BIPED_GAIT_GENERATOR_H_ */
+#endif /* TOWR_MODELS_BIPED_GAIT_GENERATOR_H_ */

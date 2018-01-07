@@ -7,7 +7,9 @@
 #include <Eigen/Eigen>
 
 
-namespace xpp {
+namespace towr {
+
+using namespace xpp;
 
 
 Polynomial::Polynomial (int order, int dim)
@@ -19,7 +21,6 @@ Polynomial::Polynomial (int order, int dim)
   }
 
   n_dim_ = dim;
-  int n_variables = n_coeff*n_dim_;
 }
 
 
@@ -212,4 +213,4 @@ CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
   return deriv;
 }
 
-} // namespace xpp
+} // namespace towr

@@ -9,7 +9,7 @@
 
 #include <Eigen/Dense>
 
-namespace xpp {
+namespace towr {
 
 KinematicModel::KinematicModel (int n_ee)
 {
@@ -17,4 +17,4 @@ KinematicModel::KinematicModel (int n_ee)
   max_dev_from_nominal_.setZero();
 }
 
-} /* namespace xpp */
+} /* namespace towr */

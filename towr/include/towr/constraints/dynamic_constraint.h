@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
-#define XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_
+#ifndef TOWR_CONSTRAINTS_DYNAMIC_CONSTRAINT_H_
+#define TOWR_CONSTRAINTS_DYNAMIC_CONSTRAINT_H_
 
 #include <string>
 #include <vector>
@@ -23,7 +23,7 @@
 
 #include "time_discretization_constraint.h"
 
-namespace xpp {
+namespace towr {
 
 class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
@@ -49,7 +49,7 @@ private:
   double gravity_;
   AngularStateConverter converter_;
 
-  int GetRow(int node, Coords6D dimension) const;
+  int GetRow(int node, xpp::Coords6D dimension) const;
 
   virtual void UpdateConstraintAtInstance(double t, int k, VectorXd& g) const override;
   virtual void UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const override;
@@ -58,6 +58,6 @@ private:
   void UpdateModel(double t) const;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_XPP_OPT_SRC_DYNAMIC_CONSTRAINT_H_ */
+#endif /* TOWR_CONSTRAINTS_DYNAMIC_CONSTRAINT_H_ */

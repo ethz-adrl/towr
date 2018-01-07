@@ -7,7 +7,7 @@
 
 #include <towr/models/dynamic_model.h>
 
-namespace xpp {
+namespace towr {
 
 DynamicModel::DynamicModel(double mass)
 {
@@ -33,4 +33,4 @@ DynamicModel::GetStandingZForce () const
   return m_*g_/ee_pos_.GetEECount();
 }
 
-} /* namespace xpp */
+} /* namespace towr */

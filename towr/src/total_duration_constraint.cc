@@ -9,7 +9,8 @@
 
 #include <towr/variables/variable_names.h>
 
-namespace xpp {
+namespace towr {
+
 
 TotalDurationConstraint::TotalDurationConstraint (double T_total, int ee)
     :ConstraintSet(1, "DurationConstraint_ee_-" + std::to_string(ee))
@@ -24,7 +25,7 @@ TotalDurationConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
   schedule_ = std::dynamic_pointer_cast<ContactSchedule>(x->GetComponent(id::GetEEScheduleId(ee_)));
 }
 
-VectorXd
+Eigen::VectorXd
 TotalDurationConstraint::GetValues () const
 {
   VectorXd g = VectorXd::Zero(GetRows());
@@ -50,4 +51,4 @@ TotalDurationConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) 
 }
 
 
-} // namespace xpp
+} // namespace towr

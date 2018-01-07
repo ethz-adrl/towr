@@ -9,7 +9,7 @@
 
 #include <xpp_states/endeffector_mappings.h>
 
-namespace xpp {
+namespace towr {
 
 QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
 {
@@ -23,7 +23,7 @@ QuadrupedGaitGenerator::QuadrupedGaitGenerator ()
   BB_                               = init; // four-leg support phase
 
 
-  using namespace quad; // only for LF, RF, ... enums
+  using namespace xpp::quad; // only for LF, RF, ... enums
 
   // flight_phase
   II_.SetAll(false);
@@ -318,25 +318,25 @@ QuadrupedGaitGenerator::GetStrideGallop () const
 QuadrupedGaitGenerator::GaitInfo
 QuadrupedGaitGenerator::GetStrideFlyingGallop () const
 {
-	double A = 0.3; // both feet in air
-	double B = 0.2; // overlap
-	double C = 0.2; // transition front->hind
-	auto times =
-	{
-	    B, A, B,
-	    C,
-	    B, A, B,
-	    C
-	};
-	auto phase_contacts =
-	{
-	    Bb_, BI_, BP_,  // front legs swing forward
-	    bP_,            // transition phase
-	    bB_, IB_, PB_,  // hind legs swing forward
-	    Pb_
-	};
+  double A = 0.3; // both feet in air
+  double B = 0.2; // overlap
+  double C = 0.2; // transition front->hind
+  auto times =
+  {
+      B, A, B,
+      C,
+      B, A, B,
+      C
+  };
+  auto phase_contacts =
+  {
+      Bb_, BI_, BP_,  // front legs swing forward
+      bP_,            // transition phase
+      bB_, IB_, PB_,  // hind legs swing forward
+      Pb_
+  };
 
-	return std::make_pair(times, phase_contacts);
+  return std::make_pair(times, phase_contacts);
 }
 
-} /* namespace xpp */
+} /* namespace towr */

@@ -26,7 +26,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/costs/soft_constraint.h>
 
-namespace opt {
+namespace towr {
 
 SoftConstraint::SoftConstraint (const ConstraintPtr& constraint)
     :Component(1, "SoftConstraint-" + constraint->GetName())
@@ -63,4 +63,4 @@ SoftConstraint::GetJacobian () const
   return grad.transpose().sparseView();
 }
 
-} /* namespace opt */
+} /* namespace towr */

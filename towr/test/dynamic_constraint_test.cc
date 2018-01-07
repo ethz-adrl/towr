@@ -8,7 +8,7 @@
 #include <Eigen/Sparse>
 #include <gtest/gtest.h>
 
-namespace xpp {
+namespace towr {
 
 using VectorXd = Eigen::VectorXd;
 
@@ -51,4 +51,4 @@ TEST(DynamicConstraintTest, EigenScalar)
   std::cout << g << std::endl;
 }
 
-} /* namespace xpp */
+} /* namespace towr */

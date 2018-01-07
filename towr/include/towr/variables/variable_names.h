@@ -5,12 +5,12 @@
 @brief   Strings used to identify the optimization variables.
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_VARIABLE_NAMES_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_VARIABLE_NAMES_H_
+#ifndef TOWR_VARIABLES_VARIABLE_NAMES_H_
+#define TOWR_VARIABLES_VARIABLE_NAMES_H_
 
 #include <string>
 
-namespace xpp {
+namespace towr {
 namespace id {
 
 static const std::string base_linear         = "base_lin_";
@@ -36,8 +36,8 @@ static std::string GetEEScheduleId(uint ee)
 }
 
 } // namespace id
-} // namespace xpp
+} // namespace towr
 
 
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_VARIABLE_NAMES_H_ */
+#endif /* TOWR_VARIABLES_VARIABLE_NAMES_H_ */

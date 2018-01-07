@@ -5,18 +5,21 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_ROBOT_MODEL_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_ROBOT_MODEL_H_
+#ifndef TOWR_MODELS_ROBOT_MODEL_H_
+#define TOWR_MODELS_ROBOT_MODEL_H_
 
 #include "dynamic_model.h"
 #include "gait_generator.h"
 #include "kinematic_model.h"
 
-namespace xpp {
+namespace towr {
 /**
  * @brief Holds the robot specific values.
  */
 struct RobotModel {
+
+  using State3dEuler    = xpp::State3dEuler;
+  using EndeffectorsPos = xpp::EndeffectorsPos;
 
   void MakeMonopedModel();
   void MakeBipedModel();
@@ -35,6 +38,6 @@ struct RobotModel {
   GaitGenerator::Ptr  gait_generator_;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_ROBOT_MODEL_H_ */
+#endif /* TOWR_MODELS_ROBOT_MODEL_H_ */

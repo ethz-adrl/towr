@@ -5,18 +5,29 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_HEIGHT_MAP_H_
-#define XPP_OPT_INCLUDE_XPP_HEIGHT_MAP_H_
+#ifndef TOWR_CONSTRAINTS_HEIGHT_MAP_H_
+#define TOWR_CONSTRAINTS_HEIGHT_MAP_H_
 
 #include <memory>
 #include <vector>
 #include <Eigen/Dense>
 
 #include <xpp_states/cartesian_declarations.h>
-#include <xpp_states/terrain_types.h>
 
-namespace xpp {
+namespace towr {
 
+/**
+ * @brief Terrains IDs corresponding to a draw function in xpp_vis and a
+ * detailed (gradient supplying) function in the optimizer.
+ */
+enum TerrainID { FlatID=0,
+                 BlockID,
+                 StairsID,
+                 GapID,
+                 SlopeID,
+                 ChimneyID,
+                 ChimneyLRID,
+                 K_TERRAIN_COUNT };
 
 // TODO: use ct_core/test/auto_diff functions to generate these derivatives
 // which should be possible, as it is a very separated class
@@ -24,6 +35,7 @@ class HeightMap {
 public:
   using Ptr         = std::shared_ptr<HeightMap>;
   using Vector3d    = Eigen::Vector3d;
+  using Coords2D    = xpp::Coords2D;
   using Derivatives = std::vector<Coords2D>;
 
   static Ptr MakeTerrain(TerrainID type);
@@ -182,6 +194,6 @@ private:
 };
 
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_HEIGHT_MAP_H_ */
+#endif /* TOWR_CONSTRAINTS_HEIGHT_MAP_H_ */

@@ -5,28 +5,28 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_MODELS_DYNAMIC_MODEL_H_
-#define XPP_OPT_INCLUDE_XPP_MODELS_DYNAMIC_MODEL_H_
+#ifndef TOWR_MODELS_DYNAMIC_MODEL_H_
+#define TOWR_MODELS_DYNAMIC_MODEL_H_
 
 #include <memory>
 #include <vector>
 
 #include <xpp_states/endeffectors.h>
-#include <xpp_states/state.h>
 
 #include <ifopt/composite.h>
 
-namespace xpp {
+namespace towr {
 
 class DynamicModel {
 public:
-  using Ptr       = std::shared_ptr<DynamicModel>;
-  using ComPos    = Vector3d;
-  using AngVel    = Vector3d;
-  using BaseAcc   = Vector6d;
-  using EELoad    = Endeffectors<Vector3d>;
-  using EEPos     = EndeffectorsPos;
-  using Jacobian  = opt::Component::Jacobian;
+  using Ptr           = std::shared_ptr<DynamicModel>;
+  using ComPos        = Eigen::Vector3d;
+  using AngVel        = Eigen::Vector3d;
+  using BaseAcc       = Eigen::Matrix<double,6,1>;
+  using EEPos         = xpp::EndeffectorsPos;
+  using EndeffectorID = xpp::EndeffectorID;
+  using EELoad        = EEPos;
+  using Jacobian      = opt::Component::Jacobian;
 
   DynamicModel(double mass);
   virtual ~DynamicModel () = default;
@@ -65,6 +65,6 @@ protected:
   double normal_force_max_;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_MODELS_DYNAMIC_MODEL_H_ */
+#endif /* TOWR_MODELS_DYNAMIC_MODEL_H_ */

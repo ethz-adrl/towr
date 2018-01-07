@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_NODE_VALUES_H_
-#define XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_NODE_VALUES_H_
+#ifndef TOWR_VARIABLES_NODE_VALUES_H_
+#define TOWR_VARIABLES_NODE_VALUES_H_
 
 #include <map>
 #include <memory>
@@ -22,7 +22,7 @@
 #include "polynomial.h"
 
 
-namespace xpp {
+namespace towr {
 
 
 /** Holds position and velocity of nodes used to generate a cubic Hermite spline.
@@ -37,7 +37,7 @@ public:
 
   using PolyType = CubicHermitePoly;
   using VecPoly  = std::vector<std::shared_ptr<PolyType>>;
-  using Dimensions = std::vector<Coords3D>;
+  using Dimensions = std::vector<xpp::Coords3D>;
 
   mutable bool fill_jacobian_structure_ = true;
   mutable Jacobian jac_structure_; // all zeros
@@ -76,7 +76,7 @@ public:
 
   NodeValues (int n_dim, int n_polynomials, const std::string& name);
   NodeValues (int n_dim, const PolyInfoVec&, const std::string& name);
-  virtual ~NodeValues ();
+  virtual ~NodeValues () = default;
 
 
   virtual void InitializeVariables(const VectorXd& initial_pos,
@@ -157,6 +157,6 @@ private:
 
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_OPT_VARIABLES_NODE_VALUES_H_ */
+#endif /* TOWR_VARIABLES_NODE_VALUES_H_ */

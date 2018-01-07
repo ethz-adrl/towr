@@ -2,7 +2,7 @@
 <package format="2">
   <name>towr</name>
   <version>0.0.0</version>
-  <description>Optimizing motions for floating base systems</description>
+  <description>Trajectory Optimizer for walking robots</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->

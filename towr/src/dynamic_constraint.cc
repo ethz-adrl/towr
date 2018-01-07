@@ -16,7 +16,9 @@
 
 #include <towr/variables/variable_names.h>
 
-namespace xpp {
+namespace towr {
+
+using namespace xpp;
 
 
 DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
@@ -32,7 +34,7 @@ DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
 }
 
 void
-xpp::DynamicConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
+towr::DynamicConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
   base_linear_  = x->GetComponent<Spline>(id::base_linear);
   base_angular_ = x->GetComponent<Spline>(id::base_angular);
@@ -151,4 +153,4 @@ DynamicConstraint::UpdateModel (double t) const
   model_->SetCurrent(com_pos, omega, ee_force, ee_pos);
 }
 
-} /* namespace xpp */
+} /* namespace towr */

@@ -5,8 +5,8 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_GAIT_GENERATOR_H_
-#define XPP_OPT_INCLUDE_XPP_GAIT_GENERATOR_H_
+#ifndef TOWR_MODELS_GAIT_GENERATOR_H_
+#define TOWR_MODELS_GAIT_GENERATOR_H_
 
 #include <map>
 #include <memory>
@@ -16,15 +16,16 @@
 
 #include <xpp_states/endeffectors.h>
 
-namespace xpp {
+namespace towr {
 
 class GaitGenerator {
 public:
   using Ptr            = std::shared_ptr<GaitGenerator>;
   using VecTimes       = std::vector<double>;
   using FootDurations  = std::vector<VecTimes>;
-  using ContactState   = EndeffectorsContact;
+  using ContactState   = xpp::EndeffectorsContact;
   using GaitInfo       = std::pair<VecTimes,std::vector<ContactState>>;
+  using EndeffectorID  = xpp::EndeffectorID;
 
   GaitGenerator () = default;
   virtual ~GaitGenerator () = default;
@@ -72,6 +73,6 @@ private:
 
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_GAIT_GENERATOR_H_ */
+#endif /* TOWR_MODELS_GAIT_GENERATOR_H_ */

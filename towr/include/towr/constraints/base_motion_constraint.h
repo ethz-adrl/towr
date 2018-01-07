@@ -5,15 +5,15 @@
  @brief   Brief description
  */
 
-#ifndef XPP_OPT_INCLUDE_XPP_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_
-#define XPP_OPT_INCLUDE_XPP_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_
+#ifndef TOWR_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_
+#define TOWR_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_
 
 #include <towr/optimization_parameters.h>
 #include <towr/variables/spline.h>
 
 #include "time_discretization_constraint.h"
 
-namespace xpp {
+namespace towr {
 
 /**
  * Keeps the 6D base motion in a specified range.
@@ -38,6 +38,6 @@ private:
   int GetRow (int node, int dim) const;
 };
 
-} /* namespace xpp */
+} /* namespace towr */
 
-#endif /* XPP_OPT_INCLUDE_XPP_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_ */
+#endif /* TOWR_CONSTRAINTS_BASE_MOTION_CONSTRAINT_H_ */

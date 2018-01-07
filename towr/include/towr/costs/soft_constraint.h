@@ -24,12 +24,12 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
-#ifndef OPT_SOLVE_INCLUDE_OPT_SOFT_CONSTRAINT_H_
-#define OPT_SOLVE_INCLUDE_OPT_SOFT_CONSTRAINT_H_
+#ifndef TOWR_COSTS_SOFT_CONSTRAINT_H_
+#define TOWR_COSTS_SOFT_CONSTRAINT_H_
 
 #include <ifopt/composite.h>
 
-namespace opt {
+namespace towr {
 
 /**
  * @brief Converts a constraint to a cost by weighing the quadratic violations.
@@ -41,7 +41,7 @@ namespace opt {
  * Then the gradient of the cost is defined as:
  * dc(x)/dx = (g'(x)^T * W * J)^T = J^T * W * (g(x)-b).
  */
-class SoftConstraint : public Component {
+class SoftConstraint : public opt::Component {
 public:
   using ConstraintPtr = Component::Ptr;
 
@@ -75,10 +75,10 @@ private:
   virtual Jacobian GetJacobian() const override;
 
   // doesn't exist for cost, generated run-time error when used
-  virtual VecBound GetBounds() const override final { return VecBound(GetRows(), NoBound); };
+  virtual VecBound GetBounds() const override final { return VecBound(GetRows(), opt::NoBound); };
   virtual void SetVariables(const VectorXd& x) override final { assert(false); };
 };
 
-} /* namespace opt */
+} /* namespace towr */
 
-#endif /* OPT_SOLVE_INCLUDE_OPT_SOFT_CONSTRAINT_H_ */
+#endif /* TOWR_COSTS_SOFT_CONSTRAINT_H_ */

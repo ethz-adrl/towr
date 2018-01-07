@@ -4,7 +4,7 @@
 
 #include <ros/ros.h>
 
-namespace xpp {
+namespace towr {
 
 /**
  * @brief Functions to retrieve values from the ROS parameter server.
