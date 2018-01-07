@@ -39,9 +39,9 @@ namespace towr {
  */
 class NlpFactory {
 public:
-  using VariablePtrVec   = std::vector<opt::VariableSet::Ptr>;
-  using ContraintPtrVec  = std::vector<opt::ConstraintSet::Ptr>;
-  using CostPtrVec       = std::vector<opt::CostTerm::Ptr>;
+  using VariablePtrVec   = std::vector<ifopt::VariableSet::Ptr>;
+  using ContraintPtrVec  = std::vector<ifopt::ConstraintSet::Ptr>;
+  using CostPtrVec       = std::vector<ifopt::CostTerm::Ptr>;
   using EndeffectorsPos  = xpp::EndeffectorsPos;
   using State3dEuler     = xpp::State3dEuler;
 

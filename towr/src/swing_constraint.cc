@@ -19,7 +19,7 @@
 
 namespace towr {
 
-using namespace opt;
+using namespace ifopt;
 using namespace xpp;
 
 

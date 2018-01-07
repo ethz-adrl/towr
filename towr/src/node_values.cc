@@ -16,7 +16,7 @@
 
 namespace towr {
 
-using namespace opt;
+using namespace ifopt;
 using namespace xpp;
 
 NodeValues::NodeValues (int n_dim, int n_polynomials, const std::string& name)

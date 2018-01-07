@@ -17,7 +17,7 @@
 namespace towr {
 
 
-class SwingConstraint : public opt::ConstraintSet {
+class SwingConstraint : public ifopt::ConstraintSet {
 public:
   SwingConstraint (std::string ee_motion_id);
   virtual ~SwingConstraint () = default;

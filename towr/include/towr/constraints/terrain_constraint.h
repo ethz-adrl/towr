@@ -21,7 +21,7 @@ namespace towr {
  *
  * Attention: This is enforced only at the spline nodes.
  */
-class TerrainConstraint : public opt::ConstraintSet {
+class TerrainConstraint : public ifopt::ConstraintSet {
 public:
   TerrainConstraint (const HeightMap::Ptr& terrain,
                      std::string ee_motion_id);

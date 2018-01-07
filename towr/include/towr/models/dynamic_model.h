@@ -26,7 +26,7 @@ public:
   using EEPos         = xpp::EndeffectorsPos;
   using EndeffectorID = xpp::EndeffectorID;
   using EELoad        = EEPos;
-  using Jacobian      = opt::Component::Jacobian;
+  using Jacobian      = ifopt::Component::Jacobian;
 
   DynamicModel(double mass);
   virtual ~DynamicModel () = default;

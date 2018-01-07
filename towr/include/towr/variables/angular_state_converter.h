@@ -41,7 +41,7 @@ public:
   using StateAng3d  = xpp::StateAng3d;
   using StateLin3d  = xpp::StateLin3d;
 
-  using Jacobian    = opt::Component::Jacobian;
+  using Jacobian    = ifopt::Component::Jacobian;
   using MatrixSXd   = Jacobian;
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 

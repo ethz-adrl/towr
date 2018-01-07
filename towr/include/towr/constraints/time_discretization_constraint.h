@@ -17,7 +17,7 @@ namespace towr {
 
 /** @brief Constraints evaluated at discretized times along a trajectory.
   */
-class TimeDiscretizationConstraint : public opt::ConstraintSet {
+class TimeDiscretizationConstraint : public ifopt::ConstraintSet {
 public:
   using EvaluationTimes = std::vector<double>;
 

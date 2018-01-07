@@ -39,7 +39,7 @@ TotalDurationConstraint::GetValues () const
 TotalDurationConstraint::VecBound
 TotalDurationConstraint::GetBounds () const
 {
-  return VecBound(GetRows(), opt::Bounds(0.1, T_total_-0.2));
+  return VecBound(GetRows(), ifopt::Bounds(0.1, T_total_-0.2));
 }
 
 void

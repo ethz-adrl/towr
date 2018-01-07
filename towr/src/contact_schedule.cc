@@ -26,7 +26,7 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
   durations_ = timings;
   t_total_ = std::accumulate(timings.begin(), timings.end(), 0.0);
 
-  phase_duration_bounds_ = opt::Bounds(min_duration, max_duration);
+  phase_duration_bounds_ = ifopt::Bounds(min_duration, max_duration);
 }
 
 void

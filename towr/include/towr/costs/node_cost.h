@@ -20,7 +20,7 @@
 
 namespace towr {
 
-class NodeCost : public opt::CostTerm {
+class NodeCost : public ifopt::CostTerm {
 public:
   using Nodes = std::shared_ptr<NodeValues>;
 

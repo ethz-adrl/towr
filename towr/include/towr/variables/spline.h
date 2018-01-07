@@ -43,7 +43,7 @@ public:
 
   virtual const StateLinXd GetPoint(double t_global) const = 0;
 
-  virtual opt::Component::Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
+  virtual ifopt::Component::Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const = 0;
 };
 
 } /* namespace towr */

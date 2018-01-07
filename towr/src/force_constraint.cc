@@ -20,14 +20,14 @@
 
 namespace towr {
 
-using namespace opt;
+using namespace ifopt;
 using namespace xpp;
 
 
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   double force_limit,
                                   EndeffectorID ee)
-    :opt::ConstraintSet(kSpecifyLater, "Force-Constraint-" + id::GetEEForceId(ee))
+    :ifopt::ConstraintSet(kSpecifyLater, "Force-Constraint-" + id::GetEEForceId(ee))
 {
 
   terrain_   = terrain;

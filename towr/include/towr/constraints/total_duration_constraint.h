@@ -14,7 +14,7 @@
 
 namespace towr {
 
-class TotalDurationConstraint : public opt::ConstraintSet {
+class TotalDurationConstraint : public ifopt::ConstraintSet {
 public:
 
   TotalDurationConstraint(double T_total, int ee);

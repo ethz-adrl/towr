@@ -74,7 +74,7 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
 void
 DynamicConstraint::UpdateBoundsAtInstance(double t, int k, VecBound& bounds) const
 {
-  using namespace opt;
+  using namespace ifopt;
 
   for (auto dim : AllDim6D) {
     if (dim == LZ)

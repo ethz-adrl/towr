@@ -21,7 +21,7 @@ namespace towr {
  *
  * Attention: This is enforced only at the spline nodes.
  */
-class ForceConstraint : public opt::ConstraintSet {
+class ForceConstraint : public ifopt::ConstraintSet {
 public:
   using EndeffectorID = uint;
 

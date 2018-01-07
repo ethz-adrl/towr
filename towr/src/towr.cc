@@ -49,10 +49,10 @@ void TOWR::SetParameters(const State3dEuler& final_base,
   SetTerrainHeightFromAvgFootholdHeight(terrain_); // make sure initial footholds are set
 }
 
-opt::Problem
+ifopt::Problem
 TOWR::BuildNLP () const
 {
-  opt::Problem nlp;
+  ifopt::Problem nlp;
 
   NlpFactory factory;
   factory.Init(params_, terrain_, model_, initial_ee_W_, inital_base_, final_base_);
@@ -75,7 +75,7 @@ void TOWR::SolveNLP()
 {
   nlp_ = BuildNLP();
 
-  opt::IpoptAdapter::Solve(nlp_);
+  ifopt::IpoptAdapter::Solve(nlp_);
   // opt::SnoptAdapter::Solve(nlp_);
 
   nlp_.PrintCurrent();

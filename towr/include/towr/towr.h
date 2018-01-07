@@ -30,7 +30,7 @@ namespace towr {
   */
 class TOWR {
 public:
-  using VariablesCompPtr    = opt::Composite::Ptr;
+  using VariablesCompPtr    = ifopt::Composite::Ptr;
   using RobotStateCartesian = xpp::RobotStateCartesian;
   using State3dEuler        = xpp::State3dEuler;
   using EndeffectorsPos     = xpp::EndeffectorsPos;
@@ -60,8 +60,8 @@ private:
   OptimizationParameters params_;
   State3dEuler final_base_;
 
-  opt::Problem BuildNLP() const;
-  mutable opt::Problem nlp_;
+  ifopt::Problem BuildNLP() const;
+  mutable ifopt::Problem nlp_;
 
   RobotStateVec GetTrajectory(const VariablesCompPtr&, double dt) const;
   void SetTerrainHeightFromAvgFootholdHeight(HeightMap::Ptr& terrain) const;

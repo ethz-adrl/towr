@@ -53,7 +53,7 @@ LinearEqualityConstraint::GetBounds () const
   VecBound bounds;
 
   for (int i=0; i<GetRows(); ++i) {
-    opt::Bounds bound(-v_[i],-v_[i]);
+    ifopt::Bounds bound(-v_[i],-v_[i]);
     bounds.push_back(bound);
   }
 

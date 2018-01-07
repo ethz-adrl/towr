@@ -34,7 +34,7 @@ namespace towr {
 /**
  * @brief Calculates the constraint violations for linear constraints.
  */
-class LinearEqualityConstraint : public opt::ConstraintSet {
+class LinearEqualityConstraint : public ifopt::ConstraintSet {
 public:
   using MatrixXd = Eigen::MatrixXd;
 

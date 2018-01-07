@@ -20,7 +20,7 @@
 
 namespace towr {
 
-class ContactSchedule : public opt::VariableSet {
+class ContactSchedule : public ifopt::VariableSet {
 public:
   using Ptr           = std::shared_ptr<ContactSchedule>;
   using VecDurations  = std::vector<double>;
@@ -45,7 +45,7 @@ public:
 
 private:
   double t_total_;
-  opt::Bounds phase_duration_bounds_;
+  ifopt::Bounds phase_duration_bounds_;
 
   std::vector<PhaseNodesPtr> observers_;
   PhaseNodesPtr GetObserver(const std::string& id) const;

@@ -41,7 +41,7 @@ namespace towr {
  * Then the gradient of the cost is defined as:
  * dc(x)/dx = (g'(x)^T * W * J)^T = J^T * W * (g(x)-b).
  */
-class SoftConstraint : public opt::Component {
+class SoftConstraint : public ifopt::Component {
 public:
   using ConstraintPtr = Component::Ptr;
 
@@ -75,7 +75,7 @@ private:
   virtual Jacobian GetJacobian() const override;
 
   // doesn't exist for cost, generated run-time error when used
-  virtual VecBound GetBounds() const override final { return VecBound(GetRows(), opt::NoBound); };
+  virtual VecBound GetBounds() const override final { return VecBound(GetRows(), ifopt::NoBound); };
   virtual void SetVariables(const VectorXd& x) override final { assert(false); };
 };
 

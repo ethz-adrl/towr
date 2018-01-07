@@ -66,7 +66,7 @@ RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) cons
 void
 RangeOfMotionBox::UpdateBoundsAtInstance (double t, int k, VecBound& bounds) const
 {
-  using namespace opt;
+  using namespace ifopt;
 
   for (int dim=0; dim<kDim3d; ++dim) {
     Bounds b;
