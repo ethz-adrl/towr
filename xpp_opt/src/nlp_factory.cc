@@ -16,6 +16,7 @@
 #include <xpp_opt/constraints/range_of_motion_constraint.h>
 #include <xpp_opt/constraints/swing_constraint.h>
 #include <xpp_opt/constraints/terrain_constraint.h>
+#include <xpp_opt/constraints/total_duration_constraint.h>
 
 #include <xpp_opt/costs/node_cost.h>
 #include <xpp_opt/models/dynamic_model.h>
@@ -148,7 +149,7 @@ NlpFactory::MakeTotalTimeConstraint () const
   double T = params_.GetTotalTime();
 
   for (auto ee : GetEEIDs()) {
-    auto duration_constraint = std::make_shared<DurationConstraint>(T, ee);
+    auto duration_constraint = std::make_shared<TotalDurationConstraint>(T, ee);
     c.push_back(duration_constraint);
   }
 

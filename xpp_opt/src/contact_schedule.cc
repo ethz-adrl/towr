@@ -5,18 +5,12 @@
  @brief   Brief description
  */
 
-#include <../include/xpp_opt/variables/contact_schedule.h>
+#include <xpp_opt/variables/contact_schedule.h>
 
-#include <cassert>
-#include <iostream>
-#include <numeric>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
+#include <numeric> // std::accumulate
 
 #include <xpp_opt/variables/spline.h>
 #include <xpp_opt/variables/variable_names.h>
-#include <xpp_states/state.h>
-
 
 
 namespace xpp {
@@ -126,46 +120,6 @@ ContactSchedule::GetObserver (const std::string& id) const
   assert(false);
 }
 
-
-
-
-DurationConstraint::DurationConstraint (double T_total, int ee)
-    :ConstraintSet(1, "DurationConstraint_ee_-" + std::to_string(ee))
-{
-  T_total_ = T_total;
-  ee_ = ee;
-}
-
-void
-DurationConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
-{
-  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(x->GetComponent(id::GetEEScheduleId(ee_)));
-}
-
-VectorXd
-DurationConstraint::GetValues () const
-{
-  VectorXd g = VectorXd::Zero(GetRows());
-//  for (double t_phase : schedule_->GetTimePerPhase())
-//    g(0) += t_phase;
-//
-  g(0) = schedule_->GetValues().sum();
-  return g;
-}
-
-DurationConstraint::VecBound
-DurationConstraint::GetBounds () const
-{
-  return VecBound(GetRows(), opt::Bounds(0.1, T_total_-0.2));
-}
-
-void
-DurationConstraint::FillJacobianBlock (std::string var_set, Jacobian& jac) const
-{
-  if (var_set == schedule_->GetName())
-    for (int col=0; col<schedule_->GetRows(); ++col)
-      jac.coeffRef(0, col) = 1.0;
-}
 
 } /* namespace xpp */
 

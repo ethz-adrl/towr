@@ -41,9 +41,9 @@ public:
   using MatrixSXd   = Jacobian;
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
 
-  AngularStateConverter ();
+  AngularStateConverter () = default;
   AngularStateConverter (const Spline::Ptr&);
-  virtual ~AngularStateConverter ();
+  virtual ~AngularStateConverter () = default;
 
   static StateAng3d GetState(const StateLin3d& euler);
 

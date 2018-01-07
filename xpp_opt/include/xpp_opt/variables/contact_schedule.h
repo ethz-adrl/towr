@@ -52,28 +52,6 @@ private:
 };
 
 
-// spring_clean_ use own file for this
-/** Makes sure all phase durations sum up to final specified motion duration.
- */
-class DurationConstraint : public opt::ConstraintSet {
-public:
-  using SchedulePtr = std::shared_ptr<ContactSchedule>;
-
-  DurationConstraint(double T_total, int ee);
-  ~DurationConstraint() = default;
-
-  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
-
-  VectorXd GetValues() const override;
-  VecBound GetBounds() const override;
-  void FillJacobianBlock (std::string var_set, Jacobian&) const override;
-
-private:
-  SchedulePtr schedule_;
-  double T_total_;
-  EndeffectorID ee_;
-};
-
 
 } /* namespace xpp */
 

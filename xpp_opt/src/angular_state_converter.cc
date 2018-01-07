@@ -14,19 +14,9 @@
 
 namespace xpp {
 
-AngularStateConverter::AngularStateConverter ()
-{
-  // TODO Auto-generated constructor stub
-}
-
 AngularStateConverter::AngularStateConverter (const Spline::Ptr& euler)
 {
   euler_ = euler;
-}
-
-AngularStateConverter::~AngularStateConverter ()
-{
-  // TODO Auto-generated destructor stub
 }
 
 StateAng3d

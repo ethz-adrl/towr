@@ -61,6 +61,7 @@ add_library(${PROJECT_NAME}
   src/terrain_constraint.cc
   src/swing_constraint.cc
   src/force_constraint.cc
+  src/total_duration_constraint.cc
   #
   src/gait_generator.cc
   src/monoped_gait_generator.cc
