@@ -26,6 +26,8 @@ namespace towr {
 
 
 /** Holds position and velocity of nodes used to generate a cubic Hermite spline.
+ *
+ *
  */
 class NodeValues : public ifopt::VariableSet, public Spline {
 public:
@@ -108,19 +110,12 @@ public:
 
   virtual VecBound GetBounds () const override { return bounds_;};
 
-  void SetBoundsAboveGround();
 
 
   const std::vector<Node> GetNodes() const { return nodes_; };
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
   // basically opposite of above
   int Index(int id, MotionDerivative, int dim) const;
-  std::map<NodeInfo, int> node_info_to_idx;
-  void SetIndexMappings();
-
-
-  int GetDimCount() const { return n_dim_; };
-
 
 
 protected:
@@ -128,20 +123,20 @@ protected:
   bool durations_change_ = false;
   VecDurations poly_durations_;
   PolyInfoVec polynomial_info_;
-  mutable VecBound bounds_;
 
-  VecPoly cubic_polys_;
   std::vector<int> GetAdjacentPolyIds(int node_id) const;
 
-
-
+  mutable VecBound bounds_;
 
   int GetNodeId(int poly_id, Side) const;
+  std::vector<Node> nodes_;
+
+
 private:
   PolyInfoVec BuildPolyInfos(int num_polys) const;
+  VecPoly cubic_polys_;
 
   int n_dim_;
-  std::vector<Node> nodes_;
 
 
 
@@ -154,6 +149,12 @@ private:
   // fill_with_zeros is to get sparsity
   void FillJacobian(int poly_id, double t_local, MotionDerivative dxdt,
                     Jacobian& jac, bool fill_with_zeros=false) const;
+
+
+  std::map<NodeInfo, int> node_info_to_idx;
+  void SetIndexMappings();
+
+//  void SetBoundsAboveGround();
 
 };
 

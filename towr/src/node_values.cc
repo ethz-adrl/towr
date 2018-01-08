@@ -247,15 +247,6 @@ NodeValues::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
   }
 }
 
-void
-NodeValues::SetBoundsAboveGround ()
-{
-  double z_height = 0.0;
-  for (int idx=0; idx<GetRows(); ++idx)
-    for (auto info : GetNodeInfo(idx))
-      if (info.deriv_==kPos && info.dim_==Z)
-        bounds_.at(idx) = Bounds(z_height, +1.0e20);
-}
 
 void
 NodeValues::AddBounds(int node_id, MotionDerivative deriv,
@@ -333,5 +324,15 @@ NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 
   return inner_derivative*dxdT - info.poly_id_in_phase_*percent_of_phase*vel;
 }
+
+//void
+//NodeValues::SetBoundsAboveGround ()
+//{
+//  double z_height = 0.0;
+//  for (int idx=0; idx<GetRows(); ++idx)
+//    for (auto info : GetNodeInfo(idx))
+//      if (info.deriv_==kPos && info.dim_==Z)
+//        bounds_.at(idx) = Bounds(z_height, +1.0e20);
+//}
 
 } /* namespace towr */

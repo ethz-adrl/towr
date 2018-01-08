@@ -130,8 +130,11 @@ PhaseNodes::GetPolyIDAtStartOfPhase (int phase) const
 Vector3d
 PhaseNodes::GetValueAtStartOfPhase (int phase) const
 {
-  int poly_id=GetPolyIDAtStartOfPhase(phase);
-  return cubic_polys_.at(poly_id)->GetPoint(0.0).p_;
+//  int poly_id=GetPolyIDAtStartOfPhase(phase);
+//  return cubic_polys_.at(poly_id)->GetPoint(0.0).p_;
+
+  int node_id = GetNodeIDAtStartOfPhase(phase);
+  return nodes_.at(node_id).at(kPos);
 }
 
 int
