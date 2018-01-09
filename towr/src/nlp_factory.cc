@@ -224,9 +224,10 @@ NlpFactory::MakeForceVariables () const
   return vars;
 }
 
+// smell remove these parameters, doesn't depend on them
 NlpFactory::VariablePtrVec
 NlpFactory::MakeContactScheduleVariables (const VariablePtrVec& ee_motion,
-                                                     const VariablePtrVec& ee_force) const
+                                          const VariablePtrVec& ee_force) const
 {
   VariablePtrVec vars;
 
@@ -238,12 +239,12 @@ NlpFactory::MakeContactScheduleVariables (const VariablePtrVec& ee_motion,
                                                  params_.min_phase_duration_,
                                                  params_.max_phase_duration_);
 
-    auto node_motion = std::dynamic_pointer_cast<PhaseNodes>(ee_motion.at(ee));
-    auto node_force  = std::dynamic_pointer_cast<PhaseNodes>(ee_force.at(ee));
-
-    // always update endeffector parameterization with the current durations
-    var->AddObserver(node_motion);
-    var->AddObserver(node_force);
+//    auto node_motion = std::dynamic_pointer_cast<PhaseNodes>(ee_motion.at(ee));
+//    auto node_force  = std::dynamic_pointer_cast<PhaseNodes>(ee_force.at(ee));
+//
+//    // always update endeffector parameterization with the current durations
+//    var->AddObserver(node_motion);
+//    var->AddObserver(node_force);
 
     vars.push_back(var);
   }
@@ -279,9 +280,9 @@ NlpFactory::MakeDynamicConstraint() const
 
   dts_.push_back(t_node); // also ensure constraints at very last node/time.
 
-  auto constraint = std::make_shared<DynamicConstraint>(model_.dynamic_model_,
+  auto constraint = std::make_shared<DynamicConstraint>(model_,
                                                         dts_,
-                                                        params_.OptimizeTimings());
+                                                        params_);
   return {constraint};
 }
 
@@ -292,7 +293,7 @@ NlpFactory::MakeRangeOfMotionBoxConstraint () const
 
   for (auto ee : GetEEIDs()) {
     auto rom_constraints = std::make_shared<RangeOfMotionBox>(params_,
-                                                              model_.kinematic_model_,
+                                                              model_, // model.kinematic_model_
                                                               ee,
                                                               params_.OptimizeTimings());
     c.push_back(rom_constraints);

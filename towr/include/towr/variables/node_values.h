@@ -18,8 +18,10 @@
 
 #include <ifopt/leaves.h>
 
-#include "spline.h"
-#include "polynomial.h"
+//#include "spline.h"
+#include "polynomial.h" // this shouldn't really be here
+
+#include "spline_observer.h"
 
 
 namespace towr {
@@ -27,22 +29,24 @@ namespace towr {
 
 /** Holds position and velocity of nodes used to generate a cubic Hermite spline.
  *
- *
+ * This however should know nothing about polynomials, or splines or anything.
+ * Purely the nodes, everything else handled by spline.h
  */
-class NodeValues : public ifopt::VariableSet, public Spline {
+class NodeValues : public ifopt::VariableSet {
 public:
   using Ptr      = std::shared_ptr<NodeValues>;
   using Node     = CubicHermitePoly::Node;
   using Side     = CubicHermitePoly::Side;
   using VecNodes = std::vector<Node>;
   using VecDurations = std::vector<double>;
+  using MotionDerivative = xpp::MotionDerivative;
 
   using PolyType = CubicHermitePoly;
   using VecPoly  = std::vector<std::shared_ptr<PolyType>>;
   using Dimensions = std::vector<xpp::Coords3D>;
 
-  mutable bool fill_jacobian_structure_ = true;
-  mutable Jacobian jac_structure_; // all zeros
+//  mutable bool fill_jacobian_structure_ = true;
+//  mutable Jacobian jac_structure_; // all zeros
 
   struct PolyInfo {
     PolyInfo() {};
@@ -89,10 +93,6 @@ public:
   VectorXd GetValues () const override;
   void SetVariables (const VectorXd& x) override;
 
-  virtual const StateLinXd GetPoint(double t_global) const override;
-  virtual Jacobian GetJacobian (double t_global,  MotionDerivative dxdt) const override;
-
-  VectorXd GetDerivativeOfPosWrtPhaseDuration(double t_global) const;
 
 
   void AddBounds(int node_id, MotionDerivative, const std::vector<int>& dim,
@@ -113,42 +113,58 @@ public:
 
 
   const std::vector<Node> GetNodes() const { return nodes_; };
+  int GetPolynomialCount() const { return nodes_.size() - 1; };
+
+  // returns the two nodes that make up polynomial with "poly_id"
+  const std::vector<Node> GetBoundaryNodes(int poly_id) const
+  {
+    std::vector<Node> nodes;
+    nodes.push_back(nodes_.at(GetNodeId(poly_id, Side::Start)));
+    nodes.push_back(nodes_.at(GetNodeId(poly_id, Side::End)));
+    return nodes;
+  };
+
+
   std::vector<NodeInfo> GetNodeInfo(int idx) const;
+  int GetNodeId(int poly_id, Side) const;
   // basically opposite of above
-  int Index(int id, MotionDerivative, int dim) const;
+  int Index(int node_id, MotionDerivative, int dim) const;
 
 
-protected:
-  void UpdatePolynomials();
-  bool durations_change_ = false;
-  VecDurations poly_durations_;
+  void AddObserver(const SplineObserver::Ptr& o) { observers_.push_back(o); };
+
+  int n_dim_;
+
   PolyInfoVec polynomial_info_;
+protected:
+//  void UpdatePolynomials();
+//  bool durations_change_ = false;
+//  VecDurations poly_durations_;
 
   std::vector<int> GetAdjacentPolyIds(int node_id) const;
 
   mutable VecBound bounds_;
 
-  int GetNodeId(int poly_id, Side) const;
   std::vector<Node> nodes_;
 
 
 private:
   PolyInfoVec BuildPolyInfos(int num_polys) const;
-  VecPoly cubic_polys_;
+//  VecPoly cubic_polys_;
 
-  int n_dim_;
-
-
+  std::vector<SplineObserver::Ptr> observers_;
 
 
   void SetNodeMappings();
   using OptNodeIs = int;
   using NodeIds   = std::vector<int>;
+
+  // this could be removed i feel like
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
 
   // fill_with_zeros is to get sparsity
-  void FillJacobian(int poly_id, double t_local, MotionDerivative dxdt,
-                    Jacobian& jac, bool fill_with_zeros=false) const;
+//  void FillJacobian(int poly_id, double t_local, MotionDerivative dxdt,
+//                    Jacobian& jac, bool fill_with_zeros=false) const;
 
 
   std::map<NodeInfo, int> node_info_to_idx;

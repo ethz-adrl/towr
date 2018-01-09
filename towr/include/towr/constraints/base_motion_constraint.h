@@ -22,7 +22,7 @@ namespace towr {
 class BaseMotionConstraint : public TimeDiscretizationConstraint {
 public:
   BaseMotionConstraint (const OptimizationParameters& params);
-  virtual ~BaseMotionConstraint ();
+  virtual ~BaseMotionConstraint () = default;
 
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
@@ -33,6 +33,8 @@ public:
 private:
   Spline::Ptr base_linear_;
   Spline::Ptr base_angular_;
+
+  std::vector<double> base_poly_durations_;
 
   VecBound node_bounds_; ///< same bounds for each discretized node
   int GetRow (int node, int dim) const;

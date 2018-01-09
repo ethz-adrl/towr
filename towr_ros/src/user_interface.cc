@@ -54,11 +54,11 @@ UserInterface::UserInterface ()
 
   // publish goal zero initially
   goal_geom_.lin.p_.setZero();
-  goal_geom_.lin.p_ << 1.3, 0.0, 0.46;
+  goal_geom_.lin.p_ << 1.0, 0.0, 0.46;
   goal_geom_.ang.p_ << 0.0, 0.0, 0.0; // roll, pitch, yaw angle applied Z->Y'->X''
 
   terrain_id_    = 0;
-  gait_combo_id_ = 0;
+  gait_combo_id_ = 3;
 }
 
 void

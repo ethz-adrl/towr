@@ -21,29 +21,63 @@ namespace towr {
 using namespace xpp;
 
 
-DynamicConstraint::DynamicConstraint (const DynamicModel::Ptr& m,
+DynamicConstraint::DynamicConstraint (const RobotModel& m,
                                       const std::vector<double>& evaluation_times,
-                                      bool optimize_timings)
+                                      const OptimizationParameters& params)
     :TimeDiscretizationConstraint(evaluation_times, "DynamicConstraint")
 {
-  model_ = m;
-  gravity_ = m->GetGravityAcceleration();
-  optimize_timings_ = optimize_timings;
+  model_ = m.dynamic_model_;
+  gravity_ = m.dynamic_model_->GetGravityAcceleration();
+  optimize_timings_ = params.OptimizeTimings();
+  base_poly_durations_ = params.GetBasePolyDurations();
+
+  for (auto ee : model_->GetEEIDs()) {
+    ee_phase_durations_.push_back(m.gait_generator_->GetContactSchedule(params.GetTotalTime(), ee));
+  }
 
   SetRows(GetNumberOfNodes()*kDim6d);
 }
 
+// smell make a common function, maybe in derived class where this is
+// done for all constraint classes, b/c often repeats itself
 void
-towr::DynamicConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
+DynamicConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  base_linear_  = x->GetComponent<Spline>(id::base_linear);
-  base_angular_ = x->GetComponent<Spline>(id::base_angular);
+//  base_linear_  = x->GetComponent<Spline>(id::base_linear);
+//  base_angular_ = x->GetComponent<Spline>(id::base_angular);
+
+  auto base_linear_nodes = x->GetComponent<NodeValues>(id::base_linear);
+  base_linear_ = std::make_shared<Spline>(base_linear_nodes, base_poly_durations_);
+  base_linear_nodes->AddObserver(base_linear_);
+
+  auto base_angular_nodes = x->GetComponent<NodeValues>(id::base_angular);
+  base_angular_ = std::make_shared<Spline>(base_angular_nodes, base_poly_durations_);
+  base_angular_nodes->AddObserver(base_angular_);
+
+
 
   for (auto ee : model_->GetEEIDs()) {
-    ee_motion_.push_back(x->GetComponent<NodeValues>(id::GetEEMotionId(ee)));
-    ee_forces_.push_back(x->GetComponent<NodeValues>(id::GetEEForceId(ee)));
-    if (optimize_timings_)
-      ee_timings_.push_back(x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee)));
+
+
+    auto ee_motion_nodes = x->GetComponent<NodeValues>(id::GetEEMotionId(ee));
+    auto ee_spline = std::make_shared<Spline>(ee_motion_nodes, ee_phase_durations_.at(ee));
+    ee_motion_.push_back(ee_spline);
+    ee_motion_nodes->AddObserver(ee_spline);
+//    ee_motion_.push_back(x->GetComponent<Spline>(id::GetEEMotionId(ee)));
+
+    auto ee_forces_nodes = x->GetComponent<NodeValues>(id::GetEEForceId(ee));
+    auto ee_force_spline = std::make_shared<Spline>(ee_forces_nodes, ee_phase_durations_.at(ee));
+    ee_forces_.push_back(ee_force_spline);
+    ee_forces_nodes->AddObserver(ee_force_spline);
+//    ee_forces_.push_back(x->GetComponent<Spline>(id::GetEEForceId(ee)));
+
+    if (optimize_timings_) {
+      auto contact_schedule = x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee));
+      contact_schedule->AddObserver(ee_motion_.at(ee));
+      contact_schedule->AddObserver(ee_forces_.at(ee));
+      ee_timings_.push_back(contact_schedule); // only need this for Jacobian, but not really
+    }
+
   }
 
   converter_ = AngularStateConverter(base_angular_);
@@ -121,7 +155,7 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
     }
 
     // is only executed, if ee_timings part of optimization variables,
-    // so otherwise the pointer can actually be null.
+    // so otherwise the ee_timings_ pointer can actually be null.
     if (var_set == id::GetEEScheduleId(ee)) {
 
       Jacobian jac_f_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEForceId(ee));

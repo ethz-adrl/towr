@@ -32,8 +32,10 @@ BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params
   node_bounds_.at(LX) = NoBound;
   node_bounds_.at(LY) = NoBound;//Bounds(-0.05, 0.05);
 
-  double z_init = 0.46;//base_linear_->GetPoint(0.0).p_.z();
+  double z_init = 0.46;//base_linear_.GetPoint(0.0).p_.z();
   node_bounds_.at(LZ) = Bounds(0.46, 0.55); // allow to move dev_z cm up and down
+
+  base_poly_durations_ = params.GetBasePolyDurations();
 
   SetRows(GetNumberOfNodes()*node_bounds_.size());
 }
@@ -41,16 +43,24 @@ BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params
 void
 BaseMotionConstraint::InitVariableDependedQuantities(const VariablesPtr& x)
 {
-  base_linear_   = x->GetComponent<Spline>(id::base_linear);
-  base_angular_  = x->GetComponent<Spline>(id::base_angular);
+  auto base_linear_nodes = x->GetComponent<NodeValues>(id::base_linear);
+  base_linear_ = std::make_shared<Spline>(base_linear_nodes, base_poly_durations_);
+  base_linear_nodes->AddObserver(base_linear_);
+
+  auto base_angular_nodes = x->GetComponent<NodeValues>(id::base_angular);
+  base_angular_ = std::make_shared<Spline>(base_angular_nodes, base_poly_durations_);
+  base_angular_nodes->AddObserver(base_angular_);
+
+//  base_angular_  = x->GetComponent<Spline>(id::base_angular);
+//  base_linear_   = x->GetComponent<Spline>(id::base_linear);
 };
 
 void
 BaseMotionConstraint::UpdateConstraintAtInstance (double t, int k,
                                                   VectorXd& g) const
 {
-  g.middleRows(GetRow(k, AX), kDim3d) = base_angular_->GetPoint(t).p_;
   g.middleRows(GetRow(k, LX), kDim3d) = base_linear_->GetPoint(t).p_;
+  g.middleRows(GetRow(k, AX), kDim3d) = base_angular_->GetPoint(t).p_;
 }
 
 void
@@ -76,11 +86,6 @@ int
 BaseMotionConstraint::GetRow (int node, int dim) const
 {
   return node*node_bounds_.size() + dim;
-}
-
-BaseMotionConstraint::~BaseMotionConstraint ()
-{
-  // TODO Auto-generated destructor stub
 }
 
 } /* namespace towr */

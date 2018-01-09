@@ -59,39 +59,39 @@ PhaseNodes::BuildPolyInfos (int phase_count,
 }
 
 
-bool
-PhaseNodes::IsConstantPhase (double t_global) const
-{
-  int phase_id = Spline::GetSegmentID(t_global, phase_durations_);
+//bool
+//PhaseNodes::IsConstantPhase (double t_global) const
+//{
+//  int phase_id = Spline::GetSegmentID(t_global, phase_durations_);
+//
+//  // always alternating
+//  bool first_phase_in_contact = polynomial_info_.front().is_constant_;
+//  if (phase_id%2==0)
+//   return first_phase_in_contact;
+//  else
+//   return !first_phase_in_contact;
+//}
 
-  // always alternating
-  bool first_phase_in_contact = polynomial_info_.front().is_constant_;
-  if (phase_id%2==0)
-   return first_phase_in_contact;
-  else
-   return !first_phase_in_contact;
-}
+//void
+//PhaseNodes::UpdateDurations(const VecDurations& phase_durations)
+//{
+//  durations_change_ = true;
+//  phase_durations_ = phase_durations;
+//  poly_durations_ = ConvertPhaseToSpline(phase_durations);
+//  UpdatePolynomials();
+//}
 
-void
-PhaseNodes::UpdateDurations(const VecDurations& phase_durations)
-{
-  durations_change_ = true;
-  phase_durations_ = phase_durations;
-  poly_durations_ = ConvertPhaseToSpline(phase_durations);
-  UpdatePolynomials();
-}
-
-void
-PhaseNodes::InitializeVariables (const VectorXd& initial_pos,
-                                 const VectorXd& final_pos,
-                                 const VecDurations& phase_durations)
-{
-  NodeValues::InitializeVariables(initial_pos,
-                                  final_pos,
-                                  ConvertPhaseToSpline(phase_durations));
-
-  phase_durations_ = phase_durations;
-}
+//void
+//PhaseNodes::InitializeVariables (const VectorXd& initial_pos,
+//                                 const VectorXd& final_pos,
+//                                 const VecDurations& phase_durations)
+//{
+//  NodeValues::InitializeVariables(initial_pos,
+//                                  final_pos,
+//                                  ConvertPhaseToSpline(phase_durations));
+//
+//  phase_durations_ = phase_durations;
+//}
 
 bool
 PhaseNodes::IsConstantNode (int node_id) const
@@ -107,16 +107,16 @@ PhaseNodes::IsConstantNode (int node_id) const
   return is_constant;
 }
 
-PhaseNodes::VecDurations
-PhaseNodes::ConvertPhaseToSpline (const VecDurations& phase_durations) const
-{
-  VecDurations spline_durations;
-
-  for (auto info : polynomial_info_)
-    spline_durations.push_back(phase_durations.at(info.phase_)/info.num_polys_in_phase_);
-
-  return spline_durations;
-}
+//PhaseNodes::VecDurations
+//PhaseNodes::ConvertPhaseToSpline (const VecDurations& phase_durations) const
+//{
+//  VecDurations spline_durations;
+//
+//  for (auto info : polynomial_info_)
+//    spline_durations.push_back(phase_durations.at(info.phase_)/info.num_polys_in_phase_);
+//
+//  return spline_durations;
+//}
 
 int
 PhaseNodes::GetPolyIDAtStartOfPhase (int phase) const
@@ -168,10 +168,6 @@ EEMotionNodes::GetBounds () const
 
     auto node = GetNodeInfo(idx).front(); // bound idx by first node it represents
 
-
-
-
-
     // endeffector is not allowed to move if in stance phase
     if (IsContactNode(node.id_)) {
       if (node.deriv_ == kVel)
@@ -182,16 +178,10 @@ EEMotionNodes::GetBounds () const
         bounds_.at(idx) = BoundZero; // zero velocity at top
     }
 
-
-
-
-
   }
 
   return bounds_;
 }
-
-
 
 
 

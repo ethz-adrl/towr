@@ -30,7 +30,7 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
 }
 
 void
-ContactSchedule::AddObserver (const PhaseNodesPtr& o)
+ContactSchedule::AddObserver (const Spline::Ptr& o)
 {
   observers_.push_back(o);
   UpdateObservers();
@@ -39,8 +39,8 @@ ContactSchedule::AddObserver (const PhaseNodesPtr& o)
 void
 ContactSchedule::UpdateObservers () const
 {
-  for (auto& o : observers_)
-    o->UpdateDurations(durations_);
+  for (auto& spline : observers_)
+    spline->UpdatePhaseDurations(durations_);
 }
 
 Eigen::VectorXd
@@ -79,7 +79,7 @@ ContactSchedule::GetBounds () const
 ContactSchedule::Jacobian
 ContactSchedule::GetJacobianOfPos (double t_global, const std::string& id) const
 {
-  PhaseNodesPtr o = GetObserver(id);
+  Spline::Ptr o = GetObserver(id);
   VectorXd dx_dT  = o->GetDerivativeOfPosWrtPhaseDuration(t_global);
   VectorXd xd     = o->GetPoint(t_global).v_;
 
@@ -109,7 +109,7 @@ ContactSchedule::GetJacobianOfPos (double t_global, const std::string& id) const
   return jac.sparseView(1.0, -1.0);
 }
 
-ContactSchedule::PhaseNodesPtr
+Spline::Ptr
 ContactSchedule::GetObserver (const std::string& id) const
 {
   for (const auto& o : observers_)

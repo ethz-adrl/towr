@@ -16,7 +16,7 @@
 #include <xpp_states/endeffectors.h>
 #include <xpp_states/state.h>
 
-#include <towr/models/kinematic_model.h>
+#include <towr/models/robot_model.h>
 #include <towr/optimization_parameters.h>
 #include <towr/variables/contact_schedule.h>
 #include <towr/variables/node_values.h>
@@ -41,9 +41,10 @@ namespace towr {
 class RangeOfMotionBox : public TimeDiscretizationConstraint {
 public:
   using EndeffectorID = xpp::EndeffectorID;
+  using VecTimes      = std::vector<double>;
 
   RangeOfMotionBox(const OptimizationParameters& params,
-                   const KinematicModel::Ptr& kinematic_model,
+                   const RobotModel& robot_model,
                    const EndeffectorID& ee,
                    bool optimize_timings);
   virtual ~RangeOfMotionBox() = default;
@@ -59,7 +60,7 @@ private:
 
   Spline::Ptr base_linear_;
   Spline::Ptr base_angular_;
-  NodeValues::Ptr ee_motion_;
+  Spline::Ptr ee_motion_;
   ContactSchedule::Ptr ee_timings_;
 
   Eigen::Vector3d max_deviation_from_nominal_;
@@ -68,6 +69,9 @@ private:
 
   EndeffectorID ee_;
   bool optimize_timings_;
+
+  VecTimes base_poly_durations_;
+  VecTimes ee_phase_durations_;
 };
 
 } /* namespace towr */

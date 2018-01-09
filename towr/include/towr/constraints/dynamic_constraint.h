@@ -15,7 +15,8 @@
 
 #include <xpp_states/cartesian_declarations.h>
 
-#include <towr/models/dynamic_model.h>
+#include <towr/optimization_parameters.h>
+#include <towr/models/robot_model.h>
 #include <towr/variables/contact_schedule.h>
 #include <towr/variables/node_values.h>
 #include <towr/variables/spline.h>
@@ -29,9 +30,9 @@ class DynamicConstraint : public TimeDiscretizationConstraint {
 public:
   using VecTimes = std::vector<double>;
 
-  DynamicConstraint (const DynamicModel::Ptr& m,
-                     const std::vector<double>& evaluation_times,
-                     bool optimize_timings);
+  DynamicConstraint (const RobotModel& m,
+                     const VecTimes& evaluation_times,
+                     const OptimizationParameters& params);
   virtual ~DynamicConstraint () = default;
 
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
@@ -39,11 +40,13 @@ public:
 private:
   Spline::Ptr base_linear_;
   Spline::Ptr base_angular_;
-  std::vector<NodeValues::Ptr> ee_forces_;
-  std::vector<NodeValues::Ptr> ee_motion_;
+  std::vector<Spline::Ptr> ee_forces_;
+  std::vector<Spline::Ptr> ee_motion_;
   std::vector<ContactSchedule::Ptr> ee_timings_;
 
   bool optimize_timings_;
+  VecTimes base_poly_durations_;
+  std::vector<VecTimes> ee_phase_durations_;
 
   mutable DynamicModel::Ptr model_;
   double gravity_;
