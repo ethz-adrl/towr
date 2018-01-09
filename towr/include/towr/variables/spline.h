@@ -19,9 +19,12 @@
 #include <ifopt/composite.h> // for Jacobian definition
 
 #include "polynomial.h"
+
 #include "node_values.h"
+#include "contact_schedule.h"
 
 #include "spline_observer.h"
+#include "contact_schedule_observer.h"
 //#include "contact_schedule.h" // don't need this because of observer pattern
 
 
@@ -36,7 +39,8 @@ namespace towr {
   *
   * could also have derive from Observer class, with UpdateDurations() and UpdateNodes()
   */
-class Spline : public SplineObserver {
+// smell rename SplineObserver to NodeObserver, cuz that's what its watching
+class Spline : public SplineObserver, public ContactScheduleObserver {
 public:
   using Ptr        = std::shared_ptr<Spline>;
   using LocalInfo  = std::pair<int,double>; ///< id and local time
@@ -54,6 +58,11 @@ public:
   // the constructor with constant durations
   Spline(const NodeValues::Ptr& nodes, const VecTimes& phase_durations);
 
+  void SetContactSchedule(const ContactSchedule::Ptr& contact_schedule)
+  {
+    contact_schedule_ = contact_schedule;
+  }
+
 //  Spline(const NodeValues::Ptr& nodes,
 //         const ContactSchedule::Ptr& contact_schedule);
 
@@ -69,7 +78,7 @@ public:
 
 
   // some observer kinda stuff
-  void UpdatePhaseDurations(const VecTimes& phase_durations);
+  void UpdatePhaseDurations();
 //  void UpdateNodes(const VecNodes& nodes);
   virtual void UpdatePolynomials() override ;
 
@@ -78,21 +87,24 @@ public:
 
   virtual const StateLinXd GetPoint(double t_global) const;
 
-  // call GetJacobianWrtNodeValues()
+  // smell rename "GetJacobianWrtNodeValues()"
   virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const;
   // add GetJacobianPosWrtTime()
-  Eigen::VectorXd GetDerivativeOfPosWrtPhaseDuration (double t_global) const;
 
+  // smell
+  Jacobian GetJacobianOfPosWrtDurations(double t_global) const;
 
   // possibly move to different class
 //  bool IsConstantPhase(double t) const;
 
 private:
+  Eigen::VectorXd GetDerivativeOfPosWrtPhaseDuration (double t_global) const;
 
   // these two elements are combined here into cubic polynomials
   VecTimes poly_durations_;
+
   NodeValues::Ptr node_values_;
-//  ContactSchedule::Ptr contact_schedule_;
+  ContactSchedule::Ptr contact_schedule_;
 
   VecPoly cubic_polys_;
 

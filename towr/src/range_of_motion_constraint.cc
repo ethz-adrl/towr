@@ -62,6 +62,7 @@ RangeOfMotionBox::InitVariableDependedQuantities (const VariablesPtr& x)
     // smell careful as every newly created spline is a separate
     // observer in contact_schedule -> inefficient
     ee_timings_  = x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee_));
+    ee_motion_->SetContactSchedule(ee_timings_);
     ee_timings_->AddObserver(ee_motion_);
   }
 
@@ -121,7 +122,7 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   }
 
   if (var_set == id::GetEEScheduleId(ee_)) {
-    jac.middleRows(row_start, kDim3d) = b_R_w*ee_timings_->GetJacobianOfPos(t, id::GetEEMotionId(ee_));
+    jac.middleRows(row_start, kDim3d) = b_R_w*ee_motion_->GetJacobianOfPosWrtDurations(t);
   }
 
 }

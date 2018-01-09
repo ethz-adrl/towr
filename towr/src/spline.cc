@@ -82,11 +82,11 @@ Spline::GetPoint(double t_global) const
   return cubic_polys_.at(id)->GetPoint(t_local);
 }
 
-void Spline::UpdatePhaseDurations(const VecTimes& phase_durations)
+void Spline::UpdatePhaseDurations()
 {
   durations_change_ = true;
 //  phase_durations_ = phase_durations;
-  poly_durations_  = ConvertPhaseToSplineDurations(phase_durations);
+  poly_durations_  = ConvertPhaseToSplineDurations(contact_schedule_->GetDurations());
   UpdatePolynomials();
 }
 
@@ -115,23 +115,6 @@ Spline::UpdatePolynomials ()
     VecNodes nodes = node_values_->GetBoundaryNodes(i);
     cubic_polys_.at(i)->SetNodes(nodes.front(), nodes.back(), poly_durations_.at(i));
   }
-}
-
-
-VectorXd
-Spline::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
-{
-  int id; double t_local;
-  std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
-
-  auto info = node_values_->polynomial_info_.at(id);
-
-  double percent_of_phase = 1./info.num_polys_in_phase_;
-  double inner_derivative = percent_of_phase;
-  VectorXd vel = GetPoint(t_global).v_;
-  VectorXd dxdT = cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local);
-
-  return inner_derivative*dxdT - info.poly_id_in_phase_*percent_of_phase*vel;
 }
 
 
@@ -187,6 +170,32 @@ Spline::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
       }
     }
   }
+}
+
+Spline::Jacobian
+Spline::GetJacobianOfPosWrtDurations (double t_global) const
+{
+  VectorXd dx_dT  = GetDerivativeOfPosWrtPhaseDuration(t_global);
+  VectorXd xd     = GetPoint(t_global).v_;
+  int current_phase = GetSegmentID(t_global, contact_schedule_->GetDurations());
+
+  return contact_schedule_->GetJacobianOfPos(current_phase, dx_dT, xd);
+}
+
+VectorXd
+Spline::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
+{
+  int id; double t_local;
+  std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
+
+  auto info = node_values_->polynomial_info_.at(id);
+
+  double percent_of_phase = 1./info.num_polys_in_phase_;
+  double inner_derivative = percent_of_phase;
+  VectorXd vel = GetPoint(t_global).v_;
+  VectorXd dxdT = cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local);
+
+  return inner_derivative*dxdT - info.poly_id_in_phase_*percent_of_phase*vel;
 }
 
 

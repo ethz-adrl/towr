@@ -136,8 +136,14 @@ TOWR::GetTrajectory (const VariablesCompPtr& x, double dt) const
     ee_forces_nodes->AddObserver(ee_force_spline);
 
     if (params_.OptimizeTimings()) {
+
+
       auto contact_schedule = x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee));
+
+      ee_motions.at(ee)->SetContactSchedule(contact_schedule);
       contact_schedule->AddObserver(ee_motions.at(ee));
+
+      ee_forces.at(ee)->SetContactSchedule(contact_schedule);
       contact_schedule->AddObserver(ee_forces.at(ee));
     }
   }
@@ -171,7 +177,7 @@ TOWR::GetTrajectory (const VariablesCompPtr& x, double dt) const
 
 //      auto ee_motion = vars->GetComponent<Spline>(id::GetEEMotionId(ee));
       state.ee_motion_.at(ee)  = ee_motions.at(ee)->GetPoint(t);
-//      state.ee_forces_.at(ee)  = vars->GetComponent<Spline>(id::GetEEForceId(ee))->GetPoint(t).p_;
+      state.ee_forces_.at(ee)  = ee_forces.at(ee)->GetPoint(t).p_;
     }
 
     state.t_global_ = t;

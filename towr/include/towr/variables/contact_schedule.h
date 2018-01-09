@@ -14,9 +14,9 @@
 
 #include <xpp_states/endeffectors.h>
 
-#include <ifopt/composite.h>
+#include <ifopt/leaves.h>
 
-#include "spline.h"
+#include "contact_schedule_observer.h"
 
 namespace towr {
 
@@ -35,22 +35,24 @@ public:
   VecDurations GetDurations() const { return durations_; };
 
 
-  void AddObserver(const Spline::Ptr& o);
+  void AddObserver(const ContactScheduleObserver::Ptr& o);
   void UpdateObservers() const;
 
   virtual VectorXd GetValues() const override;
   virtual void SetVariables(const VectorXd&) override;
   VecBound GetBounds () const override;
 
-  Jacobian GetJacobianOfPos(double t_global, const std::string& observer_name) const;
+  Jacobian GetJacobianOfPos(int current_phase,
+                            const VectorXd& dx_dT,
+                            const VectorXd& xd) const;
 
 
 private:
   double t_total_;
   ifopt::Bounds phase_duration_bounds_;
 
-  std::vector<Spline::Ptr> observers_;
-  Spline::Ptr GetObserver(const std::string& id) const;
+  std::vector<ContactScheduleObserver::Ptr> observers_;
+//  Spline::Ptr GetObserver(const std::string& id) const;
 
   VecDurations durations_;
 };

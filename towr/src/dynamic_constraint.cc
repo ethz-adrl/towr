@@ -73,9 +73,14 @@ DynamicConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 
     if (optimize_timings_) {
       auto contact_schedule = x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee));
-      contact_schedule->AddObserver(ee_motion_.at(ee));
-      contact_schedule->AddObserver(ee_forces_.at(ee));
       ee_timings_.push_back(contact_schedule); // only need this for Jacobian, but not really
+
+      // smell dependes on order (must be this way)
+      ee_motion_.at(ee)->SetContactSchedule(contact_schedule);
+      contact_schedule->AddObserver(ee_motion_.at(ee));
+
+      ee_forces_.at(ee)->SetContactSchedule(contact_schedule);
+      contact_schedule->AddObserver(ee_forces_.at(ee));
     }
 
   }
@@ -158,10 +163,10 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
     // so otherwise the ee_timings_ pointer can actually be null.
     if (var_set == id::GetEEScheduleId(ee)) {
 
-      Jacobian jac_f_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEForceId(ee));
+      Jacobian jac_f_dT = ee_forces_.at(ee)->GetJacobianOfPosWrtDurations(t);
       jac_model += model_->GetJacobianofAccWrtForce(jac_f_dT, ee);
 
-      Jacobian jac_x_dT = ee_timings_.at(ee)->GetJacobianOfPos(t, id::GetEEMotionId(ee));
+      Jacobian jac_x_dT = ee_motion_.at(ee)->GetJacobianOfPosWrtDurations(t);
       jac_model +=  model_->GetJacobianofAccWrtEEPos(jac_x_dT, ee);
     }
   }
