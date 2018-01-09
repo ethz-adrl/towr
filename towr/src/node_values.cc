@@ -171,8 +171,13 @@ NodeValues::SetVariables (const VectorXd& x)
     for (auto info : GetNodeInfo(idx))
       nodes_.at(info.id_).at(info.deriv_)(info.dim_) = x(idx);
 
-  // this is the big problem, how to replicate?
 //  UpdatePolynomials();
+  UpdateObservers();
+}
+
+void
+NodeValues::UpdateObservers() const
+{
   for (auto& o : observers_)
     o->UpdatePolynomials();
 }

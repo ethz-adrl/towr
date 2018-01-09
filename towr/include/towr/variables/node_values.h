@@ -131,7 +131,11 @@ public:
   int Index(int node_id, MotionDerivative, int dim) const;
 
 
-  void AddObserver(const SplineObserver::Ptr& o) { observers_.push_back(o); };
+  void AddObserver(const SplineObserver::Ptr& o)
+  {
+    observers_.push_back(o);
+    UpdateObservers();
+  };
 
   int n_dim_;
 
@@ -152,6 +156,7 @@ private:
   PolyInfoVec BuildPolyInfos(int num_polys) const;
 //  VecPoly cubic_polys_;
 
+  void UpdateObservers() const;
   std::vector<SplineObserver::Ptr> observers_;
 
 

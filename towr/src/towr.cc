@@ -109,7 +109,42 @@ TOWR::GetTrajectory (const VariablesCompPtr& x, double dt) const
   double T = params_.GetTotalTime();
 
 
+  auto base_linear_nodes_ = x->GetComponent<NodeValues>(id::base_linear);
+  auto base_linear_ = std::make_shared<Spline>(base_linear_nodes_, params_.GetBasePolyDurations());
 
+  auto base_angular_nodes_ = x->GetComponent<NodeValues>(id::base_angular);
+  auto base_angular_ = std::make_shared<Spline>(base_angular_nodes_, params_.GetBasePolyDurations());
+
+
+  std::vector<Spline::Ptr> ee_motions;
+  std::vector<Spline::Ptr> ee_forces;
+
+
+  // reconstruct the spline from the optimization variables
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+
+    std::vector<double> ee_phase_durations = model_.gait_generator_->GetContactSchedule(params_.GetTotalTime(), ee);
+
+    auto ee_motion_nodes = x->GetComponent<NodeValues>(id::GetEEMotionId(ee));
+    auto ee_spline = std::make_shared<Spline>(ee_motion_nodes, ee_phase_durations);
+    ee_motions.push_back(ee_spline);
+    ee_motion_nodes->AddObserver(ee_spline);
+
+    auto ee_forces_nodes = x->GetComponent<NodeValues>(id::GetEEForceId(ee));
+    auto ee_force_spline = std::make_shared<Spline>(ee_forces_nodes, ee_phase_durations);
+    ee_forces.push_back(ee_force_spline);
+    ee_forces_nodes->AddObserver(ee_force_spline);
+
+    if (params_.OptimizeTimings()) {
+      auto contact_schedule = x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee));
+      contact_schedule->AddObserver(ee_motions.at(ee));
+      contact_schedule->AddObserver(ee_forces.at(ee));
+    }
+  }
+
+
+
+  // get the values
   while (t<=T+1e-5) {
 
     RobotStateCartesian state(initial_ee_W_.GetEECount());
@@ -118,11 +153,6 @@ TOWR::GetTrajectory (const VariablesCompPtr& x, double dt) const
 //    state.base_.lin = vars->GetComponent<Spline>(id::base_linear)->GetPoint(t);
 //    state.base_.ang = AngularStateConverter::GetState(vars->GetComponent<Spline>(id::base_angular)->GetPoint(t));
 
-    auto base_linear_nodes_ = x->GetComponent<NodeValues>(id::base_linear);
-    auto base_linear_ = std::make_shared<Spline>(base_linear_nodes_, params_.GetBasePolyDurations());
-
-    auto base_angular_nodes_ = x->GetComponent<NodeValues>(id::base_angular);
-    auto base_angular_ = std::make_shared<Spline>(base_angular_nodes_, params_.GetBasePolyDurations());
 
     state.base_.lin = base_linear_->GetPoint(t);
     state.base_.ang = AngularStateConverter::GetState(base_angular_->GetPoint(t));
@@ -133,14 +163,14 @@ TOWR::GetTrajectory (const VariablesCompPtr& x, double dt) const
 //      state.ee_contact_.at(ee) = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->IsInContact(t);
       // smell find way to get back contact state, possibly without needing ContactSchedule
 //      state.ee_contact_.at(ee) = ee_motion->IsConstantPhase(t);
-      auto ee_motion_nodes = x->GetComponent<NodeValues>(id::GetEEMotionId(ee));
-      auto ee_motion = std::make_shared<Spline>(ee_motion_nodes, model_.gait_generator_->GetContactSchedule(params_.GetTotalTime(), ee));
-
-      if (params_.OptimizeTimings())
-        x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->AddObserver(ee_motion);
+//      auto ee_motion_nodes = x->GetComponent<NodeValues>(id::GetEEMotionId(ee));
+//      auto ee_motion = std::make_shared<Spline>(ee_motion_nodes, model_.gait_generator_->GetContactSchedule(params_.GetTotalTime(), ee));
+//
+//      if (params_.OptimizeTimings())
+//        x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->AddObserver(ee_motion);
 
 //      auto ee_motion = vars->GetComponent<Spline>(id::GetEEMotionId(ee));
-      state.ee_motion_.at(ee)  = ee_motion->GetPoint(t);
+      state.ee_motion_.at(ee)  = ee_motions.at(ee)->GetPoint(t);
 //      state.ee_forces_.at(ee)  = vars->GetComponent<Spline>(id::GetEEForceId(ee))->GetPoint(t).p_;
     }
 
