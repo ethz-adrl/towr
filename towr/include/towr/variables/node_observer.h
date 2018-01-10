@@ -14,7 +14,7 @@ namespace towr {
 
 class NodeObserver {
 public:
-  using Ptr = std::shared_ptr<NodeObserver>;
+  using Ptr = NodeObserver*;
 
   NodeObserver() = default;
   virtual ~NodeObserver() = default;

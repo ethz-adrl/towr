@@ -65,7 +65,7 @@ NlpFactory::GetVariableSets () const
     vars.insert(vars.end(), contact_schedule.begin(), contact_schedule.end());
   }
 
-  // stores these readily constructed spline, independent of wheather the
+  // stores these readily constructed spline, independent of whether the
   // nodes and durations these depend on are optimized over
   spline_holder_ = SplineHolder(base_motion.at(0), // linear
                                 base_motion.at(1), // angular

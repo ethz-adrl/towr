@@ -14,7 +14,7 @@ namespace towr {
 
 class ContactScheduleObserver {
 public:
-  using Ptr = std::shared_ptr<ContactScheduleObserver>;
+  using Ptr = ContactScheduleObserver*;//std::shared_ptr<ContactScheduleObserver>;
 
   ContactScheduleObserver() = default;
   virtual ~ContactScheduleObserver() = default;

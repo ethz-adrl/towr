@@ -19,7 +19,7 @@ namespace towr {
  * This class is responsible for holding Pointers to fully constructed
  * splines, that are linked to the optimization variables.
  *
- * This is independent from weather they are added as optimization variables
+ * This is independent from whether they are added as optimization variables
  */
 class SplineHolder {
 public:

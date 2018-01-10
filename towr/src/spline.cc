@@ -15,14 +15,21 @@ using namespace xpp;
 
 Spline::Spline(const NodeValues::Ptr& nodes, const VecTimes& phase_durations)
 {
-  node_values_ = nodes;
-  poly_durations_ = ConvertPhaseToSplineDurations(phase_durations);
-  assert(node_values_->GetPolynomialCount() == poly_durations_.size());
+  // observer registers itself with subject
+  nodes->AddObserver(this);
 
-  for (int i=0; i<node_values_->GetPolynomialCount(); ++i) {
-    auto p = std::make_shared<CubicHermitePoly>(node_values_->n_dim_);
-    cubic_polys_.push_back(p);
-  }
+  node_values_ = nodes;
+  poly_durations_ = ConvertPhaseToPolyDurations(phase_durations);
+  int n_polys = node_values_->GetPolynomialCount();
+  assert(n_polys == poly_durations_.size());
+
+
+  cubic_polys_.assign(n_polys, CubicHermitePoly(node_values_->n_dim_));
+
+//  for (int i=0; i<node_values_->GetPolynomialCount(); ++i) {
+//    auto p = std::make_shared<CubicHermitePoly>(node_values_->n_dim_);
+//    cubic_polys_.push_back(p);
+//  }
 
   UpdatePolynomials();
 
@@ -30,16 +37,16 @@ Spline::Spline(const NodeValues::Ptr& nodes, const VecTimes& phase_durations)
   jac_structure_ = Jacobian(node_values_->n_dim_, node_values_->GetRows());
 }
 
-//Spline::Spline(const NodeValues::Ptr& nodes,
-//               const ContactSchedule::Ptr& contact_schedule)
-//    :Spline(nodes, contact_schedule->GetDurations())
-//{
-//  contact_schedule_ = contact_schedule;
-//  durations_change_ = true;
-//}
+Spline::Spline(const NodeValues::Ptr& nodes, const ContactSchedule::Ptr& contact_schedule)
+    :Spline(nodes, contact_schedule->GetDurations())
+{
+  contact_schedule_ = contact_schedule; // make this part of observer
+  durations_change_ = true; // this is important for performance
 
 
-
+  // must do after setting contact_schedule_, also ugly
+  contact_schedule->AddObserver(this);
+}
 
 int
 Spline::GetSegmentID(double t_global, const VecTimes& durations) const
@@ -79,19 +86,28 @@ Spline::GetPoint(double t_global) const
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
 
-  return cubic_polys_.at(id)->GetPoint(t_local);
+  return cubic_polys_.at(id).GetPoint(t_local);
+}
+
+void
+Spline::UpdatePolynomials ()
+{
+  for (int i=0; i<cubic_polys_.size(); ++i) {
+    VecNodes nodes = node_values_->GetBoundaryNodes(i);
+    cubic_polys_.at(i).SetNodes(nodes.front(), nodes.back(), poly_durations_.at(i));
+  }
 }
 
 void Spline::UpdatePhaseDurations()
 {
   durations_change_ = true;
 //  phase_durations_ = phase_durations;
-  poly_durations_  = ConvertPhaseToSplineDurations(contact_schedule_->GetDurations());
+  poly_durations_  = ConvertPhaseToPolyDurations(contact_schedule_->GetDurations());
   UpdatePolynomials();
 }
 
 Spline::VecTimes
-Spline::ConvertPhaseToSplineDurations(const VecTimes& phase_durations) const
+Spline::ConvertPhaseToPolyDurations(const VecTimes& phase_durations) const
 {
   VecTimes spline_durations;
 
@@ -101,21 +117,8 @@ Spline::ConvertPhaseToSplineDurations(const VecTimes& phase_durations) const
   return spline_durations;
 }
 
-//
-//void Spline::UpdateNodes(const VecNodes& nodes)
-//{
-//  nodes_ = nodes;
-//  UpdatePolynomials();
-//}
 
-void
-Spline::UpdatePolynomials ()
-{
-  for (int i=0; i<cubic_polys_.size(); ++i) {
-    VecNodes nodes = node_values_->GetBoundaryNodes(i);
-    cubic_polys_.at(i)->SetNodes(nodes.front(), nodes.back(), poly_durations_.at(i));
-  }
-}
+
 
 
 Spline::Jacobian
@@ -159,7 +162,7 @@ Spline::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
         int node = node_values_->GetNodeId(poly_id,side);
 
         if (node == info.id_) {
-          double val = cubic_polys_.at(poly_id)->GetDerivativeOf(dxdt, side, info.deriv_, t_local);
+          double val = cubic_polys_.at(poly_id).GetDerivativeOf(dxdt, side, info.deriv_, t_local);
 
           // if only want structure
           if (fill_with_zeros)
@@ -193,7 +196,7 @@ Spline::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
   double percent_of_phase = 1./info.num_polys_in_phase_;
   double inner_derivative = percent_of_phase;
   VectorXd vel = GetPoint(t_global).v_;
-  VectorXd dxdT = cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local);
+  VectorXd dxdT = cubic_polys_.at(id).GetDerivativeOfPosWrtDuration(t_local);
 
   return inner_derivative*dxdT - info.poly_id_in_phase_*percent_of_phase*vel;
 }

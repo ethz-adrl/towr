@@ -51,17 +51,20 @@ public:
   using Node     = CubicHermitePoly::Node;
   using VecNodes = std::vector<Node>;
   using Side     = CubicHermitePoly::Side;
-  using VecPoly  = std::vector<std::shared_ptr<CubicHermitePoly>>;
+  using VecPoly  = std::vector<CubicHermitePoly>;
 
   using Jacobian = ifopt::Component::Jacobian;
 
   // the constructor with constant durations
   Spline(const NodeValues::Ptr& nodes, const VecTimes& phase_durations);
 
-  void SetContactSchedule(const ContactSchedule::Ptr& contact_schedule)
-  {
-    contact_schedule_ = contact_schedule;
-  }
+  Spline(const NodeValues::Ptr& nodes,
+         const ContactSchedule::Ptr& contact_schedule);
+
+//  void SetContactSchedule(const ContactSchedule::Ptr& contact_schedule)
+//  {
+//    contact_schedule_ = contact_schedule;
+//  }
 
 //  Spline(const NodeValues::Ptr& nodes,
 //         const ContactSchedule::Ptr& contact_schedule);
@@ -72,11 +75,8 @@ public:
 
 
 
-
-//  std::string GetName() { return node_values_->GetName(); };
-
-
   // some observer kinda stuff
+  // only make one update() function?
   void UpdatePhaseDurations();
   virtual void UpdatePolynomials() override ;
 
@@ -122,7 +122,7 @@ private:
 
 
   // possibly move this to a derived class
-  VecTimes ConvertPhaseToSplineDurations(const VecTimes& phase_durations) const;
+  VecTimes ConvertPhaseToPolyDurations(const VecTimes& phase_durations) const;
 //  VecTimes phase_durations_;
 
 };
