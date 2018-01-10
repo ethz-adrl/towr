@@ -72,7 +72,8 @@ NlpFactory::GetVariableSets () const
                                 params_.GetBasePolyDurations(),
                                 ee_motion,
                                 ee_force,
-                                contact_schedule);
+                                contact_schedule,
+                                params_.OptimizeTimings());
 
 
   return vars;

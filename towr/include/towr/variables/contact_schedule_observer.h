@@ -12,15 +12,23 @@
 
 namespace towr {
 
+
+class ContactSchedule;
+
+
 class ContactScheduleObserver {
 public:
-  using Ptr = ContactScheduleObserver*;//std::shared_ptr<ContactScheduleObserver>;
+  using SubjectPtr = ContactSchedule*; // observer shouldn't own subject
 
   ContactScheduleObserver() = default;
+  ContactScheduleObserver(SubjectPtr contact_schedule);
+
   virtual ~ContactScheduleObserver() = default;
 
   virtual void UpdatePhaseDurations() = 0;
 
+protected:
+  SubjectPtr contact_schedule_;
 };
 
 } /* namespace towr */

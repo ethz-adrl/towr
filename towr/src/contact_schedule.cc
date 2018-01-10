@@ -30,10 +30,9 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
 }
 
 void
-ContactSchedule::AddObserver (const ContactScheduleObserver::Ptr& o)
+ContactSchedule::AddObserver (ContactScheduleObserver* const o)
 {
   observers_.push_back(o);
-  UpdateObservers();
 }
 
 void
@@ -75,17 +74,6 @@ ContactSchedule::GetBounds () const
 
   return bounds;
 }
-
-//Spline::Ptr
-//ContactSchedule::GetObserver (const std::string& id) const
-//{
-//  for (const auto& o : observers_)
-//    if (o->GetName() == id)
-//      return o;
-//
-//  std::cerr << "Observer \"" << id << "\" doesn't exist." << std::endl;
-//  assert(false);
-//}
 
 ContactSchedule::Jacobian
 ContactSchedule::GetJacobianOfPos (int current_phase,

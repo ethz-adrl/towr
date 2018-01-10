@@ -36,7 +36,8 @@ public:
                 const std::vector<double>& base_poly_durations,
                 std::vector<NodeValues::Ptr> ee_motion,
                 std::vector<NodeValues::Ptr> ee_force,
-                std::vector<ContactSchedule::Ptr> contact_schedule);
+                std::vector<ContactSchedule::Ptr> contact_schedule,
+                bool ee_durations_change);
 
 
   Spline::Ptr GetBaseLinear() const { return base_linear_; };

@@ -35,8 +35,7 @@ public:
   VecDurations GetDurations() const { return durations_; };
 
 
-  void AddObserver(const ContactScheduleObserver::Ptr& o);
-  void UpdateObservers() const;
+  void AddObserver(ContactScheduleObserver* const o);
 
   virtual VectorXd GetValues() const override;
   virtual void SetVariables(const VectorXd&) override;
@@ -51,10 +50,12 @@ private:
   double t_total_;
   ifopt::Bounds phase_duration_bounds_;
 
-  std::vector<ContactScheduleObserver::Ptr> observers_;
-//  Spline::Ptr GetObserver(const std::string& id) const;
+  std::vector<ContactScheduleObserver*> observers_;
 
   VecDurations durations_;
+
+
+  void UpdateObservers() const;
 };
 
 

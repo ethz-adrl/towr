@@ -7,45 +7,47 @@
 
 #include <towr/variables/spline.h>
 
+#include <towr/variables/node_values.h>
+#include <towr/variables/contact_schedule.h>
+
 
 namespace towr {
 
 using namespace xpp;
 
 
-Spline::Spline(const NodeValues::Ptr& nodes, const VecTimes& phase_durations)
+Spline::Spline(NodeValues* const nodes, const VecTimes& phase_durations)
+   : NodesObserver(nodes)
 {
-  // observer registers itself with subject
-  nodes->AddObserver(this);
+  Init(phase_durations);
+  jac_wrt_nodes_structure_ = Jacobian(node_values_->n_dim_, node_values_->GetRows());
+}
 
-  node_values_ = nodes;
-  poly_durations_ = ConvertPhaseToPolyDurations(phase_durations);
-  int n_polys = node_values_->GetPolynomialCount();
+Spline::Spline(NodeValues* const nodes, ContactSchedule* const contact_schedule)
+    :ContactScheduleObserver(contact_schedule),
+     NodesObserver(nodes)
+{
+  Init(contact_schedule->GetDurations());
+
+  // if durations change, the polynomial active at a specified global time
+  // changes. Therefore, all elements of the Jacobian could be non-zero
+  // and must make sure that Jacobian structure never changes during
+  // the iterations.
+  // assume every global time time can fall into every polynomial
+  jac_wrt_nodes_structure_ = Jacobian(node_values_->n_dim_, node_values_->GetRows());
+  for (int i=0; i<node_values_->polynomial_info_.size(); ++i)
+    FillJacobian(i, 0.0, kPos, jac_wrt_nodes_structure_, true);
+}
+
+void Spline::Init(const VecTimes& durations)
+{
+  poly_durations_ = ConvertPhaseToPolyDurations(durations);
+  uint n_polys = node_values_->GetPolynomialCount();
   assert(n_polys == poly_durations_.size());
-
 
   cubic_polys_.assign(n_polys, CubicHermitePoly(node_values_->n_dim_));
 
-//  for (int i=0; i<node_values_->GetPolynomialCount(); ++i) {
-//    auto p = std::make_shared<CubicHermitePoly>(node_values_->n_dim_);
-//    cubic_polys_.push_back(p);
-//  }
-
   UpdatePolynomials();
-
-  durations_change_ = false;
-  jac_structure_ = Jacobian(node_values_->n_dim_, node_values_->GetRows());
-}
-
-Spline::Spline(const NodeValues::Ptr& nodes, const ContactSchedule::Ptr& contact_schedule)
-    :Spline(nodes, contact_schedule->GetDurations())
-{
-  contact_schedule_ = contact_schedule; // make this part of observer
-  durations_change_ = true; // this is important for performance
-
-
-  // must do after setting contact_schedule_, also ugly
-  contact_schedule->AddObserver(this);
 }
 
 int
@@ -100,8 +102,6 @@ Spline::UpdatePolynomials ()
 
 void Spline::UpdatePhaseDurations()
 {
-  durations_change_ = true;
-//  phase_durations_ = phase_durations;
   poly_durations_  = ConvertPhaseToPolyDurations(contact_schedule_->GetDurations());
   UpdatePolynomials();
 }
@@ -127,21 +127,7 @@ Spline::GetJacobianWrtNodes (double t_global, MotionDerivative dxdt) const
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
 
-
-  // if durations change, the polynomial active at a specified global time
-  // changes. Therefore, all elements of the Jacobian could be non-zero
-  if (fill_jacobian_structure_) {
-    // assume every global time time can fall into every polynomial
-    for (int i=0; i<node_values_->polynomial_info_.size(); ++i)
-      FillJacobian(i, 0.0, dxdt, jac_structure_, true);
-  }
-  fill_jacobian_structure_ = false;
-
-
-  Jacobian jac(node_values_->n_dim_, node_values_->GetRows());
-  if (durations_change_)
-    jac = jac_structure_;
-
+  Jacobian jac = jac_wrt_nodes_structure_;
   FillJacobian(id, t_local, dxdt, jac, false);
 
   // needed to avoid Eigen::assert failure "wrong storage order" triggered

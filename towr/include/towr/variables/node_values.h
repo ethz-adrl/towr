@@ -17,9 +17,7 @@
 #include <xpp_states/state.h>
 
 #include <ifopt/leaves.h>
-#include "node_observer.h"
-
-//#include "spline.h"
+#include "nodes_observer.h"
 #include "polynomial.h" // this shouldn't really be here
 
 
@@ -38,15 +36,9 @@ public:
   using Node     = CubicHermitePoly::Node;
   using Side     = CubicHermitePoly::Side;
   using VecNodes = std::vector<Node>;
-  using VecDurations = std::vector<double>;
   using MotionDerivative = xpp::MotionDerivative;
+  using VecDurations = std::vector<double>;
 
-  using PolyType = CubicHermitePoly;
-  using VecPoly  = std::vector<std::shared_ptr<PolyType>>;
-  using Dimensions = std::vector<xpp::Coords3D>;
-
-//  mutable bool fill_jacobian_structure_ = true;
-//  mutable Jacobian jac_structure_; // all zeros
 
   struct PolyInfo {
     PolyInfo() {};
@@ -107,7 +99,6 @@ public:
 
 
 
-
   virtual VecBound GetBounds () const override { return bounds_;};
 
 
@@ -130,34 +121,24 @@ public:
   // basically opposite of above
   int Index(int node_id, MotionDerivative, int dim) const;
 
-
-  void AddObserver(const NodeObserver::Ptr& o)
-  {
-    observers_.push_back(o);
-    UpdateObservers();
-  };
+  void AddObserver(NodesObserver* const o);
 
   int n_dim_;
 
   PolyInfoVec polynomial_info_;
 protected:
-//  void UpdatePolynomials();
-//  bool durations_change_ = false;
-//  VecDurations poly_durations_;
 
   std::vector<int> GetAdjacentPolyIds(int node_id) const;
 
   mutable VecBound bounds_;
-
   std::vector<Node> nodes_;
 
 
 private:
   PolyInfoVec BuildPolyInfos(int num_polys) const;
-//  VecPoly cubic_polys_;
 
   void UpdateObservers() const;
-  std::vector<NodeObserver::Ptr> observers_;
+  std::vector<NodesObserver*> observers_;
 
 
   void SetNodeMappings();
@@ -166,10 +147,6 @@ private:
 
   // this could be removed i feel like
   std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
-
-  // fill_with_zeros is to get sparsity
-//  void FillJacobian(int poly_id, double t_local, MotionDerivative dxdt,
-//                    Jacobian& jac, bool fill_with_zeros=false) const;
 
 
   std::map<NodeInfo, int> node_info_to_idx;

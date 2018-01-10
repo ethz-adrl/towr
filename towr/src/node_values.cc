@@ -30,12 +30,6 @@ NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::str
   n_dim_ = n_dim;
 
   polynomial_info_ = poly_infos;
-//  int n_polys = polynomial_info_.size();
-
-//  for (auto& infos : poly_infos) {
-//    auto p = std::make_shared<PolyType>(n_dim_);
-//    cubic_polys_.push_back(p);
-//  }
 
   SetNodeMappings();
   int n_opt_variables = opt_to_spline_.size() * 2*n_dim_;
@@ -43,12 +37,8 @@ NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::str
 
   // default, non initialized values
   nodes_  = std::vector<Node>(poly_infos.size()+1);
-//  poly_durations_ = VecDurations(poly_infos.size(), 0.0);
-
   bounds_ = VecBound(GetRows(), NoBound);
   SetIndexMappings();
-
-//  jac_structure_ = Jacobian(n_dim, n_opt_variables);
 }
 
 
@@ -58,8 +48,6 @@ NodeValues::InitializeVariables(const VectorXd& initial_pos,
                                 const VectorXd& final_pos,
                                 const VecDurations& poly_durations)
 {
-//  poly_durations_ = poly_durations;
-
   double t_total = std::accumulate(poly_durations.begin(), poly_durations.end(), 0.0);
   VectorXd dp = final_pos-initial_pos;
   VectorXd average_velocity = dp/t_total;
@@ -70,8 +58,6 @@ NodeValues::InitializeVariables(const VectorXd& initial_pos,
     n.at(kVel) = average_velocity;
     nodes_.at(i) = n;
   }
-
-//  UpdatePolynomials();
 }
 
 NodeValues::PolyInfoVec
@@ -151,7 +137,6 @@ NodeValues::GetNodeInfo (int idx) const
   return nodes;
 }
 
-
 VectorXd
 NodeValues::GetValues () const
 {
@@ -171,7 +156,6 @@ NodeValues::SetVariables (const VectorXd& x)
     for (auto info : GetNodeInfo(idx))
       nodes_.at(info.id_).at(info.deriv_)(info.dim_) = x(idx);
 
-//  UpdatePolynomials();
   UpdateObservers();
 }
 
@@ -182,60 +166,11 @@ NodeValues::UpdateObservers() const
     o->UpdatePolynomials();
 }
 
-
-//NodeValues::Jacobian
-//NodeValues::GetJacobian (double t_global,  MotionDerivative dxdt) const
-//{
-//  int id; double t_local;
-//  std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
-//
-//
-//  // if durations change, the polynomial active at a specified global time
-//  // changes. Therefore, all elements of the Jacobian could be non-zero
-//  if (fill_jacobian_structure_) {
-//    // assume every global time time can fall into every polynomial
-//    for (int i=0; i<polynomial_info_.size(); ++i)
-//      FillJacobian(i, 0.0, dxdt, jac_structure_, true);
-//  }
-//  fill_jacobian_structure_ = false;
-//
-//
-//  Jacobian jac(n_dim_, GetRows());
-//  if (durations_change_)
-//    jac = jac_structure_;
-//
-//  FillJacobian(id, t_local, dxdt, jac);
-//
-//  // needed to avoid Eigen::assert failure "wrong storage order" triggered
-//  // in dynamic_constraint.cc
-//  jac.makeCompressed();
-//  return jac;
-//}
-//
-//void
-//NodeValues::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
-//                          Jacobian& jac, bool fill_with_zeros) const
-//{
-//  for (int idx=0; idx<jac.cols(); ++idx) {
-//    for (NodeInfo info : GetNodeInfo(idx)) {
-//      for (Side side : {Side::Start, Side::End}) { // every jacobian is affected by two nodes
-//
-//        int node = GetNodeId(poly_id,side);
-//
-//        if (node == info.id_) {
-//          double val = cubic_polys_.at(poly_id)->GetDerivativeOf(dxdt, side, info.deriv_, t_local);
-//
-//          // if only want structure
-//          if (fill_with_zeros)
-//            val = 0.0;
-//
-//          jac.coeffRef(info.dim_, idx) += val;
-//        }
-//      }
-//    }
-//  }
-//}
-
+void
+NodeValues::AddObserver(NodesObserver* const o)
+{
+   observers_.push_back(o);
+}
 
 void
 NodeValues::AddBounds(int node_id, MotionDerivative deriv,
@@ -298,21 +233,6 @@ NodeValues::GetAdjacentPolyIds (int node_id) const
 
   return poly_ids;
 }
-
-//VectorXd
-//NodeValues::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
-//{
-//  int id; double t_local;
-//  std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
-//
-//  auto info = polynomial_info_.at(id);
-//  double percent_of_phase = 1./info.num_polys_in_phase_;
-//  double inner_derivative = percent_of_phase;
-//  VectorXd vel = GetPoint(t_global).v_;
-//  VectorXd dxdT = cubic_polys_.at(id)->GetDerivativeOfPosWrtDuration(t_local);
-//
-//  return inner_derivative*dxdT - info.poly_id_in_phase_*percent_of_phase*vel;
-//}
 
 //void
 //NodeValues::SetBoundsAboveGround ()

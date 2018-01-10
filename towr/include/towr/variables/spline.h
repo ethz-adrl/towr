@@ -20,12 +20,8 @@
 
 #include "polynomial.h"
 
-#include "node_values.h"
-#include "contact_schedule.h"
-
 #include "contact_schedule_observer.h"
-#include "node_observer.h"
-//#include "contact_schedule.h" // don't need this because of observer pattern
+#include "nodes_observer.h"
 
 
 namespace towr {
@@ -39,8 +35,7 @@ namespace towr {
   *
   * could also have derive from Observer class, with UpdateDurations() and UpdateNodes()
   */
-// smell rename SplineObserver to NodeObserver, cuz that's what its watching
-class Spline : public NodeObserver, public ContactScheduleObserver {
+class Spline : public NodesObserver, public ContactScheduleObserver {
 public:
   using Ptr        = std::shared_ptr<Spline>;
   using LocalInfo  = std::pair<int,double>; ///< id and local time
@@ -56,27 +51,20 @@ public:
   using Jacobian = ifopt::Component::Jacobian;
 
   // the constructor with constant durations
-  Spline(const NodeValues::Ptr& nodes, const VecTimes& phase_durations);
+  // don't take ownership of object
+  Spline(NodeValues* const, const VecTimes& phase_durations);
 
-  Spline(const NodeValues::Ptr& nodes,
-         const ContactSchedule::Ptr& contact_schedule);
-
-//  void SetContactSchedule(const ContactSchedule::Ptr& contact_schedule)
-//  {
-//    contact_schedule_ = contact_schedule;
-//  }
-
-//  Spline(const NodeValues::Ptr& nodes,
-//         const ContactSchedule::Ptr& contact_schedule);
+  // the contructor with chaning durations
+  Spline(NodeValues* const, ContactSchedule* const);
 
 
   virtual ~Spline () = default;
 
 
 
-
   // some observer kinda stuff
   // only make one update() function?
+  // triggered when nodes or durations change values
   void UpdatePhaseDurations();
   virtual void UpdatePolynomials() override ;
 
@@ -102,17 +90,15 @@ private:
   // these two elements are combined here into cubic polynomials
   VecTimes poly_durations_;
 
-  NodeValues::Ptr node_values_;
-  ContactSchedule::Ptr contact_schedule_;
 
   VecPoly cubic_polys_;
 
+  void Init(const VecTimes& durations);
 
 
-  mutable bool fill_jacobian_structure_ = true;
-  mutable Jacobian jac_structure_; // all zeros
-  bool durations_change_ = false;
-
+  // the structure of the nonzero elements of the jacobian with respect to
+  // the node values
+  mutable Jacobian jac_wrt_nodes_structure_; // all zeros
 
 
   // fill_with_zeros is to get sparsity
