@@ -21,6 +21,7 @@
 #include <towr/constraints/height_map.h>
 #include <towr/models/robot_model.h>
 #include <towr/optimization_parameters.h>
+#include <towr/variables/spline_holder.h>
 
 
 namespace towr {
@@ -48,7 +49,7 @@ public:
   void SolveNLP();
 
   RobotStateVec GetTrajectory(double dt) const;
-  std::vector<RobotStateVec> GetIntermediateSolutions(double dt) const;
+  std::vector<RobotStateVec> GetIntermediateSolutions(double dt);
 
 
 private:
@@ -61,9 +62,10 @@ private:
   State3dEuler final_base_;
 
   ifopt::Problem BuildNLP() const;
-  mutable ifopt::Problem nlp_;
+  ifopt::Problem nlp_;
 
-  RobotStateVec GetTrajectory(const VariablesCompPtr&, double dt) const;
+
+  mutable SplineHolder spline_holder_;
   void SetTerrainHeightFromAvgFootholdHeight(HeightMap::Ptr& terrain) const;
 
 

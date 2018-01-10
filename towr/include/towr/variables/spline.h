@@ -23,8 +23,8 @@
 #include "node_values.h"
 #include "contact_schedule.h"
 
-#include "spline_observer.h"
 #include "contact_schedule_observer.h"
+#include "node_observer.h"
 //#include "contact_schedule.h" // don't need this because of observer pattern
 
 
@@ -40,7 +40,7 @@ namespace towr {
   * could also have derive from Observer class, with UpdateDurations() and UpdateNodes()
   */
 // smell rename SplineObserver to NodeObserver, cuz that's what its watching
-class Spline : public SplineObserver, public ContactScheduleObserver {
+class Spline : public NodeObserver, public ContactScheduleObserver {
 public:
   using Ptr        = std::shared_ptr<Spline>;
   using LocalInfo  = std::pair<int,double>; ///< id and local time
@@ -71,33 +71,32 @@ public:
 
 
 
-  static int GetSegmentID(double t_global, const VecTimes& durations);
-  static LocalInfo GetLocalTime(double t_global, const VecTimes& durations);
 
-  std::string GetName() { return node_values_->GetName(); };
+
+//  std::string GetName() { return node_values_->GetName(); };
 
 
   // some observer kinda stuff
   void UpdatePhaseDurations();
-//  void UpdateNodes(const VecNodes& nodes);
   virtual void UpdatePolynomials() override ;
 
 
 
 
-  virtual const StateLinXd GetPoint(double t_global) const;
+  const StateLinXd GetPoint(double t_global) const;
 
-  // smell rename "GetJacobianWrtNodeValues()"
-  virtual Jacobian GetJacobian(double t_global, MotionDerivative dxdt) const;
-  // add GetJacobianPosWrtTime()
 
-  // smell
+  Jacobian GetJacobianWrtNodes(double t_global, MotionDerivative dxdt) const;
   Jacobian GetJacobianOfPosWrtDurations(double t_global) const;
 
   // possibly move to different class
 //  bool IsConstantPhase(double t) const;
 
 private:
+  int GetSegmentID(double t_global, const VecTimes& durations) const;
+  LocalInfo GetLocalTime(double t_global, const VecTimes& durations) const;
+
+
   Eigen::VectorXd GetDerivativeOfPosWrtPhaseDuration (double t_global) const;
 
   // these two elements are combined here into cubic polynomials

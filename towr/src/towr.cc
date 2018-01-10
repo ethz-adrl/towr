@@ -32,9 +32,9 @@ TOWR::SetInitialState (const RobotStateCartesian& curr_state)
 }
 
 void TOWR::SetParameters(const State3dEuler& final_base,
-                                          double total_time,
-                                          const RobotModel& model,
-                                          HeightMap::Ptr terrain)
+                         double total_time,
+                         const RobotModel& model,
+                         HeightMap::Ptr terrain)
 {
   final_base_ = final_base;
 //  // height depends on terrain
@@ -61,6 +61,8 @@ TOWR::BuildNLP () const
   for (auto c : factory.GetVariableSets())
     nlp.AddVariableSet(c);
 
+  spline_holder_ = factory.spline_holder_;
+
   for (ConstraintName name : params_.GetUsedConstraints())
     for (auto c : factory.GetConstraint(name))
       nlp.AddConstraintSet(c);
@@ -83,13 +85,13 @@ void TOWR::SolveNLP()
 }
 
 std::vector<TOWR::RobotStateVec>
-TOWR::GetIntermediateSolutions (double dt) const
+TOWR::GetIntermediateSolutions (double dt)
 {
   std::vector<RobotStateVec> trajectories;
 
   for (int iter=0; iter<nlp_.GetIterationCount(); ++iter) {
-    auto opt_var = nlp_.GetOptVariables(iter);
-    trajectories.push_back(GetTrajectory(opt_var, dt));
+    nlp_.SetOptVariables(iter); // this changes the values linked to the spline_holder
+    trajectories.push_back(GetTrajectory(dt));
   }
 
   return trajectories;
@@ -98,86 +100,23 @@ TOWR::GetIntermediateSolutions (double dt) const
 TOWR::RobotStateVec
 TOWR::GetTrajectory (double dt) const
 {
-  return GetTrajectory(nlp_.GetOptVariables(), dt);
-}
-
-TOWR::RobotStateVec
-TOWR::GetTrajectory (const VariablesCompPtr& x, double dt) const
-{
   RobotStateVec trajectory;
   double t=0.0;
   double T = params_.GetTotalTime();
 
-
-  auto base_linear_nodes_ = x->GetComponent<NodeValues>(id::base_linear);
-  auto base_linear_ = std::make_shared<Spline>(base_linear_nodes_, params_.GetBasePolyDurations());
-
-  auto base_angular_nodes_ = x->GetComponent<NodeValues>(id::base_angular);
-  auto base_angular_ = std::make_shared<Spline>(base_angular_nodes_, params_.GetBasePolyDurations());
-
-
-  std::vector<Spline::Ptr> ee_motions;
-  std::vector<Spline::Ptr> ee_forces;
-
-
-  // reconstruct the spline from the optimization variables
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-
-    std::vector<double> ee_phase_durations = model_.gait_generator_->GetContactSchedule(params_.GetTotalTime(), ee);
-
-    auto ee_motion_nodes = x->GetComponent<NodeValues>(id::GetEEMotionId(ee));
-    auto ee_spline = std::make_shared<Spline>(ee_motion_nodes, ee_phase_durations);
-    ee_motions.push_back(ee_spline);
-    ee_motion_nodes->AddObserver(ee_spline);
-
-    auto ee_forces_nodes = x->GetComponent<NodeValues>(id::GetEEForceId(ee));
-    auto ee_force_spline = std::make_shared<Spline>(ee_forces_nodes, ee_phase_durations);
-    ee_forces.push_back(ee_force_spline);
-    ee_forces_nodes->AddObserver(ee_force_spline);
-
-    if (params_.OptimizeTimings()) {
-
-
-      auto contact_schedule = x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee));
-
-      ee_motions.at(ee)->SetContactSchedule(contact_schedule);
-      contact_schedule->AddObserver(ee_motions.at(ee));
-
-      ee_forces.at(ee)->SetContactSchedule(contact_schedule);
-      contact_schedule->AddObserver(ee_forces.at(ee));
-    }
-  }
-
-
-
-  // get the values
   while (t<=T+1e-5) {
 
-    RobotStateCartesian state(initial_ee_W_.GetEECount());
+    int n_ee = spline_holder_.GetEEMotion().size();
+    RobotStateCartesian state(n_ee);
 
-
-//    state.base_.lin = vars->GetComponent<Spline>(id::base_linear)->GetPoint(t);
-//    state.base_.ang = AngularStateConverter::GetState(vars->GetComponent<Spline>(id::base_angular)->GetPoint(t));
-
-
-    state.base_.lin = base_linear_->GetPoint(t);
-    state.base_.ang = AngularStateConverter::GetState(base_angular_->GetPoint(t));
-
-
+    state.base_.lin = spline_holder_.GetBaseLinear()->GetPoint(t);
+    state.base_.ang = AngularStateConverter::GetState(spline_holder_.GetBaseAngular()->GetPoint(t));
 
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
-//      state.ee_contact_.at(ee) = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->IsInContact(t);
-      // smell find way to get back contact state, possibly without needing ContactSchedule
-//      state.ee_contact_.at(ee) = ee_motion->IsConstantPhase(t);
-//      auto ee_motion_nodes = x->GetComponent<NodeValues>(id::GetEEMotionId(ee));
-//      auto ee_motion = std::make_shared<Spline>(ee_motion_nodes, model_.gait_generator_->GetContactSchedule(params_.GetTotalTime(), ee));
-//
-//      if (params_.OptimizeTimings())
-//        x->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->AddObserver(ee_motion);
-
-//      auto ee_motion = vars->GetComponent<Spline>(id::GetEEMotionId(ee));
-      state.ee_motion_.at(ee)  = ee_motions.at(ee)->GetPoint(t);
-      state.ee_forces_.at(ee)  = ee_forces.at(ee)->GetPoint(t).p_;
+//    state.ee_contact_.at(ee) = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->IsInContact(t);
+//    state.ee_contact_.at(ee) = ee_motion->IsConstantPhase(t);
+      state.ee_motion_.at(ee)  = spline_holder_.GetEEMotion(ee)->GetPoint(t);
+      state.ee_forces_.at(ee)  = spline_holder_.GetEEForce(ee)->GetPoint(t).p_;
     }
 
     state.t_global_ = t;

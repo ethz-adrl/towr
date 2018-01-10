@@ -45,6 +45,7 @@ NlpFactory::Init (const OptimizationParameters& params,
   final_base_ = final_base;
 }
 
+// smell make separate class just for variables
 NlpFactory::VariablePtrVec
 NlpFactory::GetVariableSets () const
 {
@@ -56,16 +57,180 @@ NlpFactory::GetVariableSets () const
   auto ee_motion = MakeEndeffectorVariables();
   vars.insert(vars.end(), ee_motion.begin(), ee_motion.end());
 
-  auto ee_forces = MakeForceVariables();
-  vars.insert(vars.end(), ee_forces.begin(), ee_forces.end());
+  auto ee_force = MakeForceVariables();
+  vars.insert(vars.end(), ee_force.begin(), ee_force.end());
 
+  auto contact_schedule = MakeContactScheduleVariables();
   if (params_.OptimizeTimings()) {
-    auto contact_schedule = MakeContactScheduleVariables(ee_motion, ee_forces);
     vars.insert(vars.end(), contact_schedule.begin(), contact_schedule.end());
+  }
+
+  // stores these readily constructed spline, independent of wheather the
+  // nodes and durations these depend on are optimized over
+  spline_holder_ = SplineHolder(base_motion.at(0), // linear
+                                base_motion.at(1), // angular
+                                params_.GetBasePolyDurations(),
+                                ee_motion,
+                                ee_force,
+                                contact_schedule);
+
+
+  return vars;
+}
+
+std::vector<NodeValues::Ptr>
+NlpFactory::MakeBaseVariablesHermite () const
+{
+  std::vector<NodeValues::Ptr> vars;
+
+  int n_dim = initial_base_.lin.kNumDim;
+  std::vector<double> base_spline_timings_ = params_.GetBasePolyDurations();
+
+  auto linear  = std::make_tuple(id::base_lin_nodes,  initial_base_.lin, final_base_.lin);
+  auto angular = std::make_tuple(id::base_ang_nodes, initial_base_.ang, final_base_.ang);
+
+  for (auto tuple : {linear, angular}) {
+    std::string id   = std::get<0>(tuple);
+    StateLin3d init  = std::get<1>(tuple);
+    StateLin3d final = std::get<2>(tuple);
+
+    auto nodes = std::make_shared<NodeValues>(init.kNumDim,  base_spline_timings_.size(), id);
+    nodes->InitializeVariables(init.p_, final.p_, base_spline_timings_);
+
+    std::vector<int> dimensions = {X,Y,Z};
+    nodes->AddStartBound(kPos, dimensions, init.p_);
+    nodes->AddStartBound(kVel, dimensions, init.v_);
+
+    nodes->AddFinalBound(kVel, dimensions, final.v_);
+
+    if (id == id::base_lin_nodes) {
+      nodes->AddFinalBound(kPos, {X,Y}, final.p_); // only xy, z given by terrain
+      //      spline->SetBoundsAboveGround();
+    }
+    if (id == id::base_ang_nodes)
+      nodes->AddFinalBound(kPos, {Z}, final.p_); // roll, pitch, yaw bound
+
+
+
+    //    // force intermediate jump
+    //    if (id == id::base_linear) {
+    //      Vector3d inter = (init.p_ + final.p_)/2.;
+    //      inter.z() = 0.8;
+    //      spline->AddIntermediateBound(kPos, inter);
+    //    }
+    //
+    //    if (id == id::base_angular) {
+    //      spline->AddIntermediateBound(kPos, Vector3d::Zero());
+    //    }
+
+
+    vars.push_back(nodes);
+  }
+
+  //  auto spline_lin = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_linear);
+  //  spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_, base_spline_timings_);
+  //  spline_lin->AddBound(0,   kPos, inital_base_.lin.p_);
+  //  spline_lin->AddBound(0,   kVel, inital_base_.lin.v_);
+  //  spline_lin->AddFinalBound(kPos,  final_base_.lin.p_);
+  //  spline_lin->AddFinalBound(kVel,  final_base_.lin.v_);
+  //  opt_variables_->AddComponent(spline_lin);
+  //
+  //
+  //  auto spline_ang = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_angular);
+  //  spline_ang->InitializeVariables(inital_base_.ang.p_, final_base_.ang.p_, base_spline_timings_);
+  //  spline_ang->AddBound(0,   kPos, inital_base_.ang.p_);
+  //  spline_ang->AddBound(0,   kVel, inital_base_.ang.v_);
+  //  spline_ang->AddFinalBound(kPos,  final_base_.ang.p_);
+  //  spline_ang->AddFinalBound(kVel,  final_base_.ang.v_);
+  //  opt_variables_->AddComponent(spline_ang);
+
+  return vars;
+}
+
+std::vector<NodeValues::Ptr>
+NlpFactory::MakeEndeffectorVariables () const
+{
+  std::vector<NodeValues::Ptr> vars;
+
+  // Endeffector Motions
+  double T = params_.GetTotalTime();
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+
+    auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
+
+    auto nodes = std::make_shared<EEMotionNodes>(contact_schedule.size(),
+                                                     model_.gait_generator_->IsInContactAtStart(ee),
+                                                     id::EEMotionNodes(ee),
+                                                     params_.ee_splines_per_swing_phase_);
+
+    double yaw = final_base_.ang.p_.z();
+    Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
+    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
+
+
+
+    nodes->InitializeVariables(initial_ee_W_.at(ee), final_ee_pos_W, contact_schedule);
+
+    // actually initial Z position should be constrained as well...-.-
+    nodes->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
+
+    bool step_taken = nodes->GetNodes().size() > 2;
+    if (step_taken) // otherwise overwrites start bound
+      nodes->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
+
+    vars.push_back(nodes);
+
+  }
+
+
+  return vars;
+}
+
+std::vector<NodeValues::Ptr>
+NlpFactory::MakeForceVariables () const
+{
+  std::vector<NodeValues::Ptr> vars;
+
+  double T = params_.GetTotalTime();
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+
+    auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
+
+    auto nodes = std::make_shared<EEForceNodes>(contact_schedule.size(),
+                                                model_.gait_generator_->IsInContactAtStart(ee),
+                                                id::EEForceNodes(ee),
+                                                params_.force_splines_per_stance_phase_);
+
+    Vector3d f_stance(0.0, 0.0, model_.dynamic_model_->GetStandingZForce());
+    nodes->InitializeVariables(f_stance, f_stance, contact_schedule);
+    vars.push_back(nodes);
   }
 
   return vars;
 }
+
+std::vector<ContactSchedule::Ptr>
+NlpFactory::MakeContactScheduleVariables () const
+{
+  std::vector<ContactSchedule::Ptr> vars;
+
+  double T = params_.GetTotalTime();
+  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
+
+    auto var = std::make_shared<ContactSchedule>(ee,
+                                                 model_.gait_generator_->GetContactSchedule(T, ee),
+                                                 params_.min_phase_duration_,
+                                                 params_.max_phase_duration_);
+    vars.push_back(var);
+  }
+
+  return vars;
+}
+
+
+
+////////  constraints  ////////
+
 
 NlpFactory::ContraintPtrVec
 NlpFactory::GetConstraint (ConstraintName name) const
@@ -93,169 +258,13 @@ NlpFactory::GetCost(const CostName& name, double weight) const
   }
 }
 
-NlpFactory::VariablePtrVec
-NlpFactory::MakeBaseVariablesHermite () const
-{
-  VariablePtrVec vars;
-
-  int n_dim = initial_base_.lin.kNumDim;
-  std::vector<double> base_spline_timings_ = params_.GetBasePolyDurations();
-
-  auto linear  = std::make_tuple(id::base_linear,  initial_base_.lin, final_base_.lin);
-  auto angular = std::make_tuple(id::base_angular, initial_base_.ang, final_base_.ang);
-
-  for (auto tuple : {linear, angular}) {
-    std::string id   = std::get<0>(tuple);
-    StateLin3d init  = std::get<1>(tuple);
-    StateLin3d final = std::get<2>(tuple);
-
-    auto spline = std::make_shared<NodeValues>(init.kNumDim,  base_spline_timings_.size(), id);
-    spline->InitializeVariables(init.p_, final.p_, base_spline_timings_);
-
-    std::vector<int> dimensions = {X,Y,Z};
-    spline->AddStartBound(kPos, dimensions, init.p_);
-    spline->AddStartBound(kVel, dimensions, init.v_);
-
-    spline->AddFinalBound(kVel, dimensions, final.v_);
-
-    if (id == id::base_linear) {
-      spline->AddFinalBound(kPos, {X,Y}, final.p_); // only xy, z given by terrain
-      //      spline->SetBoundsAboveGround();
-    }
-    if (id == id::base_angular)
-      spline->AddFinalBound(kPos, {Z}, final.p_); // roll, pitch, yaw bound
 
 
-
-    //    // force intermediate jump
-    //    if (id == id::base_linear) {
-    //      Vector3d inter = (init.p_ + final.p_)/2.;
-    //      inter.z() = 0.8;
-    //      spline->AddIntermediateBound(kPos, inter);
-    //    }
-    //
-    //    if (id == id::base_angular) {
-    //      spline->AddIntermediateBound(kPos, Vector3d::Zero());
-    //    }
-
-
-    vars.push_back(spline);
-  }
-
-  //  auto spline_lin = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_linear);
-  //  spline_lin->InitializeVariables(inital_base_.lin.p_, final_base_.lin.p_, base_spline_timings_);
-  //  spline_lin->AddBound(0,   kPos, inital_base_.lin.p_);
-  //  spline_lin->AddBound(0,   kVel, inital_base_.lin.v_);
-  //  spline_lin->AddFinalBound(kPos,  final_base_.lin.p_);
-  //  spline_lin->AddFinalBound(kVel,  final_base_.lin.v_);
-  //  opt_variables_->AddComponent(spline_lin);
-  //
-  //
-  //  auto spline_ang = std::make_shared<NodeValues>(n_dim,  base_spline_timings_.size(), id::base_angular);
-  //  spline_ang->InitializeVariables(inital_base_.ang.p_, final_base_.ang.p_, base_spline_timings_);
-  //  spline_ang->AddBound(0,   kPos, inital_base_.ang.p_);
-  //  spline_ang->AddBound(0,   kVel, inital_base_.ang.v_);
-  //  spline_ang->AddFinalBound(kPos,  final_base_.ang.p_);
-  //  spline_ang->AddFinalBound(kVel,  final_base_.ang.v_);
-  //  opt_variables_->AddComponent(spline_ang);
-
-  return vars;
-}
-
-NlpFactory::VariablePtrVec
-NlpFactory::MakeEndeffectorVariables () const
-{
-  VariablePtrVec vars;
-
-  // Endeffector Motions
-  double T = params_.GetTotalTime();
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-
-    auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
-
-    auto ee_motion = std::make_shared<EEMotionNodes>(contact_schedule.size(),
-                                                     model_.gait_generator_->IsInContactAtStart(ee),
-                                                     id::GetEEMotionId(ee),
-                                                     params_.ee_splines_per_swing_phase_);
-
-    double yaw = final_base_.ang.p_.z();
-    Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
-    Vector3d final_ee_pos_W = final_base_.lin.p_ + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
-
-
-
-    ee_motion->InitializeVariables(initial_ee_W_.at(ee), final_ee_pos_W, contact_schedule);
-
-    // actually initial Z position should be constrained as well...-.-
-    ee_motion->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
-
-    bool step_taken = ee_motion->GetNodes().size() > 2;
-    if (step_taken) // otherwise overwrites start bound
-      ee_motion->AddFinalBound(kPos, {X,Y}, final_ee_pos_W);
-
-    vars.push_back(ee_motion);
-
-  }
-
-
-  return vars;
-}
-
-NlpFactory::VariablePtrVec
-NlpFactory::MakeForceVariables () const
-{
-  VariablePtrVec vars;
-
-  double T = params_.GetTotalTime();
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-
-    auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
-
-    auto nodes_forces = std::make_shared<EEForceNodes>(contact_schedule.size(),
-                                                       model_.gait_generator_->IsInContactAtStart(ee),
-                                                       id::GetEEForceId(ee),
-                                                       params_.force_splines_per_stance_phase_);
-
-    Vector3d f_stance(0.0, 0.0, model_.dynamic_model_->GetStandingZForce());
-    nodes_forces->InitializeVariables(f_stance, f_stance, contact_schedule);
-    vars.push_back(nodes_forces);
-  }
-
-  return vars;
-}
-
-// smell remove these parameters, doesn't depend on them
-NlpFactory::VariablePtrVec
-NlpFactory::MakeContactScheduleVariables (const VariablePtrVec& ee_motion,
-                                          const VariablePtrVec& ee_force) const
-{
-  VariablePtrVec vars;
-
-  double T = params_.GetTotalTime();
-  for (auto ee : initial_ee_W_.GetEEsOrdered()) {
-
-    auto var = std::make_shared<ContactSchedule>(ee,
-                                                 model_.gait_generator_->GetContactSchedule(T, ee),
-                                                 params_.min_phase_duration_,
-                                                 params_.max_phase_duration_);
-
-//    auto node_motion = std::dynamic_pointer_cast<PhaseNodes>(ee_motion.at(ee));
-//    auto node_force  = std::dynamic_pointer_cast<PhaseNodes>(ee_force.at(ee));
-//
-//    // always update endeffector parameterization with the current durations
-//    var->AddObserver(node_motion);
-//    var->AddObserver(node_force);
-
-    vars.push_back(var);
-  }
-
-  return vars;
-}
 
 NlpFactory::ContraintPtrVec
 NlpFactory::MakeBaseRangeOfMotionConstraint () const
 {
-  return {std::make_shared<BaseMotionConstraint>(params_)};
+  return {std::make_shared<BaseMotionConstraint>(params_, spline_holder_)};
 }
 
 NlpFactory::ContraintPtrVec
@@ -280,9 +289,9 @@ NlpFactory::MakeDynamicConstraint() const
 
   dts_.push_back(t_node); // also ensure constraints at very last node/time.
 
-  auto constraint = std::make_shared<DynamicConstraint>(model_,
+  auto constraint = std::make_shared<DynamicConstraint>(model_.dynamic_model_,
                                                         dts_,
-                                                        params_);
+                                                        spline_holder_);
   return {constraint};
 }
 
@@ -292,10 +301,10 @@ NlpFactory::MakeRangeOfMotionBoxConstraint () const
   ContraintPtrVec c;
 
   for (auto ee : GetEEIDs()) {
-    auto rom_constraints = std::make_shared<RangeOfMotionBox>(params_,
-                                                              model_, // model.kinematic_model_
+    auto rom_constraints = std::make_shared<RangeOfMotionBox>(model_.kinematic_model_,
+                                                              params_,
                                                               ee,
-                                                              params_.OptimizeTimings());
+                                                              spline_holder_);
     c.push_back(rom_constraints);
   }
 
@@ -322,7 +331,7 @@ NlpFactory::MakeTerrainConstraint () const
   ContraintPtrVec constraints;
 
   for (auto ee : GetEEIDs()) {
-    auto c = std::make_shared<TerrainConstraint>(terrain_, id::GetEEMotionId(ee));
+    auto c = std::make_shared<TerrainConstraint>(terrain_, id::EEMotionNodes(ee));
     constraints.push_back(c);
   }
 
@@ -350,7 +359,7 @@ NlpFactory::MakeSwingConstraint () const
   ContraintPtrVec constraints;
 
   for (auto ee : GetEEIDs()) {
-    auto swing = std::make_shared<SwingConstraint>(id::GetEEMotionId(ee));
+    auto swing = std::make_shared<SwingConstraint>(id::EEMotionNodes(ee));
     constraints.push_back(swing);
   }
 
@@ -364,7 +373,7 @@ NlpFactory::MakeForcesCost(double weight) const
   CostPtrVec cost;
 
   for (auto ee : GetEEIDs())
-    cost.push_back(std::make_shared<NodeCost>(id::GetEEForceId(ee)));
+    cost.push_back(std::make_shared<NodeCost>(id::EEForceNodes(ee)));
 
   return cost;
 }

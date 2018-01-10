@@ -10,6 +10,7 @@
 
 #include <towr/optimization_parameters.h>
 #include <towr/variables/spline.h>
+#include <towr/variables/spline_holder.h>
 
 #include "time_discretization_constraint.h"
 
@@ -21,10 +22,9 @@ namespace towr {
  */
 class BaseMotionConstraint : public TimeDiscretizationConstraint {
 public:
-  BaseMotionConstraint (const OptimizationParameters& params);
+  BaseMotionConstraint (const OptimizationParameters& params,
+                        const SplineHolder& spline_holder);
   virtual ~BaseMotionConstraint () = default;
-
-  virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
   void UpdateConstraintAtInstance (double t, int k, VectorXd& g) const override;
   void UpdateBoundsAtInstance (double t, int k, VecBound&) const override;
@@ -33,8 +33,6 @@ public:
 private:
   Spline::Ptr base_linear_;
   Spline::Ptr base_angular_;
-
-  std::vector<double> base_poly_durations_;
 
   VecBound node_bounds_; ///< same bounds for each discretized node
   int GetRow (int node, int dim) const;

@@ -42,7 +42,7 @@ Spline::Spline(const NodeValues::Ptr& nodes, const VecTimes& phase_durations)
 
 
 int
-Spline::GetSegmentID(double t_global, const VecTimes& durations)
+Spline::GetSegmentID(double t_global, const VecTimes& durations) const
 {
   double eps = 1e-10; // double precision
   assert(t_global >= 0.0);
@@ -62,7 +62,7 @@ Spline::GetSegmentID(double t_global, const VecTimes& durations)
 }
 
 Spline::LocalInfo
-Spline::GetLocalTime (double t_global, const VecTimes& durations)
+Spline::GetLocalTime (double t_global, const VecTimes& durations) const
 {
   int id = GetSegmentID(t_global, durations);
 
@@ -119,7 +119,7 @@ Spline::UpdatePolynomials ()
 
 
 Spline::Jacobian
-Spline::GetJacobian (double t_global, MotionDerivative dxdt) const
+Spline::GetJacobianWrtNodes (double t_global, MotionDerivative dxdt) const
 {
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);

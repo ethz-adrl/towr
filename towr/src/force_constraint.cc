@@ -27,7 +27,7 @@ using namespace xpp;
 ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   double force_limit,
                                   EndeffectorID ee)
-    :ifopt::ConstraintSet(kSpecifyLater, "Force-Constraint-" + id::GetEEForceId(ee))
+    :ifopt::ConstraintSet(kSpecifyLater, "Force-Constraint-" + id::EEForceNodes(ee))
 {
 
   terrain_   = terrain;
@@ -44,8 +44,8 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
 void
 ForceConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  ee_force_  = x->GetComponent<EEForceNodes>(id::GetEEForceId(ee_));
-  ee_motion_ = x->GetComponent<EEMotionNodes>(id::GetEEMotionId(ee_));
+  ee_force_  = x->GetComponent<EEForceNodes>(id::EEForceNodes(ee_));
+  ee_motion_ = x->GetComponent<EEMotionNodes>(id::EEMotionNodes(ee_));
 
   int constraint_count = 0;
   n_constraints_per_node_ = 1 + 2*kDim2d; // positive normal force + 4 friction pyramid constraints

@@ -44,7 +44,7 @@ private:
   ::ros::Publisher cart_trajectory_pub_;
   ::ros::Publisher robot_parameters_pub_;
 
-  TOWR motion_optimizer_;
+  mutable TOWR motion_optimizer_;
   double dt_; ///< discretization of output trajectory (1/TaskServoHz)
 
   bool first_callback_ = true;

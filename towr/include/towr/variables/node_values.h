@@ -17,11 +17,11 @@
 #include <xpp_states/state.h>
 
 #include <ifopt/leaves.h>
+#include "node_observer.h"
 
 //#include "spline.h"
 #include "polynomial.h" // this shouldn't really be here
 
-#include "spline_observer.h"
 
 
 namespace towr {
@@ -131,7 +131,7 @@ public:
   int Index(int node_id, MotionDerivative, int dim) const;
 
 
-  void AddObserver(const SplineObserver::Ptr& o)
+  void AddObserver(const NodeObserver::Ptr& o)
   {
     observers_.push_back(o);
     UpdateObservers();
@@ -157,7 +157,7 @@ private:
 //  VecPoly cubic_polys_;
 
   void UpdateObservers() const;
-  std::vector<SplineObserver::Ptr> observers_;
+  std::vector<NodeObserver::Ptr> observers_;
 
 
   void SetNodeMappings();

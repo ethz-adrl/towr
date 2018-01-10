@@ -16,13 +16,14 @@ namespace towr {
 using namespace ifopt;
 using namespace xpp;
 
-BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params)
+BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params,
+                                            const SplineHolder& spline_holder)
     :TimeDiscretizationConstraint(params.GetTotalTime(),
                                   params.dt_base_range_of_motion_,
                                   "BaseMotionConstraint")
 {
-//  base_linear_  = opt_vars->GetComponent<Spline>(id::base_linear);
-//  base_angular_ = opt_vars->GetComponent<Spline>(id::base_angular);
+  base_linear_ = spline_holder.GetBaseLinear();
+  base_angular_ = spline_holder.GetBaseAngular();
 
   double dev_rad = 0.1;
   node_bounds_.resize(kDim6d);
@@ -35,25 +36,8 @@ BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params
   double z_init = 0.46;//base_linear_.GetPoint(0.0).p_.z();
   node_bounds_.at(LZ) = Bounds(0.46, 0.55); // allow to move dev_z cm up and down
 
-  base_poly_durations_ = params.GetBasePolyDurations();
-
   SetRows(GetNumberOfNodes()*node_bounds_.size());
 }
-
-void
-BaseMotionConstraint::InitVariableDependedQuantities(const VariablesPtr& x)
-{
-  auto base_linear_nodes = x->GetComponent<NodeValues>(id::base_linear);
-  base_linear_ = std::make_shared<Spline>(base_linear_nodes, base_poly_durations_);
-  base_linear_nodes->AddObserver(base_linear_);
-
-  auto base_angular_nodes = x->GetComponent<NodeValues>(id::base_angular);
-  base_angular_ = std::make_shared<Spline>(base_angular_nodes, base_poly_durations_);
-  base_angular_nodes->AddObserver(base_angular_);
-
-//  base_angular_  = x->GetComponent<Spline>(id::base_angular);
-//  base_linear_   = x->GetComponent<Spline>(id::base_linear);
-};
 
 void
 BaseMotionConstraint::UpdateConstraintAtInstance (double t, int k,
@@ -75,11 +59,11 @@ BaseMotionConstraint::UpdateJacobianAtInstance (double t, int k,
                                                 Jacobian& jac,
                                                 std::string var_set) const
 {
-  if (var_set == id::base_angular)
-    jac.middleRows(GetRow(k,AX), kDim3d) = base_angular_->GetJacobian(t, kPos);
+  if (var_set == id::base_ang_nodes)
+    jac.middleRows(GetRow(k,AX), kDim3d) = base_angular_->GetJacobianWrtNodes(t, kPos);
 
-  if (var_set == id::base_linear)
-    jac.middleRows(GetRow(k,LX), kDim3d) = base_linear_->GetJacobian(t, kPos);
+  if (var_set == id::base_lin_nodes)
+    jac.middleRows(GetRow(k,LX), kDim3d) = base_linear_->GetJacobianWrtNodes(t, kPos);
 }
 
 int

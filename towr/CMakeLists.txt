@@ -75,7 +75,7 @@ add_library(${PROJECT_NAME}
   src/node_cost.cc
   src/phase_nodes.cc
   src/spline.cc
-#  src/spline.cc
+  src/spline_holder.cc
   src/angular_state_converter.cc
 #  src/base_motion.cc
   

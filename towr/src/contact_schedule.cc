@@ -21,7 +21,7 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
                                   double min_duration,
                                   double max_duration)
     // -1 since last phase-duration is not optimized over, but comes from total time
-    :VariableSet(timings.size()-1, id::GetEEScheduleId(ee))
+    :VariableSet(timings.size()-1, id::EESchedule(ee))
 {
   durations_ = timings;
   t_total_ = std::accumulate(timings.begin(), timings.end(), 0.0);
