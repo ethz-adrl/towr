@@ -159,10 +159,11 @@ NlpFactory::MakeEndeffectorVariables () const
 
     auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
 
-    auto nodes = std::make_shared<EEMotionNodes>(contact_schedule.size(),
-                                                 model_.gait_generator_->IsInContactAtStart(ee),
-                                                 id::EEMotionNodes(ee),
-                                                 params_.ee_splines_per_swing_phase_);
+    auto nodes = std::make_shared<PhaseNodes>(contact_schedule.size(),
+                                              model_.gait_generator_->IsInContactAtStart(ee),
+                                              id::EEMotionNodes(ee),
+                                              params_.ee_splines_per_swing_phase_,
+                                              PhaseNodes::Motion);
 
     double yaw = final_base_.ang.p_.z();
     Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
@@ -197,10 +198,11 @@ NlpFactory::MakeForceVariables () const
 
     auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
 
-    auto nodes = std::make_shared<EEForceNodes>(contact_schedule.size(),
-                                                model_.gait_generator_->IsInContactAtStart(ee),
-                                                id::EEForceNodes(ee),
-                                                params_.force_splines_per_stance_phase_);
+    auto nodes = std::make_shared<PhaseNodes>(contact_schedule.size(),
+                                              model_.gait_generator_->IsInContactAtStart(ee),
+                                              id::EEForceNodes(ee),
+                                              params_.force_splines_per_stance_phase_,
+                                              PhaseNodes::Force);
 
     Vector3d f_stance(0.0, 0.0, model_.dynamic_model_->GetStandingZForce());
     nodes->InitializeVariables(f_stance, f_stance, T);

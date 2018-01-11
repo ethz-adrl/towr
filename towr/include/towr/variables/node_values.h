@@ -63,36 +63,11 @@ public:
   virtual ~NodeValues () = default;
 
 
-
   // ------ virtual functions -------------
-
-
   virtual std::vector<NodeInfo> GetNodeInfoAtOptIndex(int idx) const;
-
-
-  using VecTimes = std::vector<double>;
-  virtual VecTimes ConvertPhaseToPolyDurations (const VecTimes& phase_durations) const
-  {
-    return phase_durations; // default is do nothing
-  }
-
-  virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const
-  {
-    return 1.0; // default every polynomial represents one phase
-  }
-
-  virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const
-  {
-    return 0; // every phase is represented by single polynomial
-  }
-
-
-
-
-
-  //-------------------------------------------------------------
-
-
+  virtual VecDurations ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const;
+  virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const;
+  virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const;
 
 
   virtual void InitializeVariables(const VectorXd& initial_pos,
@@ -132,9 +107,11 @@ public:
 
   void AddObserver(NodesObserver* const o);
 
-  int n_dim_;
+  int GetDim() const { return n_dim_; };
+
 
 protected:
+  int n_dim_;
 
   std::vector<int> GetAdjacentPolyIds(int node_id) const;
 

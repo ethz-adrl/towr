@@ -34,7 +34,7 @@ TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
 void
 TerrainConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  ee_motion_ = x->GetComponent<EEMotionNodes>(ee_motion_id_);
+  ee_motion_ = x->GetComponent<PhaseNodes>(ee_motion_id_);
 
   // skip first node, b/c already constrained by initial stance
   for (int id=1; id<ee_motion_->GetNodes().size(); ++id)
@@ -66,7 +66,7 @@ TerrainConstraint::GetBounds () const
 
   int row = 0;
   for (int id : node_ids_) {
-    if (ee_motion_->IsContactNode(id))
+    if (ee_motion_->IsConstantNode(id))
       bounds.at(row) = BoundZero;
     else
       bounds.at(row) = Bounds(0.0, max_z_distance_above_terrain_);

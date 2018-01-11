@@ -30,7 +30,7 @@ public:
   virtual void InitVariableDependedQuantities(const VariablesPtr& x) override;
 
 private:
-  EEMotionNodes::Ptr ee_motion_;
+  PhaseNodes::Ptr ee_motion_;
   double t_swing_avg_ = 0.3;
   int node_start_ = 1; // skip first node
   int usable_nodes_; // how many nodes are iterated over

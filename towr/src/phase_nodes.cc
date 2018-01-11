@@ -13,21 +13,22 @@
 #include <xpp_states/state.h>
 
 
+
 namespace towr {
 
 using namespace ifopt;
 using namespace xpp;
 
 
-PhaseNodes::PhaseNodes (int n_dim,
-                        int phase_count,
+PhaseNodes::PhaseNodes (int phase_count,
                         bool is_in_contact_at_start,
                         const std::string& name,
                         int n_polys_in_changing_phase,
                         Type type)
-    :NodeValues(n_dim, name)
+    :NodeValues(kDim3d, name)
 {
   polynomial_info_ = BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type);
+
 
   SetNodeMappings();
 
@@ -38,17 +39,19 @@ PhaseNodes::PhaseNodes (int n_dim,
   nodes_  = std::vector<Node>(polynomial_info_.size()+1);
   bounds_ = VecBound(GetRows(), NoBound);
   CacheNodeInfoToIndexMappings();
+
+  if (type == Motion)
+    SetBoundsEEMotion();
+  else if (type == Force)
+    SetBoundsEEForce();
+  else
+    assert(false); // phase-node type not defined
 }
 
-PhaseNodes::VecTimes
-PhaseNodes::ConvertPhaseToPolyDurations(const VecTimes& phase_durations) const
+PhaseNodes::VecDurations
+PhaseNodes::ConvertPhaseToPolyDurations(const VecDurations& phase_durations) const
 {
-  VecTimes poly_durations;
-
-//  for (int poly_id=0; poly_id<cubic_polys_.size(); ++poly_id) {
-//    double t_poly =
-//    spline_durations.push_back(t_poly);
-//  }
+  VecDurations poly_durations;
 
   for (int i=0; i<GetPolynomialCount(); ++i) {
     auto info = polynomial_info_.at(i);
@@ -71,9 +74,6 @@ PhaseNodes::GetNumberOfPrevPolynomialsInPhase(int poly_id) const
   return polynomial_info_.at(poly_id).poly_id_in_phase_;
 }
 
-
-
-
 void
 PhaseNodes::SetNodeMappings ()
 {
@@ -91,7 +91,6 @@ PhaseNodes::SetNodeMappings ()
   optnode_to_node_[opt_id].push_back(last_node_id);
 }
 
-
 std::vector<PhaseNodes::NodeInfo>
 PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
 {
@@ -106,6 +105,7 @@ PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
   node.dim_   = internal_id%n_dim_;
 
   // this is different compared to standard node values
+  // because one index can represent multiple node (during constant phase)
   int opt_node = std::floor(idx/n_opt_values_per_node_);
   for (auto node_id : optnode_to_node_.at(opt_node)) {
     node.id_ = node_id;
@@ -115,14 +115,13 @@ PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
   return nodes;
 }
 
-
-PhaseNodes::PolyInfoVec
+std::vector<PhaseNodes::PolyInfo>
 PhaseNodes::BuildPolyInfos (int phase_count,
                             bool is_in_contact_at_start,
                             int n_polys_in_changing_phase,
                             Type type) const
 {
-  PolyInfoVec polynomial_info;
+  std::vector<PolyInfo> polynomial_info;
 
   bool first_phase_constant = (is_in_contact_at_start  && type==Motion)
                            || (!is_in_contact_at_start && type==Force);
@@ -143,27 +142,6 @@ PhaseNodes::BuildPolyInfos (int phase_count,
   return polynomial_info;
 }
 
-
-PhaseNodes::PolyInfoVec
-PhaseNodes::BuildPolyInfosDefault(int num_polys) const
-{
-  PolyInfoVec poly_infos;
-
-  for (int i=0; i<num_polys; ++i) {
-    PolyInfo info;
-    info.is_constant_ = false; // always use different node for start and end
-    info.num_polys_in_phase_ = 1;
-    info.phase_ = i;
-    info.poly_id_in_phase_ = 0;
-
-    poly_infos.push_back(info);
-  }
-
-  return poly_infos;
-}
-
-
-
 bool
 PhaseNodes::IsConstantNode (int node_id) const
 {
@@ -176,6 +154,15 @@ PhaseNodes::IsConstantNode (int node_id) const
       is_constant = true;
 
   return is_constant;
+}
+
+int
+PhaseNodes::GetPhase (int node_id) const
+{
+  assert(!IsConstantNode(node_id)); // because otherwise it has two phases
+
+  int poly_id = GetAdjacentPolyIds(node_id).front();
+  return polynomial_info_.at(poly_id).phase_;
 }
 
 int
@@ -201,33 +188,15 @@ PhaseNodes::GetNodeIDAtStartOfPhase (int phase) const
   return GetNodeId(poly_id, Side::Start);
 }
 
-
-
-
-
-EEMotionNodes::EEMotionNodes (int phase_count,
-                              bool is_in_contact_at_start,
-                              const std::string& name,
-                              int n_polys)
-    :PhaseNodes(kDim3d, phase_count, is_in_contact_at_start, name, n_polys, Motion)
-{
-}
-
-bool
-EEMotionNodes::IsContactNode (int node_id) const
-{
-  return IsConstantNode(node_id);
-}
-
-EEMotionNodes::VecBound
-EEMotionNodes::GetBounds () const
+void
+PhaseNodes::SetBoundsEEMotion ()
 {
   for (int idx=0; idx<GetRows(); ++idx) {
 
     auto node = GetNodeInfoAtOptIndex(idx).front(); // bound idx by first node it represents
 
     // endeffector is not allowed to move if in stance phase
-    if (IsContactNode(node.id_)) {
+    if (IsConstantNode(node.id_)) {
       if (node.deriv_ == kVel)
         bounds_.at(idx) = BoundZero;
     }
@@ -237,43 +206,16 @@ EEMotionNodes::GetBounds () const
     }
 
   }
-
-  return bounds_;
 }
 
-
-
-
-EEForceNodes::EEForceNodes (int phase_count,
-                            bool is_in_contact_at_start,
-                            const std::string& name, int n_polys)
-    :PhaseNodes(kDim3d, phase_count, is_in_contact_at_start, name, n_polys, Force)
-{
-}
-
-bool
-EEForceNodes::IsStanceNode (int node_id) const
-{
-  return !IsConstantNode(node_id);
-}
-
-int
-EEForceNodes::GetPhase (int node_id) const
-{
-  assert(IsStanceNode(node_id)); // because otherwise it has two phases
-
-  int poly_id = GetAdjacentPolyIds(node_id).front();
-  return polynomial_info_.at(poly_id).phase_;
-}
-
-EEForceNodes::VecBound
-EEForceNodes::GetBounds () const
+void
+PhaseNodes::SetBoundsEEForce ()
 {
   for (int idx=0; idx<GetRows(); ++idx) {
 
     NodeInfo n0 = GetNodeInfoAtOptIndex(idx).front(); // only one node anyway
 
-    if (IsStanceNode(n0.id_)) {
+    if (!IsConstantNode(n0.id_)) {
 
 //      if (n0.deriv_ == kPos) {
 //
@@ -294,8 +236,6 @@ EEForceNodes::GetBounds () const
     }
 
   }
-
-  return bounds_;
 }
 
 } /* namespace towr */

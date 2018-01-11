@@ -106,10 +106,8 @@ private:
                      Jacobian& jac, bool fill_with_zeros) const;
 
 
+  void SetPolyFromPhaseDurations(const VecTimes& phase_durations);
 
-  // possibly move this to a derived class
-  void ConvertPhaseToPolyDurations(const VecTimes& phase_durations);
-//  VecTimes phase_durations_;
 
 };
 

@@ -26,14 +26,13 @@ NodeValues::NodeValues (int n_dim, const std::string& name)
   n_dim_ = n_dim;
 }
 
-// smell don't use name "polynomials" here
 NodeValues::NodeValues (int n_dim, int n_nodes, const std::string& name)
     : VariableSet(kSpecifyLater, name)
 {
   n_dim_ = n_dim;
 
   nodes_  = std::vector<Node>(n_nodes);
-  int n_opt_variables = nodes_.size() * 2*n_dim_;
+  int n_opt_variables = n_nodes * 2*n_dim_;
   SetRows(n_opt_variables);
   bounds_ = VecBound(GetRows(), NoBound);
 
@@ -57,15 +56,12 @@ NodeValues::InitializeVariables(const VectorXd& initial_pos,
   }
 }
 
-
 void
 NodeValues::CacheNodeInfoToIndexMappings ()
 {
-  for (int idx=0; idx<GetRows(); ++idx) {
-    for (auto info : GetNodeInfoAtOptIndex(idx)) {
+  for (int idx=0; idx<GetRows(); ++idx)
+    for (auto info : GetNodeInfoAtOptIndex(idx))
       node_info_to_idx[info] = idx;
-    }
-  }
 }
 
 // reverse of the below
@@ -133,6 +129,24 @@ void
 NodeValues::AddObserver(NodesObserver* const o)
 {
    observers_.push_back(o);
+}
+
+NodeValues::VecDurations
+NodeValues::ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const
+{
+  return phase_durations; // default is do nothing
+}
+
+double
+NodeValues::GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const
+{
+  return 1.0; // default every polynomial represents one phase
+}
+
+int
+NodeValues::GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const
+{
+  return 0; // every phase is represented by single polynomial
 }
 
 void

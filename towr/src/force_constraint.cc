@@ -29,28 +29,23 @@ ForceConstraint::ForceConstraint (const HeightMap::Ptr& terrain,
                                   EndeffectorID ee)
     :ifopt::ConstraintSet(kSpecifyLater, "Force-Constraint-" + id::EEForceNodes(ee))
 {
-
   terrain_   = terrain;
   force_limit_normal_direction_ = force_limit;
   mu_        = terrain->GetFrictionCoeff();
   ee_ = ee;
-
-//  AddOptimizationVariables(opt_vars);
-
-
-//  SetName("Force-Constraint-" + ee_force_id);
+  n_constraints_per_node_ = 1 + 2*kDim2d; // positive normal force + 4 friction pyramid constraints
 }
 
 void
 ForceConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  ee_force_  = x->GetComponent<EEForceNodes>(id::EEForceNodes(ee_));
-  ee_motion_ = x->GetComponent<EEMotionNodes>(id::EEMotionNodes(ee_));
+  ee_force_  = x->GetComponent<PhaseNodes>(id::EEForceNodes(ee_));
+  ee_motion_ = x->GetComponent<PhaseNodes>(id::EEMotionNodes(ee_));
 
   int constraint_count = 0;
-  n_constraints_per_node_ = 1 + 2*kDim2d; // positive normal force + 4 friction pyramid constraints
+
   for (int node_id=0; node_id<ee_force_->GetNodes().size(); ++node_id)
-    if (ee_force_->IsStanceNode(node_id))
+    if (!ee_force_->IsConstantNode(node_id))
       constraint_count += n_constraints_per_node_;
 
   SetRows(constraint_count);
@@ -64,7 +59,7 @@ ForceConstraint::GetValues () const
   int row=0;
   auto force_nodes = ee_force_->GetNodes();
   for (int f_node_id=0; f_node_id<force_nodes.size(); ++f_node_id) {
-    if (ee_force_->IsStanceNode(f_node_id)) {
+    if (!ee_force_->IsConstantNode(f_node_id)) {
 
       int phase  = ee_force_->GetPhase(f_node_id);
       Vector3d p = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during stance phase
@@ -94,7 +89,7 @@ ForceConstraint::GetBounds () const
   VecBound bounds;
 
   for (int i=0; i<ee_force_->GetNodes().size(); ++i) {
-    if (ee_force_->IsStanceNode(i)) {
+    if (!ee_force_->IsConstantNode(i)) {
       bounds.push_back(Bounds(0.0, force_limit_normal_direction_)); // unilateral forces
       bounds.push_back(BoundSmallerZero); // f_t1 <  mu*n
       bounds.push_back(BoundGreaterZero); // f_t1 > -mu*n
@@ -114,7 +109,7 @@ ForceConstraint::FillJacobianBlock (std::string var_set,
 
     int row = 0;
     for (int f_node_id=0; f_node_id<ee_force_->GetNodes().size(); ++f_node_id) {
-      if (ee_force_->IsStanceNode(f_node_id)) {
+      if (!ee_force_->IsConstantNode(f_node_id)) {
 
         // unilateral force
         int phase   = ee_force_->GetPhase(f_node_id);
@@ -147,7 +142,7 @@ ForceConstraint::FillJacobianBlock (std::string var_set,
     int row = 0;
     auto force_nodes = ee_force_->GetNodes();
     for (int force_node_id=0; force_node_id<force_nodes.size(); ++force_node_id) {
-      if (ee_force_->IsStanceNode(force_node_id)) {
+      if (!ee_force_->IsConstantNode(force_node_id)) {
 
         int phase  = ee_force_->GetPhase(force_node_id);
         int ee_node_id = ee_motion_->GetNodeIDAtStartOfPhase(phase);

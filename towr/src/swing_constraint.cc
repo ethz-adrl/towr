@@ -33,14 +33,14 @@ SwingConstraint::SwingConstraint (std::string ee_motion)
 void
 towr::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  ee_motion_ = x->GetComponent<EEMotionNodes>(ee_motion_id_);
+  ee_motion_ = x->GetComponent<PhaseNodes>(ee_motion_id_);
   auto nodes = ee_motion_->GetNodes();
   usable_nodes_ = nodes.size() - 1; // because swinging last node has no further node
 
 
   int constraint_count = 0;
   for (int i=node_start_; i<usable_nodes_; ++i)
-    if (!ee_motion_->IsContactNode(i)) {
+    if (!ee_motion_->IsConstantNode(i)) {
       constraint_count += 2*kDim2d; // constrain xy position and velocity of every swing node
 //      constraint_count += 1; // if swing in apex is constrained
     }
@@ -58,7 +58,7 @@ SwingConstraint::GetValues () const
   int row = 0;
   auto nodes = ee_motion_->GetNodes();
   for (int i=node_start_; i<usable_nodes_; ++i) {
-    if (!ee_motion_->IsContactNode(i)) {
+    if (!ee_motion_->IsConstantNode(i)) {
 
       // assumes two splines per swingphase and starting and ending in stance
       auto curr = nodes.at(i);
@@ -96,7 +96,7 @@ SwingConstraint::FillJacobianBlock (std::string var_set,
 
     int row = 0;
     for (int i=node_start_; i<usable_nodes_; ++i) {
-      if (!ee_motion_->IsContactNode(i)) { // swing-phase
+      if (!ee_motion_->IsConstantNode(i)) { // swing-phase
 
         for (auto dim : {X,Y}) {
           // position constraint

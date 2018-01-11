@@ -21,7 +21,7 @@ Spline::Spline(NodesObserver::SubjectPtr const nodes, const VecTimes& phase_dura
    : NodesObserver(nodes)
 {
   Init(phase_durations);
-  jac_wrt_nodes_structure_ = Jacobian(node_values_->n_dim_, node_values_->GetRows());
+  jac_wrt_nodes_structure_ = Jacobian(node_values_->GetDim(), node_values_->GetRows());
 }
 
 Spline::Spline(NodesObserver::SubjectPtr const nodes, ContactSchedule* const contact_schedule)
@@ -36,18 +36,18 @@ Spline::Spline(NodesObserver::SubjectPtr const nodes, ContactSchedule* const con
   // and must make sure that Jacobian structure never changes during
   // the iterations.
   // assume every global time time can fall into every polynomial
-  jac_wrt_nodes_structure_ = Jacobian(node_values_->n_dim_, node_values_->GetRows());
+  jac_wrt_nodes_structure_ = Jacobian(node_values_->GetDim(), node_values_->GetRows());
   for (int i=0; i<node_values_->GetPolynomialCount(); ++i)
     FillJacobian(i, 0.0, kPos, jac_wrt_nodes_structure_, true);
 }
 
 void Spline::Init(const VecTimes& durations)
 {
-  ConvertPhaseToPolyDurations(durations);
+  SetPolyFromPhaseDurations(durations);
   uint n_polys = node_values_->GetPolynomialCount();
   assert(n_polys == poly_durations_.size());
 
-  cubic_polys_.assign(n_polys, CubicHermitePoly(node_values_->n_dim_));
+  cubic_polys_.assign(n_polys, CubicHermitePoly(node_values_->GetDim()));
 
   UpdatePolynomials();
 }
@@ -104,32 +104,15 @@ Spline::UpdatePolynomials ()
 
 void Spline::UpdatePhaseDurations()
 {
-  ConvertPhaseToPolyDurations(contact_schedule_->GetDurations());
+  SetPolyFromPhaseDurations(contact_schedule_->GetDurations());
   UpdatePolynomials();
 }
 
 void
-Spline::ConvertPhaseToPolyDurations(const VecTimes& phase_durations)
+Spline::SetPolyFromPhaseDurations(const VecTimes& phase_durations)
 {
   poly_durations_ = node_values_->ConvertPhaseToPolyDurations(phase_durations);
-
-//  VecTimes poly_durations;
-//
-////  for (int poly_id=0; poly_id<cubic_polys_.size(); ++poly_id) {
-////    double t_poly =
-////    spline_durations.push_back(t_poly);
-////  }
-//
-//  for (int i=0; i<node_values_->GetPolynomialCount(); ++i) {
-//    auto info = node_values_->polynomial_info_.at(i);
-//    poly_durations.push_back(phase_durations.at(info.phase_)/info.num_polys_in_phase_);
-//  }
-//
-//  poly_durations_ = poly_durations;
 }
-
-
-
 
 
 Spline::Jacobian
@@ -189,17 +172,10 @@ Spline::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
   std::tie(poly_id, t_local) = GetLocalTime(t_global, poly_durations_);
 
   VectorXd vel  = GetPoint(t_global).v_;
-  // outer derivative, treating duration of polynomial as variable
   VectorXd dxdT = cubic_polys_.at(poly_id).GetDerivativeOfPosWrtDuration(t_local);
-
 
   double inner_derivative = node_values_->GetDerivativeOfPolyDurationWrtPhaseDuration(poly_id);
   double prev_polys_in_phase = node_values_->GetNumberOfPrevPolynomialsInPhase(poly_id);
-
-//  auto info = node_values_->polynomial_info_.at(poly_id);
-//  double percent_of_phase = 1./info.num_polys_in_phase_;
-//  double inner_derivative = percent_of_phase;
-
 
   // where does this minus stuff come from?
   // from number of polynomials before current polynomial that

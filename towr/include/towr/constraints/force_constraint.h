@@ -39,8 +39,8 @@ public:
 
 
 private:
-  EEForceNodes::Ptr ee_force_;
-  EEMotionNodes::Ptr ee_motion_;
+  PhaseNodes::Ptr ee_force_;
+  PhaseNodes::Ptr ee_motion_;
 
   HeightMap::Ptr terrain_;
   double force_limit_normal_direction_;
