@@ -142,7 +142,7 @@ Spline::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
                       Jacobian& jac, bool fill_with_zeros) const
 {
   for (int idx=0; idx<jac.cols(); ++idx) {
-    for (auto info : node_values_->GetNodeInfo(idx)) {
+    for (auto info : node_values_->GetNodeInfoAtOptIndex(idx)) {
       for (Side side : {Side::Start, Side::End}) { // every jacobian is affected by two nodes
 
         int node = node_values_->GetNodeId(poly_id,side);

@@ -107,16 +107,10 @@ public:
   int GetPolynomialCount() const { return nodes_.size() - 1; };
 
   // returns the two nodes that make up polynomial with "poly_id"
-  const std::vector<Node> GetBoundaryNodes(int poly_id) const
-  {
-    std::vector<Node> nodes;
-    nodes.push_back(nodes_.at(GetNodeId(poly_id, Side::Start)));
-    nodes.push_back(nodes_.at(GetNodeId(poly_id, Side::End)));
-    return nodes;
-  };
+  const std::vector<Node> GetBoundaryNodes(int poly_id) const;
 
 
-  std::vector<NodeInfo> GetNodeInfo(int idx) const;
+  virtual std::vector<NodeInfo> GetNodeInfoAtOptIndex(int idx) const;
   int GetNodeId(int poly_id, Side) const;
   // basically opposite of above
   int Index(int node_id, MotionDerivative, int dim) const;
@@ -125,6 +119,7 @@ public:
 
   int n_dim_;
 
+  // smell this should be private
   PolyInfoVec polynomial_info_;
 protected:
 
@@ -134,6 +129,7 @@ protected:
   std::vector<Node> nodes_;
 
 
+  void CacheNodeInfoToIndexMappings();
 private:
   PolyInfoVec BuildPolyInfos(int num_polys) const;
 
@@ -141,21 +137,19 @@ private:
   std::vector<NodesObserver*> observers_;
 
 
-  void SetNodeMappings();
-  using OptNodeIs = int;
-  using NodeIds   = std::vector<int>;
-
-  // this could be removed i feel like
-  // maps from the nodes that are actually optimized over
-  // to all the nodes. Optimized nodes are sometimes used
-  // twice in a constant phase.
-  std::map<OptNodeIs, NodeIds > optnode_to_node_; // lookup
+//  void SetNodeMappings();
+//  using OptNodeIs = int;
+//  using NodeIds   = std::vector<int>;
+//
+//  // this could be removed i feel like
+//  // maps from the nodes that are actually optimized over
+//  // to all the nodes. Optimized nodes are sometimes used
+//  // twice in a constant phase.
+//  std::map<OptNodeIs, NodeIds > optnode_to_node_; // lookup
 
 
   std::map<NodeInfo, int> node_info_to_idx;
-  void SetIndexMappings();
 
-//  void SetBoundsAboveGround();
 
 };
 

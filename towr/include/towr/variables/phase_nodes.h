@@ -37,6 +37,8 @@ public:
   Eigen::Vector3d GetValueAtStartOfPhase(int phase) const;
   int GetNodeIDAtStartOfPhase(int phase) const;
 
+  virtual std::vector<NodeInfo> GetNodeInfoAtOptIndex(int idx) const override;
+
 
 
 protected:
@@ -50,6 +52,18 @@ private:
                              bool is_in_contact_at_start,
                              int n_polys_in_changing_phase,
                              Type type) const;
+
+
+  void SetNodeMappings();
+  using OptNodeIs = int;
+  using NodeIds   = std::vector<int>;
+
+  // this could be removed i feel like
+  // maps from the nodes that are actually optimized over
+  // to all the nodes. Optimized nodes are sometimes used
+  // twice in a constant phase.
+  std::map<OptNodeIs, NodeIds > optnode_to_node_; // lookup
+
 };
 
 

@@ -29,7 +29,58 @@ PhaseNodes::PhaseNodes (int n_dim,
                 BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type),
                 name)
 {
+  SetNodeMappings();
+
+  int n_opt_variables = optnode_to_node_.size() * 2*n_dim_;
+  SetRows(n_opt_variables);
+
+  // default, non initialized values
+  nodes_  = std::vector<Node>(polynomial_info_.size()+1);
+  bounds_ = VecBound(GetRows(), NoBound);
+  CacheNodeInfoToIndexMappings();
 }
+
+
+void
+PhaseNodes::SetNodeMappings ()
+{
+  int opt_id = 0;
+  for (int i=0; i<polynomial_info_.size(); ++i) {
+    int node_id_start = GetNodeId(i, CubicHermitePoly::Start);
+
+    optnode_to_node_[opt_id].push_back(node_id_start);
+    // use same value for next node if polynomial is constant
+    if (!polynomial_info_.at(i).is_constant_)
+      opt_id++;
+  }
+
+  int last_node_id = polynomial_info_.size();
+  optnode_to_node_[opt_id].push_back(last_node_id);
+}
+
+
+std::vector<PhaseNodes::NodeInfo>
+PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
+{
+  std::vector<NodeInfo> nodes;
+
+  // always two consecutive node pairs are equal
+  int n_opt_values_per_node_ = 2*n_dim_;
+  int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
+
+  NodeInfo node;
+  node.deriv_ = internal_id<n_dim_? kPos : kVel;
+  node.dim_   = internal_id%n_dim_;
+
+  int opt_node = std::floor(idx/n_opt_values_per_node_);
+  for (auto node_id : optnode_to_node_.at(opt_node)) {
+    node.id_ = node_id;
+    nodes.push_back(node);
+  }
+
+  return nodes;
+}
+
 
 PhaseNodes::PolyInfoVec
 PhaseNodes::BuildPolyInfos (int phase_count,
@@ -118,7 +169,7 @@ EEMotionNodes::GetBounds () const
 {
   for (int idx=0; idx<GetRows(); ++idx) {
 
-    auto node = GetNodeInfo(idx).front(); // bound idx by first node it represents
+    auto node = GetNodeInfoAtOptIndex(idx).front(); // bound idx by first node it represents
 
     // endeffector is not allowed to move if in stance phase
     if (IsContactNode(node.id_)) {
@@ -165,7 +216,7 @@ EEForceNodes::GetBounds () const
 {
   for (int idx=0; idx<GetRows(); ++idx) {
 
-    NodeInfo n0 = GetNodeInfo(idx).front(); // only one node anyway
+    NodeInfo n0 = GetNodeInfoAtOptIndex(idx).front(); // only one node anyway
 
     if (IsStanceNode(n0.id_)) {
 

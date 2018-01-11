@@ -32,14 +32,14 @@ NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::str
 
   polynomial_info_ = poly_infos;
 
-  SetNodeMappings();
-  int n_opt_variables = optnode_to_node_.size() * 2*n_dim_;
+//  SetNodeMappings();
+  nodes_  = std::vector<Node>(poly_infos.size()+1);
+  int n_opt_variables = nodes_.size() * 2*n_dim_;
   SetRows(n_opt_variables);
+  bounds_ = VecBound(GetRows(), NoBound);
 
   // default, non initialized values
-  nodes_  = std::vector<Node>(poly_infos.size()+1);
-  bounds_ = VecBound(GetRows(), NoBound);
-  SetIndexMappings();
+  CacheNodeInfoToIndexMappings();
 }
 
 
@@ -79,28 +79,28 @@ NodeValues::InitializeVariables(const VectorXd& initial_pos,
 }
 
 
+//void
+//NodeValues::SetNodeMappings ()
+//{
+//  int opt_id = 0;
+//  for (int i=0; i<polynomial_info_.size(); ++i) {
+//    int node_id_start = GetNodeId(i, CubicHermitePoly::Start);
+//
+//    optnode_to_node_[opt_id].push_back(node_id_start);
+//    // use same value for next node if polynomial is constant
+//    if (!polynomial_info_.at(i).is_constant_)
+//      opt_id++;
+//  }
+//
+//  int last_node_id = polynomial_info_.size();
+//  optnode_to_node_[opt_id].push_back(last_node_id);
+//}
+
 void
-NodeValues::SetNodeMappings ()
-{
-  int opt_id = 0;
-  for (int i=0; i<polynomial_info_.size(); ++i) {
-    int node_id_start = GetNodeId(i, CubicHermitePoly::Start);
-
-    optnode_to_node_[opt_id].push_back(node_id_start);
-    // use same value for next node if polynomial is constant
-    if (!polynomial_info_.at(i).is_constant_)
-      opt_id++;
-  }
-
-  int last_node_id = polynomial_info_.size();
-  optnode_to_node_[opt_id].push_back(last_node_id);
-}
-
-void
-NodeValues::SetIndexMappings ()
+NodeValues::CacheNodeInfoToIndexMappings ()
 {
   for (int idx=0; idx<GetRows(); ++idx) {
-    for (auto info : GetNodeInfo(idx)) {
+    for (auto info : GetNodeInfoAtOptIndex(idx)) {
       node_info_to_idx[info] = idx;
     }
   }
@@ -120,7 +120,7 @@ NodeValues::Index(int node_id, MotionDerivative deriv, int dim) const
 
 // reverse of the above
 std::vector<NodeValues::NodeInfo>
-NodeValues::GetNodeInfo (int idx) const
+NodeValues::GetNodeInfoAtOptIndex (int idx) const
 {
   std::vector<NodeInfo> nodes;
 
@@ -134,11 +134,14 @@ NodeValues::GetNodeInfo (int idx) const
   node.dim_   = internal_id%n_dim_;
 //  node.dim_   = internal_id-node.deriv_*n_dim_;
 
-  int opt_node = std::floor(idx/n_opt_values_per_node_);
-  for (auto node_id : optnode_to_node_.at(opt_node)) {
-    node.id_ = node_id;
-    nodes.push_back(node);
-  }
+  node.id_ = std::floor(idx/n_opt_values_per_node_);
+  nodes.push_back(node);
+
+//  int opt_node = std::floor(idx/n_opt_values_per_node_);
+//  for (auto node_id : optnode_to_node_.at(opt_node)) {
+//    node.id_ = node_id;
+//    nodes.push_back(node);
+//  }
 
   return nodes;
 }
@@ -149,7 +152,7 @@ NodeValues::GetValues () const
   VectorXd x(GetRows());
 
   for (int idx=0; idx<x.rows(); ++idx)
-    for (auto info : GetNodeInfo(idx))
+    for (auto info : GetNodeInfoAtOptIndex(idx))
       x(idx) = nodes_.at(info.id_).at(info.deriv_)(info.dim_);
 
   return x;
@@ -159,7 +162,7 @@ void
 NodeValues::SetVariables (const VectorXd& x)
 {
   for (int idx=0; idx<x.rows(); ++idx)
-    for (auto info : GetNodeInfo(idx))
+    for (auto info : GetNodeInfoAtOptIndex(idx))
       nodes_.at(info.id_).at(info.deriv_)(info.dim_) = x(idx);
 
   UpdateObservers();
@@ -191,7 +194,7 @@ void
 NodeValues::AddBound (int node_id, MotionDerivative d, int dim, double val)
 {
   for (int idx=0; idx<GetRows(); ++idx)
-    for (auto info : GetNodeInfo(idx))
+    for (auto info : GetNodeInfoAtOptIndex(idx))
       if (info.id_==node_id && info.deriv_==d && info.dim_==dim)
         bounds_.at(idx) = Bounds(val, val);
 }
@@ -221,6 +224,16 @@ NodeValues::GetNodeId (int poly_id, Side side) const
 {
   return poly_id + side;
 }
+
+// returns the two nodes that make up polynomial with "poly_id"
+const std::vector<NodeValues::Node>
+NodeValues::GetBoundaryNodes(int poly_id) const
+{
+  std::vector<Node> nodes;
+  nodes.push_back(nodes_.at(GetNodeId(poly_id, Side::Start)));
+  nodes.push_back(nodes_.at(GetNodeId(poly_id, Side::End)));
+  return nodes;
+};
 
 std::vector<int>
 NodeValues::GetAdjacentPolyIds (int node_id) const

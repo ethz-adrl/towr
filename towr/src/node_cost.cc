@@ -51,7 +51,7 @@ NodeCost::FillJacobianBlock (std::string var_set, Jacobian& jac) const
   if (var_set == node_id_) {
 
     for (int idx=0; idx<nodes_->GetRows(); ++idx)
-      for (auto n : nodes_->GetNodeInfo(idx))
+      for (auto n : nodes_->GetNodeInfoAtOptIndex(idx))
         if (n.deriv_==deriv_ && n.dim_==dim_) {
           double val = nodes_->GetNodes().at(n.id_).at(deriv_)(dim_);
           jac.coeffRef(0, idx) += 2.0*val;
