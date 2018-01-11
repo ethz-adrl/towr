@@ -85,7 +85,7 @@ NlpFactory::MakeBaseVariablesHermite () const
   std::vector<NodeValues::Ptr> vars;
 
   int n_dim = initial_base_.lin.kNumDim;
-  std::vector<double> base_spline_timings_ = params_.GetBasePolyDurations();
+  int n_nodes = params_.GetBasePolyDurations().size() + 1;
 
   auto linear  = std::make_tuple(id::base_lin_nodes,  initial_base_.lin, final_base_.lin);
   auto angular = std::make_tuple(id::base_ang_nodes, initial_base_.ang, final_base_.ang);
@@ -95,7 +95,7 @@ NlpFactory::MakeBaseVariablesHermite () const
     StateLin3d init  = std::get<1>(tuple);
     StateLin3d final = std::get<2>(tuple);
 
-    auto nodes = std::make_shared<NodeValues>(init.kNumDim,  base_spline_timings_.size(), id);
+    auto nodes = std::make_shared<NodeValues>(init.kNumDim,  n_nodes, id);
     nodes->InitializeVariables(init.p_, final.p_, params_.GetTotalTime());
 
     std::vector<int> dimensions = {X,Y,Z};

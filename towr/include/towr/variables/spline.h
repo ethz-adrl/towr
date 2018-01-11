@@ -52,10 +52,10 @@ public:
 
   // the constructor with constant durations
   // don't take ownership of object
-  Spline(NodeValues* const, const VecTimes& phase_durations);
+  Spline(NodesObserver::SubjectPtr const, const VecTimes& phase_durations);
 
   // the contructor with changing durations
-  Spline(NodeValues* const, ContactSchedule* const);
+  Spline(NodesObserver::SubjectPtr const, ContactSchedule* const);
 
 
   virtual ~Spline () = default;
@@ -108,7 +108,7 @@ private:
 
 
   // possibly move this to a derived class
-  VecTimes ConvertPhaseToPolyDurations(const VecTimes& phase_durations) const;
+  void ConvertPhaseToPolyDurations(const VecTimes& phase_durations);
 //  VecTimes phase_durations_;
 
 };

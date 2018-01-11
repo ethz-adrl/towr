@@ -19,21 +19,20 @@ namespace towr {
 using namespace ifopt;
 using namespace xpp;
 
-NodeValues::NodeValues (int n_dim, int n_polynomials, const std::string& name)
-    : NodeValues(n_dim, BuildPolyInfos(n_polynomials), name)
+
+NodeValues::NodeValues (int n_dim, const std::string& name)
+    : VariableSet(kSpecifyLater, name)
 {
+  n_dim_ = n_dim;
 }
 
-
-NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::string& name)
+// smell don't use name "polynomials" here
+NodeValues::NodeValues (int n_dim, int n_nodes, const std::string& name)
     : VariableSet(kSpecifyLater, name)
 {
   n_dim_ = n_dim;
 
-  polynomial_info_ = poly_infos;
-
-//  SetNodeMappings();
-  nodes_  = std::vector<Node>(poly_infos.size()+1);
+  nodes_  = std::vector<Node>(n_nodes);
   int n_opt_variables = nodes_.size() * 2*n_dim_;
   SetRows(n_opt_variables);
   bounds_ = VecBound(GetRows(), NoBound);
@@ -41,26 +40,6 @@ NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::str
   // default, non initialized values
   CacheNodeInfoToIndexMappings();
 }
-
-
-NodeValues::PolyInfoVec
-NodeValues::BuildPolyInfos(int num_polys) const
-{
-  PolyInfoVec poly_infos;
-
-  for (int i=0; i<num_polys; ++i) {
-    PolyInfo info;
-    info.is_constant_ = false; // always use different node for start and end
-    info.num_polys_in_phase_ = 1;
-    info.phase_ = i;
-    info.poly_id_in_phase_ = 0;
-
-    poly_infos.push_back(info);
-  }
-
-  return poly_infos;
-}
-
 
 void
 NodeValues::InitializeVariables(const VectorXd& initial_pos,
@@ -78,23 +57,6 @@ NodeValues::InitializeVariables(const VectorXd& initial_pos,
   }
 }
 
-
-//void
-//NodeValues::SetNodeMappings ()
-//{
-//  int opt_id = 0;
-//  for (int i=0; i<polynomial_info_.size(); ++i) {
-//    int node_id_start = GetNodeId(i, CubicHermitePoly::Start);
-//
-//    optnode_to_node_[opt_id].push_back(node_id_start);
-//    // use same value for next node if polynomial is constant
-//    if (!polynomial_info_.at(i).is_constant_)
-//      opt_id++;
-//  }
-//
-//  int last_node_id = polynomial_info_.size();
-//  optnode_to_node_[opt_id].push_back(last_node_id);
-//}
 
 void
 NodeValues::CacheNodeInfoToIndexMappings ()
@@ -130,18 +92,10 @@ NodeValues::GetNodeInfoAtOptIndex (int idx) const
 
   NodeInfo node;
   node.deriv_ = internal_id<n_dim_? kPos : kVel;
-//  node.deriv_ = static_cast<MotionDerivative>(std::floor(internal_id/n_dim_));
   node.dim_   = internal_id%n_dim_;
-//  node.dim_   = internal_id-node.deriv_*n_dim_;
+  node.id_    = std::floor(idx/n_opt_values_per_node_);
 
-  node.id_ = std::floor(idx/n_opt_values_per_node_);
   nodes.push_back(node);
-
-//  int opt_node = std::floor(idx/n_opt_values_per_node_);
-//  for (auto node_id : optnode_to_node_.at(opt_node)) {
-//    node.id_ = node_id;
-//    nodes.push_back(node);
-//  }
 
   return nodes;
 }

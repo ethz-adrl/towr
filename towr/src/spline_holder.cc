@@ -18,7 +18,6 @@ SplineHolder::SplineHolder (NodeValues::Ptr base_lin_nodes,
                             std::vector<ContactSchedule::Ptr> contact_schedule,
                             bool durations_change)
 {
-
   base_linear_ = std::make_shared<Spline>(base_lin_nodes.get(), base_poly_durations);
   base_angular_ = std::make_shared<Spline>(base_ang_nodes.get(), base_poly_durations);
 

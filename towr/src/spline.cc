@@ -8,6 +8,7 @@
 #include <towr/variables/spline.h>
 
 #include <towr/variables/node_values.h>
+
 #include <towr/variables/contact_schedule.h>
 
 
@@ -16,16 +17,17 @@ namespace towr {
 using namespace xpp;
 
 
-Spline::Spline(NodeValues* const nodes, const VecTimes& phase_durations)
+Spline::Spline(NodesObserver::SubjectPtr const nodes, const VecTimes& phase_durations)
    : NodesObserver(nodes)
 {
   Init(phase_durations);
   jac_wrt_nodes_structure_ = Jacobian(node_values_->n_dim_, node_values_->GetRows());
 }
 
-Spline::Spline(NodeValues* const nodes, ContactSchedule* const contact_schedule)
-    :ContactScheduleObserver(contact_schedule),
-     NodesObserver(nodes)
+Spline::Spline(NodesObserver::SubjectPtr const nodes, ContactSchedule* const contact_schedule)
+    :NodesObserver(nodes),
+     ContactScheduleObserver(contact_schedule)
+
 {
   Init(contact_schedule->GetDurations());
 
@@ -35,13 +37,13 @@ Spline::Spline(NodeValues* const nodes, ContactSchedule* const contact_schedule)
   // the iterations.
   // assume every global time time can fall into every polynomial
   jac_wrt_nodes_structure_ = Jacobian(node_values_->n_dim_, node_values_->GetRows());
-  for (int i=0; i<node_values_->polynomial_info_.size(); ++i)
+  for (int i=0; i<node_values_->GetPolynomialCount(); ++i)
     FillJacobian(i, 0.0, kPos, jac_wrt_nodes_structure_, true);
 }
 
 void Spline::Init(const VecTimes& durations)
 {
-  poly_durations_ = ConvertPhaseToPolyDurations(durations);
+  ConvertPhaseToPolyDurations(durations);
   uint n_polys = node_values_->GetPolynomialCount();
   assert(n_polys == poly_durations_.size());
 
@@ -102,19 +104,28 @@ Spline::UpdatePolynomials ()
 
 void Spline::UpdatePhaseDurations()
 {
-  poly_durations_  = ConvertPhaseToPolyDurations(contact_schedule_->GetDurations());
+  ConvertPhaseToPolyDurations(contact_schedule_->GetDurations());
   UpdatePolynomials();
 }
 
-Spline::VecTimes
-Spline::ConvertPhaseToPolyDurations(const VecTimes& phase_durations) const
+void
+Spline::ConvertPhaseToPolyDurations(const VecTimes& phase_durations)
 {
-  VecTimes spline_durations;
+  poly_durations_ = node_values_->ConvertPhaseToPolyDurations(phase_durations);
 
-  for (auto info : node_values_->polynomial_info_)
-    spline_durations.push_back(phase_durations.at(info.phase_)/info.num_polys_in_phase_);
-
-  return spline_durations;
+//  VecTimes poly_durations;
+//
+////  for (int poly_id=0; poly_id<cubic_polys_.size(); ++poly_id) {
+////    double t_poly =
+////    spline_durations.push_back(t_poly);
+////  }
+//
+//  for (int i=0; i<node_values_->GetPolynomialCount(); ++i) {
+//    auto info = node_values_->polynomial_info_.at(i);
+//    poly_durations.push_back(phase_durations.at(info.phase_)/info.num_polys_in_phase_);
+//  }
+//
+//  poly_durations_ = poly_durations;
 }
 
 
@@ -174,17 +185,26 @@ Spline::GetJacobianOfPosWrtDurations (double t_global) const
 VectorXd
 Spline::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 {
-  int id; double t_local;
-  std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
+  int poly_id; double t_local;
+  std::tie(poly_id, t_local) = GetLocalTime(t_global, poly_durations_);
 
-  auto info = node_values_->polynomial_info_.at(id);
+  VectorXd vel  = GetPoint(t_global).v_;
+  // outer derivative, treating duration of polynomial as variable
+  VectorXd dxdT = cubic_polys_.at(poly_id).GetDerivativeOfPosWrtDuration(t_local);
 
-  double percent_of_phase = 1./info.num_polys_in_phase_;
-  double inner_derivative = percent_of_phase;
-  VectorXd vel = GetPoint(t_global).v_;
-  VectorXd dxdT = cubic_polys_.at(id).GetDerivativeOfPosWrtDuration(t_local);
 
-  return inner_derivative*dxdT - info.poly_id_in_phase_*percent_of_phase*vel;
+  double inner_derivative = node_values_->GetDerivativeOfPolyDurationWrtPhaseDuration(poly_id);
+  double prev_polys_in_phase = node_values_->GetNumberOfPrevPolynomialsInPhase(poly_id);
+
+//  auto info = node_values_->polynomial_info_.at(poly_id);
+//  double percent_of_phase = 1./info.num_polys_in_phase_;
+//  double inner_derivative = percent_of_phase;
+
+
+  // where does this minus stuff come from?
+  // from number of polynomials before current polynomial that
+  // cause shifting of entire spline
+  return inner_derivative*(dxdT - prev_polys_in_phase*vel);
 }
 
 

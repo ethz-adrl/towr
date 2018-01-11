@@ -25,20 +25,53 @@ PhaseNodes::PhaseNodes (int n_dim,
                         const std::string& name,
                         int n_polys_in_changing_phase,
                         Type type)
-    :NodeValues(n_dim,
-                BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type),
-                name)
+    :NodeValues(n_dim, name)
 {
+  polynomial_info_ = BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type);
+
   SetNodeMappings();
 
   int n_opt_variables = optnode_to_node_.size() * 2*n_dim_;
   SetRows(n_opt_variables);
 
-  // default, non initialized values
+  // re initialize, because number of optimization variables changed
   nodes_  = std::vector<Node>(polynomial_info_.size()+1);
   bounds_ = VecBound(GetRows(), NoBound);
   CacheNodeInfoToIndexMappings();
 }
+
+PhaseNodes::VecTimes
+PhaseNodes::ConvertPhaseToPolyDurations(const VecTimes& phase_durations) const
+{
+  VecTimes poly_durations;
+
+//  for (int poly_id=0; poly_id<cubic_polys_.size(); ++poly_id) {
+//    double t_poly =
+//    spline_durations.push_back(t_poly);
+//  }
+
+  for (int i=0; i<GetPolynomialCount(); ++i) {
+    auto info = polynomial_info_.at(i);
+    poly_durations.push_back(phase_durations.at(info.phase_)/info.num_polys_in_phase_);
+  }
+
+  return poly_durations;
+}
+
+double
+PhaseNodes::GetDerivativeOfPolyDurationWrtPhaseDuration (int poly_id) const
+{
+  int n_polys_in_phase = polynomial_info_.at(poly_id).num_polys_in_phase_;
+  return 1./n_polys_in_phase;
+}
+
+int
+PhaseNodes::GetNumberOfPrevPolynomialsInPhase(int poly_id) const
+{
+  return polynomial_info_.at(poly_id).poly_id_in_phase_;
+}
+
+
 
 
 void
@@ -72,6 +105,7 @@ PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
   node.deriv_ = internal_id<n_dim_? kPos : kVel;
   node.dim_   = internal_id%n_dim_;
 
+  // this is different compared to standard node values
   int opt_node = std::floor(idx/n_opt_values_per_node_);
   for (auto node_id : optnode_to_node_.at(opt_node)) {
     node.id_ = node_id;
@@ -108,6 +142,27 @@ PhaseNodes::BuildPolyInfos (int phase_count,
 
   return polynomial_info;
 }
+
+
+PhaseNodes::PolyInfoVec
+PhaseNodes::BuildPolyInfosDefault(int num_polys) const
+{
+  PolyInfoVec poly_infos;
+
+  for (int i=0; i<num_polys; ++i) {
+    PolyInfo info;
+    info.is_constant_ = false; // always use different node for start and end
+    info.num_polys_in_phase_ = 1;
+    info.phase_ = i;
+    info.poly_id_in_phase_ = 0;
+
+    poly_infos.push_back(info);
+  }
+
+  return poly_infos;
+}
+
+
 
 bool
 PhaseNodes::IsConstantNode (int node_id) const

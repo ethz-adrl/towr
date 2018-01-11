@@ -40,21 +40,6 @@ public:
   using VecDurations = std::vector<double>;
 
 
-  struct PolyInfo {
-    PolyInfo() {};
-    PolyInfo(int phase, int poly_id_in_phase,
-             int num_polys_in_phase, bool is_constant)
-        :phase_(phase), poly_id_in_phase_(poly_id_in_phase),
-         num_polys_in_phase_(num_polys_in_phase), is_constant_(is_constant) {}
-
-    int phase_;
-    int poly_id_in_phase_;
-    int num_polys_in_phase_;
-    bool is_constant_; // zmp_ this shouldn't be here, has to do with phases
-  };
-
-  using PolyInfoVec = std::vector<PolyInfo>;
-
   struct NodeInfo {
 
     int id_; // the actual id of the node, not the optimized node
@@ -71,10 +56,43 @@ public:
   };
 
 
-
-  NodeValues (int n_dim, int n_polynomials, const std::string& name);
-  NodeValues (int n_dim, const PolyInfoVec&, const std::string& name);
+  // smell remove this c'tor
+  // b/c doesn't fully initialize object
+  NodeValues (int n_dim, const std::string& name);
+  NodeValues (int n_dim, int n_nodes, const std::string& name);
   virtual ~NodeValues () = default;
+
+
+
+  // ------ virtual functions -------------
+
+
+  virtual std::vector<NodeInfo> GetNodeInfoAtOptIndex(int idx) const;
+
+
+  using VecTimes = std::vector<double>;
+  virtual VecTimes ConvertPhaseToPolyDurations (const VecTimes& phase_durations) const
+  {
+    return phase_durations; // default is do nothing
+  }
+
+  virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const
+  {
+    return 1.0; // default every polynomial represents one phase
+  }
+
+  virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const
+  {
+    return 0; // every phase is represented by single polynomial
+  }
+
+
+
+
+
+  //-------------------------------------------------------------
+
+
 
 
   virtual void InitializeVariables(const VectorXd& initial_pos,
@@ -101,8 +119,6 @@ public:
 
   virtual VecBound GetBounds () const override { return bounds_;};
 
-
-
   const std::vector<Node> GetNodes() const { return nodes_; };
   int GetPolynomialCount() const { return nodes_.size() - 1; };
 
@@ -110,7 +126,6 @@ public:
   const std::vector<Node> GetBoundaryNodes(int poly_id) const;
 
 
-  virtual std::vector<NodeInfo> GetNodeInfoAtOptIndex(int idx) const;
   int GetNodeId(int poly_id, Side) const;
   // basically opposite of above
   int Index(int node_id, MotionDerivative, int dim) const;
@@ -119,8 +134,6 @@ public:
 
   int n_dim_;
 
-  // smell this should be private
-  PolyInfoVec polynomial_info_;
 protected:
 
   std::vector<int> GetAdjacentPolyIds(int node_id) const;
@@ -131,25 +144,12 @@ protected:
 
   void CacheNodeInfoToIndexMappings();
 private:
-  PolyInfoVec BuildPolyInfos(int num_polys) const;
 
   void UpdateObservers() const;
   std::vector<NodesObserver*> observers_;
 
 
-//  void SetNodeMappings();
-//  using OptNodeIs = int;
-//  using NodeIds   = std::vector<int>;
-//
-//  // this could be removed i feel like
-//  // maps from the nodes that are actually optimized over
-//  // to all the nodes. Optimized nodes are sometimes used
-//  // twice in a constant phase.
-//  std::map<OptNodeIs, NodeIds > optnode_to_node_; // lookup
-
-
   std::map<NodeInfo, int> node_info_to_idx;
-
 
 };
 
