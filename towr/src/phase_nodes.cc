@@ -58,41 +58,6 @@ PhaseNodes::BuildPolyInfos (int phase_count,
   return polynomial_info;
 }
 
-
-//bool
-//PhaseNodes::IsConstantPhase (double t_global) const
-//{
-//  int phase_id = Spline::GetSegmentID(t_global, phase_durations_);
-//
-//  // always alternating
-//  bool first_phase_in_contact = polynomial_info_.front().is_constant_;
-//  if (phase_id%2==0)
-//   return first_phase_in_contact;
-//  else
-//   return !first_phase_in_contact;
-//}
-
-//void
-//PhaseNodes::UpdateDurations(const VecDurations& phase_durations)
-//{
-//  durations_change_ = true;
-//  phase_durations_ = phase_durations;
-//  poly_durations_ = ConvertPhaseToSpline(phase_durations);
-//  UpdatePolynomials();
-//}
-
-//void
-//PhaseNodes::InitializeVariables (const VectorXd& initial_pos,
-//                                 const VectorXd& final_pos,
-//                                 const VecDurations& phase_durations)
-//{
-//  NodeValues::InitializeVariables(initial_pos,
-//                                  final_pos,
-//                                  ConvertPhaseToSpline(phase_durations));
-//
-//  phase_durations_ = phase_durations;
-//}
-
 bool
 PhaseNodes::IsConstantNode (int node_id) const
 {
@@ -107,17 +72,6 @@ PhaseNodes::IsConstantNode (int node_id) const
   return is_constant;
 }
 
-//PhaseNodes::VecDurations
-//PhaseNodes::ConvertPhaseToSpline (const VecDurations& phase_durations) const
-//{
-//  VecDurations spline_durations;
-//
-//  for (auto info : polynomial_info_)
-//    spline_durations.push_back(phase_durations.at(info.phase_)/info.num_polys_in_phase_);
-//
-//  return spline_durations;
-//}
-
 int
 PhaseNodes::GetPolyIDAtStartOfPhase (int phase) const
 {
@@ -130,9 +84,6 @@ PhaseNodes::GetPolyIDAtStartOfPhase (int phase) const
 Vector3d
 PhaseNodes::GetValueAtStartOfPhase (int phase) const
 {
-//  int poly_id=GetPolyIDAtStartOfPhase(phase);
-//  return cubic_polys_.at(poly_id)->GetPoint(0.0).p_;
-
   int node_id = GetNodeIDAtStartOfPhase(phase);
   return nodes_.at(node_id).at(kPos);
 }
@@ -143,6 +94,7 @@ PhaseNodes::GetNodeIDAtStartOfPhase (int phase) const
   int poly_id=GetPolyIDAtStartOfPhase(phase);
   return GetNodeId(poly_id, Side::Start);
 }
+
 
 
 

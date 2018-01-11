@@ -63,13 +63,13 @@ ForceConstraint::GetValues () const
 
   int row=0;
   auto force_nodes = ee_force_->GetNodes();
-  for (int node_id=0; node_id<force_nodes.size(); ++node_id) {
-    if (ee_force_->IsStanceNode(node_id)) {
+  for (int f_node_id=0; f_node_id<force_nodes.size(); ++f_node_id) {
+    if (ee_force_->IsStanceNode(f_node_id)) {
 
-      int phase  = ee_force_->GetPhase(node_id);
+      int phase  = ee_force_->GetPhase(f_node_id);
       Vector3d p = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during stance phase
       Vector3d n = terrain_->GetNormalizedBasis(HeightMap::Normal, p.x(), p.y());
-      Vector3d f = force_nodes.at(node_id).at(kPos);
+      Vector3d f = force_nodes.at(f_node_id).at(kPos);
 
       // unilateral force
       g(row++) = f.transpose() * n; // >0 (unilateral forces)
@@ -113,18 +113,18 @@ ForceConstraint::FillJacobianBlock (std::string var_set,
   if (var_set == ee_force_->GetName()) {
 
     int row = 0;
-    for (int node_id=0; node_id<ee_force_->GetNodes().size(); ++node_id) {
-      if (ee_force_->IsStanceNode(node_id)) {
+    for (int f_node_id=0; f_node_id<ee_force_->GetNodes().size(); ++f_node_id) {
+      if (ee_force_->IsStanceNode(f_node_id)) {
 
         // unilateral force
-        int phase   = ee_force_->GetPhase(node_id);
+        int phase   = ee_force_->GetPhase(f_node_id);
         Vector3d p  = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during phase
         Vector3d n  = terrain_->GetNormalizedBasis(HeightMap::Normal,   p.x(), p.y());
         Vector3d t1 = terrain_->GetNormalizedBasis(HeightMap::Tangent1, p.x(), p.y());
         Vector3d t2 = terrain_->GetNormalizedBasis(HeightMap::Tangent2, p.x(), p.y());
 
         for (auto dim : {X,Y,Z}) {
-          int idx = ee_force_->Index(node_id, kPos, dim);
+          int idx = ee_force_->Index(f_node_id, kPos, dim);
 
           int row_reset=row;
 

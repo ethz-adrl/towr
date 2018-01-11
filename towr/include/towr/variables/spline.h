@@ -54,7 +54,7 @@ public:
   // don't take ownership of object
   Spline(NodeValues* const, const VecTimes& phase_durations);
 
-  // the contructor with chaning durations
+  // the contructor with changing durations
   Spline(NodeValues* const, ContactSchedule* const);
 
 

@@ -27,7 +27,7 @@ public:
 
 
   // smell remove this
-  SplineHolder ();
+  SplineHolder () = default;
   virtual ~SplineHolder () = default;
 
 

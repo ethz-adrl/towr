@@ -96,7 +96,7 @@ NlpFactory::MakeBaseVariablesHermite () const
     StateLin3d final = std::get<2>(tuple);
 
     auto nodes = std::make_shared<NodeValues>(init.kNumDim,  base_spline_timings_.size(), id);
-    nodes->InitializeVariables(init.p_, final.p_, base_spline_timings_);
+    nodes->InitializeVariables(init.p_, final.p_, params_.GetTotalTime());
 
     std::vector<int> dimensions = {X,Y,Z};
     nodes->AddStartBound(kPos, dimensions, init.p_);
@@ -160,9 +160,9 @@ NlpFactory::MakeEndeffectorVariables () const
     auto contact_schedule = model_.gait_generator_->GetContactSchedule(T, ee);
 
     auto nodes = std::make_shared<EEMotionNodes>(contact_schedule.size(),
-                                                     model_.gait_generator_->IsInContactAtStart(ee),
-                                                     id::EEMotionNodes(ee),
-                                                     params_.ee_splines_per_swing_phase_);
+                                                 model_.gait_generator_->IsInContactAtStart(ee),
+                                                 id::EEMotionNodes(ee),
+                                                 params_.ee_splines_per_swing_phase_);
 
     double yaw = final_base_.ang.p_.z();
     Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
@@ -170,7 +170,7 @@ NlpFactory::MakeEndeffectorVariables () const
 
 
 
-    nodes->InitializeVariables(initial_ee_W_.at(ee), final_ee_pos_W, contact_schedule);
+    nodes->InitializeVariables(initial_ee_W_.at(ee), final_ee_pos_W, T);
 
     // actually initial Z position should be constrained as well...-.-
     nodes->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
@@ -203,7 +203,7 @@ NlpFactory::MakeForceVariables () const
                                                 params_.force_splines_per_stance_phase_);
 
     Vector3d f_stance(0.0, 0.0, model_.dynamic_model_->GetStandingZForce());
-    nodes->InitializeVariables(f_stance, f_stance, contact_schedule);
+    nodes->InitializeVariables(f_stance, f_stance, T);
     vars.push_back(nodes);
   }
 

@@ -24,6 +24,7 @@ NodeValues::NodeValues (int n_dim, int n_polynomials, const std::string& name)
 {
 }
 
+
 NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::string& name)
     : VariableSet(kSpecifyLater, name)
 {
@@ -32,7 +33,7 @@ NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::str
   polynomial_info_ = poly_infos;
 
   SetNodeMappings();
-  int n_opt_variables = opt_to_spline_.size() * 2*n_dim_;
+  int n_opt_variables = optnode_to_node_.size() * 2*n_dim_;
   SetRows(n_opt_variables);
 
   // default, non initialized values
@@ -41,24 +42,6 @@ NodeValues::NodeValues (int n_dim, const PolyInfoVec& poly_infos, const std::str
   SetIndexMappings();
 }
 
-
-
-void
-NodeValues::InitializeVariables(const VectorXd& initial_pos,
-                                const VectorXd& final_pos,
-                                const VecDurations& poly_durations)
-{
-  double t_total = std::accumulate(poly_durations.begin(), poly_durations.end(), 0.0);
-  VectorXd dp = final_pos-initial_pos;
-  VectorXd average_velocity = dp/t_total;
-  int num_nodes = polynomial_info_.size()+1;
-  for (int i=0; i<num_nodes; ++i) {
-    Node n;
-    n.at(kPos) = initial_pos + i/static_cast<double>(num_nodes-1)*dp;
-    n.at(kVel) = average_velocity;
-    nodes_.at(i) = n;
-  }
-}
 
 NodeValues::PolyInfoVec
 NodeValues::BuildPolyInfos(int num_polys) const
@@ -78,6 +61,24 @@ NodeValues::BuildPolyInfos(int num_polys) const
   return poly_infos;
 }
 
+
+void
+NodeValues::InitializeVariables(const VectorXd& initial_pos,
+                                const VectorXd& final_pos,
+                                double t_total)
+{
+  VectorXd dp = final_pos-initial_pos;
+  VectorXd average_velocity = dp/t_total;
+  int num_nodes = nodes_.size();
+  for (int i=0; i<nodes_.size(); ++i) {
+    Node n;
+    n.at(kPos) = initial_pos + i/static_cast<double>(num_nodes-1)*dp;
+    n.at(kVel) = average_velocity;
+    nodes_.at(i) = n;
+  }
+}
+
+
 void
 NodeValues::SetNodeMappings ()
 {
@@ -85,14 +86,14 @@ NodeValues::SetNodeMappings ()
   for (int i=0; i<polynomial_info_.size(); ++i) {
     int node_id_start = GetNodeId(i, CubicHermitePoly::Start);
 
-    opt_to_spline_[opt_id].push_back(node_id_start);
+    optnode_to_node_[opt_id].push_back(node_id_start);
     // use same value for next node if polynomial is constant
     if (!polynomial_info_.at(i).is_constant_)
       opt_id++;
   }
 
   int last_node_id = polynomial_info_.size();
-  opt_to_spline_[opt_id].push_back(last_node_id);
+  optnode_to_node_[opt_id].push_back(last_node_id);
 }
 
 void
@@ -105,6 +106,8 @@ NodeValues::SetIndexMappings ()
   }
 }
 
+// reverse of the below
+// remember that not every node is optimized over, but some are put together
 int
 NodeValues::Index(int node_id, MotionDerivative deriv, int dim) const
 {
@@ -115,6 +118,7 @@ NodeValues::Index(int node_id, MotionDerivative deriv, int dim) const
   return node_info_to_idx.at(n);
 }
 
+// reverse of the above
 std::vector<NodeValues::NodeInfo>
 NodeValues::GetNodeInfo (int idx) const
 {
@@ -122,14 +126,16 @@ NodeValues::GetNodeInfo (int idx) const
 
   // always two consecutive node pairs are equal
   int n_opt_values_per_node_ = 2*n_dim_;
-  int internal_id = idx%n_opt_values_per_node_; // 0...6
+  int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
   NodeInfo node;
-  node.deriv_ = static_cast<MotionDerivative>(std::floor(internal_id/n_dim_));
-  node.dim_   = internal_id-node.deriv_*n_dim_;
+  node.deriv_ = internal_id<n_dim_? kPos : kVel;
+//  node.deriv_ = static_cast<MotionDerivative>(std::floor(internal_id/n_dim_));
+  node.dim_   = internal_id%n_dim_;
+//  node.dim_   = internal_id-node.deriv_*n_dim_;
 
   int opt_node = std::floor(idx/n_opt_values_per_node_);
-  for (auto node_id : opt_to_spline_.at(opt_node)) {
+  for (auto node_id : optnode_to_node_.at(opt_node)) {
     node.id_ = node_id;
     nodes.push_back(node);
   }

@@ -79,7 +79,7 @@ public:
 
   virtual void InitializeVariables(const VectorXd& initial_pos,
                                    const VectorXd& final_pos,
-                                   const VecDurations& poly_durations);
+                                   double t_total);
 
 
   VectorXd GetValues () const override;
@@ -146,7 +146,10 @@ private:
   using NodeIds   = std::vector<int>;
 
   // this could be removed i feel like
-  std::map<OptNodeIs, NodeIds > opt_to_spline_; // lookup
+  // maps from the nodes that are actually optimized over
+  // to all the nodes. Optimized nodes are sometimes used
+  // twice in a constant phase.
+  std::map<OptNodeIs, NodeIds > optnode_to_node_; // lookup
 
 
   std::map<NodeInfo, int> node_info_to_idx;

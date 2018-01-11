@@ -33,20 +33,11 @@ protected:
   virtual ~PhaseNodes() = default;
 
 public:
-//  virtual void InitializeVariables(const VectorXd& initial_pos,
-//                                   const VectorXd& final_pos,
-//                                   const VecDurations& phase_durations) override;
-
-//  /** @brief called by contact schedule when variables are updated.
-//   *
-//   * Converts phase durations to specific polynomial durations.
-//   */
-//  void UpdateDurations(const VecDurations& phase_durations);
 
   Eigen::Vector3d GetValueAtStartOfPhase(int phase) const;
   int GetNodeIDAtStartOfPhase(int phase) const;
 
-//  bool IsConstantPhase(double t) const;
+
 
 protected:
   bool IsConstantNode(int node_id) const;
@@ -59,10 +50,6 @@ private:
                              bool is_in_contact_at_start,
                              int n_polys_in_changing_phase,
                              Type type) const;
-
-//  VecDurations ConvertPhaseToSpline(const VecDurations& phase_durations) const;
-
-//  VecDurations phase_durations_; // as opposed to poly_durations in node_values
 };
 
 

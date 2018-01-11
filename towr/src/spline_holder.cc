@@ -7,13 +7,8 @@
 
 #include <towr/variables/spline_holder.h>
 
-namespace towr
-{
+namespace towr{
 
-SplineHolder::SplineHolder ()
-{
-  // TODO Auto-generated constructor stub
-}
 
 SplineHolder::SplineHolder (NodeValues::Ptr base_lin_nodes,
                             NodeValues::Ptr base_ang_nodes,
@@ -30,10 +25,11 @@ SplineHolder::SplineHolder (NodeValues::Ptr base_lin_nodes,
   for (uint ee=0; ee<ee_motion_nodes.size(); ++ee) {
 
     if (durations_change) {
-
+      // spline without changing the polynomial durations
       ee_motion_.push_back(std::make_shared<Spline>(ee_motion_nodes.at(ee).get(), contact_schedule.at(ee).get()));
       ee_force_.push_back(std::make_shared<Spline>(ee_force_nodes.at(ee).get(), contact_schedule.at(ee).get()));
     } else {
+      // spline that changes the polynomial durations (affects Jacobian)
       ee_motion_.push_back(std::make_shared<Spline>(ee_motion_nodes.at(ee).get(), contact_schedule.at(ee)->GetDurations()));
       ee_force_.push_back(std::make_shared<Spline>(ee_force_nodes.at(ee).get(), contact_schedule.at(ee)->GetDurations()));
     }
