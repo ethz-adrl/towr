@@ -48,6 +48,7 @@ private:
   int n_constraints_per_node_;
 
   EndeffectorID ee_;
+  std::vector<int> pure_stance_force_node_ids_;
 };
 
 } /* namespace towr */

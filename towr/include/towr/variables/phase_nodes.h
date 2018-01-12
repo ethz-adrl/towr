@@ -21,6 +21,8 @@ namespace towr {
 class PhaseNodes : public NodeValues {
 public:
   using Ptr = std::shared_ptr<PhaseNodes>;
+  using OptNodeIs = int;
+  using NodeIds   = std::vector<int>;
 
 
   enum Type {Force, Motion};
@@ -47,6 +49,8 @@ public:
 
   // smell invert this, because doing it everywhere anyway
   bool IsConstantNode(int node_id) const;
+  // those that are not fixed by bounds
+  NodeIds GetIndicesOfNonConstantNodes() const;
 
 
 private:
@@ -74,8 +78,7 @@ private:
   void SetBoundsEEForce();
 
   void SetNodeMappings();
-  using OptNodeIs = int;
-  using NodeIds   = std::vector<int>;
+
 
   // maps from the nodes that are actually optimized over
   // to all the nodes. Optimized nodes are sometimes used

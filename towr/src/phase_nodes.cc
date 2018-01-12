@@ -156,6 +156,18 @@ PhaseNodes::IsConstantNode (int node_id) const
   return is_constant;
 }
 
+PhaseNodes::NodeIds
+PhaseNodes::GetIndicesOfNonConstantNodes() const
+{
+  NodeIds node_ids;
+
+  for (int id=0; id<nodes_.size(); ++id)
+    if (!IsConstantNode(id))
+      node_ids.push_back(id);
+
+  return node_ids;
+}
+
 int
 PhaseNodes::GetPhase (int node_id) const
 {
