@@ -57,17 +57,17 @@ SwingConstraint::GetValues () const
     // assumes two splines per swingphase and starting and ending in stance
     auto curr = nodes.at(node_id);
 
-    Vector2d prev = nodes.at(node_id-1).at(kPos).topRows<kDim2d>();
-    Vector2d next = nodes.at(node_id+1).at(kPos).topRows<kDim2d>();
+    Vector2d prev = nodes.at(node_id-1).val_.topRows<kDim2d>();
+    Vector2d next = nodes.at(node_id+1).val_.topRows<kDim2d>();
 
     Vector2d distance_xy    = next - prev;
     Vector2d xy_center      = prev + 0.5*distance_xy;
     Vector2d des_vel_center = distance_xy/t_swing_avg_; // linear interpolation not accurate
     for (auto dim : {X,Y}) {
-      g(row++) = curr.at(kPos)(dim) - xy_center(dim);
-      g(row++) = curr.at(kVel)(dim) - des_vel_center(dim);
+      g(row++) = curr.val_(dim) - xy_center(dim);
+      g(row++) = curr.deriv_(dim) - des_vel_center(dim);
     }
-    //      g(row++) = curr.at(kPos).z() - swing_height_in_world_;
+    //      g(row++) = curr.pos.z() - swing_height_in_world_;
   }
 
   return g;

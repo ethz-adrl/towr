@@ -190,7 +190,7 @@ Vector3d
 PhaseNodes::GetValueAtStartOfPhase (int phase) const
 {
   int node_id = GetNodeIDAtStartOfPhase(phase);
-  return nodes_.at(node_id).at(kPos);
+  return nodes_.at(node_id).val_;
 }
 
 int

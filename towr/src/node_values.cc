@@ -50,8 +50,8 @@ NodeValues::InitializeNodes(const VectorXd& initial_pos,
   int num_nodes = nodes_.size();
   for (int i=0; i<nodes_.size(); ++i) {
     Node n;
-    n.at(kPos) = initial_pos + i/static_cast<double>(num_nodes-1)*dp;
-    n.at(kVel) = average_velocity;
+    n.val_ = initial_pos + i/static_cast<double>(num_nodes-1)*dp;
+    n.deriv_ = average_velocity;
     nodes_.at(i) = n;
   }
 }
@@ -175,10 +175,6 @@ NodeValues::AddFinalBound (MotionDerivative deriv,
                            const std::vector<int>& dimensions,
                            const VectorXd& val)
 {
-//  // careful to not overwrite start bound
-//  if (nodes_.size() == 2)
-//    throw std::runtime_error("overwriting start bound");
-
   AddBounds(nodes_.size()-1, deriv, dimensions, val);
 }
 

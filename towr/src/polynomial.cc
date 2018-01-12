@@ -79,10 +79,10 @@ CubicHermitePoly::CubicHermitePoly (int dim) : Polynomial(3,dim)
 void
 CubicHermitePoly::SetNodes (const Node& n0, const Node& n1, double T)
 {
-  coeff_[A] =  n0.at(kPos);
-  coeff_[B] =  n0.at(kVel);
-  coeff_[C] = -( 3*(n0.at(kPos) - n1.at(kPos)) +  T*(2*n0.at(kVel) + n1.at(kVel)) ) / std::pow(T,2);
-  coeff_[D] =  ( 2*(n0.at(kPos) - n1.at(kPos)) +  T*(  n0.at(kVel) + n1.at(kVel)) ) / std::pow(T,3);
+  coeff_[A] =  n0.val_;
+  coeff_[B] =  n0.deriv_;
+  coeff_[C] = -( 3*(n0.val_ - n1.val_) +  T*(2*n0.deriv_ + n1.deriv_) ) / std::pow(T,2);
+  coeff_[D] =  ( 2*(n0.val_ - n1.val_) +  T*(  n0.deriv_ + n1.deriv_) ) / std::pow(T,3);
 
   T_ = T;
   n0_ = n0;
@@ -190,10 +190,10 @@ CubicHermitePoly::GetDerivativeOfAccWrt (Side side, MotionDerivative node_value,
 VectorXd
 CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
 {
-  VectorXd x0 = n0_.at(kPos);
-  VectorXd x1 = n1_.at(kPos);
-  VectorXd v0 = n0_.at(kVel);
-  VectorXd v1 = n1_.at(kVel);
+  VectorXd x0 = n0_.val_;
+  VectorXd x1 = n1_.val_;
+  VectorXd v0 = n0_.deriv_;
+  VectorXd v1 = n1_.deriv_;
 
   double t2 = std::pow(t,2);
   double t3 = std::pow(t,3);
@@ -208,6 +208,26 @@ CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
                  + (2*t2*(3*x0 - 3*x1 + 2*T*v0 + T*v1))/T3;
 
   return deriv;
+}
+
+const VectorXd
+CubicHermitePoly::Node::at(MotionDerivative deriv) const {
+  if (deriv == kPos)
+    return val_;
+  else if (deriv == kVel)
+    return deriv_;
+  else
+    assert(false); // derivative not defined
+}
+
+VectorXd&
+CubicHermitePoly::Node::at(MotionDerivative deriv) {
+  if (deriv == kPos)
+    return val_;
+  else if (deriv == kVel)
+    return deriv_;
+  else
+    assert(false); // derivative not defined
 }
 
 } // namespace towr

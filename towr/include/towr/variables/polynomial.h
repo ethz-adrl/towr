@@ -65,7 +65,13 @@ private:
 class CubicHermitePoly : public Polynomial {
 public:
   enum Side {Start=0, End};
-  using Node = std::array<VectorXd,2>; // pos,vel
+
+  struct Node {
+    VectorXd val_;
+    VectorXd deriv_;
+    const VectorXd at(MotionDerivative deriv) const;
+    VectorXd& at(MotionDerivative deriv);
+  };
 
   CubicHermitePoly(int dim);
   virtual ~CubicHermitePoly() = default;
