@@ -62,12 +62,12 @@ private:
     PolyInfo(int phase, int poly_id_in_phase, int n_polys_in_phase, bool is_constant);
   };
   std::vector<PolyInfo> polynomial_info_;
-  std::vector<PolyInfo> BuildPolyInfos(int phase_count,
+  static std::vector<PolyInfo> BuildPolyInfos(int phase_count,
                              bool is_in_contact_at_start,
                              int n_polys_in_changing_phase,
-                             Type type) const;
+                             Type type);
 
-  void SetNodeMappings();
+  static std::map<OptNodeIs, NodeIds> SetNodeMappings(const std::vector<PolyInfo>&);
   std::vector<int> GetAdjacentPolyIds(int node_id) const;
 
 

@@ -27,17 +27,18 @@ NodeValues::NodeValues (int n_dim, const std::string& name)
 }
 
 NodeValues::NodeValues (int n_dim, int n_nodes, const std::string& name)
-    : VariableSet(kSpecifyLater, name)
+    : NodeValues(n_dim, name)
 {
-  n_dim_ = n_dim;
+  int n_variables = n_nodes*2*n_dim;
+  InitMembers(n_nodes, n_variables);
+}
 
+void
+NodeValues::InitMembers(int n_nodes, int n_variables)
+{
   nodes_  = std::vector<Node>(n_nodes);
-  int n_opt_variables = n_nodes * 2*n_dim_;
-  SetRows(n_opt_variables);
-  bounds_ = VecBound(GetRows(), NoBound);
-
-  // default, non initialized values
-//  CacheNodeInfoToIndexMappings();
+  bounds_ = VecBound(n_variables, NoBound);
+  SetRows(n_variables);
 }
 
 void
@@ -57,18 +58,20 @@ NodeValues::InitializeNodes(const VectorXd& initial_pos,
 }
 
 int
-NodeValues::Index(int node_id, MotionDerivative deriv, int dim) const
+NodeValues::Index(int node_id, Deriv deriv, int dim) const
 {
   IndexInfo n;
   n.node_id_ = node_id;
-  n.deriv_   = deriv;
-  n.dim_     = dim;
+  n.node_deriv_   = deriv;
+  n.node_deriv_dim_     = dim;
 
   // could also cache this as map for more efficiency, but adding complexity
   for (int idx=0; idx<GetRows(); ++idx)
     for ( IndexInfo node_info : GetNodeInfoAtOptIndex(idx))
       if ( node_info == n )
         return idx;
+
+  assert(false); // index representing these quantities doesn't exist
 }
 
 // reverse of the above
@@ -82,9 +85,9 @@ NodeValues::GetNodeInfoAtOptIndex (int idx) const
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
   IndexInfo node;
-  node.deriv_ = internal_id<n_dim_? kPos : kVel;
-  node.dim_   = internal_id%n_dim_;
-  node.node_id_    = std::floor(idx/n_opt_values_per_node_);
+  node.node_deriv_   = internal_id<n_dim_? kPos : kVel;
+  node.node_deriv_dim_     = internal_id%n_dim_;
+  node.node_id_ = std::floor(idx/n_opt_values_per_node_);
 
   nodes.push_back(node);
 
@@ -98,7 +101,7 @@ NodeValues::GetValues () const
 
   for (int idx=0; idx<x.rows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      x(idx) = nodes_.at(info.node_id_).at(info.deriv_)(info.dim_);
+      x(idx) = nodes_.at(info.node_id_).at(info.node_deriv_)(info.node_deriv_dim_);
 
   return x;
 }
@@ -108,7 +111,7 @@ NodeValues::SetVariables (const VectorXd& x)
 {
   for (int idx=0; idx<x.rows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      nodes_.at(info.node_id_).at(info.deriv_)(info.dim_) = x(idx);
+      nodes_.at(info.node_id_).at(info.node_deriv_)(info.node_deriv_dim_) = x(idx);
 
   UpdateObservers();
 }
@@ -144,8 +147,47 @@ NodeValues::GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const
   return 0; // every phase is represented by single polynomial
 }
 
+int
+NodeValues::GetNodeId (int poly_id, Side side)
+{
+  return poly_id + side;
+}
+
+const std::vector<NodeValues::Node>
+NodeValues::GetBoundaryNodes(int poly_id) const
+{
+  std::vector<Node> nodes;
+  nodes.push_back(nodes_.at(GetNodeId(poly_id, Side::Start)));
+  nodes.push_back(nodes_.at(GetNodeId(poly_id, Side::End)));
+  return nodes;
+}
+
+int
+NodeValues::GetDim() const
+{
+  return n_dim_;
+}
+
+int
+NodeValues::GetPolynomialCount() const
+{
+  return nodes_.size() - 1;
+}
+
+NodeValues::VecBound
+NodeValues::GetBounds () const
+{
+  return bounds_;
+}
+
+const std::vector<NodeValues::Node>
+NodeValues::GetNodes() const
+{
+  return nodes_;
+}
+
 void
-NodeValues::AddBounds(int node_id, MotionDerivative deriv,
+NodeValues::AddBounds(int node_id, Deriv deriv,
                       const std::vector<int>& dimensions,
                       const VectorXd& val)
 {
@@ -154,16 +196,16 @@ NodeValues::AddBounds(int node_id, MotionDerivative deriv,
 }
 
 void
-NodeValues::AddBound (int node_id, MotionDerivative d, int dim, double val)
+NodeValues::AddBound (int node_id, Deriv d, int dim, double val)
 {
   for (int idx=0; idx<GetRows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      if (info.node_id_==node_id && info.deriv_==d && info.dim_==dim)
+      if (info.node_id_==node_id && info.node_deriv_==d && info.node_deriv_dim_==dim)
         bounds_.at(idx) = Bounds(val, val);
 }
 
 void
-NodeValues::AddStartBound (MotionDerivative d,
+NodeValues::AddStartBound (Deriv d,
                            const std::vector<int>& dimensions,
                            const VectorXd& val)
 {
@@ -171,7 +213,7 @@ NodeValues::AddStartBound (MotionDerivative d,
 }
 
 void
-NodeValues::AddFinalBound (MotionDerivative deriv,
+NodeValues::AddFinalBound (Deriv deriv,
                            const std::vector<int>& dimensions,
                            const VectorXd& val)
 {
@@ -179,28 +221,11 @@ NodeValues::AddFinalBound (MotionDerivative deriv,
 }
 
 int
-NodeValues::GetNodeId (int poly_id, Side side) const
-{
-  return poly_id + side;
-}
-
-// returns the two nodes that make up polynomial with "poly_id"
-const std::vector<NodeValues::Node>
-NodeValues::GetBoundaryNodes(int poly_id) const
-{
-  std::vector<Node> nodes;
-  nodes.push_back(nodes_.at(GetNodeId(poly_id, Side::Start)));
-  nodes.push_back(nodes_.at(GetNodeId(poly_id, Side::End)));
-  return nodes;
-};
-
-
-int
 NodeValues::IndexInfo::operator==(const IndexInfo& right) const
 {
   return (node_id_ == right.node_id_)
-      && (deriv_   == right.deriv_)
-      && (dim_     == right.dim_);
+      && (node_deriv_   == right.node_deriv_)
+      && (node_deriv_dim_     == right.node_deriv_dim_);
 };
 
 } /* namespace towr */

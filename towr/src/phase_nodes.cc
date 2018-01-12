@@ -29,16 +29,11 @@ PhaseNodes::PhaseNodes (int phase_count,
     :NodeValues(kDim3d, name)
 {
   polynomial_info_ = BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type);
+  optnode_to_node_ = SetNodeMappings(polynomial_info_);
 
-  SetNodeMappings();
-
-  int n_opt_variables = optnode_to_node_.size() * 2*n_dim_;
-  SetRows(n_opt_variables);
-
-  // re initialize, because number of optimization variables changed
-  nodes_  = std::vector<Node>(polynomial_info_.size()+1);
-  bounds_ = VecBound(GetRows(), NoBound);
-//  CacheNodeInfoToIndexMappings();
+  int n_opt_variables = optnode_to_node_.size() * 2*GetDim();
+  int n_nodes = polynomial_info_.size()+1;
+  InitMembers(n_nodes, n_opt_variables);
 
   if (type == Motion)
     SetBoundsEEMotion();
@@ -74,21 +69,25 @@ PhaseNodes::GetNumberOfPrevPolynomialsInPhase(int poly_id) const
   return polynomial_info_.at(poly_id).poly_id_in_phase_;
 }
 
-void
-PhaseNodes::SetNodeMappings ()
+std::map<PhaseNodes::OptNodeIs, PhaseNodes::NodeIds>
+PhaseNodes::SetNodeMappings (const std::vector<PolyInfo>& polynomial_info)
 {
+  std::map<OptNodeIs, NodeIds> optnode_to_node;
+
   int opt_id = 0;
-  for (int i=0; i<polynomial_info_.size(); ++i) {
+  for (int i=0; i<polynomial_info.size(); ++i) {
     int node_id_start = GetNodeId(i, CubicHermitePoly::Start);
 
-    optnode_to_node_[opt_id].push_back(node_id_start);
+    optnode_to_node[opt_id].push_back(node_id_start);
     // use same value for next node if polynomial is constant
-    if (!polynomial_info_.at(i).is_constant_)
+    if (!polynomial_info.at(i).is_constant_)
       opt_id++;
   }
 
-  int last_node_id = polynomial_info_.size();
-  optnode_to_node_[opt_id].push_back(last_node_id);
+  int last_node_id = polynomial_info.size();
+  optnode_to_node[opt_id].push_back(last_node_id);
+
+  return optnode_to_node;
 }
 
 std::vector<PhaseNodes::IndexInfo>
@@ -97,12 +96,12 @@ PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
   std::vector<IndexInfo> nodes;
 
   // always two consecutive node pairs are equal
-  int n_opt_values_per_node_ = 2*n_dim_;
+  int n_opt_values_per_node_ = 2*GetDim();
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
   IndexInfo node;
-  node.deriv_ = internal_id<n_dim_? kPos : kVel;
-  node.dim_   = internal_id%n_dim_;
+  node.node_deriv_ = internal_id<GetDim()? kPos : kVel;
+  node.node_deriv_dim_   = internal_id%GetDim();
 
   // this is different compared to standard node values
   // because one index can represent multiple node (during constant phase)
@@ -119,7 +118,7 @@ std::vector<PhaseNodes::PolyInfo>
 PhaseNodes::BuildPolyInfos (int phase_count,
                             bool is_in_contact_at_start,
                             int n_polys_in_changing_phase,
-                            Type type) const
+                            Type type)
 {
   std::vector<PolyInfo> polynomial_info;
 
@@ -161,7 +160,7 @@ PhaseNodes::GetIndicesOfNonConstantNodes() const
 {
   NodeIds node_ids;
 
-  for (int id=0; id<nodes_.size(); ++id)
+  for (int id=0; id<GetNodes().size(); ++id)
     if (!IsConstantNode(id))
       node_ids.push_back(id);
 
@@ -190,7 +189,7 @@ Vector3d
 PhaseNodes::GetValueAtStartOfPhase (int phase) const
 {
   int node_id = GetNodeIDAtStartOfPhase(phase);
-  return nodes_.at(node_id).val_;
+  return GetNodes().at(node_id).val_;
 }
 
 int
@@ -204,7 +203,7 @@ std::vector<int>
 PhaseNodes::GetAdjacentPolyIds (int node_id) const
 {
   std::vector<int> poly_ids;
-  int last_node_id = nodes_.size()-1;
+  int last_node_id = GetNodes().size()-1;
 
   if (node_id==0)
     poly_ids.push_back(0);
@@ -227,11 +226,11 @@ PhaseNodes::SetBoundsEEMotion ()
 
     // endeffector is not allowed to move if in stance phase
     if (IsConstantNode(node.node_id_)) {
-      if (node.deriv_ == kVel)
+      if (node.node_deriv_ == kVel)
         bounds_.at(idx) = BoundZero;
     }
     else { // node in pure swing-phase
-      if (node.deriv_ == kVel && node.dim_ == Z)
+      if (node.node_deriv_ == kVel && node.node_deriv_dim_ == Z)
         bounds_.at(idx) = BoundZero; // zero velocity at top
     }
 

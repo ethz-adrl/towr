@@ -14,12 +14,10 @@
 #include <vector>
 
 #include <xpp_states/cartesian_declarations.h>
-#include <xpp_states/state.h>
 
 #include <ifopt/leaves.h>
 #include "nodes_observer.h"
-#include "polynomial.h" // this shouldn't really be here
-
+#include "polynomial.h"
 
 
 namespace towr {
@@ -35,23 +33,20 @@ public:
   using Ptr      = std::shared_ptr<NodeValues>;
   using Node     = CubicHermitePoly::Node;
   using Side     = CubicHermitePoly::Side;
-  using VecNodes = std::vector<Node>;
-  using MotionDerivative = xpp::MotionDerivative;
+  using Deriv    = xpp::MotionDerivative;
   using VecDurations = std::vector<double>;
 
 
-  // smell remove this c'tor
-  // b/c doesn't fully initialize object
   NodeValues (int n_dim, const std::string& name);
   NodeValues (int n_dim, int n_nodes, const std::string& name);
   virtual ~NodeValues () = default;
 
 
-  // ------ virtual functions -------------
+
   struct IndexInfo {
-    int node_id_; // the actual id of the node, not the optimized node
-    MotionDerivative deriv_;
-    int dim_;
+    int node_id_;
+    Deriv node_deriv_;
+    int node_deriv_dim_;
 
     int operator==(const IndexInfo& right) const;
   };
@@ -63,9 +58,8 @@ public:
   virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const;
 
 
-  virtual void InitializeNodes(const VectorXd& initial_pos,
-                                   const VectorXd& final_pos,
-                                   double t_total);
+  void InitializeNodes(const VectorXd& initial_pos,const VectorXd& final_pos,
+                       double t_total);
 
 
   VectorXd GetValues () const override;
@@ -73,44 +67,42 @@ public:
 
 
 
-  void AddBounds(int node_id, MotionDerivative, const std::vector<int>& dim,
-                 const VectorXd& val);
-  void AddBound(int node_id, MotionDerivative, int dim, double val);
-  void AddStartBound (MotionDerivative d,
-                      const std::vector<int>& dimensions,
-                      const VectorXd& val);
-  void AddFinalBound(MotionDerivative d,
-                     const std::vector<int>& dimensions,
-                     const VectorXd& val);
 
 
 
-  virtual VecBound GetBounds () const override { return bounds_;};
+  virtual VecBound GetBounds () const override;
 
-  const std::vector<Node> GetNodes() const { return nodes_; };
-  int GetPolynomialCount() const { return nodes_.size() - 1; };
+  const std::vector<Node> GetNodes() const;
+  int GetPolynomialCount() const;
 
   // returns the two nodes that make up polynomial with "poly_id"
   const std::vector<Node> GetBoundaryNodes(int poly_id) const;
 
 
-  int GetNodeId(int poly_id, Side) const;
+  static int GetNodeId(int poly_id, Side);
   // basically opposite of above
-  int Index(int node_id, MotionDerivative, int dim) const;
+  int Index(int node_id, Deriv, int dim) const;
 
   void AddObserver(NodesObserver* const o);
 
-  int GetDim() const { return n_dim_; };
+  int GetDim() const;
 
+  void AddStartBound (Deriv d, const std::vector<int>& dimensions, const VectorXd& val);
+  void AddFinalBound(Deriv d, const std::vector<int>& dimensions, const VectorXd& val);
 
 protected:
-  int n_dim_;
-  mutable VecBound bounds_;
-  std::vector<Node> nodes_;
+  VecBound bounds_;
+
+  void InitMembers(int n_nodes, int n_variables);
 
 private:
   void UpdateObservers() const;
   std::vector<NodesObserver*> observers_;
+  std::vector<Node> nodes_;
+  int n_dim_;
+
+  void AddBounds(int node_id, Deriv, const std::vector<int>& dim, const VectorXd& val);
+  void AddBound(int node_id, Deriv, int dim, double val);
 };
 
 } /* namespace towr */

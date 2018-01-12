@@ -142,13 +142,13 @@ Spline::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
         int node = node_values_->GetNodeId(poly_id,side);
 
         if (node == info.node_id_) {
-          double val = cubic_polys_.at(poly_id).GetDerivativeOf(dxdt, side, info.deriv_, t_local);
+          double val = cubic_polys_.at(poly_id).GetDerivativeOf(dxdt, side, info.node_deriv_, t_local);
 
           // if only want structure
           if (fill_with_zeros)
             val = 0.0;
 
-          jac.coeffRef(info.dim_, idx) += val;
+          jac.coeffRef(info.node_deriv_dim_, idx) += val;
         }
       }
     }
