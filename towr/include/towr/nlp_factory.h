@@ -76,9 +76,9 @@ private:
 
 
   // variables
-  std::vector<NodeValues::Ptr> MakeBaseVariablesHermite() const;
-  std::vector<NodeValues::Ptr> MakeEndeffectorVariables() const;
-  std::vector<NodeValues::Ptr> MakeForceVariables() const;
+  std::vector<NodeVariables::Ptr> MakeBaseVariablesHermite() const;
+  std::vector<NodeVariables::Ptr> MakeEndeffectorVariables() const;
+  std::vector<NodeVariables::Ptr> MakeForceVariables() const;
   std::vector<ContactSchedule::Ptr> MakeContactScheduleVariables() const;
 
   // constraints

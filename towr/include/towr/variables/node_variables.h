@@ -28,18 +28,16 @@ namespace towr {
  * This however should know nothing about polynomials, or splines or anything.
  * Purely the nodes, everything else handled by spline.h
  */
-class NodeValues : public ifopt::VariableSet {
+class NodeVariables : public ifopt::VariableSet {
 public:
-  using Ptr      = std::shared_ptr<NodeValues>;
+  using Ptr      = std::shared_ptr<NodeVariables>;
   using Node     = CubicHermitePoly::Node;
   using Side     = CubicHermitePoly::Side;
   using Deriv    = xpp::MotionDerivative;
   using VecDurations = std::vector<double>;
 
 
-  NodeValues (int n_dim, const std::string& name);
-  NodeValues (int n_dim, int n_nodes, const std::string& name);
-  virtual ~NodeValues () = default;
+
 
 
 
@@ -51,11 +49,17 @@ public:
     int operator==(const IndexInfo& right) const;
   };
 
-  virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const;
 
-  virtual VecDurations ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const;
-  virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const;
-  virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const;
+
+  virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const = 0;
+  virtual VecDurations ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const = 0;
+  virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const = 0;
+  virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const = 0;
+  virtual bool IsInConstantPhase(int polynomial_id) const = 0;
+
+
+
+
 
 
   void InitializeNodes(const VectorXd& initial_pos,const VectorXd& final_pos,
@@ -91,6 +95,9 @@ public:
   void AddFinalBound(Deriv d, const std::vector<int>& dimensions, const VectorXd& val);
 
 protected:
+  NodeVariables (int n_dim, const std::string& name);
+  virtual ~NodeVariables () = default;
+
   VecBound bounds_;
 
   void InitMembers(int n_nodes, int n_variables);

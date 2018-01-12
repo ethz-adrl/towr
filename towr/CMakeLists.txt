@@ -71,9 +71,10 @@ add_library(${PROJECT_NAME}
 #  src/contact_timings.cc
   # body motion
   src/polynomial.cc
-  src/node_values.cc
-  src/node_cost.cc
+  src/node_variables.cc
   src/phase_nodes.cc
+  src/base_nodes.cc
+  src/node_cost.cc
   src/spline.cc
   src/nodes_observer.cc
   src/contact_schedule_observer.cc

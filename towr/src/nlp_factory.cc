@@ -9,6 +9,7 @@
 
 #include <towr/variables/variable_names.h>
 #include <towr/variables/contact_schedule.h>
+#include <towr/variables/base_nodes.h>
 
 #include <towr/constraints/base_motion_constraint.h>
 #include <towr/constraints/dynamic_constraint.h>
@@ -79,10 +80,10 @@ NlpFactory::GetVariableSets () const
   return vars;
 }
 
-std::vector<NodeValues::Ptr>
+std::vector<NodeVariables::Ptr>
 NlpFactory::MakeBaseVariablesHermite () const
 {
-  std::vector<NodeValues::Ptr> vars;
+  std::vector<NodeVariables::Ptr> vars;
 
   int n_dim = initial_base_.lin.kNumDim;
   int n_nodes = params_.GetBasePolyDurations().size() + 1;
@@ -95,7 +96,7 @@ NlpFactory::MakeBaseVariablesHermite () const
     StateLin3d init  = std::get<1>(tuple);
     StateLin3d final = std::get<2>(tuple);
 
-    auto nodes = std::make_shared<NodeValues>(init.kNumDim,  n_nodes, id);
+    auto nodes = std::make_shared<BaseNodes>(init.kNumDim,  n_nodes, id);
     nodes->InitializeNodes(init.p_, final.p_, params_.GetTotalTime());
 
     std::vector<int> dimensions = {X,Y,Z};
@@ -148,10 +149,10 @@ NlpFactory::MakeBaseVariablesHermite () const
   return vars;
 }
 
-std::vector<NodeValues::Ptr>
+std::vector<NodeVariables::Ptr>
 NlpFactory::MakeEndeffectorVariables () const
 {
-  std::vector<NodeValues::Ptr> vars;
+  std::vector<NodeVariables::Ptr> vars;
 
   // Endeffector Motions
   double T = params_.GetTotalTime();
@@ -188,10 +189,10 @@ NlpFactory::MakeEndeffectorVariables () const
   return vars;
 }
 
-std::vector<NodeValues::Ptr>
+std::vector<NodeVariables::Ptr>
 NlpFactory::MakeForceVariables () const
 {
-  std::vector<NodeValues::Ptr> vars;
+  std::vector<NodeVariables::Ptr> vars;
 
   double T = params_.GetTotalTime();
   for (auto ee : initial_ee_W_.GetEEsOrdered()) {

@@ -78,7 +78,7 @@ public:
   Jacobian GetJacobianOfPosWrtDurations(double t_global) const;
 
   // possibly move to different class
-//  bool IsConstantPhase(double t) const;
+  bool IsConstantPhase(double t) const;
 
 private:
   int GetSegmentID(double t_global, const VecTimes& durations) const;

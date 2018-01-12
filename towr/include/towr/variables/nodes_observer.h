@@ -14,11 +14,11 @@
 namespace towr {
 
 
-class NodeValues;
+class NodeVariables;
 
 class NodesObserver {
 public:
-  using SubjectPtr = NodeValues*;
+  using SubjectPtr = NodeVariables*;
 
   NodesObserver(SubjectPtr node_values);
 

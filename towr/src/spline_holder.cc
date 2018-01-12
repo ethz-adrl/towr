@@ -10,11 +10,11 @@
 namespace towr{
 
 
-SplineHolder::SplineHolder (NodeValues::Ptr base_lin_nodes,
-                            NodeValues::Ptr base_ang_nodes,
+SplineHolder::SplineHolder (NodeVariables::Ptr base_lin_nodes,
+                            NodeVariables::Ptr base_ang_nodes,
                             const std::vector<double>& base_poly_durations,
-                            std::vector<NodeValues::Ptr> ee_motion_nodes,
-                            std::vector<NodeValues::Ptr> ee_force_nodes,
+                            std::vector<NodeVariables::Ptr> ee_motion_nodes,
+                            std::vector<NodeVariables::Ptr> ee_force_nodes,
                             std::vector<ContactSchedule::Ptr> contact_schedule,
                             bool durations_change)
 {

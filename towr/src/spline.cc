@@ -7,9 +7,8 @@
 
 #include <towr/variables/spline.h>
 
-#include <towr/variables/node_values.h>
-
 #include <towr/variables/contact_schedule.h>
+#include "../include/towr/variables/node_variables.h"
 
 
 namespace towr {
@@ -184,18 +183,12 @@ Spline::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
 }
 
 
-//bool
-//Spline::IsConstantPhase (double t_global) const
-//{
-//  int phase_id = GetSegmentID(t_global, phase_durations_);
-//
-//  // always alternating
-//  bool first_phase_in_contact = nodes_->polynomial_info_.front().is_constant_;
-//  if (phase_id%2==0)
-//   return first_phase_in_contact;
-//  else
-//   return !first_phase_in_contact;
-//}
+bool
+Spline::IsConstantPhase (double t_global) const
+{
+  int poly_id = GetSegmentID(t_global, poly_durations_);
+  return node_values_->IsInConstantPhase(poly_id);
+}
 
 
 } /* namespace towr */

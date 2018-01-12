@@ -11,11 +11,11 @@
 #include <string>
 #include <vector>
 
-#include "node_values.h"
+#include "node_variables.h"
 
 namespace towr {
 
-class PhaseNodes : public NodeValues {
+class PhaseNodes : public NodeVariables {
 public:
   using Ptr = std::shared_ptr<PhaseNodes>;
   using OptNodeIs = int;
@@ -41,12 +41,13 @@ public:
   virtual VecDurations ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const override;
   virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const override;
   virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const override;
+  bool IsInConstantPhase(int poly_id) const override;
 
   int GetPhase(int node_id) const;
 
   // node is considered constant if either left or right polynomial
   // belongs to a constant phase.
-  bool IsConstantNode(int node_id) const;
+  virtual bool IsConstantNode(int node_id) const;
   // those that are not fixed by bounds
   NodeIds GetIndicesOfNonConstantNodes() const;
 

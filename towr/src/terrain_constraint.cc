@@ -15,7 +15,7 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <towr/variables/node_values.h>
+#include "../include/towr/variables/node_variables.h"
 
 
 namespace towr {

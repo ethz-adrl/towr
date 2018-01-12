@@ -26,7 +26,7 @@ PhaseNodes::PhaseNodes (int phase_count,
                         const std::string& name,
                         int n_polys_in_changing_phase,
                         Type type)
-    :NodeValues(kDim3d, name)
+    :NodeVariables(kDim3d, name)
 {
   polynomial_info_ = BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type);
   optnode_to_node_ = SetNodeMappings(polynomial_info_);
@@ -149,10 +149,16 @@ PhaseNodes::IsConstantNode (int node_id) const
   // node is considered constant if either left or right polynomial
   // belongs to a constant phase
   for (int poly_id : GetAdjacentPolyIds(node_id))
-    if (polynomial_info_.at(poly_id).is_constant_)
+    if (IsInConstantPhase(poly_id))
       is_constant = true;
 
   return is_constant;
+}
+
+bool
+PhaseNodes::IsInConstantPhase(int poly_id) const
+{
+  return polynomial_info_.at(poly_id).is_constant_;
 }
 
 PhaseNodes::NodeIds

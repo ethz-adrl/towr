@@ -113,8 +113,7 @@ TOWR::GetTrajectory (double dt) const
     state.base_.ang = AngularStateConverter::GetState(spline_holder_.GetBaseAngular()->GetPoint(t));
 
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
-//    state.ee_contact_.at(ee) = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->IsInContact(t);
-//    state.ee_contact_.at(ee) = ee_motion->IsConstantPhase(t);
+      state.ee_contact_.at(ee) = spline_holder_.GetEEMotion(ee)->IsConstantPhase(t);
       state.ee_motion_.at(ee)  = spline_holder_.GetEEMotion(ee)->GetPoint(t);
       state.ee_forces_.at(ee)  = spline_holder_.GetEEForce(ee)->GetPoint(t).p_;
     }
