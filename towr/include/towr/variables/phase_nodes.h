@@ -11,10 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <ifopt/composite.h>
-
 #include "node_values.h"
-
 
 namespace towr {
 
@@ -40,14 +37,15 @@ public:
   int GetNodeIDAtStartOfPhase(int phase) const;
 
   // because one node soemtimes represents two
-  virtual std::vector<NodeInfo> GetNodeInfoAtOptIndex(int idx) const override;
+  virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const override;
   virtual VecDurations ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const override;
   virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const override;
   virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const override;
 
   int GetPhase(int node_id) const;
 
-  // smell invert this, because doing it everywhere anyway
+  // node is considered constant if either left or right polynomial
+  // belongs to a constant phase.
   bool IsConstantNode(int node_id) const;
   // those that are not fixed by bounds
   NodeIds GetIndicesOfNonConstantNodes() const;
@@ -57,16 +55,11 @@ private:
   int GetPolyIDAtStartOfPhase(int phase) const;
 
   struct PolyInfo {
-    PolyInfo() {};
-    PolyInfo(int phase, int poly_id_in_phase,
-             int num_polys_in_phase, bool is_constant)
-        :phase_(phase), poly_id_in_phase_(poly_id_in_phase),
-         num_polys_in_phase_(num_polys_in_phase), is_constant_(is_constant) {}
-
     int phase_;
     int poly_id_in_phase_;
     int num_polys_in_phase_;
-    bool is_constant_; // zmp_ this shouldn't be here, has to do with phases
+    bool is_constant_;
+    PolyInfo(int phase, int poly_id_in_phase, int n_polys_in_phase, bool is_constant);
   };
   std::vector<PolyInfo> polynomial_info_;
   std::vector<PolyInfo> BuildPolyInfos(int phase_count,
@@ -74,10 +67,8 @@ private:
                              int n_polys_in_changing_phase,
                              Type type) const;
 
-  void SetBoundsEEMotion();
-  void SetBoundsEEForce();
-
   void SetNodeMappings();
+  std::vector<int> GetAdjacentPolyIds(int node_id) const;
 
 
   // maps from the nodes that are actually optimized over
@@ -85,6 +76,8 @@ private:
   // twice in a constant phase.
   std::map<OptNodeIs, NodeIds > optnode_to_node_; // lookup
 
+  void SetBoundsEEMotion();
+  void SetBoundsEEForce();
 
 };
 } /* namespace towr */

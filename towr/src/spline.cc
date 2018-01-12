@@ -141,7 +141,7 @@ Spline::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
 
         int node = node_values_->GetNodeId(poly_id,side);
 
-        if (node == info.id_) {
+        if (node == info.node_id_) {
           double val = cubic_polys_.at(poly_id).GetDerivativeOf(dxdt, side, info.deriv_, t_local);
 
           // if only want structure

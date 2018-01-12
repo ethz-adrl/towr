@@ -104,26 +104,26 @@ ForceConstraint::FillJacobianBlock (std::string var_set,
     int row = 0;
     for (int f_node_id : pure_stance_force_node_ids_) {
 
-        // unilateral force
-        int phase   = ee_force_->GetPhase(f_node_id);
-        Vector3d p  = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during phase
-        Vector3d n  = terrain_->GetNormalizedBasis(HeightMap::Normal,   p.x(), p.y());
-        Vector3d t1 = terrain_->GetNormalizedBasis(HeightMap::Tangent1, p.x(), p.y());
-        Vector3d t2 = terrain_->GetNormalizedBasis(HeightMap::Tangent2, p.x(), p.y());
+      // unilateral force
+      int phase   = ee_force_->GetPhase(f_node_id);
+      Vector3d p  = ee_motion_->GetValueAtStartOfPhase(phase); // doesn't change during phase
+      Vector3d n  = terrain_->GetNormalizedBasis(HeightMap::Normal,   p.x(), p.y());
+      Vector3d t1 = terrain_->GetNormalizedBasis(HeightMap::Tangent1, p.x(), p.y());
+      Vector3d t2 = terrain_->GetNormalizedBasis(HeightMap::Tangent2, p.x(), p.y());
 
-        for (auto dim : {X,Y,Z}) {
-          int idx = ee_force_->Index(f_node_id, kPos, dim);
+      for (auto dim : {X,Y,Z}) {
+        int idx = ee_force_->Index(f_node_id, kPos, dim);
 
-          int row_reset=row;
+        int row_reset=row;
 
-          jac.coeffRef(row_reset++, idx) = n(dim);              // unilateral force
-          jac.coeffRef(row_reset++, idx) = t1(dim)-mu_*n(dim);  // f_t1 <  mu*n
-          jac.coeffRef(row_reset++, idx) = t1(dim)+mu_*n(dim);  // f_t1 > -mu*n
-          jac.coeffRef(row_reset++, idx) = t2(dim)-mu_*n(dim);  // f_t2 <  mu*n
-          jac.coeffRef(row_reset++, idx) = t2(dim)+mu_*n(dim);  // f_t2 > -mu*n
-        }
+        jac.coeffRef(row_reset++, idx) = n(dim);              // unilateral force
+        jac.coeffRef(row_reset++, idx) = t1(dim)-mu_*n(dim);  // f_t1 <  mu*n
+        jac.coeffRef(row_reset++, idx) = t1(dim)+mu_*n(dim);  // f_t1 > -mu*n
+        jac.coeffRef(row_reset++, idx) = t2(dim)-mu_*n(dim);  // f_t2 <  mu*n
+        jac.coeffRef(row_reset++, idx) = t2(dim)+mu_*n(dim);  // f_t2 > -mu*n
+      }
 
-        row += n_constraints_per_node_;
+      row += n_constraints_per_node_;
     }
   }
 

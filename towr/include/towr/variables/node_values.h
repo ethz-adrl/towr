@@ -40,22 +40,6 @@ public:
   using VecDurations = std::vector<double>;
 
 
-  struct NodeInfo {
-
-    int id_; // the actual id of the node, not the optimized node
-    MotionDerivative deriv_;
-    int dim_;
-
-    // for use with std map
-    bool operator <( const NodeInfo &rhs ) const
-    {
-       if         (id_ != rhs.id_)    return    id_ < rhs.id_;
-       else if (deriv_ != rhs.deriv_) return deriv_ < rhs.deriv_;
-       else                           return dim_   < rhs.dim_;
-    }
-  };
-
-
   // smell remove this c'tor
   // b/c doesn't fully initialize object
   NodeValues (int n_dim, const std::string& name);
@@ -64,13 +48,22 @@ public:
 
 
   // ------ virtual functions -------------
-  virtual std::vector<NodeInfo> GetNodeInfoAtOptIndex(int idx) const;
+  struct IndexInfo {
+    int node_id_; // the actual id of the node, not the optimized node
+    MotionDerivative deriv_;
+    int dim_;
+
+    int operator==(const IndexInfo& right) const;
+  };
+
+  virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const;
+
   virtual VecDurations ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const;
   virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const;
   virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const;
 
 
-  virtual void InitializeVariables(const VectorXd& initial_pos,
+  virtual void InitializeNodes(const VectorXd& initial_pos,
                                    const VectorXd& final_pos,
                                    double t_total);
 
@@ -112,22 +105,12 @@ public:
 
 protected:
   int n_dim_;
-
-  std::vector<int> GetAdjacentPolyIds(int node_id) const;
-
   mutable VecBound bounds_;
   std::vector<Node> nodes_;
 
-
-  void CacheNodeInfoToIndexMappings();
 private:
-
   void UpdateObservers() const;
   std::vector<NodesObserver*> observers_;
-
-
-  std::map<NodeInfo, int> node_info_to_idx;
-
 };
 
 } /* namespace towr */

@@ -16,8 +16,9 @@
 
 namespace towr {
 
-using namespace ifopt;
+
 using namespace xpp;
+using namespace ifopt;
 
 
 PhaseNodes::PhaseNodes (int phase_count,
@@ -29,7 +30,6 @@ PhaseNodes::PhaseNodes (int phase_count,
 {
   polynomial_info_ = BuildPolyInfos(phase_count, is_in_contact_at_start, n_polys_in_changing_phase, type);
 
-
   SetNodeMappings();
 
   int n_opt_variables = optnode_to_node_.size() * 2*n_dim_;
@@ -38,7 +38,7 @@ PhaseNodes::PhaseNodes (int phase_count,
   // re initialize, because number of optimization variables changed
   nodes_  = std::vector<Node>(polynomial_info_.size()+1);
   bounds_ = VecBound(GetRows(), NoBound);
-  CacheNodeInfoToIndexMappings();
+//  CacheNodeInfoToIndexMappings();
 
   if (type == Motion)
     SetBoundsEEMotion();
@@ -91,16 +91,16 @@ PhaseNodes::SetNodeMappings ()
   optnode_to_node_[opt_id].push_back(last_node_id);
 }
 
-std::vector<PhaseNodes::NodeInfo>
+std::vector<PhaseNodes::IndexInfo>
 PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
 {
-  std::vector<NodeInfo> nodes;
+  std::vector<IndexInfo> nodes;
 
   // always two consecutive node pairs are equal
   int n_opt_values_per_node_ = 2*n_dim_;
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
-  NodeInfo node;
+  IndexInfo node;
   node.deriv_ = internal_id<n_dim_? kPos : kVel;
   node.dim_   = internal_id%n_dim_;
 
@@ -108,7 +108,7 @@ PhaseNodes::GetNodeInfoAtOptIndex(int idx) const
   // because one index can represent multiple node (during constant phase)
   int opt_node = std::floor(idx/n_opt_values_per_node_);
   for (auto node_id : optnode_to_node_.at(opt_node)) {
-    node.id_ = node_id;
+    node.node_id_ = node_id;
     nodes.push_back(node);
   }
 
@@ -200,6 +200,24 @@ PhaseNodes::GetNodeIDAtStartOfPhase (int phase) const
   return GetNodeId(poly_id, Side::Start);
 }
 
+std::vector<int>
+PhaseNodes::GetAdjacentPolyIds (int node_id) const
+{
+  std::vector<int> poly_ids;
+  int last_node_id = nodes_.size()-1;
+
+  if (node_id==0)
+    poly_ids.push_back(0);
+  else if (node_id==last_node_id)
+    poly_ids.push_back(last_node_id-1);
+  else {
+    poly_ids.push_back(node_id-1);
+    poly_ids.push_back(node_id);
+  }
+
+  return poly_ids;
+}
+
 void
 PhaseNodes::SetBoundsEEMotion ()
 {
@@ -208,7 +226,7 @@ PhaseNodes::SetBoundsEEMotion ()
     auto node = GetNodeInfoAtOptIndex(idx).front(); // bound idx by first node it represents
 
     // endeffector is not allowed to move if in stance phase
-    if (IsConstantNode(node.id_)) {
+    if (IsConstantNode(node.node_id_)) {
       if (node.deriv_ == kVel)
         bounds_.at(idx) = BoundZero;
     }
@@ -225,9 +243,9 @@ PhaseNodes::SetBoundsEEForce ()
 {
   for (int idx=0; idx<GetRows(); ++idx) {
 
-    NodeInfo n0 = GetNodeInfoAtOptIndex(idx).front(); // only one node anyway
+    IndexInfo n0 = GetNodeInfoAtOptIndex(idx).front(); // only one node anyway
 
-    if (!IsConstantNode(n0.id_)) {
+    if (!IsConstantNode(n0.node_id_)) {
 
 //      if (n0.deriv_ == kPos) {
 //
@@ -248,6 +266,15 @@ PhaseNodes::SetBoundsEEForce ()
     }
 
   }
+}
+
+PhaseNodes::PolyInfo::PolyInfo(int phase, int poly_id_in_phase,
+                               int num_polys_in_phase, bool is_constant)
+    :phase_(phase),
+     poly_id_in_phase_(poly_id_in_phase),
+     num_polys_in_phase_(num_polys_in_phase),
+     is_constant_(is_constant)
+{
 }
 
 } /* namespace towr */

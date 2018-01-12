@@ -96,7 +96,7 @@ NlpFactory::MakeBaseVariablesHermite () const
     StateLin3d final = std::get<2>(tuple);
 
     auto nodes = std::make_shared<NodeValues>(init.kNumDim,  n_nodes, id);
-    nodes->InitializeVariables(init.p_, final.p_, params_.GetTotalTime());
+    nodes->InitializeNodes(init.p_, final.p_, params_.GetTotalTime());
 
     std::vector<int> dimensions = {X,Y,Z};
     nodes->AddStartBound(kPos, dimensions, init.p_);
@@ -171,7 +171,7 @@ NlpFactory::MakeEndeffectorVariables () const
 
 
 
-    nodes->InitializeVariables(initial_ee_W_.at(ee), final_ee_pos_W, T);
+    nodes->InitializeNodes(initial_ee_W_.at(ee), final_ee_pos_W, T);
 
     // actually initial Z position should be constrained as well...-.-
     nodes->AddStartBound(kPos, {X,Y}, initial_ee_W_.at(ee));
@@ -205,7 +205,7 @@ NlpFactory::MakeForceVariables () const
                                               PhaseNodes::Force);
 
     Vector3d f_stance(0.0, 0.0, model_.dynamic_model_->GetStandingZForce());
-    nodes->InitializeVariables(f_stance, f_stance, T);
+    nodes->InitializeNodes(f_stance, f_stance, T);
     vars.push_back(nodes);
   }
 

@@ -37,13 +37,13 @@ NodeValues::NodeValues (int n_dim, int n_nodes, const std::string& name)
   bounds_ = VecBound(GetRows(), NoBound);
 
   // default, non initialized values
-  CacheNodeInfoToIndexMappings();
+//  CacheNodeInfoToIndexMappings();
 }
 
 void
-NodeValues::InitializeVariables(const VectorXd& initial_pos,
-                                const VectorXd& final_pos,
-                                double t_total)
+NodeValues::InitializeNodes(const VectorXd& initial_pos,
+                            const VectorXd& final_pos,
+                            double t_total)
 {
   VectorXd dp = final_pos-initial_pos;
   VectorXd average_velocity = dp/t_total;
@@ -56,40 +56,35 @@ NodeValues::InitializeVariables(const VectorXd& initial_pos,
   }
 }
 
-void
-NodeValues::CacheNodeInfoToIndexMappings ()
-{
-  for (int idx=0; idx<GetRows(); ++idx)
-    for (auto info : GetNodeInfoAtOptIndex(idx))
-      node_info_to_idx[info] = idx;
-}
-
-// reverse of the below
-// remember that not every node is optimized over, but some are put together
 int
 NodeValues::Index(int node_id, MotionDerivative deriv, int dim) const
 {
-  NodeInfo n;
-  n.id_ = node_id;
-  n.deriv_ = deriv;
-  n.dim_ = dim;
-  return node_info_to_idx.at(n);
+  IndexInfo n;
+  n.node_id_ = node_id;
+  n.deriv_   = deriv;
+  n.dim_     = dim;
+
+  // could also cache this as map for more efficiency, but adding complexity
+  for (int idx=0; idx<GetRows(); ++idx)
+    for ( IndexInfo node_info : GetNodeInfoAtOptIndex(idx))
+      if ( node_info == n )
+        return idx;
 }
 
 // reverse of the above
-std::vector<NodeValues::NodeInfo>
+std::vector<NodeValues::IndexInfo>
 NodeValues::GetNodeInfoAtOptIndex (int idx) const
 {
-  std::vector<NodeInfo> nodes;
+  std::vector<IndexInfo> nodes;
 
   // always two consecutive node pairs are equal
   int n_opt_values_per_node_ = 2*n_dim_;
   int internal_id = idx%n_opt_values_per_node_; // 0...6 (p.x, p.y, p.z, v.x, v.y. v.z)
 
-  NodeInfo node;
+  IndexInfo node;
   node.deriv_ = internal_id<n_dim_? kPos : kVel;
   node.dim_   = internal_id%n_dim_;
-  node.id_    = std::floor(idx/n_opt_values_per_node_);
+  node.node_id_    = std::floor(idx/n_opt_values_per_node_);
 
   nodes.push_back(node);
 
@@ -103,7 +98,7 @@ NodeValues::GetValues () const
 
   for (int idx=0; idx<x.rows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      x(idx) = nodes_.at(info.id_).at(info.deriv_)(info.dim_);
+      x(idx) = nodes_.at(info.node_id_).at(info.deriv_)(info.dim_);
 
   return x;
 }
@@ -113,7 +108,7 @@ NodeValues::SetVariables (const VectorXd& x)
 {
   for (int idx=0; idx<x.rows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      nodes_.at(info.id_).at(info.deriv_)(info.dim_) = x(idx);
+      nodes_.at(info.node_id_).at(info.deriv_)(info.dim_) = x(idx);
 
   UpdateObservers();
 }
@@ -163,7 +158,7 @@ NodeValues::AddBound (int node_id, MotionDerivative d, int dim, double val)
 {
   for (int idx=0; idx<GetRows(); ++idx)
     for (auto info : GetNodeInfoAtOptIndex(idx))
-      if (info.id_==node_id && info.deriv_==d && info.dim_==dim)
+      if (info.node_id_==node_id && info.deriv_==d && info.dim_==dim)
         bounds_.at(idx) = Bounds(val, val);
 }
 
@@ -203,32 +198,13 @@ NodeValues::GetBoundaryNodes(int poly_id) const
   return nodes;
 };
 
-std::vector<int>
-NodeValues::GetAdjacentPolyIds (int node_id) const
+
+int
+NodeValues::IndexInfo::operator==(const IndexInfo& right) const
 {
-  std::vector<int> poly_ids;
-  int last_node_id = nodes_.size()-1;
-
-  if (node_id==0)
-    poly_ids.push_back(0);
-  else if (node_id==last_node_id)
-    poly_ids.push_back(last_node_id-1);
-  else {
-    poly_ids.push_back(node_id-1);
-    poly_ids.push_back(node_id);
-  }
-
-  return poly_ids;
-}
-
-//void
-//NodeValues::SetBoundsAboveGround ()
-//{
-//  double z_height = 0.0;
-//  for (int idx=0; idx<GetRows(); ++idx)
-//    for (auto info : GetNodeInfo(idx))
-//      if (info.deriv_==kPos && info.dim_==Z)
-//        bounds_.at(idx) = Bounds(z_height, +1.0e20);
-//}
+  return (node_id_ == right.node_id_)
+      && (deriv_   == right.deriv_)
+      && (dim_     == right.dim_);
+};
 
 } /* namespace towr */
