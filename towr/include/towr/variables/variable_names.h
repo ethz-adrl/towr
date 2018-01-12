@@ -13,24 +13,24 @@
 namespace towr {
 namespace id {
 
-static const std::string base_linear         = "base_lin_";
-static const std::string base_angular        = "base_ang_";
-static const std::string endeffectors_motion = "ee_motion_";
-static const std::string contact_schedule    = "ee_schedule";
-static const std::string endeffector_force   = "ee_force_";
+static const std::string base_lin_nodes    = "base_lin";
+static const std::string base_ang_nodes    = "base_ang";
+static const std::string ee_motion_nodes   = "ee_motion_";
+static const std::string ee_force_nodes    = "ee_force_";
+static const std::string contact_schedule  = "ee_schedule";
 
 
-static std::string GetEEMotionId(uint ee)
+static std::string EEMotionNodes(uint ee)
 {
-  return  endeffectors_motion + "_xy_" + std::to_string(ee);
+  return  ee_motion_nodes + std::to_string(ee);
 }
 
-static std::string GetEEForceId(uint ee)
+static std::string EEForceNodes(uint ee)
 {
-  return  endeffector_force + std::to_string(ee);
+  return  ee_force_nodes + std::to_string(ee);
 }
 
-static std::string GetEEScheduleId(uint ee)
+static std::string EESchedule(uint ee)
 {
   return  contact_schedule + std::to_string(ee);
 }

@@ -15,6 +15,7 @@
 #include <towr/variables/angular_state_converter.h>
 #include <towr/variables/spline.h>
 #include <towr/variables/phase_nodes.h>
+#include <towr/variables/contact_schedule.h>
 
 
 namespace towr {
@@ -31,9 +32,9 @@ TOWR::SetInitialState (const RobotStateCartesian& curr_state)
 }
 
 void TOWR::SetParameters(const State3dEuler& final_base,
-                                          double total_time,
-                                          const RobotModel& model,
-                                          HeightMap::Ptr terrain)
+                         double total_time,
+                         const RobotModel& model,
+                         HeightMap::Ptr terrain)
 {
   final_base_ = final_base;
 //  // height depends on terrain
@@ -60,6 +61,8 @@ TOWR::BuildNLP () const
   for (auto c : factory.GetVariableSets())
     nlp.AddVariableSet(c);
 
+  spline_holder_ = factory.spline_holder_;
+
   for (ConstraintName name : params_.GetUsedConstraints())
     for (auto c : factory.GetConstraint(name))
       nlp.AddConstraintSet(c);
@@ -82,13 +85,13 @@ void TOWR::SolveNLP()
 }
 
 std::vector<TOWR::RobotStateVec>
-TOWR::GetIntermediateSolutions (double dt) const
+TOWR::GetIntermediateSolutions (double dt)
 {
   std::vector<RobotStateVec> trajectories;
 
   for (int iter=0; iter<nlp_.GetIterationCount(); ++iter) {
-    auto opt_var = nlp_.GetOptVariables(iter);
-    trajectories.push_back(GetTrajectory(opt_var, dt));
+    nlp_.SetOptVariables(iter); // this changes the values linked to the spline_holder
+    trajectories.push_back(GetTrajectory(dt));
   }
 
   return trajectories;
@@ -97,30 +100,22 @@ TOWR::GetIntermediateSolutions (double dt) const
 TOWR::RobotStateVec
 TOWR::GetTrajectory (double dt) const
 {
-  return GetTrajectory(nlp_.GetOptVariables(), dt);
-}
-
-TOWR::RobotStateVec
-TOWR::GetTrajectory (const VariablesCompPtr& vars,
-                                      double dt) const
-{
   RobotStateVec trajectory;
   double t=0.0;
   double T = params_.GetTotalTime();
 
   while (t<=T+1e-5) {
 
-    RobotStateCartesian state(initial_ee_W_.GetEECount());
+    int n_ee = spline_holder_.GetEEMotion().size();
+    RobotStateCartesian state(n_ee);
 
-    state.base_.lin = vars->GetComponent<Spline>(id::base_linear)->GetPoint(t);
-    state.base_.ang = AngularStateConverter::GetState(vars->GetComponent<Spline>(id::base_angular)->GetPoint(t));
+    state.base_.lin = spline_holder_.GetBaseLinear()->GetPoint(t);
+    state.base_.ang = AngularStateConverter::GetState(spline_holder_.GetBaseAngular()->GetPoint(t));
 
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
-//      state.ee_contact_.at(ee) = vars->GetComponent<ContactSchedule>(id::GetEEScheduleId(ee))->IsInContact(t);
-      auto ee_motion = vars->GetComponent<PhaseNodes>(id::GetEEMotionId(ee));
-      state.ee_contact_.at(ee) = ee_motion->IsConstantPhase(t);
-      state.ee_motion_.at(ee)  = ee_motion->GetPoint(t);
-      state.ee_forces_.at(ee)  = vars->GetComponent<Spline>(id::GetEEForceId(ee))->GetPoint(t).p_;
+      state.ee_contact_.at(ee) = spline_holder_.GetEEMotion(ee)->IsConstantPhase(t);
+      state.ee_motion_.at(ee)  = spline_holder_.GetEEMotion(ee)->GetPoint(t);
+      state.ee_forces_.at(ee)  = spline_holder_.GetEEForce(ee)->GetPoint(t).p_;
     }
 
     state.t_global_ = t;

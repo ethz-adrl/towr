@@ -15,14 +15,14 @@
 
 #include <xpp_states/cartesian_declarations.h>
 
-#include <towr/variables/node_values.h>
+#include "../variables/node_variables.h"
 
 
 namespace towr {
 
 class NodeCost : public ifopt::CostTerm {
 public:
-  using Nodes = std::shared_ptr<NodeValues>;
+  using Nodes = std::shared_ptr<NodeVariables>;
 
   NodeCost (const std::string& nodes_id);
   virtual ~NodeCost () = default;

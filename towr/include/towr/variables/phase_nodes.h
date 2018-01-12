@@ -11,94 +11,76 @@
 #include <string>
 #include <vector>
 
-#include <ifopt/composite.h>
-
-#include "node_values.h"
-
+#include "node_variables.h"
 
 namespace towr {
 
-class PhaseNodes : public NodeValues {
-protected:
-  using ContactVector = std::vector<bool>;
+class PhaseNodes : public NodeVariables {
+public:
   using Ptr = std::shared_ptr<PhaseNodes>;
+  using OptNodeIs = int;
+  using NodeIds   = std::vector<int>;
+
 
   enum Type {Force, Motion};
-  PhaseNodes (int n_dim,
-              int phase_count,
+  PhaseNodes (int phase_count,
               bool is_in_contact_at_start,
               const std::string& name,
               int n_polys_in_changing_phase,
               Type type);
+
   virtual ~PhaseNodes() = default;
 
-public:
-  virtual void InitializeVariables(const VectorXd& initial_pos,
-                                   const VectorXd& final_pos,
-                                   const VecDurations& phase_durations) override;
 
-  /** @brief called by contact schedule when variables are updated.
-   *
-   * Converts phase durations to specific polynomial durations.
-   */
-  void UpdateDurations(const VecDurations& phase_durations);
 
   Eigen::Vector3d GetValueAtStartOfPhase(int phase) const;
   int GetNodeIDAtStartOfPhase(int phase) const;
 
-  bool IsConstantPhase(double t) const;
-
-protected:
-  bool IsConstantNode(int node_id) const;
-
-  int GetPolyIDAtStartOfPhase(int phase) const;
-
-
-private:
-  PolyInfoVec BuildPolyInfos(int phase_count,
-                             bool is_in_contact_at_start,
-                             int n_polys_in_changing_phase,
-                             Type type) const;
-
-  VecDurations ConvertPhaseToSpline(const VecDurations& phase_durations) const;
-
-  VecDurations phase_durations_; // as opposed to poly_durations in node_values
-};
-
-
-class EEMotionNodes : public PhaseNodes {
-public:
-  using Ptr = std::shared_ptr<EEMotionNodes>;
-
-  EEMotionNodes (int phase_count,
-                 bool is_in_contact_at_start,
-                 const std::string& name,
-                 int n_polys_in_changing_phase);
-  virtual ~EEMotionNodes() = default;
-
-  bool IsContactNode(int node_id) const;
-
-  virtual VecBound GetBounds() const override;
-};
-
-
-class EEForceNodes : public PhaseNodes {
-public:
-  using Ptr = std::shared_ptr<EEForceNodes>;
-
-  EEForceNodes (int phase_count,
-                bool is_in_contact_at_start,
-                const std::string& name,
-                int n_polys_in_changing_phase);
-  virtual ~EEForceNodes() = default;
-
-  bool IsStanceNode(int node_id) const;
+  // because one node soemtimes represents two
+  virtual std::vector<IndexInfo> GetNodeInfoAtOptIndex(int idx) const override;
+  virtual VecDurations ConvertPhaseToPolyDurations (const VecDurations& phase_durations) const override;
+  virtual double GetDerivativeOfPolyDurationWrtPhaseDuration (int polynomial_id) const override;
+  virtual int GetNumberOfPrevPolynomialsInPhase(int polynomial_id) const override;
+  bool IsInConstantPhase(int poly_id) const override;
 
   int GetPhase(int node_id) const;
 
-  virtual VecBound GetBounds() const override;
-};
+  // node is considered constant if either left or right polynomial
+  // belongs to a constant phase.
+  virtual bool IsConstantNode(int node_id) const;
+  // those that are not fixed by bounds
+  NodeIds GetIndicesOfNonConstantNodes() const;
 
+
+private:
+  int GetPolyIDAtStartOfPhase(int phase) const;
+
+  struct PolyInfo {
+    int phase_;
+    int poly_id_in_phase_;
+    int num_polys_in_phase_;
+    bool is_constant_;
+    PolyInfo(int phase, int poly_id_in_phase, int n_polys_in_phase, bool is_constant);
+  };
+  std::vector<PolyInfo> polynomial_info_;
+  static std::vector<PolyInfo> BuildPolyInfos(int phase_count,
+                             bool is_in_contact_at_start,
+                             int n_polys_in_changing_phase,
+                             Type type);
+
+  static std::map<OptNodeIs, NodeIds> SetNodeMappings(const std::vector<PolyInfo>&);
+  std::vector<int> GetAdjacentPolyIds(int node_id) const;
+
+
+  // maps from the nodes that are actually optimized over
+  // to all the nodes. Optimized nodes are sometimes used
+  // twice in a constant phase.
+  std::map<OptNodeIs, NodeIds > optnode_to_node_; // lookup
+
+  void SetBoundsEEMotion();
+  void SetBoundsEEForce();
+
+};
 } /* namespace towr */
 
 #endif /* TOWR_VARIABLES_PHASE_NODES_H_ */

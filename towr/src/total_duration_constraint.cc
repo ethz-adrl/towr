@@ -22,7 +22,7 @@ TotalDurationConstraint::TotalDurationConstraint (double T_total, int ee)
 void
 TotalDurationConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(x->GetComponent(id::GetEEScheduleId(ee_)));
+  schedule_ = std::dynamic_pointer_cast<ContactSchedule>(x->GetComponent(id::EESchedule(ee_)));
 }
 
 Eigen::VectorXd

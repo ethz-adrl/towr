@@ -15,7 +15,7 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <towr/variables/node_values.h>
+#include "../include/towr/variables/node_variables.h"
 
 
 namespace towr {
@@ -34,7 +34,7 @@ TerrainConstraint::TerrainConstraint (const HeightMap::Ptr& terrain,
 void
 TerrainConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  ee_motion_ = x->GetComponent<EEMotionNodes>(ee_motion_id_);
+  ee_motion_ = x->GetComponent<PhaseNodes>(ee_motion_id_);
 
   // skip first node, b/c already constrained by initial stance
   for (int id=1; id<ee_motion_->GetNodes().size(); ++id)
@@ -52,7 +52,7 @@ TerrainConstraint::GetValues () const
   auto nodes = ee_motion_->GetNodes();
   int row = 0;
   for (int id : node_ids_) {
-    Vector3d p = nodes.at(id).at(kPos);
+    Vector3d p = nodes.at(id).val_;
     g(row++) = p.z() - terrain_->GetHeight(p.x(), p.y());
   }
 
@@ -66,7 +66,7 @@ TerrainConstraint::GetBounds () const
 
   int row = 0;
   for (int id : node_ids_) {
-    if (ee_motion_->IsContactNode(id))
+    if (ee_motion_->IsConstantNode(id))
       bounds.at(row) = BoundZero;
     else
       bounds.at(row) = Bounds(0.0, max_z_distance_above_terrain_);
@@ -88,7 +88,7 @@ TerrainConstraint::FillJacobianBlock (std::string var_set,
 
       jac.coeffRef(row, ee_motion_->Index(id, kPos, Z)) = 1.0;
 
-      Vector3d p = nodes.at(id).at(kPos);
+      Vector3d p = nodes.at(id).val_;
       for (auto dim : {X,Y})
         jac.coeffRef(row, ee_motion_->Index(id, kPos, dim)) = -terrain_->GetDerivativeOfHeightWrt(To2D(dim), p.x(), p.y());
 

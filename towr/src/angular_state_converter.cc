@@ -63,7 +63,7 @@ AngularStateConverter::GetDerivOfAngVelWrtCoeff(double t) const
   // convert to sparse, but also regard 0.0 as non-zero element, because
   // could turn nonzero during the course of the program
   JacobianRow vel = ori.v_.transpose().sparseView(1.0, -1.0);
-  Jacobian dVel_du  = euler_->GetJacobian(t, kVel);
+  Jacobian dVel_du  = euler_->GetJacobianWrtNodes(t, kVel);
 
   for (auto dim : {X,Y,Z}) {
     Jacobian dM_du = GetDerivMwrtCoeff(t,dim);
@@ -98,8 +98,8 @@ AngularStateConverter::GetDerivOfAngAccWrtCoeff (double t) const
   JacobianRow vel = ori.v_.transpose().sparseView(1.0, -1.0);
   JacobianRow acc = ori.a_.transpose().sparseView(1.0, -1.0);
 
-  Jacobian dVel_du  = euler_->GetJacobian(t, kVel);
-  Jacobian dAcc_du  = euler_->GetJacobian(t, kAcc);
+  Jacobian dVel_du  = euler_->GetJacobianWrtNodes(t, kVel);
+  Jacobian dAcc_du  = euler_->GetJacobianWrtNodes(t, kAcc);
 
 
   for (auto dim : {X,Y,Z}) {
@@ -295,14 +295,14 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) con
 AngularStateConverter::JacobianRow
 AngularStateConverter::GetJac (double t, MotionDerivative deriv, Coords3D dim) const
 {
-  return euler_->GetJacobian(t, deriv).row(dim);
+  return euler_->GetJacobianWrtNodes(t, deriv).row(dim);
 }
 
 int
 AngularStateConverter::OptVariablesOfCurrentPolyCount (double t) const
 {
   // zmp_ attention, not the same thing
-  return euler_->GetJacobian(t, kPos).cols();
+  return euler_->GetJacobianWrtNodes(t, kPos).cols();
 }
 
 } /* namespace towr */

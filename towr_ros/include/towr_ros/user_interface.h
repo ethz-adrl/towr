@@ -52,7 +52,7 @@ public:
    * @brief  Constructs default object to interact with framework.
    */
   UserInterface ();
-  virtual ~UserInterface () {};
+  virtual ~UserInterface () = default;
 
 private:
   ::ros::Subscriber key_sub_;          ///< the input key hits to the node.

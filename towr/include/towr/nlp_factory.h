@@ -22,6 +22,8 @@
 #include <towr/models/robot_model.h>
 #include <towr/optimization_parameters.h>
 
+#include <towr/variables/spline_holder.h>
+
 
 namespace towr {
 
@@ -45,6 +47,7 @@ public:
   using EndeffectorsPos  = xpp::EndeffectorsPos;
   using State3dEuler     = xpp::State3dEuler;
 
+
   NlpFactory () = default;
   virtual ~NlpFactory () = default;
 
@@ -59,6 +62,9 @@ public:
   ContraintPtrVec GetConstraint(ConstraintName name) const;
   CostPtrVec GetCost(const CostName& id, double weight) const;
 
+  // smell move to new class at some point
+  mutable SplineHolder spline_holder_;
+
 private:
   OptimizationParameters params_;
   HeightMap::Ptr terrain_;
@@ -68,12 +74,12 @@ private:
   State3dEuler final_base_;
 
 
+
   // variables
-  VariablePtrVec MakeBaseVariablesHermite() const;
-  VariablePtrVec MakeEndeffectorVariables() const;
-  VariablePtrVec MakeForceVariables() const;
-  VariablePtrVec MakeContactScheduleVariables(const VariablePtrVec& ee_motion,
-                                              const VariablePtrVec& ee_force) const;
+  std::vector<NodeVariables::Ptr> MakeBaseVariablesHermite() const;
+  std::vector<NodeVariables::Ptr> MakeEndeffectorVariables() const;
+  std::vector<NodeVariables::Ptr> MakeForceVariables() const;
+  std::vector<ContactSchedule::Ptr> MakeContactScheduleVariables() const;
 
   // constraints
   ContraintPtrVec MakeDynamicConstraint() const;

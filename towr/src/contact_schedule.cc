@@ -9,7 +9,7 @@
 
 #include <numeric> // std::accumulate
 
-#include <towr/variables/spline.h>
+//#include <towr/variables/spline.h>
 #include <towr/variables/variable_names.h>
 
 
@@ -21,7 +21,7 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
                                   double min_duration,
                                   double max_duration)
     // -1 since last phase-duration is not optimized over, but comes from total time
-    :VariableSet(timings.size()-1, id::GetEEScheduleId(ee))
+    :VariableSet(timings.size()-1, id::EESchedule(ee))
 {
   durations_ = timings;
   t_total_ = std::accumulate(timings.begin(), timings.end(), 0.0);
@@ -30,17 +30,16 @@ ContactSchedule::ContactSchedule (EndeffectorID ee,
 }
 
 void
-ContactSchedule::AddObserver (const PhaseNodesPtr& o)
+ContactSchedule::AddObserver (ContactScheduleObserver* const o)
 {
   observers_.push_back(o);
-  UpdateObservers();
 }
 
 void
 ContactSchedule::UpdateObservers () const
 {
-  for (auto& o : observers_)
-    o->UpdateDurations(durations_);
+  for (auto& spline : observers_)
+    spline->UpdatePhaseDurations();
 }
 
 Eigen::VectorXd
@@ -77,17 +76,14 @@ ContactSchedule::GetBounds () const
 }
 
 ContactSchedule::Jacobian
-ContactSchedule::GetJacobianOfPos (double t_global, const std::string& id) const
+ContactSchedule::GetJacobianOfPos (int current_phase,
+                                   const VectorXd& dx_dT,
+                                   const VectorXd& xd) const
 {
-  PhaseNodesPtr o = GetObserver(id);
-  VectorXd dx_dT  = o->GetDerivativeOfPosWrtPhaseDuration(t_global);
-  VectorXd xd     = o->GetPoint(t_global).v_;
-
   int n_dim = xd.rows();
   Eigen::MatrixXd jac = Eigen::MatrixXd::Zero(n_dim, GetRows());
 
-  int current_phase = Spline::GetSegmentID(t_global, durations_);
-  bool in_last_phase = current_phase == durations_.size()-1;
+  bool in_last_phase = (current_phase == durations_.size()-1);
 
   // duration of current phase expands and compressed spline
   if (!in_last_phase)
@@ -107,17 +103,6 @@ ContactSchedule::GetJacobianOfPos (double t_global, const std::string& id) const
   // could turn nonzero during the course of the program
   // as durations change and t_global falls into different spline
   return jac.sparseView(1.0, -1.0);
-}
-
-ContactSchedule::PhaseNodesPtr
-ContactSchedule::GetObserver (const std::string& id) const
-{
-  for (const auto& o : observers_)
-    if (o->GetName() == id)
-      return o;
-
-  std::cerr << "Observer \"" << id << "\" doesn't exist." << std::endl;
-  assert(false);
 }
 
 

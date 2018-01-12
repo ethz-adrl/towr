@@ -37,7 +37,7 @@ public:
 
 
 private:
-  EEMotionNodes::Ptr ee_motion_;
+  PhaseNodes::Ptr ee_motion_;
   HeightMap::Ptr terrain_;
 
   std::string ee_motion_id_;

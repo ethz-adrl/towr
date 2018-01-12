@@ -15,7 +15,7 @@
 #include <xpp_states/cartesian_declarations.h>
 #include <xpp_states/state.h>
 
-#include <towr/variables/node_values.h>
+#include "../include/towr/variables/node_variables.h"
 
 namespace towr {
 
@@ -27,25 +27,21 @@ SwingConstraint::SwingConstraint (std::string ee_motion)
     :ConstraintSet(kSpecifyLater, "Swing-Constraint-" + ee_motion)
 {
   ee_motion_id_ = ee_motion;
-//  AddOptimizationVariables(opt_vars);
 }
 
 void
 towr::SwingConstraint::InitVariableDependedQuantities (const VariablesPtr& x)
 {
-  ee_motion_ = x->GetComponent<EEMotionNodes>(ee_motion_id_);
-  auto nodes = ee_motion_->GetNodes();
-  usable_nodes_ = nodes.size() - 1; // because swinging last node has no further node
+  ee_motion_ = x->GetComponent<PhaseNodes>(ee_motion_id_);
 
+  pure_swing_node_ids_ = ee_motion_->GetIndicesOfNonConstantNodes();
+  pure_swing_node_ids_.erase(pure_swing_node_ids_.begin()); // skip first node
+  pure_swing_node_ids_.pop_back(); // because swinging last node has no further node
 
-  int constraint_count = 0;
-  for (int i=node_start_; i<usable_nodes_; ++i)
-    if (!ee_motion_->IsContactNode(i)) {
-      constraint_count += 2*kDim2d; // constrain xy position and velocity of every swing node
-//      constraint_count += 1; // if swing in apex is constrained
-    }
+  // constrain xy position and velocity of every swing node
+  // add +1 per node if swing in apex is constrained
+  int constraint_count =  pure_swing_node_ids_.size()*2*kDim2d;
 
-//  SetName("Swing-Constraint-" + ee_motion);
   SetRows(constraint_count);
 }
 
@@ -54,29 +50,24 @@ SwingConstraint::GetValues () const
 {
   VectorXd g(GetRows());
 
-
   int row = 0;
   auto nodes = ee_motion_->GetNodes();
-  for (int i=node_start_; i<usable_nodes_; ++i) {
-    if (!ee_motion_->IsContactNode(i)) {
+  for (int node_id : pure_swing_node_ids_) {
 
-      // assumes two splines per swingphase and starting and ending in stance
-      auto curr = nodes.at(i);
+    // assumes two splines per swingphase and starting and ending in stance
+    auto curr = nodes.at(node_id);
 
-      Vector2d prev = nodes.at(i-1).at(kPos).topRows<kDim2d>();;
-      Vector2d next = nodes.at(i+1).at(kPos).topRows<kDim2d>();
+    Vector2d prev = nodes.at(node_id-1).val_.topRows<kDim2d>();
+    Vector2d next = nodes.at(node_id+1).val_.topRows<kDim2d>();
 
-      Vector2d distance_xy    = next - prev;
-      Vector2d xy_center      = prev + 0.5*distance_xy;
-      Vector2d des_vel_center = distance_xy/t_swing_avg_; // linear interpolation not accurate
-      for (auto dim : {X,Y}) {
-        g(row++) = curr.at(kPos)(dim) - xy_center(dim);
-        g(row++) = curr.at(kVel)(dim) - des_vel_center(dim);
-      }
-
-//      g(row++) = curr.at(kPos).z() - swing_height_in_world_;
-
+    Vector2d distance_xy    = next - prev;
+    Vector2d xy_center      = prev + 0.5*distance_xy;
+    Vector2d des_vel_center = distance_xy/t_swing_avg_; // linear interpolation not accurate
+    for (auto dim : {X,Y}) {
+      g(row++) = curr.val_(dim) - xy_center(dim);
+      g(row++) = curr.deriv_(dim) - des_vel_center(dim);
     }
+    //      g(row++) = curr.pos.z() - swing_height_in_world_;
   }
 
   return g;
@@ -95,26 +86,23 @@ SwingConstraint::FillJacobianBlock (std::string var_set,
   if (var_set == ee_motion_->GetName()) {
 
     int row = 0;
-    for (int i=node_start_; i<usable_nodes_; ++i) {
-      if (!ee_motion_->IsContactNode(i)) { // swing-phase
+    for (int node_id : pure_swing_node_ids_) {
 
-        for (auto dim : {X,Y}) {
-          // position constraint
-          jac.coeffRef(row, ee_motion_->Index(i,   kPos, dim)) =  1.0;  // current node
-          jac.coeffRef(row, ee_motion_->Index(i+1, kPos, dim)) = -0.5;  // next node
-          jac.coeffRef(row, ee_motion_->Index(i-1, kPos, dim)) = -0.5;  // previous node
-          row++;
+      for (auto dim : {X,Y}) {
+        // position constraint
+        jac.coeffRef(row, ee_motion_->Index(node_id,   kPos, dim)) =  1.0;  // current node
+        jac.coeffRef(row, ee_motion_->Index(node_id+1, kPos, dim)) = -0.5;  // next node
+        jac.coeffRef(row, ee_motion_->Index(node_id-1, kPos, dim)) = -0.5;  // previous node
+        row++;
 
-          // velocity constraint
-          jac.coeffRef(row, ee_motion_->Index(i,   kVel, dim)) =  1.0;              // current node
-          jac.coeffRef(row, ee_motion_->Index(i+1, kPos, dim)) = -1.0/t_swing_avg_; // next node
-          jac.coeffRef(row, ee_motion_->Index(i-1, kPos, dim)) = +1.0/t_swing_avg_; // previous node
-          row++;
-        }
-
-//        jac.coeffRef(row, ee_motion_->Index(i, kPos, Z)) =  1.0;  // current node
-//        row++;
+        // velocity constraint
+        jac.coeffRef(row, ee_motion_->Index(node_id,   kVel, dim)) =  1.0;              // current node
+        jac.coeffRef(row, ee_motion_->Index(node_id+1, kPos, dim)) = -1.0/t_swing_avg_; // next node
+        jac.coeffRef(row, ee_motion_->Index(node_id-1, kPos, dim)) = +1.0/t_swing_avg_; // previous node
+        row++;
       }
+      //        jac.coeffRef(row, ee_motion_->Index(i, kPos, Z)) =  1.0;  // current node
+      //        row++;
     }
   }
 }

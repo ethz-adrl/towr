@@ -14,9 +14,9 @@
 
 #include <xpp_states/endeffectors.h>
 
-#include <ifopt/composite.h>
+#include <ifopt/leaves.h>
 
-#include "phase_nodes.h"
+#include "contact_schedule_observer.h"
 
 namespace towr {
 
@@ -24,7 +24,6 @@ class ContactSchedule : public ifopt::VariableSet {
 public:
   using Ptr           = std::shared_ptr<ContactSchedule>;
   using VecDurations  = std::vector<double>;
-  using PhaseNodesPtr = std::shared_ptr<PhaseNodes>;
   using EndeffectorID = xpp::EndeffectorID;
 
   ContactSchedule (EndeffectorID ee,
@@ -33,24 +32,30 @@ public:
                    double max_phase_duration);
   virtual ~ContactSchedule () = default;
 
-  void AddObserver(const PhaseNodesPtr& o);
-  void UpdateObservers() const;
+  VecDurations GetDurations() const { return durations_; };
+
+
+  void AddObserver(ContactScheduleObserver* const o);
 
   virtual VectorXd GetValues() const override;
   virtual void SetVariables(const VectorXd&) override;
   VecBound GetBounds () const override;
 
-  Jacobian GetJacobianOfPos(double t_global, const std::string& observer_name) const;
+  Jacobian GetJacobianOfPos(int current_phase,
+                            const VectorXd& dx_dT,
+                            const VectorXd& xd) const;
 
 
 private:
   double t_total_;
   ifopt::Bounds phase_duration_bounds_;
 
-  std::vector<PhaseNodesPtr> observers_;
-  PhaseNodesPtr GetObserver(const std::string& id) const;
+  std::vector<ContactScheduleObserver*> observers_;
 
   VecDurations durations_;
+
+
+  void UpdateObservers() const;
 };
 
 

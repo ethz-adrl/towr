@@ -39,8 +39,8 @@ public:
 
 
 private:
-  EEForceNodes::Ptr ee_force_;
-  EEMotionNodes::Ptr ee_motion_;
+  PhaseNodes::Ptr ee_force_;
+  PhaseNodes::Ptr ee_motion_;
 
   HeightMap::Ptr terrain_;
   double force_limit_normal_direction_;
@@ -48,6 +48,7 @@ private:
   int n_constraints_per_node_;
 
   EndeffectorID ee_;
+  std::vector<int> pure_stance_force_node_ids_;
 };
 
 } /* namespace towr */
