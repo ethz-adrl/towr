@@ -47,7 +47,7 @@ TerrainConstraint::GetValues () const
   auto nodes = ee_motion_->GetNodes();
   int row = 0;
   for (int id : node_ids_) {
-    Vector3d p = nodes.at(id).val_;
+    Vector3d p = nodes.at(id).p();
     g(row++) = p.z() - terrain_->GetHeight(p.x(), p.y());
   }
 
@@ -83,7 +83,7 @@ TerrainConstraint::FillJacobianBlock (std::string var_set,
 
       jac.coeffRef(row, ee_motion_->Index(id, kPos, Z)) = 1.0;
 
-      Vector3d p = nodes.at(id).val_;
+      Vector3d p = nodes.at(id).p();
       for (auto dim : {X,Y})
         jac.coeffRef(row, ee_motion_->Index(id, kPos, dim)) = -terrain_->GetDerivativeOfHeightWrt(To2D(dim), p.x(), p.y());
 

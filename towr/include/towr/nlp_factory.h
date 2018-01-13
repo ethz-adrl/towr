@@ -16,8 +16,6 @@
 #include <ifopt/constraint_set.h>
 #include <ifopt/cost_term.h>
 
-#include <towr/variables/base_state.h>
-
 #include <towr/models/robot_model.h>
 #include <towr/optimization_parameters.h>
 
@@ -44,6 +42,8 @@ public:
   using VariablePtrVec   = std::vector<ifopt::VariableSet::Ptr>;
   using ContraintPtrVec  = std::vector<ifopt::ConstraintSet::Ptr>;
   using CostPtrVec       = std::vector<ifopt::CostTerm::Ptr>;
+  using NewEEPos         = std::vector<Eigen::Vector3d>;
+  using Vector3d         = Eigen::Vector3d;
 
   NlpFactory () = default;
   virtual ~NlpFactory () = default;

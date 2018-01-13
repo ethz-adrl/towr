@@ -80,10 +80,10 @@ private:
   towr::BaseState ToBaseState(const xpp::State3d& base) const;
   towr::BaseState ToBaseState(const xpp::State3dEuler& base) const;
 
-  StateLinXd ToXpp(const towr::StateLinXd& towr) const;
+  StateLinXd ToXpp(const towr::State& towr) const;
 //  xpp::StateAng3d ToXpp(const towr::StateAng3d& towr) const;
 
-  StateAng3d GetState (const towr::StateLinXd& euler) const;
+  StateAng3d GetState (const towr::State& euler) const;
 
 
   Eigen::Vector3d GetUnique(const Eigen::Vector3d& zyx_non_unique) const;

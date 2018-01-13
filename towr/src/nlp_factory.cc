@@ -25,7 +25,6 @@
 
 namespace towr {
 
-
 void
 NlpFactory::Init (const OptimizationParameters& params,
                   const HeightMap::Ptr& terrain,
@@ -37,11 +36,6 @@ NlpFactory::Init (const OptimizationParameters& params,
   params_   = params;
   terrain_  = terrain;
   model_    = model;
-
-//  initial_ee_W_ = ee_pos;
-//  initial_base_ = initial_base;
-//  final_base_ = final_base;
-
 
   new_initial_base_ = initial_base;
   new_final_base_   = final_base;
@@ -92,15 +86,15 @@ NlpFactory::MakeBaseVariablesHermite () const
   int n_nodes = params_.GetBasePolyDurations().size() + 1;
 
   auto linear  = std::make_tuple(id::base_lin_nodes,
-                                 new_initial_base_.pos_xyz_,
-                                 new_initial_base_.vel_xyz_,
-                                 new_final_base_.pos_xyz_,
-                                 new_final_base_.vel_xyz_);
+                                 new_initial_base_.lin.p(),
+                                 new_initial_base_.lin.v(),
+                                 new_final_base_.lin.p(),
+                                 new_final_base_.lin.v());
   auto angular = std::make_tuple(id::base_ang_nodes,
-                                 new_initial_base_.pos_rpy_,
-                                 new_initial_base_.vel_rpy_,
-                                 new_final_base_.pos_rpy_,
-                                 new_final_base_.vel_rpy_);
+                                 new_initial_base_.ang.p(),
+                                 new_initial_base_.ang.v(),
+                                 new_final_base_.ang.p(),
+                                 new_final_base_.ang.v());
 
   for (auto tuple : {linear, angular}) {
     std::string id   = std::get<0>(tuple);
@@ -179,13 +173,13 @@ NlpFactory::MakeEndeffectorVariables () const
                                               params_.ee_splines_per_swing_phase_,
                                               PhaseNodes::Motion);
 
-    double yaw = new_final_base_.pos_rpy_.z();
+    double yaw = new_final_base_.ang.p().z();
 
     // smell adapt to desired yaw state
 //    Eigen::Matrix3d w_R_b = GetQuaternionFromEulerZYX(yaw, 0.0, 0.0).toRotationMatrix();
     Eigen::Matrix3d w_R_b; w_R_b.setIdentity();
 
-    Vector3d final_ee_pos_W = new_final_base_.pos_xyz_ + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
+    Vector3d final_ee_pos_W = new_final_base_.lin.p() + w_R_b*model_.kinematic_model_->GetNominalStanceInBase().at(ee);
 
 
 

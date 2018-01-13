@@ -14,7 +14,6 @@
 
 #include <ifopt/problem.h>
 
-#include <towr/variables/base_state.h>
 #include <towr/variables/spline_holder.h>
 #include <towr/models/robot_model.h>
 

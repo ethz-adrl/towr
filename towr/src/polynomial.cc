@@ -1,113 +1,136 @@
+/******************************************************************************
+Copyright (c) 2017, Alexander W. Winkler, ETH Zurich. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+    * Neither the name of ETH ZURICH nor the names of its contributors may be
+      used to endorse or promote products derived from this software without
+      specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL ETH ZURICH BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+******************************************************************************/
 
 #include <towr/variables/polynomial.h>
 
 #include <cassert>
 #include <cmath>
 #include <stdexcept>
-#include <Eigen/Eigen>
 
 
 namespace towr {
-
 
 Polynomial::Polynomial (int order, int dim)
 {
   int n_coeff = order+1;
   for (int c=A; c<n_coeff; ++c) {
-    coeff_ids_.push_back(static_cast<PolynomialCoeff>(c));
+    coeff_ids_.push_back(static_cast<Coefficients>(c));
     coeff_.push_back(VectorXd::Zero(dim));
   }
-
-  n_dim_ = dim;
 }
 
-
-Eigen::VectorXd
-Polynomial::GetCoefficients (PolynomialCoeff c) const
-{
-  return coeff_.at(c);
-}
-
-void
-Polynomial::SetCoefficient (PolynomialCoeff coeff, const VectorXd& value)
-{
-  coeff_.at(coeff) = value;
-}
-
-StateLinXd Polynomial::GetPoint(double t_local) const
+State Polynomial::GetPoint(double t_local) const
 {
   // sanity checks
   if (t_local < 0.0)
     throw std::runtime_error("spliner.cc called with dt<0");
 
-  StateLinXd out(n_dim_);
+  int n_dim = coeff_.front().size();
+  State out(n_dim, 3);
 
   for (auto d : {kPos, kVel, kAcc})
-    for (PolynomialCoeff c : coeff_ids_)
+    for (Coefficients c : coeff_ids_)
       out.at(d) += GetDerivativeWrtCoeff(t_local, d, c)*coeff_.at(c);//GetCoefficients(c);
 
   return out;
 }
 
-void
-Polynomial::SetCoefficient (PolynomialCoeff c, int dim, double value)
-{
-  coeff_.at(c)(dim) = value;
-}
-
 double
-Polynomial::GetDerivativeWrtCoeff (double t, MotionDerivative deriv, PolynomialCoeff c) const
+Polynomial::GetDerivativeWrtCoeff (double t, Dx deriv, Coefficients c) const
 {
   if (c<deriv)  // risky/ugly business...
     return 0.0; // derivative not depended on this coefficient.
 
   switch (deriv) {
-    case kPos:   return               std::pow(t,c);   break;
-    case kVel:   return c*            std::pow(t,c-1); break;
-    case kAcc:   return c*(c-1)*      std::pow(t,c-2); break;
+    case kPos:   return         std::pow(t,c);   break;
+    case kVel:   return c*      std::pow(t,c-1); break;
+    case kAcc:   return c*(c-1)*std::pow(t,c-2); break;
   }
 }
 
 
-CubicHermitePoly::CubicHermitePoly (int dim) : Polynomial(3,dim)
+
+CubicHermitePoly::CubicHermitePoly (int dim)
+    : Polynomial(3,dim),
+      n0_(dim),
+      n1_(dim)
 {
+  T_ = 0.0;
 }
 
 void
 CubicHermitePoly::SetNodes (const Node& n0, const Node& n1, double T)
 {
-  coeff_[A] =  n0.val_;
-  coeff_[B] =  n0.deriv_;
-  coeff_[C] = -( 3*(n0.val_ - n1.val_) +  T*(2*n0.deriv_ + n1.deriv_) ) / std::pow(T,2);
-  coeff_[D] =  ( 2*(n0.val_ - n1.val_) +  T*(  n0.deriv_ + n1.deriv_) ) / std::pow(T,3);
+  coeff_[A] =  n0.p();
+  coeff_[B] =  n0.v();
+  coeff_[C] = -( 3*(n0.p() - n1.p()) +  T*(2*n0.v() + n1.v()) ) / std::pow(T,2);
+  coeff_[D] =  ( 2*(n0.p() - n1.p()) +  T*(  n0.v() + n1.v()) ) / std::pow(T,3);
 
   T_ = T;
   n0_ = n0;
   n1_ = n1;
 }
 
-
 double
-CubicHermitePoly::GetDerivativeOf (MotionDerivative dxdt, Side side,
-                                   MotionDerivative node_derivative, // pos or velocity node
-                                   double t_local) const
+CubicHermitePoly::GetDerivativeWrtStartNode (Dx dfdt,
+                                             Dx node_derivative, // pos or velocity node
+                                             double t_local) const
 {
-  switch (dxdt) {
+  switch (dfdt) {
     case kPos:
-      return GetDerivativeOfPosWrt(side, node_derivative, t_local);
+      return GetDerivativeOfPosWrtStartNode(node_derivative, t_local);
     case kVel:
-      return GetDerivativeOfVelWrt(side, node_derivative, t_local);
+      return GetDerivativeOfVelWrtStartNode(node_derivative, t_local);
     case kAcc:
-      return GetDerivativeOfAccWrt(side, node_derivative, t_local);
+      return GetDerivativeOfAccWrtStartNode(node_derivative, t_local);
     default:
       assert(false); // derivative not yet implemented
   }
 }
 
+double
+CubicHermitePoly::GetDerivativeWrtEndNode (Dx dfdt,
+                                           Dx node_derivative, // pos or velocity node
+                                           double t_local) const
+{
+  switch (dfdt) {
+    case kPos:
+      return GetDerivativeOfPosWrtEndNode(node_derivative, t_local);
+    case kVel:
+      return GetDerivativeOfVelWrtEndNode(node_derivative, t_local);
+    case kAcc:
+      return GetDerivativeOfAccWrtEndNode(node_derivative, t_local);
+    default:
+      assert(false); // derivative not yet implemented
+  }
+}
 
 double
-CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative node_value,
-                                         double t) const
+CubicHermitePoly::GetDerivativeOfPosWrtStartNode(Dx node_value,
+                                                 double t) const
 {
   double t2 = std::pow(t,2);
   double t3 = std::pow(t,3);
@@ -115,82 +138,99 @@ CubicHermitePoly::GetDerivativeOfPosWrt (Side side, MotionDerivative node_value,
   double T2 = std::pow(T_,2);
   double T3 = std::pow(T_,3);
 
-  switch (side) {
-    case Start:
-      switch (node_value) {
-        case kPos: return (2*t3)/T3 - (3*t2)/T2 + 1;
-        case kVel: return t - (2*t2)/T + t3/T2;
-      }
-
-    case End:
-      switch (node_value) {
-        case kPos: return (3*t2)/T2 - (2*t3)/T3;
-        case kVel: return t3/T2 - t2/T;
-      }
-
-    default: assert(false);
+  switch (node_value) {
+    case kPos: return (2*t3)/T3 - (3*t2)/T2 + 1;
+    case kVel: return t - (2*t2)/T + t3/T2;
+    default: assert(false); // only derivative wrt nodes values calculated
   }
 }
 
 double
-CubicHermitePoly::GetDerivativeOfVelWrt (Side side, MotionDerivative node_value,
-                                         double t) const
+CubicHermitePoly::GetDerivativeOfVelWrtStartNode (Dx node_value,
+                                                  double t) const
 {
   double t2 = std::pow(t,2);
   double T  = T_;
   double T2 = std::pow(T_,2);
   double T3 = std::pow(T_,3);
 
-  switch (side) {
-    case Start:
-      switch (node_value) {
-        case kPos: return (6*t2)/T3 - (6*t)/T2;
-        case kVel: return (3*t2)/T2 - (4*t)/T + 1;
-      }
-
-    case End:
-      switch (node_value) {
-        case kPos: return (6*t)/T2 - (6*t2)/T3;
-        case kVel: return (3*t2)/T2 - (2*t)/T;
-      }
-
-    default: assert(false);
+  switch (node_value) {
+    case kPos: return (6*t2)/T3 - (6*t)/T2;
+    case kVel: return (3*t2)/T2 - (4*t)/T + 1;
+    default: assert(false); // only derivative wrt nodes values calculated
   }
 }
 
-
 double
-CubicHermitePoly::GetDerivativeOfAccWrt (Side side, MotionDerivative node_value,
-                                         double t) const
+CubicHermitePoly::GetDerivativeOfAccWrtStartNode (Dx node_value,
+                                                  double t) const
 {
   double T  = T_;
   double T2 = std::pow(T_,2);
   double T3 = std::pow(T_,3);
 
-  switch (side) {
-    case Start:
-      switch (node_value) {
-        case kPos: return (12*t)/T3 - 6/T2;
-        case kVel: return (6*t)/T2 - 4/T;
-      }
+  switch (node_value) {
+    case kPos: return (12*t)/T3 - 6/T2;
+    case kVel: return (6*t)/T2 - 4/T;
+    default: assert(false); // only derivative wrt nodes values calculated
+  }
+}
 
-    case End:
-      switch (node_value) {
-        case kPos: return 6/T2 - (12*t)/T3;
-        case kVel: return (6*t)/T2 - 2/T;
-      }
+double
+CubicHermitePoly::GetDerivativeOfPosWrtEndNode (Dx node_value,
+                                                double t) const
+{
+  double t2 = std::pow(t,2);
+  double t3 = std::pow(t,3);
+  double T  = T_;
+  double T2 = std::pow(T_,2);
+  double T3 = std::pow(T_,3);
 
-    default: assert(false);
+  switch (node_value) {
+    case kPos: return (3*t2)/T2 - (2*t3)/T3;
+    case kVel: return t3/T2 - t2/T;
+    default: assert(false); // only derivative wrt nodes values calculated
+  }
+}
+
+double
+CubicHermitePoly::GetDerivativeOfVelWrtEndNode (Dx node_value,
+                                                double t) const
+{
+  double t2 = std::pow(t,2);
+  double T  = T_;
+  double T2 = std::pow(T_,2);
+  double T3 = std::pow(T_,3);
+
+  switch (node_value) {
+    case kPos: return (6*t)/T2 - (6*t2)/T3;
+    case kVel: return (3*t2)/T2 - (2*t)/T;
+    default: assert(false); // only derivative wrt nodes values calculated
+  }
+}
+
+double
+CubicHermitePoly::GetDerivativeOfAccWrtEndNode (Dx node_value,
+                                                double t) const
+{
+  double T  = T_;
+  double T2 = std::pow(T_,2);
+  double T3 = std::pow(T_,3);
+
+  switch (node_value) {
+    case kPos: return 6/T2 - (12*t)/T3;
+    case kVel: return (6*t)/T2 - 2/T;
+    default: assert(false); // only derivative wrt nodes values calculated
   }
 }
 
 Eigen::VectorXd
 CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
 {
-  VectorXd x0 = n0_.val_;
-  VectorXd x1 = n1_.val_;
-  VectorXd v0 = n0_.deriv_;
-  VectorXd v1 = n1_.deriv_;
+  VectorXd x0 = n0_.p();
+  VectorXd x1 = n1_.p();
+  VectorXd v0 = n0_.v();
+  VectorXd v1 = n1_.v();
 
   double t2 = std::pow(t,2);
   double t3 = std::pow(t,3);
@@ -205,26 +245,6 @@ CubicHermitePoly::GetDerivativeOfPosWrtDuration(double t) const
                  + (2*t2*(3*x0 - 3*x1 + 2*T*v0 + T*v1))/T3;
 
   return deriv;
-}
-
-const Eigen::VectorXd
-CubicHermitePoly::Node::at(MotionDerivative deriv) const {
-  if (deriv == kPos)
-    return val_;
-  else if (deriv == kVel)
-    return deriv_;
-  else
-    assert(false); // derivative not defined
-}
-
-Eigen::VectorXd&
-CubicHermitePoly::Node::at(MotionDerivative deriv) {
-  if (deriv == kPos)
-    return val_;
-  else if (deriv == kVel)
-    return deriv_;
-  else
-    assert(false); // derivative not defined
 }
 
 } // namespace towr

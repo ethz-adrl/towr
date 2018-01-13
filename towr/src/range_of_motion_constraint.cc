@@ -45,9 +45,9 @@ RangeOfMotionBox::GetRow (int node, int dim) const
 void
 RangeOfMotionBox::UpdateConstraintAtInstance (double t, int k, VectorXd& g) const
 {
-  Vector3d base_W = base_linear_->GetPoint(t).p_;
+  Vector3d base_W = base_linear_->GetPoint(t).p();
   AngularStateConverter::MatrixSXd b_R_w = converter_.GetRotationMatrixBaseToWorld(t).transpose();
-  Vector3d pos_ee_B = b_R_w*(ee_motion_->GetPoint(t).p_ - base_W);
+  Vector3d pos_ee_B = b_R_w*(ee_motion_->GetPoint(t).p() - base_W);
 
   g.middleRows(GetRow(k, X), kDim3d) = pos_ee_B;
 }
@@ -78,8 +78,8 @@ RangeOfMotionBox::UpdateJacobianAtInstance (double t, int k, Jacobian& jac,
   }
 
   if (var_set == id::base_ang_nodes) {
-    Vector3d base_W   = base_linear_->GetPoint(t).p_;
-    Vector3d ee_pos_W = ee_motion_->GetPoint(t).p_;
+    Vector3d base_W   = base_linear_->GetPoint(t).p();
+    Vector3d ee_pos_W = ee_motion_->GetPoint(t).p();
     Vector3d r_W = ee_pos_W - base_W;
     jac.middleRows(row_start, kDim3d) = converter_.GetDerivativeOfRotationMatrixRowWrtCoeff(t,r_W, true);
   }

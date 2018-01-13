@@ -32,7 +32,7 @@ BaseMotionConstraint::BaseMotionConstraint (const OptimizationParameters& params
   node_bounds_.at(LX) = ifopt::NoBound;
   node_bounds_.at(LY) = ifopt::NoBound;//Bounds(-0.05, 0.05);
 
-  double z_init = 0.46;//base_linear_.GetPoint(0.0).p_.z();
+  double z_init = 0.46;//base_linear_.GetPoint(0.0).p().z();
   node_bounds_.at(LZ) = Bounds(0.46, 0.55); // allow to move dev_z cm up and down
 
   SetRows(GetNumberOfNodes()*node_bounds_.size());
@@ -42,8 +42,8 @@ void
 BaseMotionConstraint::UpdateConstraintAtInstance (double t, int k,
                                                   VectorXd& g) const
 {
-  g.middleRows(GetRow(k, LX), kDim3d) = base_linear_->GetPoint(t).p_;
-  g.middleRows(GetRow(k, AX), kDim3d) = base_angular_->GetPoint(t).p_;
+  g.middleRows(GetRow(k, LX), kDim3d) = base_linear_->GetPoint(t).p();
+  g.middleRows(GetRow(k, AX), kDim3d) = base_angular_->GetPoint(t).p();
 }
 
 void

@@ -38,7 +38,7 @@ private:
   Nodes nodes_;
   std::string node_id_;
 
-  MotionDerivative deriv_;
+  Dx deriv_;
   int dim_;
 };
 

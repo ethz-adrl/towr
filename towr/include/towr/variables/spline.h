@@ -40,9 +40,7 @@ public:
   using Jacobian   = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 
   using VecTimes = std::vector<double>;
-  using Node     = CubicHermitePoly::Node;
   using VecNodes = std::vector<Node>;
-  using Side     = CubicHermitePoly::Side;
   using VecPoly  = std::vector<CubicHermitePoly>;
 
   // the constructor with constant durations
@@ -66,10 +64,10 @@ public:
 
 
 
-  const StateLinXd GetPoint(double t_global) const;
+  const State GetPoint(double t_global) const;
 
 
-  Jacobian GetJacobianWrtNodes(double t_global, MotionDerivative dxdt) const;
+  Jacobian GetJacobianWrtNodes(double t_global, Dx dxdt) const;
   Jacobian GetJacobianOfPosWrtDurations(double t_global) const;
 
   // possibly move to different class
@@ -97,7 +95,7 @@ private:
 
 
   // fill_with_zeros is to get sparsity
-  void FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
+  void FillJacobian (int poly_id, double t_local, Dx dxdt,
                      Jacobian& jac, bool fill_with_zeros) const;
 
 

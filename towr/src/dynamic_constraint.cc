@@ -55,7 +55,7 @@ DynamicConstraint::UpdateConstraintAtInstance(double t, int k, VectorXd& g) cons
   // acceleration base polynomial has with current values of optimization variables
   Vector6d acc_parametrization = Vector6d::Zero();
   acc_parametrization.middleRows(AX, kDim3d) = converter_.GetAngularAcceleration(t);
-  acc_parametrization.middleRows(LX, kDim3d) = base_linear_->GetPoint(t).a_;
+  acc_parametrization.middleRows(LX, kDim3d) = base_linear_->GetPoint(t).a();
 
   for (auto dim : AllDim6D)
     g(GetRow(k,dim)) = acc_model(dim) - acc_parametrization(dim);
@@ -129,15 +129,15 @@ DynamicConstraint::UpdateJacobianAtInstance(double t, int k, Jacobian& jac,
 void
 DynamicConstraint::UpdateModel (double t) const
 {
-  auto com_pos   = base_linear_->GetPoint(t).p_;
+  auto com_pos   = base_linear_->GetPoint(t).p();
   Vector3d omega = converter_.GetAngularVelocity(t);
 
 //  int n_ee = model_->GetEEIDs().size();
   std::vector<Vector3d> ee_pos(n_ee_);
   std::vector<Vector3d> ee_force(n_ee_);
   for (int ee=0; ee<n_ee_; ++ee) {
-    ee_force.at(ee) = ee_forces_.at(ee)->GetPoint(t).p_;
-    ee_pos.at(ee)   = ee_motion_.at(ee)->GetPoint(t).p_;
+    ee_force.at(ee) = ee_forces_.at(ee)->GetPoint(t).p();
+    ee_pos.at(ee)   = ee_motion_.at(ee)->GetPoint(t).p();
   }
 
   model_->SetCurrent(com_pos, omega, ee_force, ee_pos);

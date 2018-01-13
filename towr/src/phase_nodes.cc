@@ -70,7 +70,7 @@ PhaseNodes::SetNodeMappings (const std::vector<PolyInfo>& polynomial_info)
 
   int opt_id = 0;
   for (int i=0; i<polynomial_info.size(); ++i) {
-    int node_id_start = GetNodeId(i, CubicHermitePoly::Start);
+    int node_id_start = GetNodeId(i, Side::Start);
 
     optnode_to_node[opt_id].push_back(node_id_start);
     // use same value for next node if polynomial is constant
@@ -189,7 +189,7 @@ Eigen::Vector3d
 PhaseNodes::GetValueAtStartOfPhase (int phase) const
 {
   int node_id = GetNodeIDAtStartOfPhase(phase);
-  return GetNodes().at(node_id).val_;
+  return GetNodes().at(node_id).p();
 }
 
 int

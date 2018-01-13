@@ -26,47 +26,42 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <towr/variables/state.h>
 
-#include <vector>
 
 namespace towr {
 
-StateLinXd::StateLinXd (int dim)
+State::State (int dim, int n_derivatives)
 {
-  p_ = VectorXd::Zero(dim);
-  v_ = VectorXd::Zero(dim);
-  a_ = VectorXd::Zero(dim);
-}
-
-StateLinXd::StateLinXd (const VectorXd& _p,
-                        const VectorXd& _v,
-                        const VectorXd& _a)
-    :StateLinXd(_p.rows())
-{
-  p_ = _p;
-  v_ = _v;
-  a_ = _a;
+  values_ = std::vector<VectorXd>(n_derivatives, VectorXd::Zero(dim));
 }
 
 const Eigen::VectorXd
-StateLinXd::at (MotionDerivative deriv) const
+State::at (Dx deriv) const
 {
-  switch (deriv) {
-    case kPos:  return p_; break;
-    case kVel:  return v_; break;
-    case kAcc:  return a_; break;
-    default: assert(false); // derivative not part of state
-  }
+  return values_.at(deriv);
 }
 
 Eigen::VectorXd&
-StateLinXd::at (MotionDerivative deriv)
+State::at (Dx deriv)
 {
-  switch (deriv) {
-    case kPos:  return p_; break;
-    case kVel:  return v_; break;
-    case kAcc:  return a_; break;
-    default: assert(false); // derivative not part of state
-  }
+  return values_.at(deriv);
+}
+
+const Eigen::VectorXd
+State::p () const
+{
+  return at(kPos);
+}
+
+const Eigen::VectorXd
+State::v () const
+{
+  return at(kVel);
+}
+
+const Eigen::VectorXd
+State::a () const
+{
+  return at(kAcc);
 }
 
 } // namespace towr

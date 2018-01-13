@@ -42,7 +42,7 @@ OptimizationParameters::OptimizationParameters ()
       Terrain,
       Force,
 //      TotalTime, // Attention: this causes segfault in SNOPT
-//      Swing, // this is important for lifting leg
+      Swing, // this is important for lifting leg
 //      BaseRom, //  CAREFUL: restricts the base to be in a specific range->very limiting
   };
 

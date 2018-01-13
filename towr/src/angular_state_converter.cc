@@ -31,7 +31,7 @@ AngularStateConverter::AngularVel
 AngularStateConverter::GetAngularVelocity (double t) const
 {
   StateLin3d ori = euler_->GetPoint(t);
-  return GetAngularVelocity(ori.p_, ori.v_);
+  return GetAngularVelocity(ori.p(), ori.v());
 }
 
 AngularStateConverter::AngularVel
@@ -49,12 +49,12 @@ AngularStateConverter::GetDerivOfAngVelWrtCoeff(double t) const
   StateLin3d ori = euler_->GetPoint(t);
   // convert to sparse, but also regard 0.0 as non-zero element, because
   // could turn nonzero during the course of the program
-  JacobianRow vel = ori.v_.transpose().sparseView(1.0, -1.0);
+  JacobianRow vel = ori.v().transpose().sparseView(1.0, -1.0);
   Jacobian dVel_du  = euler_->GetJacobianWrtNodes(t, kVel);
 
   for (auto dim : {X,Y,Z}) {
     Jacobian dM_du = GetDerivMwrtCoeff(t,dim);
-    jac.row(dim) = vel*dM_du + GetM(ori.p_).row(dim)*dVel_du;
+    jac.row(dim) = vel*dM_du + GetM(ori.p()).row(dim)*dVel_du;
   }
 
   return jac;
@@ -70,7 +70,7 @@ AngularStateConverter::GetAngularAcceleration (double t) const
 AngularStateConverter::AngularAcc
 AngularStateConverter::GetAngularAcceleration (StateLin3d ori)
 {
-  return GetMdot(ori.p_, ori.v_)*ori.v_ + GetM(ori.p_)*ori.a_;
+  return GetMdot(ori.p(), ori.v())*ori.v() + GetM(ori.p())*ori.a();
 }
 
 AngularStateConverter::Jacobian
@@ -82,8 +82,8 @@ AngularStateConverter::GetDerivOfAngAccWrtCoeff (double t) const
   StateLin3d ori = euler_->GetPoint(t);
   // convert to sparse, but also regard 0.0 as non-zero element, because
   // could turn nonzero during the course of the program
-  JacobianRow vel = ori.v_.transpose().sparseView(1.0, -1.0);
-  JacobianRow acc = ori.a_.transpose().sparseView(1.0, -1.0);
+  JacobianRow vel = ori.v().transpose().sparseView(1.0, -1.0);
+  JacobianRow acc = ori.a().transpose().sparseView(1.0, -1.0);
 
   Jacobian dVel_du  = euler_->GetJacobianWrtNodes(t, kVel);
   Jacobian dAcc_du  = euler_->GetJacobianWrtNodes(t, kAcc);
@@ -95,9 +95,9 @@ AngularStateConverter::GetDerivOfAngAccWrtCoeff (double t) const
     Jacobian dM_du    = GetDerivMwrtCoeff(t,dim);
 
     jac.row(dim) = vel                               * dMdot_du
-                   + GetMdot(ori.p_, ori.v_).row(dim)* dVel_du
+                   + GetMdot(ori.p(), ori.v()).row(dim)* dVel_du
                    + acc                             * dM_du
-                   + GetM(ori.p_).row(dim)           * dAcc_du;
+                   + GetM(ori.p()).row(dim)           * dAcc_du;
   }
 
   return jac;
@@ -143,8 +143,8 @@ AngularStateConverter::GetDerivMwrtCoeff (double t, Coords3D ang_acc_dim) const
 {
   StateLin3d ori = euler_->GetPoint(t);
 
-  double z = ori.p_(Z);
-  double y = ori.p_(Y);
+  double z = ori.p()(Z);
+  double y = ori.p()(Y);
   JacobianRow jac_z = GetJac(t, kPos, Z);
   JacobianRow jac_y = GetJac(t, kPos, Y);
 
@@ -174,7 +174,7 @@ AngularStateConverter::MatrixSXd
 AngularStateConverter::GetRotationMatrixBaseToWorld (double t) const
 {
   StateLin3d ori = euler_->GetPoint(t);
-  return GetRotationMatrixBaseToWorld(ori.p_);
+  return GetRotationMatrixBaseToWorld(ori.p());
 }
 
 AngularStateConverter::MatrixSXd
@@ -220,9 +220,9 @@ AngularStateConverter::GetDerivativeOfRotationMatrixWrtCoeff (double t) const
   JacRowMatrix jac;
 
   StateLin3d ori = euler_->GetPoint(t);
-  double x = ori.p_(X);
-  double y = ori.p_(Y);
-  double z = ori.p_(Z);
+  double x = ori.p()(X);
+  double y = ori.p()(Y);
+  double z = ori.p()(Z);
 
   JacobianRow jac_x = GetJac(t, kPos, X);
   JacobianRow jac_y = GetJac(t, kPos, Y);
@@ -248,10 +248,10 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) con
 {
   StateLin3d ori = euler_->GetPoint(t);
 
-  double z  = ori.p_(Z);
-  double zd = ori.v_(Z);
-  double y  = ori.p_(Y);
-  double yd = ori.v_(Y);
+  double z  = ori.p()(Z);
+  double zd = ori.v()(Z);
+  double y  = ori.p()(Y);
+  double yd = ori.v()(Y);
 
   JacobianRow jac_z  = GetJac(t, kPos, Z);
   JacobianRow jac_y  = GetJac(t, kPos, Y);
@@ -280,7 +280,7 @@ AngularStateConverter::GetDerivMdotwrtCoeff (double t, Coords3D ang_acc_dim) con
 }
 
 AngularStateConverter::JacobianRow
-AngularStateConverter::GetJac (double t, MotionDerivative deriv, Coords3D dim) const
+AngularStateConverter::GetJac (double t, Dx deriv, Coords3D dim) const
 {
   return euler_->GetJacobianWrtNodes(t, deriv).row(dim);
 }

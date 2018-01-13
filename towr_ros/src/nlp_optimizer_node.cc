@@ -65,8 +65,8 @@ NlpOptimizerNode::NlpOptimizerNode ()
 
   // hardcode initial state
   towr::BaseState b;
-  b.pos_xyz_ = b.vel_xyz_ = b.pos_rpy_ = b.vel_rpy_ = Eigen::Vector3d::Zero();
-  b.pos_xyz_.z() = 0.46;
+  b.lin = b.ang = towr::Node(kDim3d);
+  b.lin.at(towr::kPos).z() = 0.46;
 
   std::vector<Eigen::Vector3d> ee_pos(4);
 
@@ -234,7 +234,7 @@ NlpOptimizerNode::GetTrajectory () const
     for (auto ee : state.ee_motion_.GetEEsOrdered()) {
       state.ee_contact_.at(ee) = spline_holder_.GetEEMotion(ee)->IsConstantPhase(t);
       state.ee_motion_.at(ee)  = ToXpp(spline_holder_.GetEEMotion(ee)->GetPoint(t));
-      state.ee_forces_.at(ee)  = spline_holder_.GetEEForce(ee)->GetPoint(t).p_;
+      state.ee_forces_.at(ee)  = spline_holder_.GetEEForce(ee)->GetPoint(t).p();
     }
 
     state.t_global_ = t;
@@ -246,25 +246,25 @@ NlpOptimizerNode::GetTrajectory () const
 }
 
 xpp::StateAng3d
-NlpOptimizerNode::GetState (const towr::StateLinXd& euler) const
+NlpOptimizerNode::GetState (const towr::State& euler) const
 {
   xpp::StateAng3d ang;
 
-  ang.q  = towr::AngularStateConverter::GetOrientation(euler.p_);
-  ang.w  = towr::AngularStateConverter::GetAngularVelocity(euler.p_, euler.v_);
+  ang.q  = towr::AngularStateConverter::GetOrientation(euler.p());
+  ang.w  = towr::AngularStateConverter::GetAngularVelocity(euler.p(), euler.v());
   ang.wd = towr::AngularStateConverter::GetAngularAcceleration(euler);
 
   return ang;
 }
 
 xpp::StateLinXd
-NlpOptimizerNode::ToXpp(const towr::StateLinXd& towr) const
+NlpOptimizerNode::ToXpp(const towr::State& towr) const
 {
   xpp::StateLinXd xpp(3);
 
-  xpp.p_ = towr.p_;
-  xpp.v_ = towr.v_;
-  xpp.a_ = towr.a_;
+  xpp.p_ = towr.p();
+  xpp.v_ = towr.v();
+  xpp.a_ = towr.a();
 
   return xpp;
 }
@@ -274,11 +274,11 @@ NlpOptimizerNode::ToBaseState(const State3d& base) const
 {
   towr::BaseState b;
 
-  b.pos_xyz_ = base.lin.p_;
-  b.vel_xyz_ = base.lin.v_;
+  b.lin.at(towr::kPos) = base.lin.p_;
+  b.lin.at(towr::kVel) = base.lin.v_;
 
-  b.pos_rpy_ = GetUnique(GetEulerZYXAngles(base.ang.q));
-  b.vel_rpy_ = Vector3d::Zero(); // smell still fill this
+  b.ang.at(towr::kPos) = GetUnique(GetEulerZYXAngles(base.ang.q));
+  b.ang.at(towr::kVel) = Vector3d::Zero(); // smell still fill this
 
   return b;
 }
@@ -288,11 +288,11 @@ NlpOptimizerNode::ToBaseState(const State3dEuler& base) const
 {
   towr::BaseState b;
 
-  b.pos_xyz_ = base.lin.p_;
-  b.vel_xyz_ = base.lin.v_;
+  b.lin.at(towr::kPos) = base.lin.p_;
+  b.lin.at(towr::kVel) = base.lin.v_;
 
-  b.pos_rpy_ = base.ang.p_;
-  b.vel_rpy_ = base.ang.v_;
+  b.ang.at(towr::kPos) = base.ang.p_;
+  b.ang.at(towr::kVel) = base.ang.v_;
 
   return b;
 }

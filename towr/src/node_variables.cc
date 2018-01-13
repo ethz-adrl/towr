@@ -21,7 +21,7 @@ NodeVariables::NodeVariables (int n_dim, const std::string& name)
 void
 NodeVariables::InitMembers(int n_nodes, int n_variables)
 {
-  nodes_  = std::vector<Node>(n_nodes);
+  nodes_  = std::vector<Node>(n_nodes, Node(n_dim_));
   bounds_ = VecBound(n_variables, ifopt::NoBound);
   SetRows(n_variables);
 }
@@ -35,9 +35,9 @@ NodeVariables::InitializeNodes(const VectorXd& initial_pos,
   VectorXd average_velocity = dp/t_total;
   int num_nodes = nodes_.size();
   for (int i=0; i<nodes_.size(); ++i) {
-    Node n;
-    n.val_ = initial_pos + i/static_cast<double>(num_nodes-1)*dp;
-    n.deriv_ = average_velocity;
+    Node n(n_dim_);
+    n.at(kPos) = initial_pos + i/static_cast<double>(num_nodes-1)*dp;
+    n.at(kVel) = average_velocity;
     nodes_.at(i) = n;
   }
 }
@@ -120,7 +120,7 @@ NodeVariables::GetNodeId (int poly_id, Side side)
   return poly_id + side;
 }
 
-const std::vector<NodeVariables::Node>
+const std::vector<Node>
 NodeVariables::GetBoundaryNodes(int poly_id) const
 {
   std::vector<Node> nodes;
@@ -147,7 +147,7 @@ NodeVariables::GetBounds () const
   return bounds_;
 }
 
-const std::vector<NodeVariables::Node>
+const std::vector<Node>
 NodeVariables::GetNodes() const
 {
   return nodes_;

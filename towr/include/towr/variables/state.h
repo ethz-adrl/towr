@@ -27,56 +27,98 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TOWR_VARIABLES_STATE_H_
 #define TOWR_VARIABLES_STATE_H_
 
+#include <vector>
 
 #include <Eigen/Dense>
 
 
 namespace towr {
 
-// smell possibly move to cartesian declarations
-enum MotionDerivative { kPos=0, kVel, kAcc };
+///< the values or derivative. For motions e.g. position, velocity, ...
+enum Dx { kPos=0, kVel, kAcc, kJerk };
 
 /**
- * @brief Represents position, velocity and acceleration in x-dimensions.
+ * @brief Stores at state comprised of values and higher-order derivatives.
+ *
+ * This state can represent a motion state with position, velocity and
+ * accelerations, but also a force-profiles with forces, force-derivatives etc.
  */
-class StateLinXd {
+class State {
 public:
   using VectorXd = Eigen::VectorXd;
 
-  VectorXd p_, v_, a_; ///< position, velocity and acceleration
-
   /**
-   * @brief  Constructs an object of dimensions dim.
+   * @brief Constructs a state object.
    *
-   * Be careful of default value, as zero dimensional object is bound to
-   * cause seg-fault at some point.
+   * @param dim  The number of dimensions this state has (e.g. x,y,z).
+   * @param n_derivatives  The number of derivatives. In control a state
+   *                       is usually made up of two (positions and velocities.
    */
-  explicit StateLinXd(int dim);
+  explicit State(int dim, int n_derivatives);
+  virtual ~State() = default;
 
   /**
-   * @brief Constructs object with specific position, velocity and acceleration.
-   * @param  p  Position of the state.
-   * @param  v  Velocity of the state.
-   * @param  a  Acceleration of the state.
-   *
-   * The dimensions are set to the number of rows of p.
+   * @brief   Read the state value or it's derivatives by index.
+   * @param   deriv  Index for that specific derivative (pos=0, vel=1, acc=2).
+   * @return  Read-only n-dimensional position, velocity or acceleration.
    */
-  explicit StateLinXd(const VectorXd& p, const VectorXd& v, const VectorXd& a);
-  virtual ~StateLinXd() = default;
+  const VectorXd at(Dx deriv) const;
 
   /**
-   * @brief  Read either position, velocity of acceleration by index.
-   * @param  deriv  Index for that specific derivative (pos=0, vel=1, acc=2).
-   * @return  Read only n-dimensional position, velocity or acceleration.
-   */
-  const VectorXd at(MotionDerivative deriv) const;
-
-  /**
-   * @brief  Read and write either position, velocity of acceleration by index.
-   * @param  deriv  Index for that specific derivative (pos=0, vel=1, acc=2).
+   * @brief   Read or write a specific state derivative by index.
+   * @param   deriv  Index for that specific derivative (pos=0, vel=1, acc=2).
    * @return  Read/write n-dimensional position, velocity or acceleration.
    */
-  VectorXd& at(MotionDerivative deriv);
+  VectorXd& at(Dx deriv);
+
+  /**
+   * @returns read access to the zero-derivative of the state, e.g. position.
+   */
+  const VectorXd p() const;
+
+  /**
+   * @returns read access to the first-derivative of the state, e.g. velocity.
+   */
+  const VectorXd v() const;
+
+  /**
+   * @returns read access to the second-derivative of the state, e.g. acceleration.
+   */
+  const VectorXd a() const;
+
+private:
+  std::vector<VectorXd> values_; ///< e.g. position, velocity and acceleration, ...
+};
+
+
+/**
+ * @brief A node represents the state of a trajectory at a specific time.
+ *
+ * Given a set of nodes, cubic polynomials can be used to smoothly interpolate
+ * between them. Therefore, if optimal node values have been found, the
+ * continuous trajectory for that spline can be reconstructed.
+ *
+ * In this framework a node only has position and velocity values, no
+ * acceleration.
+ */
+class Node : public State {
+public:
+  static const int n_derivatives = 2; ///< value and first derivative.
+
+  /**
+   * @brief Constructs a @dim - dimensional node (default zero-dimensional).
+   */
+  explicit Node(int dim = 0) : State(dim, n_derivatives) {};
+  virtual ~Node() = default;
+};
+
+
+/**
+ * @brief Can represent the 6Degree-of-Freedom floating base of a robot.
+ */
+struct BaseState {
+  Node lin; ///< linear position x,y,z and velocities.
+  Node ang; ///< angular euler roll, pitch, yaw and rates.
 };
 
 

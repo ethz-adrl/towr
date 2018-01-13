@@ -41,7 +41,7 @@ public:
   using Jacobian    = Eigen::SparseMatrix<double, Eigen::RowMajor>;
   using MatrixSXd   = Jacobian;
   using JacobianRow = Eigen::SparseVector<double, Eigen::RowMajor>;
-  using StateLin3d  = StateLinXd;
+  using StateLin3d  = State;
 
   AngularStateConverter () = default;
   AngularStateConverter (const Spline::Ptr&);
@@ -132,7 +132,7 @@ private:
    */
   int OptVariablesOfCurrentPolyCount(double t) const;
 
-  JacobianRow GetJac(double t, MotionDerivative deriv, Coords3D dim) const;
+  JacobianRow GetJac(double t, Dx deriv, Coords3D dim) const;
 };
 
 } /* namespace towr */

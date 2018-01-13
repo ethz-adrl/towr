@@ -15,7 +15,7 @@
 #include <ifopt/variable_set.h>
 
 #include "nodes_observer.h"
-#include "polynomial.h"
+#include "state.h"
 
 
 namespace towr {
@@ -29,14 +29,10 @@ namespace towr {
 class NodeVariables : public ifopt::VariableSet {
 public:
   using Ptr      = std::shared_ptr<NodeVariables>;
-  using Node     = CubicHermitePoly::Node;
-  using Side     = CubicHermitePoly::Side;
-  using Deriv    = MotionDerivative;
+  using Deriv    = Dx;
   using VecDurations = std::vector<double>;
 
-
-
-
+  enum Side {Start=0, End};
 
 
   struct IndexInfo {
@@ -80,8 +76,8 @@ public:
   // returns the two nodes that make up polynomial with "poly_id"
   const std::vector<Node> GetBoundaryNodes(int poly_id) const;
 
-
   static int GetNodeId(int poly_id, Side);
+
   // basically opposite of above
   int Index(int node_id, Deriv, int dim) const;
 
@@ -99,6 +95,8 @@ protected:
   VecBound bounds_;
 
   void InitMembers(int n_nodes, int n_variables);
+
+
 
 private:
   void UpdateObservers() const;

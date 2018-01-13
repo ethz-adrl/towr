@@ -82,7 +82,7 @@ Spline::GetLocalTime (double t_global, const VecTimes& durations) const
   return std::make_pair(id, t_local);
 }
 
-const StateLinXd
+const State
 Spline::GetPoint(double t_global) const
 {
   int id; double t_local;
@@ -114,7 +114,7 @@ Spline::SetPolyFromPhaseDurations(const VecTimes& phase_durations)
 
 
 Spline::Jacobian
-Spline::GetJacobianWrtNodes (double t_global, MotionDerivative dxdt) const
+Spline::GetJacobianWrtNodes (double t_global, Dx dxdt) const
 {
   int id; double t_local;
   std::tie(id, t_local) = GetLocalTime(t_global, poly_durations_);
@@ -130,17 +130,24 @@ Spline::GetJacobianWrtNodes (double t_global, MotionDerivative dxdt) const
 }
 
 void
-Spline::FillJacobian (int poly_id, double t_local, MotionDerivative dxdt,
+Spline::FillJacobian (int poly_id, double t_local, Dx dxdt,
                       Jacobian& jac, bool fill_with_zeros) const
 {
   for (int idx=0; idx<jac.cols(); ++idx) {
     for (auto info : node_values_->GetNodeInfoAtOptIndex(idx)) {
-      for (Side side : {Side::Start, Side::End}) { // every jacobian is affected by two nodes
+      for (auto side : {NodeVariables::Side::Start, NodeVariables::Side::End}) { // every jacobian is affected by two nodes
 
-        int node = node_values_->GetNodeId(poly_id,side);
+        int node = node_values_->GetNodeId(poly_id, side);
 
         if (node == info.node_id_) {
-          double val = cubic_polys_.at(poly_id).GetDerivativeOf(dxdt, side, info.node_deriv_, t_local);
+          double val = 0.0;
+
+          if (side == NodeVariables::Side::Start)
+            val = cubic_polys_.at(poly_id).GetDerivativeWrtStartNode(dxdt, info.node_deriv_, t_local);
+          else if (side == NodeVariables::Side::End)
+            val = cubic_polys_.at(poly_id).GetDerivativeWrtEndNode(dxdt, info.node_deriv_, t_local);
+          else
+            assert(false); // this shouldn't happen
 
           // if only want structure
           if (fill_with_zeros)
@@ -157,7 +164,7 @@ Spline::Jacobian
 Spline::GetJacobianOfPosWrtDurations (double t_global) const
 {
   VectorXd dx_dT  = GetDerivativeOfPosWrtPhaseDuration(t_global);
-  VectorXd xd     = GetPoint(t_global).v_;
+  VectorXd xd     = GetPoint(t_global).v();
   int current_phase = GetSegmentID(t_global, contact_schedule_->GetDurations());
 
   return contact_schedule_->GetJacobianOfPos(current_phase, dx_dT, xd);
@@ -169,7 +176,7 @@ Spline::GetDerivativeOfPosWrtPhaseDuration (double t_global) const
   int poly_id; double t_local;
   std::tie(poly_id, t_local) = GetLocalTime(t_global, poly_durations_);
 
-  VectorXd vel  = GetPoint(t_global).v_;
+  VectorXd vel  = GetPoint(t_global).v();
   VectorXd dxdT = cubic_polys_.at(poly_id).GetDerivativeOfPosWrtDuration(t_local);
 
   double inner_derivative = node_values_->GetDerivativeOfPolyDurationWrtPhaseDuration(poly_id);
